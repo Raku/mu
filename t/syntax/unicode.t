@@ -3,6 +3,13 @@
 use v6;
 require Test;
 
+# XXX - stops right here if GHC doesn't have unicode support.
+if eval 'my $二 = 2; sub 恆等($x) {$x}; 恆等($二)' != 3 {
+    plan 1;
+    skip("GHC was not compiled with Unicode support, bummer");
+    exit();
+}
+
 plan 18;
 
 # english ;-)
