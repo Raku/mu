@@ -9,7 +9,7 @@ Arrays
 
 =cut
 
-plan 35;
+plan 37;
 
 # array of strings
 
@@ -47,7 +47,7 @@ is(@array3[5], undef,  'got the right value at array3 index 5');
 
 my @array4 = @array2[2, 1, 0];
 
-is(+@array4, 3, 'the array4 has 5 elements');
+is(+@array4, 3, 'the array4 has 3 elements');
 is(@array4[0], undef,  'got the right value at array4 index 0');
 is(@array4[1], 1,      'got the right value at array4 index 1');
 is(@array4[2], 'test', 'got the right value at array4 index 2');
@@ -82,3 +82,11 @@ is(+@array7, 3, 'the array7 has 3 elements');
 is(@array7[0], 'baz', 'got the right value at array7 index 0');
 is(@array7[1], 'bar', 'got the right value at array7 index 1');
 is(@array7[2], 'foo', 'got the right value at array7 index 2');
+
+# odd slices
+
+my $result1 = (1, 2, 3, 4)[1];
+is($result1, 2, 'got the right value from the slice');
+
+my $result2 = [1, 2, 3, 4][2];
+is($result2, 3, 'got the right value from the slice');
