@@ -96,7 +96,7 @@ sub deny_cygwin {
 
 sub assert_ghc {
     my $self = shift;
-    my $ghc = $self->can_run('ghc');
+    my $ghc = $self->can_run($ENV{GHC} || 'ghc');
     my $ghcver = `$ghc --version`;
     ($ghcver =~ /Glasgow.*\bversion\s*(\S+)/s) or die << '.';
 *** Cannot find a runnable 'ghc' from path.

@@ -59,6 +59,12 @@ To install Pugs on your system, simply type this in the command line:
     make test
     make install
 
+Optionally you may use GHC environment variable to assign the ghc
+executable path before you run "perl Makefile.PL", for example:
+
+    export GHC=${HOME}/bin/ghc (bash)
+    setenv GHC ${HOME}/bin/ghc (csh)
+
 MAILING LISTS
 -------------
 
