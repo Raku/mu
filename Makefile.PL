@@ -152,7 +152,7 @@ sub set_postamble {
     my @srcfiles = map glob("$_/*.hs"), @srcdirs;
     postamble(<< ".");
 src/Config.hs :
-	$Config{perlpath} bin/generate_config > src/Config.hs
+	$Config{perlpath} util/generate_config > src/Config.hs
 
 $pugs : src/Config.hs @srcfiles $version_h
 	ghc --make -Wall -fno-warn-missing-signatures -fno-warn-name-shadowing -o pugs src/Main.hs -isrc
