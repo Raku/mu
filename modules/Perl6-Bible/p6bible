@@ -1,0 +1,5 @@
+#!/usr/bin/pugs
+
+my $document = "Perl6::Bible" ~ (@*ARGV ?? "::@*ARGV[0]" :: "");
+
+system "perldoc", $document;
