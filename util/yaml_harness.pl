@@ -29,7 +29,10 @@ $| = 1;
 GetOptions \our %Config, qw(--output-file|o=s --dry|n
 		--shuffle|s --recurse|r --ext=s@ --anonymous|a --exclude|X=s@);
 $Test::Harness::Verbose = 1;
-$Config{"output-file"} ||= "-";
+$Config{"output-file"} ||= "tests.yml"
+$Config{"recurse"} = 1 if not defined $Config{"recurse"};
+@ARGV = "t/" if !@ARGV;
+
 _build_ext_re();
 _build_exclude_re();
 

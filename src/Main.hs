@@ -194,7 +194,7 @@ printConfigInfo = do
     environ <- getEnvironment
     libs <- getLibs environ
     putStrLn $ unlines $
-        ["This is " ++ version ++ " built for" ++ getConfig "archname"
+        ["This is " ++ version ++ " built for " ++ getConfig "archname"
         ,""
         ,"Summary of pugs configuration:"
         ,"" ]

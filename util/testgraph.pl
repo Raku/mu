@@ -3,7 +3,7 @@ use warnings;
 use strict;
 use YAML 'Load';
 
-my $yamlfile = shift || 'tests.yaml';
+my $yamlfile = shift || 'tests.yml';
 
 #print "Loading $yamlfile\n";
 
