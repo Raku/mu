@@ -9,7 +9,7 @@ Tests for Synopsis 6
 
 =cut
 
-plan 12;
+plan 13;
 
 sub foobar ($var) {
     return $var;
@@ -70,3 +70,11 @@ $_ = $sub.();
 is($_, "-wibble-", 'sub closures close');
 $_ = $block.();
 is($_, "-quux-", 'block closures close');
+
+my @result;
+sub perl5sub {
+    push @result , $_[0]; 
+    push @result, $_[1];
+}
+perl5sub(<foo bar>);
+todo_is(@result, <foo bar>, 'use @_ in sub');
