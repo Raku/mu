@@ -335,7 +335,7 @@ Perl 6 has 22 precedence levels (fewer than Perl 5):
     tight and		&&
     tight or		|| ^^ //
     ternary		?? ::
-    assignment		= := ::= += -= **= xx=
+    assignment		= := ::= += -= **= xx= etc.
     list item separator	, ¥
     list op (rightward)	<== print push any all true not etc.
     pipe forward	==>
