@@ -9,8 +9,6 @@ skip("No Kwid parser yet");
 # This is psuedo code:
 
 =pod
-use Test;
-
 use Kwid::Parser;
 use Kwid::Formatter::bytecode;
 
@@ -23,3 +21,7 @@ for (sort <t/kwid/parser/*>) -> IO $file {
 }
 
 =cut
+
+for (qw(t/parser/00sample)) -> $file {
+    say $file;
+}
