@@ -28,8 +28,8 @@ instance Pretty VStr
 instance Pretty Exp where
     format (Val (VError msg (NonTerm pos))) = text "Syntax error at" <+> (text $ show pos) <+> format msg
     format (Val v) = format v
-    format (Syn x vs) = text "Syn" <+> format x $+$ (braces $ vcat (punctuate (text "; ") (map format vs)))
-    format (Statements lines) = (vcat $ punctuate (text " ; ") $ (map format) lines)
+    format (Syn x vs) = text "Syn" <+> format x $+$ (braces $ vcat (punctuate (text ";") (map format vs)))
+    format (Statements lines) = (vcat $ punctuate (text ";") $ (map format) lines)
     format (App sub invs args) = text "App" <+> format sub <+> parens (nest defaultIndent $ vcat (punctuate (text ", ") (map format $ invs ++ args)))
     format (Sym (Symbol scope name exp)) = text "Sym" <+> text (show scope) <+> format name <+> text ":=" <+>  (nest defaultIndent $ format exp)
     format x = text $ show x
@@ -57,7 +57,7 @@ instance Pretty Val where
     format (VBool x) = if x then text "bool::true" else text "bool::false"
     format (VNum x) = if x == 1/0 then text "Inf" else text $ show x
     format (VInt x) = integer x
-    format (VStr x) = text $ x -- XXX escaping
+    format (VStr x) = text "Str" <+> (doubleQuotes $ text $ x) -- XXX escaping
     format (VRat x) = double $ ((fromIntegral $ numerator x) / (fromIntegral $ denominator x) :: Double)
     format (VComplex x) = text $ show x
     format (VControl x) = text $ show x
@@ -84,6 +84,8 @@ doubleBraces :: Doc -> Doc
 doubleBraces x = vcat [ (lbrace <> lbrace), nest defaultIndent x, rbrace <> rbrace]
 
 joinList x y = cat $ punctuate x y
+
+commasep x = cat $ (punctuate (char ',')) x
 
 pretty :: Pretty a => a -> String
 pretty a = render $ format a 
