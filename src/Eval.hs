@@ -225,15 +225,15 @@ findVar env name
             Nothing -> retError "cannot access CALLER:: in top level" (Var name)
     | otherwise = do
         callCC $ \foundIt -> do
-          let lexSym = findSym name $ envLexical env
-          when (isJust lexSym) (foundIt lexSym)
-          glob <- liftIO . readIORef $ envGlobal env
-          let globSym = findSym name glob
-          when (isJust globSym) (foundIt globSym)
-          let globSym = findSym (toGlobal name) glob
-          when (isJust globSym) (foundIt globSym)
-          return Nothing
-    
+            let lexSym = findSym name $ envLexical env
+            when (isJust lexSym) $ foundIt lexSym
+            glob <- liftIO . readIORef $ envGlobal env
+            let globSym = findSym name glob
+            when (isJust globSym) $ foundIt globSym
+            let globSym = findSym (toGlobal name) glob
+            when (isJust globSym) $ foundIt globSym
+            return Nothing
+
 reduce :: Env -> Exp -> Eval Val
 
 -- Reduction for mutables
