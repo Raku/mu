@@ -11,5 +11,5 @@ Basic tests for the rand() builtin
 
 =cut
 
-ok(rand() > 0, 'random numbers are greater than 0');
+ok(rand() >= 0, 'random numbers are greater than or equal to 0');
 ok(rand() < 1, 'random numbers are less than 1');
