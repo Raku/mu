@@ -73,7 +73,15 @@ evaluate (Val (VSub sub)) = do
 evaluate (Val (MVal mv)) = do
     rv <- liftIO (readIORef mv)
     evaluate (Val rv)
-evaluate (Val val) = return val
+evaluate (Val val) = do
+    -- context casting, go!
+    cxt <- asks envContext
+    return $ case cxt of
+        "List"  -> VList (vCast val)
+        "Array" -> VArray (vCast val)
+        "Hash"  -> VHash (vCast val)
+        "Scalar"-> vCast val
+        _       -> val
 evaluate exp = do
     debug "indent" (' ':) "Evl" exp
     exp' <- local (\e -> e{ envBody = exp }) reduce
@@ -107,7 +115,9 @@ reduceExp exp = do
     doReduce env exp
 
 retVal :: Val -> Eval Exp
-retVal val = return $ Val val
+retVal val = do
+    val' <- evaluate (Val val)  -- casting
+    return $ Val val'
 
 retError str exp = do
     shiftT $ \_ -> return $ VError str exp
@@ -283,6 +293,12 @@ doReduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         if isaType cls "Scalar" cxt
             then retVal $ last (VUndef:slice)
             else retVal $ VList slice
+    "{}" -> do
+        let [listExp, rangeExp] = exps
+        hash    <- enterEvalContext "Hash" listExp
+        range   <- enterEvalContext "List" rangeExp
+        let slice = map (lookupWithDefaultFM (vCast hash) VUndef) ((map vCast $ vCast range) :: [Val])
+        retVal $ VList slice
     "()" -> do
         let [subExp, Syn "invs" invs, Syn "args" args] = exps
         sub     <- enterEvalContext "Code" subExp

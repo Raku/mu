@@ -34,6 +34,9 @@ instance Pretty Exp where
 instance Pretty Env where
     pretty x = "{ " ++ (pretty $ envBody x) ++ " }"
 
+instance Pretty (Val, Val) where
+    pretty (x, y) = pretty x ++ " => " ++ pretty y
+
 instance Pretty Val where
     pretty (VJunc (Junc j dups vals)) = "(" ++ joinList mark items ++ ")"
         where
@@ -44,7 +47,7 @@ instance Pretty Val where
             JAll  -> " & "
             JOne  -> " ^ "
             JNone -> " ! "
-    pretty (VPair x y) = "(" ++ pretty x ++ " => " ++ pretty y ++ ")"
+    pretty (VPair x y) = "(" ++ pretty (x, y) ++ ")"
     pretty (VBool x) = if x then "bool::true" else "bool::false"
     pretty (VNum x) = if x == 1/0 then "Inf" else show x
     pretty (VInt x) = show x
@@ -64,7 +67,7 @@ instance Pretty Val where
     pretty (VBlock x) = "{...}"
     pretty (VError x y) = "*** Error: " ++ x ++ "\n    in " ++ show y
     pretty (VArray (MkArray x)) = pretty (VList x)
-    pretty (VHash (MkHash x)) = show x
+    pretty (VHash (MkHash x)) = "{" ++ joinList ", " (map pretty $ fmToList x) ++ "}"
     pretty (VHandle x) = show x
     pretty (MVal x) = "<mval>" -- pretty $ castV x
     pretty VUndef = "undef"

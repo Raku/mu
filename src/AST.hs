@@ -42,7 +42,22 @@ instance Value (Val, Val) where
 
 instance Value VHash where
     castV = VHash
-    vCast x = MkHash $ listToFM (map vCast $ vCast x) 
+    vCast (VHash h) = h
+    vCast v = MkHash $ vCast v
+
+instance Value (FiniteMap Val Val) where
+    vCast (VHash (MkHash h)) = h
+    vCast x = listToFM $ vCast x
+
+instance Value [(Val, Val)] where
+    vCast (VPair k v) = [(k, v)]
+    vCast (VList vs) =
+        let fromList [] = []
+            fromList ((VPair k v):xs) = (k, v):fromList xs
+            fromList (k:v:xs) = (k, v):fromList xs
+            fromList [k] = [(k, VUndef)] -- XXX warning?
+        in fromList vs
+    vCast x = error $ show x
 
 instance Value VSub where
     castV = VSub
@@ -173,7 +188,7 @@ type VScalar = Val
 
 instance Value VScalar where
     vCast = id
-    castV = id
+    castV = id -- XXX not really correct; need to referencify things
 
 strRangeInf s = (s:strRangeInf (strInc s))
 
