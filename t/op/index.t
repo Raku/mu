@@ -31,10 +31,9 @@ ok(index("Hello World", "Hello World") == 0, "Substr eq Str");
 ok(index("Hello World", "") == 0, "Substr is empty");
 ok(index("", "") == 0, "Both strings are empty");
 ok(index("", "Hello") == -1, "Only main-string is empty");
-todo_ok(index("Hello", "", 3) == 3, "Substr is empty, pos within str");
-todo_ok(index("Hello", "", 5) == 5, "Substr is empty, pos at end of str");
-# NOTE: This behaviour copied from perl5. Not sure if we should keep it
-todo_ok(index("Hello", "", 999) == 5, "Substr is empty, pos > length of str");
+ok(index("Hello", "", 3) == 3, "Substr is empty, pos within str");
+ok(index("Hello", "", 5) == 5, "Substr is empty, pos at end of str");
+todo_ok(index("Hello", "", 999) == -1, "Substr is empty, pos > length of str");
 
 # More difficult strings
 
