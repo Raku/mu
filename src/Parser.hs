@@ -42,6 +42,7 @@ ruleStatementList = rule "statements" $ choice
     [ nonSep  ruleDeclaration
     , nonSep  ruleConstruct
     , semiSep ruleExpression
+    , ruleEndMarker
     ]
     where
     nonSep = doSep many
@@ -52,6 +53,11 @@ ruleStatementList = rule "statements" $ choice
         rest        <- option [] $ try $ do { count (symbol ";"); ruleStatementList }
         return ((statement, pos):rest)
 
+ruleEndMarker = rule "END marker" $ do
+    string "\n=begin END\n"
+    many anyChar
+    return []
+    
 -- Declarations ------------------------------------------------
 
 ruleDeclaration :: RuleParser Exp
@@ -287,8 +293,8 @@ rulePostConditional = rule "postfix conditional" $ do
 
 ruleBlockLiteral = rule "block construct" $ do
     (typ, formal) <- option (SubBlock, Nothing) $ choice
-        [ ruleBlockFormalStandard
-        , ruleBlockFormalPointy
+        [ ruleBlockFormalPointy
+        , ruleBlockFormalStandard
         ]
     body <- ruleBlock
     let (fun, names) = extract (body, [])
@@ -472,8 +478,14 @@ rulePostTerm = rule "term postfix" $ do
 
 ruleInvocation = tryRule "invocation" $ do
     char '.'
-    (App name invs args) <- parseApply
+    (App name invs args) <- parseInvoke
     return $ \x -> App name (x:invs) args
+    where
+    parseInvoke = lexeme $ do
+        name            <- subNameWithPrefix "prefix:"
+        (invs:args:_)   <- option [[],[]] $ maybeParens $ parseParamList ruleExpression
+        return $ App name invs args
+    
 
 ruleArraySubscript = tryRule "array subscript" $ do
     option ' ' $ char '.'

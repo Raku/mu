@@ -66,9 +66,12 @@ symbol s
         rv <- string s
         -- XXX Wrong - the correct solution is to lookahead as much as possible
         -- in the expression parser below
-        choice [ eof >> return ' ', lookAhead (satisfy (\x -> x `elem` ";!" || x /= (last s))) ]
+        choice [ eof >> return ' ', lookAhead (satisfy (ahead $ last s)) ]
         whiteSpace
         return rv
+        where
+        ahead '-' '>' = False -- XXX hardcoke
+        ahead s   x   = x `elem` ";!" || x /= s
 
 stringLiteral = choice
     [ P.stringLiteral  perl6Lexer

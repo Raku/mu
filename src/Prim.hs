@@ -313,7 +313,8 @@ op2Grep list sub@(VSub _) = op2Grep sub list
 op2Grep sub list = do
     vals <- (`filterM` vCast list) $ \x -> do
         evl <- asks envEval
-        rv  <- local (\e -> e{ envContext = "Bool" }) $ do
+        let topic = Symbol SMy "$_" (Val x)
+        rv  <- local (\e -> e{ envContext = "Bool", envLexical = topic:envLexical e }) $ do
             evl (Syn "()" [Val sub, Syn "invs" [Val x], Syn "args" []])
         return $ vCast rv
     return $ VList vals
@@ -477,8 +478,8 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Bool      pre     not     (Bool)\
 \\n   List      pre     map     (Code, List)\
 \\n   List      pre     grep    (Code, List)\
-\\n   List      pre     map     (List: Code)\
-\\n   List      pre     grep    (List: Code)\
+\\n   List      pre     map     (Array: Code)\
+\\n   List      pre     grep    (Array: Code)\
 \\n   Int       pre     push    (rw!Array, List)\
 \\n   Int       pre     unshift (rw!Array, List)\
 \\n   Scalar    pre     pop     (rw!Array)\
