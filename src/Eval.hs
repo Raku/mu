@@ -53,8 +53,8 @@ debug key fun str a = do
         Just ref -> liftIO $ do
             fm <- readIORef ref
             let val = fun $ lookupWithDefaultFM fm "" key
-            when (length val > 50) $ do
-                error "recursion too deep"
+            when (length val > 100) $ do
+                error "deep recursion"
             writeIORef ref (addToFM fm key val)
             putStrLn ("***" ++ val ++ str ++ ": " ++ pretty a)
 
