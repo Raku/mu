@@ -26,12 +26,23 @@ import Help
 import Pretty
 import Compile
 import ArgParse
+import IO
 
 main :: IO ()
 main = do
     hSetBuffering stdout NoBuffering
     args <- getArgs
     run $ canonicalArgs args
+    -- __run args
+
+{-
+-- used for debugging the command line
+
+warn = hPrint stderr
+__run x = do
+            warn $ canonicalArgs x
+            run $ canonicalArgs x
+-}
 
 -- see also ArgParse.hs    
 run :: [String] -> IO ()

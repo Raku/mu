@@ -26,13 +26,13 @@ _sort(x) = sortArgs $ _unpack x
 _proc(x) = procArg (foldl (++) [] (_sort x))
     
 procArg :: [String] -> [String]
-procArg("-I":dir:rest)      = ["-I",dir]      ++ procArg(rest)
-procArg("-V":option:rest)   = ["-V",option]   ++ procArg(rest)
-procArg("-c":rest)          = ["-c"]          ++ procArg(rest)
-procArg("-d":rest)          = ["-d"]          ++ procArg(rest)
-procArg("-l":rest)          = ["-l"]          ++ procArg(rest)  -- ["-e", "# BEGIN{ ... }"] -- XXX fixme: Add real Perl6 fragment
-procArg("-w":rest)          = ["-w"]          ++ procArg(rest)
-procArg("-e":fragment:rest) = ["-e",fragment] ++ procArg(rest)
+procArg("-I":dir:rest)      = ["-I",dir]                             ++ procArg(rest)
+procArg("-V":option:rest)   = ["-V",option]                          ++ procArg(rest)
+procArg("-c":rest)          = ["-c"]                                 ++ procArg(rest)
+procArg("-d":rest)          = ["-d"]                                 ++ procArg(rest)
+procArg("-l":rest)          = ["-e", "# BEGIN { ... } # to be done"] ++ procArg(rest) -- XXX fixme
+procArg("-w":rest)          = ["-w"]                                 ++ procArg(rest)
+procArg("-e":fragment:rest) = ["-e",fragment]                        ++ procArg(rest)
 procArg(xs)                 = xs  -- this must be either the filename or @ARGV
 
 unpackOptions :: [String] -> [String]
@@ -82,8 +82,8 @@ sortArgs args = _unpackArgs $ _sortArgs $ _packArgs $ _gatherArgs args
 argRank :: [String] -> Int
 argRank(("-h"):_)         = -1
 argRank(("-v"):_)         = -1
-argRank(("-V"):item:_)    = -1
 argRank(("-V"):_:[])      = -1
+argRank(("-V"):[])        = -1
 argRank(("-I"):_)         = 0
 argRank(("-d"):_)         = 1
 argRank(("-w"):_)         = 2
@@ -91,7 +91,7 @@ argRank(("-c"):_)         = 3
 argRank(("-l"):_)         = 100  -- translated into Perl code (later)
 argRank(("-0"):_)         = 100  -- translated into Perl code (later)
 argRank(("-e"):_)         = 100  -- translated into Perl code
-argRank(_)                = 100  -- filename or whatever
+argRank(_)                = 100  -- filename or @ARGV or whatever
 
 -- Gather switches and their arguments:
 _gatherArgs :: [String] -> [[String]]
@@ -101,7 +101,8 @@ _gatherArgs("-V":item:rest) = [["-V",item]] ++ _gatherArgs(rest)
 _gatherArgs("-I":dir:rest)  = [["-I",dir]] ++ _gatherArgs(rest)
 -- _gatherArgs("-l":sep:rest)  = [["-l",sep]] ++ _gatherArgs(rest)
 -- _gatherArgs("-0":sep:rest)  = [["-0",sep]] ++ _gatherArgs(rest)
-_gatherArgs(x) = [x]
+_gatherArgs(('-':x):xs) = [['-':x]] ++ _gatherArgs(xs)
+_gatherArgs(x)              = [x] -- gobbles up the rest in one lump
 
 {- collect "-e" switches together -}
 joinDashE :: [String] -> [String]
