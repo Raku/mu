@@ -16,3 +16,4 @@ Makefile$
 ^pugs_version\.h
 \.svn
 .DS_Store$
+docs/tutorial-utf8-2.txt
