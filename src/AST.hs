@@ -182,7 +182,7 @@ instance Value VList where
     vCast (VPair (k, v))   = [k, v]
     vCast (VRef v)      = vCast v
     -- vCast (MVal v)      = vCast $ castV v
-    vCast (VUndef)      = []
+    vCast (VUndef)      = [VUndef]
     vCast v             = [v]
 
 instance Value VHandle where
