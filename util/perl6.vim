@@ -76,12 +76,14 @@ syn region p6LiteralString start="q\s*<" skip="\\>" end=">"
 
 " Numbers
 syn match  p6Number "\(\d*\.\d\+\|\d\+\.\d*\|\d\+\)\(e\d\+\)\{0,1}"
-syn match  p6Number "0[0-7]\+"
+syn match  p6Number "0o[0-7]\+"
 syn match  p6Number "0x[0-9a-f]\+"
 syn keyword p6Number NaN Inf
 
 " => Operator
 syn match  p6InterpString "\w\+\s*=>"he=e-2
+" :key<val>
+syn match  p6InterpString ":\w\+\(\s*\.\)\?\(<[^>]*>\)\?"hs=s+1
 
 
 " Sexeger!
