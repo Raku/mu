@@ -587,4 +587,3 @@ arityMatch sub@Sub{ subAssoc = assoc, subParams = prms } argLen argSlurpLen
     = Just sub
     | otherwise
     = Nothing
-
