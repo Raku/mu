@@ -5,6 +5,8 @@ require Test;
 
 plan 2;
 
+# L<S06/"The &?SUB routine">
+# L<S02/"Names" /Which sub am I in/>
 sub factorial { @_[0] < 2 ?? 1 :: @_[0] * &?SUB(@_[0] - 1) }
 
 my $result1 = factorial(3);
