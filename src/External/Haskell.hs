@@ -4,7 +4,7 @@ module External.Haskell where
 import AST
 
 #undef PUGS_HAVE_TH
-#include "../pugs_config.h"
+#include "pugs_config.h"
 #ifndef PUGS_HAVE_TH
 externalizeHaskell :: String -> String -> IO String
 externalizeHaskell  = error "Template Haskell support not compiled in"
@@ -16,16 +16,15 @@ import Internals
 import Language.Haskell.TH as TH
 import Language.Haskell.Parser
 import Language.Haskell.Syntax
-import External.Haskell.PathLoader
+-- import External.Haskell.PathLoader
+import External.Haskell.DynamicLoader
 
 loadHaskell :: FilePath -> IO [(String, [Val] -> Eval Val)]
 loadHaskell file = do
-    loadModule "/usr/local/lib/ghc-6.4/HSbase.o" MT_Package
-    loadModule "/usr/local/lib/ghc-6.4/HShaskell98.o" MT_Package
-    loadModule "/usr/local/lib/ghc-6.4/HSmtl.o" MT_Package
-    mod     <- loadModule file MT_Module
-    func    <- loadFunction mod "extern__"
-    (`mapM` func) $ \name -> do
+    mod     <- loadModuleFromPath "/usr/src/SHA1/SHA1__0_0_1.o" (Just "/usr/src/SHA1/")
+    extern <- (loadFunction mod "extern__" :: IO [String])
+    trace (show extern) return ()
+    (`mapM` extern) $ \name -> do
         func <- loadFunction mod $ "extern__" ++ name
         return (name, func)
 
