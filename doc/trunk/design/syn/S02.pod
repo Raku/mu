@@ -844,15 +844,13 @@ argument and I<also> defeat any scalar argument checking imposed by
 subroutine signature declarations.  This list flattens lazily.
 When applied to a scalar value containing an iterator, C<*> causes
 the iterator's return values be interpolated into the list lazily.
-When applied to nothing, it iterates the magic C<$*ARGS> iterator (or
-the current set of subscripts for this dimension, when used within a subscript).
-So Perl 5's
+Note that C<*> is destructive when applied to a scalar iterator,
+but non-destructive when applied to an array, even if that array
+represents an iterator.
 
-    while (<>) {...}
-
-construct is instead written:
-
-    for * {...}
+There is an argumentless form of C<*> which may be used within a
+multi-dimensional array or hash subscript to indicate all of the
+current set of subscripts available for this dimension.
 
 =item *
 
@@ -860,6 +858,10 @@ To force non-lazy list flattening, use the C<**> unary operator.
 Don't use it on an infinite generator unless you have a machine with
 infinite memory, and are willing to wait a long time.  It may also
 be applied to a scalar iterator to force immediate iteration to completion.
+
+Argumentless C<**> in a multi-dimensional subscript indicates 0
+or more dimensions of C<*> where the number of dimension isn't
+necessarily known: @foo[1;**;5].
 
 =item *
 
