@@ -26,7 +26,7 @@ plan +@examples;
 
 diag "Running under $?OS";
 
-my ($pugs,$redir) = ("./pugs", "&>");
+my ($pugs,$redir) = ("./pugs", ">");
 
 if ($?OS eq "MSWin32") {
   $pugs = 'pugs.exe';
@@ -42,5 +42,5 @@ for @examples -> $ex {
   my $got      = slurp "temp-ex-output";
   unlink "temp-ex-output";
 
-  is $expected, $got, "$ex.p6 worked";
+  is $got, $expected, "$ex.p6 worked";
 }
