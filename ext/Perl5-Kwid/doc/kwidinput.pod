@@ -1,0 +1,783 @@
+
+
+=head1 NAME
+
+kwidinput - selected messages from Perl6-language list
+
+=head1 STATUS
+
+To be considered as requirements documents at this stage...
+
+=head1 FIRST TPF STAFF COMMENT
+
+ From: Damian Conway
+ To: perl6-language@perl.org
+ Subject: Re: [Fwd: Re: [RFC] A more extensible/flexible POD (ROUGH-DRAFT)]
+ 
+ [No, I'm not back; I'm just passing by. But I feel that I need to
+ comment on this whole issue]
+ 
+ Even before Brian announced Kwid, I was privately suggesting to Larry
+ that Markdown (http://daringfireball.net/projects/markdown/) was an
+ excellent evolution of mark-up notations and might be well suited to
+ Perl 6. At least...as a second allowable syntax.
+ 
+ And, in my view, Kwid kicks Markdown's butt in terms of its
+ suitability for Perl documentation. POD itself is brilliant and we
+ should certainly not abandon it, but it's critical to remember that
+ POD is just an *interface* (or B<interface>, if you prefer ;-) to
+ Perl's built-in documentation systems. I strongly believe that Kwid
+ is, for many purposes, a cleaner and less-intrusive interface, and I
+ for one will be using it (even if I have to build a kwid2pod
+ translator).
+ 
+ But frankly, I'd rather just be able to write:
+ 
+ =kwid
+ 
+ in place of
+ 
+ =pod
+ 
+ within standard Perl 6.
+ 
+ As for the larger issue of redoing pod, I've appended my notes on
+ where the Design Team left their discussions when last we discussed
+ it. This might spark some ideas (but note that I will not be able to
+ respond to them any time soon -- alas, bread-winning must, for the
+ moment, take precedence over most of my public activities).
+ 
+ Damian
+ 
+  -----cut----------cut----------cut----------cut----------cut-----
+ 
+ There would be a single consistent rule that says that every POD block
+ (except raw text blocks) has one of the following three equivalent
+ syntactic forms:
+ 
+      =begin  TYPE  OPTIONAL_MULTIWORD_LABEL_TO_END_OF_LINE
+      BLOCK_CONTENTS_START_HERE_AND_CONTINUE_OVER_MULTIPLE_LINES_UNTIL...
+      =end  TYPE  OPTIONAL_SAME_MULTIWORD_LABEL
+ 
+ or:
+ 
+      =for  TYPE  OPTIONAL_MULTIWORD_LABEL_TO_END_OF_LINE
+      BLOCK_CONTENTS_START_HERE_AND_CONTINUE_OVER_MULTIPLE_LINES_UNTIL...
+      <first whitespace-only line or next pod directive>
+ 
+ or:
+ 
+      =TYPE  BLOCK_CONTENTS_START_HERE_AND_CONTINUE_OVER_MULTIPLE_LINES_UNTIL...
+      <first whitespace-only line or pod directive>
+ 
+ For example:
+ 
+      =begin table Table of Contents
+          Constants           1
+          Variables           10
+          Subroutines         33
+          Everything else     57
+      =end table
+ 
+      =begin list
+      =begin item *
+          Doh
+      =end item
+      =begin item *
+          Ray
+      =end item
+      =begin item *
+          Me
+      =end item
+      =end list
+ 
+      =begin comment
+          This is the most verbose way to write all this
+      =end comment
+ 
+ Or equivalently:
+ 
+      =for table Table of Contents
+          Constants           1
+          Variables           10
+          Subroutines         33
+          Everything else     57
+ 
+      =begin list
+      =for item *
+          Doh
+ 
+      =for item *
+          Ray
+ 
+      =for item *
+          Me
+ 
+      =end list
+ 
+      =for comment
+          This is a less verbose way to write all this
+ 
+ Or also equivalently:
+ 
+      =for table Table of Contents
+          Constants           1
+          Variables           10
+          Subroutines         33
+          Everything else     57
+ 
+      =for list
+      =item * Doh
+      =item * Ray
+      =item * Me
+ 
+      =comment This is the least verbose way to write all this
+ 
+ 
+ POD formatters could then be simply and consistently implemented by
+ inheriting from a standard Pod::Base class, which would provide a
+ C<.parse_pod> method that sequentially extracts each block construct (from
+ whichever of the three syntaxes), including raw text blocks (which are
+ actually just unlabelled C<=for body> blocks), and raw code blocks
+ (which are actually just unlabelled C<=for verbatim> blocks).
+ 
+ C<.parse_pod> would be something like:
+ 
+      multi method parse_pod ($self: Str $from_str) {
+          # Get sequence of POD blocks to be parsed
+          # Using standard rules...
+          my @blocks = $self.extract_pod($from_str);
+ 
+          # Dispatch each block to be processed by the
+          # appropriate method...
+          for @blocks -> $block {
+              my ($type, $label, $contents) = $block<type label contents>;
+              $self.$type($label, $contents);
+          }
+      }
+ 
+ When each C<.$type()> method is called, both the label and contents would
+ passed as simple strings (either of which might, of course, be empty if
+ the corresponding component had been omitted from the block). The
+ (multi)method thus selected would then be responsible for
+ formatting/processing/whatevering the label and contents passed to it:
+ 
+      method head1 ($label, $contents) {...}
+      method head2 ($label, $contents) {...}
+ 
+      method list ($label, $contents) {...}
+ 
+      method item ($label, $contents) {...}
+ 
+      # etc.
+ 
+ Note that under this scheme the Perl5 syntax for:
+ 
+      =head1 Title here
+ 
+      =head2 Subtitle here
+ 
+      =head3 Subsubtitle here
+ 
+      =head4 Subsubsubsubtitle here
+ 
+      =item  Bullet  Item text
+ 
+      =cut
+ 
+      =pod
+ 
+ would mostly all continue to work (though, of course, C<=cut> and
+ C<=pod> would actually be dealt with directly within C<.extract_from>).
+ 
+ The most noticable change would be that something like:
+ 
+      =item Bullet
+ 
+      Text of item here
+ 
+ would now have to be written either as:
+ 
+      =item  Bullet  Text of item here
+ 
+ (an improvement, I suspect), or as:
+ 
+      =item  Bullet
+      Text of item here
+ 
+ (assuming the .item() method was clever enough to remove leading
+   whitespace from the contents), or as:
+ 
+      =for item  Bullet
+      Text of item here
+ 
+ or:
+ 
+      =begin item Bullet
+ 
+      Text of item here
+ 
+      =end text
+ 
+ 
+ Of course:
+ 
+      =over 4
+      ...
+      =back
+ 
+ would no longer work; they would have to be written something like:
+ 
+      =begin indent 4
+      ...
+      =end indent
+ 
+ Or better still, removed entirely and replaced with:
+ 
+      =begin list
+      ...
+      =end list
+ 
+ At the moment they're odd-fish: not a mark-up block, but a layout block.
+ And hence intrinsically evil. ;-)
+ 
+ And if you wanted to *change* how POD is processed by perl6, you'd just
+ use a C<=use> directive to install your own class:
+ 
+      =use Pod::Quibble
+ 
+ as the POD handler. That class would probably be derived from Pod::Base
+ with some polymorphic or multimorphic adjustments to one or more of
+ C<.extract_pod>, C<.parse_pod>, or the various C<.head1>, C<.head2>,
+ C<.list>, C<.item>, C<.table>, C<.data>, etc. methods.
+ 
+ 
+ We also intend to unify __DATA__ and POD, and make both accessible (at
+ compile time and run time) to the program.
+ 
+ The single Perl 5 __DATA__ section would become:
+ 
+      =begin data
+      ...
+      =end data
+ 
+ and you could define multiple separate data sections (a la Inline::Files)
+ with:
+ 
+      =begin data LABEL1
+      ...
+      =end data
+ 
+      =begin data LABEL2
+      ...
+      =end data
+ 
+      # etc.
+ 
+ Of course, under the synactic equivalences described above,
+ you could also write those as:
+ 
+      =for data LABEL1
+      ...
+ 
+      =for data LABEL2
+      ...
+ 
+      # etc.
+ 
+ or:
+ 
+      =data LABEL1 ...
+ 
+      =data LABEL2 ...
+ 
+      # etc.
+ 
+ These would simply be parsed by the standard Pod::Inline class (or whatever
+ it's eventually called), running as part of the perl6 parser.
+ 
+ Perl 6 would provide two standard file-scoped variables named
+ C<%=POD> and C<%=DATA>, which would provide access to all the file-
+ related metadata:
+ 
+      %=POD                 --> structured POD object
+ 
+      %=DATA                --> structured DATA object (part of %=POD)
+ 
+ The "structured POD object" is an object that provides both sequential
+ and named access (lazily, of course!) to the overall POD structure of the
+ current file (including any =data sections):
+ 
+      %=POD<head1>          --> Array of POD objects representing C<=head1>
+                                chunks
+ 
+      %=POD<head1>[$n]      --> structured POD object representing Nth
+                                C<=head1> chunk
+ 
+      %=POD[$n]             --> structured POD object representing Nth
+                                C<=head1> chunk (shorthand)
+ 
+      %=POD[$n].text        --> Text of Nth C<=head1> directive
+ 
+      %=POD[$n].loc         --> Line range of the Nth C<=head1> directive
+ 
+ 
+      %=POD<head1>[$n]<head2>[$m]
+                            --> structured POD object representing the
+                                Mth C<=head2> chunk within Nth C<=head1>
+                                section
+ 
+      %=POD[$n]<head2>[$m]  --> structured POD object representing the
+                                Mth C<=head2> chunk within Nth C<=head1>
+                                section (shorthand)
+ 
+      %=POD[$n][$m]         --> structured POD object representing the
+                                Mth C<=head2> chunk within Nth C<=head1>
+                                section (evenshorterhand)
+ 
+ 
+      %=POD<head2>          --> Array of POD objects representing C<=head2>
+                                chunks (from all C<=head1> sections)
+ 
+ 
+      %=POD<table>[$t]      --> POD object representing the Tth C<=table>
+ 
+      %=POD<table>[$t].text --> Caption of the Tth C<=table>
+ 
+      %=POD<table>[$t].loc  --> Line range of the Tth C<=table>
+ 
+      %=POD<table>[$t][$r]  --> The Rth row of the Tth C<=table>
+ 
+ 
+      %=POD<html>[$h]       --> POD object representing the Hth C<=begin html>
+                                section
+ 
+      etc.
+ 
+ Meanwhile, the "DATA hash" would contain the (lazily extracted!) text of
+ just the C<=data> sections, with the keys of the hash being the names of
+ the sections. The value of each entry would be an object with stringific
+ and arrayific overloadings:
+ 
+      %=DATA                --> Hash of objects representing C<=data>
+                                sections, keyed by name
+ 
+      %=DATA<LABEL1>        --> Data object representing all C<=data LABEL1>
+                                sections
+ 
+      ~ %=DATA<LABEL1>      --> Concatenated text from all C<=data LABEL1>
+                                sections
+ 
+      %=DATA<LABEL1>[$n]    --> Text from only the Nth C<=data LABEL1>
+                                section
+ 
+ Of course, in-line data is accessed from within the program far more
+ frequently that POD is likely to be, so there might also be convenience
+ bindings of entries in the data hash to named C<$=NAME> variables (much
+ as $1, $2, etc. are convenience bindings into components of the $/ match
+ variable):
+ 
+      $=LABEL2                --> Data object representing all C<=data LABEL2>
+                                  sections
+ 
+      ~ $=LABEL2              --> Concatenated text from all C<=data LABEL2>
+                                  sections
+ 
+      $=LABEL2[$n]            --> Text from only the Nth C<=data LABEL2>
+                                  section
+ 
+ "Data objects" would also have an iterator overloading, so that:
+ 
+      for = $=DATA {...}
+ 
+ would work as expected.
+ 
+ 
+ =cut
+
+Also;
+
+ From: Damian Conway
+ To: perl6-language@perl.org
+ Subject: Re: [Fwd: Re: [RFC] A more extensible/flexible POD (ROUGH-DRAFT)]
+ 
+ Oh, and I forgot to mention:
+ 
+ In the contents of any block, any line with '=' in column zero and a 
+ whitespace character in column 1, has those two characters removed when the 
+ contents are extracted. So you can write:
+ 
+ =begin data POSSIBLE_POD_DIRECTIVES
+ =
+ = =doh -- Oh, dear! Oh frikking dear!
+ = =ray -- A ravening beam of destruction
+ = =me  -- A name I call my invocant
+ = =far -- A long, long way to Australia
+ = =sew -- What I do with contention
+ = =LA  -- A place to follow trends
+ = =tee -- I pipe to double streams
+ =
+ =end data
+ 
+ To create the inline data:
+ 
+ =doh -- Oh, dear! Oh frikking dear!
+ =ray -- A ravening beam of destruction
+ =me  -- A name I call my invocant
+ =far -- A long, long way to Australia
+ =sew -- What I do with contention
+ =LA  -- A place to follow freaks
+ =tee -- I pipe to double streams
+ 
+ 
+ Damian
+
+=head1 CLARIFICATION / STATEMENT OF INTENT
+
+ From: Sam Vilain
+ To: Damian Conway
+ Cc: perl6-language@perl.org, Mark Overmeer <Mark@Overmeer.net>
+ Subject: Re: [Fwd: Re: [RFC] A more extensible/flexible POD (ROUGH-DRAFT)]
+ 
+ Damian Conway wrote:
+ > [No, I'm not back; I'm just passing by. But I feel that I need to 
+ > comment on this whole issue]
+ 
+ Thanks!  This message has lots of useful information that I would have 
+ otherwise probably missed.
+ 
+ It seems that the basic premise of the POD document object model gels 
+ well with that early design document, so I look forward to being able to 
+ flesh out the details.
+ 
+ Using ^=\s to delimit a line starting with a = will interfere with the 
+ Kwid method of:
+ 
+   = Heading
+ 
+   foo
+ 
+ Which I was imagining would be converted to a DOM tree that when 
+ represented in the "Normative XML" would look like:
+ 
+   <sect1>
+     <title>Heading</title>
+     <para>foo</para>
+   </sect1>
+ 
+ That's sort of DocBook style, and in fact I was thinking that for the 
+ internal representation, DocBook node names could be used where there is 
+ no other better alternative.  Of course, non-documentation things like 
+ Test fragments or inclusions of external entities, like UML diagrams 
+ won't have a representation in DocBook :-).
+ 
+ The uses of a leading = in a paragraph are fairly uncommon.  For 
+ instance, when quoting POD you would simply indent it a bit to make it 
+ verbatim and there is no issue.
+ 
+ I see a middle ground; that is, `=` quoting is only is allowed if it 
+ directly follows the initial POD marker;
+ 
+   =head1 Foo
+   =
+   = =head1
+   = =
+   = = =head1 That's just getting ridiculous
+ 
+ Which I see as represented by;
+ 
+   <sect1>
+     <title>Foo</title>
+     <para>=head1
+   =
+   = =head1 That's just getting ridiculous</para>
+   </sect1>
+ 
+ Which of course would lose the ='s.  But that's OK, because if you 
+ wanted verbatim you could have just indented the block.
+ 
+ If you wanted to lead a normal paragraph with it, you'd just use the 
+ normally implicit =para (equivalent to =pod):
+ 
+   =para
+   =
+   = = This is what a Kwid =head1 looks like
+ 
+ As for going with =kwid to denote the starting of kwid, I have so far 
+ been pessimistically assuming that something like `=dialect kwid`, or 
+ `=use kwid` (as described in the design doc you attached) would be 
+ required.  However, we could allow `=unknown`, where `unknown` is an 
+ unknown keyword, to try to load Pod::Dialect::unknown, and hope like 
+ hell it provides the Role of Pod::Dialect.
+ 
+ While the `^=` escaping is active, the presence or absence of 
+ whitespace following the initial `=` will delimit breaks in paragraphs. 
+   This has to be so, otherwise the previous example would have been:
+ 
+   <sect1>
+     <title>Foo
+ 
+   =head1
+   =
+   = =head1 That's just getting ridiculous
+   </title>
+   </sect1>
+ 
+ Which is just plain silly.  This follows what people are used to with 
+ POD - blank lines must be empty, not just no non-whitespace characters 
+ (an increasingly vague concept these days).
+ 
+ So, the POD processing happens in 3 levels (note: the first isn't really 
+ mentioned in perlpodspec.kwid, which is a bug);
+ 
+ =list
+ - chunkification from the original source, into POD paragraphs, which 
+ may or may not include an initial `^=foo` marker.  At *this* level, the 
+ only escaping that happens is the `^=` escaping.
+ 
+ That's all that needs to happen while the code is being read, and for 
+ most code that is how the POD will remain, in memory, somewhere 
+ intermingled with the Parse Tree for the code, so that the code can 
+ still be spat back out by the P6 equivalent of `B::Deparse`
+ 
+ - parsing of these raw chunks into a real POD DOM.  Please, tired XML 
+ veterans, please don't get upset by the use of the term "DOM", I think 
+ the last thing anyone wants is to have studlyCaps functions like 
+ `getElementById` and `createTextNode`.  It is the tree concept itself 
+ which is important, and this pre-dates XML anyway.
+ 
+ Strictly speaking, this step actually converts POD paragraph chunk 
+ events into POD DOM events.  These can be used to build a real DOM, for 
+ instance if you need to do an XPath style query for a link (I was amazed 
+ that someone's actually gone and built Pod::XPath!), or they might 
+ simply be passed onto the next stage by an output processor with no 
+ intermediate tree being built.
+ 
+ So, at this point, dialects get hooks to perform custom mutation of POD 
+ paragraph events into DOM events, and the arbitrator of this process 
+ ensures that the output events are well "balanced" by spitting out 
+ closing tags where it has to.  They can store state in their parser 
+ object, but none of this state will be preserved past the parsing state.
+ However, the nodes that they "spit out" after this point may still not 
+ be "core" POD, such as for includes or out-of-band objects.  These hooks 
+ will be sufficient to allow them to hijack subsequent chunks that would 
+ otherwise be served to other dialects, ie, they can choose to 
+ "arbitrate" subsequent chunks.
+ 
+ I'm aiming to make it so that it is possible for dialects to be "round 
+ trip safe", by being able to go back from this DOM state to the original 
+ POD paragraph chunks.  This would require dialects to "play nice" of 
+ course, but is a potential option to help make things like smart text 
+ editors be able to automatically syntax highlight POD dialects :).
+ 
+ Linking will be in terms of this intermediate tree, so you won't be able 
+ to link to included portions of manual pages :).  I'm not sure whether 
+ that matters.
+ 
+ - "output ready" form may also either be a stream of events or a DOM 
+ tree.  In this mode, all of the events from the first stage are simply 
+ fed through a loopback preprocessor, which asks Dialects to convert 
+ their non-core nodes to core nodes, or drop them, or whatever.  At this 
+ point, the structure can have handles to out of band objects like 
+ images, etc - that can't be converted to XML.  Again, dialects are 
+ capable of arbitrating the loopback process for any events that *follow* 
+ theirs.
+ 
+ Of course, documents that are not in a dialect (and do not have nodes 
+ that `=include` and suchlike) will not need any pre-processing to be 
+ ready for output.
+ 
+ =end list
+ 
+ If there is anything that you think is ghastly wrong with the above 
+ picture, let me know of course, but I don't think it's actually all that 
+ much different from what has to go on under the hood in a Pod parser or 
+ markup tool, anyway.  In particular, MarkOv - as the author of the most 
+ comprehensive POD markup system there is, this means you!  :-)
+ 
+ There is a big question about inline styles still open, and how 
+ converting paragraph bodies to a series of POD events works (clearly, 
+ this is essential for single-paragraph Kwid list blocks, etc) - but I'm 
+ hoping the answer will just smack me in the face as I start to work with 
+ ingy on the prototype implementation, and specifying the details of what 
+ node types the POD DOM and/or DTD allows.
+ 
+ Now, I've done plenty of planning for this now, it's even looking 
+ hopeful!  So time for me to keep quiet until I've built something :-).
+ 
+ Sam.
+
+=head1 FURTHER CORRESPONDANCE
+
+ From: Damian Conway
+ To: Sam Vilain
+ Subject: Re: [Fwd: Re: [RFC] A more extensible/flexible POD (ROUGH-DRAFT)]
+ 
+ [Off-list]
+ 
+ Hi Sam,
+ 
+  > Using ^=\s to delimit a line starting with a = will interfere with the
+  > Kwid method of:
+  >
+  >  = Heading
+  >
+  >  foo
+ 
+ No it won't. It only applies under "classic" =pod.
+ 
+ Once you invoke a different dialect, *its* parser has to do the parsing until
+ the next =cut.
+ 
+ 
+  > The uses of a leading = in a paragraph are fairly uncommon.  For
+  > instance, when quoting POD you would simply indent it a bit to make it
+  > verbatim and there is no issue.
+ 
+ That's not all the =<space> is for. It's also for making long blocks hang
+ together visually when they cross screen or page boundaries. For example:
+ 
+ =begin commented out
+ =
+ = sub MODIFY_HASH_ATTRIBUTES {
+ =     my ($package, $referent, @attrs) = @_;
+ =     for my $attr (@attrs) {
+ =         next if $attr !~ m/\A ATTRS? \s* (?:[(] (.*) [)] )? \z/xms;
+ =         my ($init_val, $init_arg, $getter, $setter);
+ =         if (my $config = $1) {
+ =             $init_val = _extract_init_val($config);
+ =             $init_arg = _extract_init_arg($config);
+ =
+ =             if ($getter = _extract_get($config)) {
+ =                 *{$package.'::get_'.$getter} = sub {
+ =                     return $referent->{$_[0]};
+ =                 }
+ =             }
+ =             if ($setter = _extract_set($config)) {
+ =                 *{$package.'::set_'.$setter} = sub {
+ =                     croak "Missing new value in call to 'set_$setter'method"
+ =                         unless @_ == 2;
+ =                     my ($self, $new_val) = @_;
+ =                     my $old_val = $referent->{$self};
+ =                     $referent->{$self} = $new_val;
+ =                     return $old_val;
+ =                 }
+ =             }
+ =         }
+ =         undef $attr;
+ =         push @{$attribute{$package}}, {
+ =             ref      => $referent,
+ =             init_val => $init_val,
+ =             init_arg => $init_arg,
+ =             name     => $init_arg || $getter || $setter || '????',
+ =         };
+ =     }
+ =     return grep {defined} @attrs;
+ = }
+ =
+ =end commented out
+ 
+ 
+  > I see a middle ground; that is, `=` quoting is only is allowed if it
+  > directly follows the initial POD marker;
+ 
+ Nope. That won't work. See below.
+ 
+ 
+  >  =head1 Foo
+  >  =
+  >  = =head1
+  >  = =
+  >  = = =head1 That's just getting ridiculous
+  >
+  > Which I see as represented by;
+  >
+  >  <sect1>
+  >    <title>Foo</title>
+  >    <para>=head1
+  >  =
+  >  = =head1 That's just getting ridiculous</para>
+  >  </sect1>
+ 
+ Nope.  It's actually your "silly" result:
+ 
+  >  <sect1>
+  >    <title>Foo
+  >
+  >  =head1
+  >  =
+  >  = =head1 That's just getting ridiculous
+  >  </title>
+  >  </sect1>
+ 
+ You wanted:
+ 
+      =head1 Foo
+ 
+      = =head1
+      = =
+      = = =head1 That's just getting ridiculous
+ 
+ (Remember that the three equivalent syntaxes are:
+ 
+      =begin TYPE [LABEL]
+      ...
+      =end TYPE [LABEL]
+ 
+ and:
+ 
+      =for TYPE [LABEL]
+      ...
+      <"empty" line>
+ 
+ and:
+ 
+      =TYPE ...
+      ...
+      <"empty" line>
+ 
+ So:
+ 
+      =head1 Foo
+ 
+ is the same as:
+ 
+      =for head1 [no label!]
+      Foo
+ 
+ or:
+ 
+      =begin head1 [no label!]
+      Foo
+      =end head1
+ 
+ In other words, for =headN commands, the title of the heading is the *data*,
+ not the label.
+ 
+ 
+  > This follows what people are used to with POD - blank lines must be
+  > empty, not just no non-whitespace characters (an increasingly vague
+  > concept these days).
+ 
+ I don't think that's gonna fly. Both Larry and I are adamant that an empty
+ line is one that doesn't match /\S/. Distinguishing behaviours according to
+ the presence or absence of invisible whitespace has been hell for the past 20
+ years. The precise problem is that, no matter how long they use POD, people
+ *don't* get used to it. And, even if they do, their text editors don't
+ get used to it, and happily splash whitespace into "empty" lines. We
+ *must* overcome that.
+ 
+ 
+  > As for going with =kwid to denote the starting of kwid, I have so far
+  > been pessimistically assuming that something like `=dialect kwid`, or
+  > `=use kwid` (as described in the design doc you attached) would be
+  > required.  However, we could allow `=unknown`, where `unknown` is an
+  > unknown keyword, to try to load Pod::Dialect::unknown, and hope like
+  > hell it provides the Role of Pod::Dialect.
+ 
+ Nice. And, of course, falls back to "Unknown POD command", if it fails
+ to load Pod::Dialect::unknown.
+ 
+ Damian
+
+=cut

@@ -1,0 +1,393 @@
+
+=head1 NAME
+
+POD Document Object Model design
+
+=head1 PURPOSE
+
+To detail the form that "C<standard>" POD forms take in terms of
+Kwid::DOM::Node objects.
+
+=head1 INTRODUCTION
+
+The multitude of POD parsers out there could all do with something of
+a "standard" POD form, other than those loosely made up by the
+collection of Pod to XML formatters for Perl 5.  Actually, not "other"
+but "closely resembling" and "standardised".
+
+This document details the DTD / Schema of "standard" POD documents,
+and the mechanism by which "dialects" can plug in non-standard nodes.
+
+See L<Kwid::Preprocessor> for details on how those non-standard nodes
+are converted into standard nodes for output.
+
+=head1 POD SCHEMA
+
+The below schema is a "Zen" cut of a POD to DocBook (in fact, ORA
+dblite) node types.  "Zen" means, I am just writing down what I think
+is a good design without considering the alternate implementations
+yet.
+
+This structure B<will> change heavily, this is an B<early draft>,
+actually draft is perhaps overstatings its greatness, this is actually
+still a B<brainfart>.
+
+The level of detail that this schema goes is one of those pragmatic
+trade-offs between richness in interoperability, and simplicity of
+design.  At this stage, this document is leaning so far on the side of
+interoperability, it's damn well almost fallen over!
+
+Note that all POD formatters will need to do I<something> with all of
+these blocks.  They can also expect the L<Pod::Preprocessor> not to
+fire any events to them that do not match this DTD.
+
+=head2 BLOCK ELEMENTS
+
+=head3 BLOCK COMMON ATTRIBUTES
+
+=over
+
+=item C<id>
+
+Blocks can have unique identifiers for various uses.
+
+=item C<class>
+
+The formatter(s) that will want to do something special with this
+node.  This is a space seperated list of formatter names.
+
+Note that it is possible for a single node at the beginning of a
+document with this set to affect the entire rest of the document on
+output, depending on the nature of the dialect.
+
+This can be considered roughly equivalent to the old C<=for FOO>
+syntax.
+
+=item C<source>
+
+In "extenuating circumstances", normative XML output might actually
+specify the text that went along with a particular block.  Note that
+this does not include the source text that went along with the child
+content or nodes.
+
+Whether or not this safe round-tripping to XML is ever considered
+"worth it" will be considered after a proof-of-concept implementation.
+As is the case with L<Pod::SAX> (IIRC), this feature may be dropped.
+
+=back
+
+=over
+
+=item B<para>
+
+The C<para> node type starts a normal paragraph that otherwise hasn't
+been wrapped.
+
+=over
+
+=item I<content>
+
+Content of paragraphs can only be inline blocks, like Text nodes or
+inline styles.
+
+=back
+
+=item B<programlisting>
+
+node for verbatim blocks
+
+=over
+
+=item I<content>
+
+Content of paragraphs can only be inline blocks, like Text nodes or
+inline styles.
+
+=back
+
+=item B<sect1> .. B<sect4>
+
+With a little departure from the flat nature of POD, these nodes will
+represent an entire section of the manual page - ie, until the start
+of the next C<sect> with an equal or lower number.
+
+=over
+
+=item I<content>
+
+Content of paragraphs can only be blocks elements, like title element
+or paragraphs.
+
+=back
+
+=item B<title>
+
+A container for the heading styles for C<sect1>..C<sect4> blocks.
+
+=item I<content>
+
+Content of paragraphs can only be inline blocks, like Text nodes or
+inline styles.
+
+=back
+
+=item B<itemizedlist>
+
+Used for unnumbered lists.  Think C<ul>.  May only contain listitems,
+and possibly a title.
+
+=item B<orderedlist>
+
+Used for numeric lists.  Think C<ol>.  May only contain listitems, and
+possibly a title.
+
+=item B<listitem>
+
+Entries for C<itemizedlist> and C<orderedlist>s.  May only contain
+block-level things, like paragraphs.
+
+=item B<glosslist>
+
+Used for glossaries (definition lists).  Think C<dl>.  May only
+contain glossary terms and definitions, and possibly a title.
+
+=item B<glossterm>
+
+Entries for C<glosslist>.  This represents the term.  May only contain
+block-level things, like paragraphs.
+
+=item B<glossdef>
+
+Entries for C<glosslist>.  This represents the definition of a term.
+May only contain block-level things, like paragraphs.
+
+=item B<note: new stuff follows>
+
+=item B<table>
+
+=item B<thead>
+
+=item B<tfoot>
+
+=item B<tbody>
+
+=item B<colspec>
+
+=item B<spanspec>
+
+=item B<row>
+
+=item B<entry>
+
+DocBook imports for tables.
+
+=item B<name>
+
+=item B<synopsis>
+
+=item B<description>
+
+Various O'Reilly DocBook types that just seem ... fitting.  Should
+these go in?  You be the judge - come to #perlkwid on irc.freenode.net
+
+=item B<classname>
+
+=item B<funcsynopsis>
+
+Hmm, maybe draw `standard' nodes for documenting class syntax?
+
+=item B<caution>
+
+=item B<important>
+
+=item B<note>
+
+=item B<tip>
+
+=item B<warning>
+
+Various styles of warning blocks.  I really like these.
+
+=item B<anchor>
+
+A named point that can be referred to.
+
+=over
+
+=item C<name>
+
+name of the anchor.
+
+=item I<anything else>
+
+Anything that doesn't match this DTD, or nodes that do not match this
+DTD will be considered a travesty by the L<Pod::Preprocessor>.  They
+will be fed into the C<class>, or perhaps wiped up by some active
+processor.
+
+=back
+
+=back
+
+=head2 INLINE ELEMENTS
+
+I've gone and included the whole ORA safari inline styles list,
+because I like richness in these things.  I think there should be lots
+of these :).
+
+Note that inline elements can have C<class> attributes, just like
+block elements.
+
+=over
+
+=item B<abbrev>
+
+=item B<acronym>
+
+=item B<citation>
+
+=item B<citetitle>
+
+=item B<emphasis>
+
+What you get from C<IE<lt> E<gt>>
+
+=item B<firstterm>
+
+=item B<foreignphrase>
+
+=item B<glossterm>
+
+=item B<quote>
+
+=item B<subscript>
+
+=item B<superscript>
+
+=item B<filename>
+
+What you get from C<FE<lt> E<gt>>
+
+=item B<function>
+
+=item B<command>
+
+=item B<literal>
+
+What you get from C<CE<lt> E<gt>>
+
+=item B<parameter>
+
+=item B<symbol>
+
+=item B<type>
+
+=item B<varname>
+
+=item B<classname>
+
+=item B<option>
+
+=item B<optional>
+
+=item B<userinput>
+
+=item B<link>
+
+A C<link> might be the only "special" inline style.  It has one
+extra attribute;
+
+=over
+
+=item ref
+
+The target of the link.
+
+=back
+
+=back
+
+=head2 MISC NOTES
+
+=over
+
+=item What about C<SE<lt> E<gt>>?
+
+non-breaking spaces will be represented in the character stream as
+such.  `standard' POD may still support this escape.
+
+=item What about C<SB<lt> E<gt>>?
+
+I suppose we'll still have to support this, but consider the C<warn>
+block level elements for putting things.
+
+=item What about C<XB<lt> E<gt>>?
+
+Link targets!  Hmm, well, I don't see why not...
+
+=back
+
+
+=head1 BIBLIOGRAPHY
+
+The following works were used as reference material and input.  Or,
+rather, if you're reading this SVN revision, then this is my shortlist
+of reference material to work with in ensuring maximum design
+compatibility with these usages of POD.
+
+=over
+
+=item L<Pod::SAX>
+
+Matt Seargeant.  SAX interface to POD documents.  Nice one Matt!
+
+=item L<Pod::DocBook>
+
+A crucial reference work... as POD is thought to be quite similar to
+DocBook in many ways.  We shall see how well the mapping works...
+
+=item DocBook, the definitive Guide
+
+O'Reilly & Associates.  See also C<apt-get install docbook-defguide>
+
+Used to clarify some decisions made.
+
+=item L<Pod::XML>
+
+Another reference POD XML generator to compare output form and
+structure with.
+
+=item L<Pod::XPath>
+
+Examined closely as a prior art for building the linking syntax for
+POD.
+
+=item L<Test::Inline>
+
+=item L<Test::Pod::Coverage>
+
+Two example modules that want to be able to use the parser to extract
+certain information, for differing uses.
+
+=item L<OODoc>
+
+Checking to see whether any of the concepts introduced by OODoc need
+any special support from the Pod parser.  This will be used more as a
+"final check" - as if the design is "right", or at least "not utterly
+ballsed up", then usages like this shouldn't need any special support
+to implement their magic.
+
+Then you wouldn't need a special POD formatter to parse and output
+OODoc!  Or, rather, the dialect-special POD parser would parse it and
+preprocessor would transform the document at the right time.  Maybe.
+
+Well, it's the goal, anyway.
+
+=item
+
+=back
+
+=cut
+
+
+
