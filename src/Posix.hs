@@ -15,8 +15,10 @@
 #include "config.h"
 
 module Posix (
-    sleep,
+    createSymbolicLink,
+    readSymbolicLink,
     rename,
+    sleep,
 ) where
 
 #ifdef PUGS_HAVE_POSIX
@@ -25,10 +27,16 @@ import System.Posix.Process
 import System.Posix.Unistd
 #else
 
-sleep :: Int -> IO ()
-sleep = error "'sleep' not implemented on this platform."
+createSymbolicLink :: String -> String -> IO ()
+createSymbolicLink = error "'symlink' not implemented on this platform."
+
+readSymbolicLink :: String -> String -> IO ()
+readSymbolicLink = error "'readlink' not implemented on this platform."
 
 rename :: String -> String -> IO ()
 rename = error "'rename' not implemented on this platform."
+
+sleep :: Int -> IO ()
+sleep = error "'sleep' not implemented on this platform."
 
 #endif
