@@ -5,7 +5,7 @@ require Test;
 
 
 
-plan 16;
+plan 17;
 
 
 =kwid
@@ -94,10 +94,17 @@ fail("FIXME parsefail (3 tests)"); # currently fails compilation even in eval
 #todo_is($case, 'title', "case param was named with funny syntax");
 }
 
+{
+sub h($a,$b,$d) { $d ?? h($b,$a,$d-1) :: $a~$b }
+
+is(h('a','b',1),'ba',"parameters don\'t bind incorrectly");
+}
+
 =kwid
 
 = AUTHOR
 
 Jesse Vincent <jesse@bestpractical.com>
+Carl Masak <cmasak@gmail.com>
 
 =cut
