@@ -41,7 +41,7 @@ op1 "post:++" = \mv -> do
     liftIO $ writeIORef (vCast mv) $ case val of
         (VStr str)  -> VStr $ strInc str
         _           -> op1Numeric (\x -> x + 1) (vCast val)
-    return val
+    op1 "+" val
 op1 "++"   = \mv -> do
     op1 "post:++" mv
     readMVal mv
@@ -49,7 +49,7 @@ op1 "post:--"   = \mv -> do
     val <- liftIO $ readIORef (vCast mv)
     liftIO $ writeIORef (vCast mv) $
         op1Numeric (\x -> x - 1) (vCast val)
-    return val
+    op1 "+" val
 op1 "--"   = \mv -> do
     op1 "post:--" mv
     readMVal mv

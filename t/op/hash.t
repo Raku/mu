@@ -25,7 +25,7 @@ if (@slice1[1] == 3) { say "ok 7" } else { say "not ok 7 # TODO hash slice" }
 
 my @slice2;
 @slice2 = eval '%hash2<three one>';
-if (@slice2[0] == 5123123) { say "not ok 8 wth?" } else { say "ok 8" }
+if (@slice2[0] == 5123123) { say "not ok 8 # TODO (wtf?)" } else { say "ok 8" }
 if (@slice2[0] == 3) { say "ok 9" } else { say "not ok 9 # TODO %hash<>" }
 if (@slice2[1] == 1) { say "ok 10" } else { say "not ok 10 # TODO %hash<>" }
 

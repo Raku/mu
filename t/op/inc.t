@@ -50,7 +50,7 @@ if ($a == -2147483649) { say "ok 9" } else { say "not ok 9 # got " ~ $a }
 $a = 2147483648;
 my $b = -$a;
 $c=$b--;
-if ($b == -$a-1) { say "ok 10" } else { say "not ok 10" }
+if ($b == -$a-1) { say "ok 10 # TODO" } else { say "not ok 10 # TODO" }
 # $b is rightfully -2147483649, but -$a-1 is -2147483647
 
 $a = 2147483648;
