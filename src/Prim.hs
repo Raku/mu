@@ -257,11 +257,13 @@ op1Values v@(VList _) = VList $ map snd $ (vCast :: Val -> [VPair]) v -- hope it
 op1Values (VRef v) = op1Values v
 op1Values v = VError "values not defined" (Val v)
 
-op1Ord :: Val -> Val
+op1Ord              :: Val -> Val
 op1Ord (VStr (s:_)) = VInt (fromIntegral (ord s))
+op1Ord v            =  VError "ord not defined" (Val v)
 
-op1Chr   :: Val -> Val
+op1Chr          :: Val -> Val
 op1Chr (VInt i) = VStr [(chr . fromIntegral) i]
+op1Chr v        = VError "chr not defined" (Val v)
 
 op1Pick :: Val -> Eval Val
 op1Pick (VJunc (Junc JAny _ set)) = do -- pick mainly works on 'any'
