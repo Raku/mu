@@ -49,7 +49,7 @@ symbol s
         return rv
     | otherwise          = try $ do
         rv <- string s
-        choice [ eof >> return ' ', lookAhead (satisfy (\x -> x == ';' || x /= (last s))) ]
+        choice [ eof >> return ' ', lookAhead (satisfy (\x -> x `elem` ";!" || x /= (last s))) ]
         whiteSpace
         return rv
 
