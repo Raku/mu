@@ -11,12 +11,14 @@ These tests derived from comments in http://use.perl.org/~autrijus/journal/23398
 
 =cut
 
-plan 7;
+plan 8;
 
 my $world = "World";
 
 is("Hello $world", 'Hello World', 'double quoted string interpolation works');
 is('Hello $world', 'Hello $world', 'single quoted string interpolation does not work (which is correct)');
+
+todo_is(eval '"Hello $world!"', "Hello World!", "! is not a part of var names");
 
 is("2 + 2 = { 2+2 }", '2 + 2 = 4', 'double quoted closure interpolation works');
 is('2 + 2 = { 2+2 }', '2 + 2 = { 2+2 }', 'single quoted closure interpolation does not work (which is correct)');
