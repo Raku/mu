@@ -110,3 +110,86 @@ sub ghc_version {
 .
     return $1;
 }
+
+1;
+
+=pod
+
+=head1 NAME
+
+pugscc - Pugs Compiler Compiler
+
+=head1 SYNOPSIS
+
+    % pugscc --run -e "say ('Hello World')"
+
+=head1 DESCRIPTION
+               
+The 'pugscc' script allows you to create an exectuable image from a
+perl6 script, much like 'perlcc' does for perl5. 'pugscc' is 
+currently in the very early stages (proof-of-concept), and all 
+interested hackers are welcome to come join in the fun.
+
+=head1 BACKENDS
+
+'pugscc' is currently in a very early stage, but will eventually 
+support a number of different backends. Currently the default (and
+only fully working) backend is the 'Pugs' backend which will create
+an executable with an embedded pugs interpreter. Experimental 
+support also currently exists for a 'Haskell' and 'Parrot' backend, 
+with plans for a 'Ponie' and 'Perl5' backend as well (yes, this 
+means you can run perl5 code with Pugs too).
+
+=head1 HOW CAN YOU HELP
+
+The main engine for 'pugscc' is found in the src/Compile.hs file, and 
+the backends are located within src/Compile/. 
+
+** Autrijus can you write something here? **
+
+=head1 DEPENDENCIES
+
+Here is a list of the various dependencies for each backend, and 
+links to where they can be downloaded. 
+
+=over 4
+
+=item Pugs - requires Pugs ;-)
+
+=item Parrot - requires Parrot
+
+L<http://search.cpan.org/~ltoetsch/parrot/>
+L<http://www.parrotcode.org/>
+
+=item Haskell - GHC (which is needed for Pugs)
+
+=item Perl5 - requires perl5
+
+L<http://www.perl.org>
+
+Ponie - requires Ponie 
+
+L<http://opensource.fotango.com/software/ponie/downloads>
+L<http://search.cpan.org/~abergman/ponie/>
+L<http://www.poniecode.org/>
+
+=back
+
+=head1 AUTHORS
+
+Stevan Little E<lt>stevan@iinteractive.comE<gt>.
+
+=head1 COPYRIGHT
+
+Copyright 2005 by Autrijus Tang E<lt>autrijus@autrijus.orgE<gt>.
+
+This code is free software; you can redistribute it and/or modify it under
+the terms of either:
+
+    a) the GNU General Public License, version 2, or
+    b) the Artistic License, version 2.0beta5.
+
+For the full license text, please see the F<GPL-2> and F<Artistic-2> files
+under the F<LICENSE> directory in the Pugs distribution.
+
+=cut
