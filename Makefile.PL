@@ -21,7 +21,7 @@ install_script  (glob('script/*'));
 build_requires  ('ExtUtils::MakeMaker' => 6.17);
 include         ('Module::Install::Makefile::Name');
 include         ('Module::Install::Makefile::Version');
-build_subdirs   (map fixpaths($_), grep -e "$_/Makefile.PL", glob("ext/*"));
+build_subdirs   (map fixpaths($_), "src/pcre", grep -e "$_/Makefile.PL", glob("ext/*"));
 makemaker_args  (
     test => { TESTS => join ' ', (glob("t/*.t"), glob("t/*/*.t")) },
     MAN1PODS => {},
@@ -49,7 +49,7 @@ sub set_postamble {
         $ghc_flags .= " -fno-warn-deprecations -fno-warn-orphans";
     }
     my $pcre = "src/pcre/pcre$Config{_o}";
-    my $ghc_output = "-o pugs$Config{_exe} src/Main.hs pcre$Config{_o}";
+    my $ghc_output = "-o pugs$Config{_exe} src/Main.hs src/pcre/pcre$Config{_o}";
     my @prereqs = ($pcre, $config_h, qw( src/UnicodeC.c src/UnicodeC.h ));
 
     postamble(fixpaths(<< "."));

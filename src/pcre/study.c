@@ -96,7 +96,7 @@ static BOOL
 set_start_bits(const uschar *code, uschar *start_bits, BOOL caseless,
   BOOL utf8, compile_data *cd)
 {
-int c;
+register int c;
 
 /* This next statement and the later reference to dummy are here in order to
 trick the optimizer of the IBM C compiler for OS/2 into generating correct
