@@ -42,7 +42,7 @@ todo_ok($lasttest == 1, "last");
 
 my $nexttest = 0;
 eval 'for (1..10) { $nexttest++; next; $nexttest++; }; 1';
-todo_ok($lasttest == 10, "next");
+todo_ok($nexttest == 10, "next");
 
 ok(eval '12.eval', "12.eval");
 ok(eval 'eval(1 ?? 1 :: 0)', "?? ::");
