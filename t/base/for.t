@@ -9,7 +9,7 @@ for statement tests
 
 =cut
 
-plan 18;
+plan 20;
 
 ## for with plain old range operator w/out parens
 
@@ -133,4 +133,25 @@ my $r;
 sub some_sub_2 ($arg) { $r = $r ~ $arg; }
 eval 'for (@list_r), &some_sub_2;';
 todo_is($r, '012345', 'for (@list), &some_sub works');
+
+
+my @elems = <a b c d e>;
+
+{
+	my @a;
+	for (@elems) {
+		push @a, $_
+	}
+	my @e = <a b c d e>;
+	is(@a, @e, 'for (@a) { ... $_ ... } iterates all elems');
+}
+
+{
+	my @a;
+	for (@elems) {
+		push @a, $_, $_;
+	}
+	my @e = <a a b b c c d d e e>;
+	is(@a, @e, 'for (@a) { ... $_ ... $_ ... } iterates all elems, not just odd');
+}
 
