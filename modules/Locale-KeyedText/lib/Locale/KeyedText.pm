@@ -52,7 +52,7 @@ subtype PkgName of Str where { .defined and m/^<[a-zA-Z0-9_:]>+$/ }
 ######################################################################
 ######################################################################
 
-module Locale::KeyedText-0.0.3 {
+module Locale::KeyedText-0.0.4 {
 
 ######################################################################
 
@@ -223,7 +223,7 @@ documentation sections further below.>
 Many times during a program's operation, the program (or a module it uses) will
 need to display a message to the user, or generate a message to be shown to the
 user.  Sometimes this is an error message of some kind, but it could also be a
-prompt message for interactive systems.
+prompt or response message for interactive systems.
 
 If the program or any of its components are intended for widespread use then it
 needs to account for a variance of needs between its different users, such as
@@ -241,8 +241,14 @@ handle it internally, while another one displays it to the user instead.
 
 Locale::KeyedText provides a simple but effective mechanism for applications and
 modules that empowers single binaries to support N locales or user types
-simultaneously, and that allows any end users to add support for new locales
-easily and without a recompile, often even while the program is executing.
+simultaneously, and that allows any end users to add support for new languages 
+easily and without a recompile (such as by simply copying files), often even while 
+the program is executing.
+
+Locale::KeyedText gives your application the maximum amount of control as to
+what the user sees; it never outputs anything by itself to the user, but rather
+returns its results for calling code to output as it sees fit.  It also does not
+make direct use of environment variables, which can aid in portability.
 
 Locale::KeyedText itself is trivially easy to install, since it is written in
 pure Perl and it has no external dependencies of any kind.
@@ -255,8 +261,26 @@ other module or application says that it uses Locale::KeyedText, that is a terse
 way of saying that it subscribes to the localization methodology that is
 described here, and hence provides these benefits to developers and users alike.
 
-B<WHAT FOLLOWS IS MOST OF THE OLD 'DESCRIPTION'; IT WILL BE REWRITTEN/REMOVED 
-WITHIN THE NEXT FEW HOURS.>
+For some practical examples of Locale::KeyedText in use, see my dependent CPAN
+modules whose problem domain is databases and/or SQL.
+
+=head1 CLASSES IN THIS MODULE
+
+This module is implemented by several object-oriented Perl 6 packages, each of
+which is referred to as a class.  They are: B<Locale::KeyedText> (the module's
+name-sake), B<Locale::KeyedText::Message> (aka B<Message>), and
+B<Locale::KeyedText::Translator> (aka B<Translator>).
+
+I<While all 3 of the above classes are implemented in one module for
+convenience, you should consider all 3 names as being "in use"; do not create
+any modules or packages yourself that have the same names.>
+
+The Message and Translator classes do most of the work and are what you mainly
+use.  The name-sake class mainly exists to guide CPAN in indexing the whole
+module, but it also provides a few wrapper functions over the other classes for
+your convenience; you never instantiate an object of Locale::KeyedText itself.
+
+=head1 HOW IT WORKS
 
 Modern programs or database systems often refer to an error condition by an
 internal code which is guaranteed to be unique for a situation, and this is
@@ -267,10 +291,7 @@ conditional logic, using a simple 'equals', and then the application can "do
 the right thing".  No parsing or ambiguity involved.  By contrast, if a program
 simply returned words for the user, such as 'error opening file', programs
 would have a harder time figuring out the best way to deal with it.  But for
-displaying to users, easy messages are better.  Also, different users have
-their own languages, and users with either different skill levels or different
-security privileges, should be shown different messages for the same error
-conditions.  Developers get more details, joe public gets very little.
+displaying to users, easy messages are better.
 
 I have found that when it comes to getting the most accurate program text for
 users, we still get the best results by having a human being write out that
@@ -290,6 +311,11 @@ separate resource files used by the program, so that if you wanted to upgrade
 or localize what text the user sees, you only have to update said separate
 resource files, and not change your main program.
 
+I<Note that an update is planned for this module that will enable user text to
+be stored in non-Perl external files, such as a 2-column plain-text format that
+will be much easier for a non-programmer to edit.  But the current Perl-based 
+solution will also be kept due to its more dynamic capabilities.>
+
 I was inspired to have this organization partly by how Mac OS X manages its
 resources.  It is the standard practice for Mac OS X programs, including the
 operating system itself, to have the user language data in separate files
@@ -307,7 +333,7 @@ previous non-Unix Mac OS) handles lots of other program resources as data files
 as well, making them easy to upgrade.
 
 Locale::KeyedText aims to bring this sort of functionality to Perl modules or
-programs. Your module or program can be distributed with one or more resource
+programs.  Your module or program can be distributed with one or more resource
 files containing text for users, and your program would use associated keys
 internally.
 
@@ -332,8 +358,9 @@ Generally, when a program module would return a code-key to indicate a
 condition, often it will also provide some variable values to be interpolated
 into the user strings; Locale::KeyedText would also handle this.
 
-Locale::KeyedText never outputs anything by itself to the user, but rather
-returns its results for calling code to output as it sees fit.
+A program generates a Message that contains all possibly useful details, so that
+each Template can optionally use them; but often a template will choose to show
+less than all of the available details depending on the intended viewer.
 
 One of the main distinctions of this approach over similar modules is that text
 is always looked up by a key which is not meant to be meaningful for a user.
@@ -342,31 +369,19 @@ to pass in english text and they translate it, which could produce ambiguous
 results or associations.  Or alternately, the other modules require your text
 data to be stored in a format other than Perl files.  Or alternately they have
 a compiled C component or otherwise have external dependencies;
-Locale::KeyedText has no external dependencies (it is very simple).  There are
-other differences.  Where other solutions take variables, they seem to be
-positional (like with 'sprintf'); whereas, Locale::KeyedText has named
+Locale::KeyedText has no external dependencies (it is very simple).
+
+There are other differences.  Where other solutions take variables, they seem to
+be positional (like with 'sprintf'); whereas, Locale::KeyedText has named
 variables, which can be used in any order, or not used at all, or used multiple
-times.  Locale::KeyedText is generally a simpler solution than alternatives,
-and doesn't know about language specific details like encodings or plurality.
+times.  Locale::KeyedText is generally a simpler solution than alternatives, and
+doesn't know about language specific details like encodings or plurality.
 
-For some practical examples of Locale::KeyedText in use, see my dependent CPAN
-modules whose problem domain is databases and/or SQL.
-
-=head1 CLASSES IN THIS MODULE
-
-This module is implemented by several object-oriented Perl 5 packages, each of
-which is referred to as a class.  They are: B<Locale::KeyedText> (the module's
-name-sake), B<Locale::KeyedText::Message> (aka B<Message>), and
-B<Locale::KeyedText::Translator> (aka B<Translator>).
-
-I<While all 3 of the above classes are implemented in one module for
-convenience, you should consider all 3 names as being "in use"; do not create
-any modules or packages yourself that have the same names.>
-
-The Message and Translator classes do most of the work and are what you mainly
-use.  The name-sake class mainly exists to guide CPAN in indexing the whole
-module, but it also provides a few wrapper functions over the other classes for
-your convenience; you never instantiate an object of Locale::KeyedText itself.
+My understanding of alternate solutions like "gettext" suggests that they use a
+compile-time macro-based approach to substitute the user's preferred language
+into the program code itself, so it then becomes a version of that language.  By
+contrast, Locale::KeyedText does no compile time binding and will support
+multiple languages or locales simultaneously at run time.
 
 =head1 MESSAGE OBJECT PROPERTIES
 
