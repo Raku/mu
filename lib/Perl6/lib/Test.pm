@@ -16,7 +16,7 @@ sub ok (Bool $cond, Str ?$desc) returns Bool is export {
     return $cond;
 }
 
-sub is (Str $got, Str $expected, Str ?$desc) is export {
+sub is (Str $got, Str $expected, Str ?$desc) returns Bool is export {
     my $ok  := ($got eq $expected) ?? "ok " :: "not ok ";
     my $out := defined($desc) ?? (" - " ~ $desc) :: "";
     $loop++;
@@ -41,7 +41,7 @@ sub todo_ok (Bool $cond, Str ?$desc) returns Bool is export {
     return $cond;
 }
 
-sub todo_is (Str $got, Str $expected, Str ?$desc) is export {
+sub todo_is (Str $got, Str $expected, Str ?$desc) returns Bool is export {
     my $ok  := ($got eq $expected) ?? "ok " :: "not ok ";
     my $out := defined($desc) ?? (" - " ~ $desc) :: "";
     $loop++;
