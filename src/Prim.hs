@@ -32,7 +32,7 @@ op0 "time"  = \_ -> do
     epochClkT = toClockTime epoch
     epoch = CalendarTime 2000 January 1 0 0 0 0 Saturday 0 "UTC" 0 False
 op0 "not" = const retEmpty
-op0 "true" = const (return $ VBool True)
+op0 "so" = const (return $ VBool True)
 op0 "¥" = (>>= return . VList . concat . transpose) . mapM fromValue
 op0 "Y" = op0 "¥"
 op0 other = \x -> return $ VError ("unimplemented listOp: " ++ other) (App other (map Val x) [])
@@ -108,7 +108,7 @@ op1 "?^"   = op1 "!"
 op1 "\\"   = return . VRef
 op1 "post:..."  = return . op1Range
 op1 "not"  = op1 "!"
-op1 "true" = op1 "?"
+op1 "so" = op1 "?"
 op1 "any"  = return . opJuncAny . vCast
 op1 "all"  = return . opJuncAll . vCast
 op1 "one"  = return . opJuncOne . vCast
@@ -614,8 +614,8 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Num       spre    --      (rw!Num)\
 \\n   Any       pre     not     ()\
 \\n   Bool      pre     not     (Bool)\
-\\n   Any       pre     true    ()\
-\\n   Bool      pre     true    (Bool)\
+\\n   Any       pre     so      ()\
+\\n   Bool      pre     so      (Bool)\
 \\n   List      pre     map     (Code, List)\
 \\n   List      pre     grep    (Code, List)\
 \\n   List      pre     map     (Array: Code)\
