@@ -12,7 +12,7 @@ works.
 
 my @examples = ("-v", "--version");
 @examples = @examples.map():{ $_, "-w $_", "$_ -w", "-w $_ -w" };
-@examples = (); # unTODOme
+#@examples = (); # unTODOme
 
 plan +@examples;
 

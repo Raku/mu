@@ -72,10 +72,10 @@ is(@split5[2], 'Test', 'the third element is right');
 
 { # split with a capture
     my @split = split(rx:perl5{([A-Z]|<)}, "Hello < test");
-    todo_is(+@split, 5, 'got the right number of values'); # unTODOme
-    todo_is(@split[0], '', 'got the right first value'); # unTODOme
-    todo_is(@split[1], 'H', 'got the right second value'); # unTODOme
-    todo_is(@split[2], 'ello ', 'got the right third value'); # unTODOme
-    todo_is(@split[3], '<', 'got the right fourth value'); # unTODOme
-    todo_is(@split[4], ' test', 'got the right fifth value'); # unTODOme
+    is(+@split, 5, 'got the right number of values'); # unTODOme
+    is(@split[0], '', 'got the right first value'); # unTODOme
+    is(@split[1], 'H', 'got the right second value'); # unTODOme
+    is(@split[2], 'ello ', 'got the right third value'); # unTODOme
+    is(@split[3], '<', 'got the right fourth value'); # unTODOme
+    is(@split[4], ' test', 'got the right fifth value'); # unTODOme
 }

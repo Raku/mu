@@ -17,4 +17,4 @@ my $b = 0; ok(!(true $b), 'true $false_var is not true');
 # L<S04/"Switch statements" /"is exactly equivalent to">
 # used without an argument
 my $c = eval 'true';
-todo_ok($c, "true is true"); # unTODOme
+ok($c, "true is true"); # unTODOme

@@ -85,36 +85,36 @@ is($pair4.key.value, 'bar', 'got right nested value');
 
 # Pair list a la http://www.nntp.perl.org/group/perl.perl6.language/19360
 
-todo_fail("FIXME parsefail"); # unTODOme
-my $list; # = 1 => 2 => 3 => 4;
-#isa_ok($list, 'Pair');
 
-todo_fail("FIXME parsefail"); # unTODOme
-#my $key = eval '$list.key';
-#is($key, 1, 'the key is 1');
-todo_fail("FIXME parsefail"); # unTODOme
-#isa_ok(eval '$list.value', 'Pair', '$list.value is-a Pair');
-todo_fail("FIXME parsefail"); # unTODOme
-#is(eval '$list.value.key', 2, 'the list.value.key is 2');
-todo_fail("FIXME parsefail"); # unTODOme
-#isa_ok(eval '$list.value.value', 'Pair', '$list.value.value is-a Pair');
-todo_fail("FIXME parsefail"); # unTODOme
-#is(eval '$list.value.value.key', 3, 'the list.value.value.key is 3');
-todo_fail("FIXME parsefail"); # unTODOme
-#is(eval '$list.value.value.value', 4, 'the list.value.value.value is 4');
+my $list = 1 => 2 => 3 => 4;
+isa_ok($list, 'Pair');
+
+
+my $key = eval '$list.key';
+is($key, 1, 'the key is 1');
+
+isa_ok(eval '$list.value', 'Pair', '$list.value is-a Pair');
+
+is(eval '$list.value.key', 2, 'the list.value.key is 2');
+
+isa_ok(eval '$list.value.value', 'Pair', '$list.value.value is-a Pair');
+
+is(eval '$list.value.value.key', 3, 'the list.value.value.key is 3');
+
+is(eval '$list.value.value.value', 4, 'the list.value.value.value is 4');
 
 # TODO tests
 
-#my $quux = eval '(quux => "xyzzy").key';
-todo_fail("FIXME parsefail"); # unTODOme
-#is($quux, 'quux', "lhs quotes" );
+my $quux = eval '(quux => "xyzzy").key';
+
+is($quux, 'quux', "lhs quotes" );
 
 # lvalue Pair assignments from S06 and thread starting with
 # http://www.nntp.perl.org/group/perl.perl6.language/19425
 
 my $val;
-todo_fail("FIXME parsefail"); # unTODOme
-#eval '("foo" => $val) = "baz"';
-#todo_ok($val eq "baz", "lvalue lists");
+
+eval '("foo" => $val) = "baz"';
+todo_ok($val eq "baz", "lvalue lists");
 
 

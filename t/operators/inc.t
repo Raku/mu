@@ -86,20 +86,20 @@ isa_ok($a, "Str", "it isa Str");
 
 my %a = ('a' => 1);
 eval '%a{"a"}++';
-todo_is(%a{'a'}, 2, "hash key"); # unTODOme
+is(%a{'a'}, 2, "hash key"); # unTODOme
 
-todo_fail("FIXME parsefail"); # unTODOme
-# my %b = ('b' => 1);
-# my $var = 'b';
-# eval '%b{$var}++';
-# is(%b{$var}, 2, "hash key via var");
+
+my %b = ('b' => 1);
+my $var = 'b';
+eval '%b{$var}++';
+is(%b{$var}, 2, "hash key via var");
 
 my @a = (1);
 eval '@a[1]++';
-todo_is(@a[0], 2, "array elem"); # unTODOme
+is(@a[0], 2, "array elem"); # unTODOme
 
 my @b = (1);
 my $moo = 0;
 eval '@b[$moo]++';
-todo_is(@b[$moo], 2, "array elem via var"); # unTODOme
+is(@b[$moo], 2, "array elem via var"); # unTODOme
 is($moo, 0, "var was not touched");

@@ -18,7 +18,7 @@ plan 6;
 	my @e = (1, 2, 3, 6, 45);
 
 	my @s; eval '@s = @a.sort:{ $^a <=> $^b }';
-	todo_is(@s, @e, '... with explicit spaceship'); # unTODOme
+	is(@s, @e, '... with explicit spaceship'); # unTODOme
 };
 
 {
@@ -34,7 +34,7 @@ plan 6;
 	my @e = <aaa boo daa gaa>;
 
 	my @s; eval '@s = @a.sort:{ $^a cmp $^b }';
-	todo_is(@s, @e, '... with explicit cmp'); # unTODOme
+	is(@s, @e, '... with explicit cmp'); # unTODOme
 };
 
 {
@@ -50,5 +50,5 @@ plan 6;
 	my @e = (1 .. 5);
 
 	my @s; eval '@s = sort { $^a <=> $^b } @a';
-	todo_is(@s, @e, '... with explicit sort block'); # unTODOme
+	is(@s, @e, '... with explicit sort block'); # unTODOme
 };

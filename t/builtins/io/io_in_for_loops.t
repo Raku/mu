@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 49; # XXX gaal: this used to be 48 before the TODOification
+plan 48;
 
 
 my $filename = 'tempfile';
@@ -75,12 +75,10 @@ my $filename = 'tempfile';
     my $fh = open($filename);
     my $num = 1;
     for (=$fh) -> $line {
-        todo_fail("FIXME parsefail"); # unTODO
-        #is($line, "$num\n", '... got the right line ((=$fh) controlled loop)');
+        is($line, "$num\n", '... got the right line ((=$fh) controlled loop)');
         $num++;
-        todo_fail("FIXME parsefail"); # unTODO
-        #my $line2 = =$fh;
-        #is($line2, "$num\n", '... got the right line2 ((=$fh) controlled loop)');
+        my $line2 = =$fh;
+        is($line2, "$num\n", '... got the right line2 ((=$fh) controlled loop)');
         $num++;
     }
     $fh.close();
@@ -91,12 +89,10 @@ my $filename = 'tempfile';
     my $fh = open($filename);
     my $num = 1;
     for =$fh -> $line {
-        todo_fail("FIXME parsefail"); # unTODO
-        #is($line, "$num\n", '... got the right line (=$fh controlled loop)');
+        is($line, "$num\n", '... got the right line (=$fh controlled loop)');
         $num++;
-        todo_fail("FIXME parsefail"); # unTODO
-        #my $line2 = =$fh;
-        #is($line2, "$num\n", '... got the right line2 (=$fh controlled loop)');
+        my $line2 = =$fh;
+        is($line2, "$num\n", '... got the right line2 (=$fh controlled loop)');
         $num++;
     }
     $fh.close();

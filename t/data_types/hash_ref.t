@@ -62,12 +62,12 @@ is(@slice2[1], 1, '%hash<> slice was successful');
 # slice assignment
 
 eval '$hash5{"1st", "3rd"} = (5, 10)';
-todo_is($hash5<1st>, 5, 'value was changed successfully with slice assignment'); # unTODOme
-todo_is($hash5<3rd>, 10, 'value was changed successfully with slice assignment'); # unTODOme
+is($hash5<1st>, 5, 'value was changed successfully with slice assignment'); # unTODOme
+is($hash5<3rd>, 10, 'value was changed successfully with slice assignment'); # unTODOme
 
 eval '$hash5<1st 3rd> = [3, 1]';
-todo_is($hash5<1st>, 3, 'value was changed successfully with slice assignment'); # unTODOme
-todo_is($hash5<3rd>, 1, 'value was changed successfully with slice assignment'); # unTODOme
+is($hash5<1st>, 3, 'value was changed successfully with slice assignment'); # unTODOme
+is($hash5<3rd>, 1, 'value was changed successfully with slice assignment'); # unTODOme
 
 # keys 
 

@@ -172,6 +172,6 @@ Tests the given block, as defined in L<S04/"Switch statements">
       }
     }
 
-   todo_is ret_test("a"), "A", "given returns the correct value (1)"; # unTODOme
-   todo_is ret_test("b"), "B", "given returns the correct value (2)"; # unTODOme
+   is ret_test("a"), "A", "given returns the correct value (1)"; # unTODOme
+   is ret_test("b"), "B", "given returns the correct value (2)"; # unTODOme
 }

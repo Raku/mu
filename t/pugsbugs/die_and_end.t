@@ -7,11 +7,9 @@ require Test;
 
 plan 1;
 
-todo_fail("FIXME parsefail"); # unTODOme
+close $*ERR;
 
-#close $*ERR;
-
-#die "punt";
-#END { pass("end block reached") }
+die "punt";
+END { pass("end block reached") }
 
 
