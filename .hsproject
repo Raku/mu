@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<haskellProject>
+  <sourcePath path="src"/>
+  <outputPath path="out"/>
+  <binPath path="bin"/>
+  <targetBinary name="theResult"/>
+</haskellProject>
