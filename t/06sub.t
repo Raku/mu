@@ -1,7 +1,7 @@
 use v6;
 
 my $loop = 1;
-say "1..10";
+say "1..12";
 
 sub foobar ($var) {
     return $var;
@@ -49,5 +49,20 @@ for ("quux") {
 }
 if (callerunderscore() eq "-bar-") { say "ok 10" } else { say "not ok 10 # TODO CALLER::" }
 
-
-
+# Check that closures are closed over variables they do use
+# if they don't undefined variable exceptions get thrown
+sub createclosure_sub () {
+  my $a = "-wibble-";
+  return sub { $a };
+}
+sub createclosure_block () {
+  my $a = "-quux-";
+  return { $a };
+}
+my $sub = createclosure_sub();
+my $block = createclosure_block();
+my $_ = "not-wibble-or-quux";
+$_ = $sub.();
+if ($_ eq "-wibble-") { say "ok 11" } else { say "not ok 11" }
+$_ = $block.();
+if ($_ eq "-quux-") { say "ok 12" } else { say "not ok 12" }
