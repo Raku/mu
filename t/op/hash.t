@@ -68,7 +68,7 @@ todo_is(%hash5<three>, 1, 'value was changed successfully with slice assignment'
 eval '%hash<one three> = [3, 1]';
 todo_is(%hash5<one>[0], 3, 'value assigned successfully with arrayref in list context');
 todo_is(%hash5<one>[1], 1, 'value assigned successfully with arrayref in list context');
-todo_ok(!defined %hash5<three>, '"three" assumed value undef from slice assignment');
+todo_ok(!defined(%hash5<three>), '"three" assumed value undef from slice assignment');
 
 # keys 
 
