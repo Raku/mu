@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 22;
+plan 23;
 
 # tests various assignment styles
 
@@ -43,19 +43,19 @@ plan 22;
 };
 
 {
-   # list assignments 
+   # testing list assignment syntax 
 
 	my ($a,$b,$c,@a);
 	($a,$b,$c) = 1 .. 3;
 	@a = 1 .. 3;
+	my(@b) = 1 .. 3;
 
-	is($a,1,"'$a' s/b '1': ($,$,$) = 1 .. 3");
-	is($b,2,"'$b' s/b '2': ($,$,$) = 1 .. 3");
-	is($c,3,"'$c' s/b '3': ($,$,$) = 1 .. 3"); 
-	is(@a,'1 2 3',"'{@a}' s/b '1 2 3' @a = 1 .. 3");
-
+	is($a,1,"'$a' is '1'?: ($,$,$) = 1 .. 3");
+	is($b,2,"'$b' is '2'?: ($,$,$) = 1 .. 3");
+	is($c,3,"'$c' is '3'?: ($,$,$) = 1 .. 3"); 
+	is(@a,'1 2 3',"'{@a}' is '1 2 3'?:      @a = 1 .. 3");
+	is(@b,'1 2 3',"'{@b}' is '1 2 3'?: my (@a) = 1 .. 3"); 
 }
-
 
 {
 	my @a;
