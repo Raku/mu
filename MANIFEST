@@ -58,6 +58,9 @@ Makefile.PL
 MANIFEST			This list of files
 MANIFEST.SKIP
 META.yml
+modules/Locale-KeyedText/lib/Locale/KeyedText.pm
+modules/Locale-KeyedText/Makefile.PL
+modules/Locale-KeyedText/t/test.t
 modules/Sample-Module/lib/Sample/Module.pm
 modules/Sample-Module/Makefile.PL
 modules/Sample-Module/t/test.t
@@ -66,6 +69,7 @@ SIGNATURE
 src/AST.hs
 src/Bind.hs
 src/builtins.kwid
+src/Config.hs
 src/Cont.hs
 src/Context.hs
 src/Eval.hs
@@ -81,6 +85,7 @@ src/Posix.hs
 src/Pretty.hs
 src/Prim.hs
 src/pugs_config.h
+src/pugs_version.h
 src/Rule.hs
 src/Rule/Char.hs
 src/Rule/Combinator.hs
@@ -113,6 +118,7 @@ t/config.t
 t/Dialects/perlego/isrw.t
 t/Dialects/perlego/sigilless.t
 t/magicals/block.t
+t/magicals/caller_pos.t
 t/magicals/env.t
 t/magicals/inc.t
 t/magicals/progname.t
@@ -132,9 +138,11 @@ t/op/die.t
 t/op/eq.t
 t/op/eval.t
 t/op/force_context.t
+t/op/gather.t
 t/op/grep.t
 t/op/hash.t
 t/op/hash_ref.t
+t/op/hyper.t
 t/op/inc.t
 t/op/int.t
 t/op/io.t
@@ -154,6 +162,7 @@ t/op/ref.t
 t/op/relational.t
 t/op/repeat.t
 t/op/shift.t
+t/op/smartmatch.t
 t/op/split.t
 t/op/string_interpolation.t
 t/op/sub_return_values.t
@@ -178,4 +187,5 @@ t/unspecced/chomp.t
 t/unspecced/chop.t
 t/unspecced/cont.t
 t/var/is_constant.t
+t/var/type.t
 util/PugsConfig.pm
