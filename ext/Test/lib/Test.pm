@@ -115,12 +115,12 @@ sub todo_isa_ok ($ref, Str $expected_type, Str ?$desc) returns Bool is export {
     proclaim($test, $out, "TODO", $ref_type, $expected_type);
 }
 
-## use_ok 
+## use_ok
 
 sub use_ok (Str $module) is export {
     eval "require $module";
     if ($!) {
-		proclaim(undef, $desc, undef, "Import error when loading $module: $!");  
+		proclaim(undef, "require $module;", undef, "Import error when loading $module: $!");
     }
     else {
         &ok.goto(1, "$module imported OK");
@@ -130,7 +130,7 @@ sub use_ok (Str $module) is export {
 sub todo_use_ok (Str $module) is export {
     eval "require $module";
     if ($!) {
-		proclaim(undef, $desc, "TODO", "Import error when loading $module: $!");  
+		proclaim(undef, "require $module;", undef, "Import error when loading $module: $!");
     }
     else {
         &todo_ok.goto(1, "$module imported OK");
@@ -253,10 +253,10 @@ Test - Test support module for perl6
 
   plan 10;
   test_log_file('test.log');
-  
+
   use_ok('Some::Module');
-  todo_use_ok('Some::Other::Module');  
-  
+  todo_use_ok('Some::Other::Module');
+
   ok(2 + 2 == 4, '2 and 2 make 4');
   is(2 + 2, 4, '2 and 2 make 4');
   isa_ok([1, 2, 3], 'List');
@@ -305,8 +305,8 @@ there.  The filename 'test.log' is recommended.
 
 - `use_ok (Str $module) returns Bool`
 
-*NOTE:* This function currently uses `require()` since Pugs does not yet have 
-a proper `use()` builtin. 
+*NOTE:* This function currently uses `require()` since Pugs does not yet have
+a proper `use()` builtin.
 
 - `ok (Bool $cond, Str ?$desc) returns Bool`
 
@@ -314,7 +314,7 @@ a proper `use()` builtin.
 
 - `like (Str $got, Rule $expected, Str ?$desc) returns Bool is export`
 
-This function should work with most reg-exps, but given that they are still a 
+This function should work with most reg-exps, but given that they are still a
 somewhat experimental feature in Pugs, it is suggested you don't try anything
 too funky.
 

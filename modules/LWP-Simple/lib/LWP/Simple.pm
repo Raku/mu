@@ -23,13 +23,13 @@ my $VERSION = "0.0.1";
 
 
 sub getprint ($url)
-{ 
+{
   getstore $url, $*OUT;
-} 
+}
 
 # FIXME to use a callback
 sub getstore ($url, $file)
-{ 
+{
   my $fh = open ">$file";
   my $buffer = get $url;
   if (defined $buffer) {
@@ -41,36 +41,33 @@ sub getstore ($url, $file)
 
 # TODO: Implement a non-faked version
 sub mirror ($url, $file)
-{ 
-  getstore($url,$file) 
+{
+  getstore($url,$file)
 }
 
 sub get (Str $url) is export {
   _get($url);
 };
 
+# Refactor common code with _trivial_http_get
 sub head (Str $url) is export {
-  # * Don't use "say()", be specific and send "\r\n"
   # * Set a timeout of 60 seconds (however)
-  # * Make sure the socket is autoflush, or better
-  #   is flushed after we've sent our lines.
   # * Send Connection: close, at least until we know better
-  # say "$host:$port";
-  
+
   my ($host,$port,$path) = split_uri($url);
 
-  my $req = _make_request( "HEAD", $host, $path );  
+  my $req = _make_request( "HEAD", $host, $path );
   my $hdl = connect($host, $port);
   $hdl.print($req);
   $hdl.flush;
-  
+
   my $head = slurp $hdl;
-  
+
   # strip away everything except status and headers
   # This should all be done better so the response doesn't live in
   # memory all at once
-  
-  if ($head ~~ rx:perl5{^HTTP\/\d+\.\d+\s+(\d+) (?:.*?\015?\012)((?:.*?\015?\012)*?)\015?\012}) { 
+
+  if ($head ~~ rx:perl5{^HTTP\/\d+\.\d+\s+(\d+) (?:.*?\015?\012)((?:.*?\015?\012)*?)\015?\012}) {
     my ($code,$head) = ($1,$2);
 
     # if (want.Boolean) {
@@ -81,9 +78,9 @@ sub head (Str $url) is export {
     # }
     #say $code;
     #say $head;
-    
+
     # XXX want() is not yet implemented :(
-    #if (want.Scalar) { 
+    #if (want.Scalar) {
       return $head
     #};
     # my @list = "X-LWP-HTTP-Status: $code", (split rx:perl5/\015?\012/, $head);
@@ -101,11 +98,11 @@ sub head (Str $url) is export {
 # Unify with URI.pm
 sub split_uri (Str $url) {
   $url ~~ rx:perl5{^http://([^/:\@]+)(?::(\d+))?(/\S*)?$};
-  
+
   my ($host) = $1;
-  my ($port) = $2 || 80; 
+  my ($port) = $2 || 80;
   my ($path) = $3 || "/";
-  
+
   return ($host,$port,$path);
 };
 
@@ -123,11 +120,11 @@ sub _trivial_http_get (Str $host, Str $port, Str $path) returns Str {
   # say "$host:$port";
 
   my $req = _make_request( "GET", $host, $path );
-  
-  my $hdl = connect($host, $port);  
+
+  my $hdl = connect($host, $port);
   $hdl.print($req);
   $hdl.flush;
-  
+
   # read response+headers:
   # $hdl.irs = /$CRLF$CRLF/; # <-- make this into a todo test
 
@@ -136,20 +133,20 @@ sub _trivial_http_get (Str $host, Str $port, Str $path) returns Str {
   # my ($status,@headers) = split /$CRLF/, $buffer;
   # worry later about body
   # say $buffer;
-  
+
   # strip away status and headers
   # This should all be done better so the response doesn't live in
   # memory all at once
-  
-  if ($buffer ~~ s:perl5{^HTTP\/\d+\.\d+\s+(\d+)(.*?\015?\012)+?\015?\012}{}) {  
+
+  if ($buffer ~~ s:perl5{^HTTP\/\d+\.\d+\s+(\d+)(.*?\015?\012)+?\015?\012}{}) {
     my $code = $1;
-    
+
     # XXX: Add 30[1237] checking/recursion
 
     if ($code ~~ rx:perl5/^[^2]../) {
        return undef;
     };
-    
+
     # strip status and headers
     # $buffer ~~ s:perl5{^.*?$CRLF$CRLF}{};
 
@@ -266,10 +263,16 @@ the HTTP response code.
 
 =head1 INCOMPATIBLE CHANGES
 
-This Perl6 version of LWP::Simple does not export the HTTP status
+=over 2
+
+=item This Perl6 version of LWP::Simple does not export the HTTP status
 codes.
 
-This module only supports HTTP as the protocol currently.
+=item (TODO) This module only supports HTTP as the protocol.
+
+=item (TODO) This module does not support proxies.
+
+=back
 
 =head1 SEE ALSO
 
