@@ -262,9 +262,29 @@ data Val
     | VJunc     VJunc
     | VError    VStr Exp
     | VHandle   VHandle
-    | MVal    MVal
+    | MVal      MVal
     | VControl  VControl
     deriving (Show, Eq, Ord)
+
+valType VUndef          = "Any"
+valType (VRef v)        = valType v
+valType (VBool    _)    = "Bool"
+valType (VInt     _)    = "Int"
+valType (VRat     _)    = "Rat"
+valType (VNum     _)    = "Num"
+valType (VComplex _)    = "Complex"
+valType (VStr     _)    = "Str"
+valType (VList    _)    = "List"
+valType (VArray   _)    = "Array"
+valType (VHash    _)    = "Hash"
+valType (VPair    _)    = "Pair"
+valType (VSub     _)    = "Sub"
+valType (VBlock   _)    = "Block"
+valType (VJunc    _)    = "Junc"
+valType (VError _ _)    = "Error"
+valType (VHandle  _)    = "Handle"
+valType (MVal     _)    = "Var"
+valType (VControl _)    = "Control"
 
 type VBlock = Exp
 data VControl

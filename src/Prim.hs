@@ -78,8 +78,7 @@ op1 "defined" = \v -> do
     v <- readMVal v
     return . VBool $ case v of
         VUndef  -> False
-        _       -> True
-    
+        _       -> True    
 op1 "last" = \v -> do
     shiftT $ \_ -> return VUndef
 op1 "return" = \v -> return (VError "cannot return outside a subroutine" (Val v))
@@ -158,7 +157,7 @@ op1 "<>" = \v -> do
         case find ((== "$*STDIN") . symName) glob of
             Just sym | (Val v) <- symExp sym -> return $ vCast v
             _                                -> error "impossible"
-
+op1 "ref"  = return . VStr . valType
 op1 ""     = return . (\x -> VError ("unimplemented unaryOp: " ++ "") (Val x))
 
 op1 s      = return . (\x -> VError ("unimplemented unaryOp: " ++ s) (Val x))
@@ -457,6 +456,7 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Any       pre     exit    (?Num=0)\
 \\n   Num       pre     rand    (?Num=1)\
 \\n   Bool      pre     defined (Any)\
+\\n   Str       pre     ref     (Any)\
 \\n   Num       pre     time    ()\
 \\n   Action    pre     print   (List)\
 \\n   Action    pre     say     (List)\
