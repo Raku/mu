@@ -1,0 +1,47 @@
+------------------------------------------------------------------------
+Currently the items TODO are:
+------------------------------------------------------------------------
+NOTE:
+This is a **very** rough port right now, 
+so there are sure to be some issues.
+------------------------------------------------------------------------
+
+File::Spec
+
+    - figure out how to do the dynamic require and subclassing
+
+File::Spec::Unix
+
+    - figure out what to do about the Cwd dependency
+
+File::Spec::Cygwin
+
+    - is .SUPER::method the right syntax??
+
+File::Spec::Epoc 
+
+    - DONE
+
+File::Spec::Mac
+
+    - figure out what to do about the Mac::File dependency
+    - port most of this, I started it but only got about half
+      way through the catdir() method
+  
+File::Spec::OS2
+
+    - nothing done yet
+
+File::Spec::VMS
+
+    - nothing done yet
+
+File::Spec::Win32
+
+    - nothing done yet
+
+File::Spec::Functions
+
+    - nothing done yet
+    
+    
