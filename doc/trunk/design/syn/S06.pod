@@ -435,7 +435,7 @@ into an array when individual elements are actually accessed:
 
         @fromtwo = tail(1..Inf);        # @fromtwo contains a lazy [2..Inf]
 
-=head2
+=head2 Slurpy block
 
 It's also possible to declare a slurpy block: C<*&block>.  It slurps
 up any nameless block, specified by C<:{...}>.  This will turn out
