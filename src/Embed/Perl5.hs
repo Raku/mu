@@ -1,4 +1,24 @@
 {-# OPTIONS -fglasgow-exts -cpp -O #-}
+
+#undef PUGS_EMBED_PERL5
+#include "pugs_config.h"
+
+#ifndef PUGS_EMBED_PERL5
+module Embed.Perl5 where
+
+type PerlInterpreter = ()
+
+initPerl5 :: String -> IO PerlInterpreter
+initPerl5 _ = return ()
+
+evalPerl5 :: String -> IO ()
+evalPerl5 _ = return ()
+
+freePerl5 :: String -> IO ()
+freePerl5 _ = return ()
+
+#else
+
 {-# INCLUDE <EXTERN.h> #-}
 {-# INCLUDE <perl.h> #-}
 
@@ -29,8 +49,8 @@ initPerl5 str = do
     my_perl <- perl_alloc
     perl_construct my_perl
     withCString "-e" $ \prog -> withCString str $ \cstr -> do
-        withArrayLen [prog, prog, cstr] $ \argc argv -> do
-            perl_parse my_perl nullFunPtr (fromIntegral argc) argv nullPtr
+        withArray [prog, prog, cstr] $ \argv -> do
+            perl_parse my_perl nullFunPtr 3 argv nullPtr
             perl_run my_perl
     return my_perl
 
@@ -45,3 +65,4 @@ freePerl5 my_perl = do
     perl_destruct my_perl
     return ()
 
+#endif

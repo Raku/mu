@@ -26,6 +26,19 @@ while (<IN>) {
     last;
 }
 
+if ($ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /perl5/i) {
+    print OUT "#define PUGS_EMBED_PERL5 1\n";
+}
+else {
+    print OUT "#undef PUGS_EMBED_PERL5\n";
+    warn << '.';
+
+*** Perl5 embedding disabled.  If you want Perl5 support, please set the
+    PUGS_EMBED environment variable to contain "perl5".
+
+.
+}
+
 if ($^O =~ /MSWin32|mingw|msys/i) {
     print OUT "#undef PUGS_HAVE_POSIX\n";
 }
@@ -45,9 +58,11 @@ if ($has_readline) {
 else {
     print OUT "#undef PUGS_HAVE_READLINE\n";
     warn << '.';
+
 *** Readline support disabled.  If you want readline support,
     please install Term::ReadLine::Gnu from CPAN, as well as
     the GNU Readline headers and shared library.
+
 .
 }
 close OUT;
