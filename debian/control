@@ -8,6 +8,7 @@ Standards-Version: 3.6.1
 Package: pugs
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
+Suggests: parrot
 Description: Perl 6 interpreter/compiler
  Pugs is Perl6 User's Golfing System.
 
