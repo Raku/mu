@@ -13,7 +13,10 @@ This code is free software; you can redistribute it and/or modify it under
 the terms of either:
 
     a) the GNU General Public License, version 2, or
-    b) the "Artistic License".
+    b) the Artistic License, version 2.0beta5.
+
+Please see the "GPL-2" and "Artistic-2" files under the LICENSE/ directory
+for the full license text.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of

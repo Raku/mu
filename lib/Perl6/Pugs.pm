@@ -68,7 +68,13 @@ Please submit bug reports to E<lt>bug-perl6-pugs@rt.cpan.orgE<gt>.
 
 Copyright 2005 by Autrijus Tang E<lt>autrijus@autrijus.orgE<gt>.
 
-This program is free software; you can redistribute it and/or modify it
-under the same terms as Pugs itself.
+This code is free software; you can redistribute it and/or modify it under
+the terms of either:
+
+    a) the GNU General Public License, version 2, or
+    b) the Artistic License, version 2.0beta5.
+
+For the full license text, please see the "GPL-2" and "Artistic-2" files under
+the LICENSE/ directory of the Pugs distribution.
 
 =cut
