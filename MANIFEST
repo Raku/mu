@@ -1,8 +1,7 @@
 AUTHORS
 ChangeLog
-doc/pa01.kwid
-doc/perlkwid.kwid
 docs/01Overview.html
+docs/01Overview.kwid
 docs/perl.css
 docs/src/Junc.hs
 docs/src/Junc.kwid
@@ -41,6 +40,7 @@ examples/sendmoremoney.p6
 examples/shuffle.p6
 ext/Kwid/kwid
 ext/Kwid/lib/Kwid.pm
+ext/Kwid/lib/perlkwid.kwid
 ext/Kwid/Makefile.PL
 ext/Kwid/src/Kwid/AST.hs
 ext/Kwid/src/Kwid/Compile.hs
