@@ -15,32 +15,32 @@ use v6;
 
 ## declare global variables (globals RULE dude!)
 
-my @words;         # the database of words/names
-my $current_word;  # the current word/name
-my @letters;       # the letters in that word/name
-my @solution;      # the ever-evolving solution
-my @guesses;       # the current set of guesses by the user
+my @letters;           # the letters in that commiter's name
+my @solution;          # the ever-evolving solution
+my @guesses;           # the current set of guesses by the user
 
-my $number_of_tries = 0;  # number of bad guesses
-my $allowed_tries   = 6;  # number of allowed bad guesses
+my $number_of_bad_guesses = 0;  # number of bad guesses
+my $allowed_bad_guesses   = 6;  # number of allowed bad guesses
 
 ## do our functions
 
 sub cls returns Void {
-    system( ($?OS eq any<MSWin32 mingw cygwin>) ?? 'cls' :: 'clear');
+    system(($?OS eq any<MSWin32 mingw cygwin>) ?? 'cls' :: 'clear');
 }
 
-sub get_words returns Array {
-    my $dict = open("hangman.dic") err die "Couldn't open 'hangman.dic'";
+sub get_commiter_list (Str $dict_file) returns Array {
+    my @commiters;
+    my $dict = open($dict_file) err die "Couldn't open '$dict_file'";
     for (=$dict) -> $_name {
         my $name = $_name; # << damn immutable variables
         chomp($name);
-        @words.push($name);
+        @commiters.push($name);
     }
     $dict.close();
+    return @commiters;
 }
 
-sub pick_word returns Str { any(@words).pick }
+sub pick_commiter (Array @commiters) returns Str { any(@commiters).pick }
 
 sub draw_board returns Str { 
     my $output = '';
@@ -78,60 +78,55 @@ sub guess (Str $guess) returns Bool {
 }
 
 sub draw_if_greater_than (Str $char, Int $num) returns Bool { 
-    ($number_of_tries >= $num) ?? $char :: ' ';
+    ($number_of_bad_guesses >= $num) ?? $char :: ' ';
 }
 
-sub draw_hangman returns Str {
-    join("\n", (
-"Hangman (with the Pugs AUTHORS list)",
-"",
-"  +-----+       The commiter's name is:", # $current_word
-"  |     |       { draw_board }",
-"  |     { draw_if_greater_than('O', 1) }   ",
-"  |    {
+sub draw_hangman (Str ?$msg) returns Str {
+    return "Hangman (with the Pugs AUTHORS list)
+    
+  +-----+       The commiter's name is:
+  |     |       { draw_board }
+  |     { draw_if_greater_than('O', 1) }   
+  |    {
           draw_if_greater_than('/', 2) ~
           draw_if_greater_than('|', 3) ~
           draw_if_greater_than('\\', 4)
-        }      You have already guessed:",
-"  |    { draw_if_greater_than('/', 5) } {
+       }      You have already guessed:
+  |    { draw_if_greater_than('/', 5) } {
           draw_if_greater_than('\\', 6)
-        }      [@guesses[]]",
-"  |         ",
-"|-+--------|",
-""));
+       }      [@guesses[]]
+  |         
+|-+--------|
+
+$msg";
 }
 
 ## main loop
 
-get_words();
-$current_word = pick_word();
+my @commiters = get_commiter_list("hangman.dic");
+my $current_commiter = pick_commiter(@commiters);
 
-@letters = split("", $current_word);
+@letters = split("", $current_commiter);
 @solution = ('' xx +@letters);
 
 cls;
-
-print draw_hangman(); 
-print "\nguess a letter? ";   
+print draw_hangman("guess a letter? "); 
 my $letter;
 while ($letter = =$*IN) {
     cls;
     chomp($letter);
     if (guess($letter)) {
         if (has_won()) {
-            print draw_hangman();         
-            print "\nYou won!!!!\n";
+            print draw_hangman("You won!!!!\n");         
             exit();
         }
     }
     else {  
-        $number_of_tries++;
-        if ($number_of_tries >= $allowed_tries) {
-            print draw_hangman(); 
-            print "\nYou have exceedded the maximum number of tries.\nSorry, the commiter was '$current_word'\n";
+        $number_of_bad_guesses++;
+        if ($number_of_bad_guesses >= $allowed_bad_guesses) {
+            print draw_hangman("You have exceedded the maximum number of tries.\nSorry, the commiter was '$current_commiter'\n"); 
             exit();
         }
     }    
-    print draw_hangman();  
-    print "\nguess a letter? ";  
+    print draw_hangman("guess a letter? ");  
 }
