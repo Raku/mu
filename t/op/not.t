@@ -20,8 +20,8 @@ is ref @not, "Array", "not() returns Array in array context";
 ok ! @not, "not() returns empty array";
 
 # Various other checks for ! and not
-ok (not 1) == (! 1), "Check not 1 == ! 1";
-ok (not 0) == (! 0), "Check not 0 == ! 0";
+ok((not 1) == (! 1), "Check not 1 == ! 1");
+ok((not 0) == (! 0), "Check not 0 == ! 0");
 
 # Test the not 1 equals the various falses. Check not 0 too.
 # TODO: add undef below

@@ -81,6 +81,7 @@ evaluate (Val val) = do
     lv  <- asks envLValue
     v   <- if lv then return val else readMVal val
     return $ case cxt of
+        _ | VSub _ <- v -> v -- XXX Work around a bug: (Val VSub) evaluated with bad context
         "List"  -> VList (vCast v)
         "Array" -> VArray (vCast v)
         "Hash"  -> VHash (vCast v)
@@ -396,13 +397,6 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         val     <- enterEvalContext "List" exp
         -- ignore val
         retVal val
-    "empty" -> do
-        cxt <- asks envContext
-        return $ case cxt of
-            "List"  -> VList []
-            "Array" -> VArray (MkArray [])
-            "Hash"  -> VHash (MkHash emptyFM)
-            _       -> VUndef
     _ -> retError "Unknown syntactic construct" exp
     where
     doSlice :: [Exp] -> [Val] -> [VInt] -> Maybe (Val, [VInt])
@@ -433,6 +427,9 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         val <- resetT runBody
         retVal val
 
+reduce env (App name [Syn "," invs] args) = reduce env (App name invs args)
+reduce env (App name invs [Syn "," args]) = reduce env (App name invs args)
+
 reduce Env{ envClasses = cls, envContext = cxt, envLexical = lex, envGlobal = glob } exp@(App name invs args) = do
     syms    <- liftIO $ readIORef glob
     subSyms <- mapM evalSym
@@ -452,6 +449,7 @@ reduce Env{ envClasses = cls, envContext = cxt, envLexical = lex, envGlobal = gl
         listMVal <- evalVar name
         listVal  <- readMVal listMVal
         return $ length (vCast listVal :: [Val])
+    argSlurpLen (Syn "," list) =  return $ length list
     argSlurpLen _ = return 1 -- XXX
     applySub subSyms sub invs args
         -- list-associativity

@@ -32,6 +32,13 @@ op0 "time"  = \_ -> do
     where
     epochClkT = toClockTime epoch
     epoch = CalendarTime 1970 January 1 0 0 0 0 Thursday 0 "UTC" 0 False
+op0 "not" = \_ -> do
+    cxt <- asks envContext
+    return $ case cxt of
+        "List"  -> VList []
+        "Array" -> VArray (MkArray [])
+        "Hash"  -> VHash (MkHash emptyFM)
+        _       -> VUndef
 op0 s    = \x -> return $ VError ("unimplemented listOp: " ++ s) (Val $ VList x)
 
 op1 :: Ident -> Val -> Eval Val
@@ -565,7 +572,8 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Int       spre    +^      (Int)\
 \\n   Int       spre    ~^      (Str)\
 \\n   Bool      spre    ?^      (Bool)\
-\\n   Ref       spre    \\      (Any)\
+\\n   Ref       spre    \\      (List)\
+\\n   Ref       spre    \\      (Scalar)\
 \\n   List      spre    ...     (Str)\
 \\n   List      spre    ...     (Num)\
 \\n   Any       pre     undef   ()\
@@ -576,6 +584,7 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Num       post    --      (rw!Num)\
 \\n   Any       spre    ++      (rw!Num)\
 \\n   Num       spre    --      (rw!Num)\
+\\n   Any       pre     not     ()\
 \\n   Bool      pre     not     (Bool)\
 \\n   List      pre     map     (Code, List)\
 \\n   List      pre     grep    (Code, List)\
