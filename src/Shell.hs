@@ -25,9 +25,9 @@ data Command
    = CmdLoad FilePath
    | CmdQuit
    | CmdBrowse
-   | CmdParse String 
-   | CmdEval String 
-   | CmdType Exp 
+   | CmdParse String
+   | CmdEval Bool String
+   | CmdType Exp
    | CmdHelp
 
 -- read some input from the user
@@ -47,13 +47,13 @@ doCommand (Just line)
         return $ parseCommandLine line
 
 parseCommandLine :: String -> Command 
-parseCommandLine ('?':str)      = CmdEval str
+parseCommandLine ('?':str)      = CmdEval True str
 parseCommandLine ('.':str)      = CmdParse str
 parseCommandLine (':':'q':_)    = CmdQuit
 parseCommandLine (':':'h':_)    = CmdHelp
 -- parseCommandLine (':':'b':_)    = CmdBrowse
 -- parseCommandLine (':':'l':str)  = CmdLoad . unwords . tail $ words str
-parseCommandLine str            = CmdEval str
+parseCommandLine str            = CmdEval False str
 
 initializeShell :: IO ()
 initializeShell

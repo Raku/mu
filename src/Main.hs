@@ -61,28 +61,31 @@ run []                          = do
         else run ["-"]
 
 repLoop :: IO ()
-repLoop
-   = do command <- getCommand
-        case command of
-           CmdQuit      -> putStrLn "Leaving pugs."
-           CmdLoad fn   -> load fn
-           CmdEval prog -> doEval [] prog >> repLoop
-           CmdParse prog-> doParse prog >> repLoop
-           CmdHelp      -> printHelp >> repLoop
-           _            -> internalError "repLoop unimplemented command: "
+repLoop = do
+    command <- getCommand
+    case command of
+        CmdQuit             -> putStrLn "Leaving pugs."
+        CmdLoad fn          -> load fn
+        CmdEval trace prog  -> doEval trace [] prog >> repLoop
+        CmdParse prog       -> doParse prog >> repLoop
+        CmdHelp             -> printHelp >> repLoop
+        _                   -> internalError "unimplemented command"
 
 load _ = return ()
 
 parse = doParse
-eval prog = doEval [] prog
+eval prog = doEval True [] prog
 
 doParse prog = do
     env <- emptyEnv []
     runRule env (putStrLn . pretty) ruleProgram "<interactive>" prog
 
-doEval :: [String] -> String -> IO ()
-doEval = do
-    runProgramWith id (putStrLn . pretty) "<interactive>"
+doEval :: Bool -> [String] -> String -> IO ()
+doEval trace = do
+    runProgramWith f (putStrLn . pretty) "<interactive>"
+    where
+    f | trace       = id
+      | otherwise   = \e -> e{ envDebug = Nothing }
 
 doRun :: String -> [String] -> String -> IO ()
 doRun = do
