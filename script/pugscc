@@ -41,6 +41,7 @@ elsif ($ARGV[0] =~ /^--pugs$/) {
 
 print "*** Using the '$backend' backend.\n" if !$run;
 
+my $ghc_exe = $ENV{GHC} || 'ghc';
 my $ghc_version = ghc_version();
 my $base = cwd();
 if (!-e "src/Main.hs") {
@@ -94,7 +95,7 @@ else {
     push @ghc_flags, "$base/src/pcre/pcre.o";
     push @ghc_flags, "$base/src/UnicodeC.o";
 
-    (system("ghc", "-v0", "-o", $out, "--make", "-main-is", "MainCC.mainCC", @ghc_flags, "$base/src/MainCC.hs") == 0) or die $!;
+    (system($ghc_exe, "-v0", "-o", $out, "--make", "-main-is", "MainCC.mainCC", @ghc_flags, "$base/src/MainCC.hs") == 0) or die $!;
     unlink "$base/src/MainCC.hs";
 }
 
@@ -113,7 +114,7 @@ else {
 }
 
 sub ghc_version {
-    my $ghcver = `ghc --version`;
+    my $ghcver = `$ghc_exe --version`;
     ($ghcver =~ /Glasgow.*\bversion\s*(\S+)/s) or die << '.';
 *** Cannot find a runnable 'ghc' from path.
 *** Please install GHC from http://haskell.org/ghc/.
