@@ -3,12 +3,10 @@
 {-
     Primitive operators.
 
-    Learn now the lore of Living Creatures!
-    First name the four, the free peoples:
-    Eldest of all, the elf-children;
-    Dwarf the delver, dark are his houses;
-    Ent the earthborn, old as mountains;
-    Man the mortal, master of horses...
+    There hammer on the anvil smote,
+    There chisel clove, and graver wrote;
+    There forged was blade, and bound was hilt;
+    The delver mined, the mason built...
 -}
 
 module Prim where
