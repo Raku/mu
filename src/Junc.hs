@@ -44,21 +44,27 @@ mergeJunc j ds vs
     vals = mkSet [ v | [v] <- group $ sort vs ]
     dups = mkSet (ds ++ [ v | (v:_:_) <- group $ sort (vs ++ ds) ])
 
+juncApply :: ([ApplyArg] -> Eval Val) -> [ApplyArg] -> Eval Val
 juncApply f args
     | this@(_, (pivot:_)) <- break isTotalJunc args
     , VJunc (Junc j dups vals) <- argValue pivot
-    = VJunc $ Junc j dups $ appSet this vals
+    = do
+        vals' <- appSet this vals
+        return $ VJunc (Junc j dups vals')
     | this@(_, (pivot:_)) <- break isPartialJunc args
     , VJunc (Junc j dups vals) <- argValue pivot
-    = VJunc $ mergeJunc j (appList this dups) (appList this vals)
+    = do
+        dups' <- appList this dups
+        vals' <- appList this vals
+        return $ VJunc (mergeJunc j dups' vals')
     | (val:_) <- [ val | (ApplyArg _ val@(VError _ _) _) <- args ]
-    = val
+    = return val
     | otherwise
     = f args
     where
-    appSet x y = mkSet $ appList x y
-    appList (before, (ApplyArg name _ coll):after) vs
-        = map (\v -> juncApply f (before ++ ((ApplyArg name v coll):after))) $ setToList vs
+    appSet x y = return . mkSet =<< appList x y
+    appList (before, (ApplyArg name _ coll):after) vs = do
+        mapM (\v -> juncApply f (before ++ ((ApplyArg name v coll):after))) $ setToList vs
 
 isTotalJunc arg
     | (ApplyArg _ (VJunc j) b) <- arg

@@ -252,14 +252,15 @@ parseTerm = choice
     , parseLit
     , parseApply
     , parseParens parseOp
-    , parseEof
     ]
     <?> "term"
 
+{-
 parseEof = do
     eof
     pos <- getPosition
     return $ NonTerm pos
+-}
 
 parseLitTerm = choice
     [ parseVar

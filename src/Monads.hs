@@ -13,6 +13,8 @@ module Monads where
 import Internals
 import AST
 
+enterLex :: Pad -> Eval a -> Eval a
+enterLex pad = local (\e -> e { envPad = (pad ++ envPad e) })
 
 {-
 
@@ -101,7 +103,6 @@ enterSub sub = enterScope $ do
 innerSub = Sub "inner" ["$inner"] inner
 
 -- enter a lexical context
-enterLex str = local (\e -> e { envPad = (str:envPad e) })
 
 dumpLex :: String -> Eval ()
 dumpLex label = do

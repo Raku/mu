@@ -58,15 +58,16 @@ parse str = do
 
 eval str = doEval str []
 
-doEval str args = undefined
-doRun str args = undefined
-
-{- XXX -
 doEval str args = do
-    runRule emptyEnv (putStrLn . pretty . evaluate emptyEnv) ruleProgram str
--}
+    env <- emptyEnv
+    let env' = runRule env id ruleProgram str
+    rv <- (`runReaderT` env') $ do
+        (`runContT` return) $ evaluate (envBody env')
+    putStrLn $ pretty rv
 
-{- XXX -
 doRun str args = do
-    runRule emptyEnv (putStr . concatMap vCast . vCast . evaluate emptyEnv) ruleProgram str
--}
+    env <- emptyEnv
+    let env' = runRule env id ruleProgram str
+    rv <- (`runReaderT` runRule env id ruleProgram str) $ do
+        (`runContT` return) $ evaluate (envBody env')
+    putStr . concatMap vCast . vCast $ rv

@@ -302,6 +302,11 @@ extract ((Parens exp), vs) = ((Parens exp'), vs')
     (exp', vs') = extract (exp, vs)
 extract other = other
 
+cxtOfSigil '$'  = "Scalar"
+cxtOfSigil '@'  = "Array"
+cxtOfSigil '%'  = "Hash"
+cxtOfSigil '&'  = "Code"
+
 cxtOf '*' '$'   = "List"
 cxtOf '*' '@'   = "List"
 cxtOf _   _     = "Scalar"
