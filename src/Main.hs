@@ -123,7 +123,7 @@ runProgramWith fenv f name args prog = do
         , Symbol SGlobal "%=POD"        (Val . VHash . MkHash $ emptyFM) -- wrong: pkg
         , Symbol SGlobal "@=POD"        (Val . VArray . MkArray $ [])
         , Symbol SGlobal "$=POD"        (Val . VStr $ "")
-        , Symbol SGlobal "$?OSNAME"     (Val . VStr $ config_osname)
+        , Symbol SGlobal "$?OS"         (Val . VStr $ config_osname)
         ]
 --    str <- return "" -- getContents
     let env' = runRule (fenv env) id ruleProgram name prog
