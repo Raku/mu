@@ -172,7 +172,13 @@ sub write {
 sub version_from {
     my ($self, $version_from) = @_;
     require ExtUtils::MM_Unix;
-    $self->version(ExtUtils::MM_Unix->parse_version($version_from));
+    my $version = ExtUtils::MM_Unix->parse_version($version_from);
+
+    if ($version !~ /^[\w\-\+\.]+/ and $] >= 5.006) {
+        $version = sprintf '%vd', $version;
+    }
+
+    $self->version($version);
 }
 
 sub abstract_from {

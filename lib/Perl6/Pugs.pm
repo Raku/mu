@@ -2,7 +2,7 @@ package Perl6::Pugs;
 use 5.006;
 use strict;
 
-our $VERSION = '6.0.12'; # makemaker doesn't like v-strings.
+our $VERSION = v6.0.12;
 
 =head1 NAME
 
