@@ -13,6 +13,7 @@ Test handling of C<cwd>.
 
 use_ok('File::Spec');
 
+# XXX: this function does not work on Win32 either.
 sub manual_cwd () {
   # This HACK is worse than
   # the File::Spec platform hack
@@ -29,7 +30,7 @@ sub manual_cwd () {
 }
 
 if ($?OS eq 'MSWin32') {
-    is(cwd(), manual_cwd(), "cwd() returns the same as the manual implementation in Win32");
+    like(cwd(), rx:perl5{\\}, "cwd() returns a file like value in Win32");
 }
 else {
     like(cwd(), rx:perl5{^\/}, "cwd() returns a file like value in Unix");
