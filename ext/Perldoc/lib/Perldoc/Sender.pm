@@ -97,6 +97,7 @@ sub send {
     my $self = shift;
     my $event = shift;
 
+    print STDERR "Request to emit: $event @_\n" if $DEBUG;
     $event and $event =~ m/^(?:(?:start|end)_(?:document|element)|characters|processing_instruction|ignoreable_whitespace|comment)$/x
 	or croak "$self sent bad event `$event'";
 
@@ -140,6 +141,9 @@ sub send {
     if ( $receiver->can($event) ) {
 	$receiver->$event(@_);
     }
+    if ( $event eq "end_element" ) {
+	pop @{ $self->sendstack };
+    }
 
     # fixme - add more checking...
     my $ss = $self->sendstate;
@@ -155,9 +159,6 @@ sub send {
 	$self->sendstack(undef);
     }
 
-    if ( $event eq "end_element" ) {
-	pop @{ $self->sendstack };
-    }
 }
 
 

@@ -50,9 +50,19 @@ sub new {
 	super(@_);
     } else {
 	my $text = shift;
-	super({ source => $text,
-		content => $text,
-	      });
+	my $o = shift || {};
+	$o->{content} = $text;
+	super($o);
+    }
+}
+
+sub source {
+    if ( @_ ) {
+	super;
+    } elsif ( $self->{source} ) {
+	$self->{source};
+    } else {
+	$self->{content};
     }
 }
 

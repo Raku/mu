@@ -9,7 +9,7 @@ eval { Perldoc::DOM::Node->new(); };
 like($@, qr/attempt/, "Perldoc::DOM::Node->new() - dies correctly");
 
 use_ok("Perldoc::DOM::Element");
-$Tree::DAG_Node::DEBUG = 1;
+#$Tree::DAG_Node::DEBUG = 1;
 my $node = Perldoc::DOM::Element->new
     ({ name => "sect1",
        source => "=head1 ",  # text "eaten" by this node
@@ -36,7 +36,7 @@ isa_ok($kwom, "Perldoc::DOM", "new DOM");
 $kwom->root($node);
 
 my $para = Perldoc::DOM::Element->new({ name => "para",
-				     source => "\n\n" });
+					source => "\n\n" });
 $node->add_daughter($para);
 my ($foo, $pi);
 $para->add_daughter($foo = Perldoc::DOM::Text->new

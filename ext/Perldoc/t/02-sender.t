@@ -76,6 +76,8 @@ is_deeply($receiver->events, Load(<<YAML), "utility class seems to work as adver
 - [ end_document ]
 YAML
 
+
+
 $receiver->reset;
 
 # now check that the DOM tree we created in the first test can send
@@ -83,8 +85,8 @@ $receiver->reset;
 SKIP:{
     my $kwom;
     eval { $kwom = retrieve("t/kwom.pm3"); };
+    skip "First test didn't work (?)", 3 if $@;
     require Perldoc::DOM;
-    skip 15, "First test didn't work (?)" if $@;
 
     $kwom->receiver($receiver);
     $kwom->send_one();

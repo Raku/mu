@@ -68,7 +68,7 @@ sub send_one {
 	     });
     }
     local($YAML::UseHeader) = 1;
-    #kill 2, $$;
+    #kill 2, $$ if $dss->{state} eq "post";
     #print STDERR "state: { state => $dss->{state}, head => ".(ref($dss->{head})||$dss->{head}||"undef")." }\n";
 
     if ( !$dss->{state} ) {
@@ -99,11 +99,85 @@ sub send_one {
 		(($dss->{state} = "post"), $dss->{head}->mother);
 	} else {
 	    $self->send("end_document");
+	    delete $self->{sendstack};
+	    delete $self->{dom_sendstate};
 	    return 0;
 	}
     }
     return 1;
 }
+
+field "dom_buildstate";
+
+sub reset {
+    delete $self->{sendstack};
+    delete $self->{sendstate};
+    delete $self->{dom_sendstate};
+    delete $self->{receiver};
+}
+
+sub start_document {
+    $self->root(undef);
+    $self->dom_buildstate({ head => undef,
+			  });
+}
+
+sub end_document {
+    delete $self->{dom_buildstate};
+}
+
+sub make_element {
+    my $name = shift;
+    my $o = shift || {};
+    $o->{name} = $name;
+    return Perldoc::DOM::Element->new($o);
+}
+sub make_text {
+    return Perldoc::DOM::Text->new(@_);
+}
+sub make_pi {
+    return Perldoc::DOM::PI->new(@_);
+}
+sub make_ws {
+    return Perldoc::DOM::WS->new(@_);
+}
+
+sub start_element {
+    my $dbs = $self->dom_buildstate or die;
+    my $node = $self->make_element(@_);
+
+    if ( my $head = $dbs->{head} ) {
+	$head->add_daughter($dbs->{head} = $node);
+    } else {
+	$self->root($dbs->{head} = $node);
+    }
+}
+
+sub end_element {
+    my $dbs = $self->dom_buildstate or die;
+    $dbs->{head} or die "too many end element events!";
+
+    $dbs->{head} = $dbs->{head}->mother
+}
+
+sub characters {
+    my $dbs = $self->dom_buildstate or die;
+    my $node = $self->make_text(@_);
+    $dbs->{head}->add_daughter($node);
+}
+
+sub processing_instruction {
+    my $dbs = $self->dom_buildstate or die;
+    my $node = $self->make_pi(@_);
+    $dbs->{head}->add_daughter($node) if $node;
+}
+
+sub ignorable_whitespace {
+    my $dbs = $self->dom_buildstate or die;
+    my $node = $self->make_ws(@_);
+    $dbs->{head}->add_daughter($node) if $node;
+}
+
 
 1;
 
