@@ -17,3 +17,13 @@ neck(@args).say;
     # $head parameter receives 1
     # @tail parameter receives [2, 3, 4, 5]
 tail(@args).say;
+
+
+# -------------------------------
+# infinite data is handled lazily - not
+# -------------------------------
+
+my @infinite_list = (1 .. Inf) ;
+my $head = head(@infinite_list);
+
+
