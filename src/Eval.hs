@@ -35,7 +35,6 @@ emptyEnv pad = do
         , envGlobal  = glob
         , envClasses = initTree
         , envEval    = evaluate
-        , envCC      = return
         , envCaller  = Nothing
         , envDepth   = 0
         , envID      = uniq
