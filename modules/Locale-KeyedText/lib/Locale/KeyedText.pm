@@ -213,7 +213,7 @@ the one with the program also adds support to the library.
 		'MYLIB_MYINV_RES_INF' => 'my_invert(): result is infinite because argument NUMBER is zero',
 	);
 
-	sub get_text_by_key( Str $msg_key ) returns Str { return $text_strings{$msg_key}; }
+	sub get_text_by_key( Str $msg_key ) returns Str { return %text_strings{$msg_key}; }
 
 =head2 Content of French language (rough manual translation) Template file 'MyLib/L/Fre.pm':
 
@@ -225,7 +225,7 @@ the one with the program also adds support to the library.
 		'MYLIB_MYINV_RES_INF' => 'my_invert(): aboutir a est infini parce que paramètre NUMBER est zero',
 	);
 
-	sub get_text_by_key( Str $msg_key ) returns Str { return $text_strings{$msg_key}; }
+	sub get_text_by_key( Str $msg_key ) returns Str { return %text_strings{$msg_key}; }
 
 =head2 Content of main program 'MyApp.pl':
 
@@ -283,7 +283,7 @@ the one with the program also adds support to the library.
 		'MYAPP_RESULT' => 'The inverse of "{ORIGINAL}" is "{INVERTED}".',
 	);
 
-	sub get_text_by_key( Str $msg_key ) returns Str { return $text_strings{$msg_key}; }
+	sub get_text_by_key( Str $msg_key ) returns Str { return %text_strings{$msg_key}; }
 
 =head2 Content of French language (rough manual translation) Template file 'MyApp/L/Fre.pm':
 
@@ -296,7 +296,7 @@ the one with the program also adds support to the library.
 		'MYAPP_RESULT' => 'Renversement "{ORIGINAL}" est "{INVERTED}".',
 	);
 
-	sub get_text_by_key( Str $msg_key ) returns Str { return $text_strings{$msg_key}; }
+	sub get_text_by_key( Str $msg_key ) returns Str { return %text_strings{$msg_key}; }
 
 =head2 Content of alternate text Template file 'MyApp/L/Homer.pm':
 
@@ -312,7 +312,7 @@ the one with the program also adds support to the library.
 		'MYLIB_MYINV_RES_INF' => 'Don\'t you give me a big donut!',
 	);
 
-	sub get_text_by_key( Str $msg_key ) returns Str { return $text_strings{$msg_key}; }
+	sub get_text_by_key( Str $msg_key ) returns Str { return %text_strings{$msg_key}; }
 
 =head1 DESCRIPTION
 
@@ -553,9 +553,9 @@ are not in [a-zA-Z0-9_:].
 =head1 SYNTAX
 
 This class does not export any functions or methods, so you need to call them
-using object notation.  This means using B<Class-E<gt>function()> for functions
-and B<$object-E<gt>method()> for methods.  If you are inheriting this class for
-your own modules, then that often means something like B<$self-E<gt>method()>.  
+using object notation.  This means using B<Class.function()> for functions and
+B<$object.method()> for methods.  If you are inheriting this class for your own
+modules, then that often means something like B<$self.method()>.
 
 =head1 CONSTRUCTOR WRAPPER FUNCTIONS
 
@@ -717,7 +717,7 @@ Actually, it shows both methods together, with 4 embedded, 1 separate.
 			'MYLIB_MYINV_RES_INF' => 'my_invert(): result is infinite because argument NUMBER is zero',
 		);
 
-		sub get_text_by_key( Str $msg_key ) returns Str { return $text_strings{$msg_key}; }
+		sub get_text_by_key( Str $msg_key ) returns Str { return %text_strings{$msg_key}; }
 	}
 
 	module MyLib::L::Fre {
@@ -726,7 +726,7 @@ Actually, it shows both methods together, with 4 embedded, 1 separate.
 			'MYLIB_MYINV_BAD_ARG' => 'my_invert(): paramètre NUMBER est ne nombre, il est "{GIVEN_VALUE}"',
 			'MYLIB_MYINV_RES_INF' => 'my_invert(): aboutir a est infini parce que paramètre NUMBER est zero',
 		);
-		sub get_text_by_key( Str $msg_key ) returns Str { return $text_strings{$msg_key}; }
+		sub get_text_by_key( Str $msg_key ) returns Str { return %text_strings{$msg_key}; }
 	}
 
 =head2 Content of main program 'MyApp.pl':
@@ -781,7 +781,7 @@ Actually, it shows both methods together, with 4 embedded, 1 separate.
 			'MYAPP_PROMPT' => 'Enter a number to be inverted, or press ENTER to quit.',
 			'MYAPP_RESULT' => 'The inverse of "{ORIGINAL}" is "{INVERTED}".',
 		);
-		sub get_text_by_key( Str $msg_key ) returns Str { return $text_strings{$msg_key}; }
+		sub get_text_by_key( Str $msg_key ) returns Str { return %text_strings{$msg_key}; }
 	}
 
 	module MyApp::L::Fre {
@@ -791,7 +791,7 @@ Actually, it shows both methods together, with 4 embedded, 1 separate.
 			'MYAPP_PROMPT' => 'Fournir nombre être inverser, ou appuyer sur ENTER être arrêter.',
 			'MYAPP_RESULT' => 'Renversement "{ORIGINAL}" est "{INVERTED}".',
 		);
-		sub get_text_by_key( Str $msg_key ) returns Str { return $text_strings{$msg_key}; }
+		sub get_text_by_key( Str $msg_key ) returns Str { return %text_strings{$msg_key}; }
 	}
 
 =head2 Content of alternate text Template file 'MyApp/L/Homer.pm':
@@ -808,7 +808,7 @@ Actually, it shows both methods together, with 4 embedded, 1 separate.
 		'MYLIB_MYINV_RES_INF' => 'Don\'t you give me a big donut!',
 	);
 
-	sub get_text_by_key( Str $msg_key ) returns Str { return $text_strings{$msg_key}; }
+	sub get_text_by_key( Str $msg_key ) returns Str { return %text_strings{$msg_key}; }
 
 =head1 BUGS
 

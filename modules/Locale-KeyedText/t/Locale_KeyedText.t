@@ -482,7 +482,7 @@ module t_Locale_KeyedText_C_L_Eng {
 		'two' => 'sky fly high',
 		'three' => '{knife} zot',
 	);
-	sub get_text_by_key( Str $msg_key ) returns Str { return $text_strings{$msg_key}; }
+	sub get_text_by_key( Str $msg_key ) returns Str { return %text_strings{$msg_key}; }
 }
 
 ######################################################################

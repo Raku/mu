@@ -9,6 +9,6 @@ my Str %text_strings ::= (
 	'three' => $xy~' - eat {knife}',
 );
 
-sub get_text_by_key( Str $msg_key ) returns Str { return $text_strings{$msg_key}; }
+sub get_text_by_key( Str $msg_key ) returns Str { return %text_strings{$msg_key}; }
 
 1;
