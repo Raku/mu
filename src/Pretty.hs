@@ -75,7 +75,7 @@ instance Pretty Val where
     format (VNum x) = if x == 1/0 then text "Inf" else text $ show x
     format (VInt x) = integer x
     format (VStr x) = text $ "'" ++ encodeUTF8 (concatMap quoted x) ++ "'"
-    format (VRat x) = double $ ratToNum x
+    format v@(VRat _) = text $ vCast v
     format (VComplex x) = text $ show x
     format (VControl x) = text $ show x
     format (VRef (VList x))

@@ -187,7 +187,18 @@ instance Value VStr where
     vCast (VStr s)      = s
     vCast (VBool b)     = if b then "1" else ""
     vCast (VInt i)      = show i
-    vCast (VRat r)      = showNum $ (realToFrac r :: Double)
+    vCast (VRat r)
+        | frac == 0 = s ++ show quot
+        | otherwise = s ++ show quot ++ "." ++ showFrac frac
+        where
+        n = numerator r
+        d = denominator r
+        s = if signum n < 0 then "-" else ""
+        (quot, rem) = quotRem (abs n) d
+        frac :: VInt
+        frac = round ((rem * (10 ^ (40 :: VInt))) % d)
+        showFrac = reverse . dropWhile (== '0') . reverse . pad . show
+        pad x = (replicate (40 - length x) '0') ++ x
     vCast (VNum n)      = showNum n
     vCast (VList l)     = unwords $ map vCast l
     vCast (VRef v)      = vCast v
