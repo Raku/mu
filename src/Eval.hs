@@ -408,9 +408,9 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         listVal <- enterEvalContext "List" listExp
         list    <- readMVal listVal
         let slice = unfoldr (doSlice errs $ vCast list) (map vCast $ vCast range)
-        if isaContext "Scalar"
-            then retVal $ last (VUndef:slice)
-            else retVal $ VList slice
+        ifContextIsa "Scalar"
+            (retVal $ last (VUndef:slice))
+            (retVal $ VList slice)
     "{}" -> do
         let [listExp, rangeExp] = exps
         range   <- enterEvalContext "List" rangeExp
@@ -432,19 +432,12 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         val     <- enterEvalContext "List" exp
         -- ignore val
         retVal val
-    ".=" -> do
-        let [lhs, exp] = exps
-            rh = case exp of
-                App op invs args    -> App op (lhs:invs) args
-                _                   -> Syn "()" [exp, Syn "invs" [lhs], Syn "args" []]
-        evalExp $ Syn "=" [lhs, rh]
     syn | last syn == '=' -> do
         let [lhs, exp] = exps
             op = "&infix:" ++ init syn
         evalExp $ Syn "=" [lhs, App op [lhs, exp] []]
     _ -> retError "Unknown syntactic construct" exp
     where
-    isaContext c = isaType (envClasses env) c (envContext env)
     doSlice :: [Exp] -> [Val] -> [VInt] -> Maybe (Val, [VInt])
     doSlice errs vs (n:ns)
         | (v:_)         <- n `genericDrop` vs

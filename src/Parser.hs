@@ -474,7 +474,7 @@ tightOperators = do
     , leftOps  " && !! "                                -- Tight And
     , leftOps  " || ^^ // "                             -- Tight Or
     , ternOps  [("??", "::")]                           -- Ternary
-    , rightSyn " = := ::= ~= .= += -= *= /= **= xx= ||= &&= //= "-- Assignment
+    , rightSyn " = := ::= ~= += -= *= /= **= xx= ||= &&= //= "-- Assignment
     ]
 
 looseOperators = do
@@ -600,9 +600,12 @@ rulePostTerm = tryRule "term postfix" $ do
         ]
 
 doRuleInvocation needParens = tryVerbatimRule "invocation" $ do
+    hasEqual <- option False $ do char '='; whiteSpace; return True
     name            <- subNameWithPrefix ""
     (invs:args:_)   <- fParens $ parseParenParamList ruleExpression
-    return $ \x -> App name (x:invs) args
+    return $ \x -> if hasEqual
+        then Syn "=" [x, App name (x:invs) args]
+        else App name (x:invs) args
     where
     fParens = if needParens then id else option [[],[]]
 

@@ -11,7 +11,6 @@ is (@a[1], 3, 'inplace map [1]');
 is (@a[2], 4, 'inplace map [2]');
 
 my $a=3.14;
-
-eval '$a .= int;';
-todo_is ($a, 3, "inplace int");
+$a .= int;
+is ($a, 3, "inplace int");
 
