@@ -14,11 +14,11 @@ import Internals
 import AST
 import qualified Data.Set as Set
 
-opJuncAll :: [AST.Val] -> AST.Val
+opJuncAll :: [Val] -> Val
 opJuncAll = opJunc JAll
-opJuncAny :: [AST.Val] -> AST.Val
+opJuncAny :: [Val] -> Val
 opJuncAny = opJunc JAny
-opJuncOne :: [AST.Val] -> AST.Val
+opJuncOne :: [Val] -> Val
 opJuncOne args = VJunc (Junc JOne dups vals)
     where
     vals = Set.fromList [ v | [v] <- groups ]
