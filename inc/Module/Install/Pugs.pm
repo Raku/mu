@@ -155,7 +155,7 @@ sub assert_ghc {
 *** Please install a newer version from http://haskell.org/ghc/.
 .
     }
-    my $ghc_flags = "-H200m -L. -Lsrc -Lsrc/pcre -I. -Isrc -Isrc/pcre ";
+    my $ghc_flags = "-H0 -L. -Lsrc -Lsrc/pcre -I. -Isrc -Isrc/pcre ";
     $ghc_flags .= " -i. -isrc -isrc/pcre -static "; 
     $ghc_flags .= " -Wall "
       unless $self->is_extension_build;
