@@ -18,7 +18,7 @@ sub factorial {
 }
 
 sub fibonacci {
-    @_[0] < 2 ?? 1 :: fibonacci(@_[0] - 2) + fibonacci(@_[0] - 1);
+    @_[0] < 2 ?? 1 :: &?SUB(@_[0] - 2) + &?SUB(@_[0] - 1);
 }
 
 # Highly recursive, highly aggressive.

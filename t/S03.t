@@ -1,7 +1,7 @@
 use v6;
 require Test;
 
-plan 9;
+plan 7;
 
 # String Operations
 is "text " ~ "stitching", "text stitching", 'concationation with ~ operator';
