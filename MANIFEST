@@ -60,6 +60,7 @@ t/op/join.t
 t/op/pair.t
 t/op/pop.t
 t/op/push.t
+t/op/recurse.t
 t/op/repeat.t
 t/op/shift.t
 t/op/split.t
