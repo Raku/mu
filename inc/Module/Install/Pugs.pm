@@ -124,7 +124,7 @@ sub pugs_binary {
     my $self = shift;
     my $pugs = "pugs$Config{_exe}";
     my $base = $self->{_top}{base};
-    "$base/blib6/script/$pugs";
+    "$base/blib/script/$pugs";
 }
 
 sub deny_cygwin {
