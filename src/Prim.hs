@@ -522,9 +522,11 @@ primOp sym assoc prms ret = Symbol SOur name (Val sub)
     f    = case (arity :: Integer) of
         0 -> \x -> op0 symStr x
         1 -> \x     -> case x of
-            [x]   -> op1 symName x
-            [x,y] -> op2 symStr x y
-            x     -> op0 symStr x
+            [x]       -> op1 symName x
+            [x,y]     -> op2 symStr x y
+            [x,y,z]   -> op3 symStr x y z
+            [x,y,z,w] -> op4 symStr x y z w
+            x         -> op0 symStr x
         2 -> \[x,y] -> op2 symStr x y
         3 -> \[x,y,z] -> op3 symStr x y z
         4 -> \[x,y,z,w] -> op4 symStr x y z w
