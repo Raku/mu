@@ -13,23 +13,22 @@
 -- and use GHC object files and packages dynamically at runtime.
 --
 ----------------------------------------------------------------------------
-module External.Haskell.DynamicLoader (
-                      DynamicModule,
-                      dm_path,
-                      DynamicPackage,
-                      dp_path,
+module External.Haskell.DynamicLoader (DynamicModule,
+                                    dm_path,
+                                    DynamicPackage,
+                                    dp_path,
 
-                      addDLL,
-
-                      loadModule,
-                      loadModuleFromPath,
-                      loadPackage,
-                      loadPackageFromPath,
-                      unloadModule,
-                      unloadPackage,
-                      loadFunction,
-                      loadQualifiedFunction,
-                      resolveFunctions) where
+                                    addDLL,
+                            
+                                    loadModule,
+                                    loadModuleFromPath,
+                                    loadPackage,
+                                    loadPackageFromPath,
+                                    unloadModule,
+                                    unloadPackage,
+                                    loadFunction,
+                                    loadQualifiedFunction,
+                                    resolveFunctions) where
 
 import Char (ord)
 import List
@@ -68,7 +67,6 @@ data DynamicModule = RTM { dm_qname :: [String],
 
 data DynamicPackage = RTP { dp_path  :: FilePath,
                             dp_cbits :: Maybe DynamicPackage }
-
 {-|
 
 Dynamically load a shared library (DLL or so). A shared library can't
@@ -215,7 +213,7 @@ Load a GHC package such as \"base\" or \"text\". Takes the full path to
 the package.
 
 This function also loads accompanying cbits-packages. I.e. if you load
-the package @/usr/modules/HSbase.o@ it will deduce that @o@ is the
+the package @\/usr\/modules\/HSbase.o@ it will deduce that @o@ is the
 suffix and @loadPackageFromPath@ will then also look for the file
 @\/usr\/modules\/HSbase_cbits.o@ and load it if present.
 

@@ -13,21 +13,21 @@
 -- is thread safe.
 --
 ----------------------------------------------------------------------------
-module External.Haskell.NameLoader
-                  (Module, LoadedModule,
-                   setEnvironment,
-                   addDependency,
-                   delDependency,
-                   delAllDeps,
-                   withDependencies,
-                   loadModule,
-                   reloadModule,
-                   unloadModule,
-                   unloadModuleQuiet,
-                   loadFunction,
-                   moduleLoadedAt,
-
-                   DL.addDLL) where
+module External.Haskell.NameLoader (Module, LoadedModule,
+                                 ModuleType(..),
+                                 setEnvironment,
+                                 addDependency,
+                                 delDependency,
+                                 delAllDeps,
+                                 withDependencies,
+                                 loadModule,
+                                 unloadModule,
+                                 unloadModuleQuiet,
+                                 loadFunction,
+                                 moduleLoadedAt,
+                                 loadedModules,
+                                 sm_path,
+                                 DL.addDLL) where
 
 import Char (isUpper)
 
@@ -49,27 +49,27 @@ newtype LoadedModule = LM Module
 
 data ModuleType = MT_Module
                 | MT_Package
-                  deriving (Eq, Ord)
+                  deriving (Eq, Ord, Show)
 
 type ModuleWT = (String, ModuleType)
 
-type SmartDynamics = Either DL.DynamicModule DL.DynamicPackage
+type NameDynamics = Either DL.DynamicModule DL.DynamicPackage
 
-type SmartDep = [Module]
+type NameDep = [Module]
 
 -- SM reference_count type time module
-data SmartModule = SM { sm_refc   :: !Int,
-                        sm_time   :: ClockTime,
-                        sm_deps   :: SmartDep,
-                        sm_module :: SmartDynamics }
+data NameModule = SM { sm_refc   :: !Int,
+                       sm_time   :: ClockTime,
+                       sm_deps   :: NameDep,
+                       sm_module :: NameDynamics }
 
 -- module_path modudle_suff 
 -- pkg_path pkg_prefix pkg_suffix 
 -- dependency_map modules
-type SmartEnvData = (Maybe FilePath, Maybe String,
-                     Maybe FilePath, Maybe String, Maybe String,
-                     HT.HashTable String [Module],
-                     HT.HashTable String SmartModule)
+type NameEnvData = (Maybe FilePath, Maybe String,
+                    Maybe FilePath, Maybe String, Maybe String,
+                    HT.HashTable String [Module],
+                    HT.HashTable String NameModule)
 
 {- 
 
@@ -81,21 +81,21 @@ type SmartEnvData = (Maybe FilePath, Maybe String,
    but lets play safe and have an MVar too.
 
 -}
-type SmartEnv = (MVar (), IORef SmartEnvData)
+type NameEnv = (MVar (), IORef NameEnvData)
 
-withSmartEnv :: SmartEnv -> (SmartEnvData -> IO b) -> IO b
-withSmartEnv (mvar, ioref) f
+withNameEnv :: NameEnv -> (NameEnvData -> IO b) -> IO b
+withNameEnv (mvar, ioref) f
     = withMVar mvar (\_ -> readIORef ioref >>= f)
 
-withSmartEnvNB :: SmartEnv -> (SmartEnvData -> IO b) -> IO b
-withSmartEnvNB (_, ioref) f = readIORef ioref >>= f
+withNameEnvNB :: NameEnv -> (NameEnvData -> IO b) -> IO b
+withNameEnvNB (_, ioref) f = readIORef ioref >>= f
 
-modifySmartEnv_ :: SmartEnv -> (SmartEnvData -> IO SmartEnvData) -> IO ()
-modifySmartEnv_ (mvar, ioref) f
+modifyNameEnv_ :: NameEnv -> (NameEnvData -> IO NameEnvData) -> IO ()
+modifyNameEnv_ (mvar, ioref) f
     = withMVar mvar (\_ -> readIORef ioref >>= f >>= writeIORef ioref)
 
 {-# NOINLINE env #-}
-env :: SmartEnv
+env :: NameEnv
 env = unsafePerformIO (do modh <- HT.new (==) HT.hashString
                           deph <- HT.new (==) HT.hashString
                           mvar <- newMVar ()
@@ -116,7 +116,7 @@ directory and the rest (in order) to /o/, /HS/ and /o/.
 setEnvironment :: Maybe FilePath -> Maybe String -> 
                   Maybe FilePath -> Maybe String -> Maybe String -> IO ()
 setEnvironment mpath msuff ppath ppre psuff
-    =  modifySmartEnv_ env (\(_, _, _, _, _, deph, modh) ->
+    =  modifyNameEnv_ env (\(_, _, _, _, _, deph, modh) ->
                             return (mpath, msuff, ppath, ppre, psuff,
                                     deph, modh))
 
@@ -129,9 +129,9 @@ result.
 
 -}
 addDependency :: Module -> Module -> IO ()
-addDependency from to = withSmartEnv env (addDependency' from to)
+addDependency from to = withNameEnv env (addDependency' from to)
 
-addDependency' :: Module -> Module -> SmartEnvData -> IO ()
+addDependency' :: Module -> Module -> NameEnvData -> IO ()
 addDependency' from to (_, _, _, _, _, deph, _)
     = insertHT_C union deph from [to]
 
@@ -141,9 +141,9 @@ Delete a module dependency.
 
 -}
 delDependency :: Module -> Module -> IO ()
-delDependency from to = withSmartEnv env (delDependency' from to)
+delDependency from to = withNameEnv env (delDependency' from to)
 
-delDependency' :: Module -> Module -> SmartEnvData -> IO ()
+delDependency' :: Module -> Module -> NameEnvData -> IO ()
 delDependency' from to (_, _, _, _, _, deph, _)
     = modifyHT (\\[to]) deph from
 
@@ -154,9 +154,9 @@ Delete all dependencies for a module.
 -}
 
 delAllDeps :: Module -> IO ()
-delAllDeps from = withSmartEnv env (delAllDeps' from)
+delAllDeps from = withNameEnv env (delAllDeps' from)
 
-delAllDeps' :: Module -> SmartEnvData -> IO ()
+delAllDeps' :: Module -> NameEnvData -> IO ()
 delAllDeps' from (_, _, _, _, _, deph, _)
     = deleteHT deph from
 
@@ -169,7 +169,7 @@ withDependencies. If you do so, a deadlock will occur.
 -}
 withDependencies :: Module -> (Maybe [Module] -> IO a) -> IO a
 withDependencies from f
-    = withSmartEnv env (\(_,_,_,_,_,deph,_) -> lookupHT deph from >>= f)
+    = withNameEnv env (\(_,_,_,_,_,deph,_) -> lookupHT deph from >>= f)
 
 {-|
 
@@ -195,11 +195,11 @@ If any error occurs an exception is thrown.
 -}
 loadModule :: Module -> IO LoadedModule
 loadModule m 
-    = do withSmartEnv env (\env -> do loadModuleWithDep m env
-                                      DL.resolveFunctions
-                                      return (LM m))
+    = do withNameEnv env (\env -> do loadModuleWithDep m env
+                                     DL.resolveFunctions
+                                     return (LM m))
 
-loadModuleWithDep :: Module -> SmartEnvData -> IO ()
+loadModuleWithDep :: Module -> NameEnvData -> IO ()
 loadModuleWithDep name
                   env@(_, _, _, _, _, _, modh)
     = do msm <- HT.lookup modh name
@@ -209,8 +209,8 @@ loadModuleWithDep name
 
          mapM_ (\modwt -> loadModuleWithDep modwt env) depmods
 
-midLoadModule :: Maybe SmartModule -> Module -> SmartEnvData ->
-                 IO (SmartModule, SmartDep)
+midLoadModule :: Maybe NameModule -> Module -> NameEnvData ->
+                 IO (NameModule, NameDep)
 midLoadModule (Just sm) _ _ = return $ (sm { sm_refc = sm_refc sm + 1 },
                                         sm_deps sm)
 midLoadModule Nothing name env@(_, _, _, _, _, deph, _)
@@ -218,7 +218,7 @@ midLoadModule Nothing name env@(_, _, _, _, _, deph, _)
          depmods <- lookupDefHT deph [] name
          return (SM 1 time depmods sd, depmods)
 
-lowLoadModule :: ModuleWT -> SmartEnvData -> IO (SmartDynamics, ClockTime)
+lowLoadModule :: ModuleWT -> NameEnvData -> IO (NameDynamics, ClockTime)
 lowLoadModule (name, MT_Package) (_, _, ppath, ppre, psuff, _, _)
     = do lp <- DL.loadPackage name ppath ppre psuff
          time <- getModificationTime (DL.dp_path lp)
@@ -237,7 +237,7 @@ been loaded more than once. An exception is thrown in case of error.
 -}
 unloadModule :: LoadedModule -> IO ()
 unloadModule (LM name) 
-    = withSmartEnv env (unloadModuleWithDep name)
+    = withNameEnv env (unloadModuleWithDep name)
 
 {-|
 
@@ -246,10 +246,10 @@ Same as @unloadModule@ just doesn't trow any exceptions on error.
 -}
 unloadModuleQuiet :: LoadedModule -> IO ()
 unloadModuleQuiet (LM name)
-    = withSmartEnv env (\env -> catch (unloadModuleWithDep name env)
+    = withNameEnv env (\env -> catch (unloadModuleWithDep name env)
                                   (\_ -> return ()))
 
-unloadModuleWithDep :: Module -> SmartEnvData -> IO ()
+unloadModuleWithDep :: Module -> NameEnvData -> IO ()
 unloadModuleWithDep name env@(_, _, _, _, _, _, modh)
     = do msm <- lookupHT modh name
          sm <- maybe (fail $ "Module " ++ name ++ " not loaded")
@@ -262,7 +262,7 @@ unloadModuleWithDep name env@(_, _, _, _, _, _, modh)
  
          mapM_ (\m -> unloadModuleWithDep m env) (sm_deps sm)
 
-lowUnloadModule :: SmartDynamics -> IO ()
+lowUnloadModule :: NameDynamics -> IO ()
 lowUnloadModule (Left lm)  = DL.unloadModule lm
 lowUnloadModule (Right lp) = DL.unloadPackage lp
 
@@ -280,9 +280,9 @@ still call the old function).
 -}
 loadFunction :: LoadedModule -> String -> IO a
 loadFunction (LM m) name
-    = withSmartEnv env (loadFunction' (nameToMWT m) name)
+    = withNameEnv env (loadFunction' (nameToMWT m) name)
 
-loadFunction' :: ModuleWT -> String -> SmartEnvData -> IO a
+loadFunction' :: ModuleWT -> String -> NameEnvData -> IO a
 loadFunction' (_, MT_Package) _ _ 
     = fail "Cannot load functions from packages"
 loadFunction' (mname, _) fname (_, _, _, _, _, _, modh)
@@ -303,59 +303,25 @@ if the module isn't loaded.
 -}
 moduleLoadedAt :: LoadedModule -> IO ClockTime
 moduleLoadedAt (LM m)
-    = withSmartEnvNB env (moduleLoadedAt' m)
+    = withNameEnvNB env (moduleLoadedAt' m)
 
-moduleLoadedAt' :: Module -> SmartEnvData -> IO ClockTime
+moduleLoadedAt' :: Module -> NameEnvData -> IO ClockTime
 moduleLoadedAt' name (_, _, _, _, _, _, modh)
     = do msm <- HT.lookup modh name 
          sm <- maybe (fail $ "Module " ++ name ++ " not loaded")
                      return msm
          return (sm_time sm)
 
-{-|
+loadedModules :: IO [String]
+loadedModules = withNameEnvNB env loadedModules' 
 
-Do a total reload of the module. Ie. unload the current version and
-then load it again. Will throw an exception if something fails.
-
-If the last argument is set to @True@ modules will only be reloaded if
-they have changed on disk.
-
--}
-reloadModule :: LoadedModule -> Bool -> IO ()
-reloadModule (LM name) crisp
-    = withSmartEnv env (\env -> do reloadModuleWithDep name crisp env 
-                                   DL.resolveFunctions)
-
-reloadModuleWithDep :: Module -> Bool -> SmartEnvData -> IO ()
-reloadModuleWithDep name crisp env@(_, _, _, _, _, _, modh)
-    = do msm <- HT.lookup modh name
-         (sm, depmods) <- midReloadModule msm name crisp env
-
-         HT.delete modh name
-         HT.insert modh name sm
-
-         mapM_ (\modwt -> reloadModuleWithDep modwt crisp env) depmods
-
-midReloadModule :: Maybe SmartModule -> Module -> Bool -> SmartEnvData ->
-                   IO (SmartModule, SmartDep)
-midReloadModule (Just sm) name crisp env@(_, _, _, _, _, deph, _)
-    = do mt <- getModificationTime (sm_path sm)
-         if not crisp || sm_time sm < mt 
-            then do lowUnloadModule (sm_module sm)
-                    (sd, time) <- lowLoadModule  (nameToMWT name) env
-                    depmods <- lookupDefHT deph [] name
-                    return (SM (sm_refc sm) time depmods sd, depmods)
-            else return (sm, sm_deps sm)
-midReloadModule Nothing name _ env@(_, _, _, _, _, deph, _)
-    = do (sd, time) <- lowLoadModule (nameToMWT name) env
-         depmods <- lookupDefHT deph [] name
-         return (SM 1 time depmods sd, depmods)
-
-
+loadedModules' :: NameEnvData -> IO [String]
+loadedModules' (_, _, _, _, _, _, modh) 
+    = HT.toList modh >>= (\lst -> return (map fst lst))
 
 -- Some helper functions 
 
-sm_path :: SmartModule -> FilePath
+sm_path :: NameModule -> FilePath
 sm_path sm = case sm_module sm of
                                Left  dm -> DL.dm_path dm
                                Right dp -> DL.dp_path dp
