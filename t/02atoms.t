@@ -61,8 +61,24 @@ my %hash;
 eval ' %hash<Mon Tue Wed Thu Fri Sat Sun> = 1..7; ';
 todo_ok(%hash{'Mon'} eq '1' && %hash{'Sun'} eq '7', '%hash<>');
 
-eval '
-    my $handle = open(">/tmp/tmpfile");
-    for *FILE { $bar ~= $_ }
-';
-todo_ok($bar, '*FILE');
+my $out = open(">tmpfile");
+$out.say("line1");
+$out.say("line2");
+$out.close;
+
+my $in0 = open("tmpfile");
+my $line = $in0.readline;
+is($line, "line1\n", "file I/O (scalar, readline)");
+$in0.close;
+
+my $in1 = open("tmpfile");
+my $line = =$in1;
+is($line, "line1\n", "file I/O (scalar, unary =)");
+$in1.close;
+
+my $in2 = open("tmpfile");
+my @line = =$in2;
+is("@line", "line1\n line2\n", "file I/O (list, unary =)");
+$in2.close;
+
+ok(unlink("tmpfile"), "file unlinked");

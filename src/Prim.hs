@@ -139,8 +139,15 @@ op1 "unlink" = \v -> do
     rets <- liftIO $ sequence $ map ( iboolIO removeFile ) $ map vCast vals
     return $ VInt $ sum $ map bool2n rets
 op1 "open" = \v -> do
-    fh <- liftIO $ openFile (vCast v) ReadMode
+    let (mode, filename) = span (`elem` "+<> ") (vCast v)
+    fh <- liftIO $ openFile filename (modeOf $ takeWhile (not . isSpace) mode)
     return $ VHandle fh
+    where
+    modeOf ""   = ReadMode
+    modeOf ">"  = WriteMode
+    modeOf ">>" = AppendMode
+    modeOf "+>" = ReadWriteMode
+    modeOf m    = error $ "unknown mode: " ++ m
 op1 "close" = boolIO hClose
 op1 "key" = return . fst . (vCast :: Val -> VPair)
 op1 "value" = return . snd . (vCast :: Val -> VPair)
@@ -149,14 +156,22 @@ op1 "kv" = \v -> do
     return $ VList [fst pair, snd pair]
 op1 "keys" = return . VList . map fst . (vCast :: Val -> [VPair])
 op1 "values" = return . op1Values
-op1 "<>" = \v -> do
-    str <- readFrom v
+op1 "readline" = op1 "="
+op1 "=" = \v -> do
+    fh  <- handleOf v
     cxt <- asks envContext
-    return $ if ((cxt ==) `any` ["Array", "List"]) -- XXX use isaType here
-        then VList $ map VStr $ lines str
-        else VStr str
+    -- XXX use isaType here
+    if ((cxt ==) `any` ["Array", "List"])
+        then return . VList . map (VStr . (++ "\n")) . lines =<< liftIO (hGetContents fh)
+        else return . VStr . (++ "\n") =<< liftIO (hGetLine fh)
     where
-    readFrom VUndef = do
+    handleOf (VRef x) = handleOf x
+    handleOf (VPair (_, x)) = handleOf x
+    handleOf (VList [VStr x]) = liftIO $ openFile x ReadMode
+    handleOf (VList []) = return stdin
+    handleOf v = return $ vCast v
+{-
+    readFrom (VRef (VList [])) = do
         -- ARGS etc
         glob <- askGlobal
         strs <- liftIO $ sequence $ case find ((== "@*ARGS") . symName) glob of
@@ -166,12 +181,11 @@ op1 "<>" = \v -> do
                 Val (VList xs)  -> map ((hGetContents =<<) . (`openFile` ReadMode) . vCast) xs
                 _               -> error "not handled"
         return $ concat strs
-    readFrom v = do
-        liftIO $ hGetContents $ vCast v
     getStdin glob = do
         case find ((== "$*STDIN") . symName) glob of
             Just sym | (Val v) <- symExp sym -> return $ vCast v
             _                                -> error "impossible"
+-}
 op1 "ref"  = return . VStr . valType
 op1 "pop"  = op1Pop (last, init)
 op1 "shift"= op1Pop (head, tail)
@@ -490,6 +504,10 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Num       spre    -       (Num)\
 \\n   Str       spre    ~       (Str)\
 \\n   Bool      spre    ?       (Bool)\
+\\n   Str       spre    =       (IO)\
+\\n   List      spre    =       (IO)\
+\\n   Str       pre     readline (IO)\
+\\n   List      pre     readline (IO)\
 \\n   Int       pre     int     (Int)\
 \\n   List      spre    *       (List)\
 \\n   List      spre    **      (List)\
@@ -528,12 +546,14 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Bool      pre     defined (Any)\
 \\n   Str       pre     ref     (Any)\
 \\n   Num       pre     time    ()\
-\\n   Action    pre     print   (List)\
-\\n   Action    pre     say     (IO: List)\
-\\n   Action    pre     say     (List)\
-\\n   Action    pre     die     (List)\
+\\n   Bool      pre     print   (List)\
+\\n   Bool      pre     say     (IO: List)\
+\\n   Bool      pre     say     (List)\
+\\n   Bool      pre     close   (IO)\
+\\n   Bool      pre     die     (List)\
 \\n   Any       pre     do      (Str)\
 \\n   IO        pre     open    (Str)\
+\\n   Bool      pre     binmode (IO: ?Num=1)\
 \\n   Any       pre     return  (Any)\
 \\n   Junction  pre     any     (List)\
 \\n   Junction  pre     all     (List)\

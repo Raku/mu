@@ -78,14 +78,15 @@ evaluate (Val v@(MVal mv)) = do
 evaluate (Val val) = do
     -- context casting, go!
     cxt <- asks envContext
+    lv  <- asks envLValue
+    v   <- if lv then return val else readMVal val
     return $ case cxt of
-        "List"  -> VList (vCast val)
-        "Array" -> VArray (vCast val)
-        "Hash"  -> VHash (vCast val)
-        "Str"   -> VStr (vCast val)
-        "Num"   -> VNum (vCast val)
-        "Int"   -> VInt (vCast val)
-        "Bool"  -> VBool (vCast val)
+        "List"  -> VList (vCast v)
+        "Array" -> VArray (vCast v)
+        "Hash"  -> VHash (vCast v)
+--      "Str"   -> VStr (vCast v)
+--      "Num"   -> VNum (vCast val)
+--      "Int"   -> VInt (vCast val)
         "Scalar"-> val
         _       -> val
 evaluate exp = do

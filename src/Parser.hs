@@ -39,10 +39,10 @@ ruleBlock = rule "block" $ braces $ do
 
 ruleStatementList :: RuleParser [(Exp, SourcePos)]
 ruleStatementList = rule "statements" $ choice
-    [ nonSep  ruleDeclaration
+    [ rulePodBlock
+    , nonSep  ruleDeclaration
     , nonSep  ruleConstruct
     , semiSep ruleExpression
-    , rulePodBlock
     ]
     where
     nonSep = doSep many
@@ -384,7 +384,7 @@ tightOperators = do
     [ methOps  " . .+ .? .* .+ .() .[] .{} .<<>> .= "   -- Method postfix
     , postOps  " ++ -- " ++ preOps " ++ -- "            -- Auto-Increment
     , rightOps " ** "                                   -- Exponentiation
-    , preOps   " ! + - ~ ? * ** +^ ~^ ?^ \\ "           -- Symbolic Unary
+    , preOps   " = ! + - ~ ? * ** +^ ~^ ?^ \\ "         -- Symbolic Unary
     , leftOps  " * / % x xx +& +< +> ~& ~< ~> "         -- Multiplicative
     , leftOps  " + - ~ +| +^ ~| ~^ "                    -- Additive
     , leftOps  " & ! "                                  -- Junctive And
@@ -400,7 +400,7 @@ tightOperators = do
     , leftOps  " && !! "                                -- Tight And
     , leftOps  " || ^^ // "                             -- Tight Or
     , ternOps  [("??", "::")]                           -- Ternary
-    , rightSyn " = := ::= += **= xx= ||= &&= //= "      -- Assignment
+    , rightSyn " = := ::= ~= += **= xx= ||= &&= //= "   -- Assignment
     ]
 
 looseOperators = do
