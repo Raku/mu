@@ -9,7 +9,7 @@ use inc::Module::Install;
 chdir $FindBin::Bin; # XXX Why is this here?
 
 my $pugs = "pugs$Config{_exe}";
-my $version_h = "version.h";
+my $version_h = "src/pugs_version.h";
 my @srcdirs = ("src", grep(-d, glob "src/*"));
 
 deny_cygwin     ();
@@ -29,7 +29,7 @@ makemaker_args  (
     MAN1PODS => {},
 );
 clean_files     (
-    "pugs*", "config.h", "version.h", 
+    "pugs*", "src/pugs_config.h", "src/pugs_version.h", 
     'src/Config.hs',
     map {("$_/*.hi", "$_/*.o*")} @srcdirs
 );
@@ -101,7 +101,7 @@ $version_h : $svn_entries
 
 sub create_config_h {
     open IN, '< lib/Perl6/Pugs.pm' or die $!;
-    open FH, '> config.h' or die $!;
+    open FH, '> src/pugs_config.h' or die $!;
 
     while (<IN>) {
         /version (\S+) .*\breleased (.*)\./ or next;

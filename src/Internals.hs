@@ -50,11 +50,15 @@ import Cont
 import Posix
 import Data.Dynamic
 import System.Environment
-import System.Random
+import System.Random hiding (split)
 import System.Exit
 import System.Time
 import System.Cmd
-import System.IO hiding (try)
+import System.IO (
+    Handle, stdin, stdout, hClose, hGetLine, hGetContents,
+    openFile, hPutStr, hPutStrLn, IOMode(..), stderr,
+    hSetBuffering, BufferMode(..), hIsTerminalDevice
+    )
 import System.IO.Unsafe
 import System.Directory
 import Control.Exception (catchJust, errorCalls)
@@ -63,12 +67,18 @@ import Control.Monad.Error (MonadError(..))
 import Data.Bits hiding (shift)
 import Data.Maybe
 import Data.Either
-import Data.List hiding (intersect, union)
+import Data.List (
+    (\\), find, genericLength, insert, sortBy, intersperse,
+    partition, group, sort, genericReplicate, isPrefixOf,
+    genericTake, genericDrop, unfoldr
+    )
 import Data.Unique
 import Data.Ratio
 import Data.Word
 import Data.Char
-import Data.Set
+import Data.Set (
+    Set, elementOf, setToList, mapSet, mkSet, emptySet, unionManySets, union
+    )
 import Data.Ratio
 import Data.Complex
 import Data.FiniteMap
@@ -91,3 +101,4 @@ instance Show (IORef (FiniteMap String String)) where
 
 internalError :: String -> a
 internalError s = error $ "Internal error: " ++ s ++ " please file a bug report."
+

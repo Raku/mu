@@ -1,4 +1,4 @@
-{-# OPTIONS -fglasgow-exts #-}
+{-# OPTIONS -fglasgow-exts -cpp #-}
 
 {-
     Abstract syntax tree.
@@ -260,9 +260,6 @@ newtype VHash  = MkHash (FiniteMap Val Val) deriving (Show, Eq, Ord)
 
 type VPair = (Val, Val)
 
-instance (Show a, Show b) => Show (FiniteMap a b) where
-    show fm = show (fmToList fm)
-
 data Val
     = VUndef
     | VBool     VBool
@@ -349,10 +346,6 @@ data VSub = Sub
     }
     deriving (Show, Eq, Ord)
 
-instance (Ord a) => Ord (Set a) where
-    compare x y = compare (setToList x) (setToList y)
-instance (Show a) => Show (Set a) where
-    show x = show $ setToList x
 instance Ord VComplex where {- ... -}
 instance (Ord a, Ord b) => Ord (FiniteMap a b)
 instance Ord MVal where
@@ -480,3 +473,13 @@ retError :: VStr -> Exp -> Eval a
 retError str exp = do
     shiftT $ \_ -> return $ VError str exp
 
+#if __GLASGOW_HASKELL__ <= 602
+
+instance (Show a, Show b) => Show (FiniteMap a b) where
+    show fm = show (fmToList fm)
+instance (Ord a) => Ord (Set a) where
+    compare x y = compare (setToList x) (setToList y)
+instance (Show a) => Show (Set a) where
+    show x = show $ setToList x
+
+#endif

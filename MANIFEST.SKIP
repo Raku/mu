@@ -12,6 +12,6 @@
 \.sw\w$
 \.hi$
 \.o.*$
-^config.h
+^pugs_config\.h
+^pugs_version\.h
 \.svn
-version\.h$

@@ -15,7 +15,7 @@ import Internals
 import AST
 
 #undef PUGS_HAVE_READLINE
-#include "config.h"
+#include "pugs_config.h"
 
 #ifdef PUGS_HAVE_READLINE
 import qualified System.Console.Readline as Readline

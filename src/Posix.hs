@@ -12,7 +12,7 @@
 -}
 
 #undef PUGS_HAVE_POSIX
-#include "config.h"
+#include "pugs_config.h"
 
 module Posix (
     createLink,
@@ -31,31 +31,12 @@ import System.Posix.Files
 import System.Posix.Unistd
 #else
 
-import Data.Maybe
 import System.IO.Error
-import System.Environment
 import System.Posix.Types
+import System.Environment
 
-createLink :: FilePath -> FilePath -> IO ()
-createLink _ _ = fail "'link' not implemented on this platform."
-
-createSymbolicLink :: FilePath -> FilePath -> IO ()
-createSymbolicLink _ _ = fail "'symlink' not implemented on this platform."
-
-readSymbolicLink :: FilePath -> IO FilePath
-readSymbolicLink _ = fail "'readlink' not implemented on this platform."
-
-rename :: FilePath -> FilePath -> IO ()
-rename _ _ = fail "'rename' not implemented on this platform."
-
-removeLink :: FilePath -> IO ()
-removeLink _ = fail "'unlink' not implemented on this platform."
-
-sleep :: Int -> IO ()
-sleep _ = fail "'sleep' not implemented on this platform."
-
-setFileMode :: FilePath -> FileMode -> IO ()
-setFileMode _ _ = fail "'chmod' not implemented on this platform."
+#if __GLASGOW_HASKELL__ <= 602
+import Data.Maybe (catMaybes)
 
 getEnvironment :: IO [(String, String)]
 getEnvironment = do
@@ -82,4 +63,29 @@ getEnvironment = do
                 ++ " AUTH_TYPE REMOTE_USER REMOTE_IDENT "
                 ++ " CONTENT_TYPE CONTENT_LENGTH "
                 ++ " HTTP_ACCEPT HTTP_USER_AGENT "
+#endif
+
+
+createLink :: FilePath -> FilePath -> IO ()
+createLink _ _ = fail "'link' not implemented on this platform."
+
+createSymbolicLink :: FilePath -> FilePath -> IO ()
+createSymbolicLink _ _ = fail "'symlink' not implemented on this platform."
+
+readSymbolicLink :: FilePath -> IO FilePath
+readSymbolicLink _ = fail "'readlink' not implemented on this platform."
+
+rename :: FilePath -> FilePath -> IO ()
+rename _ _ = fail "'rename' not implemented on this platform."
+
+removeLink :: FilePath -> IO ()
+removeLink _ = fail "'unlink' not implemented on this platform."
+
+sleep :: Int -> IO ()
+sleep _ = fail "'sleep' not implemented on this platform."
+
+setFileMode :: FilePath -> FileMode -> IO ()
+setFileMode _ _ = fail "'chmod' not implemented on this platform."
+
+
 #endif

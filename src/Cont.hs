@@ -1,4 +1,4 @@
-{-# OPTIONS -fglasgow-exts -fno-warn-unused-binds #-}
+{-# OPTIONS -fglasgow-exts -fno-warn-unused-binds -cpp #-}
 
 {-
     Continuation with shift/reset operators.
@@ -14,14 +14,19 @@ module Cont (
     module Control.Monad.Cont,
 ) where
 
-import qualified Control.Monad.Cont as C (callCC)
-import Control.Monad.Cont (mapContT, withContT, mapCont, withCont, runCont, Cont(..), ContT(..), runContT, MonadCont)
-import Control.Monad.Trans (lift)
+import qualified Control.Monad.Cont as C (callCC, lift)
+import Control.Monad.Cont (mapContT, withContT, mapCont, withCont, Cont(..), ContT(..), MonadCont)
 
+-- Cont' m a is the type of a continuation expecting an a within the 
+-- continuation monad Cont m
 type Cont' m a = forall r. a -> m r
 
-callCC :: MonadCont m => ((a -> (forall b. m b)) -> m a) -> m a
+callCC :: forall a m. MonadCont m => (Cont' m a -> m a) -> m a
+#if __GLASGOW_HASKELL__ > 602
+callCC f = C.callCC f' where
+#else
 callCC (f :: ((a -> (forall b. m b)) -> m a) ) = C.callCC f' where
+#endif
   f' :: (a -> m (EmptyMonad m)) -> m a
   f' g = f g' where
     g' :: a -> m b
@@ -39,7 +44,7 @@ reset e = return $ e `runCont` id
 
 -- shiftT/resetT for the ContT monad transformer
 shiftT :: Monad m => ((a -> ContT r m s) -> ContT s m s) -> ContT s m a
-shiftT e = ContT $ \k -> e (lift . k) `runContT` return
+shiftT e = ContT $ \k -> e (C.lift . k) `runContT` return
 
 resetT :: Monad m => ContT a m a -> ContT r m a
-resetT e = lift $ e `runContT` return
+resetT e = C.lift $ e `runContT` return
