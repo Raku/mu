@@ -75,13 +75,13 @@ else {
     $archlib =~ /archlib:\s*(.+)/ or die "Cannot find archlib";
     my $core = "$1/CORE/pugs";
 
-    # XXX - Maybe disabled -threaded based on config?
+    # XXX - Maybe enable -threaded based on config?
     # XXX - This chunk should be read off Pugs config anyway.
     my @ghc_flags = (
         "-L$base", "-L$core", "-L$core/pcre",
         "-I$base", "-I$core", "-I$core/pcre",
         "-i$base", "-i$core", "-i$core/pcre",
-        qw(-threaded -static -Wall -fno-warn-unused-imports -fno-warn-unused-binds -fno-warn-missing-signatures -fno-warn-name-shadowing),
+        qw(-static -Wall -fno-warn-unused-imports -fno-warn-unused-binds -fno-warn-missing-signatures -fno-warn-name-shadowing),
     );
 
     if ($ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /perl5/i) {

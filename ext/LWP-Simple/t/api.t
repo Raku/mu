@@ -14,9 +14,7 @@ my @api = < get getstore getprint mirror head >;
 plan 1+@api;
 
 # TODO: use use_ok() instead of hand-rolled variant
-try {
   require LWP::Simple;
-};
 
 is( $!, undef, "LWP::Simple imported" );
 

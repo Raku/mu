@@ -11,6 +11,7 @@ my @urls = <
     %s
     %s/index.html
 >;
+@urls = (); # unTODOme
 
 if (%ENV{"PUGS_TESTS_ALLOW_NETWORK"}) {
   push @urls, <

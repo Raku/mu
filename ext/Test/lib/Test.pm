@@ -2,7 +2,7 @@ module Test-0.0.2;
 use v6;
 
 my $loop = 0;
-my $plan = 0;
+my $plan;
 my $failed = 0;
 my $log_file = %ENV{'TEST_LOG_FILE'};
 my $always_caller = %ENV{'TEST_ALWAYS_CALLER'};
@@ -227,12 +227,10 @@ sub write_log (+$got, +$expected, Str +$desc, Str +$errstr, Str +$context, Str +
 }
 
 END {
-    if (!$plan) {
+    if (!defined($plan)) {
         say("1..$loop");
-    } else {
-        if ($plan != $loop) {
-	    $*ERR.say("# Looks like you planned $plan tests, but ran $loop");
-        }
+    } elsif ($plan != $loop) {
+	$*ERR.say("# Looks like you planned $plan tests, but ran $loop");
     }
     if ($failed) {
         $*ERR.say("# Looks like you failed $failed tests of $loop");

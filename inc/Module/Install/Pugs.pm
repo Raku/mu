@@ -85,7 +85,11 @@ sub setup_perl6_install {
         INSTALLARCHLIB  => $libs->{archlib},
         INSTALLPRIVLIB  => $libs->{privlib},
         INSTALLSITEARCH => $libs->{sitearch},
+        SITEARCHEXP 	=> $libs->{sitearch},
         INSTALLSITELIB  => $libs->{sitelib},
+	SITELIBEXP	=> $libs->{sitelib},
+	PERLPREFIX	=> $libs->{prefix},
+	SITEPREFIX	=> $libs->{siteprefix},
     );
 }
 

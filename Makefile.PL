@@ -65,7 +65,8 @@ sub set_postamble {
     $ghc_output .= " $pcre $unicode";
 
     my $config = get_pugs_config();
-    my $threaded = try_compile("main = return ()", "-threaded")
+    my $is_win32 = ($^O =~ /MSWin|mingw|cygwin/i);
+    my $threaded = (!$is_win32 and try_compile("main = return ()", "-threaded"))
         ? '-threaded' : '';
 
     postamble(fixpaths(<< "."));
@@ -107,12 +108,12 @@ tags : @srcfiles
 	sort tags > tags.tmp
 	mv tags.tmp tags
 
-INST6_ARCHLIB = 'blib6/arch'
-INST6_SCRIPT = 'blib6/script'
-INST6_BIN = 'blib6/bin'
-INST6_LIB = 'blib6/lib'
-INST6_MAN1DIR = 'blib6/man1'
-INST6_MAN3DIR = 'blib6/man3'
+INST6_ARCHLIB = blib6/arch
+INST6_SCRIPT = blib6/script
+INST6_BIN = blib6/bin
+INST6_LIB = blib6/lib
+INST6_MAN1DIR = blib6/man1
+INST6_MAN3DIR = blib6/man3
 
 pure_all ::
 	\$(PERLRUN) util/src_to_blib.pl

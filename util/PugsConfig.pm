@@ -21,6 +21,7 @@ sub get_config {
         scriptdir => $Config{scriptdir},
         bin       => $Config{bin},
         sitebin   => $Config{sitebin},
+        siteprefix=> $Config{siteprefix},
 
         installscript  => $Config{installscript},
         installbin     => $Config{installbin},
