@@ -53,3 +53,5 @@ for @examples -> $ex {
 
   todo_is $got, $expected, "-p -e1 works like cat";
 }
+
+unlink "temp-ex-input";
