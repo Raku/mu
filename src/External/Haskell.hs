@@ -18,6 +18,8 @@ externalizeHaskell mod code = do
     symDecls <- mapM wrap names
     return $ unlines $
         [ "module " ++ mod ++ " where"
+        , "import Internals"
+        , "import GHC.Base"
         , "import AST"
         , ""
         , code

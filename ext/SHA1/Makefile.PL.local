@@ -9,6 +9,6 @@ author     ('Autrijus Tang <autrijus@cpan.org>');
 license    ('perl');
 external   ('lib/SHA1.pm');
 
-clean_files('src/*.hi', 'src/*.o');
+clean_files('src/*.hi', 'src/*.o', '*.hs *.hi *.o');
 
 WritePugs  (6);

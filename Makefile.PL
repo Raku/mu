@@ -22,7 +22,10 @@ install_script  (glob('script/*'));
 build_requires  ('ExtUtils::MakeMaker' => 6.15);
 include         ('Module::Install::Makefile::Name');
 include         ('Module::Install::Makefile::Version');
-build_subdirs   (map fixpaths($_), grep -e "$_/Makefile.PL", glob("ext/*"));
+build_subdirs   (map fixpaths($_), grep {
+                   -f "$_/Makefile.PL" && not -l "$_/Makefile.PL"
+                 } glob("ext/*")
+                );
 makemaker_args  (
     test => { TESTS => join ' ', "t/*.t", "t/*/*.t", "t/*/*/*.t" },
     MAN1PODS => {},
@@ -34,10 +37,10 @@ clean_files     (map fixpaths($_),
     map {("$_/*.hi", "$_/*.o*")} @srcdirs
 );
 
-setup_perl6_install();
 set_postamble   ();
 no_index        (directory => 'inc', 'examples');
-WritePugs       (sign => 1);
+sign            (1);
+WritePugs       (6);
 
 ################################################################################
 sub set_postamble {

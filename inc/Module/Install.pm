@@ -26,6 +26,7 @@ sub import {
     my $self = $class->new(@_);
 
     if (not -f $self->{file}) {
+        die "Pugs build should not get here";
         require "$self->{path}/$self->{dispatch}.pm";
         File::Path::mkpath("$self->{prefix}/$self->{author}");
         $self->{admin} = 
@@ -60,8 +61,13 @@ sub autoload {
     };
 }
 
+use Cwd qw(cwd abs_path);
 sub new {
     my ($class, %args) = @_;
+
+    # ignore the prefix on extension modules built from top level.
+    delete $args{prefix}
+      unless Cwd::cwd() eq $FindBin::Bin;
 
     return $args{_self} if $args{_self};
 

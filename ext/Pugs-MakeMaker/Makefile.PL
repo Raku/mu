@@ -1,9 +1,6 @@
 use strict;
-use File::Basename;
-my $Bin; 
-BEGIN { $Bin = dirname(__FILE__) };
-use lib "$Bin/../..", "$Bin/../../inc";
-use inc::Module::Install;
+use lib "../..", "../../inc";
+use inc::Module::Install prefix => '../../inc';
 
 name       ('Pugs-MakeMaker');
 version    ('0.01');
