@@ -16,6 +16,7 @@ my $svn_entries = File::Spec->catfile(".svn", "entries");
 
 if ("@ARGV" eq "-version") {
     open OUT, "> $version_h" or die $!;
+    print OUT "#undef PUGS_SVN_REVISION\n";
     if (-r $svn_entries) {
         open FH, $svn_entries;
         while (<FH>) {
@@ -72,15 +73,15 @@ while (<IN>) {
     /version (\S+) .*\breleased (.*)\./ or next;
     print FH << ".";
 
-#ifdef VERSION
-#undef VERSION
+#ifdef PUGS_VERSION
+#undef PUGS_VERSION
 #endif
-#define VERSION "$1"
+#define PUGS_VERSION "$1"
 
-#ifdef DATE
-#undef DATE
+#ifdef PUGS_DATE
+#undef PUGS_DATE
 #endif
-#define DATE "$2"
+#define PUGS_DATE "$2"
 
 .
     last;
@@ -118,7 +119,8 @@ $version_h : $svn_entries
 }
 else {
     open FH, "> $version_h" or die $!;
-    print FH "#define PUGS_SVN_REVISION 0";
+    print FH "#undef PUGS_SVN_REVISION\n";
+    print FH "#define PUGS_SVN_REVISION 0\n";
     close FH;
 }
 
