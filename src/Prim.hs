@@ -79,6 +79,7 @@ op1 "+"    = return . op1Numeric id
 op1 "abs"  = return . op1Numeric abs
 op1 "cos"  = op1Floating cos
 op1 "sin"  = op1Floating sin
+op1 "tan"  = op1Floating tan
 op1 "sqrt" = op1Floating sqrt
 op1 "post:++" = \mv -> do
     val <- readMVal mv
@@ -881,6 +882,7 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Num       pre     atan    (Num, Num)\
 \\n   Num       pre     cos     (?Num=$_)\
 \\n   Num       pre     sin     (?Num=$_)\
+\\n   Num       pre     tan     (?Num=$_)\
 \\n   Num       pre     exp     (?Num=$_, ?Num)\
 \\n   Num       pre     sqrt    (?Num=$_)\
 \\n   Bool      spre    -d      (?Str=$_)\
