@@ -10,12 +10,16 @@
 -}
 
 module Run where
+import Run.Args
 import Internals
 import Config
 import AST
 import Eval
 import Prim
-import ArgParse
+
+runWithArgs f = do
+    args <- getArgs
+    f $ canonicalArgs args
 
 runEval :: Env -> Eval Val -> IO Val
 runEval env eval = do

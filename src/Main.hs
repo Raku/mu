@@ -25,14 +25,12 @@ import Parser
 import Help
 import Pretty
 import Compile
-import ArgParse
 import IO
 
 main :: IO ()
 main = do
     hSetBuffering stdout NoBuffering
-    args <- getArgs
-    run $ canonicalArgs args
+    runWithArgs run
 {-    
     __run args
 

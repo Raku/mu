@@ -17,7 +17,7 @@
 
 -}
 
-module ArgParse (canonicalArgs
+module Run.Args (canonicalArgs
 , gatherArgs
 , unpackOptions
 

@@ -160,7 +160,7 @@ sub assert_ghc {
       if $self->is_extension_build;
     $ghc_flags .= " -I$Config{archlib}/CORE -L$Config{archlib}/CORE -i$Config{archlib}/CORE -lperl" 
       if $ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /perl5/i;
-    $ghc_flags .= " -fno-warn-deprecations -fno-warn-orphans";
+    #$ghc_flags .= " -fno-warn-deprecations -fno-warn-orphans";
     return ($ghc, $ghc_version, $ghc_flags);
 }
 
