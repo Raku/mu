@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 24 Nov 2004
+  Last Modified: 26 Nov 2004
   Number: 2
-  Version: 2
+  Version: 3
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -539,10 +539,11 @@ it exactly what you I<do> want to interpolate:
 
     q:s 'Here are { $two uninterpolated } curlies';
 
-The C<:s>, C<:a>, C<:h>, C<:f>, and C<:c> modifiers are short for the
-C<:scalar>, C<:array>, C<:hash>, C<:function>, and C<:closure> adverbs.
-If this is too much of a hardship, you can define your own quote
-operators, such as this one that does only Ruby-style interpolation:
+The C<:s>, C<:a>, C<:h>, C<:f>, C<:c>, C<:w>, and C<:x> modifiers
+are short for the C<:scalar>, C<:array>, C<:hash>, C<:function>,
+C<:closure>, C<:words>, and C<:exec> adverbs.  If this is too much
+of a hardship, you can define your own quote operators, such as this
+one that does only Ruby-style interpolation:
 
     macro term:qc () { "q:closure()" }
 
@@ -555,7 +556,11 @@ A consequence of the previous item is that we can now say:
 
     %hash = qw:c/a b c d {@array} {%hash}/;
 
-to interpolate items into a qw.  Conveniently, arrays and hashes
+or
+
+    %hash = qq:w/a b c d {@array} {%hash}/;
+
+to interpolate items into a C<qw>.  Conveniently, arrays and hashes
 interpolate with only whitespace separators by default, so the subsequent
 split on whitespace still works out.
 
