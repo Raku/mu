@@ -201,14 +201,13 @@ posSyms pos = [ Symbol SMy n (Val v) | (n, v) <- syms ]
         ]
 
 evalVar name = do
-    _   <- ask
-    val <- enterLValue $ do
-        rv <- findVar name
+    env <- ask
+    rv  <- findVar env name
+    enterLValue $ do
         enterEvalContext (cxtOfSigil $ head name) $ case rv of
             Nothing -> (Val $ VError ("Undefined variable " ++ name) (Val VUndef))
             Just (Val val)  -> (Val val)
             Just exp        -> exp -- XXX Wrong
-    return val
 
 enterLValue = local (\e -> e{ envLValue = True })
 
@@ -217,29 +216,26 @@ breakOnGlue glue rest@(x:xs)
     | glue `isPrefixOf` rest = ([], rest)
     | otherwise = (x:piece, rest') where (piece, rest') = breakOnGlue glue xs
 
-findVar name = do
-    env <- ask
-    findVar' env name
-    where
-    findVar' env name
-        | (package, name') <- breakOnGlue "::" name
-        , (sig, "CALLER") <- breakOnGlue "CALLER" package =
-            case (envCaller env) of
-                Just caller -> findVar' caller (sig ++ (drop 2 name'))
-                Nothing -> retError "cannot access CALLER:: in top level" (Var name)
-        | otherwise = do
-            let lexSym = findSym name $ envLexical env
-            -- XXX rewrite using Maybe monad
-            if isJust lexSym then return lexSym else do
-                glob <- liftIO . readIORef $ envGlobal env
-                let globSym = findSym name glob
-                if isJust globSym
-                    then return globSym
-                    else
-                        let globSym = findSym (toGlobal name) glob in
-                        if isJust globSym
-                            then return globSym
-                            else return Nothing
+findVar :: Env -> Ident -> Eval (Maybe Exp)
+findVar env name
+    | (package, name') <- breakOnGlue "::" name
+    , (sig, "CALLER") <- breakOnGlue "CALLER" package =
+        case (envCaller env) of
+            Just caller -> findVar caller (sig ++ (drop 2 name'))
+            Nothing -> retError "cannot access CALLER:: in top level" (Var name)
+    | otherwise = do
+        let lexSym = findSym name $ envLexical env
+        -- XXX rewrite using Maybe monad
+        if isJust lexSym then return lexSym else do
+            glob <- liftIO . readIORef $ envGlobal env
+            let globSym = findSym name glob
+            if isJust globSym
+                then return globSym
+                else
+                    let globSym = findSym (toGlobal name) glob in
+                    if isJust globSym
+                        then return globSym
+                        else return Nothing
     
 reduce :: Env -> Exp -> Eval Val
 
@@ -258,7 +254,8 @@ reduce _ (Val v) = do
 
 -- Reduction for variables
 reduce _ exp@(Var name) = do
-    rv <- findVar name
+    env <- ask
+    rv  <- findVar env name
     case rv of
         (Just vexp) -> do
             enterContext (cxtOfSigil $ head name) $ reduceExp vexp
