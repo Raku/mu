@@ -3,9 +3,15 @@
 use v6;
 require Test;
 
-plan 8;
+=pod
 
-# These tests are derived from the "Binding" section of Synopsis 2
+=head1 Binding tests
+
+These tests are derived from the "Binding" section of Synopsis 2
+
+=cut
+
+plan 8;
 
 my $x = 'Just Another';
 is($x, 'Just Another', 'normal assignment works');
