@@ -26,6 +26,7 @@ module Internals (
     module System.Exit,
     module System.Time,
     module System.Directory,
+    module System.Cmd,
     module Control.Monad.RWS,
     module Control.Monad.Error,
     module Data.Bits,
@@ -51,6 +52,7 @@ import System.Environment
 import System.Random
 import System.Exit
 import System.Time
+import System.Cmd
 import System.IO hiding (try)
 import System.IO.Unsafe
 import System.Directory

@@ -148,6 +148,7 @@ op1 "open" = \v -> do
     modeOf ">>" = AppendMode
     modeOf "+>" = ReadWriteMode
     modeOf m    = error $ "unknown mode: " ++ m
+op1 "system" = boolIO system
 op1 "close" = boolIO hClose
 op1 "key" = return . fst . (vCast :: Val -> VPair)
 op1 "value" = return . snd . (vCast :: Val -> VPair)
@@ -553,6 +554,8 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Bool      pre     die     (List)\
 \\n   Any       pre     do      (Str)\
 \\n   IO        pre     open    (Str)\
+\\n   Bool      pre     system  (Str)\
+\\n   Bool      pre     system  (Str: List)\
 \\n   Bool      pre     binmode (IO: ?Num=1)\
 \\n   Any       pre     return  (Any)\
 \\n   Junction  pre     any     (List)\
