@@ -395,6 +395,7 @@ data Param = Param
     deriving (Show, Eq, Ord)
 
 type Params = [Param]
+type Bindings = [(Param, Exp)]
 
 data VSub = Sub
     { isMulti       :: Bool
@@ -403,6 +404,7 @@ data VSub = Sub
     , subPad        :: Pad
     , subAssoc      :: String
     , subParams     :: Params
+    , subBindings   :: Bindings
     , subReturns    :: Cxt
     , subFun        :: Exp
     }

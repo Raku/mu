@@ -1,4 +1,4 @@
-{-# OPTIONS -fglasgow-exts #-}
+{-# Oi,PTIONS -fglasgow-exts #-}
 
 {-
     The Main REPL loop.
@@ -236,6 +236,7 @@ prepareEnv name args = do
             , subPad = []
             , subAssoc = "pre"
             , subParams = []
+            , subBindings = []
             , subReturns = "Void"
             , subFun = Prim subExit
             }

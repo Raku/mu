@@ -17,7 +17,7 @@ type MaybeError a = Either String a
 
 isRequired prm = not ( isOptional prm || isNamed prm )
 
-bindNames :: [Exp] -> [Param] -> ([(Param, Exp)], [Exp], [Param])
+bindNames :: [Exp] -> [Param] -> (Bindings, [Exp], [Param])
 bindNames exps prms = (bound, exps', prms')
     where
     prms' = prms \\ (map fst bound)
@@ -33,7 +33,7 @@ emptyHashExp  = Val $ VHash $ vCast $ VList []
 emptyArrayExp :: Exp
 emptyArrayExp = Val $ VArray $ vCast $ VList []
 
-bindHash :: [Exp] -> [Param] -> MaybeError [(Param, Exp)]
+bindHash :: [Exp] -> [Param] -> MaybeError Bindings
 bindHash _ []          = return []
 bindHash [] [p]         = return [ (p, emptyHashExp) ]
 bindHash vs (p:ps@(_:_))= do
@@ -41,7 +41,7 @@ bindHash vs (p:ps@(_:_))= do
     return $ first ++ (ps `zip` repeat emptyHashExp)
 bindHash vs [p]         = return [ (p, App "circumfix:{}" [] vs) ] -- XXX cast to Hash
 
-bindArray :: [Exp] -> [Param] -> MaybeError [(Param, Exp)]
+bindArray :: [Exp] -> [Param] -> MaybeError Bindings
 bindArray vs ps = do
     case foldM (doBindArray (Syn "," vs)) ([],0) prms of
         Left errMsg     -> fail errMsg
@@ -56,7 +56,7 @@ doSlice v ns = Syn "[]" [v, Val $ VList $ map VInt ns]
 doIndex :: Exp -> VInt -> Exp
 doIndex v n = Syn "cxt" [Val $ VStr "Scalar", Syn "[]" [v, Val $ VInt n]]
 
-doBindArray :: Exp -> ([(Param, Exp)], VInt) -> (Param, Char) -> MaybeError ([(Param, Exp)], VInt)
+doBindArray :: Exp -> (Bindings, VInt) -> (Param, Char) -> MaybeError (Bindings, VInt)
 doBindArray _ (xs, -1) (p, '@') = return (((p, emptyArrayExp):xs), -1)
 doBindArray _ (_, -1) (p, '$') = fail $ "Slurpy array followed by slurpy scalar: " ++ show p
 doBindArray v (xs, n)  (p, '@') = return (((p, doSlice v [n..]):xs), -1)
@@ -83,16 +83,16 @@ unPair (Val (VPair (k, v)))             = (vCast k, Val v)
 unPair x                                = error ("Not a pair: " ++ show x)
 
 -- performs a binding and then verifies that it's complete in one go
-bindParams :: [Param] -> [Exp] -> [Exp] -> MaybeError [(Param, Exp)]
-bindParams params invsExp argsExp = do
-    case bindSomeParams [] params invsExp argsExp of
+bindParams :: VSub -> [Exp] -> [Exp] -> MaybeError VSub
+bindParams sub invsExp argsExp = do
+    case bindSomeParams sub invsExp argsExp of
         Left errMsg -> Left errMsg
-        Right bound -> verifyBinding params bound
+        Right boundSub -> verifyBindings boundSub
 
 -- verifies that a binding is good to go
-verifyBinding :: [Param] -> [(Param, Exp)] -> MaybeError [(Param, Exp)]
-verifyBinding params binding = do
-    let boundInvs = filter (\x -> isInvocant (fst x)) binding -- bound invocants
+verifyBindings :: VSub -> MaybeError VSub
+verifyBindings sub@Sub{ subParams = params, subBindings = bindings } = do
+    let boundInvs = filter (\x -> isInvocant (fst x)) bindings -- bound invocants
         invocants = takeWhile isInvocant params                  -- expected invocants
 
     -- Check length of invocant parameters
@@ -101,7 +101,7 @@ verifyBinding params binding = do
             ++ (show $ length boundInvs) ++ " actual, "
             ++ (show $ length invocants) ++ " expected"
     
-    let boundReq  = filter (\x -> isRequired (fst x)) binding -- bound required
+    let boundReq  = filter (\x -> isRequired (fst x)) bindings -- bound required
         required  = takeWhile isRequired params                  -- expected required
 
     -- Check length of required parameters
@@ -110,10 +110,10 @@ verifyBinding params binding = do
             ++ (show $ length boundReq) ++ " actual, "
             ++ (show $ length required) ++ " expected"
 
-    return binding
+    return sub
 
-bindSomeParams :: [(Param, Exp)] -> [Param] -> [Exp] -> [Exp] -> MaybeError [(Param, Exp)]
-bindSomeParams prebound params invsExp argsExp = do
+bindSomeParams :: VSub -> [Exp] -> [Exp] -> MaybeError VSub
+bindSomeParams sub@Sub{ subBindings = bindings, subParams = params } invsExp argsExp = do
     let (invocants, nameables) = span isInvocant params
         (invs, args) = if null invocants
             then ([], (invsExp++argsExp))
@@ -148,4 +148,9 @@ bindSomeParams prebound params invsExp argsExp = do
     boundArray  <- bindArray restPos (slurpPos ++ defaultPos)
     boundScalar <- return $ defaultScalar `zip` (invs ++ args)
 
-    return $ concat [prebound, boundInv, boundNamed, boundReq, boundOpt, boundHash, boundArray, boundScalar]
+    let newBindings = concat [bindings, boundInv, boundNamed, boundReq, boundOpt, boundHash, boundArray, boundScalar]
+
+    return sub
+        { subBindings = newBindings
+        , subParams   = params \\ (map fst newBindings)
+        }

@@ -602,7 +602,7 @@ reduce Env{ envClasses = cls, envContext = cxt, envLexical = lex, envGlobal = gl
         let invocants = filter isInvocant prms
         let prms' = if null invocants then prms else invocants
         let distance = (deltaFromCxt ret : map (deltaFromScalar . paramContext) prms')
-        let bound = either (const False) (const True) $ bindParams prms invs args
+        let bound = either (const False) (const True) $ bindParams sub invs args
         return $ Just
             ( (isGlobal, subT, isMulti sub, bound, distance)
             , fromJust fun
@@ -647,12 +647,12 @@ apply sub invs args = do
 -- XXX - faking application of lexical contexts
 -- XXX - what about defaulting that depends on a junction?
 doApply :: Env -> VSub -> [Exp] -> [Exp] -> Eval Val
-doApply Env{ envClasses = cls } sub@Sub{ subParams = prms, subFun = fun, subType = typ } invs args =
-    case bindParams prms invs args of
+doApply Env{ envClasses = cls } sub@Sub{ subFun = fun, subType = typ } invs args =
+    case bindParams sub invs args of
         Left errMsg     -> retError errMsg (Val VUndef)
-        Right bindings  -> do
+        Right sub  -> do
             enterScope $ do
-                (pad, bound) <- doBind [] bindings
+                (pad, bound) <- doBind [] (subBindings sub)
                 -- trace (show bound) $ return ()
                 val <- local fixEnv $ enterLex pad $ do
                     (`juncApply` bound) $ \realBound -> do

@@ -175,6 +175,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
             , subAssoc      = "pre"
             , subReturns    = cxt2
             , subParams     = params
+            , subBindings   = []
             , subFun        = fun
             }
     -- XXX: user-defined infix operator
@@ -322,6 +323,7 @@ ruleClosureTrait = rule "closure trait" $ do
                   , subAssoc      = "pre"
                   , subReturns    = "Any"
                   , subParams     = []
+                  , subBindings   = []
                   , subFun        = fun
                   }
     return $ App "&unshift" [Var "@*END"] [Syn "sub" [Val $ VSub sub]]
@@ -456,6 +458,7 @@ retBlock typ formal body = do
                   , subAssoc      = "pre"
                   , subReturns    = "Any"
                   , subParams     = if null params then [defaultArrayParam] else params
+                  , subBindings   = []
                   , subFun        = fun
                   }
     return (Syn "sub" [Val $ VSub sub])

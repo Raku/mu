@@ -606,6 +606,7 @@ primOp sym assoc prms ret = SymVal SOur name sub
                       , subType     = SubPrim
                       , subAssoc    = assoc
                       , subParams   = prms
+                      , subBindings = []
                       , subReturns  = ret
                       , subFun      = (Prim f)
                       }

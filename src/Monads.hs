@@ -29,7 +29,7 @@ main = do
     return x
 
 testEnv = Env { envContext = "List"
-	  , envLValue = False
+      , envLValue = False
           , envLexical = undefined
           , envGlobal = undefined
           , envCaller = Nothing
@@ -81,6 +81,7 @@ enterWhen break action = callCC $ \esc -> do
         , subPad = []
         , subAssoc = "pre"
         , subParams = []
+        , subBindings = []
         , subReturns = "Void"
         , subFun = Prim (const $ esc VUndef)
         }
@@ -95,6 +96,7 @@ enterLoop action = callCC $ \esc -> do
         , subPad = []
         , subAssoc = "pre"
         , subParams = []
+        , subBindings = []
         , subReturns = "Void"
         , subFun = Prim (const $ esc VUndef)
         }
@@ -109,6 +111,7 @@ enterBlock action = callCC $ \esc -> do
         , subPad = []
         , subAssoc = "pre"
         , subParams = []
+        , subBindings = []
         , subReturns = "Void"
         , subFun = Prim (const $ esc VUndef)
         }
@@ -126,9 +129,10 @@ enterSub sub@Sub{ subType = typ } action
     doReturn _   = internalError "enterSub: doReturn list length /= 1"
     doCC cc [v] = cc v
     doCC _  _   = internalError "enterSub: doCC list length /= 1"
-    subRec = [ SymVal SMy "&?SUB" (VSub sub)
+    orig sub = sub { subBindings = [], subParams = (map fst (subBindings sub)) }
+    subRec = [ SymVal SMy "&?SUB" (VSub (orig sub))
              , SymVal SMy "$?SUBNAME" (VStr $ subName sub)]
-    blockRec = SymVal SMy "&?BLOCK" (VSub sub)
+    blockRec = SymVal SMy "&?BLOCK" (VSub (orig sub))
     ret cxt = SymVal SMy "&return" (VSub $ retSub cxt)
     callerCC cc cxt = SymVal SMy "&?CALLER_CONTINUATION" (VSub $ ccSub cc cxt)
     fixEnv cc pad cxt env
@@ -151,6 +155,7 @@ enterSub sub@Sub{ subType = typ } action
             , paramContext = cxt
             , paramDefault = Val VUndef
             } ]
+        , subBindings = []
         , subReturns = cxt
         , subFun = Prim doReturn
         }
@@ -171,6 +176,7 @@ enterSub sub@Sub{ subType = typ } action
             , paramContext = cxt
             , paramDefault = Val VUndef
             } ]
+        , subBindings = []
         , subReturns = cxt
         , subFun = Prim $ doCC cc
         }
@@ -190,6 +196,7 @@ innerSub = Sub
     , subPad        = [SymVal SMy "$inner" VUndef]
     , subAssoc      = "left"
     , subParams     = []
+    , subBindings = []
     , subReturns    = "List"
     , subFun        = undefined -- XXX
     }
@@ -201,6 +208,7 @@ sub3Sub = Sub
     , subPad        = [SymVal SMy "$inner" VUndef]
     , subAssoc      = "left"
     , subParams     = []
+    , subBindings = []
     , subReturns    = "List"
     , subFun        = undefined -- XXX
     }
