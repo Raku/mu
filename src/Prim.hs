@@ -422,6 +422,11 @@ op2 "split"= \x y -> return $ split' (vCast x) (vCast y)
     split' glue xs = VList $ map VStr $ split glue xs
 op2 other = \x y -> return $ VError ("unimplemented binaryOp: " ++ other) (App other [Val x, Val y] [])
 
+-- XXX - need to generalise this
+op2Match x y@(MVal _) = do
+    y' <- fromVal y
+    op2Match x y'
+
 op2Match x (VSubst (rx@MkRule{ rxGlobal = True }, subst)) = do
     str     <- fromVal x
     rv      <- doReplace (encodeUTF8 str) Nothing
