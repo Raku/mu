@@ -22,6 +22,7 @@ module Internals (
     module System.IO,
     module System.IO.Unsafe,
     module System.Exit,
+    module System.Time,
     module Control.Monad.RWS,
     module Control.Monad.Error,
     module Data.Bits,
@@ -48,6 +49,7 @@ import Data.Dynamic
 import System.Environment
 import System.Random
 import System.Exit
+import System.Time
 import System.IO hiding (try)
 import System.IO.Unsafe
 import Control.Monad.RWS

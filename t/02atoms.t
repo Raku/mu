@@ -14,13 +14,14 @@ my $bar;
 
 sub ok {
     if ($_) {
-	say "ok  # TODO var = "~$_;
+	say("ok ", $loop, " # TODO var = ", $_);
     }
     else {
-	say "not ok # TODO";
+	say("not ok ", $loop, " # TODO");
     }
+    $loop++;
 }
 
 eval '$bar = $::($foo)';
-ok($bar,$loop);
+ok($bar, $loop);
 

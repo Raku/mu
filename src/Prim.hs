@@ -65,6 +65,12 @@ op1 "last" = \v -> do
 op1 "return" = \v -> return (VError "cannot return outside a subroutine" (Val v))
 
 -- Side-effectful function: how far into Monadic IO shall we go?
+op1 "time"  = \v -> do
+    clkt <- liftIO getClockTime
+    return $ VInt $ toInteger $ tdSec $ diffClockTimes clkt epochClkT
+    where
+    epochClkT = toClockTime epoch
+    epoch = CalendarTime 1970 January 1 0 0 0 0 Thursday 0 "UTC" 0 False
 op1 "rand"  = \v -> do
     let x = vCast v
     rand <- liftIO $ randomRIO (0, if x == 0 then 1 else x)
@@ -75,7 +81,8 @@ op1 "print" = \v -> do
     liftIO . putStr . concatMap vCast $ vals
     return $ VBool True
 op1 "say" = \v -> do
-    liftIO . mapM (putStrLn . vCast) . vCast $ v
+    op1 "print" v
+    liftIO $ putStrLn ""
     return $ VBool True
 op1 "die" = \v -> do
     return $ VError (concatMap vCast . vCast $ v) (Val v)
@@ -325,6 +332,7 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Any       pre     last    (Num)\
 \\n   Any       pre     exit    (Num)\
 \\n   Num       pre     rand    (?Num=1)\
+\\n   Num       pre     time    ()\
 \\n   Action    pre     print   (List)\
 \\n   Action    pre     say     (List)\
 \\n   Action    pre     die     (List)\

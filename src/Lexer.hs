@@ -44,12 +44,12 @@ angles     = P.angles perl6Lexer
 symbol s
     | isWordAny (last s) = try $ do
         rv <- string s
-        lookAhead (satisfy (not . isWordAny))
+        choice [ eof >> return ' ', lookAhead (satisfy (not . isWordAny)) ]
         whiteSpace
         return rv
     | otherwise          = try $ do
         rv <- string s
-        lookAhead (satisfy (\x -> isWordAny x || isSpace x))
+        choice [ eof >> return ' ', lookAhead (satisfy (\x -> x == ';' || x /= (last s))) ]
         whiteSpace
         return rv
 
