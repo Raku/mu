@@ -1,25 +1,23 @@
-package URI::http;
+use v6;
 
-require URI::_server;
-@ISA=qw(URI::_server);
+class URI::http isa URI::_server trusts URI {
+  method default_port() { 80 }
 
-use strict;
+  method canonical() {
+    my $other = .SUPER::canonical; # XXX - correct?
 
-sub default_port { 80 }
+    my $slash_path =
+      defined  $other.authority &&
+      !length  $other.path      &&
+      !defined $other.query;
 
-sub canonical
-{
-    my $self = shift;
-    my $other = $self->SUPER::canonical;
-
-    my $slash_path = defined($other->authority) &&
-        !length($other->path) && !defined($other->query);
-
-    if ($slash_path) {
-	$other = $other->clone if $other == $self;
-	$other->path("/");
+    if $slash_path {
+      $other .= clone if $other =:= $self;
+      $other.path = "/";
     }
-    $other;
+
+    return $other;
+  }
 }
 
 1;

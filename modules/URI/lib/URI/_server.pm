@@ -1,106 +1,111 @@
-package URI::_server;
-require URI::_generic;
-@ISA=qw(URI::_generic);
+use v6;
 
-use strict;
-use URI::Escape qw(uri_unescape);
+class URI::_server isa URI::_generic trusts URI {
+  method userinfo() is rw {
+    my $old = .authority;
 
-sub userinfo
-{
-    my $self = shift;
-    my $old = $self->authority;
-
-    if (@_) {
+    return new Proxy:
+      FETCH => {
+	return undef if not defined $old or not $old ~~ m/(.*)@/;
+	return $1;
+      },
+      STORE => -> $ui is copy {
 	my $new = $old;
-	$new = "" unless defined $new;
-	$new =~ s/.*@//;  # remove old stuff
-	my $ui = shift;
-	if (defined $ui) {
-	    $ui =~ s/@/%40/g;   # protect @
-	    $new = "$ui\@$new";
+	$new //= "";
+	$new ~~ s/.*@//;  # remove old stuff
+	if defined $ui {
+	  $ui ~~ s:g/@/%40/g;
+	  $new = "$ui\@$new";
 	}
-	$self->authority($new);
-    }
-    return undef if !defined($old) || $old !~ /(.*)@/;
-    return $1;
-}
+	.authority = $new;
 
-sub host
-{
-    my $self = shift;
-    my $old = $self->authority;
-    if (@_) {
+	return undef if not defined $old or not $old ~~ m/(.*)@/;
+	return $1;
+      };
+    };
+  }
+
+  method host() is rw {
+    my $old = .authority;
+
+    return new Proxy:
+      FETCH => {
+	return undef unless defined $old;
+	$old ~~ s/.*@//;
+	$old ~~ s/:\d+$//;
+	return uri_unescape $old;
+      },
+      STORE => -> $new is copy {
 	my $tmp = $old;
-	$tmp = "" unless defined $tmp;
-	my $ui = ($tmp =~ /(.*@)/) ? $1 : "";
-	my $port = ($tmp =~ /(:\d+)$/) ? $1 : "";
-	my $new = shift;
-	$new = "" unless defined $new;
-	if (length $new) {
-	    $new =~ s/[@]/%40/g;   # protect @
-	    $port = $1 if $new =~ s/(:\d+)$//;
+	$tmp //= "";
+	my $ui   = ($tmp ~~ m/(.*@)/)   ?? $1 :: "";
+	my $port = ($tmp ~~ m/(:\d+)$/) ?? $1 :: "";
+	if length $new {
+	  $new ~~ s:g/@/%40/g;   # protect @
+	  $port = $1 if $new ~~ m:s/(:\d+)$//;
 	}
-	$self->authority("$ui$new$port");
-    }
-    return undef unless defined $old;
-    $old =~ s/.*@//;
-    $old =~ s/:\d+$//;
-    return uri_unescape($old);
-}
+	.authority = "$ui$new$port";
+      };
+  }
 
-sub _port
-{
-    my $self = shift;
-    my $old = $self->authority;
-    if (@_) {
+  method :port() is rw {
+    my $old = .authority;
+
+    return new Proxy:
+      FETCH => {
+	return $1 if defined $old and $old ~~ m/:(\d*)$/;
+	return;
+      },
+      STORE => {
 	my $new = $old;
-	$new =~ s/:\d*$//;
-	my $port = shift;
-	$new .= ":$port" if defined $port;
-	$self->authority($new);
+	$new ~~ s/:\d*$//;
+	$new .= ":$^port" if defined $^port;
+	.authority = $new;
+	return $1 if defined $old and $old ~~ m/:(\d*)$/;
+	return;
+      };
+  }
+
+  method port() is rw {
+    return new Proxy:
+      FETCH => {                  .:port || .default_port },
+      STORE => { .:port = $^port; .:port || .default_port };
+  }
+
+  method host_port() is rw {
+    my $old = .authority;
+
+    my $fetch = {
+      return undef unless defined $old;
+      $old ~~ s/.*@//;        # zap userinfo
+      $old ~~ s/:$//;         # empty port does not could
+      $old ~= ":" ~ .port unless $old ~~ /:/;
+      return $old;
+    };
+
+    return new Proxy:
+      FETCH => $fetch,
+      STORE => { .host = $^new; $fetch.() };
+  }
+
+  method default_port() { undef }
+
+  method canonical() {
+    my $other    = .SUPER::canonical; # XXX - correct?
+    my $host     = $other.host || "";
+    my $port     = $other.:port;
+    my $uc_host  = $host ~~ m/[A-Z]/;
+    my $def_port =
+      defined $port && ($port eq "" || $port == .default_port);
+
+    if $uc_host or $def_port {
+      $other .= clone if $other =:= $self;
+      $other.host = lc $host if $uc_host;
+      $other.port = undef    if $def_port;
     }
-    return $1 if defined($old) && $old =~ /:(\d*)$/;
-    return;
-}
 
-sub port
-{
-    my $self = shift;
-    my $port = $self->_port(@_);
-    $port = $self->default_port if !defined($port) || $port eq "";
-    $port;
-}
-
-sub host_port
-{
-    my $self = shift;
-    my $old = $self->authority;
-    $self->host(shift) if @_;
-    return undef unless defined $old;
-    $old =~ s/.*@//;        # zap userinfo
-    $old =~ s/:$//;         # empty port does not could
-    $old .= ":" . $self->port unless $old =~ /:/;
-    $old;
-}
-
-
-sub default_port { undef }
-
-sub canonical
-{
-    my $self = shift;
-    my $other = $self->SUPER::canonical;
-    my $host = $other->host || "";
-    my $port = $other->_port;
-    my $uc_host = $host =~ /[A-Z]/;
-    my $def_port = defined($port) && ($port eq "" ||
-                                      $port == $self->default_port);
-    if ($uc_host || $def_port) {
-	$other = $other->clone if $other == $self;
-	$other->host(lc $host) if $uc_host;
-	$other->port(undef)    if $def_port;
-    }
-    $other;
+    return $other;
+  }
 }
 
 1;

@@ -923,6 +923,8 @@ http://www.w3.org/Addressing/
 
 =head1 COPYRIGHT
 
+Copyright 2005 Ingo Blechschmidt (port to Perl 6).
+
 Copyright 1995-2003 Gisle Aas.
 
 Copyright 1995 Martijn Koster.
