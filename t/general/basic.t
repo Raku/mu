@@ -9,7 +9,7 @@ Basic tests.
 
 =cut
 
-plan 14;
+plan 15;
 
 ok(1, "Welcome to Pugs!");
 
@@ -47,3 +47,4 @@ todo_ok($lasttest == 10, "next");
 ok(eval '12.eval', "12.eval");
 ok(eval 'eval(1 ?? 1 :: 0)', "?? ::");
 
+ok(eval '{ my $_ = 1; $_ }', '{ my $_ = 1; $_ }');
