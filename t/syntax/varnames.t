@@ -12,5 +12,5 @@ ok((eval 'my $/; 1'), 'as does $/');
 
 # things that should be invalid
 ok(!(eval 'my $f!ao = "beh"; 1'), "but normal varnames can't have ! in their name");
-todo_ok(!(eval 'my $fo:o::b:ar = "bla"; 1'), "var names can't have colons in their names either");
+ok(!(eval 'my $fo:o::b:ar = "bla"; 1'), "var names can't have colons in their names either");
 
