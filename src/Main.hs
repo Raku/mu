@@ -47,7 +47,7 @@ __run x = do
 -- see also ArgParse.hs    
 run :: [String] -> IO ()
 run (("-d"):rest)                 = run rest
-run (("-l"):rest)                 = run rest
+-- run (("-l"):rest)                 = run rest -- -l does not appear here anymore
 run (("-w"):rest)                 = run rest
 run (("-I"):_:rest)               = run rest
 -- XXX should raise an error here:
