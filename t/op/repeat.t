@@ -27,8 +27,7 @@ ok(eval '$twin x= 2;', 'operator x= for string works');
 is ($twin, 'LintillaLintilla', 'operator x= for string repeats correct');
 
 my @array = (4, 2);
-ok(eval '@array xx= 2;', 'operator x= for list works');
-is (@array[0], 4, 'operator x= for list repeats correct');
-is (@array[3], 2, 'operator x= for list repeats correct');
-is (+@array, 4, 'operator x= for list created the right size');
-
+ok(eval '@array xx= 2;', 'operator xx= for list works');
+is (@array[0], 4, 'operator xx= for list repeats correct');
+is (@array[3], 2, 'operator xx= for list repeats correct');
+is (+@array, 4, 'operator xx= for list created the right size');
