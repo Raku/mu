@@ -102,12 +102,12 @@ runProgramWith fenv f name args prog = do
     environ <- getEnvironment
     let envFM = listToFM $ [ (VStr k, VStr v) | (k, v) <- environ ]
         p6lib = maybeToList $ lookup "PERL6LIB" environ
-        -- p5lib = map fixLib $ catMaybes [lookup "PERL5LIB" environ, lookup "PERLLIB" environ]
+    p5libs  <- mapM fixLib $ catMaybes [lookup "PERL5LIB" environ, lookup "PERLLIB" environ]
     progSV  <- newMVal $ VStr name
     endAV   <- newMVal $ VList []
 -- XXX p5lib is too noisy for now
---    incAV   <- newMVal $ VList (map VStr $ p6lib ++ p5lib ++ incs)
-    incAV   <- newMVal $ VList (map VStr $ p6lib ++ incs)
+    incAV   <- newMVal $ VList (map VStr $ p6lib ++ concat p5libs ++ incs)
+--  incAV   <- newMVal $ VList (map VStr $ p6lib ++ incs)
     argsAV  <- newMVal $ VList (map VStr args)
     inGV    <- newMVal $ VHandle stdin
     outGV   <- newMVal $ VHandle stdout
@@ -132,7 +132,10 @@ runProgramWith fenv f name args prog = do
             evaluateMain (envBody env')
     f val
     where
-    -- fixLib = ((++) "/Perl6/lib")
+    fixLib str = do
+        let path = str ++ "/Perl6/lib"
+        exists <- doesDirectoryExist path
+        return $ if exists then [path] else []
     incs = [ "./lib/Perl6/lib"
            , "../lib/Perl6/lib"
            , "../../lib/Perl6/lib"
