@@ -1,6 +1,6 @@
 use v6;
 
-module CGI::Pugs-0.0.1;
+module CGI-0.0.1;
 
 my %PARAMS;
 
@@ -44,13 +44,13 @@ multi sub param (Str $key) returns Str is export { %PARAMS{$key} }
 
 =head1 NAME
 
-CGI::Pugs - A basic CGI module for Pugs
+CGI - A basic CGI module for Pugs
 
 =head1 SYNOPSIS
 
     #!/usr/bin/pugs
     use v6;
-    require CGI::Pugs-0.0.1;
+    require CGI-0.0.1;
     
     print header;
     

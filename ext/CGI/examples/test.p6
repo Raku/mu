@@ -1,7 +1,7 @@
 #!/usr/bin/pugs
 
 use v6;
-require CGI::Pugs-0.0.1;
+require CGI-0.0.1;
 
 print header;
 
