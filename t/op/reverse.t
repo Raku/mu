@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 15;
+plan 23;
 
 my @a; eval '@a = reverse(1, 2, 3, 4)';
 my @e = (4, 3, 2, 1);
@@ -58,4 +58,4 @@ is(@b[0], "oof");
 is($b,    "oof");
 is($a, "foo", "original scalar left untouched");
 $a.=reverse;
-todo_is($a,    "oof");
+is($a,    "oof");
