@@ -92,10 +92,12 @@ ok(!defined(undef), "undef is not defined");
 	sub a_sub { "møøse" }
 
 	ok(defined(&a_sub), "defined sub");
-	todo_ok(eval 'defined(%«$?PACKAGE\::»<&a_sub>)', "defined sub (symbol table)");
+	todo_ok(eval 'defined(%«$?PACKAGE\::»<&a_sub>)',
+			"defined sub (symbol table)");
 
-	is(eval 'defined(&a_subwoofer); 1', undef, "undefined sub");
-	todo_ok(eval '!defined(%«$?PACKAGE\::»<&a_subwoofer>)', "undefined sub (symbol table)");
+	ok(eval '!defined(&a_subwoofer)', "undefined sub");
+	todo_ok(eval '!defined(%«$?PACKAGE\::»<&a_subwoofer>)',
+			"undefined sub (symbol table)");
 }
 
 # TODO: find a read-only value to try and assign to, since we don't
@@ -135,8 +137,7 @@ Perl6-specific tests
 	ok(defined($hash_r), "hash reference");
 	undef %hash;
 	ok(defined($hash_r), "undef hash referent");
-	is(+$hash_r.keys, 0, "dangling hash reference") or
-		diag $hash_r;
+	is(+$hash_r.keys, 0, "dangling hash reference") or diag $hash_r;
 }
 
 {
@@ -233,7 +234,7 @@ Perl6-specific tests
 		ok(!defined($quux), "unspecified optional param");
 	}
 
-	bar("BAR"); # not yet
+	bar("BAR");
 
 }
 
