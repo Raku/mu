@@ -932,8 +932,8 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   List      pre     values  (Hash)\
 \\n   List      pre     kv      (Hash)\
 \\n   Str       pre     perl    (List)\
-\\n   Any       pre     eval    (?Str=$_)\
-\\n   Any       pre     eval_perl5 (?Str=$_)\
+\\n   Any       pre     eval    (Str)\
+\\n   Any       pre     eval_perl5 (Str)\
 \\n   Any       pre     require (?Str=$_)\
 \\n   Any       pre     require_haskell (Str)\
 \\n   Any       pre     last    (?Int=1)\
