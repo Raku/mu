@@ -1,0 +1,20 @@
+#!/usr/bin/pugs
+
+use v6;
+
+sub fisher_yates_shuffle (@deck) {
+   my @copy = @deck;
+   my $i = +@copy;
+   loop (;$i--;) {
+      my $j = rand($i+1);		# doesn't quite work yet; no int
+      @copy[$i,$j] = @copy[$j,$i];
+   }
+   return @copy;
+}
+
+my @nums = 1..50;
+my @shuf = fisher_yates_shuffle(@nums);
+
+my $i;
+loop ($i = 0; $i < +@nums; $i++) { say @nums[$i] ~ "\t" ~ @shuf[$i] }
+
