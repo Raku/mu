@@ -9,16 +9,14 @@ use ExtUtils::MakeMaker();
 use File::Spec;
 use Config;
 
-my $MM;
-
 sub WriteMakefile {
     my $libs = get_perl6_libs();
     my @mm_args = @_;
     @mm_args = handle_inline(@mm_args);
-    set_makefile_macros();
     ExtUtils::MakeMaker::WriteMakefile(
-        INSTALLSITELIB => $libs->{sitelib},
-        @mm_args,,
+        INSTALLSITELIB  => $libs->{sitelib},
+        INSTALLSITEARCH => $libs->{sitearch},
+        @mm_args,
     );
     fix_makefile();
 }
@@ -76,13 +74,12 @@ sub external {
     my $module_name = $1;
     $module_name =~ s/-/__/;
     $module_name =~ s/[\-\.]/_/g;
-    $MM->{FULLEXT} = $module_name;
 
     my ($ghc, $ghc_version, $ghc_flags) = assert_ghc();
 
     $postamble = <<_;
 pure_all :: $module_name.o
-	cp $module_name.o \$(INST_ARCHAUTODIR)
+	cp $module_name.o \$(INST_ARCHLIB)
 
 $module_name.o :: $module_name.hs
 	$ghc --make -isrc -Isrc $ghc_flags \$(GHC_FLAGS) $module_name.hs
@@ -90,19 +87,6 @@ $module_name.o :: $module_name.hs
 $module_name.hs :: $module_path
 	pugs --external $module_name $module_path > $module_name.hs
 _
-}
-
-sub set_makefile_macros {
-    package MM;
-    no warnings 'once';
-    *init_INST = sub {
-        my $self = shift;
-        $self->SUPER::init_INST(@_);
-        for (keys %$MM) {
-            $self->{$_} = $MM->{$_};
-        }
-        return 1;
-    }
 }
 
 sub assert_ghc {
