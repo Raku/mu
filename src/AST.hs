@@ -121,10 +121,7 @@ readMVal v         = return v
 instance Value VInt where
     castV = VInt
     doCast (VInt i)     = i
-    doCast (VStr s)
-        | ((n, _):_)    <- reads (takeWhile isDigit s) = n
-        | otherwise    = 0
-    doCast x            = truncate (vCast x :: VNum)
+    doCast x            = truncate (vCast x :: VRat)
 
 instance Value VRat where
     castV = VRat
@@ -134,6 +131,12 @@ instance Value VRat where
     doCast (VList l)    = genericLength l
     doCast (VArray (MkArray a))    = genericLength a
     doCast (VHash (MkHash h))    = fromIntegral $ sizeFM h
+    doCast (VStr s)     =
+        case ( runParser naturalOrRat () "" s ) of
+            Left _   -> 0 % 1
+            Right rv -> case rv of
+                Left  i -> i % 1
+                Right d -> d
     doCast x            = toRational (vCast x :: VNum)
 
 instance Value VNum where
@@ -144,8 +147,17 @@ instance Value VNum where
     doCast (VRat r)     = realToFrac r
     doCast (VNum n)     = n
     doCast (VStr s)
-        | ((n, _):_) <- reads (takeWhile (\x -> isDigit x || x == '.') ('0':s)) = n
-        | otherwise             = 0
+        | not (null s)
+        , isSpace $ last s
+        = doCast (VStr $ init s)
+    doCast (VStr "Inf") = 1/0
+    doCast (VStr "NaN") = 0/0
+    doCast (VStr s)     =
+        case ( runParser naturalOrRat () "" s ) of
+            Left _   -> 0
+            Right rv -> case rv of
+                Left  i -> fromIntegral i
+                Right d -> realToFrac d
     doCast (VList l)    = genericLength l
     doCast (VArray (MkArray a))    = genericLength a
     doCast (VHash (MkHash h))    = fromIntegral $ sizeFM h
@@ -570,3 +582,83 @@ instance (Show a) => Show (Set a) where
     show x = show $ setToList x
 
 #endif
+
+naturalOrRat  = (<?> "number") $ do
+    sig <- sign
+    num <- natRat
+    return (if sig then num else fmap negate num)
+    where
+    natRat = do
+            char '0'
+            zeroNumRat
+        <|> decimalRat
+                      
+    zeroNumRat = do
+            n <- hexadecimal <|> decimal <|> octalBad <|> octal <|> binary
+            return (Left n)
+        <|> decimalRat
+        <|> fractRat 0
+        <|> return (Left 0)                  
+                      
+    decimalRat = do
+        n <- decimalLiteral
+        option (Left n) (try $ fractRat n)
+
+    fractRat n = do
+            fract <- try fraction
+            expo  <- option (1%1) expo
+            return (Right $ ((n % 1) + fract) * expo) -- Right is Rat
+        <|> do
+            expo <- expo
+            if expo < 1
+                then return (Right $ (n % 1) * expo)
+                else return (Right $ (n % 1) * expo)
+
+    fraction = do
+            char '.'
+            try $ do { char '.'; unexpected "dotdot" } <|> return ()
+            digits <- many digit <?> "fraction"
+            return (digitsToRat digits)
+        <?> "fraction"
+        where
+        digitsToRat d = digitsNum d % (10 ^ length d)
+        digitsNum d = foldl (\x y -> x * 10 + (toInteger $ digitToInt y)) 0 d 
+
+    expo :: GenParser Char st Rational
+    expo = do
+            oneOf "eE"
+            f <- sign
+            e <- decimalLiteral <?> "exponent"
+            return (power (if f then e else -e))
+        <?> "exponent"
+        where
+        power e | e < 0      = 1 % (10^abs(e))
+                | otherwise  = (10^e) % 1
+
+    -- sign            :: CharParser st (Integer -> Integer)
+    sign            =   (char '-' >> return False) 
+                    <|> (char '+' >> return True)
+                    <|> return True
+
+{-
+    nat             = zeroNumber <|> decimalLiteral
+        
+    zeroNumber      = do{ char '0'
+                        ; hexadecimal <|> decimal <|> octalBad <|> octal <|> decimalLiteral <|> return 0
+                        }
+                      <?> ""       
+-}
+
+    decimalLiteral         = number 10 digit        
+    hexadecimal     = do{ char 'x'; number 16 hexDigit }
+    decimal         = do{ char 'd'; number 10 digit }
+    octal           = do{ char 'o'; number 8 octDigit }
+    octalBad        = do{ many1 octDigit ; fail "0100 is not octal in perl6 any more, use 0o100 instead." }
+    binary          = do{ char 'b'; number 2 (oneOf "01")  }
+
+    -- number :: Integer -> CharParser st Char -> CharParser st Integer
+    number base baseDigit
+        = do{ digits <- many1 baseDigit
+            ; let n = foldl (\x d -> base*x + toInteger (digitToInt d)) 0 digits
+            ; seq n (return n)
+            }          

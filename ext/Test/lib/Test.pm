@@ -128,8 +128,8 @@ sub report_failure (Str ?$todo, Str ?$got, Str ?$expected) returns Bool is expor
         diag("  Failed test ($?CALLER::CALLER::CALLER::POSITION)");
          $failed++;
     }
-    diag("  Expected: $expected") if ($expected);
-    diag("       Got: $got") if ($got);
+    diag("  Expected: $expected") if defined($expected);
+    diag("       Got: $got") if defined($got);
 }
 
 sub test_log_file (Str $filename) returns Str is export {
