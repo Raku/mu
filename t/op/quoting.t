@@ -3,6 +3,8 @@
 use v6;
 require Test;
 
+plan 44;
+
 my $foo = "FOO";
 my $bar = "BAR";
 
@@ -15,7 +17,6 @@ my $bar = "BAR";
 - arrays in «»
 - interpolation of scalar, array, hash, function and closure syntaxes
 - q : a d verb s // parsing
-- q() does not work, since it's a subroutine call
 
 =cut
 
@@ -138,5 +139,42 @@ my $bar = "BAR";
 	todo_is(+@q2, 3, "3 elementes in sub quoted «» list");
 	todo_is(@q2[1], $gorch, 'second element is both parts of $gorch, interpolated');
 	todo_is(@q2[2], '$bar', 'single quoted $bar was not interpolated');
-}
+};
+
+{ # qq:t
+	my @q = ();
 	
+	eval '@q = qq:t/FOO/;
+blah
+$bar
+blah
+$foo
+FOO
+	';
+
+	todo_is(+@q, 1, "q:t// is singular");
+	todo_is(@q[0], "blah\nBAR\nblah\nFOO\n", "here doc interpolated");
+};
+
+{ # q:t indented
+	my @q = ();
+
+	eval '@q = q:t/FOO/;
+		blah blah
+		$foo
+		FOO
+	';
+
+	todo_is(+@q, 1, "q:t// is singular, also when indented");
+	todo_is(@q[0], "blah blah\n\$foo\n", "indentation stripped");
+};
+
+{ # q:0
+	my @q = ();
+
+	eval '@q = (q:0/foo\\bar$foo/)';
+
+	todo_is(+@q, 1, "q:0// is singular");
+	todo_is(@q[0], "foo\\\\bar\$foo", "special chars are meaningless"); # double quoting is to be more explicit
+};
+
