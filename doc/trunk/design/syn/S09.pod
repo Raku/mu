@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 13 Sep 2004
-  Last Modified: 13 Sep 2004
+  Last Modified: 27 Oct 2004
   Number: 9
-  Version: 1
+  Version: 2
 
 =head1 Overview
 
@@ -402,7 +402,7 @@ resembling this:
 
     role PDL_stuff[type $TYPE] {
 	PDLsub inner (@a[$n], @b[$n]) returns(@c[]) {
-	    my ::{$TYPE} $tmp = 0;
+	    my ::($TYPE) $tmp = 0;
 	    for 0..^$n {
 		$tmp += @a[$_] * @b[$_];
 	    }
@@ -413,10 +413,10 @@ resembling this:
 where that turns into something like this:
 
     role PDL_stuff[type $TYPE] {
-	multi sub inner (::{$TYPE} @a, ::{$TYPE} @b) returns(::{$TYPE}) {
+	multi sub inner (::($TYPE) @a, ::($TYPE) @b) returns(::($TYPE)) {
 	    my $n = @a.shape[0];	# or maybe $n is just a parameter
 	    assert($n == @b.shape[0]);	#  and this is already checked by PDL
-	    my ::{$TYPE} $tmp = 0;
+	    my ::($TYPE) $tmp = 0;
 	    for 0..^$n {
 		$tmp += @a[$_] * @b[$_];
 	    }

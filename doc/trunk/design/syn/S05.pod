@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 24 Jun 2002
-  Last Modified: 13 Sep 2004
+  Last Modified: 27 Oct 2004
   Number: 5
-  Version: 2
+  Version: 3
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them "rules" because they haven't been
@@ -531,7 +531,7 @@ either a hard reference to a rule, or a string containing the rule.
 
 A leading C<::> indicates a symbolic indirect rule:
 
-    / <::{$somename}>
+    / <::($somename)>
 
 The variable must contain the name of a rule.
 
