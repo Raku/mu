@@ -25,7 +25,7 @@ makemaker_args  ( test => { TESTS => join ' ', (glob("t/*.t"), glob("t/*/*.t")) 
 *** Please install GHC from http://haskell.org/ghc/.
 .
 
-clean_files(glob("src/*.hi"), glob("src/*.o*"), glob("pugs*"), "config.h");
+clean_files("src/*.hi", "src/*.o*", "pugs*", "config.h");
 
 my $has_readline = eval {
     require Term::ReadLine;
