@@ -452,17 +452,34 @@ reduce env@Env{ envClasses = cls, envContext = cxt, envLexical = lex, envGlobal 
         = apply sub{ subParams = (length args) `replicate` p } [] args
         -- chain-associativity
         | Sub{ subAssoc = "chain", subFun = fun, subParams = prm }   <- sub
-        , (App name' args' []):rest                 <- invs
-        , Just sub'                                 <- findSub 2 subSyms name'
-        , Sub{ subAssoc = "chain", subFun = fun', subParams = prm' } <- sub'
-        = applySub subSyms sub{ subParams = prm ++ tail prm', subFun = Prim $ chainFun prm' fun' prm fun } (args' ++ rest) []
-        -- fix subParams to agree with number of actual arguments
-        | Sub{ subAssoc = "chain", subParams = (p:_) }   <- sub
+        , (App name' invs' []):rest                 <- invs
         , null args
-        = apply sub{ subParams = (length invs) `replicate` p } invs [] -- XXX Wrong
+        = mungeChainSub sub invs
+        | Sub{ subAssoc = "chain", subParams = (p:_) }   <- sub
+        = apply sub{ subParams = (length invs) `replicate` p } invs []
         -- normal application
         | otherwise
         = apply sub invs args
+    mungeChainSub sub invs = do
+        let Sub{ subAssoc = "chain", subFun = fun, subParams = prm@(p:_) } = sub
+            (App name' invs' args'):rest = invs
+        syms    <- liftIO $ readIORef glob
+        subSyms' <- mapM evalSym
+            [ sym | sym <- lex ++ syms
+            , let n = symName sym
+            , (n ==) `any` [name', toGlobal name']
+            ]
+        lens'    <- mapM argSlurpLen (invs' ++ args')
+        case findSub (sum lens') subSyms' name' of
+            Just sub'    -> applyChainSub subSyms' sub invs sub' invs' args' rest
+            otherwise   -> apply sub{ subParams = (length invs) `replicate` p } invs [] -- XXX Wrong
+            -- retError ("No compatible subroutine found: " ++ name') exp
+    applyChainSub subSyms sub invs sub' invs' args' rest
+        | Sub{ subAssoc = "chain", subFun = fun, subParams = prm }   <- sub
+        , Sub{ subAssoc = "chain", subFun = fun', subParams = prm' } <- sub'
+        = applySub subSyms sub{ subParams = prm ++ tail prm', subFun = Prim $ chainFun prm' fun' prm fun } (invs' ++ rest) []
+        | Sub{ subAssoc = "chain", subParams = (p:_) }   <- sub
+        = apply sub{ subParams = (length invs) `replicate` p } invs [] -- XXX Wrong
     findSub slurpLen subSyms name = case sort (subs slurpLen subSyms name) of
         ((_, sub):_)    -> Just sub
         _               -> Nothing

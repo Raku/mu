@@ -540,7 +540,8 @@ subNameWithPrefix prefix = (<?> "subroutine name") $ lexeme $ try $ do
 
 parseApply = lexeme $ do
     name            <- subNameWithPrefix ""
-    (invs:args:_)   <- maybeDotParens $ parseParamList ruleExpression
+    option ' ' $ char '.'
+    (invs:args:_)   <- parseParamList ruleExpression
     return $ App name invs args
 
 parseParamList parse = do
