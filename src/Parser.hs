@@ -96,7 +96,10 @@ rulePodCut = (<?> "cut") $ do
 rulePodBlock = verbatimRule "POD block" $ do
     isEnd <- try $ do
         rulePodIntroducer
-        section <- literalIdentifier
+        section <- do
+            c <- wordAlpha
+            cs <- many $ satisfy (not . isSpace)
+            return (c:cs)
         param <- option "" $ do
             satisfy isSpace
             -- XXX: drop trailing spaces?
