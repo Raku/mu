@@ -1,4 +1,4 @@
-{-# OPTIONS -fglasgow-exts -cpp #-}
+{-# OPTIONS -fglasgow-exts -cpp -O2 #-}
 
 {-
     Unicode internals.
@@ -14,7 +14,7 @@
 -}
 
 module Unicode (
-    module Data.Char,
+    digitToInt, isHexDigit, isOctDigit, isDigit,
     isAlpha, isAlphaNum, isSpace, isLower, isUpper, 
     toLower, toUpper,
 ) where
