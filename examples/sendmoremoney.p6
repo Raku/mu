@@ -1,24 +1,33 @@
 #!perl6
 use v6;
 
-my $s; 
-my $e; 
-my $n; 
-my $d; 
-my $m; 
-my $o; 
-my $r;
-my $y;
+die "*** This example is currently broken -- needs more work.";
 
-$s = any(0..10) & none(0);
-$e = any(0..10);
-$n = any(0..10);
-$d = any(0..10);
-$m = any(0..10) & none(0);
-$o = any(0..10);
-$r = any(0..10);
-$n = any(0..10);
-$y = any(0..10);
+my $s = any(0..9) & none(0);
+my $e = any(0..9);
+my $n = any(0..9);
+my $d = any(0..9);
+my $m = any(0..9) & none(0);
+my $o = any(0..9);
+my $r = any(0..9);
+my $n = any(0..9);
+my $y = any(0..9);
+
+sub foldl (Code &op, Any $initial, *@values) returns Any {
+    if (+@values == 0) {
+         return $initial;
+    } else {
+         return &op(shift @values, &?SUB(&op, $initial, @values));
+    }
+}
+
+sub add (Int $x, Int $y) returns Int {
+    return $x + $y;
+}
+
+sub construct (*@values) returns Junction {
+    return foldl( -> $x, $y { $x * 10 + $y}, 0, @values);
+}
 
 my $send := construct($s,$e,$n,$d);
 my $more := construct($m,$o,$r,$e);
@@ -27,22 +36,6 @@ my $money := construct($m,$o,$n,$e,$y);
 if ($send + $more == $money) {
 	say " send = $send";
 	say "+more = $more";
-	say "-------------"
+	say "-------------";
 	say "money = $money";
-}
-
-sub foldl(Code &op, Any $initial, *@values) returns Any {
-    if (+@values == 0) {
-         return $initial;
-    } else {
-         return &op(shift @values, &?SUB(&op, $initial, @values));
-    }
-}
-
-sub add(Int $x, Int $y) returns Int {
-    return $x + $y;
-}
-
-sub construct(*@values) returns Junction {
-    return foldl( sub ($x, $y) { $x * 10 + $y}, 0, @values);
 }
