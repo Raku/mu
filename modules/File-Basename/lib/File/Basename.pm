@@ -140,7 +140,7 @@ sub fileparse_fstype() is rw is export {
     FETCH => { $fileparse_fstype },
     STORE => {
       $fileparse_fstype = $^os;
-      $Fileparse_igncase = ($^os ~~ m:i/^[MacOS|VMS|AmigaOS|os2|RISCOS|MSWin32|MSDOS]/;
+      $Fileparse_igncase = ($^os ~~ m:i/^[MacOS|VMS|AmigaOS|os2|RISCOS|MSWin32|MSDOS]/);
     };
 }
 
