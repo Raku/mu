@@ -18,6 +18,7 @@ README
 SIGNATURE			Public-key signature (added by MakeMaker)
 src/AST.hs
 src/Bind.hs
+src/Cont.hs
 src/Context.hs
 src/Eval.hs
 src/Help.hs
