@@ -533,13 +533,27 @@ op2Match x (VSubst (rx@MkRule{ rxGlobal = False }, subst)) = do
             glob <- askGlobal
             let Just matchAV = findSym "$/" glob
                 subs = elems $ mrSubs mr
-            writeMVal matchAV $ VList $ map VStr subs
+            writeMVal matchAV $ VList $ map (VStr . decodeUTF8) subs
             str' <- fromVal =<< evalExp subst
             writeMVal (vCast x) $
                 (VStr $ decodeUTF8 $ concat [mrBefore mr, str', mrAfter mr])
             return $ VBool True
 
-op2Match x (VRule rx) = do
+op2Match x (VRule rx@MkRule{ rxGlobal = True }) = do
+    str     <- fromVal x
+    rv      <- doMatch (encodeUTF8 str)
+    ifContextIsa "List"
+        (return . VList $ map (VStr . decodeUTF8) rv)
+        (return . VInt $ genericLength rv)
+    where
+    doMatch str = do
+        case str =~~ rxRegex rx of
+            Nothing -> return []
+            Just mr -> do
+                rest <- doMatch $ mrAfter mr
+                return $ (tail $ elems (mrSubs mr)) ++ rest
+
+op2Match x (VRule rx@MkRule{ rxGlobal = False }) = do
     str     <- fromVal x
     case encodeUTF8 str =~~ rxRegex rx of
         Nothing -> return $ VBool False
@@ -548,7 +562,7 @@ op2Match x (VRule rx) = do
             glob <- askGlobal
             let Just matchAV = findSym "$/" glob
                 subs = elems $ mrSubs mr
-            writeMVal matchAV $ VList $ map VStr subs
+            writeMVal matchAV $ VList $ map (VStr . decodeUTF8) subs
             return $ VBool True
 
 op2Match x y = op2Cmp vCastStr (==) x y
