@@ -153,7 +153,7 @@ sub log_event {
 
 sub latest_event {
 	my($self) = @_;
-	$self->{_log}[-1];
+	$self->{_log}[-1] || $self->log_event;
 }
 
 sub emit {
