@@ -32,7 +32,7 @@ op0 "time"  = \_ -> do
     epochClkT = toClockTime epoch
     epoch = CalendarTime 2000 January 1 0 0 0 0 Saturday 0 "UTC" 0 False
 op0 "not" = const retEmpty
-op0 "¥" = return . VList . concat . transpose . map vCast
+op0 "¥" = (>>= return . VList . concat . transpose) . mapM fromValue
 op0 "Y" = op0 "¥"
 op0 other = \x -> return $ VError ("unimplemented listOp: " ++ other) (App other (map Val x) [])
 
@@ -510,7 +510,7 @@ primOp sym assoc prms ret = Symbol SOur name (Val sub)
                       }
     f :: [Val] -> Eval Val
     f    = case (arity :: Integer) of
-        0 -> \(x:_) -> op0 sym (vCast x)
+        0 -> \x -> op0 sym x
         1 -> \x     -> case x of
             [x]   -> op1 symName x
             [x,y] -> op2 sym x y
@@ -696,8 +696,8 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   List      left    »x«     (Any, Any)\
 \\n   List      left    »xx«    (Any, Any)\
 \\n   List      list    ,       (List)\
-\\n   List      list	¥		(List)\
-\\n   List      list	Y		(List)\
+\\n   List      list	¥		(Array)\
+\\n   List      list	Y		(Array)\
 \\n   List      spre    <==     (List)\
 \\n   List      left    ==>     (List, Code)\
 \\n   Scalar    left    and     (Bool, Bool)\
