@@ -12,7 +12,9 @@
 module Lexer where
 import Internals
 import AST
-import qualified Text.ParserCombinators.Parsec.Token as P
+import Rule
+import Rule.Language
+import qualified Rule.Token as P
 
 type RuleParser a = GenParser Char Env a
 

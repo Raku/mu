@@ -14,6 +14,8 @@ import Internals
 import AST
 import Help
 import Lexer
+import Rule
+import Rule.Error
 
 -- Lexical units --------------------------------------------------
 

@@ -14,6 +14,7 @@
 module AST where
 import Internals
 import Context
+import Rule
 
 type Ident = String
 

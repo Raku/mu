@@ -40,9 +40,6 @@ module Internals (
     module Data.FiniteMap,
     module Data.IORef,
     module Debug.Trace,
-    module Text.ParserCombinators.Parsec,
-    module Text.ParserCombinators.Parsec.Error,
-    module Text.ParserCombinators.Parsec.Language,
 ) where
 
 import Cont
@@ -73,9 +70,6 @@ import Data.FiniteMap
 import Data.Tree
 import Data.IORef
 import Debug.Trace
-import Text.ParserCombinators.Parsec hiding (parse)
-import Text.ParserCombinators.Parsec.Error hiding (ParseError, errorPos)
-import Text.ParserCombinators.Parsec.Language
 
 -- Instances.
 instance Show Unique where

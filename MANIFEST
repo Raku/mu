@@ -39,6 +39,16 @@ src/Parser.hs
 src/Posix.hs
 src/Pretty.hs
 src/Prim.hs
+src/Rule.hs
+src/Rule/Char.hs
+src/Rule/Combinator.hs
+src/Rule/Error.hs
+src/Rule/Expr.hs
+src/Rule/Language.hs
+src/Rule/Perm.hs
+src/Rule/Pos.hs
+src/Rule/Prim.hs
+src/Rule/Token.hs
 src/Shell.hs
 t/01basic.t
 t/02atoms.t
