@@ -5,6 +5,7 @@ my $loop = 0;
 my $plan = 0;
 my $failed = 0;
 my $log_file = %ENV{'TEST_LOG_FILE'};
+my $always_caller = %ENV{'TEST_ALWAYS_CALLER'};
 
 sub plan (Int $number_of_tests) returns Int is export {
     $plan = $number_of_tests;
@@ -135,7 +136,8 @@ sub diag (Str $diag) is export {
 
 sub proclaim (Bool $cond, Str ?$desc, Str ?$context, Str ?$got, Str ?$expected) returns Bool {
     my $ok := $cond ?? "ok " :: "not ok ";
-    my $out := defined($desc) ?? " - $desc" :: "";
+    my $out = defined($desc) ?? " - $desc" :: "";
+	$out = "$out <pos:$?CALLER::CALLER::POSITION>" if $always_caller;
     my $context_out := defined($context) ?? " # $context" :: "";
     $loop++;
     say $ok, $loop, $out, $context_out;

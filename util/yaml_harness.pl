@@ -26,6 +26,8 @@ our $SMOKERFILE = ".smoker.yml";
 
 $| = 1;
 
+$ENV{TEST_ALWAYS_CALLER} = 1;
+
 GetOptions \our %Config, qw(--output-file|o=s --dry|n
 		--shuffle|s --recurse|r --ext=s@ --anonymous|a --exclude|X=s@);
 $Test::Harness::Verbose = 1;
@@ -58,12 +60,17 @@ my %handlers = (
         my $curr = $totals->{seen}||0;
 		#$self->{'next'} ||= 0;
 
+		$line =~ /^(.*?) <pos:(.*)>($|\s*#.*$)/ or warn "couldn't match line: $line\n";
+		$line = $1 ? $1 . $3 : $line;
+		my $pos = $2;
+		
 		%{ $self->log_event } = (
 			type   => 'test',
 			num    => $curr,
 			result => $totals->{details}[-1]{ok} ?
 				"ok $curr/$totals->{max}" : "NOK $curr",
 			line   => $line,
+			pos    => $pos,
 		);
 		$self->latest_event->{todo} = 1 if $line =~ /# TODO/;
 
