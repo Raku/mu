@@ -18,7 +18,6 @@ import AST
 import Pretty
 import Parser
 import Monads
-import Data.Set
 
 op0 :: Ident -> [Val] -> Eval Val
 op0 ","  = return . VList . concatMap vCast
@@ -59,8 +58,10 @@ op1 "post:++" = \mv -> do
     val <- readMVal mv
     liftIO $ writeIORef (vCast mv) $ case val of
         (VStr str)  -> VStr $ strInc str
-        _           -> op1Numeric (\x -> x + 1) (vCast val)
-    op1 "+" val
+        _           -> op1Numeric (+1) (vCast val)
+    case val of
+        (VStr _)    -> return val
+        _           -> op1 "+" val
 op1 "++"   = \mv -> do
     op1 "post:++" mv
     readMVal mv
@@ -68,15 +69,17 @@ op1 "post:--"   = \mv -> do
     val <- liftIO $ readIORef (vCast mv)
     liftIO $ writeIORef (vCast mv) $
         op1Numeric (\x -> x - 1) (vCast val)
-    op1 "+" val
+    return val
 op1 "--"   = \mv -> do
     op1 "post:--" mv
     readMVal mv
 op1 "-"    = return . op1Numeric negate
+op1 "scalar" = return -- XXX refify?
+op1 "list" = return . VList . vCast
 op1 "~"    = return . VStr . vCast
 op1 "?"    = return . VBool . vCast
 op1 "int"  = return . VInt . vCast
-op1 "*"    = return . VList . vCast
+op1 "*"    = return . VList . vCast -- signature defeating?
 op1 "**"   = return . VList . map (id $!) . vCast
 op1 "+^"   = return . VInt . (toInteger . (complement :: Word -> Word)) . vCast
 op1 "~^"   = return . VStr . mapStr complement . vCast
@@ -109,8 +112,8 @@ op1 "require" = \v -> do
             then requireInc ps file msg
             else do
                 str <- liftIO $ readFile pathName
-                op1 "eval" $ VStr str
-op1 "eval" = opEval . vCast
+                opEval True pathName str
+op1 "eval" = opEval False "<eval>" . vCast
 op1 "defined" = \v -> do
     v <- readMVal v
     return . VBool $ case v of
@@ -174,9 +177,7 @@ op1 "system" = boolIO system
 op1 "close" = boolIO hClose
 op1 "key" = return . fst . (vCast :: Val -> VPair)
 op1 "value" = return . snd . (vCast :: Val -> VPair)
-op1 "kv" = \v -> do
-    let pair = vCast v
-    return $ VList [fst pair, snd pair]
+op1 "kv" = return . VList . concatMap (\(k, v) -> [k, v]) . vCast
 op1 "keys" = return . VList . map fst . (vCast :: Val -> [VPair])
 op1 "values" = return . op1Values
 op1 "readline" = op1 "="
@@ -214,6 +215,7 @@ op1 "pop"  = op1Pop (last, init)
 op1 "shift"= op1Pop (head, tail)
 op1 "pick" = op1Pick
 op1 s      = return . (\x -> VError ("unimplemented unaryOp: " ++ s) (Val x))
+
 
 op1Values :: Val -> Val
 op1Values (VJunc j) = VList $ setToList $ juncSet j
@@ -272,16 +274,16 @@ boolIO2 f u v = do
         return True
     return $ VBool ok
 
-opEval :: String -> Eval Val
-opEval str = do
+opEval :: Bool -> String -> String -> Eval Val
+opEval fatal name str = do
     env <- ask
-    let env' = runRule env id ruleProgram "<eval>" str
+    let env' = runRule env id ruleProgram name str
     val <- resetT $ local (\_ -> env') $ do
         evl <- asks envEval
         evl (envBody env')
     case val of
-        VError _ _  -> return VUndef
-        _           -> return val
+        VError _ _ | not fatal  -> return VUndef
+        _                       -> return val
 
 mapStr :: (Word8 -> Word8) -> [Word8] -> String
 mapStr f = map (chr . fromEnum . f)
@@ -368,16 +370,17 @@ op2 "split"= \x y -> return $ split (vCast x) (vCast y)
 	| otherwise = (x:piece, rest') where (piece, rest') = breakOnGlue glue xs
 op2 s    = \x y -> return $ VError ("unimplemented binaryOp: " ++ s) (App s [] [Val x, Val y])
 
-op2Push f list _ = do
-    let (array:rest) = vCast list
+op2Push f inv args = do
+    let array = vCast inv
+        rest = vCast args
     old <- readMVal array
     new <- mapM readMVal rest
     let vals = vCast old `f` concatMap vCast new
     liftIO $ writeIORef (vCast array) $ VList vals
     return $ VInt $ genericLength vals
 
-op2Grep list sub@(VSub _) = op2Grep sub list
-op2Grep sub list = do
+op2Grep sub@(VSub _) list = op2Grep list sub
+op2Grep list sub = do
     vals <- (`filterM` vCast list) $ \x -> do
         evl <- asks envEval
         rv  <- local (\e -> e{ envContext = "Bool" }) $ do
@@ -385,8 +388,8 @@ op2Grep sub list = do
         return $ vCast rv
     return $ VList vals
 
-op2Map list sub@(VSub _) = op2Map sub list
-op2Map sub list = do
+op2Map sub@(VSub _) list = op2Map list sub
+op2Map list sub = do
     vals <- (`mapM` vCast list) $ \x -> do
         evl <- asks envEval
         rv  <- local (\e -> e{ envContext = "List" }) $ do
@@ -543,6 +546,8 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Str       pre     readline (IO)\
 \\n   List      pre     readline (IO)\
 \\n   Int       pre     int     (Int)\
+\\n   List      pre     list    (List)\
+\\n   Scalar    pre     scalar  (Scalar)\
 \\n   List      spre    *       (List)\
 \\n   List      spre    **      (List)\
 \\n   Int       spre    +^      (Int)\

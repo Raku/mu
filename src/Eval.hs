@@ -292,11 +292,13 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         let [list, body] = exps
         vlist <- enterEvalContext "List" list
         vsub  <- enterEvalContext "Code" body
-        let vals = concatMap vCast $ vCast vlist
+        let arity = length (subParams $ vCast vsub)
+            vals = concatMap vCast $ vCast vlist
             runBody [] = retVal VUndef
-            runBody (v:vs) = do
-                doApply env (vCast vsub) [] [Val v]
-                runBody vs
+            runBody (vs) = do
+                let (these, rest) = arity `splitAt` vs
+                doApply env (vCast vsub) [] $ map Val these
+                runBody rest
         runBody vals
     "loop" -> do
         let [pre, cond, post, body] = exps
@@ -607,8 +609,8 @@ arityMatch sub@Sub{ subAssoc = assoc, subParams = prms } argLen argSlurpLen
     = Just sub
     | reqLen <- length $ filter (\p -> not (isOptional p || isSlurpy p)) prms
     , optLen <- length $ filter (\p -> isOptional p) prms
-    --, error $ show (prms, reqLen, optLen, argLen)
-    , argLen >= reqLen && argLen <= (reqLen + optLen)
+    , hasArray <- isJust $ find (\p -> isSlurpy p && head (paramName p) == '@') prms
+    , argLen >= reqLen && (hasArray || argLen <= (reqLen + optLen))
     = Just sub
     | otherwise
     = Nothing

@@ -11,15 +11,15 @@ my $base = 10000;
 
 my $x = 10000;
 is(0 + ++$x - 1, $base);
-todo_is(0 + $x-- - 1, $base);
+is(0 + $x-- - 1, $base);
 is(1 * $x,       $base);
 is(0 + $x-- - 0, $base);
-todo_is(1 + $x,       $base);
-todo_is(1 + $x++,     $base);
-todo_is(0 + $x,       $base);
-todo_is(0 + --$x + 1, $base);
-todo_is(0 + ++$x + 0, $base);
-todo_is($x,           $base);
+is(1 + $x,       $base);
+is(1 + $x++,     $base);
+is(0 + $x,       $base);
+is(0 + --$x + 1, $base);
+is(0 + ++$x + 0, $base);
+is($x,           $base);
 
 my @x;
 @x[0] = 10000;

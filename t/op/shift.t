@@ -10,7 +10,7 @@ Shift tests
 =cut
 
 # NOTE: 
-# this test illustrates a fundemental issue with PUGS
+# this test illustrates a fundemental issue with older versions of PUGS
 # and passing function results inline as arguments.
 # 
 # Here is some simple code to illustrate this:
@@ -58,14 +58,14 @@ my @s2 = (1, 2, 3, 4);
 is(+@s2, 4, 'we have 4 elements in our list');
 is(shift(@s2), 1, 'inline shift(@s2) works');
 
-todo_is(+@s2, 3, 'we have 3 elements in our list');
-todo_is(shift @s2, 2, 'inline shift @s2 works');
+is(+@s2, 3, 'we have 3 elements in our list');
+is(shift @s2, 2, 'inline shift @s2 works');
 
-todo_is(+@s2, 2, 'we have 2 elements in our list');
-todo_is(@s2.shift(), 3, 'inline @s2.shift() works');
+is(+@s2, 2, 'we have 2 elements in our list');
+is(@s2.shift(), 3, 'inline @s2.shift() works');
 
-todo_is(+@s2, 1, 'we have 1 elements in our list');
-todo_is(@s2.shift, 4, 'inline @s2.shift works');
+is(+@s2, 1, 'we have 1 elements in our list');
+is(@s2.shift, 4, 'inline @s2.shift works');
 
 is(+@s2, 0, 'we have no elements in our list');
 ok(!defined(shift(@s2)), 'again, the list is exhausted and we get undef');

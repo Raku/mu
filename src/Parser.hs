@@ -70,15 +70,24 @@ rulePodCut = (<?> "cut") $ do
     ruleEndOfLine
     return ()
 
-rulePodBlock = (<?> "block") $ do
-    try $ do
+rulePodBlock = verbatimRule "POD block" $ do
+    isEnd <- try $ do
         rulePodIntroducer
-        literalIdentifier
-    many (satisfy (\x -> isSpace x && x /= '\n'))
+        section <- literalIdentifier
+        param <- option "" $ do
+            satisfy isSpace
+            -- XXX: drop trailing spaces?
+            many $ satisfy (/= '\n')
+        return (section == "begin" && param == "END")
     many1 newline
-    rulePodBody
-    whiteSpace
-    option [] ruleStatementList
+    if isEnd
+        then do
+            many anyChar
+            return []
+        else do
+            rulePodBody
+            whiteSpace
+            option [] ruleStatementList
 
 rulePodBody = (try rulePodCut) <|> eof <|> do
     many $ satisfy  (/= '\n')
@@ -127,7 +136,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
         , ruleSubScoped
         , ruleSubGlobal
         ]
-    formal  <- option Nothing $ return . Just =<< parens ruleSubParameters
+    formal  <- option Nothing $ ruleSubParameters ParensMandatory
     cxt2    <- option cxt1 $ try $ ruleBareTrait "returns"
     _       <- many $ ruleTrait -- traits; not yet used
     body    <- ruleBlock
@@ -157,19 +166,27 @@ ruleSubName = rule "subroutine name" $ do
     where
     fixities = " prefix: postfix: infix: circumfix: "
 
-ruleSubParameters = rule "subroutine parameters" $ do
-    (invs:args:_) <- ruleParamList ruleFormalParam
-    return $ map setInv invs ++ args
+ruleSubParameters :: ParensOption -> RuleParser (Maybe [Param])
+ruleSubParameters wantParens = rule "subroutine parameters" $ do
+    rv <- ruleParamList wantParens ruleFormalParam
+    case rv of
+        Just (invs:args:_)  -> return . Just $ map setInv invs ++ args
+        _                   -> return Nothing
     where
     setInv e = e { isInvocant = True }
 
-ruleParamList parse = rule "parameter list" $ do
-    formal <- maybeParens ((parse `sepEndBy` symbol ",") `sepEndBy` symbol ":")
+ruleParamList wantParens parse = rule "parameter list" $ do
+    (formal, hasParens) <- f $
+        ((parse `sepEndBy` symbol ",") `sepEndBy` symbol ":")
     case formal of
-        []     -> return [[], []]
-        [args] -> return [[], args]
-        [_,_]  -> return formal
+        [[]]   -> return $ if hasParens then Just [[], []] else Nothing
+        [args] -> return $ Just [[], args]
+        [_,_]  -> return $ Just formal
         _      -> fail "Only one invocant list allowed"
+    where
+    f = case wantParens of
+        ParensOptional  -> maybeParensBool
+        ParensMandatory -> \x -> do rv <- parens x; return (rv, True)
 
 ruleFormalParam = rule "formal parameter" $ do
     cxt     <- option "" $ ruleContext
@@ -246,7 +263,7 @@ ruleClosureTrait = rule "closure trait" $ do
                   , subParams     = []
                   , subFun        = fun
                   }
-    return $ App "&unshift" [] [Syn "," [Var "@*END", Syn "sub" [Val $ VSub sub]]]
+    return $ App "&unshift" [Var "@*END"] [Syn "sub" [Val $ VSub sub]]
 
 rulePackageDeclaration = rule "package declaration" $ fail ""
 
@@ -268,7 +285,6 @@ ruleGatherConstruct = rule "gather construct" $ do
 ruleForeachConstruct = rule "foreach construct" $ do
     choice [ symbol "for", symbol "foreach" ]
     list <- maybeParens $ ruleExpression
-    -- error $ show list
     block <- ruleBlockLiteral
     retSyn "for" [list, block]
 
@@ -349,15 +365,13 @@ ruleBlockLiteral = rule "block construct" $ do
 
 ruleBlockFormalStandard = rule "standard block parameters" $ do
     symbol "sub"
-    params <- option Nothing $ return . Just =<< parens ruleSubParameters
+    params <- option Nothing $ ruleSubParameters ParensMandatory
     return $ (SubRoutine, params)
 
 ruleBlockFormalPointy = rule "pointy block parameters" $ do
     symbol "->"
-    params <- ruleSubParameters
-    --- XXX -- need to disambiguate between parenful and nonparenful
-    --      -- hacking maybeParens is the way to go.
-    return $ (SubBlock, if null params then Nothing else Just params)
+    params <- ruleSubParameters ParensOptional
+    return $ (SubBlock, params)
 
 
 
@@ -453,6 +467,7 @@ parseName str
 
 currentListFunctions = do
     return []
+{-
     funs <- currentFunctions
     return $ unwords [
         name | f@Symbol{ symExp = Val (VSub sub) } <- funs
@@ -461,6 +476,7 @@ currentListFunctions = do
         , let name = parseName $ symName f
         ]
     -- " not <== any all one none perl eval "
+-}
 
 parseOp = do
     ops <- operators
@@ -512,50 +528,45 @@ parseTerm = rule "term" $ do
         , parseApply
         , parseParens parseOp
         ]
-    f <- option id rulePostTerm
-    return $ f term
+    fs <- many rulePostTerm
+    return $ foldr (.) id (reverse fs) $ term
 
-ruleOptionalDot = option ' ' $ do
-    whiteSpace
-    char '.'
-
-rulePostTerm = rule "term postfix" $ do
-    f <- tryChoice
-        [ ruleInvocation
-        , ruleArraySubscript
+rulePostTerm = tryRule "term postfix" $ do
+    hasDot <- option False $ do whiteSpace; char '.'; return True
+    choice $ (if hasDot then [ruleInvocation] else []) ++
+        [ ruleArraySubscript
         , ruleHashSubscript
         , ruleCodeSubscript
         ]
-    f' <- option id rulePostTerm
-    return $ f' . f
 
-ruleInvocation = tryRule "invocation" $ do
-    char '.'
-    (App name invs args) <- parseInvoke
+doRuleInvocation needParens = tryVerbatimRule "invocation" $ do
+    name            <- subNameWithPrefix ""
+    (invs:args:_)   <- fParens $ parseParenParamList ruleExpression
     return $ \x -> App name (x:invs) args
     where
-    parseInvoke = lexeme $ do
-        name            <- subNameWithPrefix ""
-        (invs:args:_)   <- option [[],[]] $ maybeParens $ parseParamList ruleExpression
-        return $ App name invs args
-    
+    fParens = if needParens then id else option [[],[]]
 
-ruleArraySubscript = tryRule "array subscript" $ do
-    ruleOptionalDot
-    exp <- brackets ruleExpression
-    return $ \x -> Syn "[]" [x, exp]
+ruleInvocation = doRuleInvocation False
+ruleInvocationParens = doRuleInvocation True
 
-ruleHashSubscript = tryRule "hash subscript" $ do
-    ruleOptionalDot
-    exp <- subscripts
+ruleArraySubscript = tryVerbatimRule "array subscript" $ do
+    brackets $ option id $ do
+        exp <- ruleExpression
+        return $ \x -> Syn "[]" [x, exp]
+
+ruleHashSubscript = tryVerbatimRule "hash subscript" $ do
+    choice [ ruleHashSubscriptBraces, ruleHashSubscriptQW ]
+
+ruleHashSubscriptBraces = do
+    braces $ option id $ do
+        exp <- ruleExpression
+        return $ \x -> Syn "{}" [x, exp]
+
+ruleHashSubscriptQW = do
+    exp <- qwLiteral
     return $ \x -> Syn "{}" [x, exp]
-        where
-            subscripts = do exp <- braces ruleExpression
-                            return exp
-                         <|> qwLiteral
 
 ruleCodeSubscript = tryRule "code subscript" $ do
-    ruleOptionalDot
     (invs:args:_) <- parens $ parseParamList ruleExpression
     return $ \x -> Syn "()" [x, Syn "invs" invs, Syn "args" args]
 
@@ -571,8 +582,27 @@ parseApply = lexeme $ do
     (invs:args:_)   <- parseParamList ruleExpression
     return $ App name invs args
 
-parseParamList parse = do
-    formal <- maybeParens ((parse `sepEndBy` symbol ",") `sepEndBy` symbol ":")
+parseParamList parse =    parseParenParamList parse
+                      <|> parseNoParenParamList parse
+
+parseParenParamList parse = do
+    [inv, norm] <- maybeParens $ parseNoParenParamList parse
+    block <- option [] ruleAdverb
+    -- XXX we just append the adverbial block onto the end of the arg list
+    -- it really goes into the *& slot if there is one. -lp
+    processFormals [inv, norm ++ block]
+
+ruleAdverb = tryRule "adverb" $ do 
+    char ':'
+    rblock <- ruleBlockLiteral
+    next <- option [] ruleAdverb
+    return (rblock:next)
+
+parseNoParenParamList parse = do
+    formal <- (parse `sepEndBy` symbol ",") `sepEndBy` symbol ":"
+    processFormals formal 
+
+processFormals formal = do
     case formal of
         []                  -> return [[], []]
         [args]              -> return [[], unwind args]
@@ -595,6 +625,11 @@ nameToParam name = Param
     , paramContext  = cxtOfSigil $ head name
     , paramDefault  = Val VUndef
     }
+
+maybeParensBool p = choice
+    [ do rv <- parens p; return (rv, True)
+    , do rv <- p; return (rv, False)
+    ]
 
 maybeParens p = choice [ parens p, p ]
 maybeDotParens p = choice [ dotParens p, p ]
@@ -669,14 +704,29 @@ pairLiteral = do
     val <- parseTerm
     return $ Syn "=>" [Val (VStr key), val]
 
-qqInterpolator = do 
-            var <- ruleVarNameString
-            return (Var var)
-          <|> do
-            char '\\'
-            nextchar <- escapeCode -- see Lexer.hs
-            return (Val (VStr [nextchar]))
-          <|> ruleBlock
+qqInterpolator = choice
+    [ qqInterpolatorVar, qqInterpolatorChar, ruleBlock ]
+
+qqInterpolatorVar = try $ do
+    var <- ruleVarNameString
+    fs <- if head var == '$'
+        then many qqInterpolatorPostTerm
+        else many1 qqInterpolatorPostTerm
+    return $ foldr (.) id (reverse fs) $ Var var
+
+qqInterpolatorPostTerm = try $ do
+    option ' ' $ char '.'
+    choice
+        [ ruleInvocationParens
+        , ruleArraySubscript
+        , ruleHashSubscript
+        , ruleCodeSubscript
+        ]
+
+qqInterpolatorChar = do
+    char '\\'
+    nextchar <- escapeCode -- see Lexer.hs
+    return (Val $ VStr [nextchar])
 
 qqLiteral = do
     ch   <- getDelim

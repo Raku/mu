@@ -9,7 +9,7 @@ Tests for Synopsis 3
 
 =cut
 
-plan 24;
+plan 30;
 
 my $str1 = "foo";
 my $str2 = "bar";
@@ -78,10 +78,10 @@ ok( any(@newval4) > all(@oldval), "any test array against all array" );
 ok( all(@newval2) > any(@oldval), "all test array against any array" );
 ok( all(@newval1) > all(@oldval), "all test array against all array" );
 
-ok(42 < 12 & 20 & 32, "test the all infix operator");
+ok(42 > 12 & 20 & 32, "test the all infix operator");
 
 
 # Hyper ops
-
-skip("waiting for hyper operators");
-#is_deeply eval '(1,2,3,4) >>+<< (1,2,3,4)' , (2,4,6,8), 'hyper-add';
+my @rv;
+eval '@rv = (1,2,3,4) >>+<< (1,2,3,4)';
+todo_is("@rv[]", "2 4 6 8", 'hyper-add');

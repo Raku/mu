@@ -17,6 +17,8 @@ import Rule.Language
 import qualified Rule.Token as P
 
 type RuleParser a = GenParser Char Env a
+data ParensOption = ParensMandatory | ParensOptional
+    deriving (Show, Eq)
 
 perl6Def  = javaStyle
           { P.commentStart   = [] -- "=pod"
@@ -91,7 +93,7 @@ interpolatingStringLiteral endchar interpolator = do
     where
         homogenConcat :: [Exp] -> Exp
         homogenConcat []             = Val (VStr "")
-        homogenConcat [x]            = x
+        homogenConcat [x]            = App "&infix:~" [x, Val (VStr "")] []
         homogenConcat (Val (VStr x):Val (VStr y):xs) = homogenConcat (Val (VStr (x ++ y)) : xs)
         homogenConcat (x:y:xs)       = App "&infix:~" [x, homogenConcat (y:xs)] []
         
@@ -252,7 +254,9 @@ verbatimRule name action = (<?> name) $ action
 
 literalRule name action = (<?> name) $ postSpace $ action
 
-tryRule name action = (<?> name) $ lexeme $ try $ action
+tryRule name action = (<?> name) $ lexeme $ try action
+
+tryVerbatimRule name action = (<?> name) $ try action
 
 ruleScope :: RuleParser Scope
 ruleScope = tryRule "scope" $ do
