@@ -126,7 +126,7 @@ pugscc - Pugs Compiler Compiler
 =head1 DESCRIPTION
                
 The 'pugscc' script allows you to create an exectuable image from a
-perl6 script, much like 'perlcc' does for perl5. 'pugscc' is 
+Perl6 script, much like 'perlcc' does for Perl5. 'pugscc' is 
 currently in the very early stages (proof-of-concept), and all 
 interested hackers are welcome to come join in the fun.
 
@@ -167,7 +167,7 @@ L<http://www.parrotcode.org/>
 
 L<http://www.perl.org>
 
-Ponie - requires Ponie 
+=item Ponie - requires Ponie 
 
 L<http://opensource.fotango.com/software/ponie/downloads>
 L<http://search.cpan.org/~abergman/ponie/>
