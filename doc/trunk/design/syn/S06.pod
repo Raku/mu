@@ -13,7 +13,7 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 05 Nov 2004
+  Last Modified: 5 Nov 2004
   Number: 6
   Version: 4
 
@@ -195,23 +195,21 @@ Binary operators are defined as infix:
 
     sub infix:«OPNAME» ($leftop, $rightop) {...}
 
-Bracketing operators are defined as circumfix. The leading and trailing
-delimiters together are the name of the operator.
+Bracketing operators are defined as circumfix.  A two element slice containing
+the leading and trailing delimiters is the name of the operator.
 
-    sub circumfix:«LEFTDELIM...RIGHTDELIM» ($contents) {...}
-    sub circumfix:«DELIMITERS» ($contents) {...}
+    sub circumfix:«LEFTDELIM RIGHTDELIM» ($contents) {...}
+    sub circumfix:{'LEFTDELIM','RIGHTDELIM'} ($contents) {...}
 
-If the left and right delimiters aren't separated by "C<...>",
-the C<DELIMITERS> string must be an even number of characters. The first
-half is treated as the opening delimiter and the second half as
-the closing.
+(There is no longer any rule about splitting an even number of characters.
+You must use a two element slice.)
 
 Operator names can be any sequence of Unicode characters. For example:
 
     sub infix:«(c)» ($text, $owner) { return $text but Copyright($owner) }
     method prefix:«±» (Num $x) returns Num { return +$x | -$x }
     multi sub postfix:«!» (Int $n) { $n < 2 ?? 1 :: $n*($n-1)! }
-    macro circumfix:«<!--...-->» ($text) is parsed / .*? / { "" }
+    macro circumfix:«<!-- -->» ($text) is parsed / .*? / { "" }
 
     my $document = $text (c) $me;
 
