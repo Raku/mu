@@ -9,7 +9,7 @@ Tests for Synopsis 3
 
 =cut
 
-plan 32;
+plan 33;
 
 my $str1 = "foo";
 my $str2 = "bar";
@@ -30,6 +30,10 @@ is($bar, 0, "operator priority");
 
 $bar = (5 or 6 ?? 7 :: 8);
 is($bar, 5, "operator priority");
+
+$bar = 9;
+$bar = 10 ?? 11 :: 12;
+is($bar, 11, "operator priority");
 
 my $five = 5;
 my $four = 4;
