@@ -105,4 +105,7 @@ initTree = Node "Any"
             [ Node "Class" [] ] ]
     , Node "Action" []
     , Node "Void" []
+    , Node "Trait"
+	[ Node "PkgTrait"
+        ]
     ]

@@ -99,7 +99,6 @@ refSlave    = (1, 1)
         hasn't read http://xrl.us/tapl, which is not ideal.  Maybe
         someone who has will come along later and fix this.
 
-  Package := MetaClass where clsName = "Package"
 
 {-
   PkgIsGlobal is not quite right - a package is global if it exists
@@ -108,26 +107,54 @@ refSlave    = (1, 1)
   have a back-reference to the namespace they exist in that has a
   String category that is the name, or something like that.  consider
   this a FIXME :-)
--}
+ -}
 
-something like that.
+  Package := MetaClass where clsName = "Package"
   Package.clsProperties =
 	{ pkgName = MetaProperty { type = Symbol } 
-	  pkgIsGlobal = MetaProperty { type = Bool  }
+	, pkgIsGlobal = MetaProperty { type = Bool  }
+	, pkgStash = MetaProperty { type = FiniteMap (sigil, Symbol) Object }
 	}
 
   Package.clsAssocs =
-	{ pkgSubPackages = MetaAssoc { targetClass = Package }
+	{ pkgSubPackages = MetaAssoc { assocTarget = Package,
+				       assocComposite = true }
 	}
+
+{-
+  Traits - just what do we know about them?  They're mentioned in S02,
+           S04, etc as applying to Packages, Blocks, etc.
+
+           Perhaps *all* objects should be able to have generic
+           "Traits" in the Meta-Model ?
+
+           Or are traits just the word we use to mean a property of
+           something in the MetaModel?  In the context of packages,
+           they seem to be more generic than that.  This is why I have
+           made this specifically a PkgTrait class
+ -}
+  PkgTrait := MetaClass where clsName = "PkgTrait"
     
-  MetaClass where clsName = "Class"
-     clsProperties =
-	[ 
+  Module := MetaClass where clsName = "Module"
+  Module.clsProperties =
+	{ modVersion = MetaProperty { type = Version }
+	, modAuthorizer = MetaProperty { type = String }
+	}
 
+  Module.clsMethods =
+	{ modName = MetaMethod
+	      { methodInvoke = ( self.pkgName
+                               ~ "-" ~ self.modVersion
+			       ~ "-" ~ self.modAuthorizer ) }
+	}
 
-	]
-     
-     
+  Module.clsAssocs =
+	{ modTraits = MetaAssoc { targetClass = PkgTrait,
+				  assocCategory = Keyed,
+				  assocComposite = true,
+				 }
+	}
+  
 
 -}
 
