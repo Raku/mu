@@ -29,11 +29,17 @@ op0 s    = \x -> VError ("unimplemented listOp: " ++ s) (Val $ VList x)
 op1 :: Ident -> Val -> Eval Val
 op1 "!"    = return . fmapVal not
 op1 "+"    = return . op1Numeric id
-op1 "++"   = error "..." -- automagic
-op1 "--"   = do
-    lex <- asks envLexical
-    error (show lex)
-    error "..."
+op1 "++"   = \mv -> do
+    val <- liftIO $ readIORef (vCast mv)
+    liftIO $ writeIORef (vCast mv) $ case val of
+        (VStr str)  -> VStr $ strInc str
+        _           -> op1Numeric (\x -> x + 1) (vCast val)
+    return val
+op1 "--"   = \mv -> do
+    val <- liftIO $ readIORef (vCast mv)
+    liftIO $ writeIORef (vCast mv) $
+        op1Numeric (\x -> x - 1) (vCast val)
+    return val
 op1 "-"    = return . op1Numeric negate
 op1 "~"    = return . VStr . vCast
 op1 "?"    = return . VBool . vCast
@@ -74,7 +80,7 @@ op1 "exit" = \v -> do
 -- handle timely destruction
 op1 "open" = \v -> do
     fh <- liftIO $ openFile (vCast v) ReadMode
-    return $ VIO fh
+    return $ VHandle fh
 op1 "close" = \v -> do
     liftIO $ hClose (vCast v)
     return $ VBool True
@@ -226,6 +232,8 @@ op2Ord f x y = VInt $ case f x `compare` f y of
 
 op1Numeric :: (forall a. (Num a) => a -> a) -> Val -> Val
 op1Numeric f VUndef     = VInt $ f 0
+op1Numeric f (MVal x)   = op1Numeric f (castV x)
+op1Numeric f (VRef x)   = op1Numeric f x
 op1Numeric f (VInt x)   = VInt $ f x
 op1Numeric f l@(VList _)= VInt $ f (vCast l)
 op1Numeric f (VRat x)   = VRat $ f x

@@ -71,7 +71,6 @@ evaluate exp = do
     debug "indent" (tail) " Ret" exp'
     case exp' of
         Val v       -> return v
-        MVal mv     -> liftIO $ readIORef mv
         otherwise   -> return $ VError "Invalid expression" exp'
 
 evalExp :: Exp -> Eval Val
@@ -101,6 +100,7 @@ reduceExp exp = do
 retVal :: Val -> Eval Exp
 retVal val = return $ Val val
 
+newMVal val@(MVal _) = return val
 newMVal val = do
     mval <- liftIO $ newIORef val
     return $ MVal mval
@@ -111,7 +111,7 @@ reduceStatements ((exp:rest), _)
     | Syn "sym" [Sym sym@(Symbol _ name (Syn "mval" [_, vexp]))] <- exp = do
         val <- enterEvalContext (cxtOfSigil $ head name) vexp
         mval <- newMVal val
-        reduceStatements ((Syn "sym" [Sym sym{ symExp = mval }]:rest), mval)
+        reduceStatements ((Syn "sym" [Sym sym{ symExp = Val mval }]:rest), Val mval)
     | Syn "sym" [Sym sym@(Symbol SGlobal _ vexp)] <- exp = do
         local (\e -> e{ envGlobal = (sym:envGlobal e) }) $ do
             reduceStatements (rest, vexp)
@@ -151,9 +151,6 @@ findVar Env{ envLexical = lex, envGlobal = glob } name
     
 doReduce :: Env -> Exp -> Eval Exp
 
-doReduce env exp@(MVal mval) =
-    retVal =<< liftIO (readIORef mval)
-
 -- Reduction for variables
 doReduce env exp@(Var name)
     | Just vexp <- findVar env name
@@ -173,7 +170,7 @@ doReduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
     "mval" -> do
         let [Var name, exp] = exps
         val     <- enterEvalContext (cxtOfSigil $ head name) exp
-        newMVal val
+        retVal =<< newMVal val
     "loop" -> do
         let [pre, test, post, exp] = exps
         -- first, run pre and enter its lexical context
@@ -183,12 +180,12 @@ doReduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         let [Var name, exp] = exps
         case findVar env name of
             Nothing -> retVal $ VError ("Undefined variable " ++ name) exp
-            Just (MVal mv) -> do
+            Just (Val val@(MVal mv)) -> do
                 val <- enterEvalContext (cxtOfSigil $ head name) exp
                 liftIO $ writeIORef mv val
-                return (MVal mv)
+                retVal val
             _ -> do
-                retVal $ VError "Can't modify constant item" exp
+                retVal $ VError "Can't modify a constant item" exp
     ":=" -> do
         let [Var name, exp] = exps
         val     <- enterEvalContext (cxtOfSigil $ head name) exp

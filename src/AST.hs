@@ -19,6 +19,7 @@ type Ident = String
 
 class Value n where
     vCast :: Val -> n
+    vCast (MVal v)      = vCast $ castV v
     vCast (VRef v)      = vCast v
     vCast (VPair _ v)   = vCast v
     vCast (VArray (MkArray v))    = vCast $ VList v
@@ -34,6 +35,7 @@ instance Value (Val, Val) where
     castV (x, y)        = VPair x y
     vCast (VPair x y)   = (x, y)
     vCast (VRef v)      = vCast v
+    vCast (MVal v)      = vCast $ castV v
     vCast v             = case vCast v of
         [x, y]  -> (x, y)
         other   -> error $ "cannot cast into (Val, Val): " ++ (show v)
@@ -111,6 +113,7 @@ instance Value VStr where
     vCast (VNum n)      = showNum n
     vCast (VList l)     = unwords $ map vCast l
     vCast (VRef v)      = vCast v
+    vCast (MVal v)      = vCast $ castV v
     vCast (VPair k v)   = vCast k ++ "\t" ++ vCast v ++ "\n"
     vCast x             = error $ "cannot cast: " ++ (show x)
 
@@ -127,6 +130,10 @@ instance Value VArray where
 
 instance Value MVal where
     castV ref = unsafePerformIO $ readIORef ref
+    vCast (MVal x)      = x
+    vCast (VRef v)      = vCast v
+    vCast (VPair _ y)   = vCast y
+    vCast x             = error $ "cannot modify a constant item: " ++ show x
 
 {-
 instance Value VJunc where
@@ -139,12 +146,14 @@ instance Value VList where
     vCast (VList l)     = l
     vCast (VPair k v)   = [k, v]
     vCast (VRef v)      = vCast v
+    vCast (MVal v)      = vCast $ castV v
     vCast (VUndef)      = []
     vCast v             = [v]
 
-instance Value VIO where
-    castV = VIO
-    doCast (VIO x) = x
+instance Value VHandle where
+    castV = VHandle
+    doCast (VHandle x) = x
+    doCast x            = error $ "cannot cast into a handle: " ++ show x
 
 instance Value (Maybe a) where
     vCast VUndef        = Nothing
@@ -193,6 +202,8 @@ type VNum  = Double
 type VComplex = Complex VNum
 type VStr  = String
 type VList = [Val]
+type VHandle = Handle
+type MVal = IORef Val
 newtype VArray = MkArray [Val] deriving (Show, Eq, Ord)
 newtype VHash  = MkHash (FiniteMap Val Val) deriving (Show, Eq, Ord)
 
@@ -216,7 +227,8 @@ data Val
     | VBlock    VBlock
     | VJunc     VJunc
     | VError    VStr Exp
-    | VIO       VIO
+    | VHandle   VHandle
+    | MVal    MVal
     | VControl  VControl
     deriving (Show, Eq, Ord)
 
@@ -272,19 +284,18 @@ instance Ord MVal where
     compare x y = compare (castV x) (castV y)
 instance Show MVal where
     show = show . castV
-instance Ord VIO where
+instance Ord VHandle where
     compare x y = compare (show x) (show y)
 
 type Var = String
-type MVal = IORef Val
-type VIO = Handle
+-- type MVal = IORef Val
 
 data Exp
     = App String [Exp] [Exp]
     | Syn String [Exp]
     | Sym Symbol
     | Prim ([Val] -> Eval Val)
-    | MVal MVal
+--  | MVal MVal
     | Val Val
     | Var Var
     | Parens Exp
