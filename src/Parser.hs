@@ -258,13 +258,13 @@ ruleLoopConstruct = rule "loop construct" $ do
     retSyn "loop" (conds ++ [block])
 
 ruleCondConstruct = rule "conditional construct" $ do
-    symbol "if"
+    csym <- choice [ symbol "if", symbol "unless" ]
     cond <- maybeParens $ ruleExpression
     body <- ruleBlock
     bodyElse <- option (Val VUndef) $ do
         symbol "else"
         ruleBlock
-    retSyn "if" [cond, body, bodyElse]
+    retSyn csym [cond, body, bodyElse]
 
 ruleWhileUntilConstruct = rule "while/until construct" $ do
     sym <- choice [ symbol "while", symbol "until" ]
