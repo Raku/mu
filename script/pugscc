@@ -1,8 +1,14 @@
 #!/usr/bin/perl
 
+use Cwd;
+use Config;
 use FindBin;
 use File::Copy;
 use File::Basename;
+
+if (!@ARGV) {
+    die "Usage: $0 [ source[.p6] | -e oneliner ]\n";
+}
 
 if (!-e "src/Main.hs") {
     chdir "$FindBin::Bin/..";
@@ -10,6 +16,8 @@ if (!-e "src/Main.hs") {
 	die "$0: This script must be invoked in the Pugs source tree directory."
     }
 }
+
+$ENV{PATH} .= $Config{path_sep} . cwd() unless $^O eq 'MSWin32';
 
 unlink "dump.ast";
 
