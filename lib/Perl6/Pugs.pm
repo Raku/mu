@@ -1,5 +1,5 @@
 package Perl6::Pugs;
-$Pugs::VERSION = '6.0.7';
+$Pugs::VERSION = '6.0.8';
 
 use strict;
 
@@ -9,21 +9,20 @@ Perl6::Pugs - A Perl6 Interpreter
 
 =head1 VERSION
 
-This document describes version 6.0.7 of Pugs, released February 18, 2005.
+This document describes version 6.0.8 of Pugs, released February 21, 2005.
 
 =head1 SYNOPSIS
 
-    % pugs -e 'sub hi { "Hello, " ~ $_ } ; hi "World!\n"'
+    % pugs -e "{ 'Hello, ', @^x }.('World!').say"
     Hello, World!
 
 =head1 DESCRIPTION
 
-Started at 2005-02-01, Pugs is an attempt at writing a Perl6 interpreter in
-Haskell.  Currently it is in its very early stages.
+Pugs is an interpreter for Perl 6, written in Haskell. It aims to implement the
+full Perl6 specification, as detailed in the Synopses.
 
-Although Pugs does not yet directly relate to PGE or Parrot, the hope is that
-it can flesh out corner cases in the Synopses during implementation, as well
-as contributing more test cases to the main Perl6 project.
+The Pugs project was started on February 1st 2005.  It is under active development
+on IRC (irc.freenode.net #perl6).
 
 =head2 Release Plans
 
@@ -52,6 +51,8 @@ The current milestones are:
 =back
 
 =head1 SEE ALSO
+
+The Pugs homepage is at L<http://pugscode.org/>.
 
 The mailing list for Pugs is perl6-compiler.  Subscribe by sending mail to
 E<lt>perl6-compiler-subscribe@perl.orgE<gt>. It is archived at

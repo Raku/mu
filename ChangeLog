@@ -1,3 +1,21 @@
+[Changes for 6.0.8 - February 21, 2005]
+
+* New example code snippet: examples/quicksort.p6
+* Unit tests ported from th Perl5 tree. (alin, juerd)
+* Hashes, Pairs and their access methods.
+* Much more robust casting between arrays, lists and hashes.
+* Fixed harness output problem on older perls.
+* Many Posix-based IO primitives. (ycheng)
+* Precedence for builtin unary/list functions are parsed correctly.
+* "unless" construct.
+* New primitives: "join", "split", prefix ++ and --.
+* +>> etc changed to +> etc. (juerd)
+* Stacking multiple prefix and postfix operators now works.
+* @*INC, &?SUB, CALLER::.
+* Tests for the "perlego" dialect. (juerd)
+* User-defined function applications now takes arbitary expressions.
+* Deep recursion detection.
+
 [Changes for 6.0.7 - February 18, 2005]
 
 * Beginning of synopses-based unit tests. (hcchien)
