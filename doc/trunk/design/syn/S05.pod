@@ -1290,12 +1290,12 @@ is visible.  (But it is erroneous to use the same name for two different
 capture datatypes.)
 
 The I<string> matched by the entire pattern may always be named via the
-null key, even if there are captures:
+"MATCH" key, even if there are captures:
 
-    $mystring = "{ m:w/ (\S+) => $1/«» }";
+    $mystring = "{ m:w/ (\S+) => $1/«MATCH» }";
 
-Note that C<$«»> is not merely a recursive reference to C<$0>.
-C<$«»> always returns the entire match in string context.  (C<$0>
+Note that C<$«MATCH»> is not merely a recursive reference to C<$0>.
+C<$«MATCH»> always returns the entire match in string context.  (C<$0>
 always returns C<$1> in string context.)
 
 =item *
