@@ -9,22 +9,6 @@ my $o;
 my $r;
 my $y;
 
-sub foldl(Code &op, Any $initial, *@values) returns Any {
-    if (+@values == 0) {
-         return $initial;
-    } else {
-         return &op(shift @values, &?SUB(&op, $initial, @values));
-    }
-}
-
-sub add(Int $x, Int $y) returns Int {
-    return $x + $y;
-}
-
-sub construct(*@values) returns Int {
-    return foldl -> $x, $y { $x * 10 + $y}, 0, @values;
-}
-
 $s = any(0..10) & none(0);
 $e = any(0..10);
 $n = any(0..10);
@@ -44,4 +28,20 @@ if ($send + $more == $money) {
 	say "+more = $more";
 	say "-------------"
 	say "money = $money";
+}
+
+sub foldl(Code &op, Any $initial, *@values) returns Any {
+    if (+@values == 0) {
+         return $initial;
+    } else {
+         return &op(shift @values, &?SUB(&op, $initial, @values));
+    }
+}
+
+sub add(Int $x, Int $y) returns Int {
+    return $x + $y;
+}
+
+sub construct(*@values) returns Junction {
+    return foldl( sub ($x, $y) { $x * 10 + $y}, 0, @values);
 }
