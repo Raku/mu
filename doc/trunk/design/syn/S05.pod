@@ -1376,9 +1376,9 @@ assertion against an object that doesn't provide a string view.
 However, pure token objects can be parsed as long as the match rule
 restricts itself to assertions like:
 
-    <isa Dog>
-    <does Bark>
-    <can «scratch»>
+    <.isa(Dog)>
+    <.does(Bark)>
+    <.can(«scratch»)>
 
 It is permissible to mix tokens and strings in an array as long as they're
 in different elements.  You may not embed objects in strings, however.
@@ -1524,7 +1524,7 @@ compilation and usage not otherwise provided for.
 =item *
 
 The C<tr///> quote-like operator now also has a method form called
-C<tr()>.  Its argument is a list of pairs.  You can use anything that
+C<trans()>.  Its argument is a list of pairs.  You can use anything that
 produces a pair list:
 
     $str.trans( %mapping.pairs.sort );
