@@ -1,3 +1,23 @@
+[Changes for 6.0.9 - February 28, 2005]
+
+* First Perl 6 module: Test.pm.
+* First Pugs Apocryphon: docs/01Overview.html.
+* More than 600 unit tests, with a comprehensive coverage.
+* Relicensed under GPLv2 and Artistic2.0b5.
+* New flags: --version, -v, -c.
+* New examples: examples/fp.p6, examples/shuffle.p6.
+* New syntaxes: ?? ::, our(), chained =>, END{}, =begin END, unless.
+* New primitives: defined(), unlink(), ref(), join(), require(), int()
+* New magicals: $?SUBNAME, %*ENV, &?BLOCK, &?CALLER_CONTINUATION, @*INC.
+* New literals: \d1234, 0d1234, qq[], qw[].
+* Interpolation in double-quoted strings.
+* Hashes and subscripting.
+* Bare blocks now assumes outer scope's lexical pad.
+* Bare blocks in statement level is now always executed.
+* Closures closes properly; errors are propagated upwards.
+* A first draft of "Kwid" documentation format.
+* A first draft of builtins declarations.
+
 [Changes for 6.0.8 - February 21, 2005]
 
 * New example code snippet: examples/quicksort.p6

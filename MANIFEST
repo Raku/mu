@@ -1,9 +1,9 @@
 AUTHORS
 ChangeLog
+examples/fp.p6
 examples/life.p6
 examples/mandel.p6
 examples/quicksort.p6
-examples/sendmoremoney.p6
 examples/shuffle.p6
 inc/Module/Install.pm
 inc/Module/Install/Base.pm
@@ -84,11 +84,13 @@ t/op/defined.t
 t/op/die.t
 t/op/eq.t
 t/op/eval.t
+t/op/grep.t
 t/op/hash.t
 t/op/inc.t
 t/op/int.t
 t/op/join.t
 t/op/magic.t
+t/op/map.t
 t/op/multi_dimensional_array.t
 t/op/not.t
 t/op/pair.t
@@ -99,6 +101,7 @@ t/op/relational.t
 t/op/repeat.t
 t/op/shift.t
 t/op/split.t
+t/op/string_interpolation.t
 t/op/unshift.t
 t/Synopsis/S01.pod
 t/Synopsis/S02.pod
