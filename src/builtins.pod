@@ -29,89 +29,89 @@ Finally, for each entry, we're only entering as much detail as we know
 =head2 Numeric operators
 
     # addition, subtraction, multiplication, division
-    multi sub *infix:<+>($x, $y) returns Num { ... }
-    multi sub *infix:<->($x, $y) returns Num is equiv(&*infix:<+>) { ... }
-    multi sub *infix:<*>($x, $y) returns Num is tighter(&*infix:<+>) { ... }
-    multi sub *infix:</>($x, $y) returns Num is equiv(&*infix:<*>) { ... }
+    multi sub *infix:<+>(Num $x, Num $y) returns Num { ... }
+    multi sub *infix:<->(Num $x, Num $y) returns Num is equiv(&*infix:<+>) { ... }
+    multi sub *infix:<*>(Num $x, Num $y) returns Num is tighter(&*infix:<+>) { ... }
+    multi sub *infix:</>(Num $x, Num $y) returns Num is equiv(&*infix:<*>) { ... }
 
     # bitwise or, xor, and, shifts
-    multi sub *infix:<+|>($x, $y) returns Num is equiv(&*infix:<+>) { ... }
-    multi sub *infix:<+^>($x, $y) returns Num is equiv(&*infix:<+>) { ... }
-    multi sub *infix:<+&>($x, $y) returns Num is equiv(&*infix:<*>) { ... }
-    multi sub *infix:«+<<»($x, $y) returns Num is equiv(&*infix:<*>) { ... }
-    multi sub *infix:«+>>»($x, $y) returns Num is equiv(&*infix:<*>) { ... }
+    multi sub *infix:<+|>(Int $x, Int $y) returns Int is equiv(&*infix:<+>) { ... }
+    multi sub *infix:<+^>(Int $x, Int $y) returns Int is equiv(&*infix:<+>) { ... }
+    multi sub *infix:<+&>(Int $x, Int $y) returns Int is equiv(&*infix:<*>) { ... }
+    multi sub *infix:«+<»(Int $x, Int $y) returns Int is equiv(&*infix:<*>) { ... }
+    multi sub *infix:«+>»(Int $x, Int $y) returns Int is equiv(&*infix:<*>) { ... }
 
     # unary ops
-    multi sub prefix:<+>($x) returns Num is tighter(&*infix:<*>) { ... }
-    multi sub prefix:<->($x) returns Num is equiv(&*prefix:<+>) { ... }
-    multi sub prefix:<+^>($x) returns Num is equiv(&*prefix:<+>) { ... }
+    multi sub *prefix:<+> (Num $x) returns Num is tighter(&*infix:<*>) { ... }
+    multi sub *prefix:<-> (Num $x) returns Num is equiv(&*prefix:<+>) { ... }
+    multi sub *prefix:<+^>(Int $x) returns Int is equiv(&*prefix:<+>) { ... }
 
     # exponentiation
-    multi sub *infix:<**>($x, $y) returns Num is tighter(&*prefix:<+>) { ... }
+    multi sub *infix:<**>(Num $x, Num $y) returns Num is tighter(&*prefix:<+>) { ... }
     
 =head2 String operators
 
     # concatenation
-    multi sub *infix:<~>($s1, $s2) returns Str is equiv(&*infix:<+>) { ... }
+    multi sub *infix:<~>(Str $s1, Str $s2) returns Str is equiv(&*infix:<+>) { ... }
 
     # bitwise or, xor, and, shifts
-    multi sub *infix:<~|>($x, $y) returns Str is equiv(&*infix:<+>) { ... }
-    multi sub *infix:<~^>($x, $y) returns Str is equiv(&*infix:<+>) { ... }
-    multi sub *infix:<~&>($x, $y) returns Str is equiv(&*infix:<*>) { ... }
-    multi sub *infix:«~<<»($x, $y) returns Str is equiv(&*infix:<*>) { ... }
-    multi sub *infix:«~>>»($x, $y) returns Str is equiv(&*infix:<*>) { ... }
+    multi sub *infix:<~|>(Str $x, Str $y) returns Str is equiv(&*infix:<+>) { ... }
+    multi sub *infix:<~^>(Str $x, Str $y) returns Str is equiv(&*infix:<+>) { ... }
+    multi sub *infix:<~&>(Str $x, Str $y) returns Str is equiv(&*infix:<*>) { ... }
+    multi sub *infix:«~<»(Str $x, Str $y) returns Str is equiv(&*infix:<*>) { ... }
+    multi sub *infix:«~>»(Str $x, STr $y) returns Str is equiv(&*infix:<*>) { ... }
 
     # unary ops
-    multi sub prefix:<~>($x) returns Str is equiv(&*prefix:<+>) { ... }
-    multi sub prefix:<~^>($x) returns Str is equiv(&*prefix:<+>) { ... }
+    multi sub prefix:<~> (Str $x) returns Str is equiv(&*prefix:<+>) { ... }
+    multi sub prefix:<~^>(Str $x) returns Str is equiv(&*prefix:<+>) { ... }
 
 =head2 Boolean operators
 
     # boolean or, xor, and, shifts
-    multi sub *infix:<?|>($x, $y) returns Str is equiv(&*infix:<+>) { ... }
-    multi sub *infix:<?^>($x, $y) returns Str is equiv(&*infix:<+>) { ... }
-    multi sub *infix:<?&>($x, $y) returns Str is equiv(&*infix:<*>) { ... }
+    multi sub *infix:<?|>(Bool $x, Bool $y) returns bit is equiv(&*infix:<+>) { ... }
+    multi sub *infix:<?^>(Bool $x, Bool $y) returns bit is equiv(&*infix:<+>) { ... }
+    multi sub *infix:<?&>(Bool $x, Bool $y) returns bit is equiv(&*infix:<*>) { ... }
 
     # unary ops
     # XXX: since C<!> is equivalent to C<?^> (see S03), should it be 
     # a macro or alias of some sort?
-    multi sub prefix:<?>($x) returns Bool is equiv(&*prefix:<+>) { ... }
-    multi sub prefix:<?^>($x) returns Bool is equiv(&*prefix:<+>) { ... }
-    multi sub prefix:<!>($x) return Bool is equiv(&*prefix:<+>) { ... }
+    multi sub prefix:<?> ($x) returns bit is equiv(&*prefix:<+>) { ... }
+    multi sub prefix:<?^>($x) returns bit is equiv(&*prefix:<+>) { ... }
+    multi sub prefix:<!> ($x) returns bit is equiv(&*prefix:<+>) { ... }
 
 =head2 Relational operators
 
-    multi sub infix:<==>($x, $y) returns bit is looser(&*infix:<..>) 
+    multi sub infix:<==>(Num $x, Num $y) returns bit is looser(&*infix:<..>) 
         is assoc('chain') { ... }
-    multi sub infix:<!=>($x, $y) returns bit is equiv(&*infix:<==>) { ... }
-    multi sub infix:«<»($x, $y) returns bit is equiv(&*infix:<==>) { ... }
-    multi sub infix:«<=»($x, $y) returns bit is equiv(&*infix:<==>) { ... }
-    multi sub infix:«>»($x, $y) returns bit is equiv(&*infix:<==>) { ... }
-    multi sub infix:«>=»($x, $y) returns bit is equiv(&*infix:<==>) { ... }
+    multi sub infix:<!=>(Num $x, Num $y) returns bit is equiv(&*infix:<==>) { ... }
+    multi sub infix:«<» (Num $x, Num $y) returns bit is equiv(&*infix:<==>) { ... }
+    multi sub infix:«<=»(Num $x, Num $y) returns bit is equiv(&*infix:<==>) { ... }
+    multi sub infix:«>» (Num $x, Num $y) returns bit is equiv(&*infix:<==>) { ... }
+    multi sub infix:«>=»(Num $x, Num $y) returns bit is equiv(&*infix:<==>) { ... }
 
-    multi sub infix:<eq>($x, $y) returns bit is equiv(&*$infix:<==>) { ... }
-    multi sub infix:<ne>($x, $y) returns bit is equiv(&*$infix:<==>) { ... }
-    multi sub infix:<lt>($x, $y) returns bit is equiv(&*$infix:<==>) { ... }
-    multi sub infix:<le>($x, $y) returns bit is equiv(&*$infix:<==>) { ... }
-    multi sub infix:<gt>($x, $y) returns bit is equiv(&*$infix:<==>) { ... }
-    multi sub infix:<ge>($x, $y) returns bit is equiv(&*$infix:<==>) { ... }
+    multi sub infix:<eq>(Str $x, Str $y) returns bit is equiv(&*$infix:<==>) { ... }
+    multi sub infix:<ne>(Str $x, Str $y) returns bit is equiv(&*$infix:<==>) { ... }
+    multi sub infix:<lt>(Str $x, Str $y) returns bit is equiv(&*$infix:<==>) { ... }
+    multi sub infix:<le>(Str $x, Str $y) returns bit is equiv(&*$infix:<==>) { ... }
+    multi sub infix:<gt>(Str $x, Str $y) returns bit is equiv(&*$infix:<==>) { ... }
+    multi sub infix:<ge>(Str $x, Str $y) returns bit is equiv(&*$infix:<==>) { ... }
 
     multi sub infix:<=:=>($x, $y) returns bit is equiv(&*$infix:<==>) { ... }
     
 =head2 Logical operators
 
-    multi sub infix:<&&>($x, $y) returns Scalar is looser(&*infix:<==>) { ... }
-    multi sub infix:<||>($x, $y) returns Scalar is looser(&*infix:<&&>) { ... }
-    multi sub infix:<^^>($x, $y) returns Scalar is equiv(&*infix:<||>) { ... }
-    multi sub infix:<//>($x, $y) returns Scalar is equiv(&*infix:<||>) { ... }
+    multi sub infix:<&&>(Bool $x, Bool $y) returns Scalar is looser(&*infix:<==>) { ... }
+    multi sub infix:<||>(Bool $x, Bool $y) returns Scalar is looser(&*infix:<&&>) { ... }
+    multi sub infix:<^^>(Bool $x, Bool $y) returns Scalar is equiv(&*infix:<||>) { ... }
+    multi sub infix:<//>(     $x,      $y) returns Scalar is equiv(&*infix:<||>) { ... }
 
-    multi sub infix:<and>($x, $y) returns Scalar is looser(&*infix:«==>») 
+    multi sub infix:<and>(Bool $x, Bool $y) returns Scalar is looser(&*infix:«==>») 
         { ... }
-    multi sub infix:<or>($x, $y) returns Scalar is looser(&*infix:<and>) 
+    multi sub infix:<or> (Bool $x, Bool $y) returns Scalar is looser(&*infix:<and>) 
         { ... }
-    multi sub infix:<xor>($x, $y) returns Scalar is equiv(&*infix:<or>) 
+    multi sub infix:<xor>(Bool $x, Bool $y) returns Scalar is equiv(&*infix:<or>) 
         { ... }
-    multi sub infix:<err>($x, $y) returns Scalar is equiv(&*infix:<or>) 
+    multi sub infix:<err>(     $x,      $y) returns Scalar is equiv(&*infix:<or>) 
         { ... }
 
 =head2 Ternary operator
@@ -120,16 +120,19 @@ I'm not at all ready to tackle this one just yet.  :-)
 
 =head2 List operators
 
-    multi sub infix:<x>($x, $y) returns Str is equiv(&*infix:<*>) { ... }
+    multi sub infix:<x> ($x, $y) returns Str  is equiv(&*infix:<*>) { ... }
     multi sub infix:<xx>(@x, $y) returns List is equiv(&*infix:<*>) { ... }
 
-    multi sub infix:<..>(Int $min, Int $max: Int ?$by = 1) returns List
+    multi sub infix:<..>  (Int $min, Int $max: Int ?$by = 1) returns List
         is tighter(&*infix:<==>) is assoc('non') { ... }
-    multi sub infix:<^..>(Int $min, Int $max: Int ?$by = 1) returns List
+    multi sub infix:<^..> (Int $min, Int $max: Int ?$by = 1) returns List
         is equiv(&*infix:<..>) { ... }
-    multi sub infix:<..^>(Int $min, Int $max: Int ?$by = 1) returns List
+    multi sub infix:<..^> (Int $min, Int $max: Int ?$by = 1) returns List
         is equiv(&*infix:<..>) { ... }
     multi sub infix:<^..^>(Int $min, Int $max: Int ?$by = 1) returns List
+        is equiv(&*infix:<..>) { ... }
+    
+    multi sub postfix:<...>(Int $min: Int ?$by = 1) return List 
         is equiv(&*infix:<..>) { ... }
 
 =head1 BUILT-IN FUNCTIONS
@@ -141,18 +144,23 @@ something as a multi sub versus a class/object method?
 
     multi sub *zip(*@args) returns List { ... }
 
+=head2 Array functions
+
+    multi sub *keys(@array) returns List { ... }
+    multi sub *kv  (@array) returns List { ... }
+
 =head2 Hash functions
 
-    multi sub *keys(%x) returns List { ... }
+    multi sub *keys  (%x) returns List { ... }
     multi sub *values(%x) returns List { ... }
-    multi sub *kv(%x) returns List { ... }
+    multi sub *kv    (%x) returns List { ... }
 
 =head2 Junction functions
 
     # XXX: should these be Disjunction, Conjunction, etc...?
-    multi sub *any(*@elem) returns Junction { ... }
-    multi sub *all(*@elem) returns Junction { ... }
-    multi sub *one(*@elem) returns Junction { ... }
+    multi sub *any (*@elem) returns Junction { ... }
+    multi sub *all (*@elem) returns Junction { ... }
+    multi sub *one (*@elem) returns Junction { ... }
     multi sub *none(*@elem) returns Junction { ... }
 
 =head1 BUILT-IN CLASSES (and methods as appropriate)
@@ -163,5 +171,4 @@ XXX: Should we go ahead and define these here...?
 
     our bit enum *bool <false true>;
     our bit enum *taint <untainted tainted>;
-
 
