@@ -379,16 +379,8 @@ ruleExpression = (<?> "expression") $ do
     exp <- parseOp
     f <- option id $ choice
         [ rulePostConditional
-        -- , rulePostTernary
         ]
     return $ f exp
-
-rulePostTernary = rule "ternary conditional" $ do
-    symbol "??"
-    body <- ruleExpression
-    symbol "::"
-    bodyElse <- ruleExpression
-    return $ \x -> Syn "if" [x, body, bodyElse]
 
 rulePostConditional = rule "postfix conditional" $ do
     cond <- tryChoice $ map symbol ["if", "unless", "while", "until"]
@@ -473,7 +465,7 @@ tightOperators = do
                " eq ne lt le gt ge =:= "                -- Chained Binary
     , leftOps  " && !! "                                -- Tight And
     , leftOps  " || ^^ // "                             -- Tight Or
-    , ternOps  [("??", "::")]                           -- Ternary
+    , [ternOp "??" "::" "if"]                           -- Ternary
     , rightSyn " = := ::= ~= += -= *= /= x= Y= ¥= **= xx= ||= &&= //= "-- Assignment
     ]
 
@@ -824,14 +816,11 @@ op_methodPostfix    = []
 op_namedUnary       = []
 methOps _ = []
 
-ternOps = map ternOp
-ternOp (pre, post) = Infix middle AssocRight
-    where
-    middle = do
-        symbol pre
-        y <- parseTightOp
-        symbol post
-        return $ \x z -> Syn "if" [x, y, z]
+ternOp pre post syn = (`Infix` AssocRight) $ do
+    symbol pre
+    y <- parseTightOp
+    symbol post
+    return $ \x z -> Syn syn [x, y, z]
 
 runRule :: Env -> (Env -> a) -> RuleParser Env -> FilePath -> String -> a
 runRule env f p name str = f $ case ( runParser p env name str ) of
