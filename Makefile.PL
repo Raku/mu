@@ -6,6 +6,16 @@ use File::Spec;
 use Config;
 use inc::Module::Install;
 
+BEGIN {
+    if ($^O eq 'cygwin') {
+	die << "."
+** Cygwin currently unsupported on Win32; please use ActivePerl or MinGW Perl
+   instead, with the .msi installer of GHC.
+.
+    }
+}
+	
+
 chdir $FindBin::Bin;
 
 my $pugs = "pugs$Config{_exe}";
