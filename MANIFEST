@@ -44,6 +44,7 @@ src/Rule/Char.hs
 src/Rule/Combinator.hs
 src/Rule/Error.hs
 src/Rule/Expr.hs
+src/Rule/LICENSE
 src/Rule/Language.hs
 src/Rule/Perm.hs
 src/Rule/Pos.hs
