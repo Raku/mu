@@ -3,6 +3,8 @@
 use v6;
 require Test;
 
+plan 26;
+
 # test all variants of join() 
 
 todo_is(["a", "b", "c"].join("|"), "a|b|c", '[].join("|") works');

@@ -1,55 +1,51 @@
+#!/usr/bin/pugs
+
 use v6;
+require Test;
 
-=pod
-
-Number stringification
-
-=cut
-
-say "1..15";
-
+plan 15;
 
 my $a = 1; "$a";
-if ($a eq "1") { say "ok 1"; } else { say "not ok 1"; }
+is($a, "1", '1 stringification works');
 
 my $a = -1; "$a";
-if ($a eq "-1") { say "ok 2"; } else { say "not ok 2"; }
+is($a, "-1", '-1 stringification works');
 
 my $a = 1.; "$a";
-if ($a eq "1") { say "ok 3"; } else { say "not ok 3"; }
+is($a, "1", '1. stringification works');
 
 my $a = -1.; "$a";
-if ($a eq "-1") { say "ok 4"; } else { say "not ok 4"; }
+is($a, "-1", '-1 stringification works');
 
 my $a = 0.1; "$a";
-if ($a eq "0.1") { say "ok 5"; } else { say "not ok 5"; }
+is($a, "0.1", '0.1 stringification works');
 
 my $a = -0.1; "$a";
-if ($a eq "-0.1") { say "ok 6"; } else { say "not ok 6"; }
+is($a, "-0.1", '-0.1 stringification works');
 
 my $a = 10.01; "$a";
-if ($a eq "10.01") { say "ok 7"; } else { say "not ok 7"; }
+is($a, "10.01", '10.01 stringification works');
 
 my $a = 1e3; "$a";
-if ($a eq "1000") { say "ok 8"; } else { say "not ok 8"; }
+is($a, "1000", '1e3 stringification works');
 
 my $a = 10.01e3; "$a";
-if ($a eq "10010" ) { say "ok 9"; } else { say "not ok 9"; }
+is($a, "10010", '10.01e3 stringification works');
 
 my $a = 0b100; "$a";
-if ($a eq "4") { say "ok 10"; } else { say "not ok 10"; }
+is($a, "4", '0b100 (binary) stringification works');
 
 my $a = 0x100; "$a";
-if ($a eq "256") { say "ok 11"; } else { say "not ok 11"; }
+is($a, "256", '0x100 (hex) stringification works');
 
 my $a = 1; "$a"; 
-if ($a + 1 == 2  ) { say "ok 12"; } else { say "not ok 12"; }
+ok($a + 1 == 2, 'basic addition works');
 
 my $a = -1; "$a";
-if ($a + 1 == 0) { say "ok 13"; } else { say "not ok 13"; }
+ok($a + 1 == 0, 'basic addition with negative numbers works');
 
 my $a = 80000.0000000000000000000000000;
-if ($a == 80000.0 ) { say "ok 14"; } else { say "not ok 14"; }
+ok($a == 80000.0, 'trailing zeros compare correctly');
 
 my $a = 1.0000000000000000000000000000000000000000000000000000000000000000000e1;
-if ($a == 10.0) { say "ok 15"; } else { say "not ok 15"; }
+ok($a == 10.0, 'trailing zeros compare correctly');
