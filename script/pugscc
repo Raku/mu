@@ -44,7 +44,7 @@ print "*** Using the '$backend' backend.\n" if !$run;
 my $ghc_exe = $ENV{GHC} || 'ghc';
 my $ghc_version = ghc_version();
 my $base = cwd();
-if (!-e "src/Main.hs") {
+if ($backend != 'Parrot' and !-e "src/Main.hs") {
     $base = "$FindBin::Bin/..";
     if (!-e "$base/src/Main.hs") {
 	die "$0: This script must be invoked in the Pugs source tree directory."
