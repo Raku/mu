@@ -520,6 +520,14 @@ reduce _ (App "&goto" (subExp:invs) args) = do
            , envLValue = envLValue caller
            }
 
+-- XXX absolutely evil bloody hack for "assuming"
+reduce _ (App "&assuming" (subExp:invs) args) = do
+    vsub <- enterEvalContext "Code" subExp
+    sub <- fromVal vsub
+    case bindSomeParams sub invs args of
+        Left errMsg      -> retError errMsg (Val VUndef)
+        Right curriedSub -> retVal $ castV $ curriedSub
+        
 
 reduce Env{ envClasses = cls, envContext = cxt, envLexical = lex, envGlobal = glob } exp@(App name invs args) = do
     syms    <- liftIO $ readIORef glob
