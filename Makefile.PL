@@ -88,6 +88,9 @@ optimized :: src/Config.hs @srcfiles $version_h @prereqs
 $pugs : src/Config.hs @srcfiles $version_h @prereqs
 	$ghc --make $ghc_flags $ghc_output
 
+ghci ::
+	$ghc --interactive $ghc_flags $ghc_output
+
 tags :
 	hasktags -c src
 
