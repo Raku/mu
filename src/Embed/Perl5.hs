@@ -14,7 +14,7 @@ initPerl5 _ = return ()
 evalPerl5 :: String -> IO ()
 evalPerl5 _ = return ()
 
-freePerl5 :: String -> IO ()
+freePerl5 :: PerlInterpreter -> IO ()
 freePerl5 _ = return ()
 
 #else
