@@ -36,67 +36,63 @@ method new( $class: ) returns Algorithm::Dependency::Source {
 }
 
 # Load the source
-method load( $self: ) returns Bool {
-	my $class = ref $self;
-
+method load () returns Bool {
 	# If this is a reload, clean up in preperation
-	if ( $self.loaded ) {
-		$self.loaded = 0;
-		$self.items_hash = undef;
-		$self.items_array = undef;
+	if ( $.loaded ) {
+		$.loaded = 0;
+		$.items_hash = undef;
+		$.items_array = undef;
 	}
 
 	# Pass through to the real loader
-	my @items = $self._load_item_list();
+	my @items = ._load_item_list();
 	@items or return @items;
 
 	# Add the items
 	for @items -> $item {
 		unless $item.meta.isa(Algorithm::Dependency::Item) {
-			die "$class\::_load_item_list() returned something that was not an Algorithm::Dependency::Item";
+			die "{ &._load_item_list.name } returned something that was not an Algorithm::Dependency::Item";
 		}
 
 		# Have we added this one already?
-		my $id = $item.id();
-		if ( $self.items_hash{$id} ) {
+		my $id := $item.id();
+		if ( $.items_hash{$id} ) {
 			# Duplicate entry
 			return;
 		}
 
 		# Add it
-		$self.items_array.push( $item );
-		$self.items_hash{$id} = $item;
+		$.items_array.push( $item );
+		$.items_hash{$id} = $item;
 	}
 
-	return $self.loaded = 1;
+	return ($.loaded = 1);
 }
 
 # See if loaded
-method loaded( $self: ) returns Bool {
-	return $self.loaded;
-}
+method loaded () returns Bool { $.loaded }
 
 # Get a single item by id
-method item( $self: $id ) returns Algorithm::Dependency::Item {
-	$self.loaded or $self.load() or return;
+method item ( $id ) returns Algorithm::Dependency::Item {
+	$.loaded or $.load() or return;
 
 	# Return the item ( or undef )
-	return $self.items_hash{$id};
+	return $.items_hash{$id};
 }
 
 # Get a list of the items
-method items( $self: ) returns Array of Algorithm::Dependency::Item {
-	$self.loaded or $self.load() or return;
-	return @{ $self.items_array };
+method items () returns Array of Algorithm::Dependency::Item {
+	$.loaded or $.load() or return;
+	return @.items_array;
 }
 
 # Check the integrity of the source.
-method missing_dependencies( $self: ) returns Array {
-	$self.loaded or $self.load() or return;
+method missing_dependencies () returns Array {
+	$.loaded or $.load() or return;
 	
 	# Merged the depends of all the items, and see if
 	# any are missing.
-	my %missing = $self.items.map:{ $_.depends() }.grep:{ ! $self.item($_) }.map:{ $_ => 1 };
+	my %missing = $.items.map:{ $^i.depends() }.grep:{ ! $.item($^x) }.map:{ $_ => 1 };
 	return %missing ?? %missing.keys.sort :: 0;
 }
 
@@ -107,7 +103,7 @@ method missing_dependencies( $self: ) returns Array {
 #####################################################################
 # Catch methods our subclass should define but didn't
 
-method :_load_item_list( $self: ) { die "Class $self failed to define the method _load_item_list" };
+method :_load_item_list () { die "Class $?CLASS failed to define the method _load_item_list" };
 
 1;
 

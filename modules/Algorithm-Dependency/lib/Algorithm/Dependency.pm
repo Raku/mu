@@ -60,16 +60,16 @@ method new( $class: +$source is Algorithm::Dependency::Source, +$ignore_orphans 
 # Basic methods
 
 # Get the Source object
-method source( $self: ) returns Algorithm::Dependency::Source { return $self.source }
+method source() returns Algorithm::Dependency::Source { $.source }
 
 # Get the list of all selected items
-method selected_list( $self: ) returns Array { return $self.selected.keys.sort }
+method selected_list() returns Array { $.selected.keys.sort }
 
 # Is a particular item selected
-method selected( $self: $id ) returns Bool { return $self.selected{$id} }
+method selected( $id ) returns Bool { $.selected{$id} }
 
 # Shortcut to the source to get a particular item
-method item( $self: $id ) returns Algorithm::Dependency::Item { return $self.source.item( $id ) }
+method item( $id ) returns Algorithm::Dependency::Item { $.source.item( $id ) }
 
 
 
@@ -83,7 +83,7 @@ method item( $self: $id ) returns Algorithm::Dependency::Item { return $self.sou
 # items that are already selected. Do as efficiently as possible, as the
 # source database could get quite large. We return in alphabetic order,
 # for consistency.
-method depends( $self: @stack ) returns Array {
+method depends( @stack ) returns Array {
 	@stack or return;
 
 	# Prepare
@@ -93,8 +93,8 @@ method depends( $self: @stack ) returns Array {
 	# Process the stack
 	while ( my $id = @stack.shift() ) {
 		# Does the id exist?
-		my $item = $self.source.item($id) or 
-			$self.ignore_orphans ?? next :: return;
+		my $item = $.source.item($id) or 
+			$.ignore_orphans ?? next :: return;
 
 		# Skip if selected or checked
 		$checked{$id} and next;
@@ -111,8 +111,7 @@ method depends( $self: @stack ) returns Array {
 	}
 
 	# Remove any items already selected
-	my $s = $self.selected;
-	return @depends.grep:{ ! $s{$_} }.sort;
+	return @depends.grep:{ ! $.selected{$_} }.sort;
 }
 
 # For one or more items, create a schedule of all items, including the
@@ -120,22 +119,21 @@ method depends( $self: @stack ) returns Array {
 # the original set. i.e. All the modules we would need to install, including
 # all dependencies. Note that for this class, the order is not important,
 # so we return in alphabetic order for consistentcy.
-method schedule( $self: @items ) returns Array {
+method schedule( @items ) returns Array {
 	@items or return;
 
 	# Get their dependencies
-	my @depends = $self.depends( @items ) or return;
+	my @depends = $.depends( @items ) or return;
 
 	# Now return a combined list, removing any items already selected.
 	# We are allowed to return an empty list.
-	my $s = $self.selected;
-	return (@items, @depends).grep:{ ! $s{$_} }.sort;
+	return (@items, @depends).grep:{ ! $.selected{$_} }.sort;
 }
 
 # As above, but don't pass what we want to schedule as a list, just do the
 # schedule for everything.
-method schedule_all( $self: ) {
-	return $self.schedule( $self.source.items.map:{ $_.id() } );
+method schedule_all () {
+	$.schedule( $.source.items.map:{ .id() } );
 }
 
 1;
