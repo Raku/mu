@@ -8,7 +8,7 @@ require Test;
 Control block tests
 
 Most tests are still TODO. 
-These are based on synopsis 4
+These are based on L<S04/"Closure traits">
 
 =cut
 
@@ -35,7 +35,7 @@ plan 20;
 
 my $var = 1;
 # defined in BEGIN
-my $bvar = 1; # FIXME: this parses as a sub: BEGIN { 3 };
+my $bvar = 1; # FIXME: this parses as a sub: my $bvar = BEGIN { 3 };
 my $var_at_begin;
 my $bvar_at_begin;
 # defined in CHECK
@@ -64,10 +64,14 @@ my $var_at_end;
 	$cvar_at_begin = $cvar;
 };
 
+# L<S04/"Closure traits" /BEGIN/>
 todo_is($var_at_begin, undef, '{ $var = 1 } not yet assigned when BEGIN block run');
+# L<S04/"Closure traits" /can also be used within an expression/>
 ok($bvar_at_begin, 'but { $bvar = BEGIN { 1 } } was');
+# L<S04/"Closure traits" /CHECK/>
 todo_is($cvar_at_begin, undef, 'CHECK var not defined at BEGIN time');
 
+# L<S04/"Closure traits" /INIT/>
 todo_ok($ivar, "INIT var defined at begining of runtime");
 is($var_at_init, undef, 'INIT block ran before { $var = 1 }');
 
@@ -78,6 +82,7 @@ is($var_at_init, undef, 'INIT block ran before { $var = 1 }');
 };
 
 END {
+	# L<S04/"Closure traits" /END/>
 	ok($evar,  "END var was defined");
 	ok($var_at_end, 'and also saw $var');
 };
@@ -87,6 +92,7 @@ END {
 	$var_at_end = $var;
 };
 
+# L<S04/"Closure traits" /END/>
 is($evar, undef, "END var was not defined yet");
 is($var_at_end, undef, '$var was not yet seen by END');
 
@@ -94,7 +100,7 @@ is($var_at_end, undef, '$var was not yet seen by END');
 my (@first, @enter, @leave, @last, @next) = ();
 
 for (1 .. 3) -> $i {
-	# FIXME: these don't parse yet
+	# FIXME: these don't parse yet 
 	#LAST  { push @last, $i }
 	#LEAVE { push @leve, [ $i, +@enter ] }
 	#ENTER { push @enter, [ $i, +@leave ] }
@@ -103,13 +109,18 @@ for (1 .. 3) -> $i {
 	#next if $i % 2 == 1;
 }
 
+# L<S04/"Closure traits" /FIRST/>
 todo_is(+@first, 1, "FIRST ran once");
 todo_is(@first[0], 1, "only on 1");
 
+# L<S04/"Closure traits" /LAST/>
 todo_is(+@last, 1, "LAST ran once");
 todo_is(@last[0], 1, "only on 3");
 
+# L<S04/"Closure traits" /ENTER/>
 todo_is(+@enter, 3, "ENTER ran thrice");
+
+# L<S04/"Closure traits" /LEAVE/>
 todo_is(+@leave, 3, "ENTER ran thrice");
 
 todo_is(@enter[0][1], 0, "enter and leave are in proper order");
@@ -117,5 +128,6 @@ todo_is(@enter[2][1], 2, "...");
 todo_is(@leave[0][1], 1, "...");
 todo_is(@leave[2][1], 3, "...");
 
+# L<S04/"Closure traits" /NEXT/>
 todo_is(+@next, 2, "NEXT ran twice, for each odd number in loop");
 
