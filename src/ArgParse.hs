@@ -18,12 +18,12 @@ where
 import Internals
 
 canonicalArgs :: [String] -> [String]
-canonicalArgs(x) = joinDashE (_proc x)
+canonicalArgs x = joinDashE (_proc x)
 
 -- clean up later
-_sort(x) = sortArgs $ unpackOptions x
-_proc(x) = procArg (concat (_sort x))
-    
+_sort x = sortArgs $ unpackOptions x
+_proc x = procArg (concat (_sort x))
+
 procArg :: [String] -> [String]
 procArg("-I":dir:rest)      = ["-I",dir]                             ++ procArg(rest)
 procArg("-V":option:rest)   = ["-V",option]                          ++ procArg(rest)
@@ -33,31 +33,28 @@ procArg("-l":rest)          = ["-e", "# BEGIN { ... } # to be done"] ++ procArg(
 procArg("-w":rest)          = ["-w"]                                 ++ procArg(rest)
 procArg("-e":fragment:rest) = ["-e",fragment]                        ++ procArg(rest)
 procArg(xs)                 = xs  -- this must be either the filename or @ARGS
+
 unpackOptions :: [String] -> [String]
-unpackOptions xs = concatMap unpackOption xs
+unpackOptions [] = []
+unpackOptions ("--":opts) = opts
+unpackOptions (('-':opt):rest) = unpackOption opt ++ unpackOptions rest
+unpackOptions (filename:rest) = filename : unpackOptions rest
 
 unpackOption :: String -> [String]
-unpackOption('-':'c':[])      = ["-c"]
-unpackOption('-':'d':[])      = ["-d"]
-unpackOption('-':'e':[])      = ["-e"]
-unpackOption('-':'h':[])      = ["-h"] -- which direction ?
-unpackOption("--help")        = ["-h"] -- verbose -> short ?
-unpackOption('-':'l':[])      = ["-l"]
-unpackOption('-':'v':[])      = ["-v"]
-unpackOption("--version")     = ["-v"]
-unpackOption('-':'w':[])      = ["-w"]
+unpackOption "" = [] -- base case for composing
+unpackOption opt
+    | Just short <- lookup ('-':opt) longOptions = [short]
+    | head opt `elem` composable = ('-':head opt:[]) : unpackOption (tail opt)
+    | Just (pref, arg) <- msum $ map (findArg opt) withParam = ['-':pref, arg]
+    | otherwise = ['-':opt]
 
--- uncluster clustering options
-unpackOption('-':'c':rest)    = unpackOption("-c") ++ unpackOption('-':rest)
-unpackOption('-':'d':rest)    = unpackOption("-d") ++ unpackOption('-':rest)
-unpackOption('-':'e':frag)    = ["-e",frag]
-unpackOption('-':'l':rest)    = unpackOption("-l") ++ unpackOption('-':rest)
-unpackOption('-':'w':rest)    = unpackOption("-w") ++ unpackOption('-':rest)
-unpackOption('-':'C':backend) = ["-C",backend]
-unpackOption('-':'I':[])      = ["-I"]
-unpackOption('-':'I':dir)     = ["-I",dir]
-unpackOption('-':'V':':':xs)  = ["-V",xs]
-unpackOption(a)               = [a]
+longOptions = [("--help", "-h"), ("--version", "-v")]
+composable = "cdlw"
+withParam = ["e", "C", "I", "V:"]
+findArg :: String -> String -> Maybe (String, String)
+findArg arg prefix = do
+    param <- afterPrefix prefix arg
+    return (prefix, param)
 
 {-
 

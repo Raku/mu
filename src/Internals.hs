@@ -53,6 +53,7 @@ module Internals (
     internalError,
     split,
     breakOnGlue,
+    afterPrefix,
     decodeUTF8,
     encodeUTF8,
 ) where
