@@ -11,12 +11,20 @@ sub plan (Int $number_of_tests) returns Int is export {
     return $number_of_tests;
 }
 
-sub ok (Bool $cond, Str ?$desc) returns Bool is export {
-    my $ok  := $cond ?? "ok " :: "not ok ";
+sub proclaim (Bool $cond, Str ?$desc, Str ?$context) returns Bool {
+    my $ok := $cond ?? "ok " :: "not ok ";
+	
     my $out := defined($desc) ?? (" - " ~ $desc) :: "";
+    my $context_out := defined($context) ?? ( " # " ~ $context) :: "";
+    
     $loop++;
-    say $ok, $loop, $out;
-    if ($ok ne "ok ") {
+    say $ok, $loop, $out, $context_out;
+    return $cond;
+}
+
+sub ok (Bool $cond, Str ?$desc) returns Bool is export {
+    proclaim($cond, $desc);
+    if (!$cond) {
         $*ERR.say("#     Failed test (", $?CALLER::POSITION, ")");
         $failed++;
     }
@@ -24,68 +32,54 @@ sub ok (Bool $cond, Str ?$desc) returns Bool is export {
 }
 
 sub is (Str $got, Str $expected, Str ?$desc) returns Bool is export {
-    my $ok  := ($got eq $expected) ?? "ok " :: "not ok ";
-    my $out := defined($desc) ?? (" - " ~ $desc) :: "";
-    $loop++;
-    say $ok, $loop, $out;
-    if ($ok ne "ok ") {
+    my $test := $got eq $expected; 
+    proclaim($test, $desc);
+    if (!$test) {
         $*ERR.say("#     Failed test (", $?CALLER::POSITION, ")");
         $*ERR.say("#          got: '", $got, "'");
         $*ERR.say("#     expected: '", $expected, "'");
         $failed++;
     }
-    return ($ok eq "ok ");
+    return $test;
 }
 
 sub todo_ok (Bool $cond, Str ?$desc) returns Bool is export {
-    my $ok  := $cond ?? "ok " :: "not ok ";
-    my $out := defined($desc) ?? (" - " ~ $desc) :: "";
-    $loop++;
-    say $ok, $loop, $out, " # TODO";
-    if ($ok ne "ok ") {
+    proclaim($cond, $desc, "TODO");
+    if (!$cond) {
         say("#     Failed (TODO) test (", $?CALLER::POSITION, ")");
     }
     return $cond;
 }
 
 sub todo_is (Str $got, Str $expected, Str ?$desc) returns Bool is export {
-    my $ok  := ($got eq $expected) ?? "ok " :: "not ok ";
-    my $out := defined($desc) ?? (" - " ~ $desc) :: "";
-    $loop++;
-    say $ok, $loop, $out, " # TODO";
-    if ($ok ne "ok ") {
+    my $test = $got eq $expected;
+    proclaim($test, $desc, "TODO");
+    if (!$test) {
         say("#     Failed (TODO) test (", $?CALLER::POSITION, ")");
         say("#          got: '", $got, "'");
         say("#     expected: '", $expected, "'");
     }
-    return ($ok eq "ok ");
+    return $test;
 }
 
 sub skip (Str ?$reason) returns Bool is export {
-    my $out := defined($reason) ?? ( " - " ~ $reason) :: "";
-    $loop++;
-    say "ok ", $loop, " # skip", $out;
+    proclaim(1, "", 'skip ' ~ $reason);
     return 1;
 }
 
 sub pass (Str ?$desc) returns Bool is export {
-    my $out := defined($desc) ?? (" - " ~ $desc) :: "";
-    $loop++;
-    say "ok ", $loop, $out;
+    proclaim(1, $desc);
     return 1;
 }
 
 sub fail (Str ?$desc) returns Bool is export {
-    my $out := defined($desc) ?? (" - " ~ $desc) :: "";
-    $loop++;
-    say "not ok ", $loop, $out;
+    proclaim(0, $desc);
+    say("#     Failed test (", $?CALLER::POSITION, ")");
     return 0;
 }
 
 sub todo_fail (Str ?$desc) returns Bool is export {
-    my $out := defined($desc) ?? (" - " ~ $desc) :: "";
-    $loop++;
-    say "not ok ", $loop, $out, " # TODO";
+    proclaim(0, $desc, 'TODO');
     say("#     Failed (TODO) test (", $?CALLER::POSITION, ")");
     return 0;
 }
