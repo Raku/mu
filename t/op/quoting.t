@@ -3,96 +3,140 @@
 use v6;
 require Test;
 
-=kwid
+my $foo = "FOO";
+my $bar = "BAR";
 
-Quoting tests
+=todo
 
-These tests are derived from Synopsis 2 and 
-only cover the following quoting operators:
-
-  q//, q:1//, q:single//
-  qq//, q:2//, q:double//
-  qw//, q:w//, q:words//
+- q:t - heredocs
+- q:0, q:b, and other interpolation levels
+- meaningful quotations (qx, rx, etc)
+- review shell quoting semantics of «»
+- arrays in «»
+- interpolation of scalar, array, hash, function and closure syntaxes
+- q : a d verb s // parsing
+- q() does not work, since it's a subroutine call
 
 =cut
 
-plan 33;
 
-# some basic quote (non-interpolated)
+{ # non interpolating single quotes
+	my @q = ();
+	eval '@q = (q/$foo $bar/)';
+	todo_is(+@q, 1, 'q// is singular');
+	todo_is(@q[0], '$foo $bar', 'single quotes are non interpolating');
+};
 
-my @quote1a;
-eval '@quote1a = q/$foo $bar/';
-todo_is(+@quote1a, 2, 'q// returns the correct amount of elements');
-todo_is(@quote1a[0], '$foo', 'first element of q// is correct');
-todo_is(@quote1a[1], '$bar', 'second element of q// is correct');
+{ # and it's complement ;-)
+	my @q = ();
+	eval "\@q = '\$foo \$bar'";
+	is(+@q, 1, "'' is singular");
+	is(@q[0], '$foo $bar', 'and did not interpolate either');
+};
 
-# ... with the new quote operators
+{ # non interpolating single quotes with nested parens
+	my @q = ();
+	eval '@q = (q:(($foo $bar)))';
+	todo_is(+@q, 1, 'q:() is singular');
+	todo_is(@q[0], '($foo $bar)', 'and nests parens appropriately');
+};
 
-my @quote1b;
-eval '@quote1b = q:1/$foo $bar/';
-todo_is(+@quote1b, 2, 'q:1// returns the correct amount of elements');
-todo_is(@quote1b[0], '$foo', 'first element of q:1// is correct');
-todo_is(@quote1b[1], '$bar', 'second element of q:1// is correct');
+{ # q() is bad
+	my @q = ();
+	eval '@q = (q(($foo $bar)))';
+	is(+@q, 0, 'nothing in @q, q() is not allowed');
+};
 
-my @quote1c;
-eval '@quote1c = q:single/$foo $bar/';
-todo_is(+@quote1c, 2, 'q:single// returns the correct amount of elements');
-todo_is(@quote1c[0], '$foo', 'first element of q:single// is correct');
-todo_is(@quote1c[1], '$bar', 'second element of q:single// is correct');
+{ # adverb variation
+	my @q = ();
+	eval '@q = (q:1/$foo $bar/)';
+	todo_is(+@q, 1, "q:1// is singular");
+	todo_is(@q[0], '$foo $bar', "and again, non interpolating");
+};
 
-# some basic quote word stuff
 
-my @quote2a = qw/foo bar/;
-is(+@quote2a, 2, 'qw// returns the correct amount of elements');
-is(@quote2a[0], 'foo', 'first element of qw// is correct');
-is(@quote2a[1], 'bar', 'second element of qw// is correct');
+{ # interpolating quotes
+	my @q = ();
+	eval '@q = (qq/$foo $bar/)';
+	is(+@q, 1, 'qq// is singular');
+	is(@q[0], 'FOO BAR', 'variables were interpolated');
+};
 
-my @quote2b = qw/"foo" "bar"/;
-is(+@quote2b, 2, 'qw// returns the correct amount of elements');
-is(@quote2b[0], '"foo"', 'first element of qw// is correct');
-is(@quote2b[1], '"bar"', 'second element of qw// is correct');
+{ # "" variation
+	my @q = ();
+	eval '@q = ("$foo $bar")';
+	is(+@q, 1, '"" is singular"');
+	is(@q[0], "FOO BAR", '"" interpolates');
+};
 
-my @quote2c = qw/"foo, :bar"/;
-is(+@quote2c, 2, 'qw// returns the correct amount of elements');
-is(@quote2c[0], '"foo,', 'first element of qw// is correct');
-is(@quote2c[1], ':bar"', 'second element of qw// is correct');
+{ # adverb variation
+	my @q = ();
+	eval '@q = q:2/$foo $bar/';
+	todo_is(+@q, 1, "q:2// is singular");
+	todo_is(@q[0], "FOO BAR", "blah blah interp");
+};
 
-# ... with the new quote operators
 
-my @quote2d;
-eval '@quote2d = q:w/foo bar/';
-todo_is(+@quote2d, 2, 'q:w// returns the correct amount of elements');
-todo_is(@quote2d[0], 'foo', 'first element of q:w// is correct');
-todo_is(@quote2d[1], 'bar', 'second element of q:w// is correct');
+{ # quote with \0 as delimiters
+	my @q = ();
+	eval "\@q = (q\0foo bar\0)";
+	todo_is(+@q, 1, "single quote with \\0 delims are parsed ok");
+	todo_is(@q[0], "foo bar", "and return correct value");
+};
 
-my @quote2e;
-eval '@quote2e = q:words/foo bar/';
-todo_is(+@quote2e, 2, 'q:words// returns the correct amount of elements');
-todo_is(@quote2e[0], 'foo', 'first element of q:words// is correct');
-todo_is(@quote2e[1], 'bar', 'second element of q:words// is correct');
 
-# some basic quote (interpolated)
+{ # traditional quote word
+	my @q = ();
+	eval '@q = (qw/$foo $bar/)';
+	is(+@q, 2, "qw// is plural");
+	is(@q[0], '$foo', "and non interpolating");
+	is(@q[1], '$bar', "...");
+};
 
-my $foo = 'FOO';
-my $bar = 'BAR';
+{ # angle brackets
+	my @q = ();
+	eval '@q = <$foo $bar>';
+	is(+@q, 2, "<> behaves the same way");
+	is(@q[0], '$foo', 'for interpolation too');
+	is(@q[1], '$bar', '...');
+};
 
-my @quote3a;
-eval '@quote3a = qq/$foo $bar/';
-todo_is(+@quote3a, 2, 'qq// returns the correct amount of elements');
-todo_is(@quote3a[0], 'FOO', 'first element of qq// is correct');
-todo_is(@quote3a[1], 'BAR', 'second element of qq// is correct');
+{ # adverb variation
+	my @q = ();
+	eval '@q = (q:w/$foo $bar/)';
+	todo_is(+@q, 2, "q:w// is also identical");
+	todo_is(@q[0], '$foo', "...");
+	todo_is(@q[1], '$bar', "...");
+};
 
-# ... with the new quote operators
 
-my @quote3b;
-eval '@quote3b = q:2/$foo $bar/';
-todo_is(+@quote3b, 2, 'q:2// returns the correct amount of elements');
-todo_is(@quote3b[0], 'FOO', 'first element of q:2// is correct');
-todo_is(@quote3b[1], 'BAR', 'second element of q:2// is correct');
+{ # qw, interpolating
+	my (@q1, @q2, @q3) = ();
+	eval '@q1 = q:ww/$foo gorch $bar/';
+	eval '@q1 = «$foo gorch $bar»'; # french
+	eval '@q1 = <<$foo gorch $bar>>'; # texas
 
-my @quote3c;
-eval '@quote3c = q:double/$foo $bar/';
-todo_is(+@quote3c, 2, 'q:double// returns the correct amount of elements');
-todo_is(@quote3c[0], 'FOO', 'first element of q:double// is correct');
-todo_is(@quote3c[1], 'BAR', 'second element of q:double// is correct');
+	todo_is(+@q1, 3, 'q:ww// correct number of elements');
+	todo_is(+@q2, 3, 'french double angle');
+	todo_is(+@q3, 3, 'texas double angle');
 
+	todo_is(~@q1, "FOO gorch BAR", "explicit quote word interpolates");
+	is(~@q2, ~@q1, "output is the same as french,");
+	is(~@q3, ~@q1, "and texas quotes");
+};
+
+{ # qw, interpolating, shell quoting
+	my (@q1, @q2) = ();
+	my $gorch = "foo bar";
+
+	eval '@q1 = «$foo $gorch $bar»';
+	todo_is(+@q1, 4, "4 elements in unquoted «» list");
+	todo_is(@q1[2], "bar", '$gorch was exploded');
+	todo_is(@q1[3], "BAR", '$bar was interpolated');
+	
+	eval '@q2 = «$foo "$gorch" \'$bar\'»';
+	todo_is(+@q2, 3, "3 elementes in sub quoted «» list");
+	todo_is(@q2[1], $gorch, 'second element is both parts of $gorch, interpolated');
+	todo_is(@q2[2], '$bar', 'single quoted $bar was not interpolated');
+}
+	
