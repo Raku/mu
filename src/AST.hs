@@ -442,8 +442,10 @@ extract ((Statements stmts), vs) = (Statements stmts', vs')
     poss = map snd stmts
     (exps', vs') = foldr extractExp ([], vs) exps
     stmts' = exps' `zip` poss
-extract ((Syn n exps), vs) = (Syn n exps', vs')
+extract ((Syn n exps), vs) = (Syn n exps' ++ imps, vs')
     where
+    imps | n == "when" = ["$_"]
+    imps | otherwise = []
     (exps', vs') = foldr extractExp ([], vs) exps
 extract ((Var name), vs)
     | (sigil:'^':identifer) <- name
