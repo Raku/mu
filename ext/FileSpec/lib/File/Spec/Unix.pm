@@ -13,12 +13,14 @@ sub case_tolerant returns Bool is export { 0           }
 sub splitdir (Str $dir) returns Array is export { split('/', $dir) }
 
 sub splitpath (Str $path, Bool ?$nofile) returns Array is export {
-    my ($volume, $directory, $file) = ('','','');
+    my $volume    = '';
+    my $directory = ''; 
+    my $file      = '';
     if ($nofile) {
         $directory = $path;
     }
     else {
-        $path ~~ rx:perl5{^ ( (?: .* / (?: \.\.?\Z(?!\n) )? )? ) ([^/]*) };
+        $path ~~ rx:perl5{^((?:.*/(?:\.\.?\Z(?!\n))?)?)([^/]*)};
         $directory = $1;
         $file      = $2;
     }
@@ -31,7 +33,7 @@ sub catdir (*@path) returns Str is export { canonpath(join('/', (@path, ''))) }
 
 sub catfile (*@_path) returns Str is export {
     my @path = @_path; # XXX: I shouldnt need to do this
-    my $file = pop(@path);
+    my $file = canonpath(pop(@path));
     return $file unless ?@path;
     my $dir = catdir(@path);
     $dir ~= "/" unless substr($dir, -1) eq "/";
@@ -50,7 +52,9 @@ sub catpath (Str $volume, Str $directory, Str $file) returns Str is export {
 
 ## real to absolute
 
-sub rel2abs (Str $path, Str ?$base) returns Str is export {
+sub rel2abs (Str $_path, Str ?$_base) returns Str is export {
+    my $path = $_path;
+    my $base = $_base;    
     if (!file_name_is_absolute($path)) {
         if (!$base.defined || $base eq '') {
             $base = cwd();
@@ -66,7 +70,9 @@ sub rel2abs (Str $path, Str ?$base) returns Str is export {
     return canonpath($path);
 }
 
-sub abs2rel (Str $path, Str $base) returns Str is export {
+sub abs2rel (Str $_path, Str $_base) returns Str is export {
+    my $path = $_path;
+    my $base = $_base;        
     if (!file_name_is_absolute($path)) {
         $path = rel2abs($path);
     }
@@ -100,7 +106,7 @@ sub abs2rel (Str $path, Str $base) returns Str is export {
     # $base now contains the directories the resulting relative path 
     # must ascend out of before it can descend to $path_directory.  So, 
     # replace all names with $parentDir
-    $base ~~ s:perl5{[^/]+}{..}; # needs to be :g
+    $base ~~ s:perl5:g{[^/]+}{..};
 
     # Glue the two together, using a separator if necessary, and preventing an
     # empty result.
@@ -131,12 +137,11 @@ sub path returns Array is export {
 
 sub canonpath (Str $_path) returns Str is export {
     my $path = $_path; 
-    # these all need to be :g
-    $path ~~ s:perl5{/+}{/};                            # xx////xx  -> xx/xx   
-    $path ~~ s:perl5{(/\.)+(/|\Z(?!\n))}{/};            # xx/././xx -> xx/xx
-    $path ~~ s:perl5{^(\./)+}{} unless $path eq "./";   # ./xx      -> xx
-    $path ~~ s:perl5{^/(\.\./)+}{/};                    # /../../xx -> xx
-    $path ~~ s:perl5{/\Z(?!\n)}{} unless $path eq "/";  # xx/       -> xx
+    $path ~~ s:perl5:g{/+}{/};                            # xx////xx  -> xx/xx   
+    $path ~~ s:perl5:g{(/\.)+(/|\Z(?!\n))}{/};            # xx/././xx -> xx/xx
+    $path ~~ s:perl5:g{^(\./)+}{} unless $path eq "./";   # ./xx      -> xx
+    $path ~~ s:perl5:g{^/(\.\./)+}{/};                    # /../../xx -> xx
+    $path ~~ s:perl5:g{/\Z(?!\n)}{} unless $path eq "/";  # xx/       -> xx
     return $path;
 }
 

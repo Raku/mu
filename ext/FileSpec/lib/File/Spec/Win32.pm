@@ -33,7 +33,7 @@ sub splitpath (Str $path, Bool ?$nofile) returns Array is export {
 sub catdir (*@path) returns Str is export {
     my @new_path;
     for (@path) -> $e {
-        #tr[/][\\];
+        $e ~~ s:perl5:g{/}{\\};
         # append a backslash to each argument unless it has one there
         unless (substr($e, -1) eq "\\") {
             push(@new_path, $e ~ "\\");
@@ -76,7 +76,8 @@ sub catpath (Str $volume, Str $directory, Str $file) returns Str is export {
 
 ## Misc
 
-sub canonpath (Str $path) returns Str is export {
+sub canonpath (Str $_path) returns Str is export {
+    my $path = $_path;
     my $orig_path = $path;
 #     $path ~~ s/^([a-z]:)/\u$1/s;
     $path ~~ s:perl5{/}{\\}; #g

@@ -3,11 +3,13 @@
 use v6;
 require Test;
 
-plan 42;
+plan 100;
 
 =pod
 
-This is a *very* basic test of the FileSpecUnix module.
+This is test of the File::Spec::Unix module.
+For the perl5 equivalent see the t/11_unix_test_p5.t
+file.
 
 =cut
 
@@ -25,15 +27,21 @@ ok(!case_tolerant(), '... unix is not case tolerant');
         "path///to//a///////dir/", 
         "path/./to/././a/./././dir/",
         "./path/to/a/dir/",
-        "././path/to/a/dir/",        
-        "../path/to/a/dir/",
-        "../../path/to/a/dir/",   
-        "path/../to/a/dir/"     # <<< not sure about this one actually               
+        "././path/to/a/dir/"              
         );
     
     for @paths -> $path {
-        is(canonpath($path), 'path/to/a/dir', '... cannonpath works');
+        is(canonpath($path), 'path/to/a/dir', '... cannonpath works for ' ~ $path);
     }
+    
+    my @paths2 = (       
+        "/../path/to/a/dir/",
+        "/../../path/to/a/dir/"               
+        );
+    
+    for @paths2 -> $path {
+        is(canonpath($path), '/path/to/a/dir', '... cannonpath works for ' ~ $path);
+    }    
 }
 
 {
@@ -47,7 +55,7 @@ ok(!case_tolerant(), '... unix is not case tolerant');
     is(@path[3], 'a', '... our fourth element is "a"');    
     is(@path[4], 'dir', '... our fifth element is "dir"');      
     
-    todo_is(catdir(@path), $path, '... got the right catdir string');                 
+    is(catdir(@path), $path, '... got the right catdir string');                 
 }
 
 {
@@ -65,6 +73,18 @@ ok(!case_tolerant(), '... unix is not case tolerant');
 }
 
 is(catpath('vol', 'dir', 'file'), 'dir/file', 
+   '... got the right catpath string (volume is ignored)'); 
+   
+is(catpath('', 'dir', 'file'), 'dir/file', 
+   '... got the right catpath string (volume is ignored)'); 
+
+is(catpath('', 'dir/', 'file'), 'dir/file', 
+   '... got the right catpath string (volume is ignored)'); 
+
+is(catpath('', '', 'file'), 'file', 
+   '... got the right catpath string (volume is ignored)'); 
+
+is(catpath('', '', ''), '', 
    '... got the right catpath string (volume is ignored)'); 
    
 {
@@ -98,17 +118,90 @@ ok(!file_name_is_absolute("\n/path/from/root"), '... checking if path is absolut
 }
 
 {
-    my @path = splitpath('/path/to/file');
-    is(+@path, 3, '... got back the expected elements');
-    is(@path[0], '', '... got the right first element');    
-    todo_is(@path[1], '/path/to/', '... got the right second element');
-    todo_is(@path[2], 'file', '... got the right third element');    
+    my ($vol, $dir, $file) = splitpath('/path/to/file');
+    is($vol, '', '... got the right volume');    
+    is($dir, '/path/to/', '... got the right directory');
+    is($file, 'file', '... got the right file');    
 }
 
 {
-    my @path = splitpath('/path/to/file', 1);
-    is(+@path, 3, '... got back the expected elements');
-    is(@path[0], '', '... got the right first element');    
-    is(@path[1], '/path/to/file', '... got the right second element');
-    is(@path[2], '', '... got the right third element');    
+    my ($vol, $dir, $file) = splitpath('/path/to/file', 1);
+    is($vol, '', '... got the right volume');    
+    is($dir, '/path/to/file', '... got the right directory');
+    is($file, '', '... got the right file');       
 }
+
+# these are adapted from the t/Spec.t in the perl5 File::Spec tests
+
+# abs2rel/rel2abs
+
+is(abs2rel('/t1/t2/t3','/t1/t2/t3'),    '',                  'checking abs2real');
+is(abs2rel('/t1/t2/t4','/t1/t2/t3'),    '../t4',             'checking abs2real'); 
+is(abs2rel('/t1/t2','/t1/t2/t3'),       '..',                'checking abs2real'); 
+is(abs2rel('/t1/t2/t3/t4','/t1/t2/t3'), 't4',                'checking abs2real'); 
+is(abs2rel('/t4/t5/t6','/t1/t2/t3'),    '../../../t4/t5/t6', 'checking abs2real'); 
+is(abs2rel('/','/t1/t2/t3'),            '../../..',          'checking abs2real'); 
+is(abs2rel('///','/t1/t2/t3'),          '../../..',          'checking abs2real'); 
+is(abs2rel('/.','/t1/t2/t3'),           '../../..',          'checking abs2real'); 
+is(abs2rel('/./','/t1/t2/t3'),          '../../..',          'checking abs2real'); 
+
+is(rel2abs('t4', '/t1/t2/t3'),    '/t1/t2/t3/t4',    'checking rel2abs');
+is(rel2abs('t4/t5', '/t1/t2/t3'), '/t1/t2/t3/t4/t5', 'checking rel2abs');
+is(rel2abs('.', '/t1/t2/t3'),     '/t1/t2/t3',       'checking rel2abs');
+is(rel2abs('..', '/t1/t2/t3'),    '/t1/t2/t3/..',    'checking rel2abs');
+is(rel2abs('../t4', '/t1/t2/t3'), '/t1/t2/t3/../t4', 'checking rel2abs');
+is(rel2abs('/t1', '/t1/t2/t3'),   '/t1',             'checking rel2abs');
+
+# concatenating
+
+is(catfile('a','b','c'),   'a/b/c', 'checking catfile');
+is(catfile('a','b','./c'), 'a/b/c', 'checking catfile');
+is(catfile('./a','b','c'), 'a/b/c', 'checking catfile');
+is(catfile('c'),           'c',     'checking catfile');
+is(catfile('./c'),         'c',     'checking catfile');
+
+is(catpath('','','file'),            'file',            'checking catpath');
+is(catpath('','/d1/d2/d3/',''),      '/d1/d2/d3/',      'checking catpath');
+is(catpath('','d1/d2/d3/',''),       'd1/d2/d3/',       'checking catpath');
+is(catpath('','/d1/d2/d3/.',''),     '/d1/d2/d3/.',     'checking catpath');
+is(catpath('','/d1/d2/d3/..',''),    '/d1/d2/d3/..',    'checking catpath');
+is(catpath('','/d1/d2/d3/','.file'), '/d1/d2/d3/.file', 'checking catpath');
+is(catpath('','d1/d2/d3/','file'),   'd1/d2/d3/file',   'checking catpath');
+is(catpath('','/../../d1/',''),      '/../../d1/',      'checking catpath');
+is(catpath('','/././d1/',''),        '/././d1/',        'checking catpath');
+is(catpath('d1','d2/d3/',''),        'd2/d3/',          'checking catpath');
+is(catpath('d1','d2','d3/'),         'd2/d3/',          'checking catpath');
+
+is(catdir(),                     '',          'checking catdir');
+is(catdir('/'),                  '/',         'checking catdir');
+is(catdir('','d1','d2','d3',''), '/d1/d2/d3', 'checking catdir');
+is(catdir('d1','d2','d3',''),    'd1/d2/d3',  'checking catdir');
+is(catdir('','d1','d2','d3'),    '/d1/d2/d3', 'checking catdir');
+is(catdir('d1','d2','d3'),       'd1/d2/d3',  'checking catdir');
+
+# splitting
+
+is(join(',', splitpath('file')),            ',,file',            'checking splitpath');
+is(join(',', splitpath('/d1/d2/d3/')),      ',/d1/d2/d3/,',      'checking splitpath');
+is(join(',', splitpath('d1/d2/d3/')),       ',d1/d2/d3/,',       'checking splitpath');
+is(join(',', splitpath('/d1/d2/d3/.')),     ',/d1/d2/d3/.,',     'checking splitpath');
+is(join(',', splitpath('/d1/d2/d3/..')),    ',/d1/d2/d3/..,',    'checking splitpath');
+is(join(',', splitpath('/d1/d2/d3/.file')), ',/d1/d2/d3/,.file', 'checking splitpath');
+is(join(',', splitpath('d1/d2/d3/file')),   ',d1/d2/d3/,file',   'checking splitpath');
+is(join(',', splitpath('/../../d1/')),      ',/../../d1/,',      'checking splitpath');
+is(join(',', splitpath('/././d1/')),        ',/././d1/,',        'checking splitpath');
+
+is(join(',', splitdir('')),           '',           'checking splitdir');
+is(join(',', splitdir('/d1/d2/d3/')), ',d1,d2,d3,', 'checking splitdir');
+is(join(',', splitdir('d1/d2/d3/')),  'd1,d2,d3,',  'checking splitdir');
+is(join(',', splitdir('/d1/d2/d3')),  ',d1,d2,d3',  'checking splitdir');
+is(join(',', splitdir('d1/d2/d3')),   'd1,d2,d3',   'checking splitdir');
+
+# cannonpath
+
+is(canonpath(''),                                      '',          'checking canonpath');
+is(canonpath('///../../..//./././a//b/.././c/././'),   '/a/b/../c', 'checking canonpath');
+is(canonpath('/.'),                                    '/',         'checking canonpath');
+is(canonpath('/./'),                                   '/',         'checking canonpath');
+is(canonpath('/a/./'),                                 '/a',        'checking canonpath');
+is(canonpath('/a/.'),                                  '/a',        'checking canonpath');
