@@ -429,6 +429,12 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         val     <- enterEvalContext "List" exp
         -- ignore val
         retVal val
+    ".=" -> do
+        let [lhs, exp] = exps
+            rh = case exp of
+                App op invs args    -> App op (lhs:invs) args
+                _                   -> Syn "()" [exp, Syn "invs" [lhs], Syn "args" []]
+        evalExp $ Syn "=" [lhs, rh]
     syn | last syn == '=' -> do
         let [lhs, exp] = exps
             op = "&infix:" ++ init syn
