@@ -8,25 +8,25 @@ This is a test file.  Whee!
 my $loop = 1;
 say "1..1";
 
-sub foobar {
-    my $var = shift;
-    print "var=",$var;
+sub foobar ($var) {
+    say "var=",$var;
     return $var;
+}
+
+sub check {
+    return $_;
 }
 
 my $foo = "foo";
 my $bar;
 eval '$bar = foobar($foo); ';
-print "bar=", $bar;
+say "bar=", $bar;
 if ($foo eq $bar) {
-    print "1 ok";
+    say "1 ok";
 } else {
-    print "1 not ok # TODO";
+    say "1 not ok # TODO";
 }
 
 $bar = check $foo;
-if ($bar) { print "2 ok"; } else { print "2 not ok"; }
+if ($bar) { say "2 ok"; } else { say "2 not ok"; }
 
-sub check {
-    return $_;
-}
