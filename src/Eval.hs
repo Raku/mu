@@ -322,15 +322,19 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
                 listVal  <- readMVal listMVal
                 indexVal <- evalExp indexExp
                 val' <- enterEvalContext "List" exp
-                let index   = (vCast indexVal :: Integer) -- XXX slicing
+                let indexes = (vCast indexVal :: VList)
                     list    = concatMap vCast ls
-                    pre     = genericTake index (list ++ repeat VUndef)
-                    post    = genericDrop (index + 1) list
-                    ls = case listVal of
-                            VUndef  -> [] -- autovivification
-                            _       -> vCast listVal
-                writeMVal listMVal $ VList (pre ++ [val'] ++ post)
-                retVal val'
+		    ls = case listVal of
+	    		    VUndef  -> [] -- autovivification
+    			    _       -> vCast listVal
+		    assignTo curr (VInt index, val) =
+		       	let pre     = genericTake index (curr ++ repeat VUndef)
+		    	    post    = genericDrop (index + 1) curr
+			in
+			    (pre ++ [val] ++ post)
+		    assignTo curr _ = curr
+		writeMVal listMVal $ VList $ foldl assignTo list $ zip indexes $ vCast val'
+		retVal val'
             [Syn "{}" [Var name, indexExp], exp] -> do
                 hashMVal  <- evalVar name
                 hashVal   <- readMVal hashMVal
