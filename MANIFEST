@@ -47,3 +47,6 @@ t/base/cond.t
 t/base/if.t
 t/base/num.t
 t/op/array.t
+t/op/split.t
+t/op/repeat.t
+t/op/eq.t

@@ -6,7 +6,7 @@ This is a test file.  Whee!
 
 =cut
 
-say "1..5";
+say "1..6";
 say "ok 1 # Welcome to Pugs!";
 
 sub cool { fine($_) ~ " # We've got " ~ toys }
