@@ -41,11 +41,11 @@ sub is (Str $got, Str $expected, Str ?$desc) returns Bool is export {
     return $test;
 }
 
-sub isa_ok ($ref, Str $expected_type) returns Bool is export {
+sub isa_ok ($ref, Str $expected_type, Str ?$desc) returns Bool is export {
     my $ref_type = ref($ref);
-    my $desc = "The object is-a '$expected_type'";    
+    my $out := defined($desc) ?? $desc :: "The object is-a '$expected_type'";    
     my $test := $ref_type eq $expected_type;
-    proclaim($test, $desc);
+    proclaim($test, $out);
     if (!$test) {
         $*ERR.say("#     Failed test ($?CALLER::POSITION)");
         $*ERR.say("#          got: '$ref_type'");
@@ -58,7 +58,7 @@ sub isa_ok ($ref, Str $expected_type) returns Bool is export {
 sub todo_ok (Bool $cond, Str ?$desc) returns Bool is export {
     proclaim($cond, $desc, "TODO");
     if (!$cond) {
-        say("#     Failed (TODO) test ($?CALLER::POSITION)");
+        diag("    Failed (TODO) test ($?CALLER::POSITION)");
     }
     return $cond;
 }
@@ -76,13 +76,13 @@ sub todo_is (Str $got, Str $expected, Str ?$desc) returns Bool is export {
 
 sub todo_isa_ok ($ref, Str $expected_type) returns Bool is export {
     my $ref_type = ref($ref);
-    my $desc = "The object is-a '$expected_type'";        
+    my $out := defined($desc) ?? $desc :: "The object is-a '$expected_type'";         
     my $test := $ref_type eq $expected_type;
-    proclaim($test, $desc, "TODO");
+    proclaim($test, $out, "TODO");
     if (!$test) {
-        $*ERR.say("#     Failed (TODO) test ($?CALLER::POSITION)");
-        $*ERR.say("#          got: '$ref_type'");
-        $*ERR.say("#     expected: '$expected_type'");        
+        diag("    Failed (TODO) test ($?CALLER::POSITION)");
+        diag("         got: '$ref_type'");
+        diag("    expected: '$expected_type'");        
     }
     return $test;
 }

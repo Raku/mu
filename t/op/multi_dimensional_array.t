@@ -9,16 +9,18 @@ Multi-Dimensional Arrays
 
 =cut
 
-plan 25;
+plan 28;
 
 # multi-dimensional array
 
 my $multi1 = [1, ['foo', 'bar', 'baz'], 5];
 
 todo_is(+$multi1, 3, 'the multi1 has 3 elements');
+
 is($multi1[0], 1, 'got the right value at multi1 index 0');
 
 todo_is(+$multi1[1], 3, 'multi1[1] has 3 elements');
+todo_isa_ok($multi1[1], 'List');
 
 # multi-dimensional array slices
 
@@ -45,6 +47,7 @@ my $multi2 = [ $array_ref1, $array_ref2 ];
 todo_is(+$multi2, 2, 'the multi2 has 2 elements');
 
 todo_is(+$multi2[0], 3, 'multi2[0] has 3 elements');
+todo_isa_ok($multi2[0], 'List');
 
 # slice
 
@@ -61,6 +64,7 @@ todo_is(eval '$multi2[0][1]', 2, 'got the right value at multi2 index 0,1');
 todo_is(eval '$multi2[0][2]', 3, 'got the right value at multi2 index 0,2');
 
 todo_is(+$multi2[1], 3, 'multi2[1] has 3 elements');
+todo_isa_ok($multi2[1], 'List');
 
 # slice 
 

@@ -3,11 +3,12 @@
 use v6;
 require Test;
 
-plan 2;
+plan 3;
 
 
 my $fh = open "t/op/readline_chomped.t";;
 ok($fh, "could open self");
+isa_ok($fh, 'Handle');
 
 my $line;
 eval '
