@@ -18,24 +18,24 @@ countTree (Node _ []) = 0
 countTree (Node _ cs) = 1 + sum (map countTree cs)
 
 deltaType :: ClassTree -> Type -> Type -> Int
-deltaType tree x y
-    | d < 0     = countTree tree - d
-    | otherwise = d
+deltaType tree base target
+    | distance < 0 = countTree tree - distance
+    | otherwise = distance
     where
-    d = distanceType tree x y
+    distance = distanceType tree base target 
 
 isaType :: ClassTree -> Type -> Type -> Bool
-isaType tree x y = distanceType tree x y > 0
+isaType tree base target = distanceType tree base target > 0
 
 -- XXX -- Junctive Types -- XXX --
 distanceType :: ClassTree -> Type -> Type -> Int
-distanceType tree x y
-    | not (castOk x y)  = 0
-    | otherwise         = d
+distanceType tree base target
+    | not (castOk base target)  = 0
+    | otherwise         = distance
     where
-    d  = compareList l1 l2
-    l1 = findList x tree
-    l2 = findList y tree
+    distance  = compareList l1 l2
+    l1 = findList base tree
+    l2 = findList target tree
 
 castOk _ _ = True
 
@@ -47,12 +47,12 @@ compareList l1 l2
     | otherwise = compareList l1 (init l2)
 
 findList [] _ = []
-findList x (Node l cs)
-    | x == l                                = [l]
+findList base (Node l cs)
+    | base == l                                = [l]
     | Just ls <- find (not . null) found    = l:ls
     | otherwise                             = []
     where
-    found = map (findList x) cs
+    found = map (findList base) cs
 
 prettyTypes = drawTree initTree
 
