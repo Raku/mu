@@ -3,7 +3,8 @@ use strict;
 use warnings;
 use base 'Exporter';
 our @EXPORT = qw(
-    plan is ok like is_deeply fail chunks
+    plan is ok like is_deeply fail 
+    data_file chunks
 );
 use Test::More;
 use Carp;
@@ -35,10 +36,25 @@ sub chunks {
     return @tests;
 }
 
+my $data_file;
+sub data_file {
+    $data_file = shift;
+}
+
 my $data;
 sub get_data {
+    return $data if $data;
     no warnings;
-    $data = $data || do { package main; local $/; <DATA> };
+    local $/;
+    if ($data_file) {
+        open FILE, $data_file or die $!;
+        $data = <FILE>;
+        close FILE;
+    }
+    else {    
+        $data = do { package main; local $/; <DATA> };
+    }
+    return $data;
 }
 
 1;
