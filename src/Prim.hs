@@ -310,6 +310,9 @@ retEvalResult fatal val = do
     glob <- askGlobal
     let Just errSV = findSym "$!" glob
     case val of
+        VError _ (Val errval) | not fatal  -> do
+            writeMVal errSV errval
+            retEmpty
         VError _ _ | not fatal  -> do
             writeMVal errSV (VStr $ show val)
             retEmpty

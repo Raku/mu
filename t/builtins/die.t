@@ -12,8 +12,7 @@ Tests for the die() builtin
 plan(3);
 
 ok(!eval 'die "foo"; 1');
-my $error;
-eval '$error = $!';  # pugs does not know $! yet
+my $error = $!;
 is($error, 'foo', 'got $! correctly');
 
 my $foo = "-foo-";
