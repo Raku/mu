@@ -324,12 +324,21 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
                 listMVal <- evalVar name
                 listVal  <- readMVal listMVal
                 indexVal <- evalExp indexExp
-                val' <- enterEvalContext (cxtOfSigil $ head name) exp
-                let index   = (vCast indexVal :: Integer)
+                val' <- enterEvalContext "List" exp
+                let index   = (vCast indexVal :: Integer) -- XXX slicing
                     list    = concatMap vCast (vCast listVal)
                     pre     = genericTake index (list ++ repeat VUndef)
                     post    = genericDrop (index + 1) list
                 writeMVal listMVal $ VList (pre ++ [val'] ++ post)
+                retVal val'
+            [Syn "{}" [Var name, indexExp], exp] -> do
+                hashMVal  <- evalVar name
+                hashVal   <- readMVal hashMVal
+                indexMVal <- evalExp indexExp
+                indexVal  <- readMVal indexMVal
+                val' <- enterEvalContext "Scalar" exp
+                let hash    = addToFM (vCast hashVal) indexVal val'
+                writeMVal hashMVal $ VHash $ MkHash hash
                 retVal val'
             _ -> do
                 retError "Cannot modify constant item" (head exps)
@@ -365,10 +374,13 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
             else retVal $ VList slice
     "{}" -> do
         let [listExp, rangeExp] = exps
-        hash    <- enterEvalContext "Hash" listExp
+        hash     <- enterEvalContext "Hash" listExp
         range   <- enterEvalContext "List" rangeExp
+        cls     <- asks envClasses
         let slice = map (lookupWithDefaultFM (vCast hash) VUndef) ((map vCast $ vCast range) :: [Val])
-        retVal $ VList slice
+        if isaType cls "Scalar" cxt
+            then retVal $ last (VUndef:slice)
+            else retVal $ VList slice
     "()" -> do
         let [subExp, Syn "invs" invs, Syn "args" args] = exps
         sub     <- enterEvalContext "Code" subExp
