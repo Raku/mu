@@ -44,3 +44,14 @@ ok (ref $key eq 'Pair');
 
 #Pair list a la http://www.nntp.perl.org/group/perl.perl6.language/19360
 my $list = 1 => 2 => 3 => 4;
+ok(ref $list eq 'Pair');
+$key = $list.key;
+ok($key == 1);
+$pair2 = $list.value;
+ok(ref $pair2 eq 'Pair');
+
+# lvalue Pair assignments from S06 and thread starting with
+# http://www.nntp.perl.org/group/perl.perl6.language/19425
+my $val;
+("foo" => $val) = "baz";
+todo_ok($val eq "baz", "lvalue lists");

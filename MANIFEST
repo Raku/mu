@@ -1,6 +1,5 @@
 AUTHORS
 ChangeLog
-doc/perlkwid.kwid
 examples/life.p6
 examples/mandel.p6
 examples/quicksort.p6
@@ -21,6 +20,7 @@ inc/Test/Harness/Iterator.pm
 inc/Test/Harness/Straps.pm
 inc/Test/Harness/TAP.pod
 lib/Perl6/lib/Kwid.pm
+lib/Perl6/lib/perlkwid.kwid
 lib/Perl6/lib/Test.pm
 lib/Perl6/Pugs.pm
 LICENSE/Artistic-2
@@ -30,9 +30,10 @@ MANIFEST			This list of files
 MANIFEST.SKIP
 META.yml
 README
-SIGNATURE			Public-key signature (added by MakeMaker)
+SIGNATURE
 src/AST.hs
 src/Bind.hs
+src/builtins.pod
 src/Cont.hs
 src/Context.hs
 src/Eval.hs
@@ -111,4 +112,3 @@ t/Synopsis/S11.pod
 t/Synopsis/S12.pod
 t/Synopsis/S13.pod
 t/unspecced/cont.t
-version.h
