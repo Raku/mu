@@ -12,7 +12,7 @@ plan 16;
 
 = DESCRIPITION
 
-These tests test named parmaeters.
+These tests test named parmaeters. L<S06/"Named parameters">
 # 23:48 <autrijus> sub foo (+$x) { $x }  foo( 'x' => 4 )
 # 23:48 <autrijus> is the canonical example
 # 23:48 <autrijus> +$x makes it addressable only by name
@@ -32,8 +32,8 @@ These tests test named parmaeters.
 
 =cut
 
-
-sub simple_pos_params (+$x) { $x } 
+# L<S06/"Named parameters" /marked by a \+/>
+sub simple_pos_params (+$x) { $x }
 
 todo_is(simple_pos_params( 'x' => 4 ), 4, "simple named param");
 
@@ -54,7 +54,7 @@ todo_is(eval 'assign_based_on_named_positional(5)', 5, "When we don't explicitly
 todo_is(eval 'assign_based_on_named_positional(5,  "y"=> 2)', 2, "When we explicitly specify, we get our value");
 todo_is(eval 'assign_based_on_named_positional(5,  y => 2)', 2, "When we explicitly specify, we get our value");
 
-
+# L<S06/"Named parameters" /a \+\+ prefix.*?required/>
 sub mandatory (++$param) {
     return $param;
 }
@@ -65,8 +65,7 @@ is (mandatory('param' => 5) , 5, "named mandatory parameter is returned");
 is (eval 'mandatory()', undef, "not specifying a mandatory parameter fails");
 
 
-# From S06
-
+# From L<S06/"Named parameters" /sub formalize/>
 sub formalize($text, +$case, +$justify)  returns List {
    return($text,$case,$justify); 
 }
