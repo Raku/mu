@@ -165,6 +165,7 @@ t/op/relational.t
 t/op/repeat.t
 t/op/shift.t
 t/op/smartmatch.t
+t/op/splat.t
 t/op/split.t
 t/op/string_interpolation.t
 t/op/sub_return_values.t

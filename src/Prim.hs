@@ -90,8 +90,6 @@ op1 "list" = return . VList . vCast
 op1 "~"    = (>>= (return . VStr)) . (>>= fromValue) . readMVal
 op1 "?"    = return . VBool . vCast
 op1 "int"  = return . VInt . vCast
-op1 "*"    = return . VList . vCast -- signature defeating?
-op1 "**"   = return . VList . map (id $!) . vCast
 op1 "+^"   = return . VInt . (toInteger . (complement :: Word -> Word)) . vCast
 op1 "~^"   = return . VStr . mapStr complement . vCast
 op1 "?^"   = op1 "!"
@@ -583,8 +581,6 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Int       pre     int     (Int)\
 \\n   List      pre     list    (List)\
 \\n   Scalar    pre     scalar  (Scalar)\
-\\n   List      spre    *       (List)\
-\\n   List      spre    **      (List)\
 \\n   Int       spre    +^      (Int)\
 \\n   Int       spre    ~^      (Str)\
 \\n   Bool      spre    ?^      (Bool)\

@@ -447,7 +447,7 @@ tightOperators = do
     [ methOps  " . .+ .? .* .+ .() .[] .{} .<<>> .= "   -- Method postfix
     , postOps  " ++ -- " ++ preOps " ++ -- "            -- Auto-Increment
     , rightOps " ** "                                   -- Exponentiation
-    , preOps   " = ! + - ~ ? * ** +^ ~^ ?^ \\ "         -- Symbolic Unary
+    , preSyn "* **" ++ preOps   " = ! + - ~ ? +^ ~^ ?^ \\ "         -- Symbolic Unary
     , leftOps $
                " »*« »/« »x« »xx« " ++
                " * / % x xx +& +< +> ~& ~< ~> "         -- Multiplicative
@@ -538,6 +538,7 @@ ops f s = [f n | n <- sortBy revLength (words s)]
 
 doApp str args = App str args []
 
+preSyn      = ops $ makeOp1 Prefix "" Syn
 preOps      = ops $ makeOp1 Prefix "&prefix:" doApp
 postOps     = ops $ makeOp1 Postfix "&postfix:" doApp
 leftOps     = ops $ makeOp2 AssocLeft "&infix:" doApp

@@ -368,6 +368,21 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         key     <- enterEvalContext "Scalar" keyExp
         val     <- evalExp valExp
         retVal $ VPair (key, val)
+    "*" -> do -- first stab at an implementation
+        vals <- case exps of
+            [Val v] | valType v == "Array" -> do
+                val <- enterEvalContext "List" $ head exps
+                fromValue val
+            _ -> mapM (enterEvalContext "List") exps         
+        cls  <- asks envClasses
+        if isaType cls "Scalar" cxt          
+            then do
+                let slice = case (doSlice [] vals $ 0:[]) of {
+                    (Just (val, _)) -> val ;
+                    Nothing         -> vCast VUndef
+                }
+                retVal $ vCast slice
+            else retVal $ VList $ concatMap vCast vals
     "," -> do
         vals    <- mapM (enterEvalContext "List") exps
         retVal $ VList $ concatMap vCast vals
