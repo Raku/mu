@@ -43,7 +43,8 @@ module Internals (
     module Data.FiniteMap,
     module Data.IORef,
     module Debug.Trace,
-    internalError
+    internalError,
+    split
 ) where
 
 import Cont
@@ -101,5 +102,14 @@ instance Show (IORef (FiniteMap String String)) where
     show _ = "{ n/a }"
 
 internalError :: String -> a
-internalError s = error $ "Internal error: " ++ s ++ " please file a bug report."
+internalError s = error $ 
+    "Internal error: " ++ s ++ " please file a bug report."
 
+split :: (Eq a) => [a] -> [a] -> [[a]]
+split [] str = map (: []) str
+split sep str = p : (if again then split sep ps else []) where
+   (p, ps, again) = split1 sep str
+   split1 _ [] = ([], [], False)
+   split1 sep str =
+      if isPrefixOf sep str then ([], drop (length sep) str, True) else
+      let (pre, post, x) = split1 sep (tail str) in ((head str) : pre, post, x)
