@@ -233,7 +233,7 @@ doReduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         retVal $ VPair key val
     "," -> do
         vals    <- mapM (enterEvalContext "List") exps
-        retVal $ VList vals
+        retVal $ VList $ concatMap vCast vals
     "[]" -> do
         let (listExp:rangeExp:errs) = exps
         list    <- enterEvalContext "List" listExp

@@ -25,6 +25,7 @@ import Pretty
 
 main :: IO ()
 main = do
+    hSetBuffering stdout NoBuffering 
     args <- getArgs
     run $ concatMap procArg args
     where
@@ -43,7 +44,6 @@ run ("-":args)                  = do
     doRun "-" [] prog
 run (file:args)                 = readFile file >>= doRun file args
 run []                          = do
-    hSetBuffering stdout NoBuffering 
     isTTY <- hIsTerminalDevice stdin
     if isTTY
         then banner >> repLoop

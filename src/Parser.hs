@@ -389,13 +389,15 @@ ruleCodeSubscript = tryRule "code subscript" $ do
     (invs:args:_) <- parens $ parseParamList parseLitTerm
     return $ \x -> Syn "()" [x, Syn "invs" invs, Syn "args" args]
 
-parseLitTerm = choice
-    [ parseVar
-    , parseLit
-    , parseApply
-    , parseParens parseLitOp
-    ]
-    <?> "argument"
+parseLitTerm = rule "argument" $ do
+    term <- choice
+        [ parseVar
+        , parseLit
+        , parseApply
+        , parseParens parseLitOp
+        ]
+    f <- option id rulePostTerm
+    return $ f term
 
 subNameWithPrefix prefix = (<?> "subroutine name") $ lexeme $ try $ do
     star    <- option "" $ string "*"
