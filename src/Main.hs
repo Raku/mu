@@ -96,14 +96,16 @@ runFile file = do
 runProgramWith :: (Env -> Env) -> (Val -> IO ()) -> VStr -> [VStr] -> String -> IO ()
 runProgramWith fenv f name args prog = do
     environ <- getEnvironment
+    let envFM = listToFM $ [ (VStr k, VStr v) | (k, v) <- environ ]
+        p6lib = maybeToList $ lookup "PERL6LIB" environ
+        p5lib = map fixLib $ catMaybes [lookup "PERL5LIB" environ, lookup "PERLLIB" environ]
     progSV  <- newMVal $ VStr name
     endAV   <- newMVal $ VList []
-    incAV   <- newMVal $ VList (map VStr incs)
+    incAV   <- newMVal $ VList (map VStr $ p6lib ++ p5lib ++ incs)
     argsAV  <- newMVal $ VList (map VStr args)
     inGV    <- newMVal $ VHandle stdin
     outGV   <- newMVal $ VHandle stdout
     errGV   <- newMVal $ VHandle stderr
-    let envFM = listToFM $ [ (VStr k, VStr v) | (k, v) <- environ ]
     env <- emptyEnv
         [ Symbol SGlobal "@*ARGS"       $ Val argsAV
         , Symbol SGlobal "@*INC"        $ Val incAV
@@ -121,6 +123,7 @@ runProgramWith fenv f name args prog = do
             evaluateMain (envBody env')
     f val
     where
+    fixLib = ((++) "/Perl6/lib")
     incs = ["./lib/Perl6/lib", "../lib/Perl6/lib", "."]
 
 {-
