@@ -385,18 +385,19 @@ op2 "split"= \x y -> return $ split' (vCast x) (vCast y)
 op2 other = \x y -> return $ VError ("unimplemented binaryOp: " ++ other) (App other [Val x, Val y] [])
 
 op3 :: Ident -> Val -> Val -> Val -> Eval Val
-op3 "index" = index' where
-    index' (VStr a) (VStr b) (VInt p) = index'' 0 a b p
-    index' a b _                      = index' a b (VInt 0)
-    index'' n [] [] 0 = return $ VInt n
-    index'' _ []  _ _ = return $ VInt (-1)
-    index'' n a b p
-        | p > 0       = index'' (n+1) (tail a) b (p-1) 
-        | match a b   = return $ VInt n
-        | otherwise   = index'' (n+1) (tail a) b 0
-    match _ [] = True
-    match [] _ = False
-    match (a:as) (b:bs) = if a == b then match as bs else False
+op3 "index" = \x y z -> do
+    str <- fromValue x
+    sub <- fromValue y
+    pos <- fromValue z
+    return . VInt $ doIndex 0 str sub pos
+    where
+    doIndex :: VInt -> VStr -> VStr -> VInt -> VInt
+    doIndex n a b p
+        | p > 0, null a     = doIndex n a b 0
+        | p > 0             = doIndex (n+1) (tail a) b (p-1) 
+        | b `isPrefixOf` a  = n
+        | null a            = -1
+        | otherwise         = doIndex (n+1) (tail a) b 0
 
 op3 other = \x y z -> return $ VError ("unimplemented 3-ary op: " ++ other) (App other [Val x, Val y, Val z] [])
 
