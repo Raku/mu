@@ -11,7 +11,7 @@ L<S06/"Subroutines">
 
 =cut
 
-plan 54;
+plan 55;
 
 # These test the returning of values from a subroutine. 
 # We test each data-type with 4 different styles of return. 
@@ -36,6 +36,9 @@ plan 54;
 # TODO-NOTE: 
 # Currently the Hash and Hash-ref tests are not complete, becuase hashes seem to be 
 # broken in a number of ways. I will get back to those later.
+
+## void
+todo_eval_ok('sub ret { return }', "return without value ok");
 
 ## scalars
 
