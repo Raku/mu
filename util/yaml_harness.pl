@@ -7,15 +7,9 @@
 # Please improve me!
 #
 # TODO:
-# 1. progress indication - can't stream YAML output because
-#    YAML.pm doesn't support it yet. So at least let the user
-#    know something's happening?
-# 2. Modularize this.
-# 3. Get output from Test::diag() in here somehow
-# 4. Optionally look back at output from tests that passed and
-#    make them more terse
-# 5. Get to work concurrently with 'make test'
-# 6. 'make smoke' make target that uploads the results of this
+# 1. Modularize this.
+# 2. Get to work concurrently with 'make test'
+# 3. 'make smoke' make target that uploads the results of this
 #    to a server somewhere.
 
 
@@ -32,9 +26,9 @@ our $SMOKERFILE = ".smoker.yml";
 
 $| = 1;
 
-GetOptions \our %Config, qw(--verbose|v --output-file|o=s --dry|n
+GetOptions \our %Config, qw(--output-file|o=s --dry|n
 		--shuffle|s --recurse|r --ext=s@ --anonymous|a --exclude|X=s@);
-$Test::Harness::Verbose = 1 if $Config{verbose};
+$Test::Harness::Verbose = 1;
 $Config{"output-file"} ||= "-";
 _build_ext_re();
 _build_exclude_re();
@@ -65,8 +59,8 @@ my %handlers = (
 			num    => $curr,
 			result => $totals->{details}[-1]{ok} ?
 				"ok $curr/$totals->{max}" : "NOK $curr",
+			line   => $line,
 		);
-		$self->latest_event->{line} = $line if $Test::Harness::Verbose;
 		$self->latest_event->{todo} = 1 if $line =~ /# TODO/;
 
         if( $curr > $self->{'next'} ) {
@@ -85,7 +79,7 @@ my %handlers = (
 
 		# XXX: we're missing some context, so we *assume* we were
 		# called after a test. :/
-		$self->latest_event->{diag} .= $line if $Test::Harness::Verbose;
+		$self->latest_event->{diag} .= $line;
 	 },
 );
 
@@ -101,7 +95,7 @@ foreach my $file (@{ $s->get_tests }) {
 		file => $file,
 		subtests => ($s->{_log} = []),
 	};
-	warn "$file\n" if $Config{verbose};
+	warn "$file\n";
     my %result = $s->analyze_file($file);
 	$s->{_test_cases}[-1]{result} = $result{passing} ? 'ok' : 'FAILED';
 }
