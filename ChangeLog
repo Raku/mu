@@ -1,3 +1,40 @@
+== Changed for 6.0.14 - April 3, 2005
+
+=== Pugs Internals
+
+* We now require GHC 6.4 on all platforms.
+* Added support for q// literals
+* :key(123), :key<abc>, :key[1,2,3] and :key.
+* Tentative %?CONFIG hash.
+* Minimal Parrot IMC compiler (see src/IMC.hs).
+* Command line improvements (-I, -l, -e, etc.)
+* Perldoc, the integrative framework for POD/Kwid/etc.
+* Added VICTUALS file.
+* Added socket primitives.
+* Added thread primitives.
+* Began work on GADTs
+* New builtins: chr(), ord(), hex()
+* Support definition and invocation of subs in foreign namespaces
+* Support for @ARGS XXX-?
+
+=== Tests, Examples and Documentations
+
+* About 3850 tests.
+* Much work on smoke and mirrors: testgraph reponds to mouseover,
+  cross-referencer improvements, an autosmoker script.
+* Normalize all t/ sheban lines to use #!/usr/bin/pugs
+
+=== Environment, Tools, Misc.
+
+* modules/ have been relocated to FreePAN. See modules/README.
+* Packages for Debian.
+* perl6.vim updates.
+
+=== Bug Fixes
+
+* Support variables on ~~ right hand side.
+* Makefile fixes (correct installation locations, etc.)
+
 == Changes for 6.0.13 - March 27, 2005
 
 === Pugs Internals
