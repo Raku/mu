@@ -99,8 +99,8 @@ for @tests_todo -> $test {
     ok( defined $f, "dump.ast was created" );
     todo_ok( $f ~~ rx:perl5/.../, "... and it contains some output" );
   } else {
-    skip "No clean compile";
-    skip "No clean compile";
+    todo_fail("No clean compile");
+    todo_fail("No clean compile");
   };
 
   unlink($dump_file)
