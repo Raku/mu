@@ -8,10 +8,14 @@ use v6;
 my $intmp  = 'insanta.tmp';
 my $outtmp = 'outsanta.tmp';
 
+# XXX: would like to use 'pugs' in normal use, './pugs' when run
+# from 'make test'.
+my $PUGS = 'pugs';
+
 sub usage {
     print
-"usage: pugs tsanta.p6
-   or: pugs tsanta.p6 head.p6 tail.p6 rev.p6 mid.p6 wc.p6
+"usage: $PUGS tsanta.p6
+   or: $PUGS tsanta.p6 pugscmd head.p6 tail.p6 rev.p6 mid.p6 wc.p6
 ";
     exit(1);
 }
@@ -45,7 +49,7 @@ sub build_file (Str $fname, Str $data) {
 
 sub check_one (Str $scr, Str $label, Str $data, Str $exp) {
     build_file($intmp, $data);
-    my $cmd = "pugs $scr $intmp >$outtmp";
+    my $cmd = "$PUGS $scr $intmp >$outtmp";
     print("$label: running: '$cmd'...");
     # my $out = `$cmd`;
     system($cmd) err die("system '$cmd' failed: $!");
@@ -196,18 +200,19 @@ my $rev  = 'rev.p6';
 my $mid  = 'mid.p6';
 my $wc   = 'wc.p6';
 if @ARGS {
-    +@ARGS == 5 or usage();
+    +@ARGS == 6 or usage();
+    $PUGS = @ARGS.shift();
     $head = @ARGS.shift();
     $tail = @ARGS.shift();
     $rev  = @ARGS.shift();
     $mid  = @ARGS.shift();
     $wc   = @ARGS.shift();
 }
-# -f $head or die("error: file '$head' not found");
-# -f $tail or die("error: file '$tail' not found");
-# -f $rev  or die("error: file '$rev' not found");
-# -f $mid  or die("error: file '$mid' not found");
-# -f $wc   or die("error: file '$wc' not found");
+-f $head or die("error: file '$head' not found");
+-f $tail or die("error: file '$tail' not found");
+-f $rev  or die("error: file '$rev' not found");
+-f $mid  or die("error: file '$mid' not found");
+-f $wc   or die("error: file '$wc' not found");
 print_golf_score($head, $tail, $rev, $mid, $wc);
 check_head($head);
 check_tail($tail);
