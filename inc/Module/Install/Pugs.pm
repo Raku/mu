@@ -20,7 +20,7 @@ sub set_blib {
       ? 'blib6'
       : die "Perl version '$perl_version' is bad. Must be 5 or 6.";
     my $base = $self->{_top}{base};
-    my $path = "$base/$blib";
+    my $path = File::Spec->catdir($base, $blib);
     $self->makemaker_args->{'INST_LIB'} = 
       File::Spec->catfile($path, "lib");
     $self->makemaker_args->{'INST_ARCHLIB'} = 
@@ -93,5 +93,14 @@ sub assert_ghc {
 *** Please install GHC from http://haskell.org/ghc/.
 .
 }
+
+sub nativize {
+    my $self = shift;
+    my $text = shift;
+    my $sep = File::Spec->catdir('');
+    $text =~ s{\b/}{$sep}g;
+    return $text;
+}
+
 
 1;

@@ -9,8 +9,8 @@ use inc::Module::Install;
 chdir $FindBin::Bin; # XXX Why is this here?
 
 my $pugs = "pugs$Config{_exe}";
-my $version_h = "src/pugs_version.h";
-my @srcdirs = ("src", grep(-d, glob "src/*"));
+my $version_h = nativize("src/pugs_version.h");
+my @srcdirs = ("src", map nativize($_), grep(-d, glob "src/*"));
 
 deny_cygwin     ();
 
@@ -23,12 +23,12 @@ install_script  ($pugs);
 build_requires  ('Test::More');
 include         ('Module::Install::Makefile::Name');
 include         ('Module::Install::Makefile::Version');
-build_subdirs   (grep -e "$_/Makefile.PL", glob("ext/*"));
+build_subdirs   (map nativize($_), grep -e "$_/Makefile.PL", glob("ext/*"));
 makemaker_args  (
     test => { TESTS => join ' ', (glob("t/*.t"), glob("t/*/*.t")) },
     MAN1PODS => {},
 );
-clean_files     (
+clean_files     (map nativize($_),
     "pugs*", "src/pugs_config.h", "src/pugs_version.h", 
     'src/Config.hs', 'blib6',
     map {("$_/*.hi", "$_/*.o*")} @srcdirs
@@ -133,7 +133,7 @@ sub create_config_h {
 
 sub set_postamble {
     my @srcfiles = map glob("$_/*.hs"), @srcdirs;
-    postamble(<< ".");
+    postamble(nativize(<< "."));
 src/Config.hs : util/PugsConfig.pm
 	$Config{perlpath} -Iutil -MPugsConfig -e "PugsConfig->write_config_module" > src/Config.hs
 

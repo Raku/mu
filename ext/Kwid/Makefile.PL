@@ -15,7 +15,7 @@ author          ('Brian Ingerson <ingy@cpan.org>');
 license         ('perl');
 install_script  ('kwid');
 
-postamble(<< ".");
+postamble(nativize(<< "."));
 
 $Bin/kwid :: src/Kwid/AST.hs
 	ghc --make -Wall -fno-warn-missing-signatures -fno-warn-name-shadowing -o $Bin/$kwid $Bin/src/Main.hs -i"$Bin/src"
