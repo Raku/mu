@@ -22,10 +22,10 @@ my $c = 0;
 
 for (@examples) {
     ++$c;
-    say "ok $c # skip Try to compile $_\.p6";
+    say "ok $c # Try to compile $_\.p6";
     # when (@outputs) {
     if ($_ eq any(@outputs)) {
         ++$c;
-        say "ok $c # skip Try to run $_\.p6 and compare to output/$_";
+        say "ok $c # Try to run $_\.p6 and compare to output/$_";
     }
 }
