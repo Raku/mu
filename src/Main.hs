@@ -46,6 +46,9 @@ run ("-e":prog:args)            = doRun "-" args prog
 run ("-h":_)                    = printHelp
 run ("-v":_)                    = banner
 run ("--version":_)             = banner
+run ("-c":"-e":prog:_)          = doParse prog
+run ("-ce":prog:_)              = doParse prog
+run ("-c":file:_)               = readFile file >>= doParse
 run ("-":args)                  = do
     prog <- getContents
     doRun "-" [] prog
