@@ -1,2 +1,2 @@
 use ExtUtils::MakeMaker;
-WriteMakefile( NAME => 'pcre' );
+WriteMakefile( NAME => 'libpcre' );
