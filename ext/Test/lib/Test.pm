@@ -4,6 +4,7 @@ use v6;
 my $loop = 0;
 my $plan = 0;
 my $failed = 0;
+my $log_file = %ENV{'TEST_LOG_FILE'};
 
 sub plan (Int $number_of_tests) returns Int is export {
     $plan = $number_of_tests;
@@ -19,6 +20,7 @@ sub proclaim (Bool $cond, Str ?$desc, Str ?$context, Str ?$got, Str ?$expected) 
     say $ok, $loop, $out, $context_out;
 
     report_failure($context, $got, $expected) if (!$cond);
+    write_log(got => $got, expected => $expected, desc => $desc, content => $context) if (!$cond);
 
     return $cond;
 }
@@ -130,6 +132,37 @@ sub report_failure (Str ?$todo, Str ?$got, Str ?$expected) returns Bool is expor
     diag("       Got: $got") if ($got);
 }
 
+sub test_log_file (Str $filename) returns Str is export {
+    $log_file = $filename;
+    return $log_file;
+}
+
+sub write_log (+$got, +$expected, Str +$desc, Str +$errstr, Str +$context, Str +$operator = 'eq') returns Bool {
+    # return 0 but true unless $log_file; # not yet implemented
+    return 1 unless $log_file;
+    # until we have 'given'/'when'
+    my $status = 'FAILED';
+    if (index($?CALLER::CALLER::SUBNAME, 'todo') >= 0) {
+        $status = 'TODO';
+    }
+    if (index($?CALLER::CALLER::SUBNAME, 'skip') >= 0) {
+        $status = 'SKIPPED';
+    }
+    my $out;
+    if ($out = open(">>$log_file")) {
+	$out.say $?CALLER::CALLER::CALLER::FILE ~ " $loop $status";
+	$out.say $desc.[1] if $desc;
+	$out.say $errstr.[1] if $errstr;
+	$out.say $context.[1] if $context;
+	$out.say '### Expected ###';
+	$out.say $expected.[1];
+	$out.say '### Actual Results ###';
+	$out.say $got.[1], "\n";
+	$out.close;
+	return 1;
+    }
+    return 0;
+}
 
 sub diag (Str $diag) is export {
     for (split("\n", $diag)) -> $line {
@@ -163,6 +196,7 @@ Test - Test support module for perl6
   require Test;
   
   plan 10;
+  test_log_file('test.log');
   
   ok(2 + 2 == 4, '2 and 2 make 4');
   is(2 + 2, 4, '2 and 2 make 4');
@@ -200,6 +234,11 @@ section of this document.
 
 All tests need a plan. A plan is simply the number of tests which are
 expected to run. This should be specified at the very top of your tests.
+
+- `test_log_file (Str $filename) returns Str`
+
+If you specify a log file, any failed tests will log some diagnostics
+there.  The filename 'test.log' is recommended.
 
 == Testing Functions
 
@@ -318,6 +357,11 @@ These are functions taken directly from Test::Exception. They will
 accept a block to execute and then either an Exception type, a reg-exp
 or a string to match against the error.
 
+= ENVIRONMENT
+
+Setting the environment variable TEST_LOG_FILE sets the default 
+filename where test diagnostics should be written.
+
 = SEE ALSO
 
 The Perl 5 Test modules
@@ -346,6 +390,8 @@ Brian Ingerson <ingy@cpan.org>
 Jesse Vincent <jesse@bestpractical.com>
 
 Yuval Kogman <nothingmuch@woobling.org>
+
+Nathan Gray <kolibrie@graystudios.org>
 
 = COPYRIGHT
 

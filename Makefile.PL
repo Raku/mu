@@ -29,6 +29,7 @@ makemaker_args  (
 clean_files     (map fixpaths($_),
     "pugs*", "src/pugs_config.h", $version_h, $config_h,
     'src/Config.hs', 'blib6',
+    'test.log',
     map {("$_/*.hi", "$_/*.o*")} @srcdirs
 );
 
