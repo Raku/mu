@@ -229,6 +229,7 @@ ruleConstruct = rule "construct" $ tryChoice
     , ruleForeachConstruct
     , ruleLoopConstruct
     , ruleCondConstruct
+    , ruleWhileUntilConstruct
     ]
 
 ruleGatherConstruct = rule "gather construct" $ do
@@ -265,7 +266,12 @@ ruleCondConstruct = rule "conditional construct" $ do
         ruleBlock
     retSyn "if" [cond, body, bodyElse]
 
-ruleWhileUntilConstruct = rule "while/until construct" $ fail ""
+ruleWhileUntilConstruct = rule "while/until construct" $ do
+    sym <- choice [ symbol "while", symbol "until" ]
+    cond <- maybeParens $ ruleExpression
+    body <- ruleBlock
+    retSyn sym [ cond, body ]
+
 ruleForConstruct = rule "for construct" $ fail ""
 ruleGivenConstruct = rule "given construct" $ fail ""
 

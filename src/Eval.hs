@@ -311,6 +311,8 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
                 _ -> runBody
         val <- resetT runBody
         retVal val
+    "while" -> doWhileUntil id
+    "until" -> doWhileUntil not
     "=" -> do
         case exps of
             [Var name, exp] -> do
@@ -392,6 +394,18 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         if (f $ vCast vbool)
             then reduce env bodyIf
             else reduce env bodyElse
+    -- XXX This treatment of while/until loops probably needs work
+    doWhileUntil f = do
+        let [ cond, body] = exps
+        let runBody = do
+            vbool <- enterEvalContext "Bool" cond
+            case f $ vCast vbool of
+                True -> do
+                    reduce env body
+                    runBody
+                _ -> shiftT $ \_ -> return $ vbool
+        val <- resetT runBody
+        retVal val
 
 reduce env@Env{ envClasses = cls, envContext = cxt, envLexical = lex, envGlobal = glob } exp@(App name invs args) = do
     syms    <- liftIO $ readIORef glob

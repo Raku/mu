@@ -5,7 +5,7 @@ use v6;
 sub fisher_yates_shuffle (@deck) {
    my @copy = @deck;
    my $i = +@copy;
-   loop ($i--;$i--;) {
+   while ($i--) {
       my $j = int(rand($i+1));
       my $t = @copy[$i];
       @copy[$i] = @copy[$j];
