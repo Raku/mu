@@ -1,5 +1,5 @@
 package Perl6::Pugs;
-$Pugs::VERSION = '6.0.5';
+$Pugs::VERSION = '6.0.6';
 
 use strict;
 
@@ -9,7 +9,7 @@ Perl6::Pugs - Perl6 User's Golfing System
 
 =head1 VERSION
 
-This document describes version 6.0.4 of Pugs, released February 15, 2005.
+This document describes version 6.0.6 of Pugs, released February 18, 2005.
 
 =head1 SYNOPSIS
 
@@ -25,44 +25,6 @@ Although Pugs does not yet directly relate to PGE or Parrot, the hope is that
 it can flesh out corner cases in the Synopses during implementation, as well
 as contributing more test cases to the main Perl6 project.
 
-=head2 Featherweight Perl6
-
-Featherweight Perl6 (FP6) is a simplified, side-effect-free subset of the
-Perl6 language, inspired by I<Featherweight Java>.  It is the first-step
-target language of Pugs.
-
-Notable features in Perl6 that are I<not> in FP6:
-
-=over 4
-
-=item * Assignments and mutable variables.
-
-=item * Grammar, Rules and Macros.
-
-=item * Unboxed types.
-
-=item * Run-time applications of "but" and "does".
-
-=item * I/O primitives.
-
-=item * Perl5 Compatibility Mode.
-
-=item * Non-ascii symbols: E<171>, E<187> and E<165>.
-
-=back
-
-The only ways to do I/O in FP6 are:
-
-=over 4
-
-=item * C<@*ARGS>, C<$*PID>, C<$*PROGRAM_NAME>, etc.
-
-=item * C<< <> >> (lazily-evaluated lines of input).
-
-=item * The toplevel evaluation result is printed under flattened list context with items stringified.
-
-=back
-
 =head2 Release Plans
 
 The major/minor version numbers of Pugs converges to 2*pi; each significant
@@ -75,17 +37,17 @@ The current milestones are:
 
 =item 6.0: Initial release.
 
-=item 6.2: Implement FP6, without user-defined subtypes.
+=item 6.2: Basic IO and control flow elements; mutable variables; assignment.
 
-=item 6.28: Full FP6, with classes and traits.
+=item 6.28: Classes and traits.
 
-=item 6.283: Assignment and I/O primitives.
+=item 6.283: Rules and Grammars.
 
 =item 6.2831: Role composition and other runtime features.
 
-=item 6.28318: Rules and Grammars.
+=item 6.28318: Macros.
 
-=item 6.283185: Macros; full Perl6 bootstrapping.
+=item 6.283185: Rewrite in Perl6.
 
 =back
 
