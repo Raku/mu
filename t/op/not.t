@@ -44,3 +44,5 @@ ok $not1 eq '', "'' is false";
 ok $not1 == (), "() is false";
 ok $not1 == 0, "0 is false";
 ok $not0 == 1, "1 is true";
+
+diag "foo";
