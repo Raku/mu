@@ -217,30 +217,29 @@ breakOnGlue glue rest@(x:xs)
     | glue `isPrefixOf` rest = ([], rest)
     | otherwise = (x:piece, rest') where (piece, rest') = breakOnGlue glue xs
 
-findVar name
-    | (package, name') <- breakOnGlue "::" name
-    , (sig, "CALLER") <- breakOnGlue "CALLER" package = do
-        rv <- asks envCaller
-        case rv of
-            Just caller -> findVar' caller (sig ++ (drop 2 name'))
-            Nothing -> retError "cannot access CALLER:: in top level" (Var name)
-    | otherwise = do
-        env <- ask
-        findVar' env name
+findVar name = do
+    env <- ask
+    findVar' env name
     where
-    findVar' env name = do
-        let lexSym = findSym name $ envLexical env
-        -- XXX rewrite using Maybe monad
-        if isJust lexSym then return lexSym else do
-            glob <- liftIO . readIORef $ envGlobal env
-            let globSym = findSym name glob
-            if isJust globSym
-                then return globSym
-                else
-                    let globSym = findSym (toGlobal name) glob in
-                    if isJust globSym
-                        then return globSym
-                        else return Nothing
+    findVar' env name
+        | (package, name') <- breakOnGlue "::" name
+        , (sig, "CALLER") <- breakOnGlue "CALLER" package =
+            case (envCaller env) of
+                Just caller -> findVar' caller (sig ++ (drop 2 name'))
+                Nothing -> retError "cannot access CALLER:: in top level" (Var name)
+        | otherwise = do
+            let lexSym = findSym name $ envLexical env
+            -- XXX rewrite using Maybe monad
+            if isJust lexSym then return lexSym else do
+                glob <- liftIO . readIORef $ envGlobal env
+                let globSym = findSym name glob
+                if isJust globSym
+                    then return globSym
+                    else
+                        let globSym = findSym (toGlobal name) glob in
+                        if isJust globSym
+                            then return globSym
+                            else return Nothing
     
 reduce :: Env -> Exp -> Eval Val
 
