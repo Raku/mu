@@ -61,7 +61,11 @@ op1 "chomp" = \mv -> do
             return $ VStr [last str]
         _   -> return VUndef
 op1 "lc" = return . VStr . (map toLower) . vCast
+op1 "lcfirst" = return . VStr .
+                (\x -> case x of { (a:as) -> toLower a : as ; a -> a}) . vCast
 op1 "uc" = return . VStr . (map toUpper) . vCast
+op1 "ucfirst" = return . VStr .
+                (\x -> case x of { (a:as) -> toUpper a : as ; a -> a}) . vCast
 op1 "undef" = \mv -> do
     liftIO $ writeIORef (vCast mv) $ VUndef
     return VUndef
@@ -587,7 +591,9 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Str       pre     chop    (rw!Str)\
 \\n   Str       pre     chomp   (rw!Str)\
 \\n   Str       pre     lc      (Str)\
+\\n   Str       pre     lcfirst (Str)\
 \\n   Str       pre     uc      (Str)\
+\\n   Str       pre     ucfirst (Str)\
 \\n   Any       post    ++      (rw!Num)\
 \\n   Num       post    --      (rw!Num)\
 \\n   Any       spre    ++      (rw!Num)\

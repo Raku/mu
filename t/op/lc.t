@@ -3,9 +3,10 @@
 use v6;
 require Test;
 
-plan(3);
+plan(4);
 
-ok(lc "Hello World" eq "hello world", "lc - simple");
-ok(lc "ÅÄÖ" eq "åäö", "lc - some finnish non-achii chars");
-ok(lc "ŃÓÒÚÙ" eq "ńóòúù", "lc - accented chars");
+ok(lc "Hello World" eq "hello world", "simple");
+ok(lc "" eq "", "empty string");
+ok(lc "ÅÄÖ" eq "åäö", "some finnish non-achii chars");
+ok(lc "ŃÓÒÚÙ" eq "ńóòúù", "accented chars");
 
