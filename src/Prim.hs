@@ -244,6 +244,7 @@ op1 "ref"  = return . VStr . valType
 op1 "pop"  = op1Pop (last, init)
 op1 "shift"= op1Pop (head, tail)
 op1 "pick" = op1Pick
+op1 "chr"  = return . op1Chr
 op1 other  = return . (\x -> VError ("unimplemented unaryOp: " ++ other) (App other [Val x] []))
 
 
@@ -254,6 +255,9 @@ op1Values v@(VHash _) = VList $ map snd $ (vCast :: Val -> [VPair]) v
 op1Values v@(VList _) = VList $ map snd $ (vCast :: Val -> [VPair]) v -- hope it's a list of pairs
 op1Values (VRef v) = op1Values v
 op1Values v = VError "values not defined" (Val v)
+
+op1Chr   :: Val -> Val
+op1Chr (VInt i) = VStr [(chr . fromIntegral) i]
 
 op1Pick :: Val -> Eval Val
 op1Pick (VJunc (Junc JAny _ set)) = do -- pick mainly works on 'any'
@@ -911,5 +915,6 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Scalar    left    nor     (Bool, ~Bool)\
 \\n   Scalar    left    xor     (Bool, Bool)\
 \\n   Scalar    left    err     (Bool, ~Bool)\
+\\n   Int       pre     chr     (Str)\
 \\n   Any       list    ;       (Any)\
 \\n"
