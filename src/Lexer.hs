@@ -103,13 +103,8 @@ interpolatingStringLiteral endchar interpolator = do
         
 
 naturalOrRat  = do
-        b <- lexeme sign
         n <- lexeme natRat
-        return $ if b
-            then n
-            else case n of
-                Left x -> Left $ -x
-                Right y -> Right $ -y
+        return n
     <?> "number"
     where
     natRat = do
