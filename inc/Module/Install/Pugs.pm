@@ -84,8 +84,10 @@ sub setup_perl6_install {
     my $self = shift;
     my $libs = $self->get_pugs_config;
     $self->makemaker_args(
-        INSTALLARCHLIB => $libs->{archlib},
-        INSTALLPRIVLIB => $libs->{privlib},
+        INSTALLARCHLIB  => $libs->{archlib},
+        INSTALLPRIVLIB  => $libs->{privlib},
+        INSTALLSITEARCH => $libs->{sitearch},
+        INSTALLSITELIB  => $libs->{sitelib},
     );
 }
 

@@ -40,7 +40,7 @@ clean_files     (map fixpaths($_),
 set_postamble   ();
 no_index        (directory => 'inc', 'examples');
 sign            (1);
-WritePugs       (6);
+WritePugs       (5);
 
 ################################################################################
 sub set_postamble {
@@ -57,6 +57,8 @@ sub set_postamble {
 
     my @prereqs = ($config_h, $pcre, $unicode);
     $ghc_output .= " $pcre $unicode";
+
+    my $config = get_pugs_config();
 
     postamble(fixpaths(<< "."));
 $config_h : lib/Perl6/Pugs.pm util/config_h.pl
@@ -103,10 +105,10 @@ INST6_MAN3DIR = 'blib6/man3'
 
 pure_site_install ::
 	\$(NOECHO) \$(MOD_INSTALL) \\
-		\$(INST6_LIB) \$(DESTINSTALLPRIVLIB) \\
-		\$(INST6_ARCHLIB) \$(DESTINSTALLARCHLIB) \\
-		\$(INST6_BIN) \$(DESTINSTALLBIN) \\
-		\$(INST6_SCRIPT) \$(DESTINSTALLSCRIPT) \\
+		\$(INST6_LIB) $config->{privlib} \\
+		\$(INST6_ARCHLIB) $config->{archlib} \\
+		\$(INST6_BIN) $config->{installbin} \\
+		\$(INST6_SCRIPT) $config->{installscript} \\
 		\$(INST6_MAN1DIR) \$(DESTINSTALLMAN1DIR) \\
 		\$(INST6_MAN3DIR) \$(DESTINSTALLMAN3DIR)
 .
