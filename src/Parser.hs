@@ -48,6 +48,7 @@ ruleStatementList = rule "statements" $ choice
     nonSep = doSep many
     semiSep = doSep many1
     doSep count rule = do
+        whiteSpace
         pos         <- getPosition
         statement   <- rule
         rest        <- option [] $ try $ do { count (symbol ";"); ruleStatementList }

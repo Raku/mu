@@ -4,6 +4,8 @@
 # This document was stolen directly from perlpod.pod. Making a diff between
 # the two documents is one way to see how Pod and Kwid compare.
 
+=kwid
+
 = NAME
 
 perlkwid - the Kwiki Documentation format

@@ -47,8 +47,40 @@ getVar = do
     error ""    
 
 perl6Lexer = P.makeTokenParser perl6Def
-whiteSpace = do
-    P.whiteSpace perl6Lexer
+whiteSpace = choice
+    [ rulePodBlock
+    , P.whiteSpace perl6Lexer
+    ]
+
+ruleBeginOfLine = do
+    pos <- getPosition
+    unless (sourceColumn pos == 1) $ fail ""
+    return ()
+
+rulePodIntroducer = (<?> "intro") $ do
+    ruleBeginOfLine
+    char '='
+
+rulePodCut = (<?> "cut") $ do
+    rulePodIntroducer
+    string "cut"
+    choice [ do { char '\n'; return () }, eof ]
+    return ()
+
+rulePodBlock = (<?> "block") $ do
+    rulePodIntroducer
+    identifier
+--    newline
+    anyChar
+    rulePodBody
+
+rulePodBody = (try rulePodCut) <|> eof <|> do
+    many $ satisfy  (/= '\n')
+    newline
+--    newline
+    rulePodBody
+    return ()
+
 parens     = P.parens perl6Lexer
 lexeme     = P.lexeme perl6Lexer
 identifier = P.identifier perl6Lexer
