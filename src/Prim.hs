@@ -383,6 +383,8 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Junction  pre     none    (List)\
 \\n   Bool      pre     rmdir   (Str)\
 \\n   Bool      pre     mkdir   (Str)\
+\\n   Str       pre     =       (IO)\
+\\n   List      pre     =       (IO)\
 \\n   Junction  list    |       (List)\
 \\n   Junction  list    &       (List)\
 \\n   Junction  list    ^       (List)\
