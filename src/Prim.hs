@@ -18,10 +18,10 @@ import Pretty
 
 op0 :: Ident -> [Val] -> Val
 op0 ","  = VList . concatMap vCast
-op0 "!"  = VJunc JNone
-op0 "&"  = VJunc JAll
-op0 "^"  = VJunc JOne
-op0 "|"  = VJunc JAny
+op0 "!"  = VJunc JNone . mkSet
+op0 "&"  = VJunc JAll . mkSet
+op0 "^"  = VJunc JOne . mkSet
+op0 "|"  = VJunc JAny . mkSet
 op0 s    = \x -> VError ("unimplemented listOp: " ++ s) (Val $ VList x)
 
 op1 :: Ident -> (forall a. Context a => a) -> Val

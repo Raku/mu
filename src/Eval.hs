@@ -44,14 +44,14 @@ evaluate env@Env{ cxt = cxt, cls = cls } exp
 -- First pass - thread thru all() and none()
 -- Second pass - thread thru any() and one()
 
-juncType :: Val -> Maybe (JuncType, [Val])
+juncType :: Val -> Maybe (JuncType, VJunc)
 juncType v
     | VJunc j l <- v
     = Just (j, l)
     | otherwise
     = Nothing
 
-juncTypeIs :: Val -> [JuncType] -> Maybe (JuncType, [Val])
+juncTypeIs :: Val -> [JuncType] -> Maybe (JuncType, VJunc)
 juncTypeIs v js
     | Just (j, l) <- juncType v
     , j `elem` js
@@ -106,9 +106,9 @@ apply env@Env{ cls = cls } Sub{ subParams = prms, subFun = fun } invs args =
 
 juncApply f args
     | (before, (ApplyArg name (VJunc j vs) coll):after) <- break isTotalJunc args
-    = VJunc j [ juncApply f (before ++ ((ApplyArg name v coll):after)) | v <- vs ]
+    = VJunc j $ mkSet [ juncApply f (before ++ ((ApplyArg name v coll):after)) | v <- setToList vs ]
     | (before, (ApplyArg name (VJunc j vs) coll):after) <- break isPartialJunc args
-    = VJunc j [ juncApply f (before ++ ((ApplyArg name v coll):after)) | v <- vs ]
+    = VJunc j $ mkSet [ juncApply f (before ++ ((ApplyArg name v coll):after)) | v <- setToList vs ]
     | (val:_) <- [ val | (ApplyArg _ val@(VError _ _) _) <- args ]
     = val
     | otherwise

@@ -63,11 +63,11 @@ instance Context VBool where
     doCast (VList [])  = False
     doCast _           = True
 
-juncToBool :: JuncType -> [Val] -> Bool
-juncToBool JAny     = any vCast
-juncToBool JAll     = all vCast
-juncToBool JNone    = all (not . vCast)
-juncToBool JOne     = (1 ==) . length . filter vCast
+juncToBool :: JuncType -> Set Val -> Bool
+juncToBool JAny     = (True `elementOf`) . mapSet vCast
+juncToBool JAll     = not . (False `elementOf`) . mapSet vCast
+juncToBool JNone    = not . (True `elementOf`) . mapSet vCast
+juncToBool JOne     = (1 ==) . length . filter vCast . setToList
 
 instance Context VInt where
     castV = VInt
@@ -124,6 +124,10 @@ instance Context VArray where
     castV = VArray
     vCast x = MkArray (vCast x) 
 
+instance Context VJunc where
+    castV = VJunc JAny
+    vCast x = mkSet (vCast x)
+
 instance Context VList where
     castV = VList
     vCast (VList l)     = l
@@ -141,6 +145,7 @@ instance Context Word8 where doCast = intCast
 instance Context [Word8] where doCast = map (toEnum . ord) . vCast
 
 type VScalar = Val
+type VJunc = Set Val
 
 instance Context VScalar where
     vCast = id
@@ -198,7 +203,7 @@ data Val
     | VPair     Val Val
     | VSub      VSub
     | VBlock    Exp
-    | VJunc     JuncType [Val]
+    | VJunc     JuncType VJunc
     | VError    VStr Exp
     deriving (Show, Eq, Ord)
 
@@ -238,6 +243,9 @@ data JuncType = JAll | JAny | JOne | JNone
 
 instance Eq ([Val] -> Val)
 instance Ord ([Val] -> Val)
+instance (Ord a) => Ord (Set a)
+instance (Show a) => Show (Set a) where
+    show x = show $ setToList x
 instance Ord VComplex where {- ... -}
 instance (Ord a, Ord b) => Ord (FiniteMap a b)
 

@@ -23,6 +23,7 @@ module Internals (
     module Data.Word,
     module Data.Ratio,
     module Data.Char,
+    module Data.Set,
     module Data.Tree,
     module Data.Maybe,
     module Data.Complex,
@@ -40,10 +41,11 @@ import qualified System.IO (try)
 import Data.Bits
 import Data.Maybe
 import Data.Either
-import Data.List
+import Data.List hiding (intersect, union)
 import Data.Ratio
 import Data.Word
 import Data.Char
+import Data.Set
 import Data.Ratio
 import Data.Complex
 import Data.FiniteMap

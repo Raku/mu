@@ -22,7 +22,7 @@ class (Show a) => Pretty a where
 instance Pretty Val where
     pretty (VJunc j l) = "(" ++ joinList mark items ++ ")"
         where
-        items = map pretty l
+        items = map pretty $ setToList l
         mark  = case j of
             JAny  -> " | "
             JAll  -> " & "
