@@ -41,7 +41,7 @@ my @config = <
     pugs_revision
 >;
 
-plan 1+@config;
+plan 1+@config+1;
 
 diag "Running under $?OS";
 
@@ -70,5 +70,9 @@ for @config -> $item {
 
   my $local_sep = "\t$item: %?CONFIG{$item}\n";
 
-  todo_is( $pugs_config, $local_sep, "-V:$item works" );
+  is( $pugs_config, $local_sep, "-V:$item works" );
 };
+
+my $nonexistent = run_pugs('-V:unknown_option_that_does_not_exist');
+is $nonexistent, "\tunknown_option_that_does_not_exist: \n", "Nonexistent options";
+

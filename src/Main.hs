@@ -252,7 +252,9 @@ runProgramWith fenv f name args prog = do
     val <- runEnv $ runRule (fenv env) id ruleProgram name $ decodeUTF8 prog
     f val
 
--- XXX clean up code and eliminate the duplication
+-- createConfigLine :: String -> String -- why doesn't this work?
+createConfigLine item = "\t" ++ item ++ ": " ++ (lookupWithDefaultFM config "" item)
+
 printConfigInfo :: [String] -> IO ()
 printConfigInfo [] = do
     environ <- getEnvironment
@@ -262,9 +264,9 @@ printConfigInfo [] = do
         ,""
         ,"Summary of pugs configuration:"
         ,"" ]
-        ++ map (\x -> "\t" ++ fst x ++ ": " ++ snd x) (fmToList config)
+        ++ map (\x -> createConfigLine x) (map (fst) (fmToList config))
         ++ [ "" ]
         ++ [ "@*INC:" ] ++ libs
         
 printConfigInfo (item:_) = do
-	putStrLn $ "\t" ++ item ++ ": " ++ (lookupWithDefaultFM config "" item)
+	putStrLn $ createConfigLine item
