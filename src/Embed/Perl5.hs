@@ -1,7 +1,7 @@
 {-# OPTIONS -fglasgow-exts -cpp -O #-}
 
 #undef PUGS_EMBED_PERL5
-#include "pugs_config.h"
+#include "../pugs_config.h"
 
 #ifndef PUGS_EMBED_PERL5
 module Embed.Perl5 where
