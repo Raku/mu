@@ -44,3 +44,7 @@ if (@array) { say 'ok 6' } else { say 'not ok 6 # TODO' }
 my %hash;
 eval ' %hash<Mon Tue Wed Thu Fri Sat Sun> = 1..7; ';
 if (%hash) { say 'ok 7' } else { say 'not ok 7 # TODO' }
+
+my $handle = open(">/tmp/tmpfile");
+eval ' for *FILE { $bar ~= $_ } ';
+ok ($bar, 8);
