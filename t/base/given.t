@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 17;
+plan 22;
 
 {
 	# basic sanity
@@ -83,3 +83,19 @@ plan 17;
 	ok(!$panic, "never ever execute something after a default {}");
 };
 
+{
+	# topic not given by 'given'
+	my ($b_one, $b_two, $b_three,$panic) = (0,0,0,0);
+	eval '
+	for (qw(1 2 3)) {
+		when 1 {$b_one = 1}
+		when 2 {$b_two = 1}
+		when 3 {$b_three = 1}
+		default{$panic =1}
+	}';
+        ok(!$!,"parse ok");
+        ok($b_one, "first iteration");
+        ok($b_two, "second iteration");
+        ok($b_three, "third iteration");
+        ok(!$panic,"should not fall into default in this case");
+}
