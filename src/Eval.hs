@@ -224,18 +224,15 @@ findVar env name
             Just caller -> findVar caller (sig ++ (drop 2 name'))
             Nothing -> retError "cannot access CALLER:: in top level" (Var name)
     | otherwise = do
-        let lexSym = findSym name $ envLexical env
-        -- XXX rewrite using Maybe monad
-        if isJust lexSym then return lexSym else do
-            glob <- liftIO . readIORef $ envGlobal env
-            let globSym = findSym name glob
-            if isJust globSym
-                then return globSym
-                else
-                    let globSym = findSym (toGlobal name) glob in
-                    if isJust globSym
-                        then return globSym
-                        else return Nothing
+        callCC $ \foundIt -> do
+          let lexSym = findSym name $ envLexical env
+          when (isJust lexSym) (foundIt lexSym)
+          glob <- liftIO . readIORef $ envGlobal env
+          let globSym = findSym name glob
+          when (isJust globSym) (foundIt globSym)
+          let globSym = findSym (toGlobal name) glob
+          when (isJust globSym) (foundIt globSym)
+          return Nothing
     
 reduce :: Env -> Exp -> Eval Val
 
