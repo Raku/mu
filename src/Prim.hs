@@ -37,11 +37,20 @@ op0 s    = \x -> return $ VError ("unimplemented listOp: " ++ s) (Val $ VList x)
 
 op1 :: Ident -> Val -> Eval Val
 op1 "!"    = return . fmapVal not
+op1 "chop" = \mv -> do
+    val <- liftIO $ readIORef (vCast mv)
+    case vCast val of
+        ""  -> return VUndef
+        str -> do
+            liftIO $ writeIORef (vCast mv) $ VStr (init str)
+            return $ VStr [last str]
 op1 "chomp" = \mv -> do
     val <- liftIO $ readIORef (vCast mv)
-    let str = vCast val
-    liftIO $ writeIORef (vCast mv) $ VStr (tail str)
-    return $ VStr [head str]
+    case vCast val of
+        str@(_:_) | last str == '\n' -> do
+            liftIO $ writeIORef (vCast mv) $ VStr (init str)
+            return $ VStr [last str]
+        _   -> return VUndef
 op1 "undef" = \mv -> do
     liftIO $ writeIORef (vCast mv) $ VUndef
     return VUndef
@@ -544,6 +553,7 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   List      spre    ...     (Num)\
 \\n   Any       pre     undef   ()\
 \\n   Any       pre     undef   (rw!Any)\
+\\n   Str       pre     chop    (rw!Str)\
 \\n   Str       pre     chomp   (rw!Str)\
 \\n   Any       post    ++      (rw!Num)\
 \\n   Num       post    --      (rw!Num)\
