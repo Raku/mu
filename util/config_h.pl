@@ -94,7 +94,7 @@ sub try_compile {
         open TMP, "> $temp.hs";
         print TMP $code;
         system(
-            ($ENV{GHC} || 'ghc'),
+            ($ENV{GHC} || 'ghc'), @_,
             "--make", "-v0",
             -o => "$temp.exe",
             "$temp.hs"
@@ -104,6 +104,9 @@ sub try_compile {
 
     my $ok = -e "$temp.exe";
     unlink("$temp.exe");
+    unlink("$temp.hs");
+    unlink("$temp.hi");
+    unlink("$temp.o");
     return $ok;
 }
 
