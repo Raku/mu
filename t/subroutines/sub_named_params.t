@@ -1,3 +1,5 @@
+#!/usr/bin/pugs
+
 use v6;
 
 require Test;
@@ -31,7 +33,7 @@ These tests test named parmaeters. L<S06/"Named parameters">
 # L<S06/"Named parameters" /marked by a \+/>
 sub simple_pos_params (+$x) { $x }
 
-todo_is(simple_pos_params( 'x' => 4 ), 4, "simple named param");
+is(simple_pos_params( 'x' => 4 ), 4, "simple named param");
 
 
 sub foo (+$x = 3) { $x }
@@ -70,8 +72,8 @@ sub formalize($text, +$case, +$justify)  returns List {
 {
 my ($text,$case,$justify)  = formalize('title', case=>'upper');
 is($text,'title', "text param was positional");
-todo_is($justify, undef, "justification param was not given");
-todo_is($case, 'upper', "case param was named, and in justification param's position");
+is($justify, undef, "justification param was not given");
+is($case, 'upper', "case param was named, and in justification param's position");
 }
 
 
@@ -79,7 +81,7 @@ todo_is($case, 'upper', "case param was named, and in justification param's posi
 my ($text,$case,$justify)   = formalize('title', justify=>'left');
 is($text,'title', "text param was positional");
 is($justify, 'left', "justify param was named");
-todo_is($case, undef, "case was not given at all");
+is($case, undef, "case was not given at all");
 }
 
 {
