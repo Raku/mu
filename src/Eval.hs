@@ -53,7 +53,7 @@ debug key fun str a = do
             fm <- readIORef ref
             let val = fun $ lookupWithDefaultFM fm "" key
             when (length val > 100) $ do
-                error "deep recursion"
+                hPutStrLn stderr "*** Warning: deep recursion"
             writeIORef ref (addToFM fm key val)
             putStrLn ("***" ++ val ++ str ++ ": " ++ pretty a)
 
@@ -125,7 +125,9 @@ newMVal val = do
 
 writeMVal l (MVal r)    = writeMVal l =<< liftIO (readIORef r)
 writeMVal (MVal l) r    = liftIO $ writeIORef l r
-writeMVal x y           = error $ "Can't write a constant item" ++ show (x, y)
+writeMVal l@(VError s e) _ = retError s e
+writeMVal _ l@(VError s e) = retError s e
+writeMVal x y           = retError "Can't write a constant item" (Val x)
 
 -- readMVal (MVal mv) =  liftIO $ readIORef mv
 
