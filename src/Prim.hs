@@ -366,6 +366,8 @@ op2 "||" = op2Logical (id :: Bool -> Bool)
 op2 "^^" = op2Bool ((/=) :: Bool -> Bool -> Bool)
 op2 "//" = op2Logical isJust
 op2 "!!" = op2Bool (\x y -> not x && not y)
+-- NOTE:  "»" == '\194':'\187'
+op2 ('\194':'\187':op) = op2Hyper $ init $ init $ op
 -- XXX pipe forward XXX
 op2 "and"= op2 "&&"
 op2 "or" = op2 "||"
@@ -391,6 +393,14 @@ op2 "split"= \x y -> return $ split (vCast x) (vCast y)
 	| glue `isPrefixOf` rest = ([], rest)
 	| otherwise = (x:piece, rest') where (piece, rest') = breakOnGlue glue xs
 op2 s    = \x y -> return $ VError ("unimplemented binaryOp: " ++ s) (App s [] [Val x, Val y])
+
+op2Hyper op x y
+    | VList x' <- x, VList y' <- y
+    = mapM (\(a,b) -> op2 op a b) (x' `zip` y') >>= (return . VList)
+    | VList x' <- x
+    = mapM ((flip (op2 op)) y) x' >>= (return . VList)
+    | VList y' <- y
+    = mapM (op2 op x) y' >>= (return . VList)
 
 op2Push f inv args = do
     let array = vCast inv
@@ -691,6 +701,11 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Scalar    left    ||      (Bool, Bool)\
 \\n   Scalar    left    ^^      (Bool, Bool)\
 \\n   Scalar    left    //      (Bool, Bool)\
+\\n   List      left    »+«     (Any, Any)\
+\\n   List      left    »*«     (Any, Any)\
+\\n   List      left    »/«     (Any, Any)\
+\\n   List      left    »x«     (Any, Any)\
+\\n   List      left    »xx«    (Any, Any)\
 \\n   List      list    ,       (List)\
 \\n   List      spre    <==     (List)\
 \\n   List      left    ==>     (List, Code)\

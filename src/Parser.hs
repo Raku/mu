@@ -448,8 +448,10 @@ tightOperators = do
     , postOps  " ++ -- " ++ preOps " ++ -- "            -- Auto-Increment
     , rightOps " ** "                                   -- Exponentiation
     , preOps   " = ! + - ~ ? * ** +^ ~^ ?^ \\ "         -- Symbolic Unary
-    , leftOps  " * / % x xx +& +< +> ~& ~< ~> "         -- Multiplicative
-    , leftOps  " + - ~ +| +^ ~| ~^ "                    -- Additive
+    , leftOps $
+               " »*« »/« »x« »xx« " ++
+               " * / % x xx +& +< +> ~& ~< ~> "         -- Multiplicative
+    , leftOps  " »+« + - ~ +| +^ ~| ~^ "                -- Additive
     , leftOps  " & ! "                                  -- Junctive And
     , leftOps  " ^ | "                                  -- Junctive Or
     , preOps   unary                                    -- Named Unary
