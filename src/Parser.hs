@@ -864,7 +864,8 @@ pairLiteral = try $
 	    <|>
 	    valueExp
 	valueExp =
-	    parens parseTerm
+	    parens ruleExpression
+	    <|> arrayLiteral
 	    <|> qwLiteral
 	    -- <|> ruleStandaloneBlock -- :key{ k1 => val }
 
