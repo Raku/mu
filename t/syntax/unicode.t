@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 16;
+plan 18;
 
 # english ;-)
 ok(eval 'my $foo; 1', "ascii declaration");
