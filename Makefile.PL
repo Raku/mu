@@ -152,8 +152,11 @@ sub create_config_h {
 sub set_postamble {
     my @srcfiles = map glob("$_/*.hs"), @srcdirs;
     postamble(<< ".");
-src/Config.hs :
+src/Config.hs : util/PugsConfig.pm
 	$Config{perlpath} -Iutil -MPugsConfig -e "PugsConfig->write_config_module" > src/Config.hs
+
+optimized :: src/Config.hs @srcfiles $version_h
+	ghc -O2 --make -Wall -fno-warn-missing-signatures -fno-warn-name-shadowing -o pugs src/Main.hs -isrc
 
 $pugs : src/Config.hs @srcfiles $version_h
 	ghc --make -Wall -fno-warn-missing-signatures -fno-warn-name-shadowing -o pugs src/Main.hs -isrc
