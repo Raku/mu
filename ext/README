@@ -1,0 +1,14 @@
+The `ext` directory is currently intended for modules that are:
+
++ Written in Perl6
++ Are completed works
++ Pass all tests
+
+These modules will be built, tested and installed from the top level
+Pugs installation commands. They will be installed as Perl6 modules in
+the Perl6 lib directories.
+
+These modules are not intended to be /core/ modules. They are just
+examples of Perl6 modules that work. `Test.pm` is currently used in the
+Pugs build system but this does not mean it is a core module. The hope
+is there that is no concept of core modules in Perl6.
