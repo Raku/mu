@@ -1,0 +1,12 @@
+Perl5-Kwid is the pure Perl Kwid tools for bootstrapping Kwid in pugs.
+
+It is disable since there is no Makefile.PL.
+
+To run tests independently of pugs:
+
+* cd to this directory
+* cp Makefile.PL.local Makefile.PL
+* perl Makefile.PL
+* make test
+
+Please help by writing new tests.
