@@ -23,6 +23,7 @@ module Internals (
     module System.IO.Unsafe,
     module System.Exit,
     module System.Time,
+    module System.Directory,
     module Control.Monad.RWS,
     module Control.Monad.Error,
     module Data.Bits,
@@ -52,6 +53,7 @@ import System.Exit
 import System.Time
 import System.IO hiding (try)
 import System.IO.Unsafe
+import System.Directory
 import Control.Monad.RWS
 import Control.Monad.Error (MonadError(..))
 import qualified System.IO (try)

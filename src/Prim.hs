@@ -88,6 +88,12 @@ op1 "exit" = \v -> do
         then liftIO $ exitWith (ExitFailure $ vCast v)
         else liftIO $ exitWith ExitSuccess
 -- handle timely destruction
+op1 "mkdir" = \v -> do
+    liftIO $ createDirectory (vCast v)
+    return $ VBool True
+op1 "rmdir" = \v -> do
+    liftIO $ removeDirectory (vCast v)
+    return $ VBool True
 op1 "open" = \v -> do
     fh <- liftIO $ openFile (vCast v) ReadMode
     return $ VHandle fh
@@ -375,6 +381,8 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Junction  pre     all     (List)\
 \\n   Junction  pre     one     (List)\
 \\n   Junction  pre     none    (List)\
+\\n   Bool      pre     rmdir   (Str)\
+\\n   Bool      pre     mkdir   (Str)\
 \\n   Junction  list    |       (List)\
 \\n   Junction  list    &       (List)\
 \\n   Junction  list    ^       (List)\
