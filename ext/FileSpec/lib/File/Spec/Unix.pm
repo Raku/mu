@@ -149,7 +149,7 @@ sub path returns Array is export {
 # the File::Spec platform hack
 #sub cwd returns Str { system("pwd") }
 sub cwd returns Str {
-  return xxx_file_spec_cwd();
+  return File::Spec::cwd();
 }
 
 #

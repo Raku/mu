@@ -36,7 +36,7 @@ op0 "not" = const retEmpty
 op0 "so" = const (return $ VBool True)
 op0 "¥" = (>>= return . VList . concat . transpose) . mapM fromVal
 op0 "Y" = op0 "¥"
-op0 "xxx_file_spec_cwd" = \_ -> do
+op0 "File::Spec::cwd" = \_ -> do
                 mycwd <- liftIO getCurrentDirectory
                 return $ VStr mycwd
 op0 other = \x -> return $ VError ("unimplemented listOp: " ++ other) (App other (map Val x) [])
@@ -892,7 +892,7 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      pre     defined (Any)\
 \\n   Str       pre     ref     (Any)\
 \\n   Num       pre     time    ()\
-\\n   Str       pre     xxx_file_spec_cwd  ()\
+\\n   Str       pre     File::Spec::cwd  ()\
 \\n   Bool      pre     print   (List)\
 \\n   Bool      pre     say     (IO: List)\
 \\n   Bool      pre     say     (List)\
