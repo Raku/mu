@@ -198,16 +198,16 @@ breakOnGlue glue rest@(x:xs)
 findVar name
     | (sig:"CALLER", name') <- breakOnGlue "::" name = do
         (Just caller) <- asks envCaller
-        findVar' (envLexical caller) (sig:(drop 2 name'))
+        findVar' caller (sig:(drop 2 name'))
     | otherwise = do
-        lex <- asks envLexical
-        findVar' lex name
+        env <- ask
+        findVar' env name
     where
-    findVar' lex name = do
-        let lexSym = findSym name lex
+    findVar' env name = do
+        let lexSym = findSym name $ envLexical env
         -- XXX rewrite using Maybe monad
         if isJust lexSym then return lexSym else do
-            glob <- askGlobal
+            glob <- liftIO . readIORef $ envGlobal env
             let globSym = findSym name glob
             if isJust globSym
                 then return globSym

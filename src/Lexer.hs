@@ -35,7 +35,8 @@ isWordAny x = (isAlphaNum x || x == '_')
 isWordAlpha x = (isAlpha x || x == '_')
 
 perl6Lexer = P.makeTokenParser perl6Def
-whiteSpace = P.whiteSpace perl6Lexer
+whiteSpace = do
+    P.whiteSpace perl6Lexer
 parens     = P.parens perl6Lexer
 lexeme     = P.lexeme perl6Lexer
 identifier = P.identifier perl6Lexer

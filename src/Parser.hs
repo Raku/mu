@@ -218,6 +218,7 @@ ruleGatherConstruct = rule "gather construct" $ do
 ruleForeachConstruct = rule "foreach construct" $ do
     choice [ symbol "for", symbol "foreach" ]
     list <- maybeParens $ ruleExpression
+    error $ show list
     block <- ruleBlockLiteral
     retSyn "for" [list, block]
 
