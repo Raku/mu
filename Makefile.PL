@@ -117,9 +117,6 @@ close FH;
 
 my @srcfiles = map glob("$_/*.hs"), @srcdirs;
 postamble(<< ".");
-subdirs ::
-	\$(NOECHO)cd src && \$(MAKE) -f \$(FIRST_MAKEFILE) all \$(PASTHRU)
-
 $pugs :: @srcfiles $version_h
 	ghc --make -Wall -fno-warn-missing-signatures -fno-warn-name-shadowing -o pugs src/Main.hs -isrc
 
