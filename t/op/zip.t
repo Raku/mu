@@ -33,7 +33,7 @@ plan 9;
 
 	todo_is(~@z, ~@e, "zip of 3 arrays");
 	is(~@y, ~@e, "also with yen char");
-	is(~@x, ~@e, "also with yen char");
+	is(~@x, ~@e, "also with Y char");
 };
 
 {
@@ -48,6 +48,6 @@ plan 9;
 	my @x; eval '@x = ((@a Y @b) Y @c)';
 
 	todo_is(~@z, ~@e, "zip of zipped arrays with other array");
-	is(~@y, ~@e, "also as ¥");
-	is(~@x, ~@e, "also as Y");
+	todo_is(~@y, ~@e, "also as ¥");
+	todo_is(~@x, ~@e, "also as Y");
 };

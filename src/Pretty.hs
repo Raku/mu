@@ -26,13 +26,21 @@ class (Show a) => Pretty a where
 instance Pretty VStr
 
 instance Pretty Exp where
-    format (Val (VError msg (NonTerm pos))) = text "Syntax error at" <+> (text $ show pos) <+> format msg
+    format (Val (VError msg (NonTerm pos))) = text "Syntax error at" <+> (format pos) <+> format msg
+    format (NonTerm pos) = format pos
     format (Val v) = format v
     format (Syn x vs) = text "Syn" <+> format x $+$ (braces $ vcat (punctuate (text ";") (map format vs)))
     format (Statements lines) = (vcat $ punctuate (text ";") $ (map format) lines)
     format (App sub invs args) = text "App" <+> format sub <+> parens (nest defaultIndent $ vcat (punctuate (text ", ") (map format $ invs ++ args)))
     format (Sym (Symbol scope name exp)) = text "Sym" <+> text (show scope) <+> format name <+> text ":=" <+>  (nest defaultIndent $ format exp)
     format x = text $ show x
+
+instance Pretty SourcePos where
+    format pos =
+        let file = sourceName pos
+            line = show $ sourceLine pos
+            col  = show $ sourceColumn pos
+        in text $ file ++ " at line " ++ line ++ ", column " ++ col
 
 instance Pretty Env where
     format x = doubleBraces $ nest defaultIndent (format $ envBody x) 
@@ -72,7 +80,7 @@ instance Pretty Val where
         | otherwise = parens $ (joinList $ text ", ") (map format x)
     format (VSub _) = text "sub {...}"
     format (VBlock _) = text "{...}"
-    format (VError x y) = hang (text "*** Error: " <> format x) defaultIndent (text "at" <+> format y)
+    format (VError x y) = hang (text "*** Error:" <+> text x) defaultIndent (text "at" <+> format y)
     format (VArray (MkArray x)) = format (VList x)
     format (VHash (MkHash x)) = braces $ (joinList $ text ", ") (map format $ fmToList x)
     

@@ -194,11 +194,10 @@ posSyms pos = [ Symbol SMy n (Val v) | (n, v) <- syms ]
     where
     file = sourceName pos
     line = show $ sourceLine pos
-    col  = show $ sourceColumn pos
     syms =
         [ ("$?FILE", castV file)
         , ("$?LINE", castV line)
-        , ("$?POSITION", castV $ file ++ " at line " ++ line ++ ", column " ++ col)
+        , ("$?POSITION", castV $ pretty pos)
         ]
 
 evalVar name = do
@@ -496,7 +495,7 @@ reduce Env{ envClasses = cls, envContext = cxt, envLexical = lex, envGlobal = gl
     applySub subSyms sub invs args
         -- list-associativity
         | Sub{ subAssoc = "list" }      <- sub
-        , (App name' invs' []):rest  <- args
+        , (App name' invs' []):rest  <- invs
         , name == name'
         = applySub subSyms sub (invs' ++ rest)  []
         -- fix subParams to agree with number of actual arguments
