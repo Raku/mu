@@ -51,9 +51,9 @@ my $zap = "A" x 75;
 # & truncates
 if ($foo ~& $bar eq "@" x 75) { say "ok 10" } else { say "not ok 10" }
 # | does not truncate
-if ($foo ~| $bar eq "{" x 75 ~ $zap) { say "ok 11" } else { say "not ok 11 # TODO" }
+if ($foo ~| $bar eq "{" x 75 ~ $zap) { say "ok 11" } else { say "not ok 11 # TODO truncate" }
 # ^ does not truncate
-if ($foo ~^ $bar eq ";" x 75 ~ $zap) { say "ok 12" } else { say "not ok 12 # TODO" }
+if ($foo ~^ $bar eq ";" x 75 ~ $zap) { say "ok 12" } else { say "not ok 12 # TODO truncate" }
 
 
 # These ok numbers make absolutely no sense in pugs test suite :)
