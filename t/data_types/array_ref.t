@@ -9,7 +9,7 @@ Array refs
 
 =cut
 
-plan 36;
+plan 42;
 
 # array_ref of strings
 
@@ -84,3 +84,13 @@ is($array_ref7[2], 'foo', 'got the right value at array_ref7 index 2');
 my $array_ref8;
 ok(eval '$array_ref8 = [ 1, 2, 3, ]', "trailing comma");
 is(+$array_ref8, 3, "trailing commas make correct list");
+
+# recursive array
+my $array9 = [42, "nothing"];
+$array9[1] = $array9;
+isa_ok $array9,             "List";
+isa_ok $array9[1],          "List";
+is     $array9[0],          42, "recursive array access (0)";
+is     $array9[1][0],       42, "recursive array access (1)";
+is     $array9[1][1][0],    42, "recursive array access (2)";
+is     $array9[1][1][1][0], 42, "recursive array access (3)";

@@ -2,7 +2,7 @@
 
 require Test;
 
-plan 12;
+plan 13;
 
 my @a = (1, 2, 3);
 @a .= map {$_+1};
@@ -31,3 +31,8 @@ is ($f, "LOWERCASE", "inplace uc");
 is ($g, "uppercase", "inplace lc");
 is ($h, "Lowercase", "inplace ucfist");
 is ($i, "uPPERCASE", "inplace lcfirst");
+
+# L<S12/"Mutating methods">
+my @b = <z a b d e>;
+@b .= sort;
+is ~@b, "a b d e z", "inplace sort";

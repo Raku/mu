@@ -1,9 +1,18 @@
 #!/usr/bin/pugs
 use v6;
-require Test;
 
-plan 1;
+# No C<require Test> here because we've to check method calls in strings, see
+# below...
 
-my $a = '';
+say "1..2";
 
-ok ((eval '("$a.print"); "1";'), "parsing method call in a string");
+# L<S02/"Literals"/"In order to interpolate the result of a method call">
+
+my $a = -3;
+if(eval 'my $foo = "$a.abs"') {
+  say "ok 1 - parsing method call inside a string";
+} else {
+  say "not ok 1 - parsing method call inside a string";
+}
+
+eval 'my $bar = "$*OUT.say(\'ok 2 - running a method call inside a string\')"';
