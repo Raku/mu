@@ -14,7 +14,7 @@ module Shell where
 import Internals
 import AST
 
-#define READLINE 1
+#undef READLINE
 #include "config.h"
 
 #ifdef READLINE

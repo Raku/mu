@@ -27,17 +27,18 @@ makemaker_args  ( test => { TESTS => join ' ', (glob("t/*.t"), glob("t/*/*.t")) 
 
 clean_files(glob("src/*.hi"), glob("src/*.o*"), glob("pugs*"), "config.h");
 
-my $has_readline = 1;
-$has_readline = 0 if $^O eq 'MSWin32';
+my $has_readline = eval {
+    require Term::ReadLine;
+    require Term::ReadLine::Gnu;
+    1
+};
 
-if ($^O =~ /darwin/i and not -e "/usr/local/include/readline/readline.h") {
+if (!$has_readline) {
     warn << '.';
-*** /usr/local/include/readline/readline.h not found.
-*** Readline support disabled.  If you want readling support,
-    please install Readline from the URL below and try again:
-    http://p4.elixus.org/snap/pugs/macosx-readline-5.0.005.pkg.tar.gz
+*** Readline support disabled.  If you want readline support,
+    please install Term::ReadLine::Gnu from CPAN, as well as
+    the GNU Readline headers and shared library.
 .
-    $has_readline = 0;
 }
 
 
