@@ -87,6 +87,7 @@ instance Value VRat where
     castV = VRat
     doCast (VInt i)     = i % 1
     doCast (VRat r)     = r
+    doCast (VBool b)    = if b then 1 % 1 else 0 % 1
     doCast x            = approxRational (vCast x :: VNum) 1
 
 instance Value VNum where
