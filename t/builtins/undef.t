@@ -12,7 +12,7 @@ and perl6-specific tests.
 
 =cut
 
-plan 61;
+plan 62;
 
 our $GLOBAL;
 
@@ -171,6 +171,7 @@ Perl6-specific tests
 
 # rules
 # TODO. refer to S05
+# L<<S05/"Hypothetical variables" /backtracks past the closure/>>
 
 {
 	# - unmatched alternative should bind to undef
@@ -225,12 +226,13 @@ Perl6-specific tests
 
 # subroutines
 {
-	# TODO: call me. refer to S06
-	# - a sub with optional args and named parameters which don't have
-	#   defaults specified, when called without values will yield undef
 	sub bar ($bar, ?$baz, +$quux) {
 		is($bar, "BAR", "defined param"); # sanity
+
+		# L<<S06/"Optional parameters" /Missing optional arguments/>>
 		ok(!defined($baz), "unspecified optional param");
+
+		# L<<S06/"Named parameters" /Named parameters are optional/>>
 		ok(!defined($quux), "unspecified optional param");
 	}
 
@@ -239,5 +241,38 @@ Perl6-specific tests
 }
 
 # autoloading
-# TODO: write me, refer to S09
-# - autoloading
+# L<S10/Autoloading>
+
+todo_fail("FIXME parsefail (autoload tests)");
+# Currently waiting on
+# - packages
+# - symtable hash
+# - autoloading itself
+
+#{
+#	package AutoMechanic {
+#		AUTOSCALAR    { \my $_scalar }
+#		AUTOARRAY     { \my @_array }
+#		AUTOHASH      { \my %_hash }
+#		AUTOSUB       { { "code" } }
+#		AUTOMETH      { { "code" } }
+#
+#		AUTOSCALARDEF { %::«'$' ~ $_» = "autoscalardef" }
+#		AUTOARRAYDEF  { %::«'@' ~ $_» = "autoarraydef".split(//) }
+#		AUTOHASHDEF   { %::«'%' ~ $_» = <autohashdef yes> }
+#		AUTOSUBDEF    { %::«'&' ~ $_» = { "autosubdef" } }
+#		AUTOMETHDEF   { %::«'&' ~ $_» = { "automethdef" } }
+#	}
+#
+#	is(ref $AutoMechanic::scalar0,    "Scalar", "autload - scalar");
+#	is(ref @AutoMechanic::array0,     "Array",  "autload - array");
+#	is(ref %AutoMechanic::hash,       "Hash",   "autload - hash");
+#	is(ref &AutoMechanic::sub0,       "Code",   "autload - sub");
+#	is(ref AutoMechanic.can("meth0"), "Code",   "autload - meth");
+#	
+#	is($AutoMechanic::scalar, "autoscalardef",            "autoloaddef - scalar");
+#	is(~@AutoMechanic::ary,   ~("autoarraydef".split(//), "autoloaddef - array");
+#	is(~%AutoMechanic::hash,  ~<autohashdef yes>,         "autoloaddef - hash");
+#	is(&AutoMechanic::sub.(), "autosubdef",               "autoloaddef - sub");
+#	is(AutoMechanic.meth(),   "automethdef",              "autoloaddef - method");
+#}

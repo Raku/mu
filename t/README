@@ -56,7 +56,7 @@ You can also browse an online copy:
 
 We have a created a basic Test module found in ext/Test/lib/Test.pm. It is 
 written in Perl 6 and implements the TAP protocol (and so can be used with 
-Test::Harness). The module has it's own documentation and I encourage you to 
+Test::Harness). The module has its own documentation and I encourage you to 
 read it. 
 
 - Pugs tests should have a she-bang line of #!/usr/bin/pugs.
@@ -93,6 +93,21 @@ The above link is appropriate next to a test case checking rule application in
 numeric context, and it will place the backlink appropriately.
 
 Try running 'grep -r "L<" t/' to see some examples.
+
+- Dealing with parse failures
+
+When developing tests for features that have not been implemented yet,
+often you find yourself writing code that doesn't compile. Don't get
+stuck on this: wrap the new code with eval and test it anyway. Just make
+sure that the test fails as long as the eval does, and until the feature
+has been implemented correctly. You can use the eval_* functions for this.
+
+Sometimes code is so futuristic, it can even confuse eval. We call this a
+"hard parsefail". When this happens, comment out the failing code, but mark
+it so it doesn't get forgotten, like so:
+
+    todo_fail("FIXME parsefail");
+	#eval_ok('my code here');
 
 - When TODO and when not TODO.
 
