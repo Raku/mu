@@ -371,20 +371,11 @@ op2 "grep"= op2Grep
 op2 "map"= op2Map
 op2 "unshift" = op2Push (flip (++))
 op2 "push" = op2Push (++)
-op2 "split"= \x y -> return $ split (vCast x) (vCast y)
+op2 "split"= \x y -> return $ split' (vCast x) (vCast y)
     where
-    split :: VStr -> VStr -> Val
-    split [] xs = VList $ map (VStr . (:[])) xs
-    split glue xs = VList $ map VStr $ split' xs
-	where
-	split' [] = []
-	split' xs = piece : split' (dropGlue rest)
-	    where (piece, rest) = breakOnGlue glue xs
-	dropGlue = drop (length glue)
-    breakOnGlue _ [] = ([],[])
-    breakOnGlue glue rest@(x:xs)
-	| glue `isPrefixOf` rest = ([], rest)
-	| otherwise = (x:piece, rest') where (piece, rest') = breakOnGlue glue xs
+    split' :: VStr -> VStr -> Val
+    split' [] xs = VList $ map (VStr . (:[])) xs
+    split' glue xs = VList $ map VStr $ split glue xs
 op2 other = \x y -> return $ VError ("unimplemented binaryOp: " ++ other) (App other [Val x, Val y] [])
 
 op3 :: Ident -> Val -> Val -> Val -> Eval Val

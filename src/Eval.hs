@@ -211,17 +211,12 @@ evalVar name = do
 
 enterLValue = local (\e -> e{ envLValue = True })
 
-breakOnGlue _ [] = ([],[])
-breakOnGlue glue rest@(x:xs)
-    | glue `isPrefixOf` rest = ([], rest)
-    | otherwise = (x:piece, rest') where (piece, rest') = breakOnGlue glue xs
-
 findVar :: Env -> Ident -> Eval (Maybe Exp)
 findVar env name
-    | (package, name') <- breakOnGlue "::" name
-    , (sig, "CALLER") <- breakOnGlue "CALLER" package =
+    | Just (package, name') <- breakOnGlue "::" name
+    , Just (sig, "") <- breakOnGlue "CALLER" package =
         case (envCaller env) of
-            Just caller -> findVar caller (sig ++ (drop 2 name'))
+            Just caller -> findVar caller (sig ++ name')
             Nothing -> retError "cannot access CALLER:: in top level" (Var name)
     | otherwise = do
         callCC $ \foundIt -> do

@@ -47,6 +47,7 @@ module Internals (
     module Debug.Trace,
     internalError,
     split,
+    breakOnGlue,
     decodeUTF8,
     encodeUTF8,
 ) where
@@ -112,13 +113,28 @@ internalError s = error $
     "Internal error: " ++ s ++ " please file a bug report."
 
 split :: (Eq a) => [a] -> [a] -> [[a]]
-split [] str = map (: []) str
-split sep str = p : (if again then split sep ps else []) where
-   (p, ps, again) = split1 sep str
-   split1 _ [] = ([], [], False)
-   split1 sep str =
-      if isPrefixOf sep str then ([], drop (length sep) str, True) else
-      let (pre, post, x) = split1 sep (tail str) in ((head str) : pre, post, x)
+split []  _   = internalError "splitting by an empty list"
+split sep str =
+   case breakOnGlue sep str of
+     Just (before, after) -> before : split sep after
+     Nothing -> [str]
+
+-- returns Nothing if the glue isn't there
+breakOnGlue :: (Eq a) => [a] -> [a] -> Maybe ([a], [a])
+breakOnGlue _    [] = Nothing
+breakOnGlue glue list@(x:xs) =
+   case afterPrefix glue list of
+      Just rest -> Just ([], rest)
+      Nothing -> case breakOnGlue glue xs of
+                    Just (before, after) -> Just (x : before, after)
+                    Nothing -> Nothing
+
+afterPrefix :: (Eq a) => [a] -> [a] -> Maybe [a]
+afterPrefix []     list = Just list
+afterPrefix _      []   = Nothing  -- non-empty prefix of an empty list
+afterPrefix (p:ps) (x:xs)
+   | p == x = afterPrefix ps xs
+   | otherwise = Nothing
 
 encodeUTF8 :: String -> String
 encodeUTF8 = map (chr . fromEnum) . encode
@@ -127,4 +143,3 @@ decodeUTF8 :: String -> String
 decodeUTF8 str = fst $ decode bytes
     where
     bytes = map (toEnum . ord) str
-    
