@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 13;
+plan 15;
 
 my @a; eval '@a = reverse(1, 2, 3, 4)';
 my @e = (4, 3, 2, 1);
@@ -16,7 +16,7 @@ is($a, "oof", "string was reversed");
 
 
 @a = scalar reverse "foo";
-todo_is(@a[0], "oof");
+is(@a[0], "oof");
 @a = list   reverse "foo";
 todo_is(@a[0], "foo");
 
@@ -46,5 +46,5 @@ todo_is($b[1], "foo");
 $a = "foo";
 @b = $a.reverse;
 $b = $a.reverse;
-todo_is(@b[0], "oof");
-todo_is($b,    "oof");
+is(@b[0], "oof");
+is($b,    "oof");
