@@ -7,7 +7,7 @@ module Internals.TH (
 
 #if __GLASGOW_HASKELL__ < 604
 import Language.Haskell.THSyntax as TH
-showTH :: Exp -> String
+showTH :: [Dec] -> String
 showTH = show
 #else
 import Language.Haskell.TH as TH
