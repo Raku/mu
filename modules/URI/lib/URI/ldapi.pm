@@ -1,30 +1,19 @@
-package URI::ldapi;
+use v6;
 
-use strict;
+class URI::ldapi isa URI::_ldap isa URI::_generic trusts URI {
+  use URI::Escape;
 
-use vars qw(@ISA);
+  method un_path() is rw {
+    return new Proxy:
+      FETCH => { uri_unescape .authority },
+      STORE => -> $p is copy {
+	$p ~~ s:g/:/%3A/;
+	$p ~~ s:g/\@/%40/;
+	$self.authority = $p;
+      };
+  }
 
-require URI::_generic;
-require URI::_ldap;
-@ISA=qw(URI::_ldap URI::_generic);
-
-require URI::Escape;
-
-sub un_path {
-    my $self = shift;
-    my $old = URI::Escape::uri_unescape($self->authority);
-    if (@_) {
-	my $p = shift;
-	$p =~ s/:/%3A/g;
-	$p =~ s/\@/%40/g;
-	$self->authority($p);
-    }
-    return $old;
-}
-
-sub _nonldap_canonical {
-    my $self = shift;
-    $self->URI::_generic::canonical(@_);
+  &:nonldap_canonical ::= URI::_generic::canonical; # XXX - correct?
 }
 
 1;

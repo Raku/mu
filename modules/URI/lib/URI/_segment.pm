@@ -1,20 +1,17 @@
-package URI::_segment;
+use v6;
 
-# Represents a generic path_segment so that it can be treated as
-# a string too.
+class URI::_segment {
+  # Represents a generic path_segment so that it can be treated as
+  # a string too.
+  use URI::Escape <uri_unescape>
 
-use strict;
-use URI::Escape qw(uri_unescape);
+  has @.segment;
+  submethod BUILD (Str $segment) {
+    @.segment = split ";", $segment, -1;
+    @.segment[0] = uri_unescape @.segment[0]; # XXX - can this be (.=)-ified? :)
+  }
 
-use overload '""' => sub { $_[0]->[0] },
-             fallback => 1;
-
-sub new
-{
-    my $class = shift;
-    my @segment = split(';', shift, -1);
-    $segment[0] = uri_unescape($segment[0]);
-    bless \@segment, $class;
+  multi sub *coerce:<as> (::?CLASS $self, Str ::to) { @.segment[0] }
 }
 
 1;

@@ -1,68 +1,72 @@
-package URI::news;  # draft-gilman-news-url-01
+use v6;
 
-require URI::_server;
-@ISA=qw(URI::_server);
+class URI::news isa URI::_server trusts URI {
+  # draft-gilman-news-url-01
 
-use strict;
-use URI::Escape qw(uri_unescape);
-use Carp ();
+  use URI::Escape <uri_unescape>;
 
-sub default_port { 119 }
+  method default_port() { 119 }
 
-#   newsURL      =  scheme ":" [ news-server ] [ refbygroup | message ]
-#   scheme       =  "news" | "snews" | "nntp"
-#   news-server  =  "//" server "/"
-#   refbygroup   = group [ "/" messageno [ "-" messageno ] ]
-#   message      = local-part "@" domain
+  #   newsURL      =  scheme ":" [ news-server ] [ refbygroup | message ]
+  #   scheme       =  "news" | "snews" | "nntp"
+  #   news-server  =  "//" server "/"
+  #   refbygroup   = group [ "/" messageno [ "-" messageno ] ]
+  #   message      = local-part "@" domain
 
-sub _group
-{
-    my $self = shift;
-    my $old = $self->path;
-    if (@_) {
-	my($group,$from,$to) = @_;
-	if ($group =~ /\@/) {
-            $group =~ s/^<(.*)>$/$1/;  # "<" and ">" should not be part of it
+  method :group() is rw {
+    return new Proxy:
+      FETCH => {
+	my $old = $.path;
+	$old ~~ s,^/,,;
+	if not $old ~~ /\@/ and $old ~~ s,/(.*),, {
+	  my $extra = $1;
+	  return uri_unescape($old), split /-/, $extra;
 	}
-	$group =~ s,%,%25,g;
-	$group =~ s,/,%2F,g;
+	return uri_unescape $old;
+      },
+      STORE => -> $group is copy, $from, $to {
+	if $group ~~ /\@/ {
+	  $group ~~ s/^\<(.*)\>$/$1/;  # "<" and ">" should not be part of it
+	}
+	$group ~~ s:g,%,%25,;
+	$group ~~ s:g,/,%2F,;
 	my $path = $group;
-	if (defined $from) {
-	    $path .= "/$from";
-	    $path .= "-$to" if defined $to;
+	if defined $from {
+	  $path ~= "/$from";
+	  $path ~= "-$to" if defined $to;
 	}
-	$self->path($path);
-    }
+	.path = $path;
+      };
+  }
 
-    $old =~ s,^/,,;
-    if ($old !~ /\@/ && $old =~ s,/(.*),, && wantarray) {
-	my $extra = $1;
-	return (uri_unescape($old), split(/-/, $extra));
-    }
-    uri_unescape($old);
-}
+  method group() is rw {
+    return new Proxy:
+      FETCH => {
+	my @old = .:group;
+	return if @old[0] =~ m/@/;
+	return @old;
+      },
+      STORE => -> $group, $from, $to {
+	die "Group name can't contain \"\@\""
+	  if $group =~ m/@/;
+	.:group = ($group, $from, $to);
+      };
+  }
 
-
-sub group
-{
-    my $self = shift;
-    if (@_) {
-	Carp::croak("Group name can't contain '\@'") if $_[0] =~ /\@/;
-    }
-    my @old = $self->_group(@_);
-    return if $old[0] =~ /\@/;
-    wantarray ? @old : $old[0];
-}
-
-sub message
-{
-    my $self = shift;
-    if (@_) {
-	Carp::croak("Message must contain '\@'") unless $_[0] =~ /\@/;
-    }
-    my $old = $self->_group(@_);
-    return unless $old =~ /\@/;
-    return $old;
+  # XXX - why .:group here? (But I've taken it from the Perl 5 version, so It
+  # Is Correct (TM)...)
+  method message() {
+    return new Proxy:
+      FETCH => {
+	my $old = .:group;
+	return unless $old =~ m/\@/;
+	return $old;
+      },
+      STORE => -> *@args {
+	die "Message must contain \"\@\"" unless @args[0] ~~ m/@/;
+	.:group = *@args;
+      };
+  }
 }
 
 1;

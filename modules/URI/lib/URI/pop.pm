@@ -1,68 +1,61 @@
-package URI::pop;   # RFC 2384
+use v6;
 
-require URI::_server;
-@ISA=qw(URI::_server);
+class URI::pop isa URI::_server trusts URI { # RFC 2384
+  use URI::Escape <uri_unescape>;
 
-use strict;
-use URI::Escape qw(uri_unescape);
+  method default_port() { 110 }
 
-sub default_port { 110 }
+  #pop://<user>;auth=<auth>@<host>:<port>
 
-#pop://<user>;auth=<auth>@<host>:<port>
-
-sub user
-{
-    my $self = shift;
-    my $old = $self->userinfo;
-
-    if (@_) {
+  method user() is rw {
+    return new Proxy:
+      FETCH => {
+	my $old = $self->userinfo;
+	return unless defined $old;
+	$old ~~ s/;.*//;
+	return uri_unescape $old;
+      },
+      STORE => -> $new is copy {
 	my $new_info = $old;
-	$new_info = "" unless defined $new_info;
-	$new_info =~ s/^[^;]*//;
+	$new_info  //= "";
+	$new_info   ~~ s/^<-[;]>*//;
 
-	my $new = shift;
-	if (!defined($new) && !length($new_info)) {
-	    $self->userinfo(undef);
+	if !defined $new && !length $new_info {
+	  $self.userinfo = undef;
 	} else {
-	    $new = "" unless defined $new;
-	    $new =~ s/%/%25/g;
-	    $new =~ s/;/%3B/g;
-	    $self->userinfo("$new$new_info");
+	  $new //= "";
+	  $new ~~ s:g/%/%25/;
+	  $new ~~ s:g/;/%3B/;
+	  $self.userinfo = "$new$new_info";
 	}
-    }
+      };
+  }
 
-    return unless defined $old;
-    $old =~ s/;.*//;
-    return uri_unescape($old);
-}
-
-sub auth
-{
-    my $self = shift;
-    my $old = $self->userinfo;
-
-    if (@_) {
-	my $new = $old;
-	$new = "" unless defined $new;
-	$new =~ s/(^[^;]*)//;
+  method auth() is rw {
+    return new Proxy:
+      FETCH => {
+	my $old = $self->userinfo;
+	return unless defined $old;
+	$old ~~ s/^<-[;]>*//;
+	return uri_unescape $1 if $old ~~ m:i/;auth=(.*)/;
+	return;
+      },
+      STORE => -> $auth is copy {
+	my $new  = $old;
+	$new   //= "";
+	$new    ~~ s/(^<-[;]>*)//;
 	my $user = $1;
-	$new =~ s/;auth=[^;]*//i;
+	$new    ~~ s:i/;auth=<-[;]>*//;
 
-	
-	my $auth = shift;
-	if (defined $auth) {
-	    $auth =~ s/%/%25/g;
-	    $auth =~ s/;/%3B/g;
-	    $new = ";AUTH=$auth$new";
+	if defined $auth {
+	  $auth ~~ s:g/%/%25/;
+	  $auth ~~ s:g/;/%3B/;
+	  $new   = ";AUTH=$auth$new";
 	}
-	$self->userinfo("$user$new");
-	
-    }
 
-    return unless defined $old;
-    $old =~ s/^[^;]*//;
-    return uri_unescape($1) if $old =~ /;auth=(.*)/i;
-    return;
+	$self.userinfo = "$user$new";
+      };
+  }
 }
 
 1;

@@ -1,23 +1,15 @@
+use v6;
+
+module URI::ldap-1.11;
+
 # Copyright (c) 1998 Graham Barr <gbarr@pobox.com>. All rights reserved.
 # This program is free software; you can redistribute it and/or
 # modify it under the same terms as Perl itself.
+class URI::ldap isa URI::_ldap isa URI::_server trusts URI {
+  method default_port() { 389 }
 
-package URI::ldap;
-
-use strict;
-
-use vars qw(@ISA $VERSION);
-$VERSION = "1.11";
-
-require URI::_server;
-require URI::_ldap;
-@ISA=qw(URI::_ldap URI::_server);
-
-sub default_port { 389 }
-
-sub _nonldap_canonical {
-    my $self = shift;
-    $self->URI::_server::canonical(@_);
+  method :nonldap_canonical() { .URI::_server::canonical }
+  # XXX - correct?
 }
 
 1;
@@ -32,20 +24,20 @@ URI::ldap - LDAP Uniform Resource Locators
 
   use URI;
 
-  $uri = URI->new("ldap:$uri_string");
-  $dn     = $uri->dn;
-  $filter = $uri->filter;
-  @attr   = $uri->attributes;
-  $scope  = $uri->scope;
-  %extn   = $uri->extensions;
+  my URI $uri .= new(uri => "ldap:$uri_string");
+  my $dn     = $uri.dn;
+  my $filter = $uri.filter;
+  my @attr   = $uri.attributes;
+  my $scope  = $uri.scope;
+  my %extn   = $uri.extensions;
   
-  $uri = URI->new("ldap:");  # start empty
-  $uri->host("ldap.itd.umich.edu");
-  $uri->dn("o=University of Michigan,c=US");
-  $uri->attributes(qw(postalAddress));
-  $uri->scope('sub');
-  $uri->filter('(cn=Babs Jensen)');
-  print $uri->as_string,"\n";
+  $uri = URI.new(uri => "ldap:");  # start empty
+  $uri.host = "ldap.itd.umich.edu";
+  $uri.dn   = "o=University of Michigan,c=US";
+  $uri.attributes = <postalAddress>;
+  $uri.scope      = "sub";
+  $uri.filter     = ("(cn=Babs Jensen)");
+  say ~$uri;
 
 =head1 DESCRIPTION
 
@@ -66,36 +58,28 @@ of the URI.
 
 =over 4
 
-=item $uri->dn( [$new_dn] )
+=item $uri.dn = $new_dn
 
 Sets or gets the I<Distinguished Name> part of the URI.  The DN
 identifies the base object of the LDAP search.
 
-=item $uri->attributes( [@new_attrs] )
+=item $uri.attributes = @new_attrs
 
 Sets or gets the list of attribute names which are
 returned by the search.
 
-=item $uri->scope( [$new_scope] )
+=item $uri.scope = $new_scope
 
 Sets or gets the scope to be used by the search. The value can be one of
 C<"base">, C<"one"> or C<"sub">. If none is given in the URI then the
 return value defaults to C<"base">.
 
-=item $uri->_scope( [$new_scope] )
-
-Same as scope(), but does not default to anything.
-
-=item $uri->filter( [$new_filter] )
+=item $uri.filter = $new_filter
 
 Sets or gets the filter to be used by the search. If none is given in
 the URI then the return value defaults to C<"(objectClass=*)">.
 
-=item $uri->_filter( [$new_filter] )
-
-Same as filter(), but does not default to anything.
-
-=item $uri->extensions( [$etype => $evalue,...] )
+=item $uri.extensions = ($etype => $evalue, ...)
 
 Sets or gets the extensions used for the search. The list passed should
 be in the form etype1 => evalue1, etype2 => evalue2,... This is also
@@ -114,6 +98,8 @@ Graham Barr E<lt>F<gbarr@pobox.com>E<gt>
 Slightly modified by Gisle Aas to fit into the URI distribution.
 
 =head1 COPYRIGHT
+
+Copyright (c) 2005 Ingo Blechschmidt (port to Perl 6).
 
 Copyright (c) 1998 Graham Barr. All rights reserved. This program is
 free software; you can redistribute it and/or modify it under the same
