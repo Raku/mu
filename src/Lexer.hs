@@ -195,7 +195,8 @@ singleQuoted = lexeme (
 
 singleStrChar = try quotedQuote <|> noneOf "'"
 
-escapeCode      = charEsc <|> charNum <|> charAscii <|> charControl
+-- backslahed nonalphanumerics (except for ^) translate into themselves
+escapeCode      = charEsc <|> charNum <|> charAscii <|> charControl <|> anyChar
                 <?> "escape code"
 
 -- charControl :: CharParser st Char

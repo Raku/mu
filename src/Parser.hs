@@ -629,6 +629,7 @@ qqInterpolator = do
             nextchar <- escapeCode -- see Lexer.hs
             return (Val (VStr [nextchar]))
           <|> ruleBlock
+
 qqLiteral = do
     ch <- getDelim
     expr <- interpolatingStringLiteral (balancedDelim ch) qqInterpolator
