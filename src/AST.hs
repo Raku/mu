@@ -380,6 +380,12 @@ extract ((App n invs args), vs) = (App n invs' args', vs'')
     where
     (invs', vs')  = foldr extractExp ([], vs) invs
     (args', vs'') = foldr extractExp ([], vs') args
+extract ((Statements stmts), vs) = (Statements stmts', vs')
+    where
+    exps = map fst stmts
+    poss = map snd stmts
+    (exps', vs') = foldr extractExp ([], vs) exps
+    stmts' = exps' `zip` poss
 extract ((Syn n exps), vs) = (Syn n exps', vs')
     where
     (exps', vs') = foldr extractExp ([], vs) exps

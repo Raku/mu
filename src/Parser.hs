@@ -321,7 +321,9 @@ ruleBlockFormalStandard = rule "standard block parameters" $ do
 ruleBlockFormalPointy = rule "pointy block parameters" $ do
     symbol "->"
     params <- ruleSubParameters
-    return $ (SubBlock, Just params)
+    --- XXX -- need to disambiguate between parenful and nonparenful
+    --      -- hacking maybeParens is the way to go.
+    return $ (SubBlock, if null params then Nothing else Just params)
 
 
 

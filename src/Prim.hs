@@ -313,8 +313,7 @@ op2Grep list sub@(VSub _) = op2Grep sub list
 op2Grep sub list = do
     vals <- (`filterM` vCast list) $ \x -> do
         evl <- asks envEval
-        let topic = Symbol SMy "$_" (Val x)
-        rv  <- local (\e -> e{ envContext = "Bool", envLexical = topic:envLexical e }) $ do
+        rv  <- local (\e -> e{ envContext = "Bool" }) $ do
             evl (Syn "()" [Val sub, Syn "invs" [Val x], Syn "args" []])
         return $ vCast rv
     return $ VList vals

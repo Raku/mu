@@ -13,7 +13,7 @@ sub cool { fine($_) ~ " # We've got " ~ toys }
 sub fine { "ok " ~ $_ }
 sub toys { "fun and games!" }
 
-say cool 2;  # and that is it, folks!
+(2).cool.say;  # and that is it, folks!
 
 my $foo = "Foo";
 eval 'undef $foo';
