@@ -322,6 +322,8 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
                 listMVal <- evalVar name
                 listVal  <- readMVal listMVal
                 indexVal <- evalExp indexExp
+                -- XXX Wrong -- the Context here should be "cxtFromExp exp"
+                -- so that @x[1,] imposes List context by @x[1] imposes Scalar.
                 val'     <- enterEvalContext "List" exp
                 valList  <- mapM newMVal $ vCast val'
                 let indexes = (map vCast $ vCast indexVal :: [VInt])
