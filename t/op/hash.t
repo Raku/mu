@@ -9,11 +9,12 @@ Hash tests
 
 =cut
 
-plan 42;
+plan 51;
 
 # basic lvalue assignment
 
 my %hash1; 
+isa_ok(%hash1, 'Hash');
 %hash1{"one"} = 5; 
 is(%hash1{"one"}, 5, 'lvalue hash assignment works (w/ double quoted keys)');
 
@@ -27,22 +28,26 @@ todo_is(%hash1<tree>, 3, 'lvalue hash assignment works (w/ unquoted style <key>)
 # basic hash creation w/ comma seperated key/values
 
 my %hash2 = ("one", 1);
+isa_ok(%hash2, 'Hash');
 is(%hash2{"one"}, 1, 'comma seperated key/value hash creation works');
 is(%hash2<one>, 1, 'unquoted <key> fetching works');
 
 my %hash3 = ("one", 1, "two", 2);
+isa_ok(%hash3, 'Hash');
 is(%hash3{"one"}, 1, 'comma seperated key/value hash creation works with more than one pair');
 is(%hash3{"two"}, 2, 'comma seperated key/value hash creation works with more than one pair');
 
 # basic hash creation w/ => seperated key/values (pairs?)
 
 my %hash4;
+isa_ok(%hash4, 'Hash');
 # eval '%hash4 = ("key" => "value")';
 todo_is(%hash4{"key"}, 'value', '(key => value) seperated key/value has creation works');
 
 # hash slicing
 
 my %hash5 = ("one", 1, "two", 2, "three", 3);
+isa_ok(%hash5, 'Hash');
 
 my @slice1 = %hash5{"one", "three"};
 is(+@slice1, 2, 'got the right amount of values from the %hash{} slice');
@@ -73,6 +78,7 @@ todo_ok(!defined(%hash5<three>), '"three" assumed value undef from slice assignm
 # keys 
 
 my %hash6 = ("one", 1, "two", 2, "three", 3);
+isa_ok(%hash6, 'Hash');
 
 my @keys1 = keys %hash6;
 is(+@keys1, 3, 'got the right number of keys');
@@ -89,6 +95,7 @@ is(@keys2[2], 'two', 'got the right key');
 # values
 
 my %hash7 = ("one", 1, "two", 2, "three", 3);
+isa_ok(%hash7, 'Hash');
 
 my @values1 = values %hash7;
 is(+@values1, 3, 'got the right number of values');
@@ -105,6 +112,7 @@ is(@values1[2], 2, 'got the right values');
 # misc stuff ...
 
 my %hash8;
+isa_ok(%hash8, 'Hash');
 eval '%hash8 = (:one, :key<value>, :three(3))';
 todo_is %hash8{'one'}, 1, 'colonpair :one';
 todo_is %hash8{'key'}, 'value', 'colonpair :key<value>';
@@ -114,7 +122,9 @@ todo_is %hash8{'three'}, 3, 'colonpair :three(3)';
 
 my $key;
 my $val;
-my %hash9; %hash9{1} = 2;
+my %hash9; 
+isa_ok(%hash9, 'Hash');
+%hash9{1} = 2;
 for (%hash9.kv) -> $k,$v { $key = $k; $val = $v; }
 is($key, 1, "\%hash.kv gave us our key");
 is($val, 2, "\%hash.kv gave us our val");

@@ -9,37 +9,44 @@ Hash tests
 
 =cut
 
-plan 34;
+plan 40;
 
 # basic lvalue assignment
 
 my $hash1; 
+isa_ok($hash1, 'Any');
+
 $hash1{"one"} = 5; 
+isa_ok($hash1, 'Hash');
+
 is($hash1{"one"}, 5, 'lvalue hash assignment works (w/ double quoted keys)');
 
 $hash1{'one'} = 4; 
 is($hash1{'one'}, 4, 'lvalue hash re-assignment works (w/ single quoted keys)');
 
-eval '$hash1{two} = 2'; 
-todo_is($hash1{"two"}, 2, 'lvalue hash assignment works (w/ un-quoted keys)');
+## unquoted hash keys are now illegal AFAIK
+# eval '$hash1{two} = 2'; 
+# todo_is($hash1{"two"}, 2, 'lvalue hash assignment works (w/ un-quoted keys)');
 
-my $hash1; 
 $hash1<three> = 3; 
-todo_is($hash1<tree>, 3, 'lvalue hash assignment works (w/ unquoted style <key>)');
+todo_is($hash1<three>, 3, 'lvalue hash assignment works (w/ unquoted style <key>)');
 
 # basic hash creation w/ comma seperated key/values
 
 my $hash2 = ("one", 1);
+isa_ok($hash2, 'List');
 is($hash2{"one"}, 1, 'comma seperated key/value hash creation works');
 is($hash2<one>, 1, 'unquoted <key> fetching works');
 
 my $hash3 = ("one", 1, "two", 2);
+isa_ok($hash3, 'List');
 is($hash3{"one"}, 1, 'comma seperated key/value hash creation works with more than one pair');
 is($hash3{"two"}, 2, 'comma seperated key/value hash creation works with more than one pair');
 
 # hash slicing
 
 my $hash5 = ("one", 1, "two", 2, "three", 3);
+isa_ok($hash5, 'List');
 
 my @slice1 = $hash5{"one", "three"};
 is(+@slice1, 2, 'got the right amount of values from the %hash{} slice');
@@ -65,6 +72,7 @@ todo_is($hash5<three>, 1, 'value was changed successfully with slice assignment'
 # keys 
 
 my $hash6 = ("one", 1, "two", 2, "three", 3);
+isa_ok($hash6, 'List');
 
 my @keys1 = keys $hash6;
 is(+@keys1, 3, 'got the right number of keys');
@@ -81,6 +89,7 @@ is(@keys2[2], 'three', 'got the right key');
 # values
 
 my $hash7 = ("one", 1, "two", 2, "three", 3);
+isa_ok($hash7, 'List');
 
 my @values1 = values $hash7;
 is(+@values1, 3, 'got the right number of values');

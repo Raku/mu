@@ -39,8 +39,7 @@ sub bar {
 sub foo {
   my $a = "foo";
   my $b := $a;
-
-  return bar();
+  return bar() && bar2();
 }
 
 todo_ok(eval 'foo()', "CALLER resolves bindings in caller's dynamic scope");
