@@ -199,8 +199,8 @@ naturalOrRat  = natRat
     decimalLiteral         = number 10 digit        
     hexadecimal     = do{ char 'x'; number 16 hexDigit }
     decimal         = do{ char 'd'; number 10 digit }
-    octal           = do{ char 'o'; octal2 }
-    octal2          = do{ number 8 octDigit  }
+    octal           = do{ char 'o'; number 8 octDigit }
+    octal2          = do{ octDigit ; fail "0100 is not octal in perl6 any more, use 0o100 instead." }
     binary          = do{ char 'b'; number 2 (oneOf "01")  }
 
     -- number :: Integer -> CharParser st Char -> CharParser st Integer
