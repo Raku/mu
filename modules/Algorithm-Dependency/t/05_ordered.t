@@ -63,14 +63,14 @@ ok( ! defined $BDep.depends('Foo'), "Dependency.depends() fails correctly on bad
 
 # Check the results of it's depends and schedule methods
 $BDep = Algorithm::Dependency::Ordered.new( source => $BSource );
-foreach my $data ( [
+for ( [
 	['A'],	[],		['A'] 		], [
 	['B'],	['C'],		[qw{C B}] 	], [
 	['C'],	[], 		['C']		], [
 	['D'],	[qw{E F}],	[qw{E F D}]	], [
 	['E'],	[],		['E']		], [
 	['F'],	[],		['F']		]
-) {
+) -> $data {
 	my $args = @{ $data.[0] }.map:{ "'$_'" }.join( ', ' );
 	my $rv = $BDep.depends( @{ $data.[0] } );
 	ok( $rv, "Dependency.depends($args) returns something" );
@@ -91,7 +91,7 @@ ok( ref $CDep, "Algorithm::Dependency::Ordered.new() returns reference" );
 isa_ok( $CDep, 'Algorithm::Dependency::Ordered', "Algorithm::Dependency::Ordered.new() returns correctly" );
 
 # Test each of the dependencies
-foreach my $data ( [
+for ( [
 	['A'],		[],				['A'] 				], [
 	['B'],		['C'],				[qw{C B}] 			], [
 	['C'],		[], 				['C']				], [
@@ -112,7 +112,7 @@ foreach my $data ( [
 	['R'],		[qw{N P}],			[qw{N P R}]			], [
 	['S'],		[qw{N O P Q R}],		[qw{N O P Q R S}]		], [
 	['T'],		[qw{A D E F K L M N P R}],	[qw{A F M N P R E L D K T}]	]
-) {
+) -> $data {
 	my $args = @{ $data.[0] }.map:{ "'$_'" }.join( ', ' );
 	my $rv = $CDep.depends( @{ $data.[0] } );
 	ok( $rv, "Dependency.depends($args) returns something" );
@@ -133,7 +133,7 @@ ok( ref $CDep, "Algorithm::Dependency::Ordered.new() returns reference" );
 isa_ok( $CDep, 'Algorithm::Dependency::Ordered', "Algorithm::Dependency::Ordered.new() returns correctly" );
 
 # Test each of the dependencies
-foreach my $data ( [
+for ( [
 	['A'],		[],			['A'] 			], [
 	['B'],		['C'],			[qw{C B}] 		], [
 	['C'],		[], 			['C']			], [
@@ -154,7 +154,7 @@ foreach my $data ( [
 	['R'],		[],			[]			], [
 	['S'],		[qw{O Q}],		[qw{O Q S}]		], [
 	['T'],		[qw{A D E K L M}], 	[qw{A E M D L K T}]	]
-) {
+) -> $data {
 	my $args = @{ $data.[0] }.map:{ "'$_'" }.join( ', ' );
 	my $rv = $CDep.depends( @{ $data.[0] } );
 	ok( $rv, "Dependency.depends($args) returns something" );

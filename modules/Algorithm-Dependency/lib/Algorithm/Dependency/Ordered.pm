@@ -30,7 +30,7 @@ method schedule( $self: @items ) returns Array {
 	# version, so we can simplify the algorithm greatly by using the
 	# normal unordered .schedule() method to get the starting list.
 	my $rv = $self.SUPER::schedule( @items );
-	my @queue = $rv ? @$rv : return;
+	my @queue = @rv or return;
 
 	# Get a working copy of the selected index
 	my %selected = %{ $self.selected };
@@ -44,7 +44,7 @@ method schedule( $self: @items ) returns Array {
 	my @schedule = ();
 
 	# Begin the processing loop
-	while ( my $id = shift @queue ) {
+	while ( my $id = @queue.shift() ) {
 		# Have we checked every item in the stack?
 		$id eq $error_marker and return;
 
@@ -62,13 +62,13 @@ method schedule( $self: @items ) returns Array {
 			$error_marker = $id unless $error_marker;
 
 			# Add the id back to the end of the queue
-			push @queue, $id;
+			@queue.push( $id );
 			next;
 		}
 
 		# All dependencies have been met. Add the item to the schedule and
 		# to the selected index, and clear the error marker.
-		push @schedule, $id;
+		@schedule.push( $id );
 		$selected{$id} = 1;
 		$error_marker = '';
 	}

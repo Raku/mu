@@ -36,7 +36,7 @@ isa_ok( $source, 'Algorithm::Dependency::Source::File' );
 is_deeply( $source.missing_dependencies, [ 'C', 'E' ], 'The source file has missing dependencies as expected' );
 
 # Test normal and ordered types
-foreach my $class ( 'Algorithm::Dependency', 'Algorithm::Dependency::Ordered' ) {
+for ( 'Algorithm::Dependency', 'Algorithm::Dependency::Ordered' ) -> $class {
 	my $normal = $class.new(
 		source   => $source,
 		);

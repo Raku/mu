@@ -38,7 +38,7 @@ ok( ref $dep, "Algorithm::Dependency.new() returns reference" );
 isa_ok( $dep, 'Algorithm::Dependency', "Algorithm::Dependency.new() returns correctly" );
 
 # Test each of the dependencies
-foreach my $data ( [
+for ( [
 	['A'],		[],				['A'] 				], [
 	['B'],		['C'],				[qw{B C}] 			], [
 	['C'],		[], 				['C']				], [
@@ -59,7 +59,7 @@ foreach my $data ( [
 	['R'],		[qw{N P}],			[qw{N P R}]			], [
 	['S'],		[qw{N O P Q R}],		[qw{N O P Q R S}]		], [
 	['T'],		[qw{A D E F K L M N P R}],	[qw{A D E F K L M N P R T}]	]
-) {
+) -> $data {
 	my $args = @{ $data.[0] }.map:{ "'$_'" }.join( ', ' );
 	my $rv = $dep.depends( @{ $data.[0] } );
 	ok( $rv, "Dependency.depends($args) returns something" );
@@ -80,7 +80,7 @@ ok( ref $dep, "Algorithm::Dependency.new() returns reference" );
 isa_ok( $dep, 'Algorithm::Dependency', "Algorithm::Dependency.new() returns correctly" );
 
 # Test each of the dependencies
-foreach my $data ( [
+for ( [
 	['A'],		[],			['A'] 			], [
 	['B'],		['C'],			[qw{B C}] 		], [
 	['C'],		[], 			['C']			], [
@@ -101,7 +101,7 @@ foreach my $data ( [
 	['R'],		[],			[]			], [
 	['S'],		[qw{O Q}],		[qw{O Q S}]		], [
 	['T'],		[qw{A D E K L M}], 	[qw{A D E K L M T}]	]
-) {
+) -> $data {
 	my $args = @{ $data.[0] }.map:{ "'$_'" }.join( ', ' );
 	my $rv = $dep.depends( @{ $data.[0] } );
 	ok( $rv, "Dependency.depends($args) returns something" );

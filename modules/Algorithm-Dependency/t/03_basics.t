@@ -74,7 +74,7 @@ ok( scalar( @tmp = $dep.selected_list() ) == 0, "Dependency.selected_list() retu
 ok( ! $dep.selected('Foo'), "Dependency.selected() returns false on bad input" );
 ok( ! $dep.selected('A'), "Dependency.selected() returns false when not selected" );
 ok( ! defined $dep.depends('Foo'), "Dependency.depends() fails correctly on bad input" );
-foreach my $data ( [
+for ( [
 	['A'],		[],		['A'] 			], [
 	['B'],		['C'],		['B','C'] 		], [
 	['C'],		[], 		['C']			], [
@@ -83,7 +83,7 @@ foreach my $data ( [
 	['F'],		[],		['F']			], [
 	['A','B'],	['C'],		[qw{A B C}]		], [
 	['B','D'],	[qw{C E F}],	[qw{B C D E F}]		]
-) {
+) -> $data {
 	my $args = @{ $data.[0] }.map:{ "'$_'" }.join( ', ' );
 	my $rv = $dep.depends( @{ $data.[0] } );
 	ok( $rv, "Dependency.depends($args) returns something" );
@@ -110,7 +110,7 @@ ok( ! $dep.selected('Foo'), "Dependency.selected() returns false when wrong" );
 ok( ! $dep.selected('A'), "Dependency.selected() returns false when expected" );
 ok( $dep.selected('F'), "Dependency.selected() return true" );
 ok( ! defined $dep.depends('Foo'), "Dependency.depends() fails correctly on bad input" );
-foreach my $data ( [
+for ( [
 	['A'],		[],		['A'] 			], [
 	['B'],		['C'],		[qw{B C}] 		], [
 	['C'],		[], 		['C']		], [
@@ -119,7 +119,7 @@ foreach my $data ( [
 	['F'],		[],		[]		], [
 	['A','B'],	['C'],		[qw{A B C}]	], [
 	['B','D'],	[qw{C E}],	[qw{B C D E}]	]
-) {
+) -> $data {
 	my $args = @{ $data.[0] }.map:{ "'$_'" }.join( ', ' );
 	my $rv = $dep.depends( @{ $data.[0] } );
 	ok( $rv, "Dependency.depends($args) returns something" );

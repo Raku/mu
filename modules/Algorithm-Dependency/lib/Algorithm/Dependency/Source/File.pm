@@ -54,14 +54,14 @@ method :_load_item_list( $self: ) returns Array {
 
 	# Parse and build the item list
 	my @Items = ();
-	foreach ( @content ) {
+	for @content -> $content_item {
 		# Split the line by non-word characters
-		my @sections = $_.split( /\W+/ ).grep:{ length $_ };
+		my @sections = $content_item.split( /\W+/ ).grep:{ length $_ };
 		scalar @sections or return;
 
 		# Create the new item
 		my $item = Algorithm::Dependency::Item.new( @sections ) or return;
-		push @Items, $item;
+		@Items.push( $item );
 	}
 
 	return @Items;

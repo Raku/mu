@@ -16,13 +16,10 @@ has $:ignore_orphans is Bool;
 
 
 
-method new( $class: ) returns Algorithm::Dependency {
-	my %options = @_;
-
-	# Arguments are provided as a hash of options.
+method new( $class: +$source is Algorithm::Dependency::Source, +$ignore_orphans is Bool, +@selected ) returns Algorithm::Dependency {
+	# Arguments are named.
 	# We expect at LEAST the source argument.
-	my $source = UNIVERSAL::isa( $options{source}, 'Algorithm::Dependency::Source' )
-		? $options{source} : return;
+	$source or return;
 
 	# Create the object
 	my $self = $class.bless( {
@@ -31,18 +28,16 @@ method new( $class: ) returns Algorithm::Dependency {
 	} );
 
 	# Were we given the 'ignore_orphans' flag?
-	if ( $options{ignore_orphans} ) {
+	if ( $ignore_orphans ) {
 		$self.ignore_orphans = 1;
 	}
 
 	# Done, unless we have been given some selected items
-	unless ( UNIVERSAL::isa( $options{selected}, 'ARRAY' ) ) {
-		return $self;
-	}
+	@selected or return $self;
 
 	# Make sure each of the selected it's exists
 	my %selected = ();
-	foreach my $id ( @{ $options{selected} } ) {
+	for @selected -> $id {
 		# Does the item exist?
 		$source.item($id) or return;
 
@@ -96,22 +91,22 @@ method depends( $self: @stack ) returns Array {
 	my %checked = ();
 
 	# Process the stack
-	while ( my $id = shift @stack ) {
+	while ( my $id = @stack.shift() ) {
 		# Does the id exist?
-		my $item = $self.source.item($id)
-		or $self.ignore_orphans ? next : return;
+		my $item = $self.source.item($id) or 
+			$self.ignore_orphans ?? next :: return;
 
 		# Skip if selected or checked
-		next if $checked{$id};
+		$checked{$id} and next;
 
 		# Add it's depends to the stack
-		push @stack, $item.depends();
+		@stack.push( $item.depends() );
 		$checked{$id} = 1;
 
 		# Add anything to the final output that wasn't one of
 		# the original input.
 		unless ( @_.grep:{ $id eq $_ } ) {
-			push @depends, $id;
+			@depends.push( $id );
 		}
 	}
 

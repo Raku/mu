@@ -47,13 +47,12 @@ method load( $self: ) returns Bool {
 	}
 
 	# Pass through to the real loader
-	my $items = $self._load_item_list();
-	$items or return $items;
-	UNIVERSAL::isa( $items, 'ARRAY' ) or return;
+	my @items = $self._load_item_list();
+	@items or return @items;
 
 	# Add the items
-	foreach my $item ( @$items ) {
-		unless ( UNIVERSAL::isa( $item, 'Algorithm::Dependency::Item' ) ) {
+	for @items -> $item {
+		unless $item.meta.isa(Algorithm::Dependency::Item) {
 			die "$class\::_load_item_list() returned something that was not an Algorithm::Dependency::Item";
 		}
 
@@ -65,7 +64,7 @@ method load( $self: ) returns Bool {
 		}
 
 		# Add it
-		push @{ $self.items_array }, $item;
+		$self.items_array.push( $item );
 		$self.items_hash{$id} = $item;
 	}
 
@@ -98,7 +97,7 @@ method missing_dependencies( $self: ) returns Array {
 	# Merged the depends of all the items, and see if
 	# any are missing.
 	my %missing = $self.items.map:{ $_.depends() }.grep:{ ! $self.item($_) }.map:{ $_ => 1 };
-	return %missing ? %missing.keys.sort : 0;
+	return %missing ?? %missing.keys.sort :: 0;
 }
 
 
@@ -108,7 +107,7 @@ method missing_dependencies( $self: ) returns Array {
 #####################################################################
 # Catch methods our subclass should define but didn't
 
-method :_load_item_list( $self: ) { die "Class $_[0] failed to define the method _load_item_list" };
+method :_load_item_list( $self: ) { die "Class $self failed to define the method _load_item_list" };
 
 1;
 
