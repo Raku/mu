@@ -4,9 +4,9 @@ module IMC.Compile where
 
 import Rule
 import Lexer
-import Internals.TH
 import Text.PrettyPrint hiding (char)
 import IMC.AST
+import Language.Haskell.TH as TH
 import Language.Haskell.TH.Syntax
 
 nested = nest 4

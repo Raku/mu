@@ -2,7 +2,7 @@
 
 module Compile.Haskell where
 import Internals
-import Internals.TH
+import Language.Haskell.TH as TH
 import AST
 import Run
 import Prim
@@ -15,9 +15,9 @@ genGHC exp = runQ [d| mainCC = runComp $(compile exp) |] >>= \str -> return . un
     , "import AST"
     , "import Prim"
     , "import Internals"
-    , "import Internals.TH"
+    , "import Language.Haskell.TH as TH"
     , ""
-    , showTH str
+    , pprint str
     ]
 
 compile (App op [inv] []) = compile (App op [] [inv])

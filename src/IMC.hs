@@ -11,12 +11,11 @@
 
 module IMC (
     module IMC.Compile,
-    module Internals.TH,
     yow,
 ) where
 import IMC.AST
 import IMC.Compile
-import Internals.TH
+import Language.Haskell.TH
 import Language.Haskell.TH.Ppr
 -- import IMC.Lexer
 
