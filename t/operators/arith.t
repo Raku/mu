@@ -323,13 +323,13 @@ tryeq NaN+NaN, NaN;
 tryeq NaN-NaN, NaN;
 tryeq NaN*NaN, NaN;
 tryeq NaN/NaN, NaN;
-my $nan1 = NaN**NaN
+my $nan1 = NaN**NaN;
 tryeq $nan1, NaN, "NaN**NaN";
 tryeq NaN+Inf, NaN;
 tryeq NaN-Inf, NaN;
 tryeq NaN*Inf, NaN;
 tryeq NaN/Inf, NaN;
 tryeq Inf/NaN, NaN;
-my $nan2 = NaN**Inf
+my $nan2 = NaN**Inf;
 tryeq $nan2, NaN, "NaN**Inf";
-my $nan3 = Inf**NaN
+my $nan3 = Inf**NaN;
