@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 16;
+plan 18;
 
 # english ;-)
 ok(eval 'my $foo; sub foo {}; 1', "ascii declaration");
@@ -28,6 +28,10 @@ is(eval 'my $二 = 2; $二', 2, "evaluation");
 # Tibeten Characters
 ok(eval 'my $༡; 1', "tibeten declaration");
 is(eval 'my $༢ = 2; $༢', 2, "evaluation");
+
+# Japanese
+ok(eval 'my $い; 1', "japanese declaration");
+is(eval 'my $に = 2; $に', 2, "evaluation");
 
 # arabic
 ok(eval 'my $الصفحة ; 1', "arabic declaration");
