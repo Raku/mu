@@ -40,7 +40,9 @@ instance Compile Symbol where
         ]
         where
         mval (App "&not" [] []) = text ""
-        mval _ | ('$':_) <- name  = varText name <+> text "=" <+> compile exp
+        mval _ | ('$':_) <- name  = case exp of
+            (Syn "mval" [App "&not" [] []]) -> empty
+            _ -> varText name <+> text "=" <+> compile exp
         mval (Syn "mval" [Syn "," [x, exp]]) | ('@':_) <- name =
             mval (Syn "mval" [x]) $+$
             text "push" <+> varText name <+> text "," <+> compile exp
