@@ -354,8 +354,8 @@ op2 "||" = op2Logical (id :: Bool -> Bool)
 op2 "^^" = op2Bool ((/=) :: Bool -> Bool -> Bool)
 op2 "//" = op2Logical isJust
 op2 "!!" = op2Bool (\x y -> not x && not y)
--- NOTE:  "»" == '\194':'\187'
-op2 ('\194':'\187':op) = op2Hyper $ init $ init $ op
+-- NOTE:  "»" == chr 187
+op2 ('\187':op) = op2Hyper . init $ op
 -- XXX pipe forward XXX
 op2 "and"= op2 "&&"
 op2 "or" = op2 "||"
