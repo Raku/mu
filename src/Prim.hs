@@ -548,12 +548,18 @@ op2Match x (VRule rx) = do
 op2Match x y = op2Cmp vCastStr (==) x y
 
 rxSplit :: VRule -> String -> Eval [String]
+rxSplit _  [] = return []
 rxSplit rx str = do
     case str =~~ rxRegex rx of
         Nothing -> return [str]
+        Just mr | null $ mrMatch mr -> do
+            let (c:cs) = str
+            rest <- rxSplit rx (cs)
+            return ([c]:rest)
         Just mr -> do
             rest <- rxSplit rx (mrAfter mr)
-            return $ (mrBefore mr : mrSubList mr) ++ rest
+            let f = if null (mrBefore mr) then id else (mrBefore mr:)
+            return $ (f $ mrSubList mr) ++ rest
 
 op3 :: Ident -> Val -> Val -> Val -> Eval Val
 op3 "index" = \x y z -> do
