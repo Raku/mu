@@ -1,5 +1,14 @@
 {-# OPTIONS -fglasgow-exts #-}
 
+{-
+    Continuation with shift/reset operators.
+
+    The Road goes ever on and on
+    Down from the door where it began.
+    Now far ahead the Road has gone,
+    And I must follow, if I can...
+-}
+
 module Cont (
     callCC, shift, reset, shiftT, resetT,
     module Control.Monad.Cont,
