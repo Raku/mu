@@ -105,7 +105,12 @@ To explain them each in detail:
 - `# A comment line`
 
 A comment line is thrown away by the Kwid parser. It is used by the Kwid
-author to annotate the markup, or to temporarily /turn off/ lines of Kwid.
+author to annotate the markup, or to temporarily /turn off/ lines of
+Kwid.
+
+To be clear, a comment line must begin with one or more hash signs, be
+followed by a whitespace char, and extends only to the end of the line. To
+comment out a paragraph, you must comment out every hard line in it.
 
 Another way to do block comments is like this:
 
@@ -157,15 +162,14 @@ format. The following two sections are equivalent:
 - `+ ordered list item`
 
 `.list`, `-`, `*, and `+` require a little more explanation: ".list"
-starts a region specifically for the generation of a list using `-`, `*`,
-and `+` commands. At the
-end of your list, use ".list." to end it. The /indentlevel/ option to
-".list" indicates how far over to indent, generally in ems (where one em
-is the width of an "M" in the document's base font) or roughly
-comparable units; if there is no /indentlevel/ option, it defaults to
-four. (And some formatters may just ignore whatever /indentlevel/ you
-provide.) In the /stuff/ in `- /stuff.../`, you may use formatting
-codes, as seen here:
+starts a region specifically for the generation of a list using `-`,
+`*`, and `+` commands. At the end of your list, use ".list." to end it.
+The /indentlevel/ option to ".list" indicates how far over to indent,
+generally in ems (where one em is the width of an "M" in the document's
+base font) or roughly comparable units; if there is no /indentlevel/
+option, it defaults to four. (And some formatters may just ignore
+whatever /indentlevel/ you provide.) In the /stuff/ in `- /stuff.../`,
+you may use formatting codes, as seen here:
 
   - Using `$|` to Control Buffering
 
@@ -174,22 +178,28 @@ Such commands are explained in the "[Formatting Codes]" section, below.
 One thing to note is that Kwid, unlike Pod, allows you to make simple
 lists without marking the beginning and ending ".list" and ".list.". You
 can start any line with a "*" or a "+". The list continues until the
-next line that doesn't start with a "*" or a "+". You can even do multi-
-level lists by using more than one "*" or "+". Like this:
+next paragraph that doesn't start with a "*" or a "+". You can even do
+multi- level lists by using more than one "*" or "+". Like this:
 
     * People
     -- Larry
+
     The creator of Perl
+
     -- Tom
     Number 2
     -- Randal
-    Karaoke Master and
+       Karaoke Master and
     wizard.
+
     * Places
     ++ London is the place where the
-       London Perl Monger live. 
-    ++ France
-    ++ Seattle
+       London Perl Mongers meet. 
+
+    ++ France is a fine place
+       for Lance.
+    ++ Seattle is home,
+    but I still like to roam. 
 
 The catch is that each list item must be a single paragraph. For
 multiparagraph list items you'll need ".list". In other words, if the
@@ -199,18 +209,16 @@ Note also that there are some basic rules to using ".list" ...
 ".list." regions:
 
 .list
-* Don't use "-"s outside of a ".list" ... ".list." region.
 * The first thing after the ".list" command should be a "-" or "*" or
-  "+" command, unless there aren't going to be any items at all in this
-  ".list" ... ".list." region.
+  "+" command.
 * Don't put "=" (header) commands inside a ".list" ... ".list." region.
 * And perhaps most importantly, keep the items consistent: either use
   "*" for all of them, to produce bullets; or use "+" to produce
   numbered lists; or use "-" for things that look nothing like bullets
   or numbers.
 
-If you start with bullets or numbers, stick with them, as formatters use
-the first "=item" type to decide how to format the list.
+  If you start with bullets or numbers, stick with them, as formatters
+use the first item type to decide how to format the list.
 .list.
 
 - `=cut`
@@ -226,8 +234,7 @@ The "=kwid" command by itself doesn't do much of anything, but it
 signals to Perl (and Kwid formatters) that a Kwid block starts here.
 For example:
 
-  =kwid
-  === stuff()
+  =kwid - stuff()
 
   This function does stuff.
 
@@ -245,8 +252,11 @@ For example:
 
   =cut
 
-Note that `=kwid` is not part of Kwid at all. It is simply a Perl
-marker used in conjunction with Kwid.
+Note that `=kwid` is not part of Kwid at all. It is simply a Perl marker
+used in conjunction with Kwid.
+
+Note that any text following "=kwid ", on the same line, is added as to the
+front of the rest of the Kwid section.
 
 - `.formatname`
 - `.formatname.`
@@ -279,7 +289,7 @@ Here are some examples of how to use this:
   B<Rock> E<amp> I<Roll>
 
   =cut
-  .pod
+  .pod.
 
   .text
     ---------------
@@ -330,27 +340,12 @@ Same as:
 
   # Make sure that all the available options are documented!
 
-* `.encoding encodingname`
+- Character Encoding
 
-This command is used for declaring the encoding of a document.  Most
-users won't need this; but if your encoding isn't US-ASCII or Latin-1,
-then put a `.encoding encodingname` command early in the document so
-that Kwid formatters will know how to decode the document.  For
-/encodingname/, use a name recognized by the [Encode::Supported]
-module.  Examples:
-
-  .encoding utf8
-
-  .encoding koi8-r
-  
-  .encoding ShiftJIS
-  
-  .encoding big5
-
-And don't forget, when using any command, that the command lasts up
-until the end of its /paragraph/, not its line. But unlike POD, paragraphs end
-when another paragraph command marker begins. This means you don't always need
-a blank line to do the job of ending a paragraph. 
+Pod has support for various unicode encodings using `=encoding /encoding
+name/`. At this point in history, we seem to be converging on utf8.
+Therefore all Kwid documents are assumed to be utf8.
+.list.
 
 Some examples of lists include:
 
@@ -373,27 +368,28 @@ formatting codes (a.k.a. "interior sequences") can be used:
  Prefer "formatting codes" instead.
 .comment.
 
--- `/text/` -- italic text
+- `/text/` -- italic text
 
 Used for emphasis ("{`be /careful!/`}") and parameters ("{`redo /LABEL/`}")
 
--- `*text*` -- bold text
+- `*text*` -- bold text
 
 Used for switches ("{`perl's *-n* switch`}"), programs ("{`some systems
 provide a *chfn* for that`}"), emphasis ("{`be *careful!*`}"), and so on
 ("{`and that feature is known as *autovivification*`}").
 
--- {``code``} -- code text
+- {``code``} -- code text
 
 Renders code in a typewriter font, or gives some other indication that
 this represents program text ("{``gmtime($^T)``}") or some other
 form of computerese ("{``drwxr-xr-x``}").
 
--- `[name]` -- a hyperlink
+- `[name]` -- a hyperlink
 
 There are various syntaxes, listed below. In the syntaxes given, `text`,
 `name`, and `section` cannot contain the characters '/', '|', '[', or ']'.
 
+.list
 * `[name]`
 
 Link to a Perl manual page (e.g., `[Net::Ping]`). Note that `name`
@@ -412,7 +408,7 @@ Note that unless the '/' is present `sec` must contain one or more spaces.
 .list.
 
 A section is started by the named heading or item. For example,
-`[perlvar/$.]` links to the section started by "{`== $.`}" in perlvar.
+`[perlvar/$.]` links to the section started by "{`- $.`}" in perlvar.
 And `[perlsyn/For Loops]` links to the section started by `== For
 Loops` in perlsyn.
 
@@ -459,9 +455,9 @@ Exactly similar to HTML/XML `&foo;` "entity references":
 
 - `{ text }` -- text is rendered asis with non-breaking spaces
 
-This means that the words in /text/ should not be broken
-across lines.  Example: `{ $x ? $y : $z }`. Note that this markup begins with
-a left brace and a space and ends with a space and a right brace.
+This means that the words in /text/ should not be broken across lines.
+Example: `{ $x ? $y : $z }`. Note that this markup begins with a left
+brace and a space and ends with a space and a right brace.
 
 # The file markup seems crufty. Keeping it for Pod compatibility, but using
 # an elongated form to discourage use.
@@ -510,7 +506,7 @@ word. The beginning asterisk is /hugging/ because it is preceded by a
 whitespace char and followed by a word char. The ending asterisk is
 /hugging/ because it is preceded by a word char and followed by
 whitespace char. Certain common punctuation chars are allowed to be
-between the ending asterisk and the space.
+between the asterisks and the word chars they hug.
 
 There are many cases when a pair of asterisks will not cause bolding. At least
 not as you might expect.
@@ -538,6 +534,14 @@ This can used for all the phrase formats:
    Bold:   {**** WARNING ***: Danger!*}
    Asis:   {{{ { {{ ... }} } }}}
 
+There are also /named/ formats that have the form: `{foo:...}`. For
+instance the filename format:
+
+   File:   {file:/path/to/file}
+
+These named formats can be used to extend the language in much the same
+way that named blocks do.
+
 - Backslash escaping
 
 Unless other escaping mechanisms are in control a backslash followed by
@@ -545,13 +549,21 @@ another character renders as that character and is not used as markup.
 This is how you can defeat certain markup chars when they are meant to
 be content. A \\ at the end of a line is really just a \\ followed by a
 newline. In paragraph context that would indicate a hard line break, rather
-than folding text. A content backslash must be written as "\\\\".
+than folding text. A content backslash must be written as "\\\\". 
+
+One exception is the a single backslash followed by a whitespace char
+indicates a hard line ending. This is true even if it is in the middle of a
+line (because a paragraph might have been wrapped by an editor).
 
    \== Not a header
    \# Not a comment
    \* Not a list item
    This is not a \[link].
    This is not \{*bold*}.
+
+   This line has a hard line ending\
+   and is not folded with this line.\
+   This is one line.\ And this is another.
 
 .list.
 
@@ -578,8 +590,8 @@ your documentation with a "=kwid" command at the beginning, and end it
 with a "=cut" command. Perl will ignore the Kwid text. See any of the
 supplied library modules for examples.
 
-  =kwid
-  = NAME
+  =kwid = NAME
+
   Time::Local - efficiently compute time from local and GMT time
 
 == Hints for Writing Kwid
