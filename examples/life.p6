@@ -20,9 +20,9 @@ sub Print(@world) {
 	for (0..15) -> $j {
 	    print @world[$i * 16 + $j] ?? '*' :: ' ';
 	}
-	print "\n" ;
+	say "";
     }
-    print "----------------\n";
+    say "----------------";
 }
 
 sub Generate(@input) {
@@ -89,7 +89,7 @@ sub main() {
     my ($i, $j, @new);
     my $gen = @ARGS[0] || 100;
 
-    print "Running ", $gen, " generations\n";
+    say "Running ", $gen, " generations";
 
     my $ts = time;
     loop ( $j= 0 ; $j < $gen; $j++ ) {
