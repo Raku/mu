@@ -50,14 +50,13 @@ method :_load_item_list( $self: ) returns Array {
 	close FILE or return;
 
 	# Split, trim, clean and remove comments
-	my @content = grep { ! /^\s*(?:\#|$)/ } 
-		split /\s*[\015\012][\s\015\012]*/, $source;
+	my @content = $source.split( /\s*[\015\012][\s\015\012]*/ ).grep:{ ! /^\s*(?:\#|$)/ };
 
 	# Parse and build the item list
 	my @Items = ();
 	foreach ( @content ) {
 		# Split the line by non-word characters
-		my @sections = grep { length $_ } split /\W+/, $_;
+		my @sections = $_.split( /\W+/ ).grep:{ length $_ };
 		scalar @sections or return;
 
 		# Create the new item

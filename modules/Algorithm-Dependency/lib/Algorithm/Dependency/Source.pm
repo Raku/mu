@@ -8,7 +8,7 @@ class Algorithm::Dependency::Source-0.0.1;
 # Algorithm::Dependency::Source implements a parent class for a source
 # of items.
 
-has $:loaded is Bool;
+has $:loaded is Bool = 0;
 has %:items_hash is Hash of Algorithm::Dependency::Item;
 has @:items_array is Array of Algorithm::Dependency::Item;
 
@@ -25,14 +25,14 @@ method new( $class: ) returns Algorithm::Dependency::Source {
 	}
 
 	# Create the basic object
-	return bless {
+	return $class.bless( {
 		# Has the source been loaded
 		loaded      => 0,
 
 		# Indexes
 		items_hash  => undef,
 		items_array => undef,
-		}, $class;
+	} );
 }
 
 # Load the source
@@ -97,10 +97,8 @@ method missing_dependencies( $self: ) returns Array {
 	
 	# Merged the depends of all the items, and see if
 	# any are missing.
-	my %missing = map { $_ => 1 }
-		grep { ! $self.item($_) }
-		map { $_.depends } $self.items;
-	return %missing ? [ sort keys %missing ] : 0;
+	my %missing = $self.items.map:{ $_.depends }.grep:{ ! $self.item($_) }.map:{ $_ => 1 };
+	return %missing ? %missing.keys.sort : 0;
 }
 
 

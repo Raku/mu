@@ -84,7 +84,7 @@ foreach my $data ( [
 	['A','B'],	['C'],		[qw{A B C}]		], [
 	['B','D'],	[qw{C E F}],	[qw{B C D E F}]		]
 ) {
-	my $args = join( ', ', map { "'$_'" } @{ $data.[0] } );
+	my $args = @{ $data.[0] }.map:{ "'$_'" }.join( ', ' );
 	my $rv = $Dep.depends( @{ $data.[0] } );
 	ok( $rv, "Dependency.depends($args) returns something" );
 	is_deeply( $rv, $data.[1], "Dependency.depends($args) returns expected values" );
@@ -120,7 +120,7 @@ foreach my $data ( [
 	['A','B'],	['C'],		[qw{A B C}]	], [
 	['B','D'],	[qw{C E}],	[qw{B C D E}]	]
 ) {
-	my $args = join( ', ', map { "'$_'" } @{ $data.[0] } );
+	my $args = @{ $data.[0] }.map:{ "'$_'" }.join( ', ' );
 	my $rv = $Dep.depends( @{ $data.[0] } );
 	ok( $rv, "Dependency.depends($args) returns something" );
 	is_deeply( $rv, $data.[1], "Dependency.depends($args) returns expected values" );

@@ -60,7 +60,7 @@ foreach my $data ( [
 	['S'],		[qw{N O P Q R}],		[qw{N O P Q R S}]		], [
 	['T'],		[qw{A D E F K L M N P R}],	[qw{A D E F K L M N P R T}]	]
 ) {
-	my $args = join( ', ', map { "'$_'" } @{ $data.[0] } );
+	my $args = @{ $data.[0] }.map:{ "'$_'" }.join( ', ' );
 	my $rv = $Dep.depends( @{ $data.[0] } );
 	ok( $rv, "Dependency.depends($args) returns something" );
 	is_deeply( $rv, $data.[1], "Dependency.depends($args) returns expected values" );
@@ -102,7 +102,7 @@ foreach my $data ( [
 	['S'],		[qw{O Q}],		[qw{O Q S}]		], [
 	['T'],		[qw{A D E K L M}], 	[qw{A D E K L M T}]	]
 ) {
-	my $args = join( ', ', map { "'$_'" } @{ $data.[0] } );
+	my $args = @{ $data.[0] }.map:{ "'$_'" }.join( ', ' );
 	my $rv = $Dep.depends( @{ $data.[0] } );
 	ok( $rv, "Dependency.depends($args) returns something" );
 	is_deeply( $rv, $data.[1], "Dependency.depends($args) returns expected values" );

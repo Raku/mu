@@ -16,7 +16,7 @@ has @:depends;
 
 method new( $class: $id, @depends ) returns Algorithm::Dependency::Item {
 	# Create the object
-	return bless { id => $id, depends => @depends }, $class;
+	return $class.bless( { id => $id, depends => @depends } );
 }
 
 # Get the values

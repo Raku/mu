@@ -25,10 +25,10 @@ method new( $class: ) returns Algorithm::Dependency {
 		? $options{source} : return;
 
 	# Create the object
-	my $self = bless {
+	my $self = $class.bless( {
 		source   => $source, # Source object
 		selected => {},
-		}, $class;
+	} );
 
 	# Were we given the 'ignore_orphans' flag?
 	if ( $options{ignore_orphans} ) {
@@ -53,7 +53,7 @@ method new( $class: ) returns Algorithm::Dependency {
 		$selected{$id} = 1;
 	}
 
-	$self.selected = \%selected;
+	$self.selected = %selected;
 	return $self;
 }
 
@@ -68,7 +68,7 @@ method new( $class: ) returns Algorithm::Dependency {
 method source( $self: ) returns Algorithm::Dependency::Source { return $self.source }
 
 # Get the list of all selected items
-method selected_list( $self: ) returns Array of Bool { return sort keys %{$self.selected} }
+method selected_list( $self: ) returns Array { return $self.selected.keys.sort }
 
 # Is a particular item selected
 method selected( $self: $id ) returns Bool { return $self.selected{$id} }
@@ -110,14 +110,14 @@ method depends( $self: @stack ) returns Array {
 
 		# Add anything to the final output that wasn't one of
 		# the original input.
-		unless ( scalar grep { $id eq $_ } @_ ) {
+		unless ( @_.grep:{ $id eq $_ } ) {
 			push @depends, $id;
 		}
 	}
 
 	# Remove any items already selected
 	my $s = $self.selected;
-	return [ sort grep { ! $s{$_} } @depends ];
+	return @depends.grep:{ ! $s{$_} }.sort;
 }
 
 # For one or more items, create a schedule of all items, including the
@@ -129,18 +129,18 @@ method schedule( $self: @items ) returns Array {
 	@items or return;
 
 	# Get their dependencies
-	my $depends = $self.depends( @items ) or return;
+	my @depends = $self.depends( @items ) or return;
 
 	# Now return a combined list, removing any items already selected.
 	# We are allowed to return an empty list.
 	my $s = $self.selected;
-	return [ sort grep { ! $s{$_} } @items, @$depends ];
+	return (@items, @depends).grep:{ ! $s{$_} }.sort;
 }
 
 # As above, but don't pass what we want to schedule as a list, just do the
 # schedule for everything.
 method schedule_all( $self: ) {
-	return $self.schedule( map { $_.id } $self.source.items );
+	return $self.schedule( $self.source.items.map:{ $_.id } );
 }
 
 1;

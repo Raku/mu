@@ -24,7 +24,7 @@ class Algorithm::Dependency::Ordered-0.0.1 is Algorithm::Dependency;
 method schedule( $self: @items ) returns Array {
 	my $source = $self.source;
 	@items or return;
-	grep { ! $source.item($_) } @items and return;
+	@items.grep:{ ! $source.item($_) } and return;
 
 	# The actual items to select will be the same as for the unordered
 	# version, so we can simplify the algorithm greatly by using the
@@ -50,11 +50,11 @@ method schedule( $self: @items ) returns Array {
 
 		# Are there any un-met dependencies
 		my $Item = $self.source.item( $id ) or return;
-		my @missing = grep { ! $selected{$_} } $Item.depends;
+		my @missing =  $Item.depends.grep:{ ! $selected{$_} };
 
 		# Remove orphans if we are ignoring them
 		if ( $self.ignore_orphans ) {
-			@missing = grep { $self.source.item($_) } @missing;
+			@missing = @missing.grep:{ $self.source.item($_) };
 		}
 
 		if ( @missing ) {
