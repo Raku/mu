@@ -1,6 +1,6 @@
 module SHA1-0.0.1;
 
-inline :Haskell "
+inline Haskell => "
     import SHA1
     sha1 :: String -> String
 ";
