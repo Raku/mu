@@ -25,6 +25,7 @@ sub set_pugs_config_values {
         prefix    => $Config{prefix},
         archname  => $Config{archname},
         exe_ext   => $Config{exe_ext},
+        path_sep  => $Config{path_sep},
 
         scriptdir => $Config{scriptdir},
         bin       => $Config{bin},
@@ -47,6 +48,10 @@ sub set_pugs_config_values {
 
     $config->{pugspath} =
       File::Spec->catfile($config->{bin}, "pugs$config->{exe_ext}");
+
+    ($config->{file_sep}) =
+      ($Config{sitelib} =~ /([\/\\])/)
+        or die "Can't determine file_sep";
 
     return $config;
 }
@@ -71,7 +76,7 @@ sub write_config_module {
     my $all_definitions = join '', map {
         my $name = $_;
         my $value = $config->{$name};
-	$value =~ s{\\}{\\\\}g;
+        $value =~ s{\\}{\\\\}g;
         qq{config_$name = "$value"\n};
     } sort keys %$config;
     $template =~ s/#all_definitions#/$all_definitions/;

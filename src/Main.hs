@@ -146,15 +146,19 @@ runProgramWith fenv f name args prog = do
     Even the PERL6LIB handling code doesn't look like it can handle 
     multiple libs.
 --}
-incs = [ "./blib6/lib"
-       , "../blib6/lib"
-       , "../../blib6/lib"
+incs = [ fixPath "./blib6/lib"
+       , fixPath "../blib6/lib"
+       , fixPath "../../blib6/lib"
        , config_archlib
        , config_privlib
        , config_sitearch
        , config_sitelib
        , "."
        ]
+
+fixPath path = concat $
+    intersperse config_file_sep $
+    split "/" path
 
 printConfigInfo :: IO ()
 printConfigInfo = putStrLn $ unlines $
