@@ -381,6 +381,7 @@ currentUnaryFunctions = do
         , length (subParams sub) == 1
         , isNothing $ find isSlurpy $ subParams sub
         , let (_, (_:name)) = break (== ':') $ symName f
+        , name /= "undef" -- XXX Wrong
         ]
 
 currentListFunctions = do
@@ -531,13 +532,21 @@ parseLit = choice
     , listLiteral
     , arrayLiteral
 --  , pairLiteral
-    , namedLiteral "undef"  VUndef
+    , undefLiteral
+--    , namedLiteral "undef"  VUndef
     , namedLiteral "NaN"    (VNum $ 0/0)
     , namedLiteral "Inf"    (VNum $ 1/0)
     , dotdotdotLiteral
     , angleLiteral
     , qqLiteral
     ]
+
+undefLiteral = try $ do
+    symbol "undef"
+    (invs:args:_)   <- maybeParens $ parseParamList ruleExpression
+    return $ if null (invs ++ args)
+        then Val VUndef
+        else App "&prefix:undef" invs args    
 
 angleLiteral = try $ do
     exp <- angles $ option Nothing $ return . Just =<< parseTerm

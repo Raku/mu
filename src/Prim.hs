@@ -25,6 +25,7 @@ op0 "!"  = return . VJunc . Junc JNone emptySet . mkSet
 op0 "&"  = return . opJuncAll
 op0 "^"  = return . opJuncOne
 op0 "|"  = return . opJuncAny
+op0 "undef" = \_ -> return VUndef
 op0 "time"  = \_ -> do
     clkt <- liftIO getClockTime
     return $ VInt $ toInteger $ tdSec $ diffClockTimes clkt epochClkT
@@ -35,6 +36,9 @@ op0 s    = \x -> return $ VError ("unimplemented listOp: " ++ s) (Val $ VList x)
 
 op1 :: Ident -> Val -> Eval Val
 op1 "!"    = return . fmapVal not
+op1 "undef" = \mv -> do
+    liftIO $ writeIORef (vCast mv) $ VUndef
+    return VUndef
 op1 "+"    = return . op1Numeric id
 op1 "post:++" = \mv -> do
     val <- readMVal mv
@@ -418,7 +422,6 @@ foldParam ('?':str) = \ps -> (buildParam "Num" "?" "$?1" (Val $ VNum (read def))
 foldParam x         = doFoldParam x ""
 
 -- XXX -- Junctive Types -- XXX --
-
 initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Bool      pre     !       (Bool)\
 \\n   Num       pre     +       (Num)\
@@ -432,6 +435,8 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Bool      pre     ?^      (Bool)\
 \\n   Ref       pre     \\      (Any)\
 \\n   List      pre     ...     (Str|Num)\
+\\n   Any       pre     undef   ()\
+\\n   Any       pre     undef   (rw!Any)\
 \\n   Any       post    ++      (rw!Num)\
 \\n   Num       post    --      (rw!Num)\
 \\n   Any       pre     ++      (rw!Num)\
