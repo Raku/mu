@@ -617,7 +617,7 @@ emptyExp = App "&not" [] []
 
 retError :: VStr -> Exp -> Eval a
 retError str exp = do
-    shiftT $ \_ -> return $ VError str exp
+    shiftT $ const (return $ VError str exp)
 
 naturalOrRat  = (<?> "number") $ do
     sig <- sign

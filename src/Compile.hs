@@ -17,5 +17,5 @@ import Compile.Haskell (genGHC)
 compile "Haskell" = genGHC
 compile "Pugs" = genPugs
 compile "Parrot" = genPIR
-compile s = \_ -> error $ "Cannot compile to " ++ s
+compile s = const (error $ "Cannot compile to " ++ s)
 

@@ -25,8 +25,8 @@ op0 "!"  = return . VJunc . Junc JNone Set.empty . Set.fromList
 op0 "&"  = return . opJuncAll
 op0 "^"  = return . opJuncOne
 op0 "|"  = return . opJuncAny
-op0 "undef" = \_ -> return VUndef
-op0 "time"  = \_ -> do
+op0 "undef" = const $ return VUndef
+op0 "time"  = const $ do
     clkt <- liftIO getClockTime
     return $ VInt $ toInteger $ tdSec $ diffClockTimes clkt epochClkT
     where
@@ -36,9 +36,9 @@ op0 "not" = const retEmpty
 op0 "so" = const (return $ VBool True)
 op0 "¥" = (>>= return . VList . concat . transpose) . mapM fromVal
 op0 "Y" = op0 "¥"
-op0 "File::Spec::cwd" = \_ -> do
-                mycwd <- liftIO getCurrentDirectory
-                return $ VStr mycwd
+op0 "File::Spec::cwd" = const $ do
+    mycwd <- liftIO getCurrentDirectory
+    return $ VStr mycwd
 op0 other = \x -> return $ VError ("unimplemented listOp: " ++ other) (App other (map Val x) [])
 
 retEmpty :: ContT Val (ReaderT Env IO) Val
@@ -174,7 +174,7 @@ op1 "exit" = \v -> do
         else liftIO $ exitWith ExitSuccess
 -- handle timely destruction
 op1 "readlink" = \v -> do
-    file <- liftIO $ catch (readSymbolicLink (vCast v)) (\_ -> return "")
+    file <- liftIO $ catch (readSymbolicLink (vCast v)) (const $ return "")
     if file == ""
       then return VUndef
       else return $ VStr file
@@ -216,7 +216,7 @@ op1 "slurp" = \v -> do
         return $ VStr content
 op1 "open" = \v -> do
     let (mode, filename) = span (`elem` "+<> ") (vCast v)
-    liftIO $ (`catch` \_ -> return VUndef) $ do
+    liftIO $ (`catch` (const $ return VUndef)) $ do
         fh <- openFile filename (modeOf $ takeWhile (not . isSpace) mode)
         return $ VHandle fh
     where
@@ -231,7 +231,7 @@ op1 "accept" = \v -> do
     socket      <- fromVal v
     (h, _, _)   <- liftIO $ accept socket
     return $ VHandle h
-op1 "yield" = \_ -> do
+op1 "yield" = const $ do
     ok <- tryIO False $ do { yield ; return True }
     return $ VBool ok
 op1 "async" = \v -> do
@@ -362,7 +362,7 @@ bool2n v = if v
   else 0
 
 tryIO :: (MonadIO m) => a -> IO a -> m a
-tryIO err = liftIO . (`catch` \_ -> return err)
+tryIO err = liftIO . (`catch` (const $ return err))
 
 doBoolIO f v = do
     ok <- tryIO False $ do
@@ -375,7 +375,7 @@ boolIO f v = do
     return $ VBool ok
 
 boolIO2 f u v = do
-    ok <- liftIO $ (`catch` \_ -> return False) $ do
+    ok <- liftIO $ (`catch` (const $ return False)) $ do
         f (vCast u) (vCast v)
         return True
     return $ VBool ok
@@ -389,7 +389,7 @@ opEval :: Bool -> String -> String -> Eval Val
 opEval fatal name str = do
     env <- ask
     let env' = runRule env id ruleProgram name str
-    val <- resetT $ local (\_ -> env') $ do
+    val <- resetT $ local (const env') $ do
         evl <- asks envEval
         evl (envBody env')
     retEvalResult fatal val

@@ -154,7 +154,7 @@ reduceStatements ((exp, pos):rest)
                 addGlobalSym sym
                 doRest
     | Syn syn [Var name, vexp] <- exp
-    , (syn == ":=" || syn == "::=") = \_ -> do
+    , (syn == ":=" || syn == "::=") = const $ do
         env <- ask
         let lex = envLexical env
             val = VThunk . MkThunk $ do
@@ -178,11 +178,11 @@ reduceStatements ((exp, pos):rest)
         Env{ envGlobal = globals, envLexical = lexicals } <- ask
         liftIO $ modifyIORef globals (lexicals ++)
         reduceStatements rest e
-    | null rest = \_ -> do
+    | null rest = const $ do
         _   <- asks envContext
         val <- enterLex (posSyms pos) $ reduceExp exp
         retVal val
-    | otherwise = \_ -> do
+    | otherwise = const $ do
         val <- enterContext "Void" $ do
             enterLex (posSyms pos) $ do
                 reduceExp exp
@@ -523,7 +523,7 @@ reduce _ (App "&goto" (subExp:invs) args) = do
     sub <- fromVal vsub
     local callerEnv $ do
         val <- apply sub invs args
-        shiftT $ \_ -> retVal val
+        shiftT $ const (retVal val)
     where
     callerEnv env = let caller = maybe env id (envCaller env) in
         env{ envCaller = envCaller caller

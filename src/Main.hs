@@ -113,7 +113,7 @@ repLoop = do
             CmdHelp           -> printInteractiveHelp >> loop
             CmdReset          -> tabulaRasa >>= writeIORef env >> loop
 
-tabulaRasa :: IO AST.Env
+tabulaRasa :: IO Env
 tabulaRasa = prepareEnv "<interactive>" []
 
 doCheck :: FilePath -> String -> IO ()

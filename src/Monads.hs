@@ -125,7 +125,7 @@ enterSub sub@Sub{ subType = typ } action
             then local (fixEnv undefined pad cxt) action
             else resetT $ callCC $ \cc -> local (fixEnv cc pad cxt) action
     where
-    doReturn [v] = shiftT $ \_ -> return v
+    doReturn [v] = shiftT $ const (return v)
     doReturn _   = internalError "enterSub: doReturn list length /= 1"
     doCC cc [v] = cc v
     doCC _  _   = internalError "enterSub: doCC list length /= 1"
