@@ -311,7 +311,7 @@ rulePackageDeclaration = rule "package declaration" $ fail ""
 
 ruleConstruct = rule "construct" $ tryChoice
     [ ruleGatherConstruct
-    , ruleForeachConstruct
+    , ruleForConstruct
     , ruleLoopConstruct
     , ruleCondConstruct
     , ruleWhileUntilConstruct
@@ -328,8 +328,8 @@ ruleGatherConstruct = ruleKeywordConsturct "gather"
 
 ruleTryConstruct = ruleKeywordConsturct "try"
 
-ruleForeachConstruct = rule "foreach construct" $ do
-    choice [ symbol "for", symbol "foreach" ]
+ruleForConstruct = rule "for construct" $ do
+    symbol "for"
     list <- maybeParens $ ruleExpression
     block <- ruleBlockLiteral
     retSyn "for" [list, block]
@@ -362,7 +362,6 @@ ruleWhileUntilConstruct = rule "while/until construct" $ do
     body <- ruleBlock
     retSyn sym [ cond, body ]
 
-ruleForConstruct = rule "for construct" $ fail ""
 ruleGivenConstruct = rule "given construct" $ fail ""
 
 -- Expressions ------------------------------------------------
