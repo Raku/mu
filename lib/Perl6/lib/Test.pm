@@ -134,29 +134,25 @@ Test - Test support module for perl6
 
 = FUNCTIONS
 
-.list 4
+* `plan (Int $number_of_tests) returns Int`
 
-- plan (Int $number_of_tests) returns Int
+* `ok (Bool $cond, Str ?$desc) returns Bool`
 
-- ok (Bool $cond, Str ?$desc) returns Bool
+* `is (Str $got, Str $expected, Str ?$desc) returns Bool`
 
-- is (Str $got, Str $expected, Str ?$desc) returns Bool
+* `todo_ok (Bool $cond, Str ?$desc) returns Bool`
 
-- todo_ok (Bool $cond, Str ?$desc) returns Bool
+* `todo_is (Str $got, Str $expected, Str ?$desc) returns Bool`
 
-- todo_is (Str $got, Str $expected, Str ?$desc) returns Bool
+* `skip (Str ?$reason) returns Bool`
 
-- skip (Str ?$reason) returns Bool
+* `pass (Str ?$desc) returns Bool`
 
-- pass (Str ?$desc) returns Bool
+* `fail (Str ?$desc) returns Bool`
 
-- fail (Str ?$desc) returns Bool
+* `todo_fail (Str ?$desc) returns Bool`
 
-- todo_fail (Str ?$desc) returns Bool
-
-- diag (Str $diag)
-
-.list.
+* `diag (Str $diag)`
 
 = SEE ALSO
 
@@ -171,6 +167,8 @@ Norman Nunley
 Steve Peters
 
 Stevan Little <stevan@iinteractive.com>
+
+Brian Ingerson <ingy@cpan.org>
 
 = COPYRIGHT
 
