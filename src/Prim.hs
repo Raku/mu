@@ -89,7 +89,7 @@ op1 "exit" = \v -> do
         else liftIO $ exitWith ExitSuccess
 -- handle timely destruction
 op1 "mkdir" = \v -> do
-    liftIO $ createDirectory (vCast v)
+    liftIO $ catch (createDirectory (vCast v)) ( \_ -> putStr "mkdir fail" )
     return $ VBool True
 op1 "rmdir" = \v -> do
     liftIO $ removeDirectory (vCast v)
