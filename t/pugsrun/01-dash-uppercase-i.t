@@ -78,3 +78,4 @@ for @tests -> $t {
 
   is @got, @expected, "'" ~ @dirs ~ "' works (with a space delimiting -I)";
 }
+

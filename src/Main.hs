@@ -33,43 +33,53 @@ main = do
     hSetBuffering stdout NoBuffering
     args <- getArgs
     run $ canonicalArgs args
-{-
-    -- __run args
+{-    
+    __run args
 
-warn = hPrint stderr
+warn x = do
+            hPrint stderr $ show x
 __run x = do
             warn $ canonicalArgs x
+            warn $ gatherArgs . unpackOptions $ x
+            warn $ unpackOptions x
             run $ canonicalArgs x
 -}
 
--- see also ArgParse.hs    
+-- see also ArgParse.hs
 run :: [String] -> IO ()
 run (("-d"):rest)                 = run rest
--- run (("-l"):rest)                 = run rest -- -l does not appear here anymore
+
+{- -l does not appear here anymore
+   as it will have been replaced by an -e snippet further
+   above .
+-- run (("-l"):rest)                 = run rest
+-}
+
 run (("-w"):rest)                 = run rest
 run (("-I"):_:rest)               = run rest
+
 -- XXX should raise an error here:
 -- run ("-I":[])                     = do
 --                                    print "Empty -I"
 
 run ("-h":_)                    = printCommandLineHelp
-run (("-V"):[])                 = printConfigInfo []
-run (("-V"):item:_)             = printConfigInfo [item]
+run (("-V"):_)                  = printConfigInfo []
+run (("-V:"):item:_)            = printConfigInfo [item]
 run ("-v":_)                    = banner
 
 -- turn :file: and "-e":frag into a common subroutine/token
 run ("-c":"-e":prog:_)          = doCheck "-e" prog
 run ("-c":file:_)               = readFile file >>= doCheck file
-run (("-e"):prog:args)          = doRun "-e" args prog
 
 run ("-C":backend:"-e":prog:_)           = doCompile backend "-e" prog
 run ("-C":backend:file:_)                = readFile file >>= doCompile backend file
--- XXX clean up further
 run ("--external":mod:"-e":prog:_)    = doExternal mod "-e" prog
 run ("--external":mod:file:_)         = readFile file >>= doExternal mod file
-run ("-":args)                        = do
-                                          prog <- getContents
-                                          doRun "-" args prog
+
+run (("-e"):prog:args)          = doRun "-e" args prog
+run ("-":args)                  = do
+                                    prog <- getContents
+                                    doRun "-" args prog
 run (file:args)                 = readFile file >>= doRun file args
 run []                          = do
     isTTY <- hIsTerminalDevice stdin

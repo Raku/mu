@@ -21,7 +21,7 @@ my @examples = (
  , '-e print -e qq.Hel. -w -e ";print" -e qq.lo. -w -e ";print" -e "qq.\nPugs."'
 );
 
-plan +@examples;
+plan +@examples +1;
 
 diag "Running under $?OS";
 
@@ -42,3 +42,12 @@ for @examples -> $ex {
 
   is $got, $expected, "Multiple -e switches work and append the script";
 }
+
+my $command = qq($pugs -e @ARGS.perl.say -e "" Hello Pugs $redir temp-ex-output);
+diag $command;
+system $command;
+
+my @expected = <Hello Pugs>;
+my @got      = eval slurp "temp-ex-output";
+is @got, @expected, "-e '' does not eat a following argument";
+

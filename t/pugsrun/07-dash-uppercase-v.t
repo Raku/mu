@@ -41,7 +41,7 @@ my @config = <
     pugs_revision
 >;
 
-plan 1+@config*2+1;
+plan 1+@config*2+2;
 
 diag "Running under $?OS";
 
@@ -77,4 +77,10 @@ for @config -> $item {
 
 my $nonexistent = run_pugs('-V:unknown_option_that_does_not_exist');
 is $nonexistent, "\tunknown_option_that_does_not_exist: UNKNOWN\n", "Nonexistent options";
+
+# -V:foo vs. -V foo
+my $fullversion = run_pugs('-V unknown_option_that_does_not_exist');
+ok( ($fullversion ~~ rx:perl5/^This is Perl6 User's Golfing System/), "-V foo vs. -V:foo")
+  or diag $fullversion;
+
 

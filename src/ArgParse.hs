@@ -5,15 +5,23 @@
   This needs to be redone as a proper Haskell parser,
   which will be one of my next projects. But so far,
   this works.
-  
+
   The operators are simple prefix operators
   with zero or one argument, except for everything
   that ultimatively goes into @ARGS for the Pugs
   script.
+
+  If you change anything here, make sure all tests under
+  t/pugsrun/ still pass. Otherwise you might break building
+  for everybody, once you commit.
   
 -}
 
-module ArgParse (canonicalArgs)
+module ArgParse (canonicalArgs
+, gatherArgs
+, unpackOptions
+
+)
 where
 import Internals
 
@@ -26,6 +34,7 @@ canonicalArgs x = concatMap procArg
                 $ x
 
 data Arg = File String | Switch Char | Opt String String
+  deriving Show
 
 procArg :: Arg -> [String]
 procArg (Opt name arg)  = [name, arg]
@@ -34,6 +43,7 @@ procArg (Switch name)   = ['-':name:[]]
 
 unpackOptions :: [String] -> [String]
 unpackOptions [] = []
+unpackOptions (('-':[]):rest)  = ["-"] ++ unpackOptions rest
 unpackOptions ("--":opts) = opts
 unpackOptions (('-':opt):rest) = unpackOption opt ++ unpackOptions rest
 unpackOptions (filename:rest) = filename : unpackOptions rest
@@ -52,6 +62,7 @@ withParam = ["e", "C", "I", "V:"]
 prefixOpt opt = msum $ map (findArg opt) withParam
 findArg arg prefix = do
     param <- afterPrefix prefix arg
+    guard (not (null param))
     return (prefix, param)
 
 {-
@@ -70,7 +81,7 @@ compareArgs a b = compare (argRank a) (argRank b)
 argRank :: Arg -> Int
 argRank(Switch 'h')         = -1
 argRank(Switch 'v')         = -1
-argRank(Opt "-V" _)         = -1
+argRank(Opt "-V:" _)        = -1
 argRank(Switch 'V')         = -1
 argRank(Opt "-I" _)         = 0
 argRank(Switch 'd')         = 1
@@ -88,13 +99,15 @@ argRank(_)                  = 100  -- filename or @ARGS or whatever
 -- (but I don't know yet how to write such code in Haskell)
 gatherArgs :: [String] -> [Arg]
 gatherArgs([]) = []
+gatherArgs("-l":rest)             = gatherArgs("-e":"# BEGIN { ... } # to be done":rest) -- XXX implement BEGIN block later
 gatherArgs("-e":frag:rest)        = [Opt "-e" frag] ++ gatherArgs(rest)
 gatherArgs("--external":mod:rest) = [Opt "--external" mod] ++ gatherArgs(rest)
 gatherArgs("-I":dir:rest)         = [Opt "-I" dir] ++ gatherArgs(rest)
 gatherArgs("-C":backend:rest)     = [Opt "-C" backend] ++ gatherArgs(rest)
-gatherArgs("-V":item:rest)        = [Opt "-V" item] ++ gatherArgs(rest)
--- _gatherArgs("-l":sep:rest)      = [["-l",sep]] ++ _gatherArgs(rest) -- XXX implement later
--- _gatherArgs("-0":sep:rest)      = [["-0",sep]] ++ _gatherArgs(rest) -- XXX implement later
+gatherArgs("-V:":item:rest)       = [Opt "-V:" item] ++ gatherArgs(rest)
+-- _gatherArgs("-l":sep:rest)        = [["-l",sep]] ++ _gatherArgs(rest) -- XXX implement later
+-- _gatherArgs("-0":sep:rest)        = [["-0",sep]] ++ _gatherArgs(rest) -- XXX implement later
+gatherArgs(('-':[]):xs)           = [File "-"] ++ gatherArgs(xs)
 gatherArgs(('-':x):xs)            = [Switch (head x)] ++ gatherArgs(xs)
 gatherArgs(x:xs)                  = [File x] ++ gatherArgs(xs)
 
@@ -106,4 +119,3 @@ joinDashE ((Opt "-e" a):(Opt "-e" b):args) =
     where
     combined = a++"\n"++b
 joinDashE (x:xs) =  [ x ] ++ joinDashE xs
-
