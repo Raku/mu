@@ -116,7 +116,6 @@ t/op/append.t
 t/op/arith.t
 t/op/array.t
 t/op/array_ref.t
-t/op/assign.t
 t/op/auto.t
 t/op/binding.t
 t/op/bit.t
@@ -161,5 +160,7 @@ t/Synopsis/S10.pod
 t/Synopsis/S11.pod
 t/Synopsis/S12.pod
 t/Synopsis/S13.pod
+t/syntax/decl_vs_assign_prec.t
+t/syntax/subscript_parse_bugs.t
 t/unspecced/cont.t
 util/generate_config
