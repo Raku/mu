@@ -61,7 +61,7 @@ sub handle_t_file {
 	while ($rest =~ m{
 					  (.*?)                                     # Leading bit
 					  (L <+
-					    ($quotable)(/$quotable)                 # Normal bit of link -- fixme, support URLs.
+					    ($quotable)(?:/($quotable))             # Normal bit of link -- fixme, support URLs.
 					    (?:
 					      \s+                                   # Whitespace before re
 					      $RE{delimited}{-delim=>'/'}{-keep}    # Regex
@@ -81,9 +81,12 @@ sub handle_t_file {
 	  my $reopts=$9;
 	  $rest=$10;
 	  
-	  print STDERR "before link: $text\n";
-	  print STDERR "$whole: linkfile: $linkfile linkhead: $linkhead regex: $regex reopts: $reopts\n";
-	  print STDERR "after link: $rest\n";
+	  $linkfile = $1 if ($linkfile =~ /^"(.*)"$/);
+	  $linkhead = $1 if ($linkhead =~ /^"(.*)"$/);
+	  
+#	  print STDERR "before link: $text\n";
+#	  print STDERR "$whole: linkfile: $linkfile linkhead: $linkhead regex: $regex reopts: $reopts\n";
+#	  print STDERR "after link: $rest\n";
 	  
 	  $body->push_content(HTML::Element->new('pre')->push_content($text));
 	  
@@ -94,8 +97,13 @@ sub handle_t_file {
 		$reopts||='';
 		$link->{regex} = eval "qr/$regex/$reopts";
 	  }
-	  $link->{sourcepath}=$outfile;
-	  $body->push_content(HTML::Element->new('a', href=>"#fixme", name=>0+$link)->push_content($whole));
+	  $link->{sourcepath}=$output_path;
+
+	  if (!$regex) {
+		$body->push_content(HTML::Element->new('a', href=>"#", name=>0+$link)->push_content($whole));		
+	  } else {
+		$body->push_content(HTML::Element->new('a', href=>"#".(0+$link), name=>0+$link)->push_content($whole));
+	  }
 	  push @{$link_info->{$linkfile}}, $link;
     }
 	
