@@ -581,11 +581,8 @@ chainFun p1 f1 p2 f2 (v1:v2:vs) = do
 chainFun _ _ _ _ _ = internalError "chainFun: Not enough parameters in Val list"
 
 applyExp :: [ApplyArg] -> Exp -> Eval Val
-applyExp bound (Prim f) = do
-    val <- f [ argValue arg | arg <- bound, (argName arg !! 1) /= '_' ]
-    case val of
-        VThunk (MkThunk eval) -> eval
-        _                     -> return val
+applyExp bound (Prim f) =
+    f [ argValue arg | arg <- bound, (argName arg !! 1) /= '_' ]
 applyExp bound body = do
     -- XXX - resetT here -- XXX - Wrong -- XXX - FIXME
     enterLex formal $ evalExp body

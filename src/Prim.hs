@@ -482,7 +482,11 @@ op2ChainedList x y
     | VList ys <- y                 = VList (x:ys)
     | otherwise                     = VList [x, y]
 
-op2Logical f x y = return $ if f (vCast x) then x else y
+op2Logical f x y = do
+    vx <- fromValue x
+    if f (vCast vx)
+        then return vx
+        else fromValue y
 
 op2DefinedOr = undefined
 
