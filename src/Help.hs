@@ -15,11 +15,12 @@
 #include "pugs_config.h"
 #include "pugs_version.h"
 
-module Help (printHelp, banner, versnum, version, 
+module Help (printInteractiveHelp, printCommandLineHelp,
+             banner, versnum, version, 
              copyright, disclaimer, intro) where
 
-printHelp :: IO ()
-printHelp
+printInteractiveHelp :: IO ()
+printInteractiveHelp
    = do putStrLn "Commands available from the prompt:"
         putStrLn ":h              = show this help message"
         putStrLn ":q              = quit"
@@ -30,6 +31,17 @@ printHelp
         putStrLn ":l <filename>   = load a pugs file (need quotes around the name)" 
         putStrLn ":r              = reload the current file"
 -}
+
+{- FIXME: Somebody with more UI skillz should make this nicer -}
+printCommandLineHelp :: IO ()
+printCommandLineHelp
+   = do putStrLn "Command-line flags:"
+        putStrLn "-e               executes it's argument"
+        putStrLn "-h or --help     gives this message"
+        putStrLn "-V               long configuration information & version"
+        putStrLn "-v or --version  version"
+        putStrLn "-c               parses the file or -e, but does not run it"
+        putStrLn "-l -d and -w are ignored for compatability with perl 5"
 
 name       = "Perl6 User's Golfing System"
 versnum    = PUGS_VERSION

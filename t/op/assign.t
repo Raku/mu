@@ -62,5 +62,5 @@ plan 18;
         $a ||= 3;
         is($a,3, "||= operator");
         $a ||= 10;
-        is($a,3, "... adn second");
+        is($a,3, "... and second");
 }

@@ -43,7 +43,8 @@ run (('-':'w':xs):rest)         = run (('-':xs):rest)
 run (('-':'d':xs):rest)         = run (('-':xs):rest)
 run (('-':'e':prog@(_:_)):args) = doRun "-" args prog
 run ("-e":prog:args)            = doRun "-" args prog
-run ("-h":_)                    = printHelp
+run ("-h":_)                    = printCommandLineHelp
+run ("--help":_)                = printCommandLineHelp
 run ("-V":_)                    = printConfigInfo
 run ("-v":_)                    = banner
 run ("--version":_)             = banner
@@ -68,7 +69,7 @@ repLoop = do
         CmdLoad fn          -> load fn
         CmdEval trace prog  -> doEval trace [] prog >> repLoop
         CmdParse prog       -> doParse prog >> repLoop
-        CmdHelp             -> printHelp >> repLoop
+        CmdHelp             -> printInteractiveHelp >> repLoop
         _                   -> internalError "unimplemented command"
 
 load _ = return ()
