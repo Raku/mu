@@ -1,4 +1,5 @@
 #!perl6
+use v6;
 
 # life.p6 adopted for perl6 after:
 #

@@ -54,13 +54,15 @@ doSlice v ns = Syn "[]" [v, Val $ VList $ map VInt ns]
 
 -- XXX - somehow force failure
 doIndex :: Exp -> VInt -> Exp
-doIndex v n = Syn "[]" [v, Val $ VInt n]
+doIndex v n = Syn "cxt" [Val $ VStr "Bool", Syn "[]" [v, Val $ VInt n]]
 
 doBindArray :: Exp -> ([(Param, Exp)], VInt) -> (Param, Char) -> MaybeError ([(Param, Exp)], VInt)
 doBindArray _ (xs, -1) (p, '@') = return (((p, emptyArrayExp):xs), -1)
 doBindArray _ (xs, -1) (p, '$') = fail $ "Slurpy array followed by slurpy scalar: " ++ show p
 doBindArray v (xs, n)  (p, '@') = return (((p, doSlice v [n..]):xs), -1)
-doBindArray v (xs, n)  (p, '$') = return (((p, doIndex v n):xs), n+1)
+doBindArray v (xs, n)  (p, '$') = case v of
+    (Syn "," [])    -> fail $ "Insufficient arguments for slurpy scalar"
+    _               -> return (((p, doIndex v n):xs), n+1)
 
 bindEmpty :: Param -> MaybeError (Param, Exp)
 bindEmpty p = case paramName p of
@@ -117,6 +119,7 @@ bindParams prms invsExp argsExp = do
         defaultNamed    = if hasDefaultHash   then [] else [defaultHashParam]
         defaultScalar   = if hasDefaultScalar then [] else [defaultHashParam]
         hasDefaultArray = isJust (find (("@_" ==) . paramName) slurpPos)
+                        || null slurpPos
         hasDefaultHash  = isJust (find (("%_" ==) . paramName) slurpNamed)
         hasDefaultScalar= isJust (find (("$_" ==) . paramName) prms)
 

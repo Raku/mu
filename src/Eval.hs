@@ -140,6 +140,10 @@ reduceStatements ((exp:rest), _)
                 let sym = (Symbol SGlobal name vexp)
                 local (\e -> e{ envGlobal = (sym:envGlobal e) }) $ do
                     reduceStatements (rest, vexp)
+    | null rest = do
+        cxt <- asks envContext
+        val <- evalExp exp
+        return (Val val)
     | otherwise = do
         val <- enterContext "Void" $ evalExp exp
         processVal val $ do
@@ -153,7 +157,8 @@ evalVar name = do
     env <- ask
     case findVar env name of
         Nothing -> retError ("Undefined variable " ++ name) (Val VUndef)
-        Just (Val val) -> return val
+        Just (Val val)  -> return val
+        Just exp        -> evalExp exp -- XXX Wrong
 
 findVar Env{ envLexical = lex, envGlobal = glob } name
     | Just vexp <- findSym name lex
@@ -261,6 +266,10 @@ doReduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
     "," -> do
         vals    <- mapM (enterEvalContext "List") exps
         retVal $ VList $ concatMap vCast vals
+    "cxt" -> do
+        let [cxtExp, exp] = exps
+        cxt     <- enterEvalContext "Str" cxtExp
+        retVal =<< enterEvalContext (vCast cxt) exp
     "[]" -> do
         let (listExp:rangeExp:errs) = exps
         list    <- enterEvalContext "List" listExp
@@ -270,6 +279,10 @@ doReduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         if isaType cls "Scalar" cxt
             then retVal $ last (VUndef:slice)
             else retVal $ VList slice
+    "()" -> do
+        let [subExp, Syn "invs" invs, Syn "args" args] = exps
+        sub     <- enterEvalContext "Code" subExp
+        apply (vCast sub) invs args
     "gather" -> do
         val     <- enterEvalContext "List" exp
         -- ignore val
@@ -288,10 +301,19 @@ doReduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
 
 doReduce env@Env{ envClasses = cls, envContext = cxt, envLexical = lex, envGlobal = glob } exp@(App name invs args) = do
     subSyms <- mapM evalSym [ sym | sym <- lex ++ glob, head (symName sym) == '&' ]
-    case findSub subSyms name of
+    lens    <- mapM argSlurpLen (invs ++ args)
+    case findSub (sum lens) subSyms name of
         Just sub    -> applySub subSyms sub invs args
         otherwise   -> retError ("No compatible subroutine found: " ++ name) exp
     where
+    argSlurpLen (Val listMVal) = do
+        listVal  <- readMVal listMVal
+        return $ vCast listVal
+    argSlurpLen (Var name) = do
+        listMVal <- evalVar name
+        listVal  <- readMVal listMVal
+        return $ vCast listVal
+    argSlurpLen arg = return 1
     applySub subSyms sub invs args
         -- list-associativity
         | Sub{ subAssoc = "list" }      <- sub
@@ -306,7 +328,7 @@ doReduce env@Env{ envClasses = cls, envContext = cxt, envLexical = lex, envGloba
         -- chain-associativity
         | Sub{ subAssoc = "chain", subFun = fun, subParams = prm }   <- sub
         , (App name' invs' args'):rest              <- args
-        , Just sub'                                 <- findSub subSyms name'
+        , Just sub'                                 <- findSub 2 subSyms name'
         , Sub{ subAssoc = "chain", subFun = fun', subParams = prm' } <- sub'
         , null invs'
         = applySub subSyms sub{ subParams = prm ++ tail prm', subFun = Prim $ chainFun prm' fun' prm fun } [] (args' ++ rest)
@@ -317,10 +339,10 @@ doReduce env@Env{ envClasses = cls, envContext = cxt, envLexical = lex, envGloba
         -- normal application
         | otherwise
         = apply sub invs args
-    findSub subSyms name = case sort (subs subSyms name) of
+    findSub slurpLen subSyms name = case sort (subs slurpLen subSyms name) of
         ((_, sub):_)    -> Just sub
         _               -> Nothing
-    subs subSyms name = [
+    subs slurpLen subSyms name = [
         ( (isGlobal, subT, isMulti sub, bound, distance, order)
         , fromJust fun
         )
@@ -328,7 +350,7 @@ doReduce env@Env{ envClasses = cls, envContext = cxt, envLexical = lex, envGloba
         , let sub@(Sub{ subType = subT, subReturns = ret, subParams = prms }) = vCast val
         , (n ==) `any` [name, toGlobal name]
         , let isGlobal = '*' `elem` n
-        , let fun = arityMatch sub (invs ++ args) -- XXX Wrong
+        , let fun = arityMatch sub (length (invs ++ args)) slurpLen
         , isJust fun
         , deltaFromCxt ret /= 0
         , let invocants = filter isInvocant prms
@@ -419,11 +441,20 @@ findSym name pad
     | otherwise
     = Nothing
 
-arityMatch sub@Sub{ subAssoc = assoc, subParams = prms } args
-    | assoc == "list"               = Just sub
-    | isJust $ find isSlurpy prms
-    , assoc == "pre"                = Just sub
---  | (length prms == length args)  = Just sub -- XXX optionals
---  | (length prms >= length args)  = Just sub
-    | otherwise                     = Just sub
-    | otherwise                     = Nothing
+arityMatch sub@Sub{ subAssoc = assoc, subParams = prms } argLen argSlurpLen
+    | assoc == "list" || assoc == "chain"
+    = Just sub
+    | isNothing $ find (not . isSlurpy) prms
+    , slurpLen <- length $ filter (\p -> isSlurpy p && head (paramName p) == '$') prms
+    , hasArray <- isJust $ find (\p -> isSlurpy p && head (paramName p) == '@') prms
+    , if hasArray then slurpLen <= argSlurpLen else slurpLen == argSlurpLen
+    , assoc == "pre"
+    = Just sub
+    | reqLen <- length $ filter (\p -> not $ isOptional p) prms
+    , optLen <- length $ filter (\p -> isOptional p) prms
+    , argLen >= reqLen && argLen <= (reqLen + optLen)
+    --, error $ show (prms, reqLen, optLen, argLen)
+    = Just sub
+    | otherwise
+    = Nothing
+

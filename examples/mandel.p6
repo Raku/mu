@@ -1,4 +1,6 @@
 #!perl6
+use v6;
+
 # vim:ft=perl:sw=4:
 # Print the Mandlebrot set
 #

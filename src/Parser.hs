@@ -92,7 +92,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
     formal  <- option Nothing $ return . Just =<< parens ruleSubParameters
     body    <- ruleBlock
     let (fun, names) = extract (body, [])
-        params = (maybe [] id formal) ++ map nameToParam names
+        params = map nameToParam names ++ (maybe [defaultArrayParam] id formal) 
     -- Check for placeholder vs formal parameters
     unless (isNothing formal || null names || names == ["$_"] ) $
         fail "Cannot mix placeholder variables with formal parameters"
@@ -102,7 +102,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
                   , subType       = SubRoutine
                   , subAssoc      = "pre"
                   , subReturns    = cxt2
-                  , subParams     = if null params then [defaultArrayParam] else params
+                  , subParams     = params
                   , subFun        = fun
                   }
     -- XXX: user-defined infix operator
@@ -336,7 +336,9 @@ primitiveListFunctions = " not <== any all one none perl eval "
 parseOp = buildExpressionParser operators parseTerm
 parseLitOp = buildExpressionParser litOperators parseLitTerm
 
-ops f s = [f n | n <- words s]
+ops f s = [f n | n <- sortBy revLength (words s)]
+    where
+    revLength x y = compare (length y) (length x)
 
 doApp str args = App str args []
 
@@ -468,6 +470,7 @@ parseLit = choice
     [ ruleBlockLiteral
     , numLiteral
     , strLiteral
+    , listLiteral
     , arrayLiteral
 --  , pairLiteral
     , namedLiteral "undef"  VUndef
@@ -490,6 +493,11 @@ numLiteral = do
         Right d -> return . Val $ VRat d
 
 strLiteral = return . Val . VStr =<< stringLiteral
+
+listLiteral = tryRule "list literal" $ do -- XXX Wrong
+    parens whiteSpace
+    -- items <- parens $ parseOp `sepEndBy` symbol ","
+    return $ Syn "," []
 
 arrayLiteral = do
     items <- brackets $ parseOp `sepEndBy` symbol ","

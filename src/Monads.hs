@@ -74,8 +74,7 @@ enterSub sub@Sub{ subType = typ } action
             local (\e -> e{ envLexical = (ret cxt:subPad sub) }) $ do
                 action
     where
-    doReturn [v] = do
-        shiftT $ \_ -> return v
+    doReturn [v] = shiftT $ \_ -> return v
     ret cxt = Symbol SMy "&prefix:return" (Val $ VSub $ retSub cxt)
     retSub cxt = Sub
         { isMulti = False
@@ -89,7 +88,7 @@ enterSub sub@Sub{ subType = typ } action
             , isOptional = False
             , isNamed = False
             , paramName = "@?0"
-            , paramContext = "Any"
+            , paramContext = cxt
             , paramDefault = Val VUndef
             } ]
         , subReturns = cxt
