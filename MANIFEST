@@ -1,5 +1,6 @@
 AUTHORS
 ChangeLog
+docs/01Overview.html
 examples/fp.p6
 examples/life.p6
 examples/mandel.p6

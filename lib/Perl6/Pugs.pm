@@ -1,5 +1,5 @@
 package Perl6::Pugs;
-$Pugs::VERSION = '6.0.8';
+$Pugs::VERSION = '6.0.9';
 
 use strict;
 
@@ -9,7 +9,7 @@ Perl6::Pugs - A Perl6 Implementation
 
 =head1 VERSION
 
-This document describes version 6.0.8 of Pugs, released February 21, 2005.
+This document describes version 6.0.9 of Pugs, released February 28, 2005.
 
 =head1 SYNOPSIS
 
@@ -23,6 +23,8 @@ the full Perl6 specification, as detailed in the Synopses.
 
 The Pugs project was started on February 1st 2005.  It is under active
 development on IRC (irc.freenode.net #perl6).
+
+Please read the Pugs Apocrypha in the F<docs/> directory for more details.
 
 =head1 SEE ALSO
 
