@@ -20,6 +20,11 @@ Sample::Module - A Sample Module for Pugs/Perl6
 This purpose of this module is simply to be an example Perl6 module that will
 run and install and have all the distribution components you need.
 
+=head2 WHY
+
+You should use this module as a starting point to base
+a new module distribution on.
+
 = AUTHORS
 
 Brian Ingerson <ingy@cpan.org>
