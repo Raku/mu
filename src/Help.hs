@@ -33,6 +33,7 @@ versnum    = VERSION
 date	   = DATE
 version    = name ++ ", version " ++ versnum ++ ", " ++ date
 copyright  = "Copyright 2005 by Autrijus Tang"
+revision   = "$Rev$"
 disclaimer =
     "This software is distributed under the terms of the " ++
     "GNU Public Licence.\n" ++
@@ -43,7 +44,7 @@ versionFill n = fill ++ vstr
     where
     fill = replicate (n - vlen) ' '
     vlen = length vstr
-    vstr = "Version: " ++ versnum
+    vstr = "Version: " ++ versnum ++ " (" ++ revision ++ ")"
 
 banner :: IO ()
 banner = putStrLn $ unlines
