@@ -12,4 +12,4 @@ todo_ok (eval 'shift(@s)' == 2, "shift");
 todo_ok (eval 'shift(@s)' == 3, "shift");
 todo_ok (eval 'shift(@s)' == 4, "shift");
 todo_ok (eval '@s.shift'  == 5, "shift method");
-todo_ok (!eval 'defined(shift(@s))', "shift");
+todo_ok (eval '!defined(shift(@s))', "shift");

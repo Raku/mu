@@ -9,7 +9,8 @@ Basic tests.
 
 =cut
 
-plan 14;
+plan 16;
+
 ok(1, "Welcome to Pugs!");
 
 sub cool { ok(fine($_), " # We've got " ~ toys) }

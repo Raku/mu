@@ -1,3 +1,5 @@
+#!/usr/bin/pugs
+
 # taken mostly from Perl 5.8.7-tobe
 use v6;
 

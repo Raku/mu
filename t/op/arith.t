@@ -1,7 +1,9 @@
+#!/usr/bin/pugs
+
 use v6;
 require Test;
 
-plan(132);
+plan(130);
 
 sub abs($num) { $num < 0 ?? -$num :: $num }
 

@@ -1,3 +1,5 @@
+#!/usr/bin/pugs
+
 # Tests for magic variables
 
 use v6;

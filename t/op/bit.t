@@ -5,7 +5,7 @@ require Test;
 
 # Mostly copied from Perl 5.8.4 s t/op/bop.t
 
-plan 16;
+plan 17;
 
 # test the bit operators '&', '|', '^', '~', '<<', and '>>'
 

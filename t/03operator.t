@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 2;
+plan 14;
 
 my $str1 = "foo";
 my $str2 = "bar";
@@ -27,6 +27,13 @@ ok(!($wibble != $four), "== (false)");
 ok($five != $four, "!= (true)");
 
 ok($five == 5, "== (const on rhs)");
+ok(!($five != 5), "!= (const on rhs)");
+
 ok(5 == $five, "== (const on lhs)");
+ok(!(5 != $five), "!= (const on lhs)");
+
 ok($five == (2 + 3), "== (sum on rhs)");
-ok((2 + 3) == $five, "== (sum on lhs)");
+ok(!($five != (2 + 3)), "== (sum on rhs)");
+
+ok(eval '(2 + 3) == $five', "== (sum on lhs)");
+ok(eval '!((2 + 3) != $five)', "== (sum on lhs)");
