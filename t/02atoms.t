@@ -5,46 +5,52 @@ use v6;
 This is a test file.  Whee!
 
 =cut
-say "1..6";
 
 my $foo = "Foo";
 my $foobar = "Foo::Bar";
 my $bar;
+my $loop = 0;
 
-sub ok ($var, $loop) {
-    if ($var) {
-	say("ok ", $loop, " # TODO var = ", $var);
+sub ok (Bool $cond, Str $descr) {
+    $loop++;
+
+    if ($cond) {
+	say("ok ", $loop, " # ", $descr, " (var = ", $var, ")");
     }
     else {
-	say("not ok ", $loop, " # TODO");
+	say("not ok ", $loop, " # TODO ", $descr);
     }
 }
 
 
 eval '$bar = $::($foo)';
-ok ($bar, 1);
+ok ($bar, 'symbolic deref');
 $bar = '';
 eval '$bar = $::("MY::$foo")';
-ok ($bar, 2);
+ok ($bar, 'symbolic deref on lexical scope');
 $bar = '';
 eval '$bar = $::($foobar)';
-ok ($bar, 3);
+ok ($bar, 'more symbolic deref');
 $bar = undef;
 eval ' $bar = %MY::<$foo> ';
-ok ($bar, 4);
+ok ($bar, 'hash deref on lexical scope');
 
 my @array;
 eval ' @array = qw/"foo" "bar"/ ';
-if (@array) { say 'ok 5' } else { say 'not ok 5 # TODO' }
+ok(@array, 'qw//');
 
 my @array;
 eval ' @array = q:w/"foo" "bar"/ ';
-if (@array) { say 'ok 6' } else { say 'not ok 6 # TODO' }
+ok(@array, 'q:w//');
 
 my %hash;
 eval ' %hash<Mon Tue Wed Thu Fri Sat Sun> = 1..7; ';
-if (%hash) { say 'ok 7' } else { say 'not ok 7 # TODO' }
+ok(%hash, '%hash<>');
 
-my $handle = open(">/tmp/tmpfile");
-eval ' for *FILE { $bar ~= $_ } ';
-ok ($bar, 8);
+eval '
+    my $handle = open(">/tmp/tmpfile");
+    for *FILE { $bar ~= $_ }
+';
+ok ($bar, '*FILE');
+
+say "1..", $loop;
