@@ -299,6 +299,9 @@ ruleUsePackage = rule "use package" $ do
 ruleRequireDeclaration = tryRule "require declaration" $ do
     symbol "require"
     names <- identifier `sepBy1` (try $ string "::")
+    _ <- option "" $ do -- version - XXX
+        char '-'
+        many1 (choice [ digit, char '.' ])
     return $ App "&require" [] [Val . VStr $ concat (intersperse "/" names) ++ ".pm"]
 
 ruleModuleDeclaration = rule "module declaration" $ do
