@@ -76,7 +76,7 @@ prepareEnv name args = do
         -- , SymVal SGlobal "%=POD"        (Val . VHash . MkHash $ emptyFM) 
         , SymVal SGlobal "@=POD"        (VArray . MkArray $ [])
         , SymVal SGlobal "$=POD"        (VStr "")
-        , SymVal SGlobal "$?OS"         (VStr config_osname)
+        , SymVal SGlobal "$?OS"         (VStr (getConfig "osname"))
         , SymVal SGlobal "$?_BLOCK_EXIT" $ VSub $ Sub
             { isMulti = False
             , subName = "$?_BLOCK_EXIT"
@@ -97,16 +97,16 @@ getLibs environ = do
         args <- getArgs
         return $ filter (not . null) (libs args)
     where
-    envlibs nm = maybe [] (split config_path_sep) $ nm `lookup` environ
+    envlibs nm = maybe [] (split (getConfig "path_sep")) $ nm `lookup` environ
     inclibs args = map (drop 2) (filter isLibArg args)
     isLibArg ('-':'I':_) = True
     isLibArg _ = False
     libs args =  (inclibs args)
               ++ envlibs "PERL6LIB"
-              ++ [ config_archlib
-                 , config_privlib
-                 , config_sitearch
-                 , config_sitelib
+              ++ [ getConfig "archlib"
+                 , getConfig "privlib"
+                 , getConfig "sitearch"
+                 , getConfig "sitelib"
                  ]
               ++ [ "." ]
 

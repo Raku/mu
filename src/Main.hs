@@ -194,12 +194,15 @@ printConfigInfo = do
     environ <- getEnvironment
     libs <- getLibs environ
     putStrLn $ unlines $
-        ["Summary of pugs configuration:"
+        ["This is " ++ version ++ " built for" ++ getConfig "archname"
         ,""
-        ,"archlib: " ++ config_archlib
-        ,"privlib: " ++ config_privlib
-        ,"sitearch: " ++ config_sitearch
-        ,"sitelib: " ++ config_sitelib
+        ,"Summary of pugs configuration:"
+        ,""
+        , unlines $ map (\x -> "\t" ++ fst x ++ ": " ++ snd x) (fmToList config)
+        --,"archlib: " ++ lookupFM config "archlib"
+        --,"privlib: " ++ lookupFM config "privlib"
+        --,"sitearch: " ++ lookupFM config "sitearch"
+        --,"sitelib: " ++ lookupFM config "sitelib"
         ,""
         ] ++
         [ "@*INC:" ] ++ libs
