@@ -1,4 +1,6 @@
 {-# OPTIONS -fglasgow-exts -O #-}
+{-# INCLUDE "Linker.h" #-}
+
 
 {-|
 
@@ -53,8 +55,6 @@
    * There's no dlclose()?
 
 -}
-
-{-# OPTIONS -#include "Linker.h" #-}
 
 module Internals.RuntimeLoader (
    RuntimeModule,
