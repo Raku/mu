@@ -358,10 +358,15 @@ op2 "ge" = op2Cmp vCastStr (>=)
 op2 "~~" = op2Cmp vCastStr (==)
 op2 "!~" = op2Cmp vCastStr (/=)
 op2 "&&" = op2Logical not
-op2 "||" = op2Logical (id :: Bool -> Bool)
+op2 "||" = op2Logical id
 op2 "^^" = op2Bool ((/=) :: Bool -> Bool -> Bool)
 op2 "//" = op2Logical isJust
-op2 "!!" = op2Bool (\x y -> not x && not y)
+op2 "!!" = \x y -> callCC $ \esc -> do
+    bx <- fromValue x
+    when bx $ esc (VBool False)
+    by <- fromValue y
+    when by $ esc (VBool False)
+    return (VBool True)
 -- XXX pipe forward XXX
 op2 "and"= op2 "&&"
 op2 "or" = op2 "||"

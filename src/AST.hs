@@ -24,6 +24,7 @@ ifContextIsa c trueM falseM = do
         then trueM
         else falseM
 
+doFromValue (VThunk (MkThunk eval)) = doFromValue =<< eval
 doFromValue v = do
     rv <- liftIO $ catchJust errorCalls (return . Right $ vCast v) $
         \str -> return (Left str)
