@@ -29,7 +29,7 @@ method schedule( @items ) returns Array {
 	# The actual items to select will be the same as for the unordered
 	# version, so we can simplify the algorithm greatly by using the
 	# normal unordered .schedule() method to get the starting list.
-	my $rv = $.SUPER::schedule( @items );
+	my $rv = .SUPER::schedule( @items );
 	my @queue = @rv or return;
 
 	# Get a working copy of the selected index

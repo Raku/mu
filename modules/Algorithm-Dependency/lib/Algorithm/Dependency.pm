@@ -123,7 +123,7 @@ method schedule( @items ) returns Array {
 	@items or return;
 
 	# Get their dependencies
-	my @depends = $.depends( @items ) or return;
+	my @depends = .depends( @items ) or return;
 
 	# Now return a combined list, removing any items already selected.
 	# We are allowed to return an empty list.
@@ -133,7 +133,7 @@ method schedule( @items ) returns Array {
 # As above, but don't pass what we want to schedule as a list, just do the
 # schedule for everything.
 method schedule_all () {
-	$.schedule( $.source.items.map:{ .id() } );
+	.schedule( $.source.items.map:{ .id() } );
 }
 
 1;

@@ -70,7 +70,7 @@ method loaded () returns Bool { $.loaded }
 
 # Get a single item by id
 method item ( $id ) returns Algorithm::Dependency::Item {
-	$.loaded or $.load() or return;
+	$.loaded or .load() or return;
 
 	# Return the item ( or undef )
 	return $.items_hash{$id};
@@ -78,13 +78,13 @@ method item ( $id ) returns Algorithm::Dependency::Item {
 
 # Get a list of the items
 method items () returns Array of Algorithm::Dependency::Item {
-	$.loaded or $.load() or return;
+	$.loaded or .load() or return;
 	return @.items_array;
 }
 
 # Check the integrity of the source.
 method missing_dependencies () returns Array {
-	$.loaded or $.load() or return;
+	$.loaded or .load() or return;
 	
 	# Merged the depends of all the items, and see if
 	# any are missing.
