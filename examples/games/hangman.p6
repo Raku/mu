@@ -15,7 +15,7 @@ use v6;
 
 ## declare global variables (globals RULE dude!)
 
-my @letters;           # the letters in that commiter's name
+my @letters;           # the letters in that committer's name
 my @solution;          # the ever-evolving solution
 my @guesses;           # the current set of guesses by the user
 
@@ -28,8 +28,8 @@ sub cls returns Void {
     system(($?OS eq any<MSWin32 mingw cygwin>) ?? 'cls' :: 'clear');
 }
 
-sub get_commiter_list (Str $dict_file) returns List {
-    my @commiters;
+sub get_committer_list (Str $dict_file) returns List {
+    my @committers;
     my $dict = open($dict_file) err die "Couldn't open '$dict_file'";
 
     # Skip the intro text
@@ -41,15 +41,15 @@ sub get_commiter_list (Str $dict_file) returns List {
             my $realname = $1;
             # Remove nickname
             $realname ~~ s:perl5/\s*".*"\s*/ /;
-            @commiters.push($realname);
+            @committers.push($realname);
         }
     }
     $dict.close();
-    return @commiters;
+    return @committers;
 }
 
-sub pick_commiter (@commiters) returns Str {
-    any(@commiters).pick;
+sub pick_committer (@committers) returns Str {
+    any(@committers).pick;
 }
 
 sub draw_board returns Str { 
@@ -94,7 +94,7 @@ sub draw_if_greater_than (Str $char, Int $num) returns Bool {
 sub draw_hangman (Str ?$msg) returns Str {
     "Hangman (with the Pugs AUTHORS list)
     
-  +-----+       The commiter's name is:
+  +-----+       The committer's name is:
   |     |       { draw_board }
   |     { draw_if_greater_than('O', 1) }   
   |    {
@@ -112,12 +112,13 @@ $msg";
 }
 
 ## main loop
+require File::Spec;
+my ($progdir) = splitpath($*PROGRAM_NAME)[1];
+my $dict = canonpath("$progdir../../AUTHORS");
+my @committers = get_committer_list($dict);
+my $current_committer = pick_committer(@committers);
 
-my $bin = $*PROGRAM_NAME; $bin ~~ s:perl5/[\w.]+$//;
-my @commiters = get_commiter_list("$bin/../../AUTHORS");
-my $current_commiter = pick_commiter(@commiters);
-
-@letters = split("", $current_commiter);
+@letters = split("", $current_committer);
 @solution = ('' xx +@letters);
 
 cls;
@@ -138,7 +139,7 @@ while ($letter = =$*IN) {
         if ($number_of_bad_guesses >= $allowed_bad_guesses) {
             print draw_hangman(
                 "You have exceedded the maximum number of tries.\n" ~
-                "Sorry, the commiter was '$current_commiter'\n"
+                "Sorry, the committer was '$current_committer'\n"
             ); 
             exit;
         }
