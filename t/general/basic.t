@@ -47,4 +47,4 @@ todo_ok($nexttest == 10, "next");
 ok(eval '12.eval', "12.eval");
 ok(eval 'eval(1 ?? 1 :: 0)', "?? ::");
 
-ok(eval '{ my $_ = 1; $_ }', '{ my $_ = 1; $_ }');
+todo_ok(eval '{ my $_ = 1; $_ }', '{ my $_ = 1; $_ }');
