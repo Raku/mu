@@ -10,10 +10,10 @@ my $foo = "Foo";
 my $foobar = "Foo::Bar";
 my $bar;
 
-eval ' $bar = $::($foo); ';
+eval '$bar = $::($foo)';
 
 if ($bar) {
-    print "ok bar = "~$bar;
+    print "ok 1 # bar = " ~ $bar;
 }
     
 

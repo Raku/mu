@@ -89,7 +89,7 @@ runProgramWith fenv f name args prog = do
     str <- return "" -- getContents
     let env' = runRule (prepare str $ fenv env) id ruleProgram prog
     val <- (`runReaderT` env') $ do
-        (`runContT` return) $ do
+        (`runContT` return) $ resetT $ do
             evaluate (envBody env')
     f val
     where

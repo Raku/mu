@@ -74,7 +74,7 @@ evaluate exp = do
     debug "indent" (tail) " Ret" exp'
     case exp' of
         Val v       -> return v
-        otherwise   -> return $ VError "Invalid expression" exp'
+        otherwise   -> retError "Invalid expression" exp'
 
 evalExp :: Exp -> Eval Val
 evalExp exp = do
@@ -102,6 +102,9 @@ reduceExp exp = do
 
 retVal :: Val -> Eval Exp
 retVal val = return $ Val val
+
+retError str exp = do
+    shiftT $ \_ -> return $ VError str exp
 
 newMVal val@(MVal r) = newMVal =<< liftIO (readIORef r)
 newMVal val = do
@@ -143,8 +146,8 @@ reduceStatements ((exp:rest), _)
             reduceStatements (rest, Val val)
     where
     processVal val action = case val of
-        VError _ _  -> retVal val
-        _           -> action
+        VError str exp  -> retError str exp
+        _               -> action
 
 findVar Env{ envLexical = lex, envGlobal = glob } name
     | Just vexp <- findSym name lex
@@ -171,7 +174,7 @@ doReduce env exp@(Var name)
     | Just vexp <- findVar env name
     = reduceExp vexp
     | otherwise
-    = retVal $ VError ("Undefined variable " ++ name) exp
+    = retError ("Undefined variable " ++ name) exp
 
 -- Reduction for syntactic constructs
 doReduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
@@ -191,6 +194,16 @@ doReduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         if (vCast vbool)
             then doReduce env bodyIf
             else doReduce env bodyElse
+    "for" -> do
+        let [list, body] = exps
+        vlist <- enterEvalContext "List" list
+        vsub  <- enterEvalContext "Code" body
+        let vals = concatMap vCast $ vCast vlist
+            runBody [] = retVal VUndef
+            runBody (v:vs) = do
+                doApply env (vCast vsub) [] [Val v]
+                runBody vs
+        runBody vals
     "loop" -> do
         let [pre, cond, post, body] = exps
         evalExp pre
@@ -211,13 +224,13 @@ doReduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
     "=" -> do
         let [Var name, exp] = exps
         case findVar env name of
-            Nothing -> retVal $ VError ("Undefined variable " ++ name) exp
+            Nothing -> retError ("Undefined variable " ++ name) exp
             Just (Val val) -> do
                 val' <- enterEvalContext (cxtOfSigil $ head name) exp
                 writeMVal val val'
                 retVal val'
             _ -> do
-                retVal $ VError "Can't set a constant item" exp
+                retError "Can't set a constant item" exp
     ":=" -> do
         let [Var name, exp] = exps
         val     <- enterEvalContext (cxtOfSigil $ head name) exp
@@ -244,8 +257,7 @@ doReduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         val     <- enterEvalContext "List" exp
         -- ignore val
         retVal val
-    _ -> do
-        retVal $ VError "Unknown syntactic construct" exp
+    _ -> retError "Unknown syntactic construct" exp
     where
     doSlice :: [Exp] -> [Val] -> [VInt] -> Maybe (Val, [VInt])
     doSlice errs vs (n:ns)
@@ -261,7 +273,7 @@ doReduce env@Env{ envClasses = cls, envContext = cxt, envLexical = lex, envGloba
     subSyms <- mapM evalSym [ sym | sym <- lex ++ glob, head (symName sym) == '&' ]
     case findSub subSyms name of
         Just sub    -> applySub subSyms sub invs args
-        otherwise   -> retVal $ VError ("No compatible subroutine found: " ++ name) exp
+        otherwise   -> retError ("No compatible subroutine found: " ++ name) exp
     where
     applySub subSyms sub invs args
         -- list-associativity
@@ -348,7 +360,7 @@ apply sub invs args = do
 doApply :: Env -> VSub -> [Exp] -> [Exp] -> Eval Exp
 doApply env@Env{ envClasses = cls } sub@Sub{ subParams = prms, subFun = fun } invs args =
     case bindParams prms invs args of
-        Left errMsg     -> retVal $ VError errMsg (Val VUndef)
+        Left errMsg     -> retError errMsg (Val VUndef)
         Right bindings  -> do
             bound <- doBind bindings
             val <- (`juncApply` bound) $ \realBound -> do

@@ -176,6 +176,7 @@ rulePackageDeclaration = rule "package declaration" $ fail ""
 
 ruleConstruct = rule "construct" $ tryChoice
     [ ruleGatherConstruct
+    , ruleForeachConstruct
     , ruleLoopConstruct
     , ruleCondConstruct
     ]
@@ -184,6 +185,12 @@ ruleGatherConstruct = rule "gather construct" $ do
     symbol "gather"
     block <- ruleBlock
     retSyn "gather" [block]
+
+ruleForeachConstruct = rule "foreach construct" $ do
+    choice [ symbol "for", symbol "foreach" ]
+    list <- maybeParens $ ruleExpression
+    block <- ruleBlockLiteral
+    retSyn "for" [list, block]
 
 ruleLoopConstruct = rule "loop construct" $ do
     symbol "loop"
@@ -215,8 +222,18 @@ ruleGivenConstruct = rule "given construct" $ fail ""
 
 ruleExpression = (<?> "expression") $ do
     exp <- parseOp
-    f <- option id rulePostConditional
+    f <- option id $ choice
+        [ rulePostConditional
+        , rulePostTrinary
+        ]
     return $ f exp
+
+rulePostTrinary = rule "trinary conditional" $ do
+    symbol "??"
+    body <- parseOp
+    symbol "::"
+    bodyElse <- parseOp
+    return $ \x -> Syn "if" [x, body, bodyElse]
 
 rulePostConditional = rule "postfix conditional" $ do
     cond <- tryChoice $ map symbol ["if", "unless", "while", "until"]
@@ -295,7 +312,7 @@ tightOperators =
     , leftOps  " && !! "                                -- Tight And
     , leftOps  " || ^^ // "                             -- Tight Or
     , ternOps  [("??", "::")]                           -- Ternary
-    , rightSyn " = := ::= += **= xx= "                  -- Assignment
+    , rightSyn " = := ::= += **= xx= ||= &&= //= "      -- Assignment
     ]
 
 looseOperators =

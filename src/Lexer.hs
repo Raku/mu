@@ -42,8 +42,16 @@ brackets   = P.brackets perl6Lexer
 angles     = P.angles perl6Lexer
 
 symbol s
-    | isWordAny (last s) = try $ postSpace $ string s
-    | otherwise          = try $ lexeme $ string s
+    | isWordAny (last s) = try $ do
+        rv <- string s
+        lookAhead (satisfy (not . isWordAny))
+        whiteSpace
+        return rv
+    | otherwise          = try $ do
+        rv <- string s
+        lookAhead (satisfy (\x -> isWordAny x || isSpace x))
+        whiteSpace
+        return rv
 
 stringLiteral = choice
     [ P.stringLiteral  perl6Lexer

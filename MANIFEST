@@ -31,4 +31,5 @@ src/Parser.hs
 src/Pretty.hs
 src/Prim.hs
 src/Shell.hs
+examples/mandel.p6
 t/01basic.t
