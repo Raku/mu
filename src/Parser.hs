@@ -177,6 +177,7 @@ rulePackageDeclaration = rule "package declaration" $ fail ""
 ruleConstruct = rule "construct" $ tryChoice
     [ ruleGatherConstruct
     , ruleLoopConstruct
+    , ruleCondConstruct
     ]
 
 ruleGatherConstruct = rule "gather construct" $ do
@@ -197,7 +198,15 @@ ruleLoopConstruct = rule "loop construct" $ do
     -- XXX while/until
     retSyn "loop" (conds ++ [block])
 
-ruleCondConstruct = rule "conditional construct" $ fail ""
+ruleCondConstruct = rule "conditional construct" $ do
+    symbol "if"
+    cond <- maybeParens $ ruleExpression
+    body <- ruleBlock
+    bodyElse <- option (Val VUndef) $ do
+        symbol "else"
+        ruleBlock
+    retSyn "if" [cond, body, bodyElse]
+
 ruleWhileUntilConstruct = rule "while/until construct" $ fail ""
 ruleForConstruct = rule "for construct" $ fail ""
 ruleGivenConstruct = rule "given construct" $ fail ""
@@ -212,7 +221,7 @@ ruleExpression = (<?> "expression") $ do
 rulePostConditional = rule "postfix conditional" $ do
     cond <- tryChoice $ map symbol ["if", "unless", "while", "until"]
     exp <- parseOp
-    return $ \x -> Syn cond [exp, x]
+    return $ \x -> Syn cond [exp, x, Val VUndef]
 
 ruleBlockLiteral = rule "block construct" $ do
     (typ, formal) <- option (SubBlock, Nothing) $ choice

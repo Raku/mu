@@ -186,11 +186,11 @@ doReduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         val     <- enterEvalContext (cxtOfSigil $ head name) exp
         retVal =<< newMVal val
     "if" -> do
-        let [cond, body] = exps
+        let [cond, bodyIf, bodyElse] = exps
         vbool     <- enterEvalContext "Bool" cond
         if (vCast vbool)
-            then doReduce env body
-            else retVal VUndef
+            then doReduce env bodyIf
+            else doReduce env bodyElse
     "loop" -> do
         let [pre, cond, post, body] = exps
         evalExp pre

@@ -60,7 +60,8 @@ op1 "one"  = return . opJuncOne . vCast
 op1 "none" = return . VJunc . Junc JNone emptySet . mkSet . vCast
 op1 "perl" = return . VStr . (pretty :: Val -> VStr)
 op1 "eval" = opEval . vCast
-
+op1 "last" = \v -> do
+    shiftT $ \_ -> return VUndef
 op1 "return" = \v -> return (VError "cannot return outside a subroutine" (Val v))
 
 -- Side-effectful function: how far into Monadic IO shall we go?
@@ -318,7 +319,8 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Bool      pre     not     (Bool)\
 \\n   Str       pre     perl    (List)\
 \\n   Any       pre     eval    (Str)\
-\\n   Any       pre     last    (List)\
+\\n   Any       pre     last    (Num)\
+\\n   Any       pre     exit    (Num)\
 \\n   Num       pre     rand    (?Num=1)\
 \\n   Action    pre     print   (List)\
 \\n   Action    pre     say     (List)\
