@@ -67,7 +67,7 @@ sortArgs :: [String] -> [String]
 sortArgs args = _unpackArgs (_sortArgs (_packArgs args))
   where
     _packArgs args   = map (\ a -> (argRank a,a)) args
-    _sortArgs args   = sortBy (\ (a,_) (b,_) -> compare a b) args
+    _sortArgs args   = sortBy (\ (a::Int,_) (b::Int,_) -> compare a b) args
     _unpackArgs args = map (\ (_,b) -> b ) args
     argRank("-h") = -1
     argRank("-v") = -1
