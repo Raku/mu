@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 2 Dec 2004
+  Last Modified: 29 Jan 2005
   Number: 6
-  Version: 6
+  Version: 7
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -666,7 +666,7 @@ variable. A value type is given as a prefix or with the C<returns> or
 C<of> keywords:
 
     my Dog $spot;
-    my $spot returns $dog;
+    my $spot returns Dog;
     my $spot of Dog;
 
     our Animal sub get_pet() {...}
