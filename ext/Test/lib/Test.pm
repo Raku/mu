@@ -26,7 +26,7 @@ sub todo_ok (Bool $cond, Str ?$desc) returns Bool is export {
 ## is
 
 sub is (Str $got, Str $expected, Str ?$desc) returns Bool is export {
-    my $test := $got eq $expected; 
+    my $test := $got eq $expected;
     proclaim($test, $desc, undef, $got, $expected);
 }
 
@@ -91,14 +91,14 @@ sub todo_cmp_ok (Str $got, Code $compare_func, Str $expected, Str ?$desc) return
 
 sub isa_ok ($ref, Str $expected_type, Str ?$desc) returns Bool is export {
     my $ref_type = ref($ref);
-    my $out := defined($desc) ?? $desc :: "The object is-a '$expected_type'";    
+    my $out := defined($desc) ?? $desc :: "The object is-a '$expected_type'";
     my $test := $ref_type eq $expected_type;
     proclaim($test, $out,  undef, $ref_type, $expected_type);
 }
 
 sub todo_isa_ok ($ref, Str $expected_type, Str ?$desc) returns Bool is export {
     my $ref_type = ref($ref);
-    my $out := defined($desc) ?? $desc :: "The object is-a '$expected_type'";         
+    my $out := defined($desc) ?? $desc :: "The object is-a '$expected_type'";
     my $test := $ref_type eq $expected_type;
     proclaim($test, $out, "TODO", $ref_type, $expected_type);
 }
@@ -132,6 +132,20 @@ sub diag (Str $diag) is export {
 	}
 }
 
+# TODO: Write tests verifying this sub
+sub use_ok (Str $module) is export {
+  # make the export leak:
+  eval "require $module";
+  #try {
+  #  require $module;
+  #};
+
+  is( $!, undef, "$module imported OK" )
+    or do {
+      diag "Import error when loading $module: $!";
+    };    
+}
+
 ## 'private' subs
 
 sub proclaim (Bool $cond, Str ?$desc, Str ?$context, Str ?$got, Str ?$expected) returns Bool {
@@ -158,7 +172,7 @@ sub report_failure (Str ?$todo, Str ?$got, Str ?$expected) returns Bool {
     }
     if ($?CALLER::CALLER::SUBNAME eq ('&is' | '&todo_is' | '&cmp_ok' | '&todo_cmp_ok' | '&eval_is' | '&todo_eval_is' | '&isa_ok' | '&todo_isa_ok')) {
         diag("  Expected: " ~ ($expected.defined ?? $expected :: "undef"));
-        diag("       Got: " ~ ($got.defined ?? $got :: "undef"));    
+        diag("       Got: " ~ ($got.defined ?? $got :: "undef"));
     }
     else {
         diag("       Got: " ~ ($got.defined ?? $got :: "undef"));
@@ -216,38 +230,40 @@ Test - Test support module for perl6
 
   use v6;
   require Test;
-  
+
   plan 10;
   test_log_file('test.log');
   
   ok(2 + 2 == 4, '2 and 2 make 4');
   is(2 + 2, 4, '2 and 2 make 4');
   isa_ok([1, 2, 3], 'List');
-  
+
   todo_ok(2 + 2 == 5, '2 and 2 make 5');
-  todo_is(2 + 2, 5, '2 and 2 make 5');  
+  todo_is(2 + 2, 5, '2 and 2 make 5');
   todo_isa_ok({'one' => 1}, 'Hash');
-  
+
+  use_ok('My::Module');
+
   pass('This test passed');
   fail('This test failed');
 
   skip('skip this test for now');
-  
+
   todo_fail('this fails, but might work soon');
-  
+
   diag('some misc comments and documentation');
 
 = DESCRIPTION
 
-This module was built to facilitate the Pugs test suite. It has the 
-distinction of being the very first module written for Pugs. 
+This module was built to facilitate the Pugs test suite. It has the
+distinction of being the very first module written for Pugs.
 
-It provides a simple set of common test utility functions, and is 
+It provides a simple set of common test utility functions, and is
 an implementation of the TAP protocol.
 
-This module, like Pugs, is a work in progress. As new features are 
+This module, like Pugs, is a work in progress. As new features are
 added to Pugs, new test functions will be defined to facilitate the
-testing of those features. For more information see the FUTURE PLANS 
+testing of those features. For more information see the FUTURE PLANS
 section of this document.
 
 = FUNCTIONS
@@ -264,7 +280,7 @@ there.  The filename 'test.log' is recommended.
 
 == Testing Functions
 
-- `ok (Bool $cond, Str ?$desc) returns Bool` 
+- `ok (Bool $cond, Str ?$desc) returns Bool`
 
 - `is (Str $got, Str $expected, Str ?$desc) returns Bool`
 
@@ -274,7 +290,7 @@ This function will compare `$got` and `$expected` using `$compare_func`. This wi
 eventually allow Test::More-style cmp_ok() though the following syntax:
 
   cmp_ok('test', &infix:<gt>, 'me', '... testing gt on two strings');
-  
+
 However the `&infix:<gt>` is currently not implemented, so you will have to wait
 a little while. Until then, you can just write your own functions like this:
 
@@ -283,7 +299,7 @@ a little while. Until then, you can just write your own functions like this:
 - `isa_ok ($ref, Str $expected_type, Str ?$desc) returns Bool`
 
 This function currently on checks with ref() since we do not yet have
-object support. Once object support is created, we will add it here, and 
+object support. Once object support is created, we will add it here, and
 maintain backwards compatibility as well.
 
 - `eval_ok (Str $code, Str ?$desc) returns Bool`
@@ -295,9 +311,9 @@ on success, or report that the eval was not successful on failure.
 
 == TODO Testing functions
 
-Sometimes a test is broken because something is not implemented yet. So 
+Sometimes a test is broken because something is not implemented yet. So
 in order to still allow that to be tested, and those tests to knowingly
-fail, we provide a set of todo_* functions for all the basic test 
+fail, we provide a set of todo_* functions for all the basic test
 functions.
 
 - `todo_ok (Bool $cond, Str ?$desc) returns Bool`
@@ -359,11 +375,11 @@ sub which will be able to handle structures of arbitrary depth and of
 an arbitrary type. The function signatures will likely look something
 like this:
 
-  multi sub is_deeply (Array @got, Array @expected, Str ?$desc) returns Bool;  
-  multi sub is_deeply (List  $got, List  $expected, Str ?$desc) returns Bool;    
-  multi sub is_deeply (Hash  %got, Hash  %expected, Str ?$desc) returns Bool;      
-  multi sub is_deeply (Pair  $got, Pair  $expected, Str ?$desc) returns Bool;  
-  
+  multi sub is_deeply (Array @got, Array @expected, Str ?$desc) returns Bool;
+  multi sub is_deeply (List  $got, List  $expected, Str ?$desc) returns Bool;
+  multi sub is_deeply (Hash  %got, Hash  %expected, Str ?$desc) returns Bool;
+  multi sub is_deeply (Pair  $got, Pair  $expected, Str ?$desc) returns Bool;
+
 Because these functions will be mutually recursive, they will easily be
 able handle arbitrarily complex data structures automatically (at least
 that is what I hope).
@@ -381,7 +397,7 @@ or a string to match against the error.
 
 = ENVIRONMENT
 
-Setting the environment variable TEST_LOG_FILE sets the default 
+Setting the environment variable TEST_LOG_FILE sets the default
 filename where test diagnostics should be written.
 
 = SEE ALSO
@@ -414,6 +430,8 @@ Jesse Vincent <jesse@bestpractical.com>
 Yuval Kogman <nothingmuch@woobling.org>
 
 Nathan Gray <kolibrie@graystudios.org>
+
+Max Maischein <corion@cpan.org>
 
 = COPYRIGHT
 
