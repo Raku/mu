@@ -2,10 +2,23 @@
 
 use FindBin;
 use File::Copy;
+use File::Basename;
 
-chdir "$FindBin::Bin/..";
+if (!-e "src/Main.hs") {
+    chdir "$FindBin::Bin/..";
+    if (!-e "src/Main.hs") {
+	die "$0: This script must be invoked in the Pugs source tree directory."
+    }
+}
 
 unlink "dump.ast";
+
+my $out = 'a';
+if (@ARGV and -e $ARGV[0]) {
+    $out = basename($ARGV[0]);
+    $out =~ s{\..*}{};
+}
+
 system("pugs", -C => @ARGV);
 exit 1 unless -e "dump.ast";
 
@@ -18,7 +31,7 @@ print FH <AST>;
 close AST;
 close FH;
 
-my $out = ($^O eq 'MSWin32') ? "a.exe" : "a.out";
+$out .= ($^O eq 'MSWin32') ? ".exe" : ".out";
 system("ghc", "-v0", "-o", $out, "--make", "-main-is", "mainCC", "-isrc", "src/MainCC.hs");
 unlink "src/MainCC.hs";
 print "Generated output: $out\n";
