@@ -7,52 +7,150 @@ use base 'Kwid::Base';
 field 'input';
 field 'loader';
 
-our $buffer;
+our @buffer;
+our $line_number;
 
 sub parse {
-    local $buffer;
     my $self = shift;
-    $self->init;
-    while (my $para = $self->next_top_para) {
-        $self->loader->start_para;
-        $self->parse_para($para);
-        $self->loader->end_para;
-    }
-    $self->finish;
-    return $self->loader->result;
+    no warnings 'once';
+
+    local @buffer;
+    local $line_number = 0;
+    local *read = $self->read_sub;
+
+    my $result = $self->do_parse;
 }
 
-sub next_top_para {
+sub do_parse {
     my $self = shift;
-    while ($self->read) {
-        next if $self->blank_line;
-        next if $self->comment_line;
-        return $self->get_normal_para;
-    } continue { undef $buffer }
+    $self->loader->begin({type => 'stream'});
+    while (my $block = $self->next_block) {
+        $self->loader->begin($block);
+        $self->reparse($block);
+        $self->loader->end($block);
+    }
+    $self->loader->end({type => 'stream'});
+    return $self->finish;
+}
+
+sub reparse {
+    my $self = shift;
+    my $chunk = shift;
+    my $type = $chunk->{type};
+    my $class = "Kwid::Parser::$type";
+    my $parser = $class->new(
+        input => \$chunk->{content},
+        loader => $self->loader,
+    );
+    $parser->parse;
+}
+
+sub contains_blocks {
+    qw( heading verbatim paragraph )
+}
+
+sub next_block {
+    my $self = shift;
+    $self->throwaway
+      or return;
+    for my $type ($self->contains_blocks) {
+        my $method = "get_$type";
+        my $block = $self->$method;
+        next unless defined $block;
+        $block = { content => $block }
+          unless ref $block;
+        $block->{type} ||= $type;
+        return $block;
+    }
     return;
 }
 
-sub comment_line { $buffer =~ /^#\s/ }
-sub blank_line { $buffer =~ /^\s*$/ }
-
-sub get_normal_para {
+sub throwaway {
     my $self = shift;
-    my $para = '';
-    while ($self->read) {
-        last if $self->blank_line;
-        next if $self->comment_line;
-        $para .= $buffer;
-    } continue { undef $buffer }
-    $para =~ s/\n(?=.)/ /g;
-    return $para;
+    while (my $line = $self->read) {
+        next if
+          $self->comment_line($line) or
+          $self->blank_line($line);
+        $self->unread($line);
+        return 1;
+    }
+    return;
 }
 
-sub parse_para {
+sub read_paragraph {
     my $self = shift;
-    $self->loader->content(shift);
+    my $paragraph = '';
+    while (my $line = $self->read) {
+        last if $self->blank_line($line);
+        $paragraph .= $line;
+    }
+    return $paragraph;
 }
 
-sub init {
+sub comment_line { (pop) =~ /^#\s/ }
+sub blank_line { (pop) =~ /^\s*$/ }
+sub line_matches {
+    my $self = shift;
+    my $regexp = shift;
+    my $line = $self->read;
+    $self->unread($line);
+    $line =~ $regexp;
+}
+
+# Methods to parse out top level blocks
+sub get_heading {
+    my $self = shift;
+    return unless $self->line_matches(qr/^={1,4} \S/);
+    my $heading = $self->read_paragraph;
+    $heading =~ s/\s*\n\s*(?=.)/ /g;
+    chomp $heading;
+    $heading =~ s/^(=+)\s+// or die;
+    my $level = length($1);
+    return +{
+        content => $heading,
+        level => $level,
+    };
+}
+
+sub get_verbatim { 
+    my $self = shift;
+    my $verbatim = '';
+    my $prev_blank = 0;
+    while (my $line = $self->read) {
+        if ($line =~ /^\S/) {
+            if ($prev_blank) {
+                $self->unread($line);
+                last;
+            }
+            $self->unread($verbatim, $line);
+            return;
+        }
+        next if $self->comment_line($line);
+        $verbatim .= $line;
+        $prev_blank = $self->blank_line($line);
+    }
+    return unless $verbatim;
+    until ($verbatim =~ /^\S/) {
+        $verbatim =~ s/^ //gm;
+    }
+    return $verbatim;
+}
+
+sub get_paragraph {
+    my $self = shift;
+    my $paragraph = $self->read 
+      or return;
+    while (my $line = $self->read) {
+        next if $self->comment_line($line);
+        last if $self->blank_line($line);
+        $paragraph .= $line;
+    }
+    $paragraph =~ s/\s*\n(?=.)/ /g;
+    return $paragraph;
+}
+
+# Methods to handle reading and buffering input
+sub read_sub {
     my $self = shift;
     my $input = $self->input
       or die "Kwid::Parser->input not defined";
@@ -61,47 +159,98 @@ sub init {
         open my $handle, '<', $input
           or die "Can't open $input for input:\n$!";
         $self->input($handle);
-        *read = \&read_from_handle;
+        return \&read_from_handle;
     }
     elsif (ref($input) eq 'SCALAR') {
-        *read = \&read_from_string;
+        return \&read_from_string;
     }
     else {
-        *read = \&read_from_handle;
+        return \&read_from_handle;
     }
-    $self->loader->start_stream;
 }
 
 sub finish {
     my $self = shift;
-    $self->loader->end_stream;
     my $input = $self->input;
     if (ref($input) ne 'SCALAR') {
         close $input;
     }
     $self->input(undef);
+    return $self->loader->result;
+}
+
+sub unread {
+    my $self = shift;
+    for my $lines (@_) {
+        my @lines = ($lines =~ /(.*\n)/g);
+        unshift @buffer, @lines;
+    }
+}
+
+sub readn {
+    my $self = shift;
+    my $number = shift;
+    my $lines = '';
+    while ($number) {
+        my $line = $self->read or last;
+        $lines .= $line;
+    }
+    return $lines
+      if length($lines);
+    return;
 }
 
 sub read_from_string {
     my $self = shift;
-    return 1 if defined $buffer;
+    if (@buffer) {
+        $line_number++;
+        return shift @buffer;
+    }
     my $string = $self->input;
     if (length $$string) {
         $$string =~ s/(.*(\n|$))// or die;
-        $buffer = $1;
-        return 1;
+        my $line = $1;
+        $line_number++;
+        return $line;
     }
     return;
 }
 
 sub read_from_handle {
     my $self = shift;
-    return 1 if defined $buffer;
+    if (@buffer) {
+        $line_number++;
+        return shift @buffer;
+    }
     my $handle = $self->input;
+    local $/ = "\n";
     my $line = <$handle>;
-    return unless defined $line;
-    $buffer = $line;
-    return 1;
+    if (defined $line) {
+        $line_number++;
+        return $line;
+    }
+    return;
 }
+
+package Kwid::Parser::Unit;
+our @ISA = qw(Kwid::Parser);
+
+sub do_parse {
+    my $self = shift;
+    $self->loader->content(${$self->input});
+}
+
+sub reparse {
+    die;
+}
+
+package Kwid::Parser::heading;
+use base 'Kwid::Parser::Unit';
+
+package Kwid::Parser::verbatim;
+use base 'Kwid::Parser::Unit';
+
+package Kwid::Parser::paragraph;
+use base 'Kwid::Parser::Unit';
 
 1;
