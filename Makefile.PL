@@ -89,8 +89,10 @@ $pugs : src/Config.hs @srcfiles $version_h @prereqs
 ghci ::
 	$ghc --interactive $ghc_flags $ghc_output
 
-tags :
+tags : @srcfiles
 	hasktags -c @srcfiles
+	sort tags > tags.tmp
+	mv tags.tmp tags
 
 INST6_ARCHLIB = 'blib6/arch'
 INST6_SCRIPT = 'blib6/script'
