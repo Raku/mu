@@ -224,11 +224,11 @@ ruleExpression = (<?> "expression") $ do
     exp <- parseOp
     f <- option id $ choice
         [ rulePostConditional
-        , rulePostTrinary
+        , rulePostTernary
         ]
     return $ f exp
 
-rulePostTrinary = rule "trinary conditional" $ do
+rulePostTernary = rule "ternary conditional" $ do
     symbol "??"
     body <- parseOp
     symbol "::"

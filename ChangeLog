@@ -10,7 +10,7 @@
 * The "..." (dotdotdot) literal.
 * Errors are propagated upward using shiftT.
 * Postfix ++ and --.
-* Trinary ?? ::.
+* Ternary ?? ::.
 * Assignment to mutable variables and to array slices.
 * "loop", "for" and "if" constructs.
 
