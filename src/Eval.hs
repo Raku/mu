@@ -452,15 +452,14 @@ reduce env@Env{ envClasses = cls, envContext = cxt, envLexical = lex, envGlobal 
         = apply sub{ subParams = (length args) `replicate` p } [] args
         -- chain-associativity
         | Sub{ subAssoc = "chain", subFun = fun, subParams = prm }   <- sub
-        , (App name' invs' args'):rest              <- args
+        , (App name' args' []):rest              <- args
         , Just sub'                                 <- findSub 2 subSyms name'
         , Sub{ subAssoc = "chain", subFun = fun', subParams = prm' } <- sub'
-        , null invs'
-        = applySub subSyms sub{ subParams = prm ++ tail prm', subFun = Prim $ chainFun prm' fun' prm fun } [] (args' ++ rest)
+        = applySub subSyms sub{ subParams = prm ++ tail prm', subFun = Prim $ chainFun prm' fun' prm fun } (args' ++ rest) []
         -- fix subParams to agree with number of actual arguments
         | Sub{ subAssoc = "chain", subParams = (p:_) }   <- sub
-        , null invs
-        = apply sub{ subParams = (length args) `replicate` p } [] args -- XXX Wrong
+        , null args
+        = apply sub{ subParams = (length invs) `replicate` p } invs [] -- XXX Wrong
         -- normal application
         | otherwise
         = apply sub invs args

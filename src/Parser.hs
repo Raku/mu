@@ -624,9 +624,9 @@ pairLiteral = do
 qqInterpolator = do 
             var <- ruleVarNameString
             return (Var var)
-          <|> do   -- XXX \n, \q, etc.
+          <|> do
             char '\\'
-            nextchar <- anyChar
+            nextchar <- escapeCode -- see Lexer.hs
             return (Val (VStr [nextchar]))
           <|> ruleBlock
 qqLiteral = do

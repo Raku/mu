@@ -57,6 +57,7 @@ brackets   = P.brackets perl6Lexer
 angles     = P.angles perl6Lexer
 balanced   = P.balanced perl6Lexer
 balancedDelim = P.balancedDelim perl6Lexer
+decimal    = P.decimal perl6Lexer
 
 symbol s
     | isWordAny (last s) = try $ do
@@ -193,6 +194,54 @@ singleQuoted = lexeme (
                       <?> "literal string")
 
 singleStrChar = try quotedQuote <|> noneOf "'"
+
+escapeCode      = charEsc <|> charNum <|> charAscii <|> charControl
+                <?> "escape code"
+
+-- charControl :: CharParser st Char
+charControl     = do{ char '^'
+                    ; code <- upper
+                    ; return (toEnum (fromEnum code - fromEnum 'A'))
+                    }
+
+-- charNum :: CharParser st Char                    
+charNum         = do{ code <- decimal 
+                              <|> do{ char 'o'; number 8 octDigit }
+                              <|> do{ char 'x'; number 16 hexDigit }
+                              <|> do{ char 'd'; number 10 digit }
+                    ; return (toEnum (fromInteger code))
+                    }
+
+number base baseDigit
+    = do{ digits <- many1 baseDigit
+        ; let n = foldl (\x d -> base*x + toInteger (digitToInt d)) 0 digits
+        ; seq n (return n)
+        }          
+
+charEsc         = choice (map parseEsc escMap)
+                where
+                  parseEsc (c,code)     = do{ char c; return code }
+                  
+charAscii       = choice (map parseAscii asciiMap)
+                where
+                  parseAscii (asc,code) = try (do{ string asc; return code })
+
+
+-- escape code tables
+escMap          = zip ("abfnrtv\\\"\'") ("\a\b\f\n\r\t\v\\\"\'")
+asciiMap        = zip (ascii3codes ++ ascii2codes) (ascii3 ++ ascii2) 
+
+ascii2codes     = ["BS","HT","LF","VT","FF","CR","SO","SI","EM",
+                   "FS","GS","RS","US","SP"]
+ascii3codes     = ["NUL","SOH","STX","ETX","EOT","ENQ","ACK","BEL",
+                   "DLE","DC1","DC2","DC3","DC4","NAK","SYN","ETB",
+                   "CAN","SUB","ESC","DEL"]
+
+ascii2          = ['\BS','\HT','\LF','\VT','\FF','\CR','\SO','\SI',
+                   '\EM','\FS','\GS','\RS','\US','\SP']
+ascii3          = ['\NUL','\SOH','\STX','\ETX','\EOT','\ENQ','\ACK',
+                   '\BEL','\DLE','\DC1','\DC2','\DC3','\DC4','\NAK',
+                   '\SYN','\ETB','\CAN','\SUB','\ESC','\DEL']
 
 quotedQuote = do
     string "\\'"
