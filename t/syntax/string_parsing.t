@@ -9,7 +9,7 @@ say "1..2";
 # L<S02/"Literals" /"In order to interpolate the result of a method call">
 
 my $a = -3;
-if(eval 'my $foo = "$a.abs"') {
+if(eval '"$a.abs()"') {
   say "ok 1 - parsing method call inside a string";
 } else {
   say "not ok 1 - parsing method call inside a string";
