@@ -187,6 +187,7 @@ t/op/hash.t
 t/op/hash_ref.t
 t/op/hyper.t
 t/op/inc.t
+t/op/index.t
 t/op/inplace.t
 t/op/int.t
 t/op/io.t

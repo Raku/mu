@@ -387,6 +387,24 @@ op2 "split"= \x y -> return $ split (vCast x) (vCast y)
 	| otherwise = (x:piece, rest') where (piece, rest') = breakOnGlue glue xs
 op2 other = \x y -> return $ VError ("unimplemented binaryOp: " ++ other) (App other [Val x, Val y] [])
 
+op3 :: Ident -> Val -> Val -> Val -> Eval Val
+op3 "index" = index' where
+    index' (VStr a) (VStr b) (VInt p) = index'' 0 a b p
+    index' a b _                      = index' a b (VInt 0)
+    index'' n _ [] _ = return $ VInt n
+    index'' _ [] _ _ = return $ VInt (-1)
+    index'' n (a:as) (b:bs) p
+        | p > 0     = index'' (n+1) as (b:bs) (p-1)
+        | otherwise = case match (a:as) (b:bs) of
+                          True  -> return $ VInt n
+                          False -> index'' (n+1) as (b:bs) 0
+    match _ [] = True
+    match [] _ = False
+    match (a:as) (b:bs) 
+        | a == b    = match as bs
+        | otherwise = False
+
+
 op3 other = \x y z -> return $ VError ("unimplemented 3-ary op: " ++ other) (App other [Val x, Val y, Val z] [])
 
 op4 other = \x y z w -> return $ VError ("unimplemented 4-ary op: " ++ other) (App other [Val x, Val y, Val z, Val w] [])
@@ -597,6 +615,7 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Any       pre     undef   (rw!Any)\
 \\n   Str       pre     chop    (rw!Str)\
 \\n   Str       pre     chomp   (rw!Str)\
+\\n   Int       pre     index   (Str, Str, ?Int=0)\
 \\n   Str       pre     lc      (Str)\
 \\n   Str       pre     lcfirst (Str)\
 \\n   Str       pre     uc      (Str)\
