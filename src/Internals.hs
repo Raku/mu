@@ -77,7 +77,7 @@ import Data.Maybe
 import Data.Either
 import Data.List (
     (\\), find, genericLength, insert, sortBy, intersperse,
-    partition, group, sort, genericReplicate, isPrefixOf,
+    partition, group, sort, genericReplicate, isPrefixOf, isSuffixOf,
     genericTake, genericDrop, unfoldr, nub, nubBy, transpose
     )
 import Data.Unique

@@ -398,6 +398,19 @@ op3 "index" = \x y z -> do
         | b `isPrefixOf` a  = n
         | null a            = -1
         | otherwise         = doIndex (n+1) (tail a) b 0
+op3 "rindex" = \x y z -> do
+    str <- fromValue x
+    sub <- fromValue y
+    let skip | isJust (vCast z) = length str - (vCast z) - length sub
+             | otherwise        = 0
+    return . VInt $ doRindex str sub skip
+    where
+    doRindex :: VStr -> VStr -> Int -> VInt
+    doRindex a b skip
+        | skip > 0         = doRindex (init a) b (skip-1)
+        | b `isSuffixOf` a = toInteger $ length a - length b
+        | null a           = -1
+        | otherwise        = doRindex (init a) b 0
 
 op3 other = \x y z -> return $ VError ("unimplemented 3-ary op: " ++ other) (App other [Val x, Val y, Val z] [])
 
@@ -621,6 +634,7 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Str       pre     chop    (rw!Str)\
 \\n   Str       pre     chomp   (rw!Str)\
 \\n   Int       pre     index   (Str, Str, ?Int=0)\
+\\n   Int       pre     rindex  (Str, Str, ?Int)\
 \\n   Str       pre     lc      (Str)\
 \\n   Str       pre     lcfirst (Str)\
 \\n   Str       pre     uc      (Str)\
