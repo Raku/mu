@@ -47,8 +47,8 @@ is($foo2, "blah", "lone block w/out a semicolon actually executes it's content")
 
 my ($one, $two);
 eval '{$one = 1} {$two = 2}';
-is($one, 1, 'two blocks ({} {}) no semicolon after either,.. first block does not execute');
-is($two, 2, '... but second block does');
+is($one, undef, 'two blocks ({} {}) no semicolon after either,.. first block does not execute');
+is($two, 2, '... but second block does (parsed as hash subscript)');
 
 my ($one_a, $two_a);
 eval '{$one_a = 1}; {$two_a = 2}';
@@ -56,8 +56,14 @@ is($one_a, 1, '... two blocks ({}; {}) semicolon after the first only,.. first b
 is($two_a, 2, '... and second block does too');
 
 my ($one_b, $two_b);
-eval '{$one_b = 1}; {$two_b = 2};';
-is($one_b, 1, '... two blocks ({} {};) semicolon after second,.. first block does execute');
+eval '
+{
+    $one_b = 1
+}
+{
+    $two_b = 2
+}';
+is($one_b, 1, '... two stand-alone blocks ({\n...\n}\n{\n...\n}),.. first block does execute');
 is($two_b, 2, '... and second block does too');
 
 my ($one_c, $two_c);

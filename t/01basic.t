@@ -28,8 +28,8 @@ unless ($foo) { $bar = "true" }
 ok($bar, "unless");
 
 my ($var1, $var2) = ("foo", "bar");
-todo_is($var1, "foo", 'list assignment 1');
-todo_is($var2, "bar", 'list assignment 2');
+is($var1, "foo", 'list assignment 1');
+is($var2, "bar", 'list assignment 2');
 todo_ok(eval '(my $quux = 1) == 1)', "my returns LHS");
 
 eval 'if 1 { pass() }' err todo_fail "if without parens";

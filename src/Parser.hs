@@ -30,12 +30,23 @@ ruleProgram = rule "program" $ do
     return $ env { envBody = Statements statements }
 
 ruleBlock :: RuleParser Exp
-ruleBlock = rule "block" $ braces $ do
+ruleBlock = rule "block" $ braces ruleBlockBody
+
+ruleBlockBody = do
     whiteSpace
     many (symbol ";")
     statements <- option [] ruleStatementList
     many (symbol ";")
     return $ Statements statements
+
+ruleStandaloneBlock = tryRule "standalone block" $ do
+    body <- bracesAlone ruleBlockBody
+    retBlock SubBlock Nothing body
+    where
+    bracesAlone p  = between (symbol "{") closingBrace p
+    closingBrace = do
+        char '}'
+        ruleWhiteSpaceLine
 
 ruleStatementList :: RuleParser [(Exp, SourcePos)]
 ruleStatementList = rule "statements" $ choice
@@ -66,8 +77,7 @@ rulePodIntroducer = (<?> "intro") $ do
 rulePodCut = (<?> "cut") $ do
     rulePodIntroducer
     string "cut"
-    many (satisfy (\x -> isSpace x && x /= '\n'))
-    ruleEndOfLine
+    ruleWhiteSpaceLine
     return ()
 
 rulePodBlock = verbatimRule "POD block" $ do
@@ -204,18 +214,49 @@ ruleParamDefault False = rule "default value" $ option (Val VUndef) $ do
 ruleVarDeclaration :: RuleParser Exp
 ruleVarDeclaration = rule "variable declaration" $ do
     scope   <- ruleScope
-    names   <- choice $
-        [ return . (:[]) =<< parseVarName
-        , parens $ parseVarName `sepEndBy` symbol ","
-        ]
-    let name = head names -- XXX Wrong
-    exp     <- option (Syn "mval" [Var name, App "&not" [] []]) $ do
+    syms    <- choice
+        [ ruleVarDeclarationSingle scope
+        , ruleVarDeclarationMultiple scope ]
+    return $ Syn "sym" syms
+
+ruleVarDeclarationSingle scope = do
+    name <- parseVarName
+    exp  <- option (Syn "mval" [Var name, App "&not" [] []]) $ do
+       sym <- tryChoice $ map symbol $ words " = := ::= "
+       exp <- ruleExpression
+       return $ case sym of
+           "=" -> (Syn "mval" [Var name, exp])
+           _   -> exp
+    return [Sym $ Symbol scope name exp]
+
+ruleVarDeclarationMultiple scope = do
+    names   <- parens $ parseVarName `sepEndBy1` symbol ","
+    
+    (sym, exps) <- option ("=", []) $ do
         sym <- tryChoice $ map symbol $ words " = := ::= "
         exp <- ruleExpression
-        return $ case sym of
-            "=" -> (Syn "mval" [Var name, exp])
-            _   -> exp
-    return $ Syn "sym" [Sym $ Symbol scope name exp | name <- names]
+        return $ case exp of
+            Syn "," es  -> (sym, es)
+            _           -> (sym, [exp])
+    -- now match exps up with names and modify them.
+    let doAlign = case sym of { "=" -> alignAssign ; _ -> alignBind }
+    return $ doAlign scope names exps
+    where
+    mvalSym scope n e = Sym $ Symbol scope n (Syn "mval" [Var n, e])
+    emptyExp = App "&not" [] []
+    alignAssign scope names exps = doAssign scope names exps
+    doAssign _ [] _ = []
+    doAssign scope ns [] =
+        map (\n -> mvalSym scope n emptyExp) ns
+    doAssign scope (n@('$':_):ns) (e:es) =
+        (mvalSym scope n e):(alignAssign scope ns es)
+    doAssign scope (n:ns) exps =
+        (mvalSym scope n (Syn "," exps)):(alignAssign scope ns [])
+    alignBind scope names exps =
+        [ Sym $ Symbol scope name exp
+        | name <- names
+        | exp  <- exps ++ repeat emptyExp
+        ]
 
 ruleUseDeclaration :: RuleParser Exp
 ruleUseDeclaration = rule "use declaration" $ do
@@ -275,6 +316,7 @@ ruleConstruct = rule "construct" $ tryChoice
     , ruleLoopConstruct
     , ruleCondConstruct
     , ruleWhileUntilConstruct
+    , ruleStandaloneBlock
     ]
 
 ruleGatherConstruct = rule "gather construct" $ do
@@ -347,6 +389,9 @@ ruleBlockLiteral = rule "block construct" $ do
         , ruleBlockFormalStandard
         ]
     body <- ruleBlock
+    retBlock typ formal body
+
+retBlock typ formal body = do
     let (fun, names) = extract (body, [])
         params = (maybe [] id formal) ++ map nameToParam names
     -- Check for placeholder vs formal parameters

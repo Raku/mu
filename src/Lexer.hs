@@ -65,6 +65,10 @@ balanced   = P.balanced perl6Lexer
 balancedDelim = P.balancedDelim perl6Lexer
 decimal    = P.decimal perl6Lexer
 
+ruleWhiteSpaceLine = do
+    many $ satisfy (\x -> isSpace x && x /= '\n')
+    ruleEndOfLine
+   
 ruleEndOfLine = choice [ do { char '\n'; return () }, eof ]
 
 symbol s
