@@ -61,10 +61,6 @@ META.yml
 modules/Locale-KeyedText/lib/Locale/KeyedText.pm
 modules/Locale-KeyedText/Makefile.PL
 modules/Locale-KeyedText/t/test.t
-modules/Sample-Module/blib6/arch/auto/Sample/Module/.exists
-modules/Sample-Module/blib6/lib/auto/Sample/Module/.exists
-modules/Sample-Module/blib6/lib/Sample/.exists
-modules/Sample-Module/blib6/lib/Sample/Module.pm
 modules/Sample-Module/lib/Sample/Module.pm
 modules/Sample-Module/Makefile.PL
 modules/Sample-Module/t/test.t
