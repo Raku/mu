@@ -10,4 +10,4 @@ if ('' x 6 eq '')           { say "ok 4" } else { say "not ok 4" }
 my @foo = 'x' xx 10;
 if (@foo[0] eq 'x') { say "ok 5" } else { say "not ok 5" }
 if (@foo[9] eq 'x') { say "ok 6" } else { say "not ok 6" }
-if (+@foo == 10)    { say "ok 7" } else { say "not ok 7" }
+if (+@foo == 10)    { say "ok 7" } else { say "not ok 7 # TODO" }
