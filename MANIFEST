@@ -60,3 +60,4 @@ t/op/shift.t
 t/op/pop.t
 t/op/defined.t
 t/op/bit.t
+t/op/inc.t
