@@ -6,7 +6,7 @@ use Pugs::MakeMaker;
 
 WriteMakefile(
 	NAME	=> 'Locale::KeyedText',
-    VERSION => '0.0.2',
+    VERSION => '0.0.3',
 );
 
 1;
