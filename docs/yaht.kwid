@@ -132,12 +132,12 @@ other languages simply don't exist in Haskell. The first issue certainly
 has come up a few times in my experience; however, CPU time is almost
 always cheaper than programmer time and if I have to wait a little
 longer for my results after having saved a few days programming and
-debugging. 
+debugging.
 
 Of course, this isn't the case of all applications. Some people may find
 that the speed hit taken for using Haskell is unbearable. However,
-Haskell has a standardized /foreign-function interface/ which allow you to
-link in code written in other languages, for when you need to get the
+Haskell has a standardized /foreign-function interface/ which allow you
+to link in code written in other languages, for when you need to get the
 most speed out of your code. If you don't find this sufficient, I would
 suggest taking a look at the language O'Caml, which often /outperforms/
 even C++, yet also has many of the benefits of Haskell.
@@ -210,7 +210,7 @@ Haskell all the more enjoyable by always being supportive. There were
 doubtless others who helped and are not listed, but these are those who
 come to mind. 
 
-- Hal Daume III
+\- Hal Daumé III
 
 = Chapter 1 -- Introduction 
 
@@ -258,18 +258,18 @@ you use is entirely up to you. I've tried to make a list of some of the
 differences in the following list but of course this is far from
 exhaustive:
 
-- Hugs 
+- Hugs
 very fast; implements almost all of Haskell 98 (the standard) and most
 extensions; built-in support for module browsing; cannot create stand-
 alones; written in C; works on almost every platform; build in graphics
 library. 
-- GHC 
+- GHC
 interactive environment is slower than Hugs, but allows
 function definitions in the environment (in Hugs you have to put them in
 a file); implements all of Haskell 98 and extensions; good support for
 interfacing with other languages; in a sense the "de facto"
 standard. 
-- NHC 
+- NHC
 less used and no interactive environment, but produces smaller and often
 faster executables than does GHC; supports Haskell 98 and some
 extensions. 
@@ -493,3 +493,163 @@ Section 7.11, very smart and have to be seen in action to be believed.
 You can quickly jump to the definition of chosen function with the help
 of "Definitions" menu, and name of the currently edited function is
 always displayed in the modeline.
+
+= Chapter 3 -- Language Basics 
+
+In this chapter we present the basic concepts of Haskell. In addition
+to familiarizing you with the interactive environments and showing you
+how to compile a basic program, we introduce the basic syntax of
+Haskell, which will probably be quite alien if you are used to
+languages like C and Java.
+
+However, before we talk about specifics of the language, we need to
+establish some general properties of Haskell. Most importantly,
+Haskell is a /lazy/ language, which lazy means that no computation
+takes place unless it is forced to take place when the result of that
+computation is used.
+
+This means, for instance, that you can define infinitely large data
+structures, provided that you never use the entire structure. For
+instance, using imperative-esque psuedo-code, we could create an
+infinite list containing the number 4in each position by doing
+something like:
+
+    List makeList()
+    {
+      List current = new List();
+      current.value = 1;
+      current.next = makeList();
+      return current;
+    }
+
+By looking at this code, we can see what it's trying to do: it creates a
+new list, sets its value to 4and then recursively calls itself to make
+the rest of the list. Of course, if you actually wrote this code and
+called it, the program would never terminate, because makeListwould keep
+calling itself ad infinitum.
+
+This is because we assume this imperative-esque language is /strict/,
+the opposite of strict lazy. Strict languages are often referred to as
+"call by value," while lazy languages are referred to as "call by name."
+In the above psuedo-code, when we "run" makeList on the fifth line, we
+attempt to get a /value/ out of it. This leads to an infinite loop.
+
+The equivalent code in Haskell is: 
+
+    makeList = 1 : makeList
+
+This program reads: we're defining something called makeList(this is
+what goes on the left-hand side of the equals sign). On the right-hand
+side, we give the definition of makeList. In Haskell, the colon operator
+is used to create lists (we'll talk more about this soon). This right-
+hand side says that the value of makeListis the element 1stuck on to the
+beginning of the value of makeList.
+
+However, since Haskell is lazy (or "call by name"), we do not actually
+attempt to evaluate what makeListis at this point: we simply remember
+that if ever in the future we need the second element of makeList, we
+need to just look at makeList.
+
+Now, if you attempt to write makeListto a file, print it to the screen,
+or calculate the sum of its elements, the operation won't terminate
+because it would have to evaluate an infinitely long list. However, if
+you simply use a finite portion of the list (say the first 45 elements),
+the fact that the list is infinitely long doesn't matter. If you only
+use the first 4/5elements, only the first 4/5elements are ever
+calculated. This is laziness.
+
+Second, Haskell is case-sensitive. Many languages are, but Haskell
+actually uses case to give meaning. Haskell distinguishes between /values/
+(for instance, numbers: 1, 2, 3, ...); strings: "abc", "hello",
+... ; characters: 'a', 'b', ' ', ... ; even functions: for instance, the
+function squares a value, or the square-root function); and /types/ (the
+categories to which values belong). 
+
+By itself, this is not unusual. Most languages have some system of
+types. What is unusual is that Haskell /requires/ that the names given to
+functions and values begin with a lower- case letter and that the names
+given to types begin with an upper-case letter. The moral is: if your
+otherwise correct program won't compile, be sure you haven't named your
+function Foo, or something else beginning with a capital letter.
+
+Being a functional language, Haskell eschews side effects. A side effect
+is essentially something that happens in the course of executing a
+function that is not related to the output produced by that function.
+
+For instance, in a language like C or Java, you are able to modify
+"global" variables from within a function. This is a side effect because
+the modification of this global variable is not related to the output
+produced by the function. Furthermore, modifying the state of the real
+world is considered a side effect: printing something to the screen,
+reading a file, etc., are all side effecting operations.
+
+Functions that do not have side effects are called /pure/. An easy test
+for whether or not a function is pure is to ask yourself a simple
+question: "Given the same arguments, will this function always produce
+the same result?". 
+
+All of this means that if you're used to writing code in an imperative
+language (like C or Java), you're going to have to start thinking
+differently. Most importantly, if you have a value x, you must /not/
+think of x as a register, a memory location or anything else of that
+nature. xis simply a name, just as "Hal" is my name. You cannot
+arbitrarily decide to store a different person in my name any more than
+you can arbitrarily decide to store a different value in x. This means
+that code that might look like the following C code is invalid (and has
+no counterpart) in Haskell:
+
+    int x = 5;
+    x = x + 1;
+
+A call like x = x + 1 is called /destructive update/ because we are
+destroying whatever was in x before and replacing it with a new value.
+Destructive update does not exist in Haskell. 
+
+By not allowing destructive updates (or any other such side effecting
+operations), Haskell code is very easy to comprehend. That is, when we
+define a function `f`, and call that function with a particular argument
+`a` in the beginning of a program, and then, at the end of the program,
+again call `f` with the same argument `a`, we know we will get out the
+same result. This is because we know that `a` cannot have changed and
+because we know that `f` only depends on `a` (for instance, it didn't
+increment a global counter). This property is called /referential
+transparency/ and basically states that if two functions `f` and `g`
+produce the same values for the same arguments, then we may replace `f`
+with `g` (and vice-versa).
+
+
+    *NOTE* There is no agreed-upon exact definition of referential
+    transparency. The definition given above is the one I like best.
+    They all carry the same interpretation; the differences lie in how
+    they are formalized.
+
+== 3.1 Arithmetic 
+
+Let's begin our foray into Haskell with simple arithmetic. Start up your
+favorite interactive shell (Hugs or GHCi; see Chapter 2 for installation
+instructions). The shell will output to the screen a few lines talking
+about itself and what it's doing and then should finish with the cursor
+on a line reading:
+
+    Prelude>
+
+From here, you can begin to evaluate /expressions/. An expression is
+basically something that has a value. For instance, the number `5` is an
+expression (its value is 5). Val ues can be built up from other values;
+for instance, `5 + 6` is an expression (its value is 11). In fact, most
+simple arithmetic operations are supported by Haskell, including plus
+(+), minus (-), times (*), divided-by (/), exponentiation (^) and square-
+root (sqrt). You can experiment with these by asking the interactive
+shell to evaluate expressions and to give you their value. In this way,
+a Haskell shell can be used as a powerful calculator. Try some of the
+following:
+
+    Prelude> 5*4+3
+    23
+    Prelude> 5^5-2
+    3123
+    Prelude> sqrt 2
+    1.4142135623730951
+    Prelude> 5*(4+3)
+    35
+
