@@ -26,6 +26,7 @@ src/Internals.hs
 src/Junc.hs
 src/Lexer.hs
 src/Main.hs
+src/Monads.hs
 src/Parser.hs
 src/Pretty.hs
 src/Prim.hs
