@@ -28,19 +28,29 @@ sub cls returns Void {
     system(($?OS eq any<MSWin32 mingw cygwin>) ?? 'cls' :: 'clear');
 }
 
-sub get_commiter_list (Str $dict_file) returns Array {
+sub get_commiter_list (Str $dict_file) returns List {
     my @commiters;
     my $dict = open($dict_file) err die "Couldn't open '$dict_file'";
-    for (=$dict) -> $_name {
-        my $name = $_name; # << damn immutable variables
-        chomp($name);
-        @commiters.push($name);
+
+    # Skip the intro text
+    1 while =$dict ~~ rx:perl5/\S/;
+
+    for (=$dict) -> $name {
+        # Capture the real name part
+        if ($name ~~ rx:perl5/^(.+?)(?:\s\s|$)/) {
+            my $realname = $1;
+            # Remove nickname
+            $realname ~~ s:perl5/\s*".*"\s*/ /;
+            @commiters.push($realname);
+        }
     }
     $dict.close();
     return @commiters;
 }
 
-sub pick_commiter (Array @commiters) returns Str { any(@commiters).pick }
+sub pick_commiter (@commiters) returns Str {
+    any(@commiters).pick;
+}
 
 sub draw_board returns Str { 
     my $output = '';
@@ -82,7 +92,7 @@ sub draw_if_greater_than (Str $char, Int $num) returns Bool {
 }
 
 sub draw_hangman (Str ?$msg) returns Str {
-    return "Hangman (with the Pugs AUTHORS list)
+    "Hangman (with the Pugs AUTHORS list)
     
   +-----+       The commiter's name is:
   |     |       { draw_board }
@@ -103,7 +113,8 @@ $msg";
 
 ## main loop
 
-my @commiters = get_commiter_list("hangman.dic");
+my $bin = $*PROGRAM_NAME; $bin ~~ s:perl5/[\w.]+$//;
+my @commiters = get_commiter_list("$bin/../../AUTHORS");
 my $current_commiter = pick_commiter(@commiters);
 
 @letters = split("", $current_commiter);
@@ -115,18 +126,23 @@ my $letter;
 while ($letter = =$*IN) {
     cls;
     chomp($letter);
+
     if (guess($letter)) {
         if (has_won()) {
             print draw_hangman("You won!!!!\n");         
-            exit();
+            exit;
         }
     }
-    else {  
+    else {
         $number_of_bad_guesses++;
         if ($number_of_bad_guesses >= $allowed_bad_guesses) {
-            print draw_hangman("You have exceedded the maximum number of tries.\nSorry, the commiter was '$current_commiter'\n"); 
-            exit();
+            print draw_hangman(
+                "You have exceedded the maximum number of tries.\n" ~
+                "Sorry, the commiter was '$current_commiter'\n"
+            ); 
+            exit;
         }
-    }    
+    }
+
     print draw_hangman("guess a letter? ");  
 }
