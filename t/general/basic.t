@@ -38,7 +38,7 @@ ok(eval 'while (0) { 0 }; 1', "while");
 
 my $lasttest = 0;
 eval 'for (1..10) { $lasttest++; last; $lasttest++; }; 1';
-todo_ok($lasttest == 1, "last");
+ok($lasttest == 1, "last");
 
 my $nexttest = 0;
 eval 'for (1..10) { $nexttest++; next; $nexttest++; }; 1';
