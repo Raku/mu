@@ -541,7 +541,7 @@ parseOp = do
     ops <- operators
     buildExpressionParser ops parseTerm
 
-ops f s = [f n | n <- sortBy revLength (words s)]
+ops f s = [f n | n <- sortBy revLength (words $ decodeUTF8 s)]
     where
     revLength x y = compare (length y) (length x)
 

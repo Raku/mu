@@ -90,7 +90,7 @@ doDump = doParseWith $ \exp _ -> do
 
 doParseWith f name prog = do
     env <- emptyEnv []
-    runRule env (f' . envBody) ruleProgram name prog
+    runRule env (f' . envBody) ruleProgram name $ decodeUTF8 prog
     where
     f' (Val err@(VError _ _)) = do
         hPutStrLn stderr $ pretty err
@@ -100,7 +100,7 @@ doParseWith f name prog = do
 
 doParse name prog = do
     env <- emptyEnv []
-    runRule env (putStrLn . pretty) ruleProgram name prog
+    runRule env (putStrLn . pretty) ruleProgram name $ decodeUTF8 prog
 
 doEval :: Bool -> [String] -> String -> IO ()
 doEval trace = do
@@ -127,7 +127,7 @@ runProgramWith ::
     (Env -> Env) -> (Val -> IO ()) -> VStr -> [VStr] -> String -> IO ()
 runProgramWith fenv f name args prog = do
     env <- prepareEnv name args
-    val <- runEnv $ runRule (fenv env) id ruleProgram name prog
+    val <- runEnv $ runRule (fenv env) id ruleProgram name $ decodeUTF8 prog
     f val
 
 runEnv env = do

@@ -133,7 +133,7 @@ sub create_config_h {
 }
 
 sub set_postamble {
-    my @srcfiles = map glob("$_/*.hs"), @srcdirs;
+    my @srcfiles = map glob("$_/*.*hs"), @srcdirs;
 
     # turning off unused imports and deprecations for GHC6.4.
     my $ghc_flags = "-static -Wall -fno-warn-deprecations -fno-warn-missing-signatures -fno-warn-name-shadowing";

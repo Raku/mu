@@ -508,16 +508,17 @@ primOp sym assoc prms ret = Symbol SOur name (Val sub)
                       , subReturns  = ret
                       , subFun      = (Prim f)
                       }
+    symStr = encodeUTF8 sym
     f :: [Val] -> Eval Val
     f    = case (arity :: Integer) of
-        0 -> \x -> op0 sym x
+        0 -> \x -> op0 symStr x
         1 -> \x     -> case x of
             [x]   -> op1 symName x
-            [x,y] -> op2 sym x y
-            x     -> op0 sym x
+            [x,y] -> op2 symStr x y
+            x     -> op0 symStr x
         2 -> \[x,y] -> op2 sym (vCast x) (vCast y)
         _ -> error (show arity)
-    symName = if modify then assoc ++ ":" ++ sym else sym
+    symName = if modify then assoc ++ ":" ++ symStr else symStr
     (arity, fixity, modify) = case assoc of
         "pre"       -> (1, "prefix", False)
         "spre"      -> (1, "prefix", False)
@@ -557,7 +558,7 @@ foldParam x         = doFoldParam x ""
 -- already been assigned in Parser.hs
 
 --    ret_val   assoc	op_name args
-initSyms = map primDecl . filter (not . null) . lines $ "\
+initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      spre    !       (Bool)\
 \\n   Num       spre    +       (Num)\
 \\n   Num       pre     abs     (Num)\

@@ -14,6 +14,7 @@
 -}
 
 module Internals (
+    module UTF8,
     module Cont,
     module Posix,
     module Rule.Pos,
@@ -44,9 +45,12 @@ module Internals (
     module Data.IORef,
     module Debug.Trace,
     internalError,
-    split
+    split,
+    decodeUTF8,
+    encodeUTF8,
 ) where
 
+import UTF8
 import Cont
 import Posix
 import Data.Dynamic
@@ -113,3 +117,12 @@ split sep str = p : (if again then split sep ps else []) where
    split1 sep str =
       if isPrefixOf sep str then ([], drop (length sep) str, True) else
       let (pre, post, x) = split1 sep (tail str) in ((head str) : pre, post, x)
+
+encodeUTF8 :: String -> String
+encodeUTF8 = map (chr . fromEnum) . encode
+
+decodeUTF8 :: String -> String
+decodeUTF8 str = fst $ decode bytes
+    where
+    bytes = map (toEnum . ord) str
+    
