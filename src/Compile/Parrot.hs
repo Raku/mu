@@ -53,7 +53,11 @@ instance Compile Symbol where
         compile (SymExp scope name $ Val val)
 
 instance Compile SourcePos where
-    compile pos = text "#" <+> format pos
+    compile SourcePos{ sourceName = file, sourceLine = line } = hsep $
+        [ text "#line"
+        , doubleQuotes $ text file
+        , showText line
+        ]
 
 declareLabel :: (Show a) => a -> String -> Doc
 declareLabel exp str = text $
