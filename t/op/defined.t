@@ -1,31 +1,34 @@
+#!/usr/bin/pugs
+
 use v6;
+require Test;
 
-say "1..12";
+plan 12;
 
-if (!defined(undef)) { say "ok 1" } else { say "not ok 1" }
+ok(!defined(undef), 'undef is not defined');
 
-if (defined(1))      { say "ok 2" } else { say "not ok 2" }
-if (defined(""))     { say "ok 3" } else { say "not ok 3" }
-if (defined("a"))    { say "ok 4" } else { say "not ok 4" }
-if (defined(0))      { say "ok 5" } else { say "not ok 5" }
+ok(defined(1),   'numeric literal 1 is defined');
+ok(defined(""),  'empty string is defined');
+ok(defined("a"), '"a" is defined');
+ok(defined(0),   'numeric literal 0 is defined');
 
 my $foo;
-if (!defined($foo))  { say "ok 6" } else { say "not ok 6" }
+ok(!defined($foo), 'unassigned variable $foo is undefined');
 
 $foo = 1;
-if (defined(1))      { say "ok 7" } else { say "not ok 7" }
+ok(defined($foo), 'variable $foo is now defined (as numeric literal 1)');
 
 $foo = "";
-if (defined(""))     { say "ok 8" } else { say "not ok 8" }
+ok(defined(""), 'variable $foo is now defined (as a empty string)');
 
 $foo = undef;
-if (!defined($foo))  { say "ok 9" } else { say "not ok 9" }
+ok(!defined($foo), 'variable $foo is now undefined again');
 
 $foo = "a";
-if (defined("a"))    { say "ok 10" } else { say "not ok 10" }
+ok(defined($foo), 'variable $foo is now defined (as string "a")');
 
 $foo = 0;
-if (defined(0))      { say "ok 11" } else { say "not ok 11" }
+ok(defined($foo), 'variable $foo is now defined (as numeric literal 0)');
 
 undef $foo;
-if (!defined($foo))  { say "ok 12" } else { say "not ok 12" }
+todo_ok(!defined($foo), 'undef $foo works');
