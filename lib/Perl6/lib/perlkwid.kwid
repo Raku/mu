@@ -52,6 +52,10 @@ tabs assumed to be on 8-column boundaries. There are no special
 formatting codes, so you can't italicize or anything like that. A \\
 means \\, and nothing else.
 
+In addition, Kwid provides the `.verbatim` format. You don't need to indent
+the content, which can be handy for some editors that do not support block
+indenting.
+
 == Command Paragraph
 
 A command paragraph is used for special treatment of whole chunks
@@ -67,6 +71,8 @@ commands are:
     == Heading Level 2
     === Heading Level 3
     ==== Heading Level 4 (Least prominent)
+    .verbatim
+    .verbatim.
     .list indentlevel
     .list.
     - list item
@@ -110,6 +116,26 @@ these heading commands can use formatting codes, as seen here:
   == Possible Values for `$/`
 
 Such commands are explained in the "[Formatting Codes]" section, below.
+
+- `.verbatim`
+- `.verbatim.`
+
+To specify verbatim text, you can either indent it or used the `.verbatim`
+format. The following two sections are equivalent:
+
+    A Perl6 Subroutine:
+        sub greet (Str $name) {
+            print "Hello, $name\n";
+        }
+    Simple, eh?
+
+    A Perl6 Subroutine:
+    .verbatim
+    sub greet (Str $name) {
+        print "Hello, $name\n";
+    }
+    .verbatim.
+    Simple, eh?
 
 - `* unordered list item`
 - `+ ordered list item`
