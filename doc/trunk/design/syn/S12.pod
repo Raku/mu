@@ -1080,7 +1080,7 @@ or by lexically scoped pragma around the class definition:
     }
 
 There is I<no> syntax for declaring individual classes closed or final.
-The application may only request that optimizer close and finalize
+The application may only request that the optimizer close and finalize
 unmarked classes.
 
 =head1 Interface Consistency
