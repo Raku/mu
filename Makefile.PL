@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use Config;
 use File::Spec;
+use lib 'lib';
 use inc::Module::Install;
 
 my $pugs = "pugs$Config{_exe}";
@@ -136,7 +137,7 @@ sub try_compile {
             -o => "$temp.exe",
             "$temp.hs"
         );
-        
+
     };
 
     my $ok = -e "$temp.exe";
@@ -146,4 +147,3 @@ sub try_compile {
     unlink("$temp.o");
     return $ok;
 }
-
