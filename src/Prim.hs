@@ -157,7 +157,9 @@ op1 "defined" = \v -> do
         _       -> True
 op1 "last" = \v -> return (VError "cannot last() outside a loop" (Val v))
 op1 "return" = \v -> return (VError "cannot return() outside a subroutine" (Val v))
-op1 "sign" = return . VInt . (signum) . vCast
+op1 "sign" = \v -> return $ case vCast v of
+    Nothing -> VUndef
+    _       -> VInt . signum . vCast $ v
 
 -- Side-effectful function: how far into Monadic IO shall we go?
 op1 "rand"  = \v -> do
