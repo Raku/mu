@@ -5,6 +5,12 @@ require Test;
 
 plan 22;
 
+=kwid
+
+Tests the given block, as defined in L<S04/"Switch statements">
+
+=cut
+
 {
 	# basic sanity
 	my ($t, $f);
@@ -17,7 +23,7 @@ plan 22;
 };
 
 {
-	# simple case, with fall through
+	# simple case, with fall through L<S04/"Switch statements" /If the smart match fails, control passes to the next statement normally/>
 	my ($two, $five, $int, $unreached);
 	eval 'given 5 {
 		when 2 { $two = 1 }
@@ -42,7 +48,7 @@ plan 22;
 
 # from apocalypse 4
 {
-	# simple example
+	# simple example L<S04/"Switch statements" /You don't have to use an explicit default/>
 	my ($result_a, $result_b);
 
 	for (("T", "E", 5) ¥ (10, 11, 5)) -> $digit, $expected {
@@ -64,7 +70,7 @@ plan 22;
 };
 
 {
-	# interleaved code
+	# interleaved code L<S04/"Switch statements" /which may or may not be a when statement/>
 	my ($b_one, $b_two, $b_three, $panic);
 	eval '
 	given 2 {
@@ -84,7 +90,7 @@ plan 22;
 };
 
 {
-	# topic not given by 'given'
+	# topic not given by 'given' L<S04/"Switch statements" /including a for loop/>
 	my ($b_one, $b_two, $b_three,$panic) = (0,0,0,0);
 	eval '
 	for (qw(1 2 3)) {
