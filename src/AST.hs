@@ -69,6 +69,10 @@ juncToBool JAll     = not . (False `elementOf`) . mapSet vCast
 juncToBool JNone    = not . (True `elementOf`) . mapSet vCast
 juncToBool JOne     = (1 ==) . length . filter vCast . setToList
 
+instance Context (Either Val (JuncType, VJunc)) where
+    vCast (VJunc j vs)  = Right (j, vs)
+    vCast v             = Left v
+
 instance Context VInt where
     castV = VInt
     doCast (VInt i)     = i

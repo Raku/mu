@@ -19,10 +19,31 @@ import Pretty
 op0 :: Ident -> [Val] -> Val
 op0 ","  = VList . concatMap vCast
 op0 "!"  = VJunc JNone . mkSet
-op0 "&"  = VJunc JAll . mkSet
+op0 "&"  = opJuncAll
 op0 "^"  = VJunc JOne . mkSet
 op0 "|"  = VJunc JAny . mkSet
 op0 s    = \x -> VError ("unimplemented listOp: " ++ s) (Val $ VList x)
+
+opJuncAll = opJunc (VJunc JAll) [(JAny, VJunc JAny), (JAll, VJunc JAll), (JNone, VJunc JNone)]
+
+opJunc :: (VJunc -> Val) -> [(JuncType, VJunc -> Val)] -> [Val] -> Val
+opJunc f fs vals
+    | (not . null) vals
+    , all isRight vals'
+    , (js, vs)  <- unzip $ map fromRight vals'
+    , [j]       <- nub js
+    , Just f'   <- lookup j fs
+    = f' $ unionManySets vs
+    | otherwise
+    = f $ mkSet vals
+    where
+    vals' :: [Either Val (JuncType, VJunc)]
+    vals' = map vCast vals
+
+isRight (Right _)    = True
+isRight (Left _)     = False
+fromRight (Right v)  = v
+fromRight (Left _)   = undefined
 
 op1 :: Ident -> (forall a. Context a => a) -> Val
 op1 "!"     = fmapVal not
@@ -39,7 +60,7 @@ op1 "\\"    = VRef
 op1 "..."   = op1Range
 op1 "not"   = op1 "!"
 op1 "any"   = VJunc JAny
-op1 "all"   = VJunc JAll
+op1 "all"   = opJuncAll
 op1 "one"   = VJunc JOne
 op1 "none"  = VJunc JNone
 op1 "perl"  = \x -> VStr $ pretty (x :: Val)
