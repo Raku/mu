@@ -7,8 +7,8 @@ plan 3;
 
 
 my $fh = open "t/op/readline_chomped.t";;
-todo_ok($fh, "could open self"); # unTODOme
-todo_isa_ok($fh, 'Handle'); # unTODOme
+ok($fh, "could open self"); # unTODOme
+isa_ok($fh, 'Handle'); # unTODOme
 
 my $line;
 eval '
