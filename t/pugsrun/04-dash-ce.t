@@ -17,7 +17,8 @@ push @examples,
   '-ce "print qq<Code got interpreted!>"',
   '-c -e "print qq<Code got interpreted!>"', 
   '-e "print qq<Code got interpreted!>" -c',
-  '-eprint -c'
+  '-eprint -c',
+  '-ceprint'
   ;
 
 plan +@examples;
@@ -36,7 +37,7 @@ for @examples -> $ex {
   diag $command;
   system $command;
 
-  my $expected = "-e syntax OK";
+  my $expected = "-e syntax OK\n";
   my $got      = slurp "temp-ex-output";
   unlink "temp-ex-output";
 

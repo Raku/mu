@@ -40,7 +40,6 @@ run :: [String] -> IO ()
 run (("-l"):rest)                 = run rest
 run (("-d"):rest)                 = run rest
 run (("-w"):rest)                 = run rest
-run (("-e"):prog:args)            = doRun "-e" args prog
 
 run ("-h":_)                    = printCommandLineHelp
 run ("--help":_)                = printCommandLineHelp
@@ -48,13 +47,11 @@ run ("-V":_)                    = printConfigInfo
 run ("-v":_)                    = banner
 run ("--version":_)             = banner
 run ("-c":"-e":prog:_)          = doCheck "-e" prog
-run ("-ce":prog:_)              = doCheck "-e" prog
+run ("-e":prog:"-c":_)          = doCheck "-e" prog
 run ("-c":file:_)               = readFile file >>= doCheck file
+run (("-e"):prog:args)          = doRun "-e" args prog
 
 run (('-':'I':_):rest)          = run rest
--- run (('-':'l':xs):rest)         = run (('-':xs):rest)
--- run (('-':'w':xs):rest)         = run (('-':xs):rest)
--- run (('-':'d':xs):rest)         = run (('-':xs):rest)
 run (('-':'c':rest@(_:_)):args) = run (("-c"):('-':rest):args)
 run (('-':'d':rest@(_:_)):args) = run (("-d"):('-':rest):args)
 run (('-':'e':prog@(_:_)):args) = run (("-e"):prog:args)
