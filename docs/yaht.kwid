@@ -390,3 +390,106 @@ the latest release. The current version as of the writing of this
 tutorial is 5.04.2 and can be downloaded off of the GHC download page
 (follow the "Download" link). From that page, you can download the
 appropriate version of GHC for your computer.
+
+=== 2.2.2 Installation procedures 
+
+Once you've downloaded GHC, installation differs depending on your
+platform; however, installation for GHC is more of less identical to
+installation for any program on your platform.
+
+- For Windows 
+when you click on the "msi" file to download, simply choose "Run This
+Program" and the installation will begin automatically. From there,
+just follow the on-screen instructions.
+
+- For RPMs 
+use whatever RPM installation program you know best. 
+
+- For source 
+first gunzip the file, then untar it. Presumably if you're using a
+system which isn't otherwise supported, you know enough about your
+system to be able to run configure scripts and make things by hand.
+
+For a more detailed description of the installation procedure, look at
+the GHC users manual under "Installing GHC".
+
+=== 2.2.3 How to run the compiler 
+
+Running the compiler is fairly easy. Assuming that you have a program
+written with a mainfunction in a file called Main.hs, you can compile it
+simply by writing:
+
+    % ghc --make Main.hs -o main
+
+The "make" option tells GHC that this is a program and not just a
+library and you want to build it and all modules it depends on.
+"Main.hs" stipulates the name of the file to compile; and the "-o main"
+means that you want to put the output in a file called "main".
+
+
+    *NOTE* In Windows, you should say "-o main.exe" to tell Windows
+    that this is an executable file. 
+
+You can then run the program by simply typing "main" at the prompt.
+
+=== 2.2.4 How to run the interpreter 
+
+GHCi is invoked with the command "ghci" or "ghc -interactive".
+One or more modules or filenames can also be specified on the command
+line; this instructs GHCi to load the specified modules or filenames
+(and all the modules they depend on), just as if you had said :load
+modules at the GHCi prompt.
+
+=== 2.2.5 Program options 
+
+To list all of the options would take too much space. The most important
+option at this point is "-fglasgow-exts". When you start GHCi without
+"-fglasgow-exts" it is in Haskell 98 mode, which turns off all
+extensions. When you start with "-fglasgowexts", all extensions are
+turned on. If you've downloaded someone elses code and you're having
+trouble loading it, first make sure you have this flag set properly.
+
+Further information on the GHC and GHCi options are in the manual off of the 
+GHC web page. 
+
+=== 2.2.6 How to get help 
+
+To get GHC(i) specific help, go to the GHC web page. To get general
+Haskell help, go to the Haskell web page.
+
+== 2.3 NHC 
+
+About NHC 3 ...
+
+=== 2.3.1 Where to get it 
+=== 2.3.2 Installation procedures 
+=== 2.3.3 How to run it 
+=== 2.3.4 Program options 
+=== 2.3.5 How to get help 
+
+== 2.4 Editors 
+
+With good text editor, programming is fun. Of course, you can get along
+with simplistic editor capable of just cut-n-paste, but good editor is
+capable of doing most of the chores for you, letting you concentrate on
+what you are writing. With respect to programming in Haskell, good text
+editor should have as much as possible of the following features:
+
+* Syntax highlighting for source files 
+* Indentation of source files 
+* Interaction with Haskell interpreter (be it Hugs or GHCi) 
+* Computer-aided code navigation 
+* Code completion 
+
+At the time of writing, several options were available: Emacs/XEmacs
+support Haskell via haskell-mode and accompanying Elist code (available
+from http://www.haskell.org/haskellmode), and 3 ... .
+
+What's else available? ...
+
+(X)Emacs seem to do the best job, having all the features listed above.
+Indentation is aware about Haskell's 2-dimensional layout rules (see
+Section 7.11, very smart and have to be seen in action to be believed.
+You can quickly jump to the definition of chosen function with the help
+of "Definitions" menu, and name of the currently edited function is
+always displayed in the modeline.
