@@ -21,9 +21,9 @@ my $b = 'def';
 my $c = $a ~ $b;
 is($c, 'abcdef', '~ two variables correctly');
 
-eval '$c ~= "xyz"';
-todo_is($c, 'abcdefxyz', '~= a literal string correctly');
+$c ~= "xyz";
+is($c, 'abcdefxyz', '~= a literal string correctly');
 
 my $d = $a;
-eval '$d ~= $b';
-todo_is($d, 'abcdef', '~= variable correctly');
+$d ~= $b;
+is($d, 'abcdef', '~= variable correctly');
