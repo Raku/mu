@@ -1,5 +1,6 @@
 body { font-family: Verdana, Arial, Helvetica, Tahoma; font-size: small; background-color: #EFEFEF;}
 a { color: #000066; text-decoration: none; font-style: italic; }
+div { display: none; }
 .test { overflow: hidden; white-space: nowrap; width: 12em }
 .test a { display: block; text-decoration: none;}
 .test a div { display: none; font-weight: bold; color: #336699; font-style: none;}
