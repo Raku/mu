@@ -22,7 +22,9 @@ First the perl5 parts.
 
 my $a;
 is($a, undef, "uninitialized lexicals are undef");
-todo_is(eval '$y', undef, "uninitialized globals are undef"); # turn off strict?
+
+our $y;
+is($y, undef, "uninitialized globals are undef");
 
 $a += 1; # should not emit a warning. how to test that?
 ok(defined($a), "initialized var is defined");
