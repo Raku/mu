@@ -17,8 +17,8 @@ import qualified Text.ParserCombinators.Parsec.Token as P
 type RuleParser a = GenParser Char Env a
 
 perl6Def  = javaStyle
-          { P.commentStart   = "\n=begin\n"
-          , P.commentEnd     = "\n=cut\n"
+          { P.commentStart   = "=pod"
+          , P.commentEnd     = "=cut"
           , P.commentLine    = "#"
           , P.nestedComments = False
           , P.identStart     = wordAlpha

@@ -12,6 +12,7 @@
 module Parser where
 import Internals
 import AST
+import Help
 import Lexer
 
 -- Lexical units --------------------------------------------------
@@ -55,6 +56,7 @@ ruleDeclaration = rule "declaration" $ choice
     [ ruleSubDeclaration
     , rulePackageDeclaration
     , ruleVarDeclaration
+    , ruleUseDeclaration
     ]
 
 ruleSubHead :: RuleParser (Bool, String)
@@ -86,7 +88,6 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
         , ruleSubScoped
         , ruleSubGlobal
         ]
-    pos     <- getPosition
     cxt2    <- option cxt1 $ ruleBareTrait "returns"
     formal  <- option Nothing $ return . Just =<< parens ruleSubParameters
     body    <- ruleBlock
@@ -147,7 +148,20 @@ ruleVarDeclaration :: RuleParser Exp
 ruleVarDeclaration = rule "variable declaration" $ do
     scope   <- ruleScope
     name    <- parseVarName
-    return $ Syn "sym" [Sym (Symbol scope name (Val VUndef))]
+    exp     <- option (Val VUndef) $ do
+        tryChoice $ map symbol $ words " = := ::= "
+        ruleExpression
+    return $ Syn "sym" [Sym $ Symbol scope name exp]
+
+ruleUseDeclaration :: RuleParser Exp
+ruleUseDeclaration = rule "use declaration" $ do
+    symbol "use"
+    option ' ' $ char 'v'
+    version <- many1 (choice [ digit, char '.' ])
+    when (version > versnum) $ do
+        pos <- getPosition
+        error $ "Perl v" ++ version ++ " required--this is only v" ++ versnum ++ ", stopped at " ++ (show pos)
+    return $ Val VUndef
 
 rulePackageDeclaration = rule "package declaration" $ fail ""
 
@@ -155,26 +169,12 @@ rulePackageDeclaration = rule "package declaration" $ fail ""
 
 ruleConstruct = rule "construct" $ tryChoice
     [ ruleGatherConstruct
-    , ruleBlockConstruct
     ]
 
 ruleGatherConstruct = rule "gather construct" $ do
     symbol "gather"
     block <- ruleBlock
     retSyn "gather" [block]
-
-ruleBlockConstruct = rule "block construct" $ do
-    formal <- option Nothing $ choice [ ruleBlockFormalStandard, ruleBlockFormalPointy ]
-    block <- ruleBlock
-    fail ""
-
-ruleBlockFormalStandard = rule "standard block parameters" $ do
-    symbol "sub"
-    return . Just =<< parens ruleSubParameters
-
-ruleBlockFormalPointy = rule "pointy block parameters" $ do
-    symbol "->"
-    return . Just =<< ruleSubParameters
 
 ruleCondConstruct = rule "conditional construct" $ fail ""
 ruleLoopConstruct = rule "loop construct" $ fail ""
@@ -185,6 +185,38 @@ ruleGivenConstruct = rule "given construct" $ fail ""
 -- Expressions ------------------------------------------------
 
 ruleExpression = (<?> "expression") $ parseOp
+
+ruleBlockLiteral = rule "block construct" $ do
+    (typ, formal) <- option (SubBlock, Nothing) $ choice
+        [ ruleBlockFormalStandard
+        , ruleBlockFormalPointy
+        ]
+    body <- ruleBlock
+    let (fun, names) = extract (body, [])
+        params = (maybe [] id formal) ++ map nameToParam names
+    -- Check for placeholder vs formal parameters
+    unless (isNothing formal || null names || names == ["$_"] ) $
+        fail "Cannot mix placeholder variables with formal parameters"
+    let sub = Sub { isMulti       = False
+                  , subName       = "<anon>"
+                  , subPad        = []
+                  , subType       = typ
+                  , subAssoc      = "pre"
+                  , subReturns    = "Any"
+                  , subParams     = if null params then [defaultArrayParam] else params
+                  , subFun        = fun
+                  }
+    return (Val $ VSub sub)
+
+ruleBlockFormalStandard = rule "standard block parameters" $ do
+    symbol "sub"
+    params <- option Nothing $ return . Just =<< parens ruleSubParameters
+    return $ (SubRoutine, params)
+
+ruleBlockFormalPointy = rule "pointy block parameters" $ do
+    symbol "->"
+    params <- ruleSubParameters
+    return $ (SubBlock, Just params)
 
 
 
@@ -210,7 +242,8 @@ tightOperators =
     [ methOps  " . .+ .? .* .+ .() .[] .{} .<<>> .= "   -- Method postfix
     , postOps  " ++ -- "                                -- Auto-Increment
     , rightOps " ** "                                   -- Exponentiation
-    , preOps   " ! + - ~ ? * ** +^ ~^ ?^ \\ "           -- Symbolic Unary
+--  , preOps   " ! + - ~ ? * ** +^ ~^ ?^ \\ "           -- Symbolic Unary
+    , preOps   " ! + ~ ? * ** +^ ~^ ?^ \\ "             -- Symbolic Unary
     , leftOps  " * / % x xx +& +< +> ~& ~< ~> "         -- Multiplicative
     , leftOps  " + - ~ +| +^ ~| ~^ "                    -- Additive
     , leftOps  " & ! "                                  -- Junctive And
@@ -343,8 +376,10 @@ maybeParens p = choice [ parens p, p ]
 parseVarName = lexeme $ do
     sigil   <- oneOf "$@%&"
     caret   <- option "" $ choice [ string "^", string "*" ]
-    name    <- many1 wordAny
-    return $ (sigil:caret) ++ name
+    name    <- many1 (choice [ wordAny, char ':' ])
+    return $ if sigil == '&' && not (':' `elem` name)
+        then (sigil:caret) ++ "prefix:" ++ name
+        else (sigil:caret) ++ name
 
 parseVar = do
     name    <- parseVarName
@@ -355,7 +390,8 @@ nonTerm = do
     return $ NonTerm pos
 
 parseLit = choice
-    [ numLiteral
+    [ ruleBlockLiteral
+    , numLiteral
     , strLiteral
     , arrayLiteral
 --  , pairLiteral

@@ -1,5 +1,5 @@
 {-# OPTIONS -cpp #-}
-#define VERSION ""
+#define VERSION "6"
 #define DATE ""
 #include "config.h"
 
@@ -12,7 +12,7 @@
     across so wide a Sea?
 -}
 
-module Help (printHelp, banner, version, copyright, disclaimer) where
+module Help (printHelp, banner, versnum, version, copyright, disclaimer) where
 
 printHelp :: IO ()
 printHelp

@@ -57,6 +57,15 @@ op1 "rand"  = \v -> do
 op1 "print" = \v -> do
     liftIO . putStr . concatMap vCast . vCast $ v
     return $ VUndef
+op1 "say" = \v -> do
+    liftIO . putStrLn . concatMap vCast . vCast $ v
+    return $ VUndef
+op1 "die" = \v -> do
+    return $ VError (concatMap vCast . vCast $ v) (Val v)
+op1 "exit" = \v -> do
+    if vCast v
+        then liftIO $ exitWith (ExitFailure $ vCast v)
+        else liftIO $ exitWith ExitSuccess
 
 op1 s      = return . (\x -> VError ("unimplemented unaryOp: " ++ s) (Val x))
 
@@ -259,6 +268,9 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Any       pre     eval    (Str)\
 \\n   Num       pre     rand    (?Num=1)\
 \\n   Action    pre     print   (List)\
+\\n   Action    pre     say     (List)\
+\\n   Action    pre     die     (List)\
+\\n   Any       pre     do      (Str)\
 \\n   Any       pre     return  (Any)\
 \\n   Junction  pre     any     (List)\
 \\n   Junction  pre     all     (List)\

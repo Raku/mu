@@ -45,6 +45,7 @@ instance Value VHash where
 instance Value VSub where
     castV = VSub
     doCast (VSub b) = b
+    doCast v = error ("Cannot cast into VSub: " ++ (show v))
 
 instance Value VBool where
     castV = VBool

@@ -28,7 +28,7 @@ emptyEnv = do
     ref  <- liftIO $ newIORef emptyFM
     uniq <- liftIO $ newUnique
     return $ Env
-        { envContext = "List"
+        { envContext = "Void"
         , envLexical = []
         , envGlobal  = initSyms
         , envClasses = initTree
@@ -56,8 +56,14 @@ debug key fun str a = do
 
 evaluate :: Exp -> Eval Val
 evaluate (Val (VSub sub)) = do
-    pad <- asks envLexical
-    return $ VSub sub{ subPad = pad } -- closure!
+    cxt <- asks envContext
+    if cxt == "Void" && subType sub == SubBlock
+        then do
+            exp <- apply sub [] []
+            evalExp exp
+        else do
+            pad <- asks envLexical
+            return $ VSub sub{ subPad = pad } -- closure!
 evaluate (Val val) = return val
 evaluate exp = do
     debug "indent" (' ':) "Evl" exp
@@ -148,10 +154,10 @@ doReduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
     "sym" -> do
         let [Sym (Symbol _ _ exp)] = exps
         val     <- evalExp exp
-        retVal val
+        retVal VUndef
     ":=" -> do
         let [Var var, exp] = exps
-        val     <- evalExp exp
+        val     <- enterEvalContext (cxtOfSigil $ head var) exp
         retVal val
     "::=" -> do -- XXX wrong
         let [Var var, exp] = exps

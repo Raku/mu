@@ -1,19 +1,16 @@
-#!/usr/bin/perl
+use v6;
 
-use FindBin;
-use Config;
-use File::Spec;
+=pod
 
-chdir (File::Spec->catdir($FindBin::Bin, File::Spec->updir));
-my $pugs = File::Spec->catfile(File::Spec->curdir, "pugs$Config{_exe}");
+This is a test file.  Whee!
 
-system($pugs, -e => '"1..2\nok 1 # Welcome to Pugs!\n"');
+=cut
 
-open PUGS, "| $pugs" or die "Cannot pipe out to $pugs: $!";
-print PUGS << '.';
-    sub cool { fine($_) ~ " # We've got " ~ toys };
-    sub fine { "ok " ~ $_ };
-    sub toys { "fun and games!\n" };
-    cool 2
-.
-close PUGS;
+say "1..2";
+say "ok 1 # Welcome to Pugs!";
+
+sub cool { fine($_) ~ " # We've got " ~ toys }
+sub fine { "ok " ~ $_ }
+sub toys { "fun and games!" }
+
+say cool 2 # and that's it, folks!

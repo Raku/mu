@@ -24,21 +24,30 @@ import Help
 import Pretty
 
 main :: IO ()
-main = getArgs >>= run
+main = do
+    args <- getArgs
+    run $ concatMap procArg args
+    where
+    procArg ('-':'e':prog@(_:_)) = ["-e", prog]
+    procArg ('-':'d':rest@(_:_)) = ["-d", ('-':rest)]
+    procArg x = [x]
 
 run :: [String] -> IO ()
+run ("-d":rest)                 = run rest
+run ("-w":rest)                 = run rest
 run (('-':'e':prog@(_:_)):args) = doRun "-" args prog
 run ("-e":prog:args)            = doRun "-" args prog
 run ("-h":_)                    = printHelp
+run ("-":args)                  = do
+    prog <- getContents
+    doRun "-" [] prog
 run (file:args)                 = readFile file >>= doRun file args
 run []                          = do
     hSetBuffering stdout NoBuffering 
     isTTY <- hIsTerminalDevice stdin
     if isTTY
         then banner >> repLoop
-        else do
-            prog <- getContents
-            doRun "-" [] prog
+        else run ["-"]
 
 repLoop :: IO ()
 repLoop
@@ -60,15 +69,22 @@ doParse prog = do
     runRule env (putStrLn . pretty) ruleProgram prog
 
 doEval :: [String] -> String -> IO ()
-doEval = runProgramWith (putStrLn . pretty) "<interactive>"
+doEval = do
+    runProgramWith id (putStrLn . pretty) "<interactive>"
 
 doRun :: String -> [String] -> String -> IO ()
-doRun = runProgramWith (putStr . concatMap vCast . vCast)
+doRun = do
+    runProgramWith (\e -> e{ envDebug = Nothing }) end
+    where
+    end v@(VError str exp)  = do
+        hPutStrLn stderr str
+        exitFailure
+    end _               = return ()
 
-runProgramWith :: (Val -> IO ()) -> String -> [String] -> String -> IO ()
-runProgramWith f name args prog = do
+runProgramWith :: (Env -> Env) -> (Val -> IO ()) -> VStr -> [VStr] -> String -> IO ()
+runProgramWith fenv f name args prog = do
     env <- emptyEnv
-    let env' = runRule (prepare env) id ruleProgram prog
+    let env' = runRule (prepare $ fenv env) id ruleProgram prog
     val <- (`runReaderT` env') $ do
         (`runContT` return) $ do
             evaluate (envBody env')
@@ -78,4 +94,19 @@ runProgramWith f name args prog = do
         [ Symbol SGlobal "@*ARGS" (Val $ VList $ map VStr args)
         , Symbol SGlobal "$*PROGNAME" (Val $ VStr name)
         ] ++ envGlobal e }
+
+{-
+main = do
+    -- (optsIO, rest, errs) <- return . getOpt Permute options $ procArgs args
+
+options :: [OptDescr (Opts -> Opts)]
+options =
+    [ reqArg "e" ["eval"]           "command"       "Command-line program"
+        (\s o -> o { encodings          = split "," s })
+    , noArg  "d" ["debug"]                          "Turn on debugging"
+        (\s o -> o { inputFile          = s })
+    , noArg  "h" ["help"]                           "Show help"
+        (\o   -> o { showHelp           = usage "" })
+    ]
+-}
 

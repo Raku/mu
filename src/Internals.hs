@@ -77,7 +77,7 @@ import Text.ParserCombinators.Parsec.Language
 instance Show Unique where
     show = show . hashUnique
 instance Show (a -> b) where
-    show f = "sub { ... }"
+    show f = "(->)"
 instance Eq (a -> b) where
     _ == _ = False
 instance Ord (a -> b) where

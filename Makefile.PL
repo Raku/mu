@@ -2,17 +2,19 @@
 
 use strict;
 use FindBin;
+use File::Spec;
 use Config;
 use inc::Module::Install;
 
 chdir $FindBin::Bin;
+my $pugs = File::Spec->catfile($FindBin::Bin, "pugs$Config{_exe}");
 
 name            ('Perl6-Pugs');
 version_from    ('lib/Perl6/Pugs.pm');
 abstract_from   ('lib/Perl6/Pugs.pm');
 author          ('Autrijus Tang <autrijus@autrijus.org>');
 license         ('perl');
-install_script  ("pugs$Config{_exe}");
+install_script  ($pugs);
 build_requires  ('Test::More');
 
 (`ghc --version` =~ /Glasgow/) or die << '.';
@@ -66,11 +68,20 @@ else {
 close FH;
 
 postamble(<< ".");
-pugs$Config{_exe}: @{[glob("src/*.hs")]}
-	ghc --make -o pugs -O src/Main.hs -isrc
+$pugs: @{[glob("src/*.hs")]}
+	ghc --make -o pugs src/Main.hs -isrc
 
 tags ::
 	hasktags -c src
 .
 
 WriteAll( sign => 1 );
+
+# FIXUP
+open MAKEFILE, '< Makefile' or die $!;
+my $makefile = do { local $/; <MAKEFILE> };
+$makefile =~ s/\b(test_harness\(\$\(TEST_VERBOSE\), )/ENV->{HARNESS_PERL} = '$pugs'; $1/;
+close MAKEFILE;
+open MAKEFILE, '> Makefile' or die $!;
+print MAKEFILE $makefile;
+close MAKEFILE;
