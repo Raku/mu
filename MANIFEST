@@ -111,6 +111,7 @@ t/magicals/env.t
 t/magicals/inc.t
 t/magicals/sub.t
 t/magicals/subname.t
+t/magicals/vars.t
 t/op/append.t
 t/op/arith.t
 t/op/array.t
