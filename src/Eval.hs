@@ -496,9 +496,8 @@ reduce Env{ envClasses = cls, envContext = cxt, envLexical = lex, envGlobal = gl
     applySub subSyms sub invs args
         -- list-associativity
         | Sub{ subAssoc = "list" }      <- sub
-        , (App name' invs' args'):rest  <- args
+        , (App name' invs' []):rest  <- args
         , name == name'
-        , null args'
         = applySub subSyms sub (invs' ++ rest)  []
         -- fix subParams to agree with number of actual arguments
         | Sub{ subAssoc = "list", subParams = (p:_) }   <- sub
