@@ -49,7 +49,18 @@ sub get_config {
 sub add_path {
     my ($name, $config) = @_;
     my $path = $Config{$name} || '';
-    $path =~ s/([\/\\])[^\/\\]*(perl)[^\/\\]*([\/\\]?)/$1${2}6$3/i;
+    $path =~ s/([\/\\])[^\/\\]*(perl)[^\/\\]*([\/\\]?)/$1${2}6$3/i
+      or die <<".";
+Can't generate the correct Perl6 equivalent for:
+
+    $path
+
+field name: $name
+osname: $config->{osname}
+
+Please notify the maintainer of this code. (Brian Ingerson for now)
+.
+# XXX Not sure about the above heuristic. So die if incorrect.
     $path =~ s/\/\d+\.\d+\.\d+//g;
     $config->{$name} = $path;
 }
