@@ -1,0 +1,217 @@
+Received: from ls2.sba.com ([206.69.91.6]:22703 helo=ls.sba.com)
+	by smtp.paravolve.net with smtp (Exim 4.34)
+	id 1BTp3v-0007sJ-Pj
+	for jwb@paravolve.net; Fri, 28 May 2004 21:38:49 +0000
+From: Encompass <information@encompassus.org>
+To: jwb@paravolve.net
+Subject: Encompass Points - May 2004
+Date: Fri, 28 May 2004 16:02:19 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+List-Unsubscribe: <mailto:leave-encompass_points-7842440G@ls.encompassus.org>
+Message-Id: <LYRIS-7842440-223299-2004.05.28-16.02.21--jwb#paravolve.net@ls.encompassus.org>
+X-ParaVolve-Scan-Signature: 85328c83c550adce6a970aeb2e21d0bc
+X-ParaVolve-Spam-Score: 0.0, (/)
+
+_Encompass Points_
+
+Issue 17, May 2004
+
+Thank you for subscribing to the newsletter _Encompass Points_! 
+
+To view this publication online, go to
+http://www.encompassUS.org/news/points/index.html.
+
+Encompass Points is a monthly e-mail newsletter for Encompass, an
+independent, volunteer-driven organization providing HP users with
+opportunities for education, peer networking and vendor advocacy.
+
+Issue Contents:
+* HP World 2004 Heats Up With Hot Topics For the HP IT Community
+* Encompass 2004 Board of Directors Election
+* Webcasts Sponsored by Encompass and MindIQ Another Success
+* Sign Up For the Next Encompass and MindIQ Webcast
+* Sign Up for HP's Webcast
+* Encompass Local User Group News
+* Encompass Special Interest Groups
+* HP Customer News - Ready For You
+* Events Calendar
+* We Want Your Feedback and Submissions 
+
+
+HP WORLD 2004 HEATS UP WITH HOT TOPICS FOR THE HP IT COMMUNITY                             
+HP World 2004 promises to offer a wide-ranging technical program covering
+today's hottest topics for HP customers and users. For the second
+consecutive year, the Encompass and Interex user communities have joined
+forces to bring you an opportunity-rich agenda of education, new product
+information, and peer networking. 
+
+Join more than 7,000 of your colleagues from the HP IT community at this,
+the largest HP-focused technology conference in the Americas! 
+
+Registration is now open with an "early bird" savings of $100 for
+registrations received by July 23. Encompass members qualify for an
+additional savings of $200. Find out more at http://www.hpworld.com/. 
+
+Along with the 400+ technical sessions offered, the following is a sample
+of some of the technical information you'll find at HP World 2004:
+- Adaptive Enterprise - Find out more about HP's Adaptive Enterprise
+vision and how to apply various technologies toward making your
+enterprise
+more adaptive.
+- Storage - Benefit from an introduction to storage area networks.
+- HP-UX - Listen to a panel on HP-UX performance and a discussion of
+future directions.
+- Tru64 - Find out about HP's road map for integrating Tru64
+functionality into HP-UX.
+- OpenVMS - Hear from a panel of engineering experts and get a technical
+update.
+- Linux - Hear actual case studies and gather "how-tos" for building
+Linux distribution.
+- Itanium - Learn about real-world experiences porting to Itanium, and
+take a look at HP's future Itanium plans.
+- Security - Witness a live hacking demo and learn how the super spies
+compromise security.
+- High Availability and Disaster Recovery - Hear a discussion of trends
+and best practices.
+- IA32 - Learn about ProLiant Clusters and how to put blade servers to
+effective use.
+- Networking - Get practical advice about troubleshooting and anti-spam
+solutions.
+- Windows - Learn about Windows 2003 and see a cost comparison of
+Windows and Linux. 
+- MPE - Arm yourself with strategies for migrating from HP e3000-based
+applications to other platforms.
+
+For complete program details, visit http://www.hpworld.com/. Be sure to
+check back often for updates. And watch your e-mail inbox for more about
+the information-rich programs, training seminars, and workshops that will
+be offered at HP World 2004.
+
+ENCOMPASS 2004 BOARD OF DIRECTORS ELECTION
+The deadline for the Encompass Board of Directors Election Call for
+Candidates is fast approaching! All individual and corporate members in
+good standing are eligible to run for the Encompass Board of Directors. If
+you are interested in being a part of the leadership of Encompass, please
+go to http://www.encompassUS.org/elections.html and submit your
+application for candidacy by June 4, 2004 to
+mailto:elections@encompassUS.org.
+
+WEBCAST SPONSORED BY ENCOMPASS AND MINDIQ ANOTHER SUCCESS
+On April 15, Peter Sward from HP presented on the transition from Tru64
+UNIX to HP-UX in the free Encompass and MindIQ webcast. 
+
+The free webcast focused on the tools that HP is developing to assist
+customers with the transition of their home-grown applications from Tru64
+UNIX to HP-UX on Itanium-based systems.  
+
+SIGN UP FOR THE NEXT ENCOMPASS AND MIND IQ WEBCAST
+On June 10, James Percent, Software Engineer in the Enterprise UNIX
+Division at HP, will present "Selecting the Most Appropriate Cluster Interconnect Technology for a TruCluster Deployment".   
+
+The free webcast will provide practical information regarding the impacts
+of the cluster interconnect upon overall application availability,
+scalability, and performance in a TruCluster Server environment. 
+ 
+To register for this webcast offering, visit
+http://www.encompassUS.org/events/webcasts.html. 
+ 
+SIGN UP FOR HP'S WEBCAST 
+Sign-up for the June 15th HP webcast entitled "Using Intel Compilers
+to Best Extract Performance from Itanium 2-based Platforms Webcast."
+The webcast will cover the benefits of using threading tools to improve
+your development efforts.  Shine a brilliant spotlight on the unseen
+internal behavior of your multithreaded application with the debugging
+and
+analysis tools.  Easily navigate the threads and synchronization objects in your application with complete correlation back to the source code.   
+
+After attending this event you should understand the capabilities of the
+Visual Threads debugging and analysis tool, and be able to easily apply
+it
+to your multithreaded application.  You will be able to improve the
+robustness of your application, identify potential performance
+bottlenecks, and explore the previously unseen behavior of your
+application as it executes.
+  
+For more information and to register go to:
+http://h21007.www2.hp.com/dspp/ne/ne_EventDetail_IDX/1,1394,723,00.html
+  
+ENCOMPASS LOCAL USER GROUP NEWS
+"ESILUG, an Encompass Local User Group in the Washington, DC area will
+meet on Tuesday, June 1, from 1-4pm. We'll be taking a practical look at
+the tools that aid Windows server consolidation. Dennis Bonanni of HP
+will
+share his experiences and knowledge of ways to consolidate Windows
+servers
+effectively. Pete Nash of Microsoft will describe the Microsoft Virtual
+Server product. To register and to find out more, see
+http://encompasserve.org/lugs/esilug/."
+ 
+Local User Groups (LUGs) are a key part of the Encompass community. There
+are many Encompass LUGs which offer members an opportunity to interact
+with fellow IT professionals face-to-face, close to home. These LUGS host
+local meetings and events that allow customers to stay connected with HP
+developments. Become involved with a user group in your area to interact
+directly with others in a friendly, familiar forum. To find a LUG in your
+area visit http://www.encompassUS.org/community/LUGS/ 
+
+
+ENCOMPASS SPECIAL INTEREST GROUPS (SIGS)
+Take advantage of the direct customer contact Encompass Special Interest
+Groups (SIGs) offer you. SIGs are recognized forums where HP users, with
+a
+vested interest in enterprise computing, exchange ideas and discuss
+technologies. Organized by Encompass members, SIG members meet annually
+at
+the annual conference and interact weekly via mailing lists. You are
+invited to join one of the four SIGS: Linux SIG, Enterprise Unix,
+OpenVMS,
+and Enterprise Storage at
+http://www.encompassUS.org/community/sigs/sigjoin.html.
+
+HP CUSTOMER NEWS - READY FOR YOU
+Have you read HP's 'Customer Times'?
+[http://www.hp.com/products1/evolution/customertimes/index.html] It's a
+storage and server newsletter brimming with stories of interest for HP's
+worldwide customers. It's available now in two easy versions: online (html) and print-ready (pdf).
+
+'Customer Times' provides you with news updates from across the whole
+spectrum of HP offerings, including OpenVMS, Tru64 UNIX, HP-UX, Linux and
+more. It's simple to become a quarterly subscriber, too. Register now at
+http://www.hp.com/products1/evolution/customertimes/customertimes_reg.html!
+ 
+EVENTS CALENDAR
+Encompass and HP community events are promoted via an online events
+calendar at http://www.encompassUS.org/calendar/index.cfm  Check this
+calendar on a regular basis to learn about upcoming Encompass events.
+Forward calendar posting requests to information@encompassUS.org.
+
+
+WE WANT YOUR FEEDBACK AND SUBMISSIONS
+Is there something you'd like to see in Encompass Points? Let us know.
+If you have news, updates or something special you'd like to let the
+Encompass community know, please send to information@encompassUS.org.
+* * *
+
+Interested in advertising? E-mail information@encompassUS.org. 
+
+Previous issues of Encompass Points are available in the online archives.
+Access them at http://www.encompassUS.org/members/points_archive/.
+
+
+* * * 
+
+How to Avoid Missing our Newsletter:
+Your newsletter will be coming from this address:
+{information@encompassUS.org}
+Add this to your list of addresses from which you want to receive mail.
+
+Encompass Headquarters
+401 N. Michigan Avenue
+Suite 2200
+Chicago, IL 60611
+Tel: 877.354.9887
+
+

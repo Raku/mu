@@ -1,0 +1,97 @@
+Received: (qmail 1679 invoked by uid 503); 13 Nov 2002 10:10:49 -0000
+Resent-Date: 13 Nov 2002 10:10:49 -0000
+Date: Wed, 13 Nov 2002 10:06:51 GMT
+From: Andrew Josey <ajosey@rdg.opengroup.org>
+Message-Id: <1021113100650.ZM12997@skye.rdg.opengroup.org>
+In-Reply-To: Joanna Farley's message as of Nov 13,  9:56am.
+X-Mailer: Z-Mail (5.0.0 30July97)
+To: austin-group-l@opengroup.org
+Subject: Re: Defect in XBD lround
+MIME-Version: 1.0
+Resent-Message-ID: <gZGK1B.A.uY.iUi09@mailman>
+Resent-To: austin-group-l@opengroup.org
+Resent-From: austin-group-l@opengroup.org
+X-Mailing-List: austin-group-l:archive/latest/4823
+X-Loop: austin-group-l@opengroup.org
+Precedence: list
+Resent-Sender: austin-group-l-request@opengroup.org
+Content-Type: text/plain; charset=us-ascii
+
+Joanna, All
+
+Thanks. I got the following response from Fred Tydeman.
+
+C99 Defect Report (DR) 240 covers this.  The main body of C99
+(7.12.9.7) says range error, while Annex F (F.9.6.7 and F.9.6.5)
+says "invalid" (domain error).  The result was to change 7.12.9.7
+to allow for either range or domain error.  The preferred error
+is domain error (so as match Annex F).  So, no need to change XBD.
+
+regards
+Andrew
+
+On Nov 13,  9:56am in "Re: Defect in XBD lr", Joanna Farley wrote:
+> Sun's expert in this area after some discussions with a colleague
+> outside of Sun concluded that for lround, to align with both C99 and SUS
+> changes of the following form were necessary:
+> 
+> 	+ If x is +/-Inf/NaN, a domain error occurs, and
+> 		+ errno is set to EDOM in MATH_ERRNO mode;
+> 		+ the invalid exception is raised in MATH_ERREXCEPT mode.
+> 		[to align with C99 Annex F.4]
+>         
+> 	+ If x is too large to be represented as a long, a *range* error
+> 	may occur, and
+> 		+ errno *may be* set to ERANGE in MATH_ERRNO mode;
+> 		[to align with C99 7.12.9.7]
+> 		+ the invalid exception *is* raised in MATH_ERREXCEPT mode.
+> 		[to align with C99 Annex F.4]
+> 
+> They believe it is a bit awkward to have errno set to ERANGE in
+> MATH_ERRNO mode yet the invalid exception raised in MAH_ERREXCEPT mode,
+> but that just reflects an imperfect mapping of the C notion of errno to
+> the IEEE 754 notion of data conversion.
+> 
+> I'll work with our expert to draft text refecting the above to suggest
+> replacement text for lines 23678-23684 on lround page 721 of XSH6.
+> 
+> Thanks
+> 
+> Joanna
+> 
+> 
+> Andrew Josey wrote:
+> > 
+> > The text referred to is MX shaded and part of the ISO 60559 floating
+> > point option.  I do not think changing the Domain Error to a Range Error
+> > is the fix or at least not the fix for the NaN and +-Inf cases.  ISO C
+> > 99 describes the range error case if the magnitude of x is too large as a
+> > may fail. I'll ask Fred T for his thoughts on this one...
+> > regards
+> > Andrew
+> > 
+> > On Nov 12,  9:37am in "Defect in XBD lround", Erwin.Unruh@fujitsu-siemens.com wrote:
+> > >       Defect report from : Erwin Unruh , Fujitsu Siemens Computers
+> > >
+> > > (Please direct followup comments direct to austin-group-l@opengroup.org)
+> > >
+> > > @ page 0 line 0 section lround objection {0}
+> > >
+> > > Problem:
+> > >
+> > > Defect code :  1. Error
+> > >
+> > > The function lround is described in http://www.opengroup.org/onlinepubs/007904975/functions/lround.html
+> > > On Error it is specified that errno has to be set to EDOM. However, the C99 standard ISO/IEC 9899:1999 (E) specifies this as a range error, which would result in a value of ERANGE. So an implementation could not be conformant to both these standards.
+> > >
+> > > Action:
+> > >
+> > > Change the value of errno to ERANGE, if the result is not represantable. More specific: In the description of the function, replace all occurences of "domain error" with "range error" and replace "EDOM" with "ERANGE"
+> > >-- End of excerpt from Erwin.Unruh@fujitsu-siemens.com
+> > 
+
+-----
+Andrew Josey                                The Open Group  
+Austin Group Chair                          Apex Plaza,Forbury Road,
+Email: a.josey@opengroup.org                Reading,Berks.RG1 1AX,England
+Tel:   +44 118 9508311 ext 2250             Fax: +44 118 9500110
