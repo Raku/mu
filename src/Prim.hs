@@ -20,10 +20,10 @@ import Parser
 
 op0 :: Ident -> [Val] -> Eval Val
 -- op0 ","  = return . VList . concatMap vCast
-op0 "!"  = return . VJunc . Junc JNone emptySet . mkSet . vCast . head
-op0 "&"  = return . opJuncAll . vCast . head
-op0 "^"  = return . opJuncOne . vCast . head
-op0 "|"  = return . opJuncAny . vCast . head
+op0 "!"  = return . VJunc . Junc JNone emptySet . mkSet
+op0 "&"  = return . opJuncAll
+op0 "^"  = return . opJuncOne
+op0 "|"  = return . opJuncAny
 op0 "undef" = \_ -> return VUndef
 op0 "time"  = \_ -> do
     clkt <- liftIO getClockTime
@@ -645,10 +645,10 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   List      pre     split   (Str, Str)\
 \\n   Str       spre    =       (IO)\
 \\n   List      spre    =       (IO)\
-\\n   Junction  list    |       (List)\
-\\n   Junction  list    &       (List)\
-\\n   Junction  list    ^       (List)\
-\\n   Junction  list    !       (List)\
+\\n   Junction  list    |       (Any)\
+\\n   Junction  list    &       (Any)\
+\\n   Junction  list    ^       (Any)\
+\\n   Junction  list    !       (Any)\
 \\n   Num       left    *       (Num, Num)\
 \\n   Num       left    /       (Num, Num)\
 \\n   Num       left    %       (Num, Num)\
