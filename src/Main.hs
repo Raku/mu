@@ -98,11 +98,12 @@ runProgramWith fenv f name args prog = do
     environ <- getEnvironment
     progSV  <- newMVal $ VStr name
     endAV   <- newMVal $ VList []
-    incAV   <- newMVal $ VList []
+    incAV   <- newMVal $ VList (map VStr incs)
     argsAV  <- newMVal $ VList (map VStr args)
     inGV    <- newMVal $ VHandle stdin
     outGV   <- newMVal $ VHandle stdout
     errGV   <- newMVal $ VHandle stderr
+    let envFM = listToFM $ [ (VStr k, VStr v) | (k, v) <- environ ]
     env <- emptyEnv
         [ Symbol SGlobal "@*ARGS"       $ Val argsAV
         , Symbol SGlobal "@*INC"        $ Val incAV
@@ -111,7 +112,7 @@ runProgramWith fenv f name args prog = do
         , Symbol SGlobal "$*IN"         $ Val inGV
         , Symbol SGlobal "$*OUT"        $ Val outGV
         , Symbol SGlobal "$*ERR"        $ Val errGV
-        , Symbol SGlobal "%*ENV" (Val . VHash . MkHash . listToFM $ [ (VStr k, VStr v) | (k, v) <- environ ])
+        , Symbol SGlobal "%*ENV" (Val . VHash . MkHash $ envFM)
         ]
 --    str <- return "" -- getContents
     let env' = runRule (fenv env) id ruleProgram name prog
@@ -119,6 +120,8 @@ runProgramWith fenv f name args prog = do
         (`runContT` return) $ resetT $ do
             evaluateMain (envBody env')
     f val
+    where
+    incs = ["./lib/Perl6/lib", "../lib/Perl6/lib", "."]
 
 {-
 main = do

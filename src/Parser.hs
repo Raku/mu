@@ -60,6 +60,7 @@ ruleDeclaration = rule "declaration" $ choice
     , ruleModuleDeclaration
     , ruleVarDeclaration
     , ruleUseDeclaration
+    , ruleRequireDeclaration
     , ruleClosureTrait -- ???
     ]
 
@@ -182,8 +183,10 @@ ruleUsePackage = rule "use package" $ do
     package <- identifier -- XXX - ::
     return $ Val VUndef
 
-ruleRequirePackage = rule "require package" $ do
-    return $ Val VUndef
+ruleRequireDeclaration = tryRule "require declaration" $ do
+    symbol "require"
+    names <- identifier `sepBy1` string "::"
+    return $ App "&prefix:require" [] [Val . VStr $ concat (intersperse "/" names) ++ ".pm"]
 
 ruleModuleDeclaration = rule "module declaration" $ do
     symbol "module"

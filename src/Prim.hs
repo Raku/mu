@@ -73,6 +73,27 @@ op1 "all"  = return . opJuncAll . vCast
 op1 "one"  = return . opJuncOne . vCast
 op1 "none" = return . VJunc . Junc JNone emptySet . mkSet . vCast
 op1 "perl" = return . VStr . (pretty :: Val -> VStr)
+op1 "require" = \v -> do
+    fileVal <- readMVal v
+    glob <- askGlobal
+    -- XXX - assuming a flat array
+    let Just Symbol{ symExp = Val incAV } = find ((== "@*INC") . symName) glob
+    incVals <- readMVal incAV
+    let incs = map vCast $ vCast incVals
+        file = vCast fileVal
+    requireInc incs file (errMsg file incs)
+    where
+    errMsg file incs = "Can't locate " ++ file ++ " in @INC (@INC contains: " ++ unwords incs ++ ")."
+    requireInc [] _ msg = do
+        return $ VError msg (Val VUndef)
+    requireInc (p:ps) file msg = do
+        let pathName = p ++ "/" ++ file
+        ok <- liftIO $ doesFileExist pathName
+        if (not ok)
+            then requireInc ps file msg
+            else do
+                str <- liftIO $ readFile pathName
+                op1 "eval" $ VStr str
 op1 "eval" = opEval . vCast
 op1 "defined" = \v -> do
     v <- readMVal v
@@ -469,6 +490,7 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   List      pre     kv      (Hash)\
 \\n   Str       pre     perl    (List)\
 \\n   Any       pre     eval    (Str)\
+\\n   Any       pre     require (Str)\
 \\n   Any       pre     last    (?Num=1)\
 \\n   Any       pre     exit    (?Num=0)\
 \\n   Num       pre     rand    (?Num=1)\
