@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 35;
+plan 42;
 
 =pod
 
@@ -19,6 +19,22 @@ is(rootdir(), '/',         '... got the right rootdir');
 is(devnull(), '/dev/null', '... got the right devnull');
 
 ok(!case_tolerant(), '... unix is not case tolerant');
+
+{
+    my @paths = (
+        "path///to//a///////dir/", 
+        "path/./to/././a/./././dir/",
+        "./path/to/a/dir/",
+        "././path/to/a/dir/",        
+        "../path/to/a/dir/",
+        "../../path/to/a/dir/",   
+        "path/../to/a/dir/"     # <<< not sure about this one actually               
+        );
+    
+    for @paths -> $path {
+        is(canonpath($path), 'path/to/a/dir', '... cannonpath works');
+    }
+}
 
 {
     my $path = '/path/to/a/dir';

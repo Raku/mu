@@ -66,7 +66,51 @@ sub rel2abs (Str $path, Str ?$base) returns Str is export {
     return canonpath($path);
 }
 
-sub cwd returns Str { system("pwd") } # << this is a hack for now
+sub abs2rel (Str $path, Str $base) returns Str is export {
+    if (!file_name_is_absolute($path)) {
+        $path = frel2abs($path);
+    }
+    else {
+        $path = fcanonpath($path);
+    }
+
+    # Figure out the effective $base and clean it up.
+    if (!$base.defined || $base eq '') {
+        $base = cwd();
+    }
+    elsif (!file_name_is_absolute($base)) {
+        $base = rel2abs($base);
+    }
+    else {
+        $base = canonpath($base);
+    }
+
+    # Now, remove all leading components that are the same
+    my @pathchunks = splitdir($path);
+    my @basechunks = splitdir($base);
+
+    while (@pathchunks && @basechunks && @pathchunks[0] eq @basechunks[0]) {
+        shift(@pathchunks);
+        shift(@basechunks);
+    }
+
+    $path = join('/', @pathchunks);
+    $base = join('/', @basechunks);
+
+    # $base now contains the directories the resulting relative path 
+    # must ascend out of before it can descend to $path_directory.  So, 
+    # replace all names with $parentDir
+    $base ~~ s:perl5{[^/]+}{..}; # needs to be :g
+
+    # Glue the two together, using a separator if necessary, and preventing an
+    # empty result.
+    if ('' ne ($path & $base)) { # <<< refactored into junction
+        $path = "$base/$path";
+    } else {
+        $path = "$base$path";
+    }
+    return canonpath($path);
+}
 
 ## Misc.
 
@@ -85,15 +129,20 @@ sub path returns Array is export {
     return split(':', %*ENV{'PATH'}).map:{ $_ eq '' ?? '.' :: $_ };
 }
 
-sub canonpath (Str $path) returns Str is export {
-# WAITING ON s/// tomorrow
-#     $path ~~ s:g:perl5{/+}{/};                            # xx////xx  -> xx/xx
-#     $path ~~ s:g:perl5{(/\.)+(/|\Z(?!\n))}{/};            # xx/././xx -> xx/xx
-#     $path ~~ s:g:perl5{^(\./)+}{} unless $path eq "./";   # ./xx      -> xx
-#     $path ~~ s:g:perl5{^/(\.\./)+}{/}s;                   # /../../xx -> xx
-#     $path ~~ s:g:perl5{/\Z(?!\n)}{} unless $path eq "/";  # xx/       -> xx
+sub canonpath (Str $_path) returns Str is export {
+    my $path = $_path; 
+    # these all need to be :g
+    $path ~~ s:perl5{/+}{/};                            # xx////xx  -> xx/xx   
+    $path ~~ s:perl5{(/\.)+(/|\Z(?!\n))}{/};            # xx/././xx -> xx/xx
+    $path ~~ s:perl5{^(\./)+}{} unless $path eq "./";   # ./xx      -> xx
+    $path ~~ s:perl5{^/(\.\./)+}{/};                    # /../../xx -> xx
+    $path ~~ s:perl5{/\Z(?!\n)}{} unless $path eq "/";  # xx/       -> xx
     return $path;
 }
+
+# This HACK is worse than 
+# the File::Spec platform hack 
+sub cwd returns Str { system("pwd") }
 
 =kwid
 
@@ -124,80 +173,6 @@ method tmpdir () returns Str {
     return $tmpdir if $tmpdir.defined;
     $tmpdir = ._tmpdir(%*ENV{'TMPDIR'}, "/tmp");
     return $tmpdir;
-}
-
-# Internal routine to File::Spec, no point in making this public since
-# it is the standard Cwd interface.  Most of the platform-specific
-# File::Spec subclasses use this.
-method _cwd () returns Str {
-    require Cwd-0.0.1;
-    Cwd::cwd();
-}
-
-method abs2rel (Str $path, Str $base) returns Str {
-    # Clean up $path
-    if (!.file_name_is_absolute($path)) {
-        $path = .rel2abs($path);
-    }
-    else {
-        $path = .canonpath($path);
-    }
-
-    # Figure out the effective $base and clean it up.
-    if (!$base.defined || $base eq '') {
-        $base = ._cwd();
-    }
-    elsif (!.file_name_is_absolute($base)) {
-        $base = .rel2abs($base);
-    }
-    else {
-        $base = .canonpath($base);
-    }
-
-    # Now, remove all leading components that are the same
-    my @pathchunks = .splitdir($path);
-    my @basechunks = .splitdir($base);
-
-    while (@pathchunks && @basechunks && @pathchunks[0] eq @basechunks[0]) {
-        @pathchunks.shift;
-        @basechunks.shift;
-    }
-
-    $path = @pathchunks.join('/');
-    $base = @basechunks.join('/');
-
-    # $base now contains the directories the resulting relative path 
-    # must ascend out of before it can descend to $path_directory.  So, 
-    # replace all names with $parentDir
-    $base ~~ s|[^/]+|..|g;
-
-    # Glue the two together, using a separator if necessary, and preventing an
-    # empty result.
-    if ('' ne ($path & $base)) { # <<< refactored into junction
-        $path = "$base/$path";
-    } else {
-        $path = "$base$path";
-    }
-    return .canonpath($path);
-}
-
-method rel2abs (Str $path, Str $base) returns Str {
-    # Clean up $path
-    if (!.file_name_is_absolute($path)) {
-        # Figure out the effective $base and clean it up.
-        if (!$base.defined || $base eq '') {
-            $base = ._cwd();
-        }
-        elsif (!.file_name_is_absolute($base)) {
-            $base = .rel2abs($base);
-        }
-        else {
-            $base = .canonpath($base);
-        }
-        # Glom them together
-        $path = .catdir($base, $path);
-    }
-    return .canonpath($path);
 }
 
 =cut
