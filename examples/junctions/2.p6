@@ -10,6 +10,6 @@ my $y = =$*IN;
 
 my $result = ($x eq $y) ?? "acceptable" :: 'unacceptable' ;
 
-print "$result color\n";
+print "$y is an $result color\n";
 
 
