@@ -8,20 +8,24 @@ plan 44;
 my $foo = "FOO";
 my $bar = "BAR";
 
+=kwid
+
+Tests quoting constructs as defined in L<S02/Literals>
+
 =todo
 
-- q:t - heredocs
-- q:0, q:b, and other interpolation levels
-- meaningful quotations (qx, rx, etc)
-- review shell quoting semantics of «»
-- arrays in «»
-- interpolation of scalar, array, hash, function and closure syntaxes
-- q : a d verb s // parsing
+* q:t - heredocs
+* q:0, q:b, and other interpolation levels
+* meaningful quotations (qx, rx, etc)
+* review shell quoting semantics of «»
+* arrays in «»
+* interpolation of scalar, array, hash, function and closure syntaxes
+* q : a d verb s // parsing
 
 =cut
 
 
-{ # non interpolating single quotes
+{ # backslash interpolation only single quotes L<S02/Literals /:single\s+Interpolate \\\\,/>
 	my @q = ();
 	eval '@q = (q/$foo $bar/)';
 	todo_is(+@q, 1, 'q// is singular');
@@ -35,20 +39,20 @@ my $bar = "BAR";
 	is(@q[0], '$foo $bar', 'and did not interpolate either');
 };
 
-{ # non interpolating single quotes with nested parens
+{ # non interpolating single quotes with nested parens L<S02/Literals /That is.*?\(\).*?have no special significance/>
 	my @q = ();
-	eval '@q = (q:(($foo $bar)))';
-	todo_is(+@q, 1, 'q:() is singular');
+	eval '@q = (q: (($foo $bar)))';
+	todo_is(+@q, 1, 'q: () is singular');
 	todo_is(@q[0], '($foo $bar)', 'and nests parens appropriately');
 };
 
-{ # q() is bad
+{ # q() is bad L<S02/Literals /Which is mandatory for parens/>
 	my @q = ();
 	eval '@q = (q(($foo $bar)))';
 	is(+@q, 0, 'nothing in @q, q() is not allowed');
 };
 
-{ # adverb variation
+{ # adverb variation L<S02/Literals /:1/>
 	my @q = ();
 	eval '@q = (q:1/$foo $bar/)';
 	todo_is(+@q, 1, "q:1// is singular");
@@ -56,7 +60,7 @@ my $bar = "BAR";
 };
 
 
-{ # interpolating quotes
+{ # interpolating quotes L<S02/Literals /same as qq/>
 	my @q = ();
 	eval '@q = (qq/$foo $bar/)';
 	is(+@q, 1, 'qq// is singular');
@@ -70,7 +74,7 @@ my $bar = "BAR";
 	is(@q[0], "FOO BAR", '"" interpolates');
 };
 
-{ # adverb variation
+{ # adverb variation L<S02/Literals /:2/>
 	my @q = ();
 	eval '@q = q:2/$foo $bar/';
 	todo_is(+@q, 1, "q:2// is singular");
@@ -78,7 +82,7 @@ my $bar = "BAR";
 };
 
 
-{ # quote with \0 as delimiters
+{ # quote with \0 as delimiters L<news:20050101220112.GF25432@plum.flirble.org>
 	my @q = ();
 	eval "\@q = (q\0foo bar\0)";
 	todo_is(+@q, 1, "single quote with \\0 delims are parsed ok");
@@ -94,7 +98,7 @@ my $bar = "BAR";
 	is(@q[1], '$bar', "...");
 };
 
-{ # angle brackets
+{ # angle brackets L<S02/Literals /the qw.*?quote operator.*?bracketed form/>
 	my @q = ();
 	eval '@q = <$foo $bar>';
 	is(+@q, 2, "<> behaves the same way");
@@ -111,7 +115,7 @@ my $bar = "BAR";
 };
 
 
-{ # qw, interpolating
+{ # qw, interpolating L<S02/Literals /do not interpolate while double angles do/>
 	my (@q1, @q2, @q3) = ();
 	eval '@q1 = q:ww/$foo gorch $bar/';
 	eval '@q2 = «$foo gorch $bar»'; # french
@@ -126,7 +130,7 @@ my $bar = "BAR";
 	is(~@q3, ~@q1, "and texas quotes");
 };
 
-{ # qw, interpolating, shell quoting
+{ # qw, interpolating, shell quoting L<S02/Literals /respects quotes in a shell-like fashion/>
 	my (@q1, @q2) = ();
 	my $gorch = "foo bar";
 
@@ -141,7 +145,7 @@ my $bar = "BAR";
 	todo_is(@q2[2], '$bar', 'single quoted $bar was not interpolated');
 };
 
-{ # qq:t
+{ # qq:t L<S02/Literals /Heredocs are no longer written/>
 	my @q = ();
 	
 	eval '@q = qq:t/FOO/;
@@ -156,7 +160,7 @@ FOO
 	todo_is(@q[0], "blah\nBAR\nblah\nFOO\n", "here doc interpolated");
 };
 
-{ # q:t indented
+{ # q:t indented L<S02/Literals /Here docs allow optional whitespace/>
 	my @q = ();
 
 	eval '@q = q:t/FOO/;
@@ -169,7 +173,7 @@ FOO
 	todo_is(@q[0], "blah blah\n\$foo\n", "indentation stripped");
 };
 
-{ # q:0
+{ # q:0 L<S02/Literals /No escapes at all/>
 	my @q = ();
 
 	eval '@q = (q:0/foo\\bar$foo/)';
