@@ -1746,34 +1746,31 @@ method sign(Str ?$path, Str ?$data) {
 #
 #=cut
 
-sub suggest_encoding {
-    my ($self, $ctype) = @_;
-    $ctype = lc($ctype);
+method :suggest_encoding(Str $ctype is copy) {
+  $ctype .= lc;
 
-    ### Consult MIME::Types, maybe:
-    if ($HaveMimeTypes) {
+  ### Consult MIME::Types, maybe:
+  ### Mappings contain [suffix,mimetype,encoding]
+  my @mappings = MIME::Types::by_mediatype($ctype);
+  if @mappings {
+    ### Just pick the first one:
+    my ($suffix, $mimetype, $encoding) = @mappings[0];
+    if
+      $encoding and
+      $encoding ~~ m:i/^(base64|binary|[78]bit|quoted-printable)$/
+    {
+      return lc $encoding;    ### sanity check
+    }
+  }
 
-	### Mappings contain [suffix,mimetype,encoding]
-	my @mappings = MIME::Types::by_mediatype($ctype);
-	if (scalar(@mappings)) {
-	    ### Just pick the first one:
-	    my ($suffix, $mimetype, $encoding) = @{$mappings[0]};
-	    if ($encoding &&
-		$encoding =~/^(base64|binary|[78]bit|quoted-printable)$/i) {
-		return lc($encoding);    ### sanity check
-	    }
-	}
-    }
-
-    ### If we got here, then MIME::Types was no help.
-    ### Extract major type:
-    my ($type) = split '/', $ctype;
-    if (($type eq 'text') || ($type eq 'message')) {    ### scan message body?
-	return 'binary';
-    }
-    else {
-	return ($type eq 'multipart') ? 'binary' : 'base64';
-    }
+  ### If we got here, then MIME::Types was no help.
+  ### Extract major type:
+  my ($type) = split '/', $ctype;
+  if $type eq 'text'|'message' {    ### scan message body?
+    return 'binary';
+  } else {
+    return $type eq 'multipart' ?? 'binary' :: 'base64';
+  }
 }
 
 #------------------------------
@@ -1785,21 +1782,18 @@ sub suggest_encoding {
 # We always fall back to "application/octet-stream" if no good guess
 # can be made, so don't use this if you don't mean it!
 #
-sub suggest_type {
-    my ($self, $path) = @_;
+method :suggest_type($path) {
+  ### If there's no path, bail:
+  $path or return 'application/octet-stream';
 
-    ### If there's no path, bail:
-    $path or return 'application/octet-stream';
+  ### Consult MIME::Types, maybe:
+  # Mappings contain [mimetype,encoding]:
+  my ($mimetype, $encoding) = MIME::Types::by_suffix($path);
+  return $mimetype if $mimetype && $mimetype ~~ m/^\S+\/\S+$/;  ### sanity check
 
-    ### Consult MIME::Types, maybe:
-    if ($HaveMimeTypes) {
-	# Mappings contain [mimetype,encoding]:
-		my ($mimetype, $encoding) = MIME::Types::by_suffix($path);
-		return $mimetype if ($mimetype && $mimetype =~ /^\S+\/\S+$/);  ### sanity check
-    }
-    ### If we got here, then MIME::Types was no help.
-    ### The correct thing to fall back to is the most-generic content type:
-    return 'application/octet-stream';
+  ### If we got here, then MIME::Types was no help.
+  ### The correct thing to fall back to is the most-generic content type:
+  return 'application/octet-stream';
 }
 
 #------------------------------
@@ -1814,19 +1808,17 @@ Raises exception if any path is not readable.
 
 =cut
 
-sub verify_data {
-    my $self = shift;
+method .verify_data() {
+  ### Verify self:
+  my $path = $:path;
+  if $path and not $path ~~ m/\|$/ {  ### non-shell path:
+    $path ~~ s/^<//;
+    -r $path or die "\"$path\" is not readable!\n";
+  }
 
-    ### Verify self:
-    my $path = $self->{Path};
-    if ($path and ($path !~ /\|$/)) {  ### non-shell path:
-	$path =~ s/^<//;
-	(-r $path) or die "$path: not readable\n";
-    }
-
-    ### Verify parts:
-    foreach my $part (@{$self->{Parts}}) { $part->verify_data }
-    1;
+  ### Verify parts:
+  for @.parts -> { $^part.verify_data }
+  1;
 }
 
 =back
@@ -1856,16 +1848,14 @@ any object that responds to a print() message.
 
 =cut
 
-sub print {
-    my ($self, $out) = @_;
+method print(?$out is copy) {
+  ### Coerce into a printable output handle:
+  $out = wrap MIME::Lite::IO_Handle: $out;
 
-    ### Coerce into a printable output handle:
-    $out = wrap MIME::Lite::IO_Handle $out;
-
-    ### Output head, separator, and body:
-    $self->verify_data if $AUTO_VERIFY;       ### prevents missing parts!
-    $out->print($self->header_as_string, "\n");
-    $self->print_body($out);
+  ### Output head, separator, and body:
+  .verify_data if $AUTO_VERIFY;       ### prevents missing parts!
+  print $out: .:header_as_string ~ "\n";
+  .:print_body($out);
 }
 
 #------------------------------
@@ -1876,19 +1866,17 @@ sub print {
 # Print, but filter out the topmost "Bcc" field.
 # This is because qmail apparently doesn't do this for us!
 #
-sub print_for_smtp {
-    my ($self, $out) = @_;
+method print_for_smtp($out is copy) {
+  ### Coerce into a printable output handle:
+  $out = wrap MIME::Lite::IO_Handle: $out;
 
-    ### Coerce into a printable output handle:
-    $out = wrap MIME::Lite::IO_Handle $out;
+  ### Create a safe head:
+  my @fields = grep { $_[0] ne 'bcc' } .fields;
+  my $header = .:fields_as_string(@fields);
 
-    ### Create a safe head:
-    my @fields = grep { $_->[0] ne 'bcc' } @{$self->fields};
-    my $header = $self->fields_as_string(\@fields);
-
-    ### Output head, separator, and body:
-    $out->print($header, "\n");
-    $self->print_body($out);
+  ### Output head, separator, and body:
+  print $out: $header ~ "\n";
+  .:print_body($out);
 }
 
 #------------------------------
@@ -1908,46 +1896,38 @@ encountered.
 
 =cut
 
-sub print_body {
-    my ($self, $out) = @_;
+method :print_body($out is copy) {
+  ### Coerce into a printable output handle:
+  $out = wrap MIME::Lite::IO_Handle: $out;
 
-    ### Coerce into a printable output handle:
-    $out = wrap MIME::Lite::IO_Handle $out;
+  ### Output either the body or the parts.
+  ###   Notice that we key off of the content-type!  We expect fewer
+  ###   accidents that way, since the syntax will always match the MIME type.
+  my $type = .attr('content-type');
+  if $type ~~ m:i{^multipart/} {
+    my $boundary = .attr('content-type.boundary');
 
-    ### Output either the body or the parts.
-    ###   Notice that we key off of the content-type!  We expect fewer
-    ###   accidents that way, since the syntax will always match the MIME type.
-    my $type = $self->attr('content-type');
-    if ($type =~ m{^multipart/}i) {
-	my $boundary = $self->attr('content-type.boundary');
+    ### Preamble:
+    print $out: $:preamble // "This is a multi-part message in MIME format.\n";
 
-	### Preamble:
-	$out->print(defined($self->{Preamble})
-		    ? $self->{Preamble}
-		    : "This is a multi-part message in MIME format.\n");
-
-	### Parts:
-	my $part;
-	foreach $part (@{$self->{Parts}}) {
-	    $out->print("\n--$boundary\n");
-	    $part->print($out);
-	}
-
-	### Epilogue:
-	$out->print("\n--$boundary--\n\n");
+    ### Parts:
+    for @.parts -> $part {
+      print $out: "\n--$boundary\n";
+      $part.print($out);
     }
-    elsif ($type =~ m{^message/}) {
-	my @parts = @{$self->{Parts}};
 
-	### It's a toss-up; try both data and parts:
-	if    (@parts == 0) { $self->print_simple_body($out) }
-	elsif (@parts == 1) { $parts[0]->print($out) }
-	else                { Carp::croak "can't handle message with >1 part\n"; }
-    }
-    else {
-	$self->print_simple_body($out);
-    }
-    1;
+    ### Epilogue:
+    print $out: "\n--$boundary--\n\n";
+  } elsif $type ~~ m:i{^message/} {
+    ### It's a toss-up; try both data and parts:
+    if    (@.parts == 0) { .:print_simple_body($out) }
+    elsif (@.parts == 1) { @parts[0].print($out)     }
+    else                 { die "Can't handle message with >1 part.\n" }
+  } else {
+    .:print_simple_body($out);
+  }
+
+  1;
 }
 
 #------------------------------
@@ -1970,6 +1950,8 @@ sub print_body {
 # or if a part contains no data, or if an unsupported encoding is
 # encountered.
 #
+
+# XXX -- binmode, etc.
 sub print_simple_body {
     my ($self, $out) = @_;
 
@@ -2087,15 +2069,14 @@ any object that responds to a print() message.
 
 =cut
 
-sub print_header {
-    my ($self, $out) = @_;
+method :print_header($out is copy) {
+  ### Coerce into a printable output handle:
+  $out = wrap MIME::Lite::IO_Handle: $out;
 
-    ### Coerce into a printable output handle:
-    $out = wrap MIME::Lite::IO_Handle $out;
+  ### Output the header:
+  print $out: .:header_as_string;
 
-    ### Output the header:
-    $out->print($self->header_as_string);
-    1;
+  1;
 }
 
 #------------------------------
@@ -2107,15 +2088,16 @@ Return the entire message as a string, with a header and an encoded body.
 
 =cut
 
-sub as_string {
-    my $self = shift;
-    my $buf = [];
-    my $io = (wrap MIME::Lite::IO_ScalarArray $buf);
-    $self->print($io);
-    join '', @$buf;
+multi sub *coerce:<as> (::?CLASS $self, Str ::to) {
+  my $buf = [];
+  my $io = wrap MIME::Lite::IO_ScalarArray: $buf;
+  .print($io);
+  join '', $buf;
 }
-*stringify = \&as_string;    ### backwards compatibility
-*stringify = \&as_string;    ### ...twice to avoid warnings :)
+
+#*stringify = \&as_string;    ### backwards compatibility
+#*stringify = \&as_string;    ### ...twice to avoid warnings :)
+#                                 -- lol :)
 
 #------------------------------
 
@@ -2131,15 +2113,12 @@ that responds to a C<print()> message.
 
 =cut
 
-sub body_as_string {
-    my $self = shift;
+method :body_as_string() {
     my $buf = [];
-    my $io = (wrap MIME::Lite::IO_ScalarArray $buf);
-    $self->print_body($io);
-    join '', @$buf;
+    my $io = wrap MIME::Lite::IO_ScalarArray: $buf;
+    .print_body($io);
+    join '', $buf;
 }
-*stringify_body = \&body_as_string;    ### backwards compatibility
-*stringify_body = \&body_as_string;    ### ...twice to avoid warnings :)
 
 #------------------------------
 #
@@ -2148,17 +2127,15 @@ sub body_as_string {
 # PRIVATE!  Return a stringified version of the given header
 # fields, where FIELDS is an arrayref like that returned by fields().
 #
-sub fields_as_string {
-    my ($self, $fields) = @_;
-    my @lines;
-    foreach (@$fields) {
-	my ($tag, $value) = @$_;
-	next if ($value eq '');          ### skip empties
-	$tag =~ s/\b([a-z])/uc($1)/ge;   ### make pretty
-	$tag =~ s/^mime-/MIME-/ig;       ### even prettier
-	push @lines, "$tag: $value\n";
-    }
-    join '', @lines;
+method :fields_as_string(Str *@fields) {
+  my @lines;
+  for @fields -> ($tag, $value) { # XXX -- correct?
+    next if $value eq '';               ### skip empties
+    $tag ~~ s:g/\b(<[a-z]>)/{uc $1}/;   ### make pretty
+    $tag ~~ s:ig/^mime-/MIME-/;         ### even prettier
+    push @lines, "$tag: $value\n";
+  }
+  join '', @lines;
 }
 
 #------------------------------
@@ -2170,12 +2147,7 @@ Return the header as a string.
 
 =cut
 
-sub header_as_string {
-    my $self = shift;
-    $self->fields_as_string($self->fields);
-}
-*stringify_header = \&header_as_string;    ### backwards compatibility
-*stringify_header = \&header_as_string;    ### ...twice to avoid warnings :)
+method :header_as_string() { .:fields_as_string(.fields) }
 
 =back
 
@@ -2270,6 +2242,7 @@ All of your $msg-E<gt>send invocations will work as expected.
 
 =cut
 
+# XXX -- Will continue translating from here (volunteers welcome!)
 sub send {
     my $self = shift;
 
