@@ -462,6 +462,10 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         val     <- enterEvalContext "Str" exp
         str     <- fromVal val
         retVal $ VSubst (mkRegex $ encodeUTF8 str, subst)
+    "inline" -> do
+        retVal VUndef
+    "module" -> do
+        retVal VUndef
     syn | last syn == '=' -> do
         let [lhs, exp] = exps
             op = "&infix:" ++ init syn

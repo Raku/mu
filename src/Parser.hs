@@ -125,6 +125,7 @@ ruleDeclaration = rule "declaration" $ choice
     , ruleModuleDeclaration
     , ruleVarDeclaration
     , ruleUseDeclaration
+    , ruleInlineDeclaration
     , ruleRequireDeclaration
     , ruleClosureTrait -- ???
     ]
@@ -297,6 +298,14 @@ ruleUsePackage = rule "use package" $ do
     _ <- identifier -- package -- XXX - ::
     return $ Val VUndef
 
+ruleInlineDeclaration = tryRule "inline declaration" $ do
+    symbol "inline"
+    args <- ruleExpression
+    case args of
+        App "&infix:=>" [Val key, Val val] [] -> do
+            return $ Syn "inline" $ map (Val . VStr . vCast) [key, val]
+        _ -> fail "not yet parsed"
+
 ruleRequireDeclaration = tryRule "require declaration" $ do
     symbol "require"
     names <- identifier `sepBy1` (try $ string "::")
@@ -307,11 +316,16 @@ ruleRequireDeclaration = tryRule "require declaration" $ do
 
 ruleModuleDeclaration = rule "module declaration" $ do
     symbol "module"
-    _ <- identifier `sepBy1` (try $ string "::") -- name - XXX
-    _ <- option "" $ do -- version - XXX
+    n <- identifier `sepBy1` (try $ string "::") -- name - XXX
+    v <- option "" $ do -- version - XXX
         char '-'
-        many1 (choice [ digit, char '.' ])
-    return $ Val VUndef -- XXX
+        str <- many1 (choice [ digit, char '.' ])
+        return ('-':str)
+    a <- option "" $ do -- author - XXX
+        char '-'
+        str <- many1 (satisfy (/= ';'))
+        return ('-':str)
+    return $ Syn "module" [Val . VStr $ concat (intersperse "::" n) ++ v ++ a] -- XXX
 
 ruleClosureTrait = rule "closure trait" $ do
     name    <- tryChoice $ map symbol $ words " END "
@@ -512,7 +526,7 @@ tightOperators = do
     , listOps  " & ! "                                  -- Junctive And
     , listOps  " ^ | "                                  -- Junctive Or
     , preOps   unary                                    -- Named Unary
-    , noneOps  " but does "                             -- Traits
+    , noneOps  " is but does "                          -- Traits
       ++ rightOps " => "                                -- Pair constructor
       ++ noneOps " cmp <=> .. ^.. ..^ ^..^ "            -- Non-chaining Binary
       ++ postOps "..."                                  -- Infinite range

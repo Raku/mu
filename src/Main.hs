@@ -19,6 +19,7 @@ import Config
 import Run
 import AST
 import Eval
+import External
 import Shell
 import Parser
 import Help
@@ -55,6 +56,8 @@ run ("-ce":prog:_)              = doCheck "-e" prog
 run ("-c":file:_)               = readFile file >>= doCheck file
 run (('-':'C':backend):"-e":prog:_) = doCompile backend "-e" prog
 run (('-':'C':backend):file:_)      = readFile file >>= doCompile backend file
+run ("--external":mod:"-e":prog:_)    = doExternal mod "-e" prog
+run ("--external":mod:file:_)         = readFile file >>= doExternal mod file
 run ("-":_)                     = do
     prog <- getContents
     doRun "-" [] prog
@@ -89,6 +92,10 @@ tabulaRasa = prepareEnv "<interactive>" []
 
 doCheck = doParseWith $ \_ name -> do
     putStrLn $ name ++ " syntax OK"
+
+doExternal mod = doParseWith $ \exp _ -> do
+    str <- externalize mod exp
+    putStrLn str
 
 doCompile backend = doParseWith $ \exp _ -> do
     str <- compile backend exp
