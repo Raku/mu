@@ -84,7 +84,10 @@ WriteAll( sign => 1 );
 # FIXUP
 open MAKEFILE, '< Makefile' or die $!;
 my $makefile = do { local $/; <MAKEFILE> };
-$makefile =~ s/\b(test_harness\(\$\(TEST_VERBOSE\), )/use English; *EXECUTABLE_NAME->{SCALAR} = \\'$full_pugs'; ENV->{HARNESS_PERL} = qq*\Q$full_pugs\E*; ENV->{PERL6LIB} = qq*\Q$full_t\E*; $1/;
+$full_pugs =~ s{\\}{\\\\}g; $full_pugs =~ s{'}{\\'}g;
+$full_t =~ s{\\}{\\\\}g; $full_t =~ s{'}{\\'}g;
+$makefile =~ s/\b(test_harness\(\$\(TEST_VERBOSE\), )/ENV->{HARNESS_PERL} = q*$full_pugs*; ENV->{PERL6LIB} = q*$full_t*; $1/;
+$makefile =~ s/("-MExtUtils::Command::MM")/"-Iinc" $1/g;
 close MAKEFILE;
 open MAKEFILE, '> Makefile' or die $!;
 print MAKEFILE $makefile;
