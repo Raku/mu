@@ -148,7 +148,7 @@ sub set_postamble {
 
     postamble(nativize(<< "."));
 src/Unicode.hs : src/Unicode.hsc src/Unicode.c
-	hsc2hs src/Unicode.hsc
+	hsc2hs -I src src/Unicode.hsc
 
 src/Config.hs : util/PugsConfig.pm
 	$Config{perlpath} -Iutil -MPugsConfig -e "PugsConfig->write_config_module" > src/Config.hs
