@@ -21,11 +21,11 @@ sub toys { "fun and games!" }
 
 my $foo = "Foo";
 eval 'undef $foo';
-todo_ok(!$foo, 'undef');
+ok(!$foo, 'undef');
 
 my $bar;
-eval ' unless ($foo) { $bar = "true"; } ';
-todo_ok($bar, "unless");
+unless ($foo) { $bar = "true" }
+ok($bar, "unless");
 
 my ($var1, $var2) = ("foo", "bar");
 todo_is($var1, "foo", 'list assignment 1');
