@@ -10,6 +10,7 @@ if (!@ARGV) {
     die "Usage: $0 [ source[.p6] | -e oneliner ]\n";
 }
 
+my $ghc_version = ghc_version();
 my $base = cwd();
 if (!-e "src/Main.hs") {
     $base = "$FindBin::Bin/..";
@@ -43,6 +44,30 @@ close FH;
 
 unlink "dump.ast";
 
-system("ghc", "-v0", "-o", $out, "--make", "-main-is", "mainCC", "-i$base/src", "$base/src/MainCC.hs");
+my @ghc_flags = (
+    "-L$base", "-L$base/src", "-L$base/src/pcre",
+    "-I$base", "-I$base/src", "-I$base/src/pcre",
+    "-i$base", "-i$base/src", "-i$base/src/pcre",
+    qw(-static -Wall -fno-warn-missing-signatures -fno-warn-name-shadowing),
+);
+
+if ($ghc_version ge '6.4') {
+    push @ghc_flags, qw(-fno-warn-deprecations -fno-warn-orphans);
+}
+
+if ($Config{_exe} ne '.exe') {
+    push @ghc_flags, "$base/src/pcre/pcre$Config{_o}";
+}
+
+system("ghc", "-v0", "-o", $out, "--make", "-main-is", "mainCC", @ghc_flags, "$base/src/MainCC.hs");
 unlink "$base/src/MainCC.hs";
 print "Generated output: $out\n";
+
+sub ghc_version {
+    my $ghcver = `ghc --version`;
+    ($ghcver =~ /Glasgow.*\bversion\s*(\S+)/s) or die << '.';
+*** Cannot find a runnable 'ghc' from path.
+*** Please install GHC from http://haskell.org/ghc/.
+.
+    return $1;
+}
