@@ -26,7 +26,8 @@ printInteractiveHelp
         putStrLn ":q              = quit"
         putStrLn ". <exp>         = show the syntax tree of an expression"
         putStrLn "? <exp>         = evaluate an expression in small steps"
-        putStrLn "<exp>           = evaluate an expression"
+        putStrLn "<exp>           = run a command"
+        putStrLn ":r              = reset the evaluation environment"
 {-
         putStrLn ":l <filename>   = load a pugs file (need quotes around the name)" 
         putStrLn ":r              = reload the current file"

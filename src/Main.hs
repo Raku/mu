@@ -66,19 +66,22 @@ run []                          = do
 
 repLoop :: IO ()
 repLoop = do
-    command <- getCommand
-    case command of
-        CmdQuit             -> putStrLn "Leaving pugs."
-        CmdLoad fn          -> load fn
-        CmdEval trace prog  -> doEval trace [] prog >> repLoop
-        CmdParse prog       -> doParse "<interactive>" prog >> repLoop
-        CmdHelp             -> printInteractiveHelp >> repLoop
-        _                   -> internalError "unimplemented command"
+    defaultEnv <- prepareEnv "<interactive>" []
+    let tabulaRasa = defaultEnv--{ envDebug = Nothing }
+    env <- newIORef tabulaRasa
+    fix $ \loop -> do
+        command <- getCommand
+        case command of
+            CmdQuit       -> putStrLn "Leaving pugs."
+            CmdLoad fn    -> load fn
+            CmdRun prog   -> doRunSingle env prog >> loop
+            CmdDebug prog -> doDebug [] prog >> loop
+            CmdParse prog -> doParse "<interactive>" prog >> loop
+            CmdHelp       -> printInteractiveHelp >> loop
+            CmdReset      -> writeIORef env tabulaRasa >> loop
+            _             -> internalError "unimplemented command"
 
 load _ = return ()
-
-parse = doParse "<interactive>"
-eval prog = doEval True [] prog
 
 doCheck = doParseWith $ \_ name -> do
     putStrLn $ name ++ " syntax OK"
@@ -102,12 +105,22 @@ doParse name prog = do
     env <- emptyEnv []
     runRule env (putStrLn . pretty) ruleProgram name $ decodeUTF8 prog
 
-doEval :: Bool -> [String] -> String -> IO ()
-doEval trace = do
-    runProgramWith f (putStrLn . pretty) "<interactive>"
+doDebug :: [String] -> String -> IO ()
+doDebug = runProgramWith id (putStrLn . pretty) "<interactive>"
+
+doRunSingle :: IORef Env -> String -> IO ()
+doRunSingle menv prog = doParseWith runner "<interactive>" prog
     where
-    f | trace       = id
-      | otherwise   = \e -> e{ envDebug = Nothing }
+    runner exp _ = do
+        env <- readIORef menv
+        result <- (`runReaderT` env) $ (`runContT` return) $ resetT $ do
+                        val <- evaluate exp
+                        newEnv <- ask
+                        liftIO $ writeIORef menv newEnv
+                        return val
+        env <- readIORef menv
+        putStrLn (pretty env)
+        putStrLn (pretty result)
 
 doRun :: String -> [String] -> String -> IO ()
 doRun = do
