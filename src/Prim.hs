@@ -401,6 +401,8 @@ op2Hyper op x y
     = mapM ((flip (op2 op)) y) x' >>= (return . VList)
     | VList y' <- y
     = mapM (op2 op x) y' >>= (return . VList)
+    | otherwise
+    = return $ VError "Hyper OP only works on lsits" (Val VUndef)
 
 op2Push f inv args = do
     let array = vCast inv
