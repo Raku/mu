@@ -12,27 +12,29 @@ sub plan (Int $number_of_tests) returns Int is export {
     return $number_of_tests;
 }
 
-sub proclaim (Bool $cond, Str ?$desc, Str ?$context, Str ?$got, Str ?$expected) returns Bool {
-    my $ok := $cond ?? "ok " :: "not ok ";
-    my $out := defined($desc) ?? " - $desc" :: "";
-    my $context_out := defined($context) ?? " # $context" :: "";
-    $loop++;
-    say $ok, $loop, $out, $context_out;
-
-    report_failure($context, $got, $expected) if (!$cond);
-    write_log(got => $got, expected => $expected, desc => $desc, content => $context) if (!$cond);
-
-    return $cond;
-}
+## ok
 
 sub ok (Bool $cond, Str ?$desc) returns Bool is export {
     proclaim($cond, $desc, undef);
 }
 
+sub todo_ok (Bool $cond, Str ?$desc) returns Bool is export {
+    proclaim($cond, $desc, "TODO");
+}
+
+## is
+
 sub is (Str $got, Str $expected, Str ?$desc) returns Bool is export {
     my $test := $got eq $expected; 
     proclaim($test, $desc, undef, $got, $expected);
 }
+
+sub todo_is (Str $got, Str $expected, Str ?$desc) returns Bool is export {
+    my $test = $got eq $expected;
+    proclaim($test, $desc, "TODO", $got, $expected);
+}
+
+## eval_ok
 
 sub eval_ok (Str $code, Str ?$desc) returns Bool is export {
 	my $result = eval $code;
@@ -52,6 +54,8 @@ sub todo_eval_ok (Str $code, Str ?$desc) returns Bool is export {
 	}
 }
 
+## eval_is
+
 sub eval_is (Str $code, $expected, Str ?$desc) returns Bool is export {
 	my $result = eval $code;
 	if ($!) {
@@ -70,10 +74,19 @@ sub todo_eval_is (Str $code, $expected, Str ?$desc) returns Bool is export {
 	}
 }
 
+## cmp_ok
+
 sub cmp_ok (Str $got, Code $compare_func, Str $expected, Str ?$desc) returns Bool is export {
     my $test := $compare_func($got, $expected);
     proclaim($test, $desc, undef); # << needs better error message handling
 }
+
+sub todo_cmp_ok (Str $got, Code $compare_func, Str $expected, Str ?$desc) returns Bool is export {
+    my $test := $compare_func($got, $expected);
+    proclaim($test, $desc, "TODO", 4, 5); # << needs better error message handling
+}
+
+## isa_ok
 
 sub isa_ok ($ref, Str $expected_type, Str ?$desc) returns Bool is export {
     my $ref_type = ref($ref);
@@ -82,26 +95,14 @@ sub isa_ok ($ref, Str $expected_type, Str ?$desc) returns Bool is export {
     proclaim($test, $out,  undef, $ref_type, $expected_type);
 }
 
-sub todo_ok (Bool $cond, Str ?$desc) returns Bool is export {
-    proclaim($cond, $desc, "TODO");
-}
-
-sub todo_is (Str $got, Str $expected, Str ?$desc) returns Bool is export {
-    my $test = $got eq $expected;
-    proclaim($test, $desc, "TODO", $got, $expected);
-}
-
-sub todo_cmp_ok (Str $got, Code $compare_func, Str $expected, Str ?$desc) returns Bool is export {
-    my $test := $compare_func($got, $expected);
-    proclaim($test, $desc, "TODO", 4, 5); # << needs better error message handling
-}
-
 sub todo_isa_ok ($ref, Str $expected_type, Str ?$desc) returns Bool is export {
     my $ref_type = ref($ref);
     my $out := defined($desc) ?? $desc :: "The object is-a '$expected_type'";         
     my $test := $ref_type eq $expected_type;
     proclaim($test, $out, "TODO", $ref_type, $expected_type);
 }
+
+## misc. test utilities
 
 sub skip (Str ?$reason) returns Bool is export {
     proclaim(1, "", "skip $reason");
@@ -119,8 +120,33 @@ sub todo_fail (Str ?$desc) returns Bool is export {
     proclaim(0, $desc, 'TODO');
 }
 
+sub test_log_file (Str $filename) returns Str is export {
+    $log_file = $filename;
+    return $log_file;
+}
 
-sub report_failure (Str ?$todo, Str ?$got, Str ?$expected) returns Bool is export {
+sub diag (Str $diag) is export {
+    for (split("\n", $diag)) -> $line {
+		say "# $line";
+	}
+}
+
+## 'private' subs
+
+sub proclaim (Bool $cond, Str ?$desc, Str ?$context, Str ?$got, Str ?$expected) returns Bool {
+    my $ok := $cond ?? "ok " :: "not ok ";
+    my $out := defined($desc) ?? " - $desc" :: "";
+    my $context_out := defined($context) ?? " # $context" :: "";
+    $loop++;
+    say $ok, $loop, $out, $context_out;
+
+    report_failure($context, $got, $expected) if (!$cond);
+    write_log(got => $got, expected => $expected, desc => $desc, content => $context) if (!$cond);
+
+    return $cond;
+}
+
+sub report_failure (Str ?$todo, Str ?$got, Str ?$expected) returns Bool {
     if ($todo) {
        diag("  Failed ($todo) test ($?CALLER::CALLER::CALLER::POSITION)");
     }
@@ -128,13 +154,13 @@ sub report_failure (Str ?$todo, Str ?$got, Str ?$expected) returns Bool is expor
         diag("  Failed test ($?CALLER::CALLER::CALLER::POSITION)");
         $failed++;
     }
-    diag("  Expected: " ~ ($expected.defined ?? $expected :: "undef"));
-    diag("       Got: " ~ ($got.defined ?? $got :: "undef"));
-}
-
-sub test_log_file (Str $filename) returns Str is export {
-    $log_file = $filename;
-    return $log_file;
+    if ($?CALLER::CALLER::SUBNAME eq ('&is' | '&todo_is' | '&cmp_ok' | '&todo_cmp_ok' | '&eval_is' | '&todo_eval_is' | '&isa_ok' | '&todo_isa_ok')) {
+        diag("  Expected: " ~ ($expected.defined ?? $expected :: "undef"));
+        diag("       Got: " ~ ($got.defined ?? $got :: "undef"));    
+    }
+    else {
+        diag("       Got: " ~ ($got.defined ?? $got :: "undef"));
+    }
 }
 
 sub write_log (+$got, +$expected, Str +$desc, Str +$errstr, Str +$context, Str +$operator = 'eq') returns Bool {
@@ -150,24 +176,18 @@ sub write_log (+$got, +$expected, Str +$desc, Str +$errstr, Str +$context, Str +
     }
     my $out;
     if ($out = open(">>$log_file")) {
-	$out.say $?CALLER::CALLER::CALLER::FILE ~ " $loop $status";
-	$out.say $desc.[1] if $desc;
-	$out.say $errstr.[1] if $errstr;
-	$out.say $context.[1] if $context;
-	$out.say '### Expected ###';
-	$out.say $expected.[1];
-	$out.say '### Actual Results ###';
-	$out.say $got.[1], "\n";
-	$out.close;
-	return 1;
+        $out.say $?CALLER::CALLER::CALLER::FILE ~ " $loop $status";
+        $out.say $desc.[1] if $desc;
+        $out.say $errstr.[1] if $errstr;
+        $out.say $context.[1] if $context;
+        $out.say '### Expected ###';
+        $out.say $expected.[1];
+        $out.say '### Actual Results ###';
+        $out.say $got.[1], "\n";
+        $out.close;
+        return 1;
     }
     return 0;
-}
-
-sub diag (Str $diag) is export {
-    for (split("\n", $diag)) -> $line {
-		say "# $line";
-	}
 }
 
 END {
