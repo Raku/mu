@@ -643,7 +643,7 @@ rulePostTerm = tryRule "term postfix" $ do
 ruleInvocation = tryVerbatimRule "invocation" $ do
     hasEqual <- option False $ do char '='; whiteSpace; return True
     name            <- subNameWithPrefix ""
-    (invs:args:_)   <- option [[],[]] $ parseParenParamList ruleExpression
+    (invs,args)     <- option ([],[]) $ parseParenParamList ruleExpression
     return $ \x -> if hasEqual
         then Syn "=" [x, App name (x:invs) args]
         else App name (x:invs) args
@@ -651,7 +651,7 @@ ruleInvocation = tryVerbatimRule "invocation" $ do
 ruleInvocationParens = do
     hasEqual <- option False $ do char '='; whiteSpace; return True
     name            <- subNameWithPrefix ""
-    (invs:args:_)   <- parens $ parseNoParenParamList ruleExpression
+    (invs,args)     <- parens $ parseNoParenParamList ruleExpression
     -- XXX we just append the adverbial block onto the end of the arg list
     -- it really goes into the *& slot if there is one. -lp
     return $ \x -> if hasEqual
@@ -676,7 +676,7 @@ ruleHashSubscriptQW = do
     return $ \x -> Syn "{}" [x, exp]
 
 ruleCodeSubscript = tryRule "code subscript" $ do
-    (invs:args:_) <- parens $ parseParamList ruleExpression
+    (invs,args) <- parens $ parseParamList ruleExpression
     return $ \x -> Syn "()" [x, Syn "invs" invs, Syn "args" args]
 
 subNameWithPrefix prefix = (<?> "subroutine name") $ lexeme $ try $ do
@@ -688,14 +688,14 @@ subNameWithPrefix prefix = (<?> "subroutine name") $ lexeme $ try $ do
 parseApply = lexeme $ do
     name            <- subNameWithPrefix ""
     option ' ' $ char '.'
-    (invs:args:_)   <- parseParamList ruleExpression
+    (invs,args)   <- parseParamList ruleExpression
     return $ App name invs args
 
 parseParamList parse =    parseParenParamList parse
                       <|> parseNoParenParamList parse
 
 parseParenParamList parse = do
-    [inv, norm] <- maybeParens $ parseNoParenParamList parse
+    (inv, norm) <- maybeParens $ parseNoParenParamList parse
     block <- option [] ruleAdverb
     -- XXX we just append the adverbial block onto the end of the arg list
     -- it really goes into the *& slot if there is one. -lp
@@ -711,11 +711,12 @@ parseNoParenParamList parse = do
     formal <- (parse `sepEndBy` symbol ",") `sepEndBy` symbol ":"
     processFormals formal 
 
+processFormals :: Monad m => [[Exp]] -> m ([Exp], [Exp])
 processFormals formal = do
     case formal of
-        []                  -> return [[], []]
-        [args]              -> return [[], unwind args]
-        [invocants,args]    -> return [unwind invocants, unwind args]
+        []                  -> return ([], [])
+        [args]              -> return ([], unwind args)
+        [invocants,args]    -> return (unwind invocants, unwind args)
         _                   -> fail "Only one invocant list allowed"
     where
     unwind :: [Exp] -> [Exp]
@@ -790,7 +791,7 @@ ruleLit = choice
 
 undefLiteral = try $ do
     symbol "undef"
-    (invs:args:_)   <- maybeParens $ parseParamList ruleExpression
+    (invs,args)   <- maybeParens $ parseParamList ruleExpression
     return $ if null (invs ++ args)
         then Val VUndef
         else App "&undef" invs args    
