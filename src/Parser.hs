@@ -865,10 +865,8 @@ pairLiteral = try $
 	    valueExp
 	valueExp =
 	    parens parseTerm
-	    <|>
-	    do
-		str <- angles (many $ satisfy (/= '>'))
-		return $ Val $ VStr $ str
+	    <|> qwLiteral
+	    -- <|> ruleStandaloneBlock -- :key{ k1 => val }
 
 rxInterpolator end = choice
     [ qqInterpolatorVar end, rxInterpolatorChar, ruleBlock ]
