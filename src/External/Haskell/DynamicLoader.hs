@@ -35,7 +35,7 @@ import List
 import Monad
 
 import GHC.Exts  hiding (split)
-import Foreign.Ptr      (Ptr, nullPtr)
+import Foreign.Ptr      (nullPtr)
 import Foreign.C.String (CString, withCString)
 import System.Directory (getCurrentDirectory, doesFileExist)
 

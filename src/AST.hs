@@ -1,4 +1,4 @@
-{-# OPTIONS -fglasgow-exts #-}
+{-# OPTIONS -fglasgow-exts -fno-warn-orphans #-}
 
 {-
     Abstract syntax tree.
@@ -16,6 +16,7 @@ import Internals
 import Context
 import Rule
 import List
+import qualified Data.Set as Set
 
 type Ident = String
 
@@ -106,14 +107,14 @@ instance Value VBool where
     doCast _           = True
 
 juncToBool :: VJunc -> Bool
-juncToBool (Junc JAny  _  vs) = (True `elementOf`) $ mapSet vCast vs
-juncToBool (Junc JAll  _  vs) = not . (False `elementOf`) $ mapSet vCast vs
-juncToBool (Junc JNone _  vs) = not . (True `elementOf`) $ mapSet vCast vs
+juncToBool (Junc JAny  _  vs) = (True `Set.member`) $ Set.map vCast vs
+juncToBool (Junc JAll  _  vs) = not . (False `Set.member`) $ Set.map vCast vs
+juncToBool (Junc JNone _  vs) = not . (True `Set.member`) $ Set.map vCast vs
 juncToBool (Junc JOne  ds vs)
-    | (True `elementOf`) $ mapSet vCast ds
+    | (True `Set.member`) $ Set.map vCast ds
     = False
     | otherwise
-    = (1 ==) . length . filter vCast $ setToList vs
+    = (1 ==) . length . filter vCast $ Set.elems vs
 
 readMVal :: MonadIO m => Val -> m Val
 readMVal (MVal mv) = readMVal =<< liftIO (readIORef mv)
@@ -384,7 +385,7 @@ instance Show VJunc where
 	    (foldl (\x y ->
 		if x == "" then (vCast :: Val -> VStr) y
 		else x ++ "," ++ (vCast :: Val -> VStr) y)
-	    "" $ setToList set) ++ ")"
+	    "" $ Set.elems set) ++ ")"
 
 data SubType = SubMethod | SubRoutine | SubBlock | SubPrim
     deriving (Show, Eq, Ord)
