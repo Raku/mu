@@ -653,3 +653,49 @@ following:
     Prelude> 5*(4+3)
     35
 
+We can see that, in addition to the standard arithmetic operations,
+Haskell also allows grouping by parentheses, hence the difference
+between the values of *5*4+3* and *5*(4+3)*. The reason for this is that
+the "understood" grouping of the first expression is operator precedence
+*(5*4)+3*, due to /operator precedence/.
+
+Also note that parentheses aren't required around function arguments.
+For instance, we simply wrote `sqrt 2`, not `sqrt(2)`, as would be
+required in most other languages. You could write it with the
+parentheses, but in Haskell, since function application is so common,
+parentheses aren't required.
+
+.warning
+Even though parentheses are not always needed, sometimes it is better to
+leave them in anyway; other people will probably have to read your code,
+and if extra parentheses make the intent of the code clearer, use them.
+.warning.
+
+Now try entering *2.5000*. Does it work? 
+
+.note
+If you're familiar with programming in other languages, you may find
+it odd that *sqrt 2* comes back with a decimal point (i.e., is a
+floating point number) even though the argument to the function seems
+to be an integer. This interchangability of numeric types is due to
+Haskell's system of /type classes/ and will be discussed in detail in
+Section 4.3). 
+.note.
+
+.exercises
+- Exercise 3.1 
+We've seen that multiplication binds more tightly than division. Can you
+think of a way to determine whether function application binds more or
+less tightly than multiplication?
+.exercises.
+
+== 3.2 Pairs, Triples and More 
+
+In addition to single values, we should also address multiple values.
+For instance, we may want to refer to a position by its @/Acoordinate,
+which would be a pair of integers. To make a pair of integers is simple:
+you enclose the pair in parenthesis and separate them with a comma. Try
+the following:
+
+    Prelude> (5,3)
+    (5,3)
