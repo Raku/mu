@@ -9,7 +9,7 @@ Hash tests
 
 =cut
 
-plan 18;
+plan 34;
 
 # basic lvalue assignment
 
@@ -58,11 +58,43 @@ is(+@slice2, 2, 'got the right amount of values from the %hash<> slice');
 is(@slice2[0], 3, '%hash<> slice was successful');
 is(@slice2[1], 1, '%hash<> slice was successful');
 
+# keys 
+
+my %hash6 = ("one", 1, "two", 2, "three", 3);
+
+my @keys1 = keys %hash6;
+is(+@keys1, 3, 'got the right number of keys');
+is(@keys1[0], 'one', 'got the right key');
+is(@keys1[1], 'three', 'got the right key');
+is(@keys1[2], 'two', 'got the right key');
+
+my @keys2 = %hash6.keys;
+is(+@keys2, 3, 'got the right number of keys');
+is(@keys2[0], 'one', 'got the right key');
+is(@keys2[1], 'three', 'got the right key');
+is(@keys2[2], 'two', 'got the right key');
+
+# values
+
+my %hash7 = ("one", 1, "two", 2, "three", 3);
+
+my @values1 = values %hash6;
+is(+@values1, 3, 'got the right number of values');
+is(@values1[0], 1, 'got the right values');
+is(@values1[1], 3, 'got the right values');
+is(@values1[2], 2, 'got the right values');
+
+my @values1 = %hash6.values;
+is(+@values1, 3, 'got the right number of values');
+is(@values1[0], 1, 'got the right values');
+is(@values1[1], 3, 'got the right values');
+is(@values1[2], 2, 'got the right values');
+
 # misc stuff ...
 
-my %hash6;
-eval '%hash6 = (:one, :key<value>, :three(3))';
-todo_is %hash6{'one'}, 1, 'colonpair :one';
-todo_is %hash6{'key'}, 'value', 'colonpair :key<value>';
-todo_is %hash6{'three'}, 3, 'colonpair :three(3)';
+my %hash8;
+eval '%hash8 = (:one, :key<value>, :three(3))';
+todo_is %hash8{'one'}, 1, 'colonpair :one';
+todo_is %hash8{'key'}, 'value', 'colonpair :key<value>';
+todo_is %hash8{'three'}, 3, 'colonpair :three(3)';
 
