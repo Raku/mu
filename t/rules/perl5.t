@@ -1,3 +1,8 @@
+#!/usr/bin/pugs
+
+use v6;
+require Test;
+
 todo_is(eval '"abc" ~~ rx:perl5/abc/ && $0', "abc", 're_tests 1/0 (#1)');
 todo_is(eval '"abc" ~~ rx:perl5/abc/ && getpos($/, 0)', 0, 're_tests 1/0 (#2)');
 todo_ok(eval 'not ("xbc" ~~ rx:perl5/abc/)', 're_tests 3  (#5)');
@@ -478,8 +483,8 @@ todo_is(eval '"caaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" ~~ rx:perl5/(?:c|d)(?:
 todo_is(eval '"Ab4ab" ~~ rx:perl5/(?i)(ab)\d\1/ && $1', "Ab", 're_tests 728/1 (#924)');
 todo_is(eval '"ab4Ab" ~~ rx:perl5/(?i)(ab)\d\1/ && $1', "ab", 're_tests 730/1 (#926)');
 todo_is(eval '"foobar1234baz" ~~ rx:perl5/foo\w*\d{4}baz/ && $0', "foobar1234baz", 're_tests 732/0 (#928)');
-todo_is(eval '"cabd" ~~ rx:perl5/a(?{})b/ && $0', "ab", 're_tests 734/0 (#930)');
-todo_is(eval '"cabd" ~~ rx:perl5/a(?{"\{"})b/ && $0', "ab", 're_tests 735/0 (#931)');
+#todo_is(eval '"cabd" ~~ rx:perl5/a(?{})b/ && $0', "ab", 're_tests 734/0 (#930)');
+#todo_is(eval '"cabd" ~~ rx:perl5/a(?{"\{"})b/ && $0', "ab", 're_tests 735/0 (#931)');
 todo_ok(eval '"x~~" ~~ rx:perl5/x(~~)*(?:(?:F)?)?/', 're_tests 736  (#932)');
 todo_is(eval '"aaac" ~~ rx:perl5/^a(?#xxx){3}c/ && $0', "aaac", 're_tests 738/0 (#934)');
 todo_is(eval '"aaac" ~~ rx:perl5/(?x)^a (?#xxx) (?#yyy) {3}c/ && $0', "aaac", 're_tests 739/0 (#935)');
@@ -512,10 +517,10 @@ todo_ok(eval 'not ("(blah" ~~ rx:perl5/^(\()?blah(?(1)(\)))$/)', 're_tests 782  
 todo_is(eval '"(blah)" ~~ rx:perl5/^(\(+)?blah(?(1)(\)))$/ && $2', ")", 're_tests 784/2 (#980)');
 todo_ok(eval 'not ("blah)" ~~ rx:perl5/^(\(+)?blah(?(1)(\)))$/)', 're_tests 786  (#982)');
 todo_ok(eval 'not ("(blah" ~~ rx:perl5/^(\(+)?blah(?(1)(\)))$/)', 're_tests 788  (#984)');
-todo_ok(eval 'not ("a" ~~ rx:perl5/(?(?{0})a|b)/)', 're_tests 790  (#986)');
-todo_is(eval '"a" ~~ rx:perl5/(?(?{0})b|a)/ && $0', "a", 're_tests 791/0 (#987)');
-todo_ok(eval 'not ("a" ~~ rx:perl5/(?(?{1})b|a)/)', 're_tests 792  (#988)');
-todo_is(eval '"a" ~~ rx:perl5/(?(?{1})a|b)/ && $0', "a", 're_tests 793/0 (#989)');
+#todo_ok(eval 'not ("a" ~~ rx:perl5/(?(?{0})a|b)/)', 're_tests 790  (#986)');
+#todo_is(eval '"a" ~~ rx:perl5/(?(?{0})b|a)/ && $0', "a", 're_tests 791/0 (#987)');
+#todo_ok(eval 'not ("a" ~~ rx:perl5/(?(?{1})b|a)/)', 're_tests 792  (#988)');
+#todo_is(eval '"a" ~~ rx:perl5/(?(?{1})a|b)/ && $0', "a", 're_tests 793/0 (#989)');
 todo_ok(eval 'not ("a" ~~ rx:perl5/(?(?!a)a|b)/)', 're_tests 794  (#990)');
 todo_is(eval '"a" ~~ rx:perl5/(?(?!a)b|a)/ && $0', "a", 're_tests 795/0 (#991)');
 todo_ok(eval 'not ("a" ~~ rx:perl5/(?(?=a)b|a)/)', 're_tests 796  (#992)');
@@ -822,7 +827,7 @@ todo_is(eval '"abc" ~~ rx:perl5/(abc)?(abc)+/ && $1', "", 're_tests 1236/1 (#144
 todo_is(eval '"abc" ~~ rx:perl5/(abc)?(abc)+/ && $2', "abc", 're_tests 1236/2 (#1445)');
 todo_ok(eval 'not ("a\nb\n" ~~ rx:perl5/(?m)b\s^/)', 're_tests 1238  (#1448)');
 todo_ok(eval '"a" ~~ rx:perl5/\ba/', 're_tests 1239  (#1449)');
-todo_is(eval '"ab" ~~ rx:perl5/^(a(??{"(?!)"})|(a)(?{1}))b/ && $2', "a", 're_tests 1241/2 (#1451)');
+#todo_is(eval '"ab" ~~ rx:perl5/^(a(??{"(?!)"})|(a)(?{1}))b/ && $2', "a", 're_tests 1241/2 (#1451)');
 todo_ok(eval 'not ("AbCd" ~~ rx:perl5/ab(?i)cd/)', 're_tests 1242  (#1452)');
 todo_ok(eval '"abCd" ~~ rx:perl5/ab(?i)cd/', 're_tests 1244  (#1454)');
 todo_is(eval '"CD" ~~ rx:perl5/(A|B)*(?(1)(CD)|(CD))/ && $2', "", 're_tests 1246/2 (#1456)');
@@ -871,7 +876,7 @@ todo_is(eval '"abcd" ~~ rx:perl5/(.*?)(?<=c|b)c/ && $1', "ab", 're_tests 1321/1 
 todo_is(eval '"abcd" ~~ rx:perl5/(.*?)(?<=[bc])/ && $1', "ab", 're_tests 1323/1 (#1541)');
 todo_is(eval '"abcd" ~~ rx:perl5/(.*?)(?<=[bc])c/ && $1', "ab", 're_tests 1325/1 (#1543)');
 todo_is(eval '"2" ~~ rx:perl5/2(]*)?$\1/ && $0', "2", 're_tests 1327/0 (#1545)');
-todo_ok(eval '"x" ~~ rx:perl5/(??{})/', 're_tests 1329  (#1547)');
+#todo_ok(eval '"x" ~~ rx:perl5/(??{})/', 're_tests 1329  (#1547)');
 todo_is(eval '"foobarbar" ~~ rx:perl5/^.{3,4}(.+)\1\z/ && $1', "bar", 're_tests 1330/1 (#1548)');
 todo_is(eval '"foobarbar" ~~ rx:perl5/^(?:f|o|b){3,4}(.+)\1\z/ && $1', "bar", 're_tests 1332/1 (#1550)');
 todo_is(eval '"foobarbar" ~~ rx:perl5/^.{3,4}((?:b|a|r)+)\1\z/ && $1', "bar", 're_tests 1334/1 (#1552)');
