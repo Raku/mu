@@ -54,9 +54,10 @@ ruleStatementList = rule "statements" $ choice
 ruleDeclaration :: RuleParser Exp
 ruleDeclaration = rule "declaration" $ choice
     [ ruleSubDeclaration
-    , rulePackageDeclaration
+    , ruleModuleDeclaration
     , ruleVarDeclaration
     , ruleUseDeclaration
+    , ruleClosureTrait -- ???
     ]
 
 ruleSubHead :: RuleParser (Bool, String)
@@ -90,6 +91,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
         ]
     cxt2    <- option cxt1 $ ruleBareTrait "returns"
     formal  <- option Nothing $ return . Just =<< parens ruleSubParameters
+    traits  <- many $ ruleTrait
     body    <- ruleBlock
     let (fun, names) = extract (body, [])
         params = map nameToParam names ++ (maybe [defaultArrayParam] id formal) 
@@ -163,12 +165,37 @@ ruleVarDeclaration = rule "variable declaration" $ do
 ruleUseDeclaration :: RuleParser Exp
 ruleUseDeclaration = rule "use declaration" $ do
     symbol "use"
+    tryChoice [ ruleUseVersion, ruleUsePackage ]
+
+ruleUseVersion = rule "use version" $ do
     option ' ' $ char 'v'
     version <- many1 (choice [ digit, char '.' ])
     when (version > versnum) $ do
         pos <- getPosition
         error $ "Perl v" ++ version ++ " required--this is only v" ++ versnum ++ ", stopped at " ++ (show pos)
     return $ Val VUndef
+
+ruleUsePackage = rule "use package" $ do
+    package <- identifier -- XXX - ::
+    return $ Val VUndef
+
+ruleRequirePackage = rule "require package" $ do
+    return $ Val VUndef
+
+ruleModuleDeclaration = rule "module declaration" $ do
+    symbol "module"
+    name <- identifier
+    version <- option "" $ do
+        char '-'
+        many1 (choice [ digit, char '.' ])
+    return $ Val VUndef -- XXX
+
+ruleClosureTrait = rule "closure trait" $ do
+    name    <- tryChoice $ map symbol $ words "BEGIN CHECK INIT END"
+    block   <- ruleBlock
+    let sym = Symbol SGlobal "$*END" block
+    updateState $ \e -> e{ envGlobal = (sym:envGlobal e) }
+    return $ Val VUndef -- XXX
 
 rulePackageDeclaration = rule "package declaration" $ fail ""
 

@@ -86,6 +86,10 @@ doRun = do
         exitFailure
     end _               = return ()
 
+runFile :: String -> IO ()
+runFile file = do
+    withArgs [file] main
+
 runProgramWith :: (Env -> Env) -> (Val -> IO ()) -> VStr -> [VStr] -> String -> IO ()
 runProgramWith fenv f name args prog = do
     env <- emptyEnv
@@ -93,13 +97,14 @@ runProgramWith fenv f name args prog = do
     let env' = runRule (prepare str $ fenv env) id ruleProgram prog
     val <- (`runReaderT` env') $ do
         (`runContT` return) $ resetT $ do
-            evaluate (envBody env')
+            evaluateMain (envBody env')
     f val
     where
     prepare str e = e{ envGlobal =
         [ Symbol SGlobal "@*ARGS" (Val $ VList $ map VStr args)
         , Symbol SGlobal "$*PROGNAME" (Val $ VStr name)
         , Symbol SGlobal "$*STDIN" (Val $ VStr str)
+        , Symbol SGlobal "$*END" (Val VUndef)
         ] ++ envGlobal e }
 
 {-

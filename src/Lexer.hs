@@ -179,13 +179,18 @@ postSpace rule = try $ do
     whiteSpace
     return rv
 
-ruleTrait trait = do
+ruleTrait = do
+    symbol "is"
+    trait <- identifier
+    return trait
+
+ruleTraitName trait = do
     symbol "is"
     symbol trait
     identifier
 
 ruleBareTrait trait = do
-    choice [ ruleTrait trait
+    choice [ ruleTraitName trait
            , do { symbol trait ; identifier }
            ]
 

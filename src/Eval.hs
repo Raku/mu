@@ -54,6 +54,12 @@ debug key fun str a = do
             writeIORef ref (addToFM fm key val)
             putStrLn ("***" ++ val ++ str ++ ": " ++ pretty a)
 
+evaluateMain :: Exp -> Eval Val
+evaluateMain exp = do
+    val <- evaluate exp
+    evalVar "$*END"
+    return val
+
 evaluate :: Exp -> Eval Val
 evaluate (Val (VSub sub)) = do
     cxt <- asks envContext
