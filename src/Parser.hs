@@ -727,7 +727,7 @@ ruleVar = do
     name    <- ruleVarNameString
     return $ makeVar name
 
-makeVar ('$':rest) | all isDigit rest =
+makeVar ('$':rest) | all (`elem` "1234567890") rest =
     Syn "[]" [Var "$/", Val $ VInt $ read rest]
 makeVar var = Var var
 
@@ -782,6 +782,9 @@ pairLiteral = try $ do
     val <- parseTerm
     return $ App "&infix:=>" [Val (VStr key), val] []
 
+rxInterpolator = choice
+    [ qqInterpolatorVar, rxInterpolatorChar, ruleBlock ]
+
 qqInterpolator = choice
     [ qqInterpolatorVar, qqInterpolatorChar, ruleBlock ]
 
@@ -800,6 +803,11 @@ qqInterpolatorPostTerm = try $ do
         , ruleHashSubscript
         , ruleCodeSubscript
         ]
+
+rxInterpolatorChar = do
+    char '\\'
+    nextchar <- anyChar -- escapeCode -- see Lexer.hs
+    return (Val $ VStr ['\\', nextchar])
 
 qqInterpolatorChar = do
     char '\\'
@@ -823,7 +831,7 @@ rxLiteral = try $ do
     notFollowedBy alphaNum
     whiteSpace
     ch <- anyChar
-    expr <- interpolatingStringLiteral (balancedDelim ch) qqInterpolator
+    expr <- interpolatingStringLiteral (balancedDelim ch) rxInterpolator
     char (balancedDelim ch)
     return $ Syn "rx" [expr]
 
