@@ -20,20 +20,27 @@ my @examples = <
 
 plan +@examples;
 
-if $?OS eq "win32" {
-  # We can't run under win32 because of C<\> as path separator instead of C</>
-  # -- awaiting v6 File::Spec
-  for @examples -> {
-    skip "examples.t doesn't work under win32 yet";
-  }
-} else {
-  for @examples -> $ex {
-    system "./pugs examples/$ex.p6 &> temp-ex-output";
+# We can't run under win32 because of C<\> as path separator instead of C</>
+# -- awaiting v6 File::Spec
+# Actually, nobody really needs the path separator
 
-    my $expected = slurp "examples/output/$ex";
-    my $got      = slurp "temp-ex-output";
-    unlink "temp-ex-output";
+diag "Running under $?OS";
 
-    is $expected, $got, "$ex.p6 worked";
-  }
+my ($pugs,$redir) = ("./pugs", "&>");
+
+if ($?OS eq "MSWin32") {
+  $pugs = 'pugs.exe';
+  $redir = '>';
+};
+
+for @examples -> $ex {
+  my $command = "$pugs examples/$ex.p6 $redir temp-ex-output";
+  diag $command;
+  system $command;
+
+  my $expected = slurp "examples/output/$ex";
+  my $got      = slurp "temp-ex-output";
+  unlink "temp-ex-output";
+
+  is $expected, $got, "$ex.p6 worked";
 }
