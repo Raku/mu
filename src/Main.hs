@@ -106,7 +106,7 @@ runProgramWith fenv f name args prog = do
     libs    <- getLibs environ
     progSV  <- newMVal $ VStr name
     endAV   <- newMVal $ VList []
-    incAV   <- newMVal $ VList (map VStr $ concat libs)
+    incAV   <- newMVal $ VList (map VStr libs)
     argsAV  <- newMVal $ VList (map VStr args)
     inGV    <- newMVal $ VHandle stdin
     outGV   <- newMVal $ VHandle stdout
@@ -134,22 +134,17 @@ runProgramWith fenv f name args prog = do
             evaluateMain (envBody env')
     f val
 
-getLibs :: [(String, String)] -> IO [[String]]
-getLibs environ = do
-    libs <- mapM fixLib $ 
-        (split config_path_sep $ fromMaybe "" $ lookup "PERL6LIB" environ) ++
-        [ config_archlib
-        , config_privlib
-        , config_sitearch
-        , config_sitelib
-        ] ++
-        -- (split config_path_sep $ fromMaybe "" $ lookup "PERL5LIB" environ) ++
-        -- (split config_path_sep $ fromMaybe "" $ lookup "PERLLIB" environ) ++
-        [ "." ]
-    return libs
+getLibs :: [(String, String)] -> IO [String]
+getLibs environ = return $ filter (not . null) libs
     where
-    fixLib path = do
-        return $ if length path > 0 then [path] else []
+    envlibs nm = maybe [] (split config_path_sep) $ nm `lookup` environ
+    libs =  envlibs "PERL6LIB"
+         ++ [ config_archlib
+            , config_privlib
+            , config_sitearch
+            , config_sitelib
+            ]
+         ++ [ "." ]
 
 printConfigInfo :: IO ()
 printConfigInfo = do
@@ -164,4 +159,4 @@ printConfigInfo = do
         ,"sitelib: " ++ config_sitelib
         ,""
         ] ++
-        [ "@*INC:" ] ++ concat libs
+        [ "@*INC:" ] ++ libs
