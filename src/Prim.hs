@@ -17,7 +17,6 @@ import Junc
 import AST
 import Pretty
 import Parser
-import Monads
 
 op0 :: Ident -> [Val] -> Eval Val
 op0 ","  = return . VList . concatMap vCast
@@ -107,10 +106,8 @@ op1 "none" = return . VJunc . Junc JNone emptySet . mkSet . vCast
 op1 "perl" = return . VStr . (pretty :: Val -> VStr)
 op1 "require" = \v -> do
     fileVal <- readMVal v
-    glob <- askGlobal
     -- XXX - assuming a flat array
-    let Just Symbol{ symExp = Val incAV } = find ((== "@*INC") . symName) glob
-    incVals <- readMVal incAV
+    incVals <- readVar "@*INC"
     let incs = map vCast $ vCast incVals
         file = vCast fileVal
     requireInc incs file (errMsg file incs)
@@ -203,24 +200,13 @@ op1 "=" = \v -> do
     handleOf (VRef x) = handleOf x
     handleOf (VPair (_, x)) = handleOf x
     handleOf (VList [VStr x]) = liftIO $ openFile x ReadMode
-    handleOf (VList []) = return stdin
+    handleOf (VList []) = do
+        args    <- readVar "@*ARGS"
+        files   <- fromValue args
+        if null files
+            then return stdin
+            else handleOf (VList [VStr $ vCast (head files)]) -- XXX wrong
     handleOf v = fromValue v
-{-
-    readFrom (VRef (VList [])) = do
-        -- ARGS etc
-        glob <- askGlobal
-        strs <- liftIO $ sequence $ case find ((== "@*ARGS") . symName) glob of
-            Nothing     -> [getStdin glob]
-            Just sym    -> case symExp sym of
-                Val (VList [])  -> [getStdin glob]
-                Val (VList xs)  -> map ((hGetContents =<<) . (`openFile` ReadMode) . vCast) xs
-                _               -> error "not handled"
-        return $ concat strs
-    getStdin glob = do
-        case find ((== "$*STDIN") . symName) glob of
-            Just sym | (Val v) <- symExp sym -> return $ vCast v
-            _                                -> error "impossible"
--}
 op1 "ref"  = return . VStr . valType
 op1 "pop"  = op1Pop (last, init)
 op1 "shift"= op1Pop (head, tail)

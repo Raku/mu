@@ -521,6 +521,17 @@ writeMVal (VError s e) _ = retError s e
 writeMVal _ (VError s e) = retError s e
 writeMVal x _            = retError "Can't write a constant item" (Val x)
 
+askGlobal :: Eval Pad
+askGlobal = do
+    glob <- asks envGlobal
+    liftIO $ readIORef glob
+
+readVar name = do
+    glob <- askGlobal
+    case find ((== name) . symName) glob of
+        Just Symbol{ symExp = Val ref } -> readMVal ref
+        Nothing -> return VUndef
+
 retError :: VStr -> Exp -> Eval a
 retError str exp = do
     shiftT $ \_ -> return $ VError str exp

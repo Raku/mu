@@ -28,11 +28,6 @@ main = do
     print x
     return x
 
-askGlobal :: Eval Pad
-askGlobal = do
-    glob <- asks envGlobal
-    liftIO $ readIORef glob
-
 testEnv = Env { envContext = "List"
 	  , envLValue = False
           , envLexical = undefined
