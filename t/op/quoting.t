@@ -114,8 +114,8 @@ my $bar = "BAR";
 { # qw, interpolating
 	my (@q1, @q2, @q3) = ();
 	eval '@q1 = q:ww/$foo gorch $bar/';
-	eval '@q1 = «$foo gorch $bar»'; # french
-	eval '@q1 = <<$foo gorch $bar>>'; # texas
+	eval '@q2 = «$foo gorch $bar»'; # french
+	eval '@q3 = <<$foo gorch $bar>>'; # texas
 
 	todo_is(+@q1, 3, 'q:ww// correct number of elements');
 	todo_is(+@q2, 3, 'french double angle');
