@@ -195,6 +195,7 @@ t/op/io.t
 t/op/join.t
 t/op/lc.t
 t/op/lcfirst.t
+t/op/length.t
 t/op/map.t
 t/op/multi_dimensional_array.t
 t/op/my.t
