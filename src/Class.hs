@@ -1,7 +1,7 @@
 {-# OPTIONS -fglasgow-exts -cpp #-}
 
 {-
-    Class meta-model.
+    Class meta-model.  (object meta-meta-model)
 
     Learn now the lore of Living Creatures!
     First name the four, the free peoples:
@@ -15,29 +15,34 @@ module Class where
 import AST
 import Internals
 
-data Class = Class
+{-
+    instances of these objects represent the Perl 6 Class Model, ie
+    with names like "Class", "Role", "Trait", etc.
+-}
+
+data MetaClass = MetaClass
     { clsName       :: Label
-    , clsParent     :: Class
-    , clsChildren   :: Set Class
-    , clsProperties :: FiniteMap Label (Visibility, Property)
-    , clsMethods    :: FiniteMap Label (Visibility, Method)
-    , clsAssocs     :: FiniteMap Label Assoc
-    , clsRevAssocs  :: FiniteMap Label Assoc
+    , clsParent     :: MetaClass
+    , clsChildren   :: Set MetaClass
+    , clsProperties :: FiniteMap Label (Visibility, MetaProperty)
+    , clsMethods    :: FiniteMap Label (Visibility, MetaMethod)
+    , clsAssocs     :: FiniteMap Label MetaAssoc
+    , clsRevAssocs  :: FiniteMap Label MetaAssoc
     }
 
-data Method = Method
+data MetaMethod = MetaMethod
     { methodParams  :: Params
     , methodInvoke  :: [Val] -> Eval Val
     }
 
-data Property = Property
+data MetaProperty = MetaProperty
     { propType          :: Type
     , propDefault       :: Eval Val
     }
 
-data Assoc = Assoc
-    { assocSource       :: Class
-    , assocTarget       :: Class
+data MetaAssoc = MetaAssoc
+    { assocSource       :: MetaClass
+    , assocTarget       :: MetaClass
     , assocSourceRange  :: Range -- True = Inf, False = 1
     , assocTargetRange  :: Range -- True = Inf, False = 1
     , assocCategory     :: Category
