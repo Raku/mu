@@ -105,10 +105,10 @@ INST6_MAN3DIR = 'blib6/man3'
 
 pure_site_install ::
 	\$(NOECHO) \$(MOD_INSTALL) \\
-		\$(INST6_LIB) $config->{privlib} \\
-		\$(INST6_ARCHLIB) $config->{archlib} \\
-		\$(INST6_BIN) $config->{installbin} \\
-		\$(INST6_SCRIPT) $config->{installscript} \\
+		\$(INST6_LIB) \$(DESTDIR)$config->{privlib} \\
+		\$(INST6_ARCHLIB) \$(DESTDIR)$config->{archlib} \\
+		\$(INST6_BIN) \$(DESTDIR)$config->{installbin} \\
+		\$(INST6_SCRIPT) \$(DESTDIR)$config->{installscript} \\
 		\$(INST6_MAN1DIR) \$(DESTINSTALLMAN1DIR) \\
 		\$(INST6_MAN3DIR) \$(DESTINSTALLMAN3DIR)
 .
