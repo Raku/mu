@@ -25,7 +25,7 @@ include         ('Module::Install::Makefile::Name');
 include         ('Module::Install::Makefile::Version');
 build_subdirs   (map fixpaths($_), grep -e "$_/Makefile.PL", glob("ext/*"));
 makemaker_args  (
-    test => { TESTS => join ' ', "t/*.t", "t/*/*.t" },
+    test => { TESTS => join ' ', "t/*.t", "t/*/*.t", "t/*/*/*.t" },
     MAN1PODS => {},
 );
 clean_files     (map fixpaths($_),
