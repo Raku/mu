@@ -148,7 +148,7 @@ op1 "kv" = \v -> do
     let pair = vCast v
     return $ VList [fst pair, snd pair]
 op1 "keys" = return . VList . map fst . (vCast :: Val -> [VPair])
-op1 "values" = return . VList . map snd . (vCast :: Val -> [VPair])
+op1 "values" = return . op1Values
 op1 "<>" = \v -> do
     str <- readFrom v
     cxt <- asks envContext
@@ -176,6 +176,14 @@ op1 "ref"  = return . VStr . valType
 op1 "pop"  = op1Pop (last, init)
 op1 "shift"= op1Pop (head, tail)
 op1 s      = return . (\x -> VError ("unimplemented unaryOp: " ++ s) (Val x))
+
+op1Values :: Val -> Val
+op1Values (VJunc j) = VList $ setToList $ juncSet j
+op1Values (VPair (_, v)) = VList $ [v] -- lwall: a pair is a really small hash.
+op1Values v@(VHash _) = VList $ map snd $ (vCast :: Val -> [VPair]) v
+op1Values v@(VList _) = VList $ map snd $ (vCast :: Val -> [VPair]) v -- hope it's a list of pairs
+op1Values (VRef v) = op1Values v
+op1Values v = VError "values not defined" (Val v)
 
 op1Pop (fPick, fRem) list = do
     let array = vCast list
@@ -489,7 +497,8 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Int       spre    ~^      (Str)\
 \\n   Bool      spre    ?^      (Bool)\
 \\n   Ref       spre    \\      (Any)\
-\\n   List      spre    ...     (Str|Num)\
+\\n   List      spre    ...     (Str)\
+\\n   List      spre    ...     (Num)\
 \\n   Any       pre     undef   ()\
 \\n   Any       pre     undef   (rw!Any)\
 \\n   Any       post    ++      (rw!Num)\
@@ -537,8 +546,7 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Scalar    pre     key     (Pair)\
 \\n   Scalar    pre     value   (Pair)\
 \\n   List      pre     kv      (Pair)\
-\\n   List      pre     keys    (Hash)\
-\\n   List      pre     values  (Hash)\
+\\n   List      pre     values  (Junction)\
 \\n   Bool      pre     rename  (Str, Str)\
 \\n   Bool      pre     symlink (Str, Str)\
 \\n   Bool      pre     link    (Str, Str)\
