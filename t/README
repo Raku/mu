@@ -1,20 +1,21 @@
 ===============================================================================
 |     ______                           ______              ______             |                    
-|   /\   __ \                         /\__  _\            /\__  _\            |                      
+|   /\   __ \                         /\__  _\            /\__  _\            |
 |   \ \  \/\ \ __  __  ______  ______ \/_/\ \/ ______  ___\/_/\ \/ ______     |
 |    \ \   __//\ \/\ \/\  __ \/\  ___\   \ \ \/\  ___\/\  ___\ \ \/\  ___\    |
 |     \ \  \/ \ \ \_\ \ \ \/\ \ \___  \   \ \ \ \  ___\ \___  \ \ \ \___  \   |
 |      \ \__\  \ \____/\ \____ \/\_____\   \ \_\ \_____\/\_____\ \_\/\_____\  |
-|       \/__/   \/___/  \/___/\ \/____/     \/_/\/____/ \/____/ \/_/\/____/   |                         
+|       \/__/   \/___/  \/___/\ \/____/     \/_/\/____/ \/____/ \/_/\/____/   |
 |                         /\____/                                             |
 |                         \/___/                                              |
+|                                                                             |
 ===============================================================================
        
                      Welcome to the Pugs Test suite.        
                      
-Pugs is currently being developed in a highly test driver manner. Tests are 
+Pugs is currently being developed in a highly test-driven manner. Tests are 
 written for both implemented and unimplemented features and are based roughly
-on the Perl6 Language Synoposis documents. All are welcome and encouraged to
+on the Perl6 Language Synopsis documents. All are welcome and encouraged to
 contribute to this test suite. It is the hope that not only will this test 
 suite be used for Pugs, but that it will eventually become the Perl6 test 
 suite itself. 
@@ -29,7 +30,7 @@ AUTHOR(s) -
 Getting Started
 -------------------------------------------------------------------------------
 
-Here are some basic guidlines to help you get started writing tests for Pugs. 
+Here are some basic guidelines to help you get started writing tests for Pugs. 
 
 - If you are unsure of something, don't hesitate to ask.
 
