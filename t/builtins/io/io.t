@@ -9,7 +9,7 @@ I/O tests
 
 =cut
 
-plan 43;
+plan 50;
 
 my $filename = 'tempfile';
 
@@ -66,7 +66,7 @@ ok($append.close, 'file closed okay');
 my $in4 = open($filename);
 isa_ok($in4, 'Handle');
 my @lines4 = readline($in4);
-is(+@lines4, 4, 'we got two lines from the file');
+is(+@lines4, 4, 'we got four lines from the file');
 is(@lines4[0], "Hello World\n", 'readline($in) worked in list context');
 is(@lines4[1], "Foo Bar Baz\n", 'readline($in) worked in list context');
 is(@lines4[2], "The End\n", 'readline($in) worked in list context');
@@ -76,7 +76,7 @@ ok($in4.close, 'file closed okay');
 my $in5 = open($filename);
 isa_ok($in5, 'Handle');
 my @lines5 = $in5.readline();
-is(+@lines5, 4, 'we got two lines from the file');
+is(+@lines5, 4, 'we got four lines from the file');
 is(@lines5[0], "Hello World\n", '$in.readline() worked in list context');
 is(@lines5[1], "Foo Bar Baz\n", '$in.readline() worked in list context');
 is(@lines5[2], "The End\n", '$in.readline() worked in list context');
@@ -86,12 +86,24 @@ ok($in5.close, 'file closed okay');
 my $in6 = open($filename);
 isa_ok($in6, 'Handle');
 my @lines6 = =$in6;
-is(+@lines6, 4, 'we got two lines from the file');
+is(+@lines6, 4, 'we got four lines from the file');
 is(@lines6[0], "Hello World\n", 'unary =$in worked in list context');
 is(@lines6[1], "Foo Bar Baz\n", 'unary =$in worked in list context');
 is(@lines6[2], "The End\n", 'unary =$in worked in list context');
 is(@lines6[3], "... Its not over yet!\n", 'unary =$in worked in list context');
 ok($in6.close, 'file closed okay');
+
+# test reading a file into an array and then closing before 
+# doing anything with the array (in other words, is pugs too lazy)
+my $in7 = open($filename);
+isa_ok($in7, 'Handle');
+my @lines7 = readline($in7);
+ok($in7.close, 'file closed okay');
+is(+@lines7, 4, 'we got four lines from the file (lazily)');
+is(@lines7[0], "Hello World\n", 'readline($in) worked in list context');
+is(@lines7[1], "Foo Bar Baz\n", 'readline($in) worked in list context');
+is(@lines7[2], "The End\n", 'readline($in) worked in list context');
+is(@lines7[3], "... Its not over yet!\n", 'readline($in) worked in list context');
 
 # now be sure to delete the file as well
 
