@@ -1,19 +1,84 @@
+#!/usr/bin/pugs
+
 use v6;
+require Test;
 
 =pod
+
 Arrays
 
 =cut
 
-say "1..5";
+plan 35;
 
-my @arry = ("foo", "bar", "ok 1" , "ok 3");
+# array of strings
 
-say  @arry[2];
+my @array1 = ("foo", "bar", "baz");
 
-if (@arry[1] eq "bar") {say "ok 2" } else { say "not ok 2" }
+is(+@array1, 3, 'the array1 has 3 elements');
+is(@array1[0], 'foo', 'got the right value at array1 index 0');
+is(@array1[1], 'bar', 'got the right value at array1 index 1');
+is(@array1[2], 'baz', 'got the right value at array1 index 2');
 
-@arry[3].say;
+is(@array1.[0], 'foo', 'got the right value at array1 index 0 using the . notation');
 
-if ( @arry == 4) { say "ok 4" } else { say "not ok 4" }
-if (+@arry == 4) { say "ok 5" } else { say "not ok 5" }
+# array with strings, numbers and undef
+
+my @array2 = ("test", 1, undef);
+
+is(+@array2, 3, 'the array2 has 3 elements');
+is(@array2[0], 'test', 'got the right value at array2 index 0');
+is(@array2[1], 1,      'got the right value at array2 index 1');
+is(@array2[2], undef,  'got the right value at array2 index 2');
+
+# combine 2 arrays
+
+my @array3 = (@array1, @array2);
+
+is(+@array3, 6, 'the array3 has 6 elements');
+is(@array3[0], 'foo', 'got the right value at array3 index 0');
+is(@array3[1], 'bar', 'got the right value at array3 index 1');
+is(@array3[2], 'baz', 'got the right value at array3 index 2');
+is(@array3[3], 'test', 'got the right value at array3 index 3');
+is(@array3[4], 1,      'got the right value at array3 index 4');
+is(@array3[5], undef,  'got the right value at array3 index 5');
+
+# array slice
+
+my @array4 = @array2[2, 1, 0];
+
+is(+@array4, 3, 'the array4 has 5 elements');
+is(@array4[0], undef,  'got the right value at array4 index 0');
+is(@array4[1], 1,      'got the right value at array4 index 1');
+is(@array4[2], 'test', 'got the right value at array4 index 2');
+
+# create new array with 2 array slices
+
+my @array5 = [ @array2[2, 1, 0], @array1[2, 1, 0] ];
+
+is(+@array5, 6, 'the array5 has 6 elements');
+is(@array5[0], undef,  'got the right value at array5 index 0');
+is(@array5[1], 1,      'got the right value at array5 index 1');
+is(@array5[2], 'test', 'got the right value at array5 index 2');
+is(@array5[3], 'baz',  'got the right value at array5 index 3');
+is(@array5[4], 'bar',  'got the right value at array5 index 4');
+is(@array5[5], 'foo',  'got the right value at array5 index 5');
+
+# create an array slice with an array (in a variable)
+
+my @slice = (2, 0, 1);
+my @array6 = @array1[@slice];
+
+is(+@array6, 3, 'the array6 has 3 elements');
+is(@array6[0], 'baz', 'got the right value at array6 index 0');
+is(@array6[1], 'foo', 'got the right value at array6 index 1');
+is(@array6[2], 'bar', 'got the right value at array6 index 2');
+
+# create an array slice with an array constructed with []
+
+my @array7 = @array1[[2, 1, 0]];
+
+is(+@array7, 3, 'the array7 has 3 elements');
+is(@array7[0], 'baz', 'got the right value at array7 index 0');
+is(@array7[1], 'bar', 'got the right value at array7 index 1');
+is(@array7[2], 'foo', 'got the right value at array7 index 2');
