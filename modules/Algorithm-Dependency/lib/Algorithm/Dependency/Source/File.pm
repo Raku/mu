@@ -20,10 +20,6 @@ class Algorithm::Dependency::Source::File-0.0.1 is Algorithm::Dependency::Source
 
 has $:filename;
 
-
-
-
-
 method new( $class: $filename is Str ) returns Algorithm::Dependency::Source::File {
 	-r $filename or return;
 
@@ -36,18 +32,15 @@ method new( $class: $filename is Str ) returns Algorithm::Dependency::Source::Fi
 	return $self;
 }
 
-
-
-
-
 # Load the list of items
-method :_load_item_list( $self: ) returns Array {
+method :_load_item_list() returns Array {
 
 	# Load the contents of the file
 	local $/ = undef;
-	open( FILE, $self.filename ) or return;
-	my $source = <FILE>;
-	close FILE or return;
+	my $file = open( $.filename ) or return;
+    # XXX: not sure if this is the right code to slurp in a file
+	my @source = $file.read(); 
+	$file.close() or return;
 
 	# Split, trim, clean and remove comments
 	my @content = $source.split( /\s*[\015\012][\s\015\012]*/ ).grep:{ ! /^\s*(?:\#|$)/ };

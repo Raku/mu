@@ -11,17 +11,14 @@ class Algorithm::Dependency::Item-0.0.1;
 has $:id;
 has @:depends;
 
-
-
-
 method new( $class: $id, @depends ) returns Algorithm::Dependency::Item {
 	# Create the object
 	return $class.bless( { id => $id, depends => @depends } );
 }
 
 # Get the values
-method id( $self: )  returns Str { return $self.id }
-method depends( $self: )  returns Array { return @{$self.depends} }
+method id      ()  returns Str   { return $.id         }
+method depends ()  returns Array { return @{$.depends} }
 
 1;
 

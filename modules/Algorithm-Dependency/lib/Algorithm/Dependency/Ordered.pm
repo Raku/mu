@@ -21,19 +21,19 @@ class Algorithm::Dependency::Ordered-0.0.1 is Algorithm::Dependency;
 
 
 
-method schedule( $self: @items ) returns Array {
-	my $source = $self.source;
+method schedule( @items ) returns Array {
+	my $source = $.source;
 	@items or return;
 	@items.grep:{ ! $source.item($_) } and return;
 
 	# The actual items to select will be the same as for the unordered
 	# version, so we can simplify the algorithm greatly by using the
 	# normal unordered .schedule() method to get the starting list.
-	my $rv = $self.SUPER::schedule( @items );
+	my $rv = $.SUPER::schedule( @items );
 	my @queue = @rv or return;
 
 	# Get a working copy of the selected index
-	my %selected = %{ $self.selected };
+	my %selected = %{ $.selected };
 
 	# If at any time we check every item in the stack without finding
 	# a suitable candidate for addition to the schedule, we have found
@@ -49,12 +49,12 @@ method schedule( $self: @items ) returns Array {
 		$id eq $error_marker and return;
 
 		# Are there any un-met dependencies
-		my $item = $self.source.item( $id ) or return;
+		my $item = $.source.item( $id ) or return;
 		my @missing =  $item.depends.grep:{ ! $selected{$_} };
 
 		# Remove orphans if we are ignoring them
-		if ( $self.ignore_orphans ) {
-			@missing = @missing.grep:{ $self.source.item($_) };
+		if ( $.ignore_orphans ) {
+			@missing = @missing.grep:{ $.source.item($_) };
 		}
 
 		if ( @missing ) {

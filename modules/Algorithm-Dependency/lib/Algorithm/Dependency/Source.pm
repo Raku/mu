@@ -12,10 +12,6 @@ has $:loaded is Bool = 0;
 has %:items_hash is Hash of Algorithm::Dependency::Item;
 has @:items_array is Array of Algorithm::Dependency::Item;
 
-
-
-
-
 method new( $class: ) returns Algorithm::Dependency::Source {
 
 	# This can't be created directly, it must be through
