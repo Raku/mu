@@ -10,9 +10,9 @@ Quoting tests
 These tests are derived from Synopsis 2 and 
 only cover the following quoting operators:
 
-q//, q:1//, q:single//
-qq//, q:2//, q:double//
-qw//, q:w//, q:words//
+  q//, q:1//, q:single//
+  qq//, q:2//, q:double//
+  qw//, q:w//, q:words//
 
 =cut
 
