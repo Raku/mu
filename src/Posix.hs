@@ -23,7 +23,11 @@ module Posix (
     setFileMode,
     sleep,
     getEnvironment,
+    getArg0,
 ) where
+
+import Foreign
+import Foreign.C
 
 #ifdef PUGS_HAVE_POSIX
 import System.Posix.Env
@@ -87,5 +91,15 @@ sleep _ = fail "'sleep' not implemented on this platform."
 setFileMode :: FilePath -> FileMode -> IO ()
 setFileMode _ _ = fail "'chmod' not implemented on this platform."
 
-
 #endif
+
+foreign import ccall unsafe "getProgArgv"
+  getProgArgv :: Ptr CInt -> Ptr (Ptr CString) -> IO ()
+
+getArg0 :: IO String
+getArg0 = do
+    alloca $ \ p_argc -> do
+    alloca $ \ p_argv -> do
+        getProgArgv p_argc p_argv
+        argv <- peek p_argv
+        peekCString =<< peekElemOff argv 0
