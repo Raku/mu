@@ -8,6 +8,10 @@ version_from('lib/Kwid.pm');
 
 requires(qw(
     perl 5.6.1
+    Data::Dumper 0
+    Scalar::Util 0
+    Test::More 0
+    YAML 0
 ));
 
 check_nmake();
