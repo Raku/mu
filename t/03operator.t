@@ -62,6 +62,24 @@ todo_is(eval '0 ?| undef', 0, "boolean or (?|) returns 0 or 1");
 ok((all((4|5|6) + 3) == one(7|8|9)), "all elements in junction are incremented");
 ok((any(1..6) == one(1|2|3|4|5|6)), "any elements will match via junction");
 
+
+ok( 7 > any(4..12), "any test against scalar" );
+
+
+my @oldval  = (5, 8, 12);
+
+my @newval1 = (17, 15, 14); # all greater
+my @newval2 = (15, 7,  20); # some less some greater
+my @newval3 = (3, 1, 4);    # all less
+my @newval4 = (1,2,40);     
+
+ok( any(@newval4) > any(@oldval), "any test array against any array" );
+ok( any(@newval4) > all(@oldval), "any test array against all array" );
+ok( all(@newval2) > any(@oldval), "all test array against any array" );
+ok( all(@newval1) > all(@oldval), "all test array against all array" );
+
+
+
 # Hyper ops
 
 skip("waiting for hyper operators");
