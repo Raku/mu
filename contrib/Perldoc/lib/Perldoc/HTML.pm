@@ -1,11 +1,10 @@
 package Perldoc::HTML;
+use Perldoc::Writer -Base;
+use Perldoc::Receiver -mixin;
 
-use Perldoc::Base -Base;
-
-use mixin 'Perldoc::Writer' qw();
+field 'is_fragment' => 0;
 
 sub begin {
-    my $self = shift;
     my $chunk = shift;
     my $type = $chunk->{type} or die;
     my $method = "begin_$type";
@@ -13,7 +12,6 @@ sub begin {
 }
 
 sub end {
-    my $self = shift;
     my $chunk = shift;
     my $type = $chunk->{type} or die;
     my $method = "end_$type";
@@ -21,9 +19,7 @@ sub end {
 }
 
 sub begin_stream {
-    my $self = shift;
-    $self->init;
-    $self->print(<<_) if $self->complete;
+    $self->write(<<_) unless $self->is_fragment;
 <html>
 <head>
 </head>
@@ -32,55 +28,45 @@ _
 }
 
 sub end_stream {
-    my $self = shift;
-    $self->print(<<_) if $self->complete;
+    $self->write(<<_) unless $self->is_fragment;
 </body>
 </html>
 _
-    $self->finish;
 }
 
 sub begin_heading {
-    my $self = shift;
     my $chunk = shift;
     my $level = $chunk->{level};
-    $self->print("<h$level>");
+    $self->write("<h$level>");
 }
 
 sub end_heading {
-    my $self = shift;
     my $chunk = shift;
     my $level = $chunk->{level};
-    $self->print("</h$level>\n");
+    $self->write("</h$level>\n");
 }
 
 sub begin_verbatim {
-    my $self = shift;
-    $self->print("<pre>\n");
+    $self->write("<pre>\n");
 }
 
 sub end_verbatim {
-    my $self = shift;
-    $self->print("</pre>\n");
+    $self->write("</pre>\n");
 }
 
 sub begin_paragraph {
-    my $self = shift;
-    $self->print("<p>\n");
+    $self->write("<p>\n");
 }
 
 sub end_paragraph {
-    my $self = shift;
-    $self->print("</p>\n");
+    $self->write("</p>\n");
 }
 
 sub content {
-    my $self = shift;
-    $self->print($self->html_escape(shift));
+    $self->write($self->html_escape(shift));
 }
 
 sub html_escape {
-    my $self = shift;
     my $val = shift;
     $val =~ s/&/&amp;/g;
     $val =~ s/</&lt;/g;
@@ -91,5 +77,3 @@ sub html_escape {
     $val =~ s/'/&#39;/g;
     return $val;
 }
-
-1;

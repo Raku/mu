@@ -1,6 +1,5 @@
 use strict;
-use lib "../..", "../../inc";
-use inc::Module::Install prefix => '../../inc';
+use inc::Module::Install;
 
 name('Perldoc');
 author('Brian Ingerson <ingy@cpan.org>');

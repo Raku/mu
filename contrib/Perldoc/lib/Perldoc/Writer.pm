@@ -1,35 +1,32 @@
-package Perldoc::Loader;
-use strict;
-use warnings;
-use Perldoc::Base;
-use base 'Perldoc::Base';
+package Perldoc::Writer;
+use Perldoc::Base -Base;
 
 field 'output';
-field 'complete' => 0;
 field 'result';
+field 'write_func';
 
 sub init {
-    my $self = shift;
-    my $output = $self->output
-      or die "Perldoc::Loader->output not defined";
-    no warnings;
+    my $output = $self->output || do {my $x = ''; \$x};
+    my $write_func;
     if (not ref $output) {
         open my $handle, '>', $output
           or die "Can't open $output for output:\n$!";
         $self->output($handle);
-        *print = \&print_to_handle;
+        $write_func = \&write_to_handle;
     }
     elsif (ref($output) eq 'SCALAR') {
-        *print = \&print_to_string;
+        $write_func = \&write_to_string;
     }
     else {
-        *print = \&print_to_handle;
+        $write_func = \&write_to_handle;
     }
+    $self->write_func($write_func);
+    $self->output($output);
 }
 
-sub finish {
-    my $self = shift;
-    my $output = $self->output;
+sub cleanup {
+    my $output = $self->output
+      or return;
     if (ref($output) eq 'SCALAR') {
         $self->result($$output);
     }
@@ -40,16 +37,16 @@ sub finish {
     $self->output(undef);
 }
 
-sub print_to_string {
-    my $self = shift;
+sub write {
+    $self->write_func->(@_);
+}
+
+sub write_to_string {
     my $string = $self->output;
     $$string .= $_ for @_;
 }
 
-sub print_to_handle {
-    my $self = shift;
+sub write_to_handle {
     my $handle = $self->output;
     print $handle @_;
 }
-
-1;

@@ -1,73 +1,68 @@
-package Kwid;
-use strict;
-use warnings;
-use Kwid::Base;
-use base 'Kwid::Base';
+package Perldoc;
+use Perldoc::Base -Base;
 
-our $VERSION = '0.00_01';
+our $VERSION = '0.00_02';
 
-sub kwid_to_html {
-    require Kwid::HTML;
-    my $self = shift;
-    my $buffer = '';
-    my $loader = Kwid::HTML->new(
-        output => \$buffer,
-        complete => 0,
-    );
-    return $self->parse_to(@_ => $loader);
-}
-
-sub kwid_to_xml {
-    require Kwid::XML;
-    my $self = shift;
-    return $self->parse_to(@_ => die 'Kwid::XML');
-}
-
-sub kwid_to_man {
-    require Kwid::Man;
-    my $self = shift;
-    return $self->parse_to(@_ => die 'Kwid::Man');
-}
-
-sub kwid_to_bytecode {
-    require Kwid::Bytecode;
-    my $self = shift;
-    return $self->parse_to(@_ => die 'Kwid::Bytecode');
-}
-
-sub kwid_to_ast {
-    require Kwid::AST;
-    my $self = shift;
-    return $self->parse_to(@_ => die 'Kwid::AST');
+sub doc_to_class {
+    my %args = @_;
+    my $class = $args{class} or die "No class!";
+    eval "require $class";
+    die $@ if $@;
+    $args{receiver} ||= $class->new(%args);
+    return $self->parse_to(%args);
 }
 
 sub parse_to {
-    require Kwid::Parser;
-    my $self = shift;
-    my $kwid = shift;
-    my $loader = shift;
-    my $parser = Kwid::Parser->new(
-        input => \$kwid,
-        loader => $loader,
-    );
-    return $parser->parse;
+    require Perldoc::Reader;
+    require Perldoc::Parser;
+    my %args = @_;
+    $args{reader} ||= Perldoc::Reader->new(%args);
+    $args{parser} ||= Perldoc::Parser->new(%args);
+    return $args{parser}->parse;
 }
 
-1;
+sub doc_to_dom {
+    $self->doc_to_class(@_, class => 'Perldoc::DOM');
+}
 
-__DATA__
+sub doc_to_html {
+    $self->doc_to_class(@_, class => 'Perldoc::HTML');
+}
 
-=kwid = NAME
+sub doc_to_xml {
+    $self->doc_to_class(@_, class => 'Perldoc::XML');
+}
 
-Kwid - Kwiki Documentation Format
+sub doc_to_man {
+    $self->doc_to_class(@_, class => 'Perldoc::Man');
+}
+
+sub doc_to_bytecode {
+    $self->doc_to_class(@_, class => 'Perldoc::Bytecode');
+}
+
+=doc.kwid
+
+= NAME
+
+Perldoc - Perl Documentation
 
 = SYNOPSIS
 
+    print Perldoc->new->doc_to_html(
+        input => 'somthing.kwid',
+    );
+
 = DESCRIPTION
+
+Perldoc is a set of tools that define and work with the POD information
+model. The tools provide parsers for various dialects, and formatters for
+various output formats.
 
 = AUTHOR
 
 Brian Ingerson <ingy@cpan.org>
+Sam Vilain
 
 = COPYRIGHT
 

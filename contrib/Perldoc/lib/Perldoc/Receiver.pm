@@ -1,10 +1,5 @@
-
 package Perldoc::Receiver;
-
-use strict;
-use warnings;
-
-use Carp;
+use Spiffy -Base;
 
 =head1 NAME
 
@@ -41,9 +36,8 @@ of these methods:
 
 sub start_document { }
 sub end_document { }
+sub start_element { }
 sub end_element { }
 sub characters { }
 sub processing_instruction { }
 sub ignorable_whitespace { }
-
-1;
