@@ -9,7 +9,7 @@ Arrays
 
 =cut
 
-plan 48;
+plan 53;
 
 # array of strings
 
@@ -109,3 +109,12 @@ is(+@array9, 0, "new arrays are empty");
 my @array10;
 ok(eval '@array10 = (1, 2, 3,)', "trailing comma"); # unTODOme
 is(+@array10, 3, "trailing commas make correct list"); # unTODOme
+
+# declear a multidimension array
+ok(eval '@array11[0...3; 0...1]', "multidimension array");
+ok(eval '@array11[2,0] = 12', "push the value to a multidimension array");
+ok(eval '@array12 is shape(2,4)', "another way to declare a multidimension array");
+
+# declare the array with data type
+ok(eval 'my int @array', "declare a array for integer only");
+ok(eval '@array[0] = 23', "declare the array value");
