@@ -39,6 +39,7 @@ run :: [String] -> IO ()
 run ("-l":rest)                 = run rest
 run ("-d":rest)                 = run rest
 run ("-w":rest)                 = run rest
+run (('-':'I':_):rest)            = run rest
 run (('-':'l':xs):rest)         = run (('-':xs):rest)
 run (('-':'w':xs):rest)         = run (('-':xs):rest)
 run (('-':'d':xs):rest)         = run (('-':xs):rest)

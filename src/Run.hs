@@ -86,16 +86,24 @@ prepareEnv name args = do
             , subFun = Prim subExit
             }
         ]
-       
+
+
+        
 getLibs :: [(String, String)] -> IO [String]
-getLibs environ = return $ filter (not . null) libs
+getLibs environ = do
+        args <- getArgs
+        return $ filter (not . null) (libs args)
     where
     envlibs nm = maybe [] (split config_path_sep) $ nm `lookup` environ
-    libs =  envlibs "PERL6LIB"
-         ++ [ config_archlib
-            , config_privlib
-            , config_sitearch
-            , config_sitelib
-            ]
-         ++ [ "." ]
+    inclibs args = map (drop 2) (filter isLibArg args)
+    isLibArg ('-':'I':_) = True
+    isLibArg _ = False
+    libs args =  (inclibs args)
+              ++ envlibs "PERL6LIB"
+              ++ [ config_archlib
+                 , config_privlib
+                 , config_sitearch
+                 , config_sitelib
+                 ]
+              ++ [ "." ]
 
