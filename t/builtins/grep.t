@@ -9,7 +9,7 @@ built-in grep tests
 
 =cut
 
-plan 18;
+plan 24;
 
 my @list = (1 .. 10);
 
