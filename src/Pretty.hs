@@ -61,7 +61,7 @@ instance Pretty Val where
         | otherwise = "(" ++ joinList ", " (map pretty x) ++ ")"
     pretty (VSub x) = "sub {...}"
     pretty (VBlock x) = "{...}"
-    pretty (VError x y) = "*** Error: " ++ x ++ "\n    in " ++ show y
+    pretty (VError x y) = "*** Error: " ++ x ++ "\n    at " ++ show y
     pretty (VArray (MkArray x)) = pretty (VList x)
     pretty (VHash (MkHash x)) = "{" ++ joinList ", " (map pretty $ fmToList x) ++ "}"
     pretty (VHandle x) = show x
