@@ -14,7 +14,7 @@ if ($a == 2147483648) { say "ok 1" } else { say "not ok 1 # got " ~ $a }
 
 $a = 2147483647;
 $c=eval '++$a';
-if ($a == 2147483648) { say "ok 2" } else { say "not ok 2 # TODO preinc" }
+if ($a == 2147483648) { say "ok 2" } else { say "not ok 2 # got" ~ $a }
 
 $a = 2147483647;
 $a=$a+1;
@@ -26,7 +26,7 @@ if ($a == -2147483649) { say "ok 4" } else { say "not ok 4 # got " ~ $a }
 
 $a = -2147483648;
 $c=eval '--$a';
-if ($a == -2147483649) { say "ok 5" } else { say "not ok 5 # TODO predec" }
+if ($a == -2147483649) { say "ok 5" } else { say "not ok 5 # got" ~ $a }
 
 $a = -2147483648;
 $a=$a-1;
@@ -40,7 +40,7 @@ if ($a == -2147483649) { say "ok 7" } else { say "not ok 7 # got " ~ $a }
 $a = 2147483648;
 $a = -$a;
 $c=eval '--$a';
-if ($a == -2147483649) { say "ok 8" } else { say "not ok 8 # TODO predec" }
+if ($a == -2147483649) { say "ok 8" } else { say "not ok 8 # got" ~ $a }
 
 $a = 2147483648;
 $a = -$a;
@@ -56,16 +56,16 @@ if ($b == -$a-1) { say "ok 10 # TODO" } else { say "not ok 10 # TODO" }
 $a = 2147483648;
 $b = -$a;
 $c=eval '--$b';
-if ($b == -$a-1) { say "ok 11" } else { say "not ok 11 # TODO predec" }
+if ($b == -$a-1) { say "ok 11 # TODO predec" } else { say "not ok 11 # TODO predec" }
 
 $a = 2147483648;
 $b = -$a;
 $b=$b-1;
-if ($b == eval '-(++$a)') { say "ok 12" } else { say "not ok 12 # TODO preinc" }
+if ($b == eval '-(++$a)') { say "ok 12" } else { say "not ok 12" }
 
 $a = undef;
 if ($a++ eq '0') { say "ok 13" } else { say "not ok 13" }
 
 $a = undef;
-if (eval '!defined($a--)') { say "ok 14" } else { say "not ok 14 # TODO defined" }
+if (eval '!defined($a--)') { say "ok 14 # TODO defined" } else { say "not ok 14 # TODO defined" }
 

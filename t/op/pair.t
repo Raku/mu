@@ -17,6 +17,6 @@ if (@pair1[1] eq 'bar') { say "ok 4" } else { say "not ok 4" }
 
 my $quux = eval '(quux => "xyzzy").key';
 
-if ($quux eq 'quux') { say "ok 5" } else { say "not ok 5 # TODO => lhs quotes" }
+if ($quux eq 'quux') { say "ok 5 # TODO => lhs quotes" } else { say "not ok 5 # TODO => lhs quotes" }
 
 
