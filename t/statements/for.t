@@ -14,7 +14,7 @@ L<S04/"The C<for> statement">
 
 =cut
 
-plan 22;
+plan 23;
 
 ## for with plain old range operator w/out parens
 # L<S04/"The C<for> statement" /in Perl 6, si it always take a list as an argument/>
@@ -151,6 +151,13 @@ my @elems = <a b c d e>;
 	}
 	my @e = <a b c d e>;
 	is(@a, @e, 'for (@a) { ... $_ ... } iterates all elems');
+}
+
+{
+	my @a;
+    eval q/for (@elems) -> $_ { push @a, $_ }/;
+	my @e = @elems;
+	is(@a, @e, 'for (@a)->$_ { ... $_ ... } iterates all elems' );
 }
 
 {
