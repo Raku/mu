@@ -37,3 +37,6 @@ examples/quicksort.p6
 t/01basic.t
 t/02atoms.t
 t/06sub.t
+t/base/cond.t
+t/base/if.t
+t/base/num.t
