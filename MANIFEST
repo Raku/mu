@@ -51,3 +51,5 @@ t/op/split.t
 t/op/repeat.t
 t/op/eq.t
 t/op/push.t
+t/op/die.t
+t/op/hash.t
