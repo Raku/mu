@@ -236,38 +236,38 @@ toLower c = chr (fromIntegral (towlower (fromIntegral (ord c))))
 toUpper c = chr (fromIntegral (towupper (fromIntegral (ord c))))
 toTitle c = chr (fromIntegral (towtitle (fromIntegral (ord c))))
 
-foreign import ccall unsafe "stg_hack_u_iswdigit"
+foreign import ccall unsafe "u_iswdigit"
   iswdigit :: CInt -> CInt
 
-foreign import ccall unsafe "stg_hack_u_iswalpha"
+foreign import ccall unsafe "u_iswalpha"
   iswalpha :: CInt -> CInt
 
-foreign import ccall unsafe "stg_hack_u_iswalnum"
+foreign import ccall unsafe "u_iswalnum"
   iswalnum :: CInt -> CInt
 
-foreign import ccall unsafe "stg_hack_u_iswcntrl"
+foreign import ccall unsafe "u_iswcntrl"
   iswcntrl :: CInt -> CInt
 
-foreign import ccall unsafe "stg_hack_u_iswspace"
+foreign import ccall unsafe "u_iswspace"
   iswspace :: CInt -> CInt
 
-foreign import ccall unsafe "stg_hack_u_iswprint"
+foreign import ccall unsafe "u_iswprint"
   iswprint :: CInt -> CInt
 
-foreign import ccall unsafe "stg_hack_u_iswlower"
+foreign import ccall unsafe "u_iswlower"
   iswlower :: CInt -> CInt
 
-foreign import ccall unsafe "stg_hack_u_iswupper"
+foreign import ccall unsafe "u_iswupper"
   iswupper :: CInt -> CInt
 
-foreign import ccall unsafe "stg_hack_u_towlower"
+foreign import ccall unsafe "u_towlower"
   towlower :: CInt -> CInt
 
-foreign import ccall unsafe "stg_hack_u_towupper"
+foreign import ccall unsafe "u_towupper"
   towupper :: CInt -> CInt
 
-foreign import ccall unsafe "stg_hack_u_towtitle"
+foreign import ccall unsafe "u_towtitle"
   towtitle :: CInt -> CInt
 
-foreign import ccall unsafe "stg_hack_u_gencat"
+foreign import ccall unsafe "u_gencat"
   wgencat :: CInt -> Int

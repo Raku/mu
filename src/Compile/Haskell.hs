@@ -22,5 +22,5 @@ compile (App ('&':op) [] [arg]) = [| do
     |] where
     argC = compile arg
 compile (Val (VStr s)) = [| return (VStr s) |]
-compile (Statements [(st, pos)]) = [| do $(compile st) |]
+compile (Statements [(st, _)]) = [| do $(compile st) |]
 compile x = error (show x)
