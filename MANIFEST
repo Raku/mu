@@ -7,6 +7,10 @@ inc/Module/Install/Metadata.pm
 inc/Module/Install/Scripts.pm
 inc/Module/Install/Win32.pm
 inc/Module/Install/WriteAll.pm
+inc/Test/Harness/Assert.pm
+inc/Test/Harness/Iterator.pm
+inc/Test/Harness/Straps.pm
+inc/Test/Harness/TAP.pod
 lib/Perl6/Pugs.pm
 AUTHORS
 ChangeLog
