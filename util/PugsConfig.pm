@@ -130,4 +130,4 @@ config = listToFM
 	]
 
 getConfig :: String -> String
-getConfig key = lookupWithDefaultFM config "" key
+getConfig = lookupWithDefaultFM config ""
