@@ -57,7 +57,13 @@ if (@ARGV and -e $ARGV[0]) {
     $out = basename($ARGV[0]);
     $out =~ s{\..*}{};
 }
-$out .= ($^O eq 'MSWin32') ? ".exe" : ".out";
+
+if ($backend eq 'Parrot') {
+    $out .= ".pir";
+}
+else {
+    $out .= ($^O eq 'MSWin32') ? ".exe" : ".out";
+}
 
 unlink "dump.ast";
 system("pugs", "-C$backend" => @ARGV);
@@ -96,7 +102,7 @@ die unless -e $out;
 
 if ($run) {
     if ($backend eq 'Parrot' and !-x '/usr/bin/env') {
-        exec parrot => $out;
+        system("parrot" => $out) == 0 or die $!;
     }
     else {
         exec $out;
