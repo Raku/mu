@@ -61,6 +61,7 @@ run (('-':'e':prog@(_:_)):args) = run (("-e"):prog:args)
 run (('-':'l':xs):args)         = run (("-l"):('-':xs):args)
 run (('-':'w':xs):args)         = run (("-w"):('-':xs):args)
 
+-- XXX clean up further
 run (('-':'C':backend):"-e":prog:_) = doCompile backend "-e" prog
 run (('-':'C':backend):file:_)      = readFile file >>= doCompile backend file
 run ("--external":mod:"-e":prog:_)    = doExternal mod "-e" prog
