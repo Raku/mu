@@ -1,3 +1,14 @@
+{-# OPTIONS -fglasgow-exts #-}
+
+{-
+    Rule-based grammar engine.
+
+    From the ashes a fire shall be woken
+    A light from the shadows shall spring
+    Renewed shall be blade that was broken
+    The crownless again shall be king.
+-}
+
 module Rule
                ( -- complete modules
                  module Rule.Prim
