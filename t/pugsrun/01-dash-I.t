@@ -27,6 +27,7 @@ my @tests = (
     'foo'
   , 'foo$bar'
   , 'foo bar$baz'
+  # What about ,'foo$foo' ?
 );
 
 plan +@tests;
@@ -54,6 +55,8 @@ for @tests -> $t {
   diag $t;
   my @dirs = split('$',$t);
   my $command;
+  # This should be smarter about quoting
+  # (currently, this should work for WinNT and Unix shells)
   $command = join " ", map { qq("-I$_") }, @dirs;
   my $got = run_pugs( $command ~ " $fragment" );
   

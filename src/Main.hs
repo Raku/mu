@@ -49,6 +49,7 @@ main = do
     canonicalizeOpt('-':'e':frag)    = ["-e",frag]
     canonicalizeOpt('-':'l':rest)    = canonicalizeOpt("-l") ++ canonicalizeOpt('-':rest)
     canonicalizeOpt('-':'w':rest)    = canonicalizeOpt("-w") ++ canonicalizeOpt('-':rest)
+    canonicalizeOpt('-':'I':_)       = [] -- handled elsewhere already
     canonicalizeOpt(a)               = [a]
 
 {-
@@ -92,11 +93,11 @@ run ("-c":"-e":prog:_)          = doCheck "-e" prog
 run ("-c":file:_)               = readFile file >>= doCheck file
 run (("-e"):prog:args)          = doRun "-e" args prog
 
-run (('-':'I':_):rest)          = run rest
+-- run (('-':'I':_):rest)          = run rest
 
 -- XXX clean up further
-run (('-':'C':backend):"-e":prog:_) = doCompile backend "-e" prog
-run (('-':'C':backend):file:_)      = readFile file >>= doCompile backend file
+run (('-':'C':backend):"-e":prog:_)   = doCompile backend "-e" prog
+run (('-':'C':backend):file:_)        = readFile file >>= doCompile backend file
 run ("--external":mod:"-e":prog:_)    = doExternal mod "-e" prog
 run ("--external":mod:file:_)         = readFile file >>= doExternal mod file
 run ("-":_)                     = do
