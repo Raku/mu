@@ -3,11 +3,11 @@
 use v6;
 require CGI::Pugs-0.0.1;
 
-say header;
+print header;
 
 if (param()) {
     for param() -> $key {
-        say param($key) ~ "<BR>";
+        say $key ~ " => " ~ param($key) ~ "<BR>";
     }
 }
 else {
