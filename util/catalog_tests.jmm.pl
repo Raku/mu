@@ -3,10 +3,13 @@ use warnings;
 use strict;
 use File::Find;
 use File::Spec::Functions ':ALL';
+use File::Path;
+use File::Basename;
 use IO::File;
 use HTML::TreeBuilder;
 use Regexp::Common qw/balanced delimited/;
-use Data::Dump::Streamer 'Dump', 'Dumper';
+use Pod::Simple::HTML;
+use Pod::PlainText;
 $|++;
 
 () = <<__NOTES__;
@@ -34,7 +37,7 @@ print "From tree at $t_dir to tree at $output_dir\n";
 
 find(\&handle_t_file, 't');
 
-Dump($link_info);
+infest_syns($link_info);
 
 # Note: this is intended to be called from File::Find::find as a wanted
 # routine, so takes odd parameters.
@@ -45,7 +48,8 @@ sub handle_t_file {
   
   print "$input_path => $output_path\n";
   
-  mkdirs($output_path);
+  mkpath(dirname $output_path);
+
   my $infile = IO::File->new("<$input_path") or die "Can't open input test file $input_path: $!";
   my $outfile = IO::File->new(">$output_path") or die "Can't open output test file $output_path: $!";
   
@@ -99,11 +103,13 @@ sub handle_t_file {
 	  }
 	  $link->{sourcepath}=$output_path;
 
-	  if (!$regex) {
-		$body->push_content(HTML::Element->new('a', href=>"#", name=>0+$link)->push_content($whole));		
-	  } else {
-		$body->push_content(HTML::Element->new('a', href=>"#".(0+$link), name=>0+$link)->push_content($whole));
-	  }
+	  my $syn_path = catfile($output_dir, "Synopsis", "$linkfile.html");
+	  $body->push_content(HTML::Element->new(
+		'a',
+		href => abs2rel($syn_path, dirname($output_path)) . "#" .(0+$link),
+		name => 0+$link
+	  )->push_content($whole));
+
 	  push @{$link_info->{$linkfile}}, $link;
     }
 	
@@ -117,13 +123,65 @@ sub handle_t_file {
   $outtree->delete;
 }
 
-sub mkdirs {
-    my $filename=shift;
-    my (@paths) = splitdir((splitpath($filename))[1]);
-    
-    for (1..$#paths) {
-	mkdir(catdir(@paths[0..$_]));
-    }
+sub infest_syns {
+	my $index = shift;
+
+	my $p = Pod::PlainText->new(width => 1000);
+
+	mkpath(my $syndir = catdir($output_dir, "Synopsis"));
+	foreach my $syn (keys %$index){
+		# create HTML out of the pod
+		my $synhtml = catfile($syndir, "$syn.html");
+		my $synpod = catfile($t_dir, "Synopsis", "$syn.pod");
+		Pod::Simple::HTML->parse_from_file($synpod, $synhtml);
+
+		# and parse it into a tree
+		my $sobj = HTML::TreeBuilder->new_from_file($synhtml);
+
+		# this makes it prettier
+		#$sobj->look_down(_tag=>"head")->push_content(HTML::Element->new("link", rel=>"stylesheet", type=>"text/css", href=>"http://dev.perl.org/css/perl.css"));
+
+		foreach my $link (reverse @{ $index->{$syn} }){ # reverse is since we're splicing right after the h1
+			my $target = $link->{linkfile};
+			my $heading = $link->{linkhead};
+			my $source = $link->{sourcepath};
+			my $regex = $link->{regex};
+
+			# create a representation that is like the $html->as_text
+			$heading = $p->interpolate($heading);
+	   		$heading =~ s/^\s+|\s+$//g;;
+			$heading =~ tr/`'//d;
+
+			if ($heading){
+				my $heading_re = qr/^\Q$heading\E$/;
+				my $h = $sobj->look_down(_tag=>qr/^h\d$/, sub { $_[0]->as_text =~ $heading_re });
+				
+				unless ($h) {
+					warn qq{Couldn't resolve L<$target/"$heading">\n};
+					next;
+				};
+
+				# create the backlink <a href...>
+				my $backlink = HTML::Element->new('a', href=>(abs2rel($source, dirname($synhtml)) . "#" . (0+$link), name=>0+$link));
+				
+				if ($regex){ # currently doesn't work
+					# we need to grep all the elements as_text until the next <h1>,
+					# and find the one that matches $regex, and then split it, and
+					# make a little <sup> link to the test in place.
+					warn "We don't handle regex skips yet\n" }
+				#} else {
+					$backlink->push_content(abs2rel($source, $output_dir));
+					$h->postinsert($backlink, ", ");
+				#}
+			} else {
+				warn "link in $source to $target does not have a heading\n";
+			}
+
+			#warn "$target $heading ... $regex -> $source #" . (0+$link);
+		}
+  		my $outfile = IO::File->new(">$synhtml") or die "Can't open output test file $synhtml: $!";
+		$outfile->print($sobj->as_HTML(undef, ' '));
+	}
 }
 
 sub inpath_to_outpath {
@@ -133,7 +191,7 @@ sub inpath_to_outpath {
     my $outpath = abs2rel($inpath, $t_dir);
     # print "$outpath => ";
 
-    $outpath = rel2abs($outpath, $output_dir);
+    $outpath = rel2abs(catfile("t", $outpath), $output_dir);
     # print "$outpath => ";
     
     # print "\n";
