@@ -22,6 +22,7 @@ import Shell
 import Parser
 import Help
 import Pretty
+import Posix
 
 main :: IO ()
 main = do
@@ -94,12 +95,14 @@ runFile file = do
 
 runProgramWith :: (Env -> Env) -> (Val -> IO ()) -> VStr -> [VStr] -> String -> IO ()
 runProgramWith fenv f name args prog = do
+    environ <- getEnvironment
     env <- emptyEnv
         [ Symbol SGlobal "@*ARGS" (Val $ VList $ map VStr args)
         , Symbol SGlobal "@*INC" (Val $ VList [])
         , Symbol SGlobal "$*PROGNAME" (Val $ VStr name)
 --        , Symbol SGlobal "$*STDIN" (Val $ VStr str)
         , Symbol SGlobal "$*END" (Val VUndef)
+        , Symbol SGlobal "%*ENV" (Val . VHash . MkHash . listToFM $ environ)
         ]
 --    str <- return "" -- getContents
     let env' = runRule (fenv env) id ruleProgram prog

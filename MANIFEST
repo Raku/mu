@@ -71,6 +71,7 @@ t/op/eq.t
 t/op/hash.t
 t/op/inc.t
 t/op/join.t
+t/op/magic.t
 t/op/pair.t
 t/op/pop.t
 t/op/push.t

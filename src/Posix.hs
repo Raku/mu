@@ -21,9 +21,11 @@ module Posix (
     rename,
     removeLink,
     sleep,
+    getEnvironment,
 ) where
 
 #ifdef PUGS_HAVE_POSIX
+import System.Posix.Env
 import System.Posix.Files
 import System.Posix.Process
 import System.Posix.Unistd
@@ -46,5 +48,8 @@ removeLink _ = fail "'unlink' not implemented on this platform."
 
 sleep :: Int -> IO ()
 sleep _ = fail "'sleep' not implemented on this platform."
+
+getEnvironment :: IO [(String, String)]
+getEnvironment = []
 
 #endif
