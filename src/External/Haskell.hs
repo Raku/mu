@@ -21,7 +21,8 @@ externalizeHaskell mod code = do
         , "import AST"
         , ""
         , showTH symTable
-        ] ++ map showTH symDecls
+        , showTH symDecls
+        ] 
     where
     exports :: [(HsQualType, String)]
     exports = concat [ [ (typ, name) | HsIdent name <- names ]
