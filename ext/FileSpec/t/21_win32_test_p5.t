@@ -70,5 +70,55 @@ ok(!File::Spec::Win32->file_name_is_absolute("\nC:\\\\path\\from\\root"), '... c
 is(File::Spec::Win32->catpath('C:\\\\', 'dir', 'file'), "C:\\\\dir\\file", 
    '... got the right catpath string (volume is ignored)'); 
    
-   
+{
+    my @upwards = ('path/to/file', '..', '.', ".\n/path");
+    my @no_upwards = File::Spec::Win32->no_upwards(@upwards);
+    is(scalar @no_upwards, 2, '... got one element');
+    is($no_upwards[0], 'path/to/file', '... got the right element');  
+    is($no_upwards[1], ".\n/path", '... got the right element');        
+}  
+
+{
+    my @path = File::Spec::Win32->path();
+    ok(scalar @path, '... we have elements in the path'); 
+} 
+
+{
+    my ($vol, $dir, $file) = File::Spec::Win32->splitpath("C:\\path\\to\\file");
+    is($vol, "C:", '... got the right volume');    
+    is($dir, "\\path\\to\\", '... got the right directory');
+    is($file, 'file', '... got the right file');    
+}
+
+{
+    my ($vol, $dir, $file) = File::Spec::Win32->splitpath("C:\\path\\to\\dir", 1);
+    is($vol, "C:", '... got the right volume');    
+    is($dir, "\\path\\to\\dir", '... got the right directory');
+    is($file, '', '... got the right file');    
+}
+
+# perl5 File::Spec tests
+
+is(File::Spec::Win32->canonpath(''),               '',             'checking canonpath');
+is(File::Spec::Win32->canonpath('a:'),             'A:',           'checking canonpath');
+is(File::Spec::Win32->canonpath('A:f'),            'A:f',          'checking canonpath');
+is(File::Spec::Win32->canonpath('A:/'),            'A:\\',         'checking canonpath');
+is(File::Spec::Win32->canonpath('//a\\b//c'),      '\\\\a\\b\\c',  'checking canonpath');
+is(File::Spec::Win32->canonpath('/a/..../c'),      '\\a\\....\\c', 'checking canonpath');
+is(File::Spec::Win32->canonpath('//a/b\\c'),       '\\\\a\\b\\c',  'checking canonpath');
+is(File::Spec::Win32->canonpath('////'),           '\\\\\\',       'checking canonpath');
+is(File::Spec::Win32->canonpath('//'),             '\\',           'checking canonpath');
+is(File::Spec::Win32->canonpath('/.'),             '\\.',          'checking canonpath');
+is(File::Spec::Win32->canonpath('//a/b/../../c'),  '\\\\a\\b\\c',  'checking canonpath');
+is(File::Spec::Win32->canonpath('//a/b/c/../d'),   '\\\\a\\b\\d',  'checking canonpath');
+is(File::Spec::Win32->canonpath('//a/b/c/../../d'),'\\\\a\\b\\d',  'checking canonpath');
+is(File::Spec::Win32->canonpath('//a/b/c/.../d'),  '\\\\a\\b\\d',  'checking canonpath');
+is(File::Spec::Win32->canonpath('/a/b/c/../../d'), '\\a\\d',       'checking canonpath');
+is(File::Spec::Win32->canonpath('/a/b/c/.../d'),   '\\a\\d',       'checking canonpath');
+is(File::Spec::Win32->canonpath('\\../temp\\'),    '\\temp',       'checking canonpath');
+is(File::Spec::Win32->canonpath('\\../'),          '\\',           'checking canonpath');
+is(File::Spec::Win32->canonpath('\\..\\'),         '\\',           'checking canonpath');
+is(File::Spec::Win32->canonpath('/../'),           '\\',           'checking canonpath');
+is(File::Spec::Win32->canonpath('/..\\'),          '\\',           'checking canonpath');
+
    

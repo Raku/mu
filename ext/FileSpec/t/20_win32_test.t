@@ -68,50 +68,56 @@ ok(!file_name_is_absolute("\nC:\\\\path\\from\\root"), '... checking if path is 
 is(catpath("C:\\\\", 'dir', 'file'), "C:\\\\dir\\file", 
    '... got the right catpath string (volume is ignored)'); 
    
-# {
-#     my @upwards = ('path/to/file', '..', '.', ".\n/path");
-#     my @no_upwards = no_upwards(@upwards);
-#     is(+@no_upwards, 2, '... got one element');
-#     is(@no_upwards[0], 'path/to/file', '... got the right element');  
-#     is(@no_upwards[1], ".\n/path", '... got the right element');        
-# }   
-# 
-# 
-# {
-#     my @path = path();
-#     ok(+@path, '... we have elements in the path'); 
-# 
-# #     my $orig_path = %*ENV{'PATH'};
-# #     
-# #     %*ENV{'PATH'} = 'path/to/bin:path/to/some/other/bin:other/path:';
-# #     
-# #     my @path = path();
-# #     is(+@path, 4, '... we have 4 elements in the path'); 
-# #     is(@path[0], 'path/to/bin', '... correct first element in the path'); 
-# #     is(@path[1], 'path/to/some/other/bin', '... correct second element in the path'); 
-# #     is(@path[2], 'other/path', '... correct third element in the path'); 
-# #     is(@path[3], '.', '... correct fourth element in the path');             
-# #     
-# #     %*ENV{'PATH'} = $orig_path;
-# }
-# 
-# {
-#     my @path = splitpath('/path/to/file');
-#     is(+@path, 3, '... got back the expected elements');
-#     is(@path[0], '', '... got the right first element');    
-#     todo_is(@path[1], '/path/to/', '... got the right second element');
-#     todo_is(@path[2], 'file', '... got the right third element');    
-# }
-# 
-# {
-#     my @path = splitpath('/path/to/file', 1);
-#     is(+@path, 3, '... got back the expected elements');
-#     is(@path[0], '', '... got the right first element');    
-#     is(@path[1], '/path/to/file', '... got the right second element');
-#     is(@path[2], '', '... got the right third element');    
-# }
+{
+    my @upwards = ('path/to/file', '..', '.', ".\n/path");
+    my @no_upwards = no_upwards(@upwards);
+    is(+@no_upwards, 2, '... got one element');
+    is(@no_upwards[0], 'path/to/file', '... got the right element');  
+    is(@no_upwards[1], ".\n/path", '... got the right element');        
+}   
+
+{
+    my @path = path();
+    ok(scalar @path, '... we have elements in the path'); 
+}
+
+{
+    my ($vol, $dir, $file) = splitpath("C:\\path\\to\\file");
+    is($vol, "C:", '... got the right volume');    
+    is($dir, "\\path\\to\\", '... got the right directory');
+    is($file, 'file', '... got the right file');    
+}
+ 
+{
+    my ($vol, $dir, $file) = splitpath("C:\\path\\to\\dir", 1);
+    is($vol, "C:", '... got the right volume');    
+    is($dir, "\\path\\to\\dir", '... got the right directory');
+    is($file, '', '... got the right file');    
+} 
 
 # these are tests from the t/Spec.t file from the perl5 File::Spec
+
+is(canonpath(""),               "",             'checking canonpath');
+is(canonpath("a:"),             "A:",           'checking canonpath');
+is(canonpath("A:f"),            "A:f",          'checking canonpath');
+is(canonpath("A:/"),            "A:\\",         'checking canonpath');
+is(canonpath("//a\\b//c"),      "\\\\a\\b\\c",  'checking canonpath');
+is(canonpath("/a/..../c"),      "\\a\\....\\c", 'checking canonpath');
+is(canonpath("//a/b\\c"),       "\\\\a\\b\\c",  'checking canonpath');
+is(canonpath("////"),           "\\\\\\",       'checking canonpath');
+is(canonpath("//"),             "\\",           'checking canonpath');
+is(canonpath("/."),             "\\.",          'checking canonpath');
+is(canonpath("//a/b/../../c"),  "\\\\a\\b\\c",  'checking canonpath');
+is(canonpath("//a/b/c/../d"),   "\\\\a\\b\\d",  'checking canonpath');
+is(canonpath("//a/b/c/../../d"),"\\\\a\\b\\d",  'checking canonpath');
+is(canonpath("//a/b/c/.../d"),  "\\\\a\\b\\d",  'checking canonpath');
+is(canonpath("/a/b/c/../../d"), "\\a\\d",       'checking canonpath');
+is(canonpath("/a/b/c/.../d"),   "\\a\\d",       'checking canonpath');
+is(canonpath("\\../temp\\"),    "\\temp",       'checking canonpath');
+is(canonpath("\\../"),          "\\",           'checking canonpath');
+is(canonpath("\\..\\"),         "\\",           'checking canonpath');
+is(canonpath("/../"),           "\\",           'checking canonpath');
+is(canonpath("/..\\"),          "\\",           'checking canonpath');
 
 # [ "Win32->splitpath('file')",                            ',,file'                            ],
 # [ "Win32->splitpath('\\d1/d2\\d3/')",                    ',\\d1/d2\\d3/,'                    ],
@@ -196,29 +202,6 @@ is(catpath("C:\\\\", 'dir', 'file'), "C:\\\\dir\\file",
 # [ "Win32->catfile('.\\a','b','c')",      'a\\b\\c'  ],
 # [ "Win32->catfile('c')",                'c' ],
 # [ "Win32->catfile('.\\c')",              'c' ],
-# 
-# 
-# [ "Win32->canonpath('')",               ''                    ],
-# [ "Win32->canonpath('a:')",             'A:'                  ],
-# [ "Win32->canonpath('A:f')",            'A:f'                 ],
-# [ "Win32->canonpath('A:/')",            'A:\\'                ],
-# [ "Win32->canonpath('//a\\b//c')",      '\\\\a\\b\\c'         ],
-# [ "Win32->canonpath('/a/..../c')",      '\\a\\....\\c'        ],
-# [ "Win32->canonpath('//a/b\\c')",       '\\\\a\\b\\c'         ],
-# [ "Win32->canonpath('////')",           '\\\\\\'              ],
-# [ "Win32->canonpath('//')",             '\\'                  ],
-# [ "Win32->canonpath('/.')",             '\\.'                 ],
-# [ "Win32->canonpath('//a/b/../../c')",  '\\\\a\\b\\c'         ],
-# [ "Win32->canonpath('//a/b/c/../d')",   '\\\\a\\b\\d'         ],
-# [ "Win32->canonpath('//a/b/c/../../d')",'\\\\a\\b\\d'         ],
-# [ "Win32->canonpath('//a/b/c/.../d')",  '\\\\a\\b\\d'         ],
-# [ "Win32->canonpath('/a/b/c/../../d')", '\\a\\d'              ],
-# [ "Win32->canonpath('/a/b/c/.../d')",   '\\a\\d'              ],
-# [ "Win32->canonpath('\\../temp\\')",    '\\temp'              ],
-# [ "Win32->canonpath('\\../')",          '\\'                  ],
-# [ "Win32->canonpath('\\..\\')",         '\\'                  ],
-# [ "Win32->canonpath('/../')",           '\\'                  ],
-# [ "Win32->canonpath('/..\\')",          '\\'                  ],
-# [ "Win32->can('_cwd')",                 '/CODE/'              ],
+
 
 

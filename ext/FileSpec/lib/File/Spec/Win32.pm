@@ -15,12 +15,12 @@ sub splitdir (Str $directories) returns Array is export { split("\\", $directori
 sub splitpath (Str $path, Bool ?$nofile) returns Array is export {
     my ($volume, $directory, $file) = ('','','');
     if ($nofile) {
-        $path ~~ rx:perl5{^( (?:[a-zA-Z]:|(?:\\\\|//)[^\\/]+[\\/][^\\/]+)? ) (.*)};
+        $path ~~ rx:perl5{^((?:[a-zA-Z]:|(?:\\\\|//)[^\\/]+[\\/][^\\/]+)?)(.*)};
         $volume    = $1;
         $directory = $2;
     }
     else {
-        $path ~~ rx:perl5{^ ( (?: [a-zA-Z]: | (?:\\\\|//)[^\\/]+[\\/][^\\/]+)?)( (?:.*[\\/](?:\.\.?\Z(?!\n))?)? )(.*)};
+        $path ~~ rx:perl5{^((?:[a-zA-Z]:|(?:\\\\|//)[^\\/]+[\\/][^\\/]+)?)((?:.*[\\/](?:\.\.?\Z(?!\n))?)?)(.*)};
         $volume    = $1;
         $directory = $2;
         $file      = $3;
@@ -79,15 +79,19 @@ sub catpath (Str $volume, Str $directory, Str $file) returns Str is export {
 sub canonpath (Str $_path) returns Str is export {
     my $path = $_path;
     my $orig_path = $path;
-#     $path ~~ s/^([a-z]:)/\u$1/s;
-    $path ~~ s:perl5{/}{\\}; #g
-#     $path ~~ s|([^\\])\\+|$1\\|g;                                                 # xx\\\\xx  -> xx\xx
-    $path ~~ s:perl5{(\\\.)+\\}{\\}; #g                                             # xx\.\.\xx -> xx\xx
+    {
+        $path ~~ rx:perl5{^([a-z]:)};
+        my $match = uc($1);
+        $path ~~ s:perl5{^([a-z]:)}{$match}; #s;
+    }
+    $path ~~ s:perl5:g{/}{\\};
+    #$path ~~ s:perl5:g{([^\\])\\+}{$1\\};                                                 # xx\\\\xx  -> xx\xx
+    $path ~~ s:perl5:g{(\\\.)+\\}{\\};                                           # xx\.\.\xx -> xx\xx
     $path ~~ s:perl5{^(\.\\)+}{} unless $path eq ".\\";                             # .\xx      -> xx
     $path ~~ s:perl5{\\\Z(?!\n)}{} unless $path ~~ rx:perl5{^([A-Z]:)?\\\Z(?!\n)};  # xx\       -> xx
     # xx1/xx2/xx3/../../xx -> xx1/xx
-    $path ~~ s:perl5{\\\.\.\.\\}{\\\.\.\\\.\.\\}; #g                                # \...\ is 2 levels up
-    $path ~~ s:perl5{^\.\.\.\\}{\.\.\\\.\.\\}; #g                                   # ...\ is 2 levels up
+    $path ~~ s:perl5:g{\\\.\.\.\\}{\\\.\.\\\.\.\\};                                # \...\ is 2 levels up
+    $path ~~ s:perl5:g{^\.\.\.\\}{\.\.\\\.\.\\};                                   # ...\ is 2 levels up
     return $path if $path ~~ rx:perl5{^\.\.};                                       # skip relative paths
     return $path unless $path ~~ rx:perl5{\.\.};                                    # too few .'s to cleanup
     return $path if $path ~~ rx:perl5{\.\.\.\.};                                    # too many .'s to cleanup
@@ -115,13 +119,28 @@ sub canonpath (Str $_path) returns Str is export {
     return $path;
 }
 
+# Refacted this into a Junction instead of the
+# regexp since all it does it remove . and ..
+sub no_upwards (*@filenames) returns Array is export { 
+    @filenames.grep:{ $_ ne ('.' & '..') }
+}
+
 sub path returns Array is export {
     my $path = %*ENV{'PATH'} || %*ENV{'Path'} || %*ENV{'path'};
     return split(';', $path).map:{ $_ eq '' ?? '.' :: $_ };
 }
 
 sub file_name_is_absolute (Str $file) returns Bool is export { 
-	?($file ~~ rx:perl5{^([a-zA-Z]:)?[\\/]} ) 
+	?($file ~~ rx:perl5{^([a-zA-Z]:)?[\\/]}) 
+}
+
+# This HACK is worse than 
+# the File::Spec platform hack 
+sub cwd returns Str { 
+    my @retval = system("cd");
+    my $cwd = @retval[0];
+    chomp($cwd);
+    return $cwd;
 }
 
 # my $tmpdir;

@@ -120,6 +120,16 @@ sub abs2rel (Str $_path, Str $_base) returns Str is export {
 
 ## Misc.
 
+sub canonpath (Str $_path) returns Str is export {
+    my $path = $_path; 
+    $path ~~ s:perl5:g{/+}{/};                            # xx////xx  -> xx/xx   
+    $path ~~ s:perl5:g{(/\.)+(/|\Z(?!\n))}{/};            # xx/././xx -> xx/xx
+    $path ~~ s:perl5:g{^(\./)+}{} unless $path eq "./";   # ./xx      -> xx
+    $path ~~ s:perl5:g{^/(\.\./)+}{/};                    # /../../xx -> xx
+    $path ~~ s:perl5:g{/\Z(?!\n)}{} unless $path eq "/";  # xx/       -> xx
+    return $path;
+}
+
 # Refacted this into a Junction instead of the
 # regexp since all it does it remove . and ..
 sub no_upwards (*@filenames) returns Array is export { 
@@ -133,16 +143,6 @@ sub file_name_is_absolute (Str $file) returns Bool is export {
 sub path returns Array is export {
     return unless %*ENV{'PATH'}.defined;
     return split(':', %*ENV{'PATH'}).map:{ $_ eq '' ?? '.' :: $_ };
-}
-
-sub canonpath (Str $_path) returns Str is export {
-    my $path = $_path; 
-    $path ~~ s:perl5:g{/+}{/};                            # xx////xx  -> xx/xx   
-    $path ~~ s:perl5:g{(/\.)+(/|\Z(?!\n))}{/};            # xx/././xx -> xx/xx
-    $path ~~ s:perl5:g{^(\./)+}{} unless $path eq "./";   # ./xx      -> xx
-    $path ~~ s:perl5:g{^/(\.\./)+}{/};                    # /../../xx -> xx
-    $path ~~ s:perl5:g{/\Z(?!\n)}{} unless $path eq "/";  # xx/       -> xx
-    return $path;
 }
 
 # This HACK is worse than 
