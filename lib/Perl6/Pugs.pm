@@ -24,32 +24,6 @@ the full Perl6 specification, as detailed in the Synopses.
 The Pugs project was started on February 1st 2005.  It is under active
 development on IRC (irc.freenode.net #perl6).
 
-=head2 Release Plans
-
-The major/minor version numbers of Pugs converges to 2*pi; each significant
-digit in the minor version represents a milestone.  The third digit is
-incremented for each release.
-
-The current milestones are:
-
-=over 4
-
-=item 6.0: Initial release.
-
-=item 6.2: Basic IO and control flow elements; mutable variables; assignment.
-
-=item 6.28: Classes and traits.
-
-=item 6.283: Rules and Grammars.
-
-=item 6.2831: Role composition and other runtime features.
-
-=item 6.28318: Macros.
-
-=item 6.283185: Rewrite in Perl6.
-
-=back
-
 =head1 SEE ALSO
 
 The Pugs homepage is at L<http://pugscode.org/>.
