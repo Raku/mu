@@ -1286,67 +1286,100 @@ role SQL::Routine-0.0.2 {
 
 ######################################################################
 
-method valid_enumerated_types( Str ?$type ) {
-	$type and return exists( %ENUMERATED_TYPES{$type} );
+multi method valid_enumerated_types() returns Hash of Bool {
 	return {%ENUMERATED_TYPES.keys.map:{ ($_ => 1) }};
 }
 
-method valid_enumerated_type_values( Str $type, ?$value ) {
-	$type and (exists( %ENUMERATED_TYPES{$type} ) or return);
-	$value and return exists( %ENUMERATED_TYPES{$type}.{$value} );
+multi method valid_enumerated_types( Str $type ) returns Bool {
+	return %ENUMERATED_TYPES{$type}.exists;
+}
+
+multi method valid_enumerated_type_values( Str $type ) returns Hash of Str {
+	%ENUMERATED_TYPES{$type}.exists or return;
 	return {%ENUMERATED_TYPES{$type}};
 }
 
-method valid_node_types( Str ?$type ) {
-	$type and return exists( %NODE_TYPES{$type} );
+multi method valid_enumerated_type_values( Str $type, Str $value ) returns Bool {
+	%ENUMERATED_TYPES{$type}.exists or return;
+	return %ENUMERATED_TYPES{$type}.{$value}.exists;
+}
+
+multi method valid_node_types() returns Hash of Bool {
 	return {%NODE_TYPES.keys.map:{ ($_ => 1) }};
 }
 
-method node_types_with_pseudonode_parents( Str ?$type ) {
-	if( $type ) {
-		exists( %NODE_TYPES{$type} ) or return;
-		return %NODE_TYPES{$type}.{$TPI_PP_PSEUDONODE};
-	}
-	return {map:{ ($_ => %NODE_TYPES{$_}.{$TPI_PP_PSEUDONODE}) } 
-		grep:{ %NODE_TYPES{$_}.{$TPI_PP_PSEUDONODE} } %NODE_TYPES.keys};
+multi method valid_node_types( Str $type ) returns Bool {
+	return %NODE_TYPES{$type}.exists;
 }
 
-method node_types_with_primary_parent_attributes( Str ?$type ) {
-	if( $type ) {
-		exists( %NODE_TYPES{$type} ) or return;
-		exists( %NODE_TYPES{$type}.{$TPI_PP_NREF} ) or return;
-		return [%NODE_TYPES{$type}.{$TPI_PP_NREF}];
-	}
-	return {map:{ ($_ => [%NODE_TYPES{$_}.{$TPI_PP_NREF}]) } 
-		grep:{ %NODE_TYPES{$_}.{$TPI_PP_NREF} } %NODE_TYPES.keys};
+multi method node_types_with_pseudonode_parents() returns Hash of Str {
+	return {%NODE_TYPES.keys.
+		grep:{ %NODE_TYPES{$_}.{$TPI_PP_PSEUDONODE} }.
+		map:{ ($_ => %NODE_TYPES{$_}.{$TPI_PP_PSEUDONODE}) }};
 }
 
-method valid_node_type_literal_attributes( Str $type, Str ?$attr ) {
-	$type and (exists( %NODE_TYPES{$type} ) or return);
-	exists( %NODE_TYPES{$type}.{$TPI_AT_LITERALS} ) or return;
-	$attr and return %NODE_TYPES{$type}.{$TPI_AT_LITERALS}.{$attr};
-	return {%{%NODE_TYPES{$type}.{$TPI_AT_LITERALS}}};
+multi method node_types_with_pseudonode_parents( Str $type ) returns Str {
+	%NODE_TYPES{$type}.exists or return;
+	return %NODE_TYPES{$type}.{$TPI_PP_PSEUDONODE};
 }
 
-method valid_node_type_enumerated_attributes( Str $type, Str ?$attr ) {
-	$type and (exists( %NODE_TYPES{$type} ) or return);
-	exists( %NODE_TYPES{$type}.{$TPI_AT_ENUMS} ) or return;
-	$attr and return %NODE_TYPES{$type}.{$TPI_AT_ENUMS}.{$attr};
+multi method node_types_with_primary_parent_attributes() returns Hash of Array of Str {
+	return {%NODE_TYPES.keys.
+		grep:{ %NODE_TYPES{$_}.{$TPI_PP_NREF} }.
+		map:{ ($_ => [%NODE_TYPES{$_}.{$TPI_PP_NREF}]) }};
+}
+
+multi method node_types_with_primary_parent_attributes( Str $type ) returns Array of Str {
+	%NODE_TYPES{$type}.exists or return;
+	%NODE_TYPES{$type}.{$TPI_PP_NREF}.exists or return;
+	return [%NODE_TYPES{$type}.{$TPI_PP_NREF}];
+}
+
+multi method valid_node_type_literal_attributes( Str $type ) returns Hash of Str {
+	%NODE_TYPES{$type}.exists or return;
+	%NODE_TYPES{$type}.{$TPI_AT_LITERALS}.exists or return;
+	return {%NODE_TYPES{$type}.{$TPI_AT_LITERALS}};
+}
+
+multi method valid_node_type_literal_attributes( Str $type, Str $attr ) returns Str {
+	%NODE_TYPES{$type}.exists or return;
+	%NODE_TYPES{$type}.{$TPI_AT_LITERALS}.exists or return;
+	return %NODE_TYPES{$type}.{$TPI_AT_LITERALS}.{$attr};
+}
+
+multi method valid_node_type_enumerated_attributes( Str $type ) returns Hash of Str {
+	%NODE_TYPES{$type}.exists or return;
+	%NODE_TYPES{$type}.{$TPI_AT_ENUMS}.exists or return;
 	return {%NODE_TYPES{$type}.{$TPI_AT_ENUMS}};
 }
 
-method valid_node_type_node_ref_attributes( Str $type, Str ?$attr ) {
-	$type and (exists( %NODE_TYPES{$type} ) or return);
-	exists( %NODE_TYPES{$type}.{$TPI_AT_NREFS} ) or return;
-	my %rh = %NODE_TYPES{$type}.{$TPI_AT_NREFS};
-	$attr and return %rh.{$attr} ?? [%rh.{$attr}] :: undef;
-	return {map:{ ($_ => [%rh.{$_}]) } %rh.keys};
+multi method valid_node_type_enumerated_attributes( Str $type, Str $attr ) returns Str {
+	%NODE_TYPES{$type}.exists or return;
+	%NODE_TYPES{$type}.{$TPI_AT_ENUMS}.exists or return;
+	return %NODE_TYPES{$type}.{$TPI_AT_ENUMS}.{$attr};
 }
 
-method valid_node_type_surrogate_id_attributes( Str ?$type ) {
-	$type and (exists( %NODE_TYPES{$type} ) or return);
-	$type and return (grep:{ $_ } @{%NODE_TYPES{$type}.{$TPI_SI_ATNM}})[0];
-	return {map:{ ($_ => (grep:{ $_ } @{%NODE_TYPES{$_}.{$TPI_SI_ATNM}})[0]) } %NODE_TYPES.keys};
+multi method valid_node_type_node_ref_attributes( Str $type ) returns Hash of Array of Str {
+	%NODE_TYPES{$type}.exists or return;
+	%NODE_TYPES{$type}.{$TPI_AT_NREFS}.exists or return;
+	return {%NODE_TYPES{$type}.{$TPI_AT_NREFS}.pairs.map:{ ($_.key => [$_.value]) }};
+}
+
+multi method valid_node_type_node_ref_attributes( Str $type, Str $attr ) returns Array of Str {
+	%NODE_TYPES{$type}.exists or return;
+	%NODE_TYPES{$type}.{$TPI_AT_NREFS}.exists or return;
+	%NODE_TYPES{$type}.{$TPI_AT_NREFS}.{$attr}.exists or return;
+	return [%NODE_TYPES{$type}.{$TPI_AT_NREFS}.{$attr}];
+}
+
+multi method valid_node_type_surrogate_id_attributes() {
+	%NODE_TYPES{$type}.exists or return;
+	return {%NODE_TYPES.pairs.map:{ ($_.key => $_.value.{$TPI_SI_ATNM}.grep:{ $_ }.[0]) }};
+}
+
+multi method valid_node_type_surrogate_id_attributes( Str $type ) {
+	%NODE_TYPES{$type}.exists or return;
+	return %NODE_TYPES{$type}.{$TPI_SI_ATNM}.grep:{ $_ }.[0];
 }
 
 ######################################################################
@@ -3335,10 +3368,10 @@ method :_assert_child_comp_deferrable_constraints( $node_or_class: Str $pseudono
 					$child_node.:node_id;
 				$hash_key.defined or next; # An error, but let a different test flag it.
 				ref($hash_key) and next; # some comps by target lit/enum are known to be false errors; todo, see if any legit errors
-				if( exists( $examined_children{$hash_key} ) ) {
+				if( %examined_children{$hash_key}.exists ) {
 					# Multiple Nodes have the same primary-parent and surrogate id.
 					my $child_node_id = $child_node.:node_id;
-					my $matched_child_node = $examined_children{$hash_key};
+					my $matched_child_node = %examined_children{$hash_key};
 					my $matched_child_node_type = $matched_child_node.:node_type;
 					my $matched_child_node_id = $matched_child_node.:node_id;
 					if( ref($node_or_class) ) {
@@ -3353,7 +3386,7 @@ method :_assert_child_comp_deferrable_constraints( $node_or_class: Str $pseudono
 							'C2NTYPE' => $matched_child_node_type, 'C2NID' => $matched_child_node_id } );
 					}
 				}
-				$examined_children{$hash_key} = $child_node;
+				%examined_children{$hash_key} = $child_node;
 			}
 		}
 	}
@@ -3415,11 +3448,11 @@ method :_assert_child_comp_deferrable_constraints( $node_or_class: Str $pseudono
 						$val.defined or next CHILD; # null values are always distinct
 						$hash_key ~= $val~','; # stringifies to likes of 'HASH(NNN)'
 					}
-					if( exists( $examined_children{$hash_key} ) ) {
+					if( %examined_children{$hash_key}.exists ) {
 						# Multiple Nodes in same group have the same hash key, which 
 						# means they are identical by means of the compared attributes.
 						my $child_node_id = $child_node.:node_id;
-						my $matched_child_node = $examined_children{$hash_key};
+						my $matched_child_node = %examined_children{$hash_key};
 						my $matched_child_node_type = $matched_child_node.:node_type;
 						my $matched_child_node_id = $matched_child_node.:node_id;
 						# SHORT CUT: We know that with all of our existing config data, 
@@ -3429,7 +3462,7 @@ method :_assert_child_comp_deferrable_constraints( $node_or_class: Str $pseudono
 							'C1NTYPE' => $child_node_type, 'C1NID' => $child_node_id, 
 							'C2NTYPE' => $matched_child_node_type, 'C2NID' => $matched_child_node_id } );
 					}
-					$examined_children{$hash_key} = $child_node;
+					%examined_children{$hash_key} = $child_node;
 				}
 			}
 		}
