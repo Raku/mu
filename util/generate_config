@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use Config;
 use File::Spec;
-use Spiffy -XXX;
+#use Spiffy -XXX;
 
 {
     my $config = set_pugs_config_values();
@@ -67,6 +67,7 @@ sub write_config_module {
     my $all_definitions = join '', map {
         my $name = $_;
         my $value = $config->{$name};
+	$value =~ s{\\}{\\\\}g;
         qq{config_$name = "$value"\n};
     } sort keys %$config;
     $template =~ s/#all_definitions#/$all_definitions/;
