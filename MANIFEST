@@ -21,7 +21,9 @@ examples/sendmoremoney.p6
 examples/shuffle.p6
 ext/Kwid/kwid
 ext/Kwid/lib/Kwid.pm
+ext/Kwid/Makefile
 ext/Kwid/Makefile.PL
+ext/Kwid/pm_to_blib
 ext/Kwid/src/Kwid/AST.hs
 ext/Kwid/src/Kwid/Compile.hs
 ext/Kwid/src/Kwid/Parser.hs
@@ -61,6 +63,7 @@ SIGNATURE
 src/AST.hs
 src/Bind.hs
 src/builtins.kwid
+src/Config.hs
 src/Cont.hs
 src/Context.hs
 src/Eval.hs
@@ -75,6 +78,8 @@ src/Parser/Kwid.hs
 src/Posix.hs
 src/Pretty.hs
 src/Prim.hs
+src/pugs_config.h
+src/pugs_version.h
 src/Rule.hs
 src/Rule/Char.hs
 src/Rule/Combinator.hs
@@ -93,6 +98,7 @@ t/03operator.t
 t/06sub.t
 t/base/anon_block.t
 t/base/cond.t
+t/base/control_blocks.t
 t/base/for.t
 t/base/given.t
 t/base/if.t
@@ -109,6 +115,7 @@ t/Dialects/perlego/sigilless.t
 t/magicals/block.t
 t/magicals/env.t
 t/magicals/inc.t
+t/magicals/progname.t
 t/magicals/sub.t
 t/magicals/subname.t
 t/magicals/vars.t
@@ -140,6 +147,7 @@ t/op/pipe.t
 t/op/pop.t
 t/op/push.t
 t/op/quoting.t
+t/op/readline_chomped.t
 t/op/recurse.t
 t/op/ref.t
 t/op/relational.t
@@ -147,6 +155,7 @@ t/op/repeat.t
 t/op/shift.t
 t/op/split.t
 t/op/string_interpolation.t
+t/op/substr.t
 t/op/unshift.t
 t/op/zip.t
 t/Synopsis/S01.pod
@@ -162,5 +171,8 @@ t/Synopsis/S12.pod
 t/Synopsis/S13.pod
 t/syntax/decl_vs_assign_prec.t
 t/syntax/subscript_parse_bugs.t
+t/unspecced/chomp.t
+t/unspecced/chop.t
 t/unspecced/cont.t
+t/var/is_constant.t
 util/generate_config
