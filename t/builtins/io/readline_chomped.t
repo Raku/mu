@@ -6,7 +6,7 @@ require Test;
 plan 3;
 
 
-my $fh = open "t/builtins/io/readline_chomped.t";
+my $fh = open $*PROGRAM_NAME;
 ok($fh, "could open self");
 isa_ok($fh, 'Handle');
 
