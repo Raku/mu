@@ -42,7 +42,7 @@ WritePugs       (sign => 1);
 
 ################################################################################
 sub set_postamble {
-    my @srcfiles = map glob("$_/*.*hs"), @srcdirs;
+    my @srcfiles = grep !/MainCC/, map glob("$_/*.*hs"), @srcdirs;
 
     # turning off unused imports and deprecations for GHC6.4.
     my $ghc_flags = "-H200m -L. -Lsrc -Lsrc/pcre -I. -Isrc -Isrc/pcre -i. -isrc -isrc/pcre -static -Wall -fno-warn-missing-signatures -fno-warn-name-shadowing";

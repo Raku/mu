@@ -4,15 +4,17 @@
     Compiler interface.
 
     And words unheard were spoken then
-    of folk and Men and Elven-kin,
-    beyond the world were visions showed
-    forbid to those that dwell therein...
+    Of folk and Men and Elven-kin,
+    Beyond the world were visions showed
+    Forbid to those that dwell therein...
 -}
 
 module Compile where
+import Compile.Pugs (genPugs)
 import Compile.Parrot (genPIR)
 import Compile.Haskell (genGHC)
 
+compile "Pugs" = genPugs
 compile "Parrot" = genPIR
 compile "Haskell" = genGHC
 compile s = \_ -> error $ "Cannot compile to " ++ s

@@ -7,18 +7,24 @@ use File::Copy;
 use File::Basename;
 
 if (!@ARGV) {
-    die "Usage: $0 [-H|-P] [ source[.p6] | -e oneliner ]\n";
+    die "Usage: $0 [ --pugs | --haskell | --parrot ] [ source[.p6] | -e oneliner ]\n";
 }
 
-my $backend = '';
-if ($ARGV[0] eq '-H') {
+my $backend = 'Pugs';
+if ($ARGV[0] =~ /^-H|--haskell$/) {
     $backend = 'Haskell';
     shift @ARGV;
 }
-elsif ($ARGV[0] eq '-P') {
+elsif ($ARGV[0] =~ /^-P|--parrot$/) {
     $backend = 'Parrot';
     shift @ARGV;
 }
+elsif ($ARGV[0] =~ /^--pugs$/) {
+    $backend = 'Pugs';
+    shift @ARGV;
+}
+
+print "*** Using the '$backend' backend.\n";
 
 my $ghc_version = ghc_version();
 my $base = cwd();
@@ -29,7 +35,7 @@ if (!-e "src/Main.hs") {
     }
 }
 
-$ENV{PATH} .= $Config{path_sep} . $base;
+$ENV{PATH} = $base . $Config{path_sep} . $ENV{PATH};
 
 my $out = 'a';
 if (@ARGV and -e $ARGV[0]) {
@@ -39,39 +45,35 @@ if (@ARGV and -e $ARGV[0]) {
 $out .= ($^O eq 'MSWin32') ? ".exe" : ".out";
 
 unlink "dump.ast";
-
 system("pugs", "-C$backend" => @ARGV);
 exit 1 unless -e "dump.ast";
 
-copy ("$base/src/Main.hs" => "$base/src/MainCC.hs");
+if ($backend eq 'Parrot') {
+    rename "dump.ast" => $out;
+    chmod 0755, $out;
+}
+else {
+    rename "dump.ast" => "$base/src/MainCC.hs";
 
-open FH, '>>', "$base/src/MainCC.hs";
-open AST, "dump.ast" or die $!;
-print FH "\nmainCC = runAST \$ ";
-print FH <AST>;
-close AST;
-close FH;
+    my @ghc_flags = (
+        "-L$base", "-L$base/src", "-L$base/src/pcre",
+        "-I$base", "-I$base/src", "-I$base/src/pcre",
+        "-i$base", "-i$base/src", "-i$base/src/pcre",
+        qw(-static -Wall -fno-warn-unused-imports -fno-warn-unused-binds -fno-warn-missing-signatures -fno-warn-name-shadowing),
+    );
 
-unlink "dump.ast";
+    if ($ghc_version ge '6.4') {
+        push @ghc_flags, qw(-fno-warn-deprecations -fno-warn-orphans);
+    }
 
-my @ghc_flags = (
-    "-L$base", "-L$base/src", "-L$base/src/pcre",
-    "-I$base", "-I$base/src", "-I$base/src/pcre",
-    "-i$base", "-i$base/src", "-i$base/src/pcre",
-    qw(-static -Wall -fno-warn-missing-signatures -fno-warn-name-shadowing),
-);
+    push @ghc_flags, "$base/src/pcre/pcre.o";
+    push @ghc_flags, "$base/src/UnicodeC.o";
 
-if ($ghc_version ge '6.4') {
-    push @ghc_flags, qw(-fno-warn-deprecations -fno-warn-orphans);
+    (system("ghc", "-v0", "-o", $out, "--make", "-main-is", "MainCC.mainCC", @ghc_flags, "$base/src/MainCC.hs") == 0) or die $!;
+    unlink "$base/src/MainCC.hs";
 }
 
-if ($Config{_exe} ne '.exe') {
-    push @ghc_flags, "$base/src/pcre/pcre$Config{_o}";
-}
-
-system("ghc", "-v0", "-o", $out, "--make", "-main-is", "mainCC", @ghc_flags, "$base/src/MainCC.hs");
-unlink "$base/src/MainCC.hs";
-print "Generated output: $out\n";
+print "*** Generated output: $out\n" if -e $out;
 
 sub ghc_version {
     my $ghcver = `ghc --version`;

@@ -24,23 +24,19 @@ use v6;
 # }
 #
 
-sub main() {
-    my ($x, $y, $k);
-    # no substr now
-    my @b = (' ', '.', ':', ',', ';', '!', '/', '>', ')', '|', '&', 'I', 'H', '%', '*', '#');
+my ($x, $y, $k);
+# no substr now
+my @b = (' ', '.', ':', ',', ';', '!', '/', '>', ')', '|', '&', 'I', 'H', '%', '*', '#');
 
-    my ($r, $i, $z, $Z, $t, $c, $C);
-    loop ($y=30; $C = $y*0.1 - 1.5;) {
-        last() if $y-- < 0;
-	loop ($x=0; $c = $x*0.04 - 2.0, $z=0.0, $Z=0.0;) {
-            last() if $x++ > 75;
-	    loop ($r=$c, $i=$C, $k=0; $t = $z*$z - $Z*$Z + $r, $Z = 2.0*$z*$Z + $i, $z=$t; $k++) {
-                last() if $k > 12 or $z*$z + $Z*$Z > 10.0;
-	    }
-            print @b[ $k % 12 ];
+my ($r, $i, $z, $Z, $t, $c, $C);
+loop ($y=30; $C = $y*0.1 - 1.5;) {
+    last() if $y-- < 0;
+    loop ($x=0; $c = $x*0.04 - 2.0, $z=0.0, $Z=0.0;) {
+        last() if $x++ > 75;
+        loop ($r=$c, $i=$C, $k=0; $t = $z*$z - $Z*$Z + $r, $Z = 2.0*$z*$Z + $i, $z=$t; $k++) {
+            last() if $k > 12 or $z*$z + $Z*$Z > 10.0;
         }
-	print "\n";
+        print @b[ $k % 12 ];
     }
+    print "\n";
 }
-
-main();

@@ -6,7 +6,7 @@ our $VERSION = v6.0.13;
 
 =head1 NAME
 
-Perl6::Pugs - A Perl6 Implementation
+Perl6::Pugs - A Perl 6 Implementation
 
 =head1 VERSION
 
@@ -20,7 +20,7 @@ This document describes version 6.0.13 of Pugs, released March 21, 2005.
 =head1 DESCRIPTION
 
 Pugs is an implementation of Perl 6, written in Haskell. It aims to support
-the full Perl6 specification, as detailed in the Synopses.
+the full Perl 6 specification, as detailed in the Synopses.
 
 The Pugs project was started on February 1st 2005.  It is under active
 development on IRC (irc.freenode.net #perl6).

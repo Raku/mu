@@ -2,20 +2,22 @@
 
 module Compile.Haskell where
 import Internals
+import Internals.TH
 import AST
+import Run
 import Prim
 
-#if __GLASGOW_HASKELL__ < 604
-import Language.Haskell.THSyntax
-display = show
-#else
-import Language.Haskell.TH
-display = show . ppr
-#endif
-
-genGHC x = do
-    str <- runQ $ compile x
-    return $ display str
+genGHC exp = runQ [d| mainCC = runComp $(compile exp) |] >>= \str -> return . unlines $
+    [ "{-# OPTIONS -fglasgow-exts -O #-}"
+    , "module MainCC where"
+    , "import GHC.Base"
+    , "import Run"
+    , "import AST"
+    , "import Prim"
+    , "import Internals"
+    , ""
+    , showTH str
+    ]
 
 compile (App ('&':op) [] [arg]) = [| do
         val <- $(argC)
@@ -24,4 +26,4 @@ compile (App ('&':op) [] [arg]) = [| do
     argC = compile arg
 compile (Val (VStr s)) = [| return (VStr s) |]
 compile (Statements [(st, _)]) = [| do $(compile st) |]
-compile x = error (show x)
+compile exp = internalError ("Unrecognized construct: " ++ show exp)

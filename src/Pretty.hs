@@ -73,7 +73,7 @@ instance Pretty Val where
     format (VNum x) = if x == 1/0 then text "Inf" else text $ show x
     format (VInt x) = integer x
     format (VStr x) = text $ "'" ++ encodeUTF8 (concatMap quoted x) ++ "'"
-    format (VRat x) = double $ ((fromIntegral $ numerator x) / (fromIntegral $ denominator x) :: Double)
+    format (VRat x) = double $ ratToNum x
     format (VComplex x) = text $ show x
     format (VControl x) = text $ show x
     format (VRef (VList x))
@@ -102,6 +102,9 @@ instance Pretty Val where
 quoted '\'' = "\\'"
 quoted '\\' = "\\\\"
 quoted x = [x]
+
+ratToNum :: VRat -> VNum
+ratToNum x = (fromIntegral $ numerator x) / (fromIntegral $ denominator x)
 
 doubleBraces :: Doc -> Doc
 doubleBraces x = vcat [ (lbrace <> lbrace), nest defaultIndent x, rbrace <> rbrace]

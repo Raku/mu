@@ -118,7 +118,7 @@ instance Show (IORef (FiniteMap String String)) where
 
 internalError :: String -> a
 internalError s = error $ 
-    "Internal error: " ++ s ++ " please file a bug report."
+    "Internal error:\n    " ++ s ++ "\nPlease file a bug report."
 
 split :: (Eq a) => [a] -> [a] -> [[a]]
 split []  _   = internalError "splitting by an empty list"
