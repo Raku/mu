@@ -15,10 +15,7 @@ my @pair1 = $pair1.kv;
 if (@pair1[0] eq 'foo') { say "ok 3" } else { say "not ok 3" }
 if (@pair1[1] eq 'bar') { say "ok 4" } else { say "not ok 4" }
 
-sub quux { 'not quux' }
-
-my $pair2 = quux => "xyzzy";
-my $quux = $pair2.key;
+my $quux = eval '(quux => "xyzzy").key';
 
 if ($quux eq 'quux') { say "ok 5" } else { say "not ok 5 # TODO => lhs quotes" }
 

@@ -384,6 +384,7 @@ currentUnaryFunctions = do
         ]
 
 currentListFunctions = do
+    return []
     funs <- currentFunctions
     return $ unwords [
         name | f@Symbol{ symExp = Val (VSub sub) } <- funs
@@ -396,10 +397,6 @@ currentListFunctions = do
 parseOp = do
     ops <- operators
     buildExpressionParser ops parseTerm
-
-parseLitOp = do
-    ops <- litOperators
-    buildExpressionParser ops parseLitTerm
 
 ops f s = [f n | n <- sortBy revLength (words s)]
     where
@@ -473,16 +470,6 @@ ruleCodeSubscript = tryRule "code subscript" $ do
     (invs:args:_) <- parens $ parseParamList ruleExpression
     return $ \x -> Syn "()" [x, Syn "invs" invs, Syn "args" args]
 
-parseLitTerm = rule "argument" $ do
-    term <- choice
-        [ parseVar
-        , parseLit
-        , parseApply
-        , parseParens parseLitOp
-        ]
-    f <- option id rulePostTerm
-    return $ f term
-
 subNameWithPrefix prefix = (<?> "subroutine name") $ lexeme $ try $ do
     star    <- option "" $ string "*"
     c       <- wordAlpha
@@ -491,16 +478,21 @@ subNameWithPrefix prefix = (<?> "subroutine name") $ lexeme $ try $ do
 
 parseApply = lexeme $ do
     name            <- subNameWithPrefix "prefix:"
-    (invs:args:_)   <- maybeParens $ parseParamList parseLitTerm
+    (invs:args:_)   <- maybeParens $ parseParamList ruleExpression
     return $ App name invs args
 
 parseParamList parse = do
     formal <- maybeParens ((parse `sepEndBy` symbol ",") `sepEndBy` symbol ":")
     case formal of
         []                  -> return [[], []]
-        [args]              -> return [[], args]
-        [invocants,args]    -> return formal
+        [args]              -> return [[], unwind args]
+        [invocants,args]    -> return [unwind invocants, unwind args]
         _                   -> fail "Only one invocant list allowed"
+    where
+    unwind :: [Exp] -> [Exp]
+    unwind [] = []
+    unwind ((Syn "," list):xs) = unwind list ++ unwind xs
+    unwind x  = x
 
 nameToParam :: String -> Param
 nameToParam name = Param

@@ -515,15 +515,15 @@ arityMatch sub@Sub{ subAssoc = assoc, subParams = prms } argLen argSlurpLen
     | assoc == "list" || assoc == "chain"
     = Just sub
     | isNothing $ find (not . isSlurpy) prms -- XXX - what about empty ones?
+    , assoc == "pre"
     , slurpLen <- length $ filter (\p -> isSlurpy p && head (paramName p) == '$') prms
     , hasArray <- isJust $ find (\p -> isSlurpy p && head (paramName p) == '@') prms
     , if hasArray then slurpLen <= argSlurpLen else slurpLen == argSlurpLen
-    , assoc == "pre"
     = Just sub
-    | reqLen <- length $ filter (\p -> not $ isOptional p) prms
+    | reqLen <- length $ filter (\p -> not (isOptional p || isSlurpy p)) prms
     , optLen <- length $ filter (\p -> isOptional p) prms
-    , argLen >= reqLen && argLen <= (reqLen + optLen)
     --, error $ show (prms, reqLen, optLen, argLen)
+    , argLen >= reqLen && argLen <= (reqLen + optLen)
     = Just sub
     | otherwise
     = Nothing

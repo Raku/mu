@@ -20,7 +20,7 @@ sub ok ($cond, Str $descr) {
     else {
 	say("not ok ", $loop, " # TODO ", $descr);
     }
-}
+};
 
 
 eval '$bar = $::($foo)';
