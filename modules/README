@@ -1,4 +1,48 @@
 ===============================================================================
+= What happened to the modules directory?
+===============================================================================
+
+Don't Panic!
+
+All of the modules that were in this directory have been moved to
+repositories on FreePAN. (http://www.freepan.org)
+
+All of the revision history has been kept intact.
+
+All development of these modules will now happen on FreePAN instead of
+the pugs repository.
+
+Everyone that was a pugs maintainer as of April 4 2005 and also had a
+CPAN id has been given a FreePAN account/repository of the same id.
+
+Each module from this directory was moved into the FreePAN repository
+correlating to the person who originally added it to here.
+
+Everyone with a FreePAN repository is currently allow to commit to
+anyone else's repository. This will change soon, but it will be very
+easy to add a list or group of people as committer's to any module.
+
+Everyone must still authenticate to commit. The password for every
+account is currently "pugs".
+
+The modules in the "ext" are also on FreePAN but are mirrored in the
+pugs repository. You should continue to make commits to pugs for ext
+modules. Soon you will be able to commit to these modules on FreePAN
+like the other modules.
+
+As modules on FreePAN are completed, they will be mirrored in ext.
+
+If you have questions about this move, please post them here:
+
+    http://wiki.freepan.org/index.cgi?FreepanQuestions
+
+and they will be answered here:
+
+    http://wiki.freepan.org/index.cgi?FAQ
+
+or ask autrijus, ingy, gugod or mugwump on irc.
+
+===============================================================================
 = Pugs Modules Directory
 ===============================================================================
 
