@@ -76,29 +76,29 @@ ok $emailenv.from_address ~~ Email::Address;
 
 # check for correct values
 # -- use C<eval> so that Perl 6's new compile-time type checker doesn't give up :)
-catch { $emailenv.remote_host = eval '2idks8u3kjd' }
+try { $emailenv.remote_host = eval '2idks8u3kjd' }
 is $emailenv.remote_host, "mx.example.org";
 
-catch { $emailenv.remote_port = eval 'wjdfhsakjdh' }
+try { $emailenv.remote_port = eval 'wjdfhsakjdh' }
 is $emailenv.remote_port, 7777;
 
-catch { $emailenv.remote_port = eval -25; }
+try { $emailenv.remote_port = eval -25; }
 is $emailenv.remote_port, 7777;
 
-catch { $emailenv.remote_port = eval 9999999999 }
+try { $emailenv.remote_port = eval 9999999999 }
 is $emailenv.remote_port, 7777;
 
-catch { $emailenv.local_host = eval '2idks8u3kjd' }
+try { $emailenv.local_host = eval '2idks8u3kjd' }
 is $emailenv.local_host, "mx.example.net";
 
-catch { $emailenv.local_port = eval 'kasjdhskaj' }
+try { $emailenv.local_port = eval 'kasjdhskaj' }
 is $emailenv.remote_port, 6666;
-catch { $emailenv.local_port = eval -25 }
+try { $emailenv.local_port = eval -25 }
 is $emailenv.remote_port, 6666;
-catch { $emailenv.local_port = eval 9999999999 }
+try { $emailenv.local_port = eval 9999999999 }
 is $emailenv.remote_port, 6666;
 
-catch { $emailenv.recieved_timestamp = eval 'jhdfkjhdkjsdbf' }
+try { $emailenv.recieved_timestamp = eval 'jhdfkjhdkjsdbf' }
 is $emailenv.received_timestamp, 1107115985;
 
 
