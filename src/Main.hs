@@ -25,73 +25,30 @@ import Parser
 import Help
 import Pretty
 import Compile
+import ArgParse
 
 main :: IO ()
 main = do
     hSetBuffering stdout NoBuffering
     args <- getArgs
-    run $ concatMap joinDashE (procArg (sortArgs (foldl (++) [] (map canonicalizeOpt args))))
-    where
-    procArg x = [x]
+    run $ canonicalArgs args
 
-    -- XXX Ugly code that needs to be worked over
-    canonicalizeOpt('-':'c':[])      = ["-c"]
-    canonicalizeOpt('-':'d':[])      = ["-d"]
-    canonicalizeOpt('-':'e':[])      = ["-e"]
-    canonicalizeOpt('-':'h':[])      = ["-h"]
-    canonicalizeOpt("--help")        = ["-h"]
-    canonicalizeOpt('-':'l':[])      = [] -- ["-e", "# BEGIN{ ... }"] -- XXX fixme: Add real Perl6 fragment
-    canonicalizeOpt('-':'v':[])      = ["-v"]
-    -- canonicalizeOpt('-':'V':':':xs)  = ["-V:"++xs]
-    canonicalizeOpt("--version")     = ["-v"]
-    canonicalizeOpt('-':'w':[])      = ["-w"]
-    canonicalizeOpt('-':'c':rest)    = canonicalizeOpt("-c") ++ canonicalizeOpt('-':rest)
-    canonicalizeOpt('-':'d':rest)    = canonicalizeOpt("-d") ++ canonicalizeOpt('-':rest)
-    canonicalizeOpt('-':'e':frag)    = ["-e",frag]
-    canonicalizeOpt('-':'l':rest)    = canonicalizeOpt("-l") ++ canonicalizeOpt('-':rest)
-    canonicalizeOpt('-':'w':rest)    = canonicalizeOpt("-w") ++ canonicalizeOpt('-':rest)
-    canonicalizeOpt('-':'I':_)       = [] -- handled elsewhere already
-    canonicalizeOpt(a)               = [a]
-
-{-
-
-  sortArgs enforces a canonical order of command line switches.
-  Currently this is:
-
-    (-h -v -V) (-I) (-d) (-w) (-c) (-l -0 -e other)
-
-  This makes pattern matching more convenient
-
--}
-
--- Schwartzian transform ;))
-sortArgs :: [String] -> [String]
-sortArgs args = _unpackArgs (_sortArgs (_packArgs args))
-  where
-    _packArgs args   = map (\ a -> (argRank a,a)) args
-    _sortArgs args   = sortBy (\ (a::Int,_) (b::Int,_) -> compare a b) args
-    _unpackArgs args = map (\ (_,b) -> b ) args
-    argRank("-h") = -1
-    argRank("-v") = -1
-    argRank("-V") = -1
-    argRank('-':'V':':':_) = -1
-    argRank("-I") = 0
-    argRank("-d") = 1
-    argRank("-w") = 2
-    argRank("-c") = 3
-    argRank("-l") = 100  -- translated into Perl code (later)
-    argRank("-0") = 100  -- translated into Perl code (later)
-    argRank("-e") = 100  -- translated into Perl code
-    argRank(_)    = 100  -- Perl code fragment or filename or whatever
-
+-- see also ArgParse.hs    
 run :: [String] -> IO ()
 run (("-d"):rest)                 = run rest
+run (("-l"):rest)                 = run rest
 run (("-w"):rest)                 = run rest
+run (("-I"):_:rest)               = run rest
+-- XXX should raise an error here:
+-- run ("-I":[])                     = do
+--                                    print "Empty -I"
 
 run ("-h":_)                    = printCommandLineHelp
 run (("-V"):[])                 = printConfigInfo []
-run (('-':'V':':':item):_)      = printConfigInfo [item]
+run (("-V"):item:_)             = printConfigInfo [item]
 run ("-v":_)                    = banner
+
+-- turn :file: and "-e":frag into a common subroutine/token
 run ("-c":"-e":prog:_)          = doCheck "-e" prog
 run ("-c":file:_)               = readFile file >>= doCheck file
 run (("-e"):prog:args)          = doRun "-e" args prog
@@ -110,14 +67,6 @@ run []                          = do
     if isTTY
         then do banner >> intro >> repLoop
         else run ["-"]
-
-joinDashE :: [String] -> [String]
-joinDashE [] = []
-joinDashE (("-e"):a:("-e"):b:args) = do
-                                      joinDashE (("-e"):combined:args)
-                                    where
-                                      combined = a ++ "\n" ++ b
-joinDashE (x:xs) =  [ x ] ++ joinDashE xs
 
 -- convenience functions for GHCi
 eval :: String -> IO ()

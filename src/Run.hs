@@ -15,6 +15,7 @@ import Config
 import AST
 import Eval
 import Prim
+import ArgParse
 
 runEval :: Env -> Eval Val -> IO Val
 runEval env eval = do
@@ -100,12 +101,15 @@ prepareEnv name args = do
 getLibs :: [(String, String)] -> IO [String]
 getLibs environ = do
         args <- getArgs
-        return $ filter (not . null) (libs args)
+        return $ filter (not . null) (libs (canonicalArgs args))
     where
     envlibs nm = maybe [] (split (getConfig "path_sep")) $ nm `lookup` environ
-    inclibs args = map (drop 2) (filter isLibArg args)
-    isLibArg ('-':'I':_) = True
-    isLibArg _ = False
+
+    -- broken, need real parser
+    inclibs ("-I":dir:rest) = [dir] ++ inclibs(rest)
+    inclibs (_:rest)        = inclibs(rest)
+    inclibs ([])            = []
+
     libs args =  (inclibs args)
               ++ envlibs "PERL6LIB"
               ++ [ getConfig "archlib"
