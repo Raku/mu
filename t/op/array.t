@@ -105,3 +105,5 @@ is($result2, 3, 'got the right value from the slice');
 my @array9;
 isa_ok(@array9, 'Array');
 is(+@array9, 0, "new arrays are empty");
+
+todo_ok(eval 'my @array10 = (1, 2, 3,)', "trailing comma");
