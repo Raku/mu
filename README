@@ -6,6 +6,9 @@ Pugs is Copyright 2005 by Autrijus Tang.  All Rights Reserved.
 The "Rule" subsystem is derived from Parsec 2.0 by Daan Leijen, under a
 BSD-style license.  See src/Rule/LICENSE.
 
+The "Unicode" subsystem is derived from Dimitry Golubovsky's work,
+under the same license as GHC.
+
 LICENSE INFORMATION
 -------------------
 

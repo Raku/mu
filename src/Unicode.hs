@@ -1,21 +1,22 @@
 {-# OPTIONS -fglasgow-exts -cpp -fvia-c -fno-implicit-prelude -O #-}
 {-# OPTIONS -#include "UnicodeC.h" #-}
 {-# OPTIONS -#include "UnicodeC.c" #-}
------------------------------------------------------------------------------
--- |
--- Module      :  GHC.Unicode
--- Copyright   :  (c) The University of Glasgow, 2003
--- License     :  see libraries/base/LICENSE
--- 
--- Maintainer  :  cvs-ghc@haskell.org
--- Stability   :  internal
--- Portability :  non-portable (GHC extensions)
---
--- Implementations for the character predicates (isLower, isUpper, etc.)
--- and the conversions (toUpper, toLower).  The implementation uses
--- libunicode on Unix systems if that is available.
---
------------------------------------------------------------------------------
+
+{-
+    Unicode internals.
+
+    Sí na veth bâden im derel
+    Vi dúath dofn tummen.
+    Atham meraid velig a tynd
+    Athan eryd bain beraidh.
+    Or 'waith bain nura Anor
+    A panlû elin cuinar
+    Ú-pedithon 'i-aur gwann'
+    Egor nai îl 'namarië'.
+-}
+
+-- Based on the GHC.Unicode library, Copyright 2005, Dimitry Golubovsky.
+-- See GHC's LICENSE file for the full license text.
 
 module Unicode (
     GeneralCategory (..),
