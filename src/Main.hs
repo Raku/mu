@@ -87,7 +87,7 @@ run (("-d"):rest)                 = run rest
 run (("-w"):rest)                 = run rest
 
 run ("-h":_)                    = printCommandLineHelp
-run ("-V":item)                 = printConfigInfo item
+run ("-V":_)                    = printConfigInfo
 run ("-v":_)                    = banner
 run ("-c":"-e":prog:_)          = doCheck "-e" prog
 run ("-c":file:_)               = readFile file >>= doCheck file
@@ -250,8 +250,8 @@ runProgramWith fenv f name args prog = do
     val <- runEnv $ runRule (fenv env) id ruleProgram name $ decodeUTF8 prog
     f val
 
-printConfigInfo :: String -> IO ()
-printConfigInfo [] = do
+printConfigInfo :: IO ()
+printConfigInfo = do
     environ <- getEnvironment
     libs <- getLibs environ
     putStrLn $ unlines $
@@ -262,5 +262,5 @@ printConfigInfo [] = do
         ++ map (\x -> "\t" ++ fst x ++ ": " ++ snd x) (fmToList config)
         ++ [ "" ]
         ++ [ "@*INC:" ] ++ libs
-printConfigInfo item = do
-	putStrLn $ "\t" ++ item ++ ": " ++ lookupFM config item
+-- printConfigInfo item = do
+--	putStrLn $ "\t" ++ item ++ ": " ++ lookupFM config item
