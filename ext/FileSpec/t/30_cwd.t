@@ -3,16 +3,17 @@
 use v6;
 require Test;
 
+plan 2;
+
 =pod
 
 Test handling of C<cwd>.
 
 =cut
 
-require File::Spec;
+use_ok('File::Spec');
 
 sub manual_cwd () {
-
   # This HACK is worse than
   # the File::Spec platform hack
   if ($?OS eq 'MSWin32') {
@@ -20,11 +21,16 @@ sub manual_cwd () {
     my $cwd = @retval[0];
     chomp($cwd);
     return $cwd;
-  } else {
-    system("pwd")
   }
-};
+# This doesn't work - matter of fact it never did :)
+#   else {
+#     system("pwd")
+#   }
+}
 
-plan(1);
-
-is(cwd, manual_cwd, "cwd() returns the same as the manual implementation")
+if ($?OS eq 'MSWin32') {
+    is(cwd(), manual_cwd(), "cwd() returns the same as the manual implementation in Win32");
+}
+else {
+    like(cwd(), rx:perl5{^\/}, "cwd() returns a file like value in Unix");
+}

@@ -277,6 +277,8 @@ akin to File::Spec::Functions.
 
 Stevan Little <stevan@iinteractive.com>
 
+Max Maischein <corion@cpan.org>
+
 = ACKNOWLEDGEMENTS
 
 This is a port of the perl5 File::Spec::Win32 module which is currently

@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 164;
+plan 165;
 
 =pod
 
@@ -11,7 +11,7 @@ This is a test of the FileSpecWin32 module.
 
 =cut
 
-require File::Spec::Win32;
+use_ok('File::Spec::Win32');
 
 is(curdir(),  '.',         '... got the right curdir');
 is(updir(),   '..',        '... got the right updir');

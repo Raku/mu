@@ -3,9 +3,9 @@
 use v6;
 require Test;
 
-plan 1;
+plan 2;
 
-require File::Spec;
+use_ok('File::Spec');
 
 if ($?OS eq 'MSWin32') {
     is(devnull(), 'nul', '... you are on Win32');

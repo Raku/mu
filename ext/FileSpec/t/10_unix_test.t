@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 100;
+plan 101;
 
 =pod
 
@@ -13,7 +13,7 @@ file.
 
 =cut
 
-require File::Spec::Unix;
+use_ok('File::Spec::Unix');
 
 is(curdir(),  '.',         '... got the right curdir');
 is(updir(),   '..',        '... got the right updir');
