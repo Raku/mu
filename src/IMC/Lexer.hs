@@ -1,6 +1,6 @@
 {-# OPTIONS -fglasgow-exts #-}
 
-module IMCC.Lexer where
+module IMC.Lexer where
 import Internals
 import Rule hiding (letter)
 

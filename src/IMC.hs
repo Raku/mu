@@ -1,7 +1,7 @@
 {-# OPTIONS -fglasgow-exts #-}
 
 {-
-    IMCC implementation.
+    Parrot IMC implementation.
 
     All that is gold does not glitter,
     Not all those who wander are lost;
@@ -9,6 +9,6 @@
     Deep roots are not reached by the frost.
 -}
 
-module IMCC where
-import IMCC.Lexer
+module IMC where
+import IMC.Lexer
 
