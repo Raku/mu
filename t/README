@@ -48,7 +48,7 @@ read it.
 
 - Pugs tests should have a she-bang line of #!/usr/bin/pugs.
 
-This line helps both Test::Harness as well as the `prove` utility when 
+This line helps both Test::Harness as well as the 'prove' utility when 
 running Pugs tests. 
 
 - Place tests in the appropriate folder.
@@ -79,7 +79,7 @@ from the linked section, so the backlink is put in a more specific place:
 The above link is appropriate next to a test case checking rule application in
 numeric context, and it will place the backlink appropriately.
 
-Try running ``grep -r "L<" t/'' to see some examples.
+Try running 'grep -r "L<" t/' to see some examples.
 
 - When TODO and when not TODO.
 
@@ -89,5 +89,6 @@ yet implemented, it is TODO. But if a feature is broken, or a bug is found
 then the tests should fail and *not* be TODO.
 
 The only exception to this rule is that we TODO all failing tests before 
-each weekly release. This is so `make test` will succeed :)
+each weekly release. This is so 'make test' will succeed :)
 
+Remember, the failing test *is* your bug report.
