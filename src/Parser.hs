@@ -294,12 +294,12 @@ ruleUsePackage = rule "use package" $ do
 
 ruleRequireDeclaration = tryRule "require declaration" $ do
     symbol "require"
-    names <- identifier `sepBy1` string "::"
+    names <- identifier `sepBy1` (try $ string "::")
     return $ App "&require" [] [Val . VStr $ concat (intersperse "/" names) ++ ".pm"]
 
 ruleModuleDeclaration = rule "module declaration" $ do
     symbol "module"
-    _ <- identifier `sepBy1` string "::" -- name - XXX
+    _ <- identifier `sepBy1` (try $ string "::") -- name - XXX
     _ <- option "" $ do -- version - XXX
         char '-'
         many1 (choice [ digit, char '.' ])
@@ -718,8 +718,8 @@ ruleVarNameString =   try (string "$!")  -- error variable
     sigil   <- oneOf "$@%&"
     -- ^ placeholder, * global, ? magical, . member, : private member
     caret   <- option "" $ choice $ map string $ words " ^ * ? . : "
-    name    <- many1 (choice [ wordAny, char ':' ])
-    return $ (sigil:caret) ++ name
+    names   <- many1 wordAny `sepBy1` (try $ string "::")
+    return $ (sigil:caret) ++ concat (intersperse "::" names)
 
 parseVar = do
     name    <- parseVarName
