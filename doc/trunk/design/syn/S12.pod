@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 5 Nov 2004
+  Last Modified: 6 Nov 2004
   Number: 12
-  Version: 1
+  Version: 2
 
 =head1 Overview
 
@@ -570,8 +570,6 @@ that is considered an implementation detail:
 	is Friend;
     }
 
-=head2 Use of Roles at Compile Time
-
 A class incorporates a role with the verb "does", like this:
 
     class Dog is Mammal does Pet does Sentry {...}
@@ -821,16 +819,33 @@ automatically performed.
 
 =head1 Types and Subtypes
 
-To remind people that a subtype of a class is just a constrained alias
-for the class, we avoid the "is" word and declare a type using a C<::=>
-compile-time alias, like this:
+The type system of Perl consists of roles, classes, and subtypes.
+You can declare a subtype like this:
 
-    subtype Str_not2b ::= Str where /^[isnt|arent|amnot|aint]$/;
+    my subtype Str_not2b of Str where /^[isnt|arent|amnot|aint]$/;
 
-A subtype is not a subclass.  A subtype is primarily a handy way of sneaking
-smartmatching into multiple dispatch.  Just as a role allows you to
-specify something more general than a class, a subtype allows you to
-specify something more specific than a class.
+or this:
+
+    my Str subtype Str_not2b where /^[isnt|arent|amnot|aint]$/;
+
+An anonymous subtype looks like this:
+
+    Str where /^[isnt|arent|amnot|aint]$/;
+
+A C<where> clause implies future smartmatching of some kind: the as-yet
+unspecified object of the type on the left must match the selector on
+the right.  Our example is roughly equivalent to this closure:
+
+    { $_.does(Str) and $_ ~~ /^[isnt|arent|amnot|aint]$/; }
+
+except that a subtype knows when to call itself.
+
+A subtype is not a subclass.  Subclasses add capabilities, whereas
+a subtype adds constraints (takes away capabiliites).  A subtype is
+primarily a handy way of sneaking smartmatching into multiple dispatch.
+Just as a role allows you to specify something more general than a
+class, a subtype allows you to specify something more specific than
+a class.
 
 While subtypes are primarily intended for restricting parameter types
 for multiple dispatch, they also let you impose preconditions on
@@ -838,8 +853,8 @@ assignment.  If you declare any container with a subtype,
 Perl will check the constraint against any value you might try to
 bind or assign to the container.
 
-    subtype Str_not2b ::= Str where /^[isnt|arent|amnot|aint]$/;
-    subtype EvenNum   ::= Num where { $^n % 2 == 0 }
+    subtype Str_not2b of Str where /^[isnt|arent|amnot|aint]$/;
+    subtype EvenNum   of Num where { $^n % 2 == 0 }
 									    
     my Str_not2b $hamlet;
     $hamlet = 'isnt';   # Okay because 'isnt' ~~ /^[isnt|arent|amnot|aint]$/
@@ -856,14 +871,23 @@ constraint.
 
 You can use an anonymous subtype in a signature:
 
+    sub check_even (Num where { $^n % 2 == 0 } $even) {...}
+
+That's a bit unwieldy, but by the normal type declaration rules you
+can turn it around to get the variable out front:
+
+    sub check_even ($even of Num where { $^n % 2 == 0 }) {...}
+
+Subtype constraints are used as tiebreakers in multiple dispatch:
+
     use Rules::Common :profanity;
 
-    multi sub mesg (Str where /<profanity>/ $mesg is copy) {
+    multi sub mesg ($mesg of Str where /<profanity>/ is copy) {
 	$mesg ~~ s:g/<profanity>/[expletive deleted]/;
 	print $MESG_LOG: $mesg;
     }
 									    
-    multi sub mesg (Str $mesg) {
+    multi sub mesg ($mesg of Str) {
 	print $MESG_LOG: $mesg;
     }
 
@@ -874,42 +898,48 @@ preferred.
 
 =head1 Enums
 
-An enum is a low level class that can function as a role.  A given
-enum value can function either as a subtype or as an ordinary value.
-The values are specified as a list:
+An enum is a low-level class that can function as a role or property.
+A given enum value can function as a subtype, a method, or as an ordinary
+value (an argumentless sub).  The values are specified as a list:
 
-    my enum day is «Sun Mon Tue Wed Thu Fri Sat»;
-    my enum day is ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    my enum day «Sun Mon Tue Wed Thu Fri Sat»;
+    my enum day ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
 The default return type is C<int> or C<str> depending on the type of
 the first value.  The type can be specified:
 
-    my enum day returns int is «Sun Mon Tue Wed Thu Fri Sat»;
-    my enum day of int is «Sun Mon Tue Wed Thu Fri Sat»;
-    my int enum day is ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    my bit enum maybe «no yes»;
+    my int enum day ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    my enum day of int «Sun Mon Tue Wed Thu Fri Sat»;
+    my enum day returns int «Sun Mon Tue Wed Thu Fri Sat»;
+
+In theory you can have an anonymous enum, but in practice it's pretty useless:
+
+    $enum = enum « ook! ook. ook? »;
 
 The enum installer inspects the values for things that look like
 pairs, where the value of the pair sets the next value explicitly.
 Non-pairs C<++> the previous value.
 
-    my enum DayOfWeek is «:Sun(1) Mon Tue Wed Thu Fri Sat»;
+    my enum DayOfWeek «:Sun(1) Mon Tue Wed Thu Fri Sat»;
 
-    our str enum Phonetic is « :Alpha«A» Bravo Charlie Delta
-				Echo Foxtrot Golf Hotel India Juliet
-				Kilo Lima Mike November Oscar Papa
-				Quebec Romeo Sierra Tango Uniform
-				Victor Whiskey X-ray Yankee Zulu »
+    our str enum Phonetic « :Alpha«A» Bravo Charlie Delta
+			    Echo Foxtrot Golf Hotel India Juliet
+			    Kilo Lima Mike November Oscar Papa
+			    Quebec Romeo Sierra Tango Uniform
+			    Victor Whiskey X-ray Yankee Zulu »
 
-    enum roman is [i => 1,   v => 5,
-		   x => 10,  l => 50,
-		   c => 100, d => 500,
-		   m => 1000];
+    enum roman [i => 1,   v => 5,
+		x => 10,  l => 50,
+		c => 100, d => 500,
+		m => 1000];
 
-You may import enum types; non-colliding values function as
-argumentless constant subs.  Colliding enum values are hidden and must
-be disambiguated with the type name.  (All colliding values are hidden,
-not just the new one, or the old one.)  Any sub definition hides all
-enum values of the same name.
+You may import enum types; only non-colliding values are imported.
+Colliding enum values are hidden and must be disambiguated with the
+type name.  (All colliding values are hidden, not just the new one,
+or the old one.)  Any explicit sub or type definition hides all imported
+enum values of the same name but will produce a warning unless
+C<is redefined> is included.
 
 Unambiguous enum values may be used as a property on the right side
 of a C<but>, and the enum type will be intuited from the value to make
@@ -931,12 +961,31 @@ After any of those
 
     $x.day
 
-returns C<Tue>.
+returns C<Tue>, and
+
+    $x ~~ day
+    $x ~~ Tue
+    $x.does(Tue)
+    $x.does(day)
+    $x.day == Tue
+    day($x) == Tue
+    Tue($x)
+    $x.Tue
+
+all return true, and
+
+    $x.does(Wed)
+    $x.Wed
+    $x.day == Wed
+    8.does(day)
+    8 ~~ day
+
+all return false.
 
 Two built-in enums are:
 
-    our bit enum *bool «false true»;
-    our bit enum *taint «untainted tainted»;
+    our bit enum *bool handles «false true»;
+    our bit enum *taint handles «untainted tainted»;
 
 Note that C<bool> and C<taint> are really role names.  You can call
 C<.bool> on any built-in type, but the value returned is of type C<bit>.
