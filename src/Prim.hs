@@ -280,16 +280,17 @@ op1 "=" = \v -> do
             then return stdin
             else handleOf (VList [VStr $ vCast (head files)]) -- XXX wrong
     handleOf v = fromVal v
-op1 "ref"  = return . VStr . valType
-op1 "pop"  = op1Pop (last, init)
-op1 "shift"= op1Pop (head, tail)
-op1 "pick" = op1Pick
-op1 "chr"  = return . op1Chr
-op1 "ord"  = return . op1Ord
-op1 "hex"  = return . op1Hex
-op1 "log"  = return . op1Log
+op1 "ref"   = return . VStr . valType
+op1 "pop"   = op1Pop (last, init)
+op1 "shift" = op1Pop (head, tail)
+op1 "pick"  = op1Pick
+op1 "sum"   = op1Sum
+op1 "chr"   = return . op1Chr
+op1 "ord"   = return . op1Ord
+op1 "hex"   = return . op1Hex
+op1 "log"   = return . op1Log
 op1 "log10" = return . op1Log10
-op1 other  = return . (\x -> VError ("unimplemented unaryOp: " ++ other) (App other [Val x] []))
+op1 other   = return . (\x -> VError ("unimplemented unaryOp: " ++ other) (App other [Val x] []))
 
 
 op1Values :: Val -> Val
@@ -350,6 +351,10 @@ op1Pop (fPick, fRem) list = do
         else do
             liftIO $ writeIORef (vCast array) $ VList $ fRem oldList
             return $ fPick oldList
+
+op1Sum list = do
+    vals <- mapM readMVal (vCast list)
+    return $ VNum $ sum $ map vCast vals
 
 op1Print :: (Handle -> String -> IO ()) -> Val -> Eval Val
 op1Print f v = do
@@ -488,9 +493,9 @@ op2 "or" = op2 "||"
 op2 "xor"= op2 "^^"
 op2 "err"= op2 "//"
 op2 "nor"= op2 "!!"
-op2 "grep"= op2Grep
-op2 "map"= op2Map
-op2 "join"= op2Join
+op2 "grep" = op2Grep
+op2 "map"  = op2Map
+op2 "join" = op2Join
 op2 "unshift" = op2Push (flip (++))
 op2 "push" = op2Push (++)
 op2 "split"= \x y -> do
@@ -925,6 +930,7 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Int       pre     unshift (rw!Array, List)\
 \\n   Scalar    pre     pop     (rw!Array)\
 \\n   Scalar    pre     shift   (rw!Array)\
+\\n   Num       pre     sum     (List)\
 \\n   Str       pre     join    (Str, List)\
 \\n   Str       pre     join    (Array, Str)\
 \\n   List      left    zip     (List)\
