@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 16;
+plan 18;
 
 # tests various assignment styles
 
@@ -57,3 +57,10 @@ plan 16;
     
 }
 
+{
+        my $a;
+        $a ||= 3;
+        is($a,3, "||= operator");
+        $a ||= 10;
+        is($a,3, "... adn second");
+}
