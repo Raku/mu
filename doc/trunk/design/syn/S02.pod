@@ -366,9 +366,9 @@ As with C<*>, the C<=> may also be used as a package name: C<$=::DATA>.
 =item *
 
 Magical lexically scoped values live in variables with a C<?>
-secondary sigil.  C<$?file> and C<$?line> are your current file and
+secondary sigil.  C<$?FILE> and C<$?LINE> are your current file and
 line number, for instance.  As with C<*>, the C<?> may also be used
-as a package name: C<$?::sub>.
+as a package name: C<$?::SUB>.
 
 =back
 
@@ -610,9 +610,9 @@ The double-underscore forms are going away:
 
     Old                 New
     ---                 ---
-    __LINE__            $?line
-    __FILE__            $?file
-    __PACKAGE__         $?package
+    __LINE__            $?LINE
+    __FILE__            $?FILE
+    __PACKAGE__         $?PACKAGE
     __END__             =begin END
     __DATA__            =begin DATA
 
@@ -627,9 +627,9 @@ pod comes as a separate array element.  You have to split it into lines
 yourself.  Each chunk has a C<.linenum> property that indicates its
 starting line within the source file.
 
-There is also a new C<$?sub> variable containing the name of current
-lexical sub.  The lexical sub itself is C<&?sub>.  The current block
-is C<&?block>.  If the block has a label, that shows up in C<$?block>.
+There is also a new C<$?SUBNAME> variable containing the name of current
+lexical sub.  The lexical sub itself is C<&?SUB>.  The current block
+is C<&?BLOCK>.  If the block has a label, that shows up in C<$?BLOCKLABEL>.
 
 =item *
 
