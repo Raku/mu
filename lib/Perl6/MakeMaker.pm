@@ -109,7 +109,7 @@ sub assert_ghc {
 
     my $config = get_perl6_libs();
     my $pugs_core = File::Spec->catdir($config->{archlib}, 'CORE', 'pugs');
-    my $ghc_flags = "-H200m -L. -Lsrc -Lsrc/pcre -I. -Isrc -Isrc/pcre -i.  -isrc -isrc/pcre -static -fno-warn-missing-signatures -fno-warn-name-shadowing -I$pugs_core -L$pugs_core -i$pugs_core";
+    my $ghc_flags = "-H0 -L. -Lsrc -Lsrc/pcre -I. -Isrc -Isrc/pcre -i.  -isrc -isrc/pcre -static -fno-warn-missing-signatures -fno-warn-name-shadowing -I$pugs_core -L$pugs_core -i$pugs_core";
     return ($ghc, $ghc_version, $ghc_flags);
 }
 
