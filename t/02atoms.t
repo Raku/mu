@@ -6,7 +6,6 @@ This is a test file.  Whee!
 
 =cut
 my $loop = 1;
-say "1..1";
 
 my $foo = "Foo";
 my $foobar = "Foo::Bar";
@@ -29,3 +28,4 @@ for (@blah) {
     $loop++;
 }
 
+say "1..", ($loop-1);
