@@ -85,7 +85,9 @@ instance Pretty Val where
     format (VHash (MkHash x)) = braces $ (joinList $ text ", ") (map format $ fmToList x)
     
     format (VHandle x) = text $ show x
-    format (MVal _) = text $ "<mval>" -- format $ castV x
+    format (MVal v) = text $ unsafePerformIO $ do
+        val <- readIORef v
+        return $ pretty val
     format VUndef = text $ "undef"
 
 quoted '\'' = "\\'"
