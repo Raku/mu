@@ -636,16 +636,15 @@ doApply Env{ envClasses = cls } sub@Sub{ subParams = prms, subFun = fun, subType
     doBind [] = return []
     doBind ((prm, exp):rest) = do
         -- trace ("<== " ++ (show (prm, exp))) $ return ()
-        (val, coll) <- case exp of
+        let name = paramName prm
+            cxt = cxtOfSigil $ head name
+        (val, coll) <- enterContext cxt $ case exp of
             Parens exp  -> local fixEnv $ expToVal prm exp -- default
             _           -> expToVal prm exp
         -- trace ("==> " ++ (show val)) $ return ()
-        let name = paramName prm
-            arg = ApplyArg name val coll
-        val' <- enterEvalContext (cxtOfSigil $ head name) (Val val)
-        restArgs <- enterLex [SymVal SMy name val'] $ do
+        restArgs <- enterLex [SymVal SMy name val] $ do
             doBind rest
-        return (arg:restArgs)
+        return (ApplyArg name val coll:restArgs)
     expToVal Param{ isThunk = thunk, isLValue = lv, isSlurpy = slurpy, paramContext = cxt } exp = do
         env <- ask -- freeze environment at this point for thunks
         let eval = local (const env{ envLValue = lv }) $ enterEvalContext cxt exp
