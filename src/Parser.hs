@@ -62,7 +62,7 @@ ruleStatement = do
 
 ruleStatementList :: RuleParser [(Exp, SourcePos)]
 ruleStatementList = rule "statements" $ choice
-    [ rulePodBlock
+    [ ruleDocBlock
     , nonSep  ruleBlockDeclaration
     , semiSep ruleDeclaration
     , nonSep  ruleConstruct
@@ -83,19 +83,19 @@ ruleBeginOfLine = do
     unless (sourceColumn pos == 1) $ fail ""
     return ()
 
-rulePodIntroducer = (<?> "intro") $ do
+ruleDocIntroducer = (<?> "intro") $ do
     ruleBeginOfLine
     char '='
 
-rulePodCut = (<?> "cut") $ do
-    rulePodIntroducer
+ruleDocCut = (<?> "cut") $ do
+    ruleDocIntroducer
     string "cut"
     ruleWhiteSpaceLine
     return ()
 
-rulePodBlock = verbatimRule "POD block" $ do
+ruleDocBlock = verbatimRule "Doc block" $ do
     isEnd <- try $ do
-        rulePodIntroducer
+        ruleDocIntroducer
         section <- do
             c <- wordAlpha
             cs <- many $ satisfy (not . isSpace)
@@ -111,14 +111,14 @@ rulePodBlock = verbatimRule "POD block" $ do
             many anyChar
             return []
         else do
-            rulePodBody
+            ruleDocBody
             whiteSpace
             option [] ruleStatementList
 
-rulePodBody = (try rulePodCut) <|> eof <|> do
+ruleDocBody = (try ruleDocCut) <|> eof <|> do
     many $ satisfy  (/= '\n')
     many1 newline -- XXX - paragraph mode
-    rulePodBody
+    ruleDocBody
     return ()
    
 -- Declarations ------------------------------------------------
