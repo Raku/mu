@@ -17,3 +17,5 @@ pm_to_blib$
 \.svn
 .DS_Store$
 docs/tutorial-utf8-2.txt
+src/Config.hs
+src/pugs_version.h
