@@ -30,7 +30,9 @@ ruleProgram = rule "program" $ do
     return $ env { envBody = Statements statements }
 
 ruleBlock :: RuleParser Exp
-ruleBlock = rule "block" $ braces ruleBlockBody
+ruleBlock = rule "block" $ do
+    body <- braces ruleBlockBody
+    retSyn "block" [body]
 
 ruleBlockBody = do
     whiteSpace
@@ -336,6 +338,9 @@ ruleConstruct = rule "construct" $ tryChoice
     , ruleWhileUntilConstruct
     , ruleTryConstruct
     , ruleStandaloneBlock
+    , ruleGivenConstruct
+    , ruleWhenConstruct
+    , ruleDefaultConstruct
     ]
 
 ruleKeywordConsturct keyword = rule (keyword ++ " construct") $ do
@@ -390,7 +395,24 @@ ruleWhileUntilConstruct = rule "while/until construct" $ do
     body <- ruleBlock
     retSyn sym [ cond, body ]
 
-ruleGivenConstruct = rule "given construct" $ fail ""
+ruleGivenConstruct = rule "given construct" $ do
+    sym <- symbol "given"
+    topic <- maybeParens $ ruleExpression
+    body <- ruleBlock
+    retSyn sym [ topic, body ]
+
+ruleWhenConstruct = rule "when construct" $ do
+    sym <- symbol "when"
+    match <- maybeParens $ ruleExpression
+    body <- ruleBlock
+    retSyn sym [ match, body ]
+
+-- XXX: make this translate into when true, when smartmatch
+-- against true works
+ruleDefaultConstruct = rule "default construct" $ do
+    sym <- symbol "default"
+    body <- ruleBlock
+    retSyn sym [ body ]
 
 -- Expressions ------------------------------------------------
 

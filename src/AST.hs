@@ -15,6 +15,7 @@ module AST where
 import Internals
 import Context
 import Rule
+import List
 
 type Ident = String
 
@@ -442,12 +443,13 @@ extract ((Statements stmts), vs) = (Statements stmts', vs')
     poss = map snd stmts
     (exps', vs') = foldr extractExp ([], vs) exps
     stmts' = exps' `zip` poss
-extract ((Syn n exps), vs) = (Syn n exps', nub $ vs' ++ imps)
+extract ((Syn n exps), vs) = (Syn n exps', vs'')
     where
-    imps = case n of
-        "when"  -> ["$_"]
-        _       -> []
     (exps', vs') = foldr extractExp ([], vs) exps
+    vs'' = case n of
+        "when"  -> nub $ vs' ++ ["$_"]
+        "given" -> delete "$_" vs'
+        _       -> vs'
 extract ((Var name), vs)
     | (sigil:'^':identifer) <- name
     , name' <- (sigil : identifer)

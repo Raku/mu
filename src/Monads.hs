@@ -68,6 +68,23 @@ enterScope f = do
     -}
 -}
 
+enterGiven topic action = enterLex [SymVal SMy "$_" topic] action
+
+enterWhen break action = callCC $ \esc -> do
+    enterLex [SymVal SMy "&continue" $ continueSub esc,
+              SymVal SMy "&break" break] action
+    where
+    continueSub esc = VSub $ Sub
+        { isMulti = False
+        , subName = "continue"
+        , subType = SubPrim
+        , subPad = []
+        , subAssoc = "pre"
+        , subParams = []
+        , subReturns = "Void"
+        , subFun = Prim (const $ esc VUndef)
+        }
+
 enterLoop action = callCC $ \esc -> do
     enterLex [SymVal SMy "&last" $ lastSub esc] action
     where
@@ -82,6 +99,19 @@ enterLoop action = callCC $ \esc -> do
         , subFun = Prim (const $ esc VUndef)
         }
 
+enterBlock action = callCC $ \esc -> do
+    enterLex [SymVal SMy "$?_BLOCK_EXIT" $ escSub esc] action
+    where
+    escSub esc = VSub $ Sub
+        { isMulti = False
+        , subName = "$?_BLOCK_EXIT"
+        , subType = SubPrim
+        , subPad = []
+        , subAssoc = "pre"
+        , subParams = []
+        , subReturns = "Void"
+        , subFun = Prim (const $ esc VUndef)
+        }
   
 enterSub sub@Sub{ subType = typ } action
     | typ >= SubPrim = action -- primitives just happen

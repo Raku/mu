@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 22;
+plan 32;
 
 =kwid
 
@@ -19,7 +19,7 @@ Tests the given block, as defined in L<S04/"Switch statements">
         ok($t, "given when true ...");
 
         try { given 1 { when 2 { $f = 1 } } };;
-	todo_ok(!$f, "given when false");
+	ok(!$f, "given when false");
 };
 
 {
@@ -83,8 +83,8 @@ Tests the given block, as defined in L<S04/"Switch statements">
 		$panic = 1;
 	}';
 
-	todo_ok($b_one, "inteleraved 1");
-	todo_ok($b_two, "inteleraved 2 is the last one");
+	ok($b_one, "inteleraved 1");
+	ok($b_two, "inteleraved 2 is the last one");
 	ok(!$b_three, "inteleraved 3 not executed");
 	ok(!$panic, "never ever execute something after a default {}");
 };
@@ -104,4 +104,60 @@ Tests the given block, as defined in L<S04/"Switch statements">
         ok($b_two, "second iteration");
         ok($b_three, "third iteration");
         ok(!$panic,"should not fall into default in this case");
+}
+
+{
+    my $foo = 1;
+    eval '
+    given (1) {
+        my $_ = 2;
+        when (2) { $foo = 2; }
+        when (1) { $foo = 3; }
+        default  { $foo = 4; }
+    }';
+    is($foo, 2, 'Rebind $_ to new lexical');
+}
+
+{
+    my ($foo, $bar) = (1, 0);
+    eval '
+    given (1) {
+        when (1) { $foo = 2; continue; $foo = 3; }
+        when (2) { $foo = 4; }
+        default { $bar = 1; }
+        $foo = 5;
+    }';
+    is($foo, 2, 'continue aborts when block');
+    ok($bar, 'continue does not prevent default');
+}
+
+{
+    my ($foo, $bar) = (1, 0);
+    eval '
+    given (1) {
+        when (1) { $foo = 2; break; $foo = 3; }
+        when (2) { $foo = 4; }
+        default { $bar = 1 }
+        $foo = 5;
+    }';
+    is($foo, 2, 'break aborts when');
+    ok(!$bar, 'break prevents default');
+}
+
+{
+    my ($foo, $bar, $baz, $bad) = (0, 0, -1, 0);
+    my $quux = 0;
+    eval '
+    for (0, 1, 2) {
+        when (0) { $foo++; continue }
+        when (1) { $bar++; break }
+        when (2) { $quux++; }
+        default { $baz = $_ }
+        $bad = 1;
+    }';
+    is($foo, 1, 'first iteration');
+    is($bar, 1, 'second iteration');
+    is($baz, 0, 'continue worked');
+    is($quux, 1, "break didn't abort loop");
+    ok(!$bad, "didn't fall through");
 }

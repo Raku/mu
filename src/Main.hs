@@ -23,6 +23,7 @@ import Parser
 import Help
 import Pretty
 import Posix
+import Prim
 
 main :: IO ()
 main = do
@@ -186,6 +187,9 @@ prepareEnv name args = do
     outGV   <- newMVal $ VHandle stdout
     errGV   <- newMVal $ VHandle stderr
     errSV   <- newMVal $ VStr ""
+    let subExit = \x -> case x of
+            [x] -> op1 "exit" x
+            _   -> op1 "exit" VUndef
     emptyEnv
         [ SymVal SGlobal "@*ARGS"       argsAV
         , SymVal SGlobal "@*INC"        incAV
@@ -202,7 +206,19 @@ prepareEnv name args = do
         , SymVal SGlobal "@=POD"        (VArray . MkArray $ [])
         , SymVal SGlobal "$=POD"        (VStr "")
         , SymVal SGlobal "$?OS"         (VStr config_osname)
+        , SymVal SGlobal "$?_BLOCK_EXIT" $ VSub $ Sub
+            { isMulti = False
+            , subName = "$?_BLOCK_EXIT"
+            , subType = SubPrim
+            , subPad = []
+            , subAssoc = "pre"
+            , subParams = []
+            , subReturns = "Void"
+            , subFun = Prim subExit
+            }
         ]
+       
+
 
 getLibs :: [(String, String)] -> IO [String]
 getLibs environ = return $ filter (not . null) libs

@@ -263,6 +263,9 @@ reduce _ (Statements stmts) = do
     
 -- Reduction for syntactic constructs
 reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
+    "block" -> do
+        let [body] = exps
+        enterBlock $ reduce env body
     "sub" -> do
         let [exp] = exps
         (VSub sub) <- enterEvalContext "Code" exp
@@ -299,6 +302,32 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
                 _ | not (vCast vbool) -> retVal valBody
                 _ -> runBody
         enterLoop runBody
+    "given" -> do
+        let [topic, body] = exps
+        vtopic <- enterEvalContext "Scalar" topic
+        enterGiven vtopic $ enterEvalContext "Code" body
+    "when" -> do
+        let [match, body] = exps
+        break <- evalVar "$?_BLOCK_EXIT"
+        match <- reduce env match
+        vtopic <- evalVar "$_"
+        topic <- reduce env $ Val vtopic
+        result <- op2Match topic match
+        let runBody = do
+            enterEvalContext "Code" body
+            VSub vbreak <- fromVal break
+            doApply env vbreak [] []
+        if (vCast result)
+            then enterWhen break runBody
+            else retVal VUndef
+    "default" -> do
+        let [body] = exps
+        break <- evalVar "$?_BLOCK_EXIT"
+        let runBody = do
+            enterEvalContext "Code" body
+            VSub vbreak <- fromVal break
+            doApply env vbreak [] []
+        enterWhen break runBody
     "while" -> doWhileUntil id
     "until" -> doWhileUntil not
     "=" -> do
