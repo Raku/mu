@@ -7,6 +7,7 @@ jun1 = VJunc $ Junc JAny emptySet (mkSet [VInt 24, VInt 22])
 jun2 = VJunc $ Junc JNone emptySet emptySet
 jun3 = VJunc $ Junc JAll emptySet (mkSet [VStr "hi", VBool False])
 jun4 = VJunc $ Junc JAll emptySet (mkSet [VStr "ho", VBool True])
+jun5 = VJunc $ Junc JOne emptySet emptySet
 
 -- play with opJuncAll
 
@@ -37,3 +38,67 @@ myone = mergeJunc JOne myds myvs
 dups = [ v | (v:_:_) <- group $ sort mylis ]
 dups2 = [ vs | vs <- group $ sort mylis, length vs > 1 ]
 dups3 = [ vs | vs <- group $ sort mylis, not $ null $ tail vs ]
+
+{- 
+
+[05:37] * metaperl wonders if GHC is smart enough to interpret (length list > 1) as not . null $ drop 1 list
+[05:37] <TheHunter> no, that's semantically different.
+[05:37] <lightstep> how are they different (modulo termination)?
+[05:37] <metaperl> but from a functional viewpoint, they return True/False in the same cases...
+[05:37] <tromp> if you consider length (0:0:undefined)
+[05:37] <TheHunter> lenght [1..] > 1 === _|_, not $ null $ drop  1 [1..] === True.
+[05:37] *** arjanb (arjanb@borganism.student.utwente.nl) joined
+[05:38] <metaperl> oh, some tricky edge cases
+
+-}
+
+-- play with ApplyArg isPartialJunc isTotalJunc
+
+aa  = ApplyArg "somename" jun2 False
+aap = isPartialJunc aa
+aat = isTotalJunc   aa
+
+bb = ApplyArg "somename" jun1 False
+bbp = isPartialJunc bb
+bbt = isTotalJunc   bb
+
+{-
+
+I want to run a test suite for a list of two functions:
+    [isTotalJunc, isPartialJunc]
+where each function receives one element of the list of types below at a time:
+    [JNone, JOne, JAny, JAll] 
+
+I therefore must run 8 tests (the cross product of functions and types).
+
+I need help showing the correspondence between inputs and outputs. I would
+like to create a table like this:
+
+ fun: isTotalJunc
+ ----------------
+ input: JNone  output: False
+
+ ...
+
+ fun: isPartialJunc
+ ----------------
+ input: JNone  output: False
+
+One problem is that functions do not print as their name.
+Another problem.
+
+So to summarize, I need an output function which displays the testname,
+the input value and the output value.
+
+-}
+
+test_total_partial = let funs  = [isTotalJunc, isPartialJunc]
+			 types = [JNone, JOne, JAny, JAll] 
+			 mkdat typ = ApplyArg "somename" (VJunc $ Junc typ emptySet emptySet) False
+		         showres f t r = "fun: " ++ (show f) ++ "input: " ++ (show t) ++ "output: " ++ (show r)
+		         runtest f t = do {
+					   retval <- f (mkdat t);
+					   return $ (showres f t retval)
+					  }
+			 in
+  [ runtest f t | f <- funs, t <- types ]

@@ -90,6 +90,20 @@ in the context of a real call to it:
 
  opJuncAll = opJunc JAll
 
+=head2 isTotalJunc, isPartialJunc (in the context of ApplyArg)
+
+Both C<isTotalJunc> and C<isPartialJunc> operate on a single piece of data
+of type C<ApplyArg>. The C<ApplyArg> value slot must be of type
+C<VJunc> or either function will return False. 
+
+C<isTotalJunc> tests to see if the VJunc value slot is of type C<JAll>
+or C<JNone>. Note that unlike most tests which return C<True> if their
+test passes, this function (and C<isPartialJunc>) return the negation
+of the C<argCollapsed> slot.
+
+C<isPartialJunc> tests to see if the VJunc value slot is of type C<JOne>
+or C<JAny>. It also returns the negation
+of the C<argCollapsed> slot if this test passes and False otherwise.
 
 =head1 TODO
 
