@@ -12,13 +12,14 @@ if exists("b:current_syntax")
 endif
 
 " Billions of keywords
-syn keyword p6KeyDecl		sub is but
-syn keyword p6KeyScopeDecl	my our local let temp 
+syn keyword p6Module		module class use require
+syn keyword p6KeyDecl		sub is but multi returns
+syn keyword p6KeyScopeDecl	my our local let temp
 syn keyword p6KeyFlow		for foreach loop while until if unless when
 syn keyword p6KeyFlow		given next last redo or and err xor return not
 syn keyword p6KeyException	die fail try CATCH
-syn keyword p6KeyIO		print open read write readline seek
-syn keyword p6KeyProperty	constant prec key value kv irs ofs ors pos int
+syn keyword p6KeyIO		print open read write readline say seek
+syn keyword p6KeyProperty	constant prec key value kv irs ofs ors pos int export
 syn keyword p6KeyProperty	float str true false rw
 syn keyword p6KeyProperty	Int Str Num Hash Array Code Rule Class NumRange
 syn keyword p6KeyProperty	StrRange Role Bool
@@ -75,9 +76,9 @@ syn region p6LiteralString start="q\s*{" skip="\\}" end="}"
 syn region p6LiteralString start="q\s*<" skip="\\>" end=">"
 
 " Numbers
-syn match  p6Number "\(\d*\.\d\+\|\d\+\.\d*\|\d\+\)\(e\d\+\)\{0,1}"
-syn match  p6Number "0o[0-7]\+"
-syn match  p6Number "0x[0-9a-f]\+"
+syn match  p6Number "\<\(\d*\.\d\+\|\d\+\.\d*\|\d\+\)\(e\d\+\)\{0,1}"
+syn match  p6Number "\<0o[0-7]\+"
+syn match  p6Number "\<0x[0-9a-fA-F]\+"
 syn keyword p6Number NaN Inf
 
 " => Operator
@@ -160,6 +161,7 @@ hi link p6RuleCall      Identifier
 hi link p6RegexSpecial  Type
 
 hi link p6Error         Error
+hi link p6Module        p6Keyword
 hi link p6KeyCompare    p6Keyword
 hi link p6KeyDecl       p6Keyword
 hi link p6KeyScopeDecl  p6Keyword
@@ -184,3 +186,5 @@ hi link p6POD      Comment
 hi link p6Variable Identifier
 hi link p6VarException Special
 hi link p6String   String
+
+let b:current_syntax = "perl6"
