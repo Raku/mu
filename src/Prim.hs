@@ -32,10 +32,9 @@ op0 "time"  = \_ -> do
     epochClkT = toClockTime epoch
     epoch = CalendarTime 2000 January 1 0 0 0 0 Saturday 0 "UTC" 0 False
 op0 "not" = const retEmpty
-op0 s    = \x -> return $ VError ("unimplemented listOp: " ++ s) (Val $ VList x)
-
 op0 "¥" = return . VList . concat . transpose . map vCast
 op0 "Y" = op0 "¥"
+op0 other = \x -> return $ VError ("unimplemented listOp: " ++ other) (App other (map Val x) [])
 
 retEmpty = do
     cxt <- asks envContext
@@ -214,7 +213,7 @@ op1 "ref"  = return . VStr . valType
 op1 "pop"  = op1Pop (last, init)
 op1 "shift"= op1Pop (head, tail)
 op1 "pick" = op1Pick
-op1 s      = return . (\x -> VError ("unimplemented unaryOp: " ++ s) (Val x))
+op1 other  = return . (\x -> VError ("unimplemented unaryOp: " ++ other) (App other [Val x] []))
 
 
 op1Values :: Val -> Val
@@ -381,7 +380,7 @@ op2 "split"= \x y -> return $ split (vCast x) (vCast y)
     breakOnGlue glue rest@(x:xs)
 	| glue `isPrefixOf` rest = ([], rest)
 	| otherwise = (x:piece, rest') where (piece, rest') = breakOnGlue glue xs
-op2 s    = \x y -> return $ VError ("unimplemented binaryOp: " ++ s) (App s [] [Val x, Val y])
+op2 other = \x y -> return $ VError ("unimplemented binaryOp: " ++ other) (App other [Val x, Val y] [])
 
 op2Hyper op x y
     | VList x' <- x, VList y' <- y
