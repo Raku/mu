@@ -1,4 +1,4 @@
-{-# OPTIONS -fglasgow-exts -fvia-C #-}
+{-# OPTIONS -fglasgow-exts -fvia-C -O -monly-3-regs #-}
 {-# INCLUDE <pcre.c> #-}
 {-# INCLUDE <pcre.h> #-}
 -- #include <sys/types.h>
