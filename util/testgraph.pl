@@ -40,22 +40,32 @@ foreach my $testfile (sort {$a->{file} cmp $b->{file}}
 	
 	foreach my $test (@{$testfile->{subtests}}) {
 	  my $class = t_to_class($test);
-	  my $title = ($test->{line} || '') . ($test->{diag} || '');
-	  
-	  $title =~ s/\cM//g;
-	  $title =~ s/\cJ$//g;
-	  $title =~ s/([^-().#A-Za-z0-9 ])/sprintf '&#x%X;', ord $1/eg;
 
-	  $test->{pos} =~ /^(.*?) at line (\d+), column \d+/;
+	  my $title = ($test->{line} || '') . "\n" . ($test->{diag} || '');
+	  $title =~ s/\cM//g;
+	  $title =~ s/\cJ+$//g;
+	  $title =~ s/^\cJ+//g;
+	  $title =~ s/&/&amp;/;
+	  $title =~ s/</&lt;/;
+	  $title =~ s/>/&gt;/;
+	  $title =~ s!\cJ!<br />!g;
+	  $title =~ s/([^-&<>\/().#A-Za-z0-9 ])/sprintf '&#x%X;', ord $1/eg;
+
+	  my $case_link;
+	  ($test->{pos} || '') =~ /^(.*?) at line (\d+), column \d+/;
 	  my ($t, $line) = ($1, $2);
-	  my $case_link = "$linkto#line_$line";
+	  if (defined $line) {
+		$case_link = "$linkto#line_$line";
+	  } else {
+		$case_link = $linkto;
+	  }
 	  
 	  if ($i and $i % $per_row == 0) {
 		print "</tr></table><table width='100%'><tr>\n";
 	  }
 	  
 #	  print "<td class='test $class' title='$title'>$title</td>";
-	  print " <td class='test $class' title='$title'><a href='$case_link' style='display: block; text-decoration: none'>&nbsp;</a></td>\n";
+	  print " <td class='test $class'><a href='$case_link'>&nbsp;<div>$title</div></a></td>\n";
 	  #print " <td class='test $class' title='$title'>&nbsp;</td>\n";
 	  if ($class ne 'nottest') {
 		$i++;

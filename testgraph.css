@@ -1,8 +1,12 @@
 .test { overflow: hidden; white-space: nowrap; width: 10em }
-.test > a { font-size: small }
+.test a { display: block; text-decoration: none  }
+.test a div { display: none }
+.test a:visited div { display: none }
 
-.bad  { background-color: #ff0000;  }
-.good { background-color: #00ff00;  }
-.todobad  { background-color: #7f0000;  }
-.todogood { background-color: #007f00;  }
-.nottest { background-color: #7f7f7f; }
+.test a:hover div { display: block; position: absolute; left: 0; top; 0; background-color: white; border: thin solid black }
+
+.bad  { background-color: #ff0000; color: black }
+.good { background-color: #00ff00; color: black }
+.todobad  { background-color: #7f0000; color: white }
+.todogood { background-color: #007f00; color: white }
+.nottest { background-color: #7f7f7f; color: white }
