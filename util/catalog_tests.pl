@@ -16,9 +16,43 @@ Note that only backlinked synopses are generated.
 
 = TODO
 
-* determine if the regexes could be coerced into a more concrete link (low priority)
+== important
+
+* rewrite to emit HTML
+	- by converting pods with Pod::Simple::HTMLBatch, or otherwise
+	- and by emiting HTML directly for tests
+		- perhaps with an output more similar to Devel::Cover
+* put backlinks:
+	- for links with no regex right after the heading, in a comma
+	  separated list so they don't take too much space
+	- for links with a regex, as a superscripted number with a
+	  <a name="file">, at the *end* of the regex match
+* 
+
+== unimportant
+
 * cause L<news:msg@id.com> to link to google groups or wherever
-* find a way to link from synopses to test generated pod (=item per forward link in pod? it's consistent with the current output)
+* correlate test results to their files
+
+== long term
+
+* determine if the regexes could be coerced into a more concrete link (low priority)
+
+= BUGS
+
+* cannot link to something like C<=item "Pointy subs">
+* synopsis pod is not parsed, but regexed
+* stuff is planted in a naughty way (substr)
+* too slurpy
+* there is no well defined object for test meta data. It should look like:
+	- Pugs::TestFile
+		- lines
+		- test cases
+			- type
+			- todo
+			- description
+		- plan
+		- links
 
 =cut
 
@@ -27,7 +61,6 @@ use Fatal qw/open close opendir closedir/;
 use File::Spec::Functions qw/catfile curdir updir splitdir/;
 use Regexp::Common qw/balanced delimited/;
 use Pod::ParseUtils;
-use HTML::TreeBuilder;
 use File::Path qw/mkpath/;
 use File::Basename;
 use File::Slurp;
