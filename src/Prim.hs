@@ -166,11 +166,11 @@ op2 "%"  = op2Int mod
 op2 "x"  = \x y -> return $ VStr (concat $ (vCast y :: VInt) `genericReplicate` (vCast x :: VStr))
 op2 "xx" = \x y -> return $ VList ((vCast y :: VInt) `genericReplicate` x)
 op2 "+&" = op2Int (.&.)
-op2 "+<<"= op2Int shiftL
-op2 "+>>"= op2Int shiftR
+op2 "+<" = op2Int shiftL
+op2 "+>" = op2Int shiftR
 op2 "~&" = op2Str $ mapStr2 (.&.)
-op2 "~<<"= \x y -> return $ VStr $ mapStr (`shiftL` vCast y) (vCast x)
-op2 "~>>"= \x y -> return $ VStr $ mapStr (`shiftR` vCast y) (vCast x)
+op2 "~<" = \x y -> return $ VStr $ mapStr (`shiftL` vCast y) (vCast x)
+op2 "~>" = \x y -> return $ VStr $ mapStr (`shiftR` vCast y) (vCast x)
 op2 "**" = op2Rat ((^^) :: VRat -> VInt -> VRat)
 op2 "+"  = op2Numeric (+)
 op2 "-"  = op2Numeric (-)
@@ -428,11 +428,11 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Str       left    x       (Str, Int)\
 \\n   List      left    xx      (Any, Int)\
 \\n   Int       left    +&      (Int, Int)\
-\\n   Int       left    +<<     (Int, Int)\
-\\n   Int       left    +>>     (Int, Int)\
+\\n   Int       left    +<      (Int, Int)\
+\\n   Int       left    +>      (Int, Int)\
 \\n   Str       left    ~&      (Str, Str)\
-\\n   Str       left    ~<<     (Str, Str)\
-\\n   Str       left    ~>>     (Str, Str)\
+\\n   Str       left    ~<      (Str, Str)\
+\\n   Str       left    ~>      (Str, Str)\
 \\n   Num       right   **      (Num, Num)\
 \\n   Num       left    +       (Num, Num)\
 \\n   Num       left    -       (Num, Num)\
