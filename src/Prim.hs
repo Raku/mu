@@ -38,6 +38,7 @@ op0 "Y" = op0 "¥"
 op0 "File::Spec::cwd" = const $ do
     mycwd <- liftIO getCurrentDirectory
     return $ VStr mycwd
+op0 "pi" = const $ return . VNum $ pi
 op0 other = \x -> return $ VError ("unimplemented listOp: " ++ other) (App other (map Val x) [])
 
 retEmpty :: ContT Val (ReaderT Env IO) Val
@@ -943,6 +944,7 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Num       pre     cos     (?Num=$_)\
 \\n   Num       pre     sin     (?Num=$_)\
 \\n   Num       pre     tan     (?Num=$_)\
+\\n   Any       pre     pi      ()\
 \\n   Num       pre     exp     (?Num=$_, ?Num)\
 \\n   Num       pre     sqrt    (?Num=$_)\
 \\n   Bool      spre    -r      (?Str=$_)\

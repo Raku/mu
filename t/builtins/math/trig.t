@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 44;
+plan 45;
 
 =head1 DESCRIPTION
 
@@ -27,19 +27,20 @@ sub approx(Num $a, Num $b) {
 my $PI = 3.14159265358979323846264338327950288419716939937510;
 
 # L<S29/"Math::Trig" /"pi"/> -- pi
-todo_eval_ok 'approx(pi(), $PI)', "pi()";
+ok approx(pi(), $PI), "pi()";
+eval_is "approx(pi + 3, $PI + 3)", "'pi()' may drop its parentheses";
 
 # L<S29/"Math::Trig" /"atan"/> -- atan
 # The basic form of atan (one argument) returns a value in ]-pi, pi[.
 # Quadrants I, III
-eval_ok 'approx(atan(1)           / $PI * 180, 45)';
-eval_ok 'approx(atan(1/3*sqrt(3)) / $PI * 180, 30)';
-eval_ok 'approx(atan(3*sqrt(3))   / $PI * 180, 60)';
+eval_ok "approx(atan(1)           / $PI * 180, 45)";
+eval_ok "approx(atan(1/3*sqrt(3)) / $PI * 180, 30)";
+eval_ok "approx(atan(3*sqrt(3))   / $PI * 180, 60)";
 
 # Quadrants II, IV
-eval_ok 'approx(atan(-1)           / $PI * 180, -45)';
-eval_ok 'approx(atan(-1/3*sqrt(3)) / $PI * 180, -30)';
-eval_ok 'approx(atan(-3*sqrt(3))   / $PI * 180, -60)';
+eval_ok "approx(atan(-1)           / $PI * 180, -45)";
+eval_ok "approx(atan(-1/3*sqrt(3)) / $PI * 180, -30)";
+eval_ok "approx(atan(-3*sqrt(3))   / $PI * 180, -60)";
 
 # S29: This second form of C<atan> computes the arctangent of $y/$x, and
 # **takes the quadrant into account**.

@@ -6,7 +6,7 @@ require Test;
 # Perhaps the testing of these builtins needs to be more rigorous
 # mattc 20050316
 
-plan 9;
+plan 10;
 
 #-- subs -- 
 
@@ -93,6 +93,7 @@ my $now;
 while (($now = time) == $beg) { sleep 1 }
 
 ok($now > $beg && $now - $beg < 10, 'very basic time test');
+eval_ok 'time + 10', "'time()' may drop its parentheses";
 
 #-- 4 --
 {
