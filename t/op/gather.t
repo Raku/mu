@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/pugs
 
 use v6;
 require Test;

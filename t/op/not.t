@@ -13,7 +13,7 @@ plan 14;
 my $not = not();
 my @not = not();
 
-ok ! defined($not), "not() returns undef in sclalar context";
+ok ! defined($not), "not() returns undef in scalar context";
 ok ! $not, "not() returns false";
 
 is ref @not, "Array", "not() returns Array in array context";
