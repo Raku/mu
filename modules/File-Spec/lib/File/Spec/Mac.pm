@@ -5,10 +5,9 @@ require File::Spec::Unix-0.0.1;
 
 class File::Spec::Mac-0.0.1 is File::Spec::Unix;
 
-my $macfiles;
-if ($^O eq 'MacOS') {
-	$macfiles = eval { require Mac::Files };
-}
+method curdir  () returns Str { ':'        }
+method updir   () returns Str { '::'       }
+method devnull () returns Str { 'Dev:Null' }
 
 method case_tolerant () returns Bool { 1 }
 
@@ -59,10 +58,10 @@ method catdir (*@path) return Str {
 		my $arg = @args.shift;
 		unless (($arg eq '') || ($arg eq ':')) {
 			if ($arg ~~ /^::+\Z(?!\n)/ ) { # updir colon path like ':::'
-				my $updir_count = $arg.chars - 1;
+				my $updir_count = $arg.bytes - 1;
 				while ((@args) && (@args[0] ~~ /^::+\Z(?!\n)/) ) { # while updir colon path
 					$arg = @args.shift;
-					$updir_count += ($arg.chars - 1);
+					$updir_count += ($arg.bytes - 1);
 				}
 				$arg = (':' x $updir_count);
 			} else {
@@ -73,90 +72,77 @@ method catdir (*@path) return Str {
 		}#unless
 	}
 
-	if ( ($relative) && ($result !~ /^:/) ) {
+	if ( ($relative) && !($result ~~ /^:/) ) {
 		# add a leading colon if need be
 		$result = ":$result";
 	}
 
 	unless ($relative) {
 		# remove updirs immediately following the volume name
-		$result =~ s/([^:]+:)(:*)(.*)\Z(?!\n)/$1$3/;
+		$result ~~ s/([^:]+:)(:*)(.*)\Z(?!\n)/$1$3/;
 	}
 
 	return $result;
 }
 
-
-sub catfile {
-    my $self = shift;
-    return '' unless @_;
-    my $file = pop @_;
-    return $file unless @_;
-    my $dir = $self->catdir(@_);
-    $file =~ s/^://s;
-    return $dir.$file;
+method catfile (*@path) return Str {
+    return '' unless @path;
+    my $file = @path.pop;
+    return $file unless @path;
+    my $dir = .catdir(@path);
+    $file ~~ s/^://s;
+    return "$dir$file";
 }
 
-sub curdir {
-    return ":";
-}
-
-sub devnull {
-    return "Dev:Null";
-}
-
-sub rootdir {
+## XXX: how should this be handled??
+# my $macfiles;
+# if ($^O eq 'MacOS') {
+# 	$macfiles = eval { require Mac::Files };
+# }
+method rootdir () returns Str {
 #
 #  There's no real root directory on Mac OS. The name of the startup
 #  volume is returned, since that's the closest in concept.
 #
-    return '' unless $macfiles;
-    my $system = Mac::Files::FindFolder(&Mac::Files::kOnSystemDisk,
-	&Mac::Files::kSystemFolderType);
-    $system =~ s/:.*\Z(?!\n)/:/s;
-    return $system;
+#     return '' unless $macfiles;
+#     my $system = Mac::Files::FindFolder(&Mac::Files::kOnSystemDisk,
+# 	&Mac::Files::kSystemFolderType);
+#     $system =~ s/:.*\Z(?!\n)/:/s;
+#     return $system;
 }
 
 my $tmpdir;
-sub tmpdir {
+method tmpdir () returns Str {
     return $tmpdir if defined $tmpdir;
-    my $self = shift;
-    $tmpdir = $self->_tmpdir( $ENV{TMPDIR} );
+    $tmpdir = ._tmpdir( %*ENV{'TMPDIR'} );
 }
 
-sub updir {
-    return "::";
-}
-
-sub file_name_is_absolute {
-    my ($self,$file) = @_;
-    if ($file =~ /:/) {
-	return (! ($file =~ m/^:/s) );
+method file_name_is_absolute (Str $file) returns Bool {
+    if ($file ~~ /:/) {
+        return (! ($file ~~ m/^:/s) );
     } elsif ( $file eq '' ) {
-        return 1 ;
+        return 1;
     } else {
-	return 0; # i.e. a file like "a"
+        return 0; # i.e. a file like "a"
     }
 }
 
-sub path {
+method path () returns Str {
 #
 #  The concept is meaningless under the MacPerl application.
 #  Under MPW, it has a meaning.
 #
-    return unless exists $ENV{Commands};
-    return split(/,/, $ENV{Commands});
+    return unless exists %*ENV{'Commands'};
+    return %*ENV{'Commands'}.split(',');
 }
 
-sub splitpath {
-    my ($self,$path, $nofile) = @_;
-    my ($volume,$directory,$file);
-
-    if ( $nofile ) {
-        ( $volume, $directory ) = $path =~ m|^((?:[^:]+:)?)(.*)|s;
+method splitpath (Str $path, Bool $nofile) returns Array {
+    my ($volume, $directory, $file);
+    if ($nofile) {
+        ($volume, $directory) = $path ~~ m|^((?:[^:]+:)?)(.*)|s;
     }
     else {
-        $path =~
+        $path ~~
             m|^( (?: [^:]+: )? )
                ( (?: .*: )? )
                ( .* )
@@ -165,174 +151,148 @@ sub splitpath {
         $directory = $2;
         $file      = $3;
     }
-
-    $volume = '' unless defined($volume);
-	$directory = ":$directory" if ( $volume && $directory ); # take care of "HD::dir"
+    $volume = '' unless $volume.defined;
+	$directory = ":$directory" if $volume && $directory; # take care of "HD::dir"
     if ($directory) {
         # Make sure non-empty directories begin and end in ':'
-        $directory .= ':' unless (substr($directory,-1) eq ':');
-        $directory = ":$directory" unless (substr($directory,0,1) eq ':');
+        $directory ~= ':' unless substr($directory,-1) eq ':';
+        $directory = ":$directory" unless substr($directory,0,1) eq ':';
     } else {
-	$directory = '';
+        $directory = '';
     }
-    $file = '' unless defined($file);
-
-    return ($volume,$directory,$file);
+    $file = '' unless $file.defined;
+    return ($volume, $directory, $file);
 }
 
-sub splitdir {
-	my ($self, $path) = @_;
-	my @result = ();
+method splitdir (Str $path) returns Array {
+	return ('')  if (!$path.defined) || ($path eq '');
+	return (':') if $path eq ':';
+	my @result;
 	my ($head, $sep, $tail, $volume, $directories);
-
-	return ('') if ( (!defined($path)) || ($path eq '') );
-	return (':') if ($path eq ':');
-
-	( $volume, $sep, $directories ) = $path =~ m|^((?:[^:]+:)?)(:*)(.*)|s;
-
+	($volume, $sep, $directories) = $path ~~ m|^((?:[^:]+:)?)(:*)(.*)|s;
 	# deprecated, but handle it correctly
 	if ($volume) {
-		push (@result, $volume);
-		$sep .= ':';
+		@result.push($volume);
+		$sep ~= ':';
 	}
-
 	while ($sep || $directories) {
-		if (length($sep) > 1) {
-			my $updir_count = length($sep) - 1;
-			for (my $i=0; $i<$updir_count; $i++) {
+		if ($sep.bytes > 1) {
+			my $updir_count = $sep.bytes - 1;
+			for (0 .. $updir_count) {
 				# push '::' updir_count times;
 				# simulate Unix '..' updirs
-				push (@result, '::');
+				@result.push('::');
 			}
 		}
 		$sep = '';
 		if ($directories) {
-			( $head, $sep, $tail ) = $directories =~ m|^((?:[^:]+)?)(:*)(.*)|s;
-			push (@result, $head);
+			($head, $sep, $tail) = $directories ~~ m|^((?:[^:]+)?)(:*)(.*)|s;
+			@result.push($head);
 			$directories = $tail;
 		}
 	}
 	return @result;
 }
 
-sub catpath {
-    my ($self,$volume,$directory,$file) = @_;
-
-    if ( (! $volume) && (! $directory) ) {
-	$file =~ s/^:// if $file;
-	return $file ;
+method catpath (Str $volume, Str $directory, Str $file) returns Str {
+    if (!$volume && !$directory) {
+        $file ~~ s/^:// if $file;
+        return $file ;
     }
-
     # We look for a volume in $volume, then in $directory, but not both
-
-    my ($dir_volume, $dir_dirs) = $self->splitpath($directory, 1);
-
-    $volume = $dir_volume unless length $volume;
+    my ($dir_volume, $dir_dirs) = .splitpath($directory, 1);
+    $volume = $dir_volume unless $volume.bytes;
     my $path = $volume; # may be ''
-    $path .= ':' unless (substr($path, -1) eq ':'); # ensure trailing ':'
-
+    $path ~= ':' unless substr($path, -1) eq ':'; # ensure trailing ':'
     if ($directory) {
-	$directory = $dir_dirs if $volume;
-	$directory =~ s/^://; # remove leading ':' if any
-	$path .= $directory;
-	$path .= ':' unless (substr($path, -1) eq ':'); # ensure trailing ':'
+        $directory = $dir_dirs if $volume;
+        $directory ~~ s/^://; # remove leading ':' if any
+        $path ~= $directory;
+        $path ~= ':' unless substr($path, -1) eq ':'; # ensure trailing ':'
     }
-
     if ($file) {
-	$file =~ s/^://; # remove leading ':' if any
-	$path .= $file;
+        $file ~~ s/^://; # remove leading ':' if any
+        $path ~= $file;
     }
-
     return $path;
 }
 
 # maybe this should be done in canonpath() ?
-sub _resolve_updirs {
-	my $path = shift @_;
+sub _resolve_updirs (Str $path) returns Str {
 	my $proceed;
-
 	# resolve any updirs, e.g. "HD:tmp::file" -> "HD:file"
 	do {
-		$proceed = ($path =~ s/^(.*):[^:]+::(.*?)\z/$1:$2/);
-	} while ($proceed);
-
+		$proceed = ($path ~~ s/^(.*):[^:]+::(.*?)\z/$1:$2/);
+	} while $proceed;
 	return $path;
 }
 
-
-sub abs2rel {
-    my($self,$path,$base) = @_;
+method abs2rel (Str $path, Str $base) returns Str {
 
     # Clean up $path
-    if ( ! $self->file_name_is_absolute( $path ) ) {
-        $path = $self->rel2abs( $path ) ;
+    if (!.file_name_is_absolute($path)) {
+        $path = .rel2abs($path);
     }
 
     # Figure out the effective $base and clean it up.
-    if ( !defined( $base ) || $base eq '' ) {
-	$base = $self->_cwd();
+    if (!$base.defined || $base eq '') {
+        $base = ._cwd();
     }
-    elsif ( ! $self->file_name_is_absolute( $base ) ) {
-        $base = $self->rel2abs( $base ) ;
-	$base = _resolve_updirs( $base ); # resolve updirs in $base
+    elsif (!.file_name_is_absolute($base)) {
+        $base = .rel2abs($base);
+        $base = _resolve_updirs($base); # resolve updirs in $base
     }
     else {
-	$base = _resolve_updirs( $base );
+        $base = _resolve_updirs($base);
     }
 
     # Split up paths - ignore $base's file
-    my ( $path_vol, $path_dirs, $path_file ) =  $self->splitpath( $path );
-    my ( $base_vol, $base_dirs )             =  $self->splitpath( $base );
+    my ($path_vol, $path_dirs, $path_file) =  .splitpath($path);
+    my ($base_vol, $base_dirs)             =  .splitpath($base);
 
-    return $path unless lc( $path_vol ) eq lc( $base_vol );
+    return $path unless $path_vol.lc eq $base_vol.lc;
 
     # Now, remove all leading components that are the same
-    my @pathchunks = $self->splitdir( $path_dirs );
-    my @basechunks = $self->splitdir( $base_dirs );
+    my @pathchunks = .splitdir($path_dirs);
+    my @basechunks = .splitdir($base_dirs);
 	
-    while ( @pathchunks &&
-	    @basechunks &&
-	    lc( $pathchunks[0] ) eq lc( $basechunks[0] ) ) {
-        shift @pathchunks ;
-        shift @basechunks ;
+    while (@pathchunks &&
+           @basechunks &&
+           @pathchunks[0].lc eq @basechunks[0].lc) {
+        @pathchunks.shift;
+        @basechunks.shift;
     }
 
     # @pathchunks now has the directories to descend in to.
     # ensure relative path, even if @pathchunks is empty
-    $path_dirs = $self->catdir( ':', @pathchunks );
+    $path_dirs = .catdir(':', @pathchunks);
 
     # @basechunks now contains the number of directories to climb out of.
-    $base_dirs = (':' x @basechunks) . ':' ;
+    $base_dirs = (':' x @basechunks) ~ ':' ;
 
-    return $self->catpath( '', $self->catdir( $base_dirs, $path_dirs ), $path_file ) ;
+    return .catpath('', .catdir($base_dirs, $path_dirs), $path_file);
 }
 
-sub rel2abs {
-    my ($self,$path,$base) = @_;
-
-    if ( ! $self->file_name_is_absolute($path) ) {
+method rel2abs (Str $path, Str $base) returns Str {
+    if (!.file_name_is_absolute($path)) {
         # Figure out the effective $base and clean it up.
-        if ( !defined( $base ) || $base eq '' ) {
-	    $base = $self->_cwd();
+        if (!$base.defined || $base eq '') {
+            $base = ._cwd();
         }
-        elsif ( ! $self->file_name_is_absolute($base) ) {
-            $base = $self->rel2abs($base) ;
+        elsif (!.file_name_is_absolute($base)) {
+            $base = .rel2abs($base);
         }
-
-	# Split up paths
-
-	# igonore $path's volume
-        my ( $path_dirs, $path_file ) = ($self->splitpath($path))[1,2] ;
-
+        # Split up paths
+        # igonore $path's volume
+        my ($path_dirs, $path_file) = (.splitpath($path))[1,2] ;
         # ignore $base's file part
-	my ( $base_vol, $base_dirs ) = $self->splitpath($base) ;
+        my ($base_vol, $base_dirs) = .splitpath($base);
+        # Glom them together
+        $path_dirs = ':' if ($path_dirs eq '');
+        $base_dirs ~~ s/:$//; # remove trailing ':', if any
+        $base_dirs = $base_dirs ~ $path_dirs;
 
-	# Glom them together
-	$path_dirs = ':' if ($path_dirs eq '');
-	$base_dirs =~ s/:$//; # remove trailing ':', if any
-	$base_dirs = $base_dirs . $path_dirs;
-
-        $path = $self->catpath( $base_vol, $base_dirs, $path_file );
+        $path = .catpath($base_vol, $base_dirs, $path_file);
     }
     return $path;
 }

@@ -35,21 +35,21 @@ method canonpath ($path) returns Str {
 
 method catdir (*@path) return Str {
     @path.push(''); # '' because need a trailing '/'
-    $.canonpath(@path.join('/')); 
+    .canonpath(@path.join('/')); 
 }
 
 method catfile (*@path) return Str {
-    my $file = $.canonpath(@path.pop);
+    my $file = .canonpath(@path.pop);
     return $file unless ?@path;
-    my $dir = $.catdir(@path);
-    $dir .= "/" unless substr($dir, -1) eq "/";
-    return $dir.$file;
+    my $dir = .catdir(@path);
+    $dir ~= "/" unless substr($dir, -1) eq "/";
+    return "$dir$file";
 }
 
 
 my $tmpdir;
-method _tmpdir (*@dirlist) returns Str {
-    return $tmpdir if defined $tmpdir;
+method :_tmpdir (*@dirlist) returns Str {
+    return $tmpdir if $tmpdir.defined;
     ## QUESTION: How does Perl6 handle tainting??
     # {
     #     no strict 'refs';
@@ -59,18 +59,18 @@ method _tmpdir (*@dirlist) returns Str {
     #     }
     # }
     for @dirlist -> $dir {
-        next unless defined($dir) && -d -w $dir;
+        next unless $dir.defined && -d -w $dir;
         $tmpdir = $dir;
         last;
     }
-    $tmpdir = $.curdir unless defined $tmpdir;
-    $tmpdir = defined $tmpdir && $.canonpath($tmpdir);
+    $tmpdir = .curdir unless $tmpdir.defined;
+    $tmpdir = $tmpdir.defined && .canonpath($tmpdir);
     return $tmpdir;
 }
 
 method tmpdir () returns Str {
-    return $tmpdir if defined $tmpdir;
-    $tmpdir = $._tmpdir( %*ENV{TMPDIR}, "/tmp" );
+    return $tmpdir if $tmpdir.defined;
+    $tmpdir = ._tmpdir( %*ENV{'TMPDIR'}, "/tmp" );
     return $tmpdir;
 }
 
@@ -78,22 +78,22 @@ method no_upwards (*@filenames) returns Array {
     return @filenames.grep:{ !/^\.{1,2}\Z(?!\n)/s };
 }
 
-method file_name_is_absolute ($file) returns Bool {
+method file_name_is_absolute (Str $file) returns Bool {
     return ?($file ~~ m:^/:s);
 }
 
 method path () returns Array {
-    return () unless exists %*ENV{PATH};
-    my @path = %*ENV{PATH}.split(':');
+    return () unless exists %*ENV{'PATH'};
+    my @path = %*ENV{'PATH'}.split(':');
     for @path { $_ = '.' if $_ eq '' }
     return @path;
 }
 
 method join (*@path) return Str  {
-    return $.catfile(@path);
+    return .catfile(@path);
 }
 
-method splitpath (Str $path, $nofile) returns Array {
+method splitpath (Str $path, Bool $nofile) returns Array {
     my ($volume, $directory, $file) = ('','','');
     if ($nofile) {
         $directory = $path;
@@ -106,7 +106,7 @@ method splitpath (Str $path, $nofile) returns Array {
     return ($volume, $directory, $file);
 }
 
-method splitdir ($dir) returns Array {
+method splitdir (Str $dir) returns Array {
     return $dir.split('/');  # Preserve trailing fields
 }
 
@@ -116,39 +116,39 @@ method catpath (Str $volume, Str $directory, Str $file) returns Str {
          substr( $directory, -1 ) ne '/' && 
          substr( $file, 0, 1 ) ne '/' 
     ) {
-        $directory .= "/$file" ;
+        $directory ~= "/$file";
     }
     else {
-        $directory .= $file ;
+        $directory ~= $file;
     }
-    return $directory ;
+    return $directory;
 }
 
 method abs2rel (Str $path, Str $base) return Str {
     # Clean up $path
-    if ( ! $.file_name_is_absolute( $path ) ) {
-        $path = $.rel2abs( $path );
+    if (!.file_name_is_absolute($path)) {
+        $path = .rel2abs($path);
     }
     else {
-        $path = $.canonpath( $path );
+        $path = .canonpath($path);
     }
 
     # Figure out the effective $base and clean it up.
-    if ( !defined( $base ) || $base eq '' ) {
-        $base = $._cwd();
+    if (!$base.defined || $base eq '') {
+        $base = ._cwd();
     }
-    elsif ( ! $.file_name_is_absolute( $base ) ) {
-        $base = $.rel2abs( $base );
+    elsif (!.file_name_is_absolute($base)) {
+        $base = .rel2abs($base);
     }
     else {
-        $base = $.canonpath( $base );
+        $base = .canonpath($base);
     }
 
     # Now, remove all leading components that are the same
-    my @pathchunks = $.splitdir( $path);
-    my @basechunks = $.splitdir( $base);
+    my @pathchunks = .splitdir($path);
+    my @basechunks = .splitdir($base);
 
-    while (@pathchunks && @basechunks && $pathchunks[0] eq $basechunks[0]) {
+    while (@pathchunks && @basechunks && @pathchunks[0] eq @basechunks[0]) {
         @pathchunks.shift;
         @basechunks.shift;
     }
@@ -163,41 +163,37 @@ method abs2rel (Str $path, Str $base) return Str {
 
     # Glue the two together, using a separator if necessary, and preventing an
     # empty result.
-    if ( $path ne '' && $base ne '' ) {
+    if ($path ne '' && $base ne '') {
         $path = "$base/$path";
     } else {
         $path = "$base$path";
     }
-
-    return $.canonpath( $path );
+    return .canonpath($path);
 }
 
 method rel2abs (Str $path, Str $base) returns Str {
-
     # Clean up $path
-    if ( ! $.file_name_is_absolute( $path ) ) {
+    if (!.file_name_is_absolute($path)) {
         # Figure out the effective $base and clean it up.
-        if ( !defined( $base ) || $base eq '' ) {
-	    $base = $._cwd();
+        if (!$base.defined || $base eq '') {
+            $base = ._cwd();
         }
-        elsif ( ! $.file_name_is_absolute( $base ) ) {
-            $base = $.rel2abs( $base ) ;
+        elsif (!.file_name_is_absolute($base)) {
+            $base = .rel2abs($base);
         }
         else {
-            $base = $.canonpath( $base ) ;
+            $base = .canonpath($base);
         }
-
         # Glom them together
-        $path = $.catdir( $base, $path ) ;
+        $path = .catdir($base, $path);
     }
-
-    return $.canonpath( $path ) ;
+    return .canonpath($path);
 }
 
 # Internal routine to File::Spec, no point in making this public since
 # it is the standard Cwd interface.  Most of the platform-specific
 # File::Spec subclasses use this.
-sub _cwd {
+method _cwd () returns Str {
     require Cwd-0.0.1;
     Cwd::cwd();
 }

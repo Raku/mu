@@ -25,12 +25,11 @@ File::Spec::Epoc
 File::Spec::Mac
 
     - figure out what to do about the Mac::File dependency
-    - port most of this, I started it but only got about half
-      way through the catdir() method
+    - this also uses the Cwd module, we need ti figure that out
   
 File::Spec::OS2
 
-    - nothing done yet
+    - done, but this has the CWD issue as well
 
 File::Spec::VMS
 
@@ -43,5 +42,11 @@ File::Spec::Win32
 File::Spec::Functions
 
     - nothing done yet
+    
+t/
+
+    - have not even gone near this one yet
+    
+    
     
     

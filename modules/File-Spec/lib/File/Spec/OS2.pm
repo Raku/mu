@@ -1,79 +1,66 @@
-package File::Spec::OS2;
+#!pugs
+use v6;
 
-use strict;
-use vars qw(@ISA $VERSION);
-require File::Spec::Unix;
+require File::Spec::Unix-0.0.1;
 
-$VERSION = '1.2';
+class File::Spec::OS2 is File::Spec::Unix;
 
-@ISA = qw(File::Spec::Unix);
+method devnull () returns Str { '/dev/nul' }
 
-sub devnull {
-    return "/dev/nul";
+method case_tolerant () returns Bool { 1 }
+
+method file_name_is_absolute (Str $file) returns Bool {
+    return ?($file ~~ m{^([a-z]:)?[\\/]}is);
 }
 
-sub case_tolerant {
-    return 1;
-}
-
-sub file_name_is_absolute {
-    my ($self,$file) = @_;
-    return scalar($file =~ m{^([a-z]:)?[\\/]}is);
-}
-
-sub path {
-    my $path = $ENV{PATH};
-    $path =~ s:\\:/:g;
-    my @path = split(';',$path);
-    foreach (@path) { $_ = '.' if $_ eq '' }
+method path () returns Array {
+    my $path = %*ENV{'PATH'};
+    $path ~~ s:\\:/:g;
+    my @path = $path.split(';');
+    for (@path) { $_ = '.' if $_ eq '' }
     return @path;
 }
 
-sub _cwd {
+method _cwd () returns Str {
     # In OS/2 the "require Cwd" is unnecessary bloat.
     return Cwd::sys_cwd();
 }
 
 my $tmpdir;
-sub tmpdir {
+method tmpdir () returns Str {
     return $tmpdir if defined $tmpdir;
-    my $self = shift;
-    $tmpdir = $self->_tmpdir( @ENV{qw(TMPDIR TEMP TMP)},
-			      '/tmp',
-			      '/'  );
+    $tmpdir = ._tmpdir( %*ENV{'TMPDIR', 'TEMP', 'TMP'}, '/tmp', '/');
+    return $tmpdir;
 }
 
-sub catdir {
-    my $self = shift;
-    my @args = @_;
-    foreach (@args) {
-	tr[\\][/];
+method catdir (*@path) returns Str {
+    my @args = @path;
+    for (@args) {
+        tr[\\][/];
         # append a backslash to each argument unless it has one there
-        $_ .= "/" unless m{/$};
+        $_ ~= "/" unless m{/$};
     }
-    return $self->canonpath(join('', @args));
+    return .canonpath(@args.join(''));
 }
 
-sub canonpath {
-    my ($self,$path) = @_;
-    $path =~ s/^([a-z]:)/\l$1/s;
-    $path =~ s|\\|/|g;
-    $path =~ s|([^/])/+|$1/|g;                  # xx////xx  -> xx/xx
-    $path =~ s|(/\.)+/|/|g;                     # xx/././xx -> xx/xx
-    $path =~ s|^(\./)+(?=[^/])||s;		# ./xx      -> xx
-    $path =~ s|/\Z(?!\n)||
-             unless $path =~ m#^([a-z]:)?/\Z(?!\n)#si;# xx/       -> xx
-    $path =~ s{^/\.\.$}{/};                     # /..    -> /
-    1 while $path =~ s{^/\.\.}{};               # /../xx -> /xx
+method canonpath (Str $path) returns Str {
+    $path ~~ s/^([a-z]:)/\l$1/s;
+    $path ~~ s|\\|/|g;
+    $path ~~ s|([^/])/+|$1/|g;                  # xx////xx  -> xx/xx
+    $path ~~ s|(/\.)+/|/|g;                     # xx/././xx -> xx/xx
+    $path ~~ s|^(\./)+(?=[^/])||s;		# ./xx      -> xx
+    $path ~~ s|/\Z(?!\n)||
+             unless $path ~~ m#^([a-z]:)?/\Z(?!\n)#si;# xx/       -> xx
+    $path ~~ s{^/\.\.$}{/};                     # /..    -> /
+    1 while $path ~~ s{^/\.\.}{};               # /../xx -> /xx
     return $path;
 }
 
 
-sub splitpath {
-    my ($self,$path, $nofile) = @_;
-    my ($volume,$directory,$file) = ('','','');
-    if ( $nofile ) {
-        $path =~ 
+method splitpath (Str $path, Bool $nofile) returns Array {
+    my ($volume, $directory, $file) = ('','','');
+    if ($nofile) {
+        $path ~~ 
             m{^( (?:[a-zA-Z]:|(?:\\\\|//)[^\\/]+[\\/][^\\/]+)? ) 
                  (.*)
              }xs;
@@ -81,7 +68,7 @@ sub splitpath {
         $directory = $2;
     }
     else {
-        $path =~ 
+        $path ~~ 
             m{^ ( (?: [a-zA-Z]: |
                       (?:\\\\|//)[^\\/]+[\\/][^\\/]+
                   )?
@@ -93,92 +80,86 @@ sub splitpath {
         $directory = $2;
         $file      = $3;
     }
-
-    return ($volume,$directory,$file);
+    return ($volume, $directory, $file);
 }
 
 
-sub splitdir {
-    my ($self,$directories) = @_ ;
-    split m|[\\/]|, $directories, -1;
+method splitdir (Str $directories) returns Array {
+    return $directories.split m|[\\/]|;
 }
 
 
-sub catpath {
-    my ($self,$volume,$directory,$file) = @_;
-
+method catpath (Str $volume, Str $directory, Str $file) returns Str {
     # If it's UNC, make sure the glue separator is there, reusing
     # whatever separator is first in the $volume
-    $volume .= $1
-        if ( $volume =~ m@^([\\/])[\\/][^\\/]+[\\/][^\\/]+\Z(?!\n)@s &&
-             $directory =~ m@^[^\\/]@s
-           ) ;
+    $volume ~= $1
+        if ($volume ~~ m@^([\\/])[\\/][^\\/]+[\\/][^\\/]+\Z(?!\n)@s 
+            &&
+            $directory @~ m@^[^\\/]@s);
 
-    $volume .= $directory ;
-
+    $volume ~= $directory;
     # If the volume is not just A:, make sure the glue separator is 
     # there, reusing whatever separator is first in the $volume if possible.
-    if ( $volume !~ m@^[a-zA-Z]:\Z(?!\n)@s &&
-         $volume =~ m@[^\\/]\Z(?!\n)@      &&
-         $file   =~ m@[^\\/]@
+    if (
+        !($volume ~~ m@^[a-zA-Z]:\Z(?!\n)@s) &&
+         $volume ~~ m@[^\\/]\Z(?!\n)@        &&
+         $file   ~~ m@[^\\/]@
        ) {
-        $volume =~ m@([\\/])@ ;
-        my $sep = $1 ? $1 : '/' ;
-        $volume .= $sep ;
+        $volume ~~ m@([\\/])@;
+        my $sep = $1 ?? $1 :: '/';
+        $volume ~= $sep;
     }
-
-    $volume .= $file ;
-
-    return $volume ;
+    $volume ~= $file;
+    return $volume;
 }
 
-
-sub abs2rel {
-    my($self,$path,$base) = @_;
-
+method abs2rel (Str $path, Str $base) returns Str {
     # Clean up $path
-    if ( ! $self->file_name_is_absolute( $path ) ) {
-        $path = $self->rel2abs( $path ) ;
-    } else {
-        $path = $self->canonpath( $path ) ;
+    if (!.file_name_is_absolute($path)) {
+        $path = .rel2abs($path);
+    } 
+    else {
+        $path = .canonpath($path);
     }
 
     # Figure out the effective $base and clean it up.
-    if ( !defined( $base ) || $base eq '' ) {
-	$base = $self->_cwd();
-    } elsif ( ! $self->file_name_is_absolute( $base ) ) {
-        $base = $self->rel2abs( $base ) ;
-    } else {
-        $base = $self->canonpath( $base ) ;
+    if (!$base.defined || $base eq '') {
+        $base = ._cwd();
+    } 
+    elsif (!.file_name_is_absolute($base)) {
+        $base = .rel2abs($base);
+    } 
+    else {
+        $base = .canonpath($base);
     }
 
     # Split up paths
-    my ( $path_volume, $path_directories, $path_file ) = $self->splitpath( $path, 1 ) ;
-    my ( $base_volume, $base_directories ) = $self->splitpath( $base, 1 ) ;
+    my ($path_volume, $path_directories, $path_file) = .splitpath($path, 1);
+    my ($base_volume, $base_directories) = .splitpath($base, 1);
     return $path unless $path_volume eq $base_volume;
 
     # Now, remove all leading components that are the same
-    my @pathchunks = $self->splitdir( $path_directories );
-    my @basechunks = $self->splitdir( $base_directories );
+    my @pathchunks = .splitdir($path_directories);
+    my @basechunks = .splitdir($base_directories);
 
     while ( @pathchunks && 
             @basechunks && 
-            lc( $pathchunks[0] ) eq lc( $basechunks[0] ) 
+            @pathchunks[0].lc eq @basechunks[0].lc 
           ) {
-        shift @pathchunks ;
-        shift @basechunks ;
+        @pathchunks.shift;
+        @basechunks.shift;
     }
 
     # No need to catdir, we know these are well formed.
-    $path_directories = CORE::join( '/', @pathchunks );
-    $base_directories = CORE::join( '/', @basechunks );
+    $path_directories = @pathchunks.join( '/');
+    $base_directories = @basechunks.join( '/');
 
     # $base_directories now contains the directories the resulting relative
     # path must ascend out of before it can descend to $path_directory.  So, 
     # replace all names with $parentDir
 
     #FA Need to replace between backslashes...
-    $base_directories =~ s|[^\\/]+|..|g ;
+    $base_directories ~~ s|[^\\/]+|..|g ;
 
     # Glue the two together, using a separator if necessary, and preventing an
     # empty result.
@@ -190,44 +171,38 @@ sub abs2rel {
         $path_directories = "$base_directories$path_directories" ;
     }
 
-    return $self->canonpath( 
-        $self->catpath( "", $path_directories, $path_file ) 
-    ) ;
+    return .canonpath(.catpath("", $path_directories, $path_file));
 }
 
 
-sub rel2abs {
-    my ($self,$path,$base ) = @_;
-
-    if ( ! $self->file_name_is_absolute( $path ) ) {
-
-        if ( !defined( $base ) || $base eq '' ) {
-	    $base = $self->_cwd();
+method rel2abs (Str $path, Str $base) returns Str {
+    if (!.file_name_is_absolute($path)) {
+        if (!$base.defined || $base eq '') {
+            $base = ._cwd();
         }
-        elsif ( ! $self->file_name_is_absolute( $base ) ) {
-            $base = $self->rel2abs( $base ) ;
+        elsif (!.file_name_is_absolute($base)) {
+            $base = .rel2abs($base);
         }
         else {
-            $base = $self->canonpath( $base ) ;
+            $base = .canonpath($base);
         }
 
-        my ( $path_directories, $path_file ) =
-            ($self->splitpath( $path, 1 ))[1,2] ;
+        my ($path_directories, $path_file) = (.splitpath($path, 1))[1,2];
 
-        my ( $base_volume, $base_directories ) =
-            $self->splitpath( $base, 1 ) ;
+        my ($base_volume, $base_directories) = .splitpath($base, 1);
 
-        $path = $self->catpath( 
+        $path = .catpath( 
             $base_volume, 
-            $self->catdir( $base_directories, $path_directories ), 
+            .catdir($base_directories, $path_directories), 
             $path_file
-        ) ;
+        );
     }
 
-    return $self->canonpath( $path ) ;
+    return .canonpath($path);
 }
 
 1;
+
 __END__
 
 =head1 NAME
