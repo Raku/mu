@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 43;
+plan 49;
 
 # The comments are from the synopsis 04 table
 
@@ -135,7 +135,7 @@ my %hash5 = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
 
 { #Any     Str       string equality          match if $_ eq $x
 	ok(("foo" ~~ "foo"), "foo eq foo");
-	ok(!("bar" ~~ "foo"), "bar ne foo");
+	ok(!("bar" ~~ "foo"), "!(bar eq foo)");
 };
 
 # no objects, no rules
@@ -155,3 +155,14 @@ my %hash5 = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
 # does this imply MMD for $_, $x?
 #Any     Any       run-time dispatch        match if infix:<~~>($_, $x)
 
+
+{ # representational checks for !~, rely on ~~ semantics to be correct, assume negated results
+	ok(!("foo" !~ "foo"), "!(foo ne foo)");
+	ok(("bar" !~ "foo"), "bar ne foo)");
+
+	todo_ok(!((1, 2) !~ 1), "(1, 2) contains 1");
+	ok(((3, 4, 5) !~ 2), "(3, 4, 5) doesn't contain 2");
+
+	todo_ok(!(%hash1 !~ any(%hash3)), "intersecting keys");
+	ok((%hash1 !~ any(%hash4)), "no intersecting keys");
+};
