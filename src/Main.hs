@@ -15,7 +15,7 @@
 
 module Main where
 import Internals
-import Config 
+import Config
 import Run
 import AST
 import Eval
@@ -28,24 +28,20 @@ import Compile
 
 main :: IO ()
 main = do
-    hSetBuffering stdout NoBuffering 
+    hSetBuffering stdout NoBuffering
     args <- getArgs
     run $ concatMap procArg args
     where
-    procArg ('-':'e':prog@(_:_)) = ["-e", prog]
-    procArg ('-':'d':rest@(_:_)) = ["-d", ('-':rest)]
+    -- procArg ('-':'e':prog@(_:_)) = ["-e", prog]
+    -- procArg ('-':'d':rest@(_:_)) = ["-d", ('-':rest)]
     procArg x = [x]
 
 run :: [String] -> IO ()
-run ("-l":rest)                 = run rest
-run ("-d":rest)                 = run rest
-run ("-w":rest)                 = run rest
-run (('-':'I':_):rest)            = run rest
-run (('-':'l':xs):rest)         = run (('-':xs):rest)
-run (('-':'w':xs):rest)         = run (('-':xs):rest)
-run (('-':'d':xs):rest)         = run (('-':xs):rest)
-run (('-':'e':prog@(_:_)):args) = doRun "-e" args prog
-run ("-e":prog:args)            = doRun "-e" args prog
+run (("-l"):rest)                 = run rest
+run (("-d"):rest)                 = run rest
+run (("-w"):rest)                 = run rest
+run (("-e"):prog:args)            = doRun "-e" args prog
+
 run ("-h":_)                    = printCommandLineHelp
 run ("--help":_)                = printCommandLineHelp
 run ("-V":_)                    = printConfigInfo
@@ -54,6 +50,17 @@ run ("--version":_)             = banner
 run ("-c":"-e":prog:_)          = doCheck "-e" prog
 run ("-ce":prog:_)              = doCheck "-e" prog
 run ("-c":file:_)               = readFile file >>= doCheck file
+
+run (('-':'I':_):rest)          = run rest
+-- run (('-':'l':xs):rest)         = run (('-':xs):rest)
+-- run (('-':'w':xs):rest)         = run (('-':xs):rest)
+-- run (('-':'d':xs):rest)         = run (('-':xs):rest)
+run (('-':'c':rest@(_:_)):args) = run (("-c"):('-':rest):args)
+run (('-':'d':rest@(_:_)):args) = run (("-d"):('-':rest):args)
+run (('-':'e':prog@(_:_)):args) = run (("-e"):prog:args)
+run (('-':'l':xs):args)         = run (("-l"):('-':xs):args)
+run (('-':'w':xs):args)         = run (("-w"):('-':xs):args)
+
 run (('-':'C':backend):"-e":prog:_) = doCompile backend "-e" prog
 run (('-':'C':backend):file:_)      = readFile file >>= doCompile backend file
 run ("--external":mod:"-e":prog:_)    = doExternal mod "-e" prog
@@ -182,7 +189,7 @@ runFile :: String -> IO ()
 runFile file = do
     withArgs [file] main
 
-runProgramWith :: 
+runProgramWith ::
     (Env -> Env) -> (Val -> IO ()) -> VStr -> [VStr] -> String -> IO ()
 runProgramWith fenv f name args prog = do
     env <- prepareEnv name args
@@ -201,4 +208,3 @@ printConfigInfo = do
         ++ map (\x -> "\t" ++ fst x ++ ": " ++ snd x) (fmToList config)
         ++ [ "" ]
         ++ [ "@*INC:" ] ++ libs
-
