@@ -17,7 +17,7 @@ import AST
 import Text.PrettyPrint
 
 defaultIndent :: Int
-defaultIndent = 4
+defaultIndent = 2
 
 class (Show a) => Pretty a where
     format :: a -> Doc
@@ -28,14 +28,14 @@ instance Pretty VStr
 instance Pretty Exp where
     format (Val (VError msg (NonTerm pos))) = text "Syntax error at" <+> (text $ show pos) <+> format msg
     format (Val v) = format v
-    format (Syn x vs) = text "Syn" <+> format x $+$ (doubleBraces $ vcat (punctuate (text "; ") (map format vs)))
-    format (Statements lines) = vcat $ (map format) lines
+    format (Syn x vs) = text "Syn" <+> format x $+$ (braces $ vcat (punctuate (text "; ") (map format vs)))
+    format (Statements lines) = (vcat $ punctuate (text " ; ") $ (map format) lines)
+    format (App sub invs args) = text "App" <+> format sub <+> parens (nest defaultIndent $ vcat (punctuate (text ", ") (map format $ invs ++ args)))
+    format (Sym (Symbol scope name exp)) = text "Sym" <+> text (show scope) <+> format name <+> text ":=" <+>  (nest defaultIndent $ format exp)
     format x = text $ show x
 
-
-
 instance Pretty Env where
-    format x = braces $ nest defaultIndent (format $ envBody x) 
+    format x = doubleBraces $ nest defaultIndent (format $ envBody x) 
 
 instance Pretty (Val, Val) where
     format (x, y) = format x <+> text "=>" <+> format y
