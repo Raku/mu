@@ -33,7 +33,7 @@ Darren Duncan <perl@DarrenDuncan.net>
 ######################################################################
 
 subtype KeyName of Str where { $_.defined and $_ ne '' and $_ !~ m/\W/ }
-subtype KeyNameHash of Hash is shape(PkgName) of Str; # keys are of type KeyName, values of type Str
+subtype KeyNameHash of Hash is shape(KeyName) of Str; # keys are of type KeyName, values of type Str
 subtype PkgName of Str where { $_.defined and $_ ne '' and $_ !~ m/<-[a-zA-Z0-9_:]>/ }
 subtype PkgNameArray of Array of PkgName;
 
@@ -66,10 +66,7 @@ class Locale::KeyedText::Message {
 ######################################################################
 
 method new( $class: KeyName $msg_key, KeyNameHash ?%msg_vars ) returns Locale::KeyedText::Message {
-	my $message = $class.bless( {} );
-	$message.msg_key = $msg_key;
-	$message.msg_vars = %msg_vars; # copy list values
-	return( $message );
+	return( $class.bless( { msg_key => $msg_key, msg_vars => %msg_vars } ) );
 }
 
 ######################################################################
@@ -90,9 +87,8 @@ method get_message_variables( $message: ) returns KeyNameHash {
 
 method as_string( $message: ) returns Str {
 	# This method is intended for debugging use only.
-	return( $message.msg_key~': '~join( ', ', map { 
-			$_.key~'='~($_.value // '') 
-		} $message.msg_vars.pairs.sort ) ); # S02 says sorting Pairs sorts keys by default.
+	return( $message.msg_key~': '~$message.msg_vars.pairs.sort.
+		map:{ $_.key~'='~($_.value // '') }.join( ', ' ); # S02 says sorting Pairs sorts keys by default.
 	# I might use %hash.as() later, but don't know if it is customizable to sort or make undefs the empty str.
 }
 
@@ -110,10 +106,7 @@ class Locale::KeyedText::Translator {
 ######################################################################
 
 method new( $class: PkgNameArray @set_names, PkgNameArray @member_names ) returns Locale::KeyedText::Translator {
-	my $translator = $class.bless( {} );
-	$translator.tmpl_set_nms = @set_names; # copy list values
-	$translator.tmpl_mem_nms = @member_names; # copy list values
-	return( $translator );
+	return( $class.bless( { tmpl_set_nms => @set_names, tmpl_mem_nms => @member_names } );
 }
 
 ######################################################################
