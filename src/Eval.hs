@@ -197,8 +197,10 @@ breakOnGlue glue rest@(x:xs)
 
 findVar name
     | (sig:"CALLER", name') <- breakOnGlue "::" name = do
-        (Just caller) <- asks envCaller
-        findVar' caller (sig:(drop 2 name'))
+        rv <- asks envCaller
+        case rv of
+            Just caller -> findVar' caller (sig:(drop 2 name'))
+            Nothing -> retError "cannot access CALLER:: in top level" (Var name)
     | otherwise = do
         env <- ask
         findVar' env name
