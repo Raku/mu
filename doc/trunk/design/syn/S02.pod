@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 2 Dec 2004
+  Last Modified: 4 Dec 2004
   Number: 2
-  Version: 4
+  Version: 5
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -850,7 +850,9 @@ represents an iterator.
 
 There is an argumentless form of C<*> which may be used within a
 multi-dimensional array or hash subscript to indicate all of the
-current set of subscripts available for this dimension.
+current set of subscripts available for this dimension.  It actually
+returns a class value of C<Any>, so it can be used in any selector
+where you would use C<Any>.
 
 =item *
 
@@ -861,7 +863,8 @@ be applied to a scalar iterator to force immediate iteration to completion.
 
 Argumentless C<**> in a multi-dimensional subscript indicates 0
 or more dimensions of C<*> where the number of dimension isn't
-necessarily known: @foo[1;**;5].
+necessarily known: C<@foo[1;**;5]>.  It has a value of C<List of Any>,
+or something like that.
 
 =item *
 
