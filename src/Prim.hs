@@ -134,11 +134,18 @@ op2Range x (VRat n)  = VList $ map VRat [vCast x .. n]
 op2Range x y         = VList $ map VInt [vCast x .. vCast y]
 
 op2Divide x y
-    | VInt x' <- x, VInt y' <- y    = VRat $ x' % y'
-    | VInt x' <- x, VRat y' <- y    = VRat $ (x' % 1) / y'
-    | VRat x' <- x, VInt y' <- y    = VRat $ x' / (y' % 1)
-    | VRat x' <- x, VRat y' <- y    = VRat $ x' / y'
-    | otherwise                     = op2Num (/) x y
+    | VInt x' <- x, VInt y' <- y
+    = if y' == 0 then err else VRat $ x' % y'
+    | VInt x' <- x, VRat y' <- y
+    = if y' == 0 then err else VRat $ (x' % 1) / y'
+    | VRat x' <- x, VInt y' <- y
+    = if y' == 0 then err else VRat $ x' / (y' % 1)
+    | VRat x' <- x, VRat y' <- y
+    = if y' == 0 then err else VRat $ x' / y'
+    | otherwise
+    = op2Num (/) x y
+    where
+    err = VError ("Illegal division by zero: " ++ "/") (App "/" [] [Val x, Val y])
 
 op2ChainedList x y
     | VList xs <- x, VList ys <- y  = VList $ xs ++ ys

@@ -42,18 +42,19 @@ evaluate env@Env{ cxt = cxt, cls = cls } exp
 -- First pass - thread thru all() and none()
 -- Second pass - thread thru any() and one()
 
-chainFun :: Env -> Params -> Exp -> Params -> Exp -> Env -> [Val] -> Val
-chainFun env p1 f1 p2 f2 env' (v1:v2:vs)
+chainFun :: Params -> Exp -> Params -> Exp -> Env -> [Val] -> Val
+chainFun p1 f1 p2 f2 env' (v1:v2:vs)
     | VBool False <- applyFun env' (chainArgs p1 [v1, v2]) f1
     = VBool False
     | otherwise
-    = applyFun env (chainArgs p1 (v2:vs)) f2
+    = applyFun env' (chainArgs p2 (v2:vs)) f2
     where
     chainArgs prms vals = map chainArg (prms `zip` vals)
     chainArg (p, v) = ApplyArg (paramName p) v False
 
 applyFun :: Env -> [ApplyArg] -> Exp -> Val
-applyFun env bound (Prim f) = f env [ argValue arg | arg <- bound, (argName arg !! 1) /= '_' ]
+applyFun env bound (Prim f)
+    = f env [ argValue arg | arg <- bound, (argName arg !! 1) /= '_' ]
 applyFun env bound body
     | Val val   <- exp          = val
     | otherwise                 = VError "Invalid expression" exp
@@ -74,12 +75,14 @@ apply env@Env{ cls = cls } Sub{ subParams = prms, subFun = fun } invs args =
         = let (val, coll) = expToVal env prm exp in
         (((ApplyArg name val coll): bs), env `addSym` [(name, val)])
     expToVal env Param{ isSlurpy = slurpy, paramContext = cxt } exp
-        = (evaluate env{ cxt = cxt } exp, slurpy || isCollapsed cxt)
+        = (evalEnv env{ cxt = cxt } exp, slurpy || isCollapsed cxt)
     isCollapsed cxt
         | isaType cls "Bool" cxt        = True
         | isaType cls "Junction" cxt    = True
         | isaType cls cxt "Any"         = True
         | otherwise                     = False
+
+evalEnv env@Env{ evl = f } = f env
 
 toGlobal name
     | (sigil, identifier) <- break (\x -> isAlpha x || x == '_') name
@@ -125,15 +128,15 @@ reduce env@Env{ cxt = cxt } exp@(Syn name exps)
     = (combineEnv id var val, Val VUndef)
     | name `isInfix` "=>"
     , [keyExp, valExp]  <- exps
-    , key               <- evaluate env keyExp
-    , val               <- evaluate env valExp
+    , key               <- evalEnv env keyExp
+    , val               <- evalEnv env valExp
     = retVal $ VPair key val
     | name `isInfix` ","
-    = retVal $ VList $ concatMap (vCast . evaluate env{ cxt = "List" }) exps
+    = retVal $ VList $ concatMap (vCast . evalEnv env{ cxt = "List" }) exps
     | name `isInfix` "[]"
     , (listExp:rangeExp:errs)   <- exps
-    , list      <- evaluate env{ cxt = "List" } listExp
-    , range     <- evaluate env{ cxt = "List" } rangeExp
+    , list      <- evalEnv env{ cxt = "List" } listExp
+    , range     <- evalEnv env{ cxt = "List" } rangeExp
     , slice     <- unfoldr (doSlice errs $ vCast list) (map vCast $ vCast range)
     = retVal $ VList slice
     where
@@ -189,7 +192,7 @@ reduce env@Env{ cxt = cxt, cls = cls } exp@(App name invs args)
         , Just sub'                                 <- findSub name'
         , Sub{ subAssoc = "chain", subFun = fun', subParams = prm' } <- sub'
         , null invs'
-        = applySub sub{ subFun = Prim $ chainFun env prm' fun' prm fun } [] (args' ++ rest)
+        = applySub sub{ subParams = prm ++ tail prm', subFun = Prim $ chainFun prm' fun' prm fun } [] (args' ++ rest)
         -- fix subParams to agree with number of actual arguments
         | Sub{ subAssoc = "chain", subParams = (p:_) }   <- sub
         , null invs
