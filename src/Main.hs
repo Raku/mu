@@ -48,9 +48,9 @@ run ("--help":_)                = printCommandLineHelp
 run ("-V":_)                    = printConfigInfo
 run ("-v":_)                    = banner
 run ("--version":_)             = banner
-run ("-c":"-e":prog:_)          = doParse "-e" prog
-run ("-ce":prog:_)              = doParse "-e" prog
-run ("-c":file:_)               = readFile file >>= doParse file
+run ("-c":"-e":prog:_)          = doCheck "-e" prog
+run ("-ce":prog:_)              = doCheck "-e" prog
+run ("-c":file:_)               = readFile file >>= doCheck file
 run ("-C":"-e":prog:_)          = doDump "-e" prog
 run ("-Ce":prog:_)              = doDump "-e" prog
 run ("-C":file:_)               = readFile file >>= doDump file
@@ -80,15 +80,23 @@ load _ = return ()
 parse = doParse "<interactive>"
 eval prog = doEval True [] prog
 
-doDump name prog = do
+doCheck = doParseWith $ \_ name -> do
+    putStrLn $ name ++ " syntax OK"
+
+doDump = doParseWith $ \exp _ -> do
+    fh <- openFile "dump.ast" WriteMode
+    hPutStrLn fh $ show exp
+    hClose fh
+
+doParseWith f name prog = do
     env <- emptyEnv []
-    runRule env (dump . envBody) ruleProgram name prog
+    runRule env (f' . envBody) ruleProgram name prog
     where
-    dump (Val err@(VError _ _)) = internalError (show err)
-    dump exp = do
-        fh <- openFile "dump.ast" WriteMode
-        hPutStrLn fh $ show exp
-        hClose fh
+    f' (Val err@(VError _ _)) = do
+        hPutStrLn stderr $ pretty err
+        exitFailure
+    f' exp = f exp name
+    
 
 doParse name prog = do
     env <- emptyEnv []
