@@ -13,15 +13,20 @@ get a list of osnames that have actually passed tests.
 
 =cut
 
-plan 2;
+plan 3;
 
-ok($?OS, "We have an OS name: $?OS");
+# $?OS is the OS we were compiled in.
+ok $?OS, "We have an OS name: $?OS";
 
 # my $osnames = 'darwin' | 'linux' | 'MSWin32' | 'FreeBSD';
 my $osnames = any<darwin linux FreeBSD MSWin32 mingw cygwin>;
 if ($?OS eq $osnames) {
     pass("...and we know of this OS")
-}
-else {
+} else {
     todo_fail("We do not know of this OS -- please report to the pugs team")
 }
+
+# $*OS is the OS we are running currently. Those two don't need to be the same
+# (think of compiling to bytecode on computer1 and running the bytecode on
+# computer2).
+todo_eval_ok '$*OS', '$*OS works';

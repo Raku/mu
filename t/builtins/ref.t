@@ -30,11 +30,22 @@ is(ref($b2), 'Hash', 'it is a Hash ref type');
 my $s1 = sub {};
 is(ref($s1), 'Sub', 'it is a Sub type');
 
+# See L<S06/"Types"> and especially L<A06/"The C<sub> form"> why {...} and ->
+# ... {...} aren't Subs, but Blocks (they're all Codes, though).
+# Quoting A06:
+#                                   Code
+#                        ____________|________________
+#                       |                             |
+#                    Routine                        Block
+#       ________________|_______________            __|___
+#      |     |       |       |    |     |          |      |
+#     Sub Method Submethod Multi Rule Macro      Bare Parametric
+
 my $s2 = {};
-is(ref($s2), 'Sub', 'it is a Sub type (bare block)');
+is(ref($s2), 'Block', 'it is a Block type (bare block)');
 
 my $s3 = -> {};
-is(ref($s3), 'Sub', 'it is a Sub type (pointy sub)');
+is(ref($s3), 'Block', 'it is a Block type (pointy sub)');
 
 # ref() on different types of scalars
 

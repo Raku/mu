@@ -6,4 +6,5 @@
 # following line:
 #   t/foo/bar.t 13 14 15 42
 # 
-# (Side note: Lines matching /^#/ are comments.)
+# (Side note: Lines matching /^#/ are comments. Be careful to only use " " as
+# delimiter, not tabs or multiple spaces or whatever.)
