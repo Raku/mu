@@ -62,15 +62,14 @@ run ("-c":"-e":prog:_)          = doCheck "-e" prog
 run ("-c":file:_)               = readFile file >>= doCheck file
 run (("-e"):prog:args)          = doRun "-e" args prog
 
--- XXX clean up further
--- run (('-':'C':backend):"-e":prog:_)   = doCompile backend "-e" prog
 run ("-C":backend:"-e":prog:_)           = doCompile backend "-e" prog
 run ("-C":backend:file:_)                = readFile file >>= doCompile backend file
+-- XXX clean up further
 run ("--external":mod:"-e":prog:_)    = doExternal mod "-e" prog
 run ("--external":mod:file:_)         = readFile file >>= doExternal mod file
-run ("-":_)                     = do
-    prog <- getContents
-    doRun "-" [] prog
+run ("-":args)                        = do
+                                          prog <- getContents
+                                          doRun "-" args prog
 run (file:args)                 = readFile file >>= doRun file args
 run []                          = do
     isTTY <- hIsTerminalDevice stdin

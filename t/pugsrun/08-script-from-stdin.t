@@ -11,7 +11,8 @@ indicated by the C<-> switch.
 =cut
 
 my @examples = (
-   'print qq.Hello Pugs.'
+     'print qq.Hello Pugs.'
+   , 'print @ARGS'
 );
 
 plan +@examples;
@@ -25,12 +26,12 @@ if ($?OS eq "MSWin32") {
 };
 
 for @examples -> $ex {
-  my $command = "$echo $ex | $pugs - $redir temp-ex-output";
+  my $command = qq($echo $ex | $pugs - "Hello Pugs" $redir temp-ex-output);
   diag $command;
   system $command;
 
   my $expected = "Hello Pugs";
   my $got      = slurp "temp-ex-output";
 
-  is $got, $expected, "Multiple -e switches work and append the script";
+  is $got, $expected, "Running a script from stdin works";
 }
