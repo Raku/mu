@@ -423,6 +423,7 @@ primOp sym assoc prms ret = Symbol SOur name (Val sub)
     symName = if modify then assoc ++ ":" ++ sym else sym
     (arity, fixity, modify) = case assoc of
         "pre"       -> (1, "prefix", False)
+        "spre"      -> (1, "prefix", False)
         "post"      -> (1, "postfix", True)
         "circum"    -> (1, "circumfix", True)
         "left"      -> (2, "infix", False)
@@ -455,27 +456,30 @@ foldParam x         = doFoldParam x ""
 
 -- XXX -- Junctive Types -- XXX --
 
+-- spre is "symbolic pre", that is, operators for which a precedence has
+-- already been assigned in Parser.hs
+
 --    ret_val   assoc	op_name args
 initSyms = map primDecl . filter (not . null) . lines $ "\
-\\n   Bool      pre     !       (Bool)\
-\\n   Num       pre     +       (Num)\
-\\n   Num       pre     -       (Num)\
-\\n   Str       pre     ~       (Str)\
-\\n   Bool      pre     ?       (Bool)\
+\\n   Bool      spre    !       (Bool)\
+\\n   Num       spre    +       (Num)\
+\\n   Num       spre    -       (Num)\
+\\n   Str       spre    ~       (Str)\
+\\n   Bool      spre    ?       (Bool)\
 \\n   Int       pre     int     (Int)\
-\\n   List      pre     *       (List)\
-\\n   List      pre     **      (List)\
-\\n   Int       pre     +^      (Int)\
-\\n   Int       pre     ~^      (Str)\
-\\n   Bool      pre     ?^      (Bool)\
-\\n   Ref       pre     \\      (Any)\
-\\n   List      pre     ...     (Str|Num)\
+\\n   List      spre    *       (List)\
+\\n   List      spre    **      (List)\
+\\n   Int       spre    +^      (Int)\
+\\n   Int       spre    ~^      (Str)\
+\\n   Bool      spre    ?^      (Bool)\
+\\n   Ref       spre    \\      (Any)\
+\\n   List      spre    ...     (Str|Num)\
 \\n   Any       pre     undef   ()\
 \\n   Any       pre     undef   (rw!Any)\
 \\n   Any       post    ++      (rw!Num)\
 \\n   Num       post    --      (rw!Num)\
-\\n   Any       pre     ++      (rw!Num)\
-\\n   Num       pre     --      (rw!Num)\
+\\n   Any       spre    ++      (rw!Num)\
+\\n   Num       spre    --      (rw!Num)\
 \\n   Bool      pre     not     (Bool)\
 \\n   List      pre     map     (Code, List)\
 \\n   List      pre     grep    (Code, List)\
@@ -506,7 +510,6 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Any       pre     do      (Str)\
 \\n   IO        pre     open    (Str)\
 \\n   Any       pre     return  (Any)\
-\\n   Any       pre     <>      ()\
 \\n   Junction  pre     any     (List)\
 \\n   Junction  pre     all     (List)\
 \\n   Junction  pre     one     (List)\
@@ -526,8 +529,8 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Int       pre     unlink  (List)\
 \\n   Str       pre     readlink (Str)\
 \\n   List      pre     split   (Str, Str)\
-\\n   Str       pre     =       (IO)\
-\\n   List      pre     =       (IO)\
+\\n   Str       spre    =       (IO)\
+\\n   List      spre    =       (IO)\
 \\n   Junction  list    |       (List)\
 \\n   Junction  list    &       (List)\
 \\n   Junction  list    ^       (List)\
@@ -573,7 +576,7 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Scalar    left    ^^      (Bool, Bool)\
 \\n   Scalar    left    //      (Bool, Bool)\
 \\n   List      list    ,       (List)\
-\\n   List      pre     <==     (List)\
+\\n   List      spre    <==     (List)\
 \\n   List      left    ==>     (List, Code)\
 \\n   Scalar    left    and     (Bool, Bool)\
 \\n   Scalar    left    or      (Bool, Bool)\
