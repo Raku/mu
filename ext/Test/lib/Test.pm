@@ -35,6 +35,18 @@ sub todo_is (Str $got, Str $expected, Str ?$desc) returns Bool is export {
     proclaim($test, $desc, "TODO", $got, $expected);
 }
 
+## like
+
+sub like (Str $got, Rule $expected, Str ?$desc) returns Bool is export {
+    my $test = $got ~~ $expected;
+    proclaim($test, $desc, undef, $got, $expected);
+}
+
+sub todo_like (Str $got, Rule $expected, Str ?$desc) returns Bool is export {
+    my $test = $got ~~ $expected;
+    proclaim($test, $desc, "TODO", $got, $expected);
+}
+
 ## eval_ok
 
 sub eval_ok (Str $code, Str ?$desc) returns Bool is export {
@@ -103,6 +115,28 @@ sub todo_isa_ok ($ref, Str $expected_type, Str ?$desc) returns Bool is export {
     proclaim($test, $out, "TODO", $ref_type, $expected_type);
 }
 
+## use_ok 
+
+sub use_ok (Str $module) is export {
+    eval "require $module";
+    if ($!) {
+		proclaim(undef, $desc, undef, "Import error when loading $module: $!");  
+    }
+    else {
+        &ok.goto(1, "$module imported OK");
+    }
+}
+
+sub todo_use_ok (Str $module) is export {
+    eval "require $module";
+    if ($!) {
+		proclaim(undef, $desc, "TODO", "Import error when loading $module: $!");  
+    }
+    else {
+        &todo_ok.goto(1, "$module imported OK");
+    }
+}
+
 ## misc. test utilities
 
 sub skip (Str ?$reason) returns Bool is export {
@@ -130,20 +164,6 @@ sub diag (Str $diag) is export {
     for (split("\n", $diag)) -> $line {
 		say "# $line";
 	}
-}
-
-# TODO: Write tests verifying this sub
-sub use_ok (Str $module) is export {
-  # make the export leak:
-  eval "require $module";
-  #try {
-  #  require $module;
-  #};
-
-  is( $!, undef, "$module imported OK" )
-    or do {
-      diag "Import error when loading $module: $!";
-    };    
 }
 
 ## 'private' subs
@@ -234,6 +254,9 @@ Test - Test support module for perl6
   plan 10;
   test_log_file('test.log');
   
+  use_ok('Some::Module');
+  todo_use_ok('Some::Other::Module');  
+  
   ok(2 + 2 == 4, '2 and 2 make 4');
   is(2 + 2, 4, '2 and 2 make 4');
   isa_ok([1, 2, 3], 'List');
@@ -280,9 +303,20 @@ there.  The filename 'test.log' is recommended.
 
 == Testing Functions
 
+- `use_ok (Str $module) returns Bool`
+
+*NOTE:* This function currently uses `require()` since Pugs does not yet have 
+a proper `use()` builtin. 
+
 - `ok (Bool $cond, Str ?$desc) returns Bool`
 
 - `is (Str $got, Str $expected, Str ?$desc) returns Bool`
+
+- `like (Str $got, Rule $expected, Str ?$desc) returns Bool is export`
+
+This function should work with most reg-exps, but given that they are still a 
+somewhat experimental feature in Pugs, it is suggested you don't try anything
+too funky.
 
 - `cmp_ok (Str $got, Code $compare_func, Str $expected, Str ?$desc) returns Bool`
 
@@ -316,9 +350,13 @@ in order to still allow that to be tested, and those tests to knowingly
 fail, we provide a set of todo_* functions for all the basic test
 functions.
 
+- `todo_use_ok(Str $module) returns Bool`
+
 - `todo_ok (Bool $cond, Str ?$desc) returns Bool`
 
 - `todo_is (Str $got, Str $expected, Str ?$desc) returns Bool`
+
+- `todo_like (Str $got, Rule $expected, Str ?$desc) returns Bool is export`
 
 - `todo_cmp_ok (Str $got, Code $compare_func, Str $expected, Str ?$desc) returns Bool`
 
@@ -383,11 +421,6 @@ like this:
 Because these functions will be mutually recursive, they will easily be
 able handle arbitrarily complex data structures automatically (at least
 that is what I hope).
-
-- like
-
-This is similar to the Test::More like() function. It will take a
-regular expression reference and compare it with a given string.
 
 - throws_ok, lives_ok
 
