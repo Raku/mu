@@ -5,7 +5,7 @@ require Test;
 
 plan 3;
 
-# L<A12/"Class Methods" /"such as a constructor, you say something like\:"/>
+# L<A12/"Class Methods" /such as a constructor, you say something like:/>
 todo_eval_ok '
   class Foo {
     method blarb(Class $class: $arg) {

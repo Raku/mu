@@ -5,7 +5,7 @@ require Test;
 
 plan 9;
 
-# L<S12/"Construction and Initialization" /"ou can clone an object, changing some of the attributes\:"/>
+# L<S12/"Construction and Initialization" /you can clone an object, changing some of the attributes:/>
 todo_eval_ok 'class Foo { has $.attr = 13 is rw }',
   "basic class definition";
 

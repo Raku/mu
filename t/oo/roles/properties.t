@@ -5,7 +5,7 @@ require Test;
 
 plan 5;
 
-# L<A12/"Use of Roles at Run Time (mixins)" /"You can declare one with"/>
+# L<A12/"Use of Roles at Run Time (mixins)" /You can declare one with/>
 todo_eval_ok 'my property answer', "basic property declaration";
 my $a = 3;
 is $a, 3, "basic sanity";

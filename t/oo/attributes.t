@@ -26,7 +26,7 @@ eval 'class Foo1 { has $.bar; }';
     # what exactly will happen if we try to set bar()
 }
 
-# L<S12/"Attributes" /Pseudo\-assignment to an attribute declaration specifies the default/>
+# L<S12/"Attributes" /Pseudo-assignment to an attribute declaration specifies the default/>
 
 eval 'class Foo2 { has $.bar = "baz"; }';
 
@@ -95,7 +95,7 @@ eval 'class Foo5 {
     todo_eval_is '$foo.get_brain', 2, "getting a private attribute (2)";
 }
 
-# L<S12/"Construction and Initialization" /"If you name an attribute as a parameter, that attribute is initialized directly, so">
+# L<S12/"Construction and Initialization" /If you name an attribute as a parameter, that attribute is initialized directly, so/>
 
 eval 'class Foo6 {
   has $.bar is rw;
@@ -120,12 +120,12 @@ eval 'class Foo6 {
 todo_eval_ok 'class Foo7 { has $.attr = 42 }', "class definition worked";
 todo_eval_is 'Foo7.new.attr', 42,              "default attribute value (1)";
 
-# L<A12/"Default Values" /"is equivalent to this\:"/>
+# L<A12/"Default Values" /is equivalent to this:/>
 todo_eval_ok 'class Foo8 { has $.attr is build(42) }',
   "class definition using 'is build' worked";
 todo_eval_is 'Foo8.new.attr', 42, "default attribute value (2)";
 
-# L<A12/"Default Values" /"is equivalent to this\:"/>
+# L<A12/"Default Values" /is equivalent to this:/>
 todo_eval_ok 'class Foo9 { has $.attr will build(42) }',
   "class definition using 'will build' worked";
 todo_eval_is 'Foo9.new.attr', 42, "default attribute value (3)";

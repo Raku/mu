@@ -11,7 +11,7 @@ Enum tests from L<S12/"Enums">
 
 =cut
 
-# L<S12/"Enums" /"The values are specified as a list\:"/>
+# L<S12/"Enums" /The values are specified as a list\:/>
 todo_eval_ok 'enum day <Sun Mon Tue Wed Thu Fri Sat>', "basic enum definition worked";
 
 sub test_stuff($x) {
@@ -32,7 +32,7 @@ sub test_stuff($x) {
 {
   my $x = 1;
   is $x, 1, "basic sanity (1)";
-  # L<S12/"Enums" /"has the right semantics mixed in\:"/>
+  # L<S12/"Enums" /has the right semantics mixed in:/>
   todo_eval_ok '$x does Tue', "basic enum mixing worked (1-1)";
   test_stuff($x);
 }
@@ -40,7 +40,7 @@ sub test_stuff($x) {
 {
   my $x = 2;
   is $x, 2, "basic sanity (2)";
-  # L<S12/"Enums" /"or pseudo-hash form\:"/>
+  # L<S12/"Enums" /or pseudo-hash form:/>
   todo_eval_ok '$x does day<Tue>', "basic enum mixing worked (2-1)";
   test_stuff($x);
 }
@@ -48,7 +48,7 @@ sub test_stuff($x) {
 {
   my $x = 3;
   is $x, 3, "basic sanity (3)";
-  # L<S12/"Enums" /"is the same as"/>
+  # L<S12/"Enums" /is the same as/>
   todo_eval_ok '$x does day::Tue', "basic enum mixing worked (3-1)";
   test_stuff($x);
 }
@@ -56,7 +56,7 @@ sub test_stuff($x) {
 {
   my $x = 4;
   is $x, 4, "basic sanity (4)";
-  # L<S12/"Enums" /"which is short for something like\:"/>
+  # L<S12/"Enums" /which is short for something like:/>
   todo_eval_ok '$x does day',            "basic enum mixing worked (4-0)";
   todo_eval_ok '$x.day = &day::("Tue")', "basic enum mixing worked (4-1)";
   test_stuff($x);

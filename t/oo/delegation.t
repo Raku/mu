@@ -41,7 +41,7 @@ todo_eval_is 'Backend2.new.hi', 23, "basic sanity (2)";
 }
 
 
-# L<S12/"Delegation"/ "Any other kind of argument to handles is considered to be a smartmatch selector for methods"/>
+# L<S12/"Delegation" /Any other kind of argument to handles is considered to be a smartmatch selector for methods/>
 todo_eval_ok 'class ReFrontend { has $.backend is rw handles /^hi/ }',
   "class definition using a smartmatch handle worked";
 {
@@ -54,7 +54,7 @@ todo_eval_ok 'class ReFrontend { has $.backend is rw handles /^hi/ }',
 }
 
 
-# L<S12/"Delegation" /"If you say"/>
+# L<S12/"Delegation" /If you say/>
 todo_eval_ok 'class ClassFrontend { has $.backend is rw handles Backend2 }',
   "class definition using a Class handle worked";
 {
@@ -68,7 +68,7 @@ todo_eval_ok 'class ClassFrontend { has $.backend is rw handles Backend2 }',
 }
 
 
-# L<S12/"Delegation" /"You can specify multiple method names\:">
+# L<S12/"Delegation" /You can specify multiple method names:>
 todo_eval_ok 'class MultiFrontend { has $.backend is rw handles <hi cool> }',
   "class definition using multiple method names worked";
 {

@@ -5,7 +5,7 @@ use v6;
 
 plan 9;
 
-# L<S06/"The C<want> function" /"or has the corresponding methods called on it\:"/>
+# L<S06/"The C<want> function" /or has the corresponding methods called on it:/>
 sub obj_ok_in_scalar { want.Scalar     ?? 42 :: 0 }
 sub obj_ok_in_list   { want.List       ?? 42 :: 0 }
 sub obj_ok_in_count2 { want.count == 2 ?? 42 :: 0 }
@@ -38,7 +38,7 @@ todo_eval_is 'obj_ok_in_count3() = 23',             42,
 
 
 # The same again, but this time using the smartmatch operator.
-# L<S06/"The C<want> function" /"typically tested with a smart match \(C\<~~\>\)"/>
+# L<S06/"The C<want> function" /typically tested with a smart match/>
 sub sm_ok_in_scalar { want ~~ Scalar ?? 42 :: 0 }
 sub sm_ok_in_list   { want ~~ List   ?? 42 :: 0 }
 sub sm_ok_in_count2 { want ~~ 2      ?? 42 :: 0 }
