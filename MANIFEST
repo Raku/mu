@@ -34,6 +34,7 @@ src/Shell.hs
 examples/life.p6
 examples/mandel.p6
 examples/quicksort.p6
+t/PugsTest.pm
 t/01basic.t
 t/02atoms.t
 t/06sub.t
