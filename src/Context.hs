@@ -50,7 +50,7 @@ compareList l1 l2
     | last l2 `elem` l1 = - length(l1 \\ l2) - 1
     | otherwise = compareList l1 (init l2)
 
-findList :: Eq [a] => [a] -> Tree [a] -> [[a]]
+findList :: (Eq a) => [a] -> Tree [a] -> [[a]]
 findList [] _ = []
 findList base (Node l cs)
     | base == l                                = [l]
