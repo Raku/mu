@@ -303,19 +303,19 @@ message( 'START TESTING Locale::KeyedText' );
 	# First test that anything does or doesn't work, and test variable substitution.
 
 	$msg1 = Locale::KeyedText.new_message( 'one' );
-	ok( 1, "msg1 = new_message( 'one' ) contains '"~$msg1.as_string()~"'" );
+	pass( "msg1 = new_message( 'one' ) contains '"~$msg1.as_string()~"'" );
 
 	$msg2 = Locale::KeyedText.new_message( 'one', {'spoon'=>'lift','fork'=>'0'} );
-	ok( 1, "msg2 = new_message( 'one', {'spoon'=>'lift','fork'=>'0'} ) contains '"~$msg2.as_string()~"'" );
+	pass( "msg2 = new_message( 'one', {'spoon'=>'lift','fork'=>'0'} ) contains '"~$msg2.as_string()~"'" );
 
 	$msg3 = Locale::KeyedText.new_message( 'one', {'spoon'=> undef,'fork'=>''} );
-	ok( 1, "msg3 = new_message( 'one', {'spoon'=> undef,'fork'=>''} ) contains '"~$msg3.as_string()~"'" );
+	pass( "msg3 = new_message( 'one', {'spoon'=> undef,'fork'=>''} ) contains '"~$msg3.as_string()~"'" );
 
 	$trn1 = Locale::KeyedText.new_translator( [$AS],['Eng'] );
-	ok( 1, "trn1 = new_translator( [$AS],['Eng'] ) contains '"~$trn1.as_string()~"'" );
+	pass( "trn1 = new_translator( [$AS],['Eng'] ) contains '"~$trn1.as_string()~"'" );
 
 	$trn2 = Locale::KeyedText.new_translator( [$BS],['Eng'] );
-	ok( 1, "trn2 = new_translator( [$BS],['Eng'] ) contains '"~$trn2.as_string()~"'" );
+	pass( "trn2 = new_translator( [$BS],['Eng'] ) contains '"~$trn2.as_string()~"'" );
 
 	$did = serialize( $trn1.translate_message() );
 	$should = 'undef, ';
@@ -348,25 +348,25 @@ message( 'START TESTING Locale::KeyedText' );
 	# Next test multiple module searching.
 
 	$msg1 = Locale::KeyedText.new_message( 'one', {'spoon'=>'lift','fork'=>'poke'} );
-	ok( 1, "msg1 = new_message( 'one', {'spoon'=>'lift','fork'=>'poke'} ) contains '"~$msg1.as_string()~"'" );
+	pass( "msg1 = new_message( 'one', {'spoon'=>'lift','fork'=>'poke'} ) contains '"~$msg1.as_string()~"'" );
 
 	$msg2 = Locale::KeyedText.new_message( 'two' );
-	ok( 1, "msg2 = new_message( 'two' ) contains '"~$msg2.as_string()~"'" );
+	pass( "msg2 = new_message( 'two' ) contains '"~$msg2.as_string()~"'" );
 
 	$msg3 = Locale::KeyedText.new_message( 'three', { 'knife'=>'sharp' } );
-	ok( 1, "msg3 = new_message( 'three', { 'knife'=>'sharp' } ) contains '"~$msg3.as_string()~"'" );
+	pass( "msg3 = new_message( 'three', { 'knife'=>'sharp' } ) contains '"~$msg3.as_string()~"'" );
 
 	$trn1 = Locale::KeyedText.new_translator( [$AS,$BS],['Eng','Fre'] );
-	ok( 1, "trn1 = new_translator( [$AS],['Eng'] ) contains '"~$trn1.as_string()~"'" );
+	pass( "trn1 = new_translator( [$AS],['Eng'] ) contains '"~$trn1.as_string()~"'" );
 
 	$trn2 = Locale::KeyedText.new_translator( [$AS,$BS],['Fre','Eng'] );
-	ok( 1, "trn2 = new_translator( [$AS],['Eng'] ) contains '"~$trn2.as_string()~"'" );
+	pass( "trn2 = new_translator( [$AS],['Eng'] ) contains '"~$trn2.as_string()~"'" );
 
 	$trn3 = Locale::KeyedText.new_translator( [$BS,$AS],['Eng','Fre'] );
-	ok( 1, "trn3 = new_translator( [$AS],['Eng'] ) contains '"~$trn3.as_string()~"'" );
+	pass( "trn3 = new_translator( [$AS],['Eng'] ) contains '"~$trn3.as_string()~"'" );
 
 	$trn4 = Locale::KeyedText.new_translator( [$BS,$AS],['Fre','Eng'] );
-	ok( 1, "trn4 = new_translator( [$AS],['Eng'] ) contains '"~$trn4.as_string()~"'" );
+	pass( "trn4 = new_translator( [$AS],['Eng'] ) contains '"~$trn4.as_string()~"'" );
 
 	$did = serialize( $trn1.translate_message( $msg1 ) );
 	$should = '\'AE - word poke { fork } lift {poke}\', ';
@@ -417,7 +417,7 @@ message( 'START TESTING Locale::KeyedText' );
 	is( $did, $should, "trn4.translate_message( msg3 ) returns '$did'" );
 
 	$trn11 = Locale::KeyedText.new_translator( [$CS],['Eng'] );
-	ok( 1, "trn11 = new_translator( [$CS],['Eng'] ) contains '"~$trn11.as_string()~"'" );
+	pass( "trn11 = new_translator( [$CS],['Eng'] ) contains '"~$trn11.as_string()~"'" );
 
 	$did = serialize( $trn11.translate_message( $msg1 ) );
 	$should = '\'poke shore lift\', ';
@@ -443,36 +443,36 @@ message( 'START TESTING Locale::KeyedText' );
 	try {
 		require t_Locale_KeyedText_A_L_Eng;
 		t_Locale_KeyedText_A_L_Eng.get_text_by_key( 'foo' );
-		ok( 1, "load and invoke t_Locale_KeyedText_A_L_Eng" );
+		pass( "load and invoke t_Locale_KeyedText_A_L_Eng" );
 		CATCH {
-			ok( 0, "load and invoke t_Locale_KeyedText_A_L_Eng; \$\! contains '$!'" );
+			fail( "load and invoke t_Locale_KeyedText_A_L_Eng; \$\! contains '$!'" );
 		}
 	}
 
 	try {
 		require t_Locale_KeyedText_A_L_Fre;
 		t_Locale_KeyedText_A_L_Fre.get_text_by_key( 'foo' );
-		ok( 1, "load and invoke t_Locale_KeyedText_A_L_Fre" );
+		pass( "load and invoke t_Locale_KeyedText_A_L_Fre" );
 		CATCH {
-			ok( 0, "load and invoke t_Locale_KeyedText_A_L_Fre; \$\! contains '$!'" );
+			fail( "load and invoke t_Locale_KeyedText_A_L_Fre; \$\! contains '$!'" );
 		}
 	}
 
 	try {
 		require t_Locale_KeyedText_B_L_Eng;
 		t_Locale_KeyedText_B_L_Eng.get_text_by_key( 'foo' );
-		ok( 1, "load and invoke t_Locale_KeyedText_B_L_Eng" );
+		pass( "load and invoke t_Locale_KeyedText_B_L_Eng" );
 		CATCH {
-			ok( 0, "load and invoke t_Locale_KeyedText_B_L_Eng; \$\! contains '$!'" );
+			fail( "load and invoke t_Locale_KeyedText_B_L_Eng; \$\! contains '$!'" );
 		}
 	}
 
 	try {
 		require t_Locale_KeyedText_B_L_Fre;
 		t_Locale_KeyedText_B_L_Fre.get_text_by_key( 'foo' );
-		ok( 1, "load and invoke t_Locale_KeyedText_B_L_Fre" );
+		pass( "load and invoke t_Locale_KeyedText_B_L_Fre" );
 		CATCH {
-			ok( 0, "load and invoke t_Locale_KeyedText_B_L_Fre; \$\! contains '$!'" );
+			fail( "load and invoke t_Locale_KeyedText_B_L_Fre; \$\! contains '$!'" );
 		}
 	}
 }
