@@ -68,10 +68,10 @@ sub rel2abs (Str $path, Str ?$base) returns Str is export {
 
 sub abs2rel (Str $path, Str $base) returns Str is export {
     if (!file_name_is_absolute($path)) {
-        $path = frel2abs($path);
+        $path = rel2abs($path);
     }
     else {
-        $path = fcanonpath($path);
+        $path = canonpath($path);
     }
 
     # Figure out the effective $base and clean it up.
@@ -189,6 +189,40 @@ File::Spec::Unix - Part of Perl6/Pugs Portable file handling
 This is a very primative port of the perl5 File::Spec::Unix module.
 
 = FUNCTIONS
+
+- `curdir returns Str`
+
+- `updir returns Str`
+
+- `rootdir returns Str`
+
+- `devnull returns Str`
+
+- `case_tolerant returns Bool`
+
+- `splitdir (Str $dir) returns Array`
+
+- `splitpath (Str $path, Bool ?$nofile) returns Array`
+
+- `catdir (*@path) returns Str`
+
+- `catfile (*@_path) returns Str`
+
+- `catpath (Str $volume, Str $directory, Str $file) returns Str`
+
+- `rel2abs (Str $path, Str ?$base) returns Str`
+
+- `abs2rel (Str $path, Str $base) returns Str`
+
+- `no_upwards (*@filenames) returns Array`
+
+- `file_name_is_absolute (Str $file) returns Bool`
+
+- `path returns Array`
+
+- `canonpath (Str $_path) returns Str`
+
+- `cwd returns Str`
 
 = SEE ALSO
 

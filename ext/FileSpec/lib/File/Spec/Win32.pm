@@ -12,7 +12,6 @@ sub case_tolerant returns Bool is export { 1     }
 
 sub splitdir (Str $directories) returns Array is export { split("\\", $directories) }
 
-
 sub splitpath (Str $path, Bool ?$nofile) returns Array is export {
     my ($volume, $directory, $file) = ('','','');
     if ($nofile) {
@@ -63,9 +62,9 @@ sub catpath (Str $volume, Str $directory, Str $file) returns Str is export {
     $vol ~= $directory;
     # If the volume is not just A:, make sure the glue separator is 
     # there, reusing whatever separator is first in the $volume if possible.
-    if ( !($vol ~~ rx:perl5{^[a-zA-Z]:$}) &&
-           $vol ~~ rx:perl5{[^\\/]$}      &&
-           $file   ~~ rx:perl5{[^\\/]}
+    if ( !($vol  ~~ rx:perl5{^[a-zA-Z]:$}) &&
+           $vol  ~~ rx:perl5{[^\\/]$}      &&
+           $file ~~ rx:perl5{[^\\/]}
        ) {
         $vol ~~ rx:perl5{([\\/])};
         my $sep = $1 ?? $1 :: "\\";
@@ -80,19 +79,19 @@ sub catpath (Str $volume, Str $directory, Str $file) returns Str is export {
 sub canonpath (Str $path) returns Str is export {
     my $orig_path = $path;
 #     $path ~~ s/^([a-z]:)/\u$1/s;
-#     $path ~~ s|/|\\|g;
-#     $path ~~ s|([^\\])\\+|$1\\|g;                  # xx\\\\xx  -> xx\xx
-#     $path ~~ s|(\\\.)+\\|\\|g;                     # xx\.\.\xx -> xx\xx
-#     $path ~~ s|^(\.\\)+||s unless $path eq ".\\";  # .\xx      -> xx
-#     $path ~~ s|\\\Z(?!\n)|| unless $path ~~ m{^([A-Z]:)?\\\Z(?!\n)}s;  # xx\       -> xx
-#     # xx1/xx2/xx3/../../xx -> xx1/xx
-#     $path ~~ s|\\\.\.\.\\|\\\.\.\\\.\.\\|g; # \...\ is 2 levels up
-#     $path ~~ s|^\.\.\.\\|\.\.\\\.\.\\|g;    # ...\ is 2 levels up
-    return $path if $path ~~ rx:perl5{^\.\.};      # skip relative paths
-    return $path unless $path ~~ rx:perl5{\.\.};    # too few .'s to cleanup
-    return $path if $path ~~ rx:perl5{\.\.\.\.};    # too many .'s to cleanup
-#     $path ~~ s{^\\\.\.$}{\\};                      # \..    -> \
-#     1 while $path ~~ s{^\\\.\.}{};                 # \..\xx -> \xx
+    $path ~~ s:perl5{/}{\\}; #g
+#     $path ~~ s|([^\\])\\+|$1\\|g;                                                 # xx\\\\xx  -> xx\xx
+    $path ~~ s:perl5{(\\\.)+\\}{\\}; #g                                             # xx\.\.\xx -> xx\xx
+    $path ~~ s:perl5{^(\.\\)+}{} unless $path eq ".\\";                             # .\xx      -> xx
+    $path ~~ s:perl5{\\\Z(?!\n)}{} unless $path ~~ rx:perl5{^([A-Z]:)?\\\Z(?!\n)};  # xx\       -> xx
+    # xx1/xx2/xx3/../../xx -> xx1/xx
+    $path ~~ s:perl5{\\\.\.\.\\}{\\\.\.\\\.\.\\}; #g                                # \...\ is 2 levels up
+    $path ~~ s:perl5{^\.\.\.\\}{\.\.\\\.\.\\}; #g                                   # ...\ is 2 levels up
+    return $path if $path ~~ rx:perl5{^\.\.};                                       # skip relative paths
+    return $path unless $path ~~ rx:perl5{\.\.};                                    # too few .'s to cleanup
+    return $path if $path ~~ rx:perl5{\.\.\.\.};                                    # too many .'s to cleanup
+    $path ~~ s:perl5{^\\\.\.$}{\\};                                                 # \..    -> \
+    1 while $path ~~ s:perl5{^\\\.\.}{};                                            # \..\xx -> \xx
 
     my ($vol, $dirs, $file) = splitpath($path);
     my @dirs = splitdir($dirs);
@@ -115,6 +114,10 @@ sub canonpath (Str $path) returns Str is export {
     return $path;
 }
 
+sub path returns Array is export {
+    my $path = %*ENV{'PATH'} || %*ENV{'Path'} || %*ENV{'path'};
+    return split(';', $path).map:{ $_ eq '' ?? '.' :: $_ };
+}
 
 sub file_name_is_absolute (Str $file) returns Bool is export { 
 	?($file ~~ rx:perl5{^([a-zA-Z]:)?[\\/]} ) 
@@ -126,14 +129,6 @@ sub file_name_is_absolute (Str $file) returns Bool is export {
 #     $tmpdir = ._tmpdir( %*ENV{'TMPDIR', 'TEMP', 'TMP'}, 'SYS:/temp', 'C:/temp', '/tmp', '/');
 #     return $tmpdir;
 # }
-# 
-# method path () returns Array {
-#     my $path = $ENV{'PATH'} || $ENV{'Path'} || $ENV{'path'};
-#     my @path = $path.split(';');
-#     for (@path) { $_ = '.' if $_ eq '' }
-#     return @path;
-# }
-# 
 # 
 # method abs2rel (Str $path, Str $base) returns Str {
 #     $base = ._cwd() unless $base.defined and $base.bytes;
@@ -201,6 +196,40 @@ File::Spec::Win32 - Part of Perl6/Pugs Portable file handling
 This is a very primative port of the perl5 File::Spec::Win32 module.
 
 = FUNCTIONS
+
+- `curdir returns Str`
+
+- `updir returns Str`
+
+- `rootdir returns Str`
+
+- `devnull returns Str`
+
+- `case_tolerant returns Bool`
+
+- `splitdir (Str $dir) returns Array`
+
+- `splitpath (Str $path, Bool ?$nofile) returns Array`
+
+- `catdir (*@path) returns Str`
+
+- `catfile (*@_path) returns Str`
+
+- `catpath (Str $volume, Str $directory, Str $file) returns Str`
+
+- `rel2abs (Str $path, Str ?$base) returns Str`
+
+- `abs2rel (Str $path, Str $base) returns Str`
+
+- `no_upwards (*@filenames) returns Array`
+
+- `file_name_is_absolute (Str $file) returns Bool`
+
+- `path returns Array`
+
+- `canonpath (Str $_path) returns Str`
+
+- `cwd returns Str`
 
 = SEE ALSO
 

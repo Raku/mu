@@ -54,6 +54,40 @@ GHC and Pugs currently run on (yeah no VMS !!).
 
 = FUNCTIONS
 
+- `curdir returns Str`
+
+- `updir returns Str`
+
+- `rootdir returns Str`
+
+- `devnull returns Str`
+
+- `case_tolerant returns Bool`
+
+- `splitdir (Str $dir) returns Array`
+
+- `splitpath (Str $path, Bool ?$nofile) returns Array`
+
+- `catdir (*@path) returns Str`
+
+- `catfile (*@_path) returns Str`
+
+- `catpath (Str $volume, Str $directory, Str $file) returns Str`
+
+- `rel2abs (Str $path, Str ?$base) returns Str`
+
+- `abs2rel (Str $path, Str $base) returns Str`
+
+- `no_upwards (*@filenames) returns Array`
+
+- `file_name_is_absolute (Str $file) returns Bool`
+
+- `path returns Array`
+
+- `canonpath (Str $_path) returns Str`
+
+- `cwd returns Str`
+
 = SEE ALSO
 
 The Perl5 version of File::Spec, although this version is more akin 
