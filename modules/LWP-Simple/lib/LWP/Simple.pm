@@ -25,7 +25,7 @@ my $VERSION = "0.0.1";
 sub getprint ($url)
 {
   getstore $url, $*OUT;
-}
+};
 
 # FIXME to use a callback
 sub getstore ($url, $file)
@@ -37,7 +37,7 @@ sub getstore ($url, $file)
     $fh.close;            # pugs bug
     $buffer;
   };
-}
+};
 
 # TODO: Implement a non-faked version
 sub mirror ($url, $file)
@@ -164,7 +164,7 @@ sub _make_request (Str $method, Str $host, Str $path) {
     $CRLF;
 };
 
-1;
+=pod
 
 =head1 NAME
 
@@ -172,19 +172,19 @@ LWP::Simple - simple procedural interface to LWP
 
 =head1 SYNOPSIS
 
- pugs -MLWP::Simple -e 'getprint "http://www.sn.no"'
+  pugs -MLWP::Simple -e 'getprint "http://www.sn.no"'
+ 
+  require LWP::Simple;
+  $content = get("http://www.sn.no/");
+  die "Couldn't get it!" unless defined $content;
 
- require LWP::Simple;
- $content = get("http://www.sn.no/");
- die "Couldn't get it!" unless defined $content;
-
- if (mirror("http://www.sn.no/", "foo") == ???) {
+  if (mirror("http://www.sn.no/", "foo") == ???) {
      ...
- }
+  }
 
- if (getprint("http://www.sn.no/")) {
+  if (getprint("http://www.sn.no/")) {
      ...
- }
+  }
 
 =head1 DESCRIPTION
 
@@ -278,3 +278,5 @@ codes.
 
 L<LWP>, L<lwpcook>, L<LWP::UserAgent>, L<HTTP::Status>, L<lwp-request>,
 L<lwp-mirror>
+
+=cut
