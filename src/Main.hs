@@ -15,12 +15,7 @@
 
 module Main where
 import Internals
-import Config (config_archlib
-              ,config_privlib
-              ,config_sitearch
-              ,config_sitelib
-              )
-
+import Config 
 import AST
 import Eval
 import Shell
@@ -128,6 +123,7 @@ runProgramWith fenv f name args prog = do
         , Symbol SGlobal "%=POD"        (Val . VHash . MkHash $ emptyFM) -- wrong: pkg
         , Symbol SGlobal "@=POD"        (Val . VArray . MkArray $ [])
         , Symbol SGlobal "$=POD"        (Val . VStr $ "")
+        , Symbol SGlobal "$?OSNAME"     (Val . VStr $ config_osname)
         ]
 --    str <- return "" -- getContents
     let env' = runRule (fenv env) id ruleProgram name prog
