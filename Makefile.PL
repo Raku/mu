@@ -90,7 +90,7 @@ ghci ::
 	$ghc --interactive $ghc_flags $ghc_output
 
 tags :
-	hasktags -c src
+	hasktags -c @srcfiles
 
 INST6_ARCHLIB = 'blib6/arch'
 INST6_SCRIPT = 'blib6/script'
