@@ -1,6 +1,11 @@
-{-# OPTIONS -fglasgow-exts -fth #-}
+{-# OPTIONS -cpp -fglasgow-exts -fth #-}
 
 module Compile.Parrot where
-import Language.Haskell.TH
+
+#if __GLASGOW_HASKELL__ < 604
+import Language.Haskell.THSyntax
+#else
+import Language.Haskell.Syntax
+#endif
 
 genPIR _ = error "..."
