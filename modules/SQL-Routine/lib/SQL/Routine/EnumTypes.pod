@@ -1,0 +1,883 @@
+=head1 NAME
+
+SQL::Routine::EnumTypes - What enumerated types are part of SQL::Routine's language or grammar
+
+=head1 COPYRIGHT AND LICENSE
+
+This file is part of the SQL::Routine library (libSQLRT).
+
+SQL::Routine is Copyright (c) 1999-2005, Darren R. Duncan.  All rights
+reserved. Address comments, suggestions, and bug reports to
+B<perl@DarrenDuncan.net>, or visit "http://www.DarrenDuncan.net" for more
+information.
+
+SQL::Routine is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License (GPL) version 2 as published by the
+Free Software Foundation (http://www.fsf.org/).  You should have received a
+copy of the GPL as part of the SQL::Routine distribution, in the file named
+"LICENSE"; if not, write to the Free Software Foundation, Inc., 59 Temple
+Place, Suite 330, Boston, MA 02111-1307 USA.
+
+Linking SQL::Routine statically or dynamically with other modules is making a
+combined work based on SQL::Routine.  Thus, the terms and conditions of the GPL
+cover the whole combination.  As a special exception, the copyright holders of
+SQL::Routine give you permission to link SQL::Routine with independent modules,
+regardless of the license terms of these independent modules, and to copy and
+distribute the resulting combined work under terms of your choice, provided
+that every copy of the combined work is accompanied by a complete copy of the
+source code of SQL::Routine (the version of SQL::Routine used to produce the
+combined work), being distributed under the terms of the GPL plus this
+exception.  An independent module is a module which is not derived from or
+based on SQL::Routine, and which is fully useable when not linked to
+SQL::Routine in any form.
+
+Any versions of SQL::Routine that you modify and distribute must carry
+prominent notices stating that you changed the files and the date of any
+changes, in addition to preserving this original copyright notice and other
+credits. SQL::Routine is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.
+
+While it is by no means required, the copyright holders of SQL::Routine would
+appreciate being informed any time you create a modified version of
+SQL::Routine that you are willing to distribute, because that is a practical
+way of suggesting improvements to the standard version.
+
+=head1 DESCRIPTION
+
+This POD file contains most of the details about the enumerated types that are
+part of SQL::Routine's language or grammar.  You should read the summary
+introduction in L<SQL::Routine::Language> before this document.
+
+=head1 ENUMERATED TYPES
+
+This document details the enumerated types that SQL::Routine knows about.
+
+=head2 container_type
+
+These are high level structures that can represent contexts in which standard
+built-in routines execute, and they can represent general variable types that
+routine arguments, variables, or return types, or intermediate values of
+expressions can be.  Note that all table and view column values have an
+implicit container_type of SCALAR.
+
+	ERROR  - an error message object (a message key, named list of values)
+	SCALAR - a typed scalar variable, such as a boolean or number or cstring or bstring
+	ROW    - a row variable; a named list of SCALAR (SQL:2003 type is 'ROW'); each elem is a "field"
+	SC_ARY - an ordered list of SCALAR (SQL:2003 type is 'ARRAY')
+	RW_ARY - an ordered list of ROW (SQL:2003 type is 'ARRAY')
+	CONN   - a database connection context (may be closed or open)
+	CURSOR - a database cursor context (may be closed or open)
+	LIST   - for exprs that are a generic list or explicit grouping of sub-exprs (comma-delim, paren-bound)
+
+	SRT_NODE      - for client code only; stores a SQL::Routine::Node object
+	SRT_NODE_LIST - for client code only; stores a list of SQL::Routine::Node objects
+
+	If either of SRT_NODE[|_LIST] appear with a ":foo" appended, such as
+	"SRT_NODE:foo", that means only a "foo" Node (or list thereof) is taken,
+	rather than any kind of Node; if multiple specific Node types are accepted,
+	then "foo" is a comma-delimited list of them.
+
+	The following won't be implemented in the short term:
+
+	ENVI   - a db/app/dlp environment context; usually just one (conceptually), which is global
+	TRAN   - a database transaction context
+
+Note that matters such as variable-vs-constant and bind vars or
+in-vs-out-vs-inout or literal vs var/col/arg are not distinguished by this
+enumerated type.
+
+=head2 exception_type
+
+These represent the basic types of exception objects which both standard
+built-in routines and user-defined routines can throw if they fail; they can
+also be caught by user-defined routines.  If stored in a routine variable, they
+have a container_type of ERROR.  
+
+I<Note: The SQL:2003 Standard says to use the keyword 'CONDITION' rather than 'EXCEPTION' 
+to refer to this sort of thing; it has deprecated the use of the latter keyword as 
+an alias for the former; see SQL:2003 Foundation p1171.>
+
+	SRTX_NO_ENVI_LOAD_FAILED
+		- If data link product failed to load, from non-existence or missing dependencies.
+	SRTX_ENVI_EXEC_FAILED
+		- If data link product loaded successfully, but later had non-conn related failure.
+	SRTX_NO_CONN_SERVER_ABSENT
+		- If server doesn't exist, is inactive, is ignoring connection requests.
+	SRTX_NO_CONN_BAD_AUTH
+		- If server explicitly rejects connection attempt due to bad login credentials.
+	SRTX_NO_CONN_ACTIVE_LOST
+		- If an active server connection halts prematurely, from server or network failure.
+
+=head2 standard_routine, standard_routine_context, standard_routine_arg
+
+These represent the basic types of actions that a database engine or database
+client can perform, and are the "built-in" functions of the SQL::Routine
+virtual database language.  The action types include: connection and
+transaction management, queries and cursors, DML and DDL, user and privilege
+management, and error handling.  You always invoke these within user-defined
+routines, sometimes directly as routine statements, and sometimes indirectly
+when they form parts of user-defined view or query definitions.
+
+Each standard routine may take arguments and/or return a value.  All arguments
+are named, as with user-defined routines; likewise, there is exactly one
+un-named return value, if any.  Where [routine_stmt, routine_expr, view_expr]
+SRT Nodes can have a 'standard_routine' attribute set, only child
+[routine_expr, view_expr] Nodes can have a 'standard_routine_arg' attribute
+set.  Each standard routine will throw an exception (container_type is ERROR)
+if it fails, instead of returning a value; any standard routine may throw more
+than one type of exception depending on the circumstance.
+
+Beneath each routine name is up to 6 kinds of information, having the following
+labels; for brevity, a label won't be shown if its value would be 'none':
+
+	purpose: what the routine does that validates its existence
+	context: what context type the routine must be called within; it is a special argument
+	args: what non-context arguments the routine takes, if any
+	effects: what side-effects there are of executing it, besides its return value
+	returns: what type of value/container the routine returns
+	throws: what types of exceptions are thrown if routine fails
+
+Most arguments take one value each, and are indicated with the "(1)"; some
+arguments take a list of one or more similarly used elements, indicated by a
+"(N)".  For view_expr or routine_expr Nodes that have call_sroutine_arg valued,
+the expr_type will always be LIST with "(N)" arguments (the child exprs are the
+elements); with "(1)" arguments, the expr Nodes are ordinary; this allows a set
+of expr Nodes to guarantee distinct call_sroutine_arg values under a
+call_sroutine.
+
+This set of connection management built-ins may only be invoked in a
+client-side routine, usually with 'routine_stmt' Nodes.
+
+	CATALOG_LIST()
+		purpose: 
+			- Fetches a list of auto-detectable database instances.
+			- Skips by default any details that CATALOG_INFO() and CONN-context
+			built-ins can handle; it is minimalist for speed.
+		args:
+			- RECURSIVE - SCALAR.bool - Opt: To scan inside each db as well.
+		effects: 
+			- A new 'catalog' Node is added to the SQL::Routine::Container for
+			each one found, plus associated 'catalog_link', 'catalog_instance',
+			and 'catalog_link_instance' Nodes (one each per 'catalog'), plus
+			'data_storage_product' and 'data_link_product' Nodes if necessary.
+			- If RECURSIVE is true, call CATALOG_INFO() in recursive mode for
+			each database catalog found.
+		returns: 
+			- SRT_NODE_LIST:catalog_link - The newly added cli Nodes.
+		throws:
+			- SRTX_NO_ENVI_LOAD_FAILED, SRTX_ENVI_EXEC_FAILED,
+			SRTX_NO_CONN_SERVER_ABSENT, SRTX_NO_CONN_BAD_AUTH,
+			SRTX_NO_CONN_ACTIVE_LOST
+
+	CATALOG_INFO()
+		purpose:
+			- Fetches some detailed info about a database instance.
+			- Skips by default any details that other CONN-context built-ins
+			can handle; it is minimalist for speed.
+			- Note: There may not be any info to gather in minimalist mode.
+		args:
+			- LINK_BP - SRT_NODE:catalog_link - The catalog to scan.
+			- RECURSIVE - SCALAR.bool - Opt: To get all determinable details.
+		effects:
+			- May set some catalog Node attributes, or add child Nodes.
+			- If RECURSIVE is true, call these built-ins in recursive mode: 
+			OWNER_LIST(), SCHEMA_LIST(), ROLE_LIST(), USER_LIST().
+		returns:
+			- SRT_NODE:catalog_link - The same cli that LINK_BP has.
+		throws:
+			- SRTX_NO_ENVI_LOAD_FAILED, SRTX_ENVI_EXEC_FAILED,
+			SRTX_NO_CONN_SERVER_ABSENT, SRTX_NO_CONN_BAD_AUTH,
+			SRTX_NO_CONN_ACTIVE_LOST
+
+	CATALOG_VERIFY() 
+		purpose:
+			- Compares a provided db spec to an actual database.
+			- Functions analogously to CATALOG_INFO() except that no changes
+			are made to the SQL::Routine::Container; existing Nodes therein are
+			compared to instead.
+		args:
+			- LINK_BP - SRT_NODE:catalog_link - The catalog to scan.
+			- RECURSIVE - SCALAR.bool - Opt: To verify all possible details.
+		returns:
+			- SCALAR.bool - A true value if the db matches the spec, false if not.
+			- If the details that the database product stores or reports about
+			itself are more ambiguous or less detailed than the SRT model that
+			it is being compared to, but the former is still valid as a
+			degraded case of the latter, then CATALOG_VERIFY() will still
+			return true.  This would happen, for example, if the model defines
+			a foreign key constraint, and the database engine has no support
+			for those.  So just the details a db does support are tested.
+		throws:
+			- SRTX_NO_ENVI_LOAD_FAILED, SRTX_ENVI_EXEC_FAILED,
+			SRTX_NO_CONN_SERVER_ABSENT, SRTX_NO_CONN_BAD_AUTH,
+			SRTX_NO_CONN_ACTIVE_LOST
+
+	CATALOG_CREATE() 
+		purpose:
+			- Creates a new database instance.
+			- By default, creates just the catalog but puts nothing inside it.
+		args:
+			- LINK_BP - SRT_NODE:catalog_link - The catalog to create.
+			- RECURSIVE - SCALAR.bool - Opt: To create all possible details.
+		effects:
+			- If RECURSIVE is true, creates all database schemas and users also.
+		throws:
+			- SRTX_NO_ENVI_LOAD_FAILED, SRTX_ENVI_EXEC_FAILED,
+			SRTX_NO_CONN_SERVER_ABSENT, SRTX_NO_CONN_BAD_AUTH,
+			SRTX_NO_CONN_ACTIVE_LOST
+
+	CATALOG_DELETE() 
+		purpose:
+			- Deletes a database instance.
+		args:
+			- LINK_BP - SRT_NODE:catalog_link - The catalog to delete.
+
+	CATALOG_CLONE() 
+		purpose:
+			- Makes a clone of a db instance in another storage loc.
+		args:
+			- SOURCE_LINK_BP - SRT_NODE:catalog_link - The catalog to copy from.
+			- DEST_LINK_BP - SRT_NODE:catalog_link - The catalog to copy to / create.
+
+	CATALOG_MOVE() 
+		purpose:
+			- Moves a db inst from one storage location to another.
+		args:
+			- SOURCE_LINK_BP - SRT_NODE:catalog_link - The catalog location to move from.
+			- DEST_LINK_BP - SRT_NODE:catalog_link - The catalog location to move to.
+
+This set of connection management built-ins may only be invoked in a
+routine, client or database side, usually with 'routine_stmt' Nodes.
+
+	CATALOG_OPEN() 
+		purpose:
+			- Opens a link or connection to a database instance from an application.
+			- Note that it is the routine_var or routine_arg declaration SRT
+			Node that references the catalog_link which defines our basic
+			connection details; this var/arg is provided in CONN_CX.
+		context:
+			- CONN_CX - CONN - A routine var or arg that will hold the new connection handle.
+		args:
+			- LOGIN_NAME - SCALAR.cstr - Opt: A runtime-provided username to connect with.
+			- LOGIN_PASS - SCALAR.cstr - Opt: A runtime-provided password to connect with.
+		effects:
+			- The CONN_CX changes from an inactive state to active, ready to pipe data.
+		throws:
+			- SRTX_NO_ENVI_LOAD_FAILED, SRTX_ENVI_EXEC_FAILED,
+			SRTX_NO_CONN_SERVER_ABSENT, SRTX_NO_CONN_BAD_AUTH,
+			SRTX_NO_CONN_ACTIVE_LOST
+
+		TODO: Provide a way to clone a connection and/or allow multiple
+		"lightweight connections" or independent transactional contexts to
+		share the same actual/heavy connection.
+
+	CATALOG_CLOSE() 
+		purpose:
+			- Closes a link or connection to a database instance from an application.
+		context:
+			- CONN_CX - CONN - The open database connection context to be closed.
+		effects:
+			- The CONN_CX changes from an active to an inactive state.
+		throws:
+			- SRTX_NO_CONN_ACTIVE_LOST
+
+	CATALOG_PING() 
+		purpose:
+			- Verifies that a db connection is still open, that the db is accessible.
+		context:
+			- CONN_CX - CONN - The open database connection context to be pinged.
+		returns:
+			- SCALAR.bool - A true value if the db connection is still active,
+			false if not.
+			- Since we are explicitly testing it, no SRTX_NO_CONN_ACTIVE_LOST
+			exception is thrown if the connection is down.
+
+	CATALOG_ATTACH() 
+		purpose:
+			- Attaches a link or connection to a database instance from another db instance.
+		context:
+			- CONN_CX - CONN - An open database connection to provide our action context.
+		args:
+			- LINK_BP - SRT_NODE:catalog_link - The catalog to connect to.
+		throws:
+			- SRTX_NO_CONN_ACTIVE_LOST
+
+	CATALOG_DETACH() 
+		purpose:
+			- Detaches a link or connection to a database instance from another db instance.
+		context:
+			- CONN_CX - CONN - An open database connection to provide our action context.
+		args:
+			- LINK_BP - SRT_NODE:catalog_link - The catalog to connect to.
+		throws:
+			- SRTX_NO_CONN_ACTIVE_LOST
+
+This set of schema management or data definition built-ins may only be invoked in a
+routine, client or database side, usually with 'routine_stmt' Nodes.
+
+	SCHEMA_LIST()         - fetches a list of schemas of open db instance
+	SCHEMA_INFO(schema)   - fetches some detailed info about a schemas
+	SCHEMA_VERIFY(schema) - compares a provided schema spec to an actual schemas
+	SCHEMA_CREATE(schema) - creates a new schema in catalog of open db inst
+	SCHEMA_DELETE(schema) - deletes an existing schema in open db inst (if it can)
+	SCHEMA_CLONE(schema,schema) - creates a clone of an existing schema with different name
+	SCHEMA_UPDATE(schema) - alters details for an existing schema
+	DOMAIN_LIST(schema)   - fetches a list of domains of open db instance
+	DOMAIN_INFO(domain)   - fetches some detailed info about a domain
+	DOMAIN_VERIFY(domain) - compares a provided domain spec to an actual domain
+	DOMAIN_CREATE(domain) - creates a new domain in schema of open db inst
+	DOMAIN_DELETE(domain) - deletes an existing domain in open db inst (if it can)
+	DOMAIN_CLONE(domain,domain) - creates a clone of an existing domain with different name
+	DOMAIN_UPDATE(domain) - alters details for an existing domain
+	SEQU_LIST(schema)     - fetches a list of sequence generators in schema of open db instance
+	SEQU_INFO(sequence)   - fetches some detailed info about a sequence
+	SEQU_VERIFY(sequence) - compares a provided sequence generator spec to an actual table
+	SEQU_CREATE(sequence) - creates a new sequence generator in schema of open db inst
+	SEQU_DELETE(sequence) - deletes an existing sequence generator in open db inst (if it can)
+	SEQU_CLONE(sequence,sequence) - creates a clone of an existing sequence with different name
+	SEQU_UPDATE(sequence) - alters details for an existing sequence generator
+	TABLE_LIST(schema)  - fetches a list of tables in schema of open db instance
+	TABLE_INFO(table)   - fetches some detailed info about a table
+	TABLE_VERIFY(table) - compares a provided table spec to an actual table
+	TABLE_CREATE(table) - creates a new table in schema of open db inst
+	TABLE_DELETE(table) - deletes an existing table in open db inst (if it can)
+	TABLE_CLONE(table,table) - creates a clone of an existing table with different name
+	TABLE_UPDATE(table) - alters details for an existing table
+	VIEW_LIST(schema) - fetches a list of views in schema of open db instance
+	VIEW_INFO(view)   - fetches some detailed info about a view
+	VIEW_VERIFY(view) - compares a provided view spec to an actual view
+	VIEW_CREATE(view) - creates a new view in schema of open db inst
+	VIEW_DELETE(view) - deletes an existing view in open db inst (if it can)
+	VIEW_CLONE(view,view) - creates a clone of an existing view with different name
+	VIEW_UPDATE(view) - alters details for an existing view
+	ROUTINE_LIST(schema)    - fetches a list of routines/procs/funcs of open db instance
+	ROUTINE_INFO(routine)   - fetches some detailed info about a routine
+	ROUTINE_VERIFY(routine) - compares a provided routine spec to an actual routine
+	ROUTINE_CREATE(routine) - creates a new routine in schema of open db inst
+	ROUTINE_DELETE(routine) - deletes an existing routine in open db inst (if it can)
+	ROUTINE_CLONE(routine,routine) - creates a clone of an existing routine with different name
+	ROUTINE_UPDATE(routine) - alters details for an existing routine
+
+This set of user management built-ins may only be invoked in a
+routine, client or database side, usually with 'routine_stmt' Nodes.
+
+	USER_LIST()        - fetches a list of users in open db instance
+	USER_INFO(user)    - fetches some detailed info about a database user
+	USER_VERIFY(user)  - compares a provided user spec to an actual user
+	USER_CREATE(user)  - creates new db user one can auth CATALOG_OPEN with (if privs)
+	USER_DELETE(user)  - deletes db user (as well as all schema it owns, if applic)
+	USER_CLONE(user,user) - creates a clone of an existing user with different name
+	USER_UPDATE(user)  - alters some details for a database user
+	USER_GRANT(user)   - grants a db privilege to a db user
+	USER_REVOKE(user)  - revokes a db privilege from a db user
+
+This set of data management or logic or program flow control or miscellaneous
+built-ins may only be invoked in a routine, client or database side, usually
+with 'routine_stmt' Nodes.
+
+	REC_FETCH(view)   - fetches records from a table or view of multiple tables
+	REC_VERIFY(view)  - compares a provided set of records to stored ones
+	REC_INSERT(view)  - inserts new recs into a table or view of multiple tables
+	REC_UPDATE(view)  - updates exist recs in a table or view of multiple tables
+	REC_DELETE(view)  - deletes exist recs from a table or view of multiple tables
+	REC_REPLACE(view) - either updates or inserts recs if they exist or not
+	REC_CLONE(view)   - creates a clone of a record in same table/view (if possible)
+	REC_LOCK(view)    - places a lock on recs for a consistent read plus update
+	REC_UNLOCK(view)  - releases an existing lock on recs
+
+	RETURN() 
+		purpose:
+			- Causes the parent routine to stop right away, and optionally returns a value.
+		args:
+			- RETURN_VALUE - Opt: The container expression value that the parent routine returns.
+
+	CURSOR_OPEN() 
+		purpose:
+			- Opens a select cursor context for reading from (or performs a select if in right context).
+		context:
+			- CURSOR_CX - CURSOR - A routine var or arg that holds a cursor definition.
+		effects:
+			- The CURSOR_CX changes from an inactive state to active, ready to be fetched from.
+
+	CURSOR_CLOSE() 
+		purpose:
+			- Closes a select cursor context when you're done with it.
+		context:
+			- CURSOR_CX - CURSOR - The open cursor context to be closed.
+		effects:
+			- The CURSOR_CX changes from an active to an inactive state.
+
+	CURSOR_FETCH() 
+		purpose:
+			- Reads one row from an opened cursor and puts it in a ROW variable.
+		context:
+			- CURSOR_CX - CURSOR - An open cursor to provide our action context.
+
+	SELECT() 
+		purpose:
+			- Fetches either one row or all rows from a table/view and puts it in a ROW/RW_ARY variable.
+			- The container type of the target variable determines how many rows are fetched.
+		context:
+			- CONN_CX - CONN - An open database connection to provide our action context.
+		args:
+			- SELECT_DEFN - SRT_NODE:view - The view that defines this select action.
+
+	INSERT() 
+		purpose:
+			- Inserts the contents of a ROW/RW_ARY variable into a table/view.
+			- The container type of the source variable determines how many rows are inserted.
+		context:
+			- CONN_CX - CONN - An open database connection to provide our action context.
+		args:
+			- INSERT_DEFN - SRT_NODE:view - The view that defines this insert action.
+
+	UPDATE() 
+		purpose:
+			- Updates between zero and all rows in a table/view.
+			- The "where clause" of the view determines how many rows are updated.
+		context:
+			- CONN_CX - CONN - An open database connection to provide our action context.
+		args:
+			- UPDATE_DEFN - SRT_NODE:view - The view that defines this update action.
+
+	DELETE() 
+		purpose:
+			- Deletes between zero and all rows in a table/view.
+			- The "where clause" of the view determines how many rows are deleted.
+		context:
+			- CONN_CX - CONN - An open database connection to provide our action context.
+		args:
+			- DELETE_DEFN - SRT_NODE:view - The view that defines this delete action.
+
+	COMMIT() 
+		purpose:
+			- Commits the current transaction, then starts a new one.
+		context:
+			- CONN_CX - CONN - An open database connection to provide our action context.
+
+	ROLLBACK() 
+		purpose:
+			- Rolls back the current transaction, then starts a new one.
+		context:
+			- CONN_CX - CONN - An open database connection to provide our action context.
+
+	According to SQL-1999, a transaction affects all types of SQL statements;
+	if one is rolled back then it has no affect on SQL-schemas or SQL-data.  Or
+	maybe it isn't quite that simple; see section 4.8.5 of SQL-1999.
+
+The following possible built-ins currently lack rigorous definitions.
+
+	LOCK - 
+	UNLOCK - 
+	PLAIN - 
+	THROW - 
+	TRY - 
+	CATCH - 
+	IF - 
+	ELSEIF - 
+	ELSE - 
+	SWITCH - 
+	CASE - 
+	OTHERWISE - 
+	FOREACH - 
+	FOR - 
+	WHILE - 
+	UNTIL - 
+	MAP - 
+	GREP - 
+	REGEXP - 
+	LOOP - a loop/iterator context inside a routine, such as a 'foreach'
+	CONDITION - a conditional context inside a routine, such as an 'if'
+	LOGIC - some control-flow logic operation ...
+
+This set of built-in standard routines may be invoked within any routine or
+view, client or db side, usually with 'routine_expr' or 'view_expr' Nodes.
+
+	CAST() 
+		purpose:
+			- Cast a single child expression into a different specified scalar data-type.
+		args:
+			- CAST_TARGET - SRT_NODE:scalar_data_type,scalar_domain - The data type to cast the operand as.
+			- CAST_OPERAND - SCALAR - The data value we are casting into a data type.
+		returns:
+			- SCALAR - The new value having the target data type.
+
+	NOT     - a logical 'not', true iif lone arg is false
+		FACTOR(1) - the value being not-ed
+	AND     - a logical 'and', true iif every arg is true
+		FACTORS(N) - the list of values being and-ed
+	OR      - a logical 'or', true iif at least one arg is true
+		FACTORS(N) - the list of values being or-ed
+	XOR     - a logical 'xor', true iif 1+ arg true and 1+ arg false
+		FACTORS(N) - the list of values being xor-ed
+	EQ      - true if both args are equal (both args cast same tp)
+		LHS(1) - the left-hand operand
+		RHS(1) - the right-hand operand
+	NE      - true if both args are unequal (when same data type)
+		LHS(1) - the left-hand operand
+		RHS(1) - the right-hand operand
+	LT      - true if first arg is less than second
+		LHS(1) - the left-hand operand
+		RHS(1) - the right-hand operand
+	GT      - true if first arg is greater than second
+		LHS(1) - the left-hand operand
+		RHS(1) - the right-hand operand
+	LE      - true if first arg is less than or equal to second
+		LHS(1) - the left-hand operand
+		RHS(1) - the right-hand operand
+	GE      - true if first arg is greater than or equal to second
+		LHS(1) - the left-hand operand
+		RHS(1) - the right-hand operand
+	IS_NULL - true if only arg is a null value
+		ARG(1) - the value being evaluated
+	NOT_NULL - true if only arg is not a null value
+		ARG(1) - the value being evaluated
+	COALESCE - returns first arg which is not null (like Oracle 'NVL')
+		TERMS(N) - the list of values being coalesced
+	SWITCH  - a logical switch-case expr (like Oracle 'DECODE')
+		LOOK_IN(1) - the value to evaluate for the switch expression
+		CASES(N) - the list of pairs (two-val-LISTs) of test expressions plus return values
+		DEFAULT(1) - the default return value
+	LIKE    - true if first arg contains second; args 3,4 are flags
+		LOOK_IN(1) - the string to look in
+		LOOK_FOR(1) - the string to look for
+		FIXED_LEFT(1) - the look-for string must match the leftmost look-in chars
+		FIXED_RIGHT(1) - the look-for string must match the rightmost look-in chars
+	ADD     - sum result of adding all args as numbers
+		TERMS(N) - the list of values being added
+	SUB     - difference result of subtracting second arg from first
+		START(1) - the value being subtracted from
+		REMOVE(1) - the list of values being subtracted
+	MUL     - product result of multiplying all arguments
+		FACTORS(N) - the list of values being multiplied
+	DIV     - quotient result of dividing first argument by second
+		DIVIDEND(1) - value being divided up
+		DIVISOR(1) - value being divided by
+	DIVI    - integral division of first arg by second
+		DIVIDEND(1) - value being divided up
+		DIVISOR(1) - value being divided by
+	MOD     - modulus of integral division of first arg by second
+		DIVIDEND(1) - value being divided up
+		DIVISOR(1) - value being divided by
+	ROUND   - rounds first arg to N dec places; N is second arg or 0
+		START(1) - value being rounded
+		PLACES(1) - how many decimal places to round to (default is 0, to get a whole number)
+	ABS     - absolute value of the operand (distance from zero)
+		OPERAND(1) - value we start with
+	POWER   - raises first arg to the power of the second
+		RADIX(1) - the radix/base
+		EXPONENT(1) - the exponent
+	LOG     - logarithm of the first arg on the base of second
+		START(1) - the starting value
+		RADIX(1) - the radix/base
+	SCONCAT - L.cstr concat of all arguments
+		FACTORS(N) - the strings being concatenated
+	SLENGTH - length of input string in characters
+		SOURCE(1) - the string to find the length of
+	SINDEX  - pos in arg 1 of arg 2 if present, start at arg 3
+		LOOK_IN(1) - the string to look in
+		LOOK_FOR(1) - the string to look for
+		START_POS(1) - how many chars from the start of the string to start (default is first)
+	SUBSTR  - substr in arg 1 starting pos arg 2 of length arg 3
+		LOOK_IN(1) - the string to extract from
+		START_POS(1) - how many chars from the start of the string to start (default is first)
+		STR_LEN(1) - how many chars to extract (default is all from offset)
+	SREPEAT - L.cstr concat arg 1 to self repeated by arg 2 instances
+		FACTOR(1) - the starting value
+		REPEAT(1) - how many times to repeat
+	STRIM   - trims leading and trailing whitespace from arg 1
+		SOURCE(1) - the starting value
+	SPAD    - lengthens arg 1 to length of arg 2 using arg 3 or space
+		SOURCE(1) - the starting value
+	SPADL   - like spad but add filler on left rather than right
+		SOURCE(1) - the starting value
+	LC      - lowercases latin chars in a string (SQL:2003 says this is a type of "folding")
+		SOURCE(1) - the starting value
+	UC      - uppercases latin chars in a string (SQL:2003 says this is a type of "folding")
+		SOURCE(1) - the starting value
+
+	If any description contains "aggregate", it means the function is an
+	aggregate function (a grouping func, like 'count').
+
+	COUNT   - aggregate - count of rows a view/cursor can see
+	MIN     - aggregate - minimum of values in all records in one view col
+		FACTOR(1) - the table col or sub-query whose return values we aggregate
+	MAX     - aggregate - maximum of values in all records in one view col
+		FACTOR(1) - the table col or sub-query whose return values we aggregate
+	SUM     - aggregate - sum of values in all records in one view col
+		FACTOR(1) - the table col or sub-query whose return values we aggregate
+	AVG     - aggregate - average of values in all records in one view col
+		FACTOR(1) - the table col or sub-query whose return values we aggregate
+	CONCAT  - aggregate - L.cstr concat of values in all records in one view col
+		FACTOR(1) - the table col or sub-query whose return values we aggregate
+	EVERY   - aggregate - is true when all rec values in one col are true
+		FACTOR(1) - the table col or sub-query whose return values we aggregate
+	ANY     - aggregate - is true when at least one rec value in one col is true
+				- 'SOME' is a synonym for 'ANY', according to MySQL
+		FACTOR(1) - the table col or sub-query whose return values we aggregate
+	EXISTS  - aggregate - is true when if there are > 0 rows
+		FACTOR(1) - the table col or sub-query whose return values we aggregate
+	GB_SETS - olap, use in group-by - produces GROUPING SETS ( sub-exprs )
+		FACTORS(N) - the sub-exprs defining the grouping operation
+	GB_RLUP - olap, use in group-by - produces ROLLUP ( sub-exprs )
+		FACTORS(N) - the sub-exprs defining the grouping operation
+	GB_CUBE - olap, use in group-by - produces CUBE ( sub-exprs )
+		FACTORS(N) - the sub-exprs defining the grouping operation
+
+	Note that the function list is incomplete and will grow over time.  It does not currently 
+	mention functions for working with view/cursor subqueries, such as "in" (field in subquery), 
+	and also doesn't include any list operators, such as for comparing a list of field names to 
+	a subquery that returns multiple columns (as I suspect MySQL 4.1 supports).
+
+	I took out CROWID, CROWNUM, CLEVEL; there exist replacements for such as these, 
+	such as in SQL:2003, 7.14 "<search or cycle clause>" (p365).
+
+	Note: While it might conceptually go here, statements of type DECLARE will 
+	be added to a block/routine implicitely by the fact that routine_var Nodes exist.
+	The SQL:2003 standard says DECLARE appears inside a BEGIN ... END block, not before 
+	it such as Oracle does.  It looks like "DECLARE <var name> <type name> [DEFAULT <expr>]".
+	The standard also says "SET foo = expr;" rather than the "foo := expr;" as in Oracle.
+
+=head2 simple_scalar_type
+
+These represent the basic scalar data value types that can be used to further
+qualify variables (or literals) whose container_type is SCALAR.  The 1999 SQL
+standard indicates 5 classes of simple (Predefined) data types: Numeric,
+String, Boolean, Datetime, Interval; all of the data types in those classes are
+represented by at least one of the following enumerated values.  The 2003 SQL
+standard adds a 6th one, XML, but we will ignore that one for the moment; you 
+can store XML in a STR_CHAR.
+
+	NUM_INT   - an exact integral or whole number/numeric
+	NUM_EXA   - an exact decimal or fractional number/numeric
+	NUM_APR   - an approximately represented number/numeric (eg: floating point) 
+	STR_BIT   - a string of bits or generic binary data (can store anything)
+	STR_CHAR  - a string of characters (encoding spec defined separately) 
+	BOOLEAN   - only two values: false or true 
+	DATM_FULL - a full datetime ('timestamp') having both YMD and HMS components
+	DATM_DATE - a valid Gregorian (says the 2003,1999 standard) date having just YMD
+	DATM_TIME - a valid time of day having just HMS components
+	INTRVL_YM - a time duration having year-month (YM) intervals (year or month or both)
+	INTRVL_DT - a time duration having day-time (DHMS) intervals (but not year or month)
+
+=head2 char_enc_type
+
+These represent the set of known character string encodings or named sets of
+characters (character repertoires) that can be used by character data, with
+Unicode (or UTF-8 specifically) being the recommended one to use when possible,
+and with Ascii being the most common legacy encoding. Encodings are only
+applicable to data whose simple_scalar_type is STR_CHAR.
+
+	UTF8   - unicode UTF-8  (always byte-order preserving; no big/little endian, usually 1 octet)
+	UTF16  - unicode UTF-16 (has big/little endian versions)
+	UTF32  - unicode UTF-32 (has big/little endian versions)
+	ASCII  - 8-bit ascii    
+	ANSEL  - 8-bit ansel (a standard-defined super-set of ascii, used by libraries, genealogy)
+	EBCDIC - 8-bit ebcdic   
+
+	Others will be added as appropriate.
+	Note that some of these examples may be wrong for practical use and be changed later.
+
+=head2 calendar
+
+These represent the set of known calendars which a date and time (data) can be
+relative to and counted with.  For each, year zero could be at a different
+event, and other differences like what months or other yearly divisions there
+are would also distinguish the calendars.  Use "absolute" if you don't want to
+pick any calendar in particular.  These are only applicable to data whose
+simple_scalar_type is DATM_FULL or DATM_DATE (or perhaps DATM_TIME also).
+
+	ABS - "absolute", for non-calendar-specific dates and times
+	GRE - the Gregorian calendar
+	JUL - the Julian/Roman calendar
+	CHI - the Chinese calendar
+	HEB - the Hebrew calendar
+	ISL - the Islamic calendar
+	JPN - the Japanese calendar
+
+	Note that some of these examples may be wrong for practical use and be changed later.
+
+=head2 privilege_type
+
+These represent the basic types of privileges that database roles can be granted, and
+that by extension users granted those roles can have.
+
+	ALL - user/role has all privileges possible for the associated object
+	SELECT - user may select rows from a table
+	DELETE - user may delete rows from a table
+	INSERT - user may insert rows into a table
+	UPDATE - user may update rows in a table
+
+The above options are understood.  These next options I'm less sure about, and 
+most of them aren't mentioned in section 12.3 (p739) of SQL:2003.
+
+	CONNECT - user may connect/open/attach to the catalog that is the parent of the role
+	EXECUTE - user may execute a routine
+	CREATE - user may create objects in a schema
+	ALTER - user may alter objects in a schema
+	DROP - user may drop objects in a schema
+
+Aside from ALL, SELECT, DELETE, INSERT, UPDATE, the SQL:2003 standard also 
+defines REFERENCES, USAGE, TRIGGER, UNDER, EXECUTE, but I don't yet understand 
+what most of these mean.
+
+=head2 table_index_type
+
+These represent the basic index types that database tables can have applied to them;
+each instance of these can apply to multiple columns at once.  All indexes are
+intended to make accessing table data faster, but some also will impose
+constraints on what data can be put in the columns.
+
+	ATOMIC   - "normal" index makes comparisons against col value as a whole faster, no constraints
+	FULLTEXT - index makes searches for words within a col value faster (and weighted), no constraints
+	UNIQUE   - index imposes a unique key constraint on a set of columns
+	FOREIGN  - index imposes a many-to-one foreign key constraint on a set of columns
+	UFOREIGN - index imposes a one-to-one foreign key (assuming target is a unique key)
+
+	Note that the FULLTEXT index currently takes no arguments when it is getting 
+	set up, such as a customizable stopword list; that will be added later.
+	Note that the UFOREIGN type is interchangeable with UNIQUE+FOREIGN for same table cols.
+
+=head2 view_type
+
+These represent the basic types that a database view or SQL query can be.  All types 
+of views are very similar in structure, but they are not the same; by setting the 
+view_type of a view, you are saying which differences apply to that view and 
+possibly any child views.  
+
+	ALIAS    - view is an alias for a single other view, or a table, or a ROW/RW_ARY routine var/arg
+	JOINED   - view is a non-grouped query having >= 1 other views joined together
+	GROUPED  - view is a grouped query having >= 1 other views joined together
+	COMPOUND - view is a compound query of >= 1 other views
+	INSERT   - view is an "insert statement" definition
+	UPDATE   - view is an "update statement" definition
+	DELETE   - view is a "delete statement" definition
+
+=head2 compound_operator
+
+These represent the standard ways that rows returned from multiple compatible
+views/queries can be merged into a single result set, where all of the input
+rows have the same set of columns as the the output rows, and each single
+output row matches a distinct input row.  A union is the most common such
+operation.  Each of these compound operators is by definition ambiguous as to
+whether the output set includes all allowed input rows or just distinct ones;
+you must keep an associated "set quantifier" value to specify ALL or DISTINCT.
+
+	UNION        - all rows that are each in at least one input set (logical 'or' or 'plus')
+	DIFFERENCE   - all rows from one input set that are not in the others ('except','minus')
+	INTERSECTION - all rows that are each in every input set (logical 'and' or 'multiply')
+	EXCLUSION    - all rows that are each in exactly one input set (logical 'xor')
+
+	The above terms are generic set logic nouns, SQL differs in places.
+
+=head2 join_operator
+
+These represent the standard ways that columns from two tables or views can be joined
+side by side into a single row set, where all values in each output column are
+from exactly one input, and values in columns from separate sources are aligned
+into common rows on related row values.  This is the most common way of
+"relating" data in relational databases.
+
+	CROSS - a cross-join; a cartesian product; every combination of first and second rows kept
+	INNER - an inner/equal-join; only rows with related entries in both sources are kept
+	LEFT  - a left-outer-join; all rows from first source kept even if not matched in second
+	RIGHT - a right-outer-join; all rows from second source kept even if not matched in first
+	FULL  - a full-outer-join; all rows from both sources kept even if un-matched
+
+	There is no concept of a "natural" join at this level of activity, and should not be.
+	Use CROSS if normal joins not sufficient; where-clause used for basic matching.
+	Note: SQLite supports this: [NATURAL ][LEFT |RIGHT |FULL ][OUTER |INNER |CROSS ].
+
+=head2 view_part
+
+These represent the standard parts of a view/query definition that are not in the
+"from" part.  
+
+	RESULT - the SQL "select list" part; one item per view column/field
+	SET    - when outermost view is an "update statement", this is the "set" part
+	FROM   - when view source in "from" part is a named subquery with args, these are arg values
+	WHERE  - the SQL "where" part
+	GROUP  - the SQL "group by" part
+	HAVING - the SQL "having" part
+	WINDOW - ... to replace ORDER,MAXR,SKIPR; or such as those will implement WINDOW instead
+	ORDER  - the SQL "order by" part
+	MAXR   - says to page the results, and how many rows per page, corresponds to SQL "limit" first part
+	SKIPR  - says how many of the first rows to skip before returing the next ones, corr to "limit" second part
+
+	Note that SQL::Routine may need more metadata to represent parts of a GROUP BY 
+	clause, such as OLAP extensions ... or it may not.
+
+	Note that details for the INTO portion of a "select|fetch into" query is
+	stored in 'view' Nodes, and so isn't represented by the view_part
+	enumerated list.  So is the SET portion of an "insert statement".
+
+	According to SQL:2003 Foundation 7.11 (p331), the WINDOW clause in a query seems 
+	to contain/replace the likes of ORDER BY, LIMIT/MAXR, OFFSET/SKIPR, but it is 
+	more powerful than that.  SQL::Routine may need more metadata to do this right.
+
+	Note that several databases like Postgres and SQLite use LIMIT for MAXR 
+	and OFFSET for SKIPR.  I may do that too.
+
+=head2 routine_type
+
+These represent the basic types that a routine can be, since SQL::Routine
+"routines" are generic enough that each of the following can be represented by
+them: stored procedures and functions, triggers, and packages containing stored
+procedures and functions; all of the previous can also have nested stored
+procedures and functions; all of the previous can have nested un-named routines
+as well, called BLOCK.  
+
+All routine types (except packages?) can incorporate a series of statements plus
+conditionals or iterators, and all kinds can declare or use local variables,
+and they can all contain other routines of certain types.  As such, routines
+arranged in a hierarchy of parents and children, where a root routine is one that
+is not contained in another.  All routine types can take arguments of some sort,
+but your choice of type can severely limit what kinds of arguments you can
+take.  Only some routine types, functions mainly, can return a value.  Only some
+routine types have names.
+
+	PACKAGE   - an Oracle package; a namespace beneath a schema for related funcs and procs
+	TRIGGER   - a trigger on a table or schema view
+	PROCEDURE - a named stored procedure, under a schema|package|app|other-rtn
+	FUNCTION  - a named stored function, under a schema|package|app|other-rtn
+	BLOCK     - declares a compound statement that can contain other statements; eg BEGIN ... END
+
+	This list is probably missing some items.
+
+=head2 basic_trigger_event
+
+These represent the basic event types that can cause a trigger routine to execute.
+
+	BEFR_INS - before insert
+	AFTR_INS - after insert
+	INST_INS - instead of insert
+	BEFR_UPD - before update
+	AFTR_UPD - after update
+	INST_UPD - instead of update
+	BEFR_DEL - before delete
+	AFTR_DEL - after delete
+	INST_DEL - instead of delete
+
+	Note: Some databases (eg: SQLServer 2000) can let a trigger run "instead" of the triggering 
+	event, though the SQL:2003 standard does not mention such a feature.
+
+	Note: It appears that triggers (in Oracle at least) can have names and a much more complicated 
+	condition as its "event"; it also can be attached to things other than tables.
+	It can also exist in a separate schema.  Keep that in mind for a future update.  
+	See this: http://www.cit.uws.edu.au/docs/oracle/sqlref/ch4h.htm
+
+=head2 user_type
+
+These represent the basic types of database users that you can have.
+
+	ROOT - the default user that owns the entire database install; login name usually set by RDBMS product
+	SCHEMA_OWNER - owns one or more database schema that are shared with others, perform DDL operations there
+	DATA_EDITOR - does not own any shared schema, usually can do DML only, typ stores data in a shared schema
+	ANONYMOUS - can connect to a database without username or password, owns nothing, usually very limited
+
+=head1 SEE ALSO
+
+L<SQL::Routine> and the various other modules mentioned in its SEE ALSO.
+
+=cut

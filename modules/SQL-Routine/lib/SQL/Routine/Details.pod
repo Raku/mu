@@ -1,0 +1,1273 @@
+=head1 NAME
+
+SQL::Routine::Details - Main structural and API documentation for SQL::Routine
+
+=head1 COPYRIGHT AND LICENSE
+
+This file is part of the SQL::Routine library (libSQLRT).
+
+SQL::Routine is Copyright (c) 1999-2005, Darren R. Duncan.  All rights
+reserved. Address comments, suggestions, and bug reports to
+B<perl@DarrenDuncan.net>, or visit "http://www.DarrenDuncan.net" for more
+information.
+
+SQL::Routine is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License (GPL) version 2 as published by the
+Free Software Foundation (http://www.fsf.org/).  You should have received a
+copy of the GPL as part of the SQL::Routine distribution, in the file named
+"LICENSE"; if not, write to the Free Software Foundation, Inc., 59 Temple
+Place, Suite 330, Boston, MA 02111-1307 USA.
+
+Linking SQL::Routine statically or dynamically with other modules is making a
+combined work based on SQL::Routine.  Thus, the terms and conditions of the GPL
+cover the whole combination.  As a special exception, the copyright holders of
+SQL::Routine give you permission to link SQL::Routine with independent modules,
+regardless of the license terms of these independent modules, and to copy and
+distribute the resulting combined work under terms of your choice, provided
+that every copy of the combined work is accompanied by a complete copy of the
+source code of SQL::Routine (the version of SQL::Routine used to produce the
+combined work), being distributed under the terms of the GPL plus this
+exception.  An independent module is a module which is not derived from or
+based on SQL::Routine, and which is fully useable when not linked to
+SQL::Routine in any form.
+
+Any versions of SQL::Routine that you modify and distribute must carry
+prominent notices stating that you changed the files and the date of any
+changes, in addition to preserving this original copyright notice and other
+credits. SQL::Routine is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.
+
+While it is by no means required, the copyright holders of SQL::Routine would
+appreciate being informed any time you create a modified version of
+SQL::Routine that you are willing to distribute, because that is a practical
+way of suggesting improvements to the standard version.
+
+=head1 DESCRIPTION
+
+This POD file contains most of the core detail documentation for SQL::Routine,
+such as its function and method descriptions.  You should read the summary
+introduction in L<SQL::Routine> before this document and then read
+L<SQL::Routine::Language> either concurrently to or after this document.
+
+=head1 MATTERS OF PORTABILITY AND FEATURES
+
+SQL::Routines are intended to represent all kinds of SQL, both DML and DDL,
+both ANSI standard and RDBMS vendor extensions.  Unlike basically all of the
+other SQL generating/parsing modules I know about, which are limited to basic
+DML and only support table definition DDL, this class supports arbitrarily
+complex select statements, with composite keys and unions, and calls to stored
+functions; this class can also define views and stored procedures and triggers.
+Some of the existing modules, even though they construct complete SQL, will
+take/require fragments of SQL as input (such as "where" clauses)  By contrast,
+SQL::Routine takes no SQL fragments.  All of its inputs are atomic, which
+means it is also easier to analyse the objects for implementing a wider range
+of functionality than previously expected; for example, it is much easier to
+analyse any select statement and generate update/insert/delete statements for
+the virtual rows fetched with it (a process known as updateable views).
+
+Considering that each database product has its own dialect of SQL which it
+implements, you would have to code SQL differently depending on which database
+you are using.  One common difference is the syntax for specifying an outer
+join in a select query.  Another common difference is how to specify that a
+table column is an integer or a boolean or a character string.  Moreover, each
+database has a distinct feature set, so you may be able to do tasks with one
+database that you can't do with another.  In fact, some databases don't support
+SQL at all, but have similar features that are accessible thorough alternate
+interfaces. SQL::Routine is designed to represent a normalized superset of
+all database features that one may reasonably want to use.  "Superset" means
+that if even one database supports a feature, you will be able to invoke it
+with this class. You can also reference some features which no database
+currently implements, but it would be reasonable for one to do so later.
+"Normalized" means that if multiple databases support the same feature but have
+different syntax for referencing it, there will be exactly one way of referring
+to it with SQL::Routine.  So by using this class, you will never have to
+change your database-using code when moving between databases, as long as both
+of them support the features you are using (or they are emulated).  That said,
+it is generally expected that if a database is missing a specific feature that
+is easy to emulate, then code which evaluates SQL::Routines will emulate it
+(for example, emulating "left()" with "substr()"); in such cases, it is
+expected that when you use such features they will work with any database.  For
+example, if you want a model-specified BOOLEAN data type, you will always get
+it, whether it is implemented  on a per-database-basis as a "boolean" or an
+"int(1)" or a "number(1,0)".  Or a model-specified "STR_CHAR" data type you will
+always get it, whether it is called "text" or "varchar2" or "sql_varchar".
+
+SQL::Routine is intended to be just a stateless container for database
+query or schema information.  It does not talk to any databases by itself and
+it does not generate or parse any SQL; rather, it is intended that other third
+party modules or code of your choice will handle this task.  In fact,
+SQL::Routine is designed so that many existing database related modules
+could be updated to use it internally for storing state information, including
+SQL generating or translating modules, and schema management modules, and
+modules which implement object persistence in a database.  Conceptually
+speaking, the DBI module itself could be updated to take SQL::Routine
+objects as arguments to its "prepare" method, as an alternative (optional) to
+the SQL strings it currently takes.  Code which implements the things that
+SQL::Routine describes can do this in any way that they want, which can
+mean either generating and executing SQL, or generating Perl code that does the
+same task and evaling it, should they want to (the latter can be a means of
+emulation).  This class should make all of that easy.
+
+SQL::Routine is especially suited for use with applications or modules that
+make use of data dictionaries to control what they do.  It is common in
+applications that they interpret their data dictionaries and generate SQL to
+accomplish some of their work, which means making sure generated SQL is in the
+right dialect or syntax, and making sure literal values are escaped correctly.
+By using this module, applications can simply copy appropriate individual
+elements in their data dictionaries to SQL::Routine properties, including
+column names, table names, function names, literal values, host parameter names,
+and they don't have to do any string parsing or assembling.
+
+Now, I can only imagine why all of the other SQL generating/parsing modules
+that I know about have excluded privileged support for more advanced database
+features like stored procedures.  Either the authors didn't have a need for it,
+or they figured that any other prospective users wouldn't need it, or they
+found it too difficult to implement so far and maybe planned to do it later.  As
+for me, I can see tremendous value in various advanced features, and so I have
+included privileged support for them in SQL::Routine.  You simply have to
+work on projects of a significant size to get an idea that these features would
+provide a large speed, reliability, and security savings for you.  Look at many
+large corporate or government systems, such as those which have hundreds of
+tables or millions of records, and that may have complicated business logic
+which governs whether data is consistent/valid or not.  Within reasonable
+limits, the more work you can get the database to do internally, the better.  I
+believe that if these features can also be represented in a database-neutral
+format, such as what SQL::Routine attempts to do, then users can get the
+full power of a database without being locked into a single vendor due to all
+their investment in vendor-specific SQL stored procedure code.  If customers
+can move a lot more easily, it will help encourage database vendors to keep
+improving their products or lower prices to keep their customers, and users in
+general would benefit.  So I do have reasons for trying to tackle the advanced
+database features in SQL::Routine.
+
+=head1 STRUCTURE
+
+The internal structure of a SQL::Routine object is conceptually a cross
+between an XML DOM and an object-relational database, with a specific schema.
+This module is implemented with two main classes that work together, Containers
+and Nodes. The Container object is an environment or context in which Node
+objects usually live.  A typical application will only need to create one
+Container object (returned by the module's 'new_container' function), and then
+a set of Nodes which live within that Container.  The Nodes are related
+sometimes with single or multiple cardinality to each other.
+
+SQL::Routine is expressly designed so that its data is easy to convert
+between different representations, mainly in-memory data structures linked by
+references, and multi-table record sets stored in relational databases, and
+node sets in XML documents.  A Container corresponds to an XML document or a
+complete database, and each Node corresponds to an XML node or a database
+record.  Each Node has a specific node_type (a case-sensitive string), which
+corresponds to a database table or an XML tag name.  See the
+SQL::Routine::Language documentation file to see which ones exist.  The
+node_type is set when the Node is created and it can not be changed later.
+
+A Node has a specific set of allowed attributes that are determined by the
+node_type, each of which corresponds to a database table column or an XML node
+attribute.  Every Node has a unique 'id' attribute (a positive integer) by which
+it is primarily referenced; that attribute corresponds to the database table's
+single-column primary key, with the added distinction that every primary key
+value in each table is distinct from every primary key value in every other
+table.  Each other Node attribute is either a scalar value of some data type, or
+an enumerated value, or a reference to another Node of a specific node_type,
+which has a foreign-key constraint on it; those 3 attribute types are referred
+to respectively as "literal", "enumerated", and "Node-ref".  Foreign-key
+constraints are enforced by this module, so you will have to add Nodes in the
+appropriate order, just as when adding records to a database.  Any Node which is
+referenced in an attribute (cited in a foreign-key constraint) of another is a
+parent of the other; as a corollary, the second Node is a child of the first. 
+The order of child Nodes under a parent is the same as that in which the
+parent-child relationship was assigned, unless you have afterwards used the
+move_before_sibling() method to change this.
+
+The order of child Nodes under a parent is often significant, so it is
+important to preserve this sequence explicitly if you store a Node set in an
+RDBMS, since databases do not consider record order to be significant or worth
+remembering; you would add extra columns to store sequence numbers.  You do not
+have to do any extra work when storing Nodes in XML, however, because XML does
+consider node order to be significant and will preserve it.
+
+When the terms "parent" and "child" are used by SQL::Routine in regards to the
+relationships between Nodes, they are used within the context that a given Node
+can have multiple parent Nodes; a given Node X is the parent of another given
+Node Y because a Node-ref attribute of Node Y points to Node X.  Another term,
+"primary parent", refers to the parent Node of a given Node Z that is referenced
+by Z's "pp" Node-ref attribute, which most Node types have.  When SQL::Routines
+are converted to a purely hierarchical or tree representation, such as to XML,
+the primary parent Node becomes the single parent XML node.  For example, the
+XML parent of a 'routine_var' Node is always a 'routine' Node, even though a
+'scalar_domain' Node may also be referenced.  Nodes of a few types, such as
+'view_expr', can have primary parent Nodes that are of the same Node type, and
+can form trees of their own type; however, Nodes of most types can only have
+Nodes of other types as their primary parents.
+
+Some Node types do not have a "pp" attribute and Nodes of those types never have
+primary parent Nodes; rather, all Nodes of those types will always have a
+specific pseudo-Node as their primary parents; pseudo-Node primary parents are
+not referenced in any attribute, and they can not be changed.  All 6
+pseudo-Nodes have no attributes, even 'id', and only one of each exists; they
+are created by default with the Container they are part of, forming the top 2
+levels of the Node tree, and can not be removed.  They are: 'root' (the single
+level-1 Node which is parent to the other pseudo-Nodes but no normal Nodes),
+'elements' (parent to 'scalar_data_type' and 'row_data_type' Nodes),
+'blueprints' (parent to 'catalog' and 'application' Nodes), 'tools' (parent to
+'data_storage_product' and 'data_link_product' Nodes), 'sites' (parent to
+'catalog_instance' and 'application_instance' Nodes), and 'circumventions'
+(parent to 'sql_fragment' nodes).  All other Node types have normal Nodes as
+primary parents.
+
+You should look at the POD-only file named SQL::Routine::Language, which
+comes with this distribution.  It serves to document all of the possible Node
+types, with attributes, constraints, and allowed relationships with other Node
+types.  As the SQL::Routine class itself has very few properties and
+methods, all being highly generic (much akin to an XML DOM), the POD of this PM
+file will only describe how to use said methods, and will not list all the
+allowed inputs or constraints to said methods.  With only simple guidance in
+Routine.pm, you should be able to interpret Language.pod to get all the
+nitty gritty details.  You should also look at the tutorial or example files
+which will be in the distribution when ready.  You could also learn something
+from the code in or with other modules which sub-class or use this one.
+
+=head1 FAULT TOLERANCE AND MULTI-THREADING SUPPORT
+
+I<Disclaimer: The following claims assume that only this module's published API
+is used, and that you do not set object properties directly or call private
+methods, which Perl does not prevent.  It also assumes that the module is bug
+free, and that any errors or warnings which appear while the code is running
+are thrown explicitly by this module as part of its normal functioning.>
+
+SQL::Routine is designed to ensure that the objects it produces are always
+internally consistent, and that the data they contain is always well-formed,
+regardless of the circumstances in which it is used.  You should be able to 
+fetch data from the objects at any time and that data will be self-consistent 
+and well-formed.  
+
+This will not change regardless of what kind of bad input data you provide to
+object methods or module functions.  Providing bad input data will cause the
+module to throw an exception; if you catch this and the program continues
+running (such as to chide the user and have them try entering correct input),
+then the objects will remain un-corrupted and able to accept new input or give
+proper output.  In most cases, the object will be in the same state as it was 
+before the public method was called with the bad input.
+
+This module does not use package variables at all, besides constants like
+$VERSION, and all symbols ($@%) declared at file level are strictly constant
+value declarations.  No object should ever step on another.
+
+This module will allow a Node to be created piecemeal, such as when it is
+storing details gathered one at a time from the user, and during this time some
+mandatory Node properties may not be set, or pending links from this node to
+others may not be validated.  However, until a Node has its required properties
+set and/or its Node links are validated, no references will be made to this
+Node from other Nodes; from their point of view it doesn't exist, and hence the
+other Nodes are all consistent.
+
+SQL::Routine is explicitly not thread-aware (thread-safe); it contains no
+code to synchronize access to its objects' properties, such as semaphores or
+locks or mutexes.  To internalize such things in an effective manner would have
+made the code a lot more complex than it is now, without any clear benefits.  
+However, this module can (and should) be used in multi-threaded environments 
+where the application/caller code takes care of synchronizing access to its 
+objects, especially if the application uses coarse-grained read or write locks.
+
+The author's expectation is that this module will be mainly used in
+circumstances where the majority of actions are reads, and there are very few
+writes, such as with a data dictionary; perhaps all the writes on an object may
+be when it is first created.  An application thread would obtain a read
+lock/semaphore on a Container object during the period for which it needs to
+ensure read consistency; it would block write lock attempts but not other read
+locks.  It would obtain a write lock during the (usually short) period it needs
+to change something, which blocks all other lock attempts (for read or write).
+
+An example of this is a web server environment where each page request is being
+handled by a distinct thread, and all the threads share one SQL::Routine
+object; normally the object is instantiated when the server starts, and the
+worker threads then read from it for guidance in using a common database.
+Occasionally a thread will want to change the object, such as to correspond to
+a simultaneous change to the database schema, or to the web application's data
+dictionary that maps the database to application screens.  Under this
+situation, the application's definitive data dictionary (stored partly or
+wholly in a SQL::Routine) can occupy one place in RAM visible to all
+threads, and each thread won't have to keep looking somewhere else such as in
+the database or a file to keep up with the definitive copy.  (Of course, any
+*changes* to the in-memory data dictionary should see a corresponding update to
+a non-volatile copy, like in an on-disk database or file.)
+
+I<Note that, while a nice thing to do may be to manage a course-grained lock in
+SQL::Routine, with the caller invoking lock_to_read() or lock_to_write() or
+unlock() methods on it, Perl's thread-E<gt>lock() mechanism is purely context
+based; the moment lock_to_...() returns, the object has unlocked again.  Of
+course, if you know a clean way around this, I would be happy to hear it.>
+
+=head1 NODE EVOLUTION STATES
+
+A SQL::Routine Node object always exists in one of 2 official ordered
+states (which can conceptually be divided further into more states).  For now
+we can call them "Alone" (1) and "Well Known" (2).  The set of legal operations
+you can perform on a Node are different depending on its state, and a Node can
+only transition between adjacent-numbered states one at a time.
+
+When a new Node is created, using new_node(), it starts out "Alone"; it does
+*not* live in a Container, and it is illegal to have any actual (Perl)
+references between it and any other Node.  Nodes in this state can be built
+(have their Node Id and other attributes set or changed) piecemeal with the
+least processing overhead, and can be moved or exist independently of anything
+else that SQL::Routine manages.  An "Alone" Node does not need to have its
+Node Id set.  Any Node attributes which are conceptually references to other
+Nodes are stored and read as Id numbers when the Node is "Alone"; also, no
+confirmation has yet taken place that the referenced Nodes actually exist yet.
+A Node may only be individually deleted when it is "Alone"; in this state it
+will be garbage collected like any Perl variable when your own reference to it
+goes away.
+
+When you invoke the put_in_container() method on an "Alone" Node, giving it a
+Container object as an argument, the Node will transition to the "Well Known"
+state; you can move from "Well Known" to "Alone" using the complementary
+take_from_container() method.  An "Well Known" Node lives in a Container, and
+any attributes which refer to other Nodes now must be actual references, where
+the existence of the other Node in the same Container is confirmed.  If any
+conceptual references are set in a Node while it is "Alone", these will be
+converted into actual references by put_in_container(), which will fail if any
+can't be found; any other Nodes that this one references will now link back to
+it in their own child lists.  The method take_from_container() will replace
+references with Node Ids, and remove the parent-to-child references.  A Node
+can only link to a Node in the same Container as itself.
+
+Testing for the existence of mandatory Node attribute values is separate from 
+the official Node state and can be invoked on a Node at any time.  None of the 
+official Node states themselves will assert that any mandatory attributes are 
+populated.  This testing is separate partly to make it easy for you to build 
+Nodes piecemeal, though there are other practical reasons for it.
+
+Note that all typical Node attributes can be read, set, replaced, or cleared at
+any time regardless of the Node state; you can set them all either when the
+Node is "Alone" or when it is "Well Known", as is your choice.  However, the
+Node Id must always have a value when the Node is in a Container; if you want
+to make a Node "Well Known" as early as possible, you simply have to set its
+Node Id first.
+
+=head1 NODE IDENTITY ATTRIBUTES
+
+Every Node in a Container has a positive integer 'id' attribute whose value is
+distinct for every Node in the Container, without regard for the Node type.
+These 'id' attributes are used internally by SQL::Routine when linking child and
+parent Nodes, but they have no use at all in any SQL statement strings that are
+generated for a typical database engine.  Rather, SQL::Routine defines a second,
+"surrogate id" ("SI") attribute for most Node types whose value actually is used
+in SQL statement strings, and corresponds to the SQL:2003 concept of a "SQL
+identifier" (such as a table name or a table column name).  This attribute name
+varies by the Node type, but always looks like "si_*"; at least half of the
+time, the exact name is "si_name".  If the SI attribute of a given Node is a
+literal or enumerated attribute, then its value is used directly for SQL
+strings; if it is a Node-ref attribute, then the SI attribute of the Node that
+it points to is used likewise for SQL strings in place of the given Node (this 
+will recurse until we hold a Node whose SI attribute is not a Node-ref).  In 
+this way, SQL::Routine stores the "SQL identifier" value of each Node exactly 
+once, and if it is edited then all SQL references to it automatically update.
+
+I<To make SQL::Routine easier to use in the common cases, this module will treat
+all Node types as having a surrogate id attribute.  In the few cases where a
+Node type has no distinct attribute for it (such as "view_expr" Nodes), this
+module will automatically use the 'id' (Node Id) attribute instead.>
+
+When the surrogate identifier attribute of a single Node is referenced on its
+own, this corresponds to the SQL:2003 concept of an "unqualified identifier". 
+Under trivial circumstances, a Node can only be referenced by another Node using
+the former's unqualified identifier if either the first Node is a member of the
+second Node's primary-parent chain, or the first Node is a sibling of any member
+of said pp chain, or the first node has a pseudo-Node primary parent.
+
+SQL::Routine implements context sensitive constraints for what values a given
+Node's surrogate identifier can have, and in what contexts other Nodes must be
+located wherein it is valid for them to link to the given Node and be its
+children; these go beyond the earlier-applied, more basic constraints that
+restrict parent-child connections based on the Node types and/or presence in the
+same Container of the Nodes involved.  The rules for SI values are similar to
+the rules in typical programming languages concerning the declaration of
+variables and the scope in which they are visible to be referenced.  One
+constraint is that all Nodes which share the same primary parent Node or
+pseudo-Node must have distinct SI values with respect to each other, regardless
+of Node type (eg, all columns and indexes in a table must have distinct names).
+Another constraint is described for general circumstances that in order for one
+given Node to reference another as its parent Node, that other Node must be
+either belong to the given Node's primary-parent chain, or it must be a direct
+sibling of either the given Node or a Node in its primary-parent chain, or it
+must be a primary-child of one of the primary parent Node's parent Nodes.
+
+I<NOTE THAT FURTHER DOCUMENTATION ABOUT LINKING BY SURROGATE IDS IS PENDING.>
+
+=head1 SYNTAX
+
+This class does not export any functions or methods, so you need to call them
+using object notation.  This means using B<Class.function()> for functions and
+B<$object.method()> for methods.  If you are inheriting this class for your own
+modules, then that often means something like B<$self.method()>.
+
+All SQL::Routine functions and methods are either "getters" (which read and
+return or generate values but do not change the state of anything) or "setters"
+(which change the state of something but do not return anything on success);
+none do getting or setting conditionally based on their arguments.  While this
+means there are more methods in total, I see this arrangement as being more
+stable and reliable, plus each method is simpler and easier to understand or
+use; argument lists and possible return values are also less variable and more
+predictable.
+
+All "setter" functions or methods which are supposed to change the state of
+something will throw an exception on failure (usually from being given bad
+arguments); on success, they officially have no return values.  A thrown
+exception will always include details of what went wrong (and where and how) in
+a machine-readable (and generally human readable) format, so that calling code
+which catches them can recover gracefully.  The methods are all structured so
+that they check all preconditions prior to changing any state information, and
+so one can assume that upon throwing an exception, the Node and Container
+objects are in a consistent or recoverable state at worst, and are completely
+unchanged at best.
+
+All "getter" functions or methods will officially return the value or construct
+that was asked for; if said value doesn't (yet or ever) exist, then this means
+the Perl "undefined" value.  When given bad arguments, generally this module's
+"information" functions will return the undefined value, and all the other
+functions/methods will throw an exception like the "setter" functions do.
+
+Generally speaking, if SQL::Routine throws an exception, it means one of
+two things: 1. Your own code is not invoking it correctly, meaning you have
+something to fix; 2. You have decided to let it validate some of your input
+data for you (which is quite appropriate).  
+
+Note also that SQL::Routine is quite strict in its own argument checking,
+both for internal simplicity and robustness, and so that code which *reads* 
+data from it can be simpler.  If you want your own program to be more liberal
+in what input it accepts, then you will have to bear the burden of cleaning up
+or interpreting that input, or delegating such work elsewhere.  (Or perhaps 
+someone may want to make a wrapper module to do this?)
+
+=head1 CONSTRUCTOR WRAPPER FUNCTIONS
+
+These functions are stateless and can be invoked off of either the module name,
+or any package name in this module, or any object created by this module; they
+are thin wrappers over other methods and exist strictly for convenience.
+
+=head2 new_container()
+
+	my $model = SQL::Routine.new_container();
+	my $model2 = SQL::Routine::Container.new_container();
+	my $model3 = SQL::Routine::Node.new_container();
+	my $model4 = $model.new_container();
+	my $model5 = $node.new_container();
+
+This function wraps SQL::Routine::Container.new().
+
+=head2 new_node( NODE_TYPE )
+
+	my $node = SQL::Routine.new_node( 'table' );
+	my $node2 = SQL::Routine::Container.new_node( 'table' );
+	my $node3 = SQL::Routine::Node.new_node( 'table' );
+	my $node4 = $model.new_node( 'table' );
+	my $node5 = $node.new_node( 'table' );
+
+This function wraps SQL::Routine::Node.new( NODE_TYPE ).
+
+=head1 CONTAINER CONSTRUCTOR FUNCTIONS AND METHODS
+
+This function/method is stateless and can be invoked off of either the Container
+class name or an existing Container object, with the same result.
+
+=head2 new()
+
+	my $model = SQL::Routine::Container.new();
+	my $model2 = $model.new();
+
+This "getter" function/method will create and return a single
+SQL::Routine::Container (or subclass) object.
+
+=head1 CONTAINER OBJECT METHODS
+
+These methods are stateful and may only be invoked off of Container objects.
+
+=head2 destroy()
+
+	$model.destroy();
+
+This "setter" method will destroy the Container object that it is invoked from,
+and it will also destroy all of the Nodes inside that Container.  This method
+exists because all Container objects (having 1 or more Node) contain circular
+references between the Container and all of its Nodes.  You need to invoke this
+method when you are done with a Container, or you will leak the memory it uses
+when your external references to it go out of scope.  This method can be
+invoked at any time and will not throw any exceptions.  When it has completed,
+all external references to the Container or any of its Nodes will each point to
+an empty (but still blessed) Perl hash.  I<See the CAVEATS documentation.>
+
+=head2 auto_assert_deferrable_constraints([ NEW_VALUE ])
+
+This method returns this Container's "auto assert deferrable constraints"
+boolean property; if NEW_VALUE is defined, it will first set that property to
+it.  When this flag is true, SQL::Routine's build_*() methods will
+automatically invoke assert_deferrable_constraints() on the newly created Node,
+if it is in this Container, prior to returning it.  The use of this method
+helps isolate bad input bugs faster by flagging them closer to when they were
+created; it is especially useful with the build*tree() methods.
+
+=head2 auto_set_node_ids([ NEW_VALUE ])
+
+This method returns this Container's "auto set node ids" boolean property; if
+NEW_VALUE is defined, it will first set that property to it.  When this flag is
+true, SQL::Routine will automatically generate and set a Node Id for a Node
+that lacks one as soon as there is an attempt to put that Node in this
+Container.  When this flag is false, a missing Node Id will cause an exception
+to be raised instead.
+
+=head2 may_match_surrogate_node_ids([ NEW_VALUE ])
+
+This method returns this Container's "may match surrogate node ids" boolean
+property; if NEW_VALUE is defined, it will first set that property to it.  When
+this flag is true, SQL::Routine will accept a wider range of input values when
+setting Node ref attribute values, beyond Node object references and integers
+representing Node ids to look up; if other types of values are provided,
+SQL::Routine will try to look up Nodes based on other attributes than the Id,
+usually 'si_name', before giving up on finding a Node to link.
+
+=head2 get_child_nodes([ NODE_TYPE ])
+
+	my @node_list = $model.get_child_nodes();
+	my @node_list = $model.get_child_nodes( 'catalog' );
+
+This "getter" method returns a list of this Container's primary-child Nodes, in
+a new array ref.  A Container's primary-child Nodes are defined as being all
+Nodes in the Container whose Node Type defines them as always having a
+pseudo-Node parent.  If the optional argument NODE_TYPE is defined, then only
+child Nodes of that Node Type are returned; otherwise, all child Nodes are
+returned.  All Nodes are returned in the same order they were added.
+
+=head2 find_node_by_id( NODE_ID )
+
+	my $node = $model.find_node_by_id( 1 );
+
+This "getter" method searches for a member Node of this Container whose Node Id
+matches the NODE_ID argument; if one is found then it is returned by reference;
+if none is found, then undef is returned.  Since SQL::Routine guarantees that
+all Nodes in a Container have a distinct Node Id, there will never be more than
+one Node returned.  The speed of this search is also very fast, and takes the
+same amount of time regardless of how many Nodes are in the Container.
+
+=head2 find_child_node_by_surrogate_id( TARGET_ATTR_VALUE )
+
+	my $data_type_node = $model.find_child_node_by_surrogate_id( 'str100' );
+
+This "getter" method searches for a Node in this Container whose Surrogate Node
+Id matches the TARGET_ATTR_VALUE argument; if one is found then it is returned
+by reference; if none is found, then undef is returned.  The TARGET_ATTR_VALUE
+argument is treated as an array-ref; if it is in fact not one, that single value
+is used as a single-element array.  The search is multi-generational, one
+generation more childwards per array element.  If the first array element is
+undef, then we assume it follows the format that Node.get_surrogate_id_chain()
+outputs; the first 3 elements are [undef,'root',<l2-psn>] and the 4th element
+matches a Node that has a pseudo-Node parent.  If the first array element is not
+undef, we treat it as the aforementioned 4th element.  If a valid <l2-psn> is
+extracted, then only child Nodes of that pseudo-Node are searched; otherwise,
+the child Nodes of all pseudo-Nodes are searched.
+
+=head2 get_next_free_node_id()
+
+	my Int $node_id = $model.get_next_free_node_id();
+
+This "getter" method returns an integer which is valid for use as the Node ID
+of a new Node that is going to be put in this Container.  Its value is 1 higher
+than the highest Node ID for any Node that is already in the Container, or had
+been before.  You can use this method like a sequence generator to produce Node
+Ids for you rather than you producing them in some other way.  An example
+situation when this method might be useful is if you are building a
+SQL::Routine by scanning the schema of an existing database.
+
+=head2 deferrable_constraints_are_tested()
+
+	my Bool $is_all_ok = $model.deferrable_constraints_are_tested();
+
+This "getter" method will return the boolean "deferrable constraints are
+tested" property of this Container.  This property is true when all "Well
+Known" Nodes in this Container are known to be free of all data errors, both
+individually and collectively.  This property is initially set to true when a
+Container is new and empty; it is also set to true by
+Container.assert_deferrable_constraints() when all of its tests complete without
+finding any problems.  This property is set to false when any changes are made
+to a "Well Known" Node in this Container, which includes moving the Node in to
+or out of "Well Known" status.
+
+=head2 assert_deferrable_constraints()
+
+	$model.assert_deferrable_constraints();
+
+This "getter" method implements several types of deferrable data validation, to
+make sure that every "Well Known" Node in this Container is ready to be used,
+both individually and collectively; it throws an exception if it can find
+anything wrong.  Note that a failure with any one Node will cause the testing
+of the whole set to abort, as the offending Node throws an exception which this
+method doesn't catch; any untested Nodes could also have failed, so you will
+have to re-run this method after fixing the problem.  This method will
+short-circuit and not perform any tests if this Container's "deferrable
+constraints are tested" property is true, so to avoid unnecessary repeated
+tests due to redundant external invocations; this allows you to put validation
+checks for safety everywhere in your program while avoiding a corresponding
+performance hit.
+
+=head1 NODE CONSTRUCTOR FUNCTIONS AND METHODS
+
+This function/method is stateless and can be invoked off of either the Node
+class name or an existing Node object, with the same result.
+
+=head2 new( NODE_TYPE )
+
+	my $node = SQL::Routine::Node.new( 'table' );
+	my $node2 = $node.new( 'table' );
+
+This "getter" function/method will create and return a single
+SQL::Routine::Node (or subclass) object whose Node Type is given in the
+NODE_TYPE (enum) argument, and all of whose other properties are defaulted to
+an "empty" state.  A Node's type can only be set on instantiation and can not
+be changed afterwards; only specific values are allowed, which you can see in
+the SQL::Routine::Language documentation file.  This new Node does not yet
+live in a Container, and will have to be put in one later before you can make
+full use of it.  However, you can read or set or clear any or all of this new
+Node's attributes (including the Node Id) prior to putting it in a Container,
+making it easy to build one piecemeal before it is actually "used".  A Node can
+not have any actual Perl references between it and other Nodes until it is in a
+Container, and as such you can delete it simply by letting your own reference
+to it be garbage collected.
+
+=head1 NODE OBJECT METHODS
+
+These methods are stateful and may only be invoked off of Node objects.  For
+some of these, it doesn't matter whether the Node is in a Container or not. 
+For others, this condition must be true or false for the method to be invoked,
+or it will throw an exception (like for bad input).
+
+=head2 delete_node()
+
+This "setter" method will destroy the Node object that it is invoked from, if
+it can.  You are only allowed to delete Nodes that are not inside Containers,
+and which don't have child Nodes; failing this, you must remove the children
+and then take this Node from its Container first.  Technically, this method
+doesn't actually do anything (pure-Perl version) other than validate that you
+are allowed to delete; when said conditions are met, the Node will be garbage
+collected as soon as you lose your reference to it.
+
+=head2 get_node_type()
+
+	my $type = $node.get_node_type();
+
+This "getter" method returns the Node Type scalar (enum) property of this Node.
+ You can not change this property on an existing Node, but you can set it on a
+new one.
+
+=head2 get_node_id()
+
+This "getter" method will return the integral Node Id property of this Node, 
+if it has one.
+
+=head2 clear_node_id()
+
+This "setter" method will erase this Node's Id property if it can.  A Node's Id
+may only be cleared if the Node is not in a Container.
+
+=head2 set_node_id( NEW_ID )
+
+This "setter" method will set or replace this Node's Id property if it can.  If 
+this Node is in a Container, then the replacement will fail if some other Node 
+with the same Node Type and Node Id already exists in the same Container.
+
+=head2 get_primary_parent_attribute()
+
+	my $parent = $node.get_primary_parent_attribute();
+
+This "getter" method returns the primary parent Node of the current Node, if
+there is one.
+
+=head2 clear_primary_parent_attribute()
+
+This "setter" method will clear this Node's primary parent attribute value, if
+it has one.
+
+=head2 set_primary_parent_attribute( ATTR_VALUE )
+
+This "setter" method will set or replace this Node's primary parent attribute
+value, if it has one, giving it the new value specified in ATTR_VALUE.
+
+=head2 get_literal_attribute( ATTR_NAME )
+
+This "getter" method will return the value for this Node's literal attribute named
+in the ATTR_NAME argument.
+
+=head2 get_literal_attributes()
+
+This "getter" method will fetch all of this Node's literal attributes, 
+returning them in a Hash ref.
+
+=head2 clear_literal_attribute( ATTR_NAME )
+
+This "setter" method will clear this Node's literal attribute named in
+the ATTR_NAME argument.
+
+=head2 clear_literal_attributes()
+
+This "setter" method will clear all of this Node's literal attributes.
+
+=head2 set_literal_attribute( ATTR_NAME, ATTR_VALUE )
+
+This "setter" method will set or replace this Node's literal attribute named in
+the ATTR_NAME argument, giving it the new value specified in ATTR_VALUE.
+
+=head2 set_literal_attributes( ATTRS )
+
+This "setter" method will set or replace multiple Node literal attributes,
+whose names and values are specified by keys and values of the ATTRS hash ref
+argument; this method will invoke set_literal_attribute() for each key/value
+pair.
+
+=head2 get_enumerated_attribute( ATTR_NAME )
+
+This "getter" method will return the value for this Node's enumerated attribute
+named in the ATTR_NAME argument.
+
+=head2 get_enumerated_attributes()
+
+This "getter" method will fetch all of this Node's enumerated attributes,
+returning them in a Hash ref.
+
+=head2 clear_enumerated_attribute( ATTR_NAME )
+
+This "setter" method will clear this Node's enumerated attribute named in the
+ATTR_NAME argument.
+
+=head2 clear_enumerated_attributes()
+
+This "setter" method will clear all of this Node's enumerated attributes.
+
+=head2 set_enumerated_attribute( ATTR_NAME, ATTR_VALUE )
+
+This "setter" method will set or replace this Node's enumerated attribute named in
+the ATTR_NAME argument, giving it the new value specified in ATTR_VALUE.
+
+=head2 set_enumerated_attributes( ATTRS )
+
+This "setter" method will set or replace multiple Node enumerated attributes,
+whose names and values are specified by keys and values of the ATTRS hash ref
+argument; this method will invoke set_enumerated_attribute() for each key/value
+pair.
+
+=head2 get_node_ref_attribute( ATTR_NAME[, GET_TARGET_SI] )
+
+This "getter" method will return the value for this Node's node attribute named
+in the ATTR_NAME argument, if it is set, or undef if it isn't.  If the current
+Node is not in a Container, then the returned value is a Node Id number.  If the
+current Node is in a Container, then the returned value is a Node ref by
+default; if the optional boolean argument GET_TARGET_SI is true, then this
+method will instead lookup (recursively) and return the target Node's literal or
+enumerated surrogate id value (a single value, not a chain).
+
+=head2 get_node_ref_attributes([ GET_TARGET_SI ])
+
+This "getter" method will fetch all of this Node's node attributes, returning
+them in a Hash ref.  Each attribute value is returned in the format specified by
+get_node_ref_attribute( <attr-name>, GET_TARGET_SI ).
+
+=head2 clear_node_ref_attribute( ATTR_NAME )
+
+This "setter" method will clear this Node's node attribute named in the
+ATTR_NAME argument; the other Node being referred to will also have its child
+list reciprocal link to the current Node cleared.
+
+=head2 clear_node_ref_attributes()
+
+This "setter" method will clear all of this Node's node attributes; see 
+the clear_node_ref_attribute() documentation for the semantics.
+
+=head2 set_node_ref_attribute( ATTR_NAME, ATTR_VALUE )
+
+This "setter" method will set or replace this Node's node attribute named in the
+ATTR_NAME argument, giving it the new value specified in ATTR_VALUE (if it is
+different).  If the attribute was previously valued, this method will first
+invoke clear_node_ref_attribute() on it.  When setting a new value, if the
+current Node is in a Container, then it will also add the current Node to the
+other Node's child list.  ATTR_VALUE may either be a perl reference to a Node,
+or a Node Id value, or a relative Surrogate Node Id value (scalar or array ref);
+the last one will only work if this Node is in a Container that matches Nodes by
+surrogate ids.
+
+=head2 set_node_ref_attributes( ATTRS )
+
+This "setter" method will set or replace multiple Node node attributes,
+whose names and values are specified by keys and values of the ATTRS hash ref
+argument; this method will invoke set_node_ref_attribute() for each key/value
+pair.
+
+=head2 get_surrogate_id_attribute([ GET_TARGET_SI ])
+
+This "getter" method will return the value for this Node's surrogate id
+attribute.  The GET_TARGET_SI argument is relevant only for Node-ref attributes;
+its effects are explained by get_node_ref_attribute().
+
+=head2 clear_surrogate_id_attribute()
+
+This "setter" method will clear this Node's surrogate id attribute value.
+
+=head2 set_surrogate_id_attribute( ATTR_VALUE )
+
+This "setter" method will set or replace this Node's surrogate id attribute
+value, giving it the new value specified in ATTR_VALUE.
+
+=head2 get_attribute( ATTR_NAME[, GET_TARGET_SI] )
+
+	my $curr_val = $node.get_attribute( 'si_name' );
+
+This "getter" method will return the value for this Node's attribute named in
+the ATTR_NAME argument.  The GET_TARGET_SI argument is relevant only for
+Node-ref attributes; its effects are explained by get_node_ref_attribute().
+
+=head2 get_attributes([ GET_TARGET_SI ])
+
+	my %attrs = $node.get_attributes();
+
+This "getter" method will fetch all of this Node's attributes, returning them
+in a Hash ref.  The GET_TARGET_SI argument is relevant only for Node-ref
+attributes; its effects are explained by get_node_ref_attribute().
+
+=head2 clear_attribute( ATTR_NAME )
+
+This "setter" method will clear this Node's attribute named in the ATTR_NAME
+argument.
+
+=head2 clear_attributes()
+
+This "setter" method will clear all of this Node's attributes.
+
+=head2 set_attribute( ATTR_NAME, ATTR_VALUE )
+
+This "setter" method will set or replace this Node's attribute named in the
+ATTR_NAME argument, giving it the new value specified in ATTR_VALUE.
+
+=head2 set_attributes( ATTRS )
+
+	$node.set_attributes( $rh_attrs );
+
+This "setter" method will set or replace multiple Node attributes, whose names
+and values are specified by keys and values of the ATTRS hash ref argument;
+this method will invoke set_attribute() for each key/value pair.
+
+=head2 get_container()
+
+	my $model = $node.get_container();
+
+This "getter" method returns the Container object which this Node lives in, if
+any.
+
+=head2 put_in_container( NEW_CONTAINER )
+
+This "setter" method will put the current Node into the Container given as the
+NEW_CONTAINER argument if it can, which moves the Node from "Alone" to "Well
+Known" status.
+
+=head2 take_from_container()
+
+This "setter" method will take the current Node from its Container if it can,
+which moves the Node from "Well Known" to "Alone" status.
+
+=head2 move_before_sibling( SIBLING[, PARENT] )
+
+This "setter" method allows you to change the order of child Nodes under a
+common parent Node; specifically, it moves the current Node to a position just
+above/before the sibling Node specified in the SIBLING Node ref argument, if it
+can.  You can only invoke it on a Node that is in a Container, since that is the
+only time it exists in its parent's child list at all.  Since a Node can have
+multiple parent Nodes (and the sibling likewise), the optional PARENT argument
+lets you specify which parent's child list you want to move in; if you do not
+provide an PARENT value, then the current Node's primary parent Node (or
+pseudo-Node) is used, if possible.  This method will throw an exception if the
+current Node and the specified sibling or parent Nodes are not appropriately
+related to each other (parent <. child).  If you want to move the current Node
+to follow the sibling instead, then invoke this method on the sibling.
+
+=head2 get_child_nodes([ NODE_TYPE ])
+
+	my @node_list = $table_node.get_child_nodes();
+	my @node_list = $table_node.get_child_nodes( 'table_field' );
+
+This "getter" method returns a list of this Node's primary-child Nodes, in a new
+array ref.  If the optional argument NODE_TYPE is defined, then only child Nodes
+of that Node Type are returned; otherwise, all child Nodes are returned.  All
+Nodes are returned in the same order they were added.
+
+=head2 add_child_node( NEW_CHILD )
+
+	$node.add_child_node( $child );
+
+This "setter" method allows you to add a new primary-child Node to this Node,
+which is provided as the single NEW_CHILD Node ref argument.  The new child Node
+is appended to the list of existing child Nodes, and the current Node becomes
+the new or first primary parent Node of NEW_CHILD.
+
+=head2 add_child_nodes( LIST )
+
+	$model.add_child_nodes( [$child1,$child2] );
+	$model.add_child_nodes( $child );
+
+This "setter" method takes an array ref in its single LIST argument, and calls
+add_child_node() for each element found in it.
+
+=head2 get_referencing_nodes([ NODE_TYPE ])
+
+	my @node_list = $row_data_type_node.get_referencing_nodes();
+	my @node_list = $row_data_type_node.get_referencing_nodes( 'table' );
+
+This "getter" method returns a list of this Node's link-child Nodes (which are
+other Nodes that refer to this one in a non-PP nref attribute) in a new array
+ref.  If the optional argument NODE_TYPE is defined, then only child Nodes of
+that Node Type are returned; otherwise, all child Nodes are returned.  All Nodes
+are returned in the same order they were added.
+
+=head2 get_surrogate_id_chain()
+
+This "getter" method can only be invoked in a Node in a container, and it
+returns the current Node's surrogate id chain as an array ref.  This method's
+return value is conceptually like what get_relative_surrogate_id() returns
+except that it is defined in an absolute context rather than a relative context,
+making it less suitable for serializing models that are subsequently
+reorganized; it is also much longer.
+
+=head2 find_node_by_surrogate_id( SELF_ATTR_NAME, TARGET_ATTR_VALUE )
+
+	my $table_node = $table_index_node.find_node_by_surrogate_id( 'f_table', 'person' );
+
+This "getter" method may only be called on Nodes that are in a Container, and
+the first argument SELF_ATTR_NAME must match a valid Node-ref attribute name of
+the current Node (but not the 'pp' attribute); it throws an exception if either
+condition is not met.  This method searches for member Nodes of this Node's host
+Container whose type makes them legally linkable by the SELF_ATTR_NAME attribute
+and whose Surrogate Node Id matches the TARGET_ATTR_VALUE argument (which may be
+either a scalar or a Perl array ref); if one or more are found in the same scope
+then they are all returned by reference, within an array ref; if none are found,
+then undef is returned.  The search is context sensitive and scoped; it starts
+by examining the Nodes that are closest to this Node's location in its
+Container's Node tree and then spreads outwards, looking within just the
+locations that are supposed to be visible to this Node.  Variations on this
+search method come into play for Node types that are connected to the concepts
+of "wrapper attribute", "ancestor attribute correlation", and "remotely
+addressable types".  Note that it is illegal to use the return value of
+get_surrogate_id_chain() as a TARGET_ATTR_VALUE with this method; you can give
+the return value of get_relative_surrogate_id(), however.  Note that counting
+the number of return values from find_node_by_surrogate_id() is an accurate way
+to tell whether set_node_ref_attribute() with the same 2 arguments will succeed
+or not; it will only succeed if this method returns exactly 1 matching Node.
+
+=head2 find_child_node_by_surrogate_id( TARGET_ATTR_VALUE )
+
+	my $table_index_node = $table_node.find_child_node_by_surrogate_id( 'fk_father' );
+
+This "getter" method may only be called on Nodes that are in a Container, or it
+throws an exception.  This method searches for a primary-child Node of the
+current Node whose Surrogate Node Id matches the TARGET_ATTR_VALUE argument; if
+one is found then it is returned by reference; if none is found, then undef is
+returned.  The TARGET_ATTR_VALUE argument is treated as an array-ref; if it is
+in fact not one, that single value is used as a single-element array.  The
+search is multi-generational, one generation more childwards per array element;
+the first element matches a child of the invoked Node, the next element the
+child of the first matched child, and so on.  If said array ref has undef as its
+first element, then this method behaves the same as
+Container.find_child_node_by_surrogate_id( TARGET_ATTR_VALUE ).
+
+=head2 get_relative_surrogate_id( SELF_ATTR_NAME[, WANT_SHORTEST] )
+
+	my $longer_table_si_value = $table_index_node.get_relative_surrogate_id( 'f_table' );
+	my $shorter_table_si_value = $table_index_node.get_relative_surrogate_id( 'f_table', 1 );
+	my $longer_view_src_col_si_value = $view_expr_node.get_relative_surrogate_id( 'name' );
+	my $shorter_view_src_col_si_value = $view_expr_node.get_relative_surrogate_id( 'name', 1 );
+
+This "getter" method may only be called on Nodes that are in a Container, and
+the first argument SELF_ATTR_NAME must match a valid Node-ref attribute name of
+the current Node (but not the 'pp' attribute); it throws an exception if either
+condition is not met.  This method returns a Surrogate Node Id value (which may
+be either a scalar or a Perl array ref) which is appropriate for passing to
+find_node_by_surrogate_id() as its TARGET_ATTR_VALUE such that the current
+attribute value would be "found" by it, assuming the current attribute value is
+valid; if none can be determined, then undef is returned.  This method's return
+value is conceptually like what get_surrogate_id_chain() returns except that it
+is defined in a relative context rather than an absolute context, making it more
+suitable for serializing models that are subsequently reorganized; it is also
+much shorter.  Depending on context circumstances, get_relative_surrogate_id()
+can possibly return either fully qualified (longest), partly qualified, or
+unqualified (shortest) Surrogate Id values for certain Node-ref attributes.  By
+default, it will return the fully qualified Surrogate Id in every case, which is
+the fastest to determine and use, and which has the most resiliency against
+becoming an ambiguous reference when other parts of the SRT model are changed to
+have the same surrogate id attribute value as the target.  If the optional
+boolean argument WANT_SHORTEST is set true, then this method will produce the
+most unqualified Surrogate Id possible that is fully unambiguous within the
+current state of the SRT model; this version can be more resilient against
+breaking when parts of the SRT model being moved around relative to each other,
+as long as there are no duplicate surrogate id attributes in the model, at the
+cost of being slower to determine and use.  WANT_SHORTEST has no effect with the
+large fraction of Node refs whose fully qualified name is a single element.
+
+=head2 assert_deferrable_constraints()
+
+This "getter" method implements several types of deferrable data validation, to
+make sure that this Node is ready to be used; it throws an exception if it can
+find anything wrong.  This method can be used on any Node regardless of its
+current node evolution state, but that state does affect which tests are
+performed; "Well Known" Nodes get all the tests, while "Alone" Nodes skip some.
+
+=head1 CONTAINER OR NODE METHODS FOR DEBUGGING
+
+The following 3 "getter" methods can be invoked either on Container or Node
+objects, and will return a tree-arranged structure having the contents of a
+Node and all its children (to the Nth generation).  The previous statement
+assumes that all the 'children' are in the same Container, which means that a
+Node's parent is aware of it; if a child is not in the Container, the
+assumption is that said Node is still being constructed, and neither it nor its
+children will be included in the output.  If you invoke the 3 methods on a
+Node, then that Node will be the root of the returned structure. If you invoke
+them on a Container, then a few pseudo-Nodes will be output with all the normal
+Nodes in the Container as their children.
+
+=head2 get_all_properties([ LINKS_AS_SI[, WANT_SHORTEST] ])
+
+	$rh_node_properties = $container.get_all_properties();
+	$rh_node_properties = $container.get_all_properties( 1 );
+	$rh_node_properties = $container.get_all_properties( 1, 1 );
+	$rh_node_properties = $node.get_all_properties();
+	$rh_node_properties = $node.get_all_properties( 1 );
+	$rh_node_properties = $node.get_all_properties( 1, 1 );
+
+This method returns a deep copy of all of the properties of this object as
+non-blessed Perl data structures.  These data structures are also arranged in a
+tree, but they do not have any circular references.  For each Node, all
+attributes are output, including 'id', except for the 'pp' attribute, which is
+redundant; the value of the 'pp' attribute can be determined from an output
+Node's context, as it is equal to the 'id' of the parent Node.  The main
+purpose, currently, of get_all_properties() is to make it easier to debug or
+test this class; it makes it easier to see at a glance whether the other class
+methods are doing what you expect.  The output of this method should also be
+easy to serialize or unserialize to strings of Perl code or xml or other things,
+should you want to compare your results easily by string compare; see
+"get_all_properties_as_perl_str()" and "get_all_properties_as_xml_str()".  If
+the optional boolean argument LINKS_AS_SI is true, then each Node ref attribute
+will be output as the target Node's surrogate id value, as returned by
+get_relative_surrogate_id( <attr-name>, WANT_SHORTEST ), if it has a valued
+surrogate id attribute; if the argument is false, or a Node doesn't have a
+valued surrogate id attribute, then its Node id will be output by default.  The
+output can alternately be passed as a parameter to build_container() so that the
+method creates a clone of the original Container, where applicable; iff the
+output was generated using LINKS_AS_SI, then build_container() will need to be
+given a true MATCH_SURR_IDS argument (its other boolean args can all be false).
+
+=head2 get_all_properties_as_perl_str([ LINKS_AS_SI[, WANT_SHORTEST] ])
+
+	$perl_code_str = $container.get_all_properties_as_perl_str();
+	$perl_code_str = $container.get_all_properties_as_perl_str( 1 );
+	$perl_code_str = $container.get_all_properties_as_perl_str( 1, 1 );
+	$perl_code_str = $node.get_all_properties_as_perl_str();
+	$perl_code_str = $node.get_all_properties_as_perl_str( 1 );
+	$perl_code_str = $node.get_all_properties_as_perl_str( 1, 1 );
+
+This method is a wrapper for get_all_properties( LINKS_AS_SI ) that serializes
+its output into a pretty-printed string of Perl code, suitable for humans to
+read.  You should be able to eval this string and produce the original
+structure.
+
+=head2 get_all_properties_as_xml_str([ LINKS_AS_SI[, WANT_SHORTEST] ])
+
+	$xml_doc_str = $container.get_all_properties_as_xml_str();
+	$xml_doc_str = $container.get_all_properties_as_xml_str( 1 );
+	$xml_doc_str = $container.get_all_properties_as_xml_str( 1, 1 );
+	$xml_doc_str = $node.get_all_properties_as_xml_str();
+	$xml_doc_str = $node.get_all_properties_as_xml_str( 1 );
+	$xml_doc_str = $node.get_all_properties_as_xml_str( 1, 1 );
+
+This method is a wrapper for get_all_properties( LINKS_AS_SI ) that serializes
+its output into a pretty-printed string of XML, suitable for humans to read.
+
+=head1 CONTAINER OR NODE FUNCTIONS AND METHODS FOR RAPID DEVELOPMENT
+
+The following 7 "setter" functions and methods should assist more rapid
+development of code that uses SQL::Routine, at the cost that the code would run
+a bit slower (SQL::Routine has to search for info behind the scenes that it
+would otherwise get from you).  These methods are implemented as wrappers over
+other SQL::Routine methods, and allow you to accomplish with one method call
+what otherwise requires about 4-10 method calls, meaning your code base is
+significantly smaller (unless you implement your own simplifying wrapper
+functions, which is recommended in some situations).
+
+For convenience, these methods can take both positional and named arguments; if
+the first actual positional argument is a Perl hash-ref, then the method
+assumes it contains all the arguments in named format; otherwise, the method
+assumes all of the actual positional arguments are the arguments.  All of the 
+argument names are uppercased strings that are identical to what is shown in 
+the positional-oriented argument list documentation.
+
+Note that when a subroutine is referred to as a "function", it is stateless and
+can be invoked off of either a class name or class object; when a subroutine is
+called a "method", it can only be invoked off of Container or Node objects.
+
+=head2 build_lonely_node( NODE_TYPE[, ATTRS] )
+
+	my $nodeP = SQL::Routine.build_lonely_node( 'catalog', { 'id' => 1, } ); 
+	my $nodeN = SQL::Routine.build_lonely_node( 
+		{ 'NODE_TYPE' => 'catalog', 'ATTRS' => { 'id' => 1, } } ); 
+
+This function will create and return a new Node that is "Alone" (not in a
+Container), whose type is specified in NODE_TYPE, and also set its attributes.
+The ATTRS argument is processed by Node.set_attributes() if it is provided; a
+Node id can also be provided this way, or the Node id won't be set.  If ATTRS
+is defined but not a Hash ref, then this method will build a new one having a
+single element, where the value is ATTRS and the key is either 'id' or the new
+Node's surrogate id attribute name, depending on whether the value looks like a
+valid Node id.
+
+=head2 build_node( NODE_TYPE[, ATTRS] )
+
+This method is like build_lonely_node() except that it must be invoked off of a
+Container, or a Node that is in a Container, and the newly created Node will be
+put in that Container.  This method will throw an exception if it is invoked on
+a Node that is not in a Container.
+
+=head2 build_child_node( NODE_TYPE[, ATTRS] )
+
+This method is like build_node() except that it will set the new Node's primary
+parent to be the Node that this method was invoked on, using add_child_node();
+if this method was invoked on a Container, then it will work only for new Nodes
+that would have a pseudo-Node as their primary parent.  When creating a Node
+with this method, you do not set any PP candidates in ATTRS (if a 'pp' attribute
+is given in ATTRS, it will be ignored).
+
+=head2 build_child_nodes( LIST )
+
+This method takes an array ref in its single LIST argument, and calls
+build_child_node() for each element found in it; if LIST is not an array ref,
+then one is constructed with LIST as its single element.  This method does not
+return anything.
+
+=head2 build_child_node_tree( NODE_TYPE[, ATTRS][, CHILDREN] )
+
+This method is like build_child_node() except that it will recursively create
+all of the child Nodes of the new Node as well; CHILDREN is a Perl array-ref
+(or, if defined, it will become the single element of a new array-ref), and
+build_child_node_tree() will be called for each of its elements after their
+parent has been fully created.  In the context of SQL::Routine, a "Node tree"
+or "tree" consists of one arbitrary Node and all of its "descendants".  If
+invoked on a Container object, this method will recognize any pseudo-Node names
+given in 'NODE_TYPE' and simply move on to creating the child Nodes of that
+pseudo-Node, rather than throwing an error exception for an invalid Node type. 
+Therefore, you can populate a whole Container with one call to this method. 
+This method returns the root Node that it creates, if NODE_TYPE was a valid
+Node type; it returns the Container instead if NODE_TYPE is a pseudo-Node name.
+
+=head2 build_child_node_trees( LIST )
+
+This method takes an array ref in its single LIST argument, and calls
+build_child_node_tree() for each element found in it; if LIST is not an array
+ref, then one is constructed with LIST as its single element.  This method does
+not return anything.
+
+=head2 build_container( LIST[, AUTO_ASSERT[, AUTO_IDS[, MATCH_SURR_IDS]]] )
+
+This function is like build_child_node_trees( LIST ) except that it will also
+create and return a new Container object that holds the newly built Nodes.  If
+any of the optional boolean arguments [AUTO_ASSERT, AUTO_IDS, MATCH_SURR_IDS]
+are true, then the corresponding flag properties of the new Container will be
+set to true prior to creating any Nodes.  This function is the exact opposite of
+Container.get_all_properties(); you should be able to take the Hash-ref output
+of Container.get_all_properties(), give it to build_container(), and end up with
+a clone of the original Container.
+
+=head1 INFORMATION FUNCTIONS AND METHODS
+
+These "getter" functions/methods are all intended for use by programs that want
+to dynamically interface with SQL::Routine, especially those programs that
+will generate a user interface for manual editing of data stored in or accessed
+through SQL::Routine constructs.  It will allow such programs to continue
+working without many changes while SQL::Routine itself continues to evolve.
+In a manner of speaking, these functions/methods let a caller program query as
+to what 'schema' or 'business logic' drive this class.  These functions/methods
+are all deterministic and stateless; they can be used in any context and will
+always give the same answers from the same arguments, and no object properties
+are used.  You can invoke them from any kind of object that SQL::Routine
+implements, or straight off of the class name itself, like a 'static' method.  
+All of these functions return the undefined value if they match nothing.
+
+=head2 valid_enumerated_types([ ENUM_TYPE ])
+
+This function by default returns a list of the valid enumerated types that
+SQL::Routine recognizes; if the optional ENUM_TYPE argument is given, it
+just returns true if that matches a valid type, and false otherwise.
+
+=head2 valid_enumerated_type_values( ENUM_TYPE[, ENUM_VALUE] )
+
+This function by default returns a list of the values that SQL::Routine
+recognizes for the enumerated type given in the ENUM_TYPE argument; if the
+optional ENUM_VALUE argument is given, it just returns true if that matches an
+allowed value, and false otherwise.
+
+=head2 valid_node_types([ NODE_TYPE ])
+
+This function by default returns a list of the valid Node Types that
+SQL::Routine recognizes; if the optional NODE_TYPE argument is given, it
+just returns true if that matches a valid type, and false otherwise.
+
+=head2 node_types_with_pseudonode_parents([ NODE_TYPE ])
+
+This function by default returns a Hash ref where the keys are the names of the
+Node Types whose primary parents can only be pseudo-Nodes, and where the values
+name the pseudo-Nodes they are the children of; if the optional NODE_TYPE
+argument is given, it just returns the pseudo-Node for that Node Type.
+
+=head2 node_types_with_primary_parent_attributes([ NODE_TYPE ])
+
+This function by default returns a Hash ref where the keys are the names of the
+Node Types that have a primary parent ("pp") attribute, and where the values are
+the Node Types that values for that attribute must be; if the optional NODE_TYPE
+argument is given, it just returns the valid Node Types for the primary parent
+attribute of that Node Type.  Since there may be multiple valid primary parent
+Node Types for the same Node Type, an array ref is returned that enumerates the
+valid types; often there is just one element; if the array ref has no elements,
+then all Node Types are valid.
+
+=head2 valid_node_type_literal_attributes( NODE_TYPE[, ATTR_NAME] )
+
+This function by default returns a Hash ref where the keys are the names of the
+literal attributes that SQL::Routine recognizes for the Node Type given in
+the NODE_TYPE argument, and where the values are the literal data types that
+values for those attributes must be; if the optional ATTR_NAME argument is
+given, it just returns the literal data type for the named attribute.
+
+=head2 valid_node_type_enumerated_attributes( NODE_TYPE[, ATTR_NAME] )
+
+This function by default returns a Hash ref where the keys are the names of the
+enumerated attributes that SQL::Routine recognizes for the Node Type given
+in the NODE_TYPE argument, and where the values are the enumerated data types
+that values for those attributes must be; if the optional ATTR_NAME argument is
+given, it just returns the enumerated data type for the named attribute.
+
+=head2 valid_node_type_node_ref_attributes( NODE_TYPE[, ATTR_NAME] )
+
+This function by default returns a Hash ref where the keys are the names of the
+node attributes that SQL::Routine recognizes for the Node Type given in the
+NODE_TYPE argument, and where the values are the Node Types that values for
+those attributes must be; if the optional ATTR_NAME argument is given, it just
+returns the Node Type for the named attribute.  Since there may be multiple
+valid Node Types for the same attribute, an array ref is returned that
+enumerates the valid types; often there is just one element; if the array ref
+has no elements, then all Node Types are valid.
+
+=head2 valid_node_type_surrogate_id_attributes([ NODE_TYPE ])
+
+This function by default returns a Hash ref where the keys are the names of the
+Node Types that have a surrogate id attribute, and where the values are the
+names of that attribute; if the optional NODE_TYPE argument is given, it just
+returns the surrogate id attribute for that Node Type.  Note that a few Node
+types don't have distinct surrogate id attributes; for those, this method will
+return 'id' as the surrogate id attribute name.
+
+=head1 SEE ALSO
+
+L<SQL::Routine> and the various other modules mentioned in its SEE ALSO.
+
+=cut

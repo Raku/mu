@@ -1,0 +1,716 @@
+=head1 NAME
+
+SQL::Routine::Language - What language or grammar SQL::Routine speaks
+
+=head1 COPYRIGHT AND LICENSE
+
+This file is part of the SQL::Routine library (libSQLRT).
+
+SQL::Routine is Copyright (c) 1999-2005, Darren R. Duncan.  All rights
+reserved. Address comments, suggestions, and bug reports to
+B<perl@DarrenDuncan.net>, or visit "http://www.DarrenDuncan.net" for more
+information.
+
+SQL::Routine is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License (GPL) version 2 as published by the
+Free Software Foundation (http://www.fsf.org/).  You should have received a
+copy of the GPL as part of the SQL::Routine distribution, in the file named
+"LICENSE"; if not, write to the Free Software Foundation, Inc., 59 Temple
+Place, Suite 330, Boston, MA 02111-1307 USA.
+
+Linking SQL::Routine statically or dynamically with other modules is making a
+combined work based on SQL::Routine.  Thus, the terms and conditions of the GPL
+cover the whole combination.  As a special exception, the copyright holders of
+SQL::Routine give you permission to link SQL::Routine with independent modules,
+regardless of the license terms of these independent modules, and to copy and
+distribute the resulting combined work under terms of your choice, provided
+that every copy of the combined work is accompanied by a complete copy of the
+source code of SQL::Routine (the version of SQL::Routine used to produce the
+combined work), being distributed under the terms of the GPL plus this
+exception.  An independent module is a module which is not derived from or
+based on SQL::Routine, and which is fully useable when not linked to
+SQL::Routine in any form.
+
+Any versions of SQL::Routine that you modify and distribute must carry
+prominent notices stating that you changed the files and the date of any
+changes, in addition to preserving this original copyright notice and other
+credits. SQL::Routine is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.
+
+While it is by no means required, the copyright holders of SQL::Routine would
+appreciate being informed any time you create a modified version of
+SQL::Routine that you are willing to distribute, because that is a practical
+way of suggesting improvements to the standard version.
+
+=head1 DESCRIPTION
+
+SQL::Routine contains SQL schemas and queries, represented as a tree of
+atomic tokens; it is structurally like an abstract syntax tree or an XML DOM,
+but one that only accepts, respectively, a specific source language or XML
+schema.  See L<SQL::Routine> and L<SQL::Routine::Details> for more details.
+
+The module's API and code make it look like a generic tree, composed of related
+Nodes.  The restrictions for which attributes each Node can have, and its
+relationship to others, is defined by data (though for efficiency, that data is
+also contained in the same module and can't be changed at runtime).
+
+As an analogy, the module has an API like a generic XML DOM, but it can enforce
+a specific XML Schema (the data).  The context in which it is used is like a
+generic database interface.  The API basically has an "execute" function, to
+which a SQL string is given, within that, there is a huge amount of flexibility
+of what the SQL string can say, but it must conform to a specific grammar.
+
+This document, SQL::Routine::Language, is meant to say what all the 'types'
+of Nodes are, and what attributes and relationships are allowed for each.  It
+is meant to say what 'grammar' for SQL::Routine's 'language' is, or what
+'schema' it accepts.
+
+The type of information this document would provide is functionally similar to
+the SQL design documents, or vendor-specific ones.
+
+=head1 FEATURE SCOPE AND STANDARDS COMPLIANCE
+
+SQL::Routine mainly follows its own path regarding its language structure;
+it approximates other SQL variants, including both ANSI/ISO standard SQL and
+proprietary versions like PL-SQL and T-SQL, but it matches none of those.  I
+believe that such existing versions of SQL are simply too large and complex to
+support in their entirety.  Moreover, such as with most software, we have a
+situation where 10% of the features are used 90% of the time, or 90% of
+users never exercise more than the same 10% of the available features.  Or,
+perhaps those numbers should read 99% and 1% instead of 90 and 10.
+
+SQL::Routine aims to be a "90%+ solution", natively supporting what I
+consider to be the "most important" features of SQL, those which have stood the
+test of time, become widely used, and supported by multiple vendors.  This
+includes many "advanced" features which shipping database products often lack,
+and even a handful which no database may support now but "should".  I have
+mainly avoided features which are new and unused, or unproven, or complicated,
+or badly designed, or antiquated, or otherwise look like a product of creeping
+featuritis.  This is not to say that I reject new and little used features; if
+I see their benefit and they are easy to implement, they get supported now.
+
+SQL::Routine is designed largely in the hindsight of the ANSI/ISO SQL:1999
+standard (and with some foresight of the yet-unfinalized SQL:2003) and aims to
+conform to it as much as possible.  Where SQL:2003 and other SQL versions talk
+about the same features using different words, SQL::Routine will either
+match the standard or resemble it the most.  Similarly, as SQL:2003 and
+SQL:1999 are fully upward compatible with SQL:1992, so the latter will be
+matched.  Unlike most shipping database products, which support mainly
+SQL:1992, I will support SQL:2003 (and 1999).  Note that SQL:2003 and SQL:1999
+has identical ANSI and ISO standards, while SQL:1992 does not; this is a
+practical reason to focus on just 2003 and 1999.
+
+During my work on this project, I found the following resources to be
+particularly useful:
+
+=over 4
+
+=item
+
+L<http://www.wiscorp.com/SQLStandards.html>
+
+=item
+
+L<http://www.wiscorp.com/sql/sql1999_c3.zip> (warning, large file)
+
+=item
+
+L<http://www.wiscorp.com/sql/sql_2003_standard.zip> (warning, large file)
+
+=item
+
+L<http://www.sql-scripts.com/BookExcerpts/SQL99.zip> (warning, large file)
+
+=back
+
+Likewise, the vendor documentation for MySQL and SQLite was consulted, plus
+third-party and vendor documentation for Oracle, and the odd other SQL site.
+
+This is a brief and incomplete list of major supported features (the rest of
+this document goes into more detail on them):
+
+	- native Unicode 4 (UTF-8) support for all identifiers and character data
+	- multiple character encoding support in the same database for character data
+	- global binary/bit object/data support
+	- both exact and inexact numbers, the former being of any length
+	- large object support; all character or binary fields can contain 2GB or more
+	- multi-column indexes, unique constraints, foreign key constraints
+	- large/full text indexing
+	- boolean data type
+	- datetime/date, interval/time data types
+	- multiple schemas in the same catalogue
+	- objects in any schema can reference those in other schemas or other catalogues
+	- identifiers are internally case-sensitive; case-insensitive ones match as fully uppercase
+	- no effective limits; eg: number of tables or columns or rows, size of data per field or row
+	- simple domains and user-defined data types (UDTs)
+	- enumerated data types
+	- arbitrary 'check' constraints (?)
+	- routines (stored procedures, user defined functions, triggers)
+	- named sub-routines inside routines
+	- row, array/rowset data types as variables inside routines, and arguments and return values
+	- multiple column unique and foreign key constraints on tables
+	- viewed tables / views
+	- expressions in any part of a query
+	- regular expressions / pattern matching
+	- multiple-column predicates in any part of a query
+	- cross, inner, and full|left|right outer table joins
+	- self joins (same table or view joined to itself N times)
+	- compound queries such as union, difference (except), intersection, exclusion
+	- 'all' and 'distinct' set quantifiers on both normal and compound queries
+	- 'where', 'group by', 'having', 'order by', 'limit'
+	- anonymous subqueries in any part of main query
+	- named subqueries ("with") likewise
+	- both correlated (takes arguments) and uncorrelated (no arguments) subqueries
+	- recursive queries
+	- all routine and subquery args are declared and used with named syntax (rather than positional)
+	- all built-in standard routine args are used with named syntax (rather than positional)
+	- select/insert/update/delete rows in tables and viewed tables
+	- named (rather than positional) mapping of 'into' clause to 'select list'
+	- named (rather than positional) mapping of all input data for both inserts and updates
+	- OLAP extensions, rollup, cube, grouping sets (related to group-by)
+	- updateable views; inserts, updates, deletes through any view (if key data not lost)
+	- "insert as select"
+	- multiple users, roles, privileges
+	- create/alter/delete schema objects, including user defined functions
+	- create/alter/delete catalogs, schemas, users
+	- cursors
+	- multiple row insert / "write cursors"
+	- application host parameters for any data type
+	- all host parameters are named (rather than positional)
+	- explicit transactions and nested transactions (and savepoints?)
+	- record locking for read and locking for write
+	- throwing exceptions
+	- catching and handling exceptions
+	- create, use simple sequence generators, named and on table cols
+	- temporary objects, usually tables
+	- triggers firing on DML events of either tables or views
+	- "base tables" and "temporary base tables"
+
+This is a brief list of major non-supported features (at present), or current limitations:
+
+	- multiple distinct values per row field (this violates level-1 normalization)
+	- complex domains and compound user-defined data types
+	- 'set' data types
+	- collection types, such as arrays, stored in table fields
+	- reference data types, stored in tables
+	- table hierarchies or subtables; anything not a "base table" or "viewed table"
+	- object data types
+	- user defined "operators" (as being distinct from user defined functions)
+	- geographical data types and related extensions
+	- referencing objects in an "information schema" by users like normal schema objects (?)
+	- dynamic SQL; eg: generating and executing new SQL in a stored procedure
+	- creating user defined functions that aren't SQL (though they can be called)
+	- sequence generators will only produce integers, and not fractions or strings
+	- explic ref most "optimization" features; eg: hints, cache sett, res pre-alloc or limits, "tablespaces"
+	- explicit references to logs or replication managed by the database product itself
+	- named Oracle "synonyms" (?)
+	- triggers firing on non-DML events
+
+Generally speaking, SQL::Routine holds to a purely relational database
+model, where every intersection of a column and a row in a table or view is an
+atomic value.  Anything which breaks from this mold is currently not supported.  
+This said, transient data such as variables in routines (stored procedures) can 
+and often are more complex types like arrays or records or references; likewise 
+input and output values of routines, and host parameters, can be complex types.
+
+=head1 CIRCUMVENTING FEATURE LIMITATIONS
+
+For such situations where you want to use SQL::Routine to mediate your
+access to a database, and it doesn't natively support a database product
+feature that you want to use, SQL::Routine does provide a "back door" where
+you have un-mediated access to the database.  Speaking more accurately, 
+SQL::Routine can store fragments of any raw SQL that you specify, to be 
+injected into the SQL that is generated from its objects.  
+
+The trade-off is that these portions probably won't work with more than one
+database product, and so you would be best to just use them for "optimization"
+type SQL that will help your app on a supported product, but the app will still
+work (perhaps slower) without them.  If you can't do that, then
+SQL::Routine lets you store alternative SQL fragments that are keyed to a
+database product; if you store fragments with the same function in multiple
+versions, then the one for the product you are interfacing now will be used and
+the others ignored.
+
+SQL fragments can either be pieces of a larger to-be-generated statement which
+you attach them to, or they can be complete SQL statements on their own, where
+you specify that they run between certain generated statements, or inside a
+generated routine.
+
+For the present, you can also store "SQL comments" in this fashion.
+
+All this said and done, the use of the circumvention features are not
+recommended, and should only be attempted by savvy / power users or DBAs. 
+Ultimately, adding native support for a feature is better.
+
+=head1 LANGUAGE CONCEPT STRUCTURE
+
+SQL::Routine manages SQL concepts that we arrange into 5 main categories for
+convenience: 'elements', 'blueprints', 'tools', 'sites', 'circumventions'.
+
+The first two of these, 'elements' and 'blueprints', are the most important;
+they describe completely the composition and behaviour of your database schemas
+and application-level routines that talk to them.  For all intents and
+purposes, they are part of your core application code and would get distributed
+as such; like your core application code, everyone's installation will be
+identical.  We keep simple and widely re-used details in 'elements', such as
+scalar and row data type definitions.  We describe most model structures in
+'blueprints', including database tables (with constraints), arbitrarily complex
+database views, and various kinds of routines (such as stored procedures, user
+defined functions, and basic DML like selects, inserts, updates, deletes), both
+those stored in a database schema or in an application.  We can represent
+multiple database catalogs and applications at once, whether or not they talk
+to each other; how they inter-relate is also represented.
+
+The second two categories, 'tools' and 'sites', are effectively locale or
+site-specific configuration data, and each installation of your application
+would be different in these areas.  We use 'tools' to store a small list of one
+or more externally (to SQL::Routine and your application core) recognizable
+database product identifiers (such as SQLite or Oracle) that are used on a site
+to implement the database catalogs.  We use 'sites' to indicate localized
+details of your database (and application) installations, such as the product
+used for each catalog instance, or its DSN or server address or file path, or
+what users it has and their privileges.  If you have multiple copies of a
+database installed, such as for test data vs production data, you can
+distinguish between them in 'sites'.
+
+The last category, 'circumventions', is used to implement SQL::Routine's
+"circumvention" features, to access concepts that a specific database product
+understands but nothing in the SQL::Routine code does.
+
+While a database and application are actually being *used* (post-installation
+at a site), structures belonging to each of the 5 categories would be stored
+persistantly in two main places.  One of these is the native schema of a
+database itself.  The second of these is structures that are not stored in a
+database, but in an application that uses the database.  Many structures, such
+as views and routines, can be stored in either place; some, like tables, can
+probably only be stored in the database; either way, the places can overlap
+greatly.  In practice, you would pick what to put in each place on a per-case
+basis, accounting for how powerful your database is, what arrangement is more
+secure, or is faster, or is easier to manage, and so on.
+
+Here is a tree diagram, formatted visually like XML, which shows the high
+level SQL::Routine language concepts; each distinct concept is represented
+by one tree node.  Parent nodes provide a context in which their children live
+(eg: a table only exists within a schema).  The top 2 tree levels don't
+represent anything themselves, but just group the actual concepts that exist in
+the 3rd level and below.  The node attribute 'c' shows the cardinality of that
+node type beneath its parent; a value of 'M' means 'many' and '1' means 'one'. 
+The node attribute 'r' indicates recursion, where a node can be a child of
+another of the same type (eg: a sub-query or sub-routine).
+
+	<root>
+		<elements c="1">
+			<scalar_data_type c="M">
+				<scalar_data_type_opt c="M" />
+			</scalar_data_type>
+			<row_data_type c="M">
+				<row_data_type_field c="M" />
+			</row_data_type>
+		</elements>
+		<blueprints c="1">
+			<catalog c="M">
+				<owner c="M" />
+				<catalog_link c="M" />
+				<schema c="M">
+					<scalar_domain c="M" />
+					<row_domain c="M" />
+					<sequence c="M" />
+					<table c="M" />
+					<view c="M" />
+					<routine c="M" />
+				</schema>
+				<role c="M">
+					<privilege_on c="M">
+						<privilege_for c="M" />
+					</privilege_on>
+				</role>
+			</catalog>
+			<application c="M">
+				<catalog_link c="M" />
+				<scalar_domain c="M" />
+				<row_domain c="M" />
+				<sequence c="M" />
+				<table c="M" />
+				<view c="M" />
+				<routine c="M" />
+			</application>
+		</blueprints>
+		<tools c="1">
+			<data_storage_product c="M" />
+			<data_link_product c="M" />
+		</tools>
+		<sites c="1">
+			<catalog_instance c="M">
+				<catalog_instance_opt c="M" />
+				<catalog_link_instance c="M" />
+				<user c="M">
+					<user_role c="M" />
+				</user>
+			</catalog_instance>
+			<application_instance c="M">
+				<catalog_link_instance c="M" />
+			</application_instance>
+		</sites>
+		<circumventions c="1">
+			<sql_fragment c="M" />
+		</circumventions>
+	</root>
+
+	<table>
+		<table_field c="M" />
+		<table_index c="M">
+			<table_index_field c="M" />
+		</table_index>
+	</table>
+
+	<view r="Y">
+		<view_arg c="M" />
+		<view_src c="M">
+			<view_src_arg c="M" />
+			<view_src_field c="M" />
+		</view_src>
+		<view_field c="M" />
+		<view_join c="M">
+			<view_join_field c="M" />
+		</view_join>
+		<view_compound_elem c="M" />
+		<view_expr c="M" r="Y" />
+	</view>
+
+	<routine r="Y">
+		<view c="M" />
+		<routine_context c="1" />
+		<routine_arg c="M" />
+		<routine_var c="M" />
+		<routine_stmt c="M">
+			<routine_expr c="M" r="Y" />
+		</routine_stmt>
+	</routine>
+
+	<catalog_link_instance r="Y">
+		<catalog_link_instance_opt c="M" />
+	</catalog_link_instance>
+
+For the most part, each 'concept' shown in the tree above corresponds to a
+single SQL::Routine Node Type.  Each Node Type is explained in further
+detail below.
+
+Besides the Node it is a child of, a Node can reference other Nodes almost
+anywhere else in the tree, with the following exceptions: 1. Considering the
+order of the 5 main categories above, Nodes in any category can not reference
+Nodes in a later category; they can only reference self or earlier; 2. Nodes in
+'tools' can't reference anything else; 3. Catalog Nodes can't reference
+Application Nodes.
+
+=head1 LANGUAGE PROCEDURAL STRUCTURE
+
+The SQL::Routine language is designed with an embedded SQL paradigm in
+mind, where all SQL can be invoked as if it was written in the same language as
+the program code which invokes it.  The SQL can take arguments like a normal
+program routine, and it can hand return values like a normal program routine; 
+either of those can be considered named host parameters.
+
+The SQL::Routine language is designed so that you would do B<all> types of
+database interaction with it; not only would you use SQL to issue typical DML
+or DDL commands, but you would attach (connect to) or create a database in the
+first place using SQL.  This is much like CLI database clients and their
+"connect to ... identified by ..." or "attach ... as ..." SQL statements, or
+similar statements that run inside a database stored procedure that connect to
+a second database.  In fact, the SQL::Routine language is designed such
+that you should be able to run the same SQL commands either in a client
+application or in a database stored procedure, without changes.  Likewise, your
+application should be able to invoke a SQL routine the same way whether it is
+stored in the application or the database.  By contrast, some other modules for
+letting your application talk to a database require you to call non-sql
+routines for some operations like connecting to a database.
+
+The SQL::Routine language takes a broad definition as to what constitutes a
+SQL routine.  While some RDBMS products don't support this in stored
+procedures, my understanding is that the SQL standard defines a SQL routine as
+an ordered (and usually named) sequence of any type of SQL statements that are
+to be run together.  Usually, SQL routines stored in a database only contain
+DML, but some RDBMS products also let you manipulate users or schema objects
+within stored procedures.  Regardless of those limitations, my understanding is
+that any SQL which an RDBMS product understands at all can be issued from an
+application based routine.
+
+In practice, the way of providing arguments to named database stored routines
+can be different from a way passing arguments to un-named routines or queries
+constructed on a client application; the latter often uses 'host parameters' for
+sending or receiving data, while the former uses named routine arguments and/or
+has an explicit return value.  The SQL::Routine language unifies these
+concepts and makes it as if all SQL statements take named arguments, and
+"return" a value; in database stored procedures, this is the same as usual; on
+the client side, the named arguments each correspond to a named host parameter.
+
+Similarly, all SQL "select" queries are treated as cursors; on the database
+side this is the same as usual; on the application/client side, this may or may
+not be the same as usual.  When an application invokes a "select", they will
+get a cursor handle returned to them (either a real cursor or a fake cursor),
+off of which they fetch the rows or values that the "select" retrieves.
+
+It is expected that modules which interface a database on an application's
+behalf, and that take SQL::Routine language constructs as input, will be
+structured with a B<Command Design Pattern>.  They should essentially provide a
+"SQL Engine" object that has a single "Execute" function.  The latter would
+take a SQL::Routine "routine" Node (or an object wrapping one
+that also holds values for the routine's arguments) as input.  The function
+would return a "Result" object that encapsulates any return values from the
+SQL, such as a select cursor handle or other types of returned data or details
+of an error that occurred.  The object returned as output from "Execute" should
+also have its own "Execute" method when the object can be considered a context
+for future commands; eg: the object returned from an "open database" command
+should represent that database for further queries against it.
+
+The SQL::Routine language does not require you to explicitly run a
+connect/open/attach command before running SQL against a database.  Since the
+info it needs to do this is provided in 'catalog link' definitions that are
+already related to the SQL definitions, an implementer can just implicitely
+connect to a database for you when you ask it to run the SQL.  And that
+implicit link can either be cached or new, such as the implementer decides. 
+I<Note that this idea may need to be thought out further.>
+
+=head1 NODE ATTRIBUTE TYPES
+
+There are 4 major SQL::Routine Node attribute types, and a Node object
+provides separate accessor methods for those attributes of each type (a
+consistency held between the Perl and C versions).  Each major type may be
+further sub-divided into minor types, which are tested for by the above
+methods.  Each instance of a Node attribute corresponds to one XML tag
+attribute, if a Node object were an XML tag.  The types are:
+
+=over 4
+
+=item
+
+B<node_id> - There is exactly one of these per Node; it is a positive (<gt>=1)
+integer which uniquely identifies this particular Node among all others of the
+same Node Type.  There are no minor types under this major type.
+
+=item
+
+B<literal> - This is the normal kind of Node attribute, and it can contain any
+scalar value, such as a string or a number.  Some attributes of this type may
+actually be restricted, such as to only valid integer or date or boolean
+values; that restriction is what differentiates the literal minor types.
+
+=item
+
+B<enumerated> - This is like B<literal> except that the values you can store
+are restricted to an explicit enumerated set of values.  Each minor type is a
+specific enumerated value set.  (A subsequent documentation section lists the
+currently known enumerated sets.)
+
+=item
+
+B<node_ref> - This is a number which is equal to the B<node_id> of another Node
+that has a particular Node Type; it is used to implement relations between
+Nodes.  This attribute type is for attributes whose conceptual values are
+either multi-part or are possibly shared by multiple Nodes.  Each minor type is 
+a Node Type.
+
+=back
+
+=head1 LITERAL ATTRIBUTE TYPES
+
+Currently, SQL::Routine recognizes these explicit literal attribute types:
+
+=over 4
+
+=item
+
+B<bool> - This is a boolean type, and its values may only be '0' or '1'.
+Attributes of this type are "flags", saying 'true' when set or 'false' when not.
+
+=item
+
+B<uint> - This is an "unsigned integer", also known as a non-negative integer;
+its values may only be integers greater than or equal to 0.  Attributes of this
+type indicate the "scale" of something, meaning how 'big' or 'long' it is.
+
+=item
+
+B<sint> - This is an "signed integer", and its values may be any integer. 
+Attributes of this type are normally used in concert with sequence generators.
+
+=item
+
+B<cstr> - This is a "character string" where each character can be anything
+except the null character.  Attributes of this type are usually "labels" and
+"name" something.
+
+=item
+
+B<misc> - This is a "miscellaneous scalar"; its values may be anything a Perl
+scalar can be.  Attributes of this type usually hold literal data that only has
+meaning to a user and is not interpreted by a machine; alternately, they are
+used to store any literal whose type varies or isn't a bool or uint or cstr.
+
+=back
+
+=head1 BRIEF ENUMERATED ATTRIBUTE TYPE LIST
+
+Here is a compact list of the enumerated attribute types that SQL::Routine knows
+about.  For full details on each one, please see L<SQL::Routine::EnumTypes>.
+
+	container_type
+	exception_type
+	standard_routine
+	standard_routine_context
+	standard_routine_arg
+	simple_scalar_type
+	char_enc_type
+	calendar
+	privilege_type
+	table_index_type
+	view_type
+	compound_operator
+	join_operator
+	view_part
+	routine_type
+	basic_trigger_event
+	user_type
+
+=head1 BRIEF NODE TYPE LIST
+
+Here is a compact list of the Node Types that SQL::Routine knows about; each one
+corresponds to a SQL::Routine concept.  A Node Ref attribute of a certain type
+will reference another Node of that Node Type.  For full details on each one,
+please see L<SQL::Routine::NodeTypes>.
+
+PSEUDO-NODE TYPES:
+
+	root
+	elements
+	blueprints
+	tools
+	sites
+	circumventions
+
+ELEMENTS CATEGORY NODE TYPES:
+
+	scalar_data_type
+	scalar_data_type_opt
+	row_data_type
+	row_data_type_field
+
+BLUEPRINTS CATEGORY NODE TYPES:
+
+	catalog
+	application
+	owner
+	catalog_link
+	schema
+	role
+	privilege_on
+	privilege_for
+	scalar_domain
+	row_domain
+	sequence
+	table
+	table_field
+	table_index
+	table_index_field
+	view
+	view_arg
+	view_src
+	view_src_arg
+	view_src_field
+	view_field
+	view_join
+	view_join_field
+	view_compound_elem
+	view_expr
+	routine
+	routine_context
+	routine_arg
+	routine_var
+	routine_stmt
+	routine_expr
+
+TOOLS CATEGORY NODE TYPES:
+
+	data_storage_product
+	data_link_product
+
+SITES CATEGORY NODE TYPES:
+
+	catalog_instance
+	catalog_instance_opt
+	application_instance
+	catalog_link_instance
+	catalog_link_instance_opt
+	user
+	user_role
+
+CIRCUMVENTIONS CATEGORY NODE TYPES:
+
+	sql_fragment
+
+=head1 OLDER DOCUMENTATION
+
+These paragraphs were more or less the original documentation for high-level
+SQL::Routine concepts, back when each concept was planned to be a separate
+class of its own.  They were originally published in Framework.pod since the
+first release of the Rosetta distribution (2003-01-05), and up until 2004-02-04
+inclusive. They are here in Language.pod as of 2004-02-12.  Some details you
+see here shouldn't be considered accurate.
+
+B<SQL::Routine::Command> - This Model class describes an action that needs
+to be done against a database; the action may include several steps, and all of
+them must be done when executing the Command.  A Command object has one
+mandatory string property named 'type' (eg: 'database_open', 'table_create',
+'data_insert'), which sets the context for all of its other properties, which
+are in a hash property named 'args'.  Elements of 'args' often include other
+Model class objects like 'Table' or 'DataType'.  Like all Model objects, this
+is static and context-independent; it is intended to be serialized and passed
+to code like DBI->prepare().   While host params are often used with them (such
+as values to insert or update, or record matching conditions), it is always up
+to the calling code to resolve the host params such as with a user prompt (as
+SQL*Plus does), and pass those to code like DBI->execute().  I<See also
+Rosetta::Command.>
+
+B<SQL::Routine::DataType> - This Model class describes a simple data type,
+which serves as metadata for a single atomic or scalar unit of data, or a
+column whose members are all of the same data type, such as in a regular
+database table or in row sets read from or to be written to one.  This class
+would be used both when manipulating database schema and when manipulating
+database data.
+
+B<SQL::Routine::Table> - This Model class describes a single database
+table, and would be used for such things as managing schema for the table (eg:
+create, alter, destroy), and describing the table's "public interface" so other
+functionality like views or various DML operations know how to use the table.
+In its simplest sense, a Table object consists of a table name, a list of table
+columns, a list of keys, a list of constraints, and a few other implementation
+details.  This class does not describe anything that is changed by DML
+activity, such as a count of stored records, or the current values of sequence
+generators attached to columns.  This class would be used both when
+manipulating database schema and when manipulating database data.  This class
+can generate SQL::Routine::Command objects having types of: 'table_verify',
+'table_create', 'table_alter', 'table_destroy'.
+
+B<SQL::Routine::View> - This Model class describes a single database view,
+which conceptually looks like a table, but it is used differently.  Tables and
+views are similar in that they both represent or store a matrix of data, which
+has uniquely identifiable columns, and rows which can be uniquely identifiable
+but may not be.  With the way that Rosetta implements views, you can do all of
+the same DML operations with them that you can do with tables: select, insert,
+update, delete rows; that said, the process for doing any of those with views
+is more complicated than with tables, but this complexity is usually internal
+to Rosetta so you shouldn't have to code any differently between them.  Tables
+and views are different in that tables actually store data in themselves, while
+views don't.  A view is actually a custom abstracted interface to one or more
+database tables which are related to each other in a specific way; when you
+issue DML against a view, you are actually fetching from or modifying the data
+stored in one (simplest case) or more tables.  This class can generate
+SQL::Routine::Command objects having types of: 'data_select', 'data_insert',
+'data_update', 'data_delete', 'data_lock', 'data_unlock', 'view_verify',
+'view_create', 'view_alter', 'view_destroy'.
+
+=head1 SEE ALSO
+
+L<SQL::Routine> and the various other modules mentioned in its SEE ALSO.
+
+=cut
