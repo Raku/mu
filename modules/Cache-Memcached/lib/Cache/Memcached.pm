@@ -5,7 +5,7 @@
 #
 # See COPYRIGHT section in pod text below for usage and distribution rights.
 #
-# Perl6 port by Gaal Yahas
+# Perl6 port by Gaal Yahas, based on p5 version 1.14.
 
 use v6;
 
@@ -46,10 +46,7 @@ our $F_COMPRESS is constant = 2;
 our $COMPRESS_SAVINGS is constant = 0.20; # percent
 
 our $HAVE_ZLIB;
-
-INIT {
-    $HAVE_ZLIB = eval "use Compress::Zlib (); 1;";
-}
+try { use Compress::Zlib (); $HAVE_ZLIB = 1; }
 
 our $FLAG_NOSIGNAL = 0;
 try { $FLAG_NOSIGNAL = MSG_NOSIGNAL; } # XXX: how does an imported constant look like?
@@ -62,6 +59,8 @@ my $PROTO_TCP;
 our $SOCK_TIMEOUT = 2.6; # default timeout in seconds
 
 submethod BUILD (
+    $self:
+
     ?$servers = [],
     ?$.debug = 0,
     ?$.no_rehash,
@@ -76,10 +75,10 @@ submethod BUILD (
 {
     $.stats = {};
     $.compress_enable = 1;
-    .set_servers($servers);
+    $self.set_servers($servers);
 }
 
-method set_servers (?$list = []) {
+method set_servers ($self: ?$list = []) {
     $:servers = $list;
     $:active  = $list.elems;
     $:buckets = undef;
@@ -89,7 +88,7 @@ method set_servers (?$list = []) {
     if $:active == 1 {
         $:_single_sock = $:servers.[0];
     }
-    return $_; # XXX
+    return $self;
 }
 
 method forget_dead_hosts {
@@ -129,7 +128,7 @@ sub _connect_sock ($sock, $sin, ?$timeout = 0.25) { # sock, sin, timeout
         IO::Handle::blocking($sock, 1);
     }
 
-    my $ret = connect($sock, $sin);
+    my $ret = $sock.connect($sin);
 
     if !$ret && $timeout && $!==EINPROGRESS {
 
@@ -197,7 +196,7 @@ method sock_to_host ($self: $host) { # (host)
     return $cache_sock{$host} = $sock;
 }
 
-sub get_sock ($self: $key) { # (key)
+method get_sock ($self: $key) { # (key)
     return $self.sock_to_host($:_single_sock) if $:_single_sock;
     return undef unless $:active;
     my $hv = ref $key ? int($key->[0]) : _hashfunc($key);
@@ -205,8 +204,7 @@ sub get_sock ($self: $key) { # (key)
     $self.init_buckets() unless $:buckets;
 
     my $real_key = ref $key ? $key->[1] : $key;
-    my $tries = 0;
-    while $tries++ < 20 {
+    for 1 .. 20 -> $tries {
         my $host = $:buckets.[$hv % $:bucketcount];
         my $sock = $self.sock_to_host($host);
         return $sock if $sock;
@@ -253,7 +251,7 @@ submethod _oneline ($sock, str $line) {
     temp %SIG<PIPE> = "IGNORE" unless $FLAG_NOSIGNAL; # XXX "%SIG"
 
     # the select loop
-    while 1 {
+    loop {
         if ($copy_state!=$state) {
             last if $state==2;
             ($rin, $win) = ('', '');
@@ -371,7 +369,7 @@ method _set ($self: $cmdname, $key, $val, int ?$exptime = 0) {
     if $:debug && $line {
         chop $line; chop $line;
         $line.substr(0, -2, ''); # XXX substr
-        $*ERR.say "Cache::Memcache: $cmdname $self->{namespace}$key = $val ($line)";
+        $*ERR.say("Cache::Memcache: $cmdname $self->{namespace}$key = $val ($line)");
     }
 
     if $.stat_callback {
@@ -437,7 +435,7 @@ method get_multi ($self: *@keys) {
 
     if $.debug {
         for %val.kv -> $k, $v {
-            $*ERR.say "MemCache: got $k = $v";
+            $*ERR.say("MemCache: got $k = $v");
         }
     }
     return \%val;
@@ -455,7 +453,7 @@ method _load_multi ($self: $sock_keys, $ret) {
     my %flags;   # flags per socket
 
     for $sock_keys.keys {
-        $*ERR.say "processing socket $_" if $.debug >= 2;
+        $*ERR.say("processing socket $_") if $.debug >= 2;
         $writing{$_} = 1;
         $buf{$_} = "get ". join(
                 " ", map { "$.namespace$_" } $sock_keys.{$_}.elems) . "\r\n";
@@ -464,7 +462,7 @@ method _load_multi ($self: $sock_keys, $ret) {
     my $active_changed = 1; # force rebuilding of select sets
 
     my $dead = sub ($sock) {
-        $*ERR.say "killing socket $sock" if $.debug >= 2;
+        $*ERR.say("killing socket $sock") if $.debug >= 2;
         delete $reading{$sock};
         delete $writing{$sock};
         delete $ret.{$key{$sock}}
@@ -635,7 +633,7 @@ method _load_multi ($self: $sock_keys, $ret) {
             for keys %reading -> {
                 vec($rin, $_.fileno, 1) = 1;
             }
-            foreach (keys %writing) {
+            for keys %writing -> {
                 vec($win, $_.fileno, 1) = 1;
             }
             $active_changed = 0;
