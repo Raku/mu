@@ -82,6 +82,10 @@ evaluate (Val val) = do
         "List"  -> VList (vCast val)
         "Array" -> VArray (vCast val)
         "Hash"  -> VHash (vCast val)
+        "Str"   -> VStr (vCast val)
+        "Num"   -> VNum (vCast val)
+        "Int"   -> VInt (vCast val)
+        "Bool"  -> VBool (vCast val)
         "Scalar"-> val
         _       -> val
 evaluate exp = do
@@ -362,7 +366,7 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         let [cxtExp, exp] = exps
         cxt     <- enterEvalContext "Str" cxtExp
         val     <- enterEvalContext (vCast cxt) exp
-        retVal val
+        enterEvalContext (vCast cxt) (Val val) -- force casting
     "[]" -> do
         let (listExp:rangeExp:errs) = exps
         list    <- enterEvalContext "List" listExp
