@@ -1,5 +1,5 @@
 {-# OPTIONS -fglasgow-exts -cpp -O #-}
-{-# INCLUDE "Linker.h" #-}
+{-# OPTIONS -#include "Linker.h" #-}
 
 module External.Haskell where
 import AST

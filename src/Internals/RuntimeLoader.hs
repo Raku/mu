@@ -1,6 +1,5 @@
 {-# OPTIONS -fglasgow-exts -O #-}
-{-# INCLUDE "Linker.h" #-}
-
+{-# OPTIONS -#include "Linker.h" #-}
 
 {-|
 

@@ -1,5 +1,5 @@
 {-# OPTIONS -fglasgow-exts -O #-}
-{-# INCLUDE "UnicodeC.h" #-}
+{-# OPTIONS -#include "UnicodeC.h" #-}
 
 {-
     Higher-level parser for building ASTs.
