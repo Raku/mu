@@ -38,7 +38,6 @@ examples/sendmoremoney.p6
 examples/shuffle.p6
 ext/Kwid/kwid
 ext/Kwid/lib/Kwid.pm
-ext/Kwid/Makefile.PL
 ext/Kwid/Makefile.PL.disabled
 ext/Kwid/src/Kwid/AST.hs
 ext/Kwid/src/Kwid/Compile.hs
