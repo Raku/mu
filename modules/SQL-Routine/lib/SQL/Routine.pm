@@ -3565,7 +3565,9 @@ method build_child_node_trees( $node: @list ) {
 
 =head1 SYNOPSIS
 
-These executable code examples show how to define some simple database tasks
+=head2 Perl Code That Builds A SQL::Routine Model
+
+This executable code example shows how to define some simple database tasks
 with SQL::Routine; it only shows a tiny fraction of what the module is capable
 of, since more advanced features are not shown for brevity.
 
@@ -3722,7 +3724,7 @@ of, since more advanced features are not shown for brevity.
 		my $rt_get_person = $application_bp.build_child_node_tree( 'routine', { 'si_name' => 'get_person', 
 				'routine_type' => 'FUNCTION', 'return_cont_type' => 'ROW', 'return_row_data_type' => 'person', }, [
 			[ 'routine_context', { 'si_name' => 'conn_cx', 'cont_type' => 'CONN', 'conn_link' => 'editor_link', }, ],
-			[ 'routine_arg', { 'si_name' => 'person_id', 'cont_type' => 'SCALAR', 'scalar_data_type' => 'entity_id', }, ],
+			[ 'routine_arg', { 'si_name' => 'arg_person_id', 'cont_type' => 'SCALAR', 'scalar_data_type' => 'entity_id', }, ],
 			[ 'routine_var', { 'si_name' => 'person_row', 'cont_type' => 'ROW', 'row_data_type' => 'person', }, ],
 			[ 'view', { 'si_name' => 'query_person', 'view_type' => 'JOINED', 'row_data_type' => 'person', 'set_p_routine_item' => 'person_row', }, [
 				[ 'view_src', { 'si_name' => 's', 'match' => $tb_person, }, [
@@ -3730,7 +3732,7 @@ of, since more advanced features are not shown for brevity.
 				], ],
 				[ 'view_expr', { 'view_part' => 'WHERE', 'cont_type' => 'SCALAR', 'valf_call_sroutine' => 'EQ', }, [
 					[ 'view_expr', { 'cont_type' => 'SCALAR', 'valf_src_field' => 'person_id', }, ],
-					[ 'view_expr', { 'cont_type' => 'SCALAR', 'valf_p_routine_item' => 'person_id', }, ],
+					[ 'view_expr', { 'cont_type' => 'SCALAR', 'valf_p_routine_item' => 'arg_person_id', }, ],
 				], ],
 			], ],
 			[ 'routine_stmt', { 'call_sroutine' => 'SELECT', }, [
@@ -3823,6 +3825,253 @@ of, since more advanced features are not shown for brevity.
 	}
 
 I<For some more (older) examples of SQL::Routine in use, see its test suite code.>
+
+=head2 An XML Representation of That Model
+
+This is the XML that the above get_all_properties_as_xml_str() prints out:
+
+	<?xml version="1.0" encoding="UTF-8"?>
+	<root>
+		<elements>
+			<scalar_data_type id="1" si_name="entity_id" base_type="NUM_INT" num_precision="9" />
+			<scalar_data_type id="2" si_name="alt_id" base_type="STR_CHAR" max_chars="20" char_enc="UTF8" />
+			<scalar_data_type id="3" si_name="person_name" base_type="STR_CHAR" max_chars="100" char_enc="UTF8" />
+			<scalar_data_type id="4" si_name="person_sex" base_type="STR_CHAR" max_chars="1" char_enc="UTF8">
+				<scalar_data_type_opt id="5" si_value="M" />
+				<scalar_data_type_opt id="6" si_value="F" />
+			</scalar_data_type>
+			<row_data_type id="7" si_name="person">
+				<row_data_type_field id="8" si_name="person_id" scalar_data_type="entity_id" />
+				<row_data_type_field id="9" si_name="alternate_id" scalar_data_type="alt_id" />
+				<row_data_type_field id="10" si_name="name" scalar_data_type="person_name" />
+				<row_data_type_field id="11" si_name="sex" scalar_data_type="person_sex" />
+				<row_data_type_field id="12" si_name="father_id" scalar_data_type="entity_id" />
+				<row_data_type_field id="13" si_name="mother_id" scalar_data_type="entity_id" />
+			</row_data_type>
+			<row_data_type id="14" si_name="person_with_parents">
+				<row_data_type_field id="15" si_name="self_id" scalar_data_type="entity_id" />
+				<row_data_type_field id="16" si_name="self_name" scalar_data_type="person_name" />
+				<row_data_type_field id="17" si_name="father_id" scalar_data_type="entity_id" />
+				<row_data_type_field id="18" si_name="father_name" scalar_data_type="person_name" />
+				<row_data_type_field id="19" si_name="mother_id" scalar_data_type="entity_id" />
+				<row_data_type_field id="20" si_name="mother_name" scalar_data_type="person_name" />
+			</row_data_type>
+			<scalar_data_type id="59" si_name="login_auth" base_type="STR_CHAR" max_chars="20" char_enc="UTF8" />
+		</elements>
+		<blueprints>
+			<catalog id="21" si_name="Gene Database">
+				<owner id="22" si_name="Lord of the Root" />
+				<schema id="23" si_name="Gene Schema" owner="Lord of the Root">
+					<table id="24" si_name="person" row_data_type="person">
+						<table_field id="25" si_row_field="person_id" mandatory="1" default_val="1" auto_inc="1" />
+						<table_field id="26" si_row_field="name" mandatory="1" />
+						<table_index id="27" si_name="primary" index_type="UNIQUE">
+							<table_index_field id="28" si_field="person_id" />
+						</table_index>
+						<table_index id="29" si_name="ak_alternate_id" index_type="UNIQUE">
+							<table_index_field id="30" si_field="alternate_id" />
+						</table_index>
+						<table_index id="31" si_name="fk_father" index_type="FOREIGN" f_table="person">
+							<table_index_field id="32" si_field="father_id" f_field="person_id" />
+						</table_index>
+						<table_index id="33" si_name="fk_mother" index_type="FOREIGN" f_table="person">
+							<table_index_field id="34" si_field="mother_id" f_field="person_id" />
+						</table_index>
+					</table>
+					<view id="35" si_name="person_with_parents" view_type="JOINED" row_data_type="person_with_parents">
+						<view_src id="36" si_name="self" match="person">
+							<view_src_field id="37" si_match_field="person_id" />
+							<view_src_field id="38" si_match_field="name" />
+							<view_src_field id="39" si_match_field="father_id" />
+							<view_src_field id="40" si_match_field="mother_id" />
+						</view_src>
+						<view_src id="41" si_name="father" match="person">
+							<view_src_field id="42" si_match_field="person_id" />
+							<view_src_field id="43" si_match_field="name" />
+						</view_src>
+						<view_src id="44" si_name="mother" match="person">
+							<view_src_field id="45" si_match_field="person_id" />
+							<view_src_field id="46" si_match_field="name" />
+						</view_src>
+						<view_field id="47" si_row_field="self_id" src_field="[person_id,self]" />
+						<view_field id="48" si_row_field="self_name" src_field="[name,self]" />
+						<view_field id="49" si_row_field="father_id" src_field="[person_id,father]" />
+						<view_field id="50" si_row_field="father_name" src_field="[name,father]" />
+						<view_field id="51" si_row_field="mother_id" src_field="[person_id,mother]" />
+						<view_field id="52" si_row_field="mother_name" src_field="[name,mother]" />
+						<view_join id="53" lhs_src="self" rhs_src="father" join_op="LEFT">
+							<view_join_field id="54" lhs_src_field="father_id" rhs_src_field="person_id" />
+						</view_join>
+						<view_join id="55" lhs_src="self" rhs_src="mother" join_op="LEFT">
+							<view_join_field id="56" lhs_src_field="mother_id" rhs_src_field="person_id" />
+						</view_join>
+					</view>
+				</schema>
+			</catalog>
+			<application id="57" si_name="Gene App">
+				<catalog_link id="58" si_name="editor_link" target="Gene Database" />
+				<routine id="60" si_name="fetch_pwp" routine_type="FUNCTION" return_cont_type="RW_ARY" return_row_data_type="person_with_parents">
+					<routine_arg id="61" si_name="login_name" cont_type="SCALAR" scalar_data_type="login_auth" />
+					<routine_arg id="62" si_name="login_pass" cont_type="SCALAR" scalar_data_type="login_auth" />
+					<routine_var id="63" si_name="conn_cx" cont_type="CONN" conn_link="editor_link" />
+					<routine_stmt id="64" call_sroutine="CATALOG_OPEN">
+						<routine_expr id="65" call_sroutine_cxt="CONN_CX" cont_type="CONN" valf_p_routine_item="conn_cx" />
+						<routine_expr id="66" call_sroutine_arg="LOGIN_NAME" cont_type="SCALAR" valf_p_routine_item="login_name" />
+						<routine_expr id="67" call_sroutine_arg="LOGIN_PASS" cont_type="SCALAR" valf_p_routine_item="login_pass" />
+					</routine_stmt>
+					<routine_var id="68" si_name="pwp_ary" cont_type="RW_ARY" row_data_type="person_with_parents" />
+					<view id="69" si_name="query_pwp" view_type="ALIAS" row_data_type="person_with_parents" set_p_routine_item="pwp_ary">
+						<view_src id="70" si_name="s" match="[person_with_parents,Gene Schema,Gene Database]" />
+					</view>
+					<routine_stmt id="71" call_sroutine="SELECT">
+						<routine_expr id="72" call_sroutine_cxt="CONN_CX" cont_type="CONN" valf_p_routine_item="conn_cx" />
+						<routine_expr id="73" call_sroutine_arg="SELECT_DEFN" cont_type="SRT_NODE" act_on="query_pwp" />
+					</routine_stmt>
+					<routine_stmt id="74" call_sroutine="CATALOG_CLOSE">
+						<routine_expr id="75" call_sroutine_cxt="CONN_CX" cont_type="CONN" valf_p_routine_item="conn_cx" />
+					</routine_stmt>
+					<routine_stmt id="76" call_sroutine="RETURN">
+						<routine_expr id="77" call_sroutine_arg="RETURN_VALUE" cont_type="RW_ARY" valf_p_routine_item="pwp_ary" />
+					</routine_stmt>
+				</routine>
+				<routine id="78" si_name="add_people" routine_type="PROCEDURE">
+					<routine_context id="79" si_name="conn_cx" cont_type="CONN" conn_link="editor_link" />
+					<routine_arg id="80" si_name="person_ary" cont_type="RW_ARY" row_data_type="person" />
+					<view id="81" si_name="insert_people" view_type="INSERT" row_data_type="person" ins_p_routine_item="person_ary">
+						<view_src id="82" si_name="s" match="[person,Gene Schema,Gene Database]" />
+					</view>
+					<routine_stmt id="83" call_sroutine="INSERT">
+						<routine_expr id="84" call_sroutine_cxt="CONN_CX" cont_type="CONN" valf_p_routine_item="conn_cx" />
+						<routine_expr id="85" call_sroutine_arg="INSERT_DEFN" cont_type="SRT_NODE" act_on="insert_people" />
+					</routine_stmt>
+				</routine>
+				<routine id="86" si_name="get_person" routine_type="FUNCTION" return_cont_type="ROW" return_row_data_type="person">
+					<routine_context id="87" si_name="conn_cx" cont_type="CONN" conn_link="editor_link" />
+					<routine_arg id="88" si_name="arg_person_id" cont_type="SCALAR" scalar_data_type="entity_id" />
+					<routine_var id="89" si_name="person_row" cont_type="ROW" row_data_type="person" />
+					<view id="90" si_name="query_person" view_type="JOINED" row_data_type="person" set_p_routine_item="person_row">
+						<view_src id="91" si_name="s" match="[person,Gene Schema,Gene Database]">
+							<view_src_field id="92" si_match_field="person_id" />
+						</view_src>
+						<view_expr id="93" view_part="WHERE" cont_type="SCALAR" valf_call_sroutine="EQ">
+							<view_expr id="94" cont_type="SCALAR" valf_src_field="[person_id,s]" />
+							<view_expr id="95" cont_type="SCALAR" valf_p_routine_item="arg_person_id" />
+						</view_expr>
+					</view>
+					<routine_stmt id="96" call_sroutine="SELECT">
+						<routine_expr id="97" call_sroutine_cxt="CONN_CX" cont_type="CONN" valf_p_routine_item="conn_cx" />
+						<routine_expr id="98" call_sroutine_arg="SELECT_DEFN" cont_type="SRT_NODE" act_on="query_person" />
+					</routine_stmt>
+					<routine_stmt id="99" call_sroutine="RETURN">
+						<routine_expr id="100" call_sroutine_arg="RETURN_VALUE" cont_type="ROW" valf_p_routine_item="person_row" />
+					</routine_stmt>
+				</routine>
+			</application>
+		</blueprints>
+		<tools>
+			<data_storage_product id="101" si_name="SQLite v3.2" product_code="SQLite_3_2" is_file_based="1" />
+			<data_storage_product id="102" si_name="MySQL v5.0" product_code="MySQL_5_0" is_network_svc="1" />
+			<data_storage_product id="103" si_name="PostgreSQL v8" product_code="PostgreSQL_8" is_network_svc="1" />
+			<data_storage_product id="104" si_name="Oracle v10g" product_code="Oracle_10_g" is_network_svc="1" />
+			<data_storage_product id="105" si_name="Sybase" product_code="Sybase" is_network_svc="1" />
+			<data_storage_product id="106" si_name="CSV" product_code="CSV" is_file_based="1" />
+			<data_link_product id="107" si_name="Microsoft ODBC v3" product_code="ODBC_3" />
+			<data_link_product id="108" si_name="Oracle OCI*8" product_code="OCI_8" />
+			<data_link_product id="109" si_name="Generic Rosetta Engine" product_code="Rosetta::Engine::Generic" />
+		</tools>
+		<sites>
+			<application_instance id="110" si_name="test app" blueprint="Gene App" />
+			<application_instance id="111" si_name="production app" blueprint="Gene App" />
+			<application_instance id="112" si_name="laptop demo app" blueprint="Gene App" />
+		</sites>
+		<circumventions />
+	</root>
+
+=head2 String SQL That Can Be Made From the Model
+
+This section has examples of string-SQL that can be generated from the above
+model.  The examples are conformant by default to the SQL:2003 standard flavor,
+but will vary from there to make illustration simpler; some examples may contain
+a hodge-podge of database vendor extensions and as a whole won't execute as is
+on some database products.
+
+These two examples for creating the same TABLE schema object, separated by a
+blank line, demonstrate SQL for a database that supports DOMAIN schema objects
+and SQL for a database that does not.  They both assume that uniqueness and
+foreign key constraints are only enforced on not-null values.
+
+	CREATE DOMAIN entity_id AS INTEGER(9);
+	CREATE DOMAIN alt_id AS VARCHAR(20);
+	CREATE DOMAIN person_name AS VARCHAR(100);
+	CREATE DOMAIN person_sex AS ENUM('M','F');
+	CREATE TABLE person (
+		person_id entity_id NOT NULL DEFAULT 1 AUTO_INCREMENT,
+		alternate_id alt_id NULL,
+		name person_name NOT NULL,
+		sex person_sex NULL,
+		father_id entity_id NULL,
+		mother_id entity_id NULL,
+		CONSTRAINT PRIMARY KEY (person_id),
+		CONSTRAINT UNIQUE (alternate_id),
+		CONSTRAINT fk_father FOREIGN KEY (father_id) REFERENCES person (person_id),
+		CONSTRAINT fk_mother FOREIGN KEY (mother_id) REFERENCES person (person_id)
+	);
+
+	CREATE TABLE person (
+		person_id INTEGER(9) NOT NULL DEFAULT 1 AUTO_INCREMENT,
+		alternate_id VARCHAR(20) NULL,
+		name VARCHAR(100) NOT NULL,
+		sex ENUM('M','F') NULL,
+		father_id INTEGER(9) NULL,
+		mother_id INTEGER(9) NULL,
+		CONSTRAINT PRIMARY KEY (person_id),
+		CONSTRAINT UNIQUE (alternate_id),
+		CONSTRAINT fk_father FOREIGN KEY (father_id) REFERENCES person (person_id),
+		CONSTRAINT fk_mother FOREIGN KEY (mother_id) REFERENCES person (person_id)
+	);
+
+This example is for creating the VIEW schema object:
+
+	CREATE VIEW person_with_parents AS
+	SELECT self.person_id AS self_id, self.name AS self_name,
+		father.person_id AS father_id, father.name AS father_name,
+		mother.person_id AS mother_id, mother.name AS mother_name
+	FROM person AS self
+		LEFT OUTER JOIN person AS father ON father.person_id = self.father_id
+		LEFT OUTER JOIN person AS mother ON mother.person_id = self.father_id;
+
+If the 'get_person' routine were implemented as a database schema object, this 
+is what it might look like:
+
+	CREATE FUNCTION get_person (arg_person_id INTEGER(9)) RETURNS ROW(...) AS
+	BEGIN
+		DECLARE person_row ROW(...);
+		SELECT * INTO person_row FROM person AS s WHERE s.person_id = arg_person_id;
+		RETURN person_row;
+	END;
+
+Then it could be invoked elsewhere like this:
+
+	my_rec = get_person( '3' );
+
+If the same routine were implemented as an application-side routine, then it 
+might look like this (not actual DBI syntax):
+
+	my $sth = $dbh.prepare( "SELECT * FROM person AS s WHERE s.person_id = :arg_person_id" );
+	$sth.bind_param( 'arg_person_id', 'INTEGER(9)' );
+	$sth.execute( { 'arg_person_id' => '3' } );
+	my $my_rec = $sth.fetchrow_hashref();
+
+And finally, corresponding DROP statements can be made for any of the above
+database schema objects:
+
+	DROP DOMAIN entity_id;
+	DROP DOMAIN alt_id;
+	DROP DOMAIN person_name;
+	DROP DOMAIN person_sex;
+	DROP TABLE person;
+	DROP VIEW person_with_parents;
+	DROP FUNCTION get_person;
 
 =head1 DESCRIPTION
 
