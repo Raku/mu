@@ -587,7 +587,6 @@ parseLit = choice
     , namedLiteral "NaN"    (VNum $ 0/0)
     , namedLiteral "Inf"    (VNum $ 1/0)
     , dotdotdotLiteral
-    , angleLiteral
     , qqLiteral
     , qwLiteral
     ]
@@ -598,12 +597,6 @@ undefLiteral = try $ do
     return $ if null (invs ++ args)
         then Val VUndef
         else App "&prefix:undef" invs args    
-
-angleLiteral = try $ do
-    exp <- angles $ option Nothing $ return . Just =<< parseTerm
-    return $ case exp of
-        Nothing  -> App "&prefix:<>" [] []
-        Just exp -> App "&prefix:<>" [] [exp]
 
 numLiteral = do
     n <- naturalOrRat  
@@ -628,10 +621,17 @@ pairLiteral = do
     val <- parseTerm
     return $ Syn "=>" [Val (VStr key), val]
 
+qqInterpolator = do
+    var <- parseVar
+    return var
+
 qqLiteral = try $ do
     string "qq"
-    str <- balanced
-    return $ Val (VStr str) 
+    notFollowedBy alphaNum
+    ch <- anyChar
+    expr <- interpolatingStringLiteral (balancedDelim ch) qqInterpolator
+    ch <- char (balancedDelim ch)
+    return expr
 
 qwLiteral = try $ do
     str <- qwText

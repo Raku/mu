@@ -72,6 +72,7 @@ data TokenParser st
                  , brackets         :: forall a. CharParser st a -> CharParser st a
                  -- "squares" is deprecated
                  , squares          :: forall a. CharParser st a -> CharParser st a 
+                 , balancedDelim    :: Char -> Char
                  , balanced         :: CharParser st String
 
                  , semi             :: CharParser st String
@@ -113,6 +114,7 @@ makeTokenParser languageDef
                  , angles = angles
                  , brackets = brackets
                  , squares = brackets
+                 , balancedDelim = balancedDelim
                  , balanced = balanced
                  , semi = semi
                  , comma = comma

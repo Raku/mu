@@ -56,6 +56,7 @@ braces     = P.braces perl6Lexer
 brackets   = P.brackets perl6Lexer
 angles     = P.angles perl6Lexer
 balanced   = P.balanced perl6Lexer
+balancedDelim = P.balancedDelim perl6Lexer
 
 symbol s
     | isWordAny (last s) = try $ do
@@ -79,6 +80,29 @@ stringLiteral = choice
     [ P.stringLiteral  perl6Lexer
     , singleQuoted
     ]
+
+interpolatingStringLiteral endchar interpolator = do
+        list <- stringList
+        return (App "&prefix:~" [homogenConcat list] [])
+    where
+        homogenConcat :: [Exp] -> Exp
+        homogenConcat []             = Val (VStr "")
+        homogenConcat [x]            = x
+        homogenConcat ((Val (VStr x)):(Val (VStr y)):xs) = homogenConcat (Val (VStr (x ++ y)) : xs)
+        homogenConcat (x:y:xs)       = homogenConcat (App "&infix:~" [x, y] [] : xs)
+        
+        stringList = do
+            lookAhead (char endchar)
+            return []
+          <|> do
+            parse <- interpolator
+            rest  <- stringList
+            return (parse:rest)
+          <|> do
+            char <- anyChar
+            rest <- stringList
+            return (Val (VStr [char]):rest)
+        
 
 naturalOrRat  = do
         b <- lexeme sign
