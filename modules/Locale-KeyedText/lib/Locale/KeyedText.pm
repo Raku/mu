@@ -47,9 +47,7 @@ practical way of suggesting improvements to the standard version.
 ######################################################################
 
 subtype KeyName of Str where { .defined and m/^\w+$/ }
-subtype KeyNameHash of Hash is shape(KeyName) of Str; # keys are of type KeyName, values of type Str
 subtype PkgName of Str where { .defined and m/^<[a-zA-Z0-9_:]>+$/ }
-subtype PkgNameArray of Array of PkgName;
 
 ######################################################################
 ######################################################################
@@ -58,11 +56,11 @@ module Locale::KeyedText-0.0.2 {
 
 ######################################################################
 
-sub new_message( $msg_key is KeyName, ?%msg_vars is KeyNameHash ) returns Locale::KeyedText::Message {
+sub new_message( KeyName $msg_key, Str ?%msg_vars is shape(KeyName) ) returns Locale::KeyedText::Message {
 	return Locale::KeyedText::Message.new( $msg_key, %msg_vars );
 }
 
-sub new_translator( @set_names is PkgNameArray, @member_names is PkgNameArray ) returns Locale::KeyedText::Translator {
+sub new_translator( PkgName @set_names, PkgName @member_names ) returns Locale::KeyedText::Translator {
 	return Locale::KeyedText::Translator.new( @set_names, @member_names );
 }
 
@@ -75,12 +73,12 @@ sub new_translator( @set_names is PkgNameArray, @member_names is PkgNameArray ) 
 
 class Locale::KeyedText::Message {
 	trusts Locale::KeyedText::Translator;
-	has $:msg_key is KeyName; # str - the machine-readable key that uniquely identifies this message
-	has %:msg_vars is KeyNameHash; # hash (str,str) - named variables for messages, if any, go here
+	has KeyName $:msg_key; # str - the machine-readable key that uniquely identifies this message
+	has Str %:msg_vars is shape(KeyName); # hash (str,str) - named variables for messages, if any, go here
 
 ######################################################################
 
-method new( $class: $msg_key is KeyName, ?%msg_vars is KeyNameHash ) returns Locale::KeyedText::Message {
+method new( $class: KeyName $msg_key, Str ?%msg_vars is shape(KeyName) ) returns Locale::KeyedText::Message {
 	return $class.bless( { msg_key => $msg_key, msg_vars => %msg_vars } );
 }
 
@@ -90,12 +88,12 @@ method get_message_key( $message: ) returns KeyName {
 	return $message.:msg_key;
 }
 
-method get_message_variable( $message: $var_name is KeyName ) returns KeyName {
+method get_message_variable( $message: KeyName $var_name ) returns KeyName {
 	return $message.:msg_vars{$var_name};
 }
 
-method get_message_variables( $message: ) returns KeyNameHash {
-	return $message.:msg_vars{}; # copy list values
+method get_message_variables( $message: ) returns Hash is shape(KeyName) of Str {
+	return {$message.:msg_vars{}}; # copy list values; make new hash-ref out of flattened hash
 }
 
 ######################################################################
@@ -115,23 +113,23 @@ method as_string( $message: ) returns Str {
 ######################################################################
 
 class Locale::KeyedText::Translator {
-	has @:tmpl_set_nms is PkgNameArray; # array of str - list of Template module Set Names to search
-	has @:tmpl_mem_nms is PkgNameArray; # array of str - list of Template module Member Names to search
+	has PkgName @:tmpl_set_nms; # array of str - list of Template module Set Names to search
+	has PkgName @:tmpl_mem_nms; # array of str - list of Template module Member Names to search
 
 ######################################################################
 
-method new( $class: @set_names is PkgNameArray, @member_names is PkgNameArray ) returns Locale::KeyedText::Translator {
+method new( $class: PkgName @set_names, PkgName @member_names ) returns Locale::KeyedText::Translator {
 	return $class.bless( { tmpl_set_nms => @set_names, tmpl_mem_nms => @member_names };
 }
 
 ######################################################################
 
-method get_template_set_names( $translator: ) returns PkgNameArray {
-	return $translator.:tmpl_set_nms[]; # copy list values
+method get_template_set_names( $translator: ) returns Array of PkgName {
+	return [$translator.:tmpl_set_nms[]]; # copy list values; make new array-ref out of flattened array
 }
 
-method get_template_member_names( $translator: ) returns PkgNameArray {
-	return $translator.:tmpl_mem_nms[]; # copy list values
+method get_template_member_names( $translator: ) returns Array of PkgName {
+	return [$translator.:tmpl_mem_nms[]]; # copy list values; make new array-ref out of flattened array
 }
 
 ######################################################################
