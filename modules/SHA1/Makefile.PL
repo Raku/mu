@@ -1,5 +1,5 @@
 use strict;
-use Pugs::MakeMaker;
+use Perl6::MakeMaker;
 
 WriteMakefile(
     NAME    => 'SHA1',

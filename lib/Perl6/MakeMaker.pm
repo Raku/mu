@@ -1,4 +1,4 @@
-package Pugs::MakeMaker;
+package Perl6::MakeMaker;
 use strict;
 use warnings;
 our $VERSION = '0.01';

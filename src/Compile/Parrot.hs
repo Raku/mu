@@ -1,4 +1,4 @@
-{-# OPTIONS -cpp -fglasgow-exts -fth #-}
+{-# OPTIONS_GHC -fglasgow-exts #-}
 
 module Compile.Parrot where
 import Internals
@@ -33,7 +33,7 @@ varInit ('@':_) = text $ "PerlArray"
 varInit ('%':_) = text $ "PerlHash"
 varInit x       = error $ "invalid name: " ++ x
 
-instance Compile Symbol where
+instance Compile (Symbol a) where
     compile (SymExp _ name exp) = vcat $
         [ text ".local" <+> text "pmc" <+> varText name
         , varText name <+> text "=" <+> text "new" <+> varInit name

@@ -1,5 +1,5 @@
-{-# OPTIONS -fglasgow-exts -O #-}
-{-# OPTIONS -#include "UnicodeC.h" #-}
+{-# OPTIONS_GHC -fglasgow-exts -O #-}
+{-# OPTIONS_GHC -#include "UnicodeC.h" #-}
 
 {-
     Lexical analyzer.

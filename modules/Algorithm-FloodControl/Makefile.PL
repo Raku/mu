@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Pugs::MakeMaker;
+use Perl6::MakeMaker;
 
 WriteMakefile(
     NAME    => "Algorithm::FloodControl",

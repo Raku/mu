@@ -1,4 +1,4 @@
-{-# OPTIONS -fglasgow-exts #-}
+{-# OPTIONS_GHC -fglasgow-exts #-}
 
 {-
     Evaluation and reduction engine.
@@ -103,7 +103,7 @@ evaluate exp = do
         VError s e  -> retError s e
         _           -> return val
 
-evalSym :: Symbol -> Eval (String, Val)
+evalSym :: Symbol a -> Eval (String, Val)
 evalSym (SymVal _ name val) =
     return (name, val)
 evalSym (SymExp _ name vexp) = do
@@ -146,14 +146,13 @@ reduceStatements ((exp, pos):rest)
         reduceStatements rest v
     | Sym ((SymExp scope name vexp):other) <- exp = \v -> do
         val <- enterLValue $ enterEvalContext (cxtOfSigil $ head name) vexp
-        reduceStatements ((Sym (SymVal scope name val:other), pos):rest) v
-    | Sym (sym@(SymVal scope _ val):other) <- exp
-    , scope == SOur || scope == SGlobal = \_ -> do
-        addGlobalSym sym
-        reduceStatements ((Sym other, pos):rest) (Val val)
-    | Sym (sym@(SymVal SMy _ val):other) <- exp = \_ -> do
-        enterLex [ sym ] $ do
-            reduceStatements ((Sym other, pos):rest) (Val val)
+        let doRest = reduceStatements ((Sym other, pos):rest) v
+            sym = SymVal scope name val
+        case scope of
+            SMy -> enterLex [ sym ] doRest
+            _   -> do
+                addGlobalSym sym
+                doRest
     | Syn syn [Var name, vexp] <- exp
     , (syn == ":=" || syn == "::=") = \_ -> do
         env <- ask

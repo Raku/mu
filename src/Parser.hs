@@ -1,5 +1,5 @@
-{-# OPTIONS -fglasgow-exts -O #-}
-{-# OPTIONS -#include "UnicodeC.h" #-}
+{-# OPTIONS_GHC -fglasgow-exts -O #-}
+{-# OPTIONS_GHC -#include "UnicodeC.h" #-}
 
 {-
     Higher-level parser for building ASTs.
@@ -191,12 +191,17 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
     -- XXX: user-defined infix operator
     return $ Sym [SymExp scope name $ Syn "sub" [subExp]]
 
+subNameWithPrefix prefix = (<?> "subroutine name") $ lexeme $ try $ do
+    star    <- option "" $ string "*"
+    c       <- wordAlpha
+    cs      <- many wordAny
+    return $ "&" ++ star ++ prefix ++ (c:cs)
+
 ruleSubName = rule "subroutine name" $ do
     star    <- option "" $ string "*"
     fixity  <- option "" $ choice (map (try . string) $ words fixities)
-    c       <- wordAlpha
-    cs      <- many wordAny
-    return $ "&" ++ star ++ fixity ++ (c:cs)
+    names   <- identifier `sepBy1` (try $ string "::")
+    return $ "&" ++ star ++ fixity ++ concat (intersperse "::" names)
     where
     fixities = " prefix: postfix: infix: circumfix: "
 
@@ -579,7 +584,7 @@ currentFunctions = do
 currentUnaryFunctions = do
     funs <- currentFunctions
     return $ unwords [
-        encodeUTF8 name | f@SymVal{ symVal = VSub sub } <- funs
+        encodeUTF8 name | f@(SymVal _ _ (VSub sub)) <- funs
         , subAssoc sub == "pre"
         , length (subParams sub) == 1
         , isNothing $ find isSlurpy $ subParams sub
@@ -671,7 +676,7 @@ rulePostTerm = tryRule "term postfix" $ do
 
 ruleInvocation = tryVerbatimRule "invocation" $ do
     hasEqual <- option False $ do char '='; whiteSpace; return True
-    name            <- subNameWithPrefix ""
+    name            <- ruleSubName
     (invs,args)     <- option ([],[]) $ parseParenParamList ruleExpression
     return $ \x -> if hasEqual
         then Syn "=" [x, App name (x:invs) args]
@@ -679,7 +684,7 @@ ruleInvocation = tryVerbatimRule "invocation" $ do
 
 ruleInvocationParens = do
     hasEqual <- option False $ do char '='; whiteSpace; return True
-    name            <- subNameWithPrefix ""
+    name            <- ruleSubName
     (invs,args)     <- parens $ parseNoParenParamList ruleExpression
     -- XXX we just append the adverbial block onto the end of the arg list
     -- it really goes into the *& slot if there is one. -lp
@@ -708,14 +713,8 @@ ruleCodeSubscript = tryRule "code subscript" $ do
     (invs,args) <- parens $ parseParamList ruleExpression
     return $ \x -> Syn "()" [x, Syn "invs" invs, Syn "args" args]
 
-subNameWithPrefix prefix = (<?> "subroutine name") $ lexeme $ try $ do
-    star    <- option "" $ string "*"
-    c       <- wordAlpha
-    cs      <- many wordAny
-    return $ "&" ++ star ++ prefix ++ (c:cs)
-
 parseApply = lexeme $ do
-    name            <- subNameWithPrefix ""
+    name            <- ruleSubName
     option ' ' $ char '.'
     (invs,args)   <- parseParamList ruleExpression
     return $ App name invs args

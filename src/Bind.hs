@@ -1,4 +1,4 @@
-{-# OPTIONS -fglasgow-exts #-}
+{-# OPTIONS_GHC -fglasgow-exts #-}
 
 {-
     Parameter binding.

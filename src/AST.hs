@@ -1,4 +1,4 @@
-{-# OPTIONS -fglasgow-exts -fno-warn-orphans #-}
+{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans #-}
 
 {-
     Abstract syntax tree.
@@ -243,6 +243,11 @@ instance Value VHandle where
     doCast (VHandle x) = x
     doCast x            = error $ "cannot cast into a handle: " ++ show x
 
+instance Value VSocket where
+    castV = VSocket
+    doCast (VSocket x) = x
+    doCast x            = error $ "cannot cast into a handle: " ++ show x
+
 instance Value (Maybe a) where
     vCast VUndef        = Nothing
     vCast _             = Just undefined
@@ -299,6 +304,7 @@ type VStr  = String
 type VList = [Val]
 type VSubst = (VRule, Exp)
 type VHandle = Handle
+type VSocket = Socket
 type MVal = IORef Val
 newtype VArray = MkArray [Val] deriving (Show, Eq, Ord)
 newtype VHash  = MkHash (Map VStr Val) deriving (Show, Eq, Ord)
@@ -329,6 +335,7 @@ data Val
     | VJunc     VJunc
     | VError    VStr Exp
     | VHandle   VHandle
+    | VSocket   VSocket
     | VRule     VRule
     | VSubst    VSubst
     | MVal      MVal
@@ -354,6 +361,7 @@ valType (VBlock   _)    = "Block"
 valType (VJunc    _)    = "Junc"
 valType (VError _ _)    = "Error"
 valType (VHandle  _)    = "Handle"
+valType (VSocket  _)    = "Socket"
 valType (MVal     _)    = "Var"
 valType (VControl _)    = "Control"
 valType (VThunk   _)    = "Thunk"
@@ -429,6 +437,8 @@ instance Show (IORef Pad) where
     show _ = "<pad>"
 instance Ord VHandle where
     compare x y = compare (show x) (show y)
+instance Ord VSocket where
+    compare x y = compare (show x) (show y)
 
 type Var = String
 -- type MVal = IORef Val
@@ -436,7 +446,7 @@ type Var = String
 data Exp
     = App String [Exp] [Exp]
     | Syn String [Exp]
-    | Sym [Symbol]
+    | Sym [Symbol Exp]
     | Prim ([Val] -> Eval Val)
     | Val Val
     | Var Var
@@ -536,17 +546,29 @@ data Env = Env { envContext :: Cxt
                , envDebug   :: Maybe (IORef (Map String String))
                } deriving (Show, Eq)
 
-type Pad = [Symbol]
-data Symbol
-    = SymVal { symScope :: Scope
-             , symName  :: String
-             , symVal   :: Val
-             }
-    | SymExp { symScope :: Scope
-             , symName  :: String
-             , symExp   :: Exp
-             }
-    deriving (Show, Eq, Ord)
+type Pad = [Symbol Val]
+data Symbol a where
+    SymVal :: Scope -> String -> Val -> Symbol Val
+    SymExp :: Scope -> String -> Exp -> Symbol Exp
+
+instance Show (Symbol a) where
+    show (SymVal s n v) = unwords [ "SymVal", show s, show n, show v ]
+    show (SymExp s n e) = unwords [ "SymExp", show s, show n, show e ]
+
+instance Eq (Symbol a) where
+    x == y = (show x) == (show y)
+
+instance Ord (Symbol a) where
+    compare x y = compare (show x) (show y)
+
+symScope (SymVal s _ _) = s
+symScope (SymExp s _ _) = s
+symName (SymVal _ n _) = n
+symName (SymExp _ n _) = n
+symVal (SymVal _ _ v) = v
+symVal _ = error "Cannot cast SymVal to SymExp"
+symExp (SymExp _ _ e) = e
+symExp _ = error "Cannot cast SymExp to SymVal"
 
 data Scope = SGlobal | SMy | SOur | SLet | STemp | SState
     deriving (Show, Eq, Ord, Read, Enum)
@@ -575,7 +597,7 @@ askGlobal = do
 readVar name = do
     glob <- askGlobal
     case find ((== name) . symName) glob of
-        Just SymVal{ symVal = ref } -> readMVal ref
+        Just ref -> readMVal $ symVal ref
         _ -> return VUndef
 
 emptyExp = App "&not" [] []

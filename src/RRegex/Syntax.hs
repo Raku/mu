@@ -1,4 +1,4 @@
-{-# OPTIONS -cpp -fglasgow-exts  #-}
+{-# OPTIONS_GHC -cpp -fglasgow-exts  #-}
 
 -- arch-tag: 1498020a-9de2-44e3-ae69-14bb1febb77e
 

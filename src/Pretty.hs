@@ -1,4 +1,4 @@
-{-# OPTIONS -fglasgow-exts #-}
+{-# OPTIONS_GHC -fglasgow-exts #-}
 
 {-
     Pretty printing for various data structures.
@@ -37,10 +37,10 @@ instance Pretty Exp where
     format (Sym syms) = text "Sym" <+> format syms
     format x = text $ show x
 
-instance Pretty [Symbol] where
+instance Pretty [Symbol a] where
     format syms = cat $ map format syms
 
-instance Pretty Symbol where
+instance Pretty (Symbol a) where
     format (SymVal scope name val) = text (show scope) <+> format name <+> text ":=" <+> (nest defaultIndent $ format val)
     format (SymExp scope name exp) = text (show scope) <+> format name <+> text ":=" <+> (nest defaultIndent $ format exp)
 
@@ -94,6 +94,7 @@ instance Pretty Val where
     format (VHash (MkHash x)) = braces $ (joinList $ text ", ") $
         [ format (VStr k, v) | (k, v) <- Map.toList x ]
     format (VHandle x) = text $ show x
+    format (VSocket x) = text $ show x
     format (MVal v) = text $ unsafePerformIO $ do
         val <- readIORef v
         return $ pretty val

@@ -1,7 +1,17 @@
-{-# OPTIONS -fglasgow-exts -fth -cpp -O #-}
+{-# OPTIONS_GHC -fglasgow-exts -fth -cpp #-}
 
 module External.Haskell where
 import AST
+
+#undef PUGS_HAVE_TH
+#include "pugs_config.h"
+#ifndef PUGS_HAVE_TH
+externalizeHaskell :: String -> String -> IO String
+externalizeHaskell  = error "Template Haskell support not compiled in"
+loadHaskell :: FilePath -> IO [(String, [Val] -> Eval Val)]
+loadHaskell         = error "Template Haskell support not compiled in"
+#else
+
 import Internals
 import Language.Haskell.TH as TH
 import Language.Haskell.Parser
@@ -56,3 +66,5 @@ wrap fun = do
 
 munge (ValD _ x y) name = ValD (VarP (mkName name)) x y
 munge _ _ = error "impossible"
+
+#endif

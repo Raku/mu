@@ -17,7 +17,8 @@ sub copy_all {
     mkpath($dest);
     local *DIR;
     opendir(DIR, $src) or die $!;
-    while ($node = readdir(DIR)) {
+    my @nodes = readdir(DIR);
+    foreach my $node (sort @nodes) {
         next if $node =~ /^(\.|\.\.|\.svn)$/;
         my $src_path = "$src/$node";
         my $dest_path = "$dest/$node";

@@ -2,7 +2,7 @@
 #!pugs
 use v6;
 
-require Pugs::MakeMaker;
+require Perl6::MakeMaker;
 
 WriteMakefile(
 	'NAME' => 'Set',

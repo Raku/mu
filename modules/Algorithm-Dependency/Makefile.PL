@@ -2,7 +2,7 @@
 
 use 5.008001; use utf8; use strict; use warnings;
 
-use Pugs::MakeMaker;
+use Perl6::MakeMaker;
 
 WriteMakefile(
 	'NAME'         => 'Algorithm::Dependency',

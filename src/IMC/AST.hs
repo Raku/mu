@@ -1,4 +1,4 @@
-{-# OPTIONS -fglasgow-exts -fth #-}
+{-# OPTIONS_GHC -fglasgow-exts -fth #-}
 
 module IMC.AST where
 import Language.Haskell.TH

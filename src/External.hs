@@ -1,4 +1,4 @@
-{-# OPTIONS -fglasgow-exts -cpp #-}
+{-# OPTIONS_GHC -fglasgow-exts -cpp #-}
 
 {-
     External call utilities.
@@ -12,7 +12,6 @@
 module External where
 import AST
 import Internals
---import External.C
 import External.Haskell (externalizeHaskell, loadHaskell)
 
 externalize :: String -> Exp -> IO String

@@ -1,4 +1,4 @@
-{-# OPTIONS -cpp -fglasgow-exts #-}
+{-# OPTIONS_GHC -cpp -fglasgow-exts #-}
 
 module Compile.Parrot where
 

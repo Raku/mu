@@ -2,6 +2,7 @@
 use strict;
 use warnings;
 use Cwd;
+use File::Spec;
 
 my $base = shift || Cwd::cwd();
 
@@ -65,4 +66,40 @@ else {
 
 .
 }
+
+my $temp = File::Spec->catfile(File::Spec->tmpdir, "pugs-tmp-$$");
+
+eval {
+    open TMP, "> $temp.hs";
+    print TMP << '.';
+{-# OPTIONS_GHC -fth #-}
+main = $([| return () |])
+.
+        
+    system(
+        ($ENV{GHC} || 'ghc'),
+        "--make", "-v0",
+        -o => "$temp.exe",
+        "$temp.hs"
+    );
+    
+};
+
+my $has_th = -e "$temp.exe";
+unlink("$temp.exe");
+
+if ($has_th) {
+    print OUT "#define PUGS_HAVE_TH 1\n";
+}
+else {
+    print OUT "#undef PUGS_HAVE_TH\n";
+    warn << '.';
+
+*** Template Haskell compiler backends disabled.  If you want
+    Template Haskell support, please compile your GHC with the
+    GHCi option.
+
+.
+}
+
 close OUT;

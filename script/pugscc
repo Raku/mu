@@ -7,7 +7,7 @@ use FindBin;
 use File::Copy;
 use File::Basename;
 
-if (!@ARGV || grep {$_ eq '--help'} @ARGV) {
+if (!@ARGV || grep /^--help$/, @ARGV) {
     die "Usage: $0 [--run] [--pugs|--haskell|--parrot] [ source[.p6] | -e oneliner ]\n";
 }
 
@@ -44,14 +44,8 @@ print "*** Using the '$backend' backend.\n" if !$run;
 my $ghc_exe = $ENV{GHC} || 'ghc';
 my $ghc_version = ghc_version();
 my $base = cwd();
-if ($backend != 'Parrot' and !-e "src/Main.hs") {
-    $base = "$FindBin::Bin/..";
-    if (!-e "$base/src/Main.hs") {
-	die "$0: This script must be invoked in the Pugs source tree directory."
-    }
-}
 
-$ENV{PATH} = $base . $Config{path_sep} . $ENV{PATH};
+$ENV{PATH} = join $Config{path_sep}, ($base, $ENV{PATH});
 
 my $out = 'a';
 if (@ARGV and -e $ARGV[0]) {
@@ -75,12 +69,16 @@ if ($backend eq 'Parrot') {
     chmod 0755, $out;
 }
 else {
-    rename "dump.ast" => "$base/src/MainCC.hs";
+    rename "dump.ast" => "$base/MainCC.hs";
+
+    my $archlib = `pugs -V:archlib`;
+    $archlib =~ /archlib:\s*(.+)/ or die "Cannot find archlib";
+    my $core = "$1/CORE/pugs";
 
     my @ghc_flags = (
-        "-L$base", "-L$base/src", "-L$base/src/pcre",
-        "-I$base", "-I$base/src", "-I$base/src/pcre",
-        "-i$base", "-i$base/src", "-i$base/src/pcre",
+        "-L$base", "-L$core", "-L$core/pcre",
+        "-I$base", "-I$core", "-I$core/pcre",
+        "-i$base", "-i$core", "-i$core/pcre",
         qw(-static -Wall -fno-warn-unused-imports -fno-warn-unused-binds -fno-warn-missing-signatures -fno-warn-name-shadowing),
     );
 
@@ -88,15 +86,20 @@ else {
         push @ghc_flags, ("-I$Config{archlib}/CORE", "-L$Config{archlib}/CORE", "-i$Config{archlib}/CORE", "-lperl");
     }
 
-    if ($ghc_version ge '6.4') {
-        push @ghc_flags, qw(-fno-warn-deprecations -fno-warn-orphans);
-    }
+    push @ghc_flags, "$core/pcre/pcre.o";
+    push @ghc_flags, "$core/UnicodeC.o";
 
-    push @ghc_flags, "$base/src/pcre/pcre.o";
-    push @ghc_flags, "$base/src/UnicodeC.o";
+    my $rv = system(
+        $ghc_exe,
+        "-v0", "-o", $out, "--make", "-main-is", "MainCC.mainCC",
+        @ghc_flags, "$base/MainCC.hs"
+    );
 
-    (system($ghc_exe, "-v0", "-o", $out, "--make", "-main-is", "MainCC.mainCC", @ghc_flags, "$base/src/MainCC.hs") == 0) or die $!;
-    unlink "$base/src/MainCC.hs";
+    my $err = $!;
+    unlink "$base/MainCC.hs";
+    unlink "$base/MainCC.hi";
+    unlink "$base/MainCC.o";
+    (($rv == 0) and -e $out) or die $err;
 }
 
 die unless -e $out;

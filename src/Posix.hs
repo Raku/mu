@@ -1,4 +1,4 @@
-{-# OPTIONS -fglasgow-exts -cpp #-}
+{-# OPTIONS_GHC -fglasgow-exts -cpp #-}
 
 {-
     POSIX calls and emulations.

@@ -1,4 +1,4 @@
-{-# OPTIONS -fglasgow-exts -cpp -O #-}
+{-# OPTIONS_GHC -fglasgow-exts -cpp -O #-}
 
 module External.C where
 import Internals

@@ -1,4 +1,4 @@
-{-# OPTIONS -fglasgow-exts #-}
+{-# OPTIONS_GHC -fglasgow-exts #-}
 
 {-
     Runtime engine.
@@ -23,7 +23,7 @@ runWithArgs f = do
     f $ canonicalArgs args
 
 runEval :: Env -> Eval Val -> IO Val
-runEval env eval = do
+runEval env eval = withSocketsDo $ do
     my_perl <- initPerl5 ""
     val <- (`runReaderT` env) $ do
         (`runContT` return) $

@@ -1,4 +1,4 @@
-{-# OPTIONS -fglasgow-exts #-}
+{-# OPTIONS_GHC -fglasgow-exts #-}
 
 {-
     Context propagators and equalizers.
@@ -85,6 +85,7 @@ initTree = Node "Any"
             , Node "Ref" []
             , Node "Pair" []
             , Node "IO" []
+            , Node "Socket" []
             , Node "Code"
                 [ Node "Routine"
                     [ Node "Sub"

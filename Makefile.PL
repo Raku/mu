@@ -71,25 +71,25 @@ $version_h : .svn/entries util/version_h.pl
 	\$(NOOP)
 
 $pcre : $pcre_c
-	$ghc -no-link -no-hs-main -O -o $pcre $pcre_c
+	$ghc -threaded -no-link -no-hs-main -O -o $pcre $pcre_c
 
 $unicode : $unicode_c
-	$ghc -no-link -no-hs-main -O -o $unicode $unicode_c
+	$ghc -threaded -no-link -no-hs-main -O -o $unicode $unicode_c
 
 src/Config.hs : util/PugsConfig.pm
 	\$(PERL) -Iutil -MPugsConfig -e "PugsConfig->write_config_module" > src/Config.hs
 
 profiled :: src/Config.hs @srcfiles $version_h @prereqs
-	$ghc -auto-all -prof --make $ghc_flags $ghc_output
+	$ghc -threaded -auto-all -prof --make $ghc_flags $ghc_output
 
 optimized :: src/Config.hs @srcfiles $version_h @prereqs
-	$ghc -O2 --make $ghc_flags $ghc_output
+	$ghc -threaded -O2 --make $ghc_flags $ghc_output
 
 $pugs : src/Config.hs @srcfiles $version_h @prereqs
-	$ghc --make $ghc_flags $ghc_output
+	$ghc -threaded --make $ghc_flags $ghc_output
 
 ghci ::
-	$ghc --interactive $ghc_flags $ghc_output
+	$ghc -threaded --interactive $ghc_flags $ghc_output
 
 tags : @srcfiles
 	hasktags -c @srcfiles

@@ -1,4 +1,4 @@
-{-# OPTIONS -fglasgow-exts #-}
+{-# OPTIONS_GHC -fglasgow-exts #-}
 
 {-
     Compiler interface.
@@ -14,7 +14,7 @@ import Compile.Pugs (genPugs)
 import Compile.Parrot (genPIR)
 import Compile.Haskell (genGHC)
 
+compile "Haskell" = genGHC
 compile "Pugs" = genPugs
 compile "Parrot" = genPIR
-compile "Haskell" = genGHC
 compile s = \_ -> error $ "Cannot compile to " ++ s

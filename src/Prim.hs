@@ -1,4 +1,4 @@
-{-# OPTIONS -fglasgow-exts #-}
+{-# OPTIONS_GHC -fglasgow-exts #-}
 
 {-
     Primitive operators.
@@ -219,7 +219,29 @@ op1 "open" = \v -> do
     modeOf "+>" = ReadWriteMode
     modeOf m    = error $ "unknown mode: " ++ m
 op1 "system" = boolIO system
-op1 "close" = boolIO hClose
+op1 "accept" = \v -> do
+    socket      <- fromVal v
+    (h, _, _)   <- liftIO $ accept socket
+    return $ VHandle h
+op1 "threads::create" = \v -> do
+    env     <- ask
+    code    <- fromVal v
+    tid     <- liftIO . forkOS $ do
+        (`runReaderT` env) $ (`runContT` return) $ resetT $ do
+            evl <- asks envEval
+            local (\e -> e{ envContext = "Void" }) $ do
+                evl (Syn "()" [Val code, Syn "invs" [], Syn "args" []])
+        return ()
+    return . VInt . read . dropWhile (not . isDigit) $ show tid
+op1 "listen" = \v -> do
+    port    <- fromVal v
+    socket  <- liftIO $ listenOn (PortNumber $ fromInteger port)
+    return $ VSocket socket
+op1 "close" = \v -> do
+    val <- fromVal v
+    case val of
+        (VSocket _) -> boolIO sClose val
+        _           -> boolIO hClose val
 op1 "key" = return . fst . (vCast :: Val -> VPair)
 op1 "value" = return . snd . (vCast :: Val -> VPair)
 op1 "kv" = return . VList . concatMap (\(k, v) -> [k, v]) . vCast
@@ -677,7 +699,7 @@ op2Numeric f x y
         y' <- fromVal y
         return . VNum $ f x' y'
 
-primOp :: String -> String -> Params -> String -> Symbol
+primOp :: String -> String -> Params -> String -> Symbol Val
 primOp sym assoc prms ret = SymVal SOur name sub
     where
     name | isAlpha (head sym)
@@ -832,9 +854,12 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      pre     say     (IO: List)\
 \\n   Bool      pre     say     (List)\
 \\n   Bool      pre     close   (IO)\
+\\n   Bool      pre     close   (Socket)\
 \\n   Bool      pre     die     (List)\
 \\n   Any       pre     do      (Str)\
 \\n   IO        pre     open    (Str)\
+\\n   Socket    pre     listen  (Int)\
+\\n   Any       pre     accept  (Any)\
 \\n   List      pre     slurp   (Str)\
 \\n   Bool      pre     system  (Str)\
 \\n   Bool      pre     system  (Str: List)\
@@ -935,4 +960,5 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Str       pre     hex     (Str)\
 \\n   Str       pre     hex     (Int)\
 \\n   Any       list    ;       (Any)\
+\\n   Int       pre     threads::create (Code)\
 \\n"

@@ -1,4 +1,4 @@
-{-# OPTIONS -fglasgow-exts -fno-warn-orphans #-}
+{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans #-}
 
 {-
     Internal utilities and library imports.
@@ -36,6 +36,7 @@ module Internals (
     module System.Cmd,
     module Control.Monad.RWS,
     module Control.Monad.Error,
+    module Control.Concurrent,
     module Data.Array,
     module Data.Bits,
     module Data.List,
@@ -50,6 +51,7 @@ module Internals (
     module Data.Map,
     module Data.IORef,
     module Debug.Trace,
+    module Network,
     internalError,
     split,
     breakOnGlue,
@@ -67,6 +69,7 @@ import RRegex
 import RRegex.Syntax
 import Data.Dynamic
 import Data.Array (elems)
+import Network
 import System.Environment (getArgs, withArgs, getProgName)
 import System.Random hiding (split)
 import System.Exit
@@ -83,6 +86,7 @@ import System.Directory
 import Control.Exception (catchJust, errorCalls)
 import Control.Monad.RWS
 import Control.Monad.Error (MonadError(..))
+import Control.Concurrent
 import Data.Bits hiding (shift)
 import Data.Maybe
 import Data.Either

@@ -1,4 +1,4 @@
-{-# OPTIONS -fglasgow-exts -cpp -O #-}
+{-# OPTIONS_GHC -fglasgow-exts -cpp -O #-}
 
 #undef PUGS_EMBED_PERL5
 #include "../pugs_config.h"
