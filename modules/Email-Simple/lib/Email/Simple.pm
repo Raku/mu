@@ -7,12 +7,16 @@ class Email::Simple {
 
   my $GROUCHY = 0;
 
-  has $.head;
-  has $.body is rw;
-  has $:mycrlf;
-  has $:head_hash;
-  has $:header_names;
-  has $:order;
+  # { From => [<a@b.cd>], To => [<foo@bar baz@grtzbaka>]
+  has Hash of Array of Str $:head;
+  # "Hello, ..."
+  has Str $.body is rw;
+  # The \r\n/\n/\r/whatever of the mail.
+  has Str $:mycrlf;
+  # { from => "From", subject => "SubJEct" }
+  has %:header_names;
+  # [< Received From To Subject ...>]
+  has Array $:order;
 
 =head1 NAME
 
@@ -45,22 +49,25 @@ external dependencies, and correct.
     Can you sum up plan 9 in layman's terms?
     It does everything Unix does only less reliably - kt
 
+This port of C<Email::Simple> to Perl 6 used v1.92 as the starting point of
+porting.
+
 =head1 METHODS
 
 Methods are deliberately kept to a minimum. This is meant to be simple.
 No, I will not add method X. This is meant to be simple. Why doesn't it
 have feature Y? Because it's meant to be simple.
 
-=head2 new
+=head2 new(source => "...")
 
 Parse an email from a scalar containing an RFC2822 formatted message,
 and return an object.
 
 =cut
 
-method BUILD (Str $source) {
-  ($.head, $.body, $.mycrlf) = .:split_head_from_body($source);
-  ($:head_hash, $:order)     = .:read_headers($head);
+submethod BUILD(Str $source) {
+  (my $head, $.body, $.mycrlf) = .:split_head_from_body($source);
+  ($:head, $:order)            = .:read_headers($head);
   %:header_names = map:{ lc $^header => $^header } keys $.head_hash;
 }
 
@@ -91,9 +98,9 @@ method :read_headers(Str $head) {
   my @head_order;
   my ($curhead, $head_hash) = ("", {});
 
-  for split /$crlf/, $head {
-    if s/^\s+// or not /^([^:]+):\s*(.*)/ {
-      next if !$curhead; # Well, that sucks.
+  for split m/$crlf/, $head {
+    if s/^\s+// or not m/^([^:]+):\s*(.*)/ {
+      next unless $curhead; # Well, that sucks.
       # This is a continuation line. We fold it onto the end of
       # the previous header.
       chomp $head_hash{$curhead}[-1];
@@ -114,33 +121,33 @@ Returns or sets a list of the contents of the given header.
 
 =cut
 
-# XXX: Implement that proxy thing...
-#sub header(Str $field) is rw { %.header_names{lc $field} }
-#
-#sub header_set {
-#    my ($self, $field, @data) = @_;
-#    if ($GROUCHY) {
-#        croak "I am not going to break RFC2822 and neither are you"
-#            unless $field =~ /^[\x21-\x39\x3b-\x7e]+$/;
-#        carp "You're a miserable bastard but I'll let you off this time"
-#            unless $field =~ /^[\w-]+$/;
-#    }
-#
-#    if (!exists $self->{header_names}->{lc $field}) {
-#        $self->{header_names}->{lc $field} = $field;
-#        # New fields are added to the end.
-#        push @{$self->{order}}, $field;
-#    } else {
-#        $field = $self->{header_names}->{lc $field};
-#    }
-#
-#    $self->{head}->{$field} = [ @data ];
-#    return wantarray ? @data : $data[0];
-#}
+# Now that's nice! L<S06/"Lvalue subroutines"/"programmed FETCH and STORE methods:">
+method header($self: Str $field) is rw {
+  return new Proxy:
+    FETCH => { $:head{ %:header_names{lc $field} err return } },
+    STORE => { 
+      if ($GROUCHY) {
+	  die "I am not going to break RFC2822 and neither are you"
+	    unless $field ~~ /^<[\x21-\x39\x3b-\x7e]>+$/;
+	  die "You're a miserable bastard but I'll let you off this time"
+	    unless $field ~~ /^<[\w-]>+$/;
+      }
+
+      unless exists %:header_names{lc $field} {
+	%:header_names{lc $field} = $field;
+	# New fields are added to the end.
+	push $:order <== $field;
+      } else {
+	$field = %:header_names{lc $field};
+      }
+
+      $:head{$field} = [ @^data ];
+    };
+}
 
 =head2 body
 
-Returns the body text of the mail.
+Returns or sets the body text of the mail.
 
 =cut
 
@@ -166,7 +173,7 @@ method as_string { .:headers_as_string ~ $:mycrlf ~ $.body }
 
 method :headers_as_string {
   my @order = $.order;
-  my %head  = $:head_hash;
+  my %head  = $:head;
   my $stuff = "";
 
   while keys %head {
@@ -218,7 +225,7 @@ cannot expect it to cope well as the only parser between you and the
 outside world, say for example when writing a mail filter for
 invocation from a .forward file (for this we recommend you use
 L<Email::Filter> anyway).  For more information on this issue please
-consult RT issue 2478, http://rt.cpan.org/NoAuth/Bug.html?id=2478 .
+consult RT issue 2478, L<http://rt.cpan.org/NoAuth/Bug.html?id=2478>.
 
 =head1 COPYRIGHT AND LICENSE
 
