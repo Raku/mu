@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 4 Dec 2004
+  Last Modified: 29 Jan 2005
   Number: 2
-  Version: 5
+  Version: 6
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -38,11 +38,48 @@ Perl can count Unicode line and paragraph separators as line markers,
 but that behavior had better be configurable so that Perl's idea of
 line numbers matches what your editor thinks about Unicode lines.
 
+=item *
+
+Unicode horizontal whitespace is counted as whitespace, but it's better
+not to use thin spaces where they will make adjoining tokens look like
+a single token.
+
 =back
 
 =head1 Molecules
 
 =over 4
+
+=item *
+
+In general, whitespace is optional in Perl 6 except where it is
+needed to separate constructs that would be misconstrued as a single
+token or other syntactic unit.  (In other words, Perl 6 follows the
+standard "longest-token" principle, or in the cases of large constructs,
+a "prefer shifting to reducing" principle.)
+
+This is an unchanging deep rule, but the surface ramifications of it
+change as various operators and macros are added to or removed from
+the language, which we expect to happen because Perl 6 is designed to
+be a mutable language.  In particular, there is a natural conflict
+between postfix operators and infix operators, either of which may
+occur after a term.  If a given token may be interpreted as either a
+postfix operator or an infix operator, the infix operator requires
+space before it, and the postfix operator requires a lack of space
+before it, unless it begins with a dot.  (Infix operators may not
+start with a dot.)  For instance, if you were to add your own
+C<< infix:<++> >> operator, then it must have space before it, and the
+normal autoincrementing C<< postfix:<++> >> operator may not have
+space before it, or must be written as C<.++> instead.  In standard Perl
+6, however, it doesn't matter if you put a space in front of
+C<< postfix:<++> >>.
+
+=item *
+
+Single-line comments work as in Perl 5, starting with a C<#> character
+and ending with the subsequent newline.  They count as whitespace for
+purposes of separation.  Certain quoting tokens may make use of C<#>
+characters as delimiters without starting a comment.
 
 =item *
 
