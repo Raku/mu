@@ -163,14 +163,18 @@ Test - Test support module for perl6
 = AUTHORS
 
 Aurtrijus Tang <autrijus@autrijus.org>
+
 Benjamin Smith
+
 Norman Nunley
+
 Steve Peters
+
 Stevan Little <stevan@iinteractive.com>
 
 = COPYRIGHT
 
-Copyright (c) 2005. Brian Ingerson. All rights reserved.
+Copyright (c) 2005. Aurtrijus Tang. All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
