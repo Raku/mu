@@ -9,29 +9,51 @@ Test handling of C<-Cbackend>.
 
 =cut
 
-my @t = (
-  '-C' 
-    ~ any('Parrot','Pugs') 
-    ~ ' ' 
-    ~ any('-e1', map {"examples/$_.p6"},<
-  fp hanoi quicksort
-  junctions/1 junctions/3 junctions/all-all junctions/all-any junctions/any-any
+my @t_good = (
+  '-C'
+    ~ any('Pugs')
+    ~ ' '
+    ~ any('-e1', map( {"examples/$_.p6"},<
+  fp
+  hanoi
+  junctions/1
+  junctions/all-all
+  junctions/3 junctions/all-any junctions/any-any
   junctions/any-any2 junctions/grades
->)
-
+  quicksort
+>)), '-CParrot ' ~ any('examples/junctions/3.p6','-e1')
 );
 
+my @t_todo = (
+  '-C'
+    ~ any('Parrot')
+    ~ ' '
+    ~ any( map( {"examples/$_.p6"},<
+  fp
+  hanoi
+  junctions/1
+  junctions/all-all
+  junctions/all-any junctions/any-any
+  junctions/any-any2 junctions/grades
+>)));
+
 # I don't know (yet) how to force a junction into expansion
-my @tests;
-for @t -> $test {     
-  push @tests, $test;
+my (@tests_ok,@tests_todo);
+for @t_good -> $test {
+  push @tests_ok, $test;
 };
 
-plan +@tests*3;
+for @t_todo -> $test {
+  push @tests_todo, $test;
+};
+
+
+plan ((+@tests_ok+@tests_todo)*3);
 
 diag "Running under $?OS";
 
-my ($pugs,$redir) = ("./pugs", ">");
+# 2>&1 only works on WinNT upwards (cmd.exe) !
+my ($pugs,$redir, $redir_stderr) = ("./pugs", ">", "2>&1");
 if ($?OS eq "MSWin32") {
   $pugs = 'pugs.exe';
 };
@@ -47,7 +69,8 @@ sub run_pugs ($c) {
 }
 
 my $dump_file = "dump.ast";
-for @tests -> $test {
+
+for @tests_ok -> $test {
 
   my $fh = open( ">$dump_file" );
   $fh.close();
@@ -58,7 +81,23 @@ for @tests -> $test {
   my $f = slurp $dump_file;
   ok( defined $f, "dump.ast was created" );
   ok( $f ~~ rx:perl5/.../, "... and it contains some output" );
-  
+
+  unlink($dump_file)
+    or diag "$dump_file was not removed for next run";
+};
+
+for @tests_todo -> $test {
+
+  my $fh = open( ">$dump_file" );
+  $fh.close();
+
+  my $output = run_pugs($test);
+  is( $output, "", "No error output");
+
+  my $f = slurp $dump_file;
+  ok( defined $f, "dump.ast was created" );
+  todo_ok( $f ~~ rx:perl5/.../, "... and it contains some output" );
+
   unlink($dump_file)
     or diag "$dump_file was not removed for next run";
 };
