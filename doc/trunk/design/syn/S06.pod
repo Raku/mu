@@ -688,7 +688,8 @@ after the name:
 
     sub lay returns Egg {...}
 
-On an anonymous subroutine, any return type can only go after the name:
+On an anonymous subroutine, any return type can only go after the C<sub>
+keyword:
 
     $lay = sub returns Egg {...};
 
