@@ -143,10 +143,17 @@ parseFormalParam = do
     exp     <- parseParamDefault required
     return $ buildParam cxt sigil name exp
 
+subName = subNameWithPrefix ""
+subNameWithPrefix prefix = (<?> "subroutine name") $ lexeme $ try $ do
+    star    <- option "" $ string "*"
+    c       <- wordAlpha
+    cs      <- many wordAny
+    return $ "&" ++ star ++ prefix ++ (c:cs)
+
 parseApply = lexeme $ do
-    name            <- identifier
-    (invs:args:_)   <- parseParamList parseLitTerm
-    return $ App ('&':name) invs args
+    name            <- subNameWithPrefix "prefix:"
+    (invs:args:_)   <- maybeParens $ parseParamList parseLitTerm
+    return $ App name invs args
 
 parseParamList parse = do
     formal <- maybeParens ((parse `sepEndBy` symbol ",") `sepEndBy` symbol ":")
@@ -175,7 +182,7 @@ parseDecl = lexeme $ do
     multi   <- option False $ do { symbol "multi" ; return True }
     symbol "sub"
     pos     <- getPosition
-    name    <- identifier
+    name    <- subNameWithPrefix "prefix:"
     cxt     <- option "Any" $ parseBareTrait "returns"
     formal  <- option Nothing $ return . Just =<< parens parseFormalParameters
     body    <- braces parseOp
@@ -191,7 +198,8 @@ parseDecl = lexeme $ do
                   , subParams     = if null params then [defaultArrayParam] else params
                   , subFun        = fun
                   }
-    return $ Syn "&infix:::=" [Var ('&':name) pos, Val (VSub sub)]
+    -- XXX: user-defined infix
+    return $ Syn "&infix:::=" [Var name pos, Val (VSub sub)]
 
 maybeParens p = choice [ parens p, p ]
 
