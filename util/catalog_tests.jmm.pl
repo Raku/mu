@@ -11,6 +11,7 @@ use Regexp::Common qw/balanced delimited/;
 use Pod::Simple::HTML;
 use Pod::PlainText;
 use Tie::RefHash;
+use List::Util 'first';
 $|++;
 
 () = <<__NOTES__;
@@ -100,6 +101,7 @@ sub handle_t_file {
 	  my $link = {};
 	  $link->{linkfile}=$linkfile;
 	  $link->{linkhead}=$linkhead;
+	  $link->{whole}=$whole;
 	  if ($regex) {
 		$reopts||='';
 		$link->{regex} = eval "qr/$regex/$reopts";
@@ -138,130 +140,157 @@ sub infest_syns {
 		my $synpod = catfile($t_dir, "Synopsis", "$syn.pod");
 		Pod::Simple::HTML->parse_from_file($synpod, $synhtml);
 
+		print STDERR "$synpod => $synhtml\n";
+
 		# and parse it into a tree
 		my $sobj = HTML::TreeBuilder->new_from_file($synhtml);
 
 		# this makes it prettier
 		$sobj->look_down(_tag=>"head")->push_content(HTML::Element->new("link", rel=>"stylesheet", type=>"text/css", href=>"http://dev.perl.org/css/perl.css"));
 
-		tie my %sup_links, 'Tie::RefHash';
-		foreach my $link (reverse @{ $index->{$syn} }){ # reverse is since we're splicing right after the h1
-			my $target = $link->{linkfile};
-			my $heading = $link->{linkhead};
-			my $source = $link->{sourcepath};
-			my $regex = $link->{regex};
+		# This makes later processing easier
+		$sobj->objectify_text;
 
-			# create a representation that is like the $html->as_text
-			$heading = $p->interpolate($heading);
-	   		$heading =~ s/^\s+|\s+$//g;;
-			$heading =~ tr/`'//d;
+		for my $headlevel (reverse 1..3) {
+		  my $tag = 'h'.$headlevel;
+		  
+		  while (my $beg = $sobj->look_down(_tag => $tag)) {
+			my $beg_n = $beg->pindex;
+			
+			my $end = $beg->right;
+			
+			if (!defined $end) {
+			  $beg->tag('div');
+			  $beg->attr('class', 'empty_head '.$tag);
 
-			if ($heading){
-				my $heading_re = qr/^\Q$heading\E$/;
-				my $h = $sobj->look_down(_tag=>qr/^h\d$/, sub { $_[0]->as_text =~ $heading_re });
-				
-				unless ($h) {
-					warn qq{Couldn't resolve L<$target/"$heading">\n};
-					next;
-				};
-
-				# create the backlink <a href...>
-				my $backlink = HTML::Element->new('a', href=>(abs2rel($source, dirname($synhtml)) . "#" . (0+$link), id=>0+$link));
-				
-				my $found;
-				if ($regex){
-					# we're skipping forward till we find a regex
-
-					# get the list of elements in the parent that are between the current $h, and the next header of the same level
-					# if only Pod::Simple would <div>. *sigh*
-					my @section = grep { ($_ == $h) ... ($_->tag eq $h->tag) } grep { ref } $h->parent->content_list;
-
-					foreach my $subtree (@section){
-						# traverse each part of the section,
-						# looking for $regex, and then splicing the backlink into the
-						# end of the regex's match
-
-						$subtree->traverse([sub { # FIXME: this doesn't need to be ->traverse, we can do it better ourselves
-							my $elem = $_[0];
-								
-							my @boring; # an accumilator
-							my @content = $elem->content_list;
-
-							foreach my $c ($elem->content_list){
-								if (not ref $c and $c =~ $regex){ # FIXME: try to match nested <code> in <p>, etc
-									# if it's text and it matches our regex
-									my $offset = $+[0];
-
-									# record where it occurs
-									$found = 1;
-									unshift @{ $sup_links{$elem}{$c}{$offset} }, $backlink;
-
-									# and stop searching
-									return HTML::Element::ABORT;
-								}
-							}
-
-							return HTML::Element::OK;
-						}, 0], 1);
-					}
-				}
-
-				# insert just a normal link, after the header, when there is no regex
-				# or if the regex failed
-				unless ($found){
-					warn "falling back to normal backlinking, $regex didn't match under $target / $heading" if $regex;
-					$backlink->push_content(abs2rel($source, $output_dir));
-					$h->postinsert($backlink, ", ");
-				}
-			} else {
-				# perhaps L<S02> etc should just link to the top?
-				# this is what you get at the moment
-				warn "link in $source to $target does not have a heading\n";
+			  next;
 			}
 
-			#warn "$target $heading ... $regex -> $source #" . (0+$link);
+			$end=$end->right until (!$end->right or $end->right->tag eq $tag);
+			
+			my $end_n = $end->pindex;
+
+#			print STDERR "$tag from $beg_n to $end_n: ";
+#			print STDERR "\n";
+#			$beg->dump(\*STDERR);
+#			$end->dump(\*STDERR);
+
+			my $name = join '', 
+			  map {$_->attr('text')} 
+				$beg->look_down(_tag=>'~text');
+
+			$name = $1 if $name =~ m/^"(.*)"/;
+
+			my $div = HTML::Element->new('div', class=>$tag, name=>$name);
+			
+			my @kids = $beg->parent->splice_content($beg_n, $end_n-$beg_n+1, $div);
+			$div->push_content(@kids);
+			$kids[0]->tag('div');
+		  }
 		}
+		
+		$sobj->deobjectify_text;
 
-		# see where we need to add superscripted backlinks in this synopsis
-		foreach my $elem (keys %sup_links){
-			my @content = $elem->content_list;
-			$elem->detach_content; # throw away the old content array, we're rearranging it
-			$elem->push_content(map {
-				my @ret;
-				if (not ref and $sup_links{$elem}{$_}){ # if this content piece has some backlinks
-					my @offsets = (0, sort { $a <=> $b } keys %{ $sup_links{$elem}{$_} });
-					for (my $i = 1; $i < @offsets; $i++){ # iterate the substring offsets
-						my $offset = $offsets[$i-1];
-						my $end = $offsets[$i];
-						my $length = $end - $offset;
+ 		tie my %sup_links, 'Tie::RefHash';
+ 		foreach my $link (reverse @{ $index->{$syn} }){ # reverse is since we're splicing right after the h1
+ 			my $target = $link->{linkfile};
+ 			my $heading = $link->{linkhead};
+ 			my $source = $link->{sourcepath};
+ 			my $regex = $link->{regex};
 
-				   		# then see where they should be added in the content string
-						my @links = @{ $sup_links{$elem}{$_}{$end} }; # fetch them
+ 			# create a representation that is like the $html->as_text
+ 			$heading = $p->interpolate($heading);
+ 	   		$heading =~ s/^\s+|\s+$//g;;
+ 			$heading =~ tr/`'//d;
 
-						# number them
-						my $num;
-						my @sup = ("t:", map { $_->push_content(++$num); ($_, ",") } @links);
-						pop @sup; # remove extra comment (i want a list context join()!)
+ 			if ($heading) {
+ 				my $heading_re = qr/^\Q$heading\E$/i;
 
-						# put them in <sup>...</sup>
-						my $sup = HTML::Element->new('sup');
-						$sup->push_content(@sup);
-						
-						# and return the three derived bits
-						push @ret, (
-							substr($_, $offset, $length), # the first part of the string
-							$sup, # the new links
-						);
+#				print STDERR "Trying to get heading >$heading<\n";
+
+ 				my $h = $sobj->look_down(_tag=>'div', class => qr/^h\d$/, name => $heading_re);
+				
+ 				unless ($h) {
+ 					warn qq{Couldn't resolve L<$target/"$heading">\n};
+ 					next;
+ 				};
+
+ 				# create the backlink <a href...>
+ 				my $backlink = HTML::Element->new('a', href=>(abs2rel($source, dirname($synhtml)) . "#" . (0+$link)), id=>0+$link, title=>$link->{whole}, class=>'testlink');
+				# $backlink->push_content(abs2rel($source, $output_dir));
+				$h->push_content($backlink);
+				my $t = HTML::Element->new('sup');
+				$t->push_content('t');
+				$backlink->push_content($t);
+
+				
+ 				my $found;
+ 				if ($regex) {
+ 					# we're skipping forward till we find a regex
+
+#					print STDERR "Looking for RE $regex\n";
+
+#				    $h->dump(\*STDERR);
+
+				    my @stuff = $h->look_down(sub {$_[0]->as_text =~ $regex});
+
+#					warn "Found ".(@stuff+0)." matches";
+
+					if (!@stuff) {
+					  goto notregex;
 					}
-					push @ret, substr($_, $offsets[-1]); # the rest of the string
-				}
-				@ret ? @ret : $_;
-			} @content);
-		}
- 
+					
+					# Prefer deeper or earlier matches.
+					@stuff = sort {  $b->depth <=> $a->depth   or
+								   $a->address cmp $b->address
+								  } @stuff;
+
+					$h = $stuff[0];
+					
+#					$h->dump(\*STDERR);
+
+					my $i=-1;
+					foreach ($h->content_list) {
+					  $i++;
+					  
+					  next if ref $_;
+					  
+					  next unless /(.*)($regex)(.*)/;
+					  
+					  $h->splice_content($i, 1, $1, $2, $backlink, $3);
+					  $found = 1;
+					  last;
+					}
+
+					if (!$found) {
+					  warn "Found $regex in $target / $heading, but couldn't localize (from $source)";
+
+					  # Part of the content is inside a pre.
+					  $h->push_content($backlink);
+					  $found = 1;
+					}
+				  }
+				
+			  notregex:
+ 				# insert just a normal link, after the header, when there is no regex
+ 				# or if the regex failed
+ 				unless ($found) {
+				  warn "falling back to normal backlinking, $regex didn't match under $target / $heading (from $source)" if $regex;
+				  ($h->content_list)[0]->push_content($backlink);
+ 				}
+
+			  } else {
+ 				# perhaps L<S02> etc should just link to the top?
+ 				# this is what you get at the moment
+ 				warn "link in $source to $target does not have a heading\n";
+			  }
+			
+# 			#warn "$target $heading ... $regex -> $source #" . (0+$link);
+		  }
+		
 		# finally, write out the synopsis
 		my $outfile = IO::File->new(">$synhtml") or die "Can't open output test file $synhtml: $!";
-		$outfile->print($sobj->as_HTML(undef, ' '));
+		$outfile->print($sobj->as_HTML(undef, ' ', {}));
 	}
 }
 
