@@ -1,7 +1,7 @@
-package URI::sips;
-require URI::sip;
-@ISA=qw(URI::sip);
+use v6;
 
-sub default_port { 5061 }
+class URI::sips isa URI::sip trusts URI {
+  method default_port() { 5061 }
+}
 
 1;

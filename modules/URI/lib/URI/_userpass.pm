@@ -1,51 +1,58 @@
-package URI::_userpass;
+use v6;
 
-use strict;
-use URI::Escape qw(uri_unescape);
+class URI::_userpass {
+  use URI::Escape <uri_unescape>;
 
-sub user
-{
-    my $self = shift;
-    my $info = $self->userinfo;
-    if (@_) {
-	my $new = shift;
-	my $pass = defined($info) ? $info : "";
-	$pass =~ s/^[^:]*//;
+  method user() is rw {
+    my $info = .userinfo;
 
-	if (!defined($new) && !length($pass)) {
-	    $self->userinfo(undef);
+    return new Proxy:
+      FETCH => {
+	return unless defined $info;
+	$info ~~ s/:.*//;
+	return uri_unescape $info;
+      },
+      STORE => -> $new is copy {
+	my $pass = $info // "";
+	$pass ~~ s/^<-[:]>*//;
+
+	if not defined $new and not length $pass {
+	  .userinfo = undef;
 	} else {
-	    $new = "" unless defined($new);
-	    $new =~ s/%/%25/g;
-	    $new =~ s/:/%3A/g;
-	    $self->userinfo("$new$pass");
+	  $new //= "";
+	  $new ~~ s:g/%/%25/;
+	  $new ~~ s:g/:/%3A/;
+	  .userinfo = "$new$pass";
 	}
-    }
-    return unless defined $info;
-    $info =~ s/:.*//;
-    uri_unescape($info);
-}
 
-sub password
-{
-    my $self = shift;
-    my $info = $self->userinfo;
-    if (@_) {
-	my $new = shift;
-	my $user = defined($info) ? $info : "";
-	$user =~ s/:.*//;
+	return unless defined $info;
+	$info ~~ s/:.*//;
+	return uri_unescape $info;
+      };
+  }
 
-	if (!defined($new) && !length($user)) {
-	    $self->userinfo(undef);
+  method password() is rw {
+    my $info = .userinfo;
+
+    return new Proxy:
+      FETCH => {
+	return unless defined $info;
+	return unless $info ~~ s/^<-[:]>*://;
+	return uri_unescape $info;
+      },
+      STORE => -> $new is copy {
+	my $user = $info // "";
+	$user ~~ s/:.*//;
+
+	if not defined $new and not length $user {
+	  .userinfo = undef;
 	} else {
-	    $new = "" unless defined($new);
-	    $new =~ s/%/%25/g;
-	    $self->userinfo("$user:$new");
+	  $new //= "";
+	  $new ~~ s:g/%/%25/;
+	  .userinfo = "$user:$new";
 	}
-    }
-    return unless defined $info;
-    return unless $info =~ s/^[^:]*://;
-    uri_unescape($info);
+      };
+  }
 }
 
 1;

@@ -1,8 +1,7 @@
-package URI::mms;
+use v6;
 
-require URI::http;
-@ISA=qw(URI::http);
-
-sub default_port { 1755 }
+class URI::mms isa URI::http trusts URI {
+  method default_port() { 1755 }
+}
 
 1;

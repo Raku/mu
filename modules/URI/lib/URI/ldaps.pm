@@ -1,7 +1,7 @@
-package URI::ldaps;
-require URI::ldap;
-@ISA=qw(URI::ldap);
+use v6;
 
-sub default_port { 636 }
+class URI::ldaps isa URI::ldap trusts URI {
+  method default_port() { 636 }
+}
 
 1;

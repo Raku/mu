@@ -1,41 +1,44 @@
-package URI::Split;
+use v6;
 
-use strict;
+module URI::Split;
 
-use vars qw(@ISA @EXPORT_OK);
-require Exporter;
-@ISA = qw(Exporter);
-@EXPORT_OK = qw(uri_split uri_join);
+use URI::Escape;
 
-use URI::Escape ();
-
-sub uri_split {
-     return $_[0] =~ m,(?:([^:/?#]+):)?(?://([^/?#]*))?([^?#]*)(?:\?([^#]*))?(?:#(.*))?,;
+sub uri_split(Str $uri) is export {
+   return $str ~~ m,
+    [(<-[:/?#]>+]:)?
+    [//(<-[/?#]>*)]?
+    (<-[?#]>*)
+    [\?(<-[#]>*)]?
+    [#(.*)]?
+  ,;
 }
 
-sub uri_join {
-    my($scheme, $auth, $path, $query, $frag) = @_;
-    my $uri = defined($scheme) ? "$scheme:" : "";
-    $path = "" unless defined $path;
-    if (defined $auth) {
-	$auth =~ s,([/?\#]),$URI::Escape::escapes{$1},g;
-	$uri .= "//$auth";
-	$path = "/$path" if length($path) && $path !~ m,^/,;
-    }
-    elsif ($path =~ m,^//,) {
-	$uri .= "//";  # XXX force empty auth
-    }
-    unless (length $uri) {
-	$path =~ s,(:),$URI::Escape::escapes{$1}, while $path =~ m,^[^:/?\#]+:,;
-    }
-    $path =~ s,([?\#]),$URI::Escape::escapes{$1},g;
-    $uri .= $path;
-    if (defined $query) {
-	$query =~ s,(\#),$URI::Escape::escapes{$1},g;
-	$uri .= "?$query";
-    }
-    $uri .= "#$frag" if defined $frag;
-    $uri;
+sub uri_join(Str $scheme, Str $auth, Str ?$path, Str ?$query, Str ?$frag) is export {
+  my $uri = defined $scheme ? "$scheme:" : "";
+  $path //= "";
+
+  if defined $auth {
+    $auth ~~ s:g,(<[/?\#]>),%URI::Escape::escapes{$1},;
+    $uri  ~= "//$auth";
+    $path  = "/$path" if length $path and not $path ~~ m,^/,;
+  } elsif $path ~~ m,^//, {
+    $uri ~= "//";  # XXX force empty auth
+  }
+
+  unless length $uri {
+    $path ~~ s,(:),%URI::Escape::escapes{$1}, while $path ~~ m,^<-[:/?\#]>+:,;
+  }
+
+  $path ~~ s:g,(<[?\#]>),%URI::Escape::escapes{$1},;
+  $uri  ~= $path;
+  if defined $query {
+    $query ~~ s:g,(\#),%URI::Escape::escapes{$1},;
+    $uri   ~= "?$query";
+  }
+
+  $uri ~= "#$frag" if defined $frag;
+  return $uri;
 }
 
 1;
@@ -48,8 +51,8 @@ URI::Split - Parse and compose URI strings
 
 =head1 SYNOPSIS
 
- use URI::Split qw(uri_split uri_join);
- ($scheme, $auth, $path, $query, $frag) = uri_split($uri);
+ use URI::Split <uri_split uri_join>;
+ ($scheme, $auth, $path, $query, $frag) = uri_split $uri;
  $uri = uri_join($scheme, $auth, $path, $query, $frag);
 
 =head1 DESCRIPTION
@@ -87,6 +90,8 @@ as a query or fragment.
 L<URI>, L<URI::Escape>
 
 =head1 COPYRIGHT
+
+Copyright 2005, Ingo Blechschmidt (port to Perl 6)
 
 Copyright 2003, Gisle Aas
 

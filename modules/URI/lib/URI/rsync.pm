@@ -1,12 +1,11 @@
-package URI::rsync;  # http://rsync.samba.org/
+use v6;
 
-# rsync://[USER@]HOST[:PORT]/SRC
+class URI::rsync isa URI::_server isa URI::_userpass trusts URI {
+  # http://rsync.samba.org/
 
-require URI::_server;
-require URI::_userpass;
+  # rsync://[USER@]HOST[:PORT]/SRC
 
-@ISA=qw(URI::_server URI::_userpass);
-
-sub default_port { 873 }
+  method default_port() { 873 }
+}
 
 1;

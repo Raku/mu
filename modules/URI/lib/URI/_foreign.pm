@@ -1,6 +1,5 @@
-package URI::_foreign;
+use v6;
 
-require URI::_generic;
-@ISA=qw(URI::_generic);
+class URI::_foreign isa URI::_generic trusts URI {}
 
 1;

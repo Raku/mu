@@ -1,8 +1,7 @@
-package URI::rtsp;
+use v6;
 
-require URI::http;
-@ISA=qw(URI::http);
-
-sub default_port { 554 }
+class URI::rtsp isa URI::http trusts URI {
+  method default_port() { 554 }
+}
 
 1;

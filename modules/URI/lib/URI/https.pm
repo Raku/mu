@@ -1,7 +1,7 @@
-package URI::https;
-require URI::http;
-@ISA=qw(URI::http);
+use v6;
 
-sub default_port { 443 }
+class URI::https isa URI::http trusts URI {
+  method default_port() { 443 }
+}
 
 1;

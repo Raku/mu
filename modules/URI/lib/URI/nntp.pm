@@ -1,6 +1,7 @@
-package URI::nntp;  # draft-gilman-news-url-01
+use v6;
 
-require URI::news;
-@ISA=qw(URI::news);
+class URI::nttp isa URI::news trusts URI {
+  # draft-gilman-news-url-01
+}
 
 1;

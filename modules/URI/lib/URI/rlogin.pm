@@ -1,7 +1,7 @@
-package URI::rlogin;
-require URI::_login;
-@ISA = qw(URI::_login);
+use v6;
 
-sub default_port { 513 }
+class URI::rlogin isa URI::_login trusts URI {
+  method default_port() { 513 }
+}
 
 1;

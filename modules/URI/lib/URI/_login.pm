@@ -1,10 +1,8 @@
-package URI::_login;
+use v6;
 
-require URI::_server;
-require URI::_userpass;
-@ISA = qw(URI::_server URI::_userpass);
-
-# Generic terminal logins.  This is used as a base class for 'telnet',
-# 'tn3270', and 'rlogin' URL schemes.
+class URI::_login isa URI::_server isa URI::_userpass trusts URI {
+  # Generic terminal logins.  This is used as a base class for 'telnet',
+  # 'tn3270', and 'rlogin' URL schemes.
+}
 
 1;
