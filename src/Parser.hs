@@ -509,7 +509,7 @@ currentFunctions = do
 currentUnaryFunctions = do
     funs <- currentFunctions
     return $ unwords [
-        name | f@Symbol{ symExp = Val (VSub sub) } <- funs
+        encodeUTF8 name | f@Symbol{ symExp = Val (VSub sub) } <- funs
         , subAssoc sub == "pre"
         , length (subParams sub) == 1
         , isNothing $ find isSlurpy $ subParams sub
@@ -529,7 +529,7 @@ currentListFunctions = do
 {-
     funs <- currentFunctions
     return $ unwords [
-        name | f@Symbol{ symExp = Val (VSub sub) } <- funs
+        encodeUTF8 name | f@Symbol{ symExp = Val (VSub sub) } <- funs
         , subAssoc sub == "pre"
         , isJust $ find isSlurpy $ subParams sub
         , let name = parseName $ symName f
