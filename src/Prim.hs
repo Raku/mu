@@ -145,8 +145,9 @@ op1 "unlink" = \v -> do
     return $ VInt $ sum $ map bool2n rets
 op1 "open" = \v -> do
     let (mode, filename) = span (`elem` "+<> ") (vCast v)
-    fh <- liftIO $ openFile filename (modeOf $ takeWhile (not . isSpace) mode)
-    return $ VHandle fh
+    liftIO $ (`catch` \_ -> return VUndef) $ do
+        fh <- openFile filename (modeOf $ takeWhile (not . isSpace) mode)
+        return $ VHandle fh
     where
     modeOf ""   = ReadMode
     modeOf "<"  = ReadMode
@@ -176,7 +177,7 @@ op1 "=" = \v -> do
     handleOf (VPair (_, x)) = handleOf x
     handleOf (VList [VStr x]) = liftIO $ openFile x ReadMode
     handleOf (VList []) = return stdin
-    handleOf v = return $ vCast v
+    handleOf v = fromValue v
 {-
     readFrom (VRef (VList [])) = do
         -- ARGS etc

@@ -122,10 +122,6 @@ reduceExp exp = do
 retVal :: Val -> Eval Val
 retVal val = evaluate (Val val)  -- casting
 
-retError :: VStr -> Exp -> Eval a
-retError str exp = do
-    shiftT $ \_ -> return $ VError str exp
-
 newMVal (MVal r) = newMVal =<< liftIO (readIORef r)
 newMVal val = do
     mval <- liftIO $ newIORef val

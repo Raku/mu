@@ -19,6 +19,13 @@ import Rule
 type Ident = String
 
 class Value n where
+    fromValue :: Val -> Eval n
+    fromValue v = do
+        rv <- liftIO $ catchJust errorCalls (return . Right $ vCast v) $
+            \str -> return (Left str)
+        case rv of
+            Right v -> return v
+            Left e  -> retError e (Val v) -- XXX: not working yet
     vCast :: Val -> n
     -- vCast (MVal v)      = vCast $ castV v
     vCast (VRef v)      = vCast v
@@ -468,3 +475,8 @@ data Scope = SGlobal | SMy | SOur | SLet | STemp | SState
     deriving (Show, Eq, Ord, Read, Enum)
 
 type Eval x = ContT Val (ReaderT Env IO) x
+
+retError :: VStr -> Exp -> Eval a
+retError str exp = do
+    shiftT $ \_ -> return $ VError str exp
+

@@ -19,6 +19,7 @@ module Internals (
     module Rule.Pos,
     module Data.Dynamic,
     module Data.Unique,
+    module Control.Exception,
     module System.Environment,
     module System.Random,
     module System.IO,
@@ -56,6 +57,7 @@ import System.Cmd
 import System.IO hiding (try)
 import System.IO.Unsafe
 import System.Directory
+import Control.Exception (catchJust, errorCalls)
 import Control.Monad.RWS
 import Control.Monad.Error (MonadError(..))
 import Data.Bits hiding (shift)

@@ -16,6 +16,9 @@ module Cont (
 
 import qualified Control.Monad.Cont as C (callCC)
 import Control.Monad.Cont (mapContT, withContT, mapCont, withCont, runCont, Cont(..), ContT(..), runContT, MonadCont)
+import Control.Monad.Trans (lift)
+
+type Cont' m a = forall r. a -> m r
 
 callCC :: MonadCont m => ((a -> (forall b. m b)) -> m a) -> m a
 callCC (f :: ((a -> (forall b. m b)) -> m a) ) = C.callCC f' where
@@ -28,15 +31,15 @@ callCC (f :: ((a -> (forall b. m b)) -> m a) ) = C.callCC f' where
 newtype EmptyMonad m = EmptyMonad { runEmptyMonad :: forall c. m c }
 
 -- shift/reset for the Cont monad
-shift :: ((a -> Cont r s) -> Cont s s) -> Cont s a
-shift e = Cont $ \k -> runCont (e $ \v -> Cont $ \c -> c (k v)) id
+shift :: ((a -> Cont s r) -> Cont r r) -> Cont r a
+shift e = Cont $ \k -> e (return . k) `runCont` id
 
 reset :: Cont a a -> Cont r a 
-reset e = Cont $ \k -> k (runCont e id)
+reset e = return $ e `runCont` id
 
 -- shiftT/resetT for the ContT monad transformer
 shiftT :: Monad m => ((a -> ContT r m s) -> ContT s m s) -> ContT s m a
-shiftT e = ContT $ \k -> runContT (e $ \v -> ContT $ \c -> c =<< k v) return
+shiftT e = ContT $ \k -> e (lift . k) `runContT` return
 
 resetT :: Monad m => ContT a m a -> ContT r m a
-resetT e = ContT $ \k -> k =<< runContT e return
+resetT e = lift $ e `runContT` return
