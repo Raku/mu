@@ -15,7 +15,6 @@ sub proclaim (Bool $cond, Str ?$desc, Str ?$context) returns Bool {
     my $ok := $cond ?? "ok " :: "not ok ";
     my $out := defined($desc) ?? " - $desc" :: "";
     my $context_out := defined($context) ?? " # $context" :: "";
-    
     $loop++;
     say $ok, $loop, $out, $context_out;
     return $cond;
@@ -42,6 +41,20 @@ sub is (Str $got, Str $expected, Str ?$desc) returns Bool is export {
     return $test;
 }
 
+sub isa_ok ($ref, Str $expected_type) returns Bool is export {
+    my $ref_type = ref($ref);
+    my $desc = "The object is-a '$expected_type'";    
+    my $test := $ref_type eq $expected_type;
+    proclaim($test, $desc);
+    if (!$test) {
+        $*ERR.say("#     Failed test ($?CALLER::POSITION)");
+        $*ERR.say("#          got: '$ref_type'");
+        $*ERR.say("#     expected: '$expected_type'");        
+        $failed++;
+    }
+    return $test;
+}
+
 sub todo_ok (Bool $cond, Str ?$desc) returns Bool is export {
     proclaim($cond, $desc, "TODO");
     if (!$cond) {
@@ -57,6 +70,19 @@ sub todo_is (Str $got, Str $expected, Str ?$desc) returns Bool is export {
         diag("    Failed (TODO) test ($?CALLER::POSITION)");
         diag("         got: '$got'");
         diag("    expected: '$expected'");
+    }
+    return $test;
+}
+
+sub todo_isa_ok ($ref, Str $expected_type) returns Bool is export {
+    my $ref_type = ref($ref);
+    my $desc = "The object is-a '$expected_type'";        
+    my $test := $ref_type eq $expected_type;
+    proclaim($test, $desc, "TODO");
+    if (!$test) {
+        $*ERR.say("#     Failed (TODO) test ($?CALLER::POSITION)");
+        $*ERR.say("#          got: '$ref_type'");
+        $*ERR.say("#     expected: '$expected_type'");        
     }
     return $test;
 }
@@ -140,9 +166,13 @@ Test - Test support module for perl6
 
 * `is (Str $got, Str $expected, Str ?$desc) returns Bool`
 
+* `isa_ok ($ref, Str $expected_type) returns Bool`
+
 * `todo_ok (Bool $cond, Str ?$desc) returns Bool`
 
 * `todo_is (Str $got, Str $expected, Str ?$desc) returns Bool`
+
+* `todo_isa_ok ($ref, Str $expected_type) returns Bool`
 
 * `skip (Str ?$reason) returns Bool`
 
