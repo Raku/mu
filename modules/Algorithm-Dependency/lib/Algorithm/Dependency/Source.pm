@@ -9,15 +9,14 @@ class Algorithm::Dependency::Source-0.0.1;
 # of items.
 
 has $:loaded is Bool;
-has %:items_hash;
-has %:items_array;
+has %:items_hash is Hash of Algorithm::Dependency::Item;
+has @:items_array is Array of Algorithm::Dependency::Item;
 
 
 
 
 
-sub new {
-	my $class = shift;
+method new( $class: ) returns Algorithm::Dependency::Source {
 
 	# This can't be created directly, it must be through
 	# a SUPER::new call
@@ -26,7 +25,7 @@ sub new {
 	}
 
 	# Create the basic object
-	bless {
+	return bless {
 		# Has the source been loaded
 		loaded      => 0,
 
@@ -37,8 +36,7 @@ sub new {
 }
 
 # Load the source
-sub load {
-	my $self = shift;
+method load( $self: ) returns Bool {
 	my $class = ref $self;
 
 	# If this is a reload, clean up in preperation
@@ -50,8 +48,8 @@ sub load {
 
 	# Pass through to the real loader
 	my $items = $self._load_item_list;
-	return $items unless $items;
-	return undef unless UNIVERSAL::isa( $items, 'ARRAY' );
+	$items or return $items;
+	UNIVERSAL::isa( $items, 'ARRAY' ) or return;
 
 	# Add the items
 	foreach my $item ( @$items ) {
@@ -63,7 +61,7 @@ sub load {
 		my $id = $item.id;
 		if ( $self.items_hash{$id} ) {
 			# Duplicate entry
-			return undef;
+			return;
 		}
 
 		# Add it
@@ -71,40 +69,38 @@ sub load {
 		$self.items_hash{$id} = $item;
 	}
 
-	$self.loaded = 1;
+	return $self.loaded = 1;
 }
 
 # See if loaded
-sub loaded { return $_[0].loaded }
+method loaded( $self: ) returns Bool {
+	return $self.loaded;
+}
 
 # Get a single item by id
-sub item {
-	my $self = shift;
-	my $id = length $_[0] ? shift : return undef;
-	$self.loaded or $self.load or return undef;
+method item( $self: $id ) returns Algorithm::Dependency::Item {
+	$self.loaded or $self.load() or return;
 
 	# Return the item ( or undef )
-	$self.items_hash{$id};
+	return $self.items_hash{$id};
 }
 
 # Get a list of the items
-sub items {
-	my $self = shift;
-	$self.loaded or $self.load or return undef;
-	@{ $self.items_array };
+method items( $self: ) returns Array of Algorithm::Dependency::Item {
+	$self.loaded or $self.load() or return;
+	return @{ $self.items_array };
 }
 
 # Check the integrity of the source.
-sub missing_dependencies {
-	my $self = shift;
-	$self.loaded or $self.load or return undef;
+method missing_dependencies( $self: ) returns Array {
+	$self.loaded or $self.load() or return;
 	
 	# Merged the depends of all the items, and see if
 	# any are missing.
 	my %missing = map { $_ => 1 }
 		grep { ! $self.item($_) }
 		map { $_.depends } $self.items;
-	%missing ? [ sort keys %missing ] : 0;
+	return %missing ? [ sort keys %missing ] : 0;
 }
 
 
@@ -114,7 +110,7 @@ sub missing_dependencies {
 #####################################################################
 # Catch methods our subclass should define but didn't
 
-sub _load_item_list { die "Class $_[0] failed to define the method _load_item_list" };
+method :_load_item_list( $self: ) { die "Class $_[0] failed to define the method _load_item_list" };
 
 1;
 

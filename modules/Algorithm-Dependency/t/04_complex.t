@@ -29,7 +29,7 @@ my $TESTDATA = 't.data';
 my $file = File::Spec.catfile( $TESTDATA, 'complex.txt' );
 my $Source = Algorithm::Dependency::Source::File.new( $file );
 ok( $Source, "Complex source created" );
-ok( eval {$Source.load;}, "Complex source loads" );
+ok( eval {$Source.load();}, "Complex source loads" );
 
 # Try it's unordere dependency with nothing selected
 my $Dep = Algorithm::Dependency.new( source => $Source );

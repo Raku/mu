@@ -16,14 +16,13 @@ has $:ignore_orphans is Bool;
 
 
 
-sub new {
-	my $class = shift;
+method new( $class: ) returns Algorithm::Dependency {
 	my %options = @_;
 
 	# Arguments are provided as a hash of options.
 	# We expect at LEAST the source argument.
 	my $source = UNIVERSAL::isa( $options{source}, 'Algorithm::Dependency::Source' )
-		? $options{source} : return undef;
+		? $options{source} : return;
 
 	# Create the object
 	my $self = bless {
@@ -45,17 +44,17 @@ sub new {
 	my %selected = ();
 	foreach my $id ( @{ $options{selected} } ) {
 		# Does the item exist?
-		return undef unless $source.item($id);
+		$source.item($id) or return;
 
 		# Is it a duplicate
-		return undef if $selected{$id};
+		$selected{$id} and return;
 
 		# Add to the selected index
 		$selected{$id} = 1;
 	}
 
 	$self.selected = \%selected;
-	$self;
+	return $self;
 }
 
 
@@ -66,16 +65,16 @@ sub new {
 # Basic methods
 
 # Get the Source object
-sub source { $_[0].source }
+method source( $self: ) returns Algorithm::Dependency::Source { return $self.source }
 
 # Get the list of all selected items
-sub selected_list { sort keys %{$_[0].selected} }
+method selected_list( $self: ) returns Array of Bool { return sort keys %{$self.selected} }
 
 # Is a particular item selected
-sub selected { $_[0].selected{$_[1]} }
+method selected( $self: $id ) returns Bool { return $self.selected{$id} }
 
 # Shortcut to the source to get a particular item
-sub item { $_[0].source.item( $_[1] ) }
+method item( $self: $id ) returns Algorithm::Dependency::Item { return $self.source.item( $id ) }
 
 
 
@@ -89,9 +88,8 @@ sub item { $_[0].source.item( $_[1] ) }
 # items that are already selected. Do as efficiently as possible, as the
 # source database could get quite large. We return in alphabetic order,
 # for consistency.
-sub depends {
-	my $self = shift;
-	my @stack = @_ or return undef;
+method depends( $self: @stack ) returns Array {
+	@stack or return;
 
 	# Prepare
 	my @depends = ();
@@ -101,7 +99,7 @@ sub depends {
 	while ( my $id = shift @stack ) {
 		# Does the id exist?
 		my $Item = $self.source.item($id)
-		or $self.ignore_orphans ? next : return undef;
+		or $self.ignore_orphans ? next : return;
 
 		# Skip if selected or checked
 		next if $checked{$id};
@@ -119,7 +117,7 @@ sub depends {
 
 	# Remove any items already selected
 	my $s = $self.selected;
-	[ sort grep { ! $s{$_} } @depends ];
+	return [ sort grep { ! $s{$_} } @depends ];
 }
 
 # For one or more items, create a schedule of all items, including the
@@ -127,24 +125,22 @@ sub depends {
 # the original set. i.e. All the modules we would need to install, including
 # all dependencies. Note that for this class, the order is not important,
 # so we return in alphabetic order for consistentcy.
-sub schedule {
-	my $self = shift;
-	my @items = @_ or return undef;
+method schedule( $self: @items ) returns Array {
+	@items or return;
 
 	# Get their dependencies
-	my $depends = $self.depends( @items ) or return undef;
+	my $depends = $self.depends( @items ) or return;
 
 	# Now return a combined list, removing any items already selected.
 	# We are allowed to return an empty list.
 	my $s = $self.selected;
-	[ sort grep { ! $s{$_} } @items, @$depends ];
+	return [ sort grep { ! $s{$_} } @items, @$depends ];
 }
 
 # As above, but don't pass what we want to schedule as a list, just do the
 # schedule for everything.
-sub schedule_all {
-	my $self = shift;
-	$self.schedule( map { $_.id } $self.source.items );
+method schedule_all( $self: ) {
+	return $self.schedule( map { $_.id } $self.source.items );
 }
 
 1;

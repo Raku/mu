@@ -24,18 +24,16 @@ has $:filename;
 
 
 
-sub new {
-	my $class = shift;
-	my $filename = shift or return undef;
-	return undef unless -r $filename;
+method new( $class: $filename is Str ) returns Algorithm::Dependency::Source::File {
+	-r $filename or return;
 
 	# Get the basic source object
-	my $self = $class.SUPER::new or return undef;
+	my $self = $class.SUPER::new or return;
 
 	# Add our arguments
 	$self.filename = $filename;
 
-	$self;
+	return $self;
 }
 
 
@@ -43,14 +41,13 @@ sub new {
 
 
 # Load the list of items
-sub _load_item_list {
-	my $self = shift;
+method :_load_item_list( $self: ) returns Array {
 
 	# Load the contents of the file
 	local $/ = undef;
-	open( FILE, $self.filename ) or return undef;
+	open( FILE, $self.filename ) or return;
 	my $source = <FILE>;
-	close FILE or return undef;
+	close FILE or return;
 
 	# Split, trim, clean and remove comments
 	my @content = grep { ! /^\s*(?:\#|$)/ } 
@@ -61,14 +58,14 @@ sub _load_item_list {
 	foreach ( @content ) {
 		# Split the line by non-word characters
 		my @sections = grep { length $_ } split /\W+/, $_;
-		return undef unless scalar @sections;
+		scalar @sections or return;
 
 		# Create the new item
-		my $Item = Algorithm::Dependency::Item.new( @sections ) or return undef;
+		my $Item = Algorithm::Dependency::Item.new( @sections ) or return;
 		push @Items, $Item;
 	}
 
-	\@Items;
+	return @Items;
 }
 
 1;

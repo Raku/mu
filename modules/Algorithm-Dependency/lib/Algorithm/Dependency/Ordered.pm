@@ -21,17 +21,16 @@ class Algorithm::Dependency::Ordered-0.0.1 is Algorithm::Dependency;
 
 
 
-sub schedule {
-	my $self = shift;
+method schedule( $self: @items ) returns Array {
 	my $source = $self.source;
-	my @items = @_ or return undef;
-	return undef if grep { ! $source.item($_) } @items;
+	@items or return;
+	grep { ! $source.item($_) } @items and return;
 
 	# The actual items to select will be the same as for the unordered
 	# version, so we can simplify the algorithm greatly by using the
 	# normal unordered .schedule method to get the starting list.
 	my $rv = $self.SUPER::schedule( @items );
-	my @queue = $rv ? @$rv : return undef;
+	my @queue = $rv ? @$rv : return;
 
 	# Get a working copy of the selected index
 	my %selected = %{ $self.selected };
@@ -47,10 +46,10 @@ sub schedule {
 	# Begin the processing loop
 	while ( my $id = shift @queue ) {
 		# Have we checked every item in the stack?
-		return undef if $id eq $error_marker;
+		$id eq $error_marker and return;
 
 		# Are there any un-met dependencies
-		my $Item = $self.source.item( $id ) or return undef;
+		my $Item = $self.source.item( $id ) or return;
 		my @missing = grep { ! $selected{$_} } $Item.depends;
 
 		# Remove orphans if we are ignoring them
@@ -75,7 +74,7 @@ sub schedule {
 	}
 
 	# All items have been added
-	\@schedule;
+	return @schedule;
 }
 
 1;

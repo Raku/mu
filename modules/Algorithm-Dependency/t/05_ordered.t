@@ -29,11 +29,11 @@ my $TESTDATA = 't.data';
 my $basic = File::Spec.catfile( $TESTDATA, 'basics.txt' );
 my $BSource = Algorithm::Dependency::Source::File.new( $basic );
 ok( $BSource, "Basic source created" );
-ok( eval {$BSource.load;}, "Basic source loads" );
+ok( eval {$BSource.load();}, "Basic source loads" );
 my $complex = File::Spec.catfile( $TESTDATA, 'complex.txt' );
 my $CSource = Algorithm::Dependency::Source::File.new( $complex );
 ok( $CSource, "Complex source created" );
-ok( eval {$CSource.load;}, "Complex source loads" );
+ok( eval {$CSource.load();}, "Complex source loads" );
 
 
 

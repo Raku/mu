@@ -36,7 +36,7 @@ isa_ok( $Source, 'Algorithm::Dependency::Source', "Source is a Source" );
 ok( exists $Source.loaded, "Source has a loaded value" );
 ok( ! $Source.loaded, "Source isn't loaded" );
 
-ok( eval {$Source.load;}, "Source .load returns true" );
+ok( eval {$Source.load();}, "Source .load() returns true" );
 ok( $Source.loaded, "Source appears to be loaded" );
 isa_ok( $Source.item('A'), 'Algorithm::Dependency::Item', ".item returns an Item for A" );
 isa_ok( $Source.item('B'), 'Algorithm::Dependency::Item', ".item returns an Item for B" );
@@ -140,7 +140,7 @@ ok( $Missing, "Missing is true" );
 ok( ref $Missing, "Missing is a reference" );
 isa_ok( $Missing, 'Algorithm::Dependency::Source::File', "Missing is a Source::File" );
 isa_ok( $Missing, 'Algorithm::Dependency::Source', "Missing is a Source" );
-ok( eval {$Missing.load;}, "Missing .load returns true" );
+ok( eval {$Missing.load();}, "Missing .load() returns true" );
 
 is_deeply( $Missing.missing_dependencies, [ 'C', 'E' ], ".missing_dependencies returns as expected when something missing" );
 

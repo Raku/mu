@@ -14,18 +14,14 @@ has @:depends;
 
 
 
-sub new {
-	my $class = shift;
-	my $id = shift or return undef;
-	my @depends = @_;
-
+method new( $class: $id, @depends ) returns Algorithm::Dependency::Item {
 	# Create the object
-	bless { id => $id, depends => \@depends }, $class;
+	return bless { id => $id, depends => @depends }, $class;
 }
 
 # Get the values
-sub id { $_[0].id }
-sub depends { @{$_[0].depends} }
+method id( $self: )  returns Str { return $self.id }
+method depends( $self: )  returns Array { return @{$self.depends} }
 
 1;
 
