@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html lang="en">
+<html lang="zh-tw">
 <head>
-  <link href="http://dev.perl.org/css/perl.css" rel="stylesheet"
+  <link href="../perl.css" rel="stylesheet"
  type="text/css">
   <meta content="text/html; charset=UTF-8" http-equiv="content-type">
   <title>Pugs 外典之一</title>
@@ -84,7 +84,7 @@ Rules 來剖析 Perl 6 語法，而 Rules 又是 Perl 6 語言的一部份。此
 <h2>最初的啟動計劃為何？</h2>
 <p>根據 <a
  href="http://search.cpan.org/dist/parrot/docs/faq.pod#Isn%27t_there_a_bootstrapping_problem?">Parrot
-答客問</a>，最初的計劃是利用 Perl 5 進行啟動：我們先擴充 Perl 5，使其執行於 Parrot 虛擬機器上（透過 <span
+答客問</a>，最初的計劃是利用 Perl 5 進行啟動：先擴充 Perl 5，使其執行於 Parrot 虛擬機器上（透過 <span
  style="font-family: monospace;">B::Parrot</span> 或 <a
  href="http://www.poniecode.org/">Ponie</a>），再以 Perl 5 實作 Perl 6
 編譯器，最後透過 p5-to-p6 轉換器將編譯器轉譯成 Perl 6。不過，雖然 <a
@@ -133,7 +133,7 @@ AST</a> 介面。如果有人願意協助的話，我們也可能再加入其它
 為：</p>
 <ul>
   <li>6.0: 首次釋出</li>
-  <li>6.2: 基本輸出入與流程控制元件、變項變數（mutable variables）與賦值（assignment）。</li>
+  <li>6.2: 基本輸出入與流程控制元件、可覆寫變數（mutable variables）與賦值（assignment）。</li>
   <li>6.28: 類別（classes）與特質（traits）。</li>
   <li>6.283: 規則（rules）與文法（grammars）。</li>
   <li>6.2831: 角色組合（role composition）及其它執行時期功能。</li>
@@ -146,12 +146,12 @@ AST</a> 介面。如果有人願意協助的話，我們也可能再加入其它
  href="http://haskell.org/ghc/download_ghc_622.html">下載網頁</a>有詳細的資訊。從
 6.2.0 開始，Pugs 團隊也會提供若干平台的安裝檔。</p>
 <h2>Pugs 的速度是否夠快？</h2>
-<p>在 Parsec 的強力支援下，Pugs 的解譯器很快。不過 Pugs 的求值器目前尚未最佳化：一般 PC 上每秒約處理 1000
-個運算符，大概比 Perl 5 慢上 100 倍。這對實現雛型語言功能來說，已經夠快了；假如還不能滿足你的需要，請考慮幫忙開發編譯器後端。</p>
+<p>在 Parsec 的強力支援下，Pugs 的解譯器很快。不過 Pugs 的求值器目前尚未最佳化：在一般 PC 上每秒約處理 1000
+個運算符，大約比 Perl 5 慢上 100 倍。這對實現雛型語言功能來說，已經夠快了；假如還不能滿足你的需要，請考慮幫忙開發編譯器後端。</p>
 <h2>有 Perl 6 模組的 CPAN 嗎？</h2>
 <p>目前 Pugs 會在 Perl 5 搜尋路徑下，以 <span style="font-family: monospace;">Perl6::lib</span>
 作為 Perl 6 程式庫名稱的前綴。好比說，<span style="font-family: monospace;">Test</span>
-模組便是安裝於 Perl 5 程式庫路徑下的 <span style="font-family: monospace;">Perl6/lib/Test.pm</span>。
+模組將安裝於 Perl 5 程式庫路徑下的 <span style="font-family: monospace;">Perl6/lib/Test.pm</span>。
 這祗是權宜之計；未來應該會有更穩定的解決方案。</p>
 <h2>Pugs 能與 Perl 5 程式庫共用嗎？</h2>
 <p>雖然目前還不行，但我們未來可能會照 Autrijus 之前實作 <a style="font-family: monospace;"
@@ -164,12 +164,13 @@ Perl 5 與 Haskell 模組能相互溝通。如果成功的話，架一個 <span
 <h2>Pugs 能與 Haskell 程式庫共用嗎？</h2>
 <p>目前你可以把 Haskell 程式庫靜態鏈接至 Pugs 的內建函式，祗需修改 <a
  style="font-family: monospace;"
- href="http://svn.openfoundry.org/pugs/src/Prim.hs">Prim.hs</a> 內的幾列程式碼即
+ href="http://svn.openfoundry.org/pugs/src/Prim.hs">Prim.hs</a>
+內的幾列程式碼即
 可。我們正考慮撰寫 <a href="http://www.cse.unsw.edu.au/%7Edons/hs-plugins/">hs-plugins</a>
 的簡易界面，讓 Pugs 能動態載入 Hasekll 程式庫，甚至在 Perl 6 中內嵌 Haskell 程式碼。</p>
 <h2>Pugs 能與 C 程式庫共用嗎？</h2>
 <p>還不行。不過 <a href="http://www.haskell.org/hdirect/">HaskellDirect</a>
-加上上述的 hs-plugins，似乎會是與 C、CORBA 及 COM 程式庫溝通的簡單方式。</p>
+配上前述的 hs-plugins，似乎會是與 C、CORBA 及 COM 程式庫溝通的簡單方式。</p>
 <h2>我會 Perl 5，不懂 Haskell。我能幫 Pugs 的忙嗎？</h2>
 <p>當然！Pugs 的標準程式庫與單元測試都是以 Perl 6 寫成的，而我們總是需要更多的測試和程式庫。這方面的工作只需要懂 Perl
 5，再花上幾分鐘熟悉少部份語法的不同之處即可。當然，過程中你也可能會學到一些 Haskell 相關的知識。</p>
@@ -190,8 +191,10 @@ transformer），建議讀讀 <a href="http://www.nomaware.com/monads/html/">All
 About
 Monads</a>。書的話，<a
  href="http://www.iro.umontreal.ca/%7Elapalme/Algorithms-functional.html">Algorithms:
-A Functional Programming Approach</a> 和 <a
- href="http://haskell.org/soe/">The
+A Functional Programming Approach</a>、<a
+ href="http://www.cs.kent.ac.uk/people/staff/sjt/craft2e/">Haskell:
+The Craft of
+Functional Programming</a> 和 <a href="http://haskell.org/soe/">The
 Haskell School of
 Expression</a> 都是很好的入門讀物。此外，<a href="http://freenode.net/">freenode</a>
 的 <span style="font-family: monospace;">#haskell</span> 頻道上有許多熱愛
@@ -199,14 +202,15 @@ Haskell 的人可以幫忙。</p>
 <h2>哪裡學得到 Perl 6？</h2>
 <p><a href="http://dev.perl.org/perl6/">Perl
 6 首頁</a>有許多線上文件。每隔一兩個星期，<a href="http://www.perl.com/">Perl.com</a>
-上會有新的 Perl 6 郵件論壇摘要，想趕上 Perl 6 的開發進度者一定不能錯過。在書藉方面，<a
+上會有新的 Perl 6 通信論壇摘要，想趕上 Perl 6 的開發進度者一定不能錯過。在書藉方面，<a
  href="http://www.oreilly.com/catalog/059600737X/">Perl
 6 and Parrot Essentials</a> 和 <a
  href="http://www.apress.com/book/bookDisplay.html?bID=355">Perl
 6 Now</a> 都很有幫助。</p>
 <h2>要如何學習實作程式語言？</h2>
 <p><a href="http://www.cis.upenn.edu/%7Ebcpierce/tapl/">Types
-and Programming Languages</a> 一定要讀；這本書不僅促成 Pugs，在實作期間也一直是重要的指南。它的續集 <span
+and Programming Languages</a> 一定要讀。Pugs 最初是 Autrijus
+在自學此書時的習作；它在實作期間也一直是重要的指南。它的續集 <span
  style="text-decoration: underline;"></span><a
  href="http://www.cis.upenn.edu/%7Ebcpierce/attapl/">Advanced
 Topics in
@@ -221,7 +225,7 @@ commentary</a> 為 GHC 實作提供了詳實的描述。</p>
 訂閱 <a href="http://nntp.perl.org/group/perl.perl6.compiler">perl6-compiler</a>
 通信論壇。接著加入 <a href="http://freenode.net/">irc.freenode.net</a> 的 <span
  style="font-family: monospace;">#perl6</span> IRC 頻道，看看有什麼待辦事項；不妨與 <span
- style="font-family: monospace;">#perl6</span> 上的 Pugs 團隊連繫，以取得提交權限。咱們
+ style="font-family: monospace;">#perl6</span> 上的 Pugs 團隊連繫，以加入開發團隊。咱們
 IRC 上見！<br>
 <o:p></o:p></p>
 </body>
