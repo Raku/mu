@@ -123,10 +123,10 @@ module Config (
     getConfig
 ) where
 
-import Internals.Map
+import qualified Data.Map as Map
 import qualified Help
 
-config = listToFM
+config = Map.fromList
 	[#all_definitions#
 	,("pugs_versnum", Help.versnum)
 	,("pugs_version", Help.version)
@@ -134,4 +134,4 @@ config = listToFM
 	]
 
 getConfig :: String -> String
-getConfig = lookupWithDefaultFM config ""
+getConfig key = Map.findWithDefault "" key config

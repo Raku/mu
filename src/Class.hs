@@ -38,11 +38,11 @@ data MetaClass = MetaClass
     { clsName       :: Label
     , clsSuper      :: MetaClass
     , clsSubClasses :: Set MetaClass
-    , clsProperties :: FiniteMap Label (Visibility, MetaProperty)
-    , clsMethods    :: FiniteMap Label (Visibility, MetaMethod)
-    --, clsAssocs     :: FiniteMap Label MetaAssoc
-    --, clsRevAssocs  :: FiniteMap Label MetaAssoc
-    , clsCats       :: FiniteMap Label (Visibility, MetaCategory)
+    , clsProperties :: Map Label (Visibility, MetaProperty)
+    , clsMethods    :: Map Label (Visibility, MetaMethod)
+    --, clsAssocs     :: Map Label MetaAssoc
+    --, clsRevAssocs  :: Map Label MetaAssoc
+    , clsCats       :: Map Label (Visibility, MetaCategory)
     }
 
 {-
@@ -170,7 +170,7 @@ data Type = Int | Str
   Package.clsProperties =
 	{ pkgName = MetaProperty { type = Symbol } 
 	, pkgIsGlobal = MetaProperty { type = Bool  }
-	, pkgStash = MetaProperty { type = FiniteMap (sigil, Symbol) Object }
+	, pkgStash = MetaProperty { type = Map (sigil, Symbol) Object }
 	}
 
   -- Package->has_many("pkgChildren" => Package)

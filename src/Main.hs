@@ -26,6 +26,7 @@ import Help
 import Pretty
 import Compile
 import IO
+import qualified Data.Map as Map
 
 main :: IO ()
 main = do
@@ -169,7 +170,7 @@ doRunSingle menv opts prog = (`catch` handler) $ do
                 then tabulaRasa >>= newIORef
                 else return menv
         debug <- if runOptDebug opts
-                then liftM Just (newIORef emptyFM)
+                then liftM Just (newIORef Map.empty)
                 else return Nothing
         modifyIORef ref $ \e -> e{ envDebug = debug }
         return ref
@@ -220,7 +221,7 @@ runProgramWith fenv f name args prog = do
     f val
 
 -- createConfigLine :: String -> String -- why doesn't this work?
-createConfigLine item = "\t" ++ item ++ ": " ++ (lookupWithDefaultFM config "UNKNOWN" item)
+createConfigLine item = "\t" ++ item ++ ": " ++ (Map.findWithDefault "UNKNOWN" item config)
 
 printConfigInfo :: [String] -> IO ()
 printConfigInfo [] = do
@@ -231,7 +232,7 @@ printConfigInfo [] = do
         ,""
         ,"Summary of pugs configuration:"
         ,"" ]
-        ++ map (\x -> createConfigLine x) (map (fst) (fmToList config))
+        ++ map (\x -> createConfigLine x) (map (fst) (Map.toList config))
         ++ [ "" ]
         ++ [ "@*INC:" ] ++ libs
 

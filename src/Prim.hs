@@ -16,6 +16,7 @@ import AST
 import Pretty
 import Parser
 import External
+import qualified Data.Map as Map
 import qualified Data.Set as Set
 
 op0 :: Ident -> [Val] -> Eval Val
@@ -43,7 +44,7 @@ retEmpty = do
     return $ case cxt of
         "List"  -> VList []
         "Array" -> VArray (MkArray [])
-        "Hash"  -> VHash (MkHash emptyFM)
+        "Hash"  -> VHash (MkHash Map.empty)
         _       -> VUndef
 
 op1 :: Ident -> Val -> Eval Val

@@ -15,6 +15,7 @@ module Pretty where
 import Internals
 import AST
 import Text.PrettyPrint
+import qualified Data.Map as Map
 import qualified Data.Set as Set
 
 defaultIndent :: Int
@@ -91,7 +92,7 @@ instance Pretty Val where
     format (VError x y) = hang (text "*** Error:" <+> text x) defaultIndent (text "at" <+> format y)
     format (VArray (MkArray x)) = format (VList x)
     format (VHash (MkHash x)) = braces $ (joinList $ text ", ") $
-        [ format (VStr k, v) | (k, v) <- fmToList x ]
+        [ format (VStr k, v) | (k, v) <- Map.toList x ]
     format (VHandle x) = text $ show x
     format (MVal v) = text $ unsafePerformIO $ do
         val <- readIORef v

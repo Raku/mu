@@ -14,6 +14,7 @@
 module Eval where
 import Internals
 import Prelude hiding ( exp )
+import qualified Data.Map as Map
 
 import AST
 import Junc
@@ -25,7 +26,7 @@ import Pretty
 
 emptyEnv :: (MonadIO m) => Pad -> m Env
 emptyEnv pad = do
-    ref  <- liftIO $ newIORef emptyFM
+    ref  <- liftIO $ newIORef Map.empty
     uniq <- liftIO $ newUnique
     glob <- liftIO $ newIORef (pad ++ initSyms)
     return $ Env
@@ -51,10 +52,10 @@ debug key fun str a = do
         Nothing -> return ()
         Just ref -> liftIO $ do
             fm <- readIORef ref
-            let val = fun $ lookupWithDefaultFM fm "" key
+            let val = fun $ Map.findWithDefault "" key fm
             when (length val > 100) $ do
                 hPutStrLn stderr "*** Warning: deep recursion"
-            writeIORef ref (addToFM fm key val)
+            writeIORef ref (Map.insert key val fm)
             putStrLn ("***" ++ val ++ str ++ ": " ++ pretty a)
 
 evaluateMain :: Exp -> Eval Val
@@ -379,9 +380,9 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
                 indexVal  <- readMVal indexMVal
                 val'      <- enterEvalContext "Scalar" exp
                 valScalar <- newMVal val'
-                let hash = addToFM fm (vCast indexVal) valScalar
+                let hash = Map.insert (vCast indexVal) valScalar fm
                     fm = case hashVal of
-                            VUndef  -> emptyFM -- autovivification
+                            VUndef  -> Map.empty -- autovivification
                             _       -> vCast hashVal
                 writeMVal hashMVal $ VHash $ MkHash hash
                 retVal val'
@@ -439,7 +440,7 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         hashVal  <- enterEvalContext "Hash" listExp
         hash    <- readMVal hashVal
         cls     <- asks envClasses
-        let slice = map (lookupWithDefaultFM (vCast hash) VUndef) ((map vCast $ vCast range) :: [VStr])
+        let slice = map (\k -> Map.findWithDefault VUndef k (vCast hash)) ((map vCast $ vCast range) :: [VStr])
         if isaType cls "Scalar" cxt
             then retVal $ last (VUndef:slice)
             else retVal $ VList slice

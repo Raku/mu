@@ -16,6 +16,7 @@ import Config
 import AST
 import Eval
 import Prim
+import qualified Data.Map as Map
 
 runWithArgs f = do
     args <- getArgs
@@ -52,8 +53,8 @@ runComp comp = do
 prepareEnv :: VStr -> [VStr] -> IO Env
 prepareEnv name args = do
     environ <- getEnvironment
-    let envFM = listToFM $ [ (k, VStr v) | (k, v) <- environ ]
-    let confFM = listToFM $ [ (k, VStr v) | (k, v) <- fmToList config ]
+    let envFM = Map.fromList $ [ (k, VStr v) | (k, v) <- environ ]
+    let confFM = Map.fromList $ [ (k, VStr v) | (k, v) <- Map.toList config ]
     exec    <- getArg0
     libs    <- getLibs environ
     execSV  <- newMVal $ VStr exec

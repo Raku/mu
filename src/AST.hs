@@ -16,6 +16,7 @@ import Internals
 import Context
 import Rule
 import List
+import qualified Data.Map as Map
 import qualified Data.Set as Set
 
 type Ident = String
@@ -68,16 +69,16 @@ instance Value VHash where
     -- vCast VUndef = MkHash emptyFM
     vCast v = MkHash $ vCast v
 
-instance Value (FiniteMap VStr Val) where
+instance Value (Map VStr Val) where
     vCast (VHash (MkHash h)) = h
     -- vCast VUndef = emptyFM
-    vCast (VPair (k, v)) = listToFM [(vCast k, v)]
-    vCast x = listToFM [ (vCast k, v) | (k, v) <- vCast x ]
+    vCast (VPair (k, v)) = Map.fromList [(vCast k, v)]
+    vCast x = Map.fromList [ (vCast k, v) | (k, v) <- vCast x ]
 
 instance Value [VPair] where
     -- vCast VUndef = []
     vCast (VRef v)      = vCast v
-    vCast (VHash (MkHash h)) = [ (VStr k, v) | (k, v) <- fmToList h ]
+    vCast (VHash (MkHash h)) = [ (VStr k, v) | (k, v) <- Map.assocs h ]
     vCast (VPair p) = [p]
     vCast (VList vs) =
         let fromList [] = []
@@ -132,7 +133,7 @@ instance Value VRat where
     doCast (VBool b)    = if b then 1 % 1 else 0 % 1
     doCast (VList l)    = genericLength l
     doCast (VArray (MkArray a))    = genericLength a
-    doCast (VHash (MkHash h))    = fromIntegral $ sizeFM h
+    doCast (VHash (MkHash h))    = fromIntegral $ Map.size h
     doCast (VStr s) | not (null s) , isSpace $ last s = doCast (VStr $ init s)
     doCast (VStr s) | not (null s) , isSpace $ head s = doCast (VStr $ tail s)
     doCast (VStr s)     =
@@ -162,7 +163,7 @@ instance Value VNum where
                 Right d -> realToFrac d
     doCast (VList l)    = genericLength l
     doCast (VArray (MkArray a))    = genericLength a
-    doCast (VHash (MkHash h))    = fromIntegral $ sizeFM h
+    doCast (VHash (MkHash h))    = fromIntegral $ Map.size h
     doCast _            = 0/0 -- error $ "cannot cast as Num: " ++ (show x)
 
 instance Value VComplex where
@@ -172,7 +173,7 @@ instance Value VComplex where
 instance Value VStr where
     castV = VStr
     fromVal (VHash (MkHash h)) = do
-        ls <- mapM strPair $ fmToList h
+        ls <- mapM strPair $ Map.assocs h
         return $ unlines ls
         where
         strPair (k, v) = do
@@ -192,7 +193,7 @@ instance Value VStr where
     vCast (VPair (k, v))= vCast k ++ "\t" ++ vCast v ++ "\n"
     vCast (VArray (MkArray l))   = unwords $ map vCast l
     vCast (VHash (MkHash h))     = unlines $
-        map (\(k, v) -> (k ++ "\t" ++ vCast v)) $ fmToList h
+        map (\(k, v) -> (k ++ "\t" ++ vCast v)) $ Map.assocs h
     vCast (VSub s)      = "<" ++ show (subType s) ++ "(" ++ subName s ++ ")>"
     vCast (VJunc j)     = show j
     vCast x             = error $ "cannot cast as Str: " ++ (show x)
@@ -230,7 +231,7 @@ instance Value VList where
     castV = VList
     vCast (VList l)     = l
     vCast (VArray (MkArray l)) = l
-    vCast (VHash (MkHash h)) = [ VPair (VStr k, v) | (k, v) <- fmToList h ]
+    vCast (VHash (MkHash h)) = [ VPair (VStr k, v) | (k, v) <- Map.assocs h ]
     vCast (VPair (k, v))   = [k, v]
     vCast (VRef v)      = vCast v
     -- vCast (MVal v)      = vCast $ castV v
@@ -300,7 +301,7 @@ type VSubst = (VRule, Exp)
 type VHandle = Handle
 type MVal = IORef Val
 newtype VArray = MkArray [Val] deriving (Show, Eq, Ord)
-newtype VHash  = MkHash (FiniteMap VStr Val) deriving (Show, Eq, Ord)
+newtype VHash  = MkHash (Map VStr Val) deriving (Show, Eq, Ord)
 newtype VThunk = MkThunk (Eval Val)
 data VRule     = MkRule
     { rxRegex     :: Regex
@@ -532,7 +533,7 @@ data Env = Env { envContext :: Cxt
                , envBody    :: Exp
                , envDepth   :: Int
                , envID      :: Unique
-               , envDebug   :: Maybe (IORef (FiniteMap String String))
+               , envDebug   :: Maybe (IORef (Map String String))
                } deriving (Show, Eq)
 
 type Pad = [Symbol]

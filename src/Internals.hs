@@ -47,7 +47,7 @@ module Internals (
     module Data.Maybe,
     module Data.Complex,
     module Data.Set,
-    module Internals.Map,
+    module Data.Map,
     module Data.IORef,
     module Debug.Trace,
     internalError,
@@ -58,7 +58,6 @@ module Internals (
     encodeUTF8,
 ) where
 
-import Internals.Map
 import UTF8
 import Unicode
 import Cont
@@ -101,6 +100,7 @@ import Data.Complex
 import Data.Tree
 import Data.IORef
 import Data.Set (Set)
+import Data.Map (Map)
 import Debug.Trace
 import Rule.Pos
 
@@ -113,7 +113,7 @@ instance Eq (a -> b) where
     _ == _ = False
 instance Ord (a -> b) where
     compare _ _ = LT
-instance Show (IORef (FiniteMap String String)) where
+instance Show (IORef (Map String String)) where
     show _ = "{ n/a }"
 
 internalError :: String -> a
