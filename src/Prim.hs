@@ -36,17 +36,23 @@ op0 s    = \x -> return $ VError ("unimplemented listOp: " ++ s) (Val $ VList x)
 op1 :: Ident -> Val -> Eval Val
 op1 "!"    = return . fmapVal not
 op1 "+"    = return . op1Numeric id
-op1 "++"   = \mv -> do
+op1 "post:++" = \mv -> do
     val <- readMVal mv
     liftIO $ writeIORef (vCast mv) $ case val of
         (VStr str)  -> VStr $ strInc str
         _           -> op1Numeric (\x -> x + 1) (vCast val)
     return val
-op1 "--"   = \mv -> do
+op1 "++"   = \mv -> do
+    op1 "post:++" mv
+    readMVal mv
+op1 "post:--"   = \mv -> do
     val <- liftIO $ readIORef (vCast mv)
     liftIO $ writeIORef (vCast mv) $
         op1Numeric (\x -> x - 1) (vCast val)
     return val
+op1 "--"   = \mv -> do
+    op1 "post:--" mv
+    readMVal mv
 op1 "-"    = return . op1Numeric negate
 op1 "~"    = return . VStr . vCast
 op1 "?"    = return . VBool . vCast
@@ -343,21 +349,22 @@ primOp sym assoc prms ret = Symbol SOur name (Val sub)
     f    = case arity of
         0 -> \(x:_) -> op0 sym (vCast x)
         1 -> \x     -> case x of
-            [x]   -> op1 sym x
+            [x]   -> op1 symName x
             [x,y] -> op2 sym x y
             x     -> op0 sym x
         2 -> \[x,y] -> op2 sym (vCast x) (vCast y)
         _ -> error (show arity)
-    (arity, fixity) = case assoc of
-        "pre"       -> (1, "prefix")
-        "post"      -> (1, "postfix")
-        "circum"    -> (1, "circumfix")
-        "left"      -> (2, "infix")
-        "right"     -> (2, "infix")
-        "non"       -> (2, "infix")
-        "chain"     -> (2, "infix")
-        "list"      -> (0, "infix")
-        other       -> (0, other)
+    symName = if modify then assoc ++ ":" ++ sym else sym
+    (arity, fixity, modify) = case assoc of
+        "pre"       -> (1, "prefix", False)
+        "post"      -> (1, "postfix", True)
+        "circum"    -> (1, "circumfix", True)
+        "left"      -> (2, "infix", False)
+        "right"     -> (2, "infix", False)
+        "non"       -> (2, "infix", False)
+        "chain"     -> (2, "infix", False)
+        "list"      -> (0, "infix", False)
+        other       -> (0, other, True)
         
 primDecl str = primOp sym assoc (reverse $ foldr foldParam [] prms) ret
     where
