@@ -23,11 +23,12 @@ is (+@foo, 10, 'list repeat operator created list of the right size');
 
 # test x=
 my $twin = 'Lintilla';
-todo_ok(eval '$twin x= 2;', 'operator x= for string works');
-todo_is ($twin, 'LintillaLintilla', 'operator x= for string repeats correct');
+ok(eval '$twin x= 2;', 'operator x= for string works');
+is ($twin, 'LintillaLintilla', 'operator x= for string repeats correct');
 
 my @array = (4, 2);
-todo_ok(eval '@array xx= 2;', 'operator x= for list works');
-todo_is (@array[0], 4, 'operator x= for list repeats correct');
-todo_is (@array[3], 2, 'operator x= for list repeats correct');
-todo_is (+@array, 4, 'operator x= for list created the right size');
+ok(eval '@array xx= 2;', 'operator x= for list works');
+is (@array[0], 4, 'operator x= for list repeats correct');
+is (@array[3], 2, 'operator x= for list repeats correct');
+is (+@array, 4, 'operator x= for list created the right size');
+

@@ -474,7 +474,7 @@ tightOperators = do
     , leftOps  " && !! "                                -- Tight And
     , leftOps  " || ^^ // "                             -- Tight Or
     , ternOps  [("??", "::")]                           -- Ternary
-    , rightSyn " = := ::= ~= += -= *= /= **= xx= ||= &&= //= "-- Assignment
+    , rightSyn " = := ::= ~= += -= *= /= x= Y= ¥= **= xx= ||= &&= //= "-- Assignment
     ]
 
 looseOperators = do

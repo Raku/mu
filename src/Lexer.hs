@@ -74,21 +74,23 @@ ruleEndOfLine = choice [ do { char '\n'; return () }, eof ]
 symbol s
     | isWordAny (last s) = try $ do
         rv <- string s
-        choice [ eof >> return ' ', lookAhead (satisfy (not . isWordAny)) ]
+        choice [ eof >> return ' ', lookAhead (satisfy (aheadWord $ last s)) ]
         whiteSpace
         return rv
     | otherwise          = try $ do
         rv <- string s
         -- XXX Wrong - the correct solution is to lookahead as much as possible
         -- in the expression parser below
-        choice [ eof >> return ' ', lookAhead (satisfy (ahead $ last s)) ]
+        choice [ eof >> return ' ', lookAhead (satisfy (aheadSym $ last s)) ]
         whiteSpace
         return rv
-        where
-        ahead '-' '>' = False -- XXX hardcoke
-        ahead '!' '~' = False -- XXX hardcoke
-        ahead x   '=' = not (x `elem` "!~+-*/|")
-        ahead s   x   = x `elem` ";!" || x /= s
+    where
+    aheadWord x  '=' = not $ x `elem` (decodeUTF8 "xY¥")
+    aheadWord _  y   = not $ isWordAny y
+    aheadSym '-' '>' = False -- XXX hardcode
+    aheadSym '!' '~' = False -- XXX hardcode
+    aheadSym x   '=' = not (x `elem` "!~+-*&/|.")
+    aheadSym x   y   = y `elem` ";!" || x /= y
 
 stringLiteral = singleQuoted
 
