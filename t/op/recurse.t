@@ -1,6 +1,7 @@
 use v6;
+require Test;
 
-say "1..6";
+plan(6);
 
 # Mostly copied from Perl 5.8.4 s t/op/recurse.t
 
@@ -40,17 +41,14 @@ sub takeuchi {
             :: @_[2];
 }
 
-if(gcd(1147, 1271) == 31) { say "ok 1" } else { say "not ok 1" }
+ok(gcd(1147, 1271) == 31);
+ok(gcd(1908, 2016) == 36);
+ok(factorial(10) == 3628800);
+ok(factorial(factorial(3)) == 720);
+ok(fibonacci(10) == 89);
 
-if(gcd(1908, 2016) == 36) { say "ok 2" } else { say "not ok 2" }
-
-if(factorial(10) == 3628800) { say "ok 3" } else { say "not ok 3" }
-
-if(factorial(factorial(3)) == 720) { say "ok 4" } else { say "not ok 4" }
-
-if(fibonacci(10) == 89) { say "ok 5" } else { say "not ok 5" }
-
-# if(fibonacci(fibonacci(7)) == 17711) { say "ok 6" } else { say "not ok 6" }
+# ok(fibonacci(fibonacci(7)) == 17711);
 # takes too long
-say "ok 6 # skip Takes too long to wait for"
+pass("skip Takes too long to wait for");
+
 

@@ -1,6 +1,7 @@
 use v6;
+require Test;
 
-say "1..132";
+plan(132);
 
 sub abs($num) { $num < 0 ?? -$num :: $num }
 
@@ -12,36 +13,36 @@ if (not $five == 5) {
     exit()
 }
 
-sub try ($test, $ok, ?$todo1 = '') { 
-    my $todo = $todo1;  # TODO is rw
-    $todo = ' # TODO ' ~ $todo if $todo;
-    if ($ok) {
-        say "ok " ~ $test ~ $todo;
+sub try ($test, $ok, ?$todo = '') { 
+    if ($todo) { 
+        todo_ok($ok,$todo); 
     } else {
-        say "not ok " ~ $test ~ $todo;
+        ok($ok);
     }
 }
-sub tryeq ($test, $lhs, $rhs, ?$todo1 = '') {
-    my $todo = $todo1;  # TODO is rw
-    $todo = ' # TODO ' ~ $todo if $todo;
-    if ($lhs == $rhs) {
-        say "ok " ~ $test ~ $todo;
+sub tryeq ($test, $lhs, $rhs, ?$todo = '') {
+    if ($todo) {
+       todo_ok($lhs == $rhs,$todo ~ " " ~ $lhs ~ " != " ~ $rhs);
     } else {
-        say "not ok " ~ $test ~ $todo ~ " # " ~ $lhs ~ " != " ~ $rhs;
+       ok($lhs == $rhs);
     }
 }
 sub tryeq_sloppy ($test, $lhs, $rhs, ?$todo1 = '') {
     my $todo = $todo1;  # TODO is rw
     $todo = ' # TODO ' ~ $todo if $todo;
     if ($lhs == $rhs) {
-        say "ok " ~ $test ~ $todo;
+        if ($todo) { 
+            todo_ok($lhs==$rhs,$todo);
+        } else {
+            ok($lhs==$rhs,$todo);
+        }
     } else {
         my $error = abs($lhs - $rhs) / $lhs;
-        if ($error < 1e-9) {
-            say "ok " ~ $test ~ $todo ~ " # " ~ $lhs ~ " is close to " ~ $rhs;
+        if ($todo) {
+            todo_ok($error<1e-9,$todo ~ " # " ~ $lhs ~ " is close to " ~ $rhs);
         } else {
-            say "not ok " ~ $test ~ $todo ~ " # " ~ $lhs ~ " != " ~ $rhs;
-        } 
+            ok($error<1e-9);
+        }
     }
 }
 
