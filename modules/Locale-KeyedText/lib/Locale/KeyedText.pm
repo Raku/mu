@@ -32,9 +32,9 @@ Darren Duncan <perl@DarrenDuncan.net>
 ######################################################################
 ######################################################################
 
-subtype KeyName of Str where { $_.defined and $_ ne '' and $_ !~ m/\W/ }
+subtype KeyName of Str where { .defined and m/^\w+$/ }
 subtype KeyNameHash of Hash is shape(KeyName) of Str; # keys are of type KeyName, values of type Str
-subtype PkgName of Str where { $_.defined and $_ ne '' and $_ !~ m/<-[a-zA-Z0-9_:]>/ }
+subtype PkgName of Str where { .defined and m/^<[a-zA-Z0-9_:]>+$/ }
 subtype PkgNameArray of Array of PkgName;
 
 ######################################################################
@@ -44,12 +44,12 @@ module Locale::KeyedText-0.0.1 {
 
 ######################################################################
 
-sub new_message( KeyName $msg_key, KeyNameHash ?%msg_vars ) returns Locale::KeyedText::Message {
-	return( Locale::KeyedText::Message.new( $msg_key, %msg_vars ) );
+sub new_message( $msg_key is KeyName, ?%msg_vars is KeyNameHash ) returns Locale::KeyedText::Message {
+	return Locale::KeyedText::Message.new( $msg_key, %msg_vars );
 }
 
-sub new_translator( PkgNameArray @set_names, PkgNameArray @member_names ) returns Locale::KeyedText::Translator {
-	return( Locale::KeyedText::Translator.new( @set_names, @member_names ) );
+sub new_translator( @set_names is PkgNameArray, @member_names is PkgNameArray ) returns Locale::KeyedText::Translator {
+	return Locale::KeyedText::Translator.new( @set_names, @member_names );
 }
 
 ######################################################################
@@ -60,35 +60,36 @@ sub new_translator( PkgNameArray @set_names, PkgNameArray @member_names ) return
 ######################################################################
 
 class Locale::KeyedText::Message {
-	has KeyName $.msg_key; # str - the machine-readable key that uniquely identifies this message
-	has KeyNameHash %.msg_vars; # hash (str,str) - named variables for messages, if any, go here
+	trusts Locale::KeyedText::Translator;
+	has $:msg_key is KeyName; # str - the machine-readable key that uniquely identifies this message
+	has %:msg_vars is KeyNameHash; # hash (str,str) - named variables for messages, if any, go here
 
 ######################################################################
 
-method new( $class: KeyName $msg_key, KeyNameHash ?%msg_vars ) returns Locale::KeyedText::Message {
-	return( $class.bless( { msg_key => $msg_key, msg_vars => %msg_vars } ) );
+method new( $class: $msg_key is KeyName, ?%msg_vars is KeyNameHash ) returns Locale::KeyedText::Message {
+	return $class.bless( { msg_key => $msg_key, msg_vars => %msg_vars } );
 }
 
 ######################################################################
 
 method get_message_key( $message: ) returns KeyName {
-	return( $message.msg_key );
+	return $message.msg_key;
 }
 
-method get_message_variable( $message: KeyName $var_name ) returns KeyName {
-	return( $message.msg_vars{$var_name} );
+method get_message_variable( $message: $var_name is KeyName ) returns KeyName {
+	return $message.msg_vars{$var_name};
 }
 
 method get_message_variables( $message: ) returns KeyNameHash {
-	return( %{{$message.msg_vars}} ); # copy list values
+	return %{{$message.msg_vars}}; # copy list values
 }
 
 ######################################################################
 
 method as_string( $message: ) returns Str {
 	# This method is intended for debugging use only.
-	return( $message.msg_key~': '~$message.msg_vars.pairs.sort.
-		map:{ $_.key~'='~($_.value // '') }.join( ', ' ); # S02 says sorting Pairs sorts keys by default.
+	return $message.msg_key~': '~$message.msg_vars.pairs.sort.
+		map:{ $_.key~'='~($_.value // '') }.join( ', '; # S02 says sorting Pairs sorts keys by default.
 	# I might use %hash.as() later, but don't know if it is customizable to sort or make undefs the empty str.
 }
 
@@ -100,29 +101,29 @@ method as_string( $message: ) returns Str {
 ######################################################################
 
 class Locale::KeyedText::Translator {
-	has PkgNameArray @.tmpl_set_nms; # array of str - list of Template module Set Names to search
-	has PkgNameArray @.tmpl_mem_nms; # array of str - list of Template module Member Names to search
+	has @:tmpl_set_nms is PkgNameArray; # array of str - list of Template module Set Names to search
+	has @:tmpl_mem_nms is PkgNameArray; # array of str - list of Template module Member Names to search
 
 ######################################################################
 
-method new( $class: PkgNameArray @set_names, PkgNameArray @member_names ) returns Locale::KeyedText::Translator {
-	return( $class.bless( { tmpl_set_nms => @set_names, tmpl_mem_nms => @member_names } );
+method new( $class: @set_names is PkgNameArray, @member_names is PkgNameArray ) returns Locale::KeyedText::Translator {
+	return $class.bless( { tmpl_set_nms => @set_names, tmpl_mem_nms => @member_names };
 }
 
 ######################################################################
 
 method get_template_set_names( $translator: ) returns PkgNameArray {
-	return( @{[$translator.tmpl_set_nms]} ); # copy list values
+	return @{[$translator.tmpl_set_nms]}; # copy list values
 }
 
 method get_template_member_names( $translator: ) returns PkgNameArray {
-	return( @{[$translator.tmpl_mem_nms]} ); # copy list values
+	return @{[$translator.tmpl_mem_nms]}; # copy list values
 }
 
 ######################################################################
 
 method translate_message( $translator: Locale::KeyedText::Message $message ) returns Str {
-	$message.defined or return( undef );
+	$message.defined or return;
 	my Str $text = undef;
 	MEMBER: for $translator.tmpl_mem_nms -> $member_name {
 		SET: for $translator.tmpl_set_nms -> $set_name {
@@ -147,15 +148,15 @@ method translate_message( $translator: Locale::KeyedText::Message $message ) ret
 			last MEMBER;
 		}
 	}
-	return( $text );
+	return $text;
 }
 
 ######################################################################
 
 method as_string( $translator: ) returns Str {
 	# This method is intended for debugging use only.
-	return( 'SETS: '~$translator.tmpl_set_nms.as( '%s', ', ' )~'; MEMBERS: '~
-		$translator.tmpl_mem_nms.as( '%s', ', ' ) );
+	return 'SETS: '~$translator.tmpl_set_nms.as( '%s', ', ' )~'; MEMBERS: '~
+		$translator.tmpl_mem_nms.as( '%s', ', ' );
 }
 
 ######################################################################
@@ -187,7 +188,7 @@ the one with the program also adds support to the library.
 		$number ~~ m/\d/ or throw Locale::KeyedText.new_message( 
 			'MYLIB_MYINV_BAD_ARG', { 'GIVEN_VALUE' => $number } );
 		$number == 0 and throw Locale::KeyedText.new_message( 'MYLIB_MYINV_RES_INF' );
-		return( 1 / $number );
+		return 1 / $number;
 	}
 
 =head2 Content of English language Template file 'MyLib/L/Eng.pm':
@@ -200,7 +201,7 @@ the one with the program also adds support to the library.
 		'MYLIB_MYINV_RES_INF' => 'my_invert(): result is infinite because argument NUMBER is zero',
 	);
 
-	sub get_text_by_key( Str $msg_key ) returns Str { return( $text_strings{$msg_key} ); }
+	sub get_text_by_key( Str $msg_key ) returns Str { return $text_strings{$msg_key}; }
 
 =head2 Content of French language (rough manual translation) Template file 'MyLib/L/Fre.pm':
 
@@ -212,7 +213,7 @@ the one with the program also adds support to the library.
 		'MYLIB_MYINV_RES_INF' => 'my_invert(): aboutir a est infini parce que paramètre NUMBER est zero',
 	);
 
-	sub get_text_by_key( Str $msg_key ) returns Str { return( $text_strings{$msg_key} ); }
+	sub get_text_by_key( Str $msg_key ) returns Str { return $text_strings{$msg_key}; }
 
 =head2 Content of main program 'MyApp.pl':
 
@@ -270,7 +271,7 @@ the one with the program also adds support to the library.
 		'MYAPP_RESULT' => 'The inverse of "{ORIGINAL}" is "{INVERTED}".',
 	);
 
-	sub get_text_by_key( Str $msg_key ) returns Str { return( $text_strings{$msg_key} ); }
+	sub get_text_by_key( Str $msg_key ) returns Str { return $text_strings{$msg_key}; }
 
 =head2 Content of French language (rough manual translation) Template file 'MyApp/L/Fre.pm':
 
@@ -283,7 +284,7 @@ the one with the program also adds support to the library.
 		'MYAPP_RESULT' => 'Renversement "{ORIGINAL}" est "{INVERTED}".',
 	);
 
-	sub get_text_by_key( Str $msg_key ) returns Str { return( $text_strings{$msg_key} ); }
+	sub get_text_by_key( Str $msg_key ) returns Str { return $text_strings{$msg_key}; }
 
 =head2 Content of alternate text Template file 'MyApp/L/Homer.pm':
 
@@ -299,7 +300,7 @@ the one with the program also adds support to the library.
 		'MYLIB_MYINV_RES_INF' => 'Don\'t you give me a big donut!',
 	);
 
-	sub get_text_by_key( Str $msg_key ) returns Str { return( $text_strings{$msg_key} ); }
+	sub get_text_by_key( Str $msg_key ) returns Str { return $text_strings{$msg_key}; }
 
 =head1 DESCRIPTION
 
@@ -693,7 +694,7 @@ Actually, it shows both methods together, with 4 embedded, 1 separate.
 			$number ~~ m/\d/ or throw Locale::KeyedText.new_message( 
 				'MYLIB_MYINV_BAD_ARG', { 'GIVEN_VALUE' => $number } );
 			$number == 0 and throw Locale::KeyedText.new_message( 'MYLIB_MYINV_RES_INF' );
-			return( 1 / $number );
+			return 1 / $number;
 		}
 	}
 
@@ -704,7 +705,7 @@ Actually, it shows both methods together, with 4 embedded, 1 separate.
 			'MYLIB_MYINV_RES_INF' => 'my_invert(): result is infinite because argument NUMBER is zero',
 		);
 	
-		sub get_text_by_key( Str $msg_key ) returns Str { return( $text_strings{$msg_key} ); }
+		sub get_text_by_key( Str $msg_key ) returns Str { return $text_strings{$msg_key}; }
 	}
 
 	module MyLib::L::Fre {
@@ -713,7 +714,7 @@ Actually, it shows both methods together, with 4 embedded, 1 separate.
 			'MYLIB_MYINV_BAD_ARG' => 'my_invert(): paramètre NUMBER est ne nombre, il est "{GIVEN_VALUE}"',
 			'MYLIB_MYINV_RES_INF' => 'my_invert(): aboutir a est infini parce que paramètre NUMBER est zero',
 		);
-		sub get_text_by_key( Str $msg_key ) returns Str { return( $text_strings{$msg_key} ); }
+		sub get_text_by_key( Str $msg_key ) returns Str { return $text_strings{$msg_key}; }
 	}
 
 =head2 Content of main program 'MyApp.pl':
@@ -768,7 +769,7 @@ Actually, it shows both methods together, with 4 embedded, 1 separate.
 			'MYAPP_PROMPT' => 'Enter a number to be inverted, or press ENTER to quit.',
 			'MYAPP_RESULT' => 'The inverse of "{ORIGINAL}" is "{INVERTED}".',
 		);
-		sub get_text_by_key( Str $msg_key ) returns Str { return( $text_strings{$msg_key} ); }
+		sub get_text_by_key( Str $msg_key ) returns Str { return $text_strings{$msg_key}; }
 	}
 
 	module MyApp::L::Fre {
@@ -778,7 +779,7 @@ Actually, it shows both methods together, with 4 embedded, 1 separate.
 			'MYAPP_PROMPT' => 'Fournir nombre être inverser, ou appuyer sur ENTER être arrêter.',
 			'MYAPP_RESULT' => 'Renversement "{ORIGINAL}" est "{INVERTED}".',
 		);
-		sub get_text_by_key( Str $msg_key ) returns Str { return( $text_strings{$msg_key} ); }
+		sub get_text_by_key( Str $msg_key ) returns Str { return $text_strings{$msg_key}; }
 	}
 
 =head2 Content of alternate text Template file 'MyApp/L/Homer.pm':
@@ -795,7 +796,7 @@ Actually, it shows both methods together, with 4 embedded, 1 separate.
 		'MYLIB_MYINV_RES_INF' => 'Don\'t you give me a big donut!',
 	);
 
-	sub get_text_by_key( Str $msg_key ) returns Str { return( $text_strings{$msg_key} ); }
+	sub get_text_by_key( Str $msg_key ) returns Str { return $text_strings{$msg_key}; }
 
 =head1 BUGS
 
