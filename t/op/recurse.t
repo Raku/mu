@@ -49,6 +49,6 @@ ok(fibonacci(10) == 89);
 
 # ok(fibonacci(fibonacci(7)) == 17711);
 # takes too long
-pass("skip Takes too long to wait for");
+skip("Takes too long to wait for");
 
 
