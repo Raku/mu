@@ -10,5 +10,7 @@
 -}
 
 module IMC where
+import IMC.AST
+import IMC.Compile
 import IMC.Lexer
 
