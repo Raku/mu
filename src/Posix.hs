@@ -34,6 +34,7 @@ import System.Posix.Unistd
 import Data.Maybe
 import System.IO.Error
 import System.Environment
+import System.Posix.Types
 
 createLink :: FilePath -> FilePath -> IO ()
 createLink _ _ = fail "'link' not implemented on this platform."
@@ -53,8 +54,8 @@ removeLink _ = fail "'unlink' not implemented on this platform."
 sleep :: Int -> IO ()
 sleep _ = fail "'sleep' not implemented on this platform."
 
-setfileMode :: FilePath -> FileMode -> IO ()
-setfileMode _ _ = fail "'chmod' not implemented on this platform."
+setFileMode :: FilePath -> FileMode -> IO ()
+setFileMode _ _ = fail "'chmod' not implemented on this platform."
 
 getEnvironment :: IO [(String, String)]
 getEnvironment = do

@@ -1,6 +1,7 @@
 use strict;
 use Config;
 use inc::Module::Install;
+use FindBin;
 
 my $kwid = "kwid$Config{_exe}";
 
@@ -9,13 +10,13 @@ version         ('0.0');
 abstract        ('Kwid');
 author          ('Brian Ingerson <ingy@cpan.org>');
 license         ('perl');
-install_script  ($kwid);
+install_script  ("$FindBin::Bin/$kwid");
 blib_depth      (2);
 
 postamble(<< ".");
 
 $kwid :: src/Kwid/AST.hs
-	ghc --make -Wall -fno-warn-missing-signatures -fno-warn-name-shadowing -o $kwid src/Main.hs -isrc
+	ghc --make -Wall -fno-warn-missing-signatures -fno-warn-name-shadowing -o $FindBin::Bin/$kwid $FindBin::Bin/src/Main.hs -i"$FindBin::Bin/src"
 
 .
 
