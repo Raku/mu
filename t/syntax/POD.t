@@ -3,19 +3,27 @@
 use v6;
 require Test;
 
-plan 3;
+plan 6;
 
 # L<S02/"Literals">
 # others will be added later, or u can do it.
 
 todo_eval_ok '
-=begin DATA
-line1
-line2
-line3
+=begin DATA LABEL1
+LABEL1.1
+LABEL1.2
+LABEL1.3
+=end DATA
+
+=begin DATA LABEL2
+LABEL2.1
+LABEL2.2
 =end DATA
 ', "=begin DATA works";
 
-todo_eval_is('+@=DATA', 3, 'the @=DATA return the correct size');
-todo_eval_is('@=DATA[0]', 'line1', '@=DATA[0] is correct');
-todo_eval_is('@-DATA[2]', 'line3', '@=DATA[2] is correct');
+todo_eval_is('%=DATA<LABEL1>[0]', 'LABEL1.1', '@=DATA<LABEL1>[0] is correct');
+todo_eval_is('%=DATA<LABEL1>[2]', 'LABEL1.3', '@=DATA<LABEL1>[2] is correct');
+todo_eval_is('~ %=DATA<LABEL1>', 'LABEL1.1LABEL1.2LABEL1.3', '~ %=DATA<LABEL1> is correct');
+
+todo_eval_is('~ $=LABEL2', 'LABEL2.1LABEL2.2', '~ $=LABEL2 is correct');
+todo_eval_is('$=LABEL2[1]', 'LABEL2.2', '$=LABEL2[1] is correct');
