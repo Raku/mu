@@ -179,6 +179,8 @@ op1 "sleep" = boolIO sleep
 op1 "mkdir" = boolIO createDirectory
 op1 "rmdir" = boolIO removeDirectory
 op1 "chdir" = boolIO setCurrentDirectory
+op1 "-d"    = boolIO3 doesDirectoryExist
+op1 "-f"    = boolIO3 doesFileExist
 op1 "chmod" = \v -> do
     v <- readMVal v
     vals <- mapM readMVal (vCast v)
@@ -302,6 +304,11 @@ boolIO2 f u v = do
         f (vCast u) (vCast v)
         return True
     return $ VBool ok
+    
+boolIO3 f v = do 
+    ok <- tryIO False $ do
+        f (vCast v)
+    return $ VBool ok    
 
 opEval :: Bool -> String -> String -> Eval Val
 opEval fatal name str = do
@@ -700,6 +707,8 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      spre    !       (Bool)\
 \\n   Num       spre    +       (Num)\
 \\n   Num       pre     abs     (Num)\
+\\n   Bool      pre     -d      (Str)\
+\\n   Bool      pre     -f      (Str)\
 \\n   Num       spre    -       (Num)\
 \\n   Str       spre    ~       (Str)\
 \\n   Bool      spre    ?       (Bool)\
