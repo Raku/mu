@@ -4,6 +4,7 @@ use v6;
 class URI {
   my %implements;  # mapping from scheme to implementor class
   has Str $:str;
+  our Bool ($ABS_REMOTE_LEADING_DOTS, $ABS_ALLOW_RELATIVE_SCHEME);
 
   # Some "official" character classes
 
