@@ -9,7 +9,7 @@ Basic tests.
 
 =cut
 
-plan 16;
+plan 20;
 
 ok(1, "Welcome to Pugs!");
 

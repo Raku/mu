@@ -113,7 +113,7 @@ stringLiteral = singleQuoted
 
 interpolatingStringLiteral endchar interpolator = do
         list <- stringList
-        return (App "&prefix:~" [homogenConcat list] [])
+        return $ homogenConcat list
     where
         homogenConcat :: [Exp] -> Exp
         homogenConcat []             = Val (VStr "")

@@ -421,7 +421,7 @@ parseName str
     | (_, (_:name)) <- break (== ':') str
     = name
     | otherwise
-    = str
+    = dropWhile (not . isAlpha) str
     
 
 currentListFunctions = do
@@ -461,7 +461,14 @@ chainSyn    = leftSyn
 
 makeOp1 prec sigil con name = prec $ do
     symbol name
-    return $ \x -> con (sigil ++ name) [x]
+    return $ \x -> con fullName [x]
+    where
+    fullName
+        | isAlpha (head name)
+        , sigil == "&prefix:"
+        = ('&':name)
+        | otherwise
+        = sigil ++ name
 
 makeOp2 prec sigil con name = (`Infix` prec) $ do
     symbol name

@@ -527,6 +527,7 @@ doApply env@Env{ envClasses = cls } sub@Sub{ subParams = prms, subFun = fun, sub
         Right bindings  -> do
             local fixEnv $ enterScope $ do
                 bound <- doBind bindings
+                -- trace (show bound) $ return ()
                 val <- (`juncApply` bound) $ \realBound -> do
                     enterSub sub $ do
                         applyExp realBound fun
@@ -541,7 +542,9 @@ doApply env@Env{ envClasses = cls } sub@Sub{ subParams = prms, subFun = fun, sub
     doBind :: [(Param, Exp)] -> Eval [ApplyArg]
     doBind [] = return []
     doBind ((prm, exp):rest) = do
+        -- trace ("<== " ++ (show (prm, exp))) $ return ()
         (val, coll) <- expToVal prm exp
+        -- trace ("==> " ++ (show val)) $ return ()
         let name = paramName prm
             arg = ApplyArg name val coll
         val' <- enterEvalContext (cxtOfSigil $ head name) (Val val)

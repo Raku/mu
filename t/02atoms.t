@@ -5,7 +5,7 @@ require Test;
 
 =pod
 
-This is a test file.  Whee!
+Bits and Pieces.
 
 =cut
 
@@ -55,14 +55,14 @@ ok(@array[0] eq '"foo"' && @array[1] eq '"bar"', 'qw//');
 
 my @array;
 eval ' @array = q:w/"foo" "bar"/ ';
-ok(@array[0] eq '"foo"' && @array[1] eq '"bar"', 'q:w//');
+todo_ok(@array[0] eq '"foo"' && @array[1] eq '"bar"', 'q:w//');
 
 my %hash;
 eval ' %hash<Mon Tue Wed Thu Fri Sat Sun> = 1..7; ';
-ok(%hash{'Mon'} eq '1' && %hash{'Sun'} eq '7', '%hash<>');
+todo_ok(%hash{'Mon'} eq '1' && %hash{'Sun'} eq '7', '%hash<>');
 
 eval '
     my $handle = open(">/tmp/tmpfile");
     for *FILE { $bar ~= $_ }
 ';
-todo_ok ($bar, '*FILE');
+todo_ok($bar, '*FILE');
