@@ -151,13 +151,13 @@ sub set_postamble {
 src/Config.hs : util/PugsConfig.pm
 	$Config{perlpath} -Iutil -MPugsConfig -e "PugsConfig->write_config_module" > src/Config.hs
 
-profiled :: src/Config.hs @srcfiles $version_h
+profiled :: src/Config.hs @srcfiles $version_h src/UnicodeC.c src/UnicodeC.h
 	ghc -auto-all -prof --make $ghc_flags $ghc_output
 
-optimized :: src/Config.hs @srcfiles $version_h
+optimized :: src/Config.hs @srcfiles $version_h src/UnicodeC.c src/UnicodeC.h
 	ghc -O2 --make $ghc_flags $ghc_output
 
-$pugs : src/Config.hs @srcfiles $version_h
+$pugs : src/Config.hs @srcfiles $version_h src/UnicodeC.c src/UnicodeC.h
 	ghc --make $ghc_flags $ghc_output
 
 tags :
