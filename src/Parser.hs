@@ -1,4 +1,4 @@
-{-# OPTIONS -fglasgow-exts #-}
+{-# OPTIONS -fglasgow-exts -O #-}
 
 {-
     Higher-level parser for building ASTs.
@@ -640,18 +640,23 @@ rulePostTerm = tryRule "term postfix" $ do
         , ruleCodeSubscript
         ]
 
-doRuleInvocation needParens = tryVerbatimRule "invocation" $ do
+ruleInvocation = tryVerbatimRule "invocation" $ do
     hasEqual <- option False $ do char '='; whiteSpace; return True
     name            <- subNameWithPrefix ""
-    (invs:args:_)   <- fParens $ parseParenParamList ruleExpression
+    (invs:args:_)   <- option [[],[]] $ parseParenParamList ruleExpression
     return $ \x -> if hasEqual
         then Syn "=" [x, App name (x:invs) args]
         else App name (x:invs) args
-    where
-    fParens = if needParens then id else option [[],[]]
 
-ruleInvocation = doRuleInvocation False
-ruleInvocationParens = doRuleInvocation True
+ruleInvocationParens = do
+    hasEqual <- option False $ do char '='; whiteSpace; return True
+    name            <- subNameWithPrefix ""
+    (invs:args:_)   <- parens $ parseNoParenParamList ruleExpression
+    -- XXX we just append the adverbial block onto the end of the arg list
+    -- it really goes into the *& slot if there is one. -lp
+    return $ \x -> if hasEqual
+        then Syn "=" [x, App name (x:invs) args]
+        else App name (x:invs) args
 
 ruleArraySubscript = tryVerbatimRule "array subscript" $ do
     brackets $ option id $ do
