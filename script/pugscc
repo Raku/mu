@@ -10,36 +10,39 @@ if (!@ARGV) {
     die "Usage: $0 [ source[.p6] | -e oneliner ]\n";
 }
 
+my $base = cwd();
 if (!-e "src/Main.hs") {
-    chdir "$FindBin::Bin/..";
-    if (!-e "src/Main.hs") {
+    $base = "$FindBin::Bin/..";
+    if (!-e "$base/src/Main.hs") {
 	die "$0: This script must be invoked in the Pugs source tree directory."
     }
 }
 
-$ENV{PATH} .= $Config{path_sep} . cwd() unless $^O eq 'MSWin32';
-
-unlink "dump.ast";
+$ENV{PATH} .= $Config{path_sep} . $base;
 
 my $out = 'a';
 if (@ARGV and -e $ARGV[0]) {
     $out = basename($ARGV[0]);
     $out =~ s{\..*}{};
 }
+$out .= ($^O eq 'MSWin32') ? ".exe" : ".out";
+
+unlink "dump.ast";
 
 system("pugs", -C => @ARGV);
 exit 1 unless -e "dump.ast";
 
-copy ("src/Main.hs" => "src/MainCc.hs");
+copy ("$base/src/Main.hs" => "$base/src/MainCc.hs");
 
-open FH, ">> src/MainCC.hs";
+open FH, '>>', "$base/src/MainCC.hs";
 open AST, "dump.ast" or die $!;
 print FH "\nmainCC = runAST \$ ";
 print FH <AST>;
 close AST;
 close FH;
 
-$out .= ($^O eq 'MSWin32') ? ".exe" : ".out";
-system("ghc", "-v0", "-o", $out, "--make", "-main-is", "mainCC", "-isrc", "src/MainCC.hs");
-unlink "src/MainCC.hs";
+unlink "dump.ast";
+
+system("ghc", "-v0", "-o", $_out, "--make", "-main-is", "mainCC", "-i$base/src", "$base/src/MainCC.hs");
+unlink "$base/src/MainCC.hs";
 print "Generated output: $out\n";
