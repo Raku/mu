@@ -411,7 +411,6 @@ data VSub = Sub
     deriving (Show, Eq, Ord)
 
 instance Ord VComplex where {- ... -}
-instance (Ord a, Ord b) => Ord (FiniteMap a b)
 instance Ord MVal where
     compare _ _ = EQ -- compare (castV x) (castV y)
 instance Show MVal where
@@ -577,6 +576,7 @@ retError str exp = do
 
 #if __GLASGOW_HASKELL__ <= 602
 
+instance (Ord a, Ord b) => Ord (FiniteMap a b)
 instance (Show a, Show b) => Show (FiniteMap a b) where
     show fm = show (fmToList fm)
 instance (Ord a) => Ord (Set a) where

@@ -46,7 +46,7 @@ module Internals (
     module Data.Tree,
     module Data.Maybe,
     module Data.Complex,
-    module Data.FiniteMap,
+    module Internals.Map,
     module Data.IORef,
     module Debug.Trace,
     internalError,
@@ -56,6 +56,7 @@ module Internals (
     encodeUTF8,
 ) where
 
+import Internals.Map
 import UTF8
 import Unicode
 import Cont
@@ -98,7 +99,6 @@ import Data.Set (
     )
 import Data.Ratio
 import Data.Complex
-import Data.FiniteMap
 import Data.Tree
 import Data.IORef
 import Debug.Trace
