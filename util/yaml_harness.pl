@@ -31,6 +31,7 @@ GetOptions \our %Config, qw(--output-file|o=s --dry|n
 $Test::Harness::Verbose = 1;
 $Config{"output-file"} ||= "tests.yml"
 $Config{"recurse"} = 1 if not defined $Config{"recurse"};
+$Config{"exclude"} = 'Disabled' if not defined $Config{"exclude"};
 @ARGV = "t/" if !@ARGV;
 
 _build_ext_re();
