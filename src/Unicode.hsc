@@ -1,4 +1,4 @@
-{-# OPTIONS -fglasgow-exts -cpp -O2 #-}
+{-# OPTIONS -fglasgow-exts -cpp #-}
 
 {-
     Unicode internals.
@@ -26,22 +26,23 @@ import GHC.Unicode (isAlpha, isAlphaNum, isSpace, isLower, isUpper, toLower, toU
 #else
 # include "Unicode.c"
 
+import GHC.Unicode (ord, chr)
 import System.IO.Unsafe (unsafePerformIO)
 
-foreign import ccall toUpperC :: Char -> IO Char
-foreign import ccall toLowerC :: Char -> IO Char
-foreign import ccall isAlphaC :: Char -> IO Bool
-foreign import ccall isAlphaNumC :: Char -> IO Bool
-foreign import ccall isUpperC :: Char -> IO Bool
-foreign import ccall isLowerC :: Char -> IO Bool
-foreign import ccall isSpaceC :: Char -> IO Bool
+foreign import ccall toUpperC :: Int -> IO Int
+foreign import ccall toLowerC :: Int -> IO Int
+foreign import ccall isAlphaC :: Int -> IO Bool
+foreign import ccall isAlphaNumC :: Int -> IO Bool
+foreign import ccall isUpperC :: Int -> IO Bool
+foreign import ccall isLowerC :: Int -> IO Bool
+foreign import ccall isSpaceC :: Int -> IO Bool
 
-toUpper     = unsafePerformIO . toUpperC
-toLower     = unsafePerformIO . toLowerC
-isAlpha     = unsafePerformIO . isAlphaC
-isAlphaNum  = unsafePerformIO . isAlphaNumC
-isUpper     = unsafePerformIO . isUpperC
-isLower     = unsafePerformIO . isLowerC
-isSpace     = unsafePerformIO . isSpaceC
+toUpper     = chr . unsafePerformIO . toUpperC . ord
+toLower     = chr . unsafePerformIO . toLowerC . ord
+isAlpha     = unsafePerformIO . isAlphaC . ord
+isAlphaNum  = unsafePerformIO . isAlphaNumC . ord
+isUpper     = unsafePerformIO . isUpperC . ord
+isLower     = unsafePerformIO . isLowerC . ord
+isSpace     = unsafePerformIO . isSpaceC . ord
 
 #endif
