@@ -3,11 +3,11 @@ use Module::Install::Base; @ISA = qw(Module::Install::Base);
 use strict;
 use Config;
 use File::Spec;
-use FindBin;
 
 sub WritePugs {
     my $self = shift;
-    $self->set_blib("$FindBin::Bin/blib6");
+    my $base = $self->{_top}{base};
+    $self->set_blib("$base/blib6");
     $self->WriteAll(@_);
     $self->pugs_fix_makefile;
 }
