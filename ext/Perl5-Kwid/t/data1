@@ -66,7 +66,6 @@ with multiple lines.
 This is verbatim with one line at end of stream.
 </pre>
 ==( Headings
-==> only
 ==> kwid
 = Heading 1
 
@@ -84,3 +83,54 @@ Some stuff
 </p>
 <h2>Heading 2 Some stuff</h2>
 <h3>Heading 3 Some stuff</h3>
+==( Lists
+==> kwid
+* one
+
+* two
+  things
+* three
+
++ one
++ two
+  things
+
++ three
+
+- one  thing
+- two
+
+  things
+
+- three
+things
+
+Normal paragraph
+==> html
+<ul>
+<li>one</li>
+<li>two things</li>
+<li>three</li>
+</ul>
+<ol>
+<li>one</li>
+<li>two things</li>
+<li>three</li>
+</ol>
+<dl>
+<dt>one</dt>
+<dd>
+thing
+</dd>
+<dt>two</dt>
+<dd>
+things
+</dd>
+<dt>three</dt>
+<dd>
+things
+</dd>
+</dl>
+<p>
+Normal paragraph
+</p>
