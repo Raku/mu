@@ -52,7 +52,9 @@ load fn = do
     return ()
 
 doParse = parse
-parse str = runRule emptyEnv (putStrLn . pretty) ruleProgram str
+parse str = do
+    env <- emptyEnv
+    runRule env (putStrLn . pretty) ruleProgram str
 
 eval str = doEval str []
 

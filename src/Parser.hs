@@ -16,15 +16,18 @@ import Lexer
 
 -- Lexical units --------------------------------------------------
 
-ruleProgram :: RuleParser Exp
+ruleProgram :: RuleParser Env
 ruleProgram = rule "program" $ do
+    whiteSpace
     many (symbol ";")
     rv <- option [] ruleStatementList
     eof
-    retSyn ";" rv
+    env <- getState
+    return $ env { envBody = (Syn ";" rv) }
 
 ruleBlock :: RuleParser Exp
 ruleBlock = rule "block" $ braces $ do
+    whiteSpace
     many (symbol ";")
     rv <- option [] ruleStatementList
     retSyn ";" rv
@@ -62,7 +65,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
         name    <- ruleSubName
         return (scope, multi, name)
     pos     <- getPosition
-    cxt     <- option "Any" $ preSpace (ruleBareTrait "returns")
+    cxt     <- option "Any" $ ruleBareTrait "returns"
     formal  <- option Nothing $ return . Just =<< parens ruleSubParameters
     body    <- ruleBlock
     let (fun, names) = extract (body,[])
@@ -84,7 +87,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
 
 ruleSubName = rule "subroutine name" $ do
     star    <- option "" $ string "*"
-    fixity  <- option "prefix:" $ choice (map string $ words fixities)
+    fixity  <- option "prefix:" $ choice (map (try . string) $ words fixities)
     c       <- wordAlpha
     cs      <- many wordAny
     return $ "&" ++ star ++ fixity ++ (c:cs)
@@ -351,10 +354,10 @@ ternOps _ = []
 
 parseProgram = do { whiteSpace ; x <- parseOp ; eof ; return x }
 
-runRule :: Env -> (Exp -> a) -> RuleParser Exp -> String -> a
-runRule env f p str = f $ case ( runParser ruleProgram (envPad env) "" str ) of
-    Left err    -> Val $ VError (showErr err) (NonTerm $ errorPos err)
-    Right ast   -> ast
+runRule :: Env -> (Env -> a) -> RuleParser Env -> String -> a
+runRule env f p str = f $ case ( runParser ruleProgram env "" str ) of
+    Left err    -> env { envBody = Val $ VError (showErr err) (NonTerm $ errorPos err) }
+    Right env'  -> env'
 
 showErr err = 
       showErrorMessages "or" "unknown parse error"

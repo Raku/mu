@@ -26,7 +26,7 @@ op0 "^"  = opJuncOne
 op0 "|"  = opJuncAny
 op0 s    = \x -> VError ("unimplemented listOp: " ++ s) (Val $ VList x)
 
-op1 :: Ident -> (forall a. Context a => a) -> StateEnv Val
+op1 :: Ident -> (forall a. Value a => a) -> Eval Val
 op1 "!"    = return . fmapVal not
 op1 "+"    = return . op1Numeric id
 op1 "-"    = return . op1Numeric negate
@@ -49,15 +49,15 @@ op1 "eval" = opEval
 op1 "rand" = \(x :: VNum) -> return $ VNum $ unsafePerformIO $ getStdRandom (randomR (0, if x == 0 then 1 else x))
 op1 s      = return . (\x -> VError ("unimplemented unaryOp: " ++ s) (Val x))
 
-opEval :: String -> StateEnv Val
+opEval :: String -> Eval Val
 opEval str = do
-    pad <- gets envPad
-    let rv = ( runParser ruleProgram pad "" str )
+    env <- ask
+    let rv = ( runParser ruleProgram env "" str )
     return $ VUndef
     {-
     case rv of
         Left err    -> return $ VError (showErr err) (NonTerm $ errorPos err)
-        Right exp   -> gets evl >>= (($) exp)
+        Right exp   -> asks evl >>= (($) exp)
 -}
 
 mapStr :: (Word8 -> Word8) -> [Word8] -> String
@@ -199,7 +199,7 @@ primOp sym assoc prms ret = Symbol SOur name sub
                       , subReturns  = ret
                       , subFun      = (Prim f)
                       }
-    f :: [Val] -> StateEnv Val
+    f :: [Val] -> Eval Val
     f    = case arity of
         0 -> \(x:_) -> return $ op0 sym (vCast x)
         1 -> \[x]   -> op1 sym (vCast x)

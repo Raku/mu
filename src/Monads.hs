@@ -163,12 +163,12 @@ callerReturn n v
         shiftT $ \r -> return v
     | otherwise = do
         env <- caller n
-        shiftT $ \r -> return $ VErr $ ErrRet ((==) (envID env) . envID) v
+        shiftT $ \r -> return $ VErr $ ErrRet (return . (==) (envID env) . envID) v
 
 returnScope = callerReturn 0 . VStr
 
 data VErr = ErrStr String
-          | ErrRet (Env -> Bool) Val
+          | ErrRet (Env -> Eval Bool) Val
     deriving (Typeable, Show, Eq)
 
 

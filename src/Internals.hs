@@ -76,3 +76,5 @@ instance Show (a -> b) where
     show f = "sub { ... }"
 instance Eq (a -> b) where
     _ == _ = False
+instance Ord (a -> b) where
+    compare _ _ = LT

@@ -17,7 +17,7 @@ import Context
 
 type Ident = String
 
-class Context n where
+class Value n where
     vCast :: Val -> n
     vCast (VRef v)      = vCast v
     vCast (VPair _ v)   = vCast v
@@ -30,7 +30,7 @@ class Context n where
     fmapVal :: (n -> n) -> Val -> Val
     fmapVal f = castV . f . vCast
 
-instance Context (Val, Val) where
+instance Value (Val, Val) where
     castV (x, y)        = VPair x y
     vCast (VPair x y)   = (x, y)
     vCast (VRef v)      = vCast v
@@ -38,15 +38,15 @@ instance Context (Val, Val) where
         [x, y]  -> (x, y)
         other   -> error $ "cannot cast into (Val, Val): " ++ (show v)
 
-instance Context VHash where
+instance Value VHash where
     castV = VHash
     vCast x = MkHash $ listToFM (map vCast $ vCast x) 
 
-instance Context VSub where
+instance Value VSub where
     castV = VSub
     doCast (VSub b) = b
 
-instance Context VBool where
+instance Value VBool where
     castV = VBool
     doCast (VJunc j)   = juncToBool j
     doCast (VBool b)   = b
@@ -69,7 +69,7 @@ juncToBool (Junc JOne  ds vs)
     | otherwise
     = (1 ==) . length . filter vCast $ setToList vs
 
-instance Context VInt where
+instance Value VInt where
     castV = VInt
     doCast (VInt i)     = i
     doCast (VStr s)
@@ -77,13 +77,13 @@ instance Context VInt where
         | otherwise             = 0
     doCast x            = round (vCast x :: VNum)
 
-instance Context VRat where
+instance Value VRat where
     castV = VRat
     doCast (VInt i)     = i % 1
     doCast (VRat r)     = r
     doCast x            = approxRational (vCast x :: VNum) 1
 
-instance Context VNum where
+instance Value VNum where
     castV = VNum
     doCast VUndef       = 0
     doCast (VBool b)    = if b then 1 else 0
@@ -96,11 +96,11 @@ instance Context VNum where
     doCast (VList l)    = fromIntegral $ length l
     doCast x            = error $ "cannot cast: " ++ (show x)
 
-instance Context VComplex where
+instance Value VComplex where
     castV = VComplex
     doCast x            = (vCast x :: VNum) :+ 0
 
-instance Context VStr where
+instance Value VStr where
     castV = VStr
     vCast VUndef        = ""
     vCast (VStr s)      = s
@@ -120,17 +120,17 @@ showNum x
     where
     str = show x 
 
-instance Context VArray where
+instance Value VArray where
     castV = VArray
     vCast x = MkArray (vCast x) 
 
 {-
-instance Context VJunc where
+instance Value VJunc where
     castV = JAny . castV
     vCast x = JAny $ mkSet (vCast x)
 -}
 
-instance Context VList where
+instance Value VList where
     castV = VList
     vCast (VList l)     = l
     vCast (VPair k v)   = [k, v]
@@ -138,19 +138,19 @@ instance Context VList where
     vCast (VUndef)      = []
     vCast v             = [v]
 
-instance Context (Maybe a) where
+instance Value (Maybe a) where
     vCast VUndef        = Nothing
     vCast _             = Just undefined
 
-instance Context Int   where doCast = intCast
-instance Context Word  where doCast = intCast
-instance Context Word8 where doCast = intCast
-instance Context [Word8] where doCast = map (toEnum . ord) . vCast
+instance Value Int   where doCast = intCast
+instance Value Word  where doCast = intCast
+instance Value Word8 where doCast = intCast
+instance Value [Word8] where doCast = map (toEnum . ord) . vCast
 
 type VScalar = Val
 -- type VJunc = Set Val
 
-instance Context VScalar where
+instance Value VScalar where
     vCast = id
     castV = id
 
@@ -238,7 +238,7 @@ data VSub = Sub
     { isMulti       :: Bool
     , subName       :: String
     , subType       :: SubType
-    , subPad        :: Symbols
+    , subPad        :: Pad
     , subAssoc      :: String
     , subParams     :: Params
     , subReturns    :: Cxt
@@ -256,8 +256,6 @@ data JuncType = JAll | JAny | JOne | JNone
     deriving (Show, Eq, Ord)
 -}
 
-instance Ord ([Val] -> StateEnv Val) where
-    compare _ _ = LT
 instance (Ord a) => Ord (Set a) where
     compare x y = compare (setToList x) (setToList y)
 instance (Show a) => Show (Set a) where
@@ -271,7 +269,7 @@ data Exp
     = App String [Exp] [Exp]
     | Syn String [Exp]
     | Sym Scope Var
-    | Prim ([Val] -> StateEnv Val)
+    | Prim ([Val] -> Eval Val)
     | Val Val
     | Var Var SourcePos
     | Parens Exp
@@ -325,11 +323,8 @@ defaultArrayParam   = buildParam "" "*" "@_" (Val VUndef)
 defaultHashParam    = buildParam "" "*" "%_" (Val VUndef)
 defaultScalarParam  = buildParam "" "*" "$_" (Val VUndef)
 
--- The eval monad!
-type StateEnv a = State Env a
-
 data Env = Env { envContext :: Cxt
-               , envPad     :: Symbols
+               , envPad     :: Pad
                , envClasses :: ClassTree
                , envEval    :: Exp -> Eval Val
                , envCC      :: Val -> Eval Val
@@ -338,7 +333,7 @@ data Env = Env { envContext :: Cxt
                , envID      :: Unique
                } deriving (Show, Eq)
 
-type Symbols = [Symbol]
+type Pad = [Symbol]
 data Symbol = Symbol { symScope :: Scope
                      , symName  :: String
                      , symValue :: Val

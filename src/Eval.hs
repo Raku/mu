@@ -21,35 +21,46 @@ import Prim
 import Context
 import Monad
 
-emptyEnv = Env { envContext = "List"
-               , envPad     = [initSyms]
-               , envClasses = initTree
-               , envEval    = evaluate
-               }
+emptyEnv :: (MonadIO m) => m Env
+emptyEnv = do
+    uniq <- liftIO newUnique
+    return $ Env
+        { envContext = "List"
+        , envPad     = initSyms
+        , envClasses = initTree
+        , envEval    = evaluate
+        , envCC      = return
+        , envDepth   = 0
+        , envID      = uniq
+        , envBody    = Val VUndef
+        }
 
-addSym :: Symbols -> StateEnv ()
-addSym syms = modify doAddSyms
-    where
-    doAddSyms env@Env{ envPad = (pad:outer) } = env{ envPad = ((syms++pad):outer) }
-
-pushPad :: Symbols -> StateEnv ()
-pushPad syms = modify (\env -> env{ envPad = tail $ envPad env })
-
-popPad :: StateEnv ()
-popPad = modify (\env -> env{ envPad = tail $ envPad env })
-
-evaluate :: Exp -> StateEnv Val
+evaluate :: Exp -> Eval Val
 evaluate exp = do
-    val <- reduce exp
+    val <- local (\e -> e { envBody = exp }) reduce
     return $ case val of
         Val v       -> v
         otherwise   -> VError "Invalid expression" exp
+
+evalEnv :: Exp -> Eval Val
+evalEnv exp = do
+    evl <- asks envEval
+    evl exp
+
+evalEnvWithContext :: Cxt -> Exp -> Eval Val
+evalEnvWithContext cxt exp = do
+    local (\e -> e { envContext = cxt }) $ evalEnv exp
+
+-- addSym :: Pad -> Eval ()
+addSym syms f = local doAddSyms f
+    where
+    doAddSyms env@Env{ envPad = pad } = env{ envPad = syms++pad }
 
 -- OK... Now let's implement the hideously clever autothreading algorithm.
 -- First pass - thread thru all() and none()
 -- Second pass - thread thru any() and one()
 
-chainFun :: Params -> Exp -> Params -> Exp -> [Val] -> StateEnv Val
+chainFun :: Params -> Exp -> Params -> Exp -> [Val] -> Eval Val
 chainFun p1 f1 p2 f2 (v1:v2:vs) = do
     val <- applyFun (chainArgs p1 [v1, v2]) f1
     case val of
@@ -59,25 +70,22 @@ chainFun p1 f1 p2 f2 (v1:v2:vs) = do
     chainArgs prms vals = map chainArg (prms `zip` vals)
     chainArg (p, v) = ApplyArg (paramName p) v False
 
-applyFun :: [ApplyArg] -> Exp -> StateEnv Val
+applyFun :: [ApplyArg] -> Exp -> Eval Val
 applyFun bound (Prim f)
     = f [ argValue arg | arg <- bound, (argName arg !! 1) /= '_' ]
 applyFun bound body = do
-    pushPad formal
-    exp <- reduce body
-    return $ case exp of
-        Val val     -> val
-        otherwise   -> VError "Invalid expression" exp
+    -- pushPad formal
+    evalEnv body
     where
     formal = filter (not . null . symName) $ map argNameValue bound
     argNameValue (ApplyArg name val _) = Symbol SMy name val
 
-apply :: VSub -> [Exp] -> [Exp] -> StateEnv Exp
+apply :: VSub -> [Exp] -> [Exp] -> Eval Exp
 apply sub invs args = do
-    env <- get
+    env <- ask
     doApply env sub invs args
 
-doApply :: Env -> VSub -> [Exp] -> [Exp] -> StateEnv Exp
+doApply :: Env -> VSub -> [Exp] -> [Exp] -> Eval Exp
 doApply env@Env{ envClasses = cls } Sub{ subParams = prms, subFun = fun } invs args =
     case bindParams prms invs args of
         Left errMsg     -> retVal $ VError errMsg (Val VUndef)
@@ -99,40 +107,29 @@ doApply env@Env{ envClasses = cls } Sub{ subParams = prms, subFun = fun } invs a
         | isaType cls cxt "Any"         = True
         | otherwise                     = False
 
-evalEnv exp = do
-    evl <- gets envEval
-    evl exp
-
-evalEnvWithContext newCxt exp = do
-    Env{ envContext = cxt, envEval = evl } <- get
-    modify (\env -> env{ envContext = newCxt })
-    val <- evl exp
-    modify (\env -> env{ envContext = cxt })
-    return val
-
 toGlobal name
     | (sigil, identifier) <- break (\x -> isAlpha x || x == '_') name
     , last sigil /= '*'
     = sigil ++ ('*':identifier)
     | otherwise = name
 
-retVal :: Val -> StateEnv Exp
+retVal :: Val -> Eval Exp
 retVal val = return $ Val val
 
 isGlobalExp (Syn name _) = name `elem` (words ":= ::=")
 isGlobalExp _ = False
 
-findSym :: String -> [Symbols] -> Maybe Val
+findSym :: String -> Pad -> Maybe Val
 findSym name pad
-    | Just s <- find ((== name) . symName) (concat pad)
+    | Just s <- find ((== name) . symName) pad
     = Just $ symValue s
     | otherwise
     = Nothing
 
-reduce :: Exp -> StateEnv Exp
-reduce exp = do
-    env <- get
-    doReduce env exp
+reduce :: Eval Exp
+reduce = do
+    env@Env{ envBody = body } <- ask
+    doReduce env body
 
 doReduce Env{ envPad = pad } exp@(Var var _)
     | Just val <- findSym var pad
@@ -151,12 +148,12 @@ doReduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
     ":=" -> do
         let [Var var _, exp] = exps
         val     <- evalEnv exp
-        addSym [Symbol SMy var val] -- XXX scope
+        -- addSym [Symbol SMy var val] -- XXX scope
         retVal val
     "::=" -> do -- XXX wrong
         let [Var var _, exp] = exps
         val     <- evalEnv exp
-        addSym [Symbol SMy var val] -- XXX scope
+        -- addSym [Symbol SMy var val] -- XXX scope
         retVal VUndef
     "=>" -> do
         let [keyExp, valExp] = exps
@@ -233,7 +230,7 @@ doReduce env@Env{ envClasses = cls, envContext = cxt, envPad = pad } exp@(App na
         ( (isGlobal, subT, isMulti sub, bound, distance, order)
         , fromJust fun
         )
-        | ((Symbol _ n val), order) <- concat pad `zip` [0..]
+        | ((Symbol _ n val), order) <- pad `zip` [0..]
         , let sub@(Sub{ subType = subT, subReturns = ret, subParams = prms }) = vCast val
         , (n ==) `any` [name, toGlobal name]
         , let isGlobal = '*' `elem` n
@@ -249,7 +246,7 @@ doReduce env@Env{ envClasses = cls, envContext = cxt, envPad = pad } exp@(App na
     deltaFromScalar ('*':x) = deltaFromScalar x
     deltaFromScalar x       = deltaType cls x "Scalar"
 
-doReduce _ (Parens exp) = reduce exp
+doReduce env (Parens exp) = doReduce env exp
 doReduce _ other = return other
 
 arityMatch sub@Sub{ subAssoc = assoc, subParams = prms } args

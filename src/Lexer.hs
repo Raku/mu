@@ -14,8 +14,7 @@ import Internals
 import AST
 import qualified Text.ParserCombinators.Parsec.Token as P
 
-type Pad = [Symbols]
-type RuleParser a = GenParser Char Pad a
+type RuleParser a = GenParser Char Env a
 
 perl6Def  = javaStyle
           { P.commentStart   = "\n=begin\n"

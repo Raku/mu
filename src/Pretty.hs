@@ -27,6 +27,9 @@ instance Pretty Exp where
     pretty (Val (VError msg (NonTerm pos))) = "Syntax error at " ++ (show pos) ++ msg
     pretty x = show x
 
+instance Pretty Env where
+    pretty x = "{ " ++ (pretty $ envBody x) ++ " }"
+
 instance Pretty Val where
     pretty (VJunc (Junc j dups vals)) = "(" ++ joinList mark items ++ ")"
         where
