@@ -2,6 +2,7 @@
 
 use strict;
 use FindBin;
+use Config;
 use inc::Module::Install;
 
 chdir $FindBin::Bin;
@@ -11,10 +12,10 @@ version_from    ('lib/Perl6/Pugs.pm');
 abstract_from   ('lib/Perl6/Pugs.pm');
 author          ('Autrijus Tang <autrijus@autrijus.org>');
 license         ('perl');
-install_script  ('pugs');
+install_script  ("pugs$Config{_exe}");
 build_requires  ('Test::More');
 
-can_run('ghc') or die << '.';
+(`ghc --version` =~ /Glasgow/) or die << '.';
 *** Cannot find a runnable 'ghc' from path.
 *** Please install GHC from http://haskell.org/ghc/.
 .
@@ -65,7 +66,7 @@ else {
 close FH;
 
 postamble(<< ".");
-pugs: @{[glob("src/*.hs")]}
+pugs$Config{_exe}: @{[glob("src/*.hs")]}
 	ghc --make -o pugs -O src/Main.hs -isrc
 
 tags ::

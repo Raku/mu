@@ -164,17 +164,21 @@ reduce env@Env{ cxt = cxt } exp@(Syn name exps)
     | name `isInfix` ","
     = retVal $ VList $ concatMap (vCast . evaluate env{ cxt = "List" }) exps
     | name `isInfix` "[]"
-    , [listExp, rangeExp]   <- exps
+    , (listExp:rangeExp:errs)   <- exps
     , list      <- evaluate env{ cxt = "List" } listExp
     , range     <- evaluate env{ cxt = "List" } rangeExp
-    , slice     <- unfoldr (doSlice $ vCast list) (map vCast $ vCast range)
+    , slice     <- unfoldr (doSlice errs $ vCast list) (map vCast $ vCast range)
     = retVal $ VList slice
     where
-    doSlice :: [Val] -> [VInt] -> Maybe (Val, [VInt])
-    doSlice vs [] = Nothing
-    doSlice vs (n:ns)
-        | genericLength vs > n  = Just ((vs `genericIndex` n), ns)
-        | otherwise             = Nothing
+    doSlice :: [Exp] -> [Val] -> [VInt] -> Maybe (Val, [VInt])
+    doSlice errs vs (n:ns)
+        | (v:_)         <- n `genericDrop` vs
+        = Just (v, ns)
+        | ((Val err):_) <- errs
+        = Just (err, ns)
+        | otherwise
+        = Nothing
+    doSlice _ _ _ = Nothing
     buildStatements exps
         | ((Syn name' exps'):rest)  <- exps
         , name' `isInfix` ";"
@@ -185,6 +189,8 @@ reduce env@Env{ cxt = cxt } exp@(Syn name exps)
     runStatement :: Cxt -> (Env, Exp) -> Exp -> (Env, Exp)
     runStatement cxt (env, (Val val)) exp
         | VError _ _    <- val
+        = (env, Val val)
+        | NonTerm _     <- exp
         = (env, Val val)
         | (fenv, exp)   <- reduce env{ cxt = cxt } exp
         = (fenv env, exp)

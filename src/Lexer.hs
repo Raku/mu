@@ -90,7 +90,7 @@ naturalOrRat  = do
         <|> do
             expo <- expo
             if expo < 1
-                then return (Left  $ n * numerator expo)
+                then return (Right $ (n % 1) * expo)
                 else return (Right $ (n % 1) * expo)
 
     fraction = do
@@ -111,7 +111,7 @@ naturalOrRat  = do
             return (power (if f then e else -e))
         <?> "exponent"
         where
-        power e | e < 0      = 1 % (10^e)
+        power e | e < 0      = 1 % (10^abs(e))
                 | otherwise  = (10^e) % 1
 
     -- sign            :: CharParser st (Integer -> Integer)

@@ -48,7 +48,7 @@ looseOperators =
 operators :: OperatorTable Char () Exp
 operators = concat $
     [ tightOperators
-    , [ listOps  " , " ]                                -- Comma
+    , [ listSyn  " , " ]                                -- Comma
     , looseOperators
     , [ listSyn  " ; " ]                                -- Terminator
     ]
@@ -98,8 +98,14 @@ parseTerm = choice
     , parseLit
     , parseApply
     , parseParens parseOp
+    , parseEof
     ]
     <?> "term"
+
+parseEof = do
+    eof
+    pos <- getPosition
+    return $ NonTerm pos
 
 parseLitTerm = choice
     [ parseVar
@@ -143,7 +149,7 @@ parseApply = lexeme $ do
     return $ App ('&':name) invs args
 
 parseParamList parse = do
-    formal <- maybeParens ((parse `sepBy` symbol ",") `sepBy` symbol ":")
+    formal <- maybeParens ((parse `sepEndBy` symbol ",") `sepEndBy` symbol ":")
     case formal of
         []                  -> return [[], []]
         [args]              -> return [[], args]
@@ -223,11 +229,8 @@ numLiteral = do
 strLiteral = return . Val . VStr =<< stringLiteral
 
 arrayLiteral = do
-    items <- brackets $ parseOp `sepBy` symbol ","
-    return $ App "&prefix:\\" [] [(Parens $ foldl app (Val $ VList []) items)]
-    where
-    app :: Exp -> Exp -> Exp
-    app x y = App "&infix:," [] [x, y]
+    items <- brackets $ parseOp `sepEndBy` symbol ","
+    return $ App "&prefix:\\" [] [Syn "&infix:," items]
 
 pairLiteral = do
     key <- identifier
