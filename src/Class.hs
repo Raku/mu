@@ -22,13 +22,23 @@ import Internals
 
 data MetaClass = MetaClass
     { clsName       :: Label
-    , clsParent     :: MetaClass
-    , clsChildren   :: Set MetaClass
+    , clsSuper      :: MetaClass
+    , clsSubClasses :: Set MetaClass
     , clsProperties :: FiniteMap Label (Visibility, MetaProperty)
     , clsMethods    :: FiniteMap Label (Visibility, MetaMethod)
     , clsAssocs     :: FiniteMap Label MetaAssoc
     , clsRevAssocs  :: FiniteMap Label MetaAssoc
     }
+
+{-
+    Rules of these collections;
+
+    ∃ MetaClass A, B : A.clsSuper = B ↔ A ∈ B.clsSupClasses
+
+    ∃ MetaClass A, MetaAssoc B : A.clsAssocs ∋ B ↔ B.assocSource = A
+    ∃ MetaClass A, MetaAssoc B : A.clsRevAssocs ∋ B ↔ B.assocTarget = A
+
+-}
 
 data MetaMethod = MetaMethod
     { methodParams  :: Params
@@ -61,9 +71,29 @@ data Category = Unordered | Ordered | Keyed
 
 data Type = Int | Str
 
+
 {-
 refAssoc    = (Inf, 1)
 refForeign  = (1, Inf)
 refSet      = (Inf, Inf)
 refSlave    = (1, 1)
 -}
+
+{-
+    these classes represent the Perl 6 Class model and/or type system
+
+    So far, there exists only this pseudo-code :)
+
+    ∀ initTree Node N ∃ MetaClass M : M.clsName = N
+
+    Note: in the below expression, N₁ ∋ N₂ means (N₂ is a direct
+    child member of N₁ within the tree it exists in)
+
+    ∃ initTree Node N₁, N₂, MetaClass M₁, M₂ 
+      : N₁ ∋ N₂ ∧ N₁ = M₁.clsName ∧ N₂ = M₂.clsName
+      → M₁.subClasses ∋ M₂ 
+
+    -- 
+
+-}
+
