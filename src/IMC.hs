@@ -25,3 +25,4 @@ yow :: String -> IO ()
 yow str = do
     prog' <- runFoo
     $( imcX prog' ) -- how to get str into prog?
+

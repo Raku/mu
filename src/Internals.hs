@@ -155,3 +155,4 @@ decodeUTF8 :: String -> String
 decodeUTF8 str = fst $ decode bytes
     where
     bytes = map (toEnum . ord) str
+

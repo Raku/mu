@@ -50,3 +50,4 @@ externRequire lang name = do
                    , subReturns  = "Any"
                    , subFun      = (Prim fun)
                    }
+

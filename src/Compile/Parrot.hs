@@ -140,3 +140,4 @@ instance Compile Exp where
 
 showText :: (Show a) => a -> Doc
 showText = text . show
+

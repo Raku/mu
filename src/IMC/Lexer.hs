@@ -49,3 +49,4 @@ rankSpec        = do
 eol             = optional (char '\r') >> char '\n'
 ws              = oneOf "\t\f\r\x1A "
 sp              = char ' '
+

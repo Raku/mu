@@ -38,3 +38,4 @@ compile (Statements [(st, _)]) = [| do $(compile st) |]
 compile exp = internalError ("Unrecognized construct: " ++ show exp)
 
 #endif
+

@@ -83,3 +83,4 @@ matchRegex p str = fmap f (str =~~ p) where
 
 matchRegexAll p str = fmap f (str =~~ p) where
     f MR { mrBefore = b, mrAfter = a, mrSubList = sl, mrMatch = m } = (b,m,a,sl)
+

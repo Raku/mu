@@ -18,3 +18,4 @@ compile "Haskell" = genGHC
 compile "Pugs" = genPugs
 compile "Parrot" = genPIR
 compile s = \_ -> error $ "Cannot compile to " ++ s
+

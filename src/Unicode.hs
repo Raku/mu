@@ -271,3 +271,4 @@ foreign import ccall unsafe "u_towtitle"
 
 foreign import ccall unsafe "u_gencat"
   wgencat :: CInt -> Int
+

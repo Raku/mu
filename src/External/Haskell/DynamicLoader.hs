@@ -371,3 +371,4 @@ lookupSymbol qname functionName
     encode_ch '_'  = "zu"
     encode_ch '%'  = "zv"
     encode_ch c    = 'z' : shows (ord c) "U"
+

@@ -68,3 +68,4 @@ munge (ValD _ x y) name = ValD (VarP (mkName name)) x y
 munge _ _ = error "impossible"
 
 #endif
+

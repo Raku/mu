@@ -93,3 +93,4 @@ intro = putStrLn $ unlines
     [ "Welcome to Pugs -- " ++ name
     , "Type :h for help"
     ]
+

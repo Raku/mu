@@ -120,4 +120,4 @@ buildExpressionParser operators simpleExpr
         
       splitOp (Postfix op) (rassoc,lassoc,nassoc,prefix,postfix)
         = (rassoc,lassoc,nassoc,prefix,op:postfix)
-      
+

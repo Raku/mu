@@ -123,4 +123,3 @@ mondrianDef = javaStyle
                 , caseSensitive  = True				  
 		}
 
-				

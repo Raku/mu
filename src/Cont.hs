@@ -44,3 +44,4 @@ shiftT e = ContT $ \k -> e (C.lift . k) `runContT` return
 
 resetT :: Monad m => ContT a m a -> ContT r m a
 resetT e = C.lift $ e `runContT` return
+

@@ -134,3 +134,4 @@ joinDashE ((Opt "-e" a):(Opt "-e" b):args) =
     where
     combined = a++"\n"++b
 joinDashE (x:xs) =  [ x ] ++ joinDashE xs
+

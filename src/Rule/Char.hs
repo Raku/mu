@@ -75,3 +75,4 @@ satisfy f           = tokenPrim (\c -> show [c])
 
 string :: String -> CharParser st String
 string s            = tokens show updatePosString s
+

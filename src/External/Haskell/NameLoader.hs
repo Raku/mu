@@ -359,3 +359,4 @@ lookupDefHT ht val key
          case mval of
                    Just val -> return val
                    Nothing  -> return val
+

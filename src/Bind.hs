@@ -157,3 +157,4 @@ bindSomeParams sub@Sub{ subBindings = bindings, subParams = params } invsExp arg
         { subBindings = newBindings
         , subParams   = newParams
         }
+
