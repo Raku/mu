@@ -136,7 +136,7 @@ sub set_postamble {
     my @srcfiles = map glob("$_/*.*hs"), @srcdirs;
 
     # turning off unused imports and deprecations for GHC6.4.
-	my $ghc_flags = "-static -Wall -fno-warn-missing-signatures -fno-warn-name-shadowing";
+	my $ghc_flags = "-isrc -static -Wall -fno-warn-missing-signatures -fno-warn-name-shadowing";
 	if (assert_ghc() ge '6.4') {
 	  $ghc_flags .= " -fno-warn-deprecations -fno-warn-orphans";
 	}
@@ -146,13 +146,13 @@ src/Config.hs : util/PugsConfig.pm
 	$Config{perlpath} -Iutil -MPugsConfig -e "PugsConfig->write_config_module" > src/Config.hs
 
 profiled :: src/Config.hs @srcfiles $version_h
-	ghc -auto-all -prof --make $ghc_flags -o pugs src/Main.hs -isrc
+	ghc -auto-all -prof --make $ghc_flags -o pugs src/Main.hs
 
 optimized :: src/Config.hs @srcfiles $version_h
-	ghc -O2 --make $ghc_flags -o pugs src/Main.hs -isrc
+	ghc -O2 --make $ghc_flags -o pugs src/Main.hs
 
 $pugs : src/Config.hs @srcfiles $version_h
-	ghc --make $ghc_flags -o pugs src/Main.hs -isrc
+	ghc --make $ghc_flags -o pugs src/Main.hs
 
 tags :
 	hasktags -c src
