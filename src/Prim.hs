@@ -1034,6 +1034,6 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Str       pre     hex     (Int)\
 \\n   Any       list    ;       (Any)\
 \\n   Thread    pre     async   (Code)\
-\\n   Bool      pre     yield   (Thread)\
+\\n   Bool      pre     yield   (?Thread)\
 \\n"
 
