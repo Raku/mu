@@ -22,8 +22,7 @@ sub WritePugs {
 
     $self->WriteAll(@_);
 
-    $self->pugs_fix_makefile
-      if $install_version eq '6';
+    $self->pugs_fix_makefile;
 }
 
 sub set_makefile_macros {

@@ -27,7 +27,7 @@ build_subdirs   (map fixpaths($_), grep {
                  } glob("ext/*")
                 );
 makemaker_args  (
-    test => { TESTS => join ' ', "t/*.t", "t/*/*.t", "t/*/*/*.t" },
+    test => { TESTS => join ' ', "t/*/*.t", "t/*/*/*.t" },
     MAN1PODS => {},
 );
 clean_files     (map fixpaths($_),
