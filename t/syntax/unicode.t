@@ -5,8 +5,10 @@ require Test;
 
 # XXX - stops right here if GHC doesn't have unicode support.
 if eval 'my $二 = 2; sub 恆等($x) {$x}; 恆等($二)' != 2 {
-    plan 1;
-    skip("GHC was not compiled with Unicode support, bummer");
+    plan 3;
+    ok(eval 'my $foo; sub foo {}; 1', "ascii declaration");
+    ok(eval 'my $un_variable_français; sub blâ {}; 1', "french declaration");
+    skip("GHC was not compiled with non-latin1 Unicode support, bummer");
     exit();
 }
 
