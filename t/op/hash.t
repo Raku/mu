@@ -1,31 +1,30 @@
 use v6;
+require Test;
 
-say "1..10";
+plan 11;
 
-my %hash1 = ('key' => 'value');
-if (%hash1{'key'} eq 'value') { say "ok 1" } else { say "not ok 1" }
+skip '%hash1 = (\'key\' => \'value\') is not yet supported by pugs';
+#my %hash1 = ('key' => 'value');
+#is %hash1{'key'}, 'value';
+skip '%hash1{\'key2\'} = \'value2\' is not yet supported by pugs';
+#%hash1{'key2'} = 'value2';
+#todo_is %hash1{'key2'}, 'value2', 'lvalue assignment';
 
 my %hash2;
 eval '%hash2 = (:one, :key<value>, :three(3))';
-if (%hash2{'one'} == 1) { say "ok 2 # TODO colonpair" } else { say "not ok 2 # TODO colonpair" }
-if (%hash2{'key'} eq 'value') { say "ok 3 # TODO colonpair" } else {
-    say "not ok 3 # TODO colonpair" 
-}
-if (%hash2{'three'} == 3) { say "ok 4 # TODO colonpair" } else {
-    say "not ok 4 # TODO colonpair" 
-}
+todo_is %hash2{'one'}, 1, 'colonpair :one';
+todo_is %hash2{'key'}, 'value', 'colonpair :key<value>';
+todo_is %hash2{'three'}, 3, 'colonpair :three(3)';
 
 my $value;
 eval '$value = %hash1<key>';
-if ($value eq 'value') { say "ok 5 # TODO %hash<>" } else { say "not ok 5 # TODO %hash<>" }
-
+todo_is $value, 'value', 'fetch using %hash<>';
 my @slice1 = %hash2{"one", "three"};
-if (@slice1[0] == 1) { say "ok 6 # TODO hash slice" } else { say "not ok 6 # TODO hash slice" }
-if (@slice1[1] == 3) { say "ok 7 # TODO hash slice" } else { say "not ok 7 # TODO hash slice" }
+todo_is @slice1[0], 1, 'hash slice - @slice1[0]';
+todo_is @slice1[1], 3, 'hash slice - @slice1[1]';
 
 my @slice2;
-@slice2 = eval '%hash2<three one>';
-if (@slice2[0] == 5123123) { say "not ok 8 # TODO (wtf?)" } else { say "ok 8 # TODO wtfthingy" }
-if (@slice2[0] == 3) { say "ok 9 # TODO %hash<>" } else { say "not ok 9 # TODO %hash<>" }
-if (@slice2[1] == 1) { say "ok 10 # TODO %hash<>" } else { say "not ok 10 # TODO %hash<>" }
-
+eval '@slice2 = %hash2<three one>';
+todo_ok @slice2[0] != 5123123, 'wtfthingy(sic) bad fetch';
+todo_is @slice2[0], 3, '%hash<> slice';
+todo_is @slice2[1], 1, '%hash<> slice';
