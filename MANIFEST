@@ -100,10 +100,6 @@ src/Rule/Pos.hs
 src/Rule/Prim.hs
 src/Rule/Token.hs
 src/Shell.hs
-t/01basic.t
-t/02atoms.t
-t/03operator.t
-t/06sub.t
 t/base/anon_block.t
 t/base/cond.t
 t/base/control_blocks.t
@@ -112,6 +108,7 @@ t/base/given.t
 t/base/if.t
 t/base/loop.t
 t/base/num.t
+t/base/operator.t
 t/base/try.t
 t/base/unless.t
 t/base/until.t
@@ -132,7 +129,9 @@ t/op/arith.t
 t/op/array.t
 t/op/array_ref.t
 t/op/assign.t
+t/op/atoms.t
 t/op/auto.t
+t/op/basic.t
 t/op/binding.t
 t/op/bit.t
 t/op/defined.t
@@ -169,6 +168,7 @@ t/op/smartmatch.t
 t/op/split.t
 t/op/string_interpolation.t
 t/op/sub_return_values.t
+t/op/subroutine.t
 t/op/substr.t
 t/op/unshift.t
 t/op/zip.t
