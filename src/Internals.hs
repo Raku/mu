@@ -83,7 +83,7 @@ import Data.List (
 import Data.Unique
 import Data.Ratio
 import Data.Word
-import Data.Char (chr, ord, digitToInt)
+import Data.Char (chr, ord)
 import Data.Set (
     Set, elementOf, setToList, mapSet, mkSet,
     emptySet, unionManySets, union, cardinality
