@@ -30,6 +30,7 @@ makemaker_args  (
 );
 clean_files     (
     "pugs*", "config.h", "version.h", 
+    'src/Config.hs',
     map {("$_/*.hi", "$_/*.o*")} @srcdirs
 );
 
@@ -98,17 +99,6 @@ $version_h : $svn_entries
 
 }
 
-sub set_postamble {
-    my @srcfiles = map glob("$_/*.hs"), @srcdirs;
-    postamble(<< ".");
-$pugs :: @srcfiles $version_h
-	ghc --make -Wall -fno-warn-missing-signatures -fno-warn-name-shadowing -o pugs src/Main.hs -isrc
-
-tags ::
-	hasktags -c src
-.
-}
-
 sub create_config_h {
     open IN, '< lib/Perl6/Pugs.pm' or die $!;
     open FH, '> config.h' or die $!;
@@ -156,5 +146,19 @@ sub create_config_h {
 .
     }
     close FH;
+}
+
+sub set_postamble {
+    my @srcfiles = map glob("$_/*.hs"), @srcdirs;
+    postamble(<< ".");
+src/Config.hs :
+	$Config{perlpath} bin/generate_config > src/Config.hs
+
+$pugs : src/Config.hs @srcfiles $version_h
+	ghc --make -Wall -fno-warn-missing-signatures -fno-warn-name-shadowing -o pugs src/Main.hs -isrc
+
+tags :
+	hasktags -c src
+.
 }
 

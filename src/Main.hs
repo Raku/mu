@@ -15,6 +15,11 @@
 
 module Main where
 import Internals
+import Config (config_archlib
+              ,config_privlib
+              ,config_sitearch
+              ,config_sitelib
+              )
 
 import AST
 import Eval
@@ -44,6 +49,7 @@ run (('-':'d':xs):rest)         = run (('-':xs):rest)
 run (('-':'e':prog@(_:_)):args) = doRun "-" args prog
 run ("-e":prog:args)            = doRun "-" args prog
 run ("-h":_)                    = printHelp
+run ("-V":_)                    = printConfigInfo
 run ("-v":_)                    = banner
 run ("--version":_)             = banner
 run ("-c":"-e":prog:_)          = doParse prog
@@ -105,9 +111,7 @@ runProgramWith fenv f name args prog = do
     p5libs  <- mapM fixLib $ catMaybes [lookup "PERL5LIB" environ, lookup "PERLLIB" environ]
     progSV  <- newMVal $ VStr name
     endAV   <- newMVal $ VList []
--- XXX p5lib is too noisy for now
     incAV   <- newMVal $ VList (map VStr $ p6lib ++ concat p5libs ++ incs)
---  incAV   <- newMVal $ VList (map VStr $ p6lib ++ incs)
     argsAV  <- newMVal $ VList (map VStr args)
     inGV    <- newMVal $ VHandle stdin
     outGV   <- newMVal $ VHandle stdout
@@ -136,11 +140,20 @@ runProgramWith fenv f name args prog = do
         let path = str ++ "/Perl6/lib"
         exists <- doesDirectoryExist path
         return $ if exists then [path] else []
-    incs = [ "./lib/Perl6/lib"
-           , "../lib/Perl6/lib"
-           , "../../lib/Perl6/lib"
-           , "."
-           ]
+
+incs = [ "./lib/Perl6/lib"
+       , "../lib/Perl6/lib"
+       , "../../lib/Perl6/lib"
+       , config_archlib
+       , config_privlib
+       , config_sitearch
+       , config_sitelib
+       , "."
+       ]
+
+printConfigInfo :: IO ()
+printConfigInfo = putStrLn $ unlines $
+    [ "@*INC:" ] ++ incs
 
 {-
 main = do
