@@ -109,7 +109,7 @@ sub create_config_h {
         last;
     }
 
-    if ($^O eq 'MSWin32') {
+    if ($^O =~ /MSWin32|mingw|msys/i) {
         print FH "#undef PUGS_HAVE_POSIX\n";
     }
     else {
