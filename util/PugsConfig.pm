@@ -1,8 +1,9 @@
 package PugsConfig;
 use strict;
 use warnings;
-use Config;
+use Config();
 use File::Spec;
+our %Config = %Config::Config;
 
 sub get_config {
     my $config = {
@@ -50,6 +51,7 @@ sub add_path {
     my ($name, $config) = @_;
     my $path = $Config{$name} || '';
     $path =~ s/([\/\\])[^\/\\]*(perl)[^\/\\]*([\/\\]?)/$1${2}6$3/i
+      or $path =~ s/([\/\\])(lib)(?=[\/\\]|$)/$1$2${1}perl6/i
       or die <<".";
 Can't generate the correct Perl6 equivalent for:
 
@@ -84,6 +86,16 @@ sub write_config_module {
 
     print $template;
 }
+
+sub __test__ {
+    $Config{privlib} = 'C:\usr\lib';
+    $Config{archlib} = 'C:\usr\lib';
+    $Config{sitearch} = 'C:\usr\site\lib';
+    $Config{sitelib} = 'C:\usr\site\lib';
+    require Data::Dumper;
+    print Data::Dumper::Dumper(get_config());
+}
+#__test__;
 
 1;
 
