@@ -315,6 +315,7 @@ mapStr2Fill f x y = map (chr . fromEnum . uncurry f) $ x `zipFill` y
 
 
 op2 :: Ident -> Val -> Val -> Eval Val
+op2 op | "»" `isPrefixOf` op = op2Hyper . init . init . drop 2 $ op
 op2 "rename" = boolIO2 rename
 op2 "symlink" = boolIO2 createSymbolicLink
 op2 "link" = boolIO2 createLink
@@ -360,8 +361,6 @@ op2 "||" = op2Logical (id :: Bool -> Bool)
 op2 "^^" = op2Bool ((/=) :: Bool -> Bool -> Bool)
 op2 "//" = op2Logical isJust
 op2 "!!" = op2Bool (\x y -> not x && not y)
--- NOTE:  "»" == chr 187
-op2 ('\187':op) = op2Hyper . init $ op
 -- XXX pipe forward XXX
 op2 "and"= op2 "&&"
 op2 "or" = op2 "||"
@@ -387,6 +386,10 @@ op2 "split"= \x y -> return $ split (vCast x) (vCast y)
 	| glue `isPrefixOf` rest = ([], rest)
 	| otherwise = (x:piece, rest') where (piece, rest') = breakOnGlue glue xs
 op2 other = \x y -> return $ VError ("unimplemented binaryOp: " ++ other) (App other [Val x, Val y] [])
+
+op3 other = \x y z -> return $ VError ("unimplemented 3-ary op: " ++ other) (App other [Val x, Val y, Val z] [])
+
+op4 other = \x y z w -> return $ VError ("unimplemented 4-ary op: " ++ other) (App other [Val x, Val y, Val z, Val w] [])
 
 op2Hyper op x y
     | VList x' <- x, VList y' <- y
@@ -522,7 +525,9 @@ primOp sym assoc prms ret = Symbol SOur name (Val sub)
             [x]   -> op1 symName x
             [x,y] -> op2 symStr x y
             x     -> op0 symStr x
-        2 -> \[x,y] -> op2 sym (vCast x) (vCast y)
+        2 -> \[x,y] -> op2 symStr x y
+        3 -> \[x,y,z] -> op3 symStr x y z
+        4 -> \[x,y,z,w] -> op4 symStr x y z w
         _ -> error (show arity)
     symName = if modify then assoc ++ ":" ++ symStr else symStr
     (arity, fixity, modify) = case assoc of
