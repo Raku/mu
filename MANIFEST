@@ -192,6 +192,7 @@ t/op/int.t
 t/op/io.t
 t/op/join.t
 t/op/lc.t
+t/op/lcfirst.t
 t/op/map.t
 t/op/multi_dimensional_array.t
 t/op/my.t
@@ -217,6 +218,7 @@ t/op/sub_return_values.t
 t/op/subroutine.t
 t/op/substr.t
 t/op/uc.t
+t/op/ucfirst.t
 t/op/unshift.t
 t/op/zip.t
 t/Synopsis/S01.pod
