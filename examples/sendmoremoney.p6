@@ -3,6 +3,87 @@ use v6;
 
 die "*** This example is currently broken -- needs more work.";
 
+# basic test case, A + B = AC
+my $a = any(0..9) & none(0);
+my $b = any(0..9) & none(0);
+my $c = any(0..9);
+my $ac;
+
+if ( any($a, $b, $c) == one($a, $b, $c) ) {
+
+    $ac = $a * 10 + $c;
+
+    if ( $a + $b == $ac ) {
+	say " A = $a";
+	say "+B = $b";
+	say "-------";
+	say "AC =$ac";
+    }
+}
+
+# a more complicated and "classical" case :)
+sub show_me_the_money($s,$e,$n,$d,$m,$o,$r,$y) {
+
+    my $send := construct($s,$e,$n,$d);
+    my $more := construct($m,$o,$r,$e);
+    my $money := construct($m,$o,$n,$e,$y);
+
+    if ($send + $more == $money) {
+        say " send =  $send";
+        say "+more =  $more";
+        say "-------------";
+        say "money = $money";
+    }
+
+}
+
+my $s = any(0..9) & none(0);
+my $e = any(0..9);
+my $n = any(0..9);
+my $d = any(0..9);
+my $m = any(0..9) & none(0);
+my $o = any(0..9);
+my $r = any(0..9);
+my $y = any(0..9);
+
+# breaking the calculation down into a series of additions, in terms
+# of individual digits and carry values is a necessary step to solving
+# this problem quickly (as I see it).
+
+# the test starting with ($c3 == $m), etc is essentially a big
+# optimisation hint, roughly organised in a way that represents a
+# "quick" way to solve the problem.  By the time the test in
+# show_me_the_money runs, the values have already been determined.
+
+# Languages like Oz might be able to figure out this stuff
+# automatically, but that is a very lofty goal to aim for to begin
+# with!   (see http://xrl.us/fehh (Link to www.mozart-oz.org))
+
+# set this to 1 to disable the hint, instead using an exhaustive
+# search method, requiring ~1e8 iterations, until the optimiser is
+# smart enough to reduce it to the broken down version
+my $use_exhaustive = 0;
+
+my $c0 = any(0..1);
+my $c1 = any(0..1);
+my $c2 = any(0..1);
+my $c3 = any(0..1);
+
+if ( any($s,$e,$n,$d,$m,$o,$r,$y) == one($s,$e,$n,$d,$m,$o,$r,$y) ) {
+
+    if ( $use_exhaustive or
+	 (           $c3     == $m ) &&
+	 (( $s+$m+$c2 ) % 10 == $o ) && ( int( ( $s+$m+$c2 ) / 10 ) == $c3 ) &&
+	 (( $e+$o+$c1 ) % 10 == $n ) && ( int( ( $e+$o+$c1 ) / 10 ) == $c2 ) &&
+	 (( $n+$r+$c0 ) % 10 == $e ) && ( int( ( $n+$r+$c0 ) / 10 ) == $c1 ) &&
+	 (( $d+$e     ) % 10 == $y ) && ( int( ( $d+$e     ) / 10 ) == $c0 ) &&
+       ) {
+
+	show_me_the_money($s,$e,$n,$d,$m,$o,$r,$y);
+    }
+}
+
+# functions used by example
 sub foldl (Code &op, Any $initial, *@values) returns Any {
     if (+@values == 0) {
          return $initial;
@@ -19,108 +100,25 @@ sub construct (*@values) returns Junction {
     return foldl( -> $x, $y { $x * 10 + $y}, 0, @values);
 }
 
-sub show_me_the_money($s,$e,$n,$d,$m,$o,$r,$y) {
-
-    my $send := construct($s,$e,$n,$d);
-    my $more := construct($m,$o,$r,$e);
-    my $money := construct($m,$o,$n,$e,$y);
-
-    if ($send + $more == $money) {
-        say " send = $send";
-        say "+more = $more";
-        say "-------------";
-        say "money = $money";
-    }
-
-}
-
-# basic test case, A + B = AC
-
-my $a = any(0..9) & none(0);
-my $b = any(0..9) & none(0);
-my $c = any(0..9);
-my $ac;
-
-if ($a != $b && $b != $c && $a != $c &&
-    ( $a + $b == ($ac = construct($a,$c)) )
-   ) {
-	say " A = $a";
-	say "+B = $b";
-	say "-------";
-	say "AC =$ac";
-}
-
-# more complicated case :)
-
-my $s = any(0..9) & none(0);
-my $e = any(0..9);
-my $n = any(0..9);
-my $d = any(0..9);
-my $m = any(0..9) & none(0);
-my $o = any(0..9);
-my $r = any(0..9);
-my $y = any(0..9);
-
-
-# does this actually make sure they are all different?  I don't follow
-# the logic...
-if (any($s,$e,$n,$d,$m,$o,$r,$y) == one($s,$e,$n,$d,$m,$o,$r,$y)) {
-    show_me_the_money($s,$e,$n,$d,$m,$o,$r,$y);
-}
-
-# if you break it into components, you get a much more tractable
-# problem, from an optimisation's point of view:
-
-my $c0 = any(0..1);
-my $c1 = any(0..1);
-my $c2 = any(0..1);
-my $c3 = any(0..1);
-
-if (
-  (           $c3        == $m ) &&
-( ( $s + $m + $c2 ) % 10 == $o ) && ( int( ( $s + $m + $c2 ) / 10 ) == $c3 ) &&
-( ( $e + $o + $c1 ) % 10 == $n ) && ( int( ( $e + $o + $c1 ) / 10 ) == $c2 ) &&
-( ( $n + $r + $c0 ) % 10 == $e ) && ( int( ( $n + $r + $c0 ) / 10 ) == $c1 ) &&
-( ( $d + $e       ) % 10 == $y ) && ( int( ( $d + $e       ) / 10 ) == $c0 ) &&
- ( $m != $s ) && ( $m != $e ) && ( $m != $n ) && ( $m != $d ) &&
- ( $m != $o ) && ( $m != $r ) && ( $m != $y ) &&
- ( $s != $e ) && ( $s != $n ) && ( $s != $d ) && ( $s != $o ) &&
- ( $s != $r ) && ( $s != $y ) &&
- ( $e != $n ) && ( $e != $d ) && ( $e != $o ) && ( $e != $r ) &&
- ( $e != $y ) &&
- ( $n != $d ) && ( $n != $o ) && ( $n != $r ) && ( $n != $y ) &&
- ( $d != $o ) && ( $d != $r ) && ( $d != $y ) &&
- ( $e != $r ) && ( $e != $y ) &&
- ( $r != $y )
-) {
-    show_me_the_money($s,$e,$n,$d,$m,$o,$r,$y);
-}
-
-
 
 __END__
 
--- Here's the equivalent SQL, note that modern databases seem to grok
--- this expression very well and solve the problem in a minute amount
--- of time.  Less than 10ms on my Athlon!  If Perl 6 has a way of
--- writing this sort of thing in the core language, I'll be very
--- impressed...
+-- Heres the equivalent SQL, as junctions have direct representation
+-- in Set Theory (see http://xrl.us/feh8)), then the below should be a
+-- very relevant way to express the problem, especially given
+-- MySQL/InnoDB (for one) already has the relevant logic to solve this
+-- problem in ~130ms on a 300MHz PII.  Although of course that is
+-- still over 39,000,000 cycles!  :-)  Oracle took longer - ~6s, but
+-- admittedly it was only running on a dual processor 1.6GHz Opteron.
+-- Pg took a similar amount of time on a 1.7GHz AthlonXP (5s), SQLite
+-- took over 30s!
 
--- MySQL table setup:
+-- MySQL table setup (adjust for your DBMS as necessary)
 
 CREATE TABLE Dx ( X INTEGER(1) );
 INSERT INTO Dx (X) VALUES (0),(1),(2),(3),(4),(5),(6),(7),(8),(9);
 CREATE TABLE Cx ( X INTEGER(1) );
 INSERT INTO Cx (X) VALUES (0),(1);
-
--- Oracle table setup:
-
-CREATE TABLE Cx ( X NUMBER(1));
-CREATE TABLE Dx ( X NUMBER(1));
-INSERT INTO Cx (X) VALUES (0);
-INSERT INTO Cx (X) VALUES (1);
-INSERT INTO Dx (SELECT ROWNUM-1 FROM Cx C0, Cx C1, Cx C2,
-                Cx C3 WHERE ROWNUM <= 10);
 
 -- actual query:
 
