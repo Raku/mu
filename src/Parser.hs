@@ -316,13 +316,18 @@ ruleConstruct = rule "construct" $ tryChoice
     , ruleLoopConstruct
     , ruleCondConstruct
     , ruleWhileUntilConstruct
+    , ruleTryConstruct
     , ruleStandaloneBlock
     ]
 
-ruleGatherConstruct = rule "gather construct" $ do
-    symbol "gather"
+ruleKeywordConsturct keyword = rule (keyword ++ " construct") $ do
+    symbol keyword
     block <- ruleBlock
-    retSyn "gather" [block]
+    retSyn keyword [block]
+
+ruleGatherConstruct = ruleKeywordConsturct "gather"
+
+ruleTryConstruct = ruleKeywordConsturct "try"
 
 ruleForeachConstruct = rule "foreach construct" $ do
     choice [ symbol "for", symbol "foreach" ]

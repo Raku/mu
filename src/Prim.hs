@@ -32,14 +32,16 @@ op0 "time"  = \_ -> do
     where
     epochClkT = toClockTime epoch
     epoch = CalendarTime 1970 January 1 0 0 0 0 Thursday 0 "UTC" 0 False
-op0 "not" = \_ -> do
+op0 "not" = const retEmpty
+op0 s    = \x -> return $ VError ("unimplemented listOp: " ++ s) (Val $ VList x)
+
+retEmpty = do
     cxt <- asks envContext
     return $ case cxt of
         "List"  -> VList []
         "Array" -> VArray (MkArray [])
         "Hash"  -> VHash (MkHash emptyFM)
         _       -> VUndef
-op0 s    = \x -> return $ VError ("unimplemented listOp: " ++ s) (Val $ VList x)
 
 op1 :: Ident -> Val -> Eval Val
 op1 "!"    = return . fmapVal not

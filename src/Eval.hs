@@ -393,6 +393,11 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         let [subExp, Syn "invs" invs, Syn "args" args] = exps
         sub     <- enterEvalContext "Code" subExp
         apply (vCast sub) invs args
+    "try" -> do
+        val <- resetT $ evalExp (head exps)
+        case val of
+            VError _ _  -> retEmpty
+            _           -> retVal val
     "gather" -> do
         val     <- enterEvalContext "List" exp
         -- ignore val

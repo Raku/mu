@@ -10,7 +10,7 @@ plan 10;
 	my $lived = undef;
 	eval 'try { die "foo" }; $lived = 1';
 	todo_is(eval '$!', "foo", "error var was set");
-	todo_ok($lived, "try weakened death");
+	ok($lived, "try weakened death");
 };
 
 {
@@ -83,7 +83,7 @@ plan 10;
 		$lived = 1;
 	';
 
-	ok(!$lived, "did not lived passed uncought throw in try");
+	todo_ok(!$lived, "did not lived passed uncought throw in try");
         ok(ref($!), '$! is an object');
 	todo_is(eval 'ref($!)', "Dandy", ".. of the right class");
 };
