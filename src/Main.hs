@@ -30,7 +30,7 @@ main :: IO ()
 main = do
     hSetBuffering stdout NoBuffering
     args <- getArgs
-    run $ concatMap procArg (sortArgs (foldl (++) [] (map canonicalizeOpt args)))
+    run $ concatMap joinDashE (procArg (sortArgs (foldl (++) [] (map canonicalizeOpt args))))
     where
     procArg x = [x]
 
@@ -40,7 +40,7 @@ main = do
     canonicalizeOpt('-':'e':[])      = ["-e"]
     canonicalizeOpt('-':'h':[])      = ["-h"]
     canonicalizeOpt("--help")        = ["-h"]
-    canonicalizeOpt('-':'l':[])      = ["-l"]
+    canonicalizeOpt('-':'l':[])      = [] -- ["-e", "# BEGIN{ ... }"] -- XXX fixme: Add real Perl6 fragment
     canonicalizeOpt('-':'v':[])      = ["-v"]
     canonicalizeOpt("--version")     = ["-v"]
     canonicalizeOpt('-':'w':[])      = ["-w"]
@@ -82,26 +82,18 @@ sortArgs args = _unpackArgs (_sortArgs (_packArgs args))
     argRank(_)    = 100  -- Perl code fragment or filename or whatever
 
 run :: [String] -> IO ()
-run (("-l"):rest)                 = run rest
+-- run (("-l"):rest)                 = run rest
 run (("-d"):rest)                 = run rest
 run (("-w"):rest)                 = run rest
 
 run ("-h":_)                    = printCommandLineHelp
--- run ("--help":_)                = printCommandLineHelp
 run ("-V":_)                    = printConfigInfo
 run ("-v":_)                    = banner
-run ("--version":_)             = banner
 run ("-c":"-e":prog:_)          = doCheck "-e" prog
--- run ("-e":prog:"-c":_)          = doCheck "-e" prog
 run ("-c":file:_)               = readFile file >>= doCheck file
 run (("-e"):prog:args)          = doRun "-e" args prog
 
 run (('-':'I':_):rest)          = run rest
---run (('-':'c':rest@(_:_)):args) = run (("-c"):('-':rest):args)
---run (('-':'d':rest@(_:_)):args) = run (("-d"):('-':rest):args)
---run (('-':'e':prog@(_:_)):args) = run (("-e"):prog:args)
---run (('-':'l':xs):args)         = run (("-l"):('-':xs):args)
---run (('-':'w':xs):args)         = run (("-w"):('-':xs):args)
 
 -- XXX clean up further
 run (('-':'C':backend):"-e":prog:_) = doCompile backend "-e" prog
@@ -117,6 +109,14 @@ run []                          = do
     if isTTY
         then do banner >> intro >> repLoop
         else run ["-"]
+
+joinDashE :: [String] -> [String]
+joinDashE [] = []
+joinDashE (("-e"):a:("-e"):b:args) = do
+                                      joinDashE (("-e"):combined:args)
+                                    where
+                                      combined = a ++ "\n" ++ b 
+joinDashE (x:xs) =  [ x ] ++ joinDashE xs
 
 -- convenience functions for GHCi
 eval :: String -> IO ()

@@ -5,16 +5,13 @@ require Test;
 
 =pod
 
-Test evaluation of multiple C<-e> switches.
-
-Multiple C<-e> switches are supposed to work just
-like C<join "\n"> concatenation .
+Test that the C<--version> command in its various incantations
+works.
 
 =cut
 
-my @examples = (
-'-e print -e qq.Hello -e Pugs.'
-);
+my @examples = ("-v", "--version");
+@examples = @examples.map():{ $_, "-w $_", "$_ -w", "-w $_ -w" };
 
 plan +@examples;
 
@@ -32,11 +29,10 @@ for @examples -> $ex {
   diag $command;
   system $command;
 
-  my $expected = "Hello\nPugs";
   my $got      = slurp "temp-ex-output";
-  #unlink "temp-ex-output";
+  unlink "temp-ex-output";
 
-  $expected =~
-
-  is $got, $expected, "Multiple -e switches work and append the script";
+  my $res = ($got ~~ rx:perl5/Version: 6\.0\.\d+ \(r\d+\)/);
+  ok ($res, "'$ex' displays help")
+    or diag $got;
 }
