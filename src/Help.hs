@@ -28,8 +28,8 @@ printInteractiveHelp
         putStrLn "? <exp>         = evaluate an expression in small steps"
         putStrLn "<exp>           = run a command"
         putStrLn ":r              = reset the evaluation environment"
-{-
         putStrLn ":l <filename>   = load a pugs file (need quotes around the name)" 
+{-
         putStrLn ":r              = reload the current file"
 -}
 

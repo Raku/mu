@@ -75,7 +75,7 @@ repLoop = do
         command <- getCommand
         case command of
             CmdQuit       -> putStrLn "Leaving pugs."
-            CmdLoad fn    -> load fn
+            CmdLoad fn    -> doLoad env fn >> loop
             CmdRun prog   -> doRunSingle env prog >> loop
             CmdDebug prog -> doDebug [] prog >> loop
             CmdParse prog -> doParse "<interactive>" prog >> loop
@@ -86,8 +86,6 @@ repLoop = do
     tabulaRasa = do
         env <- prepareEnv "<interactive>" []
         return env{ envDebug = Nothing }
-
-load _ = return ()
 
 doCheck = doParseWith $ \_ name -> do
     putStrLn $ name ++ " syntax OK"
@@ -114,19 +112,27 @@ doParse name prog = do
 doDebug :: [String] -> String -> IO ()
 doDebug = runProgramWith id (putStrLn . pretty) "<interactive>"
 
+doLoad :: IORef Env -> String -> IO ()
+doLoad env fn = runImperatively env exp where
+    exp = App "&require" [] [Val $ VStr fn]
+
 doRunSingle :: IORef Env -> String -> IO ()
-doRunSingle menv prog = doParseWith runner "<interactive>" prog
-    where
-    runner (Statements stmts@((_,pos):_)) _ = do
-        env <- readIORef menv
-        val <- (`runReaderT` env) $ (`runContT` return) $ resetT $ do
-            val <- evaluate $ Statements (stmts ++ [(Syn "dump" [], pos)])
-            newEnv <- ask
-            liftIO $ writeIORef menv newEnv
-            return val
-        putStrLn $ pretty val
-    runner _ _ = do
-        putStrLn "Cannot handle things that are not statements. try `?' parhaps."
+doRunSingle menv prog = do
+    env <- emptyEnv []
+    let exp = runRule env envBody ruleProgram "<interactive>" $ decodeUTF8 prog
+    case exp of
+        (Statements stmts@((_,pos):_)) -> runImperatively menv $ Statements (stmts ++ [(Syn "dump" [], pos)])
+        _ -> putStrLn "Expected statements, got something else."
+
+runImperatively :: IORef Env -> Exp -> IO ()
+runImperatively menv exp = do
+    env <- readIORef menv
+    val <- (`runReaderT` env) $ (`runContT` return) $ resetT $ do
+        val <- evaluate exp
+        newEnv <- ask
+        liftIO $ writeIORef menv newEnv
+        return val
+    putStrLn $ pretty val
 
 doRun :: String -> [String] -> String -> IO ()
 doRun = do

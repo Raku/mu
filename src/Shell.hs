@@ -55,7 +55,11 @@ parseCommandLine (':':'q':_)    = CmdQuit
 parseCommandLine (':':'h':_)    = CmdHelp
 parseCommandLine (':':'r':_)    = CmdReset
 -- parseCommandLine (':':'b':_)    = CmdBrowse
--- parseCommandLine (':':'l':str)  = CmdLoad . unwords . tail $ words str
+parseCommandLine (':':'l':str)
+    | [(fn, rest)] <- reads str :: [(String, String)]
+    , [("", "")] <- lex rest =
+        CmdLoad fn
+    | otherwise = CmdHelp
 parseCommandLine str            = CmdRun str
 
 initializeShell :: IO ()
