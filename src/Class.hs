@@ -95,5 +95,39 @@ refSlave    = (1, 1)
 
     -- 
 
+  Note: what follows might all be kack, and is written by someone who
+        hasn't read http://xrl.us/tapl, which is not ideal.  Maybe
+        someone who has will come along later and fix this.
+
+  Package := MetaClass where clsName = "Package"
+
+{-
+  PkgIsGlobal is not quite right - a package is global if it exists
+  in the global package namespace.  Packages either need to
+  know their "own" namespace for $?PACKAGE to work (perhaps...), or
+  have a back-reference to the namespace they exist in that has a
+  String category that is the name, or something like that.  consider
+  this a FIXME :-)
+-}
+
+something like that.
+  Package.clsProperties =
+	{ pkgName = MetaProperty { type = Symbol } 
+	  pkgIsGlobal = MetaProperty { type = Bool  }
+	}
+
+  Package.clsAssocs =
+	{ pkgSubPackages = MetaAssoc { targetClass = Package }
+	}
+    
+  MetaClass where clsName = "Class"
+     clsProperties =
+	[ 
+
+
+	]
+     
+     
+
 -}
 
