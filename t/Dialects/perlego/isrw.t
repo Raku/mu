@@ -1,6 +1,9 @@
 use v6;
 
-say "1..1";
+require Test;
+exit;
+
+plan(1);
 
 my $foo = 2;
 eval '

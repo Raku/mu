@@ -1,6 +1,9 @@
 use v6;
 
-say "1..16";
+require Test;
+exit;
+
+plan(16);
 
 #todo_fail("FIXME parsefail");
 say "1 not ok - FIXME parsefail # TODO";
