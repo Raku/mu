@@ -1,4 +1,4 @@
-#line 1 "inc/Module/Install/WriteAll.pm - /usr/local/lib/perl5/site_perl/5.8.5/Module/Install/WriteAll.pm"
+#line 1 "inc/Module/Install/WriteAll.pm - /Users/ingy/local/lib/perl5/site_perl/5.8.6/Module/Install/WriteAll.pm"
 package Module::Install::WriteAll;
 use Module::Install::Base; @ISA = qw(Module::Install::Base);
 

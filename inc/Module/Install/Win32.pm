@@ -1,4 +1,4 @@
-#line 1 "inc/Module/Install/Win32.pm - /usr/local/lib/perl5/site_perl/5.8.5/Module/Install/Win32.pm"
+#line 1 "inc/Module/Install/Win32.pm - /Users/ingy/local/lib/perl5/site_perl/5.8.6/Module/Install/Win32.pm"
 package Module::Install::Win32;
 use Module::Install::Base; @ISA = qw(Module::Install::Base);
 

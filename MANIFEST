@@ -13,6 +13,7 @@ examples/mandel.p6
 examples/quicksort.p6
 examples/sendmoremoney.p6
 examples/shuffle.p6
+ext/Kwid/kwid
 ext/Kwid/lib/Kwid.pm
 ext/Kwid/Makefile.PL
 ext/Kwid/src/Kwid/AST.hs
@@ -25,7 +26,10 @@ inc/Module/Install.pm
 inc/Module/Install/Base.pm
 inc/Module/Install/Can.pm
 inc/Module/Install/Fetch.pm
+inc/Module/Install/Include.pm
 inc/Module/Install/Makefile.pm
+inc/Module/Install/Makefile/Name.pm
+inc/Module/Install/Makefile/Version.pm
 inc/Module/Install/Metadata.pm
 inc/Module/Install/Scripts.pm
 inc/Module/Install/Win32.pm
