@@ -25,8 +25,11 @@ my @EVENTS = (
     'end_verbatim',
     'verbatim',        
     
-    'start_interpolation',
-    'end_interpolation',
+    'start_paragraph',
+    'end_paragraph',
+    
+    'start_line_interpolation',
+    'end_line_interpolation',    
         
     'start_modifier',
     'end_modifier',
@@ -94,17 +97,32 @@ sub parse (Str $filename, Hash %_events) is export {
                     when rx:perl5{^\s(.*?)$} {
                         my $verbatim = "$1\n";
                         my $_line = $fh.readline;
-                        while (defined($_line) && !($_line ~~ rx:perl5{^\n$}) && $_line ~~ rx:perl5{^\s(.*?)$}) {
+                        while (defined($_line)             && 
+                              !($_line ~~ rx:perl5{^\n$})  && 
+                                $_line ~~ rx:perl5{^\s(.*?)$} ) {                                
                             $verbatim ~= "$1\n";
                             $_line = $fh.readline;
-                        }
+                        }                        
                         %events<start_verbatim>();
                         %events<verbatim>($verbatim);
                         %events<end_verbatim>();                        
                     }
                     default {
-                        interpolate($line, %events);   
-                        %events<newline>() unless $line eq '';
+                        if ($line ne '') {
+                            %events<start_paragraph>();
+                            interpolate($line, %events);   
+                            my $_line = $fh.readline;
+                            while (defined($_line)             && 
+                                   !($_line ~~ rx:perl5{^\n$}) ) {
+                                chomp($_line);
+                                interpolate($_line, %events);
+                                $_line = $fh.readline;
+                            }                          
+                            %events<end_paragraph>();
+                        }
+                        else {
+                            %events<newline>();
+                        }
                     }
                 }
             } 
@@ -116,7 +134,7 @@ sub parse (Str $filename, Hash %_events) is export {
 sub interpolate (Str $text, Hash %events) {
     %events<string>($text); # <<< this is a HACK for now
     
-    %events<start_interpolation>();
+    %events<start_line_interpolation>();
     # waiting on support for capturing 
     # with :g into an array 
 	my @tokens = (); # $text ~~ rx:perl5:g{(?:[A-Z]<\s+|[A-Z]<|\s+>|>|\w+|\s+)};
@@ -149,7 +167,7 @@ sub interpolate (Str $text, Hash %events) {
 	# we need to throw an exception about it.
 	(!@modifier_stack) 
 		|| die "Unbalanced modifier(s) found (" ~ join(", ", @modifier_stack) ~ ") in the string (@tokens)";
-    %events<end_interpolation>();
+    %events<end_line_interpolation>();        
 }
 
 =pod
