@@ -28,6 +28,11 @@ build_subdirs   (map fixpaths($_), grep {
                    -f "$_/Makefile.PL" && not -l "$_/Makefile.PL"
                  } glob("ext/*")
                 );
+
+my $version = version();
+$version =~ s{6\.(\d{3})(\d{3})}{join '.', 6, int($1), int($2)}e;
+version($version);
+
 makemaker_args  (
     test => { TESTS => join ' ', "t/*/*.t", "t/*/*/*.t" },
     MAN1PODS => {},

@@ -2,7 +2,7 @@ package Perl6::Pugs;
 use 5.006;
 use strict;
 
-our $VERSION = 6.000_013;
+our $VERSION = 6.000013;
 
 =head1 NAME
 
