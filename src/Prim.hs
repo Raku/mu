@@ -511,6 +511,9 @@ op2 "connect" = \x y -> do
     port <- fromVal y
     hdl  <- liftIO $ connectTo host (PortNumber $ fromInteger port)
     return $ VHandle hdl
+op2 "exp" = \x y -> return . VNum $ case (vCast y) of
+    Nothing -> exp (vCast x)
+    _       -> vCast y ** vCast x
 op2 other = \x y -> return $ VError ("unimplemented binaryOp: " ++ other) (App other [Val x, Val y] [])
 
 -- XXX - need to generalise this
@@ -872,7 +875,7 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Num       pre     atan2   (Num, Num)\
 \\n   Num       pre     cos     (?Num=$_)\
 \\n   Num       pre     sin     (?Num=$_)\
-\\n   Num       pre     exp     (?Num=$_)\
+\\n   Num       pre     exp     (?Num=$_, ?Num)\
 \\n   Num       pre     sqrt    (?Num=$_)\
 \\n   Bool      pre     -d      (Str)\
 \\n   Bool      pre     -f      (Str)\
