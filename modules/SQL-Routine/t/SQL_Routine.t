@@ -9,8 +9,8 @@ plan( 41 );
 require t_SRT_Verbose;
 require t_SRT_Terse;
 require t_SRT_Abstract;
-require SQL::Routine-0.0.1;
-require SQL::Routine::L::en-0.0.1;
+require SQL::Routine-0.0.2;
+require SQL::Routine::L::en-0.0.2;
 
 ######################################################################
 # Here are some utility methods:

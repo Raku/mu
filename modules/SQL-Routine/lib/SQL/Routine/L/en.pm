@@ -1,7 +1,7 @@
 #!pugs
 use v6;
 
-module SQL::Routine::L::en-0.0.1;
+module SQL::Routine::L::en-0.0.2;
 
 ######################################################################
 
@@ -600,7 +600,7 @@ sub get_text_by_key( Str $msg_key ) returns Str {
 
 =head1 DESCRIPTION
 
-The SQL::Routine::L::en Perl 5 module contains localization data for
+The SQL::Routine::L::en Perl 6 module contains localization data for
 SQL::Routine.  It is designed to be interpreted by Locale::KeyedText.
 
 This class is optional and you can still use SQL::Routine effectively without 

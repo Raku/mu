@@ -6,9 +6,9 @@ use Pugs::MakeMaker;
 
 WriteMakefile(
 	NAME	=> 'SQL::Routine',
-    VERSION => '0.0.1',
+    VERSION => '0.0.2',
 	PREREQ_PM => {
-		'Locale::KeyedText' => '0.0.3',
+		'Locale::KeyedText' => '0.0.4',
 	},
 );
 
