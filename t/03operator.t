@@ -13,6 +13,6 @@ my $str4 = $str1~$str2;
 if ($str3 eq $str4) {say "ok 1"} else {say "not ok 1"}
 
 my $bar = "";
-eval ' ($str3 eq $str4) ?? { $bar = "true" } :: { $bar = "false" } ';
+eval ' ($str3 eq $str4) ?? $bar = "true" :: $bar = "false" ';
 
 if ($bar) { say "ok 2" } else { say "not ok 2 # TODO Trinary operator" }
