@@ -122,8 +122,6 @@ finalizeBindings sub@Sub{ subParams = params, subBindings = bindings } = do
 -- takes invocants and arguments, and creates a binding from the remaining params in the sub
 bindSomeParams :: VSub -> [Exp] -> [Exp] -> MaybeError VSub
 bindSomeParams sub@Sub{ subBindings = bindings, subParams = params } invsExp argsExp = do
-    if (subName sub) == "&foo" then trace (unlines ["sub: " ++ (show (subName sub)), "binding: " ++ (show (map snd bindings)),  "invs: " ++ (show invsExp), "args: " ++ (show argsExp), "params :" ++ (show (map paramName (subParams sub)))]) $ return () else do return ()
-
     let (invPrms, argPrms) = span isInvocant params
         (givenInvs, givenArgs) = if null invPrms
             then ([], (invsExp++argsExp))
@@ -153,8 +151,6 @@ bindSomeParams sub@Sub{ subBindings = bindings, subParams = params } invsExp arg
     let newBindings = concat [bindings, boundInv, boundNamed, boundPos, boundHash, boundArray, boundScalar]
     let newParams = params \\ (map fst newBindings);
     
-    if (subName sub) == "&foo" then trace (unlines ["new binding: " ++ (show newBindings), "new params :" ++ (show (map paramName newParams)), "bound params :" ++ (show (map paramName (map fst newBindings)))]) $ return () else do return ()
-
     return sub
         { subBindings = newBindings
         , subParams   = newParams
