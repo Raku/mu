@@ -23,6 +23,9 @@ if ($quux eq 'quux') { say "ok 6 # TODO => lhs quotes" } else { say "not ok 6 # 
 #Pair with a numeric value
 my $pair = 'foo' => 2;
 if (ref $pair eq 'Pair') { say "ok 7" } else { say "not ok 7" }
+
+say "ok 8";
+
 my $two = $pair.value;
 if ($two == 2) { say "ok 9" } else { say "not ok 9" };
 

@@ -5,7 +5,7 @@ use strict;
 
 =head1 NAME
 
-Perl6::Pugs - A Perl6 Interpreter
+Perl6::Pugs - A Perl6 Implementation
 
 =head1 VERSION
 
@@ -18,11 +18,11 @@ This document describes version 6.0.8 of Pugs, released February 21, 2005.
 
 =head1 DESCRIPTION
 
-Pugs is an interpreter for Perl 6, written in Haskell. It aims to implement the
-full Perl6 specification, as detailed in the Synopses.
+Pugs is an implementation of Perl 6, written in Haskell. It aims to support
+the full Perl6 specification, as detailed in the Synopses.
 
-The Pugs project was started on February 1st 2005.  It is under active development
-on IRC (irc.freenode.net #perl6).
+The Pugs project was started on February 1st 2005.  It is under active
+development on IRC (irc.freenode.net #perl6).
 
 =head2 Release Plans
 

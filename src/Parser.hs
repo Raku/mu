@@ -335,7 +335,8 @@ tightOperators = do
     , leftOps  " ^ | "                                  -- Junctive Or
     , preOps   unary                                    -- Named Unary
     , leftOps  " but does "                             -- Traits
-      ++ noneOps " => but does cmp <=> .. ^.. ..^ ^..^ "-- Non-chaining Binary
+      ++ rightOps " => "                                -- Pair constructor
+      ++ noneOps " cmp <=> .. ^.. ..^ ^..^ "            -- Non-chaining Binary
       ++ postOps "..."                                  -- Infinite range
     , chainOps $
                " != == < <= > >= ~~ !~ " ++
