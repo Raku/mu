@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan(15);
+plan 19;
 
 # Mostly copied from Perl 5.8.4 s t/op/inc.t
 
@@ -76,19 +76,19 @@ $a = 'x';
 is($a++, 'x', 'magical ++ should not be numified');
 
 my %a = ('a' => 1);
-%a{'a'}++;
+eval '%a{"a"}++';
 ok(%a{'a'} == 2);
 
 my %b = ('b' => 1);
 my $var = 'b';
-%b{$var}++;
+eval '%b{$var}++';
 ok(%b{$var} == 2);
 
 my @a = (1);
-@a[1]++;
+eval '@a[1]++';
 ok(@a[1] == 2);
 
 my @b = (1);
 my $moo = 1;
-@b[$moo]++;
+eval '@b[$moo]++';
 ok(@b[$moo] == 2);
