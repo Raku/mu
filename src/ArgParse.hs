@@ -13,7 +13,7 @@
   
 -}
 
-module ArgParse
+module ArgParse (canonicalArgs)
 where
 import Internals
 
@@ -21,9 +21,8 @@ canonicalArgs :: [String] -> [String]
 canonicalArgs(x) = joinDashE (_proc x)
 
 -- clean up later
-_unpack(x) = unpackOptions(x)
-_sort(x) = sortArgs $ _unpack x
-_proc(x) = procArg (foldl (++) [] (_sort x))
+_sort(x) = sortArgs $ unpackOptions x
+_proc(x) = procArg (concat (_sort x))
     
 procArg :: [String] -> [String]
 procArg("-I":dir:rest)      = ["-I",dir]                             ++ procArg(rest)
@@ -35,7 +34,7 @@ procArg("-w":rest)          = ["-w"]                                 ++ procArg(
 procArg("-e":fragment:rest) = ["-e",fragment]                        ++ procArg(rest)
 procArg(xs)                 = xs  -- this must be either the filename or @ARGS
 unpackOptions :: [String] -> [String]
-unpackOptions xs = foldl (++) [] $ map unpackOption xs
+unpackOptions xs = concatMap unpackOption xs
 
 unpackOption :: String -> [String]
 unpackOption('-':'c':[])      = ["-c"]
