@@ -50,6 +50,6 @@ sleep :: Int -> IO ()
 sleep _ = fail "'sleep' not implemented on this platform."
 
 getEnvironment :: IO [(String, String)]
-getEnvironment = []
+getEnvironment = return []
 
 #endif

@@ -102,7 +102,7 @@ runProgramWith fenv f name args prog = do
         , Symbol SGlobal "$*PROGNAME" (Val $ VStr name)
 --        , Symbol SGlobal "$*STDIN" (Val $ VStr str)
         , Symbol SGlobal "$*END" (Val VUndef)
-        , Symbol SGlobal "%*ENV" (Val . VHash . MkHash . listToFM $ environ)
+        , Symbol SGlobal "%*ENV" (Val . VHash . MkHash . listToFM $ [ (VStr k, VStr v) | (k, v) <- environ ])
         ]
 --    str <- return "" -- getContents
     let env' = runRule (fenv env) id ruleProgram prog
