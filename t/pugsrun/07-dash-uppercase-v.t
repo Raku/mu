@@ -46,7 +46,7 @@ plan 1+@config*2+2;
 diag "Running under $?OS";
 
 my ($pugs,$redir) = ("./pugs", ">");
-if ($?OS eq "MSWin32") {
+if ($?OS ~~ rx:perl5{MSWin32|msys|mingw}) {
   $pugs = 'pugs.exe';
 };
 

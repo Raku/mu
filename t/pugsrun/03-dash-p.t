@@ -30,7 +30,7 @@ diag "Running under $?OS";
 
 my ($pugs,$redir_in,$redir_out) = ("./pugs", "<", ">");
 
-if ($?OS eq "MSWin32") {
+if ($?OS ~~ rx:perl5{MSWin32|msys|mingw}) {
   $pugs = 'pugs.exe';
   $redir_out = '>';
   # $redir_in = '<';

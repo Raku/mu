@@ -55,7 +55,7 @@ diag "Running under $?OS";
 
 # 2>&1 only works on WinNT upwards (cmd.exe) !
 my ($pugs,$redir, $redir_stderr) = ("./pugs", ">", "2>&1");
-if ($?OS eq "MSWin32") {
+if ($?OS ~~ rx:perl5{MSWin32|msys|mingw}) {
   $pugs = 'pugs.exe';
 };
 
