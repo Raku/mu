@@ -414,6 +414,23 @@ op3 "rindex" = \x y z -> do
 
 op3 other = \x y z -> return $ VError ("unimplemented 3-ary op: " ++ other) (App other [Val x, Val y, Val z] [])
 
+op4 :: Ident -> Val -> Val -> Val -> Val -> Eval Val
+op4 "substr" = \x y z w -> do
+    str <- fromMVal x
+    pos <- fromValue y
+    let len | isJust (vCast z) = vCast z
+            | otherwise        = length str
+    let (pre, mid, post) = doSubstr str pos len
+    when (isJust (vCast w)) $ liftIO $ writeIORef (vCast x) $
+        VStr $ pre ++ (vCast w) ++ post
+    return . VStr $ mid
+    where
+    doSubstr :: VStr -> Int -> Int -> (VStr, VStr, VStr)
+    doSubstr str pos len
+        | pos < 0   = doSubstr str (length str + pos) len
+        | len < 0   = doSubstr str pos (length str - pos + len)
+        | otherwise = ((take pos str), (take len $ drop pos str), (drop (pos + len) str))
+
 op4 other = \x y z w -> return $ VError ("unimplemented 4-ary op: " ++ other) (App other [Val x, Val y, Val z, Val w] [])
 
 op2Hyper op x y
@@ -635,6 +652,7 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Str       pre     chomp   (rw!Str)\
 \\n   Int       pre     index   (Str, Str, ?Int=0)\
 \\n   Int       pre     rindex  (Str, Str, ?Int)\
+\\n   Int       pre     substr  (rw!Str, Int, ?Int, ?Str)\
 \\n   Str       pre     lc      (Str)\
 \\n   Str       pre     lcfirst (Str)\
 \\n   Str       pre     uc      (Str)\
