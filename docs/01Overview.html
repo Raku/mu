@@ -344,15 +344,19 @@ please consider helping out the Compiler backend.</p>
 <h2>
 Is there a CPAN for Perl 6 modules?</h2>
 <p>
-Currently, Pugs searches for Perl 6
-libraries under the <span style="font-family: monospace;">Perl6::lib</span>
-namespace in the Perl 5 search path.
-For example, the <span style="font-family: monospace;">Test</span>
-module
-is installed as <span style="font-family: monospace;">Perl6/lib/Test.pm</span>
-in Perl 5&rsquo;s site library
-path. This is a temporary measure; we
-expect more robust solutions in the future.</p>
+No. The current preferred method for submitting Perl 6/Pugs modules is to
+ask for a committer bit at openfoundry.org and to add your module to the 
+Pugs source tree under the modules/ directory. It is also helpful to include 
+test suites with your modules as well, so we can know when they work.
+</P>
+<P>
+However, all is not lost. If you are patient you can wait for 
+<span style="font-family: monospace;">Pugs::MakeMaker</span> and 
+<span style="font-family: monospace;">Module::Install::Pugs</span> to come out
+on CPAN. Once they are available individually on CPAN, you can begin submitting
+things to CPAN, because that means we've figured out the distribution problem.
+Of course, suggestions are always welcome.
+</p>
 <h2>
 Can Pugs work with Perl 5 libraries?</h2>
 <p>
