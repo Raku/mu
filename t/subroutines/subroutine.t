@@ -9,7 +9,7 @@ Tests for Synopsis 6
 
 =cut
 
-plan 14;
+plan 16;
 
 sub foobar ($var) {
     return $var;
@@ -92,3 +92,10 @@ sub argShifter (@a) {
 
 fail("FIXME parsefail"); # actually exe fail...
 #is(eval 'argShifter(3..5)', 3, "use shift on an array argument");
+
+eval_ok('sub unpack_array ([$first, @rest]) {
+	return $first;
+}', 'splitting array arguments');
+
+my @array = 3..7;
+is(eval 'unpack_array(@array)', 3, 'unpacking an array parameter');
