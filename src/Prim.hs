@@ -81,6 +81,11 @@ op1 "say" = \v -> do
     op1 "print" v
     liftIO $ putStrLn ""
     return $ VBool True
+op1 "join"= \v -> do
+    v <- readMVal v
+    vals <- mapM readMVal (vCast v)
+    let (pivot:list) = map vCast vals
+    return $ VStr $ concat $ intersperse pivot list
 op1 "die" = \v -> do
     return $ VError (concatMap vCast . vCast $ v) (Val v)
 op1 "exit" = \v -> do
@@ -365,10 +370,11 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Any       post    ++      (LValue)\
 \\n   Num       post    --      (LValue)\
 \\n   Bool      pre     not     (Bool)\
-\\n   List      pre     map     (Code, Array)\
-\\n   List      pre     grep    (Code, Array)\
-\\n   List      pre     map     (Array: Code)\
-\\n   List      pre     grep    (Array: Code)\
+\\n   List      pre     map     (Code, List)\
+\\n   List      pre     grep    (Code, List)\
+\\n   List      pre     map     (List: Code)\
+\\n   List      pre     grep    (List: Code)\
+\\n   Str       pre     join    (List)\
 \\n   List      left    zip     (List)\
 \\n   List      pre     keys    (Hash)\
 \\n   List      pre     values  (Hash)\

@@ -30,6 +30,7 @@ emptyEnv = do
     return $ Env
         { envContext = "Void"
         , envLexical = []
+	, envLValue  = False
         , envGlobal  = initSyms
         , envClasses = initTree
         , envEval    = evaluate
@@ -70,9 +71,14 @@ evaluate (Val (VSub sub)) = do
         else do
             pad <- asks envLexical
             return $ VSub sub{ subPad = pad } -- closure!
-evaluate (Val (MVal mv)) = do
-    rv <- liftIO (readIORef mv)
-    evaluate (Val rv)
+evaluate (Val v@(MVal mv)) = do
+    lvalue  <- asks envLValue
+    cxt	    <- asks envContext -- XXX Wrong, use "is rw" trait
+    if lvalue || cxt == "LValue"
+	then return v
+	else do
+	    rv <- liftIO (readIORef mv)
+	    evaluate (Val rv)
 evaluate (Val val) = do
     -- context casting, go!
     cxt <- asks envContext
@@ -129,7 +135,7 @@ newMVal val = do
 
 writeMVal l (MVal r)    = writeMVal l =<< liftIO (readIORef r)
 writeMVal (MVal l) r    = liftIO $ writeIORef l r
-writeMVal _ _           = error "Can't write a constant item"
+writeMVal x y           = error $ "Can't write a constant item" ++ show (x, y)
 
 reduceStatements :: ([Exp], Exp) -> Eval Exp
 reduceStatements ([], exp) = reduceExp exp
@@ -171,10 +177,12 @@ reduceStatements ((exp:rest), _)
 
 evalVar name = do
     env <- ask
-    case findVar env name of
-        Nothing -> retError ("Undefined variable " ++ name) (Val VUndef)
-        Just (Val val)  -> return val
-        Just exp        -> evalExp exp -- XXX Wrong
+    val <- local (\e -> e{ envLValue = True }) $ enterEvalContext (cxtOfSigil $ head name) $
+	case findVar env name of
+	    Nothing -> (Val $ VError ("Undefined variable " ++ name) (Val VUndef))
+	    Just (Val val)  -> (Val val)
+	    Just exp        -> exp -- XXX Wrong
+    return val
 
 findVar Env{ envLexical = lex, envGlobal = glob } name
     | Just vexp <- findSym name lex
@@ -189,8 +197,9 @@ findVar Env{ envLexical = lex, envGlobal = glob } name
 doReduce :: Env -> Exp -> Eval Exp
 
 doReduce env exp@(Val (MVal mv)) = do
-    cxt <- asks envContext
-    if cxt == "LValue"
+    lvalue  <- asks envLValue
+    cxt	    <- asks envContext -- XXX Wrong, use "is rw" trait
+    if lvalue || cxt == "LValue"
         then return exp
         else do
             rv <- liftIO (readIORef mv)

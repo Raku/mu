@@ -430,7 +430,7 @@ makeOp2 prec sigil con name = (`Infix` prec) $ do
 
 parseParens parse = do
     cs  <- parens parse
-    return $ Parens cs
+    return cs
 
 parseTerm = rule "term" $ do
     term <- choice
@@ -542,6 +542,7 @@ parseLit = choice
     , namedLiteral "Inf"    (VNum $ 1/0)
     , dotdotdotLiteral
     , angleLiteral
+    , qqLiteral
     ]
 
 angleLiteral = try $ do
@@ -572,6 +573,11 @@ pairLiteral = do
     symbol "=>"
     val <- parseTerm
     return $ Syn "=>" [Val (VStr key), val]
+
+qqLiteral = try $ do
+    string "qq"
+    str <- brackets (many $ satisfy (/= ']'))
+    return $ Val (VStr str) 
 
 namedLiteral n v = do { symbol n; return $ Val v }
 

@@ -29,6 +29,7 @@ main = do
     return x
 
 testEnv = Env { envContext = "List"
+	  , envLValue = False
           , envLexical = []
           , envGlobal = []
           , envCaller = Nothing

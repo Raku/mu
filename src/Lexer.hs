@@ -49,6 +49,8 @@ symbol s
         return rv
     | otherwise          = try $ do
         rv <- string s
+	-- XXX Wrong - the correct solution is to lookahead as much as possible
+	-- in the expression parser below
         choice [ eof >> return ' ', lookAhead (satisfy (\x -> x `elem` ";!" || x /= (last s))) ]
         whiteSpace
         return rv
@@ -221,6 +223,8 @@ tryChoice = choice . map try
 data Assoc                = AssocNone 
                           | AssocLeft
                           | AssocRight
+			  | AssocList
+			  | AssocChain
                         
 data Operator t st a      = Infix (GenParser t st (a -> a -> a)) Assoc
                           | Prefix (GenParser t st (a -> a))

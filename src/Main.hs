@@ -102,6 +102,7 @@ runProgramWith fenv f name args prog = do
     where
     prepare str e = e{ envGlobal =
         [ Symbol SGlobal "@*ARGS" (Val $ VList $ map VStr args)
+        , Symbol SGlobal "@*INC" (Val $ VList [])
         , Symbol SGlobal "$*PROGNAME" (Val $ VStr name)
         , Symbol SGlobal "$*STDIN" (Val $ VStr str)
         , Symbol SGlobal "$*END" (Val VUndef)

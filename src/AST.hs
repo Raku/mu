@@ -43,13 +43,16 @@ instance Value (Val, Val) where
 instance Value VHash where
     castV = VHash
     vCast (VHash h) = h
+    vCast VUndef = MkHash emptyFM
     vCast v = MkHash $ vCast v
 
 instance Value (FiniteMap Val Val) where
     vCast (VHash (MkHash h)) = h
+    vCast VUndef = emptyFM
     vCast x = listToFM $ vCast x
 
 instance Value [(Val, Val)] where
+    vCast VUndef = []
     vCast (VPair k v) = [(k, v)]
     vCast (VList vs) =
         let fromList [] = []
@@ -163,6 +166,8 @@ instance Value VJunc where
 instance Value VList where
     castV = VList
     vCast (VList l)     = l
+    vCast (VArray (MkArray l)) = l
+    vCast (VHash (MkHash h)) = map (uncurry VPair) $ fmToList h
     vCast (VPair k v)   = [k, v]
     vCast (VRef v)      = vCast v
     -- vCast (MVal v)      = vCast $ castV v
@@ -381,6 +386,7 @@ defaultHashParam    = buildParam "" "*" "%_" (Val VUndef)
 defaultScalarParam  = buildParam "" "*" "$_" (Val VUndef)
 
 data Env = Env { envContext :: Cxt
+	       , envLValue  :: Bool
                , envLexical :: Pad
                , envGlobal  :: Pad
                , envClasses :: ClassTree
