@@ -14,3 +14,4 @@
 \.hi$
 \.o.*$
 ^config.h
+\.svn
