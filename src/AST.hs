@@ -111,7 +111,7 @@ instance Value VInt where
     doCast (VStr s)
         | ((n, _):_) <- reads s = n
         | otherwise             = 0
-    doCast x            = round (vCast x :: VNum)
+    doCast x            = truncate (vCast x :: VNum)
 
 instance Value VRat where
     castV = VRat

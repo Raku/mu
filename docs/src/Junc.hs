@@ -117,3 +117,5 @@ test_total_partial = let funs  = [isTotalJunc, isPartialJunc]
 			 in
   putStr $ unlines [ (showres f t (f (mkdat t))) | f <- funs, t <- types ]
 
+
+main = undefined
