@@ -11,11 +11,11 @@ my $foobar = "Foo::Bar";
 my $bar;
 my $loop = 0;
 
-sub ok (Bool $cond, Str $descr) {
+sub ok ($cond, Str $descr) {
     $loop++;
 
     if ($cond) {
-	say("ok ", $loop, " # ", $descr, " (var = ", $var, ")");
+	say("ok ", $loop, " # ", $descr, " (var = ", $cond, ")");
     }
     else {
 	say("not ok ", $loop, " # TODO ", $descr);
