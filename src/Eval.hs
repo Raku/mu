@@ -468,6 +468,8 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         retVal VUndef
     "module" -> do
         retVal VUndef
+    "noop" ->
+        retVal VUndef
     syn | last syn == '=' -> do
         let [lhs, exp] = exps
             op = "&infix:" ++ init syn

@@ -292,11 +292,11 @@ ruleUseVersion = rule "use version" $ do
     when (version > versnum) $ do
         pos <- getPosition
         error $ "Perl v" ++ version ++ " required--this is only v" ++ versnum ++ ", stopped at " ++ (show pos)
-    return $ Val VUndef
+    return $ Syn "noop" []
 
 ruleUsePackage = rule "use package" $ do
     _ <- identifier -- package -- XXX - ::
-    return $ Val VUndef
+    return $ Syn "noop" []
 
 ruleInlineDeclaration = tryRule "inline declaration" $ do
     symbol "inline"
@@ -381,11 +381,11 @@ ruleForConstruct = rule "for construct" $ do
 ruleLoopConstruct = rule "loop construct" $ do
     symbol "loop"
     conds <- option [] $ maybeParens $ try $ do
-        a <- option (Val VUndef) $ ruleExpression
+        a <- option (Syn "noop" []) $ ruleExpression
         symbol ";"
-        b <- option (Val VUndef) $ ruleExpression
+        b <- option (Syn "noop" []) $ ruleExpression
         symbol ";"
-        c <- option (Val VUndef) $ ruleExpression
+        c <- option (Syn "noop" []) $ ruleExpression
         return [a,b,c]
     block <- ruleBlock
     -- XXX while/until
@@ -398,7 +398,7 @@ ruleCondConstruct = rule "conditional construct" $ do
 ruleCondBody csym = rule "conditional expression" $ do
     cond <- maybeParens $ ruleExpression
     body <- ruleBlock
-    bodyElse <- option (Val VUndef) $ ruleElseConstruct
+    bodyElse <- option (Syn "noop" []) $ ruleElseConstruct
     retSyn csym [cond, body, bodyElse]
 
 ruleElseConstruct = rule "else or elsif construct" $
@@ -441,7 +441,7 @@ ruleExpression = (<?> "expression") $ parseOp
 rulePostConditional = rule "postfix conditional" $ do
     cond <- tryChoice $ map symbol ["if", "unless"]
     exp <- ruleExpression
-    return $ \body -> retSyn cond [exp, body, Val VUndef]
+    return $ \body -> retSyn cond [exp, body, Syn "noop" []]
 
 rulePostLoop = rule "postfix loop" $ do
     cond <- tryChoice $ map symbol ["while", "until"]

@@ -4,6 +4,7 @@ module Compile.Parrot where
 import Internals
 import Pretty
 import AST
+import Data.HashTable
 import Text.PrettyPrint
 
 -- XXX This compiler needs a totaly rewrite using Parrot AST,
@@ -52,24 +53,75 @@ instance Compile Symbol where
 instance Compile SourcePos where
     compile pos = text "#" <+> format pos
 
+declareLabel :: (Show a) => a -> String -> Doc
+declareLabel exp str = text $
+    "LABEL_" ++ show (hashString (show exp)) ++ "_" ++ str
+
+label doc = doc <> text ":"
+
+compileCond neg exps@[cond, bodyIf, bodyElse] =
+    let [alt, end] = map (declareLabel exps) ["else", "endif"] in vcat $
+        [ text neg <+> compile cond <+> text "goto" <+> alt
+        , compile bodyIf
+        , text "goto" <+> end
+        , label alt
+        , compile bodyElse
+        , label end
+        ]
+compileCond _ _ = undefined
+
 instance Compile Exp where
     compile (Var name) = varText name
+    compile (Syn "=" [var, Syn "[]" [lhs, rhs]]) = vcat $
+        [ text "$P1 =" <+> compile rhs
+        , compile var <+> text "=" <+> compile lhs <> text "[$P1]"
+        ]
+    compile (Syn "block" blocks) = vcat $ map compile blocks
+    compile (Syn "=" [lhs, rhs]) = compile lhs <+> text "=" <+> compile rhs
+    compile (Syn "if" exps) = compileCond "unless" exps
+    compile (Syn "unless" exps) = compileCond "if" exps
+    compile exp@(Syn "loop" [pre, cond, post, body]) = 
+        let [start, end, last] = map (declareLabel exp) ["start", "end", "last"] in vcat $
+            [ compile pre
+            , text "goto" <+> end
+            , label start
+            , text ".local pmc last"
+            , text "last = new Continuation"
+            , text "set_addr last," <+> last
+            , compile body
+            , compile post
+            , label end
+            -- , text "if" <+> compile cond <+> text "goto" <+> start
+            , compile cond
+            , text "goto" <+> start
+            , label last
+            ]
+    compile (App "&last" _ _) = text "invoke last"
+    compile (App "&postfix:++" [inv] []) = text "inc" <+> compile inv
+    compile (App "&postfix:--" [inv] []) = text "dec" <+> compile inv
+    compile (App ('&':'i':'n':'f':'i':'x':':':op) [lhs, rhs] []) =
+        compile lhs <+> text op <+> compile rhs
     compile (App "&say" invs args) = 
         compile $ App "&print" invs (args ++ [Val $ VStr "\n"])
     compile (App "&print" invs args) = vcat $
         map ((text "print" <+>) . compile) (invs ++ args)
     compile (Val (VStr x))  = showText $ encodeUTF8 (concatMap quoted x)
     compile (Val (VInt x))  = integer x
-    compile (Val (VNum x))  = double x
-    compile (Val (VRat x))  = double $ ratToNum x
+    compile (Val (VNum x))  = showText x
+    compile (Val (VRat x))  = showText $ ratToNum x
     compile (Val VUndef)    = text "PerlUndef"
+    compile (Syn "noop" [])    = empty
     compile (Statements stmts) = vcat $
-        [ compile pos $+$ compile stmt $+$ text "" | (stmt, pos) <- stmts ]
+        [ compile pos $+$ compile stmt $+$ text ""
+        | (stmt, pos) <- stmts
+        ]
     compile (Sym syms) = vcat $
         map compile syms
     compile (Syn "mval" [exp]) = compile exp
+    compile (Syn "," things) = vcat $ map compile things
     compile (App "&not" [] []) =
         text "new" <+> compile (Val VUndef)
-    compile x = error $ "XXX" ++ (show x)
+    compile x = error $ "Cannot compile: " ++ (show x)
 
+showText :: (Show a) => a -> Doc
 showText = text . show

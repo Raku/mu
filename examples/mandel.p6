@@ -24,19 +24,38 @@ use v6;
 # }
 #
 
+### This is badly hacked to get Parrot compiler going ###
+### Should be fixed in a couple days ###
+
 my ($x, $y, $k);
 # no substr now
 my @b = (' ', '.', ':', ',', ';', '!', '/', '>', ')', '|', '&', 'I', 'H', '%', '*', '#');
 
+my ($P, $Q, $X);
 my ($r, $i, $z, $Z, $t, $c, $C);
-loop ($y=30; $C = $y*0.1 - 1.5;) {
-    last() if $y-- < 0;
-    loop ($x=0; $c = $x*0.04 - 2.0, $z=0.0, $Z=0.0;) {
-        last() if $x++ > 75;
-        loop ($r=$c, $i=$C, $k=0; $t = $z*$z - $Z*$Z + $r, $Z = 2.0*$z*$Z + $i, $z=$t; $k++) {
-            last() if $k > 12 or $z*$z + $Z*$Z > 10.0;
+loop ($y=30;
+    $P = $y * 0.1, $C = $P - 1.5;
+    ) {
+    last() if $y < 0;
+    $y--;
+    loop ($x=0;
+        $P = $x * 0.04, $c = $P - 2,
+        $z=0.0, $Z=0.0;) {
+        last() if $x > 75;
+        $x++;
+        loop ($r=$c, $i=$C, $k=0;
+            $P = $z*$z, $Q = $Z*$Z, $P = $P-$Q, $t = $P+$r,
+            $P = $z*2.0,$P = $P*$Z, $Z = $P + $i,
+            $z=$t; $k++) {
+            last() if $k > 12;
+            $P = $z * $z;
+            $Q = $Z * $Z;
+            $P = $P + $Q;
+            last() if $P > 10.0;
         }
-        print @b[ $k % 12 ];
+        $P = $k % 12;
+        $X = @b[$P];
+        print $X;
     }
-    print "\n";
+    say '';
 }
