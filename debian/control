@@ -1,0 +1,18 @@
+Source: pugs
+Section: interpreters
+Priority: optional
+Maintainer: Shu-Chun Weng <scw@csie.org>
+Build-Depends: debhelper (>= 4.0.0)
+Standards-Version: 3.6.1
+
+Package: pugs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Perl 6 interpreter/compiler
+ Pugs is Perl6 User's Golfing System.
+
+Package: pugs-doc
+Architecture: all
+Description: Documentation for pugs
+ Pugs is Perl6 User's Golfing System.
+ 
