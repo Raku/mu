@@ -88,10 +88,13 @@ sub deny_cygwin {
 }
 
 sub assert_ghc {
-    (`ghc --version` =~ /Glasgow/) or die << '.';
+    my $ghcver = `ghc --version`;
+    ($ghcver =~ /Glasgow/) or die << '.';
 *** Cannot find a runnable 'ghc' from path.
 *** Please install GHC from http://haskell.org/ghc/.
 .
+
+	return $ghcver =~ /version (.*)/;
 }
 
 sub nativize {
