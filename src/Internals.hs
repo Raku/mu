@@ -16,6 +16,7 @@
 module Internals (
     module Cont,
     module Posix,
+    module Rule.Pos,
     module Data.Dynamic,
     module Data.Unique,
     module System.Environment,
@@ -70,6 +71,7 @@ import Data.FiniteMap
 import Data.Tree
 import Data.IORef
 import Debug.Trace
+import Rule.Pos
 
 -- Instances.
 instance Show Unique where

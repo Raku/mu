@@ -88,15 +88,8 @@ op1 "rand"  = \v -> do
     let x = vCast v
     rand <- liftIO $ randomRIO (0, if x == 0 then 1 else x)
     return $ VNum rand
-op1 "print" = \v -> do
-    v <- readMVal v
-    vals <- mapM readMVal (vCast v)
-    liftIO . putStr . concatMap vCast $ vals
-    return $ VBool True
-op1 "say" = \v -> do
-    op1 "print" v
-    liftIO $ putStrLn ""
-    return $ VBool True
+op1 "print" = op1Print hPutStr
+op1 "say" = op1Print hPutStrLn
 op1 "join"= \v -> do
     v <- readMVal v
     vals <- mapM readMVal (vCast v)
@@ -162,6 +155,15 @@ op1 ""     = return . (\x -> VError ("unimplemented unaryOp: " ++ "") (Val x))
 
 op1 s      = return . (\x -> VError ("unimplemented unaryOp: " ++ s) (Val x))
 
+op1Print f v = do
+    val <- readMVal v
+    vals <- mapM readMVal (vCast val)
+    let (handle, vs) = case vals of
+                        (VHandle h:vs)  -> (h, vs)
+                        _               -> (stdout, vals)
+    liftIO . f handle . concatMap vCast $ vs
+    return $ VBool True
+
 bool2n v = if v
   then 1
   else 0
@@ -185,7 +187,7 @@ boolIO2 f u v = do
 opEval :: String -> Eval Val
 opEval str = do
     env <- ask
-    let env' = runRule env id ruleProgram str
+    let env' = runRule env id ruleProgram "<eval>" str
     val <- resetT $ local (\_ -> env') $ do
         evl <- asks envEval
         evl (envBody env')
@@ -260,6 +262,8 @@ op2 "err"= op2 "//"
 op2 "nor"= op2 "!!"
 op2 "grep"= op2Grep
 op2 "map"= op2Map
+op2 "unshift" = op2Push (flip (++))
+op2 "push" = op2Push (++)
 op2 "split"= \x y -> return $ split (vCast x) (vCast y)
     where
     split :: VStr -> VStr -> Val
@@ -275,6 +279,14 @@ op2 "split"= \x y -> return $ split (vCast x) (vCast y)
 	| glue `isPrefixOf` rest = ([], rest)
 	| otherwise = (x:piece, rest') where (piece, rest') = breakOnGlue glue xs
 op2 s    = \x y -> return $ VError ("unimplemented binaryOp: " ++ s) (App s [] [Val x, Val y])
+
+op2Push f list _ = do
+    let (array:rest) = vCast list
+    old <- readMVal array
+    new <- mapM readMVal rest
+    let vals = vCast old `f` concatMap vCast new
+    liftIO $ writeIORef (vCast array) $ VList vals
+    return $ VInt $ genericLength vals
 
 op2Grep list sub@(VSub _) = op2Grep sub list
 op2Grep sub list = do
@@ -446,8 +458,8 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   List      pre     grep    (Code, List)\
 \\n   List      pre     map     (List: Code)\
 \\n   List      pre     grep    (List: Code)\
-\\n   Int       pre     push    (rw!Array: List)\
-\\n   Int       pre     unshift (rw!Array: List)\
+\\n   Int       pre     push    (rw!Array, List)\
+\\n   Int       pre     unshift (rw!Array, List)\
 \\n   Scalar    pre     pop     (rw!Array)\
 \\n   Scalar    pre     shift   (rw!Array)\
 \\n   Str       pre     join    (List)\
@@ -464,6 +476,7 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Str       pre     ref     (Any)\
 \\n   Num       pre     time    ()\
 \\n   Action    pre     print   (List)\
+\\n   Action    pre     say     (IO: List)\
 \\n   Action    pre     say     (List)\
 \\n   Action    pre     die     (List)\
 \\n   Any       pre     do      (Str)\

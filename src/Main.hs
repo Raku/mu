@@ -73,7 +73,7 @@ eval prog = doEval [] prog
 
 doParse prog = do
     env <- emptyEnv []
-    runRule env (putStrLn . pretty) ruleProgram prog
+    runRule env (putStrLn . pretty) ruleProgram "<interactive>" prog
 
 doEval :: [String] -> String -> IO ()
 doEval = do
@@ -96,16 +96,25 @@ runFile file = do
 runProgramWith :: (Env -> Env) -> (Val -> IO ()) -> VStr -> [VStr] -> String -> IO ()
 runProgramWith fenv f name args prog = do
     environ <- getEnvironment
+    progSV  <- newMVal $ VStr name
+    endAV   <- newMVal $ VList []
+    incAV   <- newMVal $ VList []
+    argsAV  <- newMVal $ VList (map VStr args)
+    inGV    <- newMVal $ VHandle stdin
+    outGV   <- newMVal $ VHandle stdout
+    errGV   <- newMVal $ VHandle stderr
     env <- emptyEnv
-        [ Symbol SGlobal "@*ARGS" (Val $ VList $ map VStr args)
-        , Symbol SGlobal "@*INC" (Val $ VList [])
-        , Symbol SGlobal "$*PROGNAME" (Val $ VStr name)
---        , Symbol SGlobal "$*STDIN" (Val $ VStr str)
-        , Symbol SGlobal "@*END" (Val VUndef)
+        [ Symbol SGlobal "@*ARGS"       $ Val argsAV
+        , Symbol SGlobal "@*INC"        $ Val incAV
+        , Symbol SGlobal "$*PROGNAME"   $ Val progSV
+        , Symbol SGlobal "@*END"        $ Val endAV
+        , Symbol SGlobal "$*IN"         $ Val inGV
+        , Symbol SGlobal "$*OUT"        $ Val outGV
+        , Symbol SGlobal "$*ERR"        $ Val errGV
         , Symbol SGlobal "%*ENV" (Val . VHash . MkHash . listToFM $ [ (VStr k, VStr v) | (k, v) <- environ ])
         ]
 --    str <- return "" -- getContents
-    let env' = runRule (fenv env) id ruleProgram prog
+    let env' = runRule (fenv env) id ruleProgram name prog
     val <- (`runReaderT` env') $ do
         (`runContT` return) $ resetT $ do
             evaluateMain (envBody env')

@@ -27,7 +27,7 @@ ruleProgram = rule "program" $ do
     many (symbol ";")
     eof
     env <- getState
-    return $ env { envBody = Syn ";" statements }
+    return $ env { envBody = Statements statements }
 
 ruleBlock :: RuleParser Exp
 ruleBlock = rule "block" $ braces $ do
@@ -35,9 +35,9 @@ ruleBlock = rule "block" $ braces $ do
     many (symbol ";")
     statements <- option [] ruleStatementList
     many (symbol ";")
-    retSyn ";" statements
+    return $ Statements statements
 
-ruleStatementList :: RuleParser [Exp]
+ruleStatementList :: RuleParser [(Exp, SourcePos)]
 ruleStatementList = rule "statements" $ choice
     [ nonSep  ruleDeclaration
     , nonSep  ruleConstruct
@@ -47,9 +47,10 @@ ruleStatementList = rule "statements" $ choice
     nonSep = doSep many
     semiSep = doSep many1
     doSep count rule = do
+        pos         <- getPosition
         statement   <- rule
         rest        <- option [] $ try $ do { count (symbol ";"); ruleStatementList }
-        return (statement:rest)
+        return ((statement, pos):rest)
 
 -- Declarations ------------------------------------------------
 
@@ -91,8 +92,8 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
         , ruleSubScoped
         , ruleSubGlobal
         ]
-    cxt2    <- option cxt1 $ ruleBareTrait "returns"
     formal  <- option Nothing $ return . Just =<< parens ruleSubParameters
+    cxt2    <- option cxt1 $ try $ ruleBareTrait "returns"
     traits  <- many $ ruleTrait
     body    <- ruleBlock
     let (fun, names) = extract (body, [])
@@ -208,7 +209,7 @@ ruleClosureTrait = rule "closure trait" $ do
                   , subParams     = []
                   , subFun        = fun
                   }
-    return $ App "&prefix:push" [Var "@*END"] [Syn "sub" [Val $ VSub sub]]
+    return $ App "&prefix:unshift" [] [Syn "," [Var "@*END", Syn "sub" [Val $ VSub sub]]]
 
 rulePackageDeclaration = rule "package declaration" $ fail ""
 
@@ -614,17 +615,10 @@ op_namedUnary       = []
 methOps _ = []
 ternOps _ = []
 
-runRule :: Env -> (Env -> a) -> RuleParser Env -> String -> a
-runRule env f p str = f $ case ( runParser ruleProgram env progName str ) of
+runRule :: Env -> (Env -> a) -> RuleParser Env -> FilePath -> String -> a
+runRule env f p name str = f $ case ( runParser ruleProgram env name str ) of
     Left err    -> env { envBody = Val $ VError (showErr err) (NonTerm $ errorPos err) }
     Right env'  -> env'
-    where
-    glob = unsafePerformIO $ readIORef $ envGlobal env
-    progName
-        | Just Symbol{ symExp = Val (VStr str) } <- find ((== "$*PROGNAME") . symName) glob
-        = str
-        | otherwise
-        = "-"
 
 showErr err = 
       showErrorMessages "or" "unknown parse error"
@@ -634,8 +628,4 @@ showErr err =
 retSyn :: String -> [Exp] -> RuleParser Exp
 retSyn sym args = do
     return $ Syn sym args
-
-retParser :: RuleParser Exp -> RuleParser Exp
-retParser parser = do
-    return $ Parser parser
 

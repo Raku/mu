@@ -194,7 +194,9 @@ instance Value (Maybe a) where
     vCast VUndef        = Nothing
     vCast _             = Just undefined
 
-instance Value Int   where doCast = intCast
+instance Value Int   where
+    doCast = intCast
+    castV = VInt . fromIntegral
 instance Value Word  where doCast = intCast
 instance Value Word8 where doCast = intCast
 instance Value [Word8] where doCast = map (toEnum . ord) . vCast
@@ -355,12 +357,11 @@ data Exp
     | Syn String [Exp]
     | Sym Symbol
     | Prim ([Val] -> Eval Val)
---  | MVal MVal
     | Val Val
     | Var Var
     | Parens Exp
     | NonTerm SourcePos
-    | Parser (CharParser Env Exp)
+    | Statements [(Exp, SourcePos)]
     deriving (Show, Eq, Ord)
 
 instance Show (CharParser Env Exp) where

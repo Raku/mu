@@ -59,8 +59,11 @@ debug key fun str a = do
 
 evaluateMain :: Exp -> Eval Val
 evaluateMain exp = do
-    val <- evaluate exp
-    evalVar "$*END"
+    val     <- evaluate exp
+    endAV   <- evalVar "@*END"
+    subs    <- readMVal endAV
+    enterContext "Void" $ do
+        mapM_ evalExp [ Syn "()" [Val sub, Syn "invs" [], Syn "args" []] | sub <- vCast subs ]
     return val
 
 evaluate :: Exp -> Eval Val
@@ -137,17 +140,17 @@ addGlobalSym sym = do
         syms <- readIORef glob
         writeIORef glob (sym:syms)
 
-reduceStatements :: ([Exp], Exp) -> Eval Val
+reduceStatements :: ([(Exp, SourcePos)], Exp) -> Eval Val
 reduceStatements ([], exp) = reduceExp exp
-reduceStatements ((exp:rest), lastVal)
+reduceStatements (((exp, pos):rest), lastVal)
     | Syn "sym" (Sym sym@(Symbol _ _ vexp@(Syn "sub" [sub])):other) <- exp = do
         (VSub sub) <- enterEvalContext "Code" vexp
         lex <- asks envLexical
-        reduceStatements ((Syn "sym" (other ++ [Sym sym{ symExp = Val $ VSub sub{ subPad = lex } }]):rest), lastVal)
+        reduceStatements (((Syn "sym" (other ++ [Sym sym{ symExp = Val $ VSub sub{ subPad = lex } }]), pos):rest), lastVal)
     | Syn "sym" (Sym sym@(Symbol _ name (Syn "mval" [_, vexp])):other) <- exp = do
         val <- enterEvalContext (cxtOfSigil $ head name) vexp
         mval <- newMVal val
-        reduceStatements ((Syn "sym" (other ++ [Sym sym{ symExp = Val mval }]):rest), Val mval)
+        reduceStatements (((Syn "sym" (other ++ [Sym sym{ symExp = Val mval }]), pos):rest), Val mval)
     | Syn "sym" [Sym sym@(Symbol SGlobal _ vexp)] <- exp = do
         addGlobalSym sym
         reduceStatements (rest, vexp)
@@ -172,19 +175,32 @@ reduceStatements ((exp:rest), lastVal)
     , subType sub >= SubBlock = do
         -- bare Block in statement level; run it!
         let app = Syn "()" [exp, Syn "invs" [], Syn "args" []]
-        reduceStatements (app:rest, lastVal)
+        reduceStatements ((app, pos):rest, lastVal)
     | null rest = do
         cxt <- asks envContext
-        val <- reduceExp exp
+        val <- enterLex (posSyms pos) $ reduceExp exp
         retVal val
     | otherwise = do
-        val <- enterContext "Void" $ evalExp exp
+        val <- enterContext "Void" $ do
+            enterLex (posSyms pos) $ do
+                reduceExp exp
         processVal val $ do
             reduceStatements (rest, Val val)
-    where
+    where 
     processVal val action = case val of
         VError str exp  -> retError str exp
         _               -> action
+
+posSyms pos = [ Symbol SMy n (Val v) | (n, v) <- syms ]
+    where
+    file = sourceName pos
+    line = show $ sourceLine pos
+    col  = show $ sourceColumn pos
+    syms =
+        [ ("$?FILE", castV file)
+        , ("$?LINE", castV line)
+        , ("$?POSITION", castV $ file ++ " at line " ++ line ++ ", column " ++ col)
+        ]
 
 evalVar name = do
     env <- ask
@@ -202,10 +218,11 @@ breakOnGlue glue rest@(x:xs)
     | otherwise = (x:piece, rest') where (piece, rest') = breakOnGlue glue xs
 
 findVar name
-    | (sig:"CALLER", name') <- breakOnGlue "::" name = do
+    | (package, name') <- breakOnGlue "::" name
+    , (sig, "CALLER") <- breakOnGlue "CALLER" package = do
         rv <- asks envCaller
         case rv of
-            Just caller -> findVar' caller (sig:(drop 2 name'))
+            Just caller -> findVar' caller (sig ++ (drop 2 name'))
             Nothing -> retError "cannot access CALLER:: in top level" (Var name)
     | otherwise = do
         env <- ask
@@ -248,11 +265,15 @@ reduce env exp@(Var name) = do
             enterContext (cxtOfSigil $ head name) $ reduceExp vexp
         _ -> retError ("Undefined variable " ++ name) exp
 
+reduce env (Statements stmts) = do
+    let (global, local) = partition isGlobalExp stmts
+    reduceStatements (global ++ local, Val VUndef)
+    where
+    isGlobalExp (Syn name _, _) = name `elem` (words "::=")
+    isGlobalExp _ = False
+    
 -- Reduction for syntactic constructs
 reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
-    ";" -> do
-        let (global, local) = partition isGlobalExp exps
-        reduceStatements (global ++ local, Val VUndef)
     "sub" -> do
         let [exp] = exps
         (VSub sub) <- enterEvalContext "Code" exp
@@ -279,9 +300,6 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
     "loop" -> do
         let [pre, cond, post, body] = exps
         evalExp pre
-        -- enter the block
-        -- first, run pre and enter its lexical context
-        -- reduceStatements (pre:, Val VUndef)
         let runBody = do
             valBody <- evalExp body
             valPost <- evalExp post
@@ -520,8 +538,6 @@ toGlobal name
     = sigil ++ ('*':identifier)
     | otherwise = name
 
-isGlobalExp (Syn name _) = name `elem` (words "::=")
-isGlobalExp _ = False
 
 findSym :: String -> Pad -> Maybe Exp
 findSym name pad
