@@ -5,6 +5,9 @@ require Test-0.0.2;
 
 plan( 41 );
 
+######################################################################
+# First ensure the modules to test will compile, are correct versions:
+
 @*INC.unshift( 't/lib' ); # Note: I did "use lib 't/lib';" in Perl 5.
 require t_SRT_Verbose;
 require t_SRT_Terse;
@@ -128,7 +131,7 @@ try {
 	message( "Now destroy the objects ..." );
 
 	$model.destroy();
-	ok( (keys %{$model}) eq '0', "destruction of all objects" );
+	is( (keys %{$model}), '0', "destruction of all objects" );
 
 	CATCH {
 		ok( 0, "TESTS ABORTED: "~error_to_string( $! ) );
@@ -181,7 +184,7 @@ try {
 	message( "Now destroy the objects ..." );
 
 	$model.destroy();
-	ok( (keys %{$model}) eq '0', "destruction of all objects" );
+	is( (keys %{$model}), '0', "destruction of all objects" );
 
 	CATCH {
 		ok( 0, "TESTS ABORTED: "~error_to_string( $! ) );
@@ -236,7 +239,7 @@ try {
 	message( "Now destroy the objects ..." );
 
 	$model.destroy();
-	ok( (keys %{$model}) eq '0', "destruction of all objects" );
+	is( (keys %{$model}), '0', "destruction of all objects" );
 
 	CATCH {
 		ok( 0, "TESTS ABORTED: "~error_to_string( $! ) );

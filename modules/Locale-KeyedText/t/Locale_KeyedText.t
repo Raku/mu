@@ -5,8 +5,12 @@ require Test-0.0.2;
 
 plan( 102 );
 
+######################################################################
+# First ensure the modules to test will compile, are correct versions:
+
 @*INC.unshift( 't/lib' ); # Note: I did "use lib 't/lib';" in Perl 5.
 require Locale::KeyedText-0.0.4;
+# see end of this file for loading of test Template modules
 
 ######################################################################
 # Here are some utility methods:
