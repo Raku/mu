@@ -57,9 +57,6 @@ LICENSE/Artistic-2
 LICENSE/GPL-2
 Makefile.PL
 MANIFEST			This list of files
-MANIFEST.mine
-MANIFEST.r485
-MANIFEST.r491
 MANIFEST.SKIP
 META.yml
 modules/Sample-Module/lib/Sample/Module.pm
