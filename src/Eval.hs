@@ -617,9 +617,9 @@ doApply Env{ envClasses = cls } sub@Sub{ subParams = prms, subFun = fun, subType
         Left errMsg     -> retError errMsg (Val VUndef)
         Right bindings  -> do
             enterScope $ do
-                bound <- doBind bindings
+                (pad, bound) <- doBind [] bindings
                 -- trace (show bound) $ return ()
-                val <- local fixEnv $ do
+                val <- local fixEnv $ enterLex pad $ do
                     (`juncApply` bound) $ \realBound -> do
                         enterSub sub $ do
                             applyExp realBound fun
@@ -632,19 +632,19 @@ doApply Env{ envClasses = cls } sub@Sub{ subParams = prms, subFun = fun, subType
     fixEnv env
         | typ >= SubBlock = env
         | otherwise      = env{ envCaller = Just env }
-    doBind :: [(Param, Exp)] -> Eval [ApplyArg]
-    doBind [] = return []
-    doBind ((prm, exp):rest) = do
+    doBind :: Pad -> [(Param, Exp)] -> Eval (Pad, [ApplyArg])
+    doBind pad [] = return (pad, [])
+    doBind pad ((prm, exp):rest) = do
         -- trace ("<== " ++ (show (prm, exp))) $ return ()
         let name = paramName prm
             cxt = cxtOfSigil $ head name
         (val, coll) <- enterContext cxt $ case exp of
-            Parens exp  -> local fixEnv $ expToVal prm exp -- default
+            Parens exp  -> local fixEnv $ enterLex pad $ expToVal prm exp
             _           -> expToVal prm exp
         -- trace ("==> " ++ (show val)) $ return ()
-        restArgs <- enterLex [SymVal SMy name val] $ do
-            doBind rest
-        return (ApplyArg name val coll:restArgs)
+        let sym = SymVal SMy name val
+        (pad', restArgs) <- doBind (sym:pad) rest
+        return (pad', ApplyArg name val coll:restArgs)
     expToVal Param{ isThunk = thunk, isLValue = lv, isSlurpy = slurpy, paramContext = cxt } exp = do
         env <- ask -- freeze environment at this point for thunks
         let eval = local (const env{ envLValue = lv }) $ enterEvalContext cxt exp
