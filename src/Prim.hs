@@ -33,7 +33,6 @@ op0 "time"  = \_ -> do
     epochClkT = toClockTime epoch
     epoch = CalendarTime 2000 January 1 0 0 0 0 Saturday 0 "UTC" 0 False
 op0 "not" = const retEmpty
-op0 "reverse" = return . VList . reverse
 op0 s    = \x -> return $ VError ("unimplemented listOp: " ++ s) (Val $ VList x)
 
 retEmpty = do
@@ -87,7 +86,10 @@ op1 "--"   = \mv -> do
     readMVal mv
 op1 "-"    = return . op1Numeric negate
 op1 "scalar" = return -- XXX refify?
-op1 "reverse" = return . VStr . reverse . vCast
+op1 "reverse" = \v ->
+    ifContextIsa "List"
+        (return . VList . reverse . vCast $ v)
+        (return . VStr . reverse . vCast $ v)
 op1 "list" = return . VList . vCast
 op1 "~"    = (>>= (return . VStr)) . (>>= fromValue) . readMVal
 op1 "?"    = return . VBool . vCast
@@ -581,7 +583,6 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Int       pre     int     (Int)\
 \\n   List      pre     list    (List)\
 \\n   Scalar    pre     scalar  (Scalar)\
-\\n   Str       pre     reverse (Str)\
 \\n   List      pre     reverse (List)\
 \\n   Int       spre    +^      (Int)\
 \\n   Int       spre    ~^      (Str)\
