@@ -28,6 +28,7 @@ src/Lexer.hs
 src/Main.hs
 src/Monads.hs
 src/Parser.hs
+src/Posix.hs
 src/Pretty.hs
 src/Prim.hs
 src/Shell.hs
