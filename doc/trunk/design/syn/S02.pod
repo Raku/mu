@@ -385,9 +385,11 @@ possibilities:
     @?PACKAGE   Which packages am I in?
     $?MODULE    Which module am I in?
     @?MODULE    Which modules am I in?
-    $?CLASS     Which class am I in?
+    ::?CLASS	Which class am I in? (as package name)
+    $?CLASS     Which class am I in? (as variable)
     @?CLASS     Which classes am I in?
-    $?ROLE      Which role am I in?
+    ::?ROLE     Which role am I in? (as package name)
+    $?ROLE      Which role am I in? (as variable)
     @?ROLE      Which roles am I in?
     $?GRAMMAR   Which grammar am I in?
     @?GRAMMAR   Which grammars am I in?
