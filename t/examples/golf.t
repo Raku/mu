@@ -18,7 +18,7 @@ plan 10;
 # For greater portability, we will need File::Spec or equivalent.
 
 my $PUGS        = './pugs';
-$PUGS           = 'pugs' if $?OS ~~ rx:perl5{MSWin32|msys|mingw};
+$PUGS           = 'pugs' if($?OS eq any<MSWin32 mingw cygwin>) {
 
 # XXX: should make $outtmp unique (using $$ say).
 # XXX: this $outtmp/slurp will go away when backticks supported.

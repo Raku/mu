@@ -29,7 +29,7 @@ diag "Running under $?OS";
 # Win9x breakage:
 my ($pugs,$redir) = ("./pugs", "2>&1 >");
 
-if ($?OS ~~ rx:perl5{MSWin32|msys|mingw}) {
+if($?OS eq any<MSWin32 mingw cygwin>) {
   $pugs = 'pugs.exe';
 };
 

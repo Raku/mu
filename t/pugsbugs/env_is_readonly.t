@@ -15,7 +15,7 @@ require File::Spec;
 plan 3;
 
 my ($pugs) = "./pugs";
-if ($?OS eq "MSWin32") {
+if($?OS eq any<MSWin32 mingw cygwin>) {
   $pugs = 'pugs.exe';
 };
 
