@@ -87,7 +87,7 @@ symbol s
         where
         ahead '-' '>' = False -- XXX hardcoke
         ahead '!' '~' = False -- XXX hardcoke
-        ahead x   '=' = not (x `elem` "!~+-*/")
+        ahead x   '=' = not (x `elem` "!~+-*/|")
         ahead s   x   = x `elem` ";!" || x /= s
 
 stringLiteral = singleQuoted

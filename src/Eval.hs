@@ -200,13 +200,15 @@ posSyms pos = [ Symbol SMy n (Val v) | (n, v) <- syms ]
 
 evalVar name = do
     _   <- ask
-    val <- local (\e -> e{ envLValue = True }) $ do
+    val <- enterLValue $ do
         rv <- findVar name
         enterEvalContext (cxtOfSigil $ head name) $ case rv of
             Nothing -> (Val $ VError ("Undefined variable " ++ name) (Val VUndef))
             Just (Val val)  -> (Val val)
             Just exp        -> exp -- XXX Wrong
     return val
+
+enterLValue = local (\e -> e{ envLValue = True })
 
 breakOnGlue _ [] = ([],[])
 breakOnGlue glue rest@(x:xs)
@@ -313,6 +315,12 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
     "until" -> doWhileUntil not
     "=" -> do
         case exps of
+            [lhsExp@(Syn "," lhs), exp] -> do
+                val'     <- enterEvalContext "List" exp
+                -- start distribution with slurpy logic and return the lhs
+                mapM_ evalExp [ Syn "=" [l, Val v] | l <- lhs | v <- vCast val' ]
+                lhsVal   <- enterLValue $ enterEvalContext "List" lhsExp
+                retVal lhsVal
             [Var name, exp] -> do
                 val     <- evalVar name
                 val'    <- enterEvalContext (cxtOfSigil $ head name) exp
@@ -421,6 +429,10 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         val     <- enterEvalContext "List" exp
         -- ignore val
         retVal val
+    syn | last syn == '=' -> do
+        let [lhs, exp] = exps
+            op = "&infix:" ++ init syn
+        evalExp $ Syn "=" [lhs, App op [lhs, exp] []]
     _ -> retError "Unknown syntactic construct" exp
     where
     isaContext c = isaType (envClasses env) c (envContext env)
