@@ -18,7 +18,10 @@ author          ('Autrijus Tang <autrijus@autrijus.org>');
 license         ('perl');
 install_script  ($pugs);
 build_requires  ('Test::More');
-makemaker_args  ( test => { TESTS => join ' ', (glob("t/*.t"), glob("t/*/*.t")) } );
+makemaker_args  (
+    test => { TESTS => join ' ', (glob("t/*.t"), glob("t/*/*.t")) },
+    MAN1PODS => {},
+);
 
 (`ghc --version` =~ /Glasgow/) or die << '.';
 *** Cannot find a runnable 'ghc' from path.
