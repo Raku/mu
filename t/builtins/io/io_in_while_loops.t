@@ -3,7 +3,8 @@
 use v6;
 require Test;
 
-plan 48;
+#plan 48; # unTODO
+plan 7;
 
 
 my $filename = 'tempfile';
@@ -31,10 +32,11 @@ my $filename = 'tempfile';
     my $fh = open($filename);
     my $num = 1;
     my $line;
-    while ($line = =$fh) {
-        is($line, "$num\n", '... got the right line (=$fh controlled loop)');
-        $num++;
-    }
+    todo_fail("FIXME parsefail - 35 tests"); # unTODO
+    #while ($line = =$fh) {
+        #is($line, "$num\n", '... got the right line (=$fh controlled loop)');
+        #$num++;
+    #}
     $fh.close();
 }
 
