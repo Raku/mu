@@ -63,7 +63,8 @@ ruleStatement = do
 ruleStatementList :: RuleParser [(Exp, SourcePos)]
 ruleStatementList = rule "statements" $ choice
     [ rulePodBlock
-    , nonSep  ruleDeclaration
+    , nonSep  ruleBlockDeclaration
+    , semiSep ruleDeclaration
     , nonSep  ruleConstruct
     , semiSep ruleStatement
     ]
@@ -119,15 +120,19 @@ rulePodBody = (try rulePodCut) <|> eof <|> do
    
 -- Declarations ------------------------------------------------
 
+ruleBlockDeclaration :: RuleParser Exp
+ruleBlockDeclaration = rule "block declaration" $ choice
+    [ ruleSubDeclaration
+    , ruleClosureTrait -- ???
+    ]
+
 ruleDeclaration :: RuleParser Exp
 ruleDeclaration = rule "declaration" $ choice
-    [ ruleSubDeclaration
-    , ruleModuleDeclaration
+    [ ruleModuleDeclaration
     , ruleVarDeclaration
     , ruleUseDeclaration
     , ruleInlineDeclaration
     , ruleRequireDeclaration
-    , ruleClosureTrait -- ???
     ]
 
 ruleSubHead :: RuleParser (Bool, String)
