@@ -11,26 +11,26 @@ sub plan (Int $number_of_tests) returns Int is export {
     return $number_of_tests;
 }
 
-sub proclaim (Bool $cond, Str ?$desc, Str ?$caller_position, Str ?$context, Str ?$got, Str ?$expected) returns Bool {
+sub proclaim (Bool $cond, Str ?$desc, Str ?$context, Str ?$got, Str ?$expected) returns Bool {
     my $ok := $cond ?? "ok " :: "not ok ";
     my $out := defined($desc) ?? " - $desc" :: "";
     my $context_out := defined($context) ?? " # $context" :: "";
     $loop++;
     say $ok, $loop, $out, $context_out;
 
-    report_failure($context, $caller_position, $got, $expected) if (!$cond);
+    report_failure($context, $got, $expected) if (!$cond);
 
     return $cond;
 }
 
 sub ok (Bool $cond, Str ?$desc) returns Bool is export {
-    proclaim($cond, $desc, $?CALLER::POSITION, undef);
+    proclaim($cond, $desc, undef);
     return $cond;
 }
 
 sub is (Str $got, Str $expected, Str ?$desc) returns Bool is export {
     my $test := $got eq $expected; 
-    proclaim($test, $desc, $?CALLER::POSITION, undef,$got, $expected);
+    proclaim($test, $desc, undef,$got, $expected);
     return $test;
 }
 
@@ -38,18 +38,18 @@ sub isa_ok ($ref, Str $expected_type, Str ?$desc) returns Bool is export {
     my $ref_type = ref($ref);
     my $out := defined($desc) ?? $desc :: "The object is-a '$expected_type'";    
     my $test := $ref_type eq $expected_type;
-    proclaim($test, $out, $?CALLER::POSITION, undef, $ref_type, $expected_type);
+    proclaim($test, $out,  undef, $ref_type, $expected_type);
     return $test;
 }
 
 sub todo_ok (Bool $cond, Str ?$desc) returns Bool is export {
-    proclaim($cond, $desc, $?CALLER::POSITION, "TODO");
+    proclaim($cond, $desc, "TODO");
     return $cond;
 }
 
 sub todo_is (Str $got, Str $expected, Str ?$desc) returns Bool is export {
     my $test = $got eq $expected;
-    proclaim($test, $desc, $?CALLER::POSITION, "TODO", $got, $expected);
+    proclaim($test, $desc,"TODO", $got, $expected);
     return $test;
 }
 
@@ -57,41 +57,40 @@ sub todo_isa_ok ($ref, Str $expected_type, Str ?$desc) returns Bool is export {
     my $ref_type = ref($ref);
     my $out := defined($desc) ?? $desc :: "The object is-a '$expected_type'";         
     my $test := $ref_type eq $expected_type;
-    proclaim($test, $out, $?CALLER::POSITION, "TODO", $ref_type, $expected_type);
+    proclaim($test, $out,  "TODO", $ref_type, $expected_type);
     return $test;
 }
 
 sub skip (Str ?$reason) returns Bool is export {
-    proclaim(1, "", $?CALLER::POSITION, "skip $reason");
+    proclaim(1, "", "skip $reason");
     return 1;
 }
 
 sub pass (Str ?$desc) returns Bool is export {
-    proclaim(1, $desc, $?CALLER::POSITION);
+    proclaim(1, $desc);
     return 1;
 }
 
 sub fail (Str ?$desc) returns Bool is export {
-    proclaim(0, $desc, $?CALLER::POSITION);
+    proclaim(0, $desc);
     return 0;
 }
 
 sub todo_fail (Str ?$desc) returns Bool is export {
-    proclaim(0, $desc, $?CALLER::POSITION, 'TODO');
+    proclaim(0, $desc, 'TODO');
     return 0;
 }
 
 
-sub report_failure (Str ?$todo, Str $caller_position, Str ?$got, Str ?$expected) returns Bool is export {
+sub report_failure (Str ?$todo, Str ?$got, Str ?$expected) returns Bool is export {
 
     if ($todo) {
-       diag("  Failed ($todo) test ($caller_position)");
+       diag("  Failed ($todo) test ($?CALLER::CALLER::CALLER::POSITION)");
     }
     else {
-        diag("  Failed test ($caller_position)");
+        diag("  Failed test ($?CALLER::CALLER::CALLER::POSITION)");
          $failed++;
     }
-    # TODO: when $?CALLER::CALLER::CALLER::POSITION WORKS, REFACTOR
     diag("  Expected: $expected") if ($expected);
     diag("       Got: $got") if ($got);
 
