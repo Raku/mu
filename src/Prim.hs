@@ -257,7 +257,7 @@ op1Print f v = do
     let (handle, vs) = case vals of
                         (VHandle h:vs)  -> (h, vs)
                         _               -> (stdout, vals)
-    liftIO . f handle . concatMap vCast $ vs
+    liftIO . f handle . concatMap (encodeUTF8 . vCast) $ vs
     return $ VBool True
 
 bool2n v = if v
