@@ -120,14 +120,13 @@ which may be used by various shallow operators.  Any deep multi
 declarations will be "amplified" into all the shallow operators that
 can be logically based on it.  If you say:
 
-    multi sub deep:«%» (Us $us, Them $them) { mymod($us,$them) }
+    multi sub infix:«%» (Us $us, Them $them) is deep { mymod($us,$them) }
 
 then
 
-    multi sub infix:«%» (Us $us, Them $them) { $us = $us % $them }
     multi sub infix:«%=» (Us $us, Them $them) { $us = $us % $them }
 
-are both generated for you (unless you define them yourself).
+is also generated for you (unless you define it yourself).
 The mappings of magical names to sub definitions is controlled by the
 C<%?DEEPMAGIC> compiler hash.  Pragmas can influence the contents of
 this hash over a lexical scope, so you could have different policies
