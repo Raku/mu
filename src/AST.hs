@@ -80,6 +80,7 @@ instance Value [VPair] where
     vCast (VRef v)      = vCast v
     vCast (VHash (MkHash h)) = [ (VStr k, v) | (k, v) <- Map.assocs h ]
     vCast (VPair p) = [p]
+    vCast (VArray (MkArray vs)) = [ (VInt k, v) | k <- [0..] | v <- vs ]
     vCast (VList vs) =
         let fromList [] = []
             fromList ((VPair (k, v)):xs) = (k, v):fromList xs
@@ -600,6 +601,8 @@ writeMVal (VThunk (MkThunk t)) r = do
     writeMVal l r
 writeMVal (VError s e) _ = retError s e
 writeMVal _ (VError s e) = retError s e
+writeMVal (VControl c) _ = retControl c
+writeMVal _ (VControl c) = retControl c
 writeMVal x _            = retError "Can't write a constant item" (Val x)
 
 askGlobal :: Eval Pad
@@ -614,6 +617,10 @@ readVar name = do
         _ -> return VUndef
 
 emptyExp = App "&not" [] []
+
+retControl :: VControl -> Eval a
+retControl c = do
+    shiftT $ const (return $ VControl c)
 
 retError :: VStr -> Exp -> Eval a
 retError str exp = do

@@ -175,8 +175,8 @@ op1 "die" = \v -> do
     return $ VError (concatMap vCast . vCast $ v) (Val v)
 op1 "exit" = \v -> do
     if vCast v
-        then liftIO $ exitWith (ExitFailure $ vCast v)
-        else liftIO $ exitWith ExitSuccess
+        then shiftT . const . return . VControl . ControlExit . ExitFailure $ vCast v
+        else shiftT . const . return . VControl . ControlExit $ ExitSuccess
 -- handle timely destruction
 op1 "readlink" = \v -> do
     file <- liftIO $ catch (readSymbolicLink (vCast v)) (const $ return "")
@@ -267,7 +267,7 @@ op1 "close" = \v -> do
         _           -> boolIO hClose val
 op1 "key" = return . fst . (vCast :: Val -> VPair)
 op1 "value" = return . snd . (vCast :: Val -> VPair)
-op1 "kv" = return . VList . concatMap (\(k, v) -> [k, v]) . vCast
+op1 "kv" = return . VList . map VPair . vCast -- concatMap (\(k, v) -> [k, v]) . vCast
 op1 "keys" = return . VList . map fst . (vCast :: Val -> [VPair])
 op1 "values" = return . op1Values
 op1 "readline" = op1 "="
