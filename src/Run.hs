@@ -45,7 +45,9 @@ runComp comp = do
 prepareEnv name args = do
     environ <- getEnvironment
     let envFM = listToFM $ [ (VStr k, VStr v) | (k, v) <- environ ]
+    exec    <- getProgName
     libs    <- getLibs environ
+    execSV  <- newMVal $ VStr exec
     progSV  <- newMVal $ VStr name
     endAV   <- newMVal $ VList []
     matchAV <- newMVal $ VList []
@@ -61,7 +63,8 @@ prepareEnv name args = do
     emptyEnv
         [ SymVal SGlobal "@*ARGS"       argsAV
         , SymVal SGlobal "@*INC"        incAV
-        , SymVal SGlobal "$*PROGNAME"   progSV
+        , SymVal SGlobal "$?EXECUTABLE_NAME"    execSV
+        , SymVal SGlobal "$?PROGRAM_NAME"       progSV
         , SymVal SGlobal "@*END"        endAV
         , SymVal SGlobal "$*IN"         inGV
         , SymVal SGlobal "$*OUT"        outGV
