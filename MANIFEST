@@ -1,5 +1,6 @@
 AUTHORS
 ChangeLog
+doc/pa01.kwid
 doc/perlkwid.kwid
 docs/01Overview.html
 docs/perl.css
@@ -10,6 +11,12 @@ docs/yaht.kwid
 docs/zh-cn/01Overview.html
 docs/zh-tw/01Overview.html
 examples/fp.p6
+examples/golf/head.p6
+examples/golf/mid.p6
+examples/golf/rev.p6
+examples/golf/tail.p6
+examples/golf/tsanta.pl
+examples/golf/wc.p6
 examples/hanoi.p6
 examples/hashes/simpleiter.p6
 examples/junctions/1.p6
@@ -70,17 +77,8 @@ Makefile.PL
 MANIFEST			This list of files
 MANIFEST.SKIP
 META.yml
-modules/Locale-KeyedText/lib/Locale/KeyedText.pm
-modules/Locale-KeyedText/Makefile.PL
-modules/Locale-KeyedText/t/lib/t_Locale_KeyedText_A_L_Eng.pm
-modules/Locale-KeyedText/t/lib/t_Locale_KeyedText_A_L_Fre.pm
-modules/Locale-KeyedText/t/lib/t_Locale_KeyedText_B_L_Eng.pm
-modules/Locale-KeyedText/t/lib/t_Locale_KeyedText_B_L_Fre.pm
-modules/Locale-KeyedText/t/test.t
-modules/Sample-Module/lib/Sample/Module.pm
-modules/Sample-Module/Makefile.PL
-modules/Sample-Module/t/test.t
 README
+script/pugscc
 SIGNATURE
 src/AST.hs
 src/Bind.hs
@@ -95,11 +93,9 @@ src/Lexer.hs
 src/Main.hs
 src/Monads.hs
 src/Parser.hs
-src/Parser/Kwid.hs
 src/Posix.hs
 src/Pretty.hs
 src/Prim.hs
-src/pugs_config.h
 src/Rule.hs
 src/Rule/Char.hs
 src/Rule/Combinator.hs
@@ -182,6 +178,7 @@ t/op/repeat.t
 t/op/reverse.t
 t/op/shift.t
 t/op/smartmatch.t
+t/op/sort.t
 t/op/splat.t
 t/op/split.t
 t/op/string_interpolation.t

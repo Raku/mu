@@ -1,4 +1,7 @@
 #defaults
+^\.hsproject
+^\.project
+^\.settings
 ^pugs
 ^tags
 ^MANIFEST.bak$
@@ -13,10 +16,9 @@ pm_to_blib$
 \.sw\w$
 \.hi$
 \.o.*$
-^pugs_config\.h
-^pugs_version\.h
+pugs_config\.h
+pugs_version\.h
 \.svn
 .DS_Store$
-docs/tutorial-utf8-2.txt
 src/Config.hs
 src/pugs_version.h

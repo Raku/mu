@@ -530,6 +530,7 @@ readVar name = do
     glob <- askGlobal
     case find ((== name) . symName) glob of
         Just Symbol{ symExp = Val ref } -> readMVal ref
+        Just _  -> internalError "readVar failed on non-value bindings"
         Nothing -> return VUndef
 
 retError :: VStr -> Exp -> Eval a

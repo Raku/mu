@@ -2,7 +2,7 @@ package Perl6::Pugs;
 use 5.006;
 use strict;
 
-$Pugs::VERSION = v6.0.10;
+our $VERSION = '6.0.11'; # makemaker doesn't like v-strings.
 
 =head1 NAME
 
@@ -10,7 +10,7 @@ Perl6::Pugs - A Perl6 Implementation
 
 =head1 VERSION
 
-This document describes version 6.0.10 of Pugs, released March 5, 2005.
+This document describes version 6.0.11 of Pugs, released March 13, 2005.
 
 =head1 SYNOPSIS
 
@@ -39,7 +39,7 @@ and available via NNTP at L<nntp://nntp.perl.org/perl.perl6.compiler>.
 You can also read the list via Google Groups at
 L<http://groups-beta.google.com/group/perl.perl6.compiler>
 
-Please submit bug reports to E<lt>bug-perl6-pugs@rt.cpan.orgE<gt>.
+Please submit bug reports to E<lt>pugs@rt.perl.org<gt>.
 
 =head1 COPYRIGHT
 
@@ -51,7 +51,7 @@ the terms of either:
     a) the GNU General Public License, version 2, or
     b) the Artistic License, version 2.0beta5.
 
-For the full license text, please see the "GPL-2" and "Artistic-2" files under
-the LICENSE/ directory of the Pugs distribution.
+For the full license text, please see the F<GPL-2> and F<Artistic-2> files
+under the F<LICENSE> directory in the Pugs distribution.
 
 =cut

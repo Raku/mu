@@ -31,11 +31,11 @@ import System.Posix.Files
 import System.Posix.Unistd
 #else
 
-import System.IO.Error
 import System.Posix.Types
 import System.Environment
 
 #if __GLASGOW_HASKELL__ <= 602
+import System.IO.Error
 import Data.Maybe (catMaybes)
 
 getEnvironment :: IO [(String, String)]

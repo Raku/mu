@@ -15,7 +15,7 @@ the terms of either:
     a) the GNU General Public License, version 2, or
     b) the Artistic License, version 2.0beta5.
 
-Please see the "GPL-2" and "Artistic-2" files under the LICENSE/ directory
+Please see the "GPL-2" and "Artistic-2" files under the "LICENSE" directory
 for the full license text.
 
 This program is distributed in the hope that it will be useful,
@@ -48,7 +48,7 @@ The mailing list for Pugs is perl6-compiler.  Subscribe by sending mail to
     http://groups-beta.google.com/group/perl.perl6.compiler (HTTP)
     nntp://nntp.perl.org/perl.perl6.compiler                (NNTP)
 
-Please submit bug reports to <bug-perl6-pugs@rt.cpan.org>.
+Please submit bug reports to <pugs@rt.perl.org>.
 
 WEB SITES
 ---------
