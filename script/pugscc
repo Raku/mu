@@ -32,7 +32,7 @@ unlink "dump.ast";
 system("pugs", -C => @ARGV);
 exit 1 unless -e "dump.ast";
 
-copy ("$base/src/Main.hs" => "$base/src/MainCc.hs");
+copy ("$base/src/Main.hs" => "$base/src/MainCC.hs");
 
 open FH, '>>', "$base/src/MainCC.hs";
 open AST, "dump.ast" or die $!;
