@@ -88,14 +88,14 @@ op1 "exit" = \v -> do
         then liftIO $ exitWith (ExitFailure $ vCast v)
         else liftIO $ exitWith ExitSuccess
 -- handle timely destruction
+op1 "sleep" = boolIO sleep
 op1 "mkdir" = boolIO createDirectory
 op1 "rmdir" = boolIO removeDirectory
+op1 "chdir" = boolIO setCurrentDirectory
 op1 "open" = \v -> do
     fh <- liftIO $ openFile (vCast v) ReadMode
     return $ VHandle fh
-op1 "close" = \v -> do
-    liftIO $ hClose (vCast v)
-    return $ VBool True
+op1 "close" = boolIO hClose
 op1 "<>" = \v -> do
     str <- readFrom v
     cxt <- asks envContext
@@ -130,6 +130,12 @@ boolIO f v = do
         return True
     return $ VBool ok
 
+boolIO2 f u v = do
+    ok <- liftIO $ (`catch` \_ -> return False) $ do
+        f (vCast u) (vCast v)
+        return True
+    return $ VBool ok
+
 opEval :: String -> Eval Val
 opEval str = do
     env <- ask
@@ -148,6 +154,7 @@ mapStr2 :: (Word8 -> Word8 -> Word8) -> [Word8] -> [Word8] -> String
 mapStr2 f x y = map (chr . fromEnum . uncurry f) $ x `zip` y
 
 op2 :: Ident -> Val -> Val -> Eval Val
+op2 "rename" = boolIO2 rename
 op2 "*"  = op2Numeric (*)
 op2 "/"  = op2Divide
 op2 "%"  = op2Int mod
@@ -383,8 +390,11 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Junction  pre     all     (List)\
 \\n   Junction  pre     one     (List)\
 \\n   Junction  pre     none    (List)\
+\\n   Bool      pre     sleep   (Int)\
 \\n   Bool      pre     rmdir   (Str)\
 \\n   Bool      pre     mkdir   (Str)\
+\\n   Bool      pre     chdir   (Str)\
+\\n   Bool      pre     rename  (Str, Str)\
 \\n   Str       pre     =       (IO)\
 \\n   List      pre     =       (IO)\
 \\n   Junction  list    |       (List)\
