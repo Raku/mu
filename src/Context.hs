@@ -24,6 +24,7 @@ deltaType tree base target
     where
     distance = distanceType tree base target 
 
+-- When saying Int.isa(Scalar), Scalar is the base, Int is the target
 isaType :: ClassTree -> Type -> Type -> Bool
 isaType tree base target = distanceType tree base target > 0
 
