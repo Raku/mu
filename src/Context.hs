@@ -89,7 +89,8 @@ initTree = Node "Any"
                 [ Node "Routine"
                     [ Node "Sub"
                         [ Node "Method" []
-                        , Node "Submethod" [] ]
+                        , Node "Submethod" []  -- why isn't this a node off Method? - mugwump
+                        ]
                     , Node "Macro" [] ]
                 , Node "Block"
                     [ Node "Bare"
