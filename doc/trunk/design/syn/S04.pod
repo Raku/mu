@@ -10,11 +10,11 @@ Larry Wall <larry@wall.org>
 
 =head1 VERSION
 
-  Maintainer: Luke Palmer <luke@luqui.org>
+  Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 8 Sept 2004
+  Last Modified: 5 Nov 2004
   Number: 4
-  Version: 0
+  Version: 1
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -559,9 +559,13 @@ precedence afterwards regardless of the position of the closing curly.
 Statement-level constructs are distinguished in the grammar by being
 declared in the statement syntactic group:
 
-    macro statement:if ($expr, &ifblock) {...}
-    macro statement:while ($expr, &whileblock) {...}
-    macro statement:BEGIN (&beginblock) {...}
+    macro statement_control:«if» ($expr, &ifblock) {...}
+    macro statement_control:«while» ($expr, &whileblock) {...}
+    macro statement_control:«BEGIN» (&beginblock) {...}
+
+It's possible the full name of the C<if> operator is now:
+
+    statement_control:«if elsif else»
 
 Statement-level constructs may start only where the parser is expecting
 the start of a statement.  To embed a statement in an expression you
@@ -570,29 +574,29 @@ must use something like C<do {...}> or C<try {...}>.
     $x =  do { given $foo { when 1 {2} when 3 {4} } + $bar;
     $x = try { given $foo { when 1 {2} when 3 {4} } + $bar;
 
-Just because there's a C<statement:BEGIN> does not preclude us from
-also defining a C<prefix:BEGIN> that I<can> be used within an expression:
+Just because there's a C<statement_control:«BEGIN»> does not preclude us from
+also defining a C<prefix:«BEGIN»> that I<can> be used within an expression:
 
-    macro prefix:BEGIN (&beginblock) { beginblock().repr }
+    macro prefix:«BEGIN» (&beginblock) { beginblock().repr }
 
 Then you can say things like:
 
     $recompile_by = BEGIN { time } + $expiration_time;
 
-But C<statement:BEGIN> hides C<prefix:BEGIN> at the start of a statement.
-You could also conceivably define a C<prefix:if>, but then you would
+But C<statement_control:«BEGIN»> hides C<prefix:«BEGIN»> at the start of a statement.
+You could also conceivably define a C<prefix:«if»>, but then you would
 get a syntax error when you say:
 
     print if $foo
 
-since C<prefix:if> would hide C<statement_modifier:if>.
+since C<prefix:«if»> would hide C<statement_modifier:«if»>.
 
 =head1 Smart matching
 
 Here is the current table of smart matches (which probably belongs in
 S3).  The list is intended to reflect forms that can be recognized at
 compile time.  If none of these forms is recognized at compile time, it
-falls through to a multiple dispatch to C<infix:~~()>, which presumably
+falls through to a multiple dispatch to C<infix:«~~»()>, which presumably
 reflects similar semantics, but can finesse things that aren't exact
 type matches.  Note that all types are scalarized here.  Both C<~~>
 and C<given>/C<when> provide scalar contexts to their arguments.
@@ -631,7 +635,7 @@ separate entries for lists.
     Any     subst     substitution match*      match if $_ ~~ subst
     Any     boolean   simple expression truth* match if true given $_
     Any     undef     undefined                match unless defined $_
-    Any     Any       run-time multi call      match if infix:~~($_, $x)
+    Any     Any       run-time multi call      match if infix:«~~»($_, $x)
 
 Matches marked with * are non-reversible, typically because C<~~> takes
 its left side as the topic for the right side, and sets the topic to a
@@ -673,7 +677,7 @@ table, however.  It's not clear, for instance, whether
 
     %hash ~~ { foo }
 
-would resolve as infix:~~<Hash,Any> or infix:~~<Any,Code> under
+would resolve as infix:«~~»<Hash,Any> or infix:«~~»<Any,Code> under
 multiple dispatch.  With the ordered table it clearly prefers the
 latter interpretation.
 
