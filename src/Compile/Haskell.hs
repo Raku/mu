@@ -8,13 +8,14 @@ import Run
 import Prim
 
 genGHC exp = runQ [d| mainCC = runComp $(compile exp) |] >>= \str -> return . unlines $
-    [ "{-# OPTIONS -fglasgow-exts -O #-}"
+    [ "{-# OPTIONS -fglasgow-exts -fth -O #-}"
     , "module MainCC where"
     , "import GHC.Base"
     , "import Run"
     , "import AST"
     , "import Prim"
     , "import Internals"
+    , "import Internals.TH"
     , ""
     , showTH str
     ]
