@@ -145,6 +145,12 @@ sub assert_ghc {
 .
 
     my $ghc_version = $1;
+    unless ($ghc_version =~ /^(\d)\.(\d+)/ and $1 >= 6 and $2 >= 4) {
+        die << ".";
+*** Cannot find GHC 6.4 or above from path (we have $ghc_version).
+*** Please install a newer version from http://haskell.org/ghc/.
+.
+    }
     my $ghc_flags = "-H200m -L. -Lsrc -Lsrc/pcre -I. -Isrc -Isrc/pcre ";
     $ghc_flags .= " -i. -isrc -isrc/pcre -static "; 
     $ghc_flags .= " -Wall "
@@ -154,8 +160,7 @@ sub assert_ghc {
       if $self->is_extension_build;
     $ghc_flags .= " -I$Config{archlib}/CORE -L$Config{archlib}/CORE -i$Config{archlib}/CORE -lperl" 
       if $ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /perl5/i;
-    $ghc_flags .= " -fno-warn-deprecations -fno-warn-orphans"
-      if $ghc_version ge '6.4';
+    $ghc_flags .= " -fno-warn-deprecations -fno-warn-orphans";
     return ($ghc, $ghc_version, $ghc_flags);
 }
 

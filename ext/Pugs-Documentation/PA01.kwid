@@ -87,7 +87,7 @@ But using vanilla svn is fine.)
 Pugs uses the standard Makefile.PL build system, as detailed in the
 `[README|http://svn.openfoundry.org/pugs/README]` file. Since Pugs is
 written in Haskell, you will need [Glasgow Haskell
-Compiler|http://haskell.org/ghc/] (GHC) 6.2 or above. Please download a
+Compiler|http://haskell.org/ghc/] (GHC) 6.4 or above. Please download a
 [binary build|http://haskell.org/ghc/] for your platform; compiling GHC
 from source code can take a very long time.
 
