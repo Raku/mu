@@ -21,6 +21,7 @@ if ("@ARGV" eq "-version") {
         while (<FH>) {
             /^ *committed-rev=.(\d+)./ or next;
             print OUT "#define PUGS_SVN_REVISION $1\n";
+            unlink "src/Help.hi"; # rebuild Help.hs to show new revision number
             exit;
         }
     }
@@ -47,7 +48,7 @@ makemaker_args  (
 *** Please install GHC from http://haskell.org/ghc/.
 .
 
-clean_files("src/*.hi", "src/*.o*", "pugs*", "config.h");
+clean_files("src/*.hi", "src/*.o*", "src/Rule/*.o", "pugs*", "config.h");
 
 my $has_readline = eval {
     require Term::ReadLine;
