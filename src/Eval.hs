@@ -322,20 +322,17 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
                 listMVal <- evalVar name
                 listVal  <- readMVal listMVal
                 indexVal <- evalExp indexExp
-                val' <- enterEvalContext "List" exp
-                let indexes = (vCast indexVal :: VList)
-                    list    = concatMap vCast ls
-		    ls = case listVal of
-	    		    VUndef  -> [] -- autovivification
-    			    _       -> vCast listVal
-		    assignTo curr (VInt index, val) =
-		       	let pre     = genericTake index (curr ++ repeat VUndef)
-		    	    post    = genericDrop (index + 1) curr
-			in
-			    (pre ++ [val] ++ post)
-		    assignTo curr _ = curr
-		writeMVal listMVal $ VList $ foldl assignTo list $ zip indexes $ vCast val'
-		retVal val'
+                val'     <- enterEvalContext "List" exp
+                let indexes = (map vCast $ vCast indexVal :: [VInt])
+                    list = concatMap vCast $ case listVal of
+                        VUndef  -> [] -- autovivification
+                        _       -> vCast listVal
+                    assignTo curr (index, val) = pre ++ [val] ++ post
+                        where
+                        pre     = genericTake index (curr ++ repeat VUndef)
+                        post    = genericDrop (index + 1) curr
+                writeMVal listMVal . VList . foldl assignTo list $ indexes `zip` vCast val'
+                retVal val'
             [Syn "{}" [Var name, indexExp], exp] -> do
                 hashMVal  <- evalVar name
                 hashVal   <- readMVal hashMVal
@@ -422,13 +419,16 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
     -- XXX This treatment of while/until loops probably needs work
     doWhileUntil f = do
         let [ cond, body] = exps
-        let runBody = do
+        let ret val = shiftT $ \_ -> return val
+            runBody = do
             vbool <- enterEvalContext "Bool" cond
             case f $ vCast vbool of
                 True -> do
-                    reduce env body
-                    runBody
-                _ -> shiftT $ \_ -> return $ vbool
+                    rv <- reduce env body
+                    case rv of
+                        VError _ _  -> ret rv
+                        _           -> runBody
+                _ -> ret vbool
         val <- resetT runBody
         retVal val
 
