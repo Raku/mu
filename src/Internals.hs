@@ -32,7 +32,6 @@ module Internals (
     module System.Cmd,
     module Control.Monad.RWS,
     module Control.Monad.Error,
-    module Control.Monad.Trans,
     module Data.Bits,
     module Data.List,
     module Data.Either,
@@ -66,14 +65,13 @@ import System.Cmd
 import System.IO (
     Handle, stdin, stdout, hClose, hGetLine, hGetContents,
     openFile, hPutStr, hPutStrLn, IOMode(..), stderr,
-    hSetBuffering, BufferMode(..), hIsTerminalDevice, readFile
+    hSetBuffering, BufferMode(..), hIsTerminalDevice
     )
 import System.IO.Unsafe
 import System.Directory
 import Control.Exception (catchJust, errorCalls)
 import Control.Monad.RWS
 import Control.Monad.Error (MonadError(..))
-import Control.Monad.Trans (MonadIO(..))
 import Data.Bits hiding (shift)
 import Data.Maybe
 import Data.Either
