@@ -39,6 +39,19 @@ unsure about a perl6 language element, we encourage you to email the
 perl6-language list and get clarification. Pugs and Perl6 are group efforts
 and asking questions is a good thing.
 
+- What to test
+
+A partial index of what's tested, as described by the synopses can be generated
+by running the 'util/catalog_tests.jmm.pl' script, and browsing inside the
+newly created 't_index'.
+
+In the future this might give you an accurate status, for what's tested and
+what's not, but until then lots of backlinks need to be made.
+
+You can also browse an online copy:
+
+	http://nothingmuch.woobling.org/pugs_test_status
+
 - Use the Test module.
 
 We have a created a basic Test module found in ext/Test/lib/Test.pm. It is 
