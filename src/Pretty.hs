@@ -15,6 +15,7 @@ module Pretty where
 import Internals
 import AST
 import Text.PrettyPrint
+import qualified Data.Set as Set
 
 defaultIndent :: Int
 defaultIndent = 2
@@ -62,7 +63,7 @@ instance Pretty Val where
     format (VJunc (Junc j dups vals)) = parens $ joinList mark items 
         where
         items = map format $ values
-        values = setToList vals ++ (concatMap (replicate 2)) (setToList dups)
+        values = Set.elems vals ++ (concatMap (replicate 2)) (Set.elems dups)
         mark  = case j of
             JAny  -> text " | "
             JAll  -> text " & "

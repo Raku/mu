@@ -12,6 +12,7 @@
 module Junc where
 import Internals
 import AST
+import qualified Data.Set as Set
 
 opJuncAll :: [AST.Val] -> AST.Val
 opJuncAll = opJunc JAll
@@ -20,14 +21,14 @@ opJuncAny = opJunc JAny
 opJuncOne :: [AST.Val] -> AST.Val
 opJuncOne args = VJunc (Junc JOne dups vals)
     where
-    vals = mkSet [ v | [v] <- groups ]
-    dups = mkSet [ v | (v:_:_) <- groups ]
+    vals = Set.fromList [ v | [v] <- groups ]
+    dups = Set.fromList [ v | (v:_:_) <- groups ]
     groups = group $ sort args
 
 opJunc :: JuncType -> [Val] -> Val
-opJunc t vals = VJunc $ Junc t emptySet (joined `union` mkSet vs)
+opJunc t vals = VJunc $ Junc t Set.empty (joined `Set.union` Set.fromList vs)
     where
-    joined = unionManySets $ map (\(VJunc s) -> juncSet s) js
+    joined = Set.unions $ map (\(VJunc s) -> juncSet s) js
     (js, vs) = partition sameType vals
     sameType (VJunc (Junc t' _ _))  = t == t'
     sameType _                      = False
@@ -42,12 +43,12 @@ juncTypeIs v ts
 
 mergeJunc j ds vs
     = case j of
-       JAny -> Junc j (mkSet ds) (mkSet vs)
+       JAny -> Junc j (Set.fromList ds) (Set.fromList vs)
        JOne -> Junc j dups vals
        x    -> internalError $ "mergeJunc pattern failure: " ++ (show x)
     where
-    vals = mkSet [ v | [v] <- group $ sort vs ]
-    dups = mkSet (ds ++ [ v | (v:_:_) <- group $ sort (vs ++ ds) ])
+    vals = Set.fromList [ v | [v] <- group $ sort vs ]
+    dups = Set.fromList (ds ++ [ v | (v:_:_) <- group $ sort (vs ++ ds) ])
 
 juncApply :: ([ApplyArg] -> Eval Val) -> [ApplyArg] -> Eval Val
 juncApply f args
@@ -67,9 +68,9 @@ juncApply f args
     | otherwise
     = f args
     where
-    appSet x y = return . mkSet =<< appList x y
+    appSet x y = return . Set.fromList =<< appList x y
     appList (before, (ApplyArg name _ coll):after) vs = do
-        mapM (\v -> juncApply f (before ++ ((ApplyArg name v coll):after))) $ setToList vs
+        mapM (\v -> juncApply f (before ++ ((ApplyArg name v coll):after))) $ Set.elems vs
     appList _ _ = internalError "appList: list doesn't begin with ApplyArg"
 
 isTotalJunc arg

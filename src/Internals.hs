@@ -1,4 +1,4 @@
-{-# OPTIONS -fglasgow-exts #-}
+{-# OPTIONS -fglasgow-exts -fno-warn-orphans #-}
 
 {-
     Internal utilities and library imports.
@@ -43,10 +43,10 @@ module Internals (
     module Data.Word,
     module Data.Ratio,
     module Data.Char,
-    module Data.Set,
     module Data.Tree,
     module Data.Maybe,
     module Data.Complex,
+    module Data.Set,
     module Internals.Map,
     module Data.IORef,
     module Debug.Trace,
@@ -96,14 +96,11 @@ import Data.Unique
 import Data.Ratio
 import Data.Word
 import Data.Char (chr, ord, digitToInt)
-import Data.Set (
-    Set, elementOf, setToList, mapSet, mkSet,
-    emptySet, unionManySets, union, cardinality
-    )
 import Data.Ratio
 import Data.Complex
 import Data.Tree
 import Data.IORef
+import Data.Set (Set)
 import Debug.Trace
 import Rule.Pos
 

@@ -16,10 +16,11 @@ import AST
 import Pretty
 import Parser
 import External
+import qualified Data.Set as Set
 
 op0 :: Ident -> [Val] -> Eval Val
 -- op0 ","  = return . VList . concatMap vCast
-op0 "!"  = return . VJunc . Junc JNone emptySet . mkSet
+op0 "!"  = return . VJunc . Junc JNone Set.empty . Set.fromList
 op0 "&"  = return . opJuncAll
 op0 "^"  = return . opJuncOne
 op0 "|"  = return . opJuncAny
@@ -119,7 +120,7 @@ op1 "true" = op1 "?"
 op1 "any"  = return . opJuncAny . vCast
 op1 "all"  = return . opJuncAll . vCast
 op1 "one"  = return . opJuncOne . vCast
-op1 "none" = return . VJunc . Junc JNone emptySet . mkSet . vCast
+op1 "none" = return . VJunc . Junc JNone Set.empty . Set.fromList . vCast
 op1 "perl" = return . VStr . (pretty :: Val -> VStr)
 op1 "require_haskell" = \v -> do
     name    <- fromVal v
@@ -251,7 +252,7 @@ op1 other  = return . (\x -> VError ("unimplemented unaryOp: " ++ other) (App ot
 
 
 op1Values :: Val -> Val
-op1Values (VJunc j) = VList $ setToList $ juncSet j
+op1Values (VJunc j) = VList $ Set.elems $ juncSet j
 op1Values (VPair (_, v)) = VList $ [v] -- lwall: a pair is a really small hash.
 op1Values v@(VHash _) = VList $ map snd $ (vCast :: Val -> [VPair]) v
 op1Values v@(VList _) = VList $ map snd $ (vCast :: Val -> [VPair]) v -- hope it's a list of pairs
@@ -274,11 +275,11 @@ op1Chr v        = VError "chr not defined" (Val v)
 
 op1Pick :: Val -> Eval Val
 op1Pick (VJunc (Junc JAny _ set)) = do -- pick mainly works on 'any'
-    rand <- liftIO $ randomRIO (0 :: Int, (cardinality set) - 1)
-    return $ (setToList set) !! rand
+    rand <- liftIO $ randomRIO (0 :: Int, (Set.cardinality set) - 1)
+    return $ (Set.elems set) !! rand
 op1Pick (VJunc (Junc _ _ set)) = 
-    if (cardinality $ set) > 1 then return VUndef
-    else return $ head $ setToList set
+    if (Set.cardinality $ set) > 1 then return VUndef
+    else return $ head $ Set.elems set
 op1Pick (VRef v) = op1Pick v
 op1Pick v = return $ VError "pick not defined" (Val v)
 
