@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -O #-}
+{-# OPTIONS_GHC -fglasgow-exts #-}
 {-# OPTIONS_GHC -#include "UnicodeC.h" #-}
 
 {-
@@ -123,7 +123,11 @@ ruleDocBody = (try ruleDocCut) <|> eof <|> do
     many1 newline -- XXX - paragraph mode
     ruleDocBody
     return ()
-   
+
+ruleQualifiedIdentifier :: RuleParser [String]
+ruleQualifiedIdentifier = rule "qualified identifer" $ do
+    identifier `sepBy1` (try $ string "::")
+
 -- Declarations ------------------------------------------------
 
 ruleBlockDeclaration :: RuleParser Exp
@@ -310,9 +314,18 @@ ruleUseVersion = rule "use version" $ do
         error $ "Perl v" ++ version ++ " required--this is only v" ++ versnum ++ ", stopped at " ++ (show pos)
     return $ Syn "noop" []
 
+{- 
 ruleUsePackage = rule "use package" $ do
     _ <- identifier -- package -- XXX - ::
     return $ Syn "noop" []
+-}
+
+ruleUsePackage = rule "use package" $ do
+    names <- identifier `sepBy1` (try $ string "::")
+    _ <- option "" $ do -- version - XXX
+        char '-'
+        many1 (choice [ digit, char '.' ])
+    return $ App "&require" [] [Val . VStr $ concat (intersperse "/" names) ++ ".pm"]
 
 ruleInlineDeclaration = tryRule "inline declaration" $ do
     symbol "inline"
