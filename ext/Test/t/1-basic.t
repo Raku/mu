@@ -3,7 +3,7 @@
   use v6;
   require Test;
   
-  plan 10;
+  plan 9;
   
   ok(2 + 2 == 4, '2 and 2 make 4');
   is(2 + 2, 4, '2 and 2 make 4');
