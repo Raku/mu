@@ -154,7 +154,8 @@ instance Value VStr where
     vCast (VRef v)      = vCast v
     -- vCast (MVal v)      = vCast $ castV v
     vCast (VPair (k, v))= vCast k ++ "\t" ++ vCast v ++ "\n"
-    vCast (VArray (MkArray l))     = unwords $ map vCast l
+    vCast (VArray (MkArray l))   = unwords $ map vCast l
+    vCast (VHash (MkHash h))     = unlines $ map (\(k, v) -> (vCast k ++ "\t" ++ vCast v)) $ fmToList h
     vCast (VSub s)      = "<" ++ show (subType s) ++ "(" ++ subName s ++ ")>"
     vCast (VJunc j)     = show j
     vCast x             = error $ "cannot cast as Str: " ++ (show x)
