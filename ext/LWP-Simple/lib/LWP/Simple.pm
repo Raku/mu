@@ -22,13 +22,13 @@ my $CRLF = "\x0D\x0A\x0D\x0A";
 my $VERSION = "0.0.1";
 
 
-sub getprint ($url)
+sub getprint (Str $url)
 {
-  getstore $url, $*OUT;
+  getstore $url, '';
 };
 
 # FIXME to use a callback
-sub getstore ($url, $file)
+sub getstore (Str $url, Str $file)
 {
   my $fh = open ">$file";
   my $buffer = get $url;
@@ -40,13 +40,15 @@ sub getstore ($url, $file)
 };
 
 # TODO: Implement a non-faked version
+# TODO: Add If-Modified-Since: header
+# TODO: Handle 30x Not Modified response
 sub mirror ($url, $file)
 {
   getstore($url,$file)
 }
 
 sub get (Str $url) is export {
-  _get($url);
+  return _trivial_http_get($url);
 };
 
 # Refactor common code with _trivial_http_get
@@ -104,17 +106,9 @@ sub split_uri (Str $url) {
   return ($host,$port,$path);
 };
 
-sub _get (Str $url) {
-  #my ($host,$port,$path) = split_uri($url);
-  return _trivial_http_get($url);
-};
-
 sub _trivial_http_get (Str $url) returns Str {
-  # * Don't use "say()", be specific and send "\r\n"
-  # * Set a timeout of 60 seconds (however)
-  # * Make sure the socket is autoflush, or better
-  #   is flushed after we've sent our lines.
-  # * Send Connection: close, at least until we know better
+  # TODO: Set a timeout of 60 seconds (however)
+  # TODO: Send Connection: close, at least until we know better
   my ($h,$p,$u) = split_uri($url);
 
   my $req = _make_request( "GET", $url );
@@ -126,7 +120,7 @@ sub _trivial_http_get (Str $url) returns Str {
   my $buffer = slurp $hdl;
   # 1 while ( $buffer ~= $hdl.read() and $buffer !~ rx:perl5{$CRLF$CRLF} );
   # my ($status,@headers) = split /$CRLF/, $buffer;
-  # worry later about body
+  # worry later about large body
 
   # strip away status and headers
   # This should all be done better so the response doesn't live in
