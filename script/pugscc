@@ -1,0 +1,20 @@
+#!/usr/bin/perl
+
+use FindBin;
+use File::Copy;
+
+chdir "$FindBin::Bin/..";
+
+unlink "pugs.ast";
+system("pugs", -C => @ARGV);
+exit 1 unless -e "pugs.ast";
+
+copy "src/Main.hs" => "src/MainCC.hs";
+open AST, "pugs.ast" or die $!;
+open FH, ">> src/MainCC.hs";
+print FH "mainCC = runAST ";
+print FH <AST>;
+close AST;
+close FH;
+
+system("ghc", "--main-is", "mainCC", "-isrc", "src/MainCC.hs")

@@ -51,6 +51,8 @@ run ("--version":_)             = banner
 run ("-c":"-e":prog:_)          = doParse "-e" prog
 run ("-ce":prog:_)              = doParse "-e" prog
 run ("-c":file:_)               = readFile file >>= doParse file
+run ("-C":"-e":prog:_)          = doDump "-e" prog
+run ("-Ce":prog:_)              = doDump "-e" prog
 run ("-C":file:_)               = readFile file >>= doDump file
 run ("-":_)                     = do
     prog <- getContents
@@ -83,7 +85,10 @@ doDump name prog = do
     runRule env (dump . envBody) ruleProgram name prog
     where
     dump (Val err@(VError _ _)) = internalError (show err)
-    dump exp = print exp
+    dump exp = do
+        fh <- openFile "dump.ast" WriteMode
+        hPutStrLn fh $ show exp
+        hClose fh
 
 doParse name prog = do
     env <- emptyEnv []
@@ -113,6 +118,23 @@ runFile file = do
 runProgramWith :: 
     (Env -> Env) -> (Val -> IO ()) -> VStr -> [VStr] -> String -> IO ()
 runProgramWith fenv f name args prog = do
+    env <- prepareEnv name args
+    val <- runEnv $ runRule (fenv env) id ruleProgram name prog
+    f val
+
+runEnv env = do
+    (`runReaderT` env) $ do
+        (`runContT` return) $ resetT $ do
+            evaluateMain (envBody env)
+
+runAST ast = do
+    hSetBuffering stdout NoBuffering 
+    name <- getProgName
+    args <- getArgs
+    env  <- prepareEnv name args
+    runEnv env{ envBody = ast }    
+
+prepareEnv name args = do
     environ <- getEnvironment
     let envFM = listToFM $ [ (VStr k, VStr v) | (k, v) <- environ ]
     libs    <- getLibs environ
@@ -124,7 +146,7 @@ runProgramWith fenv f name args prog = do
     outGV   <- newMVal $ VHandle stdout
     errGV   <- newMVal $ VHandle stderr
     errSV   <- newMVal $ VStr ""
-    env <- emptyEnv
+    emptyEnv
         [ Symbol SGlobal "@*ARGS"       $ Val argsAV
         , Symbol SGlobal "@*INC"        $ Val incAV
         , Symbol SGlobal "$*PROGNAME"   $ Val progSV
@@ -140,11 +162,6 @@ runProgramWith fenv f name args prog = do
         , Symbol SGlobal "$=POD"        (Val . VStr $ "")
         , Symbol SGlobal "$?OS"         (Val . VStr $ config_osname)
         ]
-    let env' = runRule (fenv env) id ruleProgram name prog
-    val <- (`runReaderT` env') $ do
-        (`runContT` return) $ resetT $ do
-            evaluateMain (envBody env')
-    f val
 
 getLibs :: [(String, String)] -> IO [String]
 getLibs environ = return $ filter (not . null) libs

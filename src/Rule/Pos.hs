@@ -14,8 +14,8 @@
 
 module Rule.Pos
                   ( SourceName, Line, Column                 
-                  , SourcePos
-                  , sourceLine, sourceColumn, sourceName
+                  , SourcePos(..)
+                  -- , sourceLine, sourceColumn, sourceName
                   , incSourceLine, incSourceColumn
                   , setSourceLine, setSourceColumn, setSourceName
                   , newPos, initialPos
@@ -75,10 +75,5 @@ forcePos pos@(SourcePos _ line column)
 -- Show positions 
 -----------------------------------------------------------                                                 
 instance Show SourcePos where
-  show (SourcePos name line column)
-    | null name = showLineColumn
-    | otherwise = "\"" ++ name ++ "\" " ++ showLineColumn
-    where
-      showLineColumn    = "(line " ++ show line ++
-                          ", column " ++ show column ++
-                          ")" 
+  show (SourcePos name line column) =
+    unwords ["SourcePos", show name, show line, show column]
