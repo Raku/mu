@@ -8,8 +8,8 @@ plan 4;
 my %foo;
 my %e = ("foo", "bar", "blah", "blah");
 
-todo_ok(eval '
-	my %hash = (
+todo_eval_ok('
+	%foo = (
 		"foo", "bar",
 		"blah", "blah",
 	);
