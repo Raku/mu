@@ -563,12 +563,13 @@ my Str %text_strings ::= (
 
 ######################################################################
 
-sub get_text_by_key( Str $msg_key ) returns Str { return %text_strings{$msg_key}; }
+sub get_text_by_key( Str $msg_key ) returns Str {
+	return %text_strings{$msg_key};
+}
 
 ######################################################################
 
 1;
-__END__
 
 =head1 SYNOPSIS
 
