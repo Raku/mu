@@ -105,7 +105,6 @@ t/base/given.t
 t/base/if.t
 t/base/loop.t
 t/base/num.t
-t/base/subs.t
 t/base/try.t
 t/base/unless.t
 t/base/until.t
@@ -157,6 +156,7 @@ t/op/repeat.t
 t/op/shift.t
 t/op/split.t
 t/op/string_interpolation.t
+t/op/sub_return_values.t
 t/op/substr.t
 t/op/unshift.t
 t/op/zip.t
