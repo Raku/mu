@@ -37,6 +37,9 @@ run :: [String] -> IO ()
 run ("-l":rest)                 = run rest
 run ("-d":rest)                 = run rest
 run ("-w":rest)                 = run rest
+run (("-l":xs):rest)            = run (xs:rest)
+run (("-w":xs):rest)            = run (xs:rest)
+run (("-d":xs):rest)            = run (xs:rest)
 run (('-':'e':prog@(_:_)):args) = doRun "-" args prog
 run ("-e":prog:args)            = doRun "-" args prog
 run ("-h":_)                    = printHelp
