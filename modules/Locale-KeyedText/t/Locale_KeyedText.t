@@ -15,7 +15,7 @@ sub message( Str $detail ) {
 	say "-- $detail";
 }
 
-sub serialize( Str $input ) returns Str {
+sub serialize( Any $input ) returns Str {
 	return (
 		$input.meta.isa(Hash) ?? 
 			( '{ ', ( $input.pairs.sort.map:{ serialize( $_ ) } ), '}, ' ) 
