@@ -14,7 +14,7 @@ ok(eval 'my $übervar; sub fü {}; 1', "umlauts declaration");
 is(eval 'my $schloß = 2; sub öok ($x) { $x }; öok($schloß)', 2, "evaluation");
 
 # monty python
-ok(eval 'my $møøse; sub bïte {};', "a møøse once bit my sister");
+ok(eval 'my $møøse; sub bïte {}; 1', "a møøse once bit my sister");
 is(eval 'my $møøse = 2; sub såck ($x) { $x }; såck($møøse)', 2, "møøse bites kan be preti nasti");
 
 # french
