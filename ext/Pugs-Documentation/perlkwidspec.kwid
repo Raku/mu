@@ -269,7 +269,7 @@ should cater for this pretty much without limitation so there should
 be ample room for people to make out-of-band hacks for specific output
 formats.
 
-On the other hand, documenation should be simple, so anything that
+On the other hand, documentation should be simple, so anything that
 doesn't fit the DOM should be politely invited to leave by means of
 fornication.  After all, there are always source filters (or their p6
 equivalent) if people want to define their own markup system.
