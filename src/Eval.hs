@@ -99,9 +99,7 @@ evaluate exp = do
     val <- local (\e -> e{ envBody = exp }) $ do
         reduceExp exp
     debug "indent" (tail) " Ret" val
-    case val of
-        VError s e  -> retError s e
-        _           -> return val
+    trapVal val (return val)
 
 evalSym :: Symbol a -> Eval (String, Val)
 evalSym (SymVal _ name val) =
@@ -186,12 +184,14 @@ reduceStatements ((exp, pos):rest)
         val <- enterContext "Void" $ do
             enterLex (posSyms pos) $ do
                 reduceExp exp
-        processVal val $ do
+        trapVal val $ do
             reduceStatements rest $ Val val
-    where 
-    processVal val action = case val of
-        VError str exp  -> retError str exp
-        _               -> action
+
+trapVal :: Val -> Eval a -> Eval a
+trapVal val action = case val of
+    VError str exp  -> retError str exp
+    VControl c      -> retControl c
+    _               -> action
 
 posSyms pos = [ SymVal SMy n v | (n, v) <- syms ]
     where
@@ -295,11 +295,11 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
             valBody <- evalExp body
             valPost <- evalExp post
             vbool   <- enterEvalContext "Bool" cond
-            case valBody of
-                VError _ _ -> retVal valBody
-                _ | VError _ _ <- valPost -> retVal valPost
-                _ | not (vCast vbool) -> retVal valBody
-                _ -> runBody
+            trapVal valBody $ do
+                trapVal valPost $ do
+                    if vCast vbool
+                        then runBody
+                        else retVal valBody
         enterLoop runBody
     "given" -> do
         let [topic, body] = exps

@@ -207,7 +207,8 @@ doRun = do
         hPutStrLn stderr str
         hPutStrLn stderr (show exp)
         exitFailure
-    end _               = return ()
+    end (VControl (ControlExit exit)) = exitWith exit
+    end _ = return ()
 
 runFile :: String -> IO ()
 runFile file = do
