@@ -6,6 +6,7 @@ This is a test file.  Whee!
 
 =cut
 my $loop = 1;
+say "1..3";
 
 my $foo = "Foo";
 my $foobar = "Foo::Bar";
@@ -20,12 +21,12 @@ sub ok ($var, $loop) {
     }
 }
 
-my @blah = '$foo', 'MY::$foo';
-for (@blah) {
-    my $bar;
-    eval '$bar = $::($_)';
-    ok $bar, $loop;
-    $loop++;
-}
 
-say "1..", ($loop-1);
+eval '$bar = $::($foo)';
+ok ($bar, 1);
+$bar = '';
+eval '$bar = $::("MY::$foo")';
+ok ($bar, 2);
+$bar = '';
+eval '$bar = $::($foobar)';
+ok ($bar, 3);
