@@ -142,6 +142,7 @@ t/base/cond.t
 t/base/control_blocks.t
 t/base/for.t
 t/base/given.t
+t/base/goto.t
 t/base/if.t
 t/base/loop.t
 t/base/num.t
