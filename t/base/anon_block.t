@@ -7,6 +7,9 @@ require Test;
 
 Block tests
 
+This covers anonymous blocks and subs, as well as pointy blocks
+(with and without args) and bare blocks. 
+
 =cut
 
 plan 22;

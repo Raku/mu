@@ -5,7 +5,10 @@ require Test;
 
 =kwid
 
-for statement tests
+Tests the "for" statement
+
+This attemps to test as many variations of the 
+for statement as possible
 
 =cut
 

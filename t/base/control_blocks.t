@@ -3,6 +3,15 @@
 use v6;
 require Test;
 
+=pod
+
+Control block tests
+
+Most tests are still TODO. 
+These are based on synopsis 4
+
+=cut
+
 plan 20;
 
 # don't read this linearly, some tests are not in the order they're written it

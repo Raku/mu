@@ -1,3 +1,17 @@
+#!/usr/bin/pugs
+
+use v6;
+
+=pod
+
+Test examples
+
+This loads all the scripts in the examples dir and attempts
+to compile and run each of them.
+
+=cut
+
+
 my @examples  = <fp hanoi life mandel quicksort sendmoremoney shuffle>;
 
 my @outputs   = <fp hanoi             quicksort>;

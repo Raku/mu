@@ -5,7 +5,8 @@ require Test;
 
 =kwid
 
-Make sure conditional operators work
+Tests some basic conditional operators
+(==, !=, eq and ne)
 
 =cut
 
