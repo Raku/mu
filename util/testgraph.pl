@@ -49,6 +49,7 @@ foreach my $testfile (sort {$a->{file} cmp $b->{file}}
 	my $per_row = int(.75 + @{$testfile->{subtests}} / $rows);
 	
 	foreach my $test (@{$testfile->{subtests}}) {
+	  my $class = t_to_class($test);
 
 
 	  my $title = ($test->{line} || '') . "\n" . ($test->{diag} || '');
