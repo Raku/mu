@@ -5,21 +5,20 @@ require Test;
 
 =pod
 
-Test evaluation of combination of C<-e> and C<-c> switches.
+Test rejection of unknown command line switches.
 
-They should all do a syntax check and never evaluate the
-C<-e> fragments.
+Pugs should output
+
+  Unrecognized switch: -foo  (-h will show valid options).
+
+if called with the (unknown) option C<-foo>
 
 =cut
 
 my @examples;
-push @examples, 
-  '-ce "print qq,Code got interpreted!,"',
-  '-c -e "print qq,Code got interpreted!,"', 
-  '-e "print qq,Code got interpreted!," -c',
-  '-eprint -c',
-  '-ceprint'
-  ;
+push @examples, '-foo';
+push @examples, '-e "print" -foo';
+push @examples, '-foo -c';
 
 plan +@examples;
 
@@ -37,7 +36,7 @@ for @examples -> $ex {
   diag $command;
   system $command;
 
-  my $expected = "-e syntax OK\n";
+  my $expected = "Unrecognized switch: -foo  (-h will show valid options).\n";
   my $got      = slurp "temp-ex-output";
   unlink "temp-ex-output";
 
