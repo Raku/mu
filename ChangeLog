@@ -1,3 +1,14 @@
+[Changes for 6.0.11 - March 14, 2005]
+
+Pugs Internals:
+
+* Ported to GHC 6.4 final.
+* 
+
+Tests, Examples and Documentations:
+
+Bug Fixes:
+
 [Changes for 6.0.10 - March 5, 2005]
 
 Pugs Internals:
