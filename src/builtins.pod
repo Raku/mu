@@ -113,6 +113,8 @@ Finally, for each entry, we're only entering as much detail as we know
         { ... }
     multi sub infix:<err>(     $x,      $y) returns Scalar is equiv(&*infix:<or>) 
         { ... }
+    multi sub infix:<not>(Bool $x)          returns bit    is tighter(&*infix:<and>)
+        { ... }
 
 =head2 Ternary operator
 
@@ -140,14 +142,35 @@ I'm not at all ready to tackle this one just yet.  :-)
 XXX: Is there a criterion that we use to choose between defining 
 something as a multi sub versus a class/object method?
 
-=head2 Functions on lists
+=head2 Misc functions
+
+    multi sub *perl($x)     returns Str { ... }
+    multi sub *eval(Str $x) returns Any { ... }
+
+=head2 List functions
+
+    # not sure about the placement of the colon in the following functions
+    multi sub *map(&code: *@list) returns List { ... }
+    multi sub *map(@list: *&code) returns List { ... }
+
+    multi sub *grep(&code: *@list) returns List { ... }
+    multi sub *grep(@list: *&code) returns List { ... }
 
     multi sub *zip(*@args) returns List { ... }
+
+    multi sub *join(Str $by, *@list) returns Str { ... }
 
 =head2 Array functions
 
     multi sub *keys(@array) returns List { ... }
     multi sub *kv  (@array) returns List { ... }
+
+    multi sub *push(@array is rw: *@list)    returns Int { ... }
+    multi sub *unshift(@array is rw: *@list) returns Int { ... }
+    multi sub *pop(@array is rw)             returns Scalar { ... }
+    multi sub *shift(@array is rw)           returns Scalar { ... }
+    
+    multi sub *join(@array: Str $by) returns Str { ... }
 
 =head2 Hash functions
 
