@@ -5,16 +5,20 @@ use File::Copy;
 
 chdir "$FindBin::Bin/..";
 
-unlink "pugs.ast";
+unlink "dump.ast";
 system("pugs", -C => @ARGV);
-exit 1 unless -e "pugs.ast";
+exit 1 unless -e "dump.ast";
 
-copy "src/Main.hs" => "src/MainCC.hs";
-open AST, "pugs.ast" or die $!;
+copy ("src/Main.hs" => "src/MainCc.hs");
+
 open FH, ">> src/MainCC.hs";
-print FH "mainCC = runAST ";
+open AST, "dump.ast" or die $!;
+print FH "\nmainCC = runAST \$ ";
 print FH <AST>;
 close AST;
 close FH;
 
-system("ghc", "--main-is", "mainCC", "-isrc", "src/MainCC.hs")
+my $out = ($^O eq 'MSWin32') ? "a.exe" : "a.out";
+system("ghc", "-v0", "-o", $out, "--make", "-main-is", "mainCC", "-isrc", "src/MainCC.hs");
+unlink "src/MainCC.hs";
+print "Generated output: $out\n";

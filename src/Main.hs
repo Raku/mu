@@ -132,7 +132,7 @@ runAST ast = do
     name <- getProgName
     args <- getArgs
     env  <- prepareEnv name args
-    runEnv env{ envBody = ast }    
+    runEnv env{ envBody = ast, envDebug = Nothing }
 
 prepareEnv name args = do
     environ <- getEnvironment
