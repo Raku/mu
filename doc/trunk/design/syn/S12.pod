@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 6 Nov 2004
+  Last Modified: 21 Nov 2004
   Number: 12
-  Version: 2
+  Version: 3
 
 =head1 Overview
 
@@ -37,7 +37,7 @@ keywords of the class definition.  (And since a class is also a module,
 it also handles any module-oriented keywords.)
 
 Classes are primarily for instance management, not code reuse.
-Consider the use of C<roles> when you simply want to factor out
+Consider using C<roles> when you simply want to factor out
 common code.
 
 Perl 6 supports multiple inheritance, anonymous classes, and autoboxing.
@@ -61,7 +61,7 @@ Class names are always searched for from innermost scopes to outermost.
 As with an initial C<::>, the presence of a C<::> within the name
 does not imply globalness (unlike in Perl 5).
 
-Class traits set using C<is>:
+Class traits are set using C<is>:
 
     class MyStruct is rw {...}
 
@@ -90,12 +90,13 @@ of any object via the C<.meta> method.
 
 Classes are open and non-final by default, but may easily be closed or
 finalized by an application if nobody issued an explicit compile-time
-request that the class stay open or non-final.  Platforms that do
-dynamic loading of sub-applications probably don't want to close or
-finalize classes wholesale, however.
+request that the class stay open or non-final.  (Or a site policy
+could close any applications that use the policy.)  Platforms that
+do dynamic loading of sub-applications probably don't want to close
+or finalize classes wholesale, however.
 
-A private classname begins with a single colon.  It is completely invisible
-to the ordinary classname mechanisms.
+A private classname begins with a single colon.  Such methods are
+completely invisible to the ordinary classname mechanisms.
 
 =head1 Methods
 
@@ -116,7 +117,7 @@ Private methods have a colon on the front of their name:
 
     method :think (Brain $self: $thought)
 
-It is completely invisible to the ordinary method dispatch system.
+Such methods are completely invisible to the ordinary method dispatch system.
 
 To call an ordinary method with ordinary single-dispatch semantics,
 use either the dot notation or indirect object notation:
@@ -139,7 +140,7 @@ Dot notation can omit the invocant if it's in C<$_>:
 
     .doit(1,2,3)
 
-It can use a variable for the method name:
+It can use a simple scalar variable for the method name:
 
     $obj.$methodname(1,2,3)
 
@@ -155,8 +156,8 @@ of parentheses:
     .doit	# okay, no arguments
     .doit()	# okay, no arguments
     .doit ()	# ILLEGAL (two terms in a row)
-    .doit.()	# okay, no arguments
-    .doit .()	# okay, no arguments
+    .doit.()	# okay, no arguments, same as .doit()
+    .doit .()	# okay, no arguments, same as .doit()
 
 Adverbs may modify any operator including a method call, so it's possible
 to pass a block to a method without putting it in parentheses:
@@ -181,9 +182,9 @@ But method calls on containers go to the container:
     @keys  = %hash.keys;
     $sig   = &sub.signature;
 
-Use C<tied> to get at the container of a scalar variable.
+Use C<variable> to get at the container of a scalar variable.
 
-    if tied($scalar).constant {...}
+    if variable($scalar).constant {...}
 
 Class methods are just methods that can take a class as their invocant.
 
@@ -290,12 +291,13 @@ routines by calling the C<BUILDALL> routine for the current class,
 which initializes the object in least-derived to most-derived order.
 C<DESTROY> and C<DESTROYALL> work the same way, only in reverse.
 
-The default C<BUILD> and C<BUILDALL> are inherited from C<Object>, so
-you need to write initialization routines only if you wish to modify
-the default behavior.  If the name of a named argument corresponds
-to a class or role being built, the list value of that argument is
-passed as a list of named arguments to that class or role's C<BUILD>.
-Otherwise all the arguments to C<bless> are passed to the C<BUILD>.
+The default C<BUILD> and C<BUILDALL> are inherited from C<Object>,
+so you need to write initialization routines only if you wish to
+modify the default behavior.  If the name of a named argument begins
+with a C<::> and corresponds to a class or role being built, the list
+value of that argument is passed as a list of named arguments to that
+class or role's C<BUILD>.  Otherwise all the arguments to C<bless>
+are passed to the C<BUILD>.
 
 You can clone an object, changing some of the attributes:
 
@@ -335,7 +337,8 @@ variable of a known type:
 =head1 Calling sets of methods
 
 For any method name, there may be some number of candidate methods
-that could handle the request.  The ordinary "dot" operator dispatches
+that could handle the request: typically, inherited methods or
+multimethod variants.  The ordinary "dot" operator dispatches
 to a method in the standard fashion.  There are also "dot" variants
 that call some number of methods with the same name:
 
@@ -394,7 +397,7 @@ pull out the values:
 The "long name" of a subroutine or method includes the type signature
 of its invocant arguments.  The "short name" doesn't.  If you put
 C<multi> in front of any sub (or method) declaration, it allows
-multiple long names to share a short name, as long as all of them are
+multiple long names to share a short name, provided all of them are
 declared C<multi>.  A sub (or method) without a C<multi> doesn't share.
 Only one such sub (or method) can inhabit a given namespace, and it
 hides any outer subs (or less-derived methods) of the same short name.
@@ -600,13 +603,28 @@ figuring out which role method to call.
 
 Alternately, if the role's methods are declared C<multi>, they can be
 disambiguated based on their long name.  If the roles forget to declare
-them as multi, you can force a multi on the roles' methods by saying:
+them as multi, you can force a multi on the roles' methods by installing
+a multi stub in the class being constructed:
 
-    multi shake {...}
+    multi method shake {...}
 
-If the original invocant is in a variable that is constrained to be
-of one role or another, then that type can be used to dispatch to
-the correct role's method.
+Conjectural: If the original invocant is in a variable that is
+constrained to be of one role or another, then that type could be used
+to dispatch to the correct role's method in cases where they can't
+be distinguished by differences in the actual argument types:
+
+    class DogTree {
+	does DogBark;
+	does TreeBark;
+	multi method bark {...}
+	...
+    }
+
+    my DogBark $dog = new DogTree;
+    my TreeBark $tree = new DogTree;
+
+    $dog.bark();	# picks Dog role's bark method
+    $tree.bark();	# picks Tree role's bark method
 
 Run-time mixins are done with C<does> and C<but>.  The C<does> binary
 operator is a mutator that derives a new anonymous class (if necessary)
@@ -622,6 +640,12 @@ Unlike the compile-time role composition, each of these layers on a new
 mixin with a new level of inheritance, creating a new anonymous class
 for dear old Fido, so that a C<.chase> method from C<TailChasing> hides a
 C<.chase> method from C<Sentry>.
+
+A role applied with C<does> may be parameterized with an initializer
+in parentheses, but only if the role supplies exactly one attribute
+to the mixin class:
+
+    $fido does Wag($tail);
 
 The C<but> operator creates a copy and works on that.  It also knows
 how to generalize a particular enumerated value to its role.  So
@@ -640,17 +664,30 @@ A property is defined by a role like this:
 
 You can declare a property with
 
-    my property answer;
+    my int property answer;
 
 and that declares a role whose name is the same as the accessor:
 
     my role answer {
-	has $.answer is rw = 1;
+	has int $.answer is rw;
     }
 
 Then you can say
 
     $a = 0 but answer(42)
+
+Note that the parenthesized form is I<not> a subroutine or method call.
+It's just special initializing syntax for roles that contain a single
+property.  The above really means something like:
+
+    $a = ($anonymous = 0) does answer(42);
+
+which really means:
+
+    (($anonymous = 0) does answer).answer = 42;
+    $a = $anonymous;
+
+Which is why there's a C<but> operator.
 
 =head1 Traits
 
@@ -917,26 +954,30 @@ In theory you can have an anonymous enum, but in practice it's pretty useless:
 
     $enum = enum « ook! ook. ook? »;
 
-The enum installer inspects the values for things that look like
-pairs, where the value of the pair sets the next value explicitly.
-Non-pairs C<++> the previous value.
+The enum installer inspects list values for pairs, where the value
+of the pair sets the next value explicitly.  Non-pairs C<++> the
+previous value.
 
-    my enum DayOfWeek «:Sun(1) Mon Tue Wed Thu Fri Sat»;
+    my enum DayOfWeek [:Sun(1), «Mon Tue Wed Thu Fri Sat»];
 
-    our str enum Phonetic « :Alpha«A» Bravo Charlie Delta
+    our str enum Phonetic [:Alpha«A», «Bravo Charlie Delta
 			    Echo Foxtrot Golf Hotel India Juliet
 			    Kilo Lima Mike November Oscar Papa
 			    Quebec Romeo Sierra Tango Uniform
-			    Victor Whiskey X-ray Yankee Zulu »
+			    Victor Whiskey X-ray Yankee Zulu»];
 
     enum roman [i => 1,   v => 5,
 		x => 10,  l => 50,
 		c => 100, d => 500,
 		m => 1000];
 
+    my Scalar hex [:zero(0), «one two three four five six seven eight nine»,
+		   :ten«a», «eleven twelve thirteen fourteen fifteen»];
+
 You may import enum types; only non-colliding values are imported.
 Colliding enum values are hidden and must be disambiguated with the
-type name.  (All colliding values are hidden, not just the new one,
+type name.  Any attempt to use the ambiguous name will result in a fatal
+compilation error.  (All colliding values are hidden, not just the new one,
 or the old one.)  Any explicit sub or type definition hides all imported
 enum values of the same name but will produce a warning unless
 C<is redefined> is included.
@@ -951,17 +992,21 @@ is the same as
 
     $x = "Today" but day::Tue;
 
+or pseudo-functional form:
+
+    $x = "Today" but day(Tue);
+
 which is short for:
 
     $x = "Today";
     $x does day;
-    $x.day = Tue;
+    $x.day = day::Tue;
 
 After any of those
 
     $x.day
 
-returns C<Tue>, and
+returns C<day::Tue>, and
 
     $x ~~ day
     $x ~~ Tue
@@ -1011,18 +1056,18 @@ This merely changes the application's default to closed and final,
 which means that at the end of the main compilation (C<CHECK> time)
 the optimizer is allowed to look for candidate classes to close or
 finalize.  But anyone (including the main application) can request
-that any class stay open or non-final, and the class closer/finalizer
+that any class stay open or basal, and the class closer/finalizer
 must honor that.
 
-    use class :open«Mammal Insect» :base«Str»
+    use class :open«Mammal Insect» :basal«Str»
 
 These properties may also be specified on the class definition:
 
     class Mammal is open {...}
     class Insect is open {...}
-    class Str is base {...}
+    class Str is basal {...}
 
-or by lexically scoped pragma:
+or by lexically scoped pragma around the class definition:
 
     {
 	use class :open;
@@ -1030,9 +1075,13 @@ or by lexically scoped pragma:
 	class Insect {...}
     }
     {
-	use class :base;
+	use class :basal;
 	class Str {...}
     }
+
+There is I<no> syntax for declaring individual classes closed or final.
+The application may only request that optimizer close and finalize
+unmarked classes.
 
 =head1 Interface Consistency
 
