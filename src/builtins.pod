@@ -38,8 +38,8 @@ Finally, for each entry, we're only entering as much detail as we know
     multi sub *infix:<+|>($x, $y) returns Num is equiv(&*infix:<+>) { ... }
     multi sub *infix:<+^>($x, $y) returns Num is equiv(&*infix:<+>) { ... }
     multi sub *infix:<+&>($x, $y) returns Num is equiv(&*infix:<*>) { ... }
-    multi sub *infix:«+<<»($x, $y) returns Num is equiv(&*infix:<*>) { ... }
-    multi sub *infix:«+>>»($x, $y) returns Num is equiv(&*infix:<*>) { ... }
+    multi sub *infix:Â«+<<Â»($x, $y) returns Num is equiv(&*infix:<*>) { ... }
+    multi sub *infix:Â«+>>Â»($x, $y) returns Num is equiv(&*infix:<*>) { ... }
 
     # unary ops
     multi sub prefix:<+>($x) returns Num is tighter(&*infix:<*>) { ... }
@@ -58,8 +58,8 @@ Finally, for each entry, we're only entering as much detail as we know
     multi sub *infix:<~|>($x, $y) returns Str is equiv(&*infix:<+>) { ... }
     multi sub *infix:<~^>($x, $y) returns Str is equiv(&*infix:<+>) { ... }
     multi sub *infix:<~&>($x, $y) returns Str is equiv(&*infix:<*>) { ... }
-    multi sub *infix:«~<<»($x, $y) returns Str is equiv(&*infix:<*>) { ... }
-    multi sub *infix:«~>>»($x, $y) returns Str is equiv(&*infix:<*>) { ... }
+    multi sub *infix:Â«~<<Â»($x, $y) returns Str is equiv(&*infix:<*>) { ... }
+    multi sub *infix:Â«~>>Â»($x, $y) returns Str is equiv(&*infix:<*>) { ... }
 
     # unary ops
     multi sub prefix:<~>($x) returns Str is equiv(&*prefix:<+>) { ... }
@@ -84,10 +84,10 @@ Finally, for each entry, we're only entering as much detail as we know
     multi sub infix:<==>($x, $y) returns bit is looser(&*infix:<..>) 
         is assoc('chain') { ... }
     multi sub infix:<!=>($x, $y) returns bit is equiv(&*infix:<==>) { ... }
-    multi sub infix:«<»($x, $y) returns bit is equiv(&*infix:<==>) { ... }
-    multi sub infix:«<=»($x, $y) returns bit is equiv(&*infix:<==>) { ... }
-    multi sub infix:«>»($x, $y) returns bit is equiv(&*infix:<==>) { ... }
-    multi sub infix:«>=»($x, $y) returns bit is equiv(&*infix:<==>) { ... }
+    multi sub infix:Â«<Â»($x, $y) returns bit is equiv(&*infix:<==>) { ... }
+    multi sub infix:Â«<=Â»($x, $y) returns bit is equiv(&*infix:<==>) { ... }
+    multi sub infix:Â«>Â»($x, $y) returns bit is equiv(&*infix:<==>) { ... }
+    multi sub infix:Â«>=Â»($x, $y) returns bit is equiv(&*infix:<==>) { ... }
 
     multi sub infix:<eq>($x, $y) returns bit is equiv(&*$infix:<==>) { ... }
     multi sub infix:<ne>($x, $y) returns bit is equiv(&*$infix:<==>) { ... }
@@ -105,7 +105,7 @@ Finally, for each entry, we're only entering as much detail as we know
     multi sub infix:<^^>($x, $y) returns Scalar is equiv(&*infix:<||>) { ... }
     multi sub infix:<//>($x, $y) returns Scalar is equiv(&*infix:<||>) { ... }
 
-    multi sub infix:<and>($x, $y) returns Scalar is looser(&*infix:«==>») 
+    multi sub infix:<and>($x, $y) returns Scalar is looser(&*infix:Â«==>Â») 
         { ... }
     multi sub infix:<or>($x, $y) returns Scalar is looser(&*infix:<and>) 
         { ... }
