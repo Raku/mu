@@ -1,13 +1,14 @@
 # Tests for magic variables
 
 use v6;
+require Test;
 
-say "1..2";
+plan(2);
 
 # Tests for %*ENV
 
 # it must not be empty at startup
-if (0 + %*ENV.keys > 0) { say "ok 1"; } else { say "not ok 1"; }
+ok(0 + %*ENV.keys > 0);
 
 # PATH is usually defined. But this test is not portable
-if %*ENV{"PATH"} ne "" { say "ok 2"; } else { say "not ok 2"; }
+ok(%*ENV{"PATH"} ne "");
