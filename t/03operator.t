@@ -78,6 +78,7 @@ ok( any(@newval4) > all(@oldval), "any test array against all array" );
 ok( all(@newval2) > any(@oldval), "all test array against any array" );
 ok( all(@newval1) > all(@oldval), "all test array against all array" );
 
+ok(42 < 12 & 20 & 32, "test the all infix operator");
 
 
 # Hyper ops
