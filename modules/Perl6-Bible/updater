@@ -1,3 +1,0 @@
-#!/bin/sh
-
-find design -type f | grep -v '\.svn' | xargs -J xxx cp xxx lib/Perl6/Bible/
