@@ -563,7 +563,7 @@ op2Numeric f x y
     | otherwise = do
         x' <- fromVal x
         y' <- fromVal y
-        op2Numeric f x' y'
+        return . VNum $ f x' y'
 
 primOp :: String -> String -> Params -> String -> Symbol
 primOp sym assoc prms ret = SymVal SOur name sub
