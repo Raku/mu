@@ -71,6 +71,7 @@ symbol s
         return rv
         where
         ahead '-' '>' = False -- XXX hardcoke
+        ahead '!' '=' = False
         ahead s   x   = x `elem` ";!" || x /= s
 
 stringLiteral = choice
