@@ -70,7 +70,7 @@ sub svn_revision {
     if (-e $svn_entries) {
         postamble(<< ".");
 $version_h : $svn_entries
-        \$(PERLRUN) Makefile.PL -version
+	\$(PERLRUN) Makefile.PL -version
 
 .
     }
@@ -140,19 +140,19 @@ sub set_postamble {
 
     postamble(nativize(<< "."));
 src/Config.hs : util/PugsConfig.pm
-        $Config{perlpath} -Iutil -MPugsConfig -e "PugsConfig->write_config_module" > src/Config.hs
+	$Config{perlpath} -Iutil -MPugsConfig -e "PugsConfig->write_config_module" > src/Config.hs
 
 profiled :: src/Config.hs @srcfiles $version_h
-        ghc -auto-all -prof --make $ghc_flags -o pugs src/Main.hs -isrc
+	ghc -auto-all -prof --make $ghc_flags -o pugs src/Main.hs -isrc
 
 optimized :: src/Config.hs @srcfiles $version_h
-        ghc -O2 --make $ghc_flags -o pugs src/Main.hs -isrc
+	ghc -O2 --make $ghc_flags -o pugs src/Main.hs -isrc
 
 $pugs : src/Config.hs @srcfiles $version_h
-        ghc --make $ghc_flags -o pugs src/Main.hs -isrc
+	ghc --make $ghc_flags -o pugs src/Main.hs -isrc
 
 tags :
-        hasktags -c src
+	hasktags -c src
 
 INST6_ARCHLIB = ${\ File::Spec->catfile('blib6', 'arch')}
 INST6_SCRIPT = ${\ File::Spec->catfile('blib6', 'script')}
@@ -162,12 +162,12 @@ INST6_MAN1DIR = ${\ File::Spec->catfile('blib6', 'man1')}
 INST6_MAN3DIR = ${\ File::Spec->catfile('blib6', 'man3')}
 
 pure_site_install ::
-        \$(NOECHO) \$(MOD_INSTALL) \\
-                \$(INST6_LIB) \$(DESTINSTALLPRIVLIB) \\
-                \$(INST6_ARCHLIB) \$(DESTINSTALLARCHLIB) \\
-                \$(INST6_BIN) \$(DESTINSTALLBIN) \\
-                \$(INST6_SCRIPT) \$(DESTINSTALLSCRIPT) \\
-                \$(INST6_MAN1DIR) \$(DESTINSTALLMAN1DIR) \\
-                \$(INST6_MAN3DIR) \$(DESTINSTALLMAN3DIR)
+	\$(NOECHO) \$(MOD_INSTALL) \\
+		\$(INST6_LIB) \$(DESTINSTALLPRIVLIB) \\
+		\$(INST6_ARCHLIB) \$(DESTINSTALLARCHLIB) \\
+		\$(INST6_BIN) \$(DESTINSTALLBIN) \\
+		\$(INST6_SCRIPT) \$(DESTINSTALLSCRIPT) \\
+		\$(INST6_MAN1DIR) \$(DESTINSTALLMAN1DIR) \\
+		\$(INST6_MAN3DIR) \$(DESTINSTALLMAN3DIR)
 .
 }
