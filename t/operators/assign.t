@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 21;
+plan 22;
 
 # tests various assignment styles
 
