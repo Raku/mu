@@ -740,7 +740,7 @@ The double-underscore forms are going away:
 The C<=begin END> pod stream is special in that it assumes there's
 no corresponding C<=end END> before end of file.  The C<DATA>
 stream is no longer special--any POD stream in the current file
-can be accessed via a filehandle, named as C<< %=POD<DATA> >> and such.
+can be accessed via a filehandle, named as C<< %=POD{'DATA'} >> and such.
 Alternately, you can treat a pod stream as a scalar via C<$=DATA>
 or as an array via C<@=DATA>.  Presumably a module could read all
 its COMMENT blocks from C<@=COMMENT>, for instance.  Each chunk of
