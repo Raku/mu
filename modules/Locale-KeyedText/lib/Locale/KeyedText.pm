@@ -87,22 +87,22 @@ method new( $class: $msg_key is KeyName, ?%msg_vars is KeyNameHash ) returns Loc
 ######################################################################
 
 method get_message_key( $message: ) returns KeyName {
-	return $message.msg_key;
+	return $message.:msg_key;
 }
 
 method get_message_variable( $message: $var_name is KeyName ) returns KeyName {
-	return $message.msg_vars{$var_name};
+	return $message.:msg_vars{$var_name};
 }
 
 method get_message_variables( $message: ) returns KeyNameHash {
-	return $message.msg_vars; # copy list values
+	return $message.:msg_vars{}; # copy list values
 }
 
 ######################################################################
 
 method as_string( $message: ) returns Str {
 	# This method is intended for debugging use only.
-	return $message.msg_key~': '~$message.msg_vars.pairs.sort.
+	return $message.:msg_key~': '~$message.:msg_vars.pairs.sort.
 		map:{ .key~'='~(.value // '') }.join( ', ' ); # S02 says sorting Pairs sorts keys by default.
 	# I might use %hash.as() later, but don't know if it is customizable to sort or make undefs the empty str.
 }
@@ -127,20 +127,20 @@ method new( $class: @set_names is PkgNameArray, @member_names is PkgNameArray ) 
 ######################################################################
 
 method get_template_set_names( $translator: ) returns PkgNameArray {
-	return $translator.tmpl_set_nms; # copy list values
+	return $translator.:tmpl_set_nms[]; # copy list values
 }
 
 method get_template_member_names( $translator: ) returns PkgNameArray {
-	return $translator.tmpl_mem_nms; # copy list values
+	return $translator.:tmpl_mem_nms[]; # copy list values
 }
 
 ######################################################################
 
 method translate_message( $translator: Locale::KeyedText::Message $message ) returns Str {
-	$message.defined or return;
+	$message.:defined or return;
 	my Str $text = undef;
-	MEMBER: for $translator.tmpl_mem_nms -> $member_name {
-		SET: for $translator.tmpl_set_nms -> $set_name {
+	MEMBER: for $translator.:tmpl_mem_nms -> $member_name {
+		SET: for $translator.:tmpl_set_nms -> $set_name {
 			my PkgName $template_module_name = $set_name~$member_name;
 			unless( $template_module_name.meta.can("get_text_by_key") ) {
 				require $template_module_name;
@@ -149,13 +149,13 @@ method translate_message( $translator: Locale::KeyedText::Message $message ) ret
 				}
 			}
 			try {
-				$text = $template_module_name.get_text_by_key( $message.msg_key );
+				$text = $template_module_name.get_text_by_key( $message.:msg_key );
 				CATCH {
 					next SET;
 				}
 			}
 			$text or next SET;
-			for $message.msg_vars.kv -> $var_name, $var_value {
+			for $message.:msg_vars.kv -> $var_name, $var_value {
 				$var_value //= '';
 				$text ~~ s:g/\{$var_name\}/$var_value/; # assumes msg props cleaned on input
 			}
@@ -169,8 +169,8 @@ method translate_message( $translator: Locale::KeyedText::Message $message ) ret
 
 method as_string( $translator: ) returns Str {
 	# This method is intended for debugging use only.
-	return 'SETS: '~$translator.tmpl_set_nms.as( '%s', ', ' )~'; MEMBERS: '~
-		$translator.tmpl_mem_nms.as( '%s', ', ' );
+	return 'SETS: '~$translator.:tmpl_set_nms.as( '%s', ', ' )~'; MEMBERS: '~
+		$translator.:tmpl_mem_nms.as( '%s', ', ' );
 }
 
 ######################################################################
