@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 24 Jun 2002
-  Last Modified: 2 Dec 2004
+  Last Modified: 9 Dec 2004
   Number: 5
-  Version: 6
+  Version: 7
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them "rules" because they haven't been
@@ -133,13 +133,13 @@ The new C<:once> modifier replaces the Perl 5 C<?...?> syntax:
 =item *
 
 The new C<:w> (C<:words>) modifier causes whitespace sequences to be
-replaced by C<\s*> or C<\s+> subpattern as defined by the C<< <ws> >> rule.
+replaced by C<\s*> or C<\s+> subpattern as defined by the C<< <?ws> >> rule.
 
     m:w/ next cmd =   <condition>/
 
 Same as:
 
-    m/ <ws> next <ws> cmd <ws> = <ws> <condition>/
+    m/ <?ws> next <?ws> cmd <?ws> = <?ws> <condition>/
 
 which is effectively the same as:
 
@@ -151,10 +151,10 @@ But in the case of
 
 or equivalently,
 
-    m { (a|\*) <ws> (b|\+) }
+    m { (a|\*) <?ws> (b|\+) }
 
-C<< <ws> >> can't decide what to do until it sees the data.  It still does
-the right thing.  If not, define your own C<< <ws> >> and C<:w> will use that.
+C<< <?ws> >> can't decide what to do until it sees the data.  It still does
+the right thing.  If not, define your own C<< <?ws> >> and C<:w> will use that.
 
 =item *
 
@@ -186,16 +186,16 @@ determined by the character that follows.
 If followed by an C<x>, it means repetition.  Use C<:x(4)> for the
 general form.  So
 
-    s:4x { (<ident>) = (\N+) $$}{$1 => $2};
+    s:4x { (<?ident>) = (\N+) $$}{$1 => $2};
 
 is the same as: 
 
-    s:x(4) { (<ident>) = (\N+) $$}{$1 => $2};
+    s:x(4) { (<?ident>) = (\N+) $$}{$1 => $2};
 
 which is almost the same as: 
 
     $_.pos = 0;
-    s:c{ (<ident>) = (\N+) $$}{$1 => $2} for 1..4;
+    s:c{ (<?ident>) = (\N+) $$}{$1 => $2} for 1..4;
 
 except that the string is unchanged unless all four matches are found.
 However, ranges are allowed, so you can say C<:x(1..4)> to change anywhere
@@ -528,9 +528,9 @@ The special named assertions include:
     / <before pattern> /    # was /(?=pattern)/
     / <after pattern> /     # was /(?<pattern)/ 
 
-    / <ws> /                # match whitespace by :w rules
+    / <?ws> /                # match whitespace by :w rules
 
-    / <sp> /                # match a space char
+    / <?sp> /                # match a space char
 
 The C<after> assertion implements lookbehind by reversing the syntax
 tree and looking for things in the opposite order going to the left.
@@ -564,7 +564,7 @@ is treated as a rule (string or hard ref) rather than as a literal.
 A leading C<{> indicates code that produces a rule to be interpolated
 into the pattern at that point:
 
-    / (<ident>)  <{ %cache{$1} //= get_body($1) }> /
+    / (<?ident>)  <{ %cache{$1} //= get_body($1) }> /
 
 The closure is guaranteed to be run at the canonical time.
 
@@ -622,7 +622,7 @@ The C<+> is required if starting with an angled character class:
 
 Without the plus it would be interpreted as
 
-    / «alpha» /
+    / <?alpha> /
 
 which means something else (see below).
 
@@ -981,7 +981,7 @@ To match the zero-width string, use:
 
 For example:
 
-    split /<null>/, $string
+    split /<?null>/, $string
 
 splits between characters.
 
@@ -989,7 +989,7 @@ splits between characters.
 
 To match a null alternative, use:
 
-    /a|b|c|<null>/
+    /a|b|c|<?null>/
 
 This makes it easier to catch errors like this:
 
@@ -1165,13 +1165,13 @@ Repeated captures can be bound to arrays:
 
 Pairs of repeated captures can be bound to hashes:
 
-    / %<options> := [ (<ident>) = (\N+) ]* /
+    / %<options> := [ (<?ident>) = (\N+) ]* /
 
 =item *
 
 Or just capture the keys (and leave the values undef):
 
-    / %<options> := [ (<ident>) = \N+ ]* /
+    / %<options> := [ (<?ident>) = \N+ ]* /
 
 =item *
 
@@ -1184,34 +1184,33 @@ puts a list into the scalar:
 
 And this puts a list of lists:
 
-    / $<bar> := [ (<ident>) = (\N+) ]* /
+    / $<bar> := [ <ident> = (\N+) ]* /
 
 =item *
 
-By default, any simple alphabetic subrule (e.g. C<< <rule> >>) captures
-its results.  To suppress capture, use French quotes instead of angles (no
-pun intended):
+By default, any assertion beginning with an alphabetic identifier
+(e.g. C<< <rule ...> >>) captures its results into a variable of
+that name.  To suppress capture, precede the identifier with a
+question mark:
 
-    / <key> «ws» =\> «ws» <value> { %hash{$«key»} = $«value» } /
+    / <key> <?ws> =\> <?ws> <value> { %hash{$<key>} = $<value> } /
 
-Non-alphabetic assertions and assertions with arguments are not
-captured by default.  They must be explicitly bound or placed in
-parentheses to be captured.
+If you have multiple rules of the same name, they are by default captured
+as a list under that name.  You may bind them to separate names if you wish.
 
 =item *
 
-All rules remember everything anyway if C<:keepall> is in effect
-anywhere in the outer dynamic scope.  To avoid any confusion with
-"intentional" names, strange fields forced to remember this way include
-the angles as part of the variable name.  Suppose the earlier example
+All rules remember everything if C<:keepall> is in effect
+anywhere in the outer dynamic scope.  In this case everything inside
+the angles is used as part of the key.  Suppose the earlier example
 parsed whitespace:
 
-    / <key> «ws» <'=>'> «ws» <value> { %hash{$<key>} = $<value> } /
+    / <key> <?ws> <'=>'> <?ws> <value> { %hash{$<key>} = $<value> } /
 
-The two instances of C<< «ws» >> above would store an array of two
-values accessible as C<< @<«ws»> >>.  It would also store the literal
-match into C<< $«<'=>'>» >>.  Just to make sure nothing is
-forgotten, under C<:keepall> any text not otherwise remembered is
+The two instances of C<< <?ws> >> above would store an array of two
+values accessible as C<< @<?ws> >>.  It would also store the literal
+match into C<< $<'=\>'> >>.  Just to make sure nothing is forgotten,
+under C<:keepall> any text or whitespace not otherwise remembered is
 attached as an extra property on the subsequent node. (The name of
 that property is "C<pretext>".)
 
@@ -1253,9 +1252,9 @@ In numeric context it evaluates to the number of matches:
 
 In string context it evaluates to C<$0>, the entire matched string:
 
-    print %hash{"{$text ~~ /<ident>/}"};
+    print %hash{"{$text ~~ /<?ident>/}"};
     # or equivalently: 
-    $text ~~ /<ident>/  &&  print %hash{~$/};
+    $text ~~ /<?ident>/  &&  print %hash{~$/};
 
 But generally you should say C<$0> if you mean C<$0>.
 
@@ -1517,7 +1516,7 @@ For writing your own backslash and assertion rules or macros, you may
 use the following syntactic categories:
 
     rule rxbackslash:<w> { ... }    # define your own \w and \W
-    rule rxassertion:<*> { ... }    # define your own <*stuff> and «*stuff»
+    rule rxassertion:<*> { ... }    # define your own <*stuff>
     macro rxmetachar:<,> { ... }    # define a new metacharacter
     macro rxmodinternal:<x> { ... } # define your own /:x() stuff/
     macro rxmodexternal:<x> { ... } # define your own m:x()/stuff/
