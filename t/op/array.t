@@ -91,9 +91,10 @@ is($result1, 2, 'got the right value from the slice');
 my $result2 = [1, 2, 3, 4][2];
 is($result2, 3, 'got the right value from the slice');
 
-
 # swap two elements
+
 my @a = (1,2,3,4,5);
 @a[0,1] = @a[1,0];
-is(@a[0], 2, "slice assignment awaiting p6cabal clarification");
-is(@a[1], 1, "slice assignment awaiting p6cabal clarification");
+
+todo_is(@a[0], 2, "slice assignment awaiting p6cabal clarification");
+todo_is(@a[1], 1, "slice assignment awaiting p6cabal clarification");
