@@ -2,7 +2,7 @@
 
 require Test;
 
-plan 4;
+plan 12;
 
 my @a = (1, 2, 3);
 @a .= map {$_+1};
@@ -14,3 +14,20 @@ my $a=3.14;
 $a .= int;
 is ($a, 3, "inplace int");
 
+my $b = "a_string"; $b .= ref;
+my $c =         42; $c .= ref;
+my $d =      42.23; $d .= ref;
+my @e = <a b c d>;  @e .= ref;
+is ($b,    "Str",   "inplace ref of a Str");
+is ($c,    "Int",   "inplace ref of a Num");
+is ($d,    "Rat",   "inplace ref of a Rat");
+is (@e[0], "Array", "inplace ref of an Array");
+
+my $f = "lowercase"; $f .= uc;
+my $g = "UPPERCASE"; $g .= lc;
+my $h = "lowercase"; $h .= ucfirst;
+my $i = "UPPERCASE"; $i .= lcfirst;
+is ($f, "LOWERCASE", "inplace uc");
+is ($g, "uppercase", "inplace lc");
+is ($h, "Lowercase", "inplace ucfist");
+is ($i, "uPPERCASE", "inplace lcfirst");

@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 2;
+plan 3;
 
 
 # L<S06/"The &?SUB routine" /SUBNAME contains the name of the current subroutine/>
@@ -13,3 +13,6 @@ is(foo(), '&foo', 'got the right subname');
 
 my $bar = sub { return $?SUBNAME };
 is($bar(), '<anon>', 'got the right subname (anon-block)');
+
+my $baz = eval '$?SUBNAME';
+ok(not defined $baz, '$?SUBNAME not defined outside of a sub');

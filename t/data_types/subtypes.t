@@ -15,7 +15,7 @@ L<S10/"Types and Subtypes">
 
 my $abs = '
 multi sub my_abs (Num where { $^n >= 0 } $n){ $n }
-multi sub my_abs (Num where { $^n <  9 } #n){ -$n }
+multi sub my_abs (Num where { $^n <  0 } $n){ -$n }
 ';
 
 todo_eval_ok("$abs; 1", "we can compile subtype declarations");

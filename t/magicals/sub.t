@@ -11,7 +11,7 @@ L<S06/"The &?SUB routine">
 
 =cut
 
-plan 2;
+plan 3;
 
 # L<S06/"The &?SUB routine">
 # L<S02/"Names" /Which sub am I in/>
@@ -24,3 +24,6 @@ my $factorial = sub { @_[0] < 2 ?? 1 :: @_[0] * &?SUB(@_[0] - 1) }
 
 my $result2 = $factorial(3);
 is($result2, 6, 'the &?SUB magical works correctly in anon-subs');
+
+my $baz = eval '&?SUB';
+ok(not defined $baz, '&?SUB not defined outside of a sub');
