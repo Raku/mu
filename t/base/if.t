@@ -9,11 +9,14 @@ Basic "if" tests.
 
 =cut
 
-plan 3;
+plan 6;
 
 my $x = 'test';
 if ($x eq $x) { pass(); } else { fail(); }
 if ($x ne $x) { fail(); } else { pass(); }
+if (1) { pass(); } else { fail(); }
+if (0) { fail(); } else { pass(); }
+if (undef) { fail(); } else { pass(); }
 
 # die called in the condition part of an if statement should die immediately
 # rather than being evaluated as true

@@ -1,16 +1,19 @@
-use v6;
+#!/usr/bin/pugs
 
-say "1..11";
+use v6;
+require Test;
+
+plan 11;
 
 my @foo
-if (@foo = eval 'split "", "forty-two"') { say "ok 1" } else { say "not ok 1" }
-if (+@foo == 9)     { say "ok 2"  } else { say "not ok 2" }
-if (@foo[0] eq "f") { say "ok 3"  } else { say "not ok 3" }
-if (@foo[1] eq "o") { say "ok 4"  } else { say "not ok 4" }
-if (@foo[2] eq "r") { say "ok 5"  } else { say "not ok 5" }
-if (@foo[3] eq "t") { say "ok 6"  } else { say "not ok 6" }
-if (@foo[4] eq "y") { say "ok 7"  } else { say "not ok 7" }
-if (@foo[5] eq "-") { say "ok 8"  } else { say "not ok 8" }
-if (@foo[6] eq "t") { say "ok 9"  } else { say "not ok 9" }
-if (@foo[7] eq "w") { say "ok 10" } else { say "not ok 10" }
-if (@foo[8] eq "o") { say "ok 11" } else { say "not ok 11" }
+ok @foo = eval 'split "", "forty-two"', "split evaluated";
+is +@foo, 9, "split created the correct number of elements";
+is @foo[0], "f";
+is @foo[1], "o";
+is @foo[2], "r";
+is @foo[3], "t";
+is @foo[4], "y";
+is @foo[5], "-";
+is @foo[6], "t";
+is @foo[7], "w";
+is @foo[8], "o";

@@ -1,21 +1,26 @@
+#!/usr/bin/pugs
+
 use v6;
+require Test;
 
 # Mostly copied from Perl 5.8.4 s t/op/bop.t
 
-say "1..17";
+plan 16;
 
 # test the bit operators '&', '|', '^', '~', '<<', and '>>'
 
 # numerics
-if (0xdead +& 0xbeef == 0x9ead) { say "ok 1" } else { say "not ok 1" }
-if (0xdead +| 0xbeef == 0xfeef) { say "ok 2" } else { say "not ok 2" }
-if (0xdead +^ 0xbeef == 0x6042) { say "ok 3" } else { say "not ok 3" }
-if (+^0xdead +& 0xbeef == 0x2042) { say "ok 4 # TODO" } else { say "not ok 4 # TODO" }
-# if (+^(0xdead +& 0xbeef) == 0x2042) { say "ok 4" } else { say "not ok 4" } # works
+ok (0xdead +& 0xbeef == 0x9ead);
+ok (0xdead +| 0xbeef == 0xfeef);
+ok (0xdead +^ 0xbeef == 0x6042);
+todo_ok (+^0xdead +& 0xbeef == 0x2042);
+# ok (+^(0xdead +& 0xbeef) == 0x2042); # works
 
 # shifts
-if ((257 +< 7) == 32896) { say "ok 5" } else { say "not ok 5" }
-if ((33023 +> 7) == 257) { say "ok 6" } else { say "not ok 6" }
+ok(32896 == (257 +< 7));
+#ok ((257 +< 7) == 32896); # XXX
+ok(257 == (33023 +> 7));
+#ok ((33023 +> 7) == 257); # XXX
 
 # signed vs. unsigned
 #ok ((+^0 +> 0 && do { use integer; ~0 } == -1));
@@ -41,31 +46,31 @@ if ((33023 +> 7) == 257) { say "ok 6" } else { say "not ok 6" }
 # (for now...)
 
 # short strings
-if ("AAAAA" ~& "zzzzz" eq "@@@@@") { say "ok 7" } else { say "not ok 7" }
-if ("AAAAA" ~| "zzzzz" eq "{{{{{") { say "ok 8" } else { say "not ok 8" }
-if ("AAAAA" ~^ "zzzzz" eq ";;;;;") { say "ok 9" } else { say "not ok 9" }
+ok ("AAAAA" ~& "zzzzz" eq "@@@@@");
+ok ("AAAAA" ~| "zzzzz" eq "{{{{{");
+ok ("AAAAA" ~^ "zzzzz" eq ";;;;;");
 
 # long strings
 my $foo = "A" x 150;
 my $bar = "z" x 75;
 my $zap = "A" x 75;
 # & truncates
-if ($foo ~& $bar eq "@" x 75) { say "ok 10" } else { say "not ok 10" }
+ok ($foo ~& $bar eq "@" x 75);
 # | does not truncate
-if ($foo ~| $bar eq "{" x 75 ~ $zap) { say "ok 11" } else { say "not ok 11" }
+ok ($foo ~| $bar eq "{" x 75 ~ $zap);
 # ^ does not truncate
-if ($foo ~^ $bar eq ";" x 75 ~ $zap) { say "ok 12" } else { say "not ok 12" }
+ok ($foo ~^ $bar eq ";" x 75 ~ $zap);
 
 
 # These ok numbers make absolutely no sense in pugs test suite :)
 # 
-if ("ok \xFF\xFF\n" ~& "ok 19\n" eq "ok 19\n") { say "ok 13" } else { say "not ok 13" }
-if ("ok 20\n" ~| "ok \0\0\n" eq "ok 20\n") { say "ok 14" } else { say "not ok 14" }
+ok ("ok \xFF\xFF\n" ~& "ok 19\n" eq "ok 19\n");
+ok ("ok 20\n" ~| "ok \0\0\n" eq "ok 20\n");
 
 # currently, pugs recognize octals as "\0o00", not "\o000".
 #if ("o\o000 \0" ~ "1\o000" ~^ "\o000k\02\o000\n" eq "ok 21\n") { say "ok 15" } else { say "not ok 15" }
 
-say "ok 15 # skip";
+#say "ok 15 # skip"; # SKIP
 
 # Pugs does not have \x{}
 
@@ -82,9 +87,9 @@ say "ok 15 # skip";
 
 # Tests to see if you really can do casts negative floats to unsigned properly
 my $neg1 = -1.0;
-if (+^ $neg1 == 0) { say "ok 16" } else { say "not ok 16" }
+ok (+^ $neg1 == 0);
 my $neg7 = -7.0;
-if (+^ $neg7 == 6) { say "ok 17" } else { say "not ok 17" }
+ok (+^ $neg7 == 6);
 
 
 
