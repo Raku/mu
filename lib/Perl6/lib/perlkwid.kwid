@@ -142,7 +142,7 @@ format. The following two sections are equivalent:
 
 `.list`, `-`, `*, and `+` require a little more explanation: ".list"
 starts a region specifically for the generation of a list using `-`, `*`,
-and `+` commands, or for indenting (groups of) normal paragraphs. At the
+and `+` commands. At the
 end of your list, use ".list." to end it. The /indentlevel/ option to
 ".list" indicates how far over to indent, generally in ems (where one em
 is the width of an "M" in the document's base font) or roughly
