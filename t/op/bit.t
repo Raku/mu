@@ -1,6 +1,6 @@
 use v6;
 
-# Mostly copied from Perl 5.8.4's t/op/bop.t
+# Mostly copied from Perl 5.8.4 s t/op/bop.t
 
 say "1..17";
 
@@ -51,18 +51,18 @@ my $zap = "A" x 75;
 # & truncates
 if ($foo ~& $bar eq "@" x 75) { say "ok 10" } else { say "not ok 10" }
 # | does not truncate
-if ($foo ~| $bar eq ("{" x 75) ~ $zap) { say "ok 11" } else { say "not ok 11 # TODO" }
+if ($foo ~| $bar eq "{" x 75 ~ $zap) { say "ok 11" } else { say "not ok 11 # TODO" }
 # ^ does not truncate
-if ($foo ~^ $bar eq (";" x 75) ~ $zap) { say "ok 12" } else { say "not ok 12 # TODO" }
+if ($foo ~^ $bar eq ";" x 75 ~ $zap) { say "ok 12" } else { say "not ok 12 # TODO" }
 
 
-# These ok numbers make absolutely no sense in pugs' test suite :)
+# These ok numbers make absolutely no sense in pugs test suite :)
 # 
 if ("ok \xFF\xFF\n" ~& "ok 19\n" eq "ok 19\n") { say "ok 13" } else { say "not ok 13" }
 if ("ok 20\n" ~| "ok \0\0\n" eq "ok 20\n") { say "ok 14" } else { say "not ok 14" }
 if ("o\000 \0001\000" ~^ "\000k\0002\000\n" eq "ok 21\n") { say "ok 15" } else { say "not ok 15 # TODO" }
 
-# Pugs doesn't have \x{}
+# Pugs does not have \x{}
 
 #
 #if ("ok \x{FF}\x{FF}\n" ~& "ok 22\n" eq "ok 22\n") { say "ok 16" } else { say "not ok 16" }
