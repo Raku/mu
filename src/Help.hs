@@ -12,7 +12,8 @@
     across so wide a Sea?
 -}
 
-module Help (printHelp, banner, versnum, version, copyright, disclaimer) where
+module Help (printHelp, banner, versnum, version, 
+             copyright, disclaimer, intro) where
 
 printHelp :: IO ()
 printHelp
@@ -44,6 +45,7 @@ versionFill n = fill ++ vstr
     vlen = length vstr
     vstr = "Version: " ++ versnum
 
+banner :: IO ()
 banner = putStrLn $ unlines
     [ ".=====. __  __  ____   ___    _________________________________________"
     , "||   || ||  || ||  || ||__'   Pugs 6: Based on the Perl 6 Synopses     "
@@ -51,8 +53,10 @@ banner = putStrLn $ unlines
     , "||      `===='  ___|| `==='   World Wide Web: http://autrijus.org/pugs "
     , "||             `===='         Report bugs to: autrijus@autrijus.org    "
     , "==" ++ versionFill 27    ++ " ========================================="
-    , ""
-    , "Welcome to Pugs -- " ++ name
-    , "Type :h for help"
     ]
 
+intro :: IO ()
+intro = putStrLn $ unlines
+    [ "Welcome to Pugs -- " ++ name
+    , "Type :h for help"
+    ]

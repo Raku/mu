@@ -37,12 +37,13 @@ run :: [String] -> IO ()
 run ("-l":rest)                 = run rest
 run ("-d":rest)                 = run rest
 run ("-w":rest)                 = run rest
-run (('-':'l':xs):rest)            = run (('-':xs):rest)
-run (('-':'w':xs):rest)            = run (('-':xs):rest)
-run (('-':'d':xs):rest)            = run (('-':xs):rest)
+run (('-':'l':xs):rest)         = run (('-':xs):rest)
+run (('-':'w':xs):rest)         = run (('-':xs):rest)
+run (('-':'d':xs):rest)         = run (('-':xs):rest)
 run (('-':'e':prog@(_:_)):args) = doRun "-" args prog
 run ("-e":prog:args)            = doRun "-" args prog
 run ("-h":_)                    = printHelp
+run ("-v":_)                    = banner
 run ("-":args)                  = do
     prog <- getContents
     doRun "-" [] prog
@@ -50,7 +51,7 @@ run (file:args)                 = readFile file >>= doRun file args
 run []                          = do
     isTTY <- hIsTerminalDevice stdin
     if isTTY
-        then banner >> repLoop
+        then do banner >> intro >> repLoop
         else run ["-"]
 
 repLoop :: IO ()
@@ -61,7 +62,7 @@ repLoop
            CmdLoad fn   -> load fn
            CmdEval prog -> doEval [] prog >> repLoop
            CmdParse prog-> doParse prog >> repLoop
-           CmdHelp     -> printHelp >> repLoop
+           CmdHelp      -> printHelp >> repLoop
 
 load fn = return ()
 
