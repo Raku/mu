@@ -71,10 +71,10 @@ else {
     rename "dump.ast" => "$base/src/MainCC.hs";
 
     my @ghc_flags = (
-        "-L$base", "-L$base/src", "-L$base/src/pcre",
-        "-I$base", "-I$base/src", "-I$base/src/pcre",
-        "-i$base", "-i$base/src", "-i$base/src/pcre",
-        qw(-static -Wall -fno-warn-unused-imports -fno-warn-unused-binds -fno-warn-missing-signatures -fno-warn-name-shadowing),
+        "-L$base", "-L$base/src", "-L$base/src/pcre", "-L$Config{archlib}/CORE"
+        "-I$base", "-I$base/src", "-I$base/src/pcre", "-I$Config{archlib}/CORE"
+        "-i$base", "-i$base/src", "-i$base/src/pcre", "-i$Config{archlib}/CORE"
+        qw(-static -Wall -fno-warn-unused-imports -fno-warn-unused-binds -fno-warn-missing-signatures -fno-warn-name-shadowing -lperl),
     );
 
     if ($ghc_version ge '6.4') {

@@ -137,6 +137,7 @@ op1 "require" = \v -> do
                 str <- liftIO $ readFile pathName
                 opEval True pathName str
 op1 "eval" = opEval False "<eval>" . vCast
+op1 "eval_perl5" = boolIO evalPerl5
 op1 "defined" = \v -> do
     v <- readMVal v
     return . VBool $ case v of
@@ -730,6 +731,7 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   List      pre     kv      (Hash)\
 \\n   Str       pre     perl    (List)\
 \\n   Any       pre     eval    (Str)\
+\\n   Any       pre     eval_perl5 (Str)\
 \\n   Any       pre     require (Str)\
 \\n   Any       pre     last    (?Int=1)\
 \\n   Any       pre     exit    (?Int=0)\

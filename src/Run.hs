@@ -18,9 +18,12 @@ import Prim
 
 runEval :: Env -> Eval Val -> IO Val
 runEval env eval = do
-    (`runReaderT` env) $ do
+    my_perl <- initPerl5 ""
+    val <- (`runReaderT` env) $ do
         (`runContT` return) $
             resetT eval
+    freePerl5 my_perl
+    return val
 
 runEnv env = runEval env $ evaluateMain (envBody env)
 

@@ -17,6 +17,7 @@ module Internals (
     module UTF8,
     module Unicode,
     module Cont,
+    module Embed,
     module Posix,
     module RRegex,
     module RRegex.Syntax,
@@ -60,6 +61,7 @@ import Internals.Map
 import UTF8
 import Unicode
 import Cont
+import Embed
 import Posix
 import RRegex
 import RRegex.Syntax
