@@ -8,7 +8,7 @@ use HTML::TreeBuilder;
 binmode(STDOUT, ":utf8");
 binmode(STDIN,  ":utf8");
 
-my @a=<>;
+my @a=<STDIN>;
 my @head = @a[0..4];
 @a = @a[5..$#a];
 

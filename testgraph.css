@@ -1,6 +1,8 @@
-.test { overflow: hidden }
+.test { overflow: hidden; white-space: nowrap; width: 10em }
+.test > a { font-size: small }
 
 .bad  { background-color: #ff0000;  }
 .good { background-color: #00ff00;  }
 .todobad  { background-color: #7f0000;  }
 .todogood { background-color: #007f00;  }
+.nottest { background-color: #7f7f7f; }

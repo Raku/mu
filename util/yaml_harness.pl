@@ -31,7 +31,7 @@ GetOptions \our %Config, qw(--output-file|o=s --dry|n
 $Test::Harness::Verbose = 1;
 $Config{"output-file"} ||= "tests.yml";
 $Config{"recurse"} = 1 if not defined $Config{"recurse"};
-$Config{"exclude"} = 'Disabled' if not defined $Config{"exclude"};
+push @{$Config{"exclude"}}, 'Disabled' if not $Config{"exclude"} or not @{$Config{"exclude"}};
 @ARGV = "t/" if !@ARGV;
 
 _build_ext_re();
@@ -103,6 +103,7 @@ foreach my $file (@{ $s->get_tests }) {
     my %result = $s->analyze_file($file);
 	$s->{_test_cases}[-1]{result} = $result{passing} ? 'ok' : 'FAILED';
 }
+
 $s->emit;
 exit 0;
 

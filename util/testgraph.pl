@@ -22,8 +22,12 @@ print "<table>";
 
 foreach my $testfile (sort {$a->{file} cmp $b->{file}}
 					  @{$data->{test_cases}}) {
+  my $linkto = $testfile->{file};
+  $linkto =~ s!^t/!t_index/t/!;
+  $linkto =~ s!\.t$!.html!;
+
   print "<tr>\n";
-  print " <td>", $testfile->{file}, "</td>\n";
+  print " <td><a href='$linkto'>", $testfile->{file}, "</a></td>\n";
   print " <td>", $testfile->{result}, "</td>\n";
   if (!@{$testfile->{subtests}}) {
 	print " <td>No subtests -- parse failure?</td>\n";
@@ -43,6 +47,7 @@ foreach my $testfile (sort {$a->{file} cmp $b->{file}}
 	  }
 	  
 #	  print "<td class='test $class' title='$title'>$title</td>";
+#	  print " <td class='test $class' title='$title'><a href='$linkto'>$i</a></td>\n";
 	  print " <td class='test $class' title='$title'>&nbsp;</td>\n";
 	  if ($class ne 'nottest') {
 		$i++;

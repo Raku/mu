@@ -51,18 +51,20 @@ sub handle_t_file {
   
   mkpath(dirname $output_path);
 
-  my $infile = IO::File->new("<$input_path") or die "Can't open input test file $input_path: $!";
-  my $outfile = IO::File->new(">$output_path") or die "Can't open output test file $output_path: $!";
+  my $infile = IO::File->new($input_path, "<:utf8") or die "Can't open input test file $input_path: $!";
+  my $outfile = IO::File->new($output_path, ">:utf8") or die "Can't open output test file $output_path: $!";
   
-  my $outtree = HTML::TreeBuilder->new_from_content("<html><head><title></title></head><body><tt></tt></body></html>");
+  my $outtree = HTML::TreeBuilder->new_from_content("<html><head><title></title></head><body><tt><pre></pre></tt></body></html>");
   
   $outtree->look_down(_tag=>'title')->push_content($input_path);
-  my $body = $outtree->look_down(_tag=>'tt');
+  my $body = $outtree->look_down(_tag=>'pre');
   
   my $quotable = qr/\w+|$RE{delimited}{-delim=>'"'}/;
   
   while (my $rest = <$infile>) {
 	chomp $rest;
+	$body->push_content(HTML::Element->new('a', name=>"line_$."));
+	
 	while ($rest =~ m{
 					  (.*?)                                     # Leading bit
 					  (L <+
@@ -117,7 +119,7 @@ sub handle_t_file {
 	if ($rest) {
 	  $body->push_content($rest);
 	}
-	$body->push_content(HTML::Element->new('br'));
+	$body->push_content("\n");
   }
   
   $outfile->print($outtree->as_HTML(undef, ' '));
