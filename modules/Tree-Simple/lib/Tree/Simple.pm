@@ -1,7 +1,6 @@
-#!pugs
 use v6;
 
-class Tree::Simple-0.0.1;
+class Tree::Simple-0.0.1 {
 
 has Any $:node;
 has Int $:depth;
@@ -15,10 +14,10 @@ has Array of Tree::Simple @:children;
 ## ----------------------------------------------------------------------------
 ## Exceptions
 
-class InsufficientArguments is Exception {};
-class IllegalOperation      is Exception {};
-class IndexOutOfBounds      is Exception {};
-class ChildNotFound         is Exception {};
+my class InsufficientArguments is Exception {};
+my class IllegalOperation      is Exception {};
+my class IndexOutOfBounds      is Exception {};
+my class ChildNotFound         is Exception {};
 
 ## ----------------------------------------------------------------------------
 ## constructor
@@ -386,13 +385,10 @@ method DESTROY {
     # unwanted releasing of connections. 
 }
 
-## ----------------------------------------------------------------------------
-## end Tree::Simple
-## ----------------------------------------------------------------------------
+}
 
-1;
 
-__END__
+=pod
 
 =head1 NAME
 
