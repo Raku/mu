@@ -35,6 +35,7 @@ syn region p6POD start="^=[a-z]" end="^=cut"
 
 " Variables, arrays, and hashes with ordinary \w+ names
 syn match p6VarPlain "[$@%][a-zA-Z_]\w*"
+syn match p6VarPlain "[$@%][:.][a-zA-Z_]\w*"
 syn match p6VarPlain "\$\^\w\+"
 syn match p6VarException "\$!"
 syn match p6VarPunct	"\$\d\+"
