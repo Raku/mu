@@ -63,6 +63,13 @@ while (<IN>) {
     last;
 }
 
+if ($^O eq 'MSWin32') {
+    print FH "#undef POSIX\n";
+}
+else {
+    print FH "#define POSIX 1\n";
+}
+
 if ($has_readline) {
     print FH "#define READLINE 1\n";
 }
