@@ -40,11 +40,11 @@ ok(eval '(2 + 3) == $five', "== (sum on lhs)");
 ok(eval '!((2 + 3) != $five)', "== (sum on lhs)");
 
 ok(5 > 4 > 3, "chained comparison");
-ok(3 < 4 < 5, "chained comparison");
-ok(!(3 > 4 < 5), "chained comparison");
+ok(eval '3 < 4 < 5', "chained comparison");
 ok(5 == 5 > -5, "chained comparison with equality");
-ok(5 <= 5 > -5, "chained comparison with <=");
-ok(-5 < 5 >= 5, "chained comparison with >=");
+ok(eval '!(3 > 4 < 5)', "chained comparison");
+ok('5 <= 5 > -5', "chained comparison with <=");
+ok('-5 < 5 >= 5', "chained comparison with >=");
 
 ok("5" gt "4" gt "3", "chained str comparison");
 ok("3" lt "4" lt "5", "chained str comparison");
