@@ -1,45 +1,43 @@
-package URI::ftp;
+use v6;
 
-require URI::_server;
-require URI::_userpass;
-@ISA=qw(URI::_server URI::_userpass);
+class URI::ftp isa URI::_server isa URI::_userpass trusts URI {
+  method default_port() { 21 }
 
-use strict;
+  &path ::= &path_query;   # XXX
 
-sub default_port { 21 }
+  &:user     ::= &SUPER::user;     # XXX - correct?
+  &:password ::= &SUPER::password; # XXX - correct?
 
-sub path { shift->path_query(@_) }  # XXX
+  method user() is rw {
+    return new Proxy:
+      FETCH => { .user           // "anonymous" },
+      STORE => { (.user = $^new) // "anonymous" };
+  }
 
-sub _user     { shift->SUPER::user(@_);     }
-sub _password { shift->SUPER::password(@_); }
-
-sub user
-{
-    my $self = shift;
-    my $user = $self->_user(@_);
-    $user = "anonymous" unless defined $user;
-    $user;
-}
-
-sub password
-{
-    my $self = shift;
-    my $pass = $self->_password(@_);
-    unless (defined $pass) {
-	my $user = $self->user;
-	if ($user eq 'anonymous' || $user eq 'ftp') {
-	    # anonymous ftp login password
-            # If there is no ftp anonymous password specified
-            # then we'll just use 'anonymous@'
-            # We don't try to send the read e-mail address because:
-            # - We want to remain anonymous
-            # - We want to stop SPAM
-            # - We don't want to let ftp sites to discriminate by the user,
-            #   host, country or ftp client being used.
-	    $pass = 'anonymous@';
+  method password() is rw {
+    my $fetch = {
+      my $pass = .:password;
+      unless defined $pass {
+	my $user = .user;
+	if $user eq "anonymous"|"ftp" {
+	  # anonymous ftp login password
+	  # If there is no ftp anonymous password specified
+	  # then we'll just use 'anonymous@'
+	  # We don't try to send the read e-mail address because:
+	  # - We want to remain anonymous
+	  # - We want to stop SPAM
+	  # - We don't want to let ftp sites to discriminate by the user,
+	  #   host, country or ftp client being used.
+	  $pass = 'anonymous@';
 	}
-    }
-    $pass;
+      }
+      return $pass;
+    };
+
+    return new Proxy:
+      FETCH => $fetch,
+      STORE => { .:password = $^new; $fetch.() };
+  }
 }
 
 1;
