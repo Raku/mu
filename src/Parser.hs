@@ -368,12 +368,21 @@ ruleLoopConstruct = rule "loop construct" $ do
 
 ruleCondConstruct = rule "conditional construct" $ do
     csym <- choice [ symbol "if", symbol "unless" ]
+    ruleCondBody $ csym
+
+ruleCondBody csym = rule "conditional expression" $ do
     cond <- maybeParens $ ruleExpression
     body <- ruleBlock
-    bodyElse <- option (Val VUndef) $ do
+    bodyElse <- option (Val VUndef) $ ruleElseConstruct
+    retSyn csym [cond, body, bodyElse]
+
+ruleElseConstruct = rule "else or elsif construct" $
+    do
         symbol "else"
         ruleBlock
-    retSyn csym [cond, body, bodyElse]
+    <|> do
+        symbol "elsif"
+        ruleCondBody "if"
 
 ruleWhileUntilConstruct = rule "while/until construct" $ do
     sym <- choice [ symbol "while", symbol "until" ]
