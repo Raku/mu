@@ -49,6 +49,6 @@ plan 6;
 	my @a = (4, 1, 2, 5, 3);
 	my @e = (1 .. 5);
 
-	my @s; eval '@s = sort { $^a <=> $^b } @a';
+	my @s; eval '@s = sort { $^a <=> $^b }, @a';
 	todo_is(@s, @e, '... with exlpicit sort block');
 };
