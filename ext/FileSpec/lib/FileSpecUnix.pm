@@ -12,6 +12,19 @@ sub case_tolerant returns Bool is export { 0           }
 
 sub splitdir (Str $dir) returns Array is export { split('/', $dir) }
 
+sub splitpath (Str $path, Bool ?$nofile) returns Array is export {
+    my ($volume, $directory, $file) = ('','','');
+    if ($nofile) {
+        $directory = $path;
+    }
+    else {
+        $path ~~ rx:perl5{^ ( (?: .* / (?: \.\.?\Z(?!\n) )? )? ) ([^/]*) };
+        $directory = $1;
+        $file      = $2;
+    }
+    return ($volume, $directory, $file);
+}
+
 ## Concatenating
 
 sub catdir (*@path) returns Str is export { canonpath(join('/', (@path, ''))) }
@@ -35,19 +48,6 @@ sub catpath (Str $volume, Str $directory, Str $file) returns Str is export {
     }
 }
 
-sub splitpath (Str $path, Bool ?$nofile) returns Array is export {
-    my ($volume, $directory, $file) = ('','','');
-    if ($nofile) {
-        $directory = $path;
-    }
-    else {
-        $path ~~ rx:perl5{^ ( (?: .* / (?: \.\.?\Z(?!\n) )? )? ) ([^/]*) };
-        $directory = $1;
-        $file      = $2;
-    }
-    return ($volume, $directory, $file);
-}
-
 ## real to absolute
 
 sub rel2abs (Str $path, Str ?$base) returns Str is export {
@@ -61,7 +61,6 @@ sub rel2abs (Str $path, Str ?$base) returns Str is export {
         else {
             $base = canonpath($base);
         }
-        # Glom them together
         $path = catdir($base, $path);
     }
     return canonpath($path);
