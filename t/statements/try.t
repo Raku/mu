@@ -9,7 +9,7 @@ plan 10;
 	# simple try
 	my $lived = undef;
 	eval 'try { die "foo" }; $lived = 1';
-	todo_is(eval '$!', "foo", "error var was set");
+	is(eval '$!', "foo", "error var was set");
 	ok($lived, "try weakened death");
 };
 

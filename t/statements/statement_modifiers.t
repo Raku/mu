@@ -69,8 +69,8 @@ my $str3 = "bbb";
     my @a = (5, 7, 9);
     my $counter = 5;
     sub check(Int $num){
-	is($num, $counter, "sub Int with post for");
-	$counter += 2;
+        is($num, $counter, "sub Int with post for");
+        $counter += 2;
     }
     check $_ for @a;
 }
@@ -79,9 +79,9 @@ my $str3 = "bbb";
     my @a = ($str1, $str2, $str3);
     my $counter = 0;
     sub check(Str $str){
-	++$counter;
-	is($str, "aaa", "sub Str with post for") if $counter <= 2;
-	is($str, "bbb", "sub Str with post for") if $counter > 2;
+        ++$counter;
+        is($str, "aaa", "sub Str with post for") if $counter <= 2;
+        is($str, "bbb", "sub Str with post for") if $counter > 2;
     }
     check $_ for @a;
 }

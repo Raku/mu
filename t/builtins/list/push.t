@@ -9,28 +9,6 @@ Push tests
 
 =cut
 
-# NOTE:
-# When push(@l) is performed on an uninitialized list, will 
-# result in a 2 element list. 
-# This code:
-#     pugs -e 'my @l; push @l, 10; say join ", ", @l; say +@l;'
-# Produces the following output:
-#     , 10
-#     2
-# Note the leading comma. The issue exists no matter which way
-# push is written. Both these examples produce the same output
-# as above. 
-#     pugs -e 'my @l; push @l, (10); say join ", ", @l;'
-#     pugs -e 'my @l; push(@l, 10); say join ", ", @l;' 
-#     
-# However, the following code:
-#     pugs -e 'my @l = (); push(@l, 10); say join ", ", @l; say +@l;' 
-# Produces the correct output:
-#     10
-#     1
-#
-# See the end of this file for tests which illustrate this issue.
-
 plan 27;
 
 # basic push tests

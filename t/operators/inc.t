@@ -86,19 +86,19 @@ isa_ok($a, "Str", "it isa Str");
 
 my %a = ('a' => 1);
 eval '%a{"a"}++';
-todo_is(%a{'a'}, 2, "hash key");
+is(%a{'a'}, 2, "hash key");
 
 my %b = ('b' => 1);
 my $var = 'b';
 eval '%b{$var}++';
-todo_is(%b{$var}, 2, "hash key via var");
+is(%b{$var}, 2, "hash key via var");
 
 my @a = (1);
 eval '@a[1]++';
-todo_is(@a[0], 2, "array elem");
+is(@a[0], 2, "array elem");
 
 my @b = (1);
 my $moo = 0;
 eval '@b[$moo]++';
-todo_is(@b[$moo], 2, "array elem via var");
+is(@b[$moo], 2, "array elem via var");
 is($moo, 0, "var was not touched");

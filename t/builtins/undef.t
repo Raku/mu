@@ -5,20 +5,14 @@ require Test;
 
 =kwid
 
-Basic "undef" tests
-
-=cut
-
-plan 61;
-
-=kwid
+"undef" tests
 
 This test file contains two sections: a port of the perl5 undef.t tests,
 and perl6-specific tests.
 
-First the perl5 parts.
-
 =cut
+
+plan 61;
 
 our $GLOBAL;
 
@@ -129,19 +123,19 @@ Perl6-specific tests
 
 	my @ary = (<a b c d e>);
 	my $ary_r = @ary; # ref
-	is(ref($ary_r), "Array", "taking a ref");
+	isa_ok($ary_r, "Array");
 	ok(defined($ary_r), "array reference");
 	undef @ary;
 	ok(defined($ary_r), "undef array referent");
-	todo_is(eval '$ary_r.elems', 0, "dangling array reference") or diag $ary_r;
+	is(+$ary_r, 0, "dangling array reference") or diag $ary_r;
 
 	my %hash = (1, 2, 3, 4);
 	my $hash_r = %hash;
-	is(ref($hash_r), "Hash", "taking a ref");
+	isa_ok($hash_r, "Hash");
 	ok(defined($hash_r), "hash reference");
 	undef %hash;
 	ok(defined($hash_r), "undef hash referent");
-	todo_is(eval '$hash_r.keys.elems', 0, "dangling hash reference") or
+	is(+$hash_r.keys, 0, "dangling hash reference") or
 		diag $hash_r;
 }
 

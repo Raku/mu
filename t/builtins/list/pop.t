@@ -9,27 +9,6 @@ Pop tests
 
 =cut
 
-# NOTE:
-# this test illustrates a fundemental issue with PUGS
-# and passing function results inline as arguments.
-# 
-# Here is some simple code to illustrate this:
-#    pugs -e 'my @l = (1, 2, 3); my $a = pop(@l); say $a'
-# prints:
-#    3
-# and this code:
-#    pugs -e 'my @l = (1, 2, 3); say pop(@l);'
-# also prints:
-#    3
-# but this code:
-#    pugs -e 'my @l = (1, 2, 3); say pop(@l); say pop(@l);'
-# should print
-#    3
-#    2
-# but it actually prints: 
-#    3
-#    1
-
 plan 20;
 
 my @pop1 = (1, 2, 3, 4);

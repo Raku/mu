@@ -9,19 +9,6 @@ Unshift tests
 
 =cut
 
-# NOTE:
-# In older Pugs, the same issue as with push() (and detailed in t/op/push.t) 
-# was present with unshift() as well. The following code:
-#     pugs -e 'my @l; unshift @l, 42; say join ", ", @l; say +@l;'
-# Produces the following output (note the extra comma):
-#     42, 
-#     2
-# And then if the @l array is initialized:
-#     pugs -e 'my @l = (); unshift @l, 42; say join ", ", @l; say +@l;'
-# Produces the following output:
-#     42
-#     1
-
 plan 39;
 
 # basic unshift tests

@@ -81,5 +81,6 @@ is($array_ref7[0], 'baz', 'got the right value at array_ref7 index 0');
 is($array_ref7[1], 'bar', 'got the right value at array_ref7 index 1');
 is($array_ref7[2], 'foo', 'got the right value at array_ref7 index 2');
 
-todo_ok(eval 'my $array_ref8 = [ 1, 2, 3, ]', "trailing comma");
-todo_is(eval '$array_ref8.elems', 3, "trailing commas make correct list");
+my $array_ref8;
+ok(eval '$array_ref8 = [ 1, 2, 3, ]', "trailing comma");
+is(+$array_ref8, 3, "trailing commas make correct list");

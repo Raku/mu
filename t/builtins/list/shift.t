@@ -9,27 +9,6 @@ Shift tests
 
 =cut
 
-# NOTE: 
-# this test illustrates a fundemental issue with older versions of PUGS
-# and passing function results inline as arguments.
-# 
-# Here is some simple code to illustrate this:
-#    pugs -e 'my @l = (1, 2, 3); my $a = shift(@l); say $a'
-# prints:
-#    1
-# and this code:
-#    pugs -e 'my @l = (1, 2, 3); say shift(@l);'
-# also prints:
-#    1
-# but this code:
-#    pugs -e 'my @l = (1, 2, 3); say shift(@l); say shift(@l);'
-# should print
-#    1
-#    2
-# but it actually prints: 
-#    1
-#    3
-
 plan 20;
 
 my @s1 = (1, 2, 3, 4);

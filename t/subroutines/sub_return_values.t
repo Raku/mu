@@ -124,11 +124,11 @@ sub foo_array_ref {
    return $foo;
 }
 my $foo_array_ref_return = foo_array_ref();
-todo_isa_ok($foo_array_ref_return, 'List');
-todo_is(+$foo_array_ref_return, 3, 'got the right number of return value');
-todo_is($foo_array_ref_return[0], 'foo', 'got the right return value');
-todo_is($foo_array_ref_return[1], 'bar', 'got the right return value');
-todo_is($foo_array_ref_return[2], 'baz', 'got the right return value');
+isa_ok($foo_array_ref_return, 'List');
+is(+$foo_array_ref_return, 3, 'got the right number of return value');
+is($foo_array_ref_return[0], 'foo', 'got the right return value');
+is($foo_array_ref_return[1], 'bar', 'got the right return value');
+is($foo_array_ref_return[2], 'baz', 'got the right return value');
 
 # ... w/out the return statement
 
@@ -149,11 +149,11 @@ sub foo_array_ref3 {
    return ['foo', 'bar', 'baz'];
 }
 my $foo_array_ref_return3 = foo_array_ref3();
-todo_isa_ok($foo_array_ref_return3, 'List');
-todo_is(+$foo_array_ref_return3, 3, 'got the right number of return value');
-todo_is($foo_array_ref_return3[0], 'foo', 'got the right return value');
-todo_is($foo_array_ref_return3[1], 'bar', 'got the right return value');
-todo_is($foo_array_ref_return3[2], 'baz', 'got the right return value');
+isa_ok($foo_array_ref_return3, 'List');
+is(+$foo_array_ref_return3, 3, 'got the right number of return value');
+is($foo_array_ref_return3[0], 'foo', 'got the right return value');
+is($foo_array_ref_return3[1], 'bar', 'got the right return value');
+is($foo_array_ref_return3[2], 'baz', 'got the right return value');
 
 # ... returning list constructed "on the fly" w/out return statement
 
@@ -177,10 +177,10 @@ sub foo_hash {
 my %foo_hash_return; 
 #fail("eval 'foo_hash()' doesn't work");
 isa_ok(%foo_hash_return, 'Hash');
-todo_is(+%foo_hash_return.keys, 3, 'got the right number of return value');
-todo_is(%foo_hash_return<foo>, 1, 'got the right return value');
-todo_is(%foo_hash_return<bar>, 2, 'got the right return value');
-todo_is(%foo_hash_return<baz>, 3, 'got the right return value');
+is(+%foo_hash_return.keys, 3, 'got the right number of return value');
+is(%foo_hash_return<foo>, 1, 'got the right return value');
+is(%foo_hash_return<bar>, 2, 'got the right return value');
+is(%foo_hash_return<baz>, 3, 'got the right return value');
 
 # now hash refs 
 
@@ -190,10 +190,10 @@ sub foo_hash_ref {
 }
 
 my $foo_hash_ref_return = eval 'foo_hash_ref()';
-todo_isa_ok($foo_hash_ref_return, 'Hash');
-todo_is(+$foo_hash_ref_return.keys, 3, 'got the right number of return value');
+isa_ok($foo_hash_ref_return, 'Hash');
+is(+$foo_hash_ref_return.keys, 3, 'got the right number of return value');
 is($foo_hash_ref_return<foo>, 1, 'got the right return value');
-todo_is($foo_hash_ref_return<bar>, 2, 'got the right return value');
-todo_is($foo_hash_ref_return<baz>, 3, 'got the right return value');
+is($foo_hash_ref_return<bar>, 2, 'got the right return value');
+is($foo_hash_ref_return<baz>, 3, 'got the right return value');
 
 

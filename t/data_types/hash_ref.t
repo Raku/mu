@@ -29,7 +29,7 @@ is($hash1{'1st'}, 4, 'lvalue hash re-assignment works (w/ single quoted keys)');
 # todo_is($hash1{"2nd"}, 2, 'lvalue hash assignment works (w/ un-quoted keys)');
 
 $hash1<3rd> = 3; 
-todo_is($hash1<3rd>, 3, 'lvalue hash assignment works (w/ unquoted style <key>)');
+is($hash1<3rd>, 3, 'lvalue hash assignment works (w/ unquoted style <key>)');
 
 # basic hash creation w/ comma seperated key/values
 
@@ -62,12 +62,12 @@ is(@slice2[1], 1, '%hash<> slice was successful');
 # slice assignment
 
 eval '$hash5{"1st", "3rd"} = (5, 10)';
-todo_is($hash5<1st>, 5, 'value was changed successfully with slice assignment');
-todo_is($hash5<3rd>, 10, 'value was changed successfully with slice assignment');
+is($hash5<1st>, 5, 'value was changed successfully with slice assignment');
+is($hash5<3rd>, 10, 'value was changed successfully with slice assignment');
 
 eval '$hash5<1st 3rd> = [3, 1]';
-todo_is($hash5<1st>, 3, 'value was changed successfully with slice assignment');
-todo_is($hash5<3rd>, 1, 'value was changed successfully with slice assignment');
+is($hash5<1st>, 3, 'value was changed successfully with slice assignment');
+is($hash5<3rd>, 1, 'value was changed successfully with slice assignment');
 
 # keys 
 
