@@ -44,7 +44,7 @@
 * Fixed some error reporting issues in *Test.pm*
 * `$!` now has the correct value after `eval`
 * `END {...}` now runs after `die`
-* Hash are now string keys
+* Hash keys are now strings
 * Contextual logicals like `+^` and `~^` are parsed correctly
 
 == Changes for 6.0.12 - March 21, 2005
@@ -54,7 +54,7 @@
 * We now require GHC 6.4 on Win32.
 * Perl5-compatible regular expressions as rx:perl5/.../.
 * Unicode identifiers now work across all platforms.
-* Smartmatch ~~ now for regex.
+* Smartmatch ~~ for regex.
 * Capturing variables as $/.[], $0, $1, $2.
 * Nested outward CALLER::CALLER::CALLER:: scopes.
 * x=, xx= and Y=.
@@ -62,7 +62,7 @@
 * ?? :: now parses correctly.
 * New primitives: index(), rindex(), substr(), sort(), true().
 * New primitives: lcfirst(), ucfirst(), lc(), uc(), split().
-* New primitives: pick(), values(), nor().
+* New primitives: pick(), values(), nor.
 * The interactive shell now preserves lexical variable declarations.
 * String numification now uses the same lexing rule as numeric literals.
 * Kludgy hack for &sub.goto() now works.
