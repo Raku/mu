@@ -23,7 +23,7 @@ is(%hash1{'one'}, 4, 'lvalue hash re-assignment works (w/ single quoted keys)');
 
 my %hash1; 
 %hash1<three> = 3; 
-is(%hash1<tree>, 3, 'lvalue hash assignment works (w/ unquoted style <key>)'); # unTODOme
+is(%hash1<three>, 3, 'lvalue hash assignment works (w/ unquoted style <key>)');
 
 # basic hash creation w/ comma seperated key/values
 
