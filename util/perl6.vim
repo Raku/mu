@@ -22,7 +22,7 @@ syn keyword p6KeyIO		print open read write readline say seek
 syn keyword p6KeyProperty	constant prec key value kv irs ofs ors pos int export
 syn keyword p6KeyProperty	float str true false rw
 syn keyword p6KeyProperty	Int Str Num Hash Array Code Rule Class NumRange
-syn keyword p6KeyProperty	StrRange Role Bool
+syn keyword p6KeyProperty	StrRange Role Bool Rat
 syn keyword p6KeyFunc		map sort split reduce keys grep values truncate
 syn keyword p6KeyFunc		defined exists
 syn keyword p6KeySpecial	operator undef
