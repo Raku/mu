@@ -14,60 +14,77 @@
 module Pretty where
 import Internals
 import AST
+import Text.PrettyPrint
+
+defaultIndent :: Int
+defaultIndent = 4
 
 class (Show a) => Pretty a where
-    pretty :: a -> String
-    pretty x = show x
+    format :: a -> Doc
+    format x = text $ show x
 
 instance Pretty VStr
 
 instance Pretty Exp where
-    pretty (Val (VError msg (NonTerm pos))) = "Syntax error at " ++ (show pos) ++ msg
-    pretty (Val v) = pretty v
-    pretty (Syn x vs) = "Syn " ++ pretty x ++ " {{ " ++ joinList "; " (map pretty vs) ++ " }}"
-    pretty x = show x
+    format (Val (VError msg (NonTerm pos))) = text "Syntax error at" <+> (text $ show pos) <+> format msg
+    format (Val v) = format v
+    format (Syn x vs) = text "Syn" <+> format x $+$ (doubleBraces $ vcat (punctuate (text "; ") (map format vs)))
+    format (Statements lines) = vcat $ (map format) lines
+    format x = text $ show x
+
+
 
 instance Pretty Env where
-    pretty x = "{ " ++ (pretty $ envBody x) ++ " }"
+    format x = braces $ nest defaultIndent (format $ envBody x) 
 
 instance Pretty (Val, Val) where
-    pretty (x, y) = pretty x ++ " => " ++ pretty y
+    format (x, y) = format x <+> text "=>" <+> format y
+
+instance Pretty (Exp, SourcePos) where
+    format (x, _) = format x 
 
 instance Pretty Val where
-    pretty (VJunc (Junc j dups vals)) = "(" ++ joinList mark items ++ ")"
+    format (VJunc (Junc j dups vals)) = parens $ joinList mark items 
         where
-        items = map pretty $ values
+        items = map format $ values
         values = setToList vals ++ (concatMap (replicate 2)) (setToList dups)
         mark  = case j of
-            JAny  -> " | "
-            JAll  -> " & "
-            JOne  -> " ^ "
-            JNone -> " ! "
-    pretty (VPair (x, y)) = "(" ++ pretty (x, y) ++ ")"
-    pretty (VBool x) = if x then "bool::true" else "bool::false"
-    pretty (VNum x) = if x == 1/0 then "Inf" else show x
-    pretty (VInt x) = show x
-    pretty (VStr x) = show x -- XXX escaping
-    pretty (VRat x) = show $ ((fromIntegral $ numerator x) / (fromIntegral $ denominator x) :: Double)
-    pretty (VComplex x) = show x
-    pretty (VControl x) = show x
-    pretty (VRef (VList x))
+            JAny  -> text " | "
+            JAll  -> text " & "
+            JOne  -> text " ^ "
+            JNone -> text " ! "
+    format (VPair (x, y)) = parens $ format (x, y)
+    format (VBool x) = if x then text "bool::true" else text "bool::false"
+    format (VNum x) = if x == 1/0 then text "Inf" else text $ show x
+    format (VInt x) = integer x
+    format (VStr x) = text $ x -- XXX escaping
+    format (VRat x) = double $ ((fromIntegral $ numerator x) / (fromIntegral $ denominator x) :: Double)
+    format (VComplex x) = text $ show x
+    format (VControl x) = text $ show x
+    format (VRef (VList x))
         | not . null . (drop 100) $ x
-        = "[" ++ pretty (head x) ++ ", ...]"
-        | otherwise = "[" ++ joinList ", " (map pretty x) ++ "]"
-    pretty (VRef x) = "\\(" ++ pretty x ++ ")"
-    pretty (VList x)
+        = brackets $ format (head x) <+> text ", ..."
+        | otherwise = brackets $ cat $ (punctuate $ text ", ") (map format x)
+    format (VRef x) = text "\\" <> (parens $ format x)
+    format (VList x)
         | not . null . (drop 100) $ x
-        = "(" ++ pretty (head x) ++ ", ...)"
-        | otherwise = "(" ++ joinList ", " (map pretty x) ++ ")"
-    pretty (VSub _) = "sub {...}"
-    pretty (VBlock _) = "{...}"
-    pretty (VError x y) = "*** Error: " ++ x ++ "\n    at " ++ show y
-    pretty (VArray (MkArray x)) = pretty (VList x)
-    pretty (VHash (MkHash x)) = "{" ++ joinList ", " (map pretty $ fmToList x) ++ "}"
-    pretty (VHandle x) = show x
-    pretty (MVal _) = "<mval>" -- pretty $ castV x
-    pretty VUndef = "undef"
+        = parens $ (format (head x) <+> text ", ...")
+        | otherwise = parens $ (joinList $ text ", ") (map format x)
+    format (VSub _) = text "sub {...}"
+    format (VBlock _) = text "{...}"
+    format (VError x y) = hang (text "*** Error: " <> format x) defaultIndent (text "at" <+> format y)
+    format (VArray (MkArray x)) = format (VList x)
+    format (VHash (MkHash x)) = braces $ (joinList $ text ", ") (map format $ fmToList x)
+    
+    format (VHandle x) = text $ show x
+    format (MVal _) = text $ "<mval>" -- format $ castV x
+    format VUndef = text $ "undef"
+    
+doubleBraces :: Doc -> Doc
+doubleBraces x = vcat [ (lbrace <> lbrace), nest defaultIndent x, rbrace <> rbrace]
 
-joinList x y = concat $ intersperse x y
+joinList x y = cat $ punctuate x y
+
+pretty :: Pretty a => a -> String
+pretty a = render $ format a 
 
