@@ -41,16 +41,17 @@ run ("-w":rest)                 = run rest
 run (('-':'l':xs):rest)         = run (('-':xs):rest)
 run (('-':'w':xs):rest)         = run (('-':xs):rest)
 run (('-':'d':xs):rest)         = run (('-':xs):rest)
-run (('-':'e':prog@(_:_)):args) = doRun "-" args prog
-run ("-e":prog:args)            = doRun "-" args prog
+run (('-':'e':prog@(_:_)):args) = doRun "-e" args prog
+run ("-e":prog:args)            = doRun "-e" args prog
 run ("-h":_)                    = printCommandLineHelp
 run ("--help":_)                = printCommandLineHelp
 run ("-V":_)                    = printConfigInfo
 run ("-v":_)                    = banner
 run ("--version":_)             = banner
-run ("-c":"-e":prog:_)          = doParse prog
-run ("-ce":prog:_)              = doParse prog
-run ("-c":file:_)               = readFile file >>= doParse
+run ("-c":"-e":prog:_)          = doParse "-e" prog
+run ("-ce":prog:_)              = doParse "-e" prog
+run ("-c":file:_)               = readFile file >>= doParse file
+run ("-C":file:_)               = readFile file >>= doDump file
 run ("-":_)                     = do
     prog <- getContents
     doRun "-" [] prog
@@ -68,18 +69,25 @@ repLoop = do
         CmdQuit             -> putStrLn "Leaving pugs."
         CmdLoad fn          -> load fn
         CmdEval trace prog  -> doEval trace [] prog >> repLoop
-        CmdParse prog       -> doParse prog >> repLoop
+        CmdParse prog       -> doParse "<interactive>" prog >> repLoop
         CmdHelp             -> printInteractiveHelp >> repLoop
         _                   -> internalError "unimplemented command"
 
 load _ = return ()
 
-parse = doParse
+parse = doParse "<interactive>"
 eval prog = doEval True [] prog
 
-doParse prog = do
+doDump name prog = do
     env <- emptyEnv []
-    runRule env (putStrLn . pretty) ruleProgram "<interactive>" prog
+    runRule env (dump . envBody) ruleProgram name prog
+    where
+    dump (Val err@(VError _ _)) = internalError (show err)
+    dump exp = print exp
+
+doParse name prog = do
+    env <- emptyEnv []
+    runRule env (putStrLn . pretty) ruleProgram name prog
 
 doEval :: Bool -> [String] -> String -> IO ()
 doEval trace = do

@@ -439,9 +439,9 @@ extract ((Syn n exps), vs) = (Syn n exps', vs')
 extract ((Var name), vs)
     | (sigil:'^':identifer) <- name
     , name' <- (sigil : identifer)
-    = (Var name', insert name' vs)
+    = (Var name', nub (name':vs))
     | name == "$_"
-    = (Var name, insert name vs)
+    = (Var name, nub (name:vs))
     | otherwise
     = (Var name, vs)
 extract ((Parens ex), vs) = ((Parens ex'), vs')
