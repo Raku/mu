@@ -2,11 +2,7 @@
 
 use strict;
 use warnings;
-use Config;
-my $make = $Config{make};
-use Shell qw(svn $make);
-eval "\$make = \\&$make;";
-*make = $make;
+use Shell qw(svn make);
 
 #
 # run-smoke.pl /some/sandbox/dir /some/www/file.html
