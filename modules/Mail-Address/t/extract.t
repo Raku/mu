@@ -1,40 +1,34 @@
+#!/usr/bin/perl
+use v6;
+
+require Test;
+require Mail::Address;
+
 # 
 # Test the address/name extraction
 #
 
 require Mail::Address;
 
-$/ = "";
-chomp(@line = <DATA>);
+my @line = split "\n\n", $=DATA;
 
-print "1..",scalar(@line),"\n";
+plan +@line;
 
-$i = 1;
+for @line -> $ln (@line) {
+  next unless $ln ~~ /\S/;
 
-foreach $ln (@line) {
- next unless($ln =~ /\S/);
+  ($test,$format,$name) = split m/\n+/, $ln;
 
- ($test,$format,$name) = (split(/\n+/,$ln));
+  my $q = Mail::Address.parse($test).[0];
 
- $q = (Mail::Address->parse($test))[0];
+  my $ename   = $q.name   err "";
+  my $eformat = $q.format err "";
+  my $name    = $ename    unless defined $name;
 
- $ename   = $q->name || "";
- $eformat = $q->format || "";
- $name = $ename unless defined $name;
- if($ename eq $name && $eformat eq $format) {
-  print "ok ",$i,"\n";
- }
- else {
-  print "not ok ",$i,"\n";
-  print
-  print "# name '$name' != '$ename'\n" unless $ename eq $name;
-  print "# format '$format' != '$eformat'\n" unless $eformat eq $format;
- }
-
- $i++;
+  ok($ename eq $name and $eformat eq $format);
 }
 
-__DATA__
+=begin DATA
 "Joe & J. Harvey" <ddd @Org>, JJV @ BBN
 "Joe & J. Harvey" <ddd@Org>
 Joe & J. Harvey
