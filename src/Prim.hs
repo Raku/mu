@@ -445,10 +445,7 @@ op2 "~>" = \x y -> return $ VStr $ mapStr (`shiftR` vCast y) (vCast x)
 op2 "**" = op2Rat ((^^) :: VRat -> VInt -> VRat)
 op2 "+"  = op2Numeric (+)
 op2 "-"  = op2Numeric (-)
-op2 "atan2" = \x y -> do
-    x' <- fromVal x
-    y' <- fromVal y
-    return . VNum $ atan2 x' y'
+op2 "atan" = \x y -> return . VNum $ atan2 (vCast x) (vCast y)
 op2 "~"  = op2Str (++)
 op2 "+|" = op2Int (.|.)
 op2 "+^" = op2Int xor
@@ -874,7 +871,7 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      spre    !       (Bool)\
 \\n   Num       spre    +       (Num)\
 \\n   Num       pre     abs     (?Num=$_)\
-\\n   Num       pre     atan2   (Num, Num)\
+\\n   Num       pre     atan    (Num, Num)\
 \\n   Num       pre     cos     (?Num=$_)\
 \\n   Num       pre     sin     (?Num=$_)\
 \\n   Num       pre     exp     (?Num=$_, ?Num)\
