@@ -1,0 +1,58 @@
+=====================================================================
+|         ______                                                    |
+|        /\   __ \                                                  |
+|        \ \  \/\ \ __  __  ______  ______ ______ _____             |
+|         \ \   __//\ \/\ \/\  __ \/\  ___\\  ___\\  ___\           |
+|          \ \  \/ \ \ \_\ \ \ \/\ \ \___  \\ \__/_\ \__/_          |
+|           \ \__\  \ \____/\ \____ \/\_____\\_____\\_____\         |
+|            \/__/   \/___/  \/___/\ \/____/\/_____//_____/         |  
+|                              /\____/                              |
+|                              \/___/                               |
+=====================================================================
+               
+The 'pugscc' script allows you to create an exectuable image from a
+perl6 script, much like 'perlcc' does for perl5. 'pugscc' is 
+currently in the very early stages (proof-of-concept), and all 
+interested hackers are welcome to come join in the fun.
+
+BACKENDS
+
+'pugscc' is currently in a very early stage, but will eventually 
+support a number of different backends. Currently the default (and
+only fully working) backend is the 'Pugs' backend which will create
+an executable with an embedded pugs interpreter. Experimental 
+support also currently exists for a 'Haskell' and 'Parrot' backend, 
+with plans for a 'Ponie' and 'Perl5' backend as well (yes, this 
+means you can run perl5 code with Pugs too).
+
+HOW CAN YOU HELP
+
+The main engine for 'pugscc' is found in the src/Compile.hs file, and 
+the backends are located within src/Compile/. 
+
+** Autrijus can you write something here? **
+
+DEPENDENCIES
+
+Here is a list of the various dependencies for each backend, and 
+links to where they can be downloaded. 
+
+Pugs - requires Pugs ;-)
+
+Parrot - requires Parrot
+
+    http://search.cpan.org/~ltoetsch/parrot/
+    http://www.parrotcode.org/
+
+Haskell - GHC (which is needed for Pugs)
+
+Perl5 - requires perl5
+
+    http://www.perl.org
+
+Ponie - requires Ponie 
+
+    http://opensource.fotango.com/software/ponie/downloads
+    http://search.cpan.org/~abergman/ponie/
+    http://www.poniecode.org/
+
