@@ -774,12 +774,18 @@ parseVarName = rule "variable name" ruleVarNameString
 
 ruleVarNameString =   try (string "$!")  -- error variable
                   <|> try (string "$/")  -- match object
+                  <|> try ruleMatchVar
                   <|> do
     sigil   <- oneOf "$@%&"
     -- ^ placeholder, * global, ? magical, . member, : private member
     caret   <- option "" $ choice $ map string $ words " ^ * ? . : "
     names   <- many1 wordAny `sepBy1` (try $ string "::")
     return $ (sigil:caret) ++ concat (intersperse "::" names)
+
+ruleMatchVar = do
+    sigil   <- oneOf "$@%&"
+    digits  <- many1 digit
+    return $ (sigil:digits)
 
 ruleVar = do
     name    <- ruleVarNameString

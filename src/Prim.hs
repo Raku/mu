@@ -422,10 +422,7 @@ op2Match x (VSubst (rx@MkRule{ rxGlobal = True }, subst)) = do
     str     <- fromVal x
     rv      <- doReplace (encodeUTF8 str) Nothing
     case rv of
-        (str', Just subs) -> do
-            glob <- askGlobal
-            let Just matchAV = findSym "$/" glob
-            writeMVal matchAV $ VList $ map VStr subs
+        (str', Just _) -> do
             writeMVal (vCast x) (VStr $ decodeUTF8 $ str')
             return $ VBool True
         _ -> return $ VBool False
@@ -435,8 +432,11 @@ op2Match x (VSubst (rx@MkRule{ rxGlobal = True }, subst)) = do
         case str =~~ rxRegex rx of
             Nothing -> return (str, subs)
             Just mr -> do
-                str'        <- fromVal =<< evalExp subst
-                let subs = elems $ mrSubs mr
+                glob    <- askGlobal
+                let Just matchAV = findSym "$/" glob
+                    subs = elems $ mrSubs mr
+                writeMVal matchAV $ VList $ map VStr subs
+                str'    <- fromVal =<< evalExp subst
                 (after', rv) <- doReplace (mrAfter mr) (Just subs)
                 let subs' = fromMaybe subs rv
                 return (concat [mrBefore mr, str', after'], Just subs')

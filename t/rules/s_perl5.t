@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 3;
+plan 5;
 
 =pod
 
@@ -24,3 +24,11 @@ is($bar, "baz", 'substitute regexp works with :g modifier');
 my $path = "/path//to///a//////file"; 
 $path ~~ s:perl5:g{/+}{/}; 
 is($path, "/path/to/a/file", 'substitute regexp works with :g modifier');
+
+my $baz = "baz"; 
+$baz ~~ s:perl5{.(a)(.)}{$2$1p}; 
+is($baz, "zap", 'substitute regexp with capturing variables works');
+
+my $bazz = "bazz"; 
+$bazz ~~ s:perl5:g{(.)}{x$1}; 
+is($bazz, "xbxaxzxz", 'substitute regexp with capturing variables works with :g');
