@@ -246,6 +246,7 @@ op1 "shift"= op1Pop (head, tail)
 op1 "pick" = op1Pick
 op1 "chr"  = return . op1Chr
 op1 "ord"  = return . op1Ord
+op1 "hex"  = return . op1Hex
 op1 other  = return . (\x -> VError ("unimplemented unaryOp: " ++ other) (App other [Val x] []))
 
 
@@ -256,6 +257,12 @@ op1Values v@(VHash _) = VList $ map snd $ (vCast :: Val -> [VPair]) v
 op1Values v@(VList _) = VList $ map snd $ (vCast :: Val -> [VPair]) v -- hope it's a list of pairs
 op1Values (VRef v) = op1Values v
 op1Values v = VError "values not defined" (Val v)
+
+-- what's less cheesy than read?
+op1Hex          :: Val -> Val
+op1Hex (VStr s) = VInt (read ("0x" ++ s))
+op1Hex (VInt i) = VInt (read ("0x" ++ show i))  -- PerlJam asks "auto int to str coercion?"
+op1Hex v        = VError "hex not defined" (Val v)
 
 op1Ord              :: Val -> Val
 op1Ord (VStr (s:_)) = VInt (fromIntegral (ord s))
@@ -923,5 +930,7 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Scalar    left    err     (Bool, ~Bool)\
 \\n   Int       pre     chr     (Str)\
 \\n   Str       pre     ord     (Int)\
+\\n   Str       pre     hex     (Str)\
+\\n   Str       pre     hex     (Int)\
 \\n   Any       list    ;       (Any)\
 \\n"
