@@ -7,9 +7,11 @@ require Test;
 
 plan 1;
 
+fail("FIXME parsefail");
+
 #close $*ERR;
 
-die "punt";
-END { pass("end block reached") }
+#die "punt";
+#END { pass("end block reached") }
 
 

@@ -1,7 +1,11 @@
 use v6;
 
-say "1..16"
+say "1..16";
 
+#todo_fail("FIXME parsefail");
+say "1 not ok - FIXME parsefail # TODO";
+
+eval '
 my foo = 1;
 if ( foo == 1) { say "1 ok" } else { say "1 not ok" }
 if ($foo == 1) { say "2 ok" } else { say "2 not ok" }
@@ -24,3 +28,4 @@ if (&bar() == 42) { say "16 ok" } else { say "16 not ok" } # cannot work if
                                                            # this whole thing is
                                                            # implemented with
                                                            # an lvalue sub...
+';
