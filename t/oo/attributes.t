@@ -3,13 +3,15 @@
 use v6;
 require Test;
 
-plan 32;
+plan 48;
 
 =pod
 
 Class attributes tests from L<S12/"Attributes">
 
 =cut
+
+todo_eval_ok '!try { has $.x }', "has only works inside of class|role definitions";
 
 # L<S12/"Attributes" /the automatic generation of an accessor method of the same name\./>
 
@@ -112,3 +114,43 @@ eval 'class Foo6 {
     todo_eval_is '$foo.baz',        2, "getting a public rw attribute (2)";
     todo_eval_is '$foo.get_hidden', 3, "getting a private ro attribute (3)";
 }
+
+
+# L<A12/"Default Values">
+todo_eval_ok 'class Foo7 { has $.attr = 42 }', "class definition worked";
+todo_eval_is 'Foo7.new.attr', 42,              "default attribute value (1)";
+
+# L<A12/"Default Values" /"is equivalent to this\:"/>
+todo_eval_ok 'class Foo8 { has $.attr is build(42) }',
+  "class definition using 'is build' worked";
+todo_eval_is 'Foo8.new.attr', 42, "default attribute value (2)";
+
+# L<A12/"Default Values" /"is equivalent to this\:"/>
+todo_eval_ok 'class Foo9 { has $.attr will build(42) }',
+  "class definition using 'will build' worked";
+todo_eval_is 'Foo9.new.attr', 42, "default attribute value (3)";
+
+my $was_in_supplier = 0;
+sub fourty_two_supplier() { $was_in_supplier++; 42 }
+# XXX: Currently hard parsefail!
+#todo_eval_ok 'class Foo10 { has $.attr = { fourty_two_supplier() } }',
+#  "class definition using '= {...}' worked";
+todo_fail "hard parsefail";
+todo_eval_is 'Foo10.new.attr', 42, "default attribute value (4)";
+todo_is      $was_in_supplier, 1,  "fourty_two_supplier() was actually executed (1)";
+
+# The same, but using 'is build {...}'
+# XXX: Currently hard parsefail!
+#todo_eval_ok 'class Foo11 { has $.attr is build { fourty_two_supplier() } }',
+#  "class definition using 'is build {...}' worked";
+todo_fail "hard parsefail";
+todo_eval_is 'Foo11.new.attr', 42, "default attribute value (5)";
+todo_is      $was_in_supplier, 2,  "fourty_two_supplier() was actually executed (2)";
+
+# The same, but using 'will build {...}'
+# XXX: Currently hard parsefail!
+#todo_eval_ok 'class Foo12 { has $.attr will build { fourty_two_supplier() } }',
+#  "class definition using 'will build {...}' worked";
+todo_fail "hard parsefail";
+todo_eval_is 'Foo11.new.attr', 42, "default attribute value (6)";
+todo_is      $was_in_supplier, 3,  "fourty_two_supplier() was actually executed (3)";

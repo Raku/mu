@@ -7,7 +7,7 @@ plan 7;
 
 =pod
 
-Very basic class method tests from L<S12/"Methods">
+Very basic instance method tests from L<S12/"Methods">
 
 =cut
 
