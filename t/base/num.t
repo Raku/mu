@@ -9,7 +9,7 @@ basic Number tests
 
 =cut
 
-plan 30;
+plan 34;
 
 my $a = 1; "$a";
 isa_ok($a, 'Int');
@@ -72,3 +72,12 @@ ok($a == 80000.0, 'trailing zeros compare correctly');
 my $a = 1.0000000000000000000000000000000000000000000000000000000000000000000e1;
 isa_ok($a, 'Rat');
 ok($a == 10.0, 'trailing zeros compare correctly');
+
+my $a = "1.01";
+isa_ok(+$a, "Num");
+is(+$a, 1.01, "1.01 numifies to 1.01");
+
+my $a = "1.01";
+isa_ok(int($a), "Int");
+is(int($a), 1, "1.01 intifies to 1");
+
