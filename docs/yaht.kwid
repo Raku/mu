@@ -212,4 +212,38 @@ come to mind.
 
 - Hal Daume III
 
+= Chapter 1 -- Introduction 
+
+This tutorial contains a whole host of example code, all of which should
+have been included in its distribution. If not, please refer to the
+links off of the Haskell web site (`haskell.org`) to get it. This book
+is formatted to make example code stand out from the rest of the text.
+
+    Code will look like this. 
+
+Occasionally, we will refer to interaction betwen you and the operating
+system and/or the interactive shell (more on this in Section 2).
+
+    Interaction will look like this. 
+
+Strewn throughout the tutorial, we will often make additional notes to
+something written. These are often for making comparisons to other
+programming languages or adding helpful information. 
+
+    *NOTE* Notes will appear like this. 
+
+If we're covering a difficult or confusing topic and there is something
+you should watch out for, we will place a warning. 
+
+    *WARNING* Warnings will appear like this. 
+
+Finally, we will sometimes make reference to built-in functions (so-
+called Preludefunctions). This will look something like this: 
+
+.math
+map :: (a->b)->[a]->[b]
+.math
+
+Within the body text, Haskell keywords will appear like this: *where*,
+identifiers as `map`, types as /*String*/ and classes as */Eq/*.
 
