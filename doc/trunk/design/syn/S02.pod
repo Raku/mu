@@ -354,6 +354,11 @@ that the variable is "wild carded" into every package.
 Standard input is C<$*IN>, standard output is C<$*OUT>, and standard error
 is C<$*ERR>.
 
+=item *
+
+Magical file-scoped lexicals live in the C<=> package.  C<@=DATA> is
+the name of your DATA filehandle, for instance.
+
 =back
 
 =head1 Literals
