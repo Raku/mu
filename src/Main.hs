@@ -66,28 +66,25 @@ run []                          = do
         else run ["-"]
 
 -- convenience functions for GHCi
-eval = doDebug []
+eval = runProgramWith id (putStrLn . pretty) "<interactive>" []
 parse = doParse "-"
 dump = (doParseWith $ \exp _ -> print exp) "-"
 
 repLoop :: IO ()
 repLoop = do
     env <- tabulaRasa >>= newIORef
+    modifyIORef env $ \e -> e{ envDebug = Nothing }
     fix $ \loop -> do
         command <- getCommand
         case command of
-            CmdQuit       -> putStrLn "Leaving pugs."
-            CmdLoad fn    -> doLoad env fn >> loop
-            CmdRun prog   -> doRunSingle env prog >> loop
-            CmdDebug prog -> doDebug [] prog >> loop
-            CmdParse prog -> doParse "<interactive>" prog >> loop
-            CmdHelp       -> printInteractiveHelp >> loop
-            CmdReset      -> tabulaRasa >>= writeIORef env >> loop
-            _             -> internalError "unimplemented command"
-    where
-    tabulaRasa = do
-        env <- prepareEnv "<interactive>" []
-        return env{ envDebug = Nothing }
+            CmdQuit           -> putStrLn "Leaving pugs."
+            CmdLoad fn        -> doLoad env fn >> loop
+            CmdRun opts prog  -> doRunSingle env opts prog >> loop
+            CmdParse prog     -> doParse "<interactive>" prog >> loop
+            CmdHelp           -> printInteractiveHelp >> loop
+            CmdReset          -> tabulaRasa >>= writeIORef env >> loop
+
+tabulaRasa = prepareEnv "<interactive>" []
 
 doCheck = doParseWith $ \_ name -> do
     putStrLn $ name ++ " syntax OK"
@@ -113,33 +110,56 @@ doParse name prog = do
         (Val err@(VError _ _)) -> putStrLn $ pretty err
         exp -> putStrLn $ pretty exp
 
-doDebug :: [String] -> String -> IO ()
-doDebug = runProgramWith id (putStrLn . pretty) "<interactive>"
-
 doLoad :: IORef Env -> String -> IO ()
-doLoad env fn = runImperatively env exp where
+doLoad env fn = do
+    runImperatively env (evaluate exp)
+    return ()
+    where
     exp = App "&require" [] [Val $ VStr fn]
 
-doRunSingle :: IORef Env -> String -> IO ()
-doRunSingle menv prog = do
-    env <- emptyEnv []
-    let exp = runRule env envBody ruleProgram "<interactive>" $ decodeUTF8 prog
-    case exp of
-        (Statements stmts@((_,pos):_)) -> runImperatively menv $ Statements (stmts ++ [(Syn "dump" [], pos)])
-        (Val err@(VError _ _)) -> putStrLn $ pretty err
-        _ -> do
-            putStrLn "Expected statements, got something else."
-            putStrLn "This is a bug in Pugs, please report it."
+doRunSingle :: IORef Env -> RunOptions -> String -> IO ()
+doRunSingle menv opts prog = (`catch` handler) $ do
+    exp <- parse >>= makeProper
+    env <- theEnv
+    result <- runImperatively env (evaluate exp)
+    printer env result
+    where
+    parse = do
+        parseEnv <- emptyEnv []
+        runRule parseEnv (return . envBody) ruleProgram "<interactive>" (decodeUTF8 prog)
+    theEnv = do
+        ref <- if runOptSeparately opts
+                then tabulaRasa >>= newIORef
+                else return menv
+        debug <- if runOptDebug opts
+                then liftM Just (newIORef emptyFM)
+                else return Nothing
+        modifyIORef ref $ \e -> e{ envDebug = debug }
+        return ref
+    printer env = if runOptShowPretty opts
+        then \val -> do
+            final <- runImperatively env (fromVal' val)
+            putStrLn $ pretty final
+        else print
+    makeProper exp = case exp of
+        Val err@(VError _ _) -> fail $ pretty err
+        Statements stmts@((_,pos):_) | not (runOptSeparately opts) -> do
+            let withDump = stmts ++ [(Syn "dump" [], pos)]
+            return $ Statements withDump
+        _ | not (runOptSeparately opts) -> fail "Expected statements"
+        _ -> return exp
+    handler err = if not (isUserError err) then ioError err else do
+        putStrLn "Internal error while running expression:"
+        putStrLn $ ioeGetErrorString err
 
-runImperatively :: IORef Env -> Exp -> IO ()
-runImperatively menv exp = do
+runImperatively :: IORef Env -> Eval Val -> IO Val
+runImperatively menv eval = do
     env <- readIORef menv
-    val <- (`runReaderT` env) $ (`runContT` return) $ resetT $ do
-        val <- evaluate exp
+    runEval env $ do
+        val <- eval
         newEnv <- ask
         liftIO $ writeIORef menv newEnv
         return val
-    putStrLn $ pretty val
 
 doRun :: String -> [String] -> String -> IO ()
 doRun = do
@@ -162,10 +182,13 @@ runProgramWith fenv f name args prog = do
     val <- runEnv $ runRule (fenv env) id ruleProgram name $ decodeUTF8 prog
     f val
 
-runEnv env = do
+runEval :: Env -> Eval Val -> IO Val
+runEval env eval = do
     (`runReaderT` env) $ do
-        (`runContT` return) $ resetT $ do
-            evaluateMain (envBody env)
+        (`runContT` return) $
+            resetT eval
+
+runEnv env = runEval env $ evaluateMain (envBody env)
 
 runAST ast = do
     hSetBuffering stdout NoBuffering 

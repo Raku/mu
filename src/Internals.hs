@@ -28,6 +28,7 @@ module Internals (
     module System.Random,
     module System.IO,
     module System.IO.Unsafe,
+    module System.IO.Error,
     module System.Exit,
     module System.Time,
     module System.Directory,
@@ -74,6 +75,7 @@ import System.IO (
     hSetBuffering, BufferMode(..), hIsTerminalDevice
     )
 import System.IO.Unsafe
+import System.IO.Error (ioeGetErrorString, isUserError)
 import System.Directory
 import Control.Exception (catchJust, errorCalls)
 import Control.Monad.RWS
