@@ -82,6 +82,7 @@ symbol s
         return rv
         where
         ahead '-' '>' = False -- XXX hardcoke
+        ahead '!' '~' = False -- XXX hardcoke
         ahead x   '=' = not (x `elem` "!~+-*/")
         ahead s   x   = x `elem` ";!" || x /= s
 
