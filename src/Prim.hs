@@ -139,9 +139,8 @@ op1 "defined" = \v -> do
     return . VBool $ case v of
         VUndef  -> False
         _       -> True    
-op1 "last" = \_ -> do
-    shiftT $ \_ -> return VUndef
-op1 "return" = \v -> return (VError "cannot return outside a subroutine" (Val v))
+op1 "last" = \v -> return (VError "cannot last() outside a loop" (Val v))
+op1 "return" = \v -> return (VError "cannot return() outside a subroutine" (Val v))
 
 -- Side-effectful function: how far into Monadic IO shall we go?
 op1 "rand"  = \v -> do

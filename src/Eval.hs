@@ -286,7 +286,7 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
                 let (these, rest) = arity `splitAt` vs
                 doApply env (vCast vsub) [] $ map Val these
                 runBody rest
-        runBody vals
+        enterLoop $ runBody vals
     "loop" -> do
         let [pre, cond, post, body] = exps
         evalExp pre
@@ -295,12 +295,11 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
             valPost <- evalExp post
             vbool   <- enterEvalContext "Bool" cond
             case valBody of
-                VError _ _ -> shiftT $ \_ -> return valBody
-                _ | VError _ _ <- valPost -> shiftT $ \_ -> return valPost
-                _ | not (vCast vbool) -> shiftT $ \_ -> return valBody
+                VError _ _ -> retVal valBody
+                _ | VError _ _ <- valPost -> retVal valPost
+                _ | not (vCast vbool) -> retVal valBody
                 _ -> runBody
-        val <- resetT runBody
-        retVal val
+        enterLoop runBody
     "while" -> doWhileUntil id
     "until" -> doWhileUntil not
     "=" -> do
@@ -328,7 +327,14 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
                     list = concatMap vCast $ case listVal of
                         VUndef  -> [] -- autovivification
                         _       -> vCast listVal
-                    assignTo curr (index, val) = do
+                    assignTo curr (index, val)
+                        | index < 0
+                        , index' <- index + genericLength curr
+                        , index' >= 0
+                        = assignTo curr (index', val)
+                        | index < 0
+                        = retError "Modification of non-creatable array value attempted" (Val $ VInt index)
+                        | otherwise = do
                         pre <- preM
                         return $ pre ++ [val] ++ genericDrop (index + 1) curr
                         where
@@ -427,6 +433,12 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
     where
     doSlice :: [Exp] -> [Val] -> [VInt] -> Maybe (Val, [VInt])
     doSlice errs vs (n:ns)
+        | n < 0
+        , n' <- n + genericLength vs
+        , n' >= 0
+        = doSlice errs vs (n':ns)
+        | n < 0
+        = Nothing
         | (v:_)         <- n `genericDrop` vs
         = Just (v, ns)
         | ((Val err):_) <- errs
@@ -442,19 +454,17 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
             else reduce env bodyElse
     -- XXX This treatment of while/until loops probably needs work
     doWhileUntil f = do
-        let [ cond, body] = exps
-        let ret val = shiftT $ \_ -> return val
-            runBody = do
+        let [cond, body] = exps
+        let runBody = do
             vbool <- enterEvalContext "Bool" cond
             case f $ vCast vbool of
                 True -> do
                     rv <- reduce env body
                     case rv of
-                        VError _ _  -> ret rv
+                        VError _ _  -> retVal rv
                         _           -> runBody
-                _ -> ret vbool
-        val <- resetT runBody
-        retVal val
+                _ -> retVal vbool
+        enterLoop runBody
 
 reduce env (App name [Syn "," invs] args) = reduce env (App name invs args)
 reduce env (App name invs [Syn "," args]) = reduce env (App name invs args)

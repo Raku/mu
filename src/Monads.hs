@@ -67,6 +67,21 @@ enterScope f = do
     return rv
     -}
 -}
+
+enterLoop action = callCC $ \esc -> do
+    enterLex [Symbol SMy "&last" $ lastSub esc] action
+    where
+    lastSub esc = Val $ VSub $ Sub
+        { isMulti = False
+        , subName = "last"
+        , subType = SubPrim
+        , subPad = []
+        , subAssoc = "pre"
+        , subParams = []
+        , subReturns = "Void"
+        , subFun = Prim (const $ esc VUndef)
+        }
+
   
 enterSub sub@Sub{ subType = typ } action
     | typ >= SubPrim = action -- primitives just happen
