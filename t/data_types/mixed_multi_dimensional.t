@@ -12,7 +12,8 @@ This tests some mixed multi-dimensional structures.
 NOTE:
 These tests don't go any more than two levels deep
 (AoH, AoP) in most cases because I know these won't
-work yet. 
+work yet in Pugs. When we have this support, then 
+this test should be added too more.
 
 =cut
 
