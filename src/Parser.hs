@@ -557,7 +557,9 @@ maybeDotParens p = choice [ dotParens p, p ]
         option ' ' $ char '.'
         parens rule
 
-parseVarName = lexeme $ do
+parseVarName = rule "variable name" ruleVarNameString
+
+ruleVarNameString = do
     sigil   <- oneOf "$@%&"
     caret   <- option "" $ choice $ map string $ words " ^ * ? "
     name    <- many1 (choice [ wordAny, char ':' ])
