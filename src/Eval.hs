@@ -632,7 +632,6 @@ applyExp :: [ApplyArg] -> Exp -> Eval Val
 applyExp bound (Prim f) =
     f [ argValue arg | arg <- bound, (argName arg !! 1) /= '_' ]
 applyExp bound body = do
-    -- XXX - resetT here -- XXX - Wrong -- XXX - FIXME
     enterLex formal $ evalExp body
     where
     formal = filter (not . null . symName) $ map argNameValue bound
