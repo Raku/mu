@@ -26,7 +26,7 @@ sub _transform(Str $text) {
 
 sub transpose(Str $text) {
   # this transposes any two characters. very unrealistic.
-  my $length     = length $text;
+  my $length     = split "", $text;
   my $randomChar = int rand($length - 1);
   # XXX -- this seems to be *very* inefficient
   $text ~~ m/(.*)(.**{$randomChar})(.)(.)(.*)/;
@@ -35,7 +35,7 @@ sub transpose(Str $text) {
 
 sub double(Str $text) {
   my @sa = split '', $text;
-  my $randomChar = pick(0..length $text); # XXX -- correct?
+  my $randomChar = pick(0..(split "", $text)); # XXX -- correct?
   if @sa[$randomChar] ~~ m/<[A-Za-z]>/ {
     splice @sa, $randomChar, 0, @sa[$randomChar];
     return join "", @sa;
@@ -45,7 +45,7 @@ sub double(Str $text) {
 
 sub deletion(Str $text) {
   my @sa = split '', $text;
-  my $randomChar = pick(0..length $text); # XXX -- correct?
+  my $randomChar = pick(0..(split "", $text)); # XXX -- correct?
   splice @sa, $randomChar, 1;
   return join "", @sa;
 }
@@ -53,7 +53,7 @@ sub deletion(Str $text) {
 sub stickyshift(Str $text) {
   # this acts like a sticky shift key ie. TEsting
   my @sa = split '', $text;
-  my $randomChar = pick(0..length $text);
+  my $randomChar = pick(0..@sa);
   if $text ~~ m/<[A-Z]><[a-zA-Z]>/ {
    my $done = 0;
    while $done == 0 {
