@@ -130,4 +130,4 @@ is($key, 1, "\%hash.kv gave us our key");
 is($val, 2, "\%hash.kv gave us our val");
 
 %hash9{2} = 3;
-is(~%hash9, "1\t2\n2\t3\n", "hash can stringify");
+ok(~%hash9 eq ("1\t2\n2\t3\n" | "2\t3\n1\t2\n"), "hash can stringify");
