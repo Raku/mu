@@ -48,8 +48,9 @@ sub set_postamble {
     if (assert_ghc() ge '6.4') {
         $ghc_flags .= " -fno-warn-deprecations -fno-warn-orphans";
     }
-    my $ghc_output = "-o pugs$Config{_exe} src/Main.hs";
-    my @prereqs = ($config_h, qw( src/UnicodeC.c src/UnicodeC.h ));
+    my $pcre = "src/pcre/pcre$Config{_o}";
+    my $ghc_output = "-o pugs$Config{_exe} src/Main.hs pcre$Config{_o}";
+    my @prereqs = ($pcre, $config_h, qw( src/UnicodeC.c src/UnicodeC.h ));
 
     postamble(fixpaths(<< "."));
 $config_h : lib/Perl6/Pugs.pm util/config_h.pl
