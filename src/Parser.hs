@@ -214,10 +214,9 @@ ruleParamDefault False = rule "default value" $ option (Val VUndef) $ do
 ruleVarDeclaration :: RuleParser Exp
 ruleVarDeclaration = rule "variable declaration" $ do
     scope   <- ruleScope
-    syms    <- choice
+    choice
         [ ruleVarDeclarationSingle scope
         , ruleVarDeclarationMultiple scope ]
-    return $ Syn "sym" syms
 
 ruleVarDeclarationSingle scope = do
     name <- parseVarName
@@ -227,19 +226,21 @@ ruleVarDeclarationSingle scope = do
        return $ case sym of
            "=" -> (Syn "mval" [Var name, exp])
            _   -> exp
-    return [Sym $ Symbol scope name exp]
+    return $ Syn "sym" [Sym $ Symbol scope name exp]
 
 ruleVarDeclarationMultiple scope = do
     names   <- parens $ parseVarName `sepEndBy` symbol ","
-    (sym, exps) <- option ("=", []) $ do
+    (sym, expMaybe) <- option ("=", Nothing) $ do
         sym <- tryChoice $ map symbol $ words " = := ::= "
         exp <- ruleExpression
-        return $ case exp of
-            Syn "," es  -> (sym, es)
-            _           -> (sym, [exp])
+        return (sym, Just exp)
     -- now match exps up with names and modify them.
     let doAlign = case sym of { "=" -> alignAssign ; _ -> alignBind }
-    return $ doAlign scope names exps
+        syn = Syn "sym" $ doAlign scope names []
+        lhs = Syn "," $ map Var names
+    return $ case expMaybe of
+        Just exp -> Syn ";" [syn, Syn sym [lhs, exp]]
+        Nothing  -> syn
     where
     mvalSym scope n e = Sym $ Symbol scope n (Syn "mval" [Var n, e])
     emptyExp = App "&not" [] []

@@ -136,52 +136,55 @@ addGlobalSym sym = do
         syms <- readIORef glob
         writeIORef glob (sym:syms)
 
-reduceStatements :: ([(Exp, SourcePos)], Exp) -> Eval Val
-reduceStatements ([], exp) = reduceExp exp
-reduceStatements (((exp, pos):rest), lastVal)
-    | Syn "sym" (Sym sym@(Symbol _ _ vexp@(Syn "sub" [_])):other) <- exp = do
+-- XXX This is a mess. my() and our() etc should not be statement level!
+reduceStatements :: [(Exp, SourcePos)] -> Exp -> Eval Val
+reduceStatements [] = reduceExp
+reduceStatements ((exp, pos):rest)
+    | Syn ";" exps <- exp = do
+        reduceStatements $ (exps `zip` repeat pos) ++ rest
+    | Syn "sym" (Sym sym@(Symbol _ _ vexp@(Syn "sub" [_])):other) <- exp = \v -> do
         (VSub sub) <- enterEvalContext "Code" vexp
         lex <- asks envLexical
-        reduceStatements (((Syn "sym" (other ++ [Sym sym{ symExp = Val $ VSub sub{ subPad = lex } }]), pos):rest), lastVal)
-    | Syn "sym" (Sym sym@(Symbol _ name (Syn "mval" [_, vexp])):other) <- exp = do
+        reduceStatements ((Syn "sym" (other ++ [Sym sym{ symExp = Val $ VSub sub{ subPad = lex } }]), pos):rest) v
+    | Syn "sym" (Sym sym@(Symbol _ name (Syn "mval" [_, vexp])):other) <- exp = \_ -> do
         val <- enterEvalContext (cxtOfSigil $ head name) vexp
         mval <- newMVal val
-        reduceStatements (((Syn "sym" (other ++ [Sym sym{ symExp = Val mval }]), pos):rest), Val mval)
-    | Syn "sym" [Sym sym@(Symbol SGlobal _ vexp)] <- exp = do
+        reduceStatements ((Syn "sym" (other ++ [Sym sym{ symExp = Val mval }]), pos):rest) $ Val mval
+    | Syn "sym" [Sym sym@(Symbol SGlobal _ vexp)] <- exp = \_ -> do
         addGlobalSym sym
-        reduceStatements (rest, vexp)
-    | Syn "sym" [Sym sym@(Symbol SOur _ vexp)] <- exp = do
+        reduceStatements rest vexp
+    | Syn "sym" [Sym sym@(Symbol SOur _ vexp)] <- exp = \_ -> do
         addGlobalSym sym -- XXX Wrong
-        reduceStatements (rest, vexp)
-    | Syn "sym" syms <- exp = do
+        reduceStatements rest vexp
+    | Syn "sym" syms <- exp = \_ -> do
         enterLex [ sym | Sym sym@(Symbol SMy _ _) <- syms] $ do
-            reduceStatements (rest, (Syn "sym" syms))
+            reduceStatements rest $ Syn "sym" syms
     | Syn syn [Var name, vexp] <- exp
-    , (syn == ":=" || syn == "::=") = do
+    , (syn == ":=" || syn == "::=") = \_ -> do
         lex <- asks envLexical
         case findSym name lex of
             Just _  -> do
                 let sym = (Symbol SMy name vexp)
                 enterLex [sym] $ do
-                    reduceStatements (rest, vexp)
+                    reduceStatements rest vexp
             Nothing -> do
                 addGlobalSym $ Symbol SGlobal name vexp
-                reduceStatements (rest, vexp)
+                reduceStatements rest vexp
     | Syn "sub" [Val (VSub sub)] <- exp
     , subType sub >= SubBlock = do
         -- bare Block in statement level; run it!
         let app = Syn "()" [exp, Syn "invs" [], Syn "args" []]
-        reduceStatements ((app, pos):rest, lastVal)
-    | null rest = do
+        reduceStatements $ (app, pos):rest
+    | null rest = \_ -> do
         _   <- asks envContext
         val <- enterLex (posSyms pos) $ reduceExp exp
         retVal val
-    | otherwise = do
+    | otherwise = \_ -> do
         val <- enterContext "Void" $ do
             enterLex (posSyms pos) $ do
                 reduceExp exp
         processVal val $ do
-            reduceStatements (rest, Val val)
+            reduceStatements rest $ Val val
     where 
     processVal val action = case val of
         VError str exp  -> retError str exp
@@ -265,7 +268,7 @@ reduce _ exp@(Var name) = do
 
 reduce _ (Statements stmts) = do
     let (global, local) = partition isGlobalExp stmts
-    reduceStatements (global ++ local, Val VUndef)
+    reduceStatements (global ++ local) $ Val VUndef
     where
     isGlobalExp (Syn name _, _) = name `elem` (words "::=")
     isGlobalExp _ = False
