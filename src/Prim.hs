@@ -88,12 +88,8 @@ op1 "exit" = \v -> do
         then liftIO $ exitWith (ExitFailure $ vCast v)
         else liftIO $ exitWith ExitSuccess
 -- handle timely destruction
-op1 "mkdir" = \v -> do
-    liftIO $ catch (createDirectory (vCast v)) ( \_ -> putStr "mkdir fail" )
-    return $ VBool True
-op1 "rmdir" = \v -> do
-    liftIO $ removeDirectory (vCast v)
-    return $ VBool True
+op1 "mkdir" = boolIO createDirectory
+op1 "rmdir" = boolIO removeDirectory
 op1 "open" = \v -> do
     fh <- liftIO $ openFile (vCast v) ReadMode
     return $ VHandle fh
@@ -127,6 +123,12 @@ op1 "<>" = \v -> do
 op1 ""     = return . (\x -> VError ("unimplemented unaryOp: " ++ "") (Val x))
 
 op1 s      = return . (\x -> VError ("unimplemented unaryOp: " ++ s) (Val x))
+
+boolIO f v = do
+    ok <- liftIO $ (`catch` \_ -> return False) $ do
+        f (vCast v)
+        return True
+    return $ VBool ok
 
 opEval :: String -> Eval Val
 opEval str = do
