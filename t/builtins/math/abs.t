@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 4;
+plan 40;
 
 =pod 
 
@@ -11,7 +11,20 @@ Basic tests for the abs() builtin
 
 =cut
 
-is(abs(0), 0, 'got the right absolute value for 0');
-is(abs(1), 1, 'got the right absolute value for 1');
-is(abs(-1), 1, 'got the right absolute value for -1');
-is(abs(-50), 50, 'got the right absolute value for -50');
+for(0, 0.0, 1, 50, 60.0, 99.99) {
+    is(abs($_), $_, "got the right absolute value for $_");
+    is(ref abs($_), ref $_, "got the right data type("~ref($_)~") of absolute value for $_");
+}
+for(-1, -50, -60.0, -99.99) {
+    is(abs($_), -$_, "got the right absolute value for $_");
+    is(ref abs($_), ref $_, "got the right data type("~ref($_)~") of absolute value for $_");
+}
+
+for(0, 0.0, 1, 50, 60.0, 99.99) {
+    eval_is('abs()', $_, 'got the right absolute value for $_='~$_);
+    eval_is('ref abs()', ref $_, 'got the right data type('~ref($_)~') of absolute value for $_='~$_);
+}
+for(-1, -50, -60.0, -99.99) {
+    eval_is('abs()', -$_, 'got the right absolute value for $_='~$_);
+    eval_is('ref abs()', ref $_, 'got the right data type('~ref($_)~') of absolute value for $_='~$_);
+}
