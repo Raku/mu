@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 18;
+plan 21;
 
 # tests various assignment styles
 
@@ -21,6 +21,7 @@ plan 18;
 	is($bar, "FOO", "... and second");
 };
 
+
 {
     # swap two elements in the same array 
     # (moved this from array.t)
@@ -36,10 +37,25 @@ plan 18;
     
     my @a = (1 .. 3);
     my ($one, $two, $three) = @a;
-    is($one, 1, "slice assignment ($, $, $) = @ works");
-    is($two, 2, "slice assignment ($, $, $) = @ works");
-    is($three, 3, "slice assignment ($, $, $) = @ works");    
+    is($one, 1, "slice assignment my ($, $, $) = @ works");
+    is($two, 2, "slice assignment my ($, $, $) = @ works");
+    is($three, 3, "slice assignment my ($, $, $) = @ works");    
 };
+
+{
+   # list assignments 
+
+	my ($a,$b,$c,@a);
+	($a,$b,$c) = 1 .. 3;
+	@a = 1 .. 3;
+
+	is($a,1,"'$a' s/b '1': ($,$,$) = 1 .. 3");
+	is($b,2,"'$b' s/b '2': ($,$,$) = 1 .. 3");
+	is($c,3,"'$c' s/b '3': ($,$,$) = 1 .. 3"); 
+	is(@a,'1 2 3',"'{@a}' s/b '1 2 3' @a = 1 .. 3");
+
+}
+
 
 {
 	my @a;
