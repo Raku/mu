@@ -5,7 +5,7 @@ require Test;
 
 
 
-plan 18;
+plan 16;
 
 
 =kwid
@@ -87,11 +87,12 @@ todo_is($case, undef, "case was not given at all");
 }
 
 {
-my  ($text,$case,$justify); # this doesn't even compile in an eval:   = eval 'formalize("title", :justify<right>, :case<title>)';
+fail("FIXME parsefail (3 tests)"); # currently fails compilation even in eval
+#my  ($text,$case,$justify); # this doesn't even compile in an eval:   = eval 'formalize("title", :justify<right>, :case<title>)';
 
-todo_is($text,'title', "title param was positional");
-todo_is($justify, 'right', "justify param was named with funny syntax");
-todo_is($case, 'title', "case param was named with funny syntax");
+#todo_is($text,'title', "title param was positional");
+#todo_is($justify, 'right', "justify param was named with funny syntax");
+#todo_is($case, 'title', "case param was named with funny syntax");
 }
 
 =kwid

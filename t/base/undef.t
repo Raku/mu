@@ -9,7 +9,7 @@ Basic "undef" tests
 
 =cut
 
-plan 58;
+plan 59;
 
 =kwid
 
@@ -20,78 +20,89 @@ First the perl5 parts.
 
 =cut
 
+our $GLOBAL;
+
 is(undef, undef, "undef is equal to undef");
 ok(!defined(undef), "undef is not defined");
 
-my $a;
-is($a, undef, "uninitialized lexicals are undef");
+{
+	my $a;
+	is($a, undef, "uninitialized lexicals are undef");
 
-our $y;
-is($y, undef, "uninitialized globals are undef");
+	is($GLOBAL, undef, "uninitialized globals are undef");
 
-$a += 1; # should not emit a warning. how to test that?
-ok(defined($a), "initialized var is defined");
+	$a += 1; # should not emit a warning. how to test that?
+	ok(defined($a), "initialized var is defined");
 
-undef $a;
-ok(!defined($a), "undef($a) does");
+	undef $a;
+	ok(!defined($a), "undef($a) does");
 
-$a = "hi";
-ok(defined($a), "string");
+	$a = "hi";
+	ok(defined($a), "string");
 
-my $b;
-$a = $b;
-ok(!defined($a), "assigning another undef lexical");
+	my $b;
+	$a = $b;
+	ok(!defined($a), "assigning another undef lexical");
 
-$a = $y;
-ok(!defined($a), "assigning another undef global");
+	$a = $GLOBAL;
+	ok(!defined($a), "assigning another undef global");
+}
 
+{
+	my @ary = "arg1";
+	my $a = @ary.pop;
+	ok(defined($a), "pop from array");
+	$a = @ary.pop;
+	ok(!defined($a), "pop from empty array");
 
-my @ary = "arg1";
-$a = @ary.pop;
-ok(defined($a), "pop from array");
-$a = @ary.pop;
-ok(!defined($a), "pop from empty array");
+	@ary = "arg1";
+	$a = @ary.shift;
+	ok(defined($a), "shift from array");
+	$a = @ary.shift;
+	ok(!defined($a), "shift from empty array");
 
-@ary = "arg1";
-$a = @ary.shift;
-ok(defined($a), "shift from array");
-$a = @ary.shift;
-ok(!defined($a), "shift from empty array");
+	my %hash = ( bar => 'baz', quux => 'quuz' );
+	ok(defined(%hash{"bar"}), "hash subscript");
+	todo_ok(eval'!defined(%hash{"bargho"})', "non-existent hash subscript") or
+		diag("expected undef; got { %hash{'bargho'} }");
 
-my %hash = ( bar => 'baz', quux => 'quuz' );
-ok(defined(%hash{"bar"}), "hash subscript");
-todo_ok(eval'!defined(%hash{"bargho"})', "non-existent hash subscript") or
-	diag("expected undef; got { %hash{'bargho'} }");
+	fail("FIXME parsefail"); # currently fails compilation even in eval
+	#eval 'undef %hash{"bar"}';
+	#todo_ok(!defined(%hash{"bar"}), "undef hash subscript");
 
-fail("FIXME uncomment this test"); # currently fails compilation even in eval
-#eval 'undef %hash{"bar"}';
-#todo_ok(!defined(%hash{"bar"}), "undef hash subscript");
+	eval '
+		%hash{"bar"} = "baz";
+		delete %hash{"bar"};
+	';
+	todo_ok(!defined(%hash{"bar"}), "delete hash subscript");
 
-eval '
-	%hash{"bar"} = "baz";
-	delete %hash{"bar"};
-';
-todo_ok(!defined(%hash{"bar"}), "delete hash subscript");
+	ok(defined(@ary), "aggregate array defined");
+	ok(defined(%hash), "aggregate hash defined");
+	undef @ary;
+	ok(!defined(@ary), "undef array");
+	undef %hash;
+	ok(!defined(%hash), "undef hash");
+	@ary = (1);
+	ok(defined(@ary), "define array again");
+	%hash = (1,1);
+	ok(defined(%hash), "define hash again");
+}
 
-ok(defined(@ary), "aggregate array defined");
-ok(defined(%hash), "aggregate hash defined");
-undef @ary;
-ok(!defined(@ary), "undef array");
-undef %hash;
-ok(!defined(%hash), "undef hash");
-@ary = (1);
-ok(defined(@ary), "define array again");
-%hash = (1,1);
-ok(defined(%hash), "define hash again");
+{
+	# rjbs reported this bug:
+	fail("FIXME parsefail"); # currently fails compilation even in eval
+	#ok(eval 'my %hash; %hash = {}; undef %hash; %hash');
+}
 
+{
+	sub a_sub { "møøse" }
 
-sub a_sub { "møøse" }
+	ok(defined(&a_sub), "defined sub");
+	todo_ok(eval 'defined(%«$?PACKAGE\::»<&a_sub>)', "defined sub (symbol table)");
 
-ok(defined(&a_sub), "defined sub");
-todo_ok(eval 'defined(%«$?PACKAGE\::»<&a_sub>)', "defined sub (symbol table)");
-
-is(eval 'defined(&a_subwoofer); 1', undef, "undefined sub");
-todo_ok(eval '!defined(%«$?PACKAGE\::»<&a_subwoofer>)', "undefined sub (symbol table)");
+	is(eval 'defined(&a_subwoofer); 1', undef, "undefined sub");
+	todo_ok(eval '!defined(%«$?PACKAGE\::»<&a_subwoofer>)', "undefined sub (symbol table)");
+}
 
 # TODO: find a read-only value to try and assign to, since we don't
 # have rules right now to play around with (the p5 version used $1)
@@ -113,113 +124,127 @@ Perl6-specific tests
 
 =cut
 
-# aggregate references
+{
+	# aggregate references
 
-@ary = (<a b c d e>);
-my $ary_r = @ary; # ref
-is(ref($ary_r), "Array", "taking a ref");
-ok(defined($ary_r), "array reference");
-undef @ary;
-ok(defined($ary_r), "undef array referent");
-todo_is(eval '$ary_r.elems', 0, "dangling array reference") or diag $ary_r;
+	my @ary = (<a b c d e>);
+	my $ary_r = @ary; # ref
+	is(ref($ary_r), "Array", "taking a ref");
+	ok(defined($ary_r), "array reference");
+	undef @ary;
+	ok(defined($ary_r), "undef array referent");
+	todo_is(eval '$ary_r.elems', 0, "dangling array reference") or diag $ary_r;
 
-%hash = (1, 2, 3, 4);
-my $hash_r = %hash;
-is(ref($hash_r), "Hash", "taking a ref");
-ok(defined($hash_r), "hash reference");
-undef %hash;
-ok(defined($hash_r), "undef hash referent");
-todo_is(eval '$hash_r.keys.elems', 0, "dangling hash reference") or
-	diag $hash_r;
+	my %hash = (1, 2, 3, 4);
+	my $hash_r = %hash;
+	is(ref($hash_r), "Hash", "taking a ref");
+	ok(defined($hash_r), "hash reference");
+	undef %hash;
+	ok(defined($hash_r), "undef hash referent");
+	todo_is(eval '$hash_r.keys.elems', 0, "dangling hash reference") or
+		diag $hash_r;
+}
 
+{
+	# types
+	# TODO: waiting on my Dog $spot;
 
-# types
-# TODO: waiting on my Dog $spot;
+	eval 'my Array $an_ary';
+	todo_ok(eval '!defined($an_ary)', "my Array");
+	todo_ok(eval '!defined($an_ary.0)', "my Array subscript - undef");
+	eval '$an_ary.push("blergh")';
+	todo_ok(eval 'defined($an_ary.pop)', "push");
+	todo_ok(eval '!defined($an_ary.pop)', "comes to shove");
 
-eval 'my Array $an_ary';
-todo_ok(eval '!defined($an_ary)', "my Array");
-todo_ok(eval '!defined($an_ary.0)', "my Array subscript - undef");
-eval '$an_ary.push("blergh")';
-todo_ok(eval 'defined($an_ary.pop)', "push");
-todo_ok(eval '!defined($an_ary.pop)', "comes to shove");
+	eval 'my Hash $a_hash';
+	todo_ok(eval '!defined($a_hash)', "my Hash");
+	todo_ok(eval '!defined($a_hash{"blergh"})', "my Hash subscript - undef");
+	todo_ok(eval '!defined($a_hash{"blergh"})', "my Hash subscript - undef, even after autovivification");
+	eval '$a_hash{"blergh"} = 1';
+	todo_ok(eval 'defined($a_hash{"blergh"}.delete)', "delete");
+	todo_ok(eval '!defined($a_hash{"blergh"}.delete)', " - once only");
 
-eval 'my Hash $a_hash';
-todo_ok(eval '!defined($a_hash)', "my Hash");
-todo_ok(eval '!defined($a_hash{"blergh"})', "my Hash subscript - undef");
-todo_ok(eval '!defined($a_hash{"blergh"})', "my Hash subscript - undef, even after autovivification");
-eval '$a_hash{"blergh"} = 1';
-todo_ok(eval 'defined($a_hash{"blergh"}.delete)', "delete");
-todo_ok(eval '!defined($a_hash{"blergh"}.delete)', " - once only");
+	eval '
+		class Dog {};
+		my Dog $spot;
+	';
 
-eval '
-	class Dog {};
-	my Dog $spot;
-';
-
-todo_ok(eval '!defined $spot', "Unelaborated mutt");
-eval '$spot .= .new();';
-todo_ok(eval 'defined $spot', " - now real");
-
+	todo_ok(eval '!defined $spot', "Unelaborated mutt");
+	eval '$spot .= .new();';
+	todo_ok(eval 'defined $spot', " - now real");
+}
 
 # rules
 # TODO. refer to S05
 
-# - unmatched alternative should bind to undef
-my($num, $alpha);
-my($rx1, $rx2);
-eval '
-	$rx1 = rx
-		/ [ (\d+)      { let $<num>   := $1 }
-		  | (<alpha>+) { let $<alpha> := $2 }
-		  ]
-		/;
-	$rx2 = rx
-		/ [ $<num>  := (\d+)
-		  | $<alpha>:= (<alpha>+)
-		  ]
-		/;
-';
-for (<rx1 rx2>) {
-	# I want symbolic lookups because I need the rx names for test results.
-	
-	eval '"1" ~~ %MY::{$_}';
-	todo_ok(defined($num), "{$_}: successful hypothetical");
-	ok(!defined($alpha), "{$_}: failed hypothetical");
-	
-	eval '"A" ~~ %MY::{$_}';
-	ok(!defined($num), "{$_}: failed hypothetical (2nd go)");
-	todo_ok(defined($alpha), "{$_}: successful hypothetical (2nd go)");
+{
+	# - unmatched alternative should bind to undef
+	my($num, $alpha);
+	my($rx1, $rx2);
+	eval '
+		$rx1 = rx
+			/ [ (\d+)      { let $<num>   := $1 }
+			  | (<alpha>+) { let $<alpha> := $2 }
+			  ]
+			/;
+		$rx2 = rx
+			/ [ $<num>  := (\d+)
+			  | $<alpha>:= (<alpha>+)
+			  ]
+			/;
+	';
+	for (<rx1 rx2>) {
+		# I want symbolic lookups because I need the rx names for test results.
+		
+		eval '"1" ~~ %MY::{$_}';
+		todo_ok(defined($num), "{$_}: successful hypothetical");
+		ok(!defined($alpha), "{$_}: failed hypothetical");
+		
+		eval '"A" ~~ %MY::{$_}';
+		ok(!defined($num), "{$_}: failed hypothetical (2nd go)");
+		todo_ok(defined($alpha), "{$_}: successful hypothetical (2nd go)");
+	}
 }
 
-# - binding to hash keys only would leave values undef
-my %matches;
-eval '"a=b\nc=d\n" ~~ / %<matches> := [ (\w) = \N+ ]* /';
-todo_ok(eval '%matches ~~ all(<a b>)', "match keys exist");
-todo_ok(!defined(%matches{"a"}) && !defined(%matches{"b"}), "match values don't");
+{
+	# - binding to hash keys only would leave values undef
+	my %matches;
+	eval '"a=b\nc=d\n" ~~ / %<matches> := [ (\w) = \N+ ]* /';
+	todo_ok(eval '%matches ~~ all(<a b>)', "match keys exist");
+	todo_ok(!defined(%matches{"a"}) && !defined(%matches{"b"}),
+			"match values don't");
+}
 
-# - $1, $2 etc. should all be undef after a failed match
-#   (except for special circumstances)
-eval '
-	"abcde" ~~ /(.)(.)(.)/;
-	"abcde" ~~ /(\d)/;
-';
-todo_ok(eval '! grep { defined($_) } ($1, $2, $3, $4, $5, $6)',
-		"all submatches undefined after failed match") or
-	diag("match state: " ~ eval '$/');
+{
+	# - $1, $2 etc. should all be undef after a failed match
+	#   (except for special circumstances)
+	eval '
+		"abcde" ~~ /(.)(.)(.)/;
+		"abcde" ~~ /(\d)/;
+	';
+	todo_ok(eval '! grep { defined($_) } ($1, $2, $3, $4, $5, $6)',
+			"all submatches undefined after failed match") or
+		diag("match state: " ~ eval '$/');
+
+	# XXX write me: "special circumstances"
+}
 
 
 # subroutines
-# TODO: call me. refer to S06
-# - a sub with optional args and named parameters which don't have
-#   defaults specified, when called without values will yield undef
-sub bar ($bar, $baz, +$quux) {
-	is($bar, "BAR", "defined param"); # sanity
-	ok(!defined($bar), "unspecified optional param");
-	ok(!defined($quux), "unspecified optional param");
-}
+{
+	# TODO: call me. refer to S06
+	# - a sub with optional args and named parameters which don't have
+	#   defaults specified, when called without values will yield undef
+	sub bar ($bar, $baz, +$quux) {
+		is($bar, "BAR", "defined param"); # sanity
+		ok(!defined($bar), "unspecified optional param");
+		ok(!defined($quux), "unspecified optional param");
+	}
 
-todo_fail("FIXME uncomment this test");
-#bar("BAR"); # not yet
+	fail("FIXME parsefail"); # currently fails compilation even in eval
+	#bar("BAR"); # not yet
+
+}
 
 # autoloading
 # TODO: write me, refer to S09
