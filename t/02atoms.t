@@ -5,18 +5,22 @@ use v6;
 This is a test file.  Whee!
 
 =cut
-
+my $loop = 1;
 say "1..1";
 
 my $foo = "Foo";
 my $foobar = "Foo::Bar";
 my $bar;
 
-eval '$bar = $::($foo)';
+sub ok {
+    if ($_) {
+	say "ok  # TODO var = "~$_;
+    }
+    else {
+	say "not ok # TODO";
+    }
+}
 
-if ($bar) {
-    say "ok 1 # TODO bar = " ~ $bar;
-}
-else {
-    say "not ok 1 # TODO"
-}
+eval '$bar = $::($foo)';
+ok($bar,$loop);
+
