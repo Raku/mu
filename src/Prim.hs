@@ -383,7 +383,7 @@ op3 :: Ident -> Val -> Val -> Val -> Eval Val
 op3 "index" = index' where
     index' (VStr a) (VStr b) (VInt p) = index'' 0 a b p
     index' a b _                      = index' a b (VInt 0)
-    index'' n [] [] _ = return $ VInt n
+    index'' n [] [] p = return $ VInt (if p == 0 then n else (-1))
     index'' _ []  _ _ = return $ VInt (-1)
     index'' n (a:as) b p
         | p > 0     = index'' (n+1) as b (p-1)
