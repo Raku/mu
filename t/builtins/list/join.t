@@ -7,14 +7,14 @@ plan 26;
 
 # test all variants of join() 
 
-is(["a", "b", "c"].join("|"), "a|b|c", '[].join("|") works'); # unTODOme
+is(["a", "b", "c"].join("|"), "a|b|c", '[].join("|") works');
 
 my $joined1 = ("a", "b", "c").join("|");
 is($joined1, "a|b|c", '().join("|") works'); # unTODOme
 
 my @list = ("a", "b", "c");
 
-is(@list.join("|"), "a|b|c", '@list.join("|") works'); # unTODOme
+is(@list.join("|"), "a|b|c", '@list.join("|") works');
 
 my $joined2 = join("|", @list);
 is($joined2, "a|b|c", 'join("|", @list) works');
@@ -29,12 +29,12 @@ is($joined4, "a|b|c", 'join("|", []) works');
 
 my $sep = ", ";
 
-is(["a", "b", "c"].join($sep), "a, b, c", '[].join($sep) works'); # unTODOme
+is(["a", "b", "c"].join($sep), "a, b, c", '[].join($sep) works');
 
 my $joined1a = ("a", "b", "c").join($sep);
 is($joined1a, "a, b, c", '().join($sep) works'); # unTODOme
 
-is(@list.join($sep), "a, b, c", '@list.join($sep) works'); # unTODOme
+is(@list.join($sep), "a, b, c", '@list.join($sep) works');
 
 my $joined2a = join($sep, @list);
 is($joined2a, "a, b, c", 'join($sep, @list) works');
@@ -67,14 +67,14 @@ is($joined4c, "a:b:c", 'join ":", [] works');
 
 # join() with empty string as seperator
 
-is(["a", "b", "c"].join(''), "abc", '[].join("") works'); # unTODOme
+is(["a", "b", "c"].join(''), "abc", '[].join("") works');
 
 my $joined1d = ("a", "b", "c").join('');
 is($joined1d, "abc", '().join("") works'); # unTODOme
 
 my @list = ("a", "b", "c");
 
-is(@list.join(''), "abc", '@list.join("") works'); # unTODOme
+is(@list.join(''), "abc", '@list.join("") works');
 
 my $joined2d = join('', @list);
 is($joined2d, "abc", 'join("", @list) works');

@@ -165,11 +165,6 @@ op1 "rand"  = \v -> do
     return $ VNum rand
 op1 "print" = op1Print hPutStr
 op1 "say" = op1Print hPutStrLn
-op1 "join"= \v -> do
-    v <- readMVal v
-    vals <- mapM readMVal (vCast v)
-    let (pivot:list) = map vCast vals
-    return $ VStr $ concat $ intersperse pivot list
 op1 "die" = \v -> do
     return $ VError (concatMap vCast . vCast $ v) (Val v)
 op1 "exit" = \v -> do
@@ -474,6 +469,7 @@ op2 "err"= op2 "//"
 op2 "nor"= op2 "!!"
 op2 "grep"= op2Grep
 op2 "map"= op2Map
+op2 "join"= op2Join
 op2 "unshift" = op2Push (flip (++))
 op2 "push" = op2Push (++)
 op2 "split"= \x y -> do
@@ -667,6 +663,11 @@ op2Map list sub = do
             evl (Syn "()" [Val sub, Syn "invs" [Val x], Syn "args" []])
         return $ vCast rv
     return $ VList $ concat vals
+
+op2Join str@(VStr _) list = op2Join list str
+op2Join list str = do
+    vals <- mapM readMVal (vCast list)
+    return $ VStr $ concat $ intersperse (vCast str) $ map vCast vals
 
 vCastStr :: Val -> Eval VStr
 vCastStr = fromVal
@@ -900,7 +901,8 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Int       pre     unshift (rw!Array, List)\
 \\n   Scalar    pre     pop     (rw!Array)\
 \\n   Scalar    pre     shift   (rw!Array)\
-\\n   Str       pre     join    (List)\
+\\n   Str       pre     join    (Str, List)\
+\\n   Str       pre     join    (Array, Str)\
 \\n   List      left    zip     (List)\
 \\n   List      pre     keys    (Hash)\
 \\n   List      pre     values  (Hash)\
