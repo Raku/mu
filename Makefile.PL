@@ -52,6 +52,12 @@ sub set_postamble {
     my $ghc_output = "-o pugs$Config{_exe} src/Main.hs";
     my @prereqs = ($config_h, qw( src/UnicodeC.c src/UnicodeC.h ));
 
+    if ($Config{_exe} ne '.exe') {
+        my $pcre = "src/pcre/pcre$Config{_obj}";
+        $ghc_output .= " $pcre";
+        push @prereqs, $pcre;
+    }
+
     postamble(fixpaths(<< "."));
 $config_h : lib/Perl6/Pugs.pm util/config_h.pl
 	\$(PERL) util/config_h.pl
