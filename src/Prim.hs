@@ -73,11 +73,10 @@ op1 "undef" = \mv -> do
     return VUndef
 op1 "+"    = return . op1Numeric id
 op1 "abs"  = return . op1Numeric abs
-op1 "atan2"  = return . op1Numeric atan
-op1 "cos"  = return . op1Numeric cos
-op1 "sin"  = return . op1Numeric sin
-op1 "exp"  = return . op1Numeric (**)
-op1 "sqrt" = return . op1Numeric sqrt
+op1 "atan2"= op1Floating atan
+op1 "cos"  = op1Floating cos
+op1 "sin"  = op1Floating sin
+op1 "sqrt" = op1Floating sqrt
 op1 "post:++" = \mv -> do
     val <- readMVal mv
     ref <- fromVal mv
@@ -627,6 +626,11 @@ op2Ord f x y = do
         LT -> -1
         EQ -> 0
         GT -> 1
+
+op1Floating :: (Double -> Double) -> Val -> Eval Val
+op1Floating f v = do
+    foo <- fromVal v
+    return $ VNum $ f foo
 
 op1Numeric :: (forall a. (Num a) => a -> a) -> Val -> Val
 op1Numeric f VUndef     = VInt $ f 0
