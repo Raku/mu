@@ -1,0 +1,44 @@
+# This is a transcription of Hal Daume III's "Yet Another Haskell Tutorial"
+# The original is 198 PDF pages which is hard to read. 
+# This copy is currently incomplete.
+# Original is available at http://www.isi.edu/~hdaume/htut/
+
+= About This Report 
+
+The goal of the /Yet Another Haskell Tutorial/ is to provide a complete
+intoduction to the Haskell programming language. It assumes no knowledge
+of the Haskell language or familiarity with functional programming in
+general. However, general familiarity with programming concepts (such as
+algorithms) will be helpful. This is not intended to be an introduction
+to programming in general; rather, to programming in Haskell. Sufficient
+familiarity with your operating system and a text editor is also
+necessary (this report only discusses installation on configuration on
+Windows and *Nix system; other operating systems may be supported --
+consult the documentation of your chosen compiler for more information
+on installing on other platforms).
+
+== What is Haskell? 
+
+Haskell is called a lazy, pure functional programming language. It is
+called /lazy/ because expressions which are not needed to determine the
+answer to a problem are not evaluated. The opposize of lazy is /strict/,
+which is the evaluation strategry of most common programming languages
+(C, C++, Java, even ML). A strict language is one in which every
+expression is evaluated, whether the result of its computation is
+important or not. (This is probably not entirely true as optimizing
+compilers for strict languages often do what's called "dead code
+elmination" -- this removes unused expressions from the program.) It
+is called pure because it does not allow side effects (A side effect is
+something that affects the “state” of the world. For instance, a
+function that prints something to the screen is said to be side-
+effecting, as is a function which affects the value of a global
+variable.) – of course, a programming language without side effects
+would be horribly useless; Haskell uses a system of monads to isolate
+all impure computations from the rest of the program and perform them in
+the safe way (see Chapter 9 for a discussion of monads proper or Chapter
+5 for how to do input/output in a pure language). Haskell is called a
+functional language because the evaluation of a program is equivalent to
+evaluating a function in the pure mathematical sense. This also differs
+from standard languages (like C and Java) which evaluate a sequence of
+statements, one after the other (this is termed an imperative langauge).
+
