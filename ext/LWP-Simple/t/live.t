@@ -11,17 +11,18 @@ my @urls = <
     %s
     %s/index.html
 >;
-@urls = (); # unTODOme
 
+my @live_urls;
 if (%ENV{"PUGS_TESTS_ALLOW_NETWORK"}) {
-  push @urls, <
+# Need to get some easily validated stuff here
+  @live_urls = <
     http://www.corion.net
     http://datenzoo.de
     http://datenzoo.de/
     http://datenzoo.de/index.html
   >;
 };
-plan 2+@urls*8;
+plan 2+@urls*9+@live_urls*8;
 
 use_ok('LWP::Simple');
 
@@ -42,27 +43,27 @@ sub spawn_server (Int $port) {
 
     while (1) {
       my $hdl = $sock.accept;
-      
+
       my $request = =$hdl;
+      $request ~~ s:perl5/\s+$//;
       #diag $request;
       if ($request ~~ rx:perl5/^GET \/stop-server\//) {
         last();
       };
-      
+
       while (readline($hdl) ~~ rx:perl5/\S/) { 1 };
-      $hdl.say("HTTP/1.0 200 OK");
-      $hdl.say("Content-Type: text/plain; charset=UTF-8");
-      $hdl.say("Server: Fake local Pugs HTTPd");
-      $hdl.say("X-Original-Request: $request");
-      $hdl.say("");
-      $hdl.say($expected);
+      $hdl.print( "HTTP/1.0 200 OK\r\n"
+                ~ "Content-Type: text/plain; charset=UTF-8\r\n"
+                ~ "Server: Fake local Pugs HTTPd\r\n"
+                ~ "X-Original-Request: $request\r\n"
+                ~ "\r\n"
+                ~ $expected );
       $hdl.flush();
       $hdl.close;
     };
 
-    #diag "Shut down server";
   };
-  
+
   $url;
 };
 
@@ -76,15 +77,21 @@ for @urls -> $t_url {
   my $head = head($url);
   ok( $head ~~ rx:perl5/.../, "Got some headers as scalar");
   my @head = head($url);
-  ok( @head > 3, "Got more than 1 line as list");
+  todo_ok( @head > 3, "Got more than 1 line as list");
   my %head = head($url);
-  ok( %head.keys() > 0, "Got some headers as hash");
-  is( %head{'Content-Type'}, "text/html", "Got a content type of text/html");
+  todo_ok( %head.keys() > 3, "Got some headers as hash");
+  todo_is( %head{'Content-Type'}, "text/html", "Got a content type of text/html");
 
   diag "Retrieving $url";
   my $res = get($url);
   ok(defined $res, "Got some result");
   ok( defined ($res ~~ rx:perl5/./), "and it's not empty");
+
+  # TODO: Uncomment once length() is implemented
+  # is( length($res), length($expected), "The response has the correct length");
+  # TODO: Add a check against Content-Length, once it's implemented
+  
+  is( $res, $expected, "Got the correct response");
 
   diag "Storing $url to $tempfile";
   my $f = getstore($url,$tempfile);
@@ -94,3 +101,29 @@ for @urls -> $t_url {
 };
 
 get("$base_url/stop");
+
+for @live_urls -> $url {
+  diag "Getting HEAD of $url";
+  my $head = head($url);
+  ok( $head ~~ rx:perl5/.../, "Got some headers as scalar");
+  my @head = head($url);
+  todo_ok( @head > 3, "Got more than 1 line as list");
+  my %head = head($url);
+  todo_ok( %head.keys() > 3, "Got some headers as hash");
+  todo_is( %head{'Content-Type'}, "text/html", "Got a content type of text/html");
+
+  diag "Retrieving $url";
+  my $res = get($url);
+  ok(defined $res, "Got some result");
+  ok( defined ($res ~~ rx:perl5/./), "and it's not empty");
+
+  # TODO: Uncomment once length() is implemented
+  # is( length($res), length($expected), "The response has the correct length");
+  # TODO: Add a check against Content-Length, once it's implemented
+  
+  diag "Storing $url to $tempfile";
+  my $f = getstore($url,$tempfile);
+  my $buf = slurp $tempfile;
+  is( $buf, $res, "... and contains $url");
+  is( $f, $res, "... and getstore() returns $url");
+};

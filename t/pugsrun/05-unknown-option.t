@@ -26,11 +26,11 @@ plan +@examples;
 
 diag "Running under $?OS";
 
-my ($pugs,$redir) = ("./pugs", ">");
+# Win9x breakage:
+my ($pugs,$redir) = ("./pugs", "2>&1 >");
 
 if ($?OS ~~ rx:perl5{MSWin32|msys|mingw}) {
   $pugs = 'pugs.exe';
-  $redir = '>';
 };
 
 for @examples -> $ex {

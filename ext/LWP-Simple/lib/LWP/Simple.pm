@@ -56,17 +56,15 @@ sub head (Str $url) is export {
 
   my ($host,$port,$path) = split_uri($url);
 
-  my $req = _make_request( "HEAD", $host, $path );
-  my $hdl = connect($host, $port);
-  $hdl.print($req);
-  $hdl.flush;
+  my $req = _make_request( "HEAD", $url );
+  my $hdl = _send_request( $host, $port, $req );
 
   my $head = slurp $hdl;
 
   # strip away everything except status and headers
   # This should all be done better so the response doesn't live in
   # memory all at once
-
+  
   if ($head ~~ rx:perl5{^HTTP\/\d+\.\d+\s+(\d+) (?:.*?\015?\012)((?:.*?\015?\012)*?)\015?\012}) {
     my ($code,$head) = ($1,$2);
 
@@ -102,28 +100,25 @@ sub split_uri (Str $url) {
   my ($host) = $1;
   my ($port) = $2 || 80;
   my ($path) = $3 || "/";
-
+  
   return ($host,$port,$path);
 };
 
 sub _get (Str $url) {
-  my ($host,$port,$path) = split_uri($url);
-  return _trivial_http_get(($host,$port,$path));
+  #my ($host,$port,$path) = split_uri($url);
+  return _trivial_http_get($url);
 };
 
-sub _trivial_http_get (Str $host, Str $port, Str $path) returns Str {
+sub _trivial_http_get (Str $url) returns Str {
   # * Don't use "say()", be specific and send "\r\n"
   # * Set a timeout of 60 seconds (however)
   # * Make sure the socket is autoflush, or better
   #   is flushed after we've sent our lines.
   # * Send Connection: close, at least until we know better
-  # say "$host:$port";
+  my ($h,$p,$u) = split_uri($url);
 
-  my $req = _make_request( "GET", $host, $path );
-
-  my $hdl = connect($host, $port);
-  $hdl.print($req);
-  $hdl.flush;
+  my $req = _make_request( "GET", $url );
+  my $hdl = _send_request( $h, $p, $req );
 
   # read response+headers:
   # $hdl.irs = /$CRLF$CRLF/; # <-- make this into a todo test
@@ -132,36 +127,58 @@ sub _trivial_http_get (Str $host, Str $port, Str $path) returns Str {
   # 1 while ( $buffer ~= $hdl.read() and $buffer !~ rx:perl5{$CRLF$CRLF} );
   # my ($status,@headers) = split /$CRLF/, $buffer;
   # worry later about body
-  # say $buffer;
 
   # strip away status and headers
   # This should all be done better so the response doesn't live in
   # memory all at once
 
-  if ($buffer ~~ s:perl5{^HTTP\/\d+\.\d+\s+(\d+)(.*?\015?\012)+?\015?\012}{}) {
+  # if ($buffer ~~ s:perl5{^HTTP\/\d+\.\d+\s+(\d+)([^\012]*?\015?\012)+?\015?\012}{}) {
+  if ($buffer ~~ s:perl5{^HTTP\/\d+\.\d+\s+(\d+)([^\x0A]*?\x0D?\x0A)+?\x0D?\x0A}{}) {
     my $code = $1;
-
+    
     # XXX: Add 30[1237] checking/recursion
 
     if ($code ~~ rx:perl5/^[^2]../) {
-       return undef;
+       return ();
     };
-
-    # strip status and headers
-    # $buffer ~~ s:perl5{^.*?$CRLF$CRLF}{};
 
     # Later add Content-Size: handling here
   };
   return $buffer
 }
 
-sub _make_request (Str $method, Str $host, Str $path) {
+sub _make_request (Str $method, Str $uri) {
+  my ($h,$p,$u) = split_uri($uri);
+  if (%ENV{"HTTP_PROXY"}) {
+    $u = $uri;
+  };
+
   join "\n", # $CRLF,
-    "$method $path HTTP/1.1",
-    "Host: $host",
+    "$method $u HTTP/1.1",
+    "Host: $h",
     "User-Agent: lwp-trivial-pugs/$VERSION",
     "Connection: close",
     $CRLF;
+};
+
+sub _send_request (Str $host, Str $port, Str $request) {
+  # XXX clean up!
+  
+  my ($h,$p) = ($host,$port);
+  # TODO: Replace with exists() once it is there
+  if (%ENV{"HTTP_PROXY"} ~~ rx:perl5!.!) {
+    if (%ENV{"HTTP_PROXY"} ~~ rx:perl5!http://()(:(\d+))?$!) {
+      $h = $1;
+      $p = $2 || 80;
+    } else {
+      die "Unhandled/unknown proxy settings: %ENV{'HTTP_PROXY'}";
+    };
+  };
+  
+  my $hdl = connect($h, $p);
+  $hdl.print($request);
+  $hdl.flush;
+  $hdl;
 };
 
 =pod
@@ -173,7 +190,7 @@ LWP::Simple - simple procedural interface to LWP
 =head1 SYNOPSIS
 
   pugs -MLWP::Simple -e 'getprint "http://www.sn.no"'
- 
+
   require LWP::Simple;
   $content = get("http://www.sn.no/");
   die "Couldn't get it!" unless defined $content;
@@ -226,7 +243,9 @@ The HTTP status code is returned
 
 =item Scalar Context
 
-All headers are returned as one long string
+All headers are returned as one long string, or maybe as a L<HTTP::Headers>
+object, depending on when C<want> gets implemented. Currently, the headers
+are returned as one long string.
 
 =item List Context
 
