@@ -1,0 +1,26 @@
+This directory contains explorations of various Synopses as Perl and
+Haskell code.
+
+Much of the code and pseudo-code in here is based on Rod Adam's S29.
+There is also some exploration of Junctions here by metaperl.
+
+As far as the S29 translation to Perl goes, this has been restructured
+slightly based on my own experience and some ideas from Haskell.  For
+instance, there is a "Map" class, from which Array, Hash and Set can
+descend.  Note there is also a more complete (but still yet not
+working) version of Set at http://freepan.org/mugwump/Set (check out
+with svn, drop me a note on IRC for commit access).
+
+Also, I s/Perl6:://'ed the module names, on the "You're Soaking in it"
+principle.
+
+Lots of the Math:: methods probably would be better defined on a set
+of classes like Haskell's "Number", "Integral", "Rational", etc types,
+once we get the class structure for the core scalar types nailed down.
+There is a nice venn diagram of these types in
+http://www.cs.ou.edu/~rlpage/fpclassCurrent/textbook/haskell.shtml
+ - in fact, that's the diagram that fully convinced me that classical
+inheritance just doesn't work ;-).  I've cut out the diagram and put
+it in number-types.png in this directory.
+
+  -- mugwump

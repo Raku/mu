@@ -3,7 +3,16 @@ use v6;
 
 role Array;
 
-multi sub pop ( @CALLER::_ ) returns Object;
-multi sub push ( @CALLER::_ ) returns Object;
-multi sub shift ( @CALLER::_ ) returns Object;
-multi sub unshift ( @CALLER::_ ) returns Object;
+does Map;
+does List;
+
+multi sub push ( @CALLER::_ is rw: *@items ) returns Object;
+multi sub unshift ( @CALLER::_ is rw: *@items ) returns Object;
+
+multi sub pop ( @CALLER::_ is rw: ) returns Object;
+multi sub shift ( @CALLER::_ is rw: ) returns Object;
+
+multi sub splice ( @CALLER::_ is rw:
+		   : Int ?$offset = 0,
+                     Int ?$length,
+		   *@values) returns List is Lvalue;
