@@ -64,9 +64,6 @@ evaluateMain exp = do
     return val
 
 evaluate :: Exp -> Eval Val
--- evaluate (Val (VSub sub)) = do
---     pad <- asks envLexical
---     return $ VSub sub{ subPad = pad } -- closure!
 evaluate (Val v@(MVal mv)) = do
     lvalue  <- asks envLValue
     cxt     <- asks envContext
