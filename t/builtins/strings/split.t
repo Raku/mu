@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 26;
+plan 40;
 
 # split on an empty string
 
@@ -51,3 +51,31 @@ is(+@split5, 3, 'got the right number of split elements');
 is(@split5[0], 'Perl6', 'the first element is right');
 is(@split5[1], 'Pugs', 'the second element is right');
 is(@split5[2], 'Test', 'the third element is right');
+
+# split with a reg-exp
+
+{ # your basic CSV split
+    my @split = split(rx:perl5{,}, "split,me");
+    is(+@split, 2, 'got the right number of values');
+    is(@split[0], 'split', 'got the right first value');
+    is(@split[1], 'me', 'got the right second value');
+}
+
+{ # split on multiple space characters
+    my @split = split(rx:perl5{\s+}, "Hello World    Goodbye   Mars");
+    is(+@split, 4, 'got the right number of values');
+    is(@split[0], 'Hello', 'got the right first value');
+    is(@split[1], 'World', 'got the right second value');
+    is(@split[2], 'Goodbye', 'got the right third value');
+    is(@split[3], 'Mars', 'got the right fourth value');     
+}
+
+{ # split with a capture
+    my @split = split(rx:perl5{([A-Z]|<)}, "Hello < test");
+    is(+@split, 5, 'got the right number of values');
+    is(@split[0], '', 'got the right first value');
+    is(@split[1], 'H', 'got the right second value');
+    is(@split[2], 'ello ', 'got the right third value');
+    is(@split[3], '<', 'got the right fourth value');
+    is(@split[4], ' test', 'got the right fifth value');     
+}
