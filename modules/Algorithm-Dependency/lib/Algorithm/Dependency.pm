@@ -8,9 +8,9 @@ class Algorithm::Dependency-0.0.1;
 
 # Implements the basic, non-order significant dependency algorithm
 
-has $:source is Algorithm::Dependency::Source;
+has Algorithm::Dependency::Source $.source;
 has %:selected;
-has $:ignore_orphans is Bool;
+has Bool $:ignore_orphans;
 
 
 
@@ -58,9 +58,6 @@ method new( $class: +$source is Algorithm::Dependency::Source, +$ignore_orphans 
 
 #####################################################################
 # Basic methods
-
-# Get the Source object
-method source() returns Algorithm::Dependency::Source { $.source }
 
 # Get the list of all selected items
 method selected_list() returns Array { $.selected.keys.sort }

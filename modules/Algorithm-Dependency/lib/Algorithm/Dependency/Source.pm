@@ -8,9 +8,9 @@ class Algorithm::Dependency::Source-0.0.1;
 # Algorithm::Dependency::Source implements a parent class for a source
 # of items.
 
-has $:loaded is Bool = 0;
-has %:items_hash is Hash of Algorithm::Dependency::Item;
-has @:items_array is Array of Algorithm::Dependency::Item;
+has Bool                                 $:loaded = 0;
+has Hash of Algorithm::Dependency::Item  %:items_hash;
+has Array of Algorithm::Dependency::Item @:items_array;
 
 method new( $class: ) returns Algorithm::Dependency::Source {
 
@@ -64,9 +64,6 @@ method load () returns Bool {
 
 	return ($.loaded = 1);
 }
-
-# See if loaded
-method loaded () returns Bool { $.loaded }
 
 # Get a single item by id
 method item ( $id ) returns Algorithm::Dependency::Item {
