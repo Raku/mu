@@ -901,26 +901,24 @@ qqInterpolatorChar = do
     return (Val $ VStr [nextchar])
 
 qqLiteral = do
-    ch   <- getDelim
+    ch   <- (getDelim "qq" '"')
     expr <- interpolatingStringLiteral (balancedDelim ch) qqInterpolator
     char (balancedDelim ch)
     return expr
-        where getDelim = try $ do string "qq"
-                                  notFollowedBy alphaNum
-                                  delim <- anyChar
-                                  return delim
-                               <|> char '"'
 
 qLiteral = do
-    ch   <- getDelim
-    expr <- (many (try $ quotedDelim (balancedDelim ch) <|> noneOf [ balancedDelim ch ]))
+    ch   <- (getDelim "q" '\'')
+    str  <- (many (try $ quotedDelim (balancedDelim ch) <|> noneOf [ balancedDelim ch ]))
     char (balancedDelim ch)
-    return . Val . VStr $ expr
-        where getDelim = try $ do string "q"
-                                  notFollowedBy alphaNum
-                                  delim <- anyChar
-                                  return delim
-                               <|> char '\''
+    return . Val . VStr $ str
+
+getDelim qstr sch = try $
+    do
+        string qstr
+        notFollowedBy alphaNum
+        delim <- anyChar
+        return delim
+    <|> char sch
 
 quotedDelim ch = choice
     [ try $ do { string [ '\\', ch ]; return ch }
