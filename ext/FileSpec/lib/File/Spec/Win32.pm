@@ -10,7 +10,16 @@ sub case_tolerant returns Bool is export { 1     }
 
 ## Splitting
 
-sub splitdir (Str $directories) returns Array is export { split("\\", $directories) }
+sub splitdir (Str $directories) returns Array is export {
+    # this is an ugly hack since we dont 
+    # have split(<regexp>, Str) yet.
+    my @dirs = split("/", $directories);
+    @dirs = @dirs.map:{ split("\\", $_) };
+    if (($directories ~~ rx:perl5{[\\/]\Z(?!\n)})) {
+        @dirs[@dirs - 1] = '';
+    }
+    return @dirs;
+}
 
 sub splitpath (Str $path, Bool ?$nofile) returns Array is export {
     my ($volume, $directory, $file) = ('','','');
@@ -30,16 +39,18 @@ sub splitpath (Str $path, Bool ?$nofile) returns Array is export {
 
 ## Concatenating
 
-sub catdir (*@path) returns Str is export {
+sub catdir (*@_path) returns Str is export {
+    return '' unless +@_path;
+    my @path = @_path;
     my @new_path;
-    for (@path) -> $e {
-        $e ~~ s:perl5:g{/}{\\};
-        # append a backslash to each argument unless it has one there
-        unless (substr($e, -1) eq "\\") {
-            push(@new_path, $e ~ "\\");
+    my $i = 0;
+    loop ($i = 0; $i < @path; $i++) {
+        @path[$i] ~~ s:perl5:g{/}{\\};
+        unless (@path[$i] eq "\\" || @path[$i] ~~ rx:perl5{\\$}) {
+            push(@new_path, @path[$i] ~ "\\");
         }
         else {
-            push(@new_path, $e);
+            push(@new_path, @path[$i]);
         }
     }
     return canonpath(join('', @new_path));
@@ -48,8 +59,8 @@ sub catdir (*@path) returns Str is export {
 sub catfile (*@_path) returns Str is export {
     my @path = @_path;
     my $file = canonpath(pop(@path));
-    return $file unless +@path;
-    my $dir = catdir(@path);
+    return $file unless ?@path;
+    my $dir = catdir(@path[0], @path[1], @path[2], @path[3]);
     $dir ~= "\\" unless substr($dir, -1) eq "\\";
     return $dir ~ $file;
 }
@@ -85,7 +96,7 @@ sub canonpath (Str $_path) returns Str is export {
         $path ~~ s:perl5{^([a-z]:)}{$match}; #s;
     }
     $path ~~ s:perl5:g{/}{\\};
-    #$path ~~ s:perl5:g{([^\\])\\+}{$1\\};                                                 # xx\\\\xx  -> xx\xx
+    $path ~~ s:perl5:g{([^\\])\\+}{$1\\};                                                 # xx\\\\xx  -> xx\xx
     $path ~~ s:perl5:g{(\\\.)+\\}{\\};                                           # xx\.\.\xx -> xx\xx
     $path ~~ s:perl5{^(\.\\)+}{} unless $path eq ".\\";                             # .\xx      -> xx
     $path ~~ s:perl5{\\\Z(?!\n)}{} unless $path ~~ rx:perl5{^([A-Z]:)?\\\Z(?!\n)};  # xx\       -> xx
@@ -101,14 +112,20 @@ sub canonpath (Str $_path) returns Str is export {
     my ($vol, $dirs, $file) = splitpath($path);
     my @dirs = splitdir($dirs);
     my (@base_dirs, @path_dirs);
-    my $dest = @base_dirs;
+    my $use_base_dirs = 1;
     for (@dirs) -> $dir {
-        $dest = @path_dirs if $dir eq updir();
-        push($dir, $dest);
+        $use_base_dirs = 0 if $dir eq updir();
+        if ($use_base_dirs) {
+            push(@base_dirs, $dir);        
+        }
+        else {
+            push(@path_dirs, $dir);
+        }
     }
     # for each .. in @path_dirs pop one item from 
     # @base_dirs
-    while (my $dir = shift(@path_dirs)){ 
+    my $dir;
+    while ($dir = shift(@path_dirs)){ 
         unless ($dir eq updir()){
             unshift(@path_dirs, $dir);
             last();
@@ -143,62 +160,59 @@ sub cwd returns Str {
     return $cwd;
 }
 
-# my $tmpdir;
-# method tmpdir () returns Str {
-#     return $tmpdir if $tmpdir.defined;
-#     $tmpdir = ._tmpdir( %*ENV{'TMPDIR', 'TEMP', 'TMP'}, 'SYS:/temp', 'C:/temp', '/tmp', '/');
-#     return $tmpdir;
-# }
-# 
-# method abs2rel (Str $path, Str $base) returns Str {
-#     $base = ._cwd() unless $base.defined and $base.bytes;
-#     for ($path, $base) { $_ = .canonpath($_) }
-#     my ($path_volume) = .splitpath($path, 1);
-#     my ($base_volume) = .splitpath($base, 1);
-#     # Can't relativize across volumes
-#     return $path unless $path_volume eq $base_volume;
-#     for ($path, $base) { $_ = .rel2abs($_) }
-#     my $path_directories = (.splitpath($path, 1))[1];
-#     my $base_directories = (.splitpath($base, 1))[1];
-#     # Now, remove all leading components that are the same
-#     my @pathchunks = .splitdir($path_directories);
-#     my @basechunks = .splitdir($base_directories);
-#     while ( @pathchunks && 
-#             @basechunks && 
-#             @pathchunks[0].lc eq @basechunks[0].lc 
-#           ) {
-#         @pathchunks.shift;
-#         @basechunks.shift;
-#     }
-#     # XXX: not sure if I got this   ---v--- right
-#     my $result_dirs = .catdir((.updir) x @basechunks, @pathchunks);
-#     return .canonpath(.catpath('', $result_dirs, ''));
-# }
-# 
-# 
-# method rel2abs (Str $path, Str $base) returns Str {
-#     if (!.file_name_is_absolute($path)) {
-#         if (!$base.defined || $base eq '') {
-#             # XXX not sure how to deal with this Cwd stuff
-#             require Cwd;
-#             $base = Cwd::getdcwd((.splitpath($path))[0]) if defined &Cwd::getdcwd;
-#             $base = ._cwd() unless defined $base;
-#         }
-#         elsif (!.file_name_is_absolute($base)) {
-#             $base = .rel2abs($base);
-#         }
-#         else {
-#             $base = .canonpath($base);
-#         }
-# 
-#         my ($path_directories, $path_file) = (.splitpath($path, 1))[1,2];
-# 
-#         my ($base_volume, $base_directories) = .splitpath($base, 1);
-# 
-#         $path = .catpath($base_volume, .catdir($base_directories, $path_directories), $path_file);
-#     }
-#     return .canonpath($path);
-# }
+sub rel2abs (Str $_path, Str ?$_base) returns Str {
+    my $path = $_path;
+    if (!file_name_is_absolute($path)) {
+        my $base;
+        if (!$_base.defined || $_base eq '') {
+            $base = cwd();
+        }
+        elsif (!file_name_is_absolute($_base)) {
+            $base = rel2abs($_base);
+        }
+        else {
+            $base = canonpath($_base);
+        }
+        my ($path_directories, $path_file) = (splitpath($path, 1))[1,2];
+        my ($base_volume, $base_directories) = splitpath($base, 1);
+        $path = catpath($base_volume, catdir($base_directories, $path_directories), $path_file);
+    }
+    return canonpath($path);
+}
+
+sub abs2rel (Str $_path, Str ?$_base) returns Str is export {
+    my $base;
+    if (defined($_base) && $_base ne '') {
+        $base = $_base;
+    }
+    else {
+        $base = cwd();
+    }
+    my $base = canonpath($base);
+    my $path = canonpath($_path);
+    
+    my ($path_volume) = splitpath($path, 1);
+    my ($base_volume) = splitpath($base, 1);
+    # Can't relativize across volumes
+    return $path unless $path_volume eq $base_volume;
+    
+    $path = rel2abs($path);
+    $base = rel2abs($base);
+    
+    my $path_directories = (splitpath($path, 1))[1];
+    my $base_directories = (splitpath($base, 1))[1];
+    
+    # Now, remove all leading components that are the same
+    my @pathchunks = splitdir($path_directories);
+    my @basechunks = splitdir($base_directories);
+    
+    while (@pathchunks && @basechunks && lc(@pathchunks[0]) eq lc(@basechunks[0])) {
+        shift(@pathchunks);
+        shift(@basechunks);
+    }
+    my $result_dirs = catdir((updir) xx @basechunks, @pathchunks);
+    return canonpath(catpath("", $result_dirs, ""));
+}
 
 
 =kwid

@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 29;
+plan 164;
 
 =pod
 
@@ -119,89 +119,115 @@ is(canonpath("\\..\\"),         "\\",           'checking canonpath');
 is(canonpath("/../"),           "\\",           'checking canonpath');
 is(canonpath("/..\\"),          "\\",           'checking canonpath');
 
-# [ "Win32->splitpath('file')",                            ',,file'                            ],
-# [ "Win32->splitpath('\\d1/d2\\d3/')",                    ',\\d1/d2\\d3/,'                    ],
-# [ "Win32->splitpath('d1/d2\\d3/')",                      ',d1/d2\\d3/,'                      ],
-# [ "Win32->splitpath('\\d1/d2\\d3/.')",                   ',\\d1/d2\\d3/.,'                   ],
-# [ "Win32->splitpath('\\d1/d2\\d3/..')",                  ',\\d1/d2\\d3/..,'                  ],
-# [ "Win32->splitpath('\\d1/d2\\d3/.file')",               ',\\d1/d2\\d3/,.file'               ],
-# [ "Win32->splitpath('\\d1/d2\\d3/file')",                ',\\d1/d2\\d3/,file'                ],
-# [ "Win32->splitpath('d1/d2\\d3/file')",                  ',d1/d2\\d3/,file'                  ],
-# [ "Win32->splitpath('C:\\d1/d2\\d3/')",                  'C:,\\d1/d2\\d3/,'                  ],
-# [ "Win32->splitpath('C:d1/d2\\d3/')",                    'C:,d1/d2\\d3/,'                    ],
-# [ "Win32->splitpath('C:\\d1/d2\\d3/file')",              'C:,\\d1/d2\\d3/,file'              ],
-# [ "Win32->splitpath('C:d1/d2\\d3/file')",                'C:,d1/d2\\d3/,file'                ],
-# [ "Win32->splitpath('C:\\../d2\\d3/file')",              'C:,\\../d2\\d3/,file'              ],
-# [ "Win32->splitpath('C:../d2\\d3/file')",                'C:,../d2\\d3/,file'                ],
-# [ "Win32->splitpath('\\../..\\d1/')",                    ',\\../..\\d1/,'                    ],
-# [ "Win32->splitpath('\\./.\\d1/')",                      ',\\./.\\d1/,'                      ],
-# [ "Win32->splitpath('\\\\node\\share\\d1/d2\\d3/')",     '\\\\node\\share,\\d1/d2\\d3/,'     ],
-# [ "Win32->splitpath('\\\\node\\share\\d1/d2\\d3/file')", '\\\\node\\share,\\d1/d2\\d3/,file' ],
-# [ "Win32->splitpath('\\\\node\\share\\d1/d2\\file')",    '\\\\node\\share,\\d1/d2\\,file'    ],
-# [ "Win32->splitpath('file',1)",                          ',file,'                            ],
-# [ "Win32->splitpath('\\d1/d2\\d3/',1)",                  ',\\d1/d2\\d3/,'                    ],
-# [ "Win32->splitpath('d1/d2\\d3/',1)",                    ',d1/d2\\d3/,'                      ],
-# [ "Win32->splitpath('\\\\node\\share\\d1/d2\\d3/',1)",   '\\\\node\\share,\\d1/d2\\d3/,'     ],
-# 
-# [ "Win32->catpath('','','file')",                            'file'                            ],
-# [ "Win32->catpath('','\\d1/d2\\d3/','')",                    '\\d1/d2\\d3/'                    ],
-# [ "Win32->catpath('','d1/d2\\d3/','')",                      'd1/d2\\d3/'                      ],
-# [ "Win32->catpath('','\\d1/d2\\d3/.','')",                   '\\d1/d2\\d3/.'                   ],
-# [ "Win32->catpath('','\\d1/d2\\d3/..','')",                  '\\d1/d2\\d3/..'                  ],
-# [ "Win32->catpath('','\\d1/d2\\d3/','.file')",               '\\d1/d2\\d3/.file'               ],
-# [ "Win32->catpath('','\\d1/d2\\d3/','file')",                '\\d1/d2\\d3/file'                ],
-# [ "Win32->catpath('','d1/d2\\d3/','file')",                  'd1/d2\\d3/file'                  ],
-# [ "Win32->catpath('C:','\\d1/d2\\d3/','')",                  'C:\\d1/d2\\d3/'                  ],
-# [ "Win32->catpath('C:','d1/d2\\d3/','')",                    'C:d1/d2\\d3/'                    ],
-# [ "Win32->catpath('C:','\\d1/d2\\d3/','file')",              'C:\\d1/d2\\d3/file'              ],
-# [ "Win32->catpath('C:','d1/d2\\d3/','file')",                'C:d1/d2\\d3/file'                ],
-# [ "Win32->catpath('C:','\\../d2\\d3/','file')",              'C:\\../d2\\d3/file'              ],
-# [ "Win32->catpath('C:','../d2\\d3/','file')",                'C:../d2\\d3/file'                ],
-# [ "Win32->catpath('','\\../..\\d1/','')",                    '\\../..\\d1/'                    ],
-# [ "Win32->catpath('','\\./.\\d1/','')",                      '\\./.\\d1/'                      ],
-# [ "Win32->catpath('\\\\node\\share','\\d1/d2\\d3/','')",     '\\\\node\\share\\d1/d2\\d3/'     ],
-# [ "Win32->catpath('\\\\node\\share','\\d1/d2\\d3/','file')", '\\\\node\\share\\d1/d2\\d3/file' ],
-# [ "Win32->catpath('\\\\node\\share','\\d1/d2\\','file')",    '\\\\node\\share\\d1/d2\\file'    ],
-# 
-# [ "Win32->splitdir('')",             ''           ],
-# [ "Win32->splitdir('\\d1/d2\\d3/')", ',d1,d2,d3,' ],
-# [ "Win32->splitdir('d1/d2\\d3/')",   'd1,d2,d3,'  ],
-# [ "Win32->splitdir('\\d1/d2\\d3')",  ',d1,d2,d3'  ],
-# [ "Win32->splitdir('d1/d2\\d3')",    'd1,d2,d3'   ],
-# 
-# [ "Win32->catdir()",                        ''                   ],
-# [ "Win32->catdir('')",                      '\\'                 ],
-# [ "Win32->catdir('/')",                     '\\'                 ],
-# [ "Win32->catdir('/', '../')",              '\\'                 ],
-# [ "Win32->catdir('/', '..\\')",             '\\'                 ],
-# [ "Win32->catdir('\\', '../')",             '\\'                 ],
-# [ "Win32->catdir('\\', '..\\')",            '\\'                 ],
-# [ "Win32->catdir('//d1','d2')",             '\\\\d1\\d2'         ],
-# [ "Win32->catdir('\\d1\\','d2')",           '\\d1\\d2'         ],
-# [ "Win32->catdir('\\d1','d2')",             '\\d1\\d2'         ],
-# [ "Win32->catdir('\\d1','\\d2')",           '\\d1\\d2'         ],
-# [ "Win32->catdir('\\d1','\\d2\\')",         '\\d1\\d2'         ],
-# [ "Win32->catdir('','/d1','d2')",           '\\\\d1\\d2'         ],
-# [ "Win32->catdir('','','/d1','d2')",        '\\\\\\d1\\d2'       ],
-# [ "Win32->catdir('','//d1','d2')",          '\\\\\\d1\\d2'       ],
-# [ "Win32->catdir('','','//d1','d2')",       '\\\\\\\\d1\\d2'     ],
-# [ "Win32->catdir('','d1','','d2','')",      '\\d1\\d2'           ],
-# [ "Win32->catdir('','d1','d2','d3','')",    '\\d1\\d2\\d3'       ],
-# [ "Win32->catdir('d1','d2','d3','')",       'd1\\d2\\d3'         ],
-# [ "Win32->catdir('','d1','d2','d3')",       '\\d1\\d2\\d3'       ],
-# [ "Win32->catdir('d1','d2','d3')",          'd1\\d2\\d3'         ],
-# [ "Win32->catdir('A:/d1','d2','d3')",       'A:\\d1\\d2\\d3'     ],
-# [ "Win32->catdir('A:/d1','d2','d3','')",    'A:\\d1\\d2\\d3'     ],
-# #[ "Win32->catdir('A:/d1','B:/d2','d3','')", 'A:\\d1\\d2\\d3'     ],
-# [ "Win32->catdir('A:/d1','B:/d2','d3','')", 'A:\\d1\\B:\\d2\\d3' ],
-# [ "Win32->catdir('A:/')",                   'A:\\'               ],
-# [ "Win32->catdir('\\', 'foo')",             '\\foo'              ],
-# 
-# [ "Win32->catfile('a','b','c')",        'a\\b\\c' ],
-# [ "Win32->catfile('a','b','.\\c')",      'a\\b\\c'  ],
-# [ "Win32->catfile('.\\a','b','c')",      'a\\b\\c'  ],
-# [ "Win32->catfile('c')",                'c' ],
-# [ "Win32->catfile('.\\c')",              'c' ],
+is(join(',', splitpath('file')),                            ",,file",                            'checking splitpath');
+is(join(',', splitpath("\\d1/d2\\d3/")),                    ",\\d1/d2\\d3/,",                    'checking splitpath');
+is(join(',', splitpath("d1/d2\\d3/")),                      ",d1/d2\\d3/,",                      'checking splitpath');
+is(join(',', splitpath("\\d1/d2\\d3/.")),                   ",\\d1/d2\\d3/.,",                   'checking splitpath');
+is(join(',', splitpath("\\d1/d2\\d3/..")),                  ",\\d1/d2\\d3/..,",                  'checking splitpath');
+is(join(',', splitpath("\\d1/d2\\d3/.file")),               ",\\d1/d2\\d3/,.file",               'checking splitpath');
+is(join(',', splitpath("\\d1/d2\\d3/file")),                ",\\d1/d2\\d3/,file",                'checking splitpath');
+is(join(',', splitpath("d1/d2\\d3/file")),                  ",d1/d2\\d3/,file",                  'checking splitpath');
+is(join(',', splitpath("C:\\d1/d2\\d3/")),                  "C:,\\d1/d2\\d3/,",                  'checking splitpath');
+is(join(',', splitpath("C:d1/d2\\d3/")),                    "C:,d1/d2\\d3/,",                    'checking splitpath');
+is(join(',', splitpath("C:\\d1/d2\\d3/file")),              "C:,\\d1/d2\\d3/,file",              'checking splitpath');
+is(join(',', splitpath("C:d1/d2\\d3/file")),                "C:,d1/d2\\d3/,file",                'checking splitpath');
+is(join(',', splitpath("C:\\../d2\\d3/file")),              "C:,\\../d2\\d3/,file",              'checking splitpath');
+is(join(',', splitpath("C:../d2\\d3/file")),                "C:,../d2\\d3/,file",                'checking splitpath');
+is(join(',', splitpath("\\../..\\d1/")),                    ",\\../..\\d1/,",                    'checking splitpath');
+is(join(',', splitpath("\\./.\\d1/")),                      ",\\./.\\d1/,",                      'checking splitpath');
+is(join(',', splitpath("\\\\node\\share\\d1/d2\\d3/")),     "\\\\node\\share,\\d1/d2\\d3/,",     'checking splitpath');
+is(join(',', splitpath("\\\\node\\share\\d1/d2\\d3/file")), "\\\\node\\share,\\d1/d2\\d3/,file", 'checking splitpath');
+is(join(',', splitpath("\\\\node\\share\\d1/d2\\file")),    "\\\\node\\share,\\d1/d2\\,file",    'checking splitpath');
+is(join(',', splitpath("file", 1)),                         ",file,",                            'checking splitpath');
+is(join(',', splitpath("\\d1/d2\\d3/", 1)),                 ",\\d1/d2\\d3/,",                    'checking splitpath');
+is(join(',', splitpath("d1/d2\\d3/", 1)),                   ",d1/d2\\d3/,",                      'checking splitpath');
+is(join(',', splitpath("\\\\node\\share\\d1/d2\\d3/", 1)),  "\\\\node\\share,\\d1/d2\\d3/,",     'checking splitpath');
+
+is(join(',', splitdir('')),             ''           ,'checking splitdir');
+is(join(',', splitdir("\\d1/d2\\d3/")), ',d1,d2,d3,' ,'checking splitdir');
+is(join(',', splitdir("d1/d2\\d3/")),   'd1,d2,d3,'  ,'checking splitdir');
+is(join(',', splitdir("\\d1/d2\\d3")),  ',d1,d2,d3'  ,'checking splitdir');
+is(join(',', splitdir("d1/d2\\d3")),    'd1,d2,d3'   ,'checking splitdir');
+
+is(catpath('', '', 'file'),                            'file'                            ,'checking catpath');
+is(catpath('', "\\d1/d2\\d3/", ''),                    "\\d1/d2\\d3/"                    ,'checking catpath');
+is(catpath('', "d1/d2\\d3/", ''),                      "d1/d2\\d3/"                      ,'checking catpath');
+is(catpath('', "\\d1/d2\\d3/.", ''),                   "\\d1/d2\\d3/."                   ,'checking catpath');
+is(catpath('', "\\d1/d2\\d3/..",''),                   "\\d1/d2\\d3/.."                  ,'checking catpath');
+is(catpath('', "\\d1/d2\\d3/", '.file'),               "\\d1/d2\\d3/.file"               ,'checking catpath');
+is(catpath('', "\\d1/d2\\d3/", 'file'),                "\\d1/d2\\d3/file"                ,'checking catpath');
+is(catpath('', "d1/d2\\d3/", 'file'),                  "d1/d2\\d3/file"                  ,'checking catpath');
+is(catpath('C:', "\\d1/d2\\d3/", ''),                  "C:\\d1/d2\\d3/"                  ,'checking catpath');
+is(catpath('C:', "d1/d2\\d3/", ''),                    "C:d1/d2\\d3/"                    ,'checking catpath');
+is(catpath('C:', "\\d1/d2\\d3/", 'file'),              "C:\\d1/d2\\d3/file"              ,'checking catpath');
+is(catpath('C:', "d1/d2\\d3/", 'file'),                "C:d1/d2\\d3/file"                ,'checking catpath');
+is(catpath('C:', "\\../d2\\d3/", 'file'),              "C:\\../d2\\d3/file"              ,'checking catpath');
+is(catpath('C:', "../d2\\d3/", 'file'),                "C:../d2\\d3/file"                ,'checking catpath');
+is(catpath('', "\\../..\\d1/", ''),                    "\\../..\\d1/"                    ,'checking catpath');
+is(catpath('', "\\./.\\d1/", ''),                      "\\./.\\d1/"                      ,'checking catpath');
+is(catpath("\\\\node\\share", "\\d1/d2\\d3/", ''),     "\\\\node\\share\\d1/d2\\d3/"     ,'checking catpath');
+is(catpath("\\\\node\\share", "\\d1/d2\\d3/", 'file'), "\\\\node\\share\\d1/d2\\d3/file" ,'checking catpath');
+is(catpath("\\\\node\\share", "\\d1/d2\\", 'file'),    "\\\\node\\share\\d1/d2\\file"    ,'checking catpath');
 
 
+is(catfile('a', 'b', 'c'),    "a\\b\\c", 'checking catfile');
+is(catfile('a', 'b', ".\\c"), "a\\b\\c", 'checking catfile');
+is(catfile(".\\a", 'b', 'c'), "a\\b\\c", 'checking catfile');
+is(catfile('c'),              'c', 'checking catfile');
+is(catfile(".\\c"),           'c', 'checking catfile');
+
+is(catdir(),                        ''                   ,'checking catdir');
+is(catdir(''),                      "\\"                 ,'checking catdir');
+is(catdir("/"),                     "\\"                 ,'checking catdir');
+is(catdir("/", "../"),              "\\"                 ,'checking catdir');
+is(catdir("/", "..\\"),             "\\"                 ,'checking catdir');
+is(catdir("\\", "../"),             "\\"                 ,'checking catdir');
+is(catdir("\\", "..\\"),            "\\"                 ,'checking catdir');
+is(catdir("//d1",'d2'),             "\\\\d1\\d2"         ,'checking catdir');
+is(catdir("\\d1\\",'d2'),           "\\d1\\d2"           ,'checking catdir');
+is(catdir("\\d1",'d2'),             "\\d1\\d2"           ,'checking catdir');
+is(catdir("\\d1","\\d2"),           "\\d1\\d2"           ,'checking catdir');
+is(catdir("\\d1","\\d2\\"),         "\\d1\\d2"           ,'checking catdir');
+is(catdir('',"/d1",'d2'),           "\\\\d1\\d2"         ,'checking catdir');
+is(catdir('','',"/d1",'d2'),        "\\\\\\d1\\d2"       ,'checking catdir');
+is(catdir('',"//d1",'d2'),          "\\\\\\d1\\d2"       ,'checking catdir');
+is(catdir('','',"//d1",'d2'),       "\\\\\\\\d1\\d2"     ,'checking catdir');
+is(catdir('','d1','','d2',''),      "\\d1\\d2"           ,'checking catdir');
+is(catdir('','d1','d2','d3',''),    "\\d1\\d2\\d3"       ,'checking catdir');
+is(catdir('d1','d2','d3',''),       "d1\\d2\\d3"         ,'checking catdir');
+is(catdir('','d1','d2','d3'),       "\\d1\\d2\\d3"       ,'checking catdir');
+is(catdir('d1','d2','d3'),          "d1\\d2\\d3"         ,'checking catdir');
+is(catdir("A:/d1",'d2','d3'),       "A:\\d1\\d2\\d3"     ,'checking catdir');
+is(catdir("A:/d1",'d2','d3',''),    "A:\\d1\\d2\\d3"     ,'checking catdir');
+is(catdir("A:/d1","B:/d2",'d3',''), "A:\\d1\\B:\\d2\\d3" ,'checking catdir');
+is(catdir("A:/"),                   "A:\\"               ,'checking catdir');
+is(catdir("\\", 'foo'),             "\\foo"              ,'checking catdir');
+
+is(rel2abs('temp', "C:/"),                       "C:\\temp"                     ,'checking real2abs');
+is(rel2abs('temp', "C:/a"),                      "C:\\a\\temp"                  ,'checking real2abs');
+is(rel2abs('temp', "C:/a/"),                     "C:\\a\\temp"                  ,'checking real2abs');
+is(rel2abs("../",  "C:/"),                       "C:\\"                         ,'checking real2abs');
+is(rel2abs("../", "C:/a"),                       "C:\\"                         ,'checking real2abs');
+is(rel2abs('temp', "//prague_main/work/"),       "\\\\prague_main\\work\\temp" ,'checking real2abs');
+is(rel2abs("../temp", "//prague_main/work/"),    "\\\\prague_main\\work\\temp" ,'checking real2abs');
+is(rel2abs('temp', "//prague_main/work"),        "\\\\prague_main\\work\\temp" ,'checking real2abs');
+is(rel2abs("../", "//prague_main/work"),         "\\\\prague_main\\work"       ,'checking real2abs');
+
+is(abs2rel("/t1/t2/t3", "/t1/t2/t3"),         ''                       ,'checking abs2rel');
+is(abs2rel("/t1/t2/t4", "/t1/t2/t3"),         "..\\t4"                 ,'checking abs2rel');
+is(abs2rel("/t1/t2", "/t1/t2/t3"),            '..'                     ,'checking abs2rel');
+is(abs2rel("/t1/t2/t3/t4", "/t1/t2/t3"),      't4'                     ,'checking abs2rel');
+is(abs2rel("/t4/t5/t6", "/t1/t2/t3"),         "..\\..\\..\\t4\\t5\\t6" ,'checking abs2rel');
+is(abs2rel("/", "/t1/t2/t3"),                 "..\\..\\.."             ,'checking abs2rel');
+is(abs2rel("///", "/t1/t2/t3"),               "..\\..\\.."             ,'checking abs2rel');
+is(abs2rel("/.", "/t1/t2/t3"),                "..\\..\\.."             ,'checking abs2rel');
+is(abs2rel("/./", "/t1/t2/t3"),               "..\\..\\.."             ,'checking abs2rel');
+is(abs2rel("\\\\a/t1/t2/t4", "/t2/t3"),       "\\\\a\\t1\\t2\\t4"      ,'checking abs2rel');
+is(abs2rel("//a/t1/t2/t4", "/t2/t3"),         "\\\\a\\t1\\t2\\t4"      ,'checking abs2rel');
+is(abs2rel("A:/t1/t2/t3", "A:/t1/t2/t3"),     ''                       ,'checking abs2rel');
+is(abs2rel("A:/t1/t2/t3/t4", "A:/t1/t2/t3"),  't4'                     ,'checking abs2rel');
+is(abs2rel("A:/t1/t2/t3", "A:/t1/t2/t3/t4"),  '..'                     ,'checking abs2rel');
+is(abs2rel("A:/t1/t2/t3", "B:/t1/t2/t3"),     "A:\\t1\\t2\\t3"         ,'checking abs2rel');
+is(abs2rel("A:/t1/t2/t3/t4", "B:/t1/t2/t3"),  "A:\\t1\\t2\\t3\\t4"     ,'checking abs2rel');
+is(abs2rel("E:/foo/bar/baz"),                 "E:\\foo\\bar\\baz"      ,'checking abs2rel');
 
