@@ -8,8 +8,8 @@
 Makefile$
 ^Makefile.old$
 ^_darcs/
-^blib/
-^blib6/
+\bblib/
+\bblib6/
 ^etc/
 pm_to_blib$
 ^blibdirs
