@@ -157,6 +157,9 @@ reduceStatements ((exp:rest), _)
     | Syn "sym" [Sym sym@(Symbol SGlobal _ vexp)] <- exp = do
         addGlobalSym sym
         reduceStatements (rest, vexp)
+    | Syn "sym" [Sym sym@(Symbol SOur _ vexp)] <- exp = do
+        addGlobalSym sym -- XXX Wrong
+        reduceStatements (rest, vexp)
     | Syn "sym" syms <- exp = do
         enterLex [ sym | Sym sym@(Symbol SMy _ _) <- syms] $ do
             reduceStatements (rest, (Syn "sym" syms))
