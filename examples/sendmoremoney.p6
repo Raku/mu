@@ -1,107 +1,167 @@
 #!perl6
 use v6;
 
-die "*** This example is currently broken -- needs more work.";
+my $timer;
+sub start_timer() {
+    $timer = time();
+}
+my $piggy_bank;
 
-# basic test case, A + B = AC
-my $a = any(0..9) & none(0);
-my $b = any(0..9) & none(0);
-my $c = any(0..9);
-my $ac;
-
-if ( any($a, $b, $c) == one($a, $b, $c) ) {
-
-    $ac = $a * 10 + $c;
-
-    if ( $a + $b == $ac ) {
-	say " A = $a";
-	say "+B = $b";
-	say "-------";
-	say "AC =$ac";
+sub show_rate($num) {
+    my $elapsed = time() - $timer;
+    if ($elapsed) {
+        say "Found all solutions in "~$elapsed~"s ("~($num/$elapsed)~" comb/s)";
+    } else {
+        say "Damn, that was fast.  Didn't even see the clock tick,";
+        say "for searching a solution space of $num!";
+    }
+    if (defined($piggy_bank)) {
+	say "There are $piggy_bank coins left in the bank.";
     }
 }
+
+# basic test case, A + B = AC
+my $a = any(1..9);
+my $b = any(1..9);
+my $c = any(0..9);
+
+sub do_it($a,$b,$c) {
+    if ( any($a, $b, $c) == one($a, $b, $c) ) {
+        my $ac = $a * 10 + $c;
+        if ( $a + $b == $ac ) {
+	    say "  A =  $a";
+	    say "+ B =  $b";
+	    say "--------";
+	    say " AC = $ac";
+        }
+    }
+}
+
+say "Finding solutions for A + B = AC";
+start_timer();
+do_it($a,$b,$c);
+show_rate(810);
 
 # a more complicated and "classical" case :)
 sub show_me_the_money($s,$e,$n,$d,$m,$o,$r,$y) {
 
-    my $send := construct($s,$e,$n,$d);
-    my $more := construct($m,$o,$r,$e);
-    my $money := construct($m,$o,$n,$e,$y);
+    if (all($s,$e,$n,$d,$m,$o,$r,$y) == one($s,$e,$n,$d,$m,$o,$r,$y)) {
 
-    if ($send + $more == $money) {
-        say " send =  $send";
-        say "+more =  $more";
-        say "-------------";
-        say "money = $money";
+        $piggy_bank --;
+
+        my $send = ((($s)*10+$e)*10+$n)*10+$d;
+        my $more = ((($m)*10+$o)*10+$r)*10+$e;
+        my $money = (((($m)*10+$o)*10+$n)*10+$e)*10+$y;
+
+        if ($send + $more == $money) {
+            say " send =  $send";
+            say "+more =  $more";
+            say "-------------";
+            say "money = $money";
+	}
     }
-
 }
 
-my $s = any(0..9) & none(0);
+my $s = any(1..9);
 my $e = any(0..9);
 my $n = any(0..9);
 my $d = any(0..9);
-my $m = any(0..9) & none(0);
+my $m = any(1..9);
 my $o = any(0..9);
 my $r = any(0..9);
 my $y = any(0..9);
-
-# breaking the calculation down into a series of additions, in terms
-# of individual digits and carry values is a necessary step to solving
-# this problem quickly (as I see it).
-
-# the test starting with ($c3 == $m), etc is essentially a big
-# optimisation hint, roughly organised in a way that represents a
-# "quick" way to solve the problem.  By the time the test in
-# show_me_the_money runs, the values have already been determined.
-
-# Languages like Oz might be able to figure out this stuff
-# automatically, but that is a very lofty goal to aim for to begin
-# with!   (see http://xrl.us/fehh (Link to www.mozart-oz.org))
-
-# set this to 1 to disable the hint, instead using an exhaustive
-# search method, requiring ~1e8 iterations, until the optimiser is
-# smart enough to reduce it to the broken down version
-my $use_exhaustive = 0;
 
 my $c0 = any(0..1);
 my $c1 = any(0..1);
 my $c2 = any(0..1);
 my $c3 = any(0..1);
 
-if ( any($s,$e,$n,$d,$m,$o,$r,$y) == one($s,$e,$n,$d,$m,$o,$r,$y) ) {
+sub collapse($one, $sub) { $sub.($one) };
+sub collapse($one, $two, $sub) { $sub.($one, $two) };
+sub collapse($one, $two, $three, $sub) { $sub.($one, $two, $three) };
 
-    if ( $use_exhaustive or
-	 (           $c3     == $m ) &&
-	 (( $s+$m+$c2 ) % 10 == $o ) && ( int( ( $s+$m+$c2 ) / 10 ) == $c3 ) &&
-	 (( $e+$o+$c1 ) % 10 == $n ) && ( int( ( $e+$o+$c1 ) / 10 ) == $c2 ) &&
-	 (( $n+$r+$c0 ) % 10 == $e ) && ( int( ( $n+$r+$c0 ) / 10 ) == $c1 ) &&
-	 (( $d+$e     ) % 10 == $y ) && ( int( ( $d+$e     ) / 10 ) == $c0 ) &&
-       ) {
+say "Finding solutions for SEND + MORE = MONEY (psuedo-optimised)";
+$piggy_bank = 1e8;
+start_timer();
 
-	show_me_the_money($s,$e,$n,$d,$m,$o,$r,$y);
+# this is still really ugly, but fast-ish :)
+collapse($c3, $m, -> $c3, $m {
+
+    $piggy_bank--;
+
+    # FIFTH (most significant) column of addition
+    if ($c3 == $m) {
+        say "found c3 = $c3, m = $m";
+    collapse($s, $o, $c2, -> $s, $o, $c2 {
+
+        # FOURTH column of addition
+        $piggy_bank--;
+	if ($s != $m && $s != $o && $m != $o &&
+	    (( $s+$m+$c2 ) % 10 == $o ) && ( int( ( $s+$m+$c2 ) / 10 ) == $c3 ) ) {
+    	say " found s = $s, o = $o, c2 = $c2";
+    	collapse($e, $c1, -> $e, $c1 {
+
+            $piggy_bank--;
+	    if ( $e != $s && $e != $o && $e != $m &&
+	          ( int( ( $e+$o+$c1 ) / 10 ) == $c2 ) ) {
+    	    say "  found e = $e, c1 = $c1";
+    	    collapse($d, $y, $c0, -> $d, $y, $c0 {
+
+                $piggy_bank--;
+		if ($d != $s && $d != $m && $d != $s && $d != $e && $d != $o &&
+		    $y != $s && $y != $m && $y != $s && $y != $e && $y != $o &&
+		    $d != $y &&
+	     	    (( $d+$e     ) % 10 == $y ) &&
+		    ( int( ( $d+$e     ) / 10 ) == $c0 )) {
+    	        say "   found d = $d, y = $y, c0 = $c0";
+		
+		collapse($n, $r, -> $n, $r {
+
+                    $piggy_bank--;
+		    if ($n != $s && $n != $m && $n != $s && $n != $o &&
+		        $n != $e && $n != $d && $n != $y &&
+		        $r != $s && $r != $m && $r != $s && $r != $o &&
+		        $r != $e && $r != $d && $r != $y && $r != $n &&
+	         	(( $e+$o+$c1 ) % 10 == $n ) &&
+	     		( ( $n+$r+$c0 ) % 10 == $e ) &&
+			( int( ( $n+$r+$c0 ) / 10 ) == $c1 )) {
+
+    	        	say "    found n = $n, r = $r (that should be it)";
+
+			show_me_the_money($s,$e,$n,$d,$m,$o,$r,$y);	
+
+		    }
+		});
+		}
+	    });
+	    }
+        });
+	}
+    });
     }
-}
+});
 
-# functions used by example
-sub foldl (Code &op, Any $initial, *@values) returns Any {
-    if (+@values == 0) {
-         return $initial;
-    } else {
-         return &op(shift @values, &?SUB(&op, $initial, @values));
-    }
-}
+show_rate(16e8);
 
-sub add (Int $x, Int $y) returns Int {
-    return $x + $y;
-}
+say "Finding solutions for SEND + MORE = MONEY (exhaustive)";
 
-sub construct (*@values) returns Junction {
-    return foldl( -> $x, $y { $x * 10 + $y}, 0, @values);
-}
+# in fact, cheat again :-)
+# note: this would take BLEEDING AGES (days or weeks) without this
+# cheating.
+my $s = any(8..9);
+my $e = any(5..6);
+my $n = any(4..7);
+my $d = any(6..8);
+my $m = any(1..2);
+my $o = any(0,1,9);
+my $r = any(7..9);
+my $y = any(1..3);
 
+start_timer();
+show_me_the_money($s,$e,$n,$d,$m,$o,$r,$y);
+show_rate(2*2*4*3*2*3*3*3);
 
-__END__
+=kwid
 
 -- Heres the equivalent SQL, as junctions have direct representation
 -- in Set Theory (see http://xrl.us/feh8)), then the below should be a
@@ -112,6 +172,8 @@ __END__
 -- admittedly it was only running on a dual processor 1.6GHz Opteron.
 -- Pg took a similar amount of time on a 1.7GHz AthlonXP (5s), SQLite
 -- took over 30s!
+
+-- The `exhaustive' solution cranks through possibilities at about 
 
 -- MySQL table setup (adjust for your DBMS as necessary)
 
@@ -153,3 +215,5 @@ WHERE
     MOD( N.X + R.X + C0.X, 10) = E.X   AND
     MOD( D.X + E.X       , 10) = Y.X
 ;
+
+=cut

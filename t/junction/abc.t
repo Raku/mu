@@ -9,7 +9,7 @@ Solves A + B = AC
 
 =cut
 
-plan 2;
+plan 4;
 
 my $n;
 sub is_it($a, $b, $c) {
@@ -29,4 +29,10 @@ is($n, 42, "called lots of times :-)");
 
 ok( $answer == "1 + 9 = 10", "found right answer");
 
+my @list = qw(1 2 3 4 5 6 7 8);
 
+ok( all(@list) == one(@list), "all(@x) == one(@x) tests uniqueness(+ve)" );
+
+push @list, 6;
+
+ok( !( all(@list) == one(@list) ), "all(@x) == one(@x) tests uniqueness(-ve)" );
