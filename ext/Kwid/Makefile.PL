@@ -10,7 +10,7 @@ version         ('0.0');
 abstract        ('Kwid');
 author          ('Brian Ingerson <ingy@cpan.org>');
 license         ('perl');
-install_script  ("$FindBin::Bin/$kwid");
+install_script  ('kwid');
 blib_depth      (2);
 
 postamble(<< ".");
