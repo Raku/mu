@@ -1,41 +1,25 @@
-{-# OPTIONS -cpp #-}
+{-# OPTIONS -fglasgow-exts -cpp #-}
+
+{-
+    Interactive shell.
+
+    There is an inn, a merry old inn,
+    beneath an old grey hill,
+    And there they brew a beer so brown
+    That the Man in the Moon himself came down
+    one night to drink his fill...
+-}
+
+module Shell where
+import Internals
+import AST
+
 #define READLINE 1
 #include "config.h"
 
-{-------------------------------------------------------------------------------
-
-        Copyright:              Bernie Pope 2004
-
-        Module:                 Shell
-
-        Description:            The Baskell interpreter command line. 
-
-        Primary Authors:        Bernie Pope
-
-        Notes: 
-
-        Will use GNU readline if it is available. 
-
--------------------------------------------------------------------------------}
-
-module Shell 
-   ( Command (..)
-   , getCommand
-   , initializeShell
-   ) 
-   where
-
-import AST
-import Char
 #ifdef READLINE
 import qualified System.Console.Readline as Readline
-   ( readline
-   , addHistory
-   , initialize
-   )
 #endif
-
---------------------------------------------------------------------------------
 
 data Command
    = Load FilePath
@@ -45,37 +29,31 @@ data Command
    | Eval String 
    | Type Exp 
    | Help
-#ifdef DEBUG
-   | ShowAST
-   | ShowDepend
-#endif
 
 -- read some input from the user
 -- parse the input and return the corresponding command
 getCommand :: IO Command
-getCommand 
-   = do input <- readline "pugs> " 
-        case input of
-           Nothing -> return Quit
-           Just line
-              -> if all isSpace line
-                    then getCommand
-                    else do
-                        addHistory line
-                        return $ parseCommandLine line
+getCommand = do
+    input <- readline "pugs> " 
+    doCommand input
+
+doCommand Nothing = return Quit
+doCommand (Just line)
+    | all isSpace line  = getCommand
+    | (s, _) <- break (== '#') line
+    , all isSpace s     = getCommand
+    | otherwise         = do
+        addHistory line
+        return $ parseCommandLine line
 
 parseCommandLine :: String -> Command 
 parseCommandLine ('?':str)      = Eval str
 parseCommandLine ('.':str)      = Parse str
 parseCommandLine (':':'q':_)    = Quit
 parseCommandLine (':':'h':_)    = Help
-parseCommandLine (':':'b':_)    = Browse
-parseCommandLine (':':'l':str)  = Load . unwords . tail $ words str
+-- parseCommandLine (':':'b':_)    = Browse
+-- parseCommandLine (':':'l':str)  = Load . unwords . tail $ words str
 parseCommandLine str            = Eval str
-
---------------------------------------------------------------------------------
-
--- optional support for GNU Readline  
 
 initializeShell :: IO ()
 initializeShell

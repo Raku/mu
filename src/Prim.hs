@@ -12,16 +12,13 @@
 -}
 
 module Prim where
+import Internals
 import AST
-import Data.Char
-import Data.Bits
-import Data.Word
-import Data.List
-import Data.Maybe
-import Data.Ratio
 
 op1 :: Ident -> (forall a. Context a => a) -> Val
-op1 "!"  = VBool . not
+op1 "!"  = \x -> case op1 "?" x of
+    VBool True  -> VBool False
+    VBool False -> VBool True
 op1 "+"  = op1Numeric id
 op1 "-"  = op1Numeric negate
 op1 "~"  = VStr
@@ -153,6 +150,7 @@ op2Junction j x y
 op1Numeric :: (forall a. (Num a) => a -> a) -> Val -> Val
 op1Numeric f VUndef     = VInt $ f 0
 op1Numeric f (VInt x)   = VInt $ f x
+op1Numeric f (VList l)  = VInt $ f $ genericLength l
 op1Numeric f x          = VNum $ f (vCast x)
 
 op2Numeric :: (forall a. (Num a) => a -> a -> a) -> Val -> Val -> Val

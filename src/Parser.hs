@@ -10,10 +10,9 @@
 -}
 
 module Parser where
+import Internals
 import AST
 import Lexer
-import Text.ParserCombinators.Parsec
-import Text.ParserCombinators.Parsec.Expr
 
 type StateParser a = GenParser Char () a
 
@@ -36,6 +35,7 @@ operators =
     , leftOps  " || ^^ // "                             -- Tight Or
     , ternOps  [("??", "::")]                           -- Ternary
     , leftOps  " = := ::= += **= xx= "                  -- Assignment
+    -- XXX rewrite chained Ops using sepBy!
     , rightOps " , "                                    -- List Item Separator
     , preOps   primitiveListFunctions                   -- List Operator
     , leftOps  " ==> "                                  -- Pipe Forward
@@ -70,7 +70,7 @@ postfix     = Postfix . makeOp Op1
 
 parseTerm = parens parseOp
     <|> parseLit
-    <|> nonTerm
+--  <|> nonTerm
     <?> "term"
 
 nonTerm = do

@@ -12,9 +12,8 @@
 -}
 
 module Pretty where
+import Internals
 import AST
-import Data.List
-import Data.Ratio
 
 class (Show a) => Pretty a where
     pretty :: a -> String

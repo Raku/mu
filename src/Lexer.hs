@@ -10,13 +10,8 @@
 -}
 
 module Lexer where
-import Data.Char
-import Debug.Trace
-import Text.ParserCombinators.Parsec
-import Text.ParserCombinators.Parsec.Expr
-import Text.ParserCombinators.Parsec.Pos
+import Internals
 import qualified Text.ParserCombinators.Parsec.Token as P
-import Text.ParserCombinators.Parsec.Language
 
 perl6Def  = javaStyle
           { P.commentStart   = "\n=begin\n"
@@ -88,7 +83,7 @@ naturalOrFloat  = lexeme (natFloat) <?> "number"
                         }
 
     fraction        = do{ char '.'
-                        ; digits <- many1 digit <?> "fraction"
+                        ; digits <- many digit <?> "fraction"
                         ; return (foldr op 0.0 digits)
                         }
                       <?> "fraction"
@@ -148,6 +143,6 @@ singleQuoted = lexeme (
 singleStrChar = quotedQuote <|> noneOf "'"
 
 quotedQuote = do
-    string "\\'"
-    return '\''
+    char '\\'
+    anyChar
 

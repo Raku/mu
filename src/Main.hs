@@ -14,8 +14,7 @@
 -}
 
 module Main where
-import IO
-import System
+import Internals
 
 import AST
 import Eval
@@ -31,11 +30,16 @@ main = getArgs >>= run
 
 run (('-':'e':str@(_:_)):args) = doRun str args
 run ("-e":str:args) = doRun str args
+run ("-h":_)        = printHelp
 run (file:args)     = readFile file >>= (`doRun` args)
 run []              = do
     hSetBuffering stdout NoBuffering 
-    banner
-    repLoop () 
+    isTTY <- hIsTerminalDevice stdin
+    if isTTY
+        then banner >> repLoop () 
+        else do
+            str <- getContents
+            doRun str []
 
 repLoop :: State -> IO ()
 repLoop state 
@@ -44,13 +48,13 @@ repLoop state
            Quit     -> putStrLn "Leaving pugs."
            Load fn  -> load fn
            Eval str -> doEval str [] >> repLoop initState 
-           Parse str-> parse str >> repLoop initState 
+           Parse str-> doParse str >> repLoop initState 
            Help     -> printHelp >> repLoop state 
 
 load fn = do
     return ()
 
-parse str = runLex print parseOp str
+doParse str = runLex print parseOp str
 
 eval str = doEval str []
 

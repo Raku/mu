@@ -12,13 +12,7 @@
 -}
 
 module AST where
-import Data.List
-import Data.Word
-import Data.Char
-import Data.Ratio
-import Data.Complex
-import Data.FiniteMap
-import Text.ParserCombinators.Parsec.Pos
+import Internals
 
 type Ident = String
 

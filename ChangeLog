@@ -1,0 +1,6 @@
+[Changes for 6.0.0 - February 7, 2005]
+
+* Initial CPAN release.
+* Evaluation of most simple expressions.
+* Junctions and chained comparisons.
+* Interactive shell and #!/usr/bin/pugs support.
