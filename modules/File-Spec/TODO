@@ -1,10 +1,16 @@
-------------------------------------------------------------------------
+========================================================================
 Currently the items TODO are:
+========================================================================
+    NOTE:
+    This is a **very** rough port right now, 
+    so there are sure to be some issues.
+========================================================================
+Conversion was completed with SVN r861
 ------------------------------------------------------------------------
-NOTE:
-This is a **very** rough port right now, 
-so there are sure to be some issues.
-------------------------------------------------------------------------
+Perl 6 style refactoring begins with SVN r
+    NOTE:
+    Refactoring is noted by the following string: # <<<
+========================================================================
 
 File::Spec
 
@@ -13,6 +19,7 @@ File::Spec
 File::Spec::Unix
 
     - figure out what to do about the Cwd dependency
+    - refactor _tmpdir and tmpdir into class attributes
 
 File::Spec::Cygwin
 

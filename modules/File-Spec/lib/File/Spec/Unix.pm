@@ -3,21 +3,24 @@ use v6;
 
 class File::Spec::Unix-0.0.1;
 
-method curdir  () returns Str { '.' }
-method updir   () returns Str { '..' }
-method rootdir () returns Str { '/' }
-method devnull () returns Str { '/dev/null' }
+# make these public (read-only by default) 
+# attributes, and they will auto-generate 
+# their own accessors for us to use
+has Str  $.curdir        = '.';
+has Str  $.updir         = '..'; 
+has Str  $.rootdir       = '/';
+has Str  $.devnull       = '/dev/null';
+has Bool $.case_tolerant = 0;
 
-method case_tolerant () returns Bool { 0 }
-
-method canonpath ($path) returns Str {
+method canonpath (Str $path) returns Str {
     # Handle POSIX-style node names beginning with double slash (qnx, nto)
     # Handle network path names beginning with double slash (cygwin)
     # (POSIX says: "a pathname that begins with two successive slashes
     # may be interpreted in an implementation-defined manner, although
     # more than two leading slashes shall be treated as a single slash.")
     my $node = '';
-    if ( $?OS ~~ m/^(?:qnx|nto|cygwin)$/ && $path ~~ s:^(//[^/]+)(/|\z):/:s ) {
+    if ($?OS eq ('qnx' | 'nto' | 'cygwin') &&  # <<< refactor to use junctions
+        $path ~~ s:^(//[^/]+)(/|\z):/:s      ) {
       $node = $1;
     }
     # This used to be
@@ -27,28 +30,47 @@ method canonpath ($path) returns Str {
     # Why would cygwin avoid collapsing multiple slashes into one? --jhi
     $path ~~ s|/+|/|g;                             # xx////xx  -> xx/xx
     $path ~~ s@(/\.)+(/|\Z(?!\n))@/@g;             # xx/././xx -> xx/xx
-    $path ~~ s|^(\./)+||s unless $path eq "./";    # ./xx      -> xx
+    $path ~~ s|^(\./)+||s  unless $path eq "./";   # ./xx      -> xx
     $path ~~ s|^/(\.\./)+|/|s;                     # /../../xx -> xx
     $path ~~ s|/\Z(?!\n)|| unless $path eq "/";          # xx/       -> xx
     return "$node$path";
 }
 
-method catdir (*@path) return Str {
+method catdir (*@path) returns Str {
     @path.push(''); # '' because need a trailing '/'
     .canonpath(@path.join('/')); 
 }
 
-method catfile (*@path) return Str {
-    my $file = .canonpath(@path.pop);
-    return $file unless ?@path;
-    my $dir = .catdir(@path);
+# <<< refactored into multi-method
+multi method catfile (Str $file)         returns Str { .canonpath($file) }
+multi method catfile (Str $file, *@rest) returns Str
+    my $dir = .catdir(@rest);
     $dir ~= "/" unless substr($dir, -1) eq "/";
     return "$dir$file";
 }
 
+method catpath (Str $volume, Str $directory, Str $file) returns Str {
+    # <<< refactor these comparisons into junctions
+    if (''  ne ($directory             & $file              ) && 
+        '/' ne (substr($directory, -1) & substr($file, 0, 1))) {
+        $directory ~= "/$file";
+    }
+    else {
+        $directory ~= $file;
+    }
+    return $directory;
+}
 
-my $tmpdir;
-method :_tmpdir (*@dirlist) returns Str {
+method join (*@path) returns Str { .catfile(@path) }
+
+method no_upwards (*@filenames) returns Array { @filenames.grep:{ !/^\.{1,2}\Z(?!\n)/s } }
+
+method file_name_is_absolute (Str $file) returns Bool { ?($file ~~ m:^/:s) }
+
+## TODO:
+# Refactor _tmpdir and tmpdir into class attributes
+my Str $tmpdir;
+method _tmpdir (*@dirlist) returns Str {
     return $tmpdir if $tmpdir.defined;
     ## QUESTION: How does Perl6 handle tainting??
     # {
@@ -63,37 +85,23 @@ method :_tmpdir (*@dirlist) returns Str {
         $tmpdir = $dir;
         last;
     }
-    $tmpdir = .curdir unless $tmpdir.defined;
+    $tmpdir = $.curdir unless $tmpdir.defined;
     $tmpdir = $tmpdir.defined && .canonpath($tmpdir);
     return $tmpdir;
 }
 
 method tmpdir () returns Str {
     return $tmpdir if $tmpdir.defined;
-    $tmpdir = ._tmpdir( %*ENV{'TMPDIR'}, "/tmp" );
+    $tmpdir = ._tmpdir(%*ENV{'TMPDIR'}, "/tmp");
     return $tmpdir;
-}
-
-method no_upwards (*@filenames) returns Array {
-    return @filenames.grep:{ !/^\.{1,2}\Z(?!\n)/s };
-}
-
-method file_name_is_absolute (Str $file) returns Bool {
-    return ?($file ~~ m:^/:s);
 }
 
 method path () returns Array {
     return () unless exists %*ENV{'PATH'};
-    my @path = %*ENV{'PATH'}.split(':');
-    for @path { $_ = '.' if $_ eq '' }
-    return @path;
+    return %*ENV{'PATH'}.split(':').map:{ $_ eq '' ?? '.' :: $_ };
 }
 
-method join (*@path) return Str  {
-    return .catfile(@path);
-}
-
-method splitpath (Str $path, Bool $nofile) returns Array {
+method splitpath (Str $path, Bool ?$nofile) returns Array {
     my ($volume, $directory, $file) = ('','','');
     if ($nofile) {
         $directory = $path;
@@ -106,25 +114,17 @@ method splitpath (Str $path, Bool $nofile) returns Array {
     return ($volume, $directory, $file);
 }
 
-method splitdir (Str $dir) returns Array {
-    return $dir.split('/');  # Preserve trailing fields
+method splitdir (Str $dir) returns Array { $dir.split('/') } # Preserve trailing fields
+
+# Internal routine to File::Spec, no point in making this public since
+# it is the standard Cwd interface.  Most of the platform-specific
+# File::Spec subclasses use this.
+method _cwd () returns Str {
+    require Cwd-0.0.1;
+    Cwd::cwd();
 }
 
-method catpath (Str $volume, Str $directory, Str $file) returns Str {
-    if ( $directory ne ''                && 
-         $file ne ''                     && 
-         substr( $directory, -1 ) ne '/' && 
-         substr( $file, 0, 1 ) ne '/' 
-    ) {
-        $directory ~= "/$file";
-    }
-    else {
-        $directory ~= $file;
-    }
-    return $directory;
-}
-
-method abs2rel (Str $path, Str $base) return Str {
+method abs2rel (Str $path, Str $base) returns Str {
     # Clean up $path
     if (!.file_name_is_absolute($path)) {
         $path = .rel2abs($path);
@@ -153,8 +153,8 @@ method abs2rel (Str $path, Str $base) return Str {
         @basechunks.shift;
     }
 
-    $path = @pathchunks.join( '/' );
-    $base = @basechunks.join( '/' );
+    $path = @pathchunks.join('/');
+    $base = @basechunks.join('/');
 
     # $base now contains the directories the resulting relative path 
     # must ascend out of before it can descend to $path_directory.  So, 
@@ -163,7 +163,7 @@ method abs2rel (Str $path, Str $base) return Str {
 
     # Glue the two together, using a separator if necessary, and preventing an
     # empty result.
-    if ($path ne '' && $base ne '') {
+    if ('' ne ($path & $base)) { # <<< refactored into junction
         $path = "$base/$path";
     } else {
         $path = "$base$path";
@@ -188,14 +188,6 @@ method rel2abs (Str $path, Str $base) returns Str {
         $path = .catdir($base, $path);
     }
     return .canonpath($path);
-}
-
-# Internal routine to File::Spec, no point in making this public since
-# it is the standard Cwd interface.  Most of the platform-specific
-# File::Spec subclasses use this.
-method _cwd () returns Str {
-    require Cwd-0.0.1;
-    Cwd::cwd();
 }
 
 1;

@@ -5,11 +5,13 @@ require File::Spec::Unix-0.0.1;
 
 class File::Spec::Mac-0.0.1 is File::Spec::Unix;
 
-method curdir  () returns Str { ':'        }
-method updir   () returns Str { '::'       }
-method devnull () returns Str { 'Dev:Null' }
-
-method case_tolerant () returns Bool { 1 }
+# make these public (read-only by default) 
+# attributes, and they will auto-generate 
+# their own accessors for us to use
+has Str  $.curdir        = ':';
+has Str  $.updir         = '::'; 
+has Str  $.devnull       = 'Dev:Null';
+has Bool $.case_tolerant = 1;
 
 method canonpath (Str $path) returns Str { $path }
 

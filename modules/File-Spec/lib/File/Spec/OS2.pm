@@ -5,9 +5,11 @@ require File::Spec::Unix-0.0.1;
 
 class File::Spec::OS2 is File::Spec::Unix;
 
-method devnull () returns Str { '/dev/nul' }
-
-method case_tolerant () returns Bool { 1 }
+# make these public (read-only by default) 
+# attributes, and they will auto-generate 
+# their own accessors for us to use
+has Str  $.devnull       = '/dev/nul';
+has Bool $.case_tolerant = 1;
 
 method file_name_is_absolute (Str $file) returns Bool {
     return ?($file ~~ m{^([a-z]:)?[\\/]}is);

@@ -9,12 +9,14 @@ class File::Spec::VMS-0.0.1 is File::Spec::Unix;
 # use File::Basename;
 # use VMS::Filespec;
 
-method curdir  () returns Str { '[]' }
-method updir   () returns Str { '[-]' }
-method rootdir () returns Str { 'SYS$DISK:[000000]' }
-method devnull () returns Str { '_NLA0:' }
-
-method case_tolerant () returns Bool { 1 }
+# make these public (read-only by default) 
+# attributes, and they will auto-generate 
+# their own accessors for us to use
+has Str  $.curdir        = '[]';
+has Str  $.updir         = '[-]'; 
+has Str  $.rootdir       = 'SYS$DISK:[000000]';
+has Str  $.devnull       = '_NLA0:';
+has Bool $.case_tolerant = 1;
 
 method eliminate_macros (Str $path) returns Str {
     return '' unless $path;

@@ -5,7 +5,10 @@ require File::Spec::Unix-0.0.1;
 
 class File::Spec::Epoc-0.0.1 is File::Spec::Unix;
 
-method case_tolerant () returns Bool { return 1 }
+# make this public (read-only by default) 
+# attributes, and they will auto-generate 
+# their own accessors for us to use
+has Bool $.case_tolerant = 1;
 
 method canonpath (Str $path) returns Str {
     $path ~~ s|/+|/|g;                             # xx////xx  -> xx/xx
