@@ -12,11 +12,11 @@ Basic "if" tests.
 plan 6;
 
 my $x = 'test';
-if ($x eq $x) { pass(); } else { fail(); }
-if ($x ne $x) { fail(); } else { pass(); }
-if (1) { pass(); } else { fail(); }
-if (0) { fail(); } else { pass(); }
-if (undef) { fail(); } else { pass(); }
+if ($x eq $x) { pass("if ($x eq $x) {} works"); } else { fail("if ($x eq $x) {} failed"); }
+if ($x ne $x) { fail("if ($x ne $x) {} failed"); } else { pass("if ($x ne $x) {} works"); }
+if (1) { pass("if (1) {} works"); } else { fail("if (1) {} failed"); }
+if (0) { fail("if (0) {} failed"); } else { pass("if (0) {} works"); }
+if (undef) { fail("if (undef) {} failed"); } else { pass("if (undef) {} works"); }
 
 # die called in the condition part of an if statement should die immediately
 # rather than being evaluated as true
