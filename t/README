@@ -61,7 +61,25 @@ general/ folder and email perl6-compiler and let us know.
 
 - If possible, please backlink your tests to the Synopsis
 
-*** Need instructions on this here ***
+Backlinks are planted in the test file, and point to the appropriate sections
+of the Synopsis you are using to write the test.
+
+The look like pod links:
+
+	L<S06/Blocks> # "S06" is synopsis 6, and "Blocks" is the section
+	L<S03/"Hyper operators"> # quotes are used when spaces are in the title
+
+The section name should be copied verbatim from the pod.
+
+The links also have a weird extension: you can specify a regex, to skip forward
+from the linked section, so the backlink is put in a more specific place:
+
+	L<<S05/"Return values from matches" /In numeric context.*number of matches:/>>
+
+The above link is appropriate next to a test case checking rule application in
+numeric context, and it will place the backlink appropriately.
+
+Try running ``grep -r "L<" t/'' to see some examples.
 
 - When TODO and when not TODO.
 
