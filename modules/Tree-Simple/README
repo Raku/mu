@@ -1,0 +1,26 @@
+Tree::Simple for perl6/Pugs version 0.0.1
+========================
+
+This is the start of porting several OO CPAN modules. I plan on 
+using this port to help generate a number of OO tests for pugs 
+in the near future. 
+
+STATUS
+
+Currently the status of this port is:
+
+- Tree::Simple code has mostly been ported to perl6, but none of
+  the documentation has been.
+- Tree::Simple::Visitor has not been ported at all
+- the tests have not been ported yet either (a number of them can
+  actually be eliminated, specifically the leak and weaken tests)
+
+COPYRIGHT AND LICENCE
+
+Copyright (C) 2005 Stevan Little & Infinity Interactive, Inc.
+
+http://www.iinteractive.com
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself. 
+
