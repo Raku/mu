@@ -20,6 +20,6 @@ plan 6;
 	#is((%hash<Two Three Four>) »eq« (2 .. 4)), "enum generated correct sequence");
 	todo_is(%hash<Two>, 2, "first value ok");
 	todo_is(%hash<Three>, 3, "second value ok");
-	todo_is(%hash<Four>, 3, "last value ok");
+	todo_is(%hash<Four>, 4, "last value ok");
 };
 
