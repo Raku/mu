@@ -143,8 +143,8 @@ getLibs environ = do
         , config_sitearch
         , config_sitelib
         ] ++
-        (split config_path_sep $ fromMaybe "" $ lookup "PERL5LIB" environ) ++
-        (split config_path_sep $ fromMaybe "" $ lookup "PERLLIB" environ) ++
+        -- (split config_path_sep $ fromMaybe "" $ lookup "PERL5LIB" environ) ++
+        -- (split config_path_sep $ fromMaybe "" $ lookup "PERLLIB" environ) ++
         [ "." ]
     return libs
     where
