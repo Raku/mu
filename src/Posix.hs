@@ -22,7 +22,6 @@ module Posix (
     removeLink,
     sleep,
     getEnvironment,
-    rmdir,
 ) where
 
 #ifdef PUGS_HAVE_POSIX
