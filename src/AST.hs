@@ -75,6 +75,7 @@ instance Value (FiniteMap Val Val) where
 
 instance Value [VPair] where
     -- vCast VUndef = []
+    vCast (VRef v)      = vCast v
     vCast (VHash (MkHash h)) = fmToList h
     vCast (VPair p) = [p]
     vCast (VList vs) =

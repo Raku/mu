@@ -133,5 +133,5 @@ is($val, 2, "\%hash.kv gave us our val");
 ok(~%hash9 eq ("1\t2\n2\t3\n" | "2\t3\n1\t2\n"), "hash can stringify");
 
 my %hash10 = <1 2>;
-todo_is(%hash10<1>, 2, "assignment of pointy qw to hash"); # not in an eval because it dies anyway
+is(%hash10<1>, 2, "assignment of pointy qw to hash"); # not in an eval because it dies anyway
 

@@ -9,7 +9,7 @@ Array refs
 
 =cut
 
-plan 34;
+plan 36;
 
 # array_ref of strings
 
