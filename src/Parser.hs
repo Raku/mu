@@ -123,7 +123,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
 
 ruleSubName = rule "subroutine name" $ do
     star    <- option "" $ string "*"
-    fixity  <- option "prefix:" $ choice (map (try . string) $ words fixities)
+    fixity  <- option "" $ choice (map (try . string) $ words fixities)
     c       <- wordAlpha
     cs      <- many wordAny
     return $ "&" ++ star ++ fixity ++ (c:cs)
@@ -193,7 +193,7 @@ ruleUsePackage = rule "use package" $ do
 ruleRequireDeclaration = tryRule "require declaration" $ do
     symbol "require"
     names <- identifier `sepBy1` string "::"
-    return $ App "&prefix:require" [] [Val . VStr $ concat (intersperse "/" names) ++ ".pm"]
+    return $ App "&require" [] [Val . VStr $ concat (intersperse "/" names) ++ ".pm"]
 
 ruleModuleDeclaration = rule "module declaration" $ do
     symbol "module"
@@ -219,7 +219,7 @@ ruleClosureTrait = rule "closure trait" $ do
                   , subParams     = []
                   , subFun        = fun
                   }
-    return $ App "&prefix:unshift" [] [Syn "," [Var "@*END", Syn "sub" [Val $ VSub sub]]]
+    return $ App "&unshift" [] [Syn "," [Var "@*END", Syn "sub" [Val $ VSub sub]]]
 
 rulePackageDeclaration = rule "package declaration" $ fail ""
 
@@ -413,9 +413,16 @@ currentUnaryFunctions = do
         , subAssoc sub == "pre"
         , length (subParams sub) == 1
         , isNothing $ find isSlurpy $ subParams sub
-        , let (_, (_:name)) = break (== ':') $ symName f
+        , let name = parseName $ symName f
         , name /= "undef" -- XXX Wrong
         ]
+
+parseName str
+    | (_, (_:name)) <- break (== ':') str
+    = name
+    | otherwise
+    = str
+    
 
 currentListFunctions = do
     return []
@@ -424,7 +431,7 @@ currentListFunctions = do
         name | f@Symbol{ symExp = Val (VSub sub) } <- funs
         , subAssoc sub == "pre"
         , isJust $ find isSlurpy $ subParams sub
-        , let (_, (_:name)) = break (== ':') $ symName f
+        , let name = parseName $ symName f
         ]
     -- " not <== any all one none perl eval "
 
@@ -466,13 +473,17 @@ parseParens parse = do
 
 parseTerm = rule "term" $ do
     term <- choice
-        [ parseVar
-        , parseLit
+        [ ruleVar
+        , ruleLit
         , parseApply
         , parseParens parseOp
         ]
     f <- option id rulePostTerm
     return $ f term
+
+ruleOptionalDot = option ' ' $ do
+    whiteSpace
+    char '.'
 
 rulePostTerm = rule "term postfix" $ do
     f <- tryChoice
@@ -490,18 +501,18 @@ ruleInvocation = tryRule "invocation" $ do
     return $ \x -> App name (x:invs) args
     where
     parseInvoke = lexeme $ do
-        name            <- subNameWithPrefix "prefix:"
+        name            <- subNameWithPrefix ""
         (invs:args:_)   <- option [[],[]] $ maybeParens $ parseParamList ruleExpression
         return $ App name invs args
     
 
 ruleArraySubscript = tryRule "array subscript" $ do
-    option ' ' $ char '.'
+    ruleOptionalDot
     exp <- brackets ruleExpression
     return $ \x -> Syn "[]" [x, exp]
 
 ruleHashSubscript = tryRule "hash subscript" $ do
-    option ' ' $ char '.'
+    ruleOptionalDot
     exp <- subscripts
     return $ \x -> Syn "{}" [x, exp]
         where
@@ -510,7 +521,7 @@ ruleHashSubscript = tryRule "hash subscript" $ do
                          <|> qwLiteral
 
 ruleCodeSubscript = tryRule "code subscript" $ do
-    option ' ' $ char '.'
+    ruleOptionalDot
     (invs:args:_) <- parens $ parseParamList ruleExpression
     return $ \x -> Syn "()" [x, Syn "invs" invs, Syn "args" args]
 
@@ -521,7 +532,7 @@ subNameWithPrefix prefix = (<?> "subroutine name") $ lexeme $ try $ do
     return $ "&" ++ star ++ prefix ++ (c:cs)
 
 parseApply = lexeme $ do
-    name            <- subNameWithPrefix "prefix:"
+    name            <- subNameWithPrefix ""
     (invs:args:_)   <- maybeDotParens $ parseParamList ruleExpression
     return $ App name invs args
 
@@ -563,19 +574,21 @@ ruleVarNameString = do
     sigil   <- oneOf "$@%&"
     caret   <- option "" $ choice $ map string $ words " ^ * ? "
     name    <- many1 (choice [ wordAny, char ':' ])
-    return $ if sigil == '&' && not (':' `elem` name)
-        then (sigil:caret) ++ "prefix:" ++ name
-        else (sigil:caret) ++ name
+    return $ (sigil:caret) ++ name
 
 parseVar = do
     name    <- parseVarName
+    return $ Var name
+
+ruleVar = do
+    name    <- ruleVarNameString
     return $ Var name
 
 nonTerm = do
     pos <- getPosition
     return $ NonTerm pos
 
-parseLit = choice
+ruleLit = choice
     [ ruleBlockLiteral
     , numLiteral
     , strLiteral
@@ -596,7 +609,7 @@ undefLiteral = try $ do
     (invs:args:_)   <- maybeParens $ parseParamList ruleExpression
     return $ if null (invs ++ args)
         then Val VUndef
-        else App "&prefix:undef" invs args    
+        else App "&undef" invs args    
 
 numLiteral = do
     n <- naturalOrRat  

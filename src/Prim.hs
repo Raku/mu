@@ -401,7 +401,11 @@ op2Numeric f x y
 primOp :: String -> String -> Params -> String -> Symbol
 primOp sym assoc prms ret = Symbol SOur name (Val sub)
     where
-    name = '&':'*':fixity ++ ':':sym
+    name | isAlpha (head sym)
+         , fixity == "prefix"
+         = "&*" ++ sym
+         | otherwise
+         = "&*" ++ fixity ++ (':':sym)
     sub  = VSub $ Sub { isMulti     = True
                       , subName     = sym
                       , subPad      = []

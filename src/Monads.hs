@@ -84,13 +84,14 @@ enterSub sub@Sub{ subType = typ } action
     where
     doReturn [v] = shiftT $ \_ -> return v
     doCC cc [v] = cc v
-    subRec = Symbol SMy "&?prefix:SUB" (Val $ VSub sub)
-    blockRec = Symbol SMy "&?prefix:BLOCK" (Val $ VSub sub)
-    ret cxt = Symbol SMy "&prefix:return" (Val $ VSub $ retSub cxt)
-    callerCC cc cxt = Symbol SMy "&?prefix:CALLER_CONTINUATION" (Val $ VSub $ ccSub cc cxt)
+    subRec = [ Symbol SMy "&?SUB" (Val $ VSub sub)
+             , Symbol SMy "$?SUBNAME" (Val $ VStr $ subName sub)]
+    blockRec = Symbol SMy "&?BLOCK" (Val $ VSub sub)
+    ret cxt = Symbol SMy "&return" (Val $ VSub $ retSub cxt)
+    callerCC cc cxt = Symbol SMy "&?CALLER_CONTINUATION" (Val $ VSub $ ccSub cc cxt)
     fixEnv cc pad cxt env
         | typ >= SubBlock = env{ envLexical = (blockRec:subPad sub) ++ pad }
-        | otherwise      = env{ envLexical = (subRec:ret cxt:callerCC cc cxt:subPad sub) }
+        | otherwise      = env{ envLexical = subRec ++ (ret cxt:callerCC cc cxt:subPad sub) }
     retSub cxt = Sub
         { isMulti = False
         , subName = "return"

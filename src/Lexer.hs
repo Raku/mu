@@ -134,9 +134,7 @@ interpolatingStringLiteral endchar interpolator = do
             return (Val (VStr [char]):rest)
         
 
-naturalOrRat  = do
-        n <- lexeme natRat
-        return n
+naturalOrRat  = natRat
     <?> "number"
     where
     natRat = do
@@ -212,13 +210,9 @@ naturalOrRat  = do
             }          
 
 
-singleQuoted = lexeme (
-                      do{ str <- between (char '\'')
-                                         (char '\'' <?> "end of string")
-                                         (many singleStrChar)
-                        ; return (foldr (id (:)) "" str)
-                        }
-                      <?> "literal string")
+singleQuoted = verbatimRule "literal string" $ do
+    str <- between (char '\'') (char '\'' <?> "end of string") (many singleStrChar)
+    return (foldr (id (:)) "" str)
 
 singleStrChar = try quotedQuote <|> noneOf "'"
 
@@ -276,6 +270,8 @@ quotedQuote = do
     return '\''
 
 rule name action = (<?> name) $ lexeme $ action
+
+verbatimRule name action = (<?> name) $ action
 
 literalRule name action = (<?> name) $ postSpace $ action
 

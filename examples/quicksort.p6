@@ -4,9 +4,8 @@ use v6;
 multi sub quicksort ( ) { () }
 
 multi sub quicksort ( *$x, *@xs ) {
-    my @pre  = @xs.grep:{ $x > $_};
-    my @post = @xs.grep:{ $x <= $_ };
-#   my @post = @xs.grep:{ $_ >= $x }; # XXX FIXME
+    my @pre  = @xs.grep:{ $_ < $x };
+    my @post = @xs.grep:{ $_ >= $x };
     (@pre.quicksort, $x, @post.quicksort);
 }
 
