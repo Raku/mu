@@ -34,6 +34,7 @@ main = do
     procArg x = [x]
 
 run :: [String] -> IO ()
+run ("-l":rest)                 = run rest
 run ("-d":rest)                 = run rest
 run ("-w":rest)                 = run rest
 run (('-':'e':prog@(_:_)):args) = doRun "-" args prog
