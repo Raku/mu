@@ -1,9 +1,11 @@
+{-# OPTIONS -fglasgow-exts #-}
+
 module Kwid.AST where
 import Internals
 
 type KwidDocument = [KwidBlock]
 
-type KwidHeaderLevel = Integer -- 1..4
+type KwidHeaderLevel = Int -- 1..4
 type KwidPara = [KwidPhrase]
 
 data KwidPhrase

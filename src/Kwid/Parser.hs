@@ -17,6 +17,9 @@ ruleKwidBlock = rule "kwid block" $ choice
     , ruleKwidPara
     ]
 
+ruleKwidPara :: RuleParser KwidBlock
+ruleKwidPara = fail "XXX"
+
 ruleKwidHeader :: RuleParser KwidBlock
 ruleKwidHeader = rule "kwid header" $ do
     heading <- many1 (char '=')
@@ -38,7 +41,7 @@ ruleTextLine = rule "kwid text (one line)" $ do
     return text
 
 sampleText = "= Foo\ntext\n"
-sampleParsed = runParser ruleKwidDocument emptyEnv "file.txt" sampleText
+sampleParsed = runParser ruleKwidDocument undefined "file.txt" sampleText
 -- file.txt is the label used in the err msg. nothing more
 
 sampleAST :: KwidDocument

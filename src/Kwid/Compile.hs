@@ -1,3 +1,5 @@
+{-# OPTIONS -fglasgow-exts #-}
+
 module Kwid.Compile where
 import Kwid.AST
 import Kwid.Parser
@@ -32,6 +34,7 @@ paraToHtml phrases = concatHtml $ map phraseToHtml phrases
 phraseToHtml (Plain text) = stringToHtml text
 phraseToHtml (Italics phrase) = italics $ phrasetoHtml phrase
 phraseToHtml (Bold phrase) = bold $ phrasetoHtml phrase
+phraseToHtml (Cole phrase) = theCode $ phrasetoHtml phrase
 phraseToHtml (HyperLink txt url) = anchor ! [href url] << stringToHtml txt
 
 {-

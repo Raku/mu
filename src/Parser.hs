@@ -60,8 +60,6 @@ ruleBeginOfLine = do
     unless (sourceColumn pos == 1) $ fail ""
     return ()
 
-ruleEndOfLine = choice [ do { char '\n'; return () }, eof ]
-
 rulePodIntroducer = (<?> "intro") $ do
     ruleBeginOfLine
     char '='

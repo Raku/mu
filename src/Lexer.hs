@@ -63,6 +63,8 @@ balanced   = P.balanced perl6Lexer
 balancedDelim = P.balancedDelim perl6Lexer
 decimal    = P.decimal perl6Lexer
 
+ruleEndOfLine = choice [ do { char '\n'; return () }, eof ]
+
 symbol s
     | isWordAny (last s) = try $ do
         rv <- string s
