@@ -17,7 +17,7 @@ plan +@examples;
 
 diag "Running under $?OS";
 
-my ($pugs,$redir) = ("./pugs", "&>");
+my ($pugs,$redir) = ("./pugs", ">");
 
 if ($?OS eq "MSWin32") {
   $pugs = 'pugs.exe';
