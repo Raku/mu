@@ -41,15 +41,15 @@ ok($str eq 'world', "qq slash");
 
 my @array;
 eval ' @array = qw/"foo" "bar"/ ';
-ok(@array, 'qw//');
+ok(@array[0] eq '"foo"' && @array[1] eq '"bar"', 'qw//');
 
 my @array;
 eval ' @array = q:w/"foo" "bar"/ ';
-ok(@array, 'q:w//');
+ok(@array[0] eq '"foo"' && @array[1] eq '"bar"', 'q:w//');
 
 my %hash;
 eval ' %hash<Mon Tue Wed Thu Fri Sat Sun> = 1..7; ';
-ok(%hash, '%hash<>');
+ok(%hash{'Mon'} eq '1' && %hash{'Sun'} eq '7', '%hash<>');
 
 eval '
     my $handle = open(">/tmp/tmpfile");

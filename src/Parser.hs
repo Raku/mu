@@ -583,6 +583,7 @@ parseLit = choice
     , dotdotdotLiteral
     , angleLiteral
     , qqLiteral
+    , qwLiteral
     ]
 
 undefLiteral = try $ do
@@ -625,6 +626,14 @@ qqLiteral = try $ do
     string "qq"
     str <- balanced
     return $ Val (VStr str) 
+
+qwLiteral = try $ do
+    str <- qwText
+    return $ App "&prefix:\\" [] [Syn "," $ map (Val . VStr) (words str)]
+        where qwText = do string "qw"
+                          text <- balanced
+                          return text
+                       <|> angles (many $ satisfy (/= '>'))
 
 namedLiteral n v = do { symbol n; return $ Val v }
 
