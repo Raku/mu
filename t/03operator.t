@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 23;
+plan 24;
 
 my $str1 = "foo";
 my $str2 = "bar";
@@ -53,7 +53,8 @@ todo_is(eval '0 ?| undef', 0, "boolean or (?|) returns 0 or 1");
 
 #junctions
 
-ok(all((4|5|6) + 3) == one(7|8|9), "all elements in junction are incremented");
+ok((all((4|5|6) + 3) == one(7|8|9)), "all elements in junction are incremented");
+ok((any(1..6) == one(1|2|3|4|5|6)), "any elements will match via junction");
 
 # Hyper ops
 
