@@ -49,11 +49,11 @@ foreach my $testfile (sort {$a->{file} cmp $b->{file}}
 	my $per_row = int(.75 + @{$testfile->{subtests}} / $rows);
 	
 	foreach my $test (@{$testfile->{subtests}}) {
-	  my $class = t_to_class($test);
+
 
 	  my $title = ($test->{line} || '') . "\n" . ($test->{diag} || '');
 
-	  print STDERR "pre:  $title\n";
+#	  print STDERR "pre:  $title\n";
 
 	  $title =~ s/\cM//g;
 	  $title =~ s/\cJ+$//g;
@@ -64,7 +64,7 @@ foreach my $testfile (sort {$a->{file} cmp $b->{file}}
 	  $title =~ s!\cJ!<br />!g;
 	  $title =~ s/([^-&<>\/().#A-Za-z0-9 ])/sprintf '&#x%X;', ord $1/eg;
 
-	  print STDERR "post: $title\n";
+#	  print STDERR "post: $title\n";
 
 
 	  my $case_link;
@@ -82,7 +82,7 @@ foreach my $testfile (sort {$a->{file} cmp $b->{file}}
 	  
 #	  print "<td class='test $class' title='$title'>$title</td>";
 	  print " <td class='test $class'><a href='$case_link'>&nbsp;<div>$title</div></a></td>\n";
-	  print STDERR " <td class='test $class'><a href='$case_link'>&nbsp;<div>$title</div></a></td>\n";
+#	  print STDERR " <td class='test $class'><a href='$case_link'>&nbsp;<div>$title</div></a></td>\n";
 #	  print " <td class='test $class' title='$title'>&nbsp;</td>\n";
 
 	  if ($class ne 'nottest') {
