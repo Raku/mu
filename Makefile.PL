@@ -58,6 +58,8 @@ sub set_postamble {
 
     if ($Config{_exe} ne '.exe') {
         my $pcre = "src/pcre/pcre$Config{_o}";
+        unlink "pcre$Config{_o}";
+        symlink $pcre => "pcre$Config{_o}";
         $ghc_output .= " $pcre";
         push @prereqs, $pcre;
     }
