@@ -173,13 +173,23 @@ op1 "chdir" = boolIO setCurrentDirectory
 op1 "chmod" = \v -> do
     v <- readMVal v
     vals <- mapM readMVal (vCast v)
-    rets <- liftIO $ mapM (iboolIO $ flip setFileMode $ intCast $ head vals) $ map vCast $ tail vals
+    rets <- liftIO $ mapM (doBoolIO $ flip setFileMode $ intCast $ head vals) $ map vCast $ tail vals
     return $ VInt $ sum $ map bool2n rets
 op1 "unlink" = \v -> do
     v <- readMVal v
     vals <- mapM readMVal (vCast v)
-    rets <- liftIO $ sequence $ map ( iboolIO removeFile ) $ map vCast vals
+    rets <- liftIO $ sequence $ map ( doBoolIO removeFile ) $ map vCast vals
     return $ VInt $ sum $ map bool2n rets
+op1 "slurp" = \v -> do
+    fileName <- fromValue v
+    ifContextIsa "List"
+        (slurpList fileName)
+        (slurpScalar fileName)
+    where
+    slurpList file = op1 "=" (VList [VStr file])
+    slurpScalar file = tryIO VUndef $ do
+        content <- readFile file
+        return $ VStr content
 op1 "open" = \v -> do
     let (mode, filename) = span (`elem` "+<> ") (vCast v)
     liftIO $ (`catch` \_ -> return VUndef) $ do
@@ -264,14 +274,17 @@ bool2n v = if v
   then 1
   else 0
 
-iboolIO f v = do
-    ok <- liftIO $ (`catch` \_ -> return False) $ do
+tryIO :: (MonadIO m) => a -> IO a -> m a
+tryIO err = liftIO . (`catch` \_ -> return err)
+
+doBoolIO f v = do
+    ok <- tryIO False $ do
         f (vCast v)
         return True
     return ok
 
 boolIO f v = do
-    ok <- iboolIO f v
+    ok <- doBoolIO f v
     return $ VBool ok
 
 boolIO2 f u v = do
@@ -695,6 +708,7 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      pre     die     (List)\
 \\n   Any       pre     do      (Str)\
 \\n   IO        pre     open    (Str)\
+\\n   List      pre     slurp   (Str)\
 \\n   Bool      pre     system  (Str)\
 \\n   Bool      pre     system  (Str: List)\
 \\n   Bool      pre     binmode (IO: ?Int=1)\
