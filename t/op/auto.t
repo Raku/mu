@@ -5,7 +5,7 @@ require Test;
 
 # again, from Perl 5
 
-plan 31;
+plan 37;
 
 my $base = 10000;
 
