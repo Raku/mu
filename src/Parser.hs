@@ -184,7 +184,7 @@ nameToParam name = Param
     , paramDefault  = Val VUndef
     }
 
-parseDecl = lexeme $ do
+parseDecl = lexeme $ try $ do
     multi   <- option False $ do { symbol "multi" ; return True }
     symbol "sub"
     pos     <- getPosition

@@ -78,6 +78,7 @@ apply env@Env{ cls = cls } Sub{ subParams = prms, subFun = fun } invs args =
     isCollapsed cxt
         | isaType cls "Bool" cxt        = True
         | isaType cls "Junction" cxt    = True
+        | isaType cls cxt "Any"         = True
         | otherwise                     = False
 
 toGlobal name
