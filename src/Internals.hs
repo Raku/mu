@@ -14,10 +14,14 @@
 -}
 
 module Internals (
+    module Cont,
+    module Data.Dynamic,
+    module Data.Unique,
     module System.Environment,
     module System.Random,
     module System.IO,
     module System.IO.Unsafe,
+    module Control.Monad.RWS,
     module Control.Monad.Error,
     module Data.Bits,
     module Data.List,
@@ -37,16 +41,20 @@ module Internals (
     module Text.ParserCombinators.Parsec.Language,
 ) where
 
+import Cont
+import Data.Dynamic
 import System.Environment
 import System.Random
 import System.IO hiding (try)
 import System.IO.Unsafe
-import Control.Monad.Error
+import Control.Monad.RWS
+import Control.Monad.Error (MonadError(..))
 import qualified System.IO (try)
-import Data.Bits
+import Data.Bits hiding (shift)
 import Data.Maybe
 import Data.Either
 import Data.List hiding (intersect, union)
+import Data.Unique
 import Data.Ratio
 import Data.Word
 import Data.Char
@@ -56,7 +64,15 @@ import Data.Complex
 import Data.FiniteMap
 import Data.Tree
 import Debug.Trace
-import Text.ParserCombinators.Parsec
+import Text.ParserCombinators.Parsec hiding (parse)
 import Text.ParserCombinators.Parsec.Expr
 import Text.ParserCombinators.Parsec.Error hiding (ParseError, errorPos)
 import Text.ParserCombinators.Parsec.Language
+
+-- Instances.
+instance Show Unique where
+    show = show . hashUnique
+instance Show (a -> b) where
+    show f = "sub { ... }"
+instance Eq (a -> b) where
+    _ == _ = False

@@ -13,13 +13,9 @@
 
 module AST where
 import Internals
-
 import Context
 
 type Ident = String
-
-instance Show (a -> b) where
-    show f = "sub { ... }"
 
 class Context n where
     vCast :: Val -> n
@@ -52,7 +48,7 @@ instance Context VSub where
 
 instance Context VBool where
     castV = VBool
-    doCast (VJunc j l) = juncToBool j l
+    doCast (VJunc j)   = juncToBool j
     doCast (VBool b)   = b
     doCast VUndef      = False
     doCast (VStr "")   = False
@@ -63,11 +59,15 @@ instance Context VBool where
     doCast (VList [])  = False
     doCast _           = True
 
-juncToBool :: JuncType -> Set Val -> Bool
-juncToBool JAny     = (True `elementOf`) . mapSet vCast
-juncToBool JAll     = not . (False `elementOf`) . mapSet vCast
-juncToBool JNone    = not . (True `elementOf`) . mapSet vCast
-juncToBool JOne     = (1 ==) . length . filter vCast . setToList
+juncToBool :: VJunc -> Bool
+juncToBool (Junc JAny  _  vs) = (True `elementOf`) $ mapSet vCast vs
+juncToBool (Junc JAll  _  vs) = not . (False `elementOf`) $ mapSet vCast vs
+juncToBool (Junc JNone _  vs) = not . (True `elementOf`) $ mapSet vCast vs
+juncToBool (Junc JOne  ds vs)
+    | (True `elementOf`) $ mapSet vCast ds
+    = False
+    | otherwise
+    = (1 ==) . length . filter vCast $ setToList vs
 
 instance Context VInt where
     castV = VInt
@@ -124,15 +124,18 @@ instance Context VArray where
     castV = VArray
     vCast x = MkArray (vCast x) 
 
+{-
 instance Context VJunc where
-    castV = VJunc JAny
-    vCast x = mkSet (vCast x)
+    castV = JAny . castV
+    vCast x = JAny $ mkSet (vCast x)
+-}
 
 instance Context VList where
     castV = VList
     vCast (VList l)     = l
     vCast (VPair k v)   = [k, v]
     vCast (VRef v)      = vCast v
+    vCast (VUndef)      = []
     vCast v             = [v]
 
 instance Context (Maybe a) where
@@ -145,7 +148,7 @@ instance Context Word8 where doCast = intCast
 instance Context [Word8] where doCast = map (toEnum . ord) . vCast
 
 type VScalar = Val
-type VJunc = Set Val
+-- type VJunc = Set Val
 
 instance Context VScalar where
     vCast = id
@@ -203,8 +206,16 @@ data Val
     | VPair     Val Val
     | VSub      VSub
     | VBlock    Exp
-    | VJunc     JuncType VJunc
+    | VJunc     VJunc
     | VError    VStr Exp
+    deriving (Show, Eq, Ord)
+
+data VJunc = Junc { juncType :: JuncType
+                  , juncDup  :: Set Val
+                  , juncSet  :: Set Val
+                  } deriving (Show, Eq, Ord)
+
+data JuncType = JAny | JAll | JNone | JOne
     deriving (Show, Eq, Ord)
 
 data SubType = SubMethod | SubRoutine | SubBlock
@@ -225,7 +236,9 @@ type Params = [Param]
 
 data VSub = Sub
     { isMulti       :: Bool
+    , subName       :: String
     , subType       :: SubType
+    , subPad        :: Symbols
     , subAssoc      :: String
     , subParams     :: Params
     , subReturns    :: Cxt
@@ -238,11 +251,12 @@ data Trait
     | TArray    Val
     | THash     Val
 
+{-
 data JuncType = JAll | JAny | JOne | JNone
     deriving (Show, Eq, Ord)
+-}
 
-instance Eq (Env -> [Val] -> Val)
-instance Ord (Env -> [Val] -> Val) where
+instance Ord ([Val] -> StateEnv Val) where
     compare _ _ = LT
 instance (Ord a) => Ord (Set a) where
     compare x y = compare (setToList x) (setToList y)
@@ -256,7 +270,8 @@ type Var = String
 data Exp
     = App String [Exp] [Exp]
     | Syn String [Exp]
-    | Prim (Env -> [Val] -> Val)
+    | Sym Scope Var
+    | Prim ([Val] -> StateEnv Val)
     | Val Val
     | Var Var SourcePos
     | Parens Exp
@@ -310,11 +325,26 @@ defaultArrayParam   = buildParam "" "*" "@_" (Val VUndef)
 defaultHashParam    = buildParam "" "*" "%_" (Val VUndef)
 defaultScalarParam  = buildParam "" "*" "$_" (Val VUndef)
 
-data Env = Env { cxt :: Cxt
-               , sym :: Symbols
-               , cls :: ClassTree
-               , evl :: Env -> Exp -> Val
-               } deriving (Show)
-type Symbol  = (String, Val)
-type Symbols = [Symbol]
+-- The eval monad!
+type StateEnv a = State Env a
 
+data Env = Env { envContext :: Cxt
+               , envPad     :: Symbols
+               , envClasses :: ClassTree
+               , envEval    :: Exp -> Eval Val
+               , envCC      :: Val -> Eval Val
+               , envBody    :: Exp
+               , envDepth   :: Int
+               , envID      :: Unique
+               } deriving (Show, Eq)
+
+type Symbols = [Symbol]
+data Symbol = Symbol { symScope :: Scope
+                     , symName  :: String
+                     , symValue :: Val
+                     } deriving (Show, Eq, Ord)
+
+data Scope = SGlobal | SMy | SOur | SLet | STemp | SState
+    deriving (Show, Eq, Ord, Read, Enum)
+
+type Eval x = ContT Val (ReaderT Env IO) x

@@ -23,9 +23,6 @@ import Parser
 import Help
 import Pretty
 
-type State = ()
-initState = ()
-
 main = getArgs >>= run
 
 run (('-':'e':str@(_:_)):args) = doRun str args
@@ -36,30 +33,38 @@ run []              = do
     hSetBuffering stdout NoBuffering 
     isTTY <- hIsTerminalDevice stdin
     if isTTY
-        then banner >> repLoop () 
+        then banner >> repLoop
         else do
             str <- getContents
             doRun str []
 
-repLoop :: State -> IO ()
-repLoop state 
+repLoop :: IO ()
+repLoop
    = do command <- getCommand
         case command of
-           Quit     -> putStrLn "Leaving pugs."
-           Load fn  -> load fn
-           Eval str -> doEval str [] >> repLoop initState 
-           Parse str-> doParse str >> repLoop initState 
-           Help     -> printHelp >> repLoop state 
+           CmdQuit     -> putStrLn "Leaving pugs."
+           CmdLoad fn  -> load fn
+           CmdEval str -> doEval str [] >> repLoop
+           CmdParse str-> doParse str >> repLoop
+           CmdHelp     -> printHelp >> repLoop
 
 load fn = do
     return ()
 
-doParse str = runLex print parseOp str
+doParse = parse
+parse str = runRule emptyEnv (putStrLn . pretty) ruleProgram str
 
 eval str = doEval str []
 
-doEval str args = do
-    runLex (putStrLn . pretty . evaluate emptyEnv) parseOp str
+doEval str args = undefined
+doRun str args = undefined
 
+{- XXX -
+doEval str args = do
+    runRule emptyEnv (putStrLn . pretty . evaluate emptyEnv) ruleProgram str
+-}
+
+{- XXX -
 doRun str args = do
-    runLex (putStr . concatMap vCast . vCast . evaluate emptyEnv) parseOp str
+    runRule emptyEnv (putStr . concatMap vCast . vCast . evaluate emptyEnv) ruleProgram str
+-}

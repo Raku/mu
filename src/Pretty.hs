@@ -19,10 +19,19 @@ class (Show a) => Pretty a where
     pretty :: a -> String
     pretty x = show x
 
+-- Unmatched right curly bracket at - line 1, at end of line
+-- syntax error at - line 1, near "}"
+-- Execution of - aborted due to compilation errors.
+
+instance Pretty Exp where
+    pretty (Val (VError msg (NonTerm pos))) = "Syntax error at " ++ (show pos) ++ msg
+    pretty x = show x
+
 instance Pretty Val where
-    pretty (VJunc j l) = "(" ++ joinList mark items ++ ")"
+    pretty (VJunc (Junc j dups vals)) = "(" ++ joinList mark items ++ ")"
         where
-        items = map pretty $ setToList l
+        items = map pretty $ values
+        values = setToList vals ++ (concatMap (replicate 2)) (setToList dups)
         mark  = case j of
             JAny  -> " | "
             JAll  -> " & "

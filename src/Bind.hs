@@ -43,18 +43,18 @@ bindHash vs [p]         = return [ (p, App "circumfix:{}" [] vs) ] -- XXX cast t
 
 bindArray :: [Exp] -> [Param] -> MaybeError [(Param, Exp)]
 bindArray vs ps = do
-    case foldM (doBindArray (Syn "&infix:," vs)) ([],0) prms of
+    case foldM (doBindArray (Syn "," vs)) ([],0) prms of
         Left errMsg     -> fail errMsg
         Right (bound,_) -> return $ reverse bound
     where
     prms = map (\p -> (p, (head (paramName p)))) ps 
 
 doSlice :: Exp -> [VInt] -> Exp
-doSlice v ns = Syn "&infix:[]" [v, Val $ VList $ map VInt ns]
+doSlice v ns = Syn "[]" [v, Val $ VList $ map VInt ns]
 
 -- XXX - somehow force failure
 doIndex :: Exp -> VInt -> Exp
-doIndex v n = Syn "&infix:[]" [v, Val $ VInt n]
+doIndex v n = Syn "[]" [v, Val $ VInt n]
 
 doBindArray :: Exp -> ([(Param, Exp)], VInt) -> (Param, Char) -> MaybeError ([(Param, Exp)], VInt)
 doBindArray _ (xs, -1) (p, '@') = return (((p, emptyArrayExp):xs), -1)
@@ -68,12 +68,12 @@ bindEmpty p = case paramName p of
     ('$':_) -> fail $ "Unbound slurpy scalar: " ++ show p
 
 isPair :: Exp -> Bool
-isPair (Syn "&infix:=>" [(Val v), _])   = True
+isPair (Syn "=>" [(Val v), _])   = True
 isPair (Val (VPair _ _))                = True
 isPair _                                = False
 
 unPair :: Exp -> (String, Exp)
-unPair (Syn "&infix:=>" [(Val k), exp]) = (vCast k, exp)
+unPair (Syn "=>" [(Val k), exp]) = (vCast k, exp)
 unPair (Val (VPair k v))                = (vCast k, Val v)
 unPair x                                = error ("Not a pair: " ++ show x)
 

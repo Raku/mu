@@ -15,58 +15,64 @@ import AST
 
 opJuncAll = opJunc JAll
 opJuncAny = opJunc JAny
-opJuncOne vals
-    | length (nub vals) == length vals
-    = VJunc JOne $ mkSet vals
-    | otherwise
-    = VJunc JOne emptySet
+opJuncOne args = VJunc (Junc JOne dups vals)
+    where
+    vals = mkSet [ v | [v] <- groups ]
+    dups = mkSet [ v | (v:_:_) <- groups ]
+    groups = group $ sort args
 
 opJunc :: JuncType -> [Val] -> Val
-opJunc j vals = VJunc j $ joined `union` mkSet vs
+opJunc t vals = VJunc $ Junc t emptySet (joined `union` mkSet vs)
     where
-    joined = unionManySets $ map juncValues js
+    joined = unionManySets $ map (\(VJunc s) -> juncSet s) js
     (js, vs) = partition sameType vals
-    sameType (VJunc j' _)   = (j == j')
-    sameType _              = False
+    sameType (VJunc (Junc t' _ _))  = t == t'
+    sameType _                      = False
 
-juncValues :: Val -> VJunc
-juncValues (VJunc _ l)  = l
-juncValues _            = emptySet
-
-juncType :: Val -> Maybe (JuncType, VJunc)
-juncType v
-    | VJunc j l <- v
-    = Just (j, l)
+juncTypeIs :: Val -> [JuncType] -> Maybe VJunc
+juncTypeIs v ts
+    | (VJunc j) <- v
+    , juncType j `elem` ts
+    = Just j
     | otherwise
     = Nothing
 
-juncTypeIs :: Val -> [JuncType] -> Maybe (JuncType, VJunc)
-juncTypeIs v js
-    | Just (j, l) <- juncType v
-    , j `elem` js
-    = Just (j, l)
-    | otherwise
-    = Nothing
-
+mergeJunc j ds vs
+    | j == JAny = Junc j (mkSet ds) (mkSet vs)
+    | j == JOne = Junc j dups vals
+    where
+    vals = mkSet [ v | [v] <- group $ sort vs ]
+    dups = mkSet (ds ++ [ v | (v:_:_) <- group $ sort (vs ++ ds) ])
 
 juncApply f args
-    | (before, (ApplyArg name (VJunc j vs) coll):after) <- break isTotalJunc args
-    = VJunc j $ mapSet (\v -> juncApply f (before ++ ((ApplyArg name v coll):after))) vs
-    | (before, (ApplyArg name (VJunc j vs) coll):after) <- break isPartialJunc args
-    = VJunc j $ mapSet (\v -> juncApply f (before ++ ((ApplyArg name v coll):after))) vs
+    | this@(_, (pivot:_)) <- break isTotalJunc args
+    , VJunc (Junc j dups vals) <- argValue pivot
+    = VJunc $ Junc j dups $ appSet this vals
+    | this@(_, (pivot:_)) <- break isPartialJunc args
+    , VJunc (Junc j dups vals) <- argValue pivot
+    = VJunc $ mergeJunc j (appList this dups) (appList this vals)
     | (val:_) <- [ val | (ApplyArg _ val@(VError _ _) _) <- args ]
     = val
     | otherwise
     = f args
+    where
+    appSet x y = mkSet $ appList x y
+    appList (before, (ApplyArg name _ coll):after) vs
+        = map (\v -> juncApply f (before ++ ((ApplyArg name v coll):after))) $ setToList vs
 
-isTotalJunc (ApplyArg _ (VJunc JAll _) b)   = not b
-isTotalJunc (ApplyArg _ (VJunc JNone _) b)  = not b
-isTotalJunc _                   = False
+isTotalJunc arg
+    | (ApplyArg _ (VJunc j) b) <- arg
+    , (juncType j ==) `any` [JAll, JNone]
+    = not b
+    | otherwise
+    = False
 
-isPartialJunc (ApplyArg _ (VJunc JOne _) b) = not b
-isPartialJunc (ApplyArg _ (VJunc JAny _) b) = not b
-isPartialJunc _                 = False
-
+isPartialJunc arg
+    | (ApplyArg _ (VJunc j) b) <- arg
+    , (juncType j ==) `any` [JOne, JAny]
+    = not b
+    | otherwise
+    = False
 
 data ApplyArg = ApplyArg
     { argName       :: String

@@ -11,7 +11,11 @@
 
 module Lexer where
 import Internals
+import AST
 import qualified Text.ParserCombinators.Parsec.Token as P
+
+type Pad = [Symbols]
+type RuleParser a = GenParser Char Pad a
 
 perl6Def  = javaStyle
           { P.commentStart   = "\n=begin\n"
@@ -152,4 +156,53 @@ singleStrChar = try quotedQuote <|> noneOf "'"
 quotedQuote = do
     string "\\'"
     return '\''
+
+rule name action = (<?> name) $ lexeme $ action
+literalRule name action = (<?> name) $ postSpace $ action
+tryRule name action = (<?> name) $ lexeme $ try $ action
+
+ruleScope :: RuleParser Scope
+ruleScope = postSpace $ try $ do
+    scope <- choice $ map string scopes
+    return (readScope scope)
+    where
+    scopes = map (map toLower) $ map (tail . show) $ enumFrom ((toEnum 1) :: Scope)
+    readScope s
+        | (c:cs)    <- s
+        , [(x, _)]  <- reads ('S':toUpper c:cs)
+        = x
+        | otherwise
+        = SGlobal
+
+literal = postSpace . string
+
+preSpace rule = try $ do
+    skipMany1 (satisfy isSpace)
+    rule
+
+postSpace rule = try $ do
+    rv <- rule
+    choice [skipMany1 (satisfy isSpace), eof <?> ""]
+    return rv
+
+ruleTrait trait = do
+    literal "is"
+    literal trait
+    identifier
+
+ruleBareTrait trait = do
+    choice [ ruleTrait trait
+           , do { literal trait ; identifier }
+           ]
+
+ruleContext = literalRule "context" $ do
+    lead    <- upper
+    rest    <- many1 wordAny
+    return (lead:rest)
+
+ruleVarName = literalRule "variable name" $ do
+    sigil   <- oneOf "$@%&"
+    caret   <- option "" $ choice [ string "^", string "*" ]
+    name    <- many1 wordAny
+    return $ (sigil:caret) ++ name
 

@@ -22,13 +22,13 @@ import qualified System.Console.Readline as Readline
 #endif
 
 data Command
-   = Load FilePath
-   | Quit
-   | Browse
-   | Parse String 
-   | Eval String 
-   | Type Exp 
-   | Help
+   = CmdLoad FilePath
+   | CmdQuit
+   | CmdBrowse
+   | CmdParse String 
+   | CmdEval String 
+   | CmdType Exp 
+   | CmdHelp
 
 -- read some input from the user
 -- parse the input and return the corresponding command
@@ -37,7 +37,7 @@ getCommand = do
     input <- readline "pugs> " 
     doCommand input
 
-doCommand Nothing = return Quit
+doCommand Nothing = return CmdQuit
 doCommand (Just line)
     | all isSpace line  = getCommand
     | (s, _) <- break (== '#') line
@@ -47,13 +47,13 @@ doCommand (Just line)
         return $ parseCommandLine line
 
 parseCommandLine :: String -> Command 
-parseCommandLine ('?':str)      = Eval str
-parseCommandLine ('.':str)      = Parse str
-parseCommandLine (':':'q':_)    = Quit
-parseCommandLine (':':'h':_)    = Help
--- parseCommandLine (':':'b':_)    = Browse
--- parseCommandLine (':':'l':str)  = Load . unwords . tail $ words str
-parseCommandLine str            = Eval str
+parseCommandLine ('?':str)      = CmdEval str
+parseCommandLine ('.':str)      = CmdParse str
+parseCommandLine (':':'q':_)    = CmdQuit
+parseCommandLine (':':'h':_)    = CmdHelp
+-- parseCommandLine (':':'b':_)    = CmdBrowse
+-- parseCommandLine (':':'l':str)  = CmdLoad . unwords . tail $ words str
+parseCommandLine str            = CmdEval str
 
 initializeShell :: IO ()
 initializeShell

@@ -14,7 +14,154 @@ import Internals
 import AST
 import Lexer
 
-type StateParser a = GenParser Char () a
+-- Lexical units --------------------------------------------------
+
+ruleProgram :: RuleParser Exp
+ruleProgram = rule "program" $ do
+    many (symbol ";")
+    rv <- option [] ruleStatementList
+    eof
+    retSyn ";" rv
+
+ruleBlock :: RuleParser Exp
+ruleBlock = rule "block" $ braces $ do
+    many (symbol ";")
+    rv <- option [] ruleStatementList
+    retSyn ";" rv
+
+ruleStatementList :: RuleParser [Exp]
+ruleStatementList = rule "statements" $ choice
+    [ nonSep  ruleDeclaration
+    , nonSep  ruleConstruct
+    , semiSep ruleExpression
+    ]
+    where
+    nonSep rule = do
+        rv   <- rule
+        rest <- option [] $ do { many (symbol ";"); ruleStatementList }
+        return (rv:rest)
+    semiSep rule = do
+        rv   <- rule
+        rest <- option [] $ do { many1 (symbol ";"); ruleStatementList }
+        return (rv:rest)
+
+-- Declarations ------------------------------------------------
+
+ruleDeclaration :: RuleParser Exp
+ruleDeclaration = rule "declaration" $ choice
+    [ ruleSubDeclaration
+    , rulePackageDeclaration
+    ]
+
+ruleSubDeclaration :: RuleParser Exp
+ruleSubDeclaration = rule "subroutine declaration" $ do
+    (scope, multi, name) <- try $ do
+        scope   <- option SGlobal $ ruleScope
+        multi   <- option False $ do { literal "multi" ; return True }
+        literal "sub"
+        name    <- ruleSubName
+        return (scope, multi, name)
+    pos     <- getPosition
+    cxt     <- option "Any" $ preSpace (ruleBareTrait "returns")
+    formal  <- option Nothing $ return . Just =<< parens ruleSubParameters
+    body    <- ruleBlock
+    let (fun, names) = extract (body,[])
+        params = (maybe [] id formal) ++ map nameToParam names
+    unless (isNothing formal || null names || names == ["$_"] ) $
+        fail "Cannot mix placeholder variables with formal parameters"
+    -- Check for placeholder vs formal parameters
+    let sub = Sub { isMulti       = multi
+                  , subName       = name
+                  , subPad        = []
+                  , subType       = SubRoutine
+                  , subAssoc      = "pre"
+                  , subReturns    = cxt
+                  , subParams     = if null params then [defaultArrayParam] else params
+                  , subFun        = fun
+                  }
+    -- XXX: user-defined infix operator
+    return $ Syn ":=" [Var name pos, Val (VSub sub)]
+
+ruleSubName = rule "subroutine name" $ do
+    star    <- option "" $ string "*"
+    fixity  <- option "prefix:" $ choice (map string $ words fixities)
+    c       <- wordAlpha
+    cs      <- many wordAny
+    return $ "&" ++ star ++ fixity ++ (c:cs)
+    where
+    fixities = " prefix: postfix: infix: circumfix: "
+
+ruleSubParameters = rule "subroutine parameters" $ do
+    (invs:args:_) <- ruleParamList ruleFormalParam
+    return $ map setInv invs ++ args
+    where
+    setInv e = e { isInvocant = True }
+
+ruleParamList parse = rule "parameter list" $ do
+    formal <- maybeParens ((parse `sepEndBy` symbol ",") `sepEndBy` symbol ":")
+    case formal of
+        []                  -> return [[], []]
+        [args]              -> return [[], args]
+        [invocants,args]    -> return formal
+        _                   -> fail "Only one invocant list allowed"
+
+ruleFormalParam = rule "formal parameter" $ do
+    cxt     <- option "" $ ruleContext
+    sigil   <- option "" $ choice . map literal $ words " ? * + ++ "
+    name    <- ruleVarName
+    let required = (sigil /=) `all` ["?", "+"]
+    exp     <- ruleParamDefault required
+    return $ buildParam cxt sigil name exp
+
+ruleParamDefault True  = return $ Val VUndef
+ruleParamDefault False = rule "default value" $ option (Val VUndef) $ do
+    symbol "="
+    ruleExpression
+
+rulePackageDeclaration = rule "package declaration" $ fail ""
+
+-- Constructs ------------------------------------------------
+
+ruleConstruct = rule "construct" $ choice
+    [ ruleGatherConstruct
+    ]
+
+ruleGatherConstruct = rule "gather construct" $ do
+    symbol "gather"
+    block   <- ruleBlock
+    retSyn "gather" [block]
+
+-- XXX not sure how many of these can be rolled into Prim
+ruleBlockConstruct = rule "block construct" $ fail ""
+ruleCondConstruct = rule "conditional construct" $ fail ""
+ruleLoopConstruct = rule "loop construct" $ fail ""
+ruleWhileUntilConstruct = rule "while/until construct" $ fail ""
+ruleForConstruct = rule "for construct" $ fail ""
+ruleGivenConstruct = rule "given construct" $ fail ""
+
+-- Expressions ------------------------------------------------
+
+ruleExpression = (<?> "expression") $ parseOp
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- Not yet transcribed ------------------------------------------------
 
 tightOperators =
     [ methOps  " . .+ .? .* .+ .() .[] .{} .<<>> .= "   -- Method postfix
@@ -45,12 +192,11 @@ looseOperators =
     , leftOps  " or xor err "                           -- Loose Or
     ]
 
-operators :: OperatorTable Char () Exp
 operators = concat $
     [ tightOperators
     , [ listSyn  " , " ]                                -- Comma
     , looseOperators
-    , [ listSyn  " ; " ]                                -- Terminator
+--  , [ listSyn  " ; " ]                                -- Terminator
     ]
 
 litOperators = tightOperators ++ looseOperators
@@ -73,8 +219,8 @@ rightOps    = ops $ makeOp2 AssocRight "&infix:" doApp
 noneOps     = ops $ makeOp2 AssocNone "&infix:" doApp
 listOps     = leftOps
 chainOps    = leftOps
-leftSyn     = ops $ makeOp2 AssocLeft "&infix:" Syn
-rightSyn    = ops $ makeOp2 AssocRight "&infix:" Syn
+leftSyn     = ops $ makeOp2 AssocLeft "" Syn
+rightSyn    = ops $ makeOp2 AssocRight "" Syn
 listSyn     = leftSyn
 chainSyn    = leftSyn
 
@@ -99,8 +245,7 @@ parseInvocation = lexeme $ try $ do
     return $ \x -> (App name (x:invs) args)
 
 parseTerm = choice
-    [ parseDecl
-    , parseVar
+    [ parseVar
     , parseLit
     , parseApply
     , parseParens parseOp
@@ -121,35 +266,6 @@ parseLitTerm = choice
     ]
     <?> "argument"
 
-parseTrait trait = do
-    symbol "is"
-    symbol trait
-    identifier
-
-parseBareTrait trait = do
-    choice [ parseTrait trait
-           , do { symbol trait ; identifier }
-           ]
-
-parseContext = lexeme $ do
-    lead    <- upper
-    rest    <- many1 wordAny
-    return (lead:rest)
-
-parseParamDefault True  = return $ Val VUndef
-parseParamDefault False = option (Val VUndef) $ do
-    symbol "="
-    parseLitOp
-
-parseFormalParam = do
-    cxt     <- option "" $ parseContext
-    sigil   <- option "" $ lexeme $ choice . map string $ words " ? * + ++ "
-    name    <- parseVarName
-    let required = (sigil /=) `all` ["?", "+"]
-    exp     <- parseParamDefault required
-    return $ buildParam cxt sigil name exp
-
-subName = subNameWithPrefix ""
 subNameWithPrefix prefix = (<?> "subroutine name") $ lexeme $ try $ do
     star    <- option "" $ string "*"
     c       <- wordAlpha
@@ -169,10 +285,6 @@ parseParamList parse = do
         [invocants,args]    -> return formal
         _                   -> fail "Only one invocant list allowed"
 
-parseFormalParameters = do
-    (invs:args:_) <- parseParamList parseFormalParam
-    return $ (map (\e -> e { isInvocant = True }) invs) ++ args
-
 nameToParam :: String -> Param
 nameToParam name = Param
     { isInvocant    = False
@@ -183,29 +295,6 @@ nameToParam name = Param
     , paramContext  = (if name == "$_" then "List" else "Scalar")
     , paramDefault  = Val VUndef
     }
-
-parseDecl = lexeme $ try $ do
-    multi   <- option False $ do { symbol "multi" ; return True }
-    symbol "sub"
-    pos     <- getPosition
-    name    <- subNameWithPrefix "prefix:"
-    cxt     <- option "Any" $ parseBareTrait "returns"
-    formal  <- option Nothing $ return . Just =<< parens parseFormalParameters
-    body    <- braces parseOp
-    let (fun, names) = extract (body,[])
-        params = (maybe [] id formal) ++ map nameToParam names
-    -- Check for placeholder vs formal parameters
-    unless (isNothing formal || null names || names == ["$_"] ) $
-        fail "Cannot mix placeholder variables with formal parameters"
-    let sub = Sub { isMulti       = multi
-                  , subType       = SubRoutine
-                  , subAssoc      = "pre"
-                  , subReturns    = cxt
-                  , subParams     = if null params then [defaultArrayParam] else params
-                  , subFun        = fun
-                  }
-    -- XXX: user-defined infix
-    return $ Syn "&infix:::=" [Var name pos, Val (VSub sub)]
 
 maybeParens p = choice [ parens p, p ]
 
@@ -244,13 +333,13 @@ strLiteral = return . Val . VStr =<< stringLiteral
 
 arrayLiteral = do
     items <- brackets $ parseOp `sepEndBy` symbol ","
-    return $ App "&prefix:\\" [] [Syn "&infix:," items]
+    return $ App "&prefix:\\" [] [Syn "," items]
 
 pairLiteral = do
     key <- identifier
     symbol "=>"
     val <- parseTerm
-    return $ Syn "&infix:=>" [Val (VStr key), val]
+    return $ Syn "=>" [Val (VStr key), val]
 
 namedLiteral n v = do { symbol n; return $ Val v }
 
@@ -262,19 +351,17 @@ ternOps _ = []
 
 parseProgram = do { whiteSpace ; x <- parseOp ; eof ; return x }
 
--- runLex :: Show a => StateParser a -> String -> IO ()
-runLex f p input
-        = runParse f parseProgram input
-
--- run :: Show a => StateParser a -> String -> IO ()
-runParse f p input
-        = case ( runParser p () "" input ) of
-            Left err -> do{ putStr "parse error at "
-                          ; print err
-                          }
-            Right x  -> f x
+runRule :: Env -> (Exp -> a) -> RuleParser Exp -> String -> a
+runRule env f p str = f $ case ( runParser ruleProgram (envPad env) "" str ) of
+    Left err    -> Val $ VError (showErr err) (NonTerm $ errorPos err)
+    Right ast   -> ast
 
 showErr err = 
       showErrorMessages "or" "unknown parse error"
                         "expecting" "unexpected" "end of input"
                        (errorMessages err)
+
+retSyn :: String -> [Exp] -> RuleParser Exp
+retSyn sym args = do
+    return $ Syn sym args
+
