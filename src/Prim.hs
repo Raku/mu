@@ -94,7 +94,7 @@ op1 "+^"   = return . VInt . (toInteger . (complement :: Word -> Word)) . vCast
 op1 "~^"   = return . VStr . mapStr complement . vCast
 op1 "?^"   = op1 "!"
 op1 "\\"   = return . VRef
-op1 "..."  = return . op1Range
+op1 "post:..."  = return . op1Range
 op1 "not"  = op1 "!"
 op1 "any"  = return . opJuncAny . vCast
 op1 "all"  = return . opJuncAll . vCast
@@ -586,8 +586,8 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Bool      spre    ?^      (Bool)\
 \\n   Ref       spre    \\      (List)\
 \\n   Ref       spre    \\      (Scalar)\
-\\n   List      spre    ...     (Str)\
-\\n   List      spre    ...     (Num)\
+\\n   List      post    ...     (Str)\
+\\n   List      post    ...     (Scalar)\
 \\n   Any       pre     undef   ()\
 \\n   Any       pre     undef   (rw!Any)\
 \\n   Str       pre     chop    (rw!Str)\
