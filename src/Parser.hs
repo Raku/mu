@@ -640,10 +640,13 @@ maybeDotParens p = choice [ dotParens p, p ]
 
 parseVarName = rule "variable name" ruleVarNameString
 
-ruleVarNameString = do
+ruleVarNameString =   try (string "$!")  -- error variable
+                  <|> try (string "$/")  -- match object
+                  <|> do
     sigil   <- oneOf "$@%&"
-    caret   <- option "" $ choice $ map string $ words " ^ * ? "
-    name    <- many1 (choice [ wordAny, char ':', char '!' ])
+    -- ^ placeholder, * global, ? magical, . member, : private member
+    caret   <- option "" $ choice $ map string $ words " ^ * ? . : "
+    name    <- many1 (choice [ wordAny, char ':' ])
     return $ (sigil:caret) ++ name
 
 parseVar = do
