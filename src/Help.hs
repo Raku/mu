@@ -78,7 +78,7 @@ banner = putStrLn $ unlines
     , "                       /\\____/   " ++ versionFill 27
     , "                       \\/___/    " ++ copyright       
     , "--------------------------------------------------------------------"
-    , " Web: http://pugscode.org/             Email: autrijus@autrijus.org "
+    , " Web: http://pugscode.org/           Email: perl6-compiler@perl.org "
     ]
 
 intro :: IO ()
