@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 26;
+plan 34;
 
 =pod
 
@@ -14,8 +14,8 @@ Delegation tests from L<S12/"Delegation">
 # L<S12/"Delegation">
 
 todo_eval_ok '
-  class Backend1 { method hi() { 42 } }
-  class Backend2 { method hi() { 23 } }
+  class Backend1 { method hi() { 42 } method cool() { 1337 } }
+  class Backend2 { method hi() { 23 } method cool() {  539 } }
   class Frontend { has $.backend is rw handles "hi" }
 ', "class definition worked";
 
@@ -54,7 +54,7 @@ todo_eval_ok 'class ReFrontend { has $.backend is rw handles /^hi/ }',
 }
 
 
-# L<S12/"Delegation"/ "If you say"/>
+# L<S12/"Delegation" /"If you say"/>
 todo_eval_ok 'class ClassFrontend { has $.backend is rw handles Backend2 }',
   "class definition using a Class handle worked";
 {
@@ -65,4 +65,19 @@ todo_eval_ok 'class ClassFrontend { has $.backend is rw handles Backend2 }',
   todo_eval_ok '!$a ~~ Backend1',             "object wasn't isa()ed (4-1)";
   todo_eval_ok '!$a ~~ Backend2',             "object wasn't isa()ed (4-2)";
   todo_eval_is '$a.hi', 42, "method was successfully handled by backend object (4)";
+}
+
+
+# L<S12/"Delegation" /"You can specify multiple method names\:">
+todo_eval_ok 'class MultiFrontend { has $.backend is rw handles <hi cool> }',
+  "class definition using multiple method names worked";
+{
+  my $a;
+  todo_eval_ok '$a = MultiFrontend.new', "basic instantiation worked (5)";
+  todo_eval_ok '!try { $a.hi   }', "calling a method on no object didn't succeed (5-1)";
+  todo_eval_ok '!try { $a.cool }', "calling a method on no object didn't succeed (5-2)";
+  todo_eval_ok '$a.backend = Backend1.new()', "setting a handler object (5)";
+  todo_eval_ok '!$a ~~ Backend1',             "object wasn't isa()ed (5)";
+  todo_eval_is '$a.hi',     42, "method was successfully handled by backend object (5-1)";
+  todo_eval_is '$a.cool', 1337, "method was successfully handled by backend object (5-2)";
 }
