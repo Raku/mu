@@ -1,6 +1,6 @@
 use v6;
 
-module FileSpecUnix-0.0.1;
+module File::Spec::Unix-0.0.1;
 
 sub curdir        returns Str  is export { '.'         }
 sub updir         returns Str  is export { '..'        }

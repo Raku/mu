@@ -11,7 +11,7 @@ This is a *very* basic test of the FileSpecWin32 module.
 
 =cut
 
-require FileSpecWin32;
+require File::Spec::Win32;
 
 is(curdir(),  '.',         '... got the right curdir');
 is(updir(),   '..',        '... got the right updir');

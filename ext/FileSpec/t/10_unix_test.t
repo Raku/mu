@@ -11,7 +11,7 @@ This is a *very* basic test of the FileSpecUnix module.
 
 =cut
 
-require FileSpecUnix;
+require File::Spec::Unix;
 
 is(curdir(),  '.',         '... got the right curdir');
 is(updir(),   '..',        '... got the right updir');
