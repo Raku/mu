@@ -34,6 +34,10 @@ The main selling points are:
 * The markup reads better than POD when unformatted
 * Lists are so much easier
 
+= SEE ALSO
+
+[perlkwid]
+
 = AUTHORS
 
 Brian Ingerson <ingy@cpan.org>
