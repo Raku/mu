@@ -173,7 +173,11 @@ instance Value VArray where
     vCast x = MkArray (vCast x) 
 
 instance Value MVal where
-    castV _ = error "Cannot cast MVal into Value!"
+    castV _ = error "Cannot cast MVal into Value"
+    fromValue (MVal x) = return x
+    fromValue (VRef v) = fromValue v
+    fromValue (VPair (_, v)) = fromValue v
+    fromValue v = retError "cannot modify constant item" $ Val v
     vCast (MVal x)      = x
     vCast (VRef v)      = vCast v
     vCast (VPair (_, y))= vCast y

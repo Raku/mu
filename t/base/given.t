@@ -9,11 +9,11 @@ plan 17;
 	# basic sanity
 	my ($t, $f);
 
-	eval 'given 1 { when 1 { $t = 1 } }';
-	todo_ok($t, "given when true ...");
+	try { given 1 { when 1 { $t = 1 } } };
+        ok($t, "given when true ...");
 
-	eval 'given 1 { when 2 { $f = 1 } };';
-	ok(!$f, "given when false");
+        try { given 1 { when 2 { $f = 1 } } };;
+	todo_ok(!$f, "given when false");
 };
 
 {

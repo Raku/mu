@@ -66,7 +66,8 @@ op1 "+"    = return . op1Numeric id
 op1 "abs"  = return . op1Numeric abs
 op1 "post:++" = \mv -> do
     val <- readMVal mv
-    liftIO $ writeIORef (vCast mv) $ case val of
+    ref <- fromValue mv
+    liftIO $ writeIORef ref $ case val of
         (VStr str)  -> VStr $ strInc str
         _           -> op1Numeric (+1) (vCast val)
     case val of
@@ -291,14 +292,15 @@ opEval fatal name str = do
     val <- resetT $ local (\_ -> env') $ do
         evl <- asks envEval
         evl (envBody env')
+    retEvalResult fatal val
+
+retEvalResult fatal val = do
     glob <- askGlobal
     let Just (Val errSV) = findSym "$!" glob
     case val of
         VError _ _ | not fatal  -> do
-            -- this causes a warning, and tests pass with it commented out
-            -- glob <- liftIO . readIORef $ envGlobal env
             writeMVal errSV (VStr $ show val)
-            return VUndef
+            retEmpty
         _ -> do
             writeMVal errSV VUndef
             return val

@@ -373,8 +373,9 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         enterEvalContext (vCast cxt) (Val val) -- force casting
     "[]" -> do
         let (listExp:rangeExp:errs) = exps
-        list    <- enterEvalContext "List" listExp
         range   <- enterEvalContext "List" rangeExp
+        listVal  <- enterEvalContext "List" listExp
+        list    <- readMVal listVal
         let slice = unfoldr (doSlice errs $ vCast list) (map vCast $ vCast range)
         cls     <- asks envClasses
         if isaType cls "Scalar" cxt
@@ -382,8 +383,9 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
             else retVal $ VList slice
     "{}" -> do
         let [listExp, rangeExp] = exps
-        hash     <- enterEvalContext "Hash" listExp
         range   <- enterEvalContext "List" rangeExp
+        hashVal  <- enterEvalContext "Hash" listExp
+        hash    <- readMVal hashVal
         cls     <- asks envClasses
         let slice = map (lookupWithDefaultFM (vCast hash) VUndef) ((map vCast $ vCast range) :: [Val])
         if isaType cls "Scalar" cxt
@@ -395,9 +397,7 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         apply (vCast sub) invs args
     "try" -> do
         val <- resetT $ evalExp (head exps)
-        case val of
-            VError _ _  -> retEmpty
-            _           -> retVal val
+        retEvalResult False val
     "gather" -> do
         val     <- enterEvalContext "List" exp
         -- ignore val
