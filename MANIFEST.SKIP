@@ -1,0 +1,16 @@
+#defaults
+^pugs
+^tags
+^MANIFEST.bak$
+^Makefile$
+^Makefile.old$
+^_darcs/
+^blib/
+^etc/
+^docs/
+^pm_to_blib
+^blibdirs
+\.sw\w$
+\.hi$
+\.o.*$
+^config.h

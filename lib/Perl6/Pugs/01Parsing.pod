@@ -1,0 +1,26 @@
+=head1 NAME
+
+Pugs::00Parsing - Lexer and Parser
+
+=head1 ABSTRACT
+
+
+=head1 DESCRIPTION
+
+the lexer and parser should be merged in the one-pass style Parsec
+supports, as it is jolly convenient to modify.  keep it that way
+at least until user-defined operators are implemented.
+
+Polymorphic "meta" lexer/parsers can be kept within the State as a
+Parser object, lifted out to parse specific morphic lexemes.
+
+The normal form of function application can thus be defined purely
+as (func ($i1, $i2) ($a1, $a2...)), with $i* representing invocants.
+
+The context propagator starts from toplevel and pushes down contexts
+to each Exp; the evaluator looks for the associated returning context
+in operator lookup.  The context is only generated during evaluation;
+there is no static context annotations in the AST.
+
+Binary "," is now always list constructor even under scalar context.
+

@@ -1,0 +1,59 @@
+This is Pugs, a Perl6 interpreter.
+==================================
+
+Pugs is Copyright 2005 by Autrijus Tang.  All Rights Reserved.
+
+LICENSE INFORMATION
+-------------------
+
+This code is free software; you can redistribute it and/or modify it under
+the terms of either:
+
+    a) the GNU General Public License, version 2, or
+    b) the "Artistic License".
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See either
+the GNU General Public License or the Artistic License for more details.
+
+INSTALLATION
+------------
+
+Pugs needs the Glasgow Haskell Compiler (GHC) 6.2 or above.  To install GHC,
+download a binary build from http://haskell.org/ghc/.  You may also build GHC
+from source code, but that may take several hours.
+
+To install Pugs on your system, simply type this in the command line:
+
+    cpansign -v         # optional; see SIGNATURE for details
+    perl Makefile.PL
+    make                # or 'nmake' on Win32
+    make test
+    make install
+
+MAILING LISTS
+-------------
+
+The mailing list for Pugs is perl6-compiler.  Subscribe by sending mail to
+<perl6-compiler-subscribe@perl.org>.  Mailing list archive is availabe at:
+
+    http://nntp.perl.org/group/perl.perl6.compiler          (HTTP)
+    http://groups-beta.google.com/group/perl.perl6.compiler (HTTP)
+    nntp://nntp.perl.org/perl.perl6.compiler                (NNTP)
+
+Please submit bug reports to <bug-perl6-pugs@rt.cpan.org>.
+
+WEB SITES
+---------
+
+The Pugs homepage is at:
+
+    http://autrijus.org/pugs/
+
+For Perl6 related information, please see:
+
+    http://dev.perl.org/perl6/
+
+Enjoy,
+/Autrijus/

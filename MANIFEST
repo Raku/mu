@@ -1,0 +1,28 @@
+inc/Module/Install.pm
+inc/Module/Install/Base.pm
+inc/Module/Install/Can.pm
+inc/Module/Install/Fetch.pm
+inc/Module/Install/Makefile.pm
+inc/Module/Install/Metadata.pm
+inc/Module/Install/Scripts.pm
+inc/Module/Install/Win32.pm
+inc/Module/Install/WriteAll.pm
+lib/Perl6/Pugs.pm
+lib/Perl6/Pugs/00Apocrypha.pod
+lib/Perl6/Pugs/01Parsing.pod
+Makefile.PL
+MANIFEST			This list of files
+MANIFEST.SKIP
+META.yml
+README
+SIGNATURE			Public-key signature (added by MakeMaker)
+src/AST.hs
+src/Eval.hs
+src/Help.hs
+src/Internals.hs
+src/Lexer.hs
+src/Main.hs
+src/Parser.hs
+src/Pretty.hs
+src/Prim.hs
+src/Shell.hs
