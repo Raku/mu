@@ -402,7 +402,7 @@ op2 other = \x y -> return $ VError ("unimplemented binaryOp: " ++ other) (App o
 
 op2Match x (VRule rx) = do
     str     <- fromVal x
-    case str =~~ rx of
+    case encodeUTF8 str =~~ rx of
         Nothing -> return $ VBool False
         Just mr -> do
             --- XXX: Fix $/ and make it lexical.

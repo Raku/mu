@@ -12,6 +12,10 @@ memmove(), change the definition of HAVE_BCOPY instead of HAVE_MEMMOVE. If your
 system has neither bcopy() nor memmove(), leave them both as 0; an emulation
 function will be used. */
 
+#ifndef SUPPORT_UTF8
+#define SUPPORT_UTF8 1
+#endif
+
 /* If you are compiling for a system that uses EBCDIC instead of ASCII
 character codes, define this macro as 1. On systems that can use "configure",
 this can be done via --enable-ebcdic. */

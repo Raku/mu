@@ -66,7 +66,7 @@ matchRegexAll
 
 mkRegex s = mkRegexWithOpts s False True
 mkRegexWithOpts s single_line case_sensitive = unsafePerformIO $
-            compile s (newline + igcase) >>= \x -> case x of
+            compile s (pcreUtf8 + newline + igcase) >>= \x -> case x of
                 Left (i,err) -> fail $ "PCRE Regular Expression Error:\n" ++ s ++ "\n" ++ replicate i ' ' ++ "^ " ++ err
                 Right p -> return p
       where

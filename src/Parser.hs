@@ -813,14 +813,15 @@ pairLiteral = try $ do
     val <- parseTerm
     return $ App "&infix:=>" [Val (VStr key), val] []
 
-rxInterpolator = choice
-    [ qqInterpolatorVar, rxInterpolatorChar, ruleBlock ]
+rxInterpolator end = choice
+    [ qqInterpolatorVar end, rxInterpolatorChar, ruleBlock ]
 
-qqInterpolator = choice
-    [ qqInterpolatorVar, qqInterpolatorChar, ruleBlock ]
+qqInterpolator end = choice
+    [ qqInterpolatorVar end, qqInterpolatorChar, ruleBlock ]
 
-qqInterpolatorVar = try $ do
+qqInterpolatorVar end = try $ do
     var <- ruleVarNameString
+    if (last var == end) then fail "" else return ()
     fs <- if head var == '$'
         then many qqInterpolatorPostTerm
         else many1 qqInterpolatorPostTerm

@@ -108,7 +108,7 @@ interpolatingStringLiteral endchar interpolator = do
             lookAhead (char endchar)
             return []
           <|> do
-            parse <- interpolator
+            parse <- interpolator endchar
             rest  <- stringList
             return (parse:rest)
           <|> do
