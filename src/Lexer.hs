@@ -49,8 +49,8 @@ symbol s
         return rv
     | otherwise          = try $ do
         rv <- string s
-	-- XXX Wrong - the correct solution is to lookahead as much as possible
-	-- in the expression parser below
+        -- XXX Wrong - the correct solution is to lookahead as much as possible
+        -- in the expression parser below
         choice [ eof >> return ' ', lookAhead (satisfy (\x -> x `elem` ";!" || x /= (last s))) ]
         whiteSpace
         return rv
@@ -223,8 +223,8 @@ tryChoice = choice . map try
 data Assoc                = AssocNone 
                           | AssocLeft
                           | AssocRight
-			  | AssocList
-			  | AssocChain
+                          | AssocList
+                          | AssocChain
                         
 data Operator t st a      = Infix (GenParser t st (a -> a -> a)) Assoc
                           | Prefix (GenParser t st (a -> a))
@@ -261,12 +261,12 @@ buildExpressionParser operators simpleExpr
               ambigiousLeft     = ambigious "left" lassocOp
               ambigiousNon      = ambigious "non" nassocOp 
 
-	      foldOp = foldr (.) id
+              foldOp = foldr (.) id
               
               termP = do
-		pres	<- many prefixOp
-                x	<- term
-                posts	<- many postfixOp
+                pres    <- many prefixOp
+                x       <- term
+                posts   <- many postfixOp
                 return $ foldOp posts $ foldOp pres x
               
               rassocP x  = do{ f <- rassocOp
