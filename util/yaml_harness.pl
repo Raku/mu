@@ -32,11 +32,12 @@ our $SMOKERFILE = ".smoker.yml";
 
 $| = 1;
 
-GetOptions \our %Config, qw(--verbose|v --output-file|o=s
-		--shuffle|s --recurse|r --ext=s@ --anonymous|a);
+GetOptions \our %Config, qw(--verbose|v --output-file|o=s --dry|n
+		--shuffle|s --recurse|r --ext=s@ --anonymous|a --exclude|X=s@);
 $Test::Harness::Verbose = 1 if $Config{verbose};
 $Config{"output-file"} ||= "-";
 _build_ext_re();
+_build_exclude_re();
 
 
 my $s = __PACKAGE__->new;
@@ -112,6 +113,7 @@ sub all_in {
             next if $file eq File::Spec->updir || $file eq File::Spec->curdir;
             next if $file eq ".svn";
             next if $file eq "CVS";
+			next if $Config{exclude_re} && $file =~ $Config{exclude_re};
 
             my $currfile = File::Spec->catfile( $start, $file );
             if ( -d $currfile ) {
@@ -159,6 +161,12 @@ sub set_build_info {
 	my($self) = @_;
 	my $executable = $ENV{HARNESS_PERL} || "pugs";
 	$self->{_build_info} = join '', qx{$executable -V};
+}
+
+sub _build_exclude_re {
+	my $excl = join "|", map { quotemeta }
+		map { split /,/ } @{ $Config{exclude} };
+	$Config{exclude_re} = qr/($excl)/ if $excl;
 }
 
 sub _build_ext_re {
