@@ -135,13 +135,20 @@ runProgramWith fenv f name args prog = do
     f val
     where
     fixLib str = do
-        let path = str ++ "/Perl6/lib"
+        let path = str -- ++ "/Perlib"
         exists <- doesDirectoryExist path
         return $ if exists then [path] else []
 
-incs = [ "./lib/Perl6/lib"
-       , "../lib/Perl6/lib"
-       , "../../lib/Perl6/lib"
+{- XXX 
+    Putting the blib6 stuff in here is totally bogus. It needs to be
+    passed in the test harness code. But I need to make changes such
+    that pugs will honor the -I flag and multiple occurrences of them.
+    Even the PERL6LIB handling code doesn't look like it can handle 
+    multiple libs.
+--}
+incs = [ "./blib6/lib"
+       , "../blib6/lib"
+       , "../../blib6/lib"
        , config_archlib
        , config_privlib
        , config_sitearch
@@ -151,6 +158,14 @@ incs = [ "./lib/Perl6/lib"
 
 printConfigInfo :: IO ()
 printConfigInfo = putStrLn $ unlines $
+    ["Summary of pugs configuration:"
+    ,""
+    ,"archlib: " ++ config_archlib
+    ,"privlib: " ++ config_privlib
+    ,"sitearch: " ++ config_sitearch
+    ,"sitelib: " ++ config_sitelib
+    ,""
+    ] ++
     [ "@*INC:" ] ++ incs
 
 {-
@@ -167,4 +182,3 @@ options =
         (\o   -> o { showHelp           = usage "" })
     ]
 -}
-

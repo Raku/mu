@@ -1,19 +1,19 @@
 use strict;
-use Config;
 use File::Basename;
-my $Bin; BEGIN { $Bin = dirname(__FILE__) };
+my $Bin; 
+BEGIN { $Bin = dirname(__FILE__) };
 use lib "$Bin/../..", "$Bin/../../inc";
 use inc::Module::Install;
+use Config;
 
 my $kwid = "kwid$Config{_exe}";
 
 name            ('Kwid');
-version         ('0.0');
+version         ('0.01');
 abstract        ('Kwid');
 author          ('Brian Ingerson <ingy@cpan.org>');
 license         ('perl');
 install_script  ('kwid');
-blib_depth      (2);
 
 postamble(<< ".");
 
@@ -22,5 +22,4 @@ $Bin/kwid :: src/Kwid/AST.hs
 
 .
 
-WriteAll( sign => 1 );
-pugs_fix_makefile();
+WritePugs();

@@ -30,10 +30,11 @@ makemaker_args  (
 );
 clean_files     (
     "pugs*", "src/pugs_config.h", "src/pugs_version.h", 
-    'src/Config.hs',
+    'src/Config.hs', 'blib6',
     map {("$_/*.hi", "$_/*.o*")} @srcdirs
 );
 
+setup_perl6_install();
 svn_revision    ();
 assert_ghc      ();
 create_config_h ();
@@ -152,13 +153,28 @@ sub set_postamble {
     my @srcfiles = map glob("$_/*.hs"), @srcdirs;
     postamble(<< ".");
 src/Config.hs :
-	$Config{perlpath} util/generate_config > src/Config.hs
+	$Config{perlpath} -Iutil -MPugsConfig -e "PugsConfig->write_config_module" > src/Config.hs
 
 $pugs : src/Config.hs @srcfiles $version_h
 	ghc --make -Wall -fno-warn-missing-signatures -fno-warn-name-shadowing -o pugs src/Main.hs -isrc
 
 tags :
 	hasktags -c src
+
+INST6_ARCHLIB = ${\ File::Spec->catfile('blib6', 'arch')}
+INST6_SCRIPT = ${\ File::Spec->catfile('blib6', 'script')}
+INST6_BIN = ${\ File::Spec->catfile('blib6', 'bin')}
+INST6_LIB = ${\ File::Spec->catfile('blib6', 'lib')}
+INST6_MAN1DIR = ${\ File::Spec->catfile('blib6', 'man1')}
+INST6_MAN3DIR = ${\ File::Spec->catfile('blib6', 'man3')}
+
+pure_site_install ::
+	\$(NOECHO) \$(MOD_INSTALL) \\
+		\$(INST6_LIB) \$(DESTINSTALLPRIVLIB) \\
+		\$(INST6_ARCHLIB) \$(DESTINSTALLARCHLIB) \\
+		\$(INST6_BIN) \$(DESTINSTALLBIN) \\
+		\$(INST6_SCRIPT) \$(DESTINSTALLSCRIPT) \\
+		\$(INST6_MAN1DIR) \$(DESTINSTALLMAN1DIR) \\
+		\$(INST6_MAN3DIR) \$(DESTINSTALLMAN3DIR)
 .
 }
-

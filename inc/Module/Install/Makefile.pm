@@ -23,20 +23,6 @@ sub makemaker_args {
     $args;
 }
 
-sub blib_depth {
-    my $self = shift;
-    my $depth = shift;
-    die "blib_depth must be a positive integer\n"
-      unless $depth =~ /^\d+$/ and $depth;
-    my $prefix = join '/', ('..') x $depth;
-    $self->makemaker_args->{INST_LIB} = "$prefix/blib/lib";
-    $self->makemaker_args->{INST_ARCHLIB} = "$prefix/blib/arch";
-    $self->makemaker_args->{INST_SCRIPT} = "$prefix/blib/script";
-    $self->makemaker_args->{INST_BIN} = "$prefix/blib/bin";
-    $self->makemaker_args->{INST_MAN1DIR} = "$prefix/blib/man1";
-    $self->makemaker_args->{INST_MAN3DIR} = "$prefix/blib/man3";
-}
-
 sub build_subdirs {
     my $self = shift;
     my $subdirs = $self->makemaker_args->{DIR} ||= [];

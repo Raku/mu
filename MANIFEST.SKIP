@@ -2,7 +2,7 @@
 ^pugs
 ^tags
 ^MANIFEST.bak$
-^Makefile$
+Makefile$
 ^Makefile.old$
 ^_darcs/
 ^blib/

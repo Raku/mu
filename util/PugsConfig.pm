@@ -1,13 +1,17 @@
-#!perl
+package PugsConfig;
 use strict;
 use warnings;
 use Config;
 use File::Spec;
-#use Spiffy -XXX;
 
-{
+sub pugs_install_libs {
     my $config = set_pugs_config_values();
-    write_config_module($config);
+    +{
+        archlib => $config->{archlib},
+        privlib => $config->{privlib},
+        sitearch => $config->{sitearch},
+        sitelib => $config->{sitelib},
+    };
 }
 
 sub set_pugs_config_values {
@@ -56,7 +60,7 @@ sub add_path {
 }
 
 sub write_config_module {
-    my $config = shift;
+    my $config = set_pugs_config_values();
     my $template = do { local $/; <DATA> };
 
     my $all_fields = join ",\n    ", map {
@@ -74,6 +78,8 @@ sub write_config_module {
 
     print $template;
 }
+
+1;
 
 __DATA__
 {-# OPTIONS -fglasgow-exts #-}
