@@ -54,6 +54,7 @@ op1 "undef" = \mv -> do
     liftIO $ writeIORef (vCast mv) $ VUndef
     return VUndef
 op1 "+"    = return . op1Numeric id
+op1 "abs"  = return . op1Numeric abs
 op1 "post:++" = \mv -> do
     val <- readMVal mv
     liftIO $ writeIORef (vCast mv) $ case val of
@@ -546,6 +547,7 @@ foldParam x         = doFoldParam x ""
 initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Bool      spre    !       (Bool)\
 \\n   Num       spre    +       (Num)\
+\\n   Num       pre     abs     (Num)\
 \\n   Num       spre    -       (Num)\
 \\n   Str       spre    ~       (Str)\
 \\n   Bool      spre    ?       (Bool)\

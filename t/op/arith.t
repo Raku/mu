@@ -5,8 +5,6 @@ require Test;
 
 plan(132);
 
-sub abs($num) { $num < 0 ?? -$num :: $num }
-
 my $five = abs(-5);
 
 unless ($five == 5) {
