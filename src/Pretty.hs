@@ -96,6 +96,7 @@ instance Pretty Val where
         val <- readIORef v
         return $ pretty val
     format (VThunk _) = text $ "{thunk}"
+    format (VRule _) = text $ "{rule}"
     format VUndef = text $ "undef"
 
 quoted '\'' = "\\'"

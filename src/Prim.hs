@@ -370,7 +370,7 @@ op2 "lt" = op2Cmp vCastStr (<)
 op2 "le" = op2Cmp vCastStr (<=)
 op2 "gt" = op2Cmp vCastStr (>)
 op2 "ge" = op2Cmp vCastStr (>=)
-op2 "~~" = op2Cmp vCastStr (==)
+op2 "~~" = op2Match
 op2 "!~" = op2Cmp vCastStr (/=)
 op2 "&&" = op2Logical not
 op2 "||" = op2Logical id
@@ -398,6 +398,21 @@ op2 "split"= \x y -> return $ split' (vCast x) (vCast y)
     split' [] xs = VList $ map (VStr . (:[])) xs
     split' glue xs = VList $ map VStr $ split glue xs
 op2 other = \x y -> return $ VError ("unimplemented binaryOp: " ++ other) (App other [Val x, Val y] [])
+
+
+op2Match x (VRule rx) = do
+    str     <- fromVal x
+    case str =~~ rx of
+        Nothing -> return $ VBool False
+        Just mr -> do
+            --- XXX: Fix $/ and make it lexical.
+            glob <- askGlobal
+            let Just matchAV = findSym "$/" glob
+                subs = elems $ mrSubs mr
+            writeMVal matchAV $ VList $ map VStr subs
+            return $ VBool True
+
+op2Match x y = op2Cmp vCastStr (==) x y
 
 op3 :: Ident -> Val -> Val -> Val -> Eval Val
 op3 "index" = \x y z -> do

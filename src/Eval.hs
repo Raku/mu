@@ -426,6 +426,11 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         val     <- enterEvalContext "List" exp
         -- ignore val
         retVal val
+    "rx" -> do
+        let [exp] = exps
+        val     <- enterEvalContext "Str" exp
+        str     <- fromVal val
+        retVal $ VRule $ mkRegex str
     syn | last syn == '=' -> do
         let [lhs, exp] = exps
             op = "&infix:" ++ init syn

@@ -723,13 +723,13 @@ ruleVarNameString =   try (string "$!")  -- error variable
     names   <- many1 wordAny `sepBy1` (try $ string "::")
     return $ (sigil:caret) ++ concat (intersperse "::" names)
 
-parseVar = do
-    name    <- parseVarName
-    return $ Var name
-
 ruleVar = do
     name    <- ruleVarNameString
-    return $ Var name
+    return $ makeVar name
+
+makeVar ('$':rest) | all isDigit rest =
+    Syn "[]" [Var "$/", Val $ VInt $ read rest]
+makeVar var = Var var
 
 nonTerm = do
     pos <- getPosition
@@ -749,6 +749,7 @@ ruleLit = choice
     , dotdotdotLiteral
     , qqLiteral
     , qwLiteral
+    , rxLiteral
     ]
 
 undefLiteral = try $ do
@@ -789,7 +790,7 @@ qqInterpolatorVar = try $ do
     fs <- if head var == '$'
         then many qqInterpolatorPostTerm
         else many1 qqInterpolatorPostTerm
-    return $ foldr (.) id (reverse fs) $ Var var
+    return $ foldr (.) id (reverse fs) $ makeVar var
 
 qqInterpolatorPostTerm = try $ do
     option ' ' $ char '.'
@@ -808,13 +809,23 @@ qqInterpolatorChar = do
 qqLiteral = do
     ch   <- getDelim
     expr <- interpolatingStringLiteral (balancedDelim ch) qqInterpolator
-    _    <- char (balancedDelim ch)
+    char (balancedDelim ch)
     return expr
         where getDelim = try $ do string "qq"
                                   notFollowedBy alphaNum
                                   delim <- anyChar
                                   return delim
                                <|> char '"'
+
+rxLiteral = try $ do
+    symbol "rx"
+    string ":perl5"
+    notFollowedBy alphaNum
+    whiteSpace
+    ch <- anyChar
+    expr <- interpolatingStringLiteral (balancedDelim ch) qqInterpolator
+    char (balancedDelim ch)
+    return $ Syn "rx" [expr]
 
 qwLiteral = try $ do
     str <- qwText

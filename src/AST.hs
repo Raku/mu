@@ -280,6 +280,7 @@ type VNum  = Double
 type VComplex = Complex VNum
 type VStr  = String
 type VList = [Val]
+type VRule = Regex
 type VHandle = Handle
 type MVal = IORef Val
 newtype VArray = MkArray [Val] deriving (Show, Eq, Ord)
@@ -306,6 +307,7 @@ data Val
     | VJunc     VJunc
     | VError    VStr Exp
     | VHandle   VHandle
+    | VRule     VRule
     | MVal      MVal
     | VControl  VControl
     | VThunk    VThunk
@@ -332,6 +334,7 @@ valType (VHandle  _)    = "Handle"
 valType (MVal     _)    = "Var"
 valType (VControl _)    = "Control"
 valType (VThunk   _)    = "Thunk"
+valType (VRule    _)    = "Rule"
 
 type VBlock = Exp
 data VControl

@@ -18,6 +18,8 @@ module Internals (
     module Unicode,
     module Cont,
     module Posix,
+    module RRegex,
+    module RRegex.Syntax,
     module Rule.Pos,
     module Data.Dynamic,
     module Data.Unique,
@@ -32,6 +34,7 @@ module Internals (
     module System.Cmd,
     module Control.Monad.RWS,
     module Control.Monad.Error,
+    module Data.Array,
     module Data.Bits,
     module Data.List,
     module Data.Either,
@@ -56,7 +59,10 @@ import UTF8
 import Unicode
 import Cont
 import Posix
+import RRegex
+import RRegex.Syntax
 import Data.Dynamic
+import Data.Array (elems)
 import System.Environment (getArgs, withArgs, getProgName)
 import System.Random hiding (split)
 import System.Exit

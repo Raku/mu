@@ -67,6 +67,7 @@ run []                          = do
 -- convenience functions for GHCi
 eval = doDebug []
 parse = doParse "-"
+dump = (doParseWith $ \exp _ -> print exp) "-"
 
 repLoop :: IO ()
 repLoop = do
@@ -178,6 +179,7 @@ prepareEnv name args = do
     libs    <- getLibs environ
     progSV  <- newMVal $ VStr name
     endAV   <- newMVal $ VList []
+    matchAV <- newMVal $ VList []
     incAV   <- newMVal $ VList (map VStr libs)
     argsAV  <- newMVal $ VList (map VStr args)
     inGV    <- newMVal $ VHandle stdin
@@ -193,6 +195,7 @@ prepareEnv name args = do
         , SymVal SGlobal "$*OUT"        outGV
         , SymVal SGlobal "$*ERR"        errGV
         , SymVal SGlobal "$!"           errSV
+        , SymVal SGlobal "$/"           matchAV
         , SymVal SGlobal "%*ENV" (VHash . MkHash $ envFM)
         -- XXX What would this even do?
         -- , SymVal SGlobal "%=POD"        (Val . VHash . MkHash $ emptyFM) 

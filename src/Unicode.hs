@@ -1,4 +1,4 @@
-{-# OPTIONS -fglasgow-exts -cpp -fvia-c -fno-implicit-prelude -O #-}
+{-# OPTIONS -fglasgow-exts -fvia-C -fno-implicit-prelude -O #-}
 {-# OPTIONS -#include "UnicodeC.h" #-}
 {-# OPTIONS -#include "UnicodeC.c" #-}
 
@@ -219,8 +219,6 @@ toLower                 :: Char -> Char
 -- Implementation with the supplied auto-generated Unicode character properties
 -- table (default)
 
-#if 1
-
 -- Regardless of the O/S and Library, use the functions contained in WCsubst.c
 
 -- type WInt = HTYPE_WINT_T
@@ -274,47 +272,3 @@ foreign import ccall unsafe "stg_hack_u_towtitle"
 
 foreign import ccall unsafe "stg_hack_u_gencat"
   wgencat :: CInt -> Int
-
--- -----------------------------------------------------------------------------
--- No libunicode, so fall back to the ASCII-only implementation (never used, indeed)
-
-#else
-
-isControl c		=  c < ' ' || c >= '\DEL' && c <= '\x9f'
-isPrint c		=  not (isControl c)
-
--- The upper case ISO characters have the multiplication sign dumped
--- randomly in the middle of the range.  Go figure.
-isUpper c		=  c >= 'A' && c <= 'Z' || 
-                           c >= '\xC0' && c <= '\xD6' ||
-                           c >= '\xD8' && c <= '\xDE'
--- The lower case ISO characters have the division sign dumped
--- randomly in the middle of the range.  Go figure.
-isLower c		=  c >= 'a' && c <= 'z' ||
-                           c >= '\xDF' && c <= '\xF6' ||
-                           c >= '\xF8' && c <= '\xFF'
-
-isAlpha c		=  isLower c || isUpper c
-isDigit c		=  c >= '0' && c <= '9'
-isAlphaNum c		=  isAlpha c || isDigit c
-
--- Case-changing operations
-
-toUpper c@(C# c#)
-  | isAsciiLower c    = C# (chr# (ord# c# -# 32#))
-  | isAscii c         = c
-    -- fall-through to the slower stuff.
-  | isLower c	&& c /= '\xDF' && c /= '\xFF'
-  = unsafeChr (ord c `minusInt` ord 'a' `plusInt` ord 'A')
-  | otherwise
-  = c
-
-
-toLower c@(C# c#)
-  | isAsciiUpper c = C# (chr# (ord# c# +# 32#))
-  | isAscii c      = c
-  | isUpper c	   = unsafeChr (ord c `minusInt` ord 'A' `plusInt` ord 'a')
-  | otherwise	   =  c
-
-#endif
-

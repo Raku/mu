@@ -44,11 +44,12 @@ sub set_postamble {
     my @srcfiles = map glob("$_/*.*hs"), @srcdirs;
 
     # turning off unused imports and deprecations for GHC6.4.
-    my $ghc_flags = "-I. -Isrc -i. -isrc -static -Wall -fno-warn-missing-signatures -fno-warn-name-shadowing";
+    my $ghc_flags = "-I. -Isrc -Isrc/pcre -i. -isrc -isrc/pcre -static -Wall -fno-warn-missing-signatures -fno-warn-name-shadowing";
     if (assert_ghc() ge '6.4') {
         $ghc_flags .= " -fno-warn-deprecations -fno-warn-orphans";
     }
     my $ghc_output = "-o pugs$Config{_exe} src/Main.hs";
+    my @prereqs = ($config_h, qw( src/UnicodeC.c src/UnicodeC.h ));
 
     postamble(fixpaths(<< "."));
 $config_h : lib/Perl6/Pugs.pm util/config_h.pl
@@ -63,13 +64,13 @@ $version_h : .svn/entries util/version_h.pl
 src/Config.hs : util/PugsConfig.pm
 	\$(PERL) -Iutil -MPugsConfig -e "PugsConfig->write_config_module" > src/Config.hs
 
-profiled :: src/Config.hs @srcfiles $version_h src/UnicodeC.c src/UnicodeC.h
+profiled :: src/Config.hs @srcfiles $version_h @prereqs
 	ghc -auto-all -prof --make $ghc_flags $ghc_output
 
-optimized :: src/Config.hs @srcfiles $version_h src/UnicodeC.c src/UnicodeC.h
+optimized :: src/Config.hs @srcfiles $version_h @prereqs
 	ghc -O2 --make $ghc_flags $ghc_output
 
-$pugs : src/Config.hs @srcfiles $version_h $config_h src/UnicodeC.c src/UnicodeC.h
+$pugs : src/Config.hs @srcfiles $version_h @prereqs
 	ghc --make $ghc_flags $ghc_output
 
 tags :
