@@ -319,7 +319,9 @@ ruleBlockFormalPointy = rule "pointy block parameters" $ do
 
 -- Not yet transcribed ------------------------------------------------
 
-tightOperators =
+tightOperators = do
+  unary <- currentUnaryFunctions
+  return $
     [ methOps  " . .+ .? .* .+ .() .[] .{} .<<>> .= "   -- Method postfix
     , postOps  " ++ -- "                                -- Auto-Increment
     , rightOps " ** "                                   -- Exponentiation
@@ -329,7 +331,7 @@ tightOperators =
     , leftOps  " + - ~ +| +^ ~| ~^ "                    -- Additive
     , leftOps  " & ! "                                  -- Junctive And
     , leftOps  " ^ | "                                  -- Junctive Or
-    , preOps   primitiveUnaryFunctions                  -- Name Unary
+    , preOps   unary                                    -- Named Unary
     , leftOps  " but does "                             -- Traits
       ++ noneOps " => but does cmp <=> .. ^.. ..^ ^..^ "-- Non-chaining Binary
       ++ postOps "..."                                  -- Infinite range
@@ -342,26 +344,61 @@ tightOperators =
     , rightSyn " = := ::= += **= xx= ||= &&= //= "      -- Assignment
     ]
 
-looseOperators =
-    [ preOps   primitiveListFunctions                   -- List Operator
-    , leftOps  " ==> "                                  -- Pipe Forward
-    , leftOps  " and nor "                              -- Loose And
-    , leftOps  " or xor err "                           -- Loose Or
-    ]
+looseOperators = do
+    names <- currentListFunctions
+    return $
+        [ preOps   names                                -- List Operator
+        , leftOps  " ==> "                              -- Pipe Forward
+        , leftOps  " and nor "                          -- Loose And
+        , leftOps  " or xor err "                       -- Loose Or
+        ]
 
-operators = concat $
-    [ tightOperators
-    , [ listSyn  " , " ]                                -- Comma
-    , looseOperators
---  , [ listSyn  " ; " ]                                -- Terminator
-    ]
+operators = do
+    tight <- tightOperators
+    loose <- looseOperators
+    return $ concat $
+        [ tight
+        , [ listSyn  " , " ]                            -- Comma
+        , loose
+    --  , [ listSyn  " ; " ]                            -- Terminator
+        ]
 
-litOperators = tightOperators ++ looseOperators
+litOperators = do
+    tight <- tightOperators
+    loose <- looseOperators
+    return $ tight ++ loose
 
-primitiveListFunctions = " not <== any all one none perl eval "
+currentFunctions = do
+    env     <- getState
+    return (envGlobal env ++ envLexical env)
 
-parseOp = buildExpressionParser operators parseTerm
-parseLitOp = buildExpressionParser litOperators parseLitTerm
+currentUnaryFunctions = do
+    funs <- currentFunctions
+    return $ unwords [
+        name | f@Symbol{ symExp = Val (VSub sub) } <- funs
+        , subAssoc sub == "pre"
+        , length (subParams sub) == 1
+        , isNothing $ find isSlurpy $ subParams sub
+        , let (_, (_:name)) = break (== ':') $ symName f
+        ]
+
+currentListFunctions = do
+    funs <- currentFunctions
+    return $ unwords [
+        name | f@Symbol{ symExp = Val (VSub sub) } <- funs
+        , subAssoc sub == "pre"
+        , isJust $ find isSlurpy $ subParams sub
+        , let (_, (_:name)) = break (== ':') $ symName f
+        ]
+    -- " not <== any all one none perl eval "
+
+parseOp = do
+    ops <- operators
+    buildExpressionParser ops parseTerm
+
+parseLitOp = do
+    ops <- litOperators
+    buildExpressionParser ops parseLitTerm
 
 ops f s = [f n | n <- sortBy revLength (words s)]
     where
@@ -527,7 +564,7 @@ listLiteral = tryRule "list literal" $ do -- XXX Wrong
     return $ Syn "," []
 
 arrayLiteral = do
-    items <- brackets $ parseOp `sepEndBy` symbol ","
+    items   <- brackets $ parseOp `sepEndBy` symbol ","
     return $ App "&prefix:\\" [] [Syn "," items]
 
 pairLiteral = do
@@ -546,10 +583,7 @@ dotdotdotLiteral = do
 op_methodPostfix    = []
 op_namedUnary       = []
 methOps _ = []
-primitiveUnaryFunctions = []
 ternOps _ = []
-
-parseProgram = do { whiteSpace ; x <- parseOp ; eof ; return x }
 
 runRule :: Env -> (Env -> a) -> RuleParser Env -> String -> a
 runRule env f p str = f $ case ( runParser ruleProgram env progName str ) of
@@ -570,4 +604,8 @@ showErr err =
 retSyn :: String -> [Exp] -> RuleParser Exp
 retSyn sym args = do
     return $ Syn sym args
+
+retParser :: RuleParser Exp -> RuleParser Exp
+retParser parser = do
+    return $ Parser parser
 

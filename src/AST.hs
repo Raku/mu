@@ -304,7 +304,14 @@ data Exp
     | Var Var
     | Parens Exp
     | NonTerm SourcePos
+    | Parser (CharParser Env Exp)
     deriving (Show, Eq, Ord)
+
+instance Show (CharParser Env Exp) where
+    show _ = "<parser>"
+instance Eq (CharParser Env Exp)
+instance Ord (CharParser Env Exp) where
+    compare _ _ = LT
 
 extractExp :: Exp -> ([Exp], [String]) -> ([Exp], [String])
 extractExp exp (exps, vs) = (exp':exps, vs')
