@@ -53,8 +53,8 @@ ext/Kwid/t/README
 ext/Pugs-MakeMaker/lib/Pugs/MakeMaker.pm
 ext/Pugs-MakeMaker/Makefile.PL
 ext/Test/lib/Test.pm
-ext/Test/t/1-basic.t
 ext/Test/Makefile.PL
+ext/Test/t/1-basic.t
 inc/Module/Install.pm
 inc/Module/Install/Base.pm
 inc/Module/Install/Can.pm
@@ -235,8 +235,8 @@ t/Synopsis/S12.pod
 t/Synopsis/S13.pod
 t/syntax/decl_vs_assign_prec.t
 t/syntax/lf_in_list.t
-t/syntax/subscript_parse_bugs.t
 t/syntax/subroutine_named_params.t
+t/syntax/subscript_parse_bugs.t
 t/syntax/unicode.t
 t/syntax/varnames.t
 t/unspecced/chomp.t
@@ -244,6 +244,7 @@ t/unspecced/chop.t
 t/unspecced/cont.t
 t/var/is_constant.t
 t/var/type.t
+util/catalog_tests.pl
 util/fixauthors.pl
 util/grokprims.pl
 util/PugsConfig.pm

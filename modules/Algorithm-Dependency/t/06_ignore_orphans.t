@@ -1,9 +1,9 @@
-#!/usr/bin/perl -w
+#!pugs
+use v6;
 
 # Check that errors are correctly ignored when the 'ignore_orphans' option
 # is turned on.
 
-use strict;
 use lib ();
 use UNIVERSAL 'isa';
 use File::Spec::Functions ':ALL';

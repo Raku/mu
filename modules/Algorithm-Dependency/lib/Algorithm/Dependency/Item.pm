@@ -1,10 +1,11 @@
+#!pugs
+use v6;
+
 package Algorithm::Dependency::Item;
 
 # Algorithm::Dependency::Item implements an object for a single item
 # in the database, with a unique id.
 
-use 5.005;
-use strict;
 use Algorithm::Dependency ();
 
 use vars qw{$VERSION};

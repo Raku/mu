@@ -1,8 +1,8 @@
-#!/usr/bin/perl -w
+#!pugs
+use v6;
 
 # Ordered dependency trees
 
-use strict;
 use lib ();
 use UNIVERSAL 'isa';
 use File::Spec::Functions ':ALL';

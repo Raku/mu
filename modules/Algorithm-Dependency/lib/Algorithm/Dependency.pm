@@ -1,9 +1,10 @@
+#!pugs
+use v6;
+
 package Algorithm::Dependency;
 
 # Implements the basic, non-order significant dependency algorithm
 
-use 5.005;
-use strict;
 use UNIVERSAL 'isa';
 use Algorithm::Dependency::Item   ();
 use Algorithm::Dependency::Source ();

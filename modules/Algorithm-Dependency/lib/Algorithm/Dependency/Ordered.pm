@@ -1,3 +1,6 @@
+#!pugs
+use v6;
+
 package Algorithm::Dependency::Ordered;
 
 # This package implements a version of Algorithm::Dependency where the order
@@ -12,8 +15,6 @@ package Algorithm::Dependency::Ordered;
 # dependencies. For that reason, the schedule method will return an error
 # if a circular dependency is found.
 
-use 5.005;
-use strict;
 use base 'Algorithm::Dependency';
 
 use vars qw{$VERSION};

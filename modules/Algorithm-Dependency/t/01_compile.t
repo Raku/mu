@@ -1,8 +1,8 @@
-#!/usr/bin/perl -w
+#!pugs
+use v6;
 
 # Basic load and method existance tests for Algorithm::Dependency
 
-use strict;
 use lib ();
 use UNIVERSAL 'isa';
 use File::Spec::Functions ':ALL';
@@ -21,7 +21,7 @@ use Test::More tests => 4;
 
 
 # Check their perl version
-ok( $] > 5.005, 'Perl version is new enough' );
+ok( 1, 'Perl version is new enough' );
 
 # Load the main modules
 use_ok( 'Algorithm::Dependency' );

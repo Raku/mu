@@ -1,8 +1,14 @@
-require 5.000;
-use ExtUtils::MakeMaker;
+#!perl
+
+use 5.008001; use utf8; use strict; use warnings;
+
+use Pugs::MakeMaker;
+
 WriteMakefile(
 	'NAME'         => 'Algorithm::Dependency',
 	'VERSION_FROM' => 'lib/Algorithm/Dependency.pm',
+	'AUTHOR'     => 'Adam Kennedy (cpan@ali.as)',
+	'ABSTRACT'   => 'Create extensible and optimized dependency algorithms',
 	'PREREQ_PM'    => {
 		# Modules needed for tests
 		'Test::More'       => '0',
@@ -14,8 +20,6 @@ WriteMakefile(
 		'Class::Inspector' => '1.06',
 		'Config::Tiny'     => '2.0',
 	},
-	($] >= 5.005) ? (
-		'AUTHOR'     => 'Adam Kennedy (cpan@ali.as)',
-		'ABSTRACT'   => 'Create extensible and optimized dependency algorithms',
-	) : (),
 );
+
+1;
