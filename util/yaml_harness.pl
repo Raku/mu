@@ -63,7 +63,7 @@ my %handlers = (
 		$line =~ /^(.*?) <pos:(.*)>($|\s*#.*$)/ or warn "couldn't match line: $line\n";
 		$line = $1 ? $1 . $3 : $line;
 		my $pos = $2;
-		
+
 		%{ $self->log_event } = (
 			type   => 'test',
 			num    => $curr,

@@ -15,7 +15,7 @@ undef $yamlfh;
 #Dump($data);
 
 print <<"__TOP__";
-<!DOCTYPE html 
+<!DOCTYPE html
  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'
  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'>
 <html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' lang='en'>
@@ -47,7 +47,7 @@ foreach my $testfile (sort {$a->{file} cmp $b->{file}}
 
 	my $rows = int(.75 + @{$testfile->{subtests}} / 50) || 1;
 	my $per_row = int(.75 + @{$testfile->{subtests}} / $rows);
-	
+
 	foreach my $test (@{$testfile->{subtests}}) {
 	  my $class = t_to_class($test);
 
@@ -63,7 +63,7 @@ foreach my $testfile (sort {$a->{file} cmp $b->{file}}
 	  $title =~ s/</&lt;/g;
 	  $title =~ s/>/&gt;/g;
 	  $title =~ s!\cJ!<br />!g;
-	  $title =~ s/([^-&<>\/().#A-Za-z0-9 ])/sprintf '&#x%X;', ord $1/eg;
+	  $title =~ s/([^-&<>\/().#A-Za-z0-9 ;])/sprintf '&#x%X;', ord $1/eg;
 
 #	  print STDERR "post: $title\n";
 
@@ -76,11 +76,11 @@ foreach my $testfile (sort {$a->{file} cmp $b->{file}}
 	  } else {
 		$case_link = $linkto;
 	  }
-	  
+
 	  if ($i and $i % $per_row == 0) {
 		print "</tr></table><table width='100%'><tr>\n";
 	  }
-	  
+
 #	  print "<td class='test $class' title='$title'>$title</td>";
 	  print " <td class='test $class'><a href='$case_link'>&nbsp;<div>$title</div></a></td>\n";
 #	  print STDERR " <td class='test $class'><a href='$case_link'>&nbsp;<div>$title</div></a></td>\n";
@@ -110,11 +110,11 @@ sub t_to_class {
   my $p;
   my $todo;
   local $_ = $t->{line};
-  
+
   return 'nottest' unless $t->{type} and $t->{type} eq 'test';
-  
+
 #  warn "$_";
-  
+
   if (/^not ok/) {
 	$p=0;
   } elsif (/^ok/) {
@@ -124,7 +124,7 @@ sub t_to_class {
   }
 
   $todo = 0+/# TODO$/;
-  
+
 
   return {
 		  '00'=>'bad',
