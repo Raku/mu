@@ -122,9 +122,12 @@ opEval :: String -> Eval Val
 opEval str = do
     env <- ask
     let env' = runRule env id ruleProgram str
-    local (\_ -> env') $ do
+    val <- resetT $ local (\_ -> env') $ do
         evl <- asks envEval
         evl (envBody env')
+    case val of
+        VError _ _  -> return VUndef
+        _           -> return val
 
 mapStr :: (Word8 -> Word8) -> [Word8] -> String
 mapStr f = map (chr . fromEnum . f)
