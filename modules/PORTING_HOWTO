@@ -25,6 +25,10 @@ Mini HowTo: How to port Perl 5 modules to Perl 6
       [abc]   -> <[abc]>
       [^abc]  -> <-[abc]>
       (?:...) -> [...]
+    - Heredocs:
+      <<END    -> qq:to/END/
+      <<'END'  ->  q:to/END/
+      <<' END' ->  q:to/ END/
 
   - Often, you can remove all that Perl 5 argument parsing and simply
     substitute it by a nice signature.
