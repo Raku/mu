@@ -740,7 +740,7 @@ subroutines, as part of their declaration:
 
     my $pi is constant = 3;
 
-    my $key is Persistent(file=>".key");
+    my $key is Persistent(:file«.key»);
 
     sub fib is cached {...}
 
@@ -758,11 +758,12 @@ The C<but I<NAME> (I<DATA>)> syntax specifies run-time properties on values:
         return 0 but true;
     }
 
+Properties are predeclared as roles and implemented as mixins--see A12.
 
 =head2 Subroutine traits
 
-These traits may be declared on the subroutine as a whole (not on individual
-parameters).
+These traits may be declared on the subroutine as a whole (individual
+parameters take other traits).
 
 =over 
 
@@ -790,7 +791,7 @@ Specifies the rule by which a macro call is parsed.
 
 =item C<is cached>
 
-Marks a subroutine as being memoized
+Marks a subroutine as being memoized.
 
 =item C<is inline>
 
@@ -800,11 +801,21 @@ optimization via inlining.
 =item C<is tighter>/C<is looser>/C<is equiv>
 
 Specifies the precedence of an operator relative to an existing
-operator.
+operator.  C<equiv> also specifies the default associativity to
+be the same as the operator to which the new operator is equivalent.
+C<tighter> and C<looser> operators default to left associative.
 
 =item C<is assoc>
 
-Specifies the associativity of an operator. 
+Specifies the associativity of an operator explicitly.  Valid values are:
+
+    Tag		Examples	Meaning of $a op $b op $c
+    ===		========	=========================
+    left	+ - * / x	($a op $b) op $c
+    right	** =		$a op ($b op $c)
+    non		cmp <=> ..	ILLEGAL
+    chain	== eq ~~	($a op $b) and ($b op $c)
+    list	| & ^ ¥		listop($a, $b, $c)
 
 =item C<PRE>/C<POST>
 
@@ -815,8 +826,8 @@ otherwise an exception is thrown.
 =item C<FIRST>/C<LAST>/C<NEXT>/C<KEEP>/C<UNDO>/etc.
 
 Mark blocks that are to be conditionally executed before or after
-the subroutine's C<do> block. The return values of these blocks
-are ignored.
+the subroutine's C<do> block. These blocks are generally used only for
+their side effects, since most return values will be ignored.
 
 =back
 
@@ -843,11 +854,15 @@ element of the list:
 
     sub incr (*@vars is rw) { $_++ for @vars }
 
+(The variadic array as a whole is always modifiable, but such
+modifications have no effect on the original argument list.)
+
 =item C<is ref>
 
 Specifies that the parameter is passed by reference. Unlike C<is rw>, the
 corresponding argument must already be a suitable lvalue. No attempt at
-coercion or autovivification is made.
+coercion or autovivification is made, so unsuitable values throw an
+exception when you try to modify them.
 
 =item C<is copy>
 
@@ -868,21 +883,16 @@ to cause a final list parameter to apply a series of scalar contexts:
 
     sub format(*@data is context(Scalar)) {...}
 
+Note that the compiler may not be able to propagate such a scalar
+context to a function call used as a parameter to a method or multisub
+whose signature is not visible until dispatch time.  Such function
+call parameters are called in list context by default, and must be
+coerced to scalar context explicitly if that is desired.
+
 =back
 
 
 =head1 Advanced subroutine features
-
-
-=head2 The C<&_> routine
-
-C<&_> is always an alias for the current subroutine, much like the C<$_>
-alias for the current topic:
-
-    my $anonfactorial = sub (Int $n) {
-                            return 1 if $n<2;
-                            return $n * &_($n-1)
-                        };
 
 
 =head2 The C<caller> function
@@ -933,21 +943,22 @@ or has the corresponding methods called on it:
 =head2 The C<leave> function
 
 A C<return> statement causes the innermost surrounding subroutine, method,
-rule, macro, or multimethod to return.
+rule, macro, or multimethod to return.  Only declarations with an explicit
+keyword such as "sub" may be returned from.
 
 To return from other types of code structures, the C<leave> funtion is used:
 
     leave;                      # return from innermost block of any kind
     leave Method;               # return from innermost calling method
-    leave &=sub <== 1,2,3;      # Return from current sub. Same as: return 1,2,3
+    leave &?SUB <== 1,2,3;      # Return from current sub. Same as: return 1,2,3
     leave &foo <== 1,2,3;       # Return from innermost surrounding call to &foo
     leave Loop, label=>'COUNT'; # Same as: last COUNT;
 
 
 =head2 Temporization
 
-The C<temp> function temporarily replaces a variable, subroutine, or
-other object in a given scope:
+The C<temp> function temporarily replaces the value of an existing
+variable, subroutine, or other object in a given scope:
 
     {
        temp $*foo = 'foo';      # Temporarily replace global $foo
@@ -991,6 +1002,8 @@ the temporizing scope to restore the subroutine to its pre-C<temp> state:
         return $curr;
     }
 
+Hypothetical variables use the same mechanism, except that the restoring
+closure is called only on failure.
 
 =head2 Wrapping
 
@@ -1025,6 +1038,38 @@ temporization:
 
     temp &thermo.wrap( { call($^t + 273.16) } );
 
+Within a wrapper, the C<&_> variable is implicitly declared as a
+lexical by the wrapper, and refers to the function that C<call>
+implicitly calls.  Thus, for non-wrappers, you may also declare
+your own C<&_> lexical variable (or parameter) and then use C<call>
+to call whatever is referenced by C<&_>.  (In the absence of such
+a declaration, C<call> magically steals the dispatch list from the
+current dispatcher, and redispatches to the next-most-likely method
+or multi-sub.)
+
+=head2 The C<&?SUB> routine
+
+C<&?SUB> is always an alias for the current subroutine, so you can
+specify tail-recursion on an anonymous sub:
+
+    my $anonfactorial = sub (Int $n) {
+                            return 1 if $n<2;
+                            return $n * &?SUB($n-1);
+                        };
+
+C<$?SUBNAME> contains the name of the current subroutine, if any.
+
+=head2 The C<&?BLOCK> routine
+
+C<&?BLOCK> is always an alias for the current block, so you can
+specify tail-recursion on an anonymous block:
+
+    my $anonfactorial = -> Int $n { $n < 2
+    					?? 1
+					:: $n * &?BLOCK($n-1)
+				  };
+
+C<$?BLOCKLABEL> contains the block of the current block, if any.
 
 =head2 Currying
 
@@ -1033,6 +1078,14 @@ of named arguments, whose names must match parameters of the subroutine
 itself:
 
     &textfrom := &substr.assuming(str=>$text, len=>Inf);
+
+or equivalently:
+
+    &textfrom := &substr.assuming(:str($text) :len(Inf));
+
+or even:
+
+    &textfrom := &substr.assuming:str($text):len(Inf);
 
 It returns a reference to a subroutine that implements the same behaviour
 as the original subroutine, but has the values passed to C<.assuming>
@@ -1048,6 +1101,11 @@ module's subroutines/methods/etc. simultaneously:
 
     (use IO::Logging).assuming(logfile => ".log");
 
+To curry a particular multimethod it may be necessary to specify the type
+of one or more of its invocants:
+
+    &woof ::= &bark<Dog>.assuming :pitch«low»;
+    &pine ::= &bark<Tree>.assuming :pitch«yes»;
 
 
 =head1 Other matters
@@ -1055,28 +1113,45 @@ module's subroutines/methods/etc. simultaneously:
 
 =head2 Anonymous hashes vs blocks
 
-C<{...}> is always a block/closure unless it consists of a single list, the
-first element of which is either a hash or a pair.
+C<{...}> is always a block.  However, if it consists of a single list, the
+first element of which is either a hash or a pair, it is executed immediately
+to compose a hash reference.
 
-The standard C<pair I<LIST>> function is equivalent to:
+The standard C<pair> list operator is equivalent to:
 
     sub pair (*@LIST) {
         my @pairs;
         for @LIST -> $key, $val {
-            push @pairs, $key=>$val;
+            push @pairs, $key => $val;
         }
         return @pairs;
     }
 
+or more succinctly (and lazily):
 
-The standard C<hash> function takes a block, evaluates it in list context, and
-constructs an anonymous hash from the resulting key/value list:
+    sub pair (*@LIST) {
+        gather {
+	    for @LIST -> $key, $val {
+		take $key => $val;
+	    }
+	}
+    }
 
-    $ref = hash { 1, 2, 3, 4, 5, 6 };   # Anonymous hash
-    $ref = sub  { 1, 2, 3, 4, 5, 6 };   # Anonymous sub returning list
+The standard C<hash> list operator is equivalent to:
+
+    sub hash (*@LIST) {
+	return { pair @LIST };
+    }
+
+So you may use C<sub> or C<hash> or C<pair> to disambiguate:
+
+    $ref =  sub { 1, 2, 3, 4, 5, 6 };   # Anonymous sub returning list
     $ref =      { 1, 2, 3, 4, 5, 6 };   # Anonymous sub returning list
     $ref =      { 1=>2, 3=>4, 5=>6 };   # Anonymous hash
     $ref =      { 1=>2, 3, 4, 5, 6 };   # Anonymous hash
+    $ref =  hash( 1, 2, 3, 4, 5, 6 );   # Anonymous hash
+    $ref =  hash  1, 2, 3, 4, 5, 6  ;   # Anonymous hash
+    $ref = { pair 1, 2, 3, 4, 5, 6 };   # Anonymous hash
 
 
 =head2 Pairs as lvalues
@@ -1097,7 +1172,7 @@ C<$CALLER::varname> specifies the C<$varname> visible in the dynamic
 scope from which the current block/closure/subroutine was called.
 
 C<$MY::varname> specifies the lexical C<$varname> declared in the current
-lexical scope.
+lexical scope.  C<%MY::> is the hash representing that scope.
 
 C<$OUTER::varname> specifies the C<$varname> declared in the lexical
 scope surrounding the current lexical scope (i.e. the scope in which
