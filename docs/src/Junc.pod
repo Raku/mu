@@ -8,6 +8,9 @@ I am a fledgling Haskell programmer having just finished reading
 YAHT. For some reason, I was attracted to understanding Junc.hs and so
 will document its workings.
 
+Junc.hs is the main code for implementing Perl6 Junctions:
+
+L<http://dev.perl.org/perl6/synopsis/S09.html>
 
 =head1 HOW THE MODULE WORKS
 
@@ -119,6 +122,10 @@ of the C<argCollapsed> slot if this test passes and False otherwise.
 [20:59] <autrijus> the reason is that none() cannot be represent as
 one set
 [20:59] <autrijus> must use two sets.
+
+=head2 argsCollapsed
+
+
 
 =head1 AUTHOR
 

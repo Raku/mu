@@ -89,6 +89,23 @@ Any help is appreciated.
 
 -}
 
+{- SORJE's function:
+
+funs  = [(isTotalJunc, "isTotalJunc"), (isPartialJunc, "isPartialJunc")]
+types = [JNone, JOne, JAny, JAll]                           
+
+mkdat typ = ApplyArg "somename" (VJunc $ Junc typ emptySet emptySet) False
+
+main =  mapM tester funs
+
+
+tester (f,fn) = do putStrLn $ "func: " ++ fn
+                   mapM (\x -> putStrLn $ show x ++ "\t" ++ (show.f.mkdat) x) types
+
+
+
+-}
+
 test_total_partial = let funs  = [isTotalJunc, isPartialJunc]
 			 types = [JNone, JOne, JAny, JAll] 
 			 mkdat typ = ApplyArg "somename" (VJunc $ Junc typ emptySet emptySet) False
@@ -98,4 +115,5 @@ test_total_partial = let funs  = [isTotalJunc, isPartialJunc]
 					   return $ (showres f t retval)
 					  }
 			 in
-  [ (showres f t (f (mkdat t))) | f <- funs, t <- types ]
+  putStr $ unlines [ (showres f t (f (mkdat t))) | f <- funs, t <- types ]
+
