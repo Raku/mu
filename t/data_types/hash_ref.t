@@ -104,7 +104,7 @@ is(@values1[1], 2, 'got the right values');
 is(@values1[2], 3, 'got the right values');
 
 # hashref assignment using {}
-# L<S06/"Anonymous hashes vs blocks"/"So you may use sub or hash or pair to disambiguate:">
+# L<S06/"Anonymous hashes vs blocks" /"So you may use sub or hash or pair to disambiguate:">
 my $hash8_a = { a => 1, b => 2 };             todo_isa_ok $hash8_a, "Hash";
 my $hash8_b = { a => 1, "b", 2 };             todo_isa_ok $hash8_b, "Hash";
 my $hash8_c = eval 'hash(a => 1, "b", 2)';    todo_isa_ok $hash8_c, "Hash";

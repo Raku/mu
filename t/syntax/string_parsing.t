@@ -6,7 +6,7 @@ use v6;
 
 say "1..2";
 
-# L<S02/"Literals"/"In order to interpolate the result of a method call">
+# L<S02/"Literals" /"In order to interpolate the result of a method call">
 
 my $a = -3;
 if(eval 'my $foo = "$a.abs"') {

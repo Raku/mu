@@ -11,7 +11,7 @@ Very basic class method tests from L<S12/"Methods">
 
 =cut
 
-# L<S12/"Methods"/"either the dot notation or indirect object notation:">
+# L<S12/"Methods" /"either the dot notation or indirect object notation:">
 eval 'class Foo {
   method doit ($a, $b, $c) { $a + $b + $c }
   method noargs () { 42 }

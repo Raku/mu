@@ -14,7 +14,7 @@ ok(true "x",   'true "x" is true');
 my $a = 1; ok(true $a,    'true $true_var is true');
 my $b = 0; ok(!(true $b), 'true $false_var is not true');
 
-# L<S04/"Switch statements"/"is exactly equivalent to">
+# L<S04/"Switch statements" /"is exactly equivalent to">
 # used without an argument
 my $c = eval 'true';
 ok($c, "true is true");
