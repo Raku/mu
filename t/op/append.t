@@ -3,6 +3,12 @@
 use v6;
 require Test;
 
+=kwid
+
+String appending with ~ operator
+
+=cut
+
 plan 4;
 
 # Again, mostly stolen from Perl 5

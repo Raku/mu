@@ -3,6 +3,12 @@
 use v6;
 require Test;
 
+=kwid
+
+basic Number tests
+
+=cut
+
 plan 16;
 
 my $a = 1; "$a";

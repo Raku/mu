@@ -3,6 +3,12 @@
 use v6;
 require Test;
 
+=kwid
+
+Tests for Synopsis 6
+
+=cut
+
 plan 12;
 
 sub foobar ($var) {

@@ -3,6 +3,12 @@
 use v6;
 require Test;
 
+=kwid
+
+while statement tests
+
+=cut
+
 plan 4;
 
 my $i = 0;

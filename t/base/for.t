@@ -3,6 +3,12 @@
 use v6;
 require Test;
 
+=kwid
+
+for statement tests
+
+=cut
+
 plan 18;
 
 ## for with plain old range operator w/out parens

@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-=pod
+=kwid
 
 Context forcing operators
 

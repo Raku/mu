@@ -3,6 +3,12 @@
 use v6;
 require Test;
 
+=kwid
+
+Block tests
+
+=cut
+
 plan 6;
 
 my $anon_sub = sub { 1 };

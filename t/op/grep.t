@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-=pod
+=kwid
 
 built-in grep tests
 

@@ -3,6 +3,12 @@
 use v6;
 require Test;
 
+=kwid
+
+loop statement tests
+
+=cut
+
 plan 6;
 
 # basic loop

@@ -3,6 +3,12 @@
 use v6;
 require Test;
 
+=kwid
+
+Tests for Synopsis 3
+
+=cut
+
 plan 24;
 
 my $str1 = "foo";

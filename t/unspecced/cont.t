@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-=pod
+=kwid
 
 Test basic escape continuations obtained from &?CALLER_CONTINUATION
 
