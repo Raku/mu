@@ -3,9 +3,9 @@
 use v6;
 require Test;
 
-plan(4);
+plan 4;
 
-ok(lcfirst "HELLO WORLD" eq "hELLO WORLD", "simple");
-ok(lcfirst "" eq "", "empty string");
-ok(lcfirst "ÜÜÜÜ" eq "üÜÜÜ", "umlaut");
-ok(lcfirst "ÓÓÓÓŃ" eq "óÓÓÓŃ", "accented chars");
+is lcfirst("HELLO WORLD"), "hELLO WORLD", "simple";
+is lcfirst(""),            "",            "empty string";
+is lcfirst("ÜÜÜÜ"),        "üÜÜÜ",        "umlaut";
+is lcfirst("ÓÓÓÓŃ"),       "óÓÓÓŃ",       "accented chars";

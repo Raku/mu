@@ -3,9 +3,9 @@
 use v6;
 require Test;
 
-plan(4);
+plan 4;
 
-ok(ucfirst "hello world" eq "Hello world", "simple");
-ok(ucfirst "" eq "", "empty string");
-ok(ucfirst "üüüü" eq "Üüüü", "umlaut");
-ok(ucfirst "óóóó" eq "Óóóó", "accented chars");
+is ucfirst("hello world"), "Hello world", "simple";
+is ucfirst(""),            "",            "empty string";
+is ucfirst("üüüü"),        "Üüüü",        "umlaut";
+is ucfirst("óóóó"),        "Óóóó",        "accented chars";
