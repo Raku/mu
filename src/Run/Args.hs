@@ -127,7 +127,7 @@ joinDashE ((Switch 'n'):args) = joinDashE ((Opt "-e" "for (=<>) {"):script++[(Op
                                    isDashE (Opt "-e" _) = True
                                    isDashE (_) = False
 
-joinDashE ((Opt "-M" mod):args) = joinDashE ((Opt "-e" ("require " ++ mod ++ ";")):args)
+joinDashE ((Opt "-M" mod):args) = joinDashE ((Opt "-e" ("require " ++ mod ++ ";\n")):args)
 
 joinDashE ((Opt "-e" a):(Opt "-e" b):args) =
     joinDashE (Opt "-e" combined:args)

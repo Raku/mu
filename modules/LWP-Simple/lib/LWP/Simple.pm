@@ -21,9 +21,6 @@ use v6;
 my $CRLF = "\x0D\x0A\x0D\x0A";
 my $VERSION = "0.0.1";
 
-sub head ($url)
-{ ... }
-
 
 sub getprint ($url)
 { 
@@ -49,14 +46,69 @@ sub get (Str $url) is export {
   _get($url);
 };
 
-sub _get (Str $url) {
+sub head (Str $url) is export {
+  # * Don't use "say()", be specific and send "\r\n"
+  # * Set a timeout of 60 seconds (however)
+  # * Make sure the socket is autoflush, or better
+  #   is flushed after we've sent our lines.
+  # * Send Connection: close, at least until we know better
+  # say "$host:$port";
+  
+  my ($host,$port,$path) = split_uri($url);
+
+  my $req = _make_request( "HEAD", $host, $path );  
+  my $hdl = connect($host, $port);
+  $hdl.print($req);
+  $hdl.flush;
+  
+  my $head = slurp $hdl;
+  
+  # strip away everything except status and headers
+  # This should all be done better so the response doesn't live in
+  # memory all at once
+  
+  if ($head ~~ rx:perl5{^HTTP\/\d+\.\d+\s+(\d+) (?:.*?\015?\012)((?:.*?\015?\012)*?)\015?\012}) { 
+    my ($code,$head) = ($1,$2);
+
+    # if (want.Boolean) {
+    #  return $code ~~ rx:perl5/^2/;
+    # }
+    # if (want.Int) {
+    #  return $code
+    # }
+    #say $code;
+    #say $head;
+    
+    # XXX want() is not yet implemented :(
+    #if (want.Scalar) { 
+      return $head
+    #};
+    # my @list = "X-LWP-HTTP-Status: $code", (split rx:perl5/\015?\012/, $head);
+    #if (want.List) { return @list };
+    #if (want.Hash) {
+    #  my %res = map { rx:perl5/^(.*?): (.*)/; ($1 => $2) } @list;
+    #  return %res
+    #} else {
+    #  # What context can we also get?
+    #  return $head;
+    #};
+  };
+};
+
+# Unify with URI.pm
+sub split_uri (Str $url) {
   $url ~~ rx:perl5{^http://([^/:\@]+)(?::(\d+))?(/\S*)?$};
   
   my ($host) = $1;
   my ($port) = $2 || 80; 
   my ($path) = $3 || "/";
   
-  return _trivial_http_get($host, $port, $path);
+  return ($host,$port,$path);
+};
+
+sub _get (Str $url) {
+  my ($host,$port,$path) = split_uri($url);
+  return _trivial_http_get(($host,$port,$path));
 };
 
 sub _trivial_http_get (Str $host, Str $port, Str $path) returns Str {
@@ -67,16 +119,9 @@ sub _trivial_http_get (Str $host, Str $port, Str $path) returns Str {
   # * Send Connection: close, at least until we know better
   # say "$host:$port";
 
-  my $hdl = connect($host, $port);
+  my $req = _make_request( "GET", $host, $path );
   
-  my $req = join "\n", # $CRLF,
-            "GET $path HTTP/1.1",
-            "Host: $host",
-            "User-Agent: lwp-trivial-pugs/$VERSION",
-            "Connection: close",
-            $CRLF;
-  
-  # print $req;
+  my $hdl = connect($host, $port);  
   $hdl.print($req);
   $hdl.flush;
   
@@ -109,6 +154,15 @@ sub _trivial_http_get (Str $host, Str $port, Str $path) returns Str {
   };
   return $buffer
 }
+
+sub _make_request (Str $method, Str $host, Str $path) {
+  join "\n", # $CRLF,
+    "$method $path HTTP/1.1",
+    "Host: $host",
+    "User-Agent: lwp-trivial-pugs/$VERSION",
+    "Connection: close",
+    $CRLF;
+};
 
 1;
 
@@ -157,11 +211,34 @@ interface (see L<LWP::UserAgent>).
 
 =item head($url)
 
-Get document headers. Returns the following 5 values if successful:
-($content_type, $document_length, $modified_time, $expires, $server)
+Get document headers. Depending on the context, C<head> returns
+the following values:
 
-Returns an empty list if it fails.  In scalar context returns TRUE if
-successful.
+=over 4
+
+=item Boolean Context
+
+The HTTP status code (success/failure) is returned
+
+=item Numeric Context
+
+The HTTP status code is returned
+
+=item Scalar Context
+
+All headers are returned as one long string
+
+=item List Context
+
+All headers are returned split into the respective
+lines.
+
+=item Hash Context (if it exists?)
+
+A hash is returned mapping the headers. If there are
+duplicates, the last one wins.
+
+=back
 
 =item getprint($url)
 
