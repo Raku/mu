@@ -1,8 +1,10 @@
 # This document is in Kwid format.  To read this, use a Kwid formatter,
-# like "perl6doc perlkwid".
+# like "pugsdoc perlkwid".
 
-# This document was stolen directly from perlpod.pod. Making a diff between
-# the two documents is one way to see how Pod and Kwid compare.
+# This document was stolen directly from perlpod.pod. It is a more or less
+# direct translation. Therefore it covers a lot of ground that wouldn't show
+# up in your everyday Kwid document. So if you think this document reads
+# cleanly, a pedestrian Kwid document should read much more so.
 
 = NAME
 
@@ -36,6 +38,21 @@ You can use formatting codes in ordinary paragraphs, for *bold*,
 /italic/, `code-style`, [hyperlinks|perlfaq], and more. Such codes are
 explained in the "[Formatting Codes]" section, below.
 
+Note that *bold*, /italic/ and `code` are nicer abbreviated forms of
+{*bold*}, {/italic/} and {`code`}, and can be used in 95% of use cases
+when there is no ambiguity. Since bold is ended with `*}`, bolding three
+asterisks is simply `{*****}`, with no extra escaping. And bold `*}` is
+simply `{*\\*}*}`. See following note for explanation.
+
+It should be mentioned early that a backslash character "\\" can
+be used to /cancel/ any given format. So \*this is not bold* and this
+\http://foo.com is not a hyperlink and this:
+\= Is Not A Heading
+
+In practice backslashes should be very rare. But it is good to point out
+early, so that you know that all the possibilities are covered. /More on
+escaping below./
+
 == Verbatim Paragraph
 
 Verbatim paragraphs are usually used for presenting a codeblock or
@@ -61,10 +78,9 @@ indenting.
 A command paragraph is used for special treatment of whole chunks
 of text, usually as headings or parts of lists.
 
-All command paragraphs (which are typically only one line long) start
-with an indicator, followed by a space character, followed by arbitrary
-text that the command can use however it pleases. Currently recognized
-commands are:
+All command paragraphs start with an indicator, followed by a space
+character, followed by arbitrary text that the command can use however
+it pleases. Currently recognized commands are:
 
     # A comment line
     = Heading Level 1 (Most prominent)
@@ -161,17 +177,23 @@ can start any line with a "*" or a "+". The list continues until the
 next line that doesn't start with a "*" or a "+". You can even do multi-
 level lists by using more than one "*" or "+". Like this:
 
-    + People
-    ** Larry
-    ** Tom
-    ** Randal
-    + Places
-    ++ London
+    * People
+    -- Larry
+    The creator of Perl
+    -- Tom
+    Number 2
+    -- Randal
+    Karaoke Master and
+    wizard.
+    * Places
+    ++ London is the place where the
+       London Perl Monger live. 
     ++ France
-    ++ Pants
+    ++ Seattle
 
-The catch is that each list item must be on a single line. For multiline list
-items you'll need ".list".
+The catch is that each list item must be a single paragraph. For
+multiparagraph list items you'll need ".list". In other words, if the
+parser can guess where to put the ".list" markers, you don't need them.
 
 Note also that there are some basic rules to using ".list" ...
 ".list." regions:
@@ -268,6 +290,13 @@ Here are some examples of how to use this:
   ^^^^ Figure 1. ^^^^
   .text.
 
+  .table
+  qty description         price   total
+  --- ------------------- ------- --------
+  3   Widgets             $0.50   $1.50
+  2   Turtle Doves        $1.23   $2.46
+  .table.
+
   .comment
   These lines are
   ignored.
@@ -284,12 +313,6 @@ within that scope. (They cannot go past an `=cut` directive.)
 
 Some formats like `.over` can take extra arguments. (In this case, the
 number of spaces of 'ems' to indent.
-
-Note the ending marker can take the same arguments as the beginning
-marker. This is optional, but if the arguments are present on the ending
-marker, they must exactly match the beginning marker. (This technique
-can be used creatively to nest blocks of the same format, by passing
-them different arguments where ambiguity might otherwise arise.)
 
 Some format names that formatters currently are known to accept
 include "roff", "man", "latex", "tex", "text", and "html".  (Some
@@ -325,17 +348,19 @@ module.  Examples:
   .encoding big5
 
 And don't forget, when using any command, that the command lasts up
-until the end of its /line/, not its paragraph (like in Pod). So in the
-examples below, you can see that every command doesn't need a blank
-line after it, to end its paragraph.
+until the end of its /paragraph/, not its line. But unlike POD, paragraphs end
+when another paragraph command marker begins. This means you don't always need
+a blank line to do the job of ending a paragraph. 
 
 Some examples of lists include:
 
   * First item
   * Second item
   .list
-  - Foo() - Description of Foo function
-  - Bar() - Description of Bar function
+  - Foo() 
+  Description of Foo function
+  - Bar() 
+  Description of Bar function
   .list.
 
 == Formatting Codes
@@ -348,30 +373,26 @@ formatting codes (a.k.a. "interior sequences") can be used:
  Prefer "formatting codes" instead.
 .comment.
 
-.list
-
-- `/text/` -- italic text
+-- `/text/` -- italic text
 
 Used for emphasis ("{`be /careful!/`}") and parameters ("{`redo /LABEL/`}")
 
-- `*text*` -- bold text
+-- `*text*` -- bold text
 
 Used for switches ("{`perl's *-n* switch`}"), programs ("{`some systems
 provide a *chfn* for that`}"), emphasis ("{`be *careful!*`}"), and so on
 ("{`and that feature is known as *autovivification*`}").
 
-- {``code``} -- code text
+-- {``code``} -- code text
 
 Renders code in a typewriter font, or gives some other indication that
 this represents program text ("{``gmtime($^T)``}") or some other
 form of computerese ("{``drwxr-xr-x``}").
 
-- `[name]` -- a hyperlink
+-- `[name]` -- a hyperlink
 
 There are various syntaxes, listed below. In the syntaxes given, `text`,
 `name`, and `section` cannot contain the characters '/', '|', '[', or ']'.
-
-.list
 
 * `[name]`
 
@@ -543,7 +564,7 @@ visually.  I wanted the translator to always leave the `'` and {```} and
 working program, shift it over four spaces, and have it print out, er,
 verbatim.  And presumably in a monospace font.
 
-The Kwid format is not necessarily sufficient for writing a book. Pod
+The Kwid format is not necessarily sufficient for writing a book. Kwid
 is just meant to be an idiot-proof common source for nroff, HTML,
 TeX, and other markup languages, as used for online
 documentation.  Translators exist for *kwid2text*, *kwid2html*,
