@@ -1,8 +1,8 @@
-=head1 NAME
+= NAME
 
 builtins.pod - List of Perl 6 builtins
 
-=head1 DESCRIPTION
+= DESCRIPTION
 
 This document is just a working document of the "known" Perl 6 built-ins.
 It is not intended to be complete or authoritative -- it's just a
@@ -24,9 +24,9 @@ indicate such here as we discover them).
 Finally, for each entry, we're only entering as much detail as we know
 (or need to know) for implementation of the compiler.  
 
-=head1 BUILT-IN OPERATORS
+= BUILT-IN OPERATORS
 
-=head2 Numeric operators
+== Numeric operators
 
     # addition, subtraction, multiplication, division
     multi sub *infix:<+>(Num $x, Num $y) returns Num { ... }
@@ -49,7 +49,7 @@ Finally, for each entry, we're only entering as much detail as we know
     # exponentiation
     multi sub *infix:<**>(Num $x, Num $y) returns Num is tighter(&*prefix:<+>) { ... }
     
-=head2 String operators
+== String operators
 
     # concatenation
     multi sub *infix:<~>(Str $s1, Str $s2) returns Str is equiv(&*infix:<+>) { ... }
@@ -65,7 +65,7 @@ Finally, for each entry, we're only entering as much detail as we know
     multi sub prefix:<~> (Str $x) returns Str is equiv(&*prefix:<+>) { ... }
     multi sub prefix:<~^>(Str $x) returns Str is equiv(&*prefix:<+>) { ... }
 
-=head2 Boolean operators
+== Boolean operators
 
     # boolean or, xor, and, shifts
     multi sub *infix:<?|>(Bool $x, Bool $y) returns bit is equiv(&*infix:<+>) { ... }
@@ -79,7 +79,7 @@ Finally, for each entry, we're only entering as much detail as we know
     multi sub prefix:<?^>($x) returns bit is equiv(&*prefix:<+>) { ... }
     multi sub prefix:<!> ($x) returns bit is equiv(&*prefix:<+>) { ... }
 
-=head2 Relational operators
+== Relational operators
 
     multi sub infix:<==>(Num $x, Num $y) returns bit is looser(&*infix:<..>) 
         is assoc('chain') { ... }
@@ -98,7 +98,7 @@ Finally, for each entry, we're only entering as much detail as we know
 
     multi sub infix:<=:=>($x, $y) returns bit is equiv(&*$infix:<==>) { ... }
     
-=head2 Logical operators
+== Logical operators
 
     multi sub infix:<&&>(Bool $x, Bool $y) returns Scalar is looser(&*infix:<==>) { ... }
     multi sub infix:<||>(Bool $x, Bool $y) returns Scalar is looser(&*infix:<&&>) { ... }
@@ -116,11 +116,11 @@ Finally, for each entry, we're only entering as much detail as we know
     multi sub infix:<not>(Bool $x)          returns bit    is tighter(&*infix:<and>)
         { ... }
 
-=head2 Ternary operator
+== Ternary operator
 
 I'm not at all ready to tackle this one just yet.  :-)
 
-=head2 List operators
+== List operators
 
     multi sub infix:<x> ($x, $y) returns Str  is equiv(&*infix:<*>) { ... }
     multi sub infix:<xx>(@x, $y) returns List is equiv(&*infix:<*>) { ... }
@@ -137,17 +137,17 @@ I'm not at all ready to tackle this one just yet.  :-)
     multi sub postfix:<...>(Int $min: Int ?$by = 1) return List 
         is equiv(&*infix:<..>) { ... }
 
-=head1 BUILT-IN FUNCTIONS
+== BUILT-IN FUNCTIONS
 
 XXX: Is there a criterion that we use to choose between defining 
 something as a multi sub versus a class/object method?
 
-=head2 Misc functions
+== Misc functions
 
     multi sub *perl($x)     returns Str { ... }
     multi sub *eval(Str $x) returns Any { ... }
 
-=head2 List functions
+== List functions
 
     # not sure about the placement of the colon in the following functions
     multi sub *map(&code: *@list) returns List { ... }
@@ -160,7 +160,7 @@ something as a multi sub versus a class/object method?
 
     multi sub *join(Str $by, *@list) returns Str { ... }
 
-=head2 Array functions
+== Array functions
 
     multi sub *keys(@array) returns List { ... }
     multi sub *kv  (@array) returns List { ... }
@@ -172,13 +172,13 @@ something as a multi sub versus a class/object method?
     
     multi sub *join(@array: Str $by) returns Str { ... }
 
-=head2 Hash functions
+== Hash functions
 
     multi sub *keys  (%x) returns List { ... }
     multi sub *values(%x) returns List { ... }
     multi sub *kv    (%x) returns List { ... }
 
-=head2 Junction functions
+== Junction functions
 
     # XXX: should these be Disjunction, Conjunction, etc...?
     multi sub *any (*@elem) returns Junction { ... }
@@ -186,11 +186,11 @@ something as a multi sub versus a class/object method?
     multi sub *one (*@elem) returns Junction { ... }
     multi sub *none(*@elem) returns Junction { ... }
 
-=head1 BUILT-IN CLASSES (and methods as appropriate)
+= BUILT-IN CLASSES (and methods as appropriate)
 
 XXX: Should we go ahead and define these here...?
 
-=head1 BUILT-IN ENUMS
+= BUILT-IN ENUMS
 
     our bit enum *bool <false true>;
     our bit enum *taint <untainted tainted>;
