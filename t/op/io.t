@@ -9,7 +9,7 @@ I/O tests
 
 =cut
 
-plan 41;
+plan 43;
 
 my $filename = 'tempfile';
 
@@ -96,3 +96,7 @@ ok($in6.close, 'file closed okay');
 # now be sure to delete the file as well
 
 ok(?unlink($filename), 'file has been removed');
+
+todo_ok(eval { open $*OUT,">",\$scalar },'Direct STDOUT to a scalar');
+todo_ok(eval { open $*ERR,">",\$scalar },'Direct STDERR to a scalar');
+
