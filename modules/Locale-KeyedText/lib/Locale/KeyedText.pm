@@ -653,7 +653,7 @@ Content of shared library file 'MyLib.pm':
 Content of English language Template file 'MyLib/L/Eng.pm':
 
 	module MyLib::L::Eng;
-	my Str %text_strings ::= (
+	my Str %text_strings is constant = (
 		'MYLIB_MYINV_NO_ARG' => 'my_invert(): argument NUMBER is missing',
 		'MYLIB_MYINV_BAD_ARG' => 'my_invert(): argument NUMBER is not a number, it is "{GIVEN_VALUE}"',
 		'MYLIB_MYINV_RES_INF' => 'my_invert(): result is infinite because argument NUMBER is zero',
@@ -663,7 +663,7 @@ Content of English language Template file 'MyLib/L/Eng.pm':
 Content of French language (rough manual translation) Template file 'MyLib/L/Fre.pm':
 
 	module MyLib::L::Fre;
-	my Str %text_strings ::= (
+	my Str %text_strings is constant = (
 		'MYLIB_MYINV_NO_ARG' => 'my_invert(): paramètre NUMBER est manquant',
 		'MYLIB_MYINV_BAD_ARG' => 'my_invert(): paramètre NUMBER est ne nombre, il est "{GIVEN_VALUE}"',
 		'MYLIB_MYINV_RES_INF' => 'my_invert(): aboutir a est infini parce que paramètre NUMBER est zero',
@@ -712,7 +712,7 @@ Content of main program 'MyApp.pl':
 Content of English language Template file 'MyApp/L/Eng.pm':
 
 	module MyApp::L::Eng;
-	my Str %text_strings ::= (
+	my Str %text_strings is constant = (
 		'MYAPP_HELLO' => 'Welcome to MyApp.',
 		'MYAPP_GOODBYE' => 'Goodbye!',
 		'MYAPP_PROMPT' => 'Enter a number to be inverted, or press ENTER to quit.',
@@ -723,7 +723,7 @@ Content of English language Template file 'MyApp/L/Eng.pm':
 Content of French language (rough manual translation) Template file 'MyApp/L/Fre.pm':
 
 	module MyApp::L::Fre;
-	my Str %text_strings ::= (
+	my Str %text_strings is constant = (
 		'MYAPP_HELLO' => 'Bienvenue allé MyApp.',
 		'MYAPP_GOODBYE' => 'Salut!',
 		'MYAPP_PROMPT' => 'Fournir nombre être inverser, ou appuyer sur ENTER être arrêter.',
@@ -734,7 +734,7 @@ Content of French language (rough manual translation) Template file 'MyApp/L/Fre
 Content of alternate text Template file 'MyApp/L/Homer.pm':
 
 	module MyApp::L::Homer;
-	my Str %text_strings ::= (
+	my Str %text_strings is constant = (
 		'MYAPP_HELLO' => 'Light goes on!',
 		'MYAPP_GOODBYE' => 'Light goes off!',
 		'MYAPP_PROMPT' => 'Give me a county thingy, or push that big button instead.',
@@ -779,7 +779,7 @@ Content of shared library file 'MyLib.pm':
 	}
 
 	module MyLib::L::Eng {
-		my Str %text_strings ::= (
+		my Str %text_strings is constant = (
 			'MYLIB_MYINV_NO_ARG' => 'my_invert(): argument NUMBER is missing',
 			'MYLIB_MYINV_BAD_ARG' => 'my_invert(): argument NUMBER is not a number, it is "{GIVEN_VALUE}"',
 			'MYLIB_MYINV_RES_INF' => 'my_invert(): result is infinite because argument NUMBER is zero',
@@ -788,7 +788,7 @@ Content of shared library file 'MyLib.pm':
 	}
 
 	module MyLib::L::Fre {
-		my Str %text_strings ::= (
+		my Str %text_strings is constant = (
 			'MYLIB_MYINV_NO_ARG' => 'my_invert(): paramètre NUMBER est manquant',
 			'MYLIB_MYINV_BAD_ARG' => 'my_invert(): paramètre NUMBER est ne nombre, il est "{GIVEN_VALUE}"',
 			'MYLIB_MYINV_RES_INF' => 'my_invert(): aboutir a est infini parce que paramètre NUMBER est zero',
@@ -836,7 +836,7 @@ Content of main program 'MyApp.pl':
 	}
 
 	module MyApp::L::Eng {
-		my Str %text_strings ::= (
+		my Str %text_strings is constant = (
 			'MYAPP_HELLO' => 'Welcome to MyApp.',
 			'MYAPP_GOODBYE' => 'Goodbye!',
 			'MYAPP_PROMPT' => 'Enter a number to be inverted, or press ENTER to quit.',
@@ -846,7 +846,7 @@ Content of main program 'MyApp.pl':
 	}
 
 	module MyApp::L::Fre {
-		my Str %text_strings ::= (
+		my Str %text_strings is constant = (
 			'MYAPP_HELLO' => 'Bienvenue allé MyApp.',
 			'MYAPP_GOODBYE' => 'Salut!',
 			'MYAPP_PROMPT' => 'Fournir nombre être inverser, ou appuyer sur ENTER être arrêter.',
@@ -858,7 +858,7 @@ Content of main program 'MyApp.pl':
 Content of alternate text Template file 'MyApp/L/Homer.pm':
 
 	module MyApp::L::Homer;
-	my Str %text_strings ::= (
+	my Str %text_strings is constant = (
 		'MYAPP_HELLO' => 'Light goes on!',
 		'MYAPP_GOODBYE' => 'Light goes off!',
 		'MYAPP_PROMPT' => 'Give me a county thingy, or push that big button instead.',

@@ -481,7 +481,7 @@ message( 'DONE TESTING Locale::KeyedText' );
 ######################################################################
 
 module t_Locale_KeyedText_C_L_Eng {
-	my Str %text_strings ::= (
+	my Str %text_strings is constant = (
 		'one' => '{fork} shore {spoon}',
 		'two' => 'sky fly high',
 		'three' => '{knife} zot',

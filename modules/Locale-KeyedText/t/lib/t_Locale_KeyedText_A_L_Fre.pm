@@ -3,8 +3,8 @@ use v6;
 
 module t_Locale_KeyedText_A_L_Fre;
 
-my Str $xy ::= 'AF';
-my Str %text_strings ::= (
+my Str $xy is constant = 'AF';
+my Str %text_strings is constant = (
 	'one' => $xy~' - word {fork} { fork } {spoon} {{fork}}',
 	'two' => $xy~' - sky pie rye',
 );

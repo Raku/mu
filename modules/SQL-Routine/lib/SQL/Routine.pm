@@ -69,7 +69,7 @@ way of suggesting improvements to the standard version.
 # particular Node attributes are allowed to have.  They are given names 
 # here so that multiple Node types can make use of the same value lists.  
 # Currently only the codes are shown, but attributes may be attached later.
-my %ENUMERATED_TYPES ::= (
+my %ENUMERATED_TYPES is constant = (
 	'container_type' => { <
 		ERROR SCALAR ROW SC_ARY RW_ARY CONN CURSOR LIST SRT_NODE SRT_NODE_LIST
 	>.map:{ ($_ => 1) } },
@@ -219,16 +219,16 @@ my $TPI_MUDI_ATGPS  = 'mudi_atgps'; # Array of groups of mutually distinct attri
 		# 4. an array ref with 0..N elements that are names of nref child-node-attrs.
 
 # Names of special "pseudo-Nodes" that are used in an XML version of this structure.
-my $SQLRT_L1_ROOT_PSND ::= 'root';
-my $SQLRT_L2_ELEM_PSND ::= 'elements';
-my $SQLRT_L2_BLPR_PSND ::= 'blueprints';
-my $SQLRT_L2_TOOL_PSND ::= 'tools';
-my $SQLRT_L2_SITE_PSND ::= 'sites';
-my $SQLRT_L2_CIRC_PSND ::= 'circumventions';
-my @L2_PSEUDONODE_LIST ::= ($SQLRT_L2_ELEM_PSND, $SQLRT_L2_BLPR_PSND, 
+my $SQLRT_L1_ROOT_PSND is constant = 'root';
+my $SQLRT_L2_ELEM_PSND is constant = 'elements';
+my $SQLRT_L2_BLPR_PSND is constant = 'blueprints';
+my $SQLRT_L2_TOOL_PSND is constant = 'tools';
+my $SQLRT_L2_SITE_PSND is constant = 'sites';
+my $SQLRT_L2_CIRC_PSND is constant = 'circumventions';
+my @L2_PSEUDONODE_LIST is constant = ($SQLRT_L2_ELEM_PSND, $SQLRT_L2_BLPR_PSND, 
 	$SQLRT_L2_TOOL_PSND, $SQLRT_L2_SITE_PSND, $SQLRT_L2_CIRC_PSND);
 # This hash is used like the subsequent %NODE_TYPES for specific purposes.
-my %PSEUDONODE_TYPES ::= (
+my %PSEUDONODE_TYPES is constant = (
 	$SQLRT_L1_ROOT_PSND => {
 	},
 	$SQLRT_L2_ELEM_PSND => {
@@ -250,14 +250,14 @@ my %PSEUDONODE_TYPES ::= (
 );
 
 # These are used with $TPI_ANCES_ATCORS:
-my $S ::= '.';
-my $P ::= '..';
-my $R ::= '...';
-my $C ::= '....';
+my $S is constant = '.';
+my $P is constant = '..';
+my $R is constant = '...';
+my $C is constant = '....';
 # These are the allowed Node types, with their allowed attributes and their 
 # allowed child Node types.  They are used for method input checking and 
 # other related tasks.
-my %NODE_TYPES ::= (
+my %NODE_TYPES is constant = (
 	'scalar_data_type' => {
 		$TPI_AT_SEQUENCE => [< 
 			id si_name base_type num_precision num_scale num_octets num_unsigned 
@@ -1268,11 +1268,11 @@ for %NODE_TYPES.kv -> $_node_type, $_type_info {
 
 # These special hash keys are used by the get_all_properties[/*]() methods, 
 # and/or by the build*node*() functions and methods for RAD:
-my $NAMED_NODE_TYPE ::= 'NODE_TYPE'; # str - what type of Node we are
-my $NAMED_ATTRS     ::= 'ATTRS'; # hash - all attributes, including 'id' (and 'pp' if appropriate)
-my $NAMED_CHILDREN  ::= 'CHILDREN'; # array - list of primary-child Node descriptors
-my $ATTR_ID         ::= 'id'; # attribute name to use for the node id
-my $ATTR_PP         ::= 'pp'; # attribute name to use for the node's primary parent nref
+my $NAMED_NODE_TYPE is constant = 'NODE_TYPE'; # str - what type of Node we are
+my $NAMED_ATTRS     is constant = 'ATTRS'; # hash - all attributes, including 'id' (and 'pp' if appropriate)
+my $NAMED_CHILDREN  is constant = 'CHILDREN'; # array - list of primary-child Node descriptors
+my $ATTR_ID         is constant = 'id'; # attribute name to use for the node id
+my $ATTR_PP         is constant = 'pp'; # attribute name to use for the node's primary parent nref
 
 ######################################################################
 ######################################################################

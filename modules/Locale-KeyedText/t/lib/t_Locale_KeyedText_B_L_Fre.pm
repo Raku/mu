@@ -3,8 +3,8 @@ use v6;
 
 module t_Locale_KeyedText_B_L_Fre;
 
-my $xy ::= 'BF';
-my Str %text_strings ::= (
+my $xy is constant = 'BF';
+my Str %text_strings is constant = (
 	'two' => $xy~' - sky pie rye',
 	'three' => $xy~' - eat {knife}',
 );

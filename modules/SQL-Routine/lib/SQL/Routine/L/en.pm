@@ -64,11 +64,11 @@ way of suggesting improvements to the standard version.
 
 ######################################################################
 
-my Str $CC ::= 'SQL::Routine::Container';
-my Str $CN ::= 'SQL::Routine::Node';
-my Str $ABSINTF ::= 'using abstract interface';
+my Str $CC is constant = 'SQL::Routine::Container';
+my Str $CN is constant = 'SQL::Routine::Node';
+my Str $ABSINTF is constant = 'using abstract interface';
 
-my Str %text_strings ::= (
+my Str %text_strings is constant = (
 	'SRT_C_GET_CH_NODES_BAD_TYPE' => 
 		$CC~'.get_child_nodes(): invalid NODE_TYPE argument; there is no Node Type named "{ARGNTYPE}"',
 
