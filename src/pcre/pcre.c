@@ -516,7 +516,7 @@ Returns:     number of characters placed in the buffer
 static int
 ord2utf8(int cvalue, uschar *buffer)
 {
-register int i, j;
+int i, j;
 for (i = 0; i < sizeof(utf8_table1)/sizeof(int); i++)
   if (cvalue <= utf8_table1[i]) break;
 buffer += i;
@@ -1006,7 +1006,7 @@ else
     if (ptr[1] == '{' && (options & PCRE_UTF8) != 0)
       {
       const uschar *pt = ptr + 2;
-      register int count = 0;
+      int count = 0;
       c = 0;
       while ((digitab[*pt] & ctype_xdigit) != 0)
         {
@@ -1360,8 +1360,8 @@ find_fixedlength(uschar *code, int options)
 {
 int length = -1;
 
-register int branchlength = 0;
-register uschar *cc = code + 1 + LINK_SIZE;
+int branchlength = 0;
+uschar *cc = code + 1 + LINK_SIZE;
 
 /* Scan along the opcodes for this branch. If we get to the end of the
 branch, check the length against that of the other branches. */
@@ -1369,7 +1369,7 @@ branch, check the length against that of the other branches. */
 for (;;)
   {
   int d;
-  register int op = *cc;
+  int op = *cc;
   if (op >= OP_BRA) op = OP_BRA;
 
   switch (op)
@@ -1551,7 +1551,7 @@ utf8 = utf8;               /* Stop pedantic compilers complaining */
 
 for (;;)
   {
-  register int c = *code;
+  int c = *code;
   if (c == OP_END) return NULL;
   else if (c > OP_BRA)
     {
@@ -1625,7 +1625,7 @@ utf8 = utf8;               /* Stop pedantic compilers complaining */
 
 for (;;)
   {
-  register int c = *code;
+  int c = *code;
   if (c == OP_END) return NULL;
   else if (c == OP_RECURSE) return code;
   else if (c > OP_BRA)
@@ -1695,7 +1695,7 @@ Returns:      TRUE if what is matched could be empty
 static BOOL
 could_be_empty_branch(const uschar *code, const uschar *endcode, BOOL utf8)
 {
-register int c;
+int c;
 for (code = first_significant_code(code + 1 + LINK_SIZE, NULL, 0, TRUE);
      code < endcode;
      code = first_significant_code(code + OP_lengths[c], NULL, 0, TRUE))
@@ -1902,7 +1902,7 @@ Returns:     a value representing the name, or -1 if unknown
 static int
 check_posix_name(const uschar *ptr, int len)
 {
-register int yield = 0;
+int yield = 0;
 while (posix_name_lengths[yield] != 0)
   {
   if (len == posix_name_lengths[yield] &&
@@ -2089,8 +2089,8 @@ int req_caseopt, reqvary, tempreqvary;
 int condcount = 0;
 int options = *optionsptr;
 int after_manual_callout = 0;
-register int c;
-register uschar *code = *codeptr;
+int c;
+uschar *code = *codeptr;
 uschar *tempcode;
 BOOL inescq = FALSE;
 BOOL groupsetfirstbyte = FALSE;
@@ -2352,7 +2352,7 @@ for (;; ptr++)
         {
         BOOL local_negate = FALSE;
         int posix_class, i;
-        register const uschar *cbits = cd->cbits;
+        const uschar *cbits = cd->cbits;
 
         if (ptr[1] != ':')
           {
@@ -2438,7 +2438,7 @@ for (;; ptr++)
 
         if (c < 0)
           {
-          register const uschar *cbits = cd->cbits;
+          const uschar *cbits = cd->cbits;
           class_charcount += 2;     /* Greater than 1 is what matters */
           switch (-c)
             {
@@ -3118,7 +3118,7 @@ for (;; ptr++)
     else if (*previous >= OP_BRA || *previous == OP_ONCE ||
              *previous == OP_COND)
       {
-      register int i;
+      int i;
       int ketoffset = 0;
       int len = code - previous;
       uschar *bralink = NULL;
@@ -3131,7 +3131,7 @@ for (;; ptr++)
 
       if (repeat_max == -1)
         {
-        register uschar *ket = previous;
+        uschar *ket = previous;
         do ket += GET(ket, 1); while (*ket != OP_KET);
         ketoffset = code - ket;
         }
@@ -3641,7 +3641,7 @@ for (;; ptr++)
       }
 
     /* Process nested bracketed re. Assertions may not be repeated, but other
-    kinds can be. We copy code into a non-register variable in order to be able
+    kinds can be. We copy code into a non-variable in order to be able
     to pass its address because some compilers complain otherwise. Pass in a
     new setting for the ims options if they have changed. */
 
@@ -4163,13 +4163,13 @@ Returns:     TRUE or FALSE
 */
 
 static BOOL
-is_anchored(register const uschar *code, int *options, unsigned int bracket_map,
+is_anchored(const uschar *code, int *options, unsigned int bracket_map,
   unsigned int backref_map)
 {
 do {
    const uschar *scode =
      first_significant_code(code + 1+LINK_SIZE, options, PCRE_MULTILINE, FALSE);
-   register int op = *scode;
+   int op = *scode;
 
    /* Capturing brackets */
 
@@ -4239,7 +4239,7 @@ is_startline(const uschar *code, unsigned int bracket_map,
 do {
    const uschar *scode = first_significant_code(code + 1+LINK_SIZE, NULL, 0,
      FALSE);
-   register int op = *scode;
+   int op = *scode;
 
    /* Capturing brackets */
 
@@ -4302,12 +4302,12 @@ Returns:     -1 or the fixed first char
 static int
 find_firstassertedchar(const uschar *code, int *options, BOOL inassert)
 {
-register int c = -1;
+int c = -1;
 do {
    int d;
    const uschar *scode =
      first_significant_code(code + 1+LINK_SIZE, options, PCRE_CASELESS, TRUE);
-   register int op = *scode;
+   int op = *scode;
 
    if (op >= OP_BRA) op = OP_BRA;
 
@@ -4373,7 +4373,7 @@ Returns:       < 0    if the string is a valid UTF-8 string
 static int
 valid_utf8(const uschar *string, int length)
 {
-register const uschar *p;
+const uschar *p;
 
 if (length < 0)
   {
@@ -4383,8 +4383,8 @@ if (length < 0)
 
 for (p = string; length-- > 0; p++)
   {
-  register int ab;
-  register int c = *p;
+  int ab;
+  int c = *p;
   if (c < 128) continue;
   if ((c & 0xc0) != 0xc0) return p - string;
   ab = utf8_table4[c & 0x3f];  /* Number of additional bytes */
@@ -5648,7 +5648,7 @@ Returns:      TRUE if matched
 */
 
 static BOOL
-match_ref(int offset, register const uschar *eptr, int length, match_data *md,
+match_ref(int offset, const uschar *eptr, int length, match_data *md,
   unsigned long int ims)
 {
 const uschar *p = md->start_subject + md->offset_vector[offset];
@@ -5953,9 +5953,9 @@ match(REGISTER const uschar *eptr, REGISTER const uschar *ecode,
 so they can be ordinary variables in all cases. Mark them with "register"
 because they are used a lot in loops. */
 
-register int rrc;    /* Returns from recursive calls */
-register int i;      /* Used for loops not involving calls to RMATCH() */
-register int c;      /* Character values not kept over RMATCH() calls */
+int rrc;    /* Returns from recursive calls */
+int i;      /* Used for loops not involving calls to RMATCH() */
+int c;      /* Character values not kept over RMATCH() calls */
 
 /* When recursion is not being used, all "local" variables that have to be
 preserved over calls to RMATCH() are part of a "frame" which is obtained from
@@ -7053,7 +7053,7 @@ for (;;)
 
       /* First, ensure the minimum number of matches are present. We get back
       the length of the reference string explicitly rather than passing the
-      address of eptr, so that eptr can be a register variable. */
+      address of eptr, so that eptr can be a variable. */
 
       for (i = 1; i <= min; i++)
         {
@@ -7752,7 +7752,7 @@ for (;;)
       /* UTF-8 mode */
       if (md->utf8)
         {
-        register int d;
+        int d;
         for (i = 1; i <= min; i++)
           {
           GETCHARINC(d, eptr);
@@ -7777,7 +7777,7 @@ for (;;)
         /* UTF-8 mode */
         if (md->utf8)
           {
-          register int d;
+          int d;
           for (fi = min;; fi++)
             {
             RMATCH(rrc, eptr, ecode, offset_top, md, ims, eptrb, 0);
@@ -7813,7 +7813,7 @@ for (;;)
         /* UTF-8 mode */
         if (md->utf8)
           {
-          register int d;
+          int d;
           for (i = min; i < max; i++)
             {
             int len = 1;
@@ -7861,7 +7861,7 @@ for (;;)
       /* UTF-8 mode */
       if (md->utf8)
         {
-        register int d;
+        int d;
         for (i = 1; i <= min; i++)
           {
           GETCHARINC(d, eptr);
@@ -7884,7 +7884,7 @@ for (;;)
         /* UTF-8 mode */
         if (md->utf8)
           {
-          register int d;
+          int d;
           for (fi = min;; fi++)
             {
             RMATCH(rrc, eptr, ecode, offset_top, md, ims, eptrb, 0);
@@ -7919,7 +7919,7 @@ for (;;)
         /* UTF-8 mode */
         if (md->utf8)
           {
-          register int d;
+          int d;
           for (i = min; i < max; i++)
             {
             int len = 1;
@@ -8841,7 +8841,7 @@ tables = external_re->tables;
 
 if (extra_data != NULL)
   {
-  register unsigned int flags = extra_data->flags;
+  unsigned int flags = extra_data->flags;
   if ((flags & PCRE_EXTRA_STUDY_DATA) != 0)
     study = (const pcre_study_data *)extra_data->study_data;
   if ((flags & PCRE_EXTRA_MATCH_LIMIT) != 0)
@@ -8965,8 +8965,8 @@ initialize them to avoid reading uninitialized locations. */
 
 if (match_block.offset_vector != NULL)
   {
-  register int *iptr = match_block.offset_vector + ocount;
-  register int *iend = iptr - resetcount/2 + 1;
+  int *iptr = match_block.offset_vector + ocount;
+  int *iend = iptr - resetcount/2 + 1;
   while (--iptr >= iend) *iptr = -1;
   }
 
@@ -9009,8 +9009,8 @@ do
 
   if (match_block.offset_vector != NULL)
     {
-    register int *iptr = match_block.offset_vector;
-    register int *iend = iptr + resetcount;
+    int *iptr = match_block.offset_vector;
+    int *iend = iptr + resetcount;
     while (iptr < iend) *iptr++ = -1;
     }
 
@@ -9044,7 +9044,7 @@ do
     {
     while (start_match < end_subject)
       {
-      register unsigned int c = *start_match;
+      unsigned int c = *start_match;
       if ((start_bits[c/8] & (1 << (c&7))) == 0) start_match++; else break;
       }
     }
@@ -9075,7 +9075,7 @@ do
       end_subject - start_match < REQ_BYTE_MAX &&
       !match_block.partial)
     {
-    register const uschar *p = start_match + ((first_byte >= 0)? 1 : 0);
+    const uschar *p = start_match + ((first_byte >= 0)? 1 : 0);
 
     /* We don't need to repeat the search if we haven't yet reached the
     place we found it at last time. */
@@ -9086,7 +9086,7 @@ do
         {
         while (p < end_subject)
           {
-          register int pp = *p++;
+          int pp = *p++;
           if (pp == req_byte || pp == req_byte2) { p--; break; }
           }
         }
