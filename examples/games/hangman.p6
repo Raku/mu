@@ -13,8 +13,8 @@ my $allowed_tries   = 6;
 
 sub get_words returns Array {
     my @w;
-    my $dict = open("hangman.dic");
-    my $name;
+    my $dict = open("hangman.dic") err
+      die "Couldn't open \"hangman.dic\"! Did you run $*PROGRAM_NAME from its directory?\n";
     for (=$dict) -> $_name {
         my $name = $_name;
         chomp($name);
