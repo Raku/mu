@@ -131,13 +131,11 @@ sub parse (Str $filename, Hash %_events) is export {
     $fh.close();
 }
 
-sub interpolate (Str $text, Hash %events) {
-    %events<string>($text); # <<< this is a HACK for now
-    
+sub interpolate (Str $text, Hash %events) {    
     %events<start_line_interpolation>();
-    # waiting on support for capturing 
-    # with :g into an array 
-	my @tokens = (); # $text ~~ rx:perl5:g{(?:[A-Z]<\s+|[A-Z]<|\s+>|>|\w+|\s+)};
+    # grab all the tokens with a split
+	my @tokens = split(rx:perl5{([A-Z]<\s+|[A-Z]<|\s+>|>)}, $text);
+    @tokens = @tokens.grep:{ defined($_) }; 
 	# this is a memory stack for modifiers
 	# it helps up track down problems
 	my @modifier_stack;
@@ -150,7 +148,7 @@ sub interpolate (Str $text, Hash %events) {
             when rx:perl5{^>$} {
                 # if we dont have anything on the stack
                 # then we are not balanced, and should die
-                (!@modifier_stack) || die "Unbalanced close modifier (>) found";
+                (+@modifier_stack) || die "Unbalanced close modifier (>) found";
                 # if we have one the stack ..
                 # then this one probably matches,
                 # so we can pop that modifier off  
