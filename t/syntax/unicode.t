@@ -33,8 +33,8 @@ is(eval 'my $frénch = 2; sub bléch ($x) { $x }; bléch($frénch)', 2, "evaluat
 ok(eval 'my $一; 1', "chinese declaration");
 is(eval 'my $二 = 2; sub 恆等($x) {$x}; 恆等($二)', 2, "evaluation");
 
-# Tibeten Characters
-ok(eval 'my $༡; 1', "tibeten declaration");
+# Tibetan Characters
+ok(eval 'my $༡; 1', "tibetan declaration");
 is(eval 'my $༢ = 2; $༢', 2, "evaluation");
 
 # Japanese

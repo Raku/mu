@@ -58,7 +58,7 @@ ok((2 + 3) == 5, "== (sum on lhs)");
 ok(!((2 + 3) != $five), "== (sum on lhs)");
 
 # String Operations
-is("text " ~ "stitching", "text stitching", 'concationation with ~ operator');
+is("text " ~ "stitching", "text stitching", 'concatenation with ~ operator');
 
 # Bit Stitching
 

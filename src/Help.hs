@@ -37,7 +37,7 @@ printInteractiveHelp
 printCommandLineHelp :: IO ()
 printCommandLineHelp
    = do putStrLn "Command-line flags:"
-        putStrLn "-e               executes it's argument"
+        putStrLn "-e               executes its argument"
         putStrLn "-h or --help     gives this message"
         putStrLn "-V               long configuration information & version"
         putStrLn "-v or --version  version"

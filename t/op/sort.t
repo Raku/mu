@@ -50,5 +50,5 @@ plan 6;
 	my @e = (1 .. 5);
 
 	my @s; eval '@s = sort { $^a <=> $^b }, @a';
-	todo_is(@s, @e, '... with exlpicit sort block');
+	todo_is(@s, @e, '... with explicit sort block');
 };

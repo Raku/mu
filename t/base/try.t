@@ -15,14 +15,14 @@ plan 10;
 
 {
 	# try with a catch
-	my $cought;
+	my $caught;
 	eval 'try {
 		die "blah"
 
-		CATCH /la/ { $cought = 1 }
+		CATCH /la/ { $caught = 1 }
 	}';
 
-	todo_ok($cought, "exception cought");
+	todo_ok($caught, "exception caught");
 };
 
 
@@ -30,19 +30,19 @@ plan 10;
 	# exception classes
 	eval 'class Naughty is Exception {}';
 
-	my ($not_died, $cought);
+	my ($not_died, $caught);
 	eval 'try {
 		die Naughty "error"
 
 		$not_died = 1;
 
 		CATCH Naughty {
-			$cought = 1;
+			$caught = 1;
 		}
 	}';
 
 	ok(!$not_died, "did not live after death");
-	todo_ok($cought, "cought exception of class Naughty");
+	todo_ok($caught, "caught exception of class Naughty");
 };
 
 {
@@ -64,11 +64,11 @@ plan 10;
 	}';
 
 	ok(!$other, "did not catch sibling error class");
-	todo_ok($naughty, "cought superclass");
+	todo_ok($naughty, "caught superclass");
 };
 
 {
-	# uncought class
+	# uncaught class
 	eval 'class Dandy is Exception {}';
 
 	my ($naughty, $lived);
@@ -83,7 +83,7 @@ plan 10;
 		$lived = 1;
 	';
 
-	todo_ok(!$lived, "did not lived passed uncought throw in try");
+	todo_ok(!$lived, "did not live past uncaught throw in try");
         ok(ref($!), '$! is an object');
 	todo_is(eval 'ref($!)', "Dandy", ".. of the right class");
 };

@@ -263,7 +263,7 @@ tryeq 3.5 / -2, -1.75;
 tryeq -4.5 / 2, -2.25;
 tryeq -5.5 / -2, 2.75;
 
-# Bluuurg if your floating point can t accurately cope with powers of 2
+# Bluuurg if your floating point can't accurately cope with powers of 2
 # [I suspect this is parsing string-to-float problems, not actual arith]
 tryeq_sloppy 18446744073709551616/1, 18446744073709551616; # Bluuurg
 tryeq_sloppy 18446744073709551616/2, 9223372036854775808;

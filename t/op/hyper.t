@@ -43,7 +43,7 @@ plan 11;
 	my @r;
 	eval '@r = -« (3, 2, 1)';
 	my @e = (-3, -2, -1);
-	todo_is(~@r, ~@e, "hyperr op on assignment/pipeline");
+	todo_is(~@r, ~@e, "hyper op on assignment/pipeline");
 };
 
 { # dimention upgrade
