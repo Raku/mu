@@ -26,7 +26,6 @@ sub WritePugs {
       if $install_version eq '6';
 }
 
-use Spiffy -XXX;
 sub set_makefile_macros {
     my $self = shift;
     *MM::init_INST = sub {
@@ -37,7 +36,6 @@ sub set_makefile_macros {
         for (keys %$hash) {
             $mm->{$_} = $hash->{$_};
         }
-#         $mm->{'INST_AUTODIR'} = 'XXX$(INST_LIB)/$(FULLEXT)';
         return 1;
     }
 }
