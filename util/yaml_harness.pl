@@ -28,10 +28,12 @@ use Test::Harness;
 use Test::Harness::Straps;
 use File::Spec;
 our @ISA = qw(Test::Harness::Straps);
+our $SMOKERFILE = ".smoker.yml";
 
 $| = 1;
 
-GetOptions \our %Config, qw(--verbose|v --output-file|o=s --shuffle|s --recurse|r --ext=s@);
+GetOptions \our %Config, qw(--verbose|v --output-file|o=s
+		--shuffle|s --recurse|r --ext=s@ --anonymous|a);
 $Test::Harness::Verbose = 1 if $Config{verbose};
 $Config{"output-file"} ||= "-";
 _build_ext_re();
@@ -39,7 +41,6 @@ _build_ext_re();
 
 my $s = __PACKAGE__->new;
 
-$s->set_version_info;
 
 my %handlers = (
     bailout     => sub {
@@ -55,7 +56,8 @@ my %handlers = (
     },
     test        => sub {
         my($self, $line, $type, $totals) = @_;
-        my $curr = $totals->{seen};
+        my $curr = $totals->{seen}||0;
+		#$self->{'next'} ||= 0;
 
 		%{ $self->log_event } = (
 			type   => 'test',
@@ -73,7 +75,7 @@ my %handlers = (
         elsif( $curr < $self->{'next'} ) {
             $self->latest_event->{note} =
 				("Confused test output: test $curr answered after ".
-                          "test ", $self->{next} - 1, "\n");
+                          "test ", ($self->{'next'}||0) - 1, "\n");
 #            $self->{'next'} = $curr;
         }
     },
@@ -85,28 +87,15 @@ $s->{callback} = sub {
     $handlers{$type}->($self, $line, $type, $totals) if $handlers{$type};
 };
 
-my @tests;
-@ARGV = File::Spec->curdir unless @ARGV;
-push( @tests, -d $_ ? all_in( $_ ) : $_ ) for @ARGV;
 
-if ( @tests ) {
-    shuffle(@tests) if $Config{shuffle};
-    if ( $Config{dry} ) {
-        print join( "\n", @tests, "" );
-		exit 0;
-    } else {
-        print "# ", scalar @tests, " tests to run\n" if $Test::Harness::debug;
-    }
-}
-
-
-foreach my $file (@tests) {
-    push @{ $s->{_cases} } , {
+foreach my $file (@{ $s->get_tests }) {
+    push @{ $s->{_test_cases} } , {
 		file => $file,
 		subtests => ($s->{_log} = []),
 	};
+	warn "$file\n" if $Config{verbose};
     my %result = $s->analyze_file($file);
-	$s->{_cases}[-1]{result} = $result{passing} ? 'ok' : 'FAILED';
+	$s->{_test_cases}[-1]{result} = $result{passing} ? 'ok' : 'FAILED';
 }
 $s->emit;
 exit 0;
@@ -160,17 +149,16 @@ sub latest_event {
 
 sub emit {
 	my($self) = @_;
-	YAML::DumpFile($Config{"output-file"},
-		{
-			build_info => $self->{_version_info},
-			test_cases => $self->{_cases},
-		});
+	YAML::DumpFile($Config{"output-file"}, {
+			map { $_ => $self->{"_$_"} } qw{
+				build_info test_cases start_time smoker config
+		}});
 }
 
-sub set_version_info {
+sub set_build_info {
 	my($self) = @_;
 	my $executable = $ENV{HARNESS_PERL} || "pugs";
-	$self->{_version_info} = join '', qx{$executable -V};
+	$self->{_build_info} = join '', qx{$executable -V};
 }
 
 sub _build_ext_re {
@@ -181,3 +169,48 @@ sub _build_ext_re {
 	my $ext_regex = join( "|", map { quotemeta } @ext );
 	$Config{ext_regex} = qr/\.($ext_regex)$/;
 }
+
+sub _init {
+	my($self) = @_;
+	$self->set_build_info;
+	$self->get_smoker;
+	$self->{_start_time} = time;
+	$self->{_config} = { shuffle => $Config{shuffle}+=0 };
+}
+
+sub get_smoker {
+	my($self) = @_;
+	if (!$Config{anonymous}) {
+		$self->{_smoker} = eval { YAML::LoadFile($SMOKERFILE) } ||
+			eval { YAML::LoadFile(($ENV{HOME}||'')."/$SMOKERFILE") };
+		if (!$self->{_smoker}) {
+			warn<<"AD";
+Smoker info not found. Please create a file named $SMOKERFILE
+either in this directory or under your home. You can use the
+skeleton in util/smoker-example. Alternatively, say "--anonymous"
+on the command line to withold your identity (and this message).
+AD
+		}
+	}
+	#$self->{_smoker} ||= { name => "anonymous" };
+}
+
+sub get_tests {
+	my($self) = @_;
+	my @tests;
+	@ARGV = File::Spec->curdir unless @ARGV;
+	push( @tests, -d $_ ? all_in( $_ ) : $_ ) for @ARGV;
+
+	if ( @tests ) {
+		shuffle(@tests) if $Config{shuffle};
+		if ( $Config{dry} ) {
+			print join( "\n", @tests, "" );
+			exit 0;
+		} else {
+			print "# ", scalar @tests, " tests to run\n" if $Test::Harness::debug;
+		}
+	}
+	$self->{_config}{test_count} = scalar @tests;
+	\@tests;
+}
+
