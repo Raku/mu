@@ -23,7 +23,7 @@ my $bar = "";
 
 ok($bar, "?? ::");
 
-todo_is(eval '(($str3 eq $str4) ?? 1 :: 2)', 1, "?? :: in parens");
+is((($str3 eq $str4) ?? 1 :: 2), 1, "?? :: in parens");
 
 my $five = 5;
 my $four = 4;

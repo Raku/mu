@@ -385,14 +385,14 @@ ruleExpression = (<?> "expression") $ do
 
 rulePostTernary = rule "ternary conditional" $ do
     symbol "??"
-    body <- parseOp
+    body <- ruleExpression
     symbol "::"
-    bodyElse <- parseOp
+    bodyElse <- ruleExpression
     return $ \x -> Syn "if" [x, body, bodyElse]
 
 rulePostConditional = rule "postfix conditional" $ do
     cond <- tryChoice $ map symbol ["if", "unless", "while", "until"]
-    exp <- parseOp
+    exp <- ruleExpression
     return $ \x -> Syn cond [exp, x, Val VUndef]
 
 ruleBlockLiteral = rule "block construct" $ do
@@ -586,7 +586,7 @@ parseTerm = rule "term" $ do
         [ ruleVar
         , ruleLit
         , parseApply
-        , parseParens parseOp
+        , parseParens ruleExpression
         ]
     fs <- many rulePostTerm
     return $ foldr (.) id (reverse fs) $ term
@@ -758,7 +758,7 @@ listLiteral = tryRule "list literal" $ do -- XXX Wrong
     return $ Syn "," []
 
 arrayLiteral = do
-    items   <- brackets $ parseOp `sepEndBy` symbol ","
+    items   <- brackets $ ruleExpression `sepEndBy` symbol ","
     return $ App "&prefix:\\" [] [Syn "cxt" [Val (VStr "List"), Syn "," items]]
 
 pairLiteral = do
