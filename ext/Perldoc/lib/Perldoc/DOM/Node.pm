@@ -107,6 +107,8 @@ dialect", if the original form is not available or has been discarded.
 =cut
 
 field 'source';
+field 'sourcefile';
+field 'sourceline';
 
 sub _init {
     my $o = shift;

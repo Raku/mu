@@ -35,7 +35,7 @@ Perldoc::Sender - a description of how to `send' parse events
 
 =item B<send_to($object)>
 
-Emits all events to the specified place.  $object must be a
+Sends all events to the specified place.  $object must be a
 (C<-E<gt>isa>) Perldoc::Receiver.  Sub-classes should provide this
 method.
 
@@ -66,7 +66,7 @@ sub-classes.
 
 field 'receiver';
 
-# this wrapper function will assist sending the events to the target.
+# this wrapper function will assist sending the events to the receiver.
 # design tbc.
 sub send_all {
     my $self = shift;
@@ -81,7 +81,7 @@ The below method is used for sending by sub-classes of this module.
 
 =item $self->send($event, @args)
 
-Sends an event to the configured target.
+Sends an event to the configured receiver.
 
 Allowable events are;
 
@@ -95,7 +95,7 @@ sub send {
     my $self = shift;
     my $event = shift;
 
-    $event and $event =~ m/^(start|end)_(document|element)|characters|processing_instruction|ignoreable_whitespace|comment)$/x
+    $event and $event =~ m/^(?:(?:start|end)_(?:document|element)|characters|processing_instruction|ignoreable_whitespace|comment)$/x
 	or croak "$self sent bad event `$event'";
 
     if ( $event eq "start_document" and $self->sendstate ) {
@@ -107,7 +107,9 @@ sub send {
 	if ( ! $self->sendstate and $event ne "start_document" );
 
     $self->send("start_element", { name => "perldoc" })
-	if ( $self->sendstate eq "start" and $event ne "start_element" );
+	if ( $self->sendstate and
+	     $self->sendstate eq "start" and
+	     $event ne "start_element" );
 
     # check to see if any dummy events are needed
     if ( $event eq "end_element" and defined(my $name = $_[0]) ) {
@@ -124,15 +126,28 @@ sub send {
 	if ( $event eq "end_document" and $self->stack );
 
     # ok, enough state sanity - send.
-    my $target = $self->target;
+    my $receiver = $self->receiver or croak "no receiver!";
     if ( $event eq "start_element" ) {
 	defined(my $name = $_[0])
 	    or croak "start_element event with no name";
 	push @{ $self->stack }, $name;
     }
 
-    if ( my $x = $target->can($event) ) {
-	&{$x}($target, @_);
+    if ( $receiver->can($event) ) {
+	$receiver->$event(@_);
+    }
+
+    # fixme - add more checking...
+    my $ss = $self->sendstate;
+    if ( ! $ss ) {
+	$self->sendstate("start");
+	$self->stack([]);
+    } elsif ( $ss eq "start" ) {
+	$self->sendstate("body");
+    } elsif ( $ss eq "body" and !@{ $self->stack } ) {
+	$self->sendstate("end");
+    } elsif ( $ss eq "end" ) {
+	$self->sendstate(undef);
     }
 
     if ( $event eq "end_element" ) {
