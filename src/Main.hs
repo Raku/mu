@@ -62,5 +62,5 @@ doEval str args = do
     runLex (putStrLn . pretty . evaluate emptyEnv) parseOp str
 
 doRun str args = do
-    runLex (putStrLn . concatMap vCast . vCast . evaluate emptyEnv) parseOp str
+    runLex (putStr . concatMap vCast . vCast . evaluate emptyEnv) parseOp str
 

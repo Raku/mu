@@ -1,3 +1,9 @@
+[Changes for 6.0.1 - February 7, 2005]
+
+* Fix building on Mac OS X. (ingy, gugod)
+* Characters in single quotes should not be escaped. (juerd)
+* Add one very basic test in t/. 
+
 [Changes for 6.0.0 - February 7, 2005]
 
 * Initial CPAN release.
