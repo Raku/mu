@@ -31,7 +31,7 @@ makemaker_args  (
 );
 clean_files     (map nativize($_),
     "pugs*", "src/pugs_config.h", "src/pugs_version.h", 
-    'src/Config.hs', 'blib6',
+    'src/Unicode.hs', 'src/Config.hs', 'blib6',
     map {("$_/*.hi", "$_/*.o*")} @srcdirs
 );
 
