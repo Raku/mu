@@ -9,7 +9,7 @@ Tests for Synopsis 3
 
 =cut
 
-plan 33;
+plan 29;
 
 my $str1 = "foo";
 my $str2 = "bar";
