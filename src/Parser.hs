@@ -807,7 +807,7 @@ nonTerm = do
 ruleLit = choice
     [ ruleBlockLiteral
     , numLiteral
-    , strLiteral
+--    , strLiteral
     , listLiteral
     , arrayLiteral
     , pairLiteral
@@ -816,6 +816,7 @@ ruleLit = choice
     , namedLiteral "NaN"    (VNum $ 0/0)
     , namedLiteral "Inf"    (VNum $ 1/0)
     , dotdotdotLiteral
+    , qLiteral
     , qqLiteral
     , qwLiteral
     , rxLiteral
@@ -912,6 +913,22 @@ qqLiteral = do
                                   delim <- anyChar
                                   return delim
                                <|> char '"'
+
+qLiteral = do
+    ch   <- getDelim
+    expr <- (many (try $ quotedDelim (balancedDelim ch) <|> noneOf [ balancedDelim ch ]))
+    char (balancedDelim ch)
+    return . Val . VStr $ expr
+        where getDelim = try $ do string "q"
+                                  notFollowedBy alphaNum
+                                  delim <- anyChar
+                                  return delim
+                               <|> char '\''
+
+quotedDelim ch = choice
+    [ try $ do { string [ '\\', ch ]; return ch }
+    , try $ do { string "\\\\"; return '\\' }
+    ]
 
 substLiteral = try $ do
     symbol "s"

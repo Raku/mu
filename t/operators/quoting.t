@@ -28,8 +28,8 @@ Tests quoting constructs as defined in L<S02/Literals>
 { # backslash interpolation only single quotes L<S02/Literals /:single\s+Interpolate \\\\,/>
 	my @q = ();
 	eval '@q = (q/$foo $bar/)';
-	todo_is(+@q, 1, 'q// is singular');
-	todo_is(@q[0], '$foo $bar', 'single quotes are non interpolating');
+	is(+@q, 1, 'q// is singular');
+	is(@q[0], '$foo $bar', 'single quotes are non interpolating');
 };
 
 { # and it's complement ;-)
@@ -85,8 +85,8 @@ Tests quoting constructs as defined in L<S02/Literals>
 { # quote with \0 as delimiters L<news:20050101220112.GF25432@plum.flirble.org>
 	my @q = ();
 	eval "\@q = (q\0foo bar\0)";
-	todo_is(+@q, 1, "single quote with \\0 delims are parsed ok");
-	todo_is(@q[0], "foo bar", "and return correct value");
+	is(+@q, 1, "single quote with \\0 delims are parsed ok");
+	is(@q[0], "foo bar", "and return correct value");
 };
 
 
