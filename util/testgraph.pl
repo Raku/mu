@@ -20,7 +20,8 @@ print "<tt><pre>", join("\n", $data->{build_info}), "</pre></tt>\n";
 
 print "<table>";
 
-foreach my $testfile (@{$data->{test_cases}}) {
+foreach my $testfile (sort {$a->{file} cmp $b->{file}}
+					  @{$data->{test_cases}}) {
   print "<tr>\n";
   print " <td>", $testfile->{file}, "</td>\n";
   print " <td>", $testfile->{result}, "</td>\n";
@@ -31,18 +32,22 @@ foreach my $testfile (@{$data->{test_cases}}) {
 	my ($i, $good)=(0, 0);
 	foreach my $test (@{$testfile->{subtests}}) {
 	  my $class = t_to_class($test);
-	  my $title = $test->{line};
-	  chomp $title;
-	  $title =~ s/([^.#A-Za-z0-9 ])/sprintf '&#x%X;', ord $1/eg;
-
+	  my $title = ($test->{line} || '') . ($test->{diag} || '');
+	  
+	  $title =~ s/\cM//g;
+	  $title =~ s/\cJ$//g;
+	  $title =~ s/([^-().#A-Za-z0-9 ])/sprintf '&#x%X;', ord $1/eg;
+	  
 	  if ($i and $i % 50 == 0) {
 		print "</tr><tr>\n";
 	  }
-
+	  
 #	  print "<td class='test $class' title='$title'>$title</td>";
 	  print " <td class='test $class' title='$title'>&nbsp;</td>\n";
-	  $i++;
-	  $good++ if $class =~ /good/;
+	  if ($class ne 'nottest') {
+		$i++;
+		$good++ if $class =~ /good/;
+	  }
 	}
 	print "</tr></table></td>\n";
 	my $pct = $good/$i;
@@ -59,6 +64,8 @@ sub t_to_class {
   my $p;
   my $todo;
   local $_ = $t->{line};
+  
+  return 'nottest' unless $t->{type} and $t->{type} eq 'test';
   
 #  warn "$_";
   
