@@ -9,6 +9,8 @@ Bits and Pieces.
 
 =cut
 
+plan 21;
+
 my $foo = "Foo";
 my $foobar = "Foo::Bar";
 my $bar;
