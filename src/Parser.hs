@@ -502,8 +502,12 @@ ruleArraySubscript = tryRule "array subscript" $ do
 
 ruleHashSubscript = tryRule "hash subscript" $ do
     option ' ' $ char '.'
-    exp <- braces ruleExpression
+    exp <- subscripts
     return $ \x -> Syn "{}" [x, exp]
+        where
+            subscripts = do exp <- braces ruleExpression
+                            return exp
+                         <|> qwLiteral
 
 ruleCodeSubscript = tryRule "code subscript" $ do
     option ' ' $ char '.'
