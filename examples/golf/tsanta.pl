@@ -12,8 +12,21 @@
 # To test head.p6, tail.p6, rev.p6, mid.p6, wc.p6 for correctness,
 # simply run this program in the same directory containing
 # those files.
+#
+# Enjoy! -- asavige (aka mad golfer)
 
 use strict;
+
+# XXX: should make this tmp file unique (using $$ say).
+my $intmp  = 'insanta.tmp';
+
+sub Usage {
+   print <<'GROK';
+usage: perl tsanta.pl
+   or: perl tsanta.pl head.p6 tail.p6 rev.p6 mid.p6 wc.p6
+GROK
+   exit(1);
+}
 
 sub GolfScore {
    my $script = shift;
@@ -44,7 +57,6 @@ sub BuildFile {
 
 sub CheckOne {
    my ($scr, $label, $data, $exp) = @_;
-   my $intmp  = 'in.tmp';
    BuildFile($intmp, $data);
    my $cmd = "pugs $scr $intmp";
    print "$label: running: '$cmd'...";
@@ -196,6 +208,14 @@ my $tail = 'tail.p6';
 my $rev  = 'rev.p6';
 my $mid  = 'mid.p6';
 my $wc   = 'wc.p6';
+if (@ARGV) {
+   @ARGV==5 or Usage();
+   $head = shift;
+   $tail = shift;
+   $rev  = shift;
+   $mid  = shift;
+   $wc   = shift;
+}
 select(STDERR);$|=1;select(STDOUT);$|=1;  # auto-flush
 -f $head or die "error: file '$head' not found.\n";
 -f $tail or die "error: file '$tail' not found.\n";
@@ -210,3 +230,5 @@ CheckMid($mid);
 CheckWc($wc);
 PrintGolfScore($head, $tail, $rev, $mid, $wc);
 print "Hooray, you passed.\n";
+
+END { defined($intmp) and unlink($intmp) }
