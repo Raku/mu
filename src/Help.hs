@@ -44,7 +44,7 @@ versionFill n = fill ++ vstr
     where
     fill = replicate (n - vlen) ' '
     vlen = length vstr
-    vstr = "Version: " ++ versnum ++ " (" ++ revision ++ ")"
+    vstr = "Version: " ++ versnum -- ++ " (" ++ revision ++ ")"
 
 banner :: IO ()
 banner = putStrLn $ unlines
