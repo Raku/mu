@@ -1,14 +1,14 @@
 
-package Kwid::Receiver;
+package Perldoc::Receiver;
+
 use strict;
 use warnings;
-use Kwid::Base;
-use base 'Kwid::Base';
+
 use Carp;
 
 =head1 NAME
 
-Kwid::Receive - a description of how to `receive' parse events
+Perldoc::Receive - a description of how to `receive' parse events
 
 =head1 SYNOPSIS
 
@@ -16,7 +16,7 @@ Kwid::Receive - a description of how to `receive' parse events
 
 =head1 METHODS
 
-Exactly the same as Kwid::Emitter.  You can/should support a selection
+Exactly the same as Perldoc::Sender.  You can/should support a selection
 of these methods:
 
 =over

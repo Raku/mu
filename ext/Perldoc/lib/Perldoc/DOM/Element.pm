@@ -1,18 +1,18 @@
 
 
-package Kwid::DOM::Element;
+package Perldoc::DOM::Element;
 
 use strict;
 use warnings;
-use base 'Kwid::DOM::Node';
+use base 'Perldoc::DOM::Node';
 
 =head1 NAME
 
-Kwid::DOM::Element - element in a Kwid::DOM tree
+Perldoc::DOM::Element - element in a Perldoc::DOM tree
 
 =head1 SYNOPSIS
 
-See L<Kwid::DOM::Node>.
+See L<Perldoc::DOM::Node>.
 
 =head1 DESCRIPTION
 

@@ -31,8 +31,9 @@ The source text can come in various forms:
 * A named Pod file
 * A text string
 
-The text does not typically come from more than one source, but if there
-is a standard include mechanism it would be handled by the scanner.
+The text does not typically come from more than one source, but if
+there is a standard include mechanism it is not handled at this point;
+but easy mechanisms for re-
 
 - scanner
 
@@ -42,11 +43,13 @@ has the following API:
 
 -- new(file_name|file_handle|string, [type_hint])  Create a new scanner object
 -- type()  Return the top level stream dialect
--- read(length)  Returns a block of text or undef on EOF
+-- read(N)  Returns N block(s) of text or undef on EOF
+-- eos()  True if the current section / block / whatever is finished
 -- read(separator, [chomp])  Returns a block of text terminated by the
    separator or undef on EOF. Two common cases of separator are "\n" for
    line mode and "" for paragraph mode. The separator is chomped if the
    `chomp` argument is true.
+
 
 - text stream
 
@@ -135,11 +138,12 @@ The parser has the following api:
 
 These are methods in the receiver API:
 
--- begin_document()
--- opaque_object(type, text)
--- begin_node(type)
--- text_phrase(text)
--- end_node(type)
+-- start_document()
+-- start_element(type, {})
+-- characters(data)
+-- end_element([type])
+-- processing_instruction(pi, {})
+-- ignorable_whitespace(data)
 -- end_document()
 # I need major help finishing this list
 

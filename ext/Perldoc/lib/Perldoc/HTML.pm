@@ -1,8 +1,8 @@
-package Kwid::HTML;
-use strict;
-use warnings;
-use Kwid::Base;
-use base 'Kwid::Loader';
+package Perldoc::HTML;
+
+use Perldoc::Base -Base;
+
+use mixin 'Perldoc::Writer' qw();
 
 sub begin {
     my $self = shift;

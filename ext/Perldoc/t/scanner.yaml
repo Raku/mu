@@ -1,0 +1,102 @@
+
+
+# Perl use cases
+
+=head1 SOMETHING
+
+=begin test
+
+Foo Bar
+
+=end test
+
+=head2 SOMETHING ELSE
+
+=cut
+
+# equivalent;
+
+=head1 SOMETHING
+
+=for test
+Foo Bar
+
+=head2 SOMETHING ELSE
+
+----
+
+# perl - this won't work (?).
+
+=pod
+
+=begin wonton
+
+xxx
+
+=cut
+
+# perl
+
+=pod
+
+yyy
+
+=end wonton
+
+=cut
+
+----
+
+- begin_document
+
+- begin(type = wonton)
+
+- para(content = "xxx\n")
+
+- para(content = "yyy\n")
+
+- end(type = wonton)
+
+- end_document
+
+----
+
+# 
+
+=over
+
+=item First Item
+
+Description
+
+=cut
+
+# perl
+
+=item Second Item
+
+Description
+
+=back
+
+----
+
+# this needs to work;
+
+=pod
+= 
+= para
+= 
+= .wang
+= 
+= blah
+= 
+= =head1 foo
+= 
+= blah
+= 
+= ..wang
+= 
+=cut
+
+

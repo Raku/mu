@@ -1,8 +1,8 @@
-package Kwid::Parser;
+package Perldoc::Parser;
 use strict;
 use warnings;
-use Kwid::Base;
-use base 'Kwid::Base';
+use Perldoc::Base;
+use base 'Perldoc::Base';
 
 field 'input';
 field 'loader';
@@ -37,7 +37,7 @@ sub reparse {
     my $self = shift;
     my $chunk = shift;
     my $type = $chunk->{type};
-    my $class = "Kwid::Parser::$type";
+    my $class = "Perldoc::Parser::$type";
     my $parser = $class->new(
         input => \$chunk->{content},
         loader => $self->loader,
@@ -153,7 +153,7 @@ sub get_paragraph {
 sub read_sub {
     my $self = shift;
     my $input = $self->input
-      or die "Kwid::Parser->input not defined";
+      or die "Perldoc::Parser->input not defined";
     no warnings;
     if (not ref $input) {
         open my $handle, '<', $input
@@ -232,8 +232,8 @@ sub read_from_handle {
     return;
 }
 
-package Kwid::Parser::Unit;
-our @ISA = qw(Kwid::Parser);
+package Perldoc::Parser::Unit;
+our @ISA = qw(Perldoc::Parser);
 
 sub do_parse {
     my $self = shift;
@@ -244,13 +244,13 @@ sub reparse {
     die;
 }
 
-package Kwid::Parser::heading;
-use base 'Kwid::Parser::Unit';
+package Perldoc::Parser::heading;
+use base 'Perldoc::Parser::Unit';
 
-package Kwid::Parser::verbatim;
-use base 'Kwid::Parser::Unit';
+package Perldoc::Parser::verbatim;
+use base 'Perldoc::Parser::Unit';
 
-package Kwid::Parser::paragraph;
-use base 'Kwid::Parser::Unit';
+package Perldoc::Parser::paragraph;
+use base 'Perldoc::Parser::Unit';
 
 1;

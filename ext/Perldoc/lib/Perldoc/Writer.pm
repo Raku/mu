@@ -1,8 +1,8 @@
-package Kwid::Loader;
+package Perldoc::Loader;
 use strict;
 use warnings;
-use Kwid::Base;
-use base 'Kwid::Base';
+use Perldoc::Base;
+use base 'Perldoc::Base';
 
 field 'output';
 field 'complete' => 0;
@@ -11,7 +11,7 @@ field 'result';
 sub init {
     my $self = shift;
     my $output = $self->output
-      or die "Kwid::Loader->output not defined";
+      or die "Perldoc::Loader->output not defined";
     no warnings;
     if (not ref $output) {
         open my $handle, '>', $output

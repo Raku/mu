@@ -1,19 +1,19 @@
 
-package Kwid::DOM::Node;
+package Perldoc::DOM::Node;
 
 use base 'Tree::DAG_Node';
 
-use Kwid::Base -Base;
+use Spiffy -Base;
 
 use Carp;
 
 =head1 NAME
 
-Kwid::DOM::Node - node in a Kwid::DOM tree
+Perldoc::DOM::Node - node in a Perldoc::DOM tree
 
 =head1 SYNOPSIS
 
- # construct a Kwid::DOM fragment from this:
+ # construct a Perldoc::DOM fragment from this:
  #
  #  =head1 NAME
  #
@@ -25,20 +25,20 @@ Kwid::DOM::Node - node in a Kwid::DOM tree
  #
  #  <sect1><title>NAME</title><para>foo</para></sect1>
 
- # Kwid::DOM::Node representation;
- my $node = Kwid::DOM::Element->new
+ # Perldoc::DOM::Node representation;
+ my $node = Perldoc::DOM::Element->new
      ({ name => "sect1",
         source => "=head1 ",  # text "eaten" by this node
      });
 
 
  # no "source", as this is an "implied" tag
- my $title = Kwid::DOM::Element->new ({ name => "title" });
+ my $title = Perldoc::DOM::Element->new ({ name => "title" });
  $node->add_daughter($title);
 
  # text nodes are different, like W3C DOM - don't moan
  # kiddies, this is for your own good :)
- my $text = Kwid::DOM::Text->new ("NAME");
+ my $text = Perldoc::DOM::Text->new ("NAME");
 
  # note that Texts *can* have an alternate source fragment, but it
  # defaults to be the same as the content, modulo whatever we end up
@@ -47,43 +47,43 @@ Kwid::DOM::Node - node in a Kwid::DOM tree
  $title->add_daughter($text);
 
  # etc etc
- my $para = Kwid::DOM::Element->new({ name => "para",
+ my $para = Perldoc::DOM::Element->new({ name => "para",
                                       source => "\n\n" });
  $node->add_daughter($para);
  # alternate way of creating Texts with content
- $para->add_daughter(Kwid::DOM::Text->new
+ $para->add_daughter(Perldoc::DOM::Text->new
                          ({ content => "foo" }));
 
  # dummy nodes used only for reconstruction to source.
  # represented as processing instructions, or maybe comments
  # in the "normative XML"
  $node->add_daughter
-    (Kwid::DOM::PI->new({ source => "\n\n=cut"}));
+    (Perldoc::DOM::PI->new({ source => "\n\n=cut"}));
 
 =head1 DESCRIPTION
 
 Well, with that informative but utterly confusing synopsis, you should
 be left with nothing but questions about what this object represents.
 
-It represents a node in the Kwid DOM tree (see L<Kwid::DOM> for more).
+It represents a node in the Perldoc DOM tree (see L<Perldoc::DOM> for more).
 The DOM tree has a root node, which is a "C<body>" element of sorts.
 
-Different types of nodes in a Kwid DOM tree have different properties,
+Different types of nodes in a Perldoc DOM tree have different properties,
 you should see the subclasses for more.
 
 In short, those subclasses are;
 
 =over
 
-=item L<Kwid::DOM::Element>
+=item L<Perldoc::DOM::Element>
 
 It's all about meta-data and structure, not content!
 
-=item L<Kwid::DOM::Text>
+=item L<Perldoc::DOM::Text>
 
 The Text nodes are where it's at, baby, yeah!
 
-=item L<Kwid::DOM::PI>
+=item L<Perldoc::DOM::PI>
 
 Placeholder for dummy nodes that contain only source representation.
 

@@ -1,18 +1,18 @@
 
-package Kwid::DOM::WS;
+package Perldoc::DOM::WS;
 
 use Carp;
 use strict;
 use warnings;
-use base 'Kwid::DOM::Node';
+use base 'Perldoc::DOM::Node';
 
 =head1 NAME
 
-Kwid::DOM::WS - ignorable whitespace in a Kwid::DOM tree
+Perldoc::DOM::WS - ignorable whitespace in a Perldoc::DOM tree
 
 =head1 SYNOPSIS
 
-See L<Kwid::DOM::Node>.
+See L<Perldoc::DOM::Node>.
 
 =head1 DESCRIPTION
 

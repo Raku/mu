@@ -1,0 +1,23 @@
+use strict;
+use lib "../..", "../../inc";
+use inc::Module::Install prefix => '../../inc';
+
+name('Perldoc');
+author('Brian Ingerson <ingy@cpan.org>');
+abstract('Perl 6 Documentation System');
+license('perl');
+version_from('lib/Perldoc.pm');
+
+requires(qw(
+    perl 5.6.1
+    Data::Dumper 0
+    Scalar::Util 0
+    Test::More 0
+    Tree::DAG_Node 0
+    Spiffy 0
+    YAML 0
+));
+
+check_nmake();
+
+&WriteAll();

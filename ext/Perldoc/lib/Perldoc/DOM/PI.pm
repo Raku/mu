@@ -1,22 +1,23 @@
 
-package Kwid::DOM::PI;
+package Perldoc::DOM::PI;
 
 use strict;
 use warnings;
-use base 'Kwid::DOM::Node';
+use base 'Perldoc::DOM::Node';
 
 =head1 NAME
 
-Kwid::DOM::PI - a processing instruction in a Kwid::DOM tree
+Perldoc::DOM::PI - a processing instruction in a Perldoc::DOM tree
 
 =head1 SYNOPSIS
 
-See L<Kwid::DOM::Node>.
+See L<Perldoc::DOM::Node>.
 
 =head1 DESCRIPTION
 
 These nodes can be used to, eg, note to the L<Pod::Writer> that an
-upcoming closing node is to be represented in a certain way in source.
+upcoming closing node is to be represented in a certain non-normative
+way in the source.
 
 =head2 SUB-CLASS PROPERTIES
 
