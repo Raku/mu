@@ -15,7 +15,7 @@ endif
 syn keyword p6Module		module class use require
 syn keyword p6KeyDecl		sub submethod method is but multi returns
 syn keyword p6KeyScopeDecl	my our local let temp
-syn keyword p6KeyFlow		for foreach loop while until if unless when
+syn keyword p6KeyFlow		else elsif for foreach loop while until if unless when
 syn keyword p6KeyFlow		given next last redo or and err xor return not
 syn keyword p6KeyException	die fail try CATCH
 syn keyword p6KeyIO		print open read write readline say seek
