@@ -26,7 +26,7 @@ command-line, the user will be warned that an unknown option was given.
 
 To allow programs to process arguments that look like switches, but aren't,
 both functions will stop processing switches when they see the argument
-C<-->.  The C<--> will be removed from @ARGV.
+C<-->.  The C<--> will be removed from @ARGS.
 
 =head1 C<--help> and C<--version>
 
@@ -55,29 +55,29 @@ sub getopt(Str $argumentative) is export {
     my %hash;
     $argumentative //= "";
 
-    while @*ARGV and ($_ = @ARGV[0]) ~~ /^-(.)(.*)/ {
+    while @*ARGS and ($_ = @ARGS[0]) ~~ /^-(.)(.*)/ {
       my ($first, $rest) = ($1, $2);
 
       if /^--$/ {	# early exit if --
-	  shift @*ARGV;
+	  shift @*ARGS;
 	  last;
       }
 
       if index($argumentative, $first) >= 0 {
 	if $rest ne '' {
-	  shift @*ARGV;
+	  shift @*ARGS;
 	} else {
-	  shift @*ARGV;
-	  $rest = shift @*ARGV;
+	  shift @*ARGS;
+	  $rest = shift @*ARGS;
 	}
 
 	%hash{$first} = $rest;
       } else {
 	%hash{$first} = 1;
 	if $rest ne "" {
-	  @ARGV[0] = "-$rest";
+	  @ARGS[0] = "-$rest";
 	} else {
-	  shift @*ARGV;
+	  shift @*ARGS;
 	}
       }
     }
@@ -135,30 +135,30 @@ sub getopts(Str $argumentative) {
   my $errs = 0;
 
   @args = split m/ */, $argumentative;
-  while @*ARGV and ($_ = @ARGV[0]) ~~ m/^-(.)(.*)/) {
+  while @*ARGS and ($_ = @ARGS[0]) ~~ m/^-(.)(.*)/) {
     my ($first, $rest) = ($1, $2);
 
     if (/^--$/) {	# early exit if --
-      shift @*ARGV;
+      shift @*ARGS;
       last;
     }
 
     my $pos = index $argumentative, $first;
     if $pos >= 0 {
       if defined @args[$pos+1] and @args[$pos+1] eq ':' {
-	shift @*ARGV;
+	shift @*ARGS;
 	if $rest eq "" {
-	  ++$errs unless @*ARGV;
-	  $rest = shift @*ARGV;
+	  ++$errs unless @*ARGS;
+	  $rest = shift @*ARGS;
 	}
 
 	%hash{$first} = $rest;
       } else {
 	%hash{$first} = 1;
 	if $rest eq "" {
-	  shift @*ARGV;
+	  shift @*ARGS;
 	} else {
-	  @ARGV[0] = "-$rest";
+	  @ARGS[0] = "-$rest";
 	}
       }
     } else {
@@ -166,21 +166,21 @@ sub getopts(Str $argumentative) {
 	version_mess $argumentative;
 	help_mess $argumentative;
 	exit 0; # XXX - why?
-	shift @*ARGV;
+	shift @*ARGS;
 	next;
       } elsif $first eq "-" and $rest eq "version" {
 	version_mess $argumentative;
 	exit 0; # XXX - why?
-	shift @*ARGV;
+	shift @*ARGS;
 	next;
       }
 
       warn "Unknown option: $first\n";
       ++$errs;
       if $rest ne "" {
-	@ARGV[0] = "-$rest";
+	@ARGS[0] = "-$rest";
       } else {
-	shift @*ARGV;
+	shift @*ARGS;
       }
     }
   }
