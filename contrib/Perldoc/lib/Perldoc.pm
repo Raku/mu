@@ -45,7 +45,7 @@ sub doc_to_bytecode {
 
 = NAME
 
-Perldoc - Perl Documentation
+Perldoc - Perl Documentation Tools
 
 = SYNOPSIS
 
@@ -55,14 +55,15 @@ Perldoc - Perl Documentation
 
 = DESCRIPTION
 
-Perldoc is a set of tools that define and work with the POD information
-model. The tools provide parsers for various dialects, and formatters for
-various output formats.
+`Perldoc` is a set of tools that define and work with the /Perldoc
+Information Model/. The tools provide parsers for various /Perldoc
+Dialects/ (including Pod and Kwid), and formatters for various
+output formats.
 
-= AUTHOR
+= AUTHORS
 
-Brian Ingerson <ingy@cpan.org>
-Sam Vilain
+* Brian Ingerson <ingy@cpan.org>
+* Sam Vilain <samv@cpan.org>
 
 = COPYRIGHT
 
