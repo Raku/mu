@@ -172,6 +172,7 @@ t/base/undef.t
 t/base/unless.t
 t/base/until.t
 t/base/while.t
+t/comp/package.t
 t/config.t
 t/Dialects/perlego/isrw.t
 t/Dialects/perlego/sigilless.t
