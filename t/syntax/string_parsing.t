@@ -6,6 +6,4 @@ plan 1;
 
 my $a = '';
 
-("$a.print"); "";
-
-pass("ok");
+ok ((eval '("$a.print"); "1";'), "parsing method call in a string");
