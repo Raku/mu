@@ -11,4 +11,4 @@ This examples exploits the fact that $junction.pick is choosen (pseudo)-randomly
 my $lottery_numbers = any(1 .. 99);
 my @your_numbers;
 for (0 .. 10) { @your_numbers.push($lottery_numbers.pick()) }
-say 'Your lottery numbers are: ' ~ join('-', @your_numbers);
+say "Your lottery numbers are: { join('-', @your_numbers) }";
