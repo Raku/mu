@@ -69,7 +69,7 @@ Mini HowTo: How to port Perl 5 modules to Perl 6
     # And then:
     say $obj.foo;
     $obj.foo = "..."; # Notice: Standard assignment syntax!
-                      # Assignments should look line assingments, not like
+                      # Assignments should look like assignments, not like
                       # method calls
   
   - If you trust the user to give correct data to accessors, you can also use:
