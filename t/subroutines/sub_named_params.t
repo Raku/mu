@@ -85,11 +85,11 @@ is($case, undef, "case was not given at all");
 }
 
 {
-my  ($text,$case,$justify); # this doesn't even compile in an eval:   = eval 'formalize("title", :justify<right>, :case<title>)';
+my  ($text,$case,$justify) = formalize("title", :justify<right>, :case<title>);
 
-todo_is($text,'title', "title param was positional");
-todo_is($justify, 'right', "justify param was named with funny syntax");
-todo_is($case, 'title', "case param was named with funny syntax");
+is($text,'title', "title param was positional");
+is($justify, 'right', "justify param was named with funny syntax");
+is($case, 'title', "case param was named with funny syntax");
 }
 
 {

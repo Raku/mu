@@ -113,10 +113,10 @@ is(@values1[2], 2, 'got the right values');
 
 my %hash8;
 isa_ok(%hash8, 'Hash');
-eval '%hash8 = (:one, :key<value>, :three(3))';
-todo_is %hash8{'one'}, 1, 'colonpair :one';
-todo_is %hash8{'key'}, 'value', 'colonpair :key<value>';
-todo_is %hash8{'three'}, 3, 'colonpair :three(3)';
+%hash8 = (:one, :key<value>, :three(3));
+is(%hash8{'one'}, 1, 'colonpair :one');
+is(%hash8{'key'}, 'value', 'colonpair :key<value>');
+is(%hash8{'three'}, 3, 'colonpair :three(3)');
 
 # kv method
 

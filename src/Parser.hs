@@ -846,8 +846,8 @@ arrayLiteral = do
     items   <- brackets $ ruleExpression `sepEndBy` symbol ","
     return $ App "&prefix:\\" [] [Syn "cxt" [Val (VStr "List"), Syn "," items]]
 
-pairLiteral = do
-    try $ do
+pairLiteral = try $
+    do
 	key <- identifier
 	symbol "=>"
 	val <- parseTerm
