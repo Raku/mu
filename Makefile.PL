@@ -11,8 +11,7 @@ my $config_h = "src/pugs_config.h";
 my @srcdirs = ("src", grep(-d, glob "src/*"));
 
 deny_cygwin     ();
-my ($ghc_path, $ghc_version) = assert_ghc();
-$ENV{PATH} = File::Spec->catdir($ghc_path, '..') . $Config{path_sep} . $ENV{PATH};
+my ($ghc, $ghc_version) = assert_ghc();
 
 name            ('Perl6-Pugs');
 version_from    ('lib/Perl6/Pugs.pm');
@@ -67,13 +66,13 @@ src/Config.hs : util/PugsConfig.pm
 	\$(PERL) -Iutil -MPugsConfig -e "PugsConfig->write_config_module" > src/Config.hs
 
 profiled :: src/Config.hs @srcfiles $version_h @prereqs
-	ghc -auto-all -prof --make $ghc_flags $ghc_output
+	$ghc -auto-all -prof --make $ghc_flags $ghc_output
 
 optimized :: src/Config.hs @srcfiles $version_h @prereqs
-	ghc -O2 --make $ghc_flags $ghc_output
+	$ghc -O2 --make $ghc_flags $ghc_output
 
 $pugs : src/Config.hs @srcfiles $version_h @prereqs
-	ghc --make $ghc_flags $ghc_output
+	$ghc --make $ghc_flags $ghc_output
 
 tags :
 	hasktags -c src

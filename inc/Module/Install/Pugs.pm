@@ -97,14 +97,13 @@ sub deny_cygwin {
 sub assert_ghc {
     my $self = shift;
     my $ghc = $self->can_run('ghc');
-    my $path = dirname($ghc);
     my $ghcver = `$ghc --version`;
     ($ghcver =~ /Glasgow.*\bversion\s*(\S+)/s) or die << '.';
 *** Cannot find a runnable 'ghc' from path.
 *** Please install GHC from http://haskell.org/ghc/.
 .
 
-    return ($path, $1);
+    return ($ghc, $1);
 }
 
 sub fixpaths {
