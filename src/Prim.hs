@@ -149,6 +149,7 @@ op1 "open" = \v -> do
     return $ VHandle fh
     where
     modeOf ""   = ReadMode
+    modeOf "<"  = ReadMode
     modeOf ">"  = WriteMode
     modeOf ">>" = AppendMode
     modeOf "+>" = ReadWriteMode
