@@ -242,8 +242,10 @@ data JuncType = JAll | JAny | JOne | JNone
     deriving (Show, Eq, Ord)
 
 instance Eq ([Val] -> Val)
-instance Ord ([Val] -> Val)
-instance (Ord a) => Ord (Set a)
+instance Ord ([Val] -> Val) where
+    compare _ _ = LT
+instance (Ord a) => Ord (Set a) where
+    compare x y = compare (setToList x) (setToList y)
 instance (Show a) => Show (Set a) where
     show x = show $ setToList x
 instance Ord VComplex where {- ... -}

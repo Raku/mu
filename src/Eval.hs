@@ -135,6 +135,13 @@ isGlobalExp (Syn name _) = name `elem` map ("&infix:" ++) (words ":= ::=")
 isGlobalExp _ = False
 
 reduce :: Env -> Exp -> ((Env -> Env), Exp)
+reduce Env{ cxt = cxt } exp@(NonTerm _)
+    | cxt == "Bool"     = retVal $ VBool False
+    | cxt == "List"     = retVal $ VList []
+    | cxt == "Array"    = retVal $ VArray $ MkArray []
+    | cxt == "Hash"     = retVal $ VHash $ MkHash emptyFM
+    | otherwise         = retVal $ VUndef
+
 reduce env@Env{ sym = sym } exp@(Var var _)
     | Just val <- lookup var sym
     = retVal val
