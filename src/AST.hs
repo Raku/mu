@@ -122,6 +122,9 @@ readMVal v         = return v
 instance Value VInt where
     castV = VInt
     doCast (VInt i)     = i
+    doCast (VStr s)
+        | ((n, _):_)    <-reads (takeWhile (\x -> isDigit x || x == '-') s) = n
+        | otherwise    = 0
     doCast x            = truncate (vCast x :: VRat)
 
 instance Value VRat where
