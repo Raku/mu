@@ -173,8 +173,6 @@ op1 "<>" = \v -> do
             Just sym | (Val v) <- symExp sym -> return $ vCast v
             _                                -> error "impossible"
 op1 "ref"  = return . VStr . valType
-op1 ""     = return . (\x -> VError ("unimplemented unaryOp: " ++ "") (Val x))
-
 op1 s      = return . (\x -> VError ("unimplemented unaryOp: " ++ s) (Val x))
 
 op1Print f v = do
