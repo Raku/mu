@@ -120,8 +120,10 @@ instance Value VNum where
     doCast (VStr s)
         | ((n, _):_) <- reads s = n
         | otherwise             = 0
-    doCast (VList l)    = fromIntegral $ length l
-    doCast x            = error $ "cannot cast: " ++ (show x)
+    doCast (VList l)    = genericLength l
+    doCast (VArray (MkArray a))    = genericLength a
+    doCast (VHash (MkHash h))    = fromIntegral $ sizeFM h
+    doCast x            = error $ "cannot cast as Num: " ++ (show x)
 
 instance Value VComplex where
     castV = VComplex
@@ -139,7 +141,8 @@ instance Value VStr where
     vCast (VRef v)      = vCast v
     -- vCast (MVal v)      = vCast $ castV v
     vCast (VPair (k, v))= vCast k ++ "\t" ++ vCast v ++ "\n"
-    vCast x             = error $ "cannot cast: " ++ (show x)
+    vCast (VArray (MkArray l))     = unwords $ map vCast l
+    vCast x             = error $ "cannot cast as Str: " ++ (show x)
 
 showNum x
     | (i, ".0") <- break (== '.') str
