@@ -5,7 +5,7 @@ require Test;
 
 =pod
 
-Trenary operator ?? ::
+Ternary operator ?? ::
 
 =cut
 
