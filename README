@@ -8,6 +8,7 @@
 |          \/__/   \/___/  \/___/\ \/____/                          |
 |                            /\____/                                |
 |                            \/___/                                 |
+|                                                                   |
 =====================================================================
 
 Pugs is Copyright 2005 by Autrijus Tang.  All Rights Reserved.
@@ -25,7 +26,10 @@ The "UTF8" subsystem is derived from Sven Moritz Hallberg's work,
 under a BSD-style license.  See src/UTF8.lhs.
 
 The "Unicode" subsystem is derived from Dimitry Golubovsky's work,
-under the same license as GHC.
+under the same license as GHC.  See LICENSES/GHC.
+
+The "RuntimeLoader" subsystem is derived from Andre Pang's work,
+under the same license as GHC.  See LICENSES/GHC.
 
 LICENSE INFORMATION
 -------------------
