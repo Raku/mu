@@ -114,4 +114,64 @@ syn region p6Regex matchgroup=p6Keyword start="\<tr\_s*\(\_s*:\_s*[a-zA-Z0-9_()]
 " and behave like a string.
 
 syn region p6SubNonBracket matchgroup=p6Keyword contained start="\z(\W\)" skip="\\\z1" end="\z1" contains=@p6Interp
-syn region p6SubBracket matchgroup=p6Keyword contained start="
+syn region p6SubBracket matchgroup=p6Keyword contained start="\z(\W\)" skip="\\\z1" end="\z1" contains=@p6Interp
+syn region p6SubBracket matchgroup=p6Keyword contained start="\[" skip="\\]" end="]" contains=@p6Interp
+syn region p6SubBracket matchgroup=p6Keyword contained start="{" skip="\\}" end="}" contains=@p6Interp
+syn region p6SubBracket matchgroup=p6Keyword contained start="<" skip="\\>" end=">" contains=@p6Interp
+syn region p6TransNonBracket matchgroup=p6Keyword contained start="\z(\W\)" skip="\\\z1" end="\z1"
+
+
+syn match p6RuleCall contained "<\s*!\{0,1}\s*\w\+"hs=s+1
+syn match p6CharClass contained "<\s*!\{0,1}\s*\[\]\{0,1}[^]]*\]\s*>"
+syn match p6CharClass contained "<\s*!\{0,1}\s*-\{0,1}\(alpha\|digit\|sp\|ws\|null\)\s*>"
+syn match p6CharClass contained "\\[HhVvNnTtEeRrFfWwSs]"
+syn match p6CharClass contained "\\[xX]\(\[[0-9a-f;]\+\]\|\x\+\)"
+syn match p6CharClass contained "\\0\(\[[0-7;]\+\]\|\o\+\)"
+syn region p6CharClass contained start="\\[QqCc]\[" end="]" skip="\\]"
+syn match p6RegexSpecial contained "\\\@<!:\{1,3\}"
+syn match p6RegexSpecial contained "<\s*\(cut\|commit\)\s*>"
+"syn match p6RegexSpecial contained "\\\@<![+*|]"
+syn match p6RegexSpecial contained ":="
+syn region p6CharClass contained start=+<\s*!\{0,1}\s*\z(['"]\)+ skip=+\\\z1+ end=+\z1\s*>+
+syn region p6TestExpr contained start="<\s*!\{0,1}\s*(" end=")\s*>" contains=TOP
+
+
+" Hash quoting (sortof a hack)
+" syn match p6InterpString "{\s*\w\+\s*}"ms=s+1,me=e-1
+
+syn match p6Normal "//"
+
+
+hi link p6Normal        Normal
+hi link p6Regex         String
+hi link p6SubNonBracket p6String
+hi link p6SubBracket    p6String
+hi link p6TransNonBracket p6String
+hi link p6CharClass     Special
+hi link p6RuleCall      Identifier
+hi link p6RegexSpecial  Type
+
+hi link p6Error         Error
+hi link p6KeyCompare    p6Keyword
+hi link p6KeyDecl       p6Keyword
+hi link p6KeyScopeDecl  p6Keyword
+hi link p6KeyFlow       p6Keyword
+hi link p6KeyException  Special
+hi link p6KeyIO         p6Keyword
+hi link p6KeyProperty   Type
+hi link p6KeyFunc       p6Keyword
+hi link p6KeySpecial    Special
+hi link p6KeyType       Type
+
+hi link p6Pattern       p6Keyword
+hi link p6VarPlain      p6Variable
+hi link p6VarPunct      p6Variable
+hi link p6InterpString  p6String
+hi link p6LiteralString p6String
+
+hi link p6Keyword  Statement
+hi link p6Number   Number
+hi link p6Comment  Comment
+hi link p6Variable Identifier
+hi link p6VarException Special
+hi link p6String   String
