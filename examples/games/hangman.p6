@@ -2,47 +2,51 @@
 
 use v6;
 
-my @words;
-my @letters;
-my @guesses;
-my $word_junction;
-my $current_word;
+## ------------------------------------------------------------------
+## Hangman (with the Pugs AUTHORS list)
+## ------------------------------------------------------------------
+## The following is a example of what perl6 code might have looked 
+## like if it was around in 1996 :)
+##
+## Actually this is a rough cut for a CGI based hangman game, I 
+## thought that I would try it without the web component first, 
+## and then port it to CGI. 
+## ------------------------------------------------------------------
 
-my $number_of_tries = 0;
-my $allowed_tries   = 6;
+## declare global variables (globals RULE dude!)
+
+my @words;         # the database of words/names
+my $current_word;  # the current word/name
+my @letters;       # the letters in that word/name
+my @solution;      # the ever-evolving solution
+my @guesses;       # the current set of guesses by the user
+
+my $number_of_tries = 0;  # number of bad guesses
+my $allowed_tries   = 6;  # number of allowed bad guesses
+
+## do our functions
 
 sub get_words returns Array {
-    my @w;
-    my $dict = open("hangman.dic") err
-      die "Couldn't open \"hangman.dic\"! Did you run $*PROGRAM_NAME from its directory?\n";
+    my $dict = open("hangman.dic") err die "Couldn't open 'hangman.dic'";
     for (=$dict) -> $_name {
-        my $name = $_name;
+        my $name = $_name; # << damn immutable variables
         chomp($name);
-        push(@w, $name);
+        @words.push($name);
     }
     $dict.close();
-    return @w;
 }
 
-sub pick_word returns Str { $word_junction.pick() }
-
-@words = get_words();
-$word_junction = any(@words);
-
-$current_word = pick_word();
-
-@letters = split("", $current_word);
-@guesses = ('' xx +@letters);
+sub pick_word returns Str { any(@words).pick() }
 
 sub draw_board returns Str { 
     my $output = '';
     for (0 .. (+@letters - 1)) -> $i {
-        if (@letters[$i] ~~ rx:perl5{\s|\-|\.}) {
+        if (@letters[$i] ~~ rx:perl5{\s|\-|\.|\,}) {
             $output ~= @letters[$i];
-            @guesses[$i] = @letters[$i];
+            @solution[$i] = @letters[$i];
         }
-        elsif (@guesses[$i] ne '') {
-            $output ~= @guesses[$i];
+        elsif (@solution[$i] ne '') {
+            $output ~= @solution[$i];
         }
         else {        
             $output ~= '_';
@@ -51,21 +55,25 @@ sub draw_board returns Str {
     return $output;
 }
 
-sub has_won returns Bool { +@letters == +(@guesses.grep:{ $_ ne '' }) }
+sub has_won returns Bool { +@letters == +(@solution.grep:{ $_ ne '' }) }
 
 sub guess (Str $guess) returns Bool {
+    return 1 if $guess eq any(@guesses);
+    @guesses.push($guess);
     my $success = 0;
     my $i;
     loop ($i = 0; $i < +@letters; $i++) {
         if (lc(@letters[$i]) eq lc($guess)) {
-            @guesses[$i] = @letters[$i];
+            @solution[$i] = @letters[$i];
             $success = 1;
         }
     }
     return $success;
 }
 
-sub draw_if_greater_than (Str $char, Int $num) returns Bool { (($number_of_tries >= $num) ?? $char :: ' ') }
+sub draw_if_greater_than (Str $char, Int $num) returns Bool { 
+    (($number_of_tries >= $num) ?? $char :: ' ') 
+}
 
 sub draw_hangman returns Str {
 join("\n", (
@@ -74,20 +82,27 @@ join("\n", (
 "  +-----+       The commiter's name is:", # $current_word
 "  |     |       " ~ draw_board(),
 "  |     " ~ draw_if_greater_than("O", 1) ~ "   ",
-"  |    "  ~ draw_if_greater_than("/", 2) ~ draw_if_greater_than("|", 3) ~ draw_if_greater_than("\\", 4) ~ "  ",
-"  |    "  ~ draw_if_greater_than("/", 5) ~ " " ~ draw_if_greater_than("\\", 6) ~ "  ",
+"  |    "  ~ draw_if_greater_than("/", 2) ~ draw_if_greater_than("|", 3) ~ draw_if_greater_than("\\", 4) ~ "      You have already guessed:",
+"  |    "  ~ draw_if_greater_than("/", 5) ~ " " ~ draw_if_greater_than("\\", 6) ~ "      [" ~ join(' ', @guesses) ~ "]",
 "  |         ",
 "|-+--------|",
 ""));
 }
 
+## main loop
 
-#system('clear');
+get_words();
+$current_word = pick_word();
+
+@letters = split("", $current_word);
+@solution = ('' xx +@letters);
+
+system('clear') unless $?OS eq 'Win32';
 print draw_hangman(); 
 print "\nguess a letter? ";   
 my $letter;
 while ($letter = =$*IN) {
-    #system('clear');
+    system('clear') unless $?OS eq 'Win32';
     chomp($letter);
     if (guess($letter)) {
         if (has_won()) {
