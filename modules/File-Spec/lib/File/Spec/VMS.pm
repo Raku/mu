@@ -1,39 +1,35 @@
-package File::Spec::VMS;
+#!pugs
+use v6;
 
-use strict;
-use vars qw(@ISA $VERSION);
-require File::Spec::Unix;
+require File::Spec::Unix-0.0.1;
 
-$VERSION = '1.4';
+class File::Spec::VMS-0.0.1 is File::Spec::Unix;
 
-@ISA = qw(File::Spec::Unix);
+## XXX need to address this dependency
+# use File::Basename;
+# use VMS::Filespec;
 
-use File::Basename;
-use VMS::Filespec;
+sub curdir {
+    return '[]';
+}
 
-=head1 NAME
+sub devnull {
+    return "_NLA0:";
+}
 
-File::Spec::VMS - methods for VMS file specs
+sub rootdir {
+    return 'SYS$DISK:[000000]';
+}
 
-=head1 SYNOPSIS
 
- require File::Spec::VMS; # Done internally by File::Spec if needed
+sub updir {
+    return '[-]';
+}
 
-=head1 DESCRIPTION
+sub case_tolerant {
+    return 1;
+}
 
-See File::Spec::Unix for a documentation of the methods provided
-there. This package overrides the implementation of these methods, not
-the semantics.
-
-=over 4
-
-=item eliminate_macros
-
-Expands MM[KS]/Make macros in a text string, using the contents of
-identically named elements of C<%$self>, and returns the result
-as a file specification in Unix syntax.
-
-=cut
 
 sub eliminate_macros {
     my($self,$path) = @_;
@@ -71,21 +67,6 @@ sub eliminate_macros {
     $npath;
 }
 
-=item fixpath
-
-Catchall routine to clean up problem MM[SK]/Make macros.  Expands macros
-in any directory specification, in order to avoid juxtaposing two
-VMS-syntax directories when MM[SK] is run.  Also expands expressions which
-are all macro, so that we can tell how long the expansion is, and avoid
-overrunning DCL's command buffer when MM[KS] is running.
-
-If optional second argument has a TRUE value, then the return string is
-a VMS-syntax directory specification, if it is FALSE, the return string
-is a VMS-syntax file specification, and if it is not specified, fixpath()
-checks to see whether it matches the name of a directory in the current
-default directory, and returns a directory or file specification accordingly.
-
-=cut
 
 sub fixpath {
     my($self,$path,$force_path) = @_;
@@ -133,17 +114,6 @@ sub fixpath {
     $fixedpath;
 }
 
-=back
-
-=head2 Methods always loaded
-
-=over 4
-
-=item canonpath (override)
-
-Removes redundant portions of file specifications according to VMS syntax.
-
-=cut
 
 sub canonpath {
     my($self,$path) = @_;
@@ -188,14 +158,6 @@ sub canonpath {
     }
 }
 
-=item catdir
-
-Concatenates a list of file specifications, and returns the result as a
-VMS-syntax directory specification.  No check is made for "impossible"
-cases (e.g. elements other than the first being absolute filespecs).
-
-=cut
-
 sub catdir {
     my ($self,@dirs) = @_;
     my $dir = pop @dirs;
@@ -222,13 +184,6 @@ sub catdir {
     return $self->canonpath($rslt);
 }
 
-=item catfile
-
-Concatenates a list of file specifications, and returns the result as a
-VMS-syntax file specification.
-
-=cut
-
 sub catfile {
     my ($self,@files) = @_;
     my $file = $self->canonpath(pop @files);
@@ -250,50 +205,6 @@ sub catfile {
     return $self->canonpath($rslt);
 }
 
-
-=item curdir (override)
-
-Returns a string representation of the current directory: '[]'
-
-=cut
-
-sub curdir {
-    return '[]';
-}
-
-=item devnull (override)
-
-Returns a string representation of the null device: '_NLA0:'
-
-=cut
-
-sub devnull {
-    return "_NLA0:";
-}
-
-=item rootdir (override)
-
-Returns a string representation of the root directory: 'SYS$DISK:[000000]'
-
-=cut
-
-sub rootdir {
-    return 'SYS$DISK:[000000]';
-}
-
-=item tmpdir (override)
-
-Returns a string representation of the first writable directory
-from the following list or '' if none are writable:
-
-    sys$scratch:
-    $ENV{TMPDIR}
-
-Since perl 5.8.0, if running under taint mode, and if $ENV{TMPDIR}
-is tainted, it is not used.
-
-=cut
-
 my $tmpdir;
 sub tmpdir {
     return $tmpdir if defined $tmpdir;
@@ -301,44 +212,11 @@ sub tmpdir {
     $tmpdir = $self->_tmpdir( 'sys$scratch:', $ENV{TMPDIR} );
 }
 
-=item updir (override)
-
-Returns a string representation of the parent directory: '[-]'
-
-=cut
-
-sub updir {
-    return '[-]';
-}
-
-=item case_tolerant (override)
-
-VMS file specification syntax is case-tolerant.
-
-=cut
-
-sub case_tolerant {
-    return 1;
-}
-
-=item path (override)
-
-Translate logical name DCL$PATH as a searchlist, rather than trying
-to C<split> string value of C<$ENV{'PATH'}>.
-
-=cut
-
 sub path {
     my (@dirs,$dir,$i);
     while ($dir = $ENV{'DCL$PATH;' . $i++}) { push(@dirs,$dir); }
     return @dirs;
 }
-
-=item file_name_is_absolute (override)
-
-Checks for VMS directory spec as well as Unix separators.
-
-=cut
 
 sub file_name_is_absolute {
     my ($self,$file) = @_;
@@ -349,12 +227,6 @@ sub file_name_is_absolute {
 		  $file =~ /:[^<\[]/);
 }
 
-=item splitpath (override)
-
-Splits using VMS syntax.
-
-=cut
-
 sub splitpath {
     my($self,$path) = @_;
     my($dev,$dir,$file) = ('','','');
@@ -362,12 +234,6 @@ sub splitpath {
     vmsify($path) =~ /(.+:)?([\[<].*[\]>])?(.*)/s;
     return ($1 || '',$2 || '',$3);
 }
-
-=item splitdir (override)
-
-Split dirspec using VMS syntax.
-
-=cut
 
 sub splitdir {
     my($self,$dirspec) = @_;
@@ -390,13 +256,6 @@ sub splitdir {
     @dirs;
 }
 
-
-=item catpath (override)
-
-Construct a complete filespec using VMS syntax
-
-=cut
-
 sub catpath {
     my($self,$dev,$dir,$file) = @_;
     
@@ -413,12 +272,6 @@ sub catpath {
     }
     "$dev$dir$file";
 }
-
-=item abs2rel (override)
-
-Use VMS syntax when converting filespecs.
-
-=cut
 
 sub abs2rel {
     my $self = shift;
@@ -466,13 +319,6 @@ sub abs2rel {
     return $self->canonpath( $self->catpath( '', $path_directories, $path_file ) ) ;
 }
 
-
-=item rel2abs (override)
-
-Use VMS syntax when converting filespecs.
-
-=cut
-
 sub rel2abs {
     my $self = shift ;
     my ($path,$base ) = @_;
@@ -519,6 +365,126 @@ sub rel2abs {
     return $self->canonpath( $path ) ;
 }
 
+1;
+
+__END__
+
+=head1 NAME
+
+File::Spec::VMS - methods for VMS file specs
+
+=head1 SYNOPSIS
+
+ require File::Spec::VMS; # Done internally by File::Spec if needed
+
+=head1 DESCRIPTION
+
+See File::Spec::Unix for a documentation of the methods provided
+there. This package overrides the implementation of these methods, not
+the semantics.
+
+=over 4
+
+=item eliminate_macros
+
+Expands MM[KS]/Make macros in a text string, using the contents of
+identically named elements of C<%$self>, and returns the result
+as a file specification in Unix syntax.
+
+=item fixpath
+
+Catchall routine to clean up problem MM[SK]/Make macros.  Expands macros
+in any directory specification, in order to avoid juxtaposing two
+VMS-syntax directories when MM[SK] is run.  Also expands expressions which
+are all macro, so that we can tell how long the expansion is, and avoid
+overrunning DCL's command buffer when MM[KS] is running.
+
+If optional second argument has a TRUE value, then the return string is
+a VMS-syntax directory specification, if it is FALSE, the return string
+is a VMS-syntax file specification, and if it is not specified, fixpath()
+checks to see whether it matches the name of a directory in the current
+default directory, and returns a directory or file specification accordingly.
+
+=back
+
+=head2 Methods always loaded
+
+=over 4
+
+=item canonpath (override)
+
+Removes redundant portions of file specifications according to VMS syntax.
+
+=item catdir
+
+Concatenates a list of file specifications, and returns the result as a
+VMS-syntax directory specification.  No check is made for "impossible"
+cases (e.g. elements other than the first being absolute filespecs).
+
+=item catfile
+
+Concatenates a list of file specifications, and returns the result as a
+VMS-syntax file specification.
+
+=item curdir (override)
+
+Returns a string representation of the current directory: '[]'
+
+=item devnull (override)
+
+Returns a string representation of the null device: '_NLA0:'
+
+=item rootdir (override)
+
+Returns a string representation of the root directory: 'SYS$DISK:[000000]'
+
+=item tmpdir (override)
+
+Returns a string representation of the first writable directory
+from the following list or '' if none are writable:
+
+    sys$scratch:
+    $ENV{TMPDIR}
+
+Since perl 5.8.0, if running under taint mode, and if $ENV{TMPDIR}
+is tainted, it is not used.
+
+=item updir (override)
+
+Returns a string representation of the parent directory: '[-]'
+
+=item case_tolerant (override)
+
+VMS file specification syntax is case-tolerant.
+
+=item path (override)
+
+Translate logical name DCL$PATH as a searchlist, rather than trying
+to C<split> string value of C<$ENV{'PATH'}>.
+
+=item file_name_is_absolute (override)
+
+Checks for VMS directory spec as well as Unix separators.
+
+=item splitpath (override)
+
+Splits using VMS syntax.
+
+=item splitdir (override)
+
+Split dirspec using VMS syntax.
+
+=item catpath (override)
+
+Construct a complete filespec using VMS syntax
+
+=item abs2rel (override)
+
+Use VMS syntax when converting filespecs.
+
+=item rel2abs (override)
+
+Use VMS syntax when converting filespecs.
 
 =back
 
@@ -531,5 +497,3 @@ An explanation of VMS file specs can be found at
 L<"http://h71000.www7.hp.com/doc/731FINAL/4506/4506pro_014.html#apps_locating_naming_files">.
 
 =cut
-
-1;

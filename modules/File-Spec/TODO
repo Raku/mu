@@ -31,13 +31,13 @@ File::Spec::OS2
 
     - done, but this has the CWD issue as well
 
-File::Spec::VMS
-
-    - nothing done yet
-
 File::Spec::Win32
 
-    - nothing done yet
+    - done, but CWD is an issue with this one as well
+
+File::Spec::VMS
+
+    - seperated POD from code, but nothing else yet
 
 File::Spec::Functions
 
