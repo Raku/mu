@@ -9,7 +9,7 @@ Hash tests
 
 =cut
 
-plan 51;
+plan 52;
 
 # basic lvalue assignment
 
@@ -129,3 +129,5 @@ for (%hash9.kv) -> $k,$v { $key = $k; $val = $v; }
 is($key, 1, "\%hash.kv gave us our key");
 is($val, 2, "\%hash.kv gave us our val");
 
+%hash9{2} = 3;
+is(~%hash9, "1\t2\n2\t3\n", "hash can stringify");
