@@ -100,7 +100,7 @@ sub pugs_fix_makefile {
     $full_pugs =~ s{'}{\\'}g;
     $full_blib =~ s{\\}{\\\\}g; 
     $full_blib =~ s{'}{\\'}g;
-    $makefile =~ s/\b(runtests \@ARGV|test_harness\(\$\(TEST_VERBOSE\), )/ENV->{HARNESS_PERL} = q*$full_pugs*; \@ARGV = grep !\/[A-Z]\/, map glob, \@ARGV; ENV->{PERL6LIB} = q*$full_blib*; $1/;
+    $makefile =~ s/\b(runtests \@ARGV|test_harness\(\$\(TEST_VERBOSE\), )/ENV->{HARNESS_PERL} = q{$full_pugs}; \@ARGV = grep !\/[A-Z]\/, map glob, \@ARGV; ENV->{PERL6LIB} = q{$full_blib}; $1/;
     $makefile =~ s/("-MExtUtils::Command::MM")/"-Iinc" $1/g;
     $makefile =~ s/\$\(UNINST\)/0/g;
     close MAKEFILE;
@@ -123,7 +123,7 @@ sub pugs_binary {
     my $self = shift;
     my $pugs = "pugs$Config{_exe}";
     my $base = $self->{_top}{base};
-    "$base/blib/script/$pugs";
+    "$base/blib6/script/$pugs";
 }
 
 sub deny_cygwin {
