@@ -59,7 +59,10 @@ makemaker_args  (
 *** Please install GHC from http://haskell.org/ghc/.
 .
 
-clean_files("src/*.hi", "src/*/*.hi", "src/*.o*", "src/Rule/*.o*", "pugs*", "config.h", "version.h");
+# find subdirs in src
+my @srcdirs = ("src", grep(-d, glob "src/*"));
+
+clean_files("pugs*", "config.h", "version.h", map {; "$_/*.hi", "$_/*.o*" } @srcdirs);
 
 my $has_readline = eval {
     require Term::ReadLine;
@@ -112,8 +115,9 @@ else {
 }
 close FH;
 
+my @srcfiles = map glob("$_/*.hs"), @srcdirs;
 postamble(<< ".");
-$pugs: @{[glob("src/*.hs"), glob("src/Rule/*.hs")]} $version_h
+$pugs: @srcfiles $version_h
 	ghc --make -Wall -fno-warn-missing-signatures -fno-warn-name-shadowing -o pugs src/Main.hs -isrc
 
 tags ::
