@@ -349,7 +349,7 @@ op2 "le" = op2Cmp vCastStr (<=)
 op2 "gt" = op2Cmp vCastStr (>)
 op2 "ge" = op2Cmp vCastStr (>=)
 op2 "~~" = op2Cmp vCastStr (==)
-op2 "!~" = op2Cmp vCastStr (!=)
+op2 "!~" = op2Cmp vCastStr (/=)
 op2 "&&" = op2Logical not
 op2 "||" = op2Logical (id :: Bool -> Bool)
 op2 "^^" = op2Bool ((/=) :: Bool -> Bool -> Bool)
