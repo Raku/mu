@@ -39,4 +39,11 @@ sub content {
     }
 }
 
+sub dom_fields {
+    super, qw(content);
+}
+
+sub event_type {
+    "ignorable_whitespace"
+}
 1;

@@ -29,4 +29,8 @@ them C<:)>
 
 =cut
 
+sub event_type {
+    "processing_instruction"
+}
+
 1;

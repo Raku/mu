@@ -1,9 +1,9 @@
 #  -*- perl -*-
 
-use Test::More tests => 32;
+use Test::More tests => 11;
 
 BEGIN { use_ok("Perldoc::Sender") };
-use Storable;
+use Storable qw(retrieve);
 use YAML;
 
 {
@@ -33,6 +33,7 @@ use YAML;
 	$AUTOLOAD =~ s{.*::}{};
 	push @{$self->events}, [$AUTOLOAD => @_];
     }
+    sub reset { $_[0]->events([]) }
     sub can { 1 }
 }
 
@@ -75,3 +76,64 @@ is_deeply($receiver->events, Load(<<YAML), "utility class seems to work as adver
 - [ end_document ]
 YAML
 
+$receiver->reset;
+
+# now check that the DOM tree we created in the first test can send
+# events
+SKIP:{
+    my $kwom;
+    eval { $kwom = retrieve("t/kwom.pm3"); };
+    require Perldoc::DOM;
+    skip 15, "First test didn't work (?)" if $@;
+
+    $kwom->receiver($receiver);
+    $kwom->send_one();
+    is_deeply($receiver->events, [[qw(start_document)]], "first event");
+
+    $receiver->reset;
+    $kwom->send_one();
+    is(Dump($receiver->events), <<YAML, "second event");
+--- #YAML:1.0
+-
+  - start_element
+  - sect1
+  - source: '=head1 '
+YAML
+
+    $receiver->reset;
+    $kwom->send_all;
+
+    is_deeply($receiver->events, Load(<<'YAML'), "other events")
+--- #YAML:1.0
+-
+  - start_element
+  - title
+  - {}
+-
+  - characters
+  - NAME
+-
+  - end_element
+  - title
+-
+  - start_element
+  - para
+  - source: "\n\n"
+-
+  - characters
+  - foo
+-
+  - end_element
+  - para
+-
+  - processing_instruction
+  - source: "\n\n=cut"
+-
+  - end_element
+  - sect1
+-
+  - end_document
+YAML
+	or diag(Dump($kwom));
+
+}

@@ -127,6 +127,15 @@ sub new {
     super(@_);
 }
 
+sub dom_fields {
+    qw(source sourcefile sourceline);
+}
+
+sub dom_attr {
+    return { map { defined($self->$_) ? ($_ => $self->$_) : () }
+	     $self->dom_fields };
+}
+
 1;
 
 __END__

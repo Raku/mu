@@ -56,5 +56,29 @@ sub new {
     }
 }
 
+sub dom_fields {
+    super, qw(content);
+}
+
+sub dom_attr {
+    my $a = super;
+    if ( wantarray ) {
+	my $chars = delete $a->{content};
+	delete $a->{source} if (defined($a->{source}) and
+				$a->{source} eq $chars);
+	if ( keys %$a ) {
+	    return ($chars, $a);
+	} else {
+	    return $chars;
+	}
+    } else {
+	$a;
+    }
+}
+
+sub event_type {
+    return "characters";
+}
+
 
 1;

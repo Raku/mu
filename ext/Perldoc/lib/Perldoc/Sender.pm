@@ -88,7 +88,9 @@ Allowable events are;
 =cut
 
 field 'sendstate';
-field 'stack';
+
+field 'sendstack';
+our $DEBUG = 0;
 
 # this is the API that the sender sub-classes use
 sub send {
@@ -113,7 +115,7 @@ sub send {
 
     # check to see if any dummy events are needed
     if ( $event eq "end_element" and defined(my $name = $_[0]) ) {
-	my $stack = $self->stack;
+	my $stack = $self->sendstack;
 	my $top;
 	croak "can't close unseen element `$name'"
 	    unless grep { $_ eq $name } @$stack;
@@ -122,17 +124,19 @@ sub send {
 	    while ( ($top = $stack->[$#$stack]) ne $name );
     }
 
-    $self->send("end_element", $self->stack->[0])
-	if ( $event eq "end_document" and $self->stack );
+    $self->send("end_element", $self->sendstack->[0])
+	if ( $event eq "end_document" and
+	     $self->sendstack and @{$self->sendstack});
 
     # ok, enough state sanity - send.
     my $receiver = $self->receiver or croak "no receiver!";
     if ( $event eq "start_element" ) {
 	defined(my $name = $_[0])
 	    or croak "start_element event with no name";
-	push @{ $self->stack }, $name;
+	push @{ $self->sendstack }, $name;
     }
 
+    print STDERR "Emitting: $event @_\n" if $DEBUG;
     if ( $receiver->can($event) ) {
 	$receiver->$event(@_);
     }
@@ -141,17 +145,18 @@ sub send {
     my $ss = $self->sendstate;
     if ( ! $ss ) {
 	$self->sendstate("start");
-	$self->stack([]);
+	$self->sendstack([]);
     } elsif ( $ss eq "start" ) {
 	$self->sendstate("body");
-    } elsif ( $ss eq "body" and !@{ $self->stack } ) {
+    } elsif ( $ss eq "body" and !@{ $self->sendstack } ) {
 	$self->sendstate("end");
     } elsif ( $ss eq "end" ) {
 	$self->sendstate(undef);
+	$self->sendstack(undef);
     }
 
     if ( $event eq "end_element" ) {
-	pop @{ $self->stack };
+	pop @{ $self->sendstack };
     }
 }
 

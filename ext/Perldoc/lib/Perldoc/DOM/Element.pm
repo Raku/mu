@@ -4,7 +4,7 @@ package Perldoc::DOM::Element;
 
 use strict;
 use warnings;
-use base 'Perldoc::DOM::Node';
+use Perldoc::DOM::Node -Base;
 
 =head1 NAME
 
@@ -25,7 +25,6 @@ tree as an attribute.  The property C<attr> is used for this.
 
 # is there a Spiffy field way to do this?
 sub attr {
-    my $self = shift;
     if ( defined(my $attr = shift) ) {
 	if ( ref $attr eq "HASH" ) {
 	    $self->{attr} = $attr;
@@ -42,11 +41,16 @@ sub attr {
 }
 
 sub _init {
-    my $self = shift;
     my $o = shift;
 
-    $self->attr($o->{attr}) if $self->{attr};
+    $self->attr($o->{attr}||{});
     super($o);
+}
+
+sub dom_attr {
+    my $att = super() or die;
+    (%{$att}) = (%$att, %{$self->attr});
+    $att;
 }
 
 1;

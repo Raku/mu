@@ -54,8 +54,55 @@ sub new {
     return $self;
 }
 
-sub emit_to {
+field 'dom_sendstate';
 
+use Scalar::Util qw(blessed);
+
+sub send_one {
+    my $dss = $self->dom_sendstate;
+    if ( !$dss ) {
+	$self->dom_sendstate
+	    ($dss =
+	     { head => undef,
+	       state => undef,
+	     });
+    }
+    local($YAML::UseHeader) = 1;
+    #kill 2, $$;
+    #print STDERR "state: { state => $dss->{state}, head => ".(ref($dss->{head})||$dss->{head}||"undef")." }\n";
+
+    if ( !$dss->{state} ) {
+	$dss->{state} = "pre";
+	$self->send("start_document");
+	$dss->{head} = $self->root;
+    } elsif ( $dss->{state} eq "pre" and $dss->{head} ) {
+
+	if ( $dss->{head}->isa("Perldoc::DOM::Element") ) {
+	    $self->send("start_element",
+			$dss->{head}->name,
+			$dss->{head}->dom_attr);
+	    $dss->{state} = "pre";
+	    $dss->{head} = (($dss->{head}->daughters)[0]) ||
+		(($dss->{state} = "post"), $dss->{head});
+	} else {
+	    $self->send($dss->{head}->event_type,
+			$dss->{head}->dom_attr);
+	    $dss->{head} = $dss->{head}->right_sister ||
+		(($dss->{state} = "post"), $dss->{head}->mother);
+	}
+
+    } elsif ( $dss->{state} eq "post" ) {
+	if ( $dss->{head} && $dss->{head}->name ) {
+	    $self->send("end_element", $dss->{head}->name);
+	    $dss->{state} = "pre";
+	    $dss->{head} = $dss->{head}->right_sister ||
+		(($dss->{state} = "post"), $dss->{head}->mother);
+	} else {
+	    $self->send("end_document");
+	    return 0;
+	}
+    }
+    return 1;
 }
 
 1;
