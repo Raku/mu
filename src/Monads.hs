@@ -76,14 +76,17 @@ enterSub sub@Sub{ subType = typ } action
     | typ >= SubPrim = action -- primitives just happen
     | otherwise     = do
         cxt <- asks envContext
-        resetT $ local (fixEnv cxt) action
+        pad <- asks envLexical
+        if typ >= SubBlock
+            then local (fixEnv pad cxt) action
+            else resetT $ local (fixEnv pad cxt) action
     where
     doReturn [v] = shiftT $ \_ -> return v
     subRec = Symbol SMy "&?prefix:SUB" (Val $ VSub sub)
     blockRec = Symbol SMy "&?prefix:BLOCK" (Val $ VSub sub)
     ret cxt = Symbol SMy "&prefix:return" (Val $ VSub $ retSub cxt)
-    fixEnv cxt env
-        | typ >= SubBlock = env{ envLexical = (blockRec:subPad sub) }
+    fixEnv pad cxt env
+        | typ >= SubBlock = env{ envLexical = (blockRec:subPad sub) ++ pad }
         | otherwise      = env{ envLexical = (subRec:ret cxt:subPad sub) }
     retSub cxt = Sub
         { isMulti = False

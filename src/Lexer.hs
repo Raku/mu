@@ -34,6 +34,18 @@ wordAny     = satisfy isWordAny <?> "word character"
 isWordAny x = (isAlphaNum x || x == '_')
 isWordAlpha x = (isAlpha x || x == '_')
 
+setVar :: String -> Val -> RuleParser ()
+setVar = do
+    -- env <- getState
+    -- let lex = envLexical env
+    -- setState env{ envLexical = lex' }
+    error ""
+
+getVar :: String -> RuleParser Val
+getVar = do
+    -- env <- getState
+    error ""    
+
 perl6Lexer = P.makeTokenParser perl6Def
 whiteSpace = do
     P.whiteSpace perl6Lexer
