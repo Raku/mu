@@ -71,5 +71,5 @@ yet implemented, it is TODO. But if a feature is broken, or a bug is found
 then the tests should fail and *not* be TODO.
 
 The only exception to this rule is that we TODO all failing tests before 
-each weekly release. This is `make test` will succeed :)
+each weekly release. This is so `make test` will succeed :)
 
