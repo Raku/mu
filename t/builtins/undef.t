@@ -114,6 +114,24 @@ ok(!defined(undef), "undef is not defined");
 # modify the hash. To them, the hash should appear empty."
 
 
+# Test LHS assignment to undef:
+
+my $interesting;
+eval_ok( '(undef, undef, $interesting) = (1,2,3)',"Undef on LHS of list assignment");
+is($interesting,3, "Undef on LHS of list assignment");
+
+eval_ok('(undef, $interesting, undef) = (1,2,3)', "Undef on LHS of list assignment");
+is($interesting,2, "Undef on LHS of list assignment");
+
+eval_ok('($interesting, undef, undef) = (1,2,3)', "Undef on LHS of list assignment");
+is($interesting,1, "Undef on LHS of list assignment");
+
+sub two_elements() { (1,2) };
+eval_ok( '(undef,$interesting) = two_elements();', "Undef on LHS of function assignment");
+is($interesting,2, "Undef on LHS of function assignment");
+eval_ok( '($interesting, undef) = two_elements();', "Undef on LHS of function assignment");
+is($interesting,1, "Undef on LHS of function assignment");
+
 =kwid
 
 Perl6-specific tests
@@ -191,11 +209,11 @@ Perl6-specific tests
 	';
 	for (<rx1 rx2>) {
 		# I want symbolic lookups because I need the rx names for test results.
-		
+
 		eval '"1" ~~ %MY::{$_}';
 		todo_ok(defined($num), "{$_}: successful hypothetical");
 		ok(!defined($alpha), "{$_}: failed hypothetical");
-		
+
 		eval '"A" ~~ %MY::{$_}';
 		ok(!defined($num), "{$_}: failed hypothetical (2nd go)");
 		todo_ok(defined($alpha), "{$_}: successful hypothetical (2nd go)");
@@ -269,7 +287,7 @@ todo_fail("FIXME parsefail (autoload tests)"); # unTODOme
 #	is(ref %AutoMechanic::hash,       "Hash",   "autload - hash");
 #	is(ref &AutoMechanic::sub0,       "Code",   "autload - sub");
 #	is(ref AutoMechanic.can("meth0"), "Code",   "autload - meth");
-#	
+#
 #	is($AutoMechanic::scalar, "autoscalardef",            "autoloaddef - scalar");
 #	is(~@AutoMechanic::ary,   ~("autoarraydef".split(//), "autoloaddef - array");
 #	is(~%AutoMechanic::hash,  ~<autohashdef yes>,         "autoloaddef - hash");
