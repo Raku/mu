@@ -118,17 +118,17 @@ LWP::Simple - simple procedural interface to LWP
 
 =head1 SYNOPSIS
 
- perl -MLWP::Simple -e 'getprint "http://www.sn.no"'
+ pugs -MLWP::Simple -e 'getprint "http://www.sn.no"'
 
- use LWP::Simple;
+ require LWP::Simple;
  $content = get("http://www.sn.no/");
  die "Couldn't get it!" unless defined $content;
 
- if (mirror("http://www.sn.no/", "foo") == RC_NOT_MODIFIED) {
+ if (mirror("http://www.sn.no/", "foo") == ???) {
      ...
  }
 
- if (is_success(getprint("http://www.sn.no/"))) {
+ if (getprint("http://www.sn.no/")) {
      ...
  }
 

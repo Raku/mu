@@ -58,7 +58,7 @@ unpackOption opt
 
 longOptions = [("--help", "-h"), ("--version", "-v")]
 composable = "cdlnpw"
-withParam = ["e", "C", "I", "V:"]
+withParam = ["e", "C", "I", "M", "V:"]
 prefixOpt opt = msum $ map (findArg opt) withParam
 findArg arg prefix = do
     param <- afterPrefix prefix arg
@@ -70,7 +70,7 @@ findArg arg prefix = do
   compareArgs enforces a canonical order of command line switches.
   Currently this is:
 
-    (-h -v -V) (-I) (-d) (-w) (-c) (-C) (--external) (-l -0 -e other)
+    (-h -v -V) (-I) (-d) (-w) (-c) (-C) (--external) (-M) (-n -p) (-l -0 -e other)
 
   This makes pattern matching more convenient
 
@@ -89,6 +89,7 @@ argRank(Switch 'w')         = 2
 argRank(Switch 'c')         = 3
 argRank(Opt "-C" _)         = 4
 argRank(Opt "--external" _) = 5
+argRank(Opt "-M" _)         = 98
 argRank(Switch 'n')         = 99   -- translated into Perl code (later)
 argRank(Switch 'p')         = 99   -- translated into Perl code (later)
 argRank(Switch 'l')         = 100  -- translated into Perl code (later)
@@ -96,24 +97,23 @@ argRank(Switch '0')         = 100  -- translated into Perl code (later)
 argRank(Opt "-e" _)         = 100  -- translated into Perl code
 argRank(_)                  = 100  -- filename or @ARGS or whatever
 
--- Gather switches and their arguments:
--- should be abstracted together into some generative code
--- (but I don't know yet how to write such code in Haskell)
 gatherArgs :: [String] -> [Arg]
 gatherArgs([]) = []
 gatherArgs("-l":rest)             = gatherArgs("-e":"# BEGIN { ... } # to be done":rest) -- XXX implement BEGIN block later
 gatherArgs("-e":frag:rest)        = [Opt "-e" frag] ++ gatherArgs(rest)
 gatherArgs("--external":mod:rest) = [Opt "--external" mod] ++ gatherArgs(rest)
 gatherArgs("-I":dir:rest)         = [Opt "-I" dir] ++ gatherArgs(rest)
+gatherArgs("-M":mod:rest)         = [Opt "-M" mod] ++ gatherArgs(rest)
 gatherArgs("-C":backend:rest)     = [Opt "-C" backend] ++ gatherArgs(rest)
 gatherArgs("-V:":item:rest)       = [Opt "-V:" item] ++ gatherArgs(rest)
--- _gatherArgs("-l":sep:rest)        = [["-l",sep]] ++ _gatherArgs(rest) -- XXX implement later
--- _gatherArgs("-0":sep:rest)        = [["-0",sep]] ++ _gatherArgs(rest) -- XXX implement later
 gatherArgs(('-':[]):xs)           = [File "-"] ++ gatherArgs(xs)
 gatherArgs(('-':x):xs)            = [Switch (head x)] ++ gatherArgs(xs)
 gatherArgs(x:xs)                  = [File x] ++ gatherArgs(xs)
 
-{- collect "-e" switches together, also handle "-n" and "-p" -}
+{- collect "-e" switches together, 
+   handle transformation of "-M", "-n" 
+   and "-p" into "-e" fragments 
+-}
 joinDashE :: [Arg] -> [Arg]
 joinDashE [] = []
 joinDashE ((Switch 'p'):args) = joinDashE ((Opt "-e" "for (=<>) {"):script++[(Opt "-e" "print; }")]++rest)
@@ -126,6 +126,8 @@ joinDashE ((Switch 'n'):args) = joinDashE ((Opt "-e" "for (=<>) {"):script++[(Op
                                    (script,rest) = partition isDashE args
                                    isDashE (Opt "-e" _) = True
                                    isDashE (_) = False
+
+joinDashE ((Opt "-M" mod):args) = joinDashE ((Opt "-e" ("require " ++ mod ++ ";")):args)
 
 joinDashE ((Opt "-e" a):(Opt "-e" b):args) =
     joinDashE (Opt "-e" combined:args)
