@@ -12,8 +12,7 @@ use v6;
 #
 # (c) 2002 by Leopold Toetsch
 
-# we don't have �is rw� or call string by refs, so
-# input / output are int arrays - slooow
+# Input / output are int arrays - slooow - needs a rewrite
 #
 sub Print(@world) {
     my ($i, $j);
