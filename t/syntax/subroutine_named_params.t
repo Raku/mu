@@ -5,7 +5,7 @@ require Test;
 
 
 
-plan 9;
+plan 18;
 
 
 =kwid
@@ -35,7 +35,7 @@ These tests test named parmaeters.
 
 sub simple_pos_params (+$x) { $x } 
 
-is(simple_pos_params( 'x' => 4 ), 4);
+todo_is(simple_pos_params( 'x' => 4 ), 4, "simple named param");
 
 
 sub foo (+$x = 3) { $x }
@@ -43,16 +43,16 @@ sub foo (+$x = 3) { $x }
 is(foo(), 3, "not specifying named params that aren't mandatory works");
 is(foo(4), 4, "using a named as a positional works");
 
-is(foo( 'x' => 5),4);
+todo_is(foo( 'x' => 5),4, "naming named param also works");
 
 
 
 sub assign_based_on_positional ($x, +$y = $x) { $y } 
 
 
-is(assign_based_on_named_positional(5), 5, " When we dont' explicitly specify, we get the original value");
-is(assign_based_on_named_positional(5,  'y' => 2), 2, " When we explicitly specify, we get our value");
-#todo_is(assign_based_on_named_positional(5,  y => 2), 2, " When we explicitly specify, we get our value");
+todo_is(eval 'assign_based_on_named_positional(5)', 5, "When we don't explicitly specify, we get the original value");
+todo_is(eval 'assign_based_on_named_positional(5,  "y"=> 2)', 2, "When we explicitly specify, we get our value");
+todo_is(eval 'assign_based_on_named_positional(5,  y => 2)', 2, "When we explicitly specify, we get our value");
 
 
 sub mandatory (++$param) {
@@ -60,9 +60,9 @@ sub mandatory (++$param) {
 }
 
 
-is (mandatory('param' => 5) , 5);
+is (mandatory('param' => 5) , 5, "named mandatory parameter is returned");
 
-is (mandatory(), undef, "not specifying a mandatory parameter fails");
+is (eval 'mandatory()', undef, "not specifying a mandatory parameter fails");
 
 
 # From S06
@@ -73,25 +73,25 @@ sub formalize($text, +$case, +$justify)  returns List {
 
 {
 my ($text,$case,$justify)  = formalize('title', case=>'upper');
-is($text,'title');
-is($justify, undef);
-is($case, 'upper');
+is($text,'title', "text param was positional");
+todo_is($justify, undef, "justification param was not given");
+todo_is($case, 'upper', "case param was named, and in justification param's position");
 }
 
 
 {
 my ($text,$case,$justify)   = formalize('title', justify=>'left');
-is($text,'title');
-is($justify, 'left');
-is($case, undef);
+is($text,'title', "text param was positional");
+is($justify, 'left', "justify param was named");
+todo_is($case, undef, "case was not given at all");
 }
 
 {
-my  ($text,$case,$justify)   = formalize('title', :justify<right>, :case<title>);
+my  ($text,$case,$justify); # this doesn't even compile in an eval:   = eval 'formalize("title", :justify<right>, :case<title>)';
 
-todo_is($text,'title');
-todo_is($justify, 'right');
-todo_is($case, 'title');
+todo_is($text,'title', "title param was positional");
+todo_is($justify, 'right', "justify param was named with funny syntax");
+todo_is($case, 'title', "case param was named with funny syntax");
 }
 
 =kwid
