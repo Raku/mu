@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan(132);
+plan(170);
 
 my $five = abs(-5);
 
@@ -285,5 +285,54 @@ tryeq_sloppy 18446744073709551616/9223372036854775808, 2;
 
 }
 
+# exponentiation
+
+tryeq 2**2, 4;
+tryeq 2.2**2, 4.84;
+tryeq_sloppy 2**2.2, 4.59479341998814;
+tryeq_sloppy 2.2**2.2, 5.66669577875008;
+
+# Inf
+tryeq Inf, Inf;
+tryeq -Inf, -Inf;
+tryeq Inf+100, Inf;
+tryeq Inf-100, Inf;
+tryeq Inf*100, Inf;
+tryeq Inf/100, Inf;
+tryeq Inf*-100, -Inf;
+tryeq Inf/-100, -Inf;
+tryeq 100/Inf, 0;
+tryeq Inf**100, Inf;
+tryeq Inf*Inf, Inf;
+tryeq Inf/Inf, NaN;
+tryeq Inf*Inf/Inf, NaN;
+my $inf1; # = 100**Inf;
+tryeq $inf1, Inf, "100**Inf";
+my $inf2; # = Inf**Inf;
+tryeq $inf2, Inf, "Inf**Inf";
+
+# NaN
+tryeq NaN, NaN;
+tryeq -NaN, NaN;
+tryeq NaN+100, NaN;
+tryeq NaN-100, NaN;
+tryeq NaN*100, NaN;
+tryeq NaN/100, NaN;
+tryeq NaN**100, NaN;
+tryeq NaN+NaN, NaN;
+tryeq NaN-NaN, NaN;
+tryeq NaN*NaN, NaN;
+tryeq NaN/NaN, NaN;
+my $nan1; # = NaN**NaN
+tryeq $nan1, NaN, "NaN**NaN";
+tryeq NaN+Inf, NaN;
+tryeq NaN-Inf, NaN;
+tryeq NaN*Inf, NaN;
+tryeq NaN/Inf, NaN;
+tryeq Inf/NaN, NaN;
+my $nan2; # = NaN**Inf
+tryeq $nan2, NaN, "NaN**Inf";
+my $nan3; # = Inf**NaN
+tryeq $nan3, NaN, "Inf**NaN";
                              
 
