@@ -11,6 +11,6 @@ my $str4 = $str1~$str2;
 is($str3, $str4, "~");
 
 my $bar = "";
-($str3 eq $str4) ?? $bar = "true" :: $bar = "false";
+($str3 eq $str4) ?? $bar = 1 :: $bar = 0;
 
 ok($bar, "?? ::")
