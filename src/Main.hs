@@ -64,7 +64,7 @@ run []                          = do
         then do banner >> intro >> repLoop
         else run ["-"]
 
--- convenience function for GHCi
+-- convenience functions for GHCi
 eval = doDebug []
 parse = doParse "-"
 
@@ -103,11 +103,13 @@ doParseWith f name prog = do
         hPutStrLn stderr $ pretty err
         exitFailure
     f' exp = f exp name
-    
+
 
 doParse name prog = do
     env <- emptyEnv []
-    runRule env (putStrLn . pretty) ruleProgram name $ decodeUTF8 prog
+    case runRule env envBody ruleProgram name (decodeUTF8 prog) of
+        (Val err@(VError _ _)) -> putStrLn $ pretty err
+        exp -> putStrLn $ pretty exp
 
 doDebug :: [String] -> String -> IO ()
 doDebug = runProgramWith id (putStrLn . pretty) "<interactive>"
@@ -122,7 +124,10 @@ doRunSingle menv prog = do
     let exp = runRule env envBody ruleProgram "<interactive>" $ decodeUTF8 prog
     case exp of
         (Statements stmts@((_,pos):_)) -> runImperatively menv $ Statements (stmts ++ [(Syn "dump" [], pos)])
-        _ -> putStrLn "Expected statements, got something else."
+        (Val err@(VError _ _)) -> putStrLn $ pretty err
+        _ -> do
+            putStrLn "Expected statements, got something else."
+            putStrLn "This is a bug in Pugs, please report it."
 
 runImperatively :: IORef Env -> Exp -> IO ()
 runImperatively menv exp = do
