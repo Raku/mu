@@ -73,7 +73,7 @@ op1 "undef" = \mv -> do
     return VUndef
 op1 "+"    = return . op1Numeric id
 op1 "abs"  = return . op1Numeric abs
-op1 "atan"  = return . op1Numeric atan
+op1 "atan2"  = return . op1Numeric atan
 op1 "cos"  = return . op1Numeric cos
 op1 "sin"  = return . op1Numeric sin
 op1 "exp"  = return . op1Numeric (**)
