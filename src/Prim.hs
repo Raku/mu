@@ -31,7 +31,7 @@ op0 "time"  = \_ -> do
     return $ VInt $ toInteger $ tdSec $ diffClockTimes clkt epochClkT
     where
     epochClkT = toClockTime epoch
-    epoch = CalendarTime 1970 January 1 0 0 0 0 Thursday 0 "UTC" 0 False
+    epoch = CalendarTime 2000 January 1 0 0 0 0 Saturday 0 "UTC" 0 False
 op0 "not" = const retEmpty
 op0 s    = \x -> return $ VError ("unimplemented listOp: " ++ s) (Val $ VList x)
 
