@@ -24,6 +24,7 @@ import Help
 import Pretty
 import Posix
 import Prim
+import Compile
 
 main :: IO ()
 main = do
@@ -69,6 +70,7 @@ run []                          = do
 eval = runProgramWith id (putStrLn . pretty) "<interactive>" []
 parse = doParse "-"
 dump = (doParseWith $ \exp _ -> print exp) "-"
+comp = (doParseWith $ \exp _ -> putStrLn =<< compile "Haskell" exp) "-"
 
 repLoop :: IO ()
 repLoop = do
@@ -270,3 +272,10 @@ printConfigInfo = do
         ,""
         ] ++
         [ "@*INC:" ] ++ libs
+
+runComp comp = do
+    hSetBuffering stdout NoBuffering 
+    name <- getProgName
+    args <- getArgs
+    env  <- prepareEnv name args
+    runEval env{ envDebug = Nothing } comp
