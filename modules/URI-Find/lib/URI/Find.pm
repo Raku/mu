@@ -66,13 +66,13 @@ submethod BUILD($:callback) {}
 
 =item B<find>
 
-  my $how_many_found = $finder->find(\$text);
+  my $how_many_found = $finder.find($text);
 
 $text is a string to search and possibly modify with your callback.
 
 =cut
 
-method find(Str $test) {
+method find(Str $text is rw) {
   my $urlsfound = 0;
 
   # Yes, evil.  Basically, look for something vaguely resembling a URL,
@@ -97,8 +97,7 @@ method find(Str $test) {
 
       # Don't forget to put any cruft we accidentally matched back.
       .:recruft($:callback($uri, $orig_match));
-    }
-    else {                        # False alarm.
+    } else {                        # False alarm.
       # Again, don't forget the cruft.
       .:recruft($orig_match);
     }
@@ -139,7 +138,7 @@ This method takes a candidate URI and strips off any cruft it finds.
 
 =cut
 
-method decruft(Str $orig_match) {
+method decruft(Str $orig_match is copy) {
   $:start_cruft = '';
   $:end_cruft   = '';
 

@@ -1,7 +1,6 @@
 #!/usr/bin/perl6
 
 use Test;
-BEGIN { plan 10 } # XXX
 use URI::Find;
 use URI::Find::Schemeless;
 
