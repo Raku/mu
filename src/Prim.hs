@@ -33,6 +33,7 @@ op0 "time"  = \_ -> do
     epochClkT = toClockTime epoch
     epoch = CalendarTime 2000 January 1 0 0 0 0 Saturday 0 "UTC" 0 False
 op0 "not" = const retEmpty
+op0 "reverse" = return . VList . reverse
 op0 s    = \x -> return $ VError ("unimplemented listOp: " ++ s) (Val $ VList x)
 
 retEmpty = do
@@ -193,11 +194,9 @@ op1 "values" = return . op1Values
 op1 "readline" = op1 "="
 op1 "=" = \v -> do
     fh  <- handleOf v
-    cxt <- asks envContext
-    -- XXX use isaType here
-    if ((cxt ==) `any` ["Array", "List"])
-        then return . VList . map (VStr . (++ "\n")) . lines =<< liftIO (hGetContents fh)
-        else return . VStr . (++ "\n") =<< liftIO (hGetLine fh)
+    ifContextIsa "List"
+        (return . VList . map (VStr . (++ "\n")) . lines =<< liftIO (hGetContents fh))
+        (return . VStr . (++ "\n") =<< liftIO (hGetLine fh))
     where
     handleOf (VRef x) = handleOf x
     handleOf (VPair (_, x)) = handleOf x
@@ -583,6 +582,7 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   List      pre     list    (List)\
 \\n   Scalar    pre     scalar  (Scalar)\
 \\n   Str       pre     reverse (Str)\
+\\n   List      pre     reverse (List)\
 \\n   Int       spre    +^      (Int)\
 \\n   Int       spre    ~^      (Str)\
 \\n   Bool      spre    ?^      (Bool)\

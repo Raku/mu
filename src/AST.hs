@@ -18,6 +18,12 @@ import Rule
 
 type Ident = String
 
+ifContextIsa c trueM falseM = do
+    env <- ask
+    if isaType (envClasses env) c (envContext env)
+        then trueM
+        else falseM
+
 doFromValue v = do
     rv <- liftIO $ catchJust errorCalls (return . Right $ vCast v) $
         \str -> return (Left str)
