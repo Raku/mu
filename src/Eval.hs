@@ -433,11 +433,11 @@ reduce env@Env{ envClasses = cls, envContext = cxt, envLexical = lex, envGlobal 
     where
     argSlurpLen (Val listMVal) = do
         listVal  <- readMVal listMVal
-        return $ vCast listVal
+        return $ length (vCast listVal :: [Val])
     argSlurpLen (Var name) = do
         listMVal <- evalVar name
         listVal  <- readMVal listMVal
-        return $ vCast listVal
+        return $ length (vCast listVal :: [Val])
     argSlurpLen arg = return 1
     applySub subSyms sub invs args
         -- list-associativity
@@ -468,10 +468,10 @@ reduce env@Env{ envClasses = cls, envContext = cxt, envLexical = lex, envGlobal 
         ((_, sub):_)    -> Just sub
         _               -> Nothing
     subs slurpLen subSyms name = [
-        ( (isGlobal, subT, isMulti sub, bound, distance, order)
+        ( (isGlobal, subT, isMulti sub, bound, distance)
         , fromJust fun
         )
-        | ((n, val), order) <- subSyms `zip` [0..]
+        | (n, val) <- subSyms
         , let sub@(Sub{ subType = subT, subReturns = ret, subParams = prms }) = vCast val
         , let isGlobal = '*' `elem` n
         , let fun = arityMatch sub (length (invs ++ args)) slurpLen

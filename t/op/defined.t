@@ -30,5 +30,5 @@ ok(defined($foo), 'variable $foo is now defined (as string "a")');
 $foo = 0;
 ok(defined($foo), 'variable $foo is now defined (as numeric literal 0)');
 
-undef $foo;
-todo_ok(!defined($foo), 'undef $foo works');
+undef($foo);
+ok(!defined($foo), 'undef $foo works');
