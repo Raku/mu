@@ -2,7 +2,7 @@ use v6;
 
 require Test;
 
-plan 19;
+plan 20;
 
 =kwid
 
@@ -49,6 +49,7 @@ sub assign_based_on_positional ($x, +$y = $x) { $y }
 todo_is(eval 'assign_based_on_named_positional(5)', 5, "When we don't explicitly specify, we get the original value");
 todo_is(eval 'assign_based_on_named_positional(5,  "y"=> 2)', 2, "When we explicitly specify, we get our value");
 todo_is(eval 'assign_based_on_named_positional(5,  y => 2)', 2, "When we explicitly specify, we get our value");
+todo_is(eval 'my $var = "y"; assign_based_on_named_positional(5, $var => 2)', 2, "When we explicitly specify, we get our value");
 
 # L<S06/"Named parameters" /a \+\+ prefix.*?required/>
 sub mandatory (++$param) {
