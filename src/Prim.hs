@@ -95,8 +95,10 @@ op1 "exit" = \v -> do
         else liftIO $ exitWith ExitSuccess
 -- handle timely destruction
 op1 "readlink" = \v -> do
-    file <- liftIO $ readSymbolicLink (vCast v)
-    return $ VStr file
+    file <- liftIO $ catch (readSymbolicLink (vCast v)) (\_ -> return "")
+    if file == ""
+      then return VUndef
+      else return $ VStr file
 op1 "sleep" = boolIO sleep
 op1 "mkdir" = boolIO createDirectory
 op1 "rmdir" = boolIO removeDirectory
@@ -169,6 +171,7 @@ mapStr2 f x y = map (chr . fromEnum . uncurry f) $ x `zip` y
 op2 :: Ident -> Val -> Val -> Eval Val
 op2 "rename" = boolIO2 rename
 op2 "symlink" = boolIO2 createSymbolicLink
+op2 "link" = boolIO2 createLink
 op2 "*"  = op2Numeric (*)
 op2 "/"  = op2Divide
 op2 "%"  = op2Int mod
@@ -429,6 +432,7 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   List      pre     values  (Hash)\
 \\n   Bool      pre     rename  (Str, Str)\
 \\n   Bool      pre     symlink (Str, Str)\
+\\n   Bool      pre     link    (Str, Str)\
 \\n   Str       pre     readlink (Str)\
 \\n   List      pre     split   (Str, Str)\
 \\n   Str       pre     =       (IO)\
