@@ -623,7 +623,7 @@ pairLiteral = do
 
 qqLiteral = try $ do
     string "qq"
-    str <- brackets (many $ satisfy (/= ']'))
+    str <- balanced
     return $ Val (VStr str) 
 
 namedLiteral n v = do { symbol n; return $ Val v }

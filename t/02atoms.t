@@ -25,6 +25,20 @@ $bar = undef;
 eval ' $bar = %MY::<$foo> ';
 todo_ok ($bar, 'hash deref on lexical scope');
 
+my $str;
+eval '$str = "hello"';
+ok($str eq 'hello', "basic quote");
+eval '$str = qq[world]';
+ok($str eq 'world', "qq bracket");
+eval '$str = qq{hello}';
+ok($str eq 'hello', "qq brace");
+eval '$str = qq<world>';
+ok($str eq 'world', "qq angle");
+eval '$str = qq>hello<';
+ok($str eq 'hello', "qq backwards angle");
+eval '$str = qq/world/';
+ok($str eq 'world', "qq slash");
+
 my @array;
 eval ' @array = qw/"foo" "bar"/ ';
 ok(@array, 'qw//');

@@ -72,6 +72,7 @@ data TokenParser st
                  , brackets         :: forall a. CharParser st a -> CharParser st a
                  -- "squares" is deprecated
                  , squares          :: forall a. CharParser st a -> CharParser st a 
+                 , balanced         :: CharParser st String
 
                  , semi             :: CharParser st String
                  , comma            :: CharParser st String
@@ -112,6 +113,7 @@ makeTokenParser languageDef
                  , angles = angles
                  , brackets = brackets
                  , squares = brackets
+                 , balanced = balanced
                  , semi = semi
                  , comma = comma
                  , colon = colon
@@ -126,10 +128,30 @@ makeTokenParser languageDef
     -----------------------------------------------------------
     -- Bracketing
     -----------------------------------------------------------
+
     parens p        = between (symbol "(") (symbol ")") p
     braces p        = between (symbol "{") (symbol "}") p
     angles p        = between (symbol "<") (symbol ">") p
     brackets p      = between (symbol "[") (symbol "]") p
+
+    balancedDelim :: Char -> Char
+    balancedDelim c = case c of
+                        '(' -> ')'
+                        ')' -> '('
+                        '{' -> '}'
+                        '}' -> '{'
+                        '<' -> '>'
+                        '>' -> '<'
+                        '[' -> ']'
+                        ']' -> '['
+                        _   -> c
+
+    -- balanced: parses an open/close delimited expression of any non-alphanumeric character
+    balanced        = do notFollowedBy alphaNum
+                         opendelim <- anyChar 
+                         contents <- many $ satisfy (/= balancedDelim opendelim)
+                         char $ balancedDelim opendelim
+                         return contents
 
     semi            = symbol ";" 
     comma           = symbol ","

@@ -55,6 +55,7 @@ identifier = P.identifier perl6Lexer
 braces     = P.braces perl6Lexer
 brackets   = P.brackets perl6Lexer
 angles     = P.angles perl6Lexer
+balanced   = P.balanced perl6Lexer
 
 symbol s
     | isWordAny (last s) = try $ do
