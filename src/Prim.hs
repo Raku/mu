@@ -504,16 +504,19 @@ op2Map list sub = do
         return $ vCast rv
     return $ VList $ concat vals
 
-vCastStr :: Val -> VStr
-vCastStr = vCast
-vCastRat :: Val -> VRat
-vCastRat = vCast
+vCastStr :: Val -> Eval VStr
+vCastStr = fromVal
+vCastRat :: Val -> Eval VRat
+vCastRat = fromVal
 
 op2Str  f x y = return $ VStr  $ f (vCast x) (vCast y)
 op2Num  f x y = return $ VNum  $ f (vCast x) (vCast y)
 op2Rat  f x y = return $ VRat  $ f (vCast x) (vCast y)
 op2Bool f x y = return $ VBool $ f (vCast x) (vCast y)
-op2Int  f x y = return $ VInt  $ f (vCast x) (vCast y)
+op2Int  f x y = do
+    x' <- fromVal x
+    y' <- fromVal y
+    return $ VInt $ f x' y'
 
 op1Range (VStr s)    = VList $ map VStr $ strRangeInf s
 op1Range (VRat n)    = VList $ map VRat [n ..]
@@ -555,12 +558,18 @@ op2Logical f x y = do
 
 op2DefinedOr = undefined
 
-op2Cmp f cmp x y = return $ VBool $ f x `cmp` f y
+op2Cmp f cmp x y = do
+    x' <- f x
+    y' <- f y
+    return $ VBool $ x' `cmp` y'
 
-op2Ord f x y = return $ VInt $ case f x `compare` f y of
-    LT -> -1
-    EQ -> 0
-    GT -> 1
+op2Ord f x y = do
+    x' <- f x
+    y' <- f y
+    return $ VInt $ case x' `compare` y' of
+        LT -> -1
+        EQ -> 0
+        GT -> 1
 
 op1Numeric :: (forall a. (Num a) => a -> a) -> Val -> Val
 op1Numeric f VUndef     = VInt $ f 0
