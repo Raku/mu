@@ -1,3 +1,45 @@
+[Changes for 6.0.13 - March 25, 2005]
+
+Pugs Internals:
+
+* support for given, when and elsif statements
+* support for perl5 style -I on the command line
+* command line equivalents of shell commands :i and !.
+* Regex now supports s:perl5/// and s:perl5:g///
+* $1, $2, variables can be used in s:perl5:g substitutions 
+* experimental pugscc backends generate limited Parrot and Haskell code
+* refactored the VSub type to support currying 
+* support for currying; &foo.assuming(param => 'bar')
+* added -d and -f file test operators
+* experimental (and optional) support for eval_perl5()
+* experimental Inline support; see ext/SHA1 for example 
+* new magicals: $*EXECUTABLE_NAME and $*PROG_NAME
+* several numeric builtins: atan2(), cos(), sin(), sqrt(), exp()
+* beginings of Pugs Class Metamodel
+
+Test, Examples, Module ports and Documentations:
+
+* new test for junctions, regexp and more; almost 3200 tests now
+* added 200+ new TODO tests for objects in t/oo/
+* added 18 new perl5 modules ported to perl6
+* added t/README, modules/README and modules/PORTING_HOWTO
+* much work on the test-cataloging/synopsis-cross-referencer
+* work on plan for smoke testing framework using YAML and Test::Harness 
+* work on HTML output for Test::Harness YAML output
+* actual working port of File::Spec (most of it) complete with tests and docs
+* added support for outputing test logs with Test.pm
+* added documenation to pugscc
+* several TODO tests for command line options
+* fix_authors.pl now handles utf8 input 
+* some golf-based tests
+
+Bug Fixes:
+
+* numification fixes
+* fixed 2-element lists to be proper pairs
+* fixed some error reporting issues in Test.pm
+* $! now has the correct value
+
 [Changes for 6.0.12 - March 21, 2005]
 
 Pugs Internals:
