@@ -25,8 +25,6 @@ todo_ok ($quux eq 'quux', "lhs quotes" );
 my $pair = 'foo' => 2;
 ok (ref $pair eq 'Pair');
 
-say "ok 8";
-
 my $two = $pair.value;
 ok ($two == 2);
 
