@@ -1,7 +1,7 @@
 #!pugs
 use v6;
 
-=pod
+######################################################################
 
 =head1 NAME
 
@@ -18,14 +18,28 @@ Non-Core Modules: I<none>
 =head1 COPYRIGHT AND LICENSE
 
 Locale::KeyedText is Copyright (c) 1999-2005, Darren R. Duncan.  All rights
-reserved.
+reserved.  Address comments, suggestions, and bug reports to
+B<perl@DarrenDuncan.net>, or visit "http://www.DarrenDuncan.net" for more
+information.
 
-Locale::KeyedText is free software; you can redistribute and/or modify this copy
-of it under the same terms as Perl 6 itself.
+Locale::KeyedText is free software; you can redistribute it and/or modify it
+under the terms of the GNU Lesser General Public License (LGPL) version 2.1 as
+published by the Free Software Foundation (http://www.fsf.org/).  You should
+have received a copy of the LGPL as part of the Locale::KeyedText distribution,
+in the file named "LICENSE"; if not, write to the Free Software Foundation,
+Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
 
-=head1 AUTHORS
+Any versions of Locale::KeyedText that you modify and distribute must carry
+prominent notices stating that you changed the files and the date of any
+changes, in addition to preserving this original copyright notice and other
+credits. Locale::KeyedText is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE.  See the LGPL for more details.
 
-Darren Duncan <perl@DarrenDuncan.net>
+While it is by no means required, the copyright holders of Locale::KeyedText
+would appreciate being informed any time you create a modified version of
+Locale::KeyedText that you are willing to distribute, because that is a
+practical way of suggesting improvements to the standard version.
 
 =cut
 
@@ -40,7 +54,7 @@ subtype PkgNameArray of Array of PkgName;
 ######################################################################
 ######################################################################
 
-module Locale::KeyedText-0.0.1 {
+module Locale::KeyedText-0.0.2 {
 
 ######################################################################
 
@@ -81,7 +95,7 @@ method get_message_variable( $message: $var_name is KeyName ) returns KeyName {
 }
 
 method get_message_variables( $message: ) returns KeyNameHash {
-	return %{{$message.msg_vars}}; # copy list values
+	return {%{$message.msg_vars}}; # copy list values
 }
 
 ######################################################################
@@ -113,11 +127,11 @@ method new( $class: @set_names is PkgNameArray, @member_names is PkgNameArray ) 
 ######################################################################
 
 method get_template_set_names( $translator: ) returns PkgNameArray {
-	return @{[$translator.tmpl_set_nms]}; # copy list values
+	return [@{$translator.tmpl_set_nms}]; # copy list values
 }
 
 method get_template_member_names( $translator: ) returns PkgNameArray {
-	return @{[$translator.tmpl_mem_nms]}; # copy list values
+	return [@{$translator.tmpl_mem_nms}]; # copy list values
 }
 
 ######################################################################
@@ -242,7 +256,7 @@ the one with the program also adds support to the library.
 					show_message( $translator, $! ); # input error, detected by library
 				}
 			};
-			
+
 			redo LOOP;
 		}
 
@@ -704,7 +718,7 @@ Actually, it shows both methods together, with 4 embedded, 1 separate.
 			'MYLIB_MYINV_BAD_ARG' => 'my_invert(): argument NUMBER is not a number, it is "{GIVEN_VALUE}"',
 			'MYLIB_MYINV_RES_INF' => 'my_invert(): result is infinite because argument NUMBER is zero',
 		);
-	
+
 		sub get_text_by_key( Str $msg_key ) returns Str { return $text_strings{$msg_key}; }
 	}
 
@@ -744,7 +758,7 @@ Actually, it shows both methods together, with 4 embedded, 1 separate.
 					show_message( $translator, $! ); # input error, detected by library
 				}
 			};
-			
+
 			redo LOOP;
 		}
 

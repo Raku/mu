@@ -1,0 +1,8 @@
+* Add support for Template files to be a format other than Pure Perl, such as 
+plain vanilla tab delimited text files (2 columns: key + string) or XML files.
+
+* No further updates are planned during the short term except in response to
+user requests.  In the long term, I anticipate that some users may want more
+granulated methods in place of translate_message(), such as to debug which
+Template files are being tried.  If that describes you, or you have other needs
+that are reasonably within the scope of this module's purpose, then tell me!

@@ -6,7 +6,7 @@ require Test;
 plan( 102 );
 
 @*INC.unshift( 't/lib' ); # Note: I did "use lib 't/lib';" in Perl 5.
-require Locale::KeyedText-0.0.1;
+require Locale::KeyedText-0.0.2;
 
 ######################################################################
 # Here are some utility methods:
