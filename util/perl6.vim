@@ -18,8 +18,10 @@ syn keyword p6KeyFlow		for foreach loop while until if unless when
 syn keyword p6KeyFlow		given next last redo or and err xor return not
 syn keyword p6KeyException	die fail try CATCH
 syn keyword p6KeyIO		print open read write readline seek
-syn keyword p6KeyProperty	const prec key value kv irs ofs ors pos int
+syn keyword p6KeyProperty	constant prec key value kv irs ofs ors pos int
 syn keyword p6KeyProperty	float str true false rw
+syn keyword p6KeyProperty	Int Str Num Hash Array Code Rule Class NumRange
+syn keyword p6KeyProperty	StrRange Role Bool
 syn keyword p6KeyFunc		map sort split reduce keys grep values truncate
 syn keyword p6KeyFunc		defined exists
 syn keyword p6KeySpecial	operator undef
