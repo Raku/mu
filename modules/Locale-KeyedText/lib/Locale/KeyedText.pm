@@ -95,7 +95,7 @@ method get_message_variable( $message: $var_name is KeyName ) returns KeyName {
 }
 
 method get_message_variables( $message: ) returns KeyNameHash {
-	return {%{$message.msg_vars}}; # copy list values
+	return $message.msg_vars; # copy list values
 }
 
 ######################################################################
@@ -127,11 +127,11 @@ method new( $class: @set_names is PkgNameArray, @member_names is PkgNameArray ) 
 ######################################################################
 
 method get_template_set_names( $translator: ) returns PkgNameArray {
-	return [@{$translator.tmpl_set_nms}]; # copy list values
+	return $translator.tmpl_set_nms; # copy list values
 }
 
 method get_template_member_names( $translator: ) returns PkgNameArray {
-	return [@{$translator.tmpl_mem_nms}]; # copy list values
+	return $translator.tmpl_mem_nms; # copy list values
 }
 
 ######################################################################
