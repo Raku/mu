@@ -5,7 +5,7 @@ use v6;
 # Print the Mandlebrot set
 #
 # Translated from C code by Glenn Rhoads
-# to perl6 by Leopold Tötsch <lt@toetsch.at>
+# to perl6 by Leopold Toetsch <lt@toetsch.at>
 #
 # The C code is:
 #
