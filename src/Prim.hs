@@ -191,6 +191,8 @@ op1 "-r"    = tryIOFileTest fileTestIsReadable
 op1 "-w"    = tryIOFileTest fileTestIsWritable
 op1 "-x"    = tryIOFileTest fileTestIsExecutable
 op1 "-e"    = tryIOFileTest fileTestExists
+op1 "-z"    = tryIOFileTest fileTestSizeIsZero
+op1 "-s"    = tryIOFileTest fileTestFileSize
 op1 "-f"    = tryIOFileTest fileTestIsFile
 op1 "-d"    = tryIOFileTest fileTestIsDirectory
 op1 "elems" = return . VInt . (genericLength :: VList -> VInt) . vCast
@@ -400,7 +402,7 @@ boolIO3 f v = do
     return $ VBool ok
 
 tryIOFileTest f v = do
-    ret <- tryIO (VBool False) $ do
+    ret <- tryIO VUndef $ do
         f v
     return ret
 
@@ -884,9 +886,10 @@ foldParam x         = doFoldParam x []
 -- to be a boolean, and may(?) return the filename in string context.
 -- DARCS was working on stat, and we should perhaps grab their work:
 --  http://www.abridgegame.org/pipermail/darcs-users/2005-February/005499.html
--- Or their fake posix for windows, or ...?
--- For the moment, these return filename or false.
---  Known Bugs: multiple stat()s are done, and filename isnt a boolean.
+-- They currently (2004-04-05) seem to be using:
+--  http://abridgegame.org/cgi-bin/darcs.cgi/darcs/win32/System/Posix.hs
+-- For the moment, these return filename and false or undef.
+-- Known Bugs: multiple stat()s are done, and filename isnt a boolean.
 
 fileTestIsReadable f = do
     p <- getPermissions (vCast f)
@@ -916,6 +919,15 @@ fileTestIsDirectory f = do
     b <- doesDirectoryExist (vCast f)
     return $ if b then f else VBool False
 
+fileTestFileSize f = do
+    n <- statFileSize (vCast f)
+    return $ VInt n
+
+fileTestSizeIsZero f = do
+    n <- statFileSize (vCast f)
+    return $ if n == 0 then VBool True else VBool False 
+
+
 -- XXX -- Junctive Types -- XXX --
 
 -- spre is "symbolic pre", that is, operators for which a precedence has
@@ -936,6 +948,8 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      spre    -w      (?Str=$_)\
 \\n   Bool      spre    -x      (?Str=$_)\
 \\n   Bool      spre    -e      (?Str=$_)\
+\\n   Bool      spre    -z      (?Str=$_)\
+\\n   Int       spre    -s      (?Str=$_)\
 \\n   Bool      spre    -f      (?Str=$_)\
 \\n   Bool      spre    -d      (?Str=$_)\
 \\n   Num       spre    -       (Num)\

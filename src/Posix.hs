@@ -24,6 +24,7 @@ module Posix (
     sleep,
     getEnvironment,
     getArg0,
+    statFileSize,
 ) where
 
 import Foreign
@@ -33,6 +34,11 @@ import Foreign.C
 import System.Posix.Env
 import System.Posix.Files
 import System.Posix.Unistd
+
+statFileSize f = do
+    s <- getFileStatus f
+    return (toInteger (fileSize s))
+
 #else
 
 import System.Posix.Types
@@ -59,7 +65,13 @@ sleep _ = fail "'sleep' not implemented on this platform."
 setFileMode :: FilePath -> FileMode -> IO ()
 setFileMode _ _ = fail "'chmod' not implemented on this platform."
 
+statFileSize _ = fail "'-s' not implemented on this platform."
+-- statFileSize could be implemented as openFile and hFileSize.
+
 #endif
+
+statFileSize :: FilePath -> IO Integer
+
 
 foreign import ccall unsafe "getProgArgv"
   getProgArgv :: Ptr CInt -> Ptr (Ptr CString) -> IO ()

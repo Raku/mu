@@ -48,8 +48,8 @@ ok !-w 'doesnotexist.t', "-w returns false on non existant files";
 ok !-x 'doesnotexist.t', "-x returns false on non existant files";
 ok !-f 'doesnotexist.t', "-f returns false on non existant files";
 
-todo_eval_ok '-s "pugs" > 42',       "-s returns size on existant files";
-todo_eval_ok '!-s "doesnotexist.t"', "-s returns undef on non existant files";
+ok -s "pugs" > 42,       "-s returns size on existant files";
+ok !-s "doesnotexist.t", "-s returns undef on non existant files";
 
 
 # Stacked filetests
