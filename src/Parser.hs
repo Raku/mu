@@ -71,8 +71,9 @@ rulePodCut = (<?> "cut") $ do
     return ()
 
 rulePodBlock = (<?> "block") $ do
-    rulePodIntroducer
-    literalIdentifier
+    try $ do
+        rulePodIntroducer
+        literalIdentifier
     many (satisfy (\x -> isSpace x && x /= '\n'))
     many1 newline
     rulePodBody
