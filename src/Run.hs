@@ -91,7 +91,7 @@ prepareEnv name args = do
             , subReturns = "Void"
             , subFun = Prim subExit
             }
-        , SymVal SGlobal "%*CONFIG" (VHash . MkHash $ emptyFM)
+        -- , SymVal SGlobal "%?CONFIG" (VHash . MkHash $ config)
         ]
 
 

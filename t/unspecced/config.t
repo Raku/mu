@@ -20,5 +20,6 @@ if ($?OS eq "MSWin32") {
   $pugs = 'pugs.exe';
 };
 
-todo_eval_ok( 'defined %*CONFIG', '%*CONFIG is defined' );
-todo_eval_ok( 'defined %*CONFIG{path_sep}', '%*CONFIG{path_sep} is defined' );
+todo_eval_ok( 'defined %?CONFIG', '%?CONFIG is defined' );
+todo_eval_ok( '%?CONFIG.keys() > 0', '%?CONFIG contains keys and values' );
+# todo_eval_ok( 'defined %?CONFIG{path_sep}', '%?CONFIG{path_sep} is defined' );
