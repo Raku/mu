@@ -282,6 +282,8 @@ op1 "pick" = op1Pick
 op1 "chr"  = return . op1Chr
 op1 "ord"  = return . op1Ord
 op1 "hex"  = return . op1Hex
+op1 "log"  = return . op1Log
+op1 "log10" = return . op1Log10
 op1 other  = return . (\x -> VError ("unimplemented unaryOp: " ++ other) (App other [Val x] []))
 
 
@@ -306,6 +308,23 @@ op1Ord v            =  VError "ord not defined" (Val v)
 op1Chr          :: Val -> Val
 op1Chr (VInt i) = VStr [(chr . fromIntegral) i]
 op1Chr v        = VError "chr not defined" (Val v)
+
+op1Log                :: Val -> Val
+op1Log v@(VNum _)     = VNum (log (vCast v))
+op1Log v@(VInt _)     = VNum (log (vCast v))
+op1Log v@(VRat _)     = VNum (log (vCast v))
+op1Log v@(VComplex _) = VNum (log (vCast v))
+-- op1Log v              = VNum (log (vCast v)) -- if vCast will work for every type
+op1Log v              = VError "log not defined" (Val v)
+
+op1Log10                :: Val -> Val
+op1Log10 v@(VNum _)     = VNum (logBase 10 (vCast v))
+op1Log10 v@(VInt _)     = VNum (logBase 10 (vCast v))
+op1Log10 v@(VRat _)     = VNum (logBase 10 (vCast v))
+op1Log10 v@(VComplex _) = VNum (logBase 10 (vCast v))
+-- op1Log10 v              = VNum (logBase 10 (vCast v)) -- if vCast will work for every type
+op1Log10 v              = VError "log10 not defined" (Val v)
+
 
 op1Pick :: Val -> Eval Val
 op1Pick (VJunc (Junc JAny _ set)) = do -- pick mainly works on 'any'
@@ -1034,6 +1053,9 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Str       pre     ord     (?Int=$_)\
 \\n   Str       pre     hex     (?Str=$_)\
 \\n   Str       pre     hex     (Int)\
+\\n   Num       pre     log     (Int)\
+\\n   Num       pre     log     (Num)\
+\\n   Num       pre     log10   (Num)\
 \\n   Any       list    ;       (Any)\
 \\n   Thread    pre     async   (Code)\
 \\n   Bool      pre     yield   (?Thread)\
