@@ -1,3 +1,15 @@
+[Changes for 6.0.2 - February 9, 2005]
+
+* User-defined subroutine (with $_ and @_ as parameters)
+* Variable binding
+* Context propagation
+* Multimethod dispatch
+* Subtype distancing and casting
+* Autothreading over chained comparison and multiarg functions
+* List associativity
+* Array references as literals
+* Flattening (slurpy) star
+
 [Changes for 6.0.1 - February 7, 2005]
 
 * Fix building on Mac OS X. (ingy, gugod)

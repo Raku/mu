@@ -18,8 +18,8 @@ perl6Def  = javaStyle
           , P.commentEnd     = "\n=cut\n"
           , P.commentLine    = "#"
           , P.nestedComments = False
-          , P.identStart     = letter <|> char '_'
-          , P.identLetter    = alphaNum <|> oneOf "_"
+          , P.identStart     = wordAlpha
+          , P.identLetter    = wordAny
           , P.reservedNames  = words $
                 "if then else do while skip"
           , P.reservedOpNames= words $
@@ -38,6 +38,9 @@ perl6Def  = javaStyle
           , P.caseSensitive  = False
           }
 
+wordAlpha   = satisfy (\x -> (isAlpha x || x == '_')) <?> "alphabetic word character"
+wordAny     = satisfy (\x -> (isAlphaNum x || x == '_')) <?> "word character"
+
 perl6Lexer = P.makeTokenParser perl6Def
 reservedOp = P.reservedOp perl6Lexer
 integer    = P.integer perl6Lexer
@@ -48,6 +51,7 @@ lexeme     = P.lexeme perl6Lexer
 identifier = P.identifier perl6Lexer
 braces     = P.braces perl6Lexer
 brackets   = P.brackets perl6Lexer
+symbol     = P.symbol perl6Lexer
 stringLiteral = choice
     [ P.stringLiteral  perl6Lexer
     , singleQuoted

@@ -95,7 +95,7 @@ op2 "or" = op2 "||"
 op2 "xor"= op2 "^^"
 op2 "err"= op2 "//"
 op2 ";"  = \x y -> y -- XXX wrong! LoL!
-op2 s    = \x y -> VError ("unimplemented binaryOp: " ++ s) (App s [Val x, Val y])
+op2 s    = \x y -> VError ("unimplemented binaryOp: " ++ s) (App s [] [Val x, Val y])
 
 vCastStr :: Val -> VStr
 vCastStr = vCast
@@ -163,16 +163,23 @@ op2Numeric f x y
 type Symbol  = (String, Val)
 type Symbols = [Symbol]
 
-primOp :: String -> String -> [String] -> String -> Symbol
+primOp :: String -> String -> Params -> String -> Symbol
 primOp sym assoc prms ret = (name, sub)
     where
-    name = '&':fixity ++ ':':sym
-    sub  = VSub $ Sub SubMulti assoc prms ret (Prim f)
+    name = '&':'*':fixity ++ ':':sym
+    sub  = VSub $ Sub { isMulti     = True
+                      , subType     = SubRoutine
+                      , subAssoc    = assoc
+                      , subParams   = prms
+                      , subReturns  = ret
+                      , subFun      = (Prim f)
+                      }
     f :: [Val] -> Val
     f    = case arity of
         0 -> op0 sym
         1 -> \[x]   -> op1 sym (vCast x)
         2 -> \[x,y] -> op2 sym (vCast x) (vCast y)
+        _ -> error (show arity)
     (arity, fixity) = case assoc of
         "pre"       -> (1, "prefix")
         "post"      -> (1, "postfix")
@@ -183,12 +190,20 @@ primOp sym assoc prms ret = (name, sub)
         "chain"     -> (2, "infix")
         "list"      -> (0, "infix")
         other       -> (0, other)
-
-primDecl str = primOp sym assoc prms ret
+        
+primDecl str = primOp sym assoc (reverse $ foldr foldParam [] prms) ret
     where
     (ret:assoc:sym:prms') = words str
     takeWord = takeWhile isAlphaNum . dropWhile (not . isAlphaNum)
     prms = map takeWord prms'
+
+doFoldParam cxt [] []       = [buildParam cxt "" "$x" (Val VUndef)]
+doFoldParam cxt [] (p:ps)   = (buildParam cxt "" (strInc $ paramName p) (Val VUndef):p:ps)
+doFoldParam cxt (s:name) ps = (buildParam cxt [s] name (Val VUndef) : ps)
+
+foldParam :: String -> Params -> Params
+foldParam "List" = doFoldParam "List" "*@_"
+foldParam _      = doFoldParam "Scalar" ""
 
 -- XXX -- Junctive Types -- XXX --
 
@@ -236,7 +251,7 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Pair      non     =>      (Any, Any)\
 \\n   Int       non     cmp     (Str, Str)\
 \\n   Int       non     <=>     (Num, Num)\
-\\n   List      non     ..      ((Num, Num)|(Str,Str))\
+\\n   List      non     ..      (Any, Any)\
 \\n   Bool      chain   !=      (Num, Num)\
 \\n   Bool      chain   ==      (Num, Num)\
 \\n   Bool      chain   <       (Num, Num)\

@@ -25,6 +25,7 @@ class Context n where
     vCast :: Val -> n
     vCast (VRef v)      = vCast v
     vCast (VPair _ v)   = vCast v
+    vCast (VArray (MkArray v))    = vCast $ VList v
     vCast v             = doCast v
     castV :: n -> Val
     castV v = error $ "cannot cast into Val"
@@ -32,6 +33,18 @@ class Context n where
     doCast v = error $ "cannot cast from Val: " ++ (show v)
     fmapVal :: (n -> n) -> Val -> Val
     fmapVal f = castV . f . vCast
+
+instance Context (Val, Val) where
+    castV (x, y)        = VPair x y
+    vCast (VPair x y)   = (x, y)
+    vCast (VRef v)      = vCast v
+    vCast v             = case vCast v of
+        [x, y]  -> (x, y)
+        other   -> error $ "cannot cast into (Val, Val): " ++ (show v)
+
+instance Context VHash where
+    castV = VHash
+    vCast x = MkHash $ listToFM (map vCast $ vCast x) 
 
 instance Context VSub where
     castV = VSub
@@ -106,6 +119,10 @@ showNum x
     | otherwise = str
     where
     str = show x 
+
+instance Context VArray where
+    castV = VArray
+    vCast x = MkArray (vCast x) 
 
 instance Context VList where
     castV = VList
@@ -185,13 +202,27 @@ data Val
     | VError    VStr Exp
     deriving (Show, Eq, Ord)
 
-data SubType = SubMethod | SubRoutine | SubMulti
+data SubType = SubMethod | SubRoutine | SubBlock
     deriving (Show, Eq, Ord)
 
+data Param = Param
+    { isInvocant    :: Bool
+    , isSlurpy      :: Bool
+    , isOptional    :: Bool
+    , isNamed       :: Bool
+    , paramName     :: String
+    , paramContext  :: Cxt
+    , paramDefault  :: Exp
+    }
+    deriving (Show, Eq, Ord)
+
+type Params = [Param]
+
 data VSub = Sub
-    { subType       :: SubType
+    { isMulti       :: Bool
+    , subType       :: SubType
     , subAssoc      :: String
-    , subParams     :: [Cxt]
+    , subParams     :: Params
     , subReturns    :: Cxt
     , subFun        :: Exp
     }
@@ -213,7 +244,7 @@ instance (Ord a, Ord b) => Ord (FiniteMap a b)
 type Var = String
 
 data Exp
-    = App String [Exp]
+    = App String [Exp] [Exp]
     | Syn String [Exp]
     | Prim ([Val] -> Val)
     | Val Val
@@ -222,11 +253,49 @@ data Exp
     | NonTerm SourcePos
     deriving (Show, Eq, Ord)
 
-isTotalJunc (VJunc JAll _, b)   = not b
-isTotalJunc (VJunc JNone _, b)  = not b
-isTotalJunc _                   = False
+extractExp :: Exp -> ([Exp], [String]) -> ([Exp], [String])
+extractExp exp (exps, vs) = (exp':exps, vs')
+    where
+    (exp', vs') = extract (exp, vs)
 
-isPartialJunc (VJunc JOne _, b) = not b
-isPartialJunc (VJunc JAny _, b) = not b
-isPartialJunc _                 = False
+extract :: (Exp, [String]) -> (Exp, [String])
+extract ((App n invs args), vs) = (App n invs' args', vs'')
+    where
+    (invs', vs')  = foldr extractExp ([], vs) invs
+    (args', vs'') = foldr extractExp ([], vs') args
+extract ((Syn n exps), vs) = (Syn n exps', vs')
+    where
+    (exps', vs') = foldr extractExp ([], vs) exps
+extract ((Var name pos), vs)
+    | (sigil:'^':identifer) <- name
+    , name' <- (sigil : identifer)
+    = (Var name' pos, insert name' vs)
+    | name == "$_"
+    = (Var name pos, insert name vs)
+    | otherwise
+    = (Var name pos, vs)
+extract ((Parens exp), vs) = ((Parens exp'), vs')
+    where
+    (exp', vs') = extract (exp, vs)
+extract other = other
 
+cxtOf '*' '$'   = "List"
+cxtOf '*' '@'   = "List"
+cxtOf _   _     = "Scalar"
+
+buildParam cxt sigil name exp = Param
+    { isInvocant    = False
+    , isSlurpy      = (sigil == "*")
+    , isOptional    = (sigil ==) `any` ["?", "+"]
+    , isNamed       = (null sigil || head sigil /= '+')
+    , paramName     = name
+    , paramContext  = if null cxt then defaultCxt else cxt
+    , paramDefault  = exp
+    }
+    where
+    sig = if null sigil then ' ' else head sigil
+    defaultCxt = cxtOf sig (head name) 
+
+defaultArrayParam   = buildParam "" "*" "@_" (Val VUndef)
+defaultHashParam    = buildParam "" "*" "%_" (Val VUndef)
+defaultScalarParam  = buildParam "" "*" "$_" (Val VUndef)
