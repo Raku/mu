@@ -1,31 +1,39 @@
 #!/usr/bin/pugs
 
 use v6;
+require Test;
 
 =pod
 
 Test examples
 
-This loads all the scripts in the examples dir and attempts
-to compile and run each of them.
+This loads some of the scripts of the examples/ dir and compares their output
+with a expected output.
 
 =cut
 
+my @examples = <
+  fp hanoi quicksort
+  junctions/1 junctions/3 junctions/all-all junctions/all-any junctions/any-any
+  junctions/any-any2 junctions/grades
+>;
 
-my @examples  = <fp hanoi life mandel quicksort sendmoremoney shuffle>;
+plan +@examples;
 
-my @outputs   = <fp hanoi             quicksort>;
+if $?OS eq "win32" {
+  # We can't run under win32 because of C<\> as path separator instead of C</>
+  # -- awaiting v6 File::Spec
+  for @examples -> {
+    skip "examples.t doesn't work under win32 yet";
+  }
+} else {
+  for @examples -> $ex {
+    system "./pugs examples/$ex.p6 &> temp-ex-output";
 
-say "1..{ @examples + @outputs }";
+    my $expected = slurp "examples/output/$ex";
+    my $got      = slurp "temp-ex-output";
+    unlink "temp-ex-output";
 
-my $c = 0;
-
-for (@examples) {
-    ++$c;
-    say "ok $c # Try to compile $_\.p6";
-    # when (@outputs) {
-    if ($_ eq any(@outputs)) {
-        ++$c;
-        say "ok $c # Try to run $_\.p6 and compare to output/$_";
-    }
+    is $expected, $got, "$ex.p6 worked";
+  }
 }
