@@ -41,7 +41,7 @@ mergeJunc j ds vs
     = case j of
        JAny -> Junc j (mkSet ds) (mkSet vs)
        JOne -> Junc j dups vals
-       x    -> internalError $ "mergeJunk pattern failure: " ++ (show x)
+       x    -> internalError $ "mergeJunc pattern failure: " ++ (show x)
     where
     vals = mkSet [ v | [v] <- group $ sort vs ]
     dups = mkSet (ds ++ [ v | (v:_:_) <- group $ sort (vs ++ ds) ])
