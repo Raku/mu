@@ -108,7 +108,10 @@ instance Value VRat where
     doCast (VInt i)     = i % 1
     doCast (VRat r)     = r
     doCast (VBool b)    = if b then 1 % 1 else 0 % 1
-    doCast x            = approxRational (vCast x :: VNum) 1
+    doCast (VList l)    = genericLength l
+    doCast (VArray (MkArray a))    = genericLength a
+    doCast (VHash (MkHash h))    = fromIntegral $ sizeFM h
+    doCast x            = toRational (vCast x :: VNum)
 
 instance Value VNum where
     castV = VNum

@@ -15,5 +15,5 @@ if (@arry[1] eq "bar") {say "ok 2" } else { say "not ok 2" }
 
 @arry[3].say;
 
-if ( @arry == 4) { print "ok 4" } else { say "not ok 4" }
-if (+@arry == 4) { print "ok 5" } else { say "not ok 5" }
+if ( @arry == 4) { say "ok 4" } else { say "not ok 4" }
+if (+@arry == 4) { say "ok 5" } else { say "not ok 5" }

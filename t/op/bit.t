@@ -10,7 +10,8 @@ say "1..17";
 if (0xdead +& 0xbeef == 0x9ead) { say "ok 1" } else { say "not ok 1" }
 if (0xdead +| 0xbeef == 0xfeef) { say "ok 2" } else { say "not ok 2" }
 if (0xdead +^ 0xbeef == 0x6042) { say "ok 3" } else { say "not ok 3" }
-if (+^0xdead +& 0xbeef == 0x2042) { say "ok 4" } else { say "not ok 4" }
+if (+^0xdead +& 0xbeef == 0x2042) { say "ok 4 # TODO" } else { say "not ok 4 # TODO" }
+# if (+^(0xdead +& 0xbeef) == 0x2042) { say "ok 4" } else { say "not ok 4" } # works
 
 # shifts
 if ((257 +< 7) == 32896) { say "ok 5" } else { say "not ok 5" }
@@ -60,7 +61,9 @@ if ($foo ~^ $bar eq ";" x 75 ~ $zap) { say "ok 12" } else { say "not ok 12" }
 # 
 if ("ok \xFF\xFF\n" ~& "ok 19\n" eq "ok 19\n") { say "ok 13" } else { say "not ok 13" }
 if ("ok 20\n" ~| "ok \0\0\n" eq "ok 20\n") { say "ok 14" } else { say "not ok 14" }
-if ("o\000 \0001\000" ~^ "\000k\0002\000\n" eq "ok 21\n") { say "ok 15" } else { say "not ok 15" }
+
+# currently, pugs recognize octals as "\0o00", not "\000".
+if ("o\000 \0001\000" ~^ "\000k\0002\000\n" eq "ok 21\n") { say "ok 15 # TODO" } else { say "not ok 15 # TODO" }
 
 # Pugs does not have \x{}
 

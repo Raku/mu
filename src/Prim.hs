@@ -177,6 +177,15 @@ mapStr f = map (chr . fromEnum . f)
 mapStr2 :: (Word8 -> Word8 -> Word8) -> [Word8] -> [Word8] -> String
 mapStr2 f x y = map (chr . fromEnum . uncurry f) $ x `zip` y
 
+mapStr2Fill :: (Word8 -> Word8 -> Word8) -> [Word8] -> [Word8] -> String
+mapStr2Fill f x y = map (chr . fromEnum . uncurry f) $ x `zipFill` y
+    where
+    zipFill [] [] = []
+    zipFill as [] = zip as (repeat 0)
+    zipFill [] bs = zip (repeat 0) bs
+    zipFill (a:as) (b:bs) = (a,b) : zipFill as bs
+
+
 op2 :: Ident -> Val -> Val -> Eval Val
 op2 "rename" = boolIO2 rename
 op2 "symlink" = boolIO2 createSymbolicLink
@@ -198,8 +207,8 @@ op2 "-"  = op2Numeric (-)
 op2 "~"  = op2Str (++)
 op2 "+|" = op2Int (.|.)
 op2 "+^" = op2Int xor
-op2 "~|" = op2Str $ mapStr2 (.|.)
-op2 "~^" = op2Str $ mapStr2 xor
+op2 "~|" = op2Str $ mapStr2Fill (.|.)
+op2 "~^" = op2Str $ mapStr2Fill xor
 op2 "=>" = \x y -> return $ VPair (x, y)
 op2 "cmp"= op2Ord vCastStr
 op2 "<=>"= op2Ord vCastRat

@@ -2,7 +2,7 @@ use v6;
 
 =pod
 
-This is a test file.  Whee!
+Basic tests.
 
 =cut
 
