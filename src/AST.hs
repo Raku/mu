@@ -119,8 +119,8 @@ instance Value VInt where
     castV = VInt
     doCast (VInt i)     = i
     doCast (VStr s)
-        | ((n, _):_)    <- reads (takeWhile (/= '.') s) = n
-        | otherwise             = 0
+        | ((n, _):_)    <- reads (takeWhile isDigit s) = n
+        | otherwise    = 0
     doCast x            = truncate (vCast x :: VNum)
 
 instance Value VRat where
@@ -141,7 +141,7 @@ instance Value VNum where
     doCast (VRat r)     = realToFrac r
     doCast (VNum n)     = n
     doCast (VStr s)
-        | ((n, _):_) <- reads s = n
+        | ((n, _):_) <- reads (takeWhile (\x -> isDigit x || x == '.') ('0':s)) = n
         | otherwise             = 0
     doCast (VList l)    = genericLength l
     doCast (VArray (MkArray a))    = genericLength a
