@@ -30,7 +30,8 @@ sub chunks {
             $test->{$_} ||= '';
         }
         $test->{description} = $description;
-        return @tests = $test if defined $test->{only};
+        return @tests = $test if defined $test->{ONLY};
+        next if defined $test->{SKIP};
         push @tests, $test;
     }
     return @tests;
