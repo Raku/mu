@@ -14,6 +14,7 @@ import Internals
 
 type Cxt = String
 
+countTree :: Tree Type -> Int
 countTree (Node _ []) = 0
 countTree (Node _ cs) = 1 + sum (map countTree cs)
 
@@ -38,8 +39,10 @@ distanceType tree base target
     l1 = findList base tree
     l2 = findList target tree
 
+castOk :: a -> b -> Bool
 castOk _ _ = True
 
+compareList :: (Eq a) => [a] -> [a] -> Int
 compareList [] _ = 0
 compareList _ [] = 0
 compareList l1 l2
@@ -47,6 +50,7 @@ compareList l1 l2
     | last l2 `elem` l1 = - length(l1 \\ l2) - 1
     | otherwise = compareList l1 (init l2)
 
+findList :: Eq [a] => [a] -> Tree [a] -> [[a]]
 findList [] _ = []
 findList base (Node l cs)
     | base == l                                = [l]
@@ -55,6 +59,7 @@ findList base (Node l cs)
     where
     found = map (findList base) cs
 
+prettyTypes :: String
 prettyTypes = drawTree initTree
 
 type ClassTree = Tree Type

@@ -101,7 +101,7 @@ op1 "defined" = \v -> do
     return . VBool $ case v of
         VUndef  -> False
         _       -> True    
-op1 "last" = \v -> do
+op1 "last" = \_ -> do
     shiftT $ \_ -> return VUndef
 op1 "return" = \v -> return (VError "cannot return outside a subroutine" (Val v))
 
@@ -428,7 +428,7 @@ primOp sym assoc prms ret = Symbol SOur name (Val sub)
                       , subFun      = (Prim f)
                       }
     f :: [Val] -> Eval Val
-    f    = case arity of
+    f    = case (arity :: Integer) of
         0 -> \(x:_) -> op0 sym (vCast x)
         1 -> \x     -> case x of
             [x]   -> op1 symName x
@@ -467,7 +467,7 @@ foldParam ('r':'w':'!':str) = \ps -> ((buildParam str "" "$?1" (Val VUndef)) { i
 foldParam ""        = id
 foldParam ('?':str) = \ps -> (buildParam "Num" "?" "$?1" (Val $ VNum (read def)):ps)
     where
-    (cxt, ('=':def)) = break (== '=') str
+    (_, ('=':def)) = break (== '=') str
 foldParam x         = doFoldParam x ""
 
 -- XXX -- Junctive Types -- XXX --

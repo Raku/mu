@@ -48,8 +48,9 @@ instance Pretty Val where
     pretty (VNum x) = if x == 1/0 then "Inf" else show x
     pretty (VInt x) = show x
     pretty (VStr x) = show x -- XXX escaping
-    pretty (VRat x) = show $ (fromIntegral $ numerator x) / (fromIntegral $ denominator x)
+    pretty (VRat x) = show $ ((fromIntegral $ numerator x) / (fromIntegral $ denominator x) :: Double)
     pretty (VComplex x) = show x
+    pretty (VControl x) = show x
     pretty (VRef (VList x))
         | not . null . (drop 100) $ x
         = "[" ++ pretty (head x) ++ ", ...]"
@@ -59,13 +60,13 @@ instance Pretty Val where
         | not . null . (drop 100) $ x
         = "(" ++ pretty (head x) ++ ", ...)"
         | otherwise = "(" ++ joinList ", " (map pretty x) ++ ")"
-    pretty (VSub x) = "sub {...}"
-    pretty (VBlock x) = "{...}"
+    pretty (VSub _) = "sub {...}"
+    pretty (VBlock _) = "{...}"
     pretty (VError x y) = "*** Error: " ++ x ++ "\n    at " ++ show y
     pretty (VArray (MkArray x)) = pretty (VList x)
     pretty (VHash (MkHash x)) = "{" ++ joinList ", " (map pretty $ fmToList x) ++ "}"
     pretty (VHandle x) = show x
-    pretty (MVal x) = "<mval>" -- pretty $ castV x
+    pretty (MVal _) = "<mval>" -- pretty $ castV x
     pretty VUndef = "undef"
 
 joinList x y = concat $ intersperse x y

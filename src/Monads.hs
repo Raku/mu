@@ -83,7 +83,9 @@ enterSub sub@Sub{ subType = typ } action
             else resetT $ callCC $ \cc -> local (fixEnv cc pad cxt) action
     where
     doReturn [v] = shiftT $ \_ -> return v
+    doReturn _   = internalError "enterSub: doReturn list length /= 1"
     doCC cc [v] = cc v
+    doCC _  _   = internalError "enterSub: doCC list length /= 1"
     subRec = [ Symbol SMy "&?SUB" (Val $ VSub sub)
              , Symbol SMy "$?SUBNAME" (Val $ VStr $ subName sub)]
     blockRec = Symbol SMy "&?BLOCK" (Val $ VSub sub)
@@ -191,8 +193,8 @@ outer = enterLex [Symbol SMy "$outer" $ Val $ VInt 2] $ do
     returnScope "c"
 
 callerCC :: Int -> Val -> Eval Val
-callerCC n v = do
-    env <- caller n
+callerCC n _ = do
+    _ <- caller n
     -- (envCC env) v
     return undefined
 
@@ -235,9 +237,9 @@ throwErr = liftIO . throwIO . DynException . toDyn
 callerReturn :: Int -> Val -> Eval Val
 callerReturn n v
     | n == 0 =  do
-        shiftT $ \r -> return v
+        shiftT $ \_ -> return v
     | otherwise = do
         env <- caller n
-        shiftT $ \r -> return $ VControl $ ControlLeave (return . (==) (envID env) . envID) v
+        shiftT $ \_ -> return $ VControl $ ControlLeave (return . (==) (envID env) . envID) v
 
 returnScope = callerReturn 0 . VStr

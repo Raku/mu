@@ -38,6 +38,7 @@ data Message        = SysUnExpect !String   --library generated unexpect
                     | Expect      !String   --expecting something
                     | Message     !String   --raw message
                     
+messageToEnum :: Message -> Integer
 messageToEnum msg
     = case msg of SysUnExpect _ -> 0
                   UnExpect _    -> 1
@@ -66,15 +67,15 @@ messageEq msg1 msg2
 data ParseError     = ParseError !SourcePos [Message]
 
 errorPos :: ParseError -> SourcePos
-errorPos (ParseError pos msgs)
+errorPos (ParseError pos _)
     = pos
                   
 errorMessages :: ParseError -> [Message]
-errorMessages (ParseError pos msgs)
+errorMessages (ParseError _ msgs)
     = sortBy messageCompare msgs      
         
 errorIsUnknown :: ParseError -> Bool
-errorIsUnknown (ParseError pos msgs)
+errorIsUnknown (ParseError _ msgs)
     = null msgs
             
             
@@ -154,10 +155,9 @@ showErrorMessages msgOr msgUnknown msgExpecting msgUnExpected msgEndOfInput msgs
       commasOr ms       = commaSep (init ms) ++ " " ++ msgOr ++ " " ++ last ms
         
       commaSep          = seperate ", " . clean
-      semiSep           = seperate "; " . clean       
         
-      seperate sep []   = ""
-      seperate sep [m]  = m
+      seperate _ []     = ""
+      seperate _ [m]    = m
       seperate sep (m:ms) = m ++ sep ++ seperate sep ms                            
       
       clean             = nub . filter (not.null)                  

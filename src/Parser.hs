@@ -102,7 +102,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
         ]
     formal  <- option Nothing $ return . Just =<< parens ruleSubParameters
     cxt2    <- option cxt1 $ try $ ruleBareTrait "returns"
-    traits  <- many $ ruleTrait
+    _       <- many $ ruleTrait -- traits; not yet used
     body    <- ruleBlock
     let (fun, names) = extract (body, [])
         params = map nameToParam names ++ (maybe [defaultArrayParam] id formal) 
@@ -139,10 +139,10 @@ ruleSubParameters = rule "subroutine parameters" $ do
 ruleParamList parse = rule "parameter list" $ do
     formal <- maybeParens ((parse `sepEndBy` symbol ",") `sepEndBy` symbol ":")
     case formal of
-        []                  -> return [[], []]
-        [args]              -> return [[], args]
-        [invocants,args]    -> return formal
-        _                   -> fail "Only one invocant list allowed"
+        []     -> return [[], []]
+        [args] -> return [[], args]
+        [_,_]  -> return formal
+        _      -> fail "Only one invocant list allowed"
 
 ruleFormalParam = rule "formal parameter" $ do
     cxt     <- option "" $ ruleContext
@@ -187,7 +187,7 @@ ruleUseVersion = rule "use version" $ do
     return $ Val VUndef
 
 ruleUsePackage = rule "use package" $ do
-    package <- identifier -- XXX - ::
+    _ <- identifier -- package -- XXX - ::
     return $ Val VUndef
 
 ruleRequireDeclaration = tryRule "require declaration" $ do
@@ -197,8 +197,8 @@ ruleRequireDeclaration = tryRule "require declaration" $ do
 
 ruleModuleDeclaration = rule "module declaration" $ do
     symbol "module"
-    name <- identifier
-    version <- option "" $ do
+    _ <- identifier -- name - XXX
+    _ <- option "" $ do -- version - XXX
         char '-'
         many1 (choice [ digit, char '.' ])
     return $ Val VUndef -- XXX
@@ -652,9 +652,9 @@ qqInterpolator = do
           <|> ruleBlock
 
 qqLiteral = do
-    ch <- getDelim
+    ch   <- getDelim
     expr <- interpolatingStringLiteral (balancedDelim ch) qqInterpolator
-    ch <- char (balancedDelim ch)
+    _    <- char (balancedDelim ch)
     return expr
         where getDelim = try $ do string "qq"
                                   notFollowedBy alphaNum
@@ -683,7 +683,7 @@ methOps _ = []
 ternOps _ = []
 
 runRule :: Env -> (Env -> a) -> RuleParser Env -> FilePath -> String -> a
-runRule env f p name str = f $ case ( runParser ruleProgram env name str ) of
+runRule env f p name str = f $ case ( runParser p env name str ) of
     Left err    -> env { envBody = Val $ VError (showErr err) (NonTerm $ errorPos err) }
     Right env'  -> env'
 

@@ -70,7 +70,7 @@ anyChar             = satisfy (const True)
 -----------------------------------------------------------
 satisfy :: (Char -> Bool) -> CharParser st Char
 satisfy f           = tokenPrim (\c -> show [c]) 
-                                (\pos c cs -> updatePosChar pos c) 
+                                (\pos c _ -> updatePosChar pos c) 
                                 (\c -> if f c then Just c else Nothing)
 
 string :: String -> CharParser st String

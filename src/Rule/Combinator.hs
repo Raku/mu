@@ -126,7 +126,7 @@ chainr1 p op        = scan
 -- Tricky combinators
 -----------------------------------------------------------
 anyToken :: Show tok => GenParser tok st tok
-anyToken            = tokenPrim show (\pos tok toks -> pos) Just
+anyToken            = tokenPrim show (\pos _ _ -> pos) Just
 
 eof :: Show tok => GenParser tok st ()
 eof                 = notFollowedBy anyToken <?> "end of input"   

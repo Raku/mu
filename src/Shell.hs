@@ -74,9 +74,8 @@ readline prompt
 #endif
 
 addHistory :: String -> IO ()
-addHistory str
 #ifdef PUGS_HAVE_READLINE
-   = Readline.addHistory str
+addHistory str = Readline.addHistory str
 #else
-   = return ()
+addHistory _ = return ()
 #endif 

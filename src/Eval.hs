@@ -69,7 +69,7 @@ evaluateMain exp = do
 evaluate :: Exp -> Eval Val
 evaluate (Val v@(MVal mv)) = do
     lvalue  <- asks envLValue
-    cxt     <- asks envContext
+    _       <- asks envContext
     if lvalue
         then return v
         else do
@@ -121,16 +121,16 @@ retError :: VStr -> Exp -> Eval a
 retError str exp = do
     shiftT $ \_ -> return $ VError str exp
 
-newMVal val@(MVal r) = newMVal =<< liftIO (readIORef r)
+newMVal (MVal r) = newMVal =<< liftIO (readIORef r)
 newMVal val = do
     mval <- liftIO $ newIORef val
     return $ MVal mval
 
-writeMVal l (MVal r)    = writeMVal l =<< liftIO (readIORef r)
-writeMVal (MVal l) r    = liftIO $ writeIORef l r
-writeMVal l@(VError s e) _ = retError s e
-writeMVal _ l@(VError s e) = retError s e
-writeMVal x y           = retError "Can't write a constant item" (Val x)
+writeMVal l (MVal r)     = writeMVal l =<< liftIO (readIORef r)
+writeMVal (MVal l) r     = liftIO $ writeIORef l r
+writeMVal (VError s e) _ = retError s e
+writeMVal _ (VError s e) = retError s e
+writeMVal x _            = retError "Can't write a constant item" (Val x)
 
 -- readMVal (MVal mv) =  liftIO $ readIORef mv
 
@@ -143,7 +143,7 @@ addGlobalSym sym = do
 reduceStatements :: ([(Exp, SourcePos)], Exp) -> Eval Val
 reduceStatements ([], exp) = reduceExp exp
 reduceStatements (((exp, pos):rest), lastVal)
-    | Syn "sym" (Sym sym@(Symbol _ _ vexp@(Syn "sub" [sub])):other) <- exp = do
+    | Syn "sym" (Sym sym@(Symbol _ _ vexp@(Syn "sub" [_])):other) <- exp = do
         (VSub sub) <- enterEvalContext "Code" vexp
         lex <- asks envLexical
         reduceStatements (((Syn "sym" (other ++ [Sym sym{ symExp = Val $ VSub sub{ subPad = lex } }]), pos):rest), lastVal)
@@ -177,7 +177,7 @@ reduceStatements (((exp, pos):rest), lastVal)
         let app = Syn "()" [exp, Syn "invs" [], Syn "args" []]
         reduceStatements ((app, pos):rest, lastVal)
     | null rest = do
-        cxt <- asks envContext
+        _   <- asks envContext
         val <- enterLex (posSyms pos) $ reduceExp exp
         retVal val
     | otherwise = do
@@ -203,7 +203,7 @@ posSyms pos = [ Symbol SMy n (Val v) | (n, v) <- syms ]
         ]
 
 evalVar name = do
-    env <- ask
+    _   <- ask
     val <- local (\e -> e{ envLValue = True }) $ do
         rv <- findVar name
         enterEvalContext (cxtOfSigil $ head name) $ case rv of
@@ -245,7 +245,7 @@ findVar name
 reduce :: Env -> Exp -> Eval Val
 
 -- Reduction for mutables
-reduce env exp@(Val val@(MVal mv)) = do
+reduce _ (Val val@(MVal _)) = do
     lvalue  <- asks envLValue
     if lvalue
         then retVal val
@@ -254,18 +254,18 @@ reduce env exp@(Val val@(MVal mv)) = do
             retVal rv
 
 -- Reduction for constants
-reduce env exp@(Val v) = do
+reduce _ (Val v) = do
     return v
 
 -- Reduction for variables
-reduce env exp@(Var name) = do
+reduce _ exp@(Var name) = do
     rv <- findVar name
     case rv of
         (Just vexp) -> do
             enterContext (cxtOfSigil $ head name) $ reduceExp vexp
         _ -> retError ("Undefined variable " ++ name) exp
 
-reduce env (Statements stmts) = do
+reduce _ (Statements stmts) = do
     let (global, local) = partition isGlobalExp stmts
     reduceStatements (global ++ local, Val VUndef)
     where
@@ -347,8 +347,8 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         val     <- enterEvalContext (cxtOfSigil $ head name) exp
         retVal val
     "::=" -> do -- XXX wrong
-        let [Var name, exp] = exps
-        val     <- evalExp exp
+        let [Var _, exp] = exps
+        evalExp exp
         retVal VUndef -- XXX wrong
     "=>" -> do
         let [keyExp, valExp] = exps
@@ -419,7 +419,7 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         val <- resetT runBody
         retVal val
 
-reduce env@Env{ envClasses = cls, envContext = cxt, envLexical = lex, envGlobal = glob } exp@(App name invs args) = do
+reduce Env{ envClasses = cls, envContext = cxt, envLexical = lex, envGlobal = glob } exp@(App name invs args) = do
     syms    <- liftIO $ readIORef glob
     subSyms <- mapM evalSym
         [ sym | sym <- lex ++ syms
@@ -427,9 +427,9 @@ reduce env@Env{ envClasses = cls, envContext = cxt, envLexical = lex, envGlobal 
         , (n ==) `any` [name, toGlobal name]
         ]
     lens    <- mapM argSlurpLen (invs ++ args)
-    case findSub (sum lens) subSyms name of
+    case findSub (sum lens) subSyms of
         Just sub    -> applySub subSyms sub invs args
-        otherwise   -> retError ("No compatible subroutine found: " ++ name) exp
+        Nothing     -> retError ("No compatible subroutine found: " ++ name) exp
     where
     argSlurpLen (Val listMVal) = do
         listVal  <- readMVal listMVal
@@ -438,7 +438,7 @@ reduce env@Env{ envClasses = cls, envContext = cxt, envLexical = lex, envGlobal 
         listMVal <- evalVar name
         listVal  <- readMVal listMVal
         return $ length (vCast listVal :: [Val])
-    argSlurpLen arg = return 1
+    argSlurpLen _ = return 1 -- XXX
     applySub subSyms sub invs args
         -- list-associativity
         | Sub{ subAssoc = "list" }      <- sub
@@ -451,8 +451,8 @@ reduce env@Env{ envClasses = cls, envContext = cxt, envLexical = lex, envGlobal 
         , null invs
         = apply sub{ subParams = (length args) `replicate` p } [] args
         -- chain-associativity
-        | Sub{ subAssoc = "chain", subFun = fun, subParams = prm }   <- sub
-        , (App name' invs' []):rest                 <- invs
+        | Sub{ subAssoc = "chain" }   <- sub
+        , (App _ _ []):_              <- invs
         , null args
         = mungeChainSub sub invs
         | Sub{ subAssoc = "chain", subParams = (p:_) }   <- sub
@@ -461,7 +461,7 @@ reduce env@Env{ envClasses = cls, envContext = cxt, envLexical = lex, envGlobal 
         | otherwise
         = apply sub invs args
     mungeChainSub sub invs = do
-        let Sub{ subAssoc = "chain", subFun = fun, subParams = prm@(p:_) } = sub
+        let Sub{ subAssoc = "chain", subParams = (p:_) } = sub
             (App name' invs' args'):rest = invs
         syms    <- liftIO $ readIORef glob
         subSyms' <- mapM evalSym
@@ -470,20 +470,23 @@ reduce env@Env{ envClasses = cls, envContext = cxt, envLexical = lex, envGlobal 
             , (n ==) `any` [name', toGlobal name']
             ]
         lens'    <- mapM argSlurpLen (invs' ++ args')
-        case findSub (sum lens') subSyms' name' of
+        case findSub (sum lens') subSyms' of
             Just sub'    -> applyChainSub subSyms' sub invs sub' invs' args' rest
-            otherwise   -> apply sub{ subParams = (length invs) `replicate` p } invs [] -- XXX Wrong
+            Nothing      -> apply sub{ subParams = (length invs) `replicate` p } invs [] -- XXX Wrong
             -- retError ("No compatible subroutine found: " ++ name') exp
     applyChainSub subSyms sub invs sub' invs' args' rest
         | Sub{ subAssoc = "chain", subFun = fun, subParams = prm }   <- sub
         , Sub{ subAssoc = "chain", subFun = fun', subParams = prm' } <- sub'
+        , null args'
         = applySub subSyms sub{ subParams = prm ++ tail prm', subFun = Prim $ chainFun prm' fun' prm fun } (invs' ++ rest) []
         | Sub{ subAssoc = "chain", subParams = (p:_) }   <- sub
         = apply sub{ subParams = (length invs) `replicate` p } invs [] -- XXX Wrong
-    findSub slurpLen subSyms name = case sort (subs slurpLen subSyms name) of
+        | otherwise
+        = internalError "applyChainsub did not match a chain subroutine"
+    findSub slurpLen subSyms = case sort (subs slurpLen subSyms) of
         ((_, sub):_)    -> Just sub
         _               -> Nothing
-    subs slurpLen subSyms name = [
+    subs slurpLen subSyms = [
         ( (isGlobal, subT, isMulti sub, bound, distance)
         , fromJust fun
         )
@@ -519,6 +522,7 @@ chainFun p1 f1 p2 f2 (v1:v2:vs) = do
     where
     chainArgs prms vals = map chainArg (prms `zip` vals)
     chainArg (p, v) = ApplyArg (paramName p) v False
+chainFun _ _ _ _ _ = internalError "chainFun: Not enough parameters in Val list"
 
 applyExp :: [ApplyArg] -> Exp -> Eval Val
 applyExp bound (Prim f)
@@ -538,7 +542,7 @@ apply sub invs args = do
 -- XXX - faking application of lexical contexts
 -- XXX - what about defaulting that depends on a junction?
 doApply :: Env -> VSub -> [Exp] -> [Exp] -> Eval Val
-doApply env@Env{ envClasses = cls } sub@Sub{ subParams = prms, subFun = fun, subType = typ } invs args =
+doApply Env{ envClasses = cls } sub@Sub{ subParams = prms, subFun = fun, subType = typ } invs args =
     case bindParams prms invs args of
         Left errMsg     -> retError errMsg (Val VUndef)
         Right bindings  -> do

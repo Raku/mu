@@ -114,7 +114,7 @@ close FH;
 
 postamble(<< ".");
 $pugs: @{[glob("src/*.hs"), glob("src/Rule/*.hs")]} $version_h
-	ghc --make -o pugs src/Main.hs -isrc
+	ghc --make -Wall -fno-warn-missing-signatures -fno-warn-name-shadowing -o pugs src/Main.hs -isrc
 
 tags ::
 	hasktags -c src

@@ -143,7 +143,7 @@ naturalOrRat  = natRat
         <|> decimalRat
                       
     zeroNumRat = do
-            n <- hexadecimal <|> decimal <|> octal2 <|> octal <|> binary
+            n <- hexadecimal <|> decimal <|> octalBad <|> octal <|> binary
             return (Left n)
         <|> decimalRat
         <|> fractRat 0
@@ -189,18 +189,20 @@ naturalOrRat  = natRat
                     <|> (char '+' >> return True)
                     <|> return True
 
+{-
     nat             = zeroNumber <|> decimalLiteral
         
     zeroNumber      = do{ char '0'
-                        ; hexadecimal <|> decimal <|> octal2 <|> octal <|> decimalLiteral <|> return 0
+                        ; hexadecimal <|> decimal <|> octalBad <|> octal <|> decimalLiteral <|> return 0
                         }
                       <?> ""       
+-}
 
     decimalLiteral         = number 10 digit        
     hexadecimal     = do{ char 'x'; number 16 hexDigit }
     decimal         = do{ char 'd'; number 10 digit }
     octal           = do{ char 'o'; number 8 octDigit }
-    octal2          = do{ octDigit ; fail "0100 is not octal in perl6 any more, use 0o100 instead." }
+    octalBad        = do{ many1 octDigit ; fail "0100 is not octal in perl6 any more, use 0o100 instead." }
     binary          = do{ char 'b'; number 2 (oneOf "01")  }
 
     -- number :: Integer -> CharParser st Char -> CharParser st Integer
@@ -425,6 +427,8 @@ buildExpressionParser operators simpleExpr
             AssocNone  -> (rassoc,lassoc,op:nassoc,prefix,postfix)
             AssocLeft  -> (rassoc,op:lassoc,nassoc,prefix,postfix)
             AssocRight -> (op:rassoc,lassoc,nassoc,prefix,postfix)
+            _          -> internalError "splitOp: unimplemented assoc type."
+            -- FIXME: add two new assoc types here.
             
       splitOp (Prefix op) (rassoc,lassoc,nassoc,prefix,postfix)
         = (rassoc,lassoc,nassoc,op:prefix,postfix)

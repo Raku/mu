@@ -41,6 +41,7 @@ module Internals (
     module Data.FiniteMap,
     module Data.IORef,
     module Debug.Trace,
+    internalError
 ) where
 
 import Cont
@@ -55,7 +56,6 @@ import System.IO.Unsafe
 import System.Directory
 import Control.Monad.RWS
 import Control.Monad.Error (MonadError(..))
-import qualified System.IO (try)
 import Data.Bits hiding (shift)
 import Data.Maybe
 import Data.Either
@@ -77,10 +77,13 @@ import Rule.Pos
 instance Show Unique where
     show = show . hashUnique
 instance Show (a -> b) where
-    show f = "(->)"
+    show _ = "(->)"
 instance Eq (a -> b) where
     _ == _ = False
 instance Ord (a -> b) where
     compare _ _ = LT
 instance Show (IORef (FiniteMap String String)) where
-    show f = "{ n/a }"
+    show _ = "{ n/a }"
+
+internalError :: String -> a
+internalError s = error $ "Internal error: " ++ s ++ " please file a bug report."

@@ -285,7 +285,7 @@ parsecPlus (Parser p1) (Parser p2)
 -----------------------------------------------------------
 try :: GenParser tok st a -> GenParser tok st a
 try (Parser p)
-    = Parser (\state@(State input pos user) ->     
+    = Parser (\state@(State _ pos _) ->     
         case (p state) of
           Consumed (Error err)  -> Empty (Error (setErrorPos pos err))
           Consumed ok           -> Consumed ok    -- was: Empty ok
@@ -297,7 +297,7 @@ token :: (tok -> String) -> (tok -> SourcePos) -> (tok -> Maybe a) -> GenParser 
 token show tokpos test
   = tokenPrim show nextpos test
   where
-    nextpos _ _   (tok:toks)  = tokpos tok
+    nextpos _ _   (tok:_)  = tokpos tok
     nextpos _ tok []          = tokpos tok
 
 tokenPrim :: (tok -> String) -> (SourcePos -> tok -> [tok] -> SourcePos) -> (tok -> Maybe a) -> GenParser tok st a
@@ -317,7 +317,7 @@ tokenPrimEx :: (tok -> String) ->
 tokenPrimEx show nextpos mbNextState test
     = case mbNextState of
         Nothing 
-          -> Parser (\state@(State input pos user) -> 
+          -> Parser (\ (State input pos user) -> 
               case input of
                 (c:cs) -> case test c of
                             Just x  -> let newpos   = nextpos pos c cs
@@ -328,7 +328,7 @@ tokenPrimEx show nextpos mbNextState test
                 []     -> Empty (sysUnExpectError "" pos)
              )
         Just nextState
-          -> Parser (\state@(State input pos user) -> 
+          -> Parser (\ (State input pos user) -> 
               case input of
                 (c:cs) -> case test c of
                             Just x  -> let newpos   = nextpos pos c cs
@@ -390,7 +390,7 @@ many p
 
 skipMany :: GenParser tok st a -> GenParser tok st ()
 skipMany p
-  = do{ manyAccum (\x xs -> []) p
+  = do{ manyAccum (\_ _ -> []) p
       ; return ()
       }
 
@@ -399,13 +399,13 @@ manyAccum accum (Parser p)
   = Parser (\state -> 
     let walk xs state r = case r of
                            Empty (Error err)          -> Ok xs state err
-                           Empty ok                   -> error "Rule.Prim.many: combinator 'many' is applied to a parser that accepts an empty string."
+                           Empty _                    -> error "Rule.Prim.many: combinator 'many' is applied to a parser that accepts an empty string."
                            Consumed (Error err)       -> Error err
-                           Consumed (Ok x state' err) -> let ys = accum x xs
+                           Consumed (Ok x state' _)   -> let ys = accum x xs
                                                          in seq ys (walk ys state' (p state'))
     in case (p state) of
          Empty reply  -> case reply of
-                           Ok x state' err -> error "Rule.Prim.many: combinator 'many' is applied to a parser that accepts an empty string."
+                           Ok _ _ _ -> error "Rule.Prim.many: combinator 'many' is applied to a parser that accepts an empty string."
                            Error err       -> Empty (Ok [] state err)
          consumed     -> Consumed $ walk [] state consumed)
 
@@ -429,7 +429,7 @@ tokens showss nextposs s
 
 tokens :: Eq tok => ([tok] -> String) -> (SourcePos -> [tok] -> SourcePos) -> [tok] -> GenParser tok st [tok]
 tokens shows nextposs s
-    = Parser (\state@(State input pos user) -> 
+    = Parser (\ (State input pos user) -> 
        let
         ok cs             = let newpos   = nextposs pos s
                                 newstate = State cs newpos user
@@ -442,12 +442,12 @@ tokens shows nextposs s
                                      (newErrorMessage (SysUnExpect (shows [c])) pos))
 
         walk [] cs        = ok cs
-        walk xs []        = errEof
+        walk _ []         = errEof
         walk (x:xs) (c:cs)| x == c        = walk xs cs
                           | otherwise     = errExpect c
 
         walk1 [] cs        = Empty (ok cs)
-        walk1 xs []        = Empty (errEof)
+        walk1 _ []         = Empty (errEof)
         walk1 (x:xs) (c:cs)| x == c        = Consumed (walk xs cs)
                            | otherwise     = Empty (errExpect c)
 

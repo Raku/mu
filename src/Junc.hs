@@ -38,8 +38,10 @@ juncTypeIs v ts
     = Nothing
 
 mergeJunc j ds vs
-    | j == JAny = Junc j (mkSet ds) (mkSet vs)
-    | j == JOne = Junc j dups vals
+    = case j of
+       JAny -> Junc j (mkSet ds) (mkSet vs)
+       JOne -> Junc j dups vals
+       x    -> internalError $ "mergeJunk pattern failure: " ++ (show x)
     where
     vals = mkSet [ v | [v] <- group $ sort vs ]
     dups = mkSet (ds ++ [ v | (v:_:_) <- group $ sort (vs ++ ds) ])
@@ -65,6 +67,7 @@ juncApply f args
     appSet x y = return . mkSet =<< appList x y
     appList (before, (ApplyArg name _ coll):after) vs = do
         mapM (\v -> juncApply f (before ++ ((ApplyArg name v coll):after))) $ setToList vs
+    appList _ _ = internalError "appList: list doesn't begin with ApplyArg"
 
 isTotalJunc arg
     | (ApplyArg _ (VJunc j) b) <- arg

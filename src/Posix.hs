@@ -27,7 +27,6 @@ module Posix (
 #ifdef PUGS_HAVE_POSIX
 import System.Posix.Env
 import System.Posix.Files
-import System.Posix.Process
 import System.Posix.Unistd
 #else
 

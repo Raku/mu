@@ -34,7 +34,7 @@ emptyArrayExp :: Exp
 emptyArrayExp = Val $ VArray $ vCast $ VList []
 
 bindHash :: [Exp] -> [Param] -> MaybeError [(Param, Exp)]
-bindHash vs []          = return []
+bindHash _ []          = return []
 bindHash [] [p]         = return [ (p, emptyHashExp) ]
 bindHash vs (p:ps@(_:_))= do
     first <- (bindHash vs [p])
@@ -58,22 +58,24 @@ doIndex v n = Syn "cxt" [Val $ VStr "Scalar", Syn "[]" [v, Val $ VInt n]]
 
 doBindArray :: Exp -> ([(Param, Exp)], VInt) -> (Param, Char) -> MaybeError ([(Param, Exp)], VInt)
 doBindArray _ (xs, -1) (p, '@') = return (((p, emptyArrayExp):xs), -1)
-doBindArray _ (xs, -1) (p, '$') = fail $ "Slurpy array followed by slurpy scalar: " ++ show p
+doBindArray _ (_, -1) (p, '$') = fail $ "Slurpy array followed by slurpy scalar: " ++ show p
 doBindArray v (xs, n)  (p, '@') = return (((p, doSlice v [n..]):xs), -1)
 doBindArray v (xs, n)  (p, '$') = case v of
     (Syn "," [])    -> fail $ "Insufficient arguments for slurpy scalar"
     _               -> return (((p, doIndex v n):xs), n+1)
+doBindArray _ (_, _)  (_, x) = internalError $ "doBindArray: unexpected char: " ++ (show x)
 
 bindEmpty :: Param -> MaybeError (Param, Exp)
 bindEmpty p = case paramName p of
     ('@':_) -> return (p, emptyArrayExp)
     ('$':_) -> fail $ "Unbound slurpy scalar: " ++ show p
-    other   -> error $ "Impossible - unknown slurpy sigil in param: " ++ other
+    (x:_)   -> internalError $ "bindEmpty: unexpected char: " ++ (show x)
+    []      -> internalError $ "bindEmpty: empty string encountered"
 
 isPair :: Exp -> Bool
-isPair (Syn "=>" [(Val v), _])   = True
-isPair (Val (VPair (_, _)))             = True
-isPair _                                = False
+isPair (Syn "=>" [(Val _), _])   = True
+isPair (Val (VPair (_, _)))      = True
+isPair _                         = False
 
 unPair :: Exp -> (String, Exp)
 unPair (Syn "=>" [(Val k), exp]) = (vCast k, exp)

@@ -30,7 +30,10 @@ type SourceName     = String
 type Line           = Int
 type Column         = Int
 
-data SourcePos      = SourcePos SourceName !Line !Column
+data SourcePos      = SourcePos {sourceName   :: SourceName,
+                                 sourceLine   :: !Line,
+                                 sourceColumn :: !Column}
+                                               
 		     deriving (Eq,Ord)
 		
 
@@ -41,16 +44,12 @@ newPos sourceName line column
 initialPos sourceName
     = newPos sourceName 1 1
 
-sourceName   (SourcePos name line column)   = name    
-sourceLine   (SourcePos name line column)   = line    
-sourceColumn (SourcePos name line column)   = column
+incSourceLine   s@(SourcePos _ line _)   n = s{sourceLine=(line+n)}
+incSourceColumn s@(SourcePos _ _ column) n = s{sourceColumn=(column+n)}
 
-incSourceLine   (SourcePos name line column) n    = SourcePos name (line+n) column
-incSourceColumn (SourcePos name line column) n    = SourcePos name line (column+n)
-
-setSourceName   (SourcePos name line column) n    = SourcePos n line column
-setSourceLine   (SourcePos name line column) n    = SourcePos name n column
-setSourceColumn (SourcePos name line column) n    = SourcePos name line n
+setSourceName   s n = s{sourceName  =n}
+setSourceLine   s n = s{sourceLine  =n}
+setSourceColumn s n = s{sourceColumn=n}
 
 -----------------------------------------------------------
 -- Update source positions on characters
@@ -60,7 +59,7 @@ updatePosString pos string
     = forcePos (foldl updatePosChar pos string)
 
 updatePosChar   :: SourcePos -> Char -> SourcePos
-updatePosChar pos@(SourcePos name line column) c   
+updatePosChar (SourcePos name line column) c   
     = forcePos $
       case c of
         '\n' -> SourcePos name (line+1) 1
@@ -69,7 +68,7 @@ updatePosChar pos@(SourcePos name line column) c
         
 
 forcePos :: SourcePos -> SourcePos      
-forcePos pos@(SourcePos name line column)
+forcePos pos@(SourcePos _ line column)
     = seq line (seq column (pos))
 
 -----------------------------------------------------------

@@ -1,4 +1,4 @@
-{-# OPTIONS -fglasgow-exts #-}
+{-# OPTIONS -fglasgow-exts -fno-warn-unused-binds #-}
 
 {-
     Continuation with shift/reset operators.

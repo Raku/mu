@@ -26,7 +26,7 @@ class Value n where
     vCast (VArray (MkArray v))    = vCast $ VList v
     vCast v             = doCast v
     castV :: n -> Val
-    castV v = error $ "cannot cast into Val"
+    castV _ = error $ "cannot cast into Val"
     doCast :: Val -> n
     doCast v = error $ "cannot cast from Val: " ++ (show v)
     fmapVal :: (n -> n) -> Val -> Val
@@ -39,7 +39,7 @@ instance Value VPair where
     -- vCast (MVal v)      = vCast $ castV v
     vCast v             = case vCast v of
         [x, y]  -> (x, y)
-        other   -> error $ "cannot cast into VPair: " ++ (show v)
+        _       -> error $ "cannot cast into VPair: " ++ (show v)
 
 instance Value VHash where
     castV = VHash
@@ -94,6 +94,7 @@ juncToBool (Junc JOne  ds vs)
     | otherwise
     = (1 ==) . length . filter vCast $ setToList vs
 
+readMVal :: MonadIO m => Val -> m Val
 readMVal (MVal mv) = readMVal =<< liftIO (readIORef mv)
 readMVal v         = return v
 
@@ -128,7 +129,7 @@ instance Value VNum where
     doCast (VList l)    = genericLength l
     doCast (VArray (MkArray a))    = genericLength a
     doCast (VHash (MkHash h))    = fromIntegral $ sizeFM h
-    doCast x            = 0/0 -- error $ "cannot cast as Num: " ++ (show x)
+    doCast _            = 0/0 -- error $ "cannot cast as Num: " ++ (show x)
 
 instance Value VComplex where
     castV = VComplex
@@ -140,7 +141,7 @@ instance Value VStr where
     vCast (VStr s)      = s
     vCast (VBool b)     = if b then "1" else ""
     vCast (VInt i)      = show i
-    vCast (VRat r)      = showNum $ realToFrac r
+    vCast (VRat r)      = showNum $ (realToFrac r :: Double)
     vCast (VNum n)      = showNum n
     vCast (VList l)     = unwords $ map vCast l
     vCast (VRef v)      = vCast v
@@ -150,6 +151,7 @@ instance Value VStr where
     vCast (VSub s)      = "<" ++ show (subType s) ++ "(" ++ subName s ++ ")>"
     vCast x             = error $ "cannot cast as Str: " ++ (show x)
 
+showNum :: Show a => a -> String
 showNum x
     | (i, ".0") <- break (== '.') str
     = i -- strip the trailing ".0"
@@ -162,7 +164,7 @@ instance Value VArray where
     vCast x = MkArray (vCast x) 
 
 instance Value MVal where
-    castV ref = error "bye~" --unsafePerformIO $ readIORef ref
+    castV _ = error "Cannot cast MVal into Value!"
     vCast (MVal x)      = x
     vCast (VRef v)      = vCast v
     vCast (VPair (_, y))= vCast y
@@ -208,13 +210,16 @@ instance Value VScalar where
     vCast = id
     castV = id -- XXX not really correct; need to referencify things
 
+strRangeInf :: String -> [String]
 strRangeInf s = (s:strRangeInf (strInc s))
 
+strRange :: String -> String -> [String]
 strRange s1 s2
     | s1 == s2              = [s2]
     | length s1 > length s2 = []
     | otherwise             = (s1:strRange (strInc s1) s2)
 
+strInc :: String -> String
 strInc []       = "1"
 strInc "z"      = "aa"
 strInc "Z"      = "AA"
@@ -228,8 +233,10 @@ strInc str
     x   = last str
     xs  = init str
 
+charInc :: Char -> Char
 charInc x   = chr $ 1 + ord x
 
+intCast :: Num b => Val -> b
 intCast x   = fromIntegral (vCast x :: VInt)
 
 type VBool = Bool
@@ -271,6 +278,7 @@ data Val
     | VControl  VControl
     deriving (Show, Eq, Ord)
 
+valType :: Val -> String
 valType VUndef          = "Any"
 valType (VRef v)        = valType v
 valType (VBool    _)    = "Bool"
@@ -341,7 +349,7 @@ instance (Show a) => Show (Set a) where
 instance Ord VComplex where {- ... -}
 instance (Ord a, Ord b) => Ord (FiniteMap a b)
 instance Ord MVal where
-    compare x y = LT -- compare (castV x) (castV y)
+    compare _ _ = EQ -- compare (castV x) (castV y)
 instance Show MVal where
     show _ = "<mval>"
 instance Show (IORef Pad) where
@@ -368,12 +376,12 @@ instance Show (CharParser Env Exp) where
     show _ = "<parser>"
 instance Eq (CharParser Env Exp)
 instance Ord (CharParser Env Exp) where
-    compare _ _ = LT
+    compare _ _ = EQ
 
 extractExp :: Exp -> ([Exp], [String]) -> ([Exp], [String])
-extractExp exp (exps, vs) = (exp':exps, vs')
+extractExp ex (exps, vs) = (ex':exps, vs')
     where
-    (exp', vs') = extract (exp, vs)
+    (ex', vs') = extract (ex, vs)
 
 extract :: (Exp, [String]) -> (Exp, [String])
 extract ((App n invs args), vs) = (App n invs' args', vs'')
@@ -397,21 +405,25 @@ extract ((Var name), vs)
     = (Var name, insert name vs)
     | otherwise
     = (Var name, vs)
-extract ((Parens exp), vs) = ((Parens exp'), vs')
+extract ((Parens ex), vs) = ((Parens ex'), vs')
     where
-    (exp', vs') = extract (exp, vs)
+    (ex', vs') = extract (ex, vs)
 extract other = other
 
+cxtOfSigil :: Char -> String
 cxtOfSigil '$'  = "Scalar"
 cxtOfSigil '@'  = "Array"
 cxtOfSigil '%'  = "Hash"
 cxtOfSigil '&'  = "Code"
+cxtOfSigil x    = internalError $ "cxtOfSigil: unexpected character: " ++ (show x)
 
 --- cxtOf '*' '$'   = "List"
+cxtOf :: Char -> Char -> String
 cxtOf '*' '@'   = "List"
 cxtOf _   _     = "Scalar"
 
-buildParam cxt sigil name exp = Param
+buildParam :: String -> String -> String -> Exp -> Param
+buildParam cxt sigil name e = Param
     { isInvocant    = False
     , isSlurpy      = (sigil == "*")
     , isOptional    = (sigil ==) `any` ["?", "+"]
@@ -419,11 +431,15 @@ buildParam cxt sigil name exp = Param
     , isLValue      = False
     , paramName     = name
     , paramContext  = if null cxt then defaultCxt else cxt
-    , paramDefault  = exp
+    , paramDefault  = e
     }
     where
     sig = if null sigil then ' ' else head sigil
     defaultCxt = cxtOf sig (head name) 
+
+defaultArrayParam :: Param
+defaultHashParam :: Param
+defaultScalarParam :: Param
 
 defaultArrayParam   = buildParam "" "*" "@_" (Val VUndef)
 defaultHashParam    = buildParam "" "*" "%_" (Val VUndef)

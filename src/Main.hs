@@ -49,7 +49,7 @@ run ("--version":_)             = banner
 run ("-c":"-e":prog:_)          = doParse prog
 run ("-ce":prog:_)              = doParse prog
 run ("-c":file:_)               = readFile file >>= doParse
-run ("-":args)                  = do
+run ("-":_)                     = do
     prog <- getContents
     doRun "-" [] prog
 run (file:args)                 = readFile file >>= doRun file args
@@ -68,8 +68,9 @@ repLoop
            CmdEval prog -> doEval [] prog >> repLoop
            CmdParse prog-> doParse prog >> repLoop
            CmdHelp      -> printHelp >> repLoop
+           _            -> internalError "repLoop unimplemented command: "
 
-load fn = return ()
+load _ = return ()
 
 parse = doParse
 eval prog = doEval [] prog
@@ -86,7 +87,7 @@ doRun :: String -> [String] -> String -> IO ()
 doRun = do
     runProgramWith (\e -> e{ envDebug = Nothing }) end
     where
-    end v@(VError str exp)  = do
+    end (VError str exp)  = do
         hPutStrLn stderr str
         hPutStrLn stderr (show exp)
         exitFailure
