@@ -53,6 +53,8 @@ debug key fun str a = do
         Just ref -> liftIO $ do
             fm <- readIORef ref
             let val = fun $ lookupWithDefaultFM fm "" key
+            when (length val > 50) $ do
+                error "recursion too deep"
             writeIORef ref (addToFM fm key val)
             putStrLn ("***" ++ val ++ str ++ ": " ++ pretty a)
 
@@ -246,7 +248,7 @@ doReduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         vlist <- enterEvalContext "List" list
         vsub  <- enterEvalContext "Code" body
         let vals = concatMap vCast $ vCast vlist
-            runBody [] = retVal VUndef
+            runBody [] = return $ Val VUndef
             runBody (v:vs) = do
                 doApply env (vCast vsub) [] [Val v]
                 runBody vs
@@ -352,7 +354,11 @@ doReduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
 
 doReduce env@Env{ envClasses = cls, envContext = cxt, envLexical = lex, envGlobal = glob } exp@(App name invs args) = do
     syms    <- liftIO $ readIORef glob
-    subSyms <- mapM evalSym [ sym | sym <- lex ++ syms, head (symName sym) == '&' ]
+    subSyms <- mapM evalSym
+        [ sym | sym <- lex ++ syms
+        , let n = symName sym
+        , (n ==) `any` [name, toGlobal name]
+        ]
     lens    <- mapM argSlurpLen (invs ++ args)
     case findSub (sum lens) subSyms name of
         Just sub    -> applySub subSyms sub invs args
@@ -400,7 +406,6 @@ doReduce env@Env{ envClasses = cls, envContext = cxt, envLexical = lex, envGloba
         )
         | ((n, val), order) <- subSyms `zip` [0..]
         , let sub@(Sub{ subType = subT, subReturns = ret, subParams = prms }) = vCast val
-        , (n ==) `any` [name, toGlobal name]
         , let isGlobal = '*' `elem` n
         , let fun = arityMatch sub (length (invs ++ args)) slurpLen
         , isJust fun
