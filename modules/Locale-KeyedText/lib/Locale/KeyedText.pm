@@ -917,7 +917,6 @@ a glance, and not be intimidated by large amounts of detailed information.
 
 =head1 SEE ALSO
 
-These Perl 5 modules: L<Locale::Maketext>, L<Locale::gettext>,
-L<Locale::PGetText>, L<DBIx::BabelKit>.
+L<Locale::Maketext>, L<Locale::gettext>, L<Locale::PGetText>, L<DBIx::BabelKit>.
 
 =cut

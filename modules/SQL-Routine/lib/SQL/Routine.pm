@@ -17,7 +17,7 @@ Core Modules: I<none>
 
 Non-Core Modules: 
 
-	Locale::KeyedText-0.0.3 (for error messages)
+	Locale::KeyedText-0.0.4 (for error messages)
 
 =head1 COPYRIGHT AND LICENSE
 
@@ -1070,7 +1070,7 @@ my %NODE_TYPES is constant = (
 			'is_local_proc' => 'bool',
 			'is_network_svc' => 'bool',
 		},
-		$TPI_SI_ATNM => ['id',undef,undef,undef],
+		$TPI_SI_ATNM => [undef,'si_name',undef,undef],
 		$TPI_MA_ATNMS => [['si_name','product_code'],[],[]],
 		$TPI_MUTEX_ATGPS => [
 			['type',['is_memory_based','is_file_based','is_local_proc','is_network_svc'],[],[],1],
@@ -1086,7 +1086,7 @@ my %NODE_TYPES is constant = (
 			'product_code' => 'cstr',
 			'is_proxy' => 'bool',
 		},
-		$TPI_SI_ATNM => ['id',undef,undef,undef],
+		$TPI_SI_ATNM => [undef,'si_name',undef,undef],
 		$TPI_MA_ATNMS => [['si_name','product_code'],[],[]],
 	},
 	'catalog_instance' => {
@@ -3767,32 +3767,32 @@ of, since more advanced features are not shown for brevity.
 		# Note that 'user' descriptions are only stored in a SQL::Routine model when that model is being used to create 
 		# database catalogs and/or create or modify database users; otherwise 'user' should not be kept for security sake.
 		$model.build_child_node_trees( [
-	#		[ 'catalog_instance', { 'si_name' => 'test', 'blueprint' => $catalog_bp, 'product' => 'PostgreSQL v8', }, [
-	#			[ 'user', { 'si_name' => 'ronsealy', 'user_type' => 'SCHEMA_OWNER', 'match_owner' => 'Lord of the Root', 'password' => 'K34dsD', }, ],
-	#			[ 'user', { 'si_name' => 'joesmith', 'user_type' => 'DATA_EDITOR', 'password' => 'fdsKJ4', }, ],
-	#		], ],
+			[ 'catalog_instance', { 'si_name' => 'test', 'blueprint' => $catalog_bp, 'product' => 'PostgreSQL v8', }, [
+				[ 'user', { 'si_name' => 'ronsealy', 'user_type' => 'SCHEMA_OWNER', 'match_owner' => 'Lord of the Root', 'password' => 'K34dsD', }, ],
+				[ 'user', { 'si_name' => 'joesmith', 'user_type' => 'DATA_EDITOR', 'password' => 'fdsKJ4', }, ],
+			], ],
 			[ 'application_instance', { 'si_name' => 'test app', 'blueprint' => $application_bp, }, [
-	#			[ 'catalog_link_instance', { 'blueprint' => 'editor_link', 'product' => 'Microsoft ODBC v3', 'target' => 'test', 'local_dsn' => 'keep_it', }, ],
+				[ 'catalog_link_instance', { 'blueprint' => 'editor_link', 'product' => 'Microsoft ODBC v3', 'target' => 'test', 'local_dsn' => 'keep_it', }, ],
 			], ],
 		] );
 
 
 		# This defines another concrete instance each of the database catalog and an application using it.
 		$model.build_child_node_trees( [
-	#		[ 'catalog_instance', { 'si_name' => 'production', 'blueprint' => $catalog_bp, 'product' => 'Oracle v10g', }, [
-	#			[ 'user', { 'si_name' => 'florence', 'user_type' => 'SCHEMA_OWNER', 'match_owner' => 'Lord of the Root', 'password' => '0sfs8G', }, ],
-	#			[ 'user', { 'si_name' => 'thainuff', 'user_type' => 'DATA_EDITOR', 'password' => '9340sd', }, ],
-	#		], ],
+			[ 'catalog_instance', { 'si_name' => 'production', 'blueprint' => $catalog_bp, 'product' => 'Oracle v10g', }, [
+				[ 'user', { 'si_name' => 'florence', 'user_type' => 'SCHEMA_OWNER', 'match_owner' => 'Lord of the Root', 'password' => '0sfs8G', }, ],
+				[ 'user', { 'si_name' => 'thainuff', 'user_type' => 'DATA_EDITOR', 'password' => '9340sd', }, ],
+			], ],
 			[ 'application_instance', { 'si_name' => 'production app', 'blueprint' => $application_bp, }, [
-	#			[ 'catalog_link_instance', { 'blueprint' => 'editor_link', 'product' => 'Oracle OCI*8', 'target' => 'production', 'local_dsn' => 'ship_it', }, ],
+				[ 'catalog_link_instance', { 'blueprint' => 'editor_link', 'product' => 'Oracle OCI*8', 'target' => 'production', 'local_dsn' => 'ship_it', }, ],
 			], ],
 		] );
 
 		# This defines a third concrete instance each of the database catalog and an application using it.
 		$model.build_child_node_trees( [
-	#		[ 'catalog_instance', { 'si_name' => 'laptop demo', 'blueprint' => $catalog_bp, 'product' => 'SQLite v3.2', 'file_path' => 'Move It', }, ],
+			[ 'catalog_instance', { 'si_name' => 'laptop demo', 'blueprint' => $catalog_bp, 'product' => 'SQLite v3.2', 'file_path' => 'Move It', }, ],
 			[ 'application_instance', { 'si_name' => 'laptop demo app', 'blueprint' => $application_bp, }, [
-	#			[ 'catalog_link_instance', { 'blueprint' => 'editor_link', 'product' => 'Rosetta::Engine::Generic', 'target' => 'laptop demo', }, ],
+				[ 'catalog_link_instance', { 'blueprint' => 'editor_link', 'product' => 'Generic Rosetta Engine', 'target' => 'laptop demo', }, ],
 			], ],
 		] );
 
@@ -3823,6 +3823,14 @@ of, since more advanced features are not shown for brevity.
 		}
 		return $message; # if this isn't the right kind of object
 	}
+
+Note that one key feature of SQL::Routine is that all of a model's pieces are
+linked by references rather than by name as in SQL itself.  For example, the
+name of the 'person' table is only stored once internally; if, after executing
+all of the above code, you were to run "$tb_person.set_literal_attribute(
+'si_name', 'The Huddled Masses' );", then all of the other parts of the model
+that referred to the table would not break, and an XML dump would show that all
+the references now say 'The Huddled Masses'.
 
 I<For some more (older) examples of SQL::Routine in use, see its test suite code.>
 
@@ -3980,9 +3988,24 @@ This is the XML that the above get_all_properties_as_xml_str() prints out:
 			<data_link_product id="109" si_name="Generic Rosetta Engine" product_code="Rosetta::Engine::Generic" />
 		</tools>
 		<sites>
-			<application_instance id="110" si_name="test app" blueprint="Gene App" />
-			<application_instance id="111" si_name="production app" blueprint="Gene App" />
-			<application_instance id="112" si_name="laptop demo app" blueprint="Gene App" />
+			<catalog_instance id="110" si_name="test" blueprint="Gene Database" product="PostgreSQL v8">
+				<user id="111" si_name="ronsealy" user_type="SCHEMA_OWNER" match_owner="Lord of the Root" password="K34dsD" />
+				<user id="112" si_name="joesmith" user_type="DATA_EDITOR" password="fdsKJ4" />
+			</catalog_instance>
+			<application_instance id="113" si_name="test app" blueprint="Gene App">
+				<catalog_link_instance id="114" blueprint="editor_link" product="Microsoft ODBC v3" target="test" local_dsn="keep_it" />
+			</application_instance>
+			<catalog_instance id="115" si_name="production" blueprint="Gene Database" product="Oracle v10g">
+				<user id="116" si_name="florence" user_type="SCHEMA_OWNER" match_owner="Lord of the Root" password="0sfs8G" />
+				<user id="117" si_name="thainuff" user_type="DATA_EDITOR" password="9340sd" />
+			</catalog_instance>
+			<application_instance id="118" si_name="production app" blueprint="Gene App">
+				<catalog_link_instance id="119" blueprint="editor_link" product="Oracle OCI*8" target="production" local_dsn="ship_it" />
+			</application_instance>
+			<catalog_instance id="120" si_name="laptop demo" blueprint="Gene Database" product="SQLite v3.2" file_path="Move It" />
+			<application_instance id="121" si_name="laptop demo app" blueprint="Gene App">
+				<catalog_link_instance id="122" blueprint="editor_link" product="Generic Rosetta Engine" target="laptop demo" />
+			</application_instance>
 		</sites>
 		<circumventions />
 	</root>
@@ -4072,6 +4095,9 @@ database schema objects:
 	DROP TABLE person;
 	DROP VIEW person_with_parents;
 	DROP FUNCTION get_person;
+
+I<See also the separately distributed SQL::Routine::SQLBuilder module, which is
+a reference implementation of a SQL:2003 (and more) generator for SQL::Routine.>
 
 =head1 DESCRIPTION
 
