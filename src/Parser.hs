@@ -230,8 +230,7 @@ ruleVarDeclarationSingle scope = do
     return [Sym $ Symbol scope name exp]
 
 ruleVarDeclarationMultiple scope = do
-    names   <- parens $ parseVarName `sepEndBy1` symbol ","
-    
+    names   <- parens $ parseVarName `sepEndBy` symbol ","
     (sym, exps) <- option ("=", []) $ do
         sym <- tryChoice $ map symbol $ words " = := ::= "
         exp <- ruleExpression
