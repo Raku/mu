@@ -21,12 +21,16 @@ import External.Haskell.DynamicLoader
 
 loadHaskell :: FilePath -> IO [(String, [Val] -> Eval Val)]
 loadHaskell file = do
+    resolveFunctions
     mod     <- loadModuleFromPath "/usr/src/SHA1/SHA1__0_0_1.o" (Just "/usr/src/SHA1/")
-    extern <- (loadFunction mod "extern__" :: IO [String])
-    trace (show extern) return ()
+--    print (">" ++ (show mod) ++ "<")
+    resolveFunctions
+    extern  <- (loadFunction mod "extern__" :: IO [[Char]])
+--    print (">" ++ (show extern) ++ "<")
     (`mapM` extern) $ \name -> do
         func <- loadFunction mod $ "extern__" ++ name
         return (name, func)
+--    return []
 
 externalizeHaskell :: String -> String -> IO String
 externalizeHaskell mod code = do
