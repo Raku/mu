@@ -18,14 +18,18 @@ import Rule
 
 type Ident = String
 
+doFromValue v = do
+    rv <- liftIO $ catchJust errorCalls (return . Right $ vCast v) $
+        \str -> return (Left str)
+    case rv of
+        Right v -> return v
+        Left e  -> retError e (Val v) -- XXX: not working yet
+
+fromMVal = (>>= fromValue) . readMVal
+
 class Value n where
     fromValue :: Val -> Eval n
-    fromValue v = do
-        rv <- liftIO $ catchJust errorCalls (return . Right $ vCast v) $
-            \str -> return (Left str)
-        case rv of
-            Right v -> return v
-            Left e  -> retError e (Val v) -- XXX: not working yet
+    fromValue = doFromValue
     vCast :: Val -> n
     -- vCast (MVal v)      = vCast $ castV v
     vCast (VRef v)      = vCast v
@@ -144,6 +148,15 @@ instance Value VComplex where
 
 instance Value VStr where
     castV = VStr
+    fromValue (VHash (MkHash h)) = do
+        ls <- mapM strPair $ fmToList h
+        return $ unlines ls
+        where
+        strPair (k, v) = do
+            k' <- fromMVal k
+            v' <- fromMVal v
+            return $ k' ++ "\t" ++ v'
+    fromValue v = doFromValue v
     vCast VUndef        = ""
     vCast (VStr s)      = s
     vCast (VBool b)     = if b then "1" else ""

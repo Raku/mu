@@ -87,7 +87,7 @@ op1 "--"   = \mv -> do
 op1 "-"    = return . op1Numeric negate
 op1 "scalar" = return -- XXX refify?
 op1 "list" = return . VList . vCast
-op1 "~"    = return . VStr . vCast
+op1 "~"    = (>>= (return . VStr)) . (>>= fromValue) . readMVal
 op1 "?"    = return . VBool . vCast
 op1 "int"  = return . VInt . vCast
 op1 "*"    = return . VList . vCast -- signature defeating?

@@ -323,23 +323,29 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
                 listVal  <- readMVal listMVal
                 indexVal <- evalExp indexExp
                 val'     <- enterEvalContext "List" exp
+                valList  <- mapM newMVal $ vCast val'
                 let indexes = (map vCast $ vCast indexVal :: [VInt])
                     list = concatMap vCast $ case listVal of
                         VUndef  -> [] -- autovivification
                         _       -> vCast listVal
-                    assignTo curr (index, val) = pre ++ [val] ++ post
+                    assignTo curr (index, val) = do
+                        pre <- preM
+                        return $ pre ++ [val] ++ genericDrop (index + 1) curr
                         where
-                        pre     = genericTake index (curr ++ repeat VUndef)
-                        post    = genericDrop (index + 1) curr
-                writeMVal listMVal . VList . foldl assignTo list $ indexes `zip` vCast val'
+                        preM    = do   
+                            let currM = map return curr ++ repeat (newMVal VUndef)
+                            sequence $ genericTake index currM
+                newList  <- foldM assignTo list $ indexes `zip` valList
+                writeMVal listMVal $ VList newList
                 retVal val'
             [Syn "{}" [Var name, indexExp], exp] -> do
                 hashMVal  <- evalVar name
                 hashVal   <- readMVal hashMVal
                 indexMVal <- evalExp indexExp
                 indexVal  <- readMVal indexMVal
-                val' <- enterEvalContext "Scalar" exp
-                let hash = addToFM fm indexVal val'
+                val'      <- enterEvalContext "Scalar" exp
+                valScalar <- newMVal val'
+                let hash = addToFM fm indexVal valScalar
                     fm = case hashVal of
                             VUndef  -> emptyFM -- autovivification
                             _       -> vCast hashVal
