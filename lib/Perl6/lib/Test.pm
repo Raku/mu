@@ -61,10 +61,10 @@ sub todo_is (Str $got, Str $expected, Str ?$desc) returns Bool is export {
     return ($ok eq "ok ");
 }
 
-sub skip (Str $reason) returns Bool is export {
+sub skip (Str ?$reason) returns Bool is export {
     my $out := defined($reason) ?? ( " - " ~ $reason) :: "";
     $loop++;
-    say "ok " ~ $loop ~ " # skip " ~ $out;
+    say "ok ", $loop, " # skip", $out;
     return 1;
 }
 
