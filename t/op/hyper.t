@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 11;
+plan 22;
 
 { # binary infix
 	my @r;
@@ -11,25 +11,49 @@ plan 11;
 	my @e = (3, 6, 9);
 	is(~@r, ~@e, "hyper-sum two arrays");
 
+	eval '@r = (1, 2, 3) >>+<< (2, 4, 6)';
+	@e = (3, 6, 9);
+	is(~@r, ~@e, "hyper-sum two arrays ASCII notation");
+
 	@r = (1, 2, 3) »*« (2, 4, 6);
 	@e = (2, 8, 18);
 	is(~@r, ~@e, "hyper-multiply two arrays");
+
+	@r = (1, 2, 3) >>*<< (2, 4, 6);
+	@e = (2, 8, 18);
+	is(~@r, ~@e, "hyper-multiply two arrays ASCII notation");
 
 	@r = (1, 2, 3) »x« (3, 2, 1);
 	@e = ('111', '22', '3');
 	is(~@r, ~@e, "hyper-x two arrays");
 
+	@r = (1, 2, 3) >>x<< (3, 2, 1);
+	@e = ('111', '22', '3');
+	is(~@r, ~@e, "hyper-x two arrays ASCII notation");
+
 	@r = (1, 2, 3) »xx« (3, 2, 1);
 	@e = ((1,1,1), (2,2), (3));
 	is(~@r, ~@e, "hyper-xx two arrays");
+
+	@r = (1, 2, 3) >>xx<< (3, 2, 1);
+	@e = ((1,1,1), (2,2), (3));
+	is(~@r, ~@e, "hyper-xx two arrays ASCII notation");
 
 	@r = (20, 40, 60) »/« (2, 5, 10);
 	@e = (10, 8, 6);
 	is(~@r, ~@e, "hyper-divide two arrays");
 
+	@r = (20, 40, 60) >>/<< (2, 5, 10);
+	@e = (10, 8, 6);
+	is(~@r, ~@e, "hyper-divide two arrays ASCII notation");
+
 	@r = (1, 2, 3) »+« (10, 20, 30) »*« (2, 3, 4);
 	@e = (21, 62, 123);
 	is(~@r, ~@e, "precedence - »+« vs »*«");
+
+	@r = (1, 2, 3) >>+<< (10, 20, 30) >>*<< (2, 3, 4);
+	@e = (21, 62, 123);
+	is(~@r, ~@e, "precedence - >>+<< vs >>*<< ASCII notation");
 };
 
 { # unary postfix
@@ -37,6 +61,11 @@ plan 11;
 	eval '@r »++';
 	my @e = (2, 3, 4);
 	todo_is(~@r, ~@e, "hyper auto increment an array");
+
+	@r = (1, 2, 3);
+	eval '@r >>++';
+	@e = (2, 3, 4);
+	todo_is(~@r, ~@e, "hyper auto increment an array ASCII notation");
 };
 
 { # unary prefix
@@ -44,6 +73,10 @@ plan 11;
 	eval '@r = -« (3, 2, 1)';
 	my @e = (-3, -2, -1);
 	todo_is(~@r, ~@e, "hyper op on assignment/pipeline");
+
+	eval '@r = -<< (3, 2, 1)';
+	@e = (-3, -2, -1);
+	todo_is(~@r, ~@e, "hyper op on assignment/pipeline ASCII notation");
 };
 
 { # dimention upgrade
@@ -52,15 +85,27 @@ plan 11;
 	my @e = (2, 3, 4);
 	is(~@r, ~@e, "auto dimension upgrade on rhs");
 
+	eval '@r = (1, 2, 3) >>+<< 1';
+	@e = (2, 3, 4);
+	is(~@r, ~@e, "auto dimension upgrade on rhs ASCII notation");
+
 	@r = 2 »*« (10, 20, 30);
 	@e = (20, 40, 60);
 	is(~@r, ~@e, "auto dimension upgrade on lhs");
+
+	@r = 2 >>*<< (10, 20, 30);
+	@e = (20, 40, 60);
+	is(~@r, ~@e, "auto dimension upgrade on lhs ASCII notation");
 };
 
 { # unary postfix again, but with a twist
 	my @r;
 	eval '@r = ("f", "oo", "bar")».length';
 	my @e = (1, 2, 3);
+	todo_is(~@r, ~@e);
+
+	eval '@r = ("f", "oo", "bar")>>.length';
+	@e = (1, 2, 3);
 	todo_is(~@r, ~@e);
 };
 

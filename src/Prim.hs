@@ -317,6 +317,7 @@ mapStr2Fill f x y = map (chr . fromEnum . uncurry f) $ x `zipFill` y
 
 op2 :: Ident -> Val -> Val -> Eval Val
 op2 op | "»" `isPrefixOf` op = op2Hyper . init . init . drop 2 $ op
+op2 op | ">>" `isPrefixOf` op = op2Hyper . init . init . drop 2 $ op
 op2 "rename" = boolIO2 rename
 op2 "symlink" = boolIO2 createSymbolicLink
 op2 "link" = boolIO2 createLink
@@ -771,6 +772,11 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   List      left    »/«     (Any, Any)\
 \\n   List      left    »x«     (Any, Any)\
 \\n   List      left    »xx«    (Any, Any)\
+\\n   List      left    >>+<<   (Any, Any)\
+\\n   List      left    >>*<<   (Any, Any)\
+\\n   List      left    >>/<<   (Any, Any)\
+\\n   List      left    >>x<<   (Any, Any)\
+\\n   List      left    >>xx<<  (Any, Any)\
 \\n   List      list    ,       (List)\
 \\n   List      list	¥		(Array)\
 \\n   List      list	Y		(Array)\

@@ -467,8 +467,9 @@ tightOperators = do
     , preSyn "* **" ++ preOps   " = ! + - ~ ? +^ ~^ ?^ \\ "         -- Symbolic Unary
     , leftOps $
                " »*« »/« »x« »xx« " ++
+               " >>*<< >>/<< >>x<< >>xx<< " ++
                " * / % x xx +& +< +> ~& ~< ~> "         -- Multiplicative
-    , leftOps  " »+« + - ~ +| +^ ~| ~^ "                -- Additive
+    , leftOps  " »+« >>+<< + - ~ +| +^ ~| ~^ "                -- Additive
     , listOps  " & ! "                                  -- Junctive And
     , listOps  " ^ | "                                  -- Junctive Or
     , preOps   unary                                    -- Named Unary
