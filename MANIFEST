@@ -52,6 +52,7 @@ t/Dialects/perlego/sigilless.t
 t/op/append.t
 t/op/arith.t
 t/op/array.t
+t/op/auto.t
 t/op/bit.t
 t/op/defined.t
 t/op/die.t
