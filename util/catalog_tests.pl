@@ -1,10 +1,45 @@
 #!/usr/bin/perl -w
 
+=kwid
+
+To generate a test catalog HTML dir, run
+
+    $ rm -rf test_catalog
+    $ perl util/catalog_tests.pl t/ test_catalog    # regenerates the pods
+    $ rm -rf test_catalog_html
+    $ mkdir test_catalog_html
+    $ perl -MPod::Simple::HTMLBatch -e 'Pod::Simple::HTMLBatch::go' test_catalog/ test_catalog_html/
+
+and now you have test_catalog_html/
+
+Note that only backlinked synopses are generated.
+
+= TODO
+
+* determine if the regexes could be coerced into a more concrete link (low priority)
+* cause L<news:msg@id.com> to link to google groups or wherever
+* find a way to link from synopses to test generated pod (=item per forward link in pod? it's consistent with the current output)
+
+=cut
+
 use strict;
 use Fatal qw/open close opendir closedir/;
-use File::Spec::Functions;
+use File::Spec::Functions qw/catfile curdir updir splitdir/;
+use Regexp::Common qw/balanced delimited/;
+use Pod::ParseUtils;
+use HTML::TreeBuilder;
+use File::Path qw/mkpath/;
+use File::Basename;
+use File::Slurp;
 
 $\ = "\n\n";
+
+my ($in, $out) = @ARGV;
+$in ||= "t";
+$out ||= "test_catalog";
+
+catalog_tests($in, $out);
+
 
 sub sort_files {
     return ((-d $a && -f $b) ? 1 :       # file beats directory
@@ -13,155 +48,251 @@ sub sort_files {
 }
 
 sub list_dir {
-	my ($path) = @_;
-	opendir DIR, $path;
-	my @contents = map { catfile($path, $_) } grep {
-					$_ ne curdir() && $_ ne updir()
-					} readdir(DIR);
-	close DIR;
-	return sort "sort_files", @contents;
+    my ($path) = @_;
+    opendir DIR, $path;
+    my @contents = map { catfile($path, $_) } grep {
+                    $_ ne curdir() && $_ ne updir()
+                    } readdir DIR;
+    closedir DIR;
+    return sort "sort_files", @contents;
 }
 
 sub catalog_tests {
-    my ($dir) = @_;
-    map {
+    my ($dir, $output) = @_;
+    for (list_dir($dir)) {
         if (-d $_ && !/Synopsis/ && !/Dialects/ && !/\.svn/) {
-        	print "=cut";
-        	print "### SPLIT HERE ### $_ ###"; # to be munged by F<util/split_test_catalog.pl> (you can just pipe)
-        	print "=pod";
-        	
-            print "=item F<$_>";
-            print "=over 4";
-            catalog_tests($_);
-            print "=back";
+            catalog_tests($_, $output);
         }
         elsif (-f $_ && /\.t$/) {
-            print "=item F<$_>";
-            catalog_file($_);    
+            catalog_file($_, $output);
         }
-    } list_dir($dir);
+    }
 }
 
 sub catalog_file {
+    my ($file, $output) = @_;
+    
+    my $dom = parse_file($file); # create a big hash of the info we care about, from each test
+
+    $file =~ s/\.t$//; # this is because stupid Pod::Simple::Search won't eat foo.t.pod
+    
+    prettify($file, $output, $dom); # write out a pod for the test, with all the data in it
+    cross_index($file, $output, $dom); # and also plant backlinks in the synopses it links to
+}
+
+sub prettify {
+    my ($file, $output, $dom) = @_;
+
+    my $target = catfile($output, "$file.pod");
+    mkpath dirname($target);
+    open FILE, ">", $target;
+    
+    my $doc = join("\n", map { $_->{text} } grep { $_->{type} eq 'doc' } @{ $dom->{items} });
+    
+    print FILE $_ for("=pod", "=head1 NAME", $file, "=head1 DESCRIPTION");
+    print FILE <<DESC;
+This is an automatically generated file of describing the aforementioned test.
+It might contain useful info such as test cases, and some info about them, as
+well as links to the synopses.
+DESC
+    print FILE $_ for ("=head1 DOCUMENTATION", $doc, "=head1 CONTENTS", "=over 4");
+
+    foreach my $item (grep { $_->{type} eq 'test' or $_->{'type'} eq 'link' } @{ $dom->{items} }){
+        print FILE "=item line $item->{line} - $item->{type}";
+        if ($item->{type} eq "test"){
+            print FILE "=over 4";
+            
+            if ($item->{kind}){
+                print FILE "=item *";
+                print FILE "kind: $item->{kind}()" . ($item->{todo} ? " # TODO" : "");
+            }
+            
+            if ($item->{desc}){
+                print FILE "=item *";
+                print FILE "description: $item->{desc}";
+            }
+            
+            if ($item->{comment}){
+                print FILE "=item *";
+                print FILE "comment: $item->{comment}";
+            }
+            
+            print FILE "=back";
+        } elsif ($item->{type} eq 'link'){
+            if ($item->{obj}){
+                print FILE "L<" . $item->{obj}->link . ">";
+            } else {
+                print FILE "COULD NOT BE PARSED: $item->{orig}";
+            }
+        }
+    }
+
+    print FILE "=$_" for qw/back cut/;
+    close FILE;
+}
+
+my %synopses; # contains the full synopses pods
+sub cross_index {
+    my ($file, $output, $dom) = @_;
+    
+    foreach my $link (grep { defined $_->{obj} } grep { $_->{type} eq 'link' } @{ $dom->{items} }){
+        my $syn = $link->{obj}->page;
+        my $sfile = catfile(split("::", $syn)) . ".pod";
+        $synopses{my $key = catfile($output, $sfile)} ||= read_file(catfile($in, $sfile));
+        my $node = $link->{obj}->node;
+        my $regex = $link->{re};
+        my $test_name = join("::", splitdir($file));
+        
+        $regex ||= qr//;
+        # this is a replacement for a proper lookup of a page/node -> regex thing
+        # just constructs a big regex, and matches it against the entire pod
+        $regex = qr/=(head\d+|item)\s+(?:\Q$node\E).*?($regex)/s;
+        
+        # if we succeed
+        if ($synopses{$key} =~ /$regex/){
+            # find a paragraph end somewhere, and just
+            # stick the link inside it, with substr
+            my $before = $+[-1] + 2;
+            my $at = rindex($synopses{$key}, "\n\n", $before);
+            substr($synopses{$key}, $at, 0, qq(\n\nL<$file, around line $link->{line}|$test_name/"line $link->{line} - link">)); # i should be punished, but otherwise match\ing regexes is not that easy
+        } else {
+            warn qq{couldn't resolve link $link->{orig} in $file ($regex)\n};
+        }
+    }
+}
+END {
+    # when we're done, write out the new synopses
+    foreach my $file (keys %synopses){
+        mkpath(dirname($file));
+        write_file($file, $synopses{$file});
+    }
+}
+
+sub parse_file {
     my ($file) = @_;
-    my $todo_tests = 0;
-    my $documenation = '';
-    my $tests_planned = 0;
     my $in_doc;
-    my @tests;
+    
+    my @items;
+    my $todo_tests = 0;
+    my $tests_planned = 0;
+    
     open FH, "<", $file;
-    while (<FH>) {
+    LINE: while (<FH>) {
         chomp();
+        
+        next if /^$/;
+        
+        # this part collects documentation
         if (/=pod/ || /=kwid/) {
             $in_doc = 1;
+            next;
         }
-        elsif (/=cut/) {
+        if (/=cut/) {
             $in_doc = 0;
+            next;
         }
-        elsif ($in_doc) {
-            $documenation .= "  $_\n" unless !$_ || /^\s+$/ || /^\=/;
+        if ($in_doc) {
+            push @items, { type => "doc",  text => $_ };
+            next;
         }
-        elsif (/^plan.*?(\d+)/) {
+
+
+        # this part fishes out real data,       
+        if (/^\s*plan.*?(\d+)/) {
             $tests_planned = $1;
         }
+        
+        # find links
+        if (/(L$RE{balanced}{-begin => "<|<<|<<<"}{-end => ">|>>|>>>"})/){
+            my ($link, $re) = dissect_link(my $orig = $1);
+            push @items, {
+                type => "link",
+                obj => $link,
+                re => $re,
+                orig => $orig,
+                line => $.,
+            };
+        }
+        
+        # find test cases
         if (/( # the whole subname
-        	(todo_)?  # can be todo
-        	(ok|is|fail|isa_ok) # must be one of these
+            (todo_)?  # can be todo
+            (
+                (?:eval)? # or eval
+                (?:ok|is|fail|isa_ok) # must be one of these
+            )
         )/x){
-			my ($test_sub, $todo, $test_type) = ($1, $2, $3);
-			my ($desc, $comment);
-			
-			if (/
-				.* # stuff # shit. sorry.
-				\,\s* # item
-				['"](.*)['"] # some quoted text
-			/x){ $desc = $1 }
-			
-			if (/
-				;\s* # ending the statement, and from there on whitespace
-				\#\s*(.*)$ # followed by a comment
-			/x){ $comment = $1 }
-		
-	        $todo&&=1==1; # booleanize ;-
-	        
-        	$todo_tests++ if $todo;
-        	
-        	push @tests, {
-        		line => $.,
-        		type => $test_type,
-        		desc => $desc,
-        		comment => $comment,
-        		todo => $todo,
-        		# code => $_,
-        	};
+            my ($test_sub, $todo, $test_type) = ($1, $2, $3);
+            my ($desc, $comment);
+
+            if (/
+                .* # lots of stuff
+                \,\s* # a comma, followed by
+                ['"](.*)['"] # some quoted text
+            /x){ $desc = $1 }
+            
+            if (/
+                ;\s* # ending the statement, and from there on whitespace
+                \#\s*(.*)$ # followed by a comment
+            /x){ $comment = $1 }
+        
+            $todo &&= 1==1; # booleanize
+            
+            $todo_tests++ if $todo;
+            
+            push @items, {
+                type => 'test',
+                line => $.,
+                kind => $test_type,
+                desc => $desc,
+                comment => $comment,
+                todo => $todo,
+            };
         }
     }
     close FH;
-    print "Test planned: $tests_planned";
-    print "Test TODO: $todo_tests" if $todo_tests;
-    print "$documenation";
-
     
-    if (@tests){
-    	print "=item Test cases";
-    	print "=over 4";
-
-		foreach my $test (@tests){
-			print "=item line $test->{line}";
-			
-			#print "\t$test->{perl}" if $ARGV[0]; # only print SLOC if true arg was passed
-			
-			print "desc: $test->{desc}" if $test->{desc};
-			print "type: $test->{type}()" . ($test->{todo} ? " # TODO" : "");
-			print "comment: $test->{comment}" if $test->{comment};
-		}
-		
-		print "=back";
-	}
+    return {
+        file => $file,
+        items => \@items,
+        plan => $tests_planned,
+        todo => $todo_tests,
+    }
 }
 
+# this function will take our funny link format
+# and make into a valid Pod::Hyperlink object and a regex
+sub dissect_link {
+    my $funny = shift;
 
-print q{
-=pod
+    my $qword = qr/\w+|$RE{delimited}{-delim=>'"'}/;
+    my $funny_link_format = qr{
+        ^(L<+)
+        ($qword(?:/$qword)?)
+        (?:
+            \s+? # match some whitespace between the podlink and the regex
+            $RE{delimited}{-delim=>'/'}{-keep} # and then a delimited regex # find some more delims
+            ([xim]*) # with optional options ;-) # /s is always used
+        )?
+        (>+)$ # yuck yuck yuck yuck
+    }x;
 
-=head1 NAME
+    $funny =~ $funny_link_format or return undef;
 
-Pugs Test Catalog
+    my $regex = $5;
+    my $ropt = $7;
+    my $proper = Pod::Hyperlink->new($2) || die "$@";
+    /^S\d{2}$/ and $proper->page("Synopsis::$_") for $proper->page;
+    my $qr;
 
-=head1 DESCRIPTION
+    return $proper if not wantarray;
+    
+    if (defined $regex){
+        $regex =~ s/ +/\\s+/g;
+        $qr = eval "qr\0$regex\0s$ropt";
+        warn "error compiling regex qr/$regex/: $@" if $@;
+    }
 
-This is an automatically generated file of all the tests in the Pugs 
-test suite. It also attempts to extract any additional information it
-can out of each test file.
+    return ($proper, $qr);
+}
 
-The purpose of this document is to help people who want to get involved
-in Pugs.
-
-=head1 TEST FILES
-
-=over 4
-
-};
-
-catalog_tests('t');
-
-print q{
-
-=back
-
-=head1 COPYRIGHT
-
-Copyright 2005 by Autrijus Tang E<lt>autrijus@autrijus.orgE<gt>.
-
-This code is free software; you can redistribute it and/or modify it under
-the terms of either:
-
-    a) the GNU General Public License, version 2, or
-    b) the Artistic License, version 2.0beta5 or any later version.
-
-For the full license text, please see the F<GPL-2> and F<Artistic-2> files
-under the F<LICENSE> directory in the Pugs distribution.
-
-=cut
-
-};
