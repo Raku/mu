@@ -78,7 +78,7 @@ sub fail (Str ?$desc) returns Bool is export {
 sub todo_fail (Str ?$desc) returns Bool is export {
     my $out := defined($desc) ?? (" - " ~ $desc) :: "";
     $loop++;
-    say "not ok ", $loop, $out;
+    say "not ok ", $loop, $out, " # TODO";
     say("#     Failed (TODO) test (", $?CALLER::POSITION, ")");
     return 0;
 }
