@@ -6,7 +6,7 @@ import Internals
 import Internals.TH
 import Language.Haskell.Parser
 import Language.Haskell.Syntax
-import External.Haskell.NameLoader
+-- import External.Haskell.NameLoader
 
 loadHaskell :: FilePath -> IO [(String, [Val] -> Eval Val)]
 loadHaskell file = undefined
