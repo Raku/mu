@@ -42,4 +42,4 @@ sub foo {
   return bar() && bar2();
 }
 
-todo_ok(eval 'foo()', "CALLER resolves bindings in caller's dynamic scope");
+ok(eval 'foo()', "CALLER resolves bindings in caller's dynamic scope");
