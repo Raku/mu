@@ -42,7 +42,7 @@ main = do
     canonicalizeOpt("--help")        = ["-h"]
     canonicalizeOpt('-':'l':[])      = [] -- ["-e", "# BEGIN{ ... }"] -- XXX fixme: Add real Perl6 fragment
     canonicalizeOpt('-':'v':[])      = ["-v"]
-    canonicalizeOpt('-':'V':':':xs)  = ["-V",xs]
+    canonicalizeOpt('-':'V':':':xs)  = ["-V:"++xs]
     canonicalizeOpt("--version")     = ["-v"]
     canonicalizeOpt('-':'w':[])      = ["-w"]
     canonicalizeOpt('-':'c':rest)    = canonicalizeOpt("-c") ++ canonicalizeOpt('-':rest)
@@ -74,6 +74,7 @@ sortArgs args = _unpackArgs (_sortArgs (_packArgs args))
     argRank("-h") = -1
     argRank("-v") = -1
     argRank("-V") = -1
+    argRank('-':'V':':':_) = -1
     argRank("-I") = 0
     argRank("-d") = 1
     argRank("-w") = 2
@@ -89,7 +90,7 @@ run (("-w"):rest)                 = run rest
 
 run ("-h":_)                    = printCommandLineHelp
 run (("-V"):[])                 = printConfigInfo []
-run (("-V"):item)               = printConfigInfo item
+run (('-':'V':':':item):_)      = printConfigInfo [item]
 run ("-v":_)                    = banner
 run ("-c":"-e":prog:_)          = doCheck "-e" prog
 run ("-c":file:_)               = readFile file >>= doCheck file
@@ -253,7 +254,7 @@ runProgramWith fenv f name args prog = do
     f val
 
 -- createConfigLine :: String -> String -- why doesn't this work?
-createConfigLine item = "\t" ++ item ++ ": " ++ (lookupWithDefaultFM config "" item)
+createConfigLine item = "\t" ++ item ++ ": " ++ (lookupWithDefaultFM config "UNKNOWN" item)
 
 printConfigInfo :: [String] -> IO ()
 printConfigInfo [] = do
@@ -267,6 +268,6 @@ printConfigInfo [] = do
         ++ map (\x -> createConfigLine x) (map (fst) (fmToList config))
         ++ [ "" ]
         ++ [ "@*INC:" ] ++ libs
-        
+
 printConfigInfo (item:_) = do
 	putStrLn $ createConfigLine item

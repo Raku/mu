@@ -41,7 +41,7 @@ my @config = <
     pugs_revision
 >;
 
-plan 1+@config+1;
+plan 1+@config*2+1;
 
 diag "Running under $?OS";
 
@@ -67,12 +67,14 @@ ok( ($pugs_config ~~ rx:perl5/^This is Perl6 User's Golfing System/), "Got some 
 # Generalize this:
 for @config -> $item {
   $pugs_config = run_pugs("-V:$item");
-
   my $local_sep = "\t$item: %?CONFIG{$item}\n";
-
   is( $pugs_config, $local_sep, "-V:$item works" );
+
+  $pugs_config = run_pugs("-eprint -eq.code_was_run. -V:$item");
+  my $local_sep = "\t$item: %?CONFIG{$item}\n";
+  is( $pugs_config, $local_sep, "-V:$item works even if other stuff is specified" );
 };
 
 my $nonexistent = run_pugs('-V:unknown_option_that_does_not_exist');
-is $nonexistent, "\tunknown_option_that_does_not_exist: \n", "Nonexistent options";
+is $nonexistent, "\tunknown_option_that_does_not_exist: UNKNOWN\n", "Nonexistent options";
 
