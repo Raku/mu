@@ -1,7 +1,4 @@
-{-# OPTIONS -cpp #-}
-#define VERSION "6"
-#define DATE ""
-#include "config.h"
+{-# OPTIONS -fglasgow-exts -cpp #-}
 
 {-
     Online help and banner text.
@@ -11,6 +8,11 @@
     What ship would bear me ever back
     across so wide a Sea?
 -}
+
+#define VERSION "6"
+#define DATE ""
+#include "config.h"
+#include "version.h"
 
 module Help (printHelp, banner, versnum, version, 
              copyright, disclaimer, intro) where
@@ -31,9 +33,14 @@ printHelp
 name       = "Perl6 User's Golfing System"
 versnum    = VERSION
 date	   = DATE
-version    = name ++ ", version " ++ versnum ++ ", " ++ date
+version    = name ++ ", version " ++ versnum ++ ", " ++ date ++ revision
 copyright  = "Copyright 2005 by Autrijus Tang"
-revision   = ('r':) . init . init . drop 6 $ "$Rev$"
+revision
+    | rev <- show(PUGS_SVN_REVISION)
+    , rev /= "0"
+    = " (r" ++ rev ++ ")"
+    | otherwise
+    = ""
 disclaimer =
     "This software is distributed under the terms of the " ++
     "GNU Public Licence.\n" ++
@@ -44,7 +51,7 @@ versionFill n = fill ++ vstr
     where
     fill = replicate (n - vlen) ' '
     vlen = length vstr
-    vstr = "Version: " ++ versnum -- ++ " (" ++ revision ++ ")"
+    vstr = "Version: " ++ versnum ++ revision
 
 banner :: IO ()
 banner = putStrLn $ unlines

@@ -7,9 +7,28 @@ use Config;
 use inc::Module::Install;
 
 chdir $FindBin::Bin;
+
 my $pugs = "pugs$Config{_exe}";
 my $full_pugs = File::Spec->catfile($FindBin::Bin, $pugs);
 my $full_t = File::Spec->catdir($FindBin::Bin, 't');
+my $version_h = "version.h";
+my $svn_entries = File::Spec->catfile(".svn", "entries");
+
+if ("@ARGV" eq "-version") {
+    open OUT, "> $version_h" or die $!;
+    if (-r $svn_entries) {
+        open FH, $svn_entries;
+        while (<FH>) {
+            /^ *committed-rev=.(\d+)./ or next;
+            print OUT "#define PUGS_SVN_REVISION $1\n";
+            exit;
+        }
+    }
+    print OUT "#define PUGS_SVN_REVISION 0\n";
+    exit;
+}
+
+
 
 name            ('Perl6-Pugs');
 version_from    ('lib/Perl6/Pugs.pm');
@@ -82,12 +101,25 @@ else {
 close FH;
 
 postamble(<< ".");
-$pugs: @{[glob("src/*.hs"), glob("src/Rule/*.hs")]}
+$pugs: @{[glob("src/*.hs"), glob("src/Rule/*.hs")]} $version_h
 	ghc --make -o pugs src/Main.hs -isrc
 
 tags ::
 	hasktags -c src
 .
+
+if (-e $svn_entries) {
+    postamble(<< ".");
+$version_h : $svn_entries
+	\$(PERLRUN) Makefile.PL -version
+
+.
+}
+else {
+    open FH, "> $version_h" or die $!;
+    print FH "#define PUGS_SVN_REVISION 0";
+    close FH;
+}
 
 WriteAll( sign => 1 );
 
