@@ -60,6 +60,7 @@ op1 "--"   = \mv -> do
 op1 "-"    = return . op1Numeric negate
 op1 "~"    = return . VStr . vCast
 op1 "?"    = return . VBool . vCast
+op1 "int"  = return . VInt . vCast
 op1 "*"    = return . VList . vCast
 op1 "**"   = return . VList . map (id $!) . vCast
 op1 "+^"   = return . VInt . (toInteger . (complement :: Word -> Word)) . vCast
@@ -455,6 +456,8 @@ foldParam ('?':str) = \ps -> (buildParam "Num" "?" "$?1" (Val $ VNum (read def))
 foldParam x         = doFoldParam x ""
 
 -- XXX -- Junctive Types -- XXX --
+
+--    ret_val   assoc	op_name args
 initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Bool      pre     !       (Bool)\
 \\n   Num       pre     +       (Num)\
@@ -578,4 +581,5 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Scalar    left    xor     (Bool, Bool)\
 \\n   Scalar    left    err     (Bool, Bool)\
 \\n   Any       list    ;       (Any)\
+\\n   Int       pre     int     (Int)\
 \\n"
