@@ -13,7 +13,7 @@ plan 18;
 
 my @list = (1 .. 10);
 
-my @result1 = grep { ($_ % 2) } @list;
+my @result1 = grep { ($_ % 2) }, @list;
 is(+@result1, 5, 'we got a list back');
 is(@result1[0], 1, 'got the value we expected');
 is(@result1[1], 3, 'got the value we expected');
