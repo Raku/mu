@@ -312,6 +312,8 @@ instance Ord MVal where
     compare x y = LT -- compare (castV x) (castV y)
 instance Show MVal where
     show _ = "<mval>"
+instance Show (IORef Pad) where
+    show _ = "<pad>"
 instance Ord VHandle where
     compare x y = compare (show x) (show y)
 
@@ -392,7 +394,7 @@ defaultScalarParam  = buildParam "" "*" "$_" (Val VUndef)
 data Env = Env { envContext :: Cxt
 	       , envLValue  :: Bool
                , envLexical :: Pad
-               , envGlobal  :: Pad
+               , envGlobal  :: IORef Pad
                , envClasses :: ClassTree
                , envEval    :: Exp -> Eval Val
                , envCC      :: Val -> Eval Val

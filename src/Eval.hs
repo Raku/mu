@@ -23,15 +23,16 @@ import Context
 import Monads
 import Pretty
 
-emptyEnv :: (MonadIO m) => m Env
-emptyEnv = do
+emptyEnv :: (MonadIO m) => Pad -> m Env
+emptyEnv pad = do
     ref  <- liftIO $ newIORef emptyFM
     uniq <- liftIO $ newUnique
+    glob <- liftIO $ newIORef (pad ++ initSyms)
     return $ Env
         { envContext = "Void"
         , envLexical = []
-	, envLValue  = False
-        , envGlobal  = initSyms
+        , envLValue  = False
+        , envGlobal  = glob
         , envClasses = initTree
         , envEval    = evaluate
         , envCC      = return
@@ -73,12 +74,12 @@ evaluate (Val (VSub sub)) = do
             return $ VSub sub{ subPad = pad } -- closure!
 evaluate (Val v@(MVal mv)) = do
     lvalue  <- asks envLValue
-    cxt	    <- asks envContext -- XXX Wrong, use "is rw" trait
+    cxt            <- asks envContext -- XXX Wrong, use "is rw" trait
     if lvalue || cxt == "LValue"
-	then return v
-	else do
-	    rv <- liftIO (readIORef mv)
-	    evaluate (Val rv)
+        then return v
+        else do
+            rv <- liftIO (readIORef mv)
+            evaluate (Val rv)
 evaluate (Val val) = do
     -- context casting, go!
     cxt <- asks envContext
@@ -105,7 +106,8 @@ evalSym :: Symbol -> Eval (String, Val)
 evalSym (Symbol _ name vexp) = do
     val <- evalExp vexp
     return (name, val)
-
+    
+enterEvalContext :: Cxt -> Exp -> Eval Val
 enterEvalContext cxt = enterContext cxt . evalExp
 
 -- Reduction ---------------------------------------------------------------
@@ -137,6 +139,12 @@ writeMVal l (MVal r)    = writeMVal l =<< liftIO (readIORef r)
 writeMVal (MVal l) r    = liftIO $ writeIORef l r
 writeMVal x y           = error $ "Can't write a constant item" ++ show (x, y)
 
+addGlobalSym sym = do
+    glob <- asks envGlobal
+    liftIO $ do
+        syms <- readIORef glob
+        writeIORef glob (sym:syms)
+
 reduceStatements :: ([Exp], Exp) -> Eval Exp
 reduceStatements ([], exp) = reduceExp exp
 reduceStatements ((exp:rest), _)
@@ -145,8 +153,8 @@ reduceStatements ((exp:rest), _)
         mval <- newMVal val
         reduceStatements ((Syn "sym" (other ++ [Sym sym{ symExp = Val mval }]):rest), Val mval)
     | Syn "sym" [Sym sym@(Symbol SGlobal _ vexp)] <- exp = do
-        local (\e -> e{ envGlobal = (sym:envGlobal e) }) $ do
-            reduceStatements (rest, vexp)
+        addGlobalSym sym
+        reduceStatements (rest, vexp)
     | Syn "sym" syms <- exp = do
         enterLex [ sym | Sym sym@(Symbol SMy _ _) <- syms] $ do
             reduceStatements (rest, (Syn "sym" syms))
@@ -159,9 +167,8 @@ reduceStatements ((exp:rest), _)
                 enterLex [sym] $ do
                     reduceStatements (rest, vexp)
             Nothing -> do
-                let sym = (Symbol SGlobal name vexp)
-                local (\e -> e{ envGlobal = (sym:envGlobal e) }) $ do
-                    reduceStatements (rest, vexp)
+                addGlobalSym $ Symbol SGlobal name vexp
+                reduceStatements (rest, vexp)
     | null rest = do
         cxt <- asks envContext
         val <- evalExp exp
@@ -177,28 +184,35 @@ reduceStatements ((exp:rest), _)
 
 evalVar name = do
     env <- ask
-    val <- local (\e -> e{ envLValue = True }) $ enterEvalContext (cxtOfSigil $ head name) $
-	case findVar env name of
-	    Nothing -> (Val $ VError ("Undefined variable " ++ name) (Val VUndef))
-	    Just (Val val)  -> (Val val)
-	    Just exp        -> exp -- XXX Wrong
+    val <- local (\e -> e{ envLValue = True }) $ do
+        rv <- findVar name
+        enterEvalContext (cxtOfSigil $ head name) $ case rv of
+            Nothing -> (Val $ VError ("Undefined variable " ++ name) (Val VUndef))
+            Just (Val val)  -> (Val val)
+            Just exp        -> exp -- XXX Wrong
     return val
 
-findVar Env{ envLexical = lex, envGlobal = glob } name
-    | Just vexp <- findSym name lex
-    = Just vexp
-    | Just vexp <- findSym name glob
-    = Just vexp
-    | Just vexp <- findSym (toGlobal name) glob
-    = Just vexp
-    | otherwise
-    = Nothing
+findVar name = do
+    lex <- asks envLexical
+    let lexSym = findSym name lex
+    -- XXX rewrite using Maybe monad
+    if isJust lexSym then return lexSym else do
+        glob <- askGlobal
+        let globSym = findSym name glob
+        if isJust globSym
+            then return globSym
+            else
+                let globSym = findSym (toGlobal name) glob in
+                if isJust globSym
+                    then return globSym
+                    else do
+                        return Nothing
     
 doReduce :: Env -> Exp -> Eval Exp
 
 doReduce env exp@(Val (MVal mv)) = do
     lvalue  <- asks envLValue
-    cxt	    <- asks envContext -- XXX Wrong, use "is rw" trait
+    cxt            <- asks envContext -- XXX Wrong, use "is rw" trait
     if lvalue || cxt == "LValue"
         then return exp
         else do
@@ -206,11 +220,11 @@ doReduce env exp@(Val (MVal mv)) = do
             doReduce env (Val rv)
 
 -- Reduction for variables
-doReduce env exp@(Var name)
-    | Just vexp <- findVar env name
-    = reduceExp vexp
-    | otherwise
-    = retError ("Undefined variable " ++ name) exp
+doReduce env exp@(Var name) = do
+    rv <- findVar name
+    case rv of
+        (Just vexp) -> reduceExp vexp
+        _ -> retError ("Undefined variable " ++ name) exp
 
 -- Reduction for syntactic constructs
 doReduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
@@ -256,8 +270,8 @@ doReduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
     "=" -> do
         case exps of
             [Var name, exp] -> do
-                val <- evalVar name
-                val' <- enterEvalContext (cxtOfSigil $ head name) exp
+                val     <- evalVar name
+                val'    <- enterEvalContext (cxtOfSigil $ head name) exp
                 writeMVal val val'
                 retVal val'
             [Syn "[]" [Var name, indexExp], exp] -> do
@@ -335,7 +349,8 @@ doReduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
             else doReduce env bodyElse
 
 doReduce env@Env{ envClasses = cls, envContext = cxt, envLexical = lex, envGlobal = glob } exp@(App name invs args) = do
-    subSyms <- mapM evalSym [ sym | sym <- lex ++ glob, head (symName sym) == '&' ]
+    syms    <- liftIO $ readIORef glob
+    subSyms <- mapM evalSym [ sym | sym <- lex ++ syms, head (symName sym) == '&' ]
     lens    <- mapM argSlurpLen (invs ++ args)
     case findSub (sum lens) subSyms name of
         Just sub    -> applySub subSyms sub invs args

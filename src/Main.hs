@@ -69,7 +69,7 @@ parse = doParse
 eval prog = doEval [] prog
 
 doParse prog = do
-    env <- emptyEnv
+    env <- emptyEnv []
     runRule env (putStrLn . pretty) ruleProgram prog
 
 doEval :: [String] -> String -> IO ()
@@ -93,20 +93,18 @@ runFile file = do
 runProgramWith :: (Env -> Env) -> (Val -> IO ()) -> VStr -> [VStr] -> String -> IO ()
 runProgramWith fenv f name args prog = do
     env <- emptyEnv
-    str <- return "" -- getContents
-    let env' = runRule (prepare str $ fenv env) id ruleProgram prog
+        [ Symbol SGlobal "@*ARGS" (Val $ VList $ map VStr args)
+        , Symbol SGlobal "@*INC" (Val $ VList [])
+        , Symbol SGlobal "$*PROGNAME" (Val $ VStr name)
+--        , Symbol SGlobal "$*STDIN" (Val $ VStr str)
+        , Symbol SGlobal "$*END" (Val VUndef)
+        ]
+--    str <- return "" -- getContents
+    let env' = runRule (fenv env) id ruleProgram prog
     val <- (`runReaderT` env') $ do
         (`runContT` return) $ resetT $ do
             evaluateMain (envBody env')
     f val
-    where
-    prepare str e = e{ envGlobal =
-        [ Symbol SGlobal "@*ARGS" (Val $ VList $ map VStr args)
-        , Symbol SGlobal "@*INC" (Val $ VList [])
-        , Symbol SGlobal "$*PROGNAME" (Val $ VStr name)
-        , Symbol SGlobal "$*STDIN" (Val $ VStr str)
-        , Symbol SGlobal "$*END" (Val VUndef)
-        ] ++ envGlobal e }
 
 {-
 main = do

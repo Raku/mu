@@ -193,8 +193,8 @@ ruleModuleDeclaration = rule "module declaration" $ do
 ruleClosureTrait = rule "closure trait" $ do
     name    <- tryChoice $ map symbol $ words "BEGIN CHECK INIT END"
     block   <- ruleBlock
-    let sym = Symbol SGlobal "$*END" block
-    updateState $ \e -> e{ envGlobal = (sym:envGlobal e) }
+    -- let sym = Symbol SGlobal "$*END" block
+    -- updateState $ \e -> e{ envGlobal = (sym:envGlobal e) }
     return $ Val VUndef -- XXX
 
 rulePackageDeclaration = rule "package declaration" $ fail ""
@@ -370,7 +370,8 @@ litOperators = do
 
 currentFunctions = do
     env     <- getState
-    return (envGlobal env ++ envLexical env)
+    let glob = unsafePerformIO $ readIORef $ envGlobal env
+    return (glob ++ envLexical env)
 
 currentUnaryFunctions = do
     funs <- currentFunctions
@@ -596,8 +597,9 @@ runRule env f p str = f $ case ( runParser ruleProgram env progName str ) of
     Left err    -> env { envBody = Val $ VError (showErr err) (NonTerm $ errorPos err) }
     Right env'  -> env'
     where
+    glob = unsafePerformIO $ readIORef $ envGlobal env
     progName
-        | Just Symbol{ symExp = Val (VStr str) } <- find ((== "$*PROGNAME") . symName) $ envGlobal env
+        | Just Symbol{ symExp = Val (VStr str) } <- find ((== "$*PROGNAME") . symName) glob
         = str
         | otherwise
         = "-"

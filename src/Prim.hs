@@ -17,6 +17,7 @@ import Junc
 import AST
 import Pretty
 import Parser
+import Monads
 
 op0 :: Ident -> [Val] -> Eval Val
 op0 ","  = return . VList . concatMap vCast
@@ -117,7 +118,7 @@ op1 "<>" = \v -> do
     where
     readFrom VUndef = do
         -- ARGS etc
-        glob <- asks envGlobal
+        glob <- askGlobal
         strs <- liftIO $ sequence $ case find ((== "@*ARGS") . symName) glob of
             Nothing     -> [getStdin glob]
             Just sym    -> case symExp sym of
