@@ -9,7 +9,7 @@ Tests for Synopsis 6
 
 =cut
 
-plan 13;
+plan 14;
 
 sub foobar ($var) {
     return $var;
@@ -78,3 +78,17 @@ sub perl5sub {
 }
 perl5sub(<foo bar>);
 todo_is(@result, <foo bar>, 'use @_ in sub');
+
+=pod
+
+L<S06/Unpacking array parameters>
+
+=cut
+
+sub argShifter (@a) {
+	my $first := shift @a;
+	return $first;
+}
+
+fail("FIXME parsefail"); # actually exe fail...
+#is(eval 'argShifter(3..5)', 3, "use shift on an array argument");
