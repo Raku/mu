@@ -127,6 +127,7 @@ instance Value VNum where
     doCast (VList l)    = genericLength l
     doCast (VArray (MkArray a))    = genericLength a
     doCast (VHash (MkHash h))    = fromIntegral $ sizeFM h
+    doCast (VSub _)     = 0/0
     doCast x            = error $ "cannot cast as Num: " ++ (show x)
 
 instance Value VComplex where
