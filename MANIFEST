@@ -36,9 +36,6 @@ examples/output/hanoi
 examples/output/quicksort
 examples/quicksort.p6
 examples/sendmoremoney.p6
-examples/sendmoremoney.p6.mine
-examples/sendmoremoney.p6.r572
-examples/sendmoremoney.p6.r586
 examples/shuffle.p6
 ext/Kwid/kwid
 ext/Kwid/lib/Kwid.pm
