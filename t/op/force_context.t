@@ -9,16 +9,16 @@ Context forcing operators
 
 =cut
 
-plan 26;
+plan 32;
 
 # string context
 
 my $a = '2 is my favorite number';
-is(ref(+$a), 'Num', 'it is forced into a Str');
+is(ref(+$a), 'Num', 'it is forced into a Num');
 is(+$a, 2, 'forced into numeric context');
 
 my $b = 'Did you know that, 2 is my favorite number';
-is(ref(+$b), 'Num', 'it is forced into a Str');
+is(ref(+$b), 'Num', 'it is forced into a Num');
 is(+$b, 0, 'non numbers forced into numeric context are 0');
 
 # numeric context
@@ -71,3 +71,16 @@ my $m = 1;
 is(ref(!$m), 'Bool', 'it is forced into a Bool');
 ok(!(!$m), 'it is forced into boolean context');
 
+# int context
+
+my $n = '2 is my favorite number';
+is(ref(int($n)), 'Int', 'it is forced into a Int');
+is(+$n, 2, 'forced into integer context');
+
+my $o = 'Did you know that, 2 is my favorite number';
+is(ref(int($o)), 'Int', 'it is forced into a Int');
+is(int($o), 0, 'non numbers forced into integer context are 0');
+
+my $p = 1.21122111;
+is(ref(int($p)), 'Int', 'it is forced into a Int');
+is(int($p), 1, 'float numbers forced into integer context are 0');
