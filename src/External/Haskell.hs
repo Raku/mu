@@ -1,15 +1,17 @@
 {-# OPTIONS -fglasgow-exts -cpp -O #-}
-{-# OPTIONS -#include "Linker.h" #-}
 
 module External.Haskell where
 import AST
 import Internals
-import Internals.RuntimeLoader
+import External.Haskell.NameLoader
 
 loadHaskell :: FilePath -> IO [(String, [Val] -> Eval Val)]
-loadHaskell file = do
+loadHaskell file = undefined
+
+{- do
     initializeRuntimeLoader
     mod <- loadObject file
     resolveFunctions
     syms <- loadFunction mod "extern"
     return $ map (\(name, fun) -> (('&':name), fun)) syms
+-}
