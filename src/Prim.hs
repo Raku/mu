@@ -434,16 +434,17 @@ op4 "substr" = \x y z w -> do
     pos <- fromValue y
     let len | isJust (vCast z) = vCast z
             | otherwise        = length str
-    let (pre, mid, post) = doSubstr str pos len
-    when (isJust (vCast w)) $ liftIO $ writeIORef (vCast x) $
-        VStr $ pre ++ (vCast w) ++ post
-    return . VStr $ mid
+    let (pre, result, post) = doSubstr str pos len
+    when (isJust (vCast w) && result /= VUndef) $
+        liftIO $ writeIORef (vCast x) $ VStr $ pre ++ (vCast w) ++ post
+    return result
     where
-    doSubstr :: VStr -> Int -> Int -> (VStr, VStr, VStr)
+    doSubstr :: VStr -> Int -> Int -> (VStr, Val, VStr)
     doSubstr str pos len
+        | abs pos > length str = ("", VUndef, "")
         | pos < 0   = doSubstr str (length str + pos) len
         | len < 0   = doSubstr str pos (length str - pos + len)
-        | otherwise = ((take pos str), (take len $ drop pos str), (drop (pos + len) str))
+        | otherwise = ((take pos str), VStr (take len $ drop pos str), (drop (pos + len) str))
 
 op4 other = \x y z w -> return $ VError ("unimplemented 4-ary op: " ++ other) (App other [Val x, Val y, Val z, Val w] [])
 

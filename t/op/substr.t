@@ -14,7 +14,7 @@ plan 23;
 	is(substr($str, 3), "bar", "length omitted");
 	is(substr($str, 3, 10), "bar", "length goes past end");
 	is(substr($str, 20, 5), undef, "substr outside of string");
-	todo_is(substr($str, -100, 10), undef, "... on the negative side");
+	is(substr($str, -100, 10), undef, "... on the negative side");
 
 	is(substr($str, 0, -2), "foob", "from beginning, with negative length");
 	is(substr($str, 2, -2), "ob", "in middle, with negative length");
