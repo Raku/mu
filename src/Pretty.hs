@@ -19,10 +19,6 @@ class (Show a) => Pretty a where
     pretty :: a -> String
     pretty x = show x
 
--- Unmatched right curly bracket at - line 1, at end of line
--- syntax error at - line 1, near "}"
--- Execution of - aborted due to compilation errors.
-
 instance Pretty VStr
 
 instance Pretty Exp where

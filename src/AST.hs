@@ -370,7 +370,7 @@ cxtOfSigil '@'  = "Array"
 cxtOfSigil '%'  = "Hash"
 cxtOfSigil '&'  = "Code"
 
-cxtOf '*' '$'   = "List"
+--- cxtOf '*' '$'   = "List"
 cxtOf '*' '@'   = "List"
 cxtOf _   _     = "Scalar"
 

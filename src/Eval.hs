@@ -87,7 +87,7 @@ evaluate (Val val) = do
         "List"  -> VList (vCast val)
         "Array" -> VArray (vCast val)
         "Hash"  -> VHash (vCast val)
-        "Scalar"-> vCast val
+        "Scalar"-> val
         _       -> val
 evaluate exp = do
     debug "indent" (' ':) "Evl" exp
@@ -223,7 +223,8 @@ doReduce env exp@(Val (MVal mv)) = do
 doReduce env exp@(Var name) = do
     rv <- findVar name
     case rv of
-        (Just vexp) -> reduceExp vexp
+        (Just vexp) -> do
+            enterContext (cxtOfSigil $ head name) $ reduceExp vexp
         _ -> retError ("Undefined variable " ++ name) exp
 
 -- Reduction for syntactic constructs
@@ -306,7 +307,8 @@ doReduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
     "cxt" -> do
         let [cxtExp, exp] = exps
         cxt     <- enterEvalContext "Str" cxtExp
-        retVal =<< enterEvalContext (vCast cxt) exp
+        val     <- enterEvalContext (vCast cxt) exp
+        retVal val
     "[]" -> do
         let (listExp:rangeExp:errs) = exps
         list    <- enterEvalContext "List" listExp
@@ -463,7 +465,8 @@ doApply env@Env{ envClasses = cls } sub@Sub{ subParams = prms, subFun = fun } in
         (val, coll) <- expToVal prm exp
         let name = paramName prm
             arg = ApplyArg name val coll
-        restArgs <- enterLex [Symbol SMy name (Val val)] $ do
+        val' <- enterEvalContext (cxtOfSigil $ head name) (Val val)
+        restArgs <- enterLex [Symbol SMy name (Val val')] $ do
             doBind rest
         return (arg:restArgs)
     expToVal Param{ isSlurpy = slurpy, paramContext = cxt } exp = do

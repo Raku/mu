@@ -27,16 +27,16 @@ import System.Posix.Process
 import System.Posix.Unistd
 #else
 
-createSymbolicLink :: String -> String -> IO ()
-createSymbolicLink = error "'symlink' not implemented on this platform."
+createSymbolicLink :: FilePath -> FilePath -> IO ()
+createSymbolicLink _ _ = fail "'symlink' not implemented on this platform."
 
-readSymbolicLink :: String -> String -> IO ()
-readSymbolicLink = error "'readlink' not implemented on this platform."
+readSymbolicLink :: FilePath -> IO FilePath
+readSymbolicLink _ = fail "'readlink' not implemented on this platform."
 
-rename :: String -> String -> IO ()
-rename = error "'rename' not implemented on this platform."
+rename :: FilePath -> FilePath -> IO ()
+rename _ _ = fail "'rename' not implemented on this platform."
 
 sleep :: Int -> IO ()
-sleep = error "'sleep' not implemented on this platform."
+sleep _ = fail "'sleep' not implemented on this platform."
 
 #endif

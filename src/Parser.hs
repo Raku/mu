@@ -509,7 +509,7 @@ nameToParam name = Param
     , isOptional    = False
     , isNamed       = False
     , paramName     = name
-    , paramContext  = (if name == "$_" then "List" else "Scalar")
+    , paramContext  = cxtOfSigil $ head name
     , paramDefault  = Val VUndef
     }
 
