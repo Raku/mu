@@ -34,6 +34,10 @@ foreach my $testfile (sort {$a->{file} cmp $b->{file}}
   } else {
 	print "<td><table width='100%'><tr>\n";
 	my ($i, $good)=(0, 0);
+
+	my $rows = int(.75 + @{$testfile->{subtests}} / 50) || 1;
+	my $per_row = int(.75 + @{$testfile->{subtests}} / $rows);
+	
 	foreach my $test (@{$testfile->{subtests}}) {
 	  my $class = t_to_class($test);
 	  my $title = ($test->{line} || '') . ($test->{diag} || '');
@@ -42,8 +46,8 @@ foreach my $testfile (sort {$a->{file} cmp $b->{file}}
 	  $title =~ s/\cJ$//g;
 	  $title =~ s/([^-().#A-Za-z0-9 ])/sprintf '&#x%X;', ord $1/eg;
 	  
-	  if ($i and $i % 50 == 0) {
-		print "</tr><tr>\n";
+	  if ($i and $i % $per_row == 0) {
+		print "</tr></table><table width='100%'><tr>\n";
 	  }
 	  
 #	  print "<td class='test $class' title='$title'>$title</td>";
