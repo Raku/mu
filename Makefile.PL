@@ -58,12 +58,9 @@ sub set_postamble {
 
     my $pcre = "src/pcre/pcre$Config{_o}";
     my $pcre_c = "src/pcre/pcre.c";
-    if ($Config{_exe} ne '.exe') {
-        #unlink "pcre$Config{_o}";
-        #symlink $pcre => "pcre$Config{_o}";
-        $ghc_output .= " $pcre";
-        push @prereqs, $pcre;
-    }
+
+    $ghc_output .= " $pcre";
+    push @prereqs, $pcre;
 
     postamble(fixpaths(<< "."));
 $config_h : lib/Perl6/Pugs.pm util/config_h.pl
