@@ -31,8 +31,11 @@ ruleProgram = rule "program" $ do
     return $ env { envBody = Statements statements }
 
 ruleBlock :: RuleParser Exp
-ruleBlock = rule "block" $ do
-    body <- braces ruleBlockBody
+ruleBlock = lexeme ruleVerbatimBlock
+
+ruleVerbatimBlock :: RuleParser Exp
+ruleVerbatimBlock = verbatimRule "block" $ do
+    body <- between (symbol "{") (char '}') ruleBlockBody
     retSyn "block" [body]
 
 ruleBlockBody = do
@@ -870,10 +873,10 @@ pairLiteral = try $
 	    -- <|> ruleStandaloneBlock -- :key{ k1 => val }
 
 rxInterpolator end = choice
-    [ qqInterpolatorVar end, rxInterpolatorChar, ruleBlock ]
+    [ qqInterpolatorVar end, rxInterpolatorChar, ruleVerbatimBlock ]
 
 qqInterpolator end = choice
-    [ qqInterpolatorVar end, qqInterpolatorChar, ruleBlock ]
+    [ qqInterpolatorVar end, qqInterpolatorChar, ruleVerbatimBlock ]
 
 qqInterpolatorVar end = try $ do
     var <- ruleVarNameString
