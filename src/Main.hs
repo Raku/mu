@@ -93,8 +93,6 @@ run ("-c":"-e":prog:_)          = doCheck "-e" prog
 run ("-c":file:_)               = readFile file >>= doCheck file
 run (("-e"):prog:args)          = doRun "-e" args prog
 
--- run (('-':'I':_):rest)          = run rest
-
 -- XXX clean up further
 run (('-':'C':backend):"-e":prog:_)   = doCompile backend "-e" prog
 run (('-':'C':backend):file:_)        = readFile file >>= doCompile backend file

@@ -11,7 +11,7 @@
 
 module Run where
 import Internals
-import Config 
+import Config
 import AST
 import Eval
 import Prim
@@ -38,7 +38,7 @@ runAST ast = do
 
 runComp :: Eval Val -> IO Val
 runComp comp = do
-    hSetBuffering stdout NoBuffering 
+    hSetBuffering stdout NoBuffering
     name <- getProgName
     args <- getArgs
     env  <- prepareEnv name args
@@ -76,7 +76,7 @@ prepareEnv name args = do
         , SymVal SGlobal "$/"           matchAV
         , SymVal SGlobal "%*ENV" (VHash . MkHash $ envFM)
         -- XXX What would this even do?
-        -- , SymVal SGlobal "%=POD"        (Val . VHash . MkHash $ emptyFM) 
+        -- , SymVal SGlobal "%=POD"        (Val . VHash . MkHash $ emptyFM)
         , SymVal SGlobal "@=POD"        (VArray . MkArray $ [])
         , SymVal SGlobal "$=POD"        (VStr "")
         , SymVal SGlobal "$?OS"         (VStr (getConfig "osname"))
@@ -91,10 +91,11 @@ prepareEnv name args = do
             , subReturns = "Void"
             , subFun = Prim subExit
             }
+        , SymVal SGlobal "%*CONFIG" (VHash . MkHash $ emptyFM)
         ]
 
 
-        
+
 getLibs :: [(String, String)] -> IO [String]
 getLibs environ = do
         args <- getArgs

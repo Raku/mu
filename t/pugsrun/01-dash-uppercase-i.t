@@ -11,12 +11,16 @@ Multiple C<-I> switches are supposed to
 prepend left-to-right:
 
   -Ifoo -Ibar
-  
+
 should make C<@INC> look like:
 
   foo
   bar
   ...
+
+Duplication of directories on the command line is mirrored
+in the C<@INC> variable, so C<pugs -Ilib -Ilib> will have B<two>
+entries C<lib/> in C<@INC>.
 
 =cut
 
@@ -27,7 +31,7 @@ my @tests = (
     'foo'
   , 'foo$bar'
   , 'foo bar$baz'
-  # What about ,'foo$foo' ?
+  , 'foo$foo'
 );
 
 plan +@tests;
@@ -52,19 +56,18 @@ sub run_pugs ($c) {
 }
 
 for @tests -> $t {
-  diag $t;
   my @dirs = split('$',$t);
   my $command;
   # This should be smarter about quoting
   # (currently, this should work for WinNT and Unix shells)
   $command = join " ", map { qq("-I$_") }, @dirs;
   my $got = run_pugs( $command ~ " $fragment" );
-  
+
   my @got = eval $got;
   @got = @got[ 0..@dirs-1 ];
   # diag @got;
   my @expected = @dirs;
   # diag @expected;
-  
+
   is @got, @expected, "'" ~ @dirs ~ "' works";
 }
