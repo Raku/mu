@@ -16,13 +16,13 @@ my $foo = "foo";
 my $bar;
 eval '$bar = foobar($foo); ';
 if ($foo eq $bar) {
-    say "1 ok";
+    say "ok 1 # subroutine at beginning";
 } else {
-    say "1 not ok # TODO";
+    say "not ok 1 # subroutine at beginning";
 }
 $bar = "";
 eval '$bar = check $foo';
-if ($bar) { say "2 ok"; } else { say "2 not ok #TODO"; }
+if ($bar) { say "ok 2"; } else { say "not ok 2 # TODO subroutine at end"; }
 
 sub check {
     return $_;
