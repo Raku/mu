@@ -18,9 +18,9 @@ plan 15;
 
 # string literals, for sanity
 
-todo_is(eval '"".bytes',         0, "empty string");
-todo_is(eval '"moose".bytes',    5, "moose");
-todo_is(eval 'undef.bytes',      0, "undef"); # TODO: test for warning
+is(eval '"".bytes',         0, "empty string");
+is(eval '"moose".bytes',    5, "moose");
+is(eval 'undef.bytes',      0, "undef"); # TODO: test for warning
 
 # and the real tests.
 
@@ -30,7 +30,7 @@ todo_is(eval 'undef.bytes',      0, "undef"); # TODO: test for warning
 my $data = [
     # string       octets codepoints graphemes
 	[ "",               0,        0,         0 ],
-	[ "moose",          0,        5,         5 ],
+	[ "moose",          5,        5,         5 ],
     [ "בדיקה",         10,        5,         5 ],
     [ "בדיקה 123",     14,        9,         9 ]   # XXX: trailing commas parsefail for now
 ];
@@ -44,7 +44,7 @@ for $data -> $string, $bytes, $codes, $graphs {
 	#todo_is(eval '$spec<string>.graphs', $spec<graphs>, "'{$spec<string>}'.graphs");
 
 	#($string, $bytes, $codes, $graphs).perl.say;
-	todo_is(eval '$string.bytes', $bytes, "'{$string}'.bytes");
+        is(eval '$string.bytes', $bytes, "'{$string}'.bytes");
 	todo_is(eval '$string.codes', $codes, "'{$string}'.codes");
 	todo_is(eval '$string.graphs', $graphs, "'{$string}'.graphs");
 }

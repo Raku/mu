@@ -189,6 +189,9 @@ op1 "rmdir" = boolIO removeDirectory
 op1 "chdir" = boolIO setCurrentDirectory
 op1 "-d"    = boolIO3 doesDirectoryExist
 op1 "-f"    = boolIO3 doesFileExist
+op1 "elems" = return . VInt . (genericLength :: VList -> VInt) . vCast
+op1 "chars" = return . VInt . (genericLength :: String -> VInt) . vCast
+op1 "bytes" = return . VInt . (genericLength :: String -> VInt) . encodeUTF8 . vCast
 op1 "chmod" = \v -> do
     v <- readMVal v
     vals <- mapM readMVal (vCast v)
@@ -919,6 +922,9 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      pre     rmdir   (Str)\
 \\n   Bool      pre     mkdir   (Str)\
 \\n   Bool      pre     chdir   (Str)\
+\\n   Int       pre     elems   (Array)\
+\\n   Int       pre     chars   (Str)\
+\\n   Int       pre     bytes   (Str)\
 \\n   Int       pre     chmod   (List)\
 \\n   Scalar    pre     key     (Pair)\
 \\n   Scalar    pre     value   (Pair)\
