@@ -9,7 +9,7 @@ basic Number tests
 
 =cut
 
-plan 34;
+plan 35;
 
 my $a = 1; "$a";
 isa_ok($a, 'Int');
@@ -80,4 +80,7 @@ is(+$a, 1.01, "1.01 numifies to 1.01");
 my $a = "1.01";
 isa_ok(int($a), "Int");
 is(int($a), 1, "1.01 intifies to 1");
+
+my $a = 2 ** 65; # over the 64 bit limit too
+is($a, 36893488147419103232, "we have bignums, not weeny floats");
 
