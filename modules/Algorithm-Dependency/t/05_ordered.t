@@ -41,21 +41,21 @@ ok( eval {$CSource.load();}, "Complex source loads" );
 
 # Test the creation of a basic ordered dependency tree
 my $BDep = Algorithm::Dependency::Ordered.new( source => $BSource, selected => ['B'] );
-ok( $BDep, "Algorithm::Dependency::Ordered.new returns true" );
-ok( ref $BDep, "Algorithm::Dependency::Ordered.new returns reference" );
-isa_ok( $BDep, 'Algorithm::Dependency::Ordered', "Algorithm::Dependency::Ordered.new returns an Algorithm::Dependency::Ordered" );
-isa_ok( $BDep, 'Algorithm::Dependency', "Algorithm::Dependency::Ordered.new returns an Algorithm::Dependency" );
-ok( $BDep.source, "Dependency.source returns true" );
-ok( $BDep.source eq $BSource, "Dependency.source returns the original source" );
-ok( $BDep.item('A'), "Dependency.item returns true" );
-ok( $BDep.item('A') eq $BSource.item('A'), "Dependency.item returns the same as Basic.item" );
+ok( $BDep, "Algorithm::Dependency::Ordered.new() returns true" );
+ok( ref $BDep, "Algorithm::Dependency::Ordered.new() returns reference" );
+isa_ok( $BDep, 'Algorithm::Dependency::Ordered', "Algorithm::Dependency::Ordered.new() returns an Algorithm::Dependency::Ordered" );
+isa_ok( $BDep, 'Algorithm::Dependency', "Algorithm::Dependency::Ordered.new() returns an Algorithm::Dependency" );
+ok( $BDep.source, "Dependency.source() returns true" );
+ok( $BDep.source() eq $BSource, "Dependency.source() returns the original source" );
+ok( $BDep.item('A'), "Dependency.item() returns true" );
+ok( $BDep.item('A') eq $BSource.item('A'), "Dependency.item() returns the same as Basic.item" );
 my @tmp;
-ok( scalar( @tmp = $BDep.selected_list ) == 1, "Dependency.selected_list returns empty list" );
-ok( $tmp[0] eq 'B', "Dependency.selected_list returns as expected" );
-ok( ! $BDep.selected('Foo'), "Dependency.selected returns false on bad input" );
-ok( ! $BDep.selected('A'), "Dependency.selected returns false when not selected" );
-ok( $BDep.selected('B'), "Dependency.selected returns true when selected" );
-ok( ! defined $BDep.depends('Foo'), "Dependency.depends fails correctly on bad input" );
+ok( scalar( @tmp = $BDep.selected_list() ) == 1, "Dependency.selected_list() returns empty list" );
+ok( $tmp[0] eq 'B', "Dependency.selected_list() returns as expected" );
+ok( ! $BDep.selected('Foo'), "Dependency.selected() returns false on bad input" );
+ok( ! $BDep.selected('A'), "Dependency.selected() returns false when not selected" );
+ok( $BDep.selected('B'), "Dependency.selected() returns true when selected" );
+ok( ! defined $BDep.depends('Foo'), "Dependency.depends() fails correctly on bad input" );
 
 
 
@@ -86,9 +86,9 @@ foreach my $data ( [
 
 # Now do the ordered dependency on the complex data set
 my $CDep = Algorithm::Dependency::Ordered.new( source => $CSource );
-ok( $CDep, "Algorithm::Dependency::Ordered.new returns true" );
-ok( ref $CDep, "Algorithm::Dependency::Ordered.new returns reference" );
-isa_ok( $CDep, 'Algorithm::Dependency::Ordered', "Algorithm::Dependency::Ordered.new returns correctly" );
+ok( $CDep, "Algorithm::Dependency::Ordered.new() returns true" );
+ok( ref $CDep, "Algorithm::Dependency::Ordered.new() returns reference" );
+isa_ok( $CDep, 'Algorithm::Dependency::Ordered', "Algorithm::Dependency::Ordered.new() returns correctly" );
 
 # Test each of the dependencies
 foreach my $data ( [
@@ -128,9 +128,9 @@ foreach my $data ( [
 
 # Now do the ordered dependency on the complex data set
 $CDep = Algorithm::Dependency::Ordered.new( source => $CSource, selected => [qw{F H J N R P}] );
-ok( $CDep, "Algorithm::Dependency::Ordered.new returns true" );
-ok( ref $CDep, "Algorithm::Dependency::Ordered.new returns reference" );
-isa_ok( $CDep, 'Algorithm::Dependency::Ordered', "Algorithm::Dependency::Ordered.new returns correctly" );
+ok( $CDep, "Algorithm::Dependency::Ordered.new() returns true" );
+ok( ref $CDep, "Algorithm::Dependency::Ordered.new() returns reference" );
+isa_ok( $CDep, 'Algorithm::Dependency::Ordered', "Algorithm::Dependency::Ordered.new() returns correctly" );
 
 # Test each of the dependencies
 foreach my $data ( [

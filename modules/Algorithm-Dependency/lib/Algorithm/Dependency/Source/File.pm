@@ -28,7 +28,7 @@ method new( $class: $filename is Str ) returns Algorithm::Dependency::Source::Fi
 	-r $filename or return;
 
 	# Get the basic source object
-	my $self = $class.SUPER::new or return;
+	my $self = $class.SUPER::new() or return;
 
 	# Add our arguments
 	$self.filename = $filename;
@@ -60,8 +60,8 @@ method :_load_item_list( $self: ) returns Array {
 		scalar @sections or return;
 
 		# Create the new item
-		my $Item = Algorithm::Dependency::Item.new( @sections ) or return;
-		push @Items, $Item;
+		my $item = Algorithm::Dependency::Item.new( @sections ) or return;
+		push @Items, $item;
 	}
 
 	return @Items;

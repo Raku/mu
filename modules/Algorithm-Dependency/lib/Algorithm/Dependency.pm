@@ -98,14 +98,14 @@ method depends( $self: @stack ) returns Array {
 	# Process the stack
 	while ( my $id = shift @stack ) {
 		# Does the id exist?
-		my $Item = $self.source.item($id)
+		my $item = $self.source.item($id)
 		or $self.ignore_orphans ? next : return;
 
 		# Skip if selected or checked
 		next if $checked{$id};
 
 		# Add it's depends to the stack
-		push @stack, $Item.depends;
+		push @stack, $item.depends();
 		$checked{$id} = 1;
 
 		# Add anything to the final output that wasn't one of
@@ -140,7 +140,7 @@ method schedule( $self: @items ) returns Array {
 # As above, but don't pass what we want to schedule as a list, just do the
 # schedule for everything.
 method schedule_all( $self: ) {
-	return $self.schedule( $self.source.items.map:{ $_.id } );
+	return $self.schedule( $self.source.items.map:{ $_.id() } );
 }
 
 1;
@@ -245,7 +245,7 @@ act in. It takes as argument a series of options for creating the object.
 
 =over 4
 
-=item source => $Source
+=item source => $source
 
 The only compulsory option is the source of the dependency items. This is
 an object of a subclass of L<Algorithm::Dependency::Source>. In practical terms,

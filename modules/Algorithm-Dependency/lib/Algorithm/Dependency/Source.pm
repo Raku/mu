@@ -19,7 +19,7 @@ has @:items_array is Array of Algorithm::Dependency::Item;
 method new( $class: ) returns Algorithm::Dependency::Source {
 
 	# This can't be created directly, it must be through
-	# a SUPER::new call
+	# a SUPER::new() call
 	if ( $class eq __PACKAGE__ ) {
 		die "Cannot directly instantiate Algorithm::Dependency::Source. You must use a subclass";
 	}
@@ -47,18 +47,18 @@ method load( $self: ) returns Bool {
 	}
 
 	# Pass through to the real loader
-	my $items = $self._load_item_list;
+	my $items = $self._load_item_list();
 	$items or return $items;
 	UNIVERSAL::isa( $items, 'ARRAY' ) or return;
 
 	# Add the items
 	foreach my $item ( @$items ) {
 		unless ( UNIVERSAL::isa( $item, 'Algorithm::Dependency::Item' ) ) {
-			die "$class\::_load_item_list returned something that was not an Algorithm::Dependency::Item";
+			die "$class\::_load_item_list() returned something that was not an Algorithm::Dependency::Item";
 		}
 
 		# Have we added this one already?
-		my $id = $item.id;
+		my $id = $item.id();
 		if ( $self.items_hash{$id} ) {
 			# Duplicate entry
 			return;
@@ -97,7 +97,7 @@ method missing_dependencies( $self: ) returns Array {
 	
 	# Merged the depends of all the items, and see if
 	# any are missing.
-	my %missing = $self.items.map:{ $_.depends }.grep:{ ! $self.item($_) }.map:{ $_ => 1 };
+	my %missing = $self.items.map:{ $_.depends() }.grep:{ ! $self.item($_) }.map:{ $_ => 1 };
 	return %missing ? %missing.keys.sort : 0;
 }
 

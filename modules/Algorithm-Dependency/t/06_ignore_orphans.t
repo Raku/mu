@@ -29,31 +29,31 @@ my $TESTDATA = 't.data';
 
 # Load the source file
 my $basic = File::Spec.catfile( $TESTDATA, 'missing.txt' );
-my $Source = Algorithm::Dependency::Source::File.new( $basic );
-isa_ok( $Source, 'Algorithm::Dependency::Source::File' );
+my $source = Algorithm::Dependency::Source::File.new( $basic );
+isa_ok( $source, 'Algorithm::Dependency::Source::File' );
 
 # Can we see the missing dependency in the source file
-is_deeply( $Source.missing_dependencies, [ 'C', 'E' ], 'The source file has missing dependencies as expected' );
+is_deeply( $source.missing_dependencies, [ 'C', 'E' ], 'The source file has missing dependencies as expected' );
 
 # Test normal and ordered types
 foreach my $class ( 'Algorithm::Dependency', 'Algorithm::Dependency::Ordered' ) {
-	my $Normal = $class.new(
-		source   => $Source,
+	my $normal = $class.new(
+		source   => $source,
 		);
-	isa_ok( $Normal, $class );
+	isa_ok( $normal, $class );
 
 	# When we try to get a schedule this should fail
-	is( $Normal.schedule('B'), undef, '.schedule with ignore_orphans off failed as expected' );
+	is( $normal.schedule('B'), undef, '.schedule() with ignore_orphans off failed as expected' );
 
 	# Create the ignoring instance
-	my $Ignore = $class.new(
-		source         => $Source,
+	my $ignore = $class.new(
+		source         => $source,
 		ignore_orphans => 1,
 		);
-	isa_ok( $Ignore, $class );
+	isa_ok( $ignore, $class );
 
 	# This should not fail when getting a schedule
-	is_deeply( $Ignore.schedule('B'), [ 'B' ], '.schedule with ignore_orphans on succeeds' );
+	is_deeply( $ignore.schedule('B'), [ 'B' ], '.schedule() with ignore_orphans on succeeds' );
 }
 
 1;

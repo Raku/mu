@@ -11,7 +11,7 @@ class Algorithm::Dependency::Ordered-0.0.1 is Algorithm::Dependency;
 # For example, when installing software packages, often their dependencies
 # not only need to be installed, but be installed in the correct order.
 #
-# The much more complex .schedule method of this class takes these factors
+# The much more complex .schedule() method of this class takes these factors
 # into account. Please note that while circular dependencies are possible
 # and legal in unordered dependencies, they are a fatal error in ordered
 # dependencies. For that reason, the schedule method will return an error
@@ -28,7 +28,7 @@ method schedule( $self: @items ) returns Array {
 
 	# The actual items to select will be the same as for the unordered
 	# version, so we can simplify the algorithm greatly by using the
-	# normal unordered .schedule method to get the starting list.
+	# normal unordered .schedule() method to get the starting list.
 	my $rv = $self.SUPER::schedule( @items );
 	my @queue = $rv ? @$rv : return;
 
@@ -49,8 +49,8 @@ method schedule( $self: @items ) returns Array {
 		$id eq $error_marker and return;
 
 		# Are there any un-met dependencies
-		my $Item = $self.source.item( $id ) or return;
-		my @missing =  $Item.depends.grep:{ ! $selected{$_} };
+		my $item = $self.source.item( $id ) or return;
+		my @missing =  $item.depends.grep:{ ! $selected{$_} };
 
 		# Remove orphans if we are ignoring them
 		if ( $self.ignore_orphans ) {
