@@ -28,17 +28,188 @@ expression is evaluated, whether the result of its computation is
 important or not. (This is probably not entirely true as optimizing
 compilers for strict languages often do what's called "dead code
 elmination" -- this removes unused expressions from the program.) It
-is called pure because it does not allow side effects (A side effect is
-something that affects the “state” of the world. For instance, a
+is called /pure/ because it does not allow side effects (A side effect is
+something that affects the "state" of the world. For instance, a
 function that prints something to the screen is said to be side-
 effecting, as is a function which affects the value of a global
-variable.) – of course, a programming language without side effects
-would be horribly useless; Haskell uses a system of monads to isolate
+variable.) -- of course, a programming language without side effects
+would be horribly useless; Haskell uses a system of /monads/ to isolate
 all impure computations from the rest of the program and perform them in
 the safe way (see Chapter 9 for a discussion of monads proper or Chapter
-5 for how to do input/output in a pure language). Haskell is called a
-functional language because the evaluation of a program is equivalent to
-evaluating a function in the pure mathematical sense. This also differs
-from standard languages (like C and Java) which evaluate a sequence of
-statements, one after the other (this is termed an imperative langauge).
+5 for how to do input/output in a pure language). 
+
+Haskell is called a /functional/ language because the evaluation of a
+program is equivalent to evaluating a function in the pure mathematical
+sense. This also differs from standard languages (like C and Java) which
+evaluate a sequence of statements, one after the other (this is termed
+an /imperative/ langauge).
+
+The History of Haskell The history of Haskell is best described using the
+words of the authors. The following text is quoted from the published version
+of the Haskell 98 Report: 
+
+.indent
+In September of 1987 a meeting was held at the conference on Functional
+Programming Languages and Computer Architecture (FPCA '87) in Portland,
+Oregon, to discuss an unfortunate situation in the functional
+programming community: there had come into being more than a dozen
+nonstrict, purely functional programming languages, all similar in
+expressive power and semantic underpinnings. There was a strong
+consensus at this meeting that more widespread use of this class of
+functional languages was being hampered by the lack of a common
+language. It was decided that a committee should be formed to design
+such a language, providing faster communication of new ideas, a stable
+foundation for real applications development, and a vehicle through
+which others would be encouraged to use functional languages. This
+document describes the result of that committee's efforts: a purely
+functional programming language called Haskell, named after the logician
+Haskell B. Curry whose work provides the logical basis for much of ours.
+
+The committee's primary goal was to design a language that satisfied
+these constraints: 
++ It should be suitable for teaching, research, and applications,
+  including building large systems.
++ It should be completely described via the publication of a formal
+  syntax and semantics.
++ It should be freely available. Anyone should be permitted to implement
+  the language and distribute it to whomever they please.
++ It should be based on ideas that enjoy a wide consensus. 
++ It should reduce unnecessary diversity in functional programming
+  languages.
+
+The committee intended that Haskell would serve as a basis for future
+research in language design, and hoped that extensions or variants of
+the language would appear, incorporating experimental features.
+
+Haskell has indeed evolved continuously since its original publication.
+By the middle of 1997, there had been four iterations of the language
+design (the latest at that point being Haskell 1.4). At the 1997 Haskell
+Workshop in Amsterdam, it was decided that a stable variant of Haskell
+was needed; this stable language is the subject of this Report, and is
+called "Haskell 98". 
+
+Haskell 98 was conceived as a relatively minor tidy-up of Haskell 1.4,
+making some simplifications, and removing some pitfalls for the unwary.
+
+It is intended to be a "stable" language in sense the /implementors are
+committed to supporting Haskell 98 exactly as specified, for the
+foreseeable future/. 
+
+The original Haskell Report covered only the language, together with a
+standard library called the Prelude. By the time Haskell 98 was
+stabilised, it had become clear that many programs need access to a
+larger set of library functions (notably concerning input/output and
+simple interaction with the operating system). If these program were to
+be portable, a set of libraries would have to be standardised too. A
+separate effort was therefore begun by a distinct (but overlapping)
+committee to fix the Haskell 98 Libraries.
+.indent.
+
+== Why Use Haskell? 
+
+Clearly you're interested in Haskell since you're reading this tutorial.
+There are many motivations for using Haskell. My personal reason for
+using Haskell is that I have found that I write more bug-free code in
+less time using Haskell than any other language. I also find it very
+readable and extensible. 
+
+Perhaps most importantly, however, I have consistently found the Haskell
+community to be incredibly helpful. The language is constantly evolving
+(that's not to say it's instable; rather that there are numerous
+extensions that have been added to some compilers which I find very
+useful) and user suggestions are often heeded when new extensions are to
+be implemented. 
+
+== Why Not Use Haskell? 
+
+My two biggest complaints, and the complaints of most Haskellers I know,
+are: (1) the generated code tends to be slower than equivalent programs
+written in a language like C; and (2) it tends to be difficult to debug.
+
+The second problem tends not be to a very big issue: most of the code
+I've written is not buggy, as most of the common sources of bugs in
+other languages simply don't exist in Haskell. The first issue certainly
+has come up a few times in my experience; however, CPU time is almost
+always cheaper than programmer time and if I have to wait a little
+longer for my results after having saved a few days programming and
+debugging. 
+
+Of course, this isn't the case of all applications. Some people may find
+that the speed hit taken for using Haskell is unbearable. However,
+Haskell has a standardized /foreign-function interface/ which allow you to
+link in code written in other languages, for when you need to get the
+most speed out of your code. If you don't find this sufficient, I would
+suggest taking a look at the language O'Caml, which often /outperforms/
+even C++, yet also has many of the benefits of Haskell.
+
+== Target Audience 
+
+There have been many books and tutorials written about Haskell; for a
+(nearly) complete list, visit the http://haskell.org/bookshelf (Haskell
+Bookshelf) at the Haskell homepage. A brief survey of the tutorials
+available yields: 
+
+* /A Gentle Introduction to Haskell/ is an introduction to
+  Haskell, given that the reader is familiar with functional
+  programming en large.
+* /Haskell Companion/ is a short reference of common concepts and
+  definitions.
+* /Online Haskell Course/ is a short course (in German) for beginning
+  with Haskell.
+* /Two Dozen Short Lessons in Haskell/ is the draft of an excellent
+  textbook that emphasizes user involvement.
+* /Haskell Tutorial/ is based on a course given at the 3rd International
+  Summer School on Advanced Functional Programming.
+* /Haskell for Miranda Programmers/ assumes knowledge of the
+  language Miranda.
+* /PLEAC-Haskell/ is a tutorial in the style of the Perl Cookbook.
+
+Though all of these tutorials is excellent, they are on their own
+incomplete: The "Gentle Introduction" is far too advanced for beginning
+Haskellers and the others tend to end too early, or not cover
+everything. Haskell is full of pitfalls for new programmers and
+experienced non-functional programmers alike, as can be witnessed by
+reading through the archives of the Haskell mailing list.
+
+It became clear that there is a strong need for a tutorial which is
+introductory in the sense that it does not assume knowledge of
+functional programming, but which is advanced in the sense that it
+/does/ assume some background in programming. Moreover, none of the
+known tutorials introduce input/output and iteractivity soon enough (not
+even until the 248th page, as in the case of the Hudak book). This
+tutorial is not for beginning programmers; some experience and knowledge
+of programming and computers is assumed (though the appendix does
+contain some background information).
+
+The Haskell language underwent a standardization process and the result
+is called Haskell 98. The majority of this book will cover the Haskell
+98 standard. Any deviations from the standard will be noted (for
+instance, many compilers offer certain extensions to the standard which
+are useful; some of these may be discussed). The goals of this tutorial
+are: 
+
+* to be /practical/ above all else
+* to provide a comprehensive, free introduction to the Haskell language
+* to point out common pitfalls and their solutions
+* to provide a good sense of how Haskell can be used in the real world
+
+== Acknowledgements 
+
+It would be inappropriate not to give credit also to the
+original designers of Haskell. Those are: Arvind, Lennart Augustsson, Dave
+Barton, Brian Boutel, Warren Burton, Jon Fairbairn, Joseph Fasel, Andy Gordon,
+Maria Guzman, Kevin Hammond, Ralf Hinze, Paul Hudak, John Hughes, Thomas
+Johnsson, Mark Jones, Dick Kieburtz, John Launchbury, Erik Meijer, Rishiyur
+Nikhil, John Peterson, Simon Peyton Jones, Mike Reeve, Alastair Reid, Colin
+Runciman, Philip Wadler, David Wise, Jonathan Young. 
+
+Finally, I would like to specifically thank Simon Peyton Jones, Simon
+Marlow, John Hughes, Alastair Reid, Koen Classen, Manuel Chakravarty,
+Sigbjorn Finne and Sven Panne, all of whom have made my life learning
+Haskell all the more enjoyable by always being supportive. There were
+doubtless others who helped and are not listed, but these are those who
+come to mind. 
+
+- Hal Daume III
+
 
