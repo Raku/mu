@@ -142,7 +142,7 @@ addGlobalSym sym = do
 
 reduceStatements :: ([Exp], Exp) -> Eval Val
 reduceStatements ([], exp) = reduceExp exp
-reduceStatements ((exp:rest), _)
+reduceStatements ((exp:rest), lastVal)
     | Syn "sym" (Sym sym@(Symbol _ name (Syn "mval" [_, vexp])):other) <- exp = do
         val <- enterEvalContext (cxtOfSigil $ head name) vexp
         mval <- newMVal val
@@ -167,6 +167,11 @@ reduceStatements ((exp:rest), _)
             Nothing -> do
                 addGlobalSym $ Symbol SGlobal name vexp
                 reduceStatements (rest, vexp)
+    | Val (VSub sub) <- exp
+    , subType sub >= SubBlock = do
+        -- bare Block in statement level; run it!
+        let app = Syn "()" [exp, Syn "invs" [], Syn "args" []]
+        reduceStatements (app:rest, lastVal)
     | null rest = do
         cxt <- asks envContext
         val <- reduceExp exp
