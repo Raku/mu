@@ -60,9 +60,15 @@ my %hash = ( bar => 'baz', quux => 'quuz' );
 ok(defined(%hash{"bar"}), "hash subscript");
 ok(!defined(%hash{"bargho"}), "non-existent hash subscript") or
 	diag("expected undef; got { %hash{'bagho'} }");
-#undef %hash{"bar"}; XXX: FIXME
-##delete %hash{"bar"};
-#ok(!defined(%hash{"bar"}), "undef hash subscript");
+
+eval 'undef %hash{"bar"}';
+todo_ok(!defined(%hash{"bar"}), "undef hash subscript");
+
+eval '
+	%hash{"bar"} = "baz";
+	delete %hash{"bar"};
+';
+todo_ok(!defined(%hash{"bar"}), "delete hash subscript");
 
 ok(defined(@ary), "aggregate array defined");
 ok(defined(%hash), "aggregate hash defined");
