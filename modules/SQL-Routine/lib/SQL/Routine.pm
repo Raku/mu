@@ -3565,7 +3565,264 @@ method build_child_node_trees( $node: @list ) {
 
 =head1 SYNOPSIS
 
-I<The previous SYNOPSIS was removed; a new one will be written later.>
+These executable code examples show how to define some simple database tasks
+with SQL::Routine; it only shows a tiny fraction of what the module is capable
+of, since more advanced features are not shown for brevity.
+
+	require SQL::Routine;
+
+	try {
+		# Create a model/container in which all SQL details are to be stored.
+		# The two boolean options being set true here permit all the subsequent code to be as concise, 
+		# easy to read, and most SQL-string-like as possible, at the cost of being slower to execute.
+		my $model = SQL::Routine.new_container();
+		$model.auto_set_node_ids( 1 );
+		$model.may_match_surrogate_node_ids( 1 );
+
+		# This defines 4 scalar/column/field data types (1 number, 2 char strings, 1 enumerated value type) 
+		# and 2 row/table data types; the former are atomic and the latter are composite.
+		# The former can describe individual columns of a base table (table) or viewed table (view), 
+		# while the latter can describe an entire table or view.
+		# Any of these can describe a 'domain' schema object or a stored procedure's variable's data type.
+		# See also the 'person' and 'person_with_parents' table+view defs further below; these data types help describe them.
+		$model.build_child_node_trees( [
+			[ 'scalar_data_type', { 'si_name' => 'entity_id'  , 'base_type' => 'NUM_INT' , 'num_precision' => 9, }, ],
+			[ 'scalar_data_type', { 'si_name' => 'alt_id'     , 'base_type' => 'STR_CHAR', 'max_chars' => 20, 'char_enc' => 'UTF8', }, ],
+			[ 'scalar_data_type', { 'si_name' => 'person_name', 'base_type' => 'STR_CHAR', 'max_chars' => 100, 'char_enc' => 'UTF8', }, ],
+			[ 'scalar_data_type', { 'si_name' => 'person_sex' , 'base_type' => 'STR_CHAR', 'max_chars' => 1, 'char_enc' => 'UTF8', }, [
+				[ 'scalar_data_type_opt', 'M', ],
+				[ 'scalar_data_type_opt', 'F', ],
+			], ],
+			[ 'row_data_type', 'person', [
+				[ 'row_data_type_field', { 'si_name' => 'person_id'   , 'scalar_data_type' => 'entity_id'  , }, ],
+				[ 'row_data_type_field', { 'si_name' => 'alternate_id', 'scalar_data_type' => 'alt_id'     , }, ],
+				[ 'row_data_type_field', { 'si_name' => 'name'        , 'scalar_data_type' => 'person_name', }, ],
+				[ 'row_data_type_field', { 'si_name' => 'sex'         , 'scalar_data_type' => 'person_sex' , }, ],
+				[ 'row_data_type_field', { 'si_name' => 'father_id'   , 'scalar_data_type' => 'entity_id'  , }, ],
+				[ 'row_data_type_field', { 'si_name' => 'mother_id'   , 'scalar_data_type' => 'entity_id'  , }, ],
+			], ],
+			[ 'row_data_type', 'person_with_parents', [
+				[ 'row_data_type_field', { 'si_name' => 'self_id'    , 'scalar_data_type' => 'entity_id'  , }, ],
+				[ 'row_data_type_field', { 'si_name' => 'self_name'  , 'scalar_data_type' => 'person_name', }, ],
+				[ 'row_data_type_field', { 'si_name' => 'father_id'  , 'scalar_data_type' => 'entity_id'  , }, ],
+				[ 'row_data_type_field', { 'si_name' => 'father_name', 'scalar_data_type' => 'person_name', }, ],
+				[ 'row_data_type_field', { 'si_name' => 'mother_id'  , 'scalar_data_type' => 'entity_id'  , }, ],
+				[ 'row_data_type_field', { 'si_name' => 'mother_name', 'scalar_data_type' => 'person_name', }, ],
+			], ],
+		] );
+
+		# This defines the blueprint of a database catalog that contains a single schema and a single virtual user which owns the schema.
+		my $catalog_bp = $model.build_child_node_tree( 'catalog', 'Gene Database', [
+			[ 'owner', 'Lord of the Root', ],
+			[ 'schema', { 'si_name' => 'Gene Schema', 'owner' => 'Lord of the Root', }, ],
+		] );
+		my $schema = $catalog_bp.find_child_node_by_surrogate_id( 'Gene Schema' );
+
+		# This defines a base table (table) schema object that lives in the aforementioned database catalog. 
+		# It contains 6 columns, including a not-null primary key (having a trivial sequence generator to give it 
+		# default values), another not-null field, a surrogate key, and 2 self-referencing foreign keys.
+		# Each row represents a single 'person', for each storing up to 2 unique identifiers, name, sex, and the parents' unique ids.
+		my $tb_person = $schema.build_child_node_tree( 'table', { 'si_name' => 'person', 'row_data_type' => 'person', }, [
+			[ 'table_field', { 'si_row_field' => 'person_id', 'mandatory' => 1, 'default_val' => 1, 'auto_inc' => 1, }, ],
+			[ 'table_field', { 'si_row_field' => 'name'     , 'mandatory' => 1, }, ],
+			[ 'table_index', { 'si_name' => 'primary' , 'index_type' => 'UNIQUE', }, [
+				[ 'table_index_field', 'person_id', ], 
+			], ],
+			[ 'table_index', { 'si_name' => 'ak_alternate_id', 'index_type' => 'UNIQUE', }, [
+				[ 'table_index_field', 'alternate_id', ], 
+			], ],
+			[ 'table_index', { 'si_name' => 'fk_father', 'index_type' => 'FOREIGN', 'f_table' => 'person', }, [
+				[ 'table_index_field', { 'si_field' => 'father_id', 'f_field' => 'person_id' } ],
+			], ],
+			[ 'table_index', { 'si_name' => 'fk_mother', 'index_type' => 'FOREIGN', 'f_table' => 'person', }, [
+				[ 'table_index_field', { 'si_field' => 'mother_id', 'f_field' => 'person_id' } ],
+			], ],
+		] );
+
+		# This defines a viewed table (view) schema object that lives in the aforementioned database catalog. 
+		# It left-outer-joins the 'person' table to itself twice and returns 2 columns from each constituent, for 6 total.
+		# Each row gives the unique id and name each for 3 people, a given person and that person's 2 parents.
+		my $vw_pwp = $schema.build_child_node_tree( 'view', { 'si_name' => 'person_with_parents', 
+				'view_type' => 'JOINED', 'row_data_type' => 'person_with_parents', }, [
+			('self').map:{ [ 'view_src', { 'si_name' => $_, 'match' => 'person', }, [
+				( 'person_id', 'name', 'father_id', 'mother_id', ).map:{ [ 'view_src_field', $_, ], },
+			], ], },
+			( 'father', 'mother', ).map:{ [ 'view_src', { 'si_name' => $_, 'match' => 'person', }, [
+				( 'person_id', 'name', ).map:{ [ 'view_src_field', $_, ], },
+			], ], },
+			[ 'view_field', { 'si_row_field' => 'self_id'    , 'src_field' => ['person_id','self'  ], }, ],
+			[ 'view_field', { 'si_row_field' => 'self_name'  , 'src_field' => ['name'     ,'self'  ], }, ],
+			[ 'view_field', { 'si_row_field' => 'father_id'  , 'src_field' => ['person_id','father'], }, ],
+			[ 'view_field', { 'si_row_field' => 'father_name', 'src_field' => ['name'     ,'father'], }, ],
+			[ 'view_field', { 'si_row_field' => 'mother_id'  , 'src_field' => ['person_id','mother'], }, ],
+			[ 'view_field', { 'si_row_field' => 'mother_name', 'src_field' => ['name'     ,'mother'], }, ],
+			[ 'view_join', { 'lhs_src' => 'self', 'rhs_src' => 'father', 'join_op' => 'LEFT', }, [
+				[ 'view_join_field', { 'lhs_src_field' => 'father_id', 'rhs_src_field' => 'person_id' } ],
+			], ],
+			[ 'view_join', { 'lhs_src' => 'self', 'rhs_src' => 'mother', 'join_op' => 'LEFT', }, [
+				[ 'view_join_field', { 'lhs_src_field' => 'mother_id', 'rhs_src_field' => 'person_id' } ],
+			], ],
+		] );
+
+		# This defines the blueprint of an application that has a single virtual connection descriptor to the above database.
+		my $application_bp = $model.build_child_node_tree( 'application', 'Gene App', [
+			[ 'catalog_link', { 'si_name' => 'editor_link', 'target' => $catalog_bp, }, ],
+		] );
+
+		# This defines another scalar data type, which is used by some routines that follow below.
+		my $sdt_login_auth = $model.build_child_node_tree( 'scalar_data_type', { 'si_name' => 'login_auth', 
+			'base_type' => 'STR_CHAR', 'max_chars' => 20, 'char_enc' => 'UTF8', } );
+
+		# This defines an application-side routine/function that connects to the 'Gene Database', fetches all 
+		# the records from the 'person_with_parents' view, disconnects the database, and returns the fetched records.
+		# It takes run-time arguments for a user login name and password that are used when connecting.
+		my $rt_fetch_pwp = $application_bp.build_child_node_tree( 'routine', { 'si_name' => 'fetch_pwp', 
+				'routine_type' => 'FUNCTION', 'return_cont_type' => 'RW_ARY', 'return_row_data_type' => 'person_with_parents', }, [
+			[ 'routine_arg', { 'si_name' => 'login_name', 'cont_type' => 'SCALAR', 'scalar_data_type' => $sdt_login_auth }, ],
+			[ 'routine_arg', { 'si_name' => 'login_pass', 'cont_type' => 'SCALAR', 'scalar_data_type' => $sdt_login_auth }, ],
+			[ 'routine_var', { 'si_name' => 'conn_cx', 'cont_type' => 'CONN', 'conn_link' => 'editor_link', }, ],
+			[ 'routine_stmt', { 'call_sroutine' => 'CATALOG_OPEN', }, [
+				[ 'routine_expr', { 'call_sroutine_cxt' => 'CONN_CX', 'cont_type' => 'CONN', 'valf_p_routine_item', 'conn_cx', }, ],
+				[ 'routine_expr', { 'call_sroutine_arg' => 'LOGIN_NAME', 'cont_type' => 'SCALAR', 'valf_p_routine_item', 'login_name', }, ],
+				[ 'routine_expr', { 'call_sroutine_arg' => 'LOGIN_PASS', 'cont_type' => 'SCALAR', 'valf_p_routine_item', 'login_pass', }, ],
+			], ],
+			[ 'routine_var', { 'si_name' => 'pwp_ary', 'cont_type' => 'RW_ARY', 'row_data_type' => 'person_with_parents', }, ],
+			[ 'view', { 'si_name' => 'query_pwp', 'view_type' => 'ALIAS', 'row_data_type' => 'person_with_parents', 'set_p_routine_item' => 'pwp_ary', }, [
+				[ 'view_src', { 'si_name' => 's', 'match' => $vw_pwp, }, ],
+			], ],
+			[ 'routine_stmt', { 'call_sroutine' => 'SELECT', }, [
+				[ 'routine_expr', { 'call_sroutine_cxt' => 'CONN_CX', 'cont_type' => 'CONN', 'valf_p_routine_item' => 'conn_cx', }, ],
+				[ 'routine_expr', { 'call_sroutine_arg' => 'SELECT_DEFN', 'cont_type' => 'SRT_NODE', 'act_on' => 'query_pwp', }, ],
+			], ],
+			[ 'routine_stmt', { 'call_sroutine' => 'CATALOG_CLOSE', }, [
+				[ 'routine_expr', { 'call_sroutine_cxt' => 'CONN_CX', 'cont_type' => 'CONN', 'valf_p_routine_item', 'conn_cx', }, ],
+			], ],
+			[ 'routine_stmt', { 'call_sroutine' => 'RETURN', }, [
+				[ 'routine_expr', { 'call_sroutine_arg' => 'RETURN_VALUE', 'cont_type' => 'RW_ARY', 'valf_p_routine_item' => 'pwp_ary', }, ],
+			], ],
+		] );
+
+		# This defines an application-side routine/procedure that inserts a set of records, given in an argument, 
+		# into the 'person' table.  It takes an already opened db connection handle to operate through as a 
+		# 'context' argument (which would represent the invocant if this routine was wrapped in an object-oriented interface).
+		my $rt_add_people = $application_bp.build_child_node_tree( 'routine', { 'si_name' => 'add_people', 'routine_type' => 'PROCEDURE', }, [
+			[ 'routine_context', { 'si_name' => 'conn_cx', 'cont_type' => 'CONN', 'conn_link' => 'editor_link', }, ],
+			[ 'routine_arg', { 'si_name' => 'person_ary', 'cont_type' => 'RW_ARY', 'row_data_type' => 'person', }, ],
+			[ 'view', { 'si_name' => 'insert_people', 'view_type' => 'INSERT', 'row_data_type' => 'person', 'ins_p_routine_item' => 'person_ary', }, [
+				[ 'view_src', { 'si_name' => 's', 'match' => $tb_person, }, ],
+			], ],
+			[ 'routine_stmt', { 'call_sroutine' => 'INSERT', }, [
+				[ 'routine_expr', { 'call_sroutine_cxt' => 'CONN_CX', 'cont_type' => 'CONN', 'valf_p_routine_item' => 'conn_cx', }, ],
+				[ 'routine_expr', { 'call_sroutine_arg' => 'INSERT_DEFN', 'cont_type' => 'SRT_NODE', 'act_on' => 'insert_people', }, ],
+			], ],
+		] );
+
+		# This defines an application-side routine/function that fetches one record 
+		# from the 'person' table which matches its argument.
+		my $rt_get_person = $application_bp.build_child_node_tree( 'routine', { 'si_name' => 'get_person', 
+				'routine_type' => 'FUNCTION', 'return_cont_type' => 'ROW', 'return_row_data_type' => 'person', }, [
+			[ 'routine_context', { 'si_name' => 'conn_cx', 'cont_type' => 'CONN', 'conn_link' => 'editor_link', }, ],
+			[ 'routine_arg', { 'si_name' => 'person_id', 'cont_type' => 'SCALAR', 'scalar_data_type' => 'entity_id', }, ],
+			[ 'routine_var', { 'si_name' => 'person_row', 'cont_type' => 'ROW', 'row_data_type' => 'person', }, ],
+			[ 'view', { 'si_name' => 'query_person', 'view_type' => 'JOINED', 'row_data_type' => 'person', 'set_p_routine_item' => 'person_row', }, [
+				[ 'view_src', { 'si_name' => 's', 'match' => $tb_person, }, [
+					[ 'view_src_field', 'person_id', ],
+				], ],
+				[ 'view_expr', { 'view_part' => 'WHERE', 'cont_type' => 'SCALAR', 'valf_call_sroutine' => 'EQ', }, [
+					[ 'view_expr', { 'cont_type' => 'SCALAR', 'valf_src_field' => 'person_id', }, ],
+					[ 'view_expr', { 'cont_type' => 'SCALAR', 'valf_p_routine_item' => 'person_id', }, ],
+				], ],
+			], ],
+			[ 'routine_stmt', { 'call_sroutine' => 'SELECT', }, [
+				[ 'routine_expr', { 'call_sroutine_cxt' => 'CONN_CX', 'cont_type' => 'CONN', 'valf_p_routine_item' => 'conn_cx', }, ],
+				[ 'routine_expr', { 'call_sroutine_arg' => 'SELECT_DEFN', 'cont_type' => 'SRT_NODE', 'act_on' => 'query_person', }, ],
+			], ],
+			[ 'routine_stmt', { 'call_sroutine' => 'RETURN', }, [
+				[ 'routine_expr', { 'call_sroutine_arg' => 'RETURN_VALUE', 'cont_type' => 'ROW', 'valf_p_routine_item' => 'person_row', }, ],
+			], ],
+		] );
+
+		# This defines 6 database engine descriptors and 2 database bridge descriptors that we may be using.
+		# These details can help external code determine such things as what string-SQL flavors should be 
+		# generated from the model, as well as which database features can be used natively or have to be emulated.
+		# The 'si_name' has no meaning to code and is for users; the other attribute values should have meaning to said external code.
+		$model.build_child_node_trees( [
+			[ 'data_storage_product', { 'si_name' => 'SQLite v3.2'  , 'product_code' => 'SQLite_3_2'  , 'is_file_based'  => 1, }, ],
+			[ 'data_storage_product', { 'si_name' => 'MySQL v5.0'   , 'product_code' => 'MySQL_5_0'   , 'is_network_svc' => 1, }, ],
+			[ 'data_storage_product', { 'si_name' => 'PostgreSQL v8', 'product_code' => 'PostgreSQL_8', 'is_network_svc' => 1, }, ],
+			[ 'data_storage_product', { 'si_name' => 'Oracle v10g'  , 'product_code' => 'Oracle_10_g' , 'is_network_svc' => 1, }, ],
+			[ 'data_storage_product', { 'si_name' => 'Sybase'       , 'product_code' => 'Sybase'      , 'is_network_svc' => 1, }, ],
+			[ 'data_storage_product', { 'si_name' => 'CSV'          , 'product_code' => 'CSV'         , 'is_file_based'  => 1, }, ],
+			[ 'data_link_product', { 'si_name' => 'Microsoft ODBC v3', 'product_code' => 'ODBC_3', }, ],
+			[ 'data_link_product', { 'si_name' => 'Oracle OCI*8', 'product_code' => 'OCI_8', }, ],
+			[ 'data_link_product', { 'si_name' => 'Generic Rosetta Engine', 'product_code' => 'Rosetta::Engine::Generic', }, ],
+		] );
+
+		# This defines one concrete instance each of the database catalog and an application using it.
+		# This concrete database instance includes two concrete user definitions, one that can owns 
+		# the schema and one that can only edit data.  The concrete application instance includes 
+		# a concrete connection descriptor going to this concrete database instance.
+		# Note that 'user' descriptions are only stored in a SQL::Routine model when that model is being used to create 
+		# database catalogs and/or create or modify database users; otherwise 'user' should not be kept for security sake.
+		$model.build_child_node_trees( [
+	#		[ 'catalog_instance', { 'si_name' => 'test', 'blueprint' => $catalog_bp, 'product' => 'PostgreSQL v8', }, [
+	#			[ 'user', { 'si_name' => 'ronsealy', 'user_type' => 'SCHEMA_OWNER', 'match_owner' => 'Lord of the Root', 'password' => 'K34dsD', }, ],
+	#			[ 'user', { 'si_name' => 'joesmith', 'user_type' => 'DATA_EDITOR', 'password' => 'fdsKJ4', }, ],
+	#		], ],
+			[ 'application_instance', { 'si_name' => 'test app', 'blueprint' => $application_bp, }, [
+	#			[ 'catalog_link_instance', { 'blueprint' => 'editor_link', 'product' => 'Microsoft ODBC v3', 'target' => 'test', 'local_dsn' => 'keep_it', }, ],
+			], ],
+		] );
+
+
+		# This defines another concrete instance each of the database catalog and an application using it.
+		$model.build_child_node_trees( [
+	#		[ 'catalog_instance', { 'si_name' => 'production', 'blueprint' => $catalog_bp, 'product' => 'Oracle v10g', }, [
+	#			[ 'user', { 'si_name' => 'florence', 'user_type' => 'SCHEMA_OWNER', 'match_owner' => 'Lord of the Root', 'password' => '0sfs8G', }, ],
+	#			[ 'user', { 'si_name' => 'thainuff', 'user_type' => 'DATA_EDITOR', 'password' => '9340sd', }, ],
+	#		], ],
+			[ 'application_instance', { 'si_name' => 'production app', 'blueprint' => $application_bp, }, [
+	#			[ 'catalog_link_instance', { 'blueprint' => 'editor_link', 'product' => 'Oracle OCI*8', 'target' => 'production', 'local_dsn' => 'ship_it', }, ],
+			], ],
+		] );
+
+		# This defines a third concrete instance each of the database catalog and an application using it.
+		$model.build_child_node_trees( [
+	#		[ 'catalog_instance', { 'si_name' => 'laptop demo', 'blueprint' => $catalog_bp, 'product' => 'SQLite v3.2', 'file_path' => 'Move It', }, ],
+			[ 'application_instance', { 'si_name' => 'laptop demo app', 'blueprint' => $application_bp, }, [
+	#			[ 'catalog_link_instance', { 'blueprint' => 'editor_link', 'product' => 'Rosetta::Engine::Generic', 'target' => 'laptop demo', }, ],
+			], ],
+		] );
+
+		# This line will run some correctness tests on the model that were not done 
+		# when the model was being populated for execution speed efficiency.
+		$model.assert_deferrable_constraints();
+
+		# This line will dump the contents of the model in pretty-printed XML format.
+		# It can be helpful when debugging your programs that use SQL::Routine.
+		print $model.get_all_properties_as_xml_str( 1 );
+
+		CATCH {
+			print error_to_string($!);
+		}
+	}
+
+	# SQL::Routine throws object exceptions when it encounters bad input; this function 
+	# will convert those into human readable text for display by the try/catch block.
+	sub error_to_string( $message ) {
+		if( $message.meta.isa( Locale::KeyedText::Message ) ) {
+			my $translator = Locale::KeyedText.new_translator( ['SQL::Routine::L::'], ['en'] );
+			my Str $user_text = $translator.translate_message( $message );
+			unless( $user_text ) {
+				return 'internal error: can\'t find user text for a message: '.
+					$message.as_string()~' '~$translator.as_string();
+			}
+			return $user_text;
+		}
+		return $message; # if this isn't the right kind of object
+	}
+
+I<For some more (older) examples of SQL::Routine in use, see its test suite code.>
 
 =head1 DESCRIPTION
 
