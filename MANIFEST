@@ -137,7 +137,6 @@ src/Rule/Prim.hs
 src/Rule/Token.hs
 src/Shell.hs
 src/UTF8.lhs
-svn-commit.tmp
 t/base/anon_block.t
 t/base/cond.t
 t/base/control_blocks.t

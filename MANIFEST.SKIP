@@ -20,5 +20,6 @@ pugs_config\.h
 pugs_version\.h
 \.svn
 .DS_Store$
-src/Config.hs
-src/pugs_version.h
+src/Config.hs$
+src/pugs_version\.h$
+svn-commit\.tmp$
