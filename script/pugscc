@@ -43,6 +43,6 @@ close FH;
 
 unlink "dump.ast";
 
-system("ghc", "-v0", "-o", $_out, "--make", "-main-is", "mainCC", "-i$base/src", "$base/src/MainCC.hs");
+system("ghc", "-v0", "-o", $out, "--make", "-main-is", "mainCC", "-i$base/src", "$base/src/MainCC.hs");
 unlink "$base/src/MainCC.hs";
 print "Generated output: $out\n";
