@@ -70,7 +70,7 @@ op1 "post:++" = \mv -> do
     ref <- fromValue mv
     liftIO $ writeIORef ref $ case val of
         (VStr str)  -> VStr $ strInc str
-        b           -> op1Numeric (+1) (vCast val)
+        _           -> op1Numeric (+1) (vCast val)
     case val of
         (VStr _)    -> return val
         _           -> op1 "+" val
