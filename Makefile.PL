@@ -56,10 +56,11 @@ sub set_postamble {
     my $ghc_output = "-o pugs$Config{_exe} src/Main.hs";
     my @prereqs = ($config_h, qw( src/UnicodeC.c src/UnicodeC.h ));
 
+    my $pcre = "src/pcre/pcre$Config{_o}";
+    my $pcre_c = "src/pcre/pcre.c";
     if ($Config{_exe} ne '.exe') {
-        my $pcre = "src/pcre/pcre$Config{_o}";
-        unlink "pcre$Config{_o}";
-        symlink $pcre => "pcre$Config{_o}";
+        #unlink "pcre$Config{_o}";
+        #symlink $pcre => "pcre$Config{_o}";
         $ghc_output .= " $pcre";
         push @prereqs, $pcre;
     }
@@ -73,6 +74,9 @@ $version_h : .svn/entries util/version_h.pl
 
 .svn/entries :
 	\$(NOOP)
+
+$pcre : $pcre_c
+	$ghc -no-link -no-hs-main -O -o $pcre $pcre_c
 
 src/Config.hs : util/PugsConfig.pm
 	\$(PERL) -Iutil -MPugsConfig -e "PugsConfig->write_config_module" > src/Config.hs
