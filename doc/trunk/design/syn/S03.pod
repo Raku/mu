@@ -12,7 +12,7 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 4 Dec 2004
+  Last Modified: 22 Feb 2005
   Number: 3
   Version: 5
 
@@ -103,7 +103,7 @@ iterates an iterator.
 
 =head1 Hyper operators
 
-The Unicode characters C<»> (C<\x[BB]>) and C<«> (C<\x[BB]>) and
+The Unicode characters C<»> (C<\x[BB]>) and C<«> (C<\x[AB]>) and
 their ASCII digraphs C<<< >> >>> and C<<< << >>> are used to denote
 "list operations", which operate on each element of two lists (or
 arrays) and return a list (or array) of the results.  Spaces are not
@@ -325,10 +325,10 @@ Perl 6 has 22 precedence levels (fewer than Perl 5):
     autoincrement	++ --
     exponentiation	**
     symbolic unary	! + - ~ ? * ** +^ ~^ ?^ \
-    multiplicative	* / % x xx +& +<< +>> ~& ~<< ~>>
+    multiplicative	* / % x xx +& +< +> ~& ~< ~>
     additive		+ - ~ +| +^ ~| ~^
     junctive and (all)	&
-    junctive or	(any)	| ^
+    junctive or (any)	| ^
     named unary		rand sleep abs etc.
     nonchaining binary	=> but does cmp <=> .. ^.. ..^ ^..^
     chaining binary	!= == < <= > >= ~~ !~ eq ne lt le gt ge =:=
