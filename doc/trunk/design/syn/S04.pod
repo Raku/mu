@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 4 Dec 2004
+  Last Modified: 29 Jan 2005
   Number: 4
-  Version: 4
+  Version: 5
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -226,6 +226,13 @@ can be referred to as C<$OUTER::_>.  (And yes, this implies that the
 compiler may have to retroactively change the binding of <$_> on the
 left side.  But it's what people expect of a pronoun like "it".)
 
+=head1 The do-once loop
+
+In Perl 5, a bare block is deemed to be a do-once loop.  In Perl 6,
+the bare block is not a do-once.  Instead C<do {...}> is the do-once
+loop (which is another reason you can't put a C<while> or C<until>
+modifier on it).
+
 =head1 Switch statements
 
 A switch statement is a means of topicalizing, so the switch keyword
@@ -358,6 +365,25 @@ as part of the value, you can use a pipe:
 or going the other way::
 
     $leaving and :foo:bar:baz(1) ==> leave;
+
+In theory, any user-defined control construct can catch any control
+exception it likes.  However, there have to be some culturally enforced
+standards on which constructs capture which exceptions.  Much like
+C<return> may only return from an "official" subroutine or method,
+a loop exit like C<next> should be caught by the construct the user
+expects it to be caught by.  In particular, if the user labels a loop
+with a specific label, and calls a loop control from within the lexical
+scope of that loop, and if that call mentions the outer loop's label,
+then that outer loop is the one that must be controlled. (This search
+of lexical scopes is limited to the current "official" subroutine.)
+If there is no such lexically scoped outer loop in current subroutine.
+then a fallback search is made outward through the dynamic scopes in
+the same way Perl 5 does.  (The difference between Perl 5 and Perl 6
+in this respect arises only because Perl 5 didn't have user-defined
+control structures, hence the sub's lexical scope was I<always>
+the innermost dynamic scope, so the preference to the lexical scope
+in the current sub was implicit.  For Perl 6 we have to make this
+preference explicit.)
 
 =head1 Exceptions
 
