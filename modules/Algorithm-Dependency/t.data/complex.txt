@@ -1,0 +1,23 @@
+# This file is to be loaded by Algorithm::Dependency::Source::File, and
+# contains some complex dependency information
+
+A
+B C
+C
+D E F
+E F
+F
+G H
+H I
+I J
+J
+K L M
+L M
+M
+N
+O N
+P N
+Q O N
+R P
+S R Q
+T M R D K A

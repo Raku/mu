@@ -1,0 +1,9 @@
+# This file is to be loaded by Algorithm::Dependency::Source::File, and
+# contains some basic stuff.
+
+A
+B C
+C
+D E F
+E
+F
