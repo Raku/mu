@@ -136,7 +136,7 @@ sub set_postamble {
     my @srcfiles = map glob("$_/*.*hs"), @srcdirs;
 
     # turning off unused imports and deprecations for GHC6.4.
-	my $ghc_flags = "-isrc -static -Wall -fno-warn-missing-signatures -fno-warn-name-shadowing";
+	my $ghc_flags = "-Isrc -isrc -static -Wall -fno-warn-missing-signatures -fno-warn-name-shadowing";
 	if (assert_ghc() ge '6.4') {
 	  $ghc_flags .= " -fno-warn-deprecations -fno-warn-orphans";
 	}
