@@ -143,9 +143,11 @@ Test - Test support module for perl6
   
   ok(2 + 2 == 4, '2 and 2 make 4');
   is(2 + 2, 4, '2 and 2 make 4');
+  isa_ok([1, 2, 3], 'List');
   
   todo_ok(2 + 2 == 5, '2 and 2 make 5');
   todo_is(2 + 2, 5, '2 and 2 make 5');  
+  todo_isa_ok({'one' => 1}, 'Hash');
   
   pass('This test passed');
   fail('This test failed');
@@ -158,33 +160,117 @@ Test - Test support module for perl6
 
 = DESCRIPTION
 
+This module was built to facilitate the Pugs test suite. It has the 
+distinction of being the very first module written for Pugs. 
+
+It provides a simple set of common test utility functions, and is 
+an implementation of the TAP protocol.
+
+This module, like Pugs, is a work in progress. As new features are 
+added to Pugs, new test functions will be defined to facilitate the
+testing of those features. For more information see the FUTURE PLANS 
+section of this document.
+
 = FUNCTIONS
 
 * `plan (Int $number_of_tests) returns Int`
 
-* `ok (Bool $cond, Str ?$desc) returns Bool`
+All tests need a plan. A plan is simply the number of tests which are
+expected to run. This should be specified at the very top of your tests.
+
+== Testing Functions
+
+* `ok (Bool $cond, Str ?$desc) returns Bool` 
 
 * `is (Str $got, Str $expected, Str ?$desc) returns Bool`
 
-* `isa_ok ($ref, Str $expected_type) returns Bool`
+* `isa_ok ($ref, Str $expected_type, Str ?$desc) returns Bool`
+
+This function currently on checks with ref() since we do not yet have
+object support. Once object support is created, we will add it here, and 
+maintain backwards compatibility as well.
+
+== TODO Testing functions
+
+Sometimes a test is broken because something is not implemented yet. So 
+in order to still allow that to be tested, and those tests to knowingly
+fail, we provide a set of todo_* functions for all the basic test 
+functions.
 
 * `todo_ok (Bool $cond, Str ?$desc) returns Bool`
 
 * `todo_is (Str $got, Str $expected, Str ?$desc) returns Bool`
 
-* `todo_isa_ok ($ref, Str $expected_type) returns Bool`
+* `todo_isa_ok ($ref, Str $expected_type, Str ?$desc) returns Bool`
+
+== Misc. Functions
 
 * `skip (Str ?$reason) returns Bool`
 
+If for some reason a test is to be skipped, you can use this function to do so.
+
 * `pass (Str ?$desc) returns Bool`
+
+Sometimes what you need to test does not fit into one of the standard testing 
+functions. In that case, you can use the rather blunt pass() functions and its
+compliment the fail() function.
 
 * `fail (Str ?$desc) returns Bool`
 
+This is the opposite of pass()
+
 * `todo_fail (Str ?$desc) returns Bool`
+
+On occasion, one of these odd tests might fail, but actually be a TODO item. So 
+we give you todo_fail() for just such an occasion.
 
 * `diag (Str $diag)`
 
+This will print each string with a '#' character appended to it, this is ignored
+by the TAP protocol.
+
+= FUTURE PLANS
+
+This module is still a work in progress. As Pugs grows, so will it's testing needs.
+This module will be the code support for those needs. The following is a list of
+future features planned for this module.
+
+* is_deeply
+
+Once nested data structures are implemented, we will need an easy way to test them. 
+So we will implement the Test::More function is_deeply. The plan currently is to 
+implement this as a mutually recursive multi-sub which will be able to handle 
+structures of arbitrary depth and of an arbitrary type. The function signatures 
+will likely look something like this:
+
+  multi sub is_deeply (Array @got, Array @expected, Str ?$desc) returns Bool;  
+  multi sub is_deeply (List  $got, List  $expected, Str ?$desc) returns Bool;    
+  multi sub is_deeply (Hash  %got, Hash  %expected, Str ?$desc) returns Bool;      
+  multi sub is_deeply (Pair  $got, Pair  $expected, Str ?$desc) returns Bool;  
+  
+Because these functions will be mutually recursive, they will easily be able handle 
+arbitrarily complex data structures automatically (at least that is what I hope).
+
+* like
+
+This is similar to the Test::More like() function. It will take a regular expression
+reference and compare it with a given string.
+
+* throws_ok, lives_ok
+
+These are functions taken directly from Test::Exception. They will accept a block to 
+execute and then either an Exception type, a reg-exp or a string to match against the 
+error.
+
 = SEE ALSO
+
+The Perl 5 Test modules
+
+* Test
+
+* Test::More
+
+Information about the TAP protocol can be found in the Test::Harness distribution.
 
 = AUTHORS
 
