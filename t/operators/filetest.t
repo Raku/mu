@@ -9,7 +9,7 @@ This test tests the various filetest operators.
 
 =cut
 
-plan 28;
+plan 30;
 
 # Basic tests
 ok -d 't/',   "-d returns true on directories";
@@ -59,4 +59,6 @@ ok -e -f -r -w "pugs",         "stacking of filetest operators (2)";
 ok !-e -f -r "doesnotexist.t", "stacking of filetest operators (3)";
 # This one should return false *all the time* (-f and -d are mutually
 # exclusive):
-ok !-e -f -d "t/",             "stacking of filetest operators (4)";
+ok !-e -f -d "t/",             "stacking of filetest operators (4-1)";
+ok !-e -f -d "doesnotexist.t", "stacking of filetest operators (4-2)";
+ok !-e -f -d "pugs",           "stacking of filetest operators (4-3)";
