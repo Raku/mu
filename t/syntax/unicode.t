@@ -35,4 +35,4 @@ is(eval 'my $الصفحة = 2; $الصفحة', 2, "evaluation");
 
 # hebrew
 ok(eval 'my $פוו; sub לה {}; 1', "hebrew declaration");
-is(eval 'my $באר = 2; sub זהות ($x) { $x }; זהוא($באר)', 2, "evaluation");
+is(eval 'my $באר = 2; sub זהות ($x) { $x }; זהות($באר)', 2, "evaluation");
