@@ -1,29 +1,45 @@
 #!/usr/bin/perl -w
 
 use strict;
+use Fatal qw/open close opendir closedir/;
+use File::Spec::Functions;
 
-sub sort_files { 
-    my ($left, $right) = @_;   
-    return ((-d $left && -f $right) ? 1 :       # file beats directory
-            (-d $right && -f $left) ? -1 :      # file beats directory
-                (lc($left) cmp lc($right)))     # otherwise just sort 'em
+$\ = "\n\n";
+
+sub sort_files {
+    return ((-d $a && -f $b) ? 1 :       # file beats directory
+            (-d $a && -f $b) ? -1 :      # file beats directory
+                (lc($a) cmp lc($b)))     # otherwise just sort 'em
+}
+
+sub list_dir {
+	my ($path) = @_;
+	opendir DIR, $path;
+	my @contents = map { catfile($path, $_) } grep {
+					$_ ne curdir() && $_ ne updir()
+					} readdir(DIR);
+	close DIR;
+	return sort "sort_files", @contents;
 }
 
 sub catalog_tests {
-    my ($dir, $depth) = @_;
-    $depth ||= 1;
-    map { 
-        if (-d $_ && !/Synopsis/ && !/Dialects/) {
-            print "=item B<$_>\n\n";
-            print "=over 4\n\n";     
-            catalog_tests($_, $depth + 1);
-            print "=back\n\n";
+    my ($dir) = @_;
+    map {
+        if (-d $_ && !/Synopsis/ && !/Dialects/ && !/\.svn/) {
+        	print "=cut";
+        	print "### SPLIT HERE ### $_ ###"; # to be munged by F<util/split_test_catalog.pl> (you can just pipe)
+        	print "=pod";
+        	
+            print "=item F<$_>";
+            print "=over 4";
+            catalog_tests($_);
+            print "=back";
         }
-        elsif (-f $_) {
-            print "=item I<$_>\n\n";
+        elsif (-f $_ && /\.t$/) {
+            print "=item F<$_>";
             catalog_file($_);    
         }
-    } sort { sort_files($a, $b) } <$dir/*>;
+    } list_dir($dir);
 }
 
 sub catalog_file {
@@ -32,7 +48,8 @@ sub catalog_file {
     my $documenation = '';
     my $tests_planned = 0;
     my $in_doc;
-    open(FH, "<", $file);
+    my @tests;
+    open FH, "<", $file;
     while (<FH>) {
         chomp();
         if (/=pod/ || /=kwid/) {
@@ -47,13 +64,62 @@ sub catalog_file {
         elsif (/^plan.*?(\d+)/) {
             $tests_planned = $1;
         }
-        $todo_tests++ if /todo_(ok|is|fail|isa_ok)/;
+        if (/( # the whole subname
+        	(todo_)?  # can be todo
+        	(ok|is|fail|isa_ok) # must be one of these
+        )/x){
+			my ($test_sub, $todo, $test_type) = ($1, $2, $3);
+			my ($desc, $comment);
+			
+			if (/
+				.* # stuff # shit. sorry.
+				\,\s* # item
+				['"](.*)['"] # some quoted text
+			/x){ $desc = $1 }
+			
+			if (/
+				;\s* # ending the statement, and from there on whitespace
+				\#\s*(.*)$ # followed by a comment
+			/x){ $comment = $1 }
+		
+	        $todo&&=1==1; # booleanize ;-
+	        
+        	$todo_tests++ if $todo;
+        	
+        	push @tests, {
+        		line => $.,
+        		type => $test_type,
+        		desc => $desc,
+        		comment => $comment,
+        		todo => $todo,
+        		# code => $_,
+        	};
+        }
     }
     close FH;
-    print "Test planned: $tests_planned\n\n";
-    print "Test TODO: $todo_tests\n\n" if $todo_tests;
-    print "$documenation\n";
+    print "Test planned: $tests_planned";
+    print "Test TODO: $todo_tests" if $todo_tests;
+    print "$documenation";
+
+    
+    if (@tests){
+    	print "=item Test cases";
+    	print "=over 4";
+
+		foreach my $test (@tests){
+			print "=item line $test->{line}";
+			
+			#print "\t$test->{perl}" if $ARGV[0]; # only print SLOC if true arg was passed
+			
+			print "desc: $test->{desc}" if $test->{desc};
+			print "type: $test->{type}()" . ($test->{todo} ? " # TODO" : "");
+			print "comment: $test->{comment}" if $test->{comment};
+		}
+		
+		print "=back";
+	}
 }
+
 
 print q{
 =pod
@@ -91,7 +157,7 @@ This code is free software; you can redistribute it and/or modify it under
 the terms of either:
 
     a) the GNU General Public License, version 2, or
-    b) the Artistic License, version 2.0beta5.
+    b) the Artistic License, version 2.0beta5 or any later version.
 
 For the full license text, please see the F<GPL-2> and F<Artistic-2> files
 under the F<LICENSE> directory in the Pugs distribution.
