@@ -102,7 +102,7 @@ sub assert_ghc {
     return $1;
 }
 
-sub nativize {
+sub fixpaths {
     my $self = shift;
     my $text = shift;
     my $sep = File::Spec->catdir('');
