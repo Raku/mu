@@ -74,3 +74,21 @@ ok(eval '!defined($a--)');
 
 $a = 'x';
 is($a++, 'x', 'magical ++ should not be numified');
+
+my %a = ('a' => 1);
+%a{'a'}++;
+ok(%a{'a'} == 2);
+
+my %b = ('b' => 1);
+my $var = 'b';
+%b{$var}++;
+ok(%b{$var} == 2);
+
+my @a = (1);
+@a[1]++;
+ok(@a[1] == 2);
+
+my @b = (1);
+my $moo = 1;
+@b[$moo]++;
+ok(@b[$moo] == 2);
