@@ -69,10 +69,6 @@ juncToBool JAll     = not . (False `elementOf`) . mapSet vCast
 juncToBool JNone    = not . (True `elementOf`) . mapSet vCast
 juncToBool JOne     = (1 ==) . length . filter vCast . setToList
 
-instance Context (Either Val (JuncType, VJunc)) where
-    vCast (VJunc j vs)  = Right (j, vs)
-    vCast v             = Left v
-
 instance Context VInt where
     castV = VInt
     doCast (VInt i)     = i
@@ -245,8 +241,8 @@ data Trait
 data JuncType = JAll | JAny | JOne | JNone
     deriving (Show, Eq, Ord)
 
-instance Eq ([Val] -> Val)
-instance Ord ([Val] -> Val) where
+instance Eq (Env -> [Val] -> Val)
+instance Ord (Env -> [Val] -> Val) where
     compare _ _ = LT
 instance (Ord a) => Ord (Set a) where
     compare x y = compare (setToList x) (setToList y)
@@ -260,7 +256,7 @@ type Var = String
 data Exp
     = App String [Exp] [Exp]
     | Syn String [Exp]
-    | Prim ([Val] -> Val)
+    | Prim (Env -> [Val] -> Val)
     | Val Val
     | Var Var SourcePos
     | Parens Exp
@@ -313,3 +309,12 @@ buildParam cxt sigil name exp = Param
 defaultArrayParam   = buildParam "" "*" "@_" (Val VUndef)
 defaultHashParam    = buildParam "" "*" "%_" (Val VUndef)
 defaultScalarParam  = buildParam "" "*" "$_" (Val VUndef)
+
+data Env = Env { cxt :: Cxt
+               , sym :: Symbols
+               , cls :: ClassTree
+               , evl :: Env -> Exp -> Val
+               } deriving (Show)
+type Symbol  = (String, Val)
+type Symbols = [Symbol]
+

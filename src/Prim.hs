@@ -13,58 +13,45 @@
 
 module Prim where
 import Internals
+import Junc
 import AST
 import Pretty
+import Parser
 
 op0 :: Ident -> [Val] -> Val
 op0 ","  = VList . concatMap vCast
 op0 "!"  = VJunc JNone . mkSet
 op0 "&"  = opJuncAll
-op0 "^"  = VJunc JOne . mkSet
-op0 "|"  = VJunc JAny . mkSet
+op0 "^"  = opJuncOne
+op0 "|"  = opJuncAny
 op0 s    = \x -> VError ("unimplemented listOp: " ++ s) (Val $ VList x)
 
-opJuncAll = opJunc (VJunc JAll) [(JAny, VJunc JAny), (JAll, VJunc JAll), (JNone, VJunc JNone)]
+op1 :: Ident -> Env -> (forall a. Context a => a) -> Val
+op1 "!"    _ = fmapVal not
+op1 "+"    _ = op1Numeric id
+op1 "-"    _ = op1Numeric negate
+op1 "~"    _ = VStr
+op1 "?"    _ = VBool
+op1 "*"    _ = VList
+op1 "**"   _ = VList . map (id $!)
+op1 "+^"   _ = VInt . (toInteger . (complement :: Word -> Word))
+op1 "~^"   _ = VStr . mapStr complement
+op1 "?^"   e = op1 "!" e
+op1 "\\"   _ = VRef
+op1 "..."  _ = op1Range
+op1 "not"  e = op1 "!" e
+op1 "any"  _ = opJuncAny
+op1 "all"  _ = opJuncAll
+op1 "one"  _ = opJuncOne
+op1 "none" _ = VJunc JNone
+op1 "perl" _ = \x -> VStr $ pretty (x :: Val)
+op1 "eval" e = opEval e
+op1 s      _ = \x -> VError ("unimplemented unaryOp: " ++ s) (Val x)
 
-opJunc :: (VJunc -> Val) -> [(JuncType, VJunc -> Val)] -> [Val] -> Val
-opJunc f fs vals
-    | (not . null) vals
-    , all isRight vals'
-    , (js, vs)  <- unzip $ map fromRight vals'
-    , [j]       <- nub js
-    , Just f'   <- lookup j fs
-    = f' $ unionManySets vs
-    | otherwise
-    = f $ mkSet vals
-    where
-    vals' :: [Either Val (JuncType, VJunc)]
-    vals' = map vCast vals
-
-isRight (Right _)    = True
-isRight (Left _)     = False
-fromRight (Right v)  = v
-fromRight (Left _)   = undefined
-
-op1 :: Ident -> (forall a. Context a => a) -> Val
-op1 "!"     = fmapVal not
-op1 "+"     = op1Numeric id
-op1 "-"     = op1Numeric negate
-op1 "~"     = VStr
-op1 "?"     = VBool
-op1 "*"     = VList
-op1 "**"    = VList . map (id $!)
-op1 "+^"    = VInt . (toInteger . (complement :: Word -> Word))
-op1 "~^"    = VStr . mapStr complement
-op1 "?^"    = op1 "!"
-op1 "\\"    = VRef
-op1 "..."   = op1Range
-op1 "not"   = op1 "!"
-op1 "any"   = VJunc JAny
-op1 "all"   = opJuncAll
-op1 "one"   = VJunc JOne
-op1 "none"  = VJunc JNone
-op1 "perl"  = \x -> VStr $ pretty (x :: Val)
-op1 s    = \x -> VError ("unimplemented unaryOp: " ++ s) (Val x)
+opEval :: Env -> String -> Val
+opEval env str = case ( runParser parseProgram () "" str ) of
+    Left err    -> VError (showErr err) (NonTerm $ errorPos err)
+    Right ast   -> (evl env) env ast
 
 mapStr :: (Word8 -> Word8) -> [Word8] -> String
 mapStr f = map (chr . fromEnum . f)
@@ -185,9 +172,6 @@ op2Numeric f x y
     | (VRat x', VRat y') <- (x, y)  = VRat $ f x' y'
     | otherwise                     = VNum $ f (vCast x) (vCast y)
 
-type Symbol  = (String, Val)
-type Symbols = [Symbol]
-
 primOp :: String -> String -> Params -> String -> Symbol
 primOp sym assoc prms ret = (name, sub)
     where
@@ -199,11 +183,11 @@ primOp sym assoc prms ret = (name, sub)
                       , subReturns  = ret
                       , subFun      = (Prim f)
                       }
-    f :: [Val] -> Val
+    f :: Env -> [Val] -> Val
     f    = case arity of
-        0 -> \(x:_) -> op0 sym (vCast x)
-        1 -> \[x]   -> op1 sym (vCast x)
-        2 -> \[x,y] -> op2 sym (vCast x) (vCast y)
+        0 -> \env (x:_) -> op0 sym (vCast x)
+        1 -> \env [x]   -> op1 sym env (vCast x)
+        2 -> \env [x,y] -> op2 sym (vCast x) (vCast y)
         _ -> error (show arity)
     (arity, fixity) = case assoc of
         "pre"       -> (1, "prefix")
@@ -247,6 +231,7 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   List      pre     ...     (Str|Num)\
 \\n   Bool      pre     not     (Bool)\
 \\n   Str       pre     perl    (List)\
+\\n   Any       pre     eval    (Str)\
 \\n   Junction  pre     any     (List)\
 \\n   Junction  pre     all     (List)\
 \\n   Junction  pre     one     (List)\

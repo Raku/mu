@@ -1,3 +1,10 @@
+[Changes for 6.0.4 - February 12, 2005]
+
+* The "eval" primitive.
+* Refactor junctive logic into Junc.hs.
+* "Any" and "All" now collapses operands of the same type correctly.
+* "One" now collapses into an empty set when operands contains duplicates.
+
 [Changes for 6.0.3 - February 12, 2005]
 
 * Formal parameters declaration and binding

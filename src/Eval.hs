@@ -15,17 +15,15 @@ module Eval where
 import Internals
 
 import AST
+import Junc
 import Bind
 import Prim
 import Context
 
-data Env = Env { cxt :: Cxt
-               , sym :: Symbols
-               , cls :: ClassTree
-               } deriving (Show)
 emptyEnv = Env { cxt = "List"
                , sym = initSyms
                , cls = initTree
+               , evl = evaluate
                }
 
 addSym :: Env -> [(String, Val)] -> Env
@@ -44,24 +42,9 @@ evaluate env@Env{ cxt = cxt, cls = cls } exp
 -- First pass - thread thru all() and none()
 -- Second pass - thread thru any() and one()
 
-juncType :: Val -> Maybe (JuncType, VJunc)
-juncType v
-    | VJunc j l <- v
-    = Just (j, l)
-    | otherwise
-    = Nothing
-
-juncTypeIs :: Val -> [JuncType] -> Maybe (JuncType, VJunc)
-juncTypeIs v js
-    | Just (j, l) <- juncType v
-    , j `elem` js
-    = Just (j, l)
-    | otherwise
-    = Nothing
-
-chainFun :: Env -> Params -> Exp -> Params -> Exp -> [Val] -> Val
-chainFun env p1 f1 p2 f2 (v1:v2:vs)
-    | VBool False <- applyFun env (chainArgs p1 [v1, v2]) f1
+chainFun :: Env -> Params -> Exp -> Params -> Exp -> Env -> [Val] -> Val
+chainFun env p1 f1 p2 f2 env' (v1:v2:vs)
+    | VBool False <- applyFun env' (chainArgs p1 [v1, v2]) f1
     = VBool False
     | otherwise
     = applyFun env (chainArgs p1 (v2:vs)) f2
@@ -69,15 +52,8 @@ chainFun env p1 f1 p2 f2 (v1:v2:vs)
     chainArgs prms vals = map chainArg (prms `zip` vals)
     chainArg (p, v) = ApplyArg (paramName p) v False
 
-data ApplyArg = ApplyArg
-    { argName       :: String
-    , argValue      :: Val
-    , argCollapsed  :: Bool
-    }
-    deriving (Show, Eq, Ord)
-
 applyFun :: Env -> [ApplyArg] -> Exp -> Val
-applyFun env bound (Prim f) = f [ argValue arg | arg <- bound, (argName arg !! 1) /= '_' ]
+applyFun env bound (Prim f) = f env [ argValue arg | arg <- bound, (argName arg !! 1) /= '_' ]
 applyFun env bound body
     | Val val   <- exp          = val
     | otherwise                 = VError "Invalid expression" exp
@@ -103,24 +79,6 @@ apply env@Env{ cls = cls } Sub{ subParams = prms, subFun = fun } invs args =
         | isaType cls "Bool" cxt        = True
         | isaType cls "Junction" cxt    = True
         | otherwise                     = False
-
-juncApply f args
-    | (before, (ApplyArg name (VJunc j vs) coll):after) <- break isTotalJunc args
-    = VJunc j $ mapSet (\v -> juncApply f (before ++ ((ApplyArg name v coll):after))) vs
-    | (before, (ApplyArg name (VJunc j vs) coll):after) <- break isPartialJunc args
-    = VJunc j $ mapSet (\v -> juncApply f (before ++ ((ApplyArg name v coll):after))) vs
-    | (val:_) <- [ val | (ApplyArg _ val@(VError _ _) _) <- args ]
-    = val
-    | otherwise
-    = f args
-
-isTotalJunc (ApplyArg _ (VJunc JAll _) b)   = not b
-isTotalJunc (ApplyArg _ (VJunc JNone _) b)  = not b
-isTotalJunc _                   = False
-
-isPartialJunc (ApplyArg _ (VJunc JOne _) b) = not b
-isPartialJunc (ApplyArg _ (VJunc JAny _) b) = not b
-isPartialJunc _                 = False
 
 toGlobal name
     | (sigil, identifier) <- break (\x -> isAlpha x || x == '_') name

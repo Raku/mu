@@ -31,6 +31,7 @@ module Internals (
     module Debug.Trace,
     module Text.ParserCombinators.Parsec,
     module Text.ParserCombinators.Parsec.Expr,
+    module Text.ParserCombinators.Parsec.Error,
     module Text.ParserCombinators.Parsec.Language,
 ) where
 
@@ -53,4 +54,5 @@ import Data.Tree
 import Debug.Trace
 import Text.ParserCombinators.Parsec
 import Text.ParserCombinators.Parsec.Expr
+import Text.ParserCombinators.Parsec.Error hiding (ParseError, errorPos)
 import Text.ParserCombinators.Parsec.Language

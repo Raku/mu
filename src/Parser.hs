@@ -35,7 +35,7 @@ tightOperators =
     , leftOps  " && !! "                                -- Tight And
     , leftOps  " || ^^ // "                             -- Tight Or
     , ternOps  [("??", "::")]                           -- Ternary
-    , leftSyn  " = := ::= += **= xx= "                  -- Assignment
+    , rightSyn " = := ::= += **= xx= "                  -- Assignment
     ]
 
 looseOperators =
@@ -55,7 +55,7 @@ operators = concat $
 
 litOperators = tightOperators ++ looseOperators
 
-primitiveListFunctions = " not <== any all one none perl "
+primitiveListFunctions = " not <== any all one none perl eval "
 
 parseExp = parseTerm
 
@@ -260,13 +260,11 @@ methOps _ = []
 primitiveUnaryFunctions = []
 ternOps _ = []
 
+parseProgram = do { whiteSpace ; x <- parseOp ; eof ; return x }
+
 -- runLex :: Show a => StateParser a -> String -> IO ()
 runLex f p input
-        = runParse f (do{ whiteSpace
-                 ; x <- p
-                 ; eof
-                 ; return x
-                 }) input
+        = runParse f parseProgram input
 
 -- run :: Show a => StateParser a -> String -> IO ()
 runParse f p input
@@ -276,3 +274,7 @@ runParse f p input
                           }
             Right x  -> f x
 
+showErr err = 
+      showErrorMessages "or" "unknown parse error"
+                        "expecting" "unexpected" "end of input"
+                       (errorMessages err)

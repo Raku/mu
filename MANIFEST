@@ -22,6 +22,7 @@ src/Context.hs
 src/Eval.hs
 src/Help.hs
 src/Internals.hs
+src/Junc.hs
 src/Lexer.hs
 src/Main.hs
 src/Parser.hs

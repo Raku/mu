@@ -63,4 +63,3 @@ doEval str args = do
 
 doRun str args = do
     runLex (putStr . concatMap vCast . vCast . evaluate emptyEnv) parseOp str
-
