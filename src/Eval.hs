@@ -194,21 +194,32 @@ evalVar name = do
             Just exp        -> exp -- XXX Wrong
     return val
 
-findVar name = do
-    lex <- asks envLexical
-    let lexSym = findSym name lex
-    -- XXX rewrite using Maybe monad
-    if isJust lexSym then return lexSym else do
-        glob <- askGlobal
-        let globSym = findSym name glob
-        if isJust globSym
-            then return globSym
-            else
-                let globSym = findSym (toGlobal name) glob in
-                if isJust globSym
-                    then return globSym
-                    else do
-                        return Nothing
+breakOnGlue _ [] = ([],[])
+breakOnGlue glue rest@(x:xs)
+    | glue `isPrefixOf` rest = ([], rest)
+    | otherwise = (x:piece, rest') where (piece, rest') = breakOnGlue glue xs
+
+findVar name
+    | (sig:"CALLER", name') <- breakOnGlue "::" name = do
+        (Just caller) <- asks envCaller
+        findVar' (envLexical caller) (sig:(drop 2 name'))
+    | otherwise = do
+        lex <- asks envLexical
+        findVar' lex name
+    where
+    findVar' lex name = do
+        let lexSym = findSym name lex
+        -- XXX rewrite using Maybe monad
+        if isJust lexSym then return lexSym else do
+            glob <- askGlobal
+            let globSym = findSym name glob
+            if isJust globSym
+                then return globSym
+                else
+                    let globSym = findSym (toGlobal name) glob in
+                    if isJust globSym
+                        then return globSym
+                        else return Nothing
     
 doReduce :: Env -> Exp -> Eval Exp
 
@@ -458,11 +469,12 @@ doApply env@Env{ envClasses = cls } sub@Sub{ subParams = prms, subFun = fun } in
     case bindParams prms invs args of
         Left errMsg     -> retError errMsg (Val VUndef)
         Right bindings  -> do
-            bound <- doBind bindings
-            val <- (`juncApply` bound) $ \realBound -> do
-                enterSub sub $ do
-                    applyExp realBound fun
-            retVal val
+            local (\e -> e{ envCaller = Just e }) $ do
+                bound <- doBind bindings
+                val <- (`juncApply` bound) $ \realBound -> do
+                    enterSub sub $ do
+                        applyExp realBound fun
+                retVal val
     where
     doBind :: [(Param, Exp)] -> Eval [ApplyArg]
     doBind [] = return []
