@@ -464,6 +464,7 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Num       pre     -       (Num)\
 \\n   Str       pre     ~       (Str)\
 \\n   Bool      pre     ?       (Bool)\
+\\n   Int       pre     int     (Int)\
 \\n   List      pre     *       (List)\
 \\n   List      pre     **      (List)\
 \\n   Int       pre     +^      (Int)\
@@ -581,5 +582,4 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Scalar    left    xor     (Bool, Bool)\
 \\n   Scalar    left    err     (Bool, Bool)\
 \\n   Any       list    ;       (Any)\
-\\n   Int       pre     int     (Int)\
 \\n"
