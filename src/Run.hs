@@ -48,6 +48,7 @@ prepareEnv :: VStr -> [VStr] -> IO Env
 prepareEnv name args = do
     environ <- getEnvironment
     let envFM = listToFM $ [ (k, VStr v) | (k, v) <- environ ]
+    let confFM = listToFM $ [ (k, VStr v) | (k, v) <- fmToList config ]
     exec    <- getArg0
     libs    <- getLibs environ
     execSV  <- newMVal $ VStr exec
@@ -91,7 +92,7 @@ prepareEnv name args = do
             , subReturns = "Void"
             , subFun = Prim subExit
             }
-        -- , SymVal SGlobal "%?CONFIG" (VHash . MkHash $ config)
+         , SymVal SGlobal "%?CONFIG" (VHash . MkHash $ confFM)
         ]
 
 

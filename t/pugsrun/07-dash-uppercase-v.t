@@ -10,7 +10,38 @@ Test handling of C<-V> and C<-V:option>.
 
 =cut
 
-plan 2;
+# cf. unspecced/config.t for the same list
+my @config = <
+  archlib archname
+	bin
+	exe_ext
+	file_sep
+	installarchlib
+	installbin
+	installprivlib
+	installscript
+	installsitearch
+	installsitebin
+	installsitelib
+	osname
+	pager
+	path_sep
+	perl_revision
+	perl_subversion
+	perl_version
+	prefix
+	privlib
+	pugspath
+	scriptdir
+	sitearch
+	sitebin
+	sitelib
+	pugs_versnum
+	pugs_version
+    pugs_revision
+>;
+
+plan 1+@config;
 
 diag "Running under $?OS";
 
@@ -34,15 +65,10 @@ ok( ($pugs_config ~~ rx:perl5/^This is Perl6 User's Golfing System/), "Got some 
   or diag $pugs_config;
 
 # Generalize this:
-$pugs_config = run_pugs('-V:path_sep');
+for @config -> $item {
+  $pugs_config = run_pugs("-V:$item");
 
-my $local_sep = (eval '%?CONFIG{path_sep}') // '%?CONFIG{path_sep} <undefined>';
+  my $local_sep = (eval '%?CONFIG{'~$item~'}') // '%?CONFIG{'~$item~'} <undefined>';
 
-todo_is( $pugs_config, $local_sep, "path_sep works" );
-
-#for (%config.keys() -> $entry) {
-#  diag $entry;
-#  my $result = run_pugs("-V:" ~ %config{$entry});
-#  is $result, "$entry: %config{$entry}\n", "Pugs -V:$entry works";
-#};
-
+  todo_is( $pugs_config, $local_sep, "-V:$item works" );
+};
