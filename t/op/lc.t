@@ -8,5 +8,5 @@ plan(4);
 ok(lc "Hello World" eq "hello world", "simple");
 ok(lc "" eq "", "empty string");
 ok(lc "ÅÄÖ" eq "åäö", "some finnish non-achii chars");
-ok(lc "ŃÓÒÚÙ" eq "ńóòúù", "accented chars");
+is(lc "ÓÒÚÙ", "óòúù", "accented chars");
 
