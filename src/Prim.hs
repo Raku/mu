@@ -115,6 +115,9 @@ op1 "open" = \v -> do
 op1 "close" = boolIO hClose
 op1 "key" = return . fst . (vCast :: Val -> VPair)
 op1 "value" = return . snd . (vCast :: Val -> VPair)
+op1 "kv" = \v -> do
+    let pair = vCast v
+    return $ VList [fst pair, snd pair]
 op1 "keys" = return . VList . map fst . (vCast :: Val -> [VPair])
 op1 "values" = return . VList . map snd . (vCast :: Val -> [VPair])
 op1 "<>" = \v -> do
@@ -438,6 +441,7 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Bool      pre     chdir   (Str)\
 \\n   Scalar    pre     key     (Pair)\
 \\n   Scalar    pre     value   (Pair)\
+\\n   List      pre     kv      (Pair)\
 \\n   List      pre     keys    (Hash)\
 \\n   List      pre     values  (Hash)\
 \\n   Bool      pre     rename  (Str, Str)\
