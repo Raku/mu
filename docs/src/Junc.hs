@@ -63,32 +63,29 @@ bbp = isPartialJunc bb
 bbt = isTotalJunc   bb
 
 {-
+I have written a program to run a test suite for a list of functions:
 
-I want to run a test suite for a list of two functions:
     [isTotalJunc, isPartialJunc]
-where each function receives one element of the list of types below at a time:
+
+where each function receives a datum of type ApplyArg whose value slot is 
+one element of the list of types below at a time:
+
     [JNone, JOne, JAny, JAll] 
 
 I therefore must run 8 tests (the cross product of functions and types).
 
-I need help showing the correspondence between inputs and outputs. I would
-like to create a table like this:
+Right now, here is the output:
 
- fun: isTotalJunc
- ----------------
- input: JNone  output: False
+*Main> test_total_partial
+["fun: (->)input: JNoneoutput: True","fun: (->)input: JOneoutput: False","fun: (->)input: JAnyoutput: False","fun: (->)input: JAlloutput: True","fun: (->)input: JNoneoutput: False","fun: (->)input: JOneoutput: True","fun: (->)input: JAnyoutput: True","fun: (->)input: JAlloutput: False"]
 
- ...
+One problem is that functions do not print as their name. The call to (show f)
+in showres simply yields (->)
 
- fun: isPartialJunc
- ----------------
- input: JNone  output: False
+Another problem is that I cannot manage to separate each string with a
+carriage return.
 
-One problem is that functions do not print as their name.
-Another problem.
-
-So to summarize, I need an output function which displays the testname,
-the input value and the output value.
+Any help is appreciated.
 
 -}
 
@@ -101,4 +98,4 @@ test_total_partial = let funs  = [isTotalJunc, isPartialJunc]
 					   return $ (showres f t retval)
 					  }
 			 in
-  [ runtest f t | f <- funs, t <- types ]
+  [ (showres f t (f (mkdat t))) | f <- funs, t <- types ]
