@@ -127,12 +127,6 @@ newMVal val = do
     mval <- liftIO $ newIORef val
     return $ MVal mval
 
-writeMVal l (MVal r)     = writeMVal l =<< liftIO (readIORef r)
-writeMVal (MVal l) r     = liftIO $ writeIORef l r
-writeMVal (VError s e) _ = retError s e
-writeMVal _ (VError s e) = retError s e
-writeMVal x _            = retError "Can't write a constant item" (Val x)
-
 -- readMVal (MVal mv) =  liftIO $ readIORef mv
 
 addGlobalSym sym = do
@@ -590,13 +584,6 @@ toGlobal name
     = sigil ++ ('*':identifier)
     | otherwise = name
 
-
-findSym :: String -> Pad -> Maybe Exp
-findSym name pad
-    | Just s <- find ((== name) . symName) pad
-    = Just $ symExp s
-    | otherwise
-    = Nothing
 
 arityMatch sub@Sub{ subAssoc = assoc, subParams = prms } argLen argSlurpLen
     | assoc == "list" || assoc == "chain"

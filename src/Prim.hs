@@ -281,9 +281,15 @@ opEval fatal name str = do
     val <- resetT $ local (\_ -> env') $ do
         evl <- asks envEval
         evl (envBody env')
+    let Just (Val errSV) = findSym "$!" glob
     case val of
-        VError _ _ | not fatal  -> return VUndef
-        _                       -> return val
+        VError _ _ | not fatal  -> do
+            glob <- liftIO . readIORef $ envGlobal env
+            writeMVal errSV (VStr $ show val)
+            return VUndef
+        _ -> do
+            writeMVal errSV VUndef
+            return val
 
 mapStr :: (Word8 -> Word8) -> [Word8] -> String
 mapStr f = map (chr . fromEnum . f)

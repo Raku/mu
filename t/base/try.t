@@ -84,6 +84,6 @@ plan 10;
 	';
 
 	ok(!$lived, "did not lived passed uncought throw in try");
-	todo_ok(eval 'ref($!)', '$! is an object');
+        ok(ref($!), '$! is an object');
 	todo_is(eval 'ref($!)', "Dandy", ".. of the right class");
 };

@@ -484,6 +484,19 @@ data Scope = SGlobal | SMy | SOur | SLet | STemp | SState
 
 type Eval x = ContT Val (ReaderT Env IO) x
 
+findSym :: String -> Pad -> Maybe Exp
+findSym name pad
+    | Just s <- find ((== name) . symName) pad
+    = Just $ symExp s
+    | otherwise
+    = Nothing
+
+writeMVal l (MVal r)     = writeMVal l =<< liftIO (readIORef r)
+writeMVal (MVal l) r     = liftIO $ writeIORef l r
+writeMVal (VError s e) _ = retError s e
+writeMVal _ (VError s e) = retError s e
+writeMVal x _            = retError "Can't write a constant item" (Val x)
+
 retError :: VStr -> Exp -> Eval a
 retError str exp = do
     shiftT $ \_ -> return $ VError str exp

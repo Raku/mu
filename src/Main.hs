@@ -111,6 +111,7 @@ runProgramWith fenv f name args prog = do
     inGV    <- newMVal $ VHandle stdin
     outGV   <- newMVal $ VHandle stdout
     errGV   <- newMVal $ VHandle stderr
+    errSV   <- newMVal $ VStr ""
     env <- emptyEnv
         [ Symbol SGlobal "@*ARGS"       $ Val argsAV
         , Symbol SGlobal "@*INC"        $ Val incAV
@@ -119,6 +120,7 @@ runProgramWith fenv f name args prog = do
         , Symbol SGlobal "$*IN"         $ Val inGV
         , Symbol SGlobal "$*OUT"        $ Val outGV
         , Symbol SGlobal "$*ERR"        $ Val errGV
+        , Symbol SGlobal "$!"           $ Val errSV
         , Symbol SGlobal "%*ENV" (Val . VHash . MkHash $ envFM)
         , Symbol SGlobal "%=POD"        (Val . VHash . MkHash $ emptyFM) -- wrong: pkg
         , Symbol SGlobal "@=POD"        (Val . VArray . MkArray $ [])

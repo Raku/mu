@@ -643,7 +643,7 @@ parseVarName = rule "variable name" ruleVarNameString
 ruleVarNameString = do
     sigil   <- oneOf "$@%&"
     caret   <- option "" $ choice $ map string $ words " ^ * ? "
-    name    <- many1 (choice [ wordAny, char ':' ])
+    name    <- many1 (choice [ wordAny, char ':', char '!' ])
     return $ (sigil:caret) ++ name
 
 parseVar = do
