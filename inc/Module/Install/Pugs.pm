@@ -101,7 +101,7 @@ sub pugs_fix_makefile {
     $full_blib =~ s{\\}{\\\\}g; 
     $full_blib =~ s{'}{\\'}g;
     $makefile =~ s/\b(runtests \@ARGV|test_harness\(\$\(TEST_VERBOSE\), )/ENV->{HARNESS_PERL} = q{$full_pugs}; \@ARGV = grep !\/[A-Z]\/, map glob, \@ARGV; ENV->{PERL6LIB} = q{$full_blib}; $1/;
-    $makefile =~ s/("-MExtUtils::Command::MM")/"-Iinc" $1/g;
+    $makefile =~ s!("-MExtUtils::Command::MM")!"-I../../inc" "-I../inc" "-Iinc" $1!g;
     $makefile =~ s/\$\(UNINST\)/0/g;
     close MAKEFILE;
     open MAKEFILE, '> Makefile' or die $!;
