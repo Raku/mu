@@ -11,7 +11,7 @@ These tests are derived from the "Binding" section of Synopsis 2
 
 =cut
 
-plan 8;
+plan 9;
 
 my $x = 'Just Another';
 is($x, 'Just Another', 'normal assignment works');
@@ -31,3 +31,16 @@ is($y, 'Perl Hacker', 'y has been changed to "Perl Hacker"');
 is($x, 'Perl Hacker', 'x has also been changed to "Perl Hacker"');
 
 is($z, 'Just Another', 'z is still "Just Another" because it was not bound to x');
+
+sub bar {
+  return $CALLER::a eq $CALLER::b;
+}
+
+sub foo {
+  my $a = "foo";
+  my $b := $a;
+
+  return bar();
+}
+
+todo_ok(eval 'foo()', "CALLER resolves bindings in caller's dynamic scope");
