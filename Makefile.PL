@@ -59,7 +59,7 @@ makemaker_args  (
 *** Please install GHC from http://haskell.org/ghc/.
 .
 
-clean_files("src/*.hi", "src/*.o*", "src/Rule/*.o*", "pugs*", "config.h", "version.h");
+clean_files("src/*.hi", "src/*/*.hi", "src/*.o*", "src/Rule/*.o*", "pugs*", "config.h", "version.h");
 
 my $has_readline = eval {
     require Term::ReadLine;
