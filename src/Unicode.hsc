@@ -26,7 +26,7 @@ import GHC.Unicode (isAlpha, isAlphaNum, isSpace, isLower, isUpper, toLower, toU
 #else
 # include "Unicode.c"
 
-import GHC.Unicode (ord, chr)
+import Data.Char (ord, chr)
 import System.IO.Unsafe (unsafePerformIO)
 
 foreign import ccall toUpperC :: Int -> IO Int
