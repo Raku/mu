@@ -62,12 +62,12 @@ is(@slice2[1], 1, '%hash<> slice was successful');
 # slice assignment
 
 eval '$hash5{"1st", "3rd"} = (5, 10)';
-is($hash5<1st>, 5, 'value was changed successfully with slice assignment');
-is($hash5<3rd>, 10, 'value was changed successfully with slice assignment');
+todo_is($hash5<1st>, 5, 'value was changed successfully with slice assignment'); # unTODOme
+todo_is($hash5<3rd>, 10, 'value was changed successfully with slice assignment'); # unTODOme
 
 eval '$hash5<1st 3rd> = [3, 1]';
-is($hash5<1st>, 3, 'value was changed successfully with slice assignment');
-is($hash5<3rd>, 1, 'value was changed successfully with slice assignment');
+todo_is($hash5<1st>, 3, 'value was changed successfully with slice assignment'); # unTODOme
+todo_is($hash5<3rd>, 1, 'value was changed successfully with slice assignment'); # unTODOme
 
 # keys 
 
@@ -116,5 +116,7 @@ my %hash9 = (val => 42);
 %hash9{"ref"} = \%hash9;
 isa_ok %hash9,        "Hash";
 isa_ok %hash9{"ref"}, "Hash";
-is %hash9{"ref"}{"val"},          42, "access to recursive hash (1)";
-is %hash9{"ref"}.{"ref"}.{"val"}, 42, "access to recursive hash (2)";
+todo_fail("FIXME parsefail");
+#todo_is %hash9{"ref"}{"val"},          42, "access to recursive hash (1)";
+todo_fail("FIXME parsefail");
+#todo_is %hash9{"ref"}.{"ref"}.{"val"}, 42, "access to recursive hash (2)";

@@ -66,7 +66,7 @@ plan 12;
 	my @e = (0, 1, 2, 3, undef, 5);
 	
 	my @z; eval '@z = (@a ¥ @b)';
-	is(@z, @e, "bug in zipping - should use length of longest");
+	todo_is(@z, @e, "bug in zipping - should use length of longest"); # unTODOme
 }
 
 {

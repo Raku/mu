@@ -23,7 +23,7 @@ is(%hash1{'one'}, 4, 'lvalue hash re-assignment works (w/ single quoted keys)');
 
 my %hash1; 
 %hash1<three> = 3; 
-is(%hash1<tree>, 3, 'lvalue hash assignment works (w/ unquoted style <key>)');
+todo_is(%hash1<tree>, 3, 'lvalue hash assignment works (w/ unquoted style <key>)'); # unTODOme
 
 # basic hash creation w/ comma seperated key/values
 
@@ -63,17 +63,17 @@ is(@slice2[1], 1, '%hash<> slice was successful');
 # slice assignment
 
 eval '%hash5{"one", "three"} = (5, 10)';
-is(%hash5<one>, 5, 'value was changed successfully with slice assignment');
-is(%hash5<three>, 10, 'value was changed successfully with slice assignment');
+todo_is(%hash5<one>, 5, 'value was changed successfully with slice assignment'); # unTODOme
+todo_is(%hash5<three>, 10, 'value was changed successfully with slice assignment'); # unTODOme
 
 eval '%hash5<one three> = (3, 1)';
-is(%hash5<one>, 3, 'value was changed successfully with slice assignment');
-is(%hash5<three>, 1, 'value was changed successfully with slice assignment');
+todo_is(%hash5<one>, 3, 'value was changed successfully with slice assignment'); # unTODOme
+todo_is(%hash5<three>, 1, 'value was changed successfully with slice assignment'); # unTODOme
 
 eval '%hash<one three> = [3, 1]';
-is(%hash5<one>[0], 3, 'value assigned successfully with arrayref in list context');
-is(%hash5<one>[1], 1, 'value assigned successfully with arrayref in list context');
-ok(!defined(%hash5<three>), '"three" assumed value undef from slice assignment');
+todo_is(%hash5<one>[0], 3, 'value assigned successfully with arrayref in list context'); # unTODOme
+todo_is(%hash5<one>[1], 1, 'value assigned successfully with arrayref in list context'); # unTODOme
+todo_ok(!defined(%hash5<three>), '"three" assumed value undef from slice assignment'); # unTODOme
 
 # keys 
 

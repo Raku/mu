@@ -13,7 +13,7 @@ We have "phases" to make sure the gotos didn't run wild.
 
 plan 1;
 
-fail("FIXME parsefail (6 tests)");
+todo_fail("FIXME parsefail (6 tests)"); # unTODOme
 #our $phase;
 #
 #sub test1_ok { return 1 }

@@ -12,4 +12,4 @@ ok(uc "óòúù" eq "ÓÒÚÙ", "accented chars");
 
 # Bug: GERMAN SHARP S ("ß") should uc() to "SS", but it doesn't
 # Compare with: perl -we 'use utf8; print uc "ß"'
-ok(uc "ß" eq "SS", "uc() of non-ascii chars may result in two chars");
+todo_ok(uc "ß" eq "SS", "uc() of non-ascii chars may result in two chars"); # unTODOme

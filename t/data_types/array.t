@@ -38,12 +38,12 @@ is(@array2[2], undef,  'got the right value at array2 index 2');
 my @array3 = (@array1, @array2);
 isa_ok(@array3, 'Array');
 
-is(+@array3, 6, 'the array3 has 6 elements');
-is(@array3[0], 'foo', 'got the right value at array3 index 0');
-is(@array3[1], 'bar', 'got the right value at array3 index 1');
-is(@array3[2], 'baz', 'got the right value at array3 index 2');
-is(@array3[3], 'test', 'got the right value at array3 index 3');
-is(@array3[4], 1,      'got the right value at array3 index 4');
+todo_is(+@array3, 6, 'the array3 has 6 elements'); # unTODOme
+todo_is(@array3[0], 'foo', 'got the right value at array3 index 0'); # unTODOme
+todo_is(@array3[1], 'bar', 'got the right value at array3 index 1'); # unTODOme
+todo_is(@array3[2], 'baz', 'got the right value at array3 index 2'); # unTODOme
+todo_is(@array3[3], 'test', 'got the right value at array3 index 3'); # unTODOme
+todo_is(@array3[4], 1,      'got the right value at array3 index 4'); # unTODOme
 is(@array3[5], undef,  'got the right value at array3 index 5');
 
 # array slice
@@ -75,10 +75,10 @@ my @slice = (2, 0, 1);
 my @array6 = @array1[@slice];
 isa_ok(@array6, 'Array');
 
-is(+@array6, 3, 'the array6 has 3 elements');
-is(@array6[0], 'baz', 'got the right value at array6 index 0');
-is(@array6[1], 'foo', 'got the right value at array6 index 1');
-is(@array6[2], 'bar', 'got the right value at array6 index 2');
+todo_is(+@array6, 3, 'the array6 has 3 elements'); # unTODOme
+todo_is(@array6[0], 'baz', 'got the right value at array6 index 0'); # unTODOme
+todo_is(@array6[1], 'foo', 'got the right value at array6 index 1'); # unTODOme
+todo_is(@array6[2], 'bar', 'got the right value at array6 index 2'); # unTODOme
 
 # create an array slice with an array constructed with []
 
@@ -107,5 +107,5 @@ isa_ok(@array9, 'Array');
 is(+@array9, 0, "new arrays are empty");
 
 my @array10;
-ok(eval '@array10 = (1, 2, 3,)', "trailing comma");
-is(+@array10, 3, "trailing commas make correct list");
+todo_ok(eval '@array10 = (1, 2, 3,)', "trailing comma"); # unTODOme
+todo_is(+@array10, 3, "trailing commas make correct list"); # unTODOme

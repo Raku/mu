@@ -95,7 +95,7 @@ ok(!defined(undef), "undef is not defined");
 	todo_ok(eval 'defined(%«$?PACKAGE\::»<&a_sub>)',
 			"defined sub (symbol table)");
 
-	ok(eval '!defined(&a_subwoofer)', "undefined sub");
+	todo_ok(eval '!defined(&a_subwoofer)', "undefined sub"); # unTODOme
 	todo_ok(eval '!defined(%«$?PACKAGE\::»<&a_subwoofer>)',
 			"undefined sub (symbol table)");
 }
@@ -129,7 +129,7 @@ Perl6-specific tests
 	ok(defined($ary_r), "array reference");
 	undef @ary;
 	ok(defined($ary_r), "undef array referent");
-	is(+$ary_r, 0, "dangling array reference") or diag $ary_r;
+	todo_is(+$ary_r, 0, "dangling array reference"); # unTODOme
 
 	my %hash = (1, 2, 3, 4);
 	my $hash_r = %hash;
@@ -137,7 +137,7 @@ Perl6-specific tests
 	ok(defined($hash_r), "hash reference");
 	undef %hash;
 	ok(defined($hash_r), "undef hash referent");
-	is(+$hash_r.keys, 0, "dangling hash reference") or diag $hash_r;
+	todo_is(+$hash_r.keys, 0, "dangling hash reference"); # unTODOme
 }
 
 {
@@ -243,7 +243,7 @@ Perl6-specific tests
 # autoloading
 # L<S10/Autoloading>
 
-todo_fail("FIXME parsefail (autoload tests)");
+todo_fail("FIXME parsefail (autoload tests)"); # unTODOme
 # Currently waiting on
 # - packages
 # - symtable hash

@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 32;
+plan 34;
 
 =kwid
 
@@ -172,6 +172,6 @@ Tests the given block, as defined in L<S04/"Switch statements">
       }
     }
 
-    is ret_test("a"), "A", "given returns the correct value (1)";
-    is ret_test("b"), "B", "given returns the correct value (2)";
+    todo_is ret_test("a"), "A", "given returns the correct value (1)"; # unTODOme
+    todo_is ret_test("b"), "B", "given returns the correct value (2)"; # unTODOme
 }

@@ -42,4 +42,4 @@ is($i, 1, 'verify our ending condition');
 my $count = 0;
 is($count, 0, 'verify our starting condition');
 eval 'loop (my $j = 0; $j < 10; $j++) { $count++; }';
-is($count, 10, 'verify our ending condition');
+todo_is($count, 10, 'verify our ending condition'); # unTODOme

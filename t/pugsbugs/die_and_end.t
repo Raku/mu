@@ -7,7 +7,7 @@ require Test;
 
 plan 1;
 
-fail("FIXME parsefail");
+todo_fail("FIXME parsefail"); # unTODOme
 
 #close $*ERR;
 

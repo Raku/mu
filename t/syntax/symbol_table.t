@@ -73,7 +73,8 @@ todo_ok(eval '!defined(%MY::<nosuch>)',              "unknown lexical lookup doe
 
 	todo_ok(eval '!defined(%::(\'$\' ~ $global_s))', "lookup of global in wrong package"); # XXX: error? warning? silent?
 	my $a = eval '$::($global_s)';
-	my $b = eval '$::("*Main::$global_s")'
+	my $b = eval '$::("*Main::$global_s")';
+    
 	todo_ok (defined $a && defined $b && $a eq $b,   "package search");
 	
 }

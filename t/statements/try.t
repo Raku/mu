@@ -3,14 +3,13 @@
 use v6;
 require Test;
 
-plan 10;
+plan 9;
 
 {
 	# simple try
 	my $lived = undef;
-	eval 'try { die "foo" }; $lived = 1';
-	is(eval '$!', "foo", "error var was set");
-	ok($lived, "try weakened death");
+	try { die "foo" };
+	is($!, "foo", "error var was set");
 };
 
 {

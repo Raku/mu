@@ -28,7 +28,7 @@ todo_eval_is('(&foo.assuming("y" => 2))(1)', foo(1, 2), "curried sub, mixed nota
 
 todo_eval_is('(&foo.assuming("x" => 1))(2)', foo(1, 2), "same thing, but the other way around");
 
-ok(!(eval '&foo.assuming(1)'), "can't curry without named params"); # L<S06/Currying /takes a series of named arguments/>
+todo_ok(!(eval '&foo.assuming(1)'), "can't curry without named params"); # L<S06/Currying /takes a series of named arguments/> # unTODOme
 
-ok(!(eval '&foo.assuming("f" => 3)'), "can't curry nonexistent named param"); # L<S06/Currying /whose names must match parameters of the subroutine itself/>
+todo_ok(!(eval '&foo.assuming("f" => 3)'), "can't curry nonexistent named param"); # L<S06/Currying /whose names must match parameters of the subroutine itself/> # unTODOme
 

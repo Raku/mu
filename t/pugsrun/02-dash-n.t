@@ -35,9 +35,9 @@ if ($?OS eq "MSWin32") {
 my $str = "
 foo
 bar
-"
+";
 
-my $h = open '>temp-ex-input';
+my $h = open(">temp-ex-input");
 $h.print($str);
 $h.close();
 
