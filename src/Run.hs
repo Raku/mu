@@ -34,6 +34,7 @@ runAST ast = do
     env  <- prepareEnv name args
     runEnv env{ envBody = ast, envDebug = Nothing }
 
+runComp :: Eval Val -> IO Val
 runComp comp = do
     hSetBuffering stdout NoBuffering 
     name <- getProgName

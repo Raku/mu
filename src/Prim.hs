@@ -17,6 +17,7 @@ import Junc
 import AST
 import Pretty
 import Parser
+import External
 
 op0 :: Ident -> [Val] -> Eval Val
 -- op0 ","  = return . VList . concatMap vCast
@@ -117,6 +118,10 @@ op1 "all"  = return . opJuncAll . vCast
 op1 "one"  = return . opJuncOne . vCast
 op1 "none" = return . VJunc . Junc JNone emptySet . mkSet . vCast
 op1 "perl" = return . VStr . (pretty :: Val -> VStr)
+op1 "require_haskell" = \v -> do
+    name    <- fromVal v
+    externRequire "Haskell" name
+    return $ VBool True
 op1 "require" = \v -> do
     fileVal <- readMVal v
     -- XXX - assuming a flat array
@@ -733,6 +738,7 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Any       pre     eval    (Str)\
 \\n   Any       pre     eval_perl5 (Str)\
 \\n   Any       pre     require (Str)\
+\\n   Any       pre     require_haskell (Str)\
 \\n   Any       pre     last    (?Int=1)\
 \\n   Any       pre     exit    (?Int=0)\
 \\n   Num       pre     rand    (?Num=1)\
