@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan(20);
+plan(23);
 
 # Simple - with just a single char
 
@@ -24,11 +24,17 @@ ok(index("Hello World", "Hello") == 0, "Substr, at beginning");
 ok(index("Hello World", "o W") == 4, "Substr, in the middle");
 ok(index("Hello World", "World") == 6, "Substr, at the end");
 ok(index("Hello World", "low") == -1, "Substr, no match");
-
 ok(index("Hello World", "Hello World") == 0, "Substr eq Str");
+
+# Empty strings
+
 ok(index("Hello World", "") == 0, "Substr is empty");
 ok(index("", "") == 0, "Both strings are empty");
 ok(index("", "Hello") == -1, "Only main-string is empty");
+todo_ok(index("Hello", "", 3) == 3, "Substr is empty, pos within str");
+todo_ok(index("Hello", "", 5) == 5, "Substr is empty, pos at end of str");
+# NOTE: This behaviour copied from perl5. Not sure if we should keep it
+todo_ok(index("Hello", "", 999) == 5, "Substr is empty, pos > length of str");
 
 # More difficult strings
 
