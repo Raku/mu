@@ -187,8 +187,12 @@ op1 "sleep" = boolIO sleep
 op1 "mkdir" = boolIO createDirectory
 op1 "rmdir" = boolIO removeDirectory
 op1 "chdir" = boolIO setCurrentDirectory
-op1 "-d"    = boolIO3 doesDirectoryExist
-op1 "-f"    = boolIO3 doesFileExist
+op1 "-r"    = tryIOFileTest fileTestIsReadable
+op1 "-w"    = tryIOFileTest fileTestIsWritable
+op1 "-x"    = tryIOFileTest fileTestIsExecutable
+op1 "-e"    = tryIOFileTest fileTestExists
+op1 "-f"    = tryIOFileTest fileTestIsFile
+op1 "-d"    = tryIOFileTest fileTestIsDirectory
 op1 "elems" = return . VInt . (genericLength :: VList -> VInt) . vCast
 op1 "chars" = return . VInt . (genericLength :: String -> VInt) . vCast
 op1 "bytes" = return . VInt . (genericLength :: String -> VInt) . encodeUTF8 . vCast
@@ -394,6 +398,11 @@ boolIO3 f v = do
     ok <- tryIO False $ do
         f (vCast v)
     return $ VBool ok
+
+tryIOFileTest f v = do
+    ret <- tryIO (VBool False) $ do
+        f v
+    return ret
 
 opEval :: Bool -> String -> String -> Eval Val
 opEval fatal name str = do
@@ -869,6 +878,44 @@ foldParam ('?':str)
 foldParam ('~':str) = \ps -> ((buildParam str "" "$?1" (Val VUndef)) { isThunk = True }:ps)
 foldParam x         = doFoldParam x []
 
+-- filetest operators --
+
+-- Officially, these should return a stat object, which sometimes pretends
+-- to be a boolean, and may(?) return the filename in string context.
+-- DARCS was working on stat, and we should perhaps grab their work:
+--  http://www.abridgegame.org/pipermail/darcs-users/2005-February/005499.html
+-- Or their fake posix for windows, or ...?
+-- For the moment, these return filename or false.
+--  Known Bugs: multiple stat()s are done, and filename isnt a boolean.
+
+fileTestIsReadable f = do
+    p <- getPermissions (vCast f)
+    let b = readable p
+    return $ if b then f else VBool False
+
+fileTestIsWritable f = do
+    p <- getPermissions (vCast f)
+    let b = writable p
+    return $ if b then f else VBool False
+
+fileTestIsExecutable f = do
+    p <- getPermissions (vCast f)
+    let b = executable p || searchable p
+    return $ if b then f else VBool False
+
+fileTestExists f = do
+    b1 <- doesFileExist (vCast f)
+    b2 <- doesDirectoryExist (vCast f)
+    return $ if b1 || b2 then f else VBool False
+
+fileTestIsFile f = do
+    b <- doesFileExist (vCast f)
+    return $ if b then f else VBool False
+
+fileTestIsDirectory f = do
+    b <- doesDirectoryExist (vCast f)
+    return $ if b then f else VBool False
+
 -- XXX -- Junctive Types -- XXX --
 
 -- spre is "symbolic pre", that is, operators for which a precedence has
@@ -885,8 +932,12 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Num       pre     tan     (?Num=$_)\
 \\n   Num       pre     exp     (?Num=$_, ?Num)\
 \\n   Num       pre     sqrt    (?Num=$_)\
-\\n   Bool      spre    -d      (?Str=$_)\
+\\n   Bool      spre    -r      (?Str=$_)\
+\\n   Bool      spre    -w      (?Str=$_)\
+\\n   Bool      spre    -x      (?Str=$_)\
+\\n   Bool      spre    -e      (?Str=$_)\
 \\n   Bool      spre    -f      (?Str=$_)\
+\\n   Bool      spre    -d      (?Str=$_)\
 \\n   Num       spre    -       (Num)\
 \\n   Str       spre    ~       (Str)\
 \\n   Bool      spre    ?       (Bool)\
