@@ -99,7 +99,7 @@ is($list.value.value.value, 4, 'the list.value.value.value is 4');
 # TODO tests
 
 my $quux = eval '(quux => "xyzzy").key';
-todo_is($quux, 'quux', "lhs quotes" );
+is($quux, 'quux', "lhs quotes" );
 
 # lvalue Pair assignments from S06 and thread starting with
 # http://www.nntp.perl.org/group/perl.perl6.language/19425
