@@ -4,8 +4,6 @@
 # This document was stolen directly from perlpod.pod. Making a diff between
 # the two documents is one way to see how Pod and Kwid compare.
 
-=kwid
-
 = NAME
 
 perlkwid - the Kwiki Documentation format
@@ -14,16 +12,16 @@ perlkwid - the Kwiki Documentation format
 
 Kwid is a simple-to-use markup language used for writing documentation
 for Perl, Perl programs, and Perl modules. It was inspired by the Kwiki
-wiki markup language.
+wiki markup language and Perl's traditional Pod language.
 
 # XXX a white lie for now :)
 Translators are available for converting Kwid to various formats
 like plain text, HTML, man pages, Pod, and more.
 
 Kwid markup consists of three basic kinds of paragraphs:
-[ordinary|Ordinary Paragraph],
-[verbatim|Verbatim Paragraph], and 
-[command|Command Paragraph].
+[ordinary|/Ordinary Paragraph],
+[verbatim|/Verbatim Paragraph], and 
+[command|/Command Paragraph].
 
 == Ordinary Paragraph
 
@@ -35,7 +33,7 @@ like being rewrapped, probably put into a proportionally spaced
 font, and maybe even justified.
 
 You can use formatting codes in ordinary paragraphs, for *bold*,
-/italic/, `code-style`, [perlfaq|hyperlinks], and more. Such codes are
+/italic/, `code-style`, [hyperlinks|perlfaq], and more. Such codes are
 explained in the "[Formatting Codes]" section, below.
 
 == Verbatim Paragraph
@@ -51,8 +49,8 @@ count regardless of the number of spaces in them. Leading spaces are
 stripped off of all lines one space at a time until one of the lines is
 flush left. The remaining content should be reproduced exactly, with
 tabs assumed to be on 8-column boundaries. There are no special
-formatting codes, so you can't italicize or anything like that. A \
-means \, and nothing else.
+formatting codes, so you can't italicize or anything like that. A \\
+means \\, and nothing else.
 
 == Command Paragraph
 
@@ -60,25 +58,29 @@ A command paragraph is used for special treatment of whole chunks
 of text, usually as headings or parts of lists.
 
 All command paragraphs (which are typically only one line long) start
-with "=", followed by an identifier, followed by arbitrary text that
-the command can use however it pleases.  Currently recognized commands
-are
+with an indicator, followed by a space character, followed by arbitrary
+text that the command can use however it pleases. Currently recognized
+commands are:
 
     # A comment line
     = Heading Level 1 (Most prominent)
     == Heading Level 2
     === Heading Level 3
     ==== Heading Level 4 (Least prominent)
-    * unordered list item
-    + ordered list item
-    # Start a block of type 'foo'
-    .foo
-    # End a block of type 'foo' (same as start tag)
-    .foo.
+    .list indentlevel
+    .list.
+    - list item
+    * unordered (bulleted) list item
+    + ordered (numbered) list item
+    =kwid
+    =cut
+    .format arguments
+    .format.
 
 To explain them each in detail:
 
-* `# A comment line`
+.list
+- `# A comment line`
 
 A comment line is thrown away by the Kwid parser. It is used by the Kwid
 author to annotate the markup, or to temporarily /turn off/ lines of Kwid.
@@ -91,12 +93,10 @@ Another way to do block comments is like this:
     Some text
     .comment.
 
-=over
-
-* `= Heading Level 1`
-* `== Heading Level 2`
-* `=== Heading Level 3`
-* `==== Heading Level 4`
+- `= Heading Level 1`
+- `== Heading Level 2`
+- `=== Heading Level 3`
+- `==== Heading Level 4`
 
 `=` through `====` produce headings, `=` being the highest level.
 The text in the rest of this line is the content of the heading.
@@ -111,26 +111,68 @@ these heading commands can use formatting codes, as seen here:
 
 Such commands are explained in the "[Formatting Codes]" section, below.
 
-* `* unordered list item`
-* `+ ordered list item`
+- `* unordered list item`
+- `+ ordered list item`
 
-These formats require little explanation: `*` is for bulleted list
-items, and '+' is for ordered list items. In the /stuff/ in `* unordered
-list item`, you may use formatting codes, as seen here:
+`.list`, `-`, `*, and `+` require a little more explanation: ".list"
+starts a region specifically for the generation of a list using `-`, `*`,
+and `+` commands, or for indenting (groups of) normal paragraphs. At the
+end of your list, use ".list." to end it. The /indentlevel/ option to
+".list" indicates how far over to indent, generally in ems (where one em
+is the width of an "M" in the document's base font) or roughly
+comparable units; if there is no /indentlevel/ option, it defaults to
+four. (And some formatters may just ignore whatever /indentlevel/ you
+provide.) In the /stuff/ in `- /stuff.../`, you may use formatting
+codes, as seen here:
 
-  * Using `$|` to Control Buffering
+  - Using `$|` to Control Buffering
 
 Such commands are explained in the "[Formatting Codes]" section, below.
 
-Note also that there are no silly rules to using lists (like in Pod).
+One thing to note is that Kwid, unlike Pod, allows you to make simple
+lists without marking the beginning and ending ".list" and ".list.". You
+can start any line with a "*" or a "+". The list continues until the
+next line that doesn't start with a "*" or a "+". You can even do multi-
+level lists by using more than one "*" or "+". Like this:
 
-* `=cut`
+    + People
+    ** Larry
+    ** Tom
+    ** Randal
+    + Places
+    ++ London
+    ++ France
+    ++ Pants
+
+The catch is that each list item must be on a single line. For multiline list
+items you'll need ".list".
+
+Note also that there are some basic rules to using ".list" ...
+".list." regions:
+
+.list
+* Don't use "-"s outside of a ".list" ... ".list." region.
+* The first thing after the ".list" command should be a "-" or "*" or
+  "+" command, unless there aren't going to be any items at all in this
+  ".list" ... ".list." region.
+* Don't put "=" (header) commands inside a ".list" ... ".list." region.
+* And perhaps most importantly, keep the items consistent: either use
+  "*" for all of them, to produce bullets; or use "+" to produce
+  numbered lists; or use "-" for things that look nothing like bullets
+  or numbers.
+
+If you start with bullets or numbers, stick with them, as formatters use
+the first "=item" type to decide how to format the list.
+.list.
+
+- `=cut`
 
 To end a Kwid block in Perl code, use a line beginning with "=cut". This
 lets Perl (and the Kwid formatter) know that this is where Perl code is
-resuming. 
+resuming. Note that `=cut` is not part of Kwid at all. It is simply a Perl
+marker used in conjunction with Kwid.
 
-* `=kwid`
+- `=kwid`
 
 The "=kwid" command by itself doesn't do much of anything, but it
 signals to Perl (and Kwid formatters) that a Kwid block starts here.
@@ -155,8 +197,11 @@ For example:
 
   =cut
 
-* `.formatname`
-* `.formatname.`
+Note that `=kwid` is not part of Kwid at all. It is simply a Perl
+marker used in conjunction with Kwid.
+
+- `.formatname`
+- `.formatname.`
 
 `.formatname` and `.formatname.` will let you have regions of
 text/code/data that are not generally interpreted as normal Kwid text,
@@ -179,6 +224,14 @@ Here are some examples of how to use this:
   .html
   <br>Figure 1.<br><IMG SRC="figure1.png"><br>
   .html.
+
+  .pod
+  =head1 Music
+
+  B<Rock> E<amp> I<Roll>
+
+  =cut
+  .pod
 
   .text
     ---------------
@@ -210,7 +263,7 @@ Note the ending marker can take the same arguments as the beginning
 marker. This is optional, but if the arguments are present on the ending
 marker, they must exactly match the beginning marker. (This technique
 can be used creatively to nest blocks of the same format, by passing
-them different arguments.)
+them different arguments where ambiguity might otherwise arise.)
 
 Some format names that formatters currently are known to accept
 include "roff", "man", "latex", "tex", "text", and "html".  (Some
@@ -233,7 +286,7 @@ Same as:
 This command is used for declaring the encoding of a document.  Most
 users won't need this; but if your encoding isn't US-ASCII or Latin-1,
 then put a `.encoding encodingname` command early in the document so
-that pod formatters will know how to decode the document.  For
+that Kwid formatters will know how to decode the document.  For
 /encodingname/, use a name recognized by the [Encode::Supported]
 module.  Examples:
 
@@ -254,10 +307,10 @@ Some examples of lists include:
 
   * First item
   * Second item
-  .over
-  Foo() - Description of Foo function
-  Bar() - Description of Bar function
-  .over.
+  .list
+  - Foo() - Description of Foo function
+  - Bar() - Description of Bar function
+  .list.
 
 == Formatting Codes
 
@@ -269,29 +322,31 @@ formatting codes (a.k.a. "interior sequences") can be used:
  Prefer "formatting codes" instead.
 .comment.
 
-* `/text/` -- italic text
+.list
 
-Used for emphasis ("`be /careful!/`") and parameters ("`redo /LABEL/`")
+- `/text/` -- italic text
 
-*  `*text*` -- bold text
+Used for emphasis ("{`be /careful!/`}") and parameters ("{`redo /LABEL/`}")
 
-Used for switches ("`perl's *-n* switch`"), programs ("`some systems
-provide a *chfn* for that`"), emphasis ("`be *careful!*`"), and so on
-("`and that feature is known as *autovivification*`").
+- `*text*` -- bold text
 
-* `` `code` `` -- code text
+Used for switches ("{`perl's *-n* switch`}"), programs ("{`some systems
+provide a *chfn* for that`}"), emphasis ("{`be *careful!*`}"), and so on
+("{`and that feature is known as *autovivification*`}").
+
+- {``code``} -- code text
 
 Renders code in a typewriter font, or gives some other indication that
-this represents program text ("`` `gmtime($^T)` ``") or some other
-form of computerese ("`` `drwxr-xr-x` ``").
+this represents program text ("{``gmtime($^T)``}") or some other
+form of computerese ("{``drwxr-xr-x``}").
 
-* `[name]` -- a hyperlink
+- `[name]` -- a hyperlink
 
 There are various syntaxes, listed below. In the syntaxes given, `text`,
-`name`, and `section` cannot contain the characters '/' and '|'; and any
-'<' or '>' should be matched.
+`name`, and `section` cannot contain the characters '/', '|', '[', or ']'.
 
-.over
+.list
+
 * `[name]`
 
 Link to a Perl manual page (e.g., `[Net::Ping]`). Note that `name`
@@ -304,16 +359,19 @@ Link to a section in other manual page.  E.g., `[perlsyn/For Loops]`
 
 * `[/sec]` or `[sec]`
 
-Link to a section in this manual page.  E.g.,
-`[Object Methods]`
-.over.
+Link to a section in this manual page.  E.g., `[Object Methods]`
+Note that unless the '/' is present `sec` must contain one or more spaces.
+
+.list.
 
 A section is started by the named heading or item. For example,
-`[perlvar/$.]` links to the section started by "`== $.`" in perlvar.
+`[perlvar/$.]` links to the section started by "{`== $.`}" in perlvar.
 And `[perlsyn/For Loops]` links to the section started by `== For
 Loops` in perlsyn.
 
-To control what text is used for display, you use "`[text|...]`", as in:
+To control what text is used for display, you use "{`[text|...]`}", as in:
+
+.list
 
 * `[text|name]`
 
@@ -329,7 +387,11 @@ Link this text to that section in that manual page.  E.g.,
 Link this text to that section in this manual page.  E.g.,
 `[the various attributes|/Member Data]`
 
+.list.
+
 Or you can link to a web page:
+
+.list
 
 * `scheme://...`
 
@@ -342,337 +404,147 @@ Unlike with Pod, you can also do a named link:
 
     [text|scheme:...]
 
-* `&escape;` -- a character escape
+.list.
+
+- `&escape;` -- a character escape
 
 Exactly similar to HTML/XML `&foo;` "entity references":
 
+- `{ text }` -- text is rendered asis with non-breaking spaces
 
+This means that the words in /text/ should not be broken
+across lines.  Example: `{ $x ? $y : $z }`. Note that this markup begins with
+a left brace and a space and ends with a space and a right brace.
 
+# The file markup seems crufty. Keeping it for Pod compatibility, but using
+# an elongated form to discourage use.
+- `{file: filename}` -- used for filenames
 
+Typically displayed in italics.  Example: "`{file: .cshrc}`"
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-# XXX
-OK, I am half way through this Pod to Kwid conversion. I think it is
-going quite well. Kwid is much easier to read and write so far. But
-there is a definite mess and smell to this POD stuff. Do I want to
-support it all? Sleep will help me decide...
-
-Some problems so far.
-
-Kwiki lists are generally one line per item. Pod is not such. Nesting Pod
-type lists makes it obvious why there is the whole:
-  =over
-  =item
-  =item
-  =back
-mess. It is not optimized for simple lists, but handles non-bulleted,
-not-numbered list like things. I will have to look at the generated HTML of
-pod2html to grok what is really intended. 
-
-I imagine a solution like this:
-
-.list
-- widget()
-The widget function does this...
-- gadget()
-The gadget function does that...
-.list 2
-- gadget(Int)
-The int form does blah...
-- gadget(Str)
-The str form does blech...
-.list 2.
-.list.
-
-Also the *bold* and /italic/ formats will have {*bold*} and {/italic/} forms
-for when things get hairy...
-
-More tommorrow...
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-=over
-
-=item *
-
-C<EE<lt>ltE<gt>> -- a literal E<lt> (less than)
-
-=item *
-
-C<EE<lt>gtE<gt>> -- a literal E<gt> (greater than)
-
-=item *
-
-C<EE<lt>verbarE<gt>> -- a literal | (I<ver>tical I<bar>)
-
-=item *
-
-C<EE<lt>solE<gt>> = a literal / (I<sol>idus)
-
-The above four are optional except in other formatting codes,
-notably C<LE<lt>...E<gt>>, and when preceded by a
-capital letter.
-
-=item *
-
-C<EE<lt>htmlnameE<gt>>
-
-Some non-numeric HTML entity name, such as C<EE<lt>eacuteE<gt>>,
-meaning the same thing as C<&eacute;> in HTML -- i.e., a lowercase
-e with an acute (/-shaped) accent.
-
-=item *
-
-C<EE<lt>numberE<gt>>
-
-The ASCII/Latin-1/Unicode character with that number.  A
-leading "0x" means that I<number> is hex, as in
-C<EE<lt>0x201EE<gt>>.  A leading "0" means that I<number> is octal,
-as in C<EE<lt>075E<gt>>.  Otherwise I<number> is interpreted as being
-in decimal, as in C<EE<lt>181E<gt>>.
-
-Note that older Pod formatters might not recognize octal or
-hex numeric escapes, and that many formatters cannot reliably
-render characters above 255.  (Some formatters may even have
-to use compromised renderings of Latin-1 characters, like
-rendering C<EE<lt>eacuteE<gt>> as just a plain "e".)
-
-=back
-
-=item C<FE<lt>filenameE<gt>> -- used for filenames
-
-Typically displayed in italics.  Example: "C<FE<lt>.cshrcE<gt>>"
-
-=item C<SE<lt>textE<gt>> -- text contains non-breaking spaces
-
-This means that the words in I<text> should not be broken
-across lines.  Example: S<C<SE<lt>$x ? $y : $zE<gt>>>.
-
-=item C<XE<lt>topic nameE<gt>> -- an index entry
+# Also crufty
+- `{index: topic name}` -- an index entry
 
 This is ignored by most formatters, but some may use it for building
 indexes.  It always renders as empty-string.
-Example: C<XE<lt>absolutizing relative URLsE<gt>>
+Example: `{index: absolutizing relative URLs}`
 
-=item C<ZE<lt>E<gt>> -- a null (zero-effect) formatting code
+- `{}` -- a null (zero-effect) formatting code
 
-This is rarely used.  It's one way to get around using an
-EE<lt>...E<gt> code sometimes.  For example, instead of
-"C<NEE<lt>ltE<gt>3>" (for "NE<lt>3") you could write
-"C<NZE<lt>E<gt>E<lt>3>" (the "ZE<lt>E<gt>" breaks up the "N" and
-the "E<lt>" so they can't be considered
-the part of a (fictitious) "NE<lt>...E<gt>" code.
+This is rarely used. It is included to roundtrip Pod's rarely used `Z<>`
+format.
 
-=for comment
+.comment
  This was formerly explained as a "zero-width character".  But it in
  most parser models, it parses to nothing at all, as opposed to parsing
  as if it were a E<zwnj> or E<zwj>, which are REAL zero-width characters.
  So "width" and "character" are exactly the wrong words.
+.comment.
 
-=back
+.list.
 
-Most of the time, you will need only a single set of angle brackets to
-delimit the beginning and end of formatting codes.  However,
-sometimes you will want to put a real right angle bracket (a
-greater-than sign, '>') inside of a formatting code.  This is particularly
-common when using a formatting code to provide a different font-type for a
-snippet of code.  As with all things in Perl, there is more than
-one way to do it.  One way is to simply escape the closing bracket
-using an C<E> code:
+== The Dirty Bits
 
-    C<$a E<lt>=E<gt> $b>
+Similar to Perl itself, Kwid tries to make simple things clean and dirty
+things possible. In other words, Kwid optimizes for the normal cases,
+but keeps a couple tricks up its sleeve to deal with conflicts between
+content and markup.
 
-This will produce: "C<$a E<lt>=E<gt> $b>"
+.list
 
-A more readable, and perhaps more "plain" way is to use an alternate
-set of delimiters that doesn't require a single ">" to be escaped.  With
-the Pod formatters that are standard starting with perl5.5.660, doubled
-angle brackets ("<<" and ">>") may be used I<if and only if there is
-whitespace right after the opening delimiter and whitespace right
-before the closing delimiter!>  For example, the following will
-do the trick:
+- Curly brace markers
 
-    C<< $a <=> $b >>
+Consider the following:
 
-In fact, you can use as many repeated angle-brackets as you like so
-long as you have the same number of them in the opening and closing
-delimiters, and make sure that whitespace immediately follows the last
-'<' of the opening delimiter, and immediately precedes the first '>'
-of the closing delimiter.  (The whitespace is ignored.)  So the
-following will also work:
+   Don't forget the *butter*, I really need it.
 
-    C<<< $a <=> $b >>>
-    C<<<<  $a <=> $b     >>>>
+The word "butter" is bolded, because the asterisks are /hugging/ the
+word. The beginning asterisk is /hugging/ because it is preceded by a
+whitespace char and followed by a word char. The ending asterisk is
+/hugging/ because it is preceded by a word char and followed by
+whitespace char. Certain common punctuation chars are allowed to be
+between the ending asterisk and the space.
 
-And they all mean exactly the same as this:
+There are many cases when a pair of asterisks will not cause bolding. At least
+not as you might expect.
 
-    C<$a E<lt>=E<gt> $b>
+   Don't forget the * butter*, I really need it.
+   Don't forget the *butter*,*bread*, and salt.
+   I like butter. *(Know what I mean)*? 
 
-As a further example, this means that if you wanted to put these bits of
-code in C<C> (code) style:
+The solution is to use curly braces.
 
-    open(X, ">>thing.dat") || die $!
-    $foo->bar();
+   Don't forget the {* butter*}, I really need it.
+   Don't forget the {*butter*},{*bread*}, and salt.
+   I like butter. {*(Know what I mean)*}? 
 
-you could do it like so:
+In the explicit curly brace form, `{*` is the starting marker, and `*}`
+is the ending marker. More specifically, a starting marker is one or
+more left curly braces followed a formatting character. An ending
+marker is the same formatting char followed by one or more (but the
+same number) right curly braces.
 
-    C<<< open(X, ">>thing.dat") || die $! >>>
-    C<< $foo->bar(); >>
+This can used for all the phrase formats:
 
-which is presumably easier to read than the old way:
+   Code:   {`my $my_files = `ls -1 ./my_dir``}
+   Italic: {//etc/apache//}
+   Bold:   {**** WARNING ***: Danger!*}
+   Asis:   {{{ { {{ ... }} } }}}
 
-    C<open(X, "E<gt>E<gt>thing.dat") || die $!>
-    C<$foo-E<gt>bar();>
+- Backslash escaping
 
-This is currently supported by pod2text (Pod::Text), pod2man (Pod::Man),
-and any other pod2xxx or Pod::Xxxx translators that use
-Pod::Parser 1.093 or later, or Pod::Tree 1.02 or later.
+Unless other escaping mechanisms are in control a backslash followed by
+another character renders as that character and is not used as markup.
+This is how you can defeat certain markup chars when they are meant to
+be content. A \\ at the end of a line is really just a \\ followed by a
+newline. In paragraph context that would indicate a hard line break, rather
+than folding text. A content backslash must be written as "\\\\".
 
-=head2 The Intent
+   \== Not a header
+   \# Not a comment
+   \* Not a list item
+   This is not a \[link].
+   This is not \{*bold*}.
+
+.list.
+
+== The Intent
 
 The intent is simplicity of use, not power of expression.  Paragraphs
 look like paragraphs (block format), so that they stand out
-visually, and so that I could run them through C<fmt> easily to reformat
-them (that's F7 in my version of B<vi>, or Esc Q in my version of
-B<emacs>).  I wanted the translator to always leave the C<'> and C<`> and
-C<"> quotes alone, in verbatim mode, so I could slurp in a
+visually.  I wanted the translator to always leave the `'` and {```} and
+`"` quotes alone, in verbatim mode, so I could slurp in a
 working program, shift it over four spaces, and have it print out, er,
 verbatim.  And presumably in a monospace font.
 
-The Pod format is not necessarily sufficient for writing a book.  Pod
+The Kwid format is not necessarily sufficient for writing a book. Pod
 is just meant to be an idiot-proof common source for nroff, HTML,
 TeX, and other markup languages, as used for online
-documentation.  Translators exist for B<pod2text>, B<pod2html>,
-B<pod2man> (that's for nroff(1) and troff(1)), B<pod2latex>, and
-B<pod2fm>.  Various others are available in CPAN.
+documentation.  Translators exist for *kwid2text*, *kwid2html*,
+*kwid2man* (that's for nroff(1) and troff(1)), *kwid2latex*, and
+*kwid2fm.  Various others are available in FreePAN.
 
+== Embedding Kwid in Perl Modules
 
-=head2 Embedding Pods in Perl Modules
+You can embed Kwid documentation in your Perl modules and scripts. Start
+your documentation with a "=kwid" command at the beginning, and end it
+with a "=cut" command. Perl will ignore the Kwid text. See any of the
+supplied library modules for examples.
 
-You can embed Pod documentation in your Perl modules and scripts.
-Start your documentation with an empty line, a "=head1" command at the
-beginning, and end it with a "=cut" command and an empty line.  Perl
-will ignore the Pod text.  See any of the supplied library modules for
-examples.  If you're going to put your Pod at the end of the file, and
-you're using an __END__ or __DATA__ cut mark, make sure to put an
-empty line there before the first Pod command.
-
-  __END__
-
-  =head1 NAME
-
+  =kwid
+  = NAME
   Time::Local - efficiently compute time from local and GMT time
 
-Without that empty line before the "=head1", many translators wouldn't
-have recognized the "=head1" as starting a Pod block.
+== Hints for Writing Kwid
 
-=head2 Hints for Writing Pod
+# TODO
 
-=over
+= SEE ALSO
 
-=item *
+[perlpod], [perlpodspec],
+[perlkwidspec], [perlsyn/PODs: Embedded Documentation],
+[perldoc], [kwid2html], [kwid2man], [kwid2pod], [pod2kwid].
 
-The B<podchecker> command is provided for checking Pod syntax for errors
-and warnings.  For example, it checks for completely blank lines in
-Pod blocks and for unknown commands and formatting codes.  You should
-still also pass your document through one or more translators and proofread
-the result, or print out the result and proofread that.  Some of the
-problems found may be bugs in the translators, which you may or may not
-wish to work around.
+= AUTHOR
 
-=item *
-
-If you're more familiar with writing in HTML than with writing in Pod, you
-can try your hand at writing documentation in simple HTML, and converting
-it to Pod with the experimental L<Pod::HTML2Pod|Pod::HTML2Pod> module,
-(available in CPAN), and looking at the resulting code.  The experimental
-L<Pod::PXML|Pod::PXML> module in CPAN might also be useful.
-
-=item *
-
-Many older Pod translators require the lines before every Pod
-command and after every Pod command (including "=cut"!) to be a blank
-line.  Having something like this:
-
- # - - - - - - - - - - - -
- =item $firecracker->boom()
-
- This noisily detonates the firecracker object.
- =cut
- sub boom {
- ...
-
-...will make such Pod translators completely fail to see the Pod block
-at all.
-
-Instead, have it like this:
-
- # - - - - - - - - - - - -
-
- =item $firecracker->boom()
-
- This noisily detonates the firecracker object.
-
- =cut
-
- sub boom {
- ...
-
-=item *
-
-Some older Pod translators require paragraphs (including command
-paragraphs like "=head2 Functions") to be separated by I<completely>
-empty lines.  If you have an apparently empty line with some spaces
-on it, this might not count as a separator for those translators, and
-that could cause odd formatting.
-
-=item *
-
-Older translators might add wording around an LE<lt>E<gt> link, so that
-C<LE<lt>Foo::BarE<gt>> may become "the Foo::Bar manpage", for example.
-So you shouldn't write things like C<the LE<lt>fooE<gt>
-documentation>, if you want the translated document to read sensibly
--- instead write C<the LE<lt>Foo::Bar|Foo::BarE<gt> documentation> or
-C<LE<lt>the Foo::Bar documentation|Foo::BarE<gt>>, to control how the
-link comes out.
-
-=item *
-
-Going past the 70th column in a verbatim block might be ungracefully
-wrapped by some formatters.
-
-=back
-
-=head1 SEE ALSO
-
-L<perlpodspec>, L<perlsyn/"PODs: Embedded Documentation">,
-L<perlnewmod>, L<perldoc>, L<pod2html>, L<pod2man>, L<podchecker>.
-
-=head1 AUTHOR
-
-Larry Wall, Sean M. Burke
-
-=cut
+Brian Ingerson
