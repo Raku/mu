@@ -12,6 +12,10 @@ my @srcdirs = ("src", grep(-d, glob "src/*"));
 
 deny_cygwin     ();
 my ($ghc, $ghc_version) = assert_ghc();
+if ($Config{_exe} eq '.exe' and $ghc_version lt "6.4") {
+    die "*** Sorry, we require GHC 6.4 on Win32 now.\n" .
+	"*** Please download it from http://haskell.org/ghc/download.html\n";
+}
 
 name            ('Perl6-Pugs');
 version_from    ('lib/Perl6/Pugs.pm');
