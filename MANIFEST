@@ -53,3 +53,5 @@ t/op/eq.t
 t/op/push.t
 t/op/die.t
 t/op/hash.t
+t/op/pair.t
+t/op/join.t
