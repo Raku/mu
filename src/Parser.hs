@@ -846,11 +846,29 @@ arrayLiteral = do
     items   <- brackets $ ruleExpression `sepEndBy` symbol ","
     return $ App "&prefix:\\" [] [Syn "cxt" [Val (VStr "List"), Syn "," items]]
 
-pairLiteral = try $ do
-    key <- identifier
-    symbol "=>"
-    val <- parseTerm
-    return $ App "&infix:=>" [Val (VStr key), val] []
+pairLiteral = do
+    try $ do
+	key <- identifier
+	symbol "=>"
+	val <- parseTerm
+	return $ App "&infix:=>" [Val (VStr key), val] []
+    <|>
+    do
+	string ":"
+	key <- many1 wordAny
+	val <- option (Val $ VInt 1) valuePart
+	return $ App "&infix:=>" [Val (VStr key), val] []
+	where
+	valuePart =
+	    do{ skipMany1 (satisfy isSpace); option (Val $ VInt 1) $ do{ symbol "."; valueExp } }
+	    <|>
+	    valueExp
+	valueExp =
+	    parens parseTerm
+	    <|>
+	    do
+		str <- angles (many $ satisfy (/= '>'))
+		return $ Val $ VStr $ str
 
 rxInterpolator end = choice
     [ qqInterpolatorVar end, rxInterpolatorChar, ruleBlock ]
