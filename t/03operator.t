@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 22;
+plan 23;
 
 my $str1 = "foo";
 my $str2 = "bar";
@@ -16,6 +16,8 @@ my $bar = "";
 ($str3 eq $str4) ?? $bar = 1 :: $bar = 0;
 
 ok($bar, "?? ::");
+
+todo_is('(($str3 eq $str4) ?? 1 :: 2)', 1, "?? :: in parens");
 
 my $five = 5;
 my $four = 4;
