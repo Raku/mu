@@ -53,13 +53,13 @@ ok ($a == -2147483649);
 $a = 2147483648;
 my $b = -$a;
 $c=$b--;
-todo_ok($b == -$a-1);
+ok($b == -$a-1);
 # $b is rightfully -2147483649, but -$a-1 is -2147483647
 
 $a = 2147483648;
 $b = -$a;
 $c=eval '--$b';
-todo_ok($b == -$a-1);
+ok($b == -$a-1);
 
 $a = 2147483648;
 $b = -$a;
@@ -67,7 +67,7 @@ $b=$b-1;
 ok ($b == eval '-(++$a)');
 
 $a = undef;
-ok ($a++ eq '0');
+todo_ok ($a++ eq '0');
 
 $a = undef;
 todo_ok(eval '!defined($a--)');

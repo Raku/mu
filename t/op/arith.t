@@ -9,10 +9,10 @@ sub abs($num) { $num < 0 ?? -$num :: $num }
 
 my $five = abs(-5);
 
-if (not $five == 5) {
+unless ($five == 5) {
     say "Bail out!";
     say "Unreliable abs()";
-    exit()
+    exit();
 }
 
 sub try ($test, $ok, ?$todo = '') { 
@@ -49,9 +49,9 @@ sub tryeq_sloppy ($test, $lhs, $rhs, ?$todo1 = '') {
 }
 
 tryeq 1,  13 %  4, 1;
-tryeq 2, -13 %  4, 3, 'neg %';
+tryeq 2, -13 %  4, 3;
 tryeq 3,  13 % -4, -3;
-tryeq 4, -13 % -4, -1, 'neg % neg';
+tryeq 4, -13 % -4, -1;
 
 my $limit = 1e6;
 
@@ -266,7 +266,7 @@ tryeq 125, -4.5 / 2, -2.25;
 tryeq 126, -5.5 / -2, 2.75;
 
 # Bluuurg if your floating point can t accurately cope with powers of 2
-# [I suspect this is parsing string->float problems, not actual arith]
+# [I suspect this is parsing string-to-float problems, not actual arith]
 tryeq_sloppy 127, 18446744073709551616/1, 18446744073709551616; # Bluuurg
 tryeq_sloppy 128, 18446744073709551616/2, 9223372036854775808;
 tryeq_sloppy 129, 18446744073709551616/4294967296, 4294967296;
@@ -275,7 +275,7 @@ tryeq_sloppy 130, 18446744073709551616/9223372036854775808, 2;
 {
   # The peephole optimiser is wrong to think that it can substitute intops
   # in place of regular ops, because i_multiply can overflow.
-  # (Perl 5) Bug reported by "Sisyphus" <kalinabears@hdc.com.au>
+  # (Perl 5) Bug reported by "Sisyphus" (kalinabears@hdc.com.au)
   my $n = 1127;
   my $float = ($n % 1000) * 167772160.0;
   tryeq_sloppy 131, $float, 21307064320;

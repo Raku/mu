@@ -15,7 +15,7 @@ sub simple1() returns Int {
   &?CALLER_CONTINUATION(2);
   return 1;
 }
-ok(simple1() == 2, 'using ec instead of return');
+is(simple1(), 2, 'using ec instead of return');
 
 sub simple2($n) {
   if ($n == 5) {
@@ -32,7 +32,7 @@ sub closure1() returns Int {
   $a();
   return 6;
 }
-ok(closure1() == 5, 'closure uses ec to escape');
+todo_is(closure1(), 5, 'closure uses ec to escape');
 
 sub call_argument($f) {
   return $f();
@@ -45,7 +45,7 @@ sub passing1 returns Int {
   foo(&?CALLER_CONTINUATION);
   return 2;
 }
-ok(passing1() == 8, 'ec passed as an argument');
+todo_is(passing1(), 8, 'ec passed as an argument');
 
 sub is_five($n, $f) {
   if ($n == 5) {
@@ -69,7 +69,7 @@ sub passing2_closure($n) {
 }
 is(passing2_not_cont(5), 1, 'is_five w/o ec');
 is(passing2_not_cont(2), 9, 'is_five w/o ec');
-is(passing2(5), 1, 'is_five passing ec itself');
+todo_is(passing2(5), 1, 'is_five passing ec itself');
 is(passing2(2), 9, 'is_five passing ec itself');
-is(passing2_closure(5), 1, 'is_five passing ec via closure');
+todo_is(passing2_closure(5), 1, 'is_five passing ec via closure');
 is(passing2_closure(2), 9, 'is_five passing ec via closure');

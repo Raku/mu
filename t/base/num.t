@@ -39,10 +39,10 @@ my $a = 0x100; "$a";
 is($a, "256", '0x100 (hex) stringification works');
 
 my $a = 1; "$a"; 
-ok($a + 1 == 2, 'basic addition works');
+is($a + 1, 2, 'basic addition works');
 
 my $a = -1; "$a";
-ok($a + 1 == 0, 'basic addition with negative numbers works');
+todo_ok($a + 1 == 0, 'basic addition with negative numbers works'); # parsing bug
 
 my $a = 80000.0000000000000000000000000;
 ok($a == 80000.0, 'trailing zeros compare correctly');

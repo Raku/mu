@@ -173,7 +173,19 @@ op1 "<>" = \v -> do
             Just sym | (Val v) <- symExp sym -> return $ vCast v
             _                                -> error "impossible"
 op1 "ref"  = return . VStr . valType
+op1 "pop"  = op1Pop (last, init)
+op1 "shift"= op1Pop (head, tail)
 op1 s      = return . (\x -> VError ("unimplemented unaryOp: " ++ s) (Val x))
+
+op1Pop (fPick, fRem) list = do
+    let array = vCast list
+    old <- readMVal array
+    let oldList = vCast old
+    if null oldList
+        then return VUndef
+        else do
+            liftIO $ writeIORef (vCast array) $ VList $ fRem oldList
+            return $ fPick oldList
 
 op1Print f v = do
     val <- readMVal v

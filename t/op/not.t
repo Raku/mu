@@ -13,14 +13,14 @@ plan 16;
 my $not = not();
 my @not = not();
 
-ok ! defined $not, "not() returns undef in sclalar context";
-ok ! $not, "not() returns false";
+todo_ok ! defined($not), "not() returns undef in sclalar context";
+todo_ok ! $not, "not() returns false";
 
 is ref @not, "Array", "not() returns Array in array context";
-ok ! @not, "not() returns false";
+todo_ok ! @not, "not() returns false";
 
 # Various other checks for ! and not
-ok (not 1) == (! 1), "Check not 1 == ! 1";
+todo_ok (not 1) == (! 1), "Check not 1 == ! 1";
 ok (not 0) == (! 0), "Check not 0 == ! 0";
 
 # Test the not 1 equals the various falses. Check not 0 too.

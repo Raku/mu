@@ -5,14 +5,14 @@ require Test;
 
 # Mostly copied from Perl 5.8.4 s t/op/bop.t
 
-plan 17;
+plan 18;
 
 # test the bit operators '&', '|', '^', '~', '<<', and '>>'
 
 # numerics
-ok (0xdead +& 0xbeef == 0x9ead);
-ok (0xdead +| 0xbeef == 0xfeef);
-ok (0xdead +^ 0xbeef == 0x6042);
+is (0xdead +& 0xbeef, 0x9ead);
+is (0xdead +| 0xbeef, 0xfeef);
+is (0xdead +^ 0xbeef, 0x6042);
 todo_ok (+^0xdead +& 0xbeef == 0x2042);
 # ok (+^(0xdead +& 0xbeef) == 0x2042); # works
 
@@ -46,26 +46,26 @@ ok(257 == (33023 +> 7));
 # (for now...)
 
 # short strings
-ok ("AAAAA" ~& "zzzzz" eq "@@@@@");
-ok ("AAAAA" ~| "zzzzz" eq "{{{{{");
-ok ("AAAAA" ~^ "zzzzz" eq ";;;;;");
+is ("AAAAA" ~& "zzzzz", '@@@@@');
+is ("AAAAA" ~| "zzzzz", '{{{{{');
+is ("AAAAA" ~^ "zzzzz", ';;;;;');
 
 # long strings
 my $foo = "A" x 150;
 my $bar = "z" x 75;
 my $zap = "A" x 75;
 # & truncates
-ok ($foo ~& $bar eq "@" x 75);
+is ($foo ~& $bar, '@' x 75);
 # | does not truncate
-ok ($foo ~| $bar eq "{" x 75 ~ $zap);
+is ($foo ~| $bar, '{' x 75 ~ $zap);
 # ^ does not truncate
-ok ($foo ~^ $bar eq ";" x 75 ~ $zap);
+is ($foo ~^ $bar, ';' x 75 ~ $zap);
 
 
 # These ok numbers make absolutely no sense in pugs test suite :)
 # 
-ok ("ok \xFF\xFF\n" ~& "ok 19\n" eq "ok 19\n");
-ok ("ok 20\n" ~| "ok \0\0\n" eq "ok 20\n");
+is("ok \xFF\xFF\n" ~& "ok 19\n", "ok 19\n");
+is("ok 20\n" ~| "ok \0\0\n", "ok 20\n");
 
 # currently, pugs recognize octals as "\0o00", not "\o000".
 #if ("o\o000 \0" ~ "1\o000" ~^ "\o000k\02\o000\n" eq "ok 21\n") { say "ok 15" } else { say "not ok 15" }
@@ -87,9 +87,10 @@ skip();
 
 # Tests to see if you really can do casts negative floats to unsigned properly
 my $neg1 = -1.0;
-ok (+^ $neg1 == 0);
+is(+^ $neg1, 0);
 my $neg7 = -7.0;
-ok (+^ $neg7 == 6);
+is(+^ $neg7, 6);
+todo_ok(+^ $neg7 == 6); # weird == parsing bug: XXX
 
 
 

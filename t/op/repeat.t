@@ -5,12 +5,12 @@ require Test;
 
 plan(7);
 
-ok ('a' x 3 eq 'aaa');
-ok ('ab' x 4 eq 'abababab');
-ok (1 x 5 eq '11111');
-ok ('' x 6 eq '');
+is ('a' x 3, 'aaa');
+is ('ab' x 4, 'abababab');
+is (1 x 5, '11111');
+is ('' x 6, '');
 
 my @foo = 'x' xx 10;
-ok (@foo[0] eq 'x');
-ok (@foo[9] eq 'x');
-ok (+@foo == 10);
+is (@foo[0], 'x');
+is (@foo[9], 'x');
+is (+@foo, 10);

@@ -22,7 +22,7 @@ sub proclaim (Bool $cond, Str ?$desc, Str ?$context) returns Bool {
     return $cond;
 }
 
-sub ok (Bool $cond, Str ?$desc) returns Bool is export {
+sub ok ($cond, Str ?$desc) returns Bool is export {
     proclaim($cond, $desc);
     if (!$cond) {
         $*ERR.say("#     Failed test (", $?CALLER::POSITION, ")");

@@ -42,4 +42,4 @@ todo_is(5 > 1 < 10, 5 > 1 && 1 < 10, 'multi-way comp 5 > 1 < 10 works');
 
 # however this doesn't which makes 
 # me think these are not implemented
-todo_is(5 < 1 < 10, 5 < 1 && 1 < 10, 'multi-way comp 5 < 1 < 10 works');
+is(5 < 1 < 10, 5 < 1 && 1 < 10, 'multi-way comp 5 < 1 < 10 works');

@@ -27,6 +27,6 @@ todo_is @slice1[1], 3, 'hash slice - @slice1[1]';
 
 my @slice2;
 eval '@slice2 = %hash2<three one>';
-todo_ok @slice2[0] != 5123123, 'wtfthingy(sic) bad fetch';
+ok @slice2[0] != 5123123, 'wtfthingy(sic) bad fetch';
 todo_is @slice2[0], 3, '%hash<> slice';
 todo_is @slice2[1], 1, '%hash<> slice';
