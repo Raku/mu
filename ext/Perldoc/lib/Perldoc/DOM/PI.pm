@@ -1,9 +1,5 @@
-
 package Perldoc::DOM::PI;
-
-use strict;
-use warnings;
-use base 'Perldoc::DOM::Node';
+use Perldoc::DOM::Node -Base;
 
 =head1 NAME
 
@@ -32,5 +28,3 @@ them C<:)>
 sub event_type {
     "processing_instruction"
 }
-
-1;

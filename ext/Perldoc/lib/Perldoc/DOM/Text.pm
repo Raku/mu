@@ -1,8 +1,4 @@
-
 package Perldoc::DOM::Text;
-
-use strict;
-use warnings;
 use Perldoc::DOM::Node -Base;
 
 =head1 NAME
@@ -89,6 +85,3 @@ sub dom_attr {
 sub event_type {
     return "characters";
 }
-
-
-1;

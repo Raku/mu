@@ -1,4 +1,3 @@
-
 package Perldoc::DOM::Node;
 
 use base 'Tree::DAG_Node';
@@ -135,8 +134,6 @@ sub dom_attr {
     return { map { defined($self->$_) ? ($_ => $self->$_) : () }
 	     $self->dom_fields };
 }
-
-1;
 
 __END__
 

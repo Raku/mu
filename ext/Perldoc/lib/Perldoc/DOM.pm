@@ -1,7 +1,4 @@
-
 package Perldoc::DOM;
-use strict;
-use warnings;
 use Spiffy -Base;
 
 use base 'Perldoc::Sender';
@@ -177,7 +174,3 @@ sub ignorable_whitespace {
     my $node = $self->make_ws(@_);
     $dbs->{head}->add_daughter($node) if $node;
 }
-
-
-1;
-

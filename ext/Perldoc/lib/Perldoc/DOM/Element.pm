@@ -1,9 +1,4 @@
-
-
 package Perldoc::DOM::Element;
-
-use strict;
-use warnings;
 use Perldoc::DOM::Node -Base;
 
 =head1 NAME
@@ -52,5 +47,3 @@ sub dom_attr {
     (%{$att}) = (%$att, %{$self->attr});
     $att;
 }
-
-1;

@@ -5,6 +5,7 @@ use Test::More tests => 11;
 BEGIN { use_ok("Perldoc::Sender") };
 use Storable qw(retrieve);
 use YAML;
+$YAML::UseVersion = 0;
 
 {
     package MySender;
@@ -95,7 +96,7 @@ SKIP:{
     $receiver->reset;
     $kwom->send_one();
     is(Dump($receiver->events), <<YAML, "second event");
---- #YAML:1.0
+---
 -
   - start_element
   - sect1
@@ -106,7 +107,7 @@ YAML
     $kwom->send_all;
 
     is_deeply($receiver->events, Load(<<'YAML'), "other events")
---- #YAML:1.0
+---
 -
   - start_element
   - title

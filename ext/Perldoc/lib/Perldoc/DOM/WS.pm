@@ -1,9 +1,6 @@
-
 package Perldoc::DOM::WS;
 
 use Carp;
-use strict;
-use warnings;
 use base 'Perldoc::DOM::Node';
 
 =head1 NAME
@@ -46,4 +43,3 @@ sub dom_fields {
 sub event_type {
     "ignorable_whitespace"
 }
-1;
