@@ -19,6 +19,7 @@ author          ('Autrijus Tang <autrijus@autrijus.org>');
 license         ('perl');
 install_script  ($pugs);
 install_script  (glob('script/*'));
+recommends      ('Perl6::Bible');
 build_requires  ('ExtUtils::MakeMaker' => 6.15);
 include         ('Module::Install::Makefile::Name');
 include         ('Module::Install::Makefile::Version');
