@@ -85,7 +85,10 @@ profiled :: src/Config.hs @srcfiles $version_h @prereqs
 	$ghc $threaded -auto-all -prof --make $ghc_flags $ghc_output
 
 optimized :: src/Config.hs @srcfiles $version_h @prereqs
-	$ghc $threaded -O2 --make $ghc_flags $ghc_output
+	$ghc $threaded -O1 --make $ghc_flags $ghc_output
+
+unoptimized :: src/Config.hs @srcfiles $version_h @prereqs
+	$ghc $threaded -O0 --make $ghc_flags $ghc_output
 
 $pugs : src/Config.hs @srcfiles $version_h @prereqs
 	$ghc $threaded --make $ghc_flags $ghc_output
