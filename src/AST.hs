@@ -68,6 +68,7 @@ instance Value [VPair] where
 instance Value VSub where
     castV = VSub
     doCast (VSub b) = b
+    doCast (VList [VSub b]) = b -- XXX Wrong
     doCast v = error ("Cannot cast into VSub: " ++ (show v))
 
 instance Value VBool where
