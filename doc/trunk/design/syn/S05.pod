@@ -1264,7 +1264,7 @@ In string context it evaluates to C<$0>, the entire matched string:
 
     print %hash{"{$text ~~ /<ident>/}"};
     # or equivalently: 
-    $text ~~ /<ident>/  &&  print %hash{"$/"};
+    $text ~~ /<ident>/  &&  print %hash{~$/};
 
 But generally you should say C<$0> if you mean C<$0>.
 
