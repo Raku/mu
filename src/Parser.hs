@@ -110,7 +110,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
                   , subFun        = fun
                   }
     -- XXX: user-defined infix operator
-    return $ Syn "sym" [Sym $ Symbol scope name (Val $ VSub sub)]
+    return $ Syn "sym" [Sym $ Symbol scope name (Syn "sub" [Val $ VSub sub])]
 
 ruleSubName = rule "subroutine name" $ do
     star    <- option "" $ string "*"
@@ -290,7 +290,7 @@ ruleBlockLiteral = rule "block construct" $ do
                   , subParams     = if null params then [defaultArrayParam] else params
                   , subFun        = fun
                   }
-    return (Val $ VSub sub)
+    return (Syn "sub" [Val $ VSub sub])
 
 ruleBlockFormalStandard = rule "standard block parameters" $ do
     symbol "sub"

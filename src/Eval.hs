@@ -64,13 +64,9 @@ evaluateMain exp = do
     return val
 
 evaluate :: Exp -> Eval Val
-evaluate (Val (VSub sub)) = do
-    cxt <- asks envContext
-    if cxt == "Void" && subType sub == SubBlock
-        then apply sub [] []
-        else do
-            pad <- asks envLexical
-            return $ VSub sub{ subPad = pad } -- closure!
+-- evaluate (Val (VSub sub)) = do
+--     pad <- asks envLexical
+--     return $ VSub sub{ subPad = pad } -- closure!
 evaluate (Val v@(MVal mv)) = do
     lvalue  <- asks envLValue
     cxt     <- asks envContext
@@ -142,6 +138,10 @@ addGlobalSym sym = do
 reduceStatements :: ([Exp], Exp) -> Eval Val
 reduceStatements ([], exp) = reduceExp exp
 reduceStatements ((exp:rest), lastVal)
+    | Syn "sym" (Sym sym@(Symbol _ _ vexp@(Syn "sub" [sub])):other) <- exp = do
+        (VSub sub) <- enterEvalContext "Code" vexp
+        lex <- asks envLexical
+        reduceStatements ((Syn "sym" (other ++ [Sym sym{ symExp = Val $ VSub sub{ subPad = lex } }]):rest), lastVal)
     | Syn "sym" (Sym sym@(Symbol _ name (Syn "mval" [_, vexp])):other) <- exp = do
         val <- enterEvalContext (cxtOfSigil $ head name) vexp
         mval <- newMVal val
@@ -251,6 +251,10 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
     ";" -> do
         let (global, local) = partition isGlobalExp exps
         reduceStatements (global ++ local, Val VUndef)
+    "sub" -> do
+        let [exp] = exps
+        (VSub sub) <- enterEvalContext "Code" exp
+        retVal $ VSub sub{ subPad = envLexical env }
     "sym" -> do
         mapM_ evalExp [ exp | Sym (Symbol _ _ exp) <- exps ]
         retVal VUndef
