@@ -1,6 +1,6 @@
 #include "UnicodeC.h"
 
-unsigned int isUpperC (unsigned int c) {
+unsigned int stg_hack_isUpperC (unsigned int c) {
     return (
        (c >= 0x0041 && c <= 0x005A)
     || (c >= 0x00C0 && c <= 0x00D6)
@@ -426,7 +426,7 @@ unsigned int isUpperC (unsigned int c) {
     );
 }
 
-unsigned int isLowerC (unsigned int c) {
+unsigned int stg_hack_isLowerC (unsigned int c) {
     return (
        (c >= 0x0061 && c <= 0x007A)
     || (c == 0x00AA)
@@ -855,7 +855,7 @@ unsigned int isLowerC (unsigned int c) {
     );
 }
 
-unsigned int isSpaceC (unsigned int c) {
+unsigned int stg_hack_isSpaceC (unsigned int c) {
     return (
        (c >= 0x0009 && c <= 0x000D)
     || (c == 0x0020)
@@ -871,7 +871,7 @@ unsigned int isSpaceC (unsigned int c) {
     );
 }
 
-unsigned int isAlphaC (unsigned int c) {
+unsigned int stg_hack_isAlphaC (unsigned int c) {
     return (
        (c >= 0x0041 && c <= 0x005A)
     || (c >= 0x0061 && c <= 0x007A)
@@ -1272,7 +1272,7 @@ unsigned int isAlphaC (unsigned int c) {
     );
 }
 
-unsigned int isAlphaNumC (unsigned int c) {
+unsigned int stg_hack_isAlphaNumC (unsigned int c) {
     return (
        (c >= 0x0030 && c <= 0x0039)
     || (c >= 0x0041 && c <= 0x005A)
@@ -1691,7 +1691,7 @@ unsigned int isAlphaNumC (unsigned int c) {
     );
 }
 
-unsigned int toUpperC (unsigned int c) {
+unsigned int stg_hack_toUpperC (unsigned int c) {
     switch (c) {
         case 0x0061: return 0x0041;
         case 0x0062: return 0x0042;
@@ -2433,7 +2433,7 @@ unsigned int toUpperC (unsigned int c) {
     };
 }
 
-unsigned int toLowerC (unsigned int c) {
+unsigned int stg_hack_toLowerC (unsigned int c) {
     switch (c) {
         case 0x0041: return 0x0061;
         case 0x0042: return 0x0062;

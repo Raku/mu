@@ -1,5 +1,6 @@
 {-# OPTIONS -fglasgow-exts -cpp -fvia-c -fno-implicit-prelude #-}
 {-# OPTIONS -#include "UnicodeC.h" #-}
+{-# OPTIONS -#include "UnicodeC.c" #-}
 
 {-
     Unicode internals.
@@ -31,19 +32,19 @@ import GHC.Real  (fromIntegral)
 import GHC.Num   (fromInteger)
 import Foreign.C.Types (CUInt)
 
-foreign import ccall unsafe "toUpperC"
+foreign import ccall unsafe "stg_hack_toUpperC"
     toUpperH :: CUInt -> CUInt
-foreign import ccall unsafe "toLowerC"
+foreign import ccall unsafe "stg_hack_toLowerC"
     toLowerH :: CUInt -> CUInt
-foreign import ccall unsafe "isAlphaC"
+foreign import ccall unsafe "stg_hack_isAlphaC"
     isAlphaH :: CUInt -> CUInt
-foreign import ccall unsafe "isAlphaNumC"
+foreign import ccall unsafe "stg_hack_isAlphaNumC"
     isAlphaNumH :: CUInt -> CUInt
-foreign import ccall unsafe "isUpperC"
+foreign import ccall unsafe "stg_hack_isUpperC"
     isUpperH :: CUInt -> CUInt
-foreign import ccall unsafe "isLowerC"
+foreign import ccall unsafe "stg_hack_isLowerC"
     isLowerH :: CUInt -> CUInt
-foreign import ccall unsafe "isSpaceC"
+foreign import ccall unsafe "stg_hack_isSpaceC"
     isSpaceH :: CUInt -> CUInt
 
 toUpper     = chr . fromIntegral . toUpperH . fromIntegral . ord

@@ -145,7 +145,7 @@ sub set_postamble {
 	  $ghc_flags .= " -fno-warn-deprecations -fno-warn-orphans";
 	}
 
-        my $ghc_output = "UnicodeC$Config{_o} -o pugs$Config{_exe} src/Main.hs";
+        my $ghc_output = "-o pugs$Config{_exe} src/Main.hs";
 
     postamble(nativize(<< "."));
 src/Config.hs : util/PugsConfig.pm
@@ -157,7 +157,7 @@ profiled :: src/Config.hs @srcfiles $version_h
 optimized :: src/Config.hs @srcfiles $version_h
 	ghc -O2 --make $ghc_flags $ghc_output
 
-$pugs : src/Config.hs src/UnicodeC$Config{_o} @srcfiles $version_h
+$pugs : src/Config.hs @srcfiles $version_h
 	ghc --make $ghc_flags $ghc_output
 
 tags :
