@@ -1,0 +1,75 @@
+===============================================================================
+|     ______                           ______              ______             |                    
+|   /\   __ \                         /\__  _\            /\__  _\            |                      
+|   \ \  \/\ \ __  __  ______  ______ \/_/\ \/ ______  ___\/_/\ \/ ______     |
+|    \ \   __//\ \/\ \/\  __ \/\  ___\   \ \ \/\  ___\/\  ___\ \ \/\  ___\    |
+|     \ \  \/ \ \ \_\ \ \ \/\ \ \___  \   \ \ \ \  ___\ \___  \ \ \ \___  \   |
+|      \ \__\  \ \____/\ \____ \/\_____\   \ \_\ \_____\/\_____\ \_\/\_____\  |
+|       \/__/   \/___/  \/___/\ \/____/     \/_/\/____/ \/____/ \/_/\/____/   |                         
+|                         /\____/                                             |
+|                         \/___/                                              |
+===============================================================================
+       
+                     Welcome to the Pugs Test suite.        
+                     
+Pugs is currently being developed in a highly test driver manner. Tests are 
+written for both implemented and unimplemented features and are based roughly
+on the Perl6 Language Synoposis documents. All are welcome and encouraged to
+contribute to this test suite. It is the hope that not only will this test 
+suite be used for Pugs, but that it will eventually become the Perl6 test 
+suite itself. 
+
+-------------------------------------------------------------------------------
+VERSION -  0.0.1
+AUTHOR(s) -
+    Stevan Little <stevan@iinteractive.com>
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+Getting Started
+-------------------------------------------------------------------------------
+
+Here are some basic guidlines to help you get started writing tests for Pugs. 
+
+- If you are unsure of something, don't hesitate to ask.
+
+If you have a question about a test, written or unwritten, log on to #perl6
+or send an email to perl6-compiler and ask someone about it. If you are 
+unsure about a perl6 language element, we encourage you to email the 
+perl6-language list and get clarification. Pugs and Perl6 are group efforts
+and asking questions is a good thing.
+
+- Use the Test module.
+
+We have a created a basic Test module found in ext/Test/lib/Test.pm. It is 
+written in Perl 6 and implements the TAP protocol (and so can be used with 
+Test::Harness). The module has it's own documentation and I encourage you to 
+read it. 
+
+- Pugs tests should have a she-bang line of #!/usr/bin/pugs.
+
+This line helps both Test::Harness as well as the `prove` utility when 
+running Pugs tests. 
+
+- Place tests in the appropriate folder.
+
+We have recently undergone a re-organization of the test suite in order to 
+make it easier to find what has and has not been tested. It is important as 
+the test suite grows that we try to keep this organization. If you have a test
+and are unsure of where to put it, ask on #perl6 for help, or put it in the
+general/ folder and email perl6-compiler and let us know.
+
+- If possible, please backlink your tests to the Synopsis
+
+*** Need instructions on this here ***
+
+- When TODO and when not TODO.
+
+Most of the functions in the Test module also have an equivalent todo_* 
+version. The general rule about todo tests is that if the feature is not
+yet implemented, it is TODO. But if a feature is broken, or a bug is found
+then the tests should fail and *not* be TODO.
+
+The only exception to this rule is that we TODO all failing tests before 
+each weekly release. This is `make test` will succeed :)
+
