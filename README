@@ -3,6 +3,9 @@ This is Pugs, a Perl6 interpreter.
 
 Pugs is Copyright 2005 by Autrijus Tang.  All Rights Reserved.
 
+The "Rule" subsystem is derived from Parsec 2.0 by Daan Leijen, under a
+BSD-style license.  See src/Rule/LICENSE.
+
 LICENSE INFORMATION
 -------------------
 
@@ -21,8 +24,8 @@ INSTALLATION
 ------------
 
 Pugs needs the Glasgow Haskell Compiler (GHC) 6.2 or above.  To install GHC,
-download a binary build from http://haskell.org/ghc/.  You may also build GHC
-from source code, but that may take several hours.
+download a binary build from http://haskell.org/ghc/.  Although source code
+for GHC is available, it will take a very long time to build by yourself. 
 
 To install Pugs on your system, simply type this in the command line:
 
