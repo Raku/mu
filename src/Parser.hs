@@ -483,7 +483,7 @@ subNameWithPrefix prefix = (<?> "subroutine name") $ lexeme $ try $ do
 
 parseApply = lexeme $ do
     name            <- subNameWithPrefix "prefix:"
-    (invs:args:_)   <- maybeParens $ parseParamList ruleExpression
+    (invs:args:_)   <- maybeDotParens $ parseParamList ruleExpression
     return $ App name invs args
 
 parseParamList parse = do
@@ -512,6 +512,11 @@ nameToParam name = Param
     }
 
 maybeParens p = choice [ parens p, p ]
+maybeDotParens p = choice [ dotParens p, p ]
+    where
+    dotParens rule = do
+        option ' ' $ char '.'
+        parens rule
 
 parseVarName = lexeme $ do
     sigil   <- oneOf "$@%&"
