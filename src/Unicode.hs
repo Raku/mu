@@ -1,6 +1,5 @@
 {-# OPTIONS -fglasgow-exts -fvia-C -fno-implicit-prelude -O #-}
 {-# OPTIONS -#include "UnicodeC.h" #-}
-{-# OPTIONS -#include "UnicodeC.c" #-}
 
 {-
     Unicode internals.

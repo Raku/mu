@@ -50,13 +50,14 @@ sub set_postamble {
         $ghc_flags .= " -fno-warn-deprecations -fno-warn-orphans";
     }
     my $ghc_output = "-o pugs$Config{_exe} src/Main.hs";
-    my @prereqs = ($config_h, qw( src/UnicodeC.c src/UnicodeC.h ));
 
     my $pcre = "src/pcre/pcre.o";
     my $pcre_c = "src/pcre/pcre.c";
+    my $unicode = "src/UnicodeC.o";
+    my $unicode_c = "src/UnicodeC.c";
 
-    $ghc_output .= " $pcre";
-    push @prereqs, $pcre;
+    my @prereqs = ($config_h, $pcre, $unicode);
+    $ghc_output .= " $pcre $unicode";
 
     postamble(fixpaths(<< "."));
 $config_h : lib/Perl6/Pugs.pm util/config_h.pl
@@ -70,6 +71,9 @@ $version_h : .svn/entries util/version_h.pl
 
 $pcre : $pcre_c
 	$ghc -no-link -no-hs-main -O -o $pcre $pcre_c
+
+$unicode : $unicode_c
+	$ghc -no-link -no-hs-main -O -o $unicode $unicode_c
 
 src/Config.hs : util/PugsConfig.pm
 	\$(PERL) -Iutil -MPugsConfig -e "PugsConfig->write_config_module" > src/Config.hs
