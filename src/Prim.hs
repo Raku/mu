@@ -197,10 +197,17 @@ op1 "unlink" = \v -> do
     rets <- liftIO $ sequence $ map ( doBoolIO removeFile ) $ map vCast vals
     return $ VInt $ sum $ map bool2n rets
 op1 "slurp" = \v -> do
-    fileName <- fromVal v
-    ifContextIsa "List"
-        (slurpList fileName)
-        (slurpScalar fileName)
+    val         <- fromVal v
+    case val of
+        (VHandle h) -> do
+            ifContextIsa "List"
+                (op1 "=" val)
+                (return . VStr =<< (liftIO $ hGetContents h))
+        _ -> do
+            fileName    <- fromVal val
+            ifContextIsa "List"
+                (slurpList fileName)
+                (slurpScalar fileName)
     where
     slurpList file = op1 "=" (VList [VStr file])
     slurpScalar file = tryIO VUndef $ do
@@ -872,6 +879,7 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Socket    pre     connect (Str, Int)\
 \\n   Any       pre     accept  (Any)\
 \\n   List      pre     slurp   (Str)\
+\\n   List      pre     slurp   (Handle)\
 \\n   Bool      pre     system  (Str)\
 \\n   Bool      pre     system  (Str: List)\
 \\n   Bool      pre     binmode (IO: ?Int=1)\
