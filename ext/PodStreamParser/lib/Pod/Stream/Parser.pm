@@ -21,7 +21,9 @@ my @EVENTS = (
     'start_item',
     'end_item',
     
-    'verbatim',
+    'start_verbatim',
+    'end_verbatim',
+    'verbatim',        
     
     'start_interpolation',
     'end_interpolation',
@@ -39,8 +41,10 @@ sub parse (Str $filename, Hash %_events) is export {
     my $fh = open($filename);    
     my $is_parsing = 0;
     my @for_or_begin;
-    for (=$fh) -> $_line {
-        my $line = $_line; # << we have to do this, $_line is immutable
+    
+    my $line = $fh.readline;
+    while (defined($line)) {
+        $line = $fh.readline;
         chomp($line);
         if ($line ~~ rx:perl5{^=pod}) {
             $is_parsing = 1;
@@ -88,7 +92,15 @@ sub parse (Str $filename, Hash %_events) is export {
                         }
                     }                    
                     when rx:perl5{^\s(.*?)$} {
-                        %events<verbatim>($1);
+                        my $verbatim = "$1\n";
+                        my $_line = $fh.readline;
+                        while (defined($_line) && !($_line ~~ rx:perl5{^\n$}) && $_line ~~ rx:perl5{^\s(.*?)$}) {
+                            $verbatim ~= "$1\n";
+                            $_line = $fh.readline;
+                        }
+                        %events<start_verbatim>();
+                        %events<verbatim>($verbatim);
+                        %events<end_verbatim>();                        
                     }
                     default {
                         interpolate($line, %events);   
