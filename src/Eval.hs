@@ -89,6 +89,9 @@ evaluate exp = do
     val <- local (\e -> e{ envBody = exp }) $ do
         reduceExp exp
     debug "indent" (tail) " Ret" val
+    case val of
+        VError s e  -> retError s e
+        _           -> return val
     return val
 
 evalExp :: Exp -> Eval Val

@@ -2,9 +2,7 @@ use v6;
 
 say "1..132";
 
-sub abs($num) {
-    return $num < 0 ?? -$num :: $num;
-}
+sub abs($num) { $num < 0 ?? -$num :: $num }
 
 my $five = abs(-5);
 
