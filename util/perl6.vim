@@ -30,6 +30,9 @@ syn match p6KeyIO "-[rwxoRWXOezsfdlpSbctugkTBMAC]"
 " Comments
 syn match p6Comment "#.*"
 
+" POD
+syn region p6POD start="^=[a-z]" end="^=cut"
+
 " Variables, arrays, and hashes with ordinary \w+ names
 syn match p6VarPlain "[$@%][a-zA-Z_]\w*"
 syn match p6VarPlain "\$\^\w\+"
@@ -172,6 +175,7 @@ hi link p6LiteralString p6String
 hi link p6Keyword  Statement
 hi link p6Number   Number
 hi link p6Comment  Comment
+hi link p6POD      Comment
 hi link p6Variable Identifier
 hi link p6VarException Special
 hi link p6String   String
