@@ -4,7 +4,7 @@ use v6;
 our @ORIG_INC = @*INC;  # take a copy of the original
 
 sub import (Str $pkg: *@_paths) returns Void {
-    my @paths = @_paths.reverse(); 
+    my @paths = @_paths.reverse();
     for @paths -> $path {
         if ($path eq '') {
             $*ERR.say("Empty compile time value given to lib.import()");
@@ -18,7 +18,7 @@ sub import (Str $pkg: *@_paths) returns Void {
 }
 
 # I am purposfully leaving out the archname, version_dir, version_arch_dir
-# and inc_version_list code from lib.pm because I am hoping that perl6 will
+# and inc_version_list code from lib.pm because I am hoping that perl6
 # and the new module functionality will not need it. Althoug this may be a 
 # niave understanding of what this stuff is for, so if it is, I invite 
 # others to fix it.
@@ -38,11 +38,19 @@ lib - A pragma for addition of paths to @*INC
 
 = DESCRIPTION
 
+This is a small simple module which simplifies the 
+manipulation of `@*INC`.
+
+It is typically used to add extra directories to Pugs's 
+search path so that later `use` or `require` statements 
+will find modules which are not located on Pugs's default
+search path.
+
 = LIMITATIONS & CAVEATS
 
 Currently this will only work during runtime since Pugs 
 does not yet support `BEGIN{}` or `use`. Modules are 
-loaded in a /first-come-first-served/ order, so just be
+loaded in a /first-come-first-served/ basis, so just be
 sure (as with perl5 lib.pm) to use this module first.
 
 = SEE ALSO
