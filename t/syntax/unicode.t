@@ -3,14 +3,6 @@
 use v6;
 require Test;
 
-# XXX - stops right here if GHC doesn't have unicode support.
-if eval 'my $二 = 2; sub 恆等($x) {$x}; 恆等($二)' != 2 {
-    plan 2;
-    ok(eval 'my $foo; sub foo {}; 1', "ascii declaration");
-    skip("GHC is not in unicode mode; try setting LANG to *.UTF-8?");
-    exit();
-}
-
 plan 18;
 
 # english ;-)
