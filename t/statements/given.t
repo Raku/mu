@@ -161,3 +161,17 @@ Tests the given block, as defined in L<S04/"Switch statements">
     is($quux, 1, "break didn't abort loop");
     ok(!$bad, "didn't fall through");
 }
+
+
+# given returns the correct value:
+{
+    sub ret_test($arg) {
+      given $arg {
+	when "a" { "A" }
+	when "b" { "B" }
+      }
+    }
+
+    is ret_test("a"), "A", "given returns the correct value (1)";
+    is ret_test("b"), "B", "given returns the correct value (2)";
+}
