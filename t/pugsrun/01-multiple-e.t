@@ -36,5 +36,5 @@ for @examples -> $ex {
   my $got      = slurp "temp-ex-output";
   unlink "temp-ex-output";
 
-  todo_is $expected, $got, "Multiple -e switches work and append the script";
+  todo_is $got, $expected, "Multiple -e switches work and append the script";
 }

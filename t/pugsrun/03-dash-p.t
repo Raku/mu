@@ -5,20 +5,21 @@ require Test;
 
 =pod
 
-Test -n implementation
+Test C<-p> implementation
 
-The -n command line switch mimics the Perl5 -n command line
+The C<-p> command line switch mimics the Perl5 C<-p> command line
 switch, and wraps the whole script in
 
   while (<>) {
-    ...
+    ...         # your script
+    print;
   };
 
 =cut
 
 my @examples;
 
-push @examples, '-n -e print';
+push @examples, '-p -e1';
 
 plan +@examples;
 
@@ -50,5 +51,5 @@ for @examples -> $ex {
   my $got      = slurp "temp-ex-output";
   unlink "temp-ex-output";
 
-  todo_is $got, $expected, "-n -e print works like cat";
+  todo_is $got, $expected, "-p -e1 works like cat";
 }
