@@ -9,7 +9,7 @@ Basic tests.
 
 =cut
 
-plan 17;
+plan 14;
 
 ok(1, "Welcome to Pugs!");
 
@@ -30,22 +30,20 @@ ok($bar, "unless");
 my ($var1, $var2) = ("foo", "bar");
 is($var1, "foo", 'list assignment 1');
 is($var2, "bar", 'list assignment 2');
-todo_ok(eval '(my $quux = 1) == 1)', "my returns LHS");
+todo_ok(eval '(my $quux = 1) == 1)', "my() returns LHS");
 
-eval 'if 1 { pass() }' err todo_fail "if without parens";
-eval 'for 1 { pass() }' err todo_fail "for without parens";
-eval 'while (0) { } pass()' err todo_fail "while";
+ok(eval 'if 1 { 1 }; 1', "if without parens");
+ok(eval 'for 1 { 1 }; 1', "for without parens");
+ok(eval 'while (0) { 0 }; 1', "while");
 
 my $lasttest = 0;
-eval 'for (1..10) { $lasttest++; last; $lasttest++; }';
+eval 'for (1..10) { $lasttest++; last; $lasttest++; }; 1';
 todo_ok($lasttest == 1, "last");
 
 my $nexttest = 0;
-eval 'for (1..10) { $nexttest++; next; $nexttest++; }';
+eval 'for (1..10) { $nexttest++; next; $nexttest++; }; 1';
 todo_ok($lasttest == 10, "next");
 
-print "# ok ";
-if (eval '12.print') { print "\n"; pass() } else { print "\n"; todo_fail("12.print"); }
-
-ok(eval 'say(1 ?? "# ok 14" :: "# Bail out!")');
+ok(eval '12.eval', "12.eval");
+ok(eval 'eval(1 ?? 1 :: 0)', "?? ::");
 
