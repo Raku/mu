@@ -44,6 +44,7 @@ run (('-':'e':prog@(_:_)):args) = doRun "-" args prog
 run ("-e":prog:args)            = doRun "-" args prog
 run ("-h":_)                    = printHelp
 run ("-v":_)                    = banner
+run ("--version":_)             = banner
 run ("-":args)                  = do
     prog <- getContents
     doRun "-" [] prog
