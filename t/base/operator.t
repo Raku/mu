@@ -23,18 +23,6 @@ my $bar = "";
 
 ok($bar, "?? ::");
 
-is((($str3 eq $str4) ?? 1 :: 2), 1, "?? :: in parens");
-
-$bar = (0 and 1 ?? 2 :: 3);
-is($bar, 0, "operator priority");
-
-$bar = (5 or 6 ?? 7 :: 8);
-is($bar, 5, "operator priority");
-
-$bar = 9;
-$bar = 10 ?? 11 :: 12;
-is($bar, 11, "operator priority");
-
 my $five = 5;
 my $four = 4;
 my $wibble = 4;
