@@ -12,12 +12,12 @@ plan 9;
 	my @e = (0 .. 5);
 
 	my @z; eval '@z = zip(@a; @b)';
-	my @y; eval '@y = @a ¥ @b';
-	my @x; eval '@x = @a Y @b';
+	my @y; eval '@y = (@a ¥ @b)';
+	my @x; eval '@x = (@a Y @b)';
 
 	todo_is(~@z, ~@e, "simple zip");
-	todo_is(~@y, ~@e, "also with yen char");
-	todo_is(~@x, ~@e, "also with Y char");
+	is(~@y, ~@e, "also with yen char");
+	is(~@x, ~@e, "also with Y char");
 };
 
 {
@@ -28,12 +28,12 @@ plan 9;
 	my @e = (0 .. 5);
 
 	my @z; eval '@z = zip(@a; @b; @c)';
-	my @y; eval '@y = @a ¥ @b ¥ @c';
-	my @x; eval '@x = @a Y @b Y @c';
+	my @y; eval '@y = (@a ¥ @b ¥ @c)';
+	my @x; eval '@x = (@a Y @b Y @c)';
 
 	todo_is(~@z, ~@e, "zip of 3 arrays");
-	todo_is(~@y, ~@e, "also with yen char");
-	todo_is(~@x, ~@e, "also with yen char");
+	is(~@y, ~@e, "also with yen char");
+	is(~@x, ~@e, "also with yen char");
 };
 
 {
@@ -44,10 +44,10 @@ plan 9;
 	my @e = (0 .. 7);
 
 	my @z; eval '@z = zip(zip(@a; @b); @c)';
-	my @y; eval '@y = (@a ¥ @b) ¥ @c';
-	my @x; eval '@x = (@a Y @b) Y @c';
+	my @y; eval '@y = ((@a ¥ @b) ¥ @c)';
+	my @x; eval '@x = ((@a Y @b) Y @c)';
 
 	todo_is(~@z, ~@e, "zip of zipped arrays with other array");
-	todo_is(~@y, ~@e, "also as ¥");
-	todo_is(~@x, ~@e, "also as Y");
+	is(~@y, ~@e, "also as ¥");
+	is(~@x, ~@e, "also as Y");
 };
