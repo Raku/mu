@@ -1,0 +1,41 @@
+===============================================================================
+= Pugs Modules Directory
+===============================================================================
+
+- What is this directory?
+
+This directory is meant to be a temporary holding place for both perl6 module 
+ports of perl5 modules, and any new perl6 modules people might want to write.
+Eventually all that you see here will end up either on CPAN or the new FreePAN
+(see this link for more information http://pugs.kwiki.org/?FreepanProposal).
+
+- Do any of these modules work in Pugs?
+
+No. At this point, none of these modules are expected to work with the current 
+state of Pugs. All working modules (or close to working) are contained in the
+ext/ directory.
+
+- What is this good for then?
+
+It is our hope that having a number of modules, each with their own test suites, 
+will later serve as a kind of integration test for the more advanced features 
+of Pugs. 
+
+Also the act of porting perl5 modules helps to raise questions about how certain
+things will be accomplished in perl6 and helps to expose some of the darker 
+corners of the perl6 spec. Which is a good way to help the perl6-language group
+in the development of the spec.
+
+- How can I contribute?
+
+Pick a module, port it, ask for a commiter-bit, and upload it. 
+
+- What modules should I port?
+
+Whatever you like. There is no restrictions or expectations.
+
+- Is there a How-To document for porting to perl6?
+
+No, not currently, but we hope to have one soon which documents the cummulative 
+experience of all those who have been doing this.
+
