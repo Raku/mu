@@ -78,7 +78,7 @@ else {
     );
 
     if ($ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /perl5/i) {
-        push @ghc_flags, "-I$Config{archlib}/CORE", "-L$Config{archlib}/CORE", "-i$Config{archlib}/CORE, "-lperl";
+        push @ghc_flags, ("-I$Config{archlib}/CORE", "-L$Config{archlib}/CORE", "-i$Config{archlib}/CORE", "-lperl");
     }
 
     if ($ghc_version ge '6.4') {
