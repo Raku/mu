@@ -55,9 +55,9 @@ main = do
 
   sortArgs enforces a canonical order of command line switches.
   Currently this is:
-  
+
     (-h -v -V) (-I) (-d) (-w) (-c) (-l -0 -e other)
-    
+
   This makes pattern matching more convenient
 
 -}
@@ -82,7 +82,6 @@ sortArgs args = _unpackArgs (_sortArgs (_packArgs args))
     argRank(_)    = 100  -- Perl code fragment or filename or whatever
 
 run :: [String] -> IO ()
--- run (("-l"):rest)                 = run rest
 run (("-d"):rest)                 = run rest
 run (("-w"):rest)                 = run rest
 
@@ -115,7 +114,7 @@ joinDashE [] = []
 joinDashE (("-e"):a:("-e"):b:args) = do
                                       joinDashE (("-e"):combined:args)
                                     where
-                                      combined = a ++ "\n" ++ b 
+                                      combined = a ++ "\n" ++ b
 joinDashE (x:xs) =  [ x ] ++ joinDashE xs
 
 -- convenience functions for GHCi

@@ -34,9 +34,8 @@ for @examples -> $ex {
 
   my $expected = "Hello\nPugs";
   my $got      = slurp "temp-ex-output";
-  #unlink "temp-ex-output";
 
-  $expected =~
+  # $expected =~
 
   is $got, $expected, "Multiple -e switches work and append the script";
 }
