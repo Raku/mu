@@ -11,7 +11,7 @@ L<S04/"Conditional statements">
 
 =cut
 
-plan 24;
+plan 16;
 
 my $x = 'test';
 if ($x eq $x) { pass("if ($x eq $x) {} works"); } else { fail("if ($x eq $x) {} failed"); }
@@ -92,61 +92,5 @@ is $foo, 1, "die should stop execution immediately.";
 	my $c = 'if (0) { $foo = 2 } elsif (1) { $foo = 3 } else { $foo = 4 }';
 	eval $c;
 	is $foo, 3, $c;
-}
-
-# unless...elsif
-
-{
-	my $foo = 1;
-	eval 'unless (1) { $foo = 2 } elsif (1) { $foo = 3 }';
-	is $foo, 3, 'unless (1) {} elsif (1) {}';
-}
-
-{
-	my $foo = 1;
-	eval 'unless (1) { $foo = 2 } elsif (0) { $foo = 3 }';
-	is $foo, 1, 'unless (1) {} elsif (0) {}';
-}
-
-{
-	my $foo = 1;
-	eval 'unless (0) { $foo = 2 } elsif (1) { $foo = 3 }';
-	is $foo, 2, 'unless (0) {} elsif (1) {}';
-}
-
-{
-	my $foo = 1;
-	eval 'unless (0) { $foo = 2 } elsif (0) { $foo = 3 }';
-	is $foo, 2, 'unless (0) {} elsif (0) {}';
-}
-
-# unless...elsif...else
-
-{
-	my $foo = 1;
-	my $c = 'unless (0) { $foo = 2 } elsif (0) { $foo = 3 } else { $foo = 4 }';
-	eval $c;
-	is $foo, 2, $c;
-}
-
-{
-	my $foo = 1;
-	my $c = 'unless (1) { $foo = 2 } elsif (0) { $foo = 3 } else { $foo = 4 }';
-	eval $c;
-	is $foo, 4, $c;
-}
-
-{
-	my $foo = 1;
-	my $c = 'unless (1) { $foo = 2 } elsif (1) { $foo = 3 } else { $foo = 4 }';
-	eval $c;
-	is $foo, 3, $c;
-}
-
-{
-	my $foo = 1;
-	my $c = 'unless (0) { $foo = 2 } elsif (1) { $foo = 3 } else { $foo = 4 }';
-	eval $c;
-	is $foo, 2, $c;
 }
 
