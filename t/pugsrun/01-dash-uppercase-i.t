@@ -34,7 +34,7 @@ my @tests = (
   , 'foo$foo'
 );
 
-plan +@tests;
+plan @tests*2;
 
 diag "Running under $?OS";
 
@@ -65,9 +65,16 @@ for @tests -> $t {
 
   my @got = eval $got;
   @got = @got[ 0..@dirs-1 ];
-  # diag @got;
   my @expected = @dirs;
-  # diag @expected;
 
   is @got, @expected, "'" ~ @dirs ~ "' works";
+
+  $command = join " ", map { qq(-I "$_") }, @dirs;
+  $got = run_pugs( $command ~ " $fragment" );
+
+  my @got = eval $got;
+  @got = @got[ 0..@dirs-1 ];
+  my @expected = @dirs;
+
+  is @got, @expected, "'" ~ @dirs ~ "' works (with a space delimiting -I)";
 }

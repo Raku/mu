@@ -79,8 +79,8 @@ sortArgs args = _unpackArgs (_sortArgs (_packArgs args))
     argRank("-d") = 1
     argRank("-w") = 2
     argRank("-c") = 3
-    argRank("-l") = 100  -- translated into Perl code
-    argRank("-0") = 100  -- translated into Perl code
+    argRank("-l") = 100  -- translated into Perl code (later)
+    argRank("-0") = 100  -- translated into Perl code (later)
     argRank("-e") = 100  -- translated into Perl code
     argRank(_)    = 100  -- Perl code fragment or filename or whatever
 
