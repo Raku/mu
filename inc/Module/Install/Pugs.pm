@@ -28,11 +28,12 @@ sub WritePugs {
 
 sub set_makefile_macros {
     my $self = shift;
-    *MM::init_INST = sub {
+
+    package MM;
+    *init_INST = sub {
         my $hash = $self->{MM};
         my $mm = shift;
-        # SUPER doesn't work here....
-#         $mm->ExtUtils::MM_Unix::init_INST(@_);
+        $mm->SUPER::init_INST(@_);
         for (keys %$hash) {
             $mm->{$_} = $hash->{$_};
         }
