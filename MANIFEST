@@ -36,6 +36,9 @@ examples/output/hanoi
 examples/output/quicksort
 examples/quicksort.p6
 examples/sendmoremoney.p6
+examples/sendmoremoney.p6.mine
+examples/sendmoremoney.p6.r572
+examples/sendmoremoney.p6.r586
 examples/shuffle.p6
 ext/Kwid/kwid
 ext/Kwid/lib/Kwid.pm
@@ -50,6 +53,7 @@ ext/Kwid/t/README
 ext/Pugs-MakeMaker/lib/Pugs/MakeMaker.pm
 ext/Pugs-MakeMaker/Makefile.PL
 ext/Test/lib/Test.pm
+ext/Test/t/1-basic.t
 ext/Test/Makefile.PL
 inc/Module/Install.pm
 inc/Module/Install/Base.pm
@@ -76,6 +80,22 @@ Makefile.PL
 MANIFEST			This list of files
 MANIFEST.SKIP
 META.yml
+modules/Algorithm-Dependency/lib/Algorithm/Dependency.pm
+modules/Algorithm-Dependency/lib/Algorithm/Dependency/Item.pm
+modules/Algorithm-Dependency/lib/Algorithm/Dependency/Ordered.pm
+modules/Algorithm-Dependency/lib/Algorithm/Dependency/Source.pm
+modules/Algorithm-Dependency/lib/Algorithm/Dependency/Source/File.pm
+modules/Algorithm-Dependency/LICENSE
+modules/Algorithm-Dependency/Makefile.PL
+modules/Algorithm-Dependency/t.data/basics.txt
+modules/Algorithm-Dependency/t.data/complex.txt
+modules/Algorithm-Dependency/t.data/missing.txt
+modules/Algorithm-Dependency/t/01_compile.t
+modules/Algorithm-Dependency/t/02_api.t
+modules/Algorithm-Dependency/t/03_basics.t
+modules/Algorithm-Dependency/t/04_complex.t
+modules/Algorithm-Dependency/t/05_ordered.t
+modules/Algorithm-Dependency/t/06_ignore_orphans.t
 modules/Locale-KeyedText/lib/Locale/KeyedText.pm
 modules/Locale-KeyedText/Makefile.PL
 modules/Locale-KeyedText/t/lib/t_Locale_KeyedText_A_L_Eng.pm
@@ -171,6 +191,7 @@ t/op/inplace.t
 t/op/int.t
 t/op/io.t
 t/op/join.t
+t/op/lc.t
 t/op/map.t
 t/op/multi_dimensional_array.t
 t/op/my.t
@@ -195,6 +216,7 @@ t/op/string_interpolation.t
 t/op/sub_return_values.t
 t/op/subroutine.t
 t/op/substr.t
+t/op/uc.t
 t/op/unshift.t
 t/op/zip.t
 t/Synopsis/S01.pod
@@ -211,6 +233,7 @@ t/Synopsis/S13.pod
 t/syntax/decl_vs_assign_prec.t
 t/syntax/lf_in_list.t
 t/syntax/subscript_parse_bugs.t
+t/syntax/subroutine_named_params.t
 t/syntax/unicode.t
 t/syntax/varnames.t
 t/unspecced/chomp.t
