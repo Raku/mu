@@ -302,10 +302,13 @@ tryeq Inf/100, Inf;
 tryeq Inf*-100, -Inf;
 tryeq Inf/-100, -Inf;
 tryeq 100/Inf, 0;
-todo_fail; # unTODOme # tryeq Inf**100, Inf;
+
+# XXX deleteme: the following is test 146
+# (just saying because it's hard to keep track.)
+tryeq Inf**100, Inf, "Inf**100"; # unTODO
 tryeq Inf*Inf, Inf;
-tryeq Inf/Inf, NaN;
-tryeq Inf*Inf/Inf, NaN;
+tryeq Inf/Inf, NaN, "Inf/Inf"; # unTODDO
+tryeq Inf*Inf/Inf, NaN, "Inf*Inf"; # unTODO
 my $inf1; # = 100**Inf;
 tryeq $inf1, Inf, "100**Inf";
 my $inf2; # = Inf**Inf;
@@ -313,12 +316,12 @@ tryeq $inf2, Inf, "Inf**Inf";
 
 # NaN
 tryeq NaN, NaN;
-todo_fail; # unTODOme # tryeq -NaN, NaN;
+tryeq -NaN, NaN, "-NaN==NaN"; # unTODO
 tryeq NaN+100, NaN;
 tryeq NaN-100, NaN;
 tryeq NaN*100, NaN;
 tryeq NaN/100, NaN;
-todo_fail; # unTODOme # tryeq NaN**100, NaN;
+tryeq NaN**100, NaN, "Nan**100"; # unTODO
 tryeq NaN+NaN, NaN;
 tryeq NaN-NaN, NaN;
 tryeq NaN*NaN, NaN;
