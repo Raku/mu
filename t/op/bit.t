@@ -5,7 +5,7 @@ require Test;
 
 # Mostly copied from Perl 5.8.4 s t/op/bop.t
 
-plan 18;
+plan 17;
 
 # test the bit operators '&', '|', '^', '~', '<<', and '>>'
 
@@ -13,7 +13,7 @@ plan 18;
 is (0xdead +& 0xbeef, 0x9ead);
 is (0xdead +| 0xbeef, 0xfeef);
 is (0xdead +^ 0xbeef, 0x6042);
-todo_ok (+^0xdead +& 0xbeef == 0x2042);
+ok (+^0xdead +& 0xbeef == 0x2042);
 # ok (+^(0xdead +& 0xbeef) == 0x2042); # works
 
 # shifts
@@ -70,8 +70,6 @@ is("ok 20\n" ~| "ok \0\0\n", "ok 20\n");
 # currently, pugs recognize octals as "\0o00", not "\o000".
 #if ("o\o000 \0" ~ "1\o000" ~^ "\o000k\02\o000\n" eq "ok 21\n") { say "ok 15" } else { say "not ok 15" }
 
-skip();
-
 # Pugs does not have \x{}
 
 #
@@ -90,7 +88,7 @@ my $neg1 = -1.0;
 is(+^ $neg1, 0);
 my $neg7 = -7.0;
 is(+^ $neg7, 6);
-todo_ok(+^ $neg7 == 6); # weird == parsing bug: XXX
+ok(+^ $neg7 == 6); # weird == parsing bug: XXX
 
 
 

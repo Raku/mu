@@ -9,7 +9,7 @@ Relational Operators
 
 =cut
 
-plan 30;
+plan 42;
 
 ## For Numbers: <, <=, <=>, >=, >
 
@@ -44,11 +44,20 @@ is(2 <=> 1, 1,  '2 is greater than 1');
 ## Multiway comparisons (RFC 025)
 
 # this works ...
-todo_is(5 > 1 < 10, 5 > 1 && 1 < 10, 'multi-way comp 5 > 1 < 10 works');
+is(5 > 1 < 10, 5 > 1 && 1 < 10, 'multi-way comp 5 > 1 < 10 works');
 
 # however this doesn't which makes 
 # me think these are not implemented
 is(5 < 1 < 10, 5 < 1 && 1 < 10, 'multi-way comp 5 < 1 < 10 works');
+
+## NOTE: these tests moved here from t/03operator.t 
+
+ok(5 > 4 > 3, "chained comparison");
+ok(eval '3 < 4 < 5', "chained comparison");
+ok(5 == 5 > -5, "chained comparison with equality");
+ok(!(3 > 4 < 5), "chained comparison");
+ok(5 <= 5 > -5, "chained comparison with <=");
+ok(-5 < 5 >= 5, "chained comparison with >=");
 
 ## For Strings: <, <=, <=>, >=, >
 
@@ -83,8 +92,17 @@ is('b' cmp 'a', 1,  'b is greater than a');
 ## Multiway comparisons (RFC 025)
 
 # this works ...
-todo_is('e' gt 'a' lt 'j', 'e' gt 'a' && 'a' lt 'j', 'multi-way comp e gt a lt j works');
+is('e' gt 'a' lt 'j', 'e' gt 'a' && 'a' lt 'j', 'multi-way comp e gt a lt j works');
 
 # however this doesn't which makes 
 # me think these are not implemented
 is('e' lt 'a' lt 'j', 'e' lt 'a' && 'a' lt 'j', 'multi-way comp e lt a lt j works');
+
+## NOTE: these tests moved here from t/03operator.t 
+
+ok("5" gt "4" gt "3", "chained str comparison");
+ok("3" lt "4" lt "5", "chained str comparison");
+ok(!("3" gt "4" lt "5"), "chained str comparison");
+ok("5" eq "5" gt "0", "chained str comparison with equality");
+ok("5" le "5" gt "0", "chained str comparison with le");
+ok("0" lt "5" ge "5", "chained comparison with ge");

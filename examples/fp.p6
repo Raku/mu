@@ -11,7 +11,7 @@ multi sub length (*$x, *@xs) returns Int { 1 + length(@xs) }
 say "... length";
 say length(1, 'foo', 3, 4, 'bar'); 
 say length('foo');            
-#say length();
+# say length();
 
 multi sub sum ()          returns Int { 0             }
 multi sub sum (*$x, *@xs) returns Int { $x + sum(@xs) }

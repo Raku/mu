@@ -67,7 +67,7 @@ $b=$b-1;
 ok ($b == eval '-(++$a)');
 
 $a = undef;
-todo_ok ($a++ eq '0');
+ok ($a++ eq '0');
 
 $a = undef;
 todo_ok(eval '!defined($a--)');

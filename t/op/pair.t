@@ -6,7 +6,7 @@ require Test;
 plan(16);
 
 my $pair = 'foo' => 'bar';
-todo_ok (ref $pair eq 'Pair');
+ok (ref $pair eq 'Pair');
 
 my $foo = $pair.key;
 my $bar = $pair.value;
@@ -25,30 +25,30 @@ todo_ok ($quux eq 'quux', "lhs quotes" );
 
 #Pair with a numeric value
 my $pair = 'foo' => 2;
-todo_ok (ref $pair eq 'Pair');
+ok (ref $pair eq 'Pair');
 
 my $two = $pair.value;
 ok ($two == 2);
 
 #Pair with a Pair value
 my $pair = "foo" => ("bar" => "baz");
-todo_ok (ref $pair eq 'Pair');
+ok (ref $pair eq 'Pair');
 my $pair2 = $pair.value;
-todo_ok (ref $pair2 eq 'Pair');
+ok (ref $pair2 eq 'Pair');
 
 #Pair with a Pair key
 $pair = ("foo" => "bar") => "baz";
-todo_ok (ref $pair eq 'Pair');
+ok (ref $pair eq 'Pair');
 my $key = $pair.key;
-todo_ok (ref $key eq 'Pair');
+ok (ref $key eq 'Pair');
 
 #Pair list a la http://www.nntp.perl.org/group/perl.perl6.language/19360
 my $list = 1 => 2 => 3 => 4;
-todo_ok(ref $list eq 'Pair');
+ok(ref $list eq 'Pair');
 $key = $list.key;
 ok($key == 1);
 $pair2 = $list.value;
-todo_ok(ref $pair2 eq 'Pair');
+ok(ref $pair2 eq 'Pair');
 
 # lvalue Pair assignments from S06 and thread starting with
 # http://www.nntp.perl.org/group/perl.perl6.language/19425

@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan(6);
+plan(5);
 
 # Mostly copied from Perl 5.8.4 s t/op/recurse.t
 
@@ -51,6 +51,6 @@ ok(fibonacci(10) == 89);
 
 # ok(fibonacci(fibonacci(7)) == 17711);
 # takes too long
-skip("Takes too long to wait for");
+# skip("Takes too long to wait for");
 
 

@@ -42,7 +42,7 @@ my $a = 1; "$a";
 is($a + 1, 2, 'basic addition works');
 
 my $a = -1; "$a";
-todo_ok($a + 1 == 0, 'basic addition with negative numbers works'); # parsing bug
+ok($a + 1 == 0, 'basic addition with negative numbers works'); # parsing bug
 
 my $a = 80000.0000000000000000000000000;
 ok($a == 80000.0, 'trailing zeros compare correctly');
