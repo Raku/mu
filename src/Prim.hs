@@ -73,6 +73,11 @@ op1 "undef" = \mv -> do
     return VUndef
 op1 "+"    = return . op1Numeric id
 op1 "abs"  = return . op1Numeric abs
+op1 "atan"  = return . op1Numeric atan
+op1 "cos"  = return . op1Numeric cos
+op1 "sin"  = return . op1Numeric sin
+op1 "exp"  = return . op1Numeric (**)
+op1 "sqrt" = return . op1Numeric sqrt
 op1 "post:++" = \mv -> do
     val <- readMVal mv
     ref <- fromVal mv
@@ -727,6 +732,11 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      spre    !       (Bool)\
 \\n   Num       spre    +       (Num)\
 \\n   Num       pre     abs     (Num)\
+\\n   Num       pre     atan2    (Num)\
+\\n   Num       pre     cos     (Num)\
+\\n   Num       pre     sin     (Num)\
+\\n   Num       pre     exp     (Num)\
+\\n   Num       pre     sqrt    (Num)\
 \\n   Bool      pre     -d      (Str)\
 \\n   Bool      pre     -f      (Str)\
 \\n   Num       spre    -       (Num)\
