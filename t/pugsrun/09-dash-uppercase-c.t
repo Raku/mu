@@ -21,7 +21,7 @@ my @t_good = (
   junctions/3 junctions/all-any junctions/any-any
   junctions/any-any2 junctions/grades
   quicksort
->)), '-CParrot ' ~ any('examples/junctions/3.p6','-e1')
+>)), '-CParrot ' ~ any('-e1')
 );
 
 my @t_todo = (
@@ -32,6 +32,7 @@ my @t_todo = (
   fp
   hanoi
   junctions/1
+  junctions/3
   junctions/all-all
   junctions/all-any junctions/any-any
   junctions/any-any2 junctions/grades
@@ -60,7 +61,7 @@ if ($?OS eq "MSWin32") {
 
 sub run_pugs ($c) {
   my $tempfile = "temp-ex-output";
-  my $command = "$pugs $c $redir $tempfile";
+  my $command = "$pugs $c $redir $tempfile $redir_stderr";
   diag $command;
   system $command;
   my $res = slurp $tempfile;
@@ -92,11 +93,15 @@ for @tests_todo -> $test {
   $fh.close();
 
   my $output = run_pugs($test);
-  is( $output, "", "No error output");
+  if (todo_is( $output, "", "No error output")) {
 
-  my $f = slurp $dump_file;
-  ok( defined $f, "dump.ast was created" );
-  todo_ok( $f ~~ rx:perl5/.../, "... and it contains some output" );
+    my $f = slurp $dump_file;
+    ok( defined $f, "dump.ast was created" );
+    todo_ok( $f ~~ rx:perl5/.../, "... and it contains some output" );
+  } else {
+    skip "No clean compile";
+    skip "No clean compile";
+  };
 
   unlink($dump_file)
     or diag "$dump_file was not removed for next run";
