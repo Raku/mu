@@ -55,9 +55,13 @@ foreach my $testfile (sort {$a->{file} cmp $b->{file}}
 	  }
 	}
 	print "</tr></table></td>\n";
-	my $pct = $good/$i;
-	my $color = sprintf '#%02x%02x%02x', 0xFF*(1-$pct), 0xFF*$pct, 0;
-	print " <td style='background-color: $color'>", sprintf('%.2f%%', $pct*100), "</td>";
+	if ($i) {
+	  my $pct = $good/$i;
+	  my $color = sprintf '#%02x%02x%02x', 0xFF*(1-$pct), 0xFF*$pct, 0;
+	  print " <td style='background-color: $color'>", sprintf('%.2f%%', $pct*100), "</td>\n";
+	} else {
+	  print " <td style='background-color: #7f7f7f'>???</td>\n"
+	}
   }
   print "</tr>\n";
 }
