@@ -47,22 +47,6 @@ WritePugs       (sign => 1);
 # Pretty stuff goes above. Ugly stuff goes below.
 # Maybe we can refactor this ugly stuff into a Module::Install::Plugin.
 
-sub deny_cygwin {
-    if ($^O eq 'cygwin') {
-	die << "."
-** Cygwin currently unsupported on Win32; please use ActivePerl or MinGW Perl
-   instead, with the .msi installer of GHC.
-.
-    }
-}
-
-sub assert_ghc {
-    (`ghc --version` =~ /Glasgow/) or die << '.';
-*** Cannot find a runnable 'ghc' from path.
-*** Please install GHC from http://haskell.org/ghc/.
-.
-}
-
 sub svn_revision {
     my $svn_entries = File::Spec->catfile(".svn", "entries");
     if ("@ARGV" eq "-version") {

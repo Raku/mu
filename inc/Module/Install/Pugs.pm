@@ -78,4 +78,20 @@ sub pugs_binary {
     "$base/blib/script/$pugs";
 }
 
+sub deny_cygwin {
+    if ($^O eq 'cygwin') {
+	die << "."
+** Cygwin currently unsupported on Win32; please use ActivePerl or MinGW Perl
+   instead, with the .msi installer of GHC.
+.
+    }
+}
+
+sub assert_ghc {
+    (`ghc --version` =~ /Glasgow/) or die << '.';
+*** Cannot find a runnable 'ghc' from path.
+*** Please install GHC from http://haskell.org/ghc/.
+.
+}
+
 1;
