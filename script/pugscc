@@ -131,7 +131,9 @@ pugscc - Pugs Compiler Compiler
 
 =head1 SYNOPSIS
 
-    % pugscc --run -e "say ('Hello World')"
+    % pugscc --runpugs -e "'Hello, Parrot'.say"
+    % pugscc --runparrot -e "'Hello, Parrot'.say"
+    % pugscc --runhaskell -e "'Hello, Haskell'.say"
 
 =head1 DESCRIPTION
                
