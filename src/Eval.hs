@@ -498,12 +498,12 @@ reduce Env{ envClasses = cls, envContext = cxt, envLexical = lex, envGlobal = gl
         | Sub{ subAssoc = "list" }      <- sub
         , (App name' invs' args'):rest  <- args
         , name == name'
-        , null invs'
-        = applySub subSyms sub [] (args' ++ rest)
+        , null args'
+        = applySub subSyms sub (invs' ++ rest)  []
         -- fix subParams to agree with number of actual arguments
         | Sub{ subAssoc = "list", subParams = (p:_) }   <- sub
-        , null invs
-        = apply sub{ subParams = (length args) `replicate` p } [] args
+        , null args
+        = apply sub{ subParams = (length invs) `replicate` p } invs []
         -- chain-associativity
         | Sub{ subAssoc = "chain" }   <- sub
         , (App _ _ []):_              <- invs
