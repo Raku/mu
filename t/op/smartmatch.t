@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 21;
+plan 43;
 
 # The comments are from the synopsis 04 table
 
@@ -11,16 +11,69 @@ plan 21;
 # the reason it's parsed is so that eval '' won't be around everywhere, not for
 # emulation.
 
-#Any     Code<$>   scalar sub truth         match if $x($_)
-#Hash    Hash      hash keys identical      match if $_.keys.sort »eq« $x.keys.sort
-#Hash    any(Hash) hash key intersection    match if $_{any(Hash.keys)}
-#Hash    Array     hash value slice truth   match if $_{any(@$x)}
-#Hash    any(list) hash key slice existence match if exists $_{any(list)}
-#Hash    all(list) hash key slice existence match if exists $_{all(list)}
+{ #Any     Code<$>   scalar sub truth         match if $x($_)
+	sub uhuh { 1 }
+	sub nuhuh { undef }
+
+	todo_ok((undef ~~ \&uhuh), "scalar sub truth");
+	ok(!(undef ~~ \&nuhuh), "negated scalar sub false");
+};
+
+
+my %hash1 = ( "foo", "Bar", "blah", "ding");
+my %hash2 = ( "foo", "zzz", "blah", "frbz");
+my %hash3 = ( "oink", "da", "blah", "zork");
+my %hash4 = ( "bink", "yum", "gorch", "zorba");
+my %hash5 = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
+
+{ #Hash    Hash      hash keys identical      match if $_.keys.sort »eq« $x.keys.sort
+	todo_ok(eval '(%hash1 ~~ %hash2)', "hash keys identical");
+	ok(eval '!(%hash1 ~~ %hash4)', "hash keys differ");
+};
+
+{ #Hash    any(Hash) hash key intersection    match if $_{any(Hash.keys)}
+	todo_ok((%hash1 ~~ any(%hash3)), "intersecting keys");
+	ok(!(%hash1 ~~ any(%hash4)), "no intersecting keys");
+};
+
+{ #Hash    Array     hash value slice truth   match if $_{any(@$x)}
+	my @true = (<foo bar>);
+	my @sort_of = (<foo gorch>);
+	my @false = (<gorch baz>);
+	todo_ok((%hash5 ~~ @true), "value slice true");
+	todo_ok((%hash5 ~~ @sort_of), "value slice partly true");
+	ok(!(%hash5 ~~ @false), "value slice false");
+};
+
+{ #Hash    any(list) hash key slice existence match if exists $_{any(list)}
+	todo_ok((%hash1 ~~ any(<foo bar>)), "any key exists (but where is it?)");
+	ok(!(%hash1 ~~ any(<gorch ding>)), "no listed key exists");
+};
+
+{ #Hash    all(list) hash key slice existence match if exists $_{all(list)}
+	todo_ok((%hash1 ~~ all(<foo blah>)), "all keys exist");
+	ok(!(%hash1 ~~ all(<foo edward>)), "not all keys exist");
+};
+
 #Hash    Rule      hash key grep            match if any($_.keys) ~~ /$x/
-#Hash    Any       hash entry existence     match if exists $_{$x}
-#Hash    .{Any}    hash element truth*      match if $_{Any}
-#Hash    .<string> hash element truth*      match if $_<string>
+
+{ #Hash    Any       hash entry existence     match if exists $_{$x}
+	todo_ok((%hash5 ~~ "foo"), "foo exists");
+	todo_ok((%hash5 ~~ "gorch"), "gorch exists, true although value is false");
+	todo_ok((%hash5 ~~ "wasabi"), "wasabi does not exist");
+};
+
+{ #Hash    .{Any}    hash element truth*      match if $_{Any}
+	my $string = "foo";
+	todo_ok(eval '(%hash5 ~~ .{$string})', 'hash.{Any} truth');
+	$string = "gorch";
+	todo_ok(eval '!(%hash5 ~~ .{$string})', 'hash.{Any} untruth');
+};
+
+{ #Hash    .<string> hash element truth*      match if $_<string>
+	todo_ok(eval '(%hash5 ~~ .<foo>)', "hash<string> truth");
+	todo_ok(eval '!(%hash5 ~~ .<gorch>)', "hash<string> untruth");
+};
 
 { #Array   Array     arrays are identical     match if $_ »~~« $x
 	ok((("blah", "blah") ~~ ("blah", "blah")), "qw/blah blah/ .eq");
@@ -69,8 +122,8 @@ plan 21;
 	eval 'class Cat {}';
 	eval 'class Chiwawa is Dog {}'; # i'm afraid class Pugs will get in the way ;-)
 
-	#todo_ok((Chiwawa ~~ Dog), "chiwawa isa dog");
-	#todo_ok(!(Chiwawa ~~ Cat), "chiwawa is not a cat");
+	todo_ok(eval '(Chiwawa ~~ Dog)', "chiwawa isa dog");
+	todo_ok(eval '!(Chiwawa ~~ Cat)', "chiwawa is not a cat");
 };
 
 #Any     Role      role playing             match if $_.does($x)
@@ -86,6 +139,7 @@ plan 21;
 };
 
 # no objects, no rules
+# ... staring vin diesel and kevin kostner! (blech)
 #Any     .method   method truth*            match if $_.method
 #Any     Rule      pattern match            match if $_ ~~ /$x/
 #Any     subst     substitution match*      match if $_ ~~ subst
