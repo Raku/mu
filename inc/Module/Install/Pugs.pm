@@ -40,7 +40,6 @@ sub set_makefile_macros {
     }
 }
 
-
 sub base_path {
     my $self = shift;
     $self->{_top}{base};
@@ -166,33 +165,6 @@ sub fixpaths {
     my $sep = File::Spec->catdir('');
     $text =~ s{\b/}{$sep}g;
     return $text;
-}
-
-sub external {
-    my $self = shift;
-    my $module_path = shift;
-    open MODULE, $module_path
-      or die "Can't open '$module_path' for input\n";
-    my $source = do { local $/; <MODULE> };
-    return unless $source =~
-    /^\s*module\s+(.*?);.*\sinline\s/ms;
-    my $module_name = $1;
-    $module_name =~ s/-/__/;
-    $module_name =~ s/[\-\.]/_/g;
-    $self->{MM}{FULLEXT} = $module_name;
-
-    my ($ghc, $ghc_version, $ghc_flags) = $self->assert_ghc;
-
-    $self->postamble(<<_);
-pure_all :: $module_name.o
-	cp $module_name.o \$(INST_ARCHAUTODIR)
-
-$module_name.o :: $module_name.hs
-	$ghc --make -isrc -Isrc $ghc_flags \$(GHC_FLAGS) $module_name.hs
-
-$module_name.hs :: $module_path
-	pugs --external $module_name $module_path > $module_name.hs
-_
 }
 
 1;

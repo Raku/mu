@@ -9,11 +9,16 @@ use ExtUtils::MakeMaker();
 use File::Spec;
 use Config;
 
+my $MM;
+
 sub WriteMakefile {
     my $libs = get_perl6_libs();
+    my @mm_args = @_;
+    @mm_args = handle_inline(@mm_args);
+    set_makefile_macros();
     ExtUtils::MakeMaker::WriteMakefile(
         INSTALLSITELIB => $libs->{sitelib},
-        @_,
+        @mm_args,,
     );
     fix_makefile();
 }
@@ -21,10 +26,10 @@ sub WriteMakefile {
 sub get_perl6_libs {
     my $pugs_path = shift || 'pugs';
     my $output = `$pugs_path -V`;
-    my ($archlib) = ($output =~ /^archlib:\s+(\S+)/m);
-    my ($privlib) = ($output =~ /^privlib:\s+(\S+)/m);
-    my ($sitearch) = ($output =~ /^sitearch:\s+(\S+)/m);
-    my ($sitelib) = ($output =~ /^sitelib:\s+(\S+)/m);
+    my ($archlib) = ($output =~ /^\s*archlib:\s+(\S+)/m);
+    my ($privlib) = ($output =~ /^\s*privlib:\s+(\S+)/m);
+    my ($sitearch) = ($output =~ /^\s*sitearch:\s+(\S+)/m);
+    my ($sitelib) = ($output =~ /^\s*sitelib:\s+(\S+)/m);
     return {
         archlib => $archlib,
         privlib => $privlib,
@@ -33,6 +38,7 @@ sub get_perl6_libs {
     };
 }
 
+my $postamble = '';
 sub fix_makefile {
     my $full_pugs = File::Spec->catfile($Config{installbin}, 'pugs');
     my $full_blib = File::Spec->rel2abs(File::Spec->catfile('blib', 'lib'));
@@ -47,7 +53,88 @@ sub fix_makefile {
     close MAKEFILE;
     open MAKEFILE, '> Makefile' or die $!;
     print MAKEFILE $makefile;
+    print MAKEFILE $postamble;
     close MAKEFILE;
+}
+
+sub handle_inline {
+    my %args = @_;
+    if ($args{inline}) {
+        external($args{inline});
+        delete $args{inline};
+    }
+    return %args;
+}
+
+sub external {
+    my $module_path = shift;
+    open MODULE, $module_path
+      or die "Can't open '$module_path' for input\n";
+    my $source = do { local $/; <MODULE> };
+    return unless $source =~
+    /^\s*module\s+(.*?);.*\sinline\s/ms;
+    my $module_name = $1;
+    $module_name =~ s/-/__/;
+    $module_name =~ s/[\-\.]/_/g;
+    $MM->{FULLEXT} = $module_name;
+
+    my ($ghc, $ghc_version, $ghc_flags) = assert_ghc();
+
+    $postamble = <<_;
+pure_all :: $module_name.o
+	cp $module_name.o \$(INST_ARCHAUTODIR)
+
+$module_name.o :: $module_name.hs
+	$ghc --make -isrc -Isrc $ghc_flags \$(GHC_FLAGS) $module_name.hs
+
+$module_name.hs :: $module_path
+	pugs --external $module_name $module_path > $module_name.hs
+_
+}
+
+sub set_makefile_macros {
+    package MM;
+    no warnings 'once';
+    *init_INST = sub {
+        my $self = shift;
+        $self->SUPER::init_INST(@_);
+        for (keys %$MM) {
+            $self->{$_} = $MM->{$_};
+        }
+        return 1;
+    }
+}
+
+sub assert_ghc {
+    my $ghc = can_run($ENV{GHC} || 'ghc') or die;
+    my $ghcver = `$ghc --version`;
+    ($ghcver =~ /Glasgow.*\bversion\s*(\S+)/s) or die << '.';
+*** Cannot find a runnable 'ghc' from path.
+*** Please install GHC from http://haskell.org/ghc/.
+.
+    my $ghc_version = $1;
+
+    my $config = get_perl6_libs();
+    my $pugs_core = File::Spec->catdir($config->{archlib}, 'CORE', 'pugs');
+    my $ghc_flags = "-H200m -L. -Lsrc -Lsrc/pcre -I. -Isrc -Isrc/pcre -i.  -isrc -isrc/pcre -static -fno-warn-missing-signatures -fno-warn-name-shadowing -I$pugs_core -L$pugs_core -i$pugs_core";
+    $ghc_flags .= " -fno-warn-deprecations -fno-warn-orphans"
+      if $ghc_version ge '6.4';
+    return ($ghc, $ghc_version, $ghc_flags);
+}
+
+sub can_run {
+    my $cmd = shift;
+
+    my $_cmd = $cmd;
+    return $_cmd if (-x $_cmd or $_cmd = MM->maybe_command($_cmd));
+
+    for my $dir ((split /$Config::Config{path_sep}/, $ENV{PATH}), '.') {
+        next unless $dir;
+        my $abs = File::Spec->catfile($dir, $cmd);
+        return $abs if (-x $abs or $abs = MM->maybe_command($abs));
+    }
+
+    return;
 }
 
 1;

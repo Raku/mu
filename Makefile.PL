@@ -103,6 +103,9 @@ INST6_LIB = 'blib6/lib'
 INST6_MAN1DIR = 'blib6/man1'
 INST6_MAN3DIR = 'blib6/man3'
 
+pure_all ::
+	\$(PERLRUN) util/src_to_blib.pl
+
 pure_site_install ::
 	\$(NOECHO) \$(MOD_INSTALL) \\
 		\$(INST6_LIB) \$(DESTDIR)$config->{privlib} \\
