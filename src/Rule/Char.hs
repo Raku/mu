@@ -26,7 +26,7 @@ module Rule.Char
                   ) where
 
 import Prelude
-import Data.Char
+import Unicode
 import Rule.Pos( updatePosChar, updatePosString )
 import Rule.Prim
 

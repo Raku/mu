@@ -15,6 +15,7 @@
 
 module Internals (
     module UTF8,
+    module Unicode,
     module Cont,
     module Posix,
     module Rule.Pos,
@@ -31,7 +32,6 @@ module Internals (
     module System.Cmd,
     module Control.Monad.RWS,
     module Control.Monad.Error,
-    module GHC.Unicode,
     module Data.Bits,
     module Data.List,
     module Data.Either,
@@ -53,6 +53,7 @@ module Internals (
 ) where
 
 import UTF8
+import Unicode
 import Cont
 import Posix
 import Data.Dynamic
@@ -94,7 +95,6 @@ import Data.Tree
 import Data.IORef
 import Debug.Trace
 import Rule.Pos
-import GHC.Unicode
 
 -- Instances.
 instance Show Unique where

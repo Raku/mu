@@ -20,7 +20,7 @@ module Rule.Token
                   , makeTokenParser
                   ) where
 
-import Data.Char (isAlpha,toLower,toUpper,isSpace,digitToInt)
+import Unicode (isAlpha,toLower,toUpper,isSpace,digitToInt)
 import Data.List (nub,sort)
 import Rule
 

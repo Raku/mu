@@ -65,7 +65,7 @@ instance Pretty Val where
     format (VBool x) = if x then text "bool::true" else text "bool::false"
     format (VNum x) = if x == 1/0 then text "Inf" else text $ show x
     format (VInt x) = integer x
-    format (VStr x) = text $ "'" ++ concatMap quoted x ++ "'"
+    format (VStr x) = text $ "'" ++ encodeUTF8 (concatMap quoted x) ++ "'"
     format (VRat x) = double $ ((fromIntegral $ numerator x) / (fromIntegral $ denominator x) :: Double)
     format (VComplex x) = text $ show x
     format (VControl x) = text $ show x
