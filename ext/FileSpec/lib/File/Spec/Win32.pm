@@ -11,7 +11,7 @@ sub case_tolerant returns Bool is export { 1     }
 ## Splitting
 
 sub splitdir (Str $directories) returns Array is export {
-    # this is an ugly hack since we dont 
+    # this is an ugly hack since we dont
     # have split(<regexp>, Str) yet.
     my @dirs = split("/", $directories);
     @dirs = @dirs.map:{ split("\\", $_) };
@@ -71,7 +71,7 @@ sub catpath (Str $volume, Str $directory, Str $file) returns Str is export {
     my $vol = $volume;
     $vol ~= $1 if ($vol ~~ rx:perl5{^([\\/])[\\/][^\\/]+[\\/][^\\/]+$} && $directory ~~ rx:perl5{^[^\\/]});
     $vol ~= $directory;
-    # If the volume is not just A:, make sure the glue separator is 
+    # If the volume is not just A:, make sure the glue separator is
     # there, reusing whatever separator is first in the $volume if possible.
     if ( !($vol  ~~ rx:perl5{^[a-zA-Z]:$}) &&
            $vol  ~~ rx:perl5{[^\\/]$}      &&
@@ -116,16 +116,16 @@ sub canonpath (Str $_path) returns Str is export {
     for (@dirs) -> $dir {
         $use_base_dirs = 0 if $dir eq updir();
         if ($use_base_dirs) {
-            push(@base_dirs, $dir);        
+            push(@base_dirs, $dir);
         }
         else {
             push(@path_dirs, $dir);
         }
     }
-    # for each .. in @path_dirs pop one item from 
+    # for each .. in @path_dirs pop one item from
     # @base_dirs
     my $dir;
-    while ($dir = shift(@path_dirs)){ 
+    while ($dir = shift(@path_dirs)){
         unless ($dir eq updir()){
             unshift(@path_dirs, $dir);
             last();
@@ -138,7 +138,7 @@ sub canonpath (Str $_path) returns Str is export {
 
 # Refacted this into a Junction instead of the
 # regexp since all it does it remove . and ..
-sub no_upwards (*@filenames) returns Array is export { 
+sub no_upwards (*@filenames) returns Array is export {
     @filenames.grep:{ $_ ne ('.' & '..') }
 }
 
@@ -147,17 +147,20 @@ sub path returns Array is export {
     return split(';', $path).map:{ $_ eq '' ?? '.' :: $_ };
 }
 
-sub file_name_is_absolute (Str $file) returns Bool is export { 
-	?($file ~~ rx:perl5{^([a-zA-Z]:)?[\\/]}) 
+sub file_name_is_absolute (Str $file) returns Bool is export {
+	?($file ~~ rx:perl5{^([a-zA-Z]:)?[\\/]})
 }
 
-# This HACK is worse than 
-# the File::Spec platform hack 
-sub cwd returns Str { 
-    my @retval = system("cd");
-    my $cwd = @retval[0];
-    chomp($cwd);
-    return $cwd;
+# This HACK is worse than
+# the File::Spec platform hack
+#sub cwd returns Str {
+#    my @retval = system("cd");
+#    my $cwd = @retval[0];
+#    chomp($cwd);
+#    return $cwd;
+#}
+sub cwd returns Str {
+  return xxx_file_spec_cwd();
 }
 
 sub rel2abs (Str $_path, Str ?$_base) returns Str {
@@ -190,22 +193,22 @@ sub abs2rel (Str $_path, Str ?$_base) returns Str is export {
     }
     my $base = canonpath($base);
     my $path = canonpath($_path);
-    
+
     my ($path_volume) = splitpath($path, 1);
     my ($base_volume) = splitpath($base, 1);
     # Can't relativize across volumes
     return $path unless $path_volume eq $base_volume;
-    
+
     $path = rel2abs($path);
     $base = rel2abs($base);
-    
+
     my $path_directories = (splitpath($path, 1))[1];
     my $base_directories = (splitpath($base, 1))[1];
-    
+
     # Now, remove all leading components that are the same
     my @pathchunks = splitdir($path_directories);
     my @basechunks = splitdir($base_directories);
-    
+
     while (@pathchunks && @basechunks && lc(@pathchunks[0]) eq lc(@basechunks[0])) {
         shift(@pathchunks);
         shift(@basechunks);
@@ -276,11 +279,11 @@ Stevan Little <stevan@iinteractive.com>
 
 = ACKNOWLEDGEMENTS
 
-This is a port of the perl5 File::Spec::Win32 module which is currently 
+This is a port of the perl5 File::Spec::Win32 module which is currently
 maintained by Ken Williams <KWILLIAMS@cpan.org>, and is written
 by a number of people. Please see that module for more information.
 
-= COPYRIGHT 
+= COPYRIGHT
 
 Copyright (c) 2005. Stevan Little. All rights reserved.
 

@@ -39,8 +39,11 @@ sub getstore ($url, $file)
   };
 }
 
+# TODO: Implement a non-faked version
 sub mirror ($url, $file)
-{ ... }
+{ 
+  getstore($url,$file) 
+}
 
 sub get (Str $url) is export {
   _get($url);
@@ -261,88 +264,12 @@ the HTTP response code.
 
 =back
 
-This module also exports the HTTP::Status constants and procedures.
-You can use them when you check the response code from getprint(),
-getstore() or mirror().  The constants are:
-
-   RC_CONTINUE
-   RC_SWITCHING_PROTOCOLS
-   RC_OK
-   RC_CREATED
-   RC_ACCEPTED
-   RC_NON_AUTHORITATIVE_INFORMATION
-   RC_NO_CONTENT
-   RC_RESET_CONTENT
-   RC_PARTIAL_CONTENT
-   RC_MULTIPLE_CHOICES
-   RC_MOVED_PERMANENTLY
-   RC_MOVED_TEMPORARILY
-   RC_SEE_OTHER
-   RC_NOT_MODIFIED
-   RC_USE_PROXY
-   RC_BAD_REQUEST
-   RC_UNAUTHORIZED
-   RC_PAYMENT_REQUIRED
-   RC_FORBIDDEN
-   RC_NOT_FOUND
-   RC_METHOD_NOT_ALLOWED
-   RC_NOT_ACCEPTABLE
-   RC_PROXY_AUTHENTICATION_REQUIRED
-   RC_REQUEST_TIMEOUT
-   RC_CONFLICT
-   RC_GONE
-   RC_LENGTH_REQUIRED
-   RC_PRECONDITION_FAILED
-   RC_REQUEST_ENTITY_TOO_LARGE
-   RC_REQUEST_URI_TOO_LARGE
-   RC_UNSUPPORTED_MEDIA_TYPE
-   RC_INTERNAL_SERVER_ERROR
-   RC_NOT_IMPLEMENTED
-   RC_BAD_GATEWAY
-   RC_SERVICE_UNAVAILABLE
-   RC_GATEWAY_TIMEOUT
-   RC_HTTP_VERSION_NOT_SUPPORTED
-
-The HTTP::Status classification functions are:
-
-=over 3
-
-=item is_success($rc)
-
-True if response code indicated a successful request.
-
-=item is_error($rc)
-
-True if response code indicated that an error occurred.
-
-=back
-
-The module will also export the LWP::UserAgent object as C<$ua> if you
-ask for it explicitly.
-
-The user agent created by this module will identify itself as
-"LWP::Simple/#.##" (where "#.##" is the libwww-perl version number)
-and will initialize its proxy defaults from the environment (by
-calling $ua->env_proxy).
-
-=head1 CAVEAT
-
-Note that if you are using both LWP::Simple and the very popular CGI.pm
-module, you may be importing a C<head> function from each module,
-producing a warning like "Prototype mismatch: sub main::head ($) vs
-none". Get around this problem by just not importing LWP::Simple's
-C<head> function, like so:
-
-        use LWP::Simple qw(!head);
-        use CGI qw(:standard);  # then only CGI.pm defines a head()
-
-Then if you do need LWP::Simple's C<head> function, you can just call
-it as C<LWP::Simple::head($url)>.
-
 =head1 INCOMPATIBLE CHANGES
 
 This Perl6 version of LWP::Simple does not export the HTTP status
 codes.
+
+This module only supports HTTP as the protocol currently.
 
 =head1 SEE ALSO
 

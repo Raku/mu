@@ -14,7 +14,7 @@ sub splitdir (Str $dir) returns Array is export { split('/', $dir) }
 
 sub splitpath (Str $path, Bool ?$nofile) returns Array is export {
     my $volume    = '';
-    my $directory = ''; 
+    my $directory = '';
     my $file      = '';
     if ($nofile) {
         $directory = $path;
@@ -41,7 +41,7 @@ sub catfile (*@_path) returns Str is export {
 }
 
 sub catpath (Str $volume, Str $directory, Str $file) returns Str is export {
-    if (''  ne ($directory & $file) && 
+    if (''  ne ($directory & $file) &&
         '/' ne (substr($directory, -1) & substr($file, 0, 1))) {
         return $directory ~ "/$file";
     }
@@ -54,7 +54,7 @@ sub catpath (Str $volume, Str $directory, Str $file) returns Str is export {
 
 sub rel2abs (Str $_path, Str ?$_base) returns Str is export {
     my $path = $_path;
-    my $base = $_base;    
+    my $base = $_base;
     if (!file_name_is_absolute($path)) {
         if (!$base.defined || $base eq '') {
             $base = cwd();
@@ -72,7 +72,7 @@ sub rel2abs (Str $_path, Str ?$_base) returns Str is export {
 
 sub abs2rel (Str $_path, Str $_base) returns Str is export {
     my $path = $_path;
-    my $base = $_base;        
+    my $base = $_base;
     if (!file_name_is_absolute($path)) {
         $path = rel2abs($path);
     }
@@ -103,8 +103,8 @@ sub abs2rel (Str $_path, Str $_base) returns Str is export {
     $path = join('/', @pathchunks);
     $base = join('/', @basechunks);
 
-    # $base now contains the directories the resulting relative path 
-    # must ascend out of before it can descend to $path_directory.  So, 
+    # $base now contains the directories the resulting relative path
+    # must ascend out of before it can descend to $path_directory.  So,
     # replace all names with $parentDir
     $base ~~ s:perl5:g{[^/]+}{..};
 
@@ -121,8 +121,8 @@ sub abs2rel (Str $_path, Str $_base) returns Str is export {
 ## Misc.
 
 sub canonpath (Str $_path) returns Str is export {
-    my $path = $_path; 
-    $path ~~ s:perl5:g{/+}{/};                            # xx////xx  -> xx/xx   
+    my $path = $_path;
+    $path ~~ s:perl5:g{/+}{/};                            # xx////xx  -> xx/xx
     $path ~~ s:perl5:g{(/\.)+(/|\Z(?!\n))}{/};            # xx/././xx -> xx/xx
     $path ~~ s:perl5:g{^(\./)+}{} unless $path eq "./";   # ./xx      -> xx
     $path ~~ s:perl5:g{^/(\.\./)+}{/};                    # /../../xx -> xx
@@ -132,11 +132,11 @@ sub canonpath (Str $_path) returns Str is export {
 
 # Refacted this into a Junction instead of the
 # regexp since all it does it remove . and ..
-sub no_upwards (*@filenames) returns Array is export { 
+sub no_upwards (*@filenames) returns Array is export {
     @filenames.grep:{ $_ ne ('.' & '..') }
 }
 
-sub file_name_is_absolute (Str $file) returns Bool is export { 
+sub file_name_is_absolute (Str $file) returns Bool is export {
     ?($file ~~ rx:perl5{^/})  # needs to work in the multi-line string
 }
 
@@ -145,11 +145,14 @@ sub path returns Array is export {
     return split(':', %*ENV{'PATH'}).map:{ $_ eq '' ?? '.' :: $_ };
 }
 
-# This HACK is worse than 
-# the File::Spec platform hack 
-sub cwd returns Str { system("pwd") }
+# This HACK is worse than
+# the File::Spec platform hack
+#sub cwd returns Str { system("pwd") }
+sub cwd returns Str {
+  return xxx_file_spec_cwd();
+}
 
-# 
+#
 # ## TODO:
 # # Refactor _tmpdir and tmpdir into class attributes
 # my Str $tmpdir;
@@ -172,7 +175,7 @@ sub cwd returns Str { system("pwd") }
 #     $tmpdir = $tmpdir.defined && .canonpath($tmpdir);
 #     return $tmpdir;
 # }
-# 
+#
 # method tmpdir () returns Str {
 #     return $tmpdir if $tmpdir.defined;
 #     $tmpdir = ._tmpdir(%*ENV{'TMPDIR'}, "/tmp");
@@ -240,11 +243,11 @@ Stevan Little <stevan@iinteractive.com>
 
 = ACKNOWLEDGEMENTS
 
-This is a port of the perl5 File::Spec::Unix module which is currently 
+This is a port of the perl5 File::Spec::Unix module which is currently
 maintained by Ken Williams <KWILLIAMS@cpan.org>, and is written
 by a number of people. Please see that module for more information.
 
-= COPYRIGHT 
+= COPYRIGHT
 
 Copyright (c) 2005. Stevan Little. All rights reserved.
 

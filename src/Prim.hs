@@ -36,6 +36,9 @@ op0 "not" = const retEmpty
 op0 "so" = const (return $ VBool True)
 op0 "¥" = (>>= return . VList . concat . transpose) . mapM fromVal
 op0 "Y" = op0 "¥"
+op0 "xxx_file_spec_cwd" = \_ -> do
+                mycwd <- liftIO getCurrentDirectory
+                return $ VStr mycwd
 op0 other = \x -> return $ VError ("unimplemented listOp: " ++ other) (App other (map Val x) [])
 
 retEmpty :: ContT Val (ReaderT Env IO) Val
@@ -152,7 +155,7 @@ op1 "defined" = \v -> do
     v <- readMVal v
     return . VBool $ case v of
         VUndef  -> False
-        _       -> True    
+        _       -> True
 op1 "last" = \v -> return (VError "cannot last() outside a loop" (Val v))
 op1 "return" = \v -> return (VError "cannot return() outside a subroutine" (Val v))
 
@@ -311,7 +314,7 @@ op1Pick :: Val -> Eval Val
 op1Pick (VJunc (Junc JAny _ set)) = do -- pick mainly works on 'any'
     rand <- liftIO $ randomRIO (0 :: Int, (Set.cardinality set) - 1)
     return $ (Set.elems set) !! rand
-op1Pick (VJunc (Junc _ _ set)) = 
+op1Pick (VJunc (Junc _ _ set)) =
     if (Set.cardinality $ set) > 1 then return VUndef
     else return $ head $ Set.elems set
 op1Pick (VRef v) = op1Pick v
@@ -359,11 +362,11 @@ boolIO2 f u v = do
         f (vCast u) (vCast v)
         return True
     return $ VBool ok
-    
-boolIO3 f v = do 
+
+boolIO3 f v = do
     ok <- tryIO False $ do
         f (vCast v)
-    return $ VBool ok    
+    return $ VBool ok
 
 opEval :: Bool -> String -> String -> Eval Val
 opEval fatal name str = do
@@ -562,7 +565,7 @@ op3 "index" = \x y z -> do
     doIndex :: VInt -> VStr -> VStr -> VInt -> VInt
     doIndex n a b p
         | p > 0, null a     = doIndex n a b 0
-        | p > 0             = doIndex (n+1) (tail a) b (p-1) 
+        | p > 0             = doIndex (n+1) (tail a) b (p-1)
         | b `isPrefixOf` a  = n
         | null a            = -1
         | otherwise         = doIndex (n+1) (tail a) b 0
@@ -776,7 +779,7 @@ primOp sym assoc prms ret = SymVal SOur name sub
         "chain"     -> (2, "infix", False)
         "list"      -> (0, "infix", False)
         other       -> (0, other, True)
-        
+
 primDecl str = primOp sym assoc (foldr foldParam [] prms) ret
     where
     (ret:assoc:sym:prms') = words str
@@ -883,6 +886,7 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      pre     defined (Any)\
 \\n   Str       pre     ref     (Any)\
 \\n   Num       pre     time    ()\
+\\n   Str       pre     xxx_file_spec_cwd  ()\
 \\n   Bool      pre     print   (List)\
 \\n   Bool      pre     say     (IO: List)\
 \\n   Bool      pre     say     (List)\
