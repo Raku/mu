@@ -176,6 +176,11 @@ The C<$pkg'var> syntax is dead.  Use C<$pkg::var> instead.
 
 =item *
 
+You may no longer put whitespace between a sigil and its following
+name or construct.
+
+=item *
+
 You may interpolate a string into a package or variable name using
 C<::{$expr}> where you'd ordinarily put a package or variable name.
 The string is allowed to contain additional instances of C<::>, which
