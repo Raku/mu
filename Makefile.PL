@@ -21,13 +21,14 @@ clean_files(glob("src/*.hi"), glob("src/*.o*"), glob("pugs*"), "config.h");
 my $has_readline = 1;
 $has_readline = 0 if $^O eq 'MSWin32';
 
-if ($^O =~ /darwin/i and not -e "/usr/local/readline/readline.h") {
-    die << '.';
-*** /usr/local/readline/readline.h not found.
+if ($^O =~ /darwin/i and not -e "/usr/local/include/readline/readline.h") {
+    warn << '.';
+*** /usr/local/include/readline/readline.h not found.
 *** Readline support disabled.  If you want readling support,
     please install Readline from the URL below and try again:
     http://p4.elixus.org/snap/pugs/macosx-readline-5.0.005.pkg.tar.gz
 .
+    $has_readline = 0;
 }
 
 

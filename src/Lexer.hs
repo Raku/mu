@@ -140,9 +140,9 @@ singleQuoted = lexeme (
                         }
                       <?> "literal string")
 
-singleStrChar = quotedQuote <|> noneOf "'"
+singleStrChar = try quotedQuote <|> noneOf "'"
 
 quotedQuote = do
-    char '\\'
-    anyChar
+    string "\\'"
+    return '\''
 
