@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 9;
+plan 12;
 
 {
 	my @a = (0, 2, 4);
@@ -51,3 +51,21 @@ plan 9;
 	todo_is(~@y, ~@e, "also as ¥");
 	todo_is(~@x, ~@e, "also as Y");
 };
+
+{
+	my @a = (0, 2);
+	my @b = (1, 3, 5);
+	my @e = (0, 1, 2, 3, undef, 5);
+	
+	my @z; eval '@z = (@a ¥ @b)';
+	is(@z, @e, "bug in zipping - should use length of longest");
+}
+
+{
+	my @a;
+	my @b;
+	
+	eval '(@a ¥ @b) = (1, 2, 3, 4)';
+	todo_is(@a, (1, 3), "first half of two zipped arrays as lvalues");
+	todo_is(@b, (2, 4), "second half of the lvalue zip");
+}
