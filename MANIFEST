@@ -50,3 +50,4 @@ t/op/array.t
 t/op/split.t
 t/op/repeat.t
 t/op/eq.t
+t/op/push.t
