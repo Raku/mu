@@ -94,7 +94,7 @@ $pugs : src/Config.hs @srcfiles $version_h @prereqs
 	$ghc $threaded --make $ghc_flags $ghc_output
 
 ghci ::
-	$ghc $threaded --interactive $ghc_flags $ghc_output
+	$ghc --interactive $ghc_flags $ghc_output
 
 tags : @srcfiles
 	hasktags -c @srcfiles
