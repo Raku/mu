@@ -3,8 +3,14 @@ This is Pugs, a Perl6 implementation.
 
 Pugs is Copyright 2005 by Autrijus Tang.  All Rights Reserved.
 
+The "PCRE" subsystem is derived from PCRE 5.0 by Philip Hazel, under a
+BSD-style license.  See src/pcre/LICENCE.
+
 The "Rule" subsystem is derived from Parsec 2.0 by Daan Leijen, under a
 BSD-style license.  See src/Rule/LICENSE.
+
+The "RRegex" subsystem is derived from hsregex 0.2 by John Meacham, under a
+BSD-style license.  See src/RRegex/LICENSE.
 
 The "Unicode" subsystem is derived from Dimitry Golubovsky's work,
 under the same license as GHC.

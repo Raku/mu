@@ -1,21 +1,13 @@
-{-# OPTIONS #-}
------------------------------------------------------------------------------
--- |
--- Module      :  Text.Regex
--- Copyright   :  (c) The University of Glasgow 2001
--- License     :  BSD-style (see the file libraries/base/LICENSE)
--- 
--- Maintainer  :  libraries@haskell.org
--- Stability   :  experimental
--- Portability :  non-portable (only on platforms that provide a regex lib)
---
--- Regular expression matching.  Uses the Perl regular expression
--- interface in "RRegex.PCRE" if it is available, and the Posix one
--- otherwise.
---
------------------------------------------------------------------------------
+{-# OPTIONS -fglasgow-exts #-}
 
--- arch-tag: 6e2f705f-5f8c-45ac-89c6-09bc5a2ee53e
+{-
+    Regular expressions, based on PCRE.
+
+    A king he was on carven throne
+    In many-pillared halls of stone
+    With golden roof and silver floor,
+    And runes of power upon the door...
+-}
 
 module RRegex (
     -- * Regular expressions
