@@ -37,7 +37,8 @@ File::Spec::Win32
 
 File::Spec::VMS
 
-    - seperated POD from code, but nothing else yet
+    - done, but the CWD issue exists here too as well as 
+      dependcies for File::Basename & VMS::Filespec
 
 File::Spec::Functions
 
