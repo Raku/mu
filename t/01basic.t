@@ -6,7 +6,7 @@ This is a test file.  Whee!
 
 =cut
 
-say "1..6";
+say "1..7";
 say "ok 1 # Welcome to Pugs!";
 
 sub cool { fine($_) ~ " # We've got " ~ toys }
@@ -29,5 +29,5 @@ if (eval '(my $quux = 1) == 1)') { say "ok 6" } else {
     say "not ok 6 # TODO my returns LHS"
 }
 
-eval 'if 1 { say "ok 6" }' or say "not ok 6 # TODO if without parens"
+eval 'if 1 { say "ok 7" }' or say "not ok 7 # TODO if without parens"
 
