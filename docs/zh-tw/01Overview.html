@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html lang="zh-tw">
 <head>
   <link href="../perl.css" rel="stylesheet"
@@ -149,10 +149,10 @@ AST</a> 介面。如果有人願意協助的話，我們也可能再加入其它
 <p>在 Parsec 的強力支援下，Pugs 的解譯器很快。不過 Pugs 的求值器目前尚未最佳化：在一般 PC 上每秒約處理 1000
 個運算符，大約比 Perl 5 慢上 100 倍。這對實現雛型語言功能來說，已經夠快了；假如還不能滿足你的需要，請考慮幫忙開發編譯器後端。</p>
 <h2>有 Perl 6 模組的 CPAN 嗎？</h2>
-<p>目前 Pugs 會在 Perl 5 搜尋路徑下，以 <span style="font-family: monospace;">Perl6::lib</span>
-作為 Perl 6 程式庫名稱的前綴。好比說，<span style="font-family: monospace;">Test</span>
-模組將安裝於 Perl 5 程式庫路徑下的 <span style="font-family: monospace;">Perl6/lib/Test.pm</span>。
-這祗是權宜之計；未來應該會有更穩定的解決方案。</p>
+<p>沒有。當前發佈 Perl 6/Pugs 模組較好的方式，是交由 openfoundry.org 的提交者，將你的模組放到 Pugs 原始碼檔案庫下的 modules/ 目錄。最好能同時提供該模組的測試案例，讓我們對該模組多些了解。</p>
+
+<p>但情況也不是就那麼糟。假如你夠耐心，可以等候 <span style="font-family: monospace;">Pugs::MakeMaker</span> 和 <span style="font-family: monospace;">Module::Install::Pugs</span> 的出現。等到以上模組出現在 CPAN 上，表示我們已經解決了散佈上的問題。你就可以開始把東西丟上 CPAN 了。當然，隨時歡迎各方提供其它意見。
+</p>
 <h2>Pugs 能與 Perl 5 程式庫共用嗎？</h2>
 <p>雖然目前還不行，但我們未來可能會照 Autrijus 之前實作 <a style="font-family: monospace;"
  href="http://search.cpan.org/dist/Inline-MzScheme/">Inline::MzScheme</a>
