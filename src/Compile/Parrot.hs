@@ -75,8 +75,7 @@ compileCond _ _ = undefined
 instance Compile Exp where
     compile (Var name) = varText name
     compile (Syn "=" [var, Syn "[]" [lhs, rhs]]) = vcat $
-        [ text "$P1 =" <+> compile rhs
-        , compile var <+> text "=" <+> compile lhs <> text "[$P1]"
+        [ compile var <+> text "=" <+> compile lhs <> text "[" <> compile rhs <> text"]"
         ]
     compile (Syn "block" blocks) = vcat $ map compile blocks
     compile (Syn "=" [lhs, rhs]) = compile lhs <+> text "=" <+> compile rhs
