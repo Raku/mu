@@ -5,8 +5,7 @@ use v6;
 This is a test file.  Whee!
 
 =cut
-my $loop = 1;
-say "1..3";
+say "1..6";
 
 my $foo = "Foo";
 my $foobar = "Foo::Bar";
@@ -30,3 +29,18 @@ ok ($bar, 2);
 $bar = '';
 eval '$bar = $::($foobar)';
 ok ($bar, 3);
+$bar = undef;
+eval ' $bar = %MY::<$foo> ';
+ok ($bar, 4);
+
+my @array;
+eval ' @array = qw/"foo" "bar"/ ';
+if (@array) { say 'ok 5' } else { say 'not ok 5 # TODO' }
+
+my @array;
+eval ' @array = q:w/"foo" "bar"/ ';
+if (@array) { say 'ok 6' } else { say 'not ok 6 # TODO' }
+
+my %hash;
+eval ' %hash<Mon Tue Wed Thu Fri Sat Sun> = 1..7; ';
+if (%hash) { say 'ok 7' } else { say 'not ok 7 # TODO' }
