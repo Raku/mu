@@ -485,7 +485,7 @@ defaultHashParam    = buildParam "" "*" "%_" (Val VUndef)
 defaultScalarParam  = buildParam "" "*" "$_" (Val VUndef)
 
 data Env = Env { envContext :: Cxt
-	           , envLValue  :: Bool
+               , envLValue  :: Bool
                , envLexical :: Pad
                , envGlobal  :: IORef Pad
                , envClasses :: ClassTree

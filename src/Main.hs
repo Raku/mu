@@ -66,9 +66,7 @@ run []                          = do
 
 repLoop :: IO ()
 repLoop = do
-    defaultEnv <- prepareEnv "<interactive>" []
-    let tabulaRasa = defaultEnv--{ envDebug = Nothing }
-    env <- newIORef tabulaRasa
+    env <- tabulaRasa >>= newIORef
     fix $ \loop -> do
         command <- getCommand
         case command of
@@ -78,8 +76,12 @@ repLoop = do
             CmdDebug prog -> doDebug [] prog >> loop
             CmdParse prog -> doParse "<interactive>" prog >> loop
             CmdHelp       -> printInteractiveHelp >> loop
-            CmdReset      -> writeIORef env tabulaRasa >> loop
+            CmdReset      -> tabulaRasa >>= writeIORef env >> loop
             _             -> internalError "unimplemented command"
+    where
+    tabulaRasa = do
+        env <- prepareEnv "<interactive>" []
+        return env{ envDebug = Nothing }
 
 load _ = return ()
 
@@ -111,16 +113,16 @@ doDebug = runProgramWith id (putStrLn . pretty) "<interactive>"
 doRunSingle :: IORef Env -> String -> IO ()
 doRunSingle menv prog = doParseWith runner "<interactive>" prog
     where
-    runner exp _ = do
+    runner (Statements stmts@((_,pos):_)) _ = do
         env <- readIORef menv
-        result <- (`runReaderT` env) $ (`runContT` return) $ resetT $ do
-                        val <- evaluate exp
-                        newEnv <- ask
-                        liftIO $ writeIORef menv newEnv
-                        return val
-        env <- readIORef menv
-        putStrLn (pretty env)
-        putStrLn (pretty result)
+        val <- (`runReaderT` env) $ (`runContT` return) $ resetT $ do
+            val <- evaluate $ Statements (stmts ++ [(Syn "dump" [], pos)])
+            newEnv <- ask
+            liftIO $ writeIORef menv newEnv
+            return val
+        putStrLn $ pretty val
+    runner _ _ = do
+        putStrLn "Cannot handle things that are not statements. try `?' parhaps."
 
 doRun :: String -> [String] -> String -> IO ()
 doRun = do

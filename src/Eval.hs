@@ -175,6 +175,11 @@ reduceStatements ((exp, pos):rest)
         -- bare Block in statement level; run it!
         let app = Syn "()" [exp, Syn "invs" [], Syn "args" []]
         reduceStatements $ (app, pos):rest
+    | Syn "dump" [] <- exp
+    , null rest = \e -> do
+        Env{ envGlobal = globals, envLexical = lexicals } <- ask
+        liftIO $ modifyIORef globals (lexicals ++)
+        reduceStatements rest e
     | null rest = \_ -> do
         _   <- asks envContext
         val <- enterLex (posSyms pos) $ reduceExp exp
