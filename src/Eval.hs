@@ -68,9 +68,7 @@ evaluate :: Exp -> Eval Val
 evaluate (Val (VSub sub)) = do
     cxt <- asks envContext
     if cxt == "Void" && subType sub == SubBlock
-        then do
-            exp <- apply sub [] []
-            evalExp exp
+        then apply sub [] []
         else do
             pad <- asks envLexical
             return $ VSub sub{ subPad = pad } -- closure!
@@ -93,11 +91,10 @@ evaluate (Val val) = do
         _       -> val
 evaluate exp = do
     debug "indent" (' ':) "Evl" exp
-    exp' <- local (\e -> e{ envBody = exp }) reduce
-    debug "indent" (tail) " Ret" exp'
-    case exp' of
-        Val v       -> return v
-        otherwise   -> retError "Invalid expression" exp'
+    val <- local (\e -> e{ envBody = exp }) $ do
+        reduceExp exp
+    debug "indent" (tail) " Ret" val
+    return val
 
 evalExp :: Exp -> Eval Val
 evalExp exp = do
@@ -114,21 +111,15 @@ enterEvalContext cxt = enterContext cxt . evalExp
 
 -- Reduction ---------------------------------------------------------------
 
-reduce :: Eval Exp
-reduce = do
-    env@Env{ envBody = body } <- ask
-    doReduce env body
-
-reduceExp :: Exp -> Eval Exp
+reduceExp :: Exp -> Eval Val
 reduceExp exp = do
     env <- ask
-    doReduce env exp
+    reduce env exp
 
-retVal :: Val -> Eval Exp
-retVal val = do
-    val' <- evaluate (Val val)  -- casting
-    return $ Val val'
+retVal :: Val -> Eval Val
+retVal val = evaluate (Val val)  -- casting
 
+retError :: VStr -> Exp -> Eval a
 retError str exp = do
     shiftT $ \_ -> return $ VError str exp
 
@@ -141,13 +132,15 @@ writeMVal l (MVal r)    = writeMVal l =<< liftIO (readIORef r)
 writeMVal (MVal l) r    = liftIO $ writeIORef l r
 writeMVal x y           = error $ "Can't write a constant item" ++ show (x, y)
 
+-- readMVal (MVal mv) =  liftIO $ readIORef mv
+
 addGlobalSym sym = do
     glob <- asks envGlobal
     liftIO $ do
         syms <- readIORef glob
         writeIORef glob (sym:syms)
 
-reduceStatements :: ([Exp], Exp) -> Eval Exp
+reduceStatements :: ([Exp], Exp) -> Eval Val
 reduceStatements ([], exp) = reduceExp exp
 reduceStatements ((exp:rest), _)
     | Syn "sym" (Sym sym@(Symbol _ name (Syn "mval" [_, vexp])):other) <- exp = do
@@ -176,8 +169,8 @@ reduceStatements ((exp:rest), _)
                 reduceStatements (rest, vexp)
     | null rest = do
         cxt <- asks envContext
-        val <- evalExp exp
-        return (Val val)
+        val <- reduceExp exp
+        retVal val
     | otherwise = do
         val <- enterContext "Void" $ evalExp exp
         processVal val $ do
@@ -224,19 +217,23 @@ findVar name
                         then return globSym
                         else return Nothing
     
-doReduce :: Env -> Exp -> Eval Exp
+reduce :: Env -> Exp -> Eval Val
 
-doReduce env exp@(Val (MVal mv)) = do
+-- Reduction for mutables
+reduce env exp@(Val val@(MVal mv)) = do
     lvalue  <- asks envLValue
-    cxt            <- asks envContext -- XXX Wrong, use "is rw" trait
-    if lvalue || cxt == "LValue"
-        then return exp
+    if lvalue
+        then retVal val
         else do
-            rv <- liftIO (readIORef mv)
-            doReduce env (Val rv)
+            rv <- readMVal val
+            retVal rv
+
+-- Reduction for constants
+reduce env exp@(Val v) = do
+    return v
 
 -- Reduction for variables
-doReduce env exp@(Var name) = do
+reduce env exp@(Var name) = do
     rv <- findVar name
     case rv of
         (Just vexp) -> do
@@ -244,7 +241,7 @@ doReduce env exp@(Var name) = do
         _ -> retError ("Undefined variable " ++ name) exp
 
 -- Reduction for syntactic constructs
-doReduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
+reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
     ";" -> do
         let (global, local) = partition isGlobalExp exps
         reduceStatements (global ++ local, Val VUndef)
@@ -262,7 +259,7 @@ doReduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         vlist <- enterEvalContext "List" list
         vsub  <- enterEvalContext "Code" body
         let vals = concatMap vCast $ vCast vlist
-            runBody [] = return $ Val VUndef
+            runBody [] = retVal VUndef
             runBody (v:vs) = do
                 doApply env (vCast vsub) [] [Val v]
                 runBody vs
@@ -363,10 +360,10 @@ doReduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         let [cond, bodyIf, bodyElse] = exps
         vbool     <- enterEvalContext "Bool" cond
         if (f $ vCast vbool)
-            then doReduce env bodyIf
-            else doReduce env bodyElse
+            then reduce env bodyIf
+            else reduce env bodyElse
 
-doReduce env@Env{ envClasses = cls, envContext = cxt, envLexical = lex, envGlobal = glob } exp@(App name invs args) = do
+reduce env@Env{ envClasses = cls, envContext = cxt, envLexical = lex, envGlobal = glob } exp@(App name invs args) = do
     syms    <- liftIO $ readIORef glob
     subSyms <- mapM evalSym
         [ sym | sym <- lex ++ syms
@@ -433,8 +430,9 @@ doReduce env@Env{ envClasses = cls, envContext = cxt, envLexical = lex, envGloba
     deltaFromScalar ('*':x) = deltaFromScalar x
     deltaFromScalar x       = deltaType cls x "Scalar"
 
-doReduce env (Parens exp) = doReduce env exp
-doReduce _ other = return other
+reduce env (Parens exp) = reduce env exp
+
+reduce _ exp = retError "Invalid expression" exp
 
 -- OK... Now let's implement the hideously clever autothreading algorithm.
 -- First pass - thread thru all() and none()
@@ -460,14 +458,14 @@ applyExp bound body = do
     formal = filter (not . null . symName) $ map argNameValue bound
     argNameValue (ApplyArg name val _) = Symbol SMy name (Val val)
 
-apply :: VSub -> [Exp] -> [Exp] -> Eval Exp
+apply :: VSub -> [Exp] -> [Exp] -> Eval Val
 apply sub invs args = do
     env <- ask
     doApply env sub invs args
 
 -- XXX - faking application of lexical contexts
 -- XXX - what about defaulting that depends on a junction?
-doApply :: Env -> VSub -> [Exp] -> [Exp] -> Eval Exp
+doApply :: Env -> VSub -> [Exp] -> [Exp] -> Eval Val
 doApply env@Env{ envClasses = cls } sub@Sub{ subParams = prms, subFun = fun } invs args =
     case bindParams prms invs args of
         Left errMsg     -> retError errMsg (Val VUndef)
