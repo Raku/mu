@@ -8,11 +8,13 @@ plan 3;
 # L<S02/"Literals">
 # others will be added later, or u can do it.
 
+todo_eval_ok '
 =begin DATA
 line1
 line2
 line3
 =end DATA
+', "=begin DATA works";
 
 todo_eval_is('+@=DATA', 3, 'the @=DATA return the correct size');
 todo_eval_is('@=DATA[0]', 'line1', '@=DATA[0] is correct');
