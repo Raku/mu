@@ -48,12 +48,21 @@ ruleStandaloneBlock = tryRule "standalone block" $ do
         char '}'
         ruleWhiteSpaceLine
 
+ruleStatement = do
+    exp <- ruleExpression
+    f <- option return $ choice
+        [ rulePostConditional
+        , rulePostLoop
+        , rulePostIterate
+        ]
+    f exp
+
 ruleStatementList :: RuleParser [(Exp, SourcePos)]
 ruleStatementList = rule "statements" $ choice
     [ rulePodBlock
     , nonSep  ruleDeclaration
     , nonSep  ruleConstruct
-    , semiSep ruleExpression
+    , semiSep ruleStatement
     ]
     where
     nonSep = doSep many
@@ -375,17 +384,24 @@ ruleGivenConstruct = rule "given construct" $ fail ""
 
 -- Expressions ------------------------------------------------
 
-ruleExpression = (<?> "expression") $ do
-    exp <- parseOp
-    f <- option id $ choice
-        [ rulePostConditional
-        ]
-    return $ f exp
+ruleExpression = (<?> "expression") $ parseOp
 
 rulePostConditional = rule "postfix conditional" $ do
-    cond <- tryChoice $ map symbol ["if", "unless", "while", "until"]
+    cond <- tryChoice $ map symbol ["if", "unless"]
     exp <- ruleExpression
-    return $ \x -> Syn cond [exp, x, Val VUndef]
+    return $ \body -> retSyn cond [exp, body, Val VUndef]
+
+rulePostLoop = rule "postfix loop" $ do
+    cond <- tryChoice $ map symbol ["while", "until"]
+    exp <- ruleExpression
+    return $ \body -> retSyn cond [exp, body]
+
+rulePostIterate = rule "postfix iteration" $ do
+    cond <- tryChoice $ map symbol ["for"]
+    exp <- ruleExpression
+    return $ \body -> do
+        block <- retBlock SubBlock Nothing body
+        retSyn cond [exp, block]
 
 ruleBlockLiteral = rule "block construct" $ do
     (typ, formal) <- option (SubBlock, Nothing) $ choice
