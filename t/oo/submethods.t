@@ -15,8 +15,8 @@ my $was_in_foo_build = 0;
 my $was_in_bar_build = 0;
 
 todo_eval_ok '
-  class Foo         { submethod BUILD() { $was_in_foo_build++ } }
-  class Bar isa Foo { submethod BUILD() { $was_in_bar_build++ } }
+  class Foo        { submethod BUILD() { $was_in_foo_build++ } }
+  class Bar is Foo { submethod BUILD() { $was_in_bar_build++ } }
 ', "class definitions were parsed/run/compiled";
 
 todo_eval_ok 'my $a = Foo.new()',  "Foo.new() worked (1)";

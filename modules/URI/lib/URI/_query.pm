@@ -1,6 +1,6 @@
 use v6;
 
-class URI::_query isa URI trusts URI {
+class URI::_query is URI {
   use URI::Escape <uri_unescape>;
 
   method query() {

@@ -1,5 +1,5 @@
 module Algorithm::MarkovChain-0.06;
-class Algorithm::MarkovChain isa Algorithm::MarkovChain::Base;
+class Algorithm::MarkovChain is Algorithm::MarkovChain::Base;
 use v6;
 
 # XXX -- correct?
@@ -30,7 +30,6 @@ method longest_sequence() {
 
   return $l;
 }
-
 
 method sequence_known(Array $sequence) { %:chains{$sequence} }
 

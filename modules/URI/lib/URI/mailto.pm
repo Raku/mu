@@ -1,6 +1,6 @@
 use v6;
 
-class URI::mailto isa URI::_query trusts URI { # RFC 2368
+class URI::mailto is URI::_query { # RFC 2368
   method to() {
     my @old = .headers;
 

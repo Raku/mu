@@ -1,6 +1,6 @@
 use v6;
 
-class URI::news isa URI::_server trusts URI {
+class URI::news is URI::_server {
   # draft-gilman-news-url-01
 
   use URI::Escape <uri_unescape>;

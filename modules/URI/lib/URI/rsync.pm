@@ -1,6 +1,6 @@
 use v6;
 
-class URI::rsync isa URI::_server isa URI::_userpass trusts URI {
+class URI::rsync is URI::_server is URI::_userpass {
   # http://rsync.samba.org/
 
   # rsync://[USER@]HOST[:PORT]/SRC

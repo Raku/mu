@@ -1,6 +1,6 @@
 use v6;
 
-class URI::_generic isa URI isa URI::_query trusts URI {
+class URI::_generic is URI isa URI::_query {
   use URI::Escape <uri_unescape>;
 
   # XXX?

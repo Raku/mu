@@ -1,6 +1,6 @@
 use v6;
 
-class URI::http isa URI::_server trusts URI {
+class URI::http is URI::_server {
   method default_port() { 80 }
 
   method canonical() {

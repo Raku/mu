@@ -5,7 +5,7 @@ module URI::ldap-1.11;
 # Copyright (c) 1998 Graham Barr <gbarr@pobox.com>. All rights reserved.
 # This program is free software; you can redistribute it and/or
 # modify it under the same terms as Perl itself.
-class URI::ldap isa URI::_ldap isa URI::_server trusts URI {
+class URI::ldap is URI::_ldap is URI::_server {
   method default_port() { 389 }
 
   method :nonldap_canonical() { .URI::_server::canonical }

@@ -1,6 +1,6 @@
 use v6;
 
-class URI::data isa URI { # RFC 2397
+class URI::data is URI { # RFC 2397
   use MIME::Base64 <encode_base64 decode_base64>;
   use URI::Escape  <uri_unescape>;
 

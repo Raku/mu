@@ -1,6 +1,6 @@
 use v6;
 
-class URI::sips isa URI::sip trusts URI {
+class URI::sips is URI::sip {
   method default_port() { 5061 }
 }
 

@@ -1,6 +1,6 @@
 use v6;
 
-class URI::_server isa URI::_generic trusts URI {
+class URI::_server is URI::_generic {
   method userinfo() is rw {
     my $old = .authority;
 

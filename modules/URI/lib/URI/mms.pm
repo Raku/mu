@@ -1,6 +1,6 @@
 use v6;
 
-class URI::mms isa URI::http trusts URI {
+class URI::mms is URI::http {
   method default_port() { 1755 }
 }
 

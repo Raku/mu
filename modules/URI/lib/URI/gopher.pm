@@ -1,6 +1,6 @@
 use v6;
 
-class URI::gopher isa URI::_server trusts URI {
+class URI::gopher is URI::_server {
   # <draft-murali-url-gopher>, Dec 4, 1996
 
   use URI::Escape <uri_unescape>;

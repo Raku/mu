@@ -1,6 +1,6 @@
 use v6;
 
-class URI::https isa URI::http trusts URI {
+class URI::https is URI::http {
   method default_port() { 443 }
 }
 

@@ -1,6 +1,6 @@
 use v6;
 
-class URI::ftp isa URI::_server isa URI::_userpass trusts URI {
+class URI::ftp is URI::_server is URI::_userpass {
   method default_port() { 21 }
 
   &path ::= &path_query;   # XXX

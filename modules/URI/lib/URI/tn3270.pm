@@ -1,6 +1,6 @@
 use v6;
 
-class URI::tn3270 isa URI::_login trusts URI {
+class URI::tn3270 is URI::_login {
   method default_port() { 23 }
 }
 

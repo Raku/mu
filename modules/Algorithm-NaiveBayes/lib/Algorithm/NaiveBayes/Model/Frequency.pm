@@ -1,5 +1,5 @@
 module Algorithm::NaiveBayes::Model::Frequency-0.03;
-class Algorithm::NaiveBayes::Model::Frequency isa Algorithm::NaiveBayes;
+class Algorithm::NaiveBayes::Model::Frequency is Algorithm::NaiveBayes;
 use v6;
 
 use Algorithm::NaiveBayes::Util <sum_hash add_hash max rescale>;

@@ -1,6 +1,6 @@
 use v6;
 
-class URI::nttp isa URI::news trusts URI {
+class URI::nttp is URI::news {
   # draft-gilman-news-url-01
 }
 

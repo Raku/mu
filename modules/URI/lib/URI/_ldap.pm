@@ -5,7 +5,7 @@ moulde URI::_ldap-1.10;
 # Copyright (c) 1998 Graham Barr <gbarr@pobox.com>. All rights reserved.
 # This program is free software; you can redistribute it and/or
 # modify it under the same terms as Perl itself.
-class URI::_ldap isa URI trusts URI {
+class URI::_ldap is URI {
   use URI::Escape <uri_unescape>;
 
   method :ldap_elem($elem) is rw {

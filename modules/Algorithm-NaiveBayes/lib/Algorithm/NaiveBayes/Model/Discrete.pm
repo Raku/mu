@@ -1,5 +1,5 @@
 module Algorithm::NaiveBayes::Model::Discrete-0.03;
-class Algorithm::NaiveBayes::Model::Discrete isa Algorithm::NaiveBayes;
+class Algorithm::NaiveBayes::Model::Discrete is Algorithm::NaiveBayes;
 use v6;
 
 use Algorithm::NaiveBayes::Util <rescale>;

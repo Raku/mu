@@ -1,6 +1,6 @@
 use v6;
 
-class URI::rtspu isa URI::rtsp trusts URI {
+class URI::rtspu is URI::rtsp {
   method default_port() { 554 }
 }
 

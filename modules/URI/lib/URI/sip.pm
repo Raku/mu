@@ -6,7 +6,7 @@ module URI::sip-0.10;
 # distributed under the same terms as Perl itself.
 #
 # The RFC 3261 sip URI is <scheme>:<authority>;<params>?<query>.
-class URI::sip isa URI::_server isa URI::_userpass trusts URI {
+class URI::sip is URI::_server is URI::_userpass {
   use URI::Escape <uri_unescape>;
 
   method default_port() { 5060 }

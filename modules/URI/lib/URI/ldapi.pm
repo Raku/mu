@@ -1,6 +1,6 @@
 use v6;
 
-class URI::ldapi isa URI::_ldap isa URI::_generic trusts URI {
+class URI::ldapi is URI::_ldap is URI::_generic {
   use URI::Escape;
 
   method un_path() is rw {

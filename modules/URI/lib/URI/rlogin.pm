@@ -1,6 +1,6 @@
 use v6;
 
-class URI::rlogin isa URI::_login trusts URI {
+class URI::rlogin is URI::_login {
   method default_port() { 513 }
 }
 

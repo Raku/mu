@@ -1,6 +1,6 @@
 use v6;
 
-class URI::_login isa URI::_server isa URI::_userpass trusts URI {
+class URI::_login is URI::_server is URI::_userpass {
   # Generic terminal logins.  This is used as a base class for 'telnet',
   # 'tn3270', and 'rlogin' URL schemes.
 }

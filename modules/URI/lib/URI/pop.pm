@@ -1,6 +1,6 @@
 use v6;
 
-class URI::pop isa URI::_server trusts URI { # RFC 2384
+class URI::pop is URI::_server { # RFC 2384
   use URI::Escape <uri_unescape>;
 
   method default_port() { 110 }

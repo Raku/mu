@@ -1,5 +1,5 @@
 module URI::Find::Schemeless-1.8;
-class URI::Find::Schemeless isa URI::Find;
+class URI::Find::Schemeless is URI::Find;
 use v6;
 
 # $Id: Schemeless.pm,v 1.8 2005/03/22 16:03:11 roderick Exp $

@@ -1,6 +1,6 @@
 use v6;
 
-class URI::ldaps isa URI::ldap trusts URI {
+class URI::ldaps is URI::ldap {
   method default_port() { 636 }
 }
 
