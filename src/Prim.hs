@@ -576,9 +576,15 @@ foldParam "List"    = doFoldParam "List" "*@?1"
 foldParam ('r':'w':'!':"List") = \ps -> ((buildParam "List" "" "@?0" (Val VUndef)) { isLValue = True }:ps)
 foldParam ('r':'w':'!':str) = \ps -> ((buildParam str "" "$?1" (Val VUndef)) { isLValue = True }:ps)
 foldParam ""        = id
-foldParam ('?':str) = \ps -> (buildParam "Num" "?" "$?1" (Val $ VNum (read def)):ps)
-    where
-    (_, ('=':def)) = break (== '=') str
+foldParam ('?':str)
+    | (typ, ('=':def)) <- break (== '=') str
+    = let readVal "Num" = Val . VNum . read
+          readVal "Int" = Val . VInt . read
+          readVal "Str" = Val . VStr . read
+          readVal x	= error $ "Unknown type: " ++ x
+      in \ps -> (buildParam typ "?" "$?1" (readVal typ def):ps)
+    | otherwise
+    = \ps -> (buildParam str "?" "$?1" (Val VUndef):ps)
 foldParam ('~':str) = \ps -> ((buildParam str "" "$?1" (Val VUndef)) { isThunk = True }:ps)
 foldParam x         = doFoldParam x []
 
