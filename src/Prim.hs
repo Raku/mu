@@ -208,6 +208,20 @@ op2 "err"= op2 "//"
 op2 "nor"= op2 "!!"
 op2 "grep"= op2Grep
 op2 "map"= op2Map
+op2 "split"= \x y -> return $ split (vCast x) (vCast y)
+    where
+    split :: VStr -> VStr -> Val
+    split [] xs = VList $ map (VStr . (:[])) xs
+    split glue xs = VList $ map VStr $ split' xs
+	where
+	split' [] = []
+	split' xs = piece : split' (dropGlue rest)
+	    where (piece, rest) = breakOnGlue glue xs
+	dropGlue = drop (length glue)
+    breakOnGlue _ [] = ([],[])
+    breakOnGlue glue rest@(x:xs)
+	| glue `isPrefixOf` rest = ([], rest)
+	| otherwise = (x:piece, rest') where (piece, rest') = breakOnGlue glue xs
 op2 s    = \x y -> return $ VError ("unimplemented binaryOp: " ++ s) (App s [] [Val x, Val y])
 
 op2Grep list sub@(VSub _) = op2Grep sub list
@@ -401,6 +415,7 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Bool      pre     mkdir   (Str)\
 \\n   Bool      pre     chdir   (Str)\
 \\n   Bool      pre     rename  (Str, Str)\
+\\n   List      pre     split   (Str, Str)\
 \\n   Str       pre     =       (IO)\
 \\n   List      pre     =       (IO)\
 \\n   Junction  list    |       (List)\
