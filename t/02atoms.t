@@ -6,6 +6,8 @@ This is a test file.  Whee!
 
 =cut
 
+say "1..1";
+
 my $foo = "Foo";
 my $foobar = "Foo::Bar";
 my $bar;
@@ -13,7 +15,8 @@ my $bar;
 eval '$bar = $::($foo)';
 
 if ($bar) {
-    print "ok 1 # bar = " ~ $bar;
+    say "ok 1 # TODO bar = " ~ $bar;
 }
-    
-
+else {
+    say "not ok 1 # TODO"
+}
