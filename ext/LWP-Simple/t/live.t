@@ -13,7 +13,7 @@ my @urls = <
 >;
 
 my @live_urls;
-if (%ENV{"PUGS_TESTS_ALLOW_NETWORK"}) {
+if (%*ENV{"PUGS_TESTS_ALLOW_NETWORK"}) {
 # Need to get some easily validated stuff here
   @live_urls = <
     http://www.corion.net
@@ -90,7 +90,7 @@ for @urls -> $t_url {
   # TODO: Uncomment once length() is implemented
   # is( length($res), length($expected), "The response has the correct length");
   # TODO: Add a check against Content-Length, once it's implemented
-  
+
   is( $res, $expected, "Got the correct response");
 
   diag "Storing $url to $tempfile";
@@ -120,7 +120,7 @@ for @live_urls -> $url {
   # TODO: Uncomment once length() is implemented
   # is( length($res), length($expected), "The response has the correct length");
   # TODO: Add a check against Content-Length, once it's implemented
-  
+
   diag "Storing $url to $tempfile";
   my $f = getstore($url,$tempfile);
   my $buf = slurp $tempfile;

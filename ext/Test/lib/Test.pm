@@ -153,6 +153,12 @@ sub skip (Str ?$reason) returns Bool is export {
     proclaim(1, "", "skip $reason");
 }
 
+sub skip (Int $count, Str $reason) returns Bool is export {
+  for (1..$count) {
+    skip $reason;
+  };
+};
+
 sub pass (Str ?$desc) returns Bool is export {
     proclaim(1, $desc);
 }
@@ -181,7 +187,7 @@ sub diag (Str $diag) is export {
 sub proclaim (Bool $cond, Str ?$desc, Str ?$c, Str ?$got, Str ?$expected) returns Bool {
     my $context = $c; # no C<is rw> yet
     $loop++;
-    
+
     # Check if we have to forcetodo this test because we're preparing for a
     # release.
     $context = "TODO" if @forcetodo_tests[$loop];
@@ -421,6 +427,7 @@ information.
 == Misc. Functions
 
 - `skip (Str ?$reason) returns Bool`
+- `skip (Int $count, Str ?$reason) returns Bool`
 
 If for some reason a test is to be skipped, you can use this
 function to do so.
