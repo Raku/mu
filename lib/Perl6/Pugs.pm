@@ -5,7 +5,7 @@ use strict;
 
 =head1 NAME
 
-Perl6::Pugs - Perl6 User's Golfing System
+Perl6::Pugs - A Perl6 Interpreter
 
 =head1 VERSION
 
