@@ -42,7 +42,7 @@ data MetaClass = MetaClass
     , clsMethods    :: Map Label (Visibility, MetaMethod)
     --, clsAssocs     :: Map Label MetaAssoc
     --, clsRevAssocs  :: Map Label MetaAssoc
-    , clsCats       :: Map Label (Visibility, MetaCategory)
+    , clsCats       :: Map Label (Visibility, MetaAssoc)
     }
 
 {-
@@ -81,9 +81,9 @@ data MetaAssoc = MetaAssoc
     This is a bit like an association, but easier to deal with for
     writing proofs.
 -}
-data MetaCategory = MetaCategory
+data MetaAssoc = MetaAssoc
     { catClass       :: MetaClass
-    , catPair        :: MetaCategory
+    , catPair        :: MetaAssoc
     , catRange       :: Range
     , catIsComposite :: Bool        -- if you kill this, its children
                                     -- makes no sense to live either
@@ -94,18 +94,18 @@ data MetaCategory = MetaCategory
 
 {-
 
-    ∃ MetaClass A, MetaCategory C : A.clsCats ∋ C ↔ C.catClass = A
+    ∃ MetaClass A, MetaAssoc C : A.clsCats ∋ C ↔ C.catClass = A
 
-    ∃ MetaCategory C₁, C₂ : C₁.catPair = C₂ ↔ C₂.catPair = C₁
+    ∃ MetaAssoc C₁, C₂ : C₁.catPair = C₂ ↔ C₂.catPair = C₁
 
     -- can't be composite both ways
 
-    ∃ MetaCategory C₁, C₂ : C₁.catPair = C₂ ∧ C₁.catIsComposite
+    ∃ MetaAssoc C₁, C₂ : C₁.catPair = C₂ ∧ C₁.catIsComposite
          → ¬(C₂.catIsComposite)
 
     -- this seems the simplest way to specify complementary categories
 
-    ∃ MetaCategory C₁, C₂, MetaClass M₁, M₂
+    ∃ MetaAssoc C₁, C₂, MetaClass M₁, M₂
        : C₁.catPair = C₂ ∧ C₁.catClass = M₁ ∧ C₂.catClass = M₂
        → (   ∃ M₁.clsCats{C₂.catCompanion}
            ∧ ∃ M₂.clsCats{C₁.catCompanion}
@@ -177,11 +177,11 @@ data Type = Int | Str
   -- Package->maybe_has_one("pkgParent" => Package)
   Package.clsCats =
 	{ pkgChildren = 
-              (Public, MetaCategory
+              (Public, MetaAssoc
                 { catIsComposite = true,
                   catRange = (Zero, One),
                   catCompanion = "pkgParent",
-                  catPair = MetaCategory {
+                  catPair = MetaAssoc {
                      catClass = Package,
                      catRange = (Zero, Many),
                   },
@@ -217,12 +217,12 @@ data Type = Int | Str
 	}
 
   Module.clsAssocs =
-	{ modTraits = (Public, MetaCategory
+	{ modTraits = (Public, MetaAssoc
                       { catIsComposite = true,
                         catRange = (Zero, Many),
                         catCompanion = "pkgParent",
                         catKeyed = true,
-                        catPair = MetaCategory
+                        catPair = MetaAssoc
                                    ( { catClass = PkgTrait,
                                        catRange = (One, One) } ),
                       })
@@ -230,19 +230,19 @@ data Type = Int | Str
   
   Class := MetaClass where clsName = "Class"
   Class.clsAssocs =
-        { isa = (Public, MetaCategory
+        { isa = (Public, MetaAssoc
                          { catOrdered = true,
                            catRange = (Zero, Many),
                            catCompanion = "subClasses",
-                           catPair = MetaCategory
+                           catPair = MetaAssoc
                                      { catRange = (Zero, Many),
                                        catClass = Class }
                          }),
-          methods = (Public, MetaCategory
+          methods = (Public, MetaAssoc
                              { catKeyed = true,
                                catRange = (Zero, Many),
                                catCompanion = "Class",
-                               catPair = MetaCategory
+                               catPair = MetaAssoc
                                          { catRange = (One, One),
                                            catClass = Method
                                          } }),
