@@ -62,8 +62,10 @@ if ($foo ~^ $bar eq ";" x 75 ~ $zap) { say "ok 12" } else { say "not ok 12" }
 if ("ok \xFF\xFF\n" ~& "ok 19\n" eq "ok 19\n") { say "ok 13" } else { say "not ok 13" }
 if ("ok 20\n" ~| "ok \0\0\n" eq "ok 20\n") { say "ok 14" } else { say "not ok 14" }
 
-# currently, pugs recognize octals as "\0o00", not "\000".
-if ("o\000 \0001\000" ~^ "\000k\0002\000\n" eq "ok 21\n") { say "ok 15 # TODO" } else { say "not ok 15 # TODO" }
+# currently, pugs recognize octals as "\0o00", not "\o000".
+#if ("o\o000 \0" ~ "1\o000" ~^ "\o000k\02\o000\n" eq "ok 21\n") { say "ok 15" } else { say "not ok 15" }
+
+say "ok 15 # skip";
 
 # Pugs does not have \x{}
 

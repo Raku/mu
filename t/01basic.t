@@ -6,7 +6,7 @@ Basic tests.
 
 =cut
 
-say "1..13";
+say "1..14";
 say "ok 1 # Welcome to Pugs!";
 
 sub cool { fine($_) ~ " # We've got " ~ toys }
@@ -43,3 +43,5 @@ if ($nexttest == 10) { say "ok 11" } else { say "not ok 11 # TODO next" }
 
 print "ok ";
 if (eval '12.print') { say "\nok 13" } else { say "\nnot ok 13 # TODO 5.say" }
+
+if (!eval 'say(1 ?? "ok 14" :: "Bail out!")') { say "not ok 14" }
