@@ -25,7 +25,6 @@ op0 "!"  = return . VJunc . Junc JNone Set.empty . Set.fromList
 op0 "&"  = return . opJuncAll
 op0 "^"  = return . opJuncOne
 op0 "|"  = return . opJuncAny
-op0 "undef" = const $ return VUndef
 op0 "time"  = const $ do
     clkt <- liftIO getClockTime
     return $ VInt $ toInteger $ tdSec $ diffClockTimes clkt epochClkT
@@ -73,7 +72,8 @@ op1 "uc" = return . VStr . (map toUpper) . vCast
 op1 "ucfirst" = return . VStr .
                 (\x -> case x of { (a:as) -> toUpper a : as ; a -> a}) . vCast
 op1 "undef" = \mv -> do
-    liftIO $ writeIORef (vCast mv) $ VUndef
+    unless (isNothing $ vCast mv) $ do
+        liftIO $ writeIORef (vCast mv) $ VUndef
     return VUndef
 op1 "+"    = return . op1Numeric id
 op1 "abs"  = return . op1Numeric abs
@@ -972,8 +972,7 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Ref       spre    \\      (Scalar)\
 \\n   List      post    ...     (Str)\
 \\n   List      post    ...     (Scalar)\
-\\n   Any       pre     undef   ()\
-\\n   Any       pre     undef   (?rw!Any=$_)\
+\\n   Any       pre     undef   (?rw!Any)\
 \\n   Str       pre     chop    (?rw!Str=$_)\
 \\n   Str       pre     chomp   (?rw!Str=$_)\
 \\n   Int       pre     index   (Str, Str, ?Int=0)\

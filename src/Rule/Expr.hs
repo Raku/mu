@@ -28,10 +28,13 @@ import Rule.Combinator
 data Assoc                = AssocNone 
                           | AssocLeft
                           | AssocRight
+                          | AssocList
+                          | AssocChain
                         
 data Operator t st a      = Infix (GenParser t st (a -> a -> a)) Assoc
                           | Prefix (GenParser t st (a -> a))
                           | Postfix (GenParser t st (a -> a))
+                          | OptionalPrefix (GenParser t st (a -> a))
 
 type OperatorTable t st a = [[Operator t st a]]
 
@@ -41,20 +44,21 @@ type OperatorTable t st a = [[Operator t st a]]
 -- Convert an OperatorTable and basic term parser into
 -- a full fledged expression parser
 -----------------------------------------------------------
-buildExpressionParser :: OperatorTable tok st a -> GenParser tok st a -> GenParser tok st a
-buildExpressionParser operators simpleExpr
+buildExpressionParser :: OperatorTable tok st a -> GenParser tok st a -> a -> GenParser tok st a
+buildExpressionParser operators simpleExpr defaultExpr
     = foldl (makeParser) simpleExpr operators
     where
       makeParser term ops
         = let (rassoc,lassoc,nassoc
-               ,prefix,postfix)      = foldr splitOp ([],[],[],[],[]) ops
+               ,prefix,postfix,optPrefix) = foldr splitOp ([],[],[],[],[],[]) ops
               
               rassocOp   = choice rassoc
               lassocOp   = choice lassoc
               nassocOp   = choice nassoc
-              prefixOp   = choice prefix  <?> ""
+              prefixOp   = choice prefix <?> ""
               postfixOp  = choice postfix <?> ""
-              
+              optPrefixOp= choice optPrefix <?> ""
+
               ambigious assoc op= try $
                                   do{ op; fail ("ambiguous use of a " ++ assoc 
                                                  ++ " associative operator")
@@ -63,17 +67,20 @@ buildExpressionParser operators simpleExpr
               ambigiousRight    = ambigious "right" rassocOp
               ambigiousLeft     = ambigious "left" lassocOp
               ambigiousNon      = ambigious "non" nassocOp 
+
+              foldOp = foldr (.) id
               
-              termP      = do{ pre  <- prefixP
-                             ; x    <- term     
-                             ; post <- postfixP
-                             ; return (post (pre x))
-                             }
+              termP = do
+                pres    <- many $ (return . Left =<< prefixOp) <|> (return . Right =<< optPrefixOp)
+                -- ok. here we do this trick thing
+                x <- if null pres
+                    then term
+                    else case last pres of
+                        Left _ -> term
+                        _ -> option defaultExpr term
+                posts   <- many postfixOp
+                return $ foldOp posts $ foldOp (map (either id id) pres) x
               
-              postfixP   = postfixOp <|> return id
-              
-              prefixP    = prefixOp <|> return id
-                                         
               rassocP x  = do{ f <- rassocOp
                              ; y  <- do{ z <- termP; rassocP1 z }
                              ; return (f x y)
@@ -109,15 +116,19 @@ buildExpressionParser operators simpleExpr
                  }
                 
 
-      splitOp (Infix op assoc) (rassoc,lassoc,nassoc,prefix,postfix)
+      splitOp (Infix op assoc) (rassoc,lassoc,nassoc,prefix,postfix,optPrefix)
         = case assoc of
-            AssocNone  -> (rassoc,lassoc,op:nassoc,prefix,postfix)
-            AssocLeft  -> (rassoc,op:lassoc,nassoc,prefix,postfix)
-            AssocRight -> (op:rassoc,lassoc,nassoc,prefix,postfix)
+            AssocNone  -> (rassoc,lassoc,op:nassoc,prefix,postfix,optPrefix)
+            AssocLeft  -> (rassoc,op:lassoc,nassoc,prefix,postfix,optPrefix)
+            AssocRight -> (op:rassoc,lassoc,nassoc,prefix,postfix,optPrefix)
+            _          -> error "splitOp: unimplemented assoc type."
+            -- FIXME: add two new assoc types here.
             
-      splitOp (Prefix op) (rassoc,lassoc,nassoc,prefix,postfix)
-        = (rassoc,lassoc,nassoc,op:prefix,postfix)
+      splitOp (Prefix op) (rassoc,lassoc,nassoc,prefix,postfix,optPrefix)
+        = (rassoc,lassoc,nassoc,op:prefix,postfix,optPrefix)
         
-      splitOp (Postfix op) (rassoc,lassoc,nassoc,prefix,postfix)
-        = (rassoc,lassoc,nassoc,prefix,op:postfix)
+      splitOp (Postfix op) (rassoc,lassoc,nassoc,prefix,postfix,optPrefix)
+        = (rassoc,lassoc,nassoc,prefix,op:postfix,optPrefix)
 
+      splitOp (OptionalPrefix op) (rassoc,lassoc,nassoc,prefix,postfix,optPrefix)
+        = (rassoc,lassoc,nassoc,prefix,postfix,op:optPrefix)

@@ -16,6 +16,7 @@ import AST
 import Help
 import Lexer
 import Rule
+import Rule.Expr
 import Rule.Error
 
 -- Lexical units --------------------------------------------------
@@ -541,7 +542,7 @@ ruleBlockFormalPointy = rule "pointy block parameters" $ do
 -- Not yet transcribed ------------------------------------------------
 
 tightOperators = do
-  unary <- currentUnaryFunctions
+  (optionary, unary) <- currentUnaryFunctions
   return $
     [ methOps  " . .+ .? .* .+ .() .[] .{} .<<>> .= "   -- Method postfix
     , postOps  " ++ -- " ++ preOps " ++ -- "            -- Auto-Increment
@@ -556,7 +557,7 @@ tightOperators = do
     , leftOps  " »+« >>+<< + - ~ +| +^ ~| ~^ ?| "       -- Additive
     , listOps  " & ! "                                  -- Junctive And
     , listOps  " ^ | "                                  -- Junctive Or
-    , preOps   unary                                    -- Named Unary
+    , optOps optionary, preOps unary                    -- Named Unary
     , noneOps  " is but does "                          -- Traits
       ++ rightOps " => "                                -- Pair constructor
       ++ noneOps " cmp <=> .. ^.. ..^ ^..^ "            -- Non-chaining Binary
@@ -601,16 +602,18 @@ currentFunctions = do
 
 currentUnaryFunctions = do
     funs <- currentFunctions
-    return . unwords . sort $ [
-        encodeUTF8 name | f@(SymVal _ _ (VSub sub)) <- funs
+    return . mapPair munge . partition fst . sort $
+        [ (opt, encodeUTF8 name) | f@(SymVal _ _ (VSub sub)) <- funs
         , subAssoc sub == "pre"
         , length (subParams sub) == 1
         , let param = head $ subParams sub
+        , let opt   = isOptional param
+        , let name  = parseName $ symName f
         , not $ isSlurpy param
-        , not $ isOptional param
-        , let name = parseName $ symName f
-        , name /= "undef" -- XXX Wrong
         ]
+    where
+    munge = unwords . map snd
+    mapPair f (x, y) = (f x, f y)
 
 parseName str
     | (_, (_:name)) <- break (== ':') str
@@ -634,11 +637,11 @@ currentListFunctions = do
 
 parseOp = do
     ops <- operators
-    buildExpressionParser ops parseTerm
+    buildExpressionParser ops parseTerm (Syn "" [])
 
 parseTightOp = do
     ops <- tightOperators
-    buildExpressionParser ops parseTerm
+    buildExpressionParser ops parseTerm (Syn "" [])
 
 ops f s = [f n | n <- sortBy revLength (words $ decodeUTF8 s)]
     where
@@ -649,6 +652,7 @@ doApp str args = App str args []
 preSyn      = ops $ makeOp1 Prefix "" Syn
 preOps      = ops $ makeOp1 Prefix "&prefix:" doApp
 postOps     = ops $ makeOp1 Postfix "&postfix:" doApp
+optOps      = ops $ makeOp1 OptionalPrefix "&prefix:" doApp
 leftOps     = ops $ makeOp2 AssocLeft "&infix:" doApp
 rightOps    = ops $ makeOp2 AssocRight "&infix:" doApp
 noneOps     = ops $ makeOp2 AssocNone "&infix:" doApp
@@ -663,7 +667,9 @@ chainSyn    = leftSyn
 
 makeOp1 prec sigil con name = prec $ do
     symbol name
-    return $ \x -> con fullName [x]
+    return $ \x -> con fullName $ case x of
+        Syn "" []   -> []
+        _           -> [x]
     where
     fullName
         | isAlpha (head name)
