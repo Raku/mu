@@ -32,6 +32,42 @@ sub is (Str $got, Str $expected, Str ?$desc) returns Bool is export {
     proclaim($test, $desc, undef, $got, $expected);
 }
 
+sub eval_ok (Str $code, Str ?$desc) returns Bool is export {
+	my $result = eval $code;
+	if ($!) {
+		proclaim(undef, $desc, undef, "eval was fatal");
+	} else {
+		&ok.goto($result, $desc);
+	}
+}
+
+sub todo_eval_ok (Str $code, Str ?$desc) returns Bool is export {
+	my $result = eval $code;
+	if ($!) {
+		proclaim(undef, $desc, "TODO", "eval was fatal");
+	} else {
+		&todo_ok.goto($result, $desc);
+	}
+}
+
+sub eval_is (Str $code, $expected, Str ?$desc) returns Bool is export {
+	my $result = eval $code;
+	if ($!) {
+		proclaim(undef, $desc, undef, "eval was fatal", $expected);
+	} else {
+		&is.goto($result, $expected, $desc);
+	}
+}
+
+sub todo_eval_is (Str $code, $expected, Str ?$desc) returns Bool is export {
+	my $result = eval $code;
+	if ($!) {
+		proclaim(undef, $desc, "TODO", "was fatal", $expected);
+	} else {
+		&todo_is.goto($result, $expected, $desc);
+	}
+}
+
 sub cmp_ok (Str $got, Code $compare_func, Str $expected, Str ?$desc) returns Bool is export {
     my $test := $compare_func($got, $expected);
     proclaim($test, $desc, undef); # << needs better error message handling
@@ -189,6 +225,13 @@ This function currently on checks with ref() since we do not yet have
 object support. Once object support is created, we will add it here, and 
 maintain backwards compatibility as well.
 
+- `eval_ok (Str $code, Str ?$desc) returns Bool`
+
+- `eval_is (Str $code, $expected, Str ?$desc) returns Bool`
+
+These functions will eval a code snippet, and then pass the result to is or ok
+on success, or report that the eval was not successful on failure.
+
 == TODO Testing functions
 
 Sometimes a test is broken because something is not implemented yet. So 
@@ -203,6 +246,10 @@ functions.
 - `todo_cmp_ok (Str $got, Code $compare_func, Str $expected, Str ?$desc) returns Bool`
 
 - `todo_isa_ok ($ref, Str $expected_type, Str ?$desc) returns Bool`
+
+- `todo_eval_ok (Str $code, Str ?$desc) returns Bool`
+
+- `todo_eval_is (Str $code, $expected, Str ?$desc) returns Bool`
 
 == Misc. Functions
 
@@ -297,6 +344,8 @@ Stevan Little <stevan@iinteractive.com>
 Brian Ingerson <ingy@cpan.org>
 
 Jesse Vincent <jesse@bestpractical.com>
+
+Yuval Kogman <nothingmuch@woobling.org>
 
 = COPYRIGHT
 
