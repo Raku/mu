@@ -19,6 +19,7 @@ genGHC exp = runQ [d| mainCC = runComp $(compile exp) |] >>= \str -> return . un
     , showTH str
     ]
 
+compile (App op [inv] []) = compile (App op [] [inv])
 compile (App ('&':op) [] [arg]) = [| do
         val <- $(argC)
         op1 op val

@@ -105,7 +105,7 @@ if ($run) {
         system("parrot" => $out) == 0 or die $!;
     }
     else {
-        exec $out;
+        system($out) == 0 or die $!;
     }
 }
 else {
