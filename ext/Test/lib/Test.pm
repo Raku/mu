@@ -54,9 +54,9 @@ sub todo_is (Str $got, Str $expected, Str ?$desc) returns Bool is export {
     my $test = $got eq $expected;
     proclaim($test, $desc, "TODO");
     if (!$test) {
-        diag("#     Failed (TODO) test ($?CALLER::POSITION)");
-        diag("#          got: '$got'");
-        diag("#     expected: '$expected'");
+        diag("    Failed (TODO) test ($?CALLER::POSITION)");
+        diag("         got: '$got'");
+        diag("    expected: '$expected'");
     }
     return $test;
 }
@@ -73,13 +73,13 @@ sub pass (Str ?$desc) returns Bool is export {
 
 sub fail (Str ?$desc) returns Bool is export {
     proclaim(0, $desc);
-    diag("#     Failed test ($?CALLER::POSITION)");
+    diag("    Failed test ($?CALLER::POSITION)");
     return 0;
 }
 
 sub todo_fail (Str ?$desc) returns Bool is export {
     proclaim(0, $desc, 'TODO');
-    diag("#     Failed (TODO) test ($?CALLER::POSITION)");
+    diag("    Failed (TODO) test ($?CALLER::POSITION)");
     return 0;
 }
 
