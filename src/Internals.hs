@@ -50,7 +50,7 @@ module Internals (
 import Cont
 import Posix
 import Data.Dynamic
-import System.Environment
+import System.Environment (getArgs, withArgs)
 import System.Random hiding (split)
 import System.Exit
 import System.Time
