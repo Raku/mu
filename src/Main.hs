@@ -98,15 +98,15 @@ runFile :: String -> IO ()
 runFile file = do
     withArgs [file] main
 
-runProgramWith :: (Env -> Env) -> (Val -> IO ()) -> VStr -> [VStr] -> String -> IO ()
+runProgramWith :: 
+    (Env -> Env) -> (Val -> IO ()) -> VStr -> [VStr] -> String -> IO ()
 runProgramWith fenv f name args prog = do
     environ <- getEnvironment
     let envFM = listToFM $ [ (VStr k, VStr v) | (k, v) <- environ ]
-        p6lib = maybeToList $ lookup "PERL6LIB" environ
-    p5libs  <- mapM fixLib $ catMaybes [lookup "PERL5LIB" environ, lookup "PERLLIB" environ]
+    libs    <- getLibs environ
     progSV  <- newMVal $ VStr name
     endAV   <- newMVal $ VList []
-    incAV   <- newMVal $ VList (map VStr $ p6lib ++ concat p5libs ++ incs)
+    incAV   <- newMVal $ VList (map VStr $ concat libs)
     argsAV  <- newMVal $ VList (map VStr args)
     inGV    <- newMVal $ VHandle stdin
     outGV   <- newMVal $ VHandle stdout
@@ -122,67 +122,46 @@ runProgramWith fenv f name args prog = do
         , Symbol SGlobal "$*ERR"        $ Val errGV
         , Symbol SGlobal "$!"           $ Val errSV
         , Symbol SGlobal "%*ENV" (Val . VHash . MkHash $ envFM)
-        , Symbol SGlobal "%=POD"        (Val . VHash . MkHash $ emptyFM) -- wrong: pkg
+        -- XXX What would this even do?
+        -- , Symbol SGlobal "%=POD"        (Val . VHash . MkHash $ emptyFM) 
         , Symbol SGlobal "@=POD"        (Val . VArray . MkArray $ [])
         , Symbol SGlobal "$=POD"        (Val . VStr $ "")
         , Symbol SGlobal "$?OS"         (Val . VStr $ config_osname)
         ]
---    str <- return "" -- getContents
     let env' = runRule (fenv env) id ruleProgram name prog
     val <- (`runReaderT` env') $ do
         (`runContT` return) $ resetT $ do
             evaluateMain (envBody env')
     f val
+
+getLibs :: [(String, String)] -> IO [[String]]
+getLibs environ = do
+    libs <- mapM fixLib $ 
+        (split config_path_sep $ fromMaybe "" $ lookup "PERL6LIB" environ) ++
+        [ config_archlib
+        , config_privlib
+        , config_sitearch
+        , config_sitelib
+        ] ++
+        (split config_path_sep $ fromMaybe "" $ lookup "PERL5LIB" environ) ++
+        (split config_path_sep $ fromMaybe "" $ lookup "PERLLIB" environ) ++
+        [ "." ]
+    return libs
     where
-    fixLib str = do
-        let path = str -- ++ "/Perlib"
-        exists <- doesDirectoryExist path
-        return $ if exists then [path] else []
-
-{- XXX 
-    Putting the blib6 stuff in here is totally bogus. It needs to be
-    passed in the test harness code. But I need to make changes such
-    that pugs will honor the -I flag and multiple occurrences of them.
-    Even the PERL6LIB handling code doesn't look like it can handle 
-    multiple libs.
---}
-incs = [ fixPath "./blib6/lib"
-       , fixPath "../blib6/lib"
-       , fixPath "../../blib6/lib"
-       , config_archlib
-       , config_privlib
-       , config_sitearch
-       , config_sitelib
-       , "."
-       ]
-
-fixPath path = concat $
-    intersperse config_file_sep $
-    split "/" path
+    fixLib path = do
+        return $ if length path > 0 then [path] else []
 
 printConfigInfo :: IO ()
-printConfigInfo = putStrLn $ unlines $
-    ["Summary of pugs configuration:"
-    ,""
-    ,"archlib: " ++ config_archlib
-    ,"privlib: " ++ config_privlib
-    ,"sitearch: " ++ config_sitearch
-    ,"sitelib: " ++ config_sitelib
-    ,""
-    ] ++
-    [ "@*INC:" ] ++ incs
-
-{-
-main = do
-    -- (optsIO, rest, errs) <- return . getOpt Permute options $ procArgs args
-
-options :: [OptDescr (Opts -> Opts)]
-options =
-    [ reqArg "e" ["eval"]           "command"       "Command-line program"
-        (\s o -> o { encodings          = split "," s })
-    , noArg  "d" ["debug"]                          "Turn on debugging"
-        (\s o -> o { inputFile          = s })
-    , noArg  "h" ["help"]                           "Show help"
-        (\o   -> o { showHelp           = usage "" })
-    ]
--}
+printConfigInfo = do
+    environ <- getEnvironment
+    libs <- getLibs environ
+    putStrLn $ unlines $
+        ["Summary of pugs configuration:"
+        ,""
+        ,"archlib: " ++ config_archlib
+        ,"privlib: " ++ config_privlib
+        ,"sitearch: " ++ config_sitearch
+        ,"sitelib: " ++ config_sitelib
+        ,""
+        ] ++
+        [ "@*INC:" ] ++ concat libs

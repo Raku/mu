@@ -42,14 +42,14 @@ sub pugs_fix_makefile {
     my $self = shift;
     my $base = $self->{_top}{base};
     my $full_pugs = $self->pugs_binary;
-    my $full_t = "$base/t";
+    my $full_blib = File::Spec->catfile($base, 'blib6', 'lib');
     open MAKEFILE, '< Makefile' or die $!;
     my $makefile = do { local $/; <MAKEFILE> };
     $full_pugs =~ s{\\}{\\\\}g; 
     $full_pugs =~ s{'}{\\'}g;
-    $full_t =~ s{\\}{\\\\}g; 
-    $full_t =~ s{'}{\\'}g;
-    $makefile =~ s/\b(runtests \@ARGV|test_harness\(\$\(TEST_VERBOSE\), )/ENV->{HARNESS_PERL} = q*$full_pugs*; ENV->{PERL6LIB} = q*$full_t*; $1/;
+    $full_blib =~ s{\\}{\\\\}g; 
+    $full_blib =~ s{'}{\\'}g;
+    $makefile =~ s/\b(runtests \@ARGV|test_harness\(\$\(TEST_VERBOSE\), )/ENV->{HARNESS_PERL} = q*$full_pugs*; ENV->{PERL6LIB} = q*$full_blib*; $1/;
     $makefile =~ s/("-MExtUtils::Command::MM")/"-Iinc" $1/g;
     close MAKEFILE;
     open MAKEFILE, '> Makefile' or die $!;
