@@ -19,7 +19,7 @@ is(eval 'my $møøse = 2; sub såck ($x) { $x }; såck($møøse)', 2, "møøse b
 
 # french
 ok(eval 'my $un_variable_français; sub blâ {}; 1', "french declaration");
-is(eval 'my $frénch = 2; bléch ($x) { $x }; bléch($frénch)', 2, "evaluation");
+is(eval 'my $frénch = 2; sub bléch ($x) { $x }; bléch($frénch)', 2, "evaluation");
 
 # Some Chinese Characters
 ok(eval 'my $一; 1', "chinese declaration");
