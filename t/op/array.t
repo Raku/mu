@@ -96,8 +96,8 @@ is($result2, 3, 'got the right value from the slice');
 my @a = (1,2,3,4,5);
 @a[0,1] = @a[1,0];
 
-todo_is(@a[0], 2, "slice assignment awaiting p6cabal clarification");
-todo_is(@a[1], 1, "slice assignment awaiting p6cabal clarification");
+is(@a[0], 2, "slice assignment");
+is(@a[1], 1, "slice assignment");
 
-my @array9; # workaround: my @array = ()
+my @array9;
 is(+@array9, 0, "new arrays are empty");
