@@ -1,7 +1,7 @@
 #!pugs
 use v6;
 
-require Test;
+require Test-0.0.2;
 
 plan( 41 );
 

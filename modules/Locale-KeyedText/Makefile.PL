@@ -1,12 +1,14 @@
-#!perl
+#!pugs
+use v6;
 
-use 5.008001; use utf8; use strict; use warnings;
-
-use Pugs::MakeMaker;
+require Pugs::MakeMaker;
 
 WriteMakefile(
-	NAME	=> 'Locale::KeyedText',
-    VERSION => '0.0.4',
+	'NAME' => 'Locale::KeyedText',
+	'VERSION_FROM' => 'lib/Locale/KeyedText.pm',
+	'PREREQ_PM' => {
+		'Test' => '0.0.2', # but only for the test suite
+	},
 );
 
 1;

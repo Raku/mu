@@ -1,13 +1,13 @@
-#!perl
+#!pugs
+use v6;
 
-use 5.008001; use utf8; use strict; use warnings;
-
-use Pugs::MakeMaker;
+require Pugs::MakeMaker;
 
 WriteMakefile(
-	NAME	=> 'SQL::Routine',
-    VERSION => '0.0.2',
-	PREREQ_PM => {
+	'NAME' => 'SQL::Routine',
+	'VERSION_FROM' => 'lib/SQL/Routine.pm',
+	'PREREQ_PM' => {
+		'Test' => '0.0.2', # but only for the test suite
 		'Locale::KeyedText' => '0.0.4',
 	},
 );
