@@ -1,3 +1,20 @@
+[Changes for 6.0.3 - February 12, 2005]
+
+* Formal parameters declaration and binding
+* Invocant-based multimethod dispatch
+* Optional(?), named(+ and ++), slurpy(*) parameters with defaulting
+* Extraction of higher-order placeholder variables
+* Proper semantics and extraction of @_, %_ and $_
+* Global variables and subroutines: &*foo, $*bar
+* Context propagation from types of formal parameters
+* The "returns" / "is returns" trait
+* Trailing comma and semicolons are now allowed
+* Better handling of exponential primitives (viirya)
+* &prefix: is now consistently added for user-defined subroutines
+* Junctions are now proper sets, instead of lists masqueraded as sets
+* New operators: "!!" and "nor"
+* The "all" junction builder now collapses nested junctions under it
+
 [Changes for 6.0.2 - February 9, 2005]
 
 * User-defined subroutine (with $_ and @_ as parameters)
