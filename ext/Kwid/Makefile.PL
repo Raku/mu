@@ -15,7 +15,7 @@ blib_depth      (2);
 
 postamble(<< ".");
 
-$kwid :: src/Kwid/AST.hs
+$FindBin::Bin/kwid :: src/Kwid/AST.hs
 	ghc --make -Wall -fno-warn-missing-signatures -fno-warn-name-shadowing -o $FindBin::Bin/$kwid $FindBin::Bin/src/Main.hs -i"$FindBin::Bin/src"
 
 .
