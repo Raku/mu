@@ -9,7 +9,7 @@ Basic "undef" tests
 
 =cut
 
-plan 50;
+plan 58;
 
 =kwid
 
@@ -42,7 +42,9 @@ my $b;
 $a = $b;
 ok(!defined($a), "assigning another undef lexical");
 
-##???todo_is(eval '$a = $c; !defined($a)'); # todo: the same with a global
+$a = $y;
+ok(!defined($a), "assigning another undef global");
+
 
 my @ary = "arg1";
 $a = @ary.pop;
@@ -58,11 +60,12 @@ ok(!defined($a), "shift from empty array");
 
 my %hash = ( bar => 'baz', quux => 'quuz' );
 ok(defined(%hash{"bar"}), "hash subscript");
-ok(!defined(%hash{"bargho"}), "non-existent hash subscript") or
-	diag("expected undef; got { %hash{'bagho'} }");
+todo_ok(eval'!defined(%hash{"bargho"})', "non-existent hash subscript") or
+	diag("expected undef; got { %hash{'bargho'} }");
 
-eval 'undef %hash{"bar"}';
-todo_ok(!defined(%hash{"bar"}), "undef hash subscript");
+fail("FIXME uncomment this test"); # currently fails compilation even in eval
+#eval 'undef %hash{"bar"}';
+#todo_ok(!defined(%hash{"bar"}), "undef hash subscript");
 
 eval '
 	%hash{"bar"} = "baz";
@@ -81,11 +84,14 @@ ok(defined(@ary), "define array again");
 %hash = (1,1);
 ok(defined(%hash), "define hash again");
 
-# ???
-#sub a_sub { pass "sub"; 1 }
-#a_sub || fail "a_sub";
 
-# TODO: defined a_sub
+sub a_sub { "møøse" }
+
+ok(defined(&a_sub), "defined sub");
+todo_ok(eval 'defined(%«$?PACKAGE\::»<&a_sub>)', "defined sub (symbol table)");
+
+is(eval 'defined(&a_subwoofer); 1', undef, "undefined sub");
+todo_ok(eval '!defined(%«$?PACKAGE\::»<&a_subwoofer>)', "undefined sub (symbol table)");
 
 # TODO: find a read-only value to try and assign to, since we don't
 # have rules right now to play around with (the p5 version used $1)
@@ -212,6 +218,7 @@ sub bar ($bar, $baz, +$quux) {
 	ok(!defined($quux), "unspecified optional param");
 }
 
+todo_fail("FIXME uncomment this test");
 #bar("BAR"); # not yet
 
 # autoloading
