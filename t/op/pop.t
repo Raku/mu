@@ -1,14 +1,15 @@
-use v6;
+#!/usr/bin/pugs
 
-say "1..6";
+use v6;
+require Test;
+
+plan(6);
 
 my @pop = (1, 2, 3, 4, 5);
 
-if (eval 'pop(@pop)' == 5) { say "ok 1 # TODO pop" } else { say "not ok 1 # TODO pop" }
-if (eval 'pop(@pop)' == 4) { say "ok 2 # TODO pop" } else { say "not ok 2 # TODO pop" }
-if (eval 'pop(@pop)' == 3) { say "ok 3 # TODO pop" } else { say "not ok 3 # TODO pop" }
-if (eval 'pop(@pop)' == 2) { say "ok 4 # TODO pop" } else { say "not ok 4 # TODO pop" }
-if (eval '@pop.pop'  == 1) { say "ok 5 # TODO pop" } else { say "not ok 5 # TODO pop" }
-if (eval 'defined(pop(@pop))') { say "not ok 6 # TODO pop" } else { 
-    say "ok 6 # TODO pop" 
-}
+todo_ok(eval('pop(@pop) == 5'), "pop 5");
+todo_ok(eval('pop(@pop) == 4'), "pop 4");
+todo_ok(eval('pop(@pop) == 3'), "pop 3");
+todo_ok(eval('pop(@pop) == 2'), "pop 2");
+todo_ok(eval('pop(@pop) == 1'), "pop 1");
+todo_ok(eval('!defined(pop(@pop))'), "last pop");
