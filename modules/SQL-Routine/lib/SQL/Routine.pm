@@ -1277,7 +1277,7 @@ my $ATTR_PP         is constant = 'pp'; # attribute name to use for the node's p
 ######################################################################
 ######################################################################
 
-subtype NodeID of Int where { .defined and $_ > 0 }
+subtype NodeID of Int where { $_ > 0 }
 
 ######################################################################
 ######################################################################
@@ -1394,7 +1394,7 @@ method :_serialize_as_perl( $self: %node_dump, Str ?$pad ) returns Str {
 	return (
 		$pad~"{\n",
 		$pad~"\t'"~$NAMED_NODE_TYPE~"' => '"~$node_type~"',\n",
-		(scalar(%attrs.keys) ?? (
+		(+%attrs.keys ?? (
 			$pad~"\t'"~$NAMED_ATTRS~"' => {\n",
 			@attr_seq.grep:{ %attrs{$_}.defined }.map:{
 				$pad~"\t\t'"~$_~"' => "~(
@@ -1407,7 +1407,7 @@ method :_serialize_as_perl( $self: %node_dump, Str ?$pad ) returns Str {
 			},
 			$pad~"\t},\n",
 		) :: ''),
-		(scalar(@{%node_dump{$NAMED_CHILDREN}}) ?? (
+		(+%node_dump{$NAMED_CHILDREN} ?? (
 			$pad~"\t'"~$NAMED_CHILDREN~"' => [\n",
 			%node_dump{$NAMED_CHILDREN}.map:{ $self.:_serialize_as_perl( $_,$padc ) },
 			$pad~"\t],\n",
@@ -1442,7 +1442,7 @@ method :_serialize_as_xml( $self: %node_dump, Str ?$pad ) returns Str {
 					$self.:_s_a_x_esc(%attrs{$_})
 			)~'"' 
 		},
-		(scalar(@{%node_dump{$NAMED_CHILDREN}}) ?? (
+		(+%node_dump{$NAMED_CHILDREN} ?? (
 			'>'~"\n",
 			%node_dump{$NAMED_CHILDREN}.map:{ $self.:_serialize_as_xml( $_,$padc ) },
 			$pad~'</'~$node_type~'>'~"\n",
@@ -1757,11 +1757,11 @@ multi method build_node( $container: %args ) {
 method :_build_node_is_child_or_not( $container: $node_type, %attrs, $pp_node ) {
 	my $node = $container.new_node( $node_type );
 	%attrs = $container.:_build_node_normalize_attrs( $node, %attrs );
-	if( my $node_id = delete( %attrs.{$ATTR_ID} ) ) {
+	if( my $node_id = %attrs.{$ATTR_ID}.delete ) {
 		$node.set_node_id( $node_id );
 	}
 	$node.put_in_container( $container );
-	my $pp_in_attrs = delete( %attrs.{$ATTR_PP} ); # ensure won't override any $pp_node
+	my $pp_in_attrs = %attrs.{$ATTR_PP}.delete; # ensure won't override any $pp_node
 	if( $pp_node ) {
 		$pp_node.add_child_node( $node );
 	} else {
@@ -1922,13 +1922,13 @@ method delete_node( $node: ) {
 
 ######################################################################
 
-method get_node_type( $node: ) {
+method get_node_type( $node: ) returns Str {
 	return $node.:node_type;
 }
 
 ######################################################################
 
-method get_node_id( $node: ) {
+method get_node_id( $node: ) returns NodeID {
 	return $node.:node_id;
 }
 
@@ -1939,14 +1939,14 @@ method clear_node_id( $node: ) {
 	$node.:node_id = undef;
 }
 
-method set_node_id( $node: $new_id ) {
+method set_node_id( $node: Str $new_id ) {
 	$new_id.defined or $node.:_throw_error_message( 'SRT_N_SET_NODE_ID_NO_ARGS' );
 
 	unless( $new_id ~~ m/^\d+$/ and $new_id > 0 ) {
 		$node.:_throw_error_message( 'SRT_N_SET_NODE_ID_BAD_ARG', { 'ARG' => $new_id } );
 	}
 
-	if( !$node.:container ) {
+	unless( $node.:container ) {
 		$node.:node_id = $new_id;
 		return;
 	}
@@ -1966,7 +1966,7 @@ method set_node_id( $node: $new_id ) {
 	# The following seq should leave state consistent or recoverable if the thread dies
 	$rh_cal.{$new_id} = $node; # temp reserve new+old
 	$node.:node_id = $new_id; # change self from old to new
-	delete( $rh_cal.{$old_id} ); # now only new reserved
+	$rh_cal.{$old_id}.delete; # now only new reserved
 	if( $node.:container ) {
 		$node.:container.:def_con_tested = 0; # A "Well Known" Node was changed.
 	}
@@ -2071,7 +2071,7 @@ method clear_literal_attribute( $node: Str $attr_name ) {
 }
 
 method :_clear_literal_attribute( $node: Str $attr_name ) {
-	delete( $node.:at_literals.{$attr_name} );
+	$node.:at_literals.{$attr_name}.delete;
 	if( $node.:container ) {
 		$node.:container.:def_con_tested = 0; # A "Well Known" Node was changed.
 	}
@@ -2164,7 +2164,7 @@ method clear_enumerated_attribute( $node: Str $attr_name ) {
 }
 
 method :_clear_enumerated_attribute( $node: Str $attr_name ) {
-	delete( $node.:at_enums.{$attr_name} );
+	$node.:at_enums.{$attr_name}.delete;
 	if( $node.:container ) {
 		$node.:container.:def_con_tested = 0; # A "Well Known" Node was changed.
 	}
@@ -2259,7 +2259,7 @@ method :_clear_node_ref_attribute( $node: Str $attr_name ) {
 			}
 		}
 	}
-	delete( $node.:at_nrefs.{$attr_name} ); # removes link to link-parent, if any
+	$node.:at_nrefs.{$attr_name}.delete; # removes link to link-parent, if any
 	if( $node.:container ) {
 		$node.:container.:def_con_tested = 0; # A "Well Known" Node was changed.
 	}
@@ -2623,7 +2623,7 @@ method take_from_container( $node: ) {
 		$at_nodes_nids{$at_nodes_atnm} = $rh_at_nodes_refs.{$at_nodes_atnm}.:node_id;
 	}
 
-	delete( $container.:all_nodes.{$node.:node_id} );
+	$container.:all_nodes.{$node.:node_id}.delete;
 	$node.:at_nrefs = %at_nodes_nids;
 	$node.:pp_nref = $pp_node;
 	$node.:container = undef;
@@ -2690,8 +2690,8 @@ method move_before_sibling( $node: $sibling, $parent ) {
 		}
 	}
 
-	scalar( @curr_node_refs ) or $node.:_throw_error_message( 'SRT_N_MOVE_PRE_SIB_P_NOT_P' );
-	scalar( @sib_node_refs ) or $node.:_throw_error_message( 'SRT_N_MOVE_PRE_SIB_S_NOT_S' );
+	+@curr_node_refs or $node.:_throw_error_message( 'SRT_N_MOVE_PRE_SIB_P_NOT_P' );
+	+@sib_node_refs or $node.:_throw_error_message( 'SRT_N_MOVE_PRE_SIB_S_NOT_S' );
 
 	# Everything checks out, so now we perform the reordering.
 
@@ -2773,7 +2773,7 @@ method find_node_by_surrogate_id( $node: Str $self_attr_name, @target_attr_value
 		$node.:_throw_error_message( 'SRT_N_FIND_ND_BY_SID_INVAL_NM', { 'ATNM' => $self_attr_name } );
 	@target_attr_value.defined or $node.:_throw_error_message( 
 		'SRT_N_FIND_ND_BY_SID_NO_ARG_VAL', { 'ATNM' => $self_attr_name } );
-	scalar( @target_attr_value ) >= 1 or $node.:_throw_error_message( 
+	+@target_attr_value >= 1 or $node.:_throw_error_message( 
 		'SRT_N_FIND_ND_BY_SID_NO_ARG_VAL', { 'ATNM' => $self_attr_name } );
 	for @target_attr_value -> $element {
 		$element.defined or $node.:_throw_error_message( 
@@ -2791,7 +2791,7 @@ method find_node_by_surrogate_id( $node: Str $self_attr_name, @target_attr_value
 	my ($unqualified_value, $qualifier_l1, @rest) = @target_attr_value;
 	if( $qualifier_l1 ) {
 		# An attempt is definitely being made to remotely address a Node.
-		scalar( %remotely_addressable_types.keys ) >= 1 or $node.:_throw_error_message( 
+		+%remotely_addressable_types.keys >= 1 or $node.:_throw_error_message( 
 			'SRT_N_FIND_ND_BY_SID_NO_REM_ADDR', { 'ATNM' => $self_attr_name, 'ATVL' => @target_attr_value } );
 		# If we get here, we are allowed to remotely address a Node.
 		return $node.:_find_node_by_surrogate_id_remotely( %remotely_addressable_types, @target_attr_value );
@@ -2802,7 +2802,7 @@ method find_node_by_surrogate_id( $node: Str $self_attr_name, @target_attr_value
 		return $result;
 	}
 	# If we get here, there were no ancestor sibling matches.
-	if( scalar( %remotely_addressable_types.keys ) >= 1 ) {
+	if( +%remotely_addressable_types.keys >= 1 ) {
 		# If we get here, we are allowed to remotely address a Node.
 		return $node.:_find_node_by_surrogate_id_remotely( %remotely_addressable_types, @target_attr_value );
 	}
@@ -3070,7 +3070,7 @@ method get_relative_surrogate_id( $node: Str $self_attr_name, Bool ?$want_shorte
 	# If we get here, the value we are outputting is not an ancestor's sibling.
 	my %remotely_addressable_types = map:{ ($_ => %NODE_TYPES{$_}.{$TPI_REMOTE_ADDR}) } 
 		grep:{ %NODE_TYPES{$_}.{$TPI_REMOTE_ADDR} } @exp_node_types;
-	scalar( %remotely_addressable_types.keys ) >= 1 or return; # Can't remotely address, so give up.
+	+%remotely_addressable_types.keys >= 1 or return; # Can't remotely address, so give up.
 	# If we get here, we are allowed to remotely address a Node.
 	# Now make sure attr-val Node has an ancestor of the expected type.
 	my @attr_value_si_chain = ();
@@ -3207,12 +3207,12 @@ method :_assert_in_node_deferrable_constraints( $node: ) {
 					push( @valued_candidates, $attr_name );
 				}
 			}
-			if( scalar( @valued_candidates ) > 1 ) {
+			if( +@valued_candidates > 1 ) {
 				$node.:_throw_error_message( 'SRT_N_ASDC_MUTEX_TOO_MANY_SET', 
-					{ 'NUMVALS' => scalar( @valued_candidates ), 
+					{ 'NUMVALS' => +@valued_candidates, 
 					'ATNMS' => "@valued_candidates", 'MUTEX' => $mutex_name } );
 			}
-			if( scalar( @valued_candidates ) == 0 ) {
+			if( +@valued_candidates == 0 ) {
 				if( $is_mandatory ) {
 					my @possible_candidates = (@lits, @enums, @nrefs);
 					$node.:_throw_error_message( 'SRT_N_ASDC_MUTEX_ZERO_SET', 
@@ -3252,31 +3252,31 @@ method :_assert_in_node_deferrable_constraints( $node: ) {
 				}
 				if( !$dep_on_attr_val.defined ) {
 					# The dependency is undef/null, so all dependents must be undef/null.
-					if( scalar( @valued_dependents ) > 0 ) {
+					if( +@valued_dependents > 0 ) {
 						$node.:_throw_error_message( 'SRT_N_ASDC_LATDP_DEP_ON_IS_NULL', 
-							{ 'DEP_ON' => $dep_on_attr_nm, 'NUMVALS' => scalar( @valued_dependents ), 
+							{ 'DEP_ON' => $dep_on_attr_nm, 'NUMVALS' => +@valued_dependents, 
 							'ATNMS' => "@valued_dependents" } );
 					}
 					# If we get here, the tests have passed concerning this $dependency.
-				} elsif( scalar( @dep_on_enum_vals ) > 0 and 
-						!scalar( grep:{ $_ eq $dep_on_attr_val } @dep_on_enum_vals ) ) {
+				} elsif( +@dep_on_enum_vals > 0 and 
+						!+@dep_on_enum_vals.grep:{ $_ eq $dep_on_attr_val } ) {
 					# Not just any dependency value is acceptable for these dependents, and the
 					# dependency has the wrong value for these dependents; the latter must be undef/null.
-					if( scalar( @valued_dependents ) > 0 ) {
+					if( +@valued_dependents > 0 ) {
 						$node.:_throw_error_message( 'SRT_N_ASDC_LATDP_DEP_ON_HAS_WRONG_VAL', 
 							{ 'DEP_ON' => $dep_on_attr_nm, 'DEP_ON_VAL' => $dep_on_attr_val, 
-							'NUMVALS' => scalar( @valued_dependents ), 'ATNMS' => "@valued_dependents" } );
+							'NUMVALS' => +@valued_dependents, 'ATNMS' => "@valued_dependents" } );
 					}
 					# If we get here, the tests have passed concerning this $dependency.
 				} else {
 					# Either any dependency value is acceptable for these dependents, or the valued 
 					# dependency has the right value for these dependents; one of them may be set.
-					if( scalar( @valued_dependents ) > 1 ) {
+					if( +@valued_dependents > 1 ) {
 						$node.:_throw_error_message( 'SRT_N_ASDC_LATDP_TOO_MANY_SET', 
 							{ 'DEP_ON' => $dep_on_attr_nm, 'DEP_ON_VAL' => $dep_on_attr_val, 
-							'NUMVALS' => scalar( @valued_dependents ), 'ATNMS' => "@valued_dependents" } );
+							'NUMVALS' => +@valued_dependents, 'ATNMS' => "@valued_dependents" } );
 					}
-					if( scalar( @valued_dependents ) == 0 ) {
+					if( +@valued_dependents == 0 ) {
 						if( $is_mandatory ) {
 							my @possible_candidates = (@lits, @enums, @nrefs);
 							$node.:_throw_error_message( 'SRT_N_ASDC_LATDP_ZERO_SET', 
@@ -3355,7 +3355,7 @@ method :_assert_child_comp_deferrable_constraints( $node_or_class: Str $pseudono
 
 	my %type_child_si = map:{ (%{%TYPE_CHILD_SI_ATNMS{$_}||{}}) } @parent_node_types;
 	# Note: %TYPE_CHILD_SI_ATNMS only contains keys for [pseudo-|]Node types that can have primary-child Nodes.
-	if( scalar( %type_child_si.keys ) ) {
+	if( +%type_child_si.keys ) {
 		my %examined_children = ();
 		for @child_nodes -> $child_node {
 			my $child_node_type = $child_node.:node_type;
