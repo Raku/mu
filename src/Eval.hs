@@ -363,6 +363,7 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
                 writeMVal hashMVal $ VHash $ MkHash hash
                 retVal val'
             _ -> do
+                -- XXX LValue ??::
                 retError "Cannot modify constant item" (head exps)
     ":=" -> do
         let [Var name, exp] = exps

@@ -66,6 +66,7 @@ run []                          = do
 
 -- convenience function for GHCi
 eval = doDebug []
+parse = doParse "-"
 
 repLoop :: IO ()
 repLoop = do

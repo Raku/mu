@@ -379,7 +379,7 @@ ruleExpression = (<?> "expression") $ do
     exp <- parseOp
     f <- option id $ choice
         [ rulePostConditional
-        , rulePostTernary
+        -- , rulePostTernary
         ]
     return $ f exp
 
@@ -539,6 +539,10 @@ currentListFunctions = do
 
 parseOp = do
     ops <- operators
+    buildExpressionParser ops parseTerm
+
+parseTightOp = do
+    ops <- tightOperators
     buildExpressionParser ops parseTerm
 
 ops f s = [f n | n <- sortBy revLength (words $ decodeUTF8 s)]
@@ -819,7 +823,15 @@ dotdotdotLiteral = do
 op_methodPostfix    = []
 op_namedUnary       = []
 methOps _ = []
-ternOps _ = []
+
+ternOps = map ternOp
+ternOp (pre, post) = Infix middle AssocRight
+    where
+    middle = do
+        symbol pre
+        y <- parseTightOp
+        symbol post
+        return $ \x z -> Syn "if" [x, y, z]
 
 runRule :: Env -> (Env -> a) -> RuleParser Env -> FilePath -> String -> a
 runRule env f p name str = f $ case ( runParser p env name str ) of
