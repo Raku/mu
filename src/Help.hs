@@ -53,7 +53,7 @@ banner = putStrLn $ unlines
     , "||====' ||__|| ||__||  __||   " ++ copyright
     , "||      `===='  ___|| `==='   World Wide Web: http://autrijus.org/pugs "
     , "||             `===='         Report bugs to: autrijus@autrijus.org    "
-    , "==" ++ versionFill 27    ++ " ========================================="
+    , "==" ++ versionFill 31 ++        " ====================================="
     ]
 
 intro :: IO ()
