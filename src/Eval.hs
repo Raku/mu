@@ -100,10 +100,14 @@ reduceExp exp = do
 retVal :: Val -> Eval Exp
 retVal val = return $ Val val
 
-newMVal val@(MVal _) = return val
+newMVal val@(MVal r) = newMVal =<< liftIO (readIORef r)
 newMVal val = do
     mval <- liftIO $ newIORef val
     return $ MVal mval
+
+writeMVal l (MVal r)    = writeMVal l =<< liftIO (readIORef r)
+writeMVal (MVal l) r    = liftIO $ writeIORef l r
+writeMVal _ _           = error "Can't modify a constant item" 
 
 reduceStatements :: ([Exp], Exp) -> Eval Exp
 reduceStatements ([], exp) = reduceExp exp
@@ -180,10 +184,10 @@ doReduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         let [Var name, exp] = exps
         case findVar env name of
             Nothing -> retVal $ VError ("Undefined variable " ++ name) exp
-            Just (Val val@(MVal mv)) -> do
-                val <- enterEvalContext (cxtOfSigil $ head name) exp
-                liftIO $ writeIORef mv val
-                retVal val
+            Just (Val val) -> do
+                val' <- enterEvalContext (cxtOfSigil $ head name) exp
+                writeMVal val val'
+                retVal val'
             _ -> do
                 retVal $ VError "Can't modify a constant item" exp
     ":=" -> do

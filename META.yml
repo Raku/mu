@@ -1,0 +1,12 @@
+name: Perl6-Pugs
+version: 6.0.5
+abstract: Perl6 User's Golfing System
+author: Autrijus Tang <autrijus@autrijus.org>
+license: perl
+distribution_type: module
+build_requires:
+  Test::More: 0
+no_index:
+  directory:
+    - inc
+generated_by: Module::Install version 0.36
