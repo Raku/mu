@@ -142,10 +142,10 @@ sub set_postamble {
 	}
 
     postamble(nativize(<< "."));
-src/Unicode.hs :: src/Unicode.hsc src/Unicode.c
+src/Unicode.hs : src/Unicode.hsc src/Unicode.c
 	hsc2hs src/Unicode.hsc
 
-src/Config.hs :: util/PugsConfig.pm
+src/Config.hs : util/PugsConfig.pm
 	$Config{perlpath} -Iutil -MPugsConfig -e "PugsConfig->write_config_module" > src/Config.hs
 
 profiled :: src/Config.hs @srcfiles $version_h
@@ -154,7 +154,7 @@ profiled :: src/Config.hs @srcfiles $version_h
 optimized :: src/Config.hs @srcfiles $version_h
 	ghc -O2 --make $ghc_flags -o pugs src/Main.hs
 
-$pugs :: src/Config.hs @srcfiles $version_h
+$pugs : src/Config.hs @srcfiles $version_h
 	ghc --make $ghc_flags -o pugs src/Main.hs
 
 tags :
