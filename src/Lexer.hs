@@ -143,7 +143,7 @@ naturalOrRat  = natRat
         <|> decimalRat
                       
     zeroNumRat = do
-            n <- hexadecimal <|> decimal <|> octal <|> binary
+            n <- hexadecimal <|> decimal <|> octal2 <|> octal <|> binary
             return (Left n)
         <|> decimalRat
         <|> fractRat 0
@@ -192,14 +192,15 @@ naturalOrRat  = natRat
     nat             = zeroNumber <|> decimalLiteral
         
     zeroNumber      = do{ char '0'
-                        ; hexadecimal <|> decimal <|> octal <|> decimalLiteral <|> return 0
+                        ; hexadecimal <|> decimal <|> octal2 <|> octal <|> decimalLiteral <|> return 0
                         }
                       <?> ""       
 
     decimalLiteral         = number 10 digit        
     hexadecimal     = do{ char 'x'; number 16 hexDigit }
     decimal         = do{ char 'd'; number 10 digit }
-    octal           = do{ char 'o'; number 8 octDigit  }
+    octal           = do{ char 'o'; octal2 }
+    octal2          = do{ number 8 octDigit  }
     binary          = do{ char 'b'; number 2 (oneOf "01")  }
 
     -- number :: Integer -> CharParser st Char -> CharParser st Integer
