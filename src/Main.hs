@@ -64,6 +64,9 @@ run []                          = do
         then do banner >> intro >> repLoop
         else run ["-"]
 
+-- convenience function for GHCi
+eval = doDebug []
+
 repLoop :: IO ()
 repLoop = do
     env <- tabulaRasa >>= newIORef

@@ -272,8 +272,8 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         (VSub sub) <- enterEvalContext "Code" exp
         retVal $ VSub sub{ subPad = envLexical env }
     "sym" -> do
-        mapM_ evalExp [ exp | Sym (Symbol _ _ exp) <- exps ]
-        retVal VUndef
+        vals <- mapM evalExp [ exp | Sym (Symbol _ _ exp) <- exps ]
+        retVal $ last (VUndef : vals)
     "mval" -> do
         let [Var name, exp] = exps
         val     <- enterEvalContext (cxtOfSigil $ head name) exp
