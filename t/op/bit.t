@@ -70,7 +70,7 @@ ok ("ok 20\n" ~| "ok \0\0\n" eq "ok 20\n");
 # currently, pugs recognize octals as "\0o00", not "\o000".
 #if ("o\o000 \0" ~ "1\o000" ~^ "\o000k\02\o000\n" eq "ok 21\n") { say "ok 15" } else { say "not ok 15" }
 
-#say "ok 15 # skip"; # SKIP
+skip();
 
 # Pugs does not have \x{}
 
