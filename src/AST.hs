@@ -21,7 +21,7 @@ class Value n where
     vCast :: Val -> n
     -- vCast (MVal v)      = vCast $ castV v
     vCast (VRef v)      = vCast v
-    vCast (VPair _ v)   = vCast v
+    vCast (VPair (_, v))   = vCast v
     vCast (VArray (MkArray v))    = vCast $ VList v
     vCast v             = doCast v
     castV :: n -> Val
@@ -31,14 +31,14 @@ class Value n where
     fmapVal :: (n -> n) -> Val -> Val
     fmapVal f = castV . f . vCast
 
-instance Value (Val, Val) where
-    castV (x, y)        = VPair x y
-    vCast (VPair x y)   = (x, y)
+instance Value VPair where
+    castV (x, y)        = VPair (x, y)
+    vCast (VPair (x, y))   = (x, y)
     vCast (VRef v)      = vCast v
     -- vCast (MVal v)      = vCast $ castV v
     vCast v             = case vCast v of
         [x, y]  -> (x, y)
-        other   -> error $ "cannot cast into (Val, Val): " ++ (show v)
+        other   -> error $ "cannot cast into VPair: " ++ (show v)
 
 instance Value VHash where
     castV = VHash
@@ -49,18 +49,20 @@ instance Value VHash where
 instance Value (FiniteMap Val Val) where
     vCast (VHash (MkHash h)) = h
     vCast VUndef = emptyFM
+    vCast (VPair p) = listToFM [p]
     vCast x = listToFM $ vCast x
 
-instance Value [(Val, Val)] where
+instance Value [VPair] where
     vCast VUndef = []
-    vCast (VPair k v) = [(k, v)]
+    vCast (VHash (MkHash h)) = fmToList h
+    vCast (VPair p) = [p]
     vCast (VList vs) =
         let fromList [] = []
-            fromList ((VPair k v):xs) = (k, v):fromList xs
+            fromList ((VPair (k, v)):xs) = (k, v):fromList xs
             fromList (k:v:xs) = (k, v):fromList xs
             fromList [k] = [(k, VUndef)] -- XXX warning?
         in fromList vs
-    vCast x = error $ show x
+    vCast x = error $ "cannot cast into [VPair]: " ++ (show x)
 
 instance Value VSub where
     castV = VSub
@@ -136,7 +138,7 @@ instance Value VStr where
     vCast (VList l)     = unwords $ map vCast l
     vCast (VRef v)      = vCast v
     -- vCast (MVal v)      = vCast $ castV v
-    vCast (VPair k v)   = vCast k ++ "\t" ++ vCast v ++ "\n"
+    vCast (VPair (k, v))= vCast k ++ "\t" ++ vCast v ++ "\n"
     vCast x             = error $ "cannot cast: " ++ (show x)
 
 showNum x
@@ -154,7 +156,7 @@ instance Value MVal where
     castV ref = error "bye~" --unsafePerformIO $ readIORef ref
     vCast (MVal x)      = x
     vCast (VRef v)      = vCast v
-    vCast (VPair _ y)   = vCast y
+    vCast (VPair (_, y))= vCast y
     vCast x             = error $ "cannot modify a constant item: " ++ show x
 
 {-
@@ -167,8 +169,8 @@ instance Value VList where
     castV = VList
     vCast (VList l)     = l
     vCast (VArray (MkArray l)) = l
-    vCast (VHash (MkHash h)) = map (uncurry VPair) $ fmToList h
-    vCast (VPair k v)   = [k, v]
+    vCast (VHash (MkHash h)) = map VPair $ fmToList h
+    vCast (VPair (k, v))   = [k, v]
     vCast (VRef v)      = vCast v
     -- vCast (MVal v)      = vCast $ castV v
     vCast (VUndef)      = []
@@ -231,6 +233,8 @@ type MVal = IORef Val
 newtype VArray = MkArray [Val] deriving (Show, Eq, Ord)
 newtype VHash  = MkHash (FiniteMap Val Val) deriving (Show, Eq, Ord)
 
+type VPair = (Val, Val)
+
 instance (Show a, Show b) => Show (FiniteMap a b) where
     show fm = show (fmToList fm)
 
@@ -246,7 +250,7 @@ data Val
     | VArray    VArray
     | VHash     VHash
     | VRef      Val
-    | VPair     Val Val
+    | VPair     VPair
     | VSub      VSub
     | VBlock    VBlock
     | VJunc     VJunc

@@ -71,12 +71,12 @@ bindEmpty p = case paramName p of
 
 isPair :: Exp -> Bool
 isPair (Syn "=>" [(Val v), _])   = True
-isPair (Val (VPair _ _))                = True
+isPair (Val (VPair (_, _)))             = True
 isPair _                                = False
 
 unPair :: Exp -> (String, Exp)
 unPair (Syn "=>" [(Val k), exp]) = (vCast k, exp)
-unPair (Val (VPair k v))                = (vCast k, Val v)
+unPair (Val (VPair (k, v)))             = (vCast k, Val v)
 unPair x                                = error ("Not a pair: " ++ show x)
 
 bindParams :: [Param] -> [Exp] -> [Exp] -> MaybeError [(Param, Exp)]

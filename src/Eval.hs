@@ -285,7 +285,7 @@ doReduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         let [keyExp, valExp] = exps
         key     <- enterEvalContext "Scalar" keyExp
         val     <- evalExp valExp
-        retVal $ VPair key val
+        retVal $ VPair (key, val)
     "," -> do
         vals    <- mapM (enterEvalContext "List") exps
         retVal $ VList $ concatMap vCast vals

@@ -101,6 +101,10 @@ op1 "open" = \v -> do
     fh <- liftIO $ openFile (vCast v) ReadMode
     return $ VHandle fh
 op1 "close" = boolIO hClose
+op1 "key" = return . fst . (vCast :: Val -> VPair)
+op1 "value" = return . snd . (vCast :: Val -> VPair)
+op1 "keys" = return . VList . map fst . (vCast :: Val -> [VPair])
+op1 "values" = return . VList . map snd . (vCast :: Val -> [VPair])
 op1 "<>" = \v -> do
     str <- readFrom v
     cxt <- asks envContext
@@ -179,7 +183,7 @@ op2 "+|" = op2Int (.|.)
 op2 "+^" = op2Int xor
 op2 "~|" = op2Str $ mapStr2 (.|.)
 op2 "~^" = op2Str $ mapStr2 xor
-op2 "=>" = \x y -> return $ VPair x y
+op2 "=>" = \x y -> return $ VPair (x, y)
 op2 "cmp"= op2Ord vCastStr
 op2 "<=>"= op2Ord vCastRat
 op2 ".." = op2Range
@@ -414,6 +418,10 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Bool      pre     rmdir   (Str)\
 \\n   Bool      pre     mkdir   (Str)\
 \\n   Bool      pre     chdir   (Str)\
+\\n   Scalar    pre     key     (Pair)\
+\\n   Scalar    pre     value   (Pair)\
+\\n   List      pre     keys    (Hash)\
+\\n   List      pre     values  (Hash)\
 \\n   Bool      pre     rename  (Str, Str)\
 \\n   List      pre     split   (Str, Str)\
 \\n   Str       pre     =       (IO)\
