@@ -29,6 +29,10 @@ is(eval 'my $二 = 2; $二', 2, "evaluation");
 ok(eval 'my $༡; 1', "tibeten declaration");
 is(eval 'my $༢ = 2; $༢', 2, "evaluation");
 
+# Japanese
+ok(eval 'my $い; 1', "japanese declaration");
+is(eval 'my $に = 2; $に', 2, "evaluation");
+
 # arabic
 ok(eval 'my $الصفحة ; 1', "arabic declaration");
 is(eval 'my $الصفحة = 2; $الصفحة', 2, "evaluation");
