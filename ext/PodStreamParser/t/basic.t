@@ -4,6 +4,7 @@ use v6;
 require Test;
 
 require Pod::Stream::Parser;
+require File::Spec;
 
 my %events = (
     start_document         => { say "=pod\n" },
@@ -27,7 +28,7 @@ my %events = (
     end_line_interpolation => { print "\n" }       
 );
 
-parse("t/sample.pod", %events);
+parse(catfile('t', 'sample.pod'), %events);
 
 ## HTML output
 # my %events = (
