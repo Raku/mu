@@ -36,6 +36,4 @@ Whatever you like. There is no restrictions or expectations.
 
 - Is there a How-To document for porting to perl6?
 
-No, not currently, but we hope to have one soon which documents the cummulative 
-experience of all those who have been doing this.
-
+Yes, see modules/PORTING_HOWTO.
