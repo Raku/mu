@@ -91,7 +91,6 @@ initTree = Node "Any"
                 ]
             , Node "Rule" []
             , Node "Junction" []
-            , Node "LValue" [] -- XXX Wrong
             ]
         ]
     , Node "Grammar" []

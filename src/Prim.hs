@@ -70,6 +70,12 @@ op1 "one"  = return . opJuncOne . vCast
 op1 "none" = return . VJunc . Junc JNone emptySet . mkSet . vCast
 op1 "perl" = return . VStr . (pretty :: Val -> VStr)
 op1 "eval" = opEval . vCast
+op1 "defined" = \v -> do
+    v <- readMVal v
+    return . VBool $ case v of
+        VUndef  -> True
+        _       -> False
+    
 op1 "last" = \v -> do
     shiftT $ \_ -> return VUndef
 op1 "return" = \v -> return (VError "cannot return outside a subroutine" (Val v))
@@ -445,6 +451,7 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Any       pre     last    (?Num=1)\
 \\n   Any       pre     exit    (?Num=0)\
 \\n   Num       pre     rand    (?Num=1)\
+\\n   Bool      pre     defined (Any)\
 \\n   Num       pre     time    ()\
 \\n   Action    pre     print   (List)\
 \\n   Action    pre     say     (List)\
