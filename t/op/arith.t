@@ -15,16 +15,16 @@ unless ($five == 5) {
 
 sub try ($ok, ?$todo = '') { 
     if ($todo) { 
-        todo_ok($ok,$todo); 
+        &todo_ok.goto($ok,$todo); 
     } else {
-        ok($ok);
+        &ok.goto($ok);
     }
 }
 sub tryeq ($lhs, $rhs, ?$todo = '') {
     if ($todo) {
-       todo_ok($lhs == $rhs,$todo ~ " " ~ $lhs ~ " != " ~ $rhs);
+       &todo_ok.goto($lhs == $rhs,$todo ~ " " ~ $lhs ~ " != " ~ $rhs);
     } else {
-       ok($lhs == $rhs);
+       &ok.goto($lhs == $rhs);
     }
 }
 sub tryeq_sloppy ($lhs, $rhs, ?$todo1 = '') {
@@ -32,16 +32,16 @@ sub tryeq_sloppy ($lhs, $rhs, ?$todo1 = '') {
     $todo = ' # TODO ' ~ $todo if $todo;
     if ($lhs == $rhs) {
         if ($todo) { 
-            todo_ok($lhs==$rhs,$todo);
+            &todo_ok.goto($lhs==$rhs,$todo);
         } else {
-            ok($lhs==$rhs,$todo);
+            &ok.goto($lhs==$rhs,$todo);
         }
     } else {
         my $error = abs($lhs - $rhs) / $lhs;
         if ($todo) {
-            todo_ok($error<1e-9,$todo ~ " # " ~ $lhs ~ " is close to " ~ $rhs);
+            &todo_ok.goto($error<1e-9,$todo ~ " # " ~ $lhs ~ " is close to " ~ $rhs);
         } else {
-            ok($error<1e-9);
+            &ok.goto($error<1e-9);
         }
     }
 }

@@ -478,8 +478,16 @@ reduce env (App name invs [Syn "," args]) = reduce env (App name invs args)
 -- XXX absolutely evil bloody hack for "goto"
 reduce _ (App "&goto" (subExp:invs) args) = do
     sub     <- enterEvalContext "Code" subExp
-    local (\e -> maybe e id (envCaller e)) $
-        shiftT $ \_ -> apply (vCast sub) invs args
+    local callerEnv $ do
+        val <- apply (vCast sub) invs args
+        shiftT $ \_ -> retVal val
+    where
+    callerEnv env = let caller = maybe env id (envCaller env) in
+        env{ envCaller = envCaller caller
+           , envContext = envContext caller
+           , envLValue = envLValue caller
+           }
+        
 
 reduce Env{ envClasses = cls, envContext = cxt, envLexical = lex, envGlobal = glob } exp@(App name invs args) = do
     syms    <- liftIO $ readIORef glob
