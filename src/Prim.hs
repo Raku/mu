@@ -176,7 +176,7 @@ primOp sym assoc prms ret = (name, sub)
                       }
     f :: [Val] -> Val
     f    = case arity of
-        0 -> op0 sym
+        0 -> \(x:_) -> op0 sym (vCast x)
         1 -> \[x]   -> op1 sym (vCast x)
         2 -> \[x,y] -> op2 sym (vCast x) (vCast y)
         _ -> error (show arity)
@@ -197,12 +197,12 @@ primDecl str = primOp sym assoc (reverse $ foldr foldParam [] prms) ret
     takeWord = takeWhile isAlphaNum . dropWhile (not . isAlphaNum)
     prms = map takeWord prms'
 
-doFoldParam cxt [] []       = [buildParam cxt "" "$x" (Val VUndef)]
+doFoldParam cxt [] []       = [buildParam cxt "" "$a" (Val VUndef)]
 doFoldParam cxt [] (p:ps)   = (buildParam cxt "" (strInc $ paramName p) (Val VUndef):p:ps)
 doFoldParam cxt (s:name) ps = (buildParam cxt [s] name (Val VUndef) : ps)
 
 foldParam :: String -> Params -> Params
-foldParam "List" = doFoldParam "List" "*@_"
+foldParam "List" = doFoldParam "List" "*@x"
 foldParam _      = doFoldParam "Scalar" ""
 
 -- XXX -- Junctive Types -- XXX --
