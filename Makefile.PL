@@ -82,7 +82,7 @@ else {
 close FH;
 
 postamble(<< ".");
-$pugs: @{[glob("src/*.hs")]}
+$pugs: @{[glob("src/*.hs"), glob("src/Rule/*.hs")]}
 	ghc --make -o pugs src/Main.hs -isrc
 
 tags ::
