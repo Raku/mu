@@ -48,7 +48,7 @@ sub set_postamble {
     if (assert_ghc() ge '6.4') {
         $ghc_flags .= " -fno-warn-deprecations -fno-warn-orphans";
     }
-    my $ghc_output = "-Lsrc/blib/arch/auto/pcre -lpcre -o pugs$Config{_exe} src/Main.hs";
+    my $ghc_output = "-Lsrc/blib/arch/auto/libpcre -lpcre -o pugs$Config{_exe} src/Main.hs";
     my @prereqs = ($config_h, qw( src/UnicodeC.c src/UnicodeC.h ));
 
     postamble(fixpaths(<< "."));
