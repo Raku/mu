@@ -16,7 +16,6 @@ import Help
 import Lexer
 import Rule
 import Rule.Error
-import Kwid.Parser
 
 -- Lexical units --------------------------------------------------
 
