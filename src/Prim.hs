@@ -199,7 +199,6 @@ op1 "ref"  = return . VStr . valType
 op1 "pop"  = op1Pop (last, init)
 op1 "shift"= op1Pop (head, tail)
 op1 "pick" = op1Pick
-op1 "dump" = return . VStr . (vCast :: Val -> VStr)
 op1 s      = return . (\x -> VError ("unimplemented unaryOp: " ++ s) (Val x))
 
 op1Values :: Val -> Val
@@ -592,7 +591,6 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   List      pre     kv      (Pair)\
 \\n   List      pre     values  (Junction)\
 \\n   Any       pre     pick    (Junction)\
-\\n   Str       pre     dump    (Junction)\
 \\n   Bool      pre     rename  (Str, Str)\
 \\n   Bool      pre     symlink (Str, Str)\
 \\n   Bool      pre     link    (Str, Str)\
