@@ -41,7 +41,7 @@ sub foo (+$x = 3) { $x }
 is(foo(), 3, "not specifying named params that aren't mandatory works");
 is(foo(4), 4, "using a named as a positional works");
 
-todo_is(foo( 'x' => 5), 5, "naming named param also works");
+is(foo( 'x' => 5), 5, "naming named param also works");
 
 
 
