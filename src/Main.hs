@@ -42,6 +42,7 @@ main = do
     canonicalizeOpt("--help")        = ["-h"]
     canonicalizeOpt('-':'l':[])      = [] -- ["-e", "# BEGIN{ ... }"] -- XXX fixme: Add real Perl6 fragment
     canonicalizeOpt('-':'v':[])      = ["-v"]
+    canonicalizeOpt('-':'V':':':xs)  = ["-V",xs]
     canonicalizeOpt("--version")     = ["-v"]
     canonicalizeOpt('-':'w':[])      = ["-w"]
     canonicalizeOpt('-':'c':rest)    = canonicalizeOpt("-c") ++ canonicalizeOpt('-':rest)
@@ -87,7 +88,8 @@ run (("-d"):rest)                 = run rest
 run (("-w"):rest)                 = run rest
 
 run ("-h":_)                    = printCommandLineHelp
-run ("-V":_)                    = printConfigInfo
+run (("-V"):[])                 = printConfigInfo []
+run (("-V"):item)               = printConfigInfo item
 run ("-v":_)                    = banner
 run ("-c":"-e":prog:_)          = doCheck "-e" prog
 run ("-c":file:_)               = readFile file >>= doCheck file
@@ -250,8 +252,9 @@ runProgramWith fenv f name args prog = do
     val <- runEnv $ runRule (fenv env) id ruleProgram name $ decodeUTF8 prog
     f val
 
-printConfigInfo :: IO ()
-printConfigInfo = do
+-- XXX clean up code and eliminate the duplication
+printConfigInfo :: [String] -> IO ()
+printConfigInfo [] = do
     environ <- getEnvironment
     libs <- getLibs environ
     putStrLn $ unlines $
@@ -262,5 +265,6 @@ printConfigInfo = do
         ++ map (\x -> "\t" ++ fst x ++ ": " ++ snd x) (fmToList config)
         ++ [ "" ]
         ++ [ "@*INC:" ] ++ libs
--- printConfigInfo item = do
---	putStrLn $ "\t" ++ item ++ ": " ++ lookupFM config item
+        
+printConfigInfo (item:_) = do
+	putStrLn $ "\t" ++ item ++ ": " ++ (lookupWithDefaultFM config "" item)

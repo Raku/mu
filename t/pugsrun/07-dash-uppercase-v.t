@@ -68,7 +68,7 @@ ok( ($pugs_config ~~ rx:perl5/^This is Perl6 User's Golfing System/), "Got some 
 for @config -> $item {
   $pugs_config = run_pugs("-V:$item");
 
-  my $local_sep = (eval '%?CONFIG{'~$item~'}') // '%?CONFIG{'~$item~'} <undefined>';
+  my $local_sep = "\t$item: %?CONFIG{$item}\n";
 
   todo_is( $pugs_config, $local_sep, "-V:$item works" );
 };
