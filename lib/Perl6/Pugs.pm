@@ -1,5 +1,5 @@
 package Perl6::Pugs;
-$Pugs::VERSION = '6.0.6';
+$Pugs::VERSION = '6.0.7';
 
 use strict;
 
@@ -9,7 +9,7 @@ Perl6::Pugs - Perl6 User's Golfing System
 
 =head1 VERSION
 
-This document describes version 6.0.6 of Pugs, released February 18, 2005.
+This document describes version 6.0.7 of Pugs, released February 18, 2005.
 
 =head1 SYNOPSIS
 
