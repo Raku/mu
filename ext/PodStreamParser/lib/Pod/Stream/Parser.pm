@@ -6,7 +6,7 @@ sub parse (Str $filename, Hash %events) is export {
     my $fh = open($filename);
     my $parsing = 0;
     for (=$fh) -> $_line {
-        my $line = $_line;
+        my $line = $_line; # << we have to do this, $_line is immutable
         chomp($line);
         if ($line ~~ rx:perl5{^=pod}) {
             $parsing = 1;
@@ -14,41 +14,44 @@ sub parse (Str $filename, Hash %events) is export {
         }
         else {
             if ($parsing) {
-                if ($line ~~ rx:perl5{^=cut}) {
-                    $parsing = 0;
-                    %events<end_document>();
-                }
-                elsif ($line ~~ rx:perl5{^=head(\d)\s(.*?)$}) {
-                    my $size = $1;
-                    %events<begin_header>($size);
-                    interpolate($2, %events);
-                    %events<end_header>($size);                
-                }
-                elsif ($line ~~ rx:perl5{^=over (\d)$}) {
-                    %events<begin_list>($1);
-                }
-                elsif ($line ~~ rx:perl5{^=item\s(.*?)$}) {
-                    %events<begin_item>();
-                    interpolate($1, %events);
-                    %events<end_item>();                
-                }
-                elsif ($line ~~ rx:perl5{^=back}) {
-                    %events<end_list>();
-                }
-                elsif ($line ~~ rx:perl5{^\s+(.*?)$}) {
-                    %events<verbatim>($1);
-                }    
-                else {
-                    if ($line ~~ rx:perl5{\<}) {
-                        interpolate($line, %events);    
+                given $line {
+                    when rx:perl5{^=cut} { 
+                        $parsing = 0;
+                        %events<end_document>();                    
                     }
-                    else {
-                        %events<text>($line);
+                    when rx:perl5{^=head(\d)\s(.*?)$} {
+                        my $size = $1;
+                        %events<begin_header>($size);
+                        interpolate($2, %events);
+                        %events<end_header>($size);                       
+                    }
+                    when rx:perl5{^=over\s(\d)$} {
+                        %events<begin_list>($1);
+                    }
+                    when rx:perl5{^=item\s(.*?)$} {
+                        %events<begin_item>();
+                        interpolate($1, %events);
+                        %events<end_item>();                     
+                    }
+                    when rx:perl5{^=back} {
+                        %events<end_list>();
+                    }
+                    when rx:perl5{^\s+(.*?)$} {
+                        %events<verbatim>($1);
+                    }
+                    default {
+                        if ($line ~~ rx:perl5{\<}) {
+                            interpolate($line, %events);    
+                        }
+                        else {
+                            %events<text>($line);
+                        }                    
                     }
                 }
             } 
         }
     }
+    $fh.close();
 }
 
 sub interpolate (Str $text, Hash %events) {
