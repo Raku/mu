@@ -82,7 +82,7 @@ WriteAll( sign => 1 );
 # FIXUP
 open MAKEFILE, '< Makefile' or die $!;
 my $makefile = do { local $/; <MAKEFILE> };
-$makefile =~ s/\b(test_harness\(\$\(TEST_VERBOSE\), )/\\\$^X = '$full_pugs'; ENV->{HARNESS_PERL} = '$full_pugs'; $1/;
+$makefile =~ s/\b(test_harness\(\$\(TEST_VERBOSE\), )/use English; *EXECUTABLE_NAME->{SCALAR} = \\'$full_pugs'; ENV->{HARNESS_PERL} = '$full_pugs'; $1/;
 close MAKEFILE;
 open MAKEFILE, '> Makefile' or die $!;
 print MAKEFILE $makefile;
