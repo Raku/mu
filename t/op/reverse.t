@@ -34,6 +34,9 @@ my $b;
 $b = @a.reverse;
 todo_is(@b[0], "foo");
 todo_is($b[0], "foo");
+is(@a[0], "foo", "original array left untouched");
+@a.=reverse;
+todo_is(@a[0], "foo");
 
 @a = ("foo", "bar");
 @b = @a.reverse;
@@ -42,9 +45,17 @@ todo_is(@b[0], "bar");
 todo_is($b[0], "bar");
 todo_is(@b[1], "foo");
 todo_is($b[1], "foo");
+is(@a[0], "foo", "original array left untouched");
+is(@a[1], "bar", "original array left untouched");
+@a.=reverse;
+todo_is(@a[0], "bar");
+todo_is(@a[1], "foo");
 
 $a = "foo";
 @b = $a.reverse;
 $b = $a.reverse;
 is(@b[0], "oof");
 is($b,    "oof");
+is($a, "foo", "original scalar left untouched");
+$a.=reverse;
+todo_is($a,    "oof");
