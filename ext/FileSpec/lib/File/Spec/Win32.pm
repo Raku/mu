@@ -120,71 +120,110 @@ sub file_name_is_absolute (Str $file) returns Bool is export {
 	?($file ~~ rx:perl5{^([a-zA-Z]:)?[\\/]} ) 
 }
 
-=pod
+# my $tmpdir;
+# method tmpdir () returns Str {
+#     return $tmpdir if $tmpdir.defined;
+#     $tmpdir = ._tmpdir( %*ENV{'TMPDIR', 'TEMP', 'TMP'}, 'SYS:/temp', 'C:/temp', '/tmp', '/');
+#     return $tmpdir;
+# }
+# 
+# method path () returns Array {
+#     my $path = $ENV{'PATH'} || $ENV{'Path'} || $ENV{'path'};
+#     my @path = $path.split(';');
+#     for (@path) { $_ = '.' if $_ eq '' }
+#     return @path;
+# }
+# 
+# 
+# method abs2rel (Str $path, Str $base) returns Str {
+#     $base = ._cwd() unless $base.defined and $base.bytes;
+#     for ($path, $base) { $_ = .canonpath($_) }
+#     my ($path_volume) = .splitpath($path, 1);
+#     my ($base_volume) = .splitpath($base, 1);
+#     # Can't relativize across volumes
+#     return $path unless $path_volume eq $base_volume;
+#     for ($path, $base) { $_ = .rel2abs($_) }
+#     my $path_directories = (.splitpath($path, 1))[1];
+#     my $base_directories = (.splitpath($base, 1))[1];
+#     # Now, remove all leading components that are the same
+#     my @pathchunks = .splitdir($path_directories);
+#     my @basechunks = .splitdir($base_directories);
+#     while ( @pathchunks && 
+#             @basechunks && 
+#             @pathchunks[0].lc eq @basechunks[0].lc 
+#           ) {
+#         @pathchunks.shift;
+#         @basechunks.shift;
+#     }
+#     # XXX: not sure if I got this   ---v--- right
+#     my $result_dirs = .catdir((.updir) x @basechunks, @pathchunks);
+#     return .canonpath(.catpath('', $result_dirs, ''));
+# }
+# 
+# 
+# method rel2abs (Str $path, Str $base) returns Str {
+#     if (!.file_name_is_absolute($path)) {
+#         if (!$base.defined || $base eq '') {
+#             # XXX not sure how to deal with this Cwd stuff
+#             require Cwd;
+#             $base = Cwd::getdcwd((.splitpath($path))[0]) if defined &Cwd::getdcwd;
+#             $base = ._cwd() unless defined $base;
+#         }
+#         elsif (!.file_name_is_absolute($base)) {
+#             $base = .rel2abs($base);
+#         }
+#         else {
+#             $base = .canonpath($base);
+#         }
+# 
+#         my ($path_directories, $path_file) = (.splitpath($path, 1))[1,2];
+# 
+#         my ($base_volume, $base_directories) = .splitpath($base, 1);
+# 
+#         $path = .catpath($base_volume, .catdir($base_directories, $path_directories), $path_file);
+#     }
+#     return .canonpath($path);
+# }
 
-my $tmpdir;
-method tmpdir () returns Str {
-    return $tmpdir if $tmpdir.defined;
-    $tmpdir = ._tmpdir( %*ENV{'TMPDIR', 'TEMP', 'TMP'}, 'SYS:/temp', 'C:/temp', '/tmp', '/');
-    return $tmpdir;
-}
 
-method path () returns Array {
-    my $path = $ENV{'PATH'} || $ENV{'Path'} || $ENV{'path'};
-    my @path = $path.split(';');
-    for (@path) { $_ = '.' if $_ eq '' }
-    return @path;
-}
+=kwid
 
+= NAME
 
-method abs2rel (Str $path, Str $base) returns Str {
-    $base = ._cwd() unless $base.defined and $base.bytes;
-    for ($path, $base) { $_ = .canonpath($_) }
-    my ($path_volume) = .splitpath($path, 1);
-    my ($base_volume) = .splitpath($base, 1);
-    # Can't relativize across volumes
-    return $path unless $path_volume eq $base_volume;
-    for ($path, $base) { $_ = .rel2abs($_) }
-    my $path_directories = (.splitpath($path, 1))[1];
-    my $base_directories = (.splitpath($base, 1))[1];
-    # Now, remove all leading components that are the same
-    my @pathchunks = .splitdir($path_directories);
-    my @basechunks = .splitdir($base_directories);
-    while ( @pathchunks && 
-            @basechunks && 
-            @pathchunks[0].lc eq @basechunks[0].lc 
-          ) {
-        @pathchunks.shift;
-        @basechunks.shift;
-    }
-    # XXX: not sure if I got this   ---v--- right
-    my $result_dirs = .catdir((.updir) x @basechunks, @pathchunks);
-    return .canonpath(.catpath('', $result_dirs, ''));
-}
+File::Spec::Win32 - Part of Perl6/Pugs Portable file handling
 
+= SYNOPOSIS
 
-method rel2abs (Str $path, Str $base) returns Str {
-    if (!.file_name_is_absolute($path)) {
-        if (!$base.defined || $base eq '') {
-            # XXX not sure how to deal with this Cwd stuff
-            require Cwd;
-            $base = Cwd::getdcwd((.splitpath($path))[0]) if defined &Cwd::getdcwd;
-            $base = ._cwd() unless defined $base;
-        }
-        elsif (!.file_name_is_absolute($base)) {
-            $base = .rel2abs($base);
-        }
-        else {
-            $base = .canonpath($base);
-        }
+  use File::Spec::Win32;
 
-        my ($path_directories, $path_file) = (.splitpath($path, 1))[1,2];
+= DESCRIPTION
 
-        my ($base_volume, $base_directories) = .splitpath($base, 1);
+This is a very primative port of the perl5 File::Spec::Win32 module.
 
-        $path = .catpath($base_volume, .catdir($base_directories, $path_directories), $path_file);
-    }
-    return .canonpath($path);
-}
+= FUNCTIONS
+
+= SEE ALSO
+
+The Perl5 version of File::Spec::Win32, although this version is more
+akin to File::Spec::Functions.
+
+= AUTHOR
+
+Stevan Little <stevan@iinteractive.com>
+
+= ACKNOWLEDGEMENTS
+
+This is a port of the perl5 File::Spec::Win32 module which is currently 
+maintained by Ken Williams <KWILLIAMS@cpan.org>, and is written
+by a number of people. Please see that module for more information.
+
+= COPYRIGHT 
+
+Copyright (c) 2005. Stevan Little. All rights reserved.
+
+This program is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+See http://www.perl.com/perl/misc/Artistic.html
 
 =cut

@@ -3,7 +3,10 @@ use v6;
 module File::Spec-0.0.1;
 
 # what follows is a really horrid hack, 
-# please do not hold it against me :)
+# and a perverse exploitation of the 
+# current (unfinished) state of modules
+# in pugs. Please do not hold it against 
+# me :)
 
 if ($?OS eq 'MSWin32') {
     eval 'require File::Spec::Win32';
@@ -26,6 +29,8 @@ File::Spec - Perl6/Pugs Portable file handling
   catfile('path', 'to', 'file');
   
   my @path = splitdir('/path/to/dir'); 
+  
+  # ... etc etc etc
 
 = DESCRIPTION
 
@@ -51,18 +56,25 @@ GHC and Pugs currently run on (yeah no VMS !!).
 
 = SEE ALSO
 
-The Perl5 version of File::Spec, although this version is more akin to File::Spec::Functions.
+The Perl5 version of File::Spec, although this version is more akin 
+to File::Spec::Functions.
 
 = AUTHOR
 
 Stevan Little <stevan@iinteractive.com>
 
+= ACKNOWLEDGEMENTS
+
+This is a port of the perl5 File::Spec module which is currently 
+maintained by Ken Williams <KWILLIAMS@cpan.org>, and is written
+by a number of people. Please see that module for more information.
+
 = COPYRIGHT 
 
 Copyright (c) 2005. Stevan Little. All rights reserved.
 
-This program is free software; you can redistribute it and/or modify it
-under the same terms as Perl itself.
+This program is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
 
 See http://www.perl.com/perl/misc/Artistic.html
 

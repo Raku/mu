@@ -144,35 +144,74 @@ sub canonpath (Str $_path) returns Str is export {
 # the File::Spec platform hack 
 sub cwd returns Str { system("pwd") }
 
+# 
+# ## TODO:
+# # Refactor _tmpdir and tmpdir into class attributes
+# my Str $tmpdir;
+# method _tmpdir (*@dirlist) returns Str {
+#     return $tmpdir if $tmpdir.defined;
+#     ## QUESTION: How does Perl6 handle tainting??
+#     # {
+#     #     no strict 'refs';
+#     #     if (${"\cTAINT"}) { # Check for taint mode on perl >= 5.8.0
+#     #             require Scalar::Util;
+#     #         @dirlist = grep { ! Scalar::Util::tainted($_) } @dirlist;
+#     #     }
+#     # }
+#     for @dirlist -> $dir {
+#         next unless $dir.defined && -d -w $dir;
+#         $tmpdir = $dir;
+#         last;
+#     }
+#     $tmpdir = $.curdir unless $tmpdir.defined;
+#     $tmpdir = $tmpdir.defined && .canonpath($tmpdir);
+#     return $tmpdir;
+# }
+# 
+# method tmpdir () returns Str {
+#     return $tmpdir if $tmpdir.defined;
+#     $tmpdir = ._tmpdir(%*ENV{'TMPDIR'}, "/tmp");
+#     return $tmpdir;
+# }
+
 =kwid
 
-## TODO:
-# Refactor _tmpdir and tmpdir into class attributes
-my Str $tmpdir;
-method _tmpdir (*@dirlist) returns Str {
-    return $tmpdir if $tmpdir.defined;
-    ## QUESTION: How does Perl6 handle tainting??
-    # {
-    #     no strict 'refs';
-    #     if (${"\cTAINT"}) { # Check for taint mode on perl >= 5.8.0
-    #             require Scalar::Util;
-    #         @dirlist = grep { ! Scalar::Util::tainted($_) } @dirlist;
-    #     }
-    # }
-    for @dirlist -> $dir {
-        next unless $dir.defined && -d -w $dir;
-        $tmpdir = $dir;
-        last;
-    }
-    $tmpdir = $.curdir unless $tmpdir.defined;
-    $tmpdir = $tmpdir.defined && .canonpath($tmpdir);
-    return $tmpdir;
-}
+= NAME
 
-method tmpdir () returns Str {
-    return $tmpdir if $tmpdir.defined;
-    $tmpdir = ._tmpdir(%*ENV{'TMPDIR'}, "/tmp");
-    return $tmpdir;
-}
+File::Spec::Unix - Part of Perl6/Pugs Portable file handling
+
+= SYNOPOSIS
+
+  use File::Spec::Unix;
+
+= DESCRIPTION
+
+This is a very primative port of the perl5 File::Spec::Unix module.
+
+= FUNCTIONS
+
+= SEE ALSO
+
+The Perl5 version of File::Spec::Unix, although this version is more
+akin to File::Spec::Functions.
+
+= AUTHOR
+
+Stevan Little <stevan@iinteractive.com>
+
+= ACKNOWLEDGEMENTS
+
+This is a port of the perl5 File::Spec::Unix module which is currently 
+maintained by Ken Williams <KWILLIAMS@cpan.org>, and is written
+by a number of people. Please see that module for more information.
+
+= COPYRIGHT 
+
+Copyright (c) 2005. Stevan Little. All rights reserved.
+
+This program is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+See http://www.perl.com/perl/misc/Artistic.html
 
 =cut
