@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 14;
+plan 15;
 
 # ref() on basic types
 
@@ -56,3 +56,6 @@ is(ref($bool), 'Bool', 'it is a Bool type');
 
 my $pair = "foo" => "bar";
 is(ref($pair), 'Pair', 'it is a Pair type');
+
+my $rule = rx:perl5{^hello\sworld$};
+is(ref($rule), 'Rule', 'it is a Rule type');
