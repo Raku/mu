@@ -197,13 +197,8 @@ printConfigInfo = do
         ["This is " ++ version ++ " built for" ++ getConfig "archname"
         ,""
         ,"Summary of pugs configuration:"
-        ,""
-        , unlines $ map (\x -> "\t" ++ fst x ++ ": " ++ snd x) (fmToList config)
-        --,"archlib: " ++ lookupFM config "archlib"
-        --,"privlib: " ++ lookupFM config "privlib"
-        --,"sitearch: " ++ lookupFM config "sitearch"
-        --,"sitelib: " ++ lookupFM config "sitelib"
-        ,""
-        ] ++
-        [ "@*INC:" ] ++ libs
+        ,"" ]
+        ++ map (\x -> "\t" ++ fst x ++ ": " ++ snd x) (fmToList config)
+        ++ [ "" ]
+        ++ [ "@*INC:" ] ++ libs
 
