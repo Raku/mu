@@ -68,6 +68,7 @@ bindEmpty :: Param -> MaybeError (Param, Exp)
 bindEmpty p = case paramName p of
     ('@':_) -> return (p, emptyArrayExp)
     ('$':_) -> fail $ "Unbound slurpy scalar: " ++ show p
+    other   -> error $ "Impossible - unknown slurpy sigil in param: " ++ other
 
 isPair :: Exp -> Bool
 isPair (Syn "=>" [(Val v), _])   = True
