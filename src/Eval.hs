@@ -237,7 +237,7 @@ doReduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
             [Syn "[]" [Var name, indexExp], exp] -> do
                 listMVal <- evalVar name
                 listVal  <- readMVal listMVal
-                indexVal <- evalExp exp
+                indexVal <- evalExp indexExp
                 val' <- enterEvalContext (cxtOfSigil $ head name) exp
                 let index   = (vCast indexVal :: Integer)
                     list    = concatMap vCast (vCast listVal)
@@ -266,7 +266,10 @@ doReduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         list    <- enterEvalContext "List" listExp
         range   <- enterEvalContext "List" rangeExp
         let slice = unfoldr (doSlice errs $ vCast list) (map vCast $ vCast range)
-        retVal $ VList slice
+        cls     <- asks envClasses
+        if isaType cls "Scalar" cxt
+            then retVal $ last (VUndef:slice)
+            else retVal $ VList slice
     "gather" -> do
         val     <- enterEvalContext "List" exp
         -- ignore val
