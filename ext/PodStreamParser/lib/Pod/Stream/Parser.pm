@@ -2,50 +2,94 @@ use v6;
 
 module Pod::Stream::Parser-0.0.1;
 
-sub parse (Str $filename, Hash %events) is export {
-    my $fh = open($filename);
-    my $parsing = 0;
+my @EVENTS = (
+    'start_document',
+    'end_document',
+    
+    'start_header',
+    'end_header',
+
+    'start_begin',
+    'end_begin',
+
+    'start_for',
+    'end_for',
+    
+    'start_list',
+    'end_list',
+    
+    'start_item',
+    'end_item',
+    
+    'verbatim',
+    
+    'start_interpolation',
+    'end_interpolation',
+        
+    'start_modifier',
+    'end_modifier',
+    'string'
+);
+
+sub parse (Str $filename, Hash %_events) is export {
+    my %events = %_events; # << we have to do this, %_events is immutable
+    for (@EVENTS) -> $e { %events{$e} = sub { '' } unless ?%events{$e} }
+    my $fh = open($filename);    
+    my $is_parsing = 0;
+    my @for_or_begin;
     for (=$fh) -> $_line {
         my $line = $_line; # << we have to do this, $_line is immutable
         chomp($line);
         if ($line ~~ rx:perl5{^=pod}) {
-            $parsing = 1;
-            %events<begin_document>();
+            $is_parsing = 1;
+            %events<start_document>();
         }
         else {
-            if ($parsing) {
+            if ($is_parsing) {
                 given $line {
                     when rx:perl5{^=cut} { 
-                        $parsing = 0;
+                        $is_parsing = 0;
                         %events<end_document>();                    
                     }
                     when rx:perl5{^=head(\d)\s(.*?)$} {
                         my $size = $1;
-                        %events<begin_header>($size);
+                        %events<start_header>($size);
                         interpolate($2, %events);
                         %events<end_header>($size);                       
                     }
                     when rx:perl5{^=over\s(\d)$} {
-                        %events<begin_list>($1);
+                        %events<start_list>($1);
                     }
                     when rx:perl5{^=item\s(.*?)$} {
-                        %events<begin_item>();
+                        %events<start_item>();
                         interpolate($1, %events);
                         %events<end_item>();                     
                     }
                     when rx:perl5{^=back} {
                         %events<end_list>();
                     }
+                    when rx:perl5{^=begin\s(.*?)$} {
+                        push(@for_or_begin, 'begin');
+                        %events<start_begin>($1);
+                    }                    
+                    when rx:perl5{^=for\s(.*?)$} {
+                        push(@for_or_begin, 'for');
+                        %events<start_for>($1);
+                    }                    
+                    when rx:perl5{^=end\s(.*?)$} {
+                        my $last_for_or_begin = pop(@for_or_begin);
+                        if ($last_for_or_begin eq 'for') {
+                            %events<end_for>($1);
+                        }
+                        else {
+                            %events<end_begin>($1);
+                        }
+                    }                    
                     when rx:perl5{^\s+(.*?)$} {
                         %events<verbatim>($1);
                     }
                     default {
-                        if ($line ~~ rx:perl5{\<}) {
-                            interpolate($line, %events);    
-                        }
-                        else {
-                            %events<text>($line);
-                        }                    
+                        interpolate($line, %events);                       
                     }
                 }
             } 
@@ -55,41 +99,40 @@ sub parse (Str $filename, Hash %events) is export {
 }
 
 sub interpolate (Str $text, Hash %events) {
-    %events<string>($text);
-    # I need either split(<regexp>) support or 
-    # the ability to capture matches  
-# 	my @tokens = $text ~~ rx:perl5:g{(?:[A-Z]<\s+|[A-Z]<|\s+>|>|\w+|\s+)};
-# 	# this is a memory stack for modifiers
-# 	# it helps up track down problems
-# 	my @modifier_stack;
-# 	for (@tokens) -> $token {	
-# 		if ($token ~~ rx:perl5{([A-Z])<}) {
-# 			push(@modifier_stack, $1);
-#             %events<begin_modifier>($1);
-# 		}
-# 		elsif ($token ~~ rx:perl5{\>}) {
-# 			# if we have one the stack ..
-# 			if (+@modifier_stack) {
-# 				# then this one probably matches,
-# 				# so we can pop that modifier off  
-# 				my $last_mod = pop(@modifier_stack);
-#                 %events<end_modifier>($last_mod);
-# 			}
-# 			# if we dont have one on the stack
-# 			else {
-# 				die "unbalanced >";
-# 			}
-# 		}
-# 		else {
-# 			%events<string>($token);
-# 		}
-# 	}
-#     print "\n";
-# 	# if we find we still have some modifiers
-# 	# on the stack, then we have an error, so 
-# 	# we need to throw an exception about it.
-# 	(+@modifier_stack) 
-# 		|| die "Unbalanced modifier(s) found (" ~ join(", ", @modifier_stack) ~ ") in the string (@tokens)";
+    %events<string>($text); # <<< this is a HACK for now
+    
+    %events<start_interpolation>();
+	my @tokens = (); # $text ~~ rx:perl5:g{(?:[A-Z]<\s+|[A-Z]<|\s+>|>|\w+|\s+)};
+	# this is a memory stack for modifiers
+	# it helps up track down problems
+	my @modifier_stack;
+	for (@tokens) -> $token {	
+        given $token {
+            when rx:perl5{^([A-Z])<$} {
+                push(@modifier_stack, $1);
+                %events<start_modifier>($1);
+            }
+            when rx:perl5{^>$} {
+                # if we dont have anything on the stack
+                # then we are not balanced, and should die
+                (!@modifier_stack) || die "Unbalanced close modifier (>) found";
+                # if we have one the stack ..
+                # then this one probably matches,
+                # so we can pop that modifier off  
+                my $last_mod = pop(@modifier_stack);
+                %events<end_modifier>($last_mod);
+            }
+            default {
+                %events<string>($token);
+            }
+        }
+	}
+	# if we find we still have some modifiers
+	# on the stack, then we have an error, so 
+	# we need to throw an exception about it.
+	(!@modifier_stack) 
+		|| die "Unbalanced modifier(s) found (" ~ join(", ", @modifier_stack) ~ ") in the string (@tokens)";
+    %events<end_interpolation>();
 }
 
 =pod
@@ -118,10 +161,52 @@ Functionality is B<severaly> limited right now. See the tests for more details.
 
 =over 4
 
-=item B<parse (Str $filename, Hash %event_handlers)>
+=item B<parse (Str $filename, Hash %events)>
 
-The main C<parse> function currently takes a C<$filename> and a Hash of C<%event_handlers> 
+The main C<parse> function currently takes a C<$filename> and a Hash of C<%events> 
 which it uses to process each line of the file.
+
+=back
+
+=head1 EVENTS
+
+=over 4
+
+=item I<start_document>
+
+=item I<end_document>
+    
+=item I<start_header>
+
+=item I<end_header>
+
+=item I<start_begin>
+
+=item I<end_begin>
+
+=item I<start_for>
+
+=item I<end_for>
+    
+=item I<start_list>
+
+=item I<end_list>
+    
+=item I<start_item>
+
+=item I<end_item>
+    
+=item I<verbatim>
+    
+=item I<start_interpolation>
+
+=item I<end_interpolation>
+        
+=item I<start_modifier>
+
+=item I<end_modifier>
+
+=item I<string>
 
 =back
 
