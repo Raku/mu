@@ -180,6 +180,8 @@ t/Dialects/perlego/sigilless.t
 t/examples.t
 t/junction/abc.t
 t/junction/s09eg.t
+t/junction/junction_functions.t
+t/junction/misc_junctions.t
 t/magicals/block.t
 t/magicals/caller_pos.t
 t/magicals/env.t
