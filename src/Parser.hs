@@ -193,11 +193,22 @@ ruleModuleDeclaration = rule "module declaration" $ do
     return $ Val VUndef -- XXX
 
 ruleClosureTrait = rule "closure trait" $ do
-    name    <- tryChoice $ map symbol $ words "BEGIN CHECK INIT END"
+    name    <- tryChoice $ map symbol $ words " END "
     block   <- ruleBlock
-    -- let sym = Symbol SGlobal "$*END" block
-    -- updateState $ \e -> e{ envGlobal = (sym:envGlobal e) }
-    return $ Val VUndef -- XXX
+    let (fun, names) = extract (block, [])
+    -- Check for placeholder vs formal parameters
+    unless (null names) $
+        fail "Closure traits takes no formal parameters"
+    let sub = Sub { isMulti       = False
+                  , subName       = name
+                  , subPad        = []
+                  , subType       = SubBlock
+                  , subAssoc      = "pre"
+                  , subReturns    = "Any"
+                  , subParams     = []
+                  , subFun        = fun
+                  }
+    return $ App "&prefix:push" [Var "@*END"] [Syn "sub" [Val $ VSub sub]]
 
 rulePackageDeclaration = rule "package declaration" $ fail ""
 

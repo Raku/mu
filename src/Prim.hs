@@ -400,11 +400,11 @@ primOp sym assoc prms ret = Symbol SOur name (Val sub)
         "list"      -> (0, "infix", False)
         other       -> (0, other, True)
         
-primDecl str = primOp sym assoc (reverse $ foldr foldParam [] prms) ret
+primDecl str = primOp sym assoc (foldr foldParam [] prms) ret
     where
     (ret:assoc:sym:prms') = words str
     takeWord = takeWhile isWord . dropWhile (not . isWord)
-    isWord = not . (`elem` "|(),")
+    isWord = not . (`elem` "|(),:")
     prms = map takeWord prms'
 
 doFoldParam cxt [] []       = [buildParam cxt "" "$?1" (Val VUndef)]
@@ -412,7 +412,8 @@ doFoldParam cxt [] (p:ps)   = (buildParam cxt "" (strInc $ paramName p) (Val VUn
 doFoldParam cxt (s:name) ps = (buildParam cxt [s] name (Val VUndef) : ps)
 
 foldParam :: String -> Params -> Params
-foldParam "List"    = doFoldParam "List" "*@?0"
+foldParam "List"    = doFoldParam "List" "*@?1"
+foldParam ('r':'w':'!':"List") = \ps -> ((buildParam "List" "" "@?0" (Val VUndef)) { isLValue = True }:ps)
 foldParam ('r':'w':'!':str) = \ps -> ((buildParam str "" "$?1" (Val VUndef)) { isLValue = True }:ps)
 foldParam ""        = id
 foldParam ('?':str) = \ps -> (buildParam "Num" "?" "$?1" (Val $ VNum (read def)):ps)
@@ -445,6 +446,10 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   List      pre     grep    (Code, List)\
 \\n   List      pre     map     (List: Code)\
 \\n   List      pre     grep    (List: Code)\
+\\n   Int       pre     push    (rw!Array: List)\
+\\n   Int       pre     unshift (rw!Array: List)\
+\\n   Scalar    pre     pop     (rw!Array)\
+\\n   Scalar    pre     shift   (rw!Array)\
 \\n   Str       pre     join    (List)\
 \\n   List      left    zip     (List)\
 \\n   List      pre     keys    (Hash)\
