@@ -77,7 +77,6 @@ op1 "undef" = \mv -> do
     return VUndef
 op1 "+"    = return . op1Numeric id
 op1 "abs"  = return . op1Numeric abs
-op1 "atan2"= op1Floating atan
 op1 "cos"  = op1Floating cos
 op1 "sin"  = op1Floating sin
 op1 "sqrt" = op1Floating sqrt
@@ -429,6 +428,10 @@ op2 "~>" = \x y -> return $ VStr $ mapStr (`shiftR` vCast y) (vCast x)
 op2 "**" = op2Rat ((^^) :: VRat -> VInt -> VRat)
 op2 "+"  = op2Numeric (+)
 op2 "-"  = op2Numeric (-)
+op2 "atan2" = \x y -> do
+    x' <- fromVal x
+    y' <- fromVal y
+    return . VNum $ atan2 x' y'
 op2 "~"  = op2Str (++)
 op2 "+|" = op2Int (.|.)
 op2 "+^" = op2Int xor
@@ -806,6 +809,10 @@ foldParam ('r':'w':'!':"List") = \ps -> ((buildParam "List" "" "@?0" (Val VUndef
 foldParam ('r':'w':'!':str) = \ps -> ((buildParam str "" "$?1" (Val VUndef)) { isLValue = True }:ps)
 foldParam ""        = id
 foldParam ('?':str)
+    | (('r':'w':'!':typ), "=$_") <- break (== '=') str
+    = \ps -> ((buildParam typ "?" "$?1" (Var "$_")) { isLValue = True }:ps)
+    | (typ, "=$_") <- break (== '=') str
+    = \ps -> (buildParam typ "?" "$?1" (Var "$_"):ps)
     | (typ, ('=':def)) <- break (== '=') str
     = let readVal "Num" = Val . VNum . read
           readVal "Int" = Val . VInt . read
@@ -826,12 +833,12 @@ foldParam x         = doFoldParam x []
 initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      spre    !       (Bool)\
 \\n   Num       spre    +       (Num)\
-\\n   Num       pre     abs     (Num)\
-\\n   Num       pre     atan2    (Num)\
-\\n   Num       pre     cos     (Num)\
-\\n   Num       pre     sin     (Num)\
-\\n   Num       pre     exp     (Num)\
-\\n   Num       pre     sqrt    (Num)\
+\\n   Num       pre     abs     (?Num=$_)\
+\\n   Num       pre     atan2   (Num, Num)\
+\\n   Num       pre     cos     (?Num=$_)\
+\\n   Num       pre     sin     (?Num=$_)\
+\\n   Num       pre     exp     (?Num=$_)\
+\\n   Num       pre     sqrt    (?Num=$_)\
 \\n   Bool      pre     -d      (Str)\
 \\n   Bool      pre     -f      (Str)\
 \\n   Num       spre    -       (Num)\
@@ -841,7 +848,7 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   List      spre    =       (IO)\
 \\n   Str       pre     readline (IO)\
 \\n   List      pre     readline (IO)\
-\\n   Int       pre     int     (Int)\
+\\n   Int       pre     int     (?Int=$_)\
 \\n   List      pre     list    (List)\
 \\n   Scalar    pre     scalar  (Scalar)\
 \\n   List      pre     reverse (List)\
@@ -860,10 +867,10 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Int       pre     index   (Str, Str, ?Int=0)\
 \\n   Int       pre     rindex  (Str, Str, ?Int)\
 \\n   Int       pre     substr  (rw!Str, Int, ?Int, ?Str)\
-\\n   Str       pre     lc      (Str)\
-\\n   Str       pre     lcfirst (Str)\
-\\n   Str       pre     uc      (Str)\
-\\n   Str       pre     ucfirst (Str)\
+\\n   Str       pre     lc      (?Str=$_)\
+\\n   Str       pre     lcfirst (?Str=$_)\
+\\n   Str       pre     uc      (?Str=$_)\
+\\n   Str       pre     ucfirst (?Str=$_)\
 \\n   Any       post    ++      (rw!Num)\
 \\n   Num       post    --      (rw!Num)\
 \\n   Any       spre    ++      (rw!Num)\
@@ -885,9 +892,9 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   List      pre     values  (Hash)\
 \\n   List      pre     kv      (Hash)\
 \\n   Str       pre     perl    (List)\
-\\n   Any       pre     eval    (Str)\
-\\n   Any       pre     eval_perl5 (Str)\
-\\n   Any       pre     require (Str)\
+\\n   Any       pre     eval    (?Str=$_)\
+\\n   Any       pre     eval_perl5 (?Str=$_)\
+\\n   Any       pre     require (?Str=$_)\
 \\n   Any       pre     require_haskell (Str)\
 \\n   Any       pre     last    (?Int=1)\
 \\n   Any       pre     exit    (?Int=0)\
@@ -908,7 +915,7 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Socket    pre     listen  (Int)\
 \\n   Socket    pre     connect (Str, Int)\
 \\n   Any       pre     accept  (Any)\
-\\n   List      pre     slurp   (Str)\
+\\n   List      pre     slurp   (?Str=$_)\
 \\n   List      pre     slurp   (Handle)\
 \\n   Bool      pre     system  (Str)\
 \\n   Bool      pre     system  (Str: List)\
@@ -919,12 +926,12 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Junction  pre     one     (List)\
 \\n   Junction  pre     none    (List)\
 \\n   Bool      pre     sleep   (Int)\
-\\n   Bool      pre     rmdir   (Str)\
+\\n   Bool      pre     rmdir   (?Str=$_)\
 \\n   Bool      pre     mkdir   (Str)\
 \\n   Bool      pre     chdir   (Str)\
 \\n   Int       pre     elems   (Array)\
-\\n   Int       pre     chars   (Str)\
-\\n   Int       pre     bytes   (Str)\
+\\n   Int       pre     chars   (?Str=$_)\
+\\n   Int       pre     bytes   (?Str=$_)\
 \\n   Int       pre     chmod   (List)\
 \\n   Scalar    pre     key     (Pair)\
 \\n   Scalar    pre     value   (Pair)\
@@ -1007,9 +1014,9 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Scalar    left    nor     (Bool, ~Bool)\
 \\n   Scalar    left    xor     (Bool, Bool)\
 \\n   Scalar    left    err     (Bool, ~Bool)\
-\\n   Int       pre     chr     (Str)\
-\\n   Str       pre     ord     (Int)\
-\\n   Str       pre     hex     (Str)\
+\\n   Int       pre     chr     (?Str=$_)\
+\\n   Str       pre     ord     (?Int=$_)\
+\\n   Str       pre     hex     (?Str=$_)\
 \\n   Str       pre     hex     (Int)\
 \\n   Any       list    ;       (Any)\
 \\n   Thread    pre     async   (Code)\
