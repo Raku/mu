@@ -145,6 +145,7 @@ t/base/loop.t
 t/base/num.t
 t/base/operator.t
 t/base/try.t
+t/base/undef.t
 t/base/unless.t
 t/base/until.t
 t/base/while.t

@@ -9,7 +9,7 @@ Basic "undef" tests
 
 =cut
 
-plan 24;
+plan 26;
 
 =kwid
 
@@ -112,7 +112,8 @@ is(ref($hash_r), "Hash", "taking a ref");
 ok(defined($hash_r), "hash reference");
 undef %hash;
 ok(defined($hash_r), "undef hash referent");
-todo_is(eval '$hash_r.keys.elems', 0,"dangling hash reference") or diag $hash_r;
+todo_is(eval '$hash_r.keys.elems', 0, "dangling hash reference") or
+	diag $hash_r;
 
 
 # rules
@@ -131,4 +132,10 @@ todo_is(eval '$hash_r.keys.elems', 0,"dangling hash reference") or diag $hash_r;
 # TODO: write me, refer to S09
 # - autoloading
 
-
+# types
+#my Array $an_ary;
+#ok(!defined($an_ary), "my Array");
+#ok(!defined($an_ary.0), "my Array subscript - undef");
+#$an_ary.push("blergh");
+#ok(defined($an_ary.pop), "push");
+#ok(!defined($an_ary.pop), "comes to shove");
