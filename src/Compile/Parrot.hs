@@ -78,7 +78,10 @@ instance Compile Exp where
         [ compile var <+> text "=" <+> compile lhs <> text "[" <> compile rhs <> text"]"
         ]
     compile (Syn "block" blocks) = vcat $ map compile blocks
-    compile (Syn "=" [lhs, rhs]) = compile lhs <+> text "=" <+> compile rhs
+    compile (Syn "=" [lhs, rhs@(Var _)]) = hsep $
+        [ compile lhs, text "=", text "assign", compile rhs ]
+    compile (Syn "=" [lhs, rhs]) = hsep $
+        [ compile lhs, text "=", compile rhs ]
     compile (Syn "if" exps) = compileCond "unless" exps
     compile (Syn "unless" exps) = compileCond "if" exps
     compile exp@(Syn "loop" [pre, cond, post, body]) = 
