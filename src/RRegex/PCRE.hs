@@ -1,7 +1,7 @@
 {-# OPTIONS -cpp -fglasgow-exts -fvia-C -O #-}
 
 #undef PUGS_HAVE_POSIX
-#include "pugs_config.h"
+#include "../pugs_config.h"
 #ifdef PUGS_HAVE_POSIX
 {-# INCLUDE <pcre.h> #-}
 #else

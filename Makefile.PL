@@ -24,7 +24,7 @@ author          ('Autrijus Tang <autrijus@autrijus.org>');
 license         ('perl');
 install_script  ($pugs);
 install_script  (glob('script/*'));
-build_requires  ('ExtUtils::MakeMaker' => 6.17);
+build_requires  ('ExtUtils::MakeMaker' => 6.15);
 include         ('Module::Install::Makefile::Name');
 include         ('Module::Install::Makefile::Version');
 build_subdirs   (map fixpaths($_), grep -e "$_/Makefile.PL", glob("ext/*"));
