@@ -577,16 +577,12 @@ makeOp2 prec sigil con name = (`Infix` prec) $ do
     symbol name
     return $ \x y -> con (sigil ++ name) [x,y]
 
-parseParens parse = do
-    cs  <- parens parse
-    return cs
-
 parseTerm = rule "term" $ do
     term <- choice
         [ ruleVar
         , ruleLit
         , parseApply
-        , parseParens ruleExpression
+        , parens ruleExpression
         ]
     fs <- many rulePostTerm
     return $ foldr (.) id (reverse fs) $ term
