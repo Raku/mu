@@ -9,7 +9,7 @@ Hash tests
 
 =cut
 
-plan 34;
+plan 38;
 
 # basic lvalue assignment
 
@@ -58,6 +58,16 @@ is(+@slice2, 2, 'got the right amount of values from the %hash<> slice');
 is(@slice2[0], 3, '%hash<> slice was successful');
 is(@slice2[1], 1, '%hash<> slice was successful');
 
+# slice assignment
+
+eval '%hash5{"one", "three"} = (5, 10)';
+todo_is(%hash5<one>, 5, 'value was changed successfully with slice assignment');
+todo_is(%hash5<three>, 10, 'value was changed successfully with slice assignment');
+
+eval '%hash5<one three> = [3, 1]';
+todo_is(%hash5<one>, 3, 'value was changed successfully with slice assignment');
+todo_is(%hash5<three>, 1, 'value was changed successfully with slice assignment');
+
 # keys 
 
 my %hash6 = ("one", 1, "two", 2, "three", 3);
@@ -78,13 +88,13 @@ is(@keys2[2], 'two', 'got the right key');
 
 my %hash7 = ("one", 1, "two", 2, "three", 3);
 
-my @values1 = values %hash6;
+my @values1 = values %hash7;
 is(+@values1, 3, 'got the right number of values');
 is(@values1[0], 1, 'got the right values');
 is(@values1[1], 3, 'got the right values');
 is(@values1[2], 2, 'got the right values');
 
-my @values1 = %hash6.values;
+my @values1 = %hash7.values;
 is(+@values1, 3, 'got the right number of values');
 is(@values1[0], 1, 'got the right values');
 is(@values1[1], 3, 'got the right values');
