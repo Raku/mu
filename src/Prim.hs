@@ -46,6 +46,7 @@ op1 "one"  _ = opJuncOne
 op1 "none" _ = VJunc JNone
 op1 "perl" _ = \x -> VStr $ pretty (x :: Val)
 op1 "eval" e = opEval e
+op1 "rand" e = \(x :: VNum) -> VNum $ unsafePerformIO $ getStdRandom (randomR (0, if x == 0 then 1 else x))
 op1 s      _ = \x -> VError ("unimplemented unaryOp: " ++ s) (Val x)
 
 opEval :: Env -> String -> Val
@@ -211,8 +212,9 @@ doFoldParam cxt [] (p:ps)   = (buildParam cxt "" (strInc $ paramName p) (Val VUn
 doFoldParam cxt (s:name) ps = (buildParam cxt [s] name (Val VUndef) : ps)
 
 foldParam :: String -> Params -> Params
-foldParam "List" = doFoldParam "List" "*@x"
-foldParam x      = doFoldParam x ""
+foldParam "List"    = doFoldParam "List" "*@x"
+foldParam "?Num=1"  = \ps -> (buildParam "Num" "?" "$x" (Val $ VNum 1):ps)
+foldParam x         = doFoldParam x ""
 
 -- XXX -- Junctive Types -- XXX --
 
@@ -232,6 +234,7 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Bool      pre     not     (Bool)\
 \\n   Str       pre     perl    (List)\
 \\n   Any       pre     eval    (Str)\
+\\n   Num       pre     rand    (?Num=1)\
 \\n   Junction  pre     any     (List)\
 \\n   Junction  pre     all     (List)\
 \\n   Junction  pre     one     (List)\

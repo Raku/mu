@@ -15,7 +15,9 @@
 
 module Internals (
     module System.Environment,
+    module System.Random,
     module System.IO,
+    module System.IO.Unsafe,
     module Control.Monad.Error,
     module Data.Bits,
     module Data.List,
@@ -36,7 +38,9 @@ module Internals (
 ) where
 
 import System.Environment
+import System.Random
 import System.IO hiding (try)
+import System.IO.Unsafe
 import Control.Monad.Error
 import qualified System.IO (try)
 import Data.Bits

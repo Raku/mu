@@ -131,7 +131,7 @@ parseBareTrait trait = do
            , do { symbol trait ; identifier }
            ]
 
-parseContext = do
+parseContext = lexeme $ do
     lead    <- upper
     rest    <- many1 wordAny
     return (lead:rest)
@@ -143,7 +143,7 @@ parseParamDefault False = option (Val VUndef) $ do
 
 parseFormalParam = do
     cxt     <- option "" $ parseContext
-    sigil   <- option "" $ choice . map string $ words " ? * + ++ "
+    sigil   <- option "" $ lexeme $ choice . map string $ words " ? * + ++ "
     name    <- parseVarName
     let required = (sigil /=) `all` ["?", "+"]
     exp     <- parseParamDefault required
