@@ -5,6 +5,8 @@ require Test;
 
 # These tests are based on the behavior of blead-perl as of 2005-03-06
 
+plan 23;
+
 { # read only
 	my $str = "foobar";
 
@@ -40,7 +42,7 @@ require Test;
 	
 	my $r;
 	eval '$r = \substr($str, 0, 5)';
-	todo_ok(ref($r), '$r is a reference');
+	ok(ref($r), '$r is a reference');
 	todo_is(eval '$$r', "gloop", '$r referent is eq to the substring');
 
 	eval '$$r = "boing"';
