@@ -1,0 +1,9 @@
+# For releases, we used to TODO all failing tests.
+# Because this wasn't that easy at times, we have now a more central approach:
+# Test.pm reads this file and checks, if there are some tests to forcetodo.
+# 
+# Example: To forcetodo tests 13-15 and 42 of t/foo/bar.t, uncomment the
+# following line:
+#   t/foo/bar.t 13 14 15 42
+# 
+# (Side note: Lines matching /^#/ are comments.)
