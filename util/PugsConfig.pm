@@ -130,7 +130,7 @@ config = listToFM
 	[#all_definitions#
 	,("pugs_versnum", Help.versnum)
 	,("pugs_version", Help.version)
-	,("pugs_revision", Help.revision)
+	,("pugs_revision", Help.revnum)
 	]
 
 getConfig :: String -> String

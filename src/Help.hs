@@ -16,7 +16,7 @@
 #include "pugs_version.h"
 
 module Help (printInteractiveHelp, printCommandLineHelp,
-             banner, versnum, version, revision,
+             banner, versnum, version, revnum,
              copyright, disclaimer, intro) where
 
 printInteractiveHelp :: IO ()
@@ -48,8 +48,9 @@ versnum    = PUGS_VERSION
 date	   = PUGS_DATE
 version    = name ++ ", version " ++ versnum ++ ", " ++ date ++ revision
 copyright  = "Copyright 2005 by Autrijus Tang"
+revnum     = show(PUGS_SVN_REVISION :: Integer)
 revision
-    | rev <- show(PUGS_SVN_REVISION :: Integer)
+    | rev <- revnum
     , rev /= "0"
     = " (r" ++ rev ++ ")"
     | otherwise
