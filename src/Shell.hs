@@ -14,10 +14,10 @@ module Shell where
 import Internals
 import AST
 
-#undef READLINE
+#undef PUGS_HAVE_READLINE
 #include "config.h"
 
-#ifdef READLINE
+#ifdef PUGS_HAVE_READLINE
 import qualified System.Console.Readline as Readline
 #endif
 
@@ -57,7 +57,7 @@ parseCommandLine str            = CmdEval str
 
 initializeShell :: IO ()
 initializeShell
-#ifdef READLINE
+#ifdef PUGS_HAVE_READLINE
    = Readline.initialize
 #else
    = return ()
@@ -65,7 +65,7 @@ initializeShell
 
 readline :: String -> IO (Maybe String)
 readline prompt
-#ifdef READLINE
+#ifdef PUGS_HAVE_READLINE
    = Readline.readline prompt
 #else
    = do putStr prompt
@@ -75,7 +75,7 @@ readline prompt
 
 addHistory :: String -> IO ()
 addHistory str
-#ifdef READLINE
+#ifdef PUGS_HAVE_READLINE
    = Readline.addHistory str
 #else
    = return ()

@@ -64,17 +64,17 @@ while (<IN>) {
 }
 
 if ($^O eq 'MSWin32') {
-    print FH "#undef POSIX\n";
+    print FH "#undef PUGS_HAVE_POSIX\n";
 }
 else {
-    print FH "#define POSIX 1\n";
+    print FH "#define PUGS_HAVE_POSIX 1\n";
 }
 
 if ($has_readline) {
-    print FH "#define READLINE 1\n";
+    print FH "#define PUGS_HAVE_READLINE 1\n";
 }
 else {
-    print FH "#undef READLINE\n";
+    print FH "#undef PUGS_HAVE_READLINE\n";
 }
 close FH;
 

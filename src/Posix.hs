@@ -11,7 +11,7 @@
     In Tauremornalome. 
 -}
 
-#undef READLINE
+#undef PUGS_HAVE_POSIX
 #include "config.h"
 
 module Posix (
@@ -19,7 +19,7 @@ module Posix (
     rename,
 ) where
 
-#ifdef POSIX
+#ifdef PUGS_HAVE_POSIX
 import System.Posix.Files
 import System.Posix.Process
 import System.Posix.Unistd
