@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 13;
+plan 14;
 
 # ref() on basic types
 
@@ -40,6 +40,10 @@ is(ref($s3), 'Sub', 'it is a Sub type (pointy sub)');
 
 my $int = 0;
 is(ref($int), 'Int', 'it is an Int type');
+
+# the only way I can seem to get Num is to force numeric context
+my $num = '';
+is(ref(+$num), 'Num', 'it is an Num type');
 
 my $float = 0.5;
 is(ref($float), 'Rat', 'it is an Rat type');
