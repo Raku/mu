@@ -59,11 +59,13 @@ debug key fun str a = do
 
 evaluateMain :: Exp -> Eval Val
 evaluateMain exp = do
-    val     <- evaluate exp
+    val     <- resetT $ evaluate exp
     endAV   <- evalVar "@*END"
     subs    <- readMVal endAV
     enterContext "Void" $ do
-        mapM_ evalExp [ Syn "()" [Val sub, Syn "invs" [], Syn "args" []] | sub <- vCast subs ]
+        mapM_ evalExp [ Syn "()" [Val sub, Syn "invs" [], Syn "args" []]
+                      | sub <- vCast subs
+                      ]
     return val
 
 evaluate :: Exp -> Eval Val
@@ -376,7 +378,7 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
                 indexVal  <- readMVal indexMVal
                 val'      <- enterEvalContext "Scalar" exp
                 valScalar <- newMVal val'
-                let hash = addToFM fm indexVal valScalar
+                let hash = addToFM fm (vCast indexVal) valScalar
                     fm = case hashVal of
                             VUndef  -> emptyFM -- autovivification
                             _       -> vCast hashVal
@@ -436,7 +438,7 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         hashVal  <- enterEvalContext "Hash" listExp
         hash    <- readMVal hashVal
         cls     <- asks envClasses
-        let slice = map (lookupWithDefaultFM (vCast hash) VUndef) ((map vCast $ vCast range) :: [Val])
+        let slice = map (lookupWithDefaultFM (vCast hash) VUndef) ((map vCast $ vCast range) :: [VStr])
         if isaType cls "Scalar" cxt
             then retVal $ last (VUndef:slice)
             else retVal $ VList slice

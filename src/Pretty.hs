@@ -89,8 +89,8 @@ instance Pretty Val where
     format (VBlock _) = text "{...}"
     format (VError x y) = hang (text "*** Error:" <+> text x) defaultIndent (text "at" <+> format y)
     format (VArray (MkArray x)) = format (VList x)
-    format (VHash (MkHash x)) = braces $ (joinList $ text ", ") (map format $ fmToList x)
-    
+    format (VHash (MkHash x)) = braces $ (joinList $ text ", ") $
+        [ format (VStr k, v) | (k, v) <- fmToList x ]
     format (VHandle x) = text $ show x
     format (MVal v) = text $ unsafePerformIO $ do
         val <- readIORef v

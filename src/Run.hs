@@ -44,7 +44,7 @@ runComp comp = do
 
 prepareEnv name args = do
     environ <- getEnvironment
-    let envFM = listToFM $ [ (VStr k, VStr v) | (k, v) <- environ ]
+    let envFM = listToFM $ [ (k, VStr v) | (k, v) <- environ ]
     exec    <- getArg0
     libs    <- getLibs environ
     execSV  <- newMVal $ VStr exec
