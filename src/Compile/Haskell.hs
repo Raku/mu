@@ -7,14 +7,15 @@ import Prim
 
 #if __GLASGOW_HASKELL__ < 604
 import Language.Haskell.THSyntax
-ppr = show
+display = show
 #else
-import Language.Haskell.Syntax
+import Language.Haskell.TH
+display = show . ppr
 #endif
 
 genGHC x = do
     str <- runQ $ compile x
-    return $ ppr str
+    return $ display str
 
 compile (App ('&':op) [] [arg]) = [| do
         val <- $(argC)

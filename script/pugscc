@@ -7,7 +7,17 @@ use File::Copy;
 use File::Basename;
 
 if (!@ARGV) {
-    die "Usage: $0 [ source[.p6] | -e oneliner ]\n";
+    die "Usage: $0 [-H|-P] [ source[.p6] | -e oneliner ]\n";
+}
+
+my $backend = '';
+if ($ARGV[0] eq '-H') {
+    $backend = 'Haskell';
+    shift @ARGV;
+}
+elsif ($ARGV[0] eq '-P') {
+    $backend = 'Parrot';
+    shift @ARGV;
 }
 
 my $ghc_version = ghc_version();
@@ -30,7 +40,7 @@ $out .= ($^O eq 'MSWin32') ? ".exe" : ".out";
 
 unlink "dump.ast";
 
-system("pugs", -C => @ARGV);
+system("pugs", "-C$backend" => @ARGV);
 exit 1 unless -e "dump.ast";
 
 copy ("$base/src/Main.hs" => "$base/src/MainCC.hs");
