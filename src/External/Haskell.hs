@@ -6,10 +6,18 @@ import Internals
 import Internals.TH
 import Language.Haskell.Parser
 import Language.Haskell.Syntax
--- import External.Haskell.NameLoader
+import External.Haskell.PathLoader
 
 loadHaskell :: FilePath -> IO [(String, [Val] -> Eval Val)]
-loadHaskell file = undefined
+loadHaskell file = do
+    loadModule "/usr/local/lib/ghc-6.4/HSbase.o" MT_Package
+    loadModule "/usr/local/lib/ghc-6.4/HShaskell98.o" MT_Package
+    loadModule "/usr/local/lib/ghc-6.4/HSmtl.o" MT_Package
+    mod     <- loadModule file MT_Module
+    func    <- loadFunction mod "extern__"
+    (`mapM` func) $ \name -> do
+        func <- loadFunction mod $ "extern__" ++ name
+        return (name, func)
 
 externalizeHaskell :: String -> String -> IO String
 externalizeHaskell mod code = do

@@ -78,8 +78,9 @@ sub external {
     my ($ghc, $ghc_version, $ghc_flags) = assert_ghc();
 
     $postamble = <<_;
-pure_all :: $module_name.o
-	cp $module_name.o \$(INST_ARCHLIB)
+pure_all :: $module_name.o $module_name.hi
+	\$(CP) $module_name.o \$(INST_ARCHLIB)
+	\$(CP) $module_name.hi \$(INST_ARCHLIB)
 
 $module_name.o :: $module_name.hs
 	$ghc --make -isrc -Isrc $ghc_flags \$(GHC_FLAGS) $module_name.hs
