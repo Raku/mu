@@ -8,7 +8,7 @@ plan(3);
 ok(!eval 'die "foo"; 1');
 my $error;
 eval '$error = $!';  # pugs does not know $! yet
-todo_ok($error eq 'foo' );
+todo_is($error, 'foo', 'got $! correctly');
 
 my $foo = "-foo-";
 eval '$foo = die "bar"';

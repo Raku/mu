@@ -3,19 +3,21 @@
 use v6;
 require Test;
 
-plan(3);
+plan 4;
 
 # Again, mostly stolen from Perl 5
 
 my $a = 'ab' ~ 'c';
+is($a, 'abc', '~ two literals correctly');
+
 my $b = 'def';
 
 my $c = $a ~ $b;
-ok($c eq 'abcdef', "~ two vars");
+is($c, 'abcdef', '~ two variables correctly');
 
 eval '$c ~= "xyz"';
-todo_ok($c eq 'abcdefxyz', "~= a literal string");
+todo_is($c, 'abcdefxyz', '~= a literal string correctly');
 
-my $_ = $a;
-eval '$_ ~= $b';
-todo_ok($_ eq 'abcdef',"~= var");
+my $d = $a;
+eval '$d ~= $b';
+todo_is($d, 'abcdef', '~= variable correctly');
