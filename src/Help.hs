@@ -56,12 +56,17 @@ versionFill n = fill ++ vstr
 
 banner :: IO ()
 banner = putStrLn $ unlines
-    [ ".=====. __  __  ____   ___    _________________________________________"
-    , "||   || ||  || ||  || ||__'   Pugs 6: Based on the Perl 6 Synopses     "
-    , "||====' ||__|| ||__||  __||   " ++ copyright
-    , "||      `===='  ___|| `==='   World Wide Web: http://autrijus.org/pugs "
-    , "||             `===='         Report bugs to: autrijus@autrijus.org    "
-    , "==" ++ versionFill 27 ++        " ====================================="
+    [ "   ______                                                            "                                                             
+    , " / \\  __ \\                                                           "
+    , " \\  \\ \\/\\ \\ __  __  ______  ______     (P)erl6                       "
+    , "  \\  \\  __/ \\ \\/\\ \\/\\  __ \\/\\  ___\\    (U)ser's                      "
+    , "   \\  \\ \\/\\  \\ \\_\\ \\ \\ \\/\\ \\ \\___  \\   (G)olfing                     "
+    , "    \\  \\_\\ \\  \\____/\\ \\____ \\/\\_____\\  (S)ystem                      "
+    , "     \\/__/  \\/____/  \\/___/\\ \\/____/                                 "
+    , "                       /\\____/   " ++ versionFill 27
+    , "                       \\/___/    " ++ copyright       
+    , "--------------------------------------------------------------------"
+    , " Web: http://pugscode.org/             Email: autrijus@autrijus.org "
     ]
 
 intro :: IO ()
