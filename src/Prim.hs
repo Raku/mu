@@ -133,6 +133,11 @@ op1 "sleep" = boolIO sleep
 op1 "mkdir" = boolIO createDirectory
 op1 "rmdir" = boolIO removeDirectory
 op1 "chdir" = boolIO setCurrentDirectory
+op1 "chmod" = \v -> do
+    v <- readMVal v
+    vals <- mapM readMVal (vCast v)
+    rets <- liftIO $ mapM (iboolIO $ flip setFileMode $ read $ vCast $ head vals) $ map vCast $ tail vals
+    return $ VInt $ sum $ map bool2n rets
 op1 "unlink" = \v -> do
     v <- readMVal v
     vals <- mapM readMVal (vCast v)
@@ -566,6 +571,7 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Bool      pre     rmdir   (Str)\
 \\n   Bool      pre     mkdir   (Str)\
 \\n   Bool      pre     chdir   (Str)\
+\\n   Int       pre     chmod   (List)\
 \\n   Scalar    pre     key     (Pair)\
 \\n   Scalar    pre     value   (Pair)\
 \\n   List      pre     kv      (Pair)\

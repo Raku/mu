@@ -20,6 +20,7 @@ module Posix (
     readSymbolicLink,
     rename,
     removeLink,
+    setFileMode,
     sleep,
     getEnvironment,
 ) where
@@ -51,6 +52,9 @@ removeLink _ = fail "'unlink' not implemented on this platform."
 
 sleep :: Int -> IO ()
 sleep _ = fail "'sleep' not implemented on this platform."
+
+setfileMode :: FilePath -> FileMode -> IO ()
+setfileMode _ _ = fail "'chmod' not implemented on this platform."
 
 getEnvironment :: IO [(String, String)]
 getEnvironment = do
