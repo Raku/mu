@@ -25,19 +25,16 @@ sub proclaim (Bool $cond, Str ?$desc, Str ?$context, Str ?$got, Str ?$expected) 
 
 sub ok (Bool $cond, Str ?$desc) returns Bool is export {
     proclaim($cond, $desc, undef);
-    return $cond;
 }
 
 sub is (Str $got, Str $expected, Str ?$desc) returns Bool is export {
     my $test := $got eq $expected; 
     proclaim($test, $desc, undef, $got, $expected);
-    return $test;
 }
 
 sub cmp_ok (Str $got, Code $compare_func, Str $expected, Str ?$desc) returns Bool is export {
     my $test := $compare_func($got, $expected);
     proclaim($test, $desc, undef); # << needs better error message handling
-    return $test;    
 }
 
 sub isa_ok ($ref, Str $expected_type, Str ?$desc) returns Bool is export {
@@ -45,24 +42,20 @@ sub isa_ok ($ref, Str $expected_type, Str ?$desc) returns Bool is export {
     my $out := defined($desc) ?? $desc :: "The object is-a '$expected_type'";    
     my $test := $ref_type eq $expected_type;
     proclaim($test, $out,  undef, $ref_type, $expected_type);
-    return $test;
 }
 
 sub todo_ok (Bool $cond, Str ?$desc) returns Bool is export {
     proclaim($cond, $desc, "TODO");
-    return $cond;
 }
 
 sub todo_is (Str $got, Str $expected, Str ?$desc) returns Bool is export {
     my $test = $got eq $expected;
     proclaim($test, $desc, "TODO", $got, $expected);
-    return $test;
 }
 
 sub todo_cmp_ok (Str $got, Code $compare_func, Str $expected, Str ?$desc) returns Bool is export {
     my $test := $compare_func($got, $expected);
     proclaim($test, $desc, "TODO", 4, 5); # << needs better error message handling
-    return $test;    
 }
 
 sub todo_isa_ok ($ref, Str $expected_type, Str ?$desc) returns Bool is export {
@@ -70,27 +63,22 @@ sub todo_isa_ok ($ref, Str $expected_type, Str ?$desc) returns Bool is export {
     my $out := defined($desc) ?? $desc :: "The object is-a '$expected_type'";         
     my $test := $ref_type eq $expected_type;
     proclaim($test, $out, "TODO", $ref_type, $expected_type);
-    return $test;
 }
 
 sub skip (Str ?$reason) returns Bool is export {
     proclaim(1, "", "skip $reason");
-    return 1;
 }
 
 sub pass (Str ?$desc) returns Bool is export {
     proclaim(1, $desc);
-    return 1;
 }
 
 sub fail (Str ?$desc) returns Bool is export {
     proclaim(0, $desc);
-    return 0;
 }
 
 sub todo_fail (Str ?$desc) returns Bool is export {
     proclaim(0, $desc, 'TODO');
-    return 0;
 }
 
 
