@@ -1,7 +1,7 @@
 # see script/pugscc for $ghc_flags
 
 lib/SHA1_0_0_1.o : lib/SHA1_0_0_1.hs
-	ghc --make -isrc -Isrc $ghc_flags -o lib/SHA1_0_0_1.o lib/SHA1_0_0_1.hs
+	ghc --make -isrc -Isrc $(GHC_FLAGS) -o lib/SHA1_0_0_1.o lib/SHA1_0_0_1.hs
 
 lib/SHA1_0_0_1.hs :
 	pugs --external=Haskell --output lib/SHA1_0_0_1.hs --name SHA1_0_0_1 --from lib/SHA1_0_0_1.extern

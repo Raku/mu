@@ -11,7 +11,6 @@ my $config_h = "src/pugs_config.h";
 my @srcdirs = ("src", grep(-d, glob "src/*"));
 
 deny_cygwin     ();
-my ($ghc, $ghc_version) = assert_ghc();
 
 name            ('Perl6-Pugs');
 version_from    ('lib/Perl6/Pugs.pm');
@@ -45,11 +44,7 @@ sub set_postamble {
     my @srcfiles = grep !/MainCC/, map glob("$_/*.*hs"), @srcdirs;
 
     # turning off unused imports and deprecations for GHC6.4.
-    my $ghc_flags = "-H200m -L. -Lsrc -Lsrc/pcre -I. -Isrc -Isrc/pcre -i. -isrc -isrc/pcre -static -Wall -fno-warn-missing-signatures -fno-warn-name-shadowing";
-    $ghc_flags .= " -I$Config{archlib}/CORE -L$Config{archlib}/CORE -i$Config{archlib}/CORE -lperl" if $ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /perl5/i;
-    if ($ghc_version ge '6.4') {
-        $ghc_flags .= " -fno-warn-deprecations -fno-warn-orphans";
-    }
+    my ($ghc, $ghc_version, $ghc_flags) = assert_ghc();
     my $ghc_output = "-o pugs$Config{_exe} src/Main.hs";
 
     my $pcre = "src/pcre/pcre.o";

@@ -1,4 +1,3 @@
-#line 1 "inc/Module/Install.pm - /Users/ingy/local/lib/perl5/site_perl/5.8.6/Module/Install.pm"
 package Module::Install;
 $VERSION = '0.36';
 use FindBin;
@@ -22,8 +21,6 @@ use File::Path ();
 @inc::Module::Install::ISA = 'Module::Install';
 *inc::Module::Install::VERSION = *VERSION;
 
-#line 129
-
 sub import {
     my $class = shift;
     my $self = $class->new(@_);
@@ -45,8 +42,6 @@ sub import {
     delete $INC{"$self->{path}.pm"};
 }
 
-#line 156
-
 sub autoload {
     my $self = shift;
     my $caller = caller;
@@ -65,8 +60,6 @@ sub autoload {
     };
 }
 
-#line 181
-
 sub new {
     my ($class, %args) = @_;
 
@@ -78,7 +71,7 @@ sub new {
     $args{bundle}   ||= 'inc/BUNDLES';
     $args{base}     ||= $FindBin::Bin;
 
-    $class =~ s/^\Q$args{prefix}\E:://;
+    $class =~ s/^inc:://;
     $args{name}     ||= $class;
     $args{version}  ||= $class->VERSION;
 
@@ -91,8 +84,6 @@ sub new {
     bless(\%args, $class);
 }
 
-#line 210
-
 sub call {
     my $self   = shift;
     my $method = shift;
@@ -101,8 +92,6 @@ sub call {
     unshift @_, $obj;
     goto &{$obj->can($method)};
 }
-
-#line 225
 
 sub load {
     my ($self, $method) = @_;
@@ -127,8 +116,6 @@ END
     $obj;
 }
 
-#line 255
-
 sub load_extensions {
     my ($self, $path, $top_obj) = @_;
     $path = "$self->{base}/$path";
@@ -146,8 +133,6 @@ sub load_extensions {
         push @{$self->{extensions}}, $pkg->new( _top => $top_obj );
     }
 }
-
-#line 279
 
 sub find_extensions {
     my ($self, $path) = @_;
@@ -169,5 +154,3 @@ sub find_extensions {
 1;
 
 __END__
-
-#line 617

@@ -7,6 +7,9 @@ use File::Basename;
 
 sub WritePugs {
     my $self = shift;
+    if ($_[0] =~ /^[56]$/) {
+        $self->set_blib(shift);
+    }
     $self->WriteAll(@_);
     $self->pugs_fix_makefile;
 }
@@ -18,6 +21,8 @@ sub base_path {
 
 sub set_blib {
     my $self = shift;
+    my $base = $self->{_top}{base};
+    return unless -e "$base/lib/Perl6/Pugs.pm";
     my $perl_version = shift 
       or die "Must pass Perl version (5 or 6)";
     my $blib = ($perl_version == 5)
@@ -25,7 +30,6 @@ sub set_blib {
     : $perl_version == 6
       ? 'blib6'
       : die "Perl version '$perl_version' is bad. Must be 5 or 6.";
-    my $base = $self->{_top}{base};
     my $path = File::Spec->catdir($base, $blib);
     $self->makemaker_args->{'INST_LIB'} = 
       File::Spec->catfile($path, "lib");
@@ -103,7 +107,13 @@ sub assert_ghc {
 *** Please install GHC from http://haskell.org/ghc/.
 .
 
-    return ($ghc, $1);
+    my $ghc_version = $1;
+    my $ghc_flags = "-H200m -L. -Lsrc -Lsrc/pcre -I. -Isrc -Isrc/pcre -i. -isrc -isrc/pcre -static -Wall -fno-warn-missing-signatures -fno-warn-name-shadowing";
+    $ghc_flags .= " -I$Config{archlib}/CORE -L$Config{archlib}/CORE -i$Config{archlib}/CORE -lperl" if $ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /perl5/i;
+    if ($ghc_version ge '6.4') {
+        $ghc_flags .= " -fno-warn-deprecations -fno-warn-orphans";
+    }
+    return ($ghc, $ghc_version, $ghc_flags);
 }
 
 sub fixpaths {
@@ -112,6 +122,29 @@ sub fixpaths {
     my $sep = File::Spec->catdir('');
     $text =~ s{\b/}{$sep}g;
     return $text;
+}
+
+sub external {
+    my $self = shift;
+    my $module_path = shift;
+    open MODULE, $module_path
+      or die "Can't open '$module_path' for input\n";
+    my $source = do { local $/; <MODULE> };
+    return unless $source =~
+    /^\s*module\s+(.*?);.*\sinline\s/ms;
+    my $module_name = $1;
+    $module_name =~ s/-/__/;
+    $module_name =~ s/[\-\.]/_/g;
+
+    my ($ghc, $ghc_version, $ghc_flags) = $self->assert_ghc;
+
+    $self->postamble(<<_);
+$module_name.o : $module_name.hs
+	$ghc --make -isrc -Isrc \$(GHC_FLAGS) -o $module_name.o $module_name.hs
+
+$module_name.hs :
+	pugs --external $module_name $module_path > $module_name.hs
+_
 }
 
 1;

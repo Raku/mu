@@ -7,3 +7,14 @@ inline Haskell => "
 
 &sha1 is export;
 
+=kwid
+
+= NAME
+
+SHA1 - SHA1 Digests
+
+= AUTHOR
+
+Brian Ingerson <ingy@cpan.org>
+
+=cut
