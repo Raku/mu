@@ -18,8 +18,8 @@ perl6Def  = javaStyle
           , P.commentEnd     = "\n=cut\n"
           , P.commentLine    = "#"
           , P.nestedComments = False
-          , P.identStart     = letter <|> oneOf "_:$@%&"
-          , P.identLetter    = alphaNum <|> oneOf "_:"
+          , P.identStart     = letter <|> char '_'
+          , P.identLetter    = alphaNum <|> oneOf "_"
           , P.reservedNames  = words $
                 "if then else do while skip"
           , P.reservedOpNames= words $
@@ -45,72 +45,75 @@ whiteSpace = P.whiteSpace perl6Lexer
 parens     = P.parens perl6Lexer
 float      = P.float perl6Lexer
 lexeme     = P.lexeme perl6Lexer
+identifier = P.identifier perl6Lexer
+braces     = P.braces perl6Lexer
+brackets   = P.brackets perl6Lexer
 stringLiteral = choice
     [ P.stringLiteral  perl6Lexer
     , singleQuoted
     ]
 
-naturalOrFloat  = lexeme (natFloat) <?> "number"
+naturalOrRat  = do
+        b <- lexeme sign
+        n <- lexeme natRat
+        return $ if b
+            then n
+            else case n of
+                Left x -> Left $ -x
+                Right y -> Right $ -y
+    <?> "number"
     where
-    natFloat        = do{ char '0'
-                        ; zeroNumFloat
-                        }
-                      <|> decimalFloat
+    natRat = do
+            char '0'
+            zeroNumRat
+        <|> decimalRat
                       
-    zeroNumFloat    =  do{ n <- hexadecimal <|> octal <|> binary
-                         ; return (Left n)
-                         }
-                    <|> decimalFloat
-                    <|> fractFloat 0
-                    <|> return (Left 0)                  
+    zeroNumRat = do
+            n <- hexadecimal <|> octal <|> binary
+            return (Left n)
+        <|> decimalRat
+        <|> fractRat 0
+        <|> return (Left 0)                  
                       
-    decimalFloat    = do{ n <- decimal
-                        ; option (Left n) 
-                                 (try $ fractFloat n)
-                        }
+    decimalRat = do
+        n <- decimal
+        option (Left n) (try $ fractRat n)
 
-    fractFloat n    = do{ f <- fractExponent n
-                        ; return (Right f)
-                        }
-                        
-    fractExponent n = do{ fract <- fraction
-                        ; expo  <- option 1.0 exponent'
-                        ; return ((fromInteger n + fract)*expo)
-                        }
-                    <|>
-                      do{ expo <- exponent'
-                        ; return ((fromInteger n)*expo)
-                        }
+    fractRat n = do
+            fract <- try fraction
+            expo  <- option (1%1) expo
+            return (Right $ ((n % 1) + fract) * expo) -- Right is Rat
+        <|> do
+            expo <- expo
+            if expo < 1
+                then return (Left  $ n * numerator expo)
+                else return (Right $ (n % 1) * expo)
 
-    fraction        = do{ char '.'
-                        ; digits <- many digit <?> "fraction"
-                        ; return (foldr op 0.0 digits)
-                        }
-                      <?> "fraction"
-                    where
-                      op d f    = (f + fromIntegral (digitToInt d))/10.0
-                        
-    exponent'       = do{ oneOf "eE"
-                        ; f <- sign
-                        ; e <- decimal <?> "exponent"
-                        ; return (power (f e))
-                        }
-                      <?> "exponent"
-                    where
-                       power e  | e < 0      = 1.0/power(-e)
-                                | otherwise  = fromInteger (10^e)
+    fraction = do
+            char '.'
+            try $ do { char '.'; unexpected "dotdot" } <|> return ()
+            digits <- many digit <?> "fraction"
+            return (digitsToRat digits)
+        <?> "fraction"
+        where
+        digitsToRat d = digitsNum d % (10 ^ length d)
+        digitsNum d = foldl (\x y -> x * 10 + (toInteger $ digitToInt y)) 0 d 
 
+    expo :: GenParser Char st Rational
+    expo = do
+            oneOf "eE"
+            f <- sign
+            e <- decimal <?> "exponent"
+            return (power (if f then e else -e))
+        <?> "exponent"
+        where
+        power e | e < 0      = 1 % (10^e)
+                | otherwise  = (10^e) % 1
 
-    -- integers and naturals
-    int             = do{ f <- lexeme sign
-                        ; n <- nat
-                        ; return (f n)
-                        }
-                        
     -- sign            :: CharParser st (Integer -> Integer)
-    sign            =   (char '-' >> return negate) 
-                    <|> (char '+' >> return id)     
-                    <|> return id
+    sign            =   (char '-' >> return False) 
+                    <|> (char '+' >> return True)
+                    <|> return True
 
     nat             = zeroNumber <|> decimal
         

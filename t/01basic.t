@@ -10,5 +10,10 @@ my $pugs = File::Spec->catfile(File::Spec->curdir, "pugs$Config{_exe}");
 system($pugs, -e => '"1..2\nok 1 # Welcome to Pugs!\n"');
 
 open PUGS, "| $pugs" or die "Cannot pipe out to $pugs: $!";
-print PUGS q("ok 2 # We've got fun and games!\n");
+print PUGS << '.';
+    sub cool { fine($_) ~ " # We've got " ~ toys };
+    sub fine { "ok " ~ $_ };
+    sub toys { "fun and games!\n" };
+    cool 2
+.
 close PUGS;

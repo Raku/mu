@@ -40,7 +40,7 @@ instance Pretty Val where
     pretty (VList x) = "(" ++ joinList ", " (map pretty x) ++ ")"
     pretty (VSub x) = "sub {...}"
     pretty (VBlock x) = "{...}"
-    pretty (VError x y) = "*** Error: " ++ x ++ " (in " ++ show y ++ ")"
+    pretty (VError x y) = "*** Error: " ++ x ++ "\n    in " ++ show y
     pretty VUndef = "undef"
 
 joinList x y = concat $ intersperse x y

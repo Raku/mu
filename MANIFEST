@@ -17,6 +17,7 @@ META.yml
 README
 SIGNATURE			Public-key signature (added by MakeMaker)
 src/AST.hs
+src/Context.hs
 src/Eval.hs
 src/Help.hs
 src/Internals.hs
@@ -26,3 +27,4 @@ src/Parser.hs
 src/Pretty.hs
 src/Prim.hs
 src/Shell.hs
+t/01basic.t

@@ -1,5 +1,5 @@
 package Perl6::Pugs;
-$Pugs::VERSION = '6.0.1';
+$Pugs::VERSION = '6.0.2';
 
 use strict;
 
@@ -9,11 +9,11 @@ Perl6::Pugs - Perl6 User's Golfing System
 
 =head1 VERSION
 
-This document describes version 6.0.1 of Pugs, released February 7, 2005.
+This document describes version 6.0.2 of Pugs, released February 9, 2005.
 
 =head1 SYNOPSIS
 
-    % pugs -e "'Hello, World!'"
+    % pugs -e 'sub hi { "Hello, " ~ $_ } ; hi "World!\n"'
     Hello, World!
 
 =head1 DESCRIPTION
@@ -55,9 +55,9 @@ The only ways to do I/O in FP6 are:
 
 =over 4
 
-=item * C<@*ARGS>, C<$*PID>, C<$*PROGRAM_NAME>, etc..
+=item * C<@*ARGS>, C<$*PID>, C<$*PROGRAM_NAME>, etc.
 
-=item * C<< <> >> (lazily-evaluated lines of input)
+=item * C<< <> >> (lazily-evaluated lines of input).
 
 =item * The toplevel evaluation result is printed under flattened list context with items stringified.
 

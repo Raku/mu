@@ -19,9 +19,10 @@ module Internals (
     module Data.Bits,
     module Data.List,
     module Data.Word,
-    module Data.Char,
-    module Data.Maybe,
     module Data.Ratio,
+    module Data.Char,
+    module Data.Tree,
+    module Data.Maybe,
     module Data.Complex,
     module Data.FiniteMap,
     module Debug.Trace,
@@ -35,13 +36,14 @@ import System.IO hiding (try)
 import qualified System.IO (try)
 import Data.Bits
 import Data.Maybe
-import Data.Ratio
 import Data.List
+import Data.Ratio
 import Data.Word
 import Data.Char
 import Data.Ratio
 import Data.Complex
 import Data.FiniteMap
+import Data.Tree
 import Debug.Trace
 import Text.ParserCombinators.Parsec
 import Text.ParserCombinators.Parsec.Expr

@@ -14,6 +14,8 @@
 module AST where
 import Internals
 
+import Context
+
 type Ident = String
 
 instance Show (a -> b) where
@@ -24,10 +26,19 @@ class Context n where
     vCast (VRef v)      = vCast v
     vCast (VPair _ v)   = vCast v
     vCast v             = doCast v
+    castV :: n -> Val
+    castV v = error $ "cannot cast into Val"
     doCast :: Val -> n
-    doCast v = error $ "cannot cast: " ++ (show v)
+    doCast v = error $ "cannot cast from Val: " ++ (show v)
+    fmapVal :: (n -> n) -> Val -> Val
+    fmapVal f = castV . f . vCast
+
+instance Context VSub where
+    castV = VSub
+    doCast (VSub b) = b
 
 instance Context VBool where
+    castV = VBool
     doCast (VJunc j l) = juncToBool j l
     doCast (VBool b)   = b
     doCast VUndef      = False
@@ -46,6 +57,7 @@ juncToBool JNone    = all (not . vCast)
 juncToBool JOne     = (1 ==) . length . filter vCast
 
 instance Context VInt where
+    castV = VInt
     doCast (VInt i)     = i
     doCast (VStr s)
         | ((n, _):_) <- reads s = n
@@ -53,11 +65,13 @@ instance Context VInt where
     doCast x            = round (vCast x :: VNum)
 
 instance Context VRat where
+    castV = VRat
     doCast (VInt i)     = i % 1
     doCast (VRat r)     = r
     doCast x            = approxRational (vCast x :: VNum) 1
 
 instance Context VNum where
+    castV = VNum
     doCast VUndef       = 0
     doCast (VBool b)    = if b then 1 else 0
     doCast (VInt i)     = fromIntegral i
@@ -70,9 +84,11 @@ instance Context VNum where
     doCast x            = error $ "cannot cast: " ++ (show x)
 
 instance Context VComplex where
+    castV = VComplex
     doCast x            = (vCast x :: VNum) :+ 0
 
 instance Context VStr where
+    castV = VStr
     vCast VUndef        = ""
     vCast (VStr s)      = s
     vCast (VBool b)     = if b then "1" else "0"
@@ -92,6 +108,7 @@ showNum x
     str = show x 
 
 instance Context VList where
+    castV = VList
     vCast (VList l)     = l
     vCast (VPair k v)   = [k, v]
     vCast (VRef v)      = vCast v
@@ -109,7 +126,8 @@ instance Context [Word8] where doCast = map (toEnum . ord) . vCast
 type VScalar = Val
 
 instance Context VScalar where
-    vCast x             = x
+    vCast = id
+    castV = id
 
 strRangeInf s = (s:strRangeInf (strInc s))
 
@@ -148,11 +166,6 @@ newtype VHash  = MkHash (FiniteMap Val Val) deriving (Show, Eq, Ord)
 instance (Show a, Show b) => Show (FiniteMap a b) where
     show fm = show (fmToList fm)
 
-instance (Ord a, Ord b) => Ord (FiniteMap a b) where
-
-instance Ord VComplex where
-    {- ... -}
-
 data Val
     = VUndef
     | VBool     VBool
@@ -166,13 +179,22 @@ data Val
     | VHash     VHash
     | VRef      Val
     | VPair     Val Val
-    | VSub      Exp
+    | VSub      VSub
     | VBlock    Exp
     | VJunc     JuncType [Val]
     | VError    VStr Exp
-    | VPoly     { polyScalar    :: Val
-                , polyList      :: Val
-                }
+    deriving (Show, Eq, Ord)
+
+data SubType = SubMethod | SubRoutine | SubMulti
+    deriving (Show, Eq, Ord)
+
+data VSub = Sub
+    { subType       :: SubType
+    , subAssoc      :: String
+    , subParams     :: [Cxt]
+    , subReturns    :: Cxt
+    , subFun        :: Exp
+    }
     deriving (Show, Eq, Ord)
 
 data Trait
@@ -183,11 +205,28 @@ data Trait
 data JuncType = JAll | JAny | JOne | JNone
     deriving (Show, Eq, Ord)
 
+instance Eq ([Val] -> Val)
+instance Ord ([Val] -> Val)
+instance Ord VComplex where {- ... -}
+instance (Ord a, Ord b) => Ord (FiniteMap a b)
+
+type Var = String
+
 data Exp
-    = Op1 String Exp
-    | Op2 String Exp Exp
-    | Op3 String Exp Exp Exp
-    | OpCmp String Exp Exp
+    = App String [Exp]
+    | Syn String [Exp]
+    | Prim ([Val] -> Val)
     | Val Val
+    | Var Var SourcePos
+    | Parens Exp
     | NonTerm SourcePos
     deriving (Show, Eq, Ord)
+
+isTotalJunc (VJunc JAll _, b)   = not b
+isTotalJunc (VJunc JNone _, b)  = not b
+isTotalJunc _                   = False
+
+isPartialJunc (VJunc JOne _, b) = not b
+isPartialJunc (VJunc JAny _, b) = not b
+isPartialJunc _                 = False
+

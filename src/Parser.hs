@@ -22,56 +22,99 @@ operators =
     , postOps  " ++ -- "                                -- Auto-Increment
     , rightOps " ** "                                   -- Exponentiation
     , preOps   " ! + - ~ ? * ** +^ ~^ ?^ \\ "           -- Symbolic Unary
-    , leftOps  " * / % x xx +& +< +> ~& ~< ~> "     -- Multiplicative
+    , leftOps  " * / % x xx +& +< +> ~& ~< ~> "         -- Multiplicative
     , leftOps  " + - ~ +| +^ ~| ~^ "                    -- Additive
     , leftOps  " & ! "                                  -- Junctive And
     , leftOps  " ^ | "                                  -- Junctive Or
     , preOps   primitiveUnaryFunctions                  -- Name Unary
-    , leftOps  " => but does cmp <=> .. ^.. ..^ ^..^ "  -- Non-chaining Binary
-      ++ postOps "..."
-    , cmpOps $ " != == < <= > >= ~~ !~ " ++
+    , leftOps  " but does "                             -- Traits
+      ++ noneOps " => but does cmp <=> .. ^.. ..^ ^..^ "-- Non-chaining Binary
+      ++ postOps "..."                                  -- Infinite range
+    , chainOps $
+               " != == < <= > >= ~~ !~ " ++
                " eq ne lt le gt ge =:= "                -- Chained Binary
     , leftOps  " && "                                   -- Tight And
     , leftOps  " || ^^ // "                             -- Tight Or
     , ternOps  [("??", "::")]                           -- Ternary
-    , leftOps  " = := ::= += **= xx= "                  -- Assignment
-    -- XXX rewrite chained Ops using sepBy!
-    , rightOps " , "                                    -- List Item Separator
+    , rightSyn " = := ::= += **= xx= "                  -- Assignment
+    , listOps  " , "                                    -- List Item Separator
     , preOps   primitiveListFunctions                   -- List Operator
     , leftOps  " ==> "                                  -- Pipe Forward
     , leftOps  " and "                                  -- Loose And
     , leftOps  " or xor err "                           -- Loose Or
-    , leftOps  " ; "                                    -- Terminator
+    , leftSyn  " ; "                                    -- Terminator
     ]
 
-primitiveListFunctions = " not "
+primitiveListFunctions = " not <== any all one none"
 
-parseExp = parseOp
+parseExp = parseTerm
 
 parseOp = buildExpressionParser operators parseTerm
 
 ops f s = [f n | n <- words s]
 
-makeOp op name = do
+preOps      = ops $ makeOp1 Prefix "&prefix:" App
+postOps     = ops $ makeOp1 Postfix "&postfix:" App
+leftOps     = ops $ makeOp2 AssocLeft "&infix:" App
+rightOps    = ops $ makeOp2 AssocRight "&infix:" App
+noneOps     = ops $ makeOp2 AssocNone "&infix:" App
+listOps     = leftOps
+chainOps    = leftOps
+leftSyn     = ops $ makeOp2 AssocLeft "&infix:" Syn
+rightSyn    = ops $ makeOp2 AssocRight "&infix:" Syn
+
+-- chainOps    = ops $ makeOpChained
+
+makeOp1 prec sigil con name = prec $ do
     reservedOp name
-    return $ op name
+    return $ \x -> con (sigil ++ name) [x]
 
-leftOps     = ops left
-rightOps    = ops right
-cmpOps      = ops cmp
-postOps     = ops postfix
-preOps      = ops prefix
+makeOp2 prec sigil con name = (`Infix` prec) $ do
+    reservedOp name
+    return $ \x y -> con (sigil ++ name) [x,y]
 
-left name   = Infix (makeOp Op2 name) AssocLeft
-right name  = Infix (makeOp Op2 name) AssocRight
-cmp name    = Infix (makeOp OpCmp name) AssocLeft
-prefix      = Prefix . makeOp Op1
-postfix     = Postfix . makeOp Op1
-
-parseTerm = parens parseOp
+parseTerm = parseDecl
+    <|> parseVar
     <|> parseLit
+    <|> do
+        cs <- parens parseOp
+        return $ Parens cs
+    <|> parseApply
+{-
+    <|> do
+        cs <- parseOp
+        return cs
+-}
 --  <|> nonTerm
     <?> "term"
+
+buildSub body = VSub $ Sub
+    { subType       = SubRoutine
+    , subAssoc      = "pre"
+    , subParams     = ["*List"]
+    , subReturns    = "Any"
+    , subFun        = body
+    }
+
+parseDecl = lexeme $ do
+    lexeme (string "sub")
+    pos     <- getPosition
+    name    <- identifier
+    body    <- braces parseOp
+    return $ Syn "&infix:::=" [Var ('&':name) pos, Val (buildSub body)]
+
+maybeParens p = choice [ parens p, p ]
+
+parseApply = lexeme $ do
+    name    <- identifier
+    args    <- maybeParens $ parseTerm `sepBy` (lexeme $ char ',')
+    return $ App ('&':name) args
+
+parseVar = lexeme $ do
+    pos     <- getPosition
+    sigil   <- oneOf "$@%&"
+    name    <- many1 (alphaNum <|> char '_')
+    return $ Var (sigil:name) pos
 
 nonTerm = do
     pos <- getPosition
@@ -80,16 +123,24 @@ nonTerm = do
 parseLit = choice
     [ numLiteral
     , strLiteral
+    , arrayLiteral
     , namedLiteral "undef"  VUndef
     , namedLiteral "NaN"    (VNum $ 0/0)
     , namedLiteral "Inf"    (VNum $ 1/0)
     ]
 
+arrayLiteral = do
+    items <- brackets $ parseOp `sepBy` (lexeme $ char ',')
+    return $ App "&prefix:\\" [(Parens $ foldl app (Val $ VList []) items)]
+    where
+    app :: Exp -> Exp -> Exp
+    app x y = App "&infix:," [x, y]
+
 numLiteral = do
-    n <- naturalOrFloat  
+    n <- naturalOrRat  
     case n of
         Left  i -> return . Val $ VInt i
-        Right d -> return . Val $ VNum d
+        Right d -> return . Val $ VRat d
 
 strLiteral = return . Val . VStr =<< stringLiteral
 
@@ -102,7 +153,6 @@ op_namedUnary       = []
 methOps _ = []
 primitiveUnaryFunctions = []
 ternOps _ = []
-listOps _ = []
 
 -- runLex :: Show a => StateParser a -> String -> IO ()
 runLex f p input

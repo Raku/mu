@@ -1,4 +1,7 @@
 {-# OPTIONS -cpp #-}
+#define VERSION ""
+#define DATE ""
+#include "config.h"
 
 {-
     Online help and banner text.
@@ -25,10 +28,10 @@ printHelp
 -}
 
 name       = "Perl6 User's Golfing System"
-versnum    = "6.0.0"
-date	   = "04 Feb 2005"
+versnum    = VERSION
+date	   = DATE
 version    = name ++ ", version " ++ versnum ++ ", " ++ date
-copyright  = "Copyright (c) 2005 by Autrijus Tang"
+copyright  = "Copyright 2005 by Autrijus Tang"
 disclaimer =
     "This software is distributed under the terms of the " ++
     "GNU Public Licence.\n" ++
@@ -44,12 +47,12 @@ versionFill n = fill ++ vstr
 banner = putStrLn $ unlines
     [ ".=====. __  __  ____   ___    _________________________________________"
     , "||   || ||  || ||  || ||__'   Pugs 6: Based on the Perl 6 Synopses     "
-    , "||====' ||__|| ||__||  __||   Copyright (c) 2005 Autrijus Tang         "
+    , "||====' ||__|| ||__||  __||   " ++ copyright
     , "||      `===='  ___|| `==='   World Wide Web: http://autrijus.org/pugs "
     , "||             `===='         Report bugs to: autrijus@autrijus.org    "
     , "==" ++ versionFill 27    ++ " ========================================="
     , ""
-    , "Welcome to Pugs -- Perl6 User's Golfing System"
+    , "Welcome to Pugs -- " ++ name
     , "Type :h for help"
     ]
 
