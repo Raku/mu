@@ -267,7 +267,8 @@ op1 "close" = \v -> do
         _           -> boolIO hClose val
 op1 "key" = return . fst . (vCast :: Val -> VPair)
 op1 "value" = return . snd . (vCast :: Val -> VPair)
-op1 "kv" = return . VList . map VPair . vCast -- concatMap (\(k, v) -> [k, v]) . vCast
+op1 "pairs" = return . VList . map VPair . vCast
+op1 "kv" = return . VList . map (\(k, v) -> VList [k, v]) . vCast
 op1 "keys" = return . VList . map fst . (vCast :: Val -> [VPair])
 op1 "values" = return . op1Values
 op1 "readline" = op1 "="
@@ -1004,6 +1005,7 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   List      pre     keys    (Hash)\
 \\n   List      pre     values  (Hash)\
 \\n   List      pre     kv      (Hash)\
+\\n   List      pre     pairs   (Hash)\
 \\n   Str       pre     perl    (List)\
 \\n   Any       pre     eval    (Str)\
 \\n   Any       pre     eval_perl5 (Str)\
@@ -1051,6 +1053,7 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Scalar    pre     key     (Pair)\
 \\n   Scalar    pre     value   (Pair)\
 \\n   List      pre     kv      (Pair)\
+\\n   List      pre     pairs   (Pair)\
 \\n   List      pre     values  (Junction)\
 \\n   Any       pre     pick    (Junction)\
 \\n   Bool      pre     rename  (Str, Str)\

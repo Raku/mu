@@ -15,16 +15,16 @@ Basic C<pairs> tests, see S29.
 {
   my @array = <a b c d>;
   my @pairs;
-  todo_eval_ok '@pairs = @array.pairs', "pairs on arrays (1)";
-  todo_is      +@pairs, 4,              "pairs on arrays (2)";
-  todo_eval_is '@pairs[0].key',     0,  "pairs on arrays (3)";
-  todo_eval_is '@pairs[1].key',     1,  "pairs on arrays (4)";
-  todo_eval_is '@pairs[2].key',     2,  "pairs on arrays (5)";
-  todo_eval_is '@pairs[3].key',     3,  "pairs on arrays (6)";
-  todo_eval_is '@pairs[0].value', "a",  "pairs on arrays (7)";
-  todo_eval_is '@pairs[1].value', "b",  "pairs on arrays (8)";
-  todo_eval_is '@pairs[2].value', "c",  "pairs on arrays (9)";
-  todo_eval_is '@pairs[3].value', "d",  "pairs on arrays (10)";
+  ok @pairs = @array.pairs,   "pairs on arrays (1)";
+  is +@pairs, 4,           "pairs on arrays (2)";
+  is @pairs[0].key,   0,   "pairs on arrays (3)";
+  is @pairs[1].key,   1,   "pairs on arrays (4)";
+  is @pairs[2].key,   2,   "pairs on arrays (5)";
+  is @pairs[3].key,   3,   "pairs on arrays (6)";
+  is @pairs[0].value, "a", "pairs on arrays (7)";
+  is @pairs[1].value, "b", "pairs on arrays (8)";
+  is @pairs[2].value, "c", "pairs on arrays (9)";
+  is @pairs[3].value, "d", "pairs on arrays (10)";
 }
 
 
@@ -32,14 +32,14 @@ Basic C<pairs> tests, see S29.
 {
   my %hash = (a => 1, b => 2, c => 3, d => 4);
   my @pairs;
-  todo_eval_ok '@pairs = %hash.pairs.sort:{ $^a.key cmp $^b.key }', "pairs on hashes (1)";
-  todo_is      +@pairs, 4,             "pairs on hashes (2)";
-  todo_eval_is '@pairs[0].key',   "a", "pairs on hashes (3)";
-  todo_eval_is '@pairs[1].key',   "b", "pairs on hashes (4)";
-  todo_eval_is '@pairs[2].key',   "c", "pairs on hashes (5)";
-  todo_eval_is '@pairs[3].key',   "d", "pairs on hashes (6)";
-  todo_eval_is '@pairs[0].value',   1, "pairs on hashes (7)";
-  todo_eval_is '@pairs[1].value',   2, "pairs on hashes (8)";
-  todo_eval_is '@pairs[2].value',   3, "pairs on hashes (9)";
-  todo_eval_is '@pairs[3].value',   4, "pairs on hashes (10)";
+  ok @pairs = %hash.pairs.sort,"pairs on hashes (1)";
+  is +@pairs, 4,               "pairs on hashes (2)";
+  is @pairs[0].value,  1,      "pairs on hashes (3)";
+  is @pairs[1].value,  2,      "pairs on hashes (4)";
+  is @pairs[2].value,  3,      "pairs on hashes (5)";
+  is @pairs[3].value,  4,      "pairs on hashes (6)";
+  is @pairs[0].key,    "a",    "pairs on hashes (7)";
+  is @pairs[1].key,    "b",    "pairs on hashes (8)";
+  is @pairs[2].key,    "c",    "pairs on hashes (9)";
+  is @pairs[3].key,    "d",    "pairs on hashes (10)";
 }
