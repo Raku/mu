@@ -15,7 +15,7 @@ L<S04/"The Relationship of Blocks and Declarations">
 
 =cut
 
-plan 22;
+plan 25;
 
 # anon blocks L<S06/"Standard Subroutines">
 my $anon_sub = sub { 1 };
@@ -43,6 +43,12 @@ is($pointy_block_w_arg(3), 4, '-> $arg {} <"pointy" block w/args> works');
 my $pointy_block_w_multiple_args = -> $arg1, $arg2 { $arg1 + $arg2 };
 isa_ok($pointy_block_w_multiple_args, 'Sub');
 is($pointy_block_w_multiple_args(3, 4), 7, '-> $arg1, $arg2 {} <"pointy" block w/multiple args> works');
+
+my $pointy_block_nested = -> $a { -> $b { $a + $b }};
+isa_ok($pointy_block_nested, 'Sub');
+isa_ok($pointy_block_nested(5), 'Sub');
+fail('FIXME nested <"pointy" block> runtime error');
+#is($pointy_block_nested(5)(6), 11, '-> $a { -> $b { $a+$b }} nested <"pointy" block> works');
 
 # bare blocks L<S06/"Blocks">
 
