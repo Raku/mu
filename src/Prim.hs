@@ -56,17 +56,46 @@ op1 "rand"  = \v -> do
     return $ VNum rand
 op1 "print" = \v -> do
     liftIO . putStr . concatMap vCast . vCast $ v
-    return $ VUndef
+    return $ VBool True
 op1 "say" = \v -> do
-    liftIO . putStrLn . concatMap vCast . vCast $ v
-    return $ VUndef
+    liftIO . mapM (putStrLn . vCast) . vCast $ v
+    return $ VBool True
 op1 "die" = \v -> do
     return $ VError (concatMap vCast . vCast $ v) (Val v)
 op1 "exit" = \v -> do
     if vCast v
         then liftIO $ exitWith (ExitFailure $ vCast v)
         else liftIO $ exitWith ExitSuccess
-
+-- handle timely destruction
+op1 "open" = \v -> do
+    fh <- liftIO $ openFile (vCast v) ReadMode
+    return $ VIO fh
+op1 "close" = \v -> do
+    liftIO $ hClose (vCast v)
+    return $ VBool True
+op1 "<>" = \v -> do
+    str <- readFrom v
+    cxt <- asks envContext
+    return $ if ((cxt ==) `any` ["Array", "List"]) -- XXX use isaType here
+        then VList $ map VStr $ lines str
+        else VStr str
+    where
+    readFrom VUndef = do
+        -- ARGS etc
+        glob <- asks envGlobal
+        strs <- liftIO $ sequence $ case find ((== "@*ARGS") . symName) glob of
+            Nothing     -> [getStdin glob]
+            Just sym    -> case symExp sym of
+                Val (VList [])  -> [getStdin glob]
+                Val (VList xs)  -> map ((hGetContents =<<) . (`openFile` ReadMode) . vCast) xs
+                _               -> error "not handled"
+        return $ concat strs
+    readFrom v = do
+        liftIO $ hGetContents $ vCast v
+    getStdin glob = do
+        case find ((== "$*STDIN") . symName) glob of
+            Just sym | (Val v) <- symExp sym -> return $ vCast v
+            _                                -> error "impossible"
 op1 s      = return . (\x -> VError ("unimplemented unaryOp: " ++ s) (Val x))
 
 opEval :: String -> Eval Val
@@ -271,7 +300,9 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Action    pre     say     (List)\
 \\n   Action    pre     die     (List)\
 \\n   Any       pre     do      (Str)\
+\\n   IO        pre     open    (Str)\
 \\n   Any       pre     return  (Any)\
+\\n   Any       pre     <>      ()\
 \\n   Junction  pre     any     (List)\
 \\n   Junction  pre     all     (List)\
 \\n   Junction  pre     one     (List)\

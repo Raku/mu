@@ -69,9 +69,10 @@ evaluate exp = do
     debug "indent" (' ':) "Evl" exp
     exp' <- local (\e -> e{ envBody = exp }) reduce
     debug "indent" (tail) " Ret" exp'
-    return $ case exp' of
-        Val v       -> v
-        otherwise   -> VError "Invalid expression" exp'
+    case exp' of
+        Val v       -> return v
+        MVal mv     -> liftIO $ readIORef mv
+        otherwise   -> return $ VError "Invalid expression" exp'
 
 evalExp :: Exp -> Eval Val
 evalExp exp = do
@@ -100,67 +101,95 @@ reduceExp exp = do
 retVal :: Val -> Eval Exp
 retVal val = return $ Val val
 
-reduceStatements :: [Exp] -> Eval Exp
-reduceStatements [] = retVal VUndef
-reduceStatements [exp] = do
-    val <- evalExp exp
-    retVal val
-reduceStatements (exp:rest)
-    | Syn "sym" [Sym sym@(Symbol SGlobal _ _)] <- exp = do
+newMVal val = do
+    mval <- liftIO $ newIORef val
+    return $ MVal mval
+
+reduceStatements :: ([Exp], Exp) -> Eval Exp
+reduceStatements ([], exp) = reduceExp exp
+reduceStatements ((exp:rest), _)
+    | Syn "sym" [Sym sym@(Symbol _ name (Syn "mval" [_, vexp]))] <- exp = do
+        val <- enterEvalContext (cxtOfSigil $ head name) vexp
+        mval <- newMVal val
+        reduceStatements ((Syn "sym" [Sym sym{ symExp = mval }]:rest), mval)
+    | Syn "sym" [Sym sym@(Symbol SGlobal _ vexp)] <- exp = do
         local (\e -> e{ envGlobal = (sym:envGlobal e) }) $ do
-            reduceStatements rest
-    | Syn "sym" [Sym sym@(Symbol SMy _ _)] <- exp = do
+            reduceStatements (rest, vexp)
+    | Syn "sym" [Sym sym@(Symbol SMy _ vexp)] <- exp = do
         enterLex [sym] $ do
-            reduceStatements rest
-    | Syn syn [Var name, exp'] <- exp
+            reduceStatements (rest, vexp)
+    | Syn syn [Var name, vexp] <- exp
     , (syn == ":=" || syn == "::=") = do
         lex <- asks envLexical
         case findSym name lex of
             Just _  -> do
-                let sym = (Symbol SMy name exp')
+                let sym = (Symbol SMy name vexp)
                 enterLex [sym] $ do
-                    reduceStatements rest
+                    reduceStatements (rest, vexp)
             Nothing -> do
-                let sym = (Symbol SGlobal name exp')
+                let sym = (Symbol SGlobal name vexp)
                 local (\e -> e{ envGlobal = (sym:envGlobal e) }) $ do
-                    reduceStatements rest
+                    reduceStatements (rest, vexp)
     | otherwise = do
         val <- enterContext "Void" $ evalExp exp
         processVal val $ do
-            reduceStatements rest
+            reduceStatements (rest, Val val)
     where
     processVal val action = case val of
         VError _ _  -> retVal val
         _           -> action
 
+findVar Env{ envLexical = lex, envGlobal = glob } name
+    | Just vexp <- findSym name lex
+    = Just vexp
+    | Just vexp <- findSym name glob
+    = Just vexp
+    | Just vexp <- findSym (toGlobal name) glob
+    = Just vexp
+    | otherwise
+    = Nothing
+    
 doReduce :: Env -> Exp -> Eval Exp
 
+doReduce env exp@(MVal mval) =
+    retVal =<< liftIO (readIORef mval)
+
 -- Reduction for variables
-doReduce Env{ envLexical = lex, envGlobal = glob } exp@(Var var)
-    | Just vexp <- findSym var lex
-    = reduceExp vexp
-    | Just vexp <- findSym var glob
-    = reduceExp vexp
-    | Just vexp <- findSym (toGlobal var) glob
+doReduce env exp@(Var name)
+    | Just vexp <- findVar env name
     = reduceExp vexp
     | otherwise
-    = retVal $ VError ("Undefined variable " ++ var) exp
+    = retVal $ VError ("Undefined variable " ++ name) exp
 
 -- Reduction for syntactic constructs
 doReduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
     ";" -> do
         let (global, local) = partition isGlobalExp exps
-        reduceStatements (global ++ local)
+        reduceStatements (global ++ local, Val VUndef)
     "sym" -> do
         let [Sym (Symbol _ _ exp)] = exps
         val     <- evalExp exp
         retVal VUndef
+    "mval" -> do
+        let [Var name, exp] = exps
+        val     <- enterEvalContext (cxtOfSigil $ head name) exp
+        newMVal val
+    "=" -> do
+        let [Var name, exp] = exps
+        case findVar env name of
+            Nothing -> retVal $ VError ("Undefined variable " ++ name) exp
+            Just (MVal mv) -> do
+                val <- enterEvalContext (cxtOfSigil $ head name) exp
+                liftIO $ writeIORef mv val
+                return (MVal mv)
+            _ -> do
+                retVal $ VError "Can't modify constant item" exp
     ":=" -> do
-        let [Var var, exp] = exps
-        val     <- enterEvalContext (cxtOfSigil $ head var) exp
+        let [Var name, exp] = exps
+        val     <- enterEvalContext (cxtOfSigil $ head name) exp
         retVal val
     "::=" -> do -- XXX wrong
-        let [Var var, exp] = exps
+        let [Var name, exp] = exps
         val     <- evalExp exp
         retVal VUndef -- XXX wrong
     "=>" -> do

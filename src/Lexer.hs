@@ -39,6 +39,7 @@ lexeme     = P.lexeme perl6Lexer
 identifier = P.identifier perl6Lexer
 braces     = P.braces perl6Lexer
 brackets   = P.brackets perl6Lexer
+angles     = P.angles perl6Lexer
 
 symbol s
     | isWordAny (last s) = try $ postSpace $ string s

@@ -125,6 +125,9 @@ instance Value VArray where
     castV = VArray
     vCast x = MkArray (vCast x) 
 
+instance Value MVal where
+    castV ref = unsafePerformIO $ readIORef ref
+
 {-
 instance Value VJunc where
     castV = JAny . castV
@@ -138,6 +141,10 @@ instance Value VList where
     vCast (VRef v)      = vCast v
     vCast (VUndef)      = []
     vCast v             = [v]
+
+instance Value VIO where
+    castV = VIO
+    doCast (VIO x) = x
 
 instance Value (Maybe a) where
     vCast VUndef        = Nothing
@@ -209,6 +216,7 @@ data Val
     | VBlock    VBlock
     | VJunc     VJunc
     | VError    VStr Exp
+    | VIO       VIO
     | VControl  VControl
     deriving (Show, Eq, Ord)
 
@@ -260,14 +268,23 @@ instance (Show a) => Show (Set a) where
     show x = show $ setToList x
 instance Ord VComplex where {- ... -}
 instance (Ord a, Ord b) => Ord (FiniteMap a b)
+instance Ord MVal where
+    compare x y = compare (castV x) (castV y)
+instance Show MVal where
+    show = show . castV
+instance Ord VIO where
+    compare x y = compare (show x) (show y)
 
 type Var = String
+type MVal = IORef Val
+type VIO = Handle
 
 data Exp
     = App String [Exp] [Exp]
     | Syn String [Exp]
     | Sym Symbol
     | Prim ([Val] -> Eval Val)
+    | MVal MVal
     | Val Val
     | Var Var
     | Parens Exp

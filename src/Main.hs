@@ -84,15 +84,17 @@ doRun = do
 runProgramWith :: (Env -> Env) -> (Val -> IO ()) -> VStr -> [VStr] -> String -> IO ()
 runProgramWith fenv f name args prog = do
     env <- emptyEnv
-    let env' = runRule (prepare $ fenv env) id ruleProgram prog
+    str <- getContents
+    let env' = runRule (prepare str $ fenv env) id ruleProgram prog
     val <- (`runReaderT` env') $ do
         (`runContT` return) $ do
             evaluate (envBody env')
     f val
     where
-    prepare e = e{ envGlobal =
+    prepare str e = e{ envGlobal =
         [ Symbol SGlobal "@*ARGS" (Val $ VList $ map VStr args)
         , Symbol SGlobal "$*PROGNAME" (Val $ VStr name)
+        , Symbol SGlobal "$*STDIN" (Val $ VStr str)
         ] ++ envGlobal e }
 
 {-

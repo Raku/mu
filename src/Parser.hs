@@ -148,9 +148,12 @@ ruleVarDeclaration :: RuleParser Exp
 ruleVarDeclaration = rule "variable declaration" $ do
     scope   <- ruleScope
     name    <- parseVarName
-    exp     <- option (Val VUndef) $ do
-        tryChoice $ map symbol $ words " = := ::= "
-        ruleExpression
+    exp     <- option (Syn "mval" [Var name, Val VUndef]) $ do
+        sym <- tryChoice $ map symbol $ words " = := ::= "
+        exp <- ruleExpression
+        return $ case sym of
+            "=" -> (Syn "mval" [Var name, exp])
+            _   -> exp
     return $ Syn "sym" [Sym $ Symbol scope name exp]
 
 ruleUseDeclaration :: RuleParser Exp
@@ -399,7 +402,14 @@ parseLit = choice
     , namedLiteral "NaN"    (VNum $ 0/0)
     , namedLiteral "Inf"    (VNum $ 1/0)
     , dotdotdotLiteral
+    , angleLiteral
     ]
+
+angleLiteral = try $ do
+    exp <- angles $ option Nothing $ return . Just =<< parseTerm
+    return $ case exp of
+        Nothing  -> App "&prefix:<>" [] []
+        Just exp -> App "&prefix:<>" [] [exp]
 
 numLiteral = do
     n <- naturalOrRat  
