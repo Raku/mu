@@ -2,7 +2,7 @@ use v6;
 
 say "1..14";
 
-# Mostly copied from Perl 5.8.4 s t/op/bop.t
+# Mostly copied from Perl 5.8.4 s t/op/inc.t
 
 # Verify that addition/subtraction properly upgrade to doubles.
 # These tests are only significant on machines with 32 bit longs,
