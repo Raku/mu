@@ -13,8 +13,9 @@ my $foobar = "Foo::Bar";
 my $bar;
 
 sub ok {
-    if ($_) {
-	say("ok ", $loop, " # TODO var = ", $_);
+    my ($var, $loop) = @_;
+    if ($var) {
+	say("ok ", $loop, " # TODO var = ", $var);
     }
     else {
 	say("not ok ", $loop, " # TODO");
@@ -23,5 +24,9 @@ sub ok {
 }
 
 eval '$bar = $::($foo)';
-ok($bar, $loop);
+if ($bar) {
+    say("ok ", $loop, " # TODO var = ", $bar);
+} else {
+    say("not ok ", $loop, " # TODO");
+}
 
