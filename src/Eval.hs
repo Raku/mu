@@ -74,8 +74,8 @@ evaluate (Val (VSub sub)) = do
             return $ VSub sub{ subPad = pad } -- closure!
 evaluate (Val v@(MVal mv)) = do
     lvalue  <- asks envLValue
-    cxt            <- asks envContext -- XXX Wrong, use "is rw" trait
-    if lvalue || cxt == "LValue"
+    cxt     <- asks envContext
+    if lvalue
         then return v
         else do
             rv <- liftIO (readIORef mv)
@@ -469,8 +469,8 @@ doApply env@Env{ envClasses = cls } sub@Sub{ subParams = prms, subFun = fun } in
         restArgs <- enterLex [Symbol SMy name (Val val')] $ do
             doBind rest
         return (arg:restArgs)
-    expToVal Param{ isSlurpy = slurpy, paramContext = cxt } exp = do
-        val <- enterEvalContext cxt exp
+    expToVal Param{ isLValue = lv, isSlurpy = slurpy, paramContext = cxt } exp = do
+        val <- local (\e -> e{ envLValue = lv }) $ enterEvalContext cxt exp
         return (val, (slurpy || isCollapsed cxt))
     isCollapsed cxt
         | isaType cls "Bool" cxt        = True

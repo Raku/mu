@@ -203,7 +203,7 @@ ruleContext = literalRule "context" $ do
 
 ruleVarName = literalRule "variable name" $ do
     sigil   <- oneOf "$@%&"
-    caret   <- option "" $ choice [ string "^", string "*" ]
+    caret   <- option "" $ choice $ map string $ words " ^ * ? "
     name    <- many1 wordAny
     return $ (sigil:caret) ++ name
 

@@ -372,6 +372,7 @@ doFoldParam cxt (s:name) ps = (buildParam cxt [s] name (Val VUndef) : ps)
 
 foldParam :: String -> Params -> Params
 foldParam "List"    = doFoldParam "List" "*@?0"
+foldParam ('r':'w':'!':str) = \ps -> ((buildParam str "" "$?1" (Val VUndef)) { isLValue = True }:ps)
 foldParam ""        = id
 foldParam ('?':str) = \ps -> (buildParam "Num" "?" "$?1" (Val $ VNum (read def)):ps)
     where
@@ -393,8 +394,10 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Bool      pre     ?^      (Bool)\
 \\n   Ref       pre     \\      (Any)\
 \\n   List      pre     ...     (Str|Num)\
-\\n   Any       post    ++      (LValue)\
-\\n   Num       post    --      (LValue)\
+\\n   Any       post    ++      (rw!Num)\
+\\n   Num       post    --      (rw!Num)\
+\\n   Any       pre     ++      (rw!Num)\
+\\n   Num       pre     --      (rw!Num)\
 \\n   Bool      pre     not     (Bool)\
 \\n   List      pre     map     (Code, List)\
 \\n   List      pre     grep    (Code, List)\

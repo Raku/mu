@@ -282,6 +282,7 @@ data Param = Param
     , isSlurpy      :: Bool
     , isOptional    :: Bool
     , isNamed       :: Bool
+    , isLValue      :: Bool
     , paramName     :: String
     , paramContext  :: Cxt
     , paramDefault  :: Exp
@@ -379,6 +380,7 @@ buildParam cxt sigil name exp = Param
     , isSlurpy      = (sigil == "*")
     , isOptional    = (sigil ==) `any` ["?", "+"]
     , isNamed       = (null sigil || head sigil /= '+')
+    , isLValue      = False
     , paramName     = name
     , paramContext  = if null cxt then defaultCxt else cxt
     , paramDefault  = exp

@@ -323,7 +323,7 @@ tightOperators = do
   unary <- currentUnaryFunctions
   return $
     [ methOps  " . .+ .? .* .+ .() .[] .{} .<<>> .= "   -- Method postfix
-    , postOps  " ++ -- "                                -- Auto-Increment
+    , postOps  " ++ -- " ++ preOps " ++ -- "            -- Auto-Increment
     , rightOps " ** "                                   -- Exponentiation
 --  , preOps   " ! + - ~ ? * ** +^ ~^ ?^ \\ "           -- Symbolic Unary
     , preOps   " ! + ~ ? * ** +^ ~^ ?^ \\ "             -- Symbolic Unary
@@ -470,7 +470,7 @@ ruleHashSubscript = tryRule "hash subscript" $ do
 
 ruleCodeSubscript = tryRule "code subscript" $ do
     option ' ' $ char '.'
-    (invs:args:_) <- parens $ parseParamList parseLitTerm
+    (invs:args:_) <- parens $ parseParamList ruleExpression
     return $ \x -> Syn "()" [x, Syn "invs" invs, Syn "args" args]
 
 parseLitTerm = rule "argument" $ do
@@ -508,6 +508,7 @@ nameToParam name = Param
     , isSlurpy      = (name == "$_")
     , isOptional    = False
     , isNamed       = False
+    , isLValue      = False
     , paramName     = name
     , paramContext  = cxtOfSigil $ head name
     , paramDefault  = Val VUndef
@@ -517,7 +518,7 @@ maybeParens p = choice [ parens p, p ]
 
 parseVarName = lexeme $ do
     sigil   <- oneOf "$@%&"
-    caret   <- option "" $ choice [ string "^", string "*" ]
+    caret   <- option "" $ choice $ map string $ words " ^ * ? "
     name    <- many1 (choice [ wordAny, char ':' ])
     return $ if sigil == '&' && not (':' `elem` name)
         then (sigil:caret) ++ "prefix:" ++ name
