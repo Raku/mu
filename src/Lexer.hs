@@ -91,14 +91,14 @@ naturalOrRat  = do
         <|> decimalRat
                       
     zeroNumRat = do
-            n <- hexadecimal <|> octal <|> binary
+            n <- hexadecimal <|> decimal <|> octal <|> binary
             return (Left n)
         <|> decimalRat
         <|> fractRat 0
         <|> return (Left 0)                  
                       
     decimalRat = do
-        n <- decimal
+        n <- decimalLiteral
         option (Left n) (try $ fractRat n)
 
     fractRat n = do
@@ -125,7 +125,7 @@ naturalOrRat  = do
     expo = do
             oneOf "eE"
             f <- sign
-            e <- decimal <?> "exponent"
+            e <- decimalLiteral <?> "exponent"
             return (power (if f then e else -e))
         <?> "exponent"
         where
@@ -137,15 +137,16 @@ naturalOrRat  = do
                     <|> (char '+' >> return True)
                     <|> return True
 
-    nat             = zeroNumber <|> decimal
+    nat             = zeroNumber <|> decimalLiteral
         
     zeroNumber      = do{ char '0'
-                        ; hexadecimal <|> octal <|> decimal <|> return 0
+                        ; hexadecimal <|> decimal <|> octal <|> decimalLiteral <|> return 0
                         }
                       <?> ""       
 
-    decimal         = number 10 digit        
+    decimalLiteral         = number 10 digit        
     hexadecimal     = do{ char 'x'; number 16 hexDigit }
+    decimal         = do{ char 'd'; number 10 digit }
     octal           = do{ char 'o'; number 8 octDigit  }
     binary          = do{ char 'b'; number 2 (oneOf "01")  }
 

@@ -203,6 +203,7 @@ makeTokenParser languageDef
     charNum         = do{ code <- decimal 
                                   <|> do{ char 'o'; number 8 octDigit }
                                   <|> do{ char 'x'; number 16 hexDigit }
+                                  <|> do{ char 'd'; number 10 digit }
                         ; return (toEnum (fromInteger code))
                         }
 
