@@ -252,6 +252,8 @@ doReduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
                     post    = genericDrop (index + 1) list
                 writeMVal listMVal $ VList (pre ++ [val'] ++ post)
                 retVal val'
+            _ -> do
+                retError "Cannot modify constant item" (head exps)
     ":=" -> do
         let [Var name, exp] = exps
         val     <- enterEvalContext (cxtOfSigil $ head name) exp
