@@ -23,7 +23,7 @@ install_script  ($pugs);
 build_requires  ('Test::More');
 include         ('Module::Install::Makefile::Name');
 include         ('Module::Install::Makefile::Version');
-# build_subdirs   ('ext/Kwid');
+build_subdirs   ('ext/Kwid');
 makemaker_args  (
     test => { TESTS => join ' ', (glob("t/*.t"), glob("t/*/*.t")) },
     MAN1PODS => {},
@@ -38,9 +38,11 @@ assert_ghc      ();
 create_config_h ();
 set_postamble   ();
 
+# WritePugs       (sign => 1); # XXX Not working yet.
 WriteAll        (sign => 1);
-fixup_makefile  ();
+pugs_fix_makefile();
 
+################################################################################
 # XXX Try to be tidy!
 # Pretty stuff goes above. Ugly stuff goes below.
 # Maybe we can refactor this ugly stuff into a Module::Install::Plugin.
@@ -154,20 +156,5 @@ sub create_config_h {
 .
     }
     close FH;
-}
-
-sub fixup_makefile {
-    my $full_pugs = File::Spec->catfile($FindBin::Bin, $pugs);
-    my $full_t = File::Spec->catdir($FindBin::Bin, 't');
-    open MAKEFILE, '< Makefile' or die $!;
-    my $makefile = do { local $/; <MAKEFILE> };
-    $full_pugs =~ s{\\}{\\\\}g; $full_pugs =~ s{'}{\\'}g;
-    $full_t =~ s{\\}{\\\\}g; $full_t =~ s{'}{\\'}g;
-    $makefile =~ s/\b(test_harness\(\$\(TEST_VERBOSE\), )/ENV->{HARNESS_PERL} = q*$full_pugs*; ENV->{PERL6LIB} = q*$full_t*; $1/;
-    $makefile =~ s/("-MExtUtils::Command::MM")/"-Iinc" $1/g;
-    close MAKEFILE;
-    open MAKEFILE, '> Makefile' or die $!;
-    print MAKEFILE $makefile;
-    close MAKEFILE;
 }
 

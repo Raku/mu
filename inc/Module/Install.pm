@@ -76,6 +76,7 @@ sub new {
     $args{prefix}   ||= 'inc';
     $args{author}   ||= '.author';
     $args{bundle}   ||= 'inc/BUNDLES';
+    $args{base}     ||= $FindBin::Bin;
 
     $class =~ s/^\Q$args{prefix}\E:://;
     $args{name}     ||= $class;
@@ -85,7 +86,7 @@ sub new {
         $args{path}  = $args{name};
         $args{path}  =~ s!::!/!g;
     }
-    $args{file}     ||= "$FindBin::Bin/$args{prefix}/$args{path}.pm";
+    $args{file}     ||= "$args{base}/$args{prefix}/$args{path}.pm";
 
     bless(\%args, $class);
 }
@@ -106,9 +107,10 @@ sub call {
 sub load {
     my ($self, $method) = @_;
 
-    $self->load_extensions(
-        "$self->{prefix}/$self->{path}", $self
-    ) unless $self->{extensions};
+    my $extensions = $self->{extensions} || [];
+    unless (@$extensions) {
+        $self->load_extensions("$self->{prefix}/$self->{path}", $self);
+    }
 
     foreach my $obj (@{$self->{extensions}}) {
         return $obj if $obj->can($method);
@@ -129,6 +131,7 @@ END
 
 sub load_extensions {
     my ($self, $path, $top_obj) = @_;
+    $path = "$self->{base}/$path";
 
     unshift @INC, $self->{prefix}
         unless grep { $_ eq $self->{prefix} } @INC;

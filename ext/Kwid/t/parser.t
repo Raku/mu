@@ -1,4 +1,3 @@
-#!/usr/bin/pugs
 use v6;
 require Test;
 
@@ -20,8 +19,8 @@ for (sort <t/kwid/parser/*>) -> IO $file {
     is($formatter.result, $bytecode, $abstract);
 }
 
-=cut
+# for (qw(t/parser/00sample)) -> $file {
+#     say $file;
+# }
 
-for (qw(t/parser/00sample)) -> $file {
-    say $file;
-}
+=cut

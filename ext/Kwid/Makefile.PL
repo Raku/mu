@@ -10,22 +10,14 @@ abstract        ('Kwid');
 author          ('Brian Ingerson <ingy@cpan.org>');
 license         ('perl');
 install_script  ($kwid);
-makemaker_args  (
-    test => { TESTS => join ' ', (glob("t/*.t"), glob("t/*/*.t")) },
-    MAN1PODS => {},
-);
+blib_depth      (2);
 
-# find subdirs in src
-my @srcdirs = ("src", grep(-d, glob "src/*"));
-
-clean_files();
-
-my @srcfiles = map glob("$_/*.hs"), @srcdirs;
 postamble(<< ".");
 
-$kwid :: @srcfiles
+$kwid :: src/Kwid/AST.hs
 	ghc --make -Wall -fno-warn-missing-signatures -fno-warn-name-shadowing -o $kwid src/Main.hs -isrc
 
 .
 
 WriteAll( sign => 1 );
+pugs_fix_makefile();
