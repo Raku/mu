@@ -1,3 +1,4 @@
+#!perl6
 use v6;
 
 my $s; 

@@ -1,5 +1,4 @@
-#!/usr/bin/pugs
-
+#!perl6
 use v6;
 
 sub fisher_yates_shuffle (@deck) {
