@@ -141,7 +141,7 @@ sub proclaim (Bool $cond, Str ?$desc, Str ?$context, Str ?$got, Str ?$expected) 
     say $ok, $loop, $out, $context_out;
 
     report_failure($context, $got, $expected) if (!$cond);
-    write_log(got => $got, expected => $expected, desc => $desc, content => $context) if $log_file and !$cond;
+    write_log(got => $got, expected => $expected, desc => $desc, context => $context) if $log_file and !$cond;
 
     return $cond;
 }
@@ -177,13 +177,13 @@ sub write_log (+$got, +$expected, Str +$desc, Str +$errstr, Str +$context, Str +
     my $out;
     if ($out = open(">>$log_file")) {
         $out.say $?CALLER::CALLER::CALLER::FILE ~ " $loop $status";
-        $out.say $desc.[1] if $desc;
-        $out.say $errstr.[1] if $errstr;
-        $out.say $context.[1] if $context;
+        $out.say $desc if $desc;
+        $out.say $errstr if $errstr;
+        $out.say $context if $context;
         $out.say '### Expected ###';
-        $out.say $expected.[1];
+        $out.say $expected;
         $out.say '### Actual Results ###';
-        $out.say $got.[1], "\n";
+        $out.say $got, "\n";
         $out.close;
         return 1;
     }
