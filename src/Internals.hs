@@ -31,6 +31,7 @@ module Internals (
     module System.Cmd,
     module Control.Monad.RWS,
     module Control.Monad.Error,
+    module GHC.Unicode,
     module Data.Bits,
     module Data.List,
     module Data.Either,
@@ -80,7 +81,7 @@ import Data.List (
 import Data.Unique
 import Data.Ratio
 import Data.Word
-import Data.Char
+import Data.Char (chr, ord, digitToInt)
 import Data.Set (
     Set, elementOf, setToList, mapSet, mkSet,
     emptySet, unionManySets, union, cardinality
@@ -92,6 +93,7 @@ import Data.Tree
 import Data.IORef
 import Debug.Trace
 import Rule.Pos
+import GHC.Unicode
 
 -- Instances.
 instance Show Unique where
