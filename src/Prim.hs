@@ -86,7 +86,8 @@ op1 "--"   = \mv -> do
     readMVal mv
 op1 "-"    = return . op1Numeric negate
 op1 "scalar" = return -- XXX refify?
-op1 "list" = return . VList . vCast
+op1 "reverse" = return . VStr . reverse . vCast
+op1 "list" = return . VList . VStr . vCast
 op1 "~"    = (>>= (return . VStr)) . (>>= fromValue) . readMVal
 op1 "?"    = return . VBool . vCast
 op1 "int"  = return . VInt . vCast
@@ -581,6 +582,7 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Int       pre     int     (Int)\
 \\n   List      pre     list    (List)\
 \\n   Scalar    pre     scalar  (Scalar)\
+\\n   Str       pre     reverse (Str)\
 \\n   Int       spre    +^      (Int)\
 \\n   Int       spre    ~^      (Str)\
 \\n   Bool      spre    ?^      (Bool)\
