@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 28;
+plan 32;
 
 =pod
 
@@ -69,9 +69,9 @@ eval 'class Foo5 {
   has @.legs;
   has $:brain;
 
-  sub set_legs  (@legs) { @.legs = @legs }
-  sub inc_brain ()      { $:brain++ }
-  sub get_brain ()      { $:brain }
+  method set_legs  (@legs) { @.legs = @legs }
+  method inc_brain ()      { $:brain++ }
+  method get_brain ()      { $:brain }
 }';
 
 {
@@ -91,4 +91,24 @@ eval 'class Foo5 {
     todo_eval_is '$foo.get_brain', 1, "getting a private attribute (1)";
     todo_eval_ok '$foo.inc_brain()',  "modifiying a private attribute (2)";
     todo_eval_is '$foo.get_brain', 2, "getting a private attribute (2)";
+}
+
+# L<S12/"Construction and Initialization" /"If you name an attribute as a parameter, that attribute is initialized directly, so">
+
+eval 'class Foo6 {
+  has $.bar is rw;
+  has $.baz;
+  has $:hidden;
+
+  submethod BUILD($.bar, $.baz, $:hidden) {}
+  method get_hidden() { $:hidden }
+}';
+
+{
+    my $foo = eval 'Foo6.new(bar => 1, baz => 2, hidden => 3)';
+    todo_eval_ok '$foo ~~ Foo6', '... our Foo instance was created';
+        
+    todo_eval_is '$foo.bar',        1, "getting a public rw attribute (1)";
+    todo_eval_is '$foo.baz',        2, "getting a public rw attribute (2)";
+    todo_eval_is '$foo.get_hidden', 3, "getting a private ro attribute (3)";
 }
