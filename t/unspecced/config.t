@@ -82,9 +82,9 @@ if ($?OS eq "MSWin32") {
   $pugs = 'pugs.exe';
 };
 
-todo_eval_ok( 'defined %?CONFIG', '%?CONFIG is defined' );
-todo_eval_ok( '%?CONFIG.keys() > 0', '%?CONFIG contains keys and values' );
+eval_ok( 'defined %?CONFIG', '%?CONFIG is defined' );
+eval_ok( '%?CONFIG.keys() > 0', '%?CONFIG contains keys and values' );
 for @config -> $entry {
   # diag $entry;
-  todo_eval_ok( 'defined %?CONFIG{"' ~ $entry ~ '"}', '%?CONFIG{'~$entry~'} exists' );
+  eval_ok( 'defined %?CONFIG{"' ~ $entry ~ '"}', '%?CONFIG{'~$entry~'} exists' );
 };
