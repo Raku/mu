@@ -73,6 +73,10 @@ pass named arguments to functions.  It provides scalar context to both sides.
 
 =item * C<^^> is the high-precedence version of C<xor>.
 
+=item * C<=~> becomes the "smart match" operator C<~~>, with a whole new
+set of semantics.  Anywhere you used C<=~> before you now use C<~~>, but 
+C<~~> is much more general now.  See L<Synopsis 4> for details.
+
 =item * Unary C<.> calls its single argument (which must be a method, or an
 dereferencer for a hash or array) on C<$_>.
 
