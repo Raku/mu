@@ -53,7 +53,7 @@ sub set_postamble {
     my @prereqs = ($config_h, qw( src/UnicodeC.c src/UnicodeC.h ));
 
     if ($Config{_exe} ne '.exe') {
-        my $pcre = "src/pcre/pcre$Config{_obj}";
+        my $pcre = "src/pcre/pcre$Config{_o}";
         $ghc_output .= " $pcre";
         push @prereqs, $pcre;
     }
