@@ -11,7 +11,7 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Allison Randal <al@shadowed.net>
   Date: 21 Mar 2003
-  Last Modified: 21 Mar 2003
+  Last Modified: 12 Apr 2003
   Number: 6
   Version: 1
 
@@ -821,7 +821,7 @@ Specifies that the parameter receives a distinct, read-writeable copy of the
 original argument. This is commonly known as "pass-by-value".
 
     sub reprint ($text, $count is copy) {
-        print $text while $count-->0;
+        print $text while $count-- > 0;
     }
 
 =item C<is context(I<TYPE>)>
