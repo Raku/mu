@@ -241,7 +241,7 @@ ruleRequireDeclaration = tryRule "require declaration" $ do
 
 ruleModuleDeclaration = rule "module declaration" $ do
     symbol "module"
-    _ <- identifier -- name - XXX
+    _ <- identifier `sepBy1` string "::" -- name - XXX
     _ <- option "" $ do -- version - XXX
         char '-'
         many1 (choice [ digit, char '.' ])
