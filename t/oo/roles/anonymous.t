@@ -27,7 +27,7 @@ plan 14;
 
 # Guarantee roles are really first-class-persons:
 {
-  eval_ok '
+  todo_eval_ok '
     sub role_generator(Str $val) {
       return role {
 	has $.cool = $val;

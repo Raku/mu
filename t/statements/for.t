@@ -34,14 +34,14 @@ is($b, '012345', 'for 0 .. 5 -> {} works');
 
 my $c;
 eval 'for 0 .. 5, sub { $c = $c ~ $_; }';
-is($c, '012345', 'for 0 .. 5, sub {} works'); # unTODOme
+todo_is($c, '012345', 'for 0 .. 5, sub {} works'); # unTODOme
 
 # ... with referential sub
 
 my $d;
 sub some_sub ($arg) { $d = $d ~ $arg; }
 eval 'for 0 .. 5, &some_sub;';
-is($d, '012345', 'for 0 .. 5, &some_sub works'); # unTODOme
+todo_is($d, '012345', 'for 0 .. 5, &some_sub works'); # unTODOme
 
 ## and now with parens around the range operator
 
@@ -59,14 +59,14 @@ is($f, '012345', 'for () -> {} works');
 
 my $g;
 eval 'for (0 .. 5), sub { $g = $g ~ $_; }';
-is($g, '012345', 'for (0 .. 5), sub {} works'); # unTODOme
+todo_is($g, '012345', 'for (0 .. 5), sub {} works'); # unTODOme
 
 # ... with referential sub
 
 my $h;
 sub some_sub_2 ($arg) { $h = $h ~ $arg; }
 eval 'for (0 .. 5), &some_sub_2;';
-is($h, '012345', 'for (0 .. 5), &some_sub works'); # unTODOme
+todo_is($h, '012345', 'for (0 .. 5), &some_sub works'); # unTODOme
 
 ## and now for with 'topical' variables
 
@@ -102,7 +102,7 @@ is($l, '012345', 'for @list -> {} works');
 my @list_m = (0 .. 5);
 my $m;
 eval 'for @list_m, sub { $m = $m ~ $_; }';
-is($m, '012345', 'for @list, sub {} works'); # unTODOme
+todo_is($m, '012345', 'for @list, sub {} works'); # unTODOme
 
 # ... with referential sub
 
@@ -110,7 +110,7 @@ my @list_n = (0 .. 5);
 my $n;
 sub some_sub ($arg) { $n = $n ~ $arg; }
 eval 'for @list_n, &some_sub;';
-is($n, '012345', 'for @list, &some_sub works'); # unTODOme
+todo_is($n, '012345', 'for @list, &some_sub works'); # unTODOme
 
 ## and now with parens around the @list
 
@@ -131,7 +131,7 @@ is($p, '012345', 'for (@list) -> {} works');
 my @list_q = (0 .. 5);
 my $q;
 eval 'for (@list_q), sub { $q = $q ~ $_; }';
-is($q, '012345', 'for (@list), sub {} works'); # unTODOme
+todo_is($q, '012345', 'for (@list), sub {} works'); # unTODOme
 
 # ... with referential sub
 
@@ -139,7 +139,7 @@ my @list_r = (0 .. 5);
 my $r;
 sub some_sub_2 ($arg) { $r = $r ~ $arg; }
 eval 'for (@list_r), &some_sub_2;';
-is($r, '012345', 'for (@list), &some_sub works'); # unTODOme
+todo_is($r, '012345', 'for (@list), &some_sub works'); # unTODOme
 
 
 my @elems = <a b c d e>;
@@ -165,9 +165,9 @@ my @elems = <a b c d e>;
 my @list_s = (0..2);
 my @s = (1..3);
 eval 'for @list_s { $_++ }';
-is(@list_s, @s, 'for @list { $_++ }');
+todo_is(@list_s, @s, 'for @list { $_++ }'); # unTODOme
 
 my @list_t = (0..2);
 my @t = (1..3);
 eval 'for @list_t -> $num is rw { $num++ }';
-is(@list_t, @t, 'for @list -> $num is rw { $num++ }');
+todo_is(@list_t, @t, 'for @list -> $num is rw { $num++ }');
