@@ -1,5 +1,6 @@
 #!/usr/bin/perl
 
+use strict;
 use Cwd;
 use Config;
 use FindBin;
@@ -7,15 +8,29 @@ use File::Copy;
 use File::Basename;
 
 if (!@ARGV) {
-    die "Usage: $0 [ --pugs | --haskell | --parrot ] [ source[.p6] | -e oneliner ]\n";
+    die "Usage: $0 [--run] [--pugs|--haskell|--parrot] [ source[.p6] | -e oneliner ]\n";
 }
 
+my $run;
+
+if ($ARGV[0] =~ /^(?:(-)r|(--)run)(.*)$/) {
+    $run = 1;
+    if ($3) {
+        no warnings;
+        $ARGV[0] = "$1$2$3";
+    }
+    else {
+        shift @ARGV;
+    }
+}
+
+
 my $backend = 'Pugs';
-if ($ARGV[0] =~ /^-H|--haskell$/) {
+if ($ARGV[0] =~ /^(?:-H|--haskell)$/) {
     $backend = 'Haskell';
     shift @ARGV;
 }
-elsif ($ARGV[0] =~ /^-P|--parrot$/) {
+elsif ($ARGV[0] =~ /^(?:-P|--parrot)$/) {
     $backend = 'Parrot';
     shift @ARGV;
 }
@@ -24,7 +39,7 @@ elsif ($ARGV[0] =~ /^--pugs$/) {
     shift @ARGV;
 }
 
-print "*** Using the '$backend' backend.\n";
+print "*** Using the '$backend' backend.\n" if !$run;
 
 my $ghc_version = ghc_version();
 my $base = cwd();
@@ -73,7 +88,19 @@ else {
     unlink "$base/src/MainCC.hs";
 }
 
-print "*** Generated output: $out\n" if -e $out;
+die unless -e $out;
+
+if ($run) {
+    if ($backend eq 'Parrot' and !-x '/usr/bin/env') {
+        exec parrot => $out;
+    }
+    else {
+        exec $out;
+    }
+}
+else {
+    print "*** Generated output: $out\n";
+}
 
 sub ghc_version {
     my $ghcver = `ghc --version`;
