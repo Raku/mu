@@ -51,16 +51,16 @@ sub set_postamble {
 
     postamble(fixpaths(<< "."));
 $config_h : lib/Perl6/Pugs.pm util/config_h.pl
-	\$(PERLRUN) util/config_h.pl
+	\$(PERL) util/config_h.pl
 
 $version_h : .svn/entries util/version_h.pl
-	\$(PERLRUN) util/version_h.pl
+	\$(PERL) util/version_h.pl
 
 .svn/entries :
 	\$(NOOP)
 
 src/Config.hs : util/PugsConfig.pm
-	\$(PERLRUN) -Iutil -MPugsConfig -e "PugsConfig->write_config_module" > src/Config.hs
+	\$(PERL) -Iutil -MPugsConfig -e "PugsConfig->write_config_module" > src/Config.hs
 
 profiled :: src/Config.hs @srcfiles $version_h src/UnicodeC.c src/UnicodeC.h
 	ghc -auto-all -prof --make $ghc_flags $ghc_output
