@@ -99,10 +99,12 @@ finalizeBindings sub@Sub{ subParams = params, subBindings = bindings } = do
         invocants = takeWhile isInvocant params                  -- expected invocants
 
     -- Check that we have enough invocants bound
-    when (length boundInvs /= length invocants) $ do
+    when (not $ null invocants) $ do
+        let cnt = length invocants
+            act = length boundInvs
         fail $ "Wrong number of invocant parameters: "
-            ++ (show $ length boundInvs) ++ " actual, "
-            ++ (show $ length invocants) ++ " expected"
+            ++ (show $ act) ++ " actual, "
+            ++ (show $ act + cnt) ++ " expected"
    
     let (boundReq, boundOpt) = partition (\x -> isRequired (fst x)) bindings -- bound params which are required
         (reqPrms, optPrms)   = span isRequired params -- all params which are required, and all params which are opt
