@@ -3,11 +3,61 @@
 Pugs Internals:
 
 * Ported to GHC 6.4 final.
-* 
+* Source code is now always treated as UTF-8.
+* Unicode variable names and subroutines now works, if GHC
+  is compiled with unicode support.
+* We no longer look for Perl6::lib::* namespace in Perl 5;
+  Pugs now has its own library path independent from Perl 5.
+* New primitives: scalar(), list(), reverse(). 
+* Infix Y (and its UTF8 form).
+* $! is now set after an eval call.
+* Stub implementation for ~~ and !~ operators.
+* "make optimized" and "make profiled" targets.
+* Assignment to array slices.
+* Assignment now copies variables in RHS, instead of aliasing them.
+* Declaration of multiple variables with my().
+* try {...} works.
+* Hash stringification.
+* Lone block without trailing semicolon is parsed correctly.
+* time() now counts seconds from 2000-01-01 00:00:00.
+* Assignment operators like .=, //= and ||= etc.
+* Postfix conditionals now works inside expressions.
+* --help and -c command line options.
+* Experimental support for "pugscc", which compiles Perl 6 code
+  into stand-alone executables.
 
 Tests, Examples and Documentations:
 
+* Much more extensive TODO tests; we have 1477 now.
+* Sample Perl 6 modules under modules/, including Sample-Module and
+  Locale-KeyedText (ported from Perl 5 on CPAN).
+* Kwid version of PA01; updated Chinese translations.
+* One can now build Pugs with Perl 5.6.
+* examples/sendmoremoney.p6 now really works.
+* A new, much prettier banner ASCII art.
+* New junction examples in examples/junctions/.
+* New golf-based examples in examples/golf/.
+* Include IRC nicks and UTF8 names in AUTHORS.
+* Some releng and utility scripts under util/.
+
 Bug Fixes:
+
+* In pointy subs, -> () {...} and -> {...} are now distinguished.
+* require() now reports errors correctly.
+* Magical $a++ when $a is a string should not return a numified form.
+* int() now properly truncates, instead of rounds, the operand.
+* Array and hash variables inside qq strings now won't interpolate without
+  explicit brackets, as specced in S02.
+* my $a == $b no longer parses are my $a = =$b.
+* Nested ?? :: now parses correctly, even inside brackets.
+* Postfix ... works again.
+* [...] is now evaluated in list context.
+* Duplicate occurence of implicit params like $_ and $^x now works correctly.
+* =<> now reads the first file in @*ARGS if there is a @*ARGS; it is a TODO
+  to make it read all files in @*ARGS.
+* List associativity now works again.
+* $?CALLER:: variables in subroutine parameters and defaults are
+  now both evaluated in the caller's scope.
 
 [Changes for 6.0.10 - March 5, 2005]
 
