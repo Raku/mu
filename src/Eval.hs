@@ -149,6 +149,12 @@ reduceStatements ((exp:rest), _)
         VError str exp  -> retError str exp
         _               -> action
 
+evalVar name = do
+    env <- ask
+    case findVar env name of
+        Nothing -> retError ("Undefined variable " ++ name) (Val VUndef)
+        Just (Val val) -> return val
+
 findVar Env{ envLexical = lex, envGlobal = glob } name
     | Just vexp <- findSym name lex
     = Just vexp
@@ -222,15 +228,23 @@ doReduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         val <- resetT runBody
         retVal val
     "=" -> do
-        let [Var name, exp] = exps
-        case findVar env name of
-            Nothing -> retError ("Undefined variable " ++ name) exp
-            Just (Val val) -> do
+        case exps of
+            [Var name, exp] -> do
+                val <- evalVar name
                 val' <- enterEvalContext (cxtOfSigil $ head name) exp
                 writeMVal val val'
                 retVal val'
-            _ -> do
-                retError "Can't set a constant item" exp
+            [Syn "[]" [Var name, indexExp], exp] -> do
+                listMVal <- evalVar name
+                listVal  <- readMVal listMVal
+                indexVal <- evalExp exp
+                val' <- enterEvalContext (cxtOfSigil $ head name) exp
+                let index   = (vCast indexVal :: Integer)
+                    list    = concatMap vCast (vCast listVal)
+                    pre     = genericTake index (list ++ repeat VUndef)
+                    post    = genericDrop (index + 1) list
+                writeMVal listMVal $ VList (pre ++ [val'] ++ post)
+                retVal val'
     ":=" -> do
         let [Var name, exp] = exps
         val     <- enterEvalContext (cxtOfSigil $ head name) exp

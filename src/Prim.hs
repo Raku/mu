@@ -26,9 +26,6 @@ op0 "^"  = opJuncOne
 op0 "|"  = opJuncAny
 op0 s    = \x -> VError ("unimplemented listOp: " ++ s) (Val $ VList x)
 
-readMVal (MVal mv) = readMVal =<< liftIO (readIORef mv)
-readMVal v         = return v
-
 op1 :: Ident -> Val -> Eval Val
 op1 "!"    = return . fmapVal not
 op1 "+"    = return . op1Numeric id

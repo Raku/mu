@@ -72,6 +72,9 @@ juncToBool (Junc JOne  ds vs)
     | otherwise
     = (1 ==) . length . filter vCast $ setToList vs
 
+readMVal (MVal mv) = readMVal =<< liftIO (readIORef mv)
+readMVal v         = return v
+
 instance Value VInt where
     castV = VInt
     doCast (VInt i)     = i
