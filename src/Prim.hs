@@ -109,6 +109,11 @@ op1 "sleep" = boolIO sleep
 op1 "mkdir" = boolIO createDirectory
 op1 "rmdir" = boolIO removeDirectory
 op1 "chdir" = boolIO setCurrentDirectory
+op1 "unlink" = \v -> do
+    v <- readMVal v
+    vals <- mapM readMVal (vCast v)
+    rets <- liftIO $ sequence $ map ( iboolIO removeFile ) $ map vCast vals
+    return $ VInt $ sum $ map bool2n rets
 op1 "open" = \v -> do
     fh <- liftIO $ openFile (vCast v) ReadMode
     return $ VHandle fh
@@ -148,10 +153,18 @@ op1 ""     = return . (\x -> VError ("unimplemented unaryOp: " ++ "") (Val x))
 
 op1 s      = return . (\x -> VError ("unimplemented unaryOp: " ++ s) (Val x))
 
-boolIO f v = do
+bool2n v = if v
+  then 1
+  else 0
+
+iboolIO f v = do
     ok <- liftIO $ (`catch` \_ -> return False) $ do
         f (vCast v)
         return True
+    return ok
+
+boolIO f v = do
+    ok <- iboolIO f v
     return $ VBool ok
 
 boolIO2 f u v = do
@@ -456,6 +469,7 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Bool      pre     rename  (Str, Str)\
 \\n   Bool      pre     symlink (Str, Str)\
 \\n   Bool      pre     link    (Str, Str)\
+\\n   Int       pre     unlink  (List)\
 \\n   Str       pre     readlink (Str)\
 \\n   List      pre     split   (Str, Str)\
 \\n   Str       pre     =       (IO)\
