@@ -10,6 +10,7 @@ spawned processes see it.
 
 =cut
 
+push @INC, <  blib6/lib >; # ext/File-Spec/lib
 require File::Spec;
 plan 3;
 
@@ -22,7 +23,7 @@ sub run_pugs (Str $c) {
   my $tempname = "pugs-temp-output";
   # my $tempfile = catfile( tempdir(), $tempname ));
   my $tempfile = $tempname;
-  
+
   my $command = qq!$pugs $c > "$tempfile"!;
   diag $command;
   system $command;
@@ -45,4 +46,3 @@ todo_is(%ENV{$key}, $val, "Modification of %ENV works");
 
 my $res = run_pugs( '-e "say %ENV{\'' ~$key ~ '\'} // \'undefined\'"');
 todo_is($res, $val, "Child processes see the new value");
-
