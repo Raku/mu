@@ -34,6 +34,9 @@ op0 "time"  = \_ -> do
 op0 "not" = const retEmpty
 op0 s    = \x -> return $ VError ("unimplemented listOp: " ++ s) (Val $ VList x)
 
+op0 "¥" = return . VList . concat . transpose . map vCast
+op0 "Y" = op0 "¥"
+
 retEmpty = do
     cxt <- asks envContext
     return $ case cxt of
@@ -68,7 +71,7 @@ op1 "post:++" = \mv -> do
     ref <- fromValue mv
     liftIO $ writeIORef ref $ case val of
         (VStr str)  -> VStr $ strInc str
-        _           -> op1Numeric (+1) (vCast val)
+        b           -> op1Numeric (+1) (vCast val)
     case val of
         (VStr _)    -> return val
         _           -> op1 "+" val
@@ -694,6 +697,8 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   List      left    »x«     (Any, Any)\
 \\n   List      left    »xx«    (Any, Any)\
 \\n   List      list    ,       (List)\
+\\n   List      list	¥		(List)\
+\\n   List      list	Y		(List)\
 \\n   List      spre    <==     (List)\
 \\n   List      left    ==>     (List, Code)\
 \\n   Scalar    left    and     (Bool, Bool)\

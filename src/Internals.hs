@@ -71,7 +71,7 @@ import Data.Either
 import Data.List (
     (\\), find, genericLength, insert, sortBy, intersperse,
     partition, group, sort, genericReplicate, isPrefixOf,
-    genericTake, genericDrop, unfoldr, nub, nubBy
+    genericTake, genericDrop, unfoldr, nub, nubBy, transpose
     )
 import Data.Unique
 import Data.Ratio
