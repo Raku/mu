@@ -46,7 +46,7 @@ sub set_postamble {
 
     # turning off unused imports and deprecations for GHC6.4.
     my $ghc_flags = "-H200m -L$Config{archlib}/CORE -L. -Lsrc -Lsrc/pcre -I$Config{archlib}/CORE -I. -Isrc -Isrc/pcre -i$Config{archlib}/CORE -i. -isrc -isrc/pcre -static -Wall -fno-warn-missing-signatures -fno-warn-name-shadowing";
-    push $ghc_flags, " -lperl" if $ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /perl5/i;
+    $ghc_flags .= " -lperl" if $ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /perl5/i;
     if ($ghc_version ge '6.4') {
         $ghc_flags .= " -fno-warn-deprecations -fno-warn-orphans";
     }
