@@ -42,7 +42,7 @@ sub content {
 sub html_escape {
     my $self = shift;
     my $val = shift;
-    $val =~ s/&/&#38;/g;
+    $val =~ s/&/&amp;/g;
     $val =~ s/</&lt;/g;
     $val =~ s/>/&gt;/g;
     $val =~ s/\(/&#40;/g;
