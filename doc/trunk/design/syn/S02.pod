@@ -316,6 +316,9 @@ This includes C<$_> and C<@_>.  As well as the new C<$0>, which
 is the return value of the last regex match.  C<$1>, C<$2>, etc.,
 are aliases into the C<$0> object.
 
+[Update: The C<$0> object has been renamed to C<$/>, but it's
+still lexical.]
+
 =item *
 
 The C<$#foo> notation is dead.  Use C<@foo.end> or C<[-1]> instead.
