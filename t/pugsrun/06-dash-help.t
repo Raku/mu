@@ -32,7 +32,5 @@ for @examples -> $ex {
   my $got      = slurp "temp-ex-output";
   unlink "temp-ex-output";
 
-  my $res = ($got ~~ rx:perl5/^Command-line flags:/);
-  ok ($res, "'$ex' displays help")
-    or diag $got;
+  like( $got, rx:perl5/^Usage/, "'$ex' displays help");
 }
