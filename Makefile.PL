@@ -7,7 +7,8 @@ use Config;
 use inc::Module::Install;
 
 chdir $FindBin::Bin;
-my $pugs = File::Spec->catfile($FindBin::Bin, "pugs$Config{_exe}");
+my $pugs = "pugs$Config{_exe}";
+my $full_pugs = File::Spec->catfile($FindBin::Bin, $pugs);
 
 name            ('Perl6-Pugs');
 version_from    ('lib/Perl6/Pugs.pm');
@@ -16,6 +17,7 @@ author          ('Autrijus Tang <autrijus@autrijus.org>');
 license         ('perl');
 install_script  ($pugs);
 build_requires  ('Test::More');
+makemaker_args  ( test => { TESTS => join ' ', (glob("t/*.t"), glob("t/*/*.t")) } );
 
 (`ghc --version` =~ /Glasgow/) or die << '.';
 *** Cannot find a runnable 'ghc' from path.
@@ -80,7 +82,7 @@ WriteAll( sign => 1 );
 # FIXUP
 open MAKEFILE, '< Makefile' or die $!;
 my $makefile = do { local $/; <MAKEFILE> };
-$makefile =~ s/\b(test_harness\(\$\(TEST_VERBOSE\), )/ENV->{HARNESS_PERL} = '$pugs'; $1/;
+$makefile =~ s/\b(test_harness\(\$\(TEST_VERBOSE\), )/ENV->{HARNESS_PERL} = '$full_pugs'; $1/;
 close MAKEFILE;
 open MAKEFILE, '> Makefile' or die $!;
 print MAKEFILE $makefile;

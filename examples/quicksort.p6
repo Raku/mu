@@ -1,7 +1,7 @@
 #!perl6
 use v6;
 
-multi sub quicksort () { () }
+multi sub quicksort ( ) { () }
 
 multi sub quicksort ( *$x, *@xs ) {
     my @pre  = @xs.grep{ $_ < $x };

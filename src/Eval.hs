@@ -444,7 +444,7 @@ findSym name pad
 arityMatch sub@Sub{ subAssoc = assoc, subParams = prms } argLen argSlurpLen
     | assoc == "list" || assoc == "chain"
     = Just sub
-    | isNothing $ find (not . isSlurpy) prms
+    | isNothing $ find (not . isSlurpy) prms -- XXX - what about empty ones?
     , slurpLen <- length $ filter (\p -> isSlurpy p && head (paramName p) == '$') prms
     , hasArray <- isJust $ find (\p -> isSlurpy p && head (paramName p) == '@') prms
     , if hasArray then slurpLen <= argSlurpLen else slurpLen == argSlurpLen

@@ -134,7 +134,7 @@ ruleParamList parse = rule "parameter list" $ do
 ruleFormalParam = rule "formal parameter" $ do
     cxt     <- option "" $ ruleContext
     sigil   <- option "" $ choice . map symbol $ words " ? * + ++ "
-    name    <- ruleVarName
+    name    <- ruleVarName -- XXX support *[...]
     let required = (sigil /=) `all` ["?", "+"]
     exp     <- ruleParamDefault required
     return $ buildParam cxt sigil name exp
