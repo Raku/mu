@@ -6,11 +6,18 @@ use base 'Exporter';
 our @EXPORT = qw(WriteMakefile);
 
 use ExtUtils::MakeMaker();
+use File::Spec;
 
 sub WriteMakefile {
     my $libs = get_perl6_libs();
     ExtUtils::MakeMaker::WriteMakefile(
         INSTALLSITELIB => $libs->{sitelib},
+        INST_ARCHLIB => File::Spec->catfile('blib6', 'arch'),
+        INST_SCRIPT => File::Spec->catfile('blib6', 'script'),
+        INST_BIN => File::Spec->catfile('blib6', 'bin'),
+        INST_LIB => File::Spec->catfile('blib6', 'lib'),
+        INST_MAN1DIR => File::Spec->catfile('blib6', 'man1'),
+        INST_MAN3DIR => File::Spec->catfile('blib6', 'man3'),
         @_,
     );
     fix_makefile();

@@ -54,7 +54,7 @@ sub set_pugs_config_values {
 sub add_path {
     my ($name, $config) = @_;
     my $path = $Config{$name} || '';
-    $path =~ s/([\/\\])[^\/\\]*perl[^\/\\]*([\/\\]?)/$1perl6$2/i;
+    $path =~ s/([\/\\])[^\/\\]*(perl)[^\/\\]*([\/\\]?)/$1${2}6$3/i;
     $path =~ s/\/\d+\.\d+\.\d+//g;
     $config->{$name} = $path;
 }
