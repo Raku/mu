@@ -28,7 +28,9 @@ my @EVENTS = (
         
     'start_modifier',
     'end_modifier',
-    'string'
+    'string',
+    
+    'newline'
 );
 
 sub parse (Str $filename, Hash %_events) is export {
@@ -85,11 +87,12 @@ sub parse (Str $filename, Hash %_events) is export {
                             %events<end_begin>($1);
                         }
                     }                    
-                    when rx:perl5{^\s+(.*?)$} {
+                    when rx:perl5{^\s(.*?)$} {
                         %events<verbatim>($1);
                     }
                     default {
-                        interpolate($line, %events);                       
+                        interpolate($line, %events);   
+                        %events<newline>() unless $line eq '';
                     }
                 }
             } 
@@ -207,6 +210,8 @@ which it uses to process each line of the file.
 =item I<end_modifier>
 
 =item I<string>
+
+=item I<newline>
 
 =back
 
