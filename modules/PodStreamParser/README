@@ -1,6 +1,9 @@
 ---------------------------------------------------------------------
  Pod::Stream::Parser v0.0.1
 ---------------------------------------------------------------------
+Note: this parser will eventually be superceded by one based on the
+Perldoc design, which is being prototyped in Perl 5 - see ext/Perldoc
+--
 
 This is a very basic POD stream parser modeled after XML SAX parsers. 
 My goal is to have a working POD parser for Pugs which can parse the 
