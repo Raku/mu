@@ -153,7 +153,7 @@ sub emit {
 	my($self) = @_;
 	YAML::DumpFile($Config{"output-file"}, {
 			map { $_ => $self->{"_$_"} } qw{
-				build_info test_cases start_time smoker config
+				build_info test_cases start_time smoker config revision
 		}});
 }
 
@@ -182,6 +182,7 @@ sub _init {
 	my($self) = @_;
 	$self->set_build_info;
 	$self->get_smoker;
+	$self->get_revision;
 	$self->{_start_time} = time;
 	$self->{_config} = { shuffle => $Config{shuffle}+=0 };
 }
@@ -222,3 +223,9 @@ sub get_tests {
 	\@tests;
 }
 
+sub get_revision {
+	# TODO: generalize to non-svn trees
+	my($self) = @_;
+	do { $self->{_revision} = $1 if /Revision: (\d+)$/ } for `svn info`;
+	$self->{_revision} ||= "unknown";
+}
