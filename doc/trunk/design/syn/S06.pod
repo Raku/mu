@@ -103,6 +103,10 @@ included in a list, and a pointy sub may not be given traits.
         print "$elem\n";        #              print "$elem\n";
     }                           #          }
 
+It also behaves like a block with respect to control exceptions.  If you
+C<return> from within a pointy sub, it will return from the innermost
+enclosing C<sub> or C<method>, not the block itself.  It is referenced
+by C<&?BLOCK>, not C<&?SUB>.
 
 =head2 Stub declarations
 
