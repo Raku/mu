@@ -47,6 +47,6 @@ todo_eval_is '$b.attr = 23', 23, 'our $b "inherited" the $.attr attribute of B (
 # As usual, ok instead of todo_ok to avoid unexpected succeedings.
 todo_eval_ok 'my Foo $c .= new()',        'creating a Foo worked';
 ok           !eval('$c ~~ B'),            '$c does not B';
-todo_eval_ok 'my $d = $c does B',         'mixing in a Role via but worked';
+todo_eval_ok 'my $d = $c but B',          'mixing in a Role via but worked';
 ok           !eval('$c ~~ B'),            '$c still does not B...';
 todo_eval_ok '$d ~~ B',                   '...but $d does B';
