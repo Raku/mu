@@ -223,20 +223,24 @@ op1 "accept" = \v -> do
     socket      <- fromVal v
     (h, _, _)   <- liftIO $ accept socket
     return $ VHandle h
-op1 "threads::create" = \v -> do
+op1 "yield" = \_ -> do
+    ok <- tryIO False $ do { yield ; return True }
+    return $ VBool ok
+op1 "async" = \v -> do
     env     <- ask
     code    <- fromVal v
-    tid     <- liftIO . forkOS $ do
+    tid     <- liftIO . (if rtsSupportsBoundThreads then forkOS else forkIO) $ do
         (`runReaderT` env) $ (`runContT` return) $ resetT $ do
             evl <- asks envEval
             local (\e -> e{ envContext = "Void" }) $ do
                 evl (Syn "()" [Val code, Syn "invs" [], Syn "args" []])
         return ()
-    return . VInt . read . dropWhile (not . isDigit) $ show tid
+    return $ VThread tid
 op1 "listen" = \v -> do
     port    <- fromVal v
     socket  <- liftIO $ listenOn (PortNumber $ fromInteger port)
     return $ VSocket socket
+op1 "flush" = boolIO hFlush
 op1 "close" = \v -> do
     val <- fromVal v
     case val of
@@ -461,6 +465,11 @@ op2 "split"= \x y -> return $ split' (vCast x) (vCast y)
     split' :: VStr -> VStr -> Val
     split' [] xs = VList $ map (VStr . (:[])) xs
     split' glue xs = VList $ map VStr $ split glue xs
+op2 "connect" = \x y -> do
+    host <- fromVal x
+    port <- fromVal y
+    hdl  <- liftIO $ connectTo host (PortNumber $ fromInteger port)
+    return $ VHandle hdl
 op2 other = \x y -> return $ VError ("unimplemented binaryOp: " ++ other) (App other [Val x, Val y] [])
 
 -- XXX - need to generalise this
@@ -854,11 +863,13 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      pre     say     (IO: List)\
 \\n   Bool      pre     say     (List)\
 \\n   Bool      pre     close   (IO)\
+\\n   Bool      pre     flush   (IO)\
 \\n   Bool      pre     close   (Socket)\
 \\n   Bool      pre     die     (List)\
 \\n   Any       pre     do      (Str)\
 \\n   IO        pre     open    (Str)\
 \\n   Socket    pre     listen  (Int)\
+\\n   Socket    pre     connect (Str, Int)\
 \\n   Any       pre     accept  (Any)\
 \\n   List      pre     slurp   (Str)\
 \\n   Bool      pre     system  (Str)\
@@ -960,5 +971,6 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Str       pre     hex     (Str)\
 \\n   Str       pre     hex     (Int)\
 \\n   Any       list    ;       (Any)\
-\\n   Int       pre     threads::create (Code)\
+\\n   Thread    pre     async   (Code)\
+\\n   Bool      pre     yield   (Thread)\
 \\n"

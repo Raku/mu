@@ -86,6 +86,7 @@ initTree = Node "Any"
             , Node "Pair" []
             , Node "IO" []
             , Node "Socket" []
+            , Node "Thread" []
             , Node "Code"
                 [ Node "Routine"
                     [ Node "Sub"

@@ -79,7 +79,7 @@ else {
         "-L$base", "-L$core", "-L$core/pcre",
         "-I$base", "-I$core", "-I$core/pcre",
         "-i$base", "-i$core", "-i$core/pcre",
-        qw(-static -Wall -fno-warn-unused-imports -fno-warn-unused-binds -fno-warn-missing-signatures -fno-warn-name-shadowing),
+        qw(-threaded -static -Wall -fno-warn-unused-imports -fno-warn-unused-binds -fno-warn-missing-signatures -fno-warn-name-shadowing),
     );
 
     if ($ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /perl5/i) {

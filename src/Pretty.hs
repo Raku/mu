@@ -94,6 +94,7 @@ instance Pretty Val where
     format (VHash (MkHash x)) = braces $ (joinList $ text ", ") $
         [ format (VStr k, v) | (k, v) <- Map.toList x ]
     format (VHandle x) = text $ show x
+    format t@(VThread _) = text $ vCast t
     format (VSocket x) = text $ show x
     format (MVal v) = text $ unsafePerformIO $ do
         val <- readIORef v

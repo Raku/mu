@@ -164,6 +164,7 @@ instance Value VNum where
     doCast (VList l)    = genericLength l
     doCast (VArray (MkArray a))    = genericLength a
     doCast (VHash (MkHash h))    = fromIntegral $ Map.size h
+    doCast t@(VThread _)  = read $ vCast t
     doCast _            = 0/0 -- error $ "cannot cast as Num: " ++ (show x)
 
 instance Value VComplex where
@@ -196,6 +197,7 @@ instance Value VStr where
         map (\(k, v) -> (k ++ "\t" ++ vCast v)) $ Map.assocs h
     vCast (VSub s)      = "<" ++ show (subType s) ++ "(" ++ subName s ++ ")>"
     vCast (VJunc j)     = show j
+    vCast (VThread t)   = dropWhile (not . isDigit) $ show t
     vCast x             = error $ "cannot cast as Str: " ++ (show x)
 
 showNum :: Show a => a -> String
@@ -246,7 +248,12 @@ instance Value VHandle where
 instance Value VSocket where
     castV = VSocket
     doCast (VSocket x) = x
-    doCast x            = error $ "cannot cast into a handle: " ++ show x
+    doCast x            = error $ "cannot cast into a socket: " ++ show x
+
+instance Value VThread where
+    castV = VThread
+    doCast (VThread x) = x
+    doCast x            = error $ "cannot cast into a thread: " ++ show x
 
 instance Value (Maybe a) where
     vCast VUndef        = Nothing
@@ -305,6 +312,7 @@ type VList = [Val]
 type VSubst = (VRule, Exp)
 type VHandle = Handle
 type VSocket = Socket
+type VThread = ThreadId
 type MVal = IORef Val
 newtype VArray = MkArray [Val] deriving (Show, Eq, Ord)
 newtype VHash  = MkHash (Map VStr Val) deriving (Show, Eq, Ord)
@@ -336,6 +344,7 @@ data Val
     | VError    VStr Exp
     | VHandle   VHandle
     | VSocket   VSocket
+    | VThread   VThread
     | VRule     VRule
     | VSubst    VSubst
     | MVal      MVal
@@ -362,6 +371,7 @@ valType (VJunc    _)    = "Junc"
 valType (VError _ _)    = "Error"
 valType (VHandle  _)    = "Handle"
 valType (VSocket  _)    = "Socket"
+valType (VThread  _)    = "Thread"
 valType (MVal     _)    = "Var"
 valType (VControl _)    = "Control"
 valType (VThunk   _)    = "Thunk"
