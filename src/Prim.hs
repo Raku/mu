@@ -157,6 +157,7 @@ op1 "defined" = \v -> do
         _       -> True
 op1 "last" = \v -> return (VError "cannot last() outside a loop" (Val v))
 op1 "return" = \v -> return (VError "cannot return() outside a subroutine" (Val v))
+op1 "sign" = return . VInt . (signum) . vCast
 
 -- Side-effectful function: how far into Monadic IO shall we go?
 op1 "rand"  = \v -> do
@@ -1059,5 +1060,6 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Any       list    ;       (Any)\
 \\n   Thread    pre     async   (Code)\
 \\n   Bool      pre     yield   (?Thread)\
+\\n   Int       pre     sign    (Num)\
 \\n"
 
