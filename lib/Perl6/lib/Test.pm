@@ -61,12 +61,34 @@ sub todo_is (Str $got, Str $expected, Str ?$desc) returns Bool is export {
     return ($ok eq "ok ");
 }
 
+sub pass (Str ?$desc) returns Bool is export {
+    my $out := defined($desc) ?? (" - " ~ $desc) :: "";
+    $loop++;
+    say "ok ", $loop, $out;
+    return 1;
+}
+
+sub fail (Str ?$desc) returns Bool is export {
+    my $out := defined($desc) ?? (" - " ~ $desc) :: "";
+    $loop++;
+    say "not ok ", $loop, $out;
+    return 0;
+}
+
+sub todo_fail (Str ?$desc) returns Bool is export {
+    my $out := defined($desc) ?? (" - " ~ $desc) :: "";
+    $loop++;
+    say "not ok ", $loop, $out;
+    say("#     Failed (TODO) test (", $?CALLER::POSITION, ")");
+    return 0;
+}
+
 END {
     if (!$plan) {
         say("1..", $loop);
     } else {
         if ($plan != $loop) {
-	    $*ERR.say("# Looks like you planed ", $plan, " tests, but ran ",
+	    $*ERR.say("# Looks like you planned ", $plan, " tests, but ran ",
 	        $loop);
         }
     }

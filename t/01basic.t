@@ -1,4 +1,7 @@
+#!/usr/bin/pugs
+
 use v6;
+require Test;
 
 =pod
 
@@ -6,42 +9,41 @@ Basic tests.
 
 =cut
 
-say "1..14";
-say "ok 1 # Welcome to Pugs!";
+plan 14;
+ok(1, "Welcome to Pugs!");
 
-sub cool { fine($_) ~ " # We've got " ~ toys }
-sub fine { "ok " ~ $_ }
+sub cool { ok(fine($_), " # We've got " ~ toys) }
+sub fine { $_ == 2 }
 sub toys { "fun and games!" }
 
-(2).cool.say;  # and that is it, folks!
+(2).cool;  # and that is it, folks!
 
 my $foo = "Foo";
 eval 'undef $foo';
-if (!$foo) { say 'ok 3' } else { say 'not ok 3 # TODO' }
+todo_ok(!$foo, 'undef');
 
 my $bar;
 eval ' unless ($foo) { $bar = "true"; } ';
-if ($bar) { say 'ok 4' } else { say 'not ok 4 # TODO' }
+todo_ok($bar, "unless");
 
 my ($var1, $var2) = ("foo", "bar");
-if ($var1 eq $var2) { say 'not ok 5 # TODO' } else { say 'ok 5' }
-if (eval '(my $quux = 1) == 1)') { say "ok 6" } else { 
-    say "not ok 6 # TODO my returns LHS"
-}
+todo_is($var1, "foo", 'list assignment 1');
+todo_is($var2, "bar", 'list assignment 2');
+todo_ok(eval '(my $quux = 1) == 1)', "my returns LHS");
 
-eval 'if 1 { say "ok 7" }' or say "not ok 7 # TODO if without parens";
-eval 'for 1 { say "ok 8" }' or say "not ok 8 # TODO for without parens";
-eval 'while (0) { } say "ok 9"' or say "not ok 9 # TODO while";
+eval 'if 1 { pass() }' or todo_fail "if without parens";
+eval 'for 1 { pass() }' or todo_fail "for without parens";
+eval 'while (0) { } pass()' or todo_fail "while";
 
 my $lasttest = 0;
 eval 'for (1..10) { $lasttest++; last; $lasttest++; }';
-if ($lasttest == 1) { say "ok 10" } else { say "not ok 10 # TODO last" }
+todo_ok($lasttest == 1, "last");
 
 my $nexttest = 0;
 eval 'for (1..10) { $nexttest++; next; $nexttest++; }';
-if ($nexttest == 10) { say "ok 11" } else { say "not ok 11 # TODO next" }
+todo_ok($lasttest == 10, "next");
 
-print "ok ";
-if (eval '12.print') { say "\nok 13" } else { say "\nnot ok 13 # TODO 5.say" }
+print "# ok ";
+if (eval '12.print') { print "\n"; pass() } else { print "\n"; todo_fail("12.print"); }
 
-if (!eval 'say(1 ?? "ok 14" :: "Bail out!")') { say "not ok 14" }
+ok(eval 'say(1 ?? "# ok 14" :: "# Bail out!")');
