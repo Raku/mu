@@ -1,4 +1,4 @@
-{-# OPTIONS -fglasgow-exts -cpp #-}
+{-# OPTIONS -fglasgow-exts #-}
 
 {-
     Abstract syntax tree.
@@ -581,18 +581,6 @@ emptyExp = App "&not" [] []
 retError :: VStr -> Exp -> Eval a
 retError str exp = do
     shiftT $ \_ -> return $ VError str exp
-
-#if __GLASGOW_HASKELL__ <= 602
-
-instance (Ord a, Ord b) => Ord (FiniteMap a b)
-instance (Show a, Show b) => Show (FiniteMap a b) where
-    show fm = show (fmToList fm)
-instance (Ord a) => Ord (Set a) where
-    compare x y = compare (setToList x) (setToList y)
-instance (Show a) => Show (Set a) where
-    show x = show $ setToList x
-
-#endif
 
 naturalOrRat  = (<?> "number") $ do
     sig <- sign

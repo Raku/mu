@@ -38,38 +38,6 @@ import System.Posix.Unistd
 import System.Posix.Types
 import System.Environment
 
-#if __GLASGOW_HASKELL__ <= 602
-import System.IO.Error
-import Data.Maybe (catMaybes)
-
-getEnvironment :: IO [(String, String)]
-getEnvironment = do
-    pairs <- mapM getEnvPair envs
-    return $ catMaybes pairs
-    where
-    getEnvPair :: String -> IO (Maybe (String, String))
-    getEnvPair key = (`catch` (\_ -> return Nothing)) $ do
-        val <- getEnv key
-        return $ Just (key, val)
-    envs = words $ " PATH USERNAME USERDOMAIN USERPROFILE "
-                ++ " COMPUTERNAME HOMEDRIVE HOMEPATH HOME "
-                ++ " OS PROMPT SESSIONNAME APPDATA ALLUSERSPROFILE "
-                ++ " WINDOW COMSPEC PROGRAMFILES SYSTEMDRIVE SYSTEMROOT "
-                ++ " LOGDIR PERL5LIB PERL6LIB PERL5OPT PERL6OPT "
-                ++ " PERLIO PERLIO_DEBUG PERLLIB PERL5DB PERL6DB "
-                ++ " PERL5DB_THREADED PERL6DB_THREADED "
-                ++ " PERL5SHELL PERL6SHELL PERL_ENCODING PERL_HASH_SEED "
-                ++ " PERL_SIGNALS PERL_UNICODE PWD CWD "
-                ++ " SERVER_SOFTWARE SERVER_NAME GATEWAY_INTERFACE "
-                ++ " SERVER_PROTOCOL SERVER_PORT REQUEST_METHOD "
-                ++ " PATH_INFO PATH_TRANSLATED SCRIPT_NAME "
-                ++ " QUERY_STRING REMOTE_HOST REMOTE_ADDR "
-                ++ " AUTH_TYPE REMOTE_USER REMOTE_IDENT "
-                ++ " CONTENT_TYPE CONTENT_LENGTH "
-                ++ " HTTP_ACCEPT HTTP_USER_AGENT "
-#endif
-
-
 createLink :: FilePath -> FilePath -> IO ()
 createLink _ _ = fail "'link' not implemented on this platform."
 

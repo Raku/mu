@@ -1,4 +1,4 @@
-{-# OPTIONS -fglasgow-exts -fno-warn-unused-binds -cpp #-}
+{-# OPTIONS -fglasgow-exts -fno-warn-unused-binds #-}
 
 {-
     Continuation with shift/reset operators.
@@ -22,11 +22,7 @@ import Control.Monad.Cont (mapContT, withContT, mapCont, withCont, Cont(..), Con
 type Cont' m a = forall r. a -> m r
 
 callCC :: forall a m. MonadCont m => (Cont' m a -> m a) -> m a
-#if __GLASGOW_HASKELL__ > 602
 callCC f = C.callCC f' where
-#else
-callCC (f :: ((a -> (forall b. m b)) -> m a) ) = C.callCC f' where
-#endif
   f' :: (a -> m (EmptyMonad m)) -> m a
   f' g = f g' where
     g' :: a -> m b

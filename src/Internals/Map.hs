@@ -1,16 +1,10 @@
-{-# OPTIONS -fglasgow-exts -O -cpp #-}
+{-# OPTIONS -fglasgow-exts -O #-}
 
 module Internals.Map (
     FiniteMap,
     emptyFM, addToFM, delFromFM, lookupFM,
     listToFM, fmToList, sizeFM, lookupWithDefaultFM
 ) where
-
-#if __GLASGOW_HASKELL__ < 604
-
-import Data.FiniteMap
-
-#else
 
 import qualified Data.Map as Map
 
@@ -39,5 +33,3 @@ sizeFM fm = Map.size fm
 
 lookupWithDefaultFM :: Ord k => FiniteMap k v -> v -> k -> v
 lookupWithDefaultFM fm val key = Map.findWithDefault val key fm
-
-#endif
