@@ -67,6 +67,7 @@ prepareEnv name args = do
     outGV   <- newMVal $ VHandle stdout
     errGV   <- newMVal $ VHandle stderr
     errSV   <- newMVal $ VStr ""
+    defSV   <- newMVal $ VUndef
     let subExit = \x -> case x of
             [x] -> op1 "exit" x
             _   -> op1 "exit" VUndef
@@ -98,7 +99,8 @@ prepareEnv name args = do
             , subReturns = "Void"
             , subFun = Prim subExit
             }
-         , SymVal SGlobal "%?CONFIG" (VHash . MkHash $ confFM)
+        , SymVal SGlobal "%?CONFIG" (VHash . MkHash $ confFM)
+        , SymVal SMy "$_" defSV
         ]
 
 
