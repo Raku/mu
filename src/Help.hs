@@ -16,7 +16,7 @@
 #include "pugs_version.h"
 
 module Help (printInteractiveHelp, printCommandLineHelp,
-             banner, versnum, version, 
+             banner, versnum, version, revision,
              copyright, disclaimer, intro) where
 
 printInteractiveHelp :: IO ()
