@@ -418,7 +418,30 @@ op2 "split"= \x y -> return $ split' (vCast x) (vCast y)
     split' glue xs = VList $ map VStr $ split glue xs
 op2 other = \x y -> return $ VError ("unimplemented binaryOp: " ++ other) (App other [Val x, Val y] [])
 
-op2Match x sub@(VSubst (rx, subst)) = do
+op2Match x (VSubst (rx@MkRule{ rxGlobal = True }, subst)) = do
+    str     <- fromVal x
+    rv      <- doReplace (encodeUTF8 str) Nothing
+    case rv of
+        (str', Just subs) -> do
+            glob <- askGlobal
+            let Just matchAV = findSym "$/" glob
+            writeMVal matchAV $ VList $ map VStr subs
+            writeMVal (vCast x) (VStr $ decodeUTF8 $ str')
+            return $ VBool True
+        _ -> return $ VBool False
+    where
+    doReplace :: String -> Maybe [String] -> Eval (String, Maybe [String])
+    doReplace str subs = do
+        case str =~~ rxRegex rx of
+            Nothing -> return (str, subs)
+            Just mr -> do
+                str'        <- fromVal =<< evalExp subst
+                let subs = elems $ mrSubs mr
+                (after', rv) <- doReplace (mrAfter mr) (Just subs)
+                let subs' = fromMaybe subs rv
+                return (concat [mrBefore mr, str', after'], Just subs')
+
+op2Match x (VSubst (rx@MkRule{ rxGlobal = False }, subst)) = do
     str     <- fromVal x
     case encodeUTF8 str =~~ rxRegex rx of
         Nothing -> return $ VBool False
@@ -428,11 +451,8 @@ op2Match x sub@(VSubst (rx, subst)) = do
                 subs = elems $ mrSubs mr
             writeMVal matchAV $ VList $ map VStr subs
             str' <- fromVal =<< evalExp subst
-            -- XXX ugly hack for rxGlobal to work
-            writeMVal (vCast x) (VStr $ concat [mrBefore mr, str', mrAfter mr])
-            if (rxGlobal rx)
-                then op2Match x sub
-                else return VUndef
+            writeMVal (vCast x) $
+                (VStr $ decodeUTF8 $ concat [mrBefore mr, str', mrAfter mr])
             return $ VBool True
 
 op2Match x (VRule rx) = do
