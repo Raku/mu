@@ -1,7 +1,7 @@
 {-# OPTIONS -fglasgow-exts #-}
 
 {-
-    Internal utilities and libraries imports.
+    Internal utilities and library imports.
 
     Though here at journey's end I lie
     in darkness buried deep,
@@ -77,7 +77,8 @@ import Data.Ratio
 import Data.Word
 import Data.Char
 import Data.Set (
-    Set, elementOf, setToList, mapSet, mkSet, emptySet, unionManySets, union
+    Set, elementOf, setToList, mapSet, mkSet,
+    emptySet, unionManySets, union, cardinality
     )
 import Data.Ratio
 import Data.Complex

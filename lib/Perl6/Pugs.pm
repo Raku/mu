@@ -1,5 +1,5 @@
 package Perl6::Pugs;
-$Pugs::VERSION = '6.0.9';
+$Pugs::VERSION = '6.0.10';
 
 use strict;
 
@@ -9,7 +9,7 @@ Perl6::Pugs - A Perl6 Implementation
 
 =head1 VERSION
 
-This document describes version 6.0.9 of Pugs, released February 28, 2005.
+This document describes version 6.0.10 of Pugs, released March 5, 2005.
 
 =head1 SYNOPSIS
 

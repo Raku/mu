@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan(130);
+plan(132);
 
 sub abs($num) { $num < 0 ?? -$num :: $num }
 

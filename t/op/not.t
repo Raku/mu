@@ -4,7 +4,7 @@
 use v6;
 
 require Test;
-plan 16;
+plan 14;
 
 # not() tests
 # expected values for not() taken from 

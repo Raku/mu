@@ -36,6 +36,7 @@ sub ackermann {
 # Highly recursive, highly boring.
 
 sub takeuchi {
+    # for the script failure here, see Parser.hs:589
     @_[1] < @_[0] ??
         takeuchi(takeuchi(@_[0] - 1, @_[1], @_[2]),
                  takeuchi(@_[1] - 1, @_[2], @_[0]),

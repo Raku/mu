@@ -12,5 +12,5 @@ plan(2);
 # it must not be empty at startup
 ok(+%*ENV.keys, "ENV has keys");
 
-# PATH is usually defined. But this test is not portable
-ok(%*ENV{"PATH"}, "ENV has PATH");
+# TEMP is usually defined. But this test is not portable
+ok(%*ENV{"TEMP"}, "ENV has TEMP");

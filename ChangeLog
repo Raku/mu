@@ -1,3 +1,38 @@
+[Changes for 6.0.10 - March 5, 2005]
+
+Pugs Internals:
+
+* Massive -Wall cleanup.
+* Some work on Pugs extension mechanisms (XS for Pugs).
+* Complete reworking of the build system.
+* Support for basic read, write, append I/O.
+* Added system(), chmod(), chop() and chomp().
+* Pretty printing now works.
+* Added the beginings of a Config module.
+* Ported to GHC 6.4 pre-release.
+* More works on junctions.
+
+Tests, Examples and Documentations:
+
+* Test, tests and more tests, we now have over 1050.
+* Added several tests for unimplemented features.
+* Added tail recursive nested worker multisubs into fp.p6
+* Hanoi.p6 has been added.
+* Several new junctions examples.
+* Switched most documentations to the Kwid format.
+* zh-cn and zh-tw translations of the Apocryphon.
+* Haskell source documentation begun.
+* Kwid documentation for Test.pm.
+
+Bug Fixes:
+
+* Fixed double-evaluation bug in say($a++).
+* Fixed "@a" interpolation bug.
+* Postfix -- now returns the value instead of numified value.
+* Lone bare blocks in statement level are now always executed.
+* Fixed grep/map/push/unshift parsing so they are properly binOp now.
+* Fixed prefix function parsing bug that eats more parens than it should.
+
 [Changes for 6.0.9 - February 28, 2005]
 
 * First Perl 6 module: Test.pm.

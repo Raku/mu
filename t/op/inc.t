@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan(14);
+plan(15);
 
 # Mostly copied from Perl 5.8.4 s t/op/inc.t
 
@@ -70,5 +70,7 @@ $a = undef;
 ok ($a++ eq '0');
 
 $a = undef;
-todo_ok(eval '!defined($a--)');
+ok(eval '!defined($a--)');
 
+$a = 'x';
+is($a++, 'x', 'magical ++ should not be numified');

@@ -59,14 +59,14 @@ my @pop2 = (1, 2, 3, 4);
 is(+@pop2, 4, 'we have 4 elements in the list');
 is(pop(@pop2), 4, 'inline pop(@pop2) works');
 
-todo_is(+@pop2, 3, 'we have 3 elements in the list');
-todo_is(pop @pop2, 3, 'inline pop @pop2 works');
+is(+@pop2, 3, 'we have 3 elements in the list');
+is(pop @pop2, 3, 'inline pop @pop2 works');
 
-todo_is(+@pop2, 2, 'we have 2 elements in the list');
-todo_is(@pop2.pop(), 2, 'inline @pop2.pop() works');
+is(+@pop2, 2, 'we have 2 elements in the list');
+is(@pop2.pop(), 2, 'inline @pop2.pop() works');
 
-todo_is(+@pop2, 1, 'we have 1 element in the list');
-todo_is(@pop2.pop, 1, 'inline @pop2.pop works');
+is(+@pop2, 1, 'we have 1 element in the list');
+is(@pop2.pop, 1, 'inline @pop2.pop works');
 
 is(+@pop2, 0, 'we have no more element in the list');
 ok(!defined(pop(@pop2)), 'after the list is exhausted pop() returns undef');

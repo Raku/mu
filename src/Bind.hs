@@ -120,7 +120,7 @@ bindParams prms invsExp argsExp = do
     let (slurpNamed, slurpPos) = partition (('%' ==) . head . paramName) slurpy
         defaultPos      = if hasDefaultArray  then [] else [defaultArrayParam]
         defaultNamed    = if hasDefaultHash   then [] else [defaultHashParam]
-        defaultScalar   = if hasDefaultScalar then [] else [defaultHashParam]
+        defaultScalar   = if hasDefaultScalar then [] else [] -- XXX - fetch from *@_
         hasDefaultArray = isJust (find (("@_" ==) . paramName) slurpPos)
                         || null slurpPos
         hasDefaultHash  = isJust (find (("%_" ==) . paramName) slurpNamed)

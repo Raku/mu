@@ -9,7 +9,7 @@ Hash tests
 
 =cut
 
-plan 40;
+plan 42;
 
 # basic lvalue assignment
 
@@ -109,4 +109,13 @@ eval '%hash8 = (:one, :key<value>, :three(3))';
 todo_is %hash8{'one'}, 1, 'colonpair :one';
 todo_is %hash8{'key'}, 'value', 'colonpair :key<value>';
 todo_is %hash8{'three'}, 3, 'colonpair :three(3)';
+
+# kv method
+
+my $key;
+my $val;
+my %hash9; %hash9{1} = 2;
+for (%hash9.kv) -> $k,$v { $key = $k; $val = $v; }
+is($key, 1, "\%hash.kv gave us our key");
+is($val, 2, "\%hash.kv gave us our val");
 

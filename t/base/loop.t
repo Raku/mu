@@ -9,7 +9,7 @@ loop statement tests
 
 =cut
 
-plan 6;
+plan 8;
 
 # basic loop
 
@@ -35,3 +35,9 @@ my $i = 0;
 is($i, 0, 'verify our starting condition');
 loop (;;) { $i++; last(); }
 is($i, 1, 'verify our ending condition');
+
+# declare variable inside loop
+my $count = 0;
+is($count, 0, 'verify our starting condition');
+eval 'loop (my $j = 0; $j < 10; $j++) { $count++; }';
+todo_is($count, 10, 'verify our ending condition');

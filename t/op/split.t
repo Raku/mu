@@ -45,7 +45,7 @@ is(@split4[2], 'values', 'the third element is right');
 
 # split on a variable delimiter
 
-my $delimiter = '::'
+my $delimiter = '::';
 my @split5 = split($delimiter, "Perl6::Pugs::Test");
 is(+@split5, 3, 'got the right number of split elements');
 is(@split5[0], 'Perl6', 'the first element is right');

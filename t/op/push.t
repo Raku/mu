@@ -31,7 +31,7 @@ Push tests
 #
 # See the end of this file for tests which illustrate this issue.
 
-plan 28;
+plan 27;
 
 # basic push tests
 
@@ -65,13 +65,13 @@ push @push2, $val;
 is(+@push2, 1, 'we have 1 element in the list');
 is(@push2[0], $val, 'push @list, $val worked');
 
-eval '@push2.push(200)';
-todo_is(+@push2, 2, 'we have 2 elements in the list');
-todo_is(@push2[1], 200, '@push2.push(200) works');
+@push2.push(200);
+is(+@push2, 2, 'we have 2 elements in the list');
+is(@push2[1], 200, '@push2.push(200) works');
 
-eval '@push2.push 400';
-todo_is(+@push2, 3, 'we have 3 elements in the list');
-todo_is(@push2[2], 400, '@push2.push(400) works');
+@push2.push(400);
+is(+@push2, 3, 'we have 3 elements in the list');
+is(@push2[2], 400, '@push2.push(400) works');
 
 # try pushing more than one element
 
@@ -84,11 +84,10 @@ is(@push3[1], 2, 'got the expected element');
 is(@push3[2], 3, 'got the expected element');
 
 my @val2 = (4, 5);
-push @push3, @val2;  # the lists should not flatten here
-todo_is(+@push3, 4, 'we have 4 elements in the list');
-todo_is(+@push3[3], 2, 'we have 2 elements in the sub-list');
-is(@push3[3][0], 4, 'got the expected element');
-todo_is(@push3[3][1], 5, 'got the expected element');
+push @push3, @val2;  
+is(+@push3, 5, 'we have 5 elements in the list');
+is(@push3[3], 4, 'got the expected element');
+is(@push3[4], 5, 'got the expected element');
 
 # now for the push() on an uninitialized list issue
 

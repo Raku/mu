@@ -9,6 +9,9 @@
     The crownless again shall be king.
 -}
 
+-- Based on the Parsec library, Copyright 1999-2000, Daan Leijen.
+-- See src/Rule/LICENSE for the full license text.
+
 module Rule
                ( -- complete modules
                  module Rule.Prim

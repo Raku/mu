@@ -1,7 +1,9 @@
 use strict;
 use Config;
+use File::Basename;
+my $Bin; BEGIN { $Bin = dirname(__FILE__) };
+use lib "$Bin/../..", "$Bin/../../inc";
 use inc::Module::Install;
-use FindBin;
 
 my $kwid = "kwid$Config{_exe}";
 
@@ -15,8 +17,8 @@ blib_depth      (2);
 
 postamble(<< ".");
 
-$FindBin::Bin/kwid :: src/Kwid/AST.hs
-	ghc --make -Wall -fno-warn-missing-signatures -fno-warn-name-shadowing -o $FindBin::Bin/$kwid $FindBin::Bin/src/Main.hs -i"$FindBin::Bin/src"
+$Bin/kwid :: src/Kwid/AST.hs
+	ghc --make -Wall -fno-warn-missing-signatures -fno-warn-name-shadowing -o $Bin/$kwid $Bin/src/Main.hs -i"$Bin/src"
 
 .
 

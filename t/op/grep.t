@@ -9,7 +9,7 @@ built-in grep tests
 
 =cut
 
-plan 12;
+plan 18;
 
 my @list = (1 .. 10);
 
@@ -21,10 +21,18 @@ todo_is(@result1[2], 5, 'got the value we expected');
 todo_is(@result1[3], 7, 'got the value we expected');
 todo_is(@result1[4], 9, 'got the value we expected');
 
-my @result2 = @list.grep:{ ($_ % 2) };
+my @result2 = @list.grep():{ ($_ % 2) };
 is(+@result2, 5, 'we got a list back');
 is(@result2[0], 1, 'got the value we expected');
 is(@result2[1], 3, 'got the value we expected');
 is(@result2[2], 5, 'got the value we expected');
 is(@result2[3], 7, 'got the value we expected');
 is(@result2[4], 9, 'got the value we expected');
+
+my @result3 = @list.grep:{ ($_ % 2) };
+is(+@result3, 5, 'we got a list back');
+is(@result3[0], 1, 'got the value we expected');
+is(@result3[1], 3, 'got the value we expected');
+is(@result3[2], 5, 'got the value we expected');
+is(@result3[3], 7, 'got the value we expected');
+is(@result3[4], 9, 'got the value we expected');
