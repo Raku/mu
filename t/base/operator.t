@@ -81,5 +81,5 @@ ok(42 > 12 & 20 & 32, "test the all infix operator");
 
 # Hyper ops
 my @rv;
-eval '@rv = (1,2,3,4) >>+<< (1,2,3,4)';
-todo_is("@rv[]", "2 4 6 8", 'hyper-add');
+@rv = (1,2,3,4) >>+<< (1,2,3,4);
+is("@rv[]", "2 4 6 8", 'hyper-add');
