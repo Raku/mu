@@ -1,0 +1,15 @@
+---------------------------------------------------------------------
+ Pod::Stream::Parser v0.0.1
+---------------------------------------------------------------------
+
+This is a very basic POD stream parser modeled after XML SAX parsers. 
+My goal is to have a working POD parser for Pugs which can parse the 
+perl6 Synposis POD documents. 
+
+Not the greatest reason in the world, but thats about all I have 
+for now :)
+
+And of course the act of writing this will hopefully produce a number
+of tests for specific features as well (already is has produced 3).
+
+

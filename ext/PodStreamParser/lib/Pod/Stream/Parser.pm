@@ -117,6 +117,8 @@ sub interpolate (Str $text, Hash %events) {
     %events<string>($text); # <<< this is a HACK for now
     
     %events<start_interpolation>();
+    # waiting on support for capturing 
+    # with :g into an array 
 	my @tokens = (); # $text ~~ rx:perl5:g{(?:[A-Z]<\s+|[A-Z]<|\s+>|>|\w+|\s+)};
 	# this is a memory stack for modifiers
 	# it helps up track down problems
@@ -166,7 +168,7 @@ Pod::Stream::Parser - A simple stream based POD parser
 =head1 DESCRIPTION
 
 This is a very simple stream based POD parser, it is modeled after SAX style parsers
-and is currently still in the very early stages of development. 
+and is currently still in the very early stages of development.  
 
 =head1 LIMITATIONS & CAVEATS
 
@@ -210,8 +212,12 @@ which it uses to process each line of the file.
 =item I<start_item>
 
 =item I<end_item>
+
+=item I<start_verbatim>
     
 =item I<verbatim>
+
+=item I<end_verbatim>
     
 =item I<start_interpolation>
 
