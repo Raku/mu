@@ -33,7 +33,7 @@ op0 "time"  = \_ -> do
     epoch = CalendarTime 2000 January 1 0 0 0 0 Saturday 0 "UTC" 0 False
 op0 "not" = const retEmpty
 op0 "so" = const (return $ VBool True)
-op0 "¥" = (>>= return . VList . concat . transpose) . mapM fromValue
+op0 "¥" = (>>= return . VList . concat . transpose) . mapM fromVal
 op0 "Y" = op0 "¥"
 op0 other = \x -> return $ VError ("unimplemented listOp: " ++ other) (App other (map Val x) [])
 
@@ -74,7 +74,7 @@ op1 "+"    = return . op1Numeric id
 op1 "abs"  = return . op1Numeric abs
 op1 "post:++" = \mv -> do
     val <- readMVal mv
-    ref <- fromValue mv
+    ref <- fromVal mv
     liftIO $ writeIORef ref $ case val of
         (VStr str)  -> VStr $ strInc str
         _           -> op1Numeric (+1) (vCast val)
@@ -99,7 +99,7 @@ op1 "reverse" = \v ->
         (return . VList . reverse . vCast $ v)
         (return . VStr . reverse . vCast $ v)
 op1 "list" = return . VList . vCast
-op1 "~"    = (>>= (return . VStr)) . (>>= fromValue) . readMVal
+op1 "~"    = (>>= (return . VStr)) . (>>= fromVal) . readMVal
 op1 "?"    = return . VBool . vCast
 op1 "int"  = return . VInt . vCast
 op1 "+^"   = return . VInt . (toInteger . (complement :: Word -> Word)) . vCast
@@ -181,7 +181,7 @@ op1 "unlink" = \v -> do
     rets <- liftIO $ sequence $ map ( doBoolIO removeFile ) $ map vCast vals
     return $ VInt $ sum $ map bool2n rets
 op1 "slurp" = \v -> do
-    fileName <- fromValue v
+    fileName <- fromVal v
     ifContextIsa "List"
         (slurpList fileName)
         (slurpScalar fileName)
@@ -221,11 +221,11 @@ op1 "=" = \v -> do
     handleOf (VList [VStr x]) = liftIO $ openFile x ReadMode
     handleOf (VList []) = do
         args    <- readVar "@*ARGS"
-        files   <- fromValue args
+        files   <- fromVal args
         if null files
             then return stdin
             else handleOf (VList [VStr $ vCast (head files)]) -- XXX wrong
-    handleOf v = fromValue v
+    handleOf v = fromVal v
 op1 "ref"  = return . VStr . valType
 op1 "pop"  = op1Pop (last, init)
 op1 "shift"= op1Pop (head, tail)
@@ -261,6 +261,7 @@ op1Pop (fPick, fRem) list = do
             liftIO $ writeIORef (vCast array) $ VList $ fRem oldList
             return $ fPick oldList
 
+op1Print :: (Handle -> String -> IO ()) -> Val -> Eval Val
 op1Print f v = do
     val <- readMVal v
     vals <- mapM readMVal (vCast val)
@@ -304,7 +305,7 @@ opEval fatal name str = do
 
 retEvalResult fatal val = do
     glob <- askGlobal
-    let Just (Val errSV) = findSym "$!" glob
+    let Just errSV = findSym "$!" glob
     case val of
         VError _ _ | not fatal  -> do
             writeMVal errSV (VStr $ show val)
@@ -376,9 +377,9 @@ op2 "||" = op2Logical id
 op2 "^^" = op2Bool ((/=) :: Bool -> Bool -> Bool)
 op2 "//" = op2Logical isJust
 op2 "!!" = \x y -> callCC $ \esc -> do
-    bx <- fromValue x
+    bx <- fromVal x
     when bx $ esc (VBool False)
-    by <- fromValue y
+    by <- fromVal y
     when by $ esc (VBool False)
     return (VBool True)
 -- XXX pipe forward XXX
@@ -400,9 +401,9 @@ op2 other = \x y -> return $ VError ("unimplemented binaryOp: " ++ other) (App o
 
 op3 :: Ident -> Val -> Val -> Val -> Eval Val
 op3 "index" = \x y z -> do
-    str <- fromValue x
-    sub <- fromValue y
-    pos <- fromValue z
+    str <- fromVal x
+    sub <- fromVal y
+    pos <- fromVal z
     return . VInt $ doIndex 0 str sub pos
     where
     doIndex :: VInt -> VStr -> VStr -> VInt -> VInt
@@ -413,8 +414,8 @@ op3 "index" = \x y z -> do
         | null a            = -1
         | otherwise         = doIndex (n+1) (tail a) b 0
 op3 "rindex" = \x y z -> do
-    str <- fromValue x
-    sub <- fromValue y
+    str <- fromVal x
+    sub <- fromVal y
     let skip | isJust (vCast z) = length str - (vCast z) - length sub
              | otherwise        = 0
     return . VInt $ doRindex str sub skip
@@ -431,7 +432,7 @@ op3 other = \x y z -> return $ VError ("unimplemented 3-ary op: " ++ other) (App
 op4 :: Ident -> Val -> Val -> Val -> Val -> Eval Val
 op4 "substr" = \x y z w -> do
     str <- fromMVal x
-    pos <- fromValue y
+    pos <- fromVal y
     let len | isJust (vCast z) = vCast z
             | otherwise        = length str
     let (pre, result, post) = doSubstr str pos len
@@ -529,10 +530,10 @@ op2ChainedList x y
     | otherwise                     = VList [x, y]
 
 op2Logical f x y = do
-    vx <- fromValue x
+    vx <- fromVal x
     if f (vCast vx)
         then return vx
-        else fromValue y
+        else fromVal y
 
 op2DefinedOr = undefined
 
@@ -559,10 +560,13 @@ op2Numeric f x y
     | (VRat x', VInt y') <- (x, y)  = return $ VRat $ f x' (y' % 1)
     | (VInt x', VRat y') <- (x, y)  = return $ VRat $ f (x' % 1) y'
     | (VRat x', VRat y') <- (x, y)  = return $ VRat $ f x' y'
-    | otherwise                     = return $ VNum $ f (vCast x) (vCast y)
+    | otherwise = do
+        x' <- fromVal x
+        y' <- fromVal y
+        op2Numeric f x' y'
 
 primOp :: String -> String -> Params -> String -> Symbol
-primOp sym assoc prms ret = Symbol SOur name (Val sub)
+primOp sym assoc prms ret = SymVal SOur name sub
     where
     name | isAlpha (head sym)
          , fixity == "prefix"

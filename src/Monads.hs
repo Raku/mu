@@ -69,9 +69,9 @@ enterScope f = do
 -}
 
 enterLoop action = callCC $ \esc -> do
-    enterLex [Symbol SMy "&last" $ lastSub esc] action
+    enterLex [SymVal SMy "&last" $ lastSub esc] action
     where
-    lastSub esc = Val $ VSub $ Sub
+    lastSub esc = VSub $ Sub
         { isMulti = False
         , subName = "last"
         , subType = SubPrim
@@ -96,11 +96,11 @@ enterSub sub@Sub{ subType = typ } action
     doReturn _   = internalError "enterSub: doReturn list length /= 1"
     doCC cc [v] = cc v
     doCC _  _   = internalError "enterSub: doCC list length /= 1"
-    subRec = [ Symbol SMy "&?SUB" (Val $ VSub sub)
-             , Symbol SMy "$?SUBNAME" (Val $ VStr $ subName sub)]
-    blockRec = Symbol SMy "&?BLOCK" (Val $ VSub sub)
-    ret cxt = Symbol SMy "&return" (Val $ VSub $ retSub cxt)
-    callerCC cc cxt = Symbol SMy "&?CALLER_CONTINUATION" (Val $ VSub $ ccSub cc cxt)
+    subRec = [ SymVal SMy "&?SUB" (VSub sub)
+             , SymVal SMy "$?SUBNAME" (VStr $ subName sub)]
+    blockRec = SymVal SMy "&?BLOCK" (VSub sub)
+    ret cxt = SymVal SMy "&return" (VSub $ retSub cxt)
+    callerCC cc cxt = SymVal SMy "&?CALLER_CONTINUATION" (VSub $ ccSub cc cxt)
     fixEnv cc pad cxt env
         | typ >= SubBlock = env{ envLexical = (blockRec:subPad sub) ++ pad }
         | otherwise      = env{ envLexical = subRec ++ (ret cxt:callerCC cc cxt:subPad sub) }
@@ -157,7 +157,7 @@ innerSub = Sub
     { isMulti       = False
     , subName       = "inner"
     , subType       = SubRoutine
-    , subPad        = [Symbol SMy "$inner" (Val VUndef)]
+    , subPad        = [SymVal SMy "$inner" VUndef]
     , subAssoc      = "left"
     , subParams     = []
     , subReturns    = "List"
@@ -168,7 +168,7 @@ sub3Sub = Sub
     { isMulti       = False
     , subName       = "sub3"
     , subType       = SubRoutine
-    , subPad        = [Symbol SMy "$inner" (Val VUndef)]
+    , subPad        = [SymVal SMy "$inner" VUndef]
     , subAssoc      = "left"
     , subParams     = []
     , subReturns    = "List"
@@ -187,7 +187,7 @@ dumpLex label = do
 blah :: Eval Val
 blah = do
     dumpLex ">init"
-    rv <- enterLex [Symbol SMy "$x" $ Val $ VInt 1] $ do
+    rv <- enterLex [SymVal SMy "$x" (VInt 1)] $ do
         dumpLex ">lex"
         -- rv <- enterScope outer
         rv <- outer
@@ -197,7 +197,7 @@ blah = do
     return rv
 
 outer :: Eval Val
-outer = enterLex [Symbol SMy "$outer" $ Val $ VInt 2] $ do
+outer = enterLex [SymVal SMy "$outer" (VInt 2)] $ do
     dumpLex ">outer"
     -- enterSub innerSub
     dumpLex "<outer"

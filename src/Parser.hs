@@ -16,6 +16,7 @@ import Help
 import Lexer
 import Rule
 import Rule.Error
+import Monads
 
 -- Lexical units --------------------------------------------------
 
@@ -164,17 +165,19 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
     -- Check for placeholder vs formal parameters
     unless (isNothing formal || null names || names == ["$_"] ) $
         fail "Cannot mix placeholder variables with formal parameters"
-    let sub = Sub { isMulti       = multi
-                  , subName       = name
-                  , subPad        = []
-                  , subType       = SubRoutine
-                  , subAssoc      = "pre"
-                  , subReturns    = cxt2
-                  , subParams     = params
-                  , subFun        = fun
-                  }
+    env <- getState
+    let subExp = Val . VSub $ Sub
+            { isMulti       = multi
+            , subName       = name
+            , subPad        = envLexical env
+            , subType       = SubRoutine
+            , subAssoc      = "pre"
+            , subReturns    = cxt2
+            , subParams     = params
+            , subFun        = fun
+            }
     -- XXX: user-defined infix operator
-    return $ Syn "sym" [Sym $ Symbol scope name (Syn "sub" [Val $ VSub sub])]
+    return $ Sym [SymExp scope name $ Syn "sub" [subExp]]
 
 ruleSubName = rule "subroutine name" $ do
     star    <- option "" $ string "*"
@@ -229,7 +232,7 @@ ruleVarDeclaration = rule "variable declaration" $ do
 
 ruleVarDeclarationSingle scope = do
     name <- parseVarName
-    exp  <- option (Syn "mval" [Var name, App "&not" [] []]) $ do
+    exp  <- option (Syn "mval" [emptyExp]) $ do
         sym <- tryChoice $ map string $ words " = := ::= "
         when (sym == "=") $ do
             lookAhead (satisfy (/= '='))
@@ -237,9 +240,9 @@ ruleVarDeclarationSingle scope = do
         whiteSpace
         exp <- ruleExpression
         return $ case sym of
-            "=" -> (Syn "mval" [Var name, exp])
+            "=" -> (Syn "mval" [exp])
             _   -> exp
-    return $ Syn "sym" [Sym $ Symbol scope name exp]
+    return $ Sym [SymExp scope name exp]
 
 ruleVarDeclarationMultiple scope = do
     names   <- parens $ parseVarName `sepEndBy` symbol ","
@@ -253,14 +256,13 @@ ruleVarDeclarationMultiple scope = do
         return (sym, Just exp)
     -- now match exps up with names and modify them.
     let doAlign = case sym of { "=" -> alignAssign ; _ -> alignBind }
-        syn = Syn "sym" $ doAlign scope names []
+        syn = Sym $ doAlign scope names []
         lhs = Syn "," $ map Var names
     return $ case expMaybe of
         Just exp -> Syn ";" [syn, Syn sym [lhs, exp]]
         Nothing  -> syn
     where
-    mvalSym scope n e = Sym $ Symbol scope n (Syn "mval" [Var n, e])
-    emptyExp = App "&not" [] []
+    mvalSym scope n e = SymExp scope n (Syn "mval" [e])
     alignAssign scope names exps = doAssign scope names exps
     doAssign _ [] _ = []
     doAssign scope ns [] =
@@ -270,7 +272,7 @@ ruleVarDeclarationMultiple scope = do
     doAssign scope (n:ns) exps =
         (mvalSym scope n (Syn "," exps)):(alignAssign scope ns [])
     alignBind scope names exps =
-        [ Sym $ Symbol scope name exp
+        [ SymExp scope name exp
         | name <- names
         | exp  <- exps ++ repeat emptyExp
         ]
@@ -518,7 +520,7 @@ currentFunctions = do
 currentUnaryFunctions = do
     funs <- currentFunctions
     return $ unwords [
-        encodeUTF8 name | f@Symbol{ symExp = Val (VSub sub) } <- funs
+        encodeUTF8 name | f@SymVal{ symVal = VSub sub } <- funs
         , subAssoc sub == "pre"
         , length (subParams sub) == 1
         , isNothing $ find isSlurpy $ subParams sub
@@ -531,7 +533,7 @@ parseName str
     = name
     | otherwise
     = dropWhile (not . isAlpha) str
-    
+
 
 currentListFunctions = do
     return []

@@ -24,19 +24,20 @@ ifContextIsa c trueM falseM = do
         then trueM
         else falseM
 
-doFromValue (VThunk (MkThunk eval)) = doFromValue =<< eval
-doFromValue v = do
+fromVal' (VThunk (MkThunk eval)) = fromVal' =<< eval
+fromVal' (MVal mval) = fromVal' =<< liftIO (readIORef mval)
+fromVal' v = do
     rv <- liftIO $ catchJust errorCalls (return . Right $ vCast v) $
         \str -> return (Left str)
     case rv of
         Right v -> return v
         Left e  -> retError e (Val v) -- XXX: not working yet
 
-fromMVal = (>>= fromValue) . readMVal
+fromMVal = (>>= fromVal) . readMVal
 
 class Value n where
-    fromValue :: Val -> Eval n
-    fromValue = doFromValue
+    fromVal :: Val -> Eval n
+    fromVal = fromVal'
     vCast :: Val -> n
     -- vCast (MVal v)      = vCast $ castV v
     vCast (VRef v)      = vCast v
@@ -155,7 +156,7 @@ instance Value VComplex where
 
 instance Value VStr where
     castV = VStr
-    fromValue (VHash (MkHash h)) = do
+    fromVal (VHash (MkHash h)) = do
         ls <- mapM strPair $ fmToList h
         return $ unlines ls
         where
@@ -163,7 +164,7 @@ instance Value VStr where
             k' <- fromMVal k
             v' <- fromMVal v
             return $ k' ++ "\t" ++ v'
-    fromValue v = doFromValue v
+    fromVal v = fromVal' v
     vCast VUndef        = ""
     vCast (VStr s)      = s
     vCast (VBool b)     = if b then "1" else ""
@@ -194,10 +195,10 @@ instance Value VArray where
 
 instance Value MVal where
     castV _ = error "Cannot cast MVal into Value"
-    fromValue (MVal x) = return x
-    fromValue (VRef v) = fromValue v
-    fromValue (VPair (_, v)) = fromValue v
-    fromValue v = retError "cannot modify constant item" $ Val v
+    fromVal (MVal x) = return x
+    fromVal (VRef v) = fromVal v
+    fromVal (VPair (_, v)) = fromVal v
+    fromVal v = retError "cannot modify constant item" $ Val v
     vCast (MVal x)      = x
     vCast (VRef v)      = vCast v
     vCast (VPair (_, y))= vCast y
@@ -407,7 +408,7 @@ type Var = String
 data Exp
     = App String [Exp] [Exp]
     | Syn String [Exp]
-    | Sym Symbol
+    | Sym [Symbol]
     | Prim ([Val] -> Eval Val)
     | Val Val
     | Var Var
@@ -504,25 +505,32 @@ data Env = Env { envContext :: Cxt
                } deriving (Show, Eq)
 
 type Pad = [Symbol]
-data Symbol = Symbol { symScope :: Scope
-                     , symName  :: String
-                     , symExp   :: Exp
-                     } deriving (Show, Eq, Ord)
+data Symbol
+    = SymVal { symScope :: Scope
+             , symName  :: String
+             , symVal   :: Val
+             }
+    | SymExp { symScope :: Scope
+             , symName  :: String
+             , symExp   :: Exp
+             }
+    deriving (Show, Eq, Ord)
 
 data Scope = SGlobal | SMy | SOur | SLet | STemp | SState
     deriving (Show, Eq, Ord, Read, Enum)
 
 type Eval x = ContT Val (ReaderT Env IO) x
 
-findSym :: String -> Pad -> Maybe Exp
-findSym name pad
-    | Just s <- find ((== name) . symName) pad
-    = Just $ symExp s
-    | otherwise
-    = Nothing
+findSym :: String -> Pad -> Maybe Val
+findSym name pad = do
+    s <- find ((== name) . symName) pad
+    return $ symVal s
 
 writeMVal l (MVal r)     = writeMVal l =<< liftIO (readIORef r)
 writeMVal (MVal l) r     = liftIO $ writeIORef l r
+writeMVal (VThunk (MkThunk t)) r = do
+    l <- t
+    writeMVal l r
 writeMVal (VError s e) _ = retError s e
 writeMVal _ (VError s e) = retError s e
 writeMVal x _            = retError "Can't write a constant item" (Val x)
@@ -535,9 +543,10 @@ askGlobal = do
 readVar name = do
     glob <- askGlobal
     case find ((== name) . symName) glob of
-        Just Symbol{ symExp = Val ref } -> readMVal ref
-        Just _  -> internalError "readVar failed on non-value bindings"
-        Nothing -> return VUndef
+        Just SymVal{ symVal = ref } -> readMVal ref
+        _ -> return VUndef
+
+emptyExp = App "&not" [] []
 
 retError :: VStr -> Exp -> Eval a
 retError str exp = do

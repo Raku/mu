@@ -185,20 +185,20 @@ prepareEnv name args = do
     errGV   <- newMVal $ VHandle stderr
     errSV   <- newMVal $ VStr ""
     emptyEnv
-        [ Symbol SGlobal "@*ARGS"       $ Val argsAV
-        , Symbol SGlobal "@*INC"        $ Val incAV
-        , Symbol SGlobal "$*PROGNAME"   $ Val progSV
-        , Symbol SGlobal "@*END"        $ Val endAV
-        , Symbol SGlobal "$*IN"         $ Val inGV
-        , Symbol SGlobal "$*OUT"        $ Val outGV
-        , Symbol SGlobal "$*ERR"        $ Val errGV
-        , Symbol SGlobal "$!"           $ Val errSV
-        , Symbol SGlobal "%*ENV" (Val . VHash . MkHash $ envFM)
+        [ SymVal SGlobal "@*ARGS"       argsAV
+        , SymVal SGlobal "@*INC"        incAV
+        , SymVal SGlobal "$*PROGNAME"   progSV
+        , SymVal SGlobal "@*END"        endAV
+        , SymVal SGlobal "$*IN"         inGV
+        , SymVal SGlobal "$*OUT"        outGV
+        , SymVal SGlobal "$*ERR"        errGV
+        , SymVal SGlobal "$!"           errSV
+        , SymVal SGlobal "%*ENV" (VHash . MkHash $ envFM)
         -- XXX What would this even do?
-        -- , Symbol SGlobal "%=POD"        (Val . VHash . MkHash $ emptyFM) 
-        , Symbol SGlobal "@=POD"        (Val . VArray . MkArray $ [])
-        , Symbol SGlobal "$=POD"        (Val . VStr $ "")
-        , Symbol SGlobal "$?OS"         (Val . VStr $ config_osname)
+        -- , SymVal SGlobal "%=POD"        (Val . VHash . MkHash $ emptyFM) 
+        , SymVal SGlobal "@=POD"        (VArray . MkArray $ [])
+        , SymVal SGlobal "$=POD"        (VStr "")
+        , SymVal SGlobal "$?OS"         (VStr config_osname)
         ]
 
 getLibs :: [(String, String)] -> IO [String]
