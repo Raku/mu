@@ -46,6 +46,7 @@ sub _init {
     my $o = shift;
 
     $self->attr($o->{attr}) if $self->{attr};
+    super($o);
 }
 
 1;

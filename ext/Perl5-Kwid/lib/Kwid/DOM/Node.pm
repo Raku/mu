@@ -1,12 +1,11 @@
 
 package Kwid::DOM::Node;
 
-use strict;
-use warnings;
-use Carp;
-use base 'Kwid::Base';
-
 use base 'Tree::DAG_Node';
+
+use Kwid::Base -Base;
+
+use Carp;
 
 =head1 NAME
 
@@ -107,31 +106,23 @@ dialect", if the original form is not available or has been discarded.
 
 =cut
 
-# field 'source'; ?
-sub source {
-    my $self = shift;
-
-    if ( @_ ) {
-	$self->{source} = shift;
-    } else {
-	$self->{source};
-    }
-}
+field 'source';
 
 sub _init {
-    my $self = shift;
     my $o = shift;
 
     $self->SUPER::_init($o);
 
-    $self->{source} = $o->{source} if $o->{source};
+    $self->source($o->{source}) if defined $o->{source};
+
+    super($o);
 }
 
 sub new {
-    my $inv = shift;
-    my $class = ref $inv || $inv;
+    my $class = ref $self || $self;
     $class ne __PACKAGE__ or croak "attempt to create a pure Node";
-    return $inv->SUPER::new(@_);
+
+    super(@_);
 }
 
 1;

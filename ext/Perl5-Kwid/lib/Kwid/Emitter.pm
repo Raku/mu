@@ -1,5 +1,5 @@
 
-package Kwid::DOM;
+package Kwid::Emitter;
 use strict;
 use warnings;
 use Kwid::Base;
@@ -72,3 +72,4 @@ Start a L<POD::DOM::Element>
 
 =cut
 
+1;

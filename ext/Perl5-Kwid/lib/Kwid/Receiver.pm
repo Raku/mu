@@ -1,5 +1,5 @@
 
-package Kwid::DOM;
+package Kwid::Receiver;
 use strict;
 use warnings;
 use Kwid::Base;

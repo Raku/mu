@@ -3,7 +3,7 @@ package Kwid::DOM::Text;
 
 use strict;
 use warnings;
-use base 'Kwid::DOM::Node';
+use Kwid::DOM::Node -Base;
 
 =head1 NAME
 
@@ -38,12 +38,23 @@ marginal in string COW environments)
 field 'content';
 
 sub _init {
-    my $self = shift;
     my $o = shift;
 
     $self->content($o->{content}) if exists $o->{content};
+
+    super($o);
 }
 
+sub new {
+    if ( ref $_[0] ) {
+	super(@_);
+    } else {
+	my $text = shift;
+	super({ source => $text,
+		content => $text,
+	      });
+    }
+}
 
 
 1;

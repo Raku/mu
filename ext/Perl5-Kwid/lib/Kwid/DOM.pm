@@ -2,11 +2,15 @@
 package Kwid::DOM;
 use strict;
 use warnings;
-use Kwid::Base;
-use base 'Kwid::Base';
+use Kwid::Base -Base;
 
 use base 'Kwid::Emitter';
 use base 'Kwid::Receiver';
+
+use Kwid::DOM::Node;
+use Kwid::DOM::Element;
+use Kwid::DOM::PI;
+use Kwid::DOM::Text;
 
 =head1 NAME
 
@@ -44,12 +48,13 @@ L<Kwid::Preprocessor>, or a L<Kwid::Parser>.
 field 'root';  # is "Kwid::DOM::Element"
 
 sub new {
-    my $inv = shift;
-    my $class = ref $inv || $inv;
+    my $class = ref $self || $self;
 
-    my $self = bless { }, $class;
+    $self = super;
 
-    $self->root(Kwid::Node::Element->new({name => "pod"}));
+    $self->root(Kwid::DOM::Element->new({name => "pod"}));
+
+    return $self;
 }
 
 sub emit_to {
