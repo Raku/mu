@@ -84,7 +84,7 @@ doRun = do
 runProgramWith :: (Env -> Env) -> (Val -> IO ()) -> VStr -> [VStr] -> String -> IO ()
 runProgramWith fenv f name args prog = do
     env <- emptyEnv
-    str <- getContents
+    str <- return "" -- getContents
     let env' = runRule (prepare str $ fenv env) id ruleProgram prog
     val <- (`runReaderT` env') $ do
         (`runContT` return) $ do

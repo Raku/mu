@@ -172,6 +172,7 @@ rulePackageDeclaration = rule "package declaration" $ fail ""
 
 ruleConstruct = rule "construct" $ tryChoice
     [ ruleGatherConstruct
+    , ruleLoopConstruct
     ]
 
 ruleGatherConstruct = rule "gather construct" $ do
@@ -179,8 +180,20 @@ ruleGatherConstruct = rule "gather construct" $ do
     block <- ruleBlock
     retSyn "gather" [block]
 
+ruleLoopConstruct = rule "loop construct" $ do
+    symbol "loop"
+    conds <- option [] $ maybeParens $ try $ do
+        a <- ruleExpression
+        symbol ";"
+        b <- ruleExpression
+        symbol ";"
+        c <- ruleExpression
+        return [a,b,c]
+    block <- ruleBlock
+    -- XXX while/until
+    retSyn "loop" (conds ++ [block])
+
 ruleCondConstruct = rule "conditional construct" $ fail ""
-ruleLoopConstruct = rule "loop construct" $ fail ""
 ruleWhileUntilConstruct = rule "while/until construct" $ fail ""
 ruleForConstruct = rule "for construct" $ fail ""
 ruleGivenConstruct = rule "given construct" $ fail ""
@@ -313,28 +326,47 @@ makeOp2 prec sigil con name = (`Infix` prec) $ do
 
 parseParens parse = do
     cs  <- parens parse
-    inv <- option id $ parseInvocation
-    return $ inv $ Parens cs
+    return $ Parens cs
 
-parseInvocation = lexeme $ try $ do
+parseTerm = rule "term" $ do
+    term <- choice
+        [ parseVar
+        , parseLit
+        , parseApply
+        , parseParens parseOp
+        ]
+    inv <- option id rulePostTerm
+    return $ inv term
+
+rulePostTerm = rule "term postfix" $ do
+    inv <- tryChoice
+        [ ruleInvocation
+        , ruleArraySubscript
+        , ruleHashSubscript
+        , ruleCodeSubscript
+        ]
+    inv' <- option id rulePostTerm
+    return $ inv' . inv
+
+ruleInvocation = tryRule "invocation" $ do
     char '.'
     (App name invs args) <- parseApply
-    return $ \x -> (App name (x:invs) args)
+    return $ \x -> App name (x:invs) args
 
-parseTerm = choice
-    [ parseVar
-    , parseLit
-    , parseApply
-    , parseParens parseOp
-    ]
-    <?> "term"
+ruleArraySubscript = tryRule "array subscript" $ do
+    option ' ' $ char '.'
+    exp <- brackets ruleExpression
+    return $ \x -> Syn "[]" [x, exp]
 
-{-
-parseEof = do
-    eof
-    pos <- getPosition
-    return $ NonTerm pos
--}
+ruleHashSubscript = tryRule "hash subscript" $ do
+    option ' ' $ char '.'
+    exp <- braces ruleExpression
+    return $ \x -> Syn "{}" [x, exp]
+
+ruleCodeSubscript = tryRule "code subscript" $ do
+    option ' ' $ char '.'
+    (invs:args:_) <- parens $ parseParamList parseLitTerm
+    return $ \x -> Syn "()" [x, Syn "invs" invs, Syn "args" args]
 
 parseLitTerm = choice
     [ parseVar

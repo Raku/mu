@@ -174,6 +174,11 @@ doReduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         let [Var name, exp] = exps
         val     <- enterEvalContext (cxtOfSigil $ head name) exp
         newMVal val
+    "loop" -> do
+        let [pre, test, post, exp] = exps
+        -- first, run pre and enter its lexical context
+        -- reduceStatements (pre:, Val VUndef)
+        retVal VUndef
     "=" -> do
         let [Var name, exp] = exps
         case findVar env name of

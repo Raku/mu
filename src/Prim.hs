@@ -29,6 +29,11 @@ op0 s    = \x -> VError ("unimplemented listOp: " ++ s) (Val $ VList x)
 op1 :: Ident -> Val -> Eval Val
 op1 "!"    = return . fmapVal not
 op1 "+"    = return . op1Numeric id
+op1 "++"   = error "..." -- automagic
+op1 "--"   = do
+    lex <- asks envLexical
+    error (show lex)
+    error "..."
 op1 "-"    = return . op1Numeric negate
 op1 "~"    = return . VStr . vCast
 op1 "?"    = return . VBool . vCast
@@ -96,6 +101,9 @@ op1 "<>" = \v -> do
         case find ((== "$*STDIN") . symName) glob of
             Just sym | (Val v) <- symExp sym -> return $ vCast v
             _                                -> error "impossible"
+
+op1 ""     = return . (\x -> VError ("unimplemented unaryOp: " ++ "") (Val x))
+
 op1 s      = return . (\x -> VError ("unimplemented unaryOp: " ++ s) (Val x))
 
 opEval :: String -> Eval Val
@@ -292,6 +300,8 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Bool      pre     ?^      (Bool)\
 \\n   Ref       pre     \\      (Any)\
 \\n   List      pre     ...     (Str|Num)\
+\\n   Any       post    ++      (Str|Num)\
+\\n   Num       post    --      (Num)\
 \\n   Bool      pre     not     (Bool)\
 \\n   Str       pre     perl    (List)\
 \\n   Any       pre     eval    (Str)\
