@@ -1,5 +1,5 @@
 #!pugs
-use v6; use fatal;
+use v6;
 
 =pod
 
@@ -89,7 +89,7 @@ method get_message_variables( $message: ) returns KeyNameHash {
 method as_string( $message: ) returns Str {
 	# This method is intended for debugging use only.
 	return $message.msg_key~': '~$message.msg_vars.pairs.sort.
-		map:{ $_.key~'='~($_.value // '') }.join( ', '; # S02 says sorting Pairs sorts keys by default.
+		map:{ .key~'='~(.value // '') }.join( ', ' ); # S02 says sorting Pairs sorts keys by default.
 	# I might use %hash.as() later, but don't know if it is customizable to sort or make undefs the empty str.
 }
 
@@ -128,16 +128,16 @@ method translate_message( $translator: Locale::KeyedText::Message $message ) ret
 	MEMBER: for $translator.tmpl_mem_nms -> $member_name {
 		SET: for $translator.tmpl_set_nms -> $set_name {
 			my PkgName $template_module_name = $set_name~$member_name;
+			unless( $template_module_name.meta.can("get_text_by_key") ) {
+				require $template_module_name;
+				unless( $template_module_name.meta.can("get_text_by_key") ) {
+					next SET;
+				}
+			}
 			try {
 				$text = $template_module_name.get_text_by_key( $message.msg_key );
 				CATCH {
-					try {
-						require $template_module_name;
-						$text = $template_module_name.get_text_by_key( $message.msg_key );
-						CATCH {
-							next SET;
-						}
-					}
+					next SET;
 				}
 			}
 			$text or next SET;
@@ -195,7 +195,7 @@ the one with the program also adds support to the library.
 
 	module MyLib::L::Eng;
 
-	my Str %text_strings = (
+	my Str %text_strings ::= (
 		'MYLIB_MYINV_NO_ARG' => 'my_invert(): argument NUMBER is missing',
 		'MYLIB_MYINV_BAD_ARG' => 'my_invert(): argument NUMBER is not a number, it is "{GIVEN_VALUE}"',
 		'MYLIB_MYINV_RES_INF' => 'my_invert(): result is infinite because argument NUMBER is zero',
@@ -207,7 +207,7 @@ the one with the program also adds support to the library.
 
 	module MyLib::L::Fre;
 
-	my Str %text_strings = (
+	my Str %text_strings ::= (
 		'MYLIB_MYINV_NO_ARG' => 'my_invert(): paramètre NUMBER est manquant',
 		'MYLIB_MYINV_BAD_ARG' => 'my_invert(): paramètre NUMBER est ne nombre, il est "{GIVEN_VALUE}"',
 		'MYLIB_MYINV_RES_INF' => 'my_invert(): aboutir a est infini parce que paramètre NUMBER est zero',
@@ -264,7 +264,7 @@ the one with the program also adds support to the library.
 
 	module MyApp::L::Eng;
 
-	my Str %text_strings = (
+	my Str %text_strings ::= (
 		'MYAPP_HELLO' => 'Welcome to MyApp.',
 		'MYAPP_GOODBYE' => 'Goodbye!',
 		'MYAPP_PROMPT' => 'Enter a number to be inverted, or press ENTER to quit.',
@@ -277,7 +277,7 @@ the one with the program also adds support to the library.
 
 	module MyApp::L::Fre;
 
-	my Str %text_strings = (
+	my Str %text_strings ::= (
 		'MYAPP_HELLO' => 'Bienvenue allé MyApp.',
 		'MYAPP_GOODBYE' => 'Salut!',
 		'MYAPP_PROMPT' => 'Fournir nombre être inverser, ou appuyer sur ENTER être arrêter.',
@@ -290,7 +290,7 @@ the one with the program also adds support to the library.
 
 	module MyApp::L::Homer;
 
-	my Str %text_strings = (
+	my Str %text_strings ::= (
 		'MYAPP_HELLO' => 'Light goes on!',
 		'MYAPP_GOODBYE' => 'Light goes off!',
 		'MYAPP_PROMPT' => 'Give me a county thingy, or push that big button instead.',
@@ -699,7 +699,7 @@ Actually, it shows both methods together, with 4 embedded, 1 separate.
 	}
 
 	module MyLib::L::Eng {
-		my Str %text_strings = (
+		my Str %text_strings ::= (
 			'MYLIB_MYINV_NO_ARG' => 'my_invert(): argument NUMBER is missing',
 			'MYLIB_MYINV_BAD_ARG' => 'my_invert(): argument NUMBER is not a number, it is "{GIVEN_VALUE}"',
 			'MYLIB_MYINV_RES_INF' => 'my_invert(): result is infinite because argument NUMBER is zero',
@@ -709,7 +709,7 @@ Actually, it shows both methods together, with 4 embedded, 1 separate.
 	}
 
 	module MyLib::L::Fre {
-		my Str %text_strings = (
+		my Str %text_strings ::= (
 			'MYLIB_MYINV_NO_ARG' => 'my_invert(): paramètre NUMBER est manquant',
 			'MYLIB_MYINV_BAD_ARG' => 'my_invert(): paramètre NUMBER est ne nombre, il est "{GIVEN_VALUE}"',
 			'MYLIB_MYINV_RES_INF' => 'my_invert(): aboutir a est infini parce que paramètre NUMBER est zero',
@@ -763,7 +763,7 @@ Actually, it shows both methods together, with 4 embedded, 1 separate.
 	}
 
 	module MyApp::L::Eng {
-		my Str %text_strings = (
+		my Str %text_strings ::= (
 			'MYAPP_HELLO' => 'Welcome to MyApp.',
 			'MYAPP_GOODBYE' => 'Goodbye!',
 			'MYAPP_PROMPT' => 'Enter a number to be inverted, or press ENTER to quit.',
@@ -773,7 +773,7 @@ Actually, it shows both methods together, with 4 embedded, 1 separate.
 	}
 
 	module MyApp::L::Fre {
-		my Str %text_strings = (
+		my Str %text_strings ::= (
 			'MYAPP_HELLO' => 'Bienvenue allé MyApp.',
 			'MYAPP_GOODBYE' => 'Salut!',
 			'MYAPP_PROMPT' => 'Fournir nombre être inverser, ou appuyer sur ENTER être arrêter.',
@@ -786,7 +786,7 @@ Actually, it shows both methods together, with 4 embedded, 1 separate.
 
 	module MyApp::L::Homer;
 
-	my Str %text_strings = (
+	my Str %text_strings ::= (
 		'MYAPP_HELLO' => 'Light goes on!',
 		'MYAPP_GOODBYE' => 'Light goes off!',
 		'MYAPP_PROMPT' => 'Give me a county thingy, or push that big button instead.',

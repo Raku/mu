@@ -60,6 +60,10 @@ MANIFEST.SKIP
 META.yml
 modules/Locale-KeyedText/lib/Locale/KeyedText.pm
 modules/Locale-KeyedText/Makefile.PL
+modules/Locale-KeyedText/t/lib/t_Locale_KeyedText_A_L_Eng.pm
+modules/Locale-KeyedText/t/lib/t_Locale_KeyedText_A_L_Fre.pm
+modules/Locale-KeyedText/t/lib/t_Locale_KeyedText_B_L_Eng.pm
+modules/Locale-KeyedText/t/lib/t_Locale_KeyedText_B_L_Fre.pm
 modules/Locale-KeyedText/t/test.t
 modules/Sample-Module/lib/Sample/Module.pm
 modules/Sample-Module/Makefile.PL
@@ -133,6 +137,7 @@ t/op/binding.t
 t/op/bit.t
 t/op/defined.t
 t/op/die.t
+t/op/enum.t
 t/op/eq.t
 t/op/eval.t
 t/op/force_context.t
@@ -179,6 +184,7 @@ t/Synopsis/S11.pod
 t/Synopsis/S12.pod
 t/Synopsis/S13.pod
 t/syntax/decl_vs_assign_prec.t
+t/syntax/lf_in_list.t
 t/syntax/subscript_parse_bugs.t
 t/syntax/varnames.t
 t/unspecced/chomp.t
