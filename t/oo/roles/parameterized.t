@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 15; # XXX
+plan 22;
 
 =pod
 
