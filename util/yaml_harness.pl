@@ -65,9 +65,9 @@ my %handlers = (
 			num    => $curr,
 			result => $totals->{details}[-1]{ok} ?
 				"ok $curr/$totals->{max}" : "NOK $curr",
-			($Test::Harness::Verbose ?
-				(line => $line) : ()),
 		);
+		$self->latest_event->{line} = $line if $Test::Harness::Verbose;
+		$self->latest_event->{todo} = 1 if $line =~ /# TODO/;
 
         if( $curr > $self->{'next'} ) {
 			$self->latest_event->{note} =
