@@ -1315,9 +1315,9 @@ method node_types_with_primary_parent_attributes( Str ?$type ) {
 	if( $type ) {
 		exists( %NODE_TYPES{$type} ) or return;
 		exists( %NODE_TYPES{$type}.{$TPI_PP_NREF} ) or return;
-		return [@{%NODE_TYPES{$type}.{$TPI_PP_NREF}}];
+		return [%NODE_TYPES{$type}.{$TPI_PP_NREF}];
 	}
-	return {map:{ ($_ => [@{%NODE_TYPES{$_}.{$TPI_PP_NREF}}]) } 
+	return {map:{ ($_ => [%NODE_TYPES{$_}.{$TPI_PP_NREF}]) } 
 		grep:{ %NODE_TYPES{$_}.{$TPI_PP_NREF} } %NODE_TYPES.keys};
 }
 
@@ -1332,15 +1332,15 @@ method valid_node_type_enumerated_attributes( Str $type, Str ?$attr ) {
 	$type and (exists( %NODE_TYPES{$type} ) or return);
 	exists( %NODE_TYPES{$type}.{$TPI_AT_ENUMS} ) or return;
 	$attr and return %NODE_TYPES{$type}.{$TPI_AT_ENUMS}.{$attr};
-	return {%{%NODE_TYPES{$type}.{$TPI_AT_ENUMS}}};
+	return {%NODE_TYPES{$type}.{$TPI_AT_ENUMS}};
 }
 
 method valid_node_type_node_ref_attributes( Str $type, Str ?$attr ) {
 	$type and (exists( %NODE_TYPES{$type} ) or return);
 	exists( %NODE_TYPES{$type}.{$TPI_AT_NREFS} ) or return;
-	my $rh = %NODE_TYPES{$type}.{$TPI_AT_NREFS};
-	$attr and return $rh.{$attr} ?? [@{$rh.{$attr}}] :: undef;
-	return {map:{ ($_ => [@{$rh.{$_}}]) } $rh.keys};
+	my %rh = %NODE_TYPES{$type}.{$TPI_AT_NREFS};
+	$attr and return %rh.{$attr} ?? [%rh.{$attr}] :: undef;
+	return {map:{ ($_ => [%rh.{$_}]) } %rh.keys};
 }
 
 method valid_node_type_surrogate_id_attributes( Str ?$type ) {
@@ -1460,37 +1460,38 @@ method new_node( Str $node_type ) {
 
 ######################################################################
 
-method build_lonely_node( $self: $node_type, $attrs ) {
-	if( $node_type.meta.isa(Hash) ) {
-		($node_type, $attrs) = @{$node_type}{$NAMED_NODE_TYPE, $NAMED_ATTRS};
-	}
+multi method build_lonely_node( $self: $node_type, %attrs ) {
 	my $node = $self.new_node( $node_type );
-	$attrs = $self.:_build_node_normalize_attrs( $node, $attrs );
-	$node.set_attributes( $attrs );
+	%attrs = $self.:_build_node_normalize_attrs( $node, %attrs );
+	$node.set_attributes( %attrs );
 	return $node;
 }
 
-method :_build_node_normalize_attrs( SQL::Routine::Node $node, $attrs ) {
-	if( $attrs.meta.isa(Hash) ) {
-		$attrs = {%{$attrs}}; # copy this, to preserve caller environment
-	} elsif( $attrs.defined ) {
-		if( $attrs ~~ m/^\d+$/ and $attrs > 0 ) { # looks like a node id
-			$attrs = { $ATTR_ID => $attrs };
-		} else { # does not look like node id
-			$attrs = { (grep:{ $_ } @{%NODE_TYPES{$node.:node_type}.{$TPI_SI_ATNM}})[0] => $attrs };
-		}
-	} else {
-		$attrs = {};
-	}
-	return $attrs;
+multi method build_lonely_node( $self: %args ) {
+	return $self.build_lonely_node( %args{$NAMED_NODE_TYPE}, %args{$NAMED_ATTRS} );
 }
 
-method build_container( $self: $list, Bool $auto_assert, Bool $auto_ids, Bool $match_surr_ids ) {
+method :_build_node_normalize_attrs( SQL::Routine::Node $node, %attrs ) {
+	if( %attrs.meta.isa(Hash) ) {
+		%attrs = {%attrs}; # copy this, to preserve caller environment
+	} elsif( %attrs.defined ) {
+		if( %attrs ~~ m/^\d+$/ and %attrs > 0 ) { # looks like a node id
+			%attrs = { $ATTR_ID => %attrs };
+		} else { # does not look like node id
+			%attrs = { (grep:{ $_ } @{%NODE_TYPES{$node.:node_type}.{$TPI_SI_ATNM}})[0] => %attrs };
+		}
+	} else {
+		%attrs = {};
+	}
+	return %attrs;
+}
+
+method build_container( $self: @list, Bool $auto_assert, Bool $auto_ids, Bool $match_surr_ids ) {
 	my $container = $self.new_container();
 	$auto_assert and $container.auto_assert_deferrable_constraints( 1 );
 	$auto_ids and $container.auto_set_node_ids( 1 );
 	$match_surr_ids and $container.may_match_surrogate_node_ids( 1 );
-	$container.build_child_node_trees( $list );
+	$container.build_child_node_trees( @list );
 	return $container;
 }
 
@@ -1563,10 +1564,10 @@ method new( $class: ) returns SQL::Routine::Container {
 
 method destroy( $container:  ) {
 	# Since we probably have circular refs, we must explicitly be destroyed.
-	foreach my $node ($container.:all_nodes.values) {
-		%{$node} = ();
+	for $container.:all_nodes.values -> $node {
+		$node = ();
 	}
-	%{$container} = ();
+	$container = ();
 }
 
 ######################################################################
@@ -1620,16 +1621,15 @@ method find_node_by_id( $container: NodeID $node_id ) {
 
 ######################################################################
 
-method find_child_node_by_surrogate_id( $container: $target_attr_value ) {
-	$target_attr_value.defined or $container.:_throw_error_message( 'SRT_C_FIND_CH_ND_BY_SID_NO_ARG_VAL' );
-	$target_attr_value.meta.isa(Array) or $target_attr_value = [$target_attr_value];
+method find_child_node_by_surrogate_id( $container: @target_attr_value ) {
+	@target_attr_value.defined or $container.:_throw_error_message( 'SRT_C_FIND_CH_ND_BY_SID_NO_ARG_VAL' );
 	my ($l2_psn, $chain_first, @chain_rest);
-	unless( $target_attr_value.[0].defined ) {
+	unless( @target_attr_value.[0].defined ) {
 		# The given surrogate id chain starts with [undef,'root',<l2-psn>,<chain-of-node-si>].
-		(undef, undef, $l2_psn, $chain_first, @chain_rest) = @{$target_attr_value};
+		(undef, undef, $l2_psn, $chain_first, @chain_rest) = @target_attr_value;
 	} else {
 		# The given surrogate id chain starts with [<chain-of-node-si>].
-		($chain_first, @chain_rest) = @{$target_attr_value};
+		($chain_first, @chain_rest) = @target_attr_value;
 	}
 	my $pseudonodes = $container.:pseudonodes;
 	my @nodes_to_search;
@@ -1640,10 +1640,10 @@ method find_child_node_by_surrogate_id( $container: $target_attr_value ) {
 		# Search children of all pseudo-Nodes.
 		@nodes_to_search = @L2_PSEUDONODE_LIST.map:{ @{$pseudonodes.{$_}} };
 	}
-	foreach my $child (@nodes_to_search) {
+	for @nodes_to_search -> $child {
 		if( my $si_atvl = $child.get_surrogate_id_attribute( 1 ) ) {
 			if( $si_atvl eq $chain_first ) {
-				return @chain_rest ?? $child.find_child_node_by_surrogate_id( \@chain_rest ) :: $child;
+				return @chain_rest ?? $child.find_child_node_by_surrogate_id( @chain_rest ) :: $child;
 			}
 		}
 	}
@@ -1669,7 +1669,7 @@ method assert_deferrable_constraints( $container: ) {
 	# Test nodes in the same order that they appear in the Node tree.
 	for @L2_PSEUDONODE_LIST -> $pseudonode_name {
 		SQL::Routine::Node.:_assert_child_comp_deferrable_constraints( $pseudonode_name, $container );
-		foreach my $child_node (@{$container.:pseudonodes.{$pseudonode_name}}) {
+		for $container.:pseudonodes.{$pseudonode_name} -> $child_node {
 			$container.:_assert_deferrable_constraints( $child_node );
 		}
 	}
@@ -1678,7 +1678,7 @@ method assert_deferrable_constraints( $container: ) {
 
 method :_assert_deferrable_constraints( $container: SQL::Routine::Node $node ) {
 	$node.assert_deferrable_constraints();
-	foreach my $child_node (@{$node.:prim_child_nrefs}) {
+	for $node.:prim_child_nrefs -> $child_node {
 		$container.:_assert_deferrable_constraints( $child_node );
 	}
 }
@@ -1713,27 +1713,28 @@ method get_all_properties_as_xml_str( $node: Bool ?$links_as_si, Bool ?$want_sho
 
 ######################################################################
 
-method build_node( $container: $node_type, $attrs ) {
-	if( $node_type.meta.isa(Hash) ) {
-		($node_type, $attrs) = @{$node_type}{$NAMED_NODE_TYPE, $NAMED_ATTRS};
-	}
-	return $container.:_build_node_is_child_or_not( $node_type, $attrs );
+multi method build_node( $container: $node_type, %attrs ) {
+	return $container.:_build_node_is_child_or_not( $node_type, %attrs );
 }
 
-method :_build_node_is_child_or_not( $container: $node_type, $attrs, $pp_node ) {
+multi method build_node( $container: %args ) {
+	return $container.build_node( %args{$NAMED_NODE_TYPE}, %args{$NAMED_ATTRS} );
+}
+
+method :_build_node_is_child_or_not( $container: $node_type, %attrs, $pp_node ) {
 	my $node = $container.new_node( $node_type );
-	$attrs = $container.:_build_node_normalize_attrs( $node, $attrs );
-	if( my $node_id = delete( $attrs.{$ATTR_ID} ) ) {
+	%attrs = $container.:_build_node_normalize_attrs( $node, %attrs );
+	if( my $node_id = delete( %attrs.{$ATTR_ID} ) ) {
 		$node.set_node_id( $node_id );
 	}
 	$node.put_in_container( $container );
-	my $pp_in_attrs = delete( $attrs.{$ATTR_PP} ); # ensure won't override any $pp_node
+	my $pp_in_attrs = delete( %attrs.{$ATTR_PP} ); # ensure won't override any $pp_node
 	if( $pp_node ) {
 		$pp_node.add_child_node( $node );
 	} else {
 		$pp_in_attrs and $node.set_primary_parent_attribute( $pp_in_attrs );
 	}
-	$node.set_attributes( $attrs );
+	$node.set_attributes( %attrs );
 	if( $container.:auto_ass_def_con ) {
 		try {
 			$node.assert_deferrable_constraints(); # check that this Node's own attrs are correct
@@ -1748,14 +1749,11 @@ method :_build_node_is_child_or_not( $container: $node_type, $attrs, $pp_node ) 
 	return $node;
 }
 
-method build_child_node( $container: $node_type, $attrs ) {
-	if( $node_type.meta.isa(Hash) ) {
-		($node_type, $attrs) = @{$node_type}{$NAMED_NODE_TYPE, $NAMED_ATTRS};
-	}
+multi method build_child_node( $container: $node_type, %attrs ) {
 	if( $node_type eq $SQLRT_L1_ROOT_PSND or @L2_PSEUDONODE_LIST.grep:{ $_ eq $node_type } ) {
 		return $container;
 	} else { # $node_type is not a valid pseudo-Node
-		my $node = $container.:_build_node_is_child_or_not( $node_type, $attrs );
+		my $node = $container.:_build_node_is_child_or_not( $node_type, %attrs );
 		unless( %NODE_TYPES{$node_type}.{$TPI_PP_PSEUDONODE} ) {
 			$node.take_from_container(); # so the new Node doesn't persist
 			$container.:_throw_error_message( 'SRT_C_BUILD_CH_ND_NO_PSND', { 'ARGNTYPE' => $node_type } );
@@ -1764,37 +1762,34 @@ method build_child_node( $container: $node_type, $attrs ) {
 	}
 }
 
+multi method build_child_node( $container: %args ) {
+	return $container.build_child_node_tree( %args{$NAMED_NODE_TYPE}, %args{$NAMED_ATTRS} );
+}
+
 method build_child_nodes( $container: @list ) {
-	$list or return;
-	unless( $list.meta.isa(Array) ) {
-		$list = [ $list ];
-	}
-	foreach my $element (@{$list}) {
-		$container.build_child_node( $element.meta.isa(Array) ?? @{$element} :: $element );
+	for @list -> $element {
+		$container.build_child_node( $element );
 	}
 }
 
-method build_child_node_tree( $container: $node_type, $attrs, $children ) {
-	if( $node_type.meta.isa(Hash) ) {
-		($node_type, $attrs, $children) = @{$node_type}{$NAMED_NODE_TYPE, $NAMED_ATTRS, $NAMED_CHILDREN};
-	}
+multi method build_child_node_tree( $container: $node_type, %attrs, @children ) {
 	if( $node_type eq $SQLRT_L1_ROOT_PSND or @L2_PSEUDONODE_LIST.grep:{ $_ eq $node_type } ) {
-		$container.build_child_node_trees( $children );
+		$container.build_child_node_trees( @children );
 		return $container;
 	} else { # $node_type is not a valid pseudo-Node
-		my $node = $container.build_child_node( $node_type, $attrs );
-		$node.build_child_node_trees( $children );
+		my $node = $container.build_child_node( $node_type, %attrs );
+		$node.build_child_node_trees( @children );
 		return $node;
 	}
 }
 
+multi method build_child_node_tree( $container: %args ) {
+	return $container.build_child_node_tree( %args{$NAMED_NODE_TYPE}, %args{$NAMED_ATTRS}, %args{$NAMED_CHILDREN} );
+}
+
 method build_child_node_trees( $container: @list ) {
-	$list or return;
-	unless( $list.meta.isa(Array) ) {
-		$list = [ $list ];
-	}
-	foreach my $element (@{$list}) {
-		$container.build_child_node_tree( $element.meta.isa(Array) ?? @{$element} :: $element );
+	for @list -> $element {
+		$container.build_child_node_tree( $element );
 	}
 }
 
@@ -1970,7 +1965,7 @@ method :_clear_primary_parent_attribute( $node: ) {
 	if( ref($pp_node) eq ref($node) ) {
 		# The attribute value is a Node object, so clear its link back.
 		my $siblings = $pp_node.:prim_child_nrefs;
-		@{$siblings} = grep:{ $_ ne $node } @{$siblings}; # remove the occurance
+		@siblings = grep:{ $_ ne $node } @siblings; # remove the occurance
 	}
 	$node.:pp_nref = undef; # removes link to primary-parent, if any
 	if( $node.:container ) {
@@ -2100,12 +2095,12 @@ method :_set_literal_attribute( $node: Str $attr_name, $exp_lit_type, $attr_valu
 }
 
 method set_literal_attributes( $node: %attrs ) {
-	$attrs.defined or $node.:_throw_error_message( 'SRT_N_SET_LIT_ATS_NO_ARGS' );
-	unless( $attrs.meta.isa(Hash) ) {
-		$node.:_throw_error_message( 'SRT_N_SET_LIT_ATS_BAD_ARGS', { 'ARG' => $attrs } );
+	%attrs.defined or $node.:_throw_error_message( 'SRT_N_SET_LIT_ATS_NO_ARGS' );
+	unless( %attrs.meta.isa(Hash) ) {
+		$node.:_throw_error_message( 'SRT_N_SET_LIT_ATS_BAD_ARGS', { 'ARG' => %attrs } );
 	}
-	foreach my $attr_name ($attrs.keys) {
-		$node.set_literal_attribute( $attr_name, $attrs.{$attr_name} );
+	for %attrs.kv -> $attr_name, $attr_value {
+		$node.set_literal_attribute( $attr_name, $attr_value );
 	}
 }
 
@@ -2171,12 +2166,12 @@ method :_set_enumerated_attribute( $node: Str $attr_name, $exp_enum_type, $attr_
 }
 
 method set_enumerated_attributes( $node: %attrs ) {
-	$attrs.defined or $node.:_throw_error_message( 'SRT_N_SET_ENUM_ATS_NO_ARGS' );
-	unless( $attrs.meta.isa(Hash) ) {
-		$node.:_throw_error_message( 'SRT_N_SET_ENUM_ATS_BAD_ARGS', { 'ARG' => $attrs } );
+	%attrs.defined or $node.:_throw_error_message( 'SRT_N_SET_ENUM_ATS_NO_ARGS' );
+	unless( %attrs.meta.isa(Hash) ) {
+		$node.:_throw_error_message( 'SRT_N_SET_ENUM_ATS_BAD_ARGS', { 'ARG' => %attrs } );
 	}
-	foreach my $attr_name ($attrs.keys) {
-		$node.set_enumerated_attribute( $attr_name, $attrs.{$attr_name} );
+	for %attrs.kv -> $attr_name, $attr_value {
+		$node.set_enumerated_attribute( $attr_name, $attr_value );
 	}
 }
 
@@ -2223,10 +2218,10 @@ method :_clear_node_ref_attribute( $node: Str $attr_name ) {
 	if( ref($attr_value) eq ref($node) ) {
 		# The attribute value is a Node object, so clear its link back.
 		my $ra_children_of_parent = $attr_value.:link_child_nrefs;
-		foreach my $i (0..$#{$ra_children_of_parent}) {
+		for 0..$#{$ra_children_of_parent} -> $i {
 			if( $ra_children_of_parent.[$i] eq $node ) {
 				# remove first instance of $node from it's parent's child list
-				splice( @{$ra_children_of_parent}, $i, 1 );
+				splice( @ra_children_of_parent, $i, 1 );
 				last;
 			}
 		}
@@ -2238,7 +2233,7 @@ method :_clear_node_ref_attribute( $node: Str $attr_name ) {
 }
 
 method clear_node_ref_attributes( $node: ) {
-	foreach my $attr_name (sort $node.:at_nrefs.keys) {
+	for $node.:at_nrefs.keys -> $attr_name {
 		$node.:_clear_node_ref_attribute( $attr_name );
 	}
 	if( $node.:container ) {
@@ -2277,7 +2272,7 @@ method :_set_node_ref_attribute( $node: Str $attr_name, $exp_node_types, $attr_v
 method :_normalize_primary_parent_or_node_ref_attribute_value( $node: Str $error_key_pfx, Str $attr_name, $exp_node_types, $attr_value ) {
 	if( ref($attr_value) eq ref($node) ) {
 		# We were given a Node object for a new attribute value.
-		unless( grep:{ $attr_value.:node_type eq $_ } @{$exp_node_types} ) {
+		unless( grep:{ $attr_value.:node_type eq $_ } @exp_node_types ) {
 			$node.:_throw_error_message( $error_key_pfx~'_WRONG_NODE_TYPE', { 'ATNM' => $attr_name, 
 				'EXPNTYPE' => $exp_node_types, 'ARGNTYPE' => $attr_value.:node_type } );
 		}
@@ -2300,7 +2295,7 @@ method :_normalize_primary_parent_or_node_ref_attribute_value( $node: Str $error
 		# We were given a Node Id for a new attribute value.
 		if( my $container = $node.:container ) {
 			my $searched_attr_value = $container.:all_nodes.{$attr_value};
-			unless( $searched_attr_value and grep:{ $searched_attr_value.:node_type eq $_ } @{$exp_node_types} ) {
+			unless( $searched_attr_value and grep:{ $searched_attr_value.:node_type eq $_ } @exp_node_types ) {
 				$node.:_throw_error_message( $error_key_pfx~'_NONEX_NID', 
 					{ 'ATNM' => $attr_name, 'ARG' => $attr_value, 'EXPNTYPE' => $exp_node_types } );
 			}
@@ -2322,10 +2317,10 @@ method :_normalize_primary_parent_or_node_ref_attribute_value( $node: Str $error
 			$node.:_throw_error_message( 'SRT_N_SET_NREF_AT_NONEX_SID', 
 				{ 'ATNM' => $attr_name, 'ARG' => $attr_value, 'EXPNTYPE' => $exp_node_types } );
 		}
-		if( @{$searched_attr_values} > 1 ) {
+		if( @searched_attr_values > 1 ) {
 			$node.:_throw_error_message( 'SRT_N_SET_NREF_AT_AMBIG_SID', 
 				{ 'ATNM' => $attr_name, 'ARG' => $attr_value, 'EXPNTYPE' => $exp_node_types, 
-				'CANDIDATES' => [';', map:{ (@{$_.:_get_surrogate_id_chain()},';') } @{$searched_attr_values}] } );
+				'CANDIDATES' => [';', @searched_attr_values.map:{ (@{$_.:_get_surrogate_id_chain()},';') }] } );
 		}
 		$attr_value = $searched_attr_values.[0];
 	}
@@ -2334,12 +2329,12 @@ method :_normalize_primary_parent_or_node_ref_attribute_value( $node: Str $error
 }
 
 method set_node_ref_attributes( $node: %attrs ) {
-	$attrs.defined or $node.:_throw_error_message( 'SRT_N_SET_NREF_ATS_NO_ARGS' );
-	unless( $attrs.meta.isa(Hash) ) {
-		$node.:_throw_error_message( 'SRT_N_SET_NREF_ATS_BAD_ARGS', { 'ARG' => $attrs } );
+	%attrs.defined or $node.:_throw_error_message( 'SRT_N_SET_NREF_ATS_NO_ARGS' );
+	unless( %attrs.meta.isa(Hash) ) {
+		$node.:_throw_error_message( 'SRT_N_SET_NREF_ATS_BAD_ARGS', { 'ARG' => %attrs } );
 	}
-	foreach my $attr_name (sort $attrs.keys) {
-		$node.set_node_ref_attribute( $attr_name, $attrs.{$attr_name} );
+	for %attrs.kv -> $attr_name, $attr_value {
+		$node.set_node_ref_attribute( $attr_name, $attr_value );
 	}
 }
 
@@ -2445,13 +2440,12 @@ method set_attribute( $node: Str $attr_name, $attr_value ) {
 }
 
 method set_attributes( $node: %attrs ) {
-	$attrs.defined or $node.:_throw_error_message( 'SRT_N_SET_ATS_NO_ARGS' );
-	unless( $attrs.meta.isa(Hash) ) {
-		$node.:_throw_error_message( 'SRT_N_SET_ATS_BAD_ARGS', { 'ARG' => $attrs } );
+	%attrs.defined or $node.:_throw_error_message( 'SRT_N_SET_ATS_NO_ARGS' );
+	unless( %attrs.meta.isa(Hash) ) {
+		$node.:_throw_error_message( 'SRT_N_SET_ATS_BAD_ARGS', { 'ARG' => %attrs } );
 	}
 	my %type_info = %NODE_TYPES{$node.:node_type};
-	foreach my $attr_name (sort $attrs.keys) {
-		my $attr_value = $attrs.{$attr_name};
+	for %attrs.kv -> $attr_name, $attr_value {
 		$attr_value.defined or $node.:_throw_error_message( 'SRT_N_SET_ATS_NO_ARG_ELEM_VAL', { 'ATNM' => $attr_name } );
 		if( $attr_name eq $ATTR_ID ) {
 			$node.set_node_id( $attr_value );
@@ -2523,19 +2517,19 @@ method put_in_container( $node: SQL::Routine::Container $new_container ) {
 	my $pp_node = $node.:pp_nref; # value should be id number
 	if( my $pp_node_id = $pp_node ) {
 		my $pp_node_ref = $rh_can.{$pp_node_id};
-		unless( $pp_node_ref and grep:{ $pp_node_ref.:node_type eq $_ } @{$exp_pp_types} ) {
+		unless( $pp_node_ref and grep:{ $pp_node_ref.:node_type eq $_ } @exp_pp_types ) {
 			$node.:_throw_error_message( 'SRT_N_PI_CONT_NONEX_AT_NREF', 
 				{ 'EXPNTYPE' => $exp_pp_types, 'EXPNID' => $pp_node_id } );
 		}
 		$pp_node = $pp_node_ref; # change id number to node ref
 	}
 	my %at_nodes_refs = (); # values put in here will be actual references
-	foreach my $at_nodes_atnm ($rh_at_nodes_nids.keys) {
+	for $rh_at_nodes_nids.keys -> $at_nodes_atnm {
 		# Note that if $tpi_at_nodes is undefined, expect that this foreach loop will not run
 		my $exp_at_nref_types = $exp_at_nrefs_types.{$at_nodes_atnm};
 		my $at_nodes_nid = $rh_at_nodes_nids.{$at_nodes_atnm};
 		my $at_nodes_ref = $rh_can.{$at_nodes_nid};
-		unless( $at_nodes_ref and grep:{ $at_nodes_ref.:node_type eq $_ } @{$exp_at_nref_types} ) {
+		unless( $at_nodes_ref and grep:{ $at_nodes_ref.:node_type eq $_ } @exp_at_nref_types ) {
 			$node.:_throw_error_message( 'SRT_N_PI_CONT_NONEX_AT_NREF', 
 				{ 'ATNM' => $at_nodes_atnm, 'EXPNTYPE' => $exp_at_nref_types, 'EXPNID' => $at_nodes_nid } );
 		}
@@ -2543,7 +2537,7 @@ method put_in_container( $node: SQL::Routine::Container $new_container ) {
 	}
 	$node.:container = $new_container;
 	$node.:pp_nref = $pp_node;
-	$node.:at_nrefs = \%at_nodes_refs;
+	$node.:at_nrefs = %at_nodes_refs;
 	$rh_can.{$node_id} = $node;
 
 	# Now get our parent Nodes to link back to us.
@@ -2552,7 +2546,7 @@ method put_in_container( $node: SQL::Routine::Container $new_container ) {
 	} elsif( my $pp_node = $node.:pp_nref ) {
 		push( @{$pp_node.:prim_child_nrefs}, $node );
 	}
-	foreach my $attr_value ($node.:at_nrefs.values) {
+	for $node.:at_nrefs.values -> $attr_value {
 		push( @{$attr_value.:link_child_nrefs}, $node );
 	}
 
@@ -2576,14 +2570,14 @@ method take_from_container( $node: ) {
 	if( my $pp_pseudonode = %NODE_TYPES{$node_type}.{$TPI_PP_PSEUDONODE} ) {
 		my $container = $node.:container;
 		my $siblings = $container.:pseudonodes.{$pp_pseudonode};
-		@{$siblings} = grep:{ $_ ne $node } @{$siblings}; # remove the occurance
+		@siblings = grep:{ $_ ne $node } @siblings; # remove the occurance
 	} elsif( my $pp_node = $node.:pp_nref ) {
 		my $siblings = $pp_node.:prim_child_nrefs;
-		@{$siblings} = grep:{ $_ ne $node } @{$siblings}; # remove the occurance
+		@siblings = grep:{ $_ ne $node } @siblings; # remove the occurance
 	}
-	foreach my $attr_value ($node.:at_nrefs.values) {
+	for $node.:at_nrefs.values -> $attr_value {
 		my $siblings = $attr_value.:link_child_nrefs;
-		@{$siblings} = grep:{ $_ ne $node } @{$siblings}; # remove all occurances
+		@siblings = grep:{ $_ ne $node } @siblings; # remove all occurances
 	}
 
 	my $pp_node = $node.:pp_nref; # value should be actual ref
@@ -2592,12 +2586,12 @@ method take_from_container( $node: ) {
 	}
 	my $rh_at_nodes_refs = $node.:at_nrefs; # all values should be actual references now
 	my %at_nodes_nids = (); # values put in here will be node id numbers
-	foreach my $at_nodes_atnm ($rh_at_nodes_refs.keys) {
+	for $rh_at_nodes_refs.keys -> $at_nodes_atnm {
 		$at_nodes_nids{$at_nodes_atnm} = $rh_at_nodes_refs.{$at_nodes_atnm}.:node_id;
 	}
 
 	delete( $container.:all_nodes.{$node.:node_id} );
-	$node.:at_nrefs = \%at_nodes_nids;
+	$node.:at_nrefs = %at_nodes_nids;
 	$node.:pp_nref = $pp_node;
 	$node.:container = undef;
 
@@ -2650,7 +2644,7 @@ method move_before_sibling( $node: $sibling, $parent ) {
 	my @refs_after_both = ();
 
 	my $others_go_before = 1;
-	foreach my $child (@{$ra_search_list}) {
+	for @ra_search_list -> $child {
 		if( $child eq $node ) {
 			push( @curr_node_refs, $child );
 		} elsif( $child eq $sibling ) {
@@ -2668,7 +2662,7 @@ method move_before_sibling( $node: $sibling, $parent ) {
 
 	# Everything checks out, so now we perform the reordering.
 
-	@{$ra_search_list} = (@refs_before_both, @curr_node_refs, @sib_node_refs, @refs_after_both);
+	@ra_search_list = (@refs_before_both, @curr_node_refs, @sib_node_refs, @refs_after_both);
 	$node.:container.:def_con_tested = 0; # "Well Known" Node relation chg.
 }
 
@@ -2695,11 +2689,7 @@ method add_child_node( $node: $new_child ) {
 }
 
 method add_child_nodes( $node: @list ) {
-	$list or return;
-	unless( $list.meta.isa(Array) ) {
-		$list = [ $list ];
-	}
-	foreach my $element (@{$list}) {
+	for @list -> $element {
 		$node.add_child_node( $element );
 	}
 }
@@ -2729,7 +2719,7 @@ method :_get_surrogate_id_chain( $node: ) {
 	if( my $pp_node = $node.:pp_nref ) {
 		# Current Node has a primary-parent Node; append to its id chain.
 		my $elements = $pp_node.:_get_surrogate_id_chain();
-		push( @{$elements}, $si_atvl );
+		push( @elements, $si_atvl );
 		return $elements;
 	} elsif( my $l2_psnd = %NODE_TYPES{$node.:node_type}.{$TPI_PP_PSEUDONODE} ) {
 		# Current Node has a primary-parent pseudo-Node; append to its id chain.
@@ -2742,57 +2732,56 @@ method :_get_surrogate_id_chain( $node: ) {
 
 ######################################################################
 
-method find_node_by_surrogate_id( $node: Str $self_attr_name, $target_attr_value ) {
+method find_node_by_surrogate_id( $node: Str $self_attr_name, @target_attr_value ) {
 	$node.:container or $node.:_throw_error_message( 'SRT_N_FIND_ND_BY_SID_NOT_IN_CONT' );
 	$self_attr_name.defined or $node.:_throw_error_message( 'SRT_N_FIND_ND_BY_SID_NO_ARGS' );
 	my %type_info = %NODE_TYPES{$node.:node_type};
 	my $exp_node_types = %type_info{$TPI_AT_NREFS} && %type_info{$TPI_AT_NREFS}.{$self_attr_name} or 
 		$node.:_throw_error_message( 'SRT_N_FIND_ND_BY_SID_INVAL_NM', { 'ATNM' => $self_attr_name } );
-	$target_attr_value.defined or $node.:_throw_error_message( 
+	@target_attr_value.defined or $node.:_throw_error_message( 
 		'SRT_N_FIND_ND_BY_SID_NO_ARG_VAL', { 'ATNM' => $self_attr_name } );
-	$target_attr_value.meta.isa(Array) or $target_attr_value = [$target_attr_value];
-	scalar( @{$target_attr_value} ) >= 1 or $node.:_throw_error_message( 
+	scalar( @target_attr_value ) >= 1 or $node.:_throw_error_message( 
 		'SRT_N_FIND_ND_BY_SID_NO_ARG_VAL', { 'ATNM' => $self_attr_name } );
-	foreach my $element (@{$target_attr_value}) {
+	for @target_attr_value -> $element {
 		$element.defined or $node.:_throw_error_message( 
 			'SRT_N_FIND_ND_BY_SID_NO_ARG_VAL', { 'ATNM' => $self_attr_name } );
 	}
 	# If we get here, most input checks passed.
-	my %exp_p_node_types = map:{ ($_ => 1) } @{$exp_node_types};
+	my %exp_p_node_types = @exp_node_types.map:{ ($_ => 1) };
 	if( my $search_path = %type_info{$TPI_ANCES_ATCORS} && %type_info{$TPI_ANCES_ATCORS}.{$self_attr_name} ) {
 		# The value we are searching for must be the child part of a correlated pair.
-		return $node.:_find_node_by_surrogate_id_using_path( \%exp_p_node_types, $target_attr_value, $search_path );
+		return $node.:_find_node_by_surrogate_id_using_path( %exp_p_node_types, @target_attr_value, $search_path );
 	}
 	# If we get here, the value we are searching for is not the child part of a correlated pair.
-	my %remotely_addressable_types = map:{ ($_ => %NODE_TYPES{$_}.{$TPI_REMOTE_ADDR}) } 
-		grep:{ %NODE_TYPES{$_}.{$TPI_REMOTE_ADDR} } @{$exp_node_types};
-	my ($unqualified_value, $qualifier_l1, @rest) = @{$target_attr_value};
+	my %remotely_addressable_types = @exp_node_types.
+		grep:{ %NODE_TYPES{$_}.{$TPI_REMOTE_ADDR} }.map:{ ($_ => %NODE_TYPES{$_}.{$TPI_REMOTE_ADDR}) };
+	my ($unqualified_value, $qualifier_l1, @rest) = @target_attr_value;
 	if( $qualifier_l1 ) {
 		# An attempt is definitely being made to remotely address a Node.
 		scalar( %remotely_addressable_types.keys ) >= 1 or $node.:_throw_error_message( 
-			'SRT_N_FIND_ND_BY_SID_NO_REM_ADDR', { 'ATNM' => $self_attr_name, 'ATVL' => $target_attr_value } );
+			'SRT_N_FIND_ND_BY_SID_NO_REM_ADDR', { 'ATNM' => $self_attr_name, 'ATVL' => @target_attr_value } );
 		# If we get here, we are allowed to remotely address a Node.
-		return $node.:_find_node_by_surrogate_id_remotely( \%remotely_addressable_types, $target_attr_value );
+		return $node.:_find_node_by_surrogate_id_remotely( %remotely_addressable_types, @target_attr_value );
 	}
 	# If we get here, we are searching with a purely unqualified target SI value.
 	# First try to find the target among our ancestors' siblings.
-	if( my $result = $node.:_find_node_by_surrogate_id_within_layers( \%exp_p_node_types, $unqualified_value ) ) {
+	if( my $result = $node.:_find_node_by_surrogate_id_within_layers( %exp_p_node_types, $unqualified_value ) ) {
 		return $result;
 	}
 	# If we get here, there were no ancestor sibling matches.
 	if( scalar( %remotely_addressable_types.keys ) >= 1 ) {
 		# If we get here, we are allowed to remotely address a Node.
-		return $node.:_find_node_by_surrogate_id_remotely( \%remotely_addressable_types, $target_attr_value );
+		return $node.:_find_node_by_surrogate_id_remotely( %remotely_addressable_types, @target_attr_value );
 	}
 	# If we get here, all search attempts failed.
 	return;
 }
 
-method :_find_node_by_surrogate_id_remotely( $node: $exp_p_node_types, $target_attr_value ) {
-	# Method assumes $exp_p_node_types only contains Node types that can be remotely addressable.
-	# Within this method, values of $exp_p_node_types are arrays of expected ancestor types for the keys.
-	my @search_chain = reverse @{$target_attr_value};
-	my %exp_anc_node_types = map:{ ($_ => 1) } map:{ @{$_} } $exp_p_node_types.values;
+method :_find_node_by_surrogate_id_remotely( $node: %exp_p_node_types, @target_attr_value ) {
+	# Method assumes %exp_p_node_types only contains Node types that can be remotely addressable.
+	# Within this method, values of %exp_p_node_types are arrays of expected ancestor types for the keys.
+	my @search_chain = reverse @target_attr_value;
+	my %exp_anc_node_types = %exp_p_node_types.values.map:{ $_[] }.map:{ ($_ => 1) };
 	# First check if we, ourselves, are a child of an expected ancestor type; 
 	# if we are, then we should search beneath our own ancestor first.
 	my $self_anc_node = $node;
@@ -2805,30 +2794,30 @@ method :_find_node_by_surrogate_id_remotely( $node: $exp_p_node_types, $target_a
 		do {
 			# $curr_node is everything from our parent to and including the remote ancestor.
 			$curr_node = $curr_node.:pp_nref;
-			if( my $result = $curr_node.:_find_node_by_surrogate_id_remotely_below_here( $exp_p_node_types, \@search_chain ) ) {
+			if( my $result = $curr_node.:_find_node_by_surrogate_id_remotely_below_here( %exp_p_node_types, @search_chain ) ) {
 				return $result;
 			}
 		} until( $curr_node eq $self_anc_node );
 	}
 	# If we get here, we either have no qualified ancestor, or nothing was found when starting beneath it.
 	# Now look beneath other allowable ancestors.
-	my %psn_roots = map:{ ($_ => 1) } grep:{ $_ } map:{ %NODE_TYPES{$_}.{$TPI_PP_PSEUDONODE} } %exp_anc_node_types.keys;
+	my %psn_roots = %exp_anc_node_types.keys.map:{ %NODE_TYPES{$_}.{$TPI_PP_PSEUDONODE} }.grep:{ $_ }.map:{ ($_ => 1) };
 	my $pseudonodes = $node.:container.:pseudonodes;
 	my @anc_nodes = @L2_PSEUDONODE_LIST.grep:{ $psn_roots{$_} }.map:{ @{$pseudonodes.{$_}} }.grep:{ $exp_anc_node_types{$_.:node_type} };
 	my @matched_node_list = ();
-	foreach my $anc_node (@anc_nodes) {
-		if( my $result = $anc_node.:_find_node_by_surrogate_id_remotely_below_here( $exp_p_node_types, \@search_chain ) ) {
-			push( @matched_node_list, @{$result} );
+	for @anc_nodes -> $anc_node {
+		if( my $result = $anc_node.:_find_node_by_surrogate_id_remotely_below_here( %exp_p_node_types, @search_chain ) ) {
+			push( @matched_node_list, @result );
 		}
 	}
-	return @matched_node_list == 0 ?? undef :: \@matched_node_list;
+	return @matched_node_list == 0 ?? undef :: @matched_node_list;
 }
 
-method :_find_node_by_surrogate_id_remotely_below_here( $node: $exp_p_node_types, $search_chain_in ) {
-	# Method assumes $exp_p_node_types only contains Node types that can be remotely addressable.
-	my @search_chain = @{$search_chain_in} or return; # search chain empty; no match possible
+method :_find_node_by_surrogate_id_remotely_below_here( $node: %exp_p_node_types, $search_chain_in ) {
+	# Method assumes %exp_p_node_types only contains Node types that can be remotely addressable.
+	my @search_chain = @search_chain_in or return; # search chain empty; no match possible
 	my $si_atvl = $node.get_surrogate_id_attribute( 1 ) or return;
-	if( $exp_p_node_types.{$node.:node_type} ) {
+	if( %exp_p_node_types.{$node.:node_type} ) {
 		# It is illegal to remotely match a Node that is a child of a remotely matcheable type.
 		# Therefore, the invocant Node must be the end of the line, win or lose; its children can not be searched.
 		if( @search_chain == 1 and $si_atvl eq $search_chain[0] ) {
@@ -2846,15 +2835,15 @@ method :_find_node_by_surrogate_id_remotely_below_here( $node: $exp_p_node_types
 	}
 	# If we get here, there is at least 1 more unmatched search chain element.
 	my @matched_node_list = ();
-	foreach my $child (@{$node.:prim_child_nrefs}) {
-		if( my $result = $child.:_find_node_by_surrogate_id_remotely_below_here( $exp_p_node_types, \@search_chain ) ) {
-			push( @matched_node_list, @{$result} );
+	for $node.:prim_child_nrefs -> $child {
+		if( my $result = $child.:_find_node_by_surrogate_id_remotely_below_here( %exp_p_node_types, @search_chain ) ) {
+			push( @matched_node_list, @result );
 		}
 	}
-	return @matched_node_list == 0 ?? undef :: \@matched_node_list;
+	return @matched_node_list == 0 ?? undef :: @matched_node_list;
 }
 
-method :_find_node_by_surrogate_id_within_layers( $node: $exp_p_node_types, $target_attr_value ) {
+method :_find_node_by_surrogate_id_within_layers( $node: %exp_p_node_types, @target_attr_value ) {
 	my $pp_node = $node.:pp_nref;
 
 	# Now determine who our siblings are.
@@ -2873,10 +2862,10 @@ method :_find_node_by_surrogate_id_within_layers( $node: $exp_p_node_types, $tar
 
 	# Now search among our siblings for a match.
 
-	foreach my $sibling_node (@sibling_list) {
-		$exp_p_node_types.{$sibling_node.:node_type} or next;
+	for @sibling_list -> $sibling_node {
+		%exp_p_node_types.{$sibling_node.:node_type} or next;
 		if( my $si_atvl = $sibling_node.get_surrogate_id_attribute( 1 ) ) {
-			if( $si_atvl eq $target_attr_value ) {
+			if( $si_atvl eq @target_attr_value ) {
 				return [$sibling_node];
 			}
 		}
@@ -2886,20 +2875,20 @@ method :_find_node_by_surrogate_id_within_layers( $node: $exp_p_node_types, $tar
 
 	if( $pp_node ) {
 		# We are not at the tree's root, so move upwards by a generation and try again.
-		return $pp_node.:_find_node_by_surrogate_id_within_layers( $exp_p_node_types, $target_attr_value );
+		return $pp_node.:_find_node_by_surrogate_id_within_layers( %exp_p_node_types, @target_attr_value );
 	} else {
 		# There is no further up that we can go, so no match was found.
 		return;
 	}
 }
 
-method :_find_node_by_surrogate_id_using_path( $node: $exp_p_node_types, $target_attr_value, $search_path ) {
+method :_find_node_by_surrogate_id_using_path( $node: %exp_p_node_types, @target_attr_value, $search_path ) {
 	my $curr_node = $node;
-	my ($unqualified_value, $qualifier_l1, @rest) = @{$target_attr_value};
+	my ($unqualified_value, $qualifier_l1, @rest) = @target_attr_value;
 
 	# Now enumerate through the explicit search path elements, updating $curr_node in the process.
 
-	foreach my $path_seg (@{$search_path}) {
+	for @search_path -> $path_seg {
 		if( $path_seg eq $S ) { # <self> is a no-op, existing for easier-to-read documentation only
 			# no-op
 		} elsif( $path_seg eq $P ) { # <primary-parent>
@@ -2915,11 +2904,11 @@ method :_find_node_by_surrogate_id_using_path( $node: $exp_p_node_types, $target
 			# For simplicity we are assuming the $C is the end of the path; it's grand-child or bust.
 			if( $qualifier_l1.defined ) {
 				# Given value is qualified; only look within the specified contexts.
-				foreach my $child_l1 (@{$curr_node.:prim_child_nrefs}) {
+				for $curr_node.:prim_child_nrefs -> $child_l1 {
 					my $si_atvl = $child_l1.get_surrogate_id_attribute( 1 ) or next;
 					$si_atvl eq $qualifier_l1 or next;
-					foreach my $child_l2 (@{$child_l1.:prim_child_nrefs}) {
-						$exp_p_node_types.{$child_l2.:node_type} or next;
+					for $child_l1.:prim_child_nrefs -> $child_l2 {
+						%exp_p_node_types.{$child_l2.:node_type} or next;
 						if( my $si_atvl = $child_l2.get_surrogate_id_attribute( 1 ) ) {
 							if( $si_atvl eq $unqualified_value ) {
 								return [$child_l2];
@@ -2930,15 +2919,15 @@ method :_find_node_by_surrogate_id_using_path( $node: $exp_p_node_types, $target
 			} else { 
 				# Given value is unqualified; take any ones that match.
 				my @matched_node_list = ();
-				foreach my $grandchild (map:{ @{$_.:prim_child_nrefs} } @{$curr_node.:prim_child_nrefs}) {
-					$exp_p_node_types.{$grandchild.:node_type} or next;
+				for $curr_node.:prim_child_nrefs.map:{ $_.:prim_child_nrefs[] } -> $grandchild {
+					%exp_p_node_types.{$grandchild.:node_type} or next;
 					if( my $si_atvl = $grandchild.get_surrogate_id_attribute( 1 ) ) {
 						if( $si_atvl eq $unqualified_value ) {
 							push( @matched_node_list, $grandchild );
 						}
 					}
 				}
-				return @matched_node_list == 0 ?? undef :: \@matched_node_list;
+				return @matched_node_list == 0 ?? undef :: @matched_node_list;
 			}
 			return;
 		} else { # <nref-attr>; $path_seg is an attribute name
@@ -2960,8 +2949,8 @@ method :_find_node_by_surrogate_id_using_path( $node: $exp_p_node_types, $target
 	# We are at the end of the implicit search path.
 	# The required Node must be one of $curr_node's children.
 
-	foreach my $child (@{$curr_node.:prim_child_nrefs}) {
-		$exp_p_node_types.{$child.:node_type} or next;
+	for $curr_node.:prim_child_nrefs -> $child {
+		%exp_p_node_types.{$child.:node_type} or next;
 		if( my $si_atvl = $child.get_surrogate_id_attribute( 1 ) ) {
 			if( $si_atvl eq $unqualified_value ) {
 				return [$child];
@@ -2976,15 +2965,14 @@ method :_find_node_by_surrogate_id_using_path( $node: $exp_p_node_types, $target
 
 ######################################################################
 
-method find_child_node_by_surrogate_id( $node: $target_attr_value ) {
+method find_child_node_by_surrogate_id( $node: @target_attr_value ) {
 	$node.:container or $node.:_throw_error_message( 'SRT_N_FIND_CH_ND_BY_SID_NOT_IN_CONT' );
-	$target_attr_value.defined or $node.:_throw_error_message( 'SRT_N_FIND_CH_ND_BY_SID_NO_ARG_VAL' );
-	$target_attr_value.meta.isa(Array) or $target_attr_value = [$target_attr_value];
-	if( $target_attr_value.[0].defined ) {
+	@target_attr_value.defined or $node.:_throw_error_message( 'SRT_N_FIND_CH_ND_BY_SID_NO_ARG_VAL' );
+	if( @target_attr_value.[0].defined ) {
 		# The given surrogate id chain is relative to the current Node.
 		my $curr_node = $node;
-		ELEM: foreach my $chain_element (@{$target_attr_value}) {
-			foreach my $child (@{$curr_node.:prim_child_nrefs}) {
+		ELEM: for @target_attr_value -> $chain_element {
+			for $curr_node.:prim_child_nrefs -> $child {
 				if( my $si_atvl = $child.get_surrogate_id_attribute( 1 ) ) {
 					if( $si_atvl eq $chain_element ) {
 						$curr_node = $child;
@@ -2997,7 +2985,7 @@ method find_child_node_by_surrogate_id( $node: $target_attr_value ) {
 		return $curr_node;
 	} else {
 		# The given surrogate id chain starts at the root of the current Node's Container.
-		return $node.:container.find_child_node_by_surrogate_id( $target_attr_value );
+		return $node.:container.find_child_node_by_surrogate_id( @target_attr_value );
 	}
 }
 
@@ -3021,7 +3009,7 @@ method get_relative_surrogate_id( $node: Str $self_attr_name, Bool ?$want_shorte
 			if( $want_shortest ) {
 				# We want to further abbreviate output, check if $attr_value_si_atvl distinct by itself.
 				my $p_of_p_of_attr_value_node = $p_of_attr_value_node.:pp_nref or return; # linked Node not in tree
-				foreach my $ch_node (map:{ @{$_.:prim_child_nrefs} } @{$p_of_p_of_attr_value_node.:prim_child_nrefs}) {
+				for $p_of_p_of_attr_value_node.:prim_child_nrefs.map:{ $_.:prim_child_nrefs[] } -> $ch_node {
 					if( my $ch_si_atvl = $ch_node.get_surrogate_id_attribute( 1 ) ) {
 						if( $ch_si_atvl eq $attr_value_si_atvl and $ch_node ne $attr_value_node ) {
 							# The target Node has a cousin Node that has the same surrogate id, so we must qualify ours.
@@ -3041,19 +3029,19 @@ method get_relative_surrogate_id( $node: Str $self_attr_name, Bool ?$want_shorte
 		}
 	}
 	# If we get here, the value we are outputting is not the child part of a correlated pair.
-	my %exp_p_node_types = map:{ ($_ => 1) } @{$exp_node_types};
-	my $layered_search_results = $node.:_find_node_by_surrogate_id_within_layers( \%exp_p_node_types, $attr_value_si_atvl );
+	my %exp_p_node_types = map:{ ($_ => 1) } @exp_node_types;
+	my $layered_search_results = $node.:_find_node_by_surrogate_id_within_layers( %exp_p_node_types, $attr_value_si_atvl );
 	if( $layered_search_results and $layered_search_results.[0] eq $attr_value_node ) {
 		return $attr_value_si_atvl;
 	}
 	# If we get here, the value we are outputting is not an ancestor's sibling.
 	my %remotely_addressable_types = map:{ ($_ => %NODE_TYPES{$_}.{$TPI_REMOTE_ADDR}) } 
-		grep:{ %NODE_TYPES{$_}.{$TPI_REMOTE_ADDR} } @{$exp_node_types};
+		grep:{ %NODE_TYPES{$_}.{$TPI_REMOTE_ADDR} } @exp_node_types;
 	scalar( %remotely_addressable_types.keys ) >= 1 or return; # Can't remotely address, so give up.
 	# If we get here, we are allowed to remotely address a Node.
 	# Now make sure attr-val Node has an ancestor of the expected type.
 	my @attr_value_si_chain = ();
-	my %exp_anc_node_types = map:{ ($_ => 1) } map:{ @{$_} } %remotely_addressable_types.values;
+	my %exp_anc_node_types = map:{ ($_ => 1) } map:{ @_ } %remotely_addressable_types.values;
 	my $attr_value_anc_node = $attr_value_node;
 	while( $attr_value_anc_node and !$exp_anc_node_types{$attr_value_anc_node.:node_type} ) {
 		my $anc_si_atvl = $attr_value_anc_node.get_surrogate_id_attribute( 1 ) or return; # part of SI not defined yet
@@ -3063,31 +3051,31 @@ method get_relative_surrogate_id( $node: Str $self_attr_name, Bool ?$want_shorte
 	$attr_value_anc_node or return; # attr-val does not have expected ancestor
 	my $anc_si_atvl = $attr_value_anc_node.get_surrogate_id_attribute( 1 ) or return; # part of SI not defined yet
 	push( @attr_value_si_chain, $anc_si_atvl ); # push required ancestor itself
-	my $remote_search_results = $node.:_find_node_by_surrogate_id_remotely( \%remotely_addressable_types, \@attr_value_si_chain );
-	$remote_search_results and $remote_search_results.[0] eq $attr_value_node or return; # can't find ourself, oops
+	my @remote_search_results = $node.:_find_node_by_surrogate_id_remotely( %remotely_addressable_types, @attr_value_si_chain );
+	@remote_search_results and @remote_search_results.[0] eq $attr_value_node or return; # can't find ourself, oops
 	# If we get here, the fully-qualified form of the attr-value can be remotely addressed successfully.
 	if( $want_shortest ) {
 		# We want to further abbreviate output.
 		my ($unqualified, $l2, $l3) = @attr_value_si_chain; # for simplicity, assume no more than 3 levels
 		$l2 or return $unqualified; # fully qualified version is only 1 element long
-		if( @{$node.:_find_node_by_surrogate_id_remotely( \%remotely_addressable_types, [$unqualified] )} == 1 ) {
+		if( @{$node.:_find_node_by_surrogate_id_remotely( %remotely_addressable_types, [$unqualified] )} == 1 ) {
 			# Fully unqualified version returns only one result, so it is currently unambiguous.
 			return $unqualified; # 1 element
 		}
-		$l3 or return \@attr_value_si_chain; # fully qualified version is only 2 elements long
-		if( @{$node.:_find_node_by_surrogate_id_remotely( \%remotely_addressable_types, [$unqualified, $l2] )} == 1 ) {
+		$l3 or return @attr_value_si_chain; # fully qualified version is only 2 elements long
+		if( @{$node.:_find_node_by_surrogate_id_remotely( %remotely_addressable_types, [$unqualified, $l2] )} == 1 ) {
 			# This partially qualified version returns only one result, so it is currently unambiguous.
 			return [$unqualified, $l2]; # 2 elements
 		}
-		if( @{$node.:_find_node_by_surrogate_id_remotely( \%remotely_addressable_types, [$unqualified, $l3] )} == 1 ) {
+		if( @{$node.:_find_node_by_surrogate_id_remotely( %remotely_addressable_types, [$unqualified, $l3] )} == 1 ) {
 			# This partially qualified version returns only one result, so it is currently unambiguous.
 			return [$unqualified, $l3]; # 2 elements
 		}
 		# If we get here, all shortened versions return multiple results, so return fully qualified version.
-		return \@attr_value_si_chain; # 3 elements
+		return @attr_value_si_chain; # 3 elements
 	} else {
 		# We do not want to further abbreviate output, so return fully qualified version.
-		return \@attr_value_si_chain;
+		return @attr_value_si_chain;
 	}
 }
 
@@ -3125,7 +3113,7 @@ method :_assert_in_node_deferrable_constraints( $node: ) {
 
 	# 1.3: Assert that any surrogate id ("SI") attribute is set.
 	if( my $si_atnm = %type_info{$TPI_SI_ATNM} ) {
-		my (undef, $lit, $enum, $nref) = @{$si_atnm};
+		my (undef, $lit, $enum, $nref) = @si_atnm;
 		# Skip 'id', as that's redundant with test 1.1.
 		if( $lit ) {
 			unless( $node.:at_literals.{$lit}.defined ) {
@@ -3146,18 +3134,18 @@ method :_assert_in_node_deferrable_constraints( $node: ) {
 
 	# 1.4: Assert that any always-mandatory ("MA") attributes are set.
 	if( my $mand_attrs = %type_info{$TPI_MA_ATNMS} ) {
-		my ($lits, $enums, $nrefs) = @{$mand_attrs};
-		foreach my $attr_name (@{$lits}) {
+		my (@lits, @enums, @nrefs) = @mand_attrs;
+		for @lits -> $attr_name {
 			unless( $node.:at_literals.{$attr_name}.defined ) {
 				$node.:_throw_error_message( 'SRT_N_ASDC_MA_VAL_NO_SET', { 'ATNM' => $attr_name } );
 			}
 		}
-		foreach my $attr_name (@{$enums}) {
+		for @enums -> $attr_name {
 			unless( $node.:at_enums.{$attr_name}.defined ) {
 				$node.:_throw_error_message( 'SRT_N_ASDC_MA_VAL_NO_SET', { 'ATNM' => $attr_name } );
 			}
 		}
-		foreach my $attr_name (@{$nrefs}) {
+		for @nrefs -> $attr_name {
 			unless( $node.:at_nrefs.{$attr_name}.defined ) {
 				$node.:_throw_error_message( 'SRT_N_ASDC_MA_VAL_NO_SET', { 'ATNM' => $attr_name } );
 			}
@@ -3167,21 +3155,21 @@ method :_assert_in_node_deferrable_constraints( $node: ) {
 	# 2: Now assert constraints associated with Node-type details given in each 
 	# "Exclusive Attribute Groups List" section of Language.pod.
 
-	if( my $mutex_atgps = %type_info{$TPI_MUTEX_ATGPS} ) {
-		foreach my $mutex_atgp (@{$mutex_atgps}) {
-			my ($mutex_name, $lits, $enums, $nrefs, $is_mandatory) = @{$mutex_atgp};
+	if( my @mutex_atgps = %type_info{$TPI_MUTEX_ATGPS} ) {
+		for @mutex_atgps -> @mutex_atgp {
+			my ($mutex_name, $lits, $enums, $nrefs, $is_mandatory) = @mutex_atgp;
 			my @valued_candidates = ();
-			foreach my $attr_name (@{$lits}) {
+			for @lits -> $attr_name {
 				if( $node.:at_literals.{$attr_name}.defined ) {
 					push( @valued_candidates, $attr_name );
 				}
 			}
-			foreach my $attr_name (@{$enums}) {
+			for @enums -> $attr_name {
 				if( $node.:at_enums.{$attr_name}.defined ) {
 					push( @valued_candidates, $attr_name );
 				}
 			}
-			foreach my $attr_name (@{$nrefs}) {
+			for @nrefs -> $attr_name {
 				if( $node.:at_nrefs.{$attr_name}.defined ) {
 					push( @valued_candidates, $attr_name );
 				}
@@ -3193,7 +3181,7 @@ method :_assert_in_node_deferrable_constraints( $node: ) {
 			}
 			if( scalar( @valued_candidates ) == 0 ) {
 				if( $is_mandatory ) {
-					my @possible_candidates = (@{$lits}, @{$enums}, @{$nrefs});
+					my @possible_candidates = (@lits, @enums, @nrefs);
 					$node.:_throw_error_message( 'SRT_N_ASDC_MUTEX_ZERO_SET', 
 						{ 'ATNMS' => "@possible_candidates", 'MUTEX' => $mutex_name } );
 				}
@@ -3205,26 +3193,26 @@ method :_assert_in_node_deferrable_constraints( $node: ) {
 	# "Local Attribute Dependencies List" section of Language.pod.
 
 	if( my $local_atdps_list = %type_info{$TPI_LOCAL_ATDPS} ) {
-		foreach my $local_atdps_item (@{$local_atdps_list}) {
-			my ($dep_on_lit_nm, $dep_on_enum_nm, $dep_on_nref_nm, $dependencies) = @{$local_atdps_item};
+		for @local_atdps_list -> $local_atdps_item {
+			my ($dep_on_lit_nm, $dep_on_enum_nm, $dep_on_nref_nm, $dependencies) = @local_atdps_item;
 			my $dep_on_attr_nm = $dep_on_lit_nm || $dep_on_enum_nm || $dep_on_nref_nm;
 			my $dep_on_attr_val = $dep_on_lit_nm ?? $node.:at_literals.{$dep_on_lit_nm} ::
 				$dep_on_enum_nm ?? $node.:at_enums.{$dep_on_enum_nm} ::
 				$dep_on_nref_nm ?? $node.:at_nrefs.{$dep_on_nref_nm} :: undef;
-			foreach my $dependency (@{$dependencies}) {
-				my ($lits, $enums, $nrefs, $dep_on_enum_vals, $is_mandatory) = @{$dependency};
+			for @dependencies -> $dependency {
+				my (@lits, @enums, @nrefs, $dep_on_enum_vals, $is_mandatory) = @dependency;
 				my @valued_dependents = ();
-				foreach my $attr_name (@{$lits}) {
+				for @lits -> $attr_name {
 					if( $node.:at_literals.{$attr_name}.defined ) {
 						push( @valued_dependents, $attr_name );
 					}
 				}
-				foreach my $attr_name (@{$enums}) {
+				for @enums -> $attr_name {
 					if( $node.:at_enums.{$attr_name}.defined ) {
 						push( @valued_dependents, $attr_name );
 					}
 				}
-				foreach my $attr_name (@{$nrefs}) {
+				for @nrefs -> $attr_name {
 					if( $node.:at_nrefs.{$attr_name}.defined ) {
 						push( @valued_dependents, $attr_name );
 					}
@@ -3237,8 +3225,8 @@ method :_assert_in_node_deferrable_constraints( $node: ) {
 							'ATNMS' => "@valued_dependents" } );
 					}
 					# If we get here, the tests have passed concerning this $dependency.
-				} elsif( scalar( @{$dep_on_enum_vals} ) > 0 and 
-						!scalar( grep:{ $_ eq $dep_on_attr_val } @{$dep_on_enum_vals} ) ) {
+				} elsif( scalar( @dep_on_enum_vals ) > 0 and 
+						!scalar( grep:{ $_ eq $dep_on_attr_val } @dep_on_enum_vals ) ) {
 					# Not just any dependency value is acceptable for these dependents, and the
 					# dependency has the wrong value for these dependents; the latter must be undef/null.
 					if( scalar( @valued_dependents ) > 0 ) {
@@ -3257,7 +3245,7 @@ method :_assert_in_node_deferrable_constraints( $node: ) {
 					}
 					if( scalar( @valued_dependents ) == 0 ) {
 						if( $is_mandatory ) {
-							my @possible_candidates = (@{$lits}, @{$enums}, @{$nrefs});
+							my @possible_candidates = (@lits, @enums, @nrefs);
 							$node.:_throw_error_message( 'SRT_N_ASDC_LATDP_ZERO_SET', 
 								{ 'DEP_ON' => $dep_on_attr_nm, 'DEP_ON_VAL' => $dep_on_attr_val, 
 								'ATNMS' => "@possible_candidates" } );
@@ -3280,7 +3268,7 @@ method :_assert_parent_ref_scope_deferrable_constraints( $node: ) {
 	# are actually within the visible scope of the current Node.
 
 	if( my %at_nrefs = %type_info{$TPI_AT_NREFS} ) {
-		foreach my $attr_name (%at_nrefs.keys) {
+		for %at_nrefs.keys -> $attr_name {
 			my $given_p_node = $node.:at_nrefs.{$attr_name};
 			if( $given_p_node.defined ) {
 				my $given_p_node_si = $node.get_relative_surrogate_id( $attr_name );
@@ -3321,7 +3309,7 @@ method :_assert_child_comp_deferrable_constraints( $node_or_class: Str $pseudono
 				last; # avoid undef warnings in while expr due to unset $curr_node
 			}
 		}
-		foreach my $parent_node (@parent_nodes) {
+		for @parent_nodes -> $parent_node {
 			push( @parent_node_types, $parent_node.:node_type );
 			push( @child_nodes, @{$parent_node.:prim_child_nrefs} );
 		}
@@ -3336,10 +3324,10 @@ method :_assert_child_comp_deferrable_constraints( $node_or_class: Str $pseudono
 	# Note: %TYPE_CHILD_SI_ATNMS only contains keys for [pseudo-|]Node types that can have primary-child Nodes.
 	if( scalar( %type_child_si.keys ) ) {
 		my %examined_children = ();
-		foreach my $child_node (@child_nodes) {
+		for @child_nodes -> $child_node {
 			my $child_node_type = $child_node.:node_type;
 			if( my $si_atnm = $type_child_si{$child_node_type} ) {
-				my (undef, $lit, $enum, $nref) = @{$si_atnm};
+				my (undef, $lit, $enum, $nref) = @si_atnm;
 				my $hash_key = 
 					$lit ?? $child_node.:at_literals.{$lit} :: 
 					$enum ?? $child_node.:at_enums.{$enum} :: 
@@ -3374,10 +3362,10 @@ method :_assert_child_comp_deferrable_constraints( $node_or_class: Str $pseudono
 	# "Child Quantity List" section of Language.pod.
 
 	if( my $child_quants = %type_info{$TPI_CHILD_QUANTS} ) {
-		foreach my $child_quant (@{$child_quants}) {
-			my ($child_node_type, $range_min, $range_max) = @{$child_quant};
+		for @child_quants -> $child_quant {
+			my ($child_node_type, $range_min, $range_max) = @child_quant;
 			my $child_count = 0;
-			foreach my $child_node (@child_nodes) {
+			for @child_nodes -> $child_node {
 				$child_node.:node_type eq $child_node_type or next;
 				$child_count ++;
 			}
@@ -3403,26 +3391,26 @@ method :_assert_child_comp_deferrable_constraints( $node_or_class: Str $pseudono
 	# "Distinct Child Groups List" section of Language.pod.
 
 	if( my $mudi_atgps = %type_info{$TPI_MUDI_ATGPS} ) {
-		foreach my $mudi_atgp (@{$mudi_atgps}) {
-			my ($mudi_name, $mudi_atgp_subsets) = @{$mudi_atgp};
+		for @mudi_atgps -> $mudi_atgp {
+			my ($mudi_name, $mudi_atgp_subsets) = @mudi_atgp;
 			my %examined_children = ();
-			foreach my $mudi_atgp_subset (@{$mudi_atgp_subsets}) {
-				my ($child_node_type, $lits, $enums, $nrefs) = @{$mudi_atgp_subset};
-				CHILD: foreach my $child_node (@child_nodes) {
+			for @mudi_atgp_subsets -> $mudi_atgp_subset {
+				my ($child_node_type, @lits, @enums, @nrefs) = @mudi_atgp_subset;
+				CHILD: for @child_nodes -> $child_node {
 					$child_node.:node_type eq $child_node_type or next CHILD;
 					my $hash_key = ',';
-					foreach my $attr_name (@{$lits}) {
+					for @lits -> $attr_name {
 						my $val = $child_node.:at_literals.{$attr_name};
 						$val.defined or next CHILD; # null values are always distinct
 						$val ~~ s|,|<comma>|g; # avoid problems from literals containing delim chars
 						$hash_key ~= $val~',';
 					}
-					foreach my $attr_name (@{$enums}) {
+					for @enums -> $attr_name {
 						my $val = $child_node.:at_enums.{$attr_name};
 						$val.defined or next CHILD; # null values are always distinct
 						$hash_key ~= $val~',';
 					}
-					foreach my $attr_name (@{$nrefs}) {
+					for @nrefs -> $attr_name {
 						my $val = $child_node.:at_nrefs.{$attr_name};
 						$val.defined or next CHILD; # null values are always distinct
 						$hash_key ~= $val~','; # stringifies to likes of 'HASH(NNN)'
@@ -3495,41 +3483,35 @@ method build_node( $node: *@args ) {
 	return $container.build_node( @args );
 }
 
-method build_child_node( $node: $node_type, %attrs ) {
-	if( $node_type.meta.isa(Hash) ) {
-		($node_type, $attrs) = @{$node_type}{$NAMED_NODE_TYPE, $NAMED_ATTRS};
-	}
+multi method build_child_node( $node: $node_type, %attrs ) {
 	my $container = $node.get_container() or 
 		$node.:_throw_error_message( 'SRT_N_BUILD_CH_ND_NOT_IN_CONT' );
-	return $container.:_build_node_is_child_or_not( $node_type, $attrs, $node );
+	return $container.:_build_node_is_child_or_not( $node_type, %attrs, $node );
+}
+
+multi method build_child_node( $node: %args ) {
+	return $node.build_child_node_tree( %args{$NAMED_NODE_TYPE}, %args{$NAMED_ATTRS} );
 }
 
 method build_child_nodes( $node: @list ) {
-	$list or return;
-	unless( $list.meta.isa(Array) ) {
-		$list = [ $list ];
-	}
-	foreach my $element (@{$list}) {
-		$node.build_child_node( $element.meta.isa(Array) ?? @{$element} :: $element );
+	for @list -> $element {
+		$node.build_child_node( $element );
 	}
 }
 
-method build_child_node_tree( $node: $node_type, $attrs, $children ) {
-	if( $node_type.meta.isa(Hash) ) {
-		($node_type, $attrs, $children) = @{$node_type}{$NAMED_NODE_TYPE, $NAMED_ATTRS, $NAMED_CHILDREN};
-	}
-	my $new_node = $node.build_child_node( $node_type, $attrs );
-	$new_node.build_child_node_trees( $children );
+multi method build_child_node_tree( $node: $node_type, %attrs, @children ) {
+	my $new_node = $node.build_child_node( $node_type, %attrs );
+	$new_node.build_child_node_trees( @children );
 	return $new_node;
 }
 
+multi method build_child_node_tree( $node: %args ) {
+	return $node.build_child_node_tree( %args{$NAMED_NODE_TYPE}, %args{$NAMED_ATTRS}, %args{$NAMED_CHILDREN} );
+}
+
 method build_child_node_trees( $node: @list ) {
-	$list or return;
-	unless( $list.meta.isa(Array) ) {
-		$list = [ $list ];
-	}
-	foreach my $element (@{$list}) {
-		$node.build_child_node_tree( $element.meta.isa(Array) ?? @{$element} :: $element );
+	for @list -> $element {
+		$node.build_child_node_tree( $element );
 	}
 }
 
