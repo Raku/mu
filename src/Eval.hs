@@ -323,9 +323,12 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
                 indexVal <- evalExp indexExp
                 val' <- enterEvalContext "List" exp
                 let index   = (vCast indexVal :: Integer) -- XXX slicing
-                    list    = concatMap vCast (vCast listVal)
+                    list    = concatMap vCast ls
                     pre     = genericTake index (list ++ repeat VUndef)
                     post    = genericDrop (index + 1) list
+                    ls = case listVal of
+                            VUndef  -> [] -- autovivification
+                            _       -> vCast listVal
                 writeMVal listMVal $ VList (pre ++ [val'] ++ post)
                 retVal val'
             [Syn "{}" [Var name, indexExp], exp] -> do
@@ -334,7 +337,10 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
                 indexMVal <- evalExp indexExp
                 indexVal  <- readMVal indexMVal
                 val' <- enterEvalContext "Scalar" exp
-                let hash    = addToFM (vCast hashVal) indexVal val'
+                let hash = addToFM fm indexVal val'
+                    fm = case hashVal of
+                            VUndef  -> emptyFM -- autovivification
+                            _       -> vCast hashVal
                 writeMVal hashMVal $ VHash $ MkHash hash
                 retVal val'
             _ -> do
@@ -386,6 +392,13 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         val     <- enterEvalContext "List" exp
         -- ignore val
         retVal val
+    "empty" -> do
+        cxt <- asks envContext
+        return $ case cxt of
+            "List"  -> VList []
+            "Array" -> VArray (MkArray [])
+            "Hash"  -> VHash (MkHash emptyFM)
+            _       -> VUndef
     _ -> retError "Unknown syntactic construct" exp
     where
     doSlice :: [Exp] -> [Val] -> [VInt] -> Maybe (Val, [VInt])

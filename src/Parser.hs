@@ -209,7 +209,7 @@ ruleVarDeclaration = rule "variable declaration" $ do
         , parens $ parseVarName `sepEndBy` symbol ","
         ]
     let name = head names -- XXX Wrong
-    exp     <- option (Syn "mval" [Var name, Val VUndef]) $ do
+    exp     <- option (Syn "mval" [Var name, Syn "empty" []]) $ do
         sym <- tryChoice $ map symbol $ words " = := ::= "
         exp <- ruleExpression
         return $ case sym of

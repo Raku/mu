@@ -51,17 +51,17 @@ instance Value VPair where
 instance Value VHash where
     castV = VHash
     vCast (VHash h) = h
-    vCast VUndef = MkHash emptyFM
+    -- vCast VUndef = MkHash emptyFM
     vCast v = MkHash $ vCast v
 
 instance Value (FiniteMap Val Val) where
     vCast (VHash (MkHash h)) = h
-    vCast VUndef = emptyFM
+    -- vCast VUndef = emptyFM
     vCast (VPair p) = listToFM [p]
     vCast x = listToFM $ vCast x
 
 instance Value [VPair] where
-    vCast VUndef = []
+    -- vCast VUndef = []
     vCast (VHash (MkHash h)) = fmToList h
     vCast (VPair p) = [p]
     vCast (VList vs) =
