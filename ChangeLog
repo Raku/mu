@@ -10,7 +10,8 @@
 * Experimental *pugscc* backends generating limited Parrot and Haskell code
 * Refactored the /VSub/ type to support currying 
 * Support for currying: `&foo.assuming(param => 'bar')`
-* Added `-d` and `-f` file test operators
+* New file test primitives: `-d` and `-f`
+* New logical primitive: `?|`
 * Experimental support for `eval_perl5` (not built by default)
 * Experimental Inline support; see `ext/SHA1` for example 
 * New magicals: `$*EXECUTABLE_NAME` and `$*PROGRAM_NAME`
@@ -44,6 +45,7 @@
 * `$!` now has the correct value after `eval`
 * `END {...}` now runs after `die`
 * Hash are now string keys
+* Contextual logicals like `+^` and `~^` are parsed correctly
 
 == Changes for 6.0.12 - March 21, 2005
 

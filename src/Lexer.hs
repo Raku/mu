@@ -91,6 +91,9 @@ symbol s
     aheadSym '-' '>' = False -- XXX hardcode
     aheadSym '!' '~' = False -- XXX hardcode
     aheadSym x   '=' = not (x `elem` "!~+-*&/|.")
+    aheadSym '?' y   = not (y `elem` "&|^")
+    aheadSym '+' y   = not (y `elem` "&|^<>")
+    aheadSym '~' y   = aheadSym '+' y
     aheadSym x   y   = y `elem` ";!" || x /= y
 
 stringLiteral = singleQuoted

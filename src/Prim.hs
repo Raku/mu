@@ -374,6 +374,7 @@ op2 "~"  = op2Str (++)
 op2 "+|" = op2Int (.|.)
 op2 "+^" = op2Int xor
 op2 "~|" = op2Str $ mapStr2Fill (.|.)
+op2 "?|" = op2Bool (||)
 op2 "~^" = op2Str $ mapStr2Fill xor
 op2 "=>" = \x y -> return $ VPair (x, y)
 op2 "cmp"= op2Ord vCastStr
@@ -860,6 +861,7 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Int       left    +^      (Int, Int)\
 \\n   Str       left    ~|      (Str, Str)\
 \\n   Str       left    ~^      (Str, Str)\
+\\n   Str       left    ?|      (Str, Str)\
 \\n   Pair      non     =>      (Any, Any)\
 \\n   Int       non     cmp     (Str, Str)\
 \\n   Int       non     <=>     (Num, Num)\
