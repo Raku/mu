@@ -82,18 +82,42 @@ unPair (Syn "=>" [(Val k), exp]) = (vCast k, exp)
 unPair (Val (VPair (k, v)))             = (vCast k, Val v)
 unPair x                                = error ("Not a pair: " ++ show x)
 
+-- performs a binding and then verifies that it's complete in one go
 bindParams :: [Param] -> [Exp] -> [Exp] -> MaybeError [(Param, Exp)]
-bindParams prms invsExp argsExp = do
-    let (invocants, nameables) = span isInvocant prms
+bindParams params invsExp argsExp = do
+    case bindSomeParams [] params invsExp argsExp of
+        Left errMsg -> Left errMsg
+        Right bound -> verifyBinding params bound
+
+-- verifies that a binding is good to go
+verifyBinding :: [Param] -> [(Param, Exp)] -> MaybeError [(Param, Exp)]
+verifyBinding params binding = do
+    let boundInvs = filter (\x -> isInvocant (fst x)) binding -- bound invocants
+        invocants = takeWhile isInvocant params                  -- expected invocants
+
+    -- Check length of invocant parameters
+    when (length boundInvs /= length invocants) $ do
+        fail $ "Wrong number of invocant parameters: "
+            ++ (show $ length boundInvs) ++ " actual, "
+            ++ (show $ length invocants) ++ " expected"
+    
+    let boundReq  = filter (\x -> isRequired (fst x)) binding -- bound required
+        required  = takeWhile isRequired params                  -- expected required
+
+    -- Check length of required parameters
+    when (length boundReq < length required) $ do
+        fail $ "Insufficient number of required parameters: "
+            ++ (show $ length boundReq) ++ " actual, "
+            ++ (show $ length required) ++ " expected"
+
+    return binding
+
+bindSomeParams :: [(Param, Exp)] -> [Param] -> [Exp] -> [Exp] -> MaybeError [(Param, Exp)]
+bindSomeParams prebound params invsExp argsExp = do
+    let (invocants, nameables) = span isInvocant params
         (invs, args) = if null invocants
             then ([], (invsExp++argsExp))
             else (invsExp, argsExp)
-
-    -- Check length of invocant parameters
-    when (length invs /= length invocants) $ do
-        fail $ "Wrong number of invocant parameters: "
-            ++ (show $ length invs) ++ " actual, "
-            ++ (show $ length invocants) ++ " expected"
 
     -- Bind invs to invocants, pairs to names
     let boundInv                = invocants `zip` invs
@@ -101,12 +125,6 @@ bindParams prms invsExp argsExp = do
         (boundNamed, restNamed, restPrms) = bindNames named nameables
         (params, slurpy)        = break isSlurpy restPrms
         (required, optional)    = span isRequired params
-
-    -- Check length of required parameters
-    when (length positional < length required) $ do
-        fail $ "Insufficient number of required parameters: "
-            ++ (show $ length positional) ++ " actual, "
-            ++ (show $ length required) ++ " expected"
 
     -- Bind positionals to requireds, defaults to optionals
     let (req, opt)  = length required `splitAt` positional
@@ -124,10 +142,10 @@ bindParams prms invsExp argsExp = do
         hasDefaultArray = isJust (find (("@_" ==) . paramName) slurpPos)
                         || null slurpPos
         hasDefaultHash  = isJust (find (("%_" ==) . paramName) slurpNamed)
-        hasDefaultScalar= isJust (find (("$_" ==) . paramName) prms)
+        hasDefaultScalar= isJust (find (("$_" ==) . paramName) params)
 
     boundHash   <- bindHash restNamed (slurpNamed ++ defaultNamed)
     boundArray  <- bindArray restPos (slurpPos ++ defaultPos)
     boundScalar <- return $ defaultScalar `zip` (invs ++ args)
 
-    return $ concat [boundInv, boundNamed, boundReq, boundOpt, boundHash, boundArray, boundScalar]
+    return $ concat [prebound, boundInv, boundNamed, boundReq, boundOpt, boundHash, boundArray, boundScalar]
