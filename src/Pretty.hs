@@ -28,7 +28,7 @@ instance Pretty VStr
 instance Pretty Exp where
     pretty (Val (VError msg (NonTerm pos))) = "Syntax error at " ++ (show pos) ++ msg
     pretty (Val v) = pretty v
-    pretty (Syn x vs) = "{ Syn " ++ pretty x ++ " | " ++ joinList "; " (map pretty vs) ++ " }"
+    pretty (Syn x vs) = "Syn " ++ pretty x ++ " {{ " ++ joinList "; " (map pretty vs) ++ " }}"
     pretty x = show x
 
 instance Pretty Env where
@@ -52,13 +52,13 @@ instance Pretty Val where
     pretty (VRat x) = show $ (fromIntegral $ numerator x) / (fromIntegral $ denominator x)
     pretty (VComplex x) = show x
     pretty (VRef (VList x))
-        | (v:_:_:_:_:_:_:_:_:_:_) <- x
-        = "[" ++ pretty v ++ ", ...]"
+        | not . null . (drop 100) $ x
+        = "[" ++ pretty (head x) ++ ", ...]"
         | otherwise = "[" ++ joinList ", " (map pretty x) ++ "]"
     pretty (VRef x) = "\\(" ++ pretty x ++ ")"
     pretty (VList x)
-        | (v:_:_:_:_:_:_:_:_:_:_) <- x
-        = "(" ++ pretty v ++ ", ...)"
+        | not . null . (drop 100) $ x
+        = "(" ++ pretty (head x) ++ ", ...)"
         | otherwise = "(" ++ joinList ", " (map pretty x) ++ ")"
     pretty (VSub x) = "sub {...}"
     pretty (VBlock x) = "{...}"

@@ -21,6 +21,7 @@ module Internals (
     module System.Random,
     module System.IO,
     module System.IO.Unsafe,
+    module System.Exit,
     module Control.Monad.RWS,
     module Control.Monad.Error,
     module Data.Bits,
@@ -34,6 +35,7 @@ module Internals (
     module Data.Maybe,
     module Data.Complex,
     module Data.FiniteMap,
+    module Data.IORef,
     module Debug.Trace,
     module Text.ParserCombinators.Parsec,
     module Text.ParserCombinators.Parsec.Expr,
@@ -45,6 +47,7 @@ import Cont
 import Data.Dynamic
 import System.Environment
 import System.Random
+import System.Exit
 import System.IO hiding (try)
 import System.IO.Unsafe
 import Control.Monad.RWS
@@ -63,6 +66,7 @@ import Data.Ratio
 import Data.Complex
 import Data.FiniteMap
 import Data.Tree
+import Data.IORef
 import Debug.Trace
 import Text.ParserCombinators.Parsec hiding (parse)
 import Text.ParserCombinators.Parsec.Expr
@@ -78,3 +82,5 @@ instance Eq (a -> b) where
     _ == _ = False
 instance Ord (a -> b) where
     compare _ _ = LT
+instance Show (IORef (FiniteMap String String)) where
+    show f = "{ n/a }"

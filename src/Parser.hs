@@ -20,17 +20,17 @@ ruleProgram :: RuleParser Env
 ruleProgram = rule "program" $ do
     whiteSpace
     many (symbol ";")
-    rv <- option [] ruleStatementList
+    statements <- option [] ruleStatementList
     eof
     env <- getState
-    return $ env { envBody = (Syn ";" rv) }
+    return $ env { envBody = Syn ";" statements }
 
 ruleBlock :: RuleParser Exp
 ruleBlock = rule "block" $ braces $ do
     whiteSpace
     many (symbol ";")
-    rv <- option [] ruleStatementList
-    retSyn ";" rv
+    statements <- option [] ruleStatementList
+    retSyn ";" statements
 
 ruleStatementList :: RuleParser [Exp]
 ruleStatementList = rule "statements" $ choice
@@ -39,14 +39,12 @@ ruleStatementList = rule "statements" $ choice
     , semiSep ruleExpression
     ]
     where
-    nonSep rule = do
-        rv   <- rule
-        rest <- option [] $ do { many (symbol ";"); ruleStatementList }
-        return (rv:rest)
-    semiSep rule = do
-        rv   <- rule
-        rest <- option [] $ do { many1 (symbol ";"); ruleStatementList }
-        return (rv:rest)
+    nonSep = doSep many
+    semiSep = doSep many1
+    doSep count rule = do
+        statement   <- rule
+        rest        <- option [] $ do { count (symbol ";"); ruleStatementList }
+        return (statement:rest)
 
 -- Declarations ------------------------------------------------
 
@@ -60,19 +58,19 @@ ruleSubDeclaration :: RuleParser Exp
 ruleSubDeclaration = rule "subroutine declaration" $ do
     (scope, multi, name) <- try $ do
         scope   <- option SGlobal $ ruleScope
-        multi   <- option False $ do { literal "multi" ; return True }
-        literal "sub"
+        multi   <- option False $ do { symbol "multi" ; return True }
+        symbol "sub"
         name    <- ruleSubName
         return (scope, multi, name)
     pos     <- getPosition
     cxt     <- option "Any" $ ruleBareTrait "returns"
     formal  <- option Nothing $ return . Just =<< parens ruleSubParameters
     body    <- ruleBlock
-    let (fun, names) = extract (body,[])
+    let (fun, names) = extract (body, [])
         params = (maybe [] id formal) ++ map nameToParam names
+    -- Check for placeholder vs formal parameters
     unless (isNothing formal || null names || names == ["$_"] ) $
         fail "Cannot mix placeholder variables with formal parameters"
-    -- Check for placeholder vs formal parameters
     let sub = Sub { isMulti       = multi
                   , subName       = name
                   , subPad        = []
@@ -110,7 +108,7 @@ ruleParamList parse = rule "parameter list" $ do
 
 ruleFormalParam = rule "formal parameter" $ do
     cxt     <- option "" $ ruleContext
-    sigil   <- option "" $ choice . map literal $ words " ? * + ++ "
+    sigil   <- option "" $ choice . map symbol $ words " ? * + ++ "
     name    <- ruleVarName
     let required = (sigil /=) `all` ["?", "+"]
     exp     <- ruleParamDefault required
@@ -206,14 +204,12 @@ litOperators = tightOperators ++ looseOperators
 
 primitiveListFunctions = " not <== any all one none perl eval "
 
-parseExp = parseTerm
-
 parseOp = buildExpressionParser operators parseTerm
 parseLitOp = buildExpressionParser litOperators parseLitTerm
 
 ops f s = [f n | n <- words s]
 
-doApp str args = App str [] args
+doApp str args = App str args []
 
 preOps      = ops $ makeOp1 Prefix "&prefix:" doApp
 postOps     = ops $ makeOp1 Postfix "&postfix:" doApp
@@ -230,11 +226,11 @@ chainSyn    = leftSyn
 -- chainOps    = ops $ makeOpChained
 
 makeOp1 prec sigil con name = prec $ do
-    reservedOp name
+    symbol name
     return $ \x -> con (sigil ++ name) [x]
 
 makeOp2 prec sigil con name = (`Infix` prec) $ do
-    reservedOp name
+    symbol name
     return $ \x y -> con (sigil ++ name) [x,y]
 
 parseParens parse = do
@@ -356,9 +352,15 @@ ternOps _ = []
 parseProgram = do { whiteSpace ; x <- parseOp ; eof ; return x }
 
 runRule :: Env -> (Env -> a) -> RuleParser Env -> String -> a
-runRule env f p str = f $ case ( runParser ruleProgram env "" str ) of
+runRule env f p str = f $ case ( runParser ruleProgram env progName str ) of
     Left err    -> env { envBody = Val $ VError (showErr err) (NonTerm $ errorPos err) }
     Right env'  -> env'
+    where
+    progName
+        | Just Symbol{ symValue = (VStr str) } <- find ((== "$*PROGNAME") . symName) $ envPad env
+        = str
+        | otherwise
+        = "-"
 
 showErr err = 
       showErrorMessages "or" "unknown parse error"

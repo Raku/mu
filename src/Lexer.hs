@@ -23,38 +23,27 @@ perl6Def  = javaStyle
           , P.nestedComments = False
           , P.identStart     = wordAlpha
           , P.identLetter    = wordAny
-          , P.reservedNames  = words $
-                "if then else do while skip"
-          , P.reservedOpNames= words $
-                " . .+ .? .* .+ .() .[] .{} .<<>> .= " ++
-                " ++ -- **  ! + - ~ ? * ** +^ ~^ ?^ \\ " ++
-                " * / % x xx +& +< +> ~& ~<< ~>> " ++
-                " + - ~ +| +^ ~| ~^ " ++
-                " & | ^ " ++
-                " rand sleep abs " ++
-                " => but does cmp <=> .. ^.. ..^ ^..^ " ++
-                " != == < <= > >= ~~ !~ eq ne lt le gt ge =:= " ++
-                " && || ^^ // ?? :: = := ::= += **= xx= " ++
-                " , <== print push any all true not " ++
-                " ==> and or xor err ;"
-          , P.opLetter       = oneOf (concat (P.reservedOpNames perl6Def))
           , P.caseSensitive  = False
           }
 
-wordAlpha   = satisfy (\x -> (isAlpha x || x == '_')) <?> "alphabetic word character"
-wordAny     = satisfy (\x -> (isAlphaNum x || x == '_')) <?> "word character"
+wordAlpha   = satisfy isWordAlpha <?> "alphabetic word character"
+wordAny     = satisfy isWordAny <?> "word character"
+
+isWordAny x = (isAlphaNum x || x == '_')
+isWordAlpha x = (isAlpha x || x == '_')
 
 perl6Lexer = P.makeTokenParser perl6Def
-reservedOp = P.reservedOp perl6Lexer
-integer    = P.integer perl6Lexer
 whiteSpace = P.whiteSpace perl6Lexer
 parens     = P.parens perl6Lexer
-float      = P.float perl6Lexer
 lexeme     = P.lexeme perl6Lexer
 identifier = P.identifier perl6Lexer
 braces     = P.braces perl6Lexer
 brackets   = P.brackets perl6Lexer
-symbol     = P.symbol perl6Lexer
+
+symbol s
+    | isWordAny (last s) = try $ postSpace $ string s
+    | otherwise          = try $ lexeme $ string s
+
 stringLiteral = choice
     [ P.stringLiteral  perl6Lexer
     , singleQuoted
@@ -157,12 +146,14 @@ quotedQuote = do
     return '\''
 
 rule name action = (<?> name) $ lexeme $ action
+
 literalRule name action = (<?> name) $ postSpace $ action
+
 tryRule name action = (<?> name) $ lexeme $ try $ action
 
 ruleScope :: RuleParser Scope
 ruleScope = postSpace $ try $ do
-    scope <- choice $ map string scopes
+    scope <- choice $ map symbol scopes
     return (readScope scope)
     where
     scopes = map (map toLower) $ map (tail . show) $ enumFrom ((toEnum 1) :: Scope)
@@ -172,8 +163,6 @@ ruleScope = postSpace $ try $ do
         = x
         | otherwise
         = SGlobal
-
-literal = postSpace . string
 
 preSpace rule = try $ do
     skipMany1 (satisfy isSpace)
@@ -185,13 +174,13 @@ postSpace rule = try $ do
     return rv
 
 ruleTrait trait = do
-    literal "is"
-    literal trait
+    symbol "is"
+    symbol trait
     identifier
 
 ruleBareTrait trait = do
     choice [ ruleTrait trait
-           , do { literal trait ; identifier }
+           , do { symbol trait ; identifier }
            ]
 
 ruleContext = literalRule "context" $ do

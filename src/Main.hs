@@ -23,51 +23,59 @@ import Parser
 import Help
 import Pretty
 
+main :: IO ()
 main = getArgs >>= run
 
-run (('-':'e':str@(_:_)):args) = doRun str args
-run ("-e":str:args) = doRun str args
-run ("-h":_)        = printHelp
-run (file:args)     = readFile file >>= (`doRun` args)
-run []              = do
+run :: [String] -> IO ()
+run (('-':'e':prog@(_:_)):args) = doRun "-" args prog
+run ("-e":prog:args)            = doRun "-" args prog
+run ("-h":_)                    = printHelp
+run (file:args)                 = readFile file >>= doRun file args
+run []                          = do
     hSetBuffering stdout NoBuffering 
     isTTY <- hIsTerminalDevice stdin
     if isTTY
         then banner >> repLoop
         else do
-            str <- getContents
-            doRun str []
+            prog <- getContents
+            doRun "-" [] prog
 
 repLoop :: IO ()
 repLoop
    = do command <- getCommand
         case command of
-           CmdQuit     -> putStrLn "Leaving pugs."
-           CmdLoad fn  -> load fn
-           CmdEval str -> doEval str [] >> repLoop
-           CmdParse str-> doParse str >> repLoop
+           CmdQuit      -> putStrLn "Leaving pugs."
+           CmdLoad fn   -> load fn
+           CmdEval prog -> doEval [] prog >> repLoop
+           CmdParse prog-> doParse prog >> repLoop
            CmdHelp     -> printHelp >> repLoop
 
-load fn = do
-    return ()
+load fn = return ()
 
-doParse = parse
-parse str = do
+parse = doParse
+eval prog = doEval [] prog
+
+doParse prog = do
     env <- emptyEnv
-    runRule env (putStrLn . pretty) ruleProgram str
+    runRule env (putStrLn . pretty) ruleProgram prog
 
-eval str = doEval str []
+doEval :: [String] -> String -> IO ()
+doEval = runProgramWith (putStrLn . pretty) "<interactive>"
 
-doEval str args = do
+doRun :: String -> [String] -> String -> IO ()
+doRun = runProgramWith (putStr . concatMap vCast . vCast)
+
+runProgramWith :: (Val -> IO ()) -> String -> [String] -> String -> IO ()
+runProgramWith f name args prog = do
     env <- emptyEnv
-    let env' = runRule env id ruleProgram str
-    rv <- (`runReaderT` env') $ do
-        (`runContT` return) $ evaluate (envBody env')
-    putStrLn $ pretty rv
+    let env' = runRule (prepare env) id ruleProgram prog
+    val <- (`runReaderT` env') $ do
+        (`runContT` return) $ do
+            evaluate (envBody env')
+    f val
+    where
+    prepare e = e{ envPad =
+        [ Symbol SGlobal "@*ARGS" (VList $ map VStr args)
+        , Symbol SGlobal "$*PROGNAME" (VStr name)
+        ] ++ envPad e }
 
-doRun str args = do
-    env <- emptyEnv
-    let env' = runRule env id ruleProgram str
-    rv <- (`runReaderT` runRule env id ruleProgram str) $ do
-        (`runContT` return) $ evaluate (envBody env')
-    putStr . concatMap vCast . vCast $ rv

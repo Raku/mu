@@ -12,71 +12,39 @@
 module Monads where
 import Internals
 import AST
+import Context
 
 enterLex :: Pad -> Eval a -> Eval a
-enterLex pad = local (\e -> e { envPad = (pad ++ envPad e) })
+enterLex pad = local (\e -> e{ envPad = (pad ++ envPad e) })
 
-{-
-
-type Exp = ()
-type Cxt = String
-type Symbols = [String]
-type ClassTree = [String]
-data Val = VStr String
-         | VErr VErr
-         deriving (Show, Eq)
-
-instance Show (a -> b) where
-    show f = "sub { ... }"
-instance Eq (Env -> Bool) where
-    _ == _ = False
-
-
-data Env = Env { envContext :: Cxt
-               , envPad     :: Symbols
-               , envCaller  :: Maybe Env
-               , envClasses :: ClassTree
-               , envEval    :: Eval Val
-               , envCC      :: Val -> Eval Val
-               , envBody    :: Exp
-               , envDepth   :: Int
-               , envID      :: Unique
-               }
-
-env = Env { envContext = "List"
-          , envPad = []
-          , envCaller = Nothing
-          , envClasses = []
-          , envEval = undefined
-          , envCC = return
-          , envBody = ()
-          , envDepth = 0
-          , envID = undefined
-          }
-
-{-
-eval exp = do
-    local (\e -> e{ envBody = exp }) $ do
-        return
--}
-
-askDump str = do
-    env <- asks envContext
-    liftIO $ putStrLn $ "Current scope: " ++ str ++ " - Env: " ++ env
+enterContext :: Cxt -> Eval a -> Eval a
+enterContext cxt = local (\e -> e{ envContext = cxt })
 
 main = do
     uniq <- newUnique
-    x <- (`runReaderT` env { envID = uniq }) $ do
+    x <- (`runReaderT` env{ envID = uniq }) $ do
         y <- (`runContT` return) $ blah
         return y
     print x
     return x
 
-data VSub = Sub
-    { subName       :: String
-    , subPad        :: Symbols
-    , subFun        :: Eval Val
-    }
+env = Env { envContext = "List"
+          , envPad = []
+          , envCaller = Nothing
+          , envClasses = initTree
+          , envEval = undefined
+          , envCC = return
+          , envBody = undefined
+          , envDepth = 0
+          , envID = undefined
+          , envDebug = Nothing
+          }
+
+
+askDump str = do
+    env <- asks envContext
+    liftIO $ putStrLn $ "Current scope: " ++ str ++ " - Env: " ++ env
+
 
 enterScope f = do
     uniq <- liftIO $ newUnique
@@ -85,9 +53,10 @@ enterScope f = do
     liftIO $ print (rv)
     -- here we trigger error handler of various sorts
     case rv of
-        VErr (ErrRet f val) -> do
+        VControl (ControlLeave f val) -> do
             env <- ask
-            if f env
+            match <- f env
+            if match
                 then callerReturn 0 val
                 else return rv
         _ -> return rv
@@ -96,11 +65,65 @@ enterScope f = do
     return rv
     -}
 
+enterSub sub@Sub{ subType = typ } action
+    | typ > SubRoutine  = action
+    | otherwise         = do
+        cxt <- asks envContext
+        resetT $ do
+            local (\e -> e{ envPad = (ret cxt:subPad sub) }) $ do
+                action
+    where
+    doReturn [v] = do
+        shiftT $ \_ -> return v
+    ret cxt = Symbol SMy "&prefix:return" (VSub $ retSub cxt)
+    retSub cxt = Sub
+        { isMulti = False
+        , subName = "return"
+        , subType = SubPrim
+        , subPad = []
+        , subAssoc = "pre"
+        , subParams = [ Param
+            { isInvocant = False
+            , isSlurpy = True
+            , isOptional = False
+            , isNamed = False
+            , paramName = "@?0"
+            , paramContext = "Any"
+            , paramDefault = Val VUndef
+            } ]
+        , subReturns = cxt
+        , subFun = Prim doReturn
+        }
+
+{-
 enterSub sub = enterScope $ do
     local (\e -> e { envPad = subPad sub }) $ do
-        subFun sub
+        case subName sub of
+            "inner" -> inner
+            "sub3" -> sub3
+-}
 
-innerSub = Sub "inner" ["$inner"] inner
+innerSub = Sub
+    { isMulti       = False
+    , subName       = "inner"
+    , subType       = SubRoutine
+    , subPad        = [Symbol SMy "$inner" VUndef]
+    , subAssoc      = "left"
+    , subParams     = []
+    , subReturns    = "List"
+    , subFun        = undefined -- XXX
+    }
+
+sub3Sub = Sub
+    { isMulti       = False
+    , subName       = "sub3"
+    , subType       = SubRoutine
+    , subPad        = [Symbol SMy "$inner" VUndef]
+    , subAssoc      = "left"
+    , subParams     = []
+    , subReturns    = "List"
+    , subFun        = undefined -- XXX
+    }
 
 -- enter a lexical context
 
@@ -114,7 +137,7 @@ dumpLex label = do
 blah :: Eval Val
 blah = do
     dumpLex ">init"
-    rv <- enterLex "$x" $ do
+    rv <- enterLex [Symbol SMy "$x" $ VInt 1] $ do
         dumpLex ">lex"
         rv <- enterScope outer
         dumpLex "<lex"
@@ -123,9 +146,9 @@ blah = do
     return rv
 
 outer :: Eval Val
-outer = enterLex "$outer" $ do
+outer = enterLex [Symbol SMy "$outer" $ VInt 2] $ do
     dumpLex ">outer"
-    enterSub innerSub
+    -- enterSub innerSub
     dumpLex "<outer"
     returnScope "y"
     returnScope "c"
@@ -147,6 +170,18 @@ inner = do
     dumpLex ">inner"
     -- now try raising exceptions via multiple delimiting
     -- fail "foo"
+    -- enterSub sub3Sub
+    returnScope "aihsd"
+    -- returnScope "foo"
+    -- env <- caller 2
+    -- throwErr $ ErrStr "test"
+    -- (envShift env) $ \r -> return $ VStr "out1"
+
+sub3 :: Eval Val
+sub3 = do
+    dumpLex ">sub3"
+    -- now try raising exceptions via multiple delimiting
+    -- fail "foo"
     callerReturn 1 (VStr "happy")
     -- returnScope "foo"
     -- env <- caller 2
@@ -158,19 +193,13 @@ throwErr :: (MonadIO m) => VErr -> m a
 throwErr = liftIO . throwIO . DynException . toDyn
 -}
 
+
 callerReturn :: Int -> Val -> Eval Val
 callerReturn n v
     | n == 0 =  do
         shiftT $ \r -> return v
     | otherwise = do
         env <- caller n
-        shiftT $ \r -> return $ VErr $ ErrRet (return . (==) (envID env) . envID) v
+        shiftT $ \r -> return $ VControl $ ControlLeave (return . (==) (envID env) . envID) v
 
 returnScope = callerReturn 0 . VStr
-
-data VErr = ErrStr String
-          | ErrRet (Env -> Eval Bool) Val
-    deriving (Typeable, Show, Eq)
-
-
--}

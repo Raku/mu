@@ -26,39 +26,47 @@ op0 "^"  = opJuncOne
 op0 "|"  = opJuncAny
 op0 s    = \x -> VError ("unimplemented listOp: " ++ s) (Val $ VList x)
 
-op1 :: Ident -> (forall a. Value a => a) -> Eval Val
+op1 :: Ident -> Val -> Eval Val
 op1 "!"    = return . fmapVal not
 op1 "+"    = return . op1Numeric id
 op1 "-"    = return . op1Numeric negate
-op1 "~"    = return . VStr
-op1 "?"    = return . VBool
-op1 "*"    = return . VList
-op1 "**"   = return . VList . map (id $!)
-op1 "+^"   = return . VInt . (toInteger . (complement :: Word -> Word))
-op1 "~^"   = return . VStr . mapStr complement
+op1 "~"    = return . VStr . vCast
+op1 "?"    = return . VBool . vCast
+op1 "*"    = return . VList . vCast
+op1 "**"   = return . VList . map (id $!) . vCast
+op1 "+^"   = return . VInt . (toInteger . (complement :: Word -> Word)) . vCast
+op1 "~^"   = return . VStr . mapStr complement . vCast
 op1 "?^"   = op1 "!"
 op1 "\\"   = return . VRef
 op1 "..."  = return . op1Range
 op1 "not"  = op1 "!"
-op1 "any"  = return . opJuncAny
-op1 "all"  = return . opJuncAll
-op1 "one"  = return . opJuncOne
-op1 "none" = return . VJunc . Junc JNone emptySet . mkSet
+op1 "any"  = return . opJuncAny . vCast
+op1 "all"  = return . opJuncAll . vCast
+op1 "one"  = return . opJuncOne . vCast
+op1 "none" = return . VJunc . Junc JNone emptySet . mkSet . vCast
 op1 "perl" = return . VStr . (pretty :: Val -> VStr)
-op1 "eval" = opEval
-op1 "rand" = \(x :: VNum) -> return $ VNum $ unsafePerformIO $ getStdRandom (randomR (0, if x == 0 then 1 else x))
+op1 "eval" = opEval . vCast
+
+op1 "return" = \v -> return (VError "cannot return outside a subroutine" (Val v))
+
+-- Side-effectful function: how far into Monadic IO shall we go?
+op1 "rand"  = \v -> do
+    let x = vCast v
+    rand <- liftIO $ randomRIO (0, if x == 0 then 1 else x)
+    return $ VNum rand
+op1 "print" = \v -> do
+    liftIO . putStr . concatMap vCast . vCast $ v
+    return $ VUndef
+
 op1 s      = return . (\x -> VError ("unimplemented unaryOp: " ++ s) (Val x))
 
 opEval :: String -> Eval Val
 opEval str = do
     env <- ask
-    let rv = ( runParser ruleProgram env "" str )
-    return $ VUndef
-    {-
-    case rv of
-        Left err    -> return $ VError (showErr err) (NonTerm $ errorPos err)
-        Right exp   -> asks evl >>= (($) exp)
--}
+    let env' = runRule env id ruleProgram str
+    local (\_ -> env') $ do
+        evl <- asks envEval
+        evl (envBody env')
 
 mapStr :: (Word8 -> Word8) -> [Word8] -> String
 mapStr f = map (chr . fromEnum . f)
@@ -191,9 +199,9 @@ primOp sym assoc prms ret = Symbol SOur name sub
     where
     name = '&':'*':fixity ++ ':':sym
     sub  = VSub $ Sub { isMulti     = True
-                      , subName     = name
+                      , subName     = sym
                       , subPad      = []
-                      , subType     = SubRoutine
+                      , subType     = SubPrim
                       , subAssoc    = assoc
                       , subParams   = prms
                       , subReturns  = ret
@@ -222,13 +230,13 @@ primDecl str = primOp sym assoc (reverse $ foldr foldParam [] prms) ret
     takeWord = takeWhile isAlphaNum . dropWhile (not . isAlphaNum)
     prms = map takeWord prms'
 
-doFoldParam cxt [] []       = [buildParam cxt "" "$a" (Val VUndef)]
+doFoldParam cxt [] []       = [buildParam cxt "" "$?1" (Val VUndef)]
 doFoldParam cxt [] (p:ps)   = (buildParam cxt "" (strInc $ paramName p) (Val VUndef):p:ps)
 doFoldParam cxt (s:name) ps = (buildParam cxt [s] name (Val VUndef) : ps)
 
 foldParam :: String -> Params -> Params
-foldParam "List"    = doFoldParam "List" "*@x"
-foldParam "?Num=1"  = \ps -> (buildParam "Num" "?" "$x" (Val $ VNum 1):ps)
+foldParam "List"    = doFoldParam "List" "*@?0"
+foldParam "?Num=1"  = \ps -> (buildParam "Num" "?" "$?1" (Val $ VNum 1):ps)
 foldParam x         = doFoldParam x ""
 
 -- XXX -- Junctive Types -- XXX --
@@ -250,6 +258,8 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Str       pre     perl    (List)\
 \\n   Any       pre     eval    (Str)\
 \\n   Num       pre     rand    (?Num=1)\
+\\n   Action    pre     print   (List)\
+\\n   Any       pre     return  (Any)\
 \\n   Junction  pre     any     (List)\
 \\n   Junction  pre     all     (List)\
 \\n   Junction  pre     one     (List)\

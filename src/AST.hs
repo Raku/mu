@@ -104,7 +104,7 @@ instance Value VStr where
     castV = VStr
     vCast VUndef        = ""
     vCast (VStr s)      = s
-    vCast (VBool b)     = if b then "1" else "0"
+    vCast (VBool b)     = if b then "1" else ""
     vCast (VInt i)      = show i
     vCast (VRat r)      = showNum $ realToFrac r
     vCast (VNum n)      = showNum n
@@ -205,9 +205,16 @@ data Val
     | VRef      Val
     | VPair     Val Val
     | VSub      VSub
-    | VBlock    Exp
+    | VBlock    VBlock
     | VJunc     VJunc
     | VError    VStr Exp
+    | VControl  VControl
+    deriving (Show, Eq, Ord)
+
+type VBlock = Exp
+data VControl
+    = ControlLeave (Env -> Eval Bool) Val
+    | ControlExit ExitCode
     deriving (Show, Eq, Ord)
 
 data VJunc = Junc { juncType :: JuncType
@@ -218,7 +225,7 @@ data VJunc = Junc { juncType :: JuncType
 data JuncType = JAny | JAll | JNone | JOne
     deriving (Show, Eq, Ord)
 
-data SubType = SubMethod | SubRoutine | SubBlock
+data SubType = SubMethod | SubRoutine | SubBlock | SubPrim
     deriving (Show, Eq, Ord)
 
 data Param = Param
@@ -245,16 +252,6 @@ data VSub = Sub
     , subFun        :: Exp
     }
     deriving (Show, Eq, Ord)
-
-data Trait
-    = TScalar   Val
-    | TArray    Val
-    | THash     Val
-
-{-
-data JuncType = JAll | JAny | JOne | JNone
-    deriving (Show, Eq, Ord)
--}
 
 instance (Ord a) => Ord (Set a) where
     compare x y = compare (setToList x) (setToList y)
@@ -333,9 +330,11 @@ data Env = Env { envContext :: Cxt
                , envClasses :: ClassTree
                , envEval    :: Exp -> Eval Val
                , envCC      :: Val -> Eval Val
+               , envCaller  :: Maybe Env
                , envBody    :: Exp
                , envDepth   :: Int
                , envID      :: Unique
+               , envDebug   :: Maybe (IORef (FiniteMap String String))
                } deriving (Show, Eq)
 
 type Pad = [Symbol]

@@ -13,6 +13,7 @@
 
 module Eval where
 import Internals
+import Prelude hiding ( exp )
 
 import AST
 import Junc
@@ -24,40 +25,53 @@ import Pretty
 
 emptyEnv :: (MonadIO m) => m Env
 emptyEnv = do
-    uniq <- liftIO newUnique
+    ref  <- liftIO $ newIORef emptyFM
+    uniq <- liftIO $ newUnique
     return $ Env
         { envContext = "List"
         , envPad     = initSyms
         , envClasses = initTree
         , envEval    = evaluate
         , envCC      = return
+        , envCaller  = Nothing
         , envDepth   = 0
         , envID      = uniq
         , envBody    = Val VUndef
+        , envDebug   = Just ref -- Set to "Nothing" to disable debugging
         }
 
 -- Evaluation ---------------------------------------------------------------
 
-debug :: (Pretty a) => String -> a -> Eval ()
-debug str a = do
-    liftIO $ putStrLn ("*** " ++ str ++ ": " ++ pretty a)
+-- debug :: (Pretty a) => String -> String -> a -> Eval ()
+debug key fun str a = do
+    rv <- asks envDebug
+    case rv of
+        Nothing -> return ()
+        Just ref -> liftIO $ do
+            fm <- readIORef ref
+            let val = fun $ lookupWithDefaultFM fm "" key
+            writeIORef ref (addToFM fm key val)
+            putStrLn ("***" ++ val ++ str ++ ": " ++ pretty a)
 
 evaluate :: Exp -> Eval Val
+evaluate (Val (VSub sub)) = do
+    pad <- asks envPad
+    return $ VSub sub{ subPad = pad } -- closure!
+evaluate (Val val) = return val
 evaluate exp = do
-    debug "Evaluating" exp
-    val <- local (\e -> e { envBody = exp }) reduce
-    return $ case val of
+    debug "indent" (' ':) "Evl" exp
+    exp' <- local (\e -> e{ envBody = exp }) reduce
+    debug "indent" (tail) " Ret" exp'
+    return $ case exp' of
         Val v       -> v
-        otherwise   -> VError "Invalid expression" exp
+        otherwise   -> VError "Invalid expression" exp'
 
-evalEnv :: Exp -> Eval Val
-evalEnv exp = do
+evalExp :: Exp -> Eval Val
+evalExp exp = do
     evl <- asks envEval
     evl exp
 
-evalEnvWithContext :: Cxt -> Exp -> Eval Val
-evalEnvWithContext cxt exp = do
-    local (\e -> e { envContext = cxt }) $ evalEnv exp
+enterEvalContext cxt = enterContext cxt . evalExp
 
 -- Reduction ---------------------------------------------------------------
 
@@ -69,20 +83,25 @@ reduce = do
 retVal :: Val -> Eval Exp
 retVal val = return $ Val val
 
+reduceStatements :: [Exp] -> Eval Exp
 reduceStatements [] = retVal VUndef
 reduceStatements [exp] = do
-    val <- evalEnv exp
+    val <- evalExp exp
     retVal val
 reduceStatements (exp:rest)
-    | Syn name [Var var _, exp'] <- exp
-    , name == ":=" || name == "::=" 
-    = do
-        val <- evalEnvWithContext (cxtOfSigil (head var)) exp
-        case val of
-            VError _ _  -> retVal val
-            _           -> enterLex [Symbol SMy var val] $ reduceStatements rest
-    | otherwise
-    = do { evalEnvWithContext "Any" exp; reduceStatements rest }
+    | Syn syn [Var var _, exp'] <- exp
+    , (syn == ":=" || syn == "::=") = do
+        val <- enterContext (cxtOfSigil $ head var) (evalExp exp)
+        processVal val $ do
+            enterLex [Symbol SMy var val] $ reduceStatements rest
+    | otherwise = do
+        val <- enterContext "Any" $ evalExp exp
+        processVal val $ do
+            reduceStatements rest
+    where
+    processVal val action = case val of
+        VError _ _  -> retVal val
+        _           -> action
 
 doReduce :: Env -> Exp -> Eval Exp
 
@@ -102,28 +121,28 @@ doReduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         reduceStatements (global ++ local)
     ":=" -> do
         let [Var var _, exp] = exps
-        val     <- evalEnv exp
+        val     <- evalExp exp
         retVal val
     "::=" -> do -- XXX wrong
         let [Var var _, exp] = exps
-        val     <- evalEnv exp
+        val     <- evalExp exp
         retVal VUndef -- XXX wrong
     "=>" -> do
         let [keyExp, valExp] = exps
-        key     <- evalEnv keyExp
-        val     <- evalEnv valExp
+        key     <- enterEvalContext "Scalar" keyExp
+        val     <- evalExp valExp
         retVal $ VPair key val
     "," -> do
-        vals    <- mapM (evalEnvWithContext "List") exps
+        vals    <- mapM (enterEvalContext "List") exps
         retVal $ VList vals
     "[]" -> do
         let (listExp:rangeExp:errs) = exps
-        list    <- evalEnvWithContext "List" listExp
-        range   <- evalEnvWithContext "List" rangeExp
+        list    <- enterEvalContext "List" listExp
+        range   <- enterEvalContext "List" rangeExp
         let slice = unfoldr (doSlice errs $ vCast list) (map vCast $ vCast range)
         retVal $ VList slice
     "gather" -> do
-        val     <- evalEnvWithContext "List" exp
+        val     <- enterEvalContext "List" exp
         -- ignore val
         retVal val
     _ -> do
@@ -201,20 +220,20 @@ doReduce _ other = return other
 
 chainFun :: Params -> Exp -> Params -> Exp -> [Val] -> Eval Val
 chainFun p1 f1 p2 f2 (v1:v2:vs) = do
-    val <- applyFun (chainArgs p1 [v1, v2]) f1
+    val <- applyExp (chainArgs p1 [v1, v2]) f1
     case val of
         VBool False -> return val
-        _           -> applyFun (chainArgs p2 (v2:vs)) f2
+        _           -> applyExp (chainArgs p2 (v2:vs)) f2
     where
     chainArgs prms vals = map chainArg (prms `zip` vals)
     chainArg (p, v) = ApplyArg (paramName p) v False
 
-applyFun :: [ApplyArg] -> Exp -> Eval Val
-applyFun bound (Prim f)
+applyExp :: [ApplyArg] -> Exp -> Eval Val
+applyExp bound (Prim f)
     = f [ argValue arg | arg <- bound, (argName arg !! 1) /= '_' ]
-applyFun bound body = do
-    -- XXX - resetT here
-    enterLex formal $ evalEnv body
+applyExp bound body = do
+    -- XXX - resetT here -- XXX - Wrong -- XXX - FIXME
+    enterLex formal $ evalExp body
     where
     formal = filter (not . null . symName) $ map argNameValue bound
     argNameValue (ApplyArg name val _) = Symbol SMy name val
@@ -227,13 +246,15 @@ apply sub invs args = do
 -- XXX - faking application of lexical contexts
 -- XXX - what about defaulting that depends on a junction?
 doApply :: Env -> VSub -> [Exp] -> [Exp] -> Eval Exp
-doApply env@Env{ envClasses = cls } Sub{ subParams = prms, subFun = fun } invs args =
+doApply env@Env{ envClasses = cls } sub@Sub{ subParams = prms, subFun = fun } invs args =
     case bindParams prms invs args of
         Left errMsg     -> retVal $ VError errMsg (Val VUndef)
         Right bindings  -> do
             bound <- doBind bindings
-            retVal =<< juncApply (`applyFun` fun) bound
-            -- juncApply eval (reverse . fst $ foldl doBind ([],env) bindings)
+            val <- (`juncApply` bound) $ \realBound -> do
+                enterSub sub $ do
+                    applyExp realBound fun
+            retVal val
     where
     doBind :: [(Param, Exp)] -> Eval [ApplyArg]
     doBind [] = return []
@@ -245,7 +266,7 @@ doApply env@Env{ envClasses = cls } Sub{ subParams = prms, subFun = fun } invs a
             doBind rest
         return (arg:restArgs)
     expToVal Param{ isSlurpy = slurpy, paramContext = cxt } exp = do
-        val <- evalEnvWithContext cxt exp
+        val <- enterEvalContext cxt exp
         return (val, (slurpy || isCollapsed cxt))
     isCollapsed cxt
         | isaType cls "Bool" cxt        = True

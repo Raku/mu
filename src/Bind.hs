@@ -59,7 +59,7 @@ doIndex v n = Syn "[]" [v, Val $ VInt n]
 doBindArray :: Exp -> ([(Param, Exp)], VInt) -> (Param, Char) -> MaybeError ([(Param, Exp)], VInt)
 doBindArray _ (xs, -1) (p, '@') = return (((p, emptyArrayExp):xs), -1)
 doBindArray _ (xs, -1) (p, '$') = fail $ "Slurpy array followed by slurpy scalar: " ++ show p
-doBindArray v (xs, n)  (p, '@') = return (((p, doSlice v [n..99]):xs), -1)
+doBindArray v (xs, n)  (p, '@') = return (((p, doSlice v [n..]):xs), -1)
 doBindArray v (xs, n)  (p, '$') = return (((p, doIndex v n):xs), n+1)
 
 bindEmpty :: Param -> MaybeError (Param, Exp)

@@ -1,3 +1,17 @@
+[Changes for 6.0.5 - February 15, 2005]
+
+* The "rand" primitive.
+* Taking references of junctions no longer create a junction of references.
+* Illegal divisions are caught. (viirya)
+* Chained comparison for four or more terms now works. (tmoertel)
+* Collapsing for JuncOne into two sets: the "none" set and the "one" set.
+* The evaluator now prints some helpful debugging messages.
+* New parser logic merged from Michaud and Palmer's Perl6.grammar.
+* Extra semicolon and whitespace in blocks are dealt with. (viirya)
+* Space around punctiation operators is now optional.
+* The Eval monad now supports shift/reset/callcc, lexical and dynamic scopes.
+* Improved pretty-printing code for syntactic constructs.
+
 [Changes for 6.0.4 - February 12, 2005]
 
 * The "eval" primitive.
