@@ -1,6 +1,6 @@
 use v6;
 
-say "1..5";
+say "1..7";
 
 if ('a' x 3 eq 'aaa')       { say "ok 1" } else { say "not ok 1" }
 if ('ab' x 4 eq 'abababab') { say "ok 2" } else { say "not ok 2" }
