@@ -21,10 +21,10 @@ for(-1, -50, -60.0, -99.99) {
 }
 
 for(0, 0.0, 1, 50, 60.0, 99.99) {
-    eval_is('abs()', $_, 'got the right absolute value for $_='~$_);
-    eval_is('ref abs()', ref $_, 'got the right data type('~ref($_)~') of absolute value for $_='~$_);
+    is(abs(), $_, 'got the right absolute value for $_='~$_);
+    is(ref abs(), ref $_, 'got the right data type('~ref($_)~') of absolute value for $_='~$_);
 }
 for(-1, -50, -60.0, -99.99) {
-    eval_is('abs()', -$_, 'got the right absolute value for $_='~$_);
-    eval_is('ref abs()', ref $_, 'got the right data type('~ref($_)~') of absolute value for $_='~$_);
+    is(abs(), -$_, 'got the right absolute value for $_='~$_);
+    is(ref abs(), ref $_, 'got the right data type('~ref($_)~') of absolute value for $_='~$_);
 }
