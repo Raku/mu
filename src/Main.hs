@@ -30,11 +30,56 @@ main :: IO ()
 main = do
     hSetBuffering stdout NoBuffering
     args <- getArgs
-    run $ concatMap procArg args
+    run $ concatMap procArg (sortArgs (foldl (++) [] (map canonicalizeOpt args)))
     where
-    -- procArg ('-':'e':prog@(_:_)) = ["-e", prog]
-    -- procArg ('-':'d':rest@(_:_)) = ["-d", ('-':rest)]
     procArg x = [x]
+
+    -- XXX Ugly code that needs to be worked over
+    canonicalizeOpt('-':'c':[])      = ["-c"]
+    canonicalizeOpt('-':'d':[])      = ["-d"]
+    canonicalizeOpt('-':'e':[])      = ["-e"]
+    canonicalizeOpt('-':'h':[])      = ["-h"]
+    canonicalizeOpt("--help")        = ["-h"]
+    canonicalizeOpt('-':'l':[])      = ["-l"]
+    canonicalizeOpt('-':'v':[])      = ["-v"]
+    canonicalizeOpt("--version")     = ["-v"]
+    canonicalizeOpt('-':'w':[])      = ["-w"]
+    canonicalizeOpt('-':'c':rest)    = canonicalizeOpt("-c") ++ canonicalizeOpt('-':rest)
+    canonicalizeOpt('-':'d':rest)    = canonicalizeOpt("-d") ++ canonicalizeOpt('-':rest)
+    canonicalizeOpt('-':'e':frag)    = ["-e",frag]
+    canonicalizeOpt('-':'l':rest)    = canonicalizeOpt("-l") ++ canonicalizeOpt('-':rest)
+    canonicalizeOpt('-':'w':rest)    = canonicalizeOpt("-w") ++ canonicalizeOpt('-':rest)
+    canonicalizeOpt(a)               = [a]
+
+{-
+
+  sortArgs enforces a canonical order of command line switches.
+  Currently this is:
+  
+    (-h -v -V) (-I) (-d) (-w) (-c) (-l -0 -e other)
+    
+  This makes pattern matching more convenient
+
+-}
+
+-- Schwartzian transform ;))
+sortArgs :: [String] -> [String]
+sortArgs args = _unpackArgs (_sortArgs (_packArgs args))
+  where
+    _packArgs args   = map (\ a -> (argRank a,a)) args
+    _sortArgs args   = sortBy (\ (a,_) (b,_) -> compare a b) args
+    _unpackArgs args = map (\ (_,b) -> b ) args
+    argRank("-h") = -1
+    argRank("-v") = -1
+    argRank("-V") = -1
+    argRank("-I") = 0
+    argRank("-d") = 1
+    argRank("-w") = 2
+    argRank("-c") = 3
+    argRank("-l") = 100  -- translated into Perl code
+    argRank("-0") = 100  -- translated into Perl code
+    argRank("-e") = 100  -- translated into Perl code
+    argRank(_)    = 100  -- Perl code fragment or filename or whatever
 
 run :: [String] -> IO ()
 run (("-l"):rest)                 = run rest
@@ -42,21 +87,21 @@ run (("-d"):rest)                 = run rest
 run (("-w"):rest)                 = run rest
 
 run ("-h":_)                    = printCommandLineHelp
-run ("--help":_)                = printCommandLineHelp
+-- run ("--help":_)                = printCommandLineHelp
 run ("-V":_)                    = printConfigInfo
 run ("-v":_)                    = banner
 run ("--version":_)             = banner
 run ("-c":"-e":prog:_)          = doCheck "-e" prog
-run ("-e":prog:"-c":_)          = doCheck "-e" prog
+-- run ("-e":prog:"-c":_)          = doCheck "-e" prog
 run ("-c":file:_)               = readFile file >>= doCheck file
 run (("-e"):prog:args)          = doRun "-e" args prog
 
 run (('-':'I':_):rest)          = run rest
-run (('-':'c':rest@(_:_)):args) = run (("-c"):('-':rest):args)
-run (('-':'d':rest@(_:_)):args) = run (("-d"):('-':rest):args)
-run (('-':'e':prog@(_:_)):args) = run (("-e"):prog:args)
-run (('-':'l':xs):args)         = run (("-l"):('-':xs):args)
-run (('-':'w':xs):args)         = run (("-w"):('-':xs):args)
+--run (('-':'c':rest@(_:_)):args) = run (("-c"):('-':rest):args)
+--run (('-':'d':rest@(_:_)):args) = run (("-d"):('-':rest):args)
+--run (('-':'e':prog@(_:_)):args) = run (("-e"):prog:args)
+--run (('-':'l':xs):args)         = run (("-l"):('-':xs):args)
+--run (('-':'w':xs):args)         = run (("-w"):('-':xs):args)
 
 -- XXX clean up further
 run (('-':'C':backend):"-e":prog:_) = doCompile backend "-e" prog
