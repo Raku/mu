@@ -33,7 +33,7 @@ versnum    = VERSION
 date	   = DATE
 version    = name ++ ", version " ++ versnum ++ ", " ++ date
 copyright  = "Copyright 2005 by Autrijus Tang"
-revision   = "$Rev$"
+revision   = ('r':) . init . init . drop 6 $ "$Rev$"
 disclaimer =
     "This software is distributed under the terms of the " ++
     "GNU Public Licence.\n" ++
@@ -53,7 +53,7 @@ banner = putStrLn $ unlines
     , "||====' ||__|| ||__||  __||   " ++ copyright
     , "||      `===='  ___|| `==='   World Wide Web: http://autrijus.org/pugs "
     , "||             `===='         Report bugs to: autrijus@autrijus.org    "
-    , "==" ++ versionFill 31 ++        " ====================================="
+    , "==" ++ versionFill 27 ++        " ====================================="
     ]
 
 intro :: IO ()
