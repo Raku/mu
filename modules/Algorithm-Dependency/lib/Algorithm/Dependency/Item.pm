@@ -1,18 +1,15 @@
 #!pugs
 use v6;
 
-package Algorithm::Dependency::Item;
+require Algorithm::Dependency-0.0.1;
+
+class Algorithm::Dependency::Item-0.0.1;
 
 # Algorithm::Dependency::Item implements an object for a single item
 # in the database, with a unique id.
 
-use Algorithm::Dependency ();
-
-use vars qw{$VERSION};
-BEGIN {
-	$VERSION = '1.03';
-}
-
+has $:id;
+has @:depends;
 
 
 
@@ -27,8 +24,8 @@ sub new {
 }
 
 # Get the values
-sub id { $_[0].{id} }
-sub depends { @{$_[0].{depends}} }
+sub id { $_[0].id }
+sub depends { @{$_[0].depends} }
 
 1;
 

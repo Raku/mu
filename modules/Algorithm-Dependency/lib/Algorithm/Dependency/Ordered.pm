@@ -1,7 +1,9 @@
 #!pugs
 use v6;
 
-package Algorithm::Dependency::Ordered;
+require Algorithm::Dependency-0.0.1;
+
+class Algorithm::Dependency::Ordered-0.0.1 is Algorithm::Dependency;
 
 # This package implements a version of Algorithm::Dependency where the order
 # of the schedule is important.
@@ -15,20 +17,13 @@ package Algorithm::Dependency::Ordered;
 # dependencies. For that reason, the schedule method will return an error
 # if a circular dependency is found.
 
-use base 'Algorithm::Dependency';
-
-use vars qw{$VERSION};
-BEGIN {
-	$VERSION = '1.03';
-}
-
 
 
 
 
 sub schedule {
 	my $self = shift;
-	my $source = $self.{source};
+	my $source = $self.source;
 	my @items = @_ or return undef;
 	return undef if grep { ! $source.item($_) } @items;
 
@@ -39,7 +34,7 @@ sub schedule {
 	my @queue = $rv ? @$rv : return undef;
 
 	# Get a working copy of the selected index
-	my %selected = %{ $self.{selected} };
+	my %selected = %{ $self.selected };
 
 	# If at any time we check every item in the stack without finding
 	# a suitable candidate for addition to the schedule, we have found
@@ -55,12 +50,12 @@ sub schedule {
 		return undef if $id eq $error_marker;
 
 		# Are there any un-met dependencies
-		my $Item = $self.{source}.item( $id ) or return undef;
+		my $Item = $self.source.item( $id ) or return undef;
 		my @missing = grep { ! $selected{$_} } $Item.depends;
 
 		# Remove orphans if we are ignoring them
-		if ( $self.{ignore_orphans} ) {
-			@missing = grep { $self.{source}.item($_) } @missing;
+		if ( $self.ignore_orphans ) {
+			@missing = grep { $self.source.item($_) } @missing;
 		}
 
 		if ( @missing ) {

@@ -6,7 +6,7 @@ use Pugs::MakeMaker;
 
 WriteMakefile(
 	'NAME'         => 'Algorithm::Dependency',
-	'VERSION_FROM' => 'lib/Algorithm/Dependency.pm',
+    'VERSION' => '0.0.1',
 	'AUTHOR'     => 'Adam Kennedy (cpan@ali.as)',
 	'ABSTRACT'   => 'Create extensible and optimized dependency algorithms',
 	'PREREQ_PM'    => {

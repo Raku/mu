@@ -4,7 +4,6 @@ use v6;
 # Ordered dependency trees
 
 use lib ();
-use UNIVERSAL 'isa';
 use File::Spec::Functions ':ALL';
 BEGIN {
 	$| = 1;
@@ -44,8 +43,8 @@ ok( eval {$CSource.load;}, "Complex source loads" );
 my $BDep = Algorithm::Dependency::Ordered.new( source => $BSource, selected => ['B'] );
 ok( $BDep, "Algorithm::Dependency::Ordered.new returns true" );
 ok( ref $BDep, "Algorithm::Dependency::Ordered.new returns reference" );
-ok( isa( $BDep, 'Algorithm::Dependency::Ordered'), "Algorithm::Dependency::Ordered.new returns an Algorithm::Dependency::Ordered" );
-ok( isa( $BDep, 'Algorithm::Dependency'), "Algorithm::Dependency::Ordered.new returns an Algorithm::Dependency" );
+isa_ok( $BDep, 'Algorithm::Dependency::Ordered', "Algorithm::Dependency::Ordered.new returns an Algorithm::Dependency::Ordered" );
+isa_ok( $BDep, 'Algorithm::Dependency', "Algorithm::Dependency::Ordered.new returns an Algorithm::Dependency" );
 ok( $BDep.source, "Dependency.source returns true" );
 ok( $BDep.source eq $BSource, "Dependency.source returns the original source" );
 ok( $BDep.item('A'), "Dependency.item returns true" );
@@ -89,7 +88,7 @@ foreach my $data ( [
 my $CDep = Algorithm::Dependency::Ordered.new( source => $CSource );
 ok( $CDep, "Algorithm::Dependency::Ordered.new returns true" );
 ok( ref $CDep, "Algorithm::Dependency::Ordered.new returns reference" );
-ok( isa( $CDep, 'Algorithm::Dependency::Ordered'), "Algorithm::Dependency::Ordered.new returns correctly" );
+isa_ok( $CDep, 'Algorithm::Dependency::Ordered', "Algorithm::Dependency::Ordered.new returns correctly" );
 
 # Test each of the dependencies
 foreach my $data ( [
@@ -131,7 +130,7 @@ foreach my $data ( [
 $CDep = Algorithm::Dependency::Ordered.new( source => $CSource, selected => [qw{F H J N R P}] );
 ok( $CDep, "Algorithm::Dependency::Ordered.new returns true" );
 ok( ref $CDep, "Algorithm::Dependency::Ordered.new returns reference" );
-ok( isa( $CDep, 'Algorithm::Dependency::Ordered'), "Algorithm::Dependency::Ordered.new returns correctly" );
+isa_ok( $CDep, 'Algorithm::Dependency::Ordered', "Algorithm::Dependency::Ordered.new returns correctly" );
 
 # Test each of the dependencies
 foreach my $data ( [

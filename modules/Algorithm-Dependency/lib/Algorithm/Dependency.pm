@@ -1,18 +1,16 @@
 #!pugs
 use v6;
 
-package Algorithm::Dependency;
+require Algorithm::Dependency::Item-0.0.1;
+require Algorithm::Dependency::Source-0.0.1;
+
+class Algorithm::Dependency-0.0.1;
 
 # Implements the basic, non-order significant dependency algorithm
 
-use UNIVERSAL 'isa';
-use Algorithm::Dependency::Item   ();
-use Algorithm::Dependency::Source ();
-
-use vars qw{$VERSION};
-BEGIN {
-	$VERSION = '1.03';
-}
+has $:source is Algorithm::Dependency::Source;
+has %:selected;
+has $:ignore_orphans is Bool;
 
 
 
@@ -24,7 +22,7 @@ sub new {
 
 	# Arguments are provided as a hash of options.
 	# We expect at LEAST the source argument.
-	my $source = isa( $options{source}, 'Algorithm::Dependency::Source' )
+	my $source = UNIVERSAL::isa( $options{source}, 'Algorithm::Dependency::Source' )
 		? $options{source} : return undef;
 
 	# Create the object
@@ -35,11 +33,11 @@ sub new {
 
 	# Were we given the 'ignore_orphans' flag?
 	if ( $options{ignore_orphans} ) {
-		$self.{ignore_orphans} = 1;
+		$self.ignore_orphans = 1;
 	}
 
 	# Done, unless we have been given some selected items
-	unless ( isa( $options{selected}, 'ARRAY' ) ) {
+	unless ( UNIVERSAL::isa( $options{selected}, 'ARRAY' ) ) {
 		return $self;
 	}
 
@@ -56,7 +54,7 @@ sub new {
 		$selected{$id} = 1;
 	}
 
-	$self.{selected} = \%selected;
+	$self.selected = \%selected;
 	$self;
 }
 
@@ -68,16 +66,16 @@ sub new {
 # Basic methods
 
 # Get the Source object
-sub source { $_[0].{source} }
+sub source { $_[0].source }
 
 # Get the list of all selected items
-sub selected_list { sort keys %{$_[0].{selected}} }
+sub selected_list { sort keys %{$_[0].selected} }
 
 # Is a particular item selected
-sub selected { $_[0].{selected}.{$_[1]} }
+sub selected { $_[0].selected{$_[1]} }
 
 # Shortcut to the source to get a particular item
-sub item { $_[0].{source}.item( $_[1] ) }
+sub item { $_[0].source.item( $_[1] ) }
 
 
 
@@ -102,8 +100,8 @@ sub depends {
 	# Process the stack
 	while ( my $id = shift @stack ) {
 		# Does the id exist?
-		my $Item = $self.{source}.item($id)
-		or $self.{ignore_orphans} ? next : return undef;
+		my $Item = $self.source.item($id)
+		or $self.ignore_orphans ? next : return undef;
 
 		# Skip if selected or checked
 		next if $checked{$id};
@@ -120,8 +118,8 @@ sub depends {
 	}
 
 	# Remove any items already selected
-	my $s = $self.{selected};
-	[ sort grep { ! $s.{$_} } @depends ];
+	my $s = $self.selected;
+	[ sort grep { ! $s{$_} } @depends ];
 }
 
 # For one or more items, create a schedule of all items, including the
@@ -138,8 +136,8 @@ sub schedule {
 
 	# Now return a combined list, removing any items already selected.
 	# We are allowed to return an empty list.
-	my $s = $self.{selected};
-	[ sort grep { ! $s.{$_} } @items, @$depends ];
+	my $s = $self.selected;
+	[ sort grep { ! $s{$_} } @items, @$depends ];
 }
 
 # As above, but don't pass what we want to schedule as a list, just do the
@@ -161,8 +159,8 @@ Algorithm::Dependency - Algorithmic framework for implementing dependency tree
 
 =head1 SYNOPSIS
 
-  use Algorithm::Dependency;
-  use Algorithm::Dependency::Source::File;
+  require Algorithm::Dependency;
+  require Algorithm::Dependency::Source::File;
 
   # Load the data from a simple text file
   my $data_source = Algorithm::Dependency::Source::File.new( 'foo.txt' );

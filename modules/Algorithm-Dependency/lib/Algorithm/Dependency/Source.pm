@@ -1,17 +1,16 @@
 #!pugs
 use v6;
 
-package Algorithm::Dependency::Source;
+require Algorithm::Dependency-0.0.1;
+
+class Algorithm::Dependency::Source-0.0.1;
 
 # Algorithm::Dependency::Source implements a parent class for a source
 # of items.
 
-use Algorithm::Dependency;
-
-use vars qw{$VERSION};
-BEGIN {
-	$VERSION = '1.03';
-}
+has $:loaded is Bool;
+has %:items_hash;
+has %:items_array;
 
 
 
@@ -43,10 +42,10 @@ sub load {
 	my $class = ref $self;
 
 	# If this is a reload, clean up in preperation
-	if ( $self.{loaded} ) {
-		$self.{loaded} = 0;
-		$self.{items_hash} = undef;
-		$self.{items_array} = undef;
+	if ( $self.loaded ) {
+		$self.loaded = 0;
+		$self.items_hash = undef;
+		$self.items_array = undef;
 	}
 
 	# Pass through to the real loader
@@ -62,40 +61,43 @@ sub load {
 
 		# Have we added this one already?
 		my $id = $item.id;
-		if ( $self.{items_hash}.{ $id } ) {
+		if ( $self.items_hash{$id} ) {
 			# Duplicate entry
 			return undef;
 		}
 
 		# Add it
-		push @{ $self.{items_array} }, $item;
-		$self.{items_hash}.{$id} = $item;
+		push @{ $self.items_array }, $item;
+		$self.items_hash{$id} = $item;
 	}
 
-	$self.{loaded} = 1;
+	$self.loaded = 1;
 }
+
+# See if loaded
+sub loaded { return $_[0].loaded }
 
 # Get a single item by id
 sub item {
 	my $self = shift;
 	my $id = length $_[0] ? shift : return undef;
-	$self.{loaded} or $self.load or return undef;
+	$self.loaded or $self.load or return undef;
 
 	# Return the item ( or undef )
-	$self.{items_hash}.{$id};
+	$self.items_hash{$id};
 }
 
 # Get a list of the items
 sub items {
 	my $self = shift;
-	$self.{loaded} or $self.load or return undef;
-	@{ $self.{items_array} };
+	$self.loaded or $self.load or return undef;
+	@{ $self.items_array };
 }
 
 # Check the integrity of the source.
 sub missing_dependencies {
 	my $self = shift;
-	$self.{loaded} or $self.load or return undef;
+	$self.loaded or $self.load or return undef;
 	
 	# Merged the depends of all the items, and see if
 	# any are missing.

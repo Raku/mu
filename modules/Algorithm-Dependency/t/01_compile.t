@@ -4,7 +4,6 @@ use v6;
 # Basic load and method existance tests for Algorithm::Dependency
 
 use lib ();
-use UNIVERSAL 'isa';
 use File::Spec::Functions ':ALL';
 BEGIN {
 	$| = 1;

@@ -4,7 +4,6 @@ use v6;
 # Creating and using dependency trees
 
 use lib ();
-use UNIVERSAL 'isa';
 use File::Spec::Functions ':ALL';
 BEGIN {
 	$| = 1;
@@ -32,16 +31,16 @@ my $Source = Algorithm::Dependency::Source::File.new( $file );
 
 ok( $Source, "Source is true" );
 ok( ref $Source, "Source is a reference" );
-ok( isa( $Source, 'Algorithm::Dependency::Source::File' ), "Source is a Source::File" );
-ok( isa( $Source, 'Algorithm::Dependency::Source' ), "Source is a Source" );
-ok( exists $Source.{loaded}, "Source has a loaded value" );
-ok( ! $Source.{loaded}, "Source isn't loaded" );
+isa_ok( $Source, 'Algorithm::Dependency::Source::File', "Source is a Source::File" );
+isa_ok( $Source, 'Algorithm::Dependency::Source', "Source is a Source" );
+ok( exists $Source.loaded, "Source has a loaded value" );
+ok( ! $Source.loaded, "Source isn't loaded" );
 
 ok( eval {$Source.load;}, "Source .load returns true" );
-ok( $Source.{loaded}, "Source appears to be loaded" );
-ok( isa( $Source.item('A'), 'Algorithm::Dependency::Item' ), ".item returns an Item for A" );
-ok( isa( $Source.item('B'), 'Algorithm::Dependency::Item' ), ".item returns an Item for B" );
-ok( isa( $Source.item('D'), 'Algorithm::Dependency::Item' ), ".item returns an Item for D" );
+ok( $Source.loaded, "Source appears to be loaded" );
+isa_ok( $Source.item('A'), 'Algorithm::Dependency::Item', ".item returns an Item for A" );
+isa_ok( $Source.item('B'), 'Algorithm::Dependency::Item', ".item returns an Item for B" );
+isa_ok( $Source.item('D'), 'Algorithm::Dependency::Item', ".item returns an Item for D" );
 ok( ! defined $Source.item('BAD'), ".item for bad value properly returns undef" );
 
 ok( $Source.item('A').id eq 'A', "Item .id appears to work ok" );
@@ -51,9 +50,9 @@ ok( scalar $Source.item('D').depends == 2, "Item .depends for 2 depends returns 
 
 my @items = $Source.items;
 ok( scalar @items == 6, "Source .items returns a list" );
-ok( isa( $items[0], 'Algorithm::Dependency::Item' ), "List contains Items" );
-ok( isa( $items[1], 'Algorithm::Dependency::Item' ), "List contains Items" );
-ok( isa( $items[3], 'Algorithm::Dependency::Item' ), "List contains Items" );
+isa_ok( $items[0], 'Algorithm::Dependency::Item', "List contains Items" );
+isa_ok( $items[1], 'Algorithm::Dependency::Item', "List contains Items" );
+isa_ok( $items[3], 'Algorithm::Dependency::Item', "List contains Items" );
 ok( ($items[0].id eq 'A' and $items[1].id eq 'B' and $items[3].id eq 'D'), "Source .items returns in original database order" );
 ok( $items[0] eq $Source.item('A'), "Hash and list refer to the same object" );
 
@@ -65,7 +64,7 @@ ok( $items[0] eq $Source.item('A'), "Hash and list refer to the same object" );
 my $Dep = Algorithm::Dependency.new( source => $Source );
 ok( $Dep, "Algorithm::Dependency.new returns true" );
 ok( ref $Dep, "Algorithm::Dependency.new returns reference" );
-ok( isa( $Dep, 'Algorithm::Dependency'), "Algorithm::Dependency.new returns correctly" );
+isa_ok( $Dep, 'Algorithm::Dependency', "Algorithm::Dependency.new returns correctly" );
 ok( $Dep.source, "Dependency.source returns true" );
 ok( $Dep.source eq $Source, "Dependency.source returns the original source" );
 ok( $Dep.item('A'), "Dependency.item returns true" );
@@ -101,7 +100,7 @@ ok( ! defined Algorithm::Dependency.new(), "Dependency.new fails correctly" );
 $Dep = Algorithm::Dependency.new( source => $Source, selected => [ 'F' ] );
 ok( $Dep, "Algorithm::Dependency.new returns true" );
 ok( ref $Dep, "Algorithm::Dependency.new returns reference" );
-ok( isa( $Dep, 'Algorithm::Dependency'), "Algorithm::Dependency.new returns correctly" );
+isa_ok( $Dep, 'Algorithm::Dependency', "Algorithm::Dependency.new returns correctly" );
 ok( $Dep.source, "Dependency.source returns true" );
 ok( $Dep.source eq $Source, "Dependency.source returns the original source" );
 ok( $Dep.item('A'), "Dependency.item returns true" );
@@ -139,8 +138,8 @@ $file = File::Spec.catfile( $TESTDATA, 'missing.txt' );
 my $Missing = Algorithm::Dependency::Source::File.new( $file );
 ok( $Missing, "Missing is true" );
 ok( ref $Missing, "Missing is a reference" );
-ok( isa( $Missing, 'Algorithm::Dependency::Source::File' ), "Missing is a Source::File" );
-ok( isa( $Missing, 'Algorithm::Dependency::Source' ), "Missing is a Source" );
+isa_ok( $Missing, 'Algorithm::Dependency::Source::File', "Missing is a Source::File" );
+isa_ok( $Missing, 'Algorithm::Dependency::Source', "Missing is a Source" );
 ok( eval {$Missing.load;}, "Missing .load returns true" );
 
 is_deeply( $Missing.missing_dependencies, [ 'C', 'E' ], ".missing_dependencies returns as expected when something missing" );
