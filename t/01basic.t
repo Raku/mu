@@ -6,7 +6,7 @@ This is a test file.  Whee!
 
 =cut
 
-say "1..11";
+say "1..13";
 say "ok 1 # Welcome to Pugs!";
 
 sub cool { fine($_) ~ " # We've got " ~ toys }
@@ -40,3 +40,6 @@ if ($lasttest == 1) { say "ok 10" } else { say "not ok 10 # TODO last" }
 my $nexttest = 0;
 eval 'for (1..10) { $nexttest++; next; $nexttest++; }';
 if ($nexttest == 10) { say "ok 11" } else { say "not ok 11 # TODO next" }
+
+print "ok ";
+if (eval '12.print') { say "\nok 13" } else { say "\nnot ok 13 # TODO 5.say" }

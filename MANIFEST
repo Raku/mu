@@ -55,3 +55,7 @@ t/op/die.t
 t/op/hash.t
 t/op/pair.t
 t/op/join.t
+t/op/unshift.t
+t/op/shift.t
+t/op/pop.t
+t/op/defined.t

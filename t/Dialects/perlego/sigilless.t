@@ -20,4 +20,7 @@ if (bar == 42) { say "13 ok" } else { say "13 not ok" }
 my bar = 24;  # should probably warn
 if ( bar   == 24) { say "14 ok" } else { say "14 not ok" } # warn again?
 if ($bar   == 24) { say "15 ok" } else { say "15 not ok" }
-if (&bar() == 42) { say "16 ok" } else { say "16 not ok" }
+if (&bar() == 42) { say "16 ok" } else { say "16 not ok" } # cannot work if
+                                                           # this whole thing is
+                                                           # implemented with
+                                                           # an lvalue sub...
