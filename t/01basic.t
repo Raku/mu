@@ -23,8 +23,10 @@ my $bar;
 eval ' unless ($foo) { $bar = "true"; } ';
 if ($bar) { say 'ok 4' } else { say 'not ok 4 # TODO' }
 
-if (eval '(my $quux = 1) == 1)') { say "ok 5" } else { 
-    say "not ok 5 # TODO my returns LHS"
+my ($var1, $var2) = ("foo", "bar");
+if ($var1 eq $var2) { say 'not ok 5 # TODO' } else { say 'ok 5' }
+if (eval '(my $quux = 1) == 1)') { say "ok 6" } else { 
+    say "not ok 6 # TODO my returns LHS"
 }
 
 eval 'if 1 { say "ok 6" }' or say "not ok 6 # TODO if without parens"
