@@ -467,7 +467,16 @@ op2 "grep"= op2Grep
 op2 "map"= op2Map
 op2 "unshift" = op2Push (flip (++))
 op2 "push" = op2Push (++)
-op2 "split"= \x y -> return $ split' (vCast x) (vCast y)
+op2 "split"= \x y -> do
+    val <- fromVal x
+    str <- fromVal y
+    case val of
+        VRule rx -> do
+            chunks <- rxSplit rx (encodeUTF8 str)
+            return $ VList $ map (VStr . decodeUTF8) chunks
+        _ -> do
+            delim <- fromVal val
+            return $ split' delim str
     where
     split' :: VStr -> VStr -> Val
     split' [] xs = VList $ map (VStr . (:[])) xs
@@ -534,6 +543,14 @@ op2Match x (VRule rx) = do
             return $ VBool True
 
 op2Match x y = op2Cmp vCastStr (==) x y
+
+rxSplit :: VRule -> String -> Eval [String]
+rxSplit rx str = do
+    case str =~~ rxRegex rx of
+        Nothing -> return [str]
+        Just mr -> do
+            rest <- rxSplit rx (mrAfter mr)
+            return $ (mrBefore mr : mrSubList mr) ++ rest
 
 op3 :: Ident -> Val -> Val -> Val -> Eval Val
 op3 "index" = \x y z -> do
