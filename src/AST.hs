@@ -111,7 +111,7 @@ instance Context VStr where
     vCast (VList l)     = unwords $ map vCast l
     vCast (VRef v)      = vCast v
     vCast (VPair k v)   = vCast k ++ "\t" ++ vCast v ++ "\n"
-    doCast x            = error $ "cannot cast: " ++ (show x)
+    vCast x             = error $ "cannot cast: " ++ (show x)
 
 showNum x
     | (i, ".0") <- break (== '.') str

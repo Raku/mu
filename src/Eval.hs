@@ -94,10 +94,11 @@ apply env@Env{ cls = cls } Sub{ subParams = prms, subFun = fun } invs args =
     where
     eval bound = applyFun env bound fun
     doBind :: ([ApplyArg], Env) -> (Param, Exp) -> ([ApplyArg], Env)
-    doBind (bs, env) (prm@Param{ paramName = name, paramContext = cxt}, exp) =
-        let (val, coll) = expToVal env cxt exp in
+    doBind (bs, env) (prm@Param{ paramName = name }, exp)
+        = let (val, coll) = expToVal env prm exp in
         (((ApplyArg name val coll): bs), env `addSym` [(name, val)])
-    expToVal env cxt exp = (evaluate env{ cxt = cxt } exp, isCollapsed cxt)
+    expToVal env Param{ isSlurpy = slurpy, paramContext = cxt } exp
+        = (evaluate env{ cxt = cxt } exp, slurpy || isCollapsed cxt)
     isCollapsed cxt
         | isaType cls "Bool" cxt        = True
         | isaType cls "Junction" cxt    = True

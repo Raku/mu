@@ -55,7 +55,7 @@ operators = concat $
 
 litOperators = tightOperators ++ looseOperators
 
-primitiveListFunctions = " not <== any all one none"
+primitiveListFunctions = " not <== any all one none perl "
 
 parseExp = parseTerm
 
@@ -89,8 +89,14 @@ makeOp2 prec sigil con name = (`Infix` prec) $ do
     return $ \x y -> con (sigil ++ name) [x,y]
 
 parseParens parse = do
-    cs <- parens parse
-    return $ Parens cs
+    cs  <- parens parse
+    inv <- option id $ parseInvocation
+    return $ inv $ Parens cs
+
+parseInvocation = lexeme $ try $ do
+    char '.'
+    (App name invs args) <- parseApply
+    return $ \x -> (App name (x:invs) args)
 
 parseTerm = choice
     [ parseDecl

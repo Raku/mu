@@ -78,11 +78,14 @@ unPair (Val (VPair k v))                = (vCast k, Val v)
 unPair x                                = error ("Not a pair: " ++ show x)
 
 bindParams :: [Param] -> [Exp] -> [Exp] -> MaybeError [(Param, Exp)]
-bindParams prms invs args = do
-    let (invocants, nameables)  = span isInvocant prms
+bindParams prms invsExp argsExp = do
+    let (invocants, nameables) = span isInvocant prms
+        (invs, args) = if null invocants
+            then ([], (invsExp++argsExp))
+            else (invsExp, argsExp)
 
     -- Check length of invocant parameters
-    when ((not . null) invs && length invs /= length invocants) $ do
+    when (length invs /= length invocants) $ do
         fail $ "Wrong number of invocant parameters: "
             ++ (show $ length invs) ++ " actual, "
             ++ (show $ length invocants) ++ " expected"

@@ -14,6 +14,7 @@
 module Prim where
 import Internals
 import AST
+import Pretty
 
 op0 :: Ident -> [Val] -> Val
 op0 ","  = VList . concatMap vCast
@@ -41,6 +42,7 @@ op1 "any"   = VJunc JAny
 op1 "all"   = VJunc JAll
 op1 "one"   = VJunc JOne
 op1 "none"  = VJunc JNone
+op1 "perl"  = \x -> VStr $ pretty (x :: Val)
 op1 s    = \x -> VError ("unimplemented unaryOp: " ++ s) (Val x)
 
 mapStr :: (Word8 -> Word8) -> [Word8] -> String
@@ -203,7 +205,7 @@ doFoldParam cxt (s:name) ps = (buildParam cxt [s] name (Val VUndef) : ps)
 
 foldParam :: String -> Params -> Params
 foldParam "List" = doFoldParam "List" "*@x"
-foldParam _      = doFoldParam "Scalar" ""
+foldParam x      = doFoldParam x ""
 
 -- XXX -- Junctive Types -- XXX --
 
@@ -221,6 +223,7 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Ref       pre     \\      (Any)\
 \\n   List      pre     ...     (Str|Num)\
 \\n   Bool      pre     not     (Bool)\
+\\n   Str       pre     perl    (List)\
 \\n   Junction  pre     any     (List)\
 \\n   Junction  pre     all     (List)\
 \\n   Junction  pre     one     (List)\
