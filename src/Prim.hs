@@ -187,6 +187,7 @@ op2 "xor"= op2 "^^"
 op2 "err"= op2 "//"
 op2 "nor"= op2 "!!"
 op2 "grep"= op2Grep
+op2 "map"= op2Map
 op2 s    = \x y -> return $ VError ("unimplemented binaryOp: " ++ s) (App s [] [Val x, Val y])
 
 op2Grep list sub@(VSub _) = op2Grep sub list
@@ -197,6 +198,15 @@ op2Grep sub list = do
             evl (Syn "()" [Val sub, Syn "invs" [Val x], Syn "args" []])
         return $ vCast rv
     return $ VList vals
+
+op2Map list sub@(VSub _) = op2Map sub list
+op2Map sub list = do
+    vals <- (`mapM` vCast list) $ \x -> do
+        evl <- asks envEval
+        rv  <- local (\e -> e{ envContext = "List" }) $ do
+            evl (Syn "()" [Val sub, Syn "invs" [Val x], Syn "args" []])
+        return $ vCast rv
+    return $ VList $ concat vals
 
 vCastStr :: Val -> VStr
 vCastStr = vCast

@@ -54,7 +54,7 @@ doSlice v ns = Syn "[]" [v, Val $ VList $ map VInt ns]
 
 -- XXX - somehow force failure
 doIndex :: Exp -> VInt -> Exp
-doIndex v n = Syn "cxt" [Val $ VStr "Bool", Syn "[]" [v, Val $ VInt n]]
+doIndex v n = Syn "cxt" [Val $ VStr "Scalar", Syn "[]" [v, Val $ VInt n]]
 
 doBindArray :: Exp -> ([(Param, Exp)], VInt) -> (Param, Char) -> MaybeError ([(Param, Exp)], VInt)
 doBindArray _ (xs, -1) (p, '@') = return (((p, emptyArrayExp):xs), -1)
