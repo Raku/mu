@@ -141,7 +141,7 @@ sub proclaim (Bool $cond, Str ?$desc, Str ?$context, Str ?$got, Str ?$expected) 
     say $ok, $loop, $out, $context_out;
 
     report_failure($context, $got, $expected) if (!$cond);
-    write_log(got => $got, expected => $expected, desc => $desc, content => $context) if (!$cond);
+    write_log(got => $got, expected => $expected, desc => $desc, content => $context) if $log_file and !$cond;
 
     return $cond;
 }
