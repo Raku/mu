@@ -3,35 +3,44 @@ log and the mailing list archives.  These people have either submitted
 patches or suggestions, or their bug reports or comments have inspired
 the appropriate patches.  Corrections, additions, deletions welcome:
 
-Alin Iacob           (ALIN)
-Autrijus Tang        (AUTRIJUS)
-Benjamin Smith       (BSMITH)
+Alan "alinbsp" Sung              (CLSUNG)
+Alin Iacob                       (ALIN)
+Autrijus Tang                    (AUTRIJUS)
+Aldo Calpini                     (DADA)
+Benjamin Smith                   (BSMITH)
 Bestian Tang
-Brian Ingerson       (INGY)
-Chia-Liang Kao       (CLKAO)
-Damian Conway        (DCONWAY)
-Darren Duncan        (DUNCAND)
-Hsin-Chan Chien      (HCCHIEN)
+Brian Ingerson                   (INGY)
+Chia-Liang Kao                   (CLKAO)
+Damian Conway                    (DCONWAY)
+Darren Duncan                    (DUNCAND)
+Garret Rooney                    (ROONEG)
+Hsin-Chan Chien                  (HCCHIEN)
 Isaac Jones
-James Mastros        (JMASTROS)
-Jesse Vincent        (JESSE)
-Jonathan Scott Duff  (DUFF)
-Juerd Waalboer       (JUERD)
-Kang-Min Liu         (GUGOD)
+James "theorbtwo" Mastros        (JMASTROS)
+Jesse Vincent                    (JESSE)
+Jonathan Scott Duff              (DUFF)
+Juerd Waalboer                   (JUERD)
+Kang-Min Liu                     (GUGOD)
 Patrick R. Michaud
 Pernod
-Rafael Garcia-Suarez (RGARCIA)
-Richard Soderberg    (RSOD)
-Larry Wall           (LWALL)
+Rafael Garcia-Suarez             (RGARCIA)
+Richard Soderberg                (RSOD)
+Larry Wall                       (LWALL)
 Liang-Qi Xie
-Luke Palmer          (LPALMER)
-Nicholas Clark       (NWCLARK)
-Norman Nunley        (NNUNLEY)
-Shu-Chun Weng
-Steve Peters         (SMPETERS)
-Stevan Little        (STEVAN)
-Terrence Brannon     (TBONE)
+Liu Kang Min                     (GUGOD)
+Luke Palmer                      (LPALMER)
+"malaire"
+"mugwump"
+Nicholas Clark                   (NWCLARK)
+Norman Nunley                    (NNUNLEY)
+"scw"
+Shu-Chun Weng                    (CLSUNG)
+Stefano Rodighiero               (LARSEN)
+Steve Peters                     (SMPETERS)
+Stevan Little                    (STEVAN)
+Terrence "metaperl" Brannon      (TBONE)
 Thomas Sandlass
 Tom Moertel
+"viirya"
 Yuan-Chen Cheng
-Yuval Kogman         (NUFFIN)
+Yuval "nothingmuch" Kogman       (NUFFIN)
