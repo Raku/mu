@@ -1,4 +1,4 @@
-{-# OPTIONS -fglasgow-exts -cpp -fvia-c -fno-implicit-prelude #-}
+{-# OPTIONS -fglasgow-exts -cpp -fvia-c -fno-implicit-prelude -O #-}
 {-# OPTIONS -#include "UnicodeC.h" #-}
 {-# OPTIONS -#include "UnicodeC.c" #-}
 
