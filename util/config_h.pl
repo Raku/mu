@@ -93,6 +93,7 @@ sub try_compile {
     eval {
         open TMP, "> $temp.hs";
         print TMP $code;
+        close TMP;
         system(
             ($ENV{GHC} || 'ghc'), @_,
             "--make", "-v0",
