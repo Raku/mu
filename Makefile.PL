@@ -23,7 +23,7 @@ install_script  ($pugs);
 build_requires  ('Test::More');
 include         ('Module::Install::Makefile::Name');
 include         ('Module::Install::Makefile::Version');
-build_subdirs   (map substr($_, 0, -11), glob("ext/*/Makefile.PL"));
+build_subdirs   (grep -e "$_/Makefile.PL", glob("ext/*"));
 makemaker_args  (
     test => { TESTS => join ' ', (glob("t/*.t"), glob("t/*/*.t")) },
     MAN1PODS => {},
@@ -40,9 +40,7 @@ assert_ghc      ();
 create_config_h ();
 set_postamble   ();
 
-# WritePugs       (sign => 1); # XXX Not working yet.
-WriteAll        (sign => 1);
-pugs_fix_makefile();
+WritePugs       (sign => 1);
 
 ################################################################################
 # XXX Try to be tidy!

@@ -10,5 +10,5 @@ version    ('0.01');
 abstract   ('MakeMaker for Pugs');
 author     ('Brian Ingerson <ingy@cpan.org>');
 license    ('perl');
-set_blib   ('../../blib');
+set_blib   (5);
 WriteAll   ();

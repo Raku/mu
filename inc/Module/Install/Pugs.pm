@@ -6,15 +6,21 @@ use File::Spec;
 
 sub WritePugs {
     my $self = shift;
-    my $base = $self->{_top}{base};
-    $self->set_blib("$base/blib6");
     $self->WriteAll(@_);
     $self->pugs_fix_makefile;
 }
 
 sub set_blib {
     my $self = shift;
-    my $path = shift;
+    my $perl_version = shift 
+      or die "Must pass Perl version (5 or 6)";
+    my $blib = ($perl_version == 5)
+    ? 'blib'
+    : $perl_version == 6
+      ? 'blib6'
+      : die "Perl version '$perl_version' is bad. Must be 5 or 6.";
+    my $base = $self->{_top}{base};
+    my $path = "$base/$blib";
     $self->makemaker_args->{'INST_LIB'} = 
       File::Spec->catfile($path, "lib");
     $self->makemaker_args->{'INST_ARCHLIB'} = 

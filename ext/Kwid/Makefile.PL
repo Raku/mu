@@ -22,4 +22,5 @@ $Bin/kwid :: src/Kwid/AST.hs
 
 .
 
+set_blib(6);
 WritePugs();

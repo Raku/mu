@@ -11,4 +11,5 @@ abstract   ('Test Module');
 author     ('Autrijus Tang <autrijus@cpan.org>');
 license    ('perl');
 
+set_blib   (6);
 WritePugs  ();
