@@ -1,12 +1,14 @@
-.test { overflow: hidden; white-space: nowrap; width: 10em }
-.test a { display: block; text-decoration: none  }
-.test a div { display: none }
+body { font-family: Verdana, Arial, Helvetica, Tahoma; font-size: small; background-color: #EFEFEF;}
+a { color: #000066; text-decoration: none; font-style: italic; }
+.test { overflow: hidden; white-space: nowrap; width: 12em }
+.test a { display: block; text-decoration: none;}
+.test a div { display: none; font-weight: bold; color: #336699; font-style: none;}
 .test a:visited div { display: none }
 
-.test a:hover div { display: block; position: absolute; background-color: white; border: thin solid black; left: -1px }
+.test a:hover div { display: block; position: absolute; background-color: #BBBBBB; border: 1px solid #444444; left: 2em; padding: 5px; }
 
-.bad  { background-color: #ff0000; color: black }
-.good { background-color: #00ff00; color: black }
-.todobad  { background-color: #7f0000; color: white }
-.todogood { background-color: #007f00; color: white }
-.nottest { background-color: #7f7f7f; color: white }
+.bad  { background-color: #ff0000; color: black; border: 1px solid #888888; }
+.good { background-color: #00ff00; color: black ; border: 1px solid #888888; }
+.todobad  { background-color: #7f0000; color: white; border: 1px solid #888888;  }
+.todogood { background-color: #007f00; color: white; border: 1px solid #888888;  }
+.nottest { background-color: #7f7f7f; color: white ; border: 1px solid #888888; }
