@@ -73,8 +73,8 @@ op1 "eval" = opEval . vCast
 op1 "defined" = \v -> do
     v <- readMVal v
     return . VBool $ case v of
-        VUndef  -> True
-        _       -> False
+        VUndef  -> False
+        _       -> True
     
 op1 "last" = \v -> do
     shiftT $ \_ -> return VUndef

@@ -2,7 +2,7 @@ use v6;
 
 say "1..13";
 
-if (eval 'defined(undef)') { say "not ok 1 # TODO defined" } else { say "ok 1 # TODO defined" }
+if (defined(undef)) { say "not ok 1 # TODO defined" } else { say "ok 1 # TODO defined" }
 
 if (eval 'defined(1)')   { say "ok 2 # TODO defined" } else { say "not ok 2 # TODO defined" }
 if (eval 'defined("")')  { say "ok 3 # TODO defined" } else { say "not ok 3 # TODO defined" }
