@@ -19,7 +19,7 @@ type Ident = String
 
 class Value n where
     vCast :: Val -> n
-    vCast (MVal v)      = vCast $ castV v
+    -- vCast (MVal v)      = vCast $ castV v
     vCast (VRef v)      = vCast v
     vCast (VPair _ v)   = vCast v
     vCast (VArray (MkArray v))    = vCast $ VList v
@@ -35,7 +35,7 @@ instance Value (Val, Val) where
     castV (x, y)        = VPair x y
     vCast (VPair x y)   = (x, y)
     vCast (VRef v)      = vCast v
-    vCast (MVal v)      = vCast $ castV v
+    -- vCast (MVal v)      = vCast $ castV v
     vCast v             = case vCast v of
         [x, y]  -> (x, y)
         other   -> error $ "cannot cast into (Val, Val): " ++ (show v)
@@ -113,7 +113,7 @@ instance Value VStr where
     vCast (VNum n)      = showNum n
     vCast (VList l)     = unwords $ map vCast l
     vCast (VRef v)      = vCast v
-    vCast (MVal v)      = vCast $ castV v
+    -- vCast (MVal v)      = vCast $ castV v
     vCast (VPair k v)   = vCast k ++ "\t" ++ vCast v ++ "\n"
     vCast x             = error $ "cannot cast: " ++ (show x)
 
@@ -129,7 +129,7 @@ instance Value VArray where
     vCast x = MkArray (vCast x) 
 
 instance Value MVal where
-    castV ref = unsafePerformIO $ readIORef ref
+    castV ref = error "bye~" --unsafePerformIO $ readIORef ref
     vCast (MVal x)      = x
     vCast (VRef v)      = vCast v
     vCast (VPair _ y)   = vCast y
@@ -146,7 +146,7 @@ instance Value VList where
     vCast (VList l)     = l
     vCast (VPair k v)   = [k, v]
     vCast (VRef v)      = vCast v
-    vCast (MVal v)      = vCast $ castV v
+    -- vCast (MVal v)      = vCast $ castV v
     vCast (VUndef)      = []
     vCast v             = [v]
 
@@ -281,9 +281,9 @@ instance (Show a) => Show (Set a) where
 instance Ord VComplex where {- ... -}
 instance (Ord a, Ord b) => Ord (FiniteMap a b)
 instance Ord MVal where
-    compare x y = compare (castV x) (castV y)
+    compare x y = LT -- compare (castV x) (castV y)
 instance Show MVal where
-    show = show . castV
+    show _ = "<mval>"
 instance Ord VHandle where
     compare x y = compare (show x) (show y)
 

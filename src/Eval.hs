@@ -64,6 +64,9 @@ evaluate (Val (VSub sub)) = do
         else do
             pad <- asks envLexical
             return $ VSub sub{ subPad = pad } -- closure!
+evaluate (Val (MVal mv)) = do
+    rv <- liftIO (readIORef mv)
+    evaluate (Val rv)
 evaluate (Val val) = return val
 evaluate exp = do
     debug "indent" (' ':) "Evl" exp
@@ -107,21 +110,21 @@ newMVal val = do
 
 writeMVal l (MVal r)    = writeMVal l =<< liftIO (readIORef r)
 writeMVal (MVal l) r    = liftIO $ writeIORef l r
-writeMVal _ _           = error "Can't modify a constant item" 
+writeMVal _ _           = error "Can't write a constant item"
 
 reduceStatements :: ([Exp], Exp) -> Eval Exp
 reduceStatements ([], exp) = reduceExp exp
 reduceStatements ((exp:rest), _)
-    | Syn "sym" [Sym sym@(Symbol _ name (Syn "mval" [_, vexp]))] <- exp = do
+    | Syn "sym" (Sym sym@(Symbol _ name (Syn "mval" [_, vexp])):other) <- exp = do
         val <- enterEvalContext (cxtOfSigil $ head name) vexp
         mval <- newMVal val
-        reduceStatements ((Syn "sym" [Sym sym{ symExp = Val mval }]:rest), Val mval)
+        reduceStatements ((Syn "sym" (other ++ [Sym sym{ symExp = Val mval }]):rest), Val mval)
     | Syn "sym" [Sym sym@(Symbol SGlobal _ vexp)] <- exp = do
         local (\e -> e{ envGlobal = (sym:envGlobal e) }) $ do
             reduceStatements (rest, vexp)
-    | Syn "sym" [Sym sym@(Symbol SMy _ vexp)] <- exp = do
-        enterLex [sym] $ do
-            reduceStatements (rest, vexp)
+    | Syn "sym" syms <- exp = do
+        enterLex [ sym | Sym sym@(Symbol SMy _ _) <- syms] $ do
+            reduceStatements (rest, (Syn "sym" syms))
     | Syn syn [Var name, vexp] <- exp
     , (syn == ":=" || syn == "::=") = do
         lex <- asks envLexical
@@ -155,6 +158,14 @@ findVar Env{ envLexical = lex, envGlobal = glob } name
     
 doReduce :: Env -> Exp -> Eval Exp
 
+doReduce env exp@(Val (MVal mv)) = do
+    cxt <- asks envContext
+    if cxt == "LValue"
+        then return exp
+        else do
+            rv <- liftIO (readIORef mv)
+            doReduce env (Val rv)
+
 -- Reduction for variables
 doReduce env exp@(Var name)
     | Just vexp <- findVar env name
@@ -168,18 +179,35 @@ doReduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         let (global, local) = partition isGlobalExp exps
         reduceStatements (global ++ local, Val VUndef)
     "sym" -> do
-        let [Sym (Symbol _ _ exp)] = exps
-        val     <- evalExp exp
+        mapM_ evalExp [ exp | Sym (Symbol _ _ exp) <- exps ]
         retVal VUndef
     "mval" -> do
         let [Var name, exp] = exps
         val     <- enterEvalContext (cxtOfSigil $ head name) exp
         retVal =<< newMVal val
+    "if" -> do
+        let [cond, body] = exps
+        vbool     <- enterEvalContext "Bool" cond
+        if (vCast vbool)
+            then doReduce env body
+            else retVal VUndef
     "loop" -> do
-        let [pre, test, post, exp] = exps
+        let [pre, cond, post, body] = exps
+        evalExp pre
+        -- enter the block
         -- first, run pre and enter its lexical context
         -- reduceStatements (pre:, Val VUndef)
-        retVal VUndef
+        let runBody = do
+            valBody <- evalExp body
+            valPost <- evalExp post
+            vbool   <- enterEvalContext "Bool" cond
+            case valBody of
+                VError _ _ -> shiftT $ \_ -> return valBody
+                _ | VError _ _ <- valPost -> shiftT $ \_ -> return valPost
+                _ | not (vCast vbool) -> shiftT $ \_ -> return valBody
+                _ -> runBody
+        val <- resetT runBody
+        retVal val
     "=" -> do
         let [Var name, exp] = exps
         case findVar env name of
@@ -189,7 +217,7 @@ doReduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
                 writeMVal val val'
                 retVal val'
             _ -> do
-                retVal $ VError "Can't modify a constant item" exp
+                retVal $ VError "Can't set a constant item" exp
     ":=" -> do
         let [Var name, exp] = exps
         val     <- enterEvalContext (cxtOfSigil $ head name) exp

@@ -26,11 +26,14 @@ op0 "^"  = opJuncOne
 op0 "|"  = opJuncAny
 op0 s    = \x -> VError ("unimplemented listOp: " ++ s) (Val $ VList x)
 
+readMVal (MVal mv) = readMVal =<< liftIO (readIORef mv)
+readMVal v         = return v
+
 op1 :: Ident -> Val -> Eval Val
 op1 "!"    = return . fmapVal not
 op1 "+"    = return . op1Numeric id
 op1 "++"   = \mv -> do
-    val <- liftIO $ readIORef (vCast mv)
+    val <- readMVal mv
     liftIO $ writeIORef (vCast mv) $ case val of
         (VStr str)  -> VStr $ strInc str
         _           -> op1Numeric (\x -> x + 1) (vCast val)
@@ -66,7 +69,9 @@ op1 "rand"  = \v -> do
     rand <- liftIO $ randomRIO (0, if x == 0 then 1 else x)
     return $ VNum rand
 op1 "print" = \v -> do
-    liftIO . putStr . concatMap vCast . vCast $ v
+    v <- readMVal v
+    vals <- mapM readMVal (vCast v)
+    liftIO . putStr . concatMap vCast $ vals
     return $ VBool True
 op1 "say" = \v -> do
     liftIO . mapM (putStrLn . vCast) . vCast $ v
@@ -232,7 +237,7 @@ op2Ord f x y = VInt $ case f x `compare` f y of
 
 op1Numeric :: (forall a. (Num a) => a -> a) -> Val -> Val
 op1Numeric f VUndef     = VInt $ f 0
-op1Numeric f (MVal x)   = op1Numeric f (castV x)
+-- op1Numeric f (MVal x)   = op1Numeric f (castV x)
 op1Numeric f (VRef x)   = op1Numeric f x
 op1Numeric f (VInt x)   = VInt $ f x
 op1Numeric f l@(VList _)= VInt $ f (vCast l)
@@ -308,11 +313,12 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Bool      pre     ?^      (Bool)\
 \\n   Ref       pre     \\      (Any)\
 \\n   List      pre     ...     (Str|Num)\
-\\n   Any       post    ++      (Str|Num)\
-\\n   Num       post    --      (Num)\
+\\n   Any       post    ++      (LValue)\
+\\n   Num       post    --      (LValue)\
 \\n   Bool      pre     not     (Bool)\
 \\n   Str       pre     perl    (List)\
 \\n   Any       pre     eval    (Str)\
+\\n   Any       pre     last    (List)\
 \\n   Num       pre     rand    (?Num=1)\
 \\n   Action    pre     print   (List)\
 \\n   Action    pre     say     (List)\

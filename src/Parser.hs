@@ -147,14 +147,18 @@ ruleParamDefault False = rule "default value" $ option (Val VUndef) $ do
 ruleVarDeclaration :: RuleParser Exp
 ruleVarDeclaration = rule "variable declaration" $ do
     scope   <- ruleScope
-    name    <- parseVarName
+    names   <- choice $
+        [ return . (:[]) =<< parseVarName
+        , parens $ parseVarName `sepEndBy` symbol ","
+        ]
+    let name = head names -- XXX Wrong
     exp     <- option (Syn "mval" [Var name, Val VUndef]) $ do
         sym <- tryChoice $ map symbol $ words " = := ::= "
         exp <- ruleExpression
         return $ case sym of
             "=" -> (Syn "mval" [Var name, exp])
             _   -> exp
-    return $ Syn "sym" [Sym $ Symbol scope name exp]
+    return $ Syn "sym" [Sym $ Symbol scope name exp | name <- names]
 
 ruleUseDeclaration :: RuleParser Exp
 ruleUseDeclaration = rule "use declaration" $ do
@@ -183,11 +187,11 @@ ruleGatherConstruct = rule "gather construct" $ do
 ruleLoopConstruct = rule "loop construct" $ do
     symbol "loop"
     conds <- option [] $ maybeParens $ try $ do
-        a <- ruleExpression
+        a <- option (Val VUndef) $ ruleExpression
         symbol ";"
-        b <- ruleExpression
+        b <- option (Val VUndef) $ ruleExpression
         symbol ";"
-        c <- ruleExpression
+        c <- option (Val VUndef) $ ruleExpression
         return [a,b,c]
     block <- ruleBlock
     -- XXX while/until
@@ -200,7 +204,15 @@ ruleGivenConstruct = rule "given construct" $ fail ""
 
 -- Expressions ------------------------------------------------
 
-ruleExpression = (<?> "expression") $ parseOp
+ruleExpression = (<?> "expression") $ do
+    exp <- parseOp
+    f <- option id rulePostConditional
+    return $ f exp
+
+rulePostConditional = rule "postfix conditional" $ do
+    cond <- tryChoice $ map symbol ["if", "unless", "while", "until"]
+    exp <- parseOp
+    return $ \x -> Syn cond [exp, x]
 
 ruleBlockLiteral = rule "block construct" $ do
     (typ, formal) <- option (SubBlock, Nothing) $ choice
@@ -335,18 +347,18 @@ parseTerm = rule "term" $ do
         , parseApply
         , parseParens parseOp
         ]
-    inv <- option id rulePostTerm
-    return $ inv term
+    f <- option id rulePostTerm
+    return $ f term
 
 rulePostTerm = rule "term postfix" $ do
-    inv <- tryChoice
+    f <- tryChoice
         [ ruleInvocation
         , ruleArraySubscript
         , ruleHashSubscript
         , ruleCodeSubscript
         ]
-    inv' <- option id rulePostTerm
-    return $ inv' . inv
+    f' <- option id rulePostTerm
+    return $ f' . f
 
 ruleInvocation = tryRule "invocation" $ do
     char '.'

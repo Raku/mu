@@ -66,7 +66,7 @@ instance Pretty Val where
     pretty (VArray (MkArray x)) = pretty (VList x)
     pretty (VHash (MkHash x)) = show x
     pretty (VHandle x) = show x
-    pretty (MVal x) = pretty $ castV x
+    pretty (MVal x) = "<mval>" -- pretty $ castV x
     pretty VUndef = "undef"
 
 joinList x y = concat $ intersperse x y

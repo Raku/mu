@@ -78,6 +78,7 @@ doRun = do
     where
     end v@(VError str exp)  = do
         hPutStrLn stderr str
+        hPutStrLn stderr (show exp)
         exitFailure
     end _               = return ()
 
