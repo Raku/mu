@@ -84,10 +84,9 @@ sub todo_fail (Str ?$desc) returns Bool is export {
     return 0;
 }
 
-sub diag (Str $diag) {
+sub diag (Str $diag) is export {
     say "# ", $diag;
 }
-
 
 END {
     if (!$plan) {
