@@ -39,6 +39,16 @@ ok($str eq 'hello', "qq backwards angle");
 eval '$str = qq/world/';
 ok($str eq 'world', "qq slash");
 
+my $hello = "Hello";
+eval '$str = "$hello, World"';
+ok($str eq 'Hello, World', "dq interpolation");
+eval '$str = "Dear World, $hello"';
+ok($str eq 'Dear World, Hello', "dq ultimate interpolation");
+eval '$str = "I say $hello, World"';
+ok($str eq 'I say Hello, World', "dq internal interpolation");
+eval '$str = "$hello, World, I say $hello"';
+ok($str eq 'Hello, World, I say Hello', "foghorn leghorn interpolation");
+
 my @array;
 eval ' @array = qw/"foo" "bar"/ ';
 ok(@array[0] eq '"foo"' && @array[1] eq '"bar"', 'qw//');

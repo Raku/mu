@@ -76,10 +76,7 @@ symbol s
         ahead '!' '=' = False
         ahead s   x   = x `elem` ";!" || x /= s
 
-stringLiteral = choice
-    [ P.stringLiteral  perl6Lexer
-    , singleQuoted
-    ]
+stringLiteral = singleQuoted
 
 interpolatingStringLiteral endchar interpolator = do
         list <- stringList
@@ -88,8 +85,8 @@ interpolatingStringLiteral endchar interpolator = do
         homogenConcat :: [Exp] -> Exp
         homogenConcat []             = Val (VStr "")
         homogenConcat [x]            = x
-        homogenConcat ((Val (VStr x)):(Val (VStr y)):xs) = homogenConcat (Val (VStr (x ++ y)) : xs)
-        homogenConcat (x:y:xs)       = homogenConcat (App "&infix:~" [x, y] [] : xs)
+        homogenConcat (Val (VStr x):Val (VStr y):xs) = homogenConcat (Val (VStr (x ++ y)) : xs)
+        homogenConcat (x:y:xs)       = App "&infix:~" [x, homogenConcat (y:xs)] []
         
         stringList = do
             lookAhead (char endchar)

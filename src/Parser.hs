@@ -622,16 +622,19 @@ pairLiteral = do
     return $ Syn "=>" [Val (VStr key), val]
 
 qqInterpolator = do
-    var <- parseVar
-    return var
+    var <- ruleVarNameString
+    return (Var var)
 
-qqLiteral = try $ do
-    string "qq"
-    notFollowedBy alphaNum
-    ch <- anyChar
+qqLiteral = do
+    ch <- getDelim
     expr <- interpolatingStringLiteral (balancedDelim ch) qqInterpolator
     ch <- char (balancedDelim ch)
     return expr
+        where getDelim = try $ do string "qq"
+                                  notFollowedBy alphaNum
+                                  delim <- anyChar
+                                  return delim
+                               <|> char '"'
 
 qwLiteral = try $ do
     str <- qwText
