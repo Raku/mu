@@ -221,17 +221,25 @@ ruleVarDeclaration = rule "variable declaration" $ do
 ruleVarDeclarationSingle scope = do
     name <- parseVarName
     exp  <- option (Syn "mval" [Var name, App "&not" [] []]) $ do
-       sym <- tryChoice $ map symbol $ words " = := ::= "
-       exp <- ruleExpression
-       return $ case sym of
-           "=" -> (Syn "mval" [Var name, exp])
-           _   -> exp
+        sym <- tryChoice $ map string $ words " = := ::= "
+        when (sym == "=") $ do
+            lookAhead (satisfy (/= '='))
+            return ()
+        whiteSpace
+        exp <- ruleExpression
+        return $ case sym of
+            "=" -> (Syn "mval" [Var name, exp])
+            _   -> exp
     return $ Syn "sym" [Sym $ Symbol scope name exp]
 
 ruleVarDeclarationMultiple scope = do
     names   <- parens $ parseVarName `sepEndBy` symbol ","
     (sym, expMaybe) <- option ("=", Nothing) $ do
         sym <- tryChoice $ map symbol $ words " = := ::= "
+        when (sym == "=") $ do
+           lookAhead (satisfy (/= '='))
+           return ()
+        whiteSpace
         exp <- ruleExpression
         return (sym, Just exp)
     -- now match exps up with names and modify them.
