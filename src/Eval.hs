@@ -468,17 +468,20 @@ apply sub invs args = do
 -- XXX - faking application of lexical contexts
 -- XXX - what about defaulting that depends on a junction?
 doApply :: Env -> VSub -> [Exp] -> [Exp] -> Eval Val
-doApply env@Env{ envClasses = cls } sub@Sub{ subParams = prms, subFun = fun } invs args =
+doApply env@Env{ envClasses = cls } sub@Sub{ subParams = prms, subFun = fun, subType = typ } invs args =
     case bindParams prms invs args of
         Left errMsg     -> retError errMsg (Val VUndef)
         Right bindings  -> do
-            local (\e -> e{ envCaller = Just e }) $ do
+            local fixEnv $ do
                 bound <- doBind bindings
                 val <- (`juncApply` bound) $ \realBound -> do
                     enterSub sub $ do
                         applyExp realBound fun
                 retVal val
     where
+    fixEnv env
+        | typ >= SubBlock = env
+        | otherwise      = env{ envCaller = Just env }
     doBind :: [(Param, Exp)] -> Eval [ApplyArg]
     doBind [] = return []
     doBind ((prm, exp):rest) = do

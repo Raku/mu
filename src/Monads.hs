@@ -73,16 +73,18 @@ enterScope f = do
     -}
 
 enterSub sub@Sub{ subType = typ } action
-    | typ >= SubPrim    = action
-    | otherwise         = do
+    | typ >= SubPrim = action -- primitives just happen
+    | otherwise     = do
         cxt <- asks envContext
-        resetT $ do
-            local (\e -> e{ envLexical = (subRec:ret cxt:subPad sub) }) $ do
-                action
+        resetT $ local (fixEnv cxt) action
     where
     doReturn [v] = shiftT $ \_ -> return v
     subRec = Symbol SMy "&?prefix:SUB" (Val $ VSub sub)
+    blockRec = Symbol SMy "&?prefix:BLOCK" (Val $ VSub sub)
     ret cxt = Symbol SMy "&prefix:return" (Val $ VSub $ retSub cxt)
+    fixEnv cxt env
+        | typ >= SubBlock = env{ envLexical = (blockRec:subPad sub) }
+        | otherwise      = env{ envLexical = (subRec:ret cxt:subPad sub) }
     retSub cxt = Sub
         { isMulti = False
         , subName = "return"
