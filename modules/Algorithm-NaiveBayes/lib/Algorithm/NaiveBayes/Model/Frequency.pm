@@ -4,8 +4,6 @@ use v6;
 
 use Algorithm::NaiveBayes::Util <sum_hash add_hash max rescale>;
 
-has %.attributes;
-has %.labels;
 has %:model;
 
 method :do_add_instance(%attrs, @labels) {
@@ -56,7 +54,7 @@ method :do_predict(%attrs) {
   my %scores = %:model<prior_probs>;
   for %attrs -> $feature, $value {
     next unless exists $:model<attributes>{$feature};  # Ignore totally unseen features
-    for %:model<probs> -> $label, $attributes {
+    for %:model<probs>.kv -> $label, $attributes {
       # P($feature|$label)**$value
       $scores{$label} += ($attributes{$feature} || %:model<smoother>{$label})*$value;
     }
