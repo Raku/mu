@@ -1,7 +1,8 @@
 package Perl6::Pugs;
-$Pugs::VERSION = '6.0.10';
-
+use 5.006;
 use strict;
+
+$Pugs::VERSION = v6.0.10;
 
 =head1 NAME
 
