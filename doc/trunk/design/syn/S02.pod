@@ -366,9 +366,41 @@ As with C<*>, the C<=> may also be used as a package name: C<$=::DATA>.
 =item *
 
 Magical lexically scoped values live in variables with a C<?>
-secondary sigil.  C<$?FILE> and C<$?LINE> are your current file and
-line number, for instance.  As with C<*>, the C<?> may also be used
-as a package name: C<$?::SUB>.
+secondary sigil.  These are all values that are known to the compiler.
+(Run-time values go into the C<*> namespace.)  C<$?FILE> and C<$?LINE>
+are your current file and line number, for instance.  As with C<*>,
+the C<?> may also be used as a package name: C<$?::SUB>.  Here are some
+possibilities:
+
+    $?OS        Which os am I compiled for?
+    $?OSVER     Which os version am I compiled for?
+    $?PERLVER   Which Perl version am I compiled for?
+    $?FILE      Which file am I in?
+    $?LINE      Which line am I at?
+    $?PACKAGE   Which package am I in?
+    @?PACKAGE   Which packages am I in?
+    $?MODULE    Which module am I in?
+    @?MODULE    Which modules am I in?
+    $?CLASS     Which class am I in?
+    @?CLASS     Which classes am I in?
+    $?ROLE      Which role am I in?
+    @?ROLE      Which roles am I in?
+    $?GRAMMAR   Which grammar am I in?
+    @?GRAMMAR   Which grammars am I in?
+    &?SUB       Which sub am I in?
+    @?SUB       Which subs am I in?
+    $?SUBNAME   Which sub name am I in?
+    @?SUBNAME   Which sub names am I in?
+    &?BLOCK     Which block am I in?
+    @?BLOCK     Which blocks am I in?
+    $?LABEL	Which block label am I in?
+    @?LABEL	Which block labels am I in?
+
+Note that some of these things have parallels in the * space:
+
+    $*OS	Which OS I'm running under
+    $*OSVER	Which OS version I'm running under
+    $*PERLVER	Which Perl version I'm running under
 
 =back
 
