@@ -76,9 +76,16 @@ run []                          = do
         else run ["-"]
 
 -- convenience functions for GHCi
+eval :: String -> IO ()
 eval = runProgramWith id (putStrLn . pretty) "<interactive>" []
+
+parse :: String -> IO ()
 parse = doParse "-"
+
+dump :: String -> IO ()
 dump = (doParseWith $ \exp _ -> print exp) "-"
+
+comp :: String -> IO ()
 comp = (doParseWith $ \exp _ -> putStrLn =<< compile "Haskell" exp) "-"
 
 repLoop :: IO ()
@@ -95,19 +102,24 @@ repLoop = do
             CmdHelp           -> printInteractiveHelp >> loop
             CmdReset          -> tabulaRasa >>= writeIORef env >> loop
 
+tabulaRasa :: IO AST.Env
 tabulaRasa = prepareEnv "<interactive>" []
 
+doCheck :: FilePath -> String -> IO ()
 doCheck = doParseWith $ \_ name -> do
     putStrLn $ name ++ " syntax OK"
 
+doExternal :: String -> FilePath -> String -> IO ()
 doExternal mod = doParseWith $ \exp _ -> do
     str <- externalize mod exp
     putStrLn str
 
+doCompile :: [Char] -> FilePath -> String -> IO ()
 doCompile backend = doParseWith $ \exp _ -> do
     str <- compile backend exp
     writeFile "dump.ast" str
 
+doParseWith :: (AST.Exp -> FilePath -> IO a) -> FilePath -> String -> IO a
 doParseWith f name prog = do
     env <- emptyEnv []
     runRule env (f' . envBody) ruleProgram name $ decodeUTF8 prog
@@ -118,6 +130,7 @@ doParseWith f name prog = do
     f' exp = f exp name
 
 
+doParse :: FilePath -> String -> IO ()
 doParse name prog = do
     env <- emptyEnv []
     case runRule env envBody ruleProgram name (decodeUTF8 prog) of

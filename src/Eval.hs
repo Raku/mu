@@ -203,6 +203,7 @@ posSyms pos = [ SymVal SMy n v | (n, v) <- syms ]
         , ("$?POSITION", castV $ pretty pos)
         ]
 
+evalVar :: Ident -> ContT Val (ReaderT Env IO) Val
 evalVar name = do
     env <- ask
     v <- findVar env name

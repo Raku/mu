@@ -36,6 +36,7 @@ op0 "¥" = (>>= return . VList . concat . transpose) . mapM fromVal
 op0 "Y" = op0 "¥"
 op0 other = \x -> return $ VError ("unimplemented listOp: " ++ other) (App other (map Val x) [])
 
+retEmpty :: ContT Val (ReaderT Env IO) Val
 retEmpty = do
     cxt <- asks envContext
     return $ case cxt of

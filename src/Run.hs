@@ -25,8 +25,10 @@ runEval env eval = do
     freePerl5 my_perl
     return val
 
+runEnv :: Env -> IO Val
 runEnv env = runEval env $ evaluateMain (envBody env)
 
+runAST :: Exp -> IO Val
 runAST ast = do
     hSetBuffering stdout NoBuffering
     name <- getProgName
@@ -42,6 +44,7 @@ runComp comp = do
     env  <- prepareEnv name args
     runEval env{ envDebug = Nothing } comp
 
+prepareEnv :: VStr -> [VStr] -> IO Env
 prepareEnv name args = do
     environ <- getEnvironment
     let envFM = listToFM $ [ (k, VStr v) | (k, v) <- environ ]

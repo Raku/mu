@@ -10,6 +10,7 @@ import Text.PrettyPrint
 -- XXX This compiler needs a totaly rewrite using Parrot AST,
 -- XXX and maybe TH-based AST combinators
 
+genPIR :: (Compile.Parrot.Compile x, Monad m) => x -> m String
 genPIR exp = return . unlines $
     [ "#!/usr/bin/env parrot"
     , ".sub main @MAIN"

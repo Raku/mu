@@ -13,8 +13,11 @@ module Junc where
 import Internals
 import AST
 
+opJuncAll :: [AST.Val] -> AST.Val
 opJuncAll = opJunc JAll
+opJuncAny :: [AST.Val] -> AST.Val
 opJuncAny = opJunc JAny
+opJuncOne :: [AST.Val] -> AST.Val
 opJuncOne args = VJunc (Junc JOne dups vals)
     where
     vals = mkSet [ v | [v] <- groups ]
