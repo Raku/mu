@@ -1,5 +1,6 @@
-module FileSpecUnix-0.0.1;
 use v6;
+
+module FileSpecUnix-0.0.1;
 
 sub curdir        returns Str  is export { '.'         }
 sub updir         returns Str  is export { '..'        }
@@ -34,6 +35,40 @@ sub catpath (Str $volume, Str $directory, Str $file) returns Str is export {
     }
 }
 
+sub splitpath (Str $path, Bool ?$nofile) returns Array is export {
+    my ($volume, $directory, $file) = ('','','');
+    if ($nofile) {
+        $directory = $path;
+    }
+    else {
+        $path ~~ rx:perl5{^ ( (?: .* / (?: \.\.?\Z(?!\n) )? )? ) ([^/]*) };
+        $directory = $1;
+        $file      = $2;
+    }
+    return ($volume, $directory, $file);
+}
+
+## real to absolute
+
+sub rel2abs (Str $path, Str ?$base) returns Str is export {
+    if (!file_name_is_absolute($path)) {
+        if (!$base.defined || $base eq '') {
+            $base = cwd();
+        }
+        elsif (!file_name_is_absolute($base)) {
+            $base = rel2abs($base);
+        }
+        else {
+            $base = canonpath($base);
+        }
+        # Glom them together
+        $path = catdir($base, $path);
+    }
+    return canonpath($path);
+}
+
+sub cwd returns Str { system("pwd") } # << this is a hack for now
+
 ## Misc.
 
 # Refacted this into a Junction instead of the
@@ -44,6 +79,11 @@ sub no_upwards (*@filenames) returns Array is export {
 
 sub file_name_is_absolute (Str $file) returns Bool is export { 
     ?($file ~~ rx:perl5{^/})  # needs to work in the multi-line string
+}
+
+sub path returns Array is export {
+    return unless %*ENV{'PATH'}.defined;
+    return split(':', %*ENV{'PATH'}).map:{ $_ eq '' ?? '.' :: $_ };
 }
 
 sub canonpath (Str $path) returns Str is export {
@@ -85,24 +125,6 @@ method tmpdir () returns Str {
     return $tmpdir if $tmpdir.defined;
     $tmpdir = ._tmpdir(%*ENV{'TMPDIR'}, "/tmp");
     return $tmpdir;
-}
-
-method path () returns Array {
-    return () unless exists %*ENV{'PATH'};
-    return %*ENV{'PATH'}.split(':').map:{ $_ eq '' ?? '.' :: $_ };
-}
-
-method splitpath (Str $path, Bool ?$nofile) returns Array {
-    my ($volume, $directory, $file) = ('','','');
-    if ($nofile) {
-        $directory = $path;
-    }
-    else {
-        $path ~~ m|^ ( (?: .* / (?: \.\.?\Z(?!\n) )? )? ) ([^/]*) |xs;
-        $directory = $1;
-        $file      = $2;
-    }
-    return ($volume, $directory, $file);
 }
 
 # Internal routine to File::Spec, no point in making this public since

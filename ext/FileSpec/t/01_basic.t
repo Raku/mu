@@ -3,6 +3,8 @@
 use v6;
 require Test;
 
+plan 35;
+
 =pod
 
 This is a *very* basic test of the FileSpecUnix module.
@@ -60,3 +62,37 @@ is(catpath('vol', 'dir', 'file'), 'dir/file',
 ok(file_name_is_absolute('/path/from/root'), '... checking if path is absolute (yes)');
 ok(!file_name_is_absolute('path/from/root'), '... checking if path is absolute (no)');
 ok(!file_name_is_absolute("\n/path/from/root"), '... checking if path is absolute (no)');
+
+{
+    my @path = path();
+    ok(+@path, '... we have elements in the path'); 
+
+#     my $orig_path = %*ENV{'PATH'};
+#     
+#     %*ENV{'PATH'} = 'path/to/bin:path/to/some/other/bin:other/path:';
+#     
+#     my @path = path();
+#     is(+@path, 4, '... we have 4 elements in the path'); 
+#     is(@path[0], 'path/to/bin', '... correct first element in the path'); 
+#     is(@path[1], 'path/to/some/other/bin', '... correct second element in the path'); 
+#     is(@path[2], 'other/path', '... correct third element in the path'); 
+#     is(@path[3], '.', '... correct fourth element in the path');             
+#     
+#     %*ENV{'PATH'} = $orig_path;
+}
+
+{
+    my @path = splitpath('/path/to/file');
+    is(+@path, 3, '... got back the expected elements');
+    is(@path[0], '', '... got the right first element');    
+    todo_is(@path[1], '/path/to/', '... got the right second element');
+    todo_is(@path[2], 'file', '... got the right third element');    
+}
+
+{
+    my @path = splitpath('/path/to/file', 1);
+    is(+@path, 3, '... got back the expected elements');
+    is(@path[0], '', '... got the right first element');    
+    is(@path[1], '/path/to/file', '... got the right second element');
+    is(@path[2], '', '... got the right third element');    
+}
