@@ -45,7 +45,7 @@ plan 17;
 	# simple example
 	my ($result_a, $result_b);
 
-	for ("T", "E", 5) -> $digit { # FIXME make this into: for zip(("T", "E", 5), (10, 11, 12)) -> $digit, $expected
+	for (("T", "E", 5) ¥ (10, 11, 5)) -> $digit, $expected {
 		eval '$result_b = given $digit {
 			when "T" { 10 }
 			when "E" { 11 }
@@ -58,21 +58,8 @@ plan 17;
 			default  { $digit }
 		}';
 
-		my $expected;
-		
-		if ($digit eq ( "T" | "E" )){
-                	# $expected = ($digit eq "T") ?? 10 :: 11;
-			if $digit eq "T" {
-				$expected = 10;
-			} else {
-				$expected = 11;
-			}
-		} else {
-			$expected = $digit;
-		}
-
-		todo_is($result_a, $expected, "result using implicit default {} is $expected");
-		todo_is($result_b, $expected, "result using explicit default {} is $expected");
+		todo_is($result_a, $expected, "result of $digit using implicit default {} is $expected");
+		todo_is($result_b, $expected, "result of $digit using explicit default {} is $expected");
 	};
 };
 
