@@ -10,7 +10,7 @@ Perl6::Pugs - A Perl 6 Implementation
 
 =head1 VERSION
 
-This document describes version 6.0.13 of Pugs, released March 21, 2005.
+This document describes version 6.0.13 of Pugs, released March 27, 2005.
 
 =head1 SYNOPSIS
 
