@@ -19,7 +19,10 @@ switch, and wraps the whole script in
 
 my @examples;
 
-push @examples, '-p -e1';
+push @examples, '-p';
+push @examples, '-p "-e1;"';
+push @examples, '-pe ";"';
+push @examples, '-pe ""';
 
 plan +@examples;
 
@@ -51,7 +54,7 @@ for @examples -> $ex {
   my $got      = slurp "temp-ex-output";
   unlink "temp-ex-output";
 
-  todo_is $got, $expected, "-p -e1 works like cat";
+  todo_is $got, $expected, "$ex works like cat";
 }
 
 unlink "temp-ex-input";

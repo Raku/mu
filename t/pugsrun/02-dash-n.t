@@ -10,15 +10,17 @@ Test -n implementation
 The -n command line switch mimics the Perl5 -n command line
 switch, and wraps the whole script in
 
-  while (<>) {
+  while (=<>) {
     ...
   };
 
 =cut
 
 my @examples;
-
 push @examples, '-n -e print';
+push @examples, '-ne print';
+push @examples, '-e "" -ne print';
+
 
 plan +@examples;
 

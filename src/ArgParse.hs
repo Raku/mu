@@ -14,7 +14,7 @@
   If you change anything here, make sure all tests under
   t/pugsrun/ still pass. Otherwise you might break building
   for everybody, once you commit.
-  
+
 -}
 
 module ArgParse (canonicalArgs
@@ -57,7 +57,7 @@ unpackOption opt
     | otherwise = ['-':opt]
 
 longOptions = [("--help", "-h"), ("--version", "-v")]
-composable = "cdlw"
+composable = "cdlnpw"
 withParam = ["e", "C", "I", "V:"]
 prefixOpt opt = msum $ map (findArg opt) withParam
 findArg arg prefix = do
@@ -89,6 +89,8 @@ argRank(Switch 'w')         = 2
 argRank(Switch 'c')         = 3
 argRank(Opt "-C" _)         = 4
 argRank(Opt "--external" _) = 5
+argRank(Switch 'n')         = 99   -- translated into Perl code (later)
+argRank(Switch 'p')         = 99   -- translated into Perl code (later)
 argRank(Switch 'l')         = 100  -- translated into Perl code (later)
 argRank(Switch '0')         = 100  -- translated into Perl code (later)
 argRank(Opt "-e" _)         = 100  -- translated into Perl code
@@ -111,9 +113,20 @@ gatherArgs(('-':[]):xs)           = [File "-"] ++ gatherArgs(xs)
 gatherArgs(('-':x):xs)            = [Switch (head x)] ++ gatherArgs(xs)
 gatherArgs(x:xs)                  = [File x] ++ gatherArgs(xs)
 
-{- collect "-e" switches together -}
+{- collect "-e" switches together, also handle "-n" and "-p" -}
 joinDashE :: [Arg] -> [Arg]
 joinDashE [] = []
+joinDashE ((Switch 'p'):args) = joinDashE ((Opt "-e" "for (=<>) {"):script++[(Opt "-e" "print; }")]++rest)
+                                 where
+                                   (script,rest) = partition isDashE args
+                                   isDashE (Opt "-e" _) = True
+                                   isDashE (_) = False
+joinDashE ((Switch 'n'):args) = joinDashE ((Opt "-e" "for (=<>) {"):script++[(Opt "-e" "}")]++rest)
+                                 where
+                                   (script,rest) = partition isDashE args
+                                   isDashE (Opt "-e" _) = True
+                                   isDashE (_) = False
+
 joinDashE ((Opt "-e" a):(Opt "-e" b):args) =
     joinDashE (Opt "-e" combined:args)
     where

@@ -36,14 +36,14 @@ main = do
 {-    
     __run args
 
-warn x = do
-            hPrint stderr $ show x
 __run x = do
             warn $ canonicalArgs x
             warn $ gatherArgs . unpackOptions $ x
             warn $ unpackOptions x
             run $ canonicalArgs x
 -}
+warn x = do
+            hPrint stderr $ show x
 
 -- see also ArgParse.hs
 run :: [String] -> IO ()
@@ -76,7 +76,7 @@ run ("-C":backend:file:_)                = readFile file >>= doCompile backend f
 run ("--external":mod:"-e":prog:_)    = doExternal mod "-e" prog
 run ("--external":mod:file:_)         = readFile file >>= doExternal mod file
 
-run (("-e"):prog:args)          = doRun "-e" args prog
+run (("-e"):prog:args)          = do doRun "-e" args prog
 run ("-":args)                  = do
                                     prog <- getContents
                                     doRun "-" args prog
