@@ -87,55 +87,57 @@ bindParams :: VSub -> [Exp] -> [Exp] -> MaybeError VSub
 bindParams sub invsExp argsExp = do
     case bindSomeParams sub invsExp argsExp of
         Left errMsg -> Left errMsg
-        Right boundSub -> verifyBindings boundSub
+        Right boundSub -> finalizeBindings boundSub
 
--- verifies that a binding is good to go
-verifyBindings :: VSub -> MaybeError VSub
-verifyBindings sub@Sub{ subParams = params, subBindings = bindings } = do
+-- verifies that all invocants and required params were given
+-- and binds default values to unbound optionals
+finalizeBindings :: VSub -> MaybeError VSub
+finalizeBindings sub@Sub{ subParams = params, subBindings = bindings } = do
     let boundInvs = filter (\x -> isInvocant (fst x)) bindings -- bound invocants
         invocants = takeWhile isInvocant params                  -- expected invocants
 
-    -- Check length of invocant parameters
+    -- Check that we have enough invocants bound
     when (length boundInvs /= length invocants) $ do
         fail $ "Wrong number of invocant parameters: "
             ++ (show $ length boundInvs) ++ " actual, "
             ++ (show $ length invocants) ++ " expected"
-    
-    let boundReq  = filter (\x -> isRequired (fst x)) bindings -- bound required
-        required  = takeWhile isRequired params                  -- expected required
+   
+    let (boundReq, boundOpt) = partition (\x -> isRequired (fst x)) bindings -- bound params which are required
+        (reqPrms, optPrms)   = span isRequired params -- all params which are required, and all params which are opt
 
     -- Check length of required parameters
-    when (length boundReq < length required) $ do
+    when (length boundReq < length reqPrms) $ do
         fail $ "Insufficient number of required parameters: "
             ++ (show $ length boundReq) ++ " actual, "
-            ++ (show $ length required) ++ " expected"
+            ++ (show $ length reqPrms) ++ " expected"
 
-    return sub
+    let unboundOptPrms = optPrms \\ (map fst boundOpt) -- unbound optParams are allPrms - boundPrms
+        optPrmsDefaults = map paramDefault $ unboundOptPrms -- get a list of default values
+        boundDefOpts = unboundOptPrms `zip` (map Parens optPrmsDefaults) -- turn into exprs, so that +$y = $x will work
+        
+    return sub {
+        subBindings = ((subBindings sub) ++ boundDefOpts)
+    }
 
+-- takes invocants and arguments, and creates a binding from the remaining params in the sub
 bindSomeParams :: VSub -> [Exp] -> [Exp] -> MaybeError VSub
 bindSomeParams sub@Sub{ subBindings = bindings, subParams = params } invsExp argsExp = do
-    let (invocants, nameables) = span isInvocant params
-        (invs, args) = if null invocants
+    if (subName sub) == "&foo" then trace (unlines ["sub: " ++ (show (subName sub)), "binding: " ++ (show (map snd bindings)),  "invs: " ++ (show invsExp), "args: " ++ (show argsExp), "params :" ++ (show (map paramName (subParams sub)))]) $ return () else do return ()
+
+    let (invPrms, argPrms) = span isInvocant params
+        (givenInvs, givenArgs) = if null invPrms
             then ([], (invsExp++argsExp))
             else (invsExp, argsExp)
 
-    -- Bind invs to invocants, pairs to names
-    let boundInv                = invocants `zip` invs
-        (named, positional)     = partition isPair args
-        (boundNamed, restNamed, restPrms) = bindNames named nameables
-        (params, slurpy)        = break isSlurpy restPrms
-        (required, optional)    = span isRequired params
+    let boundInv                = invPrms `zip` givenInvs -- invocants are just bound, params to given
+        (namedArgs, posArgs)    = partition isPair givenArgs -- pairs are named arguments, they go elsewhere
+        (boundNamed, namedForSlurp, allPosPrms) = bindNames namedArgs argPrms -- bind pair args to params. namedForSlup = leftover pair args
+        (posPrms, slurpyPrms)   = break isSlurpy allPosPrms -- split any prms not yet bound, into regular and slurpy. allPosPrms = not bound by named
+        boundPos                = posPrms `zip` posArgs -- bind all the unbound params in positional order
+        posForSlurp             = drop (length posPrms) posArgs -- and whatever's left will be slurped
 
-    -- Bind positionals to requireds, defaults to optionals
-    let (req, opt)  = length required `splitAt` positional
-        boundReq    = required `zip` req
-        defaults    = map paramDefault $ drop (length opt) optional
-        optExps     = opt ++ map Parens defaults
-        boundOpt    = optional `zip` optExps
-        restPos     = drop (length optional) opt
-    
     -- Bind slurpy arrays and hashes
-    let (slurpNamed, slurpPos) = partition (('%' ==) . head . paramName) slurpy
+    let (slurpNamed, slurpPos) = partition (('%' ==) . head . paramName) slurpyPrms
         defaultPos      = if hasDefaultArray  then [] else [defaultArrayParam]
         defaultNamed    = if hasDefaultHash   then [] else [defaultHashParam]
         defaultScalar   = if hasDefaultScalar then [] else [] -- XXX - fetch from *@_
@@ -143,14 +145,17 @@ bindSomeParams sub@Sub{ subBindings = bindings, subParams = params } invsExp arg
                         || null slurpPos
         hasDefaultHash  = isJust (find (("%_" ==) . paramName) slurpNamed)
         hasDefaultScalar= isJust (find (("$_" ==) . paramName) params)
+        
+    boundHash   <- bindHash namedForSlurp (slurpNamed ++ defaultNamed) -- put leftover named args in %_
+    boundArray  <- bindArray posForSlurp (slurpPos ++ defaultPos) -- put leftover positional args in @_
+    boundScalar <- return $ defaultScalar `zip` (givenInvs ++ givenArgs) -- put, uh, something in $_
 
-    boundHash   <- bindHash restNamed (slurpNamed ++ defaultNamed)
-    boundArray  <- bindArray restPos (slurpPos ++ defaultPos)
-    boundScalar <- return $ defaultScalar `zip` (invs ++ args)
-
-    let newBindings = concat [bindings, boundInv, boundNamed, boundReq, boundOpt, boundHash, boundArray, boundScalar]
+    let newBindings = concat [bindings, boundInv, boundNamed, boundPos, boundHash, boundArray, boundScalar]
+    let newParams = params \\ (map fst newBindings);
+    
+    if (subName sub) == "&foo" then trace (unlines ["new binding: " ++ (show newBindings), "new params :" ++ (show (map paramName newParams)), "bound params :" ++ (show (map paramName (map fst newBindings)))]) $ return () else do return ()
 
     return sub
         { subBindings = newBindings
-        , subParams   = params \\ (map fst newBindings)
+        , subParams   = newParams
         }
