@@ -55,6 +55,7 @@ unpackOption('-':'d':rest)    = unpackOption("-d") ++ unpackOption('-':rest)
 unpackOption('-':'e':frag)    = ["-e",frag]
 unpackOption('-':'l':rest)    = unpackOption("-l") ++ unpackOption('-':rest)
 unpackOption('-':'w':rest)    = unpackOption("-w") ++ unpackOption('-':rest)
+unpackOption('-':'C':backend) = ["-C",backend]
 unpackOption('-':'I':[])      = ["-I"]
 unpackOption('-':'I':dir)     = ["-I",dir]
 unpackOption('-':'V':':':xs)  = ["-V",xs]
@@ -65,7 +66,7 @@ unpackOption(a)               = [a]
   sortArgs enforces a canonical order of command line switches.
   Currently this is:
 
-    (-h -v -V) (-I) (-d) (-w) (-c) (-l -0 -e other)
+    (-h -v -V) (-I) (-d) (-w) (-c) (-C) (-l -0 -e other)
 
   This makes pattern matching more convenient
 
@@ -88,17 +89,21 @@ argRank(("-I"):_)         = 0
 argRank(("-d"):_)         = 1
 argRank(("-w"):_)         = 2
 argRank(("-c"):_)         = 3
+argRank(("-C"):_)         = 4
 argRank(("-l"):_)         = 100  -- translated into Perl code (later)
 argRank(("-0"):_)         = 100  -- translated into Perl code (later)
 argRank(("-e"):_)         = 100  -- translated into Perl code
 argRank(_)                = 100  -- filename or @ARGV or whatever
 
 -- Gather switches and their arguments:
+-- should be abstracted together into some generative code
+-- (but I don't know yet how to write such code in Haskell)
 _gatherArgs :: [String] -> [[String]]
 _gatherArgs([]) = []
 _gatherArgs("-e":frag:rest) = [["-e",frag]] ++ _gatherArgs(rest)
-_gatherArgs("-V":item:rest) = [["-V",item]] ++ _gatherArgs(rest)
 _gatherArgs("-I":dir:rest)  = [["-I",dir]] ++ _gatherArgs(rest)
+_gatherArgs("-C":backend:rest) = [["-C",backend]] ++ _gatherArgs(rest)
+_gatherArgs("-V":item:rest) = [["-V",item]] ++ _gatherArgs(rest)
 -- _gatherArgs("-l":sep:rest)  = [["-l",sep]] ++ _gatherArgs(rest)
 -- _gatherArgs("-0":sep:rest)  = [["-0",sep]] ++ _gatherArgs(rest)
 _gatherArgs(('-':x):xs) = [['-':x]] ++ _gatherArgs(xs)
