@@ -16,6 +16,7 @@ import Help
 import Lexer
 import Rule
 import Rule.Error
+import Parser.Kwid
 
 -- Lexical units --------------------------------------------------
 
@@ -42,7 +43,7 @@ ruleStatementList = rule "statements" $ choice
     [ nonSep  ruleDeclaration
     , nonSep  ruleConstruct
     , semiSep ruleExpression
-    , ruleEndMarker
+    , rulePodBlock
     ]
     where
     nonSep = doSep many
@@ -54,11 +55,39 @@ ruleStatementList = rule "statements" $ choice
         rest        <- option [] $ try $ do { count (symbol ";"); ruleStatementList }
         return ((statement, pos):rest)
 
-ruleEndMarker = rule "END marker" $ do
-    string "\n=begin END\n"
-    many anyChar
-    return []
-    
+ruleBeginOfLine = do
+    pos <- getPosition
+    unless (sourceColumn pos == 1) $ fail ""
+    return ()
+
+ruleEndOfLine = choice [ do { char '\n'; return () }, eof ]
+
+rulePodIntroducer = (<?> "intro") $ do
+    ruleBeginOfLine
+    char '='
+
+rulePodCut = (<?> "cut") $ do
+    rulePodIntroducer
+    string "cut"
+    many (satisfy (\x -> isSpace x && x /= '\n'))
+    ruleEndOfLine
+    return ()
+
+rulePodBlock = (<?> "block") $ do
+    rulePodIntroducer
+    literalIdentifier
+    many (satisfy (\x -> isSpace x && x /= '\n'))
+    many1 newline
+    rulePodBody
+    whiteSpace
+    option [] ruleStatementList
+
+rulePodBody = (try rulePodCut) <|> eof <|> do
+    many $ satisfy  (/= '\n')
+    many1 newline -- XXX - paragraph mode
+    rulePodBody
+    return ()
+   
 -- Declarations ------------------------------------------------
 
 ruleDeclaration :: RuleParser Exp

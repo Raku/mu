@@ -119,6 +119,9 @@ runProgramWith fenv f name args prog = do
         , Symbol SGlobal "$*OUT"        $ Val outGV
         , Symbol SGlobal "$*ERR"        $ Val errGV
         , Symbol SGlobal "%*ENV" (Val . VHash . MkHash $ envFM)
+        , Symbol SGlobal "%=POD"        (Val . VHash . MkHash $ emptyFM) -- wrong: pkg
+        , Symbol SGlobal "@=POD"        (Val . VArray . MkArray $ [])
+        , Symbol SGlobal "$=POD"        (Val . VStr $ "")
         ]
 --    str <- return "" -- getContents
     let env' = runRule (fenv env) id ruleProgram name prog

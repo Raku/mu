@@ -19,8 +19,8 @@ import qualified Rule.Token as P
 type RuleParser a = GenParser Char Env a
 
 perl6Def  = javaStyle
-          { P.commentStart   = "=pod"
-          , P.commentEnd     = "=cut"
+          { P.commentStart   = [] -- "=pod"
+          , P.commentEnd     = [] -- "=cut"
           , P.commentLine    = "#"
           , P.nestedComments = False
           , P.identStart     = wordAlpha
@@ -28,6 +28,11 @@ perl6Def  = javaStyle
           , P.caseSensitive  = False
           }
 
+literalIdentifier = do
+    c <- wordAlpha
+    cs <- many wordAny
+    return (c:cs)
+    
 wordAlpha   = satisfy isWordAlpha <?> "alphabetic word character"
 wordAny     = satisfy isWordAny <?> "word character"
 
@@ -47,40 +52,7 @@ getVar = do
     error ""    
 
 perl6Lexer = P.makeTokenParser perl6Def
-whiteSpace = choice
-    [ rulePodBlock
-    , P.whiteSpace perl6Lexer
-    ]
-
-ruleBeginOfLine = do
-    pos <- getPosition
-    unless (sourceColumn pos == 1) $ fail ""
-    return ()
-
-rulePodIntroducer = (<?> "intro") $ do
-    ruleBeginOfLine
-    char '='
-
-rulePodCut = (<?> "cut") $ do
-    rulePodIntroducer
-    string "cut"
-    choice [ do { char '\n'; return () }, eof ]
-    return ()
-
-rulePodBlock = (<?> "block") $ do
-    rulePodIntroducer
-    identifier
---    newline
-    anyChar
-    rulePodBody
-
-rulePodBody = (try rulePodCut) <|> eof <|> do
-    many $ satisfy  (/= '\n')
-    newline
---    newline
-    rulePodBody
-    return ()
-
+whiteSpace = P.whiteSpace perl6Lexer
 parens     = P.parens perl6Lexer
 lexeme     = P.lexeme perl6Lexer
 identifier = P.identifier perl6Lexer
