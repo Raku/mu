@@ -153,8 +153,9 @@ src/Rule/Pos.hs
 src/Rule/Prim.hs
 src/Rule/Token.hs
 src/Shell.hs
-src/Unicode.c
-src/Unicode.hsc
+src/UnicodeC.c
+src/UnicodeC.h
+src/Unicode.hs
 src/UTF8.lhs
 t/base/anon_block.t
 t/base/cond.t
