@@ -62,7 +62,7 @@ compile pattern flags = withCString pattern $ \cstr ->
             es <- peek errPtr >>= peekCString
             eo <- peek errOffset
             return $ Left (fi eo,es)
-          else fmap (Right . Regex) (newForeignPtr c_ptr_free v) 
+          else fmap (Right . Regex) (newForeignPtr_ v)
 
 getNumSubs (pcre_ptr) = 
     --withForeignPtr pcre_fptr $ \pcre_ptr -> 
@@ -124,8 +124,8 @@ foreign import ccall unsafe "pcre.h pcre_fullinfo"
     c_pcre_fullinfo :: Ptr PCRE -> Ptr () -> CInt -> Ptr a -> IO CInt
 foreign import ccall unsafe "pcre.h pcre_version"
     c_pcre_version :: IO (Ptr CChar)
-foreign import ccall unsafe "pcre.h &pcre_free"
-    c_ptr_free :: FunPtr (Ptr a -> IO ())
+-- foreign import ccall unsafe "pcre.h &pcre_free"
+--    c_ptr_free :: FunPtr (Ptr a -> IO ())
 
     
 
