@@ -3,6 +3,8 @@
 use v6;
 require Test;
 
+plan 2;
+
 my $str1 = "foo";
 my $str2 = "bar";
 my $str3 = "foobar";

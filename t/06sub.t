@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-#say "1..12";
+plan 12;
 
 sub foobar ($var) {
     return $var;

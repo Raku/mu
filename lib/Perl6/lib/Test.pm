@@ -2,7 +2,14 @@ module Test-0.0.1;
 use v6;
 
 my $loop = 0;
+my $plan = 0;
 my $failed = 0;
+
+sub plan (Int $number_of_tests) returns Int is export {
+    $plan = $number_of_tests;
+    say "1.." ~ $number_of_tests;
+    return $number_of_tests;
+}
 
 sub ok (Bool $cond, Str ?$desc) returns Bool is export {
     my $ok  := $cond ?? "ok " :: "not ok ";
@@ -55,7 +62,14 @@ sub todo_is (Str $got, Str $expected, Str ?$desc) returns Bool is export {
 }
 
 END {
-    say("1..", $loop);
+    if (!$plan) {
+        say("1..", $loop);
+    } else {
+        if ($plan != $loop) {
+	    $*ERR.say("# Looks like you planed ", $plan, " tests, but ran ",
+	        $loop);
+        }
+    }
     if ($failed) {
         $*ERR.say("# Looks like you failed ", $failed, " tests of ", $loop);
     }
