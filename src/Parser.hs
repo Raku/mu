@@ -621,10 +621,14 @@ pairLiteral = do
     val <- parseTerm
     return $ Syn "=>" [Val (VStr key), val]
 
-qqInterpolator = do
-    var <- ruleVarNameString
-    return (Var var)
-
+qqInterpolator = do 
+            var <- ruleVarNameString
+            return (Var var)
+          <|> do   -- XXX \n, \q, etc.
+            char '\\'
+            nextchar <- anyChar
+            return (Val (VStr [nextchar]))
+          <|> ruleBlock
 qqLiteral = do
     ch <- getDelim
     expr <- interpolatingStringLiteral (balancedDelim ch) qqInterpolator
