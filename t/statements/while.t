@@ -7,6 +7,8 @@ require Test;
 
 while statement tests
 
+L<S04/"Loop statements">
+
 =cut
 
 plan 4;

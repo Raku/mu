@@ -3,6 +3,12 @@
 use v6;
 require Test;
 
+=pod
+
+Tests for the die() builtin
+
+=cut
+
 plan(3);
 
 ok(!eval 'die "foo"; 1');

@@ -7,11 +7,15 @@ require Test;
 
 =head1 Binding tests
 
-These tests are derived from the "Binding" section of Synopsis 2
+These tests are derived from the "Binding" section of Synopsis 3
+
+L<S03/"Binding">
 
 =cut
 
 plan 9;
+
+# L<S03/"Binding" /replaces the container itself.  For instance:/>
 
 my $x = 'Just Another';
 is($x, 'Just Another', 'normal assignment works');

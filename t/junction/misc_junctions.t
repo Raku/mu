@@ -7,11 +7,16 @@ plan 30;
 
 =pod
 
-Misc. Junction tests
+Misc. Junction tests 
+
+L<S09/"Junctions">
+
+L<S03/"Junctive operators">
 
 =cut
 
-{
+{ # L<S09/"Junctions">
+
     # initalize them all to empty strings
     my $a = '';
     my $b = '';

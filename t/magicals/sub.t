@@ -3,6 +3,14 @@
 use v6;
 require Test;
 
+=pod
+
+This tests the &?SUB magical value
+
+L<S06/"The &?SUB routine">
+
+=cut
+
 plan 2;
 
 # L<S06/"The &?SUB routine">

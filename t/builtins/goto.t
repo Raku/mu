@@ -3,9 +3,9 @@
 use v6;
 require Test;
 
-=kwid
+=pod
 
-goto tests
+Tests for the goto() builtin
 
 =cut
 

@@ -43,6 +43,8 @@ is(2 <=> 1, 1,  '2 is greater than 1');
 
 ## Multiway comparisons (RFC 025)
 
+# L<S03/"Chained comparisons">
+
 # this works ...
 is(5 > 1 < 10, 5 > 1 && 1 < 10, 'multi-way comp 5 > 1 < 10 works');
 
@@ -51,6 +53,7 @@ is(5 > 1 < 10, 5 > 1 && 1 < 10, 'multi-way comp 5 > 1 < 10 works');
 is(5 < 1 < 10, 5 < 1 && 1 < 10, 'multi-way comp 5 < 1 < 10 works');
 
 ## NOTE: these tests moved here from t/03operator.t 
+# L<S03/"Chained comparisons">
 
 ok(5 > 4 > 3, "chained comparison");
 ok(eval '3 < 4 < 5', "chained comparison");
@@ -90,6 +93,7 @@ is('a' cmp 'b', -1, 'a is less than b');
 is('b' cmp 'a', 1,  'b is greater than a');
 
 ## Multiway comparisons (RFC 025)
+# L<S03/"Chained comparisons">
 
 # this works ...
 is('e' gt 'a' lt 'j', 'e' gt 'a' && 'a' lt 'j', 'multi-way comp e gt a lt j works');
@@ -99,6 +103,7 @@ is('e' gt 'a' lt 'j', 'e' gt 'a' && 'a' lt 'j', 'multi-way comp e gt a lt j work
 is('e' lt 'a' lt 'j', 'e' lt 'a' && 'a' lt 'j', 'multi-way comp e lt a lt j works');
 
 ## NOTE: these tests moved here from t/03operator.t 
+# L<S03/"Chained comparisons">
 
 ok("5" gt "4" gt "3", "chained str comparison");
 ok("3" lt "4" lt "5", "chained str comparison");

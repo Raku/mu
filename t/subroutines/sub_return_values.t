@@ -3,6 +3,14 @@
 use v6;
 require Test;
 
+=pod
+
+This tests proper return of values from subroutines.
+
+L<S06/"Subroutines">
+
+=cut
+
 plan 55;
 
 # These test the returning of values from a subroutine. 

@@ -3,10 +3,19 @@
 use v6;
 require Test;
 
+=pod
+
+This tests the &?BLOCK magical from Synoposis 6
+
+L<S06/"The &?BLOCK routine">
+
+L<S06
+
+=cut
+
 plan 1;
 
-# example taken from Synopsis 6
-
+# L<S06/"The &?BLOCK routine" /tail-recursion on an anonymous block:$/>
 my $anonfactorial = -> Int $n { $n < 2 ?? 1 :: $n * &?BLOCK($n-1) };
 
 my $result = $anonfactorial(3);

@@ -3,6 +3,12 @@
 use v6;
 require Test;
 
+=pod
+
+Hyper operators L<S03/"Hyper operators">
+
+=cut
+
 plan 22;
 
 { # binary infix

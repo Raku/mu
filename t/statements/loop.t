@@ -7,6 +7,8 @@ require Test;
 
 loop statement tests
 
+L<S04/"The general loop statement">
+
 =cut
 
 plan 8;

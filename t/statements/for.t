@@ -10,17 +10,21 @@ Tests the "for" statement
 This attemps to test as many variations of the 
 for statement as possible
 
+L<S04/"The C<for> statement">
+
 =cut
 
 plan 20;
 
 ## for with plain old range operator w/out parens
+# L<S04/"The C<for> statement" /in Perl 6, si it always take a list as an argument/>
 
 my $a;
 eval 'for 0 .. 5 { $a = $a ~ $_; }';
 is($a, '012345', 'for 0..5 {} works');
 
 # ... with 'pointer'
+# L<S04/"The C<for> statement" /to the closure:/>
 
 my $b;
 eval 'for 0 .. 5 -> { $b = $b ~ $_; }';

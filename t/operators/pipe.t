@@ -3,6 +3,16 @@
 use v6;
 require Test;
 
+=pod
+
+Tests for the pipe operators 
+
+    ==> and <== 
+    
+L<S06/"Pipe operators">
+L<S03/"Piping operators">    
+
+=cut
 
 plan 7;
 

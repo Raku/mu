@@ -7,6 +7,8 @@ require Test;
 
 Basic "if" tests.
 
+L<S04/"Conditional statements">
+
 =cut
 
 plan 8;

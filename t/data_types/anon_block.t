@@ -10,10 +10,14 @@ Block tests
 This covers anonymous blocks and subs, as well as pointy blocks
 (with and without args) and bare blocks. 
 
+L<S06/"Blocks">
+L<S04/"The Relationship of Blocks and Declarations">
+
 =cut
 
 plan 22;
 
+# anon blocks L<S06/"Standard Subroutines">
 my $anon_sub = sub { 1 };
 isa_ok($anon_sub, 'Sub');
 is($anon_sub(), 1, 'sub { } works');
@@ -22,10 +26,12 @@ my $anon_sub_w_arg = sub ($arg) { 1 + $arg };
 isa_ok($anon_sub_w_arg, 'Sub');
 is($anon_sub_w_arg(3), 4, 'sub ($arg) {} works');
 
+# anon blocks L<S06/"Blocks">
 my $anon_block = { 1 };
 isa_ok($anon_block, 'Sub');
 is($anon_block(), 1, '{} <anon block> works');
 
+# pointy subs L<S06/"Pointy subs">
 my $pointy_block = -> { 1 };
 isa_ok($pointy_block, 'Sub');
 is($pointy_block(), 1, '-> {} <"pointy" block> works');
@@ -38,7 +44,7 @@ my $pointy_block_w_multiple_args = -> $arg1, $arg2 { $arg1 + $arg2 };
 isa_ok($pointy_block_w_multiple_args, 'Sub');
 is($pointy_block_w_multiple_args(3, 4), 7, '-> $arg1, $arg2 {} <"pointy" block w/multiple args> works');
 
-# bare blocks
+# bare blocks L<S06/"Blocks">
 
 my $foo;
 eval '{$foo = "blah"};';

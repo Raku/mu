@@ -3,6 +3,12 @@
 use v6;
 require Test;
 
+=pod
+
+Tests for the defined() builtin
+
+=cut
+
 plan 19;
 
 ok(!defined(undef), 'undef is not defined');

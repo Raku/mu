@@ -3,6 +3,14 @@
 use v6;
 require Test;
 
+=pod
+
+The zip() builtin and operator tests
+
+L<S03/"C<zip>">
+
+=cut
+
 plan 12;
 
 {
