@@ -1106,7 +1106,7 @@ method delete(::?CLASS $self: Str $tag is copy) {
   ### Delete from the header:
   my @hdr;
   my $field;
-  for @.header -> $field {
+  for @:header -> $field {
     push @hdr, $field if $field[0] ne $tag;
   }
   @:header = @hdr;
@@ -1172,74 +1172,63 @@ deal with broken mailers.
 
 =cut
 
-sub fields { # XXX -- will translate later
-    my $self = shift;
-    my @fields;
+method fields() returns Array of Pair {
+  my @fields;
 
-    ### Get a lookup-hash of all *explicitly-given* fields:
-    my %explicit = map { $_->[0] => 1 } @{$self->{Header}};
+  ### Get a lookup-hash of all *explicitly-given* fields:
+  my %explicit = map { $_[0] => 1 } @:header;
 
-    ### Start with any MIME attributes not given explicitly:
-    my $tag;
-    foreach $tag (sort keys %{$self->{Attrs}}) {
+  ### Start with any MIME attributes not given explicitly:
+  for sort keys %:attrs -> $tag {
+    ### Skip if explicit:
+    next if $explicit{$tag};
 
-	### Skip if explicit:
-	next if ($explicit{$tag});
+    ### Skip if no subtags:
+    my @subtags = keys %:attrs{$tag};
+    @subtags or next;
 
-	### Skip if no subtags:
-	my @subtags = keys %{$self->{Attrs}{$tag}};
-	@subtags or next;
-
-	### Create string:
-	my $value;
-	defined($value = $self->{Attrs}{$tag}{''}) or next;  ### need default
-	foreach (sort @subtags) {
-	    next if ($_ eq '');
-	    $value .= qq{; $_="$self->{Attrs}{$tag}{$_}"}; #"#--vim
-	}
-
-	### Add to running fields;
-	push @fields, [$tag, $value];
+    ### Create string:
+    defined my $value = %:attrs{$tag}{''} or next;  ### need default
+    for sort @subtags -> {
+      next if $_ eq '';
+      $value ~= "; $_=\"%:attrs{$tag}{$_}\"";
     }
 
-    ### Add remaining fields (note that we duplicate the array for safety):
-    foreach (@{$self->{Header}}) {
-	push @fields, [@{$_}];
-    }
+    ### Add to running fields;
+    push @fields, ($tag => $value);
+  }
 
-    ### Final step:
-    ### If a suggested ordering was given, we "sort" by that ordering.
-    ###    The idea is that we give each field a numeric rank, which is
-    ###    (1000 * order(field)) + origposition.
-    my @order = @{$self->{FieldOrder} || []};      ### object-specific
-    @order or @order = @FieldOrder;                ### no? maybe generic
-    if (@order) {                                  ### either?
+  ### Add remaining fields (note that we duplicate the array for safety):
+  push @fields, @:header;
 
-	### Create hash mapping field names to 1-based rank:
-	my %rank = map {$order[$_] => (1+$_)} (0..$#order);
+  ### Final step:
+  ### If a suggested ordering was given, we "sort" by that ordering.
+  ###    The idea is that we give each field a numeric rank, which is
+  ###    (1000 * order(field)) + origposition.
+  my @order = @:FieldOrder;                      ### object-specific
+  @order or @order = @FieldOrder;                ### no? maybe generic
+  if @order {                                    ### either?
+    ### Create hash mapping field names to 1-based rank:
+    my %rank = map { $order[$_] => (1+$_) } 0..$#order;
 
-	### Create parallel array to @fields, called @ranked.
-	### It contains fields tagged with numbers like 2003, where the
-	### 3 is the original 0-based position, and 2000 indicates that
-	### we wanted ths type of field to go second.
-	my @ranked = map {
-	    [
-	     ($_ + 1000*($rank{lc($fields[$_][0])} || (2+$#order))),
-	     $fields[$_]
-	     ]
-	    } (0..$#fields);
-	# foreach (@ranked) {
-	#     print STDERR "RANKED: $_->[0] $_->[1][0] $_->[1][1]\n";
-	# }
+    ### Create parallel array to @fields, called @ranked.
+    ### It contains fields tagged with numbers like 2003, where the
+    ### 3 is the original 0-based position, and 2000 indicates that
+    ### we wanted ths type of field to go second.
+    my @ranked = map {[
+     ($_ + 1000*($rank{lc @fields[$_].key} || (2+@order-1))),
+     @fields[$_],
+    ]} (0..$#fields);
+    # foreach (@ranked) {
+    #     print STDERR "RANKED: $_->[0] $_->[1][0] $_->[1][1]\n";
+    # }
 
-	### That was half the Schwartzian transform.  Here's the rest:
-	@fields = map { $_->[1] }
-	          sort { $a->[0] <=> $b->[0] }
-	          @ranked;
-    }
+    ### That was half the Schwartzian transform.  Here's the rest:
+    @ranked ==> map { $_[1] } ==> sort { $a[0] <=> $b[0] } ==> @fields;
+  }
 
-    ### Done!
-    return \@fields;
+  ### Done!
+  return @fields;
 }
 
 
@@ -2243,33 +2232,27 @@ All of your $msg-E<gt>send invocations will work as expected.
 =cut
 
 # XXX -- Will continue translating from here (volunteers welcome!)
-sub send {
-    my $self = shift;
-
-    if (ref($self)) {              ### instance method:
-	my ($method, @args);
-	if (@_) {                            ### args; use them just this once
-	    $method = 'send_by_' . shift;
-	    @args   = @_;
-	}
-	else {                               ### no args; use defaults
-	    $method = "send_by_$Sender";
-	    @args   = @{$SenderArgs{$Sender} || []};
-	}
-	$self->verify_data if $AUTO_VERIFY;  ### prevents missing parts!
-	return $self->$method(@args);
+method send(Class|::?CLASS $invoc: Str ?$type, ?@params) is rw {
+  if $invoc ~~ ::?CLASS {
+    my ($method, @args);
+    if $type {                           ### args; use them just this once
+      $method = "send_by_$type";
+      @args = @params;
+    } else {                             ### no args; use defaults
+      $method = "send_by_$Sender";
+      @args   = %SenderArgs{$Sender};
     }
-    else {                         ### class method:
-	if (@_) {
-	    my @old = ($Sender, @{$SenderArgs{$Sender}});
-	    $Sender = shift;
-	    $SenderArgs{$Sender} = [@_];    ### remaining args
-	    return @old;
-	}
-	else {
-	  Carp::croak "class method send must have HOW... arguments\n";
-	}
-    }
+    .verify_data if $AUTO_VERIFY;  ### prevents missing parts!
+    return .:$method(@args);       # XXX -- correct?
+  } else {                         ### class method:
+    if $type {
+      my @old = ($Sender, %SenderArgs{$Sender});
+      $Sender = $type;
+      %SenderArgs{$Sender} = @params;
+      return @old;
+    } else {
+      die "Class method .send must have HOW... arguments.\n";
+  }
 }
 
 #------------------------------
@@ -2339,49 +2322,47 @@ Thus:
 
 =cut
 
-sub send_by_sendmail {
-    my $self = shift;
+method :send_by_sendmail(*@args) {
+    if @args == 1 {                 ### Use the given command...
+      my $sendmailcfg = @args[0];
+      # XXX -- IO
+      ### Do it:
+      open SENDMAIL, "|$sendmailcmd" or Carp::croak "open |$sendmailcmd: $!\n";
+      $self->print(\*SENDMAIL);
+      close SENDMAIL;
+      return (($? >> 8) ? undef : 1);
+    } else {                            ### Build the command...
+      my %p = @args;
+      %p{Sendmail} ||= "/usr/lib/sendmail";
 
-    if (@_ == 1) {                    ### Use the given command...
-	my $sendmailcmd = shift @_;
+      ### Start with the command and basic args:
+      my @cmd = (%p{Sendmail}, %p{BaseArgs} || <-t -oi -oem>);
 
-	### Do it:
-	open SENDMAIL, "|$sendmailcmd" or Carp::croak "open |$sendmailcmd: $!\n";
-	$self->print(\*SENDMAIL);
-	close SENDMAIL;
-	return (($? >> 8) ? undef : 1);
-    }
-    else {                            ### Build the command...
-	my %p = @_;
-	$p{Sendmail} ||= "/usr/lib/sendmail";
+      ### See if we are forcibly setting the sender:
+      %p{SetSender} = 1 if defined %p{FromSender};
 
-	### Start with the command and basic args:
-	my @cmd = ($p{Sendmail}, @{$p{BaseArgs} || ['-t', '-oi', '-oem']});
-
-	### See if we are forcibly setting the sender:
-	$p{SetSender} = 1 if defined($p{FromSender});
-
-	### Add the -f argument, unless we're explicitly told NOT to:
-	unless (exists($p{SetSender}) and !$p{SetSender}) {
-	    my $from = $p{FromSender} || ($self->get('From'))[0];
-	    if ($from) {
-		my ($from_addr) = extract_addrs($from);
-		push @cmd, "-f$from_addr"       if $from_addr;
-	    }
+      ### Add the -f argument, unless we're explicitly told NOT to:
+      unless exists %p{SetSender} and !%p{SetSender} {
+	my $from = %p{FromSender} || .get('From').key;
+	if $from {
+	  my ($from_addr) = .:extract_addrs($from);
+	  push @cmd, "-f$from_addr" if $from_addr;
 	}
+      }
 
-	### Open the command in a taint-safe fashion:
-	my $pid = open SENDMAIL, "|-";
-	defined($pid) or die "open of pipe failed: $!\n";
-	if (!$pid) {    ### child
-	    exec(@cmd) or die "can't exec $p{Sendmail}: $!\n";
-	    ### NOTREACHED
-	}
-	else {          ### parent
-	    $self->print(\*SENDMAIL);
-	    close SENDMAIL || die "error closing $p{Sendmail}: $! (exit $?)\n";
-	    return 1;
-	}
+      ### Open the command in a taint-safe fashion:
+      # XXX -- IO
+      my $pid = open SENDMAIL, "|-";
+      defined($pid) or die "open of pipe failed: $!\n";
+      if (!$pid) {    ### child
+	  exec(@cmd) or die "can't exec $p{Sendmail}: $!\n";
+	  ### NOTREACHED
+      }
+      else {          ### parent
+	  $self->print(\*SENDMAIL);
+	  close SENDMAIL || die "error closing $p{Sendmail}: $! (exit $?)\n";
+	  return 1;
+      }
     }
 }
 
@@ -2405,7 +2386,8 @@ Returns true on success, false or exception on error.
 ### Provided by Andrew McRae. Version 0.2  anm  09Sep97
 ### Copyright 1997 Optimation New Zealand Ltd.
 ### May be modified/redistributed under the same terms as Perl.
-#
+
+# XXX -- continue translating from here
 sub send_by_smtp {
     my ($self, @args) = @_;
 
