@@ -807,7 +807,6 @@ nonTerm = do
 ruleLit = choice
     [ ruleBlockLiteral
     , numLiteral
---    , strLiteral
     , listLiteral
     , arrayLiteral
     , pairLiteral
@@ -835,8 +834,6 @@ numLiteral = do
     case n of
         Left  i -> return . Val $ VInt i
         Right d -> return . Val $ VRat d
-
-strLiteral = return . Val . VStr =<< stringLiteral
 
 listLiteral = tryRule "list literal" $ do -- XXX Wrong
     parens whiteSpace

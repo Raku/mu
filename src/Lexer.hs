@@ -96,8 +96,6 @@ symbol s
     aheadSym '~' y   = not (y `elem` "&|^<>~")
     aheadSym x   y   = y `elem` ";!" || x /= y
 
-stringLiteral = singleQuoted
-
 interpolatingStringLiteral endchar interpolator = do
         list <- stringList
         return $ Syn "cxt" [Val (VStr "Str"), homogenConcat list]
@@ -120,12 +118,6 @@ interpolatingStringLiteral endchar interpolator = do
             rest <- stringList
             return (Val (VStr [char]):rest)
         
-
-singleQuoted = verbatimRule "literal string" $ do
-    str <- between (char '\'') (char '\'' <?> "end of string") (many singleStrChar)
-    return (foldr (id (:)) "" str)
-
-singleStrChar = try quotedQuote <|> noneOf "'"
 
 -- backslahed nonalphanumerics (except for ^) translate into themselves
 escapeCode      = charEsc <|> charNum <|> charAscii <|> charControl <|> anyChar
@@ -175,10 +167,6 @@ ascii2          = ['\BS','\HT','\LF','\VT','\FF','\CR','\SO','\SI',
 ascii3          = ['\NUL','\SOH','\STX','\ETX','\EOT','\ENQ','\ACK',
                    '\BEL','\DLE','\DC1','\DC2','\DC3','\DC4','\NAK',
                    '\SYN','\ETB','\CAN','\SUB','\ESC','\DEL']
-
-quotedQuote = do
-    string "\\'"
-    return '\''
 
 rule name action = (<?> name) $ lexeme $ action
 
