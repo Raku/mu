@@ -649,8 +649,8 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Str       pre     perl    (List)\
 \\n   Any       pre     eval    (Str)\
 \\n   Any       pre     require (Str)\
-\\n   Any       pre     last    (?Num=1)\
-\\n   Any       pre     exit    (?Num=0)\
+\\n   Any       pre     last    (?Int=1)\
+\\n   Any       pre     exit    (?Int=0)\
 \\n   Num       pre     rand    (?Num=1)\
 \\n   Bool      pre     defined (Any)\
 \\n   Str       pre     ref     (Any)\
@@ -664,7 +664,7 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   IO        pre     open    (Str)\
 \\n   Bool      pre     system  (Str)\
 \\n   Bool      pre     system  (Str: List)\
-\\n   Bool      pre     binmode (IO: ?Num=1)\
+\\n   Bool      pre     binmode (IO: ?Int=1)\
 \\n   Any       pre     return  (Any)\
 \\n   Junction  pre     any     (List)\
 \\n   Junction  pre     all     (List)\
