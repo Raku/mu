@@ -295,6 +295,7 @@ type VComplex = Complex VNum
 type VStr  = String
 type VList = [Val]
 type VRule = Regex
+type VSubst = (VRule, Exp)
 type VHandle = Handle
 type MVal = IORef Val
 newtype VArray = MkArray [Val] deriving (Show, Eq, Ord)
@@ -322,6 +323,7 @@ data Val
     | VError    VStr Exp
     | VHandle   VHandle
     | VRule     VRule
+    | VSubst    VSubst
     | MVal      MVal
     | VControl  VControl
     | VThunk    VThunk
@@ -349,6 +351,7 @@ valType (MVal     _)    = "Var"
 valType (VControl _)    = "Control"
 valType (VThunk   _)    = "Thunk"
 valType (VRule    _)    = "Rule"
+valType (VSubst   _)    = "Subst"
 
 type VBlock = Exp
 data VControl
@@ -669,3 +672,9 @@ naturalOrRat  = (<?> "number") $ do
             ; let n = foldl (\x d -> base*x + toInteger (digitToInt d)) 0 digits
             ; seq n (return n)
             }          
+
+evalExp :: Exp -> Eval Val
+evalExp exp = do
+    evl <- asks envEval
+    evl exp
+

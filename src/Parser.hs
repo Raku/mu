@@ -793,6 +793,7 @@ ruleLit = choice
     , qqLiteral
     , qwLiteral
     , rxLiteral
+    , substLiteral
     ]
 
 undefLiteral = try $ do
@@ -868,6 +869,21 @@ qqLiteral = do
                                   delim <- anyChar
                                   return delim
                                <|> char '"'
+
+substLiteral = try $ do
+    symbol "s"
+    string ":perl5"
+    notFollowedBy alphaNum
+    whiteSpace
+    ch <- anyChar
+    let endch = balancedDelim ch
+    expr <- interpolatingStringLiteral endch rxInterpolator
+    char endch
+    ch <- if ch == endch then return ch else do { whiteSpace ; anyChar }
+    let endch = balancedDelim ch
+    subst <- interpolatingStringLiteral endch qqInterpolator
+    char endch
+    return $ Syn "subst" [expr, subst]
 
 rxLiteral = try $ do
     symbol "rx"

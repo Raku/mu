@@ -97,6 +97,7 @@ instance Pretty Val where
         return $ pretty val
     format (VThunk _) = text $ "{thunk}"
     format (VRule _) = text $ "{rule}"
+    format (VSubst _) = text $ "{subst}"
     format VUndef = text $ "undef"
 
 quoted '\'' = "\\'"

@@ -91,8 +91,7 @@ doCheck = doParseWith $ \_ name -> do
 
 doCompile backend = doParseWith $ \exp _ -> do
     str <- compile backend exp
-    putStrLn str
-    -- writeFile "dump.ast" str
+    writeFile "dump.ast" str
 
 doParseWith f name prog = do
     env <- emptyEnv []

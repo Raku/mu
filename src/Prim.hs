@@ -411,6 +411,18 @@ op2 "split"= \x y -> return $ split' (vCast x) (vCast y)
     split' glue xs = VList $ map VStr $ split glue xs
 op2 other = \x y -> return $ VError ("unimplemented binaryOp: " ++ other) (App other [Val x, Val y] [])
 
+op2Match x (VSubst (rx, subst)) = do
+    str     <- fromVal x
+    case encodeUTF8 str =~~ rx of
+        Nothing -> return $ VBool False
+        Just mr -> do
+            glob <- askGlobal
+            let Just matchAV = findSym "$/" glob
+                subs = elems $ mrSubs mr
+            writeMVal matchAV $ VList $ map VStr subs
+            str' <- fromVal =<< evalExp subst
+            writeMVal (vCast x) (VStr $ concat [mrBefore mr, str', mrAfter mr])
+            return $ VBool True
 
 op2Match x (VRule rx) = do
     str     <- fromVal x
@@ -808,7 +820,7 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   List      non     ..      (Any, Any)\
 \\n   Bool      chain   !=      (Num, Num)\
 \\n   Bool      chain   ==      (Num, Num)\
-\\n   Bool      chain   ~~      (Any, Any)\
+\\n   Bool      chain   ~~      (rw!Any, Any)\
 \\n   Bool      chain   !~      (Any, Any)\
 \\n   Bool      chain   <       (Num, Num)\
 \\n   Bool      chain   <=      (Num, Num)\

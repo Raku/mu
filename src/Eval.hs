@@ -100,11 +100,6 @@ evaluate exp = do
         VError s e  -> retError s e
         _           -> return val
 
-evalExp :: Exp -> Eval Val
-evalExp exp = do
-    evl <- asks envEval
-    evl exp
-
 evalSym :: Symbol -> Eval (String, Val)
 evalSym (SymVal _ name val) =
     return (name, val)
@@ -462,6 +457,11 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         val     <- enterEvalContext "Str" exp
         str     <- fromVal val
         retVal $ VRule $ mkRegex $ encodeUTF8 str
+    "subst" -> do
+        let [exp, subst] = exps
+        val     <- enterEvalContext "Str" exp
+        str     <- fromVal val
+        retVal $ VSubst (mkRegex $ encodeUTF8 str, subst)
     syn | last syn == '=' -> do
         let [lhs, exp] = exps
             op = "&infix:" ++ init syn
