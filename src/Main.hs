@@ -74,8 +74,8 @@ runProgramWith f name args prog = do
             evaluate (envBody env')
     f val
     where
-    prepare e = e{ envPad =
-        [ Symbol SGlobal "@*ARGS" (VList $ map VStr args)
-        , Symbol SGlobal "$*PROGNAME" (VStr name)
-        ] ++ envPad e }
+    prepare e = e{ envGlobal =
+        [ Symbol SGlobal "@*ARGS" (Val $ VList $ map VStr args)
+        , Symbol SGlobal "$*PROGNAME" (Val $ VStr name)
+        ] ++ envGlobal e }
 

@@ -29,7 +29,8 @@ emptyEnv = do
     uniq <- liftIO $ newUnique
     return $ Env
         { envContext = "List"
-        , envPad     = initSyms
+        , envLexical = []
+        , envGlobal  = initSyms
         , envClasses = initTree
         , envEval    = evaluate
         , envCC      = return
@@ -55,7 +56,7 @@ debug key fun str a = do
 
 evaluate :: Exp -> Eval Val
 evaluate (Val (VSub sub)) = do
-    pad <- asks envPad
+    pad <- asks envLexical
     return $ VSub sub{ subPad = pad } -- closure!
 evaluate (Val val) = return val
 evaluate exp = do
@@ -71,6 +72,11 @@ evalExp exp = do
     evl <- asks envEval
     evl exp
 
+evalSym :: Symbol -> Eval (String, Val)
+evalSym (Symbol _ name vexp) = do
+    val <- evalExp vexp
+    return (name, val)
+
 enterEvalContext cxt = enterContext cxt . evalExp
 
 -- Reduction ---------------------------------------------------------------
@@ -79,6 +85,11 @@ reduce :: Eval Exp
 reduce = do
     env@Env{ envBody = body } <- ask
     doReduce env body
+
+reduceExp :: Exp -> Eval Exp
+reduceExp exp = do
+    env <- ask
+    doReduce env exp
 
 retVal :: Val -> Eval Exp
 retVal val = return $ Val val
@@ -89,13 +100,26 @@ reduceStatements [exp] = do
     val <- evalExp exp
     retVal val
 reduceStatements (exp:rest)
-    | Syn syn [Var var _, exp'] <- exp
+    | Syn "sym" [Sym sym@(Symbol SGlobal _ _)] <- exp = do
+        local (\e -> e{ envGlobal = (sym:envGlobal e) }) $ do
+            reduceStatements rest
+    | Syn "sym" [Sym sym@(Symbol SMy _ _)] <- exp = do
+        enterLex [sym] $ do
+            reduceStatements rest
+    | Syn syn [Var name, exp'] <- exp
     , (syn == ":=" || syn == "::=") = do
-        val <- enterContext (cxtOfSigil $ head var) (evalExp exp)
-        processVal val $ do
-            enterLex [Symbol SMy var val] $ reduceStatements rest
+        lex <- asks envLexical
+        case findSym name lex of
+            Just _  -> do
+                let sym = (Symbol SMy name exp')
+                enterLex [sym] $ do
+                    reduceStatements rest
+            Nothing -> do
+                let sym = (Symbol SGlobal name exp')
+                local (\e -> e{ envGlobal = (sym:envGlobal e) }) $ do
+                    reduceStatements rest
     | otherwise = do
-        val <- enterContext "Any" $ evalExp exp
+        val <- enterContext "Void" $ evalExp exp
         processVal val $ do
             reduceStatements rest
     where
@@ -106,11 +130,13 @@ reduceStatements (exp:rest)
 doReduce :: Env -> Exp -> Eval Exp
 
 -- Reduction for variables
-doReduce Env{ envPad = pad } exp@(Var var _)
-    | Just val <- findSym var pad
-    = retVal val
-    | Just val <- findSym (toGlobal var) pad
-    = retVal val
+doReduce Env{ envLexical = lex, envGlobal = glob } exp@(Var var)
+    | Just vexp <- findSym var lex
+    = reduceExp vexp
+    | Just vexp <- findSym var glob
+    = reduceExp vexp
+    | Just vexp <- findSym (toGlobal var) glob
+    = reduceExp vexp
     | otherwise
     = retVal $ VError ("Undefined variable " ++ var) exp
 
@@ -119,12 +145,16 @@ doReduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
     ";" -> do
         let (global, local) = partition isGlobalExp exps
         reduceStatements (global ++ local)
+    "sym" -> do
+        let [Sym (Symbol _ _ exp)] = exps
+        val     <- evalExp exp
+        retVal val
     ":=" -> do
-        let [Var var _, exp] = exps
+        let [Var var, exp] = exps
         val     <- evalExp exp
         retVal val
     "::=" -> do -- XXX wrong
-        let [Var var _, exp] = exps
+        let [Var var, exp] = exps
         val     <- evalExp exp
         retVal VUndef -- XXX wrong
     "=>" -> do
@@ -158,18 +188,19 @@ doReduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         = Nothing
     doSlice _ _ _ = Nothing
 
-doReduce env@Env{ envClasses = cls, envContext = cxt, envPad = pad } exp@(App name invs args) = do
-    case findSub name of
-        Just sub    -> applySub sub invs args
+doReduce env@Env{ envClasses = cls, envContext = cxt, envLexical = lex, envGlobal = glob } exp@(App name invs args) = do
+    subSyms <- mapM evalSym [ sym | sym <- lex ++ glob, head (symName sym) == '&' ]
+    case findSub subSyms name of
+        Just sub    -> applySub subSyms sub invs args
         otherwise   -> retVal $ VError ("No compatible subroutine found: " ++ name) exp
     where
-    applySub sub invs args
+    applySub subSyms sub invs args
         -- list-associativity
         | Sub{ subAssoc = "list" }      <- sub
         , (App name' invs' args'):rest  <- args
         , name == name'
         , null invs'
-        = applySub sub [] (args' ++ rest)
+        = applySub subSyms sub [] (args' ++ rest)
         -- fix subParams to agree with number of actual arguments
         | Sub{ subAssoc = "list", subParams = (p:_) }   <- sub
         , null invs
@@ -177,10 +208,10 @@ doReduce env@Env{ envClasses = cls, envContext = cxt, envPad = pad } exp@(App na
         -- chain-associativity
         | Sub{ subAssoc = "chain", subFun = fun, subParams = prm }   <- sub
         , (App name' invs' args'):rest              <- args
-        , Just sub'                                 <- findSub name'
+        , Just sub'                                 <- findSub subSyms name'
         , Sub{ subAssoc = "chain", subFun = fun', subParams = prm' } <- sub'
         , null invs'
-        = applySub sub{ subParams = prm ++ tail prm', subFun = Prim $ chainFun prm' fun' prm fun } [] (args' ++ rest)
+        = applySub subSyms sub{ subParams = prm ++ tail prm', subFun = Prim $ chainFun prm' fun' prm fun } [] (args' ++ rest)
         -- fix subParams to agree with number of actual arguments
         | Sub{ subAssoc = "chain", subParams = (p:_) }   <- sub
         , null invs
@@ -188,14 +219,14 @@ doReduce env@Env{ envClasses = cls, envContext = cxt, envPad = pad } exp@(App na
         -- normal application
         | otherwise
         = apply sub invs args
-    findSub name
-        | ((_, sub):_) <- sort (subs name)  = Just sub
-        | otherwise                         = Nothing
-    subs name = [
+    findSub subSyms name = case sort (subs subSyms name) of
+        ((_, sub):_)    -> Just sub
+        _               -> Nothing
+    subs subSyms name = [
         ( (isGlobal, subT, isMulti sub, bound, distance, order)
         , fromJust fun
         )
-        | ((Symbol _ n val), order) <- pad `zip` [0..]
+        | ((n, val), order) <- subSyms `zip` [0..]
         , let sub@(Sub{ subType = subT, subReturns = ret, subParams = prms }) = vCast val
         , (n ==) `any` [name, toGlobal name]
         , let isGlobal = '*' `elem` n
@@ -236,7 +267,7 @@ applyExp bound body = do
     enterLex formal $ evalExp body
     where
     formal = filter (not . null . symName) $ map argNameValue bound
-    argNameValue (ApplyArg name val _) = Symbol SMy name val
+    argNameValue (ApplyArg name val _) = Symbol SMy name (Val val)
 
 apply :: VSub -> [Exp] -> [Exp] -> Eval Exp
 apply sub invs args = do
@@ -262,7 +293,7 @@ doApply env@Env{ envClasses = cls } sub@Sub{ subParams = prms, subFun = fun } in
         (val, coll) <- expToVal prm exp
         let name = paramName prm
             arg = ApplyArg name val coll
-        restArgs <- enterLex [Symbol SMy name val] $ do
+        restArgs <- enterLex [Symbol SMy name (Val val)] $ do
             doBind rest
         return (arg:restArgs)
     expToVal Param{ isSlurpy = slurpy, paramContext = cxt } exp = do
@@ -280,13 +311,13 @@ toGlobal name
     = sigil ++ ('*':identifier)
     | otherwise = name
 
-isGlobalExp (Syn name _) = name `elem` (words ":= ::=")
+isGlobalExp (Syn name _) = name `elem` (words "::=")
 isGlobalExp _ = False
 
-findSym :: String -> Pad -> Maybe Val
+findSym :: String -> Pad -> Maybe Exp
 findSym name pad
     | Just s <- find ((== name) . symName) pad
-    = Just $ symValue s
+    = Just $ symExp s
     | otherwise
     = Nothing
 

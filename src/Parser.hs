@@ -21,6 +21,7 @@ ruleProgram = rule "program" $ do
     whiteSpace
     many (symbol ";")
     statements <- option [] ruleStatementList
+    many (symbol ";")
     eof
     env <- getState
     return $ env { envBody = Syn ";" statements }
@@ -30,6 +31,7 @@ ruleBlock = rule "block" $ braces $ do
     whiteSpace
     many (symbol ";")
     statements <- option [] ruleStatementList
+    many (symbol ";")
     retSyn ";" statements
 
 ruleStatementList :: RuleParser [Exp]
@@ -43,7 +45,7 @@ ruleStatementList = rule "statements" $ choice
     semiSep = doSep many1
     doSep count rule = do
         statement   <- rule
-        rest        <- option [] $ do { count (symbol ";"); ruleStatementList }
+        rest        <- option [] $ try $ do { count (symbol ";"); ruleStatementList }
         return (statement:rest)
 
 -- Declarations ------------------------------------------------
@@ -52,18 +54,40 @@ ruleDeclaration :: RuleParser Exp
 ruleDeclaration = rule "declaration" $ choice
     [ ruleSubDeclaration
     , rulePackageDeclaration
+    , ruleVarDeclaration
     ]
+
+ruleSubHead :: RuleParser (Bool, String)
+ruleSubHead = rule "subroutine head" $ do
+    multi   <- option False $ do { symbol "multi" ; return True }
+    symbol "sub"
+    name    <- ruleSubName
+    return (multi, name)
+
+ruleSubScopedWithContext = rule "scoped subroutine with context" $ do
+    scope   <- ruleScope
+    cxt     <- identifier
+    (multi, name) <- ruleSubHead
+    return (scope, cxt, multi, name)
+
+ruleSubScoped = rule "scoped subroutine" $ do
+    scope <- ruleScope
+    (multi, name) <- ruleSubHead
+    return (scope, "Any", multi, name)
+
+ruleSubGlobal = rule "global subroutine" $ do
+    (multi, name) <- ruleSubHead
+    return (SGlobal, "Any", multi, name)
 
 ruleSubDeclaration :: RuleParser Exp
 ruleSubDeclaration = rule "subroutine declaration" $ do
-    (scope, multi, name) <- try $ do
-        scope   <- option SGlobal $ ruleScope
-        multi   <- option False $ do { symbol "multi" ; return True }
-        symbol "sub"
-        name    <- ruleSubName
-        return (scope, multi, name)
+    (scope, cxt1, multi, name) <- tryChoice
+        [ ruleSubScopedWithContext
+        , ruleSubScoped
+        , ruleSubGlobal
+        ]
     pos     <- getPosition
-    cxt     <- option "Any" $ ruleBareTrait "returns"
+    cxt2    <- option cxt1 $ ruleBareTrait "returns"
     formal  <- option Nothing $ return . Just =<< parens ruleSubParameters
     body    <- ruleBlock
     let (fun, names) = extract (body, [])
@@ -76,12 +100,12 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
                   , subPad        = []
                   , subType       = SubRoutine
                   , subAssoc      = "pre"
-                  , subReturns    = cxt
+                  , subReturns    = cxt2
                   , subParams     = if null params then [defaultArrayParam] else params
                   , subFun        = fun
                   }
     -- XXX: user-defined infix operator
-    return $ Syn ":=" [Var name pos, Val (VSub sub)]
+    return $ Syn "sym" [Sym $ Symbol scope name (Val $ VSub sub)]
 
 ruleSubName = rule "subroutine name" $ do
     star    <- option "" $ string "*"
@@ -119,21 +143,39 @@ ruleParamDefault False = rule "default value" $ option (Val VUndef) $ do
     symbol "="
     ruleExpression
 
+ruleVarDeclaration :: RuleParser Exp
+ruleVarDeclaration = rule "variable declaration" $ do
+    scope   <- ruleScope
+    name    <- parseVarName
+    return $ Syn "sym" [Sym (Symbol scope name (Val VUndef))]
+
 rulePackageDeclaration = rule "package declaration" $ fail ""
 
 -- Constructs ------------------------------------------------
 
-ruleConstruct = rule "construct" $ choice
+ruleConstruct = rule "construct" $ tryChoice
     [ ruleGatherConstruct
+    , ruleBlockConstruct
     ]
 
 ruleGatherConstruct = rule "gather construct" $ do
     symbol "gather"
-    block   <- ruleBlock
+    block <- ruleBlock
     retSyn "gather" [block]
 
--- XXX not sure how many of these can be rolled into Prim
-ruleBlockConstruct = rule "block construct" $ fail ""
+ruleBlockConstruct = rule "block construct" $ do
+    formal <- option Nothing $ choice [ ruleBlockFormalStandard, ruleBlockFormalPointy ]
+    block <- ruleBlock
+    fail ""
+
+ruleBlockFormalStandard = rule "standard block parameters" $ do
+    symbol "sub"
+    return . Just =<< parens ruleSubParameters
+
+ruleBlockFormalPointy = rule "pointy block parameters" $ do
+    symbol "->"
+    return . Just =<< ruleSubParameters
+
 ruleCondConstruct = rule "conditional construct" $ fail ""
 ruleLoopConstruct = rule "loop construct" $ fail ""
 ruleWhileUntilConstruct = rule "while/until construct" $ fail ""
@@ -305,9 +347,8 @@ parseVarName = lexeme $ do
     return $ (sigil:caret) ++ name
 
 parseVar = do
-    pos     <- getPosition
     name    <- parseVarName
-    return $ Var name pos
+    return $ Var name
 
 nonTerm = do
     pos <- getPosition
@@ -321,6 +362,7 @@ parseLit = choice
     , namedLiteral "undef"  VUndef
     , namedLiteral "NaN"    (VNum $ 0/0)
     , namedLiteral "Inf"    (VNum $ 1/0)
+    , dotdotdotLiteral
     ]
 
 numLiteral = do
@@ -343,6 +385,11 @@ pairLiteral = do
 
 namedLiteral n v = do { symbol n; return $ Val v }
 
+dotdotdotLiteral = do
+    pos <- getPosition
+    symbol "..."
+    return . Val $ VError "..." (NonTerm pos)
+
 op_methodPostfix    = []
 op_namedUnary       = []
 methOps _ = []
@@ -357,7 +404,7 @@ runRule env f p str = f $ case ( runParser ruleProgram env progName str ) of
     Right env'  -> env'
     where
     progName
-        | Just Symbol{ symValue = (VStr str) } <- find ((== "$*PROGNAME") . symName) $ envPad env
+        | Just Symbol{ symExp = Val (VStr str) } <- find ((== "$*PROGNAME") . symName) $ envGlobal env
         = str
         | otherwise
         = "-"

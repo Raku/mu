@@ -195,7 +195,7 @@ op2Numeric f x y
     | otherwise                     = VNum $ f (vCast x) (vCast y)
 
 primOp :: String -> String -> Params -> String -> Symbol
-primOp sym assoc prms ret = Symbol SOur name sub
+primOp sym assoc prms ret = Symbol SOur name (Val sub)
     where
     name = '&':'*':fixity ++ ':':sym
     sub  = VSub $ Sub { isMulti     = True

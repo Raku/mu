@@ -45,7 +45,7 @@ instance Pretty Val where
             JOne  -> " ^ "
             JNone -> " ! "
     pretty (VPair x y) = "(" ++ pretty x ++ " => " ++ pretty y ++ ")"
-    pretty (VBool x) = if x then "#t" else "#f"
+    pretty (VBool x) = if x then "bool::true" else "bool::false"
     pretty (VNum x) = if x == 1/0 then "Inf" else show x
     pretty (VInt x) = show x
     pretty (VStr x) = show x -- XXX escaping

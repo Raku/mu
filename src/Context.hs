@@ -98,4 +98,5 @@ initTree = Node "Any"
         [ Node "Module"
             [ Node "Class" [] ] ]
     , Node "Action" []
+    , Node "Void" []
     ]

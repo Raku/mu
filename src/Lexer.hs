@@ -152,7 +152,7 @@ literalRule name action = (<?> name) $ postSpace $ action
 tryRule name action = (<?> name) $ lexeme $ try $ action
 
 ruleScope :: RuleParser Scope
-ruleScope = postSpace $ try $ do
+ruleScope = tryRule "scope" $ do
     scope <- choice $ map symbol scopes
     return (readScope scope)
     where
@@ -164,13 +164,10 @@ ruleScope = postSpace $ try $ do
         | otherwise
         = SGlobal
 
-preSpace rule = try $ do
-    skipMany1 (satisfy isSpace)
-    rule
-
 postSpace rule = try $ do
     rv <- rule
-    choice [skipMany1 (satisfy isSpace), eof <?> ""]
+    notFollowedBy wordAny
+    whiteSpace
     return rv
 
 ruleTrait trait = do
@@ -194,3 +191,4 @@ ruleVarName = literalRule "variable name" $ do
     name    <- many1 wordAny
     return $ (sigil:caret) ++ name
 
+tryChoice = choice . map try

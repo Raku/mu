@@ -15,21 +15,22 @@ import AST
 import Context
 
 enterLex :: Pad -> Eval a -> Eval a
-enterLex pad = local (\e -> e{ envPad = (pad ++ envPad e) })
+enterLex pad = local (\e -> e{ envLexical = (pad ++ envLexical e) })
 
 enterContext :: Cxt -> Eval a -> Eval a
 enterContext cxt = local (\e -> e{ envContext = cxt })
 
 main = do
     uniq <- newUnique
-    x <- (`runReaderT` env{ envID = uniq }) $ do
+    x <- (`runReaderT` testEnv{ envID = uniq }) $ do
         y <- (`runContT` return) $ blah
         return y
     print x
     return x
 
-env = Env { envContext = "List"
-          , envPad = []
+testEnv = Env { envContext = "List"
+          , envLexical = []
+          , envGlobal = []
           , envCaller = Nothing
           , envClasses = initTree
           , envEval = undefined
@@ -66,16 +67,16 @@ enterScope f = do
     -}
 
 enterSub sub@Sub{ subType = typ } action
-    | typ > SubRoutine  = action
+    | typ >= SubPrim    = action
     | otherwise         = do
         cxt <- asks envContext
         resetT $ do
-            local (\e -> e{ envPad = (ret cxt:subPad sub) }) $ do
+            local (\e -> e{ envLexical = (ret cxt:subPad sub) }) $ do
                 action
     where
     doReturn [v] = do
         shiftT $ \_ -> return v
-    ret cxt = Symbol SMy "&prefix:return" (VSub $ retSub cxt)
+    ret cxt = Symbol SMy "&prefix:return" (Val $ VSub $ retSub cxt)
     retSub cxt = Sub
         { isMulti = False
         , subName = "return"
@@ -97,7 +98,7 @@ enterSub sub@Sub{ subType = typ } action
 
 {-
 enterSub sub = enterScope $ do
-    local (\e -> e { envPad = subPad sub }) $ do
+    local (\e -> e { envLexical = subPad sub }) $ do
         case subName sub of
             "inner" -> inner
             "sub3" -> sub3
@@ -107,7 +108,7 @@ innerSub = Sub
     { isMulti       = False
     , subName       = "inner"
     , subType       = SubRoutine
-    , subPad        = [Symbol SMy "$inner" VUndef]
+    , subPad        = [Symbol SMy "$inner" (Val VUndef)]
     , subAssoc      = "left"
     , subParams     = []
     , subReturns    = "List"
@@ -118,7 +119,7 @@ sub3Sub = Sub
     { isMulti       = False
     , subName       = "sub3"
     , subType       = SubRoutine
-    , subPad        = [Symbol SMy "$inner" VUndef]
+    , subPad        = [Symbol SMy "$inner" (Val VUndef)]
     , subAssoc      = "left"
     , subParams     = []
     , subReturns    = "List"
@@ -129,7 +130,7 @@ sub3Sub = Sub
 
 dumpLex :: String -> Eval ()
 dumpLex label = do
-    pad <- asks envPad
+    pad <- asks envLexical
     depth <- asks envDepth
     liftIO $ putStrLn ("("++(show depth)++")"++label ++ ": " ++ (show pad))
     return ()
@@ -137,7 +138,7 @@ dumpLex label = do
 blah :: Eval Val
 blah = do
     dumpLex ">init"
-    rv <- enterLex [Symbol SMy "$x" $ VInt 1] $ do
+    rv <- enterLex [Symbol SMy "$x" $ Val $ VInt 1] $ do
         dumpLex ">lex"
         rv <- enterScope outer
         dumpLex "<lex"
@@ -146,7 +147,7 @@ blah = do
     return rv
 
 outer :: Eval Val
-outer = enterLex [Symbol SMy "$outer" $ VInt 2] $ do
+outer = enterLex [Symbol SMy "$outer" $ Val $ VInt 2] $ do
     dumpLex ">outer"
     -- enterSub innerSub
     dumpLex "<outer"

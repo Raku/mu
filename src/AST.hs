@@ -265,10 +265,10 @@ type Var = String
 data Exp
     = App String [Exp] [Exp]
     | Syn String [Exp]
-    | Sym Scope Var
+    | Sym Symbol
     | Prim ([Val] -> Eval Val)
     | Val Val
-    | Var Var SourcePos
+    | Var Var
     | Parens Exp
     | NonTerm SourcePos
     deriving (Show, Eq, Ord)
@@ -286,14 +286,14 @@ extract ((App n invs args), vs) = (App n invs' args', vs'')
 extract ((Syn n exps), vs) = (Syn n exps', vs')
     where
     (exps', vs') = foldr extractExp ([], vs) exps
-extract ((Var name pos), vs)
+extract ((Var name), vs)
     | (sigil:'^':identifer) <- name
     , name' <- (sigil : identifer)
-    = (Var name' pos, insert name' vs)
+    = (Var name', insert name' vs)
     | name == "$_"
-    = (Var name pos, insert name vs)
+    = (Var name, insert name vs)
     | otherwise
-    = (Var name pos, vs)
+    = (Var name, vs)
 extract ((Parens exp), vs) = ((Parens exp'), vs')
     where
     (exp', vs') = extract (exp, vs)
@@ -326,7 +326,8 @@ defaultHashParam    = buildParam "" "*" "%_" (Val VUndef)
 defaultScalarParam  = buildParam "" "*" "$_" (Val VUndef)
 
 data Env = Env { envContext :: Cxt
-               , envPad     :: Pad
+               , envLexical :: Pad
+               , envGlobal  :: Pad
                , envClasses :: ClassTree
                , envEval    :: Exp -> Eval Val
                , envCC      :: Val -> Eval Val
@@ -340,7 +341,7 @@ data Env = Env { envContext :: Cxt
 type Pad = [Symbol]
 data Symbol = Symbol { symScope :: Scope
                      , symName  :: String
-                     , symValue :: Val
+                     , symExp   :: Exp
                      } deriving (Show, Eq, Ord)
 
 data Scope = SGlobal | SMy | SOur | SLet | STemp | SState
