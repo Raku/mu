@@ -23,7 +23,7 @@ install_script  ($pugs);
 build_requires  ('Test::More');
 include         ('Module::Install::Makefile::Name');
 include         ('Module::Install::Makefile::Version');
-build_subdirs   ('ext/Kwid');
+build_subdirs   (map substr($_, 0, -11), glob("ext/*/Makefile.PL"));
 makemaker_args  (
     test => { TESTS => join ' ', (glob("t/*.t"), glob("t/*/*.t")) },
     MAN1PODS => {},
