@@ -106,9 +106,9 @@ apply env@Env{ cls = cls } Sub{ subParams = prms, subFun = fun } invs args =
 
 juncApply f args
     | (before, (ApplyArg name (VJunc j vs) coll):after) <- break isTotalJunc args
-    = VJunc j $ mkSet [ juncApply f (before ++ ((ApplyArg name v coll):after)) | v <- setToList vs ]
+    = VJunc j $ mapSet (\v -> juncApply f (before ++ ((ApplyArg name v coll):after))) vs
     | (before, (ApplyArg name (VJunc j vs) coll):after) <- break isPartialJunc args
-    = VJunc j $ mkSet [ juncApply f (before ++ ((ApplyArg name v coll):after)) | v <- setToList vs ]
+    = VJunc j $ mapSet (\v -> juncApply f (before ++ ((ApplyArg name v coll):after))) vs
     | (val:_) <- [ val | (ApplyArg _ val@(VError _ _) _) <- args ]
     = val
     | otherwise

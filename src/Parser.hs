@@ -32,7 +32,7 @@ tightOperators =
     , chainOps $
                " != == < <= > >= ~~ !~ " ++
                " eq ne lt le gt ge =:= "                -- Chained Binary
-    , leftOps  " && "                                   -- Tight And
+    , leftOps  " && !! "                                -- Tight And
     , leftOps  " || ^^ // "                             -- Tight Or
     , ternOps  [("??", "::")]                           -- Ternary
     , leftSyn  " = := ::= += **= xx= "                  -- Assignment
@@ -41,7 +41,7 @@ tightOperators =
 looseOperators =
     [ preOps   primitiveListFunctions                   -- List Operator
     , leftOps  " ==> "                                  -- Pipe Forward
-    , leftOps  " and "                                  -- Loose And
+    , leftOps  " and nor "                              -- Loose And
     , leftOps  " or xor err "                           -- Loose Or
     ]
 

@@ -91,11 +91,13 @@ op2 "&&" = op2Logical not
 op2 "||" = op2Logical (id :: Bool -> Bool)
 op2 "^^" = op2Bool ((/=) :: Bool -> Bool -> Bool)
 op2 "//" = op2Logical isJust
+op2 "!!" = op2Bool (\x y -> not x && not y)
 -- XXX pipe forward XXX
 op2 "and"= op2 "&&"
 op2 "or" = op2 "||"
 op2 "xor"= op2 "^^"
 op2 "err"= op2 "//"
+op2 "nor"= op2 "!!"
 op2 ";"  = \x y -> y -- XXX wrong! LoL!
 op2 s    = \x y -> VError ("unimplemented binaryOp: " ++ s) (App s [] [Val x, Val y])
 
@@ -268,6 +270,7 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Bool      chain   gt      (Str, Str)\
 \\n   Bool      chain   ge      (Str, Str)\
 \\n   Scalar    left    &&      (Bool, Bool)\
+\\n   Scalar    left    !!      (Bool, Bool)\
 \\n   Scalar    left    ||      (Bool, Bool)\
 \\n   Scalar    left    ^^      (Bool, Bool)\
 \\n   Scalar    left    //      (Bool, Bool)\
