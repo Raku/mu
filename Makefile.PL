@@ -31,7 +31,7 @@ makemaker_args  (
 );
 clean_files     (map nativize($_),
     "pugs*", "src/pugs_config.h", $version_h, 
-    'src/Unicode.hs', 'src/Config.hs', 'blib6',
+    'src/Config.hs', 'blib6',
     map {("$_/*.hi", "$_/*.o*")} @srcdirs
 );
 
@@ -138,7 +138,6 @@ sub create_config_h {
 
 sub set_postamble {
     my @srcfiles = map glob("$_/*.*hs"), @srcdirs;
-    push @srcfiles, "src/Unicode.hs" unless grep /Unicode\.hs/, @srcfiles;
 
     # turning off unused imports and deprecations for GHC6.4.
 	my $ghc_flags = "-I. -Isrc -i. -isrc -static -Wall -fno-warn-missing-signatures -fno-warn-name-shadowing";
@@ -146,21 +145,20 @@ sub set_postamble {
 	  $ghc_flags .= " -fno-warn-deprecations -fno-warn-orphans";
 	}
 
-    postamble(nativize(<< "."));
-src/Unicode.hs : src/Unicode.hsc src/Unicode.c
-	hsc2hs -I src src/Unicode.hsc
+        my $ghc_output = "UnicodeC$Config{_o} -o pugs$Config{_exe} src/Main.hs";
 
+    postamble(nativize(<< "."));
 src/Config.hs : util/PugsConfig.pm
 	$Config{perlpath} -Iutil -MPugsConfig -e "PugsConfig->write_config_module" > src/Config.hs
 
 profiled :: src/Config.hs @srcfiles $version_h
-	ghc -auto-all -prof --make $ghc_flags -o pugs src/Main.hs
+	ghc -auto-all -prof --make $ghc_flags $ghc_output
 
 optimized :: src/Config.hs @srcfiles $version_h
-	ghc -O2 --make $ghc_flags -o pugs src/Main.hs
+	ghc -O2 --make $ghc_flags $ghc_output
 
-$pugs : src/Config.hs @srcfiles $version_h
-	ghc --make $ghc_flags -o pugs src/Main.hs
+$pugs : src/Config.hs src/UnicodeC$Config{_o} @srcfiles $version_h
+	ghc --make $ghc_flags $ghc_output
 
 tags :
 	hasktags -c src

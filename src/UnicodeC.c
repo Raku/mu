@@ -1,4 +1,6 @@
-int isUpperC (unsigned int c) {
+#include "UnicodeC.h"
+
+unsigned int isUpperC (unsigned int c) {
     return (
        (c >= 0x0041 && c <= 0x005A)
     || (c >= 0x00C0 && c <= 0x00D6)
@@ -424,7 +426,7 @@ int isUpperC (unsigned int c) {
     );
 }
 
-int isLowerC (unsigned int c) {
+unsigned int isLowerC (unsigned int c) {
     return (
        (c >= 0x0061 && c <= 0x007A)
     || (c == 0x00AA)
@@ -853,7 +855,7 @@ int isLowerC (unsigned int c) {
     );
 }
 
-int isSpaceC (unsigned int c) {
+unsigned int isSpaceC (unsigned int c) {
     return (
        (c >= 0x0009 && c <= 0x000D)
     || (c == 0x0020)
@@ -869,7 +871,7 @@ int isSpaceC (unsigned int c) {
     );
 }
 
-int isAlphaC (unsigned int c) {
+unsigned int isAlphaC (unsigned int c) {
     return (
        (c >= 0x0041 && c <= 0x005A)
     || (c >= 0x0061 && c <= 0x007A)
@@ -1270,7 +1272,7 @@ int isAlphaC (unsigned int c) {
     );
 }
 
-int isAlphaNumC (unsigned int c) {
+unsigned int isAlphaNumC (unsigned int c) {
     return (
        (c >= 0x0030 && c <= 0x0039)
     || (c >= 0x0041 && c <= 0x005A)
