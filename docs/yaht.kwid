@@ -247,3 +247,146 @@ map :: (a->b)->[a]->[b]
 Within the body text, Haskell keywords will appear like this: *where*,
 identifiers as `map`, types as /*String*/ and classes as */Eq/*.
 
+= Chapter 2 -- Getting Started 
+
+There are three well known Haskell system: Hugs, GHC and NHC. Hugs is
+exclusively an interpreter, meaning that you cannot compile stand-alone
+programs with it, but can test and debug programs in an interactive
+environment. GHC is both an interpreter (like Hugs) and a compiler which
+will produce stand-alone programs. NHC is exclusively a compiler. Which
+you use is entirely up to you. I've tried to make a list of some of the
+differences in the following list but of course this is far from
+exhaustive:
+
+- Hugs 
+very fast; implements almost all of Haskell 98 (the standard) and most
+extensions; built-in support for module browsing; cannot create stand-
+alones; written in C; works on almost every platform; build in graphics
+library. 
+- GHC 
+interactive environment is slower than Hugs, but allows
+function definitions in the environment (in Hugs you have to put them in
+a file); implements all of Haskell 98 and extensions; good support for
+interfacing with other languages; in a sense the "de facto"
+standard. 
+- NHC 
+less used and no interactive environment, but produces smaller and often
+faster executables than does GHC; supports Haskell 98 and some
+extensions. 
+
+I, personally, have all of them installed and use them for different
+purposes. I tend to use GHC to compile (primarily because I'm most
+familiar with it) and the Hugs interactive environment, since it is much
+faster. As such, this is what I would suggest. However, that is a fair
+amount to download an install, so if you had to go with just one, I'd
+get GHC, since it contains both a compiler and interactive environment.
+
+Following is a descrition of how to download and install each of this as
+of the time this tutorial was written. It may have changed -- see
+http://haskell.org (the Haskell website) for up-to-date information. 
+
+== 2.1 Hugs 
+
+Hugs supports almost all of the Haskell 98 standard (it lacks some
+of the libraries), as well as a number of advanced/experimental
+extensions, including: multi-parameter type classes, extensible records,
+rank-2 polymorphism, existentials, scoped type variables, and restricted
+type synonyms. 
+
+=== 2.1.1 Where to get it 
+
+The official Hugs web page is at: http://haskell.org/hugs. 
+
+If you go there, there is a link titled "downloading" which will
+send you to the download page. From that page, you can download the
+appropriate version of Hugs for your computer.
+
+=== 2.1.2 Installation procedures 
+
+Once you've downloaded Hugs, installation differs depending on your
+platform, however, installation for Hugs is more of less identical to
+installation for any program on your platform. 
+
+- For Windows 
+when you click on the "msi" file to download, simply choose "Run This
+Program" and the installation will begin automatically. From there, just
+follow the on-screen instructions. 
+- For RPMs 
+use whatever RPM installation program you know best. 
+- For source 
+first gunzip the file, then untar it. Presumably if you're using a
+system which isn't otherwise supported, you know enough about your
+system to be able to run configure scripts and make things by hand.
+
+== 2.1.3 How to run it 
+
+On Unix machines, the Hugs interpreter is usually started with a command
+line of the form: hugs `[option - file]` ... 
+
+On Windows , Hugs may be started by selecting it from the start menu or
+by double clicking on a file with the .hs or .lhs extension. (This
+manual assumes that Hugs has already been successfully installed on your
+system.) 
+
+Hugs uses options to set system parameters. These options are
+distinguished by a leading + or - and are used to customize the
+behaviour of the interpreter. When Hugs starts, the interpreter performs
+the following tasks: 
+
+* Options in the environment are processed. The variable HUGSFLAGS holds
+  these options. On Windows 95/NT, the registry is also queried for Hugs
+  option settings. 
+* Command line options are processed. 
+* Internal data structures are initialized. In particular, the heap is
+  initialized, and its size is fixed at this point; if you want to run
+  the interpreter with a heap size other than the default, then this
+  must be specified using options on the command line, in the
+  environment or in the registry.
+* The prelude file is loaded. The interpreter will look for the prelude
+  file on the path specified by the -P option. If the prelude, located
+  in the file Prelude.hs, cannot be found in one of the path
+  directories or in the current directory, then Hugs will terminate;
+  Hugs will not run without the prelude file. 
+* Program files specified on the command line are loaded. The effect of
+  a command hugs `f1 ... fn` is the same as starting up Hugs with the
+  hugs command and then typing `:load f1 ... fn`. In particular, the
+  interpreter will not terminate if a problem occurs while it is trying
+  to load one of the specified files, but it will abort the attempted
+  load command. The environment variables and command line options used
+  by Hugs are described in the following sections.
+
+=== 2.1.4 Program options 
+
+To list all of the options would take too much space. The most important
+option at this point is "+98" or "-98". When you start hugs with "+98"
+it is in Haskell 98 mode, which turns off all extensions. When you start
+in "-98", you are in Hugs mode and all extensions are turned on. If
+you've downloaded someone elses code and you're having trouble loading
+it, first make sure you have the "98" flag set properly. 
+
+Further information on the Hugs options is in the manual:
+http://cvs.haskell.org/Hugs/pages/hugsman/started.html. 
+
+=== 2.1.5 How to get help 
+
+To get Hugs specific help, go to the Hugs web page. To get general
+Haskell help, go to the Haskell web page. 
+
+== 2.2 Glasgow Haskell Compiler
+
+The Glasgow Haskell Compiler (GHC) is a robust, fully-featured,
+optimising compiler and interactive environment for Haskell 98; GHC
+compiles Haskell to either native code or C. It implements numerous
+experimental language extensions to Haskell 98; for example:
+concurrency, a foreign language interface, multi-parameter type classes,
+scoped type variables, existential and universal quantification, unboxed
+types, exceptions, weak pointers, and so on. GHC comes with a
+generational garbage collector, and a space and time profiler.
+
+=== 2.2.1 Where to get it 
+
+Go to the official GHC web page http://haskell.org/ghc (GHC) to download
+the latest release. The current version as of the writing of this
+tutorial is 5.04.2 and can be downloaded off of the GHC download page
+(follow the "Download" link). From that page, you can download the
+appropriate version of GHC for your computer.
