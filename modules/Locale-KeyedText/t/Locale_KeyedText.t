@@ -11,6 +11,10 @@ require Locale::KeyedText-0.0.3;
 ######################################################################
 # Here are some utility methods:
 
+sub message( Str $detail ) {
+	say "-- $detail";
+}
+
 sub serialize( Str $input ) returns Str {
 	return (
 		$input.meta.isa(Hash) ?? 
@@ -28,12 +32,12 @@ sub serialize( Str $input ) returns Str {
 ######################################################################
 # Now perform the actual tests:
 
-say '-- START TESTING Locale::KeyedText';
+message( 'START TESTING Locale::KeyedText' );
 
 ######################################################################
 
 {
-	say '-- testing new_message() and Message object methods';
+	message( 'testing new_message() and Message object methods' );
 
 	my ($did, $should, $msg1);
 
@@ -151,7 +155,7 @@ say '-- START TESTING Locale::KeyedText';
 ######################################################################
 
 {
-	say '-- testing new_translator() and most Translator object methods';
+	message( 'testing new_translator() and most Translator object methods' );
 
 	my ($did, $should, $trn1);
 
@@ -284,7 +288,7 @@ say '-- START TESTING Locale::KeyedText';
 ######################################################################
 
 {
-	say '-- testing Translator.translate_message() method';
+	message( 'testing Translator.translate_message() method' );
 
 	my $AS = 't_Locale_KeyedText_A_L_';
 	my $BS = 't_Locale_KeyedText_B_L_';
@@ -427,7 +431,7 @@ say '-- START TESTING Locale::KeyedText';
 ######################################################################
 
 {
-	say '-- confirming availability of all test Template modules';
+	message( 'confirming availability of all test Template modules' );
 
 	# done after all translate_message() calls as that method should be 
 	# 'requiring' these itself, and we don't want to "interfere" with that.
@@ -471,7 +475,7 @@ say '-- START TESTING Locale::KeyedText';
 
 ######################################################################
 
-say '-- DONE TESTING Locale::KeyedText';
+message( 'DONE TESTING Locale::KeyedText' );
 
 ######################################################################
 ######################################################################
@@ -482,7 +486,9 @@ module t_Locale_KeyedText_C_L_Eng {
 		'two' => 'sky fly high',
 		'three' => '{knife} zot',
 	);
-	sub get_text_by_key( Str $msg_key ) returns Str { return %text_strings{$msg_key}; }
+	sub get_text_by_key( Str $msg_key ) returns Str {
+		return %text_strings{$msg_key};
+	}
 }
 
 ######################################################################

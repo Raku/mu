@@ -9,6 +9,8 @@ my Str %text_strings ::= (
 	'two' => $xy~' - sky pie rye',
 );
 
-sub get_text_by_key( Str $msg_key ) returns Str { return %text_strings{$msg_key}; }
+sub get_text_by_key( Str $msg_key ) returns Str {
+	return %text_strings{$msg_key};
+}
 
 1;
