@@ -18,6 +18,7 @@ import AST
 import Pretty
 import Parser
 import Monads
+import Data.Set
 
 op0 :: Ident -> [Val] -> Eval Val
 op0 ","  = return . VList . concatMap vCast
@@ -197,6 +198,8 @@ op1 "=" = \v -> do
 op1 "ref"  = return . VStr . valType
 op1 "pop"  = op1Pop (last, init)
 op1 "shift"= op1Pop (head, tail)
+op1 "pick" = op1Pick
+op1 "dump" = return . VStr . (vCast :: Val -> VStr)
 op1 s      = return . (\x -> VError ("unimplemented unaryOp: " ++ s) (Val x))
 
 op1Values :: Val -> Val
@@ -206,6 +209,16 @@ op1Values v@(VHash _) = VList $ map snd $ (vCast :: Val -> [VPair]) v
 op1Values v@(VList _) = VList $ map snd $ (vCast :: Val -> [VPair]) v -- hope it's a list of pairs
 op1Values (VRef v) = op1Values v
 op1Values v = VError "values not defined" (Val v)
+
+op1Pick :: Val -> Eval Val
+op1Pick (VJunc (Junc JAny _ set)) = do -- pick mainly works on 'any'
+    rand <- liftIO $ randomRIO (0 :: Int, (cardinality set) - 1)
+    return $ (setToList set) !! rand
+op1Pick (VJunc (Junc _ _ set)) = 
+    if (cardinality $ set) > 1 then return VUndef
+    else return $ head $ setToList set
+op1Pick (VRef v) = op1Pick v
+op1Pick v = return $ VError "pick not defined" (Val v)
 
 op1Pop (fPick, fRem) list = do
     let array = vCast list
@@ -578,6 +591,8 @@ initSyms = map primDecl . filter (not . null) . lines $ "\
 \\n   Scalar    pre     value   (Pair)\
 \\n   List      pre     kv      (Pair)\
 \\n   List      pre     values  (Junction)\
+\\n   Any       pre     pick    (Junction)\
+\\n   Str       pre     dump    (Junction)\
 \\n   Bool      pre     rename  (Str, Str)\
 \\n   Bool      pre     symlink (Str, Str)\
 \\n   Bool      pre     link    (Str, Str)\

@@ -156,6 +156,7 @@ instance Value VStr where
     vCast (VPair (k, v))= vCast k ++ "\t" ++ vCast v ++ "\n"
     vCast (VArray (MkArray l))     = unwords $ map vCast l
     vCast (VSub s)      = "<" ++ show (subType s) ++ "(" ++ subName s ++ ")>"
+    vCast (VJunc j)     = show j
     vCast x             = error $ "cannot cast as Str: " ++ (show x)
 
 showNum :: Show a => a -> String
@@ -312,10 +313,24 @@ data VControl
 data VJunc = Junc { juncType :: JuncType
                   , juncDup  :: Set Val
                   , juncSet  :: Set Val
-                  } deriving (Show, Eq, Ord)
+                  } deriving (Eq, Ord)
 
 data JuncType = JAny | JAll | JNone | JOne
-    deriving (Show, Eq, Ord)
+    deriving (Eq, Ord)
+
+instance Show JuncType where
+    show JAny  = "any"
+    show JAll  = "all"
+    show JNone = "none"
+    show JOne  = "one"
+
+instance Show VJunc where
+    show (Junc jtype _ set) =
+       	(show jtype) ++ "(" ++
+	    (foldl (\x y ->
+		if x == "" then (vCast :: Val -> VStr) y
+		else x ++ "," ++ (vCast :: Val -> VStr) y)
+	    "" $ setToList set) ++ ")"
 
 data SubType = SubMethod | SubRoutine | SubBlock | SubPrim
     deriving (Show, Eq, Ord)
