@@ -10,7 +10,7 @@ for (@examples) {
     ++$c;
     say "$c ok # skip: Try to compile $_\.p6";
     # when (@outputs) {
-    if ($_ eq 'fp' | 'hanoi' | 'quicksort') {
+    if ($_ eq any(@outputs)) {
         ++$c;
         say "$c ok # skip: Try to run $_\.p6 and compare to output/$_";
     }
