@@ -1,4 +1,4 @@
-{-# OPTIONS -fglasgow-exts -cpp -O2 #-}
+{-# OPTIONS -fglasgow-exts -cpp -fvia-c #-}
 
 {-
     Unicode internals.
@@ -24,7 +24,14 @@ import Data.Char (digitToInt, isHexDigit, isOctDigit, isDigit)
 #if mingw32_HOST_OS
 import GHC.Unicode (isAlpha, isAlphaNum, isSpace, isLower, isUpper, toLower, toUpper)
 #else
-# include "Unicode.c"
+#def int isUpperC (unsigned int c)
+#def int isLowerC (unsigned int c)
+#def int isSpaceC (unsigned int c)
+#def int isAlphaC (unsigned int c)
+#def int isAlphaNumC (unsigned int c)
+#def unsigned int toUpperC (unsigned int c)
+#def unsigned int toLowerC (unsigned int c)
+#include "Unicode.c"
 
 import Data.Char (ord, chr)
 import System.IO.Unsafe (unsafePerformIO)
