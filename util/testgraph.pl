@@ -14,9 +14,19 @@ my $data = Load(<$yamlfh>);
 undef $yamlfh;
 #Dump($data);
 
-print "<html><head><link rel='stylesheet' href='testgraph.css' /><title>testgraph.pl ".gmtime()."</title></head><body>\n";
+print <<"__TOP__";
+<!DOCTYPE html 
+ PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'
+ 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'>
+<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' lang='en'>
+ <head>
+  <link rel='stylesheet' href='testgraph.css' />
+  <title>testgraph.pl @{[gmtime().'']}</title>
+ </head>
+ <body>
+__TOP__
 
-print "<tt><pre>", join("\n", $data->{build_info}), "</pre></tt>\n";
+print "   <pre><tt>", join("\n", $data->{build_info}), "</tt></pre>\n";
 
 print "<table>";
 
@@ -42,14 +52,20 @@ foreach my $testfile (sort {$a->{file} cmp $b->{file}}
 	  my $class = t_to_class($test);
 
 	  my $title = ($test->{line} || '') . "\n" . ($test->{diag} || '');
+
+	  print STDERR "pre:  $title\n";
+
 	  $title =~ s/\cM//g;
 	  $title =~ s/\cJ+$//g;
 	  $title =~ s/^\cJ+//g;
-	  $title =~ s/&/&amp;/;
-	  $title =~ s/</&lt;/;
-	  $title =~ s/>/&gt;/;
+	  $title =~ s/&/&amp;/g;
+	  $title =~ s/</&lt;/g;
+	  $title =~ s/>/&gt;/g;
 	  $title =~ s!\cJ!<br />!g;
 	  $title =~ s/([^-&<>\/().#A-Za-z0-9 ])/sprintf '&#x%X;', ord $1/eg;
+
+	  print STDERR "post: $title\n";
+
 
 	  my $case_link;
 	  ($test->{pos} || '') =~ /^(.*?) at line (\d+), column \d+/;
@@ -66,7 +82,9 @@ foreach my $testfile (sort {$a->{file} cmp $b->{file}}
 	  
 #	  print "<td class='test $class' title='$title'>$title</td>";
 	  print " <td class='test $class'><a href='$case_link'>&nbsp;<div>$title</div></a></td>\n";
-	  #print " <td class='test $class' title='$title'>&nbsp;</td>\n";
+	  print STDERR " <td class='test $class'><a href='$case_link'>&nbsp;<div>$title</div></a></td>\n";
+#	  print " <td class='test $class' title='$title'>&nbsp;</td>\n";
+
 	  if ($class ne 'nottest') {
 		$i++;
 		$good++ if $class =~ /good/;

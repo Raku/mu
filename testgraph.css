@@ -3,7 +3,7 @@
 .test a div { display: none }
 .test a:visited div { display: none }
 
-.test a:hover div { display: block; position: absolute; left: 0; top; 0; background-color: white; border: thin solid black }
+.test a:hover div { display: block; position: absolute; background-color: white; border: thin solid black; left: -1px }
 
 .bad  { background-color: #ff0000; color: black }
 .good { background-color: #00ff00; color: black }
