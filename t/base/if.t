@@ -9,7 +9,7 @@ Basic "if" tests.
 
 =cut
 
-plan 6;
+plan 8;
 
 my $x = 'test';
 if ($x eq $x) { pass("if ($x eq $x) {} works"); } else { fail("if ($x eq $x) {} failed"); }
@@ -24,3 +24,16 @@ my $foo = 1;
 eval 'if (die "should die") { $foo = 3 } else { $foo = 2; }';
 #say '# $foo = ' ~ $foo;
 is $foo, 1, "die should stop execution immediately.";
+
+{
+	my $foo = 1; # just in case
+	eval 'if 1 > 2 { $foo = 2 } else { $foo = 3 }';
+	is $foo, 3, 'if with no parens';
+};
+
+{
+	my $foo = 1;
+	eval 'if { 1 > 0 } { $foo = 2 } else { $foo = 3 }';
+	todo_is $foo, 2, 'if with no parens, and closure as cond';
+};
+
