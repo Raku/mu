@@ -146,6 +146,7 @@ instance Value VStr where
     -- vCast (MVal v)      = vCast $ castV v
     vCast (VPair (k, v))= vCast k ++ "\t" ++ vCast v ++ "\n"
     vCast (VArray (MkArray l))     = unwords $ map vCast l
+    vCast (VSub s)      = "<" ++ show (subType s) ++ "(" ++ subName s ++ ")>"
     vCast x             = error $ "cannot cast as Str: " ++ (show x)
 
 showNum x
