@@ -119,7 +119,7 @@ instance Value VInt where
     castV = VInt
     doCast (VInt i)     = i
     doCast (VStr s)
-        | ((n, _):_) <- reads s = n
+        | ((n, _):_)    <- reads (takeWhile (/= '.') s) = n
         | otherwise             = 0
     doCast x            = truncate (vCast x :: VNum)
 
