@@ -23,7 +23,7 @@ tail(@args).say;
 # infinite data is handled lazily - not
 # -------------------------------
 
-my @infinite_list = (1 .. Inf) ;
-my $head = head(@infinite_list);
+# my @infinite_list = (1 .. Inf) ;
+# my $head = head(@infinite_list);
 
 
