@@ -97,11 +97,11 @@ is(@unshift3[4], 3, 'got the expected element');
 my @unshift4;
 
 unshift @unshift4, 42;
-todo_is(+@unshift4, 1, 'we have 1 element in the list');
+is(+@unshift4, 1, 'we have 1 element in the list');
 is(@unshift4[0], 42, 'got the element expected');
 
 unshift @unshift4, 2000;
-todo_is(+@unshift4, 2, 'we have 1 element in the list');
+is(+@unshift4, 2, 'we have 1 element in the list');
 is(@unshift4[0], 2000, 'got the element expected');
 is(@unshift4[1], 42, 'got the element expected');
 

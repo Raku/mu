@@ -100,4 +100,4 @@ todo_is(@a[0], 2, "slice assignment awaiting p6cabal clarification");
 todo_is(@a[1], 1, "slice assignment awaiting p6cabal clarification");
 
 my @array9; # workaround: my @array = ()
-todo_is(+@array9, 0, "new arrays are empty");
+is(+@array9, 0, "new arrays are empty");
