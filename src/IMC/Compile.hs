@@ -7,6 +7,7 @@ import Lexer
 import Internals.TH
 import Text.PrettyPrint hiding (char)
 import IMC.AST
+import Language.Haskell.TH.Syntax
 
 nested = nest 4
 
@@ -53,12 +54,32 @@ stringConstant = do
     char '"'
     return $ TStr $ concat str
 
+
+-- imcCompile :: Term a -> ExpQ
+imcX :: String -> ExpQ
+imcX str = do 
+    -- let bar = pprint exp
+    -- runIO $ putStrLn $ bar
+    let foo = imcParse sub str
+    imcCompile foo
+{-
+    do
+    str <- runQ exp
+    let bar = ppr str
+    runIO $ putStrLn $ show bar
+    let foo = imcParse sub prog
+    imcCompile foo
+-}
+
 imcParse :: Parser (Term a) -> String -> Term a
 imcParse p str = case ( runParser p () "-" str ) of
     Left err    -> error $ show err
     Right t     -> t
 
-mrr = imcCompile $ imcParse sub ".sub main\nprint \"123\"\nprint \"456\"\n.end"
+parsed = imcParse sub ".sub main\nprint \"123\"\nprint \"456\"\n.end"
+mrr = imcCompile parsed
+
+prog = ".sub main\nprint \"123\"\nprint \"456\"\n.end"
 
 zzz :: IO ()
 zzz = do
@@ -67,6 +88,7 @@ zzz = do
 
 -- run :: Term a -> IO (Term a)
 -- run program = $( compile [| program |] )
+foo program = $( compile [| program |] )
 
 
 {-

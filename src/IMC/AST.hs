@@ -18,7 +18,7 @@ data Term a where
     TSub     :: SubName  -> [Term Statement] -> Term Sub
 
 compile :: ExpQ -> ExpQ
-compile t = [| return $t |]
+compile str = [| putStrLn $ "Hello, " ++ $str ++ "!" |]
 
 -- Haskell Equivalent of a BEGIN block!
 {-
@@ -40,4 +40,5 @@ imcCompile :: Term a -> ExpQ
 imcCompile (TStr a) = [| return a |]
 imcCompile (TOp1 "print" (TStr str)) = [| putStrLn str |]
 imcCompile (TSub _ stmts) = let foo = map imcCompile stmts in
-    [| sequence $(listE foo) |]
+    [| sequence_ $(listE foo) |]
+
