@@ -51,7 +51,7 @@ is("text " ~ "stitching", "text stitching", 'concatenation with ~ operator');
 # Bit Stitching
 
 is(2 || 3, 2, "|| returns first true value");
-todo_is(eval '2 ?| 3', 1, "boolean or (?|) returns 0 or 1");
+is(eval '2 ?| 3', 1, "boolean or (?|) returns 0 or 1");
 ok(!(defined( 0 || undef)), "|| returns last false value of list?");
 todo_is(eval '0 ?| undef', 0, "boolean or (?|) returns 0 or 1");
 
