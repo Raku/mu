@@ -598,14 +598,16 @@ doApply Env{ envClasses = cls } sub@Sub{ subParams = prms, subFun = fun, subType
     case bindParams prms invs args of
         Left errMsg     -> retError errMsg (Val VUndef)
         Right bindings  -> do
-            local fixEnv $ enterScope $ do
+            enterScope $ do
                 bound <- doBind bindings
                 -- trace (show bound) $ return ()
-                val <- (`juncApply` bound) $ \realBound -> do
-                    enterSub sub $ do
-                        applyExp realBound fun
+                val <- local fixEnv $ do
+                    (`juncApply` bound) $ \realBound -> do
+                        enterSub sub $ do
+                            applyExp realBound fun
                 retVal val
     where
+    enterScope :: Eval Val -> Eval Val
     enterScope
         | typ >= SubBlock = id
         | otherwise      = resetT
@@ -616,7 +618,9 @@ doApply Env{ envClasses = cls } sub@Sub{ subParams = prms, subFun = fun, subType
     doBind [] = return []
     doBind ((prm, exp):rest) = do
         -- trace ("<== " ++ (show (prm, exp))) $ return ()
-        (val, coll) <- expToVal prm exp
+        (val, coll) <- case exp of
+            Parens exp  -> local fixEnv $ expToVal prm exp -- default
+            _           -> expToVal prm exp
         -- trace ("==> " ++ (show val)) $ return ()
         let name = paramName prm
             arg = ApplyArg name val coll

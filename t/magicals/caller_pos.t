@@ -16,5 +16,5 @@ is(foo(), "$?FILE at line 12, column 1", "basic caller position interpolation");
 
 # the variable is interpolated in bar(), and that's where in the call stack
 # this should be relevant to.
-todo_is(bar(), "$?FILE at at line 19, column 1", "indirect interpolation (wtf?!)");
+todo_is(bar(), "$?FILE at line 19, column 1", "indirect interpolation (wtf?!)");
 

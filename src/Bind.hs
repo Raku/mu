@@ -112,7 +112,7 @@ bindParams prms invsExp argsExp = do
     let (req, opt)  = length required `splitAt` positional
         boundReq    = required `zip` req
         defaults    = map paramDefault $ drop (length opt) optional
-        optExps     = opt ++ defaults
+        optExps     = opt ++ map Parens defaults
         boundOpt    = optional `zip` optExps
         restPos     = drop (length optional) opt
     
