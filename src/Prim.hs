@@ -156,6 +156,8 @@ op1 "defined" = \v -> do
         VUndef  -> False
         _       -> True
 op1 "last" = \v -> return (VError "cannot last() outside a loop" (Val v))
+op1 "next" = \v -> return (VError "cannot next() outside a loop" (Val v))
+op1 "redo" = \v -> return (VError "cannot redo() outside a loop" (Val v))
 op1 "return" = \v -> return (VError "cannot return() outside a subroutine" (Val v))
 op1 "sign" = \v -> return $ case vCast v of
     Nothing -> VUndef
@@ -876,8 +878,8 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Num       pre     sin     (?Num=$_)\
 \\n   Num       pre     exp     (?Num=$_, ?Num)\
 \\n   Num       pre     sqrt    (?Num=$_)\
-\\n   Bool      pre     -d      (Str)\
-\\n   Bool      pre     -f      (Str)\
+\\n   Bool      spre    -d      (?Str=$_)\
+\\n   Bool      spre    -f      (?Str=$_)\
 \\n   Num       spre    -       (Num)\
 \\n   Str       spre    ~       (Str)\
 \\n   Bool      spre    ?       (Bool)\
@@ -898,9 +900,9 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   List      post    ...     (Str)\
 \\n   List      post    ...     (Scalar)\
 \\n   Any       pre     undef   ()\
-\\n   Any       pre     undef   (rw!Any)\
-\\n   Str       pre     chop    (rw!Str)\
-\\n   Str       pre     chomp   (rw!Str)\
+\\n   Any       pre     undef   (?rw!Any=$_)\
+\\n   Str       pre     chop    (?rw!Str=$_)\
+\\n   Str       pre     chomp   (?rw!Str=$_)\
 \\n   Int       pre     index   (Str, Str, ?Int=0)\
 \\n   Int       pre     rindex  (Str, Str, ?Int)\
 \\n   Int       pre     substr  (rw!Str, Int, ?Int, ?Str)\
@@ -935,6 +937,8 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Any       pre     require (?Str=$_)\
 \\n   Any       pre     require_haskell (Str)\
 \\n   Any       pre     last    (?Int=1)\
+\\n   Any       pre     next    (?Int=1)\
+\\n   Any       pre     redo    (?Int=1)\
 \\n   Any       pre     exit    (?Int=0)\
 \\n   Num       pre     rand    (?Num=1)\
 \\n   Bool      pre     defined (Any)\
@@ -958,7 +962,7 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      pre     system  (Str)\
 \\n   Bool      pre     system  (Str: List)\
 \\n   Bool      pre     binmode (IO: ?Int=1)\
-\\n   Any       pre     return  (Any)\
+\\n   Void      pre     return  (List)\
 \\n   Junction  pre     any     (List)\
 \\n   Junction  pre     all     (List)\
 \\n   Junction  pre     one     (List)\

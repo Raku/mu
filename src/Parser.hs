@@ -533,7 +533,9 @@ tightOperators = do
     [ methOps  " . .+ .? .* .+ .() .[] .{} .<<>> .= "   -- Method postfix
     , postOps  " ++ -- " ++ preOps " ++ -- "            -- Auto-Increment
     , rightOps " ** "                                   -- Exponentiation
-    , preSyn "* **" ++ preOps   " = ! + - ~ ? +^ ~^ ?^ \\ "         -- Symbolic Unary
+    , preSyn "* **"
+      ++ preOps (concatMap (\x -> " -" ++ [x]) "rwxoRWXOezsfdlpSbctugkTBMAC")
+      ++ preOps " = ! + - ~ ? +^ ~^ ?^ \\ "             -- Symbolic Unary
     , leftOps $
                " »*« »/« »x« »xx« " ++
                " >>*<< >>/<< >>x<< >>xx<< " ++
@@ -586,11 +588,13 @@ currentFunctions = do
 
 currentUnaryFunctions = do
     funs <- currentFunctions
-    return $ unwords [
+    return . unwords . sort $ [
         encodeUTF8 name | f@(SymVal _ _ (VSub sub)) <- funs
         , subAssoc sub == "pre"
         , length (subParams sub) == 1
-        , isNothing $ find isSlurpy $ subParams sub
+        , let param = head $ subParams sub
+        , not $ isSlurpy param
+        , not $ isOptional param
         , let name = parseName $ symName f
         , name /= "undef" -- XXX Wrong
         ]
