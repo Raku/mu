@@ -4,7 +4,7 @@ module External.Haskell where
 import AST
 
 #undef PUGS_HAVE_TH
-#include "pugs_config.h"
+#include "../pugs_config.h"
 #ifndef PUGS_HAVE_TH
 externalizeHaskell :: String -> String -> IO String
 externalizeHaskell  = error "Template Haskell support not compiled in"
