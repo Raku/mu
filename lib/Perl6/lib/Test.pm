@@ -13,6 +13,7 @@ sub ok (Bool $cond, Str ?$desc) returns Bool is export {
         $*ERR.say("#     Failed test (", $?CALLER::POSITION, ")");
         $failed++;
     }
+    return $cond;
 }
 
 sub is (Str $got, Str $expected, Str ?$desc) is export {
@@ -26,6 +27,7 @@ sub is (Str $got, Str $expected, Str ?$desc) is export {
         $*ERR.say("#     expected: '", $expected, "'");
         $failed++;
     }
+    return ($ok eq "ok ");
 }
 
 sub todo_ok (Bool $cond, Str ?$desc) returns Bool is export {
@@ -36,6 +38,7 @@ sub todo_ok (Bool $cond, Str ?$desc) returns Bool is export {
     if ($ok ne "ok ") {
         say("#     Failed (TODO) test (", $?CALLER::POSITION, ")");
     }
+    return $cond;
 }
 
 sub todo_is (Str $got, Str $expected, Str ?$desc) is export {
@@ -48,6 +51,7 @@ sub todo_is (Str $got, Str $expected, Str ?$desc) is export {
         say("#          got: '", $got, "'");
         say("#     expected: '", $expected, "'");
     }
+    return ($ok eq "ok ");
 }
 
 END {
