@@ -30,8 +30,14 @@ sub ok (Bool $cond, Str ?$desc) returns Bool is export {
 
 sub is (Str $got, Str $expected, Str ?$desc) returns Bool is export {
     my $test := $got eq $expected; 
-    proclaim($test, $desc, undef,$got, $expected);
+    proclaim($test, $desc, undef, $got, $expected);
     return $test;
+}
+
+sub cmp_ok (Str $got, Code $compare_func, Str $expected, Str ?$desc) returns Bool is export {
+    my $test := $compare_func($got, $expected);
+    proclaim($test, $desc, undef); # << needs better error message handling
+    return $test;    
 }
 
 sub isa_ok ($ref, Str $expected_type, Str ?$desc) returns Bool is export {
@@ -49,15 +55,21 @@ sub todo_ok (Bool $cond, Str ?$desc) returns Bool is export {
 
 sub todo_is (Str $got, Str $expected, Str ?$desc) returns Bool is export {
     my $test = $got eq $expected;
-    proclaim($test, $desc,"TODO", $got, $expected);
+    proclaim($test, $desc, "TODO", $got, $expected);
     return $test;
+}
+
+sub todo_cmp_ok (Str $got, Code $compare_func, Str $expected, Str ?$desc) returns Bool is export {
+    my $test := $compare_func($got, $expected);
+    proclaim($test, $desc, "TODO", 4, 5); # << needs better error message handling
+    return $test;    
 }
 
 sub todo_isa_ok ($ref, Str $expected_type, Str ?$desc) returns Bool is export {
     my $ref_type = ref($ref);
     my $out := defined($desc) ?? $desc :: "The object is-a '$expected_type'";         
     my $test := $ref_type eq $expected_type;
-    proclaim($test, $out,  "TODO", $ref_type, $expected_type);
+    proclaim($test, $out, "TODO", $ref_type, $expected_type);
     return $test;
 }
 
@@ -83,7 +95,6 @@ sub todo_fail (Str ?$desc) returns Bool is export {
 
 
 sub report_failure (Str ?$todo, Str ?$got, Str ?$expected) returns Bool is export {
-
     if ($todo) {
        diag("  Failed ($todo) test ($?CALLER::CALLER::CALLER::POSITION)");
     }
@@ -93,7 +104,6 @@ sub report_failure (Str ?$todo, Str ?$got, Str ?$expected) returns Bool is expor
     }
     diag("  Expected: $expected") if ($expected);
     diag("       Got: $got") if ($got);
-
 }
 
 
@@ -173,6 +183,18 @@ expected to run. This should be specified at the very top of your tests.
 
 - `is (Str $got, Str $expected, Str ?$desc) returns Bool`
 
+- `cmp_ok (Str $got, Code $compare_func, Str $expected, Str ?$desc) returns Bool`
+
+This function will compare `$got` and `$expected` using `$compare_func`. This will
+eventually allow Test::More-style cmp_ok() though the following syntax:
+
+  cmp_ok('test', &infix:<gt>, 'me', '... testing gt on two strings');
+  
+However the `&infix:<gt>` is currently not implemented, so you will have to wait
+a little while. Until then, you can just write your own functions like this:
+
+  cmp_ok('test', sub ($a, $b) { ?($a gt $b) }, 'me', '... testing gt on two strings');
+
 - `isa_ok ($ref, Str $expected_type, Str ?$desc) returns Bool`
 
 This function currently on checks with ref() since we do not yet have
@@ -189,6 +211,8 @@ functions.
 - `todo_ok (Bool $cond, Str ?$desc) returns Bool`
 
 - `todo_is (Str $got, Str $expected, Str ?$desc) returns Bool`
+
+- `todo_cmp_ok (Str $got, Code $compare_func, Str $expected, Str ?$desc) returns Bool`
 
 - `todo_isa_ok ($ref, Str $expected_type, Str ?$desc) returns Bool`
 
@@ -224,6 +248,11 @@ ignored by the TAP protocol.
 This module is still a work in progress. As Pugs grows, so will it's
 testing needs. This module will be the code support for those needs. The
 following is a list of future features planned for this module.
+
+- better error handling for cmp_ok
+
+The error handling capabilities need to be expanded more to handle the
+error reporting needs of the cmp_ok() function.
 
 - is_deeply
 
