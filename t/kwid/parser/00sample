@@ -1,0 +1,72 @@
+Sample test from t/kwid/README
+
+This test is the example given in t/kwid/README. It is rather simple and
+covers:
+* Paragraphs
+* Bold, Italic, Code
+* Simple Lists
+* Hyperlinks
+* Kwid Links
+...
+== A sample test
+
+This is a paragraph of /text/,
+with *bold* and code: {`$a = $b`}.
+
+Here is a list:
+* Check out http://perl.org.
+* [The Perl Site|http://perl.org] is cool.
+* Refer to [text|page/section] for more info.
+...
+>H2
+=A sample test
+<H
+
+>P
+=This is a paragraph of 
+>i
+=text
+<i
+=, with 
+>b
+=bold
+<b
+= and code: 
+>c
+=$a = $b
+<c
+=.
+<P
+
+>P
+=Here is a list:
+<P
+
+>L*
+>I
+=Check out 
+>h
+-http://perl.org
+-http://perl.org
+<h
+=.
+<I
+
+>I
+>h
+-The Perl Site
+-http://perl.org
+<h
+= is cool.
+<I
+
+>I
+=Refer to 
+>l
+-text
+-page
+-section
+<l
+= for more info.
+<I
+<L
