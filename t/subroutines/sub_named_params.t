@@ -4,7 +4,7 @@ use v6;
 
 require Test;
 
-plan 20;
+plan 22;
 
 =kwid
 
@@ -29,6 +29,10 @@ These tests test named parmaeters. L<S06/"Named parameters">
 
 
 =cut
+
+sub simple_pos_param($x) { $x }
+is simple_pos_param(x => 3), 3, "positional param may be addressed by name (1)";
+is simple_pos_param(:x(3)),  3, "positional param may be addressed by name (2)";
 
 # L<S06/"Named parameters" /marked by a \+/>
 sub simple_pos_params (+$x) { $x }
