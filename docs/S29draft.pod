@@ -1,0 +1,661 @@
+=head1 Title
+
+ [DRAFT] Synopsis 29 - Builtin Functions [DRAFT]
+
+=head1 Version
+
+ Maintainer:    Rod Adams <rod@rodadams.net>
+ Date:          12 Mar 2005
+ Last Modified: 16 Mar 2005
+
+This document attempts to document the list of builtin functions in Perl 6.
+It assumes familiarity with Perl 5 and prior synopses.
+
+=head1 Notes
+
+In Perl 6, all builtin functions belong to a named package. Not all
+functions are guaranteed to be imported into the global package
+C<::*>. In addition, the list of functions imported into C<::*> will be
+subject to change with each release of Perl. Authors wishing to
+"Future Proof" their code should either specifically import the
+functions they will be using, or always refer to the functions by their
+full name.
+
+After 6.0.0 comes out, global aliases will not be removed lightly,
+and will never be removed at all without having gone through a
+deprecation cycle of at least a year.  In any event, you can specify
+that you want the interface for a particular version of Perl, and
+that can be emulated by later versions of Perl to the extent that
+security updates allow.
+
+Where code is given here, it is intended to define semantics, not to
+dictate implementation.
+
+
+
+=head1 Function Packages
+
+=head2 Math::Basic
+
+=over 4
+
+=item abs
+
+ multi sub abs (: Num ?$x = $CALLER::_ ) returns Num
+
+Absolute Value.
+
+
+=item exp
+
+ multi sub exp (: Num ?$exponent = $CALLER::_, Num +$base) returns Num
+
+Performs similar to C<$base ** $exponent>. $base defaults to the
+constant I<e>.
+
+
+=item log
+
+ multi sub log (: Num ?$x = $CALLER::_, Num +$base) returns Num
+
+Logarithm of base $base, default Natural. Calling with C<$x == 0> is an
+error.
+
+
+=item log10
+
+ &log10<> := &log<>.assuming:base(10);
+
+
+=item rand
+
+ multi sub rand (: Num ?$x = 1, Num +$seed) returns Num
+
+Random Number between 0 and 1, or rand()*$x. Optionally seed the
+generator with $seed.
+
+
+=item sign
+
+ multi sub sign (: Num ?$x = $CALLER::_) returns Int {
+   if !defined($x) { return undef };
+   if $x < 0       { return -1    };
+   if $x > 0       { return  1    };
+   if $x == 0      { return  0    };
+   undef;
+ }
+
+=item sqrt
+
+ multi sub sqrt (: Num ?$x = $CALLER::_) returns Num
+
+$x ** 0.5
+
+=back
+
+
+
+=head2 Math::Trig
+
+=over 4
+
+=item I<Standard Trig Functions>
+
+ multi sub func (: Num ?$x = $CALLER::_, +$base) returns Num
+
+where I<func> is one of:
+sin, cos, tan, asin, acos, atan, sec, cosec, cotan, asec, acosec,
+acotan, sinh, cosh, tanh, asinh, acosh, atanh, sech, cosech, cotanh,
+asech, acosech, acotanh.
+
+Performs the various trigonmetric functions. 
+
+Option C<$base> is used to declare your how you measure your angles.
+Given the value of an arc representing a single full revolution.
+
+ $base  	Result
+ ----   	-------
+ /:i ^r/	Radians  (2*pi)
+ /:i ^d/	Degrees  (360)
+ /:i ^g/	Gradians (400)
+ Num    	Units of 1 revolution. 
+
+
+=item atan
+
+ multi sub atan (Num $x, Num $y : Num +$base) returns Num
+
+This second form of C<atan> computes the arctangent of $y/$x, and takes
+the quadrant into account. Otherwise behaves as other trigonometric functions.
+Replaces Perl 5 C<atan2>.
+
+
+=item pi
+
+ multi sub pi () returns Num
+
+
+
+=back
+
+=head2 Perl6::Arrays
+
+I<Note:> These package names are pluralized to distinguish them from the
+classes that will likely assume the singular names.
+
+=over
+
+=item delete
+
+ multi method Perl6::Array::delete (: *@indices) returns List
+
+Sets elements specified by C<@indices> in the invocant to a
+non-existent state, as if they never had a value. Deleted elements at
+the end of an Array shorten the length of the Array, unless doing so
+would violate an C<is shape()> definition.
+
+C<@indices> is interpreted the same way as subscripting is in terms of
+slices and multidimensionality. See Synopsis 9 for details.
+
+Returns the value(s) previously held in deleted locations.
+
+An unary form is expected. See Perl6::Hashes::delete
+
+
+=item exists
+
+ multi method Perl6::Array::exists (: Int *@indices) returns Bool
+
+Returns True if the specified Array element has been assigned to. This
+is not the same as being defined.
+
+Supplying a different number of indices than invocant has dimensions is
+an error.
+
+An unary form is expected. See Perl6::Hashes::delete
+
+
+=item pop
+
+ multi sub pop () returns Scalar {
+   pop @CALLER::_;
+ }
+ &pop<Array> := &splice<Array>.assuming(:offset(-1) :length(1));
+
+B<Question>: is C<@CALLER::_> the right way to address the caller's
+slurpy array, per A06?
+
+
+=item push
+
+ multi sub push (@array is rw : *@values) returns Int {
+   splice(@array, @array.elems, 0, @values);
+   @array.elems;
+ }
+
+
+=item shift
+
+ multi sub shift () returns Scalar {
+   shift @CALLER::_;
+ }
+ &shift<Array> := &splice<Array>.assuming(:offset(0) :length(1));
+
+
+=item splice
+
+ multi sub splice (     @array is rw
+                 : Int ?$offset = 0,
+                   Int ?$length,
+                       *@values)
+   returns List is Lvalue
+
+Behaves the similar as Perl 5 C<splice>.
+
+If C<@array> is multidimensional, C<splice> operates only on the first
+dimension, and works with Array References.
+
+
+=item unshift
+
+ multi sub unshift (@array is rw : *@values) returns Int {
+   splice(@array, 0, 0, @values);
+   @array.elems;
+ }
+
+
+=item keys
+
+=item kv
+
+=item pairs
+
+=item values
+
+ multi sub keys   (@array : Any|Junction *@indextests) returns Int|List
+ multi sub kv     (@array : Any|Junction *@indextests) returns Int|List
+ multi sub pairs  (@array : Any|Junction *@indextests) returns Int|(List of Pair)
+ multi sub values (@array : Any|Junction *@indextests) returns Int|List
+
+Iterates the elements of C<@array>, in order. 
+
+If C<@indextests> are provided, only elements whose indices evaluate
+C<$index ~~ any(@indextests)> as true are iterated.
+
+What is returned at each element of the iteration varies with function.
+C<values> returns the value of the associated element; C<kv> returns 
+a 2 element list in (index, value) order, C<pairs> a C<Pair(index, value)>.
+
+C<@array> is considered single dimensional. If it is in fact multi-
+dimensional, the values returned will be array references to the sub
+array.
+
+In Scalar context, they all return the count of elements that would have
+been iterated.
+
+=back
+
+
+
+=head2 Perl6::Lists
+
+=over
+
+=item grep
+
+ multi sub grep (Any|Junction $test : *@values) returns List {
+   gather {
+     for @values -> $x {
+       take $x if $x ~~ $test;
+     }
+   }
+ }
+
+
+=item join
+
+ multi sub join (Str $delimiter : *@values) returns List {
+   my $str = ~@values[0];
+   for 1..@values.end {
+     $str ~= $delimiter ~ @values[$_];
+   }
+   $str;
+ }
+ &join<> := &join<Str>.assuming:delimiter(' ');
+
+
+=item map 
+
+ multi sub map (Code $expression : *@values) returns List {
+   gather {
+     while @values {
+       take $expression
+          .( splice(@values, 0, $expression.arity) );
+     }
+   }
+ }
+
+
+=item reduce
+
+ multi sub reduce (Code $expression : *@values) returns List {
+   my $res;
+   for @values -> $cur {
+        FIRST {$res = $cur; next;}
+     $res = &$expression($res, $cur);
+   }
+   $res;
+ }
+
+
+=item reverse
+
+ multi sub reverse (%hash) returns Hash is default {
+   my %result;
+   for %hash.kv -> $k, $v {
+     %result{$v} = $k;
+   }
+   %result;
+ }
+
+ multi sub reverse (: *@values) returns List|Str {
+   given want {
+     when List {
+       gather {
+         1 while take pop @values;
+       }
+     }
+     when Scalar {
+       reverse @values ==> join;
+     }
+   }
+ }
+
+
+=item sort
+
+ multi sub sort(Criterion @by : *@values) returns List
+ multi sub sort(Criterion $by : *@values) returns List
+ &sort<> := &sort<Criterion>.assuming(by => &infix:<cmp>);
+
+ type KeyExtractor ::= Code(Any) returns Any;
+ type Comparator   ::= Code(Any, Any) returns Int;
+ type Criterion    ::= KeyExtractor | Comparator
+                       | Pair(KeyExtractor, Comparator);
+
+Returns C<@values> sorted, using criteria C<$by> or C<@by> for
+comparisions. C<@by> differs from C<$by> in that each criteria is
+applied, in order, until a non-zero (tie) result is achieved.
+
+Criterion can take a few different forms:
+
+=over 8
+
+=item Comparator
+
+A closure with arity of 2, which returns negative/zero/positive,
+signaling the first arguement should be before/tied with/after the
+second in the final ordering of the List. aka "The Perl 5 way"
+
+=item KeyExtractor
+
+A closure with arity of 1, which returns the "key" by which to sort. If
+the closure returns a Num, C<E<lt>=E<gt>> is used for comparison,
+otherwise C<cmp>.
+
+=item Pair(KeyExtractor, Comparator)
+
+A combination of the two methods above, for when one wishs to take
+advantage of the internal caching of keys that is expected to happen,
+but wishes to compare them with something other than C<E<lt>=E<gt>> or
+C<cmp>.
+
+=back
+
+Any Criterion may recieve either or both of the traits C<is descending>
+and C<in insensitive> to reverse the order of sort, or the adjust the
+case sensitivity of C<cmp> as a Comparator.
+
+If all criteria are exhausted when comparing two elements, sort should
+return them in the same relative order they had in C<@values>.
+
+See L<http://www.nntp.perl.org/group/perl.perl6.language/16578> for more
+details and examples.
+
+
+=item zip
+
+ multi sub zip (Array *@lists) returns List {
+   gather {
+     while any(@lists) {
+       for @lists -> @list {
+         take shift @list;
+       }
+     }
+   }
+ }
+
+Example: C<zip (1,4,7,10 ; 2,5,8,11 ; 3,6)> generates
+C<(1,2,3,4,5,6,7,8,undef,10,11,undef)>
+
+=back
+
+
+
+=head2 Perl6::Hashes
+
+=over 4
+
+=item delete
+
+ multi method Hash::delete (: *@keys) returns List
+ multi method Hash::delete (   $key ) returns Scalar is default
+
+Deletes the elements specified by C<$key> or C<$keys> from the invocant.
+returns the value(s) that were associated to those keys.
+
+=over
+
+=item Unary Form
+
+Implementations should create a suitable macro, or otherwise support the
+unary form C<delete %hash{$key}> in all it's forms. Below are some
+example translations. This list is I<not> exhaustive.
+
+ delete %hash{$key}                %hash.delete{$key}
+ delete %hash<key>                 %hash.delete{'key'}
+ delete %hash<key1>{@keys}         %hash<key1>.delete{@keys}
+
+Since different implementations parse in different ways, no general
+macro will be provided at this time.
+
+=back
+
+
+=item exists
+ 
+ multi method Hash::exists ($key) returns Bool
+
+True if invocant has an element whose key matches C<$key>, false
+otherwise.
+
+An unary form is expected. See Perl6::Hashes::delete
+
+
+=item keys
+
+=item kv
+
+=item pairs
+
+=item values
+
+ multi sub keys   (%hash : Any|Junction *@keytests) returns Int|List
+ multi sub kv     (%hash : Any|Junction *@keytests) returns Int|List
+ multi sub pairs  (%hash : Any|Junction *@keytests) returns Int|(List of Pair)
+ multi sub values (%hash : Any|Junction *@keytests) returns Int|List
+ 
+Iterates the elements of C<%hash> in no apparent order, but the order
+will be the same between successive calls to these functions, as long as
+C<%hash> doesn't change. 
+
+If C<@keytests> are provided, only elements whose keys evaluate
+C<$key ~~ any(@keytests)> as true are iterated.
+
+What is returned at each element of the iteration varies with function.
+C<keys> only returns the key; C<values> the value; C<kv> returns both as
+a 2 element list in (key, value) order, C<pairs> a C<Pair(key, value)>.
+
+Note that C<kv %hash> returns the same as C<zip(keys %hash; values %hash)>
+
+In Scalar context, they all return the count of elements that would have
+been iterated.
+
+The lvalue form of C<keys> is not longer supported. Use the C<.buckets>
+property instead.
+
+=back
+
+
+
+
+
+=head2 I<TODO>
+
+=over 4
+
+=item chomp
+
+=item chr
+
+=item hex
+
+=item index 
+
+=item lc
+
+=item lcfirst
+
+=item length
+
+=item oct
+
+=item ord
+
+=item pack
+
+=item pos
+
+=item quotemeta
+
+=item rindex 
+
+=item split
+
+=item sprintf
+
+=item study
+
+=item substr
+
+=item uc
+
+=item ucfirst
+
+=item unpack
+
+=item caller
+
+=item defined
+
+=item prototype
+
+=item ref
+
+=item die 
+
+=item do 
+
+=item eval 
+
+=item exit 
+
+=item sleep
+
+=item bless 
+
+=item gmtime 
+
+=item localtime 
+
+=item time
+
+=item undef
+
+=item vec
+
+=item want
+
+=item caller
+
+=back
+
+
+
+=head2 Obsolete
+
+=over 4
+
+=item chop
+
+Use C<chomp> or C<substr>
+
+
+=item dbmopen, dbmclose
+
+ use DB_File;
+
+
+=item dump
+
+With Parrot?
+
+
+=item each
+
+ while (defined(($key, $value) = each %hash)) { ... }
+
+is now
+
+ for %hash.kv -> $key, $value { ... };
+
+
+=item format, formline, write
+
+See Exgesis 7.
+
+
+=item reset
+
+Was there a I<good> use for this?
+
+
+=item scalar EXPR
+
+Use the appropriate C</ \+ | ~ | \? | int /> operator. See S04
+
+B<Question>: Is this correct?
+
+=item srand
+
+C<rand(:seed($x))>
+
+
+=back
+
+
+
+=head2 Pending Apocalypse
+
+The following functions are pending a future Apocalypse/Synopsis/p6l
+Discussion before progress can be made:
+
+=over 4
+
+=item A/S14: Tied Variables
+
+tie tied untie
+
+=item A/S16: IPC / IO / Signals
+
+-X accept alarm bind binmode chown close closedir connect eof fcntl
+fileno flock getc getpeername
+/[get|set][host|net|proto|serv|sock].*/ glob ioctl kill link listen 
+lstat mkdir /msg.*/ open opendir pipe print printf read readdir readline
+readlink readpipe recv rename rewinddir rmdir seek seekdir select(both)
+/sem.*/ send setsockopt /shm.*/ shutdown socket socketpair stat symlink
+syscall sysopen sysread sysseek syswrite tell telldir truncate umask
+unlink utime warn
+
+=item A/S??: OS Interaction
+
+chroot crypt exec getlogin /[get|set][pw|gr].*/ setpgrp setpriority
+system times
+
+=item A/S17: Threads and Multiprocessing
+
+fork lock wait waitpid
+
+=back
+
+
+=head1 Additions
+
+Is your favorite function, which you spent weeks B<successfully> arguing
+on perl6-language to get accepted, nowhere on this document? Have no
+fear. Email rod@rodadams.net with a brief description and a link to the
+thread on L<http://www.nntp.perl.org/group/perl.perl6.language>, and
+it'll get listed.
+
+Post errors to perl6-language.
+
