@@ -172,7 +172,7 @@ reduceStatements (((exp, pos):rest), lastVal)
             Nothing -> do
                 addGlobalSym $ Symbol SGlobal name vexp
                 reduceStatements (rest, vexp)
-    | Val (VSub sub) <- exp
+    | Syn "sub" [Val (VSub sub)] <- exp
     , subType sub >= SubBlock = do
         -- bare Block in statement level; run it!
         let app = Syn "()" [exp, Syn "invs" [], Syn "args" []]
