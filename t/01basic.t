@@ -31,9 +31,9 @@ todo_is($var1, "foo", 'list assignment 1');
 todo_is($var2, "bar", 'list assignment 2');
 todo_ok(eval '(my $quux = 1) == 1)', "my returns LHS");
 
-eval 'if 1 { pass() }' or todo_fail "if without parens";
-eval 'for 1 { pass() }' or todo_fail "for without parens";
-eval 'while (0) { } pass()' or todo_fail "while";
+eval 'if 1 { pass() }' err todo_fail "if without parens";
+eval 'for 1 { pass() }' err todo_fail "for without parens";
+eval 'while (0) { } pass()' err todo_fail "while";
 
 my $lasttest = 0;
 eval 'for (1..10) { $lasttest++; last; $lasttest++; }';
@@ -47,3 +47,4 @@ print "# ok ";
 if (eval '12.print') { print "\n"; pass() } else { print "\n"; todo_fail("12.print"); }
 
 todo_ok(eval 'say(1 ?? "# ok 14" :: "# Bail out!")');
+c
