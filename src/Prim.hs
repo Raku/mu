@@ -569,7 +569,8 @@ foldParam ""        = id
 foldParam ('?':str) = \ps -> (buildParam "Num" "?" "$?1" (Val $ VNum (read def)):ps)
     where
     (_, ('=':def)) = break (== '=') str
-foldParam x         = doFoldParam x ""
+foldParam ('~':str) = \ps -> ((buildParam str "" "$?1" (Val VUndef)) { isThunk = True }:ps)
+foldParam x         = doFoldParam x []
 
 -- XXX -- Junctive Types -- XXX --
 
@@ -712,11 +713,11 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      chain   le      (Str, Str)\
 \\n   Bool      chain   gt      (Str, Str)\
 \\n   Bool      chain   ge      (Str, Str)\
-\\n   Scalar    left    &&      (Bool, Bool)\
-\\n   Scalar    left    !!      (Bool, Bool)\
-\\n   Scalar    left    ||      (Bool, Bool)\
+\\n   Scalar    left    &&      (Bool, ~Bool)\
+\\n   Scalar    left    !!      (Bool, ~Bool)\
+\\n   Scalar    left    ||      (Bool, ~Bool)\
 \\n   Scalar    left    ^^      (Bool, Bool)\
-\\n   Scalar    left    //      (Bool, Bool)\
+\\n   Scalar    left    //      (Bool, ~Bool)\
 \\n   List      left    »+«     (Any, Any)\
 \\n   List      left    »*«     (Any, Any)\
 \\n   List      left    »/«     (Any, Any)\
@@ -727,9 +728,10 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   List      list	Y		(Array)\
 \\n   List      spre    <==     (List)\
 \\n   List      left    ==>     (List, Code)\
-\\n   Scalar    left    and     (Bool, Bool)\
-\\n   Scalar    left    or      (Bool, Bool)\
+\\n   Scalar    left    and     (Bool, ~Bool)\
+\\n   Scalar    left    or      (Bool, ~Bool)\
+\\n   Scalar    left    nor     (Bool, ~Bool)\
 \\n   Scalar    left    xor     (Bool, Bool)\
-\\n   Scalar    left    err     (Bool, Bool)\
+\\n   Scalar    left    err     (Bool, ~Bool)\
 \\n   Any       list    ;       (Any)\
 \\n"

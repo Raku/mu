@@ -282,6 +282,7 @@ type VHandle = Handle
 type MVal = IORef Val
 newtype VArray = MkArray [Val] deriving (Show, Eq, Ord)
 newtype VHash  = MkHash (FiniteMap Val Val) deriving (Show, Eq, Ord)
+newtype VThunk = MkThunk (Eval Val)
 
 type VPair = (Val, Val)
 
@@ -305,6 +306,7 @@ data Val
     | VHandle   VHandle
     | MVal      MVal
     | VControl  VControl
+    | VThunk    VThunk
     deriving (Show, Eq, Ord)
 
 valType :: Val -> String
@@ -327,6 +329,7 @@ valType (VError _ _)    = "Error"
 valType (VHandle  _)    = "Handle"
 valType (MVal     _)    = "Var"
 valType (VControl _)    = "Control"
+valType (VThunk   _)    = "Thunk"
 
 type VBlock = Exp
 data VControl
@@ -365,6 +368,7 @@ data Param = Param
     , isOptional    :: Bool
     , isNamed       :: Bool
     , isLValue      :: Bool
+    , isThunk       :: Bool
     , paramName     :: String
     , paramContext  :: Cxt
     , paramDefault  :: Exp
@@ -411,10 +415,10 @@ data Exp
     | Statements [(Exp, SourcePos)]
     deriving (Show, Eq, Ord)
 
-instance Show (CharParser Env Exp) where
-    show _ = "<parser>"
-instance Eq (CharParser Env Exp)
-instance Ord (CharParser Env Exp) where
+instance Show VThunk where
+    show _ = "<thunk>"
+instance Eq VThunk
+instance Ord VThunk where
     compare _ _ = EQ
 
 extractExp :: Exp -> ([Exp], [String]) -> ([Exp], [String])
@@ -468,6 +472,7 @@ buildParam cxt sigil name e = Param
     , isOptional    = (sigil ==) `any` ["?", "+"]
     , isNamed       = (null sigil || head sigil /= '+')
     , isLValue      = False
+    , isThunk       = False
     , paramName     = name
     , paramContext  = if null cxt then defaultCxt else cxt
     , paramDefault  = e

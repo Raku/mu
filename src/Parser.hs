@@ -676,6 +676,7 @@ nameToParam name = Param
     , isOptional    = False
     , isNamed       = False
     , isLValue      = False
+    , isThunk       = False
     , paramName     = name
     , paramContext  = cxtOfSigil $ head name
     , paramDefault  = Val VUndef

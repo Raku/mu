@@ -19,7 +19,7 @@ plan 2;
 	my $y = 2;
 	$x == 1 or $y = 42;
 
-	todo_is($y, 2, "assignment was not changed in unreached short circuiting expr");
+	is($y, 2, "assignment was not changed in unreached short circuiting expr");
 }
 
 
@@ -28,6 +28,6 @@ plan 2;
 	my $y = 2;
 	$x != 1 && ($y = 42);
 
-	todo_is($y, 2, "assignment was not changed in unreached short circuiting expr");
+	is($y, 2, "assignment was not changed in unreached short circuiting expr");
 }
 

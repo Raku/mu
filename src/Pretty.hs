@@ -88,6 +88,7 @@ instance Pretty Val where
     format (MVal v) = text $ unsafePerformIO $ do
         val <- readIORef v
         return $ pretty val
+    format (VThunk _) = text $ "{thunk}"
     format VUndef = text $ "undef"
 
 quoted '\'' = "\\'"
