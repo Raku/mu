@@ -30,7 +30,7 @@ makemaker_args  (
     MAN1PODS => {},
 );
 clean_files     (map nativize($_),
-    "pugs*", "src/pugs_config.h", "src/pugs_version.h", 
+    "pugs*", "src/pugs_config.h", $version_h, 
     'src/Unicode.hs', 'src/Config.hs', 'blib6',
     map {("$_/*.hi", "$_/*.o*")} @srcdirs
 );
@@ -48,6 +48,10 @@ WritePugs       (sign => 1);
 # Pretty stuff goes above. Ugly stuff goes below.
 # Maybe we can refactor this ugly stuff into a Module::Install::Plugin.
 
+# XXX This little dance of postponing the creation of pugs_version.h
+# does not work for extensions that need pugs_version.h and get compiled
+# before pugs does. Will readdress this when it is actually in the way.
+# ie When kwid really needs to get built.
 sub svn_revision {
     my $svn_entries = File::Spec->catfile(".svn", "entries");
     if ("@ARGV" eq "-version") {

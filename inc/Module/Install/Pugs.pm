@@ -10,6 +10,11 @@ sub WritePugs {
     $self->pugs_fix_makefile;
 }
 
+sub base_path {
+    my $self = shift;
+    $self->{_top}{base};
+}
+
 sub set_blib {
     my $self = shift;
     my $perl_version = shift 
@@ -104,6 +109,5 @@ sub nativize {
     $text =~ s{\b/}{$sep}g;
     return $text;
 }
-
 
 1;
