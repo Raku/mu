@@ -6,27 +6,24 @@ This is a test file.  Whee!
 
 =cut
 my $loop = 1;
-say "1..1";
+say "1..2";
 
 sub foobar ($var) {
-    say "var=",$var;
     return $var;
-}
-
-sub check {
-    return $_;
 }
 
 my $foo = "foo";
 my $bar;
 eval '$bar = foobar($foo); ';
-say "bar=", $bar;
 if ($foo eq $bar) {
     say "1 ok";
 } else {
     say "1 not ok # TODO";
 }
+$bar = "";
+eval '$bar = check $foo';
+if ($bar) { say "2 ok"; } else { say "2 not ok #TODO"; }
 
-$bar = check $foo;
-if ($bar) { say "2 ok"; } else { say "2 not ok"; }
-
+sub check {
+    return $_;
+}
