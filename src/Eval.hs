@@ -476,13 +476,16 @@ doApply env@Env{ envClasses = cls } sub@Sub{ subParams = prms, subFun = fun, sub
     case bindParams prms invs args of
         Left errMsg     -> retError errMsg (Val VUndef)
         Right bindings  -> do
-            local fixEnv $ do
+            local fixEnv $ enterScope $ do
                 bound <- doBind bindings
                 val <- (`juncApply` bound) $ \realBound -> do
                     enterSub sub $ do
                         applyExp realBound fun
                 retVal val
     where
+    enterScope
+        | typ >= SubBlock = id
+        | otherwise      = resetT
     fixEnv env
         | typ >= SubBlock = env
         | otherwise      = env{ envCaller = Just env }

@@ -52,6 +52,7 @@ askDump str = do
     liftIO $ putStrLn $ "Current scope: " ++ str ++ " - Env: " ++ env
 
 
+{-
 enterScope f = do
     uniq <- liftIO $ newUnique
     rv <- callCC $ \cc -> resetT $ do
@@ -70,7 +71,8 @@ enterScope f = do
     -- detect for abnormal return
     return rv
     -}
-    
+-}
+  
 enterSub sub@Sub{ subType = typ } action
     | typ >= SubPrim = action -- primitives just happen
     | otherwise     = do
@@ -172,7 +174,8 @@ blah = do
     dumpLex ">init"
     rv <- enterLex [Symbol SMy "$x" $ Val $ VInt 1] $ do
         dumpLex ">lex"
-        rv <- enterScope outer
+        -- rv <- enterScope outer
+        rv <- outer
         dumpLex "<lex"
         return rv
     dumpLex "<init"
