@@ -47,7 +47,6 @@ sub todo_is (Str $got, Str $expected, Str ?$desc) is export {
         say("#     Failed (TODO) test (", $?CALLER::POSITION, ")");
         say("#          got: '", $got, "'");
         say("#     expected: '", $expected, "'");
-        $failed++;
     }
 }
 
