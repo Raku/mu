@@ -561,9 +561,12 @@ data Symbol a where
     SymVal :: Scope -> String -> Val -> Symbol Val
     SymExp :: Scope -> String -> Exp -> Symbol Exp
 
+show' :: (Show a) => a -> String
+show' x = "( " ++ show x ++ " )"
+
 instance Show (Symbol a) where
-    show (SymVal s n v) = unwords [ "SymVal", show s, show n, show v ]
-    show (SymExp s n e) = unwords [ "SymExp", show s, show n, show e ]
+    show (SymVal s n v) = unwords [ "SymVal", show' s, show' n, show' v ]
+    show (SymExp s n e) = unwords [ "SymExp", show' s, show' n, show' e ]
 
 instance Eq (Symbol a) where
     x == y = (show x) == (show y)
