@@ -93,7 +93,7 @@ method get_message_variable( $message: KeyName $var_name ) returns KeyName {
 }
 
 method get_message_variables( $message: ) returns Hash is shape(KeyName) of Str {
-	return {$message.:msg_vars{}}; # copy list values; make new hash-ref out of flattened hash
+	return {$message.:msg_vars}; # copy list values; new hash ref puts attr in list context, so it flattens
 }
 
 ######################################################################
@@ -125,11 +125,11 @@ method new( $class: PkgName @set_names, PkgName @member_names ) returns Locale::
 ######################################################################
 
 method get_template_set_names( $translator: ) returns Array of PkgName {
-	return [$translator.:tmpl_set_nms[]]; # copy list values; make new array-ref out of flattened array
+	return [$translator.:tmpl_set_nms]; # copy list values; new array ref puts attr in list context, so it flattens
 }
 
 method get_template_member_names( $translator: ) returns Array of PkgName {
-	return [$translator.:tmpl_mem_nms[]]; # copy list values; make new array-ref out of flattened array
+	return [$translator.:tmpl_mem_nms]; # copy list values; new array ref puts attr in list context, so it flattens
 }
 
 ######################################################################
