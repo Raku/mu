@@ -205,12 +205,8 @@ doReduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         let [Var name, exp] = exps
         val     <- enterEvalContext (cxtOfSigil $ head name) exp
         retVal =<< newMVal val
-    "if" -> do
-        let [cond, bodyIf, bodyElse] = exps
-        vbool     <- enterEvalContext "Bool" cond
-        if (vCast vbool)
-            then doReduce env bodyIf
-            else doReduce env bodyElse
+    "if" -> doCond id 
+    "unless" -> doCond not
     "for" -> do
         let [list, body] = exps
         vlist <- enterEvalContext "List" list
@@ -304,6 +300,12 @@ doReduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         | otherwise
         = Nothing
     doSlice _ _ _ = Nothing
+    doCond f = do
+        let [cond, bodyIf, bodyElse] = exps
+        vbool     <- enterEvalContext "Bool" cond
+        if (f $ vCast vbool)
+            then doReduce env bodyIf
+            else doReduce env bodyElse
 
 doReduce env@Env{ envClasses = cls, envContext = cxt, envLexical = lex, envGlobal = glob } exp@(App name invs args) = do
     subSyms <- mapM evalSym [ sym | sym <- lex ++ glob, head (symName sym) == '&' ]
