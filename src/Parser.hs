@@ -461,8 +461,8 @@ tightOperators = do
                " »*« »/« »x« »xx« " ++
                " * / % x xx +& +< +> ~& ~< ~> "         -- Multiplicative
     , leftOps  " »+« + - ~ +| +^ ~| ~^ "                -- Additive
-    , leftOps  " & ! "                                  -- Junctive And
-    , leftOps  " ^ | "                                  -- Junctive Or
+    , listOps  " & ! "                                  -- Junctive And
+    , listOps  " ^ | "                                  -- Junctive Or
     , preOps   unary                                    -- Named Unary
     , noneOps  " but does "                             -- Traits
       ++ rightOps " => "                                -- Pair constructor
@@ -491,7 +491,7 @@ operators = do
     loose <- looseOperators
     return $ concat $
         [ tight
-        , [ listSyn  " , " ]                            -- Comma
+        , [ listSyn  " , ", listOps " Y ¥ " ]           -- Comma
         , loose
     --  , [ listSyn  " ; " ]                            -- Terminator
         ]
