@@ -94,6 +94,9 @@ op1 "--"   = \mv -> do
     readMVal mv
 op1 "-"    = return . op1Numeric negate
 op1 "scalar" = return -- XXX refify?
+op1 "sort" = return . VList . sortBy cmp . vCast
+    where
+    cmp x y = compare (vCast x :: VStr) (vCast y :: VStr)
 op1 "reverse" = \v ->
     ifContextIsa "List"
         (return . VList . reverse . vCast $ v)
@@ -108,7 +111,7 @@ op1 "?^"   = op1 "!"
 op1 "\\"   = return . VRef
 op1 "post:..."  = return . op1Range
 op1 "not"  = op1 "!"
-op1 "so" = op1 "?"
+op1 "true" = op1 "?"
 op1 "any"  = return . opJuncAny . vCast
 op1 "all"  = return . opJuncAll . vCast
 op1 "one"  = return . opJuncOne . vCast
@@ -673,6 +676,7 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   List      pre     list    (List)\
 \\n   Scalar    pre     scalar  (Scalar)\
 \\n   List      pre     reverse (List)\
+\\n   List      pre     sort    (List)\
 \\n   Int       spre    +^      (Int)\
 \\n   Int       spre    ~^      (Str)\
 \\n   Bool      spre    ?^      (Bool)\
@@ -697,8 +701,7 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Num       spre    --      (rw!Num)\
 \\n   Any       pre     not     ()\
 \\n   Bool      pre     not     (Bool)\
-\\n   Any       pre     so      ()\
-\\n   Bool      pre     so      (Bool)\
+\\n   Bool      pre     true    (Bool)\
 \\n   List      pre     map     (Code, List)\
 \\n   List      pre     grep    (Code, List)\
 \\n   List      pre     map     (Array: Code)\

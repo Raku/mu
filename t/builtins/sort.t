@@ -10,7 +10,7 @@ plan 6;
 	my @e = (1 .. 5, 5);
 
 	my @s; eval '@s = @a.sort';
-	todo_is(@s, @e, 'array of numbers was sorted');
+	is(@s, @e, 'array of numbers was sorted');
 };
 
 {
@@ -26,7 +26,7 @@ plan 6;
 	my @e = <bar baz foo gorch>;
 
 	my @s; eval '@s = @a.sort';
-	todo_is(@s, @e, 'array of strings was sorted');
+	is(@s, @e, 'array of strings was sorted');
 };
 
 {
@@ -42,7 +42,7 @@ plan 6;
 	my @e = <bar foo>;
 
 	my @s; eval '@s = sort @a';
-	todo_is(@s, @e, 'with non dotty syntax');
+	is(@s, @e, 'with non dotty syntax');
 };
 
 {

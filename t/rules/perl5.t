@@ -3,6 +3,8 @@
 use v6;
 require Test;
 
+plan(880);
+
 is(eval '"abc" ~~ rx:perl5/abc/ && $0', "abc", 're_tests 1/0 (1)');
 todo_is(eval '"abc" ~~ rx:perl5/abc/ && getpos($/, 0)', 0, 're_tests 1/0 (2)');
 ok(eval 'not ("xbc" ~~ rx:perl5/abc/)', 're_tests 3  (5)');

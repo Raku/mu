@@ -22,9 +22,9 @@ sub try ($ok, ?$todo = '') {
 }
 sub tryeq ($lhs, $rhs, ?$todo = '') {
     if ($todo) {
-       &todo_ok.goto($lhs == $rhs,$todo ~ " " ~ $lhs ~ " != " ~ $rhs);
+        &todo_ok.goto($lhs == $rhs,$todo ~ " " ~ $lhs ~ " != " ~ $rhs);
     } else {
-       &ok.goto($lhs == $rhs);
+        &ok.goto($lhs == $rhs);
     }
 }
 sub tryeq_sloppy ($lhs, $rhs, ?$todo1 = '') {
@@ -240,8 +240,8 @@ tryeq -46339 * -46341, 0x7ffea80f;
 
 tryeq 1 + " 1", 2;
 tryeq 3 + " -1", 2;
-tryeq 1.2, " 1.2", "\\x20float";
-tryeq -1.2, " -1.2", "\\x20float";
+tryeq 1.2, " 1.2";
+tryeq -1.2, " -1.2";
 
 # divide
 

@@ -9,6 +9,8 @@ plan 1;
 
 close $*ERR;
 
+todo_fail("end block reached");
+
 die "punt";
 
 END { pass("end block reached") }

@@ -273,7 +273,8 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
     "mval" -> do
         let [exp] = exps
         val     <- evalExp exp
-        retVal =<< newMVal val
+        val'    <- evalExp $ Val val
+        retVal =<< newMVal val'
     "if" -> doCond id 
     "unless" -> doCond not
     "for" -> do
@@ -341,7 +342,8 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
             [Var name, exp] -> do
                 val     <- evalVar name
                 val'    <- enterEvalContext (cxtOfSigil $ head name) exp
-                writeMVal val val'
+                val''   <- enterEvalContext (cxtOfSigil $ head name) (Val val')
+                writeMVal val val''
                 retVal val'
             [Syn "[]" [Var name, indexExp], exp] -> do
                 listMVal <- evalVar name

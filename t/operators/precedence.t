@@ -122,9 +122,9 @@ is((1 && 0 ?? 2 :: 3), 3, "&& binds tighter than ??");
 
 {
 	my @c = 1, 2, 3;
-	is(@c, (1), "= binds tighter than , (*sigh*)");
+	todo_is(@c, (1), "= binds tighter than , (*sigh*)");
 	my @a = (1, 3) ¥ (2, 4);
-	is(@a, (1, 3), "= binds tighter than yen");
+	todo_is(@a, (1, 3), "= binds tighter than yen");
 };
 
 {
@@ -138,7 +138,7 @@ is((1 && 0 ?? 2 :: 3), 3, "&& binds tighter than ??");
 	my @d; eval '@d <== (1, 3) ¥ (2, 4)';
     todo_is(@d, (1 .. 4), "to complicate things further, left pointing pipe *does* DWIM");
     my $c = any 1, 2, 3;
-    ok(!($c == 2), "any is less tight than comma");
+    ok($c == 2, "any is less tight than comma");
 }
 
 # 18. rightward list op

@@ -122,9 +122,6 @@ readMVal v         = return v
 instance Value VInt where
     castV = VInt
     doCast (VInt i)     = i
-    doCast (VStr s)
-        | ((n, _):_)    <-reads (takeWhile (\x -> isDigit x || x == '-') s) = n
-        | otherwise    = 0
     doCast x            = truncate (vCast x :: VRat)
 
 instance Value VRat where
@@ -135,6 +132,8 @@ instance Value VRat where
     doCast (VList l)    = genericLength l
     doCast (VArray (MkArray a))    = genericLength a
     doCast (VHash (MkHash h))    = fromIntegral $ sizeFM h
+    doCast (VStr s) | not (null s) , isSpace $ last s = doCast (VStr $ init s)
+    doCast (VStr s) | not (null s) , isSpace $ head s = doCast (VStr $ tail s)
     doCast (VStr s)     =
         case ( runParser naturalOrRat () "" s ) of
             Left _   -> 0 % 1
@@ -150,10 +149,8 @@ instance Value VNum where
     doCast (VInt i)     = fromIntegral i
     doCast (VRat r)     = realToFrac r
     doCast (VNum n)     = n
-    doCast (VStr s)
-        | not (null s)
-        , isSpace $ last s
-        = doCast (VStr $ init s)
+    doCast (VStr s) | not (null s) , isSpace $ last s = doCast (VStr $ init s)
+    doCast (VStr s) | not (null s) , isSpace $ head s = doCast (VStr $ tail s)
     doCast (VStr "Inf") = 1/0
     doCast (VStr "NaN") = 0/0
     doCast (VStr s)     =
@@ -590,7 +587,11 @@ instance (Show a) => Show (Set a) where
 naturalOrRat  = (<?> "number") $ do
     sig <- sign
     num <- natRat
-    return (if sig then num else fmap negate num)
+    return $ if sig
+        then num
+        else case num of
+            Left i  -> Left $ -i
+            Right d -> Right $ -d
     where
     natRat = do
             char '0'

@@ -9,7 +9,7 @@ Basic "undef" tests
 
 =cut
 
-plan 59;
+plan 61;
 
 =kwid
 
@@ -66,7 +66,7 @@ ok(!defined(undef), "undef is not defined");
 	todo_ok(eval'!defined(%hash{"bargho"})', "non-existent hash subscript") or
 		diag("expected undef; got { %hash{'bargho'} }");
 
-	fail("FIXME parsefail"); # currently fails compilation even in eval
+	todo_fail("FIXME parsefail"); # currently fails compilation even in eval
 	#eval 'undef %hash{"bar"}';
 	#todo_ok(!defined(%hash{"bar"}), "undef hash subscript");
 
@@ -79,9 +79,9 @@ ok(!defined(undef), "undef is not defined");
 	ok(defined(@ary), "aggregate array defined");
 	ok(defined(%hash), "aggregate hash defined");
 	undef @ary;
-	ok(!defined(@ary), "undef array");
+        todo_ok(!defined(@ary), "undef array");
 	undef %hash;
-	ok(!defined(%hash), "undef hash");
+        ok(!defined(%hash), "undef hash");
 	@ary = (1);
 	ok(defined(@ary), "define array again");
 	%hash = (1,1);
@@ -90,7 +90,7 @@ ok(!defined(undef), "undef is not defined");
 
 {
 	# rjbs reported this bug:
-	fail("FIXME parsefail"); # currently fails compilation even in eval
+	todo_fail("FIXME parsefail"); # currently fails compilation even in eval
 	#ok(eval 'my %hash; %hash = {}; undef %hash; %hash');
 }
 
@@ -218,11 +218,9 @@ Perl6-specific tests
 {
 	# - $1, $2 etc. should all be undef after a failed match
 	#   (except for special circumstances)
-	eval '
-		"abcde" ~~ /(.)(.)(.)/;
-		"abcde" ~~ /(\d)/;
-	';
-	todo_ok(eval '! grep { defined($_) } ($1, $2, $3, $4, $5, $6)',
+        "abcde" ~~ rx:perl5/(.)(.)(.)/;
+        "abcde" ~~ rx:perl5/(\d)/;
+	todo_ok(eval '! grep { defined($_) }, ($1, $2, $3, $4, $5, $6)',
 			"all submatches undefined after failed match") or
 		diag("match state: " ~ eval '$/');
 
@@ -235,14 +233,13 @@ Perl6-specific tests
 	# TODO: call me. refer to S06
 	# - a sub with optional args and named parameters which don't have
 	#   defaults specified, when called without values will yield undef
-	sub bar ($bar, $baz, +$quux) {
+	sub bar ($bar, ?$baz, +$quux) {
 		is($bar, "BAR", "defined param"); # sanity
-		ok(!defined($bar), "unspecified optional param");
+		ok(!defined($baz), "unspecified optional param");
 		ok(!defined($quux), "unspecified optional param");
 	}
 
-	fail("FIXME parsefail"); # currently fails compilation even in eval
-	#bar("BAR"); # not yet
+	bar("BAR"); # not yet
 
 }
 

@@ -1,3 +1,43 @@
+[Changes for 6.0.12 - March 20, 2005]
+
+Pugs Internals:
+
+* We now require GHC 6.4 on Win32.
+* Unicode identifiers now work across all platforms.
+* Perl5-compatible regular expressions as rx:perl5/.../.
+* Smartmatch ~~ now for regex.
+* Capturing variables as $/.[], $0, $1, $2.
+* Nested outward CALLER::CALLER::CALLER:: scopes.
+* x=, xx= and Y=.
+* => now autoquotes left hand barewords.
+* ?? :: now parses correctly.
+* New primitives: index(), substr(), sort(), true().
+* The interactive shell now preserves lexical variable declarations.
+* String numification now uses the same lexing rule as numeric literals.
+* Kludgy hack for &sub.goto() now works.
+* :l in interactive shell for loading modules.
+* Symbol table now contains Vals instead of Exps.
+
+Tests, Examples and Documentations:
+
+* Massive reorganization for t/ hierarchy.
+* Test coverage catalog utility in util/catalog_tests.pl.
+* New p6ified CPAN modules: Algorithm::Dependency, File::Spec.
+* Core documentations moved into ext/Pugs-Documentation/.
+* Locale::KeyedText is made more perl6ish with subtypes.
+* Test.pm has been massively refactored, and now has its own test suite.
+* eval_ok() and eval_is().
+
+Bug Fixes:
+
+* Infix junction constructors no longer falltens its operands.
+* Mutable variables are now properly pretty-printed.
+* "pugscc" was broken on case-sensitive filesystems.
+* last() no longer work as return() outside loops.
+* Pugs could not install when perl5's sitelib path did not contain "perl".
+* := binding did not preserve the lexical scope at the binding site.
+* 
+
 [Changes for 6.0.11 - March 14, 2005]
 
 Pugs Internals:

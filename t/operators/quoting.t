@@ -62,15 +62,15 @@ Tests quoting constructs as defined in L<S02/Literals>
 
 { # interpolating quotes L<S02/Literals /same as qq/>
 	my @q = ();
-	eval '@q = (qq/$foo $bar/)';
+        @q = qq/$foo $bar/;
 	is(+@q, 1, 'qq// is singular');
 	is(@q[0], 'FOO BAR', 'variables were interpolated');
 };
 
 { # "" variation
 	my @q = ();
-	eval '@q = ("$foo $bar")';
-	is(+@q, 1, '"" is singular"');
+        @q = "$foo $bar";
+	is(+@q, 1, '"" is singular');
 	is(@q[0], "FOO BAR", '"" interpolates');
 };
 
