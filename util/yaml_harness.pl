@@ -80,6 +80,13 @@ my %handlers = (
 #            $self->{'next'} = $curr;
         }
     },
+	other      => sub {
+		my($self, $line, $type, $totals) = @_;
+
+		# XXX: we're missing some context, so we *assume* we were
+		# called after a test. :/
+		$self->latest_event->{diag} .= $line if $Test::Harness::Verbose;
+	 },
 );
 
 $s->{callback} = sub {
@@ -90,7 +97,7 @@ $s->{callback} = sub {
 
 
 foreach my $file (@{ $s->get_tests }) {
-    push @{ $s->{_test_cases} } , {
+    push @{ $s->{_test_cases} }, {
 		file => $file,
 		subtests => ($s->{_log} = []),
 	};
@@ -170,7 +177,6 @@ sub _build_exclude_re {
 }
 
 sub _build_ext_re {
-# Build up extensions regex
 	my @ext = map { split /,/ } @{ $Config{ext} };
 	s/^\.// foreach @ext;
 	@ext = ("t") unless @ext;
@@ -184,6 +190,8 @@ sub _init {
 	$self->get_smoker;
 	$self->get_revision;
 	$self->{_start_time} = time;
+
+	# XXX: should i just include \%Config here?
 	$self->{_config} = { shuffle => $Config{shuffle}+=0 };
 }
 
