@@ -59,7 +59,7 @@ if (@ARGV and -e $ARGV[0]) {
 }
 
 if ($backend eq 'Parrot') {
-    $out .= ".pir";
+    $out .= ".imc";
 }
 else {
     $out .= ($^O eq 'MSWin32') ? ".exe" : ".out";
