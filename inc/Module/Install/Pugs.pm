@@ -37,8 +37,7 @@ sub set_blib {
 
 sub setup_perl6_install {
     my $self = shift;
-    $self->require_pugs_config;
-    my $libs = PugsConfig->pugs_install_libs;
+    my $libs = $self->get_pugs_config;
     $self->makemaker_args(
         INSTALLARCHLIB => $libs->{archlib},
         INSTALLPRIVLIB => $libs->{privlib},
@@ -64,11 +63,12 @@ sub pugs_fix_makefile {
     close MAKEFILE;
 }
 
-sub require_pugs_config {
+sub get_pugs_config {
     my $self = shift;
     my $base = $self->{_top}{base};
     eval "use lib '$base/util'; 1" or die $@;
     eval "use PugsConfig; 1" or die $@;
+    PugsConfig->get_config;
 }
 
 sub pugs_binary {

@@ -4,17 +4,7 @@ use warnings;
 use Config;
 use File::Spec;
 
-sub pugs_install_libs {
-    my $config = set_pugs_config_values();
-    +{
-        archlib => $config->{archlib},
-        privlib => $config->{privlib},
-        sitearch => $config->{sitearch},
-        sitelib => $config->{sitelib},
-    };
-}
-
-sub set_pugs_config_values {
+sub get_config {
     my $config = {
         perl_revision   => '6',
         perl_version    => '0',
@@ -65,7 +55,7 @@ sub add_path {
 }
 
 sub write_config_module {
-    my $config = set_pugs_config_values();
+    my $config = get_config();
     my $template = do { local $/; <DATA> };
 
     my $all_fields = join ",\n    ", map {
