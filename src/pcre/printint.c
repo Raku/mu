@@ -67,7 +67,7 @@ static const uschar utf8_t4[] = {
   3,3,3,3,3,3,3,3,4,4,4,4,5,5,5,5 };
 
 static int
-print_char(FILE *f, uschar *ptr, BOOL utf8)
+print_char(FILE *f, uschar *ptr, PCRE_BOOL utf8)
 {
 int c = *ptr;
 
@@ -136,7 +136,7 @@ print_internals(pcre *external_re, FILE *f)
 {
 real_pcre *re = (real_pcre *)external_re;
 uschar *codestart, *code;
-BOOL utf8;
+PCRE_BOOL utf8;
 
 unsigned int options = re->options;
 int offset = re->name_table_offset;
@@ -345,7 +345,7 @@ for(;;)
     case OP_XCLASS:
       {
       int i, min, max;
-      BOOL printmap;
+      PCRE_BOOL printmap;
 
       fprintf(f, "    [");
 

@@ -255,7 +255,7 @@ int rc;
 int options = 0;
 int *ovector = NULL;
 int small_ovector[POSIX_MALLOC_THRESHOLD * 3];
-BOOL allocated_ovector = FALSE;
+PCRE_BOOL allocated_ovector = FALSE;
 
 if ((eflags & REG_NOTBOL) != 0) options |= PCRE_NOTBOL;
 if ((eflags & REG_NOTEOL) != 0) options |= PCRE_NOTEOL;

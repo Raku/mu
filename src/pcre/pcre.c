@@ -306,9 +306,9 @@ static const unsigned char ebcdic_chartab[] = { /* chartable partial dup */
 
 /* Definition to allow mutual recursion */
 
-static BOOL
+static PCRE_BOOL
   compile_regex(int, int, int *, uschar **, const uschar **, const char **,
-    BOOL, int, int *, int *, branch_chain *, compile_data *);
+    PCRE_BOOL, int, int *, int *, branch_chain *, compile_data *);
 
 /* Structure for building a chain of data that actually lives on the
 stack, for holding the values of the subject pointer at the start of each
@@ -871,7 +871,7 @@ Returns:     nothing
 */
 
 static void
-pchars(const uschar *p, int length, BOOL is_subject, match_data *md)
+pchars(const uschar *p, int length, PCRE_BOOL is_subject, match_data *md)
 {
 int c;
 if (is_subject && length > md->end_subject - p) length = md->end_subject - p;
@@ -907,7 +907,7 @@ Returns:     zero or positive => a data character
 
 static int
 check_escape(const uschar **ptrptr, const char **errorptr, int bracount,
-  int options, BOOL isclass)
+  int options, PCRE_BOOL isclass)
 {
 const uschar *ptr = *ptrptr;
 int c, i;
@@ -1113,7 +1113,7 @@ Returns:     value from ucp_type_table, or -1 for an invalid type
 */
 
 static int
-get_ucp(const uschar **ptrptr, BOOL *negptr, const char **errorptr)
+get_ucp(const uschar **ptrptr, PCRE_BOOL *negptr, const char **errorptr)
 {
 int c, i, bot, top;
 const uschar *ptr = *ptrptr;
@@ -1202,7 +1202,7 @@ Arguments:
 Returns:    TRUE or FALSE
 */
 
-static BOOL
+static PCRE_BOOL
 is_counted_repeat(const uschar *p)
 {
 if ((digitab[*p++] & ctype_digit) == 0) return FALSE;
@@ -1298,7 +1298,7 @@ Returns:       pointer to the first significant opcode
 
 static const uschar*
 first_significant_code(const uschar *code, int *options, int optbit,
-  BOOL skipassert)
+  PCRE_BOOL skipassert)
 {
 for (;;)
   {
@@ -1543,7 +1543,7 @@ Returns:      pointer to the opcode for the bracket, or NULL if not found
 */
 
 static const uschar *
-find_bracket(const uschar *code, BOOL utf8, int number)
+find_bracket(const uschar *code, PCRE_BOOL utf8, int number)
 {
 #ifndef SUPPORT_UTF8
 utf8 = utf8;               /* Stop pedantic compilers complaining */
@@ -1617,7 +1617,7 @@ Returns:      pointer to the opcode for OP_RECURSE, or NULL if not found
 */
 
 static const uschar *
-find_recurse(const uschar *code, BOOL utf8)
+find_recurse(const uschar *code, PCRE_BOOL utf8)
 {
 #ifndef SUPPORT_UTF8
 utf8 = utf8;               /* Stop pedantic compilers complaining */
@@ -1692,8 +1692,8 @@ Arguments:
 Returns:      TRUE if what is matched could be empty
 */
 
-static BOOL
-could_be_empty_branch(const uschar *code, const uschar *endcode, BOOL utf8)
+static PCRE_BOOL
+could_be_empty_branch(const uschar *code, const uschar *endcode, PCRE_BOOL utf8)
 {
 register int c;
 for (code = first_significant_code(code + 1 + LINK_SIZE, NULL, 0, TRUE);
@@ -1706,7 +1706,7 @@ for (code = first_significant_code(code + 1 + LINK_SIZE, NULL, 0, TRUE);
 
   if (c >= OP_BRA)
     {
-    BOOL empty_branch;
+    PCRE_BOOL empty_branch;
     if (GET(code, 1) == 0) return TRUE;    /* Hit unclosed bracket */
 
     /* Scan a closed bracket */
@@ -1836,9 +1836,9 @@ Arguments:
 Returns:      TRUE if what is matched could be empty
 */
 
-static BOOL
+static PCRE_BOOL
 could_be_empty(const uschar *code, const uschar *endcode, branch_chain *bcptr,
-  BOOL utf8)
+  PCRE_BOOL utf8)
 {
 while (bcptr != NULL && bcptr->current >= code)
   {
@@ -1867,7 +1867,7 @@ Argument:
 Returns:   TRUE or FALSE
 */
 
-static BOOL
+static PCRE_BOOL
 check_posix_syntax(const uschar *ptr, const uschar **endptr, compile_data *cd)
 {
 int terminator;          /* Don't combine these lines; the Solaris cc */
@@ -1937,7 +1937,7 @@ Returns:     nothing
 */
 
 static void
-adjust_recurse(uschar *group, int adjust, BOOL utf8, compile_data *cd)
+adjust_recurse(uschar *group, int adjust, PCRE_BOOL utf8, compile_data *cd)
 {
 uschar *ptr = group;
 while ((ptr = (uschar *)find_recurse(ptr, utf8)) != NULL)
@@ -2021,7 +2021,7 @@ Arguments:
 Yield:        TRUE when range returned; FALSE when no more
 */
 
-static BOOL
+static PCRE_BOOL
 get_othercase_range(int *cptr, int d, int *ocptr, int *odptr)
 {
 int c, chartype, othercase, next;
@@ -2074,7 +2074,7 @@ Returns:         TRUE on success
                  FALSE, with *errorptr set on error
 */
 
-static BOOL
+static PCRE_BOOL
 compile_branch(int *optionsptr, int *brackets, uschar **codeptr,
   const uschar **ptrptr, const char **errorptr, int *firstbyteptr,
   int *reqbyteptr, branch_chain *bcptr, compile_data *cd)
@@ -2092,8 +2092,8 @@ int after_manual_callout = 0;
 register int c;
 register uschar *code = *codeptr;
 uschar *tempcode;
-BOOL inescq = FALSE;
-BOOL groupsetfirstbyte = FALSE;
+PCRE_BOOL inescq = FALSE;
+PCRE_BOOL groupsetfirstbyte = FALSE;
 const uschar *ptr = *ptrptr;
 const uschar *tempptr;
 uschar *previous = NULL;
@@ -2101,12 +2101,12 @@ uschar *previous_callout = NULL;
 uschar classbits[32];
 
 #ifdef SUPPORT_UTF8
-BOOL class_utf8;
-BOOL utf8 = (options & PCRE_UTF8) != 0;
+PCRE_BOOL class_utf8;
+PCRE_BOOL utf8 = (options & PCRE_UTF8) != 0;
 uschar *class_utf8data;
 uschar utf8_char[6];
 #else
-BOOL utf8 = FALSE;
+PCRE_BOOL utf8 = FALSE;
 #endif
 
 /* Set up the default and non-default settings for greediness */
@@ -2137,9 +2137,9 @@ req_caseopt = ((options & PCRE_CASELESS) != 0)? REQ_CASELESS : 0;
 
 for (;; ptr++)
   {
-  BOOL negate_class;
-  BOOL possessive_quantifier;
-  BOOL is_quantifier;
+  PCRE_BOOL negate_class;
+  PCRE_BOOL possessive_quantifier;
+  PCRE_BOOL is_quantifier;
   int class_charcount;
   int class_lastchar;
   int newoptions;
@@ -2350,7 +2350,7 @@ for (;; ptr++)
           (ptr[1] == ':' || ptr[1] == '.' || ptr[1] == '=') &&
           check_posix_syntax(ptr, &tempptr, cd))
         {
-        BOOL local_negate = FALSE;
+        PCRE_BOOL local_negate = FALSE;
         int posix_class, i;
         register const uschar *cbits = cd->cbits;
 
@@ -2389,7 +2389,7 @@ for (;; ptr++)
         posix_class *= 3;
         for (i = 0; i < 3; i++)
           {
-          BOOL blankclass = strncmp((char *)ptr, "blank", 5) == 0;
+          PCRE_BOOL blankclass = strncmp((char *)ptr, "blank", 5) == 0;
           int taboffset = posix_class_maps[posix_class + i];
           if (taboffset < 0) break;
           if (local_negate)
@@ -2472,7 +2472,7 @@ for (;; ptr++)
             case ESC_p:
             case ESC_P:
               {
-              BOOL negated;
+              PCRE_BOOL negated;
               int property = get_ucp(&ptr, &negated, errorptr);
               if (property < 0) goto FAILED;
               class_utf8 = TRUE;
@@ -3813,7 +3813,7 @@ for (;; ptr++)
 #ifdef SUPPORT_UCP
       else if (-c == ESC_P || -c == ESC_p)
         {
-        BOOL negated;
+        PCRE_BOOL negated;
         int value = get_ucp(&ptr, &negated, errorptr);
         previous = code;
         *code++ = ((-c == ESC_p) != negated)? OP_PROP : OP_NOTPROP;
@@ -3951,9 +3951,9 @@ Argument:
 Returns:      TRUE on success
 */
 
-static BOOL
+static PCRE_BOOL
 compile_regex(int options, int oldims, int *brackets, uschar **codeptr,
-  const uschar **ptrptr, const char **errorptr, BOOL lookbehind, int skipbytes,
+  const uschar **ptrptr, const char **errorptr, PCRE_BOOL lookbehind, int skipbytes,
   int *firstbyteptr, int *reqbyteptr, branch_chain *bcptr, compile_data *cd)
 {
 const uschar *ptr = *ptrptr;
@@ -4162,7 +4162,7 @@ Arguments:
 Returns:     TRUE or FALSE
 */
 
-static BOOL
+static PCRE_BOOL
 is_anchored(register const uschar *code, int *options, unsigned int bracket_map,
   unsigned int backref_map)
 {
@@ -4232,7 +4232,7 @@ Arguments:
 Returns:         TRUE or FALSE
 */
 
-static BOOL
+static PCRE_BOOL
 is_startline(const uschar *code, unsigned int bracket_map,
   unsigned int backref_map)
 {
@@ -4300,7 +4300,7 @@ Returns:     -1 or the fixed first char
 */
 
 static int
-find_firstassertedchar(const uschar *code, int *options, BOOL inassert)
+find_firstassertedchar(const uschar *code, int *options, PCRE_BOOL inassert)
 {
 register int c = -1;
 do {
@@ -4471,10 +4471,10 @@ int name_count = 0;
 int max_name_size = 0;
 int lastitemlength = 0;
 #ifdef SUPPORT_UTF8
-BOOL utf8;
-BOOL class_utf8;
+PCRE_BOOL utf8;
+PCRE_BOOL class_utf8;
 #endif
-BOOL inescq = FALSE;
+PCRE_BOOL inescq = FALSE;
 unsigned int brastackptr = 0;
 size_t size;
 uschar *code;
@@ -4644,7 +4644,7 @@ while ((c = *(++ptr)) != 0)
     else if (-c == ESC_P || -c == ESC_p)
       {
 #ifdef SUPPORT_UCP
-      BOOL negated;
+      PCRE_BOOL negated;
       length += 2;
       lastitemlength = 2;
       if (get_ucp(&ptr, &negated, errorptr) < 0) goto PCRE_ERROR_RETURN;
@@ -5647,7 +5647,7 @@ Arguments:
 Returns:      TRUE if matched
 */
 
-static BOOL
+static PCRE_BOOL
 match_ref(int offset, register const uschar *eptr, int length, match_data *md,
   unsigned long int ims)
 {
@@ -5699,11 +5699,11 @@ Arguments:
 Returns:      TRUE if character matches, else FALSE
 */
 
-static BOOL
+static PCRE_BOOL
 match_xclass(int c, const uschar *data)
 {
 int t;
-BOOL negated = (*data & XCL_NOT) != 0;
+PCRE_BOOL negated = (*data & XCL_NOT) != 0;
 
 /* Character values < 256 are matched against a bitmap, if one is present. If
 not, we still carry on, because there may be ranges that start below 256 in the
@@ -5863,10 +5863,10 @@ typedef struct heapframe {
 
   recursion_info Xnew_recursive;
 
-  BOOL Xcur_is_word;
-  BOOL Xcondition;
-  BOOL Xminimize;
-  BOOL Xprev_is_word;
+  PCRE_BOOL Xcur_is_word;
+  PCRE_BOOL Xcondition;
+  PCRE_BOOL Xminimize;
+  PCRE_BOOL Xprev_is_word;
 
   unsigned long int Xoriginal_ims;
 
@@ -6057,10 +6057,10 @@ const uschar *saved_eptr;          /* all here, so the declarations can    */
                                    /* be cut out in a block. The only      */
 recursion_info new_recursive;      /* declarations within blocks below are */
                                    /* for variables that do not have to    */
-BOOL cur_is_word;                  /* be preserved over a recursive call   */
-BOOL condition;                    /* to RMATCH().                         */
-BOOL minimize;
-BOOL prev_is_word;
+PCRE_BOOL cur_is_word;                  /* be preserved over a recursive call   */
+PCRE_BOOL condition;                    /* to RMATCH().                         */
+PCRE_BOOL minimize;
+PCRE_BOOL prev_is_word;
 
 unsigned long int original_ims;
 
@@ -8802,11 +8802,11 @@ int first_byte = -1;
 int req_byte = -1;
 int req_byte2 = -1;
 unsigned long int ims = 0;
-BOOL using_temporary_offsets = FALSE;
-BOOL anchored;
-BOOL startline;
-BOOL first_byte_caseless = FALSE;
-BOOL req_byte_caseless = FALSE;
+PCRE_BOOL using_temporary_offsets = FALSE;
+PCRE_BOOL anchored;
+PCRE_BOOL startline;
+PCRE_BOOL first_byte_caseless = FALSE;
+PCRE_BOOL req_byte_caseless = FALSE;
 match_data match_block;
 const uschar *tables;
 const uschar *start_bits = NULL;

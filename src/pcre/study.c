@@ -65,7 +65,7 @@ Returns:        nothing
 */
 
 static void
-set_bit(uschar *start_bits, unsigned int c, BOOL caseless, compile_data *cd)
+set_bit(uschar *start_bits, unsigned int c, PCRE_BOOL caseless, compile_data *cd)
 {
 start_bits[c/8] |= (1 << (c&7));
 if (caseless && (cd->ctypes[c] & ctype_letter) != 0)
@@ -92,9 +92,9 @@ Arguments:
 Returns:       TRUE if table built, FALSE otherwise
 */
 
-static BOOL
-set_start_bits(const uschar *code, uschar *start_bits, BOOL caseless,
-  BOOL utf8, compile_data *cd)
+static PCRE_BOOL
+set_start_bits(const uschar *code, uschar *start_bits, PCRE_BOOL caseless,
+  PCRE_BOOL utf8, compile_data *cd)
 {
 register int c;
 
@@ -109,7 +109,7 @@ volatile int dummy;
 do
   {
   const uschar *tcode = code + 1 + LINK_SIZE;
-  BOOL try_next = TRUE;
+  PCRE_BOOL try_next = TRUE;
 
   while (try_next)
     {

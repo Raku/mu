@@ -270,7 +270,7 @@ variable-length repeat, or a anything other than literal characters. */
 
 /* Miscellaneous definitions */
 
-typedef int BOOL;
+typedef int PCRE_BOOL;
 
 #define FALSE   0
 #define TRUE    1
@@ -651,7 +651,7 @@ typedef struct compile_data {
   int  top_backref;             /* Maximum back reference */
   unsigned int backref_map;     /* Bitmap of low back refs */
   int  req_varyopt;             /* "After variable item" flag for reqbyte */
-  BOOL nopartial;               /* Set TRUE if partial won't work */
+  PCRE_BOOL nopartial;               /* Set TRUE if partial won't work */
 } compile_data;
 
 /* Structure for maintaining a chain of pointers to the currently incomplete
@@ -695,14 +695,14 @@ typedef struct match_data {
   int    offset_max;            /* The maximum usable for return data */
   const uschar *lcc;            /* Points to lower casing table */
   const uschar *ctypes;         /* Points to table of type maps */
-  BOOL   offset_overflow;       /* Set if too many extractions */
-  BOOL   notbol;                /* NOTBOL flag */
-  BOOL   noteol;                /* NOTEOL flag */
-  BOOL   utf8;                  /* UTF8 flag */
-  BOOL   endonly;               /* Dollar not before final \n */
-  BOOL   notempty;              /* Empty string match not wanted */
-  BOOL   partial;               /* PARTIAL flag */
-  BOOL   hitend;                /* Hit the end of the subject at some point */
+  PCRE_BOOL   offset_overflow;       /* Set if too many extractions */
+  PCRE_BOOL   notbol;                /* NOTBOL flag */
+  PCRE_BOOL   noteol;                /* NOTEOL flag */
+  PCRE_BOOL   utf8;                  /* UTF8 flag */
+  PCRE_BOOL   endonly;               /* Dollar not before final \n */
+  PCRE_BOOL   notempty;              /* Empty string match not wanted */
+  PCRE_BOOL   partial;               /* PARTIAL flag */
+  PCRE_BOOL   hitend;                /* Hit the end of the subject at some point */
   const uschar *start_code;     /* For use when recursing */
   const uschar *start_subject;  /* Start of the subject string */
   const uschar *end_subject;    /* End of the subject string */

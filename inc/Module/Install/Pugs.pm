@@ -3,6 +3,7 @@ use Module::Install::Base; @ISA = qw(Module::Install::Base);
 use strict;
 use Config;
 use File::Spec;
+use File::Basename;
 
 sub WritePugs {
     my $self = shift;
@@ -94,13 +95,16 @@ sub deny_cygwin {
 }
 
 sub assert_ghc {
-    my $ghcver = `ghc --version`;
+    my $self = shift;
+    my $ghc = $self->can_run('ghc');
+    my $path = dirname($ghc);
+    my $ghcver = `$ghc --version`;
     ($ghcver =~ /Glasgow.*\bversion\s*(\S+)/s) or die << '.';
 *** Cannot find a runnable 'ghc' from path.
 *** Please install GHC from http://haskell.org/ghc/.
 .
 
-    return $1;
+    return ($path, $1);
 }
 
 sub fixpaths {

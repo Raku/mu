@@ -2,6 +2,7 @@
 use strict;
 use warnings;
 use Config;
+use File::Spec;
 use inc::Module::Install;
 
 my $pugs = "pugs$Config{_exe}";
@@ -10,6 +11,8 @@ my $config_h = "src/pugs_config.h";
 my @srcdirs = ("src", grep(-d, glob "src/*"));
 
 deny_cygwin     ();
+my ($ghc_path, $ghc_version) = assert_ghc();
+$ENV{PATH} = File::Spec->catdir($ghc_path, '..') . $Config{path_sep} . $ENV{PATH};
 
 name            ('Perl6-Pugs');
 version_from    ('lib/Perl6/Pugs.pm');
@@ -21,7 +24,7 @@ install_script  (glob('script/*'));
 build_requires  ('ExtUtils::MakeMaker' => 6.17);
 include         ('Module::Install::Makefile::Name');
 include         ('Module::Install::Makefile::Version');
-build_subdirs   (map fixpaths($_), "src/pcre", grep -e "$_/Makefile.PL", glob("ext/*"));
+build_subdirs   (map fixpaths($_), grep -e "$_/Makefile.PL", glob("ext/*"));
 makemaker_args  (
     test => { TESTS => join ' ', (glob("t/*.t"), glob("t/*/*.t")) },
     MAN1PODS => {},
@@ -34,7 +37,6 @@ clean_files     (map fixpaths($_),
 );
 
 setup_perl6_install();
-assert_ghc      ();
 set_postamble   ();
 no_index        (directory => 'inc', 'examples');
 WritePugs       (sign => 1);
@@ -45,10 +47,10 @@ sub set_postamble {
 
     # turning off unused imports and deprecations for GHC6.4.
     my $ghc_flags = "-L. -Lsrc -Lsrc/pcre -I. -Isrc -Isrc/pcre -i. -isrc -isrc/pcre -static -Wall -fno-warn-missing-signatures -fno-warn-name-shadowing";
-    if (assert_ghc() ge '6.4') {
+    if ($ghc_version ge '6.4') {
         $ghc_flags .= " -fno-warn-deprecations -fno-warn-orphans";
     }
-    my $ghc_output = "-Lsrc/blib/arch/auto/libpcre -lpcre -o pugs$Config{_exe} src/Main.hs";
+    my $ghc_output = "-o pugs$Config{_exe} src/Main.hs";
     my @prereqs = ($config_h, qw( src/UnicodeC.c src/UnicodeC.h ));
 
     postamble(fixpaths(<< "."));

@@ -1,5 +1,6 @@
 {-# OPTIONS -fglasgow-exts -fvia-C -O #-}
 {-# INCLUDE <pcre.h> #-}
+{-# INCLUDE <pcre.c> #-}
 -- #include <sys/types.h>
 -- arch-tag: 0852a460-683f-4abb-9108-8205777e2033
 
