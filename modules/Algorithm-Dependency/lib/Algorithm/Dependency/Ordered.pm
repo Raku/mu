@@ -9,7 +9,7 @@ package Algorithm::Dependency::Ordered;
 # For example, when installing software packages, often their dependencies
 # not only need to be installed, but be installed in the correct order.
 #
-# The much more complex ->schedule method of this class takes these factors
+# The much more complex .schedule method of this class takes these factors
 # into account. Please note that while circular dependencies are possible
 # and legal in unordered dependencies, they are a fatal error in ordered
 # dependencies. For that reason, the schedule method will return an error
@@ -28,18 +28,18 @@ BEGIN {
 
 sub schedule {
 	my $self = shift;
-	my $source = $self->{source};
+	my $source = $self.{source};
 	my @items = @_ or return undef;
-	return undef if grep { ! $source->item($_) } @items;
+	return undef if grep { ! $source.item($_) } @items;
 
 	# The actual items to select will be the same as for the unordered
 	# version, so we can simplify the algorithm greatly by using the
-	# normal unordered ->schedule method to get the starting list.
-	my $rv = $self->SUPER::schedule( @items );
+	# normal unordered .schedule method to get the starting list.
+	my $rv = $self.SUPER::schedule( @items );
 	my @queue = $rv ? @$rv : return undef;
 
 	# Get a working copy of the selected index
-	my %selected = %{ $self->{selected} };
+	my %selected = %{ $self.{selected} };
 
 	# If at any time we check every item in the stack without finding
 	# a suitable candidate for addition to the schedule, we have found
@@ -55,12 +55,12 @@ sub schedule {
 		return undef if $id eq $error_marker;
 
 		# Are there any un-met dependencies
-		my $Item = $self->{source}->item( $id ) or return undef;
-		my @missing = grep { ! $selected{$_} } $Item->depends;
+		my $Item = $self.{source}.item( $id ) or return undef;
+		my @missing = grep { ! $selected{$_} } $Item.depends;
 
 		# Remove orphans if we are ignoring them
-		if ( $self->{ignore_orphans} ) {
-			@missing = grep { $self->{source}->item($_) } @missing;
+		if ( $self.{ignore_orphans} ) {
+			@missing = grep { $self.{source}.item($_) } @missing;
 		}
 
 		if ( @missing ) {

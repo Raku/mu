@@ -43,14 +43,14 @@ sub load {
 	my $class = ref $self;
 
 	# If this is a reload, clean up in preperation
-	if ( $self->{loaded} ) {
-		$self->{loaded} = 0;
-		$self->{items_hash} = undef;
-		$self->{items_array} = undef;
+	if ( $self.{loaded} ) {
+		$self.{loaded} = 0;
+		$self.{items_hash} = undef;
+		$self.{items_array} = undef;
 	}
 
 	# Pass through to the real loader
-	my $items = $self->_load_item_list;
+	my $items = $self._load_item_list;
 	return $items unless $items;
 	return undef unless UNIVERSAL::isa( $items, 'ARRAY' );
 
@@ -61,47 +61,47 @@ sub load {
 		}
 
 		# Have we added this one already?
-		my $id = $item->id;
-		if ( $self->{items_hash}->{ $id } ) {
+		my $id = $item.id;
+		if ( $self.{items_hash}.{ $id } ) {
 			# Duplicate entry
 			return undef;
 		}
 
 		# Add it
-		push @{ $self->{items_array} }, $item;
-		$self->{items_hash}->{$id} = $item;
+		push @{ $self.{items_array} }, $item;
+		$self.{items_hash}.{$id} = $item;
 	}
 
-	$self->{loaded} = 1;
+	$self.{loaded} = 1;
 }
 
 # Get a single item by id
 sub item {
 	my $self = shift;
 	my $id = length $_[0] ? shift : return undef;
-	$self->{loaded} or $self->load or return undef;
+	$self.{loaded} or $self.load or return undef;
 
 	# Return the item ( or undef )
-	$self->{items_hash}->{$id};
+	$self.{items_hash}.{$id};
 }
 
 # Get a list of the items
 sub items {
 	my $self = shift;
-	$self->{loaded} or $self->load or return undef;
-	@{ $self->{items_array} };
+	$self.{loaded} or $self.load or return undef;
+	@{ $self.{items_array} };
 }
 
 # Check the integrity of the source.
 sub missing_dependencies {
 	my $self = shift;
-	$self->{loaded} or $self->load or return undef;
+	$self.{loaded} or $self.load or return undef;
 	
 	# Merged the depends of all the items, and see if
 	# any are missing.
 	my %missing = map { $_ => 1 }
-		grep { ! $self->item($_) }
-		map { $_->depends } $self->items;
+		grep { ! $self.item($_) }
+		map { $_.depends } $self.items;
 	%missing ? [ sort keys %missing ] : 0;
 }
 

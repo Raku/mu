@@ -11,7 +11,7 @@ BEGIN {
 	unless ( $ENV{HARNESS_ACTIVE} ) {
 		require FindBin;
 		chdir ($FindBin::Bin = $FindBin::Bin); # Avoid a warning
-		lib->import( catdir( updir(), updir(), 'modules') );
+		lib.import( catdir( updir(), updir(), 'modules') );
 	}
 }
 
@@ -27,16 +27,16 @@ my $TESTDATA = 't.data';
 
 
 # Load the data/complex.txt file in as a source file
-my $file = File::Spec->catfile( $TESTDATA, 'complex.txt' );
-my $Source = Algorithm::Dependency::Source::File->new( $file );
+my $file = File::Spec.catfile( $TESTDATA, 'complex.txt' );
+my $Source = Algorithm::Dependency::Source::File.new( $file );
 ok( $Source, "Complex source created" );
-ok( eval {$Source->load;}, "Complex source loads" );
+ok( eval {$Source.load;}, "Complex source loads" );
 
 # Try it's unordere dependency with nothing selected
-my $Dep = Algorithm::Dependency->new( source => $Source );
-ok( $Dep, "Algorithm::Dependency->new returns true" );
-ok( ref $Dep, "Algorithm::Dependency->new returns reference" );
-ok( isa( $Dep, 'Algorithm::Dependency'), "Algorithm::Dependency->new returns correctly" );
+my $Dep = Algorithm::Dependency.new( source => $Source );
+ok( $Dep, "Algorithm::Dependency.new returns true" );
+ok( ref $Dep, "Algorithm::Dependency.new returns reference" );
+ok( isa( $Dep, 'Algorithm::Dependency'), "Algorithm::Dependency.new returns correctly" );
 
 # Test each of the dependencies
 foreach my $data ( [
@@ -61,13 +61,13 @@ foreach my $data ( [
 	['S'],		[qw{N O P Q R}],		[qw{N O P Q R S}]		], [
 	['T'],		[qw{A D E F K L M N P R}],	[qw{A D E F K L M N P R T}]	]
 ) {
-	my $args = join( ', ', map { "'$_'" } @{ $data->[0] } );
-	my $rv = $Dep->depends( @{ $data->[0] } );
-	ok( $rv, "Dependency->depends($args) returns something" );
-	is_deeply( $rv, $data->[1], "Dependency->depends($args) returns expected values" );
-	$rv = $Dep->schedule( @{ $data->[0] } );
-	ok( $rv, "Dependency->schedule($args) returns something" );
-	is_deeply( $rv, $data->[2], "Dependency->schedule($args) returns expected values" );
+	my $args = join( ', ', map { "'$_'" } @{ $data.[0] } );
+	my $rv = $Dep.depends( @{ $data.[0] } );
+	ok( $rv, "Dependency.depends($args) returns something" );
+	is_deeply( $rv, $data.[1], "Dependency.depends($args) returns expected values" );
+	$rv = $Dep.schedule( @{ $data.[0] } );
+	ok( $rv, "Dependency.schedule($args) returns something" );
+	is_deeply( $rv, $data.[2], "Dependency.schedule($args) returns expected values" );
 }
 
 
@@ -75,10 +75,10 @@ foreach my $data ( [
 
 
 # Try an unordered dependency with half a dozen random things selected
-$Dep = Algorithm::Dependency->new( source => $Source, selected => [qw{F H J N R P}] );
-ok( $Dep, "Algorithm::Dependency->new returns true" );
-ok( ref $Dep, "Algorithm::Dependency->new returns reference" );
-ok( isa( $Dep, 'Algorithm::Dependency'), "Algorithm::Dependency->new returns correctly" );
+$Dep = Algorithm::Dependency.new( source => $Source, selected => [qw{F H J N R P}] );
+ok( $Dep, "Algorithm::Dependency.new returns true" );
+ok( ref $Dep, "Algorithm::Dependency.new returns reference" );
+ok( isa( $Dep, 'Algorithm::Dependency'), "Algorithm::Dependency.new returns correctly" );
 
 # Test each of the dependencies
 foreach my $data ( [
@@ -103,16 +103,16 @@ foreach my $data ( [
 	['S'],		[qw{O Q}],		[qw{O Q S}]		], [
 	['T'],		[qw{A D E K L M}], 	[qw{A D E K L M T}]	]
 ) {
-	my $args = join( ', ', map { "'$_'" } @{ $data->[0] } );
-	my $rv = $Dep->depends( @{ $data->[0] } );
-	ok( $rv, "Dependency->depends($args) returns something" );
-	is_deeply( $rv, $data->[1], "Dependency->depends($args) returns expected values" );
-	$rv = $Dep->schedule( @{ $data->[0] } );
-	ok( $rv, "Dependency->schedule($args) returns something" );
-	is_deeply( $rv, $data->[2], "Dependency->schedule($args) returns expected values" );
+	my $args = join( ', ', map { "'$_'" } @{ $data.[0] } );
+	my $rv = $Dep.depends( @{ $data.[0] } );
+	ok( $rv, "Dependency.depends($args) returns something" );
+	is_deeply( $rv, $data.[1], "Dependency.depends($args) returns expected values" );
+	$rv = $Dep.schedule( @{ $data.[0] } );
+	ok( $rv, "Dependency.schedule($args) returns something" );
+	is_deeply( $rv, $data.[2], "Dependency.schedule($args) returns expected values" );
 }
 
 # Do a quick check of the missing_dependencies methods
-is( $Source->missing_dependencies, 0, "->missing_dependencies returns as expected" );
+is( $Source.missing_dependencies, 0, ".missing_dependencies returns as expected" );
 
 1;

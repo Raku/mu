@@ -11,7 +11,7 @@ BEGIN {
 	unless ( $ENV{HARNESS_ACTIVE} ) {
 		require FindBin;
 		chdir ($FindBin::Bin = $FindBin::Bin); # Avoid a warning
-		lib->import( catdir( updir(), updir(), 'modules') );
+		lib.import( catdir( updir(), updir(), 'modules') );
 	}
 }
 

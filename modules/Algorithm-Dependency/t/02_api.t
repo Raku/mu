@@ -11,7 +11,7 @@ BEGIN {
 	unless ( $ENV{HARNESS_ACTIVE} ) {
 		require FindBin;
 		chdir ($FindBin::Bin = $FindBin::Bin); # Avoid a warning
-		lib->import( catdir( updir(), updir(), 'modules') );
+		lib.import( catdir( updir(), updir(), 'modules') );
 	}
 }
 
@@ -23,7 +23,7 @@ use Algorithm::Dependency::Ordered ();
 use Algorithm::Dependency::Source::File ();
 
 # Execute the tests
-Test::ClassAPI->execute('complete');
+Test::ClassAPI.execute('complete');
 exit(0);
 
 # Now, define the API for the classes

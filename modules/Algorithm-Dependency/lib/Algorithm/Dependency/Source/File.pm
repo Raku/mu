@@ -1,3 +1,6 @@
+#!pugs
+use v6;
+
 package Algorithm::Dependency::Source::File;
 
 # Implements a sample source, which loads data from a formatted file.
@@ -13,7 +16,6 @@ package Algorithm::Dependency::Source::File;
 # It should allow most basic file format to be parsed. If not, just copy
 # and change this file.
 
-use strict;
 use base 'Algorithm::Dependency::Source';
 
 use vars qw{$VERSION};
@@ -31,10 +33,10 @@ sub new {
 	return undef unless -r $filename;
 
 	# Get the basic source object
-	my $self = $class->SUPER::new or return undef;
+	my $self = $class.SUPER::new or return undef;
 
 	# Add our arguments
-	$self->{filename} = $filename;
+	$self.{filename} = $filename;
 
 	$self;
 }
@@ -49,7 +51,7 @@ sub _load_item_list {
 
 	# Load the contents of the file
 	local $/ = undef;
-	open( FILE, $self->{filename} ) or return undef;
+	open( FILE, $self.{filename} ) or return undef;
 	my $source = <FILE>;
 	close FILE or return undef;
 
@@ -65,7 +67,7 @@ sub _load_item_list {
 		return undef unless scalar @sections;
 
 		# Create the new item
-		my $Item = Algorithm::Dependency::Item->new( @sections ) or return undef;
+		my $Item = Algorithm::Dependency::Item.new( @sections ) or return undef;
 		push @Items, $Item;
 	}
 

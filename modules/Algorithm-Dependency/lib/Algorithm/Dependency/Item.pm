@@ -27,8 +27,8 @@ sub new {
 }
 
 # Get the values
-sub id { $_[0]->{id} }
-sub depends { @{$_[0]->{depends}} }
+sub id { $_[0].{id} }
+sub depends { @{$_[0].{depends}} }
 
 1;
 

@@ -35,7 +35,7 @@ sub new {
 
 	# Were we given the 'ignore_orphans' flag?
 	if ( $options{ignore_orphans} ) {
-		$self->{ignore_orphans} = 1;
+		$self.{ignore_orphans} = 1;
 	}
 
 	# Done, unless we have been given some selected items
@@ -47,7 +47,7 @@ sub new {
 	my %selected = ();
 	foreach my $id ( @{ $options{selected} } ) {
 		# Does the item exist?
-		return undef unless $source->item($id);
+		return undef unless $source.item($id);
 
 		# Is it a duplicate
 		return undef if $selected{$id};
@@ -56,7 +56,7 @@ sub new {
 		$selected{$id} = 1;
 	}
 
-	$self->{selected} = \%selected;
+	$self.{selected} = \%selected;
 	$self;
 }
 
@@ -68,16 +68,16 @@ sub new {
 # Basic methods
 
 # Get the Source object
-sub source { $_[0]->{source} }
+sub source { $_[0].{source} }
 
 # Get the list of all selected items
-sub selected_list { sort keys %{$_[0]->{selected}} }
+sub selected_list { sort keys %{$_[0].{selected}} }
 
 # Is a particular item selected
-sub selected { $_[0]->{selected}->{$_[1]} }
+sub selected { $_[0].{selected}.{$_[1]} }
 
 # Shortcut to the source to get a particular item
-sub item { $_[0]->{source}->item( $_[1] ) }
+sub item { $_[0].{source}.item( $_[1] ) }
 
 
 
@@ -102,14 +102,14 @@ sub depends {
 	# Process the stack
 	while ( my $id = shift @stack ) {
 		# Does the id exist?
-		my $Item = $self->{source}->item($id)
-		or $self->{ignore_orphans} ? next : return undef;
+		my $Item = $self.{source}.item($id)
+		or $self.{ignore_orphans} ? next : return undef;
 
 		# Skip if selected or checked
 		next if $checked{$id};
 
 		# Add it's depends to the stack
-		push @stack, $Item->depends;
+		push @stack, $Item.depends;
 		$checked{$id} = 1;
 
 		# Add anything to the final output that wasn't one of
@@ -120,8 +120,8 @@ sub depends {
 	}
 
 	# Remove any items already selected
-	my $s = $self->{selected};
-	[ sort grep { ! $s->{$_} } @depends ];
+	my $s = $self.{selected};
+	[ sort grep { ! $s.{$_} } @depends ];
 }
 
 # For one or more items, create a schedule of all items, including the
@@ -134,19 +134,19 @@ sub schedule {
 	my @items = @_ or return undef;
 
 	# Get their dependencies
-	my $depends = $self->depends( @items ) or return undef;
+	my $depends = $self.depends( @items ) or return undef;
 
 	# Now return a combined list, removing any items already selected.
 	# We are allowed to return an empty list.
-	my $s = $self->{selected};
-	[ sort grep { ! $s->{$_} } @items, @$depends ];
+	my $s = $self.{selected};
+	[ sort grep { ! $s.{$_} } @items, @$depends ];
 }
 
 # As above, but don't pass what we want to schedule as a list, just do the
 # schedule for everything.
 sub schedule_all {
 	my $self = shift;
-	$self->schedule( map { $_->id } $self->source->items );
+	$self.schedule( map { $_.id } $self.source.items );
 }
 
 1;
@@ -165,18 +165,18 @@ Algorithm::Dependency - Algorithmic framework for implementing dependency tree
   use Algorithm::Dependency::Source::File;
 
   # Load the data from a simple text file
-  my $data_source = Algorithm::Dependency::Source::File->new( 'foo.txt' );
+  my $data_source = Algorithm::Dependency::Source::File.new( 'foo.txt' );
 
   # Create the dependency object, and indicate the items that are already
   # selected/installed/etc in the database
-  my $dep = Algorithm::Dependency->new(
+  my $dep = Algorithm::Dependency.new(
       source => $data_source,
       selected => [ 'This', 'That' ]
       ) or die 'Failed to set up dependency algorithm';
 
   # For the item 'Foo', find out the other things we also have to select.
   # This WON'T include the item we selected, 'Foo'.
-  my $also = $dep->depends( 'Foo' );
+  my $also = $dep.depends( 'Foo' );
   print $also
   	? "By selecting 'Foo', you are also selecting the following items: "
   		. join( ', ', @$also )
@@ -184,7 +184,7 @@ Algorithm::Dependency - Algorithmic framework for implementing dependency tree
 
   # Find out the order we need to act on the items in.
   # This WILL include the item we selected, 'Foo'.
-  my $schedule = $dep->schedule( 'Foo' );
+  my $schedule = $dep.schedule( 'Foo' );
 
 =head1 DESCRIPTION
 
