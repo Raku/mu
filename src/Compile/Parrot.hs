@@ -105,6 +105,12 @@ instance Compile Exp where
             , label last
             ]
     compile (App "&last" _ _) = text "invoke last"
+    compile (App "&substr" [] [str, start, Val (VInt 1)]) = hcat $
+        [ compile str
+        , text "["
+        , compile start
+        , text "]"
+        ]
     compile (App "&postfix:++" [inv] []) = text "inc" <+> compile inv
     compile (App "&postfix:--" [inv] []) = text "dec" <+> compile inv
     compile (App ('&':'i':'n':'f':'i':'x':':':op) [lhs, rhs] []) =
