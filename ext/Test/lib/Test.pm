@@ -74,7 +74,7 @@ sub todo_is (Str $got, Str $expected, Str ?$desc) returns Bool is export {
     return $test;
 }
 
-sub todo_isa_ok ($ref, Str $expected_type) returns Bool is export {
+sub todo_isa_ok ($ref, Str $expected_type, Str ?$desc) returns Bool is export {
     my $ref_type = ref($ref);
     my $out := defined($desc) ?? $desc :: "The object is-a '$expected_type'";         
     my $test := $ref_type eq $expected_type;
