@@ -294,13 +294,17 @@ type VNum  = Double
 type VComplex = Complex VNum
 type VStr  = String
 type VList = [Val]
-type VRule = Regex
 type VSubst = (VRule, Exp)
 type VHandle = Handle
 type MVal = IORef Val
 newtype VArray = MkArray [Val] deriving (Show, Eq, Ord)
 newtype VHash  = MkHash (FiniteMap Val Val) deriving (Show, Eq, Ord)
 newtype VThunk = MkThunk (Eval Val)
+data VRule     = MkRule
+    { rxRegex     :: Regex
+    , rxGlobal    :: Bool
+    }
+    deriving (Show, Eq, Ord)
 
 type VPair = (Val, Val)
 

@@ -453,15 +453,17 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         -- ignore val
         retVal val
     "rx" -> do
-        let [exp] = exps
+        let [exp, Val (VBool g)] = exps
         val     <- enterEvalContext "Str" exp
         str     <- fromVal val
-        retVal $ VRule $ mkRegex $ encodeUTF8 str
+        retVal $ VRule $ MkRule
+            { rxRegex  = mkRegex $ encodeUTF8 str
+            , rxGlobal = g
+            }
     "subst" -> do
-        let [exp, subst] = exps
-        val     <- enterEvalContext "Str" exp
-        str     <- fromVal val
-        retVal $ VSubst (mkRegex $ encodeUTF8 str, subst)
+        let [exp, g, subst] = exps
+        (VRule rx)  <- reduce env (Syn "rx" [exp, g])
+        retVal $ VSubst (rx, subst)
     "inline" -> do
         retVal VUndef
     "module" -> do

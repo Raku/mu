@@ -411,9 +411,9 @@ op2 "split"= \x y -> return $ split' (vCast x) (vCast y)
     split' glue xs = VList $ map VStr $ split glue xs
 op2 other = \x y -> return $ VError ("unimplemented binaryOp: " ++ other) (App other [Val x, Val y] [])
 
-op2Match x (VSubst (rx, subst)) = do
+op2Match x sub@(VSubst (rx, subst)) = do
     str     <- fromVal x
-    case encodeUTF8 str =~~ rx of
+    case encodeUTF8 str =~~ rxRegex rx of
         Nothing -> return $ VBool False
         Just mr -> do
             glob <- askGlobal
@@ -421,12 +421,16 @@ op2Match x (VSubst (rx, subst)) = do
                 subs = elems $ mrSubs mr
             writeMVal matchAV $ VList $ map VStr subs
             str' <- fromVal =<< evalExp subst
+            -- XXX ugly hack for rxGlobal to work
             writeMVal (vCast x) (VStr $ concat [mrBefore mr, str', mrAfter mr])
+            if (rxGlobal rx)
+                then op2Match x sub
+                else return VUndef
             return $ VBool True
 
 op2Match x (VRule rx) = do
     str     <- fromVal x
-    case encodeUTF8 str =~~ rx of
+    case encodeUTF8 str =~~ rxRegex rx of
         Nothing -> return $ VBool False
         Just mr -> do
             --- XXX: Fix $/ and make it lexical.

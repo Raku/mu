@@ -887,9 +887,8 @@ qqLiteral = do
 
 substLiteral = try $ do
     symbol "s"
-    string ":perl5"
-    notFollowedBy alphaNum
-    whiteSpace
+    symbol ":perl5"
+    isGlobal <- option False $ do { symbol ":g"; return True }
     ch <- anyChar
     let endch = balancedDelim ch
     expr <- interpolatingStringLiteral endch rxInterpolator
@@ -898,17 +897,16 @@ substLiteral = try $ do
     let endch = balancedDelim ch
     subst <- interpolatingStringLiteral endch qqInterpolator
     char endch
-    return $ Syn "subst" [expr, subst]
+    return $ Syn "subst" [expr, Val $ VBool isGlobal, subst]
 
 rxLiteral = try $ do
     symbol "rx"
-    string ":perl5"
-    notFollowedBy alphaNum
-    whiteSpace
+    symbol ":perl5"
+    isGlobal <- option False $ do { symbol ":g"; return True }
     ch <- anyChar
     expr <- interpolatingStringLiteral (balancedDelim ch) rxInterpolator
     char (balancedDelim ch)
-    return $ Syn "rx" [expr]
+    return $ Syn "rx" [expr, Val $ VBool isGlobal]
 
 qwLiteral = try $ do
     str <- qwText
