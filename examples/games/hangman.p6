@@ -2,17 +2,6 @@
 
 use v6;
 
-## ------------------------------------------------------------------
-## Hangman (with the Pugs AUTHORS list)
-## ------------------------------------------------------------------
-## The following is a example of what perl6 code might have looked 
-## like if it was around in 1996 :)
-##
-## Actually this is a rough cut for a CGI based hangman game, I 
-## thought that I would try it without the web component first, 
-## and then port it to CGI. 
-## ------------------------------------------------------------------
-
 ## declare global variables (globals RULE dude!)
 
 my @letters;           # the letters in that committer's name
@@ -30,7 +19,7 @@ sub cls returns Void {
 
 sub get_committer_list (Str $dict_file) returns List {
     my @committers;
-    my $dict = open($dict_file) err die "Couldn't open '$dict_file'";
+    my $dict = open($dict_file) err die "Couldn't open the AUTHORS file.\nYou must run this script from within the main pugs\ndirectory or within the examples/ sub-directory.";
 
     # Skip the intro text
     1 while =$dict ~~ rx:perl5/\S/;
@@ -114,7 +103,7 @@ $msg";
 }
 
 ## main loop
-unshift @*INC, 'ext/FileSpec/lib', '../../ext/FileSpec/lib';
+unshift @*INC, 'ext/FileSpec/lib', '../ext/FileSpec/lib', '../../ext/FileSpec/lib';
 require File::Spec;
 my ($progdir) = splitpath($*PROGRAM_NAME)[1];
 my $dict = canonpath("$progdir../../AUTHORS");
@@ -150,3 +139,37 @@ while ($letter = =$*IN) {
 
     print draw_hangman("guess a letter? ");  
 }
+
+=pod
+
+=head1 NAME
+
+hangman.p6 - Hangman (with the Pugs AUTHORS list)
+
+=head1 DESCRIPTION
+
+This is a perl6 implementation of the classic Hangman game
+using the Pugs AUTHORS file as a word list. 
+
+=head1 AUTHORS
+
+stevan little, E<lt>stevan@iinteractive.comE<gt>
+
+Aurtrijus Tang E<lt>autrijus@autrijus.orgE<gt>
+
+Ingo Blechschmidt
+
+James Mastros
+
+Mark McConnell
+
+=head1 COPYRIGHT
+
+Copyright (c) 2005. Stevan Little. All rights reserved.
+
+This program is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+See http://www.perl.com/perl/misc/Artistic.html
+
+=cut
