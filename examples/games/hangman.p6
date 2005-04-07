@@ -112,6 +112,7 @@ $msg";
 }
 
 ## main loop
+unshift @*INC, 'ext/FileSpec/lib', '../../ext/FileSpec/lib';
 require File::Spec;
 my ($progdir) = splitpath($*PROGRAM_NAME)[1];
 my $dict = canonpath("$progdir../../AUTHORS");
