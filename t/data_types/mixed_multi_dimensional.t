@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 23;
+plan 34;
 
 =pod
 
@@ -66,4 +66,31 @@ this test should be added too more.
     is(@array[0](), 1, 'the first element (when executed) is 1');
     is(@array[1](), 2, 'the second element (when executed) is 2');    
     is(@array[2](), 3, 'the third element (when executed) is 3');
+}
+
+{ # Hash of Lists
+    my %hash;
+    isa_ok(%hash, 'Hash');
+    
+    %hash<key> = [ 1, 2, 3 ];
+    isa_ok(%hash<key>, 'List');
+    
+    is(%hash<key>[0], 1, 'got the right value');
+    is(%hash<key>[1], 2, 'got the right value');    
+    is(%hash<key>[2], 3, 'got the right value');
+}
+
+{ # Hash of Array-refs
+    my %hash;
+    isa_ok(%hash, 'Hash');
+    
+    my @array = ( 1, 2, 3 );
+    isa_ok(@array, 'Array');
+    
+    %hash<key> = \@array;
+    isa_ok(%hash<key>, 'Array');
+    
+    is(%hash<key>[0], 1, 'got the right value');
+    is(%hash<key>[1], 2, 'got the right value');    
+    is(%hash<key>[2], 3, 'got the right value');
 }
