@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 34;
+plan 36;
 
 =pod
 
@@ -78,7 +78,14 @@ this test should be added too more.
     is(%hash<key>[0], 1, 'got the right value');
     is(%hash<key>[1], 2, 'got the right value');    
     is(%hash<key>[2], 3, 'got the right value');
+    
+    # (FIXME parsefail) # push(%hash<key>, 4);
+    is(%hash<key>[3], 4, 'got the right value');
+
+    # (FIXME parsefail) # %hash<key>.push(5);
+    is(%hash<key>[4], 5, 'got the right value');
 }
+
 
 { # Hash of Array-refs
     my %hash;
