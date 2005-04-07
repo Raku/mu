@@ -80,3 +80,8 @@ plan 23;
         $a ||= 10;
         is($a,3, "... and second");
 }
+
+{
+	my $b = (($a = 3) = 4); 
+	is($b,4, "(($a = 3) = 4) return val should be good as an lval");
+}
