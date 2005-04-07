@@ -47,7 +47,7 @@ retEmpty = do
     return $ case cxt of
         "List"  -> VList []
         "Array" -> VArray (MkArray [])
-        "Hash"  -> VHash (MkHash Map.empty)
+        "Hash"  -> VHash Map.empty
         _       -> VUndef
 
 op1 :: Ident -> Val -> Eval Val

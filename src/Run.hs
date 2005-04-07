@@ -53,8 +53,8 @@ runComp comp = do
 prepareEnv :: VStr -> [VStr] -> IO Env
 prepareEnv name args = do
     environ <- getEnvironment
-    let envFM = Map.fromList $ [ (k, VStr v) | (k, v) <- environ ]
-    let confFM = Map.fromList $ [ (k, VStr v) | (k, v) <- Map.toList config ]
+    let envHV = Map.fromList $ [ (k, VStr v) | (k, v) <- environ ]
+    let confHV = Map.fromList $ [ (k, VStr v) | (k, v) <- Map.toList config ]
     exec    <- getArg0
     libs    <- getLibs environ
     execSV  <- newMVal $ VStr exec
@@ -82,9 +82,9 @@ prepareEnv name args = do
         , SymVal SGlobal "$*ERR"        errGV
         , SymVal SGlobal "$!"           errSV
         , SymVal SGlobal "$/"           matchAV
-        , SymVal SGlobal "%*ENV" (VHash . MkHash $ envFM)
+        , SymVal SGlobal "%*ENV" (VHash envHV)
         -- XXX What would this even do?
-        -- , SymVal SGlobal "%=POD"        (Val . VHash . MkHash $ emptyFM)
+        -- , SymVal SGlobal "%=POD"        (Val . VHash $ emptyHV)
         , SymVal SGlobal "@=POD"        (VArray . MkArray $ [])
         , SymVal SGlobal "$=POD"        (VStr "")
         , SymVal SGlobal "$?OS"         (VStr (getConfig "osname"))
@@ -99,7 +99,7 @@ prepareEnv name args = do
             , subReturns = "Void"
             , subFun = Prim subExit
             }
-        , SymVal SGlobal "%?CONFIG" (VHash . MkHash $ confFM)
+        , SymVal SGlobal "%?CONFIG" (VHash confHV)
         , SymVal SMy "$_" defSV
         ]
 

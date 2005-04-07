@@ -383,7 +383,7 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
                     fm = case hashVal of
                             VUndef  -> Map.empty -- autovivification
                             _       -> vCast hashVal
-                writeMVal hashMVal $ VHash $ MkHash hash
+                writeMVal hashMVal $ VHash hash
                 retVal val'
             _ -> do
                 -- XXX LValue ??::

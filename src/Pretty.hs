@@ -91,8 +91,8 @@ instance Pretty Val where
     format (VBlock _) = text "{...}"
     format (VError x y) = hang (text "*** Error:" <+> text x) defaultIndent (text "at" <+> format y)
     format (VArray (MkArray x)) = format (VList x)
-    format (VHash (MkHash x)) = braces $ (joinList $ text ", ") $
-        [ format (VStr k, v) | (k, v) <- Map.toList x ]
+    format (VHash h) = braces $ (joinList $ text ", ") $
+        [ format (VStr k, v) | (k, v) <- Map.toList h ]
     format (VHandle x) = text $ show x
     format t@(VThread _) = text $ vCast t
     format (VSocket x) = text $ show x

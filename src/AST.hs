@@ -64,13 +64,7 @@ instance Value VPair where
         _       -> error $ "cannot cast into VPair: " ++ (show v)
 
 instance Value VHash where
-    castV = VHash
     vCast (VHash h) = h
-    -- vCast VUndef = MkHash emptyFM
-    vCast v = MkHash $ vCast v
-
-instance Value (Map VStr Val) where
-    vCast (VHash (MkHash h)) = h
     -- vCast VUndef = emptyFM
     vCast (VPair (k, v)) = Map.fromList [(vCast k, v)]
     vCast x = Map.fromList [ (vCast k, v) | (k, v) <- vCast x ]
@@ -78,7 +72,7 @@ instance Value (Map VStr Val) where
 instance Value [VPair] where
     -- vCast VUndef = []
     vCast (VRef v)      = vCast v
-    vCast (VHash (MkHash h)) = [ (VStr k, v) | (k, v) <- Map.assocs h ]
+    vCast (VHash h) = [ (VStr k, v) | (k, v) <- Map.assocs h ]
     vCast (VPair p) = [p]
     vCast (VArray (MkArray vs)) = [ (VInt k, v) | k <- [0..] | v <- vs ]
     vCast (VList vs) =
@@ -134,7 +128,7 @@ instance Value VRat where
     doCast (VBool b)    = if b then 1 % 1 else 0 % 1
     doCast (VList l)    = genericLength l
     doCast (VArray (MkArray a))    = genericLength a
-    doCast (VHash (MkHash h))    = fromIntegral $ Map.size h
+    doCast (VHash h)    = fromIntegral $ Map.size h
     doCast (VStr s) | not (null s) , isSpace $ last s = doCast (VStr $ init s)
     doCast (VStr s) | not (null s) , isSpace $ head s = doCast (VStr $ tail s)
     doCast (VStr s)     =
@@ -164,7 +158,7 @@ instance Value VNum where
                 Right d -> realToFrac d
     doCast (VList l)    = genericLength l
     doCast (VArray (MkArray a))    = genericLength a
-    doCast (VHash (MkHash h))    = fromIntegral $ Map.size h
+    doCast (VHash h)    = fromIntegral $ Map.size h
     doCast t@(VThread _)  = read $ vCast t
     doCast _            = 0/0 -- error $ "cannot cast as Num: " ++ (show x)
 
@@ -174,7 +168,7 @@ instance Value VComplex where
 
 instance Value VStr where
     castV = VStr
-    fromVal (VHash (MkHash h)) = do
+    fromVal (VHash h) = do
         ls <- mapM strPair $ Map.assocs h
         return $ unlines ls
         where
@@ -205,7 +199,7 @@ instance Value VStr where
     -- vCast (MVal v)      = vCast $ castV v
     vCast (VPair (k, v))= vCast k ++ "\t" ++ vCast v ++ "\n"
     vCast (VArray (MkArray l))   = unwords $ map vCast l
-    vCast (VHash (MkHash h))     = unlines $
+    vCast (VHash h)     = unlines $
         map (\(k, v) -> (k ++ "\t" ++ vCast v)) $ Map.assocs h
     vCast (VSub s)      = "<" ++ show (subType s) ++ "(" ++ subName s ++ ")>"
     vCast (VJunc j)     = show j
@@ -245,7 +239,7 @@ instance Value VList where
     castV = VList
     vCast (VList l)     = l
     vCast (VArray (MkArray l)) = l
-    vCast (VHash (MkHash h)) = [ VPair (VStr k, v) | (k, v) <- Map.assocs h ]
+    vCast (VHash h) = [ VPair (VStr k, v) | (k, v) <- Map.assocs h ]
     vCast (VPair (k, v))   = [k, v]
     vCast (VRef v)      = vCast v
     -- vCast (MVal v)      = vCast $ castV v
@@ -327,7 +321,7 @@ type VSocket = Socket
 type VThread = ThreadId
 type MVal = IORef Val
 newtype VArray = MkArray [Val] deriving (Show, Eq, Ord)
-newtype VHash  = MkHash (Map VStr Val) deriving (Show, Eq, Ord)
+type VHash = Map VStr Val -- deriving (Show, Eq, Ord)
 newtype VThunk = MkThunk (Eval Val)
 data VRule     = MkRule
     { rxRegex     :: Regex
