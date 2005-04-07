@@ -1,5 +1,4 @@
-module HTTP::Headers-1.62;
-class HTTP::Headers;
+class HTTP::Headers-1.62;
 
 use HTTP::Date;
 use MIME::Base64;
@@ -30,14 +29,14 @@ my @request_headers = <
 my @response_headers = <
  Accept-Ranges Age ETag Location Proxy-Authenticate Retry-After Server
  Vary WWW-Authenticate
->
+>;
 
 my @entity_headers = <
  Allow Content-Encoding Content-Language Content-Length Content-Location
  Content-MD5 Content-Range Content-Type Expires Last-Modified
 >;
 
-my %entity_header = map { lc $_  => 1 } @entity_headers;
+my %entity_header = @entity_headers.map:{ lc $_  => 1 };
 
 my @header_order = (
  @general_headers,
