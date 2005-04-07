@@ -11,7 +11,7 @@ L<S04/"Loop statements">
 
 =cut
 
-plan 7;
+plan 10;
 
 my $i = 0;
 eval 'while $i < 5 { $i++; }';
@@ -44,3 +44,20 @@ is($k, 0, 'while $var {...} works');
 my $l = 0;
 eval 'while undef { $l++ }';
 is($l, 0, 'while undef {...} works');
+
+# next
+my $actual = 0;
+my $wanted = 3;
+my $saw_next = 0;
+while $wanted-- {
+	#next if $wanted == 2;
+	if $wanted == 2 { eval 'next' } # unevalme
+
+	$actual++;
+	#NEXT {
+	#	$saw_next++;
+	#}
+}
+todo_fail("FIXME_parsefail (NEXT block)");
+todo_is($actual, 2, "next skips to next iteration");
+todo_is($saw_next, 1, "NEXT block was called");
