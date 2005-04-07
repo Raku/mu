@@ -73,13 +73,15 @@ sub has_won returns Bool {
     @letters == @solution.grep:{ $_ ne '' };
 }
 
-sub guess (Str $guess) returns Bool {
+sub guess (Str $g) returns Bool {
+    my $guess = uc $g;
     return 1 if $guess eq any(@guesses);
+    return 1 if $guess.chars > 1;
     @guesses.push($guess);
     my $success = 0;
     my $i;
     loop ($i = 0; $i < +@letters; $i++) {
-        if (lc(@letters[$i]) eq lc($guess)) {
+        if (uc(@letters[$i]) eq $guess) {
             @solution[$i] = @letters[$i];
             $success = 1;
         }

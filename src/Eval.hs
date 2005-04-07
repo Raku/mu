@@ -209,7 +209,7 @@ evalVar name = do
     v <- findVar env name
     return $ case v of
         Just val -> val
-        Nothing -> VError ("Undefined variable " ++ name) (Val VUndef)
+        Nothing -> VError ("Undeclared variable " ++ name) (Val VUndef)
 
 enterLValue = local (\e -> e{ envLValue = True })
 
@@ -250,7 +250,7 @@ reduce env exp@(Var name) = do
     v <- findVar env name
     case v of
         Just val -> reduce env (Val val)
-        _ -> retError ("Undefined variable " ++ name) exp
+        _ -> retError ("Undeclared variable " ++ name) exp
 
 reduce _ (Statements stmts) = do
     let (global, local) = partition isGlobalExp stmts
