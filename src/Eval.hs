@@ -291,7 +291,7 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
     "loop" -> do
         let [pre, cond, post, body] = exps
         evalExp pre
-        let runBody = do
+        enterLoop . fix $ \runBody -> do
             valBody <- evalExp body
             valPost <- evalExp post
             vbool   <- enterEvalContext "Bool" cond
@@ -300,7 +300,6 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
                     if vCast vbool
                         then runBody
                         else retVal valBody
-        enterLoop runBody
     "given" -> do
         let [topic, body] = exps
         vtopic <- enterEvalContext "Scalar" topic
@@ -503,7 +502,7 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
     -- XXX This treatment of while/until loops probably needs work
     doWhileUntil f = do
         let [cond, body] = exps
-        let runBody = do
+        enterLoop . fix $ \runBody -> do
             vbool <- enterEvalContext "Bool" cond
             case f $ vCast vbool of
                 True -> do
@@ -512,7 +511,6 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
                         VError _ _  -> retVal rv
                         _           -> runBody
                 _ -> retVal vbool
-        enterLoop runBody
 
 reduce env (App name [Syn "," invs] args) = reduce env (App name invs args)
 reduce env (App name invs [Syn "," args]) = reduce env (App name invs args)
