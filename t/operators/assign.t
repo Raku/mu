@@ -83,6 +83,7 @@ plan 24;
 
 {
   my $c; 
-	(($c = 3) = 4); 
+
+	eval '(($c = 3) = 4)'; 
 	is($c,4, "((\$c = 3) = 4) return val should be good as an lval");
 }
