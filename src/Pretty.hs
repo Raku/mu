@@ -17,6 +17,7 @@ import AST
 import Text.PrettyPrint
 import qualified Data.Map as Map
 import qualified Data.Set as Set
+import qualified Data.IntMap as Array
 
 defaultIndent :: Int
 defaultIndent = 2
@@ -90,7 +91,7 @@ instance Pretty Val where
     format (VSub _) = text "sub {...}"
     format (VBlock _) = text "{...}"
     format (VError x y) = hang (text "*** Error:" <+> text x) defaultIndent (text "at" <+> format y)
-    format (VArray (MkArray x)) = format (VList x)
+    format (VArray x) = format (VList $ Array.elems x)
     format (VHash h) = braces $ (joinList $ text ", ") $
         [ format (VStr k, v) | (k, v) <- Map.toList h ]
     format (VHandle x) = text $ show x

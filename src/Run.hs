@@ -17,6 +17,7 @@ import AST
 import Eval
 import Prim
 import qualified Data.Map as Map
+import qualified Data.IntMap as Array
 
 runWithArgs f = do
     args <- getArgs
@@ -85,7 +86,7 @@ prepareEnv name args = do
         , SymVal SGlobal "%*ENV" (VHash envHV)
         -- XXX What would this even do?
         -- , SymVal SGlobal "%=POD"        (Val . VHash $ emptyHV)
-        , SymVal SGlobal "@=POD"        (VArray . MkArray $ [])
+        , SymVal SGlobal "@=POD"        (VArray Array.empty)
         , SymVal SGlobal "$=POD"        (VStr "")
         , SymVal SGlobal "$?OS"         (VStr (getConfig "osname"))
         , SymVal SGlobal "$?_BLOCK_EXIT" $ VSub $ Sub

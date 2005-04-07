@@ -18,6 +18,7 @@ import Parser
 import External
 import qualified Data.Map as Map
 import qualified Data.Set as Set
+import qualified Data.IntMap as Array
 
 op0 :: Ident -> [Val] -> Eval Val
 -- op0 ","  = return . VList . concatMap vCast
@@ -46,7 +47,7 @@ retEmpty = do
     cxt <- asks envContext
     return $ case cxt of
         "List"  -> VList []
-        "Array" -> VArray (MkArray [])
+        "Array" -> VArray Array.empty
         "Hash"  -> VHash Map.empty
         _       -> VUndef
 

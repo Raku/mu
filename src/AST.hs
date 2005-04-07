@@ -18,6 +18,7 @@ import Rule
 import List
 import qualified Data.Map as Map
 import qualified Data.Set as Set
+import qualified Data.IntMap as Array
 
 type Ident = String
 
@@ -45,7 +46,7 @@ class Value n where
     -- vCast (MVal v)      = vCast $ castV v
     vCast (VRef v)      = vCast v
     vCast (VPair (_, v))   = vCast v
-    vCast (VArray (MkArray v))    = vCast $ VList v
+    vCast (VArray v)    = vCast $ VList $ Array.elems v
     vCast v             = doCast v
     castV :: n -> Val
     castV _ = error $ "cannot cast into Val"
@@ -74,7 +75,7 @@ instance Value [VPair] where
     vCast (VRef v)      = vCast v
     vCast (VHash h) = [ (VStr k, v) | (k, v) <- Map.assocs h ]
     vCast (VPair p) = [p]
-    vCast (VArray (MkArray vs)) = [ (VInt k, v) | k <- [0..] | v <- vs ]
+    vCast (VArray vs) = [ (castV k, v) | (k, v) <- Array.assocs vs ]
     vCast (VList vs) =
         let fromList [] = []
             fromList ((VPair (k, v)):xs) = (k, v):fromList xs
@@ -127,7 +128,7 @@ instance Value VRat where
     doCast (VRat r)     = r
     doCast (VBool b)    = if b then 1 % 1 else 0 % 1
     doCast (VList l)    = genericLength l
-    doCast (VArray (MkArray a))    = genericLength a
+    doCast (VArray a)   = toRational $ Array.size a
     doCast (VHash h)    = fromIntegral $ Map.size h
     doCast (VStr s) | not (null s) , isSpace $ last s = doCast (VStr $ init s)
     doCast (VStr s) | not (null s) , isSpace $ head s = doCast (VStr $ tail s)
@@ -157,7 +158,7 @@ instance Value VNum where
                 Left  i -> fromIntegral i
                 Right d -> realToFrac d
     doCast (VList l)    = genericLength l
-    doCast (VArray (MkArray a))    = genericLength a
+    doCast (VArray a)   = fromIntegral $ Array.size a
     doCast (VHash h)    = fromIntegral $ Map.size h
     doCast t@(VThread _)  = read $ vCast t
     doCast _            = 0/0 -- error $ "cannot cast as Num: " ++ (show x)
@@ -198,7 +199,7 @@ instance Value VStr where
     vCast (VRef v)      = vCast v
     -- vCast (MVal v)      = vCast $ castV v
     vCast (VPair (k, v))= vCast k ++ "\t" ++ vCast v ++ "\n"
-    vCast (VArray (MkArray l))   = unwords $ map vCast l
+    vCast (VArray l)    = unwords . map vCast $ Array.elems l
     vCast (VHash h)     = unlines $
         map (\(k, v) -> (k ++ "\t" ++ vCast v)) $ Map.assocs h
     vCast (VSub s)      = "<" ++ show (subType s) ++ "(" ++ subName s ++ ")>"
@@ -216,7 +217,7 @@ showNum x
 
 instance Value VArray where
     castV = VArray
-    vCast x = MkArray (vCast x) 
+    vCast x = Array.fromAscList $ [1..] `zip` vCast x
 
 instance Value MVal where
     castV _ = error "Cannot cast MVal into Value"
@@ -238,8 +239,8 @@ instance Value VJunc where
 instance Value VList where
     castV = VList
     vCast (VList l)     = l
-    vCast (VArray (MkArray l)) = l
-    vCast (VHash h) = [ VPair (VStr k, v) | (k, v) <- Map.assocs h ]
+    vCast (VArray l)    = Array.elems l
+    vCast (VHash h)     = [ VPair (VStr k, v) | (k, v) <- Map.assocs h ]
     vCast (VPair (k, v))   = [k, v]
     vCast (VRef v)      = vCast v
     -- vCast (MVal v)      = vCast $ castV v
@@ -320,7 +321,7 @@ type VHandle = Handle
 type VSocket = Socket
 type VThread = ThreadId
 type MVal = IORef Val
-newtype VArray = MkArray [Val] deriving (Show, Eq, Ord)
+type VArray = Array.IntMap Val
 type VHash = Map VStr Val -- deriving (Show, Eq, Ord)
 newtype VThunk = MkThunk (Eval Val)
 data VRule     = MkRule
