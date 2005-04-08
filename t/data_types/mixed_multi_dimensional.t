@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 46;
+plan 60;
 
 =pod
 
@@ -90,15 +90,29 @@ this test should be added too more.
     %hash<key> = [ 1, 2, 3 ];
     isa_ok(%hash<key>, 'List');
     
+    is(+%hash<key>, 3, 'it should have 3 values in it');    
     is(%hash<key>[0], 1, 'got the right value');
     is(%hash<key>[1], 2, 'got the right value');    
     is(%hash<key>[2], 3, 'got the right value');
     
-    # (FIXME parsefail) # push(%hash<key>, 4);
-    is(%hash<key>[3], 4, 'got the right value');
+    # detach it from the hash to access it
+    {
+        my $list := %hash<key>;
+        is(+$list, 3, 'it should have 3 values in it');    
+        is($list[0], 1, 'got the right value (when I pull the list out)');
+        is($list[1], 2, 'got the right value (when I pull the list out)');    
+        is($list[2], 3, 'got the right value (when I pull the list out)');    
+        
+        push($list, 4);
+        is(+$list, 4, 'it should now have 4 values in it');
+        is($list[3], 4, 'got the right value (which we just pushed onto the list)');    
+    }
 
-    # (FIXME parsefail) # %hash<key>.push(5);
-    is(%hash<key>[4], 5, 'got the right value');
+    # and make sure it was still attached to the %hash
+    {
+        my $list := %hash<key>;
+        is(+$list, 4, 'it should now have 4 values in it (it was still attached)');
+    }
 }
 
 
@@ -109,10 +123,30 @@ this test should be added too more.
     my @array = ( 1, 2, 3 );
     isa_ok(@array, 'Array');
     
-    %hash<key> = \@array;
+    %hash<key> = @array;
     isa_ok(%hash<key>, 'Array');
     
+    is(+%hash<key>, 3, 'it should have 3 values in it');       
     is(%hash<key>[0], 1, 'got the right value');
     is(%hash<key>[1], 2, 'got the right value');    
     is(%hash<key>[2], 3, 'got the right value');
+    
+    # detach it from the hash to access it
+    {
+        my $array := %hash<key>;
+        is(+$array, 3, 'it should have 3 values in it');    
+        is($array[0], 1, 'got the right value (when I pull the array out)');
+        is($array[1], 2, 'got the right value (when I pull the array out)');    
+        is($array[2], 3, 'got the right value (when I pull the array out)');    
+        
+        push($array, 4);
+        is(+$array, 4, 'it should now have 4 values in it');
+        is($array[3], 4, 'got the right value (which we just pushed onto the array)');    
+    }
+
+    # and make sure it was still attached to the %hash
+    {
+        my $array := %hash<key>;
+        is(+$array, 4, 'it should now have 4 values in it (it was still attached)');
+    }    
 }
