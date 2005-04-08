@@ -246,7 +246,7 @@ ruleFormalParam = rule "formal parameter" $ do
 ruleParamDefault True  = return $ Val VUndef
 ruleParamDefault False = rule "default value" $ option (Val VUndef) $ do
     symbol "="
-    ruleExpression
+    parseLitOp
 
 ruleVarDeclaration :: RuleParser Exp
 ruleVarDeclaration = rule "variable declaration" $ do
@@ -642,6 +642,10 @@ parseOp = do
 
 parseTightOp = do
     ops <- tightOperators
+    buildExpressionParser ops parseTerm (Syn "" [])
+
+parseLitOp = do
+    ops <- litOperators
     buildExpressionParser ops parseTerm (Syn "" [])
 
 ops f s = [f n | n <- sortBy revLength (words $ decodeUTF8 s)]

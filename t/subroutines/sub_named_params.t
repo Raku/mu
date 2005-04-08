@@ -47,14 +47,14 @@ is(foo(4), 4, "using a named as a positional works");
 
 is(foo( 'x' => 5), 5, "naming named param also works");
 
-eval 'sub foo2 (+$x = 3, +$y = 5) { $x + $y }';
+sub foo2 (+$x = 3, +$y = 5) { $x + $y }
 
 todo_eval_is('foo2()', 8, "not specifying named params that aren't mandatory works (foo2)");
 todo_eval_is('foo2(4)', 9, "using a named as a positional works (foo2)");
 todo_eval_is('foo2(4, 10)', 14, "using a named as a positional works (foo2)");
-todo_fail("FIXME parsefail"); #todo_eval_is("foo2( 'x' => 5)", 10, "naming named param x also works (foo2)");
-todo_fail("FIXME parsefail"); #todo_eval_is("foo2( 'y' => 3)", 6, "naming named param y also works (foo2)");
-todo_fail("FIXME parsefail"); #todo_eval_is("foo2( 'x' => 10, 'y' => 10)", 20, "naming named param x & y also works (foo2)");
+todo_eval_is("foo2( 'x' => 5)", 10, "naming named param x also works (foo2)");
+todo_eval_is("foo2( 'y' => 3)", 6, "naming named param y also works (foo2)");
+todo_eval_is("foo2( 'x' => 10, 'y' => 10)", 20, "naming named param x & y also works (foo2)");
 
 sub assign_based_on_positional ($x, +$y = $x) { $y } 
 
