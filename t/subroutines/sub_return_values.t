@@ -11,7 +11,7 @@ L<S06/"Subroutines">
 
 =cut
 
-plan 55;
+plan 56;
 
 # These test the returning of values from a subroutine. 
 # We test each data-type with 4 different styles of return. 
