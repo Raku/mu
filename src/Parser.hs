@@ -660,7 +660,7 @@ listOps     = leftOps
 chainOps    = leftOps
 leftSyn     = ops $ makeOp2 AssocLeft "" Syn
 rightSyn    = ops $ makeOp2 AssocRight "" Syn
-listSyn     = leftSyn
+listSyn     = ops $ makeOp0 AssocList "" Syn
 chainSyn    = leftSyn
 
 -- chainOps    = ops $ makeOpChained
@@ -681,6 +681,16 @@ makeOp1 prec sigil con name = prec $ do
 makeOp2 prec sigil con name = (`Infix` prec) $ do
     symbol name
     return $ \x y -> con (sigil ++ name) [x,y]
+
+makeOp0 prec sigil con name = (`Infix` prec) $ do
+    many1 $ do
+        string name
+        whiteSpace
+    return make
+    where
+    make x (Syn syn xs) | syn == name = con (sigil ++ name) (x:xs)
+    make x (Syn "" []) = con (sigil ++ name) [x]
+    make x y = con (sigil ++ name) [x,y]
 
 parseTerm = rule "term" $ do
     term <- choice
