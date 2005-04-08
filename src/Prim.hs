@@ -76,6 +76,7 @@ op1 "uc" = return . VStr . (map toUpper) . vCast
 op1 "ucfirst" = return . VStr .
                 (\x -> case x of { (a:as) -> toUpper a : as ; a -> a}) . vCast
 op1 "undef" = \mv -> do
+    trace (show mv) return ()
     unless (isNothing $ vCast mv) $ do
         liftIO $ writeIORef (vCast mv) $ VUndef
     return VUndef
