@@ -12,7 +12,7 @@ and perl6-specific tests.
 
 =cut
 
-plan 62;
+plan 72;
 
 our $GLOBAL;
 
@@ -28,8 +28,9 @@ ok(!defined(undef), "undef is not defined");
 	$a += 1; # should not emit a warning. how to test that?
 	ok(defined($a), "initialized var is defined");
 
-	undef $a;
-	ok(!defined($a), "undef($a) does");
+	# undef $a;
+	# ok(!defined($a), "undef($a) does");
+	fail 'FIXME parsefail: undef $a: cannot modify a constant item';
 
 	$a = "hi";
 	ok(defined($a), "string");
@@ -72,10 +73,15 @@ ok(!defined(undef), "undef is not defined");
 
 	ok(defined(@ary), "aggregate array defined");
 	ok(defined(%hash), "aggregate hash defined");
-	undef @ary;
-        todo_ok(!defined(@ary), "undef array");
-	undef %hash;
-        ok(!defined(%hash), "undef hash");
+
+	#undef @ary;
+    #    todo_ok(!defined(@ary), "undef array");
+	fail 'FIXME parsefail: undef @ary: cannot modify a constant item';
+
+	#undef %hash;
+    #    ok(!defined(%hash), "undef hash");
+	fail 'FIXME parsefail: undef %hash: cannot modify a constant item';
+
 	@ary = (1);
 	ok(defined(@ary), "define array again");
 	%hash = (1,1);
@@ -84,7 +90,7 @@ ok(!defined(undef), "undef is not defined");
 
 {
 	# rjbs reported this bug:
-	todo_fail("FIXME parsefail"); # currently fails compilation even in eval
+	todo_fail("FIXME parsefail: undef empty %hash: cannot modify a constant item"); # currently fails compilation even in eval
 	#ok(eval 'my %hash; %hash = {}; undef %hash; %hash');
 }
 
@@ -145,16 +151,20 @@ Perl6-specific tests
 	my $ary_r = @ary; # ref
 	isa_ok($ary_r, "Array");
 	ok(defined($ary_r), "array reference");
-	undef @ary;
-	ok(defined($ary_r), "undef array referent");
+
+	#undef @ary;
+	#ok(defined($ary_r), "undef array referent");
+	fail 'FIXME: parsefail undef @ary: cannot modify a constant item'; 
+
 	is(+$ary_r, 0, "dangling array reference"); # unTODOme
 
 	my %hash = (1, 2, 3, 4);
 	my $hash_r = %hash;
 	isa_ok($hash_r, "Hash");
 	ok(defined($hash_r), "hash reference");
-	undef %hash;
-	ok(defined($hash_r), "undef hash referent");
+	#undef %hash;
+	#ok(defined($hash_r), "undef hash referent:");
+	fail 'FIXME: parsefail undef %hash: cannot modify a constant item'; 
 	is(+$hash_r.keys, 0, "dangling hash reference"); # unTODOme
 }
 
