@@ -219,7 +219,7 @@ showNum x
 
 instance Value VArray where
     castV = VArray
-    vCast x = Array.fromAscList $ [1..] `zip` vCast x
+    vCast x = Array.fromAscList $ [0..] `zip` vCast x
 
 instance Value MVal where
     castV _ = error "Cannot cast MVal into Value"
