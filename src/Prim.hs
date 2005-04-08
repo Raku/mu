@@ -373,8 +373,10 @@ op1Print f v@(VHandle _) = do
     def <- readVar "$_"
     op1Print f (VList [v, def])
 op1Print f v = do
-    val  <- fromVal v
-    vals <- mapM fromVal val
+    vals <- case v of
+        VList _   -> fromVal v
+        VArray _  -> fromVal v
+        _         -> return [v]
     let (handle, vs) = case vals of
                         (VHandle h:vs)  -> (h, vs)
                         _               -> (stdout, vals)
