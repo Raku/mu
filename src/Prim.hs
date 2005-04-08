@@ -40,6 +40,8 @@ op0 "File::Spec::cwd" = const $ do
     mycwd <- liftIO getCurrentDirectory
     return $ VStr mycwd
 op0 "pi" = const $ return . VNum $ pi
+op0 "say" = const $ op1 "say" =<< readVar "$_"
+op0 "print" = const $ op1 "print" =<< readVar "$_"
 op0 other = \x -> return $ VError ("unimplemented listOp: " ++ other) (App other (map Val x) [])
 
 retEmpty :: ContT Val (ReaderT Env IO) Val
@@ -367,13 +369,17 @@ op1Sum list = do
     return $ VNum $ sum $ map vCast vals
 
 op1Print :: (Handle -> String -> IO ()) -> Val -> Eval Val
+op1Print f v@(VHandle _) = do
+    def <- readVar "$_"
+    op1Print f (VList [v, def])
 op1Print f v = do
-    val <- readMVal v
-    vals <- mapM readMVal (vCast val)
+    val  <- fromVal v
+    vals <- mapM fromVal val
     let (handle, vs) = case vals of
                         (VHandle h:vs)  -> (h, vs)
                         _               -> (stdout, vals)
-    liftIO . f handle . concatMap (encodeUTF8 . vCast) $ vs
+    vs' <- mapM fromVal vs
+    liftIO . f handle . concatMap encodeUTF8 $ vs'
     return $ VBool True
 
 bool2n v = if v
@@ -1025,8 +1031,13 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Str       pre     ref     (Any)\
 \\n   Num       pre     time    ()\
 \\n   Str       pre     File::Spec::cwd  ()\
+\\n   Bool      pre     print   (IO)\
+\\n   Bool      pre     print   (IO: List)\
+\\n   Bool      pre     print   ()\
 \\n   Bool      pre     print   (List)\
+\\n   Bool      pre     say     (IO)\
 \\n   Bool      pre     say     (IO: List)\
+\\n   Bool      pre     say     ()\
 \\n   Bool      pre     say     (List)\
 \\n   Bool      pre     close   (IO)\
 \\n   Bool      pre     flush   (IO)\

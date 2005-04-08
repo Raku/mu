@@ -609,6 +609,7 @@ currentUnaryFunctions = do
         , let param = head $ subParams sub
         , let opt   = isOptional param
         , let name  = parseName $ symName f
+        , name /= "say" && name /= "print" -- XXX: find other MMD duplicates
         , not $ isSlurpy param
         ]
     where
