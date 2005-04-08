@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 36;
+plan 46;
 
 =pod
 
@@ -48,6 +48,21 @@ this test should be added too more.
     isa_ok(@array[0], 'Hash');
     eval_is('@array[0]{"key"}', 'value', 'got the right value for key');
     eval_is('@array[0]<key1>', 'value1', 'got the right value1 for key1');    
+}
+
+{ # Array of Lists
+    my @array = (1, [2, 3], [4, 5], 6);
+    isa_ok(@array, 'Array');
+    
+    is(+@array, 4, 'got 4 elements in the array of Lists');
+    is(@array[0], 1, 'got the right first element');
+    isa_ok(@array[1], 'List');
+    is(@array[1][0], 2, 'got the right second/first element');    
+    is(@array[1][1], 3, 'got the right second/second element');        
+    isa_ok(@array[2], 'List');    
+    is(@array[2][0], 4, 'got the right third/first element');    
+    is(@array[2][1], 5, 'got the right third/second element');            
+    is(@array[3], 6, 'got the right fourth element');
 }
 
 { # Array of Subs
