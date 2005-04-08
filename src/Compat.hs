@@ -14,7 +14,7 @@
 #undef PUGS_HAVE_POSIX
 #include "pugs_config.h"
 
-module Posix (
+module Compat (
     createLink,
     createSymbolicLink,
     readSymbolicLink,

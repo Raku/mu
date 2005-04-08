@@ -18,7 +18,7 @@ module Internals (
     module Unicode,
     module Cont,
     module Embed,
-    module Posix,
+    module Compat,
     module RRegex,
     module RRegex.Syntax,
     module Rule.Pos,
@@ -64,7 +64,7 @@ import UTF8
 import Unicode
 import Cont
 import Embed
-import Posix
+import Compat
 import RRegex
 import RRegex.Syntax
 import Data.Dynamic
