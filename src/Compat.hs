@@ -25,12 +25,14 @@ module Compat (
     getEnvironment,
     getArg0,
     statFileSize,
+    getProcessID,
 ) where
 
 import Foreign
 import Foreign.C
 
 #ifdef PUGS_HAVE_POSIX
+import System.Posix.Process
 import System.Posix.Env
 import System.Posix.Files
 import System.Posix.Unistd
@@ -67,6 +69,9 @@ setFileMode _ _ = fail "'chmod' not implemented on this platform."
 
 statFileSize _ = fail "'-s' not implemented on this platform."
 -- statFileSize could be implemented as openFile and hFileSize.
+
+getProcessID :: IO ProcessID
+getProcessID _ = return 1
 
 #endif
 

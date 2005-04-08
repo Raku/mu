@@ -58,8 +58,10 @@ prepareEnv name args = do
     let confHV = Map.fromList $ [ (k, VStr v) | (k, v) <- Map.toList config ]
     exec    <- getArg0
     libs    <- getLibs environ
+    pid     <- getProcessID
     execSV  <- newMVal $ VStr exec
     progSV  <- newMVal $ VStr name
+    pidSV   <- newMVal $ VInt $ toInteger pid
     endAV   <- newMVal $ VList []
     matchAV <- newMVal $ VList []
     incAV   <- newMVal $ VList (map VStr libs)
@@ -77,6 +79,7 @@ prepareEnv name args = do
         , SymVal SGlobal "@*INC"        incAV
         , SymVal SGlobal "$*EXECUTABLE_NAME"    execSV
         , SymVal SGlobal "$*PROGRAM_NAME"       progSV
+        , SymVal SGlobal "$*PID"        pidSV
         , SymVal SGlobal "@*END"        endAV
         , SymVal SGlobal "$*IN"         inGV
         , SymVal SGlobal "$*OUT"        outGV
