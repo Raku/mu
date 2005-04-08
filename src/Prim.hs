@@ -272,7 +272,7 @@ op1 "close" = \v -> do
 op1 "key" = return . fst . (vCast :: Val -> VPair)
 op1 "value" = return . snd . (vCast :: Val -> VPair)
 op1 "pairs" = return . VList . map VPair . vCast
-op1 "kv" = return . VList . map (\(k, v) -> VList [k, v]) . vCast
+op1 "kv" = return . VList . concatMap (\(k, v) -> [k, v]) . vCast
 op1 "keys" = return . VList . map fst . (vCast :: Val -> [VPair])
 op1 "values" = return . op1Values
 op1 "readline" = op1 "="

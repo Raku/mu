@@ -284,9 +284,9 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         let [list, body] = exps
         vlist <- enterEvalContext "List" list
         vsub  <- enterEvalContext "Code" body
+        vals  <- fromVal vlist
         VSub sub <- fromVal vsub
         let arity = length (subParams sub)
-            vals = concatMap vCast $ vCast vlist
             runBody [] = retVal VUndef
             runBody vs = do
                 let (these, rest) = arity `splitAt` vs
