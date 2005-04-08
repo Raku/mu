@@ -29,6 +29,7 @@ ifContextIsa c trueM falseM = do
         else falseM
 
 fromVal' (VThunk (MkThunk eval)) = fromVal' =<< eval
+fromVal' (VRef r) = fromVal' r
 fromVal' (MVal mval) = fromVal' =<< liftIO (readIORef mval)
 fromVal' v = do
     rv <- liftIO $ catchJust errorCalls (return . Right $ vCast v) $
@@ -177,6 +178,7 @@ instance Value VStr where
             -- k' <- fromMVal k
             v' <- fromMVal v
             return $ k ++ "\t" ++ v'
+    fromVal (VList l)   = return . unwords =<< mapM fromVal l
     fromVal v = fromVal' v
     vCast VUndef        = ""
     vCast (VStr s)      = s
@@ -513,6 +515,9 @@ extract ((Parens ex), vs) = ((Parens ex'), vs')
     where
     (ex', vs') = extract (ex, vs)
 extract other = other
+
+cxtOfExp (Syn "," _) = "List"
+cxtOfExp _ = "Scalar"
 
 cxtOfSigil :: Char -> String
 cxtOfSigil '$'  = "Scalar"

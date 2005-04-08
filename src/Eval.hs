@@ -84,16 +84,21 @@ evaluate (Val val) = do
     cxt <- asks envContext
     lv  <- asks envLValue
     v   <- if lv then return val else readMVal val
-    return $ case cxt of
-        _ | VSub _ <- v -> v -- XXX Work around a bug: (Val VSub) evaluated with bad context
-        "List"  -> VList (vCast v)
-        "Array" -> VArray (vCast v)
-        "Hash"  -> VHash (vCast v)
+    case cxt of
+        _ | VSub _ <- v -> return v -- XXX Work around a bug: (Val VSub) evaluated with bad context
+        "List"  -> return . VList =<< fromVal v
+        "Array" -> return $ VArray (vCast v)
+        "Hash"  -> return $ VHash (vCast v)
 --      "Str"   -> VStr (vCast v)
 --      "Num"   -> VNum (vCast val)
 --      "Int"   -> VInt (vCast val)
-        "Scalar"-> val
-        _       -> val
+        "Scalar"-> return $ case val of
+            VList _  -> VRef val
+            VArray _ -> VRef val
+            VHash _  -> VRef val
+            VPair _  -> VRef val
+            _        -> val
+        _       -> return val
 evaluate exp = do
     debug "indent" (' ':) "Evl" exp
     val <- local (\e -> e{ envBody = exp }) $ do
@@ -346,10 +351,10 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
                 listMVal <- evalVar name
                 listVal  <- readMVal listMVal
                 indexVal <- evalExp indexExp
-                -- XXX Wrong -- the Context here should be "cxtFromExp exp"
-                -- so that @x[1,] imposes List context by @x[1] imposes Scalar.
-                val'     <- enterEvalContext "List" exp
-                valList  <- mapM newMVal $ vCast val'
+                val'     <- enterEvalContext (cxtOfExp indexExp) exp
+                valList  <- case cxtOfExp indexExp of
+                    "Scalar" -> return . (:[]) =<< newMVal val'
+                    _        -> mapM newMVal $ vCast val'
                 let indexes = (map vCast $ vCast indexVal :: [VInt])
                     list = concatMap vCast $ case listVal of
                         VUndef  -> [] -- autovivification
@@ -427,11 +432,14 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         let (listExp:rangeExp:errs) = exps
         range   <- enterEvalContext "List" rangeExp
         listVal <- enterEvalContext "List" listExp
-        list    <- readMVal listVal
-        let slice = unfoldr (doSlice errs $ vCast list) (map vCast $ vCast range)
+        list    <- fromVal listVal
+        let slice = unfoldr (doSlice errs $ list) (map vCast $ vCast range)
         ifContextIsa "Scalar"
             (retVal $ last (VUndef:slice))
-            (retVal $ VList slice)
+            (retVal =<< listify slice)
+        where
+        listify [x] = return . VList =<< fromVal x
+        listify x   = return $ VList x
     "{}" -> do
         let [listExp, rangeExp] = exps
         range   <- enterEvalContext "List" rangeExp

@@ -718,7 +718,10 @@ vCastStr = fromVal
 vCastRat :: Val -> Eval VRat
 vCastRat = fromVal
 
-op2Str  f x y = return $ VStr  $ f (vCast x) (vCast y)
+op2Str f x y = do
+    x' <- fromVal x
+    y' <- fromVal y
+    return $ VStr $ f x' y'
 op2Num  f x y = return $ VNum  $ f (vCast x) (vCast y)
 op2Rat  f x y = return $ VRat  $ f (vCast x) (vCast y)
 op2Bool f x y = return $ VBool $ f (vCast x) (vCast y)

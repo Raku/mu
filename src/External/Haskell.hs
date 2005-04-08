@@ -20,7 +20,7 @@ import Language.Haskell.Syntax
 import External.Haskell.DynamicLoader
 
 loadHaskell :: FilePath -> IO [(String, [Val] -> Eval Val)]
-loadHaskell file = do
+loadHaskell _ = do
     resolveFunctions
     mod     <- loadModuleFromPath "/usr/src/SHA1/SHA1__0_0_1.o" (Just "/usr/src/SHA1/")
 --    print (">" ++ (show mod) ++ "<")
