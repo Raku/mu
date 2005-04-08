@@ -32,7 +32,10 @@ sub splitpath (Str $path, Bool ?$nofile) returns Array is export {
 sub catdir (*@path) returns Str is export { canonpath(join('/', (@path, ''))) }
 
 sub catfile (*@_path) returns Str is export {
-    my @path = @_path; # XXX: I shouldnt need to do this
+    # take a copy of our args here, maybe 
+    # replace this with 'is copy' parameter 
+    # trait at some point    
+    my @path = @_path; 
     my $file = canonpath(pop(@path));
     return $file unless ?@path;
     my $dir = catdir(@path);
@@ -53,6 +56,9 @@ sub catpath (Str $volume, Str $directory, Str $file) returns Str is export {
 ## real to absolute
 
 sub rel2abs (Str $_path, Str ?$_base) returns Str is export {
+    # take a copy of our args here, maybe 
+    # replace this with 'is copy' parameter 
+    # trait at some point    
     my $path = $_path;
     my $base = $_base;
     if (!file_name_is_absolute($path)) {
@@ -71,6 +77,9 @@ sub rel2abs (Str $_path, Str ?$_base) returns Str is export {
 }
 
 sub abs2rel (Str $_path, Str $_base) returns Str is export {
+    # take a copy of our args here, maybe 
+    # replace this with 'is copy' parameter 
+    # trait at some point    
     my $path = $_path;
     my $base = $_base;
     if (!file_name_is_absolute($path)) {
@@ -121,6 +130,9 @@ sub abs2rel (Str $_path, Str $_base) returns Str is export {
 ## Misc.
 
 sub canonpath (Str $_path) returns Str is export {
+    # take a copy of our args here, maybe 
+    # replace this with 'is copy' parameter 
+    # trait at some point    
     my $path = $_path;
     $path ~~ s:perl5:g{/+}{/};                            # xx////xx  -> xx/xx
     $path ~~ s:perl5:g{(/\.)+(/|\Z(?!\n))}{/};            # xx/././xx -> xx/xx

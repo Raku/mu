@@ -41,7 +41,10 @@ sub splitpath (Str $path, Bool ?$nofile) returns Array is export {
 
 sub catdir (*@_path) returns Str is export {
     return '' unless +@_path;
-    my @path = @_path;
+    # take a copy of our args here, maybe 
+    # replace this with 'is copy' parameter 
+    # trait at some point
+    my @path = @_path; 
     my @new_path;
     my $i = 0;
     loop ($i = 0; $i < @path; $i++) {
@@ -57,6 +60,9 @@ sub catdir (*@_path) returns Str is export {
 }
 
 sub catfile (*@_path) returns Str is export {
+    # take a copy of our args here, maybe 
+    # replace this with 'is copy' parameter 
+    # trait at some point    
     my @path = @_path;
     my $file = canonpath(pop(@path));
     return $file unless ?@path;
@@ -88,6 +94,9 @@ sub catpath (Str $volume, Str $directory, Str $file) returns Str is export {
 ## Misc
 
 sub canonpath (Str $_path) returns Str is export {
+    # take a copy of our args here, maybe 
+    # replace this with 'is copy' parameter 
+    # trait at some point    
     my $path = $_path;
     my $orig_path = $path;
     {
@@ -164,6 +173,9 @@ sub cwd returns Str {
 }
 
 sub rel2abs (Str $_path, Str ?$_base) returns Str {
+    # take a copy of our args here, maybe 
+    # replace this with 'is copy' parameter 
+    # trait at some point    
     my $path = $_path;
     if (!file_name_is_absolute($path)) {
         my $base;
@@ -186,6 +198,9 @@ sub rel2abs (Str $_path, Str ?$_base) returns Str {
 sub abs2rel (Str $_path, Str ?$_base) returns Str is export {
     my $base;
     if (defined($_base) && $_base ne '') {
+        # take a copy of our args here, maybe 
+        # replace this with 'is copy' parameter 
+        # trait at some point        
         $base = $_base;
     }
     else {
