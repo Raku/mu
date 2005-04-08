@@ -422,7 +422,12 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
             else retVal $ VList $ concatMap vCast vals
     "," -> do
         vals    <- mapM (enterEvalContext "Any") exps
-        retVal $ VList vals
+        -- now do some basic flattening
+        vlists  <- (`mapM` vals) $ \v -> case v of
+            VList _   -> fromVal v
+            VArray _  -> fromVal v
+            _         -> return [v]
+        retVal $ VList $ concat vlists
     "cxt" -> do
         let [cxtExp, exp] = exps
         cxt     <- enterEvalContext "Str" cxtExp
@@ -430,8 +435,11 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         enterEvalContext (vCast cxt) (Val val) -- force casting
     "\\[]" -> do
         let [exp] = exps
-        val <- enterEvalContext "List" exp
-        [VList vlist] <- fromVal val
+        v <- enterEvalContext "List" exp
+        vlist <- case v of
+            VList _   -> fromVal v
+            VArray _  -> fromVal v
+            _         -> return [v]
         retVal $ VRef $ VList vlist
     "[]" -> do
         let (listExp:rangeExp:errs) = exps
