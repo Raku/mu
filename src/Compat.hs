@@ -45,6 +45,7 @@ statFileSize f = do
 
 import System.Posix.Types
 import System.Environment
+import Control.Concurrent
 
 createLink :: FilePath -> FilePath -> IO ()
 createLink _ _ = fail "'link' not implemented on this platform."
@@ -63,7 +64,7 @@ removeLink _ = fail "'unlink' not implemented on this platform."
 
 sleep :: Int -> IO ()
 -- sleep _ = fail "'sleep' not implemented on this platform."
-sleep = threadDelay
+sleep x = threadDelay $ (*) 1000000 x
 
 setFileMode :: FilePath -> FileMode -> IO ()
 setFileMode _ _ = fail "'chmod' not implemented on this platform."
