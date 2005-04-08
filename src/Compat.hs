@@ -8,7 +8,7 @@
     In my own land, in the country of Fangorn,
     Where the roots are long,
     And the years lie thicker than the leaves
-    In Tauremornalome. 
+    In Tauremornalome.
 -}
 
 #undef PUGS_HAVE_POSIX
@@ -62,7 +62,8 @@ removeLink :: FilePath -> IO ()
 removeLink _ = fail "'unlink' not implemented on this platform."
 
 sleep :: Int -> IO ()
-sleep _ = fail "'sleep' not implemented on this platform."
+-- sleep _ = fail "'sleep' not implemented on this platform."
+sleep = threadDelay
 
 setFileMode :: FilePath -> FileMode -> IO ()
 setFileMode _ _ = fail "'chmod' not implemented on this platform."
@@ -71,7 +72,7 @@ statFileSize _ = fail "'-s' not implemented on this platform."
 -- statFileSize could be implemented as openFile and hFileSize.
 
 getProcessID :: IO ProcessID
-getProcessID _ = return 1
+getProcessID = return 1
 
 #endif
 
@@ -88,4 +89,3 @@ getArg0 = do
         getProgArgv p_argc p_argv
         argv <- peek p_argv
         peekCString =<< peekElemOff argv 0
-

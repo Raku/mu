@@ -34,7 +34,7 @@ foreach my $testfile (sort {$a->{file} cmp $b->{file}}
                       @{$data->{test_cases}}) {
   my $linkto = $testfile->{file};
   $linkto =~ s!\\!\/!g;
-  $linkto =~ s!^t/!t_index/t/!;
+  # $linkto =~ s!^t/!html/t/!;
   $linkto =~ s!\.t$!.html!;
 
   print "<tr>\n";
