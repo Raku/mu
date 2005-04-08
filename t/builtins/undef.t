@@ -28,9 +28,8 @@ ok(!defined(undef), "undef is not defined");
 	$a += 1; # should not emit a warning. how to test that?
 	ok(defined($a), "initialized var is defined");
 
-	# undef $a;
-	# ok(!defined($a), "undef($a) does");
-	fail 'FIXME parsefail: undef $a: cannot modify a constant item';
+	undef $a;
+	ok(!defined($a), "undef($a) does");
 
 	$a = "hi";
 	ok(defined($a), "string");
@@ -74,13 +73,11 @@ ok(!defined(undef), "undef is not defined");
 	ok(defined(@ary), "aggregate array defined");
 	ok(defined(%hash), "aggregate hash defined");
 
-	#undef @ary;
-    #    todo_ok(!defined(@ary), "undef array");
-	fail 'FIXME parsefail: undef @ary: cannot modify a constant item';
+	undef @ary;
+        todo_ok(!defined(@ary), "undef array");
 
-	#undef %hash;
-    #    ok(!defined(%hash), "undef hash");
-	fail 'FIXME parsefail: undef %hash: cannot modify a constant item';
+	undef %hash;
+        ok(!defined(%hash), "undef hash");
 
 	@ary = (1);
 	ok(defined(@ary), "define array again");
@@ -90,8 +87,7 @@ ok(!defined(undef), "undef is not defined");
 
 {
 	# rjbs reported this bug:
-	todo_fail("FIXME parsefail: undef empty %hash: cannot modify a constant item"); # currently fails compilation even in eval
-	#ok(eval 'my %hash; %hash = {}; undef %hash; %hash');
+	ok(eval 'my %hash; %hash = {}; undef %hash; %hash');
 }
 
 {

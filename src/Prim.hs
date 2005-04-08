@@ -76,7 +76,6 @@ op1 "uc" = return . VStr . (map toUpper) . vCast
 op1 "ucfirst" = return . VStr .
                 (\x -> case x of { (a:as) -> toUpper a : as ; a -> a}) . vCast
 op1 "undef" = \mv -> do
-    trace (show mv) return ()
     unless (isNothing $ vCast mv) $ do
         liftIO $ writeIORef (vCast mv) $ VUndef
     return VUndef
@@ -878,6 +877,8 @@ foldParam ('r':'w':'!':"List") = \ps -> ((buildParam "List" "" "@?0" (Val VUndef
 foldParam ('r':'w':'!':str) = \ps -> ((buildParam str "" "$?1" (Val VUndef)) { isLValue = True }:ps)
 foldParam ""        = id
 foldParam ('?':str)
+    | ('r':'w':'!':typ) <- str
+    = \ps -> ((buildParam typ "?" "$?1" (Val VUndef)) { isLValue = True }:ps)
     | (('r':'w':'!':typ), "=$_") <- break (== '=') str
     = \ps -> ((buildParam typ "?" "$?1" (Var "$_")) { isLValue = True }:ps)
     | (typ, "=$_") <- break (== '=') str
