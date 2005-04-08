@@ -239,9 +239,13 @@ ruleFormalParam = rule "formal parameter" $ do
     cxt     <- option "" $ ruleContext
     sigil   <- option "" $ choice . map symbol $ words " ? * + ++ "
     name    <- ruleVarName -- XXX support *[...]
+    trait   <- option id $ try $ do
+        symbol "is"
+        symbol "rw"
+        return $ \x -> x { isLValue = True }
     let required = (sigil /=) `all` ["?", "+"]
     exp     <- ruleParamDefault required
-    return $ buildParam cxt sigil name exp
+    return $ trait $ buildParam cxt sigil name exp
 
 ruleParamDefault True  = return $ Val VUndef
 ruleParamDefault False = rule "default value" $ option (Val VUndef) $ do
