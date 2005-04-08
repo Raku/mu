@@ -889,7 +889,8 @@ listLiteral = tryRule "list literal" $ do -- XXX Wrong
 
 arrayLiteral = do
     items   <- brackets $ ruleExpression `sepEndBy` symbol ","
-    return $ App "&prefix:\\" [] [Syn "cxt" [Val (VStr "List"), Syn "," items]]
+    -- return $ App "&prefix:\\" [] [Syn "cxt" [Val (VStr "List"), Syn "," items]]
+    return $ Syn "\\[]" [Syn "," items]
 
 pairLiteral = try $
     do
