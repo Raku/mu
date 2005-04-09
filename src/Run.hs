@@ -105,6 +105,7 @@ prepareEnv name args = do
             }
         , SymVal SGlobal "%?CONFIG" (VHash confHV)
         , SymVal SMy "$_" defSV
+        , SymVal SMy "$?FILE" progSV
         ]
 
 
