@@ -63,27 +63,13 @@ sub url_decode (Str $to_decode) returns Str is export {
 }
 
 sub url_encode (Str $to_encode) returns Str is export  {
-    my $_encoded = $to_encode;
+    my $encoded = $to_encode;
     # create a simplistic dec-to-hex converter
     # which will be able to handle the ASCII
     # character set (0 - 128)
     my @hex = <0 1 2 3 4 5 6 7 8 9 A B C D E F>;
     my $dec2hex = -> $dec { @hex[int($dec / 16)] ~ @hex[$dec % 16] };    
-    # now split our tokens out. We are doing this
-    # because we do not have the ability to do:
-    # 	s:perl5{([^-.\w ])}{sprintf('%%%02X', org($1))}
-    # yet. We are missing code in reg-exp as well
-    # as sprintf().
-    my @tokens = split(rx:perl5{([^-.\w ])}, $_encoded);
-    my $encoded;
-    for @tokens -> $token {
-        unless ($token ~~ rx:perl5{[-.\w ]}) {
-            $encoded ~= "%" ~ $dec2hex(ord($token));
-        }
-        else {
-            $encoded ~= $token;
-        }
-    }
+    $encoded ~~ s:perl5:g/([^-.\w ])/{"%" ~ $dec2hex(ord($1))}/;
     $encoded ~~ s:perl5:g/ /\+/;
     return $encoded;
 }
