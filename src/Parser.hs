@@ -722,7 +722,7 @@ rulePostTerm = tryRule "term postfix" $ do
 ruleInvocation = tryVerbatimRule "invocation" $ do
     hasEqual <- option False $ do char '='; whiteSpace; return True
     name            <- ruleSubName
-    (invs,args)     <- option ([],[]) $ parseParenParamList ruleExpression
+    (invs,args)     <- option ([],[]) $ parseParenParamList
     return $ \x -> if hasEqual
         then Syn "=" [x, App name (x:invs) args]
         else App name (x:invs) args
@@ -730,7 +730,7 @@ ruleInvocation = tryVerbatimRule "invocation" $ do
 ruleInvocationParens = do
     hasEqual <- option False $ do char '='; whiteSpace; return True
     name            <- ruleSubName
-    (invs,args)     <- parens $ parseNoParenParamList ruleExpression
+    (invs,args)     <- parens $ parseNoParenParamList
     -- XXX we just append the adverbial block onto the end of the arg list
     -- it really goes into the *& slot if there is one. -lp
     return $ \x -> if hasEqual
@@ -755,21 +755,20 @@ ruleHashSubscriptQW = do
     return $ \x -> Syn "{}" [x, exp]
 
 ruleCodeSubscript = tryRule "code subscript" $ do
-    (invs,args) <- parens $ parseParamList ruleExpression
+    (invs,args) <- parens $ parseParamList
     return $ \x -> Syn "()" [x, Syn "invs" invs, Syn "args" args]
 
 parseApply = lexeme $ do
     name            <- ruleSubName
     option ' ' $ char '.'
-    (invs,args)   <- parseParamList ruleExpression
+    (invs,args)   <- parseParamList
     return $ App name invs args
 
-parseParamList parse =    parseParenParamList parse
-                      <|> parseNoParenParamList parse
+parseParamList = parseParenParamList <|> parseNoParenParamList
 
-parseParenParamList parse = try $ do
+parseParenParamList = try $ do
     params <- option Nothing $ do
-        return . Just =<< parens (parseNoParenParamList parse)
+        return . Just =<< parens parseNoParenParamList
     block       <- option [] ruleAdverb
     when (isNothing params && null block) $ fail ""
     let (inv, norm) = maybe ([], []) id params
@@ -783,8 +782,18 @@ ruleAdverb = tryRule "adverb" $ do
     next <- option [] ruleAdverb
     return (rblock:next)
 
-parseNoParenParamList parse = do
-    formal <- (parse `sepEndBy` symbol ",") `sepEndBy` symbol ":"
+parseNoParenParamList = do
+    formal <- (`sepEndBy` symbol ":") $ fix $ \rec -> do
+        rv <- option Nothing $ do
+            return . Just =<< choice [ ruleBlockLiteral, ruleExpression ]
+        case rv of
+            Nothing  -> return []
+            Just exp -> do
+                let f = case exp of
+                        Syn "sub" _ -> optional
+                        _ -> (>> return ())
+                rest <- option [] $ do { f $ symbol ","; rec }
+                return (exp:rest)
     processFormals formal 
 
 processFormals :: Monad m => [[Exp]] -> m ([Exp], [Exp])
@@ -874,7 +883,7 @@ ruleLit = choice
 
 undefLiteral = try $ do
     symbol "undef"
-    (invs,args)   <- maybeParens $ parseParamList ruleExpression
+    (invs,args)   <- maybeParens $ parseParamList
     return $ if null (invs ++ args)
         then Val VUndef
         else App "&undef" invs args    
