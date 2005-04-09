@@ -13,22 +13,15 @@ Basic tests for trigonometric functions.
 
 sub approx(Num $a, Num $b) {
   my $EPSILON = 0.0001;
-  my $diff    = abs($a - $b);
-  $diff < $EPSILON;
-
-  # XXX! The more simple
-  #   my $EPSILON = 0.0001;
-  #   (abs(1 - 2) < $EPSILON);
-  # does *not* work, because of a parsefail... /me wasn't able to make a test
-  # out of it.
+  ($EPSILON > abs($a - $b));
 }
 
 # See also: L<http://theory.cs.iitm.ernet.in/~arvindn/pi/> :)
 my $PI = 3.14159265358979323846264338327950288419716939937510;
 
 # L<S29/"Math::Trig" /"pi"/> -- pi
-ok approx(pi(), $PI), "pi()";
-eval_is "approx(pi + 3, $PI + 3)", "'pi()' may drop its parentheses";
+ok approx(pi, $PI), "pi()";
+eval_is "approx(pi + 3)", $PI + 3, "'pi()' may drop its parentheses before +3";
 
 # L<S29/"Math::Trig" /"atan"/> -- atan
 # The basic form of atan (one argument) returns a value in ]-pi, pi[.

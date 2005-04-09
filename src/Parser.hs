@@ -768,9 +768,11 @@ parseParamList parse =    parseParenParamList parse
                       <|> parseNoParenParamList parse
 
 parseParenParamList parse = try $ do
-    (inv, norm) <- option ([], []) $ parens $ parseNoParenParamList parse
+    params <- option Nothing $ do
+        return . Just =<< parens (parseNoParenParamList parse)
     block       <- option [] ruleAdverb
-    when (all null [inv, norm, block]) $ fail ""
+    when (isNothing params && null block) $ fail ""
+    let (inv, norm) = maybe ([], []) id params
     -- XXX we just append the adverbial block onto the end of the arg list
     -- it really goes into the *& slot if there is one. -lp
     processFormals [inv, norm ++ block]
