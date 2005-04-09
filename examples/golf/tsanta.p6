@@ -132,62 +132,62 @@ my $file21 =
 
 sub check_head (Str $scr) {
     my @tt = (
-       [ 'file1',  $file1,  "1st line\n" ],
-       [ 'file2',  $file2,  "1st line\n2nd line\n" ],
-       [ 'file3',  $file3,  "1st line\n2nd line\n3rd line\n" ],
-       [ 'file12', $file12,
-         "1st line\n2nd line\n3rd line\n4th line\n5th line\n"~
-         "6th line\n7th line\n8th line\n9th line\n10th line\n" ]
+       'file1',  $file1,  "1st line\n",
+       'file2',  $file2,  "1st line\n2nd line\n",
+       'file3',  $file3,  "1st line\n2nd line\n3rd line\n",
+       'file12', $file12,
+       "1st line\n2nd line\n3rd line\n4th line\n5th line\n"~
+       "6th line\n7th line\n8th line\n9th line\n10th line\n"
     );
     for @tt -> $f0, $f1, $f2 { check_one($scr, $f0, $f1, $f2) }
 }
 
 sub check_tail (Str $scr) {
     my @tt = (
-       [ 'file1',  $file1,  "1st line\n" ],
-       [ 'file2',  $file2,  "1st line\n2nd line\n" ],
-       [ 'file3',  $file3,  "1st line\n2nd line\n3rd line\n" ],
-       [ 'file12', $file12,
-         "3rd line\n4th line\n5th line\n6th line\n7th line\n"~
-         "8th line\n9th line\n10th line\n11th line\n12th line\n" ],
-       [ 'file21', $file21, "12th line\n\n\n\n\n\n\n\n\n\n" ]
+       'file1',  $file1,  "1st line\n",
+       'file2',  $file2,  "1st line\n2nd line\n",
+       'file3',  $file3,  "1st line\n2nd line\n3rd line\n",
+       'file12', $file12,
+       "3rd line\n4th line\n5th line\n6th line\n7th line\n"~
+       "8th line\n9th line\n10th line\n11th line\n12th line\n",
+       'file21', $file21, "12th line\n\n\n\n\n\n\n\n\n\n"
     );
     for @tt -> $f0, $f1, $f2 { check_one($scr, $f0, $f1, $f2) }
 }
 
 sub check_rev (Str $scr) {
     my @tt = (
-       [ 'file1',  $file1,  "1st line\n" ],
-       [ 'file2',  $file2,  "2nd line\n1st line\n" ],
-       [ 'file3',  $file3,  "3rd line\n2nd line\n1st line\n" ],
-       [ 'file21', $file21,
-         "\n\n\n\n\n\n\n\n\n12th line\n11th line\n10th line\n"~
-         "9th line\n8th line\n7th line\n6th line\n5th line\n"~
-         "4th line\n3rd line\n2nd line\n1st line\n" ]
+       'file1',  $file1,  "1st line\n",
+       'file2',  $file2,  "2nd line\n1st line\n",
+       'file3',  $file3,  "3rd line\n2nd line\n1st line\n",
+       'file21', $file21,
+       "\n\n\n\n\n\n\n\n\n12th line\n11th line\n10th line\n"~
+       "9th line\n8th line\n7th line\n6th line\n5th line\n"~
+       "4th line\n3rd line\n2nd line\n1st line\n"
     );
     for @tt -> $f0, $f1, $f2 { check_one($scr, $f0, $f1, $f2) }
 }
 
 sub check_mid (Str $scr) {
     my @tt = (
-       [ 'file1',  $file1,  "1st line\n" ],
-       [ 'file2',  $file2,  "1st line\n2nd line\n" ],
-       [ 'file3',  $file3,  "2nd line\n" ],
-       [ 'file4',  $file4,  "2nd line\n3rd line\n" ],
-       [ 'file12', $file12, "6th line\n7th line\n" ],
-       [ 'file21', $file21, "11th line\n" ]
+       'file1',  $file1,  "1st line\n",
+       'file2',  $file2,  "1st line\n2nd line\n",
+       'file3',  $file3,  "2nd line\n",
+       'file4',  $file4,  "2nd line\n3rd line\n",
+       'file12', $file12, "6th line\n7th line\n",
+       'file21', $file21, "11th line\n"
     );
     for @tt -> $f0, $f1, $f2 { check_one($scr, $f0, $f1, $f2) }
 }
 
 sub check_wc (Str $scr) {
     my @tt = (
-       [ 'file1',  $file1,  "0000000001\n" ],
-       [ 'file2',  $file2,  "0000000002\n" ],
-       [ 'file3',  $file3,  "0000000003\n" ],
-       [ 'file4',  $file4,  "0000000004\n" ],
-       [ 'file12', $file12, "0000000012\n" ],
-       [ 'file21', $file21, "0000000021\n" ]
+       'file1',  $file1,  "0000000001\n",
+       'file2',  $file2,  "0000000002\n",
+       'file3',  $file3,  "0000000003\n",
+       'file4',  $file4,  "0000000004\n",
+       'file12', $file12, "0000000012\n",
+       'file21', $file21, "0000000021\n"
     );
     for @tt -> $f0, $f1, $f2 { check_one($scr, $f0, $f1, $f2) }
 }
