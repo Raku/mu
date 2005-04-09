@@ -2,6 +2,12 @@
 
 use v6;
 
+=head1 Default values
+
+You want to provide default values for false or undefined variables.
+
+=cut
+
 my $x = 0;
 
 # to provide a default for false values
