@@ -69,7 +69,7 @@ sub url_encode (Str $to_encode) returns Str is export  {
     # character set (0 - 128)
     my @hex = <0 1 2 3 4 5 6 7 8 9 A B C D E F>;
     my $dec2hex = -> $dec { @hex[int($dec / 16)] ~ @hex[$dec % 16] };    
-    $encoded ~~ s:perl5:g/([^-.\w ])/{"%" ~ $dec2hex(ord($1))}/;
+    $encoded ~~ s:perl5:g/([^-.\w ])/\%$dec2hex(ord($1))/;
     $encoded ~~ s:perl5:g/ /\+/;
     return $encoded;
 }
