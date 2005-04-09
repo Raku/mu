@@ -56,23 +56,9 @@ sub header (+$status = '200 OK', +$content_type = 'text/html', +$charset, +$loca
 sub redirect (Str $location) returns Str is export { header(status => '302 Moved', location => $location) }
 
 sub url_decode (Str $to_decode) returns Str is export {
-    my $_decoded = $to_decode;
-    $_decoded ~~ s:perl5:g/\+/ /;
-    # NOTE:
-    # what follows is a horid hack to make up 
-    # for the fact I cannot do :
-    #   s:perl5{%([\da-fA-F][\da-fA-F])}{chr(hex($1))}
-    # so please excuse this code for now
-    my @tokens = split(rx:perl5{(%[\da-fA-F][\da-fA-F])}, $_decoded);
-    my $decoded;
-    for @tokens -> $token {
-        if ($token ~~ rx:perl5{%([\da-fA-F][\da-fA-F])}) {
-            $decoded ~= chr(hex($1));
-        }
-        else {
-            $decoded ~= $token;
-        }
-    }
+    my $decoded = $to_decode;
+    $decoded ~~ s:perl5:g/\+/ /;
+    $decoded ~~ s:perl5:g/%([\da-fA-F][\da-fA-F])/{chr(hex($1))}/;
     return $decoded;
 }
 
