@@ -1,0 +1,18 @@
+#!perl6
+
+use v6;
+
+my $x = 0;
+
+# to provide a default for false values
+$x ||= 2;
+say $x;
+
+# to provide a default for undefined values
+my $y;
+$y //= 3;
+say $y;
+
+#my $z is "Ovid" but false;
+#$z ||= 4;
+#say $z;
