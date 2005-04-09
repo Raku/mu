@@ -408,7 +408,7 @@ ruleTryConstruct = ruleKeywordConsturct "try"
 
 ruleForConstruct = rule "for construct" $ do
     symbol "for"
-    list <- maybeParens $ ruleExpression
+    list  <- ruleExpression
     block <- ruleBlockLiteral
     retSyn "for" [list, block]
 
@@ -768,7 +768,7 @@ parseParamList parse =    parseParenParamList parse
                       <|> parseNoParenParamList parse
 
 parseParenParamList parse = do
-    (inv, norm) <- maybeParens $ parseNoParenParamList parse
+    (inv, norm) <- parens $ parseNoParenParamList parse
     block <- option [] ruleAdverb
     -- XXX we just append the adverbial block onto the end of the arg list
     -- it really goes into the *& slot if there is one. -lp
