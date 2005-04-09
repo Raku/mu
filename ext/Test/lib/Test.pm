@@ -47,6 +47,11 @@ sub todo_is (Str $got, Str $expected, Str ?$desc) returns Bool is export {
     proclaim($test, $desc, "TODO", $got, $expected);
 }
 
+sub fail_is (Str $got, Str $expected, Str ?$desc) returns Bool is export {
+    my $test := not $got eq $expected;
+    proclaim($test, "SHOULD FAIL: $desc", undef, $got, $expected);
+}
+
 ## like
 
 sub like (Str $got, Rule $expected, Str ?$desc) returns Bool is export {
