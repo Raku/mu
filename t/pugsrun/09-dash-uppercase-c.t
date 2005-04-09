@@ -13,7 +13,7 @@ my @t_good = (
   '-C'
     ~ any('Pugs')
     ~ ' '
-    ~ any('-e1', map( {"examples/$_.p6"},<
+    ~ any('-e1', map( {"examples/$_.p6"}<
   fp
   hanoi
   junctions/1
@@ -24,7 +24,7 @@ my @t_good = (
 >)), '-CParrot ' ~ any('-e1')
 );
 
-my @t_todo = map{$_.values},(map{$_.values},(
+my @t_todo = map{$_.values} (map{$_.values} (
   '-C'
     ~ any('Parrot')
     ~ ' "examples/'

@@ -10,7 +10,7 @@ indicated by the C<-> switch.
 
 =cut
 
-my @examples = map { $_.values() }, (
+my @examples = map { $_.values() } (
    any('print qq.Hello Pugs.',
        'print @ARGS',
    )

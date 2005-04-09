@@ -11,7 +11,9 @@ works.
 =cut
 
 my @tests = any< -v --version >;
-@tests = map { $_.values }, @tests.map():{ $_, "-w $_", "$_ -w", "-w $_ -w" };
+@tests = map { $_.values }
+         map { $_, "-w $_", "$_ -w", "-w $_ -w" }
+         @tests;
 
 plan +@tests;
 

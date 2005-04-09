@@ -15,8 +15,8 @@ if called with the (unknown) option C<-foo>
 
 =cut
 
-my @examples = map { $_.values },
-               map { $_.values }, (
+my @examples = map { $_.values }
+               map { $_.values } (
     any('-foo ', '-e "print" -foo ', '-c -foo ', '-eprint -foo ')
   ~ any("", '-e "print" ', '-c '),
 );
