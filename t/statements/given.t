@@ -33,7 +33,7 @@ Tests the given block, as defined in L<S04/"Switch statements">
 	}';
 
 	ok(!$two, "5 is not two");
-	todo_ok($five, "5 is five");
+	ok($five, "5 is five");
 	todo_ok($int, "short fell-through to next true when using 'next'");
 	ok(!$unreached, "but didn't do so normally");
 };

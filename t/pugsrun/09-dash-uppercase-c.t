@@ -27,7 +27,7 @@ my @t_good = (
 my @t_todo = map{$_.values} (map{$_.values} (
   '-C'
     ~ any('Parrot')
-    ~ ' "examples/'
+    ~ ' examples/'
     ~ any(<
   fp
   hanoi
