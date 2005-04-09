@@ -5,7 +5,7 @@ import Internals
 
 type Index = Int
 
-class ArrayClass a where
+class (Show a) => ArrayClass a where
     fetch       :: a -> Index -> Eval Val
     store       :: a -> Index -> Val -> Eval ()
     fetchSize   :: a -> Eval Index

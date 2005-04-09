@@ -77,7 +77,7 @@ import System.Time
 import System.Cmd
 import System.IO (
     Handle, stdin, stdout, hClose, hGetLine, hGetContents,
-    openFile, hPutStr, hPutStrLn, IOMode(..), stderr,
+    openFile, hPutStr, hPutStrLn, IOMode(..), stderr, SeekMode(..),
     hSetBuffering, BufferMode(..), hIsTerminalDevice, hFlush
     )
 import System.IO.Unsafe
