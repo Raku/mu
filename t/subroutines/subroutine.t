@@ -38,7 +38,7 @@ sub callerunderscore {
     return "wrong one, needed to avoid errors"
 }
 
-sub callerunderscore (?$foo = $CALLER::_) { 
+sub callerunderscore (?$foo = $CALLER::_) {
     return "-" ~ $foo ~ "-"
 }
 
@@ -48,7 +48,7 @@ $_ = "foo";
 is(callerunderscore(), "-foo-", 'CALLER:: $_ set once');
 $_ = "bar";
 is(callerunderscore(), "-bar-", 'CALLER:: $_ set twice');
-for ("quux") { 
+for ("quux") {
   todo_is(callerunderscore(), '-quux-', 'CALLER:: $_ set by for');
 }
 is(callerunderscore(), '-bar-', 'CALLER:: $_ reset after for');
@@ -73,11 +73,11 @@ is($_, "-quux-", 'block closures close');
 
 my @result;
 sub perl5sub {
-    push @result , $_[0]; 
+    push @result , $_[0];
     push @result, $_[1];
 }
 perl5sub(<foo bar>);
-todo_is(@result, <foo bar>, 'use @_ in sub');
+is(@result, <foo bar>, 'use @_ in sub');
 
 =pod
 
