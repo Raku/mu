@@ -20,7 +20,7 @@ sub parameters ($foo) { say $foo }
 parameters('some parameter');
 
 sub whole (@names, %flags) {
-    for @names -> $name{
+    for @names -> $name{  # XXX Is whitespace before { not needed?!
         say $name;
     }
     # arg!  Shouldn't need parens!
@@ -38,6 +38,9 @@ sub optional ($required, ?$optional) {
     say $second_arg;
 }
 
+# XXX sub optional ($required, ?$optional = "Default value"), fyi
+# XXX allows for undef to be passed.
+
 optional('this');
 optional('this', 'that');
 
@@ -46,6 +49,8 @@ sub named_params ($first, +$second, +$third) {
 }
 
 named_params(1, second => 2, third => 3);
+
+# XXX Also, :first :second(2) :third(3)
 
 sub transport ($planet, *@names) {
     say "Transporting to $planet:";
@@ -56,6 +61,7 @@ sub transport ($planet, *@names) {
 transport('Magrathea', 'Arthur', 'Ford', 'Ovid');
 
 sub typed (Int $val) {
-    say $val++;
+    say $val++;  # XXX $val is ro by default, so can't be ++'ed.
+                 # XXX Besides, preinc is more interesting here
 }
 typed(3);
