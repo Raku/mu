@@ -24,6 +24,7 @@ print <<"__TOP__";
   <title>testgraph.pl @{[gmtime().'']}</title>
  </head>
  <body>
+<pre><tt>@{[gmtime().'']}</tt></pre></br>
 __TOP__
 
 print "   <pre><tt>", join("\n", $data->{build_info}), "</tt></pre>\n";
