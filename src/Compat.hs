@@ -21,7 +21,6 @@ module Compat (
     rename,
     removeLink,
     setFileMode,
-    sleep,
     getEnvironment,
     getArg0,
     statFileSize,
@@ -61,10 +60,6 @@ rename _ _ = fail "'rename' not implemented on this platform."
 
 removeLink :: FilePath -> IO ()
 removeLink _ = fail "'unlink' not implemented on this platform."
-
-sleep :: Int -> IO ()
--- sleep _ = fail "'sleep' not implemented on this platform."
-sleep x = threadDelay $ (*) 1000000 x
 
 setFileMode :: FilePath -> FileMode -> IO ()
 setFileMode _ _ = fail "'chmod' not implemented on this platform."

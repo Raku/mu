@@ -187,7 +187,7 @@ op1 "readlink" = \v -> do
     if file == ""
       then return VUndef
       else return $ VStr file
-op1 "sleep" = boolIO sleep
+op1 "sleep" = boolIO (threadDelay . (* 1000000))
 op1 "mkdir" = boolIO createDirectory
 op1 "rmdir" = boolIO removeDirectory
 op1 "chdir" = boolIO setCurrentDirectory
