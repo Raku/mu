@@ -767,9 +767,10 @@ parseApply = lexeme $ do
 parseParamList parse =    parseParenParamList parse
                       <|> parseNoParenParamList parse
 
-parseParenParamList parse = do
-    (inv, norm) <- parens $ parseNoParenParamList parse
-    block <- option [] ruleAdverb
+parseParenParamList parse = try $ do
+    (inv, norm) <- option ([], []) $ parens $ parseNoParenParamList parse
+    block       <- option [] ruleAdverb
+    when (all null [inv, norm, block]) $ fail ""
     -- XXX we just append the adverbial block onto the end of the arg list
     -- it really goes into the *& slot if there is one. -lp
     processFormals [inv, norm ++ block]

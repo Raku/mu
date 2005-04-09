@@ -240,14 +240,14 @@ sub write_log (+$got, +$expected, Str +$desc, Str +$errstr, Str +$context, Str +
     }
     my $out;
     if ($out = open(">>$log_file")) {
-        $out.say $?CALLER::CALLER::CALLER::FILE ~ " $loop $status";
-        $out.say $desc if $desc;
-        $out.say $errstr if $errstr;
-        $out.say $context if $context;
-        $out.say '### Expected ###';
-        $out.say $expected;
-        $out.say '### Actual Results ###';
-        $out.say $got, "\n";
+        $out.say("$?CALLER::CALLER::CALLER::FILE $loop $status");
+        $out.say($desc) if $desc;
+        $out.say($errstr) if $errstr;
+        $out.say($context) if $context;
+        $out.say('### Expected ###');
+        $out.say($expected);
+        $out.say('### Actual Results ###');
+        $out.say($got, "\n");
         $out.close;
         return 1;
     }
