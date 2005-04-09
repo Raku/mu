@@ -43,7 +43,6 @@ statFileSize f = do
 
 import System.Posix.Types
 import System.Environment
-import Control.Concurrent
 
 createLink :: FilePath -> FilePath -> IO ()
 createLink _ _ = fail "'link' not implemented on this platform."

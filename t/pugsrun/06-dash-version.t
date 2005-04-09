@@ -10,9 +10,8 @@ works.
 
 =cut
 
-my @tests = ("-v", "--version");
-@tests = @tests.map():{ $_, "-w $_", "$_ -w", "-w $_ -w" };
-#@tests = (); # unTODOme
+my @tests = any< -v --version >;
+@tests = map { $_.values }, @tests.map():{ $_, "-w $_", "$_ -w", "-w $_ -w" };
 
 plan +@tests;
 

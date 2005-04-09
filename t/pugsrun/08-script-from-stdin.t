@@ -10,9 +10,10 @@ indicated by the C<-> switch.
 
 =cut
 
-my @examples = (
-     'print qq.Hello Pugs.'
-   , 'print @ARGS'
+my @examples = map { $_.values() }, (
+   any('print qq.Hello Pugs.',
+       'print @ARGS',
+   )
 );
 
 plan +@examples;

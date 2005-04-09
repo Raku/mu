@@ -12,14 +12,13 @@ C<-e> fragments.
 
 =cut
 
-my @examples;
-push @examples,
+my @examples = (
   '-ce "print qq,Code got interpreted!,"',
   '-c -e "print qq,Code got interpreted!,"',
   '-e "print qq,Code got interpreted!," -c',
   '-eprint -c',
-  '-ceprint'
-  ;
+  '-ceprint',
+);
 
 plan +@examples;
 

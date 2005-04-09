@@ -10,8 +10,8 @@ works.
 
 =cut
 
-my @examples = ("-h", "--help");
-@examples = @examples.map():{ $_, "-w $_", "$_ -w", "-w $_ -w" };
+my @examples = any<-h --help>;
+@examples = map{ $_.values },@examples.map():{ $_, "-w $_", "$_ -w", "-w $_ -w" };
 
 plan +@examples;
 

@@ -17,12 +17,12 @@ switch, and wraps the whole script in
 
 =cut
 
-my @examples;
-
-push @examples, '-p';
-push @examples, '-p "-e1;"';
-push @examples, '-pe ";"';
-push @examples, '-pe ""';
+my @examples = (
+  '-p',
+  '-p "-e1;"',
+  '-pe ";"',
+  '-pe ""',
+);
 
 plan +@examples;
 

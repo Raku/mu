@@ -16,11 +16,11 @@ switch, and wraps the whole script in
 
 =cut
 
-my @examples;
-push @examples, '-n -e print';
-push @examples, '-ne print';
-push @examples, '-e "" -ne print';
-
+my @examples = (
+  '-n -e print',
+  '-ne print',
+  '-e "" -ne print',
+);
 
 plan +@examples;
 
