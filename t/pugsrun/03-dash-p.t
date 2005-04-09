@@ -10,9 +10,10 @@ Test C<-p> implementation
 The C<-p> command line switch mimics the Perl5 C<-p> command line
 switch, and wraps the whole script in
 
-  while (<>) {
+  while ($_ = =<>) {
+    chomp;
     ...         # your script
-    print;
+    say;
   };
 
 =cut
@@ -22,6 +23,8 @@ my @examples = (
   '-p "-e1;"',
   '-pe ";"',
   '-pe ""',
+  '-p "-e1;" "-e1;"',
+  '"-e1;" -p "-e1;"',
 );
 
 plan +@examples;
@@ -32,8 +35,6 @@ my ($pugs,$redir_in,$redir_out) = ("./pugs", "<", ">");
 
 if($?OS eq any<MSWin32 mingw cygwin>) {
   $pugs = 'pugs.exe';
-  $redir_out = '>';
-  # $redir_in = '<';
 };
 
 my $str = "
@@ -54,7 +55,7 @@ for @examples -> $ex {
   my $got      = slurp "temp-ex-output";
   unlink "temp-ex-output";
 
-  todo_is $got, $expected, "$ex works like cat";
+  is $got, $expected, "$ex works like cat";
 }
 
 unlink "temp-ex-input";

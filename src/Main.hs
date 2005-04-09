@@ -32,7 +32,7 @@ main :: IO ()
 main = do
     hSetBuffering stdout NoBuffering
     runWithArgs run
-{-    
+{-
     __run args
 
 __run x = do
@@ -239,4 +239,3 @@ printConfigInfo [] = do
 
 printConfigInfo (item:_) = do
 	putStrLn $ createConfigLine item
-

@@ -74,6 +74,12 @@ findArg arg prefix = do
 
   This makes pattern matching more convenient
 
+  Backwards incompatible changes:
+  
+  -P changes radically:
+      -P is now the big brother of -p
+         it uses say; instead of print;
+
 -}
 
 compareArgs a b = compare (argRank a) (argRank b)
@@ -110,18 +116,18 @@ gatherArgs(('-':[]):xs)           = [File "-"] ++ gatherArgs(xs)
 gatherArgs(('-':x):xs)            = [Switch (head x)] ++ gatherArgs(xs)
 gatherArgs(x:xs)                  = [File x] ++ gatherArgs(xs)
 
-{- collect "-e" switches together, 
-   handle transformation of "-M", "-n" 
-   and "-p" into "-e" fragments 
+{- collect "-e" switches together,
+   handle transformation of "-M", "-n"
+   and "-p" into "-e" fragments
 -}
 joinDashE :: [Arg] -> [Arg]
 joinDashE [] = []
-joinDashE ((Switch 'p'):args) = joinDashE ((Opt "-e" "for (=<>) {"):script++[(Opt "-e" "print; }")]++rest)
+joinDashE ((Switch 'p'):args) = joinDashE ((Opt "-e" "while ($_ = =<>) { chomp $_;"):script++[(Opt "-e" "; say; }")]++rest)
                                  where
                                    (script,rest) = partition isDashE args
                                    isDashE (Opt "-e" _) = True
                                    isDashE (_) = False
-joinDashE ((Switch 'n'):args) = joinDashE ((Opt "-e" "for (=<>) {"):script++[(Opt "-e" "}")]++rest)
+joinDashE ((Switch 'n'):args) = joinDashE ((Opt "-e" "while ($_ = =<>) { chomp $_;"):script++[(Opt "-e" "}")]++rest)
                                  where
                                    (script,rest) = partition isDashE args
                                    isDashE (Opt "-e" _) = True
@@ -134,4 +140,3 @@ joinDashE ((Opt "-e" a):(Opt "-e" b):args) =
     where
     combined = a++"\n"++b
 joinDashE (x:xs) =  [ x ] ++ joinDashE xs
-
