@@ -22,7 +22,7 @@ if($?OS eq any<MSWin32 mingw cygwin>) {
 
 my $tempfile = "temp-ex-output";
 
-my $command = qq!$pugs -e "say \$*PID" $redir $tempfile!;
+my $command = qq!$pugs -e "say eval chr(36)~'PID'" $redir $tempfile!;
 diag $command;
 system $command;
 
