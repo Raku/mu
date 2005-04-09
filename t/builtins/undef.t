@@ -74,7 +74,7 @@ ok(!defined(undef), "undef is not defined");
 	ok(defined(%hash), "aggregate hash defined");
 
 	undef @ary;
-        todo_ok(!defined(@ary), "undef array");
+    ok(!defined(@ary), "undef array");
 
 	undef %hash;
         ok(!defined(%hash), "undef hash");
@@ -150,7 +150,7 @@ Perl6-specific tests
 
 	#undef @ary;
 	#ok(defined($ary_r), "undef array referent");
-	fail 'FIXME: parsefail undef @ary: cannot modify a constant item'; 
+	fail 'FIXME: parsefail undef @ary: cannot modify a constant item';
 
 	is(+$ary_r, 0, "dangling array reference"); # unTODOme
 
@@ -160,7 +160,7 @@ Perl6-specific tests
 	ok(defined($hash_r), "hash reference");
 	#undef %hash;
 	#ok(defined($hash_r), "undef hash referent:");
-	fail 'FIXME: parsefail undef %hash: cannot modify a constant item'; 
+	fail 'FIXME: parsefail undef %hash: cannot modify a constant item';
 	is(+$hash_r.keys, 0, "dangling hash reference"); # unTODOme
 }
 
