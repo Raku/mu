@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 25;
+plan 50;
 
 # tests various assignment styles
 
@@ -75,11 +75,28 @@ plan 25;
 }
 
 {
-        my $a;
-        $a ||= 3;
-        is($a,3, "||= operator");
-        $a ||= 10;
-        is($a,3, "... and second");
+    my $a;
+    $a ||= 3;
+    is($a,3, "||= operator");
+    $a ||= 10;
+    is($a,3, "... and second");
+}
+
+{
+    my $a;
+    $a //= 3;
+    is($a, 3, "//= operator");
+    $a //= 10;
+    is($a, 3, "... and second");
+}
+
+{
+    my $a = 3;
+    $a &&= 42;
+    is($a, 42, "&&= operator");
+    $a = 0;
+    $a &&= 10;
+    is($a, 0, "... and second");
 }
 
 {
@@ -88,3 +105,103 @@ plan 25;
 	eval '(($c = 3) = 4)'; 
 	is($c,4, "((\$c = 3) = 4) return val should be good as an lval");
 }
+
+{
+    my $x = 42;
+    eval('$x += 6;');
+    is($x, 48, '+= operator');
+}
+
+{
+    my $x = 42;
+    eval('$x -= 6;');
+    is($x, 36, '-= operator');
+}
+
+{
+    my $x = 4;
+    eval('$x *= 3;');
+    is($x, 12, '*= operator');
+}
+
+{
+    my $x = 6;
+    eval('$x /= 3;');
+    is($x, 2, '/= operator');
+}
+
+{
+    my $x = 2;
+    eval('$x **= 3;');
+    is($x, 8, '**= operator');
+}
+
+{
+    my $x = "abc";
+    eval('$x ~= "yz";');
+    is($x, 'abcyz', '~= operator');
+}
+
+{
+    my $x = "abc";
+    eval('$x x= 3;');
+    is($x, 'abcabcabc', 'x= operator');
+}
+
+{
+    my @x = ( 'a', 'z' );
+    eval('@x xx= 3;');
+    is(+@x,   6,   'xx= operator elems');
+    is(@x[0], 'a', 'xx= operator 0');
+    is(@x[1], 'z', 'xx= operator 1');
+    is(@x[2], 'a', 'xx= operator 2');
+    is(@x[3], 'z', 'xx= operator 3');
+    is(@x[4], 'a', 'xx= operator 4');
+    is(@x[5], 'z', 'xx= operator 5');
+}
+
+{
+    my $x = 1;
+    eval('$x +&= 2;');
+    is($x, 0, '+&= operator');
+}
+
+{
+    my $x = 1;
+    eval('$x +|= 2;');
+    is($x, 3, '+|= operator');
+}
+
+{
+    my $x = "z";
+    eval('$x ~&= "I";');
+    is($x, 'H', '~&= operator');
+}
+
+{
+    my $x = "z";
+    eval('$x ~|= "I";');
+    is($x, '{', '~|= operator');
+}
+
+# XXX: nasty are the next three, causing whole program to terminate
+# with 'cannot cast into a handle'--even though wrapped in eval.
+
+{
+    my $x = 4;
+    eval('$x %= 3;');
+    is($x, 1, '%= operator');
+}
+
+{
+    my $x = 1;
+    eval('$x +^= 3;');
+    is($x, 2, '+^= operator');
+}
+
+{
+    my $x = "z";
+    eval('$x ~^= "C";');
+    is($x, 9, '~^= operator');
+}
+
