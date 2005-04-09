@@ -75,7 +75,7 @@ findArg arg prefix = do
   This makes pattern matching more convenient
 
   Backwards incompatible changes:
-  
+
   -P changes radically:
       -P is now the big brother of -p
          it uses say; instead of print;
@@ -122,7 +122,7 @@ gatherArgs(x:xs)                  = [File x] ++ gatherArgs(xs)
 -}
 joinDashE :: [Arg] -> [Arg]
 joinDashE [] = []
-joinDashE ((Switch 'p'):args) = joinDashE ((Opt "-e" "while ($_ = =<>) { chomp $_;"):script++[(Opt "-e" "; say; }")]++rest)
+joinDashE ((Switch 'p'):args) = joinDashE ((Opt "-e" "while ($_ = =<>) { chomp $_;"):script++[(Opt "-e" "; say $_; }")]++rest)
                                  where
                                    (script,rest) = partition isDashE args
                                    isDashE (Opt "-e" _) = True
