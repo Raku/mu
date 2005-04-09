@@ -15,7 +15,7 @@ plan 4;
 	close $out; 
 	my$in = open "<tmpfile"; 
 	my $s = =$in; close $in; 
-	close $in; unlink "tmpfile";
+	unlink "tmpfile";
 
 	is $s,"3\n", 'and is the default argument for "say"';
 
@@ -26,7 +26,7 @@ for 1 { say $out, };
 	close $out; 
 	my$in = open "<tmpfile"; 
 	my $s = =$in; close $in;
-	close $in; unlink "tmpfile";
+	unlink "tmpfile";
 
 	fail_is $s,"3\n", 'and global $_ should not be the default topic of "for"'; 
 
