@@ -294,7 +294,8 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
                 runBody rest
         enterLoop $ runBody vals
     "loop" -> do
-        let [pre, cond, post, body] = exps
+        let [pre, cond, post, body] = case exps of { [_] -> exps'; _ -> exps }
+            exps' = [Syn "noop" [], Val (VBool True), Syn "noop" []] ++ exps
         evalExp pre
         enterLoop . fix $ \runBody -> do
             valBody <- evalExp body
