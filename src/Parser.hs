@@ -674,8 +674,12 @@ chainSyn    = leftSyn
 
 -- chainOps    = ops $ makeOpChained
 
-makeOp1 prec sigil con name = prec $ do
+makeOp1 prec sigil con name = prec $ try $ do
     symbol name
+    -- `int(3)+4` should not be parsed as `int((3)+4)`
+    when (isWordAny (last name)) $ do
+        lookAhead (satisfy (/= '('))
+        return ()
     return $ \x -> con fullName $ case x of
         Syn "" []   -> []
         _           -> [x]
