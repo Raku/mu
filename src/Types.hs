@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts #-}
+{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans #-}
 
 {-
     Implementation Types.
@@ -11,7 +11,8 @@
 -}
 
 module Types where
-import AST
+
+import {-# SOURCE #-} AST
 import Internals
 import Data.Map     as Map
 import Data.IntMap  as IntMap
@@ -36,9 +37,9 @@ type IRule   = VRule
 instance Show IArray  where show _ = "{array}"
 instance Show IHash   where show _ = "{hash}"
 instance Show IHandle where show _ = "{handle}"
+-- instance Show IScalar where show _ = "{scalar}"
 -- instance Show ICode   where show _ = "{code}"
 -- instance Show IRule   where show _ = "{rule}"
--- instance Show IScalar where show _ = "{scalar}"
 
 -- GADTs, here we come!
 data IVar where
@@ -48,6 +49,13 @@ data IVar where
     ICode   :: CodeClass   a => a -> IVar
     IHandle :: HandleClass a => a -> IVar
     IRule   :: RuleClass   a => a -> IVar
+
+varClass (IScalar _) = "Scalar"
+varClass (IArray _)  = "Array"
+varClass (IHash _)   = "Hash"
+varClass (ICode _)   = "Code"
+varClass (IHandle _) = "Handle"
+varClass (IRule _)   = "Rule"
 
 instance ScalarClass IScalar where
     fetch = liftIO . readIORef
@@ -63,8 +71,15 @@ instance HashClass IHashEnv where
 
 instance ArrayClass IArray where
 
-instance CodeClass ICode where
-
 instance HandleClass IHandle where
 
 instance RuleClass IRule where
+
+
+instance Eq IVar where
+    (==) = const $ const True
+instance Ord IVar where
+    compare _ _ = EQ
+instance Show IVar where
+    show v = "<" ++ varClass v ++ ">"
+

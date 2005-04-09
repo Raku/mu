@@ -1,8 +1,10 @@
 module Types.Code where
 
-import AST
+import {-# SOURCE #-} AST
 import Internals
 
-class (Show a) => CodeClass a where
-    assuming :: CodeClass b => a -> [Exp] -> [Exp] -> Eval b
+class CodeClass a where
+    assuming :: a -> [Exp] -> [Exp] -> Eval VSub
     apply    :: a -> Eval Val
+    assoc    :: a -> VStr
+    params   :: a -> Params

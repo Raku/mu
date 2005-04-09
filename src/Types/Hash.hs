@@ -1,11 +1,11 @@
 module Types.Hash where
 
-import AST
+import {-# SOURCE #-} AST
 import Internals
 
 type Index = VStr
 
-class (Show a) => HashClass a where
+class HashClass a where
     fetch       :: a -> Index -> Eval Val
     fetchKeys   :: a -> Eval [Index] -- XXX Pugs addition
     fetchKeys hv = do

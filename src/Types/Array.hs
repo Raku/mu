@@ -1,11 +1,11 @@
 module Types.Array where
 
-import AST
+import {-# SOURCE #-} AST
 import Internals
 
 type Index = Int
 
-class (Show a) => ArrayClass a where
+class ArrayClass a where
     fetch       :: a -> Index -> Eval Val
     store       :: a -> Index -> Val -> Eval ()
     fetchSize   :: a -> Eval Index
@@ -15,7 +15,7 @@ class (Show a) => ArrayClass a where
         case size `compare` sz of
             GT -> mapM_ (const $ pop av) [size .. sz-1]
             EQ -> return () -- no need to do anything
-            LT -> mapM_ (\idx -> store av idx VUndef) [size .. sz-1]
+            LT -> mapM_ (\idx -> store av idx undef) [size .. sz-1]
     extend      :: a -> Index -> Eval ()
     extend _ _ = return ()
     exists      :: a -> Index -> Eval VBool
@@ -28,7 +28,7 @@ class (Show a) => ArrayClass a where
         case (size - 1) `compare` idx of
             GT -> return ()                 -- no such index
             EQ -> storeSize av (size - 1)   -- truncate
-            LT -> store av idx VUndef       -- set to undef
+            LT -> store av idx undef       -- set to undef
     clear       :: a -> Eval ()
     clear av = storeSize av 0
     push        :: a -> [Val] -> Eval ()
@@ -39,7 +39,7 @@ class (Show a) => ArrayClass a where
     pop av = do
         size <- fetchSize av
         if size == 0
-            then return VUndef
+            then return undef
             else do
                 val <- fetch av $ size - 1
                 storeSize av $ size - 1
@@ -47,7 +47,7 @@ class (Show a) => ArrayClass a where
     shift       :: a -> Eval Val
     shift av = do
         vals <- splice av 0 1 []
-        return $ last (VUndef:vals)
+        return $ last (undef:vals)
     unshift     :: a -> [Val] -> Eval ()
     unshift av vals = do
         splice av 0 0 vals

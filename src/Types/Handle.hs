@@ -1,12 +1,12 @@
 module Types.Handle where
 
-import AST
+import {-# SOURCE #-} AST
 import Internals
 
 type Layer = VStr
 type FileDescriptor = VInt
 
-class (Show a) => HandleClass a where
+class HandleClass a where
     write       :: a -> VStr -> Eval VInt
     print       :: a -> [Val] -> Eval VBool
     printf      :: a -> VStr -> [Val] -> Eval VBool

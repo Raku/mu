@@ -1,7 +1,7 @@
 module Types.Rule where
 
-import AST
+import {-# SOURCE #-} AST
 import Internals
 
-class (Show a) => RuleClass a where
+class RuleClass a where
     match :: a -> VStr -> Eval (MatchResult Val)
