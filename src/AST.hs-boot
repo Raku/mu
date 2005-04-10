@@ -67,6 +67,7 @@ data IVar v
 
 newScalar :: (MonadIO m) => VScalar -> m (IVar VScalar)
 constScalar :: VScalar -> IVar VScalar
+proxyScalar :: Eval VScalar -> (VScalar -> Eval ()) -> IVar VScalar
 
 readIVar :: IVar v -> Eval v
 writeIVar :: IVar v -> v -> Eval ()

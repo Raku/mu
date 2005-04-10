@@ -14,12 +14,6 @@ module Types where
 
 import {-# SOURCE #-} AST
 import Internals
-import qualified Types.Array  as Array
-import qualified Types.Handle as Handle
-import qualified Types.Hash   as Hash
-import qualified Types.Scalar as Scalar
-import qualified Types.Code   as Code
-import qualified Types.Rule   as Rule
 import qualified Data.HashTable as HTable
 
 type IArray  = IORef [IVar VScalar]
@@ -28,6 +22,7 @@ type IHash   = HTable.HashTable VStr (IVar VScalar)
 type IScalar = IORef Val
 type ICode   = IORef VCode
 data IHashEnv -- phantom types! fun!
+type IScalarProxy = (Eval VScalar, (VScalar -> Eval ()))
 
 -- these implementation allows no destructions
 type IRule   = VRule

@@ -887,11 +887,18 @@ newArray vals = liftIO $ do
 newHandle :: (MonadIO m) => VHandle -> m (IVar VHandle)
 newHandle = return . IHandle
 
+proxyScalar :: Eval VScalar -> (VScalar -> Eval ()) -> IVar VScalar
+proxyScalar fetch store = IScalar (fetch, store)
+
 constScalar :: VScalar -> IVar VScalar
 constScalar = IScalar
 
 constArray :: VArray -> IVar VArray
 constArray = IArray
+
+instance Scalar.Class IScalarProxy where
+    fetch = fst
+    store = snd
 
 instance Hash.Class VHash where
     fetch = return
@@ -950,7 +957,7 @@ instance Array.Class IArraySlice where
     fetchElem av idx = do
         Array.extendSize av (idx+1)
         return $ av !! idx
-    storeSize av sz = return () -- XXX error?
+    storeSize _ _ = return () -- XXX error?
     storeElem _ _ _ = retConstError undef
 
 instance Array.Class IArray where
@@ -994,8 +1001,8 @@ instance Code.Class ICode where
     assuming c [] [] = Code.fetch c
     assuming _ _ _   = undefined
     apply    = error "apply"
-    assoc c = error "assoc"
-    params c = error "params"
+    assoc    = error "assoc"
+    params   = error "params"
 
 instance Code.Class VCode where
     fetch     = return

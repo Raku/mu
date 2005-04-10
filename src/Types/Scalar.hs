@@ -3,7 +3,6 @@
 module Types.Scalar where
 
 import {-# SOURCE #-} AST
-import Internals
 
 class Class a where
     fetch :: a -> Eval VScalar

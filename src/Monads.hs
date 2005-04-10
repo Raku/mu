@@ -13,7 +13,6 @@ module Monads where
 import Internals
 import AST
 import Context
-import Types
 
 enterLex :: Pad -> Eval a -> Eval a
 enterLex pad = local (\e -> e{ envLexical = (pad ++ envLexical e) })

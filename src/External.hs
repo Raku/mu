@@ -12,7 +12,6 @@
 module External where
 import Internals
 import AST
-import Types
 import External.Haskell (externalizeHaskell, loadHaskell)
 
 externalize :: String -> Exp -> IO String

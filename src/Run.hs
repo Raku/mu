@@ -18,7 +18,6 @@ import Types
 import Eval
 import Prim
 import qualified Data.Map as Map
-import qualified Data.IntMap as Array
 
 runWithArgs f = do
     args <- getArgs

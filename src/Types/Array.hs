@@ -22,8 +22,7 @@ class Class a where
         storeSize av (length list)
     fetchElem   :: a -> Index -> Eval (IVar VScalar) -- autovivify
     fetchElem av key = do
-        val <- fetchVal av key
-        return $ constScalar val
+        return $ proxyScalar (fetchVal av key) (storeVal av key)
     storeElem   :: a -> Index -> IVar VScalar -> Eval () -- binding
     storeElem av idx sv = do
         val <- readIVar sv

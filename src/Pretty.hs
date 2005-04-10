@@ -16,9 +16,7 @@ import Internals
 import Types
 import AST
 import Text.PrettyPrint
-import qualified Data.Map as Map
 import qualified Data.Set as Set
-import qualified Data.IntMap as Array
 
 defaultIndent :: Int
 defaultIndent = 2

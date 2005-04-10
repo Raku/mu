@@ -29,7 +29,7 @@ ourPackageConfigs = [
 ourPackageConfigs = []
 
 loadHaskell :: FilePath -> IO [(String, [Val] -> Eval Val)]
-loadHaskell file = do
+loadHaskell _ = do
     loadRawObject "/usr/src/pugs/blib6/arch/CORE/pugs/UnicodeC.o"
     loadRawObject "/usr/src/pugs/blib6/arch/CORE/pugs/pcre/pcre.o"
     load "/usr/src/pugs/blib6/arch/CORE/pugs/Compat.o" ["/usr/src/pugs/blib6/arch/CORE/pugs/", "/usr/src/SHA1/src/"] ourPackageConfigs ""
