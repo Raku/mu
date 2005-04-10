@@ -20,7 +20,7 @@ is(url_encode('this is a string to encode'), 'this%20is%20a%20string%20to%20enco
 is(url_decode('this+is+a+string+to+decode'), 'this is a string to decode', 'got the right decoded string');
 is(url_decode('this%20is%20a%20string%20to%20decode'), 'this is a string to decode', 'got the right decoded string');
 
-my $query_string = 'test=hello%20world&this%20is%20a%20number=1';
+my $query_string = 'test=hello%20world;this%20is%20a%20number=1';
 
 unpack_params($query_string);
 is(pack_params(), $query_string, 'packed the params correctly');

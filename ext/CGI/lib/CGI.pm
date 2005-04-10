@@ -9,6 +9,7 @@ my $REQUEST_METHOD;
 my $CONTENT_LENGTH;
 my $CONTENT_TYPE;
 my $QUERY_STRING;
+my $QS_DELIMITER = ';';
 
 ## functions
 
@@ -32,6 +33,14 @@ sub referer         returns Str is export { %*ENV<HTTP_REFERER>  }
 sub document_root   returns Str is export { %*ENV<DOCUMENT_ROOT> }
 sub script_name     returns Str is export { 
     %*ENV<SCRIPT_NAME> || $*PROGRAM_NAME
+}
+
+# do we have a way to set "optional" exporting?
+sub set_delimiter(Str $delimiter) is export {
+    unless $delimiter eq (';' | '&') {
+        die "Query string delimiter must be a semi-colon or ampersand";
+    }
+    $QS_DELIMITER = $delimiter;
 }
 
 # utility functions
@@ -90,11 +99,11 @@ sub pack_params returns Str is export {
             @packed_params.push(url_encode($param) ~ '=' ~ url_encode($val));                            
         }
     }
-    return join('&', @packed_params);
+    return join($QS_DELIMITER, @packed_params);
 }
 
 sub unpack_params (Str $data) returns Str is export {
-    my @pairs = split('&', $data);
+    my @pairs = split(rx:perl5{[&;]}, $data);
     for @pairs -> $pair {
         my ($key, $value) = split('=', $pair);
         $key = url_decode($key);
