@@ -29,7 +29,7 @@ $string = q"Jon 'Maddog' Orwant";   # literal single quotes
 $string = q`Jon 'Maddog' Orwant`;   # literal single quotes
 
 # Double interpolated quote strings
-# Interpolate all the following vars: $ vars, @ vars, % vars, & calls,
+# Interpolate all the following: $ vars, @ vars, % vars, & calls,
 # {...} expressions, \t, \n, etc
 $string = "\n";                     # a "newline" character
 $string = "Jon \"Maddog\" Orwant";  # literal double quotes
