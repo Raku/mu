@@ -4,6 +4,7 @@ use strict;
 use Config;
 use File::Spec;
 use File::Basename;
+use IPC::Open3 'open3';
 
 sub WritePugs {
     my $self = shift;
@@ -166,6 +167,16 @@ sub assert_ghc {
       if $ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /perl5/i;
     #$ghc_flags .= " -fno-warn-deprecations -fno-warn-orphans";
     return ($ghc, $ghc_version, $ghc_flags);
+}
+
+sub has_ghc_package {
+    my ($self, $package) = @_;
+	
+	my ($stdin, $stdout, $stderr);
+	my $pid = open3($stdin, $stdout, $stderr, 'ghc-pkg', 'describe', $package);
+	my $status = waitpid($pid, 0);
+	
+	return !$?;
 }
 
 sub fixpaths {

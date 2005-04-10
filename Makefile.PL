@@ -55,6 +55,11 @@ sub set_postamble {
 
     my ($ghc, $ghc_version, $ghc_flags) = assert_ghc();
     $ghc_flags .= ' -dcore-lint -ignore-package eval-0.9.8';
+	if (!has_ghc_package('plugins')) {
+	  print STDERR "You do not have hs-plugins installed; disabling haskell dynamic modules\n";
+	} else {
+	  $ghc_flags .= ' -DPUGS_HAVE_HSPLUGINS=1';
+	}
     my $ghc_output = "-o pugs$Config{_exe} src/Main.hs";
 
     my $pcre = "src/pcre/pcre.o";
