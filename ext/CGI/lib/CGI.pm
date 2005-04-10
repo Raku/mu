@@ -238,6 +238,10 @@ figure out a good way to do this without. Either way it is still TODO.
 
 stevan little, E<lt>stevan@iinteractive.comE<gt>
 
+Autrijus Tang, E<lt>autrijus@autrijus.comE<gt>
+
+Curtis "Ovid" Poe
+ 
 =head1 COPYRIGHT
 
 Copyright (c) 2005. Stevan Little. All rights reserved.
