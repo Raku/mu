@@ -549,7 +549,6 @@ op2Match x (VRef y) = do
     y' <- readRef y
     op2Match x y'
 
-{-
 op2Match x (VSubst (rx@MkRule{ rxGlobal = True }, subst)) = do
     str     <- fromVal x
     rv      <- doReplace (encodeUTF8 str) Nothing
@@ -567,29 +566,26 @@ op2Match x (VSubst (rx@MkRule{ rxGlobal = True }, subst)) = do
                 glob    <- askGlobal
                 let Just matchAV = findSym "$/" glob
                     subs = elems $ mrSubs mr
-                Scalar.store matchAV $ VList $ map VStr subs
+                writeRef matchAV $ VList $ map VStr subs
                 str'    <- fromVal =<< evalExp subst
                 (after', rv) <- doReplace (mrAfter mr) (Just subs)
                 let subs' = fromMaybe subs rv
                 return (concat [mrBefore mr, str', after'], Just subs')
--}
 
-{-
 op2Match x (VSubst (rx@MkRule{ rxGlobal = False }, subst)) = do
     str     <- fromVal x
+    ref     <- fromVal x
     case encodeUTF8 str =~~ rxRegex rx of
         Nothing -> return $ VBool False
         Just mr -> do
             glob <- askGlobal
             let Just matchAV = findSym "$/" glob
                 subs = elems $ mrSubs mr
-            Scalar.store matchAV $ VList $ map (VStr . decodeUTF8) subs
+            writeRef matchAV $ VList $ map (VStr . decodeUTF8) subs
             str' <- fromVal =<< evalExp subst
-            IScalar var <- fromVal x :: Eval ScalarVar
-            Scalar.store var $
+            writeRef ref $
                 (VStr $ decodeUTF8 $ concat [mrBefore mr, str', mrAfter mr])
             return $ VBool True
--}
 
 op2Match x (VRule rx@MkRule{ rxGlobal = True }) = do
     str     <- fromVal x
@@ -605,7 +601,6 @@ op2Match x (VRule rx@MkRule{ rxGlobal = True }) = do
                 rest <- doMatch $ mrAfter mr
                 return $ (tail $ elems (mrSubs mr)) ++ rest
 
-{-
 op2Match x (VRule rx@MkRule{ rxGlobal = False }) = do
     str     <- fromVal x
     case encodeUTF8 str =~~ rxRegex rx of
@@ -615,9 +610,8 @@ op2Match x (VRule rx@MkRule{ rxGlobal = False }) = do
             glob <- askGlobal
             let Just matchAV = findSym "$/" glob
                 subs = elems $ mrSubs mr
-            Scalar.store matchAV $ VList $ map (VStr . decodeUTF8) subs
+            writeRef matchAV $ VList $ map (VStr . decodeUTF8) subs
             return $ VBool True
--}
 
 op2Match x y = op2Cmp vCastStr (==) x y
 

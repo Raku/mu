@@ -64,8 +64,17 @@ class Value n where
     fmapVal :: (n -> n) -> Val -> Val
     fmapVal f = castV . f . vCast
 
+instance Value (IVar VScalar) where
+    fromVal (VRef (MkRef v@(IScalar _))) = return v
+    fromVal (VRef r) = fromVal =<< readRef r
+    fromVal v = return $ constScalar v
+
 instance Value VRef where
     fromVal (VRef v) = return v
+    fromVal (VList v) = do
+        refs <- (mapM fromVal v :: Eval [IVar VScalar])
+        liftIO $ do
+            return . arrayRef =<< (newIORef refs :: IO IArray)
     fromVal v = retError "not a lvalue: " (Val v)
     castV = VRef
 
