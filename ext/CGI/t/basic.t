@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 20;
+plan 21;
 
 =pod
 
@@ -16,10 +16,11 @@ use_ok('CGI');
 is(header(), "Status: 200 OK\nContent-type: text/html\n\n", 'got the header correctly');
 is(redirect("http://www.yahoo.com"), "Status: 302 Moved\nLocation: http://www.yahoo.com\n\n", 'got the header correctly');
 
-is(url_encode('this is a string to encode'), 'this+is+a+string+to+encode', 'got the right encoded string');
+is(url_encode('this is a string to encode'), 'this%20is%20a%20string%20to%20encode', 'got the right encoded string');
 is(url_decode('this+is+a+string+to+decode'), 'this is a string to decode', 'got the right decoded string');
+is(url_decode('this%20is%20a%20string%20to%20decode'), 'this is a string to decode', 'got the right decoded string');
 
-my $query_string = 'test=hello+world&this+is+a+number=1';
+my $query_string = 'test=hello%20world&this%20is%20a%20number=1';
 
 unpack_params($query_string);
 is(pack_params(), $query_string, 'packed the params correctly');

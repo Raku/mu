@@ -14,7 +14,7 @@ my $QUERY_STRING;
 
 # information functions
 
-multi sub param returns Array is export { keys(%PARAMS) }
+multi sub param returns Array is export { %PARAMS.keys }
 multi sub param (Str $key) returns Array is export { (%PARAMS{$key}) }
 
 sub clear_params returns Void is export { %PARAMS = () }
@@ -30,11 +30,18 @@ sub path_info       returns Str is export { %*ENV<PATH_INFO> || '' }
 sub request_uri     returns Str is export { %*ENV<REQUEST_URI>   }
 sub referer         returns Str is export { %*ENV<HTTP_REFERER>  }
 sub document_root   returns Str is export { %*ENV<DOCUMENT_ROOT> }
-sub script_name     returns Str is export { %*ENV<SCRIPT_NAME> || $*PROGRAM_NAME }
+sub script_name     returns Str is export { 
+    %*ENV<SCRIPT_NAME> || $*PROGRAM_NAME
+}
 
 # utility functions
 
-sub header (+$status = '200 OK', +$content_type = 'text/html', +$charset, +$location) returns Str is export {
+sub header (
+    +$status = '200 OK', 
+    +$content_type = 'text/html', 
+    +$charset, 
+    +$location
+) returns Str is export {
     # construct our header
     my $header;
     $header ~= "Status: " ~ $status ~ "\n";
@@ -53,7 +60,9 @@ sub header (+$status = '200 OK', +$content_type = 'text/html', +$charset, +$loca
     return "$header\n\n";
 }
 
-sub redirect (Str $location) returns Str is export { header(status => '302 Moved', location => $location) }
+sub redirect (Str $location) returns Str is export { 
+    header(status => '302 Moved', location => $location) 
+}
 
 sub url_decode (Str $to_decode) returns Str is export {
     my $decoded = $to_decode;
@@ -70,16 +79,15 @@ sub url_encode (Str $to_encode) returns Str is export  {
     my @hex = <0 1 2 3 4 5 6 7 8 9 A B C D E F>;
     my $dec2hex = -> $dec { @hex[int($dec / 16)] ~ @hex[$dec % 16] };    
     $encoded ~~ s:perl5:g/([^-.\w ])/\%$dec2hex(ord($1))/;
-    $encoded ~~ s:perl5:g/ /\+/;
+    $encoded ~~ s:perl5:g/ /%20/;
     return $encoded;
 }
 
 sub pack_params returns Str is export {
     my @packed_params;
-    for (keys %PARAMS) -> $param_key {
-        my $value = %PARAMS{"$param_key"};
+    for (%PARAMS.kv) -> $param, $value {
         for $value -> $val {
-            @packed_params.push(url_encode($param_key) ~ '=' ~ url_encode($val));                            
+            @packed_params.push(url_encode($param) ~ '=' ~ url_encode($val));                            
         }
     }
     return join('&', @packed_params);
