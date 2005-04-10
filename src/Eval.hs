@@ -476,9 +476,9 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         varVal  <- enterLValue $ enterEvalContext "Array" listExp
         f       <- doArray varVal Array.fetchSize
         size    <- f
-        f       <- doArray varVal Array.fetchElem
+        f       <- doArray varVal Array.fetchVal
         elms    <- mapM f [idx .. size-1]
-        retIVar $ IArray elms
+        retVal $ VList elms
     "{}" -> do
         let [listExp, indexExp] = exps
         idxVal  <- enterEvalContext (cxtOfExp indexExp) indexExp
