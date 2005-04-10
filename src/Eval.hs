@@ -540,7 +540,8 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
     doCond f = do
         let [cond, bodyIf, bodyElse] = exps
         vbool     <- enterEvalContext "Bool" cond
-        if (f $ vCast vbool)
+        vb        <- fromVal vbool
+        if (f $ vCast vb)
             then reduce env bodyIf
             else reduce env bodyElse
     -- XXX This treatment of while/until loops probably needs work
@@ -548,7 +549,8 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         let [cond, body] = exps
         enterLoop . fix $ \runBody -> do
             vbool <- enterEvalContext "Bool" cond
-            case f $ vCast vbool of
+            vb    <- fromVal vbool
+            case f $ vCast vb of
                 True -> do
                     rv <- reduce env body
                     case rv of
