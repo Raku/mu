@@ -42,7 +42,7 @@ loadHaskell file = do
     (`mapM` extern) $ \name -> do
         funcstat <- load "/usr/src/SHA1/SHA1__0_0_1.o"  ["/usr/src/pugs/blib6/arch/CORE/pugs/", "/usr/src/SHA1/src/"] ourPackageConfigs ("extern__" ++ name)
         func <- case funcstat of
-            LoadFailure _   -> error "load of extern__"++name++" failed"
+            LoadFailure _   -> error ("load of extern__"++name++" failed")
             LoadSuccess _ v -> return v
         return (name, func)
 
