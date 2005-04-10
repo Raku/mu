@@ -5,7 +5,7 @@ import AST
 
 #undef PUGS_HAVE_TH
 #include "../pugs_config.h"
-#ifndef PUGS_HAVE_TH
+#if !defined(PUGS_HAVE_TH) || !defined(PUGS_HAVE_HSPLUGINS)
 externalizeHaskell :: String -> String -> IO String
 externalizeHaskell  = error "Template Haskell support not compiled in"
 loadHaskell :: FilePath -> IO [(String, [Val] -> Eval Val)]
