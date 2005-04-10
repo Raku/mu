@@ -37,11 +37,10 @@ is(@result3[2], 5, 'got the value we expected');
 is(@result3[3], 7, 'got the value we expected');
 is(@result3[4], 9, 'got the value we expected');
 
-# FIXME parsefail
-my @result4; # = eval 'grep { ($_ % 2) } @list';
-is(+@result4, 5, 'we got a list back'); # unTODOme
-is(@result4[0], 1, 'got the value we expected'); # unTODOme
-is(@result4[1], 3, 'got the value we expected'); # unTODOme
-is(@result4[2], 5, 'got the value we expected'); # unTODOme
-is(@result4[3], 7, 'got the value we expected'); # unTODOme
-is(@result4[4], 9, 'got the value we expected'); # unTODOme
+my @result4 = grep { ($_ % 2) } @list;
+is(+@result4, 5, 'we got a list back'); 
+is(@result4[0], 1, 'got the value we expected'); 
+is(@result4[1], 3, 'got the value we expected'); 
+is(@result4[2], 5, 'got the value we expected'); 
+is(@result4[3], 7, 'got the value we expected'); 
+is(@result4[4], 9, 'got the value we expected'); 
