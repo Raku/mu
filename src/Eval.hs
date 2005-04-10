@@ -445,16 +445,11 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         cxt     <- enterEvalContext "Str" cxtExp
         val     <- enterEvalContext (vCast cxt) exp
         enterEvalContext (vCast cxt) (Val val) -- force casting
-{-
     "\\[]" -> do
         let [exp] = exps
-        v <- enterEvalContext "List" exp
-        vlist <- case v of
-            VList _   -> fromVal v
-            VArray _  -> fromVal v
-            _         -> return [v]
-        retVal $ VRef $ VList vlist
--}
+        v   <- enterEvalContext "List" exp
+        ref <- newObject "Array" v
+        retVal $ VRef ref
     "[]" -> do
         let [listExp, indexExp] = exps
         idxVal  <- enterEvalContext (cxtOfExp indexExp) indexExp
