@@ -18,6 +18,9 @@ perl5('old-fashioned');
 
 sub parameters ($foo) { say $foo }
 parameters('some parameter');
+parameters 'some parameter';
+parameters foo => 'some parameter';
+parameters :foo('some parameter');
 
 sub whole (@names, %flags) {
     for @names -> $name{  # XXX Is whitespace before { not needed?!
