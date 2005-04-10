@@ -5,45 +5,61 @@ import Internals
 
 type Index = Int
 
-class ArrayClass a where
-    fetch       :: a -> Index -> Eval Val
-    store       :: a -> Index -> Val -> Eval ()
+class Class a where
+    fetch       :: a -> Eval VArray
+    fetch av = do
+        size <- fetchSize av
+        forM [0..size] $ \idx -> do
+            sv <- fetchElem av idx
+            readIVar sv
+    store       :: a -> VArray -> Eval ()
+    store av list = do
+        forM_ ([0..] `zip` list) $ \(idx, val) -> do
+            sv <- newScalar val
+            storeElem av idx sv
+        storeSize av (length list)
+    fetchElem   :: a -> Index -> Eval (IVar VScalar)
+    storeElem   :: a -> Index -> IVar VScalar -> Eval ()
     fetchSize   :: a -> Eval Index
+    fetchSize av = do
+        vals <- fetch av
+        return $ length vals
     storeSize   :: a -> Index -> Eval ()
     storeSize av sz = do
         size <- fetchSize av
         case size `compare` sz of
             GT -> mapM_ (const $ pop av) [size .. sz-1]
             EQ -> return () -- no need to do anything
-            LT -> mapM_ (\idx -> store av idx undef) [size .. sz-1]
-    extend      :: a -> Index -> Eval ()
-    extend _ _ = return ()
-    exists      :: a -> Index -> Eval VBool
-    exists av idx = do
-        size <- fetchSize av
-        return $ size > idx
-    delete      :: a -> Index -> Eval ()
-    delete av idx = do
+            LT -> mapM_ (\idx -> storeElem av idx =<< newScalar undef) [size .. sz-1]
+    extendSize  :: a -> Index -> Eval ()
+    extendSize _ _ = return ()
+    deleteElem  :: a -> Index -> Eval ()
+    deleteElem av idx = do
         size <- fetchSize av
         case (size - 1) `compare` idx of
-            GT -> return ()                 -- no such index
-            EQ -> storeSize av (size - 1)   -- truncate
-            LT -> store av idx undef       -- set to undef
+            GT -> return ()                             -- no such index
+            EQ -> storeSize av (size - 1)               -- truncate
+            LT -> storeElem av idx =<< newScalar undef  -- set to undef
+    existsElem  :: a -> Index -> Eval VBool
+    existsElem av idx = do
+        size <- fetchSize av
+        return $ size > idx
     clear       :: a -> Eval ()
     clear av = storeSize av 0
     push        :: a -> [Val] -> Eval ()
     push av vals = do
         size <- fetchSize av
-        mapM_ (uncurry $ store av) $ [size..] `zip` vals
+        forM_ ([size..] `zip` vals) $ \(idx, val) -> do
+            storeElem av idx =<< newScalar val
     pop         :: a -> Eval Val
     pop av = do
         size <- fetchSize av
         if size == 0
             then return undef
             else do
-                val <- fetch av $ size - 1
+                sv <- fetchElem av $ size - 1
                 storeSize av $ size - 1
-                return val
+                readIVar sv
     shift       :: a -> Eval Val
     shift av = do
         vals <- splice av 0 1 []
@@ -53,44 +69,29 @@ class ArrayClass a where
         splice av 0 0 vals
         return ()
     splice      :: a -> Index -> Index -> [Val] -> Eval [Val]
-    splice av off len vals = callCC $ \esc -> do
+    splice av off len vals = do
         size <- fetchSize av
-        if (off < 0)
-            then esc =<< splice av (off + size) len vals
-            else return [] 
-        if (len < 0)
-            then esc =<< splice av off (len + size - off) vals
-            else return []
-        -- ... unfinished ...    
-{-
-    my @result;
-    for (my $i = 0; $i < $len; $i++) {
-        push(@result,$obj->FETCH($off+$i));
-    }
-    $off = $sz if $off > $sz;
-    $len -= $off + $len - $sz if $off + $len > $sz;
-    if (@_ > $len) {
-        # Move items up to make room
-        my $d = @_ - $len;
-        my $e = $off+$len;
-        $obj->EXTEND($sz+$d);
-        for (my $i=$sz-1; $i >= $e; $i--) {
-            my $val = $obj->FETCH($i);
-            $obj->STORE($i+$d,$val);
-        }
-    }
-    elsif (@_ < $len) {
-        # Move items down to close the gap
-        my $d = $len - @_;
-        my $e = $off+$len;
-        for (my $i=$off+$len; $i < $sz; $i++) {
-            my $val = $obj->FETCH($i);
-            $obj->STORE($i-$d,$val);
-        }
-        $obj->STORESIZE($sz-$d);
-    }
-    for (my $i=0; $i < @_; $i++) {
-        $obj->STORE($off+$i,$_[$i]);
-    }
-    return wantarray ? @result : pop @result;
--}
+        let off' = if off < 0 then off + size else off
+            len' = if len < 0 then len + size - off else len
+        result <- mapM (fetchElem av) [off' .. off' + len' - 1]
+        let off = if off > size then size else off
+            len = if off + len > size then size - off else len
+            cnt = length vals
+        case cnt `compare` len of
+            GT -> do
+                -- Move items up to make room
+                let delta = cnt - len
+                extendSize av (size + delta)
+                (`mapM_` reverse [off + len .. size - 1]) $ \idx -> do
+                    val <- fetchElem av idx
+                    storeElem av (idx + delta) val
+            LT -> do
+                let delta = len - cnt
+                (`mapM_` [off + len .. size - 1]) $ \idx -> do
+                    val <- fetchElem av idx
+                    storeElem av (idx - delta) val
+                storeSize av (size - delta)
+            _ -> return ()
+        forM_ ([0..] `zip` vals) $ \(idx, val) -> do
+            storeElem av (off + idx) =<< newScalar val
+        mapM readIVar result

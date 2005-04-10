@@ -3,6 +3,6 @@ module Types.Scalar where
 import {-# SOURCE #-} AST
 import Internals
 
-class ScalarClass a where
-    fetch :: a -> Eval Val
-    store :: a -> Val -> Eval ()
+class Class a where
+    fetch :: a -> Eval VScalar
+    store :: a -> VScalar -> Eval ()

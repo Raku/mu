@@ -14,16 +14,16 @@ module Types where
 
 import {-# SOURCE #-} AST
 import Internals
-import Data.Map     as Map
-import Data.IntMap  as IntMap
-import Types.Array  as Array
-import Types.Handle as Handle
-import Types.Hash   as Hash
-import Types.Scalar as Scalar
-import Types.Code   as Code
-import Types.Rule   as Rule
+import qualified Types.Array  as Array
+import qualified Types.Handle as Handle
+import qualified Types.Hash   as Hash
+import qualified Types.Scalar as Scalar
+import qualified Types.Code   as Code
+import qualified Types.Rule   as Rule
+import qualified Data.Map as Map
+import qualified Data.IntMap as IntMap
 
-type IArray  = IORef (IntMap IScalar)
+type IArray  = IORef [IScalar]
 type IHash   = IORef (Map VStr IScalar)
 type IScalar = IORef Val
 type IScalarConst = Val
@@ -31,7 +31,7 @@ type IHandle  = IORef Handle
 data IHashEnv = IHashEnv deriving Show
 
 -- these implementation allows no destructions
-type ICode   = VSub
+type ICode   = VCode
 type IRule   = VRule
 
 instance Show IArray  where show _ = "{array}"
@@ -42,44 +42,24 @@ instance Show IHandle where show _ = "{handle}"
 -- instance Show IRule   where show _ = "{rule}"
 
 -- GADTs, here we come!
-data IVar where
-    IScalar :: ScalarClass a => a -> IVar
-    IArray  :: ArrayClass  a => a -> IVar
-    IHash   :: HashClass   a => a -> IVar
-    ICode   :: CodeClass   a => a -> IVar
-    IHandle :: HandleClass a => a -> IVar
-    IRule   :: RuleClass   a => a -> IVar
+data VRef where
+    MkRef   :: IVar a -> VRef
 
-varClass (IScalar _) = "Scalar"
-varClass (IArray _)  = "Array"
-varClass (IHash _)   = "Hash"
-varClass (ICode _)   = "Code"
-varClass (IHandle _) = "Handle"
-varClass (IRule _)   = "Rule"
-
-instance ScalarClass IScalar where
+instance Scalar.Class IScalar where
     fetch = liftIO . readIORef
     store = (liftIO .) . writeIORef
 
 -- Constants may be valid scalar as well
-instance ScalarClass IScalarConst where
+instance Scalar.Class IScalarConst where
     fetch = return
     store sv v = retError "Can't modify constant item" (Syn "=" [Val sv, Val v])
 
-instance HashClass IHash where
-instance HashClass IHashEnv where
+instance Hash.Class IHash where
+instance Hash.Class IHashEnv where
 
-instance ArrayClass IArray where
+instance Array.Class IArray where
 
-instance HandleClass IHandle where
+instance Handle.Class IHandle where
 
-instance RuleClass IRule where
-
-
-instance Eq IVar where
-    (==) = const $ const True
-instance Ord IVar where
-    compare _ _ = EQ
-instance Show IVar where
-    show v = "<" ++ varClass v ++ ">"
+instance Rule.Class IRule where
 

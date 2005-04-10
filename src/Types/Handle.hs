@@ -6,7 +6,9 @@ import Internals
 type Layer = VStr
 type FileDescriptor = VInt
 
-class HandleClass a where
+class Class a where
+    fetch       :: a -> Eval VHandle
+    store       :: a -> VHandle -> Eval ()
     write       :: a -> VStr -> Eval VInt
     print       :: a -> [Val] -> Eval VBool
     printf      :: a -> VStr -> [Val] -> Eval VBool

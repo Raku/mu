@@ -5,25 +5,33 @@ import Internals
 
 type Index = VStr
 
-class HashClass a where
-    fetch       :: a -> Index -> Eval Val
-    fetchKeys   :: a -> Eval [Index] -- XXX Pugs addition
-    fetchKeys hv = do
-        first <- firstKey hv
-        (`fix` first) $ \iter rv -> do
-            case rv of
-                Nothing -> return []
-                Just this -> do
-                    next <- nextKey hv this
-                    rest <- iter next
-                    return (this:rest)
-    store       :: a -> Index -> Val -> Eval ()
-    delete      :: a -> Index -> Eval ()
+class Class a where
+    fetch       :: a -> Eval VHash
+    fetch hv = do
+        keys <- fetchKeys hv
+        forM keys $ \key -> do
+            sv  <- fetchElem hv key
+            val <- readIVar sv
+            return (key, val)
+    store       :: a -> VHash -> Eval ()
+    store hv vals = do
+        clear hv
+        forM_ vals $ \(key, val) -> do
+            sv <- newScalar val
+            storeElem hv key sv
+    fetchElem   :: a -> Index -> Eval (IVar VScalar)
+    storeElem   :: a -> Index -> IVar VScalar -> Eval ()
+    fetchKeys   :: a -> Eval [Index]
+    deleteElem  :: a -> Index -> Eval ()
+    existsElem  :: a -> Index -> Eval VBool
+    existsElem hv idx = do
+        keys <- fetchKeys hv
+        return $ idx `elem` keys
     clear       :: a -> Eval ()
     clear hv = do
         keys <- fetchKeys hv
-        mapM_ (delete hv) keys
-    firstKey    :: a -> Eval (Maybe Index)
-    nextKey     :: a -> Index -> Eval (Maybe Index)
+        mapM_ (deleteElem hv) keys
     isEmpty     :: a -> Eval VBool
-
+    isEmpty hv = do
+        keys <- fetchKeys hv
+        return $ null keys 
