@@ -8,6 +8,8 @@ You want to declare a string.
 
 =cut
 
+my $string;
+
 # Single interpolated quote strings
 # Interpolate \\, \q and \' (or whatever)
 $string = '\n';                     # two characters, \ and an n
@@ -35,6 +37,7 @@ $string = "\n";                     # a "newline" character
 $string = "Jon \"Maddog\" Orwant";  # literal double quotes
 
 # Generalized double quoted forms
+my $nick = 'Maddog';
 $string = qq/Jon "$nick" Orwant/;   # literal single quotes
 $string = q2/Jon "$nick" Orwant/;   # explicit adverb in shortened form
 $string = q:2/Jon "$nick" Orwant/;  # full form of double quote syntax
@@ -46,7 +49,7 @@ $string = q{Jon 'Maddog' Orwant};   # literal single quotes
 
 # Multiline strings follow the same generalized q// forms with the addition
 # of a :to adverb and a termination string
-$a = qq:to/EOF/
+my $a = qq:to/EOF/
 	This is a multiline here document terminated by EOF on a line by itself
 	with any amount of whitespace before or after the termination string.
 	Leading whitespace equivalent to the indentation of the delimiter will 
