@@ -2,9 +2,11 @@
 
  [DRAFT] Synopsis 26 - Perl Documentation
 
+
 =head1 AUTHOR
 
 Brian Ingerson <ingy@cpan.org>
+
 
 =head1 VERSION
 
@@ -20,6 +22,7 @@ NOTE: This document is based heavily on the ideas and discussions of
       those involved in the Perldoc project, and lightly on the views of
       the Perl 6 design team proper. In other words, expect things to
       change when Larry gets more involved.
+
 
 =head1 OVERVIEW
 
@@ -68,6 +71,7 @@ The PDOM can be extended to support structures that are beyond the scope
 of traditional Pod.
 
 =back
+
 
 =head1 THE PERLDOC OBJECT MODEL (PDOM)
 
@@ -172,11 +176,21 @@ documents. The serial API looks something like this:
 This API consists of functions that would likely look similar to
 XML/DOM.
 
+Larry has also stated that the documentation of a program will be
+available through the global variable C<%*POD> which I would humbly
+suggest be changed or (at least aliased) to C<%*DOC>. It has not yet
+been determined how all the parts of the PDOM would be accessed through
+this hash.
+
+Perhaps the variable C<$*DOC> could hold a reference to the programs PDOM
+object.
+
+
 =head1 SYNTAX CONTAINMENT
 
-The first thing to tackle is how various interpreters including the Perl
-interpreter distinguish which characters in a file or stream are actual
-Perl code and which ones are Perldoc.
+The first thing to tackle is how various interpreters (including the
+Perl interpreter) distinguish which characters in a file or stream are
+actual Perl code and which ones are Perldoc.
 
 Perldoc attempts to stay within the same bounds as those imposed by the
 Perl 5 interpreter, namely that a section of Perldoc begins with a line
@@ -188,7 +202,7 @@ and ends with the next line matching:
 
     /^=cut.*$/m
 
-Perldoc currently keeps this restriction for two reasons:
+Perldoc currently keeps this same restriction for two reasons:
 
 =over
 
@@ -220,12 +234,12 @@ So the line:
 
     =head2 Something To Say
 
-acts not only as containment starting marker, but as part of the content
-(a heading).
+acts not only as a containment starting marker, but also as part of the
+content (a heading).
 
 =head2 Containment Differences in Perldoc
 
-In general Perldoc is backwards compatible with Pod. This give the Pod
+In general Perldoc is backwards compatible with Pod. This gives the Pod
 dialect a slight advantage in being able to start a section with actual
 content. Any other dialect that wanted this feature would need to have
 similar block markup.
@@ -267,7 +281,7 @@ some thing like this:
     Some interesting point.
     =cut
 
-to be a synonynm for:
+to be a synonym for:
 
     =doc.kwid
     - Something
@@ -286,7 +300,7 @@ which is semantically equivalent to Pod's
 
 The above describes how to divine the Perl from the Doc, which assumes
 they are intertwingled in a Perl source code file. Documentation can
-also live in files by itself.
+also live in a file by itself.
 
 Perldoc considers files ending with C<.pod> to be documentation in the
 Pod dialect and files ending with C<.kwid> to be in the Kwid dialect,
@@ -300,7 +314,9 @@ This implies that the lines like:
     =doc
     =cut
 
-are not necessary in pure Perldoc files.
+are not necessary in pure Perldoc files. In fact, in a Kwid file, they would
+just be plain text.
+
 
 =head1 SYNTAX DIALECTS
 
@@ -326,9 +342,9 @@ some of them wonder why they can't just use the friendlier markup.
 
 =head2 Other Dialects
 
-Pod is now the Perldoc dialect that looks exactly like Pod.
+"Pod" is now the Perldoc dialect that looks exactly like Pod.
 
-Kwid is one Perldoc dialect that takes the best ideas from the various
+"Kwid" is one Perldoc dialect that takes the best ideas from the various
 wiki syntaxes that correspond to ideas in the Pod model. 
 
 Other dialects should be created by people who are neither fond of
@@ -342,11 +358,12 @@ Pod from HTML.
 
 A WYSIWYG Perldoc editor could be thought of as just another dialect.
 
+
 =head1 ESCAPING AND EMBEDDING
 
 In addition to providing syntactical constructs for all the nodes of the
 PDOM, a Perldoc dialect must provide forms for escaping plain text and
-embedding other Kwid dialects (as well as opaque structures).
+embedding other Perldoc dialects (as well as opaque structures).
 
 =head2 Escaping
 
@@ -368,8 +385,8 @@ In the Pod dialect:
     This is verbatim X<<< >>>X
     This is verbatim XE<lt><< >>>X
 
-    The trademark symbol is ...
-    The trademark symbol is E<trade>
+    Perldoc(tm) is fun
+    PerldocE<trade> is fun 
 
 In the Kwid dialect:
 
@@ -386,8 +403,8 @@ In the Kwid dialect:
     This is verbatim {\*zyz*}
     This is verbatim { {*zyz*} }
 
-    The trademark symbol is ...
-    The trademark symbol is &trade&
+    Perldoc(tm) is fun
+    Perldoc&trade; is fun 
     
 Note that none of these is purported to be elegant, but a complete
 syntax requires such mechanisms.
@@ -443,6 +460,7 @@ and here is the opposite:
 
     =cut
 
+
 =head1 CHANGES IN POD
 
 In order to make POD more consistent, the following minor details will change:
@@ -482,6 +500,7 @@ If the Pod dialect is changed significantly by the Perl6 design team, it
 is suggested that there remain a legacy Perl 5 dialect. Hopefully the
 legacy dialect would be called "Pod", and the improved version something
 else. "Mod"??
+
 
 =head1 THE KWID DIALECT
 
@@ -553,6 +572,7 @@ nested lists:
     * The Other
 
 The above in Pod would be horribly long.
+
 
 =head1 PDOM EXTENSIONS
 
