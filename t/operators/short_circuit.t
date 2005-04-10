@@ -5,14 +5,17 @@ require Test;
 
 =pod
 
-Tests that || and && really short circuit, and do not call their rhs when the
-lhs is enough to deduce the result.
+Tests that || and && and // really short circuit, and do not call their
+rhs when the lhs is enough to deduce the result.
+
+Also, test new ^^ operator here: even though it does not short circuit,
+it is closely related to || and && and //.
 
 =cut
 
 # test cases by Andrew Savige
 
-plan 12;
+plan 23;
 
 {
     my $x = 1;
@@ -76,6 +79,49 @@ plan 12;
     $x err $y = 42;
 
     is($y, 42, "'err' operator seems to be working");
+}
+
+{
+    my $x;      # should be undef
+    my $y = 2;
+    $x ^^ ($y = 42);
+
+    is($y, 42, "^^ operator seems to be not short circuiting");
+}
+
+{
+    my $x;      # should be undef
+    my $y = 2;
+    $x xor $y = 42;
+
+    is($y, 42, "xor operator seems to be not short circuiting");
+}
+
+{
+    is(1 && 42,      42, "&&   operator seems to be working");
+    # XXX: Pugs chokes on next one
+    # is(1 and 42,     42, "and  operator seems to be working");
+
+    is(0 || 42,      42, "||   operator seems to be working");
+    # XXX: Pugs chokes on next one
+    # is(0 or 42,      42, "or   operator seems to be working");
+
+    is(undef // 42,  42, "//   operator seems to be working");
+    # XXX: Pugs chokes on next one
+    # is(undef err 42, 42, "err  operator seems to be working");
+
+    # XXX: Pugs chokes on next two
+    # is(0 ^^ 42,  42, "^^  operator seems to be working (one true)");
+    # is(42 ^^ 0,  42, "^^  operator seems to be working (one true)");
+    ok(!(1 ^^ 42),   "^^  operator seems to be working (both true)");
+    ok(!(0 ^^ 0),    "^^  operator seems to be working (both false)");
+    # XXX: Pugs chokes on next two
+    # is(0 xor 42, 42, "xor operator seems to be working (one true)");
+    # is(42 xor 0, 42, "xor operator seems to be working (one true)");
+    is((0 xor 42), 42, "xor operator seems to be working (one true)");
+    is((42 xor 0), 42, "xor operator seems to be working (one true)");
+    ok(!(1 xor 42),  "xor operator seems to be working (both true)");
+    ok(!(0 xor 0),   "xor operator seems to be working (both false)");
 }
 
 {

@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 50;
+plan 51;
 
 # tests various assignment styles
 
@@ -184,7 +184,7 @@ plan 50;
     is($x, '{', '~|= operator');
 }
 
-# XXX: nasty are the next three, causing whole program to terminate
+# XXX: nasty are the next four, causing whole program to terminate
 # with 'cannot cast into a handle'--even though wrapped in eval.
 
 {
@@ -203,5 +203,11 @@ plan 50;
     my $x = "z";
     eval('$x ~^= "C";');
     is($x, 9, '~^= operator');
+}
+
+{
+    my $x = 0;
+    eval('$x ^^= 42;');
+    is($x, 42, '^^= operator');
 }
 
