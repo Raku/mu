@@ -1,3 +1,56 @@
+== Changes for 6.2.0 - April 11, 2005
+
+=== Pugs Internals
+
+* *MAJOR* refactor of ITypes subsystem, we now have:
+   * Nested structures: `$a{1}[2]{3}`
+   * Autovivification: `$a{1}[2]{3} = <b>`
+   * Tied magic: `%ENV<USER>`
+   * Proxy scalars: `%ENV<PATH> ~= '/tmp'`
+   * Slice assignment: `@x[1,2] = <a b>`
+   * Anonymous arrays: `[1..10][0] = 0`
+* We can now link against external Haskell libraries (Inline::Haskell)
+* New builtins; `sum()`, `log()`, `log10()`, `sign()`, `pi()`, `tan()`, `cos()`, `atan()`
+* New type specific builtins; '.kv', '.pairs'
+* Several file test operators: -r, -w, -x, -e, -z, -s, -f, -d
+* Stacked file test operators now (mostly) work
+* added `is rw` trait for subroutine parameters
+* `$*PID` now works on *nix systems 
+* several command line switches implemented; -I -p -n and more.
+* `s:perl5/.../{ <code> }/` works correctly
+* `$var.method $param` is now illegal: must write `$var.method($param)`
+
+=== Tests, Examples and Documentations
+
+* Many new tests and cleaning up of older tests, we now have ...
+* `examples/games/hangman.p6` added which uses the `AUTHORS` as a word list
+* `READTHEM` file added; recommended reading for aspiring Pugs hackers
+* The Perl 6 Cookbook work has begun in `examples/pleac/`
+* Working perl6 version of `lib.pm` added to `ext/lib/`
+* Working perl6 version of `CGI.pm` added to `ext/CGI/`
+* Several Working Drafts added to `docs/`
+   * Apocalypse 20 - Debugging
+   * Synopsis 26 - Perl Documentation
+   * Synopsis 28 - Special Variables
+   * Synopsis 29 - Builtin Functions
+* Early work on Perl 6 Object System in `docs/class/`
+
+=== Bug Fixes
+
+* parens no longer required for; `last()` & `return()`
+* fixed issue with binding invocant parameters
+* fixed parsing issue with `lc $, $y`
+* `$_` now behaves correctly in most cases
+* `exit()` now triggers `END {}` correctly
+* `undef $x` now works correctly ($x is rw)
+* Fixed parsing of default parameters: `sub foo (+$x = 3, +$y = 4)`
+* `say` and `print` now default to `$_`
+* `map { ... } @list` now parses correctly
+* `loop { ... }` no works correctly
+* `int(3) + 4` now parses correctly
+* fix parsefail bug on false unaries
+* `for (@list)` no longer flattens `@list`.
+
 == Changes for 6.0.14 - April 4, 2005
 
 === Pugs Internals
