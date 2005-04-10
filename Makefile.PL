@@ -60,7 +60,7 @@ sub set_postamble {
 	  warn << '.';
 *** Inline Haskell support disabled.  If you want dynamic loading
     of haskell modules, please install the hs-plugins library,
-    dated 2005-04-10 or later.
+    dated 2005-04-10 or later -- remember to "make register" too!
 .
 	} else {
 	  $ghc_flags .= ' -DPUGS_HAVE_HSPLUGINS=1';
