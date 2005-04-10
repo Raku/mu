@@ -9,7 +9,7 @@ Tests for the defined() builtin
 
 =cut
 
-plan 19;
+plan 21;
 
 ok(!defined(undef), 'undef is not defined');
 
@@ -61,3 +61,11 @@ ok($foo.defined, 'variable $foo is now defined (as numeric literal 0)');
 
 undef($foo);
 ok(!$foo.defined, 'undef $foo works');
+
+
+# While porting a Perl 5 solution to QoTW regular #24, I noticed the following bug:
+#   my %a = (a => 1);
+#   defined %a{"b"}; # true!
+my %a = (a => 1);
+ok defined(%a{"a"}),  "defined on a hash (1)";
+ok !defined(%a{"b"}), "defined on a hash (2)";
