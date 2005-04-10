@@ -1,4 +1,4 @@
-#!perl6
+#!/usr/bin/perl6
 
 use v6;
 
