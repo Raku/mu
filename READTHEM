@@ -17,6 +17,13 @@ Algorithms : A Functional Programming Approach - Fethi A. Rabhi, Guy Lapalme
 The Haskell School of Expression                                - Paul Hudak
 Haskell: The Craft of Functional Programming                - Simon Thompson
 
+= Some Online Haskell Resources
+
+HaskellDemo                                     - Shae Erisson (aka "shapr")
+  <http://www.haskell.org/hawiki/HaskellDemo>
+Yet Another Haskell Tutorial                                  - Hal Daume II
+  <http://www.isi.edu/~hdaume/htut/>
+
 = Non-Haskell books
 
 Types and Programming Languages                         - Benjamin C. Pierce
