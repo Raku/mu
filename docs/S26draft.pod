@@ -1,0 +1,594 @@
+=head1 TITLE
+
+ [DRAFT] Synopsis 26 - Perl Documentation
+
+=head1 AUTHOR
+
+Brian Ingerson <ingy@cpan.org>
+
+=head1 VERSION
+
+ Maintainer:    Brian Ingerson <ingy@cpan.org>
+ Date:          9 Apr 2005
+ Last Modified: 9 Apr 2005
+
+This document attempts to describe the documentation capabilities of
+Perl 6. It assumes familiarity with Perl 5 and the Pod (Plain Old
+Documentation) format.
+
+NOTE: This document is based heavily on the ideas and discussions of
+      those involved in the Perldoc project, and lightly on the views of
+      the Perl 6 design team proper. In other words, expect things to
+      change when Larry gets more involved.
+
+=head1 OVERVIEW
+
+Throughout this document, the term "Perldoc" will be used as the generic
+term to describe Perl Documentation rather than the original name "Pod".
+Pod now refers to a specific I<dialect> of Perldoc. With Perldoc,
+there's more than one way to do documentation (TMTOWTDD).
+
+This document covers the following major areas:
+
+=over 4
+
+=item Perldoc Object Model (PDOM)
+
+In Perl 6 there is a Document Object Model for Perldoc. This refers to
+both the fact that all Perl documentation is modeled in a certain
+fashion (or schema), and also to the runtime API for accessing the
+content of documents.
+
+=item Syntax Containment
+
+How Perl syntax is distinguished from Perldoc syntax.
+
+=item Syntax Dialects
+
+Various Perldoc syntax formats that map to the same PDOM.
+
+=item Escaping and Embedding
+
+Each Perldoc dialect syntax must provide mechanisms for escaping markup
+as actual content, and for embedding other dialects within itself.
+
+=item Changes in Pod
+
+There are slight changes to the Perl 5 Pod structure, to make it
+consistent and unambiguous.
+
+=item The Kwid Dialect
+
+Kwid is a completely new syntax based on experience from more modern
+internet social communication.
+
+=item PDOM Extensions
+
+The PDOM can be extended to support structures that are beyond the scope
+of traditional Pod.
+
+=back
+
+=head1 THE PERLDOC OBJECT MODEL (PDOM)
+
+Perldoc is centered on the notion of allowing multiple documentation
+dialects, but insisting that they are parsed into a consistent
+information model. The information can then be exposed or transformed in
+a consistent, well known manner. This will facilitate the creation of
+powerful Perldoc tools.
+
+This information model (known as the Perldoc Object Model or PDOM) is
+almost exactly the one that Perl 5's Pod implicitly defines.
+
+The PDOM can be thought of as a tree of I<nodes>. There are 4 kinds of nodes:
+
+=over
+
+=item Text Nodes
+
+Leaf nodes containing content text.
+
+=item Collection Nodes
+
+Nodes that contain other nodes.
+
+=item Opaque Nodes
+
+Leaf nodes that represent something that is not part of the PDOM, but
+may be resolved by some other process at some other time. This might
+include I<tables>, I<images>, I<diagrams> or I<raw html>. Opaque nodes
+are typically handled by PDOM extensions, described later on.
+
+=item Ignorable Nodes
+
+Nodes for text in the syntax presentation that has no bearing on the
+document's intended content, but must be preserved for applications like
+editors and syntax hilighting. This typically includes extra whitespace
+and throwaway comments.
+
+=back
+
+There are two categories of collection nodes:
+
+=over
+
+=item Block Nodes
+
+These are nodes that correspond in nature to HTML C<DIV>s. They represent
+things like I<paragraphs>, I<verbatim blocks>, I<lists> and I<list items>.
+
+=item Phrase Nodes
+
+These are nodes that correspond in nature to HTML C<SPAN>s. They represent
+things like I<bold>, I<italic>, I<inline code> and I<links>.
+
+=back
+
+Each node has a I<type> that indicates what type of data it holds. The
+following is a list of nodes that exist in the PDOM model:
+
+    - heading1_block
+    - heading2_block
+    - heading3_block
+    - heading4_block
+    - paragraph_block
+    - verbatim_block
+    - comment_block
+    - opaque_block
+    - unordered_list
+    - ordered_list
+    - definition_list
+    - list_item
+    - item_term
+    - item_definition
+    - bold_phrase
+    - italic_phrase
+    - code_phrase
+    - file_phrase
+    - opaque_phrase
+    - document_link
+    - hyper_link
+    - plain_text
+
+=cut
+
+PDOM defines both a serial API and a random access API for accessing
+document content.
+
+=head2 PDOM Serial API
+
+Perldoc allows for SAX-style streaming parsing and emission of
+documents. The serial API looks something like this:
+
+    - start_document(title)  - Start a new Perldoc document
+    - end_document()         - End a Perdoc document
+    - start_element(type)    - Start a new node
+    - end_element(type)      - End a node
+    - characters(text)       - Content text as unicode chars
+    - ignorable(text)        - Non-content text
+
+=head2 PDOM Random Access API
+
+This API consists of functions that would likely look similar to
+XML/DOM.
+
+=head1 SYNTAX CONTAINMENT
+
+The first thing to tackle is how various interpreters including the Perl
+interpreter distinguish which characters in a file or stream are actual
+Perl code and which ones are Perldoc.
+
+Perldoc attempts to stay within the same bounds as those imposed by the
+Perl 5 interpreter, namely that a section of Perldoc begins with a line
+matching the regexp:
+
+    /^=\w.*$/m
+
+and ends with the next line matching:
+
+    /^=cut.*$/m
+
+Perldoc currently keeps this restriction for two reasons:
+
+=over
+
+=item #
+
+Backwards compatability with Perl 5. There is no reason why Perldoc
+dialects and tools cannot be used with Perl 5 today, without any need to
+change the interpreter.
+
+=item #
+
+To gain acceptance with the Perl 6 design team, by not asking for
+anything special to accomplish its goals. That said, the containment
+rules could and should be made smarter by the Perl 6 team.
+
+=back
+
+Pod has a generic identifier to start a Pod section:
+
+    /^=pod.*$/m
+
+Note that the C<=pod> and C<=cut> lines are not considered part of the
+Pod, but simply as containment markers.
+
+However Pod also allows a section to begin with any number of block
+identifiers as long as it starts with an equals sign.
+
+So the line:
+
+    =head2 Something To Say
+
+acts not only as containment starting marker, but as part of the content
+(a heading).
+
+=head2 Containment Differences in Perldoc
+
+In general Perldoc is backwards compatible with Pod. This give the Pod
+dialect a slight advantage in being able to start a section with actual
+content. Any other dialect that wanted this feature would need to have
+similar block markup.
+
+Perldoc extends the notion of containment while still fitting inside the
+Perl5/Pod restrictions. Perldoc offers a generic starting marker of:
+
+    =doc
+
+This is a dialect agnostic version of the traditional:
+
+    =pod
+
+which is still valid in Perldoc but is a shortcut for:
+
+    =doc.pod
+
+and
+
+    =doc.kwid
+
+is long for:
+
+    =kwid
+
+The term "doc" is more readily understood by those readers not familiar
+with Pod or Kwid.
+
+If C<=doc> has no dialect qualifier, it is assumed to be the dialect of
+the previous section. If there is no previous section, the dialect
+should be autodetected.
+
+All of the text following the C<=doc> marker but on the same line is
+considered to be the first line of the actual content. This allows Kwid to do
+some thing like this:
+
+    =doc - Something
+
+    Some interesting point.
+    =cut
+
+to be a synonynm for:
+
+    =doc.kwid
+    - Something
+
+    Some interesting point.
+    =cut
+ 
+which is semantically equivalent to Pod's
+
+    =item Something
+
+    Some interesting point.
+    =cut
+
+=head2 File Containment
+
+The above describes how to divine the Perl from the Doc, which assumes
+they are intertwingled in a Perl source code file. Documentation can
+also live in files by itself.
+
+Perldoc considers files ending with C<.pod> to be documentation in the
+Pod dialect and files ending with C<.kwid> to be in the Kwid dialect,
+etc. A perldoc parser can look to the file extension for a dialect hint,
+if no other clue is provided.
+
+This implies that the lines like:
+
+    =pod
+    =kwid
+    =doc
+    =cut
+
+are not necessary in pure Perldoc files.
+
+=head1 SYNTAX DIALECTS
+
+In the spirit of TMTOWTDI, Perldoc allows an author to chose a
+documentation syntax of their choice without needing to worry whether
+downstream processes and tools will be able to use it properly. These
+variations of syntax are referred to as I<Perldoc Dialects>.
+
+=head2 Background and Rationale
+
+Pod was created in a time before modern day phenomenons like wikis
+existed. Wikis are similar to Pod in that that they ask authors to write
+content prose and structural/formatting markup in an all text format
+that is simpler and less foreboding than HTML. Then some program
+converts the text into a nicely readable format like HTML.
+
+Wiki syntax comes in dozens of varieties, but the main theme is "make
+the unformatted text feel as close as possible to the formatted text,
+because most of the people using wikis will not be technical". Normal
+non-programmmer folk aren't all that good at picking out cryptic markup
+from content. And while the authors of most Perldoc are very technical,
+some of them wonder why they can't just use the friendlier markup.
+
+=head2 Other Dialects
+
+Pod is now the Perldoc dialect that looks exactly like Pod.
+
+Kwid is one Perldoc dialect that takes the best ideas from the various
+wiki syntaxes that correspond to ideas in the Pod model. 
+
+Other dialects should be created by people who are neither fond of
+Pod nor Kwid.
+
+An XML dialect would be trivial to define since the PDOM can be thought
+of as being an XML schema.
+
+Likewise an HTML dialect would be useful as a formal syntax for creating
+Pod from HTML.
+
+A WYSIWYG Perldoc editor could be thought of as just another dialect.
+
+=head1 ESCAPING AND EMBEDDING
+
+In addition to providing syntactical constructs for all the nodes of the
+PDOM, a Perldoc dialect must provide forms for escaping plain text and
+embedding other Kwid dialects (as well as opaque structures).
+
+=head2 Escaping
+
+Escaping means to mark characters which are semantically part of the
+content of the document but might otherwise be construed as markup.
+
+Here are some examples where the first line is ambiguous or wrong and the
+following line(s) fixes it.
+
+In the Pod dialect:
+
+    =head1 Not a heading
+    E<eq>head1 Not a heading
+
+    This equation C<a > b>
+    This equation C<a E<gt> b>
+    This equation C<< a > b >>
+
+    This is verbatim X<<< >>>X
+    This is verbatim XE<lt><< >>>X
+
+    The trademark symbol is ...
+    The trademark symbol is E<trade>
+
+In the Kwid dialect:
+
+    = Not a heading
+    \= Not a heading
+
+    Not a link: [title|page/section]
+    Not a link: \[title|page/section]
+
+    This is not huggy but should be *bold*/italic/
+    This is not huggy but should be {*bold*}{/italic/}
+
+    This is verbatim {*zyz*}
+    This is verbatim {\*zyz*}
+    This is verbatim { {*zyz*} }
+
+    The trademark symbol is ...
+    The trademark symbol is &trade&
+    
+Note that none of these is purported to be elegant, but a complete
+syntax requires such mechanisms.
+
+=head2 Embedding
+
+Each dialect must have a mechanism to switch parsing to another dialect and
+back again.
+
+Using Pod and Kwid again, here is an example of Pod embedding Kwid:
+
+    =doc.pod
+
+    =head2 Here is a list
+
+    =begin kwid
+
+    * one
+    * two
+    * three
+
+    =end kwid
+
+    That was a B<list>!
+
+    =cut
+
+and here is the opposite:
+
+    =doc.kwid
+
+    == Here is a list
+
+    .pod
+    =over
+
+    =item * 
+
+    one
+
+    =item *
+
+    two
+
+    =item * 
+
+    three
+
+    =back
+    ..pod
+
+    That was a *list*!
+
+    =cut
+
+=head1 CHANGES IN POD
+
+In order to make POD more consistent, the following minor details will change:
+
+=over
+
+=item Allow named hyperlinks
+
+Pod allows this syntax:
+
+    L<text to show|document_name>
+
+for named links to other documents. It should also allow:
+
+    L<text to show|http://example.com/foo.html>
+
+for named hyperlinks.
+
+=item C<=over> and C<=back> will be deprecated.
+
+This markers are ambiguous as indenters and list markers.
+
+Instead we will have:
+
+    =begin list
+
+    =end list
+
+with special syntax to make them less verbose.
+
+=back
+
+For more information on how the Pod dialect might change, see
+L<http://www.nntp.perl.org/group/perl.perl6.language/19851>.
+
+If the Pod dialect is changed significantly by the Perl6 design team, it
+is suggested that there remain a legacy Perl 5 dialect. Hopefully the
+legacy dialect would be called "Pod", and the improved version something
+else. "Mod"??
+
+=head1 THE KWID DIALECT
+
+The Kwid dialect is more formally described here:
+L<http://autrijus.org/tmp/perlkwid.kwid>
+
+The quickest way to explain Kwid is simply to show a side by side Pod/Kwid
+cheat sheet:
+
+    =head1 Big Thing                    = Big Thing
+
+    =head4 Small Thing                  ==== Small Thing
+
+    A paragraph of                      A paragraph of
+    plain text.                         plain text.
+
+        # verbatim                          # verbatim
+        sub v {                             sub v {
+            shift;                              shift;
+        }                                   }
+
+    =over                               * foo
+                                        * bar
+    =item *
+
+    foo
+
+    =item *
+
+    bar
+
+    =back
+
+    =over                               - foo
+
+    =item foo                           Foo is free
+                                        - bar  Bar is he
+    Foo is free
+
+    =item bar
+
+    Bar is he
+
+    =over
+
+    Something B<bold>!                  Something *bold*!
+
+    Something I<italic>!                Something /italic/!
+
+    Some code C<E = M * C ^ 2>!         Some code `E = M * C ^ 2`!
+
+    =begin opaque                       .opaque
+
+    =end opaque                         ..opaque
+
+    =for opaque                         .:opaque
+
+This is just a small example to give you an idea. Kwid is really nice for
+nested lists:
+
+    * This
+    ++ One
+    --- One  Is the /lonelist/ integer
+    --- Won  The Race
+    ++ Two
+    --- Two  For the show
+    --- Too  Far from here
+    * That
+    * The Other
+
+The above in Pod would be horribly long.
+
+=head1 PDOM EXTENSIONS
+
+All Perldoc dialects and tools are required to support all of the core
+constructs defined in the PDOM schema. It is assumed that data in any
+dialect should be able to round trip semantically when converted to any
+other dialect and back.
+
+It is also intended that there will be extension libraries to add syntax
+parsing, schema definition, and formatting/conversion capabilities for
+various constructs that fall outside of the core PDOM.
+
+Tables are a prime example. While too unweildy to impose on every tool,
+tables are useful in many documentation applications. So there will be
+an extension that handle tables.
+
+If tools are not available at a particular stage of processing an
+extension construct, that construct will be reported as an opaque object
+by the PDOM. It is entirely possible that a further stage of proceesing
+will be able to move the opaque object into some representation dictated
+by the extension's schema.
+
+Pod and Kwid define marker syntax for I<block> level extensions.
+
+    =begin foo
+    =end foo
+    .foo
+    ..foo
+
+Kwid also defines syntax for I<phrase> level extensions.
+
+    This was written: {date: 2005-04-09}
+
+So dates can have extension processors to do fancy things. Pod should have
+such a generic phrase syntax:
+
+    This was written: <DATE><2005-04-09>
+
+or something similar.
