@@ -6,10 +6,12 @@ my $string = "an apple a day";
 
 # Does Scalar.chars returns array in array context?
 my @array = $string.chars;
+# XXX This is list context, not array context.
 
 # unpack() not yet documented in S29 as of this writing. Currently this
 # example clearly won't work for unicode
 @array = unpack("C*", $string);
+# XXX With s/C/U/ should do unicode, even in Perl 5 :)
 
 # loop through the [unicode] chars
 for $string.chars { 
@@ -29,6 +31,7 @@ for $string.codes -> $univalue { # is .codes right for getting unicode nums?
     $sum += $univalue;
 }
 say "sum is $sum";
+# XXX Perhaps use sum($string.codes) or even $string.codes.sum?
 
 #-----------------------------
 $sum = unpack("%32C*", $string);
@@ -45,7 +48,7 @@ for =<> -> $line {
 	$checksum += unpack("%16C*", $line); # unpack not documented yet
 }
 $checksum %= (2 ** 16) - 1;
-say "$checksum";
+say "$checksum";  # XXX redundant quotes
 
 #-----------------------------
 #% perl sum /etc/termcap

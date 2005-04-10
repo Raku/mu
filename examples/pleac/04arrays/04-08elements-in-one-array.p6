@@ -8,6 +8,9 @@ You want to find elements in one array but not in another.
 
 =cut
 
+# XXX Q::Sp has eigenstates(any(@a) == none(@b)), but I recall having read that
+# junctions in Perl 6 have nothing to do with set calculations.
+
 my @a = (1,2,3,4,5);
 my @b = (3,5);
 
