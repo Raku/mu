@@ -20,8 +20,7 @@ class Class a where
             storeVal hv key val
     fetchElem   :: a -> Index -> Eval (IVar VScalar) -- autovivify
     fetchElem hv key = do
-        val <- fetchVal hv key
-        return $ constScalar val
+        return $ proxyScalar (fetchVal hv key) (storeVal hv key)
     storeElem   :: a -> Index -> IVar VScalar -> Eval () -- binding
     storeElem hv idx sv = do
         val <- readIVar sv
