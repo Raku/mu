@@ -54,7 +54,7 @@ sub set_postamble {
     my @srcfiles = grep !/MainCC/, map glob("$_/*.*hs"), @srcdirs;
 
     my ($ghc, $ghc_version, $ghc_flags) = assert_ghc();
-    $ghc_flags .= ' -debug -dcore-lint -ignore-package eval-0.9.8';
+    $ghc_flags .= ' -dcore-lint -ignore-package eval-0.9.8';
     my $ghc_output = "-o pugs$Config{_exe} src/Main.hs";
 
     my $pcre = "src/pcre/pcre.o";
