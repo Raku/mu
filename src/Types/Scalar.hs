@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -fglasgow-exts #-}
+
 module Types.Scalar where
 
 import {-# SOURCE #-} AST

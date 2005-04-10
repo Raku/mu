@@ -13,12 +13,12 @@ module Prim where
 import Internals
 import Junc
 import AST
+import Types
 import Pretty
 import Parser
 import External
-import qualified Data.Map as Map
 import qualified Data.Set as Set
-import qualified Data.IntMap as Array
+import qualified Types.Array  as Array
 
 op0 :: Ident -> [Val] -> Eval Val
 -- op0 ","  = return . VList . concatMap vCast
@@ -46,27 +46,26 @@ op0 other = \x -> return $ VError ("unimplemented listOp: " ++ other) (App other
 
 retEmpty :: ContT Val (ReaderT Env IO) Val
 retEmpty = do
-    cxt <- asks envContext
-    return $ case cxt of
-        "List"  -> VList []
-        "Array" -> VArray Array.empty
-        "Hash"  -> VHash Map.empty
-        _       -> VUndef
+    ifContextIsa "List"
+        (return $ VList [])
+        (return VUndef)
 
 op1 :: Ident -> Val -> Eval Val
 op1 "!"    = return . fmapVal not
-op1 "chop" = \mv -> do
-    val <- liftIO $ readIORef (vCast mv)
+op1 "chop" = \x -> do
+    ref <- fromVal x
+    val <- readRef ref
     case vCast val of
         ""  -> return VUndef
         str -> do
-            liftIO $ writeIORef (vCast mv) $ VStr (init str)
+            writeRef ref $ VStr (init str)
             return $ VStr [last str]
-op1 "chomp" = \mv -> do
-    val <- liftIO $ readIORef (vCast mv)
+op1 "chomp" = \x -> do
+    ref <- fromVal x
+    val <- readRef ref
     case vCast val of
         str@(_:_) | last str == '\n' -> do
-            liftIO $ writeIORef (vCast mv) $ VStr (init str)
+            writeRef ref $ VStr (init str)
             return $ VStr [last str]
         _   -> return VUndef
 op1 "lc" = return . VStr . (map toLower) . vCast
@@ -75,9 +74,10 @@ op1 "lcfirst" = return . VStr .
 op1 "uc" = return . VStr . (map toUpper) . vCast
 op1 "ucfirst" = return . VStr .
                 (\x -> case x of { (a:as) -> toUpper a : as ; a -> a}) . vCast
-op1 "undef" = \mv -> do
-    unless (isNothing $ vCast mv) $ do
-        liftIO $ writeIORef (vCast mv) $ VUndef
+op1 "undef" = \x -> do
+    unless (isNothing $ vCast x) $ do
+        ref <- fromVal x
+        clearRef ref
     return VUndef
 op1 "+"    = return . op1Numeric id
 op1 "abs"  = return . op1Numeric abs
@@ -85,10 +85,10 @@ op1 "cos"  = op1Floating cos
 op1 "sin"  = op1Floating sin
 op1 "tan"  = op1Floating tan
 op1 "sqrt" = op1Floating sqrt
-op1 "post:++" = \mv -> do
-    val <- readMVal mv
-    ref <- fromVal mv
-    liftIO $ writeIORef ref $ case val of
+op1 "post:++" = \x -> do
+    val <- readMVal x
+    ref <- fromVal x
+    writeRef ref $ case val of
         (VStr str)  -> VStr $ strInc str
         _           -> op1Numeric (+1) (vCast val)
     case val of
@@ -97,9 +97,10 @@ op1 "post:++" = \mv -> do
 op1 "++"   = \mv -> do
     op1 "post:++" mv
     readMVal mv
-op1 "post:--"   = \mv -> do
-    val <- liftIO $ readIORef (vCast mv)
-    liftIO $ writeIORef (vCast mv) $
+op1 "post:--"   = \x -> do
+    val <- readMVal x
+    ref <- fromVal x
+    writeRef ref $
         op1Numeric (\x -> x - 1) (vCast val)
     return val
 op1 "--"   = \mv -> do
@@ -121,7 +122,7 @@ op1 "int"  = return . VInt . vCast
 op1 "+^"   = return . VInt . (toInteger . (complement :: Word -> Word)) . vCast
 op1 "~^"   = return . VStr . mapStr complement . vCast
 op1 "?^"   = op1 "!"
-op1 "\\"   = return . VRef
+op1 "\\"   = return . VRef . scalarRef -- XXX
 op1 "post:..."  = return . op1Range
 op1 "not"  = op1 "!"
 op1 "true" = op1 "?"
@@ -282,7 +283,6 @@ op1 "=" = \v -> do
         (return . VList . map (VStr . (++ "\n")) . lines =<< liftIO (hGetContents fh))
         (return . VStr . (++ "\n") =<< liftIO (hGetLine fh))
     where
-    handleOf (VRef x) = handleOf x
     handleOf (VPair (_, x)) = handleOf x
     handleOf (VList [VStr x]) = liftIO $ openFile x ReadMode
     handleOf (VList []) = do
@@ -293,8 +293,10 @@ op1 "=" = \v -> do
             else handleOf (VList [VStr $ vCast (head files)]) -- XXX wrong
     handleOf v = fromVal v
 op1 "ref"   = return . VStr . valType
+{-
 op1 "pop"   = op1Pop (last, init)
 op1 "shift" = op1Pop (head, tail)
+-}
 op1 "pick"  = op1Pick
 op1 "sum"   = op1Sum
 op1 "chr"   = return . op1Chr
@@ -308,9 +310,8 @@ op1 other   = return . (\x -> VError ("unimplemented unaryOp: " ++ other) (App o
 op1Values :: Val -> Val
 op1Values (VJunc j) = VList $ Set.elems $ juncSet j
 op1Values (VPair (_, v)) = VList $ [v] -- lwall: a pair is a really small hash.
-op1Values v@(VHash _) = VList $ map snd $ (vCast :: Val -> [VPair]) v
-op1Values v@(VList _) = VList $ map snd $ (vCast :: Val -> [VPair]) v -- hope it's a list of pairs
-op1Values (VRef v) = op1Values v
+-- op1Values v@(VHash _) = VList $ map snd $ (vCast :: Val -> [VPair]) v
+-- op1Values v@(VList _) = VList $ map snd $ (vCast :: Val -> [VPair]) v -- hope it's a list of pairs
 op1Values v = VError "values not defined" (Val v)
 
 -- what's less cheesy than read?
@@ -351,9 +352,9 @@ op1Pick (VJunc (Junc JAny _ set)) = do -- pick mainly works on 'any'
 op1Pick (VJunc (Junc _ _ set)) =
     if (Set.cardinality $ set) > 1 then return VUndef
     else return $ head $ Set.elems set
-op1Pick (VRef v) = op1Pick v
 op1Pick v = return $ VError "pick not defined" (Val v)
 
+{-
 op1Pop (fPick, fRem) list = do
     let array = vCast list
     old <- readMVal array
@@ -363,6 +364,7 @@ op1Pop (fPick, fRem) list = do
         else do
             liftIO $ writeIORef (vCast array) $ VList $ fRem oldList
             return $ fPick oldList
+-}
 
 op1Sum list = do
     vals <- mapM readMVal (vCast list)
@@ -375,7 +377,7 @@ op1Print f v@(VHandle _) = do
 op1Print f v = do
     vals <- case v of
         VList _   -> fromVal v
-        VArray _  -> fromVal v
+--      VArray _  -> fromVal v
         _         -> return [v]
     let (handle, vs) = case vals of
                         (VHandle h:vs)  -> (h, vs)
@@ -387,9 +389,6 @@ op1Print f v = do
 bool2n v = if v
   then 1
   else 0
-
-tryIO :: (MonadIO m) => a -> IO a -> m a
-tryIO err = liftIO . (`catch` (const $ return err))
 
 doBoolIO f v = do
     ok <- tryIO False $ do
@@ -431,13 +430,13 @@ retEvalResult fatal val = do
     let Just errSV = findSym "$!" glob
     case val of
         VError _ (Val errval) | not fatal  -> do
-            writeMVal errSV errval
+            writeRef errSV errval
             retEmpty
         VError _ _ | not fatal  -> do
-            writeMVal errSV (VStr $ show val)
+            writeRef errSV (VStr $ show val)
             retEmpty
         _ -> do
-            writeMVal errSV VUndef
+            writeRef errSV VUndef
             return val
 
 mapStr :: (Word8 -> Word8) -> [Word8] -> String
@@ -519,8 +518,8 @@ op2 "nor"= op2 "!!"
 op2 "grep" = op2Grep
 op2 "map"  = op2Map
 op2 "join" = op2Join
-op2 "unshift" = op2Push (flip (++))
-op2 "push" = op2Push (++)
+op2 "unshift" = op2Array Array.unshift
+op2 "push" = op2Array Array.push
 op2 "split"= \x y -> do
     val <- fromVal x
     str <- fromVal y
@@ -546,10 +545,11 @@ op2 "exp" = \x y -> return . VNum $ case (vCast y) of
 op2 other = \x y -> return $ VError ("unimplemented binaryOp: " ++ other) (App other [Val x, Val y] [])
 
 -- XXX - need to generalise this
-op2Match x y@(MVal _) = do
-    y' <- fromVal y
+op2Match x (VRef y) = do
+    y' <- readRef y
     op2Match x y'
 
+{-
 op2Match x (VSubst (rx@MkRule{ rxGlobal = True }, subst)) = do
     str     <- fromVal x
     rv      <- doReplace (encodeUTF8 str) Nothing
@@ -567,12 +567,14 @@ op2Match x (VSubst (rx@MkRule{ rxGlobal = True }, subst)) = do
                 glob    <- askGlobal
                 let Just matchAV = findSym "$/" glob
                     subs = elems $ mrSubs mr
-                writeMVal matchAV $ VList $ map VStr subs
+                Scalar.store matchAV $ VList $ map VStr subs
                 str'    <- fromVal =<< evalExp subst
                 (after', rv) <- doReplace (mrAfter mr) (Just subs)
                 let subs' = fromMaybe subs rv
                 return (concat [mrBefore mr, str', after'], Just subs')
+-}
 
+{-
 op2Match x (VSubst (rx@MkRule{ rxGlobal = False }, subst)) = do
     str     <- fromVal x
     case encodeUTF8 str =~~ rxRegex rx of
@@ -581,11 +583,13 @@ op2Match x (VSubst (rx@MkRule{ rxGlobal = False }, subst)) = do
             glob <- askGlobal
             let Just matchAV = findSym "$/" glob
                 subs = elems $ mrSubs mr
-            writeMVal matchAV $ VList $ map (VStr . decodeUTF8) subs
+            Scalar.store matchAV $ VList $ map (VStr . decodeUTF8) subs
             str' <- fromVal =<< evalExp subst
-            writeMVal (vCast x) $
+            IScalar var <- fromVal x :: Eval ScalarVar
+            Scalar.store var $
                 (VStr $ decodeUTF8 $ concat [mrBefore mr, str', mrAfter mr])
             return $ VBool True
+-}
 
 op2Match x (VRule rx@MkRule{ rxGlobal = True }) = do
     str     <- fromVal x
@@ -601,6 +605,7 @@ op2Match x (VRule rx@MkRule{ rxGlobal = True }) = do
                 rest <- doMatch $ mrAfter mr
                 return $ (tail $ elems (mrSubs mr)) ++ rest
 
+{-
 op2Match x (VRule rx@MkRule{ rxGlobal = False }) = do
     str     <- fromVal x
     case encodeUTF8 str =~~ rxRegex rx of
@@ -610,8 +615,9 @@ op2Match x (VRule rx@MkRule{ rxGlobal = False }) = do
             glob <- askGlobal
             let Just matchAV = findSym "$/" glob
                 subs = elems $ mrSubs mr
-            writeMVal matchAV $ VList $ map (VStr . decodeUTF8) subs
+            Scalar.store matchAV $ VList $ map (VStr . decodeUTF8) subs
             return $ VBool True
+-}
 
 op2Match x y = op2Cmp vCastStr (==) x y
 
@@ -661,13 +667,14 @@ op3 other = \x y z -> return $ VError ("unimplemented 3-ary op: " ++ other) (App
 
 op4 :: Ident -> Val -> Val -> Val -> Val -> Eval Val
 op4 "substr" = \x y z w -> do
-    str <- fromMVal x
+    str <- fromVal x
     pos <- fromVal y
     let len | isJust (vCast z) = vCast z
             | otherwise        = length str
     let (pre, result, post) = doSubstr str pos len
-    when (isJust (vCast w) && result /= VUndef) $
-        liftIO $ writeIORef (vCast x) $ VStr $ pre ++ (vCast w) ++ post
+    when (isJust (vCast w) && result /= VUndef) $ do
+        var <- fromVal x
+        writeRef var (VStr $ pre ++ vCast w ++ post)
     return result
     where
     doSubstr :: VStr -> Int -> Int -> (VStr, Val, VStr)
@@ -676,7 +683,6 @@ op4 "substr" = \x y z w -> do
         | pos < 0   = doSubstr str (length str + pos) len
         | len < 0   = doSubstr str pos (length str - pos + len)
         | otherwise = ((take pos str), VStr (take len $ drop pos str), (drop (pos + len) str))
-
 op4 other = \x y z w -> return $ VError ("unimplemented 4-ary op: " ++ other) (App other [Val x, Val y, Val z, Val w] [])
 
 op2Hyper op x y
@@ -689,16 +695,16 @@ op2Hyper op x y
     | otherwise
     = return $ VError "Hyper OP only works on lsits" (Val VUndef)
 
-op2Push f inv args = do
-    let array = vCast inv
-        rest = vCast args
-    old <- readMVal array
-    new <- mapM readMVal rest
-    let vals = vCast old `f` concatMap vCast new
-    liftIO $ writeIORef (vCast array) $ VList vals
-    return $ VInt $ genericLength vals
+op2Array :: (forall a. Array.Class a => a -> [Val] -> Eval ()) -> Val -> Val -> Eval Val
+op2Array f x y = do
+    push <- doArray x f
+    vals <- fromVal y
+    push vals
+    size <- doArray x Array.fetchSize
+    idx  <- size
+    return $ castV idx
 
-op2Grep sub@(VSub _) list = op2Grep list sub
+op2Grep sub@(VCode _) list = op2Grep list sub
 op2Grep list sub = do
     vals <- (`filterM` vCast list) $ \x -> do
         evl <- asks envEval
@@ -707,7 +713,7 @@ op2Grep list sub = do
         return $ vCast rv
     return $ VList vals
 
-op2Map sub@(VSub _) list = op2Map list sub
+op2Map sub@(VCode _) list = op2Map list sub
 op2Map list sub = do
     vals <- (`mapM` vCast list) $ \x -> do
         evl <- asks envEval
@@ -799,7 +805,6 @@ op1Floating f v = do
 op1Numeric :: (forall a. (Num a) => a -> a) -> Val -> Val
 op1Numeric f VUndef     = VInt $ f 0
 -- op1Numeric f (MVal x)   = op1Numeric f (castV x)
-op1Numeric f (VRef x)   = op1Numeric f x
 op1Numeric f (VInt x)   = VInt $ f x
 op1Numeric f l@(VList _)= VInt $ f (vCast l)
 op1Numeric f (VRat x)   = VRat $ f x
@@ -817,24 +822,25 @@ op2Numeric f x y
         y' <- fromVal y
         return . VNum $ f x' y'
 
-primOp :: String -> String -> Params -> String -> Symbol Val
-primOp sym assoc prms ret = SymVal SOur name sub
+primOp :: String -> String -> Params -> String -> Symbol VRef
+primOp sym assoc prms ret = SymVar SOur name sub
     where
     name | isAlpha (head sym)
          , fixity == "prefix"
          = "&*" ++ sym
          | otherwise
          = "&*" ++ fixity ++ (':':sym)
-    sub  = VSub $ Sub { isMulti     = True
-                      , subName     = sym
-                      , subPad      = []
-                      , subType     = SubPrim
-                      , subAssoc    = assoc
-                      , subParams   = prms
-                      , subBindings = []
-                      , subReturns  = ret
-                      , subFun      = (Prim f)
-                      }
+    sub  = codeRef $ Sub
+        { isMulti     = True
+        , subName     = sym
+        , subPad      = []
+        , subType     = SubPrim
+        , subAssoc    = assoc
+        , subParams   = prms
+        , subBindings = []
+        , subReturns  = ret
+        , subFun      = (Prim f)
+        }
     symStr = encodeUTF8 sym
     f :: [Val] -> Eval Val
     f    = case (arity :: Integer) of

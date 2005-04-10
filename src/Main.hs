@@ -88,7 +88,9 @@ run []                          = do
 
 -- convenience functions for GHCi
 eval :: String -> IO ()
-eval = runProgramWith id (putStrLn . pretty) "<interactive>" []
+eval prog = do
+    args <- getArgs
+    runProgramWith id (putStrLn . pretty) "<interactive>" args prog
 
 parse :: String -> IO ()
 parse = doParse "-"

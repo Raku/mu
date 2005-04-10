@@ -54,9 +54,14 @@ sub set_postamble {
     my @srcfiles = grep !/MainCC/, map glob("$_/*.*hs"), @srcdirs;
 
     my ($ghc, $ghc_version, $ghc_flags) = assert_ghc();
-    $ghc_flags .= ' -dcore-lint -ignore-package eval-0.9.8';
+    $ghc_flags .= ' -ignore-package eval-0.9.8';
+    # $ghc_flags .= ' -dcore-lint -ignore-package eval-0.9.8';
 	if (!has_ghc_package('plugins')) {
-	  print STDERR "You do not have hs-plugins installed; disabling haskell dynamic modules\n";
+	  warn << '.';
+*** Inline Haskell support disabled.  If you want dynamic loading
+    of haskell modules, please install the hs-plugins library,
+    dated 2005-04-10 or later.
+.
 	} else {
 	  $ghc_flags .= ' -DPUGS_HAVE_HSPLUGINS=1';
 	}

@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -fglasgow-exts #-}
+
 module Types.Code where
 
 import {-# SOURCE #-} AST

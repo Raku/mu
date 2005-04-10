@@ -14,6 +14,7 @@ import Run.Args
 import Internals
 import Config
 import AST
+import Types
 import Eval
 import Prim
 import qualified Data.Map as Map
@@ -54,47 +55,46 @@ runComp comp = do
 prepareEnv :: VStr -> [VStr] -> IO Env
 prepareEnv name args = do
     environ <- getEnvironment
-    let envHV = Map.fromList $ [ (k, VStr v) | (k, v) <- environ ]
-    let confHV = Map.fromList $ [ (k, VStr v) | (k, v) <- Map.toList config ]
+    let confHV = [ (k, VStr v) | (k, v) <- Map.toList config ]
     exec    <- getArg0
     libs    <- getLibs environ
     pid     <- getProcessID
-    execSV  <- newMVal $ VStr exec
-    progSV  <- newMVal $ VStr name
-    pidSV   <- newMVal $ VInt $ toInteger pid
-    endAV   <- newMVal $ VList []
-    matchAV <- newMVal $ VList []
-    incAV   <- newMVal $ VList (map VStr libs)
-    argsAV  <- newMVal $ VList (map VStr args)
-    inGV    <- newMVal $ VHandle stdin
-    outGV   <- newMVal $ VHandle stdout
-    errGV   <- newMVal $ VHandle stderr
-    errSV   <- newMVal $ VStr ""
-    defSV   <- newMVal $ VUndef
+    pidSV   <- newScalar (VInt $ toInteger pid)
+    execSV  <- newScalar (VStr exec)
+    progSV  <- newScalar (VStr name)
+    endAV   <- newArray []
+    matchAV <- newArray []
+    incAV   <- newArray (map VStr libs)
+    argsAV  <- newArray (map VStr args)
+    inGV    <- newHandle stdin
+    outGV   <- newHandle stdout
+    errGV   <- newHandle stderr
+    errSV   <- newScalar (VStr "")
+    defSV   <- newScalar undef
     let subExit = \x -> case x of
             [x] -> op1 "exit" x
-            _   -> op1 "exit" VUndef
+            _   -> op1 "exit" undef
     emptyEnv
-        [ SymVal SGlobal "@*ARGS"       argsAV
-        , SymVal SGlobal "@*INC"        incAV
-        , SymVal SGlobal "$*EXECUTABLE_NAME"    execSV
-        , SymVal SGlobal "$*PROGRAM_NAME"       progSV
-        , SymVal SGlobal "$*PID"        pidSV
-        , SymVal SGlobal "@*END"        endAV
-        , SymVal SGlobal "$*IN"         inGV
-        , SymVal SGlobal "$*OUT"        outGV
-        , SymVal SGlobal "$*ERR"        errGV
-        , SymVal SGlobal "$!"           errSV
-        , SymVal SGlobal "$/"           matchAV
-        , SymVal SGlobal "%*ENV" (VHash envHV)
+        [ SymVar SGlobal "@*ARGS"       $ MkRef argsAV
+        , SymVar SGlobal "@*INC"        $ MkRef incAV
+        , SymVar SGlobal "$*EXECUTABLE_NAME"    $ MkRef execSV
+        , SymVar SGlobal "$*PROGRAM_NAME"       $ MkRef progSV
+        , SymVar SGlobal "$*PID"        $ MkRef pidSV
+        , SymVar SGlobal "@*END"        $ MkRef endAV
+        , SymVar SGlobal "$*IN"         $ MkRef inGV
+        , SymVar SGlobal "$*OUT"        $ MkRef outGV
+        , SymVar SGlobal "$*ERR"        $ MkRef errGV
+        , SymVar SGlobal "$!"           $ MkRef errSV
+        , SymVar SGlobal "$/"           $ MkRef matchAV
+        , SymVar SGlobal "%*ENV"        $ hashRef (undefined :: IHashEnv)
         -- XXX What would this even do?
-        -- , SymVal SGlobal "%=POD"        (Val . VHash $ emptyHV)
-        , SymVal SGlobal "@=POD"        (VArray Array.empty)
-        , SymVal SGlobal "$=POD"        (VStr "")
-        , SymVal SGlobal "$?OS"         (VStr (getConfig "osname"))
-        , SymVal SGlobal "$?_BLOCK_EXIT" $ VSub $ Sub
+        -- , SymVar SGlobal "%=POD"        (Val . VHash $ emptyHV)
+        , SymVar SGlobal "@=POD"        $ MkRef $ constArray []
+        , SymVar SGlobal "$=POD"        $ MkRef $ constScalar (VStr "")
+        , SymVar SGlobal "$?OS"         $ MkRef $ constScalar (VStr $ getConfig "osname")
+        , SymVar SGlobal "&?BLOCK_EXIT" $ codeRef $ Sub
             { isMulti = False
-            , subName = "$?_BLOCK_EXIT"
+            , subName = "&?BLOCK_EXIT"
             , subType = SubPrim
             , subPad = []
             , subAssoc = "pre"
@@ -103,9 +103,9 @@ prepareEnv name args = do
             , subReturns = "Void"
             , subFun = Prim subExit
             }
-        , SymVal SGlobal "%?CONFIG" (VHash confHV)
-        , SymVal SMy "$_" defSV
-        , SymVal SMy "$?FILE" progSV
+        , SymVar SGlobal "%?CONFIG" $ hashRef confHV
+        , SymVar SMy "$_" $ MkRef defSV
+        , SymVar SMy "$?FILE" $ MkRef progSV
         ]
 
 

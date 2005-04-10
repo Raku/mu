@@ -58,6 +58,9 @@ module Internals (
     afterPrefix,
     decodeUTF8,
     encodeUTF8,
+    forM,
+    forM_,
+    tryIO,
 ) where
 
 import UTF8
@@ -70,7 +73,7 @@ import RRegex.Syntax
 import Data.Dynamic
 import Data.Array (elems)
 import Network
-import System.Environment (getArgs, withArgs, getProgName)
+import System.Environment (getArgs, withArgs, getProgName, getEnv)
 import System.Random hiding (split)
 import System.Exit
 import System.Time
@@ -155,4 +158,13 @@ decodeUTF8 :: String -> String
 decodeUTF8 str = fst $ decode bytes
     where
     bytes = map (toEnum . ord) str
+
+forM :: (Monad m) => [a] -> (a -> m b) -> m [b]
+forM = flip mapM
+
+forM_ :: (Monad m) => [a] -> (a -> m b) -> m ()
+forM_ = flip mapM_
+
+tryIO :: (MonadIO m) => a -> IO a -> m a
+tryIO err = liftIO . (`catch` (const $ return err))
 

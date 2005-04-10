@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -fglasgow-exts #-}
+
 module Types.Array where
 
 import {-# SOURCE #-} AST
@@ -9,17 +11,32 @@ class Class a where
     fetch       :: a -> Eval VArray
     fetch av = do
         size <- fetchSize av
-        forM [0..size] $ \idx -> do
+        forM [0..size-1] $ \idx -> do
             sv <- fetchElem av idx
             readIVar sv
     store       :: a -> VArray -> Eval ()
     store av list = do
         forM_ ([0..] `zip` list) $ \(idx, val) -> do
-            sv <- newScalar val
-            storeElem av idx sv
+            sv <- fetchElem av idx
+            writeIVar sv val
         storeSize av (length list)
-    fetchElem   :: a -> Index -> Eval (IVar VScalar)
-    storeElem   :: a -> Index -> IVar VScalar -> Eval ()
+    fetchElem   :: a -> Index -> Eval (IVar VScalar) -- autovivify
+    fetchElem av key = do
+        val <- fetchVal av key
+        return $ constScalar val
+    storeElem   :: a -> Index -> IVar VScalar -> Eval () -- binding
+    storeElem av idx sv = do
+        val <- readIVar sv
+        storeVal av idx val
+    fetchVal    :: a -> Index -> Eval Val
+    fetchVal av key = do
+        rv <- existsElem av key
+        if rv then readIVar =<< fetchElem av key
+              else return undef
+    storeVal    :: a -> Index -> Val -> Eval ()
+    storeVal av key val = do
+        sv <- fetchElem av key
+        writeIVar sv val
     fetchSize   :: a -> Eval Index
     fetchSize av = do
         vals <- fetch av
@@ -32,7 +49,10 @@ class Class a where
             EQ -> return () -- no need to do anything
             LT -> mapM_ (\idx -> storeElem av idx =<< newScalar undef) [size .. sz-1]
     extendSize  :: a -> Index -> Eval ()
-    extendSize _ _ = return ()
+    extendSize av sz = do
+        size <- fetchSize av
+        when (size < sz) $ do
+            mapM_ (\idx -> storeElem av idx =<< newScalar undef) [size .. sz-1]
     deleteElem  :: a -> Index -> Eval ()
     deleteElem av idx = do
         size <- fetchSize av

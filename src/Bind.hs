@@ -29,9 +29,9 @@ bindNames exps prms = (bound, exps', prms')
         = ( bound, (exp:exps) )
 
 emptyHashExp :: Exp
-emptyHashExp  = Val $ VHash $ vCast $ VList []
+emptyHashExp  = Val $ VList [] -- VHash $ vCast $ VList []
 emptyArrayExp :: Exp
-emptyArrayExp = Val $ VArray $ vCast $ VList []
+emptyArrayExp = Val $ VList [] -- VArray $ vCast $ VList []
 
 bindHash :: [Exp] -> [Param] -> MaybeError Bindings
 bindHash _ []          = return []
@@ -49,8 +49,8 @@ bindArray vs ps = do
     where
     prms = map (\p -> (p, (head (paramName p)))) ps 
 
-doSlice :: Exp -> [VInt] -> Exp
-doSlice v ns = Syn "[]" [v, Val $ VList $ map VInt ns]
+doSlice :: Exp -> VInt -> Exp
+doSlice v n = Syn "[..]" [v, Val $ VInt n]
 
 -- XXX - somehow force failure
 doIndex :: Exp -> VInt -> Exp
@@ -59,7 +59,7 @@ doIndex v n = Syn "cxt" [Val $ VStr "Scalar", Syn "[]" [v, Val $ VInt n]]
 doBindArray :: Exp -> (Bindings, VInt) -> (Param, Char) -> MaybeError (Bindings, VInt)
 doBindArray _ (xs, -1) (p, '@') = return (((p, emptyArrayExp):xs), -1)
 doBindArray _ (_, -1) (p, '$') = fail $ "Slurpy array followed by slurpy scalar: " ++ show p
-doBindArray v (xs, n)  (p, '@') = return (((p, doSlice v [n..]):xs), -1)
+doBindArray v (xs, n)  (p, '@') = return (((p, doSlice v n):xs), -1)
 doBindArray v (xs, n)  (p, '$') = case v of
     (Syn "," [])    -> fail $ "Insufficient arguments for slurpy scalar"
     _               -> return (((p, doIndex v n):xs), n+1)
@@ -85,7 +85,7 @@ unPair (Val (VPair (k, v)))             = (vCast k, Val v)
 unPair x                                = error ("Not a pair: " ++ show x)
 
 -- performs a binding and then verifies that it's complete in one go
-bindParams :: VSub -> [Exp] -> [Exp] -> MaybeError VSub
+bindParams :: VCode -> [Exp] -> [Exp] -> MaybeError VCode
 bindParams sub invsExp argsExp = do
     case bindSomeParams sub invsExp argsExp of
         Left errMsg -> Left errMsg
@@ -93,7 +93,7 @@ bindParams sub invsExp argsExp = do
 
 -- verifies that all invocants and required params were given
 -- and binds default values to unbound optionals
-finalizeBindings :: VSub -> MaybeError VSub
+finalizeBindings :: VCode -> MaybeError VCode
 finalizeBindings sub@Sub{ subParams = params, subBindings = bindings } = do
     let boundInvs = filter (\x -> isInvocant (fst x)) bindings -- bound invocants
         invocants = takeWhile isInvocant params                  -- expected invocants
@@ -124,7 +124,7 @@ finalizeBindings sub@Sub{ subParams = params, subBindings = bindings } = do
     }
 
 -- takes invocants and arguments, and creates a binding from the remaining params in the sub
-bindSomeParams :: VSub -> [Exp] -> [Exp] -> MaybeError VSub
+bindSomeParams :: VCode -> [Exp] -> [Exp] -> MaybeError VCode
 bindSomeParams sub@Sub{ subBindings = bindings, subParams = params } invsExp argsExp = do
     let (invPrms, argPrms) = span isInvocant params
         (givenInvs, givenArgs) = if null invPrms

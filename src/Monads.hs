@@ -13,34 +13,13 @@ module Monads where
 import Internals
 import AST
 import Context
+import Types
 
 enterLex :: Pad -> Eval a -> Eval a
 enterLex pad = local (\e -> e{ envLexical = (pad ++ envLexical e) })
 
 enterContext :: Cxt -> Eval a -> Eval a
 enterContext cxt = local (\e -> e{ envContext = cxt })
-
-main = do
-    uniq <- newUnique
-    x <- (`runReaderT` testEnv{ envID = uniq }) $ do
-        y <- (`runContT` return) $ blah
-        return y
-    print x
-    return x
-
-testEnv = Env { envContext = "List"
-      , envLValue = False
-          , envLexical = undefined
-          , envGlobal = undefined
-          , envCaller = Nothing
-          , envClasses = initTree
-          , envEval = undefined
-          , envBody = undefined
-          , envDepth = 0
-          , envID = undefined
-          , envDebug = Nothing
-          }
-
 
 askDump str = do
     env <- asks envContext
@@ -68,13 +47,13 @@ enterScope f = do
     -}
 -}
 
-enterGiven topic action = enterLex [SymVal SMy "$_" topic] action
+enterGiven topic action = enterLex [SymVar SMy "$_" topic] action
 
 enterWhen break action = callCC $ \esc -> do
-    enterLex [SymVal SMy "&continue" $ continueSub esc,
-              SymVal SMy "&break" break] action
+    enterLex [SymVar SMy "&continue" $ continueSub esc,
+              SymVar SMy "&break" break] action
     where
-    continueSub esc = VSub $ Sub
+    continueSub esc = codeRef $ Sub
         { isMulti = False
         , subName = "continue"
         , subType = SubPrim
@@ -87,9 +66,9 @@ enterWhen break action = callCC $ \esc -> do
         }
 
 enterLoop action = callCC $ \esc -> do
-    enterLex [SymVal SMy "&last" $ lastSub esc] action
+    enterLex [SymVar SMy "&last" $ lastSub esc] action
     where
-    lastSub esc = VSub $ Sub
+    lastSub esc = codeRef $ Sub
         { isMulti = False
         , subName = "last"
         , subType = SubPrim
@@ -102,11 +81,11 @@ enterLoop action = callCC $ \esc -> do
         }
 
 enterBlock action = callCC $ \esc -> do
-    enterLex [SymVal SMy "$?_BLOCK_EXIT" $ escSub esc] action
+    enterLex [SymVar SMy "&?BLOCK_EXIT" $ escSub esc] action
     where
-    escSub esc = VSub $ Sub
+    escSub esc = codeRef $ Sub
         { isMulti = False
-        , subName = "$?_BLOCK_EXIT"
+        , subName = "&?BLOCK_EXIT"
         , subType = SubPrim
         , subPad = []
         , subAssoc = "pre"
@@ -130,11 +109,11 @@ enterSub sub@Sub{ subType = typ } action
     doCC cc [v] = cc v
     doCC _  _   = internalError "enterSub: doCC list length /= 1"
     orig sub = sub { subBindings = [], subParams = (map fst (subBindings sub)) }
-    subRec = [ SymVal SMy "&?SUB" (VSub (orig sub))
-             , SymVal SMy "$?SUBNAME" (VStr $ subName sub)]
-    blockRec = SymVal SMy "&?BLOCK" (VSub (orig sub))
-    ret cxt = SymVal SMy "&return" (VSub $ retSub cxt)
-    callerCC cc cxt = SymVal SMy "&?CALLER_CONTINUATION" (VSub $ ccSub cc cxt)
+    subRec = [ SymVar SMy "&?SUB" (codeRef (orig sub))
+             , SymVar SMy "$?SUBNAME" (scalarRef $ VStr $ subName sub)]
+    blockRec = SymVar SMy "&?BLOCK" (codeRef (orig sub))
+    ret cxt = SymVar SMy "&return" (codeRef $ retSub cxt)
+    callerCC cc cxt = SymVar SMy "&?CALLER_CONTINUATION" (codeRef $ ccSub cc cxt)
     fixEnv cc pad cxt env
         | typ >= SubBlock = env{ envLexical = (blockRec:subPad sub) ++ pad }
         | otherwise      = env{ envLexical = subRec ++ (ret cxt:callerCC cc cxt:subPad sub) }
@@ -189,30 +168,6 @@ enterSub sub = enterScope $ do
             "sub3" -> sub3
 -}
 
-innerSub = Sub
-    { isMulti       = False
-    , subName       = "inner"
-    , subType       = SubRoutine
-    , subPad        = [SymVal SMy "$inner" VUndef]
-    , subAssoc      = "left"
-    , subParams     = []
-    , subBindings = []
-    , subReturns    = "List"
-    , subFun        = undefined -- XXX
-    }
-
-sub3Sub = Sub
-    { isMulti       = False
-    , subName       = "sub3"
-    , subType       = SubRoutine
-    , subPad        = [SymVal SMy "$inner" VUndef]
-    , subAssoc      = "left"
-    , subParams     = []
-    , subBindings = []
-    , subReturns    = "List"
-    , subFun        = undefined -- XXX
-    }
-
 -- enter a lexical context
 
 dumpLex :: String -> Eval ()
@@ -221,26 +176,6 @@ dumpLex label = do
     depth <- asks envDepth
     liftIO $ putStrLn ("("++(show depth)++")"++label ++ ": " ++ (show pad))
     return ()
-
-blah :: Eval Val
-blah = do
-    dumpLex ">init"
-    rv <- enterLex [SymVal SMy "$x" (VInt 1)] $ do
-        dumpLex ">lex"
-        -- rv <- enterScope outer
-        rv <- outer
-        dumpLex "<lex"
-        return rv
-    dumpLex "<init"
-    return rv
-
-outer :: Eval Val
-outer = enterLex [SymVal SMy "$outer" (VInt 2)] $ do
-    dumpLex ">outer"
-    -- enterSub innerSub
-    dumpLex "<outer"
-    returnScope "y"
-    returnScope "c"
 
 callerCC :: Int -> Val -> Eval Val
 callerCC n _ = do

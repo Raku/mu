@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -fglasgow-exts #-}
+
 module Types.Hash where
 
 import {-# SOURCE #-} AST
@@ -9,19 +11,34 @@ class Class a where
     fetch       :: a -> Eval VHash
     fetch hv = do
         keys <- fetchKeys hv
-        forM keys $ \key -> do
-            sv  <- fetchElem hv key
-            val <- readIVar sv
-            return (key, val)
+        vals <- mapM (fetchVal hv) keys
+        return $ keys `zip` vals
     store       :: a -> VHash -> Eval ()
     store hv vals = do
         clear hv
         forM_ vals $ \(key, val) -> do
-            sv <- newScalar val
-            storeElem hv key sv
-    fetchElem   :: a -> Index -> Eval (IVar VScalar)
-    storeElem   :: a -> Index -> IVar VScalar -> Eval ()
+            storeVal hv key val
+    fetchElem   :: a -> Index -> Eval (IVar VScalar) -- autovivify
+    fetchElem hv key = do
+        val <- fetchVal hv key
+        return $ constScalar val
+    storeElem   :: a -> Index -> IVar VScalar -> Eval () -- binding
+    storeElem hv idx sv = do
+        val <- readIVar sv
+        storeVal hv idx val
+    fetchVal    :: a -> Index -> Eval Val
+    fetchVal hv key = do
+        rv <- existsElem hv key
+        if rv then readIVar =<< fetchElem hv key
+              else return undef
+    storeVal    :: a -> Index -> Val -> Eval ()
+    storeVal hv key val = do
+        sv <- fetchElem hv key
+        writeIVar sv val
     fetchKeys   :: a -> Eval [Index]
+    fetchKeys hv = do
+        pairs <- fetch hv
+        return $ map fst pairs
     deleteElem  :: a -> Index -> Eval ()
     existsElem  :: a -> Index -> Eval VBool
     existsElem hv idx = do

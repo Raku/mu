@@ -16,9 +16,15 @@ import Internals
 import Context
 import Rule
 import List
-import qualified Data.Map as Map
-import qualified Data.Set as Set
-import qualified Data.IntMap as Array
+import Types
+import qualified Types.Array  as Array
+import qualified Types.Handle as Handle
+import qualified Types.Hash   as Hash
+import qualified Types.Scalar as Scalar
+import qualified Types.Code   as Code
+import qualified Types.Rule   as Rule
+import qualified Data.Set       as Set
+import qualified Data.HashTable as HTable
 
 type Ident = String
 
@@ -29,8 +35,10 @@ ifContextIsa c trueM falseM = do
         else falseM
 
 fromVal' (VThunk (MkThunk eval)) = fromVal' =<< eval
-fromVal' (VRef r) = fromVal' r
-fromVal' (MVal mval) = fromVal' =<< liftIO (readIORef mval)
+fromVal' (VRef r) = do
+    v <- readRef r
+    fromVal' v
+-- fromVal' (MVal mval) = fromVal' =<< liftIO (readIORef mval)
 fromVal' v = do
     rv <- liftIO $ catchJust errorCalls (return . Right $ vCast v) $
         \str -> return (Left str)
@@ -38,58 +46,89 @@ fromVal' v = do
         Right v -> return v
         Left e  -> retError e (Val v) -- XXX: not working yet
 
-fromMVal = (>>= fromVal) . readMVal
+-- fromMVal = (>>= fromVal) . readMVal
 
 class Value n where
     fromVal :: Val -> Eval n
     fromVal = fromVal'
     vCast :: Val -> n
     -- vCast (MVal v)      = vCast $ castV v
-    vCast (VRef v)      = vCast v
-    vCast (VPair (_, v))   = vCast v
-    vCast (VArray v)    = vCast $ VList $ Array.elems v
+    vCast (VRef _)      = error "cannot cast from Ref, use fromVal instead"
+    vCast (VPair (_, v))= vCast v
+--  vCast (VArray v)    = vCast $ VList $ IntMap.elems v
     vCast v             = doCast v
     castV :: n -> Val
     castV _ = error $ "cannot cast into Val"
     doCast :: Val -> n
-    doCast v = error $ "cannot cast from Val: " ++ (show v)
+    doCast v = error $ "cannot cast from Val: " ++ show v
     fmapVal :: (n -> n) -> Val -> Val
     fmapVal f = castV . f . vCast
+
+instance Value VRef where
+    fromVal (VRef v) = return v
+    fromVal v = retError "not a lvalue: " (Val v)
+    castV = VRef
+
+instance Value [Int] where
+    fromVal v = do
+        vlist <- fromVal v
+        mapM fromVal vlist
+
+instance Value [VStr] where
+    fromVal v = do
+        vlist <- fromVal v
+        mapM fromVal vlist
 
 instance Value VPair where
     castV (x, y)        = VPair (x, y)
     vCast (VPair (x, y))   = (x, y)
-    vCast (VRef v)      = vCast v
     -- vCast (MVal v)      = vCast $ castV v
     vCast v             = case vCast v of
         [x, y]  -> (x, y)
-        _       -> error $ "cannot cast into VPair: " ++ (show v)
+        _       -> error $ "cannot cast into VPair: " ++ show v
 
 instance Value VHash where
-    vCast (VHash h) = h
+    -- vCast (VHash h) = h
     -- vCast VUndef = emptyFM
-    vCast (VPair (k, v)) = Map.fromList [(vCast k, v)]
-    vCast x = Map.fromList [ (vCast k, v) | (k, v) <- vCast x ]
+    fromVal (VPair (k, v)) = do
+        str <- fromVal k
+        return [(str, v)]
+    fromVal v = do
+        list <- fromVal v
+        doFrom list
+        where
+        doFrom [] = return []
+        doFrom (VPair (k, v):list) = do
+            str  <- fromVal k
+            rest <- doFrom list
+            return ((str, v):rest)
+        doFrom (k:v:list) = do
+            str  <- fromVal k
+            rest <- doFrom list
+            return ((str, v):rest)
+        doFrom [k] = do
+            str  <- fromVal k
+            -- XXX: warn about odd elements?
+            return [(str, undef)]
 
 instance Value [VPair] where
     -- vCast VUndef = []
-    vCast (VRef v)      = vCast v
-    vCast (VHash h) = [ (VStr k, v) | (k, v) <- Map.assocs h ]
+    -- vCast (VHash h) = [ (VStr k, v) | (k, v) <- Map.assocs h ]
     vCast (VPair p) = [p]
-    vCast (VArray vs) = [ (castV k, v) | (k, v) <- Array.assocs vs ]
+    -- vCast (VArray vs) = [ (castV k, v) | (k, v) <- IntMap.assocs vs ]
     vCast (VList vs) =
         let fromList [] = []
             fromList ((VPair (k, v)):xs) = (k, v):fromList xs
             fromList (k:v:xs) = (k, v):fromList xs
             fromList [k] = [(k, VUndef)] -- XXX warning?
         in fromList vs
-    vCast x = error $ "cannot cast into [VPair]: " ++ (show x)
+    vCast x = error $ "cannot cast into [VPair]: " ++ show x
 
-instance Value VSub where
-    castV = VSub
-    doCast (VSub b) = b
-    doCast (VList [VSub b]) = b -- XXX Wrong
-    doCast v = error ("Cannot cast into VSub: " ++ (show v))
+instance Value VCode where
+    castV = VCode
+    doCast (VCode b) = b
+    doCast (VList [VCode b]) = b -- XXX Wrong
+    doCast v = error ("Cannot cast into VCode: " ++ show v)
 
 instance Value VBool where
     castV = VBool
@@ -114,9 +153,9 @@ juncToBool (Junc JOne  ds vs)
     | otherwise
     = (1 ==) . length . filter vCast $ Set.elems vs
 
-readMVal :: MonadIO m => Val -> m Val
-readMVal (MVal mv) = readMVal =<< liftIO (readIORef mv)
-readMVal v         = return v
+readMVal :: Val -> Eval Val
+readMVal (VRef r) = readMVal =<< readRef r
+readMVal v        = return v
 
 instance Value VInt where
     castV = VInt
@@ -129,8 +168,8 @@ instance Value VRat where
     doCast (VRat r)     = r
     doCast (VBool b)    = if b then 1 % 1 else 0 % 1
     doCast (VList l)    = genericLength l
-    doCast (VArray a)   = toRational $ Array.size a
-    doCast (VHash h)    = fromIntegral $ Map.size h
+    -- doCast (VArray a)   = toRational $ IntMap.size a
+    -- doCast (VHash h)    = fromIntegral $ Map.size h
     doCast (VStr s) | not (null s) , isSpace $ last s = doCast (VStr $ init s)
     doCast (VStr s) | not (null s) , isSpace $ head s = doCast (VStr $ tail s)
     doCast (VStr s)     =
@@ -159,10 +198,10 @@ instance Value VNum where
                 Left  i -> fromIntegral i
                 Right d -> realToFrac d
     doCast (VList l)    = genericLength l
-    doCast (VArray a)   = fromIntegral $ Array.size a
-    doCast (VHash h)    = fromIntegral $ Map.size h
+--  doCast (VArray a)   = fromIntegral $ IntMap.size a
+--  doCast (VHash h)    = fromIntegral $ Map.size h
     doCast t@(VThread _)  = read $ vCast t
-    doCast _            = 0/0 -- error $ "cannot cast as Num: " ++ (show x)
+    doCast _            = 0/0 -- error $ "cannot cast as Num: " ++ show x
 
 instance Value VComplex where
     castV = VComplex
@@ -170,6 +209,7 @@ instance Value VComplex where
 
 instance Value VStr where
     castV = VStr
+{-
     fromVal (VHash h) = do
         ls <- mapM strPair $ Map.assocs h
         return $ unlines ls
@@ -178,6 +218,7 @@ instance Value VStr where
             -- k' <- fromMVal k
             v' <- fromMVal v
             return $ k ++ "\t" ++ v'
+-}
     fromVal (VList l)   = return . unwords =<< mapM fromVal l
     fromVal v = fromVal' v
     vCast VUndef        = ""
@@ -198,16 +239,15 @@ instance Value VStr where
         pad x = (replicate (40 - length x) '0') ++ x
     vCast (VNum n)      = showNum n
     vCast (VList l)     = unwords $ map vCast l
-    vCast (VRef v)      = vCast v
     -- vCast (MVal v)      = vCast $ castV v
     vCast (VPair (k, v))= vCast k ++ "\t" ++ vCast v ++ "\n"
-    vCast (VArray l)    = unwords . map vCast $ Array.elems l
-    vCast (VHash h)     = unlines $
-        map (\(k, v) -> (k ++ "\t" ++ vCast v)) $ Map.assocs h
-    vCast (VSub s)      = "<" ++ show (subType s) ++ "(" ++ subName s ++ ")>"
+    -- vCast (VArray l)    = unwords . map vCast $ IntMap.elems l
+    -- vCast (VHash h)     = unlines $
+    --     map (\(k, v) -> (k ++ "\t" ++ vCast v)) $ Map.assocs h
+    vCast (VCode s)      = "<" ++ show (subType s) ++ "(" ++ subName s ++ ")>"
     vCast (VJunc j)     = show j
     vCast (VThread t)   = dropWhile (not . isDigit) $ show t
-    vCast x             = error $ "cannot cast as Str: " ++ (show x)
+    vCast x             = error $ "cannot cast as Str: " ++ show x
 
 showNum :: Show a => a -> String
 showNum x
@@ -217,20 +257,14 @@ showNum x
     where
     str = show x 
 
-instance Value VArray where
-    castV = VArray
-    vCast x = Array.fromAscList $ [0..] `zip` vCast x
+valToStr :: Val -> Eval VStr
+valToStr = fromVal
 
-instance Value MVal where
-    castV _ = error "Cannot cast MVal into Value"
-    fromVal (MVal x) = return x
-    fromVal (VRef v) = fromVal v
-    fromVal (VPair (_, v)) = fromVal v
-    fromVal v = retError "cannot modify constant item" $ Val v
-    vCast (MVal x)      = x
-    vCast (VRef v)      = vCast v
-    vCast (VPair (_, y))= vCast y
-    vCast x             = error $ "cannot modify a constant item: " ++ show x
+{-
+instance Value VArray where
+    -- castV = VArray
+    vCast x = IntMap.fromAscList $ [0..] `zip` vCast x
+-}
 
 {-
 instance Value VJunc where
@@ -241,10 +275,9 @@ instance Value VJunc where
 instance Value VList where
     castV = VList
     vCast (VList l)     = l
-    vCast (VArray l)    = Array.elems l
-    vCast (VHash h)     = [ VPair (VStr k, v) | (k, v) <- Map.assocs h ]
+    -- vCast (VArray l)    = IntMap.elems l
+    -- vCast (VHash h)     = [ VPair (VStr k, v) | (k, v) <- Map.assocs h ]
     vCast (VPair (k, v))   = [k, v]
-    vCast (VRef v)      = vCast v
     -- vCast (MVal v)      = vCast $ castV v
     vCast (VUndef)      = [VUndef]
     vCast v             = [v]
@@ -323,8 +356,8 @@ type VHandle = Handle
 type VSocket = Socket
 type VThread = ThreadId
 type MVal = IORef Val
-type VArray = Array.IntMap Val
-type VHash = Map VStr Val -- deriving (Show, Eq, Ord)
+type VArray = [Val]
+type VHash = [(VStr, Val)]
 newtype VThunk = MkThunk (Eval Val)
 data VRule     = MkRule
     { rxRegex     :: Regex
@@ -343,11 +376,9 @@ data Val
     | VComplex  VComplex
     | VStr      VStr
     | VList     VList
-    | VArray    VArray
-    | VHash     VHash
-    | VRef      Val
+    | VRef      VRef
     | VPair     VPair
-    | VSub      VSub
+    | VCode      VCode
     | VBlock    VBlock
     | VJunc     VJunc
     | VError    VStr Exp
@@ -356,14 +387,13 @@ data Val
     | VThread   VThread
     | VRule     VRule
     | VSubst    VSubst
-    | MVal      MVal
     | VControl  VControl
     | VThunk    VThunk
     deriving (Show, Eq, Ord)
 
 valType :: Val -> String
 valType VUndef          = "Any"
-valType (VRef v)        = valType v
+valType (VRef v)        = refClass v
 valType (VBool    _)    = "Bool"
 valType (VInt     _)    = "Int"
 valType (VRat     _)    = "Rat"
@@ -371,17 +401,17 @@ valType (VNum     _)    = "Num"
 valType (VComplex _)    = "Complex"
 valType (VStr     _)    = "Str"
 valType (VList    _)    = "List"
-valType (VArray   _)    = "Array"
-valType (VHash    _)    = "Hash"
+-- valType (VArray   _)    = "Array"
+-- valType (VHash    _)    = "Hash"
 valType (VPair    _)    = "Pair"
-valType (VSub     _)    = "Sub"
+valType (VCode     _)    = "Sub"
 valType (VBlock   _)    = "Block"
 valType (VJunc    _)    = "Junc"
 valType (VError _ _)    = "Error"
 valType (VHandle  _)    = "Handle"
 valType (VSocket  _)    = "Socket"
 valType (VThread  _)    = "Thread"
-valType (MVal     _)    = "Var"
+-- valType (MVal     _)    = "Var"
 valType (VControl _)    = "Control"
 valType (VThunk   _)    = "Thunk"
 valType (VRule    _)    = "Rule"
@@ -434,7 +464,7 @@ data Param = Param
 type Params = [Param]
 type Bindings = [(Param, Exp)]
 
-data VSub = Sub
+data VCode = Sub
     { isMulti       :: Bool
     , subName       :: String
     , subType       :: SubType
@@ -524,7 +554,7 @@ cxtOfSigil '$'  = "Scalar"
 cxtOfSigil '@'  = "Array"
 cxtOfSigil '%'  = "Hash"
 cxtOfSigil '&'  = "Code"
-cxtOfSigil x    = internalError $ "cxtOfSigil: unexpected character: " ++ (show x)
+cxtOfSigil x    = internalError $ "cxtOfSigil: unexpected character: " ++ show x
 
 --- cxtOf '*' '$'   = "List"
 cxtOf :: Char -> Char -> String
@@ -568,16 +598,16 @@ data Env = Env { envContext :: Cxt
                , envDebug   :: Maybe (IORef (Map String String))
                } deriving (Show, Eq)
 
-type Pad = [Symbol Val]
+type Pad = [Symbol VRef]
 data Symbol a where
-    SymVal :: Scope -> String -> Val -> Symbol Val
-    SymExp :: Scope -> String -> Exp -> Symbol Exp
+    SymVar :: Scope -> String -> VRef -> Symbol VRef
+    SymExp :: Scope -> String -> Exp  -> Symbol Exp
 
 show' :: (Show a) => a -> String
 show' x = "( " ++ show x ++ " )"
 
 instance Show (Symbol a) where
-    show (SymVal s n v) = unwords [ "SymVal", show' s, show' n, show' v ]
+    show (SymVar s n v) = unwords [ "SymVar", show' s, show' n, show' v ]
     show (SymExp s n e) = unwords [ "SymExp", show' s, show' n, show' e ]
 
 instance Eq (Symbol a) where
@@ -586,27 +616,27 @@ instance Eq (Symbol a) where
 instance Ord (Symbol a) where
     compare x y = compare (show x) (show y)
 
-symScope (SymVal s _ _) = s
+symScope (SymVar s _ _) = s
 symScope (SymExp s _ _) = s
-symName (SymVal _ n _) = n
+symName (SymVar _ n _) = n
 symName (SymExp _ n _) = n
-symVal (SymVal _ _ v) = v
-symVal _ = error "Cannot cast SymVal to SymExp"
+symVar (SymVar _ _ v) = v
+symVar _ = error "Cannot cast SymVar to SymExp"
 symExp (SymExp _ _ e) = e
-symExp _ = error "Cannot cast SymExp to SymVal"
+symExp _ = error "Cannot cast SymExp to SymVar"
 
 data Scope = SGlobal | SMy | SOur | SLet | STemp | SState
     deriving (Show, Eq, Ord, Read, Enum)
 
 type Eval x = ContT Val (ReaderT Env IO) x
 
-findSym :: String -> Pad -> Maybe Val
+findSym :: String -> Pad -> Maybe VRef
 findSym name pad = do
     s <- find ((== name) . symName) pad
-    return $ symVal s
+    return $ symVar s
 
-writeMVal l (MVal r)     = writeMVal l =<< liftIO (readIORef r)
-writeMVal (MVal l) r     = liftIO $ writeIORef l r
+-- writeMVal l (MVal r)     = writeMVal l =<< liftIO (readIORef r)
+-- writeMVal (MVal l) r     = liftIO $ writeIORef l r
 writeMVal (VThunk (MkThunk t)) r = do
     l <- t
     writeMVal l r
@@ -621,13 +651,14 @@ askGlobal = do
     glob <- asks envGlobal
     liftIO $ readIORef glob
 
+readVar :: VStr -> Eval Val
 readVar name = do
     glob <- askGlobal
     case find ((== name) . symName) glob of
-        Just ref -> readMVal $ symVal ref
+        Just sym -> readRef $ symVar sym
         _ -> return VUndef
 
-emptyExp = App "&not" [] []
+emptyExp = Syn "noop" []
 
 retControl :: VControl -> Eval a
 retControl c = do
@@ -725,4 +756,255 @@ evalExp :: Exp -> Eval Val
 evalExp exp = do
     evl <- asks envEval
     evl exp
+
+undef = VUndef
+
+readRef :: VRef -> Eval Val
+readRef (MkRef (IScalar sv)) = Scalar.fetch sv
+readRef (MkRef (ICode cv)) = do
+    vsub <- Code.assuming cv [] []
+    return $ VCode vsub
+readRef (MkRef (IHash hv)) = do
+    pairs <- Hash.fetch hv
+    return $ VList $ concatMap (\(k, v) -> [castV k, v]) pairs
+readRef (MkRef (IArray av)) = do
+    vals <- Array.fetch av
+    return $ VList vals
+readRef r = retError "cannot readRef" (Val $ VRef r)
+
+retIVar :: IVar a -> Eval Val 
+retIVar = return . VRef . MkRef
+
+writeRef :: VRef -> Val -> Eval ()
+writeRef (MkRef (IScalar s)) val = Scalar.store s =<< fromVal val
+writeRef (MkRef (IArray s)) val  = Array.store s =<< fromVal val
+writeRef (MkRef (IHash s)) val   = Hash.store s =<< fromVal val
+writeRef (MkRef (ICode s)) val   = Code.store s =<< fromVal val
+writeRef r _ = retError "cannot writeRef" (Val $ VRef r)
+
+clearRef :: VRef -> Eval ()
+clearRef (MkRef (IScalar s)) = Scalar.store s undef
+clearRef (MkRef (IArray s)) = Array.clear s
+clearRef (MkRef (IHash s)) = Hash.clear s
+clearRef r = retError "cannot clearRef" (Val $ VRef r)
+
+newObject "Scalar" val = liftIO $ return . scalarRef =<< newIORef val
+newObject "Array" val = do
+    ref <- liftIO $ return . arrayRef =<< (newIORef [] :: IO IArray)
+    writeRef ref val
+    return ref
+newObject "Hash" val = do
+    ref <- liftIO $ return . hashRef =<< (HTable.new (==) HTable.hashString :: IO IHash)
+    writeRef ref val
+    return ref
+newObject "Code" val = do
+    vcode <- fromVal val
+    return $ codeRef (vcode :: VCode)
+newObject cls val = retError ("Cannot create object of class " ++ cls) (Val val)
+
+-- XXX: Refactor doHash and doArray into one -- also see Eval's [] and {}
+doHash :: Val -> (forall a. Hash.Class a => a -> b) -> Eval b
+doHash (VRef (MkRef (IHash hv))) f = return $ f hv
+doHash (VRef (MkRef (IScalar sv))) f = do
+    val <- Scalar.fetch sv
+    case val of
+        VUndef  -> do
+            ref@(MkRef (IHash hv)) <- newObject "Hash" (VList [])
+            Scalar.store sv (VRef ref)
+            return $ f hv
+        _  -> doHash val f
+doHash val@(VRef _) _ = retError "Cannot cast into Hash" (Val val)
+doHash val f = do
+    hv  <- fromVal val
+    return $ f (hv :: VHash)
+
+doArray :: Val -> (forall a. Array.Class a => a -> b) -> Eval b
+doArray (VRef (MkRef (IArray hv))) f = return $ f hv
+doArray (VRef (MkRef (IScalar sv))) f = do
+    val <- Scalar.fetch sv
+    case val of
+        VUndef  -> do
+            ref@(MkRef (IArray hv)) <- newObject "Array" (VList [])
+            Scalar.store sv (VRef ref)
+            return $ f hv
+        _  -> doArray val f
+doArray val@(VRef _) _ = retError "Cannot cast into Array" (Val val)
+doArray val f = do
+    av  <- fromVal val
+    return $ f (av :: VArray)
+
+data IVar v where
+    IScalar :: Scalar.Class a => a -> IVar VScalar
+    IArray  :: Array.Class  a => a -> IVar VArray
+    IHash   :: Hash.Class   a => a -> IVar VHash
+    ICode   :: Code.Class   a => a -> IVar VCode
+    IHandle :: Handle.Class a => a -> IVar VHandle
+    IRule   :: Rule.Class   a => a -> IVar VRule
+
+readIVar :: IVar v -> Eval v
+readIVar (IScalar x) = Scalar.fetch x
+readIVar _ = error "readIVar"
+
+writeIVar :: IVar v -> v -> Eval ()
+writeIVar (IScalar x) = Scalar.store x
+writeIVar _ = error "writeIVar"
+
+refClass (MkRef (IScalar _)) = "Scalar"
+refClass (MkRef (IArray _))  = "Array"
+refClass (MkRef (IHash _))   = "Hash"
+refClass (MkRef (ICode _))   = "Code"
+refClass (MkRef (IHandle _)) = "Handle"
+refClass (MkRef (IRule _))   = "Rule"
+
+instance Eq VRef where
+    (==) = const $ const False
+instance Ord VRef where
+    compare _ _ = EQ
+instance Show VRef where
+    show v = "<" ++ refClass v ++ ">"
+
+instance Eq (IVar a) where
+    (==) = const $ const False
+instance Ord (IVar a) where
+    compare _ _ = EQ
+instance Show (IVar a) where
+    show v = show (MkRef v)
+
+scalarRef x = MkRef (IScalar x)
+codeRef x   = MkRef (ICode x)
+arrayRef x  = MkRef (IArray x)
+hashRef x   = MkRef (IHash x)
+
+newScalar :: (MonadIO m) => VScalar -> m (IVar VScalar)
+newScalar = liftIO . (return . IScalar =<<) . newIORef
+
+newArray :: (MonadIO m) => VArray -> m (IVar VArray)
+newArray vals = liftIO $ do
+    svList  <- mapM newScalar vals
+    av      <- newIORef svList
+    return $ IArray av
+
+newHandle :: (MonadIO m) => VHandle -> m (IVar VHandle)
+newHandle = return . IHandle
+
+constScalar :: VScalar -> IVar VScalar
+constScalar = IScalar
+
+constArray :: VArray -> IVar VArray
+constArray = IArray
+
+instance Hash.Class VHash where
+    fetch = return
+    fetchKeys = return . map fst
+    fetchVal hv idx = return . maybe undef id $ lookup idx hv
+    storeElem _ _ _ = retConstError undef
+    deleteElem _ _ = retConstError undef
+
+instance Array.Class VArray where
+    fetch = return
+    fetchSize = return . length
+    fetchVal av idx = return $ av !! idx
+    storeElem _ _ _ = retConstError undef
+
+instance Hash.Class IHashEnv where
+    fetch _ = do
+        envs <- liftIO getEnvironment
+        return [ (k, VStr v) | (k, v) <- envs ]
+    fetchVal _ key = tryIO undef $ do
+        str <- getEnv key
+        return $ VStr str
+    storeVal _ key val = do
+        str <- fromVal val
+        liftIO $ setEnv key str True
+    existsElem _ key = tryIO False $ do
+        getEnv key
+        return True
+    deleteElem _ key = do
+        liftIO $ unsetEnv key
+
+instance Hash.Class IHash where
+    fetch hv = do
+        pairs <- liftIO $ HTable.toList hv
+        forM pairs $ \(key, sv) -> do
+            val <- readIVar sv
+            return (key, val)
+    fetchKeys hv = do
+        pairs <- liftIO $ HTable.toList hv
+        return $ map fst pairs
+    fetchElem hv idx = do
+        rv <- liftIO $ HTable.lookup hv idx
+        case rv of
+            Just sv -> return sv
+            Nothing -> do
+                sv <- newScalar undef
+                liftIO $ HTable.insert hv idx sv
+                return sv
+    storeElem hv idx sv = liftIO $ HTable.insert hv idx sv
+    deleteElem hv idx = liftIO $ HTable.delete hv idx
+    existsElem hv idx = do
+        rv <- liftIO $ HTable.lookup hv idx
+        return $ isJust rv
+
+instance Array.Class IArraySlice where
+    fetchSize = return . length
+    fetchElem av idx = do
+        Array.extendSize av (idx+1)
+        return $ av !! idx
+    storeSize av sz = return () -- XXX error?
+    storeElem _ _ _ = retConstError undef
+
+instance Array.Class IArray where
+    fetchSize av = do
+        svList <- liftIO $ readIORef av
+        return $ length svList
+    storeSize av sz = do
+        svList <- liftIO $ readIORef av
+        let size = length svList
+        case size `compare` sz of
+            GT -> liftIO $ writeIORef av $ take sz svList
+            EQ -> return () -- no need to do anything
+            LT -> Array.extendSize av size -- XXX terribly inefficient
+    unshift av vals = do
+        svList <- liftIO $ readIORef av
+        newList <- mapM newScalar vals
+        liftIO $ writeIORef av $ newList ++ svList
+    fetchElem av idx = do
+        Array.extendSize av (idx+1)
+        svList <- liftIO $ readIORef av
+        return $ svList !! idx
+    storeElem av idx sv = do
+        svList <- liftIO $ readIORef av
+        liftIO $ writeIORef av $ take idx svList ++ (sv : drop (idx+1) svList)
+
+instance Handle.Class IHandle where
+    fetch = return
+    store = error "store"
+
+instance Scalar.Class IScalar where
+    fetch = liftIO . readIORef
+    store = (liftIO .) . writeIORef
+
+instance Scalar.Class VScalar where
+    fetch = return
+    store _ v = retConstError v
+
+instance Code.Class ICode where
+    fetch = liftIO . readIORef
+    store = (liftIO .) . writeIORef
+    assuming c [] [] = Code.fetch c
+    assuming _ _ _   = undefined
+    apply    = error "apply"
+    assoc c = error "assoc"
+    params c = error "params"
+
+instance Code.Class VCode where
+    fetch     = return
+    store _ _ = retConstError undef
+    assuming c [] [] = return c
+    assuming _ _ _   = undefined
+    apply    = error "apply"
+    assoc    = subAssoc
+    params   = subParams
+
+retConstError v = retError "Can't modify constant item" (Val v)
 

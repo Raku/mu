@@ -25,6 +25,8 @@ module Compat (
     getArg0,
     statFileSize,
     getProcessID,
+    setEnv,
+    unsetEnv,
 ) where
 
 import Foreign
@@ -44,25 +46,33 @@ statFileSize f = do
 import System.Posix.Types
 import System.Environment
 
+failWith s = fail $ "'" ++ s ++ "' not implemented on this platform."
+
+setEnv :: String -> String -> Bool -> IO ()
+setEnv _ _ _ = failWith "setEnv"
+
+unsetEnv :: String -> IO ()
+unsetEnv _ = failWith "unsetEnv"
+
 createLink :: FilePath -> FilePath -> IO ()
-createLink _ _ = fail "'link' not implemented on this platform."
+createLink _ _ = failWith "link"
 
 createSymbolicLink :: FilePath -> FilePath -> IO ()
-createSymbolicLink _ _ = fail "'symlink' not implemented on this platform."
+createSymbolicLink _ _ = failWith "symlink"
 
 readSymbolicLink :: FilePath -> IO FilePath
-readSymbolicLink _ = fail "'readlink' not implemented on this platform."
+readSymbolicLink _ = failWith "readlink"
 
 rename :: FilePath -> FilePath -> IO ()
-rename _ _ = fail "'rename' not implemented on this platform."
+rename _ _ = failWith "rename"
 
 removeLink :: FilePath -> IO ()
-removeLink _ = fail "'unlink' not implemented on this platform."
+removeLink _ = failWith "unlink"
 
 setFileMode :: FilePath -> FileMode -> IO ()
-setFileMode _ _ = fail "'chmod' not implemented on this platform."
+setFileMode _ _ = failWith "chmod"
 
-statFileSize _ = fail "'-s' not implemented on this platform."
+statFileSize _ = failWith "-s"
 -- statFileSize could be implemented as openFile and hFileSize.
 
 getProcessID :: IO ProcessID
@@ -83,3 +93,4 @@ getArg0 = do
         getProgArgv p_argc p_argv
         argv <- peek p_argv
         peekCString =<< peekElemOff argv 0
+

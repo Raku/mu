@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -fglasgow-exts #-}
+
 module Types.Rule where
 
 import {-# SOURCE #-} AST

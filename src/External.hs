@@ -10,8 +10,9 @@
 -}
 
 module External where
-import AST
 import Internals
+import AST
+import Types
 import External.Haskell (externalizeHaskell, loadHaskell)
 
 externalize :: String -> Exp -> IO String
@@ -39,15 +40,15 @@ externRequire lang name = do
         syms        <- readIORef glob
         writeIORef glob (map gensym bindings ++ syms)
     where
-    gensym (name, fun) = SymVal SOur name $
-        VSub $ Sub { isMulti     = True
-                   , subName     = name
-                   , subPad      = []
-                   , subType     = SubPrim
-                   , subAssoc    = "pre"
-                   , subParams   = [buildParam "List" "" "*@?1" (Val VUndef)]
-                   , subBindings = []
-                   , subReturns  = "Any"
-                   , subFun      = (Prim fun)
-                   }
+    gensym (name, fun) = SymVar SOur name $ codeRef $ Sub
+        { isMulti     = True
+        , subName     = name
+        , subPad      = []
+        , subType     = SubPrim
+        , subAssoc    = "pre"
+        , subParams   = [buildParam "List" "" "*@?1" (Val VUndef)]
+        , subBindings = []
+        , subReturns  = "Any"
+        , subFun      = (Prim fun)
+        }
 

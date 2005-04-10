@@ -158,7 +158,7 @@ sub assert_ghc {
     }
     my $ghc_flags = "-H0 -L. -Lsrc -Lsrc/pcre -I. -Isrc -Isrc/pcre ";
     $ghc_flags .= " -i. -isrc -isrc/pcre -static "; 
-    $ghc_flags .= " -Wall "
+    $ghc_flags .= " -Wall -Werror "
       unless $self->is_extension_build;
     $ghc_flags .= " -fno-warn-missing-signatures -fno-warn-name-shadowing ";
     $ghc_flags .= " -I../../src -i../../src "

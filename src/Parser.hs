@@ -13,6 +13,8 @@
 module Parser where
 import Internals
 import AST
+import Types
+import Types.Code as Code
 import Help
 import Lexer
 import Rule
@@ -185,7 +187,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
     unless (isNothing formal || null names || names == ["$_"] ) $
         fail "Cannot mix placeholder variables with formal parameters"
     env <- getState
-    let subExp = Val . VSub $ Sub
+    let subExp = Val . VCode $ Sub
             { isMulti       = multi
             , subName       = name
             , subPad        = envLexical env
@@ -261,16 +263,13 @@ ruleVarDeclaration = rule "variable declaration" $ do
 
 ruleVarDeclarationSingle scope = do
     name <- parseVarName
-    exp  <- option (Syn "mval" [emptyExp]) $ do
+    exp  <- option emptyExp $ do
         sym <- tryChoice $ map string $ words " = := ::= "
         when (sym == "=") $ do
             lookAhead (satisfy (/= '='))
             return ()
         whiteSpace
-        exp <- ruleExpression
-        return $ case sym of
-            "=" -> (Syn "mval" [exp])
-            _   -> exp
+        ruleExpression
     return $ Sym [SymExp scope name exp]
 
 ruleVarDeclarationMultiple scope = do
@@ -291,7 +290,7 @@ ruleVarDeclarationMultiple scope = do
         Just exp -> Syn ";" [syn, Syn sym [lhs, exp]]
         Nothing  -> syn
     where
-    mvalSym scope n e = SymExp scope n (Syn "mval" [e])
+    mvalSym scope n e = SymExp scope n e
     alignAssign scope names exps = doAssign scope names exps
     doAssign _ [] _ = []
     doAssign scope ns [] =
@@ -378,7 +377,7 @@ ruleClosureTrait = rule "closure trait" $ do
                   , subBindings   = []
                   , subFun        = fun
                   }
-    return $ App "&unshift" [Var "@*END"] [Syn "sub" [Val $ VSub sub]]
+    return $ App "&unshift" [Var "@*END"] [Syn "sub" [Val $ VCode sub]]
 
 rulePackageDeclaration = rule "package declaration" $ fail ""
 
@@ -513,7 +512,7 @@ retBlock typ formal body = do
                   , subBindings   = []
                   , subFun        = fun
                   }
-    return (Syn "sub" [Val $ VSub sub])
+    return (Syn "sub" [Val $ VCode sub])
 
 ruleBlockFormalStandard = rule "standard block parameters" $ do
     symbol "sub"
@@ -607,10 +606,10 @@ currentFunctions = do
 currentUnaryFunctions = do
     funs <- currentFunctions
     return . mapPair munge . partition fst . sort $
-        [ (opt, encodeUTF8 name) | f@(SymVal _ _ (VSub sub)) <- funs
-        , subAssoc sub == "pre"
-        , length (subParams sub) == 1
-        , let param = head $ subParams sub
+        [ (opt, encodeUTF8 name) | f@(SymVar _ _ (MkRef (ICode code))) <- funs
+        , Code.assoc code == "pre"
+        , length (Code.params code) == 1
+        , let param = head $ Code.params code
         , let opt   = isOptional param
         , let name  = parseName $ symName f
         , name /= "say" && name /= "print" -- XXX: find other MMD duplicates
@@ -632,7 +631,7 @@ currentListFunctions = do
 {-
     funs <- currentFunctions
     return $ unwords [
-        encodeUTF8 name | f@Symbol{ symExp = Val (VSub sub) } <- funs
+        encodeUTF8 name | f@Symbol{ symExp = Val (VCode sub) } <- funs
         , subAssoc sub == "pre"
         , isJust $ find isSlurpy $ subParams sub
         , let name = parseName $ symName f
@@ -1014,7 +1013,10 @@ rxLiteral = try $ do
 
 qwLiteral = try $ do
     str <- qwText
-    return $ App "&prefix:\\" [] [Syn "," $ map (Val . VStr) (words str)]
+    return $ case words str of
+        []  -> Val (VStr "")
+        [x] -> Val (VStr x)
+        xs  -> Syn "," $ map (Val . VStr) xs
         where qwText = do string "qw"
                           text <- balanced
                           return text
