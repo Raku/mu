@@ -1,6 +1,8 @@
 #!/usr/bin/pugs
 # Animal guessing game, based on http://www.perlmonks.org/?node_id=10368
 
+use v6;
+
 sub try(Any $this is rw) {
   # XXX $this ~~ Hash'd be nicer
   say $this.perl;

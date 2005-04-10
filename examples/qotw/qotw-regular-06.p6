@@ -2,6 +2,8 @@
 # This is a Perl 6 solution to QoTW regular #6, see
 # http://perl.plover.com/qotw/r/solution/006.
 
+use v6;
+
 # XXX! Pugs forgets about the splatty star if a type qualifier (e.g. Int) is
 # specified!
 sub format_number_list(*@_input) {
