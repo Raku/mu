@@ -51,7 +51,8 @@ WritePugs       (5);
 
 ################################################################################
 sub set_postamble {
-    my @srcfiles = grep !/MainCC/, map glob("$_/*.*hs*"), @srcdirs;
+    my @srcfiles = grep !/MainCC/, map glob("$_/*.*hs"), @srcdirs;
+    push @srcfiles, grep !/MainCC/, map glob("$_/*.*hs-boot"), @srcdirs;
 
     my ($ghc, $ghc_version, $ghc_flags) = assert_ghc();
     $ghc_flags .= ' -ignore-package eval-0.9.8';
