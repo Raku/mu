@@ -148,9 +148,8 @@ Perl6-specific tests
 	isa_ok($ary_r, "Array");
 	ok(defined($ary_r), "array reference");
 
-	#undef @ary;
-	#ok(defined($ary_r), "undef array referent");
-	fail 'FIXME: parsefail undef @ary: cannot modify a constant item';
+	undef @ary;
+	ok(!defined($ary_r), "undef array referent");
 
 	is(+$ary_r, 0, "dangling array reference"); # unTODOme
 
@@ -158,9 +157,8 @@ Perl6-specific tests
 	my $hash_r = %hash;
 	isa_ok($hash_r, "Hash");
 	ok(defined($hash_r), "hash reference");
-	#undef %hash;
-	#ok(defined($hash_r), "undef hash referent:");
-	fail 'FIXME: parsefail undef %hash: cannot modify a constant item';
+	undef %hash;
+	ok(defined($hash_r), "undef hash referent:");
 	is(+$hash_r.keys, 0, "dangling hash reference"); # unTODOme
 }
 
