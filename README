@@ -69,6 +69,11 @@ executable path before you run "perl Makefile.PL", for example:
     export GHC=${HOME}/bin/ghc (bash)
     setenv GHC ${HOME}/bin/ghc (csh)
 
+For dynamic loading/inlining of Haskell modules, you should install the
+hs-plugin library, available here:
+
+    ftp://ftp.cse.unsw.edu.au/pub/users/dons/hs-plugins/snapshots/
+
 MAILING LISTS
 -------------
 
