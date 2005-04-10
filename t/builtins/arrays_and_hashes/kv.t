@@ -41,11 +41,11 @@ Basic C<kv> tests, see S29.
     is(~@kv.sort, "1 2 3 4 a b c d",  'kv(%hash) has no inner list');
 }
 
-# Following stated by Larry on p6l
+# See "Questions about $pair.kv" thread on perl-6 lang
 {
     my $pair  = (a => 1);
     my @kv = $pair.kv;
-    is(+@kv, 1, '$pair.kv returned one elem');
-    is(+@kv[0], 2, '$pair.kv inner list has two elems');
-    is(~@kv[0], "a 1", '$pair.kv inner list matched expectation');
+    is(+@kv, 2, '$pair.kv returned one elem');
+    is(+@kv, 2, '$pair.kv inner list has two elems');
+    is(~@kv, "a 1", '$pair.kv inner list matched expectation');
 }

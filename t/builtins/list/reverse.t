@@ -16,15 +16,15 @@ my @e = (4, 3, 2, 1);
 
 is(@a, @e, "list was reversed");
 
-my $a; eval '$a = reverse("foo")';
+my $a = reverse("foo");
 is($a, "oof", "string was reversed");
 
-@a = scalar reverse "foo";
+@a = scalar(reverse("foo"));
 is(@a[0], "oof", 'the string was reversed');
-@a = list reverse "foo";
+@a = list(reverse("foo"));
 is(@a[0], "foo", 'the list was reversed');
 
-@a = scalar reverse "foo", "bar";
+@a = scalar(reverse("foo", "bar"));
 is(@a[0], "rab oof", 'the stringified array was reversed (stringwise)');
 @a = list reverse "foo", "bar";
 is(+@a, 2, 'the reversed list has two elements');

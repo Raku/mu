@@ -18,9 +18,9 @@ plan 15;
 
 # string literals, for sanity
 
-is(eval '"".bytes',         0, "empty string");
-is(eval '"moose".bytes',    5, "moose");
-is(eval 'undef.bytes',      0, "undef"); # TODO: test for warning
+is("".bytes,         0, "empty string");
+is("moose".bytes,    5, "moose");
+eval_is('undef.bytes',      0, "undef"); # TODO: test for warning
 
 # and the real tests.
 
@@ -36,15 +36,10 @@ my $data = [
 ];
 #:map { my %hash; %hash<string bytes codes graphs> = $_; \%hash };
 
-#for @data -> $spec {
-for $data -> $string, $bytes, $codes, $graphs {
-	#$spec.perl.say; 
-	#todo_is(eval '$spec<string>.bytes', $spec<bytes>, "'{$spec<string>}'.bytes");
-	#todo_is(eval '$spec<string>.codes', $spec<codes>, "'{$spec<string>}'.codes");
-	#todo_is(eval '$spec<string>.graphs', $spec<graphs>, "'{$spec<string>}'.graphs");
 
+for $data -> $string, $bytes, $codes, $graphs {
 	#($string, $bytes, $codes, $graphs).perl.say;
-        is(eval '$string.bytes', $bytes, "'{$string}'.bytes");
-	todo_is(eval '$string.codes', $codes, "'{$string}'.codes");
-	todo_is(eval '$string.graphs', $graphs, "'{$string}'.graphs");
+    eval_is('$string.bytes', $bytes, "'{$string}'.bytes");
+	todo_eval_is('$string.codes', $codes, "'{$string}'.codes");
+	todo_eval_is('$string.graphs', $graphs, "'{$string}'.graphs");
 }

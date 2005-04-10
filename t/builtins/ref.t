@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 15;
+plan 16;
 
 # ref() on basic types
 
@@ -41,11 +41,21 @@ is(ref($s1), 'Sub', 'it is a Sub type');
 #      |     |       |       |    |     |          |      |
 #     Sub Method Submethod Multi Rule Macro      Bare Parametric
 
+# L<S06/"Types" /    Bare        Basic Perl block/>
 my $s2 = {};
-is(ref($s2), 'Block', 'it is a Block type (bare block)');
+is(ref($s2), 'Bare', 'it is a Sub type (bare block)');
+
+# L<S06/"Types" /    Parametric  Basic Perl block with placeholder parameters/>
+my $s2a = { $^a };
+is(ref($s2a), 'Parametric', 'it is a Parametric type (bare block with placeholder parameters)');
+
+# NOTE:
+# I changed this from testing for 'Block' to testing for 'Sub' 
+# based on my understanding that point subs are really just shortcuts
+# for sub {...}.
 
 my $s3 = -> {};
-is(ref($s3), 'Block', 'it is a Block type (pointy sub)');
+is(ref($s3), 'Sub', 'it is a Sub type (pointy sub)');
 
 # ref() on different types of scalars
 
