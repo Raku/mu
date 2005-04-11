@@ -5,12 +5,12 @@ require Test;
 
 =pod
 
-Test that %ENV can be modified, and that
+Test that C<%*ENV> can be modified, and that
 spawned processes see it.
 
 =cut
 
-push @INC, <  blib6/lib >; # ext/File-Spec/lib
+push @INC, < blib6/lib >; # ext/File-Spec/lib
 require File::Spec;
 plan 3;
 
@@ -36,13 +36,13 @@ my $key = "MODIFIEDENV";
 my $val = "Test";
 
 try {
-  %ENV{$key} = $val;
+  %*ENV{$key} = $val;
 };
 
 todo_is($!, "", "Modification of %ENV raises no error");
-todo_is(%ENV{$key}, $val, "Modification of %ENV works");
+todo_is(%*ENV{$key}, $val, "Modification of %ENV works");
 
 # Now check for the child process:
 
-my $res = run_pugs( '-e "say %ENV{\'' ~$key ~ '\'} // \'undefined\'"');
+my $res = run_pugs( '-e "say %*ENV{\'' ~$key ~ '\'} // \'undefined\'"');
 todo_is($res, $val, "Child processes see the new value");
