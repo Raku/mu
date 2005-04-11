@@ -39,8 +39,8 @@ try {
   %*ENV{$key} = $val;
 };
 
-is($!, "", "Modification of %ENV raises no error");
-is(%*ENV{$key}, $val, "Modification of %ENV works");
+is($!, "", 'Modification of %*ENV raises no error');
+is(%*ENV{$key}, $val, 'Modification of %*ENV works');
 
 # Now check for the child process:
 
