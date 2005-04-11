@@ -9,7 +9,7 @@ Tests for the defined() builtin
 
 =cut
 
-plan 21;
+plan 23;
 
 ok(!defined(undef), 'undef is not defined');
 
@@ -67,5 +67,8 @@ ok(!$foo.defined, 'undef $foo works');
 #   my %a = (a => 1);
 #   defined %a{"b"}; # true!
 my %a = (a => 1);
-ok defined(%a{"a"}),  "defined on a hash (1)";
-ok !defined(%a{"b"}), "defined on a hash (2)";
+ok defined(%a{"a"}),        "defined on a hash with parens (1)";
+ok !defined(%a{"b"}),       "defined on a hash with parens (2)";
+
+eval_ok 'defined  %a{"a"}', "defined on a hash without parens (1)";
+eval_ok '!defined %a{"b"}', "defined on a hash without parens (1)";
