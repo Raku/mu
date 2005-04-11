@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fth -cpp -package plugins #-}
+{-# OPTIONS_GHC -fglasgow-exts -fth -cpp -package plugins -package hi #-}
 
 module External.Haskell where
 import AST
@@ -17,7 +17,6 @@ import Language.Haskell.TH as TH
 import Language.Haskell.Parser
 import Language.Haskell.Syntax
 import Plugins
--- import Plugins.Package
 
 {- ourPackageConfigs :: [PackageConfig]
 ourPackageConfigs = [
@@ -28,22 +27,38 @@ ourPackageConfigs = [
 ] -}
 ourPackageConfigs = []
 
-loadHaskell :: FilePath -> IO [(String, [Val] -> Eval Val)]
-loadHaskell _ = do
-    loadRawObject "/usr/src/pugs/blib6/arch/CORE/pugs/UnicodeC.o"
-    loadRawObject "/usr/src/pugs/blib6/arch/CORE/pugs/pcre/pcre.o"
-    load "/usr/src/pugs/blib6/arch/CORE/pugs/Compat.o" ["/usr/src/pugs/blib6/arch/CORE/pugs/", "/usr/src/SHA1/src/"] ourPackageConfigs ""
+loadOrDie 
+     :: FilePath                -- ^ object file
+     -> [FilePath]              -- ^ any include paths
+     -> [FilePath]              -- ^ list of package.conf paths
+     -> String                  -- ^ symbol to find
+     -> IO (a)
+loadOrDie obj includes configs symbol = do
+    stat <- load obj includes configs symbol
+    case stat of
+        LoadFailure errs -> error $ unlines $ ["Error loading "++symbol++" from "++obj] ++ errs
+        LoadSuccess _ a  -> return a
 
-    externstat <- load "/usr/src/SHA1/SHA1__0_0_1.o"  ["/usr/src/pugs/blib6/arch/CORE/pugs/", "/usr/src/SHA1/src/"] ourPackageConfigs "extern__"
-    (extern :: [String]) <- case externstat of
-        LoadFailure _   -> error "load failed"
-        LoadSuccess _ v -> return v
-    print (">"++(show extern)++"<")
+loadHaskell :: FilePath -> IO [(String, [Val] -> Eval Val)]
+loadHaskell file = do
+    let coredir   = "/usr/src/pugs/blib6/arch/CORE/pugs/"
+    let loadpaths = [coredir, "/usr/src/SHA1/blib/arch/"]
+    -- For Unicode
+    loadRawObject $ coredir++"UnicodeC.o"
+    -- For ???
+    loadRawObject $ coredir++"pcre/pcre.o"
+    
+    -- AST has early requirements and late requirements, because of recrusivity.  
+    -- The logic for this should probably be moved to hs-plugins, but do it here 
+    -- for now.
+    mapM 
+        (\n -> load (coredir++n++".o") loadpaths ourPackageConfigs "")
+        ["Compat", "Cont", "Embed", "Embed/Perl5", "Internals", "RRegex", "RRegex/PCRE", "RRegex/Syntax", "Rule/Pos", "UTF8", "Unicode", "AST"]
+
+    (extern :: [String]) <- loadOrDie file loadpaths ourPackageConfigs "extern__"
+    -- print (">"++(show extern)++"<")
     (`mapM` extern) $ \name -> do
-        funcstat <- load "/usr/src/SHA1/SHA1__0_0_1.o"  ["/usr/src/pugs/blib6/arch/CORE/pugs/", "/usr/src/SHA1/src/"] ourPackageConfigs ("extern__" ++ name)
-        func <- case funcstat of
-            LoadFailure _   -> error ("load of extern__"++name++" failed")
-            LoadSuccess _ v -> return v
+        func <- loadOrDie file loadpaths ourPackageConfigs ("extern__" ++ name)
         return (name, func)
 
 externalizeHaskell :: String -> String -> IO String
