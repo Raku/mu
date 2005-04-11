@@ -19,9 +19,9 @@ is(~keys(@array), '0 1 2 3', 'keys(@array) works');
 is(+@array.keys, +@array, 'we have the same number of keys as elements in the array');
 
 # L<S29/"Perl6::Arrays" /"values"/>
-eval_is('~@array.values', 'a b c d', '@array.values works');
-eval_is('~values(@array)', 'a b c d', 'values(@array) works');
-eval_is('+@array.values', +@array, 'we have the same number of values as elements in the array');
+is(~@array.values, 'a b c d', '@array.values works');
+is(~values(@array), 'a b c d', 'values(@array) works');
+is(+@array.values, +@array, 'we have the same number of values as elements in the array');
 
 my %hash = (a => 1, b => 2, c => 3, d => 4);
 

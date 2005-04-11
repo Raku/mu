@@ -20,6 +20,10 @@ class Class a where
             sv <- fetchElem av idx
             writeIVar sv val
         storeSize av (length list)
+    fetchKeys   :: a -> Eval [Index]
+    fetchKeys av = do
+        svList <- fetch av
+        return $ zipWith const [0..] svList
     fetchElem   :: a -> Index -> Eval (IVar VScalar) -- autovivify
     fetchElem av key = do
         return $ proxyScalar (fetchVal av key) (storeVal av key)

@@ -753,28 +753,6 @@ evalExp exp = do
 
 undef = VUndef
 
-existsFromRef :: VRef -> Val -> Eval VBool
-existsFromRef (MkRef (IHash hv)) val = do
-    idx     <- fromVal val
-    Hash.existsElem hv idx
-existsFromRef (MkRef (IArray av)) val = do
-    idx     <- fromVal val
-    Array.existsElem av idx
-existsFromRef ref _ = retError "Not a keyed reference" (Val $ VRef ref)
-
-deleteFromRef :: VRef -> Val -> Eval Val
-deleteFromRef (MkRef (IHash hv)) val = do
-    idx     <- fromVal val
-    rv      <- mapM (Hash.fetchVal hv) idx
-    mapM_ (Hash.deleteElem hv) idx
-    return $ VList rv
-deleteFromRef (MkRef (IArray av)) val = do
-    idx     <- fromVal val
-    rv      <- mapM (Array.fetchVal av) idx
-    mapM_ (Array.deleteElem av) idx
-    return $ VList rv
-deleteFromRef ref _ = retError "Not a keyed reference" (Val $ VRef ref)
-
 readRef :: VRef -> Eval Val
 readRef (MkRef (IScalar sv)) = Scalar.fetch sv
 readRef (MkRef (ICode cv)) = do
@@ -1027,6 +1005,9 @@ instance Array.Class IArray where
         Array.extendSize av (idx+1)
         svList <- liftIO $ readIORef av
         readIVar (svList !! idx)
+    fetchKeys av = do
+        svList <- liftIO $ readIORef av
+        return $ zipWith const [0..] svList
     fetchElem av idx = do
         Array.extendSize av (idx+1)
         svList <- liftIO $ readIORef av

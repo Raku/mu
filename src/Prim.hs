@@ -19,6 +19,8 @@ import Parser
 import External
 import qualified Data.Set as Set
 import qualified Types.Array  as Array
+import qualified Types.Hash   as Hash
+import qualified Types.Scalar as Scalar
 
 op0 :: Ident -> [Val] -> Eval Val
 -- op0 ","  = return . VList . concatMap vCast
@@ -271,8 +273,8 @@ op1 "key" = return . fst . (vCast :: Val -> VPair)
 op1 "value" = return . snd . (vCast :: Val -> VPair)
 op1 "pairs" = return . VList . map VPair . vCast
 op1 "kv" = return . VList . concatMap (\(k, v) -> [k, v]) . vCast
-op1 "keys" = return . VList . map fst . (vCast :: Val -> [VPair])
-op1 "values" = return . op1Values
+op1 "keys" = op1Keys
+op1 "values" = op1Values
 op1 "readline" = op1 "="
 op1 "=" = \v -> do
     fh  <- handleOf v
@@ -302,12 +304,20 @@ op1 "log10" = return . op1Log10
 op1 other   = return . (\x -> VError ("unimplemented unaryOp: " ++ other) (App other [Val x] []))
 
 
-op1Values :: Val -> Val
-op1Values (VJunc j) = VList $ Set.elems $ juncSet j
-op1Values (VPair (_, v)) = VList $ [v] -- lwall: a pair is a really small hash.
--- op1Values v@(VHash _) = VList $ map snd $ (vCast :: Val -> [VPair]) v
--- op1Values v@(VList _) = VList $ map snd $ (vCast :: Val -> [VPair]) v -- hope it's a list of pairs
-op1Values v = VError "values not defined" (Val v)
+op1Keys :: Val -> Eval Val
+op1Keys (VPair (v, _)) = return . VList $ [v] -- lwall: a pair is a really small hash.
+op1Keys v = do
+    ref  <- fromVal v
+    vals <- keysFromRef ref
+    return $ VList vals
+
+op1Values :: Val -> Eval Val
+op1Values (VJunc j) = return . VList . Set.elems $ juncSet j
+op1Values (VPair (_, v)) = return . VList $ [v] -- lwall: a pair is a really small hash.
+op1Values v = do
+    ref  <- fromVal v
+    vals <- valuesFromRef ref
+    return $ VList vals
 
 -- what's less cheesy than read?
 op1Hex          :: Val -> Val
@@ -933,6 +943,62 @@ fileTestSizeIsZero f = do
     n <- statFileSize (vCast f)
     return $ if n == 0 then VBool True else VBool False 
 
+-- XXX These bulks of code below screams for refactoring
+
+keysFromRef :: VRef -> Eval [Val]
+keysFromRef (MkRef (IHash hv)) = do
+    keys    <- Hash.fetchKeys hv
+    return $ map castV keys
+keysFromRef (MkRef (IArray av)) = do
+    keys    <- Array.fetchKeys av
+    return $ map castV keys
+keysFromRef (MkRef (IScalar sv)) = do
+    refVal  <- Scalar.fetch sv    
+    vlist   <- op1Keys refVal
+    fromVal vlist
+keysFromRef ref = retError "Not a keyed reference" (Val $ VRef ref)
+
+valuesFromRef :: VRef -> Eval [Val]
+valuesFromRef (MkRef (IHash hv)) = do
+    pairs <- Hash.fetch hv
+    return $ map snd pairs
+valuesFromRef (MkRef (IArray av)) = Array.fetch av
+valuesFromRef (MkRef (IScalar sv)) = do
+    refVal  <- Scalar.fetch sv    
+    vlist   <- op1Values refVal
+    fromVal vlist
+valuesFromRef ref = retError "Not a keyed reference" (Val $ VRef ref)
+
+existsFromRef :: VRef -> Val -> Eval VBool
+existsFromRef (MkRef (IHash hv)) val = do
+    idx     <- fromVal val
+    Hash.existsElem hv idx
+existsFromRef (MkRef (IArray av)) val = do
+    idx     <- fromVal val
+    Array.existsElem av idx
+existsFromRef (MkRef (IScalar sv)) val = do
+    refVal  <- Scalar.fetch sv    
+    ref     <- fromVal refVal
+    existsFromRef ref val
+existsFromRef ref _ = retError "Not a keyed reference" (Val $ VRef ref)
+
+deleteFromRef :: VRef -> Val -> Eval Val
+deleteFromRef (MkRef (IHash hv)) val = do
+    idx     <- fromVal val
+    rv      <- mapM (Hash.fetchVal hv) idx
+    mapM_ (Hash.deleteElem hv) idx
+    return $ VList rv
+deleteFromRef (MkRef (IArray av)) val = do
+    idx     <- fromVal val
+    rv      <- mapM (Array.fetchVal av) idx
+    mapM_ (Array.deleteElem av) idx
+    return $ VList rv
+deleteFromRef (MkRef (IScalar sv)) val = do
+    refVal  <- Scalar.fetch sv    
+    ref     <- fromVal refVal
+    deleteFromRef ref val
+deleteFromRef ref _ = retError "Not a keyed reference" (Val $ VRef ref)
+
 
 -- XXX -- Junctive Types -- XXX --
 
@@ -1007,10 +1073,14 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Str       pre     join    (Str, List)\
 \\n   Str       pre     join    (Array, Str)\
 \\n   List      left    zip     (List)\
-\\n   List      pre     keys    (Hash)\
-\\n   List      pre     values  (Hash)\
-\\n   List      pre     kv      (Hash)\
-\\n   List      pre     pairs   (Hash)\
+\\n   List      pre     keys    (rw!Hash)\
+\\n   List      pre     values  (rw!Hash)\
+\\n   List      pre     kv      (rw!Hash)\
+\\n   List      pre     pairs   (rw!Hash)\
+\\n   List      pre     keys    (rw!Array)\
+\\n   List      pre     values  (rw!Array)\
+\\n   List      pre     kv      (rw!Array)\
+\\n   List      pre     pairs   (rw!Array)\
 \\n   Scalar    pre     delete  (rw!Hash: List)\
 \\n   Scalar    pre     delete  (rw!Array: List)\
 \\n   Bool      pre     exists  (rw!Hash: Str)\
@@ -1068,8 +1138,8 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Scalar    pre     value   (Pair)\
 \\n   List      pre     kv      (Pair)\
 \\n   List      pre     pairs   (Pair)\
-\\n   List      pre     values  (Junction)\
-\\n   Any       pre     pick    (Junction)\
+\\n   List      pre     values  (rw!Junction)\
+\\n   Any       pre     pick    (rw!Junction)\
 \\n   Bool      pre     rename  (Str, Str)\
 \\n   Bool      pre     symlink (Str, Str)\
 \\n   Bool      pre     link    (Str, Str)\
