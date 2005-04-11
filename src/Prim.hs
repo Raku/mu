@@ -1162,7 +1162,7 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   List      pre     kv      (rw!Pair)\
 \\n   List      pre     pairs   (rw!Pair)\
 \\n   List      pre     values  (rw!Junction)\
-\\n   Any       pre     pick    (rw!Junction)\
+\\n   Any       pre     pick    (Junction)\
 \\n   Bool      pre     rename  (Str, Str)\
 \\n   Bool      pre     symlink (Str, Str)\
 \\n   Bool      pre     link    (Str, Str)\
