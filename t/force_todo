@@ -24,3 +24,7 @@ t/builtins/list/join.t 2 6 8 12 17 18 20 24
 t/builtins/list/sort.t 2 4 6
 t/builtins/list/zip.t 10
 t/builtins/list/reverse.t 4 6 7 8 10 12 16 19 20 27
+
+t/builtins/math/trig.t 2 3 4 5 6 7 8 12 13 14 15 16 17 18 19 20
+
+t/builtins/sleep.t 1
