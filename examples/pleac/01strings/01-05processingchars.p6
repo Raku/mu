@@ -4,19 +4,24 @@ use v6;
 
 my $string = "an apple a day";
 
-# Does Scalar.chars returns array in array context?
+# split the unicode elements
 my @array = $string.chars;
 # XXX This is list context, not array context.
+# Juerd: is is innappropriate to call the above an @array? should i call
+# it @list (and other examples below) for learner purposes? i'm looking for
+# something definitive on this, but haven't found it yet
 
-# unpack() not yet documented in S29 as of this writing. Currently this
-# example clearly won't work for unicode
+# use unpack to do the same thing
+# s/C/U work with unicode (thanks Juerd)
 @array = unpack("C*", $string);
-# XXX With s/C/U/ should do unicode, even in Perl 5 :)
 
 # loop through the [unicode] chars
 for $string.chars { 
-	# do something with $1
+	# do something with $_
 }
+
+# concise syntax for running a function on a loop through [unicode] chars
+say $_ for $string.chars;
 
 # find the unique characters in a string
 my %seen;
@@ -25,13 +30,14 @@ for $string.chars -> $char {
 }
 say "unique chars are: " ~ sort %seen.keys;
 
+# concise syntax for the same
+# going out on a limb here, i feel next to certain that my paranthesis won't
+# cut it, so i'm hoping to learn from corrections to this
+my %seen;
+say sort (%seen{$_}++ for $string.chars).keys;
+
 # add all the unicode character values together
-$sum = 0;
-for $string.codes -> $univalue { # is .codes right for getting unicode nums?
-    $sum += $univalue;
-}
-say "sum is $sum";
-# XXX Perhaps use sum($string.codes) or even $string.codes.sum?
+say "sum is &sum($string.codes)";
 
 #-----------------------------
 $sum = unpack("%32C*", $string);
@@ -48,7 +54,7 @@ for =<> -> $line {
 	$checksum += unpack("%16C*", $line); # unpack not documented yet
 }
 $checksum %= (2 ** 16) - 1;
-say "$checksum";  # XXX redundant quotes
+say $checksum;
 
 #-----------------------------
 #% perl sum /etc/termcap
