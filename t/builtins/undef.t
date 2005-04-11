@@ -109,19 +109,20 @@ ok(!defined(undef), "undef is not defined");
 
 my $interesting;
 eval_ok('(undef, undef, $interesting) = (1,2,3)',"Undef on LHS of list assignment");
-is($interesting,3, "Undef on LHS of list assignment");
+is($interesting, 3, "Undef on LHS of list assignment");
 
 eval_ok('(undef, $interesting, undef) = (1,2,3)', "Undef on LHS of list assignment");
-is($interesting,2, "Undef on LHS of list assignment");
+is($interesting, 2, "Undef on LHS of list assignment");
 
 eval_ok('($interesting, undef, undef) = (1,2,3)', "Undef on LHS of list assignment");
-is($interesting,1, "Undef on LHS of list assignment");
+is($interesting, 1, "Undef on LHS of list assignment");
 
 sub two_elements() { (1,2) };
 eval_ok( '(undef,$interesting) = two_elements();', "Undef on LHS of function assignment");
-is($interesting,2, "Undef on LHS of function assignment");
+is($interesting, 2, "Undef on LHS of function assignment"); 
+
 eval_ok( '($interesting, undef) = two_elements();', "Undef on LHS of function assignment");
-is($interesting,1, "Undef on LHS of function assignment");
+is($interesting, 1, "Undef on LHS of function assignment");
 
 =kwid
 
