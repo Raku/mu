@@ -407,7 +407,7 @@ ruleTryConstruct = ruleKeywordConsturct "try"
 
 ruleForConstruct = rule "for construct" $ do
     symbol "for"
-    list  <- ruleExpression
+    list  <- maybeParens ruleExpression
     block <- ruleBlockLiteral
     retSyn "for" [list, block]
 
