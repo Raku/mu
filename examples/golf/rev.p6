@@ -1,3 +1,3 @@
-my$h=open@ARGS[0];my@l=$h.readline();
-my$x;for(@l){$x=$_~$x}
+my@l=@ARGS[0].open.readline;
+my$x;map{$x=$_~$x}@l;
 print$x;
