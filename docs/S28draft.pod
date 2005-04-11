@@ -3,18 +3,230 @@
 
  [DRAFT] Synopsis 28 - Special Variables [DRAFT]
 
-=head1 Version
+=head1 VERSION
 
  Maintainer:     pugs committers
- Date:           2 Apr 2005
- Last Modified:  2 Apr 2005
+ Created:        2 Apr 2005
+ Last Modified:  10 Apr 2005
 
-This document attempts to document the list of special variables in
-Perl 6.
+This document collects what is known about special variables in
+Perl 6 with reference to the changes from Perl 5. 
+This document at its present stage of development
+draws on a few key sources: Perl 5's perlvar.pod (for a full list of special
+vars in Perl 5) and a perl6-language list thread documented in 
+the APPENDIX below. E02 and S02 have also been helpful in several cases.
+
+=head1 SUMMARY
+
+NOTE: Most/All variables of the form $*SOMETHING should also work in the form
+$SOMETHING (without the '*') unless masked by "my $SOMETHING".
+
+=over 4
+
+Because a blank entry in the "Perl 6" column could be taken to mean either 
+"not in Perl 6" or "unknown", the information as presented 
+below presumes an entry in that column for every entry. 
+It must be the appropriate Perl 6 entity, 
+'-' for "not in Perl 6", or '?' for "don't know yet". 
+Other organizational
+schemes will become appropriate when the table is more complete.
+
+=back
+
+ Perl 6  Perl 5         Comment
+ ------  ------         -----------------------
+
+ $*IN    STDIN
+ $*OUT   STDOUT
+ $*ERR   STDERR
+
+ $_      $_  $ARG
+
+ -       $a,$b
+
+
+ $/                     Object containing the results of the 
+                        last regular expression match. All match
+                        result info found in the contained data
+                        structure.
+                        
+ $1,$2.. $1,$2..        Shortcut to same info in $/ with data
+                        structures containing such things as .start
+                        and .end (Unicode level independent).
+
+ $0      $&  $MATCH     $0 replaces $& for the whole matched string
+ $<pre>  $`  $PREMATCH
+ $<post> $'  $POSTMATCH <pre> and <post> would automatically exclude 
+                        themselves from $0.  Or you need some special 
+                        flag to remember them, maybe.
+ -       $+  $LAST_PAREN_MATCH
+ ?       $^N
+ ?       @+  @LAST_MATCH_END
+ -       $*
+
+ $IN_FH.input_line_number  ...or some such
+ $.          May-be. But with cleaned-up localization usage.
+         $.  $NR $INPUT_LINE_NUMBER
+             HANDLE->input_line_number(EXPR)
+
+ $IN_FH.input_rec_separator  ...or some such
+         $/  $RS $INPUT_RECORD_SEPARATOR
+             IO::Handle->input_record_separator(EXPR)
+
+ $OUT_FH.autoflush           ...or some such
+         $|  $OUTPUT_AUTOFLUSH
+             HANDLE->autoflush(EXPR)
+
+ $OUT_FH.output_field_separator   ...or some such
+         $,  $OFS $OUTPUT_FIELD_SEPARATOR
+             IO::Handle->output_field_separator
+
+ $OUT_FH.output_record_separator   ...or some such
+         $\  $ORS $OUTPUT_RECORD_SEPARATOR
+             IO::Handle->output_record_separator
+
+ -       $"  $LIST_SEPARATOR
+
+ ?       $;  $SUBSEP $SUBSCRIPT_SEPARATOR
+
+ -       $#             Output format for printed numbers.
+
+ -       $%  $FORMAT_PAGE_NUMBER
+ -           HANDLE->format_page_number(EXPR)
+
+ -       $=  $FORMAT_LINES_PER_PAGE
+ -           HANDLE->format_lines_per_page(EXPR)
+
+ -       $-  $FORMAT_LINES_LEFT
+ -           HANDLE->format_lines_left(EXPR)
+
+ ?       @-  @LAST_MATCH_START
+
+ -       $~  $FORMAT_NAME
+ -           HANDLE->format_name(EXPR)
+
+ -       $^  $FORMAT_TOP_NAME
+ -           HANDLE->format_top_name(EXPR)
+
+ -       $:  $FORMAT_LINE_BREAK_CHARACTERS
+ -           IO::Handle->format_line_break_characters
+
+ -       $^L $FORMAT_FORMFEED
+ -           IO::Handle->format_formfeed
+
+ -       $^A $ACCUMULATOR
+
+
+ ?       ${^ENCODING}
+
+ $!                     Universal error object with as much info as
+                        you'd like on the current exception (unthrown 
+                        outside of CATCH, thrown inside).  Unthrown 
+                        exceptions are typically interesting values 
+                        of undef.
+ -       $!  $ERRNO $OS_ERROR
+ -       $?  $CHILD_ERROR
+ -       $@  $EVAL_ERROR
+ -       $^E $EXTENDED_OS_ERROR
+
+ ?       %!
+
+ $*PID   $$  $PID $PROCESS_ID
+
+ $*UID                  ...or some such
+         $<  $UID $REAL_USER_ID
+ $*EUID                 ...or some such
+         $>  $EUID $EFFECTIVE_USER_ID
+ $*GID                  ...or some such
+         $(  $GID $REAL_GROUP_ID
+ $*EGID                 ...or some such
+         $)  $EGID $EFFECTIVE_GROUP_ID
+
+ $*PROGRAM_NAME         ...or some such
+         $0  $PROGRAM_NAME
+
+ -       $[             Index of the first element in an array, 
+                        and of the first character in a substring.
+
+ 
+ -       $^V $PERL_VERSION
+ -       $]             version + patchlevel / 1000 of Perl interpreter
+                        Replacement for the above two is unclear.
+
+ ?       $^C $COMPILING
+
+ ?       $^D $DEBUGGING
+
+ ?       $^F $SYSTEM_FD_MAX
+
+ ?       $^H
+ ?       %^H
+        
+ ?       $^I $INPLACE_EDIT
+
+ ?       $^M
+
+ ?       $^O $OSNAME
+
+ ?       ${^OPEN}
+
+ ?       $^P $PERLDB
+
+ ?       $^R $LAST_REGEXP_CODE_RESULT
+
+ ?       $^S $EXCEPTIONS_BEING_CAUGHT
+
+ ?       $^T $BASETIME
+
+ ?       ${^TAINT}
+ ?       ${^UNICODE}
+
+ ?       $^W $WARNING
+
+ ?       ${^WARNING_BITS}
+
+ ?       $^X $EXECUTABLE_NAME
+
+ ?       ARGV
+
+ ?       $ARGV
+
+ $*ARGS  @ARGV
+
+ ?       ARGVOUT
+
+ ?       @F
+
+ ?       @INC
+
+ ?       @_
+
+ ?       %INC
+
+ ?       %ENV $ENV{expr}
+
+ ?       %SIG $SIG{expr}
+
+=head1 CHANGE LOG
+
+2005-04-10 dvergin     Roughed in main table 
+
+2005-04-02 anonpugster Placeholder file containing Larry's email
 
 =head1 APPENDIX
 
-Here is an e-mail from Larry on the subject;
+NOTE: This section should likely be reduced to just the url below in 
+the next major revision of this pod.
+
+The new material above was compiled from an a thread on the perl6-language
+email list which can be found at: 
+
+  http://www.mail-archive.com/perl6-language@perl.org/msg18609.html
+
+For our present purposes, the most helpful item in that thread is the 
+head post found
+at the url given above. It is an item by Larry Wall which is reproduced here:
+_________________________________________________________________
 
  Mailing-List: contact perl6-language-help@perl.org; run by ezmlm
  Date: Sat, 26 Mar 2005 00:27:24 -0800
@@ -149,3 +361,5 @@ Here is an e-mail from Larry on the subject;
  Larry
 
 =cut
+
+
