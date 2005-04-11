@@ -990,6 +990,13 @@ instance Array.Class IArray where
             GT -> liftIO $ writeIORef av $ take sz svList
             EQ -> return () -- no need to do anything
             LT -> Array.extendSize av size -- XXX terribly inefficient
+    shift av = do
+        svList <- liftIO $ readIORef av
+        case svList of
+            (sv:rest) -> do
+                liftIO $ writeIORef av rest
+                readIVar sv
+            _ -> return undef
     unshift av vals = do
         svList <- liftIO $ readIORef av
         liftIO $ writeIORef av $ map lazyScalar vals ++ svList

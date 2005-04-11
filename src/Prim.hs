@@ -136,11 +136,8 @@ op1 "require_haskell" = \v -> do
     externRequire "Haskell" name
     return $ VBool True
 op1 "require" = \v -> do
-    fileVal <- readMVal v
-    -- XXX - assuming a flat array
-    incVals <- readVar "@*INC"
-    let incs = map vCast $ vCast incVals
-        file = vCast fileVal
+    file    <- fromVal v
+    incs    <- fromVal =<< readVar "@*INC"
     requireInc incs file (errMsg file incs)
     where
     errMsg file incs = "Can't locate " ++ file ++ " in @INC (@INC contains: " ++ unwords incs ++ ")."
@@ -293,10 +290,8 @@ op1 "=" = \v -> do
             else handleOf (VList [VStr $ vCast (head files)]) -- XXX wrong
     handleOf v = fromVal v
 op1 "ref"   = return . VStr . valType
-{-
-op1 "pop"   = op1Pop (last, init)
-op1 "shift" = op1Pop (head, tail)
--}
+op1 "pop"   = \x -> join $ doArray x Array.pop -- monadic join
+op1 "shift" = \x -> join $ doArray x Array.shift -- monadic join
 op1 "pick"  = op1Pick
 op1 "sum"   = op1Sum
 op1 "chr"   = return . op1Chr
@@ -353,18 +348,6 @@ op1Pick (VJunc (Junc _ _ set)) =
     if (Set.cardinality $ set) > 1 then return VUndef
     else return $ head $ Set.elems set
 op1Pick v = return $ VError "pick not defined" (Val v)
-
-{-
-op1Pop (fPick, fRem) list = do
-    let array = vCast list
-    old <- readMVal array
-    let oldList = vCast old
-    if null oldList
-        then return VUndef
-        else do
-            liftIO $ writeIORef (vCast array) $ VList $ fRem oldList
-            return $ fPick oldList
--}
 
 op1Sum list = do
     vals <- mapM readMVal (vCast list)
@@ -692,9 +675,9 @@ op2Hyper op x y
 
 op2Array :: (forall a. Array.Class a => a -> [Val] -> Eval ()) -> Val -> Val -> Eval Val
 op2Array f x y = do
-    push <- doArray x f
+    f    <- doArray x f
     vals <- fromVal y
-    push vals
+    f vals
     size <- doArray x Array.fetchSize
     idx  <- size
     return $ castV idx
