@@ -25,6 +25,10 @@ module Compat (
     getArg0,
     statFileSize,
     getProcessID,
+    getRealUserID,
+    getEffectiveUserID,
+    getRealGroupID,
+    getEffectiveGroupID,
     setEnv,
     unsetEnv,
 ) where
@@ -36,6 +40,7 @@ import Foreign.C
 import System.Posix.Process
 import System.Posix.Env
 import System.Posix.Files
+import System.Posix.User
 
 statFileSize f = do
     s <- getFileStatus f
@@ -77,6 +82,18 @@ statFileSize _ = failWith "-s"
 
 getProcessID :: IO ProcessID
 getProcessID = return 1
+
+getRealUserID :: IO UserID
+getRealUserID = return 1
+
+getEffectiveUserID :: IO UserID
+getEffectiveUserID = return 1
+
+getRealGroupID :: IO GroupID
+getRealGroupID = return 1
+
+getEffectiveGroupID :: IO GroupID
+getEffectiveGroupID = return 1
 
 #endif
 

@@ -59,6 +59,14 @@ prepareEnv name args = do
     libs    <- getLibs environ
     pid     <- getProcessID
     pidSV   <- newScalar (VInt $ toInteger pid)
+    uid     <- getRealUserID
+    uidSV   <- newScalar (VInt $ toInteger uid)
+    euid    <- getEffectiveUserID
+    euidSV  <- newScalar (VInt $ toInteger euid)
+    gid     <- getRealGroupID
+    gidSV   <- newScalar (VInt $ toInteger gid)
+    egid    <- getEffectiveGroupID
+    egidSV  <- newScalar (VInt $ toInteger egid)
     execSV  <- newScalar (VStr exec)
     progSV  <- newScalar (VStr name)
     endAV   <- newArray []
@@ -79,6 +87,11 @@ prepareEnv name args = do
         , SymVar SGlobal "$*EXECUTABLE_NAME"    $ MkRef execSV
         , SymVar SGlobal "$*PROGRAM_NAME"       $ MkRef progSV
         , SymVar SGlobal "$*PID"        $ MkRef pidSV
+        -- XXX these four need a proper `set' magic
+        , SymVar SGlobal "$*UID"        $ MkRef uidSV
+        , SymVar SGlobal "$*EUID"       $ MkRef euidSV
+        , SymVar SGlobal "$*GID"        $ MkRef gidSV
+        , SymVar SGlobal "$*EGID"       $ MkRef egidSV
         , SymVar SGlobal "@*END"        $ MkRef endAV
         , SymVar SGlobal "$*IN"         $ MkRef inGV
         , SymVar SGlobal "$*OUT"        $ MkRef outGV
