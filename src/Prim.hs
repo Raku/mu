@@ -501,6 +501,12 @@ op2 "nor"= op2 "!!"
 op2 "grep" = op2Grep
 op2 "map"  = op2Map
 op2 "join" = op2Join
+op2 "delete" = \x y -> do
+    ref <- fromVal x
+    deleteFromRef ref y
+op2 "exists" = \x y -> do
+    ref <- fromVal x
+    return . VBool =<< existsFromRef ref y
 op2 "unshift" = op2Array Array.unshift
 op2 "push" = op2Array Array.push
 op2 "split"= \x y -> do
@@ -1005,6 +1011,10 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   List      pre     values  (Hash)\
 \\n   List      pre     kv      (Hash)\
 \\n   List      pre     pairs   (Hash)\
+\\n   Scalar    pre     delete  (rw!Hash: List)\
+\\n   Scalar    pre     delete  (rw!Array: List)\
+\\n   Bool      pre     exists  (rw!Hash: List)\
+\\n   Bool      pre     exists  (rw!Array: List)\
 \\n   Str       pre     perl    (List)\
 \\n   Any       pre     eval    (Str)\
 \\n   Any       pre     eval_perl5 (Str)\
