@@ -52,10 +52,9 @@ while($instruction = %instructions{"$state %tape{$tape_loc}"}) {
     $tape_loc++;
   }
 
-  if(not defined %tape{$tape_loc}) {
+  if(not exists %tape{$tape_loc}) {
     %tape{$tape_loc} = '_';
   }
-  say "» $state %tape{$tape_loc}";
 }
 
 my $final_tape = join "", %tape{sort {$^a <=> $^b} keys %tape};

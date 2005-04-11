@@ -12,7 +12,7 @@ plan 5;
 # It must not be empty at startup.
 ok +%*ENV.keys, '%*ENV has keys';
 
-# %*ENV should be copied into another variable.
+# %*ENV should be able to get copied into another variable.
 my %vars = %*ENV;
 is +%vars.keys, +%*ENV.keys, '%*ENV was successfully copied into another variable';
 

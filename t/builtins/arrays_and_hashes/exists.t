@@ -13,10 +13,10 @@ Basic C<exists> tests, see S29.
 
 # L<S29/"Perl6::Arrays" /"exists"/>
 my @array = <a b c d>;
-todo_eval_ok '@array.exists(0)',   "exists on arrays (1)";
-todo_eval_ok '!@array.exists(42)', "exists on arrays (2)";
+ok @array.exists(0),   "exists on arrays (1)";
+ok !@array.exists(42), "exists on arrays (2)";
 
 # L<S29/"Perl6::Hashes" /"exists"/>
 my %hash = (a => 1, b => 2, c => 3, d => 4);
-todo_eval_ok '%hash.exists("a")',   "exists on hashes (1)";
-todo_eval_ok '!%hash.exists("42")', "exists on hashes (2)";
+ok %hash.exists("a"),   "exists on hashes (1)";
+ok !%hash.exists("42"), "exists on hashes (2)";
