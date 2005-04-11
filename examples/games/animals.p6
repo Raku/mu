@@ -3,24 +3,24 @@
 
 use v6;
 
-sub try(Any $this is rw) {
+sub try(Any $this) {
   # XXX $this ~~ Hash'd be nicer
-  say $this.perl;
-  say $this.ref;
+  say "c {$this.perl}";
+  say "d {$this.ref}";
   if(ref $this eq "Hash") {
-    # XXX: $subthis is needed to work around a Pugs bug ("modifying a constant
-    # item").
-    my $yesno   = yes($this<question>) ?? "yes" :: "no";
-    # XXX "cannot cast as Str: MVal <mval>"
-    my $subthis = $this{$yesno};
-    try $subthis;
-    $this{$yesno} = $subthis;
-    return $this;
+    my $yesno    = yes($this<question>) ?? "yes" :: "no";
+    my %new      = $this;
+    say "a {%new.ref}";
+    say "a' {(%new{$yesno}).ref}";
+    %new{$yesno} = try %new{$yesno};
+    say "b {%new.ref}";
+    say "b' {(%new{$yesno}).ref}";
+    return \%new;
   }
 
   if (yes "Is it a $this") {
     say "I got it!";
-    return 1;
+    return $this;
   }
 
   print "No!?  What was it then? ";
@@ -37,9 +37,10 @@ sub try(Any $this is rw) {
     yes      => sub { $yes ?? $new  :: $this }.(),
     no       => sub { $yes ?? $this :: $new  }.(),
   );
-  $this = %new;
-
-  return 0;
+  say "f {%new.perl}";
+  say "g {(\%new).ref}";
+  say "h {\%new.ref}";
+  return \%new;
 }
 
 sub yes(Str $q) {
@@ -55,7 +56,7 @@ sub yes(Str $q) {
 my $info = "dog";
 
 while(1) {
-  try($info);
+  $info = try $info;
   last() unless yes "Play again?";
 }
 
