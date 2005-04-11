@@ -83,6 +83,9 @@ statFileSize _ = failWith "-s"
 getProcessID :: IO ProcessID
 getProcessID = return 1
 
+type UserID = Int
+type GroupID = Int
+
 getRealUserID :: IO UserID
 getRealUserID = return 1
 
