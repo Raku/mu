@@ -984,12 +984,7 @@ instance Array.Class IArray where
         svList <- liftIO $ readIORef av
         return $ length svList
     storeSize av sz = do
-        svList <- liftIO $ readIORef av
-        let size = length svList
-        case size `compare` sz of
-            GT -> liftIO $ writeIORef av $ take sz svList
-            EQ -> return () -- no need to do anything
-            LT -> Array.extendSize av size -- XXX terribly inefficient
+        liftIO . modifyIORef av $ take sz . (++ repeat lazyUndef)
     shift av = do
         svList <- liftIO $ readIORef av
         case svList of
@@ -998,14 +993,14 @@ instance Array.Class IArray where
                 readIVar sv
             _ -> return undef
     unshift av vals = do
-        svList <- liftIO $ readIORef av
-        liftIO $ writeIORef av $ map lazyScalar vals ++ svList
+        liftIO $ modifyIORef av
+            (map lazyScalar vals ++)
     extendSize _ 0 = return ()
     extendSize av sz = do
-        svList <- liftIO $ readIORef av
-        when (null $ drop (sz-1) svList) $ do
-            let newList = replicate (sz - length svList) lazyUndef
-            liftIO $ writeIORef av $ svList ++ newList
+        liftIO . modifyIORef av $ \svList ->
+            if null $ drop (sz-1) svList
+                then take sz (svList ++ repeat lazyUndef)
+                else svList
     fetchVal av idx = do
         Array.extendSize av (idx+1)
         svList <- liftIO $ readIORef av
@@ -1022,8 +1017,8 @@ instance Array.Class IArray where
                 return sv'
             else return sv
     storeElem av idx sv = do
-        svList <- liftIO $ readIORef av
-        liftIO $ writeIORef av $ take idx svList ++ (sv : drop (idx+1) svList)
+        liftIO $ modifyIORef av
+            (\svList -> take idx svList ++ (sv : drop (idx+1) svList))
 
 instance Handle.Class IHandle where
     fetch = return
