@@ -52,6 +52,11 @@ sub isnt (Str $got, Str $expected, Str ?$desc) returns Bool is export {
     proclaim($test, "SHOULD FAIL: $desc", undef, $got, $expected);
 }
 
+sub todo_isnt (Str $got, Str $expected, Str ?$desc) returns Bool is export {
+    my $test := not($got eq $expected);
+    proclaim($test, "SHOULD FAIL: $desc", "TODO", $got, $expected);
+}
+
 ## like
 
 sub like (Str $got, Rule $expected, Str ?$desc) returns Bool is export {
@@ -67,6 +72,11 @@ sub todo_like (Str $got, Rule $expected, Str ?$desc) returns Bool is export {
 sub unlike (Str $got, Rule $expected, Str ?$desc) returns Bool is export {
     my $test := not($got ~~ $expected);
     proclaim($test, $desc, undef, $got, $expected);
+}
+
+sub todo_unlike (Str $got, Rule $expected, Str ?$desc) returns Bool is export {
+    my $test := not($got ~~ $expected);
+    proclaim($test, $desc, "TODO", $got, $expected);
 }
 
 ## eval_ok
@@ -384,9 +394,12 @@ a proper `use()` builtin.
 
 - `is (Str $got, Str $expected, Str ?$desc) returns Bool`
 
-- `like (Str $got, Rule $expected, Str ?$desc) returns Bool is export`
+- `isnt (Str $got, Str $expected, Str ?$desc) returns Bool`
 
-This function should work with most reg-exps, but given that they are still a
+- `like (Str $got, Rule $expected, Str ?$desc) returns Bool is export`
+- `unlike (Str $got, Rule $expected, Str ?$desc) returns Bool is export`
+
+These functions should work with most reg-exps, but given that they are still a
 somewhat experimental feature in Pugs, it is suggested you don't try anything
 too funky.
 
@@ -428,7 +441,11 @@ functions.
 
 - `todo_is (Str $got, Str $expected, Str ?$desc) returns Bool`
 
+- `todo_isnt (Str $got, Str $expected, Str ?$desc) returns Bool`
+
 - `todo_like (Str $got, Rule $expected, Str ?$desc) returns Bool is export`
+
+- `todo_unlike (Str $got, Rule $expected, Str ?$desc) returns Bool is export`
 
 - `todo_cmp_ok (Str $got, Code $compare_func, Str $expected, Str ?$desc) returns Bool`
 
