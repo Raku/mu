@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan(170);
+plan(179);
 
 my $five = abs(-5);
 
@@ -291,6 +291,8 @@ tryeq 2**2, 4;
 tryeq 2.2**2, 4.84;
 tryeq_sloppy 2**2.2, 4.59479341998814;
 tryeq_sloppy 2.2**2.2, 5.66669577875008;
+tryeq 1**0, 1;
+tryeq 1**1, 1;
 
 # Inf
 tryeq Inf, Inf;
@@ -303,6 +305,8 @@ tryeq Inf*-100, -Inf;
 tryeq Inf/-100, -Inf;
 tryeq 100/Inf, 0;
 tryeq Inf**100, Inf;
+tryeq Inf*0, NaN;
+tryeq Inf-Inf, NaN;
 tryeq Inf*Inf, Inf;
 tryeq Inf/Inf, NaN;
 tryeq Inf*Inf/Inf, NaN;
@@ -310,6 +314,13 @@ my $inf1; # = 100**Inf;
 tryeq $inf1, Inf, "100**Inf";
 my $inf2; # = Inf**Inf;
 tryeq $inf2, Inf, "Inf**Inf";
+
+skip 5, "** with NaN or Inf make Pugs eat cpu forever";
+#tryeq Inf**0, 1;
+#tryeq 0**Inf, 0;
+#tryeq 1**Inf, NaN; # but why?
+#tryeq 0.9**Inf, 0;
+#tryeq 1.1**Inf, Inf;
 
 # NaN
 tryeq NaN, NaN;
