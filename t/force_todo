@@ -18,3 +18,5 @@ t/statements/for.t 3 4 7 8 13 14 17 18 20 22
 t/statements/given.t 1 4 14 15 23 24 25 26 33 34
 t/rules/rules_refs.t 1
 t/builtins/list/join.t 2 6 8 12 17 18 20 24
+t/builtins/list/sort.t 2 4 6
+t/builtins/list/zip.t 10 
