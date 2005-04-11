@@ -176,7 +176,9 @@ sub has_ghc_package {
 	warn "'ghc-pkg', 'describe', $package";
 	my $pid = open3($stdin, $stdout, $stderr, 'ghc-pkg', 'describe', $package);
 	warn $pid;
-	#my $status = waitpid($pid, 0);
+	if ($^O !~ /ms/i and $^O !~ /win/i) {
+	  waitpid($pid, 0);
+	}
 	warn sprintf "$pid finished: 0x%x", $?;
 
 	return !$?;
