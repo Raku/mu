@@ -47,15 +47,15 @@ sub todo_is (Str $got, Str $expected, Str ?$desc) returns Bool is export {
     proclaim($test, $desc, "TODO", $got, $expected);
 }
 
-sub fail_is (Str $got, Str $expected, Str ?$desc) returns Bool is export {
-    my $test := not $got eq $expected;
+sub isnt (Str $got, Str $expected, Str ?$desc) returns Bool is export {
+    my $test := not($got eq $expected);
     proclaim($test, "SHOULD FAIL: $desc", undef, $got, $expected);
 }
 
 ## like
 
 sub like (Str $got, Rule $expected, Str ?$desc) returns Bool is export {
-    my $test = $got ~~ $expected;
+    my $test := $got ~~ $expected;
     proclaim($test, $desc, undef, $got, $expected);
 }
 
@@ -64,23 +64,30 @@ sub todo_like (Str $got, Rule $expected, Str ?$desc) returns Bool is export {
     proclaim($test, $desc, "TODO", $got, $expected);
 }
 
+sub unlike (Str $got, Rule $expected, Str ?$desc) returns Bool is export {
+    my $test := not($got ~~ $expected);
+    proclaim($test, $desc, undef, $got, $expected);
+}
+
 ## eval_ok
 
 sub eval_ok (Str $code, Str ?$desc) returns Bool is export {
     my $result = eval $code;
     if ($!) {
-	proclaim(undef, $desc, undef, "eval was fatal");
-    } else {
-	&ok.goto($result, $desc);
+	    proclaim(undef, $desc, undef, "eval was fatal");
+    } 
+    else {
+	    &ok.goto($result, $desc);
     }
 }
 
 sub todo_eval_ok (Str $code, Str ?$desc) returns Bool is export {
     my $result = eval $code;
     if ($!) {
-	proclaim(undef, $desc, "TODO", "eval was fatal");
-    } else {
-	&todo_ok.goto($result, $desc);
+	    proclaim(undef, $desc, "TODO", "eval was fatal");
+    } 
+    else {
+	    &todo_ok.goto($result, $desc);
     }
 }
 
@@ -89,18 +96,20 @@ sub todo_eval_ok (Str $code, Str ?$desc) returns Bool is export {
 sub eval_is (Str $code, $expected, Str ?$desc) returns Bool is export {
     my $result = eval $code;
     if ($!) {
-	proclaim(undef, $desc, undef, "eval was fatal", $expected);
-    } else {
-	&is.goto($result, $expected, $desc);
+	    proclaim(undef, $desc, undef, "eval was fatal", $expected);
+    } 
+    else {
+	    &is.goto($result, $expected, $desc);
     }
 }
 
 sub todo_eval_is (Str $code, $expected, Str ?$desc) returns Bool is export {
     my $result = eval $code;
     if ($!) {
-	proclaim(undef, $desc, "TODO", "was fatal", $expected);
-    } else {
-	&todo_is.goto($result, $expected, $desc);
+        proclaim(undef, $desc, "TODO", "was fatal", $expected);
+    } 
+    else {
+        &todo_is.goto($result, $expected, $desc);
     }
 }
 
@@ -135,8 +144,9 @@ sub todo_isa_ok ($ref is rw, Str $expected_type, Str ?$desc) returns Bool is exp
 sub use_ok (Str $module) is export {
     eval "require $module";
     if ($!) {
-	proclaim(undef, "require $module;", undef, "Import error when loading $module: $!");
-    } else {
+	    proclaim(undef, "require $module;", undef, "Import error when loading $module: $!");
+    } 
+    else {
         &ok.goto(1, "$module imported OK");
     }
 }
@@ -144,8 +154,9 @@ sub use_ok (Str $module) is export {
 sub todo_use_ok (Str $module) is export {
     eval "require $module";
     if ($!) {
-	proclaim(undef, "require $module;", undef, "Import error when loading $module: $!");
-    } else {
+	    proclaim(undef, "require $module;", undef, "Import error when loading $module: $!");
+    } 
+    else {
         &todo_ok.goto(1, "$module imported OK");
     }
 }
@@ -159,8 +170,8 @@ sub skip (Str ?$reason) returns Bool is export {
 sub skip (Int $count, Str $reason) returns Bool is export {
   for (1..$count) {
     skip $reason;
-  };
-};
+  }
+}
 
 sub pass (Str ?$desc) returns Bool is export {
     proclaim(1, $desc);
@@ -181,7 +192,7 @@ sub test_log_file (Str $filename) returns Str is export {
 
 sub diag (Str $diag) is export {
     for (split("\n", $diag)) -> $line {
-	say "# $line";
+	    say "# $line";
     }
 }
 
@@ -197,7 +208,7 @@ sub proclaim (Bool $cond, Str ?$desc, Str ?$c, Str ?$got, Str ?$expected) return
 
     my $ok := $cond ?? "ok " :: "not ok ";
     my $out = defined($desc) ?? " - $desc" :: "";
-       $out = "$out <pos:$?CALLER::CALLER::POSITION>" if $always_caller;
+    $out = "$out <pos:$?CALLER::CALLER::POSITION>" if $always_caller;
 
     my $context_out = defined($context) ?? " # $context" :: "";
 
@@ -211,16 +222,18 @@ sub proclaim (Bool $cond, Str ?$desc, Str ?$c, Str ?$got, Str ?$expected) return
 
 sub report_failure (Str ?$todo, Str ?$got, Str ?$expected) returns Bool {
     if ($todo) {
-	diag("  Failed ($todo) test ($?CALLER::CALLER::CALLER::POSITION)");
-    } else {
-	diag("  Failed test ($?CALLER::CALLER::CALLER::POSITION)");
+        diag("  Failed ($todo) test ($?CALLER::CALLER::CALLER::POSITION)");
+    } 
+    else {
+	    diag("  Failed test ($?CALLER::CALLER::CALLER::POSITION)");
         $failed++;
     }
 
     if ($?CALLER::CALLER::SUBNAME eq ('&is' | '&todo_is' | '&cmp_ok' | '&todo_cmp_ok' | '&eval_is' | '&todo_eval_is' | '&isa_ok' | '&todo_isa_ok')) {
         diag("  Expected: " ~ ($expected.defined ?? $expected :: "undef"));
         diag("       Got: " ~ ($got.defined ?? $got :: "undef"));
-    } else {
+    } 
+    else {
         diag("       Got: " ~ ($got.defined ?? $got :: "undef"));
     }
 }
@@ -266,22 +279,22 @@ sub read_forcetodo_tests() {
     # Otherwise, continue:
     my @tests_to_forcetodo;
     for =$force_todo_fh -> $l {
-	my $line = $l; # no C<is rw> yet
-	# FYI, an example line might look like:
-	#   t/foo/bar.t 13 15 42
-	# If $line is not a comment and concerns us...
-	if(substr($line, 0, 1) ne "#" and index($line, $unixfn) >= 0) {
-	    chomp $line;
-	    my @tests = split " ", $line;
-	    # We have to shift @tests to remove the test filename.
-	    shift @tests;
-	    push @tests_to_forcetodo, @tests;
-	}
+    	my $line = $l; # no C<is rw> yet
+    	# FYI, an example line might look like:
+    	#   t/foo/bar.t 13 15 42
+    	# If $line is not a comment and concerns us...
+    	if(substr($line, 0, 1) ne "#" and index($line, $unixfn) >= 0) {
+    	    chomp $line;
+    	    my @tests = split " ", $line;
+    	    # We have to shift @tests to remove the test filename.
+    	    shift @tests;
+    	    push @tests_to_forcetodo, @tests;
+    	}
     }
 
     if(@tests_to_forcetodo) {
-	@forcetodo_tests[$_] = 1 for @tests_to_forcetodo;
-	diag "Will forcetodo test(s) @tests_to_forcetodo[]."
+	    @forcetodo_tests[$_] = 1 for @tests_to_forcetodo;
+	    diag "Will forcetodo test(s) @tests_to_forcetodo[]."
     }
 }
 read_forcetodo_tests();
@@ -289,9 +302,11 @@ read_forcetodo_tests();
 END {
     if (!defined($plan)) {
         say("1..$loop");
-    } elsif ($plan != $loop) {
-	$*ERR.say("# Looks like you planned $plan tests, but ran $loop");
+    } 
+    elsif ($plan != $loop) {
+	    $*ERR.say("# Looks like you planned $plan tests, but ran $loop");
     }
+    
     if ($failed) {
         $*ERR.say("# Looks like you failed $failed tests of $loop");
     }

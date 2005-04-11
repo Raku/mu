@@ -3,18 +3,22 @@
 use v6;
 require Test;
 
-plan 20;
+plan 22;
 
 ok(2 + 2 == 4, '2 and 2 make 4');
 is(2 + 2, 4, '2 and 2 make 4');
-isa_ok([1, 2, 3], 'List');
+my @list = ( 1, 2, 3 );
+isa_ok(@list, 'List');
+
+isnt(2 + 2, 5, '2 and 2 does not make 5');
 
 todo_ok(2 + 2 == 5, '2 and 2 make 5');
 todo_is(2 + 2, 5, '2 and 2 make 5');
-todo_isa_ok({'one' => 1}, 'Hash');
+todo_isa_ok({ 'one' => 1 }, 'Hash');
 
 like("Hello World", rx:perl5{\s}, '... testing like()');
 todo_like("HelloWorld", rx:perl5{\s}, '... testing like()');
+unlike("HelloWorld", rx:perl5{\s}, '... testing unlike()');
 
 pass('This test passed');
 #fail('This test failed');
