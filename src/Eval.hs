@@ -369,6 +369,14 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         av  <- newObject "Array" v
         sv  <- newObject "Scalar" (VRef av)
         retVal $ VRef sv
+    -- XXX evil hack for infinite slices
+    "[]" | [lhs, App "&postfix:..." invs args] <- exps
+         , [idx] <- invs ++ args
+         , not (envLValue env) -> reduce env (Syn "[...]" [lhs, idx])
+    "[]" | [lhs, App "&infix:.." invs args] <- exps
+         , [idx, Val (VNum n)] <- invs ++ args
+         , n == 1/0
+         , not (envLValue env) -> reduce env (Syn "[...]" [lhs, idx])
     "[]" -> do
         let [listExp, indexExp] = exps
         idxVal  <- enterEvalContext (cxtOfExp indexExp) indexExp
@@ -378,8 +386,9 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
                 (fromVal idxVal)
                 (envLValue env)
                 (isaType (envClasses env) "Scalar" (cxtOfExp indexExp))
-    "[..]" -> do
-        let [listExp, (Val idxVal)] = exps
+    "[...]" -> do
+        let [listExp, indexExp] = exps
+        idxVal  <- evalExp indexExp
         idx     <- fromVal idxVal
         listVal <- enterLValue $ enterEvalContext "Array" listExp
         list    <- fromVal listVal
