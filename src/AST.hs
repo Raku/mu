@@ -782,7 +782,7 @@ readRef (MkRef (ICode cv)) = do
     return $ VCode vsub
 readRef (MkRef (IHash hv)) = do
     pairs <- Hash.fetch hv
-    return $ VList $ concatMap (\(k, v) -> [castV k, v]) pairs
+    return $ VList $ map (\(k, v) -> VPair (castV k, v)) pairs
 readRef (MkRef (IArray av)) = do
     vals <- Array.fetch av
     return $ VList vals
@@ -1038,6 +1038,11 @@ instance Array.Class IArray where
                 liftIO $ writeIORef av $ take idx svList ++ (sv' : drop (idx+1) svList)
                 return sv'
             else return sv
+    deleteElem av idx = do
+        liftIO . modifyIORef av $ \svList ->
+            if null $ drop (idx + 1) svList
+                then take idx svList
+                else take idx svList ++ (lazyUndef : drop (idx+1) svList)
     storeElem av idx sv = do
         liftIO $ modifyIORef av
             (\svList -> take idx svList ++ (sv : drop (idx+1) svList))
