@@ -554,7 +554,8 @@ op2Match x (VSubst (rx@MkRule{ rxGlobal = True }, subst)) = do
     rv      <- doReplace (encodeUTF8 str) Nothing
     case rv of
         (str', Just _) -> do
-            writeMVal (vCast x) (VStr $ decodeUTF8 $ str')
+            ref     <- fromVal x
+            writeRef ref (VStr $ decodeUTF8 $ str')
             return $ VBool True
         _ -> return $ VBool False
     where

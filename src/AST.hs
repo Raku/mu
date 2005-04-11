@@ -640,17 +640,6 @@ findSym name pad = do
     s <- find ((== name) . symName) pad
     return $ symVar s
 
--- writeMVal l (MVal r)     = writeMVal l =<< liftIO (readIORef r)
--- writeMVal (MVal l) r     = liftIO $ writeIORef l r
-writeMVal (VThunk (MkThunk t)) r = do
-    l <- t
-    writeMVal l r
-writeMVal (VError s e) _ = retError s e
-writeMVal _ (VError s e) = retError s e
-writeMVal (VControl c) _ = retControl c
-writeMVal _ (VControl c) = retControl c
-writeMVal x _            = retError "Can't write a constant item" (Val x)
-
 askGlobal :: Eval Pad
 askGlobal = do
     glob <- asks envGlobal
