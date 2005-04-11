@@ -1032,7 +1032,7 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Any       pre     exit    (?Int=0)\
 \\n   Num       pre     rand    (?Num=1)\
 \\n   Bool      pre     defined (Any)\
-\\n   Str       pre     ref     (Any)\
+\\n   Str       pre     ref     (rw!Any)\
 \\n   Num       pre     time    ()\
 \\n   Str       pre     File::Spec::cwd  ()\
 \\n   Bool      pre     print   (IO)\
