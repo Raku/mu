@@ -9,3 +9,5 @@
 # 
 # (Side note: Lines matching /^#/ are comments. Be careful to only use " " as
 # delimiter, not tabs or multiple spaces or whatever.)
+t/builtins/io/io.t 1 3 8 13 18 20 27 34 41 43 44 45 46 47
+t/builtins/io/readline_chomped.t 2
