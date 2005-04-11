@@ -10,7 +10,7 @@ type FileDescriptor = VInt
 
 class Class a where
     iType :: a -> String
-    iType _ = "Handle"
+    iType _ = "IO"
     fetch       :: a -> Eval VHandle
     store       :: a -> VHandle -> Eval ()
     write       :: a -> VStr -> Eval VInt
