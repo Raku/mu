@@ -12,7 +12,7 @@ and perl6-specific tests.
 
 =cut
 
-plan 72;
+plan 71;
 
 our $GLOBAL;
 
@@ -57,27 +57,23 @@ ok(!defined(undef), "undef is not defined");
 
 	my %hash = ( bar => 'baz', quux => 'quuz' );
 	ok(defined(%hash{"bar"}), "hash subscript");
-	todo_ok(eval'!defined(%hash{"bargho"})', "non-existent hash subscript") or
-		diag("expected undef; got { %hash{'bargho'} }");
+	ok(!defined(%hash{"bargho"}), "non-existent hash subscript");
 
-	todo_fail("FIXME parsefail"); # currently fails compilation even in eval
-	#eval 'undef %hash{"bar"}';
-	#todo_ok(!defined(%hash{"bar"}), "undef hash subscript");
+	undef %hash{"bar"};
+	ok(!defined(%hash{"bar"}), "undef hash subscript");
 
-	eval '
-		%hash{"bar"} = "baz";
-		delete %hash{"bar"};
-	';
-	todo_ok(!defined(%hash{"bar"}), "delete hash subscript");
+	%hash{"bar"} = "baz";
+	%hash.delete("bar");
+	ok(!defined(%hash{"bar"}), "delete hash subscript");
 
 	ok(defined(@ary), "aggregate array defined");
 	ok(defined(%hash), "aggregate hash defined");
 
-	undef @ary;
+	undef(@ary);
     ok(!defined(@ary), "undef array");
 
-	undef %hash;
-        ok(!defined(%hash), "undef hash");
+	undef(%hash);
+    ok(!defined(%hash), "undef hash");
 
 	@ary = (1);
 	ok(defined(@ary), "define array again");
@@ -86,20 +82,13 @@ ok(!defined(undef), "undef is not defined");
 }
 
 {
-	# rjbs reported this bug:
-	ok(eval 'my %hash; %hash = {}; undef %hash; %hash');
-}
-
-{
 	sub a_sub { "møøse" }
 
 	ok(defined(&a_sub), "defined sub");
-	todo_ok(eval 'defined(%«$?PACKAGE\::»<&a_sub>)',
-			"defined sub (symbol table)");
+	todo_eval_ok('defined(%«$?PACKAGE\::»<&a_sub>)', "defined sub (symbol table)");
 
-	ok(eval '!defined(&a_subwoofer)', "undefined sub"); # unTODOme
-	todo_ok(eval '!defined(%«$?PACKAGE\::»<&a_subwoofer>)',
-			"undefined sub (symbol table)");
+	eval_ok('!defined(&a_subwoofer)', "undefined sub"); # unTODOme
+	todo_eval_ok('!defined(%«$?PACKAGE\::»<&a_subwoofer>)', "undefined sub (symbol table)");
 }
 
 # TODO: find a read-only value to try and assign to, since we don't
@@ -119,7 +108,7 @@ ok(!defined(undef), "undef is not defined");
 # Test LHS assignment to undef:
 
 my $interesting;
-eval_ok( '(undef, undef, $interesting) = (1,2,3)',"Undef on LHS of list assignment");
+eval_ok('(undef, undef, $interesting) = (1,2,3)',"Undef on LHS of list assignment");
 is($interesting,3, "Undef on LHS of list assignment");
 
 eval_ok('(undef, $interesting, undef) = (1,2,3)', "Undef on LHS of list assignment");

@@ -10,15 +10,8 @@
 # (Side note: Lines matching /^#/ are comments. Be careful to only use " " as
 # delimiter, not tabs or multiple spaces or whatever.)
 
+## t/builtins
 t/builtins/io/io.t 43 44 45 46 47
-
-t/statements/if.t 8
-t/statements/loop.t 8
-t/statements/return.t 5
-t/statements/for.t 3 4 7 8 13 14 17 18 20 22
-t/statements/given.t 1 4 14 15 23 24 25 26 33 34
-
-t/rules/rules_refs.t 1
 
 t/builtins/list/join.t 2 6 8 12 17 18 20 24
 t/builtins/list/sort.t 2 4 6
@@ -27,4 +20,21 @@ t/builtins/list/reverse.t 4 6 7 8 10 12 16 19 20 27
 
 t/builtins/math/trig.t 2 3 4 5 6 7 8 12 13 14 15 16 17 18 19 20
 
+t/builtins/strings/length.t 3 4 7 10 13
+t/builtins/strings/uc.t 8
+
 t/builtins/sleep.t 1
+t/builtins/time.t 4
+t/builtins/true.t 8
+t/builtins/undef.t 20 21
+
+## t/statements
+t/statements/if.t 8
+t/statements/loop.t 8
+t/statements/return.t 5
+t/statements/for.t 3 4 7 8 13 14 17 18 20 22
+t/statements/given.t 1 4 14 15 23 24 25 26 33 34
+
+## t/rules
+t/rules/rules_refs.t 1
+

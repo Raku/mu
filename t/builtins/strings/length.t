@@ -36,8 +36,8 @@ my $data = [
 ];
 #:map { my %hash; %hash<string bytes codes graphs> = $_; \%hash };
 
-
-for $data -> $string, $bytes, $codes, $graphs {
+for $data -> $row {
+    my ($string, $bytes, $codes, $graphs) = $row;
 	#($string, $bytes, $codes, $graphs).perl.say;
     eval_is('$string.bytes', $bytes, "'{$string}'.bytes");
 	todo_eval_is('$string.codes', $codes, "'{$string}'.codes");
