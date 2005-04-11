@@ -82,15 +82,7 @@ evaluate (Val v@(VRef var)) = do
             rv <- readRef var -- liftIO (readIORef mv)
             evaluate (Val rv)
 evaluate (Val (VThunk (MkThunk t))) = t
-evaluate (Val val) = do
-    -- context casting, go!
-    Env{ envLValue = lv, envClasses = cls, envContext = cxt } <- ask
-    v   <- if lv then return val else readMVal val
-    case (isaType cls "List" cxt, isaType cls "List" (valType v)) of
-        (True, True)    -> return v
-        (True, False)   -> return . VList =<< fromVal v
-        (False, True)   -> return v -- XXX - create a reference?
-        (False, False)  -> return v
+evaluate (Val val) = evalVal val
 evaluate exp = do
     debug "indent" (' ':) "Evl" exp
     val <- local (\e -> e{ envBody = exp }) $ do
@@ -720,3 +712,4 @@ mkFetch f v = do
     f' <- f
     v' <- fromVal v
     f' v'
+

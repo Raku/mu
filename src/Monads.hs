@@ -97,67 +97,68 @@ enterBlock action = callCC $ \esc -> do
 enterSub sub@Sub{ subType = typ } action
     | typ >= SubPrim = action -- primitives just happen
     | otherwise     = do
-        cxt <- asks envContext
-        pad <- asks envLexical
+        env <- ask
         if typ >= SubBlock
-            then local (fixEnv undefined pad cxt) action
-            else resetT $ callCC $ \cc -> local (fixEnv cc pad cxt) action
+            then local (fixEnv undefined env) action
+            else resetT $ callCC $ \cc -> local (fixEnv cc env) action
     where
-    doReturn [v] = shiftT $ const (return v)
+    doReturn [v] = shiftT $ const $ evalVal v
     doReturn _   = internalError "enterSub: doReturn list length /= 1"
-    doCC cc [v] = cc v
+    doCC cc [v] = cc =<< evalVal v
     doCC _  _   = internalError "enterSub: doCC list length /= 1"
     orig sub = sub { subBindings = [], subParams = (map fst (subBindings sub)) }
     subRec = [ SymVar SMy "&?SUB" (codeRef (orig sub))
              , SymVar SMy "$?SUBNAME" (scalarRef $ VStr $ subName sub)]
     blockRec = SymVar SMy "&?BLOCK" (codeRef (orig sub))
-    ret cxt = SymVar SMy "&return" (codeRef $ retSub cxt)
-    callerCC cc cxt = SymVar SMy "&?CALLER_CONTINUATION" (codeRef $ ccSub cc cxt)
-    fixEnv cc pad cxt env
-        | typ >= SubBlock = env{ envLexical = (blockRec:subPad sub) ++ pad }
-        | otherwise      = env{ envLexical = subRec ++ (ret cxt:callerCC cc cxt:subPad sub) }
-    retSub cxt = Sub
-        { isMulti = False
+    genSubs env name gen =
+        [ SymVar SMy name (codeRef $ gen env)
+        , SymVar SMy name (codeRef $ gen env{ envContext = "Scalar" })
+        , SymVar SMy name (codeRef $ gen env{ envContext = "List" })
+        ]
+    fixEnv cc env@Env{ envLexical = pad } env'
+        | typ >= SubBlock = env'{ envLexical = (blockRec:subPad sub) ++ pad }
+        | otherwise      = env'{ envLexical = concat
+            [ subRec
+            , genSubs env "&return" retSub
+            , genSubs env "&?CALLER_CONTINUATION" (ccSub cc)
+            , subPad sub
+            ] }
+    retSub env = Sub
+        { isMulti = True
         , subName = "return"
         , subType = SubPrim
         , subPad = []
         , subAssoc = "pre"
-        , subParams = [ Param
-            { isInvocant = False
-            , isSlurpy = True
-            , isOptional = False
-            , isNamed = False
-            , isLValue = False
-            , isThunk = False
-            , paramName = "@?0"
-            , paramContext = cxt
-            , paramDefault = Val VUndef
-            } ]
+        , subParams = makeParams env
         , subBindings = []
-        , subReturns = cxt
+        , subReturns = envContext env
         , subFun = Prim doReturn
         }
-    ccSub cc cxt = Sub
+    ccSub cc env = Sub
         { isMulti = False
         , subName = "CALLER_CONTINUATION"
         , subType = SubPrim
         , subPad = []
         , subAssoc = "pre"
-        , subParams = [ Param
+        , subParams = makeParams env
+        , subBindings = []
+        , subReturns = envContext env
+        , subFun = Prim $ doCC cc
+        }
+    makeParams Env{ envClasses = cls, envContext = cxt, envLValue = lv }
+        = [ Param
             { isInvocant = False
-            , isSlurpy = True
+            , isSlurpy = isList
             , isOptional = False
             , isNamed = False
-            , isLValue = False
+            , isLValue = lv
             , isThunk = False
-            , paramName = "@?0"
+            , paramName = if isList then "@?0" else "$?0"
             , paramContext = cxt
             , paramDefault = Val VUndef
             } ]
-        , subBindings = []
-        , subReturns = cxt
-        , subFun = Prim $ doCC cc
-        }
+        where
+        isList = isaType cls "List" cxt
 
 {-
 enterSub sub = enterScope $ do
@@ -228,3 +229,21 @@ callerReturn n v
 
 returnScope = callerReturn 0 . VStr
 
+evalVal val = do
+    -- context casting, go!
+    Env{ envLValue = lv, envClasses = cls, envContext = cxt } <- ask
+    v   <- if lv then return val else fromVal val
+    case (isaType cls "List" cxt, isaType cls "List" (valType v)) of
+        (True, True)    -> return v
+        (True, False)   -> return . VList =<< fromVal v
+        (False, True)   -> return v -- XXX
+        {- do
+            case v of
+                VRef _    -> return v
+                VList []  -> return v
+                VList [x] -> return x
+                _         -> do
+                    ref <- newObject "Array" v
+                    return $ VRef ref
+        -}
+        (False, False)  -> return v
