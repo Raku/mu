@@ -196,6 +196,7 @@ evalVar name = do
         Nothing  -> retError ("Undeclared variable " ++ name) (Val VUndef)
 
 enterLValue = local (\e -> e{ envLValue = True })
+enterRValue = local (\e -> e{ envLValue = False })
 
 findVar :: Env -> Ident -> Eval (Maybe VRef)
 findVar env name
@@ -357,7 +358,7 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         retVal $ VList $ concat vlists
     "val" -> do
         let [exp] = exps
-        local (\e -> e{ envLValue = False }) $ evalExp exp
+        enterRValue $ evalExp exp
     "cxt" -> do
         let [cxtExp, exp] = exps
         cxt     <- enterEvalContext "Str" cxtExp
@@ -379,7 +380,7 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
          , not (envLValue env) -> reduce env (Syn "[...]" [lhs, idx])
     "[]" -> do
         let [listExp, indexExp] = exps
-        idxVal  <- enterEvalContext (cxtOfExp indexExp) indexExp
+        idxVal  <- enterRValue $ enterEvalContext (cxtOfExp indexExp) indexExp
         varVal  <- enterLValue $ enterEvalContext "Array" listExp
         doFetch (mkFetch $ doArray varVal Array.fetchElem)
                 (mkFetch $ doArray varVal Array.fetchVal)
@@ -388,7 +389,7 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
                 (isaType (envClasses env) "Scalar" (cxtOfExp indexExp))
     "[...]" -> do
         let [listExp, indexExp] = exps
-        idxVal  <- evalExp indexExp
+        idxVal  <- enterRValue $ enterEvalContext "Int" indexExp
         idx     <- fromVal idxVal
         listVal <- enterLValue $ enterEvalContext "Array" listExp
         list    <- fromVal listVal
@@ -396,7 +397,7 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         retVal $ VList (drop idx $ concat elms)
     "{}" -> do
         let [listExp, indexExp] = exps
-        idxVal  <- enterEvalContext (cxtOfExp indexExp) indexExp
+        idxVal  <- enterRValue $ enterEvalContext (cxtOfExp indexExp) indexExp
         varVal  <- enterLValue $ enterEvalContext "Hash" listExp
         doFetch (mkFetch $ doHash varVal Hash.fetchElem)
                 (mkFetch $ doHash varVal Hash.fetchVal)
