@@ -1,0 +1,8 @@
+# coordinates for a bermudan rig
+mainsail.a: 0, 450
+mainsail.b: 0, 50
+mainsail.c: 200, 50
+
+jib.a: 0,400
+jib.b: 150,0
+jib.c: 0,0
