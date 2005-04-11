@@ -23,6 +23,7 @@ type IScalar = IORef Val
 type ICode   = IORef VCode
 data IHashEnv -- phantom types! fun!
 type IScalarProxy = (Eval VScalar, (VScalar -> Eval ()))
+type IScalarLazy = Maybe VScalar
 
 -- these implementation allows no destructions
 type IRule   = VRule

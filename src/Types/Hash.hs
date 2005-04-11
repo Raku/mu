@@ -8,6 +8,8 @@ import Internals
 type Index = VStr
 
 class Class a where
+    iType :: a -> String
+    iType _ = "Hash"
     fetch       :: a -> Eval VHash
     fetch hv = do
         keys <- fetchKeys hv

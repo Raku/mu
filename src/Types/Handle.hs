@@ -9,6 +9,8 @@ type Layer = VStr
 type FileDescriptor = VInt
 
 class Class a where
+    iType :: a -> String
+    iType _ = "Handle"
     fetch       :: a -> Eval VHandle
     store       :: a -> VHandle -> Eval ()
     write       :: a -> VStr -> Eval VInt

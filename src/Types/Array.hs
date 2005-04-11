@@ -8,12 +8,12 @@ import Internals
 type Index = Int
 
 class Class a where
+    iType :: a -> String
+    iType _ = "Array"
     fetch       :: a -> Eval VArray
     fetch av = do
         size <- fetchSize av
-        forM [0..size-1] $ \idx -> do
-            sv <- fetchElem av idx
-            readIVar sv
+        mapM (fetchVal av) [0..size-1]
     store       :: a -> VArray -> Eval ()
     store av list = do
         forM_ ([0..] `zip` list) $ \(idx, val) -> do
@@ -46,19 +46,20 @@ class Class a where
         case size `compare` sz of
             GT -> mapM_ (const $ pop av) [size .. sz-1]
             EQ -> return () -- no need to do anything
-            LT -> mapM_ (\idx -> storeElem av idx =<< newScalar undef) [size .. sz-1]
+            LT -> mapM_ (\idx -> storeElem av idx lazyUndef) [size .. sz-1]
     extendSize  :: a -> Index -> Eval ()
+    extendSize _ 0 = return ()
     extendSize av sz = do
         size <- fetchSize av
         when (size < sz) $ do
-            mapM_ (\idx -> storeElem av idx =<< newScalar undef) [size .. sz-1]
+            mapM_ (\idx -> storeElem av idx lazyUndef) [size .. sz-1]
     deleteElem  :: a -> Index -> Eval ()
     deleteElem av idx = do
         size <- fetchSize av
         case (size - 1) `compare` idx of
             GT -> return ()                             -- no such index
             EQ -> storeSize av (size - 1)               -- truncate
-            LT -> storeElem av idx =<< newScalar undef  -- set to undef
+            LT -> storeElem av idx lazyUndef            -- set to undef
     existsElem  :: a -> Index -> Eval VBool
     existsElem av idx = do
         size <- fetchSize av
@@ -69,7 +70,7 @@ class Class a where
     push av vals = do
         size <- fetchSize av
         forM_ ([size..] `zip` vals) $ \(idx, val) -> do
-            storeElem av idx =<< newScalar val
+            storeElem av idx (lazyScalar val)
     pop         :: a -> Eval Val
     pop av = do
         size <- fetchSize av
@@ -112,5 +113,5 @@ class Class a where
                 storeSize av (size - delta)
             _ -> return ()
         forM_ ([0..] `zip` vals) $ \(idx, val) -> do
-            storeElem av (off + idx) =<< newScalar val
+            storeElem av (off + idx) (lazyScalar val)
         mapM readIVar result
