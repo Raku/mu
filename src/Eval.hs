@@ -439,30 +439,11 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         let [listExp, indexExp] = exps
         idxVal  <- enterEvalContext (cxtOfExp indexExp) indexExp
         varVal  <- enterLValue $ enterEvalContext "Array" listExp
-
-        case (envLValue env, isaType (envClasses env) "Scalar" (cxtOfExp indexExp)) of
-            (True, True) -> do
-                -- LValue, Scalar context
-                idx <- fromVal idxVal
-                f   <- doArray varVal Array.fetchElem
-                elm <- f idx
-                retIVar elm
-            (True, False) -> do
-                -- LValue, List context
-                idxList <- fromVal idxVal
-                f       <- doArray varVal Array.fetchElem
-                elms    <- mapM f idxList
-                retIVar $ IArray elms
-            (False, True) -> do
-                -- RValue, Scalar context
-                idx <- fromVal idxVal
-                f   <- doArray varVal Array.fetchVal
-                f idx
-            (False, False) -> do
-                -- RValue, List context
-                idxList <- fromVal idxVal
-                f   <- doArray varVal Array.fetchVal
-                return . VList =<< mapM f idxList
+        doFetch (mkFetch $ doArray varVal Array.fetchElem)
+                (mkFetch $ doArray varVal Array.fetchVal)
+                (fromVal idxVal)
+                (envLValue env)
+                (isaType (envClasses env) "Scalar" (cxtOfExp indexExp))
     "[..]" -> do
         let [listExp, (Val idxVal)] = exps
         idx     <- fromVal idxVal
@@ -476,17 +457,11 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         let [listExp, indexExp] = exps
         idxVal  <- enterEvalContext (cxtOfExp indexExp) indexExp
         varVal  <- enterLValue $ enterEvalContext "Hash" listExp
-        if isaType (envClasses env) "Scalar" (cxtOfExp indexExp)
-            then do
-                str <- fromVal idxVal
-                f   <- doHash varVal Hash.fetchElem
-                elm <- f str
-                retIVar elm
-            else do
-                strList <- fromVal idxVal
-                f       <- doHash varVal Hash.fetchElem
-                elms    <- mapM f strList
-                retIVar $ IArray elms
+        doFetch (mkFetch $ doHash varVal Hash.fetchElem)
+                (mkFetch $ doHash varVal Hash.fetchVal)
+                (fromVal idxVal)
+                (envLValue env)
+                (isaType (envClasses env) "Scalar" (cxtOfExp indexExp))
     "()" -> do
         let [subExp, Syn "invs" invs, Syn "args" args] = exps
         vsub <- enterEvalContext "Code" subExp
@@ -775,3 +750,34 @@ arityMatch sub@Sub{ subAssoc = assoc, subParams = prms } argLen argSlurpLen
     = Just sub
     | otherwise
     = Nothing
+
+doFetch :: (Val -> Eval (IVar VScalar))
+            -> (Val -> Eval Val)
+            -> (forall v. (Value v) => Eval v)
+            -> Bool -> Bool
+            -> Eval Val
+doFetch fetchElem fetchVal fetchIdx isLV isSV = case (isLV, isSV) of
+    (True, True) -> do
+        -- LValue, Scalar context
+        idx <- fetchIdx
+        elm <- fetchElem idx
+        retIVar elm
+    (True, False) -> do
+        -- LValue, List context
+        idxList <- fetchIdx
+        elms    <- mapM fetchElem idxList
+        retIVar $ IArray elms
+    (False, True) -> do
+        -- RValue, Scalar context
+        idx <- fetchIdx
+        fetchVal idx
+    (False, False) -> do
+        -- RValue, List context
+        idxList <- fetchIdx
+        return . VList =<< mapM fetchVal idxList
+
+mkFetch :: (Value n) => Eval (n -> Eval t) -> Val -> Eval t
+mkFetch f v = do
+    f' <- f
+    v' <- fromVal v
+    f' v'
