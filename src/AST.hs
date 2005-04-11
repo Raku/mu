@@ -559,6 +559,11 @@ extract ((Parens ex), vs) = ((Parens ex'), vs')
 extract other = other
 
 cxtOfExp (Syn "," _) = "List"
+cxtOfExp (Syn "[]" [exp, _]) = cxtOfExp exp
+cxtOfExp (Syn "{}" [exp, _]) = cxtOfExp exp
+cxtOfExp (App "&infix:.." _ _) = "List"
+cxtOfExp (App "&post:..." _ _) = "List"
+cxtOfExp (Var (c:_)) = cxtOfSigil c
 cxtOfExp _ = "Scalar"
 
 cxtOfSigil :: Char -> String
