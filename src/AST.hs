@@ -1038,6 +1038,9 @@ instance Array.Class IArray where
                 liftIO $ writeIORef av $ take idx svList ++ (sv' : drop (idx+1) svList)
                 return sv'
             else return sv
+    existsElem av idx = do
+        svList <- liftIO $ readIORef av
+        return . not . null $ drop idx svList
     deleteElem av idx = do
         liftIO . modifyIORef av $ \svList ->
             if null $ drop (idx + 1) svList

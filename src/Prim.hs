@@ -1013,8 +1013,8 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   List      pre     pairs   (Hash)\
 \\n   Scalar    pre     delete  (rw!Hash: List)\
 \\n   Scalar    pre     delete  (rw!Array: List)\
-\\n   Bool      pre     exists  (rw!Hash: List)\
-\\n   Bool      pre     exists  (rw!Array: List)\
+\\n   Bool      pre     exists  (rw!Hash: Str)\
+\\n   Bool      pre     exists  (rw!Array: Int)\
 \\n   Str       pre     perl    (List)\
 \\n   Any       pre     eval    (Str)\
 \\n   Any       pre     eval_perl5 (Str)\
