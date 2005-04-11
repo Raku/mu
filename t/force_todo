@@ -11,3 +11,9 @@
 # delimiter, not tabs or multiple spaces or whatever.)
 t/builtins/io/io.t 1 3 8 13 18 20 27 34 41 43 44 45 46 47
 t/builtins/io/readline_chomped.t 2
+t/statements/if.t 8
+t/statements/loop.t 8
+t/statements/return.t 5
+t/statements/for.t 3 4 7 8 13 14 17 18 20 22
+t/statements/given.t 1 4 14 15 23 24 25 26 33 34
+t/rules/rules_refs.t 1

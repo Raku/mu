@@ -147,7 +147,7 @@ my @elems = <a b c d e>;
 {
 	my @a;
 	for (@elems) {
-		push @a, $_
+		push @a, $_;
 	}
 	my @e = <a b c d e>;
 	is(@a, @e, 'for (@a) { ... $_ ... } iterates all elems');
