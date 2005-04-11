@@ -496,6 +496,13 @@ ruleBlockLiteral = rule "block construct" $ do
     body <- ruleBlock
     retBlock typ formal body
 
+extractHash :: Exp -> Maybe Exp
+extractHash (Syn "block" [exp]) = extractHash exp
+extractHash (Statements [(exp@(App "&infix:=>" _ _), _)]) = Just exp
+extractHash (Statements [(exp@(Syn "," (App "&infix:=>" _ _:_)), _)]) = Just exp
+extractHash _ = Nothing
+
+retBlock SubBlock Nothing exp | Just hashExp <- extractHash exp = return $ Syn "\\{}" [hashExp]
 retBlock typ formal body = do
     let (fun, names) = extract (body, [])
         params = (maybe [] id formal) ++ map nameToParam names

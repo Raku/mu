@@ -364,6 +364,11 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         cxt     <- enterEvalContext "Str" cxtExp
         val     <- enterEvalContext (vCast cxt) exp
         enterEvalContext (vCast cxt) (Val val) -- force casting
+    "\\{}" -> do
+        let [exp] = exps
+        v   <- enterEvalContext "List" exp
+        hv  <- newObject "Hash" v
+        retVal . VRef $ MkRef (constScalar (VRef hv))
     "\\[]" -> do
         let [exp] = exps
         v   <- enterEvalContext "List" exp
