@@ -70,12 +70,10 @@ op1 "chomp" = \x -> do
             writeRef ref $ VStr (init str)
             return $ VStr [last str]
         _   -> return VUndef
-op1 "lc" = return . VStr . (map toLower) . vCast
-op1 "lcfirst" = return . VStr .
-                (\x -> case x of { (a:as) -> toLower a : as ; a -> a}) . vCast
-op1 "uc" = return . VStr . (map toUpper) . vCast
-op1 "ucfirst" = return . VStr .
-                (\x -> case x of { (a:as) -> toUpper a : as ; a -> a}) . vCast
+op1 "lc" = op1Str (map toLower)
+op1 "lcfirst" = op1StrFirst toLower
+op1 "uc" = op1Str (map toUpper)
+op1 "ucfirst" = op1StrFirst toUpper
 op1 "undef" = \x -> do
     unless (isNothing $ vCast x) $ do
         ref <- fromVal x
@@ -329,6 +327,15 @@ op1Values v = do
     ref  <- fromVal v
     vals <- valuesFromRef ref
     return $ VList vals
+
+op1StrFirst f = op1Str $
+    \str -> case str of
+        []      -> []
+        (c:cs)  -> (f c:cs)
+
+op1Str f v = do
+    str <- fromVal v
+    return $ VStr (f str)
 
 -- what's less cheesy than read?
 op1Hex          :: Val -> Val
