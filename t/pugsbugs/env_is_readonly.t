@@ -39,10 +39,10 @@ try {
   %*ENV{$key} = $val;
 };
 
-todo_is($!, "", "Modification of %ENV raises no error");
-todo_is(%*ENV{$key}, $val, "Modification of %ENV works");
+is($!, "", "Modification of %ENV raises no error");
+is(%*ENV{$key}, $val, "Modification of %ENV works");
 
 # Now check for the child process:
 
-my $res = run_pugs( '-e "say %*ENV{\'' ~$key ~ '\'} // \'undefined\'"');
-todo_is($res, $val, "Child processes see the new value");
+my $res = run_pugs( '-e "print %*ENV{\'' ~$key ~ '\'} // \'undefined\'"');
+is($res, $val, "Child processes see the new value");
