@@ -16,6 +16,7 @@ my @array = <a b c d>;
 is ~@array, "a b c d",                 "basic sanity (1)";
 is ~@array.delete(2), "c",
   "deletion of an array element returned the right thing";
+# Note: The double space here is correct (it's the stringification of undef).
 is ~@array, "a b  d",              "deletion of an array element";
 is ~@array.delete(0, 3), "a d",
   "deletion of array elements returned the right things";
