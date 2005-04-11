@@ -764,7 +764,8 @@ readRef (MkRef (IHash hv)) = do
 readRef (MkRef (IArray av)) = do
     vals <- Array.fetch av
     return $ VList vals
-readRef r = retError "cannot readRef" (Val $ VRef r)
+readRef (MkRef (IHandle io)) = return . VHandle =<< Handle.fetch io
+readRef (MkRef (IRule rx)) = return . VRule =<< Rule.fetch rx
 
 retIVar :: IVar a -> Eval Val 
 retIVar = return . VRef . MkRef
