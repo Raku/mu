@@ -294,11 +294,13 @@ op1 "=" = \v -> do
             else handleOf (VList [VStr $ vCast (head files)]) -- XXX wrong
     handleOf (VList [VStr x]) = liftIO $ openFile x ReadMode
     handleOf v = fromVal v
-op1 "ref"   = \x -> case x of
-    (VRef r) | refType r == "Scalar::Const" -> do
-        v <- readRef r
-        op1 "ref" v
-    _ -> return . VStr $ valType x
+op1 "ref"   = \x -> do
+    cls <- asks envClasses
+    case x of
+        (VRef r) | isaType cls "Scalar" (refType r) -> do
+            v <- readRef r
+            op1 "ref" v
+        _ -> return . VStr $ valType x
 op1 "pop"   = \x -> join $ doArray x Array.pop -- monadic join
 op1 "shift" = \x -> join $ doArray x Array.shift -- monadic join
 op1 "pick"  = op1Pick

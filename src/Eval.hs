@@ -368,8 +368,7 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         let [exp] = exps
         v   <- enterEvalContext "List" exp
         av  <- newObject "Array" v
-        sv  <- newObject "Scalar" (VRef av)
-        retVal $ VRef sv
+        retVal . VRef $ MkRef (constScalar (VRef av))
     -- XXX evil hack for infinite slices
     "[]" | [lhs, App "&postfix:..." invs args] <- exps
          , [idx] <- invs ++ args
