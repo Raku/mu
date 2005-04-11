@@ -562,7 +562,7 @@ cxtOfExp (Syn "," _) = "List"
 cxtOfExp (Syn "[]" [exp, _]) = cxtOfExp exp
 cxtOfExp (Syn "{}" [exp, _]) = cxtOfExp exp
 cxtOfExp (App "&infix:.." _ _) = "List"
-cxtOfExp (App "&post:..." _ _) = "List"
+cxtOfExp (App "&postfix:..." _ _) = "List"
 cxtOfExp (Var (c:_)) = cxtOfSigil c
 cxtOfExp _ = "Scalar"
 
@@ -935,7 +935,7 @@ instance Array.Class VArray where
                 Array.store as vs
     fetch = return
     fetchSize = return . length
-    fetchVal av idx = return $ av !! idx
+    fetchVal av idx = return $ head (drop idx av ++ [undef])
     storeElem _ _ _ = retConstError undef
 
 instance Hash.Class IHashEnv where

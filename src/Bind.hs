@@ -50,7 +50,7 @@ bindArray vs ps = do
     prms = map (\p -> (p, (head (paramName p)))) ps 
 
 doSlice :: Exp -> VInt -> Exp
-doSlice v n = Syn "[..]" [v, Val $ VInt n]
+doSlice v n = Syn "[...]" [v, Val $ VInt n]
 
 -- XXX - somehow force failure
 doIndex :: Exp -> VInt -> Exp
