@@ -140,7 +140,7 @@ sub todo_cmp_ok (Str $got, Code $compare_func, Str $expected, Str ?$desc) return
 sub isa_ok ($ref is rw, Str $expected_type, Str ?$desc) returns Bool is export {
     my $out := defined($desc) ?? $desc :: "The object is-a '$expected_type'";
     my $test := $ref.isa($expected_type);
-    proclaim($test, $out,  undef, $ref.ref, $expected_type);
+    proclaim($test, $out, undef, $ref.ref, $expected_type);
 }
 
 sub todo_isa_ok ($ref is rw, Str $expected_type, Str ?$desc) returns Bool is export {
