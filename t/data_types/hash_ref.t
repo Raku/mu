@@ -82,7 +82,7 @@ plan 32;
   my $hash_b = { a => 1, "b", 2 };             isa_ok $hash_b, "Hash";
   my $hash_c = eval 'hash(a => 1, "b", 2)';    isa_ok $hash_c, "Hash";
   my $hash_d = eval 'hash a => 1, "b", 2';     isa_ok $hash_d, "Hash";
-  my $hash_e = eval '{ pair "a", 1, "b", 2 }'; isa_ok $hash_e, "Hash";
+  my $hash_e = { pair "a", 1, "b", 2 };        isa_ok $hash_e, "Hash";
 }
 
 # infinity HoHoHoH...
