@@ -30,8 +30,6 @@ my ($pugs,$redir_in,$redir_out) = ("./pugs", "<", ">");
 
 if($?OS eq any<MSWin32 mingw cygwin>) {
   $pugs = 'pugs.exe';
-  $redir_out = '>';
-  # $redir_in = '<';
 };
 
 my $str = "
@@ -52,7 +50,7 @@ for @examples -> $ex {
   my $got      = slurp "temp-ex-output";
   unlink "temp-ex-output";
 
-  is $got, $expected, "-n -e print works like cat";
+  todo_is $got, $expected, "-n -e print works like cat";
 }
 
 unlink "temp-ex-input";

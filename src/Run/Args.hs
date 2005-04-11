@@ -75,10 +75,8 @@ findArg arg prefix = do
   This makes pattern matching more convenient
 
   Backwards incompatible changes:
-
-  -P changes radically:
-      -P is now the big brother of -p
-         it uses say; instead of print;
+    -p and -n autochomp.
+    -p uses say() instead of print()
 
 -}
 
