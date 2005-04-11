@@ -61,7 +61,7 @@ todo_ok(@array[0] eq '"foo"' and @array[1] eq '"bar"', 'q:w//');
 
 my %hash;
 eval ' %hash<Mon Tue Wed Thu Fri Sat Sun> = 1..7; ';
-todo_ok(%hash{'Mon'} eq '1' and %hash{'Sun'} eq '7', '%hash<>');
+ok(%hash{'Mon'} eq '1' and %hash{'Sun'} eq '7', '%hash<>');
 
 my $out = open(">tmpfile");
 $out.say("line1");

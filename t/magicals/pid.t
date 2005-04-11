@@ -30,4 +30,4 @@ my $child_pid = slurp $tempfile;
 chomp $child_pid;
 unlink $tempfile;
 
-todo_ok($*PID ne $child_pid, "My PID differs from the child pid ($*PID != $child_pid)");
+ok $*PID ne $child_pid, "My PID differs from the child pid ($*PID != $child_pid)";
