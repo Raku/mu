@@ -285,10 +285,11 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         enterLoop . fix $ \runBody -> do
             valBody <- evalExp body
             valPost <- evalExp post
-            vbool   <- enterEvalContext "Bool" cond
+            vBool   <- enterEvalContext "Bool" cond
+            vb      <- fromVal vBool
             trapVal valBody $ do
                 trapVal valPost $ do
-                    if vCast vbool
+                    if vb
                         then runBody
                         else retVal valBody
     "given" -> do
@@ -302,10 +303,11 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         match  <- reduce env match
         topic  <- evalVar "$_"
         result <- op2Match topic match
+        rb     <- fromVal result
         let runBody = do
             enterEvalContext "Code" body
             doApply env vbreak [] []
-        if (vCast result)
+        if rb
             then enterWhen (codeRef vbreak) runBody
             else retVal VUndef
     "default" -> do
@@ -517,7 +519,7 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         let [cond, bodyIf, bodyElse] = exps
         vbool     <- enterEvalContext "Bool" cond
         vb        <- fromVal vbool
-        if (f $ vCast vb)
+        if (f vb)
             then reduce env bodyIf
             else reduce env bodyElse
     -- XXX This treatment of while/until loops probably needs work
@@ -526,7 +528,7 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         enterLoop . fix $ \runBody -> do
             vbool <- enterEvalContext "Bool" cond
             vb    <- fromVal vbool
-            case f $ vCast vb of
+            case f vb of
                 True -> do
                     rv <- reduce env body
                     case rv of
