@@ -286,13 +286,13 @@ op1 "=" = \v -> do
         (return . VStr . (++ "\n") =<< liftIO (hGetLine fh))
     where
     handleOf (VPair (_, x)) = handleOf x
-    handleOf (VList [VStr x]) = liftIO $ openFile x ReadMode
-    handleOf (VList []) = do
+    handleOf (VStr "") = do
         args    <- readVar "@*ARGS"
         files   <- fromVal args
         if null files
             then return stdin
             else handleOf (VList [VStr $ vCast (head files)]) -- XXX wrong
+    handleOf (VList [VStr x]) = liftIO $ openFile x ReadMode
     handleOf v = fromVal v
 op1 "ref"   = \x -> case x of
     (VRef r) | refType r == "Scalar::Const" -> do
