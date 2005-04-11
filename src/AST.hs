@@ -978,14 +978,7 @@ instance Hash.Class IHash where
 
 instance Array.Class IArraySlice where
     iType _ = "Array::Slice"
-    store _ _ = error "Y" -- return ()
-    -- store _ _ = return ()
-    {-
-    store [] _ = return () -- discard empty assignments
-    store av vals = do
-        -- spread around responsibilities
-        Array.store av vals
-    -}
+    store av vals = mapM_ (uncurry writeIVar) (zip av vals)
     fetchSize = return . length
     fetchElem av idx = do
         Array.extendSize av (idx+1)

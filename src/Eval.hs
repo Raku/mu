@@ -84,11 +84,13 @@ evaluate (Val v@(VRef var)) = do
 evaluate (Val (VThunk (MkThunk t))) = t
 evaluate (Val val) = do
     -- context casting, go!
-    lv  <- asks envLValue
+    Env{ envLValue = lv, envClasses = cls, envContext = cxt } <- ask
     v   <- if lv then return val else readMVal val
-    ifContextIsa "List"
-        (return . VList =<< fromVal v)
-        (return val)
+    case (isaType cls "List" cxt, isaType cls "List" (valType v)) of
+        (True, True)    -> return v
+        (True, False)   -> return . VList =<< fromVal v
+        (False, True)   -> return v -- XXX - create a reference?
+        (False, False)  -> return v
 evaluate exp = do
     debug "indent" (' ':) "Evl" exp
     val <- local (\e -> e{ envBody = exp }) $ do
@@ -425,6 +427,9 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
 --          VArray _  -> fromVal v
             _         -> return [v]
         retVal $ VList $ concat vlists
+    "val" -> do
+        let [exp] = exps
+        local (\e -> e{ envLValue = False }) $ evalExp exp
     "cxt" -> do
         let [cxtExp, exp] = exps
         cxt     <- enterEvalContext "Str" cxtExp
@@ -447,12 +452,10 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
     "[..]" -> do
         let [listExp, (Val idxVal)] = exps
         idx     <- fromVal idxVal
-        varVal  <- enterLValue $ enterEvalContext "Array" listExp
-        f       <- doArray varVal Array.fetchSize
-        size    <- f
-        f       <- doArray varVal Array.fetchVal
-        elms    <- mapM f [idx .. size-1]
-        retVal $ VList elms
+        listVal <- enterLValue $ enterEvalContext "Array" listExp
+        list    <- fromVal listVal
+        elms    <- mapM fromVal list -- flatten
+        retVal $ VList (drop idx $ concat elms)
     "{}" -> do
         let [listExp, indexExp] = exps
         idxVal  <- enterEvalContext (cxtOfExp indexExp) indexExp
