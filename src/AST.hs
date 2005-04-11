@@ -71,10 +71,7 @@ instance Value (IVar VScalar) where
 
 instance Value VRef where
     fromVal (VRef v) = return v
-    fromVal (VList v) = do
-        refs <- (mapM fromVal v :: Eval [IVar VScalar])
-        liftIO $ do
-            return . arrayRef =<< (newIORef refs :: IO IArray)
+    fromVal (VList v) = return (arrayRef v)
     fromVal v = retError "not a lvalue: " (Val v)
     castV = VRef
 
@@ -321,6 +318,8 @@ type VScalar = Val
 -- type VJunc = Set Val
 
 instance Value VScalar where
+    -- fromVal (VList v) = return . VRef $ arrayRef v
+    fromVal v = return v
     vCast = id
     castV = id -- XXX not really correct; need to referencify things
 
@@ -402,7 +401,7 @@ data Val
 
 valType :: Val -> String
 valType VUndef          = "Any"
-valType (VRef v)        = refClass v
+valType (VRef v)        = refType v
 valType (VBool    _)    = "Bool"
 valType (VInt     _)    = "Int"
 valType (VRat     _)    = "Rat"
@@ -410,17 +409,14 @@ valType (VNum     _)    = "Num"
 valType (VComplex _)    = "Complex"
 valType (VStr     _)    = "Str"
 valType (VList    _)    = "List"
--- valType (VArray   _)    = "Array"
--- valType (VHash    _)    = "Hash"
 valType (VPair    _)    = "Pair"
-valType (VCode     _)    = "Sub"
+valType (VCode     _)   = "Sub"
 valType (VBlock   _)    = "Block"
 valType (VJunc    _)    = "Junc"
 valType (VError _ _)    = "Error"
 valType (VHandle  _)    = "Handle"
 valType (VSocket  _)    = "Socket"
 valType (VThread  _)    = "Thread"
--- valType (MVal     _)    = "Var"
 valType (VControl _)    = "Control"
 valType (VThunk   _)    = "Thunk"
 valType (VRule    _)    = "Rule"
@@ -858,19 +854,19 @@ writeIVar :: IVar v -> v -> Eval ()
 writeIVar (IScalar x) = Scalar.store x
 writeIVar _ = error "writeIVar"
 
-refClass (MkRef (IScalar _)) = "Scalar"
-refClass (MkRef (IArray _))  = "Array"
-refClass (MkRef (IHash _))   = "Hash"
-refClass (MkRef (ICode _))   = "Code"
-refClass (MkRef (IHandle _)) = "Handle"
-refClass (MkRef (IRule _))   = "Rule"
+refType (MkRef (IScalar x)) = Scalar.iType x
+refType (MkRef (IArray x))  = Array.iType x
+refType (MkRef (IHash x))   = Hash.iType x
+refType (MkRef (ICode x))   = Code.iType x
+refType (MkRef (IHandle x)) = Handle.iType x
+refType (MkRef (IRule x))   = Rule.iType x
 
 instance Eq VRef where
     (==) = const $ const False
 instance Ord VRef where
     compare _ _ = EQ
 instance Show VRef where
-    show v = "<" ++ refClass v ++ ">"
+    show v = "<" ++ refType v ++ ">"
 
 instance Eq (IVar a) where
     (==) = const $ const False
@@ -889,8 +885,7 @@ newScalar = liftIO . (return . IScalar =<<) . newIORef
 
 newArray :: (MonadIO m) => VArray -> m (IVar VArray)
 newArray vals = liftIO $ do
-    svList  <- mapM newScalar vals
-    av      <- newIORef svList
+    av      <- newIORef (map lazyScalar vals)
     return $ IArray av
 
 newHandle :: (MonadIO m) => VHandle -> m (IVar VHandle)
@@ -902,14 +897,22 @@ proxyScalar fetch store = IScalar (fetch, store)
 constScalar :: VScalar -> IVar VScalar
 constScalar = IScalar
 
+lazyScalar :: VScalar -> IVar VScalar
+lazyScalar = IScalar . Just
+
+lazyUndef :: IVar VScalar
+lazyUndef = IScalar (Nothing :: IScalarLazy)
+
 constArray :: VArray -> IVar VArray
 constArray = IArray
 
 instance Scalar.Class IScalarProxy where
+    iType _ = "Scalar::Proxy"
     fetch = fst
     store = snd
 
 instance Hash.Class VHash where
+    iType _ = "Hash::Const"
     fetch = return
     fetchKeys = return . map fst
     fetchVal hv idx = return . maybe undef id $ lookup idx hv
@@ -917,12 +920,24 @@ instance Hash.Class VHash where
     deleteElem _ _ = retConstError undef
 
 instance Array.Class VArray where
+    iType _ = "Array::Const"
+    store [] _ = return ()
+    store _ [] = return ()
+    store (a:as) vals@(v:vs) = do
+        env <- ask
+        ref <- fromVal a
+        if isaType (envClasses env) "List" (refType ref)
+            then writeRef ref (VList vals)
+            else do
+                writeRef ref v
+                Array.store as vs
     fetch = return
     fetchSize = return . length
     fetchVal av idx = return $ av !! idx
     storeElem _ _ _ = retConstError undef
 
 instance Hash.Class IHashEnv where
+    iType _ = "Hash::Env"
     fetch _ = do
         envs <- liftIO getEnvironment
         return [ (k, VStr v) | (k, v) <- envs ]
@@ -962,6 +977,15 @@ instance Hash.Class IHash where
         return $ isJust rv
 
 instance Array.Class IArraySlice where
+    iType _ = "Array::Slice"
+    store _ _ = error "Y" -- return ()
+    -- store _ _ = return ()
+    {-
+    store [] _ = return () -- discard empty assignments
+    store av vals = do
+        -- spread around responsibilities
+        Array.store av vals
+    -}
     fetchSize = return . length
     fetchElem av idx = do
         Array.extendSize av (idx+1)
@@ -970,6 +994,9 @@ instance Array.Class IArraySlice where
     storeElem _ _ _ = retConstError undef
 
 instance Array.Class IArray where
+    store av vals = do
+        let svList = map lazyScalar vals
+        liftIO $ writeIORef av svList
     fetchSize av = do
         svList <- liftIO $ readIORef av
         return $ length svList
@@ -982,12 +1009,28 @@ instance Array.Class IArray where
             LT -> Array.extendSize av size -- XXX terribly inefficient
     unshift av vals = do
         svList <- liftIO $ readIORef av
-        newList <- mapM newScalar vals
-        liftIO $ writeIORef av $ newList ++ svList
+        liftIO $ writeIORef av $ map lazyScalar vals ++ svList
+    extendSize _ 0 = return ()
+    extendSize av sz = do
+        svList <- liftIO $ readIORef av
+        when (null $ drop (sz-1) svList) $ do
+            let newList = replicate (sz - length svList) lazyUndef
+            liftIO $ writeIORef av $ svList ++ newList
+    fetchVal av idx = do
+        Array.extendSize av (idx+1)
+        svList <- liftIO $ readIORef av
+        readIVar (svList !! idx)
     fetchElem av idx = do
         Array.extendSize av (idx+1)
         svList <- liftIO $ readIORef av
-        return $ svList !! idx
+        let sv = svList !! idx
+        if refType (MkRef sv) == "Scalar::Lazy"
+            then do
+                val <- readIVar sv
+                sv' <- newScalar val
+                liftIO $ writeIORef av $ take idx svList ++ (sv' : drop (idx+1) svList)
+                return sv'
+            else return sv
     storeElem av idx sv = do
         svList <- liftIO $ readIORef av
         liftIO $ writeIORef av $ take idx svList ++ (sv : drop (idx+1) svList)
@@ -1000,7 +1043,13 @@ instance Scalar.Class IScalar where
     fetch = liftIO . readIORef
     store = (liftIO .) . writeIORef
 
+instance Scalar.Class IScalarLazy where
+    iType _ = "Scalar::Lazy"
+    fetch = return . maybe undef id
+    store _ v = retConstError v
+
 instance Scalar.Class VScalar where
+    iType _ = "Scalar::Const"
     fetch = return
     store _ v = retConstError v
 

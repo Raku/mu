@@ -84,26 +84,11 @@ evaluate (Val v@(VRef var)) = do
 evaluate (Val (VThunk (MkThunk t))) = t
 evaluate (Val val) = do
     -- context casting, go!
-    cxt <- asks envContext
     lv  <- asks envLValue
     v   <- if lv then return val else readMVal val
-    case cxt of
-        _ | VCode _ <- v -> return v -- XXX Work around a bug: (Val VCode) evaluated with bad context
-        "List"  -> return . VList =<< fromVal v
---      "Array" -> return $ VArray (vCast v)
---      "Hash"  -> return $ VHash (vCast v)
---      "Str"   -> VStr (vCast v)
---      "Num"   -> VNum (vCast val)
---      "Int"   -> VInt (vCast val)
-        "Scalar"-> return $ case val of
-{- XXX
-            VList _  -> VRef val
-            VArray _ -> VRef val
-            VHash _  -> VRef val
-            VPair _  -> VRef val
--}
-            _        -> val
-        _       -> return val
+    ifContextIsa "List"
+        (return . VList =<< fromVal v)
+        (return val)
 evaluate exp = do
     debug "indent" (' ':) "Evl" exp
     val <- local (\e -> e{ envBody = exp }) $ do
@@ -335,9 +320,9 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         let [lhs, rhs] = exps
         refVal  <- enterLValue $ evalExp lhs
         ref     <- fromVal refVal
-        val     <- enterEvalContext (refClass ref) rhs
+        val     <- enterEvalContext (refType ref) rhs
         writeRef ref val
-        retVal val
+        retVal refVal
         {-
         case exps of
             [lhsExp@(Syn "," lhs), exp] -> do
@@ -454,17 +439,30 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         let [listExp, indexExp] = exps
         idxVal  <- enterEvalContext (cxtOfExp indexExp) indexExp
         varVal  <- enterLValue $ enterEvalContext "Array" listExp
-        if isaType (envClasses env) "Scalar" (cxtOfExp indexExp)
-            then do
+
+        case (envLValue env, isaType (envClasses env) "Scalar" (cxtOfExp indexExp)) of
+            (True, True) -> do
+                -- LValue, Scalar context
                 idx <- fromVal idxVal
                 f   <- doArray varVal Array.fetchElem
                 elm <- f idx
                 retIVar elm
-            else do
+            (True, False) -> do
+                -- LValue, List context
                 idxList <- fromVal idxVal
                 f       <- doArray varVal Array.fetchElem
                 elms    <- mapM f idxList
                 retIVar $ IArray elms
+            (False, True) -> do
+                -- RValue, Scalar context
+                idx <- fromVal idxVal
+                f   <- doArray varVal Array.fetchVal
+                f idx
+            (False, False) -> do
+                -- RValue, List context
+                idxList <- fromVal idxVal
+                f   <- doArray varVal Array.fetchVal
+                return . VList =<< mapM f idxList
     "[..]" -> do
         let [listExp, (Val idxVal)] = exps
         idx     <- fromVal idxVal
@@ -777,4 +775,3 @@ arityMatch sub@Sub{ subAssoc = assoc, subParams = prms } argLen argSlurpLen
     = Just sub
     | otherwise
     = Nothing
-
