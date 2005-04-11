@@ -17,6 +17,7 @@ import Types
 import Pretty
 import Parser
 import External
+import Context
 import qualified Data.Set as Set
 import qualified Types.Array  as Array
 import qualified Types.Hash   as Hash
@@ -293,7 +294,11 @@ op1 "=" = \v -> do
             then return stdin
             else handleOf (VList [VStr $ vCast (head files)]) -- XXX wrong
     handleOf v = fromVal v
-op1 "ref"   = return . VStr . valType
+op1 "ref"   = \x -> case x of
+    (VRef r) | refType r == "Scalar::Const" -> do
+        v <- readRef r
+        op1 "ref" v
+    _ -> return . VStr $ valType x
 op1 "pop"   = \x -> join $ doArray x Array.pop -- monadic join
 op1 "shift" = \x -> join $ doArray x Array.shift -- monadic join
 op1 "pick"  = op1Pick
@@ -529,6 +534,11 @@ op2 "nor"= op2 "!!"
 op2 "grep" = op2Grep
 op2 "map"  = op2Map
 op2 "join" = op2Join
+op2 "isa"   = \x y -> do
+    (VStr typ)  <- op1 "ref" x
+    bas         <- fromVal y
+    cls         <- asks envClasses
+    return . VBool $ isaType cls bas typ
 op2 "delete" = \x y -> do
     ref <- fromVal x
     deleteFromRef ref y
@@ -1127,6 +1137,7 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Num       pre     rand    (?Num=1)\
 \\n   Bool      pre     defined (Any)\
 \\n   Str       pre     ref     (rw!Any)\
+\\n   Str       pre     isa     (rw!Any, Str)\
 \\n   Num       pre     time    ()\
 \\n   Str       pre     File::Spec::cwd  ()\
 \\n   Bool      pre     print   (IO)\
