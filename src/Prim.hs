@@ -269,10 +269,14 @@ op1 "close" = \v -> do
     case val of
         (VSocket _) -> boolIO sClose val
         _           -> boolIO hClose val
-op1 "key" = return . fst . (vCast :: Val -> VPair)
-op1 "value" = return . snd . (vCast :: Val -> VPair)
-op1 "pairs" = return . VList . map VPair . vCast
-op1 "kv" = return . VList . concatMap (\(k, v) -> [k, v]) . vCast
+op1 "key" = (return . fst =<<) . (fromVal :: Val -> Eval VPair)
+op1 "value" = (return . snd =<<) . (fromVal :: Val -> Eval VPair)
+op1 "pairs" = \v -> do
+    pairs <- op1Pairs v
+    return . VList $ map (VRef . scalarRef) pairs
+op1 "kv" = \v -> do
+    pairs <- op1Pairs v
+    return . VList $ foldr (\(VPair (k, v)) kv -> (k:v:kv)) [] pairs
 op1 "keys" = op1Keys
 op1 "values" = op1Values
 op1 "readline" = op1 "="
@@ -304,8 +308,15 @@ op1 "log10" = return . op1Log10
 op1 other   = return . (\x -> VError ("unimplemented unaryOp: " ++ other) (App other [Val x] []))
 
 
+op1Pairs :: Val -> Eval [Val]
+op1Pairs v@(VPair _) = return [v]
+op1Pairs v = do
+    ref  <- fromVal v
+    vals <- pairsFromRef ref
+    return vals
+
 op1Keys :: Val -> Eval Val
-op1Keys (VPair (v, _)) = return . VList $ [v] -- lwall: a pair is a really small hash.
+op1Keys (VPair (v, _)) = return $ VList [v]
 op1Keys v = do
     ref  <- fromVal v
     vals <- keysFromRef ref
@@ -945,6 +956,18 @@ fileTestSizeIsZero f = do
 
 -- XXX These bulks of code below screams for refactoring
 
+pairsFromRef :: VRef -> Eval [Val]
+pairsFromRef (MkRef (IHash hv)) = do
+    pairs   <- Hash.fetch hv
+    return $ map (\(k, v) -> VPair (castV k, v)) pairs
+pairsFromRef (MkRef (IArray av)) = do
+    vals    <- Array.fetch av
+    return $ map VPair ((map VInt [0..]) `zip` vals)
+pairsFromRef (MkRef (IScalar sv)) = do
+    refVal  <- Scalar.fetch sv    
+    op1Pairs refVal
+pairsFromRef ref = retError "Not a keyed reference" (Val $ VRef ref)
+
 keysFromRef :: VRef -> Eval [Val]
 keysFromRef (MkRef (IHash hv)) = do
     keys    <- Hash.fetchKeys hv
@@ -1134,10 +1157,10 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Int       pre     chars   (?Str=$_)\
 \\n   Int       pre     bytes   (?Str=$_)\
 \\n   Int       pre     chmod   (List)\
-\\n   Scalar    pre     key     (Pair)\
-\\n   Scalar    pre     value   (Pair)\
-\\n   List      pre     kv      (Pair)\
-\\n   List      pre     pairs   (Pair)\
+\\n   Scalar    pre     key     (rw!Pair)\
+\\n   Scalar    pre     value   (rw!Pair)\
+\\n   List      pre     kv      (rw!Pair)\
+\\n   List      pre     pairs   (rw!Pair)\
 \\n   List      pre     values  (rw!Junction)\
 \\n   Any       pre     pick    (rw!Junction)\
 \\n   Bool      pre     rename  (Str, Str)\

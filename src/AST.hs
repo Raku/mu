@@ -253,7 +253,8 @@ instance Value VStr where
     vCast (VCode s)      = "<" ++ show (subType s) ++ "(" ++ subName s ++ ")>"
     vCast (VJunc j)     = show j
     vCast (VThread t)   = dropWhile (not . isDigit) $ show t
-    vCast x             = error $ "cannot cast as Str: " ++ show x
+    vCast x             = "<<" ++ show x ++ ">>"
+    -- vCast x             = error $ "cannot cast as Str: " ++ show x
 
 showNum :: Show a => a -> String
 showNum x
@@ -279,6 +280,12 @@ instance Value VJunc where
 -}
 
 instance Value VList where
+    fromVal (VRef r) = do
+        v <- readRef r
+        case v of
+            (VList vs) -> return vs
+            _          -> return [v]
+    fromVal v = fromVal' v
     castV = VList
     vCast (VList l)     = l
     -- vCast (VArray l)    = IntMap.elems l
