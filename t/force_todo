@@ -26,7 +26,7 @@ t/builtins/strings/uc.t 8
 t/builtins/sleep.t 1
 t/builtins/time.t 4
 t/builtins/true.t 8
-t/builtins/undef.t 20 21 26 28 29 30 31 32 33 34 35 36 37
+t/builtins/undef.t 20 21 26 28 29 30 31 32 33 34 35 36 37 40
 
 ## t/statements
 t/statements/if.t 8
@@ -38,3 +38,6 @@ t/statements/given.t 1 4 14 15 23 24 25 26 33 34
 ## t/rules
 t/rules/rules_refs.t 1
 
+## t/data_types
+t/data_types/anon_block.t 14 15
+t/data_types/hash.t 25 26

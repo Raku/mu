@@ -80,13 +80,13 @@ ok(!defined(%hash5<three>), '"three" assumed value undef from slice assignment')
 my %hash6 = ("one", 1, "two", 2, "three", 3);
 isa_ok(%hash6, 'Hash');
 
-my @keys1 = keys %hash6;
+my @keys1 = sort keys %hash6;
 is(+@keys1, 3, 'got the right number of keys');
 is(@keys1[0], 'one', 'got the right key');
 is(@keys1[1], 'three', 'got the right key');
 is(@keys1[2], 'two', 'got the right key');
 
-my @keys2 = %hash6.keys;
+my @keys2 = %hash6.keys.sort;
 is(+@keys2, 3, 'got the right number of keys');
 is(@keys2[0], 'one', 'got the right key');
 is(@keys2[1], 'three', 'got the right key');
@@ -97,17 +97,17 @@ is(@keys2[2], 'two', 'got the right key');
 my %hash7 = ("one", 1, "two", 2, "three", 3);
 isa_ok(%hash7, 'Hash');
 
-my @values1 = values %hash7;
+my @values1 = sort values %hash7;
 is(+@values1, 3, 'got the right number of values');
 is(@values1[0], 1, 'got the right values');
-is(@values1[1], 3, 'got the right values');
-is(@values1[2], 2, 'got the right values');
+is(@values1[1], 2, 'got the right values');
+is(@values1[2], 3, 'got the right values');
 
-my @values1 = %hash7.values;
+my @values1 = %hash7.values.sort;
 is(+@values1, 3, 'got the right number of values');
 is(@values1[0], 1, 'got the right values');
-is(@values1[1], 3, 'got the right values');
-is(@values1[2], 2, 'got the right values');
+is(@values1[1], 2, 'got the right values');
+is(@values1[2], 3, 'got the right values');
 
 # misc stuff ...
 
@@ -122,15 +122,21 @@ is(%hash8{'three'}, 3, 'colonpair :three(3)');
 
 my $key;
 my $val;
+
 my %hash9; 
 isa_ok(%hash9, 'Hash');
 %hash9{1} = 2;
-for (%hash9.kv) -> $k,$v { $key = $k; $val = $v; }
-is($key, 1, "\%hash.kv gave us our key");
-is($val, 2, "\%hash.kv gave us our val");
+
+for (%hash9.kv) -> $k,$v { 
+    $key = $k; 
+    $val = $v; 
+}
+
+is($key, 1, '%hash.kv gave us our key');
+is($val, 2, '%hash.kv gave us our val');
 
 %hash9{2} = 3;
-ok(~%hash9 eq ("1\t2\n2\t3\n" | "2\t3\n1\t2\n"), "hash can stringify");
+like(~%hash9, rx:perl5/1\s+2\s+2\s+3/, "hash can stringify");
 
 my %hash10 = <1 2>;
 is(%hash10<1>, 2, "assignment of pointy qw to hash"); # not in an eval because it dies anyway
