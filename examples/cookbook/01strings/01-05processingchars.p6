@@ -2,10 +2,18 @@
 
 use v6;
 
+=head1 Processing a String one Character at a Time
+
+You want to process individual characters of a string
+
+=cut
+
 my $string = "an apple a day";
 
 # split the unicode elements
-my @array = $string.chars;
+# the below syntax is not approved yet, see http://tinyurl.com/6whlj for 
+# discussion
+my @array = $string[];
 # XXX This is list context, not array context.
 # Juerd: is is innappropriate to call the above an @array? should i call
 # it @list (and other examples below) for learner purposes? i'm looking for
@@ -16,16 +24,16 @@ my @array = $string.chars;
 @array = unpack("C*", $string);
 
 # loop through the [unicode] chars
-for $string.chars { 
+for $string[] { 
 	# do something with $_
 }
 
 # concise syntax for running a function on a loop through [unicode] chars
-say $_ for $string.chars;
+say $_ for $string[];
 
 # find the unique characters in a string
 my %seen;
-for $string.chars -> $char {
+for $string[] -> $char {
     %seen{$char}++;
 }
 say "unique chars are: " ~ sort %seen.keys;
@@ -82,7 +90,7 @@ my $DELAY = (@*ARGS[0] =~ m/^-([.\d]+)/) ?? (shift @*ARGS, $1) :: 1;
 # on $*OUT, but i can't find a doc for it
 $| = 1;  
 for =<> -> $line {
-    for $line.chars -> $char {
+    for $line[] -> $char {
         print $char;
 		sleep $DELAY; # sleep restricts us to second multiples
 		# perl 5 version uses a select() hack for sub-second delays but i'm
