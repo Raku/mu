@@ -227,10 +227,21 @@ reduce _ (Val v) = do
 reduce env exp@(Var name) = do
     v <- findVar env name
     case v of
-        Just var -> do
-            if envLValue env then retVal (castV var) else do
-                val <- readRef var
-                reduce env (Val val)
+        Just ref | envLValue env, refType ref == "Scalar" -> do
+            val <- readRef ref
+            let cxt = envContext env
+            if (defined val) || (cxt /= "Array" && cxt /= "Hash")
+                then retVal (castV ref)
+                else do
+                    -- autovivify! fun!
+                    ref' <- newObject (envContext env) (VList [])
+                    writeRef ref (VRef ref')
+                    retVal (castV ref)
+        Just ref | envLValue env -> do
+            retVal (castV ref)
+        Just ref -> do
+            val <- readRef ref
+            reduce env (Val val)
         _ -> retError ("Undeclared variable " ++ name) exp
 
 reduce _ (Statements stmts) = do
