@@ -811,7 +811,7 @@ newObject "Code" val = do
 newObject cls val = retError ("Cannot create object of class " ++ cls) (Val val)
 
 -- XXX: Refactor doHash and doArray into one -- also see Eval's [] and {}
-doHash :: Val -> (forall a. Hash.Class a => a -> b) -> Eval b
+doHash :: (Show b) => Val -> (forall a. Hash.Class a => a -> b) -> Eval b
 doHash (VRef (MkRef (IHash hv))) f = return $ f hv
 doHash (VRef (MkRef (IScalar sv))) f = do
     val <- Scalar.fetch sv
