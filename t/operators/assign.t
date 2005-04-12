@@ -16,7 +16,7 @@ plan 51;
     #    Cannot modify constant item
     #    Syn "," [Var "$foo",Var "$bar"]
 
-	eval '($foo, $bar) = ($bar, $foo)';
+        ($foo, $bar) = ($bar, $foo);
 	is($foo, "BAR", "swap assignment works for the first value");
 	is($bar, "FOO", "... and second");
 };
@@ -100,57 +100,56 @@ plan 51;
 }
 
 {
-  my $c; 
-
-	eval '(($c = 3) = 4)'; 
-	is($c,4, "((\$c = 3) = 4) return val should be good as an lval");
+    my $c; 
+    (($c = 3) = 4); 
+    is($c, 4, '(($c = 3) = 4) return val should be good as an lval');
 }
 
 {
     my $x = 42;
-    eval('$x += 6;');
+    $x += 6;
     is($x, 48, '+= operator');
 }
 
 {
     my $x = 42;
-    eval('$x -= 6;');
+    $x -= 6;
     is($x, 36, '-= operator');
 }
 
 {
     my $x = 4;
-    eval('$x *= 3;');
+    $x *= 3;
     is($x, 12, '*= operator');
 }
 
 {
     my $x = 6;
-    eval('$x /= 3;');
+    $x /= 3;
     is($x, 2, '/= operator');
 }
 
 {
     my $x = 2;
-    eval('$x **= 3;');
+    $x **= 3;
     is($x, 8, '**= operator');
 }
 
 {
     my $x = "abc";
-    eval('$x ~= "yz";');
+    $x ~= "yz";
     is($x, 'abcyz', '~= operator');
 }
 
 {
     my $x = "abc";
-    eval('$x x= 3;');
+    $x x= 3;
     is($x, 'abcabcabc', 'x= operator');
 }
 
 {
     my @x = ( 'a', 'z' );
-    eval('@x xx= 3;');
+    @x xx= 3;
     is(+@x,   6,   'xx= operator elems');
     is(@x[0], 'a', 'xx= operator 0');
     is(@x[1], 'z', 'xx= operator 1');
@@ -162,56 +161,49 @@ plan 51;
 
 {
     my $x = 1;
-    eval('$x +&= 2;');
+    $x +&= 2;
     is($x, 0, '+&= operator');
 }
 
 {
     my $x = 1;
-    eval('$x +|= 2;');
+    $x +|= 2;
     is($x, 3, '+|= operator');
 }
 
 {
     my $x = "z";
-    eval('$x ~&= "I";');
+    $x ~&= "I";
     is($x, 'H', '~&= operator');
 }
 
 {
     my $x = "z";
-    eval('$x ~|= "I";');
+    $x ~|= "I";
     is($x, '{', '~|= operator');
 }
 
-# XXX: nasty are the next four, causing whole program to terminate
-# with 'cannot cast into a handle'--even though wrapped in eval.
-
 {
 	my $x = 4;
-	# eval('$x %= 3;');
-	# is($x, 1, '%= operator');
-	todo_fail 'eval($x %= 3) cannot cast into a handle: VInt 3'
+	$x %= 3;
+	is($x, 1, '%= operator');
 }
 
 {
 	my $x = 1;
-	# eval('$x +^= 3;');
-	# is($x, 2, '+^= operator');
-	todo_fail q< eval('$x +^= 3;') cannot cast into a handle: VInt 3>;
+	$x +^= 3;
+	is($x, 2, '+^= operator');
 }
 
 {
 	my $x = "z";
-	# eval('$x ~^= "C";');
-	# is($x, 9, '~^= operator');
-	todo_fail q< eval('$x ~^= "C";') cannot cast into a handle: VStr "C"> ;
+	$x ~^= "C";
+	is($x, 9, '~^= operator');
 }
 
 {
 	my $x = 0;
-	# eval('$x ^^= 42;');
-	# is($x, 42, '^^= operator');
-	todo_fail q<eval('$x ^^= 42;'); cannot cast into a handle: VInt 42>;
+	$x ^^= 42;
+	is($x, 42, '^^= operator');
 }
 

@@ -579,7 +579,11 @@ tightOperators = do
     , leftOps  " && !! "                                -- Tight And
     , leftOps  " || ^^ // "                             -- Tight Or
     , [ternOp "??" "::" "if"]                           -- Ternary
-    , rightSyn " = := ::= ~= += -= *= /= x= Y= ¥= **= xx= ||= &&= //= "-- Assignment
+    -- Assignment
+    , rightSyn $
+               " = := ::= " ++
+               " ~= += -= *= /= %= x= Y= ¥= **= xx= ||= &&= //= ^^= " ++
+               " +&= +|= +^= ~&= ~|= ~^= ?|= ?^= "
     ]
 
 looseOperators = do

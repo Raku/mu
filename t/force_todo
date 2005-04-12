@@ -35,7 +35,6 @@ t/data_types/anon_block.t 14 15
 
 ## t/operators
 t/operators/arith.t 135 136 148 162 167
-t/operators/assign.t 44 45 46 47
 t/operators/inc.t 18 19
 t/operators/short_circuit.t 16 17 23
 
