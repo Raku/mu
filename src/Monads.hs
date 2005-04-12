@@ -235,6 +235,8 @@ evalVal val = do
     typ <- evalValType val
     case (isaType cls "List" cxt, isaType cls "List" typ, lv) of
         (True, False, _)    -> return . VList =<< fromVal val
+        (True, True, False) -> do
+            return . VList =<< fromVal' val
         _                   -> return val
 
 evalValType (VRef r) = do

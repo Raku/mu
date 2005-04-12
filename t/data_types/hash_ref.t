@@ -88,6 +88,6 @@ plan 32;
   isa_ok %hash,           "Hash";
   isa_ok %hash<ref>,      "Hash";
   isa_ok %hash<ref><ref>, "Hash";
-  # is %hash<ref><val>,      42, "access to infinite HoHoHoH... (1)";
-  # is %hash<ref><ref><val>, 42, "access to infinite HoHoHoH... (2)";
+  is %hash<ref><val>,      42, "access to infinite HoHoHoH... (1)";
+  is %hash<ref><ref><val>, 42, "access to infinite HoHoHoH... (2)";
 }

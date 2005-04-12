@@ -237,11 +237,8 @@ reduce env exp@(Var name) = do
                     ref' <- newObject (envContext env) (VList [])
                     writeRef ref (VRef ref')
                     retVal (castV ref)
-        Just ref | envLValue env -> do
-            retVal (castV ref)
         Just ref -> do
-            val <- readRef ref
-            reduce env (Val val)
+            retVal (castV ref)
         _ -> retError ("Undeclared variable " ++ name) exp
 
 reduce _ (Statements stmts) = do
@@ -342,7 +339,7 @@ reduce env exp@(Syn name exps) = case name of
         -> enterEvalContext "List" exp
     "*" -> do -- first stab at an implementation
         let [exp] = exps
-        val     <- enterEvalContext "List" exp
+        val     <- enterRValue $ enterEvalContext "List" exp
         vals    <- fromVal val
         retVal $ VList vals
     "," -> do
