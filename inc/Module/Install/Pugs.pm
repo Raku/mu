@@ -75,6 +75,8 @@ sub set_blib {
       File::Spec->catfile($path, "man1");
     $self->makemaker_args->{INST_MAN3DIR} =
       File::Spec->catfile($path, "man3");
+    $self->makemaker_args->{MAN1PODS} = {};
+    $self->makemaker_args->{MAN3PODS} = {};
     $self->{MM}{INST_AUTODIR} = '$(INST_LIB)/$(BASEEXT)';
     $self->{MM}{INST_ARCHAUTODIR} = '$(INST_ARCHLIB)/$(FULLEXT)';
 }

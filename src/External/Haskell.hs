@@ -17,6 +17,7 @@ import Language.Haskell.TH as TH
 import Language.Haskell.Parser
 import Language.Haskell.Syntax
 import Plugins
+import Config
 
 {- ourPackageConfigs :: [PackageConfig]
 ourPackageConfigs = [
@@ -41,11 +42,11 @@ loadOrDie obj includes configs symbol = do
 
 loadHaskell :: FilePath -> IO [(String, [Val] -> Eval Val)]
 loadHaskell file = do
-    let coredir   = "/usr/src/pugs/blib6/arch/CORE/pugs/"
-    let loadpaths = [coredir, "/usr/src/SHA1/blib/arch/"]
+    let coredir   = getConfig "installarchlib" ++ "/CORE/pugs/"
+    let loadpaths = [coredir, getConfig "installsitearch"]
     -- For Unicode
     loadRawObject $ coredir++"UnicodeC.o"
-    -- For ???
+    -- For RRegex
     loadRawObject $ coredir++"pcre/pcre.o"
     
     -- AST has early requirements and late requirements, because of recrusivity.  
@@ -56,7 +57,7 @@ loadHaskell file = do
         ["Compat", "Cont", "Embed", "Embed/Perl5", "Internals", "RRegex", "RRegex/PCRE", "RRegex/Syntax", "Rule/Pos", "UTF8", "Unicode", "AST"]
 
     (extern :: [String]) <- loadOrDie file loadpaths ourPackageConfigs "extern__"
-    -- print (">"++(show extern)++"<")
+    print (">"++(show extern)++"<")
     (`mapM` extern) $ \name -> do
         func <- loadOrDie file loadpaths ourPackageConfigs ("extern__" ++ name)
         return (name, func)
