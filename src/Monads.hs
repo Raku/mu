@@ -229,10 +229,11 @@ callerReturn n v
 
 returnScope = callerReturn 0 . VStr
 
-evalVal val = do
+evalVal x = do
     -- context casting, go!
     Env{ envLValue = isLValue, envClasses = cls, envContext = cxt } <- ask
-    typ <- evalValType val
+    typ <- evalValType x
+    val <- if isaType cls "Junction" typ then fromVal' x else return x
     let isCompatible = isaType cls cxt typ
         isListCxt    = isaType cls "List" cxt
         isRef        = case val of { VRef _ -> True; _ -> False }
