@@ -1,4 +1,5 @@
 {-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans #-}
+{-# OPTIONS_GHC -#include "UnicodeC.h" #-}
 
 {-
     Abstract syntax tree.
