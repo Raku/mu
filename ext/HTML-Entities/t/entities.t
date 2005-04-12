@@ -7,9 +7,9 @@ require Test;
 
 use_ok('HTML::Entities');
 
-my $a = "V&aring;re norske tegn b&oslash;r &#230res";
+my $a = "V&aring;re norske tegn b&oslash;r &#230;res";
 $a = decode_entities($a);
-is $a, "Våre norske tegn bør æres", 'Decoding entities should work';
+is $a, "VÃ¥re norske tegn bÃ¸r Ã¦res", 'Decoding entities should work';
 
 $a = encode_entities($a);
 
