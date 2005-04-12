@@ -127,7 +127,7 @@ reduceStatements ((exp, pos):rest)
     | Sym [] <- exp = \v -> do
         reduceStatements rest v
     | Sym ((SymExp scope name vexp):other) <- exp = \v -> do
-        val <- enterLValue $ enterEvalContext (cxtOfSigil $ head name) vexp
+        val <- enterRValue $ enterEvalContext (cxtOfSigil $ head name) vexp
         ref <- newObject (cxtOfSigil $ head name) val
         let doRest = reduceStatements ((Sym other, pos):rest) v
             sym = SymVar scope name ref
@@ -318,7 +318,7 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         let [lhs, rhs] = exps
         refVal  <- enterLValue $ evalExp lhs
         ref     <- fromVal refVal
-        val     <- enterEvalContext (refType ref) rhs
+        val     <- enterRValue $ enterEvalContext (refType ref) rhs
         writeRef ref val
         retVal refVal
     ":=" -> do
@@ -378,11 +378,13 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
     -- XXX evil hack for infinite slices
     "[]" | [lhs, App "&postfix:..." invs args] <- exps
          , [idx] <- invs ++ args
-         , not (envLValue env) -> reduce env (Syn "[...]" [lhs, idx])
+         , not (envLValue env)
+         -> reduce env (Syn "[...]" [lhs, idx])
     "[]" | [lhs, App "&infix:.." invs args] <- exps
          , [idx, Val (VNum n)] <- invs ++ args
          , n == 1/0
-         , not (envLValue env) -> reduce env (Syn "[...]" [lhs, idx])
+         , not (envLValue env)
+         -> reduce env (Syn "[...]" [lhs, idx])
     "[]" -> do
         let [listExp, indexExp] = exps
         idxVal  <- enterRValue $ enterEvalContext (cxtOfExp indexExp) indexExp
