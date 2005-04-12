@@ -19,6 +19,7 @@ import Pretty
 import Parser
 import External
 import Context
+import Monads
 import Text.Printf
 import qualified Data.Set as Set
 import qualified Types.Array  as Array
@@ -133,7 +134,7 @@ op1 "any"  = op1Cast opJuncAny
 op1 "all"  = op1Cast opJuncAll
 op1 "one"  = op1Cast opJuncOne
 op1 "none" = op1Cast (VJunc . Junc JNone Set.empty . Set.fromList)
-op1 "perl" = return . VStr . (pretty :: Val -> VStr)
+op1 "perl" = (return . VStr =<<) . (prettyVal 0)
 op1 "require_haskell" = \v -> do
     name    <- fromVal v
     externRequire "Haskell" name
@@ -308,21 +309,13 @@ op1 "=" = \v -> do
             Nothing  -> retError "No such file or directory" (Val $ VStr x)
             Just hdl -> return hdl
     handleOf v = fromVal v
-op1 "ref"   = \x -> do
-    cls <- asks envClasses
-    case x of
-        (VRef r) | isaType cls "Scalar" (refType r) -> do
-            v <- readRef r
-            op1 "ref" v
-        _ -> return . VStr $ valType x
+op1 "ref"   = (return . VStr =<<) . evalValType
 op1 "pop"   = \x -> join $ doArray x Array.pop -- monadic join
 op1 "shift" = \x -> join $ doArray x Array.shift -- monadic join
 op1 "pick"  = op1Pick
 op1 "sum"   = op1Sum
 op1 "chr"   = op1Cast (VStr . (:[]) . chr)
-op1 "ord"   = op1Cast $ \str -> case str of
-    []      -> undef
-    (c:_)   -> castV $ ord c
+op1 "ord"   = op1Cast $ \str -> if null str then undef else (castV . ord . head) str
 op1 "hex"   = op1Cast (VInt . read . ("0x"++))
 op1 "log"   = op1Cast (VNum . log)
 op1 "log10" = op1Cast (VNum . logBase 10)
@@ -519,9 +512,9 @@ op2 "grep" = op2Grep
 op2 "map"  = op2Map
 op2 "join" = op2Join
 op2 "isa"   = \x y -> do
-    (VStr typ)  <- op1 "ref" x
-    bas         <- fromVal y
-    cls         <- asks envClasses
+    typ <- evalValType x
+    bas <- fromVal y
+    cls <- asks envClasses
     return . VBool $ isaType cls bas typ
 op2 "delete" = \x y -> do
     ref <- fromVal x
@@ -1034,6 +1027,20 @@ deleteFromRef (MkRef (IScalar sv)) val = do
     deleteFromRef ref val
 deleteFromRef ref _ = retError "Not a keyed reference" (Val $ VRef ref)
 
+prettyVal :: Int -> Val -> Eval VStr
+prettyVal 10 _ = return "..."
+prettyVal d (VRef r) = do
+    v'  <- readRef r
+    str <- prettyVal (d+1) v'
+    return ('\\':str)
+prettyVal d (VPair (k, v)) = do
+    k'  <- prettyVal (d+1) k
+    v'  <- prettyVal (d+1) v
+    return $ concat ["(", k', " => ", v', ")"]
+prettyVal d (VList vs) = do
+    vs' <- mapM (prettyVal (d+1)) vs
+    return $ "(" ++ concat (intersperse ", " vs') ++ ")"
+prettyVal _ v = return $ pretty v
 
 -- XXX -- Junctive Types -- XXX --
 
@@ -1120,7 +1127,7 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Scalar    pre     delete  (rw!Array: List)\
 \\n   Bool      pre     exists  (rw!Hash: Str)\
 \\n   Bool      pre     exists  (rw!Array: Int)\
-\\n   Str       pre     perl    (List)\
+\\n   Str       pre     perl    (rw!Any)\
 \\n   Any       pre     eval    (Str)\
 \\n   Any       pre     eval_perl5 (Str)\
 \\n   Any       pre     require (?Str=$_)\

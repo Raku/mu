@@ -232,18 +232,16 @@ returnScope = callerReturn 0 . VStr
 evalVal val = do
     -- context casting, go!
     Env{ envLValue = lv, envClasses = cls, envContext = cxt } <- ask
-    v   <- if lv then return val else fromVal val
-    case (isaType cls "List" cxt, isaType cls "List" (valType v)) of
-        (True, True)    -> return v
-        (True, False)   -> return . VList =<< fromVal v
-        (False, True)   -> return v -- XXX
-        {- do
-            case v of
-                VRef _    -> return v
-                VList []  -> return v
-                VList [x] -> return x
-                _         -> do
-                    ref <- newObject "Array" v
-                    return $ VRef ref
-        -}
-        (False, False)  -> return v
+    typ <- evalValType val
+    case (isaType cls "List" cxt, isaType cls "List" typ, lv) of
+        (True, False, _)    -> return . VList =<< fromVal val
+        _                   -> return val
+
+evalValType (VRef r) = do
+    cls <- asks envClasses
+    let typ = refType r
+    if isaType cls "Scalar" typ
+        then evalValType =<< readRef r
+        else return typ
+evalValType val = return $ valType val
+

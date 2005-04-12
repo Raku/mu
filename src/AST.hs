@@ -765,7 +765,7 @@ retIVar :: (Typeable a) => IVar a -> Eval Val
 retIVar = return . VRef . MkRef
 
 writeRef :: VRef -> Val -> Eval ()
-writeRef (MkRef (IScalar s)) val = Scalar.store s =<< fromVal val
+writeRef (MkRef (IScalar s)) val = Scalar.store s val
 writeRef (MkRef (IArray s)) val  = Array.store s =<< fromVal val
 writeRef (MkRef (IHash s)) val   = Hash.store s =<< fromVal val
 writeRef (MkRef (ICode s)) val   = Code.store s =<< fromVal val
@@ -811,12 +811,12 @@ doArray :: Val -> (forall a. Array.Class a => a -> b) -> Eval b
 doArray (VRef (MkRef (IArray hv))) f = return $ f hv
 doArray (VRef (MkRef (IScalar sv))) f = do
     val <- Scalar.fetch sv
-    case val of
-        VUndef  -> do
+    if defined val
+        then doArray val f
+        else do
             ref@(MkRef (IArray hv)) <- newObject "Array" (VList [])
             Scalar.store sv (VRef ref)
             return $ f hv
-        _  -> doArray val f
 doArray val@(VRef _) _ = retError "Cannot cast into Array" (Val val)
 doArray val f = do
     av  <- fromVal val
@@ -918,6 +918,7 @@ instance Array.Class VArray where
     fetch = return
     fetchSize = return . length
     fetchVal av idx = return $ head (drop idx av ++ [undef])
+    storeVal _ _ _ = retConstError undef
     storeElem _ _ _ = retConstError undef
 
 instance Hash.Class IHashEnv where

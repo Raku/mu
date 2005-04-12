@@ -74,14 +74,6 @@ evaluateMain exp = do
     return val
 
 evaluate :: Exp -> Eval Val
-evaluate (Val v@(VRef var)) = do
-    lvalue  <- asks envLValue
-    _       <- asks envContext
-    if lvalue
-        then return v
-        else do
-            rv <- readRef var -- liftIO (readIORef mv)
-            evaluate (Val rv)
 evaluate (Val (VThunk (MkThunk t))) = t
 evaluate (Val val) = evalVal val
 evaluate exp = do
@@ -249,7 +241,7 @@ reduce _ (Statements stmts) = do
     isGlobalExp _ = False
     
 -- Reduction for syntactic constructs
-reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
+reduce env exp@(Syn name exps) = case name of
     "block" -> do
         let [body] = exps
         enterBlock $ reduce env body
@@ -335,20 +327,10 @@ reduce env@Env{ envContext = cxt } exp@(Syn name exps) = case name of
         val     <- evalExp valExp
         retVal $ VPair (key, val)
     "*" -> do -- first stab at an implementation
-        vals <- case exps of
-            [Val v] | valType v == "Array" -> do
-                val <- enterEvalContext "List" $ head exps
-                fromVal val
-            _ -> mapM (enterEvalContext "List") exps         
-        cls  <- asks envClasses
-        if isaType cls "Scalar" cxt          
-            then do
-                let slice = case (doSlice [] vals $ 0:[]) of {
-                    (Just (val, _)) -> val ;
-                    Nothing         -> vCast VUndef
-                }
-                retVal $ vCast slice
-            else retVal $ VList $ concatMap vCast vals
+        let [exp] = exps
+        val     <- enterEvalContext "List" exp
+        vals    <- fromVal val
+        retVal $ VList vals
     "," -> do
         vals    <- mapM (enterEvalContext "Any") exps
         -- now do some basic flattening
