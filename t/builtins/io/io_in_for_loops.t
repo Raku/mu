@@ -74,15 +74,13 @@ my $filename = 'tempfile';
   # the =$fh inside the loop inside parens (is this list context??)
     my $fh = open($filename);
     my $num = 1;
-### XXX: Because of release preparation skip following tests
-    skip 12, "skip because of uncatchable die";
-#   for (=$fh) -> $line {
-#       is($line, "$num\n", '... got the right line ((=$fh) controlled loop)');
-#       $num++;
-#       my $line2 = =$fh;
-#       is($line2, "$num\n", '... got the right line2 ((=$fh) controlled loop)');
-#       $num++;
-#   }
+    for (=$fh) -> $line {
+        is($line, "$num\n", '... got the right line ((=$fh) controlled loop)');
+        $num++;
+        my $line2 = =$fh;
+        is($line2, "$num\n", '... got the right line2 ((=$fh) controlled loop)');
+        $num++;
+    }
     $fh.close();
 }
 
@@ -90,15 +88,13 @@ my $filename = 'tempfile';
   # the =$fh inside the loop w/out parens (is this scalar context??)
     my $fh = open($filename);
     my $num = 1;
-### XXX: Because of release preparation skip following tests
-    skip 12, "skip because of uncatchable die";
-#   for =$fh -> $line {
-#       is($line, "$num\n", '... got the right line (=$fh controlled loop)');
-#       $num++;
-#       my $line2 = =$fh;
-#       is($line2, "$num\n", '... got the right line2 (=$fh controlled loop)');
-#       $num++;
-#   }
+    for =$fh -> $line {
+        is($line, "$num\n", '... got the right line (=$fh controlled loop)');
+        $num++;
+        my $line2 = =$fh;
+        is($line2, "$num\n", '... got the right line2 (=$fh controlled loop)');
+        $num++;
+    }
     $fh.close();
 }
 

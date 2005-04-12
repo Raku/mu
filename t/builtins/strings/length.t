@@ -28,19 +28,19 @@ eval_is('$x.bytes',  undef, "undef"); #  test for warning
 # Please add test strings in your favorite script, especially if
 # it is boustrophedonic or otherwise interesting.
 
-my $data = [
+my @data = (
     # string       octets codepoints grapheme chars
-	[ "",               0,        0,         0 ,  0],
-	[ "moose",          5,        5,         5 ,  5],
-    [ "בדיקה",         10,        5,         5 , 5],
-    [ "בדיקה 123",     14,        9,         9 , 9]   # XXX: trailing commas parsefail for now
-];
+    ",               0,        0,         0,  0",
+    "moose,          5,        5,         5,  5",
+    "בדיקה,         10,        5,         5,  5",
+    "בדיקה 123,     14,        9,         9,  9",
+);
 #:map { my %hash; %hash<string bytes codes graphs> = $_; \%hash };
 
-for $data -> $row {
-	my ($string, $bytes, $codes, $graphs, $chars) = $row;
-	is($string.bytes, $bytes, "'{$string}'.bytes");
-	is($string.chars, $chars, "'{$string}'.chars");
-	eval_is ('$string.codes', $codes, "'{$string}'.codes");
-	eval_is('$string.graphs', $graphs, "'{$string}'.graphs");
+for @data -> $row {
+    my ($string, $bytes, $codes, $graphs, $chars) = split(rx:perl5/,\s*/, $row);
+    is($string.bytes, $bytes, "'{$string}'.bytes");
+    is($string.chars, $chars, "'{$string}'.chars");
+    is($string.codes, $codes, "'{$string}'.codes");
+    is($string.graphs, $graphs, "'{$string}'.graphs");
 }

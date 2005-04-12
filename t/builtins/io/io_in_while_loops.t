@@ -31,11 +31,10 @@ my $filename = 'tempfile';
     my $fh = open($filename);
     my $num = 1;
     my $line;
-    skip 6, "skip because of uncatchable die";
-#   while ($line = =$fh) {
-#       is($line, "$num\n", '... got the right line (=$fh controlled loop)');
-#       $num++;
-#   }
+    while ($line = =$fh) {
+        is($line, "$num\n", '... got the right line (=$fh controlled loop)');
+        $num++;
+    }
     $fh.close();
 }
 
