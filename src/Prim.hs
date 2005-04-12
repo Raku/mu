@@ -1200,7 +1200,7 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Num       pre     sum     (List)\
 \\n   Str       pre     join    (Array: Str)\
 \\n   Str       pre     join    (Str, List)\
-\\n   List      left    zip     (List)\
+\\n   List      pre     zip     (List)\
 \\n   List      pre     keys    (rw!Hash)\
 \\n   List      pre     values  (rw!Hash)\
 \\n   List      pre     kv      (rw!Hash)\

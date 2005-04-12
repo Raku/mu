@@ -497,6 +497,12 @@ reduce env (App name invs [Syn "," args]) = reduce env (App name invs args)
 reduce env (App "&hash" invs args) =
     reduce env (Syn "\\{}" [Syn "," $ invs ++ args])
 
+-- XXX absolutely evil bloody hack for "zip"
+reduce _ (App "&zip" invs args) = do
+    vals <- mapM (enterRValue . enterEvalContext "Array") (invs ++ args)
+    val  <- op0 "Y" vals
+    retVal val
+
 -- XXX absolutely evil bloody hack for "goto"
 reduce _ (App "&goto" (subExp:invs) args) = do
     vsub <- enterEvalContext "Code" subExp
