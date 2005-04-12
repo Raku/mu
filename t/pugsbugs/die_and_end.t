@@ -16,7 +16,7 @@ close $*ERR;
 
 skip(1, 'END {} blocks are not printing???');
 
-die "punt";
-END { pass("end block reached") }
+#die "punt";
+#END { pass("end block reached") }
 
 

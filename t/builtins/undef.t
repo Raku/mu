@@ -219,8 +219,7 @@ Perl6-specific tests
 	my %matches;
 	eval '"a=b\nc=d\n" ~~ / %<matches> := [ (\w) = \N+ ]* /';
 	todo_ok(eval '%matches ~~ all(<a b>)', "match keys exist");
-	todo_ok(!defined(%matches{"a"}) && !defined(%matches{"b"}),
-			"match values don't");
+	ok(!defined(%matches{"a"}) && !defined(%matches{"b"}), "match values don't");
 }
 
 {
