@@ -214,7 +214,7 @@ sub proclaim (Bool $cond, Str ?$desc, Str ?$c, Str ?$got, Str ?$expected) return
 
     # Check if we have to forcetodo this test because we're preparing for a
     # release.
-    $context = "TODO" if @forcetodo_tests[$loop];
+    $context = "TODO for release" if @forcetodo_tests[$loop];
 
     my $ok := $cond ?? "ok " :: "not ok ";
     my $out = defined($desc) ?? " - $desc" :: "";
