@@ -37,38 +37,170 @@ schemes will become appropriate when the table is more complete.
 
 =back
 
- Perl 6  Perl 5         Comment
- ------  ------         -----------------------
+=head1 SPECIAL VARIABLES
 
- $*IN    STDIN
- $*OUT   STDOUT
- $*ERR   STDERR
+=over 8
 
- $_      $_  $ARG       Same as Perl 5 but lexically scoped.
- $^a,$^b...             Parameters of the current closure (block 
-                        or subroutine) by position in the invocation.
+=item $*IN
 
- -       $a,$b          Ordinary vars. No longer any special use.
+=item $*OUT
+
+=item $*ERR
+
+Predefined filehandles for STDIN, STDOUT, and STDERR.
+
+=over 4
+
+=item p5:
+
+Replace STDIN, STDOUT, and STDERR.
+
+=back
+
+=back
+
+=over 8
+
+=item $_
+
+The default input and pattern-searching space. 
+Same as in Perl 5 but lexically scoped
+
+=over 4
+ 
+=item p5:
+
+$_ but more lexically aware.
+
+=back
+
+=back
+
+=over 8
+
+=item $a, $b, $c ...
+
+Parameters of the current closure (block 
+or subroutine) by position in the invocation.
+
+=over 4
+ 
+=item p5:
+
+$_[0], $_[1], $_[2] ...
+
+=back
+
+=back
+
+=over 8
+
+=item $/
+
+Object containing the results of the last regular expression match. 
+All match result info found in the contained data structure. 
+This is available as the current state of the match in progress.
+
+=over 4 
+
+=item p5:
+
+No direct parallel.
+
+=back
+
+=back
+
+=over 8
+
+=item $1,$2...
+
+Objects containing information on any subpatterns 
+from the corresponding set of capturing 
+parentheses from the last pattern match, not counting patterns 
+matched in nested blocks that have been exited already.
+These variables are all read-only and dynamically scoped to the 
+current BLOCK. Shortcut to same info in $/ with data structures containing 
+such things as .start and .end (Unicode level independent).
+
+=over 4 
+
+=item p5:
+
+$1,$2... but now as objects.
+
+=back
+
+=back
+
+=over 8
+
+=item $0
+
+$0 (dollar-zero) is the string matched by the last successful 
+pattern match (not counting any matches hidden within a BLOCK 
+or eval() enclosed by the current BLOCK). 
+This variable is read-only and dynamically scoped to the current BLOCK.
+What would be returned by $1 if you had
+put parens around the entire match. $0 is not bound until 
+the match succeeds. 
+
+=over 4 
+
+=item p5:
+
+$&, $MATCH
+
+=back
+
+=back
+
+=over 8
+
+=item $<pre>
+
+=item $<post>
+
+The strings preceding/following whatever was matched by the 
+last successful pattern match (not counting any matches 
+hidden within a BLOCK or eval enclosed by the current BLOCK). 
+(Mnemonic: ` often precedes a quoted string.) 
+These variables are read-only.
+$<pre> and $<post> would automatically exclude 
+themselves from $0.  Or you need some special 
+flag to remember them, maybe.
+
+=over 4 
+
+=item p5:
+
+$`,$' $PREMATCH,$POSTMATCH
+
+=back
+
+=back
 
 
- $/                     Object containing the results of the 
-                        last regular expression match. All match
-                        result info found in the contained data
-                        structure. This is available as the current
-                        state of the match in progress.
-                        
- $1,$2.. $1,$2..        Shortcut to same info in $/ with data
-                        structures containing such things as .start
-                        and .end (Unicode level independent).
+. . . More to come here . . .
 
- $0      $&  $MATCH     $0 is what would be returned by $1 if you had
-                        put parens around the entire match. $0 is not
-                        bound until the match succeeds. 
- $<pre>  $`  $PREMATCH
- $<post> $'  $POSTMATCH <pre> and <post> would automatically exclude 
-                        themselves from $0.  Or you need some special 
-                        flag to remember them, maybe.
- -       $+  $LAST_PAREN_MATCH
+
+=head1 PERL 6 / PERL 5 COMPARISON
+
+ Perl 6     Perl 5         Comment
+ --------   -----------    -----------------------
+ $*IN       STDIN
+ $*OUT      STDOUT
+ $*ERR      STDERR
+ $_         $_ $ARG
+ $^a,$^b..  $_[1],$_[2]..
+            $a,$b          Ordinary vars. No longer any special use.
+ $/                        Object: struct of results of last regex match
+ $1,$2..    $1,$2..        Shortcut to same info in $/
+ $0         $&
+ $<pre>     $`
+ $<post>    $'
+            $+             But info can now be retrieved from $/
+ 
  $*MOST_RECENT_CAPTURED_MATCH  ...or some such. 
                         Or $/[-1]. Or $/[-$n]. Or omit.
          $^N
