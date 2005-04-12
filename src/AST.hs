@@ -92,7 +92,7 @@ instance Value (IVar VScalar) where
 instance Value VRef where
     fromVal (VRef v) = return v
     fromVal (VList v) = return (arrayRef v)
-    fromVal v = retError "not a lvalue: " (Val v)
+    fromVal v = return . MkRef $ constScalar v
     castV = VRef
 
 instance Value [Int] where
@@ -416,7 +416,7 @@ valType (VList    _)    = "List"
 valType (VPair    _)    = "Pair"
 valType (VCode     _)   = "Sub"
 valType (VBlock   _)    = "Block"
-valType (VJunc    _)    = "Junc"
+valType (VJunc    _)    = "Junction"
 valType (VError _ _)    = "Error"
 valType (VHandle  _)    = "IO"
 valType (VSocket  _)    = "Socket"

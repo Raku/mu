@@ -231,11 +231,15 @@ returnScope = callerReturn 0 . VStr
 
 evalVal val = do
     -- context casting, go!
-    Env{ envLValue = lv, envClasses = cls, envContext = cxt } <- ask
+    Env{ envLValue = isLValue, envClasses = cls, envContext = cxt } <- ask
     typ <- evalValType val
-    case (isaType cls "List" cxt, isaType cls "List" typ, lv) of
-        (True, False, _)    -> return . VList =<< fromVal val
-        (True, True, False) -> do
-            return . VList =<< fromVal' val
-        _                   -> return val
-
+    let isCompatible = isaType cls cxt typ
+        isScalarCxt  = isaType cls "Scalar" cxt
+    case (isCompatible, isLValue, isScalarCxt) of
+        (True, True, _)         -> return val
+        (True, False, True)     -> fromVal val
+        (True, False, False)    -> return . VList =<< fromVal val
+        (False, True, True)     -> return val -- auto scalar varify?
+        (False, True, False)    -> return val -- auto list varify?
+        (False, False, True)    -> fromVal' val
+        (False, False, False)   -> return . VList =<< fromVal' val

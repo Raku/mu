@@ -66,7 +66,7 @@ type ClassTree = Tree Type
 type Type = String
 
 initTree :: Tree Type
-initTree = Node "Any"
+initTree = Node "Any" [ Node "Void"
     [ Node "Object"
         [ Node "List"
             [ Node "Lazy"
@@ -117,7 +117,6 @@ initTree = Node "Any"
         [ Node "Module"
             [ Node "Class" [] ] ]
     , Node "Action" []
-    , Node "Void" []
     , Node "Trait"
-        [ Node "PkgTrait" [] ] ]
+        [ Node "PkgTrait" [] ] ] ]
 

@@ -206,7 +206,7 @@ op1 "print" = op1Print hPutStr
 op1 "say" = op1Print hPutStrLn
 op1 "die" = \v -> do
     strs <- fromVal v
-    retError (concat strs) (Val VUndef)
+    retError (concat strs) (Val v)
 op1 "exit" = \v -> do
     rv <- fromVal v
     if rv /= 0
@@ -1161,8 +1161,7 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Int       spre    +^      (Int)\
 \\n   Int       spre    ~^      (Str)\
 \\n   Bool      spre    ?^      (Bool)\
-\\n   Ref       spre    \\      (List)\
-\\n   Ref       spre    \\      (Scalar)\
+\\n   Ref       spre    \\      (rw!Any)\
 \\n   List      post    ...     (Str)\
 \\n   List      post    ...     (Scalar)\
 \\n   Any       pre     undef   (?rw!Any)\
