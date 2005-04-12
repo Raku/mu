@@ -42,3 +42,6 @@ t/rules/rules_refs.t 1
 t/data_types/anon_block.t 14 15
 t/data_types/hash.t 25 26
 t/data_types/hash_ref.t 19 20 21 22 25 26 27 29 30 31 32
+
+## t/operators
+t/operators/arith.t 135 136 148 162 167

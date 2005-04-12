@@ -9,7 +9,7 @@ Multi-Dimensional Arrays
 
 =cut
 
-plan 28;
+plan 31;
 
 # multi-dimensional array
 
@@ -19,7 +19,12 @@ is(+$multi1, 3, 'the multi1 has 3 elements');
 
 is($multi1[0], 1, 'got the right value at multi1 index 0');
 
-is(+$multi1[1], 3, 'multi1[1] has 3 elements');
+{
+    my $list = $multi1[1];
+    is(+$list, 3, 'multi1[1] has 3 elements');
+    fail("FIXME parsefail");
+    #is(+$multi1[1], 3, '+$multi1[1] works')
+}
 isa_ok($multi1[1], 'List');
 
 # multi-dimensional array slices 
@@ -43,16 +48,20 @@ my $array_ref1 = (1, 2, 3);
 my $array_ref2 = [4, 5, 6];
 
 my $multi2 = [ $array_ref1, $array_ref2 ];
-
 is(+$multi2, 2, 'the multi2 has 2 elements');
 
-is(+$multi2[0], 3, 'multi2[0] has 3 elements');
+{
+    my $list = $multi2[0];
+    is(+$list, 3, 'multi2[0] has 3 elements');
+    fail("FIXME parsefail")
+    # is(+$multi2[0], 2, '+$multi2[0] works');
+}
 isa_ok($multi2[0], 'List');
 
 # slice
 
-#todo_is(eval '$multi2[0;0]', 1, 'got the right value at multi2 index 0,0');
-todo_fail('got the right value at multi2 index 0,0');
+todo_is(eval '$multi2[0;0]', 1, 'got the right value at multi2 index 0,0');
+#todo_fail('got the right value at multi2 index 0,0');
 todo_is(eval '$multi2[0;1]', 2, 'got the right value at multi2 index 0,1');
 todo_is(eval '$multi2[0;2]', 3, 'got the right value at multi2 index 0,2');
 
@@ -62,7 +71,13 @@ is($multi2[0][0], 1, 'got the right value at multi2 index 0,0');
 is($multi2[0][1], 2, 'got the right value at multi2 index 0,1');
 is($multi2[0][2], 3, 'got the right value at multi2 index 0,2');
 
-is(+$multi2[1], 3, 'multi2[1] has 3 elements');
+
+{
+    my $list = $multi2[1];
+    is(+$list, 3, 'multi2[1] has 3 elements');
+    fail("FIXME parsefail")
+    # is(+$multi2[1], 2, '+$multi2[1] works');
+}
 isa_ok($multi2[1], 'List');
 
 # slice 

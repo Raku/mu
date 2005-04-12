@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 60;
+plan 58;
 
 =pod
 
@@ -27,12 +27,12 @@ this test should be added too more.
     @array[0] = $pair; # assign a variable
     is(+@array, 1, 'the array has one value in it');
     isa_ok(@array[0], 'Pair');
-    eval_is('@array[0]<key>', 'value', 'got the right pair value');
+    is(@array[0]<key>, 'value', 'got the right pair value');
 
-    @array[1] = ('key1', 'value1'); # assign it inline
+    @array[1] = ('key1' => 'value1'); # assign it inline
     is(+@array, 2, 'the array has two values in it');
     isa_ok(@array[1], 'Pair');
-    eval_is('@array[1]<key1>', 'value1', 'got the right pair value');
+    is(@array[1]<key1>, 'value1', 'got the right pair value');
 }
 
 { # Array of Hashes
@@ -46,8 +46,8 @@ this test should be added too more.
     @array[0] = %hash;
     is(+@array, 1, 'the array has one value in it');
     isa_ok(@array[0], 'Hash');
-    eval_is('@array[0]{"key"}', 'value', 'got the right value for key');
-    eval_is('@array[0]<key1>', 'value1', 'got the right value1 for key1');    
+    is(@array[0]{"key"}, 'value', 'got the right value for key');
+    is(@array[0]<key1>, 'value1', 'got the right value1 for key1');    
 }
 
 { # Array of Lists
@@ -94,25 +94,18 @@ this test should be added too more.
     is(%hash<key>[0], 1, 'got the right value');
     is(%hash<key>[1], 2, 'got the right value');    
     is(%hash<key>[2], 3, 'got the right value');
-    
-    # detach it from the hash to access it
+
     {
-        my $list := %hash<key>;
+        my $list = %hash<key>;
         is(+$list, 3, 'it should have 3 values in it');    
         is($list[0], 1, 'got the right value (when I pull the list out)');
         is($list[1], 2, 'got the right value (when I pull the list out)');    
         is($list[2], 3, 'got the right value (when I pull the list out)');    
-        
-        push($list, 4);
-        is(+$list, 4, 'it should now have 4 values in it');
-        is($list[3], 4, 'got the right value (which we just pushed onto the list)');    
     }
-
-    # and make sure it was still attached to the %hash
-    {
-        my $list := %hash<key>;
-        is(+$list, 4, 'it should now have 4 values in it (it was still attached)');
-    }
+    
+    eval '%hash<key>.push(4)';
+    is(+%hash<key>, 4, 'it should now have 4 values in it');
+    is(%hash<key>[3], 4, 'got the right value (which we just pushed onto the list)');    
 }
 
 
@@ -131,22 +124,16 @@ this test should be added too more.
     is(%hash<key>[1], 2, 'got the right value');    
     is(%hash<key>[2], 3, 'got the right value');
     
-    # detach it from the hash to access it
     {
-        my $array := %hash<key>;
-        is(+$array, 3, 'it should have 3 values in it');    
-        is($array[0], 1, 'got the right value (when I pull the array out)');
-        is($array[1], 2, 'got the right value (when I pull the array out)');    
-        is($array[2], 3, 'got the right value (when I pull the array out)');    
-        
-        push($array, 4);
-        is(+$array, 4, 'it should now have 4 values in it');
-        is($array[3], 4, 'got the right value (which we just pushed onto the array)');    
+        my @array = %hash<key>;
+        is(+@array, 3, 'it should have 3 values in it');    
+        is(@array[0], 1, 'got the right value (when I pull the array out)');
+        is(@array[1], 2, 'got the right value (when I pull the array out)');    
+        is(@array[2], 3, 'got the right value (when I pull the array out)');    
     }
+    
+    eval '%hash<key>.push(4)';
+    is(+%hash<key>, 4, 'it should now have 4 values in it');
+    is(%hash<key>[3], 4, 'got the right value (which we just pushed onto the array)');    
 
-    # and make sure it was still attached to the %hash
-    {
-        my $array := %hash<key>;
-        is(+$array, 4, 'it should now have 4 values in it (it was still attached)');
-    }    
 }
