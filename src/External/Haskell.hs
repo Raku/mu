@@ -43,7 +43,9 @@ loadOrDie obj includes configs symbol = do
 loadHaskell :: FilePath -> IO [(String, [Val] -> Eval Val)]
 loadHaskell file = do
     let coredir   = getConfig "installarchlib" ++ "/CORE/pugs/"
-    let loadpaths = [coredir, getConfig "installsitearch"]
+        objDir    = getConfig "installsitearch"
+        objFile   = (objDir ++ "/" ++ file)
+        loadpaths = [coredir, objDir]
     -- For Unicode
     loadRawObject $ coredir++"UnicodeC.o"
     -- For RRegex
@@ -56,10 +58,10 @@ loadHaskell file = do
         (\n -> load (coredir++n++".o") loadpaths ourPackageConfigs "")
         ["Compat", "Cont", "Embed", "Embed/Perl5", "Internals", "RRegex", "RRegex/PCRE", "RRegex/Syntax", "Rule/Pos", "UTF8", "Unicode", "AST"]
 
-    (extern :: [String]) <- loadOrDie file loadpaths ourPackageConfigs "extern__"
-    print (">"++(show extern)++"<")
+    (extern :: [String]) <- loadOrDie objFile loadpaths ourPackageConfigs "extern__"
+    -- print (">"++(show extern)++"<")
     (`mapM` extern) $ \name -> do
-        func <- loadOrDie file loadpaths ourPackageConfigs ("extern__" ++ name)
+        func <- loadOrDie objFile loadpaths ourPackageConfigs ("extern__" ++ name)
         return (name, func)
 
 externalizeHaskell :: String -> String -> IO String

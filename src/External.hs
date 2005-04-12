@@ -39,9 +39,9 @@ externRequire lang name = do
         syms        <- readIORef glob
         writeIORef glob (map gensym bindings ++ syms)
     where
-    gensym (name, fun) = SymVar SOur name $ codeRef $ Sub
+    gensym (name, fun) = SymVar SOur ('&':name) . codeRef $ Sub
         { isMulti     = True
-        , subName     = name
+        , subName     = ('&':name)
         , subPad      = []
         , subType     = SubPrim
         , subAssoc    = "pre"
