@@ -15,7 +15,7 @@ $answer = 'The quick ' ~ func() ~ ' over the lazy dog';
 # or q:f// string delimeters. The function call must begin with ampersand (&)
 # and end with paranthesis:
 $answer = "STRING &function() MORE STRING";
-$answer = qq/STRING &function() MORE STRING";  # very liberal interpolation
+$answer = qq/STRING &function() MORE STRING/;  # very liberal interpolation
 $answer = q:f/STRING &function() MORE STRING"; # interpolates functions only
 
 # To interpolate a class method, using closure curlies:

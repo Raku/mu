@@ -13,3 +13,4 @@ $string = trim(string);
 
 # To remove the last character from a string:
 chop($string);
+$string.chop;

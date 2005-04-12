@@ -14,11 +14,11 @@ my %hash = (
     'three' => 'trois'
 );
 
-for (%hash.kv) -> $key, $value {
+for %hash.kv -> $key, $value {
     say "The word '$key' is '$value' in French.";
 }
 
-for (%hash.keys) -> $key {
+for %hash.keys -> $key {
     say "$key => %hash{$key}";
 }
 
