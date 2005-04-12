@@ -55,5 +55,6 @@ if (substr($got,0,1) ~~ "\\") {
 };
 
 my @got      = eval $got;
-is @got, @expected, "-e '' does not eat a following argument";
+fail "FIXME platform specific";
+# is @got, @expected, "-e '' does not eat a following argument";
 
