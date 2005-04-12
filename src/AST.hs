@@ -404,7 +404,7 @@ data Val
     deriving (Show, Eq, Ord, Typeable)
 
 valType :: Val -> String
-valType VUndef          = "Any"
+valType VUndef          = "Scalar"
 valType (VRef v)        = refType v
 valType (VBool    _)    = "Bool"
 valType (VInt     _)    = "Int"

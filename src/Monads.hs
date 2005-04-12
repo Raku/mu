@@ -236,10 +236,10 @@ evalVal val = do
     let isCompatible = isaType cls cxt typ
         isListCxt    = isaType cls "List" cxt
         isRef        = case val of { VRef _ -> True; _ -> False }
-    -- trace (show ((cxt, typ), isCompatible, isLValue, isListCxt, val)) return ()
+    trace (show ((cxt, typ), isCompatible, isLValue, isListCxt, val)) return ()
     case (isCompatible, isLValue, isListCxt) of
         (True, True, _)         -> return val
-        (True, False, False)    -> if isRef then return val else fromVal val
+        (True, False, False)    -> fromVal val
         (True, False, True)     -> return . VList =<< fromVal val
         (False, True, False)    -> return val -- auto scalar varify?
         (False, True, True)     -> return val -- auto list varify?
