@@ -9,7 +9,7 @@ plan 6;
 	my @a = (4, 5, 3, 2, 5, 1);
 	my @e = (1 .. 5, 5);
 
-	my @s; eval '@s = @a.sort';
+	my @s = @a.sort;
 	is(@s, @e, 'array of numbers was sorted');
 };
 
@@ -17,7 +17,7 @@ plan 6;
 	my @a = (2, 45, 6, 1, 3);
 	my @e = (1, 2, 3, 6, 45);
 
-	my @s; eval '@s = @a.sort:{ $^a <=> $^b }';
+	my @s = @a.sort:{ $^a <=> $^b };
 	is(@s, @e, '... with explicit spaceship'); # unTODOme
 };
 
@@ -25,7 +25,7 @@ plan 6;
 	my @a = <foo bar gorch baz>;
 	my @e = <bar baz foo gorch>;
 
-	my @s; eval '@s = @a.sort';
+	my @s = @a.sort;
 	is(@s, @e, 'array of strings was sorted');
 };
 
@@ -49,6 +49,6 @@ plan 6;
 	my @a = (4, 1, 2, 5, 3);
 	my @e = (1 .. 5);
 
-	my @s; eval '@s = sort { $^a <=> $^b } @a';
+	my @s = sort { $^a <=> $^b } @a;
 	is(@s, @e, '... with explicit sort block'); # unTODOme
 };

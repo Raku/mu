@@ -181,7 +181,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
     _       <- many $ ruleTrait -- traits; not yet used
     body    <- ruleBlock
     let (fun, names) = extract (body, [])
-        params = map nameToParam names ++ (maybe [defaultArrayParam] id formal) 
+        params = map nameToParam (sort names) ++ (maybe [defaultArrayParam] id formal) 
     -- Check for placeholder vs formal parameters
     unless (isNothing formal || null names || names == ["$_"] ) $
         fail "Cannot mix placeholder variables with formal parameters"
@@ -504,7 +504,7 @@ extractHash _ = Nothing
 retBlock SubBlock Nothing exp | Just hashExp <- extractHash exp = return $ Syn "\\{}" [hashExp]
 retBlock typ formal body = do
     let (fun, names) = extract (body, [])
-        params = (maybe [] id formal) ++ map nameToParam names
+        params = (maybe [] id formal) ++ map nameToParam (sort names)
     -- Check for placeholder vs formal parameters
     unless (isNothing formal || null names || names == ["$_"] ) $
         fail "Cannot mix placeholder variables with formal parameters"

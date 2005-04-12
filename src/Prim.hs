@@ -112,9 +112,31 @@ op1 "--"   = \mv -> do
 op1 "-"    = op1Numeric negate
 op1 "scalar" = return -- XXX refify?
 op1 "sort" = \v -> do
-    values  <- fromVal v
-    strs    <- mapM fromVal values
-    return . VList . map snd . sort $ (strs :: [VStr]) `zip` values
+    args    <- fromVal v
+    (valList, sortBy) <- case args of
+        (v:vs) -> do
+            isa <- op2 "isa" v (VStr "Code")
+            if vCast isa
+                then return (vs, Just v)
+                else do
+                    isa <- op2 "isa" (last args) (VStr "Code")
+                    if vCast isa
+                        then return (init args, Just $ last args)
+                        else return (args, Nothing)
+        _  -> return (args, Nothing)
+    case sortBy of
+        Nothing -> do
+            strs    <- mapM fromVal valList
+            return . VList . map snd . sort $ (strs :: [VStr]) `zip` valList
+        Just subVal -> do
+            sub <- fromVal subVal
+            evl <- asks envEval
+            sorted <- (`sortByM` valList) $ \v1 v2 -> do
+                rv  <- local (\e -> e{ envContext = "Int" }) $ do
+                    evl (Syn "()" [Val sub, Syn "invs" [Val v1, Val v2], Syn "args" []])
+                int <- fromVal rv
+                return (int <= (0 :: Int))
+            return $ VList sorted
 op1 "reverse" = \v -> do
     case v of
         (VRef _) -> do
@@ -1069,6 +1091,28 @@ prettyVal d (VList vs) = do
     return $ "(" ++ concat (intersperse ", " vs') ++ ")"
 prettyVal _ v = return $ pretty v
 
+sortByM :: (Val -> Val -> Eval Bool) -> [Val] -> Eval [Val]
+sortByM _ []  = return []
+sortByM _ [x] = return [x]
+sortByM f xs  = do
+    let (as, bs) = splitAt (length xs `quot` 2) xs
+    aSorted <- sortByM f as
+    bSorted <- sortByM f bs
+    doMerge f aSorted bSorted
+    where
+    doMerge :: (Val -> Val -> Eval Bool) -> [Val] -> [Val] -> Eval [Val]
+    doMerge _ [] ys = return ys
+    doMerge _ xs [] = return xs
+    doMerge f (x:xs) (y:ys) = do
+        isLessOrEqual <- f x y
+        if isLessOrEqual
+            then do
+                rest <- doMerge f xs (y:ys)
+                return (x:rest)
+            else do
+                rest <- doMerge f (x:xs) ys
+                return (y:rest)
+
 -- XXX -- Junctive Types -- XXX --
 
 -- spre is "symbolic pre", that is, operators for which a precedence has
@@ -1133,8 +1177,11 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      pre     true    (Bool)\
 \\n   List      pre     map     (Code, List)\
 \\n   List      pre     grep    (Code, List)\
+\\n   List      pre     sort    (Code, List)\
+\\n   List      pre     sort    (List)\
 \\n   List      pre     map     (Array: Code)\
 \\n   List      pre     grep    (Array: Code)\
+\\n   List      pre     sort    (Array: Code)\
 \\n   Int       pre     push    (rw!Array, List)\
 \\n   Int       pre     unshift (rw!Array, List)\
 \\n   Scalar    pre     pop     (rw!Array)\
