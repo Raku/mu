@@ -37,7 +37,7 @@ op0 "time"  = const $ do
     epoch = CalendarTime 2000 January 1 0 0 0 0 Saturday 0 "UTC" 0 False
 op0 "not" = const retEmpty
 op0 "so" = const (return $ VBool True)
-op0 "¥" = (>>= return . VList . concat . transpose) . mapM fromVal
+op0 "¥" = (return . VList . concat . op0Zip =<<) . mapM fromVal
 op0 "Y" = op0 "¥"
 op0 "File::Spec::cwd" = const $ do
     mycwd <- liftIO getCurrentDirectory
@@ -52,6 +52,15 @@ retEmpty = do
     ifContextIsa "List"
         (return $ VList [])
         (return VUndef)
+
+op0Zip :: [[Val]] -> [[Val]]
+op0Zip lists | all null lists = []
+op0Zip lists = (map zipFirst lists):(op0Zip (map zipRest lists))
+    where
+    zipFirst []     = undef
+    zipFirst (x:_)  = x
+    zipRest  []     = []
+    zipRest  (_:xs) = xs
 
 op1 :: Ident -> Val -> Eval Val
 op1 "!"    = op1Cast (VBool . not)
