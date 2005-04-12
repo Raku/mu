@@ -497,7 +497,9 @@ ruleBlockLiteral = rule "block construct" $ do
 
 extractHash :: Exp -> Maybe Exp
 extractHash (Syn "block" [exp]) = extractHash exp
+extractHash (Statements [(exp@(App "&pair" _ _), _)]) = Just exp
 extractHash (Statements [(exp@(App "&infix:=>" _ _), _)]) = Just exp
+extractHash (Statements [(exp@(Syn "," (App "&pair" _ _:_)), _)]) = Just exp
 extractHash (Statements [(exp@(Syn "," (App "&infix:=>" _ _:_)), _)]) = Just exp
 extractHash _ = Nothing
 

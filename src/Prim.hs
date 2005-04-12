@@ -156,6 +156,7 @@ op1 "reverse" = \v -> do
             (op1Cast (VStr . reverse) v)
             (op1Cast (VList . reverse) v)
 op1 "list" = op1Cast VList
+op1 "pair" = op1Cast (VList . (map (\(k, v) -> (VPair (VStr k, v)))))
 op1 "~"    = op1Cast VStr
 op1 "?"    = op1Cast VBool
 op1 "int"  = op1Cast VInt
@@ -954,7 +955,7 @@ foldParam ('?':str)
     = let readVal "Num" = Val . VNum . read
           readVal "Int" = Val . VInt . read
           readVal "Str" = Val . VStr . read
-          readVal x	= error $ "Unknown type: " ++ x
+          readVal x     = error $ "Unknown type: " ++ x
       in \ps -> (buildParam typ "?" "$?1" (readVal typ def):ps)
     | otherwise
     = \ps -> (buildParam str "?" "$?1" (Val VUndef):ps)
@@ -1118,7 +1119,7 @@ sortByM f xs  = do
 -- spre is "symbolic pre", that is, operators for which a precedence has
 -- already been assigned in Parser.hs
 
---    ret_val   assoc	op_name args
+--    ret_val   assoc   op_name args
 initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      spre    !       (Bool)\
 \\n   Num       spre    +       (Num)\
@@ -1147,6 +1148,8 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   List      pre     readline (IO)\
 \\n   Int       pre     int     (?Int=$_)\
 \\n   List      pre     list    (List)\
+\\n   Hash      pre     hash    (List)\
+\\n   List      pre     pair    (List)\
 \\n   Scalar    pre     scalar  (Scalar)\
 \\n   Any       pre     reverse (rw!Any)\
 \\n   Any       pre     reverse (List)\
@@ -1328,8 +1331,8 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   List      left    >>x<<   (Any, Any)\
 \\n   List      left    >>xx<<  (Any, Any)\
 \\n   List      list    ,       (List)\
-\\n   List      list	¥		(Array)\
-\\n   List      list	Y		(Array)\
+\\n   List      list    ¥               (Array)\
+\\n   List      list    Y               (Array)\
 \\n   List      spre    <==     (List)\
 \\n   List      left    ==>     (List, Code)\
 \\n   Scalar    left    and     (Bool, ~Bool)\

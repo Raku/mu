@@ -479,6 +479,10 @@ reduce env exp@(Syn name exps) = case name of
 reduce env (App name [Syn "," invs] args) = reduce env (App name invs args)
 reduce env (App name invs [Syn "," args]) = reduce env (App name invs args)
 
+-- XXX absolutely evil bloody hack for "hash"
+reduce env (App "&hash" invs args) =
+    reduce env (Syn "\\{}" [Syn "," $ invs ++ args])
+
 -- XXX absolutely evil bloody hack for "goto"
 reduce _ (App "&goto" (subExp:invs) args) = do
     vsub <- enterEvalContext "Code" subExp
