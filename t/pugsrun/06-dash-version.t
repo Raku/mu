@@ -33,5 +33,5 @@ for @tests -> $ex {
   my $got = slurp "temp-ex-output";
   unlink "temp-ex-output";
 
-  like($got, rx:perl5/Version: 6\.0\.\d+/, "'$ex' displays version");
+  like($got, rx:perl5/Version: 6\.\d+\.\d+/, "'$ex' displays version");
 };
