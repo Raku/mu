@@ -298,20 +298,16 @@ reduce env exp@(Syn name exps) = case name of
         topic  <- evalVar "$_"
         result <- op2Match topic match
         rb     <- fromVal result
-        let runBody = do
-            enterEvalContext "Code" body
-            doApply env vbreak [] []
         if rb
-            then enterWhen (codeRef vbreak) runBody
+            then enterWhen (subFun vbreak) $ do
+                doApply env vbreak [body] []
             else retVal VUndef
     "default" -> do
         let [body] = exps
         break  <- evalVar "&?BLOCK_EXIT"
         vbreak <- fromVal break
-        let runBody = do
-            enterEvalContext "Code" body
-            doApply env vbreak [] []
-        enterWhen (codeRef vbreak) runBody
+        enterWhen (subFun vbreak) $ do
+            doApply env vbreak [body] []
     "while" -> doWhileUntil id
     "until" -> doWhileUntil not
     "=" -> do

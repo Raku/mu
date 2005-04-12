@@ -3,7 +3,7 @@
 === Pugs Internals
 
 * *MAJOR* refactor of ITypes subsystem, we now have:
-   * Nested structures: `$a{1}[2]{3}`
+* * Nested structures: `$a{1}[2]{3}`
    * Autovivification: `$a{1}[2]{3} = <b>`
    * Tied magic: `%ENV<USER>`
    * Proxy scalars: `%ENV<PATH> ~= '/tmp'`
@@ -12,7 +12,8 @@
    * Lazy IArray structures: "Infinite lists, constant time"
    * Infinite cyclical structures work
    * and much much more ...
-* Experimental support for link external Haskell libraries
+* Experimental support for link external Haskell libraries.
+  One such example is http://tpe.freepan.org/repos/ingy/SHA1/.
 * New builtins; `sum()`, `log()`, `log10()`, `sign()`, `pi()`, 
   `tan()`, `cos()` and `atan()`
 * New type specific builtins; `.kv`, `.pairs`, `.delete`, `.exists`, 

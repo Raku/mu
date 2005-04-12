@@ -25,43 +25,34 @@ askDump str = do
     liftIO $ putStrLn $ "Current scope: " ++ str ++ " - Env: " ++ env
 
 
-{-
-enterScope f = do
-    uniq <- liftIO $ newUnique
-    rv <- callCC $ \cc -> resetT $ do
-        local (\e -> e{ envCaller = Just e, envDepth = 1 + envDepth e, envID = uniq } ) f
-    liftIO $ print (rv)
-    -- here we trigger error handler of various sorts
-    case rv of
-        VControl (ControlLeave f val) -> do
-            env <- ask
-            match <- f env
-            if match
-                then callerReturn 0 val
-                else return rv
-        _ -> return rv
-    {-
-    -- detect for abnormal return
-    return rv
-    -}
--}
-
 enterGiven topic action = enterLex [SymVar SMy "$_" topic] action
 
 enterWhen break action = callCC $ \esc -> do
-    enterLex [SymVar SMy "&continue" $ continueSub esc,
-              SymVar SMy "&break" break] action
+    env <- ask
+    enterLex ((genSubs env "&continue" $ continueSub esc)
+           ++ (genSubs env "&break" $ breakSub)) action
     where
-    continueSub esc = codeRef $ Sub
-        { isMulti = False
+    continueSub esc env = Sub
+        { isMulti = True
         , subName = "continue"
         , subType = SubPrim
         , subPad = []
         , subAssoc = "pre"
-        , subParams = []
+        , subParams = makeParams env
         , subBindings = []
-        , subReturns = "Void"
-        , subFun = Prim (const $ esc VUndef)
+        , subReturns = envContext env
+        , subFun = Prim (esc . head)
+        }
+    breakSub env = Sub
+        { isMulti = True
+        , subName = "break"
+        , subType = SubPrim
+        , subPad = []
+        , subAssoc = "pre"
+        , subParams = makeParams env
+        , subBindings = []
+        , subReturns = envContext env
+        , subFun = break
         }
 
 enterLoop action = callCC $ \esc -> do
@@ -80,18 +71,19 @@ enterLoop action = callCC $ \esc -> do
         }
 
 enterBlock action = callCC $ \esc -> do
-    enterLex [SymVar SMy "&?BLOCK_EXIT" $ escSub esc] action
+    env <- ask
+    enterLex (genSubs env "&?BLOCK_EXIT" $ escSub esc) action
     where
-    escSub esc = codeRef $ Sub
-        { isMulti = False
-        , subName = "&?BLOCK_EXIT"
+    escSub esc env = Sub
+        { isMulti = True
+        , subName = "BLOCK_EXIT"
         , subType = SubPrim
         , subPad = []
         , subAssoc = "pre"
-        , subParams = []
+        , subParams = makeParams env
         , subBindings = []
-        , subReturns = "Void"
-        , subFun = Prim (const $ esc VUndef)
+        , subReturns = envContext env
+        , subFun = Prim (esc . head)
         }
   
 enterSub sub@Sub{ subType = typ } action
@@ -110,11 +102,6 @@ enterSub sub@Sub{ subType = typ } action
     subRec = [ SymVar SMy "&?SUB" (codeRef (orig sub))
              , SymVar SMy "$?SUBNAME" (scalarRef $ VStr $ subName sub)]
     blockRec = SymVar SMy "&?BLOCK" (codeRef (orig sub))
-    genSubs env name gen =
-        [ SymVar SMy name (codeRef $ gen env)
-        , SymVar SMy name (codeRef $ gen env{ envContext = "Scalar" })
-        , SymVar SMy name (codeRef $ gen env{ envContext = "List" })
-        ]
     fixEnv cc env@Env{ envLexical = pad } env'
         | typ >= SubBlock = env'{ envLexical = (blockRec:subPad sub) ++ pad }
         | otherwise      = env'{ envLexical = concat
@@ -145,21 +132,27 @@ enterSub sub@Sub{ subType = typ } action
         , subReturns = envContext env
         , subFun = Prim $ doCC cc
         }
-    makeParams Env{ envClasses = cls, envContext = cxt, envLValue = lv }
-        = [ Param
-            { isInvocant = False
-            , isSlurpy = isList
-            , isOptional = False
-            , isNamed = False
-            , isLValue = lv
-            , isThunk = False
-            , paramName = if isList then "@?0" else "$?0"
-            , paramContext = cxt
-            , paramDefault = Val VUndef
-            } ]
-        where
-        isList = isaType cls "List" cxt
 
+genSubs env name gen =
+    [ SymVar SMy name (codeRef $ gen env)
+    , SymVar SMy name (codeRef $ gen env{ envContext = "Scalar" })
+    , SymVar SMy name (codeRef $ gen env{ envContext = "List" })
+    ]
+
+makeParams Env{ envClasses = cls, envContext = cxt, envLValue = lv }
+    = [ Param
+        { isInvocant = False
+        , isSlurpy = isList
+        , isOptional = False
+        , isNamed = False
+        , isLValue = lv
+        , isThunk = False
+        , paramName = if isList then "@?0" else "$?0"
+        , paramContext = cxt
+        , paramDefault = Val VUndef
+        } ]
+    where
+    isList = isaType cls "List" cxt
 {-
 enterSub sub = enterScope $ do
     local (\e -> e { envLexical = subPad sub }) $ do
