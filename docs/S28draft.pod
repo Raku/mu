@@ -3,39 +3,26 @@
 
  [DRAFT] Synopsis 28 - Special Variables [DRAFT]
 
-=head1 VERSION
+=head1 OUTLINE
 
- Created:         2 Apr 2005    anonpugster
- Last Modified:  11 Apr 2005    dvergin
+ NOTES
+ SPECIAL VARIABLES
+ PERL 6 / PERL 5 COMPARISON
+ HISTORY
+ SOURCES
 
-This work-in-progress should probably be restructured to something
-resembling perlvar.pod once it's current form as a checklist of 
-the correspondence of Perl 5 and Perl 6 special vars is reasonably
-complete.
+=head1 NOTES
 
-This document collects what is known about special variables in
-Perl 6 and correlates them with the changes from Perl 5. 
-At its present stage of development this file
-draws on a few key sources: Perl 5's perlvar.pod (for a full list of special
-vars in Perl 5) and a perl6-language list thread documented in 
-the APPENDIX below. E02 and S02 have also been helpful in several cases.
+This is very much a work-in-progress. 
+(If you see needed changes and are unable to submit them yourself, 
+you are welcome to email: dvergin at igc dot org.)
 
-=head1 SUMMARY
+This document serves as a collection point 
+for what is known about special variables 
+in Perl 6 and correlates them with the changes from Perl 5. 
 
-NOTE: Most/All variables of the form $*SOMETHING should also work in the form
+Most/All variables of the form $*SOMETHING should also work in the form
 $SOMETHING (without the '*') unless masked by "my $SOMETHING".
-
-=over 4
-
-Because a blank entry in the "Perl 6" column could be taken to mean either 
-"not in Perl 6" or "unknown", the information as presented 
-below presumes an entry in that column for every entry. 
-It must be the appropriate Perl 6 entity, 
-'-' for "not in Perl 6", or '?' for "don't know yet". 
-Other organizational
-schemes will become appropriate when the table is more complete.
-
-=back
 
 =head1 SPECIAL VARIABLES
 
@@ -180,52 +167,191 @@ $`,$' $PREMATCH,$POSTMATCH
 
 =back
 
+=over 8
+
+=item $*MOST_RECENT_CAPTURED_MATCH
+=item $/[-1]
+=item $/[-$n]
+
+It's not clear yet which of these would be used.
+Or whether to drop this.
+
+=over 4 
+
+=item p5:
+
+$^N
+
+=back
+
+=back
+
+=over 8
+
+=item $.
+
+=item $IN_FH.input_line_number  ...or some such
+
+May-be. Current line number for the filehandle. 
+Each filehandle in Perl counts the number of lines 
+that have been read from it. 
+(Depending on the value of $IN_FH.input_rec_separator, 
+Perl's idea of what constitutes a line may not match yours.) 
+When a line is read from a filehandle, 
+or when tell() or seek() is called on it, 
+$IN_FH.input_rec_separator becomes an alias to the 
+line counter for that filehandle.
+
+=over 4 
+
+=item p5:
+
+$.  $NR  $INPUT_LINE_NUMBER  HANDLE->input_line_number(EXPR)
+But now with cleaned-up localization usage.
+
+=back
+
+=back
+
+=over 8
+
+=item $IN_FH.input_rec_separator ...or some such
+
+The input record separator, newline by default. 
+This influences Perl's idea of what a ``line'' is. 
+Works like awk's RS variable, including treating empty lines 
+as a terminator if set to the null string. 
+(An empty line cannot contain any spaces or tabs.) 
+You may set it to a multi-character string to match a multi-character 
+terminator, or to undef to read through the end of file. 
+Setting it to "\n\n" means something slightly different 
+than setting to "", if the file contains consecutive empty lines. 
+Setting to "" will treat two or more consecutive empty lines 
+as a single empty line. Setting to "\n\n" will blindly assume 
+that the next input character belongs to the next paragraph, 
+even if it's a newline. 
+(Mnemonic: / delimits line boundaries when quoting poetry.)
+
+Remember: the value of $/ is a string, not a regex. 
+awk has to be better for something. :-)
+
+=over 4 
+
+=item p5:
+
+$/ $RS $INPUT_RECORD_SEPARATOR
+IO::Handle->input_record_separator(EXPR)
+
+=back
+
+=back
+
+=over 8
+
+=item $OUT_FH.autoflush  ...or some such
+
+If set to nonzero, forces a flush right away and after every write 
+or print on the currently selected output channel. 
+Default is 0 (regardless of whether the channel is really buffered 
+by the system or not; 
+$OUT_FH.autoflush tells you only whether you've asked Perl 
+explicitly to flush after each write). 
+$*OUT will typically be line buffered if output is to the 
+terminal and block buffered otherwise. 
+Setting this variable is useful primarily when you are 
+outputting to a pipe or socket, 
+such as when you are running a Perl program under rsh 
+and want to see the output as it's happening. 
+This has no effect on input buffering. 
+(Mnemonic: when you want your pipes to be piping hot.)
+
+=over 4 
+
+=item p5:
+
+$|  $OUTPUT_AUTOFLUSH  HANDLE->autoflush(EXPR)
+
+=back
+
+=back
+
 
 . . . More to come here . . .
 
 
 =head1 PERL 6 / PERL 5 COMPARISON
 
- Perl 6     Perl 5         Comment
- --------   -----------    -----------------------
- $*IN       STDIN
- $*OUT      STDOUT
- $*ERR      STDERR
- $_         $_ $ARG
- $^a,$^b..  $_[1],$_[2]..
-            $a,$b          Ordinary vars. No longer any special use.
- $/                        Object: struct of results of last regex match
- $1,$2..    $1,$2..        Shortcut to same info in $/
- $0         $&
- $<pre>     $`
- $<post>    $'
-            $+             But info can now be retrieved from $/
+=over 4
+
+Because a blank entry in either column could be taken to mean either 
+"not in Perl 6" or "unknown", the information as presented 
+below presumes an entry in both columns for every entry. 
+Options are:
+
+=over 6
+
+thing  as the var in question
+
+-      for "not in this Perl"
+
+?      for "don't know yet"
+
+=back
+
+Other organizational
+schemes may become appropriate when the table is more complete.
+
+=back
+
+ Perl 5         Perl 6         Comment
+ -----------    -----------    -----------------------
+ STDIN          $*IN
+
+ STDOUT         $*OUT
+
+ STDERR         $*ERR
+
+ $_             $_
+
+ $_[1],$_[2]..  $^a,$^b..  
+
+ $a,$b            -            Available now as ordinary vars
+
+   -            $/             Object with results of last regex match
+
+ $1,$2,$3...    $1,$2,$3...
+
+ $0             $&
+
+ $`             $<pre>
+
+ $'             $<post>
+
+ $+               -            But info can now be retrieved from $/
+
+ $^N            $*MOST_RECENT_CAPTURED_MATCH  ...or some such. 
+             or $/[-1]                        ...or omit
+             or $/[-$n] 
+
+ @+               ?
  
- $*MOST_RECENT_CAPTURED_MATCH  ...or some such. 
-                        Or $/[-1]. Or $/[-$n]. Or omit.
-         $^N
- ?       @+  @LAST_MATCH_END
- -       $*
+ $*               -
 
- $IN_FH.input_line_number  ...or some such
- $.          May-be. But with cleaned-up localization usage.
-         $.  $NR $INPUT_LINE_NUMBER
-             HANDLE->input_line_number(EXPR)
+ $.             $IN_FH.input_line_number  ...or some such
+                $.             May-be. But with cleaned-up localization usage.
 
- $IN_FH.input_rec_separator  ...or some such
- -       $/  $RS $INPUT_RECORD_SEPARATOR
-             IO::Handle->input_record_separator(EXPR)
+ $/             $IN_FH.input_rec_separator  ...or some such
 
  $OUT_FH.autoflush           ...or some such
- -       $|  $OUTPUT_AUTOFLUSH
+         $|  $OUTPUT_AUTOFLUSH
              HANDLE->autoflush(EXPR)
 
  $OUT_FH.output_field_separator   ...or some such
- -       $,  $OFS $OUTPUT_FIELD_SEPARATOR
+         $,  $OFS $OUTPUT_FIELD_SEPARATOR
              IO::Handle->output_field_separator
 
  $OUT_FH.output_record_separator   ...or some such
- -       $\  $ORS $OUTPUT_RECORD_SEPARATOR
+         $\  $ORS $OUTPUT_RECORD_SEPARATOR
              IO::Handle->output_record_separator
 
  -       $"  $LIST_SEPARATOR
@@ -371,23 +497,26 @@ $`,$' $PREMATCH,$POSTMATCH
 
 =head1 HISTORY
 
-2005-04-11 dvergin     Filling in more pieces
-2005-04-10 dvergin     Roughed in main table 
-2005-04-02 anonpugster Placeholder file containing Larry's email
+ 2005-04-11 dvergin     Filling in more pieces
+ 2005-04-10 dvergin     Roughed in main table 
+ 2005-04-02 anonpugster Placeholder file containing Larry's email
 
-=head1 APPENDIX
+=head1 SOURCES
 
-NOTE: This section should likely be reduced to just the url below in 
-the next major revision of this pod.
+At its present stage of development this file
+draws on a few key sources: Perl 5's perlvar.pod (for a full list of special
+vars in Perl 5) and a perl6-language list thread documented 
+below. E02 and S02 have also been helpful in several cases.
 
-The new material above was compiled from an a thread on the perl6-language
+A key resource in compiling the new material above 
+has been a thread on the perl6-language
 email list which can be found at: 
 
   http://www.mail-archive.com/perl6-language@perl.org/msg18609.html
 
 For our present purposes, the most helpful item in that thread is the 
-head post found
-at the url given above. It is an item by Larry Wall which is reproduced here:
+head post found at the url given above. 
+It is an item by Larry Wall which is reproduced here:
 _________________________________________________________________
 
  Mailing-List: contact perl6-language-help@perl.org; run by ezmlm
