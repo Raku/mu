@@ -48,6 +48,7 @@ statFileSize f = do
 
 #else
 
+import Debug.Trace
 import System.Posix.Types
 import System.Environment
 
@@ -80,7 +81,6 @@ setFileMode _ _ = warnWith "chmod"
 
 statFileSize :: FilePath -> IO Integer
 statFileSize _ = failWith "-s"
--- statFileSize could be implemented as openFile and hFileSize.
 
 getProcessID :: IO ProcessID
 getProcessID = return 1
@@ -101,9 +101,6 @@ getEffectiveGroupID :: IO GroupID
 getEffectiveGroupID = return 1
 
 #endif
-
-statFileSize :: FilePath -> IO Integer
-
 
 foreign import ccall unsafe "getProgArgv"
   getProgArgv :: Ptr CInt -> Ptr (Ptr CString) -> IO ()
