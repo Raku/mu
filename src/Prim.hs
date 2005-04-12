@@ -237,8 +237,10 @@ op1 "-s"    = fileTestIO fileTestFileSize
 op1 "-f"    = fileTestIO fileTestIsFile
 op1 "-d"    = fileTestIO fileTestIsDirectory
 op1 "elems" = op1Cast (VInt . (genericLength :: VList -> VInt))
+op1 "graphs"= op1Cast (VInt . (genericLength :: String -> VInt)) -- XXX Wrong
+op1 "codes" = op1Cast (VInt . (genericLength :: String -> VInt))
 op1 "chars" = op1Cast (VInt . (genericLength :: String -> VInt))
-op1 "bytes" = op1Cast (VInt . (genericLength :: String -> VInt))
+op1 "bytes" = op1Cast (VInt . (genericLength :: String -> VInt) . encodeUTF8)
 op1 "chmod" = \v -> do
     vals <- fromVals v
     rets <- mapM (doBoolIO $ flip setFileMode $ intCast $ head vals) $ tail vals
@@ -695,8 +697,7 @@ rxSplit rx str = do
             return ([c]:rest)
         Just mr -> do
             rest <- rxSplit rx (mrAfter mr)
-            let f = if null (mrBefore mr) then id else (mrBefore mr:)
-            return $ (f $ mrSubList mr) ++ rest
+            return $ (mrBefore mr:mrSubList mr) ++ rest
 
 op3 :: Ident -> Val -> Val -> Val -> Eval Val
 op3 "index" = \x y z -> do
@@ -1270,6 +1271,8 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      pre     mkdir   (Str)\
 \\n   Bool      pre     chdir   (Str)\
 \\n   Int       pre     elems   (Array)\
+\\n   Int       pre     graphs  (?Str=$_)\
+\\n   Int       pre     codes   (?Str=$_)\
 \\n   Int       pre     chars   (?Str=$_)\
 \\n   Int       pre     bytes   (?Str=$_)\
 \\n   Int       pre     chmod   (List)\
