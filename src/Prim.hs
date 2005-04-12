@@ -19,6 +19,7 @@ import Pretty
 import Parser
 import External
 import Context
+import Text.Printf
 import qualified Data.Set as Set
 import qualified Types.Array  as Array
 import qualified Types.Hash   as Hash
@@ -152,7 +153,7 @@ op1 "require" = \v -> do
             then requireInc ps file msg
             else do
                 str <- liftIO $ readFile pathName
-                opEval True pathName str
+                opEval True pathName (decodeUTF8 str)
 op1 "eval" = \v -> do
     str <- fromVal v
     opEval False "<eval>" str
@@ -318,11 +319,13 @@ op1 "pop"   = \x -> join $ doArray x Array.pop -- monadic join
 op1 "shift" = \x -> join $ doArray x Array.shift -- monadic join
 op1 "pick"  = op1Pick
 op1 "sum"   = op1Sum
-op1 "chr"   = return . op1Chr
-op1 "ord"   = return . op1Ord
-op1 "hex"   = return . op1Hex
-op1 "log"   = return . op1Log
-op1 "log10" = return . op1Log10
+op1 "chr"   = op1Cast (VStr . (:[]) . chr)
+op1 "ord"   = op1Cast $ \str -> case str of
+    []      -> undef
+    (c:_)   -> castV $ ord c
+op1 "hex"   = op1Cast (VInt . read . ("0x"++))
+op1 "log"   = op1Cast (VNum . log)
+op1 "log10" = op1Cast (VNum . logBase 10)
 op1 other   = return . (\x -> VError ("unimplemented unaryOp: " ++ other) (App other [Val x] []))
 
 op1Cast :: (Value n) => (n -> Val) -> Val -> Eval Val
@@ -354,37 +357,6 @@ op1StrFirst f = op1Cast $ VStr .
     \str -> case str of
         []      -> []
         (c:cs)  -> (f c:cs)
-
--- what's less cheesy than read?
-op1Hex          :: Val -> Val
-op1Hex (VStr s) = VInt (read ("0x" ++ s))
-op1Hex (VInt i) = VInt (read ("0x" ++ show i))  -- PerlJam asks "auto int to str coercion?"
-op1Hex v        = VError "hex not defined" (Val v)
-
-op1Ord              :: Val -> Val
-op1Ord (VStr (s:_)) = VInt (fromIntegral (ord s))
-op1Ord v            =  VError "ord not defined" (Val v)
-
-op1Chr          :: Val -> Val
-op1Chr (VInt i) = VStr [(chr . fromIntegral) i]
-op1Chr v        = VError "chr not defined" (Val v)
-
-op1Log                :: Val -> Val
-op1Log v@(VNum _)     = VNum (log (vCast v))
-op1Log v@(VInt _)     = VNum (log (vCast v))
-op1Log v@(VRat _)     = VNum (log (vCast v))
-op1Log v@(VComplex _) = VNum (log (vCast v))
--- op1Log v              = VNum (log (vCast v)) -- if vCast will work for every type
-op1Log v              = VError "log not defined" (Val v)
-
-op1Log10                :: Val -> Val
-op1Log10 v@(VNum _)     = VNum (logBase 10 (vCast v))
-op1Log10 v@(VInt _)     = VNum (logBase 10 (vCast v))
-op1Log10 v@(VRat _)     = VNum (logBase 10 (vCast v))
-op1Log10 v@(VComplex _) = VNum (logBase 10 (vCast v))
--- op1Log10 v              = VNum (logBase 10 (vCast v)) -- if vCast will work for every type
-op1Log10 v              = VError "log10 not defined" (Val v)
-
 
 op1Pick :: Val -> Eval Val
 op1Pick (VJunc (Junc JAny _ set)) = do -- pick mainly works on 'any'
@@ -581,6 +553,15 @@ op2 "connect" = \x y -> do
 op2 "exp" = \x y -> return . VNum $ if defined y
     then vCast y ** vCast x
     else exp (vCast x)
+op2 "sprintf" = \x y -> do
+    str  <- fromVal x
+    vals <- fromVal y
+    return $ VStr $ case (map vCast vals :: [VInt]) of
+        []          -> printf str
+        [x]         -> printf str x
+        [x, y]      -> printf str x y
+        [x, y, z]   -> printf str x y z
+        _           -> printf str
 op2 other = \x y -> return $ VError ("unimplemented binaryOp: " ++ other) (App other [Val x, Val y] [])
 
 -- XXX - need to generalise this
@@ -594,7 +575,7 @@ op2Match x (VSubst (rx@MkRule{ rxGlobal = True }, subst)) = do
     case rv of
         (str', Just _) -> do
             ref     <- fromVal x
-            writeRef ref (VStr $ decodeUTF8 $ str')
+            writeRef ref (VStr $ decodeUTF8 str')
             return $ VBool True
         _ -> return $ VBool False
     where
@@ -606,11 +587,11 @@ op2Match x (VSubst (rx@MkRule{ rxGlobal = True }, subst)) = do
                 glob    <- askGlobal
                 let Just matchAV = findSym "$/" glob
                     subs = elems $ mrSubs mr
-                writeRef matchAV $ VList $ map VStr subs
+                writeRef matchAV $ VList $ map (VStr . decodeUTF8) subs
                 str'    <- fromVal =<< evalExp subst
                 (after', rv) <- doReplace (mrAfter mr) (Just subs)
                 let subs' = fromMaybe subs rv
-                return (concat [mrBefore mr, str', after'], Just subs')
+                return (concat [mrBefore mr, encodeUTF8 str', after'], Just subs')
 
 op2Match x (VSubst (rx@MkRule{ rxGlobal = False }, subst)) = do
     str     <- fromVal x
@@ -624,7 +605,7 @@ op2Match x (VSubst (rx@MkRule{ rxGlobal = False }, subst)) = do
             writeRef matchAV $ VList $ map (VStr . decodeUTF8) subs
             str' <- fromVal =<< evalExp subst
             writeRef ref $
-                (VStr $ decodeUTF8 $ concat [mrBefore mr, str', mrAfter mr])
+                (VStr $ decodeUTF8 $ concat [mrBefore mr, encodeUTF8 str', mrAfter mr])
             return $ VBool True
 
 op2Match x (VRule rx@MkRule{ rxGlobal = True }) = do
@@ -1158,6 +1139,7 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      pre     print   (IO: List)\
 \\n   Bool      pre     print   ()\
 \\n   Bool      pre     print   (List)\
+\\n   Str       pre     sprintf (Str, List)\
 \\n   Bool      pre     say     (IO)\
 \\n   Bool      pre     say     (IO: List)\
 \\n   Bool      pre     say     ()\
@@ -1271,8 +1253,8 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Scalar    left    nor     (Bool, ~Bool)\
 \\n   Scalar    left    xor     (Bool, Bool)\
 \\n   Scalar    left    err     (Bool, ~Bool)\
-\\n   Int       pre     chr     (?Str=$_)\
-\\n   Str       pre     ord     (?Int=$_)\
+\\n   Str       pre     chr     (?Int=$_)\
+\\n   Int       pre     ord     (?Str=$_)\
 \\n   Str       pre     hex     (?Str=$_)\
 \\n   Str       pre     hex     (Int)\
 \\n   Num       pre     log     (Int)\

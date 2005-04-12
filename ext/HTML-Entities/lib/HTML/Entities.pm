@@ -269,25 +269,23 @@ my %entity_to_char = (
 
 # Make the opposite mapping
 my %char_to_entity;
-for (%entity_to_char.kv) -> $key, $value {
-    %char_to_entity{$key} = $value;
+for %entity_to_char.kv -> $key, $value {
+    %char_to_entity{$value} = '&'~$key~';';
 }
 
 %char_to_entity.delete("'");  # only one-way decoding
 
 # Fill in missing entities
 for 0 .. 255 -> $ascii_val {
-    unless (%char_to_entity ~~ chr($ascii_val)) {
-        %char_to_entity{chr($ascii_val)} = "&#$ascii_val;";
-    }
+    %char_to_entity{chr($ascii_val)} //= "&#$ascii_val;";
 }
 
 sub decode_entities($string) is export
 {
     my $result = $string;
-    $result ~~ s:perl5:g/(&\#(\d+);?)/{$2 < 256 ?? chr(int($2)) :: $1}/;
+    $result ~~ s:perl5:g/&\#(\d+);?/{chr($1)}/;
     $result ~~ s:perl5:g/(&\#[xX]([0-9a-fA-F]+);?)/{my $c = hex($2); $c < 256 ?? chr($c) :: $1}/;
-    $result ~~ s:perl5:g/(&(\w+);?)/{%entity_to_char{$2} || $1}/;
+    $result ~~ s:perl5:g/(&(\w+);?)/{%entity_to_char{$2} // $1}/;
     return $result;
 }
 
@@ -309,7 +307,7 @@ sub encode_entities ($string, ?$unsafe_chars) is export
     #} else {
         # Encode control chars, high bit chars and '<', '&', '>', '"'
         #$string ~~ s:perl5:g/([^\n\r\t !\#\$%\'-;=?-~])/{%char_to_entity{$1} || num_entity($1)}/;
-        $result ~~ s:perl5:g/([^\n\r\t !\#\$%\'-;=?-~])/{%char_to_entity{$1} || num_entity($1)}/;
+        $result ~~ s:perl5:g/([^\n\r\t !\#\$%\'-;=?-~])/{%char_to_entity{$1} // num_entity($1)}/;
     #}
     return $result;
 }
@@ -322,7 +320,7 @@ sub encode_entities ($string, ?$unsafe_chars) is export
 #
 #
 sub num_entity($char) {
-    sprintf "&#x%X;", ord($char);
+    '&#x' ~ uc(sprintf '%x;', ord($char));
 }
 
 # Set up aliases
