@@ -46,7 +46,7 @@ plan 1+@config*2+2;
 diag "Running under $?OS";
 
 my ($pugs,$redir) = ("./pugs", ">");
-if($?OS eq any<MSWin32 mingw cygwin>) {
+if($?OS eq any<MSWin32 mingw msys cygwin>) {
   $pugs = 'pugs.exe';
 };
 

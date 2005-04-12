@@ -19,7 +19,7 @@ plan 3;
 ok $?OS, "We have an OS name: $?OS";
 
 # my $osnames = 'darwin' | 'linux' | 'MSWin32' | 'FreeBSD';
-my $osnames = any<darwin linux FreeBSD MSWin32 mingw cygwin>;
+my $osnames = any<darwin linux FreeBSD MSWin32 mingw msys cygwin>;
 if ($?OS eq $osnames) {
     pass("...and we know of this OS")
 } else {

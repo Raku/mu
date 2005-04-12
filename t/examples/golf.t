@@ -23,7 +23,7 @@ skip 10, 'Skipping becuase it never ends';
 # For greater portability, we will need File::Spec or equivalent.
 
 my $PUGS        = './pugs';
-$PUGS           = 'pugs' if $?OS eq any<MSWin32 mingw cygwin>;
+$PUGS           = 'pugs' if $?OS eq any<MSWin32 mingw msys cygwin>;
 
 # XXX: should make $outtmp unique (using $$ say).
 # XXX: this $outtmp/slurp will go away when backticks supported.

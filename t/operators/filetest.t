@@ -19,7 +19,7 @@ ok -e 't',    "-e returns true on directories";
 ok -r 'pugs', "-r returns true on readable files";
 ok -w 'pugs', "-w returns true on writable files";
 
-if($?OS eq any<MSWin32 mingw cygwin>) {
+if($?OS eq any<MSWin32 mingw msys cygwin>) {
   skip 2, "win32 doesn't have -x";
 } else {
   ok -x 'pugs', "-x returns true on executable files";
@@ -29,7 +29,7 @@ if($?OS eq any<MSWin32 mingw cygwin>) {
 ok !-f "t", "-f returns false on directories";
 ok -r "t",  "-r returns true on a readable directory";
 
-if($?OS eq any<MSWin32 mingw cygwin>) {
+if($?OS eq any<MSWin32 mingw msys cygwin>) {
   skip 2, "win32 doesn't have /etc/shadow";
 } else {
   ok !-r "/etc/shadow", "-r returns false on unreadable files";
