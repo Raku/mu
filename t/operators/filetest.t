@@ -12,7 +12,6 @@ This test tests the various filetest operators.
 plan 30;
 
 if($?OS eq any<MSWin32 mingw msys cygwin>) {
-    $pugs = 'pugs.exe';
     skip 30, "file tests not fully available on win32"; # unTODOme
     exit;
 };
