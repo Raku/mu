@@ -39,7 +39,6 @@ fromVal' (VThunk (MkThunk eval)) = fromVal' =<< eval
 fromVal' (VRef r) = do
     v <- readRef r
     fromVal' v
--- fromVal' (MVal mval) = fromVal' =<< liftIO (readIORef mval)
 fromVal' v = do
     rv <- liftIO $ catchJust errorCalls (return . Right $ vCast v) $
         \str -> return (Left str)
@@ -49,12 +48,12 @@ fromVal' v = do
 
 -- fromMVal = (>>= fromVal) . readMVal
 
-class Value n where
+class (Typeable n) => Value n where
     fromVal :: Val -> Eval n
     fromVal = fromVal'
     vCast :: Val -> n
     -- vCast (MVal v)      = vCast $ castV v
-    vCast (VRef _)      = error "cannot cast from Ref, use fromVal instead"
+    vCast v@(VRef _)    = castFail v
     vCast (VPair (_, v))= vCast v
 --  vCast (VArray v)    = vCast $ VList $ IntMap.elems v
     vCast v             = doCast v
@@ -64,6 +63,11 @@ class Value n where
     doCast v = error $ "cannot cast from Val: " ++ show v
     fmapVal :: (n -> n) -> Val -> Val
     fmapVal f = castV . f . vCast
+
+castFail v = err
+    where
+    err = error $ "cannot cast from " ++ show v ++ " to " ++ typ
+    typ = show $ typeOf err
 
 instance Value (IVar VScalar) where
     fromVal (VRef (MkRef v@(IScalar _))) = return v
@@ -92,7 +96,7 @@ instance Value VPair where
     -- vCast (MVal v)      = vCast $ castV v
     vCast v             = case vCast v of
         [x, y]  -> (x, y)
-        _       -> error $ "cannot cast into VPair: " ++ show v
+        _       -> castFail v
 
 instance Value VHash where
     -- vCast (VHash h) = h
@@ -129,13 +133,13 @@ instance Value [VPair] where
             fromList (k:v:xs) = (k, v):fromList xs
             fromList [k] = [(k, VUndef)] -- XXX warning?
         in fromList vs
-    vCast x = error $ "cannot cast into [VPair]: " ++ show x
+    vCast v = castFail v
 
 instance Value VCode where
     castV = VCode
     doCast (VCode b) = b
     doCast (VList [VCode b]) = b -- XXX Wrong
-    doCast v = error ("Cannot cast into VCode: " ++ show v)
+    doCast v = castFail v
 
 instance Value VBool where
     castV = VBool
@@ -159,10 +163,6 @@ juncToBool (Junc JOne  ds vs)
     = False
     | otherwise
     = (1 ==) . length . filter vCast $ Set.elems vs
-
-readMVal :: Val -> Eval Val
-readMVal (VRef r) = readMVal =<< readRef r
-readMVal v        = return v
 
 instance Value VInt where
     castV = VInt
@@ -254,8 +254,7 @@ instance Value VStr where
     vCast (VCode s)      = "<" ++ show (subType s) ++ "(" ++ subName s ++ ")>"
     vCast (VJunc j)     = show j
     vCast (VThread t)   = dropWhile (not . isDigit) $ show t
-    vCast x             = "<<" ++ show x ++ ">>"
-    -- vCast x             = error $ "cannot cast as Str: " ++ show x
+    vCast x             = castFail x
 
 showNum :: Show a => a -> String
 showNum x
@@ -298,22 +297,18 @@ instance Value VList where
 
 instance Value VHandle where
     castV = VHandle
-    doCast (VHandle x) = x
-    doCast x            = error $ "cannot cast into a handle: " ++ show x
+    doCast (VHandle x)  = x
+    doCast x            = castFail x
 
 instance Value VSocket where
     castV = VSocket
-    doCast (VSocket x) = x
-    doCast x            = error $ "cannot cast into a socket: " ++ show x
+    doCast (VSocket x)  = x
+    doCast x            = castFail x
 
 instance Value VThread where
     castV = VThread
-    doCast (VThread x) = x
-    doCast x            = error $ "cannot cast into a thread: " ++ show x
-
-instance Value (Maybe a) where
-    vCast VUndef        = Nothing
-    vCast _             = Just undefined
+    doCast (VThread x)  = x
+    doCast x            = castFail x
 
 instance Value Int   where
     doCast = intCast
@@ -327,6 +322,7 @@ type VScalar = Val
 
 instance Value VScalar where
     -- fromVal (VList v) = return . VRef $ arrayRef v
+    fromVal (VRef r) = readRef r
     fromVal v = return v
     vCast = id
     castV = id -- XXX not really correct; need to referencify things
@@ -360,26 +356,11 @@ charInc x   = chr $ 1 + ord x
 intCast :: Num b => Val -> b
 intCast x   = fromIntegral (vCast x :: VInt)
 
-type VBool = Bool
-type VInt  = Integer
-type VRat  = Rational
-type VNum  = Double
-type VComplex = Complex VNum
-type VStr  = String
 type VList = [Val]
 type VSubst = (VRule, Exp)
-type VHandle = Handle
-type VSocket = Socket
-type VThread = ThreadId
-type MVal = IORef Val
 type VArray = [Val]
 type VHash = [(VStr, Val)]
 newtype VThunk = MkThunk (Eval Val)
-data VRule     = MkRule
-    { rxRegex     :: Regex
-    , rxGlobal    :: Bool
-    }
-    deriving (Show, Eq, Ord)
 
 type VPair = (Val, Val)
 
@@ -405,7 +386,7 @@ data Val
     | VSubst    VSubst
     | VControl  VControl
     | VThunk    VThunk
-    deriving (Show, Eq, Ord)
+    deriving (Show, Eq, Ord, Typeable)
 
 valType :: Val -> String
 valType VUndef          = "Any"
@@ -488,22 +469,13 @@ data VCode = Sub
     , subReturns    :: Cxt
     , subFun        :: Exp
     }
-    deriving (Show, Eq, Ord)
+    deriving (Show, Eq, Ord, Typeable)
 
 instance Ord VComplex where {- ... -}
-instance Ord MVal where
+instance Ord IScalar where
     compare _ _ = EQ -- compare (castV x) (castV y)
-instance Show MVal where
-    show _ = "<mval>"
 instance Show (IORef Pad) where
     show _ = "<pad>"
-instance Ord VHandle where
-    compare x y = compare (show x) (show y)
-instance Ord VSocket where
-    compare x y = compare (show x) (show y)
-
-type Var = String
--- type MVal = IORef Val
 
 data Exp
     = App String [Exp] [Exp]
@@ -658,7 +630,14 @@ askGlobal = do
     glob <- asks envGlobal
     liftIO $ readIORef glob
 
-readVar :: VStr -> Eval Val
+writeVar :: Var -> Val -> Eval ()
+writeVar name val = do
+    glob <- askGlobal
+    case find ((== name) . symName) glob of
+        Just sym -> writeRef (symVar sym) val
+        _        -> return () -- XXX Wrong
+
+readVar :: Var -> Eval Val
 readVar name = do
     glob <- askGlobal
     case find ((== name) . symName) glob of
@@ -764,6 +743,8 @@ evalExp exp = do
     evl <- asks envEval
     evl exp
 
+defined VUndef  = False
+defined _       = True
 undef = VUndef
 
 readRef :: VRef -> Eval Val
@@ -780,7 +761,7 @@ readRef (MkRef (IArray av)) = do
 readRef (MkRef (IHandle io)) = return . VHandle =<< Handle.fetch io
 readRef (MkRef (IRule rx)) = return . VRule =<< Rule.fetch rx
 
-retIVar :: IVar a -> Eval Val 
+retIVar :: (Typeable a) => IVar a -> Eval Val 
 retIVar = return . VRef . MkRef
 
 writeRef :: VRef -> Val -> Eval ()
@@ -841,7 +822,7 @@ doArray val f = do
     av  <- fromVal val
     return $ f (av :: VArray)
 
-data IVar v where
+data (Typeable v) => IVar v where
     IScalar :: Scalar.Class a => a -> IVar VScalar
     IArray  :: Array.Class  a => a -> IVar VArray
     IHash   :: Hash.Class   a => a -> IVar VHash
@@ -875,7 +856,7 @@ instance Eq (IVar a) where
     (==) = const $ const False
 instance Ord (IVar a) where
     compare _ _ = EQ
-instance Show (IVar a) where
+instance (Typeable a) => Show (IVar a) where
     show v = show (MkRef v)
 
 scalarRef x = MkRef (IScalar x)
@@ -1082,3 +1063,43 @@ instance Code.Class VCode where
 
 retConstError v = retError "Can't modify constant item" (Val v)
 
+type IArray  = IORef [IVar VScalar]
+type IArraySlice = [IVar VScalar]
+type IHash   = HTable.HashTable VStr (IVar VScalar)
+type IScalar = IORef Val
+type ICode   = IORef VCode
+data IHashEnv deriving (Typeable) -- phantom types! fun!
+type IScalarProxy = (Eval VScalar, (VScalar -> Eval ()))
+type IScalarLazy = Maybe VScalar
+
+-- these implementation allows no destructions
+type IRule   = VRule
+type IHandle = VHandle -- XXX maybe IORef?
+
+instance Show IArray  where show _ = "{array}"
+instance Show IHash   where show _ = "{hash}"
+instance Show IScalar where show _ = "{scalar}"
+-- instance Show IHandle where show _ = "{handle}"
+-- instance Show ICode   where show _ = "{code}"
+-- instance Show IRule   where show _ = "{rule}"
+
+-- GADTs, here we come!
+data VRef where
+    MkRef   :: (Typeable a) => IVar a -> VRef
+
+instance Typeable VRef where
+    typeOf (MkRef x) = typeOf x
+
+instance Typeable1 (ContT Val (ReaderT Env IO)) where
+    typeOf1 _ = typeOf ' '
+
+instance Typeable1 IVar where
+    typeOf1 (IScalar x) = typeOf x
+    typeOf1 (IArray  x) = typeOf x
+    typeOf1 (IHash   x) = typeOf x
+    typeOf1 (ICode   x) = typeOf x
+    typeOf1 (IHandle x) = typeOf x
+    typeOf1 (IRule   x) = typeOf x
+
+instance Typeable2 HTable.HashTable where
+    typeOf2 _ = typeOf ' '

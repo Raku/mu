@@ -11,32 +11,25 @@
 -}
 
 module Types where
-
-import {-# SOURCE #-} AST
 import Internals
-import qualified Data.HashTable as HTable
 
-type IArray  = IORef [IVar VScalar]
-type IArraySlice = [IVar VScalar]
-type IHash   = HTable.HashTable VStr (IVar VScalar)
-type IScalar = IORef Val
-type ICode   = IORef VCode
-data IHashEnv -- phantom types! fun!
-type IScalarProxy = (Eval VScalar, (VScalar -> Eval ()))
-type IScalarLazy = Maybe VScalar
+type Var   = String             -- Variable name
+type VStr  = String
+type VBool = Bool
+type VInt  = Integer
+type VRat  = Rational
+type VNum  = Double
+type VComplex = Complex VNum
+type VHandle = Handle
+type VSocket = Socket
+type VThread = ThreadId
+data VRule     = MkRule
+    { rxRegex     :: Regex
+    , rxGlobal    :: Bool
+    }
+    deriving (Show, Eq, Ord)
 
--- these implementation allows no destructions
-type IRule   = VRule
-type IHandle = VHandle -- XXX maybe IORef?
-
-instance Show IArray  where show _ = "{array}"
-instance Show IHash   where show _ = "{hash}"
--- instance Show IHandle where show _ = "{handle}"
--- instance Show IScalar where show _ = "{scalar}"
--- instance Show ICode   where show _ = "{code}"
--- instance Show IRule   where show _ = "{rule}"
-
--- GADTs, here we come!
-data VRef where
-    MkRef   :: IVar a -> VRef
-
+instance Ord VHandle where
+    compare x y = compare (show x) (show y)
+instance Ord VSocket where
+    compare x y = compare (show x) (show y)

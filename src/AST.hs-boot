@@ -12,32 +12,21 @@
 -}
 
 module AST where
+import Types
 import Internals
 
-type VBool = Bool
-type VInt  = Integer
-type VRat  = Rational
-type VNum  = Double
 type VScalar = Val
-type VComplex = Complex VNum
-type VStr  = String
 type VList = [Val]
 type VSubst = (VRule, Exp)
-type VHandle = Handle
-type VSocket = Socket
-type VThread = ThreadId
-type MVal = IORef Val
-type VArray = [Val]
 type VHash = [(VStr, Val)]
+type VArray = [Val]
 type Eval x = ContT Val (ReaderT Env IO) x
 type VPair = (Val, Val)
 type VBlock = Exp
-type Var = String
 type Params = [Param]
 
 data Env
 data VCode
-data VRule
 data VJunc
 data VControl
 data Param
