@@ -7,8 +7,8 @@ require Test;
 
 Various length tests (though "length" should not be used)
 
-This does not test .chars, which is language dependent and needs
-more careful tests.
+This does not adequately test .chars, which is language dependent 
+and needs more careful tests.
 
 http://www.unicode.org/unicode/reports/tr11/
 
