@@ -15,7 +15,7 @@ it is closely related to || and && and //.
 
 # test cases by Andrew Savige
 
-plan 23;
+plan 30;
 
 {
     my $x = 1;
