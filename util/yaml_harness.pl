@@ -60,7 +60,7 @@ my %handlers = (
         my $curr = $totals->{seen}||0;
 		#$self->{'next'} ||= 0;
 
-		$line =~ /^(.*?) <pos:(.*)>($|\s*#.*$)/ or warn "couldn't match line: $line\n";
+		$line =~ /^(.*?) <pos:(.*)>(\r?$|\s*#.*\r?$)/ or warn "couldn't match line: $line\n";
 		$line = $1 ? $1 . $3 : $line;
 		my $pos = $2;
 
