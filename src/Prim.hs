@@ -739,10 +739,14 @@ op2Map list sub = do
         return $ vCast rv
     return $ VList $ concat vals
 
-op2Join str@(VStr _) list = op2Join list str
-op2Join list str = do
-    vals <- mapM fromVal (vCast list)
-    return $ VStr $ concat $ intersperse (vCast str) $ map vCast vals
+op2Join x y = do
+    isa <- op2 "isa" x (VStr "Scalar")
+    let (strVal, listVal) = if vCast isa then (x, y) else (y, x)
+    str     <- fromVal strVal
+    ref     <- fromVal listVal
+    list    <- readRef ref
+    strList <- mapM fromVal =<< fromVal list
+    return . VStr . concat . intersperse str $ strList
 
 vCastStr :: Val -> Eval VStr
 vCastStr = fromVal
@@ -1121,8 +1125,8 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Scalar    pre     pop     (rw!Array)\
 \\n   Scalar    pre     shift   (rw!Array)\
 \\n   Num       pre     sum     (List)\
+\\n   Str       pre     join    (Array: Str)\
 \\n   Str       pre     join    (Str, List)\
-\\n   Str       pre     join    (Array, Str)\
 \\n   List      left    zip     (List)\
 \\n   List      pre     keys    (rw!Hash)\
 \\n   List      pre     values  (rw!Hash)\

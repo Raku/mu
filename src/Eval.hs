@@ -354,12 +354,12 @@ reduce env exp@(Syn name exps) = case name of
         let [exp] = exps
         v   <- enterEvalContext "List" exp
         hv  <- newObject "Hash" v
-        retVal . VRef $ MkRef (constScalar (VRef hv))
+        retVal $ VRef hv
     "\\[]" -> do
         let [exp] = exps
         v   <- enterEvalContext "List" exp
         av  <- newObject "Array" v
-        retVal . VRef $ MkRef (constScalar (VRef av))
+        retVal $ VRef av
     -- XXX evil hack for infinite slices
     "[]" | [lhs, App "&postfix:..." invs args] <- exps
          , [idx] <- invs ++ args

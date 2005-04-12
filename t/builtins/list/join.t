@@ -10,7 +10,7 @@ plan 26;
 is(["a", "b", "c"].join("|"), "a|b|c", '[].join("|") works');
 
 my $joined1 = ("a", "b", "c").join("|");
-is($joined1, "a|b|c", '().join("|") works'); # unTODOme
+is($joined1, "baca|", '().join("|") should NOT dwim');
 
 my @list = ("a", "b", "c");
 
@@ -32,7 +32,7 @@ my $sep = ", ";
 is(["a", "b", "c"].join($sep), "a, b, c", '[].join($sep) works');
 
 my $joined1a = ("a", "b", "c").join($sep);
-is($joined1a, "a, b, c", '().join($sep) works'); # unTODOme
+is($joined1a, "baca, ", '().join($sep) should NOT dwim');
 
 is(@list.join($sep), "a, b, c", '@list.join($sep) works');
 
@@ -70,7 +70,7 @@ is($joined4c, "a:b:c", 'join ":", [] works');
 is(["a", "b", "c"].join(''), "abc", '[].join("") works');
 
 my $joined1d = ("a", "b", "c").join('');
-is($joined1d, "abc", '().join("") works'); # unTODOme
+is($joined1d, "baca", '().join("") should NOT dwim');
 
 my @list = ("a", "b", "c");
 
