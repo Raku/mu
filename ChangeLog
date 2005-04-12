@@ -1,36 +1,38 @@
-== Changes for 6.2.0 - April 11, 2005
+== Changes for 6.2.0 - April 13, 2005
 
 === Pugs Internals
 
-* *MAJOR* refactor of ITypes subsystem, we now have:
-* * Nested structures: `$a{1}[2]{3}`
-   * Autovivification: `$a{1}[2]{3} = <b>`
-   * Tied magic: `%ENV<USER>`
-   * Proxy scalars: `%ENV<PATH> ~= '/tmp'`
-   * Slice assignment: `@x[1,2] = <a b>`
-   * Anonymous arrays: `[1..10][0] = 0`
-   * Lazy IArray structures: "Infinite lists, constant time"
-   * Infinite cyclical structures work
-   * and much much more ...
-* Experimental support for link external Haskell libraries.
-  One such example is http://tpe.freepan.org/repos/ingy/SHA1/.
-* New builtins; `sum()`, `log()`, `log10()`, `sign()`, `pi()`, 
-  `tan()`, `cos()` and `atan()`
-* New type specific builtins; `.kv`, `.pairs`, `.delete`, `.exists`, 
-  `.pick`, `.keys`, `.values` and `.isa`
-* Several file test operators: `-r`, `-w`, `-x`, `-e`, `-z`, `-s`, 
-  `-f` and `-d`
-* Some support for `$*UID`, `$*EUID`, `$*GID`, and `$*EGID`
+* Major refactor of ITypes subsystem, we now have:
+** Nested structures: `$a{1}[2]{3}`
+** Autovivification: `$a{1}[2]{3} = <b>`
+** Tied magic: `%ENV<USER>`
+** Proxy scalars: `%ENV<PATH> ~= '/tmp'`
+** Slice assignment: `@x[1,2] = <a b>`
+** Anonymous arrays: `[1..10][0] = 0`
+** Lazy IArray structures: "Infinite lists, constant time"
+** Infinite slices: `@x[1...]`
+** and much much more ...
+* Experimental support for link external Haskell libraries
+** One such module is SHA1.pm: http://tpe.freepan.org/repos/ingy/SHA1/
+* New builtins:
+** `sum`, `log`, `log10`, `sign`, `pi`, `tan`, `cos`, `atan`
+** `zip`, `hash`, `pair`, `isa`, `bytes`, `chars`, `codes`, `graphs`
+* New type specific builtins;
+** `.kv`, `.pairs`, `.delete`, `.exists`
+** `.pick`, `.keys`, `.values`
+* Several file test operators
+** `-r`, `-w`, `-x`, `-e`, `-z`, `-s`, `-f`, `-d`
+* Support for `$*UID`, `$*EUID`, `$*GID`, and `$*EGID` on *nix
 * Stacked file test operators now (mostly) work
-* added `is rw` trait for subroutine parameters
+* Added `is rw` trait for subroutine parameters
 * `$*PID` now works on *nix systems 
-* several command line switches implemented; -I -p -n and more.
+* Several command line switches implemented: `-I` `-p` `-n` and more
 * `s:perl5/.../{ <code> }/` works correctly
-* type casting errors are now more descriptive
-* require "" now works on utf8 files
-* regex substitution is now utf8-safe
+* Type casting errors are now more descriptive
+* `require ""` now works on UTF-8 files
+* Regex substitution is now UTF-8 safe
 * `sort {}` now works
-* hash() and pair() works as described in S06
+* Some support for the /splat/ star `*` 
 
 === Tests, Examples and Documentations
 
@@ -40,22 +42,22 @@
 * `READTHEM` added; recommended reading for aspiring Pugs hackers
 * The Perl 6 Cookbook is well underway at `examples/cookbook/`
 * Working perl6 modules added to `ext/`
-   * CGI
-   * lib.pm
-   * HTML::Entities
+** CGI.pm
+** lib.pm
+** HTML::Entities
 * Several Working Drafts added to `docs/`
-   * Apocalypse 20 - Debugging
-   * Synopsis 26 - Perl Documentation
-   * Synopsis 28 - Special Variables
-   * Synopsis 27 - Perl Culture (w/ CPAN drinking game rules)
-   * Synopsis 29 - Builtin Functions
+** Apocalypse 20 - Debugging
+** Synopsis 26 - Perl Documentation
+** Synopsis 28 - Special Variables
+** Synopsis 27 - Perl Culture (with CPAN drinking game rules)
+** Synopsis 29 - Builtin Functions
 * Early work on Perl 6 Object System in `docs/class/`
 
 === Bug Fixes
 
-* parens no longer required for; `last()` & `return()`
-* fixed issue with binding invocant parameters
-* fixed parsing issue with `lc $, $y`
+* Parens no longer required for; `last()` and `return()`
+* Fixed issue with binding invocant parameters
+* Fixed parsing issue with `lc $, $y`
 * `$_` now behaves correctly in most cases
 * `exit()` now triggers `END {}` correctly
 * `undef $x` now works correctly ($x is rw)
@@ -64,11 +66,13 @@
 * `map { ... } @list` now parses correctly
 * `loop { ... }` no works correctly
 * `int(3) + 4` now parses correctly
-* fix parsefail bug on false unaries
-* `for (@list)` no longer flattens `@list`.
+* Fix parsefail bug on false unaries
+* `for (@list)` no longer flattens `@list`
 * `$var.method $param` is now illegal: use `$var.method($param)`
-* readline() is now strict in list context.
+* `readline()` is now strict in list context
 * `$list.join('|')` now works
+* `xor` and `^^` now short-circuits
+* Named bindings to `%_` repaired
 
 == Changes for 6.0.14 - April 4, 2005
 
