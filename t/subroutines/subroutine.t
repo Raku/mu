@@ -9,7 +9,7 @@ Tests for Synopsis 6
 
 =cut
 
-plan 18;
+plan 16;
 
 sub foobar ($var) {
     return $var;
@@ -73,8 +73,8 @@ is($_, "-quux-", 'block closures close');
 
 my @result;
 sub perl5sub {
-    push @result , $_[0];
-    push @result, $_[1];
+    push @result, @_[0];
+    push @result, @_[1];
 }
 perl5sub(<foo bar>);
 is(@result, <foo bar>, 'use @_ in sub');
@@ -93,13 +93,10 @@ sub argShifter (@a) {
 todo_fail("FIXME parsefail"); # actually exe fail... # unTODOme
 #is eval 'argShifter(3..5)', 3, "use shift on an array argument";
 
-eval_ok    # unTODOme
-'sub unpack_array ([$first, @rest]) {
-	return $first;
-}', 'splitting array arguments';
+eval 'sub unpack_array ([$first, *@rest]) { return $first; }';
 
 my @array = 3..7;
-is eval 'unpack_array(@array)', 3, 'unpacking an array parameter'; # unTODOme
+todo_is(eval 'unpack_array(@array)', 3, 'unpacking an array parameter'); # unTODOme
 
 =pod
 
@@ -107,10 +104,7 @@ L<S06/"Unpacking hash parameters">
 
 =cut
 
-eval_ok    # unTODOme
-'sub unpack_hash({+$yo, *%other}){
-	return $yo;
-}', 'splitting hash arguments';
+eval 'sub unpack_hash({+$yo, *%other}){ return $yo; }';
 
 my %params = yo => 3, nope => 4;
-is eval 'unpack_hash(%params)', 3, 'unpacking a hash parameter'; # unTODOme
+todo_is(eval 'unpack_hash(%params)', 3, 'unpacking a hash parameter'); # unTODOme

@@ -26,7 +26,7 @@ sub simple2($n) {
 ok(simple2(5), 'ec used to escape ($n = 5)');
 ok(!simple2(1), 'ec not used');
 
-sub closure1() returns Int {
+sub closure1 () returns Int {
   my $cont = &?CALLER_CONTINUATION;
   my $a = sub { $cont(5) };
   $a();
@@ -45,7 +45,7 @@ sub passing1 returns Int {
   foo(&?CALLER_CONTINUATION);
   return 2;
 }
-todo_is(passing1(), 8, 'ec passed as an argument');
+todo_eval_is('passing1()', 8, 'ec passed as an argument');
 
 sub is_five($n, $f) {
   if ($n == 5) {

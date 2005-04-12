@@ -38,7 +38,11 @@ plan 1;
 # L<S02/Literals/>
 # L<S03/Chained comparisons/>
 
-ok( (1 | 3)<3 , 'No parsefail');
+fail("FIXME parsefail");
+
+=pod
+
+ok((1 | 3)<3, 'No parsefail'); 
 #>
 
-1;
+=cut

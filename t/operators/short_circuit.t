@@ -106,7 +106,7 @@ plan 23;
     # XXX: Pugs chokes on next one
     # is(0 or 42,      42, "or   operator seems to be working");
 
-    is(undef // 42,  42, "//   operator seems to be working");
+    is(undef // 42,  42, "//   operator seems to be working"); #"
     # XXX: Pugs chokes on next one
     # is(undef err 42, 42, "err  operator seems to be working");
 

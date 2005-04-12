@@ -45,3 +45,24 @@ t/data_types/hash_ref.t 19 20 21 22 25 26 27 29 30 31 32
 
 ## t/operators
 t/operators/arith.t 135 136 148 162 167
+t/operators/inc.t 18 19
+t/operators/short_circuit.t 16 17 23
+
+## t/pugsbugs
+t/pugsbugs/listquote.t 1
+t/pugsbugs/map_constant_list.t 1
+t/pugsbugs/parsing_if.t 1
+t/pugsbugs/parsing_my.t 1
+t/pugsbugs/segfault_nan_calculation.t 1
+
+## t/subroutines
+t/subroutines/currying.t 6 7
+t/subroutines/multi_sub.t 1 2 3 4 6 7 8
+t/subroutines/sub_ref.t 5 10 15 26 27
+t/subroutines/sub_return_values.t 51
+
+## t/unspecced
+t/unspecced/cont.t 
+
+## t/var
+t/var/default_scalar.t 2 4

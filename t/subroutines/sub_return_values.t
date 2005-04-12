@@ -11,7 +11,7 @@ L<S06/"Subroutines">
 
 =cut
 
-plan 56;
+plan 55;
 
 # These test the returning of values from a subroutine. 
 # We test each data-type with 4 different styles of return. 
@@ -177,8 +177,7 @@ sub foo_hash {
     return %foo;
 }
 
-my %foo_hash_return; 
-fail("eval 'foo_hash()' doesn't work");
+my %foo_hash_return = foo_hash(); 
 isa_ok(%foo_hash_return, 'Hash');
 is(+%foo_hash_return.keys, 3, 'got the right number of return value'); # unTODOme
 is(%foo_hash_return<foo>, 1, 'got the right return value'); # unTODOme
@@ -192,7 +191,7 @@ sub foo_hash_ref {
     return \%foo;
 }
 
-my $foo_hash_ref_return = eval 'foo_hash_ref()';
+my $foo_hash_ref_return = foo_hash_ref();
 isa_ok($foo_hash_ref_return, 'Hash'); # unTODOme
 is(+$foo_hash_ref_return.keys, 3, 'got the right number of return value'); # unTODOme
 is($foo_hash_ref_return<foo>, 1, 'got the right return value');

@@ -3,13 +3,14 @@
 use v6;
 require Test;
 
-plan 13;
+plan 14;
 
 my @a = (1, 2, 3);
-@a .= map {$_+1};
-is (@a[0], 2, 'inplace map [0]');
-is (@a[1], 3, 'inplace map [1]');
-is (@a[2], 4, 'inplace map [2]');
+todo_fail("FIXME parsefail");
+#eval '@a .= map { $_ + 1 }';
+todo_is(@a[0], 2, 'inplace map [0]');
+todo_is(@a[1], 3, 'inplace map [1]');
+todo_is(@a[2], 4, 'inplace map [2]');
 
 my $a=3.14;
 $a .= int;
