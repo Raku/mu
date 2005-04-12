@@ -283,11 +283,20 @@ op1 "readline" = op1 "="
 op1 "=" = \v -> do
     fh  <- handleOf v
     ifContextIsa "List"
-        (tryIO (VList [])
-            (return . VList . map (VStr . (++ "\n")) . lines =<< hGetContents fh))
-        (tryIO undef
-            (return . VStr . (++ "\n") =<< hGetLine fh))
+        (getLines fh)
+        (getLine fh)
     where
+    getLines :: VHandle -> Eval Val
+    getLines fh = do
+        line <- getLine fh
+        if defined line
+            then do
+                (VList rest) <- getLines fh
+                return $ VList (line:rest)
+            else return $ VList []
+    getLine :: VHandle -> Eval Val
+    getLine fh = tryIO undef $
+        (return . VStr . (++ "\n") =<< hGetLine fh)
     handleOf (VPair (_, x)) = handleOf x
     handleOf (VStr "") = do
         argsGV  <- readVar "$*ARGS"
