@@ -99,25 +99,20 @@ plan 23;
 
 {
     is(1 && 42,      42, "&&   operator seems to be working");
-    # XXX: Pugs chokes on next one
-    # is(1 and 42,     42, "and  operator seems to be working");
+    is((1 and 42),     42, "and  operator seems to be working");
 
     is(0 || 42,      42, "||   operator seems to be working");
-    # XXX: Pugs chokes on next one
-    # is(0 or 42,      42, "or   operator seems to be working");
+    is((0 or 42),      42, "or   operator seems to be working");
 
-    is(undef // 42,  42, "//   operator seems to be working"); #"
-    # XXX: Pugs chokes on next one
-    # is(undef err 42, 42, "err  operator seems to be working");
+    is((undef() // 42),  42, "//   operator seems to be working"); #"
+    is((undef() err 42), 42, "err  operator seems to be working");
 
-    # XXX: Pugs chokes on next two
-    # is(0 ^^ 42,  42, "^^  operator seems to be working (one true)");
-    # is(42 ^^ 0,  42, "^^  operator seems to be working (one true)");
+    is((0 ^^ 42),  42, "^^  operator seems to be working (one true)");
+    is((42 ^^ 0),  42, "^^  operator seems to be working (one true)");
     ok(!(1 ^^ 42),   "^^  operator seems to be working (both true)");
     ok(!(0 ^^ 0),    "^^  operator seems to be working (both false)");
-    # XXX: Pugs chokes on next two
-    # is(0 xor 42, 42, "xor operator seems to be working (one true)");
-    # is(42 xor 0, 42, "xor operator seems to be working (one true)");
+    is((0 xor 42), 42, "xor operator seems to be working (one true)");
+    is((42 xor 0), 42, "xor operator seems to be working (one true)");
     is((0 xor 42), 42, "xor operator seems to be working (one true)");
     is((42 xor 0), 42, "xor operator seems to be working (one true)");
     ok(!(1 xor 42),  "xor operator seems to be working (both true)");
@@ -136,6 +131,5 @@ plan 23;
     my $x0 = 0;
     my @a0 = () or $x0 = 1;
     is($x0, 1,    "'or' operator seems to be short circuiting");
-    ok(+@a0 == 0, "'or' operator seems to be working with list assignment"); # unTODOme
-    # cmp_ok(+@a0, '==', 0, "'or' operator seems to be working with list assignment");
+    is(+@a0, 0, "'or' operator seems to be working with list assignment");
 }
