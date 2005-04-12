@@ -108,6 +108,7 @@ instance Value [VStr] where
 instance Value VPair where
     castV (x, y)        = VPair (x, y)
     fromVal (VPair p) = return p
+    fromVal VUndef = return (VUndef, VUndef)
     fromVal v = fromVal' v
     vCast (VPair (x, y))   = (x, y)
     -- vCast (MVal v)      = vCast $ castV v

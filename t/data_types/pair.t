@@ -9,7 +9,7 @@ Pair test
 
 =cut
 
-plan 37;
+plan 36;
 
 # basic Pair
 
@@ -83,17 +83,13 @@ isa_ok($pair4.key, 'Pair');
 is($pair4.key.key, 'foo', 'got right nested key');
 is($pair4.key.value, 'bar', 'got right nested value');
 
-# TODO tests
-
-fail("FIXME parsefail");
-my $quux; # = eval '(quux => "xyzzy").key';
-is($quux, 'quux', "lhs quotes" );
+my $quux = (quux => "xyzzy");
+is($quux.key, 'quux', "lhs quotes" );
 
 # lvalue Pair assignments from S06 and thread starting with
 # http://www.nntp.perl.org/group/perl.perl6.language/19425
 
 my $val;
-
 eval '("foo" => $val) = "baz"';
 todo_ok($val eq "baz", "lvalue lists");
 
