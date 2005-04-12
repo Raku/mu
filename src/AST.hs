@@ -107,6 +107,8 @@ instance Value [VStr] where
 
 instance Value VPair where
     castV (x, y)        = VPair (x, y)
+    fromVal (VPair p) = return p
+    fromVal v = fromVal' v
     vCast (VPair (x, y))   = (x, y)
     -- vCast (MVal v)      = vCast $ castV v
     vCast v             = case vCast v of
@@ -919,6 +921,8 @@ instance Hash.Class VHash where
     fetch = return
     fetchKeys = return . map fst
     fetchVal hv idx = return . maybe undef id $ lookup idx hv
+    clear _ = retConstError undef
+    store _ _ = retConstError undef
     storeVal _ _ _ = retConstError undef
     storeElem _ _ _ = retConstError undef
     deleteElem _ _ = retConstError undef

@@ -40,7 +40,7 @@ bindHash [] [p]         = return [ (p, emptyHashExp) ]
 bindHash vs (p:ps@(_:_))= do
     first <- (bindHash vs [p])
     return $ first ++ (ps `zip` repeat emptyHashExp)
-bindHash vs [p]         = return [ (p, App "circumfix:{}" [] vs) ] -- XXX cast to Hash
+bindHash vs [p]         = return [ (p, Syn "\\{}" vs) ] -- XXX cast to Hash
 
 bindArray :: [Exp] -> [Param] -> MaybeError Bindings
 bindArray vs ps = do

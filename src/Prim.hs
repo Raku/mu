@@ -1051,8 +1051,9 @@ keysFromRef (MkRef (IArray av)) = do
     return $ map castV keys
 keysFromRef (MkRef (IScalar sv)) = do
     refVal  <- Scalar.fetch sv    
-    vlist   <- op1Keys refVal
-    fromVal vlist
+    if defined refVal
+        then fromVal =<< op1Keys refVal
+        else return []
 keysFromRef ref = retError "Not a keyed reference" (Val $ VRef ref)
 
 valuesFromRef :: VRef -> Eval [Val]
@@ -1062,8 +1063,9 @@ valuesFromRef (MkRef (IHash hv)) = do
 valuesFromRef (MkRef (IArray av)) = Array.fetch av
 valuesFromRef (MkRef (IScalar sv)) = do
     refVal  <- Scalar.fetch sv    
-    vlist   <- op1Values refVal
-    fromVal vlist
+    if defined refVal
+        then fromVal =<< op1Values refVal
+        else return []
 valuesFromRef ref = retError "Not a keyed reference" (Val $ VRef ref)
 
 existsFromRef :: VRef -> Val -> Eval VBool
