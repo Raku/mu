@@ -326,6 +326,9 @@ reduce env exp@(Syn name exps) = case name of
         key     <- enterEvalContext "Scalar" keyExp
         val     <- evalExp valExp
         retVal $ VPair (key, val)
+    "*" | [Syn syn [exp]] <- exps -- * cancels out [] and {}
+        , syn == "\\{}" || syn == "\\[]"
+        -> enterEvalContext "List" exp
     "*" -> do -- first stab at an implementation
         let [exp] = exps
         val     <- enterEvalContext "List" exp

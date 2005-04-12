@@ -532,6 +532,7 @@ extract ((Parens ex), vs) = ((Parens ex'), vs')
 extract other = other
 
 cxtOfExp (Syn "," _) = "List"
+cxtOfExp (Syn "*" _) = "List"
 cxtOfExp (Syn "[]" [exp, _]) = cxtOfExp exp
 cxtOfExp (Syn "{}" [exp, _]) = cxtOfExp exp
 cxtOfExp (App "&infix:.." _ _) = "List"

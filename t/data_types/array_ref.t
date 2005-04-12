@@ -63,7 +63,7 @@ is($array_ref5[5], 'foo',  'got the right value at array_ref5 index 5');
 # create an array_ref slice with an array_ref (in a variable)
 
 my $slice = [ 2, 0, 1 ];
-my $array_ref6 = [ $array_ref1[$slice] ];
+my $array_ref6 = [ $array_ref1[*$slice] ];
 isa_ok($array_ref6, 'List');
 
 is(+$array_ref6, 3, 'the array_ref6 has 3 elements');
@@ -73,7 +73,7 @@ is($array_ref6[2], 'bar', 'got the right value at array_ref6 index 2');
 
 # create an array_ref slice with an array_ref constructed with []
 
-my $array_ref7 = [ $array_ref1[[2, 1, 0]] ];
+my $array_ref7 = [ $array_ref1[*[2, 1, 0]] ];
 isa_ok($array_ref7, 'List');
 
 is(+$array_ref7, 3, 'the array_ref7 has 3 elements');
@@ -82,15 +82,14 @@ is($array_ref7[1], 'bar', 'got the right value at array_ref7 index 1');
 is($array_ref7[2], 'foo', 'got the right value at array_ref7 index 2');
 
 my $array_ref8 = [ 1, 2, 3, ];
-is(+$array_ref8, 3, "trailing commas make correct list"); # unTODOme
+is(+$array_ref8, 3, "trailing commas make correct list");
 
 # recursive array
 my $array9 = [42, "nothing"];
 $array9[1] = $array9;
 isa_ok $array9,             "List";
-isa_ok $array9[1],          "List"; # unTODOme
+isa_ok $array9[1],          "List";
 is     $array9[0],          42, "recursive array access (0)";
 is     $array9[1][0],       42, "recursive array access (1)";
-skip 2, "Recursive array accesses enter infinite loop";
-#is     $array9[1][1][0],    42, "recursive array access (2)"; # unTODOme
-#is     $array9[1][1][1][0], 42, "recursive array access (3)"; # unTODOme
+is     $array9[1][1][0],    42, "recursive array access (2)";
+is     $array9[1][1][1][0], 42, "recursive array access (3)";
