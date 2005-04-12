@@ -919,6 +919,7 @@ instance Hash.Class VHash where
     fetch = return
     fetchKeys = return . map fst
     fetchVal hv idx = return . maybe undef id $ lookup idx hv
+    storeVal _ _ _ = retConstError undef
     storeElem _ _ _ = retConstError undef
     deleteElem _ _ = retConstError undef
 
