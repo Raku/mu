@@ -24,9 +24,9 @@ Many people love beer. Many Perl hackers are people. Thus what better
 way to begin this draft (no pun intended) than to describe the CPAN
 Drinking Game.
 
-=head2 EQUIPTMENT
+=head2 EQUIPMENT
 
-The following equiptment is best for an enjoyable round of CPAN Drinking:
+The following equipment is best for an enjoyable round of CPAN Drinking:
 
 =over
 
