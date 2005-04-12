@@ -535,7 +535,12 @@ op2 "~~" = op2Match
 op2 "!~" = op2Cmp vCastStr (/=)
 op2 "&&" = op2Logical not
 op2 "||" = op2Logical id
-op2 "^^" = op2Bool ((/=) :: Bool -> Bool -> Bool)
+op2 "^^" = \x y -> do
+    let xor True True   = VBool False
+        xor True False  = x
+        xor False True  = y
+        xor False False = VBool True
+    op2Cast xor x y
 op2 "//" = op2Logical defined
 op2 "!!" = \x y -> callCC $ \esc -> do
     bx <- fromVal x

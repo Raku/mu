@@ -32,7 +32,7 @@ type Ident = String
 ifValTypeIsa v typ trueM falseM = do
     env <- ask
     vt  <- evalValType v
-    if isaType (envClasses env) vt typ
+    if isaType (envClasses env) typ vt
         then trueM
         else falseM
 
