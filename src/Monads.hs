@@ -239,11 +239,3 @@ evalVal val = do
             return . VList =<< fromVal' val
         _                   -> return val
 
-evalValType (VRef r) = do
-    cls <- asks envClasses
-    let typ = refType r
-    if isaType cls "Scalar" typ
-        then evalValType =<< readRef r
-        else return typ
-evalValType val = return $ valType val
-

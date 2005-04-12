@@ -29,11 +29,26 @@ import qualified Data.HashTable as HTable
 
 type Ident = String
 
+ifValTypeIsa v typ trueM falseM = do
+    env <- ask
+    vt  <- evalValType v
+    if isaType (envClasses env) vt typ
+        then trueM
+        else falseM
+
 ifContextIsa c trueM falseM = do
     env <- ask
     if isaType (envClasses env) c (envContext env)
         then trueM
         else falseM
+
+evalValType (VRef r) = do
+    cls <- asks envClasses
+    let typ = refType r
+    if isaType cls "Scalar" typ
+        then evalValType =<< readRef r
+        else return typ
+evalValType val = return $ valType val
 
 fromVal' (VThunk (MkThunk eval)) = fromVal' =<< eval
 fromVal' (VRef r) = do
@@ -488,6 +503,9 @@ data Exp
     | NonTerm SourcePos
     | Statements [(Exp, SourcePos)]
     deriving (Show, Eq, Ord)
+
+fromVals :: (Value n) => Val -> Eval [n]
+fromVals v = mapM fromVal =<< fromVal v
 
 instance Show VThunk where
     show _ = "<thunk>"

@@ -18,8 +18,6 @@ import Types
 import Pretty
 import Parser
 import External
-import Context
-import Monads
 import Text.Printf
 import qualified Data.Set as Set
 import qualified Types.Array  as Array
@@ -115,14 +113,11 @@ op1 "sort" = \v -> do
     args    <- fromVal v
     (valList, sortBy) <- case args of
         (v:vs) -> do
-            isa <- op2 "isa" v (VStr "Code")
-            if vCast isa
-                then return (vs, Just v)
-                else do
-                    isa <- op2 "isa" (last args) (VStr "Code")
-                    if vCast isa
-                        then return (init args, Just $ last args)
-                        else return (args, Nothing)
+            ifValTypeIsa v "Code"
+                (return (vs, Just v))
+                (ifValTypeIsa (last args) "Code"
+                    (return (init args, Just $ last args))
+                    (return (args, Nothing)))
         _  -> return (args, Nothing)
     case sortBy of
         Nothing -> do
@@ -140,18 +135,15 @@ op1 "sort" = \v -> do
 op1 "reverse" = \v -> do
     case v of
         (VRef _) -> do
-            isa <- op2 "isa" v (VStr "Scalar")
-            if vCast isa
-                then do
-                    ref     <- fromVal v
+            ifValTypeIsa v "Scalar"
+                (do ref     <- fromVal v
                     val     <- readRef ref
                     str     <- fromVal val
-                    return . VStr $ reverse str
-                else do
-                    ref     <- fromVal v
+                    return . VStr $ reverse str)
+                (do ref     <- fromVal v
                     vals    <- readRef ref
                     vlist   <- fromVal vals
-                    return . VList $ reverse vlist
+                    return . VList $ reverse vlist)
         _ -> ifContextIsa "Scalar"
             (op1Cast (VStr . reverse) v)
             (op1Cast (VList . reverse) v)
@@ -164,7 +156,7 @@ op1 "+^"   = op1Cast (VInt . (toInteger . (complement :: Word -> Word)))
 op1 "~^"   = op1Cast (VStr . mapStr complement)
 op1 "?^"   = op1 "!"
 op1 "\\"   = return . VRef . scalarRef -- XXX
-op1 "post:..."  = return . op1Range
+op1 "post:..."  = op1Cast op1Range
 op1 "not"  = op1 "!"
 op1 "true" = op1 "?"
 op1 "any"  = op1Cast opJuncAny
@@ -201,9 +193,9 @@ op1 "last" = \v -> return (VError "cannot last() outside a loop" (Val v))
 op1 "next" = \v -> return (VError "cannot next() outside a loop" (Val v))
 op1 "redo" = \v -> return (VError "cannot redo() outside a loop" (Val v))
 op1 "return" = \v -> return (VError "cannot return() outside a subroutine" (Val v))
-op1 "sign" = \v -> return $ if defined v
-    then VInt . signum . vCast $ v
-    else undef
+op1 "sign" = \v -> if defined v
+    then op1Cast (VInt . signum) v
+    else return undef
 
 -- Side-effectful function: how far into Monadic IO shall we go?
 op1 "rand"  = \v -> do
@@ -213,41 +205,38 @@ op1 "rand"  = \v -> do
 op1 "print" = op1Print hPutStr
 op1 "say" = op1Print hPutStrLn
 op1 "die" = \v -> do
-    return $ VError (concatMap vCast . vCast $ v) (Val v)
+    strs <- fromVal v
+    retError (concat strs) (Val VUndef)
 op1 "exit" = \v -> do
     rv <- fromVal v
     if rv /= 0
         then shiftT . const . return . VControl . ControlExit . ExitFailure $ rv
         else shiftT . const . return . VControl . ControlExit $ ExitSuccess
 op1 "readlink" = \v -> do
-    file <- liftIO $ catch (readSymbolicLink (vCast v)) (const $ return "")
-    if file == ""
-      then return VUndef
-      else return $ VStr file
+    str  <- fromVal v
+    tryIO undef $ return . VStr =<< readSymbolicLink str
 op1 "sleep" = boolIO (threadDelay . (* 1000000))
 op1 "mkdir" = boolIO createDirectory
 op1 "rmdir" = boolIO removeDirectory
 op1 "chdir" = boolIO setCurrentDirectory
-op1 "-r"    = tryIOFileTest fileTestIsReadable
-op1 "-w"    = tryIOFileTest fileTestIsWritable
-op1 "-x"    = tryIOFileTest fileTestIsExecutable
-op1 "-e"    = tryIOFileTest fileTestExists
-op1 "-z"    = tryIOFileTest fileTestSizeIsZero
-op1 "-s"    = tryIOFileTest fileTestFileSize
-op1 "-f"    = tryIOFileTest fileTestIsFile
-op1 "-d"    = tryIOFileTest fileTestIsDirectory
+op1 "-r"    = fileTestIO fileTestIsReadable
+op1 "-w"    = fileTestIO fileTestIsWritable
+op1 "-x"    = fileTestIO fileTestIsExecutable
+op1 "-e"    = fileTestIO fileTestExists
+op1 "-z"    = fileTestIO fileTestSizeIsZero
+op1 "-s"    = fileTestIO fileTestFileSize
+op1 "-f"    = fileTestIO fileTestIsFile
+op1 "-d"    = fileTestIO fileTestIsDirectory
 op1 "elems" = op1Cast (VInt . (genericLength :: VList -> VInt))
 op1 "chars" = op1Cast (VInt . (genericLength :: String -> VInt))
 op1 "bytes" = op1Cast (VInt . (genericLength :: String -> VInt))
 op1 "chmod" = \v -> do
-    v <- fromVal v
-    vals <- mapM fromVal (vCast v)
-    rets <- liftIO $ mapM (doBoolIO $ flip setFileMode $ intCast $ head vals) $ map vCast $ tail vals
+    vals <- fromVals v
+    rets <- mapM (doBoolIO $ flip setFileMode $ intCast $ head vals) $ tail vals
     return $ VInt $ sum $ map bool2n rets
 op1 "unlink" = \v -> do
-    v <- fromVal v
-    vals <- mapM fromVal (vCast v)
-    rets <- liftIO $ sequence $ map ( doBoolIO removeFile ) $ map vCast vals
+    vals <- fromVals v
+    rets <- mapM (doBoolIO removeFile) vals
     return $ VInt $ sum $ map bool2n rets
 op1 "slurp" = \v -> do
     val         <- fromVal v
@@ -267,8 +256,9 @@ op1 "slurp" = \v -> do
         content <- readFile file
         return $ VStr content
 op1 "open" = \v -> do
-    let (mode, filename) = span (`elem` "+<> ") (vCast v)
-    liftIO $ (`catch` (const $ return VUndef)) $ do
+    str <- fromVal v
+    let (mode, filename) = span (`elem` "+<> ") str
+    tryIO undef $ do
         fh <- openFile filename (modeOf $ takeWhile (not . isSpace) mode)
         return $ VHandle fh
     where
@@ -368,7 +358,13 @@ op1 "log10" = op1Cast (VNum . logBase 10)
 op1 other   = return . (\x -> VError ("unimplemented unaryOp: " ++ other) (App other [Val x] []))
 
 op1Cast :: (Value n) => (n -> Val) -> Val -> Eval Val
-op1Cast f val = return . f =<< fromVal val
+op1Cast f val = return . f =<< fromVal =<< fromVal' val
+
+op2Cast :: (Value n, Value m) => (n -> m -> Val) -> Val -> Val -> Eval Val
+op2Cast f x y = do
+    x' <- fromVal =<< fromVal' x
+    y' <- fromVal =<< fromVal' y
+    return (f x' y')
 
 op1Pairs :: Val -> Eval [Val]
 op1Pairs v@(VPair _) = return [v]
@@ -424,37 +420,35 @@ op1Print f v = do
                         (VHandle h:vs)  -> (h, vs)
                         _               -> (stdout, vals)
     vs' <- mapM fromVal vs
-    liftIO . f handle . concatMap encodeUTF8 $ vs'
-    return $ VBool True
+    tryIO undef $ do
+        f handle . concatMap encodeUTF8 $ vs'
+        return $ VBool True
 
 bool2n v = if v
   then 1
   else 0
 
 doBoolIO f v = do
-    ok <- tryIO False $ do
-        f (vCast v)
+    x <- fromVal v
+    tryIO False $ do
+        f x
         return True
-    return ok
 
 boolIO f v = do
     ok <- doBoolIO f v
     return $ VBool ok
 
 boolIO2 f u v = do
+    x <- fromVal u
+    y <- fromVal v
     tryIO (VBool False) $ do
-        f (vCast u) (vCast v)
+        f x y
         return (VBool True)
 
 boolIO3 f v = do
-    ok <- tryIO False $ do
-        f (vCast v)
+    x <- fromVal v
+    ok <- tryIO False $ f x
     return $ VBool ok
-
-tryIOFileTest f v = do
-    ret <- tryIO VUndef $ do
-        f v
-    return ret
 
 opEval :: Bool -> String -> String -> Eval Val
 opEval fatal name str = do
@@ -503,18 +497,18 @@ op2 "link" = boolIO2 createLink
 op2 "*"  = op2Numeric (*)
 op2 "/"  = op2Divide
 op2 "%"  = op2Int mod
-op2 "x"  = \x y -> return $ VStr (concat $ (vCast y :: VInt) `genericReplicate` (vCast x :: VStr))
-op2 "xx" = \x y -> return $ VList $ concatMap vCast ((vCast y :: VInt) `genericReplicate` x)
+op2 "x"  = op2Cast (\x y -> VStr . concat $ (y :: VInt) `genericReplicate` x)
+op2 "xx" = op2Cast (\x y -> VList . concat $ (y :: VInt) `genericReplicate` x)
 op2 "+&" = op2Int (.&.)
 op2 "+<" = op2Int shiftL
 op2 "+>" = op2Int shiftR
 op2 "~&" = op2Str $ mapStr2 (.&.)
-op2 "~<" = \x y -> return $ VStr $ mapStr (`shiftL` vCast y) (vCast x)
-op2 "~>" = \x y -> return $ VStr $ mapStr (`shiftR` vCast y) (vCast x)
+op2 "~<" = op2Cast (\x y -> VStr $ mapStr (`shiftL` y) x)
+op2 "~>" = op2Cast (\x y -> VStr $ mapStr (`shiftR` y) x)
 op2 "**" = op2Rat ((^^) :: VRat -> VInt -> VRat)
 op2 "+"  = op2Numeric (+)
 op2 "-"  = op2Numeric (-)
-op2 "atan" = \x y -> return . VNum $ atan2 (vCast x) (vCast y)
+op2 "atan" = op2Num atan2
 op2 "~"  = op2Str (++)
 op2 "+|" = op2Int (.|.)
 op2 "+^" = op2Int xor
@@ -524,7 +518,7 @@ op2 "~^" = op2Str $ mapStr2Fill xor
 op2 "=>" = \x y -> return $ VPair (x, y)
 op2 "cmp"= op2Ord vCastStr
 op2 "<=>"= op2Ord vCastRat
-op2 ".." = op2Range
+op2 ".." = op2Cast op2Range
 op2 "!=" = op2Cmp vCastRat (/=)
 op2 "==" = op2Cmp vCastRat (==)
 op2 "<"  = op2Cmp vCastRat (<)
@@ -559,10 +553,10 @@ op2 "grep" = op2Grep
 op2 "map"  = op2Map
 op2 "join" = op2Join
 op2 "isa"   = \x y -> do
-    typ <- evalValType x
-    bas <- fromVal y
-    cls <- asks envClasses
-    return . VBool $ isaType cls bas typ
+    typ <- fromVal y
+    ifValTypeIsa x typ
+        (return $ VBool True)
+        (return $ VBool False)
 op2 "delete" = \x y -> do
     ref <- fromVal x
     deleteFromRef ref y
@@ -590,13 +584,13 @@ op2 "connect" = \x y -> do
     port <- fromVal y
     hdl  <- liftIO $ connectTo host (PortNumber $ fromInteger port)
     return $ VHandle hdl
-op2 "exp" = \x y -> return . VNum $ if defined y
-    then vCast y ** vCast x
-    else exp (vCast x)
+op2 "exp" = \x y -> if defined y
+    then op2Num (**) x y
+    else op1Cast (VNum . exp) x
 op2 "sprintf" = \x y -> do
     str  <- fromVal x
-    vals <- fromVal y
-    return $ VStr $ case (map vCast vals :: [VInt]) of
+    args <- fromVals y
+    return $ VStr $ case (args :: [VInt]) of
         []          -> printf str
         [x]         -> printf str x
         [x, y]      -> printf str x y
@@ -707,7 +701,8 @@ op3 "index" = \x y z -> do
 op3 "rindex" = \x y z -> do
     str <- fromVal x
     sub <- fromVal y
-    let skip | defined z = length str - (vCast z) - length sub
+    pos <- fromVal z
+    let skip | defined z = length str - pos - length sub
              | otherwise = 0
     return . VInt $ doRindex str sub skip
     where
@@ -722,14 +717,16 @@ op3 other = \x y z -> return $ VError ("unimplemented 3-ary op: " ++ other) (App
 
 op4 :: Ident -> Val -> Val -> Val -> Val -> Eval Val
 op4 "substr" = \x y z w -> do
-    str <- fromVal x
-    pos <- fromVal y
-    let len | defined z = vCast z
+    str  <- fromVal x
+    pos  <- fromVal y
+    lenP <- fromVal z
+    let len | defined z = lenP
             | otherwise = length str
-    let (pre, result, post) = doSubstr str pos len
+        (pre, result, post) = doSubstr str pos len
     when (defined w && result /= VUndef) $ do
         var <- fromVal x
-        writeRef var (VStr $ pre ++ vCast w ++ post)
+        rep <- fromVal w
+        writeRef var (VStr $ concat [pre, rep, post])
     return result
     where
     doSubstr :: VStr -> Int -> Int -> (VStr, Val, VStr)
@@ -761,29 +758,32 @@ op2Array f x y = do
 
 op2Grep sub@(VCode _) list = op2Grep list sub
 op2Grep list sub = do
-    vals <- (`filterM` vCast list) $ \x -> do
+    args <- fromVal list
+    vals <- (`filterM` args) $ \x -> do
         evl <- asks envEval
         rv  <- local (\e -> e{ envContext = "Bool" }) $ do
             evl (Syn "()" [Val sub, Syn "invs" [Val x], Syn "args" []])
-        return $ vCast rv
+        fromVal rv
     return $ VList vals
 
 op2Map sub@(VCode _) list = op2Map list sub
 op2Map list sub = do
-    vals <- (`mapM` vCast list) $ \x -> do
+    args <- fromVal list
+    vals <- (`mapM` args) $ \x -> do
         evl <- asks envEval
         rv  <- local (\e -> e{ envContext = "List" }) $ do
             evl (Syn "()" [Val sub, Syn "invs" [Val x], Syn "args" []])
-        return $ vCast rv
+        fromVal rv
     return $ VList $ concat vals
 
 op2Join x y = do
-    isa <- op2 "isa" x (VStr "Scalar")
-    let (strVal, listVal) = if vCast isa then (x, y) else (y, x)
+    (strVal, listVal) <- ifValTypeIsa x "Scalar"
+        (return (x, y))
+        (return (y, x))
     str     <- fromVal strVal
     ref     <- fromVal listVal
     list    <- readRef ref
-    strList <- mapM fromVal =<< fromVal list
+    strList <- fromVals list
     return . VStr . concat . intersperse str $ strList
 
 vCastStr :: Val -> Eval VStr
@@ -796,25 +796,22 @@ op2Str f x y = do
     y' <- fromVal y
     return $ VStr $ f x' y'
 
-op2Num  f x y = return $ VNum  $ f (vCast x) (vCast y)
-op2Rat  f x y = return $ VRat  $ f (vCast x) (vCast y)
-op2Bool f x y = return $ VBool $ f (vCast x) (vCast y)
-op2Int  f x y = do
-    x' <- fromVal x
-    y' <- fromVal y
-    return $ VInt $ f x' y'
+op2Num  f = op2Cast $ (VNum .) . f
+op2Rat  f = op2Cast $ (VRat .) . f
+op2Bool f = op2Cast $ (VBool .) . f
+op2Int  f = op2Cast $ (VInt .) . f
 
 op1Range (VStr s)    = VList $ map VStr $ strRangeInf s
 op1Range (VRat n)    = VList $ map VRat [n ..]
 op1Range (VNum n)    = VList $ map VNum [n ..]
 op1Range x           = VList $ map VInt [vCast x ..]
 
-op2Range (VStr s) y  = return $ VList $ map VStr $ strRange s (vCast y)
-op2Range (VNum n) y  = return $ VList $ map VNum [n .. vCast y]
-op2Range x (VNum n)  = return $ VList $ map VNum [vCast x .. n]
-op2Range (VRat n) y  = return $ VList $ map VRat [n .. vCast y]
-op2Range x (VRat n)  = return $ VList $ map VRat [vCast x .. n]
-op2Range x y         = return $ VList $ map VInt [vCast x .. vCast y]
+op2Range (VStr s) y  = VList $ map VStr $ strRange s (vCast y)
+op2Range (VNum n) y  = VList $ map VNum [n .. vCast y]
+op2Range x (VNum n)  = VList $ map VNum [vCast x .. n]
+op2Range (VRat n) y  = VList $ map VRat [n .. vCast y]
+op2Range x (VRat n)  = VList $ map VRat [vCast x .. n]
+op2Range x y         = VList $ map VInt [vCast x .. vCast y]
 
 op2Divide x y
     | VInt x' <- x, VInt y' <- y
@@ -837,8 +834,9 @@ op2ChainedList x y
     | otherwise                     = VList [x, y]
 
 op2Logical f x y = do
-    vx <- fromVal x
-    if f (vCast vx)
+    vx   <- fromVal x
+    bool <- fromVal vx
+    if f bool
         then return vx
         else fromVal y
 
@@ -974,40 +972,45 @@ foldParam x         = doFoldParam x []
 -- For the moment, these return filename and false or undef.
 -- Known Bugs: multiple stat()s are done, and filename isnt a boolean.
 
+fileTestIO :: (Value n) => (n -> IO Val) -> Val -> Eval Val
+fileTestIO f v = do
+    str <- fromVal =<< fromVal' v
+    tryIO undef $ f str
+
 fileTestIsReadable f = do
-    p <- getPermissions (vCast f)
+    p <- getPermissions f
     let b = readable p
-    return $ if b then f else VBool False
+    return $ if b then castV f else VBool False
 
 fileTestIsWritable f = do
-    p <- getPermissions (vCast f)
+    p <- getPermissions f
     let b = writable p
-    return $ if b then f else VBool False
+    return $ if b then castV f else VBool False
 
 fileTestIsExecutable f = do
-    p <- getPermissions (vCast f)
+    p <- getPermissions f
     let b = executable p || searchable p
-    return $ if b then f else VBool False
+    return $ if b then castV f else VBool False
 
 fileTestExists f = do
-    b1 <- doesFileExist (vCast f)
-    b2 <- doesDirectoryExist (vCast f)
-    return $ if b1 || b2 then f else VBool False
+    b1 <- doesFileExist f
+    b2 <- doesDirectoryExist f
+    return $ if b1 || b2 then castV f else VBool False
 
 fileTestIsFile f = do
-    b <- doesFileExist (vCast f)
-    return $ if b then f else VBool False
+    b <- doesFileExist f
+    return $ if b then castV f else VBool False
 
 fileTestIsDirectory f = do
-    b <- doesDirectoryExist (vCast f)
-    return $ if b then f else VBool False
+    b <- doesDirectoryExist f
+    return $ if b then castV f else VBool False
 
 fileTestFileSize f = do
-    n <- statFileSize (vCast f)
+    n <- statFileSize f
     return $ VInt n
 
 fileTestSizeIsZero f = do
-    n <- statFileSize (vCast f)
+    n <- statFileSize f
     return $ if n == 0 then VBool True else VBool False 
 
 -- XXX These bulks of code below screams for refactoring
