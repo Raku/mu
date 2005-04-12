@@ -115,10 +115,24 @@ op1 "sort" = \v -> do
     values  <- fromVal v
     strs    <- mapM fromVal values
     return . VList . map snd . sort $ (strs :: [VStr]) `zip` values
-op1 "reverse" = \v ->
-    ifContextIsa "List"
-        (op1Cast (VList . reverse) v)
-        (op1Cast (VStr . reverse) v)
+op1 "reverse" = \v -> do
+    case v of
+        (VRef _) -> do
+            isa <- op2 "isa" v (VStr "Scalar")
+            if vCast isa
+                then do
+                    ref     <- fromVal v
+                    val     <- readRef ref
+                    str     <- fromVal val
+                    return . VStr $ reverse str
+                else do
+                    ref     <- fromVal v
+                    vals    <- readRef ref
+                    vlist   <- fromVal vals
+                    return . VList $ reverse vlist
+        _ -> ifContextIsa "Scalar"
+            (op1Cast (VStr . reverse) v)
+            (op1Cast (VList . reverse) v)
 op1 "list" = op1Cast VList
 op1 "~"    = op1Cast VStr
 op1 "?"    = op1Cast VBool
@@ -1090,7 +1104,8 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Int       pre     int     (?Int=$_)\
 \\n   List      pre     list    (List)\
 \\n   Scalar    pre     scalar  (Scalar)\
-\\n   List      pre     reverse (List)\
+\\n   Any       pre     reverse (rw!Any)\
+\\n   Any       pre     reverse (List)\
 \\n   List      pre     sort    (List)\
 \\n   Int       spre    +^      (Int)\
 \\n   Int       spre    ~^      (Str)\
