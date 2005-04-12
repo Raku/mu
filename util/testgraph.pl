@@ -2,12 +2,22 @@
 use warnings;
 use strict;
 use YAML 'Load';
+use Getopt::Long;
+
+GetOptions \our %Config, qw(embedcss|e cssfile|c=s help|h);
+$Config{cssfile} ||= "util/testgraph.css";
+usage() if $Config{help};
+my $css = $Config{embedcss} ? embed_css() : << "CSS_LINK";
+  <link rel='stylesheet' href='$Config{cssfile}' type='text/css'/>
+CSS_LINK
 
 my $yamlfile = shift || 'tests.yml';
 
 #print "Loading $yamlfile\n";
 
-open(my $yamlfh, '<:utf8', $yamlfile) or die "Couldn't open $yamlfile for reading: $!";
+#open(my $yamlfh, '<:utf8', $yamlfile) or die "Couldn't open $yamlfile for reading: $!";
+open(my $yamlfh, '<', $yamlfile) or die "Couldn't open $yamlfile for reading: $!";
+binmode $yamlfh, ":utf8" or die "binmode: $!";
 local $/=undef;
 
 my $data = Load(<$yamlfh>);
@@ -20,8 +30,8 @@ print <<"__TOP__";
  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'>
 <html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' lang='en'>
  <head>
-  <link rel='stylesheet' href='util/testgraph.css' />
   <title>testgraph.pl @{[gmtime().'']}</title>
+$css
  </head>
  <body>
 <pre><tt>@{[gmtime().'']}</tt></pre></br>
@@ -134,4 +144,31 @@ sub t_to_class {
           '01'=>'todogood',
           '11'=>'todobad'
          }->{"$p$todo"};
+}
+
+sub embed_css {
+  my $out = "  <style type='text/css'>\n  <!--\n";
+  local $/;
+  open my $fh, "<", $Config{cssfile} or die "open $Config{cssfile}: $!";
+  $out .= <$fh>;
+  $out .= "  -->\n  </style>\n";
+  return $out;
+}
+
+sub usage {
+  print <<"USAGE";
+usage: $0 [OPTIONS] > output_file.html
+
+Generates an HTML summary of a YAML test run. Options:
+
+   --embedcss, -e       inline css in HTML header (for broken webservers)
+   --cssfile,  -c FILE  location of css. [default: $Config{cssfile}]
+
+See also:
+   util/yaml_harness.pl  - produce the data for this tool
+   util/catalog_tests.pl - produce cross-linkable tests
+   util/run-smome.pl     - automate the smoke process
+
+USAGE
+  exit 0;
 }

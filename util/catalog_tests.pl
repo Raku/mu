@@ -22,15 +22,16 @@ the links, and inserting a names where needed.
 
 __NOTES__
 
-# You will need
-#   ls ..
-#   pugs_svn_src perl6_doc 
-# or 
-#   ls ..
-#   pugs_svn_src Perl6-Bible
+# You will need the Synopses checked out. Do this:
+#   cd ..
 #
-# perl6_doc     http://svn.perl.org/perl6/doc/trunk/
-# or Perl6-Bible   http://tpe.freepan.org/repos/iblech/Perl6-Bible/
+#   svn co $PERL6_DOC ;  mv trunk perl6_doc
+# or 
+#   svn co $PERL6-BIBLE
+#
+# where:
+#   $PERL6_DOC   =  http://svn.perl.org/perl6/doc/trunk/
+#   $PERL6-BIBLE =  http://tpe.freepan.org/repos/iblech/Perl6-Bible/
 
 my $syn_src_dir; # The root directory for Synopsis POD
 my $t_dir;      # The root directory of the test tree.
