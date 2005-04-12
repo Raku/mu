@@ -336,8 +336,8 @@ reduce env exp@(Syn name exps) = case name of
     "*" -> do -- first stab at an implementation
         let [exp] = exps
         val     <- enterRValue $ enterEvalContext "List" exp
-        vals    <- fromVal val
-        retVal $ VList vals
+        vals    <- fromVals val
+        retVal $ VList $ concat vals
     "," -> do
         vals    <- mapM (enterEvalContext "Any") exps
         -- now do some basic flattening
