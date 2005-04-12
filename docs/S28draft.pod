@@ -5,21 +5,33 @@
 
 =head1 OUTLINE
 
- NOTES
+ DRAFT NOTES
+ INTRODUCTION
  SPECIAL VARIABLES
  PERL 6 / PERL 5 COMPARISON
  HISTORY
  SOURCES
 
-=head1 NOTES
+=head1 DRAFT NOTES
 
 This is very much a work-in-progress. 
-(If you see needed changes and are unable to submit them yourself, 
+When this current draft is fairly complete, I (dvergin) intend 
+to solicit critique and additions from the p6l. 
+(In the meantime 
+if you see needed changes and are unable to submit them yourself, 
 you are welcome to email: dvergin at igc dot org.)
 
 This document serves as a collection point 
 for what is known about special variables 
 in Perl 6 and correlates them with the changes from Perl 5. 
+
+=head1 INTRODUCTION
+
+If you are trying to find the Perl 6 equivalent of a Perl 5 special
+variable you know, try searching this file for the Perl 5 version.
+Each main entry is followed by a note containing the corresponding
+Perl 5 variable(s). The list of main entries is also followed by 
+a table showing the 5 and 6 variables side-by-side.
 
 Most/All variables of the form $*SOMETHING should also work in the form
 $SOMETHING (without the '*') unless masked by "my $SOMETHING".
