@@ -14,7 +14,7 @@ http://www.unicode.org/unicode/reports/tr11/
 
 =cut
 
-plan 27;
+plan 31;
 
 # string literals, for sanity
 
@@ -27,15 +27,14 @@ eval_is('$x.bytes',  undef, "undef"); #  test for warning
 
 # Please add test strings in your favorite script, especially if
 # it is boustrophedonic or otherwise interesting.
-
+my @stringy = <@stringy>;
 my @data = (
     # string       octets codepoints grapheme chars
     ",               0,        0,         0,  0",
     "moose,          5,        5,         5,  5",
     "C:\\Program Files,           16,        16,         16,  16",
+    ~@stringy ~ ",           8,          8,         8,   8",
     "\x020ac \\x020ac,           11,        9,         9,  9",
-
-
     "בדיקה,         10,        5,         5,  5",
     "בדיקה 123,     14,        9,         9,  9",
 );
