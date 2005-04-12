@@ -48,6 +48,12 @@ diag $command;
 system $command;
 
 my @expected = <Hello Pugs>;
-my @got      = eval slurp "temp-ex-output";
+my $got      = slurp "temp-ex-output";;
+chomp $got;
+if (substr($got,0,1) ~~ "\\") {
+  $got = substr($got,1);
+};
+
+my @got      = eval $got;
 is @got, @expected, "-e '' does not eat a following argument";
 
