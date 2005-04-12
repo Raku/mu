@@ -14,7 +14,7 @@ http://www.unicode.org/unicode/reports/tr11/
 
 =cut
 
-plan 19;
+plan 27;
 
 # string literals, for sanity
 
@@ -32,6 +32,10 @@ my @data = (
     # string       octets codepoints grapheme chars
     ",               0,        0,         0,  0",
     "moose,          5,        5,         5,  5",
+    "C:\\Program Files,           16,        16,         16,  16",
+    "\x020ac \\x020ac,           11,        9,         9,  9",
+
+
     "בדיקה,         10,        5,         5,  5",
     "בדיקה 123,     14,        9,         9,  9",
 );
