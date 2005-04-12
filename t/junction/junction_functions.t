@@ -16,7 +16,7 @@ These tests are derived from the Perl6 and Parrot Essentials Chapter 4, page 42
 my $j = (1 | 2 | 3);
 is(ref($j), 'Junction', '$j is a Junc');
 
-is($j.perl, '\\(1 | 2 | 3)', 'got the right stringified junction'); 
+is($j.perl, '(1 | 2 | 3)', 'got the right stringified junction'); 
 
 my @values = $j.values;
 is(+@values, 3, 'our junction has three values in it');
@@ -25,7 +25,6 @@ is(@values[1], 2, 'our junctions second value is 2');
 is(@values[2], 3, 'our junctions third value is 3');    
 
 my $sums = $j + 3;
-=begin END
 
 is(ref($sums), 'Junction', '$sums is a Junc');
                 
