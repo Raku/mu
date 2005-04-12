@@ -1,12 +1,12 @@
 # For releases, we used to TODO all failing tests.
 # Because this wasn't that easy at times, we have now a more central approach:
 # Test.pm reads this file and checks, if there are some tests to forcetodo.
-# 
+#
 # Example: To forcetodo tests 13-15 and 42 of t/foo/bar.t, uncomment the
 # following line (note: use C</> as path delimiter -- win32 C<\> is converted
 # to C</>):
 #   t/foo/bar.t 13 14 15 42
-# 
+#
 # (Side note: Lines matching /^#/ are comments. Be careful to only use " " as
 # delimiter, not tabs or multiple spaces or whatever.)
 
@@ -34,7 +34,7 @@ t/data_types/anon_block.t 14 15
 ## t/operators
 t/operators/arith.t 135 136 148 162 167
 t/operators/inc.t 18 19
-t/operators/short_circuit.t 16 17 23
+t/operators/short_circuit.t 23
 
 ## t/pugsbugs
 t/pugsbugs/listquote.t 1
@@ -47,10 +47,10 @@ t/pugsbugs/segfault_nan_calculation.t 1
 t/subroutines/currying.t 6 7
 t/subroutines/multi_sub.t 1 2 3 4 6 7 8
 t/subroutines/sub_ref.t 5 10 15 26 27
-t/subroutines/sub_return_values.t 51
+t/subroutines/sub_return_values.t
 
 ## t/unspecced
-t/unspecced/cont.t 
+t/unspecced/cont.t
 
 ## t/var
 t/var/default_scalar.t 2 4
