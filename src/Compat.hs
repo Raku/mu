@@ -52,31 +52,33 @@ import System.Posix.Types
 import System.Environment
 
 failWith s = fail $ "'" ++ s ++ "' not implemented on this platform."
+warnWith s = trace ("'" ++ s ++ "' not implemented on this platform.") $ return ()
 
 setEnv :: String -> String -> Bool -> IO ()
-setEnv _ _ _ = failWith "setEnv"
+setEnv _ _ _ = warnWith "setEnv"
 
 unsetEnv :: String -> IO ()
-unsetEnv _ = failWith "unsetEnv"
+unsetEnv _ = warnWith "unsetEnv"
 
 createLink :: FilePath -> FilePath -> IO ()
-createLink _ _ = failWith "link"
+createLink _ _ = warnWith "link"
 
 createSymbolicLink :: FilePath -> FilePath -> IO ()
-createSymbolicLink _ _ = failWith "symlink"
+createSymbolicLink _ _ = warnWith "symlink"
 
 readSymbolicLink :: FilePath -> IO FilePath
 readSymbolicLink _ = failWith "readlink"
 
 rename :: FilePath -> FilePath -> IO ()
-rename _ _ = failWith "rename"
+rename _ _ = warnWith "rename"
 
 removeLink :: FilePath -> IO ()
-removeLink _ = failWith "unlink"
+removeLink _ = warnWith "unlink"
 
 setFileMode :: FilePath -> FileMode -> IO ()
-setFileMode _ _ = failWith "chmod"
+setFileMode _ _ = warnWith "chmod"
 
+statFileSize :: FilePath -> IO Integer
 statFileSize _ = failWith "-s"
 -- statFileSize could be implemented as openFile and hFileSize.
 
