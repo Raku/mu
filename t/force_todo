@@ -31,7 +31,6 @@ t/statements/given.t 1 4 14 15 23 24 25 26 33 34
 
 ## t/data_types
 t/data_types/anon_block.t 14 15
-t/data_types/hash.t 25 26
 
 ## t/operators
 t/operators/arith.t 135 136 148 162 167

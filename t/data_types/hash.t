@@ -9,7 +9,7 @@ Hash tests
 
 =cut
 
-plan 53;
+plan 52;
 
 # basic lvalue assignment
 
@@ -41,7 +41,7 @@ is(%hash3{"two"}, 2, 'comma seperated key/value hash creation works with more th
 
 my %hash4;
 isa_ok(%hash4, 'Hash');
-eval '%hash4 = ("key" => "value")';
+%hash4 = ("key" => "value");
 is(%hash4{"key"}, 'value', '(key => value) seperated key/value has creation works');
 
 # hash slicing
@@ -54,26 +54,24 @@ is(+@slice1, 2, 'got the right amount of values from the %hash{} slice');
 is(@slice1[0], 1, '%hash{} slice successfull');
 is(@slice1[1], 3, '%hash{} slice successfull');
 
-my @slice2;
-eval '@slice2 = %hash5<three one>';
+my @slice2 = %hash5<three one>;
 is(+@slice2, 2, 'got the right amount of values from the %hash<> slice');
 is(@slice2[0], 3, '%hash<> slice was successful');
 is(@slice2[1], 1, '%hash<> slice was successful');
 
 # slice assignment
 
-eval '%hash5{"one", "three"} = (5, 10)';
-is(%hash5<one>, 5, 'value was changed successfully with slice assignment'); # unTODOme
-is(%hash5<three>, 10, 'value was changed successfully with slice assignment'); # unTODOme
+%hash5{"one", "three"} = (5, 10);
+is(%hash5<one>, 5, 'value was changed successfully with slice assignment');
+is(%hash5<three>, 10, 'value was changed successfully with slice assignment');
 
-eval '%hash5<one three> = (3, 1)';
-is(%hash5<one>, 3, 'value was changed successfully with slice assignment'); # unTODOme
-is(%hash5<three>, 1, 'value was changed successfully with slice assignment'); # unTODOme
+%hash5<one three> = (3, 1);
+is(%hash5<one>, 3, 'value was changed successfully with slice assignment');
+is(%hash5<three>, 1, 'value was changed successfully with slice assignment');
 
-eval '%hash<one three> = [3, 1]';
-is(%hash5<one>[0], 3, 'value assigned successfully with arrayref in list context'); # unTODOme
-is(%hash5<one>[1], 1, 'value assigned successfully with arrayref in list context'); # unTODOme
-ok(!defined(%hash5<three>), '"three" assumed value undef from slice assignment'); # unTODOme
+%hash5<foo> = [3, 1];
+is(%hash5<foo>[0], 3, 'value assigned successfully with arrayref in list context');
+is(%hash5<foo>[1], 1, 'value assigned successfully with arrayref in list context');
 
 # keys 
 
@@ -139,5 +137,5 @@ is($val, 2, '%hash.kv gave us our val');
 like(~%hash9, rx:perl5/1\s+2\s+2\s+3/, "hash can stringify");
 
 my %hash10 = <1 2>;
-is(%hash10<1>, 2, "assignment of pointy qw to hash"); # not in an eval because it dies anyway
+is(%hash10<1>, 2, "assignment of pointy qw to hash");
 
