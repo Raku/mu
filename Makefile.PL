@@ -30,7 +30,7 @@ build_subdirs   (map fixpaths($_), grep {
                 );
 
 my $version = version();
-$version =~ s{6\.(\d{3})(\d{3}?)}{join '.', 6, int($1), int($2||0)}e;
+$version =~ s{6\.(\d{3})(\d{3})?}{join '.', 6, int($1), int($2||0)}e;
 version($version);
 
 makemaker_args  (
