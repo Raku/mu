@@ -18,5 +18,5 @@ my %hash = (a => 1);
 todo_eval_is '%hash.pick.key',   "a", "pick works on hashes (1)";
 todo_eval_is '%hash.pick.value', "1", "pick works on hashes (2)";
 
-my $junc = 1|2|3;
+my $junc = (1|2|3);
 ok 1|2|3 == $junc.pick, "pick works on junctions";
