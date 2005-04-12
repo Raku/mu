@@ -18,6 +18,7 @@ import Internals
 import Config
 import Run
 import AST
+import Types
 import Eval
 import External
 import Shell

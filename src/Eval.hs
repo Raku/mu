@@ -518,11 +518,11 @@ reduce Env{ envClasses = cls, envContext = cxt, envLexical = lex, envGlobal = gl
         Nothing     -> retError ("No compatible subroutine found: " ++ name) exp
     where
     argSlurpLen (Val listMVal) = do
-        listVal  <- readMVal listMVal
+        listVal  <- fromVal listMVal
         return $ length (vCast listVal :: [Val])
     argSlurpLen (Var name) = do
         listMVal <- evalVar name
-        listVal  <- readMVal listMVal
+        listVal  <- fromVal listMVal
         return $ length (vCast listVal :: [Val])
     argSlurpLen (Syn "," list) =  return $ length list
     argSlurpLen _ = return 1 -- XXX

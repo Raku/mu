@@ -4,11 +4,12 @@ module Types.Array where
 
 import {-# SOURCE #-} AST
 import Internals
+import Types
 
 type Index = Int
 
-class Class a where
-    iType :: a -> String
+class (Typeable a) => Class a where
+    iType :: a -> VStr
     iType _ = "Array"
     fetch       :: a -> Eval VArray
     fetch av = do

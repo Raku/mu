@@ -4,11 +4,12 @@ module Types.Hash where
 
 import {-# SOURCE #-} AST
 import Internals
+import Types
 
 type Index = VStr
 
-class Class a where
-    iType :: a -> String
+class (Typeable a) => Class a where
+    iType :: a -> VStr
     iType _ = "Hash"
     fetch       :: a -> Eval VHash
     fetch hv = do

@@ -4,12 +4,13 @@ module Types.Handle where
 
 import {-# SOURCE #-} AST
 import Internals
+import Types
 
 type Layer = VStr
 type FileDescriptor = VInt
 
-class Class a where
-    iType :: a -> String
+class (Typeable a) => Class a where
+    iType :: a -> VStr
     iType _ = "IO"
     fetch       :: a -> Eval VHandle
     store       :: a -> VHandle -> Eval ()

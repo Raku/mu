@@ -13,7 +13,6 @@
 module Parser where
 import Internals
 import AST
-import Types
 import Types.Code as Code
 import Help
 import Lexer

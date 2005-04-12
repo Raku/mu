@@ -76,6 +76,7 @@ prepareEnv name args = do
     inGV    <- newHandle stdin
     outGV   <- newHandle stdout
     errGV   <- newHandle stderr
+    argsGV  <- newScalar undef
     errSV   <- newScalar (VStr "")
     defSV   <- newScalar undef
     let subExit = \x -> case x of
@@ -96,6 +97,7 @@ prepareEnv name args = do
         , SymVar SGlobal "$*IN"         $ MkRef inGV
         , SymVar SGlobal "$*OUT"        $ MkRef outGV
         , SymVar SGlobal "$*ERR"        $ MkRef errGV
+        , SymVar SGlobal "$*ARGS"       $ MkRef argsGV
         , SymVar SGlobal "$!"           $ MkRef errSV
         , SymVar SGlobal "$/"           $ MkRef matchAV
         , SymVar SGlobal "%*ENV"        $ hashRef (undefined :: IHashEnv)

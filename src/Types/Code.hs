@@ -3,9 +3,11 @@
 module Types.Code where
 
 import {-# SOURCE #-} AST
+import Internals
+import Types
 
-class Class a where
-    iType :: a -> String
+class (Typeable a) => Class a where
+    iType :: a -> VStr
     iType _ = "Code"
     fetch    :: a -> Eval VCode
     fetch a = assuming a [] []

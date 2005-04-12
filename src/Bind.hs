@@ -12,6 +12,7 @@
 module Bind where
 import Internals
 import AST
+import Types
 
 type MaybeError a = Either String a
 
