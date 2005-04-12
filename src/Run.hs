@@ -69,6 +69,7 @@ prepareEnv name args = do
     egidSV  <- newScalar (VInt $ toInteger egid)
     execSV  <- newScalar (VStr exec)
     progSV  <- newScalar (VStr name)
+    modSV   <- newScalar (VStr "main")
     endAV   <- newArray []
     matchAV <- newArray []
     incAV   <- newArray (map VStr libs)
@@ -106,6 +107,7 @@ prepareEnv name args = do
         , SymVar SGlobal "@=POD"        $ MkRef $ constArray []
         , SymVar SGlobal "$=POD"        $ MkRef $ constScalar (VStr "")
         , SymVar SGlobal "$?OS"         $ MkRef $ constScalar (VStr $ getConfig "osname")
+        , SymVar SGlobal "$?MODULE"     $ MkRef modSV
         , SymVar SGlobal "&?BLOCK_EXIT" $ codeRef $ Sub
             { isMulti = False
             , subName = "&?BLOCK_EXIT"

@@ -569,7 +569,7 @@ tightOperators = do
     , listOps  " & ! "                                  -- Junctive And
     , listOps  " ^ | "                                  -- Junctive Or
     , optOps optionary, preOps unary                    -- Named Unary
-    , noneOps  " is but does "                          -- Traits
+    , noneSyn  " is but does "                          -- Traits
       ++ rightOps " => "                                -- Pair constructor
       ++ noneOps " cmp <=> .. ^.. ..^ ^..^ "            -- Non-chaining Binary
       ++ postOps "..."                                  -- Infinite range
@@ -681,6 +681,7 @@ listOps     = leftOps
 chainOps    = leftOps
 leftSyn     = ops $ makeOp2 AssocLeft "" Syn
 rightSyn    = ops $ makeOp2 AssocRight "" Syn
+noneSyn     = ops $ makeOp2 AssocNone "" Syn
 listSyn     = ops $ makeOp0 AssocList "" Syn
 chainSyn    = leftSyn
 

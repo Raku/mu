@@ -428,8 +428,25 @@ reduce env exp@(Syn name exps) = case name of
         let [exp, g, subst] = exps
         (VRule rx)  <- reduce env (Syn "rx" [exp, g])
         retVal $ VSubst (rx, subst)
-    "inline" -> retEmpty
-    "module" -> retEmpty
+    "is" -> do
+        retEmpty
+    "module" -> do
+        let [exp] = exps
+        val <- evalExp exp
+        writeVar "$?MODULE" val
+        retEmpty
+    "inline" -> do
+        let [langExp, _] = exps
+        langVal <- evalExp langExp
+        lang    <- fromVal langVal
+        when (lang /= "Haskell") $
+            retError "Inline: Unknown language" (Val langVal)
+        modVal  <- readVar "$?MODULE"
+        mod     <- fromVal modVal
+        let file = (`concatMap` mod) $ \v -> case v of
+            { '-' -> "__"; _ | isAlphaNum v -> [v] ; _ -> "_" }
+        op1 "require_haskell" (VStr $ file ++ ".o")
+        retEmpty
     "noop" -> retEmpty
     syn | last syn == '=' -> do
         let [lhs, exp] = exps
