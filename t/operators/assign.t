@@ -12,11 +12,7 @@ plan 51;
 	is($foo, "FOO", "assigned correct value to first of two scalars");
 	is($bar, "BAR", "... and second");
 
-    # swaping them this thows the error:
-    #    Cannot modify constant item
-    #    Syn "," [Var "$foo",Var "$bar"]
-
-        ($foo, $bar) = ($bar, $foo);
+	($foo, $bar) = ($bar, $foo);
 	is($foo, "BAR", "swap assignment works for the first value");
 	is($bar, "FOO", "... and second");
 };
