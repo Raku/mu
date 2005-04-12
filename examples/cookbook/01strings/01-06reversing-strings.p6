@@ -16,11 +16,22 @@ $revbytes = $string.reverse;
 
 $revwords = join ' ', reverse split ' ', $string;
 $revwords = $string.split(' ').reverse.join(' ');
+# XXX Since ' ' is default for both split and join...
+#         $string.split.reverse.join
+# And since string context also joins on ' ':
+#         ~$string.split.reverse
+# (Note that ~ is needed if $revwords is Scalar, but not if it is Str, because
+# a list in scalar context is an arrayref).
+# (See "lists in string context" p6l thread)
 
 # in scalar context, reverse the characters, in list context, reverse the list# # elements
 $gnirts   = reverse($string);       # reverse letters in $string
 @sdrow    = reverse(@words);        # reverse elements in @words
 $confused = reverse(@words);        # reverse letters in join("", @words)
+# XXX No, I that'll be join(' ', @words). If you want it to join on '', 
+# @words.reverse.cat, or cat(reverse(@words)). cat is join defaulting to ''.
+# See same p6l thread.
+
 
 # reverse word order
 $string = 'Yoda said, "can you see this?"';

@@ -18,6 +18,16 @@ my @array = $string[];
 # Juerd: is is innappropriate to call the above an @array? should i call
 # it @list (and other examples below) for learner purposes? i'm looking for
 # something definitive on this, but haven't found it yet
+# No, it is not. In fact, @list would be terribly wrong.
+# The list context I mentioned is on the RHS of the assignment. An earlier
+# version of this file said something about array context. Array context is the
+# context for arrays/arrayrefs, like the first argument of push. In Perl 6,
+# array context just scalar context that wants Array, in Perl 5, array context
+# is built into the language and cannot be provided by user defined subs.
+# In other light, @array is a very bad name, but in that light, @list is
+# equally silly. The @ already says it's an array, and @chars is probably a
+# much better name.
+
 
 # use unpack to do the same thing
 # s/C/U work with unicode (thanks Juerd)
@@ -32,6 +42,7 @@ for $string[] {
 say $_ for $string[];
 
 # find the unique characters in a string
+# XXX Don't we want a .unique or .uniq method? 
 my %seen;
 for $string[] -> $char {
     %seen{$char}++;
@@ -93,6 +104,7 @@ for =<> -> $line {
     for $line[] -> $char {
         print $char;
 		sleep $DELAY; # sleep restricts us to second multiples
+# XXX I thought Perl 6 would use high res sleep by default?
 		# perl 5 version uses a select() hack for sub-second delays but i'm
 		# avoiding that in lieu of further documentation
     }

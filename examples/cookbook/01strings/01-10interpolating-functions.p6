@@ -29,8 +29,12 @@ $phrase = "I have {$n + 1} guanacos.";
 $phrase = qq/I have {$n + 1} guanacos./;      # liberal interpolation
 $phrase = q:c/I have {$n + 1} guanacos./;     # interpolation closures only
 
+# XXX Style issue, but I always put whitespace in {} that are closures, and
+# these are.
+
 # Interpolate into a here document:
 # XXX: Confirming via p6l that this works as the first param like this:
+# XXX I think s/<<//
 die "Couldn't send mail" unless send_mail <<qq:to/EOTEXT/, $target
 	To: $naughty
 	From: Your Bank

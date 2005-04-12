@@ -16,3 +16,6 @@ say $string.substr($offset);
 # Cannot modify constant item
 #App "&substr" [] [Var "$string",Var "$offset"]
 substr($string, $offset) = "gilism ain't for wimps";
+
+# XXX Provide both function and method syntax for both fetch and store
+# operations, to avoid confusion?

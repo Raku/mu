@@ -8,6 +8,9 @@ You want to declare a string.
 
 =cut
 
+# XXX This is definition, not declaration. *declaring* a string is done with
+#         my Str $foo;
+
 my $string;
 
 # Single interpolated quote strings
@@ -56,3 +59,4 @@ my $a = qq:to/EOF/
 	be removed from all preceding lines.
 	EOF
 
+# XXX - question: How equal are bunches of spaces to tabs?
