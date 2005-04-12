@@ -234,12 +234,12 @@ evalVal val = do
     Env{ envLValue = isLValue, envClasses = cls, envContext = cxt } <- ask
     typ <- evalValType val
     let isCompatible = isaType cls cxt typ
-        isScalarCxt  = isaType cls "Scalar" cxt
-    case (isCompatible, isLValue, isScalarCxt) of
+        isListCxt    = isaType cls "List" cxt
+    case (isCompatible, isLValue, isListCxt) of
         (True, True, _)         -> return val
-        (True, False, True)     -> fromVal val
-        (True, False, False)    -> return . VList =<< fromVal val
-        (False, True, True)     -> return val -- auto scalar varify?
-        (False, True, False)    -> return val -- auto list varify?
-        (False, False, True)    -> fromVal' val
-        (False, False, False)   -> return . VList =<< fromVal' val
+        (True, False, False)    -> fromVal val
+        (True, False, True)     -> return . VList =<< fromVal val
+        (False, True, False)    -> return val -- auto scalar varify?
+        (False, True, True)     -> return val -- auto list varify?
+        (False, False, False)   -> fromVal' val
+        (False, False, True)    -> return . VList =<< fromVal' val

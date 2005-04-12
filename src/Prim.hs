@@ -1303,7 +1303,7 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Pair      non     =>      (Any, Any)\
 \\n   Int       non     cmp     (Str, Str)\
 \\n   Int       non     <=>     (Num, Num)\
-\\n   List      non     ..      (Any, Any)\
+\\n   List      non     ..      (Scalar, Scalar)\
 \\n   Bool      chain   !=      (Num, Num)\
 \\n   Bool      chain   ==      (Num, Num)\
 \\n   Bool      chain   ~~      (rw!Any, Any)\
