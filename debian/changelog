@@ -1,3 +1,9 @@
+pugs (6.2.0-1) experimental; urgency=low
+
+  * New upstream.
+
+ -- Shu-Chun Weng <scw@csie.org>  Wed, 13 Apr 2005 13:49:36 +0800
+
 pugs (6.0.14-1) experimental; urgency=low
 
   * New upstream.
