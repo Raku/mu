@@ -108,7 +108,7 @@ require File::Spec;
 my ($progdir) = splitpath($*PROGRAM_NAME)[1];
 my $dict = canonpath("$progdir../../AUTHORS");
 my @committers = get_committer_list($dict);
-my $current_committer = pick_committer(@committers);
+my $current_committer = any(@committers).pick(); #pick_committer(@committers);
 
 @letters = split("", $current_committer);
 @solution = ('' xx +@letters);
