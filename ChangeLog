@@ -37,8 +37,7 @@
 === Tests, Examples and Documentations
 
 * Many new tests and cleaning up of older tests, we now have 4200+
-* `examples/games/hangman.p6` added which uses the `AUTHORS` file as
-  the dictionary file
+* `examples/games/hangman.p6` added, with `AUTHORS` as the dictionary file
 * `READTHEM` added; recommended reading for aspiring Pugs hackers
 * The Perl 6 Cookbook is well underway at `examples/cookbook/`
 * Working perl6 modules added to `ext/`
@@ -71,7 +70,7 @@
 * `$var.method $param` is now illegal: use `$var.method($param)`
 * `readline()` is now strict in list context
 * `$list.join('|')` now works
-* `xor` and `^^` now short-circuits
+* `xor` and `^^` now returns the true operand instead of `bool::true`
 * Named bindings to `%_` repaired
 
 == Changes for 6.0.14 - April 4, 2005
