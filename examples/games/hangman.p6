@@ -37,7 +37,7 @@ sub get_committer_list (Str $dict_file) returns List {
     return @committers;
 }
 
-sub pick_committer (@committers) returns Str {
+sub pick_committer (*@committers) returns Str {
     any(@committers).pick;
 }
 
@@ -108,7 +108,7 @@ require File::Spec;
 my ($progdir) = splitpath($*PROGRAM_NAME)[1];
 my $dict = canonpath("$progdir../../AUTHORS");
 my @committers = get_committer_list($dict);
-my $current_committer = pick_committer(*@committers);
+my $current_committer = pick_committer(@committers);
 
 @letters = split("", $current_committer);
 @solution = ('' xx +@letters);
