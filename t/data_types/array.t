@@ -109,14 +109,14 @@ is(+@array9, 0, "new arrays are empty");
 my @array10 = (1, 2, 3,);
 is(+@array10, 3, "trailing commas make correct list"); # unTODOme
 
-# declear a multidimension array
-todo_eval_ok('@array11[0...3; 0...1]', "multidimension array");
-todo_eval_ok('@array11[2,0] = 12', "push the value to a multidimension array");
-todo_eval_ok('@array12 is shape(2,4)', "another way to declare a multidimension array");
+# declare a multidimension array
+eval_ok('@array11[0...3; 0...1]', "multidimension array");
+eval_ok('@array11[2,0] = 12', "push the value to a multidimension array");
+eval_ok('@array12 is shape(2,4)', "another way to declare a multidimension array");
 
 # declare the array with data type
-todo_eval_ok('my Int @array', "declare a array for integer only");
-todo_eval_ok('@array[0] = 23', "declare the array value");
+eval_ok('my Int @array', "declare a array for integer only");
+eval_ok('@array[0] = 23', "declare the array value");
 
 # negative index
 my @array11 = ('a', 'b', 'c', 'e'); 
@@ -139,6 +139,6 @@ my @array12 = ('a', 'b', 'c', 'd');
 my @b;
 ((@b = @array12[-4,-3,-2,-1])= @array12[-1,-2,-3,-4]);
 is ~@b~@array12, 'd c b aa b c d', "hat trick:
-assign to an empty array from negative range
-lvalue from negative range rvalue"; 
+assign to an empty array from negative range slice
+lvalue in assignment is then lvalue to negatively indexed slice as rvalue"; 
 # also see iblech's t/pugsbugs/array_extending.t
