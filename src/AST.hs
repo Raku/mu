@@ -1044,7 +1044,7 @@ instance Array.Class IArray where
     fetchVal av idx = do
         readIVar =<< getIndex idx (Just $ constScalar undef)
             (liftIO $ readIORef av) 
-            (Array.extendSize av $ idx+1)
+            (return ()) -- don't bother extending
     fetchKeys av = do
         svList <- liftIO $ readIORef av
         return $ zipWith const [0..] svList
