@@ -9,7 +9,7 @@ Arrays
 
 =cut
 
-plan 56;
+plan 57;
 
 # array of strings
 
@@ -131,6 +131,12 @@ is @array11[-1], 'd', "negative index as lvalue";
 
 # negative index range as lvalue
 @array11[-4 .. -1]   = ('d', 'c', 'b', 'a'); #('a'..'d').reverse
-
 is ~@array11, 'd c b a', "negative range as lvalue"; 
 
+# hat trick
+my @array12 = ('a', 'b', 'c', 'd');
+my @b;
+((@b[0..3] = @array12[-4,-3,-2,-1])= @array12[-1,-2,-3,-4]);
+is ~@b~@array12, 'd c b aa b c d', "hat trick: autocreate 
+index of an empty array from negative range
+lvalue from negative range rvalue"; 
