@@ -9,7 +9,7 @@ plan 3;
 
 Tests subtypes, specifically in the context of multimethod dispatch.
 
-L<S10/"Types and Subtypes">
+L<S12/"Types and Subtypes">
 
 =cut
 

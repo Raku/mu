@@ -68,7 +68,7 @@ todo_eval_ok 'class ClassFrontend { has $.backend is rw handles Backend2 }',
 }
 
 
-# L<S12/"Delegation" /You can specify multiple method names:>
+# L<S12/"Delegation" /You can specify multiple method names:/>
 todo_eval_ok 'class MultiFrontend { has $.backend is rw handles <hi cool> }',
   "class definition using multiple method names worked";
 {

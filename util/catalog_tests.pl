@@ -182,7 +182,7 @@ sub infest_syns {
         # This makes later processing easier
         $sobj->objectify_text;
 
-        for my $headlevel (reverse 1..3) {
+        for my $headlevel (reverse 1..7) {
           my $tag = 'h'.$headlevel;
           
           while (my $beg = $sobj->look_down(_tag => $tag)) {
@@ -242,7 +242,7 @@ sub infest_syns {
                 my $h = $sobj->look_down(_tag=>'div', class => qr/^h\d$/, name => $heading_re);
                 
                 unless ($h) {
-                    warn qq{Couldn't resolve L<$target/"$heading">\n};
+                    warn qq{Couldn't resolve L<$target/"$heading"> from $source.\n};
                     next;
                 };
 

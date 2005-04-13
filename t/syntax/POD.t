@@ -6,7 +6,8 @@ require Test;
 plan 6;
 
 # L<S02/"Literals">
-# others will be added later, or u can do it.
+# L<S02/"Molecules" /Multiline comments/>
+# others will be added later, or you can do it.
 
 todo_eval_ok '
 =begin DATA LABEL1
