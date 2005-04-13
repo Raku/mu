@@ -117,3 +117,9 @@ todo_eval_ok('@array12 is shape(2,4)', "another way to declare a multidimension 
 # declare the array with data type
 todo_eval_ok('my Int @array', "declare a array for integer only");
 todo_eval_ok('@array[0] = 23', "declare the array value");
+
+# negative index
+my @array11 = ('a', 'b', 'c'); 
+is @array11[-1],'c', "negative index [-1]";
+is ~@array11[-3 .. -1], 'a b c', "negative index [-3 .. -1]";
+
