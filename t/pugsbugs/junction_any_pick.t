@@ -31,7 +31,12 @@ prints out:
 succeeds:
 	Int
 	2
-    
+
+	my @b = (1..3); sub foo (@a) { my $t = any(@a).pick(); say ref($t); say $t }; foo(*@b);
+succeeds:
+	Int
+	3
+
 =cut
 
 my @test_string = ("one", "two", "three"); 
