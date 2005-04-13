@@ -35,7 +35,7 @@ errIndex _ idx =
         (Val $ castV idx)
 
 -- Three outcomes: Has value; can extend; cannot extend
-getIndex :: Int -> Maybe a -> Eval [a] -> Eval b -> Eval a
+getIndex :: Int -> Maybe a -> Eval [a] -> Maybe (Eval b) -> Eval a
 
 getIndex idx def doList _ | idx < 0 = do
     -- first, check if the list is at least abs(idx) long.
@@ -48,7 +48,9 @@ getIndex idx def doList _ | idx < 0 = do
 getIndex idx def doList ext = do
     list <- doList
     case drop idx list of
-        []    -> do { ext; getIndex idx def doList $ errIndex def idx }
+        [] -> case ext of
+            Just doExt -> do { doExt ; getIndex idx def doList Nothing }
+            Nothing    -> errIndex def idx
         (a:_) -> return a
 
 ifValTypeIsa v typ trueM falseM = do
@@ -964,7 +966,7 @@ instance Array.Class VArray where
                 Array.store as vs
     fetch = return
     fetchSize = return . length
-    fetchVal av idx = getIndex idx (Just undef) (return av) (return ())
+    fetchVal av idx = getIndex idx (Just undef) (return av) Nothing
     storeVal _ _ _ = retConstError undef
     storeElem _ _ _ = retConstError undef
 
@@ -1012,7 +1014,7 @@ instance Array.Class IArraySlice where
     iType _ = "Array::Slice"
     store av vals = mapM_ (uncurry writeIVar) (zip av vals)
     fetchSize = return . length
-    fetchElem av idx = getIndex idx Nothing (return av) (retConstError undef)
+    fetchElem av idx = getIndex idx Nothing (return av) Nothing
     storeSize _ _ = return () -- XXX error?
     storeElem _ _ _ = retConstError undef
 
@@ -1044,14 +1046,14 @@ instance Array.Class IArray where
     fetchVal av idx = do
         readIVar =<< getIndex idx (Just $ constScalar undef)
             (liftIO $ readIORef av) 
-            (return ()) -- don't bother extending
+            Nothing -- don't bother extending
     fetchKeys av = do
         svList <- liftIO $ readIORef av
         return $ zipWith const [0..] svList
     fetchElem av idx = do
         sv <- getIndex idx Nothing
             (liftIO $ readIORef av) 
-            (Array.extendSize av $ idx+1)
+            (Just (Array.extendSize av $ idx+1))
         if refType (MkRef sv) == "Scalar::Lazy"
             then do
                 val <- readIVar sv

@@ -26,20 +26,20 @@ class (Typeable a) => Class a where
         svList <- fetch av
         return $ zipWith const [0..] svList
     fetchElem   :: a -> Index -> Eval (IVar VScalar) -- autovivify
-    fetchElem av key = do
-        return $ proxyScalar (fetchVal av key) (storeVal av key)
+    fetchElem av idx = do
+        return $ proxyScalar (fetchVal av idx) (storeVal av idx)
     storeElem   :: a -> Index -> IVar VScalar -> Eval () -- binding
     storeElem av idx sv = do
         val <- readIVar sv
         storeVal av idx val
     fetchVal    :: a -> Index -> Eval Val
-    fetchVal av key = do
-        rv <- existsElem av key
-        if rv then readIVar =<< fetchElem av key
+    fetchVal av idx = do
+        rv <- existsElem av idx
+        if rv then readIVar =<< fetchElem av idx
               else return undef
     storeVal    :: a -> Index -> Val -> Eval ()
-    storeVal av key val = do
-        sv <- fetchElem av key
+    storeVal av idx val = do
+        sv <- fetchElem av idx
         writeIVar sv val
     fetchSize   :: a -> Eval Index
     fetchSize av = do
@@ -61,14 +61,15 @@ class (Typeable a) => Class a where
     deleteElem  :: a -> Index -> Eval ()
     deleteElem av idx = do
         size <- fetchSize av
-        case (size - 1) `compare` idx of
+        let idx' = if idx < 0 then idx `mod` size else idx
+        case (size - 1) `compare` idx' of
             GT -> return ()                             -- no such index
             EQ -> storeSize av (size - 1)               -- truncate
-            LT -> storeElem av idx lazyUndef            -- set to undef
+            LT -> storeElem av idx' lazyUndef            -- set to undef
     existsElem  :: a -> Index -> Eval VBool
     existsElem av idx = do
         size <- fetchSize av
-        return $ size > idx
+        return $ size > (if idx < 0 then idx `mod` size else idx)
     clear       :: a -> Eval ()
     clear av = storeSize av 0
     push        :: a -> [Val] -> Eval ()
