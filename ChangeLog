@@ -63,12 +63,12 @@
 * Fixed parsing of default parameters: `sub foo (+$x = 3, +$y = 4)`
 * `say` and `print` now default to `$_`
 * `map { ... } @list` now parses correctly
-* `loop { ... }` no works correctly
+* `loop { ... }` now works correctly
 * `int(3) + 4` now parses correctly
 * Fix parsefail bug on false unaries
 * `for (@list)` no longer flattens `@list`
 * `$var.method $param` is now illegal: use `$var.method($param)`
-* `readline()` is now strict in list context
+* `readline()` in list context is no longer evaluated lazily
 * `$list.join('|')` now works
 * `xor` and `^^` now returns the true operand instead of `bool::true`
 * Named bindings to `%_` repaired
