@@ -763,9 +763,10 @@ ruleHashSubscript = tryVerbatimRule "hash subscript" $ do
     choice [ ruleHashSubscriptBraces, ruleHashSubscriptQW ]
 
 ruleHashSubscriptBraces = do
-    braces $ option id $ do
-        exp <- ruleExpression
-        return $ \x -> Syn "{}" [x, exp]
+    symbol "{"
+    p <- option id $ do exp <- ruleExpression; return $ \x -> Syn "{}" [x, exp]
+    char '}'
+    return p
 
 ruleHashSubscriptQW = do
     exp <- qwLiteral
@@ -1034,7 +1035,10 @@ qwLiteral = try $ do
         where qwText = do string "qw"
                           text <- balanced
                           return text
-                       <|> angles (many $ satisfy (/= '>'))
+                       <|> do symbol "<"
+			      p <- many $ satisfy (/= '>')
+			      char '>'
+			      return p
 
 namedLiteral n v = do { symbol n; return $ Val v }
 
