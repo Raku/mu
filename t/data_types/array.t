@@ -9,7 +9,7 @@ Arrays
 
 =cut
 
-plan 54;
+plan 56;
 
 # array of strings
 
@@ -119,7 +119,18 @@ todo_eval_ok('my Int @array', "declare a array for integer only");
 todo_eval_ok('@array[0] = 23', "declare the array value");
 
 # negative index
-my @array11 = ('a', 'b', 'c'); 
-is @array11[-1],'c', "negative index [-1]";
-is ~@array11[-3 .. -1], 'a b c', "negative index [-3 .. -1]";
+my @array11 = ('a', 'b', 'c', 'e'); 
+is @array11[-1],'e', "negative index [-1]";
+
+# negative index range
+is ~@array11[-4 .. -2], 'a b c', "negative index [-4 .. -2]";
+@array11[-1]   = 'd';
+
+# negative index as lvalue
+is @array11[-1], 'd', "negative index as lvalue"; 
+
+# negative index range as lvalue
+@array11[-4 .. -1]   = ('d', 'c', 'b', 'a'); #('a'..'d').reverse
+
+is ~@array11, 'd c b a', "negative range as lvalue"; 
 
