@@ -26,6 +26,11 @@ And this code:
 
 prints out:
     Int
+
+	sub foo (@a) { my $t = any(@a).pick(); say ref($t); say $t }; foo(1..3)
+succeeds:
+	Int
+	2
     
 =cut
 
