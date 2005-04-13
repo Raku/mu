@@ -134,9 +134,11 @@ is @array11[-1], 'd', "negative index as lvalue";
 is ~@array11, 'd c b a', "negative range as lvalue"; 
 
 # hat trick
+
 my @array12 = ('a', 'b', 'c', 'd');
 my @b;
-((@b[0..3] = @array12[-4,-3,-2,-1])= @array12[-1,-2,-3,-4]);
-is ~@b~@array12, 'd c b aa b c d', "hat trick: autocreate 
-index of an empty array from negative range
+((@b = @array12[-4,-3,-2,-1])= @array12[-1,-2,-3,-4]);
+is ~@b~@array12, 'd c b aa b c d', "hat trick:
+assign to an empty array from negative range
 lvalue from negative range rvalue"; 
+# also see iblech's t/pugsbugs/array_extending.t
