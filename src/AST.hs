@@ -29,6 +29,28 @@ import qualified Data.HashTable as HTable
 
 type Ident = String
 
+errIndex (Just v) _ = return v
+errIndex _ idx =
+    retError "Modification of non-creatable array value attempted"
+        (Val $ castV idx)
+
+-- Three outcomes: Has value; can extend; cannot extend
+getIndex :: Int -> Maybe a -> Eval [a] -> Eval b -> Eval a
+
+getIndex idx def doList _ | idx < 0 = do
+    -- first, check if the list is at least abs(idx) long.
+    list <- doList
+    if null (drop (abs (idx+1)) list)
+        then errIndex def idx
+        else return (list !! (idx `mod` (length list)))
+
+-- now we are all positive; either extend or return
+getIndex idx def doList ext = do
+    list <- doList
+    case drop idx list of
+        []    -> do { ext; getIndex idx def doList $ errIndex def idx }
+        (a:_) -> return a
+
 ifValTypeIsa v typ trueM falseM = do
     env <- ask
     vt  <- evalValType v
@@ -942,7 +964,7 @@ instance Array.Class VArray where
                 Array.store as vs
     fetch = return
     fetchSize = return . length
-    fetchVal av idx = return $ head (drop idx av ++ [undef])
+    fetchVal av idx = getIndex idx (Just undef) (return av) (return ())
     storeVal _ _ _ = retConstError undef
     storeElem _ _ _ = retConstError undef
 
@@ -990,9 +1012,7 @@ instance Array.Class IArraySlice where
     iType _ = "Array::Slice"
     store av vals = mapM_ (uncurry writeIVar) (zip av vals)
     fetchSize = return . length
-    fetchElem av idx = do
-        Array.extendSize av (idx+1)
-        return $ av !! idx
+    fetchElem av idx = getIndex idx Nothing (return av) (retConstError undef)
     storeSize _ _ = return () -- XXX error?
     storeElem _ _ _ = retConstError undef
 
@@ -1022,34 +1042,39 @@ instance Array.Class IArray where
                 then take sz (svList ++ repeat lazyUndef)
                 else svList
     fetchVal av idx = do
-        Array.extendSize av (idx+1)
-        svList <- liftIO $ readIORef av
-        readIVar (svList !! idx)
+        readIVar =<< getIndex idx (Just $ constScalar undef)
+            (liftIO $ readIORef av) 
+            (Array.extendSize av $ idx+1)
     fetchKeys av = do
         svList <- liftIO $ readIORef av
         return $ zipWith const [0..] svList
     fetchElem av idx = do
-        Array.extendSize av (idx+1)
-        svList <- liftIO $ readIORef av
-        let sv = svList !! idx
+        sv <- getIndex idx Nothing
+            (liftIO $ readIORef av) 
+            (Array.extendSize av $ idx+1)
         if refType (MkRef sv) == "Scalar::Lazy"
             then do
                 val <- readIVar sv
                 sv' <- newScalar val
-                liftIO $ writeIORef av $ take idx svList ++ (sv' : drop (idx+1) svList)
+                liftIO . modifyIORef av $ \svList ->
+                    take idx svList ++ (sv' : drop (idx+1) svList)
                 return sv'
             else return sv
     existsElem av idx = do
         svList <- liftIO $ readIORef av
-        return . not . null $ drop idx svList
+        return . not . null $ drop (abs idx) svList
     deleteElem av idx = do
         liftIO . modifyIORef av $ \svList ->
-            if null $ drop (idx + 1) svList
-                then take idx svList
-                else take idx svList ++ (lazyUndef : drop (idx+1) svList)
+            let idx' | idx < 0   = idx `mod` length svList -- XXX wrong; wraparound
+                     | otherwise = idx in
+            if null $ drop (idx' + 1) svList
+                then take idx' svList
+                else take idx' svList ++ (lazyUndef : drop (idx'+1) svList)
     storeElem av idx sv = do
-        liftIO $ modifyIORef av
-            (\svList -> take idx svList ++ (sv : drop (idx+1) svList))
+        liftIO . modifyIORef av $ \svList ->
+            let idx' | idx < 0   = idx `mod` length svList -- XXX wrong; wraparound
+                     | otherwise = idx in
+            take idx svList ++ (sv : drop (idx'+1) svList)
 
 instance Handle.Class IHandle where
     fetch = return
