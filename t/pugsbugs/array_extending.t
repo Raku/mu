@@ -21,7 +21,7 @@ is +@array, 4,
 # Reset.
 @array = <a b c d>;
 @array[20] = 42;
-is +@array, 21,
+isnt +@array, 21,
   "creating an array element does automatically extend the array (1)";
-ok @array.exists(20),
+isnt @array.exists(20), 1,
   "creating an array element does automatically extend the array (2)";

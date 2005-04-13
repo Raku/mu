@@ -49,7 +49,7 @@ sub todo_is (Str $got, Str $expected, Str ?$desc) returns Bool is export {
 
 sub isnt (Str $got, Str $expected, Str ?$desc) returns Bool is export {
     my $test := not($got eq $expected);
-    proclaim($test, "SHOULD FAIL: $desc", undef, $got, $expected);
+    proclaim($test, "FAILS by matching expected: $desc", undef, $got, $expected);
 }
 
 sub todo_isnt (Str $got, Str $expected, Str ?$desc) returns Bool is export {
