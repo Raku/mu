@@ -8,7 +8,7 @@ my $transition_file = @*ARGS[0] err
 my $initial_tape = @*ARGS[1] // "_";
 
 my $i    = 0;
-my %tape = map { $i++ => $_ } split "", $initial_tape;
+my %tape = map sub ($a) { $i++ => $a }, split "", $initial_tape;
 
 my %instructions;
 
@@ -41,7 +41,6 @@ for =$trans -> $_ {
 my $instruction;
 while($instruction = %instructions{"$state %tape{$tape_loc}"}) {
   my ($new_state, $new_char, $direction) = split " ", $instruction;
-  say "$new_state, $new_char, $direction)";
 
   $state = $new_state;
   %tape{$tape_loc} = $new_char;
@@ -52,13 +51,15 @@ while($instruction = %instructions{"$state %tape{$tape_loc}"}) {
     $tape_loc++;
   }
 
-  if(not exists %tape{$tape_loc}) {
+  if(not %tape.exists($tape_loc)) {
     %tape{$tape_loc} = '_';
   }
 }
 
+# XXX: Because of a bug (tested against in
+# t/pugsbugs/subscripts_and_context.t), the following line doesn't work.
 my $final_tape = join "", %tape{sort {$^a <=> $^b} keys %tape};
-$final_tape ~~ s:perl5/^_+//;
-$final_tape ~~ s:perl5/_+$//;
+$final_tape ~~ s:Perl5/^_+//;
+$final_tape ~~ s:Perl5/_+$//;
 
 say $final_tape;
