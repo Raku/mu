@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 9;
+plan 11;
 
 =pod
 
@@ -28,3 +28,11 @@ is(url_decode('%26%7E%21%40%23%25%24%5E%28%29%2B%3D%7B%7D%5B%5D%7C%5C%3B%3A%27%2
 is(url_encode("&~!@#%$^()+=\{\}[]|\\;:'\"<>?/,"),
   '%26%7E%21%40%23%25%24%5E%28%29%2B%3D%7B%7D%5B%5D%7C%5C%3B%3A%27%22%3C%3E%3F%2F%2C', 
   'got the right encoded string');
+
+set_url_encoding('iso-8859-1');
+
+is(url_decode('%E2%82%AC'), chr(0xE2)~chr(0x82)~chr(0xAC), 'got the right decoded string');
+
+set_url_encoding('utf-8');
+
+is(url_decode('%E2%82%AC'), chr(0x20AC), 'got the right decoded string');
