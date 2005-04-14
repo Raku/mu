@@ -279,7 +279,7 @@ sub read_forcetodo_tests() {
     # In the file describing which tests to "force todo", we only use Unix
     # filenames. So, we (may) have to convert our win32 filename:
     my $unixfn = $?FILE;
-    $unixfn ~~ s:perl5:g{\\}{/};
+    $unixfn ~~ s:Perl5:g{\\}{/};
 
     my $force_todo_fh = open "< t/force_todo";
     # If the file doesn't exist, simply return -- there's nothing we could
