@@ -280,9 +280,10 @@ for 0 .. 255 -> $ascii_val {
     %char_to_entity{chr($ascii_val)} //= "&#$ascii_val;";
 }
 
-sub decode_entities($string) is export
+sub decode_entities($string is rw) is export
 {
     my $result = $string;
+    #$string := $result unless want.count;
     $result ~~ s:perl5:g/&\#(\d+);?/{chr($1)}/;
     $result ~~ s:perl5:g/(&\#[xX]([0-9a-fA-F]+);?)/{my $c = hex($2); $c < 256 ?? chr($c) :: $1}/;
     $result ~~ s:perl5:g/(&(\w+);?)/{%entity_to_char{$2} // $1}/;
@@ -303,21 +304,23 @@ my %subst;  # compiled encoding regexps
 sub encode_entities (Str $string, ?$unsafe_chars) is export
 {
     my $result = $string;
-    #if ($string.defined and $unsafe_chars.length) {
-    #    unless (exists %subst{$unsafe_chars}) {
-    #        # Because we can't compile regex we fake it with a cached sub
-    #        my $code = "sub {$string =~ s:perl5:g/([$string])/{\%char_to_entity{\$1} || num_entity(\$1)}/; return $string}";
-    #        %subst{$unsafe_chars} = eval $code;
-    #        die( 
-    #            $! ~ " while trying to turn range: \"$string\"\n "
-    #               ~ "into code: $code\n "
-    #        ) if $!;
-    #    }
-    #    %subst{$unsafe_chars}($string);
-    #} else {
+    if ($string.defined && $unsafe_chars.defined) {
+        #unless (exists %subst{$unsafe_chars}) {
+        #    # Because we can't compile regex we fake it with a cached sub
+        #    my $code = "sub {$string =~ s:perl5:g/([$string])/{\%char_to_entity{\$1} || num_entity(\$1)}/; return $string}";
+        #    %subst{$unsafe_chars} = eval $code;
+        #    die( 
+        #        $! ~ " while trying to turn range: \"$string\"\n "
+        #           ~ "into code: $code\n "
+        #    ) if $!;
+        #}
+        #%subst{$unsafe_chars}($string);
+        $result ~~ s:perl5:g/([$unsafe_chars])/{%char_to_entity{$1} // num_entity($1)}/;
+    }
+    else {
         # Encode control chars, high bit chars and '<', '&', '>', '"'
         $result ~~ s:perl5:g/([^\n\r\t !\#\$%\'-;=?-~])/{%char_to_entity{$1} // num_entity($1)}/;
-    #}
+    }
     return $result;
 }
 

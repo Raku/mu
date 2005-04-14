@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 6;
+#plan 6;
 
 use_ok('HTML::Entities');
 
@@ -29,11 +29,21 @@ $a = "<&>";
 is encode_entities_numeric($a), "&#x3C;&#x26;&#x3E;",
     '... or encode them numerically, if desired.';
 
-=head
+$a = "V&aring;re norske tegn b&oslash;r &#230;res";
+decode_entities($a);
+
+todo_is($a, "Våre norske tegn bør æres",
+    'Decoding entities should work in void context');
+
+encode_entities($a);
+todo_is($a, "V&aring;re norske tegn b&oslash;r &aelig;res",
+    '... and encoding entities should also work in void context');
 
 $a = "abcdef";
-print "ok 6\n" if encode_entities($a, 'a-c') eq "&#97;&#98;&#99;def";
+is encode_entities($a, 'a-c'), "&#97;&#98;&#99;def",
+    'We should be able to include the range of characters to encode.';
 
+=head
 
 # See how well it does against rfc1866...
 $ent = $plain = "";
