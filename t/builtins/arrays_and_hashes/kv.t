@@ -26,12 +26,6 @@ Basic C<kv> tests, see S29.
     is(~@kv, "0 a 1 b 2 c 3 d", 'kv(@array) has no inner list');
 }
 
-{ # check method on in-place array (ref) usage
-    my @kv = eval '<a b c d>.kv';
-    todo_is +@kv, 8, 'kv(@array) returns the correct number of elems';
-    todo_is ~@kv, "0 a 1 b 2 c 3 d", 'kv(@array) has no inner list';
-} 
-
 # L<S29/"Perl6::Hashes" /"kv"/>
 { # check the invocant form
     my %hash = (a => 1, b => 2, c => 3, d => 4);
