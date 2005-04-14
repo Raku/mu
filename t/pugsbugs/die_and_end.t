@@ -14,9 +14,10 @@ close $*ERR;
 # END {} run first? Or will this one? And how will that affect 
 # the test?
 
-skip(1, 'END {} blocks are not printing???');
+END { pass("end block reached") }
 
-#die "punt";
-#END { pass("end block reached") }
+exit; # same as die() -- but Harness doesn't like a failed exit code
+
+fail("exit did not work");
 
 
