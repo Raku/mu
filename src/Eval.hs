@@ -418,22 +418,20 @@ reduce env exp@(Syn name exps) = case name of
         val     <- enterEvalContext "Str" exp
         str     <- fromVal val
         p5      <- fromAdverb hv ["p5", "perl5", "P5", "Perl5"]
+        p5flags <- fromAdverb hv ["p5", "perl5", "P5", "Perl5"]
         flag_g  <- fromAdverb hv ["g", "global"]
         flag_i  <- fromAdverb hv ["i", "ignorecase"]
-        flag_m  <- fromAdverb hv ["m", "multiline"]
-        flag_s  <- fromAdverb hv ["s", "singleline"]
-        flag_x  <- fromAdverb hv ["x", "extended"]
         when (not p5) $ do
             retError "Perl 6 rules is not implemented yet, use :p5" (Val val)
         retVal $ VRule $ MkRule
             { rxRegex  = mkRegexWithPCRE (encodeUTF8 str) $
                 [ pcreUtf8
-                , flag_i `implies` pcreCaseless
-                , flag_m `implies` pcreMultiline
-                , flag_x `implies` pcreExtended
-                , flag_s `implies` pcreDotall
+                , ('i' `elem` p5flags || flag_i) `implies` pcreCaseless
+                , ('m' `elem` p5flags) `implies` pcreMultiline
+                , ('s' `elem` p5flags) `implies` pcreDotall
+                , ('x' `elem` p5flags) `implies` pcreExtended
                 ] 
-            , rxGlobal = flag_g
+            , rxGlobal = ('g' `elem` p5flags || flag_g)
             }
         where
         implies True  = id
