@@ -14,7 +14,7 @@ my @t_good = (
     ~ any('Pugs')
     ~ ' '
     ~ any('-e1', map( {"examples/$_.p6"}<
-  fp
+  fp/fp
   hanoi
   junctions/1
   junctions/all-all
