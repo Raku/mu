@@ -413,16 +413,34 @@ reduce env exp@(Syn name exps) = case name of
         -- ignore val
         retVal val
     "rx" -> do
-        let [exp, Val (VBool g)] = exps
+        let [exp, adverbs] = exps
+        hv      <- fromVal =<< evalExp adverbs
         val     <- enterEvalContext "Str" exp
         str     <- fromVal val
+        p5      <- fromAdverb hv ["p5", "perl5"]
+        flag_g  <- fromAdverb hv ["g", "global"]
+        flag_i  <- fromAdverb hv ["i", "ignorecase"]
+        when (not p5) $ do
+            retError "Perl 6 rules is not implemented yet, use :p5" (Val val)
         retVal $ VRule $ MkRule
-            { rxRegex  = mkRegex $ encodeUTF8 str
-            , rxGlobal = g
+            { rxRegex  = mkRegexWithPCRE (encodeUTF8 str) $
+                [ flag_i `implies` pcreCaseless
+                , pcreExtended      -- Always assume /x
+                , pcreDotall        -- . matchs \n
+                , pcreDollarEndonly -- $ does not match \n$
+                ] 
+            , rxGlobal = flag_g
             }
+        where
+        implies True  = id
+        implies False = const 0
+        fromAdverb _ [] = fromVal undef
+        fromAdverb hv (k:ks) = case lookup k hv of
+            Just v  -> fromVal v
+            Nothing -> fromAdverb hv ks
     "subst" -> do
-        let [exp, g, subst] = exps
-        (VRule rx)  <- reduce env (Syn "rx" [exp, g])
+        let [exp, subst, adverbs] = exps
+        (VRule rx)  <- reduce env (Syn "rx" [exp, adverbs])
         retVal $ VSubst (rx, subst)
     "is" -> do
         retEmpty

@@ -14,8 +14,23 @@ module RRegex (
     Regex,
     mkRegex,
     mkRegexWithOpts,
+    mkRegexWithPCRE,
     matchRegex,
-    matchRegexAll
+    matchRegexAll,
+
+    -- Re-exported from PCRE
+    pcreCaseless,   --  case insensitive mathing
+    pcreMultiline,  --  ^ and $ match newline as well as beginning and end of string
+    pcreDotall,     --  dot matches everything. including newline
+    pcreExtended,  
+    pcreAnchored, 
+    pcreDollarEndonly, 
+    pcreExtra, 
+    pcreNotbol, 
+    pcreNoteol, 
+    pcreUngreedy,   --  matches are not greedy by default
+    pcreNotempty,   --  refuse to match empty string
+    pcreUtf8,       --  UTF-8 semantics
   ) where
 
 import Prelude
@@ -32,6 +47,12 @@ import Array
 -- is the default everywhere else.
 
 mkRegex :: String -> Regex
+
+-- | Makes a regular expression with PCRE flags
+mkRegexWithPCRE
+   :: String  -- ^ The regular expression to compile
+   -> [Int]   -- ^ Flags
+   -> Regex   -- ^ Returns: the compiled regular expression
 
 -- | Makes a regular expression, where the multi-line and
 -- case-sensitve options can be changed from the default settings.
@@ -64,11 +85,15 @@ matchRegexAll
 		-- >         everything after the match,
 		-- >         subexpression matches )
 
+mkRegexWithPCRE s flags = unsafePerformIO $
+    compile s (sum flags) >>= \x -> case x of
+        Left (i, err) -> fail $
+            "PCRE Regular Expression Error:\n" ++ s ++ "\n"
+            ++ replicate i ' ' ++ "^ " ++ err
+        Right p -> return p
+
 mkRegex s = mkRegexWithOpts s False True
-mkRegexWithOpts s single_line case_sensitive = unsafePerformIO $
-            compile s (pcreUtf8 + newline + igcase) >>= \x -> case x of
-                Left (i,err) -> fail $ "PCRE Regular Expression Error:\n" ++ s ++ "\n" ++ replicate i ' ' ++ "^ " ++ err
-                Right p -> return p
+mkRegexWithOpts s single_line case_sensitive = mkRegexWithPCRE s [pcreUtf8, newline, igcase]
       where
 	newline | single_line = pcreMultiline
 		| otherwise   = 0

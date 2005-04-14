@@ -787,17 +787,17 @@ parseParamList = parseParenParamList <|> parseNoParenParamList
 parseParenParamList = try $ do
     params <- option Nothing $ do
         return . Just =<< parens parseNoParenParamList
-    block       <- option [] ruleAdverb
+    block       <- option [] ruleAdverbBlock
     when (isNothing params && null block) $ fail ""
     let (inv, norm) = maybe ([], []) id params
     -- XXX we just append the adverbial block onto the end of the arg list
     -- it really goes into the *& slot if there is one. -lp
     processFormals [inv, norm ++ block]
 
-ruleAdverb = tryRule "adverb" $ do 
+ruleAdverbBlock = tryRule "adverbial block" $ do 
     char ':'
     rblock <- ruleBlockLiteral
-    next <- option [] ruleAdverb
+    next <- option [] ruleAdverbBlock
     return (rblock:next)
 
 parseNoParenParamList = do
@@ -922,28 +922,30 @@ arrayLiteral = do
     -- return $ App "&prefix:\\" [] [Syn "cxt" [Val (VStr "List"), Syn "," items]]
     return $ Syn "\\[]" [Syn "," items]
 
-pairLiteral = try $
-    do
-	key <- identifier
-	symbol "=>"
-	val <- parseTerm
-	return $ App "&infix:=>" [Val (VStr key), val] []
-    <|>
-    do
-	string ":"
-	key <- many1 wordAny
-	val <- option (Val $ VInt 1) valuePart
-	return $ App "&infix:=>" [Val (VStr key), val] []
-	where
-	valuePart =
-	    do{ skipMany1 (satisfy isSpace); option (Val $ VInt 1) $ do{ symbol "."; valueExp } }
-	    <|>
-	    valueExp
-	valueExp =
-	    parens ruleExpression
-	    <|> arrayLiteral
-	    <|> qwLiteral
-	    -- <|> ruleStandaloneBlock -- :key{ k1 => val }
+pairLiteral = tryChoice [ pairArrow, pairAdverb ]
+
+pairArrow = do
+    key <- identifier
+    symbol "=>"
+    val <- parseTerm
+    return (Val (VStr key), val)
+    return $ App "&infix:=>" [Val (VStr key), val] []
+
+pairAdverb = do
+    string ":"
+    key <- many1 wordAny
+    val <- option (Val $ VInt 1) (valueDot <|> valueExp)
+    return $ App "&infix:=>" [Val (VStr key), val] []
+    where
+    valueDot = do
+        skipMany1 (satisfy isSpace)
+        symbol "."
+        option (Val $ VInt 1) $ valueExp
+    valueExp = choice
+        [ parens ruleExpression
+        , arrayLiteral
+        , qwLiteral
+        ]
 
 rxInterpolator end = choice
     [ qqInterpolatorVar end, rxInterpolatorChar, ruleVerbatimBlock ]
@@ -1003,28 +1005,30 @@ quotedDelim ch = choice
     , try $ do { string "\\\\"; return '\\' }
     ]
 
+ruleAdverbHash = do
+    pairs <- many pairAdverb
+    return $ Syn "\\{}" [Syn "," pairs]
+
 substLiteral = try $ do
     symbol "s"
-    symbol ":perl5"
-    isGlobal <- option False $ do { symbol ":g"; return True }
-    ch <- anyChar
+    adverbs <- ruleAdverbHash
+    ch      <- anyChar
     let endch = balancedDelim ch
-    expr <- interpolatingStringLiteral endch rxInterpolator
+    expr    <- interpolatingStringLiteral endch rxInterpolator
     char endch
-    ch <- if ch == endch then return ch else do { whiteSpace ; anyChar }
+    ch      <- if ch == endch then return ch else do { whiteSpace ; anyChar }
     let endch = balancedDelim ch
-    subst <- interpolatingStringLiteral endch qqInterpolator
+    subst   <- interpolatingStringLiteral endch qqInterpolator
     char endch
-    return $ Syn "subst" [expr, Val $ VBool isGlobal, subst]
+    return $ Syn "subst" [expr, subst, adverbs]
 
 rxLiteral = try $ do
     symbol "rx"
-    symbol ":perl5"
-    isGlobal <- option False $ do { symbol ":g"; return True }
-    ch <- anyChar
-    expr <- interpolatingStringLiteral (balancedDelim ch) rxInterpolator
-    char (balancedDelim ch)
-    return $ Syn "rx" [expr, Val $ VBool isGlobal]
+    adverbs <- ruleAdverbHash
+    ch      <- anyChar
+    expr    <- interpolatingStringLiteral (balancedDelim ch) rxInterpolator
+    char $ balancedDelim ch
+    return $ Syn "rx" [expr, adverbs]
 
 qwLiteral = try $ do
     str <- qwText
