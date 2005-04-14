@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-#plan 11;
+plan 6;
 
 use_ok('HTML::Entities');
 
@@ -16,16 +16,20 @@ $a = encode_entities($a);
 is $a, "V&aring;re norske tegn b&oslash;r &aelig;res",
     '... and encoding entities should work';
 
-=head
+$a = decode_entities($a);
+$a = encode_entities_numeric($a);
 
-decode_entities($a);
-encode_entities_numeric($a);
-
-print "ok 3\n" if $a eq "V&#xE5;re norske tegn b&#xF8;r &#xE6;res";
+is $a, "V&#xE5;re norske tegn b&#xF8;r &#xE6;res", 
+    '... and encode_entities_numeric should also work.';
 
 $a = "<&>";
-print "ok 4\n" if encode_entities($a) eq "&lt;&amp;&gt;";
-print "ok 5\n" if encode_entities_numeric($a) eq "&#x3C;&#x26;&#x3E;";
+is encode_entities($a), "&lt;&amp;&gt;", 
+    'We should be able to encode basic HTML entities';
+$a = "<&>";
+is encode_entities_numeric($a), "&#x3C;&#x26;&#x3E;",
+    '... or encode them numerically, if desired.';
+
+=head
 
 $a = "abcdef";
 print "ok 6\n" if encode_entities($a, 'a-c') eq "&#97;&#98;&#99;def";

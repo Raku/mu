@@ -289,8 +289,18 @@ sub decode_entities($string) is export
     return $result;
 }
 
+sub encode_entities_numeric (Str $string) returns Str {
+    # XXX temp does not yet appear to be working
+    #temp %char_to_entity;
+    my %temp        = %char_to_entity;
+    %char_to_entity = ();
+    my $result      = encode_entities($string);
+    %char_to_entity = %temp;
+    return $result;
+}
+
 my %subst;  # compiled encoding regexps
-sub encode_entities ($string, ?$unsafe_chars) is export
+sub encode_entities (Str $string, ?$unsafe_chars) is export
 {
     my $result = $string;
     #if ($string.defined and $unsafe_chars.length) {
@@ -306,23 +316,16 @@ sub encode_entities ($string, ?$unsafe_chars) is export
     #    %subst{$unsafe_chars}($string);
     #} else {
         # Encode control chars, high bit chars and '<', '&', '>', '"'
-        #$string ~~ s:perl5:g/([^\n\r\t !\#\$%\'-;=?-~])/{%char_to_entity{$1} || num_entity($1)}/;
         $result ~~ s:perl5:g/([^\n\r\t !\#\$%\'-;=?-~])/{%char_to_entity{$1} // num_entity($1)}/;
     #}
     return $result;
 }
 
-1;
-#sub encode_entities_numeric {
-#    local %char_to_entity;
-#    return &encode_entities;   # a goto &encode_entities wouldn't work
-#}
-#
-#
 sub num_entity($char) {
     '&#x' ~ uc(sprintf '%x;', ord($char));
 }
 
+1;
 # Set up aliases
 #*encode = \&encode_entities;
 #*encode_numeric = \&encode_entities_numeric;
@@ -356,6 +359,12 @@ Prints this out:
  papier-m&acirc;ch&eacute; r&eacute;sum&eacute;
 
 =head1 DESCRIPTION
+
+B<Note>:  at the current time, this is a work in progress to test Pugs'
+features.  It does not (yet) behave quite like the old 
+L<HTML::Entities|HTML::Entities>.  Until we have it stabilized, these
+docs will not be updated.  The tests that are passing represent the
+current working features.
 
 This module deals with encoding and decoding of strings with HTML
 character entities.  The module provides the following functions:

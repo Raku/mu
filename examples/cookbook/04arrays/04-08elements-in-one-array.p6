@@ -21,6 +21,12 @@ for @a -> $elem {
 }
 say @aonly;
 
+@a = (1,2,3,4,5);
+@b = (3,5);
+
+# for numbers
+@aonly = grep { $_ == none(@b) } @a;
+say @aonly;
 # for strings
 @a = ('foo', 'bar', 'baz');
 @b = ('bar');
