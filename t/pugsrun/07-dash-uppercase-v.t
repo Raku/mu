@@ -61,8 +61,7 @@ sub run_pugs ($c) {
 }
 
 my $pugs_config = run_pugs('-V');
-ok( ($pugs_config ~~ rx:perl5/^This is Perl6 User's Golfing System/), "Got some config data")
-  or diag $pugs_config;
+like( $pugs_config, rx:perl5/version.6\.\d+\.\d+,/, "Got some config data");
 
 # Generalize this:
 for @config -> $item {
@@ -80,7 +79,7 @@ is $nonexistent, "\tunknown_option_that_does_not_exist: UNKNOWN\n", "Nonexistent
 
 # -V:foo vs. -V foo
 my $fullversion = run_pugs('-V unknown_option_that_does_not_exist');
-ok( ($fullversion ~~ rx:perl5/^This is Perl6 User's Golfing System/), "-V foo vs. -V:foo")
+ok( ($fullversion ~~ rx:perl5/^This.is.Perl6.User's.Golfing.System/), "-V foo vs. -V:foo")
   or diag $fullversion;
 
 
