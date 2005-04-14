@@ -9,7 +9,7 @@ Array refs
 
 =cut
 
-plan 41;
+plan 42;
 
 # array_ref of strings
 
@@ -93,3 +93,7 @@ is     $array9[0],          42, "recursive array access (0)";
 is     $array9[1][0],       42, "recursive array access (1)";
 is     $array9[1][1][0],    42, "recursive array access (2)";
 is     $array9[1][1][1][0], 42, "recursive array access (3)";
+
+# changing nested array
+my $array10 = [[2]];
+eval_is('$array10[0][0] = 6; $array10[0][0]', 6, "changing nested array");
