@@ -47,7 +47,7 @@ sub set_delimiter(Str $delimiter) is export {
 # set GET and POST parameters encoding
 sub set_url_encoding(Str $encoding) is export {
     unless $encoding eq ('iso-8859-1' | 'utf-8') {
-	die "Currently iso-8859-1 and utf-8 encodings supported";
+    die "Currently iso-8859-1 and utf-8 encodings supported";
     }
     $URL_ENCODING = $encoding;
 }
@@ -86,17 +86,17 @@ sub url_decode (Str $to_decode) returns Str is export {
     my $decoded = $to_decode;
     $decoded ~~ s:perl5:g/\+/ /;
     given $URL_ENCODING {
-	when 'iso-8859-1' {
-	    $decoded ~~ s:perl5:g/%([\da-fA-F][\da-fA-F])/{chr(hex($1))}/;
-	}
-	when 'utf-8' {
-	    $decoded ~~ s:perl5:g/(?i)%(F[CD])%([8-9AB][\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])/{chr((hex($1)+&1)*1073741824+(hex($2)+&63)*16777216+(hex($3)+&63)*262144+(hex($4)+&63)*4096+(hex($5)+&63)*64+(hex($6)+&63))}/;
-	    $decoded ~~ s:perl5:g/(?i)%(F[8-B])%([8-9AB][\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])/{chr((hex($1)+&3)*16777216+(hex($2)+&63)*262144+(hex($3)+&63)*4096+(hex($4)+&63)*64+(hex($5)+&63))}/;
-	    $decoded ~~ s:perl5:g/(?i)%(F[0-7])%([8-9AB][\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])/{chr((hex($1)+&7)*262144+(hex($2)+&63)*4096+(hex($3)+&63)*64+(hex($4)+&63))}/;
-	    $decoded ~~ s:perl5:g/(?i)%(E[\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])/{chr((hex($1)+&15)*4096+(hex($2)+&63)*64+(hex($3)+&63))}/;
-	    $decoded ~~ s:perl5:g/(?i)%([CD][\dA-F])%([8-9AB][\dA-F])/{chr((hex($1)+&31)*64+(hex($2)+&63))}/;
-	    $decoded ~~ s:perl5:g/(?i)%([0-7][\dA-F])/{chr(hex($1))}/;
-	}
+        when 'iso-8859-1' {
+            $decoded ~~ s:perl5:g/%([\da-fA-F][\da-fA-F])/{chr(hex($1))}/;
+        }
+        when 'utf-8' {
+            $decoded ~~ s:perl5:g/(?i)%(F[CD])%([8-9AB][\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])/{chr((hex($1)+&1)*1073741824+(hex($2)+&63)*16777216+(hex($3)+&63)*262144+(hex($4)+&63)*4096+(hex($5)+&63)*64+(hex($6)+&63))}/;
+            $decoded ~~ s:perl5:g/(?i)%(F[8-B])%([8-9AB][\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])/{chr((hex($1)+&3)*16777216+(hex($2)+&63)*262144+(hex($3)+&63)*4096+(hex($4)+&63)*64+(hex($5)+&63))}/;
+            $decoded ~~ s:perl5:g/(?i)%(F[0-7])%([8-9AB][\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])/{chr((hex($1)+&7)*262144+(hex($2)+&63)*4096+(hex($3)+&63)*64+(hex($4)+&63))}/;
+            $decoded ~~ s:perl5:g/(?i)%(E[\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])/{chr((hex($1)+&15)*4096+(hex($2)+&63)*64+(hex($3)+&63))}/;
+            $decoded ~~ s:perl5:g/(?i)%([CD][\dA-F])%([8-9AB][\dA-F])/{chr((hex($1)+&31)*64+(hex($2)+&63))}/;
+            $decoded ~~ s:perl5:g/(?i)%([0-7][\dA-F])/{chr(hex($1))}/;
+        }
     }
     return $decoded;
 }
@@ -168,7 +168,7 @@ if ($!) {
     print header;
     say "There was an error getting the params:\n\t" ~ $!;
     exit();
-}	
+}    
 
 =pod
 
