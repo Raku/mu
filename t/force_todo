@@ -48,7 +48,8 @@ t/pugsbugs/parsing_my.t 1
 t/pugsbugs/segfault_nan_calculation.t 1
 
 ## t/pugsrun
-t/pugsrun/01-multiple-e.t 7
+# Worksforme (CORION)
+# t/pugsrun/01-multiple-e.t 7
 
 ## t/subroutines
 t/subroutines/currying.t 6 7
