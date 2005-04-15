@@ -3,8 +3,27 @@ use strict;
 use warnings;
 use Cwd;
 use File::Spec;
+use File::Temp qw(tempdir);
 
-my $base = shift || Cwd::cwd();
+=pod
+
+=head1 DOCUMENTATION
+
+This file seems to determine some configuration.
+
+  util/config_h.pl GHC BASEDIR
+
+  GHC     - Location and flags of the ghc executable
+              (defaults to 'ghc')
+  BASEDIR - Base directory of the Pugs installation 
+              (defaults to current directory)
+
+=cut
+
+my ($ghc,$base) = @ARGV;
+
+$ghc ||= $ENV{GHC} || 'ghc';
+$base ||= Cwd::cwd();
 
 open IN, "< $base/lib/Perl6/Pugs.pm" or die $!;
 open OUT, "> $base/src/pugs_config.h" or die $!;
@@ -88,26 +107,39 @@ close OUT;
 
 sub try_compile {
     my $code = shift;
-    my $temp = File::Spec->catfile(File::Spec->tmpdir, "pugs-tmp-$$");
+    
+    my $dir = tempdir( CLEANUP => 1 );
+    my $temp = File::Spec->catfile($dir, "compile-test");
 
     eval {
-        open TMP, "> $temp.hs";
-        print TMP $code;
-        close TMP;
-        system(join(" ",
-            ($ENV{GHC} || 'ghc'), @_,
-            "--make", "-v0",
-            -o => "$temp.exe",
-            "$temp.hs"
-        ));
+      open TMP, "> $temp.hs"
+        or die "Couldn't create '$temp.hs': $!";
+      print TMP $code
+        or die "Couldn't write to '$temp.hs': $!";
         
+      close TMP
+        or die "Couldn't close '$temp.hs': $!";
+      
+      my $command = join(" ",
+              $ghc, @_,
+              "--make", "-v0",
+              -o => "$temp.exe",
+              "$temp.hs");
+      system($command) == 0
+        or die "Couldn't run '$command': $!";
+    };
+    if ($@) {
+      warn $@;
+      return;
     };
 
     my $ok = -e "$temp.exe";
-    unlink("$temp.exe");
-    unlink("$temp.hs");
-    unlink("$temp.hi");
-    unlink("$temp.o");
+    for ("$temp.exe", "$temp.hs", "$temp.hi",  "$temp.o") {
+      if (-f $_) {
+        unlink $_
+          or warn "Couldn't remove $_: $!";
+      };
+    };
     return $ok;
 }
 
