@@ -1032,7 +1032,15 @@ qLiteral = do -- This should include q:anything// as well as '' "" <>
     expr <- interpolatingStringLiteral (balancedDelim ch) (qInterpolator flags)
     char (balancedDelim ch)
     case qfSplitWords flags of
-        'y' -> return $ App "&prefix:\\" [] [App "&split" [] [(Val .  VStr) " ", expr]]
+        'y' -> return $ App "&prefix:\\" []
+            [App "&split" []
+                [ Syn "rx"
+                    [ Val (VStr "\\s+")
+                    , Syn "\\{}" [Syn "," [ Val (VPair (VStr "P5", VInt 1)) ]]
+                    ]
+                , expr
+                ]
+            ]
         'n' -> return expr
         _   -> fail ""
 

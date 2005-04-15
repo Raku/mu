@@ -17,7 +17,6 @@ Characters that should be ignored are:
 	\r
 	\n
 	\x20
-	\xA0
 
 Most likely there are more. James tells me that
 the maximum Unicode char is \x10FFFF , so maybe
@@ -30,7 +29,7 @@ contain whitespace.
 =cut
 
 my @list = <a b c d>;
-my @separators = ("\t","\r","\n"," ","\a0");
+my @separators = ("\t","\r","\n"," "); # -- is "\xA0" needed too?
 
 plan +@separators*2;
 
