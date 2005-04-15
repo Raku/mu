@@ -1091,6 +1091,15 @@ instance Scalar.Class IScalarLazy where
     fetch = return . maybe undef id
     store _ v = retConstError v
 
+instance Scalar.Class IScalarCwd where
+    iType _ = "Scalar::Cwd"
+    fetch _ = do
+        str <- liftIO $ getCurrentDirectory
+	return $ VStr str
+    store _ val = do
+        str <- fromVal val
+	liftIO $ setCurrentDirectory str
+
 instance Scalar.Class VScalar where
     iType _ = "Scalar::Const"
     fetch = return
@@ -1122,6 +1131,7 @@ type IHash   = HTable.HashTable VStr (IVar VScalar)
 type IScalar = IORef Val
 type ICode   = IORef VCode
 data IHashEnv deriving (Typeable) -- phantom types! fun!
+data IScalarCwd deriving (Typeable) -- phantom types! fun!
 type IScalarProxy = (Eval VScalar, (VScalar -> Eval ()))
 type IScalarLazy = Maybe VScalar
 

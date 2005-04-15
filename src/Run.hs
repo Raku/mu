@@ -102,6 +102,7 @@ prepareEnv name args = do
         , SymVar SGlobal "$!"           $ MkRef errSV
         , SymVar SGlobal "$/"           $ MkRef matchAV
         , SymVar SGlobal "%*ENV"        $ hashRef (undefined :: IHashEnv)
+	, SymVar SGlobal "$*CWD"        $ scalarRef (undefined :: IScalarCwd)
         -- XXX What would this even do?
         -- , SymVar SGlobal "%=POD"        (Val . VHash $ emptyHV)
         , SymVar SGlobal "@=POD"        $ MkRef $ constArray []
