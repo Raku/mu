@@ -157,10 +157,6 @@ operators with the :to adverb added.
 		EOF
 
 When defined in this way the whitespace at the start of each line will be 
-removed up to the same amount of indentation used by the closing delimiter.
-
-
-# XXX - question: How equal are bunches of spaces to tabs?
-# 	-- I'd say that's a question for perl6lang
+removed up to the same amount of indentation used by the closing delimiter, a tab character being equal to 8 normal spaces.
 
 =cut
