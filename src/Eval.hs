@@ -417,12 +417,12 @@ reduce env exp@(Syn name exps) = case name of
         hv      <- fromVal =<< evalExp adverbs
         val     <- enterEvalContext "Str" exp
         str     <- fromVal val
-        p5      <- fromAdverb hv ["p5", "perl5", "P5", "Perl5"]
-        p5flags <- fromAdverb hv ["p5", "perl5", "P5", "Perl5"]
+        p5      <- fromAdverb hv ["P5", "Perl5", "perl5"]
+        p5flags <- fromAdverb hv ["P5", "Perl5", "perl5"]
         flag_g  <- fromAdverb hv ["g", "global"]
         flag_i  <- fromAdverb hv ["i", "ignorecase"]
         when (not p5) $ do
-            retError "Perl 6 rules is not implemented yet, use :p5" (Val val)
+            retError "Perl 6 rules is not implemented yet, use :P5" (Val val)
         retVal $ VRule $ MkRule
             { rxRegex  = mkRegexWithPCRE (encodeUTF8 str) $
                 [ pcreUtf8
