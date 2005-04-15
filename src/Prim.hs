@@ -29,6 +29,9 @@ op0 "!"  = return . VJunc . Junc JNone Set.empty . Set.fromList
 op0 "&"  = return . opJuncAll
 op0 "^"  = return . opJuncOne
 op0 "|"  = return . opJuncAny
+op0 "want"  = const $ do
+    cxt <- asks envContext
+    return $ VStr cxt
 op0 "time"  = const $ do
     clkt <- liftIO getClockTime
     return $ VInt $ toInteger $ tdSec $ diffClockTimes clkt epochClkT
@@ -1243,6 +1246,7 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Str       pre     ref     (rw!Any)\
 \\n   Str       pre     isa     (rw!Any, Str)\
 \\n   Num       pre     time    ()\
+\\n   Str       pre     want    ()\
 \\n   Str       pre     File::Spec::cwd  ()\
 \\n   Bool      pre     print   (IO)\
 \\n   Bool      pre     print   (IO: List)\
