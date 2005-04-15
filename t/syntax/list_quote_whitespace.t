@@ -26,7 +26,6 @@ list via IsSpace or \s on the fly.
 Of course, in the parsed result, no item should
 contain whitespace.
 
-
 C<\xA0> is specifically an I<nonbreaking> whitespace
 character and thus should B<not> break the list.
 
@@ -50,7 +49,7 @@ for @nonseparators -> $sep {
   my $ex = @list.join($sep);
   my $str = "<" ~$ex~ ">";
   my @res = eval $str;
-  
+
   my $vis = sprintf "%02x", ord $sep;
   is( @res, @list.join($sep), "'\x$vis' does not split in a whitespace quoted list")
 };
