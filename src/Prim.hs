@@ -249,6 +249,10 @@ op1 "unlink" = \v -> do
     vals <- fromVals v
     rets <- mapM (doBoolIO removeFile) vals
     return $ VInt $ sum $ map bool2n rets
+op1 "readdir" = \v -> do
+    path  <- fromVal v
+    files <- liftIO $ getDirectoryContents path
+    return . VList $ map VStr files
 op1 "slurp" = \v -> do
     val         <- fromVal v
     case val of
@@ -1260,6 +1264,7 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Any       pre     accept  (Any)\
 \\n   List      pre     slurp   (?Str=$_)\
 \\n   List      pre     slurp   (Handle)\
+\\n   List      pre     readdir (Str)\
 \\n   Bool      pre     system  (Str)\
 \\n   Bool      pre     system  (Str: List)\
 \\n   Bool      pre     binmode (IO: ?Int=1)\
