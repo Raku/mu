@@ -106,6 +106,14 @@ Tests quoting constructs as defined in L<S02/Literals>
 	is(@q[1], '$bar', '...');
 };
 
+{ # angle brackets L<S02/Literals /the qw.*?quote operator.*?bracketed form/>
+	my @q = ();
+	eval '@q = < $foo $bar >';
+	is(+@q, 2, "<> behaves the same way, with leading (and trailing) whitespace");
+	is(@q[0], '$foo', 'for interpolation too');
+	is(@q[1], '$bar', '...');
+};
+
 { # adverb variation
 	my @q = ();
 	eval '@q = (q:w/$foo $bar/)';
@@ -138,7 +146,7 @@ Tests quoting constructs as defined in L<S02/Literals>
 	todo_is(+@q1, 4, "4 elements in unquoted «» list");
 	todo_is(@q1[2], "bar", '$gorch was exploded');
 	todo_is(@q1[3], "BAR", '$bar was interpolated');
-	
+
 	eval '@q2 = «$foo "$gorch" \'$bar\'»';
 	todo_is(+@q2, 3, "3 elementes in sub quoted «» list");
 	todo_is(@q2[1], $gorch, 'second element is both parts of $gorch, interpolated');
@@ -147,7 +155,7 @@ Tests quoting constructs as defined in L<S02/Literals>
 
 { # qq:t L<S02/Literals /Heredocs are no longer written/>
 	my @q = ();
-	
+
 	eval '@q = qq:t/FOO/;
 blah
 $bar
@@ -181,4 +189,3 @@ FOO
 	todo_is(+@q, 1, "q:0// is singular");
 	todo_is(@q[0], "foo\\\\bar\$foo", "special chars are meaningless"); # double quoting is to be more explicit
 };
-
