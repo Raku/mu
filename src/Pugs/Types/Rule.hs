@@ -1,0 +1,14 @@
+{-# OPTIONS_GHC -fglasgow-exts #-}
+
+module Pugs.Types.Rule where
+
+import {-# SOURCE #-} Pugs.AST
+import Pugs.Internals
+import Pugs.Types
+
+class (Typeable a) => Class a where
+    iType :: a -> VStr
+    iType _ = "Rule"
+    fetch :: a -> Eval VRule
+    store :: a -> VRule -> Eval ()
+    match :: a -> VStr -> Eval (MatchResult Val)

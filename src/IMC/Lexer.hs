@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -fglasgow-exts #-}
 
-module IMC.Lexer where
+module Pugs.IMC.Lexer where
 import Internals
 import Rule hiding (letter)
 

@@ -14,18 +14,18 @@
 -}
 
 module Main where
-import Internals
-import Config
-import Run
-import AST
-import Types
-import Eval
-import External
-import Shell
-import Parser
-import Help
-import Pretty
-import Compile
+import Pugs.Internals
+import Pugs.Config
+import Pugs.Run
+import Pugs.AST
+import Pugs.Types
+import Pugs.Eval
+import Pugs.External
+import Pugs.Shell
+import Pugs.Parser
+import Pugs.Help
+import Pugs.Pretty
+import Pugs.Compile
 import IO
 import qualified Data.Map as Map
 
@@ -133,7 +133,7 @@ doCompile backend = doParseWith $ \exp _ -> do
     str <- compile backend exp
     writeFile "dump.ast" str
 
-doParseWith :: (AST.Exp -> FilePath -> IO a) -> FilePath -> String -> IO a
+doParseWith :: (Pugs.AST.Exp -> FilePath -> IO a) -> FilePath -> String -> IO a
 doParseWith f name prog = do
     env <- emptyEnv []
     runRule env (f' . envBody) ruleProgram name $ decodeUTF8 prog

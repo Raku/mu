@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -fglasgow-exts -fth #-}
 
-module IMC.Compile where
+module Pugs.IMC.Compile where
 
 import Rule
 import Lexer

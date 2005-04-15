@@ -9,7 +9,7 @@
     Deep roots are not reached by the frost.
 -}
 
-module IMC (
+module Pugs.IMC (
     module IMC.Compile,
     yow,
 ) where
