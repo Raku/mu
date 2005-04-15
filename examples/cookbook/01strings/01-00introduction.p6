@@ -2,6 +2,11 @@
 
 use v6;
 
+    # XXX Please note, as these were used wildly inaccurately!
+    # my $foo    # declaration
+    # $foo = 1;  # definition (initialization)
+    # my $foo = 1;  # both, usually called initialization
+
 =head1 NAME
 
 Perl 6 Cookbook: Introduction to Strings
@@ -10,8 +15,12 @@ Perl 6 Cookbook: Introduction to Strings
 
 =head2 Explicit and Implicit Strings
 
-A string can be declared implicitly, by defining an scalar and assigning a 
+A string can be declared implicitly, by declaring a scalar and assigning a 
 quoted value to it:
+
+XXX This is not *declaring* a string. It's also not defining a string. It's
+assigning a string to a scalar. The result is a Scalar, not a Str.
+Which behaves very differently in boolean context!
 
 	my $scalar = 'This is scalar is holding a String';
 
@@ -24,13 +33,14 @@ a non-String to the scalar:
 
 	my Str $string;
 	$string = 1234;               # Error
+        # XXX I think this particular example converts the integer to a string
 	$string = { print "block"; }; # Error
 	$string = 'String';           # Okay
 
 =head2 Variable Interpolation
 
-The simplest way to interpolate variables within a string is to use double
-quotes in the definition:
+The simplest way to interpolate variables within a literal string is to use
+double quotes around the value:
 
 	my ($var1, $var2) = <dog fox>;
 	say "The quick brown $var1 jumps over the lazy $var2";
@@ -49,10 +59,15 @@ characters, and other good stuff:
 	# interpolate special backslash values:
 	print "The quick brown fox\n\tjumps over the lazy dog\n";
 
+XXX Some backslashy escapes work in single quotes too
+
 =head2 Using Alternative Delimiters
 
 It's often useful to use something other than single or double quotes when
 declaring strings. To do so use the q// and qq// quote operators:
+
+XXX I believe the "standard" form is now with square brackets, i.e. q[],
+instead of q//.
 
 	# Single quoted strings
 	say 'I have to escape my \'single quotes\' in this string';
@@ -106,10 +121,14 @@ for instance q:s// can be expressed as qs//.
 	# Interpolate arrays only:
 	say q:a/The quick brown @animal[1] jumps over the lazy @animal[2]/;
 	say qa/The quick brown @animal[1] jumps over the lazy @animal[2]/;
+
+XXX But @animal[1] is not an array, it is an array element.
 	
 	# interpolate hashes only:
 	say q:h/The quick brown %animal{quick} jumps over the.../;
 	say qh/The quick brown %animal{quick} jumps over the.../;
+
+XXX But %animal{quick} is not a hash, it is a hash element.
 
 	# interpolate functions only: both & and () are required
 	say q:f/The quick brown &get_animal('quick') jumps.../;
