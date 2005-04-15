@@ -42,7 +42,7 @@ succeeds:
 my @test_string = ("one", "two", "three"); 
 my @test_int = 1 .. 10;
 
-sub foo (@a) { any(@b).pick() }
+sub foo (@a) { any(@a).pick() }
 
 isa_ok(foo(@test_string), 'Str');
 isa_ok(foo(@test_int), 'Int');
