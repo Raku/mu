@@ -119,19 +119,19 @@ __DATA__
 -}
 
 
-module Config (
+module Pugs.Config (
     config,
     getConfig
 ) where
 
 import qualified Data.Map as Map
-import qualified Help
+import qualified Pugs.Help
 
 config = Map.fromList
 	[#all_definitions#
-	,("pugs_versnum", Help.versnum)
-	,("pugs_version", Help.version)
-	,("pugs_revision", Help.revnum)
+	,("pugs_versnum", Pugs.Help.versnum)
+	,("pugs_version", Pugs.Help.version)
+	,("pugs_revision", Pugs.Help.revnum)
 	]
 
 getConfig :: String -> String

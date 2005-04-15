@@ -11,9 +11,9 @@
     And one white tree.
 -}
 
-module AST where
-import Types
-import Internals
+module Pugs.AST where
+import Pugs.Types
+import Pugs.Internals
 
 type VScalar = Val
 type VList = [Val]
