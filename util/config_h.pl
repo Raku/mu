@@ -94,12 +94,12 @@ sub try_compile {
         open TMP, "> $temp.hs";
         print TMP $code;
         close TMP;
-        system(
+        system(join(" ",
             ($ENV{GHC} || 'ghc'), @_,
             "--make", "-v0",
             -o => "$temp.exe",
             "$temp.hs"
-        );
+        ));
         
     };
 
