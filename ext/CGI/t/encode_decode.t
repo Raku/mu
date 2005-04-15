@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 11;
+plan 25;
 
 =pod
 
@@ -31,8 +31,26 @@ is(url_encode("&~!@#%$^()+=\{\}[]|\\;:'\"<>?/,"),
 
 set_url_encoding('iso-8859-1');
 
-is(url_decode('%E2%82%AC'), chr(0xE2)~chr(0x82)~chr(0xAC), 'got the right decoded string');
+is(url_decode('%E2%82%AC'), chr(0xE2)~chr(0x82)~chr(0xAC), 'got the right decoded string'); # 3 characters
 
 set_url_encoding('utf-8');
 
-is(url_decode('%E2%82%AC'), chr(0x20AC), 'got the right decoded string');
+is(url_decode('%E2%82%AC'), chr(0x20AC), 'got the right decoded string'); # euro, 1 character
+
+is(url_decode('%00'), chr(0), 'got the right decoded string');
+is(url_decode('%7F'), chr(127), 'got the right decoded string');
+is(url_decode('%C2%80'), chr(128), 'got the right decoded string');
+is(url_decode('%DF%BF'), chr(2047), 'got the right decoded string');
+is(url_decode('%E0%A0%80'), chr(2048), 'got the right decoded string');
+#is(url_decode('%EF%BF%BD'), chr(65533), 'got the right decoded string');
+is(url_decode('%F0%90%80%80'), chr(65536), 'got the right decoded string');
+is(url_decode('%F4%8F%BF%BE'), chr(1114110), 'got the right decoded string');
+
+is(url_encode(chr(0)), '%00', 'got the right decoded string');
+is(url_encode(chr(127)), '%7F', 'got the right decoded string');
+is(url_encode(chr(128)), '%C2%80', 'got the right decoded string');
+is(url_encode(chr(2047)), '%DF%BF', 'got the right decoded string');
+is(url_encode(chr(2048)), '%E0%A0%80', 'got the right decoded string');
+#is(url_encode(chr(65533)), '%EF%BF%BD', 'got the right decoded string');
+is(url_encode(chr(65536)), '%F0%90%80%80', 'got the right decoded string');
+is(url_encode(chr(1114110)), '%F4%8F%BF%BE', 'got the right decoded string');
