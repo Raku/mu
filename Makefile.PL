@@ -68,9 +68,10 @@ sub set_postamble {
 	  $ghc_flags .= ' -DPUGS_HAVE_HSPLUGINS=1';
 	}
 
-	if (has_ghc_package('readline')) {
-	  $ghc_flags .= ' -package readline';
-	}
+# XXX - this probing is incorrect.
+#	if (has_ghc_package('readline')) {
+#	  $ghc_flags .= ' -package readline';
+#	}
 
     my $ghc_output = "-o pugs$Config{_exe} src/Main.hs";
 
