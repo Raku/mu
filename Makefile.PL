@@ -67,6 +67,11 @@ sub set_postamble {
 	} else {
 	  $ghc_flags .= ' -DPUGS_HAVE_HSPLUGINS=1';
 	}
+
+	if (has_ghc_package('readline')) {
+	  $ghc_flags .= ' -package readline';
+	}
+	
     my $ghc_output = "-o pugs$Config{_exe} src/Main.hs";
 
     my $pcre = "src/pcre/pcre.o";
@@ -84,7 +89,7 @@ sub set_postamble {
 
     postamble(fixpaths(<< "."));
 $config_h : lib/Perl6/Pugs.pm util/config_h.pl
-	\$(PERL) util/config_h.pl
+	env GHC="$ghc $ghc_flags" \$(PERL) util/config_h.pl
 
 $version_h : .svn/entries util/version_h.pl
 	\$(PERL) util/version_h.pl
