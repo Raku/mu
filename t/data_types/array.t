@@ -9,7 +9,7 @@ Arrays
 
 =cut
 
-plan 57;
+plan 61;
 
 # array of strings
 
@@ -124,21 +124,32 @@ is @array11[-1],'e', "negative index [-1]";
 
 # negative index range
 is ~@array11[-4 .. -2], 'a b c', "negative index [-4 .. -2]";
-@array11[-1]   = 'd';
 
 # negative index as lvalue
-is @array11[-1], 'd', "negative index as lvalue"; 
+@array11[-1]   = 'd';
+is @array11[-1], 'd', "assigns to the correct negative slice index"; 
+is ~@array11,'a b c d', "assignment to neg index correctly alters the array";
+isnt ~@array11,'d a b c e', "assignment to neg index correctly alters the array";
 
+my @array12 = ('a', 'b', 'c', 'd'); 
 # negative index range as lvalue
-@array11[-4 .. -1]   = ('d', 'c', 'b', 'a'); #('a'..'d').reverse
-is ~@array11, 'd c b a', "negative range as lvalue"; 
+@array12[-4 .. -1]   = ('d', 'c', 'b', 'a'); #('a'..'d').reverse
+is ~@array12, 'd c b a', "negative range as lvalue"; 
+isnt ~@array12, 'a b c d a b c d', "negative range as lvalue"; 
 
-# hat trick
+#hat trick
+my @array13 = ('a', 'b', 'c', 'd');
+my @b = 0..3;
+((@b[-3,-2,-1,-4] = @array13)= @array13[-1,-2,-3,-4]);
 
-my @array12 = ('a', 'b', 'c', 'd');
-my @b;
-((@b = @array12[-4,-3,-2,-1])= @array12[-1,-2,-3,-4]);
-is ~@b~@array12, 'd c b aa b c d', "hat trick:
-assign to an empty array from negative range slice
-lvalue in assignment is then lvalue to negatively indexed slice as rvalue"; 
-# also see iblech's t/pugsbugs/array_extending.t
+is ~@b, 
+	'a d c b', 
+	"hat trick:
+	assign to a negatively indexed slice array from array  
+	lvalue in assignment is then lvalue to negatively indexed slice as rvalue"; 
+
+isnt ~@b, 
+	'a b c d 0 1 2 3', 
+	'test for bug in assignment to negatively indexed slice'  
+
+#
