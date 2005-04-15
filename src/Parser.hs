@@ -769,7 +769,7 @@ ruleHashSubscriptBraces = do
     return p
 
 ruleHashSubscriptQW = do
-    exp <- qwLiteral
+    exp <- angleBracketLiteral
     return $ \x -> Syn "{}" [x, exp]
 
 ruleCodeSubscript = tryRule "code subscript" $ do
@@ -893,8 +893,6 @@ ruleLit = choice
     , namedLiteral "Inf"    (VNum $ 1/0)
     , dotdotdotLiteral
     , qLiteral
-    , qqLiteral
-    , qwLiteral
     , rxLiteral
     , substLiteral
     ]
@@ -944,7 +942,7 @@ pairAdverb = do
     valueExp = choice
         [ parens ruleExpression
         , arrayLiteral
-        , qwLiteral
+        , angleBracketLiteral
         ]
 
 rxInterpolator end = choice
@@ -980,25 +978,137 @@ qqInterpolatorChar = do
     nextchar <- escapeCode -- see Lexer.hs
     return (Val $ VStr [nextchar])
 
-qqLiteral = do
-    ch   <- (getDelim "qq" '"')
-    expr <- interpolatingStringLiteral (balancedDelim ch) qqInterpolator
-    char (balancedDelim ch)
+qInterpolateDelimiter end = do
+    char '\\'
+    c <- oneOf (end:"\\")
+    return (Val $ VStr [c])
+
+qInterpolateQuoteConstruct = try $ do
+    string "\\q"
+    flag <- many1 alphaNum
+    char '['
+    expr <- interpolatingStringLiteral (']') (qInterpolator $ getQFlags [flag])
+    char ']'
     return expr
 
-qLiteral = do
-    ch   <- (getDelim "q" '\'')
-    str  <- (many (try $ quotedDelim (balancedDelim ch) <|> noneOf [ balancedDelim ch ]))
-    char (balancedDelim ch)
-    return . Val . VStr $ str
+qInterpolator flags end = choice [
+        closure,
+        backslash,
+        variable
+    ]
+    where
+        closure = if qfInterpolateClosure flags
+            then ruleVerbatimBlock
+            else mzero
+        backslash = case qfInterpolateBackslash flags of
+            'a' -> try qqInterpolatorChar
+               <|> (try qInterpolateQuoteConstruct)
+               <|> (try $ qInterpolateDelimiter end)
+            's' -> try qInterpolateQuoteConstruct
+               <|> (try $ qInterpolateDelimiter end)
+            'n' -> mzero
+            _   -> fail ""
+        variable = try $ do
+            var <- ruleVarNameString
+            if (last var == end) then fail "" else return ()
+            fs <- case head var of
+                '$' -> if qfInterpolateScalar flags
+                    then many qqInterpolatorPostTerm
+                    else fail ""
+                '@' -> if qfInterpolateArray flags
+                    then many1 qqInterpolatorPostTerm
+                    else fail ""
+                '%' -> if qfInterpolateHash flags
+                    then many1 qqInterpolatorPostTerm
+                    else fail ""
+                '&' -> if qfInterpolateFunction flags
+                    then many1 qqInterpolatorPostTerm
+                    else fail ""
+                _   -> fail ""
+            return $ foldr (.) id (reverse fs) $ makeVar var
 
-getDelim qstr sch = try $
-    do
-        string qstr
+qLiteral = do -- This should include q:anything// as well as '' "" <>
+    (ch, flags) <- getQDelim
+    expr <- interpolatingStringLiteral (balancedDelim ch) (qInterpolator flags)
+    char (balancedDelim ch)
+    case qfSplitWords flags of
+        'y' -> return $ App "&prefix:\\" [] [App "&split" [] [(Val .  VStr) " ", expr]]
+        'n' -> return expr
+        _   -> fail ""
+
+data QFlags = QFlags { qfSplitWords :: !Char,           -- No, Yes, Protect
+                       qfInterpolateScalar :: !Bool,
+                       qfInterpolateArray :: !Bool,
+                       qfInterpolateHash :: !Bool,
+                       qfInterpolateFunction :: !Bool,
+                       qfInterpolateClosure :: !Bool,
+                       qfInterpolateBackslash :: !Char  -- No, Single, All
+                     }
+
+getQFlags flagnames = foldr useflag qFlags $ reverse flagnames
+    where
+        -- Additive flags
+          useflag "w" qf          = qf { qfSplitWords = 'y' }
+          useflag "words" qf      = qf { qfSplitWords = 'y' }
+          useflag "ww" qf         = qf { qfSplitWords = 'p' }
+          useflag "quotewords" qf = qf { qfSplitWords = 'p' }
+          useflag "s" qf          = qf { qfInterpolateScalar = True }
+          useflag "scalar" qf     = qf { qfInterpolateScalar = True }
+          useflag "a" qf          = qf { qfInterpolateArray = True }
+          useflag "array" qf      = qf { qfInterpolateArray = True }
+          useflag "h" qf          = qf { qfInterpolateHash = True }
+          useflag "hash" qf       = qf { qfInterpolateHash = True }
+          useflag "f" qf          = qf { qfInterpolateFunction = True }
+          useflag "function" qf   = qf { qfInterpolateFunction = True }
+          useflag "c" qf          = qf { qfInterpolateClosure = True }
+          useflag "closure" qf    = qf { qfInterpolateClosure = True }
+          useflag "b" qf          = qf { qfInterpolateBackslash = 'a' }
+          useflag "backslash" qf  = qf { qfInterpolateBackslash = 'a' }
+
+        -- Zeroing flags
+          useflag "0" _           = rawFlags
+          useflag "raw" _         = rawFlags
+          useflag "1" _           = qFlags
+          useflag "single" _      = qFlags
+          useflag "2" _           = qqFlags
+          useflag "double" _      = qqFlags
+          useflag "q" _           = qqFlags -- support qq//
+
+        -- XXX What to do in case of unknown flag? Currently do nothing
+          useflag _ qf            = qf
+        
+
+getQDelim = try $
+    do  string "q"
+        flags <- do
+            firstflag <- many alphaNum
+            allflags  <- many oneflag
+            case firstflag of
+                "" -> return allflags
+                _  -> return $ firstflag:allflags
+
         notFollowedBy alphaNum
+        whiteSpace
         delim <- anyChar
-        return delim
-    <|> char sch
+        return (delim, getQFlags flags)
+    <|> do
+        char <- oneOf "\"'<«"
+        case char of
+            '"'  -> return ('"',  qqFlags)
+            '\'' -> return ('\'', qFlags)
+            '<'  -> return ('<',  qFlags { qfSplitWords = 'y' })
+            --'«'  -> return ('«',  qqFlags { qfSplitWords = 'p' })
+            _    -> fail ""
+    
+    where 
+          oneflag = do string ":"
+                       many alphaNum
+
+-- Default flags
+qFlags   = QFlags 'n' False False False False False 's'
+qqFlags  = QFlags 'n' True True True True True 'a'
+rawFlags = QFlags 'n' False False False False False 'n'
+
 
 quotedDelim ch = choice
     [ try $ do { string [ '\\', ch ]; return ch }
@@ -1030,19 +1140,14 @@ rxLiteral = try $ do
     char $ balancedDelim ch
     return $ Syn "rx" [expr, adverbs]
 
-qwLiteral = try $ do
-    str <- qwText
+angleBracketLiteral = try $ do
+    symbol "<"
+    str <- many $ satisfy (/= '>')
+    char '>'
     return $ case words str of
         []  -> Val (VStr "")
         [x] -> Val (VStr x)
         xs  -> Syn "," $ map (Val . VStr) xs
-        where qwText = do string "qw"
-                          text <- balanced
-                          return text
-                       <|> do symbol "<"
-			      p <- many $ satisfy (/= '>')
-			      char '>'
-			      return p
 
 namedLiteral n v = do { symbol n; return $ Val v }
 
