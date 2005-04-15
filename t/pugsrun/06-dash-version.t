@@ -10,7 +10,7 @@ works.
 
 =cut
 
-my @tests = any< -v --version >;
+my @tests = any(< -v --version >);
 @tests = map { $_.values }
          map { $_, "-w $_", "$_ -w", "-w $_ -w" }
          @tests;
