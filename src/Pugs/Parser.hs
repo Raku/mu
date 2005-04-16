@@ -562,8 +562,8 @@ tightOperators = do
       ++ preOps (concatMap (\x -> " -" ++ [x]) "rwxoRWXOezsfdlpSbctugkTBMAC")
       ++ preOps " = ! + - ~ ? +^ ~^ ?^ \\ "             -- Symbolic Unary
     , leftOps $
-               " »*« »/« »x« »xx« " ++
-               " >>*<< >>/<< >>x<< >>xx<< " ++
+               " »*« »/« »x« »xx« »~« " ++
+               " >>*<< >>/<< >>x<< >>xx<< >>~<< " ++
                " * / % x xx +& +< +> ~& ~< ~> "         -- Multiplicative
     , leftOps  " »+« >>+<< + - ~ +| +^ ~| ~^ ?| "       -- Additive
     , listOps  " & ! "                                  -- Junctive And
