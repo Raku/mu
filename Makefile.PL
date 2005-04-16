@@ -55,7 +55,8 @@ sub set_postamble {
     push @srcfiles, grep !/MainCC/, map glob("$_/*.*hs-boot"), @srcdirs;
 
     my ($ghc, $ghc_version, $ghc_flags) = assert_ghc();
-    # $ghc_flags .= ' -dcore-lint -ignore-package eval-0.9.8';
+    # $ghc_flags .= ' -dcore-lint';
+    $ghc_flags .= " -keep-tmp-files";
 	if (!has_ghc_package('plugins')) {
 	  warn << '.';
 *** Inline Haskell support disabled.  If you want dynamic loading

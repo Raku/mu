@@ -200,6 +200,7 @@ op1 "eval" = \v -> do
     str <- fromVal v
     opEval False "<eval>" str
 op1 "eval_perl5" = boolIO evalPerl5
+op1 "eval_haskell" = op1EvalHaskell
 op1 "defined" = op1Cast (VBool . defined)
 op1 "last" = \v -> return (VError "cannot last() outside a loop" (Val v))
 op1 "next" = \v -> return (VError "cannot next() outside a loop" (Val v))
@@ -374,6 +375,12 @@ op1 "hex"   = op1Cast (VInt . read . ("0x"++))
 op1 "log"   = op1Cast (VNum . log)
 op1 "log10" = op1Cast (VNum . logBase 10)
 op1 other   = return . (\x -> VError ("unimplemented unaryOp: " ++ other) (App other [Val x] []))
+
+op1EvalHaskell :: Val -> Eval Val
+op1EvalHaskell cv = do
+    cstr <- (fromVal cv) :: Eval String
+    retstr <- liftIO (evalHaskell cstr)
+    return $ VStr $ retstr
 
 op1Cast :: (Value n) => (n -> Val) -> Val -> Eval Val
 op1Cast f val = return . f =<< fromVal =<< fromVal' val
@@ -610,6 +617,7 @@ op2 "connect" = \x y -> do
 op2 "exp" = \x y -> if defined y
     then op2Num (**) x y
     else op1Cast (VNum . exp) x
+-- FIXME: Generalize to N args for arb N?  Is this possible?
 op2 "sprintf" = \x y -> do
     str  <- fromVal x
     args <- fromVals y
@@ -1234,7 +1242,8 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      pre     exists  (rw!Array: Int)\
 \\n   Str       pre     perl    (rw!Any)\
 \\n   Any       pre     eval    (Str)\
-\\n   Any       pre     eval_perl5 (Str)\
+\\n   Any       pre     eval_perl5   (Str)\
+\\n   Any       pre     eval_haskell (Str)\
 \\n   Any       pre     require (?Str=$_)\
 \\n   Any       pre     require_haskell (Str)\
 \\n   Any       pre     last    (?Int=1)\
