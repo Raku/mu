@@ -24,6 +24,9 @@ Assignments of non-strings can cause an implicit conversion:
 
 	$string = 1234;               # Implicit conversion
 
+TODO: a short paragraph on the difference between the my $scalar 
+and my Str $string examples above.
+
 =head2 Variable Interpolation
 
 The simplest way to interpolate variables within a literal string is to use
@@ -108,7 +111,7 @@ for instance q:s// can be expressed as qs//.
 	say q:s/The quick brown $var1 jumps over the lazy $var2/;
 	say qs/The quick brown $var1 jumps over the lazy $var2/;
 
-	# Interpolate arrays only:
+	# Interpolate @ vars only:
 	say q:a/The quick brown @animal[1] jumps over the lazy @animal[2]/;
 	say qa/The quick brown @animal[1] jumps over the lazy @animal[2]/;
 	say qa/We have @animal.elems() elements in the \@animals array/;
@@ -116,9 +119,9 @@ for instance q:s// can be expressed as qs//.
 XXX But @animal[1] is not an array, it is an array element.
 	-- see comment below
 	
-	# interpolate hashes only:
-	say q:h/The quick brown %animal{quick} jumps over the.../;
-	say qh/The quick brown %animal{quick} jumps over the.../;
+	# interpolate % vars only:
+	say q:h/The quick brown %animal{'quick'} jumps over the.../;
+	say qh/The quick brown %animal{'quick'} jumps over the.../;
 
 XXX But %animal{quick} is not a hash, it is a hash element.
 	-- i think that's irrelevant to the examples, however I will also 
@@ -126,8 +129,18 @@ XXX But %animal{quick} is not a hash, it is a hash element.
 		arrays during interpolation --gcomnz
 XXX It's relevant because what you say now is just wrong. Both arrays|hashes
 *and* array|hash elements are interpolated. While %foo is a hash, %foo{bar} is
-just a scalar! By the way, you probably want %animal{'quick'} there, because
+just a scalar! 
+	-- yeah, you're right. i went looking for a short way to say
+		what i mean, and it seems like the synopses is the closest
+		i can get right now, so i replaced the comments with
+		"% vars" and "@ vars" for now. I'm hesitant to put in an
+		interpolation of actual straight %hash and @array right now
+		because it seems like it's too complex an example for
+		chapter 01-00 --gcomnz
+XXX By the way, you probably want %animal{'quick'} there, because
 %animal{quick} is %animal{quick()}.
+	-- phew, thanks, I just caught up on that whole hash
+		subscripting thread  --gcomnz
 
 	# interpolate functions only: both & and () are required
 	say q:f/The quick brown &get_animal('quick') jumps.../;
