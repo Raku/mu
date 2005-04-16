@@ -1289,8 +1289,8 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Int       pre     chmod   (List)\
 \\n   Scalar    pre     key     (rw!Pair)\
 \\n   Scalar    pre     value   (rw!Pair)\
-\\n   Scalar    pre     keys    (rw!Pair)\
-\\n   Scalar    pre     values  (rw!Pair)\
+\\n   List      pre     keys    (rw!Pair)\
+\\n   List      pre     values  (rw!Pair)\
 \\n   List      pre     kv      (rw!Pair)\
 \\n   List      pre     pairs   (rw!Pair)\
 \\n   List      pre     values  (rw!Junction)\
