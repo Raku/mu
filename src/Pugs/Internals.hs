@@ -81,7 +81,7 @@ import System.Cmd
 import System.IO (
     Handle, stdin, stdout, hClose, hGetLine, hGetContents,
     openFile, hPutStr, hPutStrLn, IOMode(..), stderr, SeekMode(..),
-    hSetBuffering, BufferMode(..), hIsTerminalDevice, hFlush
+    hSetBuffering, BufferMode(..), hIsTerminalDevice, hFlush, hPrint
     )
 import System.IO.Unsafe
 import System.IO.Error (ioeGetErrorString, isUserError)

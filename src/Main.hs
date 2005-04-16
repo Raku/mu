@@ -26,7 +26,6 @@ import Pugs.Parser
 import Pugs.Help
 import Pugs.Pretty
 import Pugs.Compile
-import IO
 import qualified Data.Map as Map
 
 main :: IO ()
