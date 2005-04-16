@@ -136,6 +136,12 @@ XXX But %animal{quick} is not a hash, it is a hash element.
 	say q:b/The quick brown fox\n\tJumps over the lazy dog/;
 	say qb/The quick brown fox\n\tJumps over the lazy dog/;
 
+Adverbs can be strung together to make a specialized quoting environment for
+your string.
+
+	# interpolate only scalars and arrays:
+	say q:s:a/The quick brown $fox jumps over the lazy @animal[2]/;
+
 =head2 Defining Multiline Strings (Here Documents)
 
 Multiline strings (here documents) can be defined using the q// and qq//
@@ -153,5 +159,14 @@ operators with the :to adverb added.
 When defined in this way the whitespace at the start of each line will be 
 removed up to the same amount of indentation used by the closing delimiter, 
 a tab character being equal to 8 normal spaces.
+
+A here document can be as exacting with adverbs as any other quoted string. For
+instance you can specify that you only want scalars interpolated by adding
+the :s adverb.
+
+	# This multiline string will only interpolate scalars
+	my $multiline = q:s:to/EOF/
+		This $scalar will be interpolated, but this @array won't be.
+		EOF
 
 =cut
