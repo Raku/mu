@@ -578,6 +578,12 @@ op2 "nor"= op2 "!!"
 op2 "grep" = op2Grep
 op2 "map"  = op2Map
 op2 "join" = op2Join
+op2 "kill" = \s v -> do
+    sv <- fromVal s
+    let sig = toEnum sv
+    pids <- fromVals v
+    rets <- mapM (doBoolIO . signalProcess sig . toEnum) pids
+    return $ VInt $ sum $ map bool2n rets
 op2 "isa"   = \x y -> do
     typ <- fromVal y
     ifValTypeIsa x typ
@@ -1393,5 +1399,6 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Thread    pre     async   (Code)\
 \\n   Bool      pre     yield   (?Thread)\
 \\n   Int       pre     sign    (Num)\
+\\n   Int       pre     kill    (Int, List)\
 \\n"
 

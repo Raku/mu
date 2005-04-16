@@ -31,25 +31,33 @@ module Pugs.Compat (
     getEffectiveGroupID,
     setEnv,
     unsetEnv,
+    signalProcess,
+    Signal,
 ) where
 
 import Foreign
 import Foreign.C
+import System.Posix.Types
 
 #ifdef PUGS_HAVE_POSIX
 import System.Posix.Process
 import System.Posix.Env
 import System.Posix.Files
 import System.Posix.User
+import qualified System.Posix.Signals
 
 statFileSize f = do
     s <- getFileStatus f
     return (toInteger (fileSize s))
 
+type Signal = System.Posix.Signals.Signal
+--type ProcessID = System.Posix.Types.ProcessID
+signalProcess :: Signal -> ProcessID -> IO ()
+signalProcess = System.Posix.Signals.signalProcess
+
 #else
 
 import Debug.Trace
-import System.Posix.Types
 import System.Environment
 
 failWith s = fail $ "'" ++ s ++ "' not implemented on this platform."
@@ -99,6 +107,12 @@ getRealGroupID = return 1
 
 getEffectiveGroupID :: IO GroupID
 getEffectiveGroupID = return 1
+
+type Signal = Int
+
+signalProcess :: Signal -> ProcessID -> IO ()
+--signalProcess :: Int -> Int -> IO ()
+signalProcess _ _ = failWith "kill"
 
 #endif
 
