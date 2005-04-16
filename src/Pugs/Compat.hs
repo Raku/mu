@@ -32,7 +32,6 @@ module Pugs.Compat (
     setEnv,
     unsetEnv,
     signalProcess,
-    Signal,
 ) where
 
 import Foreign
