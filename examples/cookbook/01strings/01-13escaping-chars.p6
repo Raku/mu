@@ -18,7 +18,7 @@ requirements look deceptively easy though and therefore it's usually good to
 find an example where the problem has been solved for you already, for example:
 
 HTML::Entities			For HTML encoding
-# TODO # 				For SQL quoting
+Placeholder binding		For SQL quoting
 system/exec calls		For shell quoting
 
 	# backslash escaping
@@ -51,8 +51,7 @@ Escaping for VMS DCL:
 
 	$string = q(Mom said, "Don't do that.");
 	$string ~~ s:g/(<['"]>)/$1$1/g;
-
-XXX I don't get at all why the previous example is included, seems very
+XXX I don't get at all why this example is included, seems very
 	obscure ~gcomnz
 
 Escape anything besides A-Z:
@@ -91,5 +90,9 @@ discussion of what really needs to be done is too in depth for this document.
 	-- people to a good module that does the right thing ~gcomnz
 XXX The right thing when it comes to SQL values is to leave things up to
 something in DBI (the DBD) that handles placeholders.
+	-- Good point. I tried to think of some reasonably usefule
+		circumstant where it would be hande to escaping SQL, but
+		can't think of one that's useful for a cookbook. I'll
+		point people to placeholder binding only ~gcomnz
 
 =cut
