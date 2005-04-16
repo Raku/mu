@@ -1032,6 +1032,7 @@ qLiteral = do -- This should include q:anything// as well as '' "" <>
     expr <- interpolatingStringLiteral (balancedDelim ch) (qInterpolator flags)
     char (balancedDelim ch)
     case qfSplitWords flags of
+        -- expr ~~ rx:perl5:g/(\S+)/
         'y' -> return $ App "&infix:~~" [
                   expr,
                   Syn "rx" [Syn "cxt" [Val (VStr "Str"),App "&infix:~" [Val (VStr "(\\S+)"),Val (VStr "")] []],
