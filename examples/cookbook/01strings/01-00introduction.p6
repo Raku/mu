@@ -57,6 +57,7 @@ XXX I believe the "standard" form is now with square brackets, i.e. q[],
 instead of q//.
 	-- I see the q// form most often in synopsis, can you confirm a change to
 		q[] somewhere? --gcomnz
+XXX No - must have dreamt it... (Remove this paragraph when you've read it.)
 
 	# Single quoted strings
 	say 'I have to escape my \'single quotes\' in this string';
@@ -123,6 +124,10 @@ XXX But %animal{quick} is not a hash, it is a hash element.
 	-- i think that's irrelevant to the examples, however I will also 
 		demonstrate the many other things you can do with hashes and 
 		arrays during interpolation --gcomnz
+XXX It's relevant because what you say now is just wrong. Both arrays|hashes
+*and* array|hash elements are interpolated. While %foo is a hash, %foo{bar} is
+just a scalar! By the way, you probably want %animal{'quick'} there, because
+%animal{quick} is %animal{quick()}.
 
 	# interpolate functions only: both & and () are required
 	say q:f/The quick brown &get_animal('quick') jumps.../;
@@ -167,6 +172,10 @@ the :s adverb.
 	# This multiline string will only interpolate scalars
 	my $multiline = q:s:to/EOF/
 		This $scalar will be interpolated, but this @array won't be.
-		EOF
+                EOF
+
+These adverbs apply to the body of the heredoc, not to the terminator, because
+the terminator has to be known at compile time. This means that
+q:s:to/EO$thing/ doesn't do what you mean.
 
 =cut

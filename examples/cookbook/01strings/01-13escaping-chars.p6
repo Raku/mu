@@ -29,6 +29,7 @@ system/exec calls		For shell quoting
 
 XXX Oh, (<[]>) is just horrible!
 	-- not sure what you're suggesting here? ~gcomnz
+XXX Nothing really - just wanted to complain again :)
 
 =head1 Details
 
@@ -88,5 +89,7 @@ discussion of what really needs to be done is too in depth for this document.
 	-- and use a SQL entities quoting module, but not until one exists
 	-- in pugs/ext. For a cookbook entry it certainly seems useful to point
 	-- people to a good module that does the right thing ~gcomnz
+XXX The right thing when it comes to SQL values is to leave things up to
+something in DBI (the DBD) that handles placeholders.
 
 =cut

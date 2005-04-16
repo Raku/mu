@@ -66,6 +66,7 @@ Add all the unicode character values together
 	-- What on earth is the point of this? I'm about to get rid
 		of it, seems totally useless, if it even works in the first
 		place --gcomnz
+        XXX Agreed
 
 =head1 Example Script 1
 
