@@ -583,9 +583,9 @@ op2 "kill" = \s v -> do
     pids <- fromVals v
     let doKill pid = do
         signalProcess (toEnum sig) (toEnum pid)
-        return True
-    rets <- mapM (tryIO False . doKill) pids
-    return . VInt . genericLength $ filter id rets
+        return 1
+    rets <- mapM (tryIO 0 . doKill) pids
+    return . VInt $ sum rets
 op2 "isa"   = \x y -> do
     typ <- fromVal y
     ifValTypeIsa x typ
