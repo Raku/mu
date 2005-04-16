@@ -17,7 +17,7 @@ import Language.Haskell.TH as TH
 import Language.Haskell.Parser
 import Language.Haskell.Syntax
 import Plugins
-import Config
+import Pugs.Config
 
 {- ourPackageConfigs :: [PackageConfig]
 ourPackageConfigs = [
