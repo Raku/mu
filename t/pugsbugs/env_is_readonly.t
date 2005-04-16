@@ -15,7 +15,7 @@ require File::Spec;
 plan 3;
 
 my ($pugs) = "./pugs";
-if($?OS eq any<MSWin32 mingw msys cygwin>) {
+if($*OS eq any<MSWin32 mingw msys cygwin>) {
     $pugs = 'pugs.exe';
     skip 3, "setEnv is not implemented for Win32"; # unTODOme
     exit;

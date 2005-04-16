@@ -29,11 +29,11 @@ my @examples = (
 
 plan +@examples;
 
-diag "Running under $?OS";
+diag "Running under $*OS";
 
 my ($pugs,$redir_in,$redir_out) = ("./pugs", "<", ">");
 
-if($?OS eq any<MSWin32 mingw msys cygwin>) {
+if($*OS eq any<MSWin32 mingw msys cygwin>) {
   $pugs = 'pugs.exe';
 };
 

@@ -15,12 +15,12 @@ get a list of osnames that have actually passed tests.
 
 plan 3;
 
-# $?OS is the OS we were compiled in.
-ok $?OS, "We have an OS name: $?OS";
+# $*OS is the OS we were compiled in.
+ok $*OS, "We have an OS name: $*OS";
 
 # my $osnames = 'darwin' | 'linux' | 'MSWin32' | 'FreeBSD';
 my $osnames = any<darwin linux FreeBSD MSWin32 mingw msys cygwin>;
-if ($?OS eq $osnames) {
+if ($*OS eq $osnames) {
     pass("...and we know of this OS")
 } else {
     todo_fail("We do not know of this OS -- please report to the pugs team")

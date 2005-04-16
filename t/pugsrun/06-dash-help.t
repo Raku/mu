@@ -17,11 +17,11 @@ my @examples = any<-h --help>;
 
 plan +@examples;
 
-diag "Running under $?OS";
+diag "Running under $*OS";
 
 my ($pugs,$redir) = ("./pugs", ">");
 
-if($?OS eq any<MSWin32 mingw msys cygwin>) {
+if($*OS eq any<MSWin32 mingw msys cygwin>) {
   $pugs = 'pugs.exe';
   $redir = '>';
 };

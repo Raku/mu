@@ -15,7 +15,7 @@ executed.
 =cut
 
 plan 1;
-diag "Running under $?OS";
+diag "Running under $*OS";
 
 my @events;
 my $event_count = 2;
