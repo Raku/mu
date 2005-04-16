@@ -14,11 +14,11 @@ A string can be created implicitly, by declaring a scalar and assigning a
 quoted value to it:
 
 	# declare a scalar and place a string into it
-	my $scalar = 'This is scalar is holding a String';
+	my $scalar = 'This is a scalar holding a String';
 
 Or it can be declared explicitly:
 
-	my Str $string = 'This is scalar is holding a String';
+	my Str $string = 'This Str is holding a String';
 
 Assignments of non-strings can cause an implicit conversion:
 
