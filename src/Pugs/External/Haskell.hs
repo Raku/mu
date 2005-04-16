@@ -2,7 +2,6 @@
 
 module Pugs.External.Haskell where
 import Pugs.AST
-import Pugs.Internals
 
 #undef PUGS_HAVE_TH
 #include "../pugs_config.h"
@@ -18,6 +17,7 @@ import Language.Haskell.Parser
 import Language.Haskell.Syntax
 import Plugins
 import Pugs.Config
+import Pugs.Internals
 
 {- ourPackageConfigs :: [PackageConfig]
 ourPackageConfigs = [
