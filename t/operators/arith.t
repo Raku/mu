@@ -320,12 +320,13 @@ tryeq $inf1, Inf, "100**Inf";
 my $inf2; # = Inf**Inf;
 tryeq $inf2, Inf, "Inf**Inf";
 
-skip 5, "** with NaN or Inf make Pugs eat cpu forever";
-#tryeq Inf**0, 1;
-#tryeq 0**Inf, 0;
-#tryeq 1**Inf, NaN; # but why?
-#tryeq 0.9**Inf, 0;
-#tryeq 1.1**Inf, Inf;
+tryeq Inf**0, 1;
+tryeq 0**Inf, 0;
+tryeq 1**Inf, NaN; # but why is it defined like that?;
+
+skip 2, "** with Inf make Pugs eat cpu forever";
+#tryeq 0.9**Inf, 0, "0.9**Inf converges towards 0";
+#tryeq 1.1**Inf, Inf, "1.1**Inf diverges towards Inf";
 
 # NaN
 tryeq NaN, NaN;
@@ -340,14 +341,17 @@ tryeq NaN-NaN, NaN;
 tryeq NaN*NaN, NaN;
 tryeq NaN/NaN, NaN;
 
-skip 8, "NaN calculations make baby Pugs cry";
+tryeq NaN+Inf, NaN;
+tryeq NaN-Inf, NaN;
+tryeq NaN*Inf, NaN;
+tryeq NaN/Inf, NaN;
+tryeq Inf/NaN, NaN;
+
+# These three still segfault, at r2038
+
+skip 3, "NaN calculations make baby Pugs cry";
 # my $nan1 = NaN**NaN;
 # tryeq $nan1, NaN, "NaN**NaN";
-# tryeq NaN+Inf, NaN;
-# tryeq NaN-Inf, NaN;
-# tryeq NaN*Inf, NaN;
-# tryeq NaN/Inf, NaN;
-# tryeq Inf/NaN, NaN;
 # my $nan2 = NaN**Inf;
 # tryeq $nan2, NaN, "NaN**Inf";
 # my $nan3 = Inf**NaN;
