@@ -108,10 +108,7 @@ getRealGroupID = return 1
 getEffectiveGroupID :: IO GroupID
 getEffectiveGroupID = return 1
 
-type Signal = Int
-
-signalProcess :: Signal -> ProcessID -> IO ()
---signalProcess :: Int -> Int -> IO ()
+signalProcess :: a -> b -> IO ()
 signalProcess _ _ = failWith "kill"
 
 #endif

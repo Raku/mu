@@ -579,11 +579,13 @@ op2 "grep" = op2Grep
 op2 "map"  = op2Map
 op2 "join" = op2Join
 op2 "kill" = \s v -> do
-    sv <- fromVal s
-    let sig = toEnum sv
+    sig  <- fromVal s
     pids <- fromVals v
-    rets <- mapM (doBoolIO . signalProcess sig . toEnum) pids
-    return $ VInt $ sum $ map bool2n rets
+    let doKill pid = do
+        signalProcess (toEnum sig) (toEnum pid)
+        return True
+    rets <- mapM (tryIO False . doKill) pids
+    return . VInt . genericLength $ filter id rets
 op2 "isa"   = \x y -> do
     typ <- fromVal y
     ifValTypeIsa x typ
