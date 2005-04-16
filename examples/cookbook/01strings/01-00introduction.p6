@@ -2,40 +2,27 @@
 
 use v6;
 
-    # XXX Please note, as these were used wildly inaccurately!
-    # my $foo    # declaration
-    # $foo = 1;  # definition (initialization)
-    # my $foo = 1;  # both, usually called initialization
-
 =head1 NAME
 
 Perl 6 Cookbook: Introduction to Strings
 
 =head1 Description
 
-=head2 Explicit and Implicit Strings
+=head1 Discussion
 
-A string can be declared implicitly, by declaring a scalar and assigning a 
+A string can be created implicitly, by declaring a scalar and assigning a 
 quoted value to it:
 
-XXX This is not *declaring* a string. It's also not defining a string. It's
-assigning a string to a scalar. The result is a Scalar, not a Str.
-Which behaves very differently in boolean context!
-
+	# declare a scalar and place a string into it
 	my $scalar = 'This is scalar is holding a String';
 
 Or it can be declared explicitly:
 
 	my Str $string = 'This is scalar is holding a String';
 
-Explicit assignment leads to an error if the programmer attempts to assign
-a non-String to the scalar:
+Assignments of non-strings can cause an implicit conversion:
 
-	my Str $string;
-	$string = 1234;               # Error
-        # XXX I think this particular example converts the integer to a string
-	$string = { print "block"; }; # Error
-	$string = 'String';           # Okay
+	$string = 1234;               # Implicit conversion
 
 =head2 Variable Interpolation
 
@@ -68,6 +55,8 @@ declaring strings. To do so use the q// and qq// quote operators:
 
 XXX I believe the "standard" form is now with square brackets, i.e. q[],
 instead of q//.
+	-- I see the q// form most often in synopsis, can you confirm a change to
+		q[] somewhere? --gcomnz
 
 	# Single quoted strings
 	say 'I have to escape my \'single quotes\' in this string';
@@ -121,14 +110,19 @@ for instance q:s// can be expressed as qs//.
 	# Interpolate arrays only:
 	say q:a/The quick brown @animal[1] jumps over the lazy @animal[2]/;
 	say qa/The quick brown @animal[1] jumps over the lazy @animal[2]/;
+	say qa/We have @animal.elems() elements in the \@animals array/;
 
 XXX But @animal[1] is not an array, it is an array element.
+	-- see comment below
 	
 	# interpolate hashes only:
 	say q:h/The quick brown %animal{quick} jumps over the.../;
 	say qh/The quick brown %animal{quick} jumps over the.../;
 
 XXX But %animal{quick} is not a hash, it is a hash element.
+	-- i think that's irrelevant to the examples, however I will also 
+		demonstrate the many other things you can do with hashes and 
+		arrays during interpolation --gcomnz
 
 	# interpolate functions only: both & and () are required
 	say q:f/The quick brown &get_animal('quick') jumps.../;
