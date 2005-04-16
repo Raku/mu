@@ -151,6 +151,7 @@ operators with the :to adverb added.
 		EOF
 
 When defined in this way the whitespace at the start of each line will be 
-removed up to the same amount of indentation used by the closing delimiter, a tab character being equal to 8 normal spaces.
+removed up to the same amount of indentation used by the closing delimiter, 
+a tab character being equal to 8 normal spaces.
 
 =cut
