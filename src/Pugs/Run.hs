@@ -108,6 +108,7 @@ prepareEnv name args = do
         , SymVar SGlobal "@=POD"        $ MkRef $ constArray []
         , SymVar SGlobal "$=POD"        $ MkRef $ constScalar (VStr "")
         , SymVar SGlobal "$?OS"         $ MkRef $ constScalar (VStr $ getConfig "osname")
+        , SymVar SGlobal "$*OS"         $ MkRef $ constScalar (VStr $ getConfig "osname")
         , SymVar SGlobal "$?MODULE"     $ MkRef modSV
         , SymVar SGlobal "&?BLOCK_EXIT" $ codeRef $ Sub
             { isMulti = False
