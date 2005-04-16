@@ -1033,23 +1033,18 @@ qLiteral = do -- This should include q:anything// as well as '' "" <>
     char (balancedDelim ch)
     case qfSplitWords flags of
         -- expr ~~ rx:perl5:g/(\S+)/
-        'y' -> return $ App "&infix:~~" [
-                  expr,
-                  Syn "rx" [Syn "cxt" [Val (VStr "Str"),App "&infix:~" [Val (VStr "(\\S+)"),Val (VStr "")] []],
-                               Syn "\\{}" [Syn "," [App "&infix:=>" [Val (VStr "perl5"),Val (VInt 1)] [],
-                                                    App "&infix:=>" [Val (VStr "g"),Val (VInt 1)] []]]]] []
-
-            {- App "&prefix:\\" []
-               [App "&split" []
-                [ Syn "rx"
-                    [ Val (VStr "\\s+")
-                    , Syn "\\{}" [Syn "," [ Val (VPair (VStr "P5", VInt 1)) ]]
-                    ]
-                , expr
-                ]
-            ] -}
+        'y' -> return $ doSplit expr
         'n' -> return expr
         _   -> fail ""
+    where
+    doSplit expr = App "&infix:~~" [expr, rxSplit] []
+    rxSplit = Syn "rx" $
+        [ Val $ VStr "(\\S+)"
+        , Val $ VList
+            [ VPair (VStr "P5", VInt 1)
+            , VPair (VStr "g", VInt 1)
+            ]
+        ]
 
 data QFlags = QFlags { qfSplitWords :: !Char,           -- No, Yes, Protect
                        qfInterpolateScalar :: !Bool,
