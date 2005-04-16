@@ -709,7 +709,7 @@ doApply Env{ envClasses = cls } sub@Sub{ subFun = fun, subType = typ } invs args
     isCollapsed cxt
         | isaType cls "Bool" cxt        = True
         | isaType cls "Junction" cxt    = True
-        | isaType cls cxt "Any"         = True
+--      | isaType cls cxt "Any"         = True
         | otherwise                     = False
 
 toGlobal name
