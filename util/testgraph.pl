@@ -1,159 +1,32 @@
 #!/usr/bin/perl
+
 use warnings;
 use strict;
-use YAML 'Load';
+
+use YAML qw/Load Dump/;
 use Getopt::Long;
+use Test::TAP::HTMLMatrix;
+use Test::TAP::Model::Visual;
+
 
 GetOptions \our %Config, qw(embedcss|e cssfile|c=s help|h);
-$Config{cssfile} ||= "util/testgraph.css";
+$Config{cssfile} ||= My::HTMLMatrix->css_file();
 usage() if $Config{help};
-my $css = $Config{embedcss} ? embed_css() : << "CSS_LINK";
-  <link rel='stylesheet' href='$Config{cssfile}' type='text/css'/>
-CSS_LINK
 
 my $yamlfile = shift || 'tests.yml';
 
-#print "Loading $yamlfile\n";
-
-#open(my $yamlfh, '<:utf8', $yamlfile) or die "Couldn't open $yamlfile for reading: $!";
 open(my $yamlfh, '<', $yamlfile) or die "Couldn't open $yamlfile for reading: $!";
 binmode $yamlfh, ":utf8" or die "binmode: $!";
 local $/=undef;
 
 my $data = Load(<$yamlfh>);
 undef $yamlfh;
-#Dump($data);
 
-print <<"__TOP__";
-<!DOCTYPE html
- PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'
- 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'>
-<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' lang='en'>
- <head>
-  <title>testgraph.pl @{[gmtime().'']}</title>
-$css
- </head>
- <body>
-<pre><tt>@{[gmtime().'']}</tt></pre></br>
-__TOP__
+my $tap = My::Model->new_with_struct(delete $data->{meat});
+my $v = My::HTMLMatrix->new($tap, Dump($data));
 
-print "   <pre><tt>", join("\n", $data->{build_info}), "</tt></pre>\n";
-
-print "<table>";
-
-foreach my $testfile (sort {$a->{file} cmp $b->{file}}
-                      @{$data->{test_cases}}) {
-  my $linkto = $testfile->{file};
-  $linkto =~ s!\\!\/!g;
-  # $linkto =~ s!^t/!html/t/!;
-  $linkto =~ s!\.t$!.html!;
-
-  print "<tr>\n";
-  print " <td><a href='$linkto'>", $testfile->{file}, "</a></td>\n";
-  print " <td>", $testfile->{result}, "</td>\n";
-  if (!@{$testfile->{subtests}}) {
-    print " <td>No subtests -- parse failure?</td>\n";
-  } else {
-    print "<td><table width='100%'><tr>\n";
-    my ($i, $good)=(0, 0);
-
-    my $rows = int(.75 + @{$testfile->{subtests}} / 50) || 1;
-    my $per_row = int(.75 + @{$testfile->{subtests}} / $rows);
-
-    foreach my $test (@{$testfile->{subtests}}) {
-      my $class = t_to_class($test);
-
-
-      my $title = ($test->{line} || '') . "\n" . ($test->{diag} || '');
-
-#     print STDERR "pre:  $title\n";
-
-      $title =~ s/\cM//g;
-      $title =~ s/\cJ+$//g;
-      $title =~ s/^\cJ+//g;
-      $title =~ s/&/&amp;/g;
-      $title =~ s/</&lt;/g;
-      $title =~ s/>/&gt;/g;
-      $title =~ s!\cJ!<br />!g;
-      $title =~ s/([^-&<>\/().#A-Za-z0-9 ;])/sprintf '&#x%X;', ord $1/eg;
-
-#     print STDERR "post: $title\n";
-
-
-      my $case_link;
-      ($test->{pos} || '') =~ /^(.*?) at line (\d+), column \d+/;
-      my ($t, $line) = ($1, $2);
-      if (defined $line) {
-        $case_link = "$linkto#line_$line";
-      } else {
-        $case_link = $linkto;
-      }
-
-      if ($i and $i % $per_row == 0) {
-        print "</tr></table><table width='100%'><tr>\n";
-      }
-
-#     print "<td class='test $class' title='$title'>$title</td>";
-      print " <td class='test $class'><a href='$case_link'>&nbsp;<div>$title</div></a></td>\n";
-#     print STDERR " <td class='test $class'><a href='$case_link'>&nbsp;<div>$title</div></a></td>\n";
-#     print " <td class='test $class' title='$title'>&nbsp;</td>\n";
-
-      if ($class ne 'nottest') {
-        $i++;
-        $good++ if $class =~ /good/;
-      }
-    }
-    print "</tr></table></td>\n";
-    if ($i) {
-      my $pct = $good/$i;
-      my $color = sprintf '#%02x%02x%02x', 0xFF*(1-$pct), 0xFF*$pct, 0;
-      print " <td style='background-color: $color'>", sprintf('%.2f%%', $pct*100), "</td>\n";
-    } else {
-      print " <td style='background-color: #7f7f7f'>???</td>\n"
-    }
-  }
-  print "</tr>\n";
-}
-
-print "</table></body></html>\n";
-
-sub t_to_class {
-  my $t=shift;
-  my $p;
-  my $todo;
-  local $_ = $t->{line};
-
-  return 'nottest' unless $t->{type} and $t->{type} eq 'test';
-
-#  warn "$_";
-
-  if (/^not ok/) {
-    $p=0;
-  } elsif (/^ok/) {
-    $p=1;
-  } else {
-    die "$_ neither ok nor not ok?";
-  }
-
-  $todo = 0+/# TODO$/;
-
-
-  return {
-          '00'=>'bad',
-          '10'=>'good',
-          '01'=>'todogood',
-          '11'=>'todobad'
-         }->{"$p$todo"};
-}
-
-sub embed_css {
-  my $out = "  <style type='text/css'>\n  <!--\n";
-  local $/;
-  open my $fh, "<", $Config{cssfile} or die "open $Config{cssfile}: $!";
-  $out .= <$fh>;
-  $out .= "  -->\n  </style>\n";
-  return $out;
-}
+binmode STDOUT, ":utf8" or die "binmode: $!";
+print "$v";
 
 sub usage {
   print <<"USAGE";
@@ -171,4 +44,53 @@ See also:
 
 USAGE
   exit 0;
+}
+
+{
+	# these subclass override some defaults
+	package My::HTMLMatrix;
+	use base qw/Test::TAP::HTMLMatrix/;
+
+	use File::Basename;
+	use File::Copy;
+	use File::Spec;
+
+	sub css_uri {
+		my $self = shift;
+
+		my $path = $main::Config{cssfile};
+		
+		if (File::Spec->file_name_is_absolute($path)){
+			my $new = File::Spec->catfile(qw/util testgraph.css/);
+			warn "renaming $new to $new.old";
+			rename($new, "$new.old"); # move the old one
+			copy($path, $new); # put it where it used to be
+			return "util/testgraph.css"; # this is a URI, not a path
+		}
+		
+		return $path;
+	}
+	
+	package My::Model;
+	use base qw/Test::TAP::Model::Visual/;
+	sub file_class { "My::File" }
+	
+	package My::File;
+	use base qw/Test::TAP::Model::File::Visual/;
+	sub subtest_class { "My::Subtest" }
+	sub link {
+		my $self = shift;
+		my $link = $self->SUPER::link;
+		$link =~ s/\.t$/.html/;
+		$link;
+	}
+
+	package My::Subtest;
+	use base qw/Test::TAP::Model::Subtest::Visual/;
+	sub link {
+		my $self = shift;
+		my $link = $self->SUPER::link;
+		$link =~ s/\.t(?=#line|$)/.html/;
+		$link;
+	}
 }

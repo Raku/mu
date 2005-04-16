@@ -19,9 +19,9 @@ use strict;
 use Getopt::Long;
 use YAML;
 use Test::Harness;
-use Test::Harness::Straps;
+use Test::TAP::Model;
 use File::Spec;
-our @ISA = qw(Test::Harness::Straps);
+our @ISA = qw(Test::TAP::Model);
 our $SMOKERFILE = ".smoker.yml";
 
 $| = 1;
@@ -41,76 +41,7 @@ _build_exclude_re();
 
 
 my $s = __PACKAGE__->new;
-
-
-my %handlers = (
-    bailout     => sub {
-        my($self, $line, $type, $totals) = @_;
-
-		%{ $self->log_event } = (
-			type => 'bailout',
-			($self->{bailout_reason} ?
-			 (reason => $self->{bailout_reason}) : ()),
-		);
-		$self->emit;
-		exit 1;
-    },
-    test        => sub {
-        my($self, $line, $type, $totals) = @_;
-        my $curr = $totals->{seen}||0;
-		#$self->{'next'} ||= 0;
-
-		$line =~ /^(.*?) <pos:(.*)>(\r?$|\s*#.*\r?$)/ or warn "couldn't match line: $line\n";
-		$line = $1 ? $1 . $3 : $line;
-		my $pos = $2;
-
-		%{ $self->log_event } = (
-			type   => 'test',
-			num    => $curr,
-			result => $totals->{details}[-1]{ok} ?
-				"ok $curr/$totals->{max}" : "NOK $curr",
-			line   => $line,
-			pos    => $pos,
-		);
-		$self->latest_event->{todo} = 1 if $line =~ /# TODO/;
-
-        if( $curr > $self->{'next'} ) {
-			$self->latest_event->{note} =
-				"Test output counter mismatch [test $curr]\n";
-        }
-        elsif( $curr < $self->{'next'} ) {
-            $self->latest_event->{note} =
-				("Confused test output: test $curr answered after ".
-                          "test ", ($self->{'next'}||0) - 1, "\n");
-#            $self->{'next'} = $curr;
-        }
-    },
-	other      => sub {
-		my($self, $line, $type, $totals) = @_;
-
-		# XXX: we're missing some context, so we *assume* we were
-		# called after a test. :/
-		$self->latest_event->{diag} .= $line;
-	 },
-);
-
-$s->{callback} = sub {
-    my($self, $line, $type, $totals) = @_;
-
-    $handlers{$type}->($self, $line, $type, $totals) if $handlers{$type};
-};
-
-
-foreach my $file (@{ $s->get_tests }) {
-    push @{ $s->{_test_cases} }, {
-		file => $file,
-		subtests => ($s->{_log} = []),
-	};
-	warn "$file\n";
-    my %result = $s->analyze_file($file);
-	$s->{_test_cases}[-1]{result} = $result{passing} ? 'ok' : 'FAILED';
-}
-
+$s->run;
 $s->emit;
 exit 0;
 
@@ -151,22 +82,12 @@ sub shuffle {
     }
 }
 
-sub log_event {
-	my($self) = @_;
-	push @{ $self->{_log} }, my $event = {};
-	return $event;
-}
-
-sub latest_event {
-	my($self) = @_;
-	$self->{_log}[-1] || $self->log_event;
-}
-
 sub emit {
 	my($self) = @_;
 	YAML::DumpFile($Config{"output-file"}, {
+			meat => $self->structure,
 			map { $_ => $self->{"_$_"} } qw{
-				build_info test_cases start_time smoker config revision
+				build_info smoker config revision
 		}});
 }
 
@@ -191,14 +112,15 @@ sub _build_ext_re {
 }
 
 sub _init {
-	my($self) = @_;
+	my($self) = shift;
 	$self->set_build_info;
 	$self->get_smoker;
 	$self->get_revision;
-	$self->{_start_time} = time;
-
+	
 	# XXX: should i just include \%Config here?
 	$self->{_config} = { shuffle => $Config{shuffle}+=0 };
+
+	$self->SUPER::_init(@_);
 }
 
 sub get_smoker {
@@ -234,7 +156,7 @@ sub get_tests {
 		}
 	}
 	$self->{_config}{test_count} = scalar @tests;
-	\@tests;
+	@tests;
 }
 
 sub get_revision {
@@ -242,4 +164,11 @@ sub get_revision {
 	my($self) = @_;
 	do { $self->{_revision} = $1 if /Revision: (\d+)$/ } for `svn info`;
 	$self->{_revision} ||= "unknown";
+}
+
+sub run_test {
+	my $self = shift;
+	my $test = shift;
+	warn "$test\n";
+	$self->SUPER::run_test($test, @_);
 }
