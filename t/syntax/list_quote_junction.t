@@ -24,13 +24,19 @@ The following should not match:
   "bar b"   ~~ any<foo bar baz>
   "bar baz" ~~ any(<foo bar baz>)
 
-I'm told that C<< any<foo bar> >> will become a syntax
-error. Until then, I hope it will stay.
+Note: There is a small caveat regarding the convenient
+C<< any<foo bar baz> >> syntax, if not used with parentheses:
+
+  say( any<foo bar baz>,"Hello World")
+
+is different from
+
+  say( (any<foo bar baz>), "Hello World")
 
 =cut
 
 my @matching_strings = <foo bar>;
-my @nonmatching_strings = ('fo', 'oo', 'bar b', 'bar baz');
+my @nonmatching_strings = ('fo','foo ', 'foo bar baz', 'oo', 'bar b', 'bar baz');
 
 plan ((+@matching_strings+@nonmatching_strings)*2);
 
