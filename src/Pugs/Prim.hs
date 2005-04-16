@@ -245,10 +245,6 @@ op1 "graphs"= op1Cast (VInt . (genericLength :: String -> VInt)) -- XXX Wrong
 op1 "codes" = op1Cast (VInt . (genericLength :: String -> VInt))
 op1 "chars" = op1Cast (VInt . (genericLength :: String -> VInt))
 op1 "bytes" = op1Cast (VInt . (genericLength :: String -> VInt) . encodeUTF8)
-op1 "chmod" = \v -> do
-    vals <- fromVals v
-    rets <- mapM (doBoolIO $ flip setFileMode $ intCast $ head vals) $ tail vals
-    return $ VInt $ sum $ map bool2n rets
 op1 "unlink" = \v -> do
     vals <- fromVals v
     rets <- mapM (doBoolIO removeFile) vals
@@ -627,6 +623,11 @@ op2 "sprintf" = \x y -> do
         [x, y]      -> printf str x y
         [x, y, z]   -> printf str x y z
         _           -> printf str
+op2 "chmod" = \x y -> do
+    mode  <- fromVal x
+    files <- fromVals y
+    rets  <- mapM (doBoolIO . flip setFileMode $ toEnum mode) files
+    return . VInt . sum $ map bool2n rets
 op2 other = \x y -> return $ VError ("unimplemented binaryOp: " ++ other) (App other [Val x, Val y] [])
 
 -- XXX - need to generalise this
@@ -1295,7 +1296,7 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Int       pre     codes   (?Str=$_)\
 \\n   Int       pre     chars   (?Str=$_)\
 \\n   Int       pre     bytes   (?Str=$_)\
-\\n   Int       pre     chmod   (List)\
+\\n   Int       pre     chmod   (Int, List)\
 \\n   Scalar    pre     key     (rw!Pair)\
 \\n   Scalar    pre     value   (rw!Pair)\
 \\n   List      pre     keys    (rw!Pair)\
