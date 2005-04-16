@@ -1037,7 +1037,7 @@ qLiteral = do -- This should include q:anything// as well as '' "" <>
         'n' -> return expr
         _   -> fail ""
     where
-    doSplit expr = App "&infix:~~" [expr, rxSplit] []
+    doSplit expr = Syn "cxt" [ Val (VStr "List"), App "&infix:~~" [expr, rxSplit] [] ]
     rxSplit = Syn "rx" $
         [ Val $ VStr "(\\S+)"
         , Val $ VList
