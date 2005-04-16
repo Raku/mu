@@ -181,7 +181,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
     _       <- many $ ruleTrait -- traits; not yet used
     body    <- ruleBlock
     let (fun, names) = extract (body, [])
-        params = map nameToParam (sort names) ++ (maybe [defaultArrayParam] id formal) 
+        params = map nameToParam (sort names) ++ (maybe [defaultArrayParam] id formal)
     -- Check for placeholder vs formal parameters
     unless (isNothing formal || null names || names == ["$_"] ) $
         fail "Cannot mix placeholder variables with formal parameters"
@@ -317,7 +317,7 @@ ruleUseVersion = rule "use version" $ do
         error $ "Perl v" ++ version ++ " required--this is only v" ++ versnum ++ ", stopped at " ++ (show pos)
     return $ Syn "noop" []
 
-{- 
+{-
 ruleUsePackage = rule "use package" $ do
     _ <- identifier -- package -- XXX - ::
     return $ Syn "noop" []
@@ -794,7 +794,7 @@ parseParenParamList = try $ do
     -- it really goes into the *& slot if there is one. -lp
     processFormals [inv, norm ++ block]
 
-ruleAdverbBlock = tryRule "adverbial block" $ do 
+ruleAdverbBlock = tryRule "adverbial block" $ do
     char ':'
     rblock <- ruleBlockLiteral
     next <- option [] ruleAdverbBlock
@@ -812,7 +812,7 @@ parseNoParenParamList = do
                         _ -> (>> return ())
                 rest <- option [] $ do { f $ symbol ","; rec }
                 return (exp:rest)
-    processFormals formal 
+    processFormals formal
 
 processFormals :: Monad m => [[Exp]] -> m ([Exp], [Exp])
 processFormals formal = do
@@ -902,10 +902,10 @@ undefLiteral = try $ do
     (invs,args)   <- maybeParens $ parseParamList
     return $ if null (invs ++ args)
         then Val VUndef
-        else App "&undef" invs args    
+        else App "&undef" invs args
 
 numLiteral = do
-    n <- naturalOrRat  
+    n <- naturalOrRat
     case n of
         Left  i -> return . Val $ VInt i
         Right d -> return . Val $ VRat d
@@ -1032,15 +1032,21 @@ qLiteral = do -- This should include q:anything// as well as '' "" <>
     expr <- interpolatingStringLiteral (balancedDelim ch) (qInterpolator flags)
     char (balancedDelim ch)
     case qfSplitWords flags of
-        'y' -> return $ App "&prefix:\\" []
-            [App "&split" []
+        'y' -> return $ App "&infix:~~" [
+                  expr,
+                  Syn "rx" [Syn "cxt" [Val (VStr "Str"),App "&infix:~" [Val (VStr "(\\S+)"),Val (VStr "")] []],
+                               Syn "\\{}" [Syn "," [App "&infix:=>" [Val (VStr "perl5"),Val (VInt 1)] [],
+                                                    App "&infix:=>" [Val (VStr "g"),Val (VInt 1)] []]]]] []
+
+            {- App "&prefix:\\" []
+               [App "&split" []
                 [ Syn "rx"
                     [ Val (VStr "\\s+")
                     , Syn "\\{}" [Syn "," [ Val (VPair (VStr "P5", VInt 1)) ]]
                     ]
                 , expr
                 ]
-            ]
+            ] -}
         'n' -> return expr
         _   -> fail ""
 
@@ -1084,7 +1090,7 @@ getQFlags flagnames = foldr useflag qFlags $ reverse flagnames
 
         -- XXX What to do in case of unknown flag? Currently do nothing
           useflag _ qf            = qf
-        
+
 
 getQDelim = try $
     do  string "q"
@@ -1107,8 +1113,8 @@ getQDelim = try $
             '<'  -> return ('<',  qFlags { qfSplitWords = 'y' })
             --'«'  -> return ('«',  qqFlags { qfSplitWords = 'p' })
             _    -> fail ""
-    
-    where 
+
+    where
           oneflag = do string ":"
                        many alphaNum
 
@@ -1179,7 +1185,7 @@ runRule env f p name str = f $ case ( runParser p env name str ) of
     Left err    -> env { envBody = Val $ VError (showErr err) (NonTerm $ errorPos err) }
     Right env'  -> env'
 
-showErr err = 
+showErr err =
       showErrorMessages "or" "unknown parse error"
                         "expecting" "unexpected" "end of input"
                        (errorMessages err)
@@ -1187,4 +1193,3 @@ showErr err =
 retSyn :: String -> [Exp] -> RuleParser Exp
 retSyn sym args = do
     return $ Syn sym args
-
