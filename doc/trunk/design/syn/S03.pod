@@ -138,8 +138,8 @@ A junction is a single value that is equivalent to multiple values. They
 thread through operations, returning another junction representing the
 result:
 
-     1|2|3 + 4;                              # 5|6|7
-     1|2 + 3&4;                              # (4|5) & (5|6)
+     (1|2|3) + 4;                            # 5|6|7
+     (1|2) + (3&4);                          # (4|5) & (5|6)
 
 Note how when two junctions are applied through an operator, the result
 is a junction representing the operator applied to each combination of
