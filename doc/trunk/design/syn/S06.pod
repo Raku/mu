@@ -536,14 +536,14 @@ lexically scoped subroutine:
         ...
     }
 
-The closure parameter can have its own signature in angles (from which the
-parameter names should be omitted):
+The closure parameter can have its own signature in a type specification written
+with C<:(...)>:
 
-    sub limited_Dog_grep ($count, &block<Dog>, Dog *@list) {...}
+    sub limited_Dog_grep ($count, &block:(Dog), Dog *@list) {...}
 
 and even a return type:
 
-    sub limited_Dog_grep ($count, &block<Dog> returns Bool, Dog *@list) {...}
+    sub limited_Dog_grep ($count, &block:(Dog) returns Bool, Dog *@list) {...}
 
 When an argument is passed to a closure parameter that has this kind of
 signature, the argument must be a C<Code> object with a compatible
@@ -1162,8 +1162,8 @@ module's subroutines/methods/etc. simultaneously:
 To curry a particular multimethod it may be necessary to specify the type
 of one or more of its invocants:
 
-    &woof ::= &bark<Dog>.assuming :pitch<low>;
-    &pine ::= &bark<Tree>.assuming :pitch<yes>;
+    &woof ::= &bark:(Dog).assuming :pitch<low>;
+    &pine ::= &bark:(Tree).assuming :pitch<yes>;
 
 
 =head1 Other matters
