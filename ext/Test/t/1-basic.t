@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 24;
+plan 28;
 
 ok(2 + 2 == 4, '2 and 2 make 4');
 is(2 + 2, 4, '2 and 2 make 4');
@@ -56,6 +56,12 @@ todo_fail('... use_ok worked and the export was successful'); # unTODOme
 
 todo_fail("use_ok('t::no_module_here')"); # unTODOme
 #todo_use_ok('t::no_module_here');
+
+dies_ok -> { die "Testing dies_ok" }, '... it dies_ok';
+todo_dies_ok -> { return "Testing throws_ok" }, '... it todo_dies_ok';
+
+lives_ok -> { return "test" }, '... it lives_ok';
+todo_lives_ok -> { die "test" }, '... it todo_lives_ok';
 
 1;
 

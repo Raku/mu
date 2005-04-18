@@ -164,10 +164,54 @@ sub use_ok (Str $module) is export {
 sub todo_use_ok (Str $module) is export {
     eval "require $module";
     if ($!) {
-	    proclaim(undef, "require $module;", undef, "Import error when loading $module: $!");
+	    proclaim(undef, "require $module;", "TODO", "Import error when loading $module: $!");
     } 
     else {
         &todo_ok.goto(1, "$module imported OK");
+    }
+}
+
+## throws ok
+
+sub dies_ok (Sub $code, Str ?$desc) returns Bool is export {
+    try { $code() };
+    if ($!) {
+        &ok.goto(1, $desc); 
+    }
+    else {
+	    proclaim(undef, $desc, undef, "No exception thrown");
+    }
+}
+
+sub todo_dies_ok (Sub $code, Str ?$desc) returns Bool is export {
+    try { $code() };
+    if ($!) {
+        &todo_ok.goto(1, $desc); 
+    }
+    else {
+	    proclaim(undef, $desc, "TODO", "No exception thrown");
+    }
+}
+
+## lives ok
+
+sub lives_ok (Sub $code, Str ?$desc) returns Bool is export {
+    try { $code() };
+    if ($!) {
+        proclaim(undef, $desc, undef, "An exception was thrown : $!");
+    }
+    else {
+        &ok.goto(1, $desc); 
+    }
+}
+
+sub todo_lives_ok (Sub $code, Str ?$desc) returns Bool is export {
+    try { $code() };
+    if ($!) {
+        proclaim(undef, $desc, "TODO", "An exception was thrown : $!");
+    }
+    else {
+        &todo_ok.goto(1, $desc); 
     }
 }
 
@@ -428,6 +472,12 @@ maintain backwards compatibility as well.
 These functions will eval a code snippet, and then pass the result to is or ok
 on success, or report that the eval was not successful on failure.
 
+- `dies_ok (Sub $code, Str ?$desc) returns Bool`
+
+- `lives_ok (Sub $code, Str ?$desc) returns Bool`
+
+These functions both take blocks of code, run the code, and test whether they live or die.
+
 == TODO Testing functions
 
 Sometimes a test is broken because something is not implemented yet. So
@@ -454,6 +504,10 @@ functions.
 - `todo_eval_ok (Str $code, Str ?$desc) returns Bool`
 
 - `todo_eval_is (Str $code, $expected, Str ?$desc) returns Bool`
+
+- `todo_dies_ok (Sub $code, Str ?$desc) returns Bool`
+
+- `todo_lives_ok (Sub $code, Str ?$desc) returns Bool`
 
 You can use `t/force_todo` to set the tests which should get a temporary
 `todo_`-prefix because of release preparation. See `t/force_todo` for more
@@ -516,7 +570,7 @@ Because these functions will be mutually recursive, they will easily be
 able handle arbitrarily complex data structures automatically (at least
 that is what I hope).
 
-- throws_ok, lives_ok
+- throws_ok
 
 These are functions taken directly from Test::Exception. They will
 accept a block to execute and then either an Exception type, a reg-exp
