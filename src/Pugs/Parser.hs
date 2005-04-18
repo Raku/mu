@@ -917,7 +917,6 @@ listLiteral = tryRule "list literal" $ do -- XXX Wrong
 
 arrayLiteral = do
     items   <- brackets $ ruleExpression `sepEndBy` symbol ","
-    -- return $ App "&prefix:\\" [] [Syn "cxt" [Val (VStr "List"), Syn "," items]]
     return $ Syn "\\[]" [Syn "," items]
 
 pairLiteral = tryChoice [ pairArrow, pairAdverb ]
@@ -945,21 +944,26 @@ pairAdverb = do
         , angleBracketLiteral
         ]
 
-rxInterpolator end = choice
-    [ qqInterpolatorVar end, rxInterpolatorChar, ruleVerbatimBlock ]
+-- Interpolating constructs
+qInterpolatorChar = do
+    char '\\'
+    nextchar <- escapeCode -- see Lexer.hs
+    return (Val $ VStr [nextchar])
 
-qqInterpolator end = choice
-    [ qqInterpolatorVar end, qqInterpolatorChar, ruleVerbatimBlock ]
+qInterpolateDelimiter protectedChar = do
+    char '\\'
+    c <- oneOf (protectedChar:"\\")
+    return (Val $ VStr [c])
 
-qqInterpolatorVar end = try $ do
-    var <- ruleVarNameString
-    if (last var == end) then fail "" else return ()
-    fs <- if head var == '$'
-        then many qqInterpolatorPostTerm
-        else many1 qqInterpolatorPostTerm
-    return $ foldr (.) id (reverse fs) $ makeVar var
+qInterpolateQuoteConstruct = try $ do
+    string "\\q"
+    flag <- many1 alphaNum
+    char '['
+    expr <- interpolatingStringLiteral (char ']') (qInterpolator $ getQFlags [flag] ']')
+    char ']'
+    return expr
 
-qqInterpolatorPostTerm = try $ do
+qInterpolatorPostTerm = try $ do
     option ' ' $ char '.'
     choice
         [ ruleInvocationParens
@@ -968,30 +972,8 @@ qqInterpolatorPostTerm = try $ do
         , ruleCodeSubscript
         ]
 
-rxInterpolatorChar = do
-    char '\\'
-    nextchar <- anyChar -- escapeCode -- see Lexer.hs
-    return (Val $ VStr ['\\', nextchar])
-
-qqInterpolatorChar = do
-    char '\\'
-    nextchar <- escapeCode -- see Lexer.hs
-    return (Val $ VStr [nextchar])
-
-qInterpolateDelimiter end = do
-    char '\\'
-    c <- oneOf (end:"\\")
-    return (Val $ VStr [c])
-
-qInterpolateQuoteConstruct = try $ do
-    string "\\q"
-    flag <- many1 alphaNum
-    char '['
-    expr <- interpolatingStringLiteral (']') (qInterpolator $ getQFlags [flag])
-    char ']'
-    return expr
-
-qInterpolator flags end = choice [
+qInterpolator :: QFlags -> RuleParser Exp
+qInterpolator flags = choice [
         closure,
         backslash,
         variable
@@ -1001,43 +983,49 @@ qInterpolator flags end = choice [
             then ruleVerbatimBlock
             else mzero
         backslash = case qfInterpolateBackslash flags of
-            'a' -> try qqInterpolatorChar
+            'a' -> try qInterpolatorChar
                <|> (try qInterpolateQuoteConstruct)
-               <|> (try $ qInterpolateDelimiter end)
+               <|> (try $ qInterpolateDelimiter $ qfProtectedChar flags)
             's' -> try qInterpolateQuoteConstruct
-               <|> (try $ qInterpolateDelimiter end)
+               <|> (try $ qInterpolateDelimiter $ qfProtectedChar flags)
             'n' -> mzero
             _   -> fail ""
         variable = try $ do
             var <- ruleVarNameString
-            if (last var == end) then fail "" else return ()
             fs <- case head var of
                 '$' -> if qfInterpolateScalar flags
-                    then many qqInterpolatorPostTerm
+                    then many qInterpolatorPostTerm
                     else fail ""
                 '@' -> if qfInterpolateArray flags
-                    then many1 qqInterpolatorPostTerm
+                    then many1 qInterpolatorPostTerm
                     else fail ""
                 '%' -> if qfInterpolateHash flags
-                    then many1 qqInterpolatorPostTerm
+                    then many1 qInterpolatorPostTerm
                     else fail ""
                 '&' -> if qfInterpolateFunction flags
-                    then many1 qqInterpolatorPostTerm
+                    then many1 qInterpolatorPostTerm
                     else fail ""
                 _   -> fail ""
             return $ foldr (.) id (reverse fs) $ makeVar var
 
 qLiteral = do -- This should include q:anything// as well as '' "" <>
-    (ch, flags) <- getQDelim
-    expr <- interpolatingStringLiteral (balancedDelim ch) (qInterpolator flags)
-    char (balancedDelim ch)
+    (qEnd, flags) <- getQDelim
+    qLiteral1 qEnd flags
+
+qLiteral1 :: RuleParser x -- Closing delimiter
+             -> QFlags
+             -> RuleParser Exp
+qLiteral1 qEnd flags = do
+    expr <- interpolatingStringLiteral qEnd (qInterpolator flags)
+    qEnd
     case qfSplitWords flags of
         -- expr ~~ rx:perl5:g/(\S+)/
         'y' -> return $ doSplit expr
+        'p' -> return $ doSplit expr
         'n' -> return expr
         _   -> fail ""
     where
-    doSplit expr = Syn "cxt" [ Val (VStr "List"), App "&infix:~~" [expr, rxSplit] [] ]
+    doSplit expr = Cxt "List" $ App "&infix:~~" [expr, rxSplit] []
     rxSplit = Syn "rx" $
         [ Val $ VStr "(\\S+)"
         , Val $ VList
@@ -1046,16 +1034,36 @@ qLiteral = do -- This should include q:anything// as well as '' "" <>
             ]
         ]
 
+angleBracketLiteral :: RuleParser Exp
+angleBracketLiteral = try $
+        do
+        symbol "<<"
+        qLiteral1 (symbol ">>") (qqFlags { qfSplitWords = 'p', qfProtectedChar = '>' })
+    <|> do
+        symbol "<"
+        qLiteral1 (char '>') (qFlags { qfSplitWords = 'y', qfProtectedChar = '>' })
+    <|> do
+        symbol "\xab"
+        qLiteral1 (char '\xbb') (qFlags { qfSplitWords = 'y', qfProtectedChar = '\xbb' })
+
+-- Quoting delimitor and flags
 data QFlags = QFlags { qfSplitWords :: !Char,           -- No, Yes, Protect
                        qfInterpolateScalar :: !Bool,
                        qfInterpolateArray :: !Bool,
                        qfInterpolateHash :: !Bool,
                        qfInterpolateFunction :: !Bool,
                        qfInterpolateClosure :: !Bool,
-                       qfInterpolateBackslash :: !Char  -- No, Single, All
+                       qfInterpolateBackslash :: !Char, -- No, Single, All
+                       qfProtectedChar :: !Char
+                      {- qfProtectedChar is the character to be
+                         protected by backslashes, if
+                         qfInterpolateBackslash is Single or All.
+                       -}
                      }
 
-getQFlags flagnames = foldr useflag qFlags $ reverse flagnames
+getQFlags :: [String] -> Char -> QFlags
+getQFlags flagnames protectedChar =
+    (foldr useflag qFlags $ reverse flagnames) { qfProtectedChar = protectedChar }
     where
         -- Additive flags
           useflag "w" qf          = qf { qfSplitWords = 'y' }
@@ -1087,6 +1095,9 @@ getQFlags flagnames = foldr useflag qFlags $ reverse flagnames
         -- XXX What to do in case of unknown flag? Currently do nothing
           useflag _ qf            = qf
 
+openingDelim = anyChar
+{- XXX can be later defined to exclude alphanumerics, maybe also exclude
+closing delims from being openers (disallow q]a]) -}
 
 getQDelim = try $
     do  string "q"
@@ -1099,31 +1110,36 @@ getQDelim = try $
 
         notFollowedBy alphaNum
         whiteSpace
-        delim <- anyChar
-        return (delim, getQFlags flags)
+        delim <- openingDelim
+        return (char $ balancedDelim delim, getQFlags flags $ balancedDelim delim)
+    <|> try (do
+        string "<<"
+        return (
+            string ">>" >> return 'x',
+            qqFlags { qfSplitWords = 'p', qfProtectedChar = '>' }))
     <|> do
-        char <- oneOf "\"'<«"
-        case char of
-            '"'  -> return ('"',  qqFlags)
-            '\'' -> return ('\'', qFlags)
-            '<'  -> return ('<',  qFlags { qfSplitWords = 'y' })
-            --'«'  -> return ('«',  qqFlags { qfSplitWords = 'p' })
-            _    -> fail ""
+        delim <- oneOf "\"'<\xab"
+        case delim of
+            '"'     -> return (char '"',    qqFlags)
+            '\''    -> return (char '\'',   qFlags)
+            '<'     -> return (char '>',    qFlags { qfSplitWords = 'y', qfProtectedChar = '>' })
+            '\xab'  -> return (char '\xbb', qqFlags { qfSplitWords = 'p', qfProtectedChar = '\xbb' })
+            _       -> fail ""
 
     where
           oneflag = do string ":"
                        many alphaNum
 
 -- Default flags
-qFlags   = QFlags 'n' False False False False False 's'
-qqFlags  = QFlags 'n' True True True True True 'a'
-rawFlags = QFlags 'n' False False False False False 'n'
+qFlags   = QFlags 'n' False False False False False 's' '\''
+qqFlags  = QFlags 'n' True True True True True 'a' '"'
+rawFlags = QFlags 'n' False False False False False 'n' 'x'
 
-
-quotedDelim ch = choice
-    [ try $ do { string [ '\\', ch ]; return ch }
-    , try $ do { string "\\\\"; return '\\' }
-    ]
+-- Regexps
+rxLiteral1 :: RuleParser x -- Closing delimiter
+             -> RuleParser Exp
+rxLiteral1 rxEnd = qLiteral1 rxEnd $
+        qqFlags { qfInterpolateBackslash = 'n'}
 
 ruleAdverbHash = do
     pairs <- many pairAdverb
@@ -1132,32 +1148,20 @@ ruleAdverbHash = do
 substLiteral = try $ do
     symbol "s"
     adverbs <- ruleAdverbHash
-    ch      <- anyChar
+    ch      <- openingDelim
     let endch = balancedDelim ch
-    expr    <- interpolatingStringLiteral endch rxInterpolator
-    char endch
+    expr    <- rxLiteral1 (char endch)
     ch      <- if ch == endch then return ch else do { whiteSpace ; anyChar }
     let endch = balancedDelim ch
-    subst   <- interpolatingStringLiteral endch qqInterpolator
-    char endch
+    subst   <- qLiteral1 (char endch) qqFlags { qfProtectedChar = endch }
     return $ Syn "subst" [expr, subst, adverbs]
 
 rxLiteral = try $ do
     symbol "rx"
     adverbs <- ruleAdverbHash
     ch      <- anyChar
-    expr    <- interpolatingStringLiteral (balancedDelim ch) rxInterpolator
-    char $ balancedDelim ch
+    expr    <- rxLiteral1 (char $ balancedDelim ch)
     return $ Syn "rx" [expr, adverbs]
-
-angleBracketLiteral = try $ do
-    symbol "<"
-    str <- many $ satisfy (/= '>')
-    char '>'
-    return $ case words str of
-        []  -> Val (VStr "")
-        [x] -> Val (VStr x)
-        xs  -> Syn "," $ map (Val . VStr) xs
 
 namedLiteral n v = do { symbol n; return $ Val v }
 

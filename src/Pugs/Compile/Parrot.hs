@@ -113,6 +113,7 @@ instance Compile Exp where
         ]
     compile (App "&postfix:++" [inv] []) = text "inc" <+> compile inv
     compile (App "&postfix:--" [inv] []) = text "dec" <+> compile inv
+    compile (App "&infix:~" [exp, Val (VStr "")] []) = compile exp
     compile (App ('&':'i':'n':'f':'i':'x':':':op) [lhs, rhs] []) =
         compile lhs <+> text op <+> compile rhs
     compile (App "&say" invs args) = 
@@ -135,6 +136,7 @@ instance Compile Exp where
     compile (Syn "," things) = vcat $ map compile things
     compile (App "&not" [] []) =
         text "new" <+> compile (Val VUndef)
+    compile (Cxt _ exp) = compile exp
     compile x = error $ "Cannot compile: " ++ (show x)
 
 showText :: (Show a) => a -> Doc

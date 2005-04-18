@@ -16,10 +16,9 @@ evalHaskell :: String -> IO String
 evalHaskell code = do
     let imports = []
     -- eval_ code [import] [flags] [package.confs] [load paths] -> IO (Either [error-strings] (Maybe a))
-    ret <- eval_ code imports [] [] []
-    return $ case ret of
-        Left e         -> error $ unlines $ ["Couldn't eval haskell code: "]++e
-        Right (Just x) -> return x
-        _              -> error "Something strange happened in evalHaskell"
+    ret <- eval code imports
+    case ret of
+        Just x  -> return x
+        Nothing -> fail $ "Couldn't eval haskell code: " ++ code
 
 #endif

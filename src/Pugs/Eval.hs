@@ -247,7 +247,12 @@ reduce _ (Statements stmts) = do
     where
     isGlobalExp (Syn name _, _) = name `elem` (words "::=")
     isGlobalExp _ = False
-    
+
+-- Context forcing
+reduce _ (Cxt cxt exp) = do
+    val <- enterEvalContext cxt exp
+    enterEvalContext cxt (Val val) -- force casting
+
 -- Reduction for syntactic constructs
 reduce env exp@(Syn name exps) = case name of
     "block" -> do
@@ -349,11 +354,6 @@ reduce env exp@(Syn name exps) = case name of
     "val" -> do
         let [exp] = exps
         enterRValue $ evalExp exp
-    "cxt" -> do
-        let [cxtExp, exp] = exps
-        cxt     <- enterEvalContext "Str" cxtExp
-        val     <- enterEvalContext (vCast cxt) exp
-        enterEvalContext (vCast cxt) (Val val) -- force casting
     "\\{}" -> do
         let [exp] = exps
         v   <- enterEvalContext "List" exp

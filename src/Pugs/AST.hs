@@ -522,6 +522,7 @@ instance Show (IORef Pad) where
 data Exp
     = App String [Exp] [Exp]
     | Syn String [Exp]
+    | Cxt Cxt Exp
     | Sym [Symbol Exp]
     | Prim ([Val] -> Eval Val)
     | Val Val
@@ -571,11 +572,15 @@ extract ((Var name), vs)
     = (Var name, nub (name:vs))
     | otherwise
     = (Var name, vs)
+extract ((Cxt cxt ex), vs) = ((Cxt cxt ex'), vs')
+    where
+    (ex', vs') = extract (ex, vs)
 extract ((Parens ex), vs) = ((Parens ex'), vs')
     where
     (ex', vs') = extract (ex, vs)
 extract other = other
 
+cxtOfExp (Cxt cxt _) = cxt
 cxtOfExp (Syn "," _) = "List"
 cxtOfExp (Syn "*" _) = "List"
 cxtOfExp (Syn "[]" [exp, _]) = cxtOfExp exp
@@ -1059,7 +1064,8 @@ instance Array.Class IArray where
                 val <- readIVar sv
                 sv' <- newScalar val
                 liftIO . modifyIORef av $ \svList ->
-                    take idx svList ++ (sv' : drop (idx+1) svList)
+                    let idx' = idx `mod` length svList in
+                    take idx' svList ++ (sv' : drop (idx'+1) svList)
                 return sv'
             else return sv
     existsElem av idx = do

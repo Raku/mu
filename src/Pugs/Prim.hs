@@ -340,7 +340,7 @@ op1 "=" = \v -> do
     getLine fh = tryIO undef $
         (return . VStr . (++ "\n") =<< hGetLine fh)
     handleOf (VPair (_, x)) = handleOf x
-    handleOf (VStr "") = do
+    handleOf (VList []) = do
         argsGV  <- readVar "$*ARGS"
         gv      <- fromVal argsGV
         if defined gv
@@ -354,7 +354,7 @@ op1 "=" = \v -> do
                         hdl <- handleOf (VStr (head files)) -- XXX wrong
                         writeVar "$*ARGS" (VHandle hdl)
                         return hdl
-    handleOf (VStr x) = do
+    handleOf (VList [VStr x]) = do
         rv <- tryIO Nothing (return . Just =<< openFile x ReadMode)
         case rv of
             Nothing  -> retError "No such file or directory" (Val $ VStr x)
@@ -375,7 +375,7 @@ op1 other   = return . (\x -> VError ("unimplemented unaryOp: " ++ other) (App o
 op1EvalHaskell :: Val -> Eval Val
 op1EvalHaskell cv = do
     cstr <- (fromVal cv) :: Eval String
-    retstr <- liftIO (evalHaskell cstr)
+    retstr <- tryIO "" (evalHaskell cstr)
     return $ VStr $ retstr
 
 op1Cast :: (Value n) => (n -> Val) -> Val -> Eval Val

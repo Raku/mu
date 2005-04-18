@@ -96,7 +96,12 @@ symbol s
     aheadSym '~' y   = not (y `elem` "&|^<>~")
     aheadSym x   y   = y `elem` ";!" || x /= y
 
-interpolatingStringLiteral endchar interpolator = do
+interpolatingStringLiteral :: RuleParser x      -- Closing delimiter 
+                              -> RuleParser Exp -- Interpolator
+                              -> RuleParser Exp -- Entire string
+                                                -- (without delims)
+
+interpolatingStringLiteral endrule interpolator = do
         list <- stringList
         return $ Syn "cxt" [Val (VStr "Str"), homogenConcat list]
     where
@@ -107,10 +112,10 @@ interpolatingStringLiteral endchar interpolator = do
         homogenConcat (x:y:xs)       = App "&infix:~" [x, homogenConcat (y:xs)] []
         
         stringList = do
-            lookAhead (char endchar)
+            lookAhead endrule
             return []
           <|> do
-            parse <- interpolator endchar
+            parse <- interpolator
             rest  <- stringList
             return (parse:rest)
           <|> do
