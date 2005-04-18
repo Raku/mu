@@ -3,78 +3,88 @@ log and the mailing list archives.  These people have either submitted
 patches or suggestions, or their bug reports or comments have inspired
 the appropriate patches.  Corrections, additions, deletions welcome:
 
-Adam "alias" Kennedy             (ADAMK)
-Adam Preble
-Aldo "dada" Calpini              (ACALPINI)
-Alin "alinbsp" Iacob             (ALIN)
-Amir "lightstep" Livine Bar-On              עמיר ליבנה בר-און
-Andras Barthazi                             András Bártházi
-Andres "kosmikus" Loeh                      Andres Löh
-Andrew Savige                    (ASAVIGE)
-Anton Berezin                    (GRUBER)
-Autrijus Tang                    (AUTRIJUS) 唐宗漢
-Benjamin Smith                   (BSMITH)
-Bestian Tang                                唐宗浩
-Brian Ingerson                   (INGY)
-Bryan Donlan                     (BDONLAN)
-Carl Masak                       (MASAK)
-Cheng-Lung Sung                  (CLSUNG)   宋政隆
-Chia-Liang Kao                   (CLKAO)    高嘉良
-Chip Salzenberg                  (CHIPS)
-Curtis "ovid" Poe                (OVID)
-Damian Conway                    (DCONWAY)
-Darren Duncan                    (DUNCAND)
-David Christensen                (DWC)
-David Vergin                     (DVERGIN)
-Dimitry Golubovsky
-Don Stewart
-Edwin Steiner
-Fayland Lam                      (FAYLAND)  林道
-Gaal Yahas                       (GAAL)     גל יחס
-Garret Rooney                    (ROONEG)
-Hsin-Chan Chien                  (HCCHIEN)  簡信昌
-Ingo "iblech" Blechschmidt
-Isaac "SyntaxNinja" Jones
-James "theorbtwo" Mastros        (JMASTROS)
-Jesse "obra" Vincent             (JESSE)
-John van Krieken                 (VLADTZ)
-Jonathan Scott Duff              (DUFF)
-Jonathan Worthington             (JONATHAN)
-Juerd Waalboer                   (JUERD)
-Julian Fondren                   (AYRNIEU)
-Kang-Min Liu                     (GUGOD)    劉康民
-Kuang-che Wu                                吳光哲
-Larry Wall                       (LWALL)
-Leopold Toetsch                  (LTOETSCH) Leopold Tötsch
-Liang-Qi "viirya" Xie                       謝良奇
-Luke "luqui" Palmer              (LPALMER)
-Mark Stosberg
-Markus "malaire" Laire
-Max Maischein                    (CORION)
-Michael G Schwern                (MSCHWERN)
-Nathan "kolibrie" Gray           (KOLIBRIE)
-Nicholas Clark                   (NWCLARK)
-Norman Nunley, Jr                (NNUNLEY)
-Patrick R. "pmichaud" Michaud
-Per "pernod" Christian Nodtvedt             Per Christian Nødtvedt
-Rafael "rgs" Garcia-Suarez       (RGARCIA)  Rafaël Garcia-Suarez
-Randal L. Schwartz               (MERLYN)
-Richard "crysflame" Soderberg    (RSOD)
-Robin "elmex" Redeker
-Rod Adams
-Sam "mugwump" Vilain             (SAMV)
-Scott McWhirter                  (KUNGFUFTR)
-Shae "shapr" Matijs Erisson
-Shu-Chun "scw" Weng                         翁書鈞
-Stefano Rodighiero               (LARSEN)
-Stephane "cognominal" Payrard    (STEF)     Stéphane Payrard
-Stevan "stevan" Little           (STEVAN)
-Steve Peters                     (SMPETERS)
-Terrence "metaperl" Brannon      (TBONE)
-Thomas Sandlass                             Thomas Sandlaß
-Thomas Yeh
-Tom Moertel                      (TMOERTEL)
-Will "coke" Coleda
-Yuan-Chen "ycheng" Cheng                    鄭原真
-Yung-chung Lin                   (XERN)     林永忠
-Yuval "nothingmuch" Kogman       (NUFFIN)   יובל קוג'מן
+Adam "alias" Kennedy             (ADAMK)     
+Adam Preble                                  
+Aldo "dada" Calpini              (ACALPINI)  
+Alin "alinbsp" Iacob             (ALIN)      
+Amir "lightstep" Livine Bar-On               עמיר ליבנה בר-און
+Andras Barthazi                              András Bártházi
+Andres "kosmikus" Loeh                       Andres Löh
+Andrew Savige                    (ASAVIGE)   
+Anton Berezin                    (GRUBER)    
+Autrijus Tang                    (AUTRIJUS)  唐宗漢
+Benjamin Smith                   (BSMITH)    
+Bestian Tang                                 唐宗浩
+Brian Ingerson                   (INGY)      
+Bryan Donlan                     (BDONLAN)   
+Carl Masak                       (MASAK)     
+Cheng-Lung Sung                  (CLSUNG)    宋政隆
+Chia-Liang Kao                   (CLKAO)     高嘉良
+Chip Salzenberg                  (CHIPS)     
+Curtis "ovid" Poe                (OVID)      
+Damian Conway                    (DCONWAY)   
+Darren Duncan                    (DUNCAND)   
+David Christensen                (DWC)       
+David Vergin                     (DVERGIN)   
+Dimitry Golubovsky                           
+Don Stewart                                  
+Edwin Steiner                                
+Fayland Lam                      (FAYLAND)   林道
+Gaal Yahas                       (GAAL)      גל יחס
+Garret Rooney                    (ROONEG)    Garrett Rooney
+"gcomnz"
+Hsin-Chan Chien                  (HCCHIEN)   簡信昌
+Ingo "iblech" Blechschmidt                   
+Isaac "SyntaxNinja" Jones                    
+James "theorbtwo" Mastros        (JMASTROS)  
+Jesse "obra" Vincent             (JESSE)     
+John van Krieken                 (VLADTZ)    
+Jonathan Scott Duff              (DUFF)      
+Jonathan Worthington             (JONATHAN)  
+Juerd Waalboer                   (JUERD)     
+Julian Fondren                   (AYRNIEU)   
+Kang-Min Liu                     (GUGOD)     劉康民
+Kuang-che "kcwu" Wu                          吳光哲
+Larry Wall                       (LWALL)     
+Leopold Toetsch                  (LTOETSCH)  Leopold Tötsch
+Liang-Qi "viirya" Xie                        謝良奇
+Luke "luqui" Palmer              (LPALMER)   
+Mark Stosberg                                
+Markus "malaire" Laire                       
+"mattc"
+Max Maischein                    (CORION)    
+Michael G Schwern                (MSCHWERN)  
+Nathan "kolibrie" Gray           (KOLIBRIE)  
+Nicholas Clark                   (NWCLARK)   
+"ninereasons"
+Norman Nunley, Jr                (NNUNLEY)   
+Patrick R. "pmichaud" Michaud                
+Per "pernod" Christian Nodtvedt              Per Christian Nødtvedt
+"putter"
+Rafael "rgs" Garcia-Suarez       (RGARCIA)   Rafaël Garcia-Suarez
+Randal L. Schwartz               (MERLYN)    
+Richard "crysflame" Soderberg    (RSOD)      
+Robin "elmex" Redeker                        
+Rod Adams                                    
+Sam "mugwump" Vilain             (SAMV)      
+Scott McWhirter                  (KUNGFUFTR) 
+Shae "shapr" Matijs Erisson                  
+Shawn Sorichetti                 (SSORICHE)  
+Shu-Chun "scw" Weng                          翁書鈞
+Stefano Rodighiero               (LARSEN)    
+Stephane "cognominal" Payrard    (STEF)      Stéphane Payrard
+Stevan "stevan" Little           (STEVAN)    
+Steve Peters                     (SMPETERS)  
+Terrence "metaperl" Brannon      (TBONE)     
+Ting "tiw" Wang
+Thomas Sandlass                              Thomas Sandlaß
+Thomas Yeh                                   
+"tobez"
+Tom Moertel                      (TMOERTEL)  Tom Moertel
+"roie_m"
+"rootmj"
+Will "coke" Coleda                           
+"wolverian"
+Yuan-Chen "ycheng" Cheng                     鄭原真
+Yung-chung Lin                   (XERN)      林永忠
+Yuval "nothingmuch" Kogman       (NUFFIN)    יובל קוג'מן
