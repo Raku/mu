@@ -1,0 +1,10 @@
+http-client.p6 and http-server.p6 are small programs which demonstrate basic
+socket handling in Pugs.
+
+http-client.p6 fetches an URL using HTTP/1.0,
+http-server.p6 is a small HTTP/1.0 server.
+
+Both can be run with plain Pugs, there're no additional modules needed.
+
+Note: The functions concerning threading used in http-server.p6 are not yet
+specced.
