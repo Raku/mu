@@ -44,6 +44,6 @@ ok(list_count("@list[]") == 1, 'quoted interpolation gets string context');
 is(q0"abc\\d\\'\/", q0"abc\\d\\'\/", "raw quotation works");
 is(q1"abc\\d\"\'\/", q0|abc\d"\'\/|, "single quotation works"); #"
 is(q2"abc\\d\"\'\/", q0|abc\d"'/|, "double quotation works"); #"
-is(qa"$world @list[] %hash{}", q0"$world 1 2%hash{}", "only interpolate array");
+is(qa"$world @list[] %hash{}", q0"$world 1 2 %hash{}", "only interpolate array");
 is(qb"$world \\\"\n\t", "\$world \\\"\n\t", "only interpolate backslash");
 is('$world \qq[@list[]] %hash{}', '$world 1 2 %hash{}', "interpolate quoting constructs in ''");
