@@ -25,7 +25,7 @@ for =$FH -> $line {
 }
 
 my $total = 0;
-foreach my $sail (keys %sails) {
+for %sails.keys -> $sail {
   my $sail_area = _calc_area($sails{$sail}<points>) * ($scale / 100);
   say "$sail.area: $sail_area cm^2";
   $total += $sail_area;
