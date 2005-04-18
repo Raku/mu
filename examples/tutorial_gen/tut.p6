@@ -28,8 +28,10 @@ say ~$path if $dg;
 #       { src => './tut_src/hello-world-ad.p6', dest_dir => 'base',  },
 #       { src => './tut_src/',                  dest_dir => 'tut',   },
 
+
 my $conf = {
     index => [
+      # dir tut-src /B
       <hello-world.p6 hello-world-ad.p6>
     ],
     tut_src_dir => './tut-src',
@@ -180,6 +182,8 @@ sub gen_html (
     Str $prev_tut_fn, Str $tut_fn, Str $next_tut_fn, 
     Str $out_dir, Str +$suffix 
 ) {
+    use HTML::Entities;
+
     my ( $part, $out_part );
     say ~@out_parts;
  
@@ -219,10 +223,10 @@ qq|<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
         # ===== html =====>>
         say $fh_html, qq|
         <tr>
-          <td class="src"><pre>{$part}</pre></td>
+          <td class="src"><pre>{encode_entities $part}</pre></td>
         { 
             if $out_part { 
-                qq|<td><div class="out"><pre>{$out_part}</pre></div></td>| 
+                qq|<td><div class="out"><pre>{encode_entities $out_part}</pre></div></td>| 
             } else { 
                 qq|<td class="empty"></td>|; 
             }
