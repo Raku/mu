@@ -87,7 +87,7 @@ sub eval_ok (Str $code, Str ?$desc) returns Bool is export {
 	    proclaim(undef, $desc, undef, "eval was fatal");
     }
     else {
-        diag "'$desc' was non-fatal and maybe shouldn't use eval_ok()";
+        #diag "'$desc' was non-fatal and maybe shouldn't use eval_ok()";
 	    &ok.goto($result, $desc);
     }
 }
@@ -110,7 +110,7 @@ sub eval_is (Str $code, $expected, Str ?$desc) returns Bool is export {
 	    proclaim(undef, $desc, undef, "eval was fatal", $expected);
     }
     else {
-        diag "'$desc' was non-fatal and maybe shouldn't use eval_is()";
+        #diag "'$desc' was non-fatal and maybe shouldn't use eval_is()";
 	    &is.goto($result, $expected, $desc);
     }
 }
@@ -121,7 +121,7 @@ sub todo_eval_is (Str $code, $expected, Str ?$desc) returns Bool is export {
         proclaim(undef, $desc, "TODO", "was fatal", $expected);
     }
     else {
-        diag "'$desc' was non-fatal and maybe shouldn't use todo_eval_is()";
+        #diag "'$desc' was non-fatal and maybe shouldn't use todo_eval_is()";
         &todo_is.goto($result, $expected, $desc);
     }
 }
