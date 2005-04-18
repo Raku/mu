@@ -9,10 +9,12 @@ Isa tests
 
 =cut
 
-plan 2;
+plan 3;
 
-{   my @arr = <1 2 3 4>;
-    ok @arr.isa("List"), 'arrays descend from lists';
+{   
+    my @arr = <1 2 3 4>;
+    isa_ok(@arr, 'Array');
+    isa_ok(@arr, 'List');
 }
 
 {   my $arr = <1 2 3 4>;
