@@ -3,14 +3,11 @@
 use v6;
 require Test;
 
-plan 26;
+plan 27;
 
 # test all variants of join() 
 
 is(["a", "b", "c"].join("|"), "a|b|c", '[].join("|") works');
-
-my $joined1 = ("a", "b", "c").join("|");
-is($joined1, "baca|", '().join("|") should NOT dwim');
 
 my @list = ("a", "b", "c");
 
@@ -30,9 +27,6 @@ is($joined4, "a|b|c", 'join("|", []) works');
 my $sep = ", ";
 
 is(["a", "b", "c"].join($sep), "a, b, c", '[].join($sep) works');
-
-my $joined1a = ("a", "b", "c").join($sep);
-is($joined1a, "baca, ", '().join($sep) should NOT dwim');
 
 is(@list.join($sep), "a, b, c", '@list.join($sep) works');
 
@@ -69,9 +63,6 @@ is($joined4c, "a:b:c", 'join ":", [] works');
 
 is(["a", "b", "c"].join(''), "abc", '[].join("") works');
 
-my $joined1d = ("a", "b", "c").join('');
-is($joined1d, "baca", '().join("") should NOT dwim');
-
 my @list = ("a", "b", "c");
 
 is(@list.join(''), "abc", '@list.join("") works');
@@ -97,3 +88,18 @@ my @odd_list2 = (1, undef, 2, undef, 3);
 
 my $joined2f = join(':', @odd_list2);
 is($joined2f, "1::2::3", 'join(":", @odd_list2) works');
+
+# should these even be tests ???
+
+my $joined1d = ("a", "b", "c").join('');
+is($joined1d, "baca", '().join("") should NOT dwim');
+
+my $joined1 = ("a", "b", "c").join("|");
+is($joined1, "baca|", '().join("|") should NOT dwim');
+
+my $joined1a = ("a", "b", "c").join($sep);
+is($joined1a, "baca, ", '().join($sep) should NOT dwim');
+
+# some error cases
+
+dies_ok({ join() }, 'join() must have arguments');

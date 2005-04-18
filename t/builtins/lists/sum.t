@@ -3,7 +3,7 @@
 require Test;
 use v6;
 
-plan 3;
+plan 4;
 
 =head1 DESCRIPTION
 
@@ -21,3 +21,5 @@ is @array.sum,  $sum, "method form of sum on an array works";
 is sum(@array), $sum, "subroutine form of sum on an array works";
 
 is sum(-1,2,3), 4,    "subroutine form of sum on a list works";
+
+ok(!defined(sum()), 'sum()ing nothing returns undef');
