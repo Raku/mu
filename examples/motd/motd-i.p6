@@ -10,34 +10,72 @@ require "MOTD";
 my $subject   = shift @ARGS || 'Pugs';
 my $surveyed  = shift @ARGS || 10;
 my %tally     ;
-my @list      = @ARGS;
+
+# unimplemented: should be able to say 
+# my @list = =$fh is chomped;
+my @list ;
+my $dict = canonpath("$progdir/pugspraise");
+
+my $fh = open("<$dict");
+
+# should be able to chomp $_, but can't yet
+# check back
+for =$fh->$line is rw{
+  # $line should be declarable as 'is rw'
+	# not yet implemented
+	my $a = $line; #so, we need to make a rw copy 
+	chomp $a; 
+	# next isn't working correctly, yet
+	if( $a ){
+		push @list,$a;
+	}
+};
+$fh.close;
+my $orig = ~@list;
+
 my $most      = 0;
 my @mostsaid := { matchval \$most,\%tally };
-
 my &tell := sub {
-	 say 
-# "From a sample of $surveyed, the majority { 
-#			+@mostsaid(1) > 1 ?? "($most of each opinion)" :: "($most)" 
-#		} said that 
-	  "$subject is{ 
+	 say "$subject is{ 
 			report @mostsaid(1) 
 		}.{
 			"\n" x 10
-		}([Subj],[Samplesize#],[List,...] <Enter>)"
+		}([NewListItem,...] <Enter>)"
 };
 
-say "Press Enter to generate an opinion about $subject";
+say "Press Enter to generate statements about $subject"~
+	  "\nPress Ctrl-D to end";
 my $keyed;
 while($keyed = =$*IN){
 	clear;
 	chomp $keyed;
-	my @keyed = parse_args($keyed);
-	#new surveyFor
-	#r2018 couldn't say = shift @keyed || 
-	$subject  = @keyed[0]??@keyed[0]::$subject;
-	$surveyed = @keyed[1]??@keyed[1]::$surveyed;
-	@list     = @keyed[2..@keyed-1]??@keyed[2..@keyed-1]::@list;
+ 	my @keyed ;
+	if($keyed){
+		@keyed = parse_args($keyed);
+	}
+	@list     = (*@keyed , *@list);
 	%tally    = $surveyed .whisper_about( *@list );
 	tell(@mostsaid( $most = %tally.values.max));
+	@keyed.perl.say;
 }
 
+unless $orig eq ~@list {
+	say "Do you want to save your changes?";
+	print "y/N ..."; 
+	my $ans = =$*IN; # is chomped;
+	chomp $ans; # hack while 'is chomped' is unimplemented
+	if $ans eq any ('y','Y'){
+		my $backup = $dict;
+		my $incr    = 1;
+	  while -f "$backup-$incr" {
+			$incr++;
+	  }
+		$backup ~= "-$incr";
+	  rename $dict,"$backup";
+		my $newfh = open(">$dict");
+		for @list->$line{say $newfh,$line}
+		$newfh.close;
+		say "diff $backup $dict";
+	}
+	
+}

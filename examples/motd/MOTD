@@ -1,22 +1,9 @@
-#!/usr/bin/pugs
-
 use v6;
 
-sub finger (@arr) returns Str {
+sub finger (*@arr) returns Str {
 		my @default = (
-		"a love letter to the Cabal",
-		"a \"Good Morning\" to a sleepy programmers' community",
-		"cleaned up nicely in the shower",  
-		"a coffee-cup against the wall",
-		"sensitive (to semantic, pragmatic, and cultural context)",
-		"a marvel",
-		"a \"Hello Perl!\" from Haskell",
-		"test driven",
-		"\"Perl6, now!\"",
-		"a good thing",
-		"going great shakes",
-		"proof of the concept of a perly functional language",
-	  "a grab-bag of new ways to shoot yourself in the foot",
+			"boring",
+			"missing examples",
 		);
 	  pick any @arr || @default
 }
@@ -30,7 +17,7 @@ sub finger (@arr) returns Str {
 	if(@x){
 		$str ~= addtolist($x);
 	}else{
-		$str = lastpass($x,$str,$iter);
+		$str = append_last($x,$str,$iter);
 	}
 	report @x;
  }
@@ -46,7 +33,7 @@ sub max (Array @x) returns Int{
 	for @x->$try{
 	$max =	$max > $try ?? $max :: $try; 
 	}
-	$max
+	$max.int
 }	
 
 sub whisper_about (Int $sizeof_crowd, Array ?@x) returns Hash {
@@ -61,7 +48,7 @@ sub addtolist ($x){
 	" $x,";	
 }
 
-sub lastpass ($x,$string,$pass){
+sub append_last ($x,$string,$pass){
   my $rwstring = $string; 
 	if $pass > 1 {
 		chop $rwstring;
