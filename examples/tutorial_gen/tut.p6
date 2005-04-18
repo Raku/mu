@@ -24,15 +24,17 @@ say ~$path if $dg;
 #my $conf_raw = require $conf_fp || die "Conf file '$conf_fp' not loaded;";
 #my $conf = hash( $conf_raw );
 
+#       { src => './tut_src/hello-world.p6',    dest_dir => 'base',  },
+#       { src => './tut_src/hello-world-ad.p6', dest_dir => 'base',  },
+#       { src => './tut_src/',                  dest_dir => 'tut',   },
+
 my $conf = {
-    index => <
-        hello-world.p6
-        hello-world-ad.p6
-    >,
-    find_others => 1,
-    
+    index => [
+      <hello-world.p6 hello-world-ad.p6>
+    ],
     tut_src_dir => './tut-src',
-    pugs_fp => './../../pugs',
+    pugs => 'pugs',
+    #pugs => './../../pugs',
     output_dir => './tut-output',
 
     # temprorary files
@@ -61,10 +63,10 @@ my $os;
 
 say ~$path;
 for $conf.keys -> $key {
-    die "Conf keys 'f_*' are reserved!\n" if $key ~~ rx:perl5/^f_/;
-    if ( $key ~~ rx:perl5/_fp$/ ) {
+    die "Conf keys 'f_*' are reserved!\n" if $key ~~ rx:perl5{^f_};
+    if ( $key ~~ rx:perl5{_fp$} ) {
         $conf{'f_'  ~ $key} = catfile( $path, $conf{$key} );
-    } elsif  ( $key ~~ rx:perl5/_dir$/ ) {
+    } elsif  ( $key ~~ rx:perl5{_dir$} ) {
         $conf{'f_' ~ $key} = catdir( $path, $conf{$key} );
     } else {
         # todo_
@@ -76,12 +78,16 @@ for $conf.keys -> $key {
 }
 say '';
 
-my $pugs_fp = $conf<f_pugs_fp>;
+my $pugs = $conf<pugs>;
+$pugs = catfile( $path, $pugs ) if $pugs ~~ rx:perl5{^[\.\\\/]};
 if ( $os eq 'win32' ) {
-    $pugs_fp ~~ s:perl5:g{\/}{\\};
-    $pugs_fp ~= '.exe' unless $pugs_fp ~~ rx:perl5{\.exe$};
+    $pugs ~~ s:perl5:g{\/}{\\};
+    $pugs ~= '.exe' unless $pugs ~~ rx:perl5{\.exe$};
 }
-say '--- pugs_fp: ' ~ $pugs_fp ~ "\n" if $dg;
+say '--- pugs: ' ~ $pugs ~ "\n" if $dg;
+my $stat = system( "$pugs -v" );
+# TODO
+#die "Pugs '$pugs' run test failed (code $stat)!\n" if $stat != 0;
 
 my $out_dir = $conf<f_output_dir>;
 unless -d $out_dir {
@@ -108,39 +114,12 @@ if $conf<output_type> eq 'html' {
 die "Source file directory '$conf<tut_src_dir> ('$conf<f_tut_src_dir>') not found!" 
     unless -d $conf<f_tut_src_dir>;
 
-my $index = $conf<index>;
-if $conf<find_others> { 
-    # todo_ maybe
-    # my $index_h = hash( zip( $index, [1..Inf] ) );
-    my $index_h;
-    for $index -> $key {
-        $index_h{$key} = 1;
-    }
 
-# TODO
-#    require File::Find::Rule;
-#    my @files = File::Find::Rule::find( name => [ '*.p6' ], in => $conf<f_tut_src_dir> ); 
-#    foreach my $fn ( @files ) {
-#        $fn = abs2rel( $fn, $conf<f_tut_src_dir> );
-#        next if $index_h{$fn};
-#        push @$index, $fn;
-#    }
-}
-
-say 'ok';
-my ( $tut_fp, $tt_vars );
-my ( $tut_fn, $prev_tut_fn, $next_tut_fn );
-# todo_ autrijus "zip() is in." 
-for $index.kv -> $idx, $tut_fn {
-    if ( $idx > 0 ) { $prev_tut_fn = $index[$idx-1] } else { $prev_tut_fn = undef };
-    if ( $idx + 1 < $index.elems ) { $next_tut_fn = $index[$idx+1] } else { $next_tut_fn = undef };
-
-    $tut_fp = catfile( $conf<f_tut_src_dir>, $tut_fn );
-    say "p:'$prev_tut_fn'  a:'$tut_fn' n:'$next_tut_fn'";
-    say $tut_fp;
-
-    my $file_t = slurp $tut_fp || die "Slurp failed '$file_fp'\n";
-    my @parts = split "\n", $file_t;
+sub get_output ( Str $tut_fp, +$each_semicolon = 0 ) {
+    my $file_t = slurp $tut_fp || die "Slurp failed '$tut_fp'\n";
+    my @parts = split "\n\n", $file_t;
+    #TODO one-line
+    #my @parts = split "\n", $file_t;
 #    say $file_t;
 #    say ~@parts;
 
@@ -148,7 +127,7 @@ for $index.kv -> $idx, $tut_fn {
     for @parts.kv -> $part_num, $part {
         $new_pl ~= $part ~ "\n";
         # TODO
-        #unless $part ~~ rx:perl5/^\s*$/ {
+        #unless $part ~~ rx:perl5{^\s*$} {
             $new_pl ~= 'print "#~# ' ~ $part_num ~ ' #~#\n";';
             # todo_ waiting for io_redirect_to_scalar
             # $new_pl ~= '$*ERR.print("#!# ' ~ $part_num ~ ' #!#\n");';
@@ -167,7 +146,7 @@ for $index.kv -> $idx, $tut_fn {
     print $fh_p6_temp, $new_pl;
     close $fh_p6_temp;
     
-    my $cmd = "$pugs_fp $conf<f_temp_fp> > $conf<f_temp_out_fp>";
+    my $cmd = "$pugs $conf<f_temp_fp> > $conf<f_temp_out_fp>";
     say "running: '$cmd'\n";
     my $status = system $cmd;
     my $out = slurp $conf<f_temp_out_fp>;
@@ -175,13 +154,36 @@ for $index.kv -> $idx, $tut_fn {
     
     say ~ '-' x 60 ~ " out b --\n" ~ $out ~ "\n" ~ '-' x 60 ~ ' out e --' if $dg;
 
-  # my @out_parts = split( rx:perl5/#~# \d+ #~#/, $out);
-    my @out_parts = split( rx:perl5/#~# \d+ #~/, $out);
+  # my @out_parts = split( rx:perl5{#~# \d+ #~#}, $out);
+    my @out_parts = split( rx:perl5{#~# \d+ #~}, $out);
+    
+    # todo_
+    #for @out_parts -> $out_part is rw {
+    #  $out_part = undef; ...
+    for @out_parts.keys -> $idx {
+        my $out_part = @out_parts[$idx];
+        if $out_part ~~ rx:perl5{^#\s*$} {
+            @out_parts[$idx] = undef;
+        } else {
+            @out_parts[$idx] ~~ s:perl5{^#\n}{};
+            #TODO one-line
+            #$out_part ~~ s:perl5{\n$}{};
+            
+        }
+    }
+    return \@parts, \@out_parts;
+}
+    
+
+sub gen_html ( 
+    @parts, @out_parts, 
+    Str $prev_tut_fn, Str $tut_fn, Str $next_tut_fn, 
+    Str $out_dir, Str +$suffix 
+) {
     my ( $part, $out_part );
     say ~@out_parts;
  
-
-    my $html_fp = catfile( $out_dir, $tut_fn ~ $out_suffix );
+    my $html_fp = catfile( $out_dir, $tut_fn ~ $suffix );
     my $fh_html = open '>' ~ $html_fp;
 
     # ===== html =====>>
@@ -198,11 +200,11 @@ qq|<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
     <table id="nav" cellspacing=0 cellpadding=0 border=0>
       <tr>
         <td class="link">
-        { if $prev_tut_fn { qq|<a href="{$prev_tut_fn}{$out_suffix}">\&lt;\&lt;prev</a>| } }
+        { if $prev_tut_fn { qq|<a href="{$prev_tut_fn}{$suffix}">\&lt;\&lt;prev</a>| } }
         </td>
         <td class="name">{$tut_fn}</td>
         <td class="link">
-        { if $next_tut_fn { qq|<a href="{$next_tut_fn}{$out_suffix}">next\&gt;\&gt</a>| } }
+        { if $next_tut_fn { qq|<a href="{$next_tut_fn}{$suffix}">next\&gt;\&gt</a>| } }
         </td>
       </tr>
     </table>
@@ -212,15 +214,6 @@ qq|<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
     my $out_part;
     for @parts.kv -> $part_num, $part {
         $out_part = @out_parts[$part_num];
-        if $out_part ~~ rx:perl5/^#\s*$/ {
-            $out_part = undef;
-        } else {
-            $out_part ~~ s:perl5{^#\n}{};
-            $out_part ~~ s:perl5{\n$}{};
-            
-            # TODO para and javascript on-off button :-)
-            # $out_part =~ s|\n|<div class="para">&para;<\/div>\n|g;
-        }
         say ~ '-' x 20 ~ " $part_num in_part -----\n" ~ $part ~ "\n" ~ '-' x 20 ~ " $part_num out_part ----\n"  ~ '-' x 20 ~ "\n" ~ $out_part ~ "\n" ~ '-' x 20 ~ ' $part_num out_part e --' if $dg;
 
         # ===== html =====>>
@@ -247,6 +240,55 @@ qq|<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
       </tr>
     </table></body></html>
 |; # <<=====
-
     close $fh_html;
+}
+
+
+say $conf<index>.ref;
+my @prep_index = *$conf<index>;
+# say @prep_index.ref; say join ' - ', @prep_index[0], @prep_index[1];
+
+#for $conf<index>.kv -> 
+
+#if $conf<find_others> { 
+#    # todo_ maybe
+#    # my $index_h = hash( zip( $index, [1..Inf] ) );
+#    my $index_h;
+#    for @index -> $key {
+#        $index_h{$key} = 1;
+#    }
+
+# TODO
+#    require File::Find::Rule;
+#    my @files = File::Find::Rule::find( name => [ '*.p6' ], in => $conf<f_tut_src_dir> ); 
+#    foreach my $fn ( @files ) {
+#        $fn = abs2rel( $fn, $conf<f_tut_src_dir> );
+#        next if $index_h{$fn};
+#        push @index, $fn;
+#    }
+#}
+
+my ( $tut_fp, $tt_vars );
+my ( $tut_fn, $prev_tut_fn, $next_tut_fn );
+# todo_ autrijus "zip() is in." 
+for @prep_index.kv -> $idx, $tut_fn {
+    if ( $idx > 0 ) { $prev_tut_fn = @prep_index[$idx-1] } else { $prev_tut_fn = undef };
+    if ( $idx + 1 < @prep_index.elems ) { $next_tut_fn = @prep_index[$idx+1] } else { $next_tut_fn = undef };
+
+    say "p:'$prev_tut_fn'  a:'$tut_fn'  n:'$next_tut_fn'";
+    
+    $tut_fp = catfile( $conf<f_tut_src_dir>, $tut_fn );
+    slurp $tut_fp || die "$tut_fp";
+    say $tut_fp;
+
+    my ( @parts, @out_parts );
+    # todo_
+    { my $r = get_output( $tut_fp ); @parts = $r[0], @out_parts = $r[1] }
+    say "parts: {+@parts}, out_parts: {+@out_parts}" if $dg;
+    
+    gen_html( 
+        @parts, @out_parts, 
+        $prev_tut_fn, $tut_fn, $next_tut_fn, 
+        $out_dir, suffix => $out_suffix 
+    );
 }
