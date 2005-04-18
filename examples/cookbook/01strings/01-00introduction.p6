@@ -56,12 +56,6 @@ XXX Some backslashy escapes work in single quotes too
 It's often useful to use something other than single or double quotes when
 declaring strings. To do so use the q// and qq// quote operators:
 
-XXX I believe the "standard" form is now with square brackets, i.e. q[],
-instead of q//.
-	-- I see the q// form most often in synopsis, can you confirm a change to
-		q[] somewhere? --gcomnz
-XXX No - must have dreamt it... (Remove this paragraph when you've read it.)
-
 	# Single quoted strings
 	say 'I have to escape my \'single quotes\' in this string';
 	say q/This string allows 'single quotes' seamlessly/;
@@ -185,7 +179,7 @@ the :s adverb.
 	# This multiline string will only interpolate scalars
 	my $multiline = q:s:to/EOF/
 		This $scalar will be interpolated, but this @array won't be.
-                EOF
+		EOF
 
 These adverbs apply to the body of the heredoc, not to the terminator, because
 the terminator has to be known at compile time. This means that
