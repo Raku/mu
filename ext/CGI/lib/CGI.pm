@@ -11,13 +11,11 @@ my $CONTENT_TYPE;
 my $QUERY_STRING;
 my $QS_DELIMITER = ';';
 my $URL_ENCODING = 'iso-8859-1';
+my $IS_PARAMS_LOADED = 0;
 
 ## functions
 
 # information functions
-
-multi sub param returns Array is export { %PARAMS.keys }
-multi sub param (Str $key) returns Array is export { (%PARAMS{$key}) }
 
 sub clear_params returns Void is export { %PARAMS = () }
 
@@ -152,36 +150,43 @@ sub unpack_params (Str $data) returns Str is export {
     }  
 }
 
-## now initialize all the globals
-
-try {
-    $REQUEST_METHOD = %*ENV<REQUEST_METHOD>;
-    $CONTENT_TYPE   = %*ENV<CONTENT_TYPE>;    
-    $CONTENT_LENGTH = %*ENV<CONTENT_LENGTH>;   
-        
-    if (lc($REQUEST_METHOD) eq ('get' | 'head')) {
-        $QUERY_STRING = %*ENV<QUERY_STRING>;
-        unpack_params($QUERY_STRING) if $QUERY_STRING;
-    }
-    elsif (lc($REQUEST_METHOD) eq 'post') { 
-        if (!$CONTENT_TYPE || $CONTENT_TYPE eq 'application/x-www-form-urlencoded') {
-            my $content; # = read($*IN, $CONTENT_LENGTH);
-            unpack_params($content) if $content;
+sub load_params {
+    $IS_PARAMS_LOADED = 1; 
+    ## initialize all the globals
+    try {
+        $REQUEST_METHOD = %*ENV<REQUEST_METHOD>;
+        $CONTENT_TYPE   = %*ENV<CONTENT_TYPE>;    
+        $CONTENT_LENGTH = %*ENV<CONTENT_LENGTH>;   
+            
+        if (lc($REQUEST_METHOD) eq ('get' | 'head')) {
+            $QUERY_STRING = %*ENV<QUERY_STRING>;
+            unpack_params($QUERY_STRING) if $QUERY_STRING;
+        }
+        elsif (lc($REQUEST_METHOD) eq 'post') { 
+            if (!$CONTENT_TYPE || $CONTENT_TYPE eq 'application/x-www-form-urlencoded') {
+                my $content; # = read($*IN, $CONTENT_LENGTH);
+                unpack_params($content) if $content;
+            }
+        }
+        elsif (@ARGS) {
+            my $input = join('', @ARGS);
+            unpack_params($input);
+        }
+        else {
+            die "Invalid Content Type" if $REQUEST_METHOD; # only die if we are running under CGI
         }
     }
-    elsif (@ARGS) {
-        my $input = join('', @ARGS);
-        unpack_params($input);
-    }
-    else {
-        die "Invalid Content Type" if $REQUEST_METHOD; # only die if we are running under CGI
-    }
+    if ($!) {
+        print header;
+        say "There was an error getting the params:\n\t" ~ $!;
+        exit();
+    }    
 }
-if ($!) {
-    print header;
-    say "There was an error getting the params:\n\t" ~ $!;
-    exit();
-}    
+
+# information functions (again)
+
+multi sub param returns Array is export { unless($IS_PARAMS_LOADED) {load_params}; %PARAMS.keys; }
+multi sub param (Str $key) returns Array is export { unless($IS_PARAMS_LOADED) {load_params}; (%PARAMS{$key}); }
 
 =pod
 
@@ -286,6 +291,8 @@ Autrijus Tang, E<lt>autrijus@autrijus.comE<gt>
 
 Curtis "Ovid" Poe
  
+Andras Barthazi, E<lt>andras@barthazi.huE<gt>
+
 =head1 COPYRIGHT
 
 Copyright (c) 2005. Stevan Little. All rights reserved.
