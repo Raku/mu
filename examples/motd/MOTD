@@ -8,11 +8,13 @@ sub finger (@arr) returns Str {
 		"a \"Good Morning\" to a sleepy programmers' community",
 		"cleaned up nicely in the shower",  
 		"a coffee-cup against the wall",
+		"sensitive (to semantic, pragmatic, and cultural context)",
 		"a marvel",
 		"a \"Hello Perl!\" from Haskell",
-		"a wonder",
-		"perl6 now",
+		"test driven",
+		"\"Perl6, now!\"",
 		"a good thing",
+		"going great shakes",
 		"proof of the concept of a perly functional language",
 	  "a grab-bag of new ways to shoot yourself in the foot",
 		);
@@ -34,7 +36,7 @@ sub finger (@arr) returns Str {
  }
 }
 
-#Stevan's "cls"
+#Autrijus's "cls"
 sub clear returns Void {
 	system(($?OS eq any<MSWin32 mingw cygwin>) ?? 'cls' :: 'clear');
 }
