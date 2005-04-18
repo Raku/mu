@@ -15,7 +15,7 @@ sub obj_ok_in_count3 { (want.count == 3) ?? 42 :: 0 }
 sub obj_ok_in_rw {
   my $forty_two = 42;
   my $zero      = 0;
-  
+
   # By returning variables instead of constants, our sub can act as a lvalue.
   want.count ?? $forty_two :: $zero;
 }

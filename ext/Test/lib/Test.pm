@@ -85,8 +85,9 @@ sub eval_ok (Str $code, Str ?$desc) returns Bool is export {
     my $result = eval $code;
     if ($!) {
 	    proclaim(undef, $desc, undef, "eval was fatal");
-    } 
+    }
     else {
+        diag "'$desc' was non-fatal and maybe shouldn't use eval_ok()";
 	    &ok.goto($result, $desc);
     }
 }
@@ -95,7 +96,7 @@ sub todo_eval_ok (Str $code, Str ?$desc) returns Bool is export {
     my $result = eval $code;
     if ($!) {
 	    proclaim(undef, $desc, "TODO", "eval was fatal");
-    } 
+    }
     else {
 	    &todo_ok.goto($result, $desc);
     }
@@ -107,8 +108,9 @@ sub eval_is (Str $code, $expected, Str ?$desc) returns Bool is export {
     my $result = eval $code;
     if ($!) {
 	    proclaim(undef, $desc, undef, "eval was fatal", $expected);
-    } 
+    }
     else {
+        diag "'$desc' was non-fatal and maybe shouldn't use eval_is()";
 	    &is.goto($result, $expected, $desc);
     }
 }
@@ -117,8 +119,9 @@ sub todo_eval_is (Str $code, $expected, Str ?$desc) returns Bool is export {
     my $result = eval $code;
     if ($!) {
         proclaim(undef, $desc, "TODO", "was fatal", $expected);
-    } 
+    }
     else {
+        diag "'$desc' was non-fatal and maybe shouldn't use todo_eval_is()";
         &todo_is.goto($result, $expected, $desc);
     }
 }
@@ -155,7 +158,7 @@ sub use_ok (Str $module) is export {
     eval "require $module";
     if ($!) {
 	    proclaim(undef, "require $module;", undef, "Import error when loading $module: $!");
-    } 
+    }
     else {
         &ok.goto(1, "$module imported OK");
     }
@@ -165,7 +168,7 @@ sub todo_use_ok (Str $module) is export {
     eval "require $module";
     if ($!) {
 	    proclaim(undef, "require $module;", "TODO", "Import error when loading $module: $!");
-    } 
+    }
     else {
         &todo_ok.goto(1, "$module imported OK");
     }
@@ -176,7 +179,7 @@ sub todo_use_ok (Str $module) is export {
 sub dies_ok (Sub $code, Str ?$desc) returns Bool is export {
     try { $code() };
     if ($!) {
-        &ok.goto(1, $desc); 
+        &ok.goto(1, $desc);
     }
     else {
 	    proclaim(undef, $desc, undef, "No exception thrown");
@@ -186,7 +189,7 @@ sub dies_ok (Sub $code, Str ?$desc) returns Bool is export {
 sub todo_dies_ok (Sub $code, Str ?$desc) returns Bool is export {
     try { $code() };
     if ($!) {
-        &todo_ok.goto(1, $desc); 
+        &todo_ok.goto(1, $desc);
     }
     else {
 	    proclaim(undef, $desc, "TODO", "No exception thrown");
@@ -201,7 +204,7 @@ sub lives_ok (Sub $code, Str ?$desc) returns Bool is export {
         proclaim(undef, $desc, undef, "An exception was thrown : $!");
     }
     else {
-        &ok.goto(1, $desc); 
+        &ok.goto(1, $desc);
     }
 }
 
@@ -211,7 +214,7 @@ sub todo_lives_ok (Sub $code, Str ?$desc) returns Bool is export {
         proclaim(undef, $desc, "TODO", "An exception was thrown : $!");
     }
     else {
-        &todo_ok.goto(1, $desc); 
+        &todo_ok.goto(1, $desc);
     }
 }
 
@@ -277,7 +280,7 @@ sub proclaim (Bool $cond, Str ?$desc, Str ?$c, Str ?$got, Str ?$expected) return
 sub report_failure (Str ?$todo, Str ?$got, Str ?$expected) returns Bool {
     if ($todo) {
         diag("  Failed ($todo) test ($?CALLER::CALLER::CALLER::POSITION)");
-    } 
+    }
     else {
 	    diag("  Failed test ($?CALLER::CALLER::CALLER::POSITION)");
         $failed++;
@@ -286,7 +289,7 @@ sub report_failure (Str ?$todo, Str ?$got, Str ?$expected) returns Bool {
     if ($?CALLER::CALLER::SUBNAME eq ('&is' | '&todo_is' | '&cmp_ok' | '&todo_cmp_ok' | '&eval_is' | '&todo_eval_is' | '&isa_ok' | '&todo_isa_ok')) {
         diag("  Expected: " ~ ($expected.defined ?? $expected :: "undef"));
         diag("       Got: " ~ ($got.defined ?? $got :: "undef"));
-    } 
+    }
     else {
         diag("       Got: " ~ ($got.defined ?? $got :: "undef"));
     }
@@ -356,11 +359,11 @@ read_forcetodo_tests();
 END {
     if (!defined($plan)) {
         say("1..$loop");
-    } 
+    }
     elsif ($plan != $loop) {
 	    $*ERR.say("# Looks like you planned $plan tests, but ran $loop");
     }
-    
+
     if ($failed) {
         $*ERR.say("# Looks like you failed $failed tests of $loop");
     }

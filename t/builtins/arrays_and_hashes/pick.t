@@ -15,6 +15,7 @@ my @array = <a b c d>;
 todo_eval_ok '@array.pick == any <a b c d>', "pick works on arrays";
 
 my %hash = (a => 1);
+# eval is superfluous?
 todo_eval_is '%hash.pick.key',   "a", "pick works on hashes (1)";
 todo_eval_is '%hash.pick.value', "1", "pick works on hashes (2)";
 
