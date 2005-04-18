@@ -4,8 +4,8 @@
 
 * Unification of the quoting code, most quoting constructs now work
 ** <<>> now works
-** Regular expressions are parsed as qq//, but with no backslash protection at all.
-** Hash subscripts using <> or <<>> are parsed with the same code as general quotations.
+** Regular expressions are parsed as qq//, but without backslash protections
+** Hash subscripts using <> or <<>> are parsed as general quotations
 ** This means interpolation, etc. is done just like q:w or qq:ww
 * Experimental support for `eval_haskell()` builtin
 * New builtins: `>>~<<`, `kill()`, `readdir()` (list context only)
@@ -24,7 +24,7 @@
 * Additions and improvements to the `util/catalog_tests.pl` scripts
 * Test smoke scripts converted to use `Test::Tap::Model`
 * Improvments to the `util/p5_to_p6.pl` script
-* Perl 6 tutorial generator has now been ported to Pugs in `examples/tutorial_gen/`
+* New Perl 6 tutorial generator ported to Pugs in `examples/tutorial_gen/`
 * The `fp.p6` file has been broken into seperate files in `examples/fp/`
 * New naive baysian text classifier add in `examples/naive_bayesian`
 * Added `isnt()` and `unlike()` functions to `Test.pm`
@@ -33,7 +33,7 @@
 === Bug Fixes
 
 * Manpage for `Perl6::Pugs` now generated correctly
-* Pugs no longer eats spaces after `%h<a>` or `%h{'a'}`
+* `%h<a>` or `%h{'a'}` no longer eats trailing spaces interpolated strings
 * Accessing `@array[1000]` (without setting it) no longer extends `@array`
 * Corrected `chmod` prototype
 * Fixed infinite bug when evaluating `+((1|2).values)`
