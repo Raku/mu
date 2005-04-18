@@ -3,7 +3,7 @@
 require Test;
 use v6;
 
-plan 4;
+plan 6;
 
 =head1 DESCRIPTION
 
@@ -30,3 +30,7 @@ undef $!;
 eval '1 / 0';
 ok $!, 'Dividing one by zero sets $!';
 
+sub incr ( $a is rw ) { $a++ };
+undef $!;
+eval 'incr(19)';
+ok $!, 'Modifying a constant sets $!';
