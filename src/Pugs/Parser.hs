@@ -728,7 +728,7 @@ parseTerm = rule "term" $ do
     fs <- many rulePostTerm
     return $ foldr (.) id (reverse fs) $ term
 
-rulePostTerm = tryRule "term postfix" $ do
+rulePostTerm = tryVerbatimRule "term postfix" $ do
     hasDot <- option False $ do whiteSpace; char '.'; return True
     choice $ (if hasDot then [ruleInvocation] else []) ++
         [ ruleArraySubscript
@@ -755,9 +755,10 @@ ruleInvocationParens = do
         else App name (x:invs) args
 
 ruleArraySubscript = tryVerbatimRule "array subscript" $ do
-    brackets $ option id $ do
-        exp <- ruleExpression
-        return $ \x -> Syn "[]" [x, exp]
+    symbol "["
+    p <- option id $ do exp <- ruleExpression; return $ \x -> Syn "[]" [x, exp]
+    char ']'
+    return p
 
 ruleHashSubscript = tryVerbatimRule "hash subscript" $ do
     choice [ ruleHashSubscriptBraces, ruleHashSubscriptQW ]
