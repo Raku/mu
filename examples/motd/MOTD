@@ -4,18 +4,15 @@ use v6;
 
 sub finger (@arr) returns Str {
 		my @default = (
-		"a joy",
-		"a toy",
 		"a love letter to the Cabal",
-		"especially cute as a puppy", 
-		"a reason to smile",
 		"a \"Good Morning\" to a sleepy programmers' community",
-		"cleans up nicely in the shower",  
+		"cleaned up nicely in the shower",  
 		"a coffee-cup against the wall",
 		"a marvel",
-		"a miracle",
 		"a \"Hello Perl!\" from Haskell",
 		"a wonder",
+		"perl6 now",
+		"a good thing",
 		"proof of the concept of a perly functional language",
 	  "a grab-bag of new ways to shoot yourself in the foot",
 		);
