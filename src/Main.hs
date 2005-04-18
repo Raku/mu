@@ -228,8 +228,7 @@ createConfigLine item = "\t" ++ item ++ ": " ++ (Map.findWithDefault "UNKNOWN" i
 
 printConfigInfo :: [String] -> IO ()
 printConfigInfo [] = do
-    environ <- getEnvironment
-    libs <- getLibs environ
+    libs <- getLibs
     putStrLn $ unlines $
         ["This is " ++ version ++ " built for " ++ getConfig "archname"
         ,""

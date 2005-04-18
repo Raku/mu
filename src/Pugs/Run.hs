@@ -53,10 +53,9 @@ runComp comp = do
 
 prepareEnv :: VStr -> [VStr] -> IO Env
 prepareEnv name args = do
-    environ <- getEnvironment
     let confHV = [ (k, VStr v) | (k, v) <- Map.toList config ]
     exec    <- getArg0
-    libs    <- getLibs environ
+    libs    <- getLibs
     pid     <- getProcessID
     pidSV   <- newScalar (VInt $ toInteger pid)
     uid     <- getRealUserID
@@ -128,20 +127,19 @@ prepareEnv name args = do
 
 
 
-getLibs :: [(String, String)] -> IO [String]
-getLibs environ = do
-        args <- getArgs
-        return $ filter (not . null) (libs (canonicalArgs args))
+getLibs :: IO [String]
+getLibs = do
+    args    <- getArgs
+    p6lib   <- tryIO "" (getEnv "PERL6LIB")
+    return $ filter (not . null) (libs p6lib $ canonicalArgs args)
     where
-    envlibs nm = maybe [] (split (getConfig "path_sep")) $ nm `lookup` environ
-
     -- broken, need real parser
     inclibs ("-I":dir:rest) = [dir] ++ inclibs(rest)
     inclibs (_:rest)        = inclibs(rest)
     inclibs ([])            = []
 
-    libs args =  (inclibs args)
-              ++ envlibs "PERL6LIB"
+    libs p6lib args =  (inclibs args)
+              ++ (split (getConfig "path_sep") p6lib)
               ++ [ getConfig "archlib"
                  , getConfig "privlib"
                  , getConfig "sitearch"
