@@ -1,3 +1,46 @@
+== Changes for 6.2.1 - April 18, 2005
+
+=== Pugs Internals
+
+* Unification of the quoting code, most quoting constructs now work
+**  <<>> now works
+** Regular expressions are parsed as qq//, but with no backslash protection at all.
+** Hash subscripts using <> or <<>> are parsed with the same code as general
+   quotations. This means interpolation, etc. is done just like q:w or qq:ww
+* Experimental support for `eval_haskell()` builtin
+* The `>>~<<` operator has been implemented
+* The `kill()` builtin has been implemented
+* Junctive autothreading for `Any` parameter types has been turned on 
+* better handling for size extensions and `exists()` for negative indecies
+* Accessing `@array[1000]` (without setting it) extends `@array`
+* Regexps now support `:P5` and `:Perl5` as well as `:perl5`
+* `:P5` flags now work as `:P5<imsgx>` and `:i` `:g` works too
+* `readdir()` now available in list context only
+* First stab at a lexical `$*CWD` variable 
+* `want()` has been implemented, returning a simple string
+* <> (list quoting) is always in list context now
+
+=== Tests, Examples and Documentations
+
+* Many new tests as well as cleanup of older tests, we are now at ... tests
+* Several new additions to the Perl 6 Cookbook.
+* Additions and improvements to the `util/catalog_tests.pl` scripts
+* Test smoke scripts converted to use `Test::Tap::Model`
+* Improvments to the `util/p5_to_p6.pl` script
+* Perl6 tutorial generator has now been ported to Pugs in `examples/tutorial_gen/`
+* The `fp.p6` file has been broken into seperate files in `examples/fp/`
+* New naive baysian text classifier add in `examples/naive_bayesian`
+* Added `isnt()` and `unlike()` functions to `Test.pm`
+* utf-8 URL decoding added to `CGI.pm`
+
+=== Bug Fixes
+
+* manpage for `Perl6::Pugs.pm` now generated correctly
+* Pugs no longer eats spaces after `%h<a>` or `%h{'a'}`
+* arrays are no longer extend on RValue context
+* corrected `chmod` prototype
+* fixed infinite bug; misdeclared  return type for Pair.values
+
 == Changes for 6.2.0 - April 13, 2005
 
 === Pugs Internals
