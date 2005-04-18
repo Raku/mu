@@ -9,20 +9,20 @@ This test tests the various filetest operators.
 
 =cut
 
-plan 30;
+plan 34;
 
-if($*OS eq any<MSWin32 mingw msys cygwin>) {
-    skip 30, "file tests not fully available on win32"; # unTODOme
-    exit;
-};
+#if($*OS eq any<MSWin32 mingw msys cygwin>) {
+#    skip 30, "file tests not fully available on win32"; # unTODOme
+#    exit;
+#};
 
 # Basic tests
 ok -d 't',    "-d returns true on directories";
-ok -f 'pugs', "-f returns true on files";
-ok -e 'pugs', "-e returns true on files";
+ok -f $*PROGRAM_NAME, "-f returns true on files";
+ok -e $*PROGRAM_NAME, "-e returns true on files";
 ok -e 't',    "-e returns true on directories";
-ok -r 'pugs', "-r returns true on readable files";
-ok -w 'pugs', "-w returns true on writable files";
+ok -r $*PROGRAM_NAME, "-r returns true on readable files";
+ok -w $*PROGRAM_NAME, "-w returns true on writable files";
 
 if($*OS eq any<MSWin32 mingw msys cygwin>) {
   skip 2, "win32 doesn't have -x";
@@ -53,14 +53,21 @@ ok !-w 'doesnotexist.t', "-w returns false on non existant files";
 ok !-x 'doesnotexist.t', "-x returns false on non existant files";
 ok !-f 'doesnotexist.t', "-f returns false on non existant files";
 
-ok -s "pugs" > 42,       "-s returns size on existant files";
+ok  -s $*PROGRAM_NAME > 42,   "-s returns size on existant files";
 ok !-s "doesnotexist.t", "-s returns undef on non existant files";
 
+ok !-z $*PROGRAM_NAME,   "-z returns false on existant files";
+ok !-z "doesnotexist.t", "-z returns false on non existant files";
+ok !-z "t",              "-z returns false on directories";
+
+my $fh = open(">empty_file");
+close $fh;
+ok -z "empty_file",      "-z returns true for an empty file";
 
 # Stacked filetests
 # L<A03/"RFC 320: Allow grouping of -X file tests and add filetest builtin">
 ok -e -d -r "t",               "stacking of filetest operators (1)";
-ok -e -f -r -w "pugs",         "stacking of filetest operators (2)";
+ok -e -f -r -w $*PROGRAM_NAME,         "stacking of filetest operators (2)";
 ok !-e -f -r "doesnotexist.t", "stacking of filetest operators (3)";
 # This one should return false *all the time* (-f and -d are mutually
 # exclusive):

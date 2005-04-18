@@ -315,18 +315,22 @@ tryeq Inf-Inf, NaN;
 tryeq Inf*Inf, Inf;
 tryeq Inf/Inf, NaN;
 tryeq Inf*Inf/Inf, NaN;
-my $inf1; # = 100**Inf;
-tryeq $inf1, Inf, "100**Inf";
-my $inf2; # = Inf**Inf;
-tryeq $inf2, Inf, "Inf**Inf";
 
 tryeq Inf**0, 1;
 tryeq 0**Inf, 0;
-tryeq 1**Inf, NaN; # but why is it defined like that?;
 
-skip 2, "** with Inf make Pugs eat cpu forever";
+skip 4, "** with Inf make Pugs eat cpu forever";
+my $inf1 = 100**Inf;
+# tryeq $inf1, Inf, "100**Inf";
+my $inf2 = Inf**Inf;
+# tryeq $inf2, Inf, "Inf**Inf";
+
+
+# See http://mathworld.wolfram.com/Indeterminate.html
+# for why these three values are defined like they are.
 #tryeq 0.9**Inf, 0, "0.9**Inf converges towards 0";
 #tryeq 1.1**Inf, Inf, "1.1**Inf diverges towards Inf";
+tryeq 1**Inf, NaN; # but why is it defined like that?;
 
 # NaN
 tryeq NaN, NaN;

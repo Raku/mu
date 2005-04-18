@@ -409,7 +409,7 @@ op1Values v = do
     vals <- valuesFromRef ref
     return $ VList vals
 
-op1StrFirst f = op1Cast $ VStr . 
+op1StrFirst f = op1Cast $ VStr .
     \str -> case str of
         []      -> []
         (c:cs)  -> (f c:cs)
@@ -582,7 +582,7 @@ op2 "kill" = \s v -> do
     sig  <- fromVal s
     pids <- fromVals v
     let doKill pid = do
-        signalProcess (toEnum sig) (toEnum pid)
+        signalProcess (toEnum $ vCast sig) (toEnum $ vCast pid)
         return 1
     rets <- mapM (tryIO 0 . doKill) pids
     return . VInt $ sum rets
@@ -774,6 +774,27 @@ op4 "substr" = \x y z w -> do
         | pos < 0   = doSubstr str (length str + pos) len
         | len < 0   = doSubstr str pos (length str - pos + len)
         | otherwise = ((take pos str), VStr (take len $ drop pos str), (drop (pos + len) str))
+
+-- op4 "splice" = \x y z w-> do
+op4 "splice" = \x y z _-> do
+         arr      <- fromVal x
+         startP   <- fromVal y
+         countP   <- fromVal z
+         -- newlistP <- fromVal w
+
+         let start | defined y && startP >= 0 = startP
+                   | defined y && startP < 0  = (length arr) + startP
+                   | otherwise = 0
+         let count | defined z = countP
+                   | otherwise = -1                     -- is that a good way? Should I better use my own type here?
+                                                        -- should have a guard on countP >= 0 too.
+         {- let newl  | defined w = newlistP
+                   | otherwise = [] -}
+         let (_,rest) = splitAt start arr
+         let (res,_) = splitAt count rest
+         -- doArray x (VList $ pre++newl++post)
+         return $ VList $ res -- ++ pre++newl++post
+
 op4 other = \x y z w -> return $ VError ("unimplemented 4-ary op: " ++ other) (App other [Val x, Val y, Val z, Val w] [])
 
 op2Hyper op x y
@@ -1050,7 +1071,7 @@ fileTestFileSize f = do
 
 fileTestSizeIsZero f = do
     n <- statFileSize f
-    return $ if n == 0 then VBool True else VBool False 
+    return $ if n == 0 then VBool True else VBool False
 
 -- XXX These bulks of code below screams for refactoring
 
@@ -1062,7 +1083,7 @@ pairsFromRef (MkRef (IArray av)) = do
     vals    <- Array.fetch av
     return $ map VPair ((map VInt [0..]) `zip` vals)
 pairsFromRef (MkRef (IScalar sv)) = do
-    refVal  <- Scalar.fetch sv    
+    refVal  <- Scalar.fetch sv
     op1Pairs refVal
 pairsFromRef ref = retError "Not a keyed reference" (Val $ VRef ref)
 
@@ -1074,7 +1095,7 @@ keysFromRef (MkRef (IArray av)) = do
     keys    <- Array.fetchKeys av
     return $ map castV keys
 keysFromRef (MkRef (IScalar sv)) = do
-    refVal  <- Scalar.fetch sv    
+    refVal  <- Scalar.fetch sv
     if defined refVal
         then fromVal =<< op1Keys refVal
         else return []
@@ -1086,7 +1107,7 @@ valuesFromRef (MkRef (IHash hv)) = do
     return $ map snd pairs
 valuesFromRef (MkRef (IArray av)) = Array.fetch av
 valuesFromRef (MkRef (IScalar sv)) = do
-    refVal  <- Scalar.fetch sv    
+    refVal  <- Scalar.fetch sv
     if defined refVal
         then fromVal =<< op1Values refVal
         else return []
@@ -1100,7 +1121,7 @@ existsFromRef (MkRef (IArray av)) val = do
     idx     <- fromVal val
     Array.existsElem av idx
 existsFromRef (MkRef (IScalar sv)) val = do
-    refVal  <- Scalar.fetch sv    
+    refVal  <- Scalar.fetch sv
     ref     <- fromVal refVal
     existsFromRef ref val
 existsFromRef ref _ = retError "Not a keyed reference" (Val $ VRef ref)
@@ -1117,7 +1138,7 @@ deleteFromRef (MkRef (IArray av)) val = do
     mapM_ (Array.deleteElem av) idx
     return $ VList rv
 deleteFromRef (MkRef (IScalar sv)) val = do
-    refVal  <- Scalar.fetch sv    
+    refVal  <- Scalar.fetch sv
     ref     <- fromVal refVal
     deleteFromRef ref val
 deleteFromRef ref _ = retError "Not a keyed reference" (Val $ VRef ref)
@@ -1229,6 +1250,7 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   List      pre     map     (Array: Code)\
 \\n   List      pre     grep    (Array: Code)\
 \\n   List      pre     sort    (Array: Code)\
+\\n   List      pre     splice  (rw!Array, ?Int, ?Int, ?List)\
 \\n   Int       pre     push    (rw!Array, List)\
 \\n   Int       pre     unshift (rw!Array, List)\
 \\n   Scalar    pre     pop     (rw!Array)\
@@ -1403,4 +1425,3 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Int       pre     sign    (Num)\
 \\n   Int       pre     kill    (Int, List)\
 \\n"
-

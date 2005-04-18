@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 44;
+plan 47;
 
 my $foo = "FOO";
 my $bar = "BAR";
@@ -55,8 +55,8 @@ Tests quoting constructs as defined in L<S02/Literals>
 { # adverb variation L<S02/Literals /:1/>
 	my @q = ();
 	eval '@q = (q:1/$foo $bar/)';
-	todo_is(+@q, 1, "q:1// is singular");
-	todo_is(@q[0], '$foo $bar', "and again, non interpolating");
+	is(+@q, 1, "q:1// is singular");
+	is(@q[0], '$foo $bar', "and again, non interpolating");
 };
 
 
@@ -77,8 +77,8 @@ Tests quoting constructs as defined in L<S02/Literals>
 { # adverb variation L<S02/Literals /:2/>
 	my @q = ();
 	eval '@q = q:2/$foo $bar/';
-	todo_is(+@q, 1, "q:2// is singular");
-	todo_is(@q[0], "FOO BAR", "blah blah interp");
+	is(+@q, 1, "q:2// is singular");
+	is(@q[0], "FOO BAR", "blah blah interp");
 };
 
 
@@ -117,9 +117,9 @@ Tests quoting constructs as defined in L<S02/Literals>
 { # adverb variation
 	my @q = ();
 	eval '@q = (q:w/$foo $bar/)';
-	todo_is(+@q, 2, "q:w// is also identical");
-	todo_is(@q[0], '$foo', "...");
-	todo_is(@q[1], '$bar', "...");
+	is(+@q, 2, "q:w// is also identical");
+	is(@q[0], '$foo', "...");
+	is(@q[1], '$bar', "...");
 };
 
 
@@ -183,9 +183,11 @@ FOO
 
 { # q:0 L<S02/Literals /No escapes at all/>
 	my @q = ();
+	
+	my $backslash = "\\";
 
-	eval '@q = (q:0/foo\\bar$foo/)';
+	eval '@q = (q:0/foo' ~ $backslash ~ $backslash ~ 'bar$foo/)';
 
-	todo_is(+@q, 1, "q:0// is singular");
-	todo_is(@q[0], "foo\\\\bar\$foo", "special chars are meaningless"); # double quoting is to be more explicit
+	is(+@q, 1, "q:0// is singular");
+	is(@q[0], "foo\\\\bar\$foo", "special chars are meaningless"); # double quoting is to be more explicit
 };

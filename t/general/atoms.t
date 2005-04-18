@@ -57,7 +57,7 @@ ok(@array[0] eq '"foo"' and @array[1] eq '"bar"', 'qw//');
 
 my @array;
 eval ' @array = q:w/"foo" "bar"/ ';
-todo_ok(@array[0] eq '"foo"' and @array[1] eq '"bar"', 'q:w//');
+ok(@array[0] eq '"foo"' and @array[1] eq '"bar"', 'q:w//');
 
 my %hash;
 eval ' %hash<Mon Tue Wed Thu Fri Sat Sun> = 1..7; ';
