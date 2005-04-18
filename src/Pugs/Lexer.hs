@@ -102,27 +102,26 @@ interpolatingStringLiteral :: RuleParser x      -- Closing delimiter
                                                 -- (without delims)
 
 interpolatingStringLiteral endrule interpolator = do
-        list <- stringList
-        return $ Syn "cxt" [Val (VStr "Str"), homogenConcat list]
+    list <- stringList
+    return . Cxt "Str" $ homogenConcat list
     where
-        homogenConcat :: [Exp] -> Exp
-        homogenConcat []             = Val (VStr "")
-        homogenConcat [x]            = App "&infix:~" [x, Val (VStr "")] []
-        homogenConcat (Val (VStr x):Val (VStr y):xs) = homogenConcat (Val (VStr (x ++ y)) : xs)
-        homogenConcat (x:y:xs)       = App "&infix:~" [x, homogenConcat (y:xs)] []
-        
-        stringList = do
-            lookAhead endrule
-            return []
-          <|> do
-            parse <- interpolator
-            rest  <- stringList
-            return (parse:rest)
-          <|> do
-            char <- anyChar
-            rest <- stringList
-            return (Val (VStr [char]):rest)
-        
+    homogenConcat :: [Exp] -> Exp
+    homogenConcat []             = Val (VStr "")
+    homogenConcat [x]            = x
+    homogenConcat (Val (VStr x):Val (VStr y):xs) = homogenConcat (Val (VStr (x ++ y)) : xs)
+    homogenConcat (x:y:xs)       = App "&infix:~" [x, homogenConcat (y:xs)] []
+    
+    stringList = do
+        lookAhead endrule
+        return []
+        <|> do
+        parse <- interpolator
+        rest  <- stringList
+        return (parse:rest)
+        <|> do
+        char <- anyChar
+        rest <- stringList
+        return (Val (VStr [char]):rest)
 
 -- backslahed nonalphanumerics (except for ^) translate into themselves
 escapeCode      = charEsc <|> charNum <|> charAscii <|> charControl <|> anyChar
