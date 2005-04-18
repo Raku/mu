@@ -6,7 +6,7 @@
 use v6;
 require Test;
 
-plan(1581);
+plan 1581;
 
 
 # I don't know how to get the equivalent of $-[$n] in perl6,

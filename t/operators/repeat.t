@@ -9,7 +9,7 @@ Repeat operators for strings and lists
 
 =cut
 
-plan(13);
+plan 13;
 
 is ('a' x 3, 'aaa', 'string repeat operator works on single character');
 is ('ab' x 4, 'abababab', 'string repeat operator works on multiple character');

@@ -3,7 +3,7 @@ use v6;
 require Test;
 exit;
 
-plan(1);
+plan 1;
 
 my $foo = 2;
 eval '

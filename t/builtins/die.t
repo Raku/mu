@@ -9,7 +9,7 @@ Tests for the die() builtin
 
 =cut
 
-plan(3);
+plan 3;
 
 ok(!eval 'die "foo"; 1');
 my $error = $!;

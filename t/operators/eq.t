@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan(10);
+plan 10;
 
 ok("a" eq "a");
 ok(!("a" eq "ab"));

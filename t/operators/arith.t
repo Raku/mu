@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan(179);
+plan 179;
 
 #if($*OS eq any<MSWin32 mingw msys cygwin>) {
 #    skip 179, "win32 sporadic fails; skip for now"; # unTODOme

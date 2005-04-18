@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan(1);
+plan 1;
 
 # crashes Pugs
 # GHC bug?

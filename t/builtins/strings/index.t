@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan(23);
+plan 23;
 
 # Simple - with just a single char
 

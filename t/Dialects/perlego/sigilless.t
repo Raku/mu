@@ -3,7 +3,7 @@ use v6;
 require Test;
 exit;
 
-plan(16);
+plan 16;
 
 #todo_fail("FIXME parsefail");
 say "1 not ok - FIXME parsefail # TODO";

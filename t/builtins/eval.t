@@ -9,7 +9,7 @@ Tests for the eval() builtin
 
 =cut
 
-plan(4);
+plan 4;
 
 # eval should evaluate the code in the lexical scope of eval's caller
 sub make_eval_closure { my $a = 5; sub ($s) { eval $s } };

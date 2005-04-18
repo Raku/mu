@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan(5);
+plan 5;
 
 # Mostly copied from Perl 5.8.4 s t/op/recurse.t
 
