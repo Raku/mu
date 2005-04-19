@@ -994,7 +994,8 @@ qInterpolator flags = choice [
         variable = try $ do
             var <- ruleVarNameString
             fs <- case head var of
-                '$' -> if qfInterpolateScalar flags
+                '$' -> if qfInterpolateScalar flags &&
+                          notProtected var flags
                     then many qInterpolatorPostTerm
                     else fail ""
                 '@' -> if qfInterpolateArray flags
@@ -1008,6 +1009,17 @@ qInterpolator flags = choice [
                     else fail ""
                 _   -> fail ""
             return $ foldr (.) id (reverse fs) $ makeVar var
+        notProtected var flags =
+            if second == qfProtectedChar flags
+                then False -- $ followed by delimiter is protected
+                else if qfP5RegularExpression flags &&
+                        second `elem` ")]# \t"
+                {- XXX this doesn't support Unicode whitespace. I'm not
+                   sure this is a problem, because it's primarily meant
+                   for legacy Perl 5 code -}
+                    then False -- $ followed by )]# or whitespace
+                    else True -- $ followed by anything else is interpolated
+            where second = head $ tail var
 
 qLiteral = do -- This should include q:anything// as well as '' "" <>
     (qEnd, flags) <- getQDelim
@@ -1055,7 +1067,8 @@ data QFlags = QFlags { qfSplitWords :: !Char,           -- No, Yes, Protect
                        qfInterpolateFunction :: !Bool,
                        qfInterpolateClosure :: !Bool,
                        qfInterpolateBackslash :: !Char, -- No, Single, All
-                       qfProtectedChar :: !Char
+                       qfProtectedChar :: !Char,
+                       qfP5RegularExpression :: !Bool
                       {- qfProtectedChar is the character to be
                          protected by backslashes, if
                          qfInterpolateBackslash is Single or All.
@@ -1132,15 +1145,16 @@ getQDelim = try $
                        many alphaNum
 
 -- Default flags
-qFlags   = QFlags 'n' False False False False False 's' '\''
-qqFlags  = QFlags 'n' True True True True True 'a' '"'
-rawFlags = QFlags 'n' False False False False False 'n' 'x'
+qFlags    = QFlags 'n' False False False False False 's' '\'' False
+qqFlags   = QFlags 'n' True True True True True 'a' '"' False
+rawFlags  = QFlags 'n' False False False False False 'n' 'x' False
+rxP5Flags = QFlags 'n' True True True True True 'n' '/' True
 
 -- Regexps
-rxLiteral1 :: RuleParser x -- Closing delimiter
+rxLiteral1 :: Char -- Closing delimiter
              -> RuleParser Exp
-rxLiteral1 rxEnd = qLiteral1 rxEnd $
-        qqFlags { qfInterpolateBackslash = 'n'}
+rxLiteral1 delim = qLiteral1 (char delim) $
+        rxP5Flags { qfProtectedChar = delim }
 
 ruleAdverbHash = do
     pairs <- many pairAdverb
@@ -1151,7 +1165,7 @@ substLiteral = try $ do
     adverbs <- ruleAdverbHash
     ch      <- openingDelim
     let endch = balancedDelim ch
-    expr    <- rxLiteral1 (char endch)
+    expr    <- rxLiteral1 endch
     ch      <- if ch == endch then return ch else do { whiteSpace ; anyChar }
     let endch = balancedDelim ch
     subst   <- qLiteral1 (char endch) qqFlags { qfProtectedChar = endch }
@@ -1161,7 +1175,7 @@ rxLiteral = try $ do
     symbol "rx"
     adverbs <- ruleAdverbHash
     ch      <- anyChar
-    expr    <- rxLiteral1 (char $ balancedDelim ch)
+    expr    <- rxLiteral1 $ balancedDelim ch
     return $ Syn "rx" [expr, adverbs]
 
 namedLiteral n v = do { symbol n; return $ Val v }
