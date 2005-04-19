@@ -50,7 +50,19 @@ sub addtolist ($x){
 
 sub append_last ($x,$string,$pass){
   my $rwstring = $string; 
-	if $pass > 1 {
+
+	if $pass > 2 {
+		chop $rwstring;
+		"$rwstring and " ~ 
+		pick any (
+			"$x",
+			"$x, period",
+			"$x, as well",
+			"$x, besides",
+			"$x, too",
+			"$x, to boot"
+			); 
+	}elsif $pass > 1 {
 		chop $rwstring;
 		"$rwstring and $x"; 
 	}else{
