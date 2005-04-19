@@ -23,7 +23,7 @@ is equivalent to:
 
 =cut
 
-plan 17;
+plan 27;
 
 my (@a,@b);
 
@@ -85,9 +85,17 @@ splice_ok splice(@a,0,0,0,1), @a, [], [0..10], "Prepending values works";
 
 # Need to convert these
 # skip 5, "Need to convert more tests from Perl5";
-#todo_eval_ok '~splice(@a,5,1,5) eq "5" && ~@a eq ~[0..11]';
-#todo_eval_ok '~splice(@a, @a, 0, 12, 13) eq "" && ~@a eq ~[0..13]';
-#todo_eval_ok '~splice(@a, -@a, @a, 1, 2, 3) eq ~[0.13] && ~@a eq ~[1..3]';
-#todo_eval_ok '~splice(@a, 1, -1, 7, 7) eq "2" && ~@a eq ~[1,7,7,3]';
-#todo_eval_ok '~splice(@a,-3,-2,2) eq ~[7] && ~@a eq ~[1,2,7,3]';
+@a = (0..11);
+splice_ok splice(@a,5,1,5), @a, [5], [0..11], "Replacing an element with itself";
 
+@a = (0..11);
+splice_ok splice(@a, @a, 0, 12, 13), @a, [], [0..13], "Appending a list";
+
+@a = (0..13);
+splice_ok splice(@a, -@a, @a, 1, 2, 3), @a, [0..13], [1..3], "Replacing the array contents from right end";
+
+@a = (1, 2, 3);
+splice_ok splice(@a, 1, -1, 7, 7), @a, [2], [1,7,7,3], "Replacing a list into the middle";
+
+@a = (1,7,7,3);
+splice_ok splice(@a,-3,-2,2), @a, [7], [1,2,7,3], "Replacing negative count of elements";

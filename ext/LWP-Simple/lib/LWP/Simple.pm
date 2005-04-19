@@ -160,14 +160,15 @@ sub _send_request (Str $host, Str $port, Str $request) {
 
   my ($h,$p) = ($host,$port);
   # TODO: Replace with exists() once it is there
-  if (%*ENV<HTTP_PROXY> ~~ rx:perl5!.!) {
+  #if (%*ENV<HTTP_PROXY> ~~ rx:perl5!.!) {
+    #if (%*ENV<HTTP_PROXY> ~~ rx:perl5!http://()(:(\d+))?$!) {
     if (%*ENV<HTTP_PROXY> ~~ rx:perl5!http://()(:(\d+))?$!) {
       $h = $1;
       $p = $2 || 80;
     } else {
       die "Unhandled/unknown proxy settings: " ~ %*ENV<HTTP_PROXY>;
     };
-  };
+  #};
 
   my $hdl = connect($h, $p);
   $hdl.print($request);
