@@ -29,7 +29,7 @@ printInteractiveHelp
         putStrLn "<exp>           = run a command"
         putStrLn ":i <exp>        = run a command, and ugly-print the result"
         putStrLn ":r              = reset the evaluation environment"
-        putStrLn ":l <filename>   = load a pugs file (need quotes around the name)"
+        putStrLn ":l <filename>   = load a pugs file"
 
 {- FIXME: Somebody with more UI skillz should make this nicer -}
 printCommandLineHelp :: IO ()

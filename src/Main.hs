@@ -103,6 +103,7 @@ comp = (doParseWith $ \exp _ -> putStrLn =<< compile "Haskell" exp) "-"
 
 repLoop :: IO ()
 repLoop = do
+    initializeShell
     env <- tabulaRasa >>= newIORef
     modifyIORef env $ \e -> e{ envDebug = Nothing }
     fix $ \loop -> do
