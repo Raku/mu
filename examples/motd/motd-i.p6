@@ -7,7 +7,7 @@ my ($progdir) = splitpath($*PROGRAM_NAME)[1];
 unshift @*INC, $progdir;
 require "MOTD"; 
 
-my $subject   = shift @ARGS || 'Pugs';
+my $subject   = shift @ARGS || 'Pugs is';
 my $surveyed  = shift @ARGS || 10;
 my %tally     ;
 
@@ -36,14 +36,14 @@ my $orig = ~@list;
 my $most      = 0;
 my @mostsaid := { matchval \$most,\%tally };
 my &tell := sub {
-	 say "$subject is{ 
-			report @mostsaid(1) 
+	 say "{ 
+			$subject~report @mostsaid(1) 
 		}.{
 			"\n" x 10
 		}([NewListItem,...] <Enter>)"
 };
 
-say "Press Enter to generate statements about $subject"~
+say "Press Enter to generate quotes about \"$subject...\""~
 	  "\nPress Ctrl-D to end";
 my $keyed;
 while($keyed = =$*IN){
