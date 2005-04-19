@@ -1,6 +1,7 @@
 module Test-0.0.3;
 use v6;
 
+# Number of the previous test.
 my $loop = 0;
 my $plan;
 my $failed = 0;
@@ -228,6 +229,10 @@ sub skip (Int $count, Str $reason) returns Bool is export {
   for (1..$count) {
     skip $reason;
   }
+}
+
+sub skip_rest (Str ?$reason) returns Bool is export {
+  skip($plan-$loop, $reason // "");
 }
 
 sub pass (Str ?$desc) returns Bool is export {
