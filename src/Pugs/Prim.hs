@@ -1210,8 +1210,8 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      spre    ?       (Bool)\
 \\n   Str       spre    =       (?IO)\
 \\n   List      spre    =       (?IO)\
-\\n   Str       pre     readline(?IO)\
-\\n   List      pre     readline(?IO)\
+\\n   Str       pre     readline (?IO)\
+\\n   List      pre     readline (?IO)\
 \\n   Int       pre     int     (?Int=$_)\
 \\n   List      pre     list    (List)\
 \\n   Hash      pre     hash    (List)\
