@@ -1074,9 +1074,10 @@ instance Array.Class IArray where
                     take idx' svList ++ (sv' : drop (idx'+1) svList)
                 return sv'
             else return sv
+    existsElem av idx | idx < 0 = Array.existsElem av (abs idx - 1)
     existsElem av idx = do
         svList <- liftIO $ readIORef av
-        return . not . null $ drop (abs idx) svList
+        return . not . null $ drop idx svList
     deleteElem av idx = do
         liftIO . modifyIORef av $ \svList ->
             let idx' | idx < 0   = idx `mod` length svList -- XXX wrong; wraparound
