@@ -1038,6 +1038,10 @@ qLiteral1 qEnd flags = do
         'n' -> return expr
         _   -> fail ""
     where
+    doSplit (Cxt "Str" (Val (VStr str))) = case words str of
+        []  -> Syn "," []
+        [x] -> Val (VStr x)
+        xs  -> Syn "," $ map (Val . VStr) xs
     doSplit expr = Cxt "List" $ App "&infix:~~" [expr, rxSplit] []
     rxSplit = Syn "rx" $
         [ Val $ VStr "(\\S+)"

@@ -340,7 +340,7 @@ op1 "=" = \v -> do
     getLine fh = tryIO undef $
         (return . VStr . (++ "\n") =<< hGetLine fh)
     handleOf (VPair (_, x)) = handleOf x
-    handleOf (VStr "") = do
+    handleOf (VUndef) = do
         argsGV  <- readVar "$*ARGS"
         gv      <- fromVal argsGV
         if defined gv
@@ -1208,10 +1208,10 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Num       spre    -       (Num)\
 \\n   Str       spre    ~       (Str)\
 \\n   Bool      spre    ?       (Bool)\
-\\n   Str       spre    =       (IO)\
-\\n   List      spre    =       (IO)\
-\\n   Str       pre     readline (IO)\
-\\n   List      pre     readline (IO)\
+\\n   Str       spre    =       (?IO)\
+\\n   List      spre    =       (?IO)\
+\\n   Str       pre     readline(?IO)\
+\\n   List      pre     readline(?IO)\
 \\n   Int       pre     int     (?Int=$_)\
 \\n   List      pre     list    (List)\
 \\n   Hash      pre     hash    (List)\

@@ -344,7 +344,7 @@ reduce env exp@(Syn name exps) = case name of
         vals    <- fromVals val
         retVal $ VList $ concat vals
     "," -> do
-        vals    <- mapM (enterEvalContext "Any") exps
+        vals    <- mapM (enterEvalContext "List") exps
         -- now do some basic flattening
         vlists  <- (`mapM` vals) $ \v -> case v of
             VList _   -> fromVal v
@@ -509,9 +509,16 @@ reduce env exp@(Syn name exps) = case name of
 reduce env (App name [Syn "," invs] args) = reduce env (App name invs args)
 reduce env (App name invs [Syn "," args]) = reduce env (App name invs args)
 
--- XXX absolutely evil bloody hack for "hash"
-reduce env (App "&hash" invs args) =
-    reduce env (Syn "\\{}" [Syn "," $ invs ++ args])
+-- XXX absolutely evil bloody hack for context hinters
+reduce _ (App "&hash" invs args) =
+    enterEvalContext "Scalar" $ Syn "\\{}" [Syn "," $ invs ++ args]
+
+reduce _ (App "&list" invs args) =
+    enterEvalContext "List" $ Syn "," (invs ++ args)
+
+reduce _ (App "&scalar" invs args)
+    | [exp] <- invs ++ args = enterEvalContext "Scalar" exp
+    | otherwise = enterEvalContext "Scalar" $ Syn "," (invs ++ args)
 
 -- XXX absolutely evil bloody hack for "zip"
 reduce _ (App "&zip" invs args) = do
