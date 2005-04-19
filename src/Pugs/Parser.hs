@@ -1040,10 +1040,11 @@ qLiteral1 qEnd flags = do
     where
     -- words() regards \xa0 as (breaking) whitespace. But \xa0 is
     -- a nonbreaking ws char.
-    --doSplit (Cxt "Str" (Val (VStr str))) = case str of
-    --    []  -> Syn "," []
-    --    x   -> Val (VStr x)
-    --    xs  -> Syn "," $ map (Val . VStr) xs
+    doSplit (Cxt "Str" (Val (VStr str))) = case perl6Words str of
+        []  -> Syn "," []
+        [x] -> Val (VStr x)
+        xs  -> Syn "," $ map (Val . VStr) xs
+    
     doSplit expr = Cxt "List" $ App "&infix:~~" [expr, rxSplit] []
     rxSplit = Syn "rx" $
         [ Val $ VStr "(\\S+)"
@@ -1052,6 +1053,20 @@ qLiteral1 qEnd flags = do
             , VPair (VStr "g", VInt 1)
             ]
         ]
+        
+    perl6Words :: String -> [String]
+    perl6Words s
+      | findSpace == [] = []
+      | otherwise       = w : words s''
+      where
+      (w, s'')  = break isBreakingSpace findSpace
+      findSpace = dropWhile isBreakingSpace s
+      
+    isBreakingSpace('\x09') = True
+    isBreakingSpace('\x0a') = True
+    isBreakingSpace('\x0d') = True
+    isBreakingSpace('\x20') = True
+    isBreakingSpace(_)      = False
 
 angleBracketLiteral :: RuleParser Exp
 angleBracketLiteral = try $
