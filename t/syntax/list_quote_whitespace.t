@@ -38,7 +38,7 @@ my @nonseparators = (",","/","\\",";","\xa0");
 plan +@separators + @nonseparators;
 
 for @separators -> $sep {
-  my $str = "<" ~ @list.join("$sep$sep") ~ ">";
+  my $str = "<$sep" ~ @list.join("$sep$sep") ~ "$sep>";
   my @res = eval $str;
 
   my $vis = sprintf "%02x", ord $sep;
@@ -51,5 +51,5 @@ for @nonseparators -> $sep {
   my @res = eval $str;
 
   my $vis = sprintf "%02x", ord $sep;
-  is( @res, @list.join($sep), "'\x$vis' does not split in a whitespace quoted list")
+  is( @res, [@list.join($sep)], "'\x$vis' does not split in a whitespace quoted list")
 };
