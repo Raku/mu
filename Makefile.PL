@@ -93,7 +93,7 @@ $config_h : lib/Perl6/Pugs.pm util/config_h.pl
 	\$(PERL) util/config_h.pl "$ghc $ghc_flags" 
 
 $version_h : .svn/entries util/version_h.pl
-	\$(PERL) util/version_h.pl
+	\$(PERL) util/version_h.pl $version_h
 
 .svn/entries :
 	\$(NOOP)

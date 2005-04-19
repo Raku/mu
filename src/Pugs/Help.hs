@@ -11,9 +11,8 @@
 
 #define PUGS_VERSION "6"
 #define PUGS_DATE ""
-#define PUGS_SVN_REVISION "0"
 #include "pugs_config.h"
-#include "src/pugs_version.h"
+#include "src/Pugs/pugs_version.h"
 
 module Pugs.Help (printInteractiveHelp, printCommandLineHelp,
              banner, versnum, version, revnum,

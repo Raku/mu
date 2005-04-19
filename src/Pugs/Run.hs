@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts #-}
+{-# OPTIONS_GHC -fglasgow-exts -cpp #-}
 
 {-
     Runtime engine.
@@ -79,12 +79,18 @@ prepareEnv name args = do
     argsGV  <- newScalar undef
     errSV   <- newScalar (VStr "")
     defSV   <- newScalar undef
+#if defined(PUGS_HAVE_HSPLUGINS)
+    hspluginsSV <- newScalar (VInt 1)
+#else
+    hspluginsSV <- newScalar (VInt 0)
+#endif
     let subExit = \x -> case x of
             [x] -> op1 "exit" x
             _   -> op1 "exit" undef
     emptyEnv
         [ SymVar SGlobal "@*ARGS"       $ MkRef argsAV
         , SymVar SGlobal "@*INC"        $ MkRef incAV
+        , SymVar SGlobal "$*PUGS_HAS_HSPLUGINS" $ MkRef hspluginsSV
         , SymVar SGlobal "$*EXECUTABLE_NAME"    $ MkRef execSV
         , SymVar SGlobal "$*PROGRAM_NAME"       $ MkRef progSV
         , SymVar SGlobal "$*PID"        $ MkRef pidSV
@@ -101,7 +107,7 @@ prepareEnv name args = do
         , SymVar SGlobal "$!"           $ MkRef errSV
         , SymVar SGlobal "$/"           $ MkRef matchAV
         , SymVar SGlobal "%*ENV"        $ hashRef (undefined :: IHashEnv)
-	, SymVar SGlobal "$*CWD"        $ scalarRef (undefined :: IScalarCwd)
+        , SymVar SGlobal "$*CWD"        $ scalarRef (undefined :: IScalarCwd)
         -- XXX What would this even do?
         -- , SymVar SGlobal "%=POD"        (Val . VHash $ emptyHV)
         , SymVar SGlobal "@=POD"        $ MkRef $ constArray []
