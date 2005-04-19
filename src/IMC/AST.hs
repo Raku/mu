@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -fglasgow-exts -fth #-}
 
-module Pugs.IMC.AST where
+module IMC.AST where
 import Language.Haskell.TH
 import Language.Haskell.TH.Ppr
 

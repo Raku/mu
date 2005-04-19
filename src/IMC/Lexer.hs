@@ -1,8 +1,8 @@
 {-# OPTIONS_GHC -fglasgow-exts #-}
 
-module Pugs.IMC.Lexer where
-import Internals
-import Rule hiding (letter)
+module IMC.Lexer where
+import Pugs.Internals
+import Pugs.Rule hiding (letter)
 
 -- Transcribed from parrot/imcc/imcc.l
 letter      = oneOf "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_@"
