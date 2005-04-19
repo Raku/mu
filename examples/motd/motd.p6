@@ -9,7 +9,7 @@ unshift @*INC, $progdir;
 require "MOTD"; 
 
 my $subject  = shift @ARGS || "Pugs";
-my $sample  = shift @ARGS ||  10;
+my $sample  = shift @ARGS ||  20;
 
 # unimplemented: should be able to say 
 # my @list = =$fh is chomped;

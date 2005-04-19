@@ -8,7 +8,7 @@ unshift @*INC, $progdir;
 require "MOTD"; 
 
 my $subject   = shift @ARGS || 'Pugs is';
-my $surveyed  = shift @ARGS || 10;
+my $surveyed  = shift @ARGS || 20;
 my %tally     ;
 
 # unimplemented: should be able to say 
