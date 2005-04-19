@@ -4,9 +4,11 @@
 
 * Unification of the quoting code, most quoting constructs now work
 ** <<>> now works
-** Regular expressions are parsed as qq//, but without backslash protections
-** Hash subscripts using <> or <<>> are parsed as general quotations
-** This means interpolation, etc. is done just like q:w or qq:ww
+** Regular expressions are parsed as `qq//`, but without backslash protections
+** Hash subscripts using `<>` or `<<>>` are parsed as general quotations
+** This means interpolation, etc. is done just like `q:w` or `qq:ww`
+** `$<delim>` not interpolate in quoting constructs
+** `$)`, `$]`, `$#` and `$<whitespace>` do not interpolate in `rx:P5//` constructs.
 * Experimental support for `eval_haskell()` builtin
 * New builtins: `>>~<<`, `kill()`, `readdir()` (list context only)
 * `want()` has been implemented, returning a simple string
@@ -19,7 +21,7 @@
 
 === Tests, Examples and Documentations
 
-* Many new tests as well as cleanup of older tests, we are now at ... tests
+* Many new tests as well as much cleanup of older tests, we are now at 4400+ tests
 * Several new additions to the Perl 6 Cookbook.
 * Additions and improvements to the `util/catalog_tests.pl` scripts
 * Test smoke scripts converted to use `Test::Tap::Model`
@@ -27,8 +29,12 @@
 * New Perl 6 tutorial generator ported to Pugs in `examples/tutorial_gen/`
 * The `fp.p6` file has been broken into seperate files in `examples/fp/`
 * New naive baysian text classifier add in `examples/naive_bayesian`
+* New quote generator script in `examples/motd`
 * Added `isnt()` and `unlike()` functions to `Test.pm`
 * UTF-8 URL decoding added to `CGI.pm`
+* params are now loaded on-demand in `CGI.pm` to take advantage of encoding
+* added some perl6 related talks in `docs/talks`
+* improvements to `examples/network` and added README file
 
 === Bug Fixes
 
@@ -37,6 +43,7 @@
 * Accessing `@array[1000]` (without setting it) no longer extends `@array`
 * Corrected `chmod` prototype
 * Fixed infinite bug when evaluating `+((1|2).values)`
+* Fixed segfault with `:r` in interactive shell
 
 == Changes for 6.2.0 - April 13, 2005
 
