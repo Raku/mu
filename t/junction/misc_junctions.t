@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 30;
+plan 31;
 
 =pod
 
@@ -115,9 +115,7 @@ L<S03/"Junctive operators">
 
 }
 
-
-
-
-
-
-
+{
+	my $j = 1 | 2;
+	eval_ok('$j=5;1','reassignment of junction variable');
+}
