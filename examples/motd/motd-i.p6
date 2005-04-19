@@ -5,7 +5,7 @@ unshift @*INC, 'ext/File-Spec/lib', '../ext/File-Spec/lib', '../../ext/File-Spec
 require File::Spec;
 my ($progdir) = splitpath($*PROGRAM_NAME)[1];
 unshift @*INC, $progdir;
-require "MOTD"; 
+require MOTD; 
 
 my $subject   = shift @ARGS || 'Pugs is';
 my $surveyed  = shift @ARGS || 20;
@@ -34,7 +34,7 @@ $fh.close;
 my $orig = ~@list;
 
 my $most      = 0;
-my @mostsaid := { matchval \$most,\%tally };
+my @mostsaid := { matchval \$most,\%tally,3};
 my &tell := sub {
 	 say "{ 
 			$subject~report @mostsaid(1) 

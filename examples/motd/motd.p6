@@ -6,7 +6,7 @@ unshift @*INC, 'ext/File-Spec/lib', '../ext/File-Spec/lib', '../../ext/File-Spec
 require File::Spec;
 my ($progdir) = splitpath($*PROGRAM_NAME)[1];
 unshift @*INC, $progdir;
-require "MOTD"; 
+require MOTD; 
 
 my $subject  = shift @ARGS || "Pugs";
 my $sample  = shift @ARGS ||  20;
@@ -34,7 +34,7 @@ for =$fh->$line is rw{
 my %tally    = $sample  # people
 					     .whisper_about( @list) ;
 my $most     = %tally.values.max;
-my @mostsaid = matchval $most,%tally;
+my @mostsaid = matchval $most,%tally,3;
 
 my &tell := sub {
 		say "$subject is{ 
