@@ -9,7 +9,7 @@ Testing hash slices.
 
 =cut
 
-plan 4;
+plan 8;
 
 {   my %hash = (1=>2,3=>4,5=>6);
     my @s=(2,4,6);
