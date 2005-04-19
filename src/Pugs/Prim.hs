@@ -636,6 +636,11 @@ op2 "chmod" = \x y -> do
     files <- fromVals y
     rets  <- mapM (doBoolIO . flip setFileMode $ toEnum mode) files
     return . VInt . sum $ map bool2n rets
+op2 "splice" = \x y -> do
+    fetchSize   <- doArray x Array.fetchSize
+    len         <- fromVal y
+    sz          <- fetchSize
+    op4 "splice" x y (castV (sz - (len `mod` sz))) (VList []) 
 op2 other = \x y -> return $ VError ("unimplemented binaryOp: " ++ other) (App other [Val x, Val y] [])
 
 -- XXX - need to generalise this
@@ -752,6 +757,8 @@ op3 "rindex" = \x y z -> do
         | null a           = -1
         | otherwise        = doRindex (init a) b 0
 
+op3 "splice" = \x y z -> do
+    op4 "splice" x y z (VList []) 
 op3 other = \x y z -> return $ VError ("unimplemented 3-ary op: " ++ other) (App other [Val x, Val y, Val z] [])
 
 op4 :: Ident -> Val -> Val -> Val -> Val -> Eval Val
@@ -776,24 +783,15 @@ op4 "substr" = \x y z w -> do
         | otherwise = ((take pos str), VStr (take len $ drop pos str), (drop (pos + len) str))
 
 -- op4 "splice" = \x y z w-> do
-op4 "splice" = \ x y z _-> do 
-         arr      <- fromVal x
-         startP   <- fromVal y
-         countP   <- fromVal z
-         -- newlistP <- fromVal w
-
-         let start | defined y && startP >= 0 = startP
-                   | defined y && startP < 0  = (length arr) + startP
-                   | otherwise = 0
-         let count | defined z = countP
-                   | otherwise = -1                     -- is that a good way? Should I better use my own type here?
-                                                        -- should have a guard on countP >= 0 too.
-         {- let newl  | defined w = newlistP
-                   | otherwise = [] -}
-         let (_,rest) = splitAt start arr
-         let (res,_) = splitAt count rest
-         -- doArray x (VList $ pre++newl++post)
-         return $ VList $ res -- ++ pre++newl++post
+op4 "splice" = \x y z w -> do 
+    splice  <- doArray x Array.splice
+    start   <- fromVal y
+    count   <- fromVal z
+    vals    <- fromVals w
+    vals'   <- splice start count vals
+    ifContextIsa "List"
+        (return $ VList vals')
+        (return $ last (undef:vals'))
 
 op4 other = \x y z w -> return $ VError ("unimplemented 4-ary op: " ++ other) (App other [Val x, Val y, Val z, Val w] [])
 
@@ -1250,7 +1248,9 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   List      pre     map     (Array: Code)\
 \\n   List      pre     grep    (Array: Code)\
 \\n   List      pre     sort    (Array: Code)\
-\\n   List      pre     splice  (rw!Array, ?Int, ?Int, ?List)\
+\\n   Any       pre     splice  (rw!Array, ?Int=0)\
+\\n   Any       pre     splice  (rw!Array, Int, Int)\
+\\n   Any       pre     splice  (rw!Array, Int, Int, List)\
 \\n   Int       pre     push    (rw!Array, List)\
 \\n   Int       pre     unshift (rw!Array, List)\
 \\n   Scalar    pre     pop     (rw!Array)\
