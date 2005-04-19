@@ -1126,14 +1126,18 @@ existsFromRef ref _ = retError "Not a keyed reference" (Val $ VRef ref)
 
 deleteFromRef :: VRef -> Val -> Eval Val
 deleteFromRef (MkRef (IHash hv)) val = do
-    idx     <- fromVal val
-    rv      <- mapM (Hash.fetchVal hv) idx
-    mapM_ (Hash.deleteElem hv) idx
+    idxs    <- fromVals val
+    rv      <- forM idxs $ \idx -> do
+        val <- Hash.fetchVal hv idx
+        Hash.deleteElem hv idx
+        return val
     return $ VList rv
 deleteFromRef (MkRef (IArray av)) val = do
-    idx     <- fromVal val
-    rv      <- mapM (Array.fetchVal av) idx
-    mapM_ (Array.deleteElem av) idx
+    idxs    <- fromVals val
+    rv      <- forM idxs $ \idx -> do
+        val <- Array.fetchVal av idx
+        Array.deleteElem av idx
+        return val
     return $ VList rv
 deleteFromRef (MkRef (IScalar sv)) val = do
     refVal  <- Scalar.fetch sv
