@@ -816,6 +816,9 @@ retIVar :: (Typeable a) => IVar a -> Eval Val
 retIVar = return . VRef . MkRef
 
 writeRef :: VRef -> Val -> Eval ()
+writeRef (MkRef (IScalar s)) (VList vals) = do
+    av <- liftIO (newArray vals)
+    Scalar.store s (VRef $ MkRef av)
 writeRef (MkRef (IScalar s)) val = Scalar.store s val
 writeRef (MkRef (IArray s)) val  = Array.store s =<< fromVal val
 writeRef (MkRef (IHash s)) val   = Hash.store s =<< fromVal val
@@ -828,6 +831,9 @@ clearRef (MkRef (IArray s)) = Array.clear s
 clearRef (MkRef (IHash s)) = Hash.clear s
 clearRef r = retError "cannot clearRef" (Val $ VRef r)
 
+newObject "Scalar" (VList vals) = liftIO $ do
+    av <- liftIO (newArray vals)
+    return . scalarRef =<< newIORef (VRef $ MkRef av)
 newObject "Scalar" val = liftIO $ return . scalarRef =<< newIORef val
 newObject "Array" val = do
     ref <- liftIO $ return . arrayRef =<< (newIORef [] :: IO IArray)
