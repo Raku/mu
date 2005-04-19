@@ -24,7 +24,7 @@ throw :: K ans a -> M ans a -> M ans b
 throw k (M e) = M (const $ e k)
 
 c :: (K ans a -> ans) -> M ans a
-c f = callcc (\k -> abort (f k))
+c f = callCC (\k -> abort (f k))
 
 runM :: M ans ans -> ans
 runM (M e) = e (K id)
