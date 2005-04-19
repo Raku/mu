@@ -129,9 +129,9 @@ Tests quoting constructs as defined in L<S02/Literals>
 	eval '@q2 = «$foo gorch $bar»'; # french
 	eval '@q3 = <<$foo gorch $bar>>'; # texas
 
-	todo_is(+@q1, 3, 'q:ww// correct number of elements');
-	todo_is(+@q2, 3, 'french double angle');
-	todo_is(+@q3, 3, 'texas double angle');
+	is(+@q1, 3, 'q:ww// correct number of elements');
+	is(+@q2, 3, 'french double angle');
+	is(+@q3, 3, 'texas double angle');
 
 	todo_is(~@q1, "FOO gorch BAR", "explicit quote word interpolates");
 	is(~@q2, ~@q1, "output is the same as french,");
@@ -143,9 +143,9 @@ Tests quoting constructs as defined in L<S02/Literals>
 	my $gorch = "foo bar";
 
 	eval '@q1 = «$foo $gorch $bar»';
-	todo_is(+@q1, 4, "4 elements in unquoted «» list");
-	todo_is(@q1[2], "bar", '$gorch was exploded');
-	todo_is(@q1[3], "BAR", '$bar was interpolated');
+	is(+@q1, 4, "4 elements in unquoted «» list");
+	is(@q1[2], "bar", '$gorch was exploded');
+	is(@q1[3], "BAR", '$bar was interpolated');
 
 	eval '@q2 = «$foo "$gorch" \'$bar\'»';
 	todo_is(+@q2, 3, "3 elementes in sub quoted «» list");
