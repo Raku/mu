@@ -803,7 +803,7 @@ op2Hyper op x y
     | VList y' <- y
     = mapM (op2 op x) y' >>= (return . VList)
     | otherwise
-    = return $ VError "Hyper OP only works on lsits" (Val VUndef)
+    = return $ VError "Hyper OP only works on lists" (Val VUndef)
 
 op2Array :: (forall a. Array.Class a => a -> [Val] -> Eval ()) -> Val -> Val -> Eval Val
 op2Array f x y = do
