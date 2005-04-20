@@ -1075,7 +1075,7 @@ instance Scalar.Class IScalarCwd where
 	return $ VStr str
     store _ val = do
         str <- fromVal val
-	liftIO $ setCurrentDirectory str
+	tryIO () $ setCurrentDirectory str
 
 instance Scalar.Class VScalar where
     iType _ = "Scalar::Const"
