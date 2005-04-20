@@ -119,6 +119,9 @@ unoptimized :: src/Pugs/Config.hs @srcfiles $version_h @prereqs
 $pugs : src/Pugs/Config.hs @srcfiles $version_h @prereqs
 	$ghc $threaded --make $ghc_flags $ghc_output
 
+smoke : util/run-smoke.pl
+	\$(PERL) util/run-smoke.pl . smoke.html
+
 ghci ::
 	$ghc --interactive $ghc_flags $ghc_output
 
