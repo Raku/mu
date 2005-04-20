@@ -2,44 +2,40 @@
 
 use v6;
 
+#XXX just so that File:;Spec can be used w/o being installed
 unshift @*INC, 'ext/File-Spec/lib', '../ext/File-Spec/lib', '../../ext/File-Spec /lib';
+#XXX should be able to 'use'
 require File::Spec;
-my ($progdir) = splitpath($*PROGRAM_NAME)[1];
+my $progdir   = splitpath($*PROGRAM_NAME)[1];
 unshift @*INC, $progdir;
 require MOTD; 
 
-my $subject  = shift @ARGS || "Pugs";
-my $sample  = shift @ARGS ||  20;
-
-# unimplemented: should be able to say 
+# XXX unimplemented: should be able to say 
 # my @list = =$fh is chomped;
-my @list ;
-my $dict = canonpath("$progdir/pugspraise");
+my $subject   = shift @ARGS || 'Pugs';
+my $surveyed  = shift @ARGS || 20;
+my $dict      = shift @ARGS || canonpath("$progdir/pugspraise");
+my $fh        = open "<$dict" or die $!;
+my @list      ;
 
-my $fh = open("<$dict");
-
-# should be able to chomp $_, but can't yet
+# XXX should be able to chomp $_, but can't yet
 # check back
 for =$fh->$line is rw{
-  # $line should be declarable as 'is rw'
+  # XXX $line should be declarable as 'is rw'
 	# not yet implemented
-	my $a = $line; #so, we need to make a rw copy 
+	my $a     = $line; #so, we need to make a rw copy 
 	chomp $a; 
-	# next isn't working correctly, yet
-	if( $a ){
-		push @list,$a;
-	}
+	push @list,$a || next()
 };
+$fh.close;
 
-my %tally    = $sample  # people
-					     .whisper_about( @list) ;
-my $most     = %tally.values.max;
-my @mostsaid = matchval $most,%tally,3;
+my %opinions = $surveyed  # number 
+               .whisper_about( @list) ;
+my $most     = %opinions.values.max;
 
-my &tell := sub {
+my &tell := -> $limit {
 		say "$subject is{ 
-			report @mostsaid 
+			report matchval $most,%opinions,$limit;
 		}."
 };
-
-tell;
+tell 2;
