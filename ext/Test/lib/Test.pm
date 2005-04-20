@@ -177,6 +177,16 @@ sub todo_use_ok (Str $module) is export {
 
 ## throws ok
 
+sub throws_ok (Sub $code, Any $match, Str ?$desc) returns Bool is export {
+    try { $code() };
+    if ($! ~~ $match) {
+        &ok.goto(1, $desc);
+    }
+    else {
+	    proclaim(undef, $desc, undef, "No exception thrown");
+    }
+}
+
 sub dies_ok (Sub $code, Str ?$desc) returns Bool is export {
     try { $code() };
     if ($!) {
