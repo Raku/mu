@@ -375,10 +375,17 @@ op1 other   = return . (\x -> VError ("unimplemented unaryOp: " ++ other) (App o
 op1EvalHaskell :: Val -> Eval Val
 op1EvalHaskell cv = do
     cstr <- (fromVal cv) :: Eval String
-    retstr <- liftIO (evalHaskell cstr)
-    case retstr of
-        Right str -> return $ VStr str
-        Left  err -> retError err (Val cv)
+    ret <- liftIO (evalHaskell cstr)
+    glob <- askGlobal
+    let Just errSV = findSym "$!" glob
+    
+    case ret of
+        Right str -> do
+            writeRef errSV VUndef
+            return $ VStr str
+        Left  err -> do
+            writeRef errSV (VStr err)
+            retEmpty
 
 op1Cast :: (Value n) => (n -> Val) -> Val -> Eval Val
 op1Cast f val = return . f =<< fromVal =<< fromVal' val
@@ -983,11 +990,11 @@ primOp sym assoc prms ret = SymVar SOur name sub
     f    = case (arity :: Integer) of
         0 -> \x -> op0 symStr x
         1 -> \x     -> case x of
-            [x]       -> op1 symName x
-            [x,y]     -> op2 symStr x y
-            [x,y,z]   -> op3 symStr x y z
-            [x,y,z,w] -> op4 symStr x y z w
-            x         -> op0 symStr x
+            [a]       -> op1 symName a
+            [a,b]     -> op2 symStr a b
+            [a,b,c]   -> op3 symStr a b c
+            [a,b,c,d] -> op4 symStr a b c d
+            a         -> op0 symStr a
         2 -> \[x,y] -> op2 symStr x y
         3 -> \[x,y,z] -> op3 symStr x y z
         4 -> \[x,y,z,w] -> op4 symStr x y z w
