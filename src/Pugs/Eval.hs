@@ -492,8 +492,14 @@ reduce env exp@(Syn name exps) = case name of
                         _           -> runBody
                 _ -> retVal vbool
 
-reduce env (App name [Syn "," invs] args) = reduce env (App name invs args)
-reduce env (App name invs [Syn "," args]) = reduce env (App name invs args)
+reduce env (App name invs args)
+    | not . null $ [ undefined | (Syn "," _) <- invs ]
+    = reduce env $ App name (concatMap flatten invs) args
+    | not . null $ [ undefined | (Syn "," _) <- args ]
+    = reduce env $ App name invs (concatMap flatten args)
+    where
+    flatten (Syn "," exps) = exps
+    flatten exp = [exp]
 
 -- XXX absolutely evil bloody hack for context hinters
 reduce _ (App "&hash" invs args) =
@@ -691,7 +697,10 @@ doApply Env{ envClasses = cls } sub@Sub{ subFun = fun, subType = typ } invs args
             Parens exp  -> local fixEnv $ enterLex pad $ expToVal prm exp
             _           -> expToVal prm exp
         -- trace ("==> " ++ (show val)) $ return ()
-        let sym = SymVar SMy name (scalarRef val)
+        let sym = SymVar SMy name boundRef
+            boundRef = case val of
+                (VRef ref)  -> ref
+                _           -> scalarRef val
         (pad', restArgs) <- doBind (sym:pad) rest
         return (pad', ApplyArg name val coll:restArgs)
     expToVal Param{ isThunk = thunk, isLValue = lv, isSlurpy = slurpy, paramContext = cxt } exp = do

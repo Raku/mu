@@ -44,7 +44,7 @@ my $nexttest = 0;
 eval 'for (1..10) { $nexttest++; next; $nexttest++; }; 1';
 todo_ok($nexttest == 10, "next");
 
-ok(eval '12.eval', "12.eval");
-ok(eval 'eval(1 ?? 1 :: 0)', "?? ::");
+is(12.eval, 12, "12.eval");
+is(eval(1 ?? 1 :: 0), 1, "?? ::");
 
-todo_ok(eval '{ my $_ = 1; $_ }', '{ my $_ = 1; $_ }');
+ok({ my $_ = 1; $_ }, '{ my $_ = 1; $_ }');
