@@ -21,7 +21,7 @@
 * serializable subcontinuation monad implementation
 * assigning a List into a Scalar vivifies it into an Array.
 * IMC runs
-* Junctive types.
+* Junctive types in subroutine signatures `sub foo (Str|Array)`
 * lvalue pairs.
 
 === Tests, Examples and Documentations
