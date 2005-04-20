@@ -799,13 +799,21 @@ op4 other = \x y z w -> return $ VError ("unimplemented 4-ary op: " ++ other) (A
 
 op2Hyper op x y
     | VList x' <- x, VList y' <- y
-    = mapM (\(a,b) -> op2 op a b) (x' `zip` y') >>= (return . VList)
+    = hyperLists x' y' >>= (return . VList)
     | VList x' <- x
     = mapM ((flip (op2 op)) y) x' >>= (return . VList)
     | VList y' <- y
     = mapM (op2 op x) y' >>= (return . VList)
     | otherwise
     = return $ VError "Hyper OP only works on lists" (Val VUndef)
+    where
+    hyperLists [] [] = return []
+    hyperLists xs [] = return xs
+    hyperLists [] ys = return ys
+    hyperLists (x:xs) (y:ys) = do
+        val  <- op2 op x y
+        rest <- hyperLists xs ys
+        return (val:rest)
 
 op2Array :: (forall a. Array.Class a => a -> [Val] -> Eval ()) -> Val -> Val -> Eval Val
 op2Array f x y = do
