@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 31;
+plan 34;
 
 =pod
 
@@ -119,4 +119,18 @@ L<S03/"Junctive operators">
 	my $j = 1 | 2;
 	eval '$j = 5';
 	is($j, 5, 'reassignment of junction variable');
+}
+
+{
+	my ($j,$k,$l);
+
+	$j = 1|2;
+	is(ref($j),'Junction', 'basic junction type reference test');
+
+	$k=$j;
+	is(ref($k),'Junction', 'assignment preserves reference');
+
+	# XXX does this next one make any sense?
+	$l=\$j;
+	is(ref($l),'Junction', 'hard reference to junction');
 }
