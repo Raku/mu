@@ -548,8 +548,8 @@ extract ((Parens ex), vs) = ((Parens ex'), vs')
 extract other = other
 
 cxtOfExp (Cxt cxt _)            = return cxt
-cxtOfExp (Syn "[]" [exp, _])    = cxtOfExp exp
-cxtOfExp (Syn "{}" [exp, _])    = cxtOfExp exp
+cxtOfExp (Syn "[]" [_, exp])    = cxtOfExp exp
+cxtOfExp (Syn "{}" [_, exp])    = cxtOfExp exp
 cxtOfExp (Val (VList _))        = return "List"
 cxtOfExp (Val (VRef r))         = return $ refType r
 cxtOfExp (Val _)                = return "Scalar"
