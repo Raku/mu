@@ -359,6 +359,7 @@ op1 "=" = \v -> do
         case rv of
             Nothing  -> retError "No such file or directory" (Val $ VStr x)
             Just hdl -> return hdl
+    handleOf (VList [x]) = handleOf x
     handleOf v = fromVal v
 op1 "ref"   = (return . VStr =<<) . evalValType
 op1 "pop"   = \x -> join $ doArray x Array.pop -- monadic join
@@ -545,7 +546,7 @@ op2 "+^" = op2Int xor
 op2 "~|" = op2Str $ mapStr2Fill (.|.)
 op2 "?|" = op2Bool (||)
 op2 "~^" = op2Str $ mapStr2Fill xor
-op2 "=>" = \x y -> return $ VPair (x, y)
+op2 "=>" = \x y -> trace (show (x, y)) $ return $ VPair (x, y)
 op2 "cmp"= op2Ord vCastStr
 op2 "<=>"= op2Ord vCastRat
 op2 ".." = op2Cast op2Range
@@ -650,6 +651,10 @@ op2 "splice" = \x y -> do
     len         <- fromVal y
     sz          <- fetchSize
     op4 "splice" x y (castV (sz - (len `mod` sz))) (VList []) 
+op2 "sort" = \x y -> do
+    xs <- fromVals x
+    ys <- fromVals y
+    op1 "sort" . VList $ xs ++ ys
 op2 other = \x y -> return $ VError ("unimplemented binaryOp: " ++ other) (App other [Val x, Val y] [])
 
 -- XXX - need to generalise this
@@ -1248,7 +1253,6 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Scalar    pre     scalar  (Scalar)\
 \\n   Any       pre     reverse (rw!Any)\
 \\n   Any       pre     reverse (List)\
-\\n   List      pre     sort    (List)\
 \\n   Int       spre    +^      (Int)\
 \\n   Int       spre    ~^      (Str)\
 \\n   Bool      spre    ?^      (Bool)\
@@ -1275,7 +1279,7 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   List      pre     map     (Code, List)\
 \\n   List      pre     grep    (Code, List)\
 \\n   List      pre     sort    (Code, List)\
-\\n   List      pre     sort    (List)\
+\\n   List      pre     sort    (Array)\
 \\n   List      pre     map     (Array: Code)\
 \\n   List      pre     grep    (Array: Code)\
 \\n   List      pre     sort    (Array: Code)\
