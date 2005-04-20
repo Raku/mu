@@ -625,7 +625,7 @@ currentUnaryFunctions = do
         , let opt   = isOptional param
         , let name  = parseName $ symName f
         -- XXX: find other MMD duplicates
-        , name /= "say" && name /= "print" && name /= "reverse"
+        , name /= "sort", name /= "say" && name /= "print" && name /= "reverse"
         , not $ isSlurpy param
         ]
     where
