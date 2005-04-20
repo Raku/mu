@@ -98,7 +98,7 @@ class (Typeable a) => Class a where
     splice av off len vals = do
         size <- fetchSize av
         let off' = if off < 0 then off + size else off
-            len' = if len < 0 then len + size - off else len
+            len' = if len < 0 then len + size - off' else len
         result <- mapM (fetchElem av) [off' .. off' + len' - 1]
         let off = if off' > size then size else off'
             len = if off + len' > size then size - off else len'
