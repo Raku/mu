@@ -44,7 +44,7 @@ bindHash vs [p]         = return [ (p, Syn "\\{}" vs) ] -- XXX cast to Hash
 
 bindArray :: [Exp] -> [Param] -> MaybeError Bindings
 bindArray vs ps = do
-    case foldM (doBindArray (Syn "," vs)) ([],0) prms of
+    case foldM (doBindArray (Syn "*" [Syn "," vs])) ([],0) prms of
         Left errMsg     -> fail errMsg
         Right (bound,_) -> return $ reverse bound
     where
