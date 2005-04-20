@@ -231,14 +231,14 @@ reduce env exp@(Var name) = do
             val <- readRef ref
             let cxt = envContext env
             if (defined val) || (cxt /= "Array" && cxt /= "Hash")
-                then retVal (castV ref)
+                then return $ castV ref
                 else do
                     -- autovivify! fun!
                     ref' <- newObject (envContext env) (VList [])
                     writeRef ref (VRef ref')
-                    retVal (castV ref)
-        Just ref -> do
-            retVal (castV ref)
+                    return $ castV ref
+        Just ref | envLValue env -> return $ castV ref
+        Just ref -> retVal $ castV ref
         _ -> retError ("Undeclared variable " ++ name) exp
 
 reduce _ (Statements stmts) = do
