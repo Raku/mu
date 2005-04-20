@@ -547,7 +547,11 @@ reduce _ (App "&assuming" (subExp:invs) args) = do
     case bindSomeParams sub invs args of
         Left errMsg      -> retError errMsg (Val VUndef)
         Right curriedSub -> retVal $ castV $ curriedSub
-        
+
+reduce _ (App "&infix:=>" [keyExp, valExp] []) = do
+    key <- enterEvalContext "Scalar" keyExp
+    val <- enterEvalContext "Scalar" valExp
+    retVal $ VPair (key, val)
 
 reduce Env{ envClasses = cls, envContext = cxt, envLexical = lex, envGlobal = glob } exp@(App name invs args) = do
     syms    <- liftIO $ readIORef glob

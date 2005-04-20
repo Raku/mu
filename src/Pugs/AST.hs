@@ -117,6 +117,7 @@ instance Value (IVar VScalar) where
 
 instance Value VRef where
     fromVal (VRef v) = return v
+    fromVal (VPair (_, VRef v)) = return v
     fromVal (VList v) = return (arrayRef v)
     fromVal v = return . MkRef $ constScalar v
     castV = VRef

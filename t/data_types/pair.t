@@ -90,7 +90,7 @@ is($quux.key, 'quux', "lhs quotes" );
 # http://www.nntp.perl.org/group/perl.perl6.language/19425
 
 my $val;
-eval '("foo" => $val) = "baz"';
-todo_ok($val eq "baz", "lvalue lists");
+("foo" => $val) = "baz";
+is($val, "baz", "lvalue lists");
 
 
