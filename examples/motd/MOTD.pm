@@ -39,7 +39,8 @@ sub max (Array @x) returns Int{
 sub whisper_about (Int $sizeof_crowd, Array ?@x) returns Hash {
     my %terms;
     for 1 .. $sizeof_crowd {
-        %terms{finger(@x)}++;
+		my $phrase = finger @x;
+	   %terms{$phrase}++
     }
     %terms
 }
@@ -49,8 +50,7 @@ sub addtolist ($x){
 }
 
 sub append_last ($x,$string,$pass){
-  my $rwstring = $string; 
-
+    my $rwstring = $string; 
 	if $pass > 2 {
 		chop $rwstring;
 		"$rwstring and " ~ 
@@ -73,7 +73,7 @@ sub append_last ($x,$string,$pass){
 sub matchval ($x,%x,Int ?$cap) returns Array {
 	my @matches;
 	for (%x.pairs)->$pair{
-		if $pair[1] eq $x { push @matches,$pair[0] }  
+		if $pair.value eq $x { push @matches,$pair.key }  
 		if $cap && +@matches == $cap { return @matches }
 	}
 	@matches

@@ -32,7 +32,6 @@ $fh.close;
 my %opinions = $surveyed  # number 
                .whisper_about( @list) ;
 my $most     = %opinions.values.max;
-
 my &tell := -> $limit {
 		say "$subject is{ 
 			report matchval $most,%opinions,$limit;
