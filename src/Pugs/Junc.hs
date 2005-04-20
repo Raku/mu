@@ -14,6 +14,8 @@ import Pugs.Internals
 import Pugs.AST
 import qualified Data.Set as Set
 
+opJuncNone :: [Val] -> Val
+opJuncNone = opJunc JNone
 opJuncAll :: [Val] -> Val
 opJuncAll = opJunc JAll
 opJuncAny :: [Val] -> Val

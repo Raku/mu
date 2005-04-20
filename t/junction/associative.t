@@ -17,25 +17,25 @@ L<S03/"Junctive operators">
 
 { # L<S09/"Junctions">
 
-    ok ('1 2 3' eq ~((1|2)|3).values, "Left-associative any, | operator");
-    ok ('1 2 3' eq ~(1|(2|3)).values, "Right-associative any, | operator");
+    is ('1 2 3', ~((1|2)|3).values, "Left-associative any, | operator");
+    is ('1 2 3', ~(1|(2|3)).values, "Right-associative any, | operator");
 
-    ok ('1 2 3' eq ~any(any(1,2),3).values, "Left-associative any()");
-    ok ('1 2 3' eq ~any(1,any(2,3)).values, "Right-associative any()");
+    is ('1 2 3', ~any(any(1,2),3).values, "Left-associative any()");
+    is ('1 2 3', ~any(1,any(2,3)).values, "Right-associative any()");
 
-    ok ('1 2 3' eq ~((1&2)&3).values, "Left-associative all, & operator");
-    ok ('1 2 3' eq ~(1&(2&3)).values, "Right-associative all, & operator");
+    is ('1 2 3', ~((1&2)&3).values, "Left-associative all, & operator");
+    is ('1 2 3', ~(1&(2&3)).values, "Right-associative all, & operator");
 
-    ok ('1 2 3' eq ~all(all(1,2),3).values, "Left-associative all()");
-    ok ('1 2 3' eq ~all(1,all(2,3)).values, "Right-associative all()");
+    is ('1 2 3', ~all(all(1,2),3).values, "Left-associative all()");
+    is ('1 2 3', ~all(1,all(2,3)).values, "Right-associative all()");
 
-    ok ('1 2 3' eq ~((1^2)^3).values, "Left-associative one, ^ operator");
-    ok ('1 2 3' eq ~(1^(2^3)).values, "Right-associative one, ^ operator");
+    todo_isnt ('1 2 3', ~((1^2)^3).values, "Left-associative one, ^ operator");
+    isnt ('1 2 3', ~(1^(2^3)).values, "Right-associative one, ^ operator");
 
-    ok ('1 2 3' eq ~one(one(1,2),3).values, "Left-associative one()");
-    ok ('1 2 3' eq ~one(1,one(2,3)).values, "Right-associative one()");
+    isnt ('1 2 3', ~one(one(1,2),3).values, "Left-associative one()");
+    isnt ('1 2 3', ~one(1,one(2,3)).values, "Right-associative one()");
 
-    ok ('1 2 3' eq ~none(none(1,2),3).values, "Left-associative none()");
-    ok ('1 2 3' eq ~none(1,none(2,3)).values, "Right-associative none()");
+    is ('1 2 3', ~none(none(1,2),3).values, "Left-associative none()");
+    is ('1 2 3', ~none(1,none(2,3)).values, "Right-associative none()");
 
 }

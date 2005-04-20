@@ -25,7 +25,7 @@ import qualified Pugs.Types.Hash   as Hash
 import qualified Pugs.Types.Scalar as Scalar
 
 op0 :: Ident -> [Val] -> Eval Val
-op0 "!"  = return . VJunc . Junc JNone Set.empty . Set.fromList
+op0 "!"  = return . opJuncNone
 op0 "&"  = return . opJuncAll
 op0 "^"  = return . opJuncOne
 op0 "|"  = return . opJuncAny
@@ -174,7 +174,7 @@ op1 "true" = op1 "?"
 op1 "any"  = op1Cast opJuncAny
 op1 "all"  = op1Cast opJuncAll
 op1 "one"  = op1Cast opJuncOne
-op1 "none" = op1Cast (VJunc . Junc JNone Set.empty . Set.fromList)
+op1 "none" = op1Cast opJuncNone
 op1 "perl" = (return . VStr =<<) . (prettyVal 0)
 op1 "require_haskell" = \v -> do
     name    <- fromVal v
@@ -1376,7 +1376,7 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   List      spre    =       (IO)\
 \\n   Junction  list    |       (Any|Junction)\
 \\n   Junction  list    &       (Any|Junction)\
-\\n   Junction  list    ^       (Any|Junction)\
+\\n   Junction  list    ^       (Any)\
 \\n   Junction  list    !       (Any|Junction)\
 \\n   Num       left    *       (Num, Num)\
 \\n   Num       left    /       (Num, Num)\

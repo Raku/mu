@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 25;
+plan 23;
 
 =pod
 
@@ -16,7 +16,7 @@ These tests are derived from the Perl6 and Parrot Essentials Chapter 4, page 42
 my $j = (1 | 2 | 3);
 is(ref($j), 'Junction', '$j is a Junc');
 
-is($j.perl, '(1 | 2 | 3)', 'got the right stringified junction');
+is($j.perl, '\(1 | 2 | 3)', 'got the right stringified junction');
 
 my @values = $j.values;
 is(+@values, 3, 'our junction has three values in it');
@@ -36,6 +36,6 @@ is(@sums_values[2], 6, 'our junctions third value is 6');
 
 # loop enough to go through it twice
 for (1 .. 6) {
-    ok(1 ^ 2 ^ 3 == $j.pick, 'it is always at least one');
-    ok(1 | 2 | 3 == $j.pick, 'it is always one of them');
+    ok((1 ^ 2 ^ 3) == $j.pick, 'it is always at least one');
+    ok((1 | 2 | 3) == $j.pick, 'it is always one of them');
 }
