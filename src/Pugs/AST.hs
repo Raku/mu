@@ -784,7 +784,7 @@ writeRef (MkRef (IScalar s)) (VList vals) = do
     av <- liftIO (newArray vals)
     Scalar.store s (VRef $ MkRef av)
 writeRef (MkRef (IScalar s)) val = Scalar.store s val
-writeRef (MkRef (IArray s)) val  = Array.store s =<< fromVal val
+writeRef (MkRef (IArray s)) val  = Array.store s =<< fromVals val
 writeRef (MkRef (IHash s)) val   = Hash.store s =<< fromVal val
 writeRef (MkRef (ICode s)) val   = Code.store s =<< fromVal val
 writeRef r _ = retError "cannot writeRef" (Val $ VRef r)
