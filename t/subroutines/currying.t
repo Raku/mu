@@ -20,7 +20,7 @@ sub foo (+$x, +$y, +$z = 'd') {
 }
 
 is(foo(1, 2), "x=1 y=2 z=d", "uncurried sub has good output");
-todo_is(foo("x" => 1, "y" => 2), "x=1 y=2 z=d", "uncurried sub with pair notation");
+is(foo("x" => 1, "y" => 2), "x=1 y=2 z=d", "uncurried sub with pair notation");
 
 is((&foo.assuming("y" => 2))("x" => 1), foo(1, 2), "curried sub with named params");
 
