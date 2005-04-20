@@ -333,14 +333,8 @@ sub read_forcetodo_tests() {
     my $unixfn = $?FILE;
     $unixfn ~~ s:Perl5:g{\\}{/};
 
-    my $force_todo_fh = open "< t/force_todo";
-    # If the file doesn't exist, simply return -- there's nothing we could
-    # read from that file.
-    return() unless $force_todo_fh;
-
-    # Otherwise, continue:
     my @tests_to_forcetodo;
-    for =$force_todo_fh -> $l {
+    for =<t/force_todo> -> $l {
     	my $line = $l; # no C<is rw> yet
     	# FYI, an example line might look like:
     	#   t/foo/bar.t 13 15 42
