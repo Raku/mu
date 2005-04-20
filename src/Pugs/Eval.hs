@@ -346,21 +346,24 @@ reduce env exp@(Syn name exps) = case name of
     "," -> do
         vals    <- mapM (enterLValue . enterEvalContext "List") exps
         -- now do some basic flattening
-        vlists  <- (`mapM` vals) $ \v -> case v of
-            VList _   -> fromVal v
-            _         -> return [v]
-        retVal $ VList $ concat vlists
+        if envLValue env
+            then retVal $ VList vals
+            else do
+                vals'   <- mapM fromVals vals
+                let flatten (VList x) = x
+                    flatten v         = [v]
+                retVal $ VList $ concatMap flatten $ concat vals'
     "val" -> do
         let [exp] = exps
         enterRValue $ evalExp exp
     "\\{}" -> do
         let [exp] = exps
-        v   <- enterEvalContext "List" exp
+        v   <- enterRValue $ enterEvalContext "List" exp
         hv  <- newObject "Hash" v
         retVal $ VRef hv
     "\\[]" -> do
         let [exp] = exps
-        v   <- enterEvalContext "List" exp
+        v   <- enterRValue $ enterEvalContext "List" exp
         av  <- newObject "Array" v
         retVal $ VRef av
     -- XXX evil hack for infinite slices
