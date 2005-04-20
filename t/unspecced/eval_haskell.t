@@ -19,6 +19,6 @@ if ($*PUGS_HAS_HSPLUGINS eq '0') {
 
 is(eval_haskell('"haskell"'), 'haskell', 'string return');
 
-dies_ok(eval_haskell('thisisinvalidhaskellcode'), 'throws on error');
-throws_ok(eval_haskell('thisisinvalidhaskellcode'),
+dies_ok({eval_haskell('thisisinvalidhaskellcode')}, 'throws on error');
+throws_ok({eval_haskell('thisisinvalidhaskellcode')},
  'thisisinvalidhaskellcode', 'throws something useful on error')

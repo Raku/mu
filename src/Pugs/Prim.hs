@@ -376,7 +376,9 @@ op1EvalHaskell :: Val -> Eval Val
 op1EvalHaskell cv = do
     cstr <- (fromVal cv) :: Eval String
     retstr <- liftIO (evalHaskell cstr)
-    return $ VStr $ retstr
+    case retstr of
+        Right str -> return $ VStr str
+        Left  err -> retError err (Val cv)
 
 op1Cast :: (Value n) => (n -> Val) -> Val -> Eval Val
 op1Cast f val = return . f =<< fromVal =<< fromVal' val
