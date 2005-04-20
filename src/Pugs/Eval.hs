@@ -344,11 +344,10 @@ reduce env exp@(Syn name exps) = case name of
         vals    <- fromVals val
         retVal $ VList $ concat vals
     "," -> do
-        vals    <- mapM (enterEvalContext "List") exps
+        vals    <- mapM (enterLValue . enterEvalContext "List") exps
         -- now do some basic flattening
         vlists  <- (`mapM` vals) $ \v -> case v of
             VList _   -> fromVal v
---          VArray _  -> fromVal v
             _         -> return [v]
         retVal $ VList $ concat vlists
     "val" -> do
