@@ -526,7 +526,7 @@ op2 "+>" = op2Int shiftR
 op2 "~&" = op2Str $ mapStr2 (.&.)
 op2 "~<" = op2Cast (\x y -> VStr $ mapStr (`shiftL` y) x)
 op2 "~>" = op2Cast (\x y -> VStr $ mapStr (`shiftR` y) x)
-op2 "**" = op2Rat ((^^) :: VRat -> VInt -> VRat)
+op2 "**" = op2Exp
 op2 "+"  = op2Numeric (+)
 op2 "-"  = op2Numeric (-)
 op2 "atan" = op2Num atan2
@@ -855,9 +855,19 @@ op2Str f x y = do
     return $ VStr $ f x' y'
 
 op2Num  f = op2Cast $ (VNum .) . f
-op2Rat  f = op2Cast $ (VRat .) . f
 op2Bool f = op2Cast $ (VBool .) . f
 op2Int  f = op2Cast $ (VInt .) . f
+op2Rat  f = op2Cast $ (VRat .) . f
+
+op2Exp x y = do
+    num2 <- fromVal =<< fromVal' y
+    case reverse $ show (num2 :: VNum) of
+        ('0':'.':_) -> do
+            num1 <- fromVal =<< fromVal' x
+            if isDigit . head $ show (num1 :: VNum)
+                then op2Rat ((^^) :: VRat -> VInt -> VRat) x y
+                else op2Num ((**) :: VNum -> VNum -> VNum) x y
+        _ -> op2Num ((**) :: VNum -> VNum -> VNum) x y
 
 op1Range (VStr s)    = VList $ map VStr $ strRangeInf s
 op1Range (VRat n)    = VList $ map VRat [n ..]

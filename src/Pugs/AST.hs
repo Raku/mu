@@ -278,6 +278,8 @@ instance Value VStr where
 
 showNum :: Show a => a -> String
 showNum x
+    | str == "Infinity"
+    = "Inf"
     | (i, ".0") <- break (== '.') str
     = i -- strip the trailing ".0"
     | otherwise = str

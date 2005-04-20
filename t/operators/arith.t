@@ -3,12 +3,7 @@
 use v6;
 require Test;
 
-plan 179;
-
-#if($*OS eq any<MSWin32 mingw msys cygwin>) {
-#    skip 179, "win32 sporadic fails; skip for now"; # unTODOme
-#    exit;
-#};
+plan 177;
 
 my $five = abs(-5);
 
@@ -292,71 +287,68 @@ tryeq_sloppy 18446744073709551616/9223372036854775808, 2;
 
 # exponentiation
 
-tryeq 2**2, 4;
-tryeq 2.2**2, 4.84;
+is 2**2, 4;
+is 2.2**2, 4.84;
 tryeq_sloppy 2**2.2, 4.59479341998814;
 tryeq_sloppy 2.2**2.2, 5.66669577875008;
-tryeq 1**0, 1;
-tryeq 1**1, 1;
+is 1**0, 1;
+is 1**1, 1;
 
 # Inf
-tryeq Inf, Inf;
-tryeq -Inf, -Inf;
-tryeq Inf+100, Inf;
-tryeq Inf-100, Inf;
-tryeq Inf*100, Inf;
-tryeq Inf/100, Inf;
-tryeq Inf*-100, -Inf;
-tryeq Inf/-100, -Inf;
-tryeq 100/Inf, 0;
-tryeq Inf**100, Inf;
-tryeq Inf*0, NaN;
-tryeq Inf-Inf, NaN;
-tryeq Inf*Inf, Inf;
-tryeq Inf/Inf, NaN;
-tryeq Inf*Inf/Inf, NaN;
+is Inf, Inf;
+is -Inf, -Inf;
+is Inf+100, Inf;
+is Inf-100, Inf;
+is Inf*100, Inf;
+is Inf/100, Inf;
+is Inf*-100, -Inf;
+is Inf/-100, -Inf;
+is 100/Inf, 0;
+is Inf**100, Inf;
+is Inf*0, NaN;
+is Inf-Inf, NaN;
+is Inf*Inf, Inf;
+is Inf/Inf, NaN;
+is Inf*Inf/Inf, NaN;
+is Inf**0, 1;
+is 0**Inf, 0;
 
-tryeq Inf**0, 1;
-tryeq 0**Inf, 0;
-
-skip 4, "** with Inf make Pugs eat cpu forever";
 my $inf1 = 100**Inf;
-# tryeq $inf1, Inf, "100**Inf";
+is $inf1, Inf, "100**Inf";
 my $inf2 = Inf**Inf;
-# tryeq $inf2, Inf, "Inf**Inf";
+is $inf2, Inf, "Inf**Inf";
 
 
 # See http://mathworld.wolfram.com/Indeterminate.html
 # for why these three values are defined like they are.
 #tryeq 0.9**Inf, 0, "0.9**Inf converges towards 0";
 #tryeq 1.1**Inf, Inf, "1.1**Inf diverges towards Inf";
-tryeq 1**Inf, NaN; # but why is it defined like that?;
+is 1**Inf, NaN; # but why is it defined like that?;
 
 # NaN
-tryeq NaN, NaN;
-tryeq -NaN, NaN;
-tryeq NaN+100, NaN;
-tryeq NaN-100, NaN;
-tryeq NaN*100, NaN;
-tryeq NaN/100, NaN;
-tryeq NaN**100, NaN;
-tryeq NaN+NaN, NaN;
-tryeq NaN-NaN, NaN;
-tryeq NaN*NaN, NaN;
-tryeq NaN/NaN, NaN;
+is NaN, NaN;
+is -NaN, NaN;
+is NaN+100, NaN;
+is NaN-100, NaN;
+is NaN*100, NaN;
+is NaN/100, NaN;
+is NaN**100, NaN;
+is NaN+NaN, NaN;
+is NaN-NaN, NaN;
+is NaN*NaN, NaN;
+is NaN/NaN, NaN;
 
-tryeq NaN+Inf, NaN;
-tryeq NaN-Inf, NaN;
-tryeq NaN*Inf, NaN;
-tryeq NaN/Inf, NaN;
-tryeq Inf/NaN, NaN;
+is NaN+Inf, NaN;
+is NaN-Inf, NaN;
+is NaN*Inf, NaN;
+is NaN/Inf, NaN;
+is Inf/NaN, NaN;
 
 # These three still segfault, at r2038
 
-skip 3, "NaN calculations make baby Pugs cry";
-# my $nan1 = NaN**NaN;
-# tryeq $nan1, NaN, "NaN**NaN";
-# my $nan2 = NaN**Inf;
-# tryeq $nan2, NaN, "NaN**Inf";
-# my $nan3 = Inf**NaN;
-# tryeq $nan3, NaN, "Inf**NaN";
+my $nan1 = NaN**NaN;
+is $nan1, NaN, "NaN**NaN";
+my $nan2 = NaN**Inf;
+is $nan2, NaN, "NaN**Inf";
+my $nan3 = Inf**NaN;
+is $nan3, NaN, "Inf**NaN";
