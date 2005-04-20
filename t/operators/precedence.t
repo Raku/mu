@@ -74,7 +74,7 @@ ok(     !(1 & 2 ^ 4) != 3, "blah blah blah");
 	ok($a == 1, "either is eq 1");
 	ok($b == 2, "either is eq 2, ne 3");
 	ok($b == 1, "either is eq 1");
-	ok($b == 3, "either is eq 3, of which only one is");
+	ok(!($b == 3), "either is eq 3, of which only one is");
 	ok(!($b != 3), "1 is ne 3, and (2 | 3) is both ne 3 and eq 3, so it's ne, so 1 ^ 2 | 3");
 };
 
@@ -123,19 +123,19 @@ is((1 && 0 ?? 2 :: 3), 3, "&& binds tighter than ??");
 	my @c = 1, 2, 3;
 	todo_is(@c, (1), "= binds tighter than , (*sigh*)");
 	my @a = (1, 3) ¥ (2, 4);
-	todo_is(@a, (1, 3), "= binds tighter than yen");
+	todo_is(@a, [1, 3], "= binds tighter than yen");
 };
 
 {
 	my @b = ((1, 3) ¥ (2, 4));
-	is(@b, (1 .. 4), "parens work around this");
+	is(@b, [1 .. 4], "parens work around this");
 };
 
 # 17. list item separator
 
 {
 	my @d; eval '@d <== (1, 3) ¥ (2, 4)';
-    todo_is(@d, (1 .. 4), "to complicate things further, left pointing pipe *does* DWIM");
+    todo_is(@d, [1 .. 4], "to complicate things further, left pointing pipe *does* DWIM");
     my $c = any 1, 2, 3;
     ok($c == 2, "any is less tight than comma");
 }
@@ -144,7 +144,7 @@ is((1 && 0 ?? 2 :: 3), 3, "&& binds tighter than ??");
 
 {
 	my @e; eval '@e = (map { $_+1 } <== (1, 2, 3) ==> map { $_*2 })'; # =D
-	todo_is(@e, (4, 6, 8), "<== is tighter than ==>");
+	todo_is(@e, [4, 6, 8], "<== is tighter than ==>");
 }
 
 # 19. pipe forward

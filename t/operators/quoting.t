@@ -125,17 +125,17 @@ Tests quoting constructs as defined in L<S02/Literals>
 
 { # qw, interpolating L<S02/Literals /do not interpolate while double angles do/>
 	my (@q1, @q2, @q3) = ();
-	eval '@q1 = q:ww/$foo gorch $bar/';
-	eval '@q2 = «$foo gorch $bar»'; # french
-	eval '@q3 = <<$foo gorch $bar>>'; # texas
+	@q1 = q:ww/$foo gorch $bar/;
+	@q2 = «$foo gorch $bar»; # french
+	@q3 = <<$foo gorch $bar>>; # texas
 
 	is(+@q1, 3, 'q:ww// correct number of elements');
 	is(+@q2, 3, 'french double angle');
 	is(+@q3, 3, 'texas double angle');
 
 	todo_is(~@q1, "FOO gorch BAR", "explicit quote word interpolates");
-	is(~@q2, ~@q1, "output is the same as french,");
-	is(~@q3, ~@q1, "and texas quotes");
+	is(~@q2, "FOO gorch BAR", "output is the same as french,");
+	is(~@q3, "FOO gorch BAR", "and texas quotes");
 };
 
 { # qw, interpolating, shell quoting L<S02/Literals /respects quotes in a shell-like fashion/>

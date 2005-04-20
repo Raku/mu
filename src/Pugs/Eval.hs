@@ -493,13 +493,21 @@ reduce env exp@(Syn name exps) = case name of
                 _ -> retVal vbool
 
 reduce env (App name invs args)
-    | not . null $ [ undefined | (Syn "," _) <- invs ]
+    | isPrefix
+    , not . null $ [ undefined | (Syn "," _) <- invs ]
     = reduce env $ App name (concatMap flatten invs) args
-    | not . null $ [ undefined | (Syn "," _) <- args ]
+    | isPrefix
+    , not . null $ [ undefined | (Syn "," _) <- args ]
     = reduce env $ App name invs (concatMap flatten args)
     where
     flatten (Syn "," exps) = exps
     flatten exp = [exp]
+    fixity = takeWhile (/= ':') name
+    isPrefix
+        | fixity == name        = True
+        | fixity == "&infix"    = False
+        | fixity == "&postfix"  = False
+        | otherwise             = True
 
 -- XXX absolutely evil bloody hack for context hinters
 reduce _ (App "&hash" invs args) =
