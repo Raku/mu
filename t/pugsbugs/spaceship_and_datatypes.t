@@ -15,9 +15,9 @@ The third one dies with the following error:
 =cut
 
 my %h = ("a" => 1, "b" => 2);
-eval_ok('%h{"a"} < %h{"b"}', 'comparing hash values');
-eval_ok('%h{"a"} <= %h{"b"}', 'comparing hash values');
-eval_is('%h{"a"} <=> %h{"b"}', 1, 'comparing hash values');
+ok(%h{"a"} < %h{"b"}, 'comparing hash values');
+ok(%h{"a"} <= %h{"b"}, 'comparing hash values');
+is(%h{"a"} <=> %h{"b"}, -1, 'comparing hash values');
 
 =pod
 
@@ -26,6 +26,6 @@ The 3 bugs die with syntax errors.
 =cut
 
 my @a = (1, 2);
-eval_ok('@a[0] < @a[1]', 'comparing array values');
-eval_ok('@a[0] <= @a[1]', 'comparing array values');
-eval_is('@a[0] <=> @a[1]', 1, 'comparing array values');
+ok(@a[0] < @a[1], 'comparing array values');
+ok(@a[0] <= @a[1], 'comparing array values');
+is(@a[0] <=> @a[1], -1, 'comparing array values');
