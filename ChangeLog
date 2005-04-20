@@ -10,7 +10,7 @@
 ** `$<delim>` not interpolate in quoting constructs
 ** `$)`, `$]`, `$#` and `$<whitespace>` do not interpolate in `rx:P5//` constructs.
 * Experimental support for `eval_haskell()` builtin
-* New builtins: `>>~<<`, `kill()`, `readdir()` (list context only)
+* New builtins: `>>~<<`, `kill()`, `splice`, `readdir()` (list context only)
 * `want()` has been implemented, returning a simple string
 * The `Any` parameter type no longer inhibits juctive autothreading
 * Better handling for size extensions and `exists()` for negative indecies
@@ -18,6 +18,11 @@
 * `:P5` flags now work as `:P5<imsgx>` and `:i` `:g` works too
 * First stab at a lexical `$*CWD` variable 
 * `<>` (list quoting) is now always in list context
+* serializable subcontinuation monad implementation
+* assigning a List into a Scalar vivifies it into an Array.
+* IMC runs
+* Junctive types.
+* lvalue pairs.
 
 === Tests, Examples and Documentations
 
@@ -30,11 +35,12 @@
 * The `fp.p6` file has been broken into seperate files in `examples/fp/`
 * New naive baysian text classifier add in `examples/naive_bayesian`
 * New quote generator script in `examples/motd`
-* Added `isnt()` and `unlike()` functions to `Test.pm`
+* Added `isnt()`, `unlike()`, `skip_rest`, `throws_ok` functions to `Test.pm`
 * UTF-8 URL decoding added to `CGI.pm`
 * params are now loaded on-demand in `CGI.pm` to take advantage of encoding
 * added some perl6 related talks in `docs/talks`
 * improvements to `examples/network` and added README file
+* memory game, first p6 web application
 
 === Bug Fixes
 
@@ -44,6 +50,16 @@
 * Corrected `chmod` prototype
 * Fixed infinite bug when evaluating `+((1|2).values)`
 * Fixed segfault with `:r` in interactive shell
+* restore `%h<str> = want()` to impose string context on rhs.
+* `%h<>` now acts just like `%h{}` in both lhs and rhs.
+* `list()` now actually imposes list context.
+* RValues at the right hand of array assignment are flattened to prevent loops
+* `=cut` without a newline at EOF is now parsed correctly
+* `'key' => val` now works as named param just like `key => val` did
+* Index in slices now defaults to List: `@a[func_returns_array()]` now works
+* `**` no longer truncates the exponent to integer
+* code blocks as subroutine arguments now results in correct arity
+* fixed passing references into bound variables in subroutines
 
 == Changes for 6.2.0 - April 13, 2005
 
