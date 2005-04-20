@@ -106,10 +106,12 @@ interpolatingStringLiteral endrule interpolator = do
     return . Cxt "Str" $ homogenConcat list
     where
     homogenConcat :: [Exp] -> Exp
-    homogenConcat []             = Val (VStr "")
-    homogenConcat [x]            = x
-    homogenConcat (Val (VStr x):Val (VStr y):xs) = homogenConcat (Val (VStr (x ++ y)) : xs)
-    homogenConcat (x:y:xs)       = App "&infix:~" [x, homogenConcat (y:xs)] []
+    homogenConcat []
+        = Val (VStr "")
+    homogenConcat (Val (VStr x):Val (VStr y):xs)
+        = homogenConcat (Val (VStr (x ++ y)) : xs)
+    homogenConcat (x:xs)
+        = App "&infix:~" [x, homogenConcat xs] []
     
     stringList = do
         lookAhead endrule
