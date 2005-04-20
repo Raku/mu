@@ -19,15 +19,30 @@ countTree (Node _ []) = 0
 countTree (Node _ cs) = 1 + sum (map countTree cs)
 
 deltaType :: ClassTree -> Type -> Type -> Int
-deltaType tree base target
-    | distance < 0 = countTree tree - distance
-    | otherwise = distance
+deltaType = junctivate min max $ \tree base target ->
+    let distance = distanceType tree base target in
+    if distance < 0
+        then countTree tree - distance
+        else distance
+
+junctivate or and f tree base target
+    | (t1, (_:t2)) <- span (/= '|') target
+    = redo base t1 `or` redo base t2
+    | (b1, (_:b2)) <- span (/= '|') base
+    = redo b1 target `or` redo b2 target
+    | (t1, (_:t2)) <- span (/= '&') target
+    = redo base t1 `and` redo base t2
+    | (b1, (_:b2)) <- span (/= '&') base
+    = redo b1 target `and` redo b2 target
+    | otherwise
+    = f tree base target
     where
-    distance = distanceType tree base target 
+    redo = junctivate or and f tree
 
 -- When saying Int.isa(Scalar), Scalar is the base, Int is the target
 isaType :: ClassTree -> Type -> Type -> Bool
-isaType tree base target = distanceType tree base target > 0
+isaType = junctivate (||) (&&) $ \tree base target ->
+    distanceType tree base target > 0
 
 -- XXX -- Junctive Types -- XXX --
 distanceType :: ClassTree -> Type -> Type -> Int

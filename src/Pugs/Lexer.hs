@@ -218,7 +218,7 @@ ruleBareTrait trait = do
 
 ruleContext = literalRule "context" $ do
     lead    <- upper
-    rest    <- many1 wordAny
+    rest    <- many1 (wordAny <|> oneOf "&|")
     return (lead:rest)
 
 ruleVarName = literalRule "variable name" $ do

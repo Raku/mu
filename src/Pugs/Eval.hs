@@ -625,8 +625,8 @@ reduce Env{ envClasses = cls, envContext = cxt, envLexical = lex, envGlobal = gl
         sub@(Sub{ subType = subT, subReturns = ret, subParams = prms }) <- fromVal val
         let isGlobal = '*' `elem` n
         let fun = arityMatch sub (length (invs ++ args)) slurpLen
-        if not (isJust fun) then return Nothing else do
-        if not (deltaFromCxt ret /= 0) then return Nothing else do
+        if isNothing fun then return Nothing else do
+        if deltaFromCxt ret == 0 then return Nothing else do
         let invocants = filter isInvocant prms
         let prms' = if null invocants then prms else invocants
         let distance = (deltaFromCxt ret : map (deltaFromScalar . paramContext) prms')
@@ -635,7 +635,7 @@ reduce Env{ envClasses = cls, envContext = cxt, envLexical = lex, envGlobal = gl
             ( (isGlobal, subT, isMulti sub, bound, distance)
             , fromJust fun
             )
-    deltaFromCxt            = deltaType cls cxt
+    deltaFromCxt x          = deltaType cls cxt x
     deltaFromScalar ('*':x) = deltaFromScalar x
     deltaFromScalar x       = deltaType cls x "Scalar"
 
@@ -719,7 +719,6 @@ doApply Env{ envClasses = cls } sub@Sub{ subFun = fun, subType = typ } invs args
     isCollapsed cxt
         | isaType cls "Bool" cxt        = True
         | isaType cls "Junction" cxt    = True
---      | isaType cls cxt "Any"         = True
         | otherwise                     = False
 
 toGlobal name

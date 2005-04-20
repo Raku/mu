@@ -1016,7 +1016,7 @@ primDecl str = primOp sym assoc (foldr foldParam [] prms) ret
     where
     (ret:assoc:sym:prms') = words str
     takeWord = takeWhile isWord . dropWhile (not . isWord)
-    isWord = not . (`elem` "|(),:")
+    isWord = not . (`elem` "(),:")
     prms = map takeWord prms'
 
 doFoldParam cxt [] []       = [buildParam cxt "" "$?1" (Val VUndef)]
@@ -1374,10 +1374,10 @@ initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   List      pre     split   (Str, Str)\
 \\n   Str       spre    =       (IO)\
 \\n   List      spre    =       (IO)\
-\\n   Junction  list    |       (Any)\
-\\n   Junction  list    &       (Any)\
-\\n   Junction  list    ^       (Any)\
-\\n   Junction  list    !       (Any)\
+\\n   Junction  list    |       (Any|Junction)\
+\\n   Junction  list    &       (Any|Junction)\
+\\n   Junction  list    ^       (Any|Junction)\
+\\n   Junction  list    !       (Any|Junction)\
 \\n   Num       left    *       (Num, Num)\
 \\n   Num       left    /       (Num, Num)\
 \\n   Num       left    %       (Num, Num)\
