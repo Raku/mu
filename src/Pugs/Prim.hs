@@ -52,7 +52,7 @@ op0 other = \x -> return $ VError ("unimplemented listOp: " ++ other) (App other
 
 retEmpty :: ContT Val (ReaderT Env IO) Val
 retEmpty = do
-    ifContextIsa "List"
+    ifListContext
         (return $ VList [])
         (return VUndef)
 
@@ -156,9 +156,9 @@ op1 "reverse" = \v -> do
                     vals    <- readRef ref
                     vlist   <- fromVal vals
                     return . VList $ reverse vlist)
-        _ -> ifContextIsa "Scalar"
-            (op1Cast (VStr . reverse) v)
+        _ -> ifListContext
             (op1Cast (VList . reverse) v)
+            (op1Cast (VStr . reverse) v)
 op1 "list" = op1Cast VList
 op1 "pair" = op1Cast (VList . (map (\(k, v) -> (VPair (VStr k, v)))))
 op1 "~"    = op1Cast VStr
@@ -257,12 +257,12 @@ op1 "slurp" = \v -> do
     val         <- fromVal v
     case val of
         (VHandle h) -> do
-            ifContextIsa "List"
+            ifListContext
                 (op1 "=" val)
                 (return . VStr =<< (liftIO $ hGetContents h))
         _ -> do
             fileName    <- fromVal val
-            ifContextIsa "List"
+            ifListContext
                 (slurpList fileName)
                 (slurpScalar fileName)
     where
@@ -324,7 +324,7 @@ op1 "values" = op1Values
 op1 "readline" = op1 "="
 op1 "=" = \v -> do
     fh  <- handleOf v
-    ifContextIsa "List"
+    ifListContext
         (getLines fh)
         (getLine fh)
     where
@@ -690,7 +690,7 @@ op2Match x (VSubst (rx@MkRule{ rxGlobal = False }, subst)) = do
 op2Match x (VRule rx@MkRule{ rxGlobal = True }) = do
     str     <- fromVal x
     rv      <- doMatch (encodeUTF8 str)
-    ifContextIsa "List"
+    ifListContext
         (return . VList $ map (VStr . decodeUTF8) rv)
         (return . VInt $ genericLength rv)
     where
@@ -789,7 +789,7 @@ op4 "splice" = \x y z w -> do
     count   <- fromVal z
     vals    <- fromVals w
     vals'   <- splice start count vals
-    ifContextIsa "List"
+    ifListContext
         (return $ VList vals')
         (return $ last (undef:vals'))
 

@@ -9,7 +9,7 @@ module RRegex.PCRE (
     compile,
     execute,
     executeExtract,
-    pcreCaseless,   --  case insensitive mathing
+    pcreCaseless,   --  case insensitive matching
     pcreMultiline,  --  ^ and $ match newline as well as beginning and end of string
     pcreDotall,     --  dot matches everything. including newline
     pcreExtended,  

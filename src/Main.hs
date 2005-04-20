@@ -32,15 +32,7 @@ main :: IO ()
 main = do
     hSetBuffering stdout NoBuffering
     runWithArgs run
-{-
-    __run args
 
-__run x = do
-            warn $ canonicalArgs x
-            warn $ gatherArgs . unpackOptions $ x
-            warn $ unpackOptions x
-            run $ canonicalArgs x
--}
 warn x = do
             hPrint stderr $ show x
 

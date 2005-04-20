@@ -60,12 +60,17 @@ ifValTypeIsa v typ trueM falseM = do
         then trueM
         else falseM
 
+ifListContext :: (MonadReader Env m) => m t -> m t -> m t
+ifListContext trueM falseM = ifContextIsa "List" trueM falseM
+
+ifContextIsa :: (MonadReader Env m) => Cxt -> m t -> m t -> m t
 ifContextIsa c trueM falseM = do
-    env <- ask
-    if isaType (envClasses env) c (envContext env)
+    Env{ envClasses = cls, envContext = cxt } <- ask
+    if isaType cls c cxt
         then trueM
         else falseM
 
+evalValType :: Val -> Eval Cxt
 evalValType (VRef r) = do
     cls <- asks envClasses
     let typ = refType r
@@ -74,6 +79,7 @@ evalValType (VRef r) = do
         else return typ
 evalValType val = return $ valType val
 
+fromVal' :: (Value a) => Val -> Eval a
 fromVal' (VThunk (MkThunk eval)) = fromVal' =<< eval
 fromVal' (VRef r) = do
     v <- readRef r
@@ -85,16 +91,12 @@ fromVal' v = do
         Right v -> return v
         Left e  -> retError e (Val v) -- XXX: not working yet
 
--- fromMVal = (>>= fromVal) . readMVal
-
 class (Typeable n) => Value n where
     fromVal :: Val -> Eval n
     fromVal = fromVal'
     vCast :: Val -> n
-    -- vCast (MVal v)      = vCast $ castV v
     vCast v@(VRef _)    = castFail v
     vCast (VPair (_, v))= vCast v
---  vCast (VArray v)    = vCast $ VList $ IntMap.elems v
     vCast v             = doCast v
     castV :: n -> Val
     castV _ = error $ "cannot cast into Val"
@@ -135,14 +137,11 @@ instance Value VPair where
     fromVal VUndef = return (VUndef, VUndef)
     fromVal v = fromVal' v
     vCast (VPair (x, y))   = (x, y)
-    -- vCast (MVal v)      = vCast $ castV v
     vCast v             = case vCast v of
         [x, y]  -> (x, y)
         _       -> castFail v
 
 instance Value VHash where
-    -- vCast (VHash h) = h
-    -- vCast VUndef = emptyFM
     fromVal (VPair (k, v)) = do
         str <- fromVal k
         return [(str, v)]
@@ -165,10 +164,7 @@ instance Value VHash where
             return [(str, undef)]
 
 instance Value [VPair] where
-    -- vCast VUndef = []
-    -- vCast (VHash h) = [ (VStr k, v) | (k, v) <- Map.assocs h ]
     vCast (VPair p) = [p]
-    -- vCast (VArray vs) = [ (castV k, v) | (k, v) <- IntMap.assocs vs ]
     vCast (VList vs) =
         let fromList [] = []
             fromList ((VPair (k, v)):xs) = (k, v):fromList xs
@@ -217,8 +213,6 @@ instance Value VRat where
     doCast (VRat r)     = r
     doCast (VBool b)    = if b then 1 % 1 else 0 % 1
     doCast (VList l)    = genericLength l
-    -- doCast (VArray a)   = toRational $ IntMap.size a
-    -- doCast (VHash h)    = fromIntegral $ Map.size h
     doCast (VStr s) | not (null s) , isSpace $ last s = doCast (VStr $ init s)
     doCast (VStr s) | not (null s) , isSpace $ head s = doCast (VStr $ tail s)
     doCast (VStr s)     =
@@ -247,8 +241,6 @@ instance Value VNum where
                 Left  i -> fromIntegral i
                 Right d -> realToFrac d
     doCast (VList l)    = genericLength l
---  doCast (VArray a)   = fromIntegral $ IntMap.size a
---  doCast (VHash h)    = fromIntegral $ Map.size h
     doCast t@(VThread _)  = read $ vCast t
     doCast _            = 0/0 -- error $ "cannot cast as Num: " ++ show x
 
@@ -258,16 +250,6 @@ instance Value VComplex where
 
 instance Value VStr where
     castV = VStr
-{-
-    fromVal (VHash h) = do
-        ls <- mapM strPair $ Map.assocs h
-        return $ unlines ls
-        where
-        strPair (k, v) = do
-            -- k' <- fromMVal k
-            v' <- fromMVal v
-            return $ k ++ "\t" ++ v'
--}
     fromVal (VList l)   = return . unwords =<< mapM fromVal l
     fromVal v = fromVal' v
     vCast VUndef        = ""
@@ -288,11 +270,7 @@ instance Value VStr where
         pad x = (replicate (40 - length x) '0') ++ x
     vCast (VNum n)      = showNum n
     vCast (VList l)     = unwords $ map vCast l
-    -- vCast (MVal v)      = vCast $ castV v
     vCast (VPair (k, v))= vCast k ++ "\t" ++ vCast v ++ "\n"
-    -- vCast (VArray l)    = unwords . map vCast $ IntMap.elems l
-    -- vCast (VHash h)     = unlines $
-    --     map (\(k, v) -> (k ++ "\t" ++ vCast v)) $ Map.assocs h
     vCast (VCode s)      = "<" ++ show (subType s) ++ "(" ++ subName s ++ ")>"
     vCast (VJunc j)     = show j
     vCast (VThread t)   = dropWhile (not . isDigit) $ show t
@@ -308,18 +286,6 @@ showNum x
 
 valToStr :: Val -> Eval VStr
 valToStr = fromVal
-
-{-
-instance Value VArray where
-    -- castV = VArray
-    vCast x = IntMap.fromAscList $ [0..] `zip` vCast x
--}
-
-{-
-instance Value VJunc where
-    castV = JAny . castV
-    vCast x = JAny $ mkSet (vCast x)
--}
 
 instance Value VList where
     fromVal (VRef r) = do
@@ -360,10 +326,8 @@ instance Value Word8 where doCast = intCast
 instance Value [Word8] where doCast = map (toEnum . ord) . vCast
 
 type VScalar = Val
--- type VJunc = Set Val
 
 instance Value VScalar where
-    -- fromVal (VList v) = return . VRef $ arrayRef v
     fromVal (VRef r) = readRef r
     fromVal v = return v
     vCast = id
