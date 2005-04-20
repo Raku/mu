@@ -114,21 +114,21 @@ plan 16;
 	my @e = (4, 1, 2, 5, 3);
 
 	my @s = %a.keys.sort:{ %a{$^a} cmp %a{$^b} };
-	is(@s, @e, '... sort keys by string value (using invocant form)'); # unTODOme
+	is(@s, @e, '... sort keys by string value (using invocant form)');
 }
 
 {
 	my %a = ('a' => 4, 'b' => 1, 'c' => 2, 'd' => 5, 'e' => 3);
-	my @e = <b c e d a>;
+	my @e = <b c e a d>;
 
-	my @s; eval '@s = sort { %a{$^a} <=> %a{$^b} } %a.keys';
-	is(@s, @e, '... sort keys by numeric value'); # unTODOme
+	my @s = sort { %a{$^a} <=> %a{$^b} } %a.keys;
+	is(@s, @e, '... sort keys by numeric value');
 }
 
 {
 	my %a = ('a' => 4, 'b' => 1, 'c' => 2, 'd' => 5, 'e' => 3);
-	my @e = <b c e d a>;
+	my @e = <b c e a d>;
 
-	my @s; eval '@s = %a.keys.sort:{ %a{$^a} <=> %a{$^b} }';
-	is(@s, @e, '... sort keys by numeric value (using invocant form)'); # unTODOme
+	my @s = %a.keys.sort:{ %a{$^a} <=> %a{$^b} };
+	is(@s, @e, '... sort keys by numeric value (using invocant form)');
 }
