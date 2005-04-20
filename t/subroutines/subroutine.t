@@ -77,7 +77,7 @@ sub perl5sub {
     push @result, @_[1];
 }
 perl5sub(<foo bar>);
-is(@result, <foo bar>, 'use @_ in sub');
+is(@result, [<foo bar>], 'use @_ in sub');
 
 =pod
 
