@@ -110,7 +110,7 @@ ruleDocBlock = verbatimRule "Doc block" $ do
             -- XXX: drop trailing spaces?
             many $ satisfy (/= '\n')
         return (section == "begin" && param == "END")
-    many1 newline
+    choice [ eof, do { many1 newline; return () } ]
     if isEnd
         then do
             many anyChar
