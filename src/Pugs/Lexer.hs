@@ -106,8 +106,8 @@ interpolatingStringLiteral endrule interpolator = do
     return . Cxt "Str" $ homogenConcat list
     where
     homogenConcat :: [Exp] -> Exp
-    homogenConcat []
-        = Val (VStr "")
+    homogenConcat [] = Val (VStr "")
+    homogenConcat [v@(Val (VStr _))] = v
     homogenConcat (Val (VStr x):Val (VStr y):xs)
         = homogenConcat (Val (VStr (x ++ y)) : xs)
     homogenConcat (x:xs)
