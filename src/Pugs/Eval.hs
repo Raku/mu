@@ -375,13 +375,14 @@ reduce env exp@(Syn name exps) = case name of
          -> reduce env (Syn "[...]" [lhs, idx])
     "[]" -> do
         let [listExp, indexExp] = exps
-        idxVal  <- enterRValue $ enterEvalContext (cxtOfExp indexExp) indexExp
+        idxCxt  <- cxtOfExp indexExp
+        idxVal  <- enterRValue $ enterEvalContext idxCxt indexExp
         varVal  <- enterLValue $ enterEvalContext "Array" listExp
         doFetch (mkFetch $ doArray varVal Array.fetchElem)
                 (mkFetch $ doArray varVal Array.fetchVal)
                 (fromVal idxVal)
                 (envLValue env)
-                (isaType (envClasses env) "Scalar" (cxtOfExp indexExp))
+                (isaType (envClasses env) "Scalar" idxCxt)
     "[...]" -> do
         let [listExp, indexExp] = exps
         idxVal  <- enterRValue $ enterEvalContext "Int" indexExp
@@ -392,13 +393,14 @@ reduce env exp@(Syn name exps) = case name of
         retVal $ VList (drop idx $ concat elms)
     "{}" -> do
         let [listExp, indexExp] = exps
-        idxVal  <- enterRValue $ enterEvalContext (cxtOfExp indexExp) indexExp
+        idxCxt  <- cxtOfExp indexExp
+        idxVal  <- enterRValue $ enterEvalContext idxCxt indexExp
         varVal  <- enterLValue $ enterEvalContext "Hash" listExp
         doFetch (mkFetch $ doHash varVal Hash.fetchElem)
                 (mkFetch $ doHash varVal Hash.fetchVal)
                 (fromVal idxVal)
                 (envLValue env)
-                (isaType (envClasses env) "Scalar" (cxtOfExp indexExp))
+                (isaType (envClasses env) "Scalar" idxCxt)
     "()" -> do
         let [subExp, Syn "invs" invs, Syn "args" args] = exps
         vsub <- enterEvalContext "Code" subExp
@@ -469,21 +471,6 @@ reduce env exp@(Syn name exps) = case name of
         evalExp $ Syn "=" [lhs, App op [lhs, exp] []]
     _ -> retError "Unknown syntactic construct" exp
     where
-    doSlice :: [Exp] -> [Val] -> [VInt] -> Maybe (Val, [VInt])
-    doSlice errs vs (n:ns)
-        | n < 0
-        , n' <- n + genericLength vs
-        , n' >= 0
-        = doSlice errs vs (n':ns)
-        | n < 0
-        = Nothing
-        | (v:_)         <- n `genericDrop` vs
-        = Just (v, ns)
-        | ((Val err):_) <- errs
-        = Just (err, ns)
-        | otherwise
-        = Nothing
-    doSlice _ _ _ = Nothing
     doCond f = do
         let [cond, bodyIf, bodyElse] = exps
         vbool     <- enterEvalContext "Bool" cond

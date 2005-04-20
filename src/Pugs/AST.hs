@@ -544,15 +544,14 @@ extract ((Parens ex), vs) = ((Parens ex'), vs')
     (ex', vs') = extract (ex, vs)
 extract other = other
 
-cxtOfExp (Cxt cxt _) = cxt
-cxtOfExp (Syn "," _) = "List"
-cxtOfExp (Syn "*" _) = "List"
-cxtOfExp (Syn "[]" [exp, _]) = cxtOfExp exp
-cxtOfExp (Syn "{}" [exp, _]) = cxtOfExp exp
-cxtOfExp (App "&infix:.." _ _) = "List"
-cxtOfExp (App "&postfix:..." _ _) = "List"
-cxtOfExp (Var (c:_)) = cxtOfSigil c
-cxtOfExp _ = "Scalar"
+cxtOfExp (Cxt cxt _)            = return cxt
+cxtOfExp (Syn "[]" [exp, _])    = cxtOfExp exp
+cxtOfExp (Syn "{}" [exp, _])    = cxtOfExp exp
+cxtOfExp (Val (VList _))        = return "List"
+cxtOfExp (Val (VRef r))         = return $ refType r
+cxtOfExp (Val _)                = return "Scalar"
+cxtOfExp (Var (c:_))            = return $ cxtOfSigil c
+cxtOfExp _                      = return "List" -- "assume List by default"
 
 cxtOfSigil :: Char -> String
 cxtOfSigil '$'  = "Scalar"
