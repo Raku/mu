@@ -36,7 +36,7 @@ is('$world @list[] %hash{} &func()', '$world @list[] %hash{} &func()', 'single q
 # Corner-cases
 is(eval '"Hello $world!"', "Hello World!", "! is not a part of var names");
 sub list_count (*@args) { +@args }
-ok(list_count("@list[]") == 1, 'quoted interpolation gets string context');
+is(list_count("@list[]"), 1, 'quoted interpolation gets string context');
 
 # Quoting constructs
 # The next test will always succeed, but if there's a bug it probably

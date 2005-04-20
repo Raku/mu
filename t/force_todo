@@ -30,6 +30,7 @@ t/statements/for.t 3 4 7 8 13 14 17 18 20 22
 
 ## t/data_types
 t/data_types/array.t 48 49 50 51 52
+t/data_types/array_ref.t 42
 t/data_types/anon_block.t 14 15
 
 ## t/operators
