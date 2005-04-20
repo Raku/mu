@@ -75,12 +75,14 @@ bindEmpty p = case paramName p of
 
 isPair :: Exp -> Bool
 isPair (Syn "=>" [(Val _), _])   = True
+isPair (App "&infix:=>" [(Cxt _ (Val _)), _] [])   = True
 isPair (App "&infix:=>" [(Val _), _] [])   = True
 isPair (Val (VPair (_, _)))      = True
 isPair _                         = False
 
 unPair :: Exp -> (String, Exp)
 unPair (Syn "=>" [(Val k), exp]) = (vCast k, exp)
+unPair (App "&infix:=>" [(Cxt _ (Val k)), exp] []) = (vCast k, exp)
 unPair (App "&infix:=>" [(Val k), exp] []) = (vCast k, exp)
 unPair (Val (VPair (k, v)))             = (vCast k, Val v)
 unPair x                                = error ("Not a pair: " ++ show x)

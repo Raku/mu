@@ -319,7 +319,7 @@ reduce env exp@(Syn name exps) = case name of
         let [lhs, rhs] = exps
         refVal  <- enterLValue $ evalExp lhs
         ref     <- fromVal refVal
-        val     <- enterRValue $ enterEvalContext (refType ref) rhs
+        val     <- enterRValue $ enterEvalContext (takeWhile (/= ':') $ refType ref) rhs
         writeRef ref val
         retVal refVal
     ":=" -> do

@@ -3,12 +3,11 @@
 use v6;
 require Test;
 
-plan 2;
+plan 3;
 
+my $pwd = $*CWD;
 ok( grep { $_ eq 'LICENSE' }, readdir $*CWD );
-$*CWD ~= 't/unspecced';
+$*CWD =  $*CWD ~ '/t/unspecced';
 ok( grep { $_ eq 'cwd.t' }, readdir $*CWD );
-
-
-skip("error handling not implemented");
-#is( ($*CWD = 'I/do/not/exist'), undef );
+todo_is( ($*CWD = 'I/do/not/exist'), undef, "error handling" );
+$*CWD = $pwd;
