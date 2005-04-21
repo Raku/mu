@@ -4,6 +4,7 @@ use v6;
 require Test;
 
 plan 8;
+force_todo 8;
 
 is(uc("Hello World"), "HELLO WORLD", "simple");
 is(uc(""), "", "empty string"); 

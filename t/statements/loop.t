@@ -12,6 +12,7 @@ L<S04/"The general loop statement">
 =cut
 
 plan 8;
+force_todo 8;
 
 # basic loop
 

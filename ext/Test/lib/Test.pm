@@ -1,4 +1,4 @@
-module Test-0.0.4;
+module Test-0.0.5;
 use v6;
 
 ### GLOBALS
@@ -21,6 +21,10 @@ my $FORCE_TODO_TEST_JUNCTION;
 sub plan (Int $number_of_tests) returns Void is export {
     $NUM_OF_TESTS_PLANNED = $number_of_tests;
     say "1..$number_of_tests";
+}
+
+sub force_todo (*@todo_tests) returns Void is export {
+     $FORCE_TODO_TEST_JUNCTION = any(@todo_tests);
 }
 
 ## ok
@@ -316,30 +320,6 @@ sub report_failure (Str ?$todo, Str ?$got, Str ?$expected) returns Bool {
     }
 }
 
-sub read_force_todo_file returns Void {
-    # In the file describing which tests to "force todo", we only use Unix
-    # filenames. So, we (may) have to convert our win32 filename:
-    my $unixfn = $?FILE;
-    $unixfn ~~ s:Perl5:g{\\}{/};
-
-    for =<t/force_todo> -> $l {        
-    	my $line = $l; # no C<is rw> yet   	
-    	# FYI, an example line might look like:
-    	#   t/foo/bar.t 13 15 42
-    	# If $line is not a comment and concerns us...
-    	if(substr($line, 0, 1) ne "#" and index($line, $unixfn) >= 0) {
-    	    chomp $line;
-    	    my @tests = split " ", $line;
-    	    # We have to shift @tests to remove the test filename.
-    	    shift @tests;
-    	    $FORCE_TODO_TEST_JUNCTION = any(@tests);
-            diag "Will forcetodo test(s) @tests[].";
-    	    last; # exit this loop since we found our test
-    	}
-    }
-}
-read_force_todo_file() if -e 't/force_todo';
-
 END {
     if (!defined($NUM_OF_TESTS_PLANNED)) {
         say("1..$NUM_OF_TESTS_RUN");
@@ -408,6 +388,12 @@ section of this document.
 
 All tests need a plan. A plan is simply the number of tests which are
 expected to run. This should be specified at the very top of your tests.
+
+- `force_todo (*@todo_tests) returns Void`
+
+If you have some tests which you would like to force into being TODO tests
+then you can pass them through this function. This is primarily a release
+tool, but can be useful in other contexts as well. 
 
 == Testing Functions
 

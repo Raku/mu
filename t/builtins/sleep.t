@@ -3,6 +3,7 @@ use v6;
 require Test;
 
 plan 4;
+force_todo 1;
 
 my $start = time();
 my $sleep_says = sleep 3;

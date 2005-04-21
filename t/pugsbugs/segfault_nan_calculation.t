@@ -4,6 +4,7 @@ use v6;
 require Test;
 
 plan 1;
+force_todo 1;
 
 # crashes Pugs
 # GHC bug?

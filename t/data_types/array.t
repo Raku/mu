@@ -10,6 +10,7 @@ Arrays
 =cut
 
 plan 58;
+force_todo 48 .. 52;
 
 # array of strings
 

@@ -16,6 +16,7 @@ L<S04/"The Relationship of Blocks and Declarations">
 =cut
 
 plan 25;
+force_todo 14, 15;
 
 # anon blocks L<S06/"Standard Subroutines">
 my $anon_sub = sub { 1 };

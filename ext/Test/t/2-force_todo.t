@@ -3,8 +3,18 @@
 use v6;
 require Test;
 
-fail("This will fail, but will be forced-TODO");
+plan 11;
+
+force_todo(1, 3, 5, 7 .. 9, 11);
+
+fail("This will fail, but will be forced-TODO by force_todo()"); 
 pass("This will pass normally");
-fail("This will fail, but will be forced-TODO");
+fail("This will fail, but will be forced-TODO by force_todo()");
 pass("This will pass normally");
-todo_fail("This will TODO fail, and will be forced-TODO");
+todo_fail("This will TODO fail, and will be forced-TODO by force_todo()");
+pass("This will pass normally");
+fail("This will fail, and will be forced-TODO by force_todo()");
+fail("This will fail, and will be forced-TODO by force_todo()");
+fail("This will fail, and will be forced-TODO by force_todo()");
+pass("This will pass normally");
+fail("This will fail, and will be forced-TODO by force_todo()");

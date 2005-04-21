@@ -14,6 +14,7 @@ The parser has difficulties with chained my statements.
 =cut
 
 plan 1;
+force_todo 1;
 
 ok(eval('my $x = my $y = 0; 1'), 'my $x = my $y = 0');
 

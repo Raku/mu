@@ -17,6 +17,7 @@ The parser has difficulties with if statements whose condition is a closure.
 =cut
 
 plan 2;
+force_todo 1;
 
 # This incorrectly fails to parse...
 {

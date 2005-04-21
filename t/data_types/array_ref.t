@@ -10,6 +10,7 @@ Array refs
 =cut
 
 plan 45;
+force_todo 42;
 
 # array_ref of strings
 

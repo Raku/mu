@@ -7,6 +7,7 @@ require Test;
 # mattc 20050316
 
 plan 10;
+force_todo 4;
 
 #-- subs -- 
 

@@ -14,6 +14,7 @@ L<S03/"Binding">
 =cut
 
 plan 9;
+force_todo 7;
 
 # L<S03/"Binding" /replaces the container itself.  For instance:/>
 

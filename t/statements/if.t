@@ -12,6 +12,7 @@ L<S04/"Conditional statements">
 =cut
 
 plan 16;
+force_todo 8;
 
 my $x = 'test';
 if ($x eq $x) { pass("if ($x eq $x) {} works"); } else { fail("if ($x eq $x) {} failed"); }

@@ -1,4 +1,11 @@
 
+== Changes for 0.0.5 for April 21, 2005
+
+* More force-TODO refactoring
+** Added `force_todo()` function which can be used like `t/force_todo` but in the test file
+** removed all code for the `t/force_todo` file, we no longer support that
+** made all the appropriate test and documentation changes
+
 == Changes for 0.0.4 for April 20, 2005
 
 * Changed the return type for `plan()` from `Int` to `Void`

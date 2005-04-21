@@ -4,6 +4,7 @@ use v6;
 require Test;
 
 plan 26;
+force_todo 18, 19;
 
 =kwid
 

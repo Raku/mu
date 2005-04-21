@@ -16,6 +16,7 @@ it is closely related to || and && and //.
 # test cases by Andrew Savige
 
 plan 30;
+force_todo 30;
 
 {
     my $x = 1;

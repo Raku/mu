@@ -1,9 +1,10 @@
 #!/usr/bin/pugs
 
 use v6;
-
 require Test;
+
 plan 8;
+force_todo 8;
 
 ok(true 1,     "true 1 is true");
 ok(true -1,    "true -1 is true");

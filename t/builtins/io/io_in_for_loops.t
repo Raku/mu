@@ -4,7 +4,7 @@ use v6;
 require Test;
 
 plan 49;
-
+force_todo(26 .. 36, 38 .. 48);
 
 my $filename = 'tempfile';
 

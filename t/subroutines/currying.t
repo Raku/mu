@@ -14,6 +14,7 @@ Tests curried subs as defined by L<S06/Currying>
 =cut
 
 plan 7;
+force_todo 6, 7;
 
 sub foo (+$x, +$y, +$z = 'd') {
 	"x=$x y=$y z=$z";
