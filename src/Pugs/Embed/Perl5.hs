@@ -22,7 +22,7 @@ freePerl5 _ = return ()
 {-# INCLUDE <EXTERN.h> #-}
 {-# INCLUDE <perl.h> #-}
 
-module Embed.Perl5 where
+module Pugs.Embed.Perl5 where
 import Foreign
 import Foreign.C.Types
 import Foreign.C.String
