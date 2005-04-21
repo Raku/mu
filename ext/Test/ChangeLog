@@ -1,0 +1,29 @@
+
+== Changes for 0.0.4 for April 20, 2005
+
+* Changed the return type for `plan()` from `Int` to `Void`
+* Fixed signature for `eval_is` and `todo_eval_is` (`$expected` is now `Str`)
+* Some work on `throws_ok` and company ...
+** Added a `todo_throws_ok` to go with `throws_ok`
+** Moved the smart-match in `throws_ok` to `&ok.goto($! ~~ $match)`
+** Added some tests for both functions
+* Changed the name and case of several global variables
+** `$loop` becomes `$NUM_OF_TESTS_RUN`
+** `$failed` becomes `$NUM_OF_TESTS_FAILED`
+** `$plan` becomes `$NUM_OF_TESTS_PLANNED`
+** `$always_caller` becomes `$ALWAYS_CALLER`
+* Refactored force-TODO functionality
+** Added file test for `t/force_todo` because it didn't work if the file was not there
+** Changed `read_force_todo_tests` to `read_force_todo_file` to be more descriptive
+** added `last` inside to `read_force_todo_file` when it finds the right filename
+** Changed @FORCETODO_TESTS to a Junction called $FORCE_TODO_TESTS_JUNCTION
+** Added tests for the force_todo functionality in `t/2-force_todo.t`
+* Removed Test Log features (the smoke tools in util/ are used for this)
+** removed `$log_file` global variable
+** removed `test_log_file()` function
+** removed `write_log()` function
+
+== Changes for 0.0.1 - 0.0.3
+
+* We didn't keep a change log, if you want to go back to pre-0.0.4
+  then you can check out r2188 from http://svn.openfoundry.org/pugs

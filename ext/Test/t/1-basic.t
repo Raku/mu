@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 28;
+plan 32;
 
 ok(2 + 2 == 4, '2 and 2 make 4');
 is(2 + 2, 4, '2 and 2 make 4');
@@ -62,6 +62,12 @@ todo_dies_ok -> { return "Testing throws_ok" }, '... it todo_dies_ok';
 
 lives_ok -> { return "test" }, '... it lives_ok';
 todo_lives_ok -> { die "test" }, '... it todo_lives_ok';
+
+throws_ok -> { die "Testing throws_ok" }, 'Testing throws_ok', '... it throws_ok with a Str';
+throws_ok -> { die "Testing throws_ok" }, rx:P5:i/testing throws_ok/, '... it throws_ok with a Rule';
+
+todo_throws_ok -> { die "Testing todo_throws_ok" }, 'Testing throws_ok', '... it todo_throws_ok with a Str';
+todo_throws_ok -> { die "Testing todo_throws_ok" }, rx:P5:i/testing throws_ok/, '... it todo_throws_ok with a Rule';
 
 1;
 
