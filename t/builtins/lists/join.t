@@ -92,13 +92,13 @@ is($joined2f, "1::2::3", 'join(":", @odd_list2) works');
 # should these even be tests ???
 
 my $joined1d = ("a", "b", "c").join('');
-is($joined1d, "baca", '().join("") should NOT dwim');
+is($joined1d, "abc", '().join("") should dwim');
 
 my $joined1 = ("a", "b", "c").join("|");
-is($joined1, "baca|", '().join("|") should NOT dwim');
+is($joined1, "a|b|c", '().join("|") should dwim');
 
 my $joined1a = ("a", "b", "c").join($sep);
-is($joined1a, "baca, ", '().join($sep) should NOT dwim');
+is($joined1a, "a, b, c", '().join($sep) should dwim');
 
 # some error cases
 

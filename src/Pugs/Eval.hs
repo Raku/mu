@@ -621,6 +621,8 @@ reduce Env{ envClasses = cls, envContext = cxt, envLexical = lex, envGlobal = gl
         = internalError "applyChainsub did not match a chain subroutine"
     findSub slurpLen subSyms = do
         subs' <- subs slurpLen subSyms
+        -- let foo (x, sub) = show x ++ show (map paramContext $ subParams sub)
+        -- trace (unlines $ map foo $ sort subs') return ()
         return $ case sort subs' of
             ((_, sub):_)    -> Just sub
             _               -> Nothing

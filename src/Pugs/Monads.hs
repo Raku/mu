@@ -219,14 +219,18 @@ returnScope = callerReturn 0 . VStr
 evalVal x = do
     -- context casting, go!
     -- XXX this needs a rewrite!
-    Env{ envLValue = isLValue, envClasses = cls, envContext = cxt } <- ask
+    -- Env{ envLValue = isLValue, envClasses = cls, envContext = cxt } <- ask
+    Env{ envLValue = _, envClasses = cls, envContext = _ } <- ask
     typ <- evalValType x
     val <- if isaType cls "Junction" typ then fromVal' x else return x
+    return val
+    {-
     --- XXX isCompatible is all wrong!
     let isCompatible | isSlurpyCxt cxt = isaType cls "List" typ
                      | otherwise       = isaType cls "Scalar" typ
         isRef = case val of { VRef _ -> True; _ -> False }
     -- trace (show ((cxt, typ), isCompatible, isLValue, isListCxt, val)) return ()
+    
     case (isCompatible, isLValue, isSlurpyCxt cxt) of
         (True, True, _)         -> return val
         (True, False, False)    -> fromVal val
@@ -235,3 +239,4 @@ evalVal x = do
         (False, True, True)     -> return val -- auto list varify?
         (False, False, False)   -> if isRef then return val else fromVal' val
         (False, False, True)    -> return . VList =<< fromVal' val
+    -}
