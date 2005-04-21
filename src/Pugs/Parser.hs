@@ -1073,7 +1073,8 @@ data QFlags = QFlags { qfSplitWords :: !Char,           -- No, Yes, Protect
                        qfInterpolateClosure :: !Bool,
                        qfInterpolateBackslash :: !Char, -- No, Single, All
                        qfProtectedChar :: !Char,
-                       qfP5RegularExpression :: !Bool
+                       qfP5RegularExpression :: !Bool,
+                       qfFailed :: !Bool -- Failed parse
                       {- qfProtectedChar is the character to be
                          protected by backslashes, if
                          qfInterpolateBackslash is Single or All.
@@ -1111,8 +1112,8 @@ getQFlags flagnames protectedChar =
           useflag "double" _      = qqFlags
           useflag "q" _           = qqFlags -- support qq//
 
-        -- XXX What to do in case of unknown flag? Currently do nothing
-          useflag _ qf            = qf
+        -- in case of unknown flag, we simply abort the parse.
+          useflag _ qf            = qf { qfFailed = True }
 
 openingDelim = anyChar
 {- XXX can be later defined to exclude alphanumerics, maybe also exclude
@@ -1130,7 +1131,9 @@ getQDelim = try $
         notFollowedBy alphaNum
         whiteSpace
         delim <- openingDelim
-        return (char $ balancedDelim delim, getQFlags flags $ balancedDelim delim)
+        let qflags = getQFlags flags $ balancedDelim delim
+        when (qfFailed qflags) $ fail ""
+        return (char $ balancedDelim delim, qflags)
     <|> try (do
         string "<<"
         return (
@@ -1150,10 +1153,10 @@ getQDelim = try $
                        many alphaNum
 
 -- Default flags
-qFlags    = QFlags 'n' False False False False False 's' '\'' False
-qqFlags   = QFlags 'n' True True True True True 'a' '"' False
-rawFlags  = QFlags 'n' False False False False False 'n' 'x' False
-rxP5Flags = QFlags 'n' True True True True True 'n' '/' True
+qFlags    = QFlags 'n' False False False False False 's' '\'' False False
+qqFlags   = QFlags 'n' True True True True True 'a' '"' False False
+rawFlags  = QFlags 'n' False False False False False 'n' 'x' False False
+rxP5Flags = QFlags 'n' True True True True True 'n' '/' True False
 
 -- Regexps
 rxLiteral1 :: Char -- Closing delimiter
