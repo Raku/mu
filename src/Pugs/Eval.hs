@@ -313,8 +313,11 @@ reduce env exp@(Syn name exps) = case name of
         let [lhs, rhs] = exps
         refVal  <- enterLValue $ evalExp lhs
         ref     <- fromVal refVal
-        -- XXX WRONG!
-        val     <- enterRValue $ enterEvalContext (cxtItem $ takeWhile (/= ':') . show $ refType ref) rhs
+        cls     <- asks envClasses
+        let typ = refType ref
+            cxt | isaType cls "List" typ = cxtSlurpyAny
+                | otherwise = cxtItem $ takeWhile (/= ':') . show $ refType ref
+        val <- enterRValue $ enterEvalContext cxt rhs
         writeRef ref val
         retVal refVal
     ":=" -> do
@@ -339,8 +342,7 @@ reduce env exp@(Syn name exps) = case name of
         vals    <- fromVals val
         retVal $ VList $ concat vals
     "," -> do
-        vals    <- mapM (enterEvalContext cxtItemAny) exps
-        -- now do some basic flattening
+        vals <- mapM evalExp exps
         retVal $ VList vals
     "val" -> do
         let [exp] = exps
@@ -716,9 +718,9 @@ doApply Env{ envClasses = cls } sub@Sub{ subFun = fun, subType = typ } invs args
         let eval = local (const env{ envLValue = lv }) $ enterEvalContext cxt exp
         val <- if thunk then return (VThunk $ MkThunk eval) else eval
         return (val, (isSlurpyCxt cxt || isCollapsed (typeOfCxt cxt)))
-    isCollapsed cxt
-        | isaType cls "Bool" cxt        = True
-        | isaType cls "Junction" cxt    = True
+    isCollapsed typ
+        | isaType cls "Bool" typ        = True
+        | isaType cls "Junction" typ    = True
         | otherwise                     = False
 
 toGlobal name
