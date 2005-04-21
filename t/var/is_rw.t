@@ -6,7 +6,7 @@ require Test;
 plan 4;
 
 {
-  todo_eval_ok '
+  eval_ok '
     sub foo($a is rw) {
       $a = 42;
       return 19;
