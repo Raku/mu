@@ -1094,8 +1094,8 @@ instance Code.Class ICode where
     assuming c [] [] = Code.fetch c
     assuming _ _ _   = undefined
     apply    = error "apply"
-    assoc    = error "assoc"
-    params   = error "params"
+    assoc c  = unsafePerformIO $ return . subAssoc =<< readIORef c
+    params c = unsafePerformIO $ return . subParams =<< readIORef c
 
 instance Code.Class VCode where
     fetch     = return
