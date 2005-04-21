@@ -13,6 +13,47 @@
 module Pugs.Types where
 import Pugs.Internals
 
+data Type
+    = MkType String
+    | TypeOr  Type Type
+    | TypeAnd Type Type
+    deriving (Eq, Ord)
+
+instance Show Type where
+    show (MkType typ)    = typ
+    show (TypeOr t1 t2)  = show t1 ++ "|" ++ show t2
+    show (TypeAnd t1 t2) = show t1 ++ "&" ++ show t2
+
+type ClassTree = Tree Type
+
+data Cxt = CxtVoid | CxtItem Type | CxtSlurpy Type
+    deriving (Eq, Show, Ord)
+
+anyType = mkType "Any"
+
+cxtItem   = CxtItem . mkType
+cxtSlurpy = CxtItem . mkType
+cxtVoid   = CxtVoid
+
+typeOfCxt CxtVoid           = anyType
+typeOfCxt (CxtItem typ)     = typ
+typeOfCxt (CxtSlurpy typ)   = typ
+
+cxtItemAny   = CxtItem anyType
+cxtSlurpyAny = CxtSlurpy anyType
+
+isSlurpyCxt (CxtSlurpy _) = True
+isSlurpyCxt _             = False
+
+mkType :: String -> Type
+mkType str
+    | (t1, (_:t2)) <- span (/= '|') str
+    = TypeOr (MkType t1) (mkType t2)
+    | (t1, (_:t2)) <- span (/= '&') str
+    = TypeAnd (MkType t1) (mkType t2)
+    | otherwise
+    = MkType str
+
 type Var   = String             -- Variable name
 type VStr  = String
 type VBool = Bool

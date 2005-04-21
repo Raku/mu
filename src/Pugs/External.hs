@@ -12,6 +12,7 @@
 module Pugs.External where
 import Pugs.Internals
 import Pugs.AST
+import Pugs.Types
 import Pugs.External.Haskell (externalizeHaskell, loadHaskell)
 
 externalize :: String -> Exp -> IO String
@@ -39,7 +40,7 @@ externRequire lang name = do
         syms        <- readIORef glob
         writeIORef glob (map gensym bindings ++ syms)
     where
-    gensym (name, fun) = SymVar SOur ('&':name) . codeRef $ Sub
+    gensym (name, fun) = MkSym ('&':name) . codeRef $ Sub
         { isMulti     = True
         , subName     = ('&':name)
         , subPad      = []
@@ -47,7 +48,7 @@ externRequire lang name = do
         , subAssoc    = "pre"
         , subParams   = [buildParam "List" "" "*@?1" (Val VUndef)]
         , subBindings = []
-        , subReturns  = "Any"
+        , subReturns  = anyType
         , subFun      = (Prim fun)
         }
 

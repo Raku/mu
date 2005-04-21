@@ -33,8 +33,9 @@ varInit ('@':_) = text $ "PerlArray"
 varInit ('%':_) = text $ "PerlHash"
 varInit x       = error $ "invalid name: " ++ x
 
-instance Compile (Symbol a) where
-    compile (SymExp _ name exp) = vcat $
+{-
+instance Compile Symbol where
+    compile (MkSym name exp) = vcat $
         [ text ".local" <+> text "pmc" <+> varText name
         , varText name <+> text "=" <+> text "new" <+> varInit name
         , mval exp
@@ -50,7 +51,8 @@ instance Compile (Symbol a) where
         mval (Syn "mval" [exp]) | ('@':_) <- name =
             text "push" <+> varText name <+> text "," <+> compile exp
         mval _ = error $ show (exp, name)
-    compile (SymVar _ _ _) = empty
+-}
+
 
 instance Compile SourcePos where
     compile SourcePos{ sourceName = file, sourceLine = line } = hsep $
@@ -130,8 +132,8 @@ instance Compile Exp where
         [ compile pos $+$ compile stmt $+$ text ""
         | (stmt, pos) <- stmts
         ]
-    compile (Sym syms) = vcat $
-        map compile syms
+--  compile (Sym syms) = vcat $
+--      map compile syms
     compile (Syn "mval" [exp]) = compile exp
     compile (Syn "," things) = vcat $ map compile things
     compile (App "&not" [] []) =

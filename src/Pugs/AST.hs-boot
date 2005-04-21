@@ -30,15 +30,17 @@ data VCode
 data VJunc
 data VControl
 data Param
+data Scope
 
 newtype VThunk = MkThunk (Eval Val)
 
-data Symbol a
+data Symbol
 
 data Exp
     = App String [Exp] [Exp]
     | Syn String [Exp]
-    | Sym [Symbol Exp]
+    | Cxt Cxt Exp
+    | Sym Scope Var
     | Prim ([Val] -> Eval Val)
     | Val Val
     | Var Var

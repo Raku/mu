@@ -34,15 +34,14 @@ instance Pretty Exp where
     format (Syn x vs) = text "Syn" <+> format x $+$ (braces $ vcat (punctuate (text ";") (map format vs)))
     format (Statements lines) = (vcat $ punctuate (text ";") $ (map format) lines)
     format (App sub invs args) = text "App" <+> format sub <+> parens (nest defaultIndent $ vcat (punctuate (text ", ") (map format $ invs ++ args)))
-    format (Sym syms) = text "Sym" <+> format syms
+    format (Sym scope name) = text "Sym" <+> text (show scope) <+> format name
     format x = text $ show x
 
-instance Pretty [Symbol a] where
+instance Pretty [Symbol] where
     format syms = cat $ map format syms
 
-instance Pretty (Symbol a) where
-    format (SymVar scope name var) = text (show scope) <+> format name <+> text ":=" <+> (nest defaultIndent $ format var)
-    format (SymExp scope name exp) = text (show scope) <+> format name <+> text ":=" <+> (nest defaultIndent $ format exp)
+instance Pretty Symbol where
+    format (MkSym name var) = format name <+> text ":=" <+> (nest defaultIndent $ format var)
 
 instance Pretty SourcePos where
     format pos =

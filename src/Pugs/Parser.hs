@@ -13,6 +13,7 @@
 module Pugs.Parser where
 import Pugs.Internals
 import Pugs.AST
+import Pugs.Types
 import Pugs.Types.Code as Code
 import Pugs.Help
 import Pugs.Lexer
@@ -171,13 +172,13 @@ ruleSubGlobal = rule "global subroutine" $ do
 
 ruleSubDeclaration :: RuleParser Exp
 ruleSubDeclaration = rule "subroutine declaration" $ do
-    (scope, cxt1, multi, name) <- tryChoice
+    (scope, typ, multi, name) <- tryChoice
         [ ruleSubScopedWithContext
         , ruleSubScoped
         , ruleSubGlobal
         ]
     formal  <- option Nothing $ ruleSubParameters ParensMandatory
-    cxt2    <- option cxt1 $ try $ ruleBareTrait "returns"
+    typ'    <- option typ $ try $ ruleBareTrait "returns"
     _       <- many $ ruleTrait -- traits; not yet used
     body    <- ruleBlock
     let (fun, names) = extract (body, [])
@@ -192,13 +193,16 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
             , subPad        = envLexical env
             , subType       = SubRoutine
             , subAssoc      = "pre"
-            , subReturns    = cxt2
+            , subReturns    = mkType typ'
             , subParams     = params
             , subBindings   = []
             , subFun        = fun
             }
     -- XXX: user-defined infix operator
-    return $ Sym [SymExp scope name $ Syn "sub" [subExp]]
+    return $ Syn ";"
+        [ Sym scope name
+        , Syn ":=" [Var name, Syn "sub" [subExp]]
+        ]
 
 subNameWithPrefix prefix = (<?> "subroutine name") $ lexeme $ try $ do
     star    <- option "" $ string "*"
@@ -256,23 +260,12 @@ ruleParamDefault False = rule "default value" $ option (Val VUndef) $ do
 ruleVarDeclaration :: RuleParser Exp
 ruleVarDeclaration = rule "variable declaration" $ do
     scope   <- ruleScope
-    choice
-        [ ruleVarDeclarationSingle scope
-        , ruleVarDeclarationMultiple scope ]
-
-ruleVarDeclarationSingle scope = do
-    name <- parseVarName
-    exp  <- option emptyExp $ do
-        sym <- tryChoice $ map string $ words " = := ::= "
-        when (sym == "=") $ do
-            lookAhead (satisfy (/= '='))
-            return ()
-        whiteSpace
-        ruleExpression
-    return $ Sym [SymExp scope name exp]
-
-ruleVarDeclarationMultiple scope = do
-    names   <- parens $ parseVarName `sepEndBy` symbol ","
+    lhs     <- choice
+        [ do name <- parseVarName
+             return $ Var name
+        , do names <- parens $ parseVarName `sepEndBy` symbol ","
+             return $ Syn "," (map Var names)
+        ]
     (sym, expMaybe) <- option ("=", Nothing) $ do
         sym <- tryChoice $ map symbol $ words " = := ::= "
         when (sym == "=") $ do
@@ -282,27 +275,13 @@ ruleVarDeclarationMultiple scope = do
         exp <- ruleExpression
         return (sym, Just exp)
     -- now match exps up with names and modify them.
-    let doAlign = case sym of { "=" -> alignAssign ; _ -> alignBind }
-        syn = Sym $ doAlign scope names []
-        lhs = Syn "," $ map Var names
+    let names (Syn "," vars) = concatMap names vars
+        names (Var name)     = [name]
+        names exp            = error $ "invalid exp:" ++ show exp
+        syn = map (Sym scope) $ names lhs
     return $ case expMaybe of
-        Just exp -> Syn ";" [syn, Syn sym [lhs, exp]]
-        Nothing  -> syn
-    where
-    mvalSym scope n e = SymExp scope n e
-    alignAssign scope names exps = doAssign scope names exps
-    doAssign _ [] _ = []
-    doAssign scope ns [] =
-        map (\n -> mvalSym scope n emptyExp) ns
-    doAssign scope (n@('$':_):ns) (e:es) =
-        (mvalSym scope n e):(alignAssign scope ns es)
-    doAssign scope (n:ns) exps =
-        (mvalSym scope n (Syn "," exps)):(alignAssign scope ns [])
-    alignBind scope names exps =
-        [ SymExp scope name exp
-        | name <- names
-        | exp  <- exps ++ repeat emptyExp
-        ]
+        Just exp -> Syn ";" $ syn ++ [Syn sym [lhs, exp]]
+        Nothing  -> Syn ";" syn
 
 ruleUseDeclaration :: RuleParser Exp
 ruleUseDeclaration = rule "use declaration" $ do
@@ -371,7 +350,7 @@ ruleClosureTrait = rule "closure trait" $ do
                   , subPad        = []
                   , subType       = SubBlock
                   , subAssoc      = "pre"
-                  , subReturns    = "Any"
+                  , subReturns    = anyType
                   , subParams     = []
                   , subBindings   = []
                   , subFun        = fun
@@ -515,7 +494,7 @@ retBlock typ formal body = do
                   , subPad        = []
                   , subType       = typ
                   , subAssoc      = "pre"
-                  , subReturns    = "Any"
+                  , subReturns    = anyType
                   , subParams     = if null params then [defaultArrayParam] else params
                   , subBindings   = []
                   , subFun        = fun
@@ -618,7 +597,7 @@ currentFunctions = do
 currentUnaryFunctions = do
     funs <- currentFunctions
     return . mapPair munge . partition fst . sort $
-        [ (opt, encodeUTF8 name) | f@(SymVar _ _ (MkRef (ICode code))) <- funs
+        [ (opt, encodeUTF8 name) | f@(MkSym _ (MkRef (ICode code))) <- funs
         , Code.assoc code == "pre"
         , length (Code.params code) == 1
         , let param = head $ Code.params code
@@ -831,13 +810,14 @@ processFormals formal = do
 nameToParam :: String -> Param
 nameToParam name = Param
     { isInvocant    = False
-    , isSlurpy      = (name == "$_")
     , isOptional    = False
     , isNamed       = False
     , isLValue      = False
     , isThunk       = False
     , paramName     = name
-    , paramContext  = cxtOfSigil $ head name
+    , paramContext  = case name of
+        "$_" -> CxtSlurpy   $ typeOfSigil (head name)
+        _    -> CxtItem $ typeOfSigil (head name)
     , paramDefault  = Val VUndef
     }
 
@@ -885,7 +865,8 @@ nonTerm = do
 ruleLit = choice
     [ ruleBlockLiteral
     , numLiteral
-    , listLiteral
+    , emptyListLiteral
+    , emptyArrayLiteral
     , arrayLiteral
     , pairLiteral
     , undefLiteral
@@ -911,14 +892,17 @@ numLiteral = do
         Left  i -> return . Val $ VInt i
         Right d -> return . Val $ VRat d
 
-listLiteral = tryRule "list literal" $ do -- XXX Wrong
+emptyListLiteral = tryRule "empty list" $ do
     parens whiteSpace
-    -- items <- parens $ parseOp `sepEndBy` symbol ","
     return $ Syn "," []
 
+emptyArrayLiteral = tryRule "empty array" $ do
+    brackets whiteSpace
+    return $ Syn "\\[]" [emptyExp]
+
 arrayLiteral = do
-    items   <- brackets $ ruleExpression `sepEndBy` symbol ","
-    return $ Syn "\\[]" [Syn "," items]
+    item <- brackets ruleExpression
+    return $ Syn "\\[]" [item]
 
 pairLiteral = tryChoice [ pairArrow, pairAdverb ]
 
@@ -1040,12 +1024,12 @@ qLiteral1 qEnd flags = do
     where
     -- words() regards \xa0 as (breaking) whitespace. But \xa0 is
     -- a nonbreaking ws char.
-    doSplit (Cxt "Str" (Val (VStr str))) = case perl6Words str of
+    doSplit (Cxt (CxtItem _) (Val (VStr str))) = case perl6Words str of
         []  -> Syn "," []
         [x] -> Val (VStr x)
         xs  -> Syn "," $ map (Val . VStr) xs
     
-    doSplit expr = Cxt "List" $ App "&infix:~~" [expr, rxSplit] []
+    doSplit expr = Cxt cxtSlurpyAny $ App "&infix:~~" [expr, rxSplit] []
     rxSplit = Syn "rx" $
         [ Val $ VStr "(\\S+)"
         , Val $ VList

@@ -88,34 +88,34 @@ prepareEnv name args = do
             [x] -> op1 "exit" x
             _   -> op1 "exit" undef
     emptyEnv
-        [ SymVar SGlobal "@*ARGS"       $ MkRef argsAV
-        , SymVar SGlobal "@*INC"        $ MkRef incAV
-        , SymVar SGlobal "$*PUGS_HAS_HSPLUGINS" $ MkRef hspluginsSV
-        , SymVar SGlobal "$*EXECUTABLE_NAME"    $ MkRef execSV
-        , SymVar SGlobal "$*PROGRAM_NAME"       $ MkRef progSV
-        , SymVar SGlobal "$*PID"        $ MkRef pidSV
+        [ MkSym "@*ARGS"       $ MkRef argsAV
+        , MkSym "@*INC"        $ MkRef incAV
+        , MkSym "$*PUGS_HAS_HSPLUGINS" $ MkRef hspluginsSV
+        , MkSym "$*EXECUTABLE_NAME"    $ MkRef execSV
+        , MkSym "$*PROGRAM_NAME"       $ MkRef progSV
+        , MkSym "$*PID"        $ MkRef pidSV
         -- XXX these four need a proper `set' magic
-        , SymVar SGlobal "$*UID"        $ MkRef uidSV
-        , SymVar SGlobal "$*EUID"       $ MkRef euidSV
-        , SymVar SGlobal "$*GID"        $ MkRef gidSV
-        , SymVar SGlobal "$*EGID"       $ MkRef egidSV
-        , SymVar SGlobal "@*END"        $ MkRef endAV
-        , SymVar SGlobal "$*IN"         $ MkRef inGV
-        , SymVar SGlobal "$*OUT"        $ MkRef outGV
-        , SymVar SGlobal "$*ERR"        $ MkRef errGV
-        , SymVar SGlobal "$*ARGS"       $ MkRef argsGV
-        , SymVar SGlobal "$!"           $ MkRef errSV
-        , SymVar SGlobal "$/"           $ MkRef matchAV
-        , SymVar SGlobal "%*ENV"        $ hashRef (undefined :: IHashEnv)
-        , SymVar SGlobal "$*CWD"        $ scalarRef (undefined :: IScalarCwd)
+        , MkSym "$*UID"        $ MkRef uidSV
+        , MkSym "$*EUID"       $ MkRef euidSV
+        , MkSym "$*GID"        $ MkRef gidSV
+        , MkSym "$*EGID"       $ MkRef egidSV
+        , MkSym "@*END"        $ MkRef endAV
+        , MkSym "$*IN"         $ MkRef inGV
+        , MkSym "$*OUT"        $ MkRef outGV
+        , MkSym "$*ERR"        $ MkRef errGV
+        , MkSym "$*ARGS"       $ MkRef argsGV
+        , MkSym "$!"           $ MkRef errSV
+        , MkSym "$/"           $ MkRef matchAV
+        , MkSym "%*ENV"        $ hashRef (undefined :: IHashEnv)
+        , MkSym "$*CWD"        $ scalarRef (undefined :: IScalarCwd)
         -- XXX What would this even do?
-        -- , SymVar SGlobal "%=POD"        (Val . VHash $ emptyHV)
-        , SymVar SGlobal "@=POD"        $ MkRef $ constArray []
-        , SymVar SGlobal "$=POD"        $ MkRef $ constScalar (VStr "")
-        , SymVar SGlobal "$?OS"         $ MkRef $ constScalar (VStr $ getConfig "osname")
-        , SymVar SGlobal "$*OS"         $ MkRef $ constScalar (VStr $ getConfig "osname")
-        , SymVar SGlobal "$?MODULE"     $ MkRef modSV
-        , SymVar SGlobal "&?BLOCK_EXIT" $ codeRef $ Sub
+        -- , MkSym "%=POD"        (Val . VHash $ emptyHV)
+        , MkSym "@=POD"        $ MkRef $ constArray []
+        , MkSym "$=POD"        $ MkRef $ constScalar (VStr "")
+        , MkSym "$?OS"         $ MkRef $ constScalar (VStr $ getConfig "osname")
+        , MkSym "$*OS"         $ MkRef $ constScalar (VStr $ getConfig "osname")
+        , MkSym "$?MODULE"     $ MkRef modSV
+        , MkSym "&?BLOCK_EXIT" $ codeRef $ Sub
             { isMulti = False
             , subName = "&?BLOCK_EXIT"
             , subType = SubPrim
@@ -123,12 +123,12 @@ prepareEnv name args = do
             , subAssoc = "pre"
             , subParams = []
             , subBindings = []
-            , subReturns = "Void"
+            , subReturns = anyType
             , subFun = Prim subExit
             }
-        , SymVar SGlobal "%?CONFIG" $ hashRef confHV
-        , SymVar SMy "$_" $ MkRef defSV
-        , SymVar SMy "$?FILE" $ MkRef progSV
+        , MkSym "%?CONFIG" $ hashRef confHV
+        , MkSym "$_" $ MkRef defSV
+        , MkSym "$?FILE" $ MkRef progSV
         ]
 
 

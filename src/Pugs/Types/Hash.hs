@@ -9,8 +9,8 @@ import Pugs.Types
 type Index = VStr
 
 class (Typeable a) => Class a where
-    iType :: a -> VStr
-    iType _ = "Hash"
+    iType :: a -> Type
+    iType _ = mkType "Hash"
     fetch       :: a -> Eval VHash
     fetch hv = do
         keys <- fetchKeys hv

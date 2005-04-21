@@ -15,6 +15,7 @@ import Pugs.Internals
 import Pugs.AST
 import Pugs.Rule
 import Pugs.Rule.Language
+import Pugs.Types
 import qualified Pugs.Rule.Token as P
 
 type RuleParser a = GenParser Char Env a
@@ -103,7 +104,7 @@ interpolatingStringLiteral :: RuleParser x      -- Closing delimiter
 
 interpolatingStringLiteral endrule interpolator = do
     list <- stringList
-    return . Cxt "Str" $ homogenConcat list
+    return . Cxt (CxtItem $ mkType "Str") $ homogenConcat list
     where
     homogenConcat :: [Exp] -> Exp
     homogenConcat [] = Val (VStr "")

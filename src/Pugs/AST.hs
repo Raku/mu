@@ -53,6 +53,7 @@ getIndex idx def doList ext = do
             Nothing    -> errIndex def idx
         (a:_) -> return a
 
+ifValTypeIsa :: Val -> String -> (Eval a) -> (Eval a) -> Eval a
 ifValTypeIsa v typ trueM falseM = do
     env <- ask
     vt  <- evalValType v
@@ -61,16 +62,22 @@ ifValTypeIsa v typ trueM falseM = do
         else falseM
 
 ifListContext :: (MonadReader Env m) => m t -> m t -> m t
-ifListContext trueM falseM = ifContextIsa "List" trueM falseM
+ifListContext trueM falseM = do
+    cxt <- asks envContext
+    case cxt of
+        CxtSlurpy _   -> trueM
+        _           -> falseM
 
+{-
 ifContextIsa :: (MonadReader Env m) => Cxt -> m t -> m t -> m t
 ifContextIsa c trueM falseM = do
     Env{ envClasses = cls, envContext = cxt } <- ask
     if isaType cls c cxt
         then trueM
         else falseM
+-}
 
-evalValType :: Val -> Eval Cxt
+evalValType :: Val -> Eval Type
 evalValType (VRef r) = do
     cls <- asks envClasses
     let typ = refType r
@@ -397,28 +404,28 @@ data Val
     | VThunk    VThunk
     deriving (Show, Eq, Ord, Typeable)
 
-valType :: Val -> String
-valType VUndef          = "Scalar"
+valType :: Val -> Type
+valType VUndef          = mkType "Scalar"
 valType (VRef v)        = refType v
-valType (VBool    _)    = "Bool"
-valType (VInt     _)    = "Int"
-valType (VRat     _)    = "Rat"
-valType (VNum     _)    = "Num"
-valType (VComplex _)    = "Complex"
-valType (VStr     _)    = "Str"
-valType (VList    _)    = "List"
-valType (VPair    _)    = "Pair"
-valType (VCode     _)   = "Sub"
-valType (VBlock   _)    = "Block"
-valType (VJunc    _)    = "Junction"
-valType (VError _ _)    = "Error"
-valType (VHandle  _)    = "IO"
-valType (VSocket  _)    = "Socket"
-valType (VThread  _)    = "Thread"
-valType (VControl _)    = "Control"
-valType (VThunk   _)    = "Thunk"
-valType (VRule    _)    = "Rule"
-valType (VSubst   _)    = "Subst"
+valType (VBool    _)    = mkType "Bool"
+valType (VInt     _)    = mkType "Int"
+valType (VRat     _)    = mkType "Rat"
+valType (VNum     _)    = mkType "Num"
+valType (VComplex _)    = mkType "Complex"
+valType (VStr     _)    = mkType "Str"
+valType (VList    _)    = mkType "List"
+valType (VPair    _)    = mkType "Pair"
+valType (VCode     _)   = mkType "Sub"
+valType (VBlock   _)    = mkType "Block"
+valType (VJunc    _)    = mkType "Junction"
+valType (VError _ _)    = mkType "Error"
+valType (VHandle  _)    = mkType "IO"
+valType (VSocket  _)    = mkType "Socket"
+valType (VThread  _)    = mkType "Thread"
+valType (VControl _)    = mkType "Control"
+valType (VThunk   _)    = mkType "Thunk"
+valType (VRule    _)    = mkType "Rule"
+valType (VSubst   _)    = mkType "Subst"
 
 type VBlock = Exp
 data VControl
@@ -451,9 +458,11 @@ instance Show VJunc where
 data SubType = SubMethod | SubRoutine | SubBlock | SubPrim
     deriving (Show, Eq, Ord)
 
+isSlurpy :: Param -> Bool
+isSlurpy param = isSlurpyCxt $ paramContext param
+
 data Param = Param
     { isInvocant    :: Bool
-    , isSlurpy      :: Bool
     , isOptional    :: Bool
     , isNamed       :: Bool
     , isLValue      :: Bool
@@ -475,10 +484,12 @@ data VCode = Sub
     , subAssoc      :: String
     , subParams     :: Params
     , subBindings   :: Bindings
-    , subReturns    :: Cxt
+    , subReturns    :: Type
     , subFun        :: Exp
     }
     deriving (Show, Eq, Ord, Typeable)
+
+emptySub = Sub False "" SubBlock [] "" [] [] anyType emptyExp
 
 instance Ord VComplex where {- ... -}
 instance Ord IScalar where
@@ -490,7 +501,7 @@ data Exp
     = App String [Exp] [Exp]
     | Syn String [Exp]
     | Cxt Cxt Exp
-    | Sym [Symbol Exp]
+    | Sym Scope Var
     | Prim ([Val] -> Eval Val)
     | Val Val
     | Var Var
@@ -547,42 +558,50 @@ extract ((Parens ex), vs) = ((Parens ex'), vs')
     (ex', vs') = extract (ex, vs)
 extract other = other
 
+cxtOfExp :: Exp -> Eval Cxt
 cxtOfExp (Cxt cxt _)            = return cxt
 cxtOfExp (Syn "[]" [_, exp])    = cxtOfExp exp
 cxtOfExp (Syn "{}" [_, exp])    = cxtOfExp exp
-cxtOfExp (Val (VList _))        = return "List"
-cxtOfExp (Val (VRef r))         = return $ refType r
-cxtOfExp (Val _)                = return "Scalar"
+cxtOfExp (Val (VList _))        = return cxtSlurpyAny
+cxtOfExp (Val (VRef ref))       = do
+    cls <- asks envClasses
+    let typ = refType ref
+    return $ if isaType cls "List" typ
+        then cxtSlurpyAny
+        else CxtItem typ
+cxtOfExp (Val _)                = return cxtItemAny
 cxtOfExp (Var (c:_))            = return $ cxtOfSigil c
-cxtOfExp _                      = return "List" -- "assume List by default"
+cxtOfExp _                      = return cxtSlurpyAny
 
-cxtOfSigil :: Char -> String
-cxtOfSigil '$'  = "Scalar"
-cxtOfSigil '@'  = "Array"
-cxtOfSigil '%'  = "Hash"
-cxtOfSigil '&'  = "Code"
+cxtOfSigil :: Char -> Cxt
+cxtOfSigil '$'  = cxtItemAny
+cxtOfSigil '@'  = cxtSlurpyAny
+cxtOfSigil '%'  = cxtSlurpyAny
+cxtOfSigil '&'  = CxtItem $ mkType "Code"
 cxtOfSigil x    = internalError $ "cxtOfSigil: unexpected character: " ++ show x
 
---- cxtOf '*' '$'   = "List"
-cxtOf :: Char -> Char -> String
-cxtOf '*' '@'   = "List"
-cxtOf _   _     = "Scalar"
+typeOfSigil :: Char -> Type
+typeOfSigil '$'  = mkType "Scalar"
+typeOfSigil '@'  = mkType "Array"
+typeOfSigil '%'  = mkType "Hash"
+typeOfSigil '&'  = mkType "Code"
+typeOfSigil x    = internalError $ "typeOfSigil: unexpected character: " ++ show x
 
 buildParam :: String -> String -> String -> Exp -> Param
-buildParam cxt sigil name e = Param
+buildParam typ sigil name e = Param
     { isInvocant    = False
-    , isSlurpy      = (sigil == "*")
     , isOptional    = (sigil ==) `any` ["?", "+"]
     , isNamed       = (null sigil || head sigil /= '+')
     , isLValue      = False
     , isThunk       = False
     , paramName     = name
-    , paramContext  = if null cxt then defaultCxt else cxt
+    , paramContext  = case sigil of
+        ('*':_) -> CxtSlurpy typ'
+        _       -> CxtItem typ'
     , paramDefault  = e
     }
     where
-    sig = if null sigil then ' ' else head sigil
-    defaultCxt = cxtOf sig (head name) 
+    typ' = if null typ then typeOfSigil (head name) else mkType typ
 
 defaultArrayParam :: Param
 defaultHashParam :: Param
@@ -605,32 +624,22 @@ data Env = Env { envContext :: Cxt
                , envDebug   :: Maybe (IORef (Map String String))
                } deriving (Show, Eq)
 
-type Pad = [Symbol VRef]
-data Symbol a where
-    SymVar :: Scope -> String -> VRef -> Symbol VRef
-    SymExp :: Scope -> String -> Exp  -> Symbol Exp
+envWant env = 
+    showCxt (envContext env) ++ (if envLValue env then ", LValue" else "")
+    where
+    showCxt CxtVoid         = "Void"
+    showCxt (CxtItem typ)   = "Scalar (" ++ show typ ++ ")"
+    showCxt (CxtSlurpy typ) = "List (" ++ show typ ++ ")"
+
+type Pad = [Symbol]
+data Symbol = MkSym
+    { symName :: Var
+    , symVar  :: VRef
+    }
+    deriving (Show, Eq, Ord)
 
 show' :: (Show a) => a -> String
 show' x = "( " ++ show x ++ " )"
-
-instance Show (Symbol a) where
-    show (SymVar s n v) = unwords [ "SymVar", show' s, show' n, show' v ]
-    show (SymExp s n e) = unwords [ "SymExp", show' s, show' n, show' e ]
-
-instance Eq (Symbol a) where
-    x == y = (show x) == (show y)
-
-instance Ord (Symbol a) where
-    compare x y = compare (show x) (show y)
-
-symScope (SymVar s _ _) = s
-symScope (SymExp s _ _) = s
-symName (SymVar _ n _) = n
-symName (SymExp _ n _) = n
-symVar (SymVar _ _ v) = v
-symVar _ = error "Cannot cast SymVar to SymExp"
-symExp (SymExp _ _ e) = e
-symExp _ = error "Cannot cast SymExp to SymVar"
 
 data Scope = SGlobal | SMy | SOur | SLet | STemp | SState
     deriving (Show, Eq, Ord, Read, Enum)
@@ -797,22 +806,17 @@ clearRef (MkRef (IArray s)) = Array.clear s
 clearRef (MkRef (IHash s)) = Hash.clear s
 clearRef r = retError "cannot clearRef" (Val $ VRef r)
 
-newObject "Scalar" (VList vals) = liftIO $ do
-    av <- liftIO (newArray vals)
-    return . scalarRef =<< newIORef (VRef $ MkRef av)
-newObject "Scalar" val = liftIO $ return . scalarRef =<< newIORef val
-newObject "Array" val = do
-    ref <- liftIO $ return . arrayRef =<< (newIORef [] :: IO IArray)
-    writeRef ref val
-    return ref
-newObject "Hash" val = do
-    ref <- liftIO $ return . hashRef =<< (HTable.new (==) HTable.hashString :: IO IHash)
-    writeRef ref val
-    return ref
-newObject "Code" val = do
-    vcode <- fromVal val
-    return $ codeRef (vcode :: VCode)
-newObject cls val = retError ("Cannot create object of class " ++ cls) (Val val)
+newObject :: Type -> Eval VRef
+newObject (MkType "Scalar") = liftIO $
+    return . scalarRef =<< newIORef undef
+newObject (MkType "Array")  = liftIO $
+    return . arrayRef =<< (newIORef [] :: IO IArray)
+newObject (MkType "Hash")   = liftIO $
+    return . hashRef =<< (HTable.new (==) HTable.hashString :: IO IHash)
+newObject (MkType "Code")   = liftIO $
+    return . codeRef =<< newIORef emptySub
+newObject typ      = do
+    retError ("Cannot create object" ++ (show typ)) (Val undef)
 
 -- XXX: Refactor doHash and doArray into one -- also see Eval's [] and {}
 doHash :: (Show b) => Val -> (forall a. Hash.Class a => a -> b) -> Eval b
@@ -821,7 +825,7 @@ doHash (VRef (MkRef (IScalar sv))) f = do
     val <- Scalar.fetch sv
     case val of
         VUndef  -> do
-            ref@(MkRef (IHash hv)) <- newObject "Hash" (VList [])
+            ref@(MkRef (IHash hv)) <- newObject (MkType "Hash")
             Scalar.store sv (VRef ref)
             return $ f hv
         _  -> doHash val f
@@ -837,7 +841,7 @@ doArray (VRef (MkRef (IScalar sv))) f = do
     if defined val
         then doArray val f
         else do
-            ref@(MkRef (IArray hv)) <- newObject "Array" (VList [])
+            ref@(MkRef (IArray hv)) <- newObject (MkType "Array")
             Scalar.store sv (VRef ref)
             return $ f hv
 doArray val@(VRef _) _ = retError "Cannot cast into Array" (Val val)
@@ -873,7 +877,7 @@ instance Eq VRef where
 instance Ord VRef where
     compare _ _ = EQ
 instance Show VRef where
-    show v = "<" ++ refType v ++ ">"
+    show v = "<" ++ show (refType v) ++ ">"
 
 instance Eq (IVar a) where
     (==) = const $ const False
@@ -914,12 +918,12 @@ constArray :: VArray -> IVar VArray
 constArray = IArray
 
 instance Scalar.Class IScalarProxy where
-    iType _ = "Scalar::Proxy"
+    iType _ = mkType "Scalar::Proxy"
     fetch = fst
     store = snd
 
 instance Hash.Class VHash where
-    iType _ = "Hash::Const"
+    iType _ = mkType "Hash::Const"
     fetch = return
     fetchKeys = return . map fst
     fetchVal hv idx = return . maybe undef id $ lookup idx hv
@@ -930,7 +934,7 @@ instance Hash.Class VHash where
     deleteElem _ _ = retConstError undef
 
 instance Array.Class VArray where
-    iType _ = "Array::Const"
+    iType _ = mkType "Array::Const"
     store [] _ = return ()
     store _ [] = return ()
     store (a:as) vals@(v:vs) = do
@@ -948,7 +952,7 @@ instance Array.Class VArray where
     storeElem _ _ _ = retConstError undef
 
 instance Hash.Class IHashEnv where
-    iType _ = "Hash::Env"
+    iType _ = mkType "Hash::Env"
     fetch _ = do
         envs <- liftIO getEnvironment
         return [ (k, VStr v) | (k, v) <- envs ]
@@ -988,7 +992,7 @@ instance Hash.Class IHash where
         return $ isJust rv
 
 instance Array.Class IArraySlice where
-    iType _ = "Array::Slice"
+    iType _ = mkType "Array::Slice"
     store av vals = mapM_ (uncurry writeIVar) (zip av vals)
     fetchSize = return . length
     fetchElem av idx = getIndex idx Nothing (return av) Nothing
@@ -1031,7 +1035,7 @@ instance Array.Class IArray where
         sv <- getIndex idx Nothing
             (liftIO $ readIORef av) 
             (Just (Array.extendSize av $ idx+1))
-        if refType (MkRef sv) == "Scalar::Lazy"
+        if refType (MkRef sv) == mkType "Scalar::Lazy"
             then do
                 val <- readIVar sv
                 sv' <- newScalar val
@@ -1066,12 +1070,12 @@ instance Scalar.Class IScalar where
     store = (liftIO .) . writeIORef
 
 instance Scalar.Class IScalarLazy where
-    iType _ = "Scalar::Lazy"
+    iType _ = mkType "Scalar::Lazy"
     fetch = return . maybe undef id
     store _ v = retConstError v
 
 instance Scalar.Class IScalarCwd where
-    iType _ = "Scalar::Cwd"
+    iType _ = mkType "Scalar::Cwd"
     fetch _ = do
         str <- liftIO $ getCurrentDirectory
 	return $ VStr str
@@ -1080,7 +1084,7 @@ instance Scalar.Class IScalarCwd where
 	tryIO () $ setCurrentDirectory str
 
 instance Scalar.Class VScalar where
-    iType _ = "Scalar::Const"
+    iType _ = mkType "Scalar::Const"
     fetch = return
     store _ v = retConstError v
 

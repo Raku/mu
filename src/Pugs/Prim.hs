@@ -29,9 +29,7 @@ op0 "!"  = return . opJuncNone
 op0 "&"  = return . opJuncAll
 op0 "^"  = return . opJuncOne
 op0 "|"  = return . opJuncAny
-op0 "want"  = const $ do
-    cxt <- asks envContext
-    return $ VStr cxt
+op0 "want"  = const $ return . VStr =<< asks envWant
 op0 "time"  = const $ do
     clkt <- liftIO getClockTime
     return $ VInt $ toInteger $ tdSec $ diffClockTimes clkt epochClkT
@@ -139,7 +137,7 @@ op1 "sort" = \v -> do
             sub <- fromVal subVal
             evl <- asks envEval
             sorted <- (`sortByM` valList) $ \v1 v2 -> do
-                rv  <- local (\e -> e{ envContext = "Int" }) $ do
+                rv  <- local (\e -> e{ envContext = cxtItem "Int" }) $ do
                     evl (Syn "()" [Val sub, Syn "invs" [Val v1, Val v2], Syn "args" []])
                 int <- fromVal rv
                 return (int <= (0 :: Int))
@@ -297,7 +295,7 @@ op1 "async" = \v -> do
     tid     <- liftIO . (if rtsSupportsBoundThreads then forkOS else forkIO) $ do
         (`runReaderT` env) $ (`runContT` return) $ resetT $ do
             evl <- asks envEval
-            local (\e -> e{ envContext = "Void" }) $ do
+            local (\e -> e{ envContext = CxtVoid }) $ do
                 evl (Syn "()" [Val code, Syn "invs" [], Syn "args" []])
         return ()
     return $ VThread tid
@@ -361,7 +359,7 @@ op1 "=" = \v -> do
             Just hdl -> return hdl
     handleOf (VList [x]) = handleOf x
     handleOf v = fromVal v
-op1 "ref"   = (return . VStr =<<) . evalValType
+op1 "ref"   = (return . VStr . show =<<) . evalValType
 op1 "pop"   = \x -> join $ doArray x Array.pop -- monadic join
 op1 "shift" = \x -> join $ doArray x Array.shift -- monadic join
 op1 "pick"  = op1Pick
@@ -841,7 +839,7 @@ op2Grep list sub = do
     args <- fromVal list
     vals <- (`filterM` args) $ \x -> do
         evl <- asks envEval
-        rv  <- local (\e -> e{ envContext = "Bool" }) $ do
+        rv  <- local (\e -> e{ envContext = cxtItem "Bool" }) $ do
             evl (Syn "()" [Val sub, Syn "invs" [Val x], Syn "args" []])
         fromVal rv
     return $ VList vals
@@ -851,7 +849,7 @@ op2Map list sub = do
     args <- fromVal list
     vals <- (`mapM` args) $ \x -> do
         evl <- asks envEval
-        rv  <- local (\e -> e{ envContext = "List" }) $ do
+        rv  <- local (\e -> e{ envContext = cxtSlurpyAny }) $ do
             evl (Syn "()" [Val sub, Syn "invs" [Val x], Syn "args" []])
         fromVal rv
     return $ VList $ concat vals
@@ -971,8 +969,8 @@ op2Numeric f x y
         y' <- fromVal y
         return . VNum $ f x' y'
 
-primOp :: String -> String -> Params -> String -> Symbol VRef
-primOp sym assoc prms ret = SymVar SOur name sub
+primOp :: String -> String -> Params -> String -> Symbol
+primOp sym assoc prms ret = MkSym name sub
     where
     name | isAlpha (head sym)
          , fixity == "prefix"
@@ -987,7 +985,7 @@ primOp sym assoc prms ret = SymVar SOur name sub
         , subAssoc    = assoc
         , subParams   = prms
         , subBindings = []
-        , subReturns  = ret
+        , subReturns  = mkType ret
         , subFun      = (Prim f)
         }
     symStr = encodeUTF8 sym

@@ -13,6 +13,7 @@ module Pugs.Monads where
 import Pugs.Internals
 import Pugs.AST
 import Pugs.Context
+import Pugs.Types
 
 enterLex :: Pad -> Eval a -> Eval a
 enterLex pad = local (\e -> e{ envLexical = (pad ++ envLexical e) })
@@ -20,12 +21,7 @@ enterLex pad = local (\e -> e{ envLexical = (pad ++ envLexical e) })
 enterContext :: Cxt -> Eval a -> Eval a
 enterContext cxt = local (\e -> e{ envContext = cxt })
 
-askDump str = do
-    env <- asks envContext
-    liftIO $ putStrLn $ "Current scope: " ++ str ++ " - Env: " ++ env
-
-
-enterGiven topic action = enterLex [SymVar SMy "$_" topic] action
+enterGiven topic action = enterLex [MkSym "$_" topic] action
 
 enterWhen break action = callCC $ \esc -> do
     env <- ask
@@ -40,7 +36,7 @@ enterWhen break action = callCC $ \esc -> do
         , subAssoc = "pre"
         , subParams = makeParams env
         , subBindings = []
-        , subReturns = envContext env
+        , subReturns = anyType
         , subFun = Prim (esc . head)
         }
     breakSub env = Sub
@@ -51,12 +47,12 @@ enterWhen break action = callCC $ \esc -> do
         , subAssoc = "pre"
         , subParams = makeParams env
         , subBindings = []
-        , subReturns = envContext env
+        , subReturns = anyType
         , subFun = break
         }
 
 enterLoop action = callCC $ \esc -> do
-    enterLex [SymVar SMy "&last" $ lastSub esc] action
+    enterLex [MkSym "&last" $ lastSub esc] action
     where
     lastSub esc = codeRef $ Sub
         { isMulti = False
@@ -66,7 +62,7 @@ enterLoop action = callCC $ \esc -> do
         , subAssoc = "pre"
         , subParams = []
         , subBindings = []
-        , subReturns = "Void"
+        , subReturns = anyType
         , subFun = Prim (const $ esc VUndef)
         }
 
@@ -82,7 +78,7 @@ enterBlock action = callCC $ \esc -> do
         , subAssoc = "pre"
         , subParams = makeParams env
         , subBindings = []
-        , subReturns = envContext env
+        , subReturns = anyType
         , subFun = Prim (esc . head)
         }
   
@@ -99,9 +95,9 @@ enterSub sub@Sub{ subType = typ } action
     doCC cc [v] = cc =<< evalVal v
     doCC _  _   = internalError "enterSub: doCC list length /= 1"
     orig sub = sub { subBindings = [], subParams = (map fst (subBindings sub)) }
-    subRec = [ SymVar SMy "&?SUB" (codeRef (orig sub))
-             , SymVar SMy "$?SUBNAME" (scalarRef $ VStr $ subName sub)]
-    blockRec = SymVar SMy "&?BLOCK" (codeRef (orig sub))
+    subRec = [ MkSym "&?SUB" (codeRef (orig sub))
+             , MkSym "$?SUBNAME" (scalarRef $ VStr $ subName sub)]
+    blockRec = MkSym "&?BLOCK" (codeRef (orig sub))
     fixEnv cc env@Env{ envLexical = pad } env'
         | typ >= SubBlock = env'{ envLexical = (blockRec:subPad sub) ++ pad }
         | otherwise      = env'{ envLexical = concat
@@ -118,7 +114,7 @@ enterSub sub@Sub{ subType = typ } action
         , subAssoc = "pre"
         , subParams = makeParams env
         , subBindings = []
-        , subReturns = envContext env
+        , subReturns = anyType
         , subFun = Prim doReturn
         }
     ccSub cc env = Sub
@@ -129,30 +125,28 @@ enterSub sub@Sub{ subType = typ } action
         , subAssoc = "pre"
         , subParams = makeParams env
         , subBindings = []
-        , subReturns = envContext env
+        , subReturns = anyType
         , subFun = Prim $ doCC cc
         }
 
 genSubs env name gen =
-    [ SymVar SMy name (codeRef $ gen env)
-    , SymVar SMy name (codeRef $ gen env{ envContext = "Scalar" })
-    , SymVar SMy name (codeRef $ gen env{ envContext = "List" })
+    [ MkSym name (codeRef $ gen env{ envContext = cxtItemAny })
+    , MkSym name (codeRef $ gen env{ envContext = cxtSlurpyAny })
     ]
 
-makeParams Env{ envClasses = cls, envContext = cxt, envLValue = lv }
+makeParams Env{ envContext = cxt, envLValue = lv }
     = [ Param
         { isInvocant = False
-        , isSlurpy = isList
         , isOptional = False
         , isNamed = False
         , isLValue = lv
         , isThunk = False
-        , paramName = if isList then "@?0" else "$?0"
+        , paramName = case cxt of
+            CxtSlurpy _ -> "@?0"
+            _           -> "$?0"
         , paramContext = cxt
         , paramDefault = Val VUndef
         } ]
-    where
-    isList = isaType cls "List" cxt
 {-
 enterSub sub = enterScope $ do
     local (\e -> e { envLexical = subPad sub }) $ do
@@ -224,14 +218,16 @@ returnScope = callerReturn 0 . VStr
 
 evalVal x = do
     -- context casting, go!
+    -- XXX this needs a rewrite!
     Env{ envLValue = isLValue, envClasses = cls, envContext = cxt } <- ask
     typ <- evalValType x
     val <- if isaType cls "Junction" typ then fromVal' x else return x
-    let isCompatible = isaType cls cxt typ
-        isListCxt    = isaType cls "List" cxt
-        isRef        = case val of { VRef _ -> True; _ -> False }
+    --- XXX isCompatible is all wrong!
+    let isCompatible | isSlurpyCxt cxt = isaType cls "List" typ
+                     | otherwise       = isaType cls "Scalar" typ
+        isRef = case val of { VRef _ -> True; _ -> False }
     -- trace (show ((cxt, typ), isCompatible, isLValue, isListCxt, val)) return ()
-    case (isCompatible, isLValue, isListCxt) of
+    case (isCompatible, isLValue, isSlurpyCxt cxt) of
         (True, True, _)         -> return val
         (True, False, False)    -> fromVal val
         (True, False, True)     -> return . VList =<< fromVal val

@@ -11,8 +11,7 @@
 
 module Pugs.Context where
 import Pugs.Internals
-
-type Cxt = String
+import Pugs.Types
 
 countTree :: Tree Type -> Int
 countTree (Node _ []) = 0
@@ -26,13 +25,13 @@ deltaType = junctivate min max $ \tree base target ->
         else distance
 
 junctivate or and f tree base target
-    | (t1, (_:t2)) <- span (/= '|') target
+    | TypeOr t1 t2 <- target
     = redo base t1 `or` redo base t2
-    | (b1, (_:b2)) <- span (/= '|') base
+    | TypeOr b1 b2 <- base
     = redo b1 target `or` redo b2 target
-    | (t1, (_:t2)) <- span (/= '&') target
+    | TypeAnd t1 t2 <- target
     = redo base t1 `and` redo base t2
-    | (b1, (_:b2)) <- span (/= '&') base
+    | TypeAnd b1 b2 <- base
     = redo b1 target `and` redo b2 target
     | otherwise
     = f tree base target
@@ -40,8 +39,11 @@ junctivate or and f tree base target
     redo = junctivate or and f tree
 
 -- When saying Int.isa(Scalar), Scalar is the base, Int is the target
-isaType :: ClassTree -> Type -> Type -> Bool
-isaType = junctivate (||) (&&) $ \tree base target ->
+isaType :: ClassTree -> String -> Type -> Bool
+isaType tree base target = isaType' tree (mkType base) target
+
+isaType' :: ClassTree -> Type -> Type -> Bool
+isaType' = junctivate (||) (&&) $ \tree base target ->
     distanceType tree base target > 0
 
 -- XXX -- Junctive Types -- XXX --
@@ -65,23 +67,19 @@ compareList l1 l2
     | last l2 `elem` l1 = - length(l1 \\ l2) - 1
     | otherwise = compareList l1 (init l2)
 
-findList :: (Eq a) => [a] -> Tree [a] -> [[a]]
-findList [] _ = []
+findList :: (Eq a) => a -> Tree a -> [a]
 findList base (Node l cs)
-    | base == l                                = [l]
+    | base == l                             = [l]
     | Just ls <- find (not . null) found    = l:ls
     | otherwise                             = []
     where
     found = map (findList base) cs
 
 prettyTypes :: String
-prettyTypes = drawTree initTree
-
-type ClassTree = Tree Type
-type Type = String
+prettyTypes = drawTree $ fmap show initTree
 
 initTree :: Tree Type
-initTree = Node "Any" [ Node "Void"
+initTree = fmap MkType $ Node "Any" [ Node "Void"
     [ Node "Object"
         [ Node "List"
             [ Node "Lazy"

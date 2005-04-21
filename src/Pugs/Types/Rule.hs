@@ -7,8 +7,8 @@ import Pugs.Internals
 import Pugs.Types
 
 class (Typeable a) => Class a where
-    iType :: a -> VStr
-    iType _ = "Rule"
+    iType :: a -> Type
+    iType _ = mkType "Rule"
     fetch :: a -> Eval VRule
     store :: a -> VRule -> Eval ()
     match :: a -> VStr -> Eval (MatchResult Val)

@@ -9,8 +9,8 @@ import Pugs.Types
 type Index = Int
 
 class (Typeable a) => Class a where
-    iType :: a -> VStr
-    iType _ = "Array"
+    iType :: a -> Type
+    iType _ = mkType "Array"
     fetch       :: a -> Eval VArray
     fetch av = do
         size <- fetchSize av
