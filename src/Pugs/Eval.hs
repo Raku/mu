@@ -349,7 +349,7 @@ reduce env exp@(Syn name exps) = case name of
         enterRValue $ evalExp exp
     "\\{}" -> do
         let [exp] = exps
-        v   <- enterRValue $ enterEvalContext cxtSlurpyAny exp
+        v   <- enterRValue $ enterEvalContext cxtItemAny exp
         hv  <- newObject (MkType "Hash")
         writeRef hv v
         retVal $ VRef hv
