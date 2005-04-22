@@ -267,7 +267,7 @@ ruleVarDeclaration = rule "variable declaration" $ do
              return $ Syn "," (map Var names)
         ]
     (sym, expMaybe) <- option ("=", Nothing) $ do
-        sym <- tryChoice $ map symbol $ words " = := ::= "
+        sym <- tryChoice $ map string $ words " = := ::= "
         when (sym == "=") $ do
            lookAhead (satisfy (/= '='))
            return ()
@@ -693,7 +693,7 @@ makeOp0 prec sigil con name = (`Infix` prec) $ do
         whiteSpace
     return make
     where
-    make x (Syn syn xs) | syn == name = con (sigil ++ name) (x:xs)
+    -- make x (Syn syn xs) | syn == name = con (sigil ++ name) (x:xs)
     make x (Syn "" []) = con (sigil ++ name) [x]
     make x y = con (sigil ++ name) [x,y]
 
