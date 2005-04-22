@@ -127,8 +127,7 @@ reduceStatements ((exp, pos):rest)
         let lex   = envLexical env
             thunk = thunkRef . MkThunk $ do
             local (const env{ envLValue = True }) $ do
-                foo <- enterEvalContext (cxtOfSigil $ head name) vexp
-                trace (show foo) return foo
+                enterEvalContext (cxtOfSigil $ head name) vexp
         case findSym name lex of
             Just _  -> do
                 let sym = (MkSym name $ thunk)
