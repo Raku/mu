@@ -13,7 +13,7 @@ L<S03/"Binding">
 
 =cut
 
-plan 9;
+plan 11;
 force_todo 7;
 
 # L<S03/"Binding" /replaces the container itself.  For instance:/>
@@ -48,3 +48,10 @@ sub foo {
 }
 
 ok(foo(), "CALLER resolves bindings in caller's dynamic scope");
+
+# Binding to swap
+my $a = "a";
+my $b = "b";
+($a, $b) := ($b,$a);
+is($a, 'b', '$a has been changed to "b"');
+is($b, 'a', '$b has been changed to "a"');
