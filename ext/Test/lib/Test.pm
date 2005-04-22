@@ -29,218 +29,124 @@ sub force_todo (*@todo_tests) returns Void is export {
 
 ## ok
 
-sub ok (Bool $cond, Str ?$desc) returns Bool is export {
-    proclaim($cond, $desc, undef);
-}
-
-sub todo_ok (Bool $cond, Str ?$desc) returns Bool is export {
-    proclaim($cond, $desc, 'TODO');
+sub ok (Bool $cond, Str +$desc, Bool +$todo) returns Bool is export {
+    proclaim($cond, $desc, $todo ?? 'TODO' :: undef);
 }
 
 ## is
 
-sub is (Str $got, Str $expected, Str ?$desc) returns Bool is export {
+sub is (Str $got, Str $expected, Str +$desc, Bool +$todo) returns Bool is export {
     my $test := $got eq $expected;
-    proclaim($test, $desc, undef, $got, $expected);
+    proclaim($test, $desc, $todo ?? 'TODO' :: undef, $got, $expected);
 }
 
-sub todo_is (Str $got, Str $expected, Str ?$desc) returns Bool is export {
-    my $test = $got eq $expected;
-    proclaim($test, $desc, 'TODO', $got, $expected);
-}
+## isnt
 
-sub isnt (Str $got, Str $expected, Str ?$desc) returns Bool is export {
+sub isnt (Str $got, Str $expected, Str +$desc, Bool +$todo) returns Bool is export {
     my $test := not($got eq $expected);
-    proclaim($test, "FAILS by matching expected: $desc", undef, $got, $expected);
-}
-
-sub todo_isnt (Str $got, Str $expected, Str ?$desc) returns Bool is export {
-    my $test := not($got eq $expected);
-    proclaim($test, "SHOULD FAIL: $desc", 'TODO', $got, $expected);
+    proclaim($test, "FAILS by matching expected: $desc", $todo ?? 'TODO' :: undef, $got, $expected);
 }
 
 ## like
 
-sub like (Str $got, Rule $expected, Str ?$desc) returns Bool is export {
+sub like (Str $got, Rule $expected, Str +$desc, Bool +$todo) returns Bool is export {
     my $test := $got ~~ $expected;
-    proclaim($test, $desc, undef, $got, $expected);
-}
-
-sub todo_like (Str $got, Rule $expected, Str ?$desc) returns Bool is export {
-    my $test := $got ~~ $expected;
-    proclaim($test, $desc, 'TODO', $got, $expected);
+    proclaim($test, $desc, $todo ?? 'TODO' :: undef, $got, $expected);
 }
 
 ## unlike
 
-sub unlike (Str $got, Rule $expected, Str ?$desc) returns Bool is export {
+sub unlike (Str $got, Rule $expected, Str +$desc, Bool +$todo) returns Bool is export {
     my $test := not($got ~~ $expected);
-    proclaim($test, $desc, undef, $got, $expected);
-}
-
-sub todo_unlike (Str $got, Rule $expected, Str ?$desc) returns Bool is export {
-    my $test := not($got ~~ $expected);
-    proclaim($test, $desc, 'TODO', $got, $expected);
+    proclaim($test, $desc, $todo ?? 'TODO' :: undef, $got, $expected);
 }
 
 ## eval_ok
 
-sub eval_ok (Str $code, Str ?$desc) returns Bool is export {
+sub eval_ok (Str $code, Str +$desc, Bool +$todo) returns Bool is export {
     my $result := eval $code;
     if ($!) {
-	    proclaim(undef, $desc, undef, "eval was fatal");
+	    proclaim(undef, $desc, $todo ?? 'TODO' :: undef, "eval was fatal");
     }
     else {
         #diag "'$desc' was non-fatal and maybe shouldn't use eval_ok()";
-	    &ok.goto($result, $desc);
-    }
-}
-
-sub todo_eval_ok (Str $code, Str ?$desc) returns Bool is export {
-    my $result := eval $code;
-    if ($!) {
-	    proclaim(undef, $desc, 'TODO', "eval was fatal");
-    }
-    else {
-	    &todo_ok.goto($result, $desc);
+	    &ok.goto($result, $desc, $todo);
     }
 }
 
 ## eval_is
 
-sub eval_is (Str $code, Str $expected, Str ?$desc) returns Bool is export {
+sub eval_is (Str $code, Str $expected, Str +$desc, Bool +$todo) returns Bool is export {
     my $result := eval $code;
     if ($!) {
-	    proclaim(undef, $desc, undef, "eval was fatal", $expected);
+	    proclaim(undef, $desc, $todo ?? 'TODO' :: undef, "eval was fatal", $expected);
     }
     else {
         #diag "'$desc' was non-fatal and maybe shouldn't use eval_is()";
-	    &is.goto($result, $expected, $desc);
-    }
-}
-
-sub todo_eval_is (Str $code, Str $expected, Str ?$desc) returns Bool is export {
-    my $result := eval $code;
-    if ($!) {
-        proclaim(undef, $desc, 'TODO', "was fatal", $expected);
-    }
-    else {
-        #diag "'$desc' was non-fatal and maybe shouldn't use todo_eval_is()";
-        &todo_is.goto($result, $expected, $desc);
+	    &is.goto($result, $expected, $desc, $todo);
     }
 }
 
 ## cmp_ok
 
-sub cmp_ok (Str $got, Code $compare_func, Str $expected, Str ?$desc) returns Bool is export {
+sub cmp_ok (Str $got, Code $compare_func, Str $expected, Str +$desc, Bool +$todo) returns Bool is export {
     my $test := $compare_func($got, $expected);
-    proclaim($test, $desc, undef); # << needs better error message handling
-}
-
-sub todo_cmp_ok (Str $got, Code $compare_func, Str $expected, Str ?$desc) returns Bool is export {
-    my $test := $compare_func($got, $expected);
-    proclaim($test, $desc, 'TODO', 4, 5); # << needs better error message handling
+    proclaim($test, $desc, $todo ?? 'TODO' :: undef); # << needs better error message handling
 }
 
 ## isa_ok
 
-sub isa_ok ($ref is rw, Str $expected_type, Str ?$desc) returns Bool is export {
+sub isa_ok ($ref is rw, Str $expected_type, Str +$desc, Bool +$todo) returns Bool is export {
     my $out := defined($desc) ?? $desc :: "The object is-a '$expected_type'";
     my $test := $ref.isa($expected_type);
-    proclaim($test, $out, undef, $ref.ref, $expected_type);
-}
-
-sub todo_isa_ok ($ref is rw, Str $expected_type, Str ?$desc) returns Bool is export {
-    my $out := defined($desc) ?? $desc :: "The object is-a '$expected_type'";
-    my $test := $ref.isa($expected_type);
-    proclaim($test, $out, 'TODO', $ref.ref, $expected_type);
+    proclaim($test, $out, $todo ?? 'TODO' :: undef, $ref.ref, $expected_type);
 }
 
 ## use_ok
 
-sub use_ok (Str $module) is export {
+sub use_ok (Str $module, Bool +$todo) is export {
     eval "require $module";
     if ($!) {
-	    proclaim(undef, "require $module;", undef, "Import error when loading $module: $!");
+	    proclaim(undef, "require $module;", $todo ?? 'TODO' :: undef, "Import error when loading $module: $!");
     }
     else {
-        &ok.goto(1, "$module imported OK");
-    }
-}
-
-sub todo_use_ok (Str $module) is export {
-    eval "require $module";
-    if ($!) {
-	    proclaim(undef, "require $module;", 'TODO', "Import error when loading $module: $!");
-    }
-    else {
-        &todo_ok.goto(1, "$module imported OK");
+        &ok.goto(1, "$module imported OK", $todo);
     }
 }
 
 ## throws ok
 
-sub throws_ok (Sub $code, Any $match, Str ?$desc) returns Bool is export {
+sub throws_ok (Sub $code, Any $match, Str +$desc, Bool +$todo) returns Bool is export {
     try { $code() };
     if ($!) {
-        &ok.goto($! ~~ $match, $desc);            
+        &ok.goto($! ~~ $match, $desc, $todo);            
     }
     else {
-	    proclaim(undef, $desc, undef, "No exception thrown");
-    }
-}
-
-sub todo_throws_ok (Sub $code, Any $match, Str ?$desc) returns Bool is export {
-    try { $code() };
-    if ($!) {
-        &todo_ok.goto($! ~~ $match, $desc);
-    }
-    else {
-	    proclaim(undef, $desc, 'TODO', "No exception thrown");
+	    proclaim(undef, $desc, $todo ?? 'TODO' :: undef, "No exception thrown");
     }
 }
 
 ## dies_ok
 
-sub dies_ok (Sub $code, Str ?$desc) returns Bool is export {
+sub dies_ok (Sub $code, Str +$desc, Bool +$todo) returns Bool is export {
     try { $code() };
     if ($!) {
-        &ok.goto(1, $desc);
+        &ok.goto(1, $desc, $todo);
     }
     else {
-	    proclaim(undef, $desc, undef, "No exception thrown");
-    }
-}
-
-sub todo_dies_ok (Sub $code, Str ?$desc) returns Bool is export {
-    try { $code() };
-    if ($!) {
-        &todo_ok.goto(1, $desc);
-    }
-    else {
-	    proclaim(undef, $desc, 'TODO', "No exception thrown");
+	    proclaim(undef, $desc, $todo ?? 'TODO' :: undef, "No exception thrown");
     }
 }
 
 ## lives ok
 
-sub lives_ok (Sub $code, Str ?$desc) returns Bool is export {
+sub lives_ok (Sub $code, Str +$desc, Bool +$todo) returns Bool is export {
     try { $code() };
     if ($!) {
-        proclaim(undef, $desc, undef, "An exception was thrown : $!");
+        proclaim(undef, $desc, $todo ?? 'TODO' :: undef, "An exception was thrown : $!");
     }
     else {
-        &ok.goto(1, $desc);
-    }
-}
-
-sub todo_lives_ok (Sub $code, Str ?$desc) returns Bool is export {
-    try { $code() };
-    if ($!) {
-        proclaim(undef, $desc, 'TODO', "An exception was thrown : $!");
-    }
-    else {
-        &todo_ok.goto(1, $desc);
+        &ok.goto(1, $desc, $todo);
     }
 }
 
@@ -264,14 +170,9 @@ sub pass (Str ?$desc) returns Bool is export {
     proclaim(1, $desc);
 }
 
-sub fail (Str ?$desc) returns Bool is export {
-    proclaim(0, $desc);
+sub fail (Str +$desc, Bool +$todo) returns Bool is export {
+    proclaim(0, $desc, $todo ?? 'TODO' :: undef);
 }
-
-sub todo_fail (Str ?$desc) returns Bool is export {
-    proclaim(0, $desc, 'TODO');
-}
-
 
 sub diag (Str $diag) is export {
     for (split("\n", $diag)) -> $line {
@@ -311,7 +212,7 @@ sub report_failure (Str ?$todo, Str ?$got, Str ?$expected) returns Bool {
         $NUM_OF_TESTS_FAILED++;
     }
 
-    if ($?CALLER::CALLER::SUBNAME eq ('&is' | '&todo_is' | '&cmp_ok' | '&todo_cmp_ok' | '&eval_is' | '&todo_eval_is' | '&isa_ok' | '&todo_isa_ok')) {
+    if ($?CALLER::CALLER::SUBNAME eq ('&is' | '&isnt' | '&cmp_ok' | '&eval_is' | '&isa_ok' | '&todo_is' | '&todo_isnt' | '&todo_cmp_ok' | '&todo_eval_is' | '&todo_isa_ok')) {
         diag("  Expected: " ~ ($expected.defined ?? $expected :: "undef"));
         diag("       Got: " ~ ($got.defined ?? $got :: "undef"));
     }
@@ -319,6 +220,8 @@ sub report_failure (Str ?$todo, Str ?$got, Str ?$expected) returns Bool {
         diag("       Got: " ~ ($got.defined ?? $got :: "undef"));
     }
 }
+
+
 
 END {
     if (!defined($NUM_OF_TESTS_PLANNED)) {
@@ -332,6 +235,110 @@ END {
         $*ERR.say("# Looks like you failed $NUM_OF_TESTS_FAILED tests of $NUM_OF_TESTS_RUN");
     }
 }
+
+## begin deprecated TODO functions
+ 
+sub todo_ok (Bool $cond, Str ?$desc) returns Bool is export {
+    proclaim($cond, $desc, 'TODO');
+}
+
+sub todo_is (Str $got, Str $expected, Str ?$desc) returns Bool is export {
+    my $test = $got eq $expected;
+    proclaim($test, $desc, 'TODO', $got, $expected);
+}
+
+sub todo_isnt (Str $got, Str $expected, Str ?$desc) returns Bool is export {
+    my $test := not($got eq $expected);
+    proclaim($test, "SHOULD FAIL: $desc", 'TODO', $got, $expected);
+}
+
+sub todo_like (Str $got, Rule $expected, Str ?$desc) returns Bool is export {
+    my $test := $got ~~ $expected;
+    proclaim($test, $desc, 'TODO', $got, $expected);
+}
+
+sub todo_unlike (Str $got, Rule $expected, Str ?$desc) returns Bool is export {
+    my $test := not($got ~~ $expected);
+    proclaim($test, $desc, 'TODO', $got, $expected);
+}
+
+sub todo_eval_ok (Str $code, Str ?$desc) returns Bool is export {
+    my $result := eval $code;
+    if ($!) {
+	    proclaim(undef, $desc, 'TODO', "eval was fatal");
+    }
+    else {
+	    &todo_ok.goto($result, $desc);
+    }
+}
+
+sub todo_eval_is (Str $code, Str $expected, Str ?$desc) returns Bool is export {
+    my $result := eval $code;
+    if ($!) {
+        proclaim(undef, $desc, 'TODO', "was fatal", $expected);
+    }
+    else {
+        #diag "'$desc' was non-fatal and maybe shouldn't use todo_eval_is()";
+        &todo_is.goto($result, $expected, $desc);
+    }
+}
+
+sub todo_cmp_ok (Str $got, Code $compare_func, Str $expected, Str ?$desc) returns Bool is export {
+    my $test := $compare_func($got, $expected);
+    proclaim($test, $desc, 'TODO', 4, 5); # << needs better error message handling
+}
+
+sub todo_isa_ok ($ref is rw, Str $expected_type, Str ?$desc) returns Bool is export {
+    my $out := defined($desc) ?? $desc :: "The object is-a '$expected_type'";
+    my $test := $ref.isa($expected_type);
+    proclaim($test, $out, 'TODO', $ref.ref, $expected_type);
+}
+
+sub todo_use_ok (Str $module) is export {
+    eval "require $module";
+    if ($!) {
+	    proclaim(undef, "require $module;", 'TODO', "Import error when loading $module: $!");
+    }
+    else {
+        &todo_ok.goto(1, "$module imported OK");
+    }
+}
+
+sub todo_throws_ok (Sub $code, Any $match, Str ?$desc) returns Bool is export {
+    try { $code() };
+    if ($!) {
+        &todo_ok.goto($! ~~ $match, $desc);
+    }
+    else {
+	    proclaim(undef, $desc, 'TODO', "No exception thrown");
+    }
+}
+
+sub todo_dies_ok (Sub $code, Str ?$desc) returns Bool is export {
+    try { $code() };
+    if ($!) {
+        &todo_ok.goto(1, $desc);
+    }
+    else {
+	    proclaim(undef, $desc, 'TODO', "No exception thrown");
+    }
+}
+
+sub todo_lives_ok (Sub $code, Str ?$desc) returns Bool is export {
+    try { $code() };
+    if ($!) {
+        proclaim(undef, $desc, 'TODO', "An exception was thrown : $!");
+    }
+    else {
+        &todo_ok.goto(1, $desc);
+    }
+}
+
+sub todo_fail (Str ?$desc) returns Bool is export {
+    proclaim(0, $desc, 'TODO');
+}
+
+## end deprecated TODO functions
 
 =kwid
 

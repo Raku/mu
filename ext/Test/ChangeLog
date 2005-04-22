@@ -1,10 +1,21 @@
 
-== Changes for 0.0.5 for April 21, 2005
+== Changes for 0.0.5 for April _, 2005
+
+(Still in progress)
 
 * More force-TODO refactoring
 ** Added `force_todo()` function which can be used like `t/force_todo` but in the test file
 ** removed all code for the `t/force_todo` file, we no longer support that
 ** made all the appropriate test and documentation changes
+
+* Refactoring of todo_* functions
+** added `Bool +$todo` named optional param to all non-todo test functions
+** made the `$desc` argument into an named optional param as well
+** added some tests for this (not finished yet)
+
+*NOTE*
+Currently all todo_* functions are retained for backwards compatability.
+They should be removed once all test files have been updated.
 
 == Changes for 0.0.4 for April 20, 2005
 
