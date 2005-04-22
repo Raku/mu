@@ -84,7 +84,7 @@ sub set_postamble {
     $ghc_output .= " $pcre $unicode";
 
     my $config = get_pugs_config();
-    my $is_win32 = ($^O =~ /MSWin|mingw|cygwin/i);
+    my $is_win32 = ($^O =~ /MSWin|mingw|cygwin|msys/i);
     my $threaded = (!$is_win32 and try_compile("main = return ()", "-threaded"))
         ? '-threaded' : '';
 
@@ -107,22 +107,29 @@ $unicode : $unicode_c
 src/Pugs/Config.hs : util/PugsConfig.pm
 	\$(PERL) -Iutil -MPugsConfig -e "PugsConfig->write_config_module" > src/Pugs/Config.hs
 
-profiled :: src/Pugs/Config.hs @srcfiles $version_h @prereqs
+profiled : src/Pugs/Config.hs @srcfiles $version_h @prereqs
 	$ghc $threaded -auto-all -prof --make $ghc_flags $ghc_output
 
-optimized :: src/Pugs/Config.hs @srcfiles $version_h @prereqs
+optimized : src/Pugs/Config.hs @srcfiles $version_h @prereqs
 	$ghc $threaded -O1 --make $ghc_flags $ghc_output
 
-unoptimized :: src/Pugs/Config.hs @srcfiles $version_h @prereqs
+unoptimized : src/Pugs/Config.hs @srcfiles $version_h @prereqs
 	$ghc $threaded -O0 --make $ghc_flags $ghc_output
 
 $pugs : src/Pugs/Config.hs @srcfiles $version_h @prereqs
-	$ghc $threaded --make $ghc_flags $ghc_output
+ifdef \$(PUGS_OPTIMIZE)
+	$ghc $threaded -O\$(PUGS_OPTIMIZE) --make $ghc_flags $ghc_output \
+else
+	$ghc $threaded --make $ghc_flags $ghc_output \
+endif
 
-smoke : util/run-smoke.pl
-	\$(PERL) util/run-smoke.pl . smoke.html
+smoke : $pugs
+	export HARNESS_PERL="./pugs"
+	export PERL6LIB="ext/Test/lib"
+	\$(PERL) -w ./util/yaml_harness.pl
+	\$(PERL) -w ./util/testgraph.pl > smoke.html
 
-ghci ::
+ghci :
 	$ghc --interactive $ghc_flags $ghc_output
 
 tags : @srcfiles
