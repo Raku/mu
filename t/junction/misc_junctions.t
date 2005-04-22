@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 42;
+plan 47;
 
 =pod
 
@@ -195,13 +195,65 @@ L<S03/"Junctive operators">
     # Compiler *can* reorder and parallelize but *may not* so don't test
     # for all(@foo) {...};  
 
-	# Not sure what is expected
+    # Not sure what is expected
     #my %got = ('1' => 1); # Hashes are unordered too
     #@foo = (2,3,4);
     #for all(@foo) { %got{$_} = 1; };
     ##is_deeply(\%got, { la => 1, di => 1, da =>1 },
     #is( %got.keys.sort.join(','), '1,2,3,4',
     #    'for all(...) { ...} as parallelizable');
+}
+
+=pod
+
+These are implemented but still awaiting clarification on p6l.
+
+L<S03/"Junctive operators"/"They thread through operations">
+
+ On Fri, 2005-02-11 at 10:46 +1100, Damian Conway wrote:
+ > Subject: Re: Fwd: Junctive puzzles.
+ >
+ > Junctions have an associated boolean predicate that's preserved across 
+ > operations on the junction. Junctions also implicitly distribute across 
+ > operations, and rejunctify the results.
+
+=cut
+
+{
+	# XXX when this works the tests might autothread, then use $got to avoid
+	my @subs = (sub {3}, sub {2});
+
+    my ($got, $want);
+
+	# $want = (3|2).perl;
+    # $got = any(@subs)();
+    # is($got.perl, $want, '.() on any() junction of subs');
+    todo_eval_is('any(@subs)().perl', "('2' | '3')", '.() on any() junction of subs');
+
+	# $want = (3&2).perl;
+    # $got = all(@subs)();
+    # is($got.perl, $want, '.() on all() junction of subs');
+    todo_eval_is('all(@subs)().perl', "('2' & '3')", '.() on all() junction of subs');
+
+	# $want = (3^2).perl;
+    # $got = one(@subs)();
+    # is($got.perl, $want, '.() on one() junction of subs');
+    todo_eval_is('one(@subs)().perl', "('2' ^ '3')", '.() on one() junction of subs');
+
+	# $want = none(3,2).perl;
+    # $got = none(@subs)();
+    # is($got.perl, $want, '.() on none() junction of subs');
+    todo_eval_is('none(@subs)().perl', "('2' ! '3')", '.() on none() junction of subs');
+
+	# $want = ((3|2)^(3&2)).perl;
+    # $got = one( any(@subs), all(@subs) )();
+    # is($got.perl, $want, '.() on complex junction of subs');
+    todo_eval_is('one( any(@subs), all(@subs) ).perl', "((('2' ^ '3') | ('2' ^ '2')) & (('2' ^ '3') | ('3' ^ '3')))", '.() on complex junction of subs');
+
+    # Avoid future constant folding
+    #my $rand = rand;
+    #my $zero = int($rand-$rand);
+    #my @subs = (sub {3+$zero}, sub {2+$zero});
 }
 
 is(none(1).pick, undef, 'none(1).pick should be undef');
