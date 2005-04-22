@@ -23,6 +23,7 @@ import qualified Pugs.Types.Handle as Handle
 import qualified Pugs.Types.Hash   as Hash
 import qualified Pugs.Types.Scalar as Scalar
 import qualified Pugs.Types.Code   as Code
+import qualified Pugs.Types.Thunk  as Thunk
 import qualified Pugs.Types.Rule   as Rule
 import qualified Data.Set       as Set
 import qualified Data.HashTable as HTable
@@ -135,7 +136,12 @@ instance Value VRef where
     fromVal (VRef v) = return v
     fromVal (VPair (_, VRef v)) = return v
     fromVal (VList v) = return (arrayRef v)
-    fromVal v = return . MkRef $ constScalar v
+    fromVal (VThunk (MkThunk eval)) = do
+        foo <- eval
+        error $ show foo
+        fromVal =<< eval
+    fromVal v = fromVal' v
+    vCast = MkRef . constScalar
     castV = VRef
 
 instance Value [Int] where
@@ -347,7 +353,7 @@ instance Value [Word8] where doCast = map (toEnum . ord) . vCast
 type VScalar = Val
 
 instance Value VScalar where
-    fromVal (VRef r) = readRef r
+    fromVal (VRef r) = fromVal =<< readRef r
     fromVal v = return v
     vCast = id
     castV = id -- XXX not really correct; need to referencify things
@@ -386,6 +392,7 @@ type VSubst = (VRule, Exp)
 type VArray = [Val]
 type VHash = [(VStr, Val)]
 newtype VThunk = MkThunk (Eval Val)
+    deriving (Typeable)
 
 type VPair = (Val, Val)
 
@@ -400,7 +407,7 @@ data Val
     | VList     VList
     | VRef      VRef
     | VPair     VPair
-    | VCode      VCode
+    | VCode     VCode
     | VBlock    VBlock
     | VJunc     VJunc
     | VError    VStr Exp
@@ -782,6 +789,11 @@ defined VUndef  = False
 defined _       = True
 undef = VUndef
 
+forceRef :: VRef -> Eval Val
+forceRef (MkRef (IScalar sv)) = forceRef =<< fromVal =<< Scalar.fetch sv
+forceRef (MkRef (IThunk tv)) = Thunk.force tv
+forceRef r = retError "cannot forceRef" (Val $ VRef r)
+
 readRef :: VRef -> Eval Val
 readRef (MkRef (IScalar sv)) = Scalar.fetch sv
 readRef (MkRef (ICode cv)) = do
@@ -795,6 +807,7 @@ readRef (MkRef (IArray av)) = do
     return $ VList vals
 readRef (MkRef (IHandle io)) = return . VHandle =<< Handle.fetch io
 readRef (MkRef (IRule rx)) = return . VRule =<< Rule.fetch rx
+readRef (MkRef (IThunk tv)) = readRef =<< fromVal =<< Thunk.force tv
 
 retIVar :: (Typeable a) => IVar a -> Eval Val 
 retIVar = return . VRef . MkRef
@@ -807,12 +820,14 @@ writeRef (MkRef (IScalar s)) val = Scalar.store s val
 writeRef (MkRef (IArray s)) val  = Array.store s =<< fromVals val
 writeRef (MkRef (IHash s)) val   = Hash.store s =<< fromVal val
 writeRef (MkRef (ICode s)) val   = Code.store s =<< fromVal val
+writeRef (MkRef (IThunk tv)) val = (`writeRef` val) =<< fromVal =<< Thunk.force tv
 writeRef r _ = retError "cannot writeRef" (Val $ VRef r)
 
 clearRef :: VRef -> Eval ()
 clearRef (MkRef (IScalar s)) = Scalar.store s undef
 clearRef (MkRef (IArray s)) = Array.clear s
 clearRef (MkRef (IHash s)) = Hash.clear s
+clearRef (MkRef (IThunk tv)) = clearRef =<< fromVal =<< Thunk.force tv
 clearRef r = retError "cannot clearRef" (Val $ VRef r)
 
 newObject :: Type -> Eval VRef
@@ -865,6 +880,7 @@ data (Typeable v) => IVar v where
     ICode   :: Code.Class   a => a -> IVar VCode
     IHandle :: Handle.Class a => a -> IVar VHandle
     IRule   :: Rule.Class   a => a -> IVar VRule
+    IThunk  :: Thunk.Class  a => a -> IVar VThunk
 
 readIVar :: IVar v -> Eval v
 readIVar (IScalar x) = Scalar.fetch x
@@ -880,6 +896,7 @@ refType (MkRef (IHash x))   = Hash.iType x
 refType (MkRef (ICode x))   = Code.iType x
 refType (MkRef (IHandle x)) = Handle.iType x
 refType (MkRef (IRule x))   = Rule.iType x
+refType (MkRef (IThunk x))  = Thunk.iType x
 
 instance Eq VRef where
     (==) = const $ const False
@@ -899,6 +916,7 @@ scalarRef x = MkRef (IScalar x)
 codeRef x   = MkRef (ICode x)
 arrayRef x  = MkRef (IArray x)
 hashRef x   = MkRef (IHash x)
+thunkRef x  = MkRef (IThunk x)
 
 newScalar :: (MonadIO m) => VScalar -> m (IVar VScalar)
 newScalar = liftIO . (return . IScalar =<<) . newIORef
@@ -927,12 +945,12 @@ constArray :: VArray -> IVar VArray
 constArray = IArray
 
 instance Scalar.Class IScalarProxy where
-    iType _ = mkType "Scalar::Proxy"
+    iType = const $ mkType "Scalar::Proxy"
     fetch = fst
     store = snd
 
 instance Hash.Class VHash where
-    iType _ = mkType "Hash::Const"
+    iType = const $ mkType "Hash::Const"
     fetch = return
     fetchKeys = return . map fst
     fetchVal hv idx = return . maybe undef id $ lookup idx hv
@@ -943,7 +961,7 @@ instance Hash.Class VHash where
     deleteElem _ _ = retConstError undef
 
 instance Array.Class VArray where
-    iType _ = mkType "Array::Const"
+    iType = const $ mkType "Array::Const"
     store [] _ = return ()
     store _ [] = return ()
     store (a:as) vals@(v:vs) = do
@@ -961,7 +979,7 @@ instance Array.Class VArray where
     storeElem _ _ _ = retConstError undef
 
 instance Hash.Class IHashEnv where
-    iType _ = mkType "Hash::Env"
+    iType = const $ mkType "Hash::Env"
     fetch _ = do
         envs <- liftIO getEnvironment
         return [ (k, VStr v) | (k, v) <- envs ]
@@ -1001,7 +1019,7 @@ instance Hash.Class IHash where
         return $ isJust rv
 
 instance Array.Class IArraySlice where
-    iType _ = mkType "Array::Slice"
+    iType = const $ mkType "Array::Slice"
     store av vals = mapM_ (uncurry writeIVar) (zip av vals)
     fetchSize = return . length
     fetchElem av idx = getIndex idx Nothing (return av) Nothing
@@ -1079,12 +1097,12 @@ instance Scalar.Class IScalar where
     store = (liftIO .) . writeIORef
 
 instance Scalar.Class IScalarLazy where
-    iType _ = mkType "Scalar::Lazy"
+    iType = const $ mkType "Scalar::Lazy"
     fetch = return . maybe undef id
     store _ v = retConstError v
 
 instance Scalar.Class IScalarCwd where
-    iType _ = mkType "Scalar::Cwd"
+    iType = const $ mkType "Scalar::Cwd"
     fetch _ = do
         str <- liftIO $ getCurrentDirectory
 	return $ VStr str
@@ -1093,7 +1111,7 @@ instance Scalar.Class IScalarCwd where
 	tryIO () $ setCurrentDirectory str
 
 instance Scalar.Class VScalar where
-    iType _ = mkType "Scalar::Const"
+    iType = const $ mkType "Scalar::Const"
     fetch = return
     store _ v = retConstError v
 
@@ -1110,10 +1128,13 @@ instance Code.Class VCode where
     fetch     = return
     store _ _ = retConstError undef
     assuming c [] [] = return c
-    assuming _ _ _   = undefined
+    assuming _ _ _   = error "assuming"
     apply    = error "apply"
     assoc    = subAssoc
     params   = subParams
+
+instance Thunk.Class VThunk where
+    force (MkThunk c) = c
 
 retConstError v = retError "Can't modify constant item" (Val v)
 
@@ -1155,6 +1176,7 @@ instance Typeable1 IVar where
     typeOf1 (ICode   x) = typeOf x
     typeOf1 (IHandle x) = typeOf x
     typeOf1 (IRule   x) = typeOf x
+    typeOf1 (IThunk  x) = typeOf x
 
 instance Typeable2 HTable.HashTable where
     typeOf2 _ = typeOf ' '

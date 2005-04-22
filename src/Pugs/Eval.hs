@@ -124,18 +124,19 @@ reduceStatements ((exp, pos):rest)
     | Syn syn [Var name, vexp] <- exp
     , (syn == ":=" || syn == "::=") = const $ do
         env <- ask
-        let lex = envLexical env
-            val = VThunk . MkThunk $ do
+        let lex   = envLexical env
+            thunk = thunkRef . MkThunk $ do
             local (const env{ envLValue = True }) $ do
-                enterEvalContext (cxtOfSigil $ head name) vexp
+                foo <- enterEvalContext (cxtOfSigil $ head name) vexp
+                trace (show foo) return foo
         case findSym name lex of
             Just _  -> do
-                let sym = (MkSym name $ scalarRef val)
+                let sym = (MkSym name $ thunk)
                 enterLex [sym] $ do
-                    reduceStatements rest (Val val)
+                    reduceStatements rest (Val $ VRef thunk)
             Nothing -> do
-                addGlobalSym $ MkSym name (scalarRef val)
-                reduceStatements rest (Val val)
+                addGlobalSym $ MkSym name thunk
+                reduceStatements rest (Val $ VRef thunk)
     | Syn "sub" [Val (VCode sub)] <- exp
     , subType sub >= SubBlock = do
         -- bare Block in statement level; run it!
@@ -219,8 +220,11 @@ reduce _ (Val v) = do
 -- Reduction for variables
 reduce env exp@(Var name) = do
     v <- findVar env name
-    case v of
-        Just ref | envLValue env, refType ref == (mkType "Scalar") -> do
+    if isNothing v then retError ("Undeclared variable " ++ name) exp else do
+    let ref = fromJust v
+    if refType ref == (mkType "Thunk") then forceRef ref else do
+    if envLValue env && refType ref == (mkType "Scalar")
+        then do
             val <- readRef ref
             if defined val then return (castV ref) else do
             case envContext env of
@@ -230,10 +234,8 @@ reduce env exp@(Var name) = do
                         ref' <- newObject typ
                         writeRef ref (VRef ref')
                         return $ castV ref
-                _ -> return $ castV ref
-        Just ref | envLValue env -> return $ castV ref
-        Just ref -> retVal $ castV ref
-        _ -> retError ("Undeclared variable " ++ name) exp
+                _ -> retVal $ castV ref
+        else retVal $ castV ref
 
 reduce _ (Statements stmts) = do
     let (global, local) = partition isGlobalExp stmts
