@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 34;
+plan 42;
 
 =pod
 
@@ -134,3 +134,76 @@ L<S03/"Junctive operators">
 	$l=\$j;
 	is(ref($l),'Junction', 'hard reference to junction');
 }
+
+
+=pod
+
+Tests junction examples from Synopsis 03 
+
+L<S03/"Junctive operators">
+
+=cut
+
+{
+    # L<S03/"Junctive operators"/"They thread through operations">
+    my ($got, $want);
+    $got = ((1|2|3)+4);
+    $want = (5|6|7);
+    is( $got.perl, $want.perl, 'thread + returning junctive result');
+
+    $got = ((1|2) + (3&4));
+    $want = ((4|5) & (5|6));
+    is( $got.perl, $want.perl, 'thread + returning junctive combination of results');
+
+    # L<S03/"Junctive operators"/"This opens doors for constructions like">
+    # unless $roll == any(1..6) { print "Invalid roll" }
+    my ($roll, $note);
+    $roll = 3; $note = '';
+    unless $roll == any(1..6) { $note = "Invalid roll"; };
+    is($note, "", 'any() junction threading ==');
+
+    $roll = 7; $note = '';
+    unless $roll == any(1..6) { $note = "Invalid roll"; };
+    is($note, "Invalid roll", 'any() junction threading ==');
+
+    # if $roll == 1|2|3 { print "Low roll" }
+    $roll = 4; $note = '';
+    if $roll == 1|2|3 { $note = "Low roll" }
+    is($note, "", '| junction threading ==');
+
+    $roll = 2; $note = '';
+    if $roll == 1|2|3 { $note = "Low roll" }
+    is($note, "Low roll", '| junction threading ==');
+
+
+    # L<S03/"Junctive operators"/"Junctions work through subscripting">
+    my ($got, @foo);
+    $got = ''; @foo = ();
+    $got ~= 'y' if @foo[any(1,2,3)]
+    is($got, '', "junctions work through subscripting, 0 matches");
+
+    $got = ''; @foo = (0,1);
+    $got ~= 'y' if @foo[any(1,2,3)]
+    is($got, '', "junctions work through subscripting, 1 match");
+
+    $got = ''; @foo = (1,1,1);
+    $got ~= 'y' if @foo[any(1,2,3)]
+    is($got, '', "junctions work through subscripting, 3 matches");
+
+
+    # L<S03/"Junctive operators"/"Junctions are specifically unordered">
+    # Compiler *can* reorder and parallelize but *may not* so don't test
+    # for all(@foo) {...};  
+
+	# Not sure what is expected
+    #my %got = ('1' => 1); # Hashes are unordered too
+    #@foo = (2,3,4);
+    #for all(@foo) { %got{$_} = 1; };
+    ##is_deeply(\%got, { la => 1, di => 1, da =>1 },
+    #is( %got.keys.sort.join(','), '1,2,3,4',
+    #    'for all(...) { ...} as parallelizable');
+}
+
+is(none(1).pick, undef, 'none(1).pick should be undef');
+is(none(1,1).pick, undef, 'none(1,1).pick should be undef');
+
