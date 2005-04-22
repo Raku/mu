@@ -87,10 +87,19 @@ evalValType (VRef r) = do
 evalValType val = return $ valType val
 
 fromVal' :: (Value a) => Val -> Eval a
-fromVal' (VThunk (MkThunk eval)) = fromVal' =<< eval
+fromVal' (VThunk (MkThunk eval)) = fromVal =<< eval
 fromVal' (VRef r) = do
     v <- readRef r
-    fromVal' v
+    fromVal v
+fromVal' (VPair ((VRef r), y)) = do
+    v <- readRef r
+    fromVal $ VPair (v, y)
+fromVal' (VPair (x, (VRef r))) = do
+    v <- readRef r
+    fromVal $ VPair (x, v)
+fromVal' (VList vs) | not $ null [ undefined | VRef _ <- vs ] = do
+    vs <- forM vs $ \v -> case v of { VRef r -> readRef r; _ -> return v }
+    fromVal $ VList vs
 fromVal' v = do
     rv <- liftIO $ catchJust errorCalls (return . Right $ vCast v) $
         \str -> return (Left str)
