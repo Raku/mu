@@ -400,8 +400,9 @@ reduce env exp@(Syn name exps) = case name of
     "()" -> do
         let [subExp, Syn "invs" invs, Syn "args" args] = exps
         vsub <- enterEvalContext (cxtItem "Code") subExp
-        sub  <- fromVal vsub
-        apply sub invs args
+        (`juncApply` [ApplyArg "" vsub False]) $ \[arg] -> do
+            sub  <- fromVal $ argValue arg
+            apply sub invs args
     "try" -> do
         val <- resetT $ evalExp (head exps)
         retEvalResult False val
