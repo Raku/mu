@@ -10,7 +10,7 @@ type Index = Int
 
 class (Typeable a) => Class a where
     iType :: a -> Type
-    iType _ = mkType "Array"
+    iType = const $ mkType "Array"
     fetch       :: a -> Eval VArray
     fetch av = do
         size <- fetchSize av

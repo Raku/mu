@@ -25,6 +25,8 @@ import qualified Pugs.Types.Scalar as Scalar
 import qualified Pugs.Types.Code   as Code
 import qualified Pugs.Types.Thunk  as Thunk
 import qualified Pugs.Types.Rule   as Rule
+import qualified Pugs.Types.Pair   as Pair
+import qualified Pugs.Types.Object as Object
 import qualified Data.Set       as Set
 import qualified Data.HashTable as HTable
 
@@ -91,12 +93,6 @@ fromVal' :: (Value a) => Val -> Eval a
 fromVal' (VRef r) = do
     v <- readRef r
     fromVal v
-fromVal' (VPair ((VRef r), y)) = do
-    v <- readRef r
-    fromVal $ VPair (v, y)
-fromVal' (VPair (x, (VRef r))) = do
-    v <- readRef r
-    fromVal $ VPair (x, v)
 fromVal' (VList vs) | not $ null [ undefined | VRef _ <- vs ] = do
     vs <- forM vs $ \v -> case v of { VRef r -> readRef r; _ -> return v }
     fromVal $ VList vs
@@ -112,7 +108,6 @@ class (Typeable n) => Value n where
     fromVal = fromVal'
     vCast :: Val -> n
     vCast v@(VRef _)    = castFail v
-    vCast (VPair (_, v))= vCast v
     vCast v             = doCast v
     castV :: n -> Val
     castV _ = error $ "cannot cast into Val"
@@ -133,7 +128,6 @@ instance Value (IVar VScalar) where
 
 instance Value VRef where
     fromVal (VRef v) = return v
-    fromVal (VPair (_, VRef v)) = return v
     fromVal (VList v) = return (arrayRef v)
     fromVal v = fromVal' v
     vCast = MkRef . constScalar
@@ -150,46 +144,33 @@ instance Value [VStr] where
         mapM fromVal vlist
 
 instance Value VPair where
-    castV (x, y)        = VPair (x, y)
-    fromVal (VPair p) = return p
-    fromVal VUndef = return (VUndef, VUndef)
-    fromVal v = fromVal' v
-    vCast (VPair (x, y))   = (x, y)
-    vCast v             = case vCast v of
-        [x, y]  -> (x, y)
-        _       -> castFail v
+    castV pv = VRef $ pairRef pv
+    fromVal VUndef  = return (VUndef, VUndef)
+    fromVal v = do
+        vs <- fromVal' v
+        case vs of
+            [x, y]  -> return (x, y)
+            _       -> castFail v
 
 instance Value VHash where
-    fromVal (VPair (k, v)) = do
-        str <- fromVal k
-        return [(str, v)]
     fromVal v = do
         list <- fromVal v
-        doFrom list
-        where
-        doFrom [] = return []
-        doFrom (VPair (k, v):list) = do
-            str  <- fromVal k
-            rest <- doFrom list
-            return ((str, v):rest)
-        doFrom (k:v:list) = do
-            str  <- fromVal k
-            rest <- doFrom list
-            return ((str, v):rest)
-        doFrom [k] = do
-            str  <- fromVal k
-            -- XXX: warn about odd elements?
-            return [(str, undef)]
+        forM list $ \(k, v) -> do
+            str <- fromVal k
+            return (str, v)
 
 instance Value [VPair] where
-    vCast (VPair p) = [p]
-    vCast (VList vs) =
-        let fromList [] = []
-            fromList ((VPair (k, v)):xs) = (k, v):fromList xs
-            fromList (k:v:xs) = (k, v):fromList xs
-            fromList [k] = [(k, VUndef)] -- XXX warning?
-        in fromList vs
-    vCast v = castFail v
+    fromVal v = do
+        list <- fromVals v
+        doFrom $ concat list
+        where
+        doFrom [] = return []
+        doFrom (k:v:list) = do
+            rest <- doFrom list
+            return ((k, v):rest)
+        doFrom [k] = do
+            -- XXX: warn about odd elements?
+            return [(k, undef)]
 
 instance Value VCode where
     castV = VCode
@@ -288,7 +269,6 @@ instance Value VStr where
         pad x = (replicate (40 - length x) '0') ++ x
     vCast (VNum n)      = showNum n
     vCast (VList l)     = unwords $ map vCast l
-    vCast (VPair (k, v))= vCast k ++ "\t" ++ vCast v ++ "\n"
     vCast (VCode s)      = "<" ++ show (subType s) ++ "(" ++ subName s ++ ")>"
     vCast (VJunc j)     = show j
     vCast (VThread t)   = dropWhile (not . isDigit) $ show t
@@ -318,7 +298,6 @@ instance Value VList where
     vCast (VList l)     = l
     -- vCast (VArray l)    = IntMap.elems l
     -- vCast (VHash h)     = [ VPair (VStr k, v) | (k, v) <- Map.assocs h ]
-    vCast (VPair (k, v))   = [k, v]
     -- vCast (MVal v)      = vCast $ castV v
     vCast (VUndef)      = [VUndef]
     vCast v             = [v]
@@ -401,7 +380,6 @@ data Val
     | VStr      VStr
     | VList     VList
     | VRef      VRef
-    | VPair     VPair
     | VCode     VCode
     | VBlock    VBlock
     | VJunc     VJunc
@@ -424,7 +402,6 @@ valType (VNum     _)    = mkType "Num"
 valType (VComplex _)    = mkType "Complex"
 valType (VStr     _)    = mkType "Str"
 valType (VList    _)    = mkType "List"
-valType (VPair    _)    = mkType "Pair"
 valType (VCode    _)    = mkType "Code"
 valType (VBlock   _)    = mkType "Block"
 valType (VJunc    _)    = mkType "Junction"
@@ -807,10 +784,13 @@ readRef (MkRef (ICode cv)) = do
     return $ VCode vsub
 readRef (MkRef (IHash hv)) = do
     pairs <- Hash.fetch hv
-    return $ VList $ map (\(k, v) -> VPair (castV k, v)) pairs
+    return $ VList $ map (\(k, v) -> castV (castV k, v)) pairs
 readRef (MkRef (IArray av)) = do
     vals <- Array.fetch av
     return $ VList vals
+readRef (MkRef (IPair pv)) = do
+    (k, v) <- Pair.fetch pv
+    return $ VList [k, v]
 readRef (MkRef (IHandle io)) = return . VHandle =<< Handle.fetch io
 readRef (MkRef (IRule rx)) = return . VRule =<< Rule.fetch rx
 readRef (MkRef (IThunk tv)) = readRef =<< fromVal =<< Thunk.force tv
@@ -826,13 +806,15 @@ writeRef (MkRef (IScalar s)) val = Scalar.store s val
 writeRef (MkRef (IArray s)) val  = Array.store s =<< fromVals val
 writeRef (MkRef (IHash s)) val   = Hash.store s =<< fromVal val
 writeRef (MkRef (ICode s)) val   = Code.store s =<< fromVal val
+writeRef (MkRef (IPair s)) val   = Pair.storeVal s val
 writeRef (MkRef (IThunk tv)) val = (`writeRef` val) =<< fromVal =<< Thunk.force tv
 writeRef r _ = retError "cannot writeRef" (Val $ VRef r)
 
 clearRef :: VRef -> Eval ()
 clearRef (MkRef (IScalar s)) = Scalar.store s undef
-clearRef (MkRef (IArray s)) = Array.clear s
-clearRef (MkRef (IHash s)) = Hash.clear s
+clearRef (MkRef (IArray s))  = Array.clear s
+clearRef (MkRef (IHash s))   = Hash.clear s
+clearRef (MkRef (IPair s))   = Pair.storeVal s undef
 clearRef (MkRef (IThunk tv)) = clearRef =<< fromVal =<< Thunk.force tv
 clearRef r = retError "cannot clearRef" (Val $ VRef r)
 
@@ -859,6 +841,7 @@ doHash (VRef (MkRef (IScalar sv))) f = do
             Scalar.store sv (VRef ref)
             return $ f hv
         _  -> doHash val f
+doHash (VRef (MkRef p@(IPair _))) f = return $ f p
 doHash val@(VRef _) _ = retError "Cannot cast into Hash" (Val val)
 doHash val f = do
     hv  <- fromVal val
@@ -874,6 +857,7 @@ doArray (VRef (MkRef (IScalar sv))) f = do
             ref@(MkRef (IArray hv)) <- newObject (MkType "Array")
             Scalar.store sv (VRef ref)
             return $ f hv
+doArray (VRef (MkRef p@(IPair _))) f = return $ f p
 doArray val@(VRef _) _ = retError "Cannot cast into Array" (Val val)
 doArray val f = do
     av  <- fromVal val
@@ -887,22 +871,30 @@ data (Typeable v) => IVar v where
     IHandle :: Handle.Class a => a -> IVar VHandle
     IRule   :: Rule.Class   a => a -> IVar VRule
     IThunk  :: Thunk.Class  a => a -> IVar VThunk
+    IPair   :: Pair.Class   a => a -> IVar VPair
 
 readIVar :: IVar v -> Eval v
 readIVar (IScalar x) = Scalar.fetch x
+readIVar (IPair x)   = Pair.fetch x
+readIVar (IArray x)  = Array.fetch x
+readIVar (IHash x)   = Hash.fetch x
 readIVar _ = error "readIVar"
 
 writeIVar :: IVar v -> v -> Eval ()
 writeIVar (IScalar x) = Scalar.store x
 writeIVar _ = error "writeIVar"
 
-refType (MkRef (IScalar x)) = Scalar.iType x
-refType (MkRef (IArray x))  = Array.iType x
-refType (MkRef (IHash x))   = Hash.iType x
-refType (MkRef (ICode x))   = Code.iType x
-refType (MkRef (IHandle x)) = Handle.iType x
-refType (MkRef (IRule x))   = Rule.iType x
-refType (MkRef (IThunk x))  = Thunk.iType x
+refType (MkRef x) = Object.iType x
+
+instance (Typeable a) => Object.Class (IVar a) where
+    iType (IScalar x) = Scalar.iType x
+    iType (IArray x)  = Array.iType x
+    iType (IHash x)   = Hash.iType x
+    iType (ICode x)   = Code.iType x
+    iType (IHandle x) = Handle.iType x
+    iType (IRule x)   = Rule.iType x
+    iType (IThunk x)  = Thunk.iType x
+    iType (IPair x)   = Pair.iType x
 
 instance Eq VRef where
     (==) = const $ const False
@@ -923,6 +915,7 @@ codeRef x   = MkRef (ICode x)
 arrayRef x  = MkRef (IArray x)
 hashRef x   = MkRef (IHash x)
 thunkRef x  = MkRef (IThunk x)
+pairRef x   = MkRef (IPair x)
 
 newScalar :: (MonadIO m) => VScalar -> m (IVar VScalar)
 newScalar = liftIO . (return . IScalar =<<) . newIORef
@@ -950,10 +943,48 @@ lazyUndef = IScalar (Nothing :: IScalarLazy)
 constArray :: VArray -> IVar VArray
 constArray = IArray
 
+instance Pair.Class VPair where
+    fetchKey = return . fst
+    fetchVal = return . snd
+    storeVal pv val = do
+        ref <- fromVal (snd pv)
+        writeRef ref val
+
 instance Scalar.Class IScalarProxy where
     iType = const $ mkType "Scalar::Proxy"
     fetch = fst
     store = snd
+
+instance Array.Class (IVar VPair) where
+    iType = const $ mkType "Pair"
+    fetch pv = do
+        (k, v)  <- readIVar pv
+        return [k, v]
+    existsElem _ idx = return (idx >= -2 || idx <= 1)
+    fetchSize        = const $ return 2
+    fetchVal pv (-2) = return . fst =<< readIVar pv
+    fetchVal pv (-1) = return . snd =<< readIVar pv
+    fetchVal pv 0    = return . fst =<< readIVar pv
+    fetchVal pv 1    = return . snd =<< readIVar pv
+    fetchVal _  _    = return undef
+    storeVal _ _ _   = retConstError undef
+    storeElem _ _ _  = retConstError undef
+    deleteElem _ _   = retConstError undef
+
+instance Hash.Class (IVar VPair) where
+    iType = const $ mkType "Pair"
+    fetch pv = do
+        (k, v)  <- readIVar pv
+        str     <- fromVal k
+        return [(str, v)]
+    fetchVal pv idx = do
+        (k, v)  <- readIVar pv
+        str     <- fromVal k
+        if str == idx
+            then return v
+            else return undef
+    storeVal _ _ _ = retConstError undef
+    deleteElem _ _ = retConstError undef
 
 instance Hash.Class VHash where
     iType = const $ mkType "Hash::Const"
@@ -1183,6 +1214,7 @@ instance Typeable1 IVar where
     typeOf1 (IHandle x) = typeOf x
     typeOf1 (IRule   x) = typeOf x
     typeOf1 (IThunk  x) = typeOf x
+    typeOf1 (IPair   x) = typeOf x
 
 instance Typeable2 HTable.HashTable where
     typeOf2 _ = typeOf ' '

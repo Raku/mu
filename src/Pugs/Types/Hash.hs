@@ -10,7 +10,7 @@ type Index = VStr
 
 class (Typeable a) => Class a where
     iType :: a -> Type
-    iType _ = mkType "Hash"
+    iType = const $ mkType "Hash"
     fetch       :: a -> Eval VHash
     fetch hv = do
         keys <- fetchKeys hv

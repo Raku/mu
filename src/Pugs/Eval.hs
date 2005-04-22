@@ -332,7 +332,7 @@ reduce env exp@(Syn name exps) = case name of
         let [keyExp, valExp] = exps
         key     <- enterEvalContext cxtItemAny keyExp
         val     <- evalExp valExp
-        retVal $ VPair (key, val)
+        retVal $ castV (key, val)
     "*" | [Syn syn [exp]] <- exps -- * cancels out [] and {}
         , syn == "\\{}" || syn == "\\[]"
         -> enterEvalContext cxtSlurpyAny exp
@@ -551,7 +551,7 @@ reduce _ (App "&assuming" (subExp:invs) args) = do
 reduce _ (App "&infix:=>" [keyExp, valExp] []) = do
     key <- enterEvalContext cxtItemAny keyExp
     val <- enterEvalContext cxtItemAny valExp
-    retVal $ VPair (key, val)
+    retVal $ castV (key, val)
 
 reduce Env{ envClasses = cls, envContext = cxt, envLexical = lex, envGlobal = glob } exp@(App name invs args) = do
     syms    <- liftIO $ readIORef glob

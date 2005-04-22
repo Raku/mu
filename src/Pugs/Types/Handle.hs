@@ -11,7 +11,7 @@ type FileDescriptor = VInt
 
 class (Typeable a) => Class a where
     iType :: a -> Type
-    iType _ = mkType "IO"
+    iType = const $ mkType "IO"
     fetch       :: a -> Eval VHandle
     store       :: a -> VHandle -> Eval ()
     write       :: a -> VStr -> Eval VInt

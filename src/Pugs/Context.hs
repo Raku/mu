@@ -94,6 +94,7 @@ initTree = fmap MkType $ Node "Any" [ Node "Void"
                 ]
             , Node "Eager" []
             ]
+        , Node "Pair" []
         , Node "Scalar"
             [ Node "Complex"
                 [ Node "Num"
@@ -103,7 +104,6 @@ initTree = fmap MkType $ Node "Any" [ Node "Void"
             , Node "Bool" []
             , Node "Str" []
             , Node "Ref" []
-            , Node "Pair" []
             , Node "IO" []
             , Node "Socket" []
             , Node "Thread" []

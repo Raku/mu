@@ -8,7 +8,7 @@ import Pugs.Types
 
 class (Typeable a) => Class a where
     iType :: a -> Type
-    iType _ = mkType "Code"
+    iType = const $ mkType "Code"
     fetch    :: a -> Eval VCode
     fetch a = assuming a [] []
     store    :: a -> VCode -> Eval ()

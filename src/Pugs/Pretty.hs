@@ -72,7 +72,6 @@ instance Pretty Val where
             JAll  -> text " & "
             JOne  -> text " ^ "
             JNone -> text " ! "
-    format (VPair (x, y)) = parens $ format (x, y)
     format (VBool x) = if x then text "bool::true" else text "bool::false"
     format (VNum x) = if x == 1/0 then text "Inf" else text $ show x
     format (VInt x) = integer x

@@ -8,6 +8,6 @@ import Pugs.Types
 
 class (Typeable a) => Class a where
     iType :: a -> Type
-    iType _ = mkType "Scalar"
+    iType = const $ mkType "Scalar"
     fetch :: a -> Eval VScalar
     store :: a -> VScalar -> Eval ()

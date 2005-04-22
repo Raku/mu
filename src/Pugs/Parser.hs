@@ -1035,8 +1035,8 @@ qLiteral1 qEnd flags = do
     rxSplit = Syn "rx" $
         [ Val $ VStr "(\\S+)"
         , Val $ VList
-            [ VPair (VStr "P5", VInt 1)
-            , VPair (VStr "g", VInt 1)
+            [ castV (VStr "P5", VInt 1)
+            , castV (VStr "g", VInt 1)
             ]
         ]
         

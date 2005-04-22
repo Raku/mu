@@ -23,6 +23,7 @@ import qualified Data.Set as Set
 import qualified Pugs.Types.Array  as Array
 import qualified Pugs.Types.Hash   as Hash
 import qualified Pugs.Types.Scalar as Scalar
+import qualified Pugs.Types.Pair   as Pair
 
 op0 :: Ident -> [Val] -> Eval Val
 op0 "!"  = return . opJuncNone
@@ -158,7 +159,7 @@ op1 "reverse" = \v -> do
             (op1Cast (VList . reverse) v)
             (op1Cast (VStr . reverse) v)
 op1 "list" = op1Cast VList
-op1 "pair" = op1Cast (VList . (map (\(k, v) -> (VPair (VStr k, v)))))
+op1 "pair" = op1Cast $ VList . (map $ \(k, v) -> castV ((VStr k, v) :: VPair))
 op1 "~"    = op1Cast VStr
 op1 "?"    = op1Cast VBool
 op1 "int"  = op1Cast VInt
@@ -313,10 +314,13 @@ op1 "key" = (return . fst =<<) . (fromVal :: Val -> Eval VPair)
 op1 "value" = (return . snd =<<) . (fromVal :: Val -> Eval VPair)
 op1 "pairs" = \v -> do
     pairs <- op1Pairs v
-    return . VList $ map (VRef . scalarRef) pairs
+    return $ VList pairs
 op1 "kv" = \v -> do
     pairs <- op1Pairs v
-    return . VList $ foldr (\(VPair (k, v)) kv -> (k:v:kv)) [] pairs
+    kvs   <- forM pairs $ \(VRef ref) -> do
+        pair   <- readRef ref
+        fromVal pair
+    return . VList $ concat kvs 
 op1 "keys" = op1Keys
 op1 "values" = op1Values
 op1 "readline" = op1 "="
@@ -337,7 +341,6 @@ op1 "=" = \v -> do
     getLine :: VHandle -> Eval Val
     getLine fh = tryIO undef $
         (return . VStr . (++ "\n") =<< hGetLine fh)
-    handleOf (VPair (_, x)) = handleOf x
     handleOf VUndef = handleOf (VList [])
     handleOf (VList []) = do
         argsGV  <- readVar "$*ARGS"
@@ -397,14 +400,12 @@ op2Cast f x y = do
     return (f x' y')
 
 op1Pairs :: Val -> Eval [Val]
-op1Pairs v@(VPair _) = return [v]
 op1Pairs v = do
     ref  <- fromVal v
     vals <- pairsFromRef ref
     return vals
 
 op1Keys :: Val -> Eval Val
-op1Keys (VPair (v, _)) = return $ VList [v]
 op1Keys v = do
     ref  <- fromVal v
     vals <- keysFromRef ref
@@ -412,7 +413,6 @@ op1Keys v = do
 
 op1Values :: Val -> Eval Val
 op1Values (VJunc j) = return . VList . Set.elems $ juncSet j
-op1Values (VPair (_, v)) = return . VList $ [v] -- lwall: a pair is a really small hash.
 op1Values v = do
     ref  <- fromVal v
     vals <- valuesFromRef ref
@@ -545,7 +545,7 @@ op2 "+^" = op2Int xor
 op2 "~|" = op2Str $ mapStr2Fill (.|.)
 op2 "?|" = op2Bool (||)
 op2 "~^" = op2Str $ mapStr2Fill xor
-op2 "=>" = \x y -> trace (show (x, y)) $ return $ VPair (x, y)
+op2 "=>" = \x y -> return $ castV (x, y)
 op2 "cmp"= op2Ord vCastStr
 op2 "<=>"= op2Ord vCastRat
 op2 ".." = op2Cast op2Range
@@ -1102,18 +1102,23 @@ fileTestSizeIsZero f = do
 -- XXX These bulks of code below screams for refactoring
 
 pairsFromRef :: VRef -> Eval [Val]
+pairsFromRef r@(MkRef (IPair _)) = do
+    return [VRef r]
 pairsFromRef (MkRef (IHash hv)) = do
     pairs   <- Hash.fetch hv
-    return $ map (\(k, v) -> VPair (castV k, v)) pairs
+    return $ map (\(k, v) -> castV (castV k, v)) pairs
 pairsFromRef (MkRef (IArray av)) = do
     vals    <- Array.fetch av
-    return $ map VPair ((map VInt [0..]) `zip` vals)
+    return $ map castV ((map VInt [0..]) `zip` vals)
 pairsFromRef (MkRef (IScalar sv)) = do
     refVal  <- Scalar.fetch sv
     op1Pairs refVal
 pairsFromRef ref = retError "Not a keyed reference" (Val $ VRef ref)
 
 keysFromRef :: VRef -> Eval [Val]
+keysFromRef (MkRef (IPair pv)) = do
+    key     <- Pair.fetchKey pv
+    return [key]
 keysFromRef (MkRef (IHash hv)) = do
     keys    <- Hash.fetchKeys hv
     return $ map castV keys
@@ -1128,6 +1133,9 @@ keysFromRef (MkRef (IScalar sv)) = do
 keysFromRef ref = retError "Not a keyed reference" (Val $ VRef ref)
 
 valuesFromRef :: VRef -> Eval [Val]
+valuesFromRef (MkRef (IPair pv)) = do
+    val   <- Pair.fetchVal pv
+    return [val]
 valuesFromRef (MkRef (IHash hv)) = do
     pairs <- Hash.fetch hv
     return $ map snd pairs
@@ -1179,10 +1187,12 @@ prettyVal d (VRef r) = do
     v'  <- readRef r
     str <- prettyVal (d+1) v'
     return ('\\':str)
+{-
 prettyVal d (VPair (k, v)) = do
     k'  <- prettyVal (d+1) k
     v'  <- prettyVal (d+1) v
     return $ concat ["(", k', " => ", v', ")"]
+-}
 prettyVal d (VList vs) = do
     vs' <- mapM (prettyVal (d+1)) vs
     return $ "(" ++ concat (intersperse ", " vs') ++ ")"
