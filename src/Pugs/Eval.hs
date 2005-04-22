@@ -66,10 +66,10 @@ evaluateMain :: Exp -> Eval Val
 evaluateMain exp = do
     val     <- resetT $ evaluate exp
     endAV   <- evalVar "@*END"
-    subs    <- fromVal endAV
+    subs    <- fromVals endAV
     enterContext CxtVoid $ do
         mapM_ evalExp [ Syn "()" [Val sub, Syn "invs" [], Syn "args" []]
-                      | sub <- vCast subs
+                      | sub <- subs
                       ]
     return val
 
