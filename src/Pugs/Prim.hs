@@ -338,7 +338,8 @@ op1 "=" = \v -> do
     getLine fh = tryIO undef $
         (return . VStr . (++ "\n") =<< hGetLine fh)
     handleOf (VPair (_, x)) = handleOf x
-    handleOf (VUndef) = do
+    handleOf VUndef = handleOf (VList [])
+    handleOf (VList []) = do
         argsGV  <- readVar "$*ARGS"
         gv      <- fromVal argsGV
         if defined gv
