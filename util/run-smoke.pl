@@ -7,15 +7,6 @@ use Config;
 use File::Spec;
 
 #
-# NOTE - this script is replaced by the 'make smoke' target,
-# mainly to prevent spurious rebuilds.
-#
-# I'm not sure how it worked with sandboxes - the hardcoded paths
-# look wrong to me anyway - but in case it did work, I'm not removing
-# this file from the tree, just dropping the ref to it from Makefile.
-#
-
-#
 # run-smoke.pl /some/sandbox/dir /some/www/file.html
 #
 my $pugs_sandbox    = $ARGV[0] or die "Need pugs sandbox location";
