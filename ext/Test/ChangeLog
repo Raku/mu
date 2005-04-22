@@ -3,6 +3,7 @@
 
 (Still in progress)
 
+* Changed `skip (Str)` and `skip(Int, Str)` into multi sub
 * More force-TODO refactoring
 ** Added `force_todo()` function which can be used like `t/force_todo` but in the test file
 ** removed all code for the `t/force_todo` file, we no longer support that
@@ -11,7 +12,8 @@
 * Refactoring of todo_* functions
 ** added `Bool +$todo` named optional param to all non-todo test functions
 ** made the `$desc` argument into an named optional param as well
-** added some tests for this (not finished yet)
+** added many tests for these refactored functions
+** moved the old todo_* function tests int `3-deprecated_todo_.t`
 
 *NOTE*
 Currently all todo_* functions are retained for backwards compatability.

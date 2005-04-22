@@ -152,11 +152,11 @@ sub lives_ok (Sub $code, Str +$desc, Bool +$todo) returns Bool is export {
 
 ## misc. test utilities
 
-sub skip (Str ?$reason) returns Bool is export {
+multi sub skip (Str ?$reason) returns Bool is export {
     proclaim(1, "", "skip $reason");
 }
 
-sub skip (Int $count, Str $reason) returns Bool is export {
+multi sub skip (Int $count, Str $reason) returns Bool is export {
     for (1 .. $count) {
         skip $reason;
     }
@@ -166,7 +166,7 @@ sub skip_rest (Str ?$reason) returns Bool is export {
     skip($NUM_OF_TESTS_PLANNED - $NUM_OF_TESTS_RUN, $reason // "");
 }
 
-sub pass (Str ?$desc) returns Bool is export {
+sub pass (Str +$desc) returns Bool is export {
     proclaim(1, $desc);
 }
 
