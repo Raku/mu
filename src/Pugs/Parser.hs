@@ -783,7 +783,7 @@ ruleAdverbBlock = tryRule "adverbial block" $ do
 parseNoParenParamList = do
     formal <- (`sepEndBy` symbol ":") $ fix $ \rec -> do
         rv <- option Nothing $ do
-            return . Just =<< choice [ ruleBlockLiteral, ruleExpression ]
+            return . Just =<< choice [ ruleBlockLiteral, parseLitOp ]
         case rv of
             Nothing  -> return []
             Just exp -> do
