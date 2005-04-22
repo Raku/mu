@@ -187,7 +187,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
     unless (isNothing formal || null names || names == ["$_"] ) $
         fail "Cannot mix placeholder variables with formal parameters"
     env <- getState
-    let subExp = Val . VCode $ Sub
+    let subExp = Val . VCode $ MkCode
             { isMulti       = multi
             , subName       = name
             , subPad        = envLexical env
@@ -345,16 +345,17 @@ ruleClosureTrait = rule "closure trait" $ do
     -- Check for placeholder vs formal parameters
     unless (null names) $
         fail "Closure traits takes no formal parameters"
-    let sub = Sub { isMulti       = False
-                  , subName       = name
-                  , subPad        = []
-                  , subType       = SubBlock
-                  , subAssoc      = "pre"
-                  , subReturns    = anyType
-                  , subParams     = []
-                  , subBindings   = []
-                  , subFun        = fun
-                  }
+    let sub = MkCode
+            { isMulti       = False
+            , subName       = name
+            , subPad        = []
+            , subType       = SubBlock
+            , subAssoc      = "pre"
+            , subReturns    = anyType
+            , subParams     = []
+            , subBindings   = []
+            , subFun        = fun
+            }
     return $ App "&unshift" [Var "@*END"] [Syn "sub" [Val $ VCode sub]]
 
 rulePackageDeclaration = rule "package declaration" $ fail ""
@@ -489,16 +490,17 @@ retBlock typ formal body = do
     -- Check for placeholder vs formal parameters
     unless (isNothing formal || null names || names == ["$_"] ) $
         fail "Cannot mix placeholder variables with formal parameters"
-    let sub = Sub { isMulti       = False
-                  , subName       = "<anon>"
-                  , subPad        = []
-                  , subType       = typ
-                  , subAssoc      = "pre"
-                  , subReturns    = anyType
-                  , subParams     = if null params then [defaultArrayParam] else params
-                  , subBindings   = []
-                  , subFun        = fun
-                  }
+    let sub = MkCode
+            { isMulti       = False
+            , subName       = "<anon>"
+            , subPad        = []
+            , subType       = typ
+            , subAssoc      = "pre"
+            , subReturns    = anyType
+            , subParams     = if null params then [defaultArrayParam] else params
+            , subBindings   = []
+            , subFun        = fun
+            }
     return (Syn "sub" [Val $ VCode sub])
 
 ruleBlockFormalStandard = rule "standard block parameters" $ do

@@ -88,7 +88,6 @@ evalValType (VRef r) = do
 evalValType val = return $ valType val
 
 fromVal' :: (Value a) => Val -> Eval a
-fromVal' (VThunk (MkThunk eval)) = fromVal =<< eval
 fromVal' (VRef r) = do
     v <- readRef r
     fromVal v
@@ -136,10 +135,6 @@ instance Value VRef where
     fromVal (VRef v) = return v
     fromVal (VPair (_, VRef v)) = return v
     fromVal (VList v) = return (arrayRef v)
-    fromVal (VThunk (MkThunk eval)) = do
-        foo <- eval
-        error $ show foo
-        fromVal =<< eval
     fromVal v = fromVal' v
     vCast = MkRef . constScalar
     castV = VRef
@@ -417,7 +412,6 @@ data Val
     | VRule     VRule
     | VSubst    VSubst
     | VControl  VControl
-    | VThunk    VThunk
     deriving (Show, Eq, Ord, Typeable)
 
 valType :: Val -> Type
@@ -431,7 +425,7 @@ valType (VComplex _)    = mkType "Complex"
 valType (VStr     _)    = mkType "Str"
 valType (VList    _)    = mkType "List"
 valType (VPair    _)    = mkType "Pair"
-valType (VCode     _)   = mkType "Sub"
+valType (VCode    _)    = mkType "Code"
 valType (VBlock   _)    = mkType "Block"
 valType (VJunc    _)    = mkType "Junction"
 valType (VError _ _)    = mkType "Error"
@@ -439,7 +433,6 @@ valType (VHandle  _)    = mkType "IO"
 valType (VSocket  _)    = mkType "Socket"
 valType (VThread  _)    = mkType "Thread"
 valType (VControl _)    = mkType "Control"
-valType (VThunk   _)    = mkType "Thunk"
 valType (VRule    _)    = mkType "Rule"
 valType (VSubst   _)    = mkType "Subst"
 
@@ -492,7 +485,7 @@ data Param = Param
 type Params = [Param]
 type Bindings = [(Param, Exp)]
 
-data VCode = Sub
+data VCode = MkCode
     { isMulti       :: Bool
     , subName       :: String
     , subType       :: SubType
@@ -505,7 +498,20 @@ data VCode = Sub
     }
     deriving (Show, Eq, Ord, Typeable)
 
-emptySub = Sub False "" SubBlock [] "" [] [] anyType emptyExp
+mkPrim = MkCode
+    { isMulti = True
+    , subName = error "missing name"
+    , subType = SubPrim
+    , subPad = []
+    , subAssoc = "pre"
+    , subParams = []
+    , subBindings = []
+    , subReturns = anyType
+    , subFun = error "missing function"
+    }
+
+
+emptySub = MkCode False "" SubBlock [] "" [] [] anyType emptyExp
 
 instance Ord VComplex where {- ... -}
 instance Ord IScalar where

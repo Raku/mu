@@ -978,14 +978,11 @@ primOp sym assoc prms ret = MkSym name sub
          = "&*" ++ sym
          | otherwise
          = "&*" ++ fixity ++ (':':sym)
-    sub  = codeRef $ Sub
-        { isMulti     = True
-        , subName     = sym
-        , subPad      = []
+    sub  = codeRef $ mkPrim
+        { subName     = sym
         , subType     = SubPrim
         , subAssoc    = assoc
         , subParams   = prms
-        , subBindings = []
         , subReturns  = mkType ret
         , subFun      = (Prim f)
         }

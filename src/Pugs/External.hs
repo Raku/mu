@@ -40,7 +40,7 @@ externRequire lang name = do
         syms        <- readIORef glob
         writeIORef glob (map gensym bindings ++ syms)
     where
-    gensym (name, fun) = MkSym ('&':name) . codeRef $ Sub
+    gensym (name, fun) = MkSym ('&':name) . codeRef $ MkCode
         { isMulti     = True
         , subName     = ('&':name)
         , subPad      = []

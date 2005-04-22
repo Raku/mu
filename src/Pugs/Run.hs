@@ -115,15 +115,8 @@ prepareEnv name args = do
         , MkSym "$?OS"         $ MkRef $ constScalar (VStr $ getConfig "osname")
         , MkSym "$*OS"         $ MkRef $ constScalar (VStr $ getConfig "osname")
         , MkSym "$?MODULE"     $ MkRef modSV
-        , MkSym "&?BLOCK_EXIT" $ codeRef $ Sub
-            { isMulti = False
-            , subName = "&?BLOCK_EXIT"
-            , subType = SubPrim
-            , subPad = []
-            , subAssoc = "pre"
-            , subParams = []
-            , subBindings = []
-            , subReturns = anyType
+        , MkSym "&?BLOCK_EXIT" $ codeRef $ mkPrim
+            { subName = "&?BLOCK_EXIT"
             , subFun = Prim subExit
             }
         , MkSym "%?CONFIG" $ hashRef confHV

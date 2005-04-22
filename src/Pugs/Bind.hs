@@ -97,9 +97,11 @@ bindParams sub invsExp argsExp = do
 -- verifies that all invocants and required params were given
 -- and binds default values to unbound optionals
 finalizeBindings :: VCode -> MaybeError VCode
-finalizeBindings sub@Sub{ subParams = params, subBindings = bindings } = do
-    let boundInvs = filter (\x -> isInvocant (fst x)) bindings -- bound invocants
-        invocants = takeWhile isInvocant params                  -- expected invocants
+finalizeBindings sub = do
+    let params    = subParams sub
+        bindings  = subBindings sub
+        boundInvs = filter (\x -> isInvocant (fst x)) bindings -- bound invocants
+        invocants = takeWhile isInvocant params                -- expected invocants
 
     -- Check that we have enough invocants bound
     when (not $ null invocants) $ do
@@ -128,8 +130,10 @@ finalizeBindings sub@Sub{ subParams = params, subBindings = bindings } = do
 
 -- takes invocants and arguments, and creates a binding from the remaining params in the sub
 bindSomeParams :: VCode -> [Exp] -> [Exp] -> MaybeError VCode
-bindSomeParams sub@Sub{ subBindings = bindings, subParams = params } invsExp argsExp = do
-    let (invPrms, argPrms) = span isInvocant params
+bindSomeParams sub invsExp argsExp = do
+    let params    = subParams sub
+        bindings  = subBindings sub
+        (invPrms, argPrms) = span isInvocant params
         (givenInvs, givenArgs) = if null invPrms
             then ([], (invsExp++argsExp))
             else (invsExp, argsExp)

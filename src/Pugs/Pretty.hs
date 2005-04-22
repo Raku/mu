@@ -104,7 +104,6 @@ instance Pretty Val where
     -- format (MVal v) = text $ unsafePerformIO $ do
     --     val <- readIORef v
     --     return $ pretty val
-    format (VThunk _) = text $ "{thunk}"
     format (VRule _) = text $ "{rule}"
     format (VSubst _) = text $ "{subst}"
     format VUndef = text $ "undef"

@@ -74,7 +74,6 @@ evaluateMain exp = do
     return val
 
 evaluate :: Exp -> Eval Val
-evaluate (Val (VThunk (MkThunk t))) = t
 evaluate (Val val) = evalVal val
 evaluate exp = do
     want <- asks envWant
@@ -578,26 +577,26 @@ reduce Env{ envClasses = cls, envContext = cxt, envLexical = lex, envGlobal = gl
     argSlurpLen _ = return 1 -- XXX
     applySub subSyms sub invs args
         -- list-associativity
-        | Sub{ subAssoc = "list" }      <- sub
+        | MkCode{ subAssoc = "list" }      <- sub
         , (App name' invs' []):rest  <- invs
         , name == name'
         = applySub subSyms sub (invs' ++ rest)  []
         -- fix subParams to agree with number of actual arguments
-        | Sub{ subAssoc = "list", subParams = (p:_) }   <- sub
+        | MkCode{ subAssoc = "list", subParams = (p:_) }   <- sub
         , null args
         = apply sub{ subParams = (length invs) `replicate` p } invs []
         -- chain-associativity
-        | Sub{ subAssoc = "chain" }   <- sub
+        | MkCode{ subAssoc = "chain" }   <- sub
         , (App _ _ []):_              <- invs
         , null args
         = mungeChainSub sub invs
-        | Sub{ subAssoc = "chain", subParams = (p:_) }   <- sub
+        | MkCode{ subAssoc = "chain", subParams = (p:_) }   <- sub
         = apply sub{ subParams = (length invs) `replicate` p } invs []
         -- normal application
         | otherwise
         = apply sub invs args
     mungeChainSub sub invs = do
-        let Sub{ subAssoc = "chain", subParams = (p:_) } = sub
+        let MkCode{ subAssoc = "chain", subParams = (p:_) } = sub
             (App name' invs' args'):rest = invs
         syms    <- liftIO $ readIORef glob
         subSyms' <- mapM evalSym
@@ -613,11 +612,11 @@ reduce Env{ envClasses = cls, envContext = cxt, envLexical = lex, envGlobal = gl
             Nothing      -> apply sub{ subParams = (length invs) `replicate` p } invs [] -- XXX Wrong
             -- retError ("No compatible subroutine found: " ++ name') exp
     applyChainSub subSyms sub invs sub' invs' args' rest
-        | Sub{ subAssoc = "chain", subFun = fun, subParams = prm }   <- sub
-        , Sub{ subAssoc = "chain", subFun = fun', subParams = prm' } <- sub'
+        | MkCode{ subAssoc = "chain", subFun = fun, subParams = prm }   <- sub
+        , MkCode{ subAssoc = "chain", subFun = fun', subParams = prm' } <- sub'
         , null args'
         = applySub subSyms sub{ subParams = prm ++ tail prm', subFun = Prim $ chainFun prm' fun' prm fun } (invs' ++ rest) []
-        | Sub{ subAssoc = "chain", subParams = (p:_) }   <- sub
+        | MkCode{ subAssoc = "chain", subParams = (p:_) }   <- sub
         = apply sub{ subParams = (length invs) `replicate` p } invs [] -- XXX Wrong
         | otherwise
         = internalError "applyChainsub did not match a chain subroutine"
@@ -629,7 +628,7 @@ reduce Env{ envClasses = cls, envContext = cxt, envLexical = lex, envGlobal = gl
             ((_, sub):_)    -> Just sub
             _               -> Nothing
     subs slurpLen subSyms = (liftM catMaybes) $ (`mapM` subSyms) $ \(n, val) -> do
-        sub@(Sub{ subType = subT, subReturns = ret, subParams = prms }) <- fromVal val
+        sub@(MkCode{ subType = subT, subReturns = ret, subParams = prms }) <- fromVal val
         let isGlobal = '*' `elem` n
         let fun = arityMatch sub (length (invs ++ args)) slurpLen
         if isNothing fun then return Nothing else do
@@ -681,7 +680,7 @@ apply sub invs args = do
 -- XXX - faking application of lexical contexts
 -- XXX - what about defaulting that depends on a junction?
 doApply :: Env -> VCode -> [Exp] -> [Exp] -> Eval Val
-doApply Env{ envClasses = cls } sub@Sub{ subFun = fun, subType = typ } invs args =
+doApply Env{ envClasses = cls } sub@MkCode{ subFun = fun, subType = typ } invs args =
     case bindParams sub invs args of
         Left errMsg     -> retError errMsg (Val VUndef)
         Right sub  -> do
@@ -720,7 +719,7 @@ doApply Env{ envClasses = cls } sub@Sub{ subFun = fun, subType = typ } invs args
     expToVal Param{ isThunk = thunk, isLValue = lv, paramContext = cxt } exp = do
         env <- ask -- freeze environment at this point for thunks
         let eval = local (const env{ envLValue = lv }) $ enterEvalContext cxt exp
-        val <- if thunk then return (VThunk $ MkThunk eval) else eval
+        val <- if thunk then return (VRef . thunkRef $ MkThunk eval) else eval
         return (val, (isSlurpyCxt cxt || isCollapsed (typeOfCxt cxt)))
     isCollapsed typ
         | isaType cls "Bool" typ        = True
@@ -734,7 +733,7 @@ toGlobal name
     | otherwise = name
 
 
-arityMatch sub@Sub{ subAssoc = assoc, subParams = prms } argLen argSlurpLen
+arityMatch sub@MkCode{ subAssoc = assoc, subParams = prms } argLen argSlurpLen
     | assoc == "list" || assoc == "chain"
     = Just sub
     | isNothing $ find (not . isSlurpy) prms -- XXX - what about empty ones?
