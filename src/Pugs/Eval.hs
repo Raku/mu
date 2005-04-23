@@ -764,6 +764,8 @@ doApply Env{ envClasses = cls } sub@MkCode{ subFun = fun, subType = typ } invs a
             enterEvalContext (cxtOfSigil $ head name) exp
         val <- if thunk then return (VRef . thunkRef $ MkThunk eval) else do
             v <- eval
+            typ <- evalValType v
+            if not lv && isaType cls "Junction" typ then return v else do
             if (lv && not rw) then return (VRef $ scalarRef v) else do
             if lv then return v else do
             -- make a copy

@@ -143,9 +143,11 @@ evalVal x = do
     -- context casting, go!
     -- XXX this needs a rewrite!
     -- Env{ envLValue = isLValue, envClasses = cls, envContext = cxt } <- ask
-    Env{ envLValue = _, envClasses = cls, envContext = _ } <- ask
+    Env{ envLValue = lv, envClasses = cls } <- ask
     typ <- evalValType x
-    val <- if isaType cls "Junction" typ then fromVal' x else return x
+    val <- if not lv && isaType cls "Junction" typ
+        then readRef =<< fromVal x
+        else return x
     return val
     {-
     if isSlurpyCxt cxt

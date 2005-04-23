@@ -26,10 +26,10 @@ import qualified Pugs.Types.Scalar as Scalar
 import qualified Pugs.Types.Pair   as Pair
 
 op0 :: Ident -> [Val] -> Eval Val
-op0 "!"  = return . opJuncNone
-op0 "&"  = return . opJuncAll
-op0 "^"  = return . opJuncOne
-op0 "|"  = return . opJuncAny
+op0 "!"  = (return . opJuncNone =<<) . mapM fromVal
+op0 "&"  = (return . opJuncAll =<<) . mapM fromVal
+op0 "^"  = (return . opJuncOne =<<) . mapM fromVal
+op0 "|"  = (return . opJuncAny =<<) . mapM fromVal
 op0 "want"  = const $ return . VStr =<< asks envWant
 op0 "time"  = const $ do
     clkt <- liftIO getClockTime
@@ -441,7 +441,8 @@ op1Print f v@(VHandle _) = do
     def <- readVar "$_"
     op1Print f (VList [v, def])
 op1Print f v = do
-    vals <- case v of
+    val  <- readRef =<< fromVal v
+    vals <- case val of
         VList _   -> fromVal v
 --      VArray _  -> fromVal v
         _         -> return [v]
@@ -1022,9 +1023,9 @@ primDecl str = primOp sym assoc params ret
     prms'' = foldr foldParam [] prms'
     params = map (\p -> p{ isWritable = True }) prms''
 
-doFoldParam cxt [] []       = [buildParam cxt "" "$?1" (Val VUndef)]
-doFoldParam cxt [] (p:ps)   = (buildParam cxt "" (strInc $ paramName p) (Val VUndef):p:ps)
-doFoldParam cxt (s:name) ps = (buildParam cxt [s] name (Val VUndef) : ps)
+doFoldParam cxt [] []       = [(buildParam cxt "" "$?1" (Val VUndef)) { isLValue = False }]
+doFoldParam cxt [] (p:ps)   = ((buildParam cxt "" (strInc $ paramName p) (Val VUndef)) { isLValue = False }:p:ps)
+doFoldParam cxt (s:name) ps = ((buildParam cxt [s] name (Val VUndef)) { isLValue = False } : ps)
 
 foldParam :: String -> Params -> Params
 foldParam "List"    = doFoldParam "List" "*@?1"
@@ -1037,16 +1038,16 @@ foldParam ('?':str)
     | (('r':'w':'!':typ), "=$_") <- break (== '=') str
     = \ps -> ((buildParam typ "?" "$?1" (Var "$_")) { isLValue = True }:ps)
     | (typ, "=$_") <- break (== '=') str
-    = \ps -> (buildParam typ "?" "$?1" (Var "$_"):ps)
+    = \ps -> ((buildParam typ "?" "$?1" (Var "$_")) { isLValue = False }:ps)
     | (typ, ('=':def)) <- break (== '=') str
     = let readVal "Num" = Val . VNum . read
           readVal "Int" = Val . VInt . read
           readVal "Str" = Val . VStr . read
           readVal x     = error $ "Unknown type: " ++ x
-      in \ps -> (buildParam typ "?" "$?1" (readVal typ def):ps)
+      in \ps -> ((buildParam typ "?" "$?1" (readVal typ def)) { isLValue = False }:ps)
     | otherwise
     = \ps -> (buildParam str "?" "$?1" (Val VUndef):ps)
-foldParam ('~':str) = \ps -> ((buildParam str "" "$?1" (Val VUndef)) { isThunk = True }:ps)
+foldParam ('~':str) = \ps -> (((buildParam str "" "$?1" (Val VUndef)) { isLValue = False }) { isThunk = True }:ps)
 foldParam x         = doFoldParam x []
 
 -- filetest operators --
@@ -1373,11 +1374,10 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Scalar    pre     key     (rw!Pair)\
 \\n   Scalar    pre     value   (rw!Pair)\
 \\n   List      pre     keys    (rw!Pair)\
-\\n   List      pre     values  (rw!Pair)\
+\\n   List      pre     values  (Pair|Junction)\
 \\n   List      pre     kv      (rw!Pair)\
 \\n   List      pre     pairs   (rw!Pair)\
-\\n   List      pre     values  (rw!Junction)\
-\\n   Any       pre     pick    (rw!Junction)\
+\\n   Any       pre     pick    (Junction)\
 \\n   Bool      pre     rename  (Str, Str)\
 \\n   Bool      pre     symlink (Str, Str)\
 \\n   Bool      pre     link    (Str, Str)\
