@@ -6,11 +6,11 @@ require Test;
 plan 14;
 
 my @a = (1, 2, 3);
-todo_fail("FIXME parsefail");
+fail("FIXME parsefail", :todo(1));
 #eval '@a .= map { $_ + 1 }';
-todo_is(@a[0], 2, 'inplace map [0]');
-todo_is(@a[1], 3, 'inplace map [1]');
-todo_is(@a[2], 4, 'inplace map [2]');
+is(@a[0], 2, 'inplace map [0]', :todo(1));
+is(@a[1], 3, 'inplace map [1]', :todo(1));
+is(@a[2], 4, 'inplace map [2]', :todo(1));
 
 my $a=3.14;
 $a .= int;

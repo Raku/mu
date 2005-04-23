@@ -58,6 +58,6 @@ while $wanted-- {
 	#	$saw_next++;
 	#}
 }
-todo_fail("FIXME_parsefail (NEXT block)");
-todo_is($actual, 2, "next skips to next iteration");
-todo_is($saw_next, 1, "NEXT block was called");
+fail("FIXME_parsefail (NEXT block)", :todo(1));
+is($actual, 2, "next skips to next iteration", :todo(1));
+is($saw_next, 1, "NEXT block was called", :todo(1));

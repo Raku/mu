@@ -93,14 +93,14 @@ for @tests_todo -> $test {
   $fh.close();
 
   my $output = run_pugs($test);
-  if (todo_is( $output, "", "No error output")) {
+  if (is( $output, "", "No error output", :todo(1))) {
 
     my $f = slurp $dump_file;
     ok( defined $f, "dump.ast was created" );
-    todo_ok( $f ~~ rx:perl5/.../, "... and it contains some output" );
+    ok( $f ~~ rx:perl5/.../, "... and it contains some output" , :todo(1));
   } else {
-    todo_fail("No clean compile");
-    todo_fail("No clean compile");
+    fail("No clean compile", :todo(1));
+    fail("No clean compile", :todo(1));
   };
 
   unlink($dump_file)

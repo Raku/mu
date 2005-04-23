@@ -33,7 +33,7 @@ sub test2_ok { return 1 }
 ok(test2(), "&sub.goto does (forward reference)");
 is(++$phase, 2, "phase completed");
 
-todo_eval_ok('test3()', "&sub.goto does (real forward reference)");
+eval_ok('test3()', "&sub.goto does (real forward reference)", :todo(1));
 sub test3 {
    &test3_ok.goto();
    return 0;

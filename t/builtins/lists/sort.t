@@ -34,7 +34,7 @@ plan 16;
 	my @e = (1, 2, 3, 6, 45);
 
 	my @s = sort { $^a <=> $^b } @a;
-	is(@s, @e, '... with explicit spaceship'); # unTODOme
+	is(@s, @e, '... with explicit spaceship'); 
 }
 
 {
@@ -42,7 +42,7 @@ plan 16;
 	my @e = (1, 2, 3, 6, 45);
 
 	my @s = @a.sort:{ $^a <=> $^b };
-	is(@s, @e, '... with explicit spaceship (using invocant form)'); # unTODOme
+	is(@s, @e, '... with explicit spaceship (using invocant form)'); 
 }
 
 {
@@ -50,7 +50,7 @@ plan 16;
 	my @e = (45, 6, 3, 2, 1);
 
 	my @s = sort { $^b <=> $^a } @a;
-	is(@s, @e, '... reverse sort with explicit spaceship'); # unTODOme
+	is(@s, @e, '... reverse sort with explicit spaceship'); 
 }
 
 {
@@ -58,7 +58,7 @@ plan 16;
 	my @e = (45, 6, 3, 2, 1);
 
 	my @s = @a.sort:{ $^b <=> $^a };
-	is(@s, @e, '... reverse sort with explicit spaceship (using invocant form)'); # unTODOme
+	is(@s, @e, '... reverse sort with explicit spaceship (using invocant form)'); 
 }
 
 {
@@ -90,7 +90,7 @@ plan 16;
 	my @e = <aaa boo daa gaa>;
 
 	my @s = sort { $^a cmp $^b } @a;
-	is(@s, @e, '... with explicit cmp'); # unTODOme
+	is(@s, @e, '... with explicit cmp'); 
 }
 
 {
@@ -98,7 +98,7 @@ plan 16;
 	my @e = <aaa boo daa gaa>;
 
 	my @s = @a.sort:{ $^a cmp $^b };
-	is(@s, @e, '... with explicit cmp (using invocant form)'); # unTODOme
+	is(@s, @e, '... with explicit cmp (using invocant form)'); 
 }
 
 {
@@ -106,7 +106,7 @@ plan 16;
 	my @e = (4, 1, 2, 5, 3);
 
 	my @s = sort { %a{$^a} cmp %a{$^b} } %a.keys;
-	is(@s, @e, '... sort keys by string value'); # unTODOme
+	is(@s, @e, '... sort keys by string value'); 
 }
 
 {

@@ -34,7 +34,7 @@ Tests the given block, as defined in L<S04/"Switch statements">
 
 	ok(!$two, "5 is not two");
 	ok($five, "5 is five");
-	todo_ok($int, "short fell-through to next true when using 'next'");
+	ok($int, "short fell-through to next true when using 'next'", :todo(1));
 	ok(!$unreached, "but didn't do so normally");
 };
 
@@ -42,7 +42,7 @@ Tests the given block, as defined in L<S04/"Switch statements">
 	my $foo;
 	eval 'given "foo" { when "bar", /foo/ { $foo = 1 } }';
 
-	todo_ok($foo, "foo was found in OR when");
+	ok($foo, "foo was found in OR when", :todo(1));
 };
 
 
@@ -64,8 +64,8 @@ Tests the given block, as defined in L<S04/"Switch statements">
 			default  { $digit }
 		}';
 
-		todo_is($result_a, $expected, "result of $digit using implicit default {} is $expected");
-		todo_is($result_b, $expected, "result of $digit using explicit default {} is $expected");
+		is($result_a, $expected, "result of $digit using implicit default {} is $expected", :todo(1));
+		is($result_b, $expected, "result of $digit using explicit default {} is $expected", :todo(1));
 	};
 };
 
@@ -171,6 +171,6 @@ Tests the given block, as defined in L<S04/"Switch statements">
       }
     }
 
-   is ret_test("a"), "A", "given returns the correct value (1)"; # unTODOme
-   is ret_test("b"), "B", "given returns the correct value (2)"; # unTODOme
+   is ret_test("a"), "A", "given returns the correct value (1)"; 
+   is ret_test("b"), "B", "given returns the correct value (2)"; 
 }

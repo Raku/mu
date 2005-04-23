@@ -19,7 +19,7 @@ emulation.
 	sub uhuh { 1 }
 	sub nuhuh { undef }
 
-	todo_ok((undef ~~ \&uhuh), "scalar sub truth");
+	ok((undef ~~ \&uhuh), "scalar sub truth", :todo(1));
 	ok(!(undef ~~ \&nuhuh), "negated scalar sub false");
 };
 
@@ -31,12 +31,12 @@ my %hash4 = ( "bink", "yum", "gorch", "zorba");
 my %hash5 = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
 
 { #L<<S04/"Smart matching" /\QHash\s+Hash\s+hash\s+keys\s+identical\s+match\s+if\s+\$_.keys.sort\s+»eq«\s+\$x.keys.sort/>>
-	todo_ok(eval '(%hash1 ~~ %hash2)', "hash keys identical");
+	ok(eval '(%hash1 ~~ %hash2)', "hash keys identical", :todo(1));
 	ok(eval '!(%hash1 ~~ %hash4)', "hash keys differ");
 };
 
 { #L<<S04/"Smart matching" /\QHash\s+any(Hash)\s+hash\s+key\s+intersection\s+match\s+if\s+\$_{any(Hash.keys)}/>>
-	todo_ok((%hash1 ~~ any(%hash3)), "intersecting keys");
+	ok((%hash1 ~~ any(%hash3)), "intersecting keys", :todo(1));
 	ok(!(%hash1 ~~ any(%hash4)), "no intersecting keys");
 };
 
@@ -44,39 +44,39 @@ my %hash5 = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
 	my @true = (<foo bar>);
 	my @sort_of = (<foo gorch>);
 	my @false = (<gorch baz>);
-	todo_ok((%hash5 ~~ @true), "value slice true");
-	todo_ok((%hash5 ~~ @sort_of), "value slice partly true");
+	ok((%hash5 ~~ @true), "value slice true", :todo(1));
+	ok((%hash5 ~~ @sort_of), "value slice partly true", :todo(1));
 	ok(!(%hash5 ~~ @false), "value slice false");
 };
 
 { #L<<S04/"Smart matching" /\QHash\s+any(list)\s+hash\s+key\s+slice\s+existence\s+match\s+if\s+exists\s+\$_{any(list)}/>>
-	todo_ok((%hash1 ~~ any(<foo bar>)), "any key exists (but where is it?)");
+	ok((%hash1 ~~ any(<foo bar>)), "any key exists (but where is it?)", :todo(1));
 	ok(!(%hash1 ~~ any(<gorch ding>)), "no listed key exists");
 };
 
 { #L<<S04/"Smart matching" /\QHash\s+all(list)\s+hash\s+key\s+slice\s+existence\s+match\s+if\s+exists\s+\$_{all(list)}/>>
-	todo_ok((%hash1 ~~ all(<foo blah>)), "all keys exist");
+	ok((%hash1 ~~ all(<foo blah>)), "all keys exist", :todo(1));
 	ok(!(%hash1 ~~ all(<foo edward>)), "not all keys exist");
 };
 
 #Hash    Rule      hash key grep            match if any($_.keys) ~~ /$x/
 
 { #L<<S04/"Smart matching" /\QHash\s+Any\s+hash\s+entry\s+existence\s+match\s+if\s+exists\s+\$_{$x}/>>
-	todo_ok((%hash5 ~~ "foo"), "foo exists");
-	todo_ok((%hash5 ~~ "gorch"), "gorch exists, true although value is false");
-	todo_ok((%hash5 ~~ "wasabi"), "wasabi does not exist");
+	ok((%hash5 ~~ "foo"), "foo exists", :todo(1));
+	ok((%hash5 ~~ "gorch"), "gorch exists, true although value is false", :todo(1));
+	ok((%hash5 ~~ "wasabi"), "wasabi does not exist", :todo(1));
 };
 
 { #L<<S04/"Smart matching" /\QHash\s+.{Any}\s+hash\s+element\s+truth*\s+match\s+if\s+\$_{Any}/s>>
 	my $string = "foo";
-	todo_ok(eval '(%hash5 ~~ .{$string})', 'hash.{Any} truth');
+	ok(eval '(%hash5 ~~ .{$string})', 'hash.{Any} truth', :todo(1));
 	$string = "gorch";
-	todo_ok(eval '!(%hash5 ~~ .{$string})', 'hash.{Any} untruth');
+	ok(eval '!(%hash5 ~~ .{$string})', 'hash.{Any} untruth', :todo(1));
 };
 
 { #L<<S04/"Smart matching" /\QHash\s+.<string>\s+hash\s+element\s+truth*\s+match\s+if\s+\$_<string>/>>
-	todo_ok(eval '(%hash5 ~~ .<foo>)', "hash<string> truth");
-	todo_ok(eval '!(%hash5 ~~ .<gorch>)', "hash<string> untruth");
+	ok(eval '(%hash5 ~~ .<foo>)', "hash<string> truth", :todo(1));
+	ok(eval '!(%hash5 ~~ .<gorch>)', "hash<string> untruth", :todo(1));
 };
 
 { #L<<S04/"Smart matching" /\QArray\s+Array\s+arrays\s+are\s+identical\s+match\s+if\s+\$_\s+»~~«\s+\$x/>>
@@ -85,29 +85,29 @@ my %hash5 = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
 };
 
 { #L<<S04/"Smart matching" /\QArray\s+any(list)\s+list\s+intersection\s+match\s+if\s+any(\@\$_)\s+~~\s+any(list)/>>
-	todo_ok(((1, 2) ~~ any(2, 3)), "there is intersection between (1, 2) and (2, 3)");
+	ok(((1, 2) ~~ any(2, 3)), "there is intersection between (1, 2) and (2, 3)", :todo(1));
 	ok(!((1, 2) ~~ any(3, 4)), "but none between (1, 2) and (3, 4)");
 };
 
 # Array   Rule      array grep               match if any(@$_) ~~ /$x/
 
 { #L<<S04/"Smart matching" /\QArray\s+Num\s+array\s+contains\s+number\s+match\s+if\s+any(\$_)\s+==\s+\$x/>>
-	todo_ok(((1, 2) ~~ 1), "(1, 2) contains 1");
+	ok(((1, 2) ~~ 1), "(1, 2) contains 1", :todo(1));
 	ok(!((3, 4, 5) ~~ 2), "(3, 4, 5) doesn't contain 2");
 };
 
 { #L<<S04/"Smart matching" /\QArray\s+Str\s+array\s+contains\s+string\s+match\s+if\s+any(\$_)\s+eq\s+\$x/>>
-	todo_ok((("foo", "bar", "gorch") ~~ "bar"), "bar is in qw/foo bar gorch/");
+	ok((("foo", "bar", "gorch") ~~ "bar"), "bar is in qw/foo bar gorch/", :todo(1));
 	ok(!(("x", "y", "z") ~~ "a"), "a is not in qw/x y z/");
 };
 
 { #L<<S04/"Smart matching" /\QArray\s+.[number]\s+array\s+element\s+truth*\s+match\s+if\s+\$_[number]/>>
-	todo_ok(eval '((undef, 1, undef) ~~ .[1])', "element 1 of (undef, 1, undef) is true");
-	todo_ok(eval '!((undef, undef) ~~ .[0])', "element 0 of (undef, undef) is false");
+	ok(eval '((undef, 1, undef) ~~ .[1])', "element 1 of (undef, 1, undef) is true", :todo(1));
+	ok(eval '!((undef, undef) ~~ .[0])', "element 0 of (undef, undef) is false", :todo(1));
 };
 
 { #L<<S04/"Smart matching" /\QNum\s+NumRange\s+in\s+numeric\s+range\s+match\s+if\s+\$min\s+<=\s+\$_\s+<=\s+\$max/>>
-	todo_ok((5 ~~ 1 .. 10), "5 is in 1 .. 10");
+	ok((5 ~~ 1 .. 10), "5 is in 1 .. 10", :todo(1));
 	ok(!(10 ~~ 1 .. 5), "10 is not in 1 .. 5");
 	ok(!(1 ~~ 5 .. 10), "1 is not i n 5 .. 10");
 	#ok(!(5 ~~ 5 ^..^ 10), "5 is not in 5 .. 10, exclusive"); # phooey
@@ -116,8 +116,8 @@ my %hash5 = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
 #Str     StrRange  in string range          match if $min le $_ le $max
 
 { #L<<S04/"Smart matching" /\QAny\s+Code<>\s+simple\s+closure\s+truth*\s+match\s+if\s+\$x()\s+(ignoring\s+\$_)/>>
-	todo_ok((1 ~~ { 1 }), "closure truth");
-	todo_ok((undef ~~ { 1 }), 'ignores $_');
+	ok((1 ~~ { 1 }), "closure truth", :todo(1));
+	ok((undef ~~ { 1 }), 'ignores $_', :todo(1));
 };
 
 { #L<<S04/"Smart matching" /\QAny\s+Class\s+class\s+membership\s+match\s+if\s+\$_.does(\$x)/>>
@@ -125,8 +125,8 @@ my %hash5 = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
 	eval 'class Cat {}';
 	eval 'class Chiwawa is Dog {}'; # i'm afraid class Pugs will get in the way ;-)
 
-	todo_ok(eval '(Chiwawa ~~ Dog)', "chiwawa isa dog");
-	todo_ok(eval '!(Chiwawa ~~ Cat)', "chiwawa is not a cat");
+	ok(eval '(Chiwawa ~~ Dog)', "chiwawa isa dog", :todo(1));
+	ok(eval '!(Chiwawa ~~ Cat)', "chiwawa is not a cat", :todo(1));
 };
 
 #Any     Role      role playing             match if \$_.does(\$x)
@@ -165,10 +165,10 @@ my %hash5 = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
 	ok(!("foo" !~ "foo"), "!(foo ne foo)");
 	ok(("bar" !~ "foo"), "bar ne foo)");
 
-	todo_ok(!((1, 2) !~ 1), "(1, 2) contains 1");
+	ok(!((1, 2) !~ 1), "(1, 2) contains 1", :todo(1));
 	ok(((3, 4, 5) !~ 2), "(3, 4, 5) doesn't contain 2");
 
-	todo_ok(!(%hash1 !~ any(%hash3)), "intersecting keys");
+	ok(!(%hash1 !~ any(%hash3)), "intersecting keys", :todo(1));
 	ok((%hash1 !~ any(%hash4)), "no intersecting keys");
 };
 

@@ -7,13 +7,13 @@ plan 3;
 
 {
 	my $a = *(1, 2, 3);
-	todo_is($a, 1, "scalar = *list");
+	is($a, 1, "scalar = *list", :todo(1));
 };
 
 {
 	my @a = (1, 2, 3);
 	my $b = *@a;
-	todo_is($b, 1, "scalar = *array");
+	is($b, 1, "scalar = *array", :todo(1));
 };
 
 {

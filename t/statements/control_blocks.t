@@ -65,14 +65,14 @@ my $var_at_end;
 };
 
 # L<S04/"Closure traits" /BEGIN/>
-todo_is($var_at_begin, undef, '{ $var = 1 } not yet assigned when BEGIN block run');
+is($var_at_begin, undef, '{ $var = 1 } not yet assigned when BEGIN block run', :todo(1));
 # L<S04/"Closure traits" /can also be used within an expression/>
 ok($bvar_at_begin, 'but { $bvar = BEGIN { 1 } } was');
 # L<S04/"Closure traits" /CHECK/>
-todo_is($cvar_at_begin, undef, 'CHECK var not defined at BEGIN time');
+is($cvar_at_begin, undef, 'CHECK var not defined at BEGIN time', :todo(1));
 
 # L<S04/"Closure traits" /INIT/>
-todo_ok($ivar, "INIT var defined at begining of runtime");
+ok($ivar, "INIT var defined at begining of runtime", :todo(1));
 is($var_at_init, undef, 'INIT block ran before { $var = 1 }');
 
 # FIXME: INIT {
@@ -110,24 +110,24 @@ for (1 .. 3) -> $i {
 }
 
 # L<S04/"Closure traits" /FIRST/>
-todo_is(+@first, 1, "FIRST ran once");
-todo_is(@first[0], 1, "only on 1");
+is(+@first, 1, "FIRST ran once", :todo(1));
+is(@first[0], 1, "only on 1", :todo(1));
 
 # L<S04/"Closure traits" /LAST/>
-todo_is(+@last, 1, "LAST ran once");
-todo_is(@last[0], 1, "only on 3");
+is(+@last, 1, "LAST ran once", :todo(1));
+is(@last[0], 1, "only on 3", :todo(1));
 
 # L<S04/"Closure traits" /ENTER/>
-todo_is(+@enter, 3, "ENTER ran thrice");
+is(+@enter, 3, "ENTER ran thrice", :todo(1));
 
 # L<S04/"Closure traits" /LEAVE/>
-todo_is(+@leave, 3, "ENTER ran thrice");
+is(+@leave, 3, "ENTER ran thrice", :todo(1));
 
-todo_is(@enter[0][1], 0, "enter and leave are in proper order");
-todo_is(@enter[2][1], 2, "...");
-todo_is(@leave[0][1], 1, "...");
-todo_is(@leave[2][1], 3, "...");
+is(@enter[0][1], 0, "enter and leave are in proper order", :todo(1));
+is(@enter[2][1], 2, "...", :todo(1));
+is(@leave[0][1], 1, "...", :todo(1));
+is(@leave[2][1], 3, "...", :todo(1));
 
 # L<S04/"Closure traits" /NEXT/>
-todo_is(+@next, 2, "NEXT ran twice, for each odd number in loop");
+is(+@next, 2, "NEXT ran twice, for each odd number in loop", :todo(1));
 

@@ -13,21 +13,21 @@ Parameterized traits tests, see L<S12/"Traits">.
 
 # L<S12/"Traits">
 # Basic definition
-todo_eval_ok 'role cool {
+eval_ok 'role cool {
   has $.cool;
 
   multi sub trait_auxiliary:<is>(cool $trait, Any $container: $val) {
     $.cool = $val;
     $container does cool($val);
   }
-', "role definition works";
+', "role definition works", :todo(1);
 
 my $a = 42;
 is           $a, 42, "basic sanity (1)";
-todo_eval_ok '$a does cool(23)',   "imperative does worked (1)";
-todo_eval_is '$a.cool',      23,   "attribute was set correctly (1)";
+eval_ok '$a does cool(23)',   "imperative does worked (1)", :todo(1);
+eval_is '$a.cool',      23,   "attribute was set correctly (1)", :todo(1);
 
 my $b = 23;
 is           $b, 23, "basic sanity (2)";
-todo_eval_ok '$b does cool("hi")', "imperative does worked (2)";
-todo_eval_is '$b.cool',      "hi", "attribute was set correctly (2)";
+eval_ok '$b does cool("hi")', "imperative does worked (2)", :todo(1);
+eval_is '$b.cool',      "hi", "attribute was set correctly (2)", :todo(1);

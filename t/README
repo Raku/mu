@@ -99,7 +99,7 @@ Sometimes code is so futuristic, it can even confuse eval. We call this a
 "hard parsefail". When this happens, comment out the failing code, but mark
 it so it doesn't get forgotten, like so:
 
-    todo_fail("FIXME parsefail");
+    fail("FIXME parsefail", :todo(1));
 	#eval_ok('my code here');
 
 - When TODO and when not TODO.

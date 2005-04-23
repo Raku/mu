@@ -103,7 +103,7 @@ eval_ok 'time + 10', "'time()' may drop its parentheses";
 
 	eval '($beguser,$begsys) = times';
 	if $! {
-		todo_ok(0, 'very basic times test');
+		ok(0, 'very basic times test', :todo(1));
 	} else {
 		my $i;
 		loop $i = 0; $i < 100000; $i++ {
@@ -112,7 +112,7 @@ eval_ok 'time + 10', "'time()' may drop its parentheses";
 			$now = time;
 			last() if ($now - $beg > 20); 
 		}
-		todo_ok($i >= 200000, 'very basic times test');
+		ok($i >= 200000, 'very basic times test', :todo(1));
 	}
 }
 
@@ -125,11 +125,11 @@ eval '($xsec,$foo) = localtime($now)';
 
 my $localyday = $yday;
 
-todo_ok($sec != $xsec && $mday && $year, 'localtime() list context');
+ok($sec != $xsec && $mday && $year, 'localtime() list context', :todo(1));
 
 #-- 6 --
 
-todo_ok(is_dt(eval 'localtime()'), 'localtime(), scalar context');
+ok(is_dt(eval 'localtime()'), 'localtime(), scalar context', :todo(1));
 
 # Ultimate implementation as of above test as Rule
 #todo_ok(localtime() ~~ /^Sun|Mon|Tue|Wed|Thu|Fri|Sat\s
@@ -146,27 +146,27 @@ my ($xsec,$foo);
 eval '($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = gmtime($beg)';
 eval '($xsec,$foo) = localtime($now)';
 
-todo_ok($sec != $xsec && $mday && $year, 'gmtime() list context');
+ok($sec != $xsec && $mday && $year, 'gmtime() list context', :todo(1));
 
 #-- 8 --
 
 if ($localyday && $yday) {
 	my $day_diff = $localyday - $yday;
-	todo_ok($day_diff == 0    ||
-			$day_diff == 1    ||
-			$day_diff == -1   ||
-			$day_diff == 364  ||
-			$day_diff == 365  ||
-			$day_diff == -364 ||
-			$day_diff == -365, 
-    	   	'gmtime() and localtime() agree what day of year');
+	ok($day_diff == 0    ||
+		$day_diff == 1    ||
+		$day_diff == -1   ||
+		$day_diff == 364  ||
+		$day_diff == 365  ||
+		$day_diff == -364 ||
+		$day_diff == -365, 
+    	  'gmtime() and localtime() agree what day of year', :todo(1));
 } else {
-	todo_ok(0, 'gmtime() and localtime() agree what day of year');
+	ok(0, 'gmtime() and localtime() agree what day of year', :todo(1));
 }
 
 #-- 9 --
 
-todo_ok(is_dt(eval 'gmtime()'), 'gmtime(), scalar context');
+ok(is_dt(eval 'gmtime()'), 'gmtime(), scalar context', :todo(1));
 
 # Ultimate implementation as of above test as Rule
 #todo_ok(gmtime() ~~ /^Sun|Mon|Tue|Wed|Thu|Fri|Sat\s

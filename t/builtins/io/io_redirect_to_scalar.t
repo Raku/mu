@@ -11,5 +11,5 @@ I/O Redirection to scalar tests
 
 =cut
 
-todo_ok(eval { open $*OUT,">",\$scalar },'Direct STDOUT to a scalar');
-todo_ok(eval { open $*ERR,">",\$scalar },'Direct STDERR to a scalar');
+ok(eval { open $*OUT,">",\$scalar },'Direct STDOUT to a scalar', :todo(1));
+ok(eval { open $*ERR,">",\$scalar },'Direct STDERR to a scalar', :todo(1));

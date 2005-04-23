@@ -86,10 +86,10 @@ ok(!defined(undef), "undef is not defined");
 	sub a_sub { "møøse" }
 
 	ok(defined(&a_sub), "defined sub");
-	todo_eval_ok('defined(%«$?PACKAGE\::»<&a_sub>)', "defined sub (symbol table)");
+	eval_ok('defined(%«$?PACKAGE\::»<&a_sub>)', "defined sub (symbol table)", :todo(1));
 
-	eval_ok('!defined(&a_subwoofer)', "undefined sub"); # unTODOme
-	todo_eval_ok('!defined(%«$?PACKAGE\::»<&a_subwoofer>)', "undefined sub (symbol table)");
+	eval_ok('!defined(&a_subwoofer)', "undefined sub"); 
+	eval_ok('!defined(%«$?PACKAGE\::»<&a_subwoofer>)', "undefined sub (symbol table)", :todo(1));
 }
 
 # TODO: find a read-only value to try and assign to, since we don't
@@ -142,7 +142,7 @@ Perl6-specific tests
 	undef @ary;
 	ok(!defined($ary_r), "undef array referent");
 
-	is(+$ary_r, 0, "dangling array reference"); # unTODOme
+	is(+$ary_r, 0, "dangling array reference"); 
 
 	my %hash = (1, 2, 3, 4);
 	my $hash_r = %hash;
@@ -150,7 +150,7 @@ Perl6-specific tests
 	ok(defined($hash_r), "hash reference");
 	undef %hash;
 	ok(defined($hash_r), "undef hash referent:");
-	is(+$hash_r.keys, 0, "dangling hash reference"); # unTODOme
+	is(+$hash_r.keys, 0, "dangling hash reference"); 
 }
 
 {
@@ -158,28 +158,28 @@ Perl6-specific tests
 	# TODO: waiting on my Dog $spot;
 
 	eval 'my Array $an_ary';
-	todo_ok(eval '!defined($an_ary)', "my Array");
-	todo_ok(eval '!defined($an_ary.0)', "my Array subscript - undef");
+	ok(eval '!defined($an_ary)', "my Array", :todo(1));
+	ok(eval '!defined($an_ary.0)', "my Array subscript - undef", :todo(1));
 	eval '$an_ary.push("blergh")';
-	todo_ok(eval 'defined($an_ary.pop)', "push");
-	todo_ok(eval '!defined($an_ary.pop)', "comes to shove");
+	ok(eval 'defined($an_ary.pop)', "push", :todo(1));
+	ok(eval '!defined($an_ary.pop)', "comes to shove", :todo(1));
 
 	eval 'my Hash $a_hash';
-	todo_ok(eval '!defined($a_hash)', "my Hash");
-	todo_ok(eval '!defined($a_hash{"blergh"})', "my Hash subscript - undef");
-	todo_ok(eval '!defined($a_hash{"blergh"})', "my Hash subscript - undef, even after autovivification");
+	ok(eval '!defined($a_hash)', "my Hash", :todo(1));
+	ok(eval '!defined($a_hash{"blergh"})', "my Hash subscript - undef", :todo(1));
+	ok(eval '!defined($a_hash{"blergh"})', "my Hash subscript - undef, even after autovivification", :todo(1));
 	eval '$a_hash{"blergh"} = 1';
-	todo_ok(eval 'defined($a_hash{"blergh"}.delete)', "delete");
-	todo_ok(eval '!defined($a_hash{"blergh"}.delete)', " - once only");
+	ok(eval 'defined($a_hash{"blergh"}.delete)', "delete", :todo(1));
+	ok(eval '!defined($a_hash{"blergh"}.delete)', " - once only", :todo(1));
 
 	eval '
 		class Dog {};
 		my Dog $spot;
 	';
 
-	todo_ok(eval '!defined $spot', "Unelaborated mutt");
+	ok(eval '!defined $spot', "Unelaborated mutt", :todo(1));
 	eval '$spot .= .new();';
-	todo_ok(eval 'defined $spot', " - now real");
+	ok(eval 'defined $spot', " - now real", :todo(1));
 }
 
 # rules
@@ -206,12 +206,12 @@ Perl6-specific tests
 		# I want symbolic lookups because I need the rx names for test results.
 
 		eval '"1" ~~ %MY::{$_}';
-		todo_ok(defined($num), "{$_}: successful hypothetical");
+		ok(defined($num), "{$_}: successful hypothetical", :todo(1));
 		ok(!defined($alpha), "{$_}: failed hypothetical");
 
 		eval '"A" ~~ %MY::{$_}';
 		ok(!defined($num), "{$_}: failed hypothetical (2nd go)");
-		todo_ok(defined($alpha), "{$_}: successful hypothetical (2nd go)");
+		ok(defined($alpha), "{$_}: successful hypothetical (2nd go)", :todo(1));
 	}
 }
 
@@ -219,7 +219,7 @@ Perl6-specific tests
 	# - binding to hash keys only would leave values undef
 	my %matches;
 	eval '"a=b\nc=d\n" ~~ / %<matches> := [ (\w) = \N+ ]* /';
-	todo_ok(eval '%matches ~~ all(<a b>)', "match keys exist");
+	ok(eval '%matches ~~ all(<a b>)', "match keys exist", :todo(1));
 	ok(!defined(%matches{"a"}) && !defined(%matches{"b"}), "match values don't");
 }
 
@@ -228,8 +228,8 @@ Perl6-specific tests
 	#   (except for special circumstances)
         "abcde" ~~ rx:perl5/(.)(.)(.)/;
         "abcde" ~~ rx:perl5/(\d)/;
-	todo_ok(eval '! grep { defined($_) }, ($1, $2, $3, $4, $5, $6)',
-			"all submatches undefined after failed match") or
+	ok(eval '! grep { defined($_) }, ($1, $2, $3, $4, $5, $6)',
+			"all submatches undefined after failed match", :todo(1)) or
 		diag("match state: " ~ eval '$/');
 
 	# XXX write me: "special circumstances"
@@ -255,7 +255,7 @@ Perl6-specific tests
 # autoloading
 # L<S10/Autoloading>
 
-todo_fail("FIXME parsefail (autoload tests)"); # unTODOme
+fail("FIXME parsefail (autoload tests)", :todo(1)); 
 # Currently waiting on
 # - packages
 # - symtable hash

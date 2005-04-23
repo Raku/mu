@@ -12,7 +12,7 @@ This test tests the various filetest operators.
 plan 34;
 
 #if($*OS eq any<MSWin32 mingw msys cygwin>) {
-#    skip 30, "file tests not fully available on win32"; # unTODOme
+#    skip 30, "file tests not fully available on win32"; 
 #    exit;
 #};
 

@@ -18,8 +18,8 @@ multi sub my_abs (Num where { $^n >= 0 } $n){ $n }
 multi sub my_abs (Num where { $^n <  0 } $n){ -$n }
 ';
 
-todo_eval_ok("$abs; 1", "we can compile subtype declarations");
+eval_ok("$abs; 1", "we can compile subtype declarations", :todo(1));
 
-todo_eval_is("$abs; my_abs(3)", 3, "and we can use them, too");
-todo_eval_is("$abs; my_abs(-5)", 5, "and they actually work");
+eval_is("$abs; my_abs(3)", 3, "and we can use them, too", :todo(1));
+eval_is("$abs; my_abs(-5)", 5, "and they actually work", :todo(1));
 

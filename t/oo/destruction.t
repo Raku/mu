@@ -9,13 +9,13 @@ plan 5;
 
 my $in_destructor = 0;
 
-todo_eval_ok 'class Foo { submethod DESTROY { $in_destructor++ } }',
-  "class definition";
+eval_ok 'class Foo { submethod DESTROY { $in_destructor++ } }',
+  "class definition", :todo(1);
 
 my $a;
-todo_eval_ok '$a = Foo.new()',  "basic instantiation";
-todo_eval_ok '$a ~~ Foo',       "smartmatching the class name";
+eval_ok '$a = Foo.new()',  "basic instantiation", :todo(1);
+eval_ok '$a ~~ Foo',       "smartmatching the class name", :todo(1);
 # As usual, is instead of todo_is to suppress unexpected succeedings.
 is           $in_destructor, 0, "own destructor was not yet called";
 undef $a;
-todo_is      $in_destructor, 1, "own destructor was called";
+is      $in_destructor, 1, "own destructor was called", :todo(1);

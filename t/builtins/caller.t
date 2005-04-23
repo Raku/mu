@@ -10,10 +10,10 @@ plan 3;
 # caller.sub
 sub a_sub { b_sub() }
 sub b_sub { eval 'caller.sub' }
-todo_is ~a_sub(), "foo", "caller.sub works";
+is ~a_sub(), "foo", "caller.sub works", :todo(1);
 
 # caller.file
-todo_ok index(~eval('caller.file'), "caller") >= 0, "caller.file works";
+ok index(~eval('caller.file'), "caller") >= 0, "caller.file works", :todo(1);
 
 # caller.line (XXX: make sure to edit the expected line number!)
-todo_is +eval('caller.line'), 19, "caller.line works";
+is +eval('caller.line'), 19, "caller.line works", :todo(1);

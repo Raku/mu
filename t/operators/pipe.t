@@ -24,8 +24,8 @@ plan 7;
 	#eval '@c <== @a'; # this yields the error:
 	#Fail: cannot cast into a handle: VList [VInt 1,VInt 2]
 
-	todo_is(~@b, ~@a, "ltr pipe as simple assignment");
-	todo_is(~@c, ~@a, "rtl pipe as simple assignment");
+	is(~@b, ~@a, "ltr pipe as simple assignment", :todo(1));
+	is(~@c, ~@a, "rtl pipe as simple assignment", :todo(1));
 };
 
 {
@@ -36,8 +36,8 @@ plan 7;
 	eval '@a ==> grep { ($_ % 2) == 0 } ==> @b';
 	#eval '@c <== grep { ($_ % 2) == 0 } <== @a';
 
-	todo_is(~@b, ~@e, "array ==> grep ==> result");
-	todo_is(~@c, ~@e, "result <== grep <== array");
+	is(~@b, ~@e, "array ==> grep ==> result", :todo(1));
+	is(~@c, ~@e, "result <== grep <== array", :todo(1));
 };
 
 {
@@ -52,7 +52,7 @@ plan 7;
 
 	eval '@a ==> foo "x"';
 
-	todo_is($got_x, "x", "x was passed as explicit param");
+	is($got_x, "x", "x was passed as explicit param", :todo(1));
 	is($got_y, undef, "optional param y was not bound to piped list");
-	todo_is(~@got_z, ~@a, '...slurpy array *@z got it');
+	is(~@got_z, ~@a, '...slurpy array *@z got it', :todo(1));
 };

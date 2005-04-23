@@ -43,26 +43,26 @@ plan 23;
 	my $str = "gorch ding";
 
 	eval 'substr($str, 0, 5) = "gloop"';
-	todo_is($str, "gloop ding", "lvalue assignment modified original string");
+    is($str, "gloop ding", "lvalue assignment modified original string", :todo(1));
 	
 	my $r;
 	eval '$r = \substr($str, 0, 5)';
 	ok(ref($r), '$r is a reference');
-	todo_eval_is('$$r', "gloop", '$r referent is eq to the substring');
+	eval_is('$$r', "gloop", '$r referent is eq to the substring', :todo(1));
 
 	eval '$$r = "boing"';
-	todo_is($str, "boing ding", "assignment to reference modifies original");
-	todo_eval_is('$$r', "boing", '$r is consistent');
+	is($str, "boing ding", "assignment to reference modifies original", :todo(1));
+	eval_is('$$r', "boing", '$r is consistent', :todo(1));
 
 	my $o;
 	eval '$o = \substr($str, 3, 2)';
-	todo_eval_is('$$o', "ng", "other ref to other lvalue");
+	eval_is('$$o', "ng", "other ref to other lvalue", :todo(1));
 	eval '$$r = "foo"';
-	todo_is($str, "foo ding", "lvalue ref size varies but still works");
-	todo_eval_is('$$o', " d", "other lvalue wiggled around");
+	is($str, "foo ding", "lvalue ref size varies but still works", :todo(1));
+	eval_is('$$o', " d", "other lvalue wiggled around", :todo(1));
 };
 
 { # from synopsis 9
 # This test is not working as-is
-#	todo_eval_is('substr("camel", 0|1, 2&3)', (("ca"|"am") & ("cam"|"ame")), "junctive substr");
+#	eval_is('substr("camel", 0|1, 2&3)', (("ca"|"am") & ("cam"|"ame")), "junctive substr", :todo(1));
 }

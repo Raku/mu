@@ -121,9 +121,9 @@ is((1 && 0 ?? 2 :: 3), 3, "&& binds tighter than ??");
 
 {
 	my @c = 1, 2, 3;
-	todo_is(@c, (1), "= binds tighter than , (*sigh*)");
+	is(@c, (1), "= binds tighter than , (*sigh*)", :todo(1));
 	my @a = (1, 3) ¥ (2, 4);
-	todo_is(@a, [1, 3], "= binds tighter than yen");
+	is(@a, [1, 3], "= binds tighter than yen", :todo(1));
 };
 
 {
@@ -138,7 +138,7 @@ is((1 && 0 ?? 2 :: 3), 3, "&& binds tighter than ??");
 	if(0) {
 		my @d;
 		eval '@d <== (1, 3) ¥ (2, 4)';
-		todo_is(@d, [1 .. 4], "to complicate things further, left pointing pipe *does* DWIM");
+		is(@d, [1 .. 4], "to complicate things further, left pointing pipe *does* DWIM", :todo(1));
 		my $c = any 1, 2, 3;
 		ok($c == 2, "any is less tight than comma");
 	}
@@ -148,7 +148,7 @@ is((1 && 0 ?? 2 :: 3), 3, "&& binds tighter than ??");
 
 {
 	my @e; eval '@e = (map { $_+1 } <== (1, 2, 3) ==> map { $_*2 })'; # =D
-	todo_is(@e, [4, 6, 8], "<== is tighter than ==>");
+	is(@e, [4, 6, 8], "<== is tighter than ==>", :todo(1));
 }
 
 # 19. pipe forward

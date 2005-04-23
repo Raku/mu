@@ -23,7 +23,7 @@ plan 12;
 	my @y; eval '@y = (@a ¥ @b)';
 	my @x; eval '@x = (@a Y @b)';
 
-	todo_is(~@z, ~@e, "simple zip");
+	is(~@z, ~@e, "simple zip", :todo(1));
 	is(~@y, ~@e, "also with yen char");
 	is(~@x, ~@e, "also with Y char");
 };
@@ -39,7 +39,7 @@ plan 12;
 	my @y; eval '@y = (@a ¥ @b ¥ @c)';
 	my @x; eval '@x = (@a Y @b Y @c)';
 
-	todo_is(~@z, ~@e, "zip of 3 arrays");
+	is(~@z, ~@e, "zip of 3 arrays", :todo(1));
 	is(~@y, ~@e, "also with yen char");
 	is(~@x, ~@e, "also with Y char");
 };
@@ -55,9 +55,9 @@ plan 12;
 	my @y; eval '@y = ((@a ¥ @b) ¥ @c)';
 	my @x; eval '@x = ((@a Y @b) Y @c)';
 
-	todo_is(~@z, ~@e, "zip of zipped arrays with other array");
-	todo_is(~@y, ~@e, "also as ¥");
-	todo_is(~@x, ~@e, "also as Y");
+	is(~@z, ~@e, "zip of zipped arrays with other array", :todo(1));
+	is(~@y, ~@e, "also as ¥", :todo(1));
+	is(~@x, ~@e, "also as Y", :todo(1));
 };
 
 {
@@ -66,7 +66,7 @@ plan 12;
 	my @e = (0, 1, 2, 3, undef, 5);
 	
 	my @z = (@a ¥ @b);
-	is(@z, @e, "bug in zipping - should use length of longest"); # unTODOme
+	is(@z, @e, "bug in zipping - should use length of longest"); 
 }
 
 {
@@ -74,6 +74,6 @@ plan 12;
 	my @b;
 	
         (@a ¥ @b) = (1, 2, 3, 4);
-	todo_is(@a, [1, 3], "first half of two zipped arrays as lvalues");
-	todo_is(@b, [2, 4], "second half of the lvalue zip");
+	is(@a, [1, 3], "first half of two zipped arrays as lvalues", :todo(1));
+	is(@b, [2, 4], "second half of the lvalue zip", :todo(1));
 }

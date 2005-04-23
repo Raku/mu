@@ -9,5 +9,5 @@ my $pwd = $*CWD;
 ok( grep { $_ eq 'LICENSE' }, readdir $*CWD );
 $*CWD =  $*CWD ~ '/t/unspecced';
 ok( grep { $_ eq 'cwd.t' }, readdir $*CWD );
-todo_is( ($*CWD = 'I/do/not/exist'), undef, "error handling" );
+is( ($*CWD = 'I/do/not/exist'), undef, "error handling" , :todo(1));
 $*CWD = $pwd;

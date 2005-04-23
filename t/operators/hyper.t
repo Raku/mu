@@ -66,23 +66,23 @@ plan 30;
         my @r = (1, 2, 3);
         eval '@r »++';
         my @e = (2, 3, 4);
-        todo_is(~@r, ~@e, "hyper auto increment an array");
+        is(~@r, ~@e, "hyper auto increment an array", :todo(1));
 
         @r = (1, 2, 3);
         eval '@r >>++';
         @e = (2, 3, 4);
-        todo_is(~@r, ~@e, "hyper auto increment an array ASCII notation");
+        is(~@r, ~@e, "hyper auto increment an array ASCII notation", :todo(1));
 };
 
 { # unary prefix
         my @r;
         eval '@r = -« (3, 2, 1)';
         my @e = (-3, -2, -1);
-        todo_is(~@r, ~@e, "hyper op on assignment/pipeline");
+        is(~@r, ~@e, "hyper op on assignment/pipeline", :todo(1));
 
         eval '@r = -<< (3, 2, 1)';
         @e = (-3, -2, -1);
-        todo_is(~@r, ~@e, "hyper op on assignment/pipeline ASCII notation");
+        is(~@r, ~@e, "hyper op on assignment/pipeline ASCII notation", :todo(1));
 };
 
 { # dimension upgrade
@@ -140,9 +140,9 @@ plan 30;
         my @r;
         eval '@r = ("f", "oo", "bar")».length';
         my @e = (1, 2, 3);
-        todo_is(~@r, ~@e);
+        is(~@r, ~@e, :todo(1));
 
         eval '@r = ("f", "oo", "bar")>>.length';
         @e = (1, 2, 3);
-        todo_is(~@r, ~@e);
+        is(~@r, ~@e, :todo(1));
 };

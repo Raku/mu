@@ -17,17 +17,17 @@ multi sub foo (Sub $bar)   { "Sub " ~ $bar() }
 multi sub foo (Array @bar) { "Array " ~ join(', ', @bar) }
 multi sub foo (Hash %bar)  { "Hash " ~ join(', ', %bar.keys) }
 
-is(foo('test'), 'Str test', 'dispatched to the Str sub'); # unTODOme
-is(foo(2), 'Int 2', 'dispatched to the Int sub'); # unTODOme
+is(foo('test'), 'Str test', 'dispatched to the Str sub'); 
+is(foo(2), 'Int 2', 'dispatched to the Int sub'); 
 
 my $num = '4';
-is(foo(+$num), 'Num 4', 'dispatched to the Num sub'); # unTODOme
-is(foo(1.5), 'Rat 1.5', 'dispatched to the Rat sub'); # unTODOme
+is(foo(+$num), 'Num 4', 'dispatched to the Num sub'); 
+is(foo(1.5), 'Rat 1.5', 'dispatched to the Rat sub'); 
 is(foo(1 == 1), 'Bool 1', 'dispatched to the Bool sub');
-is(foo(sub { 'baz' }), 'Sub baz', 'dispatched to the Sub sub'); # unTODOme
+is(foo(sub { 'baz' }), 'Sub baz', 'dispatched to the Sub sub'); 
 
 my @array = ('foo', 'bar', 'baz');
-is(foo(@array), 'Array foo, bar, baz', 'dispatched to the Array sub'); # unTODOme
+is(foo(@array), 'Array foo, bar, baz', 'dispatched to the Array sub'); 
 
 my %hash = ('foo' => 1, 'bar' => 2, 'baz' => 3);
-is(foo(%hash), 'Hash foo, bar, baz', 'dispatched to the Hash sub'); # unTODOme
+is(foo(%hash), 'Hash foo, bar, baz', 'dispatched to the Hash sub'); 

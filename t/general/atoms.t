@@ -16,16 +16,16 @@ my $foobar = "Foo::Bar";
 my $bar;
 
 eval '$bar = $::($foo)';
-todo_ok ($bar, 'symbolic deref');
+ok ($bar, 'symbolic deref', :todo(1));
 $bar = '';
 eval '$bar = $::("MY::$foo")';
-todo_ok ($bar, 'symbolic deref on lexical scope');
+ok ($bar, 'symbolic deref on lexical scope', :todo(1));
 $bar = '';
 eval '$bar = $::($foobar)';
-todo_ok ($bar, 'more symbolic deref');
+ok ($bar, 'more symbolic deref', :todo(1));
 $bar = undef;
 eval ' $bar = %MY::<$foo> ';
-todo_ok ($bar, 'hash deref on lexical scope');
+ok ($bar, 'hash deref on lexical scope', :todo(1));
 
 my $str;
 eval '$str = "hello"';

@@ -228,27 +228,27 @@ L<S03/"Junctive operators"/"They thread through operations">
 	# $want = (3|2).perl;
     # $got = any(@subs)();
     # is($got.perl, $want, '.() on any() junction of subs');
-    todo_eval_is('any(@subs)().perl', "('2' | '3')", '.() on any() junction of subs');
+    eval_is('any(@subs)().perl', "('2' | '3')", '.() on any() junction of subs', :todo(1));
 
 	# $want = (3&2).perl;
     # $got = all(@subs)();
     # is($got.perl, $want, '.() on all() junction of subs');
-    todo_eval_is('all(@subs)().perl', "('2' & '3')", '.() on all() junction of subs');
+    eval_is('all(@subs)().perl', "('2' & '3')", '.() on all() junction of subs', :todo(1));
 
 	# $want = (3^2).perl;
     # $got = one(@subs)();
     # is($got.perl, $want, '.() on one() junction of subs');
-    todo_eval_is('one(@subs)().perl', "('2' ^ '3')", '.() on one() junction of subs');
+    eval_is('one(@subs)().perl', "('2' ^ '3')", '.() on one() junction of subs', :todo(1));
 
 	# $want = none(3,2).perl;
     # $got = none(@subs)();
     # is($got.perl, $want, '.() on none() junction of subs');
-    todo_eval_is('none(@subs)().perl', "('2' ! '3')", '.() on none() junction of subs');
+    eval_is('none(@subs)().perl', "('2' ! '3')", '.() on none() junction of subs', :todo(1));
 
 	# $want = ((3|2)^(3&2)).perl;
     # $got = one( any(@subs), all(@subs) )();
     # is($got.perl, $want, '.() on complex junction of subs');
-    todo_eval_is('one( any(@subs), all(@subs) ).perl', "((('2' ^ '3') | ('2' ^ '2')) & (('2' ^ '3') | ('3' ^ '3')))", '.() on complex junction of subs');
+    eval_is('one( any(@subs), all(@subs) ).perl', "((('2' ^ '3') | ('2' ^ '2')) & (('2' ^ '3') | ('3' ^ '3')))", '.() on complex junction of subs', :todo(1));
 
     # Avoid future constant folding
     #my $rand = rand;
