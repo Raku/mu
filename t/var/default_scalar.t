@@ -5,7 +5,7 @@ use v6;
 require Test;
 
 plan 4;
-force_todo 2, 4;
+force_todo 4;
 
 	my $a := $_; 
 	for 1 .. 3 { $a++ }; 
