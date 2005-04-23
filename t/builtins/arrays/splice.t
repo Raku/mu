@@ -25,8 +25,10 @@ is equivalent to:
 
 plan 27;
 
-my (@a,@b);
+my (@a,@b,@res);
 
+# Somehow, this doesn't propagate list context
+# to splice()
 sub splice_ok (Array @got, Array @ref, Array @exp, Array @exp_ref, Str $comment) {
   is "[@got[]]", "[@exp[]]", "$comment - results match";
   is @ref, @exp_ref, "$comment - array got modified in-place";
@@ -60,26 +62,29 @@ is( splice(@a, 1, 2), "blue", "splice() in scalar context returns last element o
 
 # Test the single arg form of splice (which should die IMO)
 @a = (1..10);
-splice_ok( splice(@a), @a, [1..10],[], "Single-arg splice returns the whole list" );
+@res = splice(@a);
+splice_ok( @res, @a, [1..10],[], "Single-arg splice returns the whole list" );
 
 @a = (1..10);
-splice_ok( splice(@a,8,2), @a, [9,10], [1..8], "3-arg positive indices work");
-# is @a, [1..8], "The array got modified properly";
+@res = splice(@a,8,2);
+splice_ok( @res, @a, [9,10], [1..8], "3-arg positive indices work");
 
 @a = (1..12);
 splice_ok splice(@a,0,1), @a, [1], [2..12], "Simple 3-arg splice";
 
 @a = (1..10);
-splice_ok splice(@a,8), @a, [9,10], [1..8], "2-arg positive indices work";
+@res = splice(@a,8);
+splice_ok @res, @a, [9,10], [1..8], "2-arg positive indices work";
 
 @a = (1..10);
-splice_ok splice(@a,-2,2), @a, [9,10], [1..8], "3-arg negative indices work";
+@res = splice(@a,-2,2);
+splice_ok @res, @a, [9,10], [1..8], "3-arg negative indices work";
 
 @a = (1..10);
-splice_ok splice(@a,-2), @a, [9,10], [1..8], "2-arg negative indices work";
+@res = splice(@a,-2);
+splice_ok @res, @a, [9,10], [1..8], "2-arg negative indices work";
 
 # to be converted into more descriptive tests
-# todo_eval_ok '~splice(@a,0,0,0,1) eq "" && ~@a eq ~[0..11]';
 @a = (2..10);
 splice_ok splice(@a,0,0,0,1), @a, [], [0..10], "Prepending values works";
 
@@ -92,7 +97,8 @@ splice_ok splice(@a,5,1,5), @a, [5], [0..11], "Replacing an element with itself"
 splice_ok splice(@a, @a, 0, 12, 13), @a, [], [0..13], "Appending a list";
 
 @a = (0..13);
-splice_ok splice(@a, -@a, @a, 1, 2, 3), @a, [0..13], [1..3], "Replacing the array contents from right end";
+@res = splice(@a, -@a, @a, 1, 2, 3);
+splice_ok @res, @a, [0..13], [1..3], "Replacing the array contents from right end";
 
 @a = (1, 2, 3);
 splice_ok splice(@a, 1, -1, 7, 7), @a, [2], [1,7,7,3], "Replacing a list into the middle";
