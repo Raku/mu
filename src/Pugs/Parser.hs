@@ -196,6 +196,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
             , subReturns    = mkType typ'
             , subParams     = params
             , subBindings   = []
+            , subSlurpLimit = []
             , subFun        = fun
             }
     -- XXX: user-defined infix operator
@@ -354,6 +355,7 @@ ruleClosureTrait = rule "closure trait" $ do
             , subReturns    = anyType
             , subParams     = []
             , subBindings   = []
+            , subSlurpLimit = []
             , subFun        = fun
             }
     return $ App "&unshift" [Var "@*END"] [Syn "sub" [Val $ VCode sub]]
@@ -499,6 +501,7 @@ retBlock typ formal body = do
             , subReturns    = anyType
             , subParams     = if null params then [defaultArrayParam] else params
             , subBindings   = []
+            , subSlurpLimit = []
             , subFun        = fun
             }
     return (Syn "sub" [Val $ VCode sub])
@@ -806,7 +809,7 @@ processFormals formal = do
     unwind x  = x
 
 nameToParam :: String -> Param
-nameToParam name = Param
+nameToParam name = MkParam
     { isInvocant    = False
     , isOptional    = False
     , isNamed       = False
@@ -814,8 +817,8 @@ nameToParam name = Param
     , isThunk       = False
     , paramName     = name
     , paramContext  = case name of
-        "$_" -> CxtSlurpy   $ typeOfSigil (head name)
-        _    -> CxtItem $ typeOfSigil (head name)
+        "$_" -> CxtSlurpy $ typeOfSigil (head name)
+        _    -> CxtItem   $ typeOfSigil (head name)
     , paramDefault  = Val VUndef
     }
 

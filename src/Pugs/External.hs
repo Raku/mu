@@ -41,14 +41,15 @@ externRequire lang name = do
         writeIORef glob (map gensym bindings ++ syms)
     where
     gensym (name, fun) = MkSym ('&':name) . codeRef $ MkCode
-        { isMulti     = True
-        , subName     = ('&':name)
-        , subPad      = []
-        , subType     = SubPrim
-        , subAssoc    = "pre"
-        , subParams   = [buildParam "List" "" "*@?1" (Val VUndef)]
-        , subBindings = []
-        , subReturns  = anyType
-        , subFun      = (Prim fun)
+        { isMulti       = True
+        , subName       = ('&':name)
+        , subPad        = []
+        , subType       = SubPrim
+        , subAssoc      = "pre"
+        , subParams     = [buildParam "List" "" "*@?1" (Val VUndef)]
+        , subBindings   = []
+        , subReturns    = anyType
+        , subSlurpLimit = []
+        , subFun        = (Prim fun)
         }
 

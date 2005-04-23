@@ -99,7 +99,7 @@ genSubs env name gen =
     ]
 
 makeParams Env{ envContext = cxt, envLValue = lv }
-    = [ Param
+    = [ MkParam
         { isInvocant = False
         , isOptional = False
         , isNamed = False

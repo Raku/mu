@@ -35,18 +35,23 @@ emptyArrayExp :: Exp
 emptyArrayExp = Val $ VList [] -- VArray $ vCast $ VList []
 
 bindHash :: [Exp] -> [Param] -> MaybeError Bindings
-bindHash _ []          = return []
+bindHash _ []           = return []
 bindHash [] [p]         = return [ (p, emptyHashExp) ]
 bindHash vs (p:ps@(_:_))= do
     first <- (bindHash vs [p])
     return $ first ++ (ps `zip` repeat emptyHashExp)
 bindHash vs [p]         = return [ (p, Syn "\\{}" vs) ] -- XXX cast to Hash
 
-bindArray :: [Exp] -> [Param] -> MaybeError Bindings
-bindArray vs ps = do
-    case foldM (doBindArray (Syn "*" [Syn "," vs])) ([],0) prms of
-        Left errMsg     -> fail errMsg
-        Right (bound,_) -> return $ reverse bound
+bindArray :: [Exp] -> [Param] -> SlurpLimit -> MaybeError (Bindings, SlurpLimit)
+bindArray vs ps oldLimit = do
+    let exp = Syn "*" [Syn "," vs]
+    case foldM (doBindArray exp) ([], 0) prms of
+        Left errMsg      -> fail errMsg
+        Right (bound, n) -> do
+            let newLimit = case prms of
+                    ((_, '@'):_) -> oldLimit
+                    _            -> (n, exp) : oldLimit
+            return (reverse bound, newLimit)
     where
     prms = map (\p -> (p, (head (paramName p)))) ps 
 
@@ -129,8 +134,9 @@ finalizeBindings sub = do
 -- takes invocants and arguments, and creates a binding from the remaining params in the sub
 bindSomeParams :: VCode -> [Exp] -> [Exp] -> MaybeError VCode
 bindSomeParams sub invsExp argsExp = do
-    let params    = subParams sub
-        bindings  = subBindings sub
+    let params     = subParams sub
+        bindings   = subBindings sub
+        slurpLimit = subSlurpLimit sub
         (invPrms, argPrms) = span isInvocant params
         (givenInvs, givenArgs) = if null invPrms
             then ([], (invsExp++argsExp))
@@ -145,23 +151,22 @@ bindSomeParams sub invsExp argsExp = do
 
     -- Bind slurpy arrays and hashes
     let (slurpNamed, slurpPos) = partition (('%' ==) . head . paramName) slurpyPrms
-        defaultPos      = if hasDefaultArray  then [] else [defaultArrayParam]
+        -- defaultPos      = if hasDefaultArray  then [] else [defaultArrayParam]
         defaultNamed    = if hasDefaultHash   then [] else [defaultHashParam]
         defaultScalar   = if hasDefaultScalar then [] else [] -- XXX - fetch from *@_
-        hasDefaultArray = isJust (find (("@_" ==) . paramName) slurpPos)
-                        || null slurpPos
         hasDefaultHash  = isJust (find (("%_" ==) . paramName) slurpNamed)
         hasDefaultScalar= isJust (find (("$_" ==) . paramName) params)
         
     boundHash   <- bindHash namedForSlurp (slurpNamed ++ defaultNamed) -- put leftover named args in %_
-    boundArray  <- bindArray posForSlurp (slurpPos ++ defaultPos) -- put leftover positional args in @_
+    (boundArray, newSlurpLimit) <- bindArray posForSlurp slurpPos slurpLimit
     boundScalar <- return $ defaultScalar `zip` (givenInvs ++ givenArgs) -- put, uh, something in $_
 
     let newBindings = concat [bindings, boundInv, boundNamed, boundPos, boundHash, boundArray, boundScalar]
     let newParams = params \\ (map fst newBindings);
     
     return sub
-        { subBindings = newBindings
-        , subParams   = newParams
+        { subBindings   = newBindings
+        , subParams     = newParams
+        , subSlurpLimit = newSlurpLimit
         }
 

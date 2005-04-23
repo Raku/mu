@@ -702,8 +702,15 @@ apply sub invs args = do
 doApply :: Env -> VCode -> [Exp] -> [Exp] -> Eval Val
 doApply Env{ envClasses = cls } sub@MkCode{ subFun = fun, subType = typ } invs args =
     case bindParams sub invs args of
-        Left errMsg     -> retError errMsg (Val VUndef)
-        Right sub  -> do
+        Left errMsg -> retError errMsg (Val VUndef)
+        Right sub   -> do
+            forM_ (subSlurpLimit sub) $ \limit@(n, _) -> do
+                extra <- checkSlurpyLimit limit
+                when (not $ null extra) $ do
+                    (`retError` (Val undef)) $
+                        "Too many slurpy arguments for " ++ subName sub ++ ": "
+                        ++ show ((genericLength (take 1000 extra)) + n) ++ " actual, "
+                        ++ show n ++ " expected"
             enterScope $ do
                 (pad, bound) <- doBind [] (subBindings sub)
                 -- trace (show bound) $ return ()
@@ -716,10 +723,10 @@ doApply Env{ envClasses = cls } sub@MkCode{ subFun = fun, subType = typ } invs a
     enterScope :: Eval Val -> Eval Val
     enterScope
         | typ >= SubBlock = id
-        | otherwise      = resetT
+        | otherwise       = resetT
     fixEnv env
         | typ >= SubBlock = env
-        | otherwise      = env{ envCaller = Just env }
+        | otherwise       = env{ envCaller = Just env }
     doBind :: Pad -> [(Param, Exp)] -> Eval (Pad, [ApplyArg])
     doBind pad [] = return (pad, [])
     doBind pad ((prm, exp):rest) = do
@@ -734,7 +741,7 @@ doApply Env{ envClasses = cls } sub@MkCode{ subFun = fun, subType = typ } invs a
         let sym = MkSym name boundRef
         (pad', restArgs) <- doBind (sym:pad) rest
         return (pad', ApplyArg name val coll:restArgs)
-    expToVal Param{ isThunk = thunk, isLValue = lv, paramContext = cxt, paramName = name } exp = do
+    expToVal MkParam{ isThunk = thunk, isLValue = lv, paramContext = cxt, paramName = name } exp = do
         env <- ask -- freeze environment at this point for thunks
         let eval = local (const env{ envLValue = lv }) $ do
             enterEvalContext (cxtOfSigil $ head name) exp
@@ -742,6 +749,11 @@ doApply Env{ envClasses = cls } sub@MkCode{ subFun = fun, subType = typ } invs a
             then return (VRef . thunkRef $ MkThunk eval)
             else eval
         return (val, (isSlurpyCxt cxt || isCollapsed (typeOfCxt cxt)))
+    checkSlurpyLimit (n, exp) = do
+        listVal <- enterLValue $ enterEvalContext (cxtItem "Array") exp
+        list    <- fromVal listVal
+        elms    <- mapM fromVal list -- flatten
+        return $ genericDrop n (concat elms :: [Val])
     isCollapsed typ
         | isaType cls "Bool" typ        = True
         | isaType cls "Junction" typ    = True

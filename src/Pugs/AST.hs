@@ -447,7 +447,7 @@ data SubType = SubMethod | SubRoutine | SubBlock | SubPrim
 isSlurpy :: Param -> Bool
 isSlurpy param = isSlurpyCxt $ paramContext param
 
-data Param = Param
+data Param = MkParam
     { isInvocant    :: Bool
     , isOptional    :: Bool
     , isNamed       :: Bool
@@ -459,8 +459,9 @@ data Param = Param
     }
     deriving (Show, Eq, Ord)
 
-type Params = [Param]
-type Bindings = [(Param, Exp)]
+type Params     = [Param]
+type Bindings   = [(Param, Exp)]
+type SlurpLimit = [(VInt, Exp)]
 
 data VCode = MkCode
     { isMulti       :: Bool
@@ -470,6 +471,7 @@ data VCode = MkCode
     , subAssoc      :: String
     , subParams     :: Params
     , subBindings   :: Bindings
+    , subSlurpLimit :: SlurpLimit
     , subReturns    :: Type
     , subFun        :: Exp
     }
@@ -483,12 +485,13 @@ mkPrim = MkCode
     , subAssoc = "pre"
     , subParams = []
     , subBindings = []
+    , subSlurpLimit = []
     , subReturns = anyType
     , subFun = error "missing function"
     }
 
 
-emptySub = MkCode False "" SubBlock [] "" [] [] anyType emptyExp
+emptySub = MkCode False "" SubBlock [] "" [] [] [] anyType emptyExp
 
 instance Ord VComplex where {- ... -}
 instance Ord IScalar where
@@ -587,7 +590,7 @@ typeOfSigil '&'  = mkType "Code"
 typeOfSigil x    = internalError $ "typeOfSigil: unexpected character: " ++ show x
 
 buildParam :: String -> String -> String -> Exp -> Param
-buildParam typ sigil name e = Param
+buildParam typ sigil name e = MkParam
     { isInvocant    = False
     , isOptional    = (sigil ==) `any` ["?", "+"]
     , isNamed       = (null sigil || head sigil /= '+')
