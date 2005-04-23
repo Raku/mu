@@ -49,13 +49,8 @@ todo_isa_ok($s2, 'Bare', 'it is a Sub type (bare block)');
 my $s2a = { $^a };
 todo_isa_ok($s2a, 'Parametric', 'it is a Parametric type (bare block with placeholder parameters)');
 
-# NOTE:
-# I changed this from testing for 'Block' to testing for 'Sub' 
-# based on my understanding that point subs are really just shortcuts
-# for sub {...}.
-
 my $s3 = -> {};
-isa_ok($s3, 'Sub', 'it is a Sub type (pointy sub)');
+isa_ok($s3, 'Block', 'it is a Sub type (pointy sub)');
 
 # ref() on different types of scalars
 

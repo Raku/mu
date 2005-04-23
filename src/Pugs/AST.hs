@@ -402,7 +402,7 @@ valType (VNum     _)    = mkType "Num"
 valType (VComplex _)    = mkType "Complex"
 valType (VStr     _)    = mkType "Str"
 valType (VList    _)    = mkType "List"
-valType (VCode    _)    = mkType "Code"
+valType (VCode    c)    = Code.iType c
 valType (VBlock   _)    = mkType "Block"
 valType (VJunc    _)    = mkType "Junction"
 valType (VError _ _)    = mkType "Error"
@@ -1153,17 +1153,24 @@ instance Scalar.Class VScalar where
     store _ v = retConstError v
 
 instance Code.Class ICode where
-    fetch = liftIO . readIORef
-    store = (liftIO .) . writeIORef
+    iType c  = Code.iType . unsafePerformIO $ readIORef c
+    fetch    = liftIO . readIORef
+    store    = (liftIO .) . writeIORef
     assuming c [] [] = Code.fetch c
     assuming _ _ _   = undefined
     apply    = error "apply"
-    assoc c  = unsafePerformIO $ return . subAssoc =<< readIORef c
-    params c = unsafePerformIO $ return . subParams =<< readIORef c
+    assoc c  = Code.assoc . unsafePerformIO $ readIORef c
+    params c = Code.params . unsafePerformIO $ readIORef c
 
 instance Code.Class VCode where
-    fetch     = return
-    store _ _ = retConstError undef
+    -- XXX - subType should really just be a mkType itself
+    iType c  = case subType c of
+        SubBlock    -> mkType "Block"
+        SubRoutine  -> mkType "Sub"
+        SubPrim     -> mkType "Sub"
+        SubMethod   -> mkType "Method"
+    fetch    = return
+    store _ _= retConstError undef
     assuming c [] [] = return c
     assuming _ _ _   = error "assuming"
     apply    = error "apply"

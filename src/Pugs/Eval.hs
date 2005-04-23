@@ -237,14 +237,19 @@ reduce env exp@(Var name) = do
     let ref = fromJust v
     if refType ref == (mkType "Thunk") then forceRef ref else do
     val <- callCC $ \esc -> do
-        -- If RValue, read from the reference
-        unless (envLValue env) $ esc =<< readRef ref
-        -- LValue here
-        when (refType ref /= mkType "Scalar") $ esc (castV ref)
-        val <- readRef ref
         let cxt = envContext env
             typ = typeOfCxt cxt
-            isAutovivify = and $
+            isCollectionRef = (refType ref /= mkType "Scalar")
+        -- If RValue, read from the reference
+        unless (envLValue env) $ do
+            when (isCollectionRef && isItemCxt cxt) $ do
+                -- auto-enreference
+                esc $ VRef ref
+            esc =<< readRef ref
+        -- LValue here
+        when isCollectionRef $ esc (castV ref)
+        val <- readRef ref
+        let isAutovivify = and $
                 [ not (defined val)
                 , isItemCxt cxt
                 , (typ ==) `any` [mkType "Array", mkType "Hash"]
