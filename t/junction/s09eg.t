@@ -17,13 +17,6 @@ plan 3;
 
 my $c = 0;
 
-# FIXME - implement substr() in core
-sub substr($str, $i, $j) {
-    $c++;
-    my @c = split "", $str;
-    join("", @c[$i..($i+$j-1)]);
-}
-
 is (substr("camel", 0, 2),  "ca", "substr()");
 
 $c = 0;
