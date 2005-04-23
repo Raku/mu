@@ -12,7 +12,7 @@
 * Assigning a `List` into a `Scalar` now vivifies it into an `Array`
 * Assigning to pairs now works as expected
 * Autoextracted `$_` is now `rw` by default
-* Better handling for size extensions and `exists()` for negative indecies
+* Better handling for size extensions and `exists()` for negative indices
 * Bindings implemented for multiple variables
 * Experimental support for `eval_haskell()` builtin
 * First stab at a lexical `$*CWD` variable 
