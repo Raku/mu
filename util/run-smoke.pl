@@ -6,15 +6,7 @@ use Shell qw(svn);
 use Config;
 use File::Spec;
 
-eval {
-    require Test::TAP::Model;
-    require Test::TAP::HTMLMatrix;
-} or do {
-    die <<"EOF";
-At least one of Test::TAP::(Model|HTMLMatrix) not found.
-Please install them from the CPAN and try again.
-EOF
-};
+check_prereq($_) for qw/Test::TAP::Model Test::TAP::HTMLMatrix/;
 
 #
 # run-smoke.pl /some/sandbox/dir /some/www/file.html
@@ -35,4 +27,17 @@ $output   .= make("optimized") or die "Could not make pugs: $!";
 system("perl -w ./util/yaml_harness.pl") == 0 or die "Could not run yaml harness: $!";
 system("perl -w ./util/testgraph.pl >$html_location") == 0 or die "Could not convert .yml to testgraph: $!";
 
+sub check_prereq {
+    my ($mod) = @_;
+    (my $file = $mod) =~ s,::,/,g; # FIXME make portable
+    $file .= ".pm";    # (this sucks.)
+    eval {
+        require $file;
+    } or do {
+        die <<"EOF";
+You don't seem to have the module $mod installed.
+Please install it from the CPAN and try again.
+EOF
+    };
+}
 # END
