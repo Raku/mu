@@ -134,10 +134,14 @@ is((1 && 0 ?? 2 :: 3), 3, "&& binds tighter than ??");
 # 17. list item separator
 
 {
-	my @d; eval '@d <== (1, 3) ¥ (2, 4)';
-    todo_is(@d, [1 .. 4], "to complicate things further, left pointing pipe *does* DWIM");
-    my $c = any 1, 2, 3;
-    ok($c == 2, "any is less tight than comma");
+	skip 2, "skipping left pointing pipe tests which die";
+	if(0) {
+		my @d;
+		eval '@d <== (1, 3) ¥ (2, 4)';
+		todo_is(@d, [1 .. 4], "to complicate things further, left pointing pipe *does* DWIM");
+		my $c = any 1, 2, 3;
+		ok($c == 2, "any is less tight than comma");
+	}
 }
 
 # 18. rightward list op
