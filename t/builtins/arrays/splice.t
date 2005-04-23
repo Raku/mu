@@ -111,7 +111,7 @@ splice_ok splice(@a,-3,-2,2), @a, [7], [1,2,7,3], "Replacing negative count of e
 # Test the identity of calls to splice:
 # See also t/builtins/want.t, for the same test in a different
 # setting
-sub indirect_slurpy_context( *@got ) { @got };
+sub indirect_slurpy_context( @got ) { @got };
 
 my @tmp = (1..10);
 @a = splice @tmp, 5, 3;
