@@ -80,6 +80,7 @@ compileCond _ _ = undefined
 
 instance Compile Exp where
     compile (Var name) = varText name
+    compile (Syn ";" stmts) = vcat $ map compile stmts
     compile (Syn "=" [var, Syn "[]" [lhs, rhs]]) = vcat $
         [ compile var <+> text "=" <+> compile lhs <> text "[" <> compile rhs <> text"]"
         ]
@@ -132,8 +133,10 @@ instance Compile Exp where
         [ compile pos $+$ compile stmt $+$ text ""
         | (stmt, pos) <- stmts
         ]
---  compile (Sym syms) = vcat $
---      map compile syms
+    compile (Sym SMy name) = vcat $
+        [ text ".local" <+> text "pmc" <+> varText name
+        , varText name <+> text "=" <+> text "new" <+> varInit name
+        ]
     compile (Syn "mval" [exp]) = compile exp
     compile (Syn "," things) = vcat $ map compile things
     compile (App "&not" [] []) =
