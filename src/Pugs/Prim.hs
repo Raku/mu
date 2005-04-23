@@ -961,6 +961,12 @@ op2Numeric f x y
     | (VRat x', VInt y') <- (x, y)  = return $ VRat $ f x' (y' % 1)
     | (VInt x', VRat y') <- (x, y)  = return $ VRat $ f (x' % 1) y'
     | (VRat x', VRat y') <- (x, y)  = return $ VRat $ f x' y'
+    | VRef r <- x = do
+        x' <- readRef r
+        op2Numeric f x' y
+    | VRef r <- y = do
+        y' <- readRef r
+        op2Numeric f x y'
     | otherwise = do
         x' <- fromVal x
         y' <- fromVal y
