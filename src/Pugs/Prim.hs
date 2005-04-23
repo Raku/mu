@@ -954,6 +954,7 @@ op1Numeric f VUndef     = return . VInt $ f 0
 op1Numeric f (VInt x)   = return . VInt $ f x
 op1Numeric f l@(VList _)= return . VInt . f =<< fromVal l
 op1Numeric f (VRat x)   = return . VRat $ f x
+op1Numeric f (VRef x)   = op1Numeric f =<< readRef x
 op1Numeric f x          = return . VNum . f =<< fromVal x
 
 --- XXX wrong: try num first, then int, then vcast to Rat (I think)
