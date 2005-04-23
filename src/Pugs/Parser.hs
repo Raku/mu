@@ -689,15 +689,11 @@ makeOp2 prec sigil con name = (`Infix` prec) $ do
     symbol name
     return $ \x y -> con (sigil ++ name) [x,y]
 
-makeOp0 prec sigil con name = (`Infix` prec) $ do
+makeOp0 prec sigil con name = (`InfixList` prec) $ do
     many1 $ do
         string name
         whiteSpace
-    return make
-    where
-    -- make x (Syn syn xs) | syn == name = con (sigil ++ name) (x:xs)
-    make x (Syn "" []) = con (sigil ++ name) [x]
-    make x y = con (sigil ++ name) [x,y]
+    return . con $ sigil ++ name
 
 parseTerm = rule "term" $ do
     term <- choice

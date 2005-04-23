@@ -32,6 +32,7 @@ data Assoc                = AssocNone
                           | AssocChain
 
 data Operator t st a      = Infix (GenParser t st (a -> a -> a)) Assoc
+                          | InfixList (GenParser t st ([a] -> a)) Assoc
                           | Prefix (GenParser t st (a -> a))
                           | Postfix (GenParser t st (a -> a))
                           | OptionalPrefix (GenParser t st (a -> a))
@@ -112,11 +113,15 @@ buildExpressionParser operators simpleExpr emptyExpr
                            -- <|> return x
 
               listAssocP x  = do
-                f <- listAssocOp
-                y <- choice [ listAssocP1 =<< termP, return emptyExpr ]
-                return $ f x y
+                f   <- listAssocOp
+                xs  <- option [] $ listAssocP1 =<< termP
+                return $ f (x:xs)
 
-              listAssocP1 x = listAssocP x <|> return x
+              listAssocP0 x  = do
+                listAssocOp
+                xs  <- option [] $ listAssocP1 =<< termP
+                return (x:xs)
+              listAssocP1 x = listAssocP0 x <|> return [x]
 
            in  do{ x <- termP
                  ; rassocP x <|> lassocP  x <|> nassocP x <|> listAssocP x <|> return x
@@ -129,9 +134,13 @@ buildExpressionParser operators simpleExpr emptyExpr
             AssocNone  -> (rassoc,lassoc,op:nassoc,prefix,postfix,optPrefix,listAssoc)
             AssocLeft  -> (rassoc,op:lassoc,nassoc,prefix,postfix,optPrefix,listAssoc)
             AssocRight -> (op:rassoc,lassoc,nassoc,prefix,postfix,optPrefix,listAssoc)
-            AssocList  -> (rassoc,lassoc,nassoc,prefix,postfix,optPrefix,op:listAssoc)
             _          -> error "splitOp: unimplemented assoc type."
-            -- FIXME: add two new assoc types here.
+
+      splitOp (InfixList op assoc) (rassoc,lassoc,nassoc,prefix,postfix,optPrefix,listAssoc)
+        = case assoc of
+            AssocList  -> (rassoc,lassoc,nassoc,prefix,postfix,optPrefix,op:listAssoc)
+            -- FIXME: add AssocChain
+            _          -> error "splitOp: unimplemented assoc type."
 
       splitOp (Prefix op) (rassoc,lassoc,nassoc,prefix,postfix,optPrefix,listAssoc)
         = (rassoc,lassoc,nassoc,op:prefix,postfix,optPrefix,listAssoc)

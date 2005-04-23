@@ -132,13 +132,14 @@ evalVal x = do
     -- context casting, go!
     -- XXX this needs a rewrite!
     -- Env{ envLValue = isLValue, envClasses = cls, envContext = cxt } <- ask
-    Env{ envLValue = _, envClasses = cls, envContext = cxt } <- ask
+    Env{ envLValue = _, envClasses = cls, envContext = _ } <- ask
     typ <- evalValType x
     val <- if isaType cls "Junction" typ then fromVal' x else return x
+    return val
+    {-
     if isSlurpyCxt cxt
         then return . VList . concat =<< fromVals val
         else return val
-    {-
     --- XXX isCompatible is all wrong!
     let isCompatible | isSlurpyCxt cxt = isaType cls "List" typ
                      | otherwise       = isaType cls "Scalar" typ
