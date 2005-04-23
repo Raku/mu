@@ -66,8 +66,8 @@ my @a = gives_array;
 @a = wants_array( @a );
 my @b = wants_array(gives_array());
 is( substr(@a, 0, 4), substr(@b, 0, 4), "want() context propagates consistently" ); 
-like( @a[0], rx:P5/Scalar/, "The context is Scalar" );
-like( @b[0], rx:P5/Scalar/, "... on both subs" );
+like( @a[0], rx:P5/List/, "The context is Scalar" );
+like( @b[0], rx:P5/List/, "... on both subs" );
 
 # Test the identity again, via splice(), a builtin:
 sub wants_array( @got ) { return @got };
