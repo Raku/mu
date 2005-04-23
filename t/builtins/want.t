@@ -60,7 +60,7 @@ todo_eval_is '($c,$d,$e)  = sm_ok_in_count3()', 42,
   "want.count() works correct if three return values are expected (smartmatch-form)";
   
 # Test the identity of want() across function calls:
-sub wants_array( Array @got ) { return @got };
+sub wants_array( @got ) { return @got };
 sub gives_array() { return want };
 my @a = gives_array;
 @a = wants_array( @a );
@@ -70,7 +70,7 @@ is( @a[0], 'List', "The context is List" );
 is( @b[0], 'List', "... on both subs" );
 
 # Test the identity again, via splice(), a builtin:
-sub wants_array( Array @got ) { return @got };
+sub wants_array( @got ) { return @got };
 my @tmp = (1..10);
 @a = splice @tmp, 8, 1;
 @a = wants_array( @a );
