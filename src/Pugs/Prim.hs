@@ -1314,7 +1314,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Scalar    pre     delete  (rw!Array: List)\
 \\n   Bool      pre     exists  (rw!Hash: Str)\
 \\n   Bool      pre     exists  (rw!Array: Int)\
-\\n   Str       pre     perl    (rw!Any)\
+\\n   Str       pre     perl    (rw!Any|Junction)\
 \\n   Any       pre     eval    (Str)\
 \\n   Any       pre     eval_perl5   (Str)\
 \\n   Any       pre     eval_haskell (Str)\
@@ -1326,8 +1326,8 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Any       pre     exit    (?Int=0)\
 \\n   Num       pre     rand    (?Num=1)\
 \\n   Bool      pre     defined (Any)\
-\\n   Str       pre     ref     (rw!Any)\
-\\n   Str       pre     isa     (rw!Any, Str)\
+\\n   Str       pre     ref     (rw!Any|Junction)\
+\\n   Str       pre     isa     (rw!Any|Junction, Str)\
 \\n   Num       pre     time    ()\
 \\n   Str       pre     want    ()\
 \\n   Str       pre     File::Spec::cwd  ()\
