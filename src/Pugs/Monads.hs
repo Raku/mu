@@ -102,9 +102,10 @@ makeParams Env{ envContext = cxt, envLValue = lv }
     = [ MkParam
         { isInvocant = False
         , isOptional = False
-        , isNamed = False
-        , isLValue = lv
-        , isThunk = False
+        , isNamed    = False
+        , isLValue   = lv
+        , isWritable = lv
+        , isThunk    = False
         , paramName = case cxt of
             CxtSlurpy _ -> "@?0"
             _           -> "$?0"

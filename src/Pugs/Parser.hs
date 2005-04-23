@@ -245,13 +245,14 @@ ruleFormalParam = rule "formal parameter" $ do
     cxt     <- option "" $ ruleContext
     sigil   <- option "" $ choice . map symbol $ words " ? * + ++ "
     name    <- ruleVarName -- XXX support *[...]
-    trait   <- option id $ try $ do
-        symbol "is"
-        symbol "rw"
-        return $ \x -> x { isLValue = True }
+    traits  <- many ruleTrait
     let required = (sigil /=) `all` ["?", "+"]
     exp     <- ruleParamDefault required
-    return $ trait $ buildParam cxt sigil name exp
+    return $ foldr appTrait (buildParam cxt sigil name exp) traits
+    where
+    appTrait "rw"   x = x { isWritable = True }
+    appTrait "copy" x = x { isLValue = False }
+    appTrait _      x = x -- error "unknown trait"
 
 ruleParamDefault True  = return $ Val VUndef
 ruleParamDefault False = rule "default value" $ option (Val VUndef) $ do
@@ -813,7 +814,8 @@ nameToParam name = MkParam
     { isInvocant    = False
     , isOptional    = False
     , isNamed       = False
-    , isLValue      = (name == "$_")
+    , isLValue      = True
+    , isWritable    = (name == "$_")
     , isThunk       = False
     , paramName     = name
     , paramContext  = case name of

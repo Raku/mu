@@ -1014,12 +1014,14 @@ primOp sym assoc prms ret = MkSym name sub
         "list"      -> (0, "infix", False)
         other       -> (0, other, True)
 
-primDecl str = primOp sym assoc (foldr foldParam [] prms) ret
+primDecl str = primOp sym assoc params ret
     where
-    (ret:assoc:sym:prms') = words str
+    (ret:assoc:sym:prms) = words str
     takeWord = takeWhile isWord . dropWhile (not . isWord)
     isWord = not . (`elem` "(),:")
-    prms = map takeWord prms'
+    prms'  = map takeWord prms
+    prms'' = foldr foldParam [] prms'
+    params = map (\p -> p{ isWritable = True }) prms''
 
 doFoldParam cxt [] []       = [buildParam cxt "" "$?1" (Val VUndef)]
 doFoldParam cxt [] (p:ps)   = (buildParam cxt "" (strInc $ paramName p) (Val VUndef):p:ps)

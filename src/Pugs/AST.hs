@@ -452,6 +452,7 @@ data Param = MkParam
     , isOptional    :: Bool
     , isNamed       :: Bool
     , isLValue      :: Bool
+    , isWritable    :: Bool
     , isThunk       :: Bool
     , paramName     :: String
     , paramContext  :: Cxt
@@ -594,7 +595,8 @@ buildParam typ sigil name e = MkParam
     { isInvocant    = False
     , isOptional    = (sigil ==) `any` ["?", "+"]
     , isNamed       = (null sigil || head sigil /= '+')
-    , isLValue      = False
+    , isLValue      = True
+    , isWritable    = False
     , isThunk       = False
     , paramName     = name
     , paramContext  = case sigil of

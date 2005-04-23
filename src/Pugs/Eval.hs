@@ -741,13 +741,18 @@ doApply Env{ envClasses = cls } sub@MkCode{ subFun = fun, subType = typ } invs a
         let sym = MkSym name boundRef
         (pad', restArgs) <- doBind (sym:pad) rest
         return (pad', ApplyArg name val coll:restArgs)
-    expToVal MkParam{ isThunk = thunk, isLValue = lv, paramContext = cxt, paramName = name } exp = do
+    expToVal MkParam{ isThunk = thunk, isLValue = lv, paramContext = cxt, paramName = name, isWritable = rw } exp = do
         env <- ask -- freeze environment at this point for thunks
         let eval = local (const env{ envLValue = lv }) $ do
             enterEvalContext (cxtOfSigil $ head name) exp
-        val <- if thunk
-            then return (VRef . thunkRef $ MkThunk eval)
-            else eval
+        val <- if thunk then return (VRef . thunkRef $ MkThunk eval) else do
+            v <- eval
+            if (lv && not rw) then return (VRef $ scalarRef v) else do
+            if lv then return v else do
+            -- make a copy
+            ref <- newObject (typeOfSigil $ head name)
+            writeRef ref v
+            return (VRef ref)
         return (val, (isSlurpyCxt cxt || isCollapsed (typeOfCxt cxt)))
     checkSlurpyLimit (n, exp) = do
         listVal <- enterLValue $ enterEvalContext (cxtItem "Array") exp
