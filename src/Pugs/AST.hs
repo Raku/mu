@@ -127,10 +127,10 @@ instance Value (IVar VScalar) where
     fromVal v = return $ constScalar v
 
 instance Value VRef where
-    fromVal (VRef v) = return v
-    fromVal (VList v) = return (arrayRef v)
-    fromVal v = fromVal' v
-    vCast = MkRef . constScalar
+    fromVal v = return (vCast v)
+    vCast (VRef r)   = r
+    vCast (VList vs) = arrayRef vs
+    vCast v          = scalarRef v
     castV = VRef
 
 instance Value [Int] where

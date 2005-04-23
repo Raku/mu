@@ -685,7 +685,7 @@ applyExp bound body = do
     enterLex formal $ evalExp body
     where
     formal = filter (not . null . symName) $ map argNameValue bound
-    argNameValue (ApplyArg name val _) = MkSym name (scalarRef val)
+    argNameValue (ApplyArg name val _) = MkSym name (vCast val)
 
 apply :: VCode -> [Exp] -> [Exp] -> Eval Val
 apply sub invs args = do
@@ -725,16 +725,16 @@ doApply Env{ envClasses = cls } sub@MkCode{ subFun = fun, subType = typ } invs a
             Parens exp  -> local fixEnv $ enterLex pad $ expToVal prm exp
             _           -> expToVal prm exp
         -- trace ("==> " ++ (show val)) $ return ()
+        boundRef <- fromVal val
         let sym = MkSym name boundRef
-            boundRef = case val of
-                (VRef ref)  -> ref
-                _           -> scalarRef val
         (pad', restArgs) <- doBind (sym:pad) rest
         return (pad', ApplyArg name val coll:restArgs)
     expToVal Param{ isThunk = thunk, isLValue = lv, paramContext = cxt } exp = do
         env <- ask -- freeze environment at this point for thunks
         let eval = local (const env{ envLValue = lv }) $ enterEvalContext cxt exp
-        val <- if thunk then return (VRef . thunkRef $ MkThunk eval) else eval
+        val <- if thunk
+            then return (VRef . thunkRef $ MkThunk eval)
+            else eval
         return (val, (isSlurpyCxt cxt || isCollapsed (typeOfCxt cxt)))
     isCollapsed typ
         | isaType cls "Bool" typ        = True

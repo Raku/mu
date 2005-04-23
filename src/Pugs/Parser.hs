@@ -810,7 +810,7 @@ nameToParam name = Param
     { isInvocant    = False
     , isOptional    = False
     , isNamed       = False
-    , isLValue      = False
+    , isLValue      = (name == "$_")
     , isThunk       = False
     , paramName     = name
     , paramContext  = case name of
