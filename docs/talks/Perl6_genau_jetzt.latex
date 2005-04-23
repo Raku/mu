@@ -50,6 +50,7 @@
 % Outline:
 %   - Perl 6
 %     - Geschichte
+%     - Designideen
 %     - Code-Beispiele (mit Vergleichen zu vielen anderen Sprachen)
 %     - Mitgestaltungsmöglichkeiten, etc.
 %   - Parrot
@@ -66,6 +67,7 @@
 
 \usetheme{Warsaw}
 \usecolortheme{seahorse}
+\setbeamercovered{transparent}
 
 \begin{document}
 
@@ -77,7 +79,8 @@
   \tableofcontents
 }
 
-\section{Entstehung}
+\section{Perl 6}
+\subsection{Entstehung}
 \frame{
   \frametitle{Entstehungsgeschichte}
   \begin{itemize}
@@ -86,8 +89,99 @@
   \end{itemize}
 }
 
-\section{Einf"uhrungsbeispiele}
-\subsection{"`Hello World"'}
+\subsection{Design}
+\frame{
+  \frametitle{"`Die Wasserbett-Theorie"'}
+
+  \begin{itemize}
+    \item<1-> Glattes Wasserbett
+    \item<2-> Eindrücken an einer Stelle (Vereinfachung) ⇒ \\
+	      Hochkommen an einer anderen Stellen (Komplizierung)
+  \end{itemize}
+
+  \vfill\pause\pause 
+  \begin{block}{Gleichgewicht}
+    \begin{itemize}
+      \item Sehr viele Operatoren: \texttt{+@= /\%\^{} !@=} ↔
+      \item Sehr wenig Operatoren: \texttt{\synfunc{set}(\synvar{x}, \synfunc{add}(5, 3))}
+    \end{itemize}
+  \end{block}
+}
+
+\frame[t]{
+  \frametitle{Huffmann-Komprimierung}
+
+  \begin{itemize}
+    \item Häufig genutzte Features → \\
+          kurze Namen (z.B. \texttt{\synfunc{say}}, \texttt{\synfunc{cat}})
+    \item Selten genutzte Features → \\
+          lange Namen (z.B. \texttt{\synfunc{gethostbyname}},
+	  \texttt{\synfunc{nautilus-file-management-properties}})
+  \end{itemize}
+}
+
+\frame[t]{
+  \frametitle{Freiheit und Anpassung}
+
+  \begin{itemize}
+    \item Kein Zwänge, nur angemessene Defaults
+    \item Bräuche, keine Gesetze
+    \item "`Nur tote Sprachen ändern sich nicht."'
+  \end{itemize}
+
+  \vfill\pause
+  \begin{block}{Möglichkeiten der Anpassung}
+    \begin{itemize}
+      \item Neudefinition der Grammatik
+      \item C-like und Lisp-like Makros
+      \item Überschreiben/Erweitern von Builtins und Operatoren
+    \end{itemize}
+  \end{block}
+}
+
+\frame[t]{
+  \frametitle{DWIM -- Do What I Mean}
+
+  \begin{itemize}
+    \item Do What I Mean
+    \item Nicht immer gleich Do What You Mean
+  \end{itemize}
+
+  \vfill\pause
+  \begin{block}{Beispiele}
+    \texttt{%
+      5 + 3*2\ \ \ \ \ \ \ \ \# 5 + (3*2)\\
+      \synfunc{s}:2nd/\synstr{foo}/\synstr{bar}/\ \syncomment{\# Zweites "foo"\ → "bar"}\\
+      \synfunc{s}:2th/\synstr{foo}/\synstr{bar}/\ \syncomment{\# ditto}
+    }
+  \end{block}
+}
+
+\frame[t]{
+  \frametitle{"`Ausleihen"'}
+
+  \begin{itemize}
+    \item "`Ausleihen"' von Features aus anderen Sprachen
+    \item Zusammenarbeit zwischen den Sprachenentwicklern
+  \end{itemize}
+
+  \vfill\pause
+  \begin{block}{Beispiele}
+    \begin{itemize}
+      \item \texttt{.} als Methodenaufrufoperator (von Python, Ruby und vielen
+            anderen Sprachen)
+      \item Pragmas (ursprünglich von C)
+      \item Klammern: "`Oha! Hier ist etwas anders als normal!"' (Perl 5, Ruby,
+            Mathematik) \\
+	    \begin{itemize}
+	      \item $5 + \left(3 \cdot 2\right)$ → $5 + 3 \cdot 2$
+	      \item \texttt{\synfunc{say}(...)} → \texttt{\synfunc{say}\ ...}
+	    \end{itemize}
+    \end{itemize}
+  \end{block}
+}
+
+\subsection{Codebeispiele}
 \frame{
   \frametitle{"`Hello World"'}
   \begin{langs}
@@ -105,7 +199,24 @@
   \end{langs}
 }
 
-\subsection{Tastatureingabe}
+\frame[t]{
+  \frametitle{Variablen}
+
+  \begin{itemize}
+    \item<1-> Haupttypen: \\
+	      \texttt{\synvar{\$scalar}}, \texttt{\synvar{@array}},
+              \texttt{\synvar{\%hash}}, \texttt{\synvar{\&code}}
+    \item<2-> Dereferenzierung: \\
+	      \texttt{\synvar{@array}[3]}, \\
+              \texttt{\synvar{\%hash}\{"\synstr{key}"\}},
+              \texttt{\synvar{\%hash}<\synstr{key}>}, \\
+	      \texttt{\synvar{\&code}(argumente)}
+    \item<3-> Slices: \\
+	      \texttt{\synvar{@array}[23, 42]}, \\
+              \texttt{\synvar{\%hash}\{"\synstr{ingo}", "\synstr{larry}"\}}
+  \end{itemize}
+}
+
 \frame{
   \frametitle{Tastatureingabe}
   \begin{langs}
@@ -123,7 +234,79 @@
   \end{langs}
 }
 
-\subsection{Subroutines}
+\frame[t]{
+  \frametitle{Operatoren}
+
+  \begin{itemize}
+    \item<1-> Standard-Operatoren in Perl 6:
+	  \begin{itemize}
+	    \item \texttt{+ * - / \~{}}
+	    \item \texttt{[] \{\}}
+	    \item \texttt{.}
+	    \item \texttt{...} (Yadda-Yadda)
+	  \end{itemize}
+    \item<2-> Kontextspezifizierer: \\
+	  \begin{itemize}
+	    \item \texttt{+\synvar{@array}} (Anzahl Elemente in
+	  	  \texttt{\synvar{@array}})
+	    \item \texttt{\~{}\synvar{@array}} (\texttt{\synvar{@array}} als
+	      	  Zeichenkette)
+	    \item \texttt{?{}\synvar{@array}} ("`Ist \texttt{\synvar{@array}}
+		  nicht leer?"')
+	  \end{itemize}
+    \item<3-> Hyper-Operatoren: \\
+	  \texttt{%
+	    (1, 2, 3) »*« 2\ \ \ \ \ \ \ \ \ \# (2, 4, 6)\\
+	    (1, 2, 3) »+« (4, 5, 6) \# (5, 7, 9)\\
+	  }
+  \end{itemize}
+}
+
+\frame{
+  \frametitle{Junctions}
+
+  \begin{block}{"`Wenn dies, dies oder dies wahr ist, dann..."'}
+    \begin{langs}
+      Perl 5: \> \texttt{\synfunc{if}(\synvar{\$a}\ == 3 || \synvar{\$a}\ == 5 || \synvar{\$a}\ == 7) \{...\}} \\
+      Perl 6: \> \texttt{\synfunc{if}\ \synvar{\$a}\ == 3|5|7 \{...\}}
+    \end{langs}
+  \end{block}
+
+  \pause
+  \begin{block}{"`Wenn alle mindestens 18 sind, dann..."'}
+    \begin{langs}
+      Perl 5: \> \texttt{\synfunc{if}(\synfunc{grep}(\{ \synvar{\$\_}->\synvar{age}\ < 18 \} \synvar{@leute}) == 0) \{...\}} \\
+      Perl 6: \> \texttt{\synfunc{if}\ \synfunc{all}(\synvar{@leute}».\synvar{age}) >= 18 \{...\}}
+    \end{langs}
+  \end{block}
+
+  \pause
+  \begin{block}{"`Wenn mindestens einer 18 ist, dann..."'}
+    \begin{langs}
+      Perl 5: \> \texttt{\synfunc{if}(\synfunc{grep} \{ \synvar{\$\_}->\synvar{age}\ >= 18 \} \synvar{@leute}) \{...\}} \\
+      Perl 6: \> \texttt{\synfunc{if}\ \synfunc{any}(\synvar{@leute}».\synvar{age}) >= 18 \{...\}}
+    \end{langs}
+  \end{block}
+}
+
+\frame{
+  \frametitle{Smartmatching ("`Extreme DWIM"')}
+
+  \texttt{%
+    \syncomment{\# Enthält \synvar{\$str}\ "\synstr{foo}"?}\\
+    \synfunc{if}\ \synvar{\$str}\ \~{}\~{} \synfunc{m}/\synstr{foo}/\ \ \ \{...\}\\
+    \ \pause\\
+    \syncomment{\# Enthält \synvar{@array}\ "\synstr{ingo}"?}\\
+    \synfunc{if}\ "\synstr{ingo}"\ \~{}\~{} \synvar{@array}\ \{...\}\\
+    \ \pause\\
+    \syncomment{\# Gibt es einen Key "\synstr{ingo}"\ in \synvar{\%hash}?}\\
+    \synfunc{if}\ "\synstr{ingo}"\ \~{}\~{} \synvar{\%hash}\ \ \{...\}\\
+    \ \pause\\
+    \syncomment{\# Sind \synvar{@foo}\ und \synvar{@bar}\ identisch?}\\
+    \synfunc{if}\ \synvar{@foo}\ \~{}\~{} \synvar{@bar}\ \ \ \ \ \{...\}\\
+  }
+}
+
 \frame{
   \frametitle{Subroutines -- Definition}
   \begin{langs}
@@ -158,8 +341,7 @@
   \end{langs}
 }
 
-\section{Objektorientierung}
-\subsection{Klassendefinition und -instantiierung in anderen Sprachen}
+\subsection{Objektorientierung}
 \frame{
   \frametitle{Klassendefinition und -instantiierung in anderen Sprachen}
   \begin{block}{Perl 5}\texttt{%
@@ -231,7 +413,6 @@
   }\end{block}
 }
 
-\subsection{Klassendefinition und -instantiierung in Perl 6}
 \frame{
   \frametitle{Klassendefinition und -instantiierung in Perl 6}
   \begin{block}{Perl 6}\texttt{%
@@ -252,7 +433,6 @@
   }\end{block}
 }
 
-\subsection{Rollen in Perl 6}
 \frame{
   \frametitle{Rollen}
 
@@ -272,6 +452,7 @@
   }
 }
 
+\subsection{Mitgestaltungsm"oglichkeiten}
 
 % In der bisher noch ungeschriebenen \section über Pugs unbedingt die Sachen
 % von http://sial.org/pbot/9451 einbringen! Thanks nothingmuch!
