@@ -766,12 +766,15 @@ doApply Env{ envClasses = cls } sub@MkCode{ subFun = fun, subType = typ } invs a
             v <- eval
             typ <- evalValType v
             if not lv && isaType cls "Junction" typ then return v else do
-            if (lv && not rw) then return (VRef $ scalarRef v) else do
-            if lv then return v else do
-            -- make a copy
-            ref <- newObject (typeOfSigil $ head name)
-            writeRef ref v
-            return (VRef ref)
+            case (lv, rw) of
+                (True, True)    -> return v
+                (True, False)   -> return (VRef $ scalarRef v) 
+                (False, False)  -> return v -- XXX reduce to val?
+                (False, True)   -> do
+                    -- make a copy
+                    ref <- newObject (typeOfSigil $ head name)
+                    writeRef ref v
+                    return (VRef ref)
         return (val, (isSlurpyCxt cxt || isCollapsed (typeOfCxt cxt)))
     checkSlurpyLimit (n, exp) = do
         listVal <- enterLValue $ enterEvalContext (cxtItem "Array") exp

@@ -1022,7 +1022,7 @@ primDecl str = primOp sym assoc params ret
     isWord = not . (`elem` "(),:")
     prms'  = map takeWord prms
     prms'' = foldr foldParam [] prms'
-    params = map (\p -> p{ isWritable = True }) prms''
+    params = map (\p -> p{ isWritable = isLValue p }) prms''
 
 doFoldParam cxt [] []       = [(buildParam cxt "" "$?1" (Val VUndef)) { isLValue = False }]
 doFoldParam cxt [] (p:ps)   = ((buildParam cxt "" (strInc $ paramName p) (Val VUndef)) { isLValue = False }:p:ps)

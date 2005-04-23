@@ -251,7 +251,7 @@ ruleFormalParam = rule "formal parameter" $ do
     return $ foldr appTrait (buildParam cxt sigil name exp) traits
     where
     appTrait "rw"   x = x { isWritable = True }
-    appTrait "copy" x = x { isLValue = False }
+    appTrait "copy" x = x { isLValue = False, isWritable = True }
     appTrait _      x = x -- error "unknown trait"
 
 ruleParamDefault True  = return $ Val VUndef
