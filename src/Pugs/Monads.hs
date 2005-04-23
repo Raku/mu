@@ -15,6 +15,9 @@ import Pugs.AST
 import Pugs.Context
 import Pugs.Types
 
+headVal []    = retEmpty
+headVal (v:_) = return v
+
 enterLex :: Pad -> Eval a -> Eval a
 enterLex pad = local (\e -> e{ envLexical = (pad ++ envLexical e) })
 
@@ -34,7 +37,7 @@ enterWhen break action = callCC $ \esc -> do
     continueSub esc env = mkPrim
         { subName = "continue"
         , subParams = makeParams env
-        , subFun = Prim (esc . head)
+        , subFun = Prim ((esc =<<) . headVal)
         }
     breakSub env = mkPrim
         { subName = "break"
@@ -59,7 +62,7 @@ enterBlock action = callCC $ \esc -> do
     escSub esc env = mkPrim
         { subName = "BLOCK_EXIT"
         , subParams = makeParams env
-        , subFun = Prim (esc . head)
+        , subFun = Prim ((esc =<<) . headVal)
         }
   
 enterSub sub action
