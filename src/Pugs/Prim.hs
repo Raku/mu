@@ -422,8 +422,9 @@ op1Pick (VRef r) = op1Pick =<< readRef r
 op1Pick (VJunc (Junc JAny _ set)) = do -- pick mainly works on 'any'
     rand <- liftIO $ randomRIO (0 :: Int, (Set.cardinality set) - 1)
     return $ (Set.elems set) !! rand
+op1Pick (VJunc (Junc JNone _ _)) = return undef
 op1Pick (VJunc (Junc _ _ set)) =
-    if (Set.cardinality $ set) > 1 then return VUndef
+    if (Set.cardinality $ set) > 1 then return undef
     else return $ head $ Set.elems set
 op1Pick v = return $ VError "pick not defined" (Val v)
 
