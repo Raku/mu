@@ -120,21 +120,36 @@ reduceStatements ((exp, pos):rest)
         case scope of
             SMy -> enterLex [ sym ] doRest
             _   -> do { addGlobalSym sym; doRest }
-    | Syn syn [Var name, vexp] <- exp
+    | Syn syn [Syn "," vars, Syn "," vexps] <- exp
     , (syn == ":=" || syn == "::=") = const $ do
+        when (length vars > length vexps) $ do
+            (`retError` exp) $ "Wrong number of binding parameters: "
+                ++ (show $ length vexps) ++ " actual, "
+                ++ (show $ length vars) ++ " expected"
         env <- ask
-        let lex   = envLexical env
-            thunk = thunkRef . MkThunk $ do
-            local (const env{ envLValue = True }) $ do
-                enterEvalContext (cxtOfSigil $ head name) vexp
-        case findSym name lex of
-            Just _  -> do
-                let sym = (MkSym name $ thunk)
-                enterLex [sym] $ do
-                    reduceStatements rest (Val $ VRef thunk)
-            Nothing -> do
-                addGlobalSym $ MkSym name thunk
-                reduceStatements rest (Val $ VRef thunk)
+        names <- forM vars $ \var -> case var of
+            Var name -> return name
+            _        -> retError "Cannot bind this as lhs" var
+        results <- forM (names `zip` vexps) $ \(name, vexp) -> do
+            let sym   = MkSym name thunk
+                thunk = thunkRef . MkThunk $ do
+                    local (const env{ envLValue = True }) $ do
+                        enterEvalContext (cxtOfSigil $ head name) vexp
+            if isJust $ findSym name (envLexical env)
+                then return (Just sym, VRef thunk)
+                else do
+                    addGlobalSym $ MkSym name thunk
+                    return (Nothing, VRef thunk)
+        let (syms, thunks) = unzip results
+        enterLex (catMaybes syms) $ do
+            reduceStatements rest $ case thunks of
+                [v] -> Val v
+                _   -> Val $ VList thunks
+    | Syn syn [var, vexp] <- exp
+    , (syn == ":=" || syn == "::=") = do
+        let expand e@(Syn "," _) = e
+            expand e = Syn "," [e]
+        reduceStatements ((Syn syn [expand var, expand vexp], pos):rest)
     | Syn "sub" [Val (VCode sub)] <- exp
     , subType sub >= SubBlock = do
         -- bare Block in statement level; run it!
@@ -221,19 +236,24 @@ reduce env exp@(Var name) = do
     if isNothing v then retError ("Undeclared variable " ++ name) exp else do
     let ref = fromJust v
     if refType ref == (mkType "Thunk") then forceRef ref else do
-    if envLValue env && refType ref == (mkType "Scalar")
-        then do
-            val <- readRef ref
-            if defined val then return (castV ref) else do
-            case envContext env of
-                CxtItem typ
-                    | typ == (mkType "Array") || typ == (mkType "Hash") -> do
-                        -- autovivify! fun!
-                        ref' <- newObject typ
-                        writeRef ref (VRef ref')
-                        return $ castV ref
-                _ -> retVal $ castV ref
-        else retVal $ castV ref
+    val <- callCC $ \esc -> do
+        -- If RValue, read from the reference
+        unless (envLValue env) $ esc =<< readRef ref
+        -- LValue here
+        when (refType ref /= mkType "Scalar") $ esc (castV ref)
+        val <- readRef ref
+        let cxt = envContext env
+            typ = typeOfCxt cxt
+            isAutovivify = and $
+                [ not (defined val)
+                , isItemCxt cxt
+                , (typ ==) `any` [mkType "Array", mkType "Hash"]
+                ]
+        when isAutovivify $ do
+            ref' <- newObject typ
+            writeRef ref (VRef ref')
+        return $ castV ref
+    retVal val
 
 reduce _ (Statements stmts) = do
     let (global, local) = partition isGlobalExp stmts
@@ -320,14 +340,6 @@ reduce env exp@(Syn name exps) = case name of
         val <- enterRValue $ enterEvalContext cxt rhs
         writeRef ref val
         retVal refVal
-    ":=" -> do
-        let [Var name, exp] = exps
-        val     <- enterEvalContext (cxtOfSigil $ head name) exp
-        retVal val
-    "::=" -> do -- XXX wrong
-        let [Var _, exp] = exps
-        evalExp exp
-        retVal VUndef -- XXX wrong
     "=>" -> do
         let [keyExp, valExp] = exps
         key     <- enterEvalContext cxtItemAny keyExp

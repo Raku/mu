@@ -44,6 +44,10 @@ cxtSlurpyAny = CxtSlurpy anyType
 
 isSlurpyCxt (CxtSlurpy _) = True
 isSlurpyCxt _             = False
+isItemCxt   (CxtItem _)   = True
+isItemCxt   _             = False
+isVoidCxt   CxtVoid       = True
+isVoidCxt   _             = False
 
 mkType :: String -> Type
 mkType str
