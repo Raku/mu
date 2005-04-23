@@ -50,7 +50,7 @@ my $s2a = { $^a };
 todo_isa_ok($s2a, 'Parametric', 'it is a Parametric type (bare block with placeholder parameters)');
 
 my $s3 = -> {};
-isa_ok($s3, 'Block', 'it is a Sub type (pointy sub)');
+isa_ok($s3, 'Block', 'it is a Block type (pointy block)');
 
 # ref() on different types of scalars
 

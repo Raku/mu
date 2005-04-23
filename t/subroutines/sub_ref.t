@@ -15,6 +15,17 @@ See L<S06/"Types"> for more information about Code, Routine, Sub, Block, etc.
 
 =cut
 
+# See L<S06/"Types"> and especially L<A06/"The C<sub> form"> why {...} and ->
+# ... {...} aren't Subs, but Blocks (they're all Codes, though).
+# Quoting A06:
+#                                   Code
+#                        ____________|________________
+#                       |                             |
+#                    Routine                        Block
+#       ________________|_______________            __|___
+#      |     |       |       |    |     |          |      |
+#     Sub Method Submethod Multi Rule Macro      Bare Parametric
+
 {
     my $foo = sub () { 42 };
     isa_ok($foo, 'Code');
@@ -28,8 +39,8 @@ See L<S06/"Types"> for more information about Code, Routine, Sub, Block, etc.
 {
     my $foo = -> () { 42 };
     isa_ok($foo, 'Code');
-    isa_ok($foo, 'Routine');
-    isa_ok($foo, 'Sub');
+    isa_ok($foo, 'Block');
+    isa_ok($foo, 'Bare');
     is $foo.(), 42,                 "basic invocation of a pointy block";
     try { $foo.(23) };
     ok($!, "invocation of an parameterless pointy block with a parameter dies");
@@ -38,8 +49,8 @@ See L<S06/"Types"> for more information about Code, Routine, Sub, Block, etc.
 {
     my $foo = { 100 + $^x };
     isa_ok($foo, 'Code');
-    isa_ok($foo, 'Routine');
-    isa_ok($foo, 'Sub');
+    isa_ok($foo, 'Block');
+    isa_ok($foo, 'Parametric');
     is $foo.(42), 142,              "basic invocation of a pointy block with a param";
     try { $foo.() };
     ok($!, "invocation of an parameterized block expecting a param without a param dies");
