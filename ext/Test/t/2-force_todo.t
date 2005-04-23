@@ -11,7 +11,7 @@ fail("This will fail, but will be forced-TODO by force_todo()");
 pass("This will pass normally");
 fail("This will fail, but will be forced-TODO by force_todo()");
 pass("This will pass normally");
-todo_fail("This will TODO fail, and will be forced-TODO by force_todo()");
+fail("This will TODO fail, and will be forced-TODO by force_todo()", :todo(1));
 pass("This will pass normally");
 fail("This will fail, and will be forced-TODO by force_todo()");
 fail("This will fail, and will be forced-TODO by force_todo()");

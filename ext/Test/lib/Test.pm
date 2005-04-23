@@ -248,18 +248,18 @@ Test - Test support module for perl6
   require Test;
 
   plan 10;
-  test_log_file('test.log');
+  force_todo(1, 3 .. 5, 9);
 
   use_ok('Some::Module');
-  todo_use_ok('Some::Other::Module');
+  use_ok('Some::Other::Module', todo => 1);
 
   ok(2 + 2 == 4, '2 and 2 make 4');
   is(2 + 2, 4, '2 and 2 make 4');
   isa_ok([1, 2, 3], 'List');
 
-  todo_ok(2 + 2 == 5, '2 and 2 make 5');
-  todo_is(2 + 2, 5, '2 and 2 make 5');
-  todo_isa_ok({'one' => 1}, 'Hash');
+  ok(2 + 2 == 5, '2 and 2 make 5', :todo(1));
+  is(2 + 2, 5, desc => '2 and 2 make 5', todo => 1);
+  isa_ok({'one' => 1}, 'Hash', :todo(1));
 
   use_ok('My::Module');
 
@@ -268,7 +268,7 @@ Test - Test support module for perl6
 
   skip('skip this test for now');
 
-  todo_fail('this fails, but might work soon');
+  fail('this fails, but might work soon', :todo(1));
 
   diag('some misc comments and documentation');
 
@@ -300,25 +300,25 @@ tool, but can be useful in other contexts as well.
 
 == Testing Functions
 
-- `use_ok (Str $module) returns Bool`
+- `use_ok (Str $module, Bool +$todo) returns Bool`
 
 *NOTE:* This function currently uses `require()` since Pugs does not yet have
 a proper `use()` builtin.
 
-- `ok (Bool $cond, Str ?$desc) returns Bool`
+- `ok (Bool $cond, Str +$desc, Bool +$todo) returns Bool`
 
-- `is (Str $got, Str $expected, Str ?$desc) returns Bool`
+- `is (Str $got, Str $expected, Str +$desc, Bool +$todo) returns Bool`
 
-- `isnt (Str $got, Str $expected, Str ?$desc) returns Bool`
+- `isnt (Str $got, Str $expected, Str +$desc, Bool +$todo) returns Bool`
 
-- `like (Str $got, Rule $expected, Str ?$desc) returns Bool is export`
-- `unlike (Str $got, Rule $expected, Str ?$desc) returns Bool is export`
+- `like (Str $got, Rule $expected, Str +$desc, Bool +$todo) returns Bool is export`
+- `unlike (Str $got, Rule $expected, Str +$desc, Bool +$todo) returns Bool is export`
 
 These functions should work with most reg-exps, but given that they are still a
 somewhat experimental feature in Pugs, it is suggested you don't try anything
 too funky.
 
-- `cmp_ok (Str $got, Code $compare_func, Str $expected, Str ?$desc) returns Bool`
+- `cmp_ok (Str $got, Code $compare_func, Str $expected, Str +$desc, Bool +$todo) returns Bool`
 
 This function will compare `$got` and `$expected` using `$compare_func`. This will
 eventually allow Test::More-style cmp_ok() though the following syntax:
@@ -330,66 +330,38 @@ a little while. Until then, you can just write your own functions like this:
 
   cmp_ok('test', sub ($a, $b) { ?($a gt $b) }, 'me', '... testing gt on two strings');
 
-- `isa_ok ($ref, Str $expected_type, Str ?$desc) returns Bool`
+- `isa_ok ($ref, Str $expected_type, Str +$desc, Bool +$todo) returns Bool`
 
 This function currently on checks with ref() since we do not yet have
 object support. Once object support is created, we will add it here, and
 maintain backwards compatibility as well.
 
-- `eval_ok (Str $code, Str ?$desc) returns Bool`
+- `eval_ok (Str $code, Str +$desc, Bool +$todo) returns Bool`
 
-- `eval_is (Str $code, Str $expected, Str ?$desc) returns Bool`
+- `eval_is (Str $code, Str $expected, Str +$desc, Bool +$todo) returns Bool`
 
 These functions will eval a code snippet, and then pass the result to is or ok
 on success, or report that the eval was not successful on failure.
 
-- `throws_ok (Sub $code, Any $expected, Str ?$desc) returns Bool`
+- `throws_ok (Sub $code, Any $expected, Str +$desc, Bool +$todo) returns Bool`
 
 This function takes a block of code and runs it. It then smart-matches (`~~`) any `$!` 
 value with the `$expected` value.
 
-- `dies_ok (Sub $code, Str ?$desc) returns Bool`
+- `dies_ok (Sub $code, Str +$desc, Bool +$todo) returns Bool`
 
-- `lives_ok (Sub $code, Str ?$desc) returns Bool`
+- `lives_ok (Sub $code, Str +$desc, Bool +$todo) returns Bool`
 
 These functions both take blocks of code, run the code, and test whether they live or die.
 
-== TODO Testing functions
+=== A Note about TODO-ing tests
 
 Sometimes a test is broken because something is not implemented yet. So
 in order to still allow that to be tested, and those tests to knowingly
-fail, we provide a set of todo_* functions for all the basic test
-functions.
+fail, we provide the `:todo(1)` named parameter for all these  functions.
 
-- `todo_use_ok(Str $module) returns Bool`
-
-- `todo_ok (Bool $cond, Str ?$desc) returns Bool`
-
-- `todo_is (Str $got, Str $expected, Str ?$desc) returns Bool`
-
-- `todo_isnt (Str $got, Str $expected, Str ?$desc) returns Bool`
-
-- `todo_like (Str $got, Rule $expected, Str ?$desc) returns Bool is export`
-
-- `todo_unlike (Str $got, Rule $expected, Str ?$desc) returns Bool is export`
-
-- `todo_cmp_ok (Str $got, Code $compare_func, Str $expected, Str ?$desc) returns Bool`
-
-- `todo_isa_ok ($ref, Str $expected_type, Str ?$desc) returns Bool`
-
-- `todo_eval_ok (Str $code, Str ?$desc) returns Bool`
-
-- `todo_eval_is (Str $code, Str $expected, Str ?$desc) returns Bool`
-
-- `todo_throws_ok (Sub $code, Any $expected, Str ?$desc) returns Bool`
-
-- `todo_dies_ok (Sub $code, Str ?$desc) returns Bool`
-
-- `todo_lives_ok (Sub $code, Str ?$desc) returns Bool`
-
-You can use `t/force_todo` to set the tests which should get a temporary
-`todo_`-prefix because of release preparation. See `t/force_todo` for more
-information.
+It is also possible to use the `force_todo()` function to do large scale 
+TODO-ing of tests.
 
 == Misc. Functions
 
@@ -405,14 +377,9 @@ Sometimes what you need to test does not fit into one of the standard
 testing functions. In that case, you can use the rather blunt pass()
 functions and its compliment the fail() function.
 
-- `fail (Str ?$desc) returns Bool`
+- `fail (Str +$desc, Bool +$todo) returns Bool`
 
 This is the opposite of pass()
-
-- `todo_fail (Str ?$desc) returns Bool`
-
-On occasion, one of these odd tests might fail, but actually be a TODO
-item. So we give you todo_fail() for just such an occasion.
 
 - `diag (Str $diag)`
 
