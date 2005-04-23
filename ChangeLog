@@ -1,4 +1,4 @@
-== Changes for 6.2.1 - April 18, 2005
+== Changes for 6.2.1 - April 23, 2005
 
 === Pugs Internals
 
@@ -14,19 +14,37 @@
 * `want()` has been implemented, returning a simple string
 * The `Any` parameter type no longer inhibits juctive autothreading
 * Better handling for size extensions and `exists()` for negative indecies
+* Storing into negative array elements now works
 * Regexps now support `:P5` and `:Perl5` as well as `:perl5`
 * `:P5` flags now work as `:P5<imsgx>` and `:i` `:g` works too
 * First stab at a lexical `$*CWD` variable 
 * `<>` (list quoting) is now always in list context
 * serializable subcontinuation monad implementation
 * assigning a List into a Scalar vivifies it into an Array.
-* IMC runs
+* IMC restored to a runnable state
 * Junctive types in subroutine signatures `sub foo (Str|Array)`
 * lvalue pairs.
+* restore `%h<str> = want()` to impose string context on rhs.
+* `%h<>` now acts just like `%h{}` in both lhs and rhs.
+* `list()` now actually imposes list context.
+* `:l filename` no longer needs double quotes in the Shell.
+* initialize readline properly.
+* assigning a List into a Scalar vivifies it into an Array.
+* `'key' => val` now works as named param just like `key => val` did.
+* Index construct in slices now defaults to List if unknown;
+  that means `@a[func_returns_array()]` now works as expected.
+* `**` no longer truncates the exponent to integer.  
+* Inf/Exp handling for `**` works.
+* `(sub {3} | sub {2})()` implemented.
+* Pairs are now always objects and never values.
+* bindings implemented for multiple variables.
+* variables in rvalue context no longer returns its references.
 
 === Tests, Examples and Documentations
 
-* Many new tests as well as much cleanup of older tests, we are now at 4400+ tests
+* Many new tests as well as much cleanup of older tests, we are now at 4500+ tests
+* Major refactoring of the Test.pm module (see `ext/Test/ChangeLog` for details)
+* Added `isnt()`, `unlike()`, `skip_rest`, `throws_ok` functions to `Test.pm`
 * Several new additions to the Perl 6 Cookbook.
 * Additions and improvements to the `util/catalog_tests.pl` scripts
 * Test smoke scripts converted to use `Test::Tap::Model`
@@ -35,12 +53,14 @@
 * The `fp.p6` file has been broken into seperate files in `examples/fp/`
 * New naive baysian text classifier add in `examples/naive_bayesian`
 * New quote generator script in `examples/motd`
-* Added `isnt()`, `unlike()`, `skip_rest`, `throws_ok` functions to `Test.pm`
 * UTF-8 URL decoding added to `CGI.pm`
 * params are now loaded on-demand in `CGI.pm` to take advantage of encoding
 * added some perl6 related talks in `docs/talks`
 * improvements to `examples/network` and added README file
 * memory game, first p6 web application
+* svn graphing script added to `util/`
+* added the `make smoke` target to `Makefile`.
+* `%h<x>` now mean `%h{'x'}` instead of `%h{'x',}`
 
 === Bug Fixes
 
@@ -60,6 +80,19 @@
 * `**` no longer truncates the exponent to integer
 * code blocks as subroutine arguments now results in correct arity
 * fixed passing references into bound variables in subroutines
+* `=cut` without a newline at EOF is now parsed correctly.
+* Setting `$*CWD` to invalid directory is no longer fatal.
+* slurpy params now applies *-flattening to its arguments.
+* code blocks as subroutine arguments now results in correct arity.
+* passing references into bound variables in subroutines no longer
+  unneccessarily introduce another scalar reference layer.
+* comma is no longer flattened as arguments for infix and postfix functions
+* hyperops now extends to the longer, not shorter, lists
+* `$x = 1|2; $x = 3` no longer treats `1|2` as a constant.
+* `=` now assigns correct slurpy context to rhs.
+* fix parsefail: `my $x = =<>`
+* `(1,(2,3))` in scalar context is now `[1,[2,3]]`.
+* `return() if 1` now works correctly.
 
 == Changes for 6.2.0 - April 13, 2005
 
