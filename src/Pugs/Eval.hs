@@ -331,32 +331,28 @@ reduce env exp@(Syn name exps) = case name of
             (`retError` exp) $ "Wrong number of binding parameters: "
                 ++ (show $ length vexps) ++ " actual, "
                 ++ (show $ length vars) ++ " expected"
-        env' <- cloneEnv env
+        -- env' <- cloneEnv env -- FULL THUNKING
         names <- forM vars $ \var -> case var of
             Var name -> return name
             _        -> retError "Cannot bind this as lhs" var
-        thunks <- forM (names `zip` vexps) $ \(name, vexp) -> do
-            let thunk = thunkRef . MkThunk $ do
+        bindings <- forM (names `zip` vexps) $ \(name, vexp) -> do
+            {- FULL THUNKING
+            let ref = thunkRef . MkThunk $ do
                     local (const env'{ envLValue = True }) $ do
                         enterEvalContext (cxtOfSigil $ head name) vexp
+            -}
+            val  <- enterLValue $ enterEvalContext (cxtOfSigil $ head name) vexp
+            ref  <- fromVal val
             rv   <- findVarRef env name
             case rv of
-                Just ioRef -> do
-                    liftIO $ writeIORef ioRef thunk
+                Just ioRef -> return (ioRef, ref)
                 Nothing -> do
                     retError ("Undeclared variable " ++ name) (Val undef)
-{-
-            case findSym name (envLexical env) of
-                Just ioRef -> do
-                    liftIO $ writeIORef ioRef thunk
-                Nothing -> do
-                    sym <- genSym name thunk
-                    addGlobalSym sym
--}
-            return $ VRef thunk
-        return $ case thunks of
+        forM_ bindings $ \(ioRef, ref) -> do
+            liftIO $ writeIORef ioRef ref
+        return $ case map (VRef . snd) bindings of
             [v] -> v
-            _   -> VList thunks
+            vs  -> VList vs
     ":=" -> do
         let [var, vexp] = exps
             expand e@(Syn "," _) = e
