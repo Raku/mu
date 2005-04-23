@@ -104,8 +104,7 @@ enterSub sub action
         }
 
 genSubs env name gen = sequence
-    [ genSym name (codeRef $ gen env{ envContext = cxtItemAny })
-    , genSym name (codeRef $ gen env{ envContext = cxtSlurpyAny })
+    [ genSym name (codeRef $ gen env)
     ]
 
 makeParams Env{ envContext = cxt, envLValue = lv }
