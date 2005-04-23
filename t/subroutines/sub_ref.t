@@ -5,7 +5,7 @@ use v6;
 require Test;
 
 plan 27;
-force_todo 5, 8, 10, 13, 15, 26, 27;
+force_todo 5, 8, 10, 13, 26, 27;
 
 =head1 DESCRIPITION
 

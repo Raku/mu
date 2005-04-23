@@ -4,7 +4,6 @@ use v6;
 require Test;
 
 plan 2;
-force_todo 1, 2;
 
 # "The context inside of hash and array scripts seems to be/is wrong"
 
