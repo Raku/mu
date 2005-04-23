@@ -28,7 +28,9 @@ plan 27;
 my (@a,@b,@res);
 
 # Somehow, this doesn't propagate list context
-# to splice()
+# to splice(). The intermediate array in the calls
+# should be removed later
+
 sub splice_ok (Array @got, Array @ref, Array @exp, Array @exp_ref, Str $comment) {
   is "[@got[]]", "[@exp[]]", "$comment - results match";
   is @ref, @exp_ref, "$comment - array got modified in-place";
