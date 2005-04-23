@@ -63,6 +63,7 @@ ok !-z "t",              "-z returns false on directories";
 my $fh = open(">empty_file");
 close $fh;
 ok -z "empty_file",      "-z returns true for an empty file";
+unlink "empty_file";
 
 # Stacked filetests
 # L<A03/"RFC 320: Allow grouping of -X file tests and add filetest builtin">
