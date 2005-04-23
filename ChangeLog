@@ -9,7 +9,6 @@
 ** This means interpolation, etc. is done just like `q:w` or `qq:ww`
 ** `$<delim>` not interpolate in quoting constructs
 ** `$)`, `$]`, `$#` and `$<ws>` do not interpolate in `rx:P5//` constructs
-* Assigning a List into a Scalar vivifies it into an Array
 * Assigning a `List` into a `Scalar` now vivifies it into an `Array`
 * Assigning to pairs now works as expected
 * Autoextracted `$_` is now `rw` by default
