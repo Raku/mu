@@ -47,13 +47,8 @@ op0 "File::Spec::cwd" = const $ do
 op0 "pi" = const $ return . VNum $ pi
 op0 "say" = const $ op1 "say" =<< readVar "$_"
 op0 "print" = const $ op1 "print" =<< readVar "$_"
+op0 "return" = \v -> return (VError "cannot return() outside a subroutine" (Val $ VList v))
 op0 other = \x -> return $ VError ("unimplemented listOp: " ++ other) (App other (map Val x) [])
-
-retEmpty :: ContT Val (ReaderT Env IO) Val
-retEmpty = do
-    ifListContext
-        (return $ VList [])
-        (return VUndef)
 
 op0Zip :: [[Val]] -> [[Val]]
 op0Zip lists | all null lists = []
@@ -1356,6 +1351,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      pre     system  (Str)\
 \\n   Bool      pre     system  (Str: List)\
 \\n   Bool      pre     binmode (IO: ?Int=1)\
+\\n   Void      pre     return  ()\
 \\n   Void      pre     return  (List)\
 \\n   Junction  pre     any     (List)\
 \\n   Junction  pre     all     (List)\

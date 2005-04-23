@@ -71,6 +71,12 @@ ifListContext trueM falseM = do
         CxtSlurpy _   -> trueM
         _           -> falseM
 
+retEmpty :: ContT Val (ReaderT Env IO) Val
+retEmpty = do
+    ifListContext
+        (return $ VList [])
+        (return VUndef)
+
 {-
 ifContextIsa :: (MonadReader Env m) => Cxt -> m t -> m t -> m t
 ifContextIsa c trueM falseM = do

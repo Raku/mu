@@ -75,6 +75,7 @@ enterSub sub action
                 local doFix action
     where
     typ = subType sub
+    doReturn [] = shiftT $ const $ retEmpty
     doReturn [v] = shiftT $ const $ evalVal v
     doReturn _   = internalError "enterSub: doReturn list length /= 1"
     doCC cc [v] = cc =<< evalVal v
@@ -105,6 +106,7 @@ enterSub sub action
 
 genSubs env name gen = sequence
     [ genSym name (codeRef $ gen env)
+    , genSym name (codeRef $ (gen env) { subParams = [] })
     ]
 
 makeParams Env{ envContext = cxt, envLValue = lv }
