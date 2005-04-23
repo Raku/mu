@@ -9,7 +9,7 @@ use Test::TAP::HTMLMatrix;
 use Test::TAP::Model::Visual;
 
 
-GetOptions \our %Config, qw(embedcss|e cssfile|c=s help|h);
+GetOptions \our %Config, qw(inlinecss|e cssfile|c=s help|h);
 $Config{cssfile} ||= My::HTMLMatrix->css_file();
 usage() if $Config{help};
 
@@ -24,6 +24,7 @@ undef $yamlfh;
 
 my $tap = My::Model->new_with_struct(delete $data->{meat});
 my $v = My::HTMLMatrix->new($tap, Dump($data));
+inline_css($v) if $Config{inlinecss};
 
 binmode STDOUT, ":utf8" or die "binmode: $!";
 print "$v";
@@ -34,7 +35,7 @@ usage: $0 [OPTIONS] > output_file.html
 
 Generates an HTML summary of a YAML test run. Options:
 
-   --embedcss, -e       inline css in HTML header (for broken webservers)
+   --inlinecss, -e      inline css in HTML header (for broken webservers)
    --cssfile,  -c FILE  location of css. [default: $Config{cssfile}]
 
 See also:
@@ -44,6 +45,13 @@ See also:
 
 USAGE
   exit 0;
+}
+
+sub inline_css { # horrible hack.
+    local $/;
+    open my $fh, $Config{cssfile} or die "open:$Config{cssfile}:$!";
+    my $css = <$fh>;
+    $_[0] =~ s/^\s*<link[^\n]*css[^\n]*\r?\n/<style><!--\n$css\n--><\/style>/sm;
 }
 
 {
