@@ -375,7 +375,7 @@ reduce env exp@(Syn name exps) = case name of
         vals <- mapM evalExp exps
         -- in slurpy context, flatten each arguments
         ifListContext
-            (retVal . VList . concat =<< mapM fromVal vals)
+            (retVal . VList . concat $ map vCast vals)
             (retVal $ VList vals)
     "val" -> do
         let [exp] = exps
