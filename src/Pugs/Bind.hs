@@ -50,7 +50,8 @@ bindArray vs ps oldLimit = do
         Right (bound, n) -> do
             let newLimit = case prms of
                     ((_, '@'):_) -> oldLimit
-                    _            -> (n, exp) : oldLimit
+                    _    | n > 0 -> (n, exp) : oldLimit
+                    _            -> oldLimit
             return (reverse bound, newLimit)
     where
     prms = map (\p -> (p, (head (paramName p)))) ps 
