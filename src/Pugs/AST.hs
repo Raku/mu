@@ -250,7 +250,15 @@ instance Value VComplex where
 instance Value VStr where
     castV = VStr
     fromVal (VList l)   = return . unwords =<< mapM fromVal l
-    fromVal v = fromVal' v
+    fromVal v = do
+        vt  <- evalValType v
+        if vt /= mkType "Hash" then fromVal' v else do
+        --- XXX special case for Hash -- need to Objectify
+        hv      <- join $ doHash v Hash.fetch
+        lns     <- forM hv $ \(k, v) -> do
+            str <- fromVal v
+            return $ k ++ "\t" ++ str
+        return $ unlines lns
     vCast VUndef        = ""
     vCast (VStr s)      = s
     vCast (VBool b)     = if b then "1" else ""
@@ -860,7 +868,7 @@ newObject typ      = do
     retError ("Cannot create object" ++ (show typ)) (Val undef)
 
 -- XXX: Refactor doHash and doArray into one -- also see Eval's [] and {}
-doHash :: (Show b) => Val -> (forall a. Hash.Class a => a -> b) -> Eval b
+doHash :: Val -> (forall a. Hash.Class a => a -> b) -> Eval b
 doHash (VRef (MkRef (IHash hv))) f = return $ f hv
 doHash (VRef (MkRef (IScalar sv))) f = do
     val <- Scalar.fetch sv
