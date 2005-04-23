@@ -6,6 +6,16 @@ use Shell qw(svn);
 use Config;
 use File::Spec;
 
+eval {
+    require Test::TAP::Model;
+    require Test::TAP::HTMLMatrix;
+} or do {
+    die <<"EOF";
+At least one of Test::TAP::(Model|HTMLMatrix) not found.
+Please install them from the CPAN and try again.
+EOF
+};
+
 #
 # run-smoke.pl /some/sandbox/dir /some/www/file.html
 #
