@@ -88,40 +88,40 @@ prepareEnv name args = do
             [x] -> op1 "exit" x
             _   -> op1 "exit" undef
     emptyEnv
-        [ MkSym "@*ARGS"       $ MkRef argsAV
-        , MkSym "@*INC"        $ MkRef incAV
-        , MkSym "$*PUGS_HAS_HSPLUGINS" $ MkRef hspluginsSV
-        , MkSym "$*EXECUTABLE_NAME"    $ MkRef execSV
-        , MkSym "$*PROGRAM_NAME"       $ MkRef progSV
-        , MkSym "$*PID"        $ MkRef pidSV
+        [ genSym "@*ARGS"       $ MkRef argsAV
+        , genSym "@*INC"        $ MkRef incAV
+        , genSym "$*PUGS_HAS_HSPLUGINS" $ MkRef hspluginsSV
+        , genSym "$*EXECUTABLE_NAME"    $ MkRef execSV
+        , genSym "$*PROGRAM_NAME"       $ MkRef progSV
+        , genSym "$*PID"        $ MkRef pidSV
         -- XXX these four need a proper `set' magic
-        , MkSym "$*UID"        $ MkRef uidSV
-        , MkSym "$*EUID"       $ MkRef euidSV
-        , MkSym "$*GID"        $ MkRef gidSV
-        , MkSym "$*EGID"       $ MkRef egidSV
-        , MkSym "@*END"        $ MkRef endAV
-        , MkSym "$*IN"         $ MkRef inGV
-        , MkSym "$*OUT"        $ MkRef outGV
-        , MkSym "$*ERR"        $ MkRef errGV
-        , MkSym "$*ARGS"       $ MkRef argsGV
-        , MkSym "$!"           $ MkRef errSV
-        , MkSym "$/"           $ MkRef matchAV
-        , MkSym "%*ENV"        $ hashRef (undefined :: IHashEnv)
-        , MkSym "$*CWD"        $ scalarRef (undefined :: IScalarCwd)
+        , genSym "$*UID"        $ MkRef uidSV
+        , genSym "$*EUID"       $ MkRef euidSV
+        , genSym "$*GID"        $ MkRef gidSV
+        , genSym "$*EGID"       $ MkRef egidSV
+        , genSym "@*END"        $ MkRef endAV
+        , genSym "$*IN"         $ MkRef inGV
+        , genSym "$*OUT"        $ MkRef outGV
+        , genSym "$*ERR"        $ MkRef errGV
+        , genSym "$*ARGS"       $ MkRef argsGV
+        , genSym "$!"           $ MkRef errSV
+        , genSym "$/"           $ MkRef matchAV
+        , genSym "%*ENV"        $ hashRef (undefined :: IHashEnv)
+        , genSym "$*CWD"        $ scalarRef (undefined :: IScalarCwd)
         -- XXX What would this even do?
-        -- , MkSym "%=POD"        (Val . VHash $ emptyHV)
-        , MkSym "@=POD"        $ MkRef $ constArray []
-        , MkSym "$=POD"        $ MkRef $ constScalar (VStr "")
-        , MkSym "$?OS"         $ MkRef $ constScalar (VStr $ getConfig "osname")
-        , MkSym "$*OS"         $ MkRef $ constScalar (VStr $ getConfig "osname")
-        , MkSym "$?MODULE"     $ MkRef modSV
-        , MkSym "&?BLOCK_EXIT" $ codeRef $ mkPrim
+        -- , genSym "%=POD"        (Val . VHash $ emptyHV)
+        , genSym "@=POD"        $ MkRef $ constArray []
+        , genSym "$=POD"        $ MkRef $ constScalar (VStr "")
+        , genSym "$?OS"         $ MkRef $ constScalar (VStr $ getConfig "osname")
+        , genSym "$*OS"         $ MkRef $ constScalar (VStr $ getConfig "osname")
+        , genSym "$?MODULE"     $ MkRef modSV
+        , genSym "&?BLOCK_EXIT" $ codeRef $ mkPrim
             { subName = "&?BLOCK_EXIT"
             , subFun = Prim subExit
             }
-        , MkSym "%?CONFIG" $ hashRef confHV
-        , MkSym "$_" $ MkRef defSV
-        , MkSym "$?FILE" $ MkRef progSV
+        , genSym "%?CONFIG" $ hashRef confHV
+        , genSym "$_" $ MkRef defSV
+        , genSym "$?FILE" $ MkRef progSV
         ]
 
 

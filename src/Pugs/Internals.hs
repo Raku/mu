@@ -120,8 +120,6 @@ instance Eq (a -> b) where
     _ == _ = False
 instance Ord (a -> b) where
     compare _ _ = LT
-instance Show (IORef (Map String String)) where
-    show _ = "{ n/a }"
 
 internalError :: String -> a
 internalError s = error $ 

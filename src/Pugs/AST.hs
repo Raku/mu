@@ -495,10 +495,8 @@ mkPrim = MkCode
 emptySub = MkCode False "" SubBlock [] "" [] [] [] anyType emptyExp
 
 instance Ord VComplex where {- ... -}
-instance Ord IScalar where
-    compare _ _ = EQ -- compare (castV x) (castV y)
-instance Show (IORef Pad) where
-    show _ = "<pad>"
+instance (Typeable a) => Show (IORef a) where
+    show a = "<" ++ show (typeOf a) ++ ">"
 
 data Exp
     = App String [Exp] [Exp]
@@ -638,9 +636,15 @@ envWant env =
 type Pad = [Symbol]
 data Symbol = MkSym
     { symName :: Var
-    , symVar  :: VRef
+    , symVar  :: IORef VRef
     }
-    deriving (Show, Eq, Ord)
+    deriving (Show, Eq, Ord, Typeable)
+
+genSym name ref = liftIO $ do
+    ioref <- newIORef ref
+    return $ MkSym name ioref
+
+    
 
 show' :: (Show a) => a -> String
 show' x = "( " ++ show x ++ " )"
@@ -650,10 +654,28 @@ data Scope = SGlobal | SMy | SOur | SLet | STemp | SState
 
 type Eval x = ContT Val (ReaderT Env IO) x
 
-findSym :: String -> Pad -> Maybe VRef
+findSymRef :: (MonadIO m) => String -> Pad -> m VRef
+findSymRef name pad = do
+    case findSym name pad of
+        Just ref -> liftIO $ readIORef ref
+        Nothing  -> fail $ "oops, can't find " ++ name
+
+findSym :: String -> Pad -> Maybe (IORef VRef)
 findSym name pad = do
     s <- find ((== name) . symName) pad
     return $ symVar s
+
+symRef sym = liftIO . readIORef $ symVar sym
+
+cloneEnv env@Env{ envLexical = lex, envGlobal = globRef } = liftIO $ do
+    glob     <- readIORef globRef
+    lex'     <- mapM cloneSym lex
+    glob'    <- mapM cloneSym glob
+    globRef' <- newIORef glob'
+    return $ env{ envLexical = lex', envGlobal = globRef' }
+
+cloneSym sym = genSym (symName sym) =<< symRef sym
+
 
 askGlobal :: Eval Pad
 askGlobal = do
@@ -664,14 +686,16 @@ writeVar :: Var -> Val -> Eval ()
 writeVar name val = do
     glob <- askGlobal
     case find ((== name) . symName) glob of
-        Just sym -> writeRef (symVar sym) val
+        Just sym -> do
+            ref <- symRef sym
+            writeRef ref val
         _        -> return () -- XXX Wrong
 
 readVar :: Var -> Eval Val
 readVar name = do
     glob <- askGlobal
     case find ((== name) . symName) glob of
-        Just sym -> readRef $ symVar sym
+        Just sym -> readRef =<< symRef sym
         _ -> return VUndef
 
 emptyExp = Syn "noop" []
@@ -911,6 +935,8 @@ instance Show VRef where
 instance Eq (IVar a) where
     (==) = const $ const False
 instance Ord (IVar a) where
+    compare _ _ = EQ
+instance Ord (IORef a) where
     compare _ _ = EQ
 instance (Typeable a) => Show (IVar a) where
     show v = show (MkRef v)
@@ -1201,9 +1227,9 @@ type IScalarLazy = Maybe VScalar
 type IRule   = VRule
 type IHandle = VHandle -- XXX maybe IORef?
 
-instance Show IArray  where show _ = "{array}"
 instance Show IHash   where show _ = "{hash}"
-instance Show IScalar where show _ = "{scalar}"
+-- instance Show IArray  where show _ = "{array}"
+-- instance Show IScalar where show _ = "{scalar}"
 -- instance Show IHandle where show _ = "{handle}"
 -- instance Show ICode   where show _ = "{code}"
 -- instance Show IRule   where show _ = "{rule}"

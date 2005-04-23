@@ -380,8 +380,7 @@ op1EvalHaskell cv = do
     cstr <- (fromVal cv) :: Eval String
     ret <- liftIO (evalHaskell cstr)
     glob <- askGlobal
-    let Just errSV = findSym "$!" glob
-    
+    errSV <- findSymRef "$!" glob
     case ret of
         Right str -> do
             writeRef errSV VUndef
@@ -491,7 +490,7 @@ opEval fatal name str = do
 
 retEvalResult fatal val = do
     glob <- askGlobal
-    let Just errSV = findSym "$!" glob
+    errSV <- findSymRef "$!" glob
     case val of
         VError _ (Val errval) | not fatal  -> do
             writeRef errSV errval
@@ -677,8 +676,8 @@ op2Match x (VSubst (rx@MkRule{ rxGlobal = True }, subst)) = do
             Nothing -> return (str, subs)
             Just mr -> do
                 glob    <- askGlobal
-                let Just matchAV = findSym "$/" glob
-                    subs = elems $ mrSubs mr
+                let subs = elems $ mrSubs mr
+                matchAV <- findSymRef "$/" glob
                 writeRef matchAV $ VList $ map (VStr . decodeUTF8) subs
                 str'    <- fromVal =<< evalExp subst
                 (after', rv) <- doReplace (mrAfter mr) (Just subs)
@@ -692,8 +691,8 @@ op2Match x (VSubst (rx@MkRule{ rxGlobal = False }, subst)) = do
         Nothing -> return $ VBool False
         Just mr -> do
             glob <- askGlobal
-            let Just matchAV = findSym "$/" glob
-                subs = elems $ mrSubs mr
+            let subs = elems $ mrSubs mr
+            matchAV <- findSymRef "$/" glob
             writeRef matchAV $ VList $ map (VStr . decodeUTF8) subs
             str' <- fromVal =<< evalExp subst
             writeRef ref $
@@ -721,8 +720,8 @@ op2Match x (VRule rx@MkRule{ rxGlobal = False }) = do
         Just mr -> do
             --- XXX: Fix $/ and make it lexical.
             glob <- askGlobal
-            let Just matchAV = findSym "$/" glob
-                subs = elems $ mrSubs mr
+            let subs = elems $ mrSubs mr
+            matchAV <- findSymRef "$/" glob
             writeRef matchAV $ VList $ map (VStr . decodeUTF8) subs
             return $ VBool True
 
@@ -971,8 +970,8 @@ op2Numeric f x y
         y' <- fromVal y
         return . VNum $ f x' y'
 
-primOp :: String -> String -> Params -> String -> Symbol
-primOp sym assoc prms ret = MkSym name sub
+primOp :: String -> String -> Params -> String -> IO Symbol
+primOp sym assoc prms ret = return . MkSym name =<< newIORef sub
     where
     name | isAlpha (head sym)
          , fixity == "prefix"
@@ -1229,7 +1228,7 @@ sortByM f xs  = do
 -- already been assigned in Parser.hs
 
 --    ret_val   assoc   op_name args
-initSyms = map primDecl . filter (not . null) . lines $ decodeUTF8 "\
+initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      spre    !       (Bool)\
 \\n   Num       spre    +       (Num)\
 \\n   Num       pre     abs     (?Num=$_)\

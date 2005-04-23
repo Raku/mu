@@ -37,10 +37,10 @@ externRequire lang name = do
     glob    <- asks envGlobal
     liftIO $ do
         bindings    <- externLoad lang name
-        syms        <- readIORef glob
-        writeIORef glob (map gensym bindings ++ syms)
+        newSyms     <- mapM gensym bindings
+        modifyIORef glob (newSyms ++)
     where
-    gensym (name, fun) = MkSym ('&':name) . codeRef $ MkCode
+    gensym (name, fun) = genSym ('&':name) . codeRef $ MkCode
         { isMulti       = True
         , subName       = ('&':name)
         , subPad        = []

@@ -597,18 +597,20 @@ litOperators = do
 
 currentFunctions = do
     env     <- getState
-    let glob = unsafePerformIO $ readIORef $ envGlobal env
-    return (glob ++ envLexical env)
+    return . unsafePerformIO $ do
+        glob <- readIORef $ envGlobal env
+        forM (glob ++ envLexical env) $ \sym -> do
+            ref <- symRef sym
+            return (dropWhile isPunctuation $ symName sym, ref)
 
 currentUnaryFunctions = do
     funs <- currentFunctions
     return . mapPair munge . partition fst . sort $
-        [ (opt, encodeUTF8 name) | f@(MkSym _ (MkRef (ICode code))) <- funs
+        [ (opt, encodeUTF8 name) | (name, MkRef (ICode code)) <- funs
         , Code.assoc code == "pre"
         , length (Code.params code) == 1
         , let param = head $ Code.params code
         , let opt   = isOptional param
-        , let name  = parseName $ symName f
         -- XXX: find other MMD duplicates
         , name /= "sort", name /= "say" && name /= "print" && name /= "reverse"
         , not $ isSlurpy param

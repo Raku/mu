@@ -21,12 +21,15 @@ enterLex pad = local (\e -> e{ envLexical = (pad ++ envLexical e) })
 enterContext :: Cxt -> Eval a -> Eval a
 enterContext cxt = local (\e -> e{ envContext = cxt })
 
-enterGiven topic action = enterLex [MkSym "$_" topic] action
+enterGiven topic action = do
+    sym <- genSym "$_" topic
+    enterLex [sym] action
 
 enterWhen break action = callCC $ \esc -> do
     env <- ask
-    enterLex ((genSubs env "&continue" $ continueSub esc)
-           ++ (genSubs env "&break" $ breakSub)) action
+    contRec  <- genSubs env "&continue" $ continueSub esc
+    breakRec <- genSubs env "&break" $ breakSub
+    enterLex (contRec ++ breakRec) action
     where
     continueSub esc env = mkPrim
         { subName = "continue"
@@ -40,7 +43,8 @@ enterWhen break action = callCC $ \esc -> do
         }
 
 enterLoop action = callCC $ \esc -> do
-    enterLex [MkSym "&last" $ lastSub esc] action
+    sym <- genSym "&last" $ lastSub esc
+    enterLex [sym] action
     where
     lastSub esc = codeRef $ mkPrim
         { subName = "last"
@@ -49,7 +53,8 @@ enterLoop action = callCC $ \esc -> do
 
 enterBlock action = callCC $ \esc -> do
     env <- ask
-    enterLex (genSubs env "&?BLOCK_EXIT" $ escSub esc) action
+    exitRec <- genSubs env "&?BLOCK_EXIT" $ escSub esc
+    enterLex exitRec action
     where
     escSub esc env = mkPrim
         { subName = "BLOCK_EXIT"
@@ -62,8 +67,12 @@ enterSub sub action
     | otherwise     = do
         env <- ask
         if typ >= SubBlock
-            then local (fixEnv undefined env) action
-            else resetT $ callCC $ \cc -> local (fixEnv cc env) action
+            then do
+                doFix <- fixEnv undefined env
+                local doFix action
+            else resetT $ callCC $ \cc -> do
+                doFix <- fixEnv cc env
+                local doFix action
     where
     typ = subType sub
     doReturn [v] = shiftT $ const $ evalVal v
@@ -71,17 +80,18 @@ enterSub sub action
     doCC cc [v] = cc =<< evalVal v
     doCC _  _   = internalError "enterSub: doCC list length /= 1"
     orig sub = sub { subBindings = [], subParams = (map fst (subBindings sub)) }
-    subRec = [ MkSym "&?SUB" (codeRef (orig sub))
-             , MkSym "$?SUBNAME" (scalarRef $ VStr $ subName sub)]
-    blockRec = MkSym "&?BLOCK" (codeRef (orig sub))
-    fixEnv cc env@Env{ envLexical = pad } env'
-        | typ >= SubBlock = env'{ envLexical = (blockRec:subPad sub) ++ pad }
-        | otherwise      = env'{ envLexical = concat
-            [ subRec
-            , genSubs env "&return" retSub
-            , genSubs env "&?CALLER_CONTINUATION" (ccSub cc)
-            , subPad sub
-            ] }
+    fixEnv cc env@Env{ envLexical = pad }
+        | typ >= SubBlock = do
+            blockRec <- genSym "&?BLOCK" (codeRef (orig sub))
+            return $ \e -> e{ envLexical = (blockRec:subPad sub) ++ pad }
+        | otherwise = do
+            subRec <- sequence
+                [ genSym "&?SUB" (codeRef (orig sub))
+                , genSym "$?SUBNAME" (scalarRef $ VStr $ subName sub)]
+            retRec    <- genSubs env "&return" retSub
+            callerRec <- genSubs env "&?CALLER_CONTINUATION" (ccSub cc)
+            return $ \e -> e
+                { envLexical = concat [subRec, retRec, callerRec, subPad sub] }
     retSub env = mkPrim
         { subName = "return"
         , subParams = makeParams env
@@ -93,9 +103,9 @@ enterSub sub action
         , subFun = Prim $ doCC cc
         }
 
-genSubs env name gen =
-    [ MkSym name (codeRef $ gen env{ envContext = cxtItemAny })
-    , MkSym name (codeRef $ gen env{ envContext = cxtSlurpyAny })
+genSubs env name gen = sequence
+    [ genSym name (codeRef $ gen env{ envContext = cxtItemAny })
+    , genSym name (codeRef $ gen env{ envContext = cxtSlurpyAny })
     ]
 
 makeParams Env{ envContext = cxt, envLValue = lv }

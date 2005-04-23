@@ -59,6 +59,9 @@ instance Pretty (Val, Val) where
 instance Pretty (Exp, SourcePos) where
     format (x, _) = format x 
 
+instance Pretty (IORef VRef) where
+    format x = braces $ text $ "ref:" ++ show x
+
 instance Pretty VRef where
     format x = braces $ text $ "ref:" ++ show x
 
