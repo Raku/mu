@@ -10,6 +10,8 @@
 ** `$<delim>` not interpolate in quoting constructs
 ** `$)`, `$]`, `$#` and `$<whitespace>` do not interpolate in `rx:P5//` constructs.
 * Experimental support for `eval_haskell()` builtin
+* `is rw` and `is copy` implemented in full. 
+* autoextracted `$_` is now `rw` by default.
 * New builtins: `>>~<<`, `kill()`, `splice`, `readdir()` (list context only)
 * `want()` has been implemented, returning a simple string
 * The `Any` parameter type no longer inhibits juctive autothreading
@@ -39,10 +41,14 @@
 * Pairs are now always objects and never values.
 * bindings implemented for multiple variables.
 * variables in rvalue context no longer returns its references.
+* we now check for extra slurpy arguments.
+* just like binding, params now imposes their sigil on
+  slurpiness of evaluation in its bound expressions.
 
 === Tests, Examples and Documentations
 
 * Many new tests as well as much cleanup of older tests, we are now at 4500+ tests
+** removed all usages of todo_* functions since the are now deprecated
 * Major refactoring of the Test.pm module (see `ext/Test/ChangeLog` for details)
 * Added `isnt()`, `unlike()`, `skip_rest`, `throws_ok` functions to `Test.pm`
 * Several new additions to the Perl 6 Cookbook.
@@ -93,6 +99,8 @@
 * fix parsefail: `my $x = =<>`
 * `(1,(2,3))` in scalar context is now `[1,[2,3]]`.
 * `return() if 1` now works correctly.
+* automatic enreference now works again.
+* Code objects now returns the correct subtypes
 
 == Changes for 6.2.0 - April 13, 2005
 
