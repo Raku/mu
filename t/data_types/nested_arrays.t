@@ -21,13 +21,13 @@ plan 8;
     my @d = [1,2,(3,4)];
     my $d = [1,2,(3,4)];
 
-    ok(+@a == 3, 'Array length, nested []');
-    ok(+$a == 3, 'Array ref length, nested []');
-    ok(+@b == 3, 'Array length, nested [], outer []s');
-    ok(+$b == 3, 'Array ref length, nested [], outer []s');
+    is(+@a, 3, 'Array length, nested []');
+    is(+$a, 3, 'Array ref length, nested []');
+    is(+@b, 3, 'Array length, nested [], outer []s');
+    is(+$b, 3, 'Array ref length, nested [], outer []s');
+    is(+$c, 3, 'Array ref length, nested ()');
 
-    ok(+@c == 4, 'Array length, nested ()');
-    ok(+$c == 4, 'Array ref length, nested ()');
-    ok(+@d == 4, 'Array length, nested (), outer []s');
-    ok(+$d == 4, 'Array ref length, nested (), outer []s');
+    is(+@c, 4, 'Array length, nested ()');
+    is(+@d, 4, 'Array length, nested (), outer []s');
+    is(+$d, 4, 'Array ref length, nested (), outer []s');
 }
