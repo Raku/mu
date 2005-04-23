@@ -713,6 +713,7 @@ retControl c = do
     shiftT $ const (return $ VControl c)
 
 retError :: VStr -> Exp -> Eval a
+retError str (Val VUndef) = retError str (Val $ VStr str)
 retError str exp = do
     shiftT $ const (return $ VError str exp)
 
