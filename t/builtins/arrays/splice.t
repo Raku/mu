@@ -111,15 +111,13 @@ splice_ok splice(@a,-3,-2,2), @a, [7], [1,2,7,3], "Replacing negative count of e
 # Test the identity of calls to splice:
 # See also t/builtins/want.t, for the same test in a different
 # setting
-sub indirect_array_context( Array @got ) { 
-  return @got 
-};
+sub indirect_slurpy_context( *@got ) { @got };
 
 my @tmp = (1..10);
 @a = splice @tmp, 5, 3;
-@a = indirect_array_context( @a );
+@a = indirect_slurpy_context( @a );
 @tmp = (1..10);
-@b = indirect_array_context( splice @tmp, 5, 3 );
+@b = indirect_slurpy_context( splice @tmp, 5, 3 );
 is( @b, @a, "Calling splice with immediate and indirect context returns consistent results" );
 is( @a, [6,7,8], "Explicit call/assignment gives the expected results");
 is( @b, [6,7,8], "Implicit context gives the expected results" );
