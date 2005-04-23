@@ -13,7 +13,7 @@ L<S03/"Binding">
 
 =cut
 
-plan 11;
+plan 21;
 
 # L<S03/"Binding" /replaces the container itself.  For instance:/>
 
@@ -49,8 +49,45 @@ sub foo {
 ok(foo(), "CALLER resolves bindings in caller's dynamic scope");
 
 # Binding to swap
-my $a = "a";
-my $b = "b";
-($a, $b) := ($b,$a);
-is($a, 'b', '$a has been changed to "b"');
-is($b, 'a', '$b has been changed to "a"');
+{
+  my $a = "a";
+  my $b = "b";
+  ($a, $b) := ($b,$a);
+  is($a, 'b', '$a has been changed to "b"');
+  is($b, 'a', '$b has been changed to "a"');
+}
+
+# Binding subroutine parameters
+# XXX! When executed in interactive Pugs, the following test works!
+{
+  my $a;
+  my $b = sub($arg) { $a := $arg };
+  my $val = 42;
+
+  $b($val);
+  is $a, 42, "bound readonly sub param was bound correctly (1)";
+  $val++;
+  is $a, 43, "bound readonly sub param was bound correctly (2)";
+
+  throws_ok { $a = 23 }, "Can't modify constant item",
+    "bound readonly sub param remains readonly (1)";
+  is $a, 43,
+    "bound readonly sub param remains readonly (2)";
+  is $val, 43,
+    "bound readonly sub param remains readonly (3)";
+}
+
+{
+  my $a;
+  my $b = sub($arg is rw) { $a := $arg };
+  my $val = 42;
+
+  $b($val);
+  is $a, 42, "bound rw sub param was bound correctly (1)";
+  $val++;
+  is $a, 43, "bound rw sub param was bound correctly (2)";
+
+  lives_ok { $a = 23 }, "bound rw sub param remains rw (1)";
+  is $a, 23,            "bound rw sub param remains rw (2)";
+  is $val, 23,          "bound rw sub param remains rw (3)";
+}
