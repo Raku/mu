@@ -23,7 +23,7 @@ is equivalent to:
 
 =cut
 
-plan 30;
+plan 31;
 
 my (@a,@b,@res);
 
@@ -113,6 +113,8 @@ splice_ok splice(@a,-3,-2,2), @a, [7], [1,2,7,3], "Replacing negative count of e
 # setting
 sub indirect_slurpy_context( @got ) { @got };
 
+
+# splice4 gets "CxtItem _" or "CxtArray _" instead of "CxtSlurpy _"
 my @tmp = (1..10);
 @a = splice @tmp, 5, 3;
 @a = indirect_slurpy_context( @a );
@@ -122,3 +124,6 @@ is( @b, @a, "Calling splice with immediate and indirect context returns consiste
 is( @a, [6,7,8], "Explicit call/assignment gives the expected results");
 is( @b, [6,7,8], "Implicit context gives the expected results" );
 
+my @tmp = (1..10);
+@a = scalar splice @tmp, 5, 3;
+is( @a, [8], "Explicit scalar context returns the last element");
