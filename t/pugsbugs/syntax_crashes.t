@@ -2,14 +2,11 @@
 use v6;
 require Test;
 
-plan 2;
-
-fail("FIXME parsefail", :todo(1));
-#ok(not eval 'my @a = (1); @a<0>')   # eval should return undef on syntax error
+plan 1;
 
 my $junc = 1|2|3;
-#ok $junc.pick == 1|2|3;
-fail "FIXME parsefail", :todo(1);
+ok $junc.pick == 1|2|3;
+
 # Note:
 #   ok 1|2|3 == $junc.pick;
 # works fine, for some strange reason.
