@@ -140,6 +140,8 @@ L<S03/"Junctive operators">
 
 Tests junction examples from Synopsis 03 
 
+Tests use .perl representation for checking until a better way presents itself
+
 L<S03/"Junctive operators">
 
 =cut
@@ -199,7 +201,6 @@ L<S03/"Junctive operators">
     #my %got = ('1' => 1); # Hashes are unordered too
     #@foo = (2,3,4);
     #for all(@foo) { %got{$_} = 1; };
-    ##is_deeply(\%got, { la => 1, di => 1, da =>1 },
     #is( %got.keys.sort.join(','), '1,2,3,4',
     #    'for all(...) { ...} as parallelizable');
 }
@@ -250,6 +251,26 @@ L<S03/"Junctive operators"/"They thread through operations">
     #my @subs = (sub {3+$zero}, sub {2+$zero});
 }
 
+# Check functional and operator versions produce the same structure
+{
+    my ($got, $want);
+    $got = ((1|2)^(3&4)).perl;
+    $want = one(any(1,2),all(3,4)).perl;
+    is($got, $want, '((1|2)^(3&4)) equiv to one(any(1,2),all(3,4))');
+
+    $got = ((1|2)!(3&4)).perl;
+    $want = none(any(1,2),all(3,4)).perl;
+    is($got, $want, '((1|2)!(3&4)) equiv to none(any(1,2),all(3,4))');
+
+    $got = ((1|2)&(3&4)).perl;
+    $want = all(any(1,2),all(3,4)).perl;
+    is($got, $want, '((1|2)!(3&4)) equiv to all(any(1,2),all(3,4))');
+
+    $got = ((1|2)|(3&4)).perl;
+    $want = any(any(1,2),all(3,4)).perl;
+    is($got, $want, '((1|2)|(3&4)) equiv to any(any(1,2),all(3,4))');
+
+}
+
 is(none(1).pick, undef, 'none(1).pick should be undef');
 is(none(1,1).pick, undef, 'none(1,1).pick should be undef');
-
