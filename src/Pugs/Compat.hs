@@ -88,6 +88,7 @@ removeLink _ = warnWith "unlink"
 setFileMode :: FilePath -> FileMode -> IO ()
 setFileMode _ _ = warnWith "chmod"
 
+-- This is Win32 specific, dunno about other non POSIX platforms
 statFileSize :: FilePath -> IO Integer
 statFileSize n = bracket (openFile n ReadMode) hClose hFileSize
 -- statFileSize _ = failWith "-s"
