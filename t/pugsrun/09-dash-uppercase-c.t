@@ -29,7 +29,7 @@ my @t_todo = map{$_.values} (map{$_.values} (
     ~ any('Parrot')
     ~ ' examples/'
     ~ any(<
-  fp
+  fp/fp
   hanoi
   junctions/1
   junctions/3
@@ -106,4 +106,3 @@ for @tests_todo -> $test {
   unlink($dump_file)
     or diag "$dump_file was not removed for next run";
 };
-
