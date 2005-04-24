@@ -23,7 +23,7 @@ is equivalent to:
 
 =cut
 
-plan 31;
+plan 32;
 
 my (@a,@b,@res);
 
@@ -127,3 +127,9 @@ is( @b, [6,7,8], "Implicit context gives the expected results" );
 my @tmp = (1..10);
 @a = scalar splice @tmp, 5, 3;
 is( @a, [8], "Explicit scalar context returns the last element");
+
+## test some error conditions
+
+# un comment this to test, but now it causes a fatal error
+eval_ok '# splice([], 1)', '... this causes a fatal error';
+
