@@ -391,7 +391,7 @@ ruleTryConstruct = ruleKeywordConsturct "try"
 ruleForConstruct = rule "for construct" $ do
     symbol "for"
     list  <- maybeParens ruleExpression
-    block <- ruleBlockLiteral
+    block <- ruleVerbatimBlockLiteral
     retSyn "for" [list, block]
 
 ruleLoopConstruct = rule "loop construct" $ do
@@ -479,6 +479,14 @@ ruleBlockLiteral = rule "block construct" $ do
     body <- ruleBlock
     retBlock typ formal body
 
+ruleVerbatimBlockLiteral = rule "block construct" $ do
+    (typ, formal) <- option (SubBlock, Nothing) $ choice
+        [ ruleBlockFormalPointy
+        , ruleBlockFormalStandard
+        ]
+    body <- ruleBlock
+    retVerbatimBlock typ formal body
+
 extractHash :: Exp -> Maybe Exp
 extractHash (Syn "block" [exp]) = extractHash exp
 extractHash (Statements [(exp@(App "&pair" _ _), _)]) = Just exp
@@ -488,7 +496,9 @@ extractHash (Statements [(exp@(Syn "," (App "&infix:=>" _ _:_)), _)]) = Just exp
 extractHash _ = Nothing
 
 retBlock SubBlock Nothing exp | Just hashExp <- extractHash exp = return $ Syn "\\{}" [hashExp]
-retBlock typ formal body = do
+retBlock typ formal body = retVerbatimBlock typ formal body
+
+retVerbatimBlock typ formal body = do
     let (fun, names) = extract (body, [])
         params = (maybe [] id formal) ++ map nameToParam (sort names)
     -- Check for placeholder vs formal parameters
@@ -781,14 +791,14 @@ parseParenParamList = try $ do
 
 ruleAdverbBlock = tryRule "adverbial block" $ do
     char ':'
-    rblock <- ruleBlockLiteral
+    rblock <- ruleVerbatimBlockLiteral
     next <- option [] ruleAdverbBlock
     return (rblock:next)
 
 parseNoParenParamList = do
     formal <- (`sepEndBy` symbol ":") $ fix $ \rec -> do
         rv <- option Nothing $ do
-            return . Just =<< choice [ ruleBlockLiteral, parseLitOp ]
+            return . Just =<< choice [ ruleVerbatimBlockLiteral, parseLitOp ]
         case rv of
             Nothing  -> return []
             Just exp -> do
