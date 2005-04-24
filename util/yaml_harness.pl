@@ -84,10 +84,13 @@ sub shuffle {
 
 sub emit {
 	my($self) = @_;
+    $self->{_timing}{end} = time;
+    $self->{_timing}{duration} =
+        $self->{_timing}{end} - $self->{_timing}{start};
 	YAML::DumpFile($Config{"output-file"}, {
 			meat => $self->structure,
 			map { $_ => $self->{"_$_"} } qw{
-				build_info smoker config revision
+				build_info smoker config revision timing
 		}});
 }
 
@@ -119,6 +122,7 @@ sub _init {
 	
 	# XXX: should i just include \%Config here?
 	$self->{_config} = { shuffle => $Config{shuffle}+=0 };
+    $self->{_timing}{start} = time;
 
 	$self->SUPER::_init(@_);
 }
