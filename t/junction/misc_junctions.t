@@ -220,35 +220,29 @@ L<S03/"Junctive operators"/"They thread through operations">
 =cut
 
 {
-	# XXX when this works the tests might autothread, then use $got to avoid
-	my @subs = (sub {3}, sub {2});
+    my @subs = (sub {3}, sub {2});
 
     my ($got, $want);
 
-	# $want = (3|2).perl;
-    # $got = any(@subs)();
-    # is($got.perl, $want, '.() on any() junction of subs');
-    eval_is('any(@subs)().perl', "('2' | '3')", '.() on any() junction of subs', :todo(1));
+    $want = (3|2).perl;
+    $got = any(@subs)().perl;
+    is($got, $want, '.() on any() junction of subs');
 
-	# $want = (3&2).perl;
-    # $got = all(@subs)();
-    # is($got.perl, $want, '.() on all() junction of subs');
-    eval_is('all(@subs)().perl', "('2' & '3')", '.() on all() junction of subs', :todo(1));
+    $want = (3&2).perl;
+    $got = all(@subs)().perl;
+    is($got, $want, '.() on all() junction of subs');
 
-	# $want = (3^2).perl;
-    # $got = one(@subs)();
-    # is($got.perl, $want, '.() on one() junction of subs');
-    eval_is('one(@subs)().perl', "('2' ^ '3')", '.() on one() junction of subs', :todo(1));
+    $want = (3^2).perl;
+    $got = one(@subs)().perl;
+    is($got, $want, '.() on one() junction of subs');
 
-	# $want = none(3,2).perl;
-    # $got = none(@subs)();
-    # is($got.perl, $want, '.() on none() junction of subs');
-    eval_is('none(@subs)().perl', "('2' ! '3')", '.() on none() junction of subs', :todo(1));
+    $want = none(3,2).perl;
+    $got = none(@subs)().perl;
+    is($got, $want, '.() on none() junction of subs');
 
-	# $want = ((3|2)^(3&2)).perl;
-    # $got = one( any(@subs), all(@subs) )();
-    # is($got.perl, $want, '.() on complex junction of subs');
-    eval_is('one( any(@subs), all(@subs) ).perl', "((('2' ^ '3') | ('2' ^ '2')) & (('2' ^ '3') | ('3' ^ '3')))", '.() on complex junction of subs', :todo(1));
+    $want = one( any(3,2), all(3,2) ).perl;
+    $got = one( any(@subs), all(@subs) )().perl;
+    is($got, $want, '.() on complex junction of subs');
 
     # Avoid future constant folding
     #my $rand = rand;
