@@ -28,15 +28,16 @@ import Pugs.Types
 import qualified Pugs.Types.Hash as Hash
 import qualified Pugs.Types.Array as Array
 
+emptyEnv :: (MonadIO m) => [IO (Pad -> Pad)] -> m Env
 emptyEnv genPad = do
     pad  <- liftIO $ sequence genPad
     ref  <- liftIO $ newIORef Map.empty
     uniq <- liftIO $ newUnique
     syms <- liftIO $ initSyms
-    glob <- liftIO $ newIORef (pad ++ syms)
+    glob <- liftIO $ newIORef (combine (pad ++ syms) Map.empty)
     return $ Env
         { envContext = CxtVoid
-        , envLexical = []
+        , envLexical = Map.empty
         , envLValue  = False
         , envGlobal  = glob
         , envClasses = initTree
@@ -84,11 +85,23 @@ evaluate exp = do
     debug "indent" (tail) " Ret: " val
     trapVal val (return val)
 
-evalSym :: Symbol -> Eval (String, Val)
-evalSym sym = do
-    val <- readRef =<< symRef sym
-    return (symName sym, val)
-    
+
+findSyms :: Var -> Eval [(String, Val)]
+findSyms name = do
+    lex  <- asks envLexical
+    glob <- askGlobal
+    let names = [name, toGlobal name]
+    syms <- forM [lex, glob] $ \pad -> do
+        forM names $ \name' -> do
+            case Map.lookup name' pad of
+                Just ioRefs -> do
+                    refs  <- liftIO $ mapM readIORef ioRefs
+                    forM refs $ \ref -> do
+                        val <- readRef ref
+                        return (name', val)
+                Nothing -> return []
+    return $ concat (concat syms)
+
 enterEvalContext :: Cxt -> Exp -> Eval Val
 enterEvalContext cxt = enterContext cxt . evalExp
 
@@ -102,11 +115,11 @@ reduceExp exp = do
 retVal :: Val -> Eval Val
 retVal val = evaluate (Val val)  -- casting
 
-addGlobalSym sym = do
+addGlobalSym newSym = do
     glob <- asks envGlobal
     liftIO $ do
         syms <- readIORef glob
-        writeIORef glob (sym:syms)
+        writeIORef glob (newSym syms)
 
 -- XXX This is a mess. my() and our() etc should not be statement level!
 reduceStatements :: [(Exp, SourcePos)] -> Exp -> Eval Val
@@ -117,7 +130,7 @@ reduceStatements ((exp, pos):rest)
     | Sym scope name <- exp = const $ do
         ref <- newObject (typeOfSigil $ head name)
         let doRest = reduceStatements rest (Var name)
-        sym <- genSym name ref
+        sym <- genMultiSym name ref
         case scope of
             SMy -> enterLex [ sym ] doRest
             _   -> do { addGlobalSym sym; doRest }
@@ -129,7 +142,7 @@ reduceStatements ((exp, pos):rest)
     | Syn "dump" [] <- exp
     , null rest = \e -> do
         Env{ envGlobal = globals, envLexical = lexicals } <- ask
-        liftIO $ modifyIORef globals (lexicals ++)
+        liftIO $ modifyIORef globals (Map.union lexicals)
         reduceStatements rest e
     | null rest = const $ do
         _   <- asks envContext
@@ -587,13 +600,8 @@ reduce _ (App "&infix:=>" [keyExp, valExp] []) = do
     val <- enterEvalContext cxtItemAny valExp
     retVal $ castV (key, val)
 
-reduce Env{ envClasses = cls, envContext = cxt, envLexical = lex, envGlobal = glob } exp@(App name invs args) = do
-    syms    <- liftIO $ readIORef glob
-    subSyms <- mapM evalSym
-        [ sym | sym <- lex ++ syms
-        , let n = symName sym
-        , (n ==) `any` [name, toGlobal name]
-        ]
+reduce Env{ envClasses = cls, envContext = cxt } exp@(App name invs args) = do
+    subSyms <- findSyms name
     lens <- mapM argSlurpLen (invs ++ args)
     sub <- findSub (sum lens) subSyms
     case sub of
@@ -632,13 +640,7 @@ reduce Env{ envClasses = cls, envContext = cxt, envLexical = lex, envGlobal = gl
     mungeChainSub sub invs = do
         let MkCode{ subAssoc = "chain", subParams = (p:_) } = sub
             (App name' invs' args'):rest = invs
-        syms    <- liftIO $ readIORef glob
-        subSyms' <- mapM evalSym
-
-            [ sym | sym <- lex ++ syms
-            , let n = symName sym
-            , (n ==) `any` [name', toGlobal name']
-            ]
+        subSyms' <- findSyms name'
         lens'    <- mapM argSlurpLen (invs' ++ args')
         theSub <- findSub (sum lens') subSyms'
         case theSub of
@@ -727,9 +729,9 @@ doApply Env{ envClasses = cls } sub@MkCode{ subFun = fun, subType = typ } invs a
                         ++ show ((genericLength (take 1000 extra)) + n) ++ " actual, "
                         ++ show n ++ " expected"
             enterScope $ do
-                (pad, bound) <- doBind [] (subBindings sub)
+                (syms, bound) <- doBind [] (subBindings sub)
                 -- trace (show bound) $ return ()
-                val <- local fixEnv $ enterLex pad $ do
+                val <- local fixEnv $ enterLex syms $ do
                     (`juncApply` bound) $ \realBound -> do
                         enterSub sub $ do
                             applyExp realBound fun
@@ -742,20 +744,20 @@ doApply Env{ envClasses = cls } sub@MkCode{ subFun = fun, subType = typ } invs a
     fixEnv env
         | typ >= SubBlock = env
         | otherwise       = env{ envCaller = Just env }
-    doBind :: Pad -> [(Param, Exp)] -> Eval (Pad, [ApplyArg])
-    doBind pad [] = return (pad, [])
-    doBind pad ((prm, exp):rest) = do
+    doBind :: [Pad -> Pad] -> [(Param, Exp)] -> Eval ([Pad -> Pad], [ApplyArg])
+    doBind syms [] = return (syms, [])
+    doBind syms ((prm, exp):rest) = do
         -- trace ("<== " ++ (show (prm, exp))) $ return ()
         let name = paramName prm
             cxt = cxtOfSigil $ head name
         (val, coll) <- enterContext cxt $ case exp of
-            Parens exp  -> local fixEnv $ enterLex pad $ expToVal prm exp
+            Parens exp  -> local fixEnv $ enterLex syms $ expToVal prm exp
             _           -> expToVal prm exp
         -- trace ("==> " ++ (show val)) $ return ()
         boundRef <- fromVal val
-        sym      <- genSym name boundRef
-        (pad', restArgs) <- doBind (sym:pad) rest
-        return (pad', ApplyArg name val coll:restArgs)
+        newSym   <- genSym name boundRef
+        (syms', restArgs) <- doBind (newSym:syms) rest
+        return (syms', ApplyArg name val coll:restArgs)
     expToVal MkParam{ isThunk = thunk, isLValue = lv, paramContext = cxt, paramName = name, isWritable = rw } exp = do
         env <- ask -- freeze environment at this point for thunks
         let eval = local (const env{ envLValue = lv }) $ do

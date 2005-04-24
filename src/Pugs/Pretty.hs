@@ -17,6 +17,7 @@ import Pugs.Types
 import Pugs.AST
 import Text.PrettyPrint
 import qualified Data.Set as Set
+import qualified Data.Map as Map
 
 defaultIndent :: Int
 defaultIndent = 2
@@ -37,11 +38,10 @@ instance Pretty Exp where
     format (Sym scope name) = text "Sym" <+> text (show scope) <+> format name
     format x = text $ show x
 
-instance Pretty [Symbol] where
-    format syms = cat $ map format syms
-
-instance Pretty Symbol where
-    format (MkSym name var) = format name <+> text ":=" <+> (nest defaultIndent $ format var)
+instance Pretty Pad where
+    format pad = cat $ map formatAssoc (Map.assocs pad)
+        where
+        formatAssoc (name, var) = format name <+> text ":=" <+> (nest defaultIndent $ vcat $ map format var)
 
 instance Pretty SourcePos where
     format pos =

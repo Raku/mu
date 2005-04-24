@@ -28,6 +28,7 @@ import qualified Pugs.Types.Rule   as Rule
 import qualified Pugs.Types.Pair   as Pair
 import qualified Pugs.Types.Object as Object
 import qualified Data.Set       as Set
+import qualified Data.Map       as Map
 import qualified Data.HashTable as HTable
 
 type Ident = String
@@ -494,9 +495,9 @@ data VCode = MkCode
 
 mkPrim = MkCode
     { isMulti = True
-    , subName = error "missing name"
+    , subName = error "unknown primitive"
     , subType = SubPrim
-    , subPad = []
+    , subPad = Map.empty
     , subAssoc = "pre"
     , subParams = []
     , subBindings = []
@@ -505,8 +506,18 @@ mkPrim = MkCode
     , subFun = error "missing function"
     }
 
-
-emptySub = MkCode False "" SubBlock [] "" [] [] [] anyType emptyExp
+mkSub = MkCode
+    { isMulti = False
+    , subName = "&?"
+    , subType = SubBlock
+    , subPad = Map.empty
+    , subAssoc = "pre"
+    , subParams = []
+    , subBindings = []
+    , subSlurpLimit = []
+    , subReturns = anyType
+    , subFun = emptyExp
+    }
 
 instance Ord VComplex where {- ... -}
 instance (Typeable a) => Show (IORef a) where
@@ -647,18 +658,15 @@ envWant env =
     showCxt (CxtItem typ)   = "Scalar (" ++ show typ ++ ")"
     showCxt (CxtSlurpy typ) = "List (" ++ show typ ++ ")"
 
-type Pad = [Symbol]
-data Symbol = MkSym
-    { symName :: Var
-    , symVar  :: IORef VRef
-    }
-    deriving (Show, Eq, Ord, Typeable)
+type Pad = Map Var [IORef VRef]
+
+genMultiSym name ref = liftIO $ do
+    ioRef <- newIORef ref
+    return $ Map.insertWith (++) name [ioRef]
 
 genSym name ref = liftIO $ do
-    ioref <- newIORef ref
-    return $ MkSym name ioref
-
-    
+    ioRef <- newIORef ref
+    return $ Map.insert name [ioRef]
 
 show' :: (Show a) => a -> String
 show' x = "( " ++ show x ++ " )"
@@ -675,20 +683,24 @@ findSymRef name pad = do
         Nothing  -> fail $ "oops, can't find " ++ name
 
 findSym :: String -> Pad -> Maybe (IORef VRef)
-findSym name pad = do
-    s <- find ((== name) . symName) pad
-    return $ symVar s
+findSym name pad = case Map.lookup name pad of
+    Just (x:_)  -> Just x
+    _           -> Nothing
 
-symRef sym = liftIO . readIORef $ symVar sym
-
+{-
 cloneEnv env@Env{ envLexical = lex, envGlobal = globRef } = liftIO $ do
     glob     <- readIORef globRef
-    lex'     <- mapM cloneSym lex
-    glob'    <- mapM cloneSym glob
+    lex'     <- sequence $ fmap readIORef lex
+    glob'    <- sequence $ fmap readIORef glob
     globRef' <- newIORef glob'
     return $ env{ envLexical = lex', envGlobal = globRef' }
 
-cloneSym sym = genSym (symName sym) =<< symRef sym
+symRef sym = liftIO . readIORef $ symVar sym
+
+cloneSym ref = readIORef
+    rea
+    genSym (symName sym) =<< symRef sym
+-}
 
 
 askGlobal :: Eval Pad
@@ -699,18 +711,20 @@ askGlobal = do
 writeVar :: Var -> Val -> Eval ()
 writeVar name val = do
     glob <- askGlobal
-    case find ((== name) . symName) glob of
-        Just sym -> do
-            ref <- symRef sym
+    case findSym name glob of
+        Just ioRef -> do
+            ref <- liftIO $ readIORef ioRef
             writeRef ref val
         _        -> return () -- XXX Wrong
 
 readVar :: Var -> Eval Val
 readVar name = do
     glob <- askGlobal
-    case find ((== name) . symName) glob of
-        Just sym -> readRef =<< symRef sym
-        _ -> return VUndef
+    case findSym name glob of
+        Just ioRef -> do
+            ref <- liftIO $ readIORef ioRef
+            readRef ref
+        _        -> return undef
 
 emptyExp = Syn "noop" []
 
@@ -870,7 +884,7 @@ newObject (MkType "Array")  = liftIO $
 newObject (MkType "Hash")   = liftIO $
     return . hashRef =<< (HTable.new (==) HTable.hashString :: IO IHash)
 newObject (MkType "Code")   = liftIO $
-    return . codeRef =<< newIORef emptySub
+    return . codeRef =<< newIORef mkSub
 newObject typ      = do
     retError ("Cannot create object" ++ (show typ)) (Val undef)
 

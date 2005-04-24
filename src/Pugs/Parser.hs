@@ -20,6 +20,7 @@ import Pugs.Lexer
 import Pugs.Rule
 import Pugs.Rule.Expr
 import Pugs.Rule.Error
+import qualified Data.Map as Map
 
 -- Lexical units --------------------------------------------------
 
@@ -350,7 +351,7 @@ ruleClosureTrait = rule "closure trait" $ do
     let sub = MkCode
             { isMulti       = False
             , subName       = name
-            , subPad        = []
+            , subPad        = Map.empty
             , subType       = SubBlock
             , subAssoc      = "pre"
             , subReturns    = anyType
@@ -496,7 +497,7 @@ retBlock typ formal body = do
     let sub = MkCode
             { isMulti       = False
             , subName       = "<anon>"
-            , subPad        = []
+            , subPad        = Map.empty
             , subType       = typ
             , subAssoc      = "pre"
             , subReturns    = anyType
@@ -597,11 +598,11 @@ litOperators = do
 
 currentFunctions = do
     env     <- getState
-    return . unsafePerformIO $ do
+    return . concat . unsafePerformIO $ do
         glob <- readIORef $ envGlobal env
-        forM (glob ++ envLexical env) $ \sym -> do
-            ref <- symRef sym
-            return (dropWhile isPunctuation $ symName sym, ref)
+        forM (Map.assocs glob ++ Map.assocs (envLexical env)) $ \(name, ioRefs) -> do
+            refs <- mapM readIORef ioRefs
+            return $ map (\ref -> (dropWhile isPunctuation $ name, ref)) refs
 
 currentUnaryFunctions = do
     funs <- currentFunctions
@@ -709,7 +710,7 @@ parseTerm = rule "term" $ do
         , parens ruleExpression
         ]
     fs <- many rulePostTerm
-    return $ foldr (.) id (reverse fs) $ term
+    return $ combine (reverse fs) term
 
 rulePostTerm = tryVerbatimRule "term postfix" $ do
     hasDot <- option False $ do whiteSpace; char '.'; return True
@@ -997,7 +998,7 @@ qInterpolator flags = choice [
                     then many1 qInterpolatorPostTerm
                     else fail ""
                 _   -> fail ""
-            return $ foldr (.) id (reverse fs) $ makeVar var
+            return $ combine (reverse fs) (makeVar var)
         notProtected var flags =
             if second == qfProtectedChar flags
                 then False -- $ followed by delimiter is protected

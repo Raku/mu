@@ -14,12 +14,13 @@ import Pugs.Internals
 import Pugs.AST
 import Pugs.Context
 import Pugs.Types
+import qualified Data.Map as Map
 
 headVal []    = retEmpty
 headVal (v:_) = return v
 
-enterLex :: Pad -> Eval a -> Eval a
-enterLex pad = local (\e -> e{ envLexical = (pad ++ envLexical e) })
+enterLex :: [Pad -> Pad] -> Eval a -> Eval a
+enterLex newSyms = local (\e -> e{ envLexical = combine newSyms (envLexical e) })
 
 enterContext :: Cxt -> Eval a -> Eval a
 enterContext cxt = local (\e -> e{ envContext = cxt })
@@ -87,7 +88,7 @@ enterSub sub action
     fixEnv cc env@Env{ envLexical = pad }
         | typ >= SubBlock = do
             blockRec <- genSym "&?BLOCK" (codeRef (orig sub))
-            return $ \e -> e{ envLexical = (blockRec:subPad sub) ++ pad }
+            return $ \e -> e{ envLexical = combine [blockRec] (subPad sub `Map.union` pad) }
         | otherwise = do
             subRec <- sequence
                 [ genSym "&?SUB" (codeRef (orig sub))
@@ -95,7 +96,7 @@ enterSub sub action
             retRec    <- genSubs env "&return" retSub
             callerRec <- genSubs env "&?CALLER_CONTINUATION" (ccSub cc)
             return $ \e -> e
-                { envLexical = concat [subRec, retRec, callerRec, subPad sub] }
+                { envLexical = combine (concat [subRec, retRec, callerRec]) (subPad sub) }
     retSub env = mkPrim
         { subName = "return"
         , subParams = makeParams env
@@ -108,8 +109,8 @@ enterSub sub action
         }
 
 genSubs env name gen = sequence
-    [ genSym name (codeRef $ gen env)
-    , genSym name (codeRef $ (gen env) { subParams = [] })
+    [ genMultiSym name (codeRef $ gen env)
+    , genMultiSym name (codeRef $ (gen env) { subParams = [] })
     ]
 
 makeParams Env{ envContext = cxt, envLValue = lv }

@@ -12,7 +12,6 @@
 module Pugs.External where
 import Pugs.Internals
 import Pugs.AST
-import Pugs.Types
 import Pugs.External.Haskell (externalizeHaskell, loadHaskell)
 
 externalize :: String -> Exp -> IO String
@@ -37,19 +36,12 @@ externRequire lang name = do
     glob    <- asks envGlobal
     liftIO $ do
         bindings    <- externLoad lang name
-        newSyms     <- mapM gensym bindings
-        modifyIORef glob (newSyms ++)
+        newSyms     <- mapM gen bindings
+        modifyIORef glob (\pad -> combine newSyms pad)
     where
-    gensym (name, fun) = genSym ('&':name) . codeRef $ MkCode
-        { isMulti       = True
-        , subName       = ('&':name)
-        , subPad        = []
-        , subType       = SubPrim
-        , subAssoc      = "pre"
+    gen (name, fun) = genSym ('&':name) . codeRef $ mkPrim
+        { subName       = ('&':name)
         , subParams     = [buildParam "List" "" "*@?1" (Val VUndef)]
-        , subBindings   = []
-        , subReturns    = anyType
-        , subSlurpLimit = []
         , subFun        = (Prim fun)
         }
 

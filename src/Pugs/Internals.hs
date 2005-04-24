@@ -61,6 +61,7 @@ module Pugs.Internals (
     forM,
     forM_,
     tryIO,
+    combine,
 ) where
 
 import UTF8
@@ -166,3 +167,4 @@ forM_ = flip mapM_
 tryIO :: (MonadIO m) => a -> IO a -> m a
 tryIO err = liftIO . (`catch` (const $ return err))
 
+combine = foldr (.) id

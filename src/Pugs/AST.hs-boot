@@ -34,8 +34,6 @@ data Scope
 
 newtype VThunk = MkThunk (Eval Val)
 
-data Symbol
-
 data Exp
     = App String [Exp] [Exp]
     | Syn String [Exp]

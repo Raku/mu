@@ -973,8 +973,8 @@ op2Numeric f x y
         y' <- fromVal y
         return . VNum $ f x' y'
 
-primOp :: String -> String -> Params -> String -> IO Symbol
-primOp sym assoc prms ret = return . MkSym name =<< newIORef sub
+primOp :: String -> String -> Params -> String -> IO (Pad -> Pad)
+primOp sym assoc prms ret = genMultiSym name sub
     where
     name | isAlpha (head sym)
          , fixity == "prefix"
