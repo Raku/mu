@@ -58,6 +58,8 @@ signalProcess = System.Posix.Signals.signalProcess
 
 import Debug.Trace
 import System.Environment
+import IO
+import System.IO
 
 failWith s = fail $ "'" ++ s ++ "' not implemented on this platform."
 warnWith s = trace ("'" ++ s ++ "' not implemented on this platform.") $ return ()
@@ -87,7 +89,8 @@ setFileMode :: FilePath -> FileMode -> IO ()
 setFileMode _ _ = warnWith "chmod"
 
 statFileSize :: FilePath -> IO Integer
-statFileSize _ = failWith "-s"
+statFileSize n = bracket (openFile n ReadMode) hClose hFileSize
+-- statFileSize _ = failWith "-s"
 
 getProcessID :: IO ProcessID
 getProcessID = return 1
