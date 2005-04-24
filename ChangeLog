@@ -27,7 +27,7 @@
 * The `Any` parameter type no longer inhibits juctive autothreading
 * Variables in rvalue context no longer returns its references
 * `%h<>` now acts just like `%h{}` in both lhs and rhs
-* `%h<x>` now mean `%h{'x'}` instead of `%h{'x',}`
+* `%h<x>` now means `%h{'x'}` instead of `%h{'x',}`
 * `'key' => val` now works as named param just like `key => val` did
 * `(sub {3} | sub {2})()` implemented
 * `:P5` flags now work as `:P5<imsgx>` and `:i` `:g` works too
