@@ -561,7 +561,10 @@ reduce _ (App "&hash" invs args) =
     enterEvalContext cxtItemAny $ Syn "\\{}" [Syn "," $ invs ++ args]
 
 reduce _ (App "&list" invs args) =
-    enterEvalContext cxtSlurpyAny $ Syn "," (invs ++ args)
+    enterEvalContext cxtSlurpyAny $ case invs ++ args of
+        []    -> Val (VList [])
+        [exp] -> exp
+        exps  -> Syn "," exps
 
 reduce _ (App "&scalar" invs args)
     | [exp] <- invs ++ args = enterEvalContext cxtItemAny exp
