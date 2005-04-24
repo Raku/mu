@@ -1391,7 +1391,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   List      spre    =       (IO)\
 \\n   Junction  list    |       (Any|Junction)\
 \\n   Junction  list    &       (Any|Junction)\
-\\n   Junction  list    ^       (Any)\
+\\n   Junction  list    ^       (Any|Junction)\
 \\n   Junction  list    !       (Any|Junction)\
 \\n   Num       left    *       (Num, Num)\
 \\n   Num       left    /       (Num, Num)\
