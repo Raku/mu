@@ -798,14 +798,17 @@ ruleAdverbBlock = tryRule "adverbial block" $ do
 parseNoParenParamList = do
     formal <- (`sepEndBy` symbol ":") $ fix $ \rec -> do
         rv <- option Nothing $ do
-            return . Just =<< choice [ ruleVerbatimBlockLiteral, parseLitOp ]
+            return . Just =<< tryChoice
+                [ do x <- ruleVerbatimBlockLiteral
+                     lookAhead (satisfy (/= ','))
+                     return (x, return "")
+                , do x <- parseLitOp
+                     return (x, symbol ",")
+                ]
         case rv of
-            Nothing  -> return []
-            Just exp -> do
-                let f = case exp of
-                        Syn "sub" _ -> optional
-                        _ -> (>> return ())
-                rest <- option [] $ do { f $ symbol ","; rec }
+            Nothing           -> return []
+            Just (exp, trail) -> do
+                rest <- option [] $ do { trail; rec }
                 return (exp:rest)
     processFormals formal
 

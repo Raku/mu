@@ -3,17 +3,16 @@
 use v6;
 require Test;
 
-plan 2;
+plan 3;
 
 my $text  = "abc";
 my %ret;
 
-# Following dies untrappable.
-#  pugs: cannot cast from VList [VStr "a",VStr "b",VStr "c"] to AST.VCode
-%ret = map { $_ => uc $_ } (split "", $text);
+%ret = map { $_ => uc $_ } split "", $text;
 is ~%ret.kv, "a A b B c C", "=> works in a map block";
-#  The reason is that {=>} was inlined as a hash composition expression.
 
-# But this form works:
-%ret = map { $_, uc $_ }, (split "", $text);
+%ret = map { $_, uc $_ } split "", $text;
+is ~%ret.kv, "a A b B c C", "map called with function return values works";
+
+%ret = map { $_, uc $_ }, split "", $text;
 is ~%ret.kv, "a A b B c C", "map called with function return values works";
