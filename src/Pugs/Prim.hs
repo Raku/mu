@@ -26,11 +26,11 @@ import qualified Pugs.Types.Scalar as Scalar
 import qualified Pugs.Types.Pair   as Pair
 
 op0 :: Ident -> [Val] -> Eval Val
-op0 "!"  = (return . opJuncNone =<<) . mapM fromVal
-op0 "&"  = (return . opJuncAll =<<) . mapM fromVal
-op0 "^"  = (return . opJuncOne =<<) . mapM fromVal
-op0 "|"  = (return . opJuncAny =<<) . mapM fromVal
-op0 "want"  = const $ return . VStr =<< asks envWant
+op0 "!"  = fmap opJuncNone . mapM fromVal
+op0 "&"  = fmap opJuncAll  . mapM fromVal
+op0 "^"  = fmap opJuncOne  . mapM fromVal
+op0 "|"  = fmap opJuncAny  . mapM fromVal
+op0 "want"  = const $ fmap VStr (asks envWant)
 op0 "time"  = const $ do
     clkt <- liftIO getClockTime
     return $ VInt $ toInteger $ tdSec $ diffClockTimes clkt epochClkT
@@ -39,12 +39,12 @@ op0 "time"  = const $ do
     epoch = CalendarTime 2000 January 1 0 0 0 0 Saturday 0 "UTC" 0 False
 op0 "not" = const retEmpty
 op0 "so" = const (return $ VBool True)
-op0 "¥" = (return . VList . concat . op0Zip =<<) . mapM fromVal
+op0 "¥" = fmap (VList . concat . op0Zip) . mapM fromVal
 op0 "Y" = op0 "¥"
 op0 "File::Spec::cwd" = const $ do
     mycwd <- liftIO getCurrentDirectory
     return $ VStr mycwd
-op0 "pi" = const $ return . VNum $ pi
+op0 "pi" = const $ return (VNum pi)
 op0 "say" = const $ op1 "say" =<< readVar "$_"
 op0 "print" = const $ op1 "print" =<< readVar "$_"
 op0 "return" = \v -> return (VError "cannot return() outside a subroutine" (Val $ VList v))
@@ -96,7 +96,7 @@ op1 "post:++" = \x -> do
     val <- fromVal x
     ref <- fromVal x
     val' <- case val of
-        (VStr str)  -> return . VStr $ strInc str
+        (VStr str)  -> return (VStr $ strInc str)
         _           -> op1Numeric (+1) val
     writeRef ref val'
     case val of
@@ -145,11 +145,11 @@ op1 "reverse" = \v -> do
                 (do ref     <- fromVal v
                     val     <- readRef ref
                     str     <- fromVal val
-                    return . VStr $ reverse str)
+                    return (VStr $ reverse str))
                 (do ref     <- fromVal v
                     vals    <- readRef ref
                     vlist   <- fromVal vals
-                    return . VList $ reverse vlist)
+                    return (VList $ reverse vlist))
         _ -> ifListContext
             (op1Cast (VList . reverse) v)
             (op1Cast (VStr . reverse) v)
@@ -169,7 +169,7 @@ op1 "any"  = op1Cast opJuncAny
 op1 "all"  = op1Cast opJuncAll
 op1 "one"  = op1Cast opJuncOne
 op1 "none" = op1Cast opJuncNone
-op1 "perl" = (return . VStr =<<) . (prettyVal 0)
+op1 "perl" = fmap VStr . prettyVal 0
 op1 "require_haskell" = \v -> do
     name    <- fromVal v
     externRequire "Haskell" name
@@ -221,7 +221,7 @@ op1 "exit" = \v -> do
         else shiftT . const . return . VControl . ControlExit $ ExitSuccess
 op1 "readlink" = \v -> do
     str  <- fromVal v
-    tryIO undef $ return . VStr =<< readSymbolicLink str
+    tryIO undef $ fmap VStr (readSymbolicLink str)
 op1 "sleep" = boolIO (threadDelay . (* 1000000))
 op1 "mkdir" = boolIO createDirectory
 op1 "rmdir" = boolIO removeDirectory
@@ -253,7 +253,7 @@ op1 "slurp" = \v -> do
         (VHandle h) -> do
             ifListContext
                 (op1 "=" val)
-                (return . VStr =<< (liftIO $ hGetContents h))
+                (fmap VStr (liftIO $ hGetContents h))
         _ -> do
             fileName    <- fromVal val
             ifListContext
@@ -305,8 +305,8 @@ op1 "close" = \v -> do
     case val of
         (VSocket _) -> boolIO sClose val
         _           -> boolIO hClose val
-op1 "key" = (return . fst =<<) . (fromVal :: Val -> Eval VPair)
-op1 "value" = (return . snd =<<) . (fromVal :: Val -> Eval VPair)
+op1 "key" = fmap fst . (fromVal :: Val -> Eval VPair)
+op1 "value" = fmap snd . (fromVal :: Val -> Eval VPair)
 op1 "pairs" = \v -> do
     pairs <- op1Pairs v
     return $ VList pairs
@@ -315,7 +315,7 @@ op1 "kv" = \v -> do
     kvs   <- forM pairs $ \(VRef ref) -> do
         pair   <- readRef ref
         fromVal pair
-    return . VList $ concat kvs 
+    return (VList $ concat kvs)
 op1 "keys" = op1Keys
 op1 "values" = op1Values
 op1 "readline" = op1 "="
@@ -335,7 +335,7 @@ op1 "=" = \v -> do
             else return $ VList []
     getLine :: VHandle -> Eval Val
     getLine fh = tryIO undef $
-        (return . VStr . (++ "\n") =<< hGetLine fh)
+        fmap (VStr . (++ "\n")) (hGetLine fh)
     handleOf VUndef = handleOf (VList [])
     handleOf (VList []) = do
         argsGV  <- readVar "$*ARGS"
@@ -352,13 +352,13 @@ op1 "=" = \v -> do
                         writeVar "$*ARGS" (VHandle hdl)
                         return hdl
     handleOf (VStr x) = do
-        rv <- tryIO Nothing (return . Just =<< openFile x ReadMode)
+        rv <- tryIO Nothing (fmap Just $ openFile x ReadMode)
         case rv of
             Nothing  -> retError "No such file or directory" (Val $ VStr x)
             Just hdl -> return hdl
     handleOf (VList [x]) = handleOf x
     handleOf v = fromVal v
-op1 "ref"   = (return . VStr . show =<<) . evalValType
+op1 "ref"   = fmap (VStr . show) . evalValType
 op1 "pop"   = \x -> join $ doArray x Array.pop -- monadic join
 op1 "shift" = \x -> join $ doArray x Array.shift -- monadic join
 op1 "pick"  = op1Pick
@@ -385,7 +385,7 @@ op1EvalHaskell cv = do
             retEmpty
 
 op1Cast :: (Value n) => (n -> Val) -> Val -> Eval Val
-op1Cast f val = return . f =<< fromVal =<< fromVal' val
+op1Cast f val = fmap f (fromVal =<< fromVal' val)
 
 op2Cast :: (Value n, Value m) => (n -> m -> Val) -> Val -> Val -> Eval Val
 op2Cast f x y = do
@@ -601,7 +601,7 @@ op2 "delete" = \x y -> do
     deleteFromRef ref y
 op2 "exists" = \x y -> do
     ref <- fromVal x
-    return . VBool =<< existsFromRef ref y
+    fmap VBool (existsFromRef ref y)
 op2 "unshift" = op2Array Array.unshift
 op2 "push" = op2Array Array.push
 op2 "split"= \x y -> do
@@ -806,11 +806,11 @@ op4 other = \x y z w -> return $ VError ("unimplemented 4-ary op: " ++ other) (A
 
 op2Hyper op x y
     | VList x' <- x, VList y' <- y
-    = hyperLists x' y' >>= (return . VList)
+    = fmap VList $ hyperLists x' y'
     | VList x' <- x
-    = mapM ((flip (op2 op)) y) x' >>= (return . VList)
+    = fmap VList $ mapM ((flip (op2 op)) y) x'
     | VList y' <- y
-    = mapM (op2 op x) y' >>= (return . VList)
+    = fmap VList $ mapM (op2 op x) y'
     | otherwise
     = return $ VError "Hyper OP only works on lists" (Val VUndef)
     where
@@ -948,10 +948,10 @@ op1Floating f v = do
 op1Numeric :: (forall a. (Num a) => a -> a) -> Val -> Eval Val
 op1Numeric f VUndef     = return . VInt $ f 0
 op1Numeric f (VInt x)   = return . VInt $ f x
-op1Numeric f l@(VList _)= return . VInt . f =<< fromVal l
+op1Numeric f l@(VList _)= fmap (VInt . f) (fromVal l)
 op1Numeric f (VRat x)   = return . VRat $ f x
 op1Numeric f (VRef x)   = op1Numeric f =<< readRef x
-op1Numeric f x          = return . VNum . f =<< fromVal x
+op1Numeric f x          = fmap (VNum . f) (fromVal x)
 
 --- XXX wrong: try num first, then int, then vcast to Rat (I think)
 op2Numeric :: (forall a. (Num a) => a -> a -> a) -> Val -> Val -> Eval Val

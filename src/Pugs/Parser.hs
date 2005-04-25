@@ -793,8 +793,7 @@ parseApply = lexeme $ do
 parseParamList = parseParenParamList <|> parseNoParenParamList
 
 parseParenParamList = try $ do
-    params <- option Nothing $ do
-        return . Just =<< parens parseNoParenParamList
+    params <- option Nothing $ fmap Just (parens parseNoParenParamList)
     block       <- option [] ruleAdverbBlock
     when (isNothing params && null block) $ fail ""
     let (inv, norm) = maybe ([], []) id params
@@ -811,7 +810,7 @@ ruleAdverbBlock = tryRule "adverbial block" $ do
 parseNoParenParamList = do
     formal <- (`sepEndBy` symbol ":") $ fix $ \rec -> do
         rv <- option Nothing $ do
-            return . Just =<< tryChoice
+            fmap Just $ tryChoice
                 [ do x <- ruleBlockLiteral
                      lookAhead (satisfy (/= ','))
                      return (x, return "")

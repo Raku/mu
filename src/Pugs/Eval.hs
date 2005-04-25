@@ -191,7 +191,7 @@ findVar env name = do
     rv <- findVarRef env name
     case rv of
         Nothing  -> return Nothing
-        Just ref -> return . Just =<< liftIO (readIORef ref)
+        Just ref -> fmap Just $ liftIO (readIORef ref)
 
 findVarRef :: Env -> Ident -> Eval (Maybe (IORef VRef))
 findVarRef env name
@@ -840,7 +840,7 @@ doFetch fetchElem fetchVal fetchIdx isLV isSV = case (isLV, isSV) of
     (False, False) -> do
         -- RValue, List context
         idxList <- fetchIdx
-        return . VList =<< mapM fetchVal idxList
+        fmap VList $ mapM fetchVal idxList
 
 mkFetch :: (Value n) => Eval (n -> Eval t) -> Val -> Eval t
 mkFetch f v = do
