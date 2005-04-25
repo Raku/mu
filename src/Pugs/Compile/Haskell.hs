@@ -34,7 +34,8 @@ compile (App ('&':op) [] [arg]) = [| do
     |] where
     argC = compile arg
 compile (Val (VStr s)) = [| return (VStr s) |]
-compile (Statements [(st, _)]) = [| do $(compile st) |]
+compile (Stmts [(st, _)]) = [| do $(compile st) |]
+compile Noop = [| return () |]
 compile exp = internalError ("Unrecognized construct: " ++ show exp)
 
 #endif

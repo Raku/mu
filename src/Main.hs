@@ -176,9 +176,9 @@ doRunSingle menv opts prog = (`catch` handler) $ do
         else print
     makeProper exp = case exp of
         Val err@(VError _ _) -> fail $ pretty err
-        Statements stmts@((_,pos):_) | not (runOptSeparately opts) -> do
+        Stmts stmts@((_,pos):_) | not (runOptSeparately opts) -> do
             let withDump = stmts ++ [(Syn "dump" [], pos)]
-            return $ Statements withDump
+            return $ Stmts withDump
         _ | not (runOptSeparately opts) -> fail "Expected statements"
         _ -> return exp
     handler err = if not (isUserError err) then ioError err else do

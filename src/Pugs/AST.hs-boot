@@ -35,7 +35,8 @@ data Scope
 newtype VThunk = MkThunk (Eval Val)
 
 data Exp
-    = App String [Exp] [Exp]
+    = Noop
+    | App String [Exp] [Exp]
     | Syn String [Exp]
     | Cxt Cxt Exp
     | Sym Scope Var
@@ -44,7 +45,7 @@ data Exp
     | Var Var
     | Parens Exp
     | NonTerm SourcePos
-    | Statements [(Exp, SourcePos)]
+    | Stmts [(Exp, SourcePos)]
 
 data Val
 

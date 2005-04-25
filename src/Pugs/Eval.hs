@@ -124,32 +124,34 @@ addGlobalSym newSym = do
 -- XXX This is a mess. my() and our() etc should not be statement level!
 reduceStatements :: [(Exp, SourcePos)] -> Exp -> Eval Val
 reduceStatements [] = reduceExp
-reduceStatements ((exp, pos):rest)
-    | Syn ";" exps <- exp = do
+reduceStatements ((exp, pos):rest) = case exp of
+    Noop -> reduceStatements rest
+
+    Syn ";" exps -> do
         reduceStatements $ (exps `zip` repeat pos) ++ rest
-    | Sym scope name <- exp = const $ do
+
+    Sym scope name -> const $ do
         ref <- newObject (typeOfSigil $ head name)
         let doRest = reduceStatements rest (Var name)
         sym <- genMultiSym name ref
         case scope of
             SMy -> enterLex [ sym ] doRest
             _   -> do { addGlobalSym sym; doRest }
-    | Syn "sub" [Val (VCode sub)] <- exp
-    , subType sub >= SubBlock = do
+
+    Syn "sub" [Val (VCode sub)] | subType sub >= SubBlock -> do
         -- bare Block in statement level; run it!
         let app = Syn "()" [exp, Syn "invs" [], Syn "args" []]
         reduceStatements $ (app, pos):rest
-    | Syn "dump" [] <- exp
-    , null rest = \e -> do
+    Syn "dump" [] | null rest -> \e -> do
         Env{ envGlobal = globals, envLexical = lexicals } <- ask
         liftIO $ modifyIORef globals (Map.union lexicals)
         reduceStatements rest e
-    | null rest = const $ do
+    _ | null rest -> const $ do
         _   <- asks envContext
         pad <- posSyms pos
         val <- enterLex pad $ reduceExp exp
         retVal val
-    | otherwise = const $ do
+    _ -> const $ do
         val <- enterContext cxtVoid $ do
             pad <- posSyms pos
             enterLex pad $ do
@@ -253,7 +255,7 @@ reduce env exp@(Var name) = do
         return $ castV ref
     retVal val
 
-reduce _ (Statements stmts) = do
+reduce _ (Stmts stmts) = do
     let (global, local) = partition isGlobalExp stmts
     reduceStatements (global ++ local) $ Val undef
     where
@@ -264,6 +266,9 @@ reduce _ (Statements stmts) = do
 reduce _ (Cxt cxt exp) = do
     val <- enterEvalContext cxt exp
     enterEvalContext cxt (Val val) -- force casting
+
+-- Reduction for no-operations
+reduce _ Noop = retEmpty
 
 -- Reduction for syntactic constructs
 reduce env exp@(Syn name exps) = case name of
@@ -291,7 +296,7 @@ reduce env exp@(Syn name exps) = case name of
         enterLoop $ runBody vals
     "loop" -> do
         let [pre, cond, post, body] = case exps of { [_] -> exps'; _ -> exps }
-            exps' = [Syn "noop" [], Val (VBool True), Syn "noop" []] ++ exps
+            exps' = [emptyExp, Val (VBool True), emptyExp] ++ exps
         evalExp pre
         enterLoop . fix $ \runBody -> do
             valBody <- evalExp body
@@ -508,7 +513,6 @@ reduce env exp@(Syn name exps) = case name of
             { '-' -> "__"; _ | isAlphaNum v -> [v] ; _ -> "_" }
         op1 "require_haskell" (VStr $ file ++ ".o")
         retEmpty
-    "noop" -> retEmpty
     syn | last syn == '=' -> do
         let [lhs, exp] = exps
             op = "&infix:" ++ init syn

@@ -524,7 +524,8 @@ instance (Typeable a) => Show (IORef a) where
     show a = "<" ++ show (typeOf a) ++ ">"
 
 data Exp
-    = App String [Exp] [Exp]
+    = Noop
+    | App String [Exp] [Exp]
     | Syn String [Exp]
     | Cxt Cxt Exp
     | Sym Scope Var
@@ -533,7 +534,7 @@ data Exp
     | Var Var
     | Parens Exp
     | NonTerm SourcePos
-    | Statements [(Exp, SourcePos)]
+    | Stmts [(Exp, SourcePos)]
     deriving (Show, Eq, Ord)
 
 fromVals :: (Value n) => Val -> Eval [n]
@@ -555,7 +556,7 @@ extract ((App n invs args), vs) = (App n invs' args', vs'')
     where
     (invs', vs')  = foldr extractExp ([], vs) invs
     (args', vs'') = foldr extractExp ([], vs') args
-extract ((Statements stmts), vs) = (Statements stmts', vs')
+extract ((Stmts stmts), vs) = (Stmts stmts', vs')
     where
     exps = map fst stmts
     poss = map snd stmts
@@ -726,7 +727,7 @@ readVar name = do
             readRef ref
         _        -> return undef
 
-emptyExp = Syn "noop" []
+emptyExp = Noop
 
 retControl :: VControl -> Eval a
 retControl c = do

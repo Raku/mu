@@ -15,7 +15,7 @@ import Pugs.AST
 import Pugs.External.Haskell (externalizeHaskell, loadHaskell)
 
 externalize :: String -> Exp -> IO String
-externalize mod (Statements stmts) = externExternalize backend mod code
+externalize mod (Stmts stmts) = externExternalize backend mod code
     where
     (backend, code)
         | null things   = error "no inline found"

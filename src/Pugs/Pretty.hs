@@ -33,7 +33,7 @@ instance Pretty Exp where
     format (NonTerm pos) = format pos
     format (Val v) = format v
     format (Syn x vs) = text "Syn" <+> format x $+$ (braces $ vcat (punctuate (text ";") (map format vs)))
-    format (Statements lines) = (vcat $ punctuate (text ";") $ (map format) lines)
+    format (Stmts lines) = (vcat $ punctuate (text ";") $ (map format) lines)
     format (App sub invs args) = text "App" <+> format sub <+> parens (nest defaultIndent $ vcat (punctuate (text ", ") (map format $ invs ++ args)))
     format (Sym scope name) = text "Sym" <+> text (show scope) <+> format name
     format x = text $ show x

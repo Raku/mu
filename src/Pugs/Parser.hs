@@ -26,13 +26,10 @@ import qualified Data.Map as Map
 
 ruleProgram :: RuleParser Env
 ruleProgram = rule "program" $ do
-    whiteSpace
-    many (symbol ";")
-    statements <- option [] ruleStatementList
-    many (symbol ";")
+    statements <- ruleBlockBody
     eof
     env <- getState
-    return $ env { envBody = Statements statements }
+    return $ env { envBody = statements }
 
 ruleBlock :: RuleParser Exp
 ruleBlock = lexeme ruleVerbatimBlock
@@ -42,12 +39,18 @@ ruleVerbatimBlock = verbatimRule "block" $ do
     body <- between (symbol "{") (char '}') ruleBlockBody
     retSyn "block" [body]
 
+ruleEmptyExp = do
+    pos <- getPosition
+    symbol ";"
+    return $ Stmts [(emptyExp, pos)]
+
 ruleBlockBody = do
     whiteSpace
-    many (symbol ";")
-    statements <- option [] ruleStatementList
-    many (symbol ";")
-    return $ Statements statements
+    pre     <- many ruleEmptyExp
+    body    <- option emptyExp ruleStatementList
+    post    <- many ruleEmptyExp
+    body'   <- foldM (flip mergeStatements) body pre
+    foldM mergeStatements body' post
 
 ruleStandaloneBlock = tryRule "standalone block" $ do
     body <- bracesAlone ruleBlockBody
@@ -67,7 +70,7 @@ ruleStatement = do
         ]
     f exp
 
-ruleStatementList :: RuleParser [(Exp, SourcePos)]
+ruleStatementList :: RuleParser Exp
 ruleStatementList = rule "statements" $ choice
     [ ruleDocBlock
     , nonSep  ruleBlockDeclaration
@@ -80,10 +83,28 @@ ruleStatementList = rule "statements" $ choice
     semiSep = doSep many1
     doSep count rule = do
         whiteSpace
-        pos         <- getPosition
-        statement   <- rule
-        rest        <- option [] $ try $ do { count (symbol ";"); ruleStatementList }
-        return ((statement, pos):rest)
+        pos     <- getPosition
+        exp     <- rule
+        rest    <- option return $ try $ do
+            count (symbol ";")
+            stmts <- ruleStatementList
+            return $ \exp -> mergeStatements (Stmts [(exp, pos)]) stmts
+        rest exp
+
+mergeStatements (Stmts xs) (Stmts ys) = return . Stmts $ foldStatements (xs ++ ys)
+mergeStatements (Stmts xs) y = do
+    pos <- if null xs then getPosition else return (snd $ last xs)
+    return . Stmts $ foldStatements (xs ++ [(y, pos)])
+mergeStatements x (Stmts ys) = do
+    pos <- if null ys then getPosition else return (snd $ head ys)
+    return . Stmts $ foldStatements ((x, pos):ys)
+mergeStatements x y = do
+    pos <- getPosition
+    return . Stmts $ foldStatements [(x, pos), (y, pos)]
+
+foldStatements = concatMap $ \(exp, pos) -> case exp of
+    Stmts stmts -> stmts
+    _           -> [(exp, pos)]
 
 ruleBeginOfLine = do
     pos <- getPosition
@@ -116,11 +137,11 @@ ruleDocBlock = verbatimRule "Doc block" $ do
     if isEnd
         then do
             many anyChar
-            return []
+            return emptyExp
         else do
             ruleDocBody
             whiteSpace
-            option [] ruleStatementList
+            option emptyExp ruleStatementList
 
 ruleDocBody = (try ruleDocCut) <|> eof <|> do
     many $ satisfy  (/= '\n')
@@ -173,6 +194,7 @@ ruleSubGlobal = rule "global subroutine" $ do
 
 ruleSubDeclaration :: RuleParser Exp
 ruleSubDeclaration = rule "subroutine declaration" $ do
+    namePos <- getPosition
     (scope, typ, multi, name) <- tryChoice
         [ ruleSubScopedWithContext
         , ruleSubScoped
@@ -181,6 +203,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
     formal  <- option Nothing $ ruleSubParameters ParensMandatory
     typ'    <- option typ $ try $ ruleBareTrait "returns"
     _       <- many $ ruleTrait -- traits; not yet used
+    bodyPos <- getPosition
     body    <- ruleBlock
     let (fun, names) = extract (body, [])
         params = map nameToParam (sort names) ++ (maybe [defaultArrayParam] id formal)
@@ -201,9 +224,9 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
             , subFun        = fun
             }
     -- XXX: user-defined infix operator
-    return $ Syn ";"
-        [ Sym scope name
-        , Syn ":=" [Var name, Syn "sub" [subExp]]
+    return $ Stmts
+        [ (Sym scope name, namePos)
+        , (Syn ":=" [Var name, Syn "sub" [subExp]], bodyPos)
         ]
 
 subNameWithPrefix prefix = (<?> "subroutine name") $ lexeme $ try $ do
@@ -262,13 +285,18 @@ ruleParamDefault False = rule "default value" $ option (Val VUndef) $ do
 
 ruleVarDeclaration :: RuleParser Exp
 ruleVarDeclaration = rule "variable declaration" $ do
-    scope   <- ruleScope
-    lhs     <- choice
-        [ do name <- parseVarName
-             return $ Var name
-        , do names <- parens $ parseVarName `sepEndBy` symbol ","
-             return $ Syn "," (map Var names)
+    scope       <- ruleScope
+    (decl, lhs) <- choice
+        [ do pos  <- getPosition
+             name <- parseVarName
+             return ([(Sym scope name, pos)], Var name)
+        , do decl <- parens . (`sepEndBy` symbol ",") $ do
+                pos  <- getPosition
+                name <- parseVarName
+                return (Sym scope name, pos)
+             return (decl, Syn "," (map (\(Sym _ name, _) -> Var name) decl))
         ]
+    pos <- getPosition
     (sym, expMaybe) <- option ("=", Nothing) $ do
         sym <- tryChoice $ map string $ words " = := ::= "
         when (sym == "=") $ do
@@ -277,14 +305,9 @@ ruleVarDeclaration = rule "variable declaration" $ do
         whiteSpace
         exp <- ruleExpression
         return (sym, Just exp)
-    -- now match exps up with names and modify them.
-    let names (Syn "," vars) = concatMap names vars
-        names (Var name)     = [name]
-        names exp            = error $ "invalid exp:" ++ show exp
-        syn = map (Sym scope) $ names lhs
     return $ case expMaybe of
-        Just exp -> Syn ";" $ syn ++ [Syn sym [lhs, exp]]
-        Nothing  -> Syn ";" syn
+        Just exp -> Stmts (decl ++ [(Syn sym [lhs, exp], pos)])
+        Nothing  -> Stmts decl
 
 ruleUseDeclaration :: RuleParser Exp
 ruleUseDeclaration = rule "use declaration" $ do
@@ -297,13 +320,7 @@ ruleUseVersion = rule "use version" $ do
     when (version > versnum) $ do
         pos <- getPosition
         error $ "Perl v" ++ version ++ " required--this is only v" ++ versnum ++ ", stopped at " ++ (show pos)
-    return $ Syn "noop" []
-
-{-
-ruleUsePackage = rule "use package" $ do
-    _ <- identifier -- package -- XXX - ::
-    return $ Syn "noop" []
--}
+    return emptyExp
 
 ruleUsePackage = rule "use package" $ do
     names <- identifier `sepBy1` (try $ string "::")
@@ -391,17 +408,17 @@ ruleTryConstruct = ruleKeywordConsturct "try"
 ruleForConstruct = rule "for construct" $ do
     symbol "for"
     list  <- maybeParens ruleExpression
-    block <- ruleVerbatimBlockLiteral
+    block <- ruleBlockLiteral
     retSyn "for" [list, block]
 
 ruleLoopConstruct = rule "loop construct" $ do
     symbol "loop"
     conds <- option [] $ maybeParens $ try $ do
-        a <- option (Syn "noop" []) $ ruleExpression
+        a <- option emptyExp ruleExpression
         symbol ";"
-        b <- option (Syn "noop" []) $ ruleExpression
+        b <- option emptyExp ruleExpression
         symbol ";"
-        c <- option (Syn "noop" []) $ ruleExpression
+        c <- option emptyExp ruleExpression
         return [a,b,c]
     block <- ruleBlock
     -- XXX while/until
@@ -414,7 +431,7 @@ ruleCondConstruct = rule "conditional construct" $ do
 ruleCondBody csym = rule "conditional expression" $ do
     cond <- maybeParens $ ruleExpression
     body <- ruleBlock
-    bodyElse <- option (Syn "noop" []) $ ruleElseConstruct
+    bodyElse <- option emptyExp ruleElseConstruct
     retSyn csym [cond, body, bodyElse]
 
 ruleElseConstruct = rule "else or elsif construct" $
@@ -457,7 +474,7 @@ ruleExpression = (<?> "expression") $ parseOp
 rulePostConditional = rule "postfix conditional" $ do
     cond <- tryChoice $ map symbol ["if", "unless"]
     exp <- ruleExpression
-    return $ \body -> retSyn cond [exp, body, Syn "noop" []]
+    return $ \body -> retSyn cond [exp, body, emptyExp]
 
 rulePostLoop = rule "postfix loop" $ do
     cond <- tryChoice $ map symbol ["while", "until"]
@@ -479,20 +496,12 @@ ruleBlockLiteral = rule "block construct" $ do
     body <- ruleBlock
     retBlock typ formal body
 
-ruleVerbatimBlockLiteral = rule "block construct" $ do
-    (typ, formal) <- option (SubBlock, Nothing) $ choice
-        [ ruleBlockFormalPointy
-        , ruleBlockFormalStandard
-        ]
-    body <- ruleBlock
-    retVerbatimBlock typ formal body
-
 extractHash :: Exp -> Maybe Exp
 extractHash (Syn "block" [exp]) = extractHash exp
-extractHash (Statements [(exp@(App "&pair" _ _), _)]) = Just exp
-extractHash (Statements [(exp@(App "&infix:=>" _ _), _)]) = Just exp
-extractHash (Statements [(exp@(Syn "," (App "&pair" _ _:_)), _)]) = Just exp
-extractHash (Statements [(exp@(Syn "," (App "&infix:=>" _ _:_)), _)]) = Just exp
+extractHash exp@(App "&pair" _ _) = Just exp
+extractHash exp@(App "&infix:=>" _ _) = Just exp
+extractHash exp@(Syn "," (App "&pair" _ _:_)) = Just exp
+extractHash exp@(Syn "," (App "&infix:=>" _ _:_)) = Just exp
 extractHash _ = Nothing
 
 retBlock SubBlock Nothing exp | Just hashExp <- extractHash exp = return $ Syn "\\{}" [hashExp]
@@ -791,7 +800,7 @@ parseParenParamList = try $ do
 
 ruleAdverbBlock = tryRule "adverbial block" $ do
     char ':'
-    rblock <- ruleVerbatimBlockLiteral
+    rblock <- ruleBlockLiteral
     next <- option [] ruleAdverbBlock
     return (rblock:next)
 
@@ -799,7 +808,7 @@ parseNoParenParamList = do
     formal <- (`sepEndBy` symbol ":") $ fix $ \rec -> do
         rv <- option Nothing $ do
             return . Just =<< tryChoice
-                [ do x <- ruleVerbatimBlockLiteral
+                [ do x <- ruleBlockLiteral
                      lookAhead (satisfy (/= ','))
                      return (x, return "")
                 , do x <- parseLitOp
