@@ -131,5 +131,5 @@ is( @a, [8], "Explicit scalar context returns the last element");
 ## test some error conditions
 
 # un comment this to test, but now it causes a fatal error
-eval_ok '# splice([], 1)', '... this causes a fatal error';
-
+@a = splice([], 1);
+is +@a, 0, '... empty lists are not fatal anymore';
