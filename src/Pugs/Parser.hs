@@ -46,11 +46,15 @@ ruleEmptyExp = do
 
 ruleBlockBody = do
     whiteSpace
+    pos     <- getPosition
     pre     <- many ruleEmptyExp
     body    <- option emptyExp ruleStatementList
     post    <- many ruleEmptyExp
-    body'   <- foldM (flip mergeStatements) body pre
-    foldM mergeStatements body' post
+    body    <- foldM (flip mergeStatements) body pre
+    body    <- foldM mergeStatements body post
+    return $ case body of
+        Syn "sub" _ -> Stmts [(body, pos)]
+        _           -> body
 
 ruleStandaloneBlock = tryRule "standalone block" $ do
     body <- bracesAlone ruleBlockBody
