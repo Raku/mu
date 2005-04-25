@@ -3,7 +3,29 @@
 use v6;
 require Test;
 
-plan 14;
+plan 21;
+
+##  basic sanity checking  ##
+
+{
+    my ($a,$b,$c,$d,$e,$f,$g);
+    
+    $a = 1 if 1;
+    $b = 1 if 0;
+    $c = 1 if "true";
+    $d = 1 if "";
+    $e = 1 if "1";
+    $f = 1 if "0";
+    $g = 1 if undef;
+    
+    ok($a==1, 'literal in bool context - numeric true value');
+    ok($b==0, 'literal in bool context - numeric false value');
+    ok($c==1, 'literal in bool context - string true value');
+    ok($d==0, 'literal in bool context - string false value');
+    ok($e==1, 'literal in bool context - stringified true value');
+    ok($f==0, 'literal in bool context - stringified false value');
+    ok($g==0, 'literal in bool context - undef value');
+}
 
 ##  array checking  ##
 
@@ -23,12 +45,12 @@ plan 14;
     $g = 1 if @array[6];
     
     ok($a==1, 'array in bool context - numeric true value');
-    ok($b!=1, 'array in bool context - numeric false value');
+    ok($b==0, 'array in bool context - numeric false value');
     ok($c==1, 'array in bool context - string true value');
-    ok($d!=1, 'array in bool context - string false value');
+    ok($d==0, 'array in bool context - string false value');
     ok($e==1, 'array in bool context - stringified true value');
-    ok($f!=1, 'array in bool context - stringified false value');
-    ok($g!=1, 'array in bool context - undef value');
+    ok($f==0, 'array in bool context - stringified false value');
+    ok($g==0, 'array in bool context - undef value');
 }
 
 ##  hash checking  ##
@@ -49,10 +71,10 @@ plan 14;
     $g = 1 if %hash{6};
     
     ok($a==1, 'hash in bool context - numeric true value');
-    ok($b!=1, 'hash in bool context - numeric false value');
+    ok($b==0, 'hash in bool context - numeric false value');
     ok($c==1, 'hash in bool context - string true value');
-    ok($d!=1, 'hash in bool context - string false value');
+    ok($d==0, 'hash in bool context - string false value');
     ok($e==1, 'hash in bool context - stringified true value');
-    ok($f!=1, 'hash in bool context - stringified false value');
-    ok($g!=1, 'hash in bool context - undef value');
+    ok($f==0, 'hash in bool context - stringified false value');
+    ok($g==0, 'hash in bool context - undef value');
 }
