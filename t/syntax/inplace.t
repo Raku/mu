@@ -6,11 +6,10 @@ require Test;
 plan 14;
 
 my @a = (1, 2, 3);
-# fail("FIXME parsefail", :todo(1));
-eval_ok '@a .= map { $_ + 1 }';
-is(@a[0], 2, 'inplace map [0]', :todo(1));
-is(@a[1], 3, 'inplace map [1]', :todo(1));
-is(@a[2], 4, 'inplace map [2]', :todo(1));
+ok(@a .= map:{ $_ + 1 }, '.= parses with adverbial block');
+is(@a[0], 2, 'inplace map [0]');
+is(@a[1], 3, 'inplace map [1]');
+is(@a[2], 4, 'inplace map [2]');
 
 my $a=3.14;
 $a .= int;
