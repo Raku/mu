@@ -179,7 +179,9 @@ doRunSingle menv opts prog = (`catch` handler) $ do
         Stmts stmts@((_,pos):_) | not (runOptSeparately opts) -> do
             let withDump = stmts ++ [(Syn "dump" [], pos)]
             return $ Stmts withDump
-        _ | not (runOptSeparately opts) -> fail "Expected statements"
+        _ | not (runOptSeparately opts) -> do
+            let pos = SourcePos "<interactive>" 0 0
+            return $ Stmts [(exp, pos), (Syn "dump" [], pos)]
         _ -> return exp
     handler err = if not (isUserError err) then ioError err else do
         putStrLn "Internal error while running expression:"
