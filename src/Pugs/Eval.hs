@@ -343,7 +343,9 @@ reduce env exp@(Syn name exps) = case name of
                 | otherwise = cxtItem $ takeWhile (/= ':') . show $ refType ref
         val <- enterRValue $ enterEvalContext cxt rhs
         writeRef ref val
-        retVal refVal
+        if envLValue env 
+            then retVal refVal
+            else retVal val
     "::=" -> reduce env (Syn ":=" exps)
     ":=" | [Syn "," vars, Syn "," vexps] <- exps -> do
         when (length vars > length vexps) $ do
