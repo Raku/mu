@@ -66,6 +66,10 @@ angles     = P.angles perl6Lexer
 balanced   = P.balanced perl6Lexer
 balancedDelim = P.balancedDelim perl6Lexer
 decimal    = P.decimal perl6Lexer
+verbatimIdentifier = (<?> "identifier") $ do
+    c  <- identStart perl6Def
+    cs <- many (identLetter perl6Def)
+    return (c:cs)
 
 ruleWhiteSpaceLine = do
     many $ satisfy (\x -> isSpace x && x /= '\n')

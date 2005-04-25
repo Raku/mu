@@ -239,10 +239,10 @@ subNameWithPrefix prefix = (<?> "subroutine name") $ lexeme $ try $ do
     cs      <- many wordAny
     return $ "&" ++ star ++ prefix ++ (c:cs)
 
-ruleSubName = rule "subroutine name" $ do
+ruleSubName = verbatimRule "subroutine name" $ do
     star    <- option "" $ string "*"
     fixity  <- option "" $ choice (map (try . string) $ words fixities)
-    names   <- identifier `sepBy1` (try $ string "::")
+    names   <- verbatimIdentifier `sepBy1` (try $ string "::")
     return $ "&" ++ star ++ fixity ++ concat (intersperse "::" names)
     where
     fixities = " prefix: postfix: infix: circumfix: "
@@ -795,10 +795,12 @@ ruleCodeSubscript = tryRule "code subscript" $ do
     (invs,args) <- parens $ parseParamList
     return $ \x -> Syn "()" [x, Syn "invs" invs, Syn "args" args]
 
-parseApply = lexeme $ do
-    name            <- ruleSubName
-    option ' ' $ char '.'
-    (invs,args)   <- parseParamList
+parseApply = tryRule "apply" $ do
+    name    <- ruleSubName
+    hasDot  <- option False $ try $ do { whiteSpace; char '.'; return True }
+    (invs, args) <- if hasDot
+        then parseNoParenParamList
+        else parseParenParamList <|> do { whiteSpace; parseNoParenParamList }
     return $ App name invs args
 
 parseParamList = parseParenParamList <|> parseNoParenParamList
