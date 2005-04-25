@@ -38,7 +38,7 @@ plan 55;
 # broken in a number of ways. I will get back to those later.
 
 ## void
-eval_ok('sub ret { return }', "return without value ok", :todo(1));
+eval_ok('sub ret { return }', "return without value ok");
 
 ## scalars
 
