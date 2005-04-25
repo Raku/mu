@@ -18,7 +18,7 @@ sub Print(@world) {
     my ($i, $j);
     for (0..15) -> $i {
 	for (0..15) -> $j {
-	    print @world[$i * 16 + $j] ?? '*' :: ' ';
+	    print +@world[$i * 16 + $j] ?? '*' :: ' ';
 	}
 	say "";
     }
@@ -38,14 +38,14 @@ sub Generate(@input) {
     loop ( $cell = 0; $cell < $len; $cell++ ) {
 	$neighbours = 0;
 	$i = $cell + $len;
-	$neighbours++ if @input[($i - 1) % $len];
-	$neighbours++ if @input[($i + 1) % $len];
-	$neighbours++ if @input[($i - 17) % $len];
-	$neighbours++ if @input[($i + 17) % $len];
-	$neighbours++ if @input[($i - 16) % $len];
-	$neighbours++ if @input[($i + 16) % $len];
-	$neighbours++ if @input[($i - 15) % $len];
-	$neighbours++ if @input[($i + 15) % $len];
+	$neighbours++ if +@input[($i - 1) % $len];
+	$neighbours++ if +@input[($i + 1) % $len];
+	$neighbours++ if +@input[($i - 17) % $len];
+	$neighbours++ if +@input[($i + 17) % $len];
+	$neighbours++ if +@input[($i - 16) % $len];
+	$neighbours++ if +@input[($i + 16) % $len];
+	$neighbours++ if +@input[($i - 15) % $len];
+	$neighbours++ if +@input[($i + 15) % $len];
 	if (@input[$cell]) {
             if (@death[$neighbours]) {
                 @output[$cell] = 1;
