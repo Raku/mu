@@ -57,8 +57,6 @@ while($instruction = %instructions{"$state %tape{$tape_loc}"}) {
   }
 }
 
-# XXX: Because of a bug (tested against in
-# t/pugsbugs/subscripts_and_context.t), the following line doesn't work.
 my $final_tape = join "", %tape{sort {$^a <=> $^b} keys %tape};
 $final_tape ~~ s:Perl5/^_+//;
 $final_tape ~~ s:Perl5/_+$//;
