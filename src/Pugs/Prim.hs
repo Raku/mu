@@ -522,7 +522,7 @@ op2 "symlink" = boolIO2 createSymbolicLink
 op2 "link" = boolIO2 createLink
 op2 "*"  = op2Numeric (*)
 op2 "/"  = op2Divide
-op2 "%"  = op2Int mod
+op2 "%"  = op2Modulus
 op2 "x"  = op2Cast (\x y -> VStr . concat $ (y :: VInt) `genericReplicate` x)
 op2 "xx" = op2Cast (\x y -> VList . concat $ (y :: VInt) `genericReplicate` x)
 op2 "+&" = op2Int (.&.)
@@ -912,6 +912,21 @@ op2Divide x y
     = op2Num (/) x y
     where
     err = VError ("Illegal division by zero: " ++ "/") (App "/" [] [Val x, Val y])
+
+op2Modulus x y
+    | VInt x' <- x, VInt y' <- y
+    = return $ if y' == 0 then err else VInt $ x' `mod` y'
+    | VInt x' <- x, VRat y' <- y
+    = return $ if y' == 0 then err else VInt $ x' `mod` (truncate y')
+    | VRat x' <- x, VInt y' <- y
+    = return $ if y' == 0 then err else VInt $ (truncate x') `mod` y'
+    | VRat x' <- x, VRat y' <- y
+    = return $ if y' == 0 then err else VInt $ (truncate x') `mod` (truncate y')
+    | otherwise
+    = op2Int mod x y -- typeErr
+    where
+    err = VError ("Illegal modulus zero: " ++ "%") (App "%" [] [Val x, Val y])
+    -- typeErr = VError ("Illegal types for modulus: " ++ "%") (App "%" [] [Val x, Val y])
 
 op2ChainedList x y
     | VList xs <- x, VList ys <- y  = VList $ xs ++ ys

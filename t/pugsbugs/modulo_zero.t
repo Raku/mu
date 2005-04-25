@@ -20,9 +20,9 @@ L<../operators/arith.t>
 plan 2;
 
 my $x;
-eval_ok( '# say 3 % 0', 'Modulo zero dies and is catchable');
-eval_ok( '# my $x=0; say 3 % $x', 'Modulo zero dies and is catchable with variables');
+# eval_ok( '# say 3 % 0', 'Modulo zero dies and is catchable');
+# eval_ok( '# my $x=0; say 3 % $x', 'Modulo zero dies and is catchable with variables');
 
-# dies_ok( { say 3 % 0 }, 'Modulo zero dies and is catchable');
-# dies_ok( { $x = 0; say 3 % $x; }, 'Modulo zero dies and is catchable with variables');
+dies_ok( { say 3 % 0 }, 'Modulo zero dies and is catchable');
+dies_ok( { $x = 0; say 3 % $x; }, 'Modulo zero dies and is catchable with variables');
 
