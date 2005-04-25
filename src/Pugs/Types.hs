@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans #-}
+{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -funbox-strict-fields #-}
 
 {-
     Implementation Types.
@@ -14,9 +14,9 @@ module Pugs.Types where
 import Pugs.Internals
 
 data Type
-    = MkType String
-    | TypeOr  Type Type
-    | TypeAnd Type Type
+    = MkType !String
+    | TypeOr  !Type !Type
+    | TypeAnd !Type !Type
     deriving (Eq, Ord)
 
 instance Show Type where
@@ -26,7 +26,7 @@ instance Show Type where
 
 type ClassTree = Tree Type
 
-data Cxt = CxtVoid | CxtItem Type | CxtSlurpy Type
+data Cxt = CxtVoid | CxtItem !Type | CxtSlurpy !Type
     deriving (Eq, Show, Ord)
 
 anyType = mkType "Any"
@@ -69,8 +69,8 @@ type VHandle = Handle
 type VSocket = Socket
 type VThread = ThreadId
 data VRule     = MkRule
-    { rxRegex     :: Regex
-    , rxGlobal    :: Bool
+    { rxRegex     :: !Regex
+    , rxGlobal    :: !Bool
     }
     deriving (Show, Eq, Ord)
 

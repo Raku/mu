@@ -47,6 +47,7 @@ emptyEnv genPad = do
         , envID      = uniq
         , envBody    = Val undef
         , envDebug   = Just ref -- Set to "Nothing" to disable debugging
+        , envStash   = ""
         }
 
 -- Evaluation ---------------------------------------------------------------

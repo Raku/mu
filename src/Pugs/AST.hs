@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans #-}
+{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -funbox-strict-fields #-}
 {-# OPTIONS_GHC -#include "UnicodeC.h" #-}
 
 {-
@@ -387,24 +387,24 @@ type VPair = (Val, Val)
 
 data Val
     = VUndef
-    | VBool     VBool
-    | VInt      VInt
-    | VRat      VRat
-    | VNum      VNum
-    | VComplex  VComplex
-    | VStr      VStr
-    | VList     VList
-    | VRef      VRef
-    | VCode     VCode
-    | VBlock    VBlock
-    | VJunc     VJunc
-    | VError    VStr Exp
-    | VHandle   VHandle
-    | VSocket   VSocket
-    | VThread   VThread
-    | VRule     VRule
-    | VSubst    VSubst
-    | VControl  VControl
+    | VBool     !VBool
+    | VInt      !VInt
+    | VRat      !VRat
+    | VNum      !VNum
+    | VComplex  !VComplex
+    | VStr      !VStr
+    | VList     VList -- Lists are lazy.
+    | VRef      !VRef
+    | VCode     !VCode
+    | VBlock    !VBlock
+    | VJunc     !VJunc
+    | VError    !VStr !Exp
+    | VHandle   !VHandle
+    | VSocket   !VSocket
+    | VThread   !VThread
+    | VRule     !VRule
+    | VSubst    !VSubst
+    | VControl  !VControl
     deriving (Show, Eq, Ord, Typeable)
 
 valType :: Val -> Type
@@ -434,9 +434,9 @@ data VControl
     | ControlExit ExitCode
     deriving (Show, Eq, Ord)
 
-data VJunc = Junc { juncType :: JuncType
-                  , juncDup  :: Set Val
-                  , juncSet  :: Set Val
+data VJunc = Junc { juncType :: !JuncType
+                  , juncDup  :: !(Set Val)
+                  , juncSet  :: !(Set Val)
                   } deriving (Eq, Ord)
 
 data JuncType = JAny | JAll | JNone | JOne
@@ -463,15 +463,15 @@ isSlurpy :: Param -> Bool
 isSlurpy param = isSlurpyCxt $ paramContext param
 
 data Param = MkParam
-    { isInvocant    :: Bool
-    , isOptional    :: Bool
-    , isNamed       :: Bool
-    , isLValue      :: Bool
-    , isWritable    :: Bool
-    , isThunk       :: Bool
-    , paramName     :: String
-    , paramContext  :: Cxt
-    , paramDefault  :: Exp
+    { isInvocant    :: !Bool
+    , isOptional    :: !Bool
+    , isNamed       :: !Bool
+    , isLValue      :: !Bool
+    , isWritable    :: !Bool
+    , isThunk       :: !Bool
+    , paramName     :: !String
+    , paramContext  :: !Cxt
+    , paramDefault  :: !Exp
     }
     deriving (Show, Eq, Ord)
 
@@ -480,22 +480,22 @@ type Bindings   = [(Param, Exp)]
 type SlurpLimit = [(VInt, Exp)]
 
 data VCode = MkCode
-    { isMulti       :: Bool
-    , subName       :: String
-    , subType       :: SubType
-    , subPad        :: Pad
-    , subAssoc      :: String
-    , subParams     :: Params
-    , subBindings   :: Bindings
-    , subSlurpLimit :: SlurpLimit
-    , subReturns    :: Type
-    , subFun        :: Exp
+    { isMulti       :: !Bool
+    , subName       :: !String
+    , subType       :: !SubType
+    , subPad        :: !Pad
+    , subAssoc      :: !String
+    , subParams     :: !Params
+    , subBindings   :: !Bindings
+    , subSlurpLimit :: !SlurpLimit
+    , subReturns    :: !Type
+    , subFun        :: !Exp
     }
     deriving (Show, Eq, Ord, Typeable)
 
 mkPrim = MkCode
     { isMulti = True
-    , subName = error "unknown primitive"
+    , subName = "&?"
     , subType = SubPrim
     , subPad = Map.empty
     , subAssoc = "pre"
@@ -503,7 +503,7 @@ mkPrim = MkCode
     , subBindings = []
     , subSlurpLimit = []
     , subReturns = anyType
-    , subFun = error "missing function"
+    , subFun = emptyExp
     }
 
 mkSub = MkCode
@@ -525,16 +525,16 @@ instance (Typeable a) => Show (IORef a) where
 
 data Exp
     = Noop
-    | App String [Exp] [Exp]
-    | Syn String [Exp]
-    | Cxt Cxt Exp
-    | Sym Scope Var
-    | Prim ([Val] -> Eval Val)
-    | Val Val
-    | Var Var
-    | Parens Exp
-    | NonTerm SourcePos
-    | Stmts [(Exp, SourcePos)]
+    | App !String ![Exp] ![Exp]
+    | Syn !String ![Exp]
+    | Cxt !Cxt !Exp
+    | Sym !Scope Var
+    | Prim !([Val] -> Eval Val)
+    | Val !Val
+    | Var !Var
+    | Parens !Exp
+    | NonTerm !SourcePos
+    | Stmts ![(Exp, SourcePos)]
     deriving (Show, Eq, Ord)
 
 fromVals :: (Value n) => Val -> Eval [n]
@@ -639,17 +639,18 @@ defaultArrayParam   = buildParam "" "*" "@_" (Val VUndef)
 defaultHashParam    = buildParam "" "*" "%_" (Val VUndef)
 defaultScalarParam  = buildParam "" "*" "$_" (Val VUndef)
 
-data Env = Env { envContext :: Cxt
-               , envLValue  :: Bool
-               , envLexical :: Pad
-               , envGlobal  :: IORef Pad
-               , envClasses :: ClassTree
-               , envEval    :: Exp -> Eval Val
-               , envCaller  :: Maybe Env
-               , envBody    :: Exp
-               , envDepth   :: Int
-               , envID      :: Unique
-               , envDebug   :: Maybe (IORef (Map String String))
+data Env = Env { envContext :: !Cxt
+               , envLValue  :: !Bool
+               , envLexical :: !Pad
+               , envGlobal  :: !(IORef Pad)
+               , envClasses :: !ClassTree
+               , envEval    :: !(Exp -> Eval Val)
+               , envCaller  :: !(Maybe Env)
+               , envBody    :: !Exp
+               , envDepth   :: !Int
+               , envID      :: !Unique
+               , envDebug   :: !(Maybe (IORef (Map String String)))
+               , envStash   :: !String
                } deriving (Show, Eq)
 
 envWant env = 

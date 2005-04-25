@@ -628,7 +628,18 @@ currentFunctions = do
             return $ map (\ref -> (dropWhile isPunctuation $ name, ref)) refs
 
 currentUnaryFunctions = do
-    funs <- currentFunctions
+    env     <- getState
+    case envStash env of
+        "" -> do
+            (x, y) <- currentUnaryFunctions'
+            setState env{ envStash = unlines [x, y] }
+            return (x, y)
+        lns -> do
+            let [x, y] = lines lns
+            return (x, y)
+
+currentUnaryFunctions' = do
+    funs    <- currentFunctions
     return . mapPair munge . partition fst . sort $
         [ (opt, encodeUTF8 name) | (name, MkRef (ICode code)) <- funs
         , Code.assoc code == "pre"
