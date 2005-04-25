@@ -21,14 +21,14 @@ force_todo 3, 4, 7, 8, 13, 14, 17, 18, 20, 22;
 # L<S04/"The C<for> statement" /in Perl 6, si it always take a list as an argument/>
 
 my $a;
-eval 'for 0 .. 5 { $a = $a ~ $_; }';
+for 0 .. 5 { $a = $a ~ $_; };
 is($a, '012345', 'for 0..5 {} works');
 
 # ... with 'pointer'
 # L<S04/"The C<for> statement" /to the closure:/>
 
 my $b;
-eval 'for 0 .. 5 -> { $b = $b ~ $_; }';
+for 0 .. 5 -> { $b = $b ~ $_; };
 is($b, '012345', 'for 0 .. 5 -> {} works');
 
 # ... with , sub
@@ -47,13 +47,13 @@ is($d, '012345', 'for 0 .. 5, &some_sub works');
 ## and now with parens around the range operator
 
 my $e;
-eval 'for (0 .. 5) { $e = $e ~ $_; }';
+for (0 .. 5) { $e = $e ~ $_; };
 is($e, '012345', 'for () {} works');
 
 # ... with 'pointer'
 
 my $f;
-eval 'for (0 .. 5) -> { $f = $f ~ $_; }';
+for (0 .. 5) -> { $f = $f ~ $_; };
 is($f, '012345', 'for () -> {} works');
 
 # ... with sub
@@ -74,13 +74,13 @@ is($h, '012345', 'for (0 .. 5), &some_sub works');
 # ... w/out parens
 
 my $i;
-eval 'for 0 .. 5 -> $topic { $i = $i ~ $topic; }';
+for 0 .. 5 -> $topic { $i = $i ~ $topic; };
 is($i, '012345', 'for 0 .. 5 -> $topic {} works');
 
 # ... with parens
 
 my $j;
-eval 'for (0 .. 5) -> $topic { $j = $j ~ $topic; }';
+for (0 .. 5) -> $topic { $j = $j ~ $topic; };
 is($j, '012345', 'for () -> $topic {} works');
 
 
@@ -88,14 +88,14 @@ is($j, '012345', 'for () -> $topic {} works');
 
 my @list_k = (0 .. 5);
 my $k;
-eval 'for @list_k { $k = $k ~ $_; }';
+for @list_k { $k = $k ~ $_; };
 is($k, '012345', 'for @list {} works');
 
 # ... with 'pointer'
 
 my @list_l = (0 .. 5);
 my $l;
-eval 'for @list_l -> { $l = $l ~ $_; }';
+for @list_l -> { $l = $l ~ $_; };
 is($l, '012345', 'for @list -> {} works');
 
 # ... with , sub
@@ -117,14 +117,14 @@ is($n, '012345', 'for @list, &some_sub works');
 
 my @list_o = (0 .. 5);
 my $o;
-eval 'for (@list_o) { $o = $o ~ $_; }';
+for (@list_o) { $o = $o ~ $_; };
 is($o, '012345', 'for (@list) {} works');
 
 # ... with 'pointer'
 
 my @list_p = (0 .. 5);
 my $p;
-eval 'for (@list_p) -> { $p = $p ~ $_; }';
+for (@list_p) -> { $p = $p ~ $_; };
 is($p, '012345', 'for (@list) -> {} works');
 
 # ... with sub
@@ -156,7 +156,7 @@ my @elems = <a b c d e>;
 
 {
 	my @a;
-    eval q/for (@elems) -> $_ { push @a, $_ }/;
+    for (@elems) -> $_ { push @a, $_ };
 	my @e = @elems;
 	is(@a, @e, 'for (@a)->$_ { ... $_ ... } iterates all elems' );
 }

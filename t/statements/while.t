@@ -11,53 +11,32 @@ L<S04/"Loop statements">
 
 =cut
 
-plan 10;
+plan 6;
 
 my $i = 0;
-eval 'while $i < 5 { $i++; }';
+while $i < 5 { $i++; };
 is($i, 5, 'while $i < 5 {} works');
 
 my $i = 0;
-eval 'while 5 > $i { $i++; }';
+while 5 > $i { $i++; };
 is($i, 5, 'while 5 > $i {} works');
 
 # with parens
 
 my $i = 0;
-eval 'while ($i < 5) { $i++; }';
+while ($i < 5) { $i++; };
 is($i, 5, 'while ($i < 5) {} works');
 
 my $i = 0;
-eval 'while (5 > $i) { $i++; }';
+while (5 > $i) { $i++; };
 is($i, 5, 'while (5 > $i) {} works');
 
 # single value
 my $j = 0;
-eval 'while 0 { $j++; }';
+while 0 { $j++; };
 is($j, 0, 'while 0 {...} works');
 
 my $k = 0;
-eval 'while $k { $k++; }';
+while $k { $k++; };
 is($k, 0, 'while $var {...} works');
 
-# sub as comparator
-my $l = 0;
-eval 'while undef { $l++ }';
-is($l, 0, 'while undef {...} works');
-
-# next
-my $actual = 0;
-my $wanted = 3;
-my $saw_next = 0;
-while $wanted-- {
-	#next if $wanted == 2;
-	if $wanted == 2 { eval 'next' } # unevalme
-
-	$actual++;
-	#NEXT {
-	#	$saw_next++;
-	#}
-}
-fail("FIXME_parsefail (NEXT block)", :todo(1));
-is($actual, 2, "next skips to next iteration", :todo(1));
-is($saw_next, 1, "NEXT block was called", :todo(1));
