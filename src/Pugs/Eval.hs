@@ -426,7 +426,8 @@ reduce env exp@(Syn name exps) = case name of
          -> reduce env (Syn "[...]" [lhs, idx])
     "[]" -> do
         let [listExp, indexExp] = exps
-        idxCxt  <- cxtOfExp indexExp
+        idxCxt  <- if envLValue env
+            then cxtOfExp indexExp else return (envContext env)
         idxVal  <- enterRValue $ enterEvalContext idxCxt indexExp
         varVal  <- enterLValue $ enterEvalContext (cxtItem "Array") listExp
         doFetch (mkFetch $ doArray varVal Array.fetchElem)
@@ -444,7 +445,8 @@ reduce env exp@(Syn name exps) = case name of
         retVal $ VList (drop idx $ concat elms)
     "{}" -> do
         let [listExp, indexExp] = exps
-        idxCxt  <- cxtOfExp indexExp
+        idxCxt  <- if envLValue env
+            then cxtOfExp indexExp else return (envContext env)
         idxVal  <- enterRValue $ enterEvalContext idxCxt indexExp
         varVal  <- enterLValue $ enterEvalContext (cxtItem "Hash") listExp
         doFetch (mkFetch $ doHash varVal Hash.fetchElem)

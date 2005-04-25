@@ -587,6 +587,7 @@ extract other = other
 
 cxtOfExp :: Exp -> Eval Cxt
 cxtOfExp (Cxt cxt _)            = return cxt
+cxtOfExp (Syn "," _)            = return cxtSlurpyAny
 cxtOfExp (Syn "[]" [_, exp])    = cxtOfExp exp
 cxtOfExp (Syn "{}" [_, exp])    = cxtOfExp exp
 cxtOfExp (Val (VList _))        = return cxtSlurpyAny
@@ -598,7 +599,8 @@ cxtOfExp (Val (VRef ref))       = do
         else CxtItem typ
 cxtOfExp (Val _)                = return cxtItemAny
 cxtOfExp (Var (c:_))            = return $ cxtOfSigil c
-cxtOfExp _                      = return cxtSlurpyAny
+cxtOfExp (App "&list" _ _)      = return cxtSlurpyAny
+cxtOfExp _                      = return cxtItemAny
 
 cxtOfSigil :: Char -> Cxt
 cxtOfSigil '$'  = cxtItemAny
