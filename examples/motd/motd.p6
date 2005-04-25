@@ -4,9 +4,9 @@ use v6;
 
 #XXX just so that File:;Spec can be used w/o being installed
 unshift @*INC, 'ext/File-Spec/lib', '../ext/File-Spec/lib', '../../ext/File-Spec /lib';
-#XXX should be able to 'use'
-require File::Spec;
-my $progdir   = splitpath($*PROGRAM_NAME)[1];
+use File::Spec;
+my @path_parts   = splitpath($*PROGRAM_NAME);
+my $progdir      = @path_parts[1];
 unshift @*INC, $progdir;
 require MOTD; 
 
@@ -23,7 +23,7 @@ my @list      ;
 for =$fh->$line is rw{
   # XXX $line should be declarable as 'is rw'
 	# not yet implemented
-	my $a     = $line; #so, we need to make a rw copy 
+	my $a = $line; #so, we need to make a rw copy 
 	chomp $a; 
 	push @list,$a || next()
 };
@@ -31,6 +31,7 @@ $fh.close;
 
 my %opinions = $surveyed  # number 
                .whisper_about( @list) ;
+
 my $most     = %opinions.values.max;
 my &tell := -> $limit {
 		say "$subject is{ 

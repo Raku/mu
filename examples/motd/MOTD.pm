@@ -8,22 +8,37 @@ sub finger (*@arr) returns Str {
 	  pick any @arr || @default
 }
 
-{
- my $iter = 0;
- my $str  = '';
- multi sub report () returns Str {my $a = $str; $str = ''; $iter=0; $a;} 
- multi sub report (*$x, *@x) returns Void {
- 	$iter++;
-	if(@x){
-		$str ~= addtolist($x);
-	}else{
-		$str = append_last($x,$str,$iter);
-	}
-	report @x;
- }
-}
+#{
+# my $iter = 0;
+# my $str  = '';
+# multi sub report () returns Str {my $a = $str; $str = ''; $iter=0; $a;} 
+# multi sub report (*$x, *@x) returns Void {
+# 	$iter++;
+#	if(@x){
+#		$str ~= addtolist($x);
+#	}else{
+#		$str = append_last($x,$str,$iter);
+#	}
+#	report @x;
+# }
+#}
+# XXX must have done something wrong.  
+# multi version of 'report()' hangs, now.
 
-#Autrijus's "cls"
+sub report (@x) returns Str{
+ 	my $str = '';
+	my $iter = 0 ;
+	for @x -> $x{
+	  if ++$iter == +@x {
+	  	$str = append_last($x,$str,$iter);
+      }else{
+		$str ~= addtolist($x);
+	  }
+	}
+	return $str;
+}	
+
+#Autrijus' "cls"
 sub clear returns Void {
 	system(($?OS eq any<MSWin32 mingw cygwin>) ?? 'cls' :: 'clear');
 }
@@ -53,7 +68,7 @@ sub append_last ($x,$string,$pass){
     my $rwstring = $string; 
 	if $pass > 2 {
 		chop $rwstring;
-		"$rwstring and " ~ 
+		"$rwstring and " ~  
 		pick any (
 			"$x",
 			"$x, period",
