@@ -316,9 +316,11 @@ ruleVarDeclaration = rule "variable declaration" $ do
         whiteSpace
         exp <- ruleExpression
         return (sym, Just exp)
+    env  <- getState
     env' <- unsafeEvalStmts decl
     setState env'
-    let lexExp = (Syn "lex" [Val (VControl (ControlEnv env'))], pos)
+    let lexExp  = (Pad scope lexDiff, pos)
+        lexDiff = envLexical env' `Map.difference` envLexical env
     return $ case expMaybe of
         Just exp -> Stmts [lexExp, (Syn sym [lhs, exp], pos)]
         Nothing  -> Stmts [lexExp]

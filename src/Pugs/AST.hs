@@ -529,7 +529,8 @@ data Exp
     | App !String ![Exp] ![Exp]
     | Syn !String ![Exp]
     | Cxt !Cxt !Exp
-    | Sym !Scope Var
+    | Sym !Scope !Var
+    | Pad !Scope !Pad
     | Prim !([Val] -> Eval Val)
     | Val !Val
     | Var !Var

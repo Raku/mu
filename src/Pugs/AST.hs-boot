@@ -24,10 +24,12 @@ type Eval x = ContT Val (ReaderT Env IO) x
 type VPair = (Val, Val)
 type VBlock = Exp
 type Params = [Param]
+type Pad = Map Var [IORef VRef]
 
 data Env
 data VCode
 data VJunc
+data VRef
 data VControl
 data Param
 data Scope
@@ -36,16 +38,17 @@ newtype VThunk = MkThunk (Eval Val)
 
 data Exp
     = Noop
-    | App String [Exp] [Exp]
-    | Syn String [Exp]
-    | Cxt Cxt Exp
-    | Sym Scope Var
-    | Prim ([Val] -> Eval Val)
-    | Val Val
-    | Var Var
-    | Parens Exp
-    | NonTerm SourcePos
-    | Stmts [(Exp, SourcePos)]
+    | App !String ![Exp] ![Exp]
+    | Syn !String ![Exp]
+    | Cxt !Cxt !Exp
+    | Sym !Scope !Var
+    | Pad !Scope !Pad
+    | Prim !([Val] -> Eval Val)
+    | Val !Val
+    | Var !Var
+    | Parens !Exp
+    | NonTerm !SourcePos
+    | Stmts ![(Exp, SourcePos)]
 
 data Val
 

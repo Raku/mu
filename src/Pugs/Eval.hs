@@ -143,10 +143,10 @@ reduceStatements ((exp, pos):rest) = case exp of
         -- bare Block in statement level; run it!
         let app = Syn "()" [exp, Syn "invs" [], Syn "args" []]
         reduceStatements $ (app, pos):rest
-    Syn "lex" [Val (VControl (ControlEnv env'))] -> \e -> do
+    Pad _ lex' -> \e -> do
         let doRest = reduceStatements rest e
         lex <- asks envLexical
-        local (\e -> e{ envLexical = envLexical env' `Map.union` lex }) doRest
+        local (\e -> e{ envLexical = lex' `Map.union` lex }) doRest
     Syn "env" [] | null rest -> const $ do
         env <- ask
         return . VControl $ ControlEnv env
