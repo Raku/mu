@@ -337,7 +337,8 @@ ruleUsePackage = rule "use package" $ do
     _ <- option "" $ do -- version - XXX
         char '-'
         many1 (choice [ digit, char '.' ])
-    return $ App "&require" [] [Val . VStr $ concat (intersperse "/" names) ++ ".pm"]
+    unsafeEvalExp $ App "&require" [] [Val . VStr $ concat (intersperse "/" names) ++ ".pm"]
+    return emptyExp
 
 ruleInlineDeclaration = tryRule "inline declaration" $ do
     symbol "inline"
