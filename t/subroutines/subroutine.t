@@ -1,7 +1,7 @@
 #!/usr/bin/pugs
 
 use v6;
-require Test;
+use Test;
 
 =kwid
 
@@ -90,9 +90,8 @@ sub argShifter (@a) {
 	return $first;
 }
 
-#fail("FIXME parsefail", :todo(1)); # actually exe fail...
+fail("FIXME parsefail", :todo(1)); # actually exe fail... 
 #is eval 'argShifter(3..5)', 3, "use shift on an array argument";
-eval_is 'argShifter(3..5)', 3, "use shift on an array argument", :todo(1);
 
 eval 'sub unpack_array ([$first, *@rest]) { return $first; }';
 
@@ -108,4 +107,4 @@ L<S06/"Unpacking hash parameters">
 eval 'sub unpack_hash({+$yo, *%other}){ return $yo; }';
 
 my %params = yo => 3, nope => 4;
-is(eval 'unpack_hash(%params)', 3, 'unpacking a hash parameter', :todo(1));
+is(eval 'unpack_hash(%params)', 3, 'unpacking a hash parameter', :todo(1)); 

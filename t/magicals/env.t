@@ -3,7 +3,7 @@
 # Tests for magic variables
 
 use v6;
-require Test;
+use Test;
 
 plan 5;
 

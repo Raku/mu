@@ -1,6 +1,6 @@
 #!/usr/bin/pugs
 use v6;
-require Test;
+use Test;
 
 plan 4;
 force_todo 1;

@@ -1,6 +1,6 @@
 #!/usr/bin/pugs
 
-require Test;
+use Test;
 use v6;
 
 plan 3;

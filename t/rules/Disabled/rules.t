@@ -4,7 +4,7 @@
 # Original lines from re_tests are in comments
 
 use v6;
-require Test;
+use Test;
 
 plan 1581;
 

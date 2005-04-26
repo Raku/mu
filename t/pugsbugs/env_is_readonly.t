@@ -1,7 +1,7 @@
 #!/usr/bin/pugs
 
 use v6;
-require Test;
+use Test;
 
 =pod
 
@@ -11,7 +11,7 @@ spawned processes see it.
 =cut
 
 push @INC, <  blib6/lib >; # ext/File-Spec/lib
-require File::Spec;
+use File::Spec;
 plan 3;
 
 my ($pugs) = "./pugs";

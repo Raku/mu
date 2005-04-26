@@ -1,7 +1,7 @@
 #!/usr/bin/pugs
 
 use v6;
-require Test;
+use Test;
 
 plan 45;
 force_todo 2 .. 8, 12 .. 20;

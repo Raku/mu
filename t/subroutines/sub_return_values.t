@@ -1,7 +1,7 @@
 #!/usr/bin/pugs
 
 use v6;
-require Test;
+use Test;
 
 =pod
 
@@ -38,7 +38,7 @@ plan 55;
 # broken in a number of ways. I will get back to those later.
 
 ## void
-eval_ok('sub ret { return }', "return without value ok");
+eval_ok('sub ret { return }', "return without value ok", :todo(1));
 
 ## scalars
 

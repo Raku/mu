@@ -2,7 +2,7 @@
 
 use v6;
 
-require Test;
+use Test;
 
 plan 4;
 force_todo 4;
@@ -14,7 +14,7 @@ force_todo 4;
 # work around missing capabilities
 # to get the output of 'say' into a test; 
 	my $out = open ">tmpfile" ;  
-	$out.say(3);
+	say $out, ;  
 	close $out; 
 	my$in = open "<tmpfile"; 
 	my $s = =$in; close $in; 

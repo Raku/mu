@@ -2,7 +2,7 @@
 
 use v6;
 
-require Test;
+use Test;
 plan 14;
 
 =head1 DESCRIPTION

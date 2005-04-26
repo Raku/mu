@@ -1,7 +1,7 @@
 #!/usr/bin/pugs
 
 use v6;
-require Test;
+use Test;
 
 =kwid
 
@@ -21,7 +21,7 @@ plan 31;
 is("".bytes,         0, "empty string");
 is("moose".bytes,    5, "moose");
 my $x = undef; 
-is($x.bytes, 0, "undef"); #  test for warning
+eval_is('$x.bytes',  undef, "undef"); #  test for warning
 
 # and the real tests.
 

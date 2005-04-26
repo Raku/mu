@@ -1,7 +1,7 @@
 #!/usr/bin/pugs
 
 use v6;
-require Test;
+use Test;
 
 plan 14;
 
@@ -33,7 +33,7 @@ plan 14;
 	has $.cool = $val;
       }
     }
-  ', "role generating functions defined";
+  ', "role generating functions defined", :todo(1);
 
   my $a = 3;
   is $a, 3, "basic sanity";

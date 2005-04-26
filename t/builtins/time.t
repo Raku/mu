@@ -1,6 +1,6 @@
 #!/usr/bin/pugs
 use v6;
-require Test;
+use Test;
 
 # Based Heavily on the t/op/time.t test from Perl5.8.6
 # Perhaps the testing of these builtins needs to be more rigorous

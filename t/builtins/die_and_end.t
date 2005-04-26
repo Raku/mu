@@ -1,7 +1,7 @@
 #!/usr/bin/pugs
 
 use v6;
-require Test;
+use Test;
 
 # L<news:20050320062104.61811.qmail@web50805.mail.yahoo.com>
 

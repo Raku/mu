@@ -1,7 +1,7 @@
 #!/usr/bin/pugs
 
 use v6;
-require Test;
+use Test;
 
 # XXX: 17 tests should be run, but because of the various eval()s dieing too
 # early, currently there're only 10 tests run.

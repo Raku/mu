@@ -3,7 +3,7 @@
 # taken mostly from Perl 5.8.7-tobe
 use v6;
 
-require Test;
+use Test;
 plan 14;
 
 # not() tests

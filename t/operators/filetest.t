@@ -1,7 +1,7 @@
 #!/usr/bin/pugs
 
 use v6;
-require Test;
+use Test;
 
 =head1 DESCRIPTION
 
@@ -12,7 +12,7 @@ This test tests the various filetest operators.
 plan 34;
 
 #if($*OS eq any<MSWin32 mingw msys cygwin>) {
-#    skip 30, "file tests not fully available on win32";
+#    skip 30, "file tests not fully available on win32"; 
 #    exit;
 #};
 
@@ -53,12 +53,7 @@ ok !-w 'doesnotexist.t', "-w returns false on non existant files";
 ok !-x 'doesnotexist.t', "-x returns false on non existant files";
 ok !-f 'doesnotexist.t', "-f returns false on non existant files";
 
-#if($*OS eq any<MSWin32 mingw msys cygwin>) {
-#  skip 1, "-s is not working on Win32 yet"
-#}
-#else {
-  ok  -s $*PROGRAM_NAME > 42,   "-s returns size on existant files";
-#}
+ok  -s $*PROGRAM_NAME > 42,   "-s returns size on existant files";
 ok !-s "doesnotexist.t", "-s returns undef on non existant files";
 
 ok !-z $*PROGRAM_NAME,   "-z returns false on existant files";
@@ -67,12 +62,7 @@ ok !-z "t",              "-z returns false on directories";
 
 my $fh = open(">empty_file");
 close $fh;
-#if($*OS eq any<MSWin32 mingw msys cygwin>) {
-#  skip 1, "-z is not working on Win32 yet"
-#}
-#else {
-  ok -z "empty_file",      "-z returns true for an empty file";
-#}
+ok -z "empty_file",      "-z returns true for an empty file";
 unlink "empty_file";
 
 # Stacked filetests

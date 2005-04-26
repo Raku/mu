@@ -1,7 +1,7 @@
 #!/usr/bin/pugs
 
 use v6;
-require Test;
+use Test;
 
 =pod
 
@@ -10,7 +10,7 @@ Test handling of C<-Mmodule>.
 =cut
 
 push @INC, <  blib6/lib >; # ext/File-Spec/lib
-require File::Spec;
+use File::Spec;
 
 my $dir = catdir( <t pugsrun> );
 

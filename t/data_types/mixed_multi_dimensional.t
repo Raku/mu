@@ -1,7 +1,7 @@
 #!/usr/bin/pugs
 
 use v6;
-require Test;
+use Test;
 
 plan 58;
 
@@ -75,8 +75,8 @@ this test should be added too more.
     
     is(+@array, 3, 'got three elements in the list');
     isa_ok(@array[0], 'Sub');
-    isa_ok(@array[1], 'Block');
-    isa_ok(@array[2], 'Block');        
+    isa_ok(@array[1], 'Sub');
+    isa_ok(@array[2], 'Sub');        
     
     is(@array[0](), 1, 'the first element (when executed) is 1');
     is(@array[1](), 2, 'the second element (when executed) is 2');    

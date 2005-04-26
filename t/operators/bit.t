@@ -1,7 +1,7 @@
 #!/usr/bin/pugs
 
 use v6;
-require Test;
+use Test;
 
 # Mostly copied from Perl 5.8.4 s t/op/bop.t
 
