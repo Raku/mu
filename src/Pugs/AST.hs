@@ -430,8 +430,9 @@ valType (VSubst   _)    = mkType "Subst"
 
 type VBlock = Exp
 data VControl
-    = ControlLeave (Env -> Eval Bool) Val
-    | ControlExit ExitCode
+    = ControlLeave !(Env -> Eval Bool) !Val
+    | ControlExit  !ExitCode
+    | ControlEnv   !Env
     deriving (Show, Eq, Ord)
 
 data VJunc = Junc { juncType :: !JuncType
@@ -653,7 +654,7 @@ data Env = Env { envContext :: !Cxt
                , envID      :: !Unique
                , envDebug   :: !(Maybe (IORef (Map String String)))
                , envStash   :: !String
-               } deriving (Show, Eq)
+               } deriving (Show, Eq, Ord)
 
 envWant env = 
     showCxt (envContext env) ++ (if envLValue env then ", LValue" else "")

@@ -143,6 +143,9 @@ reduceStatements ((exp, pos):rest) = case exp of
         -- bare Block in statement level; run it!
         let app = Syn "()" [exp, Syn "invs" [], Syn "args" []]
         reduceStatements $ (app, pos):rest
+    Syn "env" [] | null rest -> const $ do
+        env <- ask
+        return . VControl $ ControlEnv env
     Syn "dump" [] | null rest -> \e -> do
         Env{ envGlobal = globals, envLexical = lexicals } <- ask
         liftIO $ modifyIORef globals (Map.union lexicals)

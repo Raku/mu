@@ -20,6 +20,7 @@ import Pugs.Lexer
 import Pugs.Rule
 import Pugs.Rule.Expr
 import Pugs.Rule.Error
+import Pugs.Pretty
 import qualified Data.Map as Map
 
 -- Lexical units --------------------------------------------------
@@ -312,9 +313,11 @@ ruleVarDeclaration = rule "variable declaration" $ do
         whiteSpace
         exp <- ruleExpression
         return (sym, Just exp)
+    env' <- unsafeEvalStmts decl
+    setState env'
     return $ case expMaybe of
-        Just exp -> Stmts (decl ++ [(Syn sym [lhs, exp], pos)])
-        Nothing  -> Stmts decl
+        Just exp -> Stmts [(Syn sym [lhs, exp], pos)]
+        Nothing  -> emptyExp
 
 ruleUseDeclaration :: RuleParser Exp
 ruleUseDeclaration = rule "use declaration" $ do
@@ -382,12 +385,22 @@ ruleClosureTrait rhs = rule "closure trait" $ do
             return $ if rhs then rv else emptyExp 
         _       -> fail ""
 
+unsafeEvalStmts stmts = do
+    pos <- getPosition
+    val <- unsafeEvalExp $ Stmts (stmts ++ [(Syn "env" [], pos)])
+    case val of
+        Val (VControl (ControlEnv env)) -> return env
+        _                               -> error $ pretty val
+
 unsafeEvalExp exp = do
     env <- getState
-    return . Val . unsafePerformIO $ do
+    let val = unsafePerformIO $ do
         (`runReaderT` env { envDebug = Nothing }) $ (`runContT` return) $ resetT $ do
             evl <- asks envEval
             evl exp
+    case val of
+        VError _ _  -> error $ pretty val
+        _           -> return $ Val val
 
 rulePackageDeclaration = rule "package declaration" $ fail ""
 

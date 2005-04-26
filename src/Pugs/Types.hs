@@ -78,3 +78,5 @@ instance Ord VHandle where
     compare x y = compare (show x) (show y)
 instance Ord VSocket where
     compare x y = compare (show x) (show y)
+instance (Ord a) => Ord (Tree a) where
+    compare _ _ = EQ
