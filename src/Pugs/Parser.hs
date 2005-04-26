@@ -48,11 +48,14 @@ ruleEmptyExp = do
 ruleBlockBody = do
     whiteSpace
     pos     <- getPosition
+    env     <- getState
     pre     <- many ruleEmptyExp
     body    <- option emptyExp ruleStatementList
     post    <- many ruleEmptyExp
     body    <- foldM (flip mergeStatements) body pre
     body    <- foldM mergeStatements body post
+    env'    <- getState
+    setState env'{ envLexical = envLexical env }
     return $ case body of
         Syn "sub" _ -> Stmts [(body, pos)]
         _           -> body
@@ -315,9 +318,10 @@ ruleVarDeclaration = rule "variable declaration" $ do
         return (sym, Just exp)
     env' <- unsafeEvalStmts decl
     setState env'
+    let lexExp = (Syn "lex" [Val (VControl (ControlEnv env'))], pos)
     return $ case expMaybe of
-        Just exp -> Stmts [(Syn sym [lhs, exp], pos)]
-        Nothing  -> emptyExp
+        Just exp -> Stmts [lexExp, (Syn sym [lhs, exp], pos)]
+        Nothing  -> Stmts [lexExp]
 
 ruleUseDeclaration :: RuleParser Exp
 ruleUseDeclaration = rule "use declaration" $ do
