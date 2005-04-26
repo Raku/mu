@@ -162,7 +162,7 @@ ruleQualifiedIdentifier = rule "qualified identifer" $ do
 ruleBlockDeclaration :: RuleParser Exp
 ruleBlockDeclaration = rule "block declaration" $ choice
     [ ruleSubDeclaration
-    , ruleClosureTrait -- ???
+    , ruleClosureTrait False
     ]
 
 ruleDeclaration :: RuleParser Exp
@@ -365,8 +365,10 @@ ruleModuleDeclaration = rule "module declaration" $ do
         return ('-':str)
     return $ Syn "module" [Val . VStr $ concat (intersperse "::" n) ++ v ++ a] -- XXX
 
-ruleClosureTrait = rule "closure trait" $ do
-    name    <- tryChoice $ map symbol $ words " BEGIN END "
+ruleClosureTrait rhs = rule "closure trait" $ do
+    let names | rhs       = " BEGIN "
+              | otherwise = " BEGIN END "
+    name    <- tryChoice $ map symbol $ words names
     block   <- ruleBlock
     let (fun, names) = extract (block, [])
     -- Check for placeholder vs formal parameters
@@ -375,15 +377,17 @@ ruleClosureTrait = rule "closure trait" $ do
     let code = VCode mkSub { subName = name, subFun  = fun } 
     case name of
         "END"   -> return $ App "&unshift" [Var "@*END"] [Syn "sub" [Val code]]
-        "BEGIN" -> unsafeEvalExp (Syn "()" [Val code, Syn "invs" [], Syn "args" []])
+        "BEGIN" -> do
+            rv <- unsafeEvalExp fun
+            return $ if rhs then rv else emptyExp 
         _       -> fail ""
 
 unsafeEvalExp exp = do
     env <- getState
     return . Val . unsafePerformIO $ do
-        (`runReaderT` env) $ (`runContT` return) $ resetT $ do
+        (`runReaderT` env { envDebug = Nothing }) $ (`runContT` return) $ resetT $ do
             evl <- asks envEval
-            evl (Syn "()" [exp, Syn "invs" [], Syn "args" []])
+            evl exp
 
 rulePackageDeclaration = rule "package declaration" $ fail ""
 
@@ -742,7 +746,7 @@ parseTerm = rule "term" $ do
     term <- choice
         [ ruleVar
         , ruleLit
-        , ruleClosureTrait
+        , ruleClosureTrait True
         , parseApply
         , parens ruleExpression
         ]
