@@ -10,7 +10,7 @@ Test handling of C<-Mmodule>.
 =cut
 
 push @INC, <  blib6/lib >; # ext/File-Spec/lib
-use File::Spec;
+require File::Spec;
 
 my $dir = catdir( <t pugsrun> );
 

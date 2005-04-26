@@ -17,8 +17,8 @@ statement, so I decided to write a test for it.
 sub foo { return 1; }
 is(foo(), 1, '... foo() returned 1 correctly');
 
-eval 'sub bar { return }';
-eval_is('bar()', undef, '... bare return statement returned undef');
+sub bar { return }
+is(bar(), undef, '... bare return statement returned undef');
 
 sub bar2 { return() }
 is(bar2(), undef, '... bare return statement w/ parens returned undef');
@@ -26,7 +26,7 @@ is(bar2(), undef, '... bare return statement w/ parens returned undef');
 sub baz { return 10 if 1; }
 is(baz(), 10, '... return worked with a statement modifier');
 
-eval 'sub foobar { return if 1; }';
+sub foobar { return if 1; };
 eval_is('foobar()', undef, '... bare return worked with a statement modifier');
 
 sub foobar2 { return() if 1; }

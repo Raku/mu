@@ -69,7 +69,7 @@ ok(foo(), "CALLER resolves bindings in caller's dynamic scope");
   $val++;
   is $a, 43, "bound readonly sub param was bound correctly (2)";
 
-  throws_ok { $a = 23 }, "Can't modify constant item",
+  dies_ok { $a = 23 },
     "bound readonly sub param remains readonly (1)";
   is $a, 43,
     "bound readonly sub param remains readonly (2)";

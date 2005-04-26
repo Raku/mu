@@ -44,7 +44,7 @@ plan 23;
 
 	eval 'substr($str, 0, 5) = "gloop"';
     is($str, "gloop ding", "lvalue assignment modified original string", :todo(1));
-	
+
 	my $r;
 	eval '$r = \substr($str, 0, 5)';
 	ok(ref($r), '$r is a reference');
@@ -62,7 +62,9 @@ plan 23;
 	eval_is('$$o', " d", "other lvalue wiggled around", :todo(1));
 };
 
-{ # from synopsis 9
+{ 
+# from L<S09/"Junctions" /Each of the resulting set of calls is then recursively autothreaded/>
+# See also t/junctions/s09eg.t
 # This test is not working as-is
 #	eval_is('substr("camel", 0|1, 2&3)', (("ca"|"am") & ("cam"|"ame")), "junctive substr", :todo(1));
 }

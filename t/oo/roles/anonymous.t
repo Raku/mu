@@ -33,7 +33,7 @@ plan 14;
 	has $.cool = $val;
       }
     }
-  ', "role generating functions defined", :todo(1);
+  ', "role generating functions defined";
 
   my $a = 3;
   is $a, 3, "basic sanity";

@@ -1,7 +1,7 @@
 #!/usr/bin/pugs
 use v6;
 
-# No C<require Test> here because we've to check method calls in strings, see
+# No C<use Test> here because we've to check method calls in strings, see
 # below...
 
 say "1..2";

@@ -14,7 +14,7 @@ L<S03/"Precedence">
 
 =cut
 
-plan 40;
+plan 41;
 
 
 # 1. terms
@@ -134,14 +134,11 @@ is((1 && 0 ?? 2 :: 3), 3, "&& binds tighter than ??");
 # 17. list item separator
 
 {
-	skip 2, "skipping left pointing pipe tests which die";
-	if(0) {
-		my @d;
-		eval '@d <== (1, 3) ¥ (2, 4)';
-		is(@d, [1 .. 4], "to complicate things further, left pointing pipe *does* DWIM", :todo(1));
-		my $c = any 1, 2, 3;
-		ok($c == 2, "any is less tight than comma");
-	}
+	my @d;
+	eval_ok '@d <== (1, 3) ¥ (2, 4), "left pointing pipe parses"';
+	is(@d, [1 .. 4], "to complicate things further, left pointing pipe *does* DWIM", :todo(1));
+	my $c = any 1, 2, 3;
+	ok($c == 2, "any is less tight than comma");
 }
 
 # 18. rightward list op

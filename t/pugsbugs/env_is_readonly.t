@@ -11,7 +11,7 @@ spawned processes see it.
 =cut
 
 push @INC, <  blib6/lib >; # ext/File-Spec/lib
-use File::Spec;
+require File::Spec;
 plan 3;
 
 my ($pugs) = "./pugs";
