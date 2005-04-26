@@ -74,6 +74,7 @@ sub set_postamble {
 #	}
 
     my $ghc_output = "-o pugs$Config{_exe} src/Main.hs";
+    my $hasktags = $ENV{HASKTAGS} || 'hasktags';
 
     my $pcre = "src/pcre/pcre.o";
     my $pcre_c = "src/pcre/pcre.c";
@@ -126,7 +127,7 @@ ghci ::
 	$ghc --interactive $ghc_flags $ghc_output
 
 tags : @srcfiles
-	hasktags -c @srcfiles
+	$hasktags -c @srcfiles
 	sort tags > tags.tmp
 	mv tags.tmp tags
 
