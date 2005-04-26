@@ -234,11 +234,13 @@ op1 "-z"    = fileTestIO fileTestSizeIsZero
 op1 "-s"    = fileTestIO fileTestFileSize
 op1 "-f"    = fileTestIO fileTestIsFile
 op1 "-d"    = fileTestIO fileTestIsDirectory
+op1 "end"   = op1Cast (VInt . (genericEnd :: VList -> VInt))
 op1 "elems" = op1Cast (VInt . (genericLength :: VList -> VInt))
 op1 "graphs"= op1Cast (VInt . (genericLength :: String -> VInt)) -- XXX Wrong
 op1 "codes" = op1Cast (VInt . (genericLength :: String -> VInt))
 op1 "chars" = op1Cast (VInt . (genericLength :: String -> VInt))
 op1 "bytes" = op1Cast (VInt . (genericLength :: String -> VInt) . encodeUTF8)
+
 op1 "unlink" = \v -> do
     vals <- fromVals v
     rets <- mapM (doBoolIO removeFile) vals
@@ -369,6 +371,9 @@ op1 "hex"   = op1Cast (VInt . read . ("0x"++))
 op1 "log"   = op1Cast (VNum . log)
 op1 "log10" = op1Cast (VNum . logBase 10)
 op1 other   = return . (\x -> VError ("unimplemented unaryOp: " ++ other) (App other [Val x] []))
+
+genericEnd :: VList -> VInt
+genericEnd list = (genericLength list) - 1
 
 op1EvalHaskell :: Val -> Eval Val
 op1EvalHaskell cv = do
@@ -1385,6 +1390,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      pre     mkdir   (Str)\
 \\n   Bool      pre     chdir   (Str)\
 \\n   Int       pre     elems   (Array)\
+\\n   Int       pre     end     (Array)\
 \\n   Int       pre     graphs  (?Str=$_)\
 \\n   Int       pre     codes   (?Str=$_)\
 \\n   Int       pre     chars   (?Str=$_)\
