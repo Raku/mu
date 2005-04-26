@@ -5,7 +5,7 @@ use Test;
 
 plan 4;
 
-my %foo;
+our %foo;
 my %e = ("foo", "bar", "blah", "blah");
 
 eval_ok('
