@@ -279,6 +279,15 @@ op1 "open" = \v -> do
     modeOf ">>" = AppendMode
     modeOf "+>" = ReadWriteMode
     modeOf m    = error $ "unknown mode: " ++ m
+op1 "Pugs::Internals::runInteractiveCommand" = \v -> do
+    str <- fromVal v
+    tryIO undef $ do
+        (inp,out,err,phand) <- runInteractiveCommand str
+        return $ VList [ VHandle inp
+                       , VHandle out
+                       , VHandle err
+                       , VProcess (MkProcess phand)
+                       ]
 op1 "system" = boolIO system
 op1 "accept" = \v -> do
     socket      <- fromVal v
@@ -622,6 +631,18 @@ op2 "connect" = \x y -> do
     port <- fromVal y
     hdl  <- liftIO $ connectTo host (PortNumber $ fromInteger port)
     return $ VHandle hdl
+op2 "Pugs::Internals::openFile" = \x y -> do
+    mode     <- fromVal x
+    filename <- fromVal y
+    tryIO undef $ do
+        fh <- openFile filename (modeOf mode)
+        return $ VHandle fh
+    where
+    modeOf "<"  = ReadMode
+    modeOf ">"  = WriteMode
+    modeOf ">>" = AppendMode
+    modeOf "+>" = ReadWriteMode
+    modeOf m    = error $ "unknown mode: " ++ m
 op2 "exp" = \x y -> if defined y
     then op2Num (**) x y
     else op1Cast (VNum . exp) x
@@ -1486,4 +1507,6 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      pre     yield   (?Thread)\
 \\n   Int       pre     sign    (Num)\
 \\n   Int       pre     kill    (Int, List)\
+\\n   List      pre     Pugs::Internals::runInteractiveCommand    (?Str=$_)\
+\\n   List      pre     Pugs::Internals::openFile    (?Str,?Str=$_)\
 \\n"

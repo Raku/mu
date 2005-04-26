@@ -34,6 +34,7 @@ module Pugs.Internals (
     module System.Time,
     module System.Directory,
     module System.Cmd,
+    module System.Process,
     module Control.Monad.RWS,
     module Control.Monad.Error,
     module Control.Concurrent,
@@ -79,6 +80,7 @@ import System.Random hiding (split)
 import System.Exit
 import System.Time
 import System.Cmd
+import System.Process
 import System.IO (
     Handle, stdin, stdout, hClose, hGetLine, hGetContents,
     openFile, hPutStr, hPutStrLn, IOMode(..), stderr, SeekMode(..),

@@ -332,6 +332,11 @@ instance Value VThread where
     doCast (VThread x)  = x
     doCast x            = castFail x
 
+instance Value VProcess where
+    castV = VProcess
+    doCast (VProcess x)  = x
+    doCast x            = castFail x
+
 instance Value Int   where
     doCast = intCast
     castV = VInt . fromIntegral
@@ -382,6 +387,8 @@ type VArray = [Val]
 type VHash = [(VStr, Val)]
 newtype VThunk = MkThunk (Eval Val)
     deriving (Typeable)
+newtype VProcess = MkProcess (ProcessHandle)
+    deriving (Typeable)
 
 type VPair = (Val, Val)
 
@@ -402,6 +409,7 @@ data Val
     | VHandle   !VHandle
     | VSocket   !VSocket
     | VThread   !VThread
+    | VProcess  !VProcess
     | VRule     !VRule
     | VSubst    !VSubst
     | VControl  !VControl
@@ -424,6 +432,7 @@ valType (VError _ _)    = mkType "Error"
 valType (VHandle  _)    = mkType "IO"
 valType (VSocket  _)    = mkType "Socket"
 valType (VThread  _)    = mkType "Thread"
+valType (VProcess _)    = mkType "Process"
 valType (VControl _)    = mkType "Control"
 valType (VRule    _)    = mkType "Rule"
 valType (VSubst   _)    = mkType "Subst"
@@ -546,6 +555,12 @@ instance Show VThunk where
     show _ = "<thunk>"
 instance Eq VThunk
 instance Ord VThunk where
+    compare _ _ = EQ
+
+instance Show VProcess where
+    show _ = "<process>"
+instance Eq VProcess
+instance Ord VProcess where
     compare _ _ = EQ
 
 extractExp :: Exp -> ([Exp], [String]) -> ([Exp], [String])
