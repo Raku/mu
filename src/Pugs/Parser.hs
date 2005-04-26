@@ -797,6 +797,8 @@ ruleCodeSubscript = tryRule "code subscript" $ do
 
 parseApply = tryRule "apply" $ do
     name    <- ruleSubName
+    when ((name ==) `any` words " &if &unless &while &until &for ") $
+        fail "reserved word"
     hasDot  <- option False $ try $ do { whiteSpace; char '.'; return True }
     (invs, args) <- if hasDot
         then parseNoParenParamList
