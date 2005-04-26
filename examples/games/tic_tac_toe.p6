@@ -2,11 +2,11 @@
 
 use v6;
 
-sub print_board ( @b ) {
-    my $count = 0;
-    for (@b) -> $x {
-        print "$x\t";
-        print "\n" unless ++$count % 3;
+sub print_board (Array @b) returns Void {
+    say "+---+---+---+";
+    for (@b) -> $x, $y, $z {
+        say "| $x | $y | $z |
++---+---+---+";
     }
 }
 
@@ -14,28 +14,26 @@ my @g = ('.') xx 9;
 
 print_board( @g );
 
-my %player = ('X','Player 1','O','Player 2');
-
-my %entered;
-my $choice = any (1 .. 9);
+my %player = ('X' => 'Player 1', 'O' => 'Player 2');
+my $entered = any();
+my $choice = any(0 .. 8);
 
 my $player = 'X';
-while (grep { $_ eq '.' } @g) {
+while (any(@g) eq '.') {
     
     say %player{$player} ~ " Enter the Position [1-9]:";
-    my $in = =$IN;
+    my $idx = =$IN - 1;
 
-    unless ($in == $choice) {
+    unless $idx == $choice {
         say "Please enter a value within 1-9";   
     }
-    else {
-        my $idx = $in - 1;
-        if (%entered.exists($idx)) {
+    else {  
+        if $idx == $entered {
             say "Element already entered at $in";
         }
         else {
             @g[$idx] = $player;
-            %entered{$idx}++;
+            $entered = any($entered.values, $idx); # rebuild the junction            
 
             for (
                 [ 0, 1, 2 ], [ 3, 4, 5 ], 
@@ -43,7 +41,7 @@ while (grep { $_ eq '.' } @g) {
                 [ 1, 4, 7 ], [ 2, 5, 8 ], 
                 [ 0, 4, 8 ], [ 2, 4, 6 ]
             ) -> $c {
-                if (@g[$c[0]] ne '.' && @g[$c[0]] eq @g[$c[1]] eq @g[$c[2]]) {
+                if @g[$c].join("") eq ('XXX' | 'OOO') {
                     print_board( @g );
                     say "  " ~ %player{$player} ~ " Wins \n";
                     exit();
