@@ -21,7 +21,7 @@ eval '$bar = foobar($foo); ';
 is($foo, $bar, 'subroutine at beginning');
 $bar = "";
 eval '$bar = check $foo';
-ok($bar, 'subroutine at end', :todo(1));
+ok($bar, 'subroutine at end');
 
 sub check {
     return $_;
