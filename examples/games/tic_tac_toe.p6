@@ -29,7 +29,7 @@ while (any(@g) eq '.') {
     }
     else {  
         if $idx == $entered {
-            say "Element already entered at $in";
+            say "Element already entered at { $idx + 1 }";
         }
         else {
             @g[$idx] = $player;
