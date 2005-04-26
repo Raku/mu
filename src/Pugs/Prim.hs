@@ -491,11 +491,8 @@ retEvalResult fatal val = do
     glob <- askGlobal
     errSV <- findSymRef "$!" glob
     case val of
-        VError _ (Val errval) | not fatal  -> do
-            writeRef errSV errval
-            retEmpty
-        VError _ _ | not fatal  -> do
-            writeRef errSV (VStr $ show val)
+        VError str _ | not fatal  -> do
+            writeRef errSV (VStr str)
             retEmpty
         _ -> do
             writeRef errSV VUndef
