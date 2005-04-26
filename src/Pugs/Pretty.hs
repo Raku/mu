@@ -95,7 +95,8 @@ instance Pretty Val where
         | otherwise = parens $ (joinList $ text ", ") (map format x)
     format (VCode _) = text "sub {...}"
     format (VBlock _) = text "{...}"
-    format (VError x y@(NonTerm _)) = hang (text "*** Error:" <+> text x) defaultIndent (text "at" <+> format y)
+    format (VError x y@(NonTerm _)) =
+        text "*** Error:" <+> (text x $+$ (text "at" <+> format y))
     format (VError x _) = text "*** Error:" <+> text x
 --  format (VArray x) = format (VList $ Array.elems x)
 --  format (VHash h) = braces $ (joinList $ text ", ") $

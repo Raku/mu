@@ -200,9 +200,8 @@ doRun :: String -> [String] -> String -> IO ()
 doRun = do
     runProgramWith (\e -> e{ envDebug = Nothing }) end
     where
-    end (VError str exp)  = do
-        hPutStrLn stderr str
-        hPutStrLn stderr (show exp)
+    end err@(VError _ _)  = do
+        hPutStrLn stderr (pretty err)
         exitFailure
     end (VControl (ControlExit exit)) = exitWith exit
     end _ = return ()

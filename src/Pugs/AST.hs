@@ -738,8 +738,13 @@ retControl c = do
 
 retError :: VStr -> Exp -> Eval a
 retError str (Val VUndef) = retError str (Val $ VStr str)
-retError str exp = do
-    shiftT $ const (return $ VError str exp)
+retError str _ = do
+    -- get stuff
+    glob <- askGlobal
+    file <- fromVal =<< readRef =<< findSymRef "$?FILE" glob
+    line <- fromVal =<< readRef =<< findSymRef "$?LINE" glob
+    col  <- fromVal =<< readRef =<< findSymRef "$?COLUMN" glob
+    shiftT $ const (return $ VError str (NonTerm $ SourcePos file line col))
 
 naturalOrRat  = (<?> "number") $ do
     sig <- sign
@@ -778,7 +783,7 @@ naturalOrRat  = (<?> "number") $ do
 
     fraction = do
             char '.'
-            try $ do { char '.'; unexpected "dotdot" } <|> return ()
+            notFollowedBy (noneOf "e1234567890")
             digits <- many digit <?> "fraction"
             return (digitsToRat digits)
         <?> "fraction"

@@ -87,7 +87,8 @@ prepareEnv name args = do
     let subExit = \x -> case x of
             [x] -> op1 "exit" x
             _   -> op1 "exit" undef
-    emptyEnv
+    emptyEnv $
+        posSyms (SourcePos name 1 1) ++
         [ genSym "@*ARGS"       $ MkRef argsAV
         , genSym "@*INC"        $ MkRef incAV
         , genSym "$*PUGS_HAS_HSPLUGINS" $ MkRef hspluginsSV
@@ -121,7 +122,6 @@ prepareEnv name args = do
             }
         , genSym "%?CONFIG" $ hashRef confHV
         , genSym "$_" $ MkRef defSV
-        , genSym "$?FILE" $ MkRef progSV
         ]
 
 

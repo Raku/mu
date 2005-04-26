@@ -149,12 +149,12 @@ reduceStatements ((exp, pos):rest) = case exp of
         reduceStatements rest e
     _ | null rest -> const $ do
         _   <- asks envContext
-        pad <- posSyms pos
+        pad <- sequence $ posSyms pos
         val <- enterLex pad $ reduceExp exp
         retVal val
     _ -> const $ do
         val <- enterContext cxtVoid $ do
-            pad <- posSyms pos
+            pad <- sequence $ posSyms pos
             enterLex pad $ do
                 reduceExp exp
         trapVal val $ do
@@ -166,13 +166,15 @@ trapVal val action = case val of
     VControl c      -> retControl c
     _               -> action
 
-posSyms pos = sequence [ genSym n v | (n, v) <- syms ]
+posSyms pos = [ genSym n v | (n, v) <- syms ]
     where
     file = sourceName pos
     line = show $ sourceLine pos
+    col  = show $ sourceColumn pos
     syms =
         [ ("$?FILE", scalarRef $ castV file)
         , ("$?LINE", scalarRef $ castV line)
+        , ("$?COLUMN", scalarRef $ castV col)
         , ("$?POSITION", scalarRef $ castV $ pretty pos)
         ]
 
