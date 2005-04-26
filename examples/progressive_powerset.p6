@@ -4,33 +4,33 @@ sub iter_powerset ( *@factor ) returns Ref {
     my $end = @factor.elems - 1;
     my @subset = (undef) xx $end;
     my ($pos, $mode) = (-1, 1);
-    my $return = sub { list @factor[ grep { defined $_ } @subset ] };
+    my $return = { list @factor[ grep { defined $_ } @subset ] };
     my %dispatch = (
-        1 => sub {
+        1 => {
             ++$pos;
             @subset[ $pos ] = $pos;
             ++$mode if $pos == $end;
             $return();
         },
-        2 => sub {
+        2 => {
             @subset[ $pos - 1 ] = undef;
             ++$mode;
             $return();
         },
-        3 => sub {
+        3 => {
             @subset[ $pos-- ] = undef;
             while ( $pos >= 0 ) {
-                if ( defined @subset[ $pos ] ) { last }
+                last if defined @subset[ $pos ];
                 --$pos;
             }
             @subset[ $pos++ ] = undef;
-            return () if ! $pos;
+            return if !$pos;
             @subset[ $pos ] = $pos;
             $mode = 1;
             $return();
         },
     );
-    return sub { %dispatch{ $mode }() };
+    return { %dispatch{ $mode }() };
 }
 
 my $next = iter_powerset( 1..5 );
