@@ -227,11 +227,14 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
             , subSlurpLimit = []
             , subFun        = fun
             }
+        exp = Stmts
+            [ (Sym scope name, namePos)
+            , (Syn ":=" [Var name, Syn "sub" [subExp]], bodyPos)
+            ]
     -- XXX: user-defined infix operator
-    return $ Stmts
-        [ (Sym scope name, namePos)
-        , (Syn ":=" [Var name, Syn "sub" [subExp]], bodyPos)
-        ]
+    if scope == SGlobal
+        then do { unsafeEvalExp exp; return emptyExp }
+        else return exp
 
 subNameWithPrefix prefix = (<?> "subroutine name") $ lexeme $ try $ do
     star    <- option "" $ string "*"
@@ -363,25 +366,24 @@ ruleModuleDeclaration = rule "module declaration" $ do
     return $ Syn "module" [Val . VStr $ concat (intersperse "::" n) ++ v ++ a] -- XXX
 
 ruleClosureTrait = rule "closure trait" $ do
-    name    <- tryChoice $ map symbol $ words " END "
+    name    <- tryChoice $ map symbol $ words " BEGIN END "
     block   <- ruleBlock
     let (fun, names) = extract (block, [])
     -- Check for placeholder vs formal parameters
     unless (null names) $
         fail "Closure traits takes no formal parameters"
-    let sub = MkCode
-            { isMulti       = False
-            , subName       = name
-            , subPad        = Map.empty
-            , subType       = SubBlock
-            , subAssoc      = "pre"
-            , subReturns    = anyType
-            , subParams     = []
-            , subBindings   = []
-            , subSlurpLimit = []
-            , subFun        = fun
-            }
-    return $ App "&unshift" [Var "@*END"] [Syn "sub" [Val $ VCode sub]]
+    let code = VCode mkSub { subName = name, subFun  = fun } 
+    case name of
+        "END"   -> return $ App "&unshift" [Var "@*END"] [Syn "sub" [Val code]]
+        "BEGIN" -> unsafeEvalExp (Syn "()" [Val code, Syn "invs" [], Syn "args" []])
+        _       -> fail ""
+
+unsafeEvalExp exp = do
+    env <- getState
+    return . Val . unsafePerformIO $ do
+        (`runReaderT` env) $ (`runContT` return) $ resetT $ do
+            evl <- asks envEval
+            evl (Syn "()" [exp, Syn "invs" [], Syn "args" []])
 
 rulePackageDeclaration = rule "package declaration" $ fail ""
 
@@ -740,6 +742,7 @@ parseTerm = rule "term" $ do
     term <- choice
         [ ruleVar
         , ruleLit
+        , ruleClosureTrait
         , parseApply
         , parens ruleExpression
         ]
