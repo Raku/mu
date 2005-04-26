@@ -6,6 +6,7 @@ import Pugs.Pretty
 import Pugs.AST
 import Data.HashTable
 import Text.PrettyPrint
+import qualified Data.Map as Map
 
 -- XXX This compiler needs a totaly rewrite using Parrot AST,
 -- XXX and maybe TH-based AST combinators
@@ -55,7 +56,7 @@ compileCond neg exps@[cond, bodyIf, bodyElse] =
         , compile bodyElse
         , label end
         ]
-compileCond _ _ = undefined
+compileCond x y = error $ show (x,y)
 
 instance Compile Exp where
     compile (Var name) = varText name
@@ -112,9 +113,11 @@ instance Compile Exp where
         [ compile pos $+$ compile stmt $+$ text ""
         | (stmt, pos) <- stmts
         ]
-    compile (Sym SMy name) = vcat $
-        [ text ".local" <+> text "pmc" <+> varText name
-        , varText name <+> text "=" <+> text "new" <+> varInit name
+    compile (Pad _ pad) = vcat $ concat
+        [ [ text ".local" <+> text "pmc" <+> varText name
+          , varText name <+> text "=" <+> text "new" <+> varInit name
+          ]
+          | name <- Map.keys pad
         ]
     compile (Syn "mval" [exp]) = compile exp
     compile (Syn "," things) = vcat $ map compile things
