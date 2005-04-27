@@ -689,7 +689,7 @@ reduce Env{ envClasses = cls, envContext = cxt } exp@(App name invs args) = do
         let isGlobal = '*' `elem` n
         let fun = arityMatch sub (length (invs ++ args)) slurpLen
         if isNothing fun then return Nothing else do
-        if deltaFromCxt ret == 0 then return Nothing else do
+        -- if deltaFromCxt ret == 0 then return Nothing else do
         let invocants = filter isInvocant prms
         let prms' = if null invocants then prms else invocants
         let distance = (deltaFromCxt ret : map (deltaFromScalar . typeOfCxt . paramContext) prms')
