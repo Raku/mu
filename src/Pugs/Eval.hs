@@ -34,10 +34,10 @@ emptyEnv genPad = do
     ref  <- liftIO $ newIORef Map.empty
     uniq <- liftIO $ newUnique
     syms <- liftIO $ initSyms
-    glob <- liftIO $ newIORef (combine (pad ++ syms) Map.empty)
+    glob <- liftIO $ newIORef (combine (pad ++ syms) $ mkPad [])
     return $ Env
         { envContext = CxtVoid
-        , envLexical = Map.empty
+        , envLexical = mkPad []
         , envLValue  = False
         , envGlobal  = glob
         , envClasses = initTree
@@ -94,7 +94,7 @@ findSyms name = do
     let names = [name, toGlobal name]
     syms <- forM [lex, glob] $ \pad -> do
         forM names $ \name' -> do
-            case Map.lookup name' pad of
+            case lookupPad name' pad of
                 Just ioRefs -> do
                     refs  <- liftIO $ mapM readIORef ioRefs
                     forM refs $ \ref -> do
@@ -146,13 +146,13 @@ reduceStatements ((exp, pos):rest) = case exp of
     Pad _ lex' -> \e -> do
         let doRest = reduceStatements rest e
         lex <- asks envLexical
-        local (\e -> e{ envLexical = lex' `Map.union` lex }) doRest
+        local (\e -> e{ envLexical = lex' `unionPads` lex }) doRest
     Syn "env" [] | null rest -> const $ do
         env <- ask
         return . VControl $ ControlEnv env
     Syn "dump" [] | null rest -> \e -> do
         Env{ envGlobal = globals, envLexical = lexicals } <- ask
-        liftIO $ modifyIORef globals (Map.union lexicals)
+        liftIO $ modifyIORef globals (unionPads lexicals)
         reduceStatements rest e
     _ | null rest -> const $ do
         _   <- asks envContext

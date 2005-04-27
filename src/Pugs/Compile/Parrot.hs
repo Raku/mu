@@ -6,13 +6,12 @@ import Pugs.Pretty
 import Pugs.AST
 import Data.HashTable
 import Text.PrettyPrint
-import qualified Data.Map as Map
 
 -- XXX This compiler needs a totaly rewrite using Parrot AST,
 -- XXX and maybe TH-based AST combinators
 
-genPIR :: (Pugs.Compile.Parrot.Compile x, Monad m) => x -> m String
-genPIR exp = return . unlines $
+genPIR :: Env -> IO String
+genPIR Env{ envBody = exp } = return . unlines $
     [ "#!/usr/bin/env parrot"
     , ".sub main @MAIN"
     , ""
@@ -117,7 +116,7 @@ instance Compile Exp where
         [ [ text ".local" <+> text "pmc" <+> varText name
           , varText name <+> text "=" <+> text "new" <+> varInit name
           ]
-          | name <- Map.keys pad
+          | (name, _) <- padToList pad
         ]
     compile (Syn "mval" [exp]) = compile exp
     compile (Syn "," things) = vcat $ map compile things

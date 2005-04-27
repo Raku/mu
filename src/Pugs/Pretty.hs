@@ -17,7 +17,6 @@ import Pugs.Types
 import Pugs.AST
 import Text.PrettyPrint
 import qualified Data.Set as Set
-import qualified Data.Map as Map
 
 defaultIndent :: Int
 defaultIndent = 2
@@ -39,7 +38,7 @@ instance Pretty Exp where
     format x = text $ show x
 
 instance Pretty Pad where
-    format pad = cat $ map formatAssoc (Map.assocs pad)
+    format pad = cat $ map formatAssoc $ padToList pad
         where
         formatAssoc (name, var) = format name <+> text ":=" <+> (nest defaultIndent $ vcat $ map format var)
 

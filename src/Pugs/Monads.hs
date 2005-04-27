@@ -14,7 +14,6 @@ import Pugs.Internals
 import Pugs.AST
 import Pugs.Context
 import Pugs.Types
-import qualified Data.Map as Map
 
 headVal []    = retEmpty
 headVal (v:_) = return v
@@ -88,7 +87,8 @@ enterSub sub action
     fixEnv cc env@Env{ envLexical = pad }
         | typ >= SubBlock = do
             blockRec <- genSym "&?BLOCK" (codeRef (orig sub))
-            return $ \e -> e{ envLexical = combine [blockRec] (subPad sub `Map.union` pad) }
+            return $ \e -> e
+                { envLexical = combine [blockRec] (subPad sub `unionPads` pad) }
         | otherwise = do
             subRec <- sequence
                 [ genSym "&?SUB" (codeRef (orig sub))

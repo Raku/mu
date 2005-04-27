@@ -10,10 +10,12 @@
 -}
 
 module Pugs.Compile where
+import Pugs.AST
 import Pugs.Compile.Pugs (genPugs)
 import Pugs.Compile.Parrot (genPIR)
 import Pugs.Compile.Haskell (genGHC)
 
+compile :: String -> Env -> IO String
 compile "Haskell" = genGHC
 compile "Pugs" = genPugs
 compile "Parrot" = genPIR

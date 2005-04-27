@@ -21,7 +21,6 @@ import Pugs.Rule
 import Pugs.Rule.Expr
 import Pugs.Rule.Error
 import Pugs.Pretty
-import qualified Data.Map as Map
 
 -- Lexical units --------------------------------------------------
 
@@ -30,7 +29,7 @@ ruleProgram = rule "program" $ do
     statements <- ruleBlockBody
     eof
     env <- getState
-    return $ env { envBody = statements }
+    return $ env { envBody = statements, envStash = "" }
 
 ruleBlock :: RuleParser Exp
 ruleBlock = lexeme ruleVerbatimBlock
@@ -231,14 +230,15 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
             , subSlurpLimit = []
             , subFun        = fun
             }
-        exp = Stmts
-            [ (Sym scope name, namePos)
-            , (Syn ":=" [Var name, Syn "sub" [subExp]], bodyPos)
-            ]
+        decl = (Sym scope name, namePos)
+        exp  = (Syn ":=" [Var name, Syn "sub" [subExp]], bodyPos)
     -- XXX: user-defined infix operator
     if scope == SGlobal
-        then do { unsafeEvalExp exp; return emptyExp }
-        else return exp
+        then do { unsafeEvalExp (Stmts [decl, exp]); return emptyExp }
+        else do
+            lexDiff <- unsafeEvalLexDiff [decl]
+            let lexExp = (Pad scope lexDiff, namePos)
+            return $ Stmts [lexExp, exp]
 
 subNameWithPrefix prefix = (<?> "subroutine name") $ lexeme $ try $ do
     star    <- option "" $ string "*"
@@ -316,11 +316,8 @@ ruleVarDeclaration = rule "variable declaration" $ do
         whiteSpace
         exp <- ruleExpression
         return (sym, Just exp)
-    env  <- getState
-    env' <- unsafeEvalStmts decl
-    setState env'
+    lexDiff <- unsafeEvalLexDiff decl
     let lexExp  = (Pad scope lexDiff, pos)
-        lexDiff = envLexical env' `Map.difference` envLexical env
     return $ case expMaybe of
         Just exp -> Stmts [lexExp, (Syn sym [lhs, exp], pos)]
         Nothing  -> Stmts [lexExp]
@@ -392,12 +389,20 @@ ruleClosureTrait rhs = rule "closure trait" $ do
             return $ if rhs then rv else emptyExp 
         _       -> fail ""
 
+unsafeEvalLexDiff decl = do
+    env  <- getState
+    env' <- unsafeEvalStmts decl
+    setState env'
+    return $ envLexical env' `diffPads` envLexical env
+
 unsafeEvalStmts stmts = do
     pos <- getPosition
+    env <- getState
     val <- unsafeEvalExp $ Stmts (stmts ++ [(Syn "env" [], pos)])
     case val of
-        Val (VControl (ControlEnv env)) -> return env
-        _                               -> error $ pretty val
+        Val (VControl (ControlEnv env')) ->
+            return env'{ envDebug = envDebug env }
+        _  -> error $ pretty val
 
 unsafeEvalExp exp = do
     env <- getState
@@ -546,7 +551,7 @@ retVerbatimBlock typ formal body = do
     let sub = MkCode
             { isMulti       = False
             , subName       = "<anon>"
-            , subPad        = Map.empty
+            , subPad        = mkPad []
             , subType       = typ
             , subAssoc      = "pre"
             , subReturns    = anyType
@@ -649,7 +654,7 @@ currentFunctions = do
     env     <- getState
     return . concat . unsafePerformIO $ do
         glob <- readIORef $ envGlobal env
-        forM (Map.assocs glob ++ Map.assocs (envLexical env)) $ \(name, ioRefs) -> do
+        forM (padToList glob ++ padToList (envLexical env)) $ \(name, ioRefs) -> do
             refs <- mapM readIORef ioRefs
             return $ map (\ref -> (dropWhile isPunctuation $ name, ref)) refs
 

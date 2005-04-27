@@ -507,7 +507,7 @@ mkPrim = MkCode
     { isMulti = True
     , subName = "&?"
     , subType = SubPrim
-    , subPad = Map.empty
+    , subPad = mkPad []
     , subAssoc = "pre"
     , subParams = []
     , subBindings = []
@@ -520,7 +520,7 @@ mkSub = MkCode
     { isMulti = False
     , subName = "&?"
     , subType = SubBlock
-    , subPad = Map.empty
+    , subPad = mkPad []
     , subAssoc = "pre"
     , subParams = []
     , subBindings = []
@@ -676,18 +676,39 @@ envWant env =
     showCxt (envContext env) ++ (if envLValue env then ", LValue" else "")
     where
     showCxt CxtVoid         = "Void"
-    showCxt (CxtItem typ)   = "Scalar (" ++ show typ ++ ")"
-    showCxt (CxtSlurpy typ) = "List (" ++ show typ ++ ")"
+    showCxt (CxtItem typ)   = "Scalar (" ++ showType typ ++ ")"
+    showCxt (CxtSlurpy typ) = "List (" ++ showType typ ++ ")"
 
-type Pad = Map Var [IORef VRef]
+newtype Pad = MkPad (Map Var [IORef VRef])
+    deriving (Eq, Ord, Typeable)
+
+instance Show Pad where
+    show pad = "(mkPad [" ++ 
+                concat (intersperse ", " $ map dump $ padToList pad) ++
+                "])"
+        where
+        dump (n, ioRefs) = "(" ++ show n ++ ", [" ++
+                            concat (intersperse ", " $ map dumpIORef ioRefs) ++
+                            "])"
+        dumpIORef ioRef = unsafePerformIO $ do
+            ref  <- readIORef ioRef
+            dump <- (`runReaderT` undefined) $ (`runContT` return) $ resetT $ do
+                dumpRef ref
+            return $ "unsafePerformIO (newIORef " ++ vCast dump ++ ")"
+
+mkPad = MkPad . Map.fromList
+lookupPad key (MkPad map) = Map.lookup key map
+padToList (MkPad map) = Map.assocs map
+diffPads (MkPad map1) (MkPad map2) = MkPad $ Map.difference map1 map2
+unionPads (MkPad map1) (MkPad map2) = MkPad $ Map.union map1 map2
 
 genMultiSym name ref = liftIO $ do
     ioRef <- newIORef ref
-    return $ Map.insertWith (++) name [ioRef]
+    return $ \(MkPad map) -> MkPad $ Map.insertWith (++) name [ioRef] map
 
 genSym name ref = liftIO $ do
     ioRef <- newIORef ref
-    return $ Map.insert name [ioRef]
+    return $ \(MkPad map) -> MkPad $ Map.insert name [ioRef] map
 
 show' :: (Show a) => a -> String
 show' x = "( " ++ show x ++ " )"
@@ -704,7 +725,7 @@ findSymRef name pad = do
         Nothing  -> fail $ "oops, can't find " ++ name
 
 findSym :: String -> Pad -> Maybe (IORef VRef)
-findSym name pad = case Map.lookup name pad of
+findSym name pad = case lookupPad name pad of
     Just (x:_)  -> Just x
     _           -> Nothing
 
@@ -863,6 +884,15 @@ forceRef (MkRef (IScalar sv)) = forceRef =<< fromVal =<< Scalar.fetch sv
 forceRef (MkRef (IThunk tv)) = Thunk.force tv
 forceRef r = retError "cannot forceRef" (Val $ VRef r)
 
+dumpRef :: VRef -> Eval Val
+dumpRef (MkRef (ICode cv)) = do
+    vsub <- Code.assuming cv [] []
+    return (VStr $ "(MkRef (ICode $ " ++ show vsub ++ "))")
+dumpRef (MkRef (IScalar sv)) | Scalar.iType sv == mkType "Scalar::Const" = do
+    sv <- Scalar.fetch sv
+    return (VStr $ "(MkRef (IScalar $ " ++ show sv ++ "))")
+dumpRef ref = return (VStr $ "(unsafePerformIO . newObject $ mkType \"" ++ show (refType ref) ++ "\")")
+
 readRef :: VRef -> Eval Val
 readRef (MkRef (IScalar sv)) = Scalar.fetch sv
 readRef (MkRef (ICode cv)) = do
@@ -904,7 +934,7 @@ clearRef (MkRef (IPair s))   = Pair.storeVal s undef
 clearRef (MkRef (IThunk tv)) = clearRef =<< fromVal =<< Thunk.force tv
 clearRef r = retError "cannot clearRef" (Val $ VRef r)
 
-newObject :: Type -> Eval VRef
+newObject :: (MonadIO m) => Type -> m VRef
 newObject (MkType "Scalar") = liftIO $
     return . scalarRef =<< newIORef undef
 newObject (MkType "Array")  = liftIO $
@@ -913,8 +943,7 @@ newObject (MkType "Hash")   = liftIO $
     return . hashRef =<< (HTable.new (==) HTable.hashString :: IO IHash)
 newObject (MkType "Code")   = liftIO $
     return . codeRef =<< newIORef mkSub
-newObject typ      = do
-    retError ("Cannot create object" ++ (show typ)) (Val undef)
+newObject typ = fail ("Cannot create object: " ++ showType typ)
 
 -- XXX: Refactor doHash and doArray into one -- also see Eval's [] and {}
 doHash :: Val -> (forall a. Hash.Class a => a -> b) -> Eval b

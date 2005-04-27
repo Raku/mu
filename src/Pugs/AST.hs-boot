@@ -24,7 +24,6 @@ type Eval x = ContT Val (ReaderT Env IO) x
 type VPair = (Val, Val)
 type VBlock = Exp
 type Params = [Param]
-type Pad = Map Var [IORef VRef]
 
 data Env
 data VCode
@@ -35,6 +34,7 @@ data Param
 data Scope
 
 newtype VThunk = MkThunk (Eval Val)
+newtype Pad = MkPad (Map Var [IORef VRef])
 
 data Exp
     = Noop

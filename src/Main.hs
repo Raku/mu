@@ -88,10 +88,18 @@ parse :: String -> IO ()
 parse = doParse "-"
 
 dump :: String -> IO ()
-dump = (doParseWith $ \exp _ -> print exp) "-"
+dump = (doParseWith $ \env _ -> print $ envBody env) "-"
 
-comp :: String -> IO ()
-comp = (doParseWith $ \exp _ -> putStrLn =<< compile "Haskell" exp) "-"
+dumpGlob :: String -> IO ()
+dumpGlob = (doParseWith $ \env _ -> do
+    glob <- readIORef $ envGlobal env
+    print $ userDefined glob) "-"
+
+userDefined :: Pad -> Pad
+userDefined (MkPad pad) = MkPad $ Map.filterWithKey doFilter pad
+    where
+    doFilter (_:'*':_) _ = False
+    doFilter _ _         = True
 
 repLoop :: IO ()
 repLoop = do
@@ -116,24 +124,26 @@ doCheck = doParseWith $ \_ name -> do
     putStrLn $ name ++ " syntax OK"
 
 doExternal :: String -> FilePath -> String -> IO ()
-doExternal mod = doParseWith $ \exp _ -> do
-    str <- externalize mod exp
+doExternal mod = doParseWith $ \env _ -> do
+    str <- externalize mod $ envBody env
     putStrLn str
 
 doCompile :: [Char] -> FilePath -> String -> IO ()
-doCompile backend = doParseWith $ \exp _ -> do
-    str <- compile backend exp
+doCompile backend = doParseWith $ \env _ -> do
+    glob    <- readIORef $ envGlobal env
+    globRef <- newIORef $ userDefined glob
+    str  <- compile backend env{ envGlobal = globRef }
     writeFile "dump.ast" str
 
-doParseWith :: (Pugs.AST.Exp -> FilePath -> IO a) -> FilePath -> String -> IO a
+doParseWith :: (Env -> FilePath -> IO a) -> FilePath -> String -> IO a
 doParseWith f name prog = do
     env <- emptyEnv []
-    runRule env (f' . envBody) ruleProgram name $ decodeUTF8 prog
+    runRule env f' ruleProgram name $ decodeUTF8 prog
     where
-    f' (Val err@(VError _ _)) = do
+    f' Env{ envBody = Val err@(VError _ _) } = do
         hPutStrLn stderr $ pretty err
         exitFailure
-    f' exp = f exp name
+    f' env = f env name
 
 
 doParse :: FilePath -> String -> IO ()

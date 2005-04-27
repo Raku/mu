@@ -20,9 +20,11 @@ data Type
     deriving (Eq, Ord)
 
 instance Show Type where
-    show (MkType typ)    = typ
-    show (TypeOr t1 t2)  = show t1 ++ "|" ++ show t2
-    show (TypeAnd t1 t2) = show t1 ++ "&" ++ show t2
+    show t = "(mkType \"" ++ showType t ++ "\")"
+
+showType (MkType typ)    = typ
+showType (TypeOr t1 t2)  = showType t1 ++ "|" ++ showType t2
+showType (TypeAnd t1 t2) = showType t1 ++ "&" ++ showType t2
 
 type ClassTree = Tree Type
 

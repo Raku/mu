@@ -35,13 +35,15 @@ runEval env eval = withSocketsDo $ do
 runEnv :: Env -> IO Val
 runEnv env = runEval env $ evaluateMain (envBody env)
 
-runAST :: Exp -> IO Val
-runAST ast = do
+runAST :: Pad -> Exp -> IO Val
+runAST glob ast = do
     hSetBuffering stdout NoBuffering
-    name <- getProgName
-    args <- getArgs
-    env  <- prepareEnv name args
-    runEnv env{ envBody = ast, envDebug = Nothing }
+    name    <- getProgName
+    args    <- getArgs
+    env     <- prepareEnv name args
+    glob'   <- readIORef $ envGlobal env
+    globRef <- newIORef (glob `unionPads` glob')
+    runEnv env{ envBody = ast, envGlobal = globRef, envDebug = Nothing }
 
 runComp :: Eval Val -> IO Val
 runComp comp = do
