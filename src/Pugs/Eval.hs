@@ -147,8 +147,12 @@ reduceStatements ((exp, pos):rest) = case exp of
         let doRest = reduceStatements rest e
         lex <- asks envLexical
         local (\e -> e{ envLexical = lex' `unionPads` lex }) doRest
-    Syn "env" [] | null rest -> const $ do
+    Syn "env" [] | null rest -> \e -> do
         env <- ask
+        val <- case e of
+            Val v   -> return v
+            _       -> evalExp e
+        writeVar "$*_" val
         return . VControl $ ControlEnv env
     Syn "dump" [] | null rest -> \e -> do
         Env{ envGlobal = globals, envLexical = lexicals } <- ask

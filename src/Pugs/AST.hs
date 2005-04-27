@@ -704,7 +704,7 @@ unionPads (MkPad map1) (MkPad map2) = MkPad $ Map.union map1 map2
 
 genMultiSym name ref = liftIO $ do
     ioRef <- newIORef ref
-    return $ \(MkPad map) -> MkPad $ Map.insertWith (++) name [ioRef] map
+    return $ \(MkPad map) -> MkPad $ Map.insertWith (flip (++)) name [ioRef] map
 
 genSym name ref = liftIO $ do
     ioRef <- newIORef ref

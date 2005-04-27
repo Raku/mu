@@ -162,14 +162,22 @@ doLoad env fn = do
 
 doRunSingle :: IORef Env -> RunOptions -> String -> IO ()
 doRunSingle menv opts prog = (`catch` handler) $ do
-    exp <- parse >>= makeProper
-    env <- theEnv
-    result <- runImperatively env (evaluate exp)
+    exp     <- makeProper =<< parse
+    env     <- theEnv
+    rv      <- runImperatively env (evaluate exp)
+    result  <- case rv of
+        VControl (ControlEnv env') -> do
+            glob    <- readIORef $ envGlobal env'
+            ref     <- findSymRef "$*_" glob
+            val     <- runEval env' $ readRef ref
+            writeIORef menv env'
+            return val
+        _ -> return rv
     printer env result
     where
     parse = do
-        parseEnv <- emptyEnv []
-        runRule parseEnv (return . envBody) ruleProgram "<interactive>" (decodeUTF8 prog)
+        env <- readIORef menv
+        runRule env (return . envBody) ruleProgram "<interactive>" (decodeUTF8 prog)
     theEnv = do
         ref <- if runOptSeparately opts
                 then tabulaRasa >>= newIORef
@@ -187,11 +195,11 @@ doRunSingle menv opts prog = (`catch` handler) $ do
     makeProper exp = case exp of
         Val err@(VError _ _) -> fail $ pretty err
         Stmts stmts@((_,pos):_) | not (runOptSeparately opts) -> do
-            let withDump = stmts ++ [(Syn "dump" [], pos)]
+            let withDump = stmts ++ [(Syn "env" [], pos)]
             return $ Stmts withDump
         _ | not (runOptSeparately opts) -> do
             let pos = SourcePos "<interactive>" 0 0
-            return $ Stmts [(exp, pos), (Syn "dump" [], pos)]
+            return $ Stmts [(exp, pos), (Syn "env" [], pos)]
         _ -> return exp
     handler err = if not (isUserError err) then ioError err else do
         putStrLn "Internal error while running expression:"

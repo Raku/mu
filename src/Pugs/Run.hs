@@ -114,7 +114,7 @@ prepareEnv name args = do
             , subFun = Prim subExit
             }
         , genSym "%?CONFIG" $ hashRef confHV
-        , genSym "$_" $ MkRef defSV
+        , genSym "$*_" $ MkRef defSV
         ]
 
 
