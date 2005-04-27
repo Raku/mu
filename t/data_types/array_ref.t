@@ -102,6 +102,6 @@ eval_is('$array10[0][0] = 6; $array10[0][0]', 6, "changing nested array");
 # creating a AoA using ";"
 my $array11;
 eval '$array11 = [ "a","b","c"; "d","e","f" ]';
-is +$array11,      2, "AoA created using ';' contains correct number of elems", :todo(1);
-is +$array11[0],   3, "AoA's subarray created using ';' contains correct number of elems", :todo(1);
-is $array11[1][1], "e", "AoA created using ';' contains correct elem", :todo(1);
+is +$array11,      2, "AoA created using ';' contains correct number of elems", :todo;
+is +$array11[0],   3, "AoA's subarray created using ';' contains correct number of elems", :todo;
+is $array11[1][1], "e", "AoA created using ';' contains correct elem", :todo;

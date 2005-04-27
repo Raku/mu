@@ -43,28 +43,28 @@ plan 23;
 	my $str = "gorch ding";
 
 	eval 'substr($str, 0, 5) = "gloop"';
-    is($str, "gloop ding", "lvalue assignment modified original string", :todo(1));
+    is($str, "gloop ding", "lvalue assignment modified original string", :todo);
 
 	my $r;
 	eval '$r = \substr($str, 0, 5)';
 	ok(ref($r), '$r is a reference');
-	eval_is('$$r', "gloop", '$r referent is eq to the substring', :todo(1));
+	eval_is('$$r', "gloop", '$r referent is eq to the substring', :todo);
 
 	eval '$$r = "boing"';
-	is($str, "boing ding", "assignment to reference modifies original", :todo(1));
-	eval_is('$$r', "boing", '$r is consistent', :todo(1));
+	is($str, "boing ding", "assignment to reference modifies original", :todo);
+	eval_is('$$r', "boing", '$r is consistent', :todo);
 
 	my $o;
 	eval '$o = \substr($str, 3, 2)';
-	eval_is('$$o', "ng", "other ref to other lvalue", :todo(1));
+	eval_is('$$o', "ng", "other ref to other lvalue", :todo);
 	eval '$$r = "foo"';
-	is($str, "foo ding", "lvalue ref size varies but still works", :todo(1));
-	eval_is('$$o', " d", "other lvalue wiggled around", :todo(1));
+	is($str, "foo ding", "lvalue ref size varies but still works", :todo);
+	eval_is('$$o', " d", "other lvalue wiggled around", :todo);
 };
 
 { 
 # from L<S09/"Junctions" /Each of the resulting set of calls is then recursively autothreaded/>
 # See also t/junctions/s09eg.t
 # This test is not working as-is
-#	eval_is('substr("camel", 0|1, 2&3)', (("ca"|"am") & ("cam"|"ame")), "junctive substr", :todo(1));
+#	eval_is('substr("camel", 0|1, 2&3)', (("ca"|"am") & ("cam"|"ame")), "junctive substr", :todo);
 }

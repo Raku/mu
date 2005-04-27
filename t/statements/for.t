@@ -178,4 +178,4 @@ is(@list_s, @s, 'for @list { $_++ }');
 my @list_t = (0..2);
 my @t = (1..3);
 eval 'for @list_t -> $num is rw { $num++ }';
-is(@list_t, @t, 'for @list -> $num is rw { $num++ }', :todo(1));
+is(@list_t, @t, 'for @list -> $num is rw { $num++ }', :todo);

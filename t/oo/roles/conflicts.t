@@ -29,16 +29,16 @@ eval_ok '
       }
     }
   }
-', "role and class definition worked", :todo(1);
+', "role and class definition worked", :todo;
 
 my $a;
-eval_ok '$a = General.new()',      "basic class instantiation works", :todo(1);
-eval_is '$a.shake("sentry")', "A", "conflict resolution works (1-1)", :todo(1);
-is      $was_in_general_shake,  1, "conflict resolution works (1-2)", :todo(1);
-is      $was_in_sentry_shake,   1, "conflict resolution works (1-3)", :todo(1);
+eval_ok '$a = General.new()',      "basic class instantiation works", :todo;
+eval_is '$a.shake("sentry")', "A", "conflict resolution works (1-1)", :todo;
+is      $was_in_general_shake,  1, "conflict resolution works (1-2)", :todo;
+is      $was_in_sentry_shake,   1, "conflict resolution works (1-3)", :todo;
 # As usual, is instead of todo_is to avoid unexpected suceedings.
 is           $was_in_pet_shake,      0, "conflict resolution works (1-4)";
-eval_is '$a.shake("pet")',    "B", "conflict resolution works (2-1)", :todo(1);
-is      $was_in_general_shake,  2, "conflict resolution works (2-2)", :todo(1);
-is      $was_in_sentry_shake,   1, "conflict resolution works (2-3)", :todo(1);
-is      $was_in_pet_shake,      1, "conflict resolution works (2-4)", :todo(1);
+eval_is '$a.shake("pet")',    "B", "conflict resolution works (2-1)", :todo;
+is      $was_in_general_shake,  2, "conflict resolution works (2-2)", :todo;
+is      $was_in_sentry_shake,   1, "conflict resolution works (2-3)", :todo;
+is      $was_in_pet_shake,      1, "conflict resolution works (2-4)", :todo;

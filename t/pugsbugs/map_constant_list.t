@@ -23,4 +23,4 @@ my @expected = ("foo","bar");
 @expected = map { substr($_,1,1) }, @expected;
 
 fail("FIXME parsefail");
-#eval_is( '("foo","bar").map(){ $_.substr(1,1) }', @expected, :todo(1) );
+#eval_is( '("foo","bar").map(){ $_.substr(1,1) }', @expected, :todo );

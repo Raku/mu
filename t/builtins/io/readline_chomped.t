@@ -16,4 +16,4 @@ eval '
 	$line = <$fh>;
 ';
 
-is($line, "#!/usr/bin/pugs", "first line was chomped", :todo(1));
+is($line, "#!/usr/bin/pugs", "first line was chomped", :todo);

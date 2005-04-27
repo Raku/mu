@@ -23,12 +23,12 @@ is($x, 'Just Another', 'normal assignment works');
 my $y := $x;
 is($y, 'Just Another', 'y is now bound to x');
 
-ok(eval '$y =:= $x', 'y is bound to x (we checked with the =:= identity op)', :todo(1));
+ok(eval '$y =:= $x', 'y is bound to x (we checked with the =:= identity op)', :todo);
 
 my $z = $x;
 is($z, 'Just Another', 'z is not bound to x');
 
-ok(eval '!($z =:= $x)', 'z is not bound to x (we checked with the =:= identity op)', :todo(1));
+ok(eval '!($z =:= $x)', 'z is not bound to x (we checked with the =:= identity op)', :todo);
 
 $y = 'Perl Hacker';
 is($y, 'Perl Hacker', 'y has been changed to "Perl Hacker"');

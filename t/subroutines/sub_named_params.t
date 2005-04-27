@@ -62,7 +62,7 @@ sub assign_based_on_named_positional ($x, +$y = $x) { $y }
 is(assign_based_on_named_positional(5), 5, "When we don't explicitly specify, we get the original value");
 is(assign_based_on_named_positional(5, "y"=> 2), 2, "When we explicitly specify, we get our value");
 is(assign_based_on_named_positional(5, y => 2), 2, "When we explicitly specify, we get our value");
-eval_is('my $var = "y"; assign_based_on_named_positional(5, $var => 2)', 2, "When we explicitly specify, we get our value", :todo(1));
+eval_is('my $var = "y"; assign_based_on_named_positional(5, $var => 2)', 2, "When we explicitly specify, we get our value", :todo);
 
 # L<S06/"Named parameters" /a \+\+ prefix.*?required/>
 sub mandatory (++$param) {

@@ -103,7 +103,7 @@ eval_ok 'time + 10', "'time()' may drop its parentheses";
 
 	eval '($beguser,$begsys) = times';
 	if $! {
-		ok(0, 'very basic times test', :todo(1));
+		ok(0, 'very basic times test', :todo);
 	} else {
 		my $i;
 		loop $i = 0; $i < 100000; $i++ {
@@ -112,7 +112,7 @@ eval_ok 'time + 10', "'time()' may drop its parentheses";
 			$now = time;
 			last() if ($now - $beg > 20); 
 		}
-		ok($i >= 200000, 'very basic times test', :todo(1));
+		ok($i >= 200000, 'very basic times test', :todo);
 	}
 }
 
@@ -125,11 +125,11 @@ eval '($xsec,$foo) = localtime($now)';
 
 my $localyday = $yday;
 
-ok($sec != $xsec && $mday && $year, 'localtime() list context', :todo(1));
+ok($sec != $xsec && $mday && $year, 'localtime() list context', :todo);
 
 #-- 6 --
 
-ok(is_dt(eval 'localtime()'), 'localtime(), scalar context', :todo(1));
+ok(is_dt(eval 'localtime()'), 'localtime(), scalar context', :todo);
 
 # Ultimate implementation as of above test as Rule
 #todo_ok(localtime() ~~ /^Sun|Mon|Tue|Wed|Thu|Fri|Sat\s
@@ -146,7 +146,7 @@ my ($xsec,$foo);
 eval '($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = gmtime($beg)';
 eval '($xsec,$foo) = localtime($now)';
 
-ok($sec != $xsec && $mday && $year, 'gmtime() list context', :todo(1));
+ok($sec != $xsec && $mday && $year, 'gmtime() list context', :todo);
 
 #-- 8 --
 
@@ -159,14 +159,14 @@ if ($localyday && $yday) {
 		$day_diff == 365  ||
 		$day_diff == -364 ||
 		$day_diff == -365, 
-    	  'gmtime() and localtime() agree what day of year', :todo(1));
+    	  'gmtime() and localtime() agree what day of year', :todo);
 } else {
-	ok(0, 'gmtime() and localtime() agree what day of year', :todo(1));
+	ok(0, 'gmtime() and localtime() agree what day of year', :todo);
 }
 
 #-- 9 --
 
-ok(is_dt(eval 'gmtime()'), 'gmtime(), scalar context', :todo(1));
+ok(is_dt(eval 'gmtime()'), 'gmtime(), scalar context', :todo);
 
 # Ultimate implementation as of above test as Rule
 #todo_ok(gmtime() ~~ /^Sun|Mon|Tue|Wed|Thu|Fri|Sat\s

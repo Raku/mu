@@ -21,7 +21,7 @@ plan 9;
 		CATCH /la/ { $caught = 1 }
 	}';
 
-	ok($caught, "exception caught", :todo(1));
+	ok($caught, "exception caught", :todo);
 };
 
 
@@ -41,7 +41,7 @@ plan 9;
 	}';
 
 	ok(!$not_died, "did not live after death");
-	ok($caught, "caught exception of class Naughty", :todo(1));
+	ok($caught, "caught exception of class Naughty", :todo);
 };
 
 {
@@ -63,7 +63,7 @@ plan 9;
 	}';
 
 	ok(!$other, "did not catch sibling error class");
-	ok($naughty, "caught superclass", :todo(1));
+	ok($naughty, "caught superclass", :todo);
 };
 
 {
@@ -82,7 +82,7 @@ plan 9;
 		$lived = 1;
 	';
 
-	ok(!$lived, "did not live past uncaught throw in try", :todo(1));
+	ok(!$lived, "did not live past uncaught throw in try", :todo);
         ok(ref($!), '$! is an object');
-	is(eval 'ref($!)', "Dandy", ".. of the right class", :todo(1));
+	is(eval 'ref($!)', "Dandy", ".. of the right class", :todo);
 };

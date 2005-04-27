@@ -9,9 +9,9 @@ plan 14;
 {
   my $a = 3;
   is $a, 3, "basic sanity";
-  eval_ok '$a does role { has $.cool = "yeah" }', "anonymous role mixin", :todo(1);
+  eval_ok '$a does role { has $.cool = "yeah" }', "anonymous role mixin", :todo;
   is $a, 3, "still basic sanity";
-  eval_is '$a.cool', "yeah", "anonymous role gave us an attribute", :todo(1);
+  eval_is '$a.cool', "yeah", "anonymous role gave us an attribute", :todo;
 }
 
 # The same, but we story the anonymous role in a variable
@@ -19,10 +19,10 @@ plan 14;
   my $a = 3;
   is $a, 3, "basic sanity";
   my $role;
-  eval_ok 'my $role = role { has $.cool = "yeah" }', "anonymous role definition", :todo(1);
-  eval_ok '$a does $role', "anonymous role variable mixin", :todo(1);
+  eval_ok 'my $role = role { has $.cool = "yeah" }', "anonymous role definition", :todo;
+  eval_ok '$a does $role', "anonymous role variable mixin", :todo;
   is $a, 3, "still basic sanity";
-  eval_is '$a.cool', "yeah", "anonymous role variable gave us an attribute", :todo(1);
+  eval_is '$a.cool', "yeah", "anonymous role variable gave us an attribute", :todo;
 }
 
 # Guarantee roles are really first-class-persons:
@@ -37,7 +37,7 @@ plan 14;
 
   my $a = 3;
   is $a, 3, "basic sanity";
-  eval_ok '$a does role_generator("hi")', "role generating function mixin", :todo(1);
+  eval_ok '$a does role_generator("hi")', "role generating function mixin", :todo;
   is $a, 3, "still basic sanity";
-  eval_is '$a.cool', "hi", "role generating function gave us an attribute", :todo(1);
+  eval_is '$a.cool', "hi", "role generating function gave us an attribute", :todo;
 }

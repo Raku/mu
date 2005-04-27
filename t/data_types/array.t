@@ -111,13 +111,13 @@ my @array10 = (1, 2, 3,);
 is(+@array10, 3, "trailing commas make correct list"); 
 
 # declare a multidimension array
-eval_ok('@array11[0...3; 0...1]', "multidimension array", :todo(1));
-eval_ok('@array11[2,0] = 12', "push the value to a multidimension array", :todo(1));
-eval_ok('@array12 is shape(2,4)', "another way to declare a multidimension array", :todo(1));
+eval_ok('@array11[0...3; 0...1]', "multidimension array", :todo);
+eval_ok('@array11[2,0] = 12', "push the value to a multidimension array", :todo);
+eval_ok('@array12 is shape(2,4)', "another way to declare a multidimension array", :todo);
 
 # declare the array with data type
-eval_ok('my Int @array', "declare a array for integer only", :todo(1));
-eval_ok('@array[0] = 23', "declare the array value", :todo(1));
+eval_ok('my Int @array', "declare a array for integer only", :todo);
+eval_ok('@array[0] = 23', "declare the array value", :todo);
 
 # negative index
 my @array11 = ('a', 'b', 'c', 'e'); 

@@ -32,7 +32,7 @@ sub closure1 () returns Int {
   $a();
   return 6;
 }
-is(closure1(), 5, 'closure uses ec to escape', :todo(1));
+is(closure1(), 5, 'closure uses ec to escape', :todo);
 
 sub call_argument($f) {
   return $f();
@@ -45,7 +45,7 @@ sub passing1 returns Int {
   foo(&?CALLER_CONTINUATION);
   return 2;
 }
-eval_is('passing1()', 8, 'ec passed as an argument', :todo(1));
+eval_is('passing1()', 8, 'ec passed as an argument', :todo);
 
 sub is_five($n, $f) {
   if ($n == 5) {
@@ -69,7 +69,7 @@ sub passing2_closure($n) {
 }
 is(passing2_not_cont(5), 1, 'is_five w/o ec');
 is(passing2_not_cont(2), 9, 'is_five w/o ec');
-is(passing2(5), 1, 'is_five passing ec itself', :todo(1));
+is(passing2(5), 1, 'is_five passing ec itself', :todo);
 is(passing2(2), 9, 'is_five passing ec itself');
-is(passing2_closure(5), 1, 'is_five passing ec via closure', :todo(1));
+is(passing2_closure(5), 1, 'is_five passing ec via closure', :todo);
 is(passing2_closure(2), 9, 'is_five passing ec via closure');

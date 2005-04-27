@@ -13,22 +13,22 @@ plan 9;
 
 { # chop serveral things
 	my ($a, $b) = ("bar", "gorch");
-	# FIXME: is(eval 'chop($a, $b)', "h", "two chars removed, second returned", :todo(1));
-	is($a, "ba", "first string", :todo(1));
-	is($b, "gorc", "second string", :todo(1));
+	# FIXME: is(eval 'chop($a, $b)', "h", "two chars removed, second returned", :todo);
+	is($a, "ba", "first string", :todo);
+	is($b, "gorc", "second string", :todo);
 };
 
 { # chop elements of array
 	my @array = ("fizz", "buzz");
 	is(chop(@array), "z", "two chars removed second returned");
-	is(@array[0], "fiz", "first elem", :todo(1));
-	is(@array[1], "buz", "second elem", :todo(1));
+	is(@array[0], "fiz", "first elem", :todo);
+	is(@array[1], "buz", "second elem", :todo);
 };
 
 { # chop a hash
 	my %hash = ( "key", "value", "other", "blah");
 
-	# FIXME: is(chop(%hash), "h"|"e", "chopping hash returns last char of either value", :todo(1));
-	is(%hash<key>, "valu", "first value chopped", :todo(1));
-	is(%hash<other>, "bla", "second value chopped", :todo(1));
+	# FIXME: is(chop(%hash), "h"|"e", "chopping hash returns last char of either value", :todo);
+	is(%hash<key>, "valu", "first value chopped", :todo);
+	is(%hash<other>, "bla", "second value chopped", :todo);
 };

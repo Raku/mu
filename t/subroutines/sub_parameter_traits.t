@@ -39,12 +39,12 @@ is ($foo, 1, 'pass by value works');
 $foo=1;
 sub mods_param_ref ($x is ref) { $x++;  }
 dies_ok { mods_param_ref(1); }, 'is ref with non-lvalue';
-lives_ok { mods_param_ref($foo); }, 'is ref with non-lvalue', :todo(1);
-is($foo, 2, 'is ref works', :todo(1));
+lives_ok { mods_param_ref($foo); }, 'is ref with non-lvalue', :todo;
+is($foo, 2, 'is ref works', :todo);
 
 # is context
 # Doesn't even compile, which is lucky, because I don't understand it well
 # enough to write an actual test...
-eval_ok 'sub my_format (*@data is context(Scalar)) { }; 1', "is context - compile check", :todo(1);
+eval_ok 'sub my_format (*@data is context(Scalar)) { }; 1', "is context - compile check", :todo;
 
 # To do - check that is context actually works

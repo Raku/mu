@@ -42,8 +42,8 @@ Tests quoting constructs as defined in L<S02/Literals>
 { # non interpolating single quotes with nested parens L<S02/Literals /That is.*?\(\).*?have no special significance/>
 	my @q = ();
 	eval '@q = (q: (($foo $bar)))';
-	is(+@q, 1, 'q: () is singular', :todo(1));
-	is(@q[0], '($foo $bar)', 'and nests parens appropriately', :todo(1));
+	is(+@q, 1, 'q: () is singular', :todo);
+	is(@q[0], '($foo $bar)', 'and nests parens appropriately', :todo);
 };
 
 { # q() is bad L<S02/Literals /Which is mandatory for parens/>
@@ -133,7 +133,7 @@ Tests quoting constructs as defined in L<S02/Literals>
 	is(+@q2, 3, 'french double angle');
 	is(+@q3, 3, 'texas double angle');
 
-	is(~@q1, "FOO gorch BAR", "explicit quote word interpolates", :todo(1));
+	is(~@q1, "FOO gorch BAR", "explicit quote word interpolates", :todo);
 	is(~@q2, "FOO gorch BAR", "output is the same as french,");
 	is(~@q3, "FOO gorch BAR", "and texas quotes");
 };
@@ -148,9 +148,9 @@ Tests quoting constructs as defined in L<S02/Literals>
 	is(@q1[3], "BAR", '$bar was interpolated');
 
 	eval '@q2 = «$foo "$gorch" \'$bar\'»';
-	is(+@q2, 3, "3 elementes in sub quoted «» list", :todo(1));
-	is(@q2[1], $gorch, 'second element is both parts of $gorch, interpolated', :todo(1));
-	is(@q2[2], '$bar', 'single quoted $bar was not interpolated', :todo(1));
+	is(+@q2, 3, "3 elementes in sub quoted «» list", :todo);
+	is(@q2[1], $gorch, 'second element is both parts of $gorch, interpolated', :todo);
+	is(@q2[2], '$bar', 'single quoted $bar was not interpolated', :todo);
 };
 
 { # qq:t L<S02/Literals /Heredocs are no longer written/>
@@ -164,8 +164,8 @@ $foo
 FOO
 	';
 
-	is(+@q, 1, "q:t// is singular", :todo(1));
-	is(@q[0], "blah\nBAR\nblah\nFOO\n", "here doc interpolated", :todo(1));
+	is(+@q, 1, "q:t// is singular", :todo);
+	is(@q[0], "blah\nBAR\nblah\nFOO\n", "here doc interpolated", :todo);
 };
 
 { # q:t indented L<S02/Literals /Here docs allow optional whitespace/>
@@ -177,8 +177,8 @@ FOO
 		FOO
 	';
 
-	is(+@q, 1, "q:t// is singular, also when indented", :todo(1));
-	is(@q[0], "blah blah\n\$foo\n", "indentation stripped", :todo(1));
+	is(+@q, 1, "q:t// is singular, also when indented", :todo);
+	is(@q[0], "blah blah\n\$foo\n", "indentation stripped", :todo);
 };
 
 { # q:0 L<S02/Literals /No escapes at all/>

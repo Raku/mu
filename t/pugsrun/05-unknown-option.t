@@ -41,5 +41,5 @@ for @examples -> $ex {
   my $got      = slurp "temp-ex-output";
   unlink "temp-ex-output";
 
-  is $got, $expected, "$ex works", :todo(1);
+  is $got, $expected, "$ex works", :todo;
 }

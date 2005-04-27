@@ -17,31 +17,31 @@ eval_ok '
   role InitialAttribVal[: $val] {
     has $.attr = $val;
   }
-', "parameterized role definition (1)", :todo(1);
+', "parameterized role definition (1)", :todo;
 
 my $a;
 eval_ok '$a does InitialAttribVal[42]',
-  "imperative does to apply a parametrized role (1)", :todo(1);
+  "imperative does to apply a parametrized role (1)", :todo;
 eval_is '$a.attr', 42,
-  "attribute was initialized correctly (1)", :todo(1);
+  "attribute was initialized correctly (1)", :todo;
 # L<A12/"Encapsulated Attributes" /In which case all of these are true:/>
 eval_ok '$a.meta.does(InitialAttribVal)',
-  ".meta.does gives correct information (1-1)", :todo(1);
+  ".meta.does gives correct information (1-1)", :todo;
 # L<A12/"Encapsulated Attributes" /but this is false:/>
 eval_ok '!$a.meta.does(InitialAttribVal[42])',
-  ".meta.does gives correct information (1-2)", :todo(1);
+  ".meta.does gives correct information (1-2)", :todo;
 
 my $b;
 eval_ok '$a does InitialAttribVal[23]',
-  "imperative does to apply a parametrized role (2)", :todo(1);
+  "imperative does to apply a parametrized role (2)", :todo;
 eval_is '$a.attr', 23,
-  "attribute was initialized correctly (2)", :todo(1);
+  "attribute was initialized correctly (2)", :todo;
 # L<A12/"Encapsulated Attributes" /In which case all of these are true:/>
 eval_ok '$a.meta.does(InitialAttribVal)',
-  ".meta.does gives correct information (2-1)", :todo(1);
+  ".meta.does gives correct information (2-1)", :todo;
 # L<A12/"Encapsulated Attributes" /but this is false:/>
 eval_ok '!$a.meta.does(InitialAttribVal[23])',
-  ".meta.does gives correct information (2-2)", :todo(1);
+  ".meta.does gives correct information (2-2)", :todo;
 
 
 
@@ -53,18 +53,18 @@ eval_ok '
   role InitialAttribType[Type $type:] {
     method hi(::($type) $foo) { 42 }
   }
-', "parameterized role definition (2)", :todo(1);
+', "parameterized role definition (2)", :todo;
 my $c;
 eval_ok '$c does InitialAttribType[Code]',
-  "imperative does to apply a parametrized role (3)", :todo(1);
+  "imperative does to apply a parametrized role (3)", :todo;
 eval_ok '$c.meta.does(InitialAttribType)',
-  ".meta.does gives correct information (3-1)", :todo(1);
+  ".meta.does gives correct information (3-1)", :todo;
 eval_ok '$c.meta.does(InitialAttribType[Code])',
-  ".meta.does gives correct information (3-2)", :todo(1);
+  ".meta.does gives correct information (3-2)", :todo;
 eval_is '$c.hi(sub {})', 42,
-  "type information was processed correctly (1)", :todo(1);
+  "type information was processed correctly (1)", :todo;
 eval_ok '!try { $c.hi("not a code object") }',
-  "type information was processed correctly (2)", :todo(1);
+  "type information was processed correctly (2)", :todo;
 
 
 
@@ -88,15 +88,15 @@ eval_ok '
     has $.type = $type;
     has $.name = $name;
   }
-', "parameterized role definition (3)", :todo(1);
+', "parameterized role definition (3)", :todo;
 my $d;
 eval_ok '$d does InitialAttribBoth["type1", "name1"]',
-  "imperative does to apply a parametrized role (4)", :todo(1);
+  "imperative does to apply a parametrized role (4)", :todo;
 eval_ok '$c.meta.does(InitialAttribType)',
-  ".meta.does gives correct information (4-1)", :todo(1);
+  ".meta.does gives correct information (4-1)", :todo;
 eval_ok '$d.meta.does(InitialAttribType["type1"])',
-  ".meta.does gives correct information (4-2)", :todo(1);
+  ".meta.does gives correct information (4-2)", :todo;
 eval_ok '!$d.meta.does(InitialAttribType["type1", "name1"])',
-  ".meta.does gives correct information (4-3)", :todo(1);
-eval_is '$d.type', "type1", ".type works correctly", :todo(1);
-eval_is '$d.name', "name1", ".name works correctly", :todo(1);
+  ".meta.does gives correct information (4-3)", :todo;
+eval_is '$d.type', "type1", ".type works correctly", :todo;
+eval_is '$d.name', "name1", ".name works correctly", :todo;

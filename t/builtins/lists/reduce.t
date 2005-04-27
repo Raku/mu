@@ -18,6 +18,6 @@ my @array = <5 -3 7 0 1 -9>;
 my $sum   = 5 + -3 + 7 + 0 + 1 + -9; # laziness :)
 
 eval_is 'reduce:{ $^a + $^b } 0, @array', $sum,
-  "basic reduce works (1)", :todo(1);
+  "basic reduce works (1)", :todo;
 eval_is 'reduce:{ $^a + $^b } 100, @array', 100 + $sum,
-  "basic reduce works (2)", :todo(1);
+  "basic reduce works (2)", :todo;

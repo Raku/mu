@@ -49,7 +49,7 @@ is(callerunderscore(), "-foo-", 'CALLER:: $_ set once');
 $_ = "bar";
 is(callerunderscore(), "-bar-", 'CALLER:: $_ set twice');
 for ("quux") {
-  is(callerunderscore(), '-quux-', 'CALLER:: $_ set by for', :todo(1));
+  is(callerunderscore(), '-quux-', 'CALLER:: $_ set by for', :todo);
 }
 is(callerunderscore(), '-bar-', 'CALLER:: $_ reset after for');
 
@@ -90,14 +90,14 @@ sub argShifter (@a) {
 	return $first;
 }
 
-#fail("FIXME parsefail", :todo(1)); # actually exe fail...
+#fail("FIXME parsefail", :todo); # actually exe fail...
 #is eval 'argShifter(3..5)', 3, "use shift on an array argument";
-eval_is 'argShifter(3..5)', 3, "use shift on an array argument", :todo(1);
+eval_is 'argShifter(3..5)', 3, "use shift on an array argument", :todo;
 
 eval 'sub unpack_array ([$first, *@rest]) { return $first; }';
 
 my @array = 3..7;
-is(eval 'unpack_array(@array)', 3, 'unpacking an array parameter', :todo(1));
+is(eval 'unpack_array(@array)', 3, 'unpacking an array parameter', :todo);
 
 =pod
 
@@ -108,4 +108,4 @@ L<S06/"Unpacking hash parameters">
 eval 'sub unpack_hash({+$yo, *%other}){ return $yo; }';
 
 my %params = yo => 3, nope => 4;
-is(eval 'unpack_hash(%params)', 3, 'unpacking a hash parameter', :todo(1));
+is(eval 'unpack_hash(%params)', 3, 'unpacking a hash parameter', :todo);

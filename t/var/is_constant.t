@@ -15,8 +15,8 @@ plan 3;
 		$b = $const;
 	';
 
-	is($a, 2, "constant initially 2", :todo(1));
+	is($a, 2, "constant initially 2", :todo);
 	ok(!$e, "modifying constant is not allowed");
-	is($b, 2, "constant is still 2", :todo(1));
+	is($b, 2, "constant is still 2", :todo);
 }
 

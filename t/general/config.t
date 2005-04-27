@@ -25,11 +25,11 @@ my $osnames = any<darwin linux FreeBSD MSWin32 mingw msys cygwin>;
 if ($?OS eq $osnames) {
     pass("...and we know of the OS we were compiled in")
 } else {
-    fail("We do not know of the OS we were compiled in -- please report to the pugs team", :todo(1))
+    fail("We do not know of the OS we were compiled in -- please report to the pugs team", :todo)
 }
 
 if ($*OS eq $osnames) {
     pass("...and we know of the OS we are running under")
 } else {
-    fail("We do not know of the OS we are running under -- please report to the pugs team", :todo(1))
+    fail("We do not know of the OS we are running under -- please report to the pugs team", :todo)
 }
