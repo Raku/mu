@@ -371,7 +371,7 @@ op1 "=" = \v -> do
             Just hdl -> return hdl
     handleOf (VList [x]) = handleOf x
     handleOf v = fromVal v
-op1 "ref"   = fmap (VStr . show) . evalValType
+op1 "ref"   = fmap (VStr . showType) . evalValType
 op1 "pop"   = \x -> join $ doArray x Array.pop -- monadic join
 op1 "shift" = \x -> join $ doArray x Array.shift -- monadic join
 op1 "pick"  = op1Pick
@@ -945,11 +945,11 @@ op2Modulus x y
     | VRat x' <- x, VRat y' <- y
     = return $ if y' == 0 then err else VInt $ (truncate x') `mod` (truncate y')
     | VRef ref <- x
-    = do 
+    = do
         x' <- readRef ref
         op2Modulus x' y
     | VRef ref <- y
-    = do 
+    = do
         y' <- readRef ref
         op2Modulus x y'
     | otherwise      -- pray for the best
