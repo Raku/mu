@@ -37,16 +37,20 @@ run it. The cgi-bin directory is for running the index.cgi,
 for some includes and for storing the session variables.
 The www directory is for the static things.
 
-This is (almost) my Apache configuration (the vhost part of it):
+Add this virtual host setting to your httpd.conf, with
+example.org and /path/to/pugs changed to your local settings:
 
 <VirtualHost *:80>
-    ServerName pugs_the_game.hu
-    ServerAdmin a-n-d-r-a-s@b-a-r-t-h-a-z-i.h-u
-    DocumentRoot /www/pugs_the_game.hu/www
-    ErrorLog /www/pugs_the_game.hu/error_log
-    CustomLog /www/pugs_the_game.hu/access_log combined
-    ScriptAlias /cgi-bin /www/pugs_the_game.hu/cgi-bin
+    ServerName memory_game.example.org
+    DocumentRoot /path/to/pugs/examples/cgi/memory_game/www
+    ScriptAlias /cgi-bin /path/to/pugs/examples/cgi/memory_game/cgi-bin
+    <Location />
+        Allow from all
+    </Location>
 </VirtualHost>
+
+After that, just connect to http://memory_game.examples.org/ to
+start the game.
 
 Conclusion
 ~~~~~~~~~~
