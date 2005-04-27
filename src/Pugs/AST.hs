@@ -531,7 +531,7 @@ mkSub = MkCode
 
 instance Ord VComplex where {- ... -}
 instance (Typeable a) => Show (IORef a) where
-    show a = "<" ++ show (typeOf a) ++ ">"
+    show _ = "<ref>"
 
 data Exp
     = Noop
@@ -1237,7 +1237,8 @@ instance Scalar.Class IScalarCwd where
 
 instance Scalar.Class VScalar where
     iType = const $ mkType "Scalar::Const"
-    fetch = return
+    fetch (VRef ref) = readRef ref
+    fetch v = return v
     store _ v = retConstError v
 
 instance Code.Class ICode where

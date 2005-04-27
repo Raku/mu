@@ -144,32 +144,14 @@ caller n = do
         fail "Cannot ask for deeper depth"
     asks $ foldl (.) id $ replicate n (fromJust . envCaller)
 
-evalVal x = do
-    -- context casting, go!
-    -- XXX this needs a rewrite!
-    -- Env{ envLValue = isLValue, envClasses = cls, envContext = cxt } <- ask
+evalVal val = do
     Env{ envLValue = lv, envClasses = cls } <- ask
-    typ <- evalValType x
-    val <- if not lv && isaType cls "Junction" typ
-        then readRef =<< fromVal x
-        else return x
-    return val
-    {-
-    if isSlurpyCxt cxt
-        then return . VList . concat =<< fromVals val
-        else return val
-    --- XXX isCompatible is all wrong!
-    let isCompatible | isSlurpyCxt cxt = isaType cls "List" typ
-                     | otherwise       = isaType cls "Scalar" typ
-        isRef = case val of { VRef _ -> True; _ -> False }
-    -- trace (show ((cxt, typ), isCompatible, isLValue, isListCxt, val)) return ()
-    
-    case (isCompatible, isLValue, isSlurpyCxt cxt) of
-        (True, True, _)         -> return val
-        (True, False, False)    -> fromVal val
-        (True, False, True)     -> return . VList =<< fromVal val
-        (False, True, False)    -> return val -- auto scalar varify?
-        (False, True, True)     -> return val -- auto list varify?
-        (False, False, False)   -> if isRef then return val else fromVal' val
-        (False, False, True)    -> return . VList =<< fromVal' val
-    -}
+    typ <- evalValType val
+    if lv then return val else do
+    case val of
+        VRef ref | refType ref == mkType "Scalar::Const" -> do
+            evalVal =<< readRef ref
+        VRef ref | isaType cls "Junction" typ -> do
+            evalVal =<< readRef ref
+        _ -> do
+            return val
