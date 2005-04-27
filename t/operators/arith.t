@@ -39,9 +39,9 @@ sub tryeq_sloppy ($lhs, $rhs, ?$todo1 = '') {
     } else {
         my $error = abs($lhs - $rhs) / $lhs;
         if ($todo) {
-            &ok.goto($error<1e-9,$todo ~ " # " ~ $lhs ~ " is close to " ~ $rhs, :todo(1));
+            &ok.goto($error <1e-9,$todo ~ " # " ~ $lhs ~ " is close to " ~ $rhs, :todo(1));
         } else {
-            &ok.goto($error<1e-9);
+            &ok.goto($error <1e-9);
         }
     }
 }
