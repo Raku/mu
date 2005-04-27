@@ -800,7 +800,9 @@ naturalOrRat  = (<?> "number") $ do
 
     fraction = do
             char '.'
-            notFollowedBy (noneOf "e1234567890")
+            notFollowedBy . satisfy $ \x -> 
+                (isAlpha x && ((x /=) `all` "eE"))
+                || ((x ==) `any` ".=")
             digits <- many digit <?> "fraction"
             return (digitsToRat digits)
         <?> "fraction"
