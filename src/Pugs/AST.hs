@@ -1016,7 +1016,7 @@ instance Eq VRef where
 instance Ord VRef where
     compare _ _ = EQ
 instance Show VRef where
-    show v = "<" ++ show (refType v) ++ ">"
+    show v = "<" ++ showType (refType v) ++ ">"
 
 instance Eq (IVar a) where
     (==) = const $ const False
