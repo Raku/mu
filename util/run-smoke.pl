@@ -26,7 +26,7 @@ my $output ;# = svn("up") or die "Could not update pugs tree: $!";
 $output   .= make("optimized") or die "Could not make pugs: $!";
 system("perl -w ./util/yaml_harness.pl") == 0 or die "Could not run yaml harness: $!";
 system("perl -w ./util/testgraph.pl >$html_location") == 0 or die "Could not convert .yml to testgraph: $!";
-print "*** All done! Smoke matrix saved as 'smoke.html'."
+print "*** All done! Smoke matrix saved as 'smoke.html'.";
 
 sub check_prereq {
     my ($mod) = @_;
