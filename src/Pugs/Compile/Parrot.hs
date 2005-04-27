@@ -18,8 +18,8 @@ class (Show x) => Compile x where
     compile :: x -> Eval Doc
     compile x = fail ("Unrecognized construct: " ++ show x)
 
-genPIR :: Eval Val
-genPIR = do
+genIMC :: Eval Val
+genIMC = do
     Env{ envBody = exp, envGlobal = globRef } <- ask
 
     glob <- liftIO $ readIORef globRef
