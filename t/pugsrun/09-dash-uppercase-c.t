@@ -21,7 +21,9 @@ my @t_good = (
   junctions/3 junctions/all-any junctions/any-any
   junctions/any-any2 junctions/grades
   quicksort
->)), '-CParrot ' ~ any('-e1')
+>)), '-CParrot ' ~ any('-e1', map( {"examples/$_.p6"}<
+  junctions/1
+>))
 );
 
 my @t_todo = map{$_.values} (map{$_.values} (
@@ -31,7 +33,6 @@ my @t_todo = map{$_.values} (map{$_.values} (
     ~ any(<
   functional/fp
   hanoi
-  junctions/1
   junctions/3
   junctions/all-all
   junctions/all-any junctions/any-any

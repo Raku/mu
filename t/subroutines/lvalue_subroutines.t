@@ -24,7 +24,7 @@ is($val2, 4); # nested
 # S6 says that lvalue subroutines are marked out by 'is rw'
 sub notlvalue { return $val1; } # without rw
 eval_ok('notlvalue() = 5;$val1==1;', 'non-rw subroutines should not support assignment', :todo(1));
-isnt($val1, 4, 'non-rw subroutines should not assign', :todo(1));
+isnt($val1, 4, 'non-rw subroutines should not assign');
 
 sub check ($passwd) { return $password eq "fish"; };
 
