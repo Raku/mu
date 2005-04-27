@@ -312,10 +312,9 @@ op1 "listen" = \v -> do
     return $ VSocket socket
 op1 "flush" = boolIO hFlush
 op1 "close" = \v -> do
-    val <- fromVal v
-    case val of
-        (VSocket _) -> boolIO sClose val
-        _           -> boolIO hClose val
+    case v of
+        (VSocket _) -> boolIO sClose v
+        _           -> boolIO hClose v
 op1 "key" = fmap fst . (fromVal :: Val -> Eval VPair)
 op1 "value" = fmap snd . (fromVal :: Val -> Eval VPair)
 op1 "pairs" = \v -> do
