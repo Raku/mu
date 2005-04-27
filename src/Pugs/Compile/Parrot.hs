@@ -4,22 +4,78 @@ module Pugs.Compile.Parrot where
 import Pugs.Internals
 import Pugs.Pretty
 import Pugs.AST
+import Pugs.Types
 import Data.HashTable
 import Text.PrettyPrint
+import qualified Pugs.Types.Scalar as Scalar
+import qualified Pugs.Types.Code   as Code
 
 -- XXX This compiler needs a totaly rewrite using Parrot AST,
 -- XXX and maybe TH-based AST combinators
 
-genPIR :: Env -> IO String
-genPIR Env{ envBody = exp } = return . unlines $
-    [ "#!/usr/bin/env parrot"
-    , ".sub main @MAIN"
-    , ""
-    , renderStyle (Style LeftMode 0 0) (compile exp)
-    , ".end"
-    ]
+genPIR :: Eval Val
+genPIR = do
+    Env{ envBody = exp, envGlobal = globRef } <- ask
+
+    glob <- liftIO $ readIORef globRef
+
+    -- get a list of functions
+    init <- compileEval glob
+
+    return . VStr . unlines $
+        [ "#!/usr/bin/env parrot"
+        , renderStyle (Style PageMode 0 0) init
+        , renderStyle (Style PageMode 0 0) $ vcat
+            [ text ".sub main @MAIN"
+            , nest 4 (compile exp)
+            , text ".end"
+            ]
+        ]
+
+instance Compile Doc where
+    compile = id
+
+instance Compile Pad where
+    compileEval pad = fmap vcat $ mapM compileEval (padToList pad)
+
+instance Compile (String, [IORef VRef]) where
+    compileEval (('&':name), [sym]) = do
+        imc <- compileEval sym
+        return $ vcat
+            [ text (".sub \"" ++ name ++ "\"")
+            , nest 4 imc
+            , text ".end"
+            ]
+    compileEval x = internalError ("Unrecognized construct: " ++ show x)
+
+instance Compile (IORef VRef) where
+    compileEval x = do
+        ref <- liftIO $ readIORef x
+        compileEval ref
+
+instance Compile VRef where
+    compileEval (MkRef (ICode cv)) = do
+        vsub <- Code.fetch cv
+        compileEval vsub
+    compileEval (MkRef (IScalar sv))
+        | Scalar.iType sv == mkType "Scalar::Const" = do
+            sv  <- Scalar.fetch sv
+            ref <- fromVal sv
+            compileEval (ref :: VCode)
+    compileEval x = internalError ("Unrecognized construct: " ++ show x)
+
+instance Compile VCode where
+    compileEval sub = do
+        prms <- mapM compileEval (subParams sub)
+        body <- compileEval (subFun sub)
+        return . vcat $ prms ++ [ text "", body ]
+
+instance Compile Param where
+    compile prm = text ".param pmc" <+> varText (paramName prm)
 
 class (Show x) => Compile x where
+    compileEval :: x -> Eval Doc
+    compileEval x = return (compile x)
     compile :: x -> Doc
     compile x = internalError ("Unrecognized construct: " ++ show x)
 
@@ -60,14 +116,8 @@ compileCond x y = error $ show (x,y)
 instance Compile Exp where
     compile (Var name) = varText name
     compile (Syn ";" stmts) = vcat $ map compile stmts
-    compile (Syn "=" [var, Syn "[]" [lhs, rhs]]) = vcat $
-        [ compile var <+> text "=" <+> compile lhs <> text "[" <> compile rhs <> text"]"
-        ]
     compile (Syn "block" blocks) = vcat $ map compile blocks
-    compile (Syn "=" [lhs, rhs@(Var _)]) = hsep $
-        [ compile lhs, text "=", text "assign", compile rhs ]
-    compile (Syn "=" [lhs, rhs]) = hsep $
-        [ compile lhs, text "=", compile rhs ]
+    compile (Syn "=" [lhs, rhs]) = compileAssign lhs rhs
     compile (Syn "if" exps) = compileCond "unless" exps
     compile (Syn "unless" exps) = compileCond "if" exps
     compile exp@(Syn "loop" [pre, cond, post, body]) = 
@@ -86,6 +136,7 @@ instance Compile Exp where
             , text "goto" <+> start
             , label last
             ]
+    compile (App "&return" [] [val]) = text ".return" <+> parens (compile val)
     compile (App "&last" _ _) = text "invoke last"
     compile (App "&substr" [] [str, start, Val (VInt 1)]) = hcat $
         [ compile str
@@ -101,7 +152,15 @@ instance Compile Exp where
     compile (App "&say" invs args) = 
         compile $ App "&print" invs (args ++ [Val $ VStr "\n"])
     compile (App "&print" invs args) = vcat $
-        map ((text "print" <+>) . compile) (invs ++ args)
+        map (\x -> vcat
+                [ text ".local pmc tmp"
+                , text "tmp = new PerlUndef"
+                , compileAssign (text "tmp") x
+                , text "print tmp"
+                ])
+            (invs ++ args)
+    compile (App "&not" [] []) =
+        text "new" <+> compile (Val VUndef)
     compile (Val (VStr x))  = showText $ encodeUTF8 (concatMap quoted x)
     compile (Val (VInt x))  = integer x
     compile (Val (VNum x))  = showText x
@@ -120,11 +179,23 @@ instance Compile Exp where
         ]
     compile (Syn "mval" [exp]) = compile exp
     compile (Syn "," things) = vcat $ map compile things
-    compile (App "&not" [] []) =
-        text "new" <+> compile (Val VUndef)
+    compile (Syn syn [lhs, exp]) | last syn == '=' =
+        compile $ Syn "=" [lhs, App ("&infix:" ++ init syn) [lhs, exp] []]
     compile (Cxt _ exp) = compile exp
     compile x = error $ "Cannot compile: " ++ (show x)
 
 showText :: (Show a) => a -> Doc
 showText = text . show
 
+compileAssign :: (Compile a) => a -> Exp -> Doc
+compileAssign lhs rhs@(Var _) = hsep [ compile lhs, text "=", text "assign", compile rhs ]
+compileAssign lhs (App ('&':name) _ [arg]) = vcat $
+        [ text ".local pmc tmp"
+        , text "tmp = new PerlUndef"
+        , compileAssign (text "tmp") arg
+        , hsep [compile lhs, text "=", text name <> parens (text "tmp")]
+        ]
+compileAssign lhs (Syn "[]" [arr, idx]) = vcat $
+        [ compile lhs <+> text "=" <+> compile arr <> text "[" <> compile idx <> text"]"
+        ]
+compileAssign lhs rhs = hsep [ compile lhs, text "=", compile rhs ]

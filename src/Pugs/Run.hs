@@ -23,15 +23,6 @@ runWithArgs f = do
     args <- getArgs
     f $ canonicalArgs args
 
-runEval :: Env -> Eval Val -> IO Val
-runEval env eval = withSocketsDo $ do
-    my_perl <- initPerl5 ""
-    val <- (`runReaderT` env) $ do
-        (`runContT` return) $
-            resetT eval
-    freePerl5 my_perl
-    return val
-
 runEnv :: Env -> IO Val
 runEnv env = runEval env $ evaluateMain (envBody env)
 

@@ -14,9 +14,10 @@ import Pugs.AST
 import Pugs.Run
 import Pugs.Prim
 
-genGHC :: Env -> IO String
-genGHC Env{ envBody = exp } =
-    TH.runQ [d| mainCC = runComp $(compile exp) |] >>= \str -> return . unlines $
+genGHC :: Eval Val
+genGHC = do
+    exp <- asks envBody
+    liftIO (TH.runQ [d| mainCC = runComp $(compile exp) |]) >>= \str -> return . VStr . unlines $
         [ "{-# OPTIONS_GHC -fglasgow-exts -fth -O #-}"
         , "module MainCC where"
         , "import GHC.Base"

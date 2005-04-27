@@ -718,6 +718,15 @@ data Scope = SGlobal | SMy | SOur | SLet | STemp | SState
 
 type Eval x = ContT Val (ReaderT Env IO) x
 
+runEval :: Env -> Eval Val -> IO Val
+runEval env eval = withSocketsDo $ do
+    my_perl <- initPerl5 ""
+    val <- (`runReaderT` env) $ do
+        (`runContT` return) $
+            resetT eval
+    freePerl5 my_perl
+    return val
+
 findSymRef :: (MonadIO m) => String -> Pad -> m VRef
 findSymRef name pad = do
     case findSym name pad of

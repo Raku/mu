@@ -11,13 +11,14 @@
 
 module Pugs.Compile where
 import Pugs.AST
+import Pugs.Internals
 import Pugs.Compile.Pugs (genPugs)
 import Pugs.Compile.Parrot (genPIR)
 import Pugs.Compile.Haskell (genGHC)
 
 compile :: String -> Env -> IO String
-compile "Haskell" = genGHC
-compile "Pugs" = genPugs
-compile "Parrot" = genPIR
-compile s = const (error $ "Cannot compile to " ++ s)
+compile "Haskell" env = fmap vCast $ runEval env genGHC
+compile "Pugs"    env = fmap vCast $ runEval env genPugs
+compile "Parrot"  env = fmap vCast $ runEval env genPIR
+compile s _ = fail $ "Cannot compile to " ++ s
 
