@@ -20,24 +20,42 @@ genGHC Env{ envBody = exp } =
         [ "{-# OPTIONS_GHC -fglasgow-exts -fth -O #-}"
         , "module MainCC where"
         , "import GHC.Base"
-        , "import Run"
-        , "import AST"
+        , "import Pugs.Run"
+        , "import Pugs.AST"
         , "import Pugs.Types"
-        , "import Prim"
-        , "import Internals"
+        , "import Pugs.Prim"
+        , "import Pugs.Internals"
         , "import Language.Haskell.TH as TH"
         , ""
         , TH.pprint str
         ]
 
-compile (App op [inv] []) = compile (App op [] [inv])
-compile (App ('&':op) [] [arg]) = [| do
+compile (Stmts []) = [| return undef |]
+compile (Stmts [(stmt, _)]) = compile stmt
+compile (Stmts ((stmt, _):stmts)) = [| do
+        $(argC)
+        $(argRest)
+    |] where
+    argC = compile stmt
+    argRest = compile (Stmts stmts)
+compile (App op [] []) = [| op0 op [] |]
+compile (App op [] args) = compile (App op args [])
+compile (App ('&':op) [arg] []) = [| do
         val <- $(argC)
         op1 op val
     |] where
     argC = compile arg
+compile (App ('&':op) [arg1, arg2] []) = [| do
+        val1 <- $(argC1)
+        val2 <- $(argC2)
+        op2 op val1 val2
+    |] where
+    argC1 = compile arg1
+    argC2 = compile arg2
+compile (Cxt _ arg) = compile arg
+compile (Val (VInt i)) = [| return (VInt i) |]
 compile (Val (VStr s)) = [| return (VStr s) |]
-compile (Stmts [(st, _)]) = [| do $(compile st) |]
+compile (Val (VBool b)) = [| return (VBool b) |]
 compile Noop = [| return () |]
 compile exp = internalError ("Unrecognized construct: " ++ show exp)
 
