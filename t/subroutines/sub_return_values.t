@@ -11,10 +11,10 @@ L<S06/"Subroutines">
 
 =cut
 
-plan 55;
+plan 57;
 
-# These test the returning of values from a subroutine. 
-# We test each data-type with 4 different styles of return. 
+# These test the returning of values from a subroutine.
+# We test each data-type with 4 different styles of return.
 #
 # The datatypes are:
 #     Scalar
@@ -27,18 +27,30 @@ plan 55;
 #     create a variable, and return it with the return statement
 #     create a variable, and make it the last value in the sub (implied return)
 #     create the value inline and return it with the return statement
-#     create the value inline and make it the last value in the sub (implied return)    
+#     create the value inline and make it the last value in the sub (implied return)
 #
-# NOTE: 
-# we do not really check return context here. That should be 
+# NOTE:
+# we do not really check return context here. That should be
 # in it's own test file
 
-# TODO-NOTE: 
-# Currently the Hash and Hash-ref tests are not complete, becuase hashes seem to be 
+# TODO-NOTE:
+# Currently the Hash and Hash-ref tests are not complete, becuase hashes seem to be
 # broken in a number of ways. I will get back to those later.
 
 ## void
-eval_ok('sub ret { return }', "return without value ok");
+# eval_ok('sub ret { return }; 1', "return without value parses ok");
+
+sub bare_return { return };
+
+ok(! bare_return(), "A bare return is a false value");
+
+my @l = <some values>;
+@l = bare_return();
+is( @l, [], "A bare return is an empty list in array/list context");
+
+my $s = "hello";
+$s = bare_return();
+is($s, undef, "A bare return is undef in scalar context");
 
 ## scalars
 
@@ -127,11 +139,11 @@ sub foo_array_ref {
    return $foo;
 }
 my $foo_array_ref_return = foo_array_ref();
-isa_ok($foo_array_ref_return, 'List'); 
-is(+$foo_array_ref_return, 3, 'got the right number of return value'); 
-is($foo_array_ref_return[0], 'foo', 'got the right return value'); 
-is($foo_array_ref_return[1], 'bar', 'got the right return value'); 
-is($foo_array_ref_return[2], 'baz', 'got the right return value'); 
+isa_ok($foo_array_ref_return, 'List');
+is(+$foo_array_ref_return, 3, 'got the right number of return value');
+is($foo_array_ref_return[0], 'foo', 'got the right return value');
+is($foo_array_ref_return[1], 'bar', 'got the right return value');
+is($foo_array_ref_return[2], 'baz', 'got the right return value');
 
 # ... w/out the return statement
 
@@ -152,11 +164,11 @@ sub foo_array_ref3 {
    return ['foo', 'bar', 'baz'];
 }
 my $foo_array_ref_return3 = foo_array_ref3();
-isa_ok($foo_array_ref_return3, 'List'); 
-is(+$foo_array_ref_return3, 3, 'got the right number of return value'); 
-is($foo_array_ref_return3[0], 'foo', 'got the right return value'); 
-is($foo_array_ref_return3[1], 'bar', 'got the right return value'); 
-is($foo_array_ref_return3[2], 'baz', 'got the right return value'); 
+isa_ok($foo_array_ref_return3, 'List');
+is(+$foo_array_ref_return3, 3, 'got the right number of return value');
+is($foo_array_ref_return3[0], 'foo', 'got the right return value');
+is($foo_array_ref_return3[1], 'bar', 'got the right return value');
+is($foo_array_ref_return3[2], 'baz', 'got the right return value');
 
 # ... returning list constructed "on the fly" w/out return statement
 
@@ -177,14 +189,14 @@ sub foo_hash {
     return %foo;
 }
 
-my %foo_hash_return = foo_hash(); 
+my %foo_hash_return = foo_hash();
 isa_ok(%foo_hash_return, 'Hash');
-is(+%foo_hash_return.keys, 3, 'got the right number of return value'); 
-is(%foo_hash_return<foo>, 1, 'got the right return value'); 
-is(%foo_hash_return<bar>, 2, 'got the right return value'); 
-is(%foo_hash_return<baz>, 3, 'got the right return value'); 
+is(+%foo_hash_return.keys, 3, 'got the right number of return value');
+is(%foo_hash_return<foo>, 1, 'got the right return value');
+is(%foo_hash_return<bar>, 2, 'got the right return value');
+is(%foo_hash_return<baz>, 3, 'got the right return value');
 
-# now hash refs 
+# now hash refs
 
 sub foo_hash_ref {
     my %foo = ( 'foo', 1, 'bar', 2, 'baz', 3 );
@@ -192,10 +204,9 @@ sub foo_hash_ref {
 }
 
 my $foo_hash_ref_return = foo_hash_ref();
-isa_ok($foo_hash_ref_return, 'Hash'); 
-is(+$foo_hash_ref_return.keys, 3, 'got the right number of return value'); 
+isa_ok($foo_hash_ref_return, 'Hash');
+is(+$foo_hash_ref_return.keys, 3, 'got the right number of return value');
 is($foo_hash_ref_return<foo>, 1, 'got the right return value');
-is($foo_hash_ref_return<bar>, 2, 'got the right return value'); 
-is($foo_hash_ref_return<baz>, 3, 'got the right return value'); 
-
+is($foo_hash_ref_return<bar>, 2, 'got the right return value');
+is($foo_hash_ref_return<baz>, 3, 'got the right return value');
 
