@@ -23,6 +23,10 @@ my @t_good = (
   quicksort
 >)), '-CParrot ' ~ any('-e1', map( {"examples/$_.p6"}<
   junctions/1
+  junctions/any-any
+  junctions/any-any2
+  junctions/3
+  junctions/all-all
 >))
 );
 
@@ -33,10 +37,8 @@ my @t_todo = map{$_.values} (map{$_.values} (
     ~ any(<
   functional/fp
   hanoi
-  junctions/3
-  junctions/all-all
-  junctions/all-any junctions/any-any
-  junctions/any-any2 junctions/grades
+  junctions/grades
+  junctions/all-any 
   >) ~ '.p6'));
 
 # I don't know (yet) how to force a junction into expansion
