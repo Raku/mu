@@ -42,8 +42,11 @@ op0 "so" = const (return $ VBool True)
 op0 "¥" = fmap (VList . concat . op0Zip) . mapM fromVal
 op0 "Y" = op0 "¥"
 op0 "File::Spec::cwd" = const $ do
-    mycwd <- liftIO getCurrentDirectory
-    return $ VStr mycwd
+    cwd <- liftIO getCurrentDirectory
+    return $ VStr cwd
+op0 "File::Spec::tmpdir" = const $ do
+    tmp <- liftIO getTemporaryDirectory
+    return $ VStr tmp
 op0 "pi" = const $ return (VNum pi)
 op0 "say" = const $ op1 "say" =<< readVar "$_"
 op0 "print" = const $ op1 "print" =<< readVar "$_"
@@ -1369,6 +1372,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Num       pre     time    ()\
 \\n   Str       pre     want    ()\
 \\n   Str       pre     File::Spec::cwd  ()\
+\\n   Str       pre     File::Spec::tmpdir  ()\
 \\n   Bool      pre     print   (rw!IO)\
 \\n   Bool      pre     print   (rw!IO: List)\
 \\n   Bool      pre     print   ()\

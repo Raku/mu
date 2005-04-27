@@ -172,6 +172,10 @@ sub cwd returns Str {
   return File::Spec::cwd();
 }
 
+sub tmpdir returns Str {
+  return File::Spec::tmpdir();
+}
+
 sub rel2abs (Str $_path, Str ?$_base) returns Str {
     # take a copy of our args here, maybe 
     # replace this with 'is copy' parameter 

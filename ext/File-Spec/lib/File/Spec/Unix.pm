@@ -164,6 +164,10 @@ sub cwd returns Str {
   return File::Spec::cwd();
 }
 
+sub tmpdir returns Str {
+  return File::Spec::tmpdir();
+}
+
 #
 # ## TODO:
 # # Refactor _tmpdir and tmpdir into class attributes

@@ -1,13 +1,17 @@
+use v6;
+use File::Spec;
 
 my $SID;
 my %Session;
+my $Path = catfile( tmpdir(), "pugs-session" );
+mkdir($Path) unless -e $Path;
 
 sub SessionInit() {
     my %Session=();
     $SID=GetCookie('sid'); $SID ~~ s:perl5:g/[^A-Z]//;
-    if (!-e "sids/$SID") { $SID=''; }
+    if (!-e catfile($Path, $SID)) { $SID=''; }
     $SID=IDGenerate() if $SID eq '';
-    SessionDecode(slurp("sids/$SID"));
+    SessionDecode(slurp(catfile($Path, $SID)));
     CookiesAdd('sid',$SID);
 }
 
@@ -41,7 +45,7 @@ sub SessionDecode($data) {
 }
 
 sub SessionDestroy() {
-    my $fh = open(">sids/$SID");
+    my $fh = open(">$Path/$SID");
     $fh.print(SessionCode(%Session.keys));
     $fh.close;
 }
