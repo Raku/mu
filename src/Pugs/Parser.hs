@@ -316,11 +316,19 @@ ruleVarDeclaration = rule "variable declaration" $ do
         whiteSpace
         exp <- ruleExpression
         return (sym, Just exp)
-    lexDiff <- unsafeEvalLexDiff decl
+    lexDiff <- case sym of
+        "::="   -> do
+            env  <- getState
+            env' <- unsafeEvalStmts decl
+            setState env'
+            env' <- unsafeEvalStmts [(Syn sym [lhs, fromJust expMaybe], pos)]
+            return $ envLexical env' `diffPads` envLexical env
+        _       -> unsafeEvalLexDiff decl
     let lexExp  = (Pad scope lexDiff, pos)
     return $ case expMaybe of
-        Just exp -> Stmts [lexExp, (Syn sym [lhs, exp], pos)]
-        Nothing  -> Stmts [lexExp]
+        Just exp | sym /= "::="
+            -> Stmts [lexExp, (Syn sym [lhs, exp], pos)]
+        _   -> Stmts [lexExp]
 
 ruleUseDeclaration :: RuleParser Exp
 ruleUseDeclaration = rule "use declaration" $ do
