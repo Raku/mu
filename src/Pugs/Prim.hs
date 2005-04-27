@@ -944,6 +944,10 @@ op2Modulus x y
     = return $ if y' == 0 then err else VInt $ (truncate x') `mod` y'
     | VRat x' <- x, VRat y' <- y
     = return $ if y' == 0 then err else VInt $ (truncate x') `mod` (truncate y')
+    | VRef ref <- x
+    = do 
+        x' <- readRef ref
+        op2Modulus x' y
     | VRef ref <- y
     = do 
         y' <- readRef ref
