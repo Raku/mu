@@ -47,4 +47,4 @@ is(very2(), "$?FILE at line 45, column 1\n$?FILE at line 41, column 11\n$?FILE a
 sub line_set { return "$?CALLER::POSITION" }
 #line 666
 sub get_line { return line_set };
-is(get_line, "$?FILE at line 667, column 16\n", "#line works for caller::caller notation");
+is(get_line, "$?FILE at line 667, column 16\n", "#line works for caller::caller notation", :todo(1));
