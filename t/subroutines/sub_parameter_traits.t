@@ -45,6 +45,6 @@ is($foo, 2, 'is ref works', :todo(1));
 # is context
 # Doesn't even compile, which is lucky, because I don't understand it well
 # enough to write an actual test...
-eval_ok "sub my_format (*@data is context(Scalar)) { }", "is context - compile check", :todo(1);
+eval_ok 'sub my_format (*@data is context(Scalar)) { }; 1', "is context - compile check", :todo(1);
 
 # To do - check that is context actually works
