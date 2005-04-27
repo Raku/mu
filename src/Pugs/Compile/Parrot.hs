@@ -5,79 +5,85 @@ import Pugs.Internals
 import Pugs.Pretty
 import Pugs.AST
 import Pugs.Types
-import Data.HashTable
+import Pugs.Eval
 import Text.PrettyPrint
 import qualified Pugs.Types.Scalar as Scalar
 import qualified Pugs.Types.Code   as Code
+import qualified Data.Map       as Map
 
 -- XXX This compiler needs a totaly rewrite using Parrot AST,
 -- XXX and maybe TH-based AST combinators
+
+class (Show x) => Compile x where
+    compile :: x -> Eval Doc
+    compile x = fail ("Unrecognized construct: " ++ show x)
 
 genPIR :: Eval Val
 genPIR = do
     Env{ envBody = exp, envGlobal = globRef } <- ask
 
     glob <- liftIO $ readIORef globRef
+    ref  <- liftIO $ newIORef $ Map.fromList [("tempPMC", "9")]
 
     -- get a list of functions
-    init <- compileEval glob
+    local (\e -> e{ envDebug = Just ref }) $ do
+
+    pmc  <- askPMC
+    init <- local (\e -> e{ envStash = pmc }) $ compile glob
+
+    pmc  <- askPMC
+    main <- local (\e -> e{ envStash = pmc }) $ compile exp
 
     return . VStr . unlines $
         [ "#!/usr/bin/env parrot"
         , renderStyle (Style PageMode 0 0) init
         , renderStyle (Style PageMode 0 0) $ vcat
             [ text ".sub main @MAIN"
-            , nest 4 (compile exp)
+            , nest 4 main
             , text ".end"
             ]
         ]
 
 instance Compile Doc where
-    compile = id
+    compile = return
 
 instance Compile Pad where
-    compileEval pad = fmap vcat $ mapM compileEval (padToList pad)
+    compile pad = fmap vcat $ mapM compile (padToList pad)
 
 instance Compile (String, [IORef VRef]) where
-    compileEval (('&':name), [sym]) = do
-        imc <- compileEval sym
+    compile (('&':name), [sym]) = do
+        imc <- compile sym
         return $ vcat
             [ text (".sub \"" ++ name ++ "\"")
             , nest 4 imc
             , text ".end"
             ]
-    compileEval x = internalError ("Unrecognized construct: " ++ show x)
+    compile _ = fail "fnord"
 
 instance Compile (IORef VRef) where
-    compileEval x = do
+    compile x = do
         ref <- liftIO $ readIORef x
-        compileEval ref
+        compile ref
 
 instance Compile VRef where
-    compileEval (MkRef (ICode cv)) = do
+    compile (MkRef (ICode cv)) = do
         vsub <- Code.fetch cv
-        compileEval vsub
-    compileEval (MkRef (IScalar sv))
+        compile vsub
+    compile (MkRef (IScalar sv))
         | Scalar.iType sv == mkType "Scalar::Const" = do
             sv  <- Scalar.fetch sv
             ref <- fromVal sv
-            compileEval (ref :: VCode)
-    compileEval x = internalError ("Unrecognized construct: " ++ show x)
+            compile (ref :: VCode)
+    compile x = internalError ("Unrecognized construct: " ++ show x)
 
 instance Compile VCode where
-    compileEval sub = do
-        prms <- mapM compileEval (subParams sub)
-        body <- compileEval (subFun sub)
+    compile sub = do
+        prms <- mapM compile (subParams sub)
+        body <- compile (subFun sub)
         return . vcat $ prms ++ [ text "", body ]
 
 instance Compile Param where
-    compile prm = text ".param pmc" <+> varText (paramName prm)
-
-class (Show x) => Compile x where
-    compileEval :: x -> Eval Doc
-    compileEval x = return (compile x)
-    compile :: x -> Doc
-    compile x = internalError ("Unrecognized construct: " ++ show x)
+    compile prm = return $ text ".param pmc" <+> varText (paramName prm)
 
 varText ('$':name)  = text $ "s__" ++ name
 varText ('@':name)  = text $ "a__" ++ name
@@ -89,96 +95,163 @@ varInit ('@':_) = text $ "PerlArray"
 varInit ('%':_) = text $ "PerlHash"
 varInit x       = error $ "invalid name: " ++ x
 
+askPMC :: Eval String
+askPMC = do
+    Just ioRef <- asks envDebug
+    fm <- liftIO $ readIORef ioRef
+    let cnt = Map.findWithDefault "0" "tempPMC" fm
+    return $ "$P" ++ cnt
+
+tempPMC :: Eval Doc
+tempPMC = incCounter "tempPMC" ("$P" ++)
+
+tempLabels :: [String] -> Eval [Doc]
+tempLabels strs = do
+    tmp <- incCounter "label" ("LABEL_" ++)
+    return $ map ((tmp <> text "_" <>) . text) strs
+
+incCounter key f = do
+    Just ioRef <- asks envDebug
+    liftIO $ do
+        fm <- readIORef ioRef
+        let cnt = Map.findWithDefault "0" key fm
+            cnt' = show (read cnt + (1 :: Int))
+        writeIORef ioRef (Map.insert key cnt' fm)
+        return $ text (f cnt')
+
 instance Compile SourcePos where
-    compile SourcePos{ sourceName = file, sourceLine = line } = hsep $
+    compile SourcePos{ sourceName = file, sourceLine = line } = return $ hsep $
         [ text "#line"
         , doubleQuotes $ text file
         , showText line
         ]
 
-declareLabel :: (Show a) => a -> String -> Doc
-declareLabel exp str = text $
-    "LABEL_" ++ show (hashString (show exp)) ++ "_" ++ str
 
 label doc = doc <> text ":"
 
-compileCond neg exps@[cond, bodyIf, bodyElse] =
-    let [alt, end] = map (declareLabel exps) ["else", "endif"] in vcat $
-        [ text neg <+> compile cond <+> text "goto" <+> alt
-        , compile bodyIf
+compileCond neg [cond, bodyIf, bodyElse] = do
+    [alt, end]  <- tempLabels ["else", "endif"]
+    (condC, p)  <- compileArg cond
+    (ifC, _)    <- compileArg bodyIf
+    (elseC, _)  <- compileArg bodyElse
+    return $ vcat $
+        [ condC
+        , text neg <+> p <+> text "goto" <+> alt
+        , ifC
         , text "goto" <+> end
         , label alt
-        , compile bodyElse
+        , elseC
         , label end
         ]
 compileCond x y = error $ show (x,y)
 
 instance Compile Exp where
-    compile (Var name) = varText name
-    compile (Syn ";" stmts) = vcat $ map compile stmts
-    compile (Syn "block" blocks) = vcat $ map compile blocks
-    compile (Syn "=" [lhs, rhs]) = compileAssign lhs rhs
+    compile (Var name) = do
+        lv <- asks envLValue
+        let p = varText name
+        constPMC (if lv then p else text "assign" <+> p)
+    compile (Syn ";" stmts) = fmap vcat $ mapM compile stmts
+    compile (Syn "block" blocks) = fmap vcat $ mapM compile blocks
+    compile (Syn "=" [lhs, rhs]) = do
+        (lhsC, p1) <- enterLValue $ compileArg lhs
+        (rhsC, p2) <- enterRValue $ compileArg rhs
+        p <- constPMC p1
+        return $ vcat [ lhsC, rhsC, p1 <+> text "= assign" <+> p2, p ]
     compile (Syn "if" exps) = compileCond "unless" exps
     compile (Syn "unless" exps) = compileCond "if" exps
-    compile exp@(Syn "loop" [pre, cond, post, body]) = 
-        let [start, end, last] = map (declareLabel exp) ["start", "end", "last"] in vcat $
-            [ compile pre
+    compile (Syn "loop" [pre, cond, post, body]) = do
+        [start, end, last] <- tempLabels ["start", "end", "last"]
+        preC  <- compile pre
+        bodyC <- compile body
+        postC <- compile post
+        condC <- compile cond
+        return $ vcat $
+            [ preC
             , text "goto" <+> end
             , label start
             , text ".local pmc last"
             , text "last = new Continuation"
             , text "set_addr last," <+> last
-            , compile body
-            , compile post
+            , bodyC
+            , postC
             , label end
-            -- , text "if" <+> compile cond <+> text "goto" <+> start
-            , compile cond
+            , condC
             , text "goto" <+> start
             , label last
             ]
-    compile (App "&return" [] [val]) = text ".return" <+> parens (compile val)
-    compile (App "&last" _ _) = text "invoke last"
-    compile (App "&substr" [] [str, start, Val (VInt 1)]) = hcat $
-        [ compile str
-        , text "["
-        , compile start
-        , text "]"
-        ]
-    compile (App "&postfix:++" [inv] []) = text "inc" <+> compile inv
-    compile (App "&postfix:--" [inv] []) = text "dec" <+> compile inv
-    compile (App "&infix:~" [exp, Val (VStr "")] []) = compile exp
-    compile (App ('&':'i':'n':'f':'i':'x':':':op) [lhs, rhs] []) =
-        compile lhs <+> text op <+> compile rhs
+    compile (App "&return" [] [val]) = do
+        (valC, p) <- compileArg val
+        return $ valC $+$ text ".return" <+> parens p
+    compile (App "&last" _ _) = return $ text "invoke last"
+    compile (App "&substr" [] [str, idx, Val (VInt 1)]) = do
+        (strC, p1) <- enterLValue $ compileArg str
+        (idxC, p2) <- enterLValue $ compileArg idx
+        rv         <- constPMC $ hcat [ p1, text "[" , p2, text "]"]
+        return $ vcat [strC, idxC, rv]
+    compile (App "&postfix:++" [inv] []) = do
+        (invC, p) <- enterLValue $ compileArg inv
+        return $ invC $+$ text "inc" <+> p
+    compile (App "&postfix:--" [inv] []) = do
+        (invC, p) <- enterLValue $ compileArg inv
+        return $ invC $+$ text "dec" <+> p
+    -- compile (App "&infix:~" [exp, Val (VStr "")] []) = compile exp
+    compile (App "&infix:~" [exp1, exp2] []) = do
+        tmp <- currentStash
+        (arg1, p1) <- compileArg exp1
+        (arg2, p2) <- compileArg exp2
+        return $ vcat $
+            [ arg1
+            , arg2
+            , tmp <+> text "= new PerlUndef"
+            , text "concat" <+> tmp <> comma <+> p1 <> comma <+> p2
+            ]
+    compile (App ('&':'i':'n':'f':'i':'x':':':op) [lhs, rhs] []) = do
+        (lhsC, p1) <- compileArg lhs
+        (rhsC, p2) <- compileArg rhs
+        rv  <- case op of
+            --- XXX look at signature
+            "<" -> do
+                i <- constPMC (text "$I9")
+                return $ text "$I9 =" <+> text "islt" <+> p1 <> comma <+> p2 $+$ i
+            ">" -> do
+                i <- constPMC (text "$I9")
+                return $ text "$I9 =" <+> text "isgt" <+> p1 <> comma <+> p2 $+$ i
+            _ -> do
+                constPMC $ p1 <+> text op <+> p2
+        return $ vcat [ lhsC, rhsC, rv ]
     compile (App "&say" invs args) = 
         compile $ App "&print" invs (args ++ [Val $ VStr "\n"])
-    compile (App "&print" invs args) = vcat $
-        map (\x -> vcat
-                [ text ".local pmc tmp"
-                , text "tmp = new PerlUndef"
-                , compileAssign (text "tmp") x
-                , text "print tmp"
-                ])
-            (invs ++ args)
-    compile (App "&not" [] []) =
-        text "new" <+> compile (Val VUndef)
-    compile (Val (VStr x))  = showText $ encodeUTF8 (concatMap quoted x)
-    compile (Val (VInt x))  = integer x
-    compile (Val (VNum x))  = showText x
-    compile (Val (VRat x))  = showText $ ratToNum x
-    compile (Val VUndef)    = text "PerlUndef"
-    compile Noop            = empty
-    compile (Stmts stmts) = vcat $
-        [ compile pos $+$ compile stmt $+$ text ""
+    compile (App "&print" invs args) = do
+        actions <- fmap vcat $ mapM (compileWith (text "print" <+>)) (invs ++ args)
+        rv      <- compile (Val (VBool True))
+        return $ actions $+$ rv
+    compile (App ('&':name) _ [arg]) = do
+        lhsC <- tempPMC
+        compileWith (\tmp -> lhsC <+> text "=" <+> text name <> parens tmp) arg
+    compile (App "&not" [] []) = return $ text "new PerlUndef"
+    compile (Val (VStr x))  = constPMC $ showText $ encodeUTF8 (concatMap quoted x)
+    compile (Val (VInt x))  = constPMC $ integer x
+    compile (Val (VNum x))  = constPMC $ showText x
+    compile (Val (VRat x))  = constPMC $ showText $ ratToNum x
+    compile (Val VUndef)    = constPMC $ text "PerlUndef"
+    compile (Val (VBool True)) = constPMC $ text "1"
+    compile (Val (VBool False)) = constPMC $ text "0"
+    compile Noop            = return empty
+    compile (Stmts stmts) = fmap vcat $ sequence
+        [ do
+            posC  <- compile pos
+            stmtC <- compile stmt
+            return $ posC $+$ stmtC $+$ text ""
         | (stmt, pos) <- stmts
         ]
-    compile (Pad _ pad) = vcat $ concat
+    compile (Pad _ pad) = return $ vcat $ concat
         [ [ text ".local" <+> text "pmc" <+> varText name
           , varText name <+> text "=" <+> text "new" <+> varInit name
           ]
           | (name, _) <- padToList pad
         ]
     compile (Syn "mval" [exp]) = compile exp
-    compile (Syn "," things) = vcat $ map compile things
+    compile (Syn "," things) = fmap vcat $ mapM compile things
     compile (Syn syn [lhs, exp]) | last syn == '=' =
         compile $ Syn "=" [lhs, App ("&infix:" ++ init syn) [lhs, exp] []]
     compile (Cxt _ exp) = compile exp
@@ -187,15 +260,38 @@ instance Compile Exp where
 showText :: (Show a) => a -> Doc
 showText = text . show
 
-compileAssign :: (Compile a) => a -> Exp -> Doc
-compileAssign lhs rhs@(Var _) = hsep [ compile lhs, text "=", text "assign", compile rhs ]
-compileAssign lhs (App ('&':name) _ [arg]) = vcat $
-        [ text ".local pmc tmp"
-        , text "tmp = new PerlUndef"
-        , compileAssign (text "tmp") arg
-        , hsep [compile lhs, text "=", text name <> parens (text "tmp")]
+compileAssign :: Doc -> Exp -> Eval Doc
+compileAssign lhsC rhs@(Var _) = do
+    rhsC <- compile rhs
+    return $ hsep [ lhsC, text "=", text "assign", rhsC ]
+compileAssign lhsC (App ('&':name) _ [arg]) = do
+    compileWith (\tmp -> lhsC <+> text "=" <+> text name <> parens tmp) arg
+compileAssign lhsC (Syn "[]" [arr, idx]) = do
+    arrC <- compile arr
+    idxC <- compile idx
+    return $ vcat [ lhsC <+> text "=" <+> arrC <> text "[" <> idxC <> text "]" ]
+compileAssign lhsC rhs = do
+    rhsC <- compile rhs
+    tmp  <- askPMC
+    return $ rhsC $+$ hsep [ lhsC, text "=", text tmp ]
+
+compileWith :: (Doc -> Doc) -> Exp -> Eval Doc
+compileWith f x = do
+    tmp  <- tempPMC
+    pmc  <- askPMC
+    argC <- local (\e -> e{ envStash = pmc }) $ compile x
+    return $ vcat [ argC, f tmp ]
+
+currentStash = fmap text $ asks envStash
+constPMC doc = do
+    tmp  <- currentStash
+    return $ vcat
+        [ tmp <+> text "= new PerlUndef"
+        , tmp <+> text "=" <+> doc
         ]
-compileAssign lhs (Syn "[]" [arr, idx]) = vcat $
-        [ compile lhs <+> text "=" <+> compile arr <> text "[" <> compile idx <> text"]"
-        ]
-compileAssign lhs rhs = hsep [ compile lhs, text "=", compile rhs ]
+
+compileArg exp = do
+    tmp  <- tempPMC
+    pmc  <- askPMC
+    argC <- local (\e -> e{ envStash = pmc }) $ compile exp
+    return (argC, tmp)
