@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 177;
+plan 183;
 
 my $five = abs(-5);
 
@@ -323,7 +323,7 @@ is $inf2, Inf, "Inf**Inf";
 # for why these three values are defined like they are.
 #tryeq 0.9**Inf, 0, "0.9**Inf converges towards 0";
 #tryeq 1.1**Inf, Inf, "1.1**Inf diverges towards Inf";
-is 1**Inf, NaN; # but why is it defined like that?;
+is 1**Inf, NaN;
 
 # NaN
 is NaN, NaN;
@@ -344,11 +344,29 @@ is NaN*Inf, NaN;
 is NaN/Inf, NaN;
 is Inf/NaN, NaN;
 
-# These three still segfault, at r2038
-
 my $nan1 = NaN**NaN;
 is $nan1, NaN, "NaN**NaN";
 my $nan2 = NaN**Inf;
 is $nan2, NaN, "NaN**Inf";
 my $nan3 = Inf**NaN;
 is $nan3, NaN, "Inf**NaN";
+
+=head2 BEHAVIOUR OF DIVISION AND MODULUS WITH ZERO
+
+This test tests the behaviour of '%' and '/' when used with
+a zero modulus resp. divisor.
+
+All uses of a zero modulus or divisor should 'die', and the
+'die' should be non-fatal.
+
+=cut
+
+my $x;
+
+dies_ok( { say 3 % 0 }, 'Modulo zero dies and is catchable');
+dies_ok( { $x = 0; say 3 % $x; }, 'Modulo zero dies and is catchable with VInt/VRat variables');
+dies_ok( { $x := 0; say 3 % $x; }, 'Modulo zero dies and is catchable with VRef variables');
+
+dies_ok( { say 3 / 0 }, 'Division by zero dies and is catchable');
+dies_ok( { $x = 0; say 3 / $x; }, 'Division by zero dies and is catchable with VInt/VRat variables');
+dies_ok( { $x := 0; say 3 / $x; }, 'Division by zero dies and is catchable with VRef variables');

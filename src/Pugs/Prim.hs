@@ -944,7 +944,11 @@ op2Modulus x y
     = return $ if y' == 0 then err else VInt $ (truncate x') `mod` y'
     | VRat x' <- x, VRat y' <- y
     = return $ if y' == 0 then err else VInt $ (truncate x') `mod` (truncate y')
-    | otherwise
+    | VRef ref <- y
+    = do 
+        y' <- readRef ref
+        op2Modulus x y'
+    | otherwise      -- pray for the best
     = op2Int mod x y -- typeErr
     where
     err = VError ("Illegal modulus zero: " ++ "%") (App "%" [] [Val x, Val y])
