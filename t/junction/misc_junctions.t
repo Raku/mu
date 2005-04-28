@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 51;
+plan 56;
 
 =pod
 
@@ -146,16 +146,19 @@ L<S03/"Junctive operators">
 
 =cut
 
+# Canonical stringification of a junction
+sub j (*@j is Junction) { return map { $_.perl } @j; }
+
 {
     # L<S03/"Junctive operators"/"They thread through operations">
     my ($got, $want);
     $got = ((1|2|3)+4);
     $want = (5|6|7);
-    is( $got.perl, $want.perl, 'thread + returning junctive result');
+    is( j($got), j($want), 'thread + returning junctive result');
 
     $got = ((1|2) + (3&4));
     $want = ((4|5) & (5|6));
-    is( $got.perl, $want.perl, 'thread + returning junctive combination of results');
+    is( j($got), j($want), 'thread + returning junctive combination of results');
 
     # L<S03/"Junctive operators"/"This opens doors for constructions like">
     # unless $roll == any(1..6) { print "Invalid roll" }
@@ -225,25 +228,23 @@ L<S03/"Junctive operators"/"They thread through operations">
 
     my ($got, $want);
 
-    $want = (3|2).perl;
-    $got = any(@subs)().perl;
-    is($got, $want, '.() on any() junction of subs');
+    is(j(any(@subs)()), j(3|2), '.() on any() junction of subs');
 
-    $want = (3&2).perl;
-    $got = all(@subs)().perl;
-    is($got, $want, '.() on all() junction of subs');
+    $want = (3&2);
+    $got = all(@subs)();
+    is(j($got), j($want), '.() on all() junction of subs');
 
-    $want = (3^2).perl;
-    $got = one(@subs)().perl;
-    is($got, $want, '.() on one() junction of subs');
+    $want = (3^2);
+    $got = one(@subs)();
+    is(j($got), j($want), '.() on one() junction of subs');
 
-    $want = none(3,2).perl;
-    $got = none(@subs)().perl;
-    is($got, $want, '.() on none() junction of subs');
+    $want = none(3,2);
+    $got = none(@subs)();
+    is(j($got), j($want), '.() on none() junction of subs');
 
-    $want = one( any(3,2), all(3,2) ).perl;
-    $got = one( any(@subs), all(@subs) )().perl;
-    is($got, $want, '.() on complex junction of subs');
+    $want = one( any(3,2), all(3,2) );
+    $got = one( any(@subs), all(@subs) )();
+    is(j($got), j($want), '.() on complex junction of subs');
 
     # Avoid future constant folding
     #my $rand = rand;
@@ -274,3 +275,12 @@ L<S03/"Junctive operators"/"They thread through operations">
 
 is(none(1).pick, undef, 'none(1).pick should be undef');
 is(none(1,1).pick, undef, 'none(1,1).pick should be undef');
+
+is(one(1).pick, 1, 'one(1).pick should be 1');
+is(one(1,1).pick, undef, 'one(1,1).pick should be undef');
+
+is(all(1).pick, 1, 'all(1).pick should be 1');
+is(all(1,1).pick, 1, 'all(1,1).pick should be 1');
+is(all(1,2).pick, undef, 'all(1,2).pick should be undef');
+
+
