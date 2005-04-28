@@ -475,15 +475,15 @@ isSlurpy :: Param -> Bool
 isSlurpy param = isSlurpyCxt $ paramContext param
 
 data Param = MkParam
-    { isInvocant    :: !Bool
-    , isOptional    :: !Bool
-    , isNamed       :: !Bool
-    , isLValue      :: !Bool
-    , isWritable    :: !Bool
-    , isThunk       :: !Bool
-    , paramName     :: !String
-    , paramContext  :: !Cxt
-    , paramDefault  :: !Exp
+    { isInvocant    :: !Bool        -- Is it in invocant slot?
+    , isOptional    :: !Bool        -- Is it optional?
+    , isNamed       :: !Bool        -- Is it named-only?
+    , isLValue      :: !Bool        -- Is it lvalue (i.e. not `is copy`)?
+    , isWritable    :: !Bool        -- Is it writable (i.e. `is rw`)?
+    , isThunk       :: !Bool        -- Is it call-by-name (short-circuit)?
+    , paramName     :: !String      -- Parameter name
+    , paramContext  :: !Cxt         -- Parameter context: slurpiness and type
+    , paramDefault  :: !Exp         -- Default expression when omitted
     }
     deriving (Show, Eq, Ord)
 
@@ -492,16 +492,16 @@ type Bindings   = [(Param, Exp)]
 type SlurpLimit = [(VInt, Exp)]
 
 data VCode = MkCode
-    { isMulti       :: !Bool
-    , subName       :: !String
-    , subType       :: !SubType
-    , subPad        :: !Pad
-    , subAssoc      :: !String
-    , subParams     :: !Params
-    , subBindings   :: !Bindings
-    , subSlurpLimit :: !SlurpLimit
-    , subReturns    :: !Type
-    , subFun        :: !Exp
+    { isMulti       :: !Bool        -- Is this a multi sub/method?
+    , subName       :: !String      -- Name of the closure
+    , subType       :: !SubType     -- Type of the closure
+    , subPad        :: !Pad         -- Lexical pad for sub/method
+    , subAssoc      :: !String      -- Associativity
+    , subParams     :: !Params      -- Parameters list
+    , subBindings   :: !Bindings    -- Currently assumed bindings
+    , subSlurpLimit :: !SlurpLimit  -- Max. number of slurpy arguments
+    , subReturns    :: !Type        -- Return type
+    , subBody       :: !Exp         -- Body of the closure
     }
     deriving (Show, Eq, Ord, Typeable)
 
@@ -515,7 +515,7 @@ mkPrim = MkCode
     , subBindings = []
     , subSlurpLimit = []
     , subReturns = anyType
-    , subFun = emptyExp
+    , subBody = emptyExp
     }
 
 mkSub = MkCode
@@ -528,7 +528,7 @@ mkSub = MkCode
     , subBindings = []
     , subSlurpLimit = []
     , subReturns = anyType
-    , subFun = emptyExp
+    , subBody = emptyExp
     }
 
 instance Ord VComplex where {- ... -}
@@ -660,18 +660,20 @@ defaultArrayParam   = buildParam "" "*" "@_" (Val VUndef)
 defaultHashParam    = buildParam "" "*" "%_" (Val VUndef)
 defaultScalarParam  = buildParam "" "*" "$_" (Val VUndef)
 
-data Env = Env { envContext :: !Cxt
-               , envLValue  :: !Bool
-               , envLexical :: !Pad
-               , envGlobal  :: !(IORef Pad)
-               , envClasses :: !ClassTree
-               , envEval    :: !(Exp -> Eval Val)
-               , envCaller  :: !(Maybe Env)
-               , envBody    :: !Exp
-               , envDepth   :: !Int
-               , envID      :: !Unique
-               , envDebug   :: !(Maybe (IORef (Map String String)))
-               , envStash   :: !String
+type DebugInfo = Maybe (IORef (Map String String))
+
+data Env = Env { envContext :: !Cxt                 -- Current context
+               , envLValue  :: !Bool                -- LValue context?
+               , envLexical :: !Pad                 -- Lexical pad
+               , envGlobal  :: !(IORef Pad)         -- Global pad
+               , envClasses :: !ClassTree           -- Current class tree
+               , envEval    :: !(Exp -> Eval Val)   -- Active evaluator
+               , envCaller  :: !(Maybe Env)         -- Caller's env
+               , envBody    :: !Exp                 -- Current AST
+               , envDepth   :: !Int                 -- Recursion depth
+               , envID      :: !Unique              -- Unique ID of Env
+               , envDebug   :: !DebugInfo           -- Debug info map
+               , envStash   :: !String              -- Misc. stash
                } deriving (Show, Eq, Ord)
 
 envWant env = 

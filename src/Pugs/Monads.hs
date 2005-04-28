@@ -37,12 +37,12 @@ enterWhen break action = callCC $ \esc -> do
     continueSub esc env = mkPrim
         { subName = "continue"
         , subParams = makeParams env
-        , subFun = Prim ((esc =<<) . headVal)
+        , subBody = Prim ((esc =<<) . headVal)
         }
     breakSub env = mkPrim
         { subName = "break"
         , subParams = makeParams env
-        , subFun = break
+        , subBody = break
         }
 
 enterLoop action = callCC $ \esc -> do
@@ -51,7 +51,7 @@ enterLoop action = callCC $ \esc -> do
     where
     lastSub esc = codeRef $ mkPrim
         { subName = "last"
-        , subFun = Prim (const $ esc VUndef)
+        , subBody = Prim (const $ esc VUndef)
         }
 
 enterBlock action = callCC $ \esc -> do
@@ -62,7 +62,7 @@ enterBlock action = callCC $ \esc -> do
     escSub esc env = mkPrim
         { subName = "BLOCK_EXIT"
         , subParams = makeParams env
-        , subFun = Prim ((esc =<<) . headVal)
+        , subBody = Prim ((esc =<<) . headVal)
         }
   
 enterSub sub action
@@ -100,12 +100,12 @@ enterSub sub action
     retSub env = mkPrim
         { subName = "return"
         , subParams = makeParams env
-        , subFun = Prim doReturn
+        , subBody = Prim doReturn
         }
     ccSub cc env = mkPrim
         { subName = "CALLER_CONTINUATION"
         , subParams = makeParams env
-        , subFun = Prim $ doCC cc
+        , subBody = Prim $ doCC cc
         }
 
 genSubs env name gen = sequence

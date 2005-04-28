@@ -1037,7 +1037,7 @@ primOp sym assoc prms ret = genMultiSym name sub
         , subAssoc    = assoc
         , subParams   = prms
         , subReturns  = mkType ret
-        , subFun      = (Prim f)
+        , subBody     = Prim f
         }
     symStr = encodeUTF8 sym
     f :: [Val] -> Eval Val

@@ -228,7 +228,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
             , subParams     = params
             , subBindings   = []
             , subSlurpLimit = []
-            , subFun        = fun
+            , subBody       = fun
             }
         decl = (Sym scope name, namePos)
         exp  = (Syn ":=" [Var name, Syn "sub" [subExp]], bodyPos)
@@ -389,7 +389,7 @@ ruleClosureTrait rhs = rule "closure trait" $ do
     -- Check for placeholder vs formal parameters
     unless (null names) $
         fail "Closure traits takes no formal parameters"
-    let code = VCode mkSub { subName = name, subFun  = fun } 
+    let code = VCode mkSub { subName = name, subBody = fun } 
     case name of
         "END"   -> return $ App "&unshift" [Var "@*END"] [Syn "sub" [Val code]]
         "BEGIN" -> do
@@ -566,7 +566,7 @@ retVerbatimBlock typ formal body = do
             , subParams     = if null params then [defaultArrayParam] else params
             , subBindings   = []
             , subSlurpLimit = []
-            , subFun        = fun
+            , subBody       = fun
             }
     return (Syn "sub" [Val $ VCode sub])
 

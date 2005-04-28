@@ -111,7 +111,7 @@ prepareEnv name args = do
         , genSym "$?MODULE"     $ MkRef modSV
         , genSym "&?BLOCK_EXIT" $ codeRef $ mkPrim
             { subName = "&?BLOCK_EXIT"
-            , subFun = Prim subExit
+            , subBody = Prim subExit
             }
         , genSym "%?CONFIG" $ hashRef confHV
         , genSym "$*_" $ MkRef defSV

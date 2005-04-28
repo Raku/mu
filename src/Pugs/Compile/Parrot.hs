@@ -79,7 +79,7 @@ instance Compile VRef where
 instance Compile VCode where
     compile sub = do
         prms <- mapM compile (subParams sub)
-        body <- compile (subFun sub)
+        body <- compile (subBody sub)
         return . vcat $ prms ++ [ text "", body ]
 
 instance Compile Param where

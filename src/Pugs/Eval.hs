@@ -335,14 +335,14 @@ reduce env exp@(Syn name exps) = case name of
         result <- op2Match topic match
         rb     <- fromVal result
         if rb
-            then enterWhen (subFun vbreak) $ do
+            then enterWhen (subBody vbreak) $ do
                 doApply env vbreak [body] []
             else retVal undef
     "default" -> do
         let [body] = exps
         break  <- evalVar "&?BLOCK_EXIT"
         vbreak <- fromVal break
-        enterWhen (subFun vbreak) $ do
+        enterWhen (subBody vbreak) $ do
             doApply env vbreak [body] []
     "while" -> doWhileUntil id
     "until" -> doWhileUntil not
@@ -673,10 +673,10 @@ reduce Env{ envClasses = cls, envContext = cxt } exp@(App name invs args) = do
             Nothing      -> apply sub{ subParams = (length invs) `replicate` p } invs [] -- XXX Wrong
             -- retError ("No compatible subroutine found: " ++ name') exp
     applyChainSub subSyms sub invs sub' invs' args' rest
-        | MkCode{ subAssoc = "chain", subFun = fun, subParams = prm }   <- sub
-        , MkCode{ subAssoc = "chain", subFun = fun', subParams = prm' } <- sub'
+        | MkCode{ subAssoc = "chain", subBody = fun, subParams = prm }   <- sub
+        , MkCode{ subAssoc = "chain", subBody = fun', subParams = prm' } <- sub'
         , null args'
-        = applySub subSyms sub{ subParams = prm ++ tail prm', subFun = Prim $ chainFun prm' fun' prm fun } (invs' ++ rest) []
+        = applySub subSyms sub{ subParams = prm ++ tail prm', subBody = Prim $ chainFun prm' fun' prm fun } (invs' ++ rest) []
         | MkCode{ subAssoc = "chain", subParams = (p:_) }   <- sub
         = apply sub{ subParams = (length invs) `replicate` p } invs [] -- XXX Wrong
         | otherwise
@@ -742,7 +742,7 @@ apply sub invs args = do
 -- XXX - faking application of lexical contexts
 -- XXX - what about defaulting that depends on a junction?
 doApply :: Env -> VCode -> [Exp] -> [Exp] -> Eval Val
-doApply Env{ envClasses = cls } sub@MkCode{ subFun = fun, subType = typ } invs args =
+doApply Env{ envClasses = cls } sub@MkCode{ subBody = fun, subType = typ } invs args =
     case bindParams sub invs args of
         Left errMsg -> retError errMsg (Val undef)
         Right sub   -> do

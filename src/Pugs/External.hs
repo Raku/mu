@@ -42,6 +42,6 @@ externRequire lang name = do
     gen (name, fun) = genSym ('&':name) . codeRef $ mkPrim
         { subName       = ('&':name)
         , subParams     = [buildParam "List" "" "*@?1" (Val VUndef)]
-        , subFun        = (Prim fun)
+        , subBody       = (Prim fun)
         }
 
