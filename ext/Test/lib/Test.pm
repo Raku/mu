@@ -213,8 +213,8 @@ sub report_failure (Str ?$todo, Str ?$got, Str ?$expected) returns Bool {
     }
 
     if ($?CALLER::CALLER::SUBNAME eq ('&is' | '&isnt' | '&cmp_ok' | '&eval_is' | '&isa_ok' | '&todo_is' | '&todo_isnt' | '&todo_cmp_ok' | '&todo_eval_is' | '&todo_isa_ok')) {
-        diag("  Expected: " ~ ($expected.defined ?? $expected :: "undef"));
-        diag("       Got: " ~ ($got.defined ?? $got :: "undef"));
+        diag("  Expected: '" ~ ($expected.defined ?? $expected :: "undef") ~ "'");
+        diag("       Got: '" ~ ($got.defined ?? $got :: "undef") ~ "'");
     }
     else {
         diag("       Got: " ~ ($got.defined ?? $got :: "undef"));
