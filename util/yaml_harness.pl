@@ -151,7 +151,13 @@ sub get_tests {
 	push( @tests, -d $_ ? all_in( $_ ) : $_ ) for @ARGV;
 
 	if ( @tests ) {
-		shuffle(@tests) if $Config{shuffle};
+		if ($Config{shuffle}) {
+			shuffle(@tests)
+		} else {
+			# default FS order isn't guaranteed sorted; and sorting
+			# helps diffing raw YAML results.
+			@tests = sort @tests;
+		}
 		if ( $Config{dry} ) {
 			print join( "\n", @tests, "" );
 			exit 0;
