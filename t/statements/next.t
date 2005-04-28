@@ -3,39 +3,82 @@
 use v6;
 use Test;
 
-=pod
+=kwid
 
+next
 next if <condition>;
 <condition> and next;
 next <label>;
+next in nested loops
+next <label> in nested loops
 
 =cut
+
+plan 7;
 
 # test for loops with next
 
 {
-    my $tracker = 0;
-    eval 'for 1 .. 5 {
-        next if $_ < 3;          
-        $tracker = $_;
-    }';
-    is($tracker, 5, '... nothing until 3 (next if <cond>)');
+    eval_is(
+        'my $tracker=0;for (1..2) { next; $tracker++;} $tracker',
+        0,
+        "tracker is 0 because next before increment",
+        :todo(1)
+    );
+}
+
+{
+    eval_is(
+        'my $tracker = 0; for (1..5) { next if 2 < $_ < 4; $tracker = $_;} $tracker',
+        3,
+        "... nothing before or after 3 (next if <cond>)",
+        :todo(1)
+    );
+}
+
+{
+    eval_is(
+        'my $tracker = 0; for (1..5) { $_ > 3 && next; $tracker = $_;} $tracker',
+        3,
+        "... nothing after 3 (<cond> && next)",
+        :todo(1)
+    );
+}
+
+{
+    eval_is(
+        'my $tracker = 0; for (1..5) { $_ > 3 and next; $tracker = $_;} $tracker',
+        3,
+        "... nothing after 3 (<cond> and next)",
+        :todo(1)
+    );
+}
+
+{
+    eval_is(
+        'my $tracker=0; DONE: for (1..2) { next DONE; $tracker++;} $tracker',
+        0,
+        "tracker is 0 because next before increment",
+        :todo(1)
+    );
 }
 
 {
     my $tracker = 0;
-    eval 'for 1 .. 5 {
-        $_ < 3 && next;  
-        $tracker = $_;
-    }';
-    is($tracker, 5, '... nothing until 3 (<cond> && next)');
+    for (1 .. 5) -> $out {
+        for (10 .. 11) -> $in {
+            next if $out > 2;
+            $tracker = $in + $out;
+        }
+    }
+    is($tracker, 13, 'inner loop skips once inner is run twice (next inside nested loops)');
 }
 
 {
-    my $tracker = 0;
-    eval 'for 1 .. 5 {
-        $_ < 3 and next;          
-        $tracker = $_;
-    }';
-    is($tracker, 5, '... nothing until 3 (<cond> and next)');
+    eval_is(
+        'my $tracker=0; OUT: for (1..2) { IN: for (1..2) { next OUT; $tracker++; } } $tracker',
+        0,
+        "tracker is 0 because next before increment in nested loop",
+        :todo(1)
+    );
 }
