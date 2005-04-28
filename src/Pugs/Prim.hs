@@ -433,14 +433,14 @@ op1StrFirst f = op1Cast $ VStr .
 op1Pick :: Val -> Eval Val
 op1Pick (VRef r) = op1Pick =<< readRef r
 op1Pick (VJunc (Junc JAny _ set)) = do -- pick mainly works on 'any'
-    rand <- liftIO $ randomRIO (0 :: Int, (Set.cardinality set) - 1)
+    rand <- liftIO $ randomRIO (0 :: Int, (Set.size set) - 1)
     return $ (Set.elems set) !! rand
 op1Pick (VJunc (Junc JNone _ _)) = return undef
 op1Pick (VJunc (Junc JAll _ set)) =
-    if (Set.cardinality $ set) == 1 then return $ head $ Set.elems set
+    if (Set.size $ set) == 1 then return $ head $ Set.elems set
     else return undef
 op1Pick (VJunc (Junc JOne dups set)) =
-    if (Set.cardinality $ set) == 1 && (Set.cardinality $ dups) == 0
+    if (Set.size $ set) == 1 && (Set.size $ dups) == 0
     then return $ head $ Set.elems set
     else return undef
 op1Pick v = return $ VError "pick not defined" (Val v)
