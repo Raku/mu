@@ -414,11 +414,11 @@ unsafeEvalStmts stmts = do
 unsafeEvalExp exp = do
     env <- getState
     let val = unsafePerformIO $ do
-        (`runReaderT` env { envDebug = Nothing }) $ (`runContT` return) $ resetT $ do
+        (`runReaderT` env { envDebug = Nothing }) $ (`runContT` return) $ runEvalT $ resetT $ do
             evl <- asks envEval
             evl exp
     case val of
-        VError _ _  -> error $ pretty val
+        VError _ _  -> error $ pretty (val :: Val)
         _           -> return $ Val val
 
 rulePackageDeclaration = rule "package declaration" $ fail ""

@@ -26,9 +26,9 @@ import Pugs.Monads
 import Pugs.Pretty
 import Pugs.Types
 
-emptyEnv :: (MonadIO m) => [IO (Pad -> Pad)] -> m Env
-emptyEnv genPad = do
-    pad  <- liftIO  $ sequence genPad
+emptyEnv :: (MonadIO m) => String -> [IO (Pad -> Pad)] -> m Env
+emptyEnv name genPad = do
+    pad  <- liftIO  . sequence $ posSyms (SourcePos name 1 1) ++ genPad
     ref  <- liftSTM $ newTVar Map.empty
     uniq <- liftIO  $ newUnique
     syms <- liftIO  $ initSyms
@@ -46,6 +46,7 @@ emptyEnv genPad = do
         , envBody    = Val undef
         , envDebug   = Just ref -- Set to "Nothing" to disable debugging
         , envStash   = ""
+        , envPos     = SourcePos name 1 1
         }
 
 -- Evaluation ---------------------------------------------------------------
@@ -159,15 +160,11 @@ reduceStatements ((exp, pos):rest) = case exp of
         liftSTM $ modifyTVar globals (unionPads lexicals)
         reduceStatements rest e
     _ | null rest -> const $ do
-        _   <- asks envContext
-        pad <- sequence $ posSyms pos
-        val <- enterLex pad $ reduceExp exp
+        val <- enterPos pos $ reduceExp exp
         retVal val
     _ -> const $ do
-        val <- enterContext cxtVoid $ do
-            pad <- sequence $ posSyms pos
-            enterLex pad $ do
-                reduceExp exp
+        val <- enterContext cxtVoid $ enterPos pos $ do
+            reduceExp exp
         trapVal val $ do
             reduceStatements rest $ Val val
 
@@ -176,6 +173,10 @@ trapVal val action = case val of
     VError str exp  -> retError str exp
     VControl c      -> retControl c
     _               -> action
+
+enterPos pos action = do
+    pad <- sequence $ posSyms pos
+    enterLex pad $ local (\e -> e{ envPos = pos }) action
 
 posSyms pos = [ genSym n v | (n, v) <- syms ]
     where
@@ -195,7 +196,7 @@ evalVar name = do
     v <- findVar env name
     case v of
         Just var -> readRef var
-        Nothing  -> retError ("Undeclared variable " ++ name) (Val undef)
+        Nothing  -> retError "Undeclared variable" name
 
 enterLValue = local (\e -> e{ envLValue = True })
 enterRValue = local (\e -> e{ envLValue = False })
@@ -213,7 +214,7 @@ findVarRef env name
     , Just (sig, "") <- breakOnGlue "CALLER" package =
         case (envCaller env) of
             Just caller -> findVarRef caller (sig ++ name')
-            Nothing -> retError "cannot access CALLER:: in top level" (Var name)
+            Nothing -> retError "cannot access CALLER:: in top level" name
     | otherwise = 
         callCC $ \foundIt -> do
             let lexSym = findSym name $ envLexical env
@@ -240,9 +241,9 @@ reduce _ (Val v) = do
     retVal v
 
 -- Reduction for variables
-reduce env exp@(Var name) = do
+reduce env (Var name) = do
     v <- findVar env name
-    if isNothing v then retError ("Undeclared variable " ++ name) exp else do
+    if isNothing v then retError "Undeclared variable" name else do
     let ref = fromJust v
     if refType ref == (mkType "Thunk") then forceRef ref else do
     val <- callCC $ \esc -> do
@@ -362,7 +363,7 @@ reduce env exp@(Syn name exps) = case name of
     "::=" -> reduce env (Syn ":=" exps)
     ":=" | [Syn "," vars, Syn "," vexps] <- exps -> do
         when (length vars > length vexps) $ do
-            (`retError` exp) $ "Wrong number of binding parameters: "
+            fail $ "Wrong number of binding parameters: "
                 ++ (show $ length vexps) ++ " actual, "
                 ++ (show $ length vars) ++ " expected"
         -- env' <- cloneEnv env -- FULL THUNKING
@@ -381,7 +382,7 @@ reduce env exp@(Syn name exps) = case name of
             case rv of
                 Just ioRef -> return (ioRef, ref)
                 Nothing -> do
-                    retError ("Undeclared variable " ++ name) (Val undef)
+                    retError "Undeclared variable" name
         forM_ bindings $ \(ioRef, ref) -> do
             liftSTM $ writeTVar ioRef ref
         return $ case map (VRef . snd) bindings of
@@ -490,7 +491,7 @@ reduce env exp@(Syn name exps) = case name of
         flag_g  <- fromAdverb hv ["g", "global"]
         flag_i  <- fromAdverb hv ["i", "ignorecase"]
         when (not p5) $ do
-            retError "Perl 6 rules is not implemented yet, use :P5" (Val val)
+            fail "Perl 6 rules is not implemented yet, use :P5"
         retVal $ VRule $ MkRule
             { rxRegex  = mkRegexWithPCRE (encodeUTF8 str) $
                 [ pcreUtf8
@@ -524,7 +525,7 @@ reduce env exp@(Syn name exps) = case name of
         langVal <- evalExp langExp
         lang    <- fromVal langVal
         when (lang /= "Haskell") $
-            retError "Inline: Unknown language" (Val langVal)
+            retError "Inline: Unknown language" langVal
         modVal  <- readVar "$?MODULE"
         mod     <- fromVal modVal
         let file = (`concatMap` mod) $ \v -> case v of
@@ -617,7 +618,7 @@ reduce _ (App "&assuming" (subExp:invs) args) = do
     vsub <- enterEvalContext (cxtItem "Code") subExp
     sub <- fromVal vsub
     case bindSomeParams sub invs args of
-        Left errMsg      -> retError errMsg (Val undef)
+        Left errMsg      -> fail errMsg
         Right curriedSub -> retVal $ castV $ curriedSub
 
 reduce _ (App "&infix:=>" [keyExp, valExp] []) = do
@@ -625,13 +626,13 @@ reduce _ (App "&infix:=>" [keyExp, valExp] []) = do
     val <- enterEvalContext cxtItemAny valExp
     retVal $ castV (key, val)
 
-reduce Env{ envClasses = cls, envContext = cxt } exp@(App name invs args) = do
+reduce Env{ envClasses = cls, envContext = cxt } (App name invs args) = do
     subSyms <- findSyms name
     lens <- mapM argSlurpLen (invs ++ args)
     sub <- findSub (sum lens) subSyms
     case sub of
         Just sub    -> applySub subSyms sub invs args
-        Nothing     -> retError ("No compatible subroutine found: " ++ name) exp
+        Nothing     -> retError "No compatible subroutine found" name
     where
     argSlurpLen (Val listMVal) = do
         listVal  <- fromVal listMVal
@@ -671,7 +672,6 @@ reduce Env{ envClasses = cls, envContext = cxt } exp@(App name invs args) = do
         case theSub of
             Just sub'    -> applyChainSub subSyms' sub invs sub' invs' args' rest
             Nothing      -> apply sub{ subParams = (length invs) `replicate` p } invs [] -- XXX Wrong
-            -- retError ("No compatible subroutine found: " ++ name') exp
     applyChainSub subSyms sub invs sub' invs' args' rest
         | MkCode{ subAssoc = "chain", subBody = fun, subParams = prm }   <- sub
         , MkCode{ subAssoc = "chain", subBody = fun', subParams = prm' } <- sub'
@@ -744,12 +744,12 @@ apply sub invs args = do
 doApply :: Env -> VCode -> [Exp] -> [Exp] -> Eval Val
 doApply Env{ envClasses = cls } sub@MkCode{ subBody = fun, subType = typ } invs args =
     case bindParams sub invs args of
-        Left errMsg -> retError errMsg (Val undef)
+        Left errMsg -> fail errMsg
         Right sub   -> do
             forM_ (subSlurpLimit sub) $ \limit@(n, _) -> do
                 extra <- checkSlurpyLimit limit
                 when (not $ null extra) $ do
-                    (`retError` (Val undef)) $
+                    fail $
                         "Too many slurpy arguments for " ++ subName sub ++ ": "
                         ++ show ((genericLength (take 1000 extra)) + n) ++ " actual, "
                         ++ show n ++ " expected"

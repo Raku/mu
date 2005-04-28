@@ -35,8 +35,7 @@ type Ident = String
 
 errIndex (Just v) _ = return v
 errIndex _ idx =
-    retError "Modification of non-creatable array value attempted"
-        (Val $ castV idx)
+    retError "Modification of non-creatable array value attempted" idx
 
 -- Three outcomes: Has value; can extend; cannot extend
 getIndex :: Int -> Maybe a -> Eval [a] -> Maybe (Eval b) -> Eval a
@@ -72,7 +71,7 @@ ifListContext trueM falseM = do
         CxtSlurpy _   -> trueM
         _           -> falseM
 
-retEmpty :: ContT Val (ReaderT Env IO) Val
+retEmpty :: Eval Val
 retEmpty = do
     ifListContext
         (return $ VList [])
@@ -99,7 +98,7 @@ fromVal' v = do
         \str -> return (Left str)
     case rv of
         Right v -> return v
-        Left e  -> retError e (Val v) -- XXX: not working yet
+        Left e  -> retError e v -- XXX: not working yet
 
 class (Typeable n, Show n, Ord n) => Value n where
     fromVal :: Val -> Eval n
@@ -660,7 +659,7 @@ type DebugInfo = Maybe (TVar (Map String String))
 data Env = Env { envContext :: !Cxt                 -- Current context
                , envLValue  :: !Bool                -- LValue context?
                , envLexical :: !Pad                 -- Lexical pad
-               , envGlobal  :: !(TVar Pad)         -- Global pad
+               , envGlobal  :: !(TVar Pad)          -- Global pad
                , envClasses :: !ClassTree           -- Current class tree
                , envEval    :: !(Exp -> Eval Val)   -- Active evaluator
                , envCaller  :: !(Maybe Env)         -- Caller's env
@@ -669,6 +668,7 @@ data Env = Env { envContext :: !Cxt                 -- Current context
                , envID      :: !Unique              -- Unique ID of Env
                , envDebug   :: !DebugInfo           -- Debug info map
                , envStash   :: !String              -- Misc. stash
+               , envPos     :: !SourcePos           -- Source position
                } deriving (Show, Eq, Ord)
 
 envWant env = 
@@ -691,12 +691,9 @@ instance Show Pad where
                             "])"
         dumpTVar ioRef = unsafePerformIO $ do
             ref  <- liftSTM $ readTVar ioRef
-            dump <- (`runReaderT` undefined) $ (`runContT` return) $ resetT $ do
+            dump <- (`runReaderT` undefined) $ (`runContT` return) $ runEvalT $ do
                 dumpRef ref
             return $ "unsafePerformIO (newTVar " ++ vCast dump ++ ")"
-
--- shiftT = undefined
--- resetT = undefined
 
 mkPad = MkPad . Map.fromList
 lookupPad key (MkPad map) = Map.lookup key map
@@ -718,21 +715,48 @@ show' x = "( " ++ show x ++ " )"
 data Scope = SGlobal | SMy | SOur | SLet | STemp | SState
     deriving (Show, Eq, Ord, Read, Enum)
 
-{-
-data Eval x
-    = EvalIO (ContT Val (ReaderT Env IO) x)
-    | EvalSTM (ContT Val (ReaderT Env IO) x)
-    deriving (Typeable)
--}
+type Eval x = EvalT (ContT Val (ReaderT Env IO)) x
+type EvalMonad = EvalT (ContT Val (ReaderT Env IO))
+newtype EvalT m a = EvalT { runEvalT :: m a }
 
-type Eval x = ContT Val (ReaderT Env IO) x
+shiftT :: ((a -> Eval Val) -> Eval Val) -> Eval a
+shiftT e = EvalT . ContT $ \k ->
+    runContT (runEvalT . e $ lift . lift . k) return
+
+resetT :: Eval Val -> Eval Val
+resetT e = lift . lift $
+    runContT (runEvalT e) return
+
+callCC :: ((a -> Eval b) -> Eval a) -> Eval a
+callCC f = EvalT . callCCT $ \c -> runEvalT . f $ \a -> EvalT $ c a
+
+instance Monad EvalMonad where
+    return a = EvalT $ return a
+    m >>= k = EvalT $ do
+        a <- runEvalT m
+        runEvalT (k a)
+    fail str = do
+        pos <- asks envPos
+        shiftT . const . return $ VError str (NonTerm pos)
+
+instance MonadTrans EvalT where
+    lift x = EvalT x
+
+instance Functor EvalMonad where
+    fmap f (EvalT a) = EvalT (fmap f a)
+
+instance MonadIO EvalMonad where
+    liftIO io = EvalT (liftIO io)
+
+instance MonadReader Env EvalMonad where
+    ask       = lift ask
+    local f m = EvalT $ local f (runEvalT m)
 
 runEval :: Env -> Eval Val -> IO Val
 runEval env eval = withSocketsDo $ do
     my_perl <- initPerl5 ""
-    val <- (`runReaderT` env) $ do
-        (`runContT` return) $
-            resetT eval
+    -- val <- (`runReaderT` env) $ (`runContT` return) $ runEvalT $ resetT eval
+    val <- (`runReaderT` env) $ (`runContT` return) $ runEvalT eval
     freePerl5 my_perl
     return val
 
@@ -740,7 +764,7 @@ findSymRef :: (MonadIO m) => String -> Pad -> m VRef
 findSymRef name pad = do
     case findSym name pad of
         Just ref -> liftSTM $ readTVar ref
-        Nothing  -> fail $ "oops, can't find " ++ name
+        Nothing  -> retError "Cannot find variable" name
 
 findSym :: String -> Pad -> Maybe (TVar VRef)
 findSym name pad = case lookupPad name pad of
@@ -776,15 +800,8 @@ retControl :: VControl -> Eval a
 retControl c = do
     shiftT $ const (return $ VControl c)
 
-retError :: VStr -> Exp -> Eval a
-retError str (Val VUndef) = retError str (Val $ VStr str)
-retError str _ = do
-    -- get stuff
-    glob <- askGlobal
-    file <- fromVal =<< readRef =<< findSymRef "$?FILE" glob
-    line <- fromVal =<< readRef =<< findSymRef "$?LINE" glob
-    col  <- fromVal =<< readRef =<< findSymRef "$?COLUMN" glob
-    shiftT $ const (return $ VError str (NonTerm $ SourcePos file line col))
+retError :: (Show a) => VStr -> a -> Eval b
+retError str a = fail $ str ++ ": " ++ show a
 
 naturalOrRat  = (<?> "number") $ do
     sig <- sign
@@ -873,7 +890,7 @@ undef = VUndef
 forceRef :: VRef -> Eval Val
 forceRef (MkRef (IScalar sv)) = forceRef =<< fromVal =<< scalar_fetch sv
 forceRef (MkRef (IThunk tv)) = thunk_force tv
-forceRef r = retError "cannot forceRef" (Val $ VRef r)
+forceRef r = retError "cannot forceRef" r
 
 dumpRef :: VRef -> Eval Val
 dumpRef (MkRef (ICode cv)) = do
@@ -915,7 +932,7 @@ writeRef (MkRef (IHash s)) val   = hash_store s =<< fromVal val
 writeRef (MkRef (ICode s)) val   = code_store s =<< fromVal val
 writeRef (MkRef (IPair s)) val   = pair_storeVal s val
 writeRef (MkRef (IThunk tv)) val = (`writeRef` val) =<< fromVal =<< thunk_force tv
-writeRef r _ = retError "cannot writeRef" (Val $ VRef r)
+writeRef r _ = retError "cannot writeRef" r
 
 clearRef :: VRef -> Eval ()
 clearRef (MkRef (IScalar s)) = scalar_store s undef
@@ -923,7 +940,7 @@ clearRef (MkRef (IArray s))  = array_clear s
 clearRef (MkRef (IHash s))   = hash_clear s
 clearRef (MkRef (IPair s))   = pair_storeVal s undef
 clearRef (MkRef (IThunk tv)) = clearRef =<< fromVal =<< thunk_force tv
-clearRef r = retError "cannot clearRef" (Val $ VRef r)
+clearRef r = retError "cannot clearRef" r
 
 newObject :: (MonadIO m) => Type -> m VRef
 newObject (MkType "Scalar") = liftSTM $
@@ -948,7 +965,7 @@ doHash (VRef (MkRef (IScalar sv))) f = do
             return $ f hv
         _  -> doHash val f
 doHash (VRef (MkRef p@(IPair _))) f = return $ f p
-doHash val@(VRef _) _ = retError "Cannot cast into Hash" (Val val)
+doHash val@(VRef _) _ = retError "Cannot cast into Hash" val
 doHash val f = do
     hv  <- fromVal val
     return $ f (hv :: VHash)
@@ -964,7 +981,7 @@ doArray (VRef (MkRef (IScalar sv))) f = do
             scalar_store sv (VRef ref)
             return $ f hv
 doArray (VRef (MkRef p@(IPair _))) f = return $ f p
-doArray val@(VRef _) _ = retError "Cannot cast into Array" (Val val)
+doArray val@(VRef _) _ = retError "Cannot cast into Array" val
 doArray val f = do
     av  <- fromVal val
     return $ f (av :: VArray)
@@ -1059,8 +1076,7 @@ lazyUndef = IScalar (Nothing :: IScalarLazy)
 constArray :: VArray -> IVar VArray
 constArray = IArray
 
-
-retConstError v = retError "Can't modify constant item" (Val v)
+retConstError val = retError "Can't modify constant item" val
 
 type IArray  = TVar [IVar VScalar]
 type IArraySlice = [IVar VScalar]
@@ -1083,7 +1099,7 @@ data VRef where
 instance Typeable VRef where
     typeOf (MkRef x) = typeOf x
 
-instance Typeable1 (ContT Val (ReaderT Env IO)) where
+instance Typeable1 (EvalT (ContT Val (ReaderT Env IO))) where
     typeOf1 _ = typeOf ' '
 
 instance Typeable1 IVar where

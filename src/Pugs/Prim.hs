@@ -213,7 +213,7 @@ op1 "print" = op1Print hPutStr
 op1 "say" = op1Print hPutStrLn
 op1 "die" = \v -> do
     strs <- fromVal v
-    retError (concat strs) (Val v)
+    fail (concat strs)
 op1 "exit" = \v -> do
     rv <- fromVal v
     if rv /= 0
@@ -300,7 +300,7 @@ op1 "async" = \v -> do
     env     <- ask
     code    <- fromVal v
     tid     <- liftIO . (if rtsSupportsBoundThreads then forkOS else forkIO) $ do
-        (`runReaderT` env) $ (`runContT` return) $ resetT $ do
+        (`runReaderT` env) $ (`runContT` return) $ runEvalT $ resetT $ do
             evl <- asks envEval
             local (\e -> e{ envContext = CxtVoid }) $ do
                 evl (Syn "()" [Val code, Syn "invs" [], Syn "args" []])
@@ -364,7 +364,7 @@ op1 "=" = \v -> do
     handleOf (VStr x) = do
         rv <- tryIO Nothing (fmap Just $ openFile x ReadMode)
         case rv of
-            Nothing  -> retError "No such file or directory" (Val $ VStr x)
+            Nothing  -> retError "No such file or directory" x
             Just hdl -> return hdl
     handleOf (VList [x]) = handleOf x
     handleOf v = fromVal v
@@ -1165,7 +1165,7 @@ pairsFromRef (MkRef (IArray av)) = do
 pairsFromRef (MkRef (IScalar sv)) = do
     refVal  <- scalar_fetch sv
     op1Pairs refVal
-pairsFromRef ref = retError "Not a keyed reference" (Val $ VRef ref)
+pairsFromRef ref = retError "Not a keyed reference" ref
 
 keysFromRef :: VRef -> Eval [Val]
 keysFromRef (MkRef (IPair pv)) = do
@@ -1182,7 +1182,7 @@ keysFromRef (MkRef (IScalar sv)) = do
     if defined refVal
         then fromVal =<< op1Keys refVal
         else return []
-keysFromRef ref = retError "Not a keyed reference" (Val $ VRef ref)
+keysFromRef ref = retError "Not a keyed reference" ref
 
 valuesFromRef :: VRef -> Eval [Val]
 valuesFromRef (MkRef (IPair pv)) = do
@@ -1197,7 +1197,7 @@ valuesFromRef (MkRef (IScalar sv)) = do
     if defined refVal
         then fromVal =<< op1Values refVal
         else return []
-valuesFromRef ref = retError "Not a keyed reference" (Val $ VRef ref)
+valuesFromRef ref = retError "Not a keyed reference" ref
 
 existsFromRef :: VRef -> Val -> Eval VBool
 existsFromRef (MkRef (IHash hv)) val = do
@@ -1210,7 +1210,7 @@ existsFromRef (MkRef (IScalar sv)) val = do
     refVal  <- scalar_fetch sv
     ref     <- fromVal refVal
     existsFromRef ref val
-existsFromRef ref _ = retError "Not a keyed reference" (Val $ VRef ref)
+existsFromRef ref _ = retError "Not a keyed reference" ref
 
 deleteFromRef :: VRef -> Val -> Eval Val
 deleteFromRef (MkRef (IHash hv)) val = do
@@ -1231,7 +1231,7 @@ deleteFromRef (MkRef (IScalar sv)) val = do
     refVal  <- scalar_fetch sv
     ref     <- fromVal refVal
     deleteFromRef ref val
-deleteFromRef ref _ = retError "Not a keyed reference" (Val $ VRef ref)
+deleteFromRef ref _ = retError "Not a keyed reference" ref
 
 prettyVal :: Int -> Val -> Eval VStr
 prettyVal 10 _ = return "..."

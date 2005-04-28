@@ -137,7 +137,7 @@ doCompile backend = doParseWith $ \env _ -> do
 
 doParseWith :: (Env -> FilePath -> IO a) -> FilePath -> String -> IO a
 doParseWith f name prog = do
-    env <- emptyEnv []
+    env <- emptyEnv name []
     runRule env f' ruleProgram name $ decodeUTF8 prog
     where
     f' Env{ envBody = Val err@(VError _ _) } = do
@@ -148,7 +148,7 @@ doParseWith f name prog = do
 
 doParse :: FilePath -> String -> IO ()
 doParse name prog = do
-    env <- emptyEnv []
+    env <- emptyEnv name []
     case runRule env envBody ruleProgram name (decodeUTF8 prog) of
         (Val err@(VError _ _)) -> putStrLn $ pretty err
         exp -> putStrLn $ pretty exp
