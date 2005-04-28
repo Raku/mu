@@ -110,14 +110,14 @@ fromVal' v = do
         Right v -> return v
         Left e  -> retError e (Val v) -- XXX: not working yet
 
-class (Typeable n) => Value n where
+class (Typeable n, Show n, Ord n) => Value n where
     fromVal :: Val -> Eval n
     fromVal = fromVal'
     vCast :: Val -> n
     vCast v@(VRef _)    = castFail v
     vCast v             = doCast v
     castV :: n -> Val
-    castV _ = error $ "cannot cast into Val"
+    castV x = VOpaque (MkOpaque x) -- error $ "cannot cast into Val"
     doCast :: Val -> n
     doCast v = error $ "cannot cast from Val: " ++ show v
     fmapVal :: (n -> n) -> Val -> Val
@@ -413,6 +413,7 @@ data Val
     | VRule     !VRule
     | VSubst    !VSubst
     | VControl  !VControl
+    | VOpaque   !VOpaque
     deriving (Show, Eq, Ord, Typeable)
 
 valType :: Val -> Type
@@ -436,6 +437,7 @@ valType (VProcess _)    = mkType "Process"
 valType (VControl _)    = mkType "Control"
 valType (VRule    _)    = mkType "Rule"
 valType (VSubst   _)    = mkType "Subst"
+valType (VOpaque  _)    = mkType "Object"
 
 type VBlock = Exp
 data VControl
@@ -996,6 +998,26 @@ data (Typeable v) => IVar v where
     IRule   :: Rule.Class   a => a -> IVar VRule
     IThunk  :: Thunk.Class  a => a -> IVar VThunk
     IPair   :: Pair.Class   a => a -> IVar VPair
+
+data VOpaque where
+    MkOpaque :: Value a => a -> VOpaque
+
+instance Eq VOpaque where
+    (MkOpaque x) == (MkOpaque y) = castV x == castV y
+
+instance Typeable VOpaque where
+    typeOf (MkOpaque x) = typeOf x
+
+instance Ord VOpaque where
+    compare x y = castV x `compare` castV y
+
+instance Show VOpaque where
+    show (MkOpaque x) = show x
+
+instance Value VOpaque where
+    vCast (VOpaque o) = o
+    vCast v = MkOpaque v
+    castV (MkOpaque x) = castV x
 
 readIVar :: IVar v -> Eval v
 readIVar (IScalar x) = Scalar.fetch x

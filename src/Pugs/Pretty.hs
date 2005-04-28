@@ -82,6 +82,7 @@ instance Pretty Val where
     format (VComplex x) = text $ show x
     format (VControl x) = text $ show x
     format (VProcess x) = text $ show x
+    format (VOpaque (MkOpaque x)) = braces $ text $ "obj:" ++ show x
 {-
     format (VRef (VList x))
         | not . null . (drop 100) $ x

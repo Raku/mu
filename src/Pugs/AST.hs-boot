@@ -30,6 +30,7 @@ data VCode
 data VJunc
 data VRef
 data VControl
+data VOpaque
 data Param
 data Scope
 
