@@ -1,6 +1,6 @@
 
 ---------------------
-PUGS MEMORY GAME v0.1
+PUGS MEMORY GAME v0.2
 ---------------------
 
 This is the first Pugs/Perl 6 web application, a memory game.
@@ -17,7 +17,7 @@ program is downloaded from. The whole program is just for fun.
 If you don't know, who's who, here is the list of the images:
 
  Card #1   - A funny Perl 6 book cover page
- Card #2   - A pugs
+ Card #2   - A pug
  Card #3   - Larry Wall
  Card #4   - Leo Toetsch
  Card #5   - Andras Barthazi

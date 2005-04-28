@@ -14,11 +14,15 @@ require 'Cookie.pl';
 require 'Session.pl';
 
 #--
+my @whoswho = ('', 'A funny Perl 6 book cover page', 'A pug', 'Larry Wall', 'Leo Toetsch', 'Andras Barthazi', 
+               'Dan Sugalski', 'Autrijus Tang', 'Damian Conway', 'Randal Schwartz', 'A camel', 'A parrot', 'A Haskell symbol');
+#--
 
 my $page;
 my @order;
 my @flip;
 my @up;
+my $turns=+SessionGet('turns');
 
 my $username=SessionGet('username');
 if (param('name')) { $username = param('name'); }
@@ -31,7 +35,7 @@ if (!$username or $username eq '') {
     my $order=SessionGet('order');
     my $flip=SessionGet('flip');
     my $up=SessionGet('up');
-    if (param('action') eq 'new') { $flip=''; $up=''; $order=''; }
+    if (param('action') eq 'new') { $flip=''; $up=''; $order=''; $turns=0; }
     if ($order and $order ne '') {
         @order = split('/',$order);
         @flip = split('/',$flip);
@@ -51,13 +55,14 @@ if (!$username or $username eq '') {
     if (param('action') eq 'flip') {
         my($id)=param('id');
         if (@flip[0]>0 and @flip[1]>0) {
-            if ( @order[@flip[0]] eq @order[@flip[1]] ) {
-                @up[@flip[0]]=@up[@flip[1]]=1;
-            }
-            @flip=(); 
+            @flip=();
+            $turns++;
         }
         if (@flip[0]>0) {
             @flip[1]=$id;
+            if ( @order[@flip[0]] eq @order[@flip[1]] ) {
+                @up[@flip[0]]=@up[@flip[1]]=1;
+            }
          } else {
             @flip[0]=$id;
         }
@@ -67,34 +72,48 @@ if (!$username or $username eq '') {
     SessionSet('up',join('/',@up));
 }
 SessionSet('username',$username);
+SessionSet('turns',$turns);
 
 PageHeader(charset=>'utf-8').print;
 say "<html><head><title>Perl 6</title><link type=\"text/css\" rel=\"stylesheet\" href=\"/game.css\" /></head><body>";
 
 #--
 
-if ($page eq 'askname') {
-    say '<form method="get">Please enter your name!<input type="text" name="name" value="' ~ param('name') ~ '"/><input type="submit" /></form>';
-}
-
-if ($page eq 'game') {
-    say 'Welcome '~$username~'! <a href="?action=logout">I\'m not '~$username~'</a> <a href="?action=new">Start new game</a>';
-    say '<hr />';
-    say '<div class="board">';
-    my $img=1;
-    for (1..4) {
-        for (1..6) {
-            print '<a href="?action=flip&id='~$img~'">';
-            print '<img src="/pics/card' ~ ( (@up[$img]==1 or @flip[0]==$img or @flip[1]==$img) ?? @order[$img] :: 'back' ) ~ '.jpg" />';
-            print '</a>';
-            $img++;
-        }
-        say '<br />';
+given $page {
+    when 'askname' {
+        say '<form method="get">Please enter your name!<input type="text" name="name" value="' ~ param('name') ~ '"/><input type="submit" /></form>';
     }
-    say '</div>';
+
+    when 'game' {
+        say 'Welcome '~$username~'! <a href="?action=logout">I\'m not '~$username~'</a> <a href="?action=new">Start new game</a>';
+        say '<hr />';
+        say '<div class="board">';
+        my $img=1;
+        my $flipped=0;
+        for (1..4) {
+            for (1..6) {
+                if (@up[$img]==1 or @flip[0]==$img or @flip[1]==$img) {
+                    print '<img src="/pics/card' ~ @order[$img] ~ '.jpg" title="' ~ @whoswho[@order[$img]]  ~ '"/>';
+                    $flipped+=@up[$img];
+                 } else {
+                    print '<a href="?action=flip&id=' ~ $img ~ '"><img src="/pics/cardback.jpg" /></a>';
+                }
+                $img++;
+            }
+            say '<br />';
+        }
+        say '</div>';
+        say '<hr />';
+        if ($flipped == 24) {
+            say 'Congratulations, you won the game! <a href="?action=new">Start new game</a>';
+         } else {
+            say 'Turns: ' ~ $turns ~ ' - Flipped: ' ~ $flipped/2 ~ ' pair' ~ ($flipped > 2 ?? 's' :: '' );
+        }
+    }
 }
 
 #--
+
 say "</body></html>";
 
 SessionDestroy();
