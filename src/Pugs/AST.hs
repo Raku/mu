@@ -764,7 +764,7 @@ findSymRef :: (MonadIO m) => String -> Pad -> m VRef
 findSymRef name pad = do
     case findSym name pad of
         Just ref -> liftSTM $ readTVar ref
-        Nothing  -> retError "Cannot find variable" name
+        Nothing  -> fail $ "Cannot find variable: " ++ show name
 
 findSym :: String -> Pad -> Maybe (TVar VRef)
 findSym name pad = case lookupPad name pad of
