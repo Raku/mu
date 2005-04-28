@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 3;
+plan 4;
 
 {
   sub foo($a is rw) {
@@ -15,6 +15,13 @@ plan 3;
   is $bar,      23, "basic sanity";
   is foo($bar), 19, "calling a sub with an is rw param";
   is $bar,      42, "sub changed our variable";
+}
+
+{
+	my $anon = -> $a is rw { $a++ };
+	my $bar = 10;
+	$anon.($bar);
+	is($bar, 11, "anon sub changed variable");
 }
 
 # for ... -> ... is rw {...} already tested for in t/statements/for.t.
