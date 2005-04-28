@@ -14,7 +14,6 @@ module Pugs.Parser where
 import Pugs.Internals
 import Pugs.AST
 import Pugs.Types
-import Pugs.Types.Code as Code
 import Pugs.Help
 import Pugs.Lexer
 import Pugs.Rule
@@ -681,9 +680,9 @@ currentUnaryFunctions' = do
     funs    <- currentFunctions
     return . mapPair munge . partition fst . sort $
         [ (opt, encodeUTF8 name) | (name, MkRef (ICode code)) <- funs
-        , Code.assoc code == "pre"
-        , length (Code.params code) == 1
-        , let param = head $ Code.params code
+        , code_assoc code == "pre"
+        , length (code_params code) == 1
+        , let param = head $ code_params code
         , let opt   = isOptional param
         -- XXX: find other MMD duplicates
         , name /= "sort", name /= "say" && name /= "print" && name /= "reverse"

@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -funbox-strict-fields #-}
+{-# OPTIONS_GHC -cpp -fglasgow-exts -fno-warn-orphans -funbox-strict-fields #-}
 {-# OPTIONS_GHC -#include "UnicodeC.h" #-}
 
 {-
@@ -18,17 +18,18 @@ import Pugs.Context
 import Pugs.Rule
 import List
 import Pugs.Types
-import qualified Pugs.Types.Array  as Array
-import qualified Pugs.Types.Handle as Handle
-import qualified Pugs.Types.Hash   as Hash
-import qualified Pugs.Types.Scalar as Scalar
-import qualified Pugs.Types.Code   as Code
-import qualified Pugs.Types.Thunk  as Thunk
-import qualified Pugs.Types.Rule   as Rule
-import qualified Pugs.Types.Pair   as Pair
-import qualified Pugs.Types.Object as Object
 import qualified Data.Set       as Set
 import qualified Data.Map       as Map
+
+#include "Types/Array.hs"
+#include "Types/Handle.hs"
+#include "Types/Hash.hs"
+#include "Types/Scalar.hs"
+#include "Types/Code.hs"
+#include "Types/Thunk.hs"
+#include "Types/Rule.hs"
+#include "Types/Pair.hs"
+#include "Types/Object.hs"
 
 type Ident = String
 
@@ -258,7 +259,7 @@ instance Value VStr where
         vt  <- evalValType v
         if vt /= mkType "Hash" then fromVal' v else do
         --- XXX special case for Hash -- need to Objectify
-        hv      <- join $ doHash v Hash.fetch
+        hv      <- join $ doHash v hash_fetch
         lns     <- forM (Map.assocs hv) $ \(k, v) -> do
             str <- fromVal v
             return $ k ++ "\t" ++ str
@@ -420,7 +421,7 @@ valType (VNum     _)    = mkType "Num"
 valType (VComplex _)    = mkType "Complex"
 valType (VStr     _)    = mkType "Str"
 valType (VList    _)    = mkType "List"
-valType (VCode    c)    = Code.iType c
+valType (VCode    c)    = code_iType c
 valType (VBlock   _)    = mkType "Block"
 valType (VJunc    _)    = mkType "Junction"
 valType (VError _ _)    = mkType "Error"
@@ -694,6 +695,9 @@ instance Show Pad where
                 dumpRef ref
             return $ "unsafePerformIO (newTVar " ++ vCast dump ++ ")"
 
+-- shiftT = undefined
+-- resetT = undefined
+
 mkPad = MkPad . Map.fromList
 lookupPad key (MkPad map) = Map.lookup key map
 padToList (MkPad map) = Map.assocs map
@@ -713,6 +717,13 @@ show' x = "( " ++ show x ++ " )"
 
 data Scope = SGlobal | SMy | SOur | SLet | STemp | SState
     deriving (Show, Eq, Ord, Read, Enum)
+
+{-
+data Eval x
+    = EvalIO (ContT Val (ReaderT Env IO) x)
+    | EvalSTM (ContT Val (ReaderT Env IO) x)
+    deriving (Typeable)
+-}
 
 type Eval x = ContT Val (ReaderT Env IO) x
 
@@ -860,36 +871,36 @@ defined _       = True
 undef = VUndef
 
 forceRef :: VRef -> Eval Val
-forceRef (MkRef (IScalar sv)) = forceRef =<< fromVal =<< Scalar.fetch sv
-forceRef (MkRef (IThunk tv)) = Thunk.force tv
+forceRef (MkRef (IScalar sv)) = forceRef =<< fromVal =<< scalar_fetch sv
+forceRef (MkRef (IThunk tv)) = thunk_force tv
 forceRef r = retError "cannot forceRef" (Val $ VRef r)
 
 dumpRef :: VRef -> Eval Val
 dumpRef (MkRef (ICode cv)) = do
-    vsub <- Code.assuming cv [] []
+    vsub <- code_assuming cv [] []
     return (VStr $ "(MkRef (ICode $ " ++ show vsub ++ "))")
-dumpRef (MkRef (IScalar sv)) | Scalar.iType sv == mkType "Scalar::Const" = do
-    sv <- Scalar.fetch sv
+dumpRef (MkRef (IScalar sv)) | scalar_iType sv == mkType "Scalar::Const" = do
+    sv <- scalar_fetch sv
     return (VStr $ "(MkRef (IScalar $ " ++ show sv ++ "))")
 dumpRef ref = return (VStr $ "(unsafePerformIO . newObject $ mkType \"" ++ show (refType ref) ++ "\")")
 
 readRef :: VRef -> Eval Val
-readRef (MkRef (IScalar sv)) = Scalar.fetch sv
+readRef (MkRef (IScalar sv)) = scalar_fetch sv
 readRef (MkRef (ICode cv)) = do
-    vsub <- Code.assuming cv [] []
+    vsub <- code_assuming cv [] []
     return $ VCode vsub
 readRef (MkRef (IHash hv)) = do
-    pairs <- Hash.fetch hv
+    pairs <- hash_fetch hv
     return $ VList $ map (\(k, v) -> castV (castV k, v)) (Map.assocs pairs)
 readRef (MkRef (IArray av)) = do
-    vals <- Array.fetch av
+    vals <- array_fetch av
     return $ VList vals
 readRef (MkRef (IPair pv)) = do
-    (k, v) <- Pair.fetch pv
+    (k, v) <- pair_fetch pv
     return $ VList [k, v]
-readRef (MkRef (IHandle io)) = return . VHandle =<< Handle.fetch io
-readRef (MkRef (IRule rx)) = return . VRule =<< Rule.fetch rx
-readRef (MkRef (IThunk tv)) = readRef =<< fromVal =<< Thunk.force tv
+readRef (MkRef (IHandle io)) = return . VHandle =<< handle_fetch io
+readRef (MkRef (IRule rx)) = return . VRule =<< rule_fetch rx
+readRef (MkRef (IThunk tv)) = readRef =<< fromVal =<< thunk_force tv
 
 retIVar :: (Typeable a) => IVar a -> Eval Val 
 retIVar = return . VRef . MkRef
@@ -897,21 +908,21 @@ retIVar = return . VRef . MkRef
 writeRef :: VRef -> Val -> Eval ()
 writeRef (MkRef (IScalar s)) (VList vals) = do
     av <- liftIO (newArray vals)
-    Scalar.store s (VRef $ MkRef av)
-writeRef (MkRef (IScalar s)) val = Scalar.store s val
-writeRef (MkRef (IArray s)) val  = Array.store s =<< fromVals val
-writeRef (MkRef (IHash s)) val   = Hash.store s =<< fromVal val
-writeRef (MkRef (ICode s)) val   = Code.store s =<< fromVal val
-writeRef (MkRef (IPair s)) val   = Pair.storeVal s val
-writeRef (MkRef (IThunk tv)) val = (`writeRef` val) =<< fromVal =<< Thunk.force tv
+    scalar_store s (VRef $ MkRef av)
+writeRef (MkRef (IScalar s)) val = scalar_store s val
+writeRef (MkRef (IArray s)) val  = array_store s =<< fromVals val
+writeRef (MkRef (IHash s)) val   = hash_store s =<< fromVal val
+writeRef (MkRef (ICode s)) val   = code_store s =<< fromVal val
+writeRef (MkRef (IPair s)) val   = pair_storeVal s val
+writeRef (MkRef (IThunk tv)) val = (`writeRef` val) =<< fromVal =<< thunk_force tv
 writeRef r _ = retError "cannot writeRef" (Val $ VRef r)
 
 clearRef :: VRef -> Eval ()
-clearRef (MkRef (IScalar s)) = Scalar.store s undef
-clearRef (MkRef (IArray s))  = Array.clear s
-clearRef (MkRef (IHash s))   = Hash.clear s
-clearRef (MkRef (IPair s))   = Pair.storeVal s undef
-clearRef (MkRef (IThunk tv)) = clearRef =<< fromVal =<< Thunk.force tv
+clearRef (MkRef (IScalar s)) = scalar_store s undef
+clearRef (MkRef (IArray s))  = array_clear s
+clearRef (MkRef (IHash s))   = hash_clear s
+clearRef (MkRef (IPair s))   = pair_storeVal s undef
+clearRef (MkRef (IThunk tv)) = clearRef =<< fromVal =<< thunk_force tv
 clearRef r = retError "cannot clearRef" (Val $ VRef r)
 
 newObject :: (MonadIO m) => Type -> m VRef
@@ -926,14 +937,14 @@ newObject (MkType "Code")   = liftSTM $
 newObject typ = fail ("Cannot create object: " ++ showType typ)
 
 -- XXX: Refactor doHash and doArray into one -- also see Eval's [] and {}
-doHash :: Val -> (forall a. Hash.Class a => a -> b) -> Eval b
+doHash :: Val -> (forall a. HashClass a => a -> b) -> Eval b
 doHash (VRef (MkRef (IHash hv))) f = return $ f hv
 doHash (VRef (MkRef (IScalar sv))) f = do
-    val <- Scalar.fetch sv
+    val <- scalar_fetch sv
     case val of
         VUndef  -> do
             ref@(MkRef (IHash hv)) <- newObject (MkType "Hash")
-            Scalar.store sv (VRef ref)
+            scalar_store sv (VRef ref)
             return $ f hv
         _  -> doHash val f
 doHash (VRef (MkRef p@(IPair _))) f = return $ f p
@@ -942,15 +953,15 @@ doHash val f = do
     hv  <- fromVal val
     return $ f (hv :: VHash)
 
-doArray :: Val -> (forall a. Array.Class a => a -> b) -> Eval b
+doArray :: Val -> (forall a. ArrayClass a => a -> b) -> Eval b
 doArray (VRef (MkRef (IArray hv))) f = return $ f hv
 doArray (VRef (MkRef (IScalar sv))) f = do
-    val <- Scalar.fetch sv
+    val <- scalar_fetch sv
     if defined val
         then doArray val f
         else do
             ref@(MkRef (IArray hv)) <- newObject (MkType "Array")
-            Scalar.store sv (VRef ref)
+            scalar_store sv (VRef ref)
             return $ f hv
 doArray (VRef (MkRef p@(IPair _))) f = return $ f p
 doArray val@(VRef _) _ = retError "Cannot cast into Array" (Val val)
@@ -959,14 +970,14 @@ doArray val f = do
     return $ f (av :: VArray)
 
 data (Typeable v) => IVar v where
-    IScalar :: Scalar.Class a => a -> IVar VScalar
-    IArray  :: Array.Class  a => a -> IVar VArray
-    IHash   :: Hash.Class   a => a -> IVar VHash
-    ICode   :: Code.Class   a => a -> IVar VCode
-    IHandle :: Handle.Class a => a -> IVar VHandle
-    IRule   :: Rule.Class   a => a -> IVar VRule
-    IThunk  :: Thunk.Class  a => a -> IVar VThunk
-    IPair   :: Pair.Class   a => a -> IVar VPair
+    IScalar :: ScalarClass a => a -> IVar VScalar
+    IArray  :: ArrayClass  a => a -> IVar VArray
+    IHash   :: HashClass   a => a -> IVar VHash
+    ICode   :: CodeClass   a => a -> IVar VCode
+    IHandle :: HandleClass a => a -> IVar VHandle
+    IRule   :: RuleClass   a => a -> IVar VRule
+    IThunk  :: ThunkClass  a => a -> IVar VThunk
+    IPair   :: PairClass   a => a -> IVar VPair
 
 data VOpaque where
     MkOpaque :: Value a => a -> VOpaque
@@ -989,27 +1000,17 @@ instance Value VOpaque where
     castV (MkOpaque x) = castV x
 
 readIVar :: IVar v -> Eval v
-readIVar (IScalar x) = Scalar.fetch x
-readIVar (IPair x)   = Pair.fetch x
-readIVar (IArray x)  = Array.fetch x
-readIVar (IHash x)   = Hash.fetch x
+readIVar (IScalar x) = scalar_fetch x
+readIVar (IPair x)   = pair_fetch x
+readIVar (IArray x)  = array_fetch x
+readIVar (IHash x)   = hash_fetch x
 readIVar _ = error "readIVar"
 
 writeIVar :: IVar v -> v -> Eval ()
-writeIVar (IScalar x) = Scalar.store x
+writeIVar (IScalar x) = scalar_store x
 writeIVar _ = error "writeIVar"
 
-refType (MkRef x) = Object.iType x
-
-instance (Typeable a) => Object.Class (IVar a) where
-    iType (IScalar x) = Scalar.iType x
-    iType (IArray x)  = Array.iType x
-    iType (IHash x)   = Hash.iType x
-    iType (ICode x)   = Code.iType x
-    iType (IHandle x) = Handle.iType x
-    iType (IRule x)   = Rule.iType x
-    iType (IThunk x)  = Thunk.iType x
-    iType (IPair x)   = Pair.iType x
+refType (MkRef x) = object_iType x
 
 instance Eq VRef where
     (==) = const $ const False
@@ -1058,245 +1059,6 @@ lazyUndef = IScalar (Nothing :: IScalarLazy)
 constArray :: VArray -> IVar VArray
 constArray = IArray
 
-instance Pair.Class VPair where
-    fetchKey = return . fst
-    fetchVal = return . snd
-    storeVal pv val = do
-        ref <- fromVal (snd pv)
-        writeRef ref val
-
-instance Scalar.Class IScalarProxy where
-    iType = const $ mkType "Scalar::Proxy"
-    fetch = fst
-    store = snd
-
-instance Array.Class (IVar VPair) where
-    iType = const $ mkType "Pair"
-    fetch pv = do
-        (k, v)  <- readIVar pv
-        return [k, v]
-    existsElem _ idx = return (idx >= -2 || idx <= 1)
-    fetchSize        = const $ return 2
-    fetchVal pv (-2) = return . fst =<< readIVar pv
-    fetchVal pv (-1) = return . snd =<< readIVar pv
-    fetchVal pv 0    = return . fst =<< readIVar pv
-    fetchVal pv 1    = return . snd =<< readIVar pv
-    fetchVal _  _    = return undef
-    storeVal _ _ _   = retConstError undef
-    storeElem _ _ _  = retConstError undef
-    deleteElem _ _   = retConstError undef
-
-instance Hash.Class (IVar VPair) where
-    iType = const $ mkType "Pair"
-    fetch pv = do
-        (k, v)  <- readIVar pv
-        str     <- fromVal k
-        return $ Map.singleton str v
-    fetchVal pv idx = do
-        (k, v)  <- readIVar pv
-        str     <- fromVal k
-        if str == idx
-            then return v
-            else return undef
-    storeVal _ _ _ = retConstError undef
-    deleteElem _ _ = retConstError undef
-
-instance Hash.Class VHash where
-    iType = const $ mkType "Hash::Const"
-    fetch = return
-    fetchKeys = return . Map.keys
-    fetchVal hv idx = return $ Map.findWithDefault undef idx hv
-    clear _ = retConstError undef
-    store _ _ = retConstError undef
-    storeVal _ _ _ = retConstError undef
-    storeElem _ _ _ = retConstError undef
-    deleteElem _ _ = retConstError undef
-
-instance Array.Class VArray where
-    iType = const $ mkType "Array::Const"
-    store [] _ = return ()
-    store _ [] = return ()
-    store (a:as) vals@(v:vs) = do
-        env <- ask
-        ref <- fromVal a
-        if isaType (envClasses env) "List" (refType ref)
-            then writeRef ref (VList vals)
-            else do
-                writeRef ref v
-                Array.store as vs
-    fetch = return
-    fetchSize = return . length
-    fetchVal av idx = getIndex idx (Just undef) (return av) Nothing
-    storeVal _ _ _ = retConstError undef
-    storeElem _ _ _ = retConstError undef
-
-instance Hash.Class IHashEnv where
-    iType = const $ mkType "Hash::Env"
-    fetch _ = do
-        envs <- liftIO getEnvironment
-        return . Map.map VStr $ Map.fromList envs
-    fetchVal _ key = tryIO undef $ do
-        str <- getEnv key
-        return $ VStr str
-    storeVal _ key val = do
-        str <- fromVal val
-        liftIO $ setEnv key str True
-    existsElem _ key = tryIO False $ do
-        getEnv key
-        return True
-    deleteElem _ key = do
-        liftIO $ unsetEnv key
-
-instance Hash.Class IHash where
-    fetch hv = do
-        svMap <- liftSTM $ readTVar hv
-        fmap Map.fromList $ forM (Map.assocs svMap) $ \(key, sv) -> do
-            val <- readIVar sv
-            return (key, val)
-    fetchKeys hv = do
-        liftSTM . fmap Map.keys $ readTVar hv
-    fetchElem hv idx = do
-        svMap <- liftSTM $ readTVar hv
-        case Map.lookup idx svMap of
-            Just sv -> return sv
-            Nothing -> do
-                sv <- newScalar undef
-                liftSTM $ modifyTVar hv (Map.insert idx sv)
-                return sv
-    storeElem hv idx sv = do
-        liftSTM $ modifyTVar hv (Map.insert idx sv)
-    deleteElem hv idx = do
-        liftSTM $ modifyTVar hv (Map.delete idx)
-    existsElem hv idx = do
-        liftSTM $ do
-            svMap <- readTVar hv
-            return $ Map.member idx svMap
-
-instance Array.Class IArraySlice where
-    iType = const $ mkType "Array::Slice"
-    store av vals = mapM_ (uncurry writeIVar) (zip av vals)
-    fetchSize = return . length
-    fetchElem av idx = getIndex idx Nothing (return av) Nothing
-    storeSize _ _ = return () -- XXX error?
-    storeElem _ _ _ = retConstError undef
-
-instance Array.Class IArray where
-    store av vals = do
-        let svList = map lazyScalar vals
-        liftSTM $ writeTVar av svList
-    fetchSize av = do
-        svList <- liftSTM $ readTVar av
-        return $ length svList
-    storeSize av sz = do
-        liftSTM $ modifyTVar av $ take sz . (++ repeat lazyUndef)
-    shift av = do
-        svList <- liftSTM $ readTVar av
-        case svList of
-            (sv:rest) -> do
-                liftSTM $ writeTVar av rest
-                readIVar sv
-            _ -> return undef
-    unshift av vals = do
-        liftSTM $ modifyTVar av
-            (map lazyScalar vals ++)
-    extendSize _ 0 = return ()
-    extendSize av sz = do
-        liftSTM . modifyTVar av $ \svList ->
-            if null $ drop (sz-1) svList
-                then take sz (svList ++ repeat lazyUndef)
-                else svList
-    fetchVal av idx = do
-        readIVar =<< getIndex idx (Just $ constScalar undef)
-            (liftSTM $ readTVar av) 
-            Nothing -- don't bother extending
-    fetchKeys av = do
-        svList <- liftSTM $ readTVar av
-        return $ zipWith const [0..] svList
-    fetchElem av idx = do
-        sv <- getIndex idx Nothing
-            (liftSTM $ readTVar av) 
-            (Just (Array.extendSize av $ idx+1))
-        if refType (MkRef sv) == mkType "Scalar::Lazy"
-            then do
-                val <- readIVar sv
-                sv' <- newScalar val
-                liftSTM . modifyTVar av $ \svList ->
-                    let idx' = idx `mod` length svList in
-                    take idx' svList ++ (sv' : drop (idx'+1) svList)
-                return sv'
-            else return sv
-    existsElem av idx | idx < 0 = Array.existsElem av (abs idx - 1)
-    existsElem av idx = do
-        svList <- liftSTM $ readTVar av
-        return . not . null $ drop idx svList
-    deleteElem av idx = do
-        liftSTM . modifyTVar av $ \svList ->
-            let idx' | idx < 0   = idx `mod` length svList -- XXX wrong; wraparound
-                     | otherwise = idx in
-            if null $ drop (idx' + 1) svList
-                then take idx' svList
-                else take idx' svList ++ (lazyUndef : drop (idx'+1) svList)
-    storeElem av idx sv = do
-        liftSTM . modifyTVar av $ \svList ->
-            let idx' | idx < 0   = idx `mod` length svList -- XXX wrong; wraparound
-                     | otherwise = idx in
-            take idx svList ++ (sv : drop (idx'+1) svList)
-
-instance Handle.Class IHandle where
-    fetch = return
-    store = error "store"
-
-instance Scalar.Class IScalar where
-    fetch = liftSTM . readTVar
-    store = (liftSTM .) . writeTVar
-
-instance Scalar.Class IScalarLazy where
-    iType = const $ mkType "Scalar::Lazy"
-    fetch = return . maybe undef id
-    store _ v = retConstError v
-
-instance Scalar.Class IScalarCwd where
-    iType = const $ mkType "Scalar::Cwd"
-    fetch _ = do
-        str <- liftIO $ getCurrentDirectory
-	return $ VStr str
-    store _ val = do
-        str <- fromVal val
-	tryIO () $ setCurrentDirectory str
-
-instance Scalar.Class VScalar where
-    iType = const $ mkType "Scalar::Const"
-    fetch (VRef ref) = readRef ref
-    fetch v = return v
-    store _ v = retConstError v
-
-instance Code.Class ICode where
-    iType c  = Code.iType . unsafePerformSTM $ readTVar c
-    fetch    = liftSTM . readTVar
-    store    = (liftSTM .) . writeTVar
-    assuming c [] [] = Code.fetch c
-    assuming _ _ _   = undefined
-    apply    = error "apply"
-    assoc c  = Code.assoc . unsafePerformSTM $ readTVar c
-    params c = Code.params . unsafePerformSTM $ readTVar c
-
-instance Code.Class VCode where
-    -- XXX - subType should really just be a mkType itself
-    iType c  = case subType c of
-        SubBlock    -> mkType "Block"
-        SubRoutine  -> mkType "Sub"
-        SubPrim     -> mkType "Sub"
-        SubMethod   -> mkType "Method"
-    fetch    = return
-    store _ _= retConstError undef
-    assuming c [] [] = return c
-    assuming _ _ _   = error "assuming"
-    apply    = error "apply"
-    assoc    = subAssoc
-    params   = subParams
-
-instance Thunk.Class VThunk where
-    force (MkThunk c) = c
 
 retConstError v = retError "Can't modify constant item" (Val v)
 

@@ -1,27 +1,33 @@
-{-# OPTIONS_GHC -fglasgow-exts #-}
 
-module Pugs.Types.Pair where
-
-import {-# SOURCE #-} Pugs.AST
-import Pugs.Internals
-import Pugs.Types
-
-class (Typeable a) => Class a where
-    iType :: a -> Type
-    iType = const $ mkType "Pair"
-    fetch :: a -> Eval VPair
-    fetch pv = do
-        key <- fetchKey pv
-        val <- fetchVal pv
+class (Typeable a) => PairClass a where
+    pair_iType :: a -> Type
+    pair_iType = const $ mkType "Pair"
+    pair_fetch :: a -> Eval VPair
+    pair_fetch pv = do
+        key <- pair_fetchKey pv
+        val <- pair_fetchVal pv
         return (key, val)
-    fetchKey  :: a -> Eval VScalar
-    fetchVal  :: a -> Eval VScalar
-    fetchVal pv = do
-        readIVar =<< fetchElem pv
-    storeVal  :: a -> Val -> Eval ()
-    storeVal pv val = do
-        sv <- fetchElem pv
+    pair_fetchKey  :: a -> Eval VScalar
+    pair_fetchVal  :: a -> Eval VScalar
+    pair_fetchVal pv = do
+        readIVar =<< pair_fetchElem pv
+    pair_storeVal  :: a -> Val -> Eval ()
+    pair_storeVal pv val = do
+        sv <- pair_fetchElem pv
         writeIVar sv val
-    fetchElem :: a -> Eval (IVar VScalar)
-    fetchElem pv = do
-        return $ proxyScalar (fetchVal pv) (storeVal pv)
+    pair_fetchElem :: a -> Eval (IVar VScalar)
+    pair_fetchElem pv = do
+        return $ proxyScalar (pair_fetchVal pv) (pair_storeVal pv)
+
+instance PairClass VPair where
+    pair_fetchKey = return . fst
+    pair_fetchVal = return . snd
+    pair_storeVal pv val = do
+        ref <- fromVal (snd pv)
+        writeRef ref val
+    pair_fetch pv = do
+        key <- pair_fetchKey pv
+        val <- pair_fetchVal pv
+        return (key, val)
+    pair_fetchElem pv = do
+        return $ proxyScalar (pair_fetchVal pv) (pair_storeVal pv)

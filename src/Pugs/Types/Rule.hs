@@ -1,14 +1,7 @@
-{-# OPTIONS_GHC -fglasgow-exts #-}
 
-module Pugs.Types.Rule where
-
-import {-# SOURCE #-} Pugs.AST
-import Pugs.Internals
-import Pugs.Types
-
-class (Typeable a) => Class a where
-    iType :: a -> Type
-    iType = const $ mkType "Rule"
-    fetch :: a -> Eval VRule
-    store :: a -> VRule -> Eval ()
-    match :: a -> VStr -> Eval (MatchResult Val)
+class (Typeable a) => RuleClass a where
+    rule_iType :: a -> Type
+    rule_iType = const $ mkType "Rule"
+    rule_fetch :: a -> Eval VRule
+    rule_store :: a -> VRule -> Eval ()
+    rule_match :: a -> VStr -> Eval (MatchResult Val)

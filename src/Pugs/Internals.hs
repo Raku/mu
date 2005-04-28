@@ -70,7 +70,7 @@ module Pugs.Internals (
 
 import UTF8
 import Unicode
-import Pugs.Cont
+import Pugs.Cont -- hiding (shiftT, resetT)
 import Pugs.Embed
 import Pugs.Compat
 import RRegex

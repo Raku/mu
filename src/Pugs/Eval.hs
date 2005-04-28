@@ -25,8 +25,6 @@ import Pugs.Context
 import Pugs.Monads
 import Pugs.Pretty
 import Pugs.Types
-import qualified Pugs.Types.Hash as Hash
-import qualified Pugs.Types.Array as Array
 
 emptyEnv :: (MonadIO m) => [IO (Pad -> Pad)] -> m Env
 emptyEnv genPad = do
@@ -445,8 +443,8 @@ reduce env exp@(Syn name exps) = case name of
             then cxtOfExp indexExp else return (envContext env)
         idxVal  <- enterRValue $ enterEvalContext idxCxt indexExp
         varVal  <- enterLValue $ enterEvalContext (cxtItem "Array") listExp
-        doFetch (mkFetch $ doArray varVal Array.fetchElem)
-                (mkFetch $ doArray varVal Array.fetchVal)
+        doFetch (mkFetch $ doArray varVal array_fetchElem)
+                (mkFetch $ doArray varVal array_fetchVal)
                 (fromVal idxVal)
                 (envLValue env)
                 (not (isSlurpyCxt idxCxt))
@@ -464,8 +462,8 @@ reduce env exp@(Syn name exps) = case name of
             then cxtOfExp indexExp else return (envContext env)
         idxVal  <- enterRValue $ enterEvalContext idxCxt indexExp
         varVal  <- enterLValue $ enterEvalContext (cxtItem "Hash") listExp
-        doFetch (mkFetch $ doHash varVal Hash.fetchElem)
-                (mkFetch $ doHash varVal Hash.fetchVal)
+        doFetch (mkFetch $ doHash varVal hash_fetchElem)
+                (mkFetch $ doHash varVal hash_fetchVal)
                 (fromVal idxVal)
                 (envLValue env)
                 (not (isSlurpyCxt idxCxt))

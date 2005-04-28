@@ -54,9 +54,11 @@ loadHaskell file = do
     -- AST has early requirements and late requirements, because of recrusivity.  
     -- The logic for this should probably be moved to hs-plugins, but do it here 
     -- for now.
+    {-
     mapM 
         (\n -> load (coredir++n++".o") loadpaths ourPackageConfigs "")
         ["Compat", "Cont", "Embed", "Embed/Perl5", "Internals", "RRegex", "RRegex/PCRE", "RRegex/Syntax", "Rule/Pos", "UTF8", "Unicode", "AST"]
+    -}
 
     (extern :: [String]) <- loadOrDie objFile loadpaths ourPackageConfigs "extern__"
     -- print (">"++(show extern)++"<")

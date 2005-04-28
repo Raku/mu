@@ -7,8 +7,6 @@ import Pugs.AST
 import Pugs.Types
 import Pugs.Eval
 import Text.PrettyPrint
-import qualified Pugs.Types.Scalar as Scalar
-import qualified Pugs.Types.Code   as Code
 import qualified Data.Map       as Map
 
 -- XXX This compiler needs a totaly rewrite using Parrot AST,
@@ -67,11 +65,11 @@ instance Compile (TVar VRef) where
 
 instance Compile VRef where
     compile (MkRef (ICode cv)) = do
-        vsub <- Code.fetch cv
+        vsub <- code_fetch cv
         compile vsub
     compile (MkRef (IScalar sv))
-        | Scalar.iType sv == mkType "Scalar::Const" = do
-            sv  <- Scalar.fetch sv
+        | scalar_iType sv == mkType "Scalar::Const" = do
+            sv  <- scalar_fetch sv
             ref <- fromVal sv
             compile (ref :: VCode)
     compile x = internalError ("Unrecognized construct: " ++ show x)

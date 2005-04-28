@@ -1,12 +1,9 @@
-{-# OPTIONS_GHC -fglasgow-exts #-}
 
-module Pugs.Types.Thunk where
+class (Typeable a) => ThunkClass a where
+    thunk_iType :: a -> Type
+    thunk_iType = const $ mkType "Thunk"
+    thunk_force :: a -> Eval Val
 
-import {-# SOURCE #-} Pugs.AST
-import Pugs.Internals
-import Pugs.Types
+instance ThunkClass VThunk where
+    thunk_force (MkThunk c) = c
 
-class (Typeable a) => Class a where
-    iType :: a -> Type
-    iType = const $ mkType "Thunk"
-    force :: a -> Eval Val

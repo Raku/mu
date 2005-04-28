@@ -21,10 +21,6 @@ import Pugs.External
 import Text.Printf
 import qualified Data.Set as Set
 import qualified Data.Map as Map
-import qualified Pugs.Types.Array  as Array
-import qualified Pugs.Types.Hash   as Hash
-import qualified Pugs.Types.Scalar as Scalar
-import qualified Pugs.Types.Pair   as Pair
 
 op0 :: Ident -> [Val] -> Eval Val
 op0 "!"  = fmap opJuncNone . mapM fromVal
@@ -373,8 +369,8 @@ op1 "=" = \v -> do
     handleOf (VList [x]) = handleOf x
     handleOf v = fromVal v
 op1 "ref"   = fmap (VStr . showType) . evalValType
-op1 "pop"   = \x -> join $ doArray x Array.pop -- monadic join
-op1 "shift" = \x -> join $ doArray x Array.shift -- monadic join
+op1 "pop"   = \x -> join $ doArray x array_pop -- monadic join
+op1 "shift" = \x -> join $ doArray x array_shift -- monadic join
 op1 "pick"  = op1Pick
 op1 "sum"   = op1Sum
 op1 "chr"   = op1Cast (VStr . (:[]) . chr)
@@ -617,8 +613,8 @@ op2 "delete" = \x y -> do
 op2 "exists" = \x y -> do
     ref <- fromVal x
     fmap VBool (existsFromRef ref y)
-op2 "unshift" = op2Array Array.unshift
-op2 "push" = op2Array Array.push
+op2 "unshift" = op2Array array_unshift
+op2 "push" = op2Array array_push
 op2 "split"= \x y -> do
     val <- fromVal x
     str <- fromVal y
@@ -669,7 +665,7 @@ op2 "chmod" = \x y -> do
     rets  <- mapM (doBoolIO . flip setFileMode $ toEnum mode) files
     return . VInt . sum $ map bool2n rets
 op2 "splice" = \x y -> do
-    fetchSize   <- doArray x Array.fetchSize
+    fetchSize   <- doArray x array_fetchSize
     len'        <- fromVal y
     sz          <- fetchSize
     let len = if len' < 0 then if sz > 0 then (len' `mod` sz) else 0 else len'
@@ -821,7 +817,7 @@ op4 "substr" = \x y z w -> do
 
 -- op4 "splice" = \x y z w-> do
 op4 "splice" = \x y z w -> do
-    splice  <- doArray x Array.splice
+    splice  <- doArray x array_splice
     start   <- fromVal y
     count   <- fromVal z
     vals    <- fromVals w
@@ -850,12 +846,12 @@ op2Hyper op x y
         rest <- hyperLists xs ys
         return (val:rest)
 
-op2Array :: (forall a. Array.Class a => a -> [Val] -> Eval ()) -> Val -> Val -> Eval Val
+op2Array :: (forall a. ArrayClass a => a -> [Val] -> Eval ()) -> Val -> Val -> Eval Val
 op2Array f x y = do
     f    <- doArray x f
     vals <- fromVal y
     f vals
-    size <- doArray x Array.fetchSize
+    size <- doArray x array_fetchSize
     idx  <- size
     return $ castV idx
 
@@ -1161,28 +1157,28 @@ pairsFromRef :: VRef -> Eval [Val]
 pairsFromRef r@(MkRef (IPair _)) = do
     return [VRef r]
 pairsFromRef (MkRef (IHash hv)) = do
-    pairs   <- Hash.fetch hv
+    pairs   <- hash_fetch hv
     return $ map (\(k, v) -> castV (castV k, v)) (Map.assocs pairs)
 pairsFromRef (MkRef (IArray av)) = do
-    vals    <- Array.fetch av
+    vals    <- array_fetch av
     return $ map castV ((map VInt [0..]) `zip` vals)
 pairsFromRef (MkRef (IScalar sv)) = do
-    refVal  <- Scalar.fetch sv
+    refVal  <- scalar_fetch sv
     op1Pairs refVal
 pairsFromRef ref = retError "Not a keyed reference" (Val $ VRef ref)
 
 keysFromRef :: VRef -> Eval [Val]
 keysFromRef (MkRef (IPair pv)) = do
-    key     <- Pair.fetchKey pv
+    key     <- pair_fetchKey pv
     return [key]
 keysFromRef (MkRef (IHash hv)) = do
-    keys    <- Hash.fetchKeys hv
+    keys    <- hash_fetchKeys hv
     return $ map castV keys
 keysFromRef (MkRef (IArray av)) = do
-    keys    <- Array.fetchKeys av
+    keys    <- array_fetchKeys av
     return $ map castV keys
 keysFromRef (MkRef (IScalar sv)) = do
-    refVal  <- Scalar.fetch sv
+    refVal  <- scalar_fetch sv
     if defined refVal
         then fromVal =<< op1Keys refVal
         else return []
@@ -1190,14 +1186,14 @@ keysFromRef ref = retError "Not a keyed reference" (Val $ VRef ref)
 
 valuesFromRef :: VRef -> Eval [Val]
 valuesFromRef (MkRef (IPair pv)) = do
-    val   <- Pair.fetchVal pv
+    val   <- pair_fetchVal pv
     return [val]
 valuesFromRef (MkRef (IHash hv)) = do
-    pairs <- Hash.fetch hv
+    pairs <- hash_fetch hv
     return $ Map.elems pairs
-valuesFromRef (MkRef (IArray av)) = Array.fetch av
+valuesFromRef (MkRef (IArray av)) = array_fetch av
 valuesFromRef (MkRef (IScalar sv)) = do
-    refVal  <- Scalar.fetch sv
+    refVal  <- scalar_fetch sv
     if defined refVal
         then fromVal =<< op1Values refVal
         else return []
@@ -1206,12 +1202,12 @@ valuesFromRef ref = retError "Not a keyed reference" (Val $ VRef ref)
 existsFromRef :: VRef -> Val -> Eval VBool
 existsFromRef (MkRef (IHash hv)) val = do
     idx     <- fromVal val
-    Hash.existsElem hv idx
+    hash_existsElem hv idx
 existsFromRef (MkRef (IArray av)) val = do
     idx     <- fromVal val
-    Array.existsElem av idx
+    array_existsElem av idx
 existsFromRef (MkRef (IScalar sv)) val = do
-    refVal  <- Scalar.fetch sv
+    refVal  <- scalar_fetch sv
     ref     <- fromVal refVal
     existsFromRef ref val
 existsFromRef ref _ = retError "Not a keyed reference" (Val $ VRef ref)
@@ -1220,19 +1216,19 @@ deleteFromRef :: VRef -> Val -> Eval Val
 deleteFromRef (MkRef (IHash hv)) val = do
     idxs    <- fromVals val
     rv      <- forM idxs $ \idx -> do
-        val <- Hash.fetchVal hv idx
-        Hash.deleteElem hv idx
+        val <- hash_fetchVal hv idx
+        hash_deleteElem hv idx
         return val
     return $ VList rv
 deleteFromRef (MkRef (IArray av)) val = do
     idxs    <- fromVals val
     rv      <- forM idxs $ \idx -> do
-        val <- Array.fetchVal av idx
-        Array.deleteElem av idx
+        val <- array_fetchVal av idx
+        array_deleteElem av idx
         return val
     return $ VList rv
 deleteFromRef (MkRef (IScalar sv)) val = do
-    refVal  <- Scalar.fetch sv
+    refVal  <- scalar_fetch sv
     ref     <- fromVal refVal
     deleteFromRef ref val
 deleteFromRef ref _ = retError "Not a keyed reference" (Val $ VRef ref)
