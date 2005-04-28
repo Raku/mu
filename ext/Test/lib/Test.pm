@@ -65,8 +65,8 @@ sub unlike (Str $got, Rule $expected, Str +$desc, Bool +$todo) returns Bool is e
 
 sub eval_ok (Str $code, Str +$desc, Bool +$todo) returns Bool is export {
     my $result := eval $code;
-    if ($!) {
-	    proclaim(undef, $desc, $todo ?? 'TODO' :: undef, "eval was fatal");
+    if (defined $!) {
+	    proclaim(undef, $desc, $todo ?? 'TODO' :: undef, "eval was fatal: $!");
     }
     else {
         #diag "'$desc' was non-fatal and maybe shouldn't use eval_ok()";
@@ -78,8 +78,8 @@ sub eval_ok (Str $code, Str +$desc, Bool +$todo) returns Bool is export {
 
 sub eval_is (Str $code, Str $expected, Str +$desc, Bool +$todo) returns Bool is export {
     my $result := eval $code;
-    if ($!) {
-	    proclaim(undef, $desc, $todo ?? 'TODO' :: undef, "eval was fatal", $expected);
+    if (defined $!) {
+	    proclaim(undef, $desc, $todo ?? 'TODO' :: undef, "eval was fatal: $!", $expected);
     }
     else {
         #diag "'$desc' was non-fatal and maybe shouldn't use eval_is()";
