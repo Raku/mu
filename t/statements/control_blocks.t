@@ -57,19 +57,18 @@ my $var_at_end;
 	$ivar_at_check = $ivar;
 };
 
-# FIXME: BEGIN {
-{
+BEGIN {
 	$var_at_begin = $var;
 	$bvar_at_begin = $bvar;
 	$cvar_at_begin = $cvar;
 };
 
 # L<S04/"Closure traits" /BEGIN/>
-is($var_at_begin, undef, '{ $var = 1 } not yet assigned when BEGIN block run', :todo);
+is($var_at_begin, undef, '{ $var = 1 } not yet assigned when BEGIN block run');
 # L<S04/"Closure traits" /can also be used within an expression/>
 ok($bvar_at_begin, 'but { $bvar = BEGIN { 1 } } was');
 # L<S04/"Closure traits" /CHECK/>
-is($cvar_at_begin, undef, 'CHECK var not defined at BEGIN time', :todo);
+is($cvar_at_begin, undef, 'CHECK var not defined at BEGIN time');
 
 # L<S04/"Closure traits" /INIT/>
 ok($ivar, "INIT var defined at begining of runtime", :todo);
