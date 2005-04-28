@@ -17,7 +17,7 @@ my $html_location   = $ARGV[1] or die "Need HTML output file location";;
 chdir($pugs_sandbox) or die "Could change directory: $!";
 
 $ENV{HARNESS_PERL}  = "./pugs";
-$ENV{PERL6LIB}	    = "ext/Test/lib";
+$ENV{PERL6LIB}      = "ext/Test/lib";
 
 sub make { return `$Config{make} @_` };
 my $dev_null = File::Spec->devnull;
@@ -35,6 +35,7 @@ sub check_prereq {
     eval {
         require $file;
     } or do {
+        die "The module $mod require failed:\n $@" if $@;
         die <<"EOF";
 You don't seem to have the module $mod installed.
 Please install it from the CPAN and try again.
