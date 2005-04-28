@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 5;
+plan 13;
 
 # Mostly copied from Perl 5.8.4 s t/op/recurse.t
 
@@ -54,4 +54,69 @@ ok(fibonacci(10) == 89);
 # takes too long
 # skip("Takes too long to wait for");
 
+# dunno if these could use some shorter/simpler sub names, but I'm not
+# thinking of anything offhand.
 
+# what the silly sub names mean:
+#  - 'mod' means it makes a local copy of the variable, modified as
+#    necessary
+#  - 'nomod' means it passes the modified value directly to the next call
+#  - 'named' means it uses named parameters
+#  - 'unnamed' means it uses @_ for parameters
+
+sub countup_nomod_unnamed {
+    my ($num) = @_;
+    return $num if $num <= 0;
+    return countup_nomod_unnamed($num-1), $num;
+}
+
+sub countdown_nomod_unnamed {
+    my ($num) = @_;
+    return $num if $num <= 0;
+    return $num, countdown_nomod_unnamed($num-1);
+}
+
+sub countup_nomod_named ($num) {
+    return $num if $num <= 0;
+    return countup_nomod_named($num-1), $num;
+}
+
+sub countdown_nomod_named ($num) {
+    return $num if $num <= 0;
+    return $num, countdown_nomod_named($num-1);
+}
+
+sub countup_mod_unnamed {
+    my ($num) = @_;
+    my $n = $num - 1;
+    return $num if $num <= 0;
+    return countup_mod_unnamed($n), $num;
+}
+
+sub countdown_mod_unnamed {
+    my ($num) = @_;
+    my $n = $num - 1;
+    return $num if $num <= 0;
+    return $num, countdown_mod_unnamed($n);
+}
+
+sub countup_mod_named ($num) {
+    my $n = $num - 1;
+    return $num if $num <= 0;
+    return countup_mod_named($n), $num;
+}
+
+sub countdown_mod_named ($num) {
+    my $n = $num - 1;
+    return $num if $num <= 0;
+    return $num, countdown_mod_named($n);
+}
+
+is(  countup_nomod_named(5).join(""),   "012345", "recursive count up: named param, no modified value");
+is(countdown_nomod_named(5).join(""),   "543210", "recursive count down: named param, no modified value");
+is(  countup_nomod_unnamed(5).join(""), "012345", "recursive count up: unnamed param, no modified value");
+is(countdown_nomod_unnamed(5).join(""), "543210", "recursive count down: unnamed param, no modified value");
+is(  countup_mod_named(5).join(""),     "012345", "recursive count up: named param, modified value");
+is(countdown_mod_named(5).join(""),     "543210", "recursive count down: named param, modified value");
+is(  countup_mod_unnamed(5).join(""),   "012345", "recursive count up: unnamed param, modified value");
+is(countdown_mod_unnamed(5).join(""),   "543210", "recursive count down: unnamed param, modified value");
