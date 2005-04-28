@@ -78,15 +78,14 @@ See L<S06/"Types"> for more information about Code, Routine, Sub, Block, etc.
     ok($!, "calling an anonymous sub expecting one param with two params dies");
 }
 
-sub mkinc { my $x = 0; return sub { $x++ }; }
-
 {
-my $inc1 = mkinc();
-my $inc2 = mkinc();
+    my $mkinc = sub { my $x = 0; return sub { $x++ }; };
 
-is($inc1(), 0, "inc1 == 0");
-is($inc1(), 1, "inc1 == 1");
-is($inc2(), 0, "inc2 == 0");
-is($inc2(), 1, "inc2 == 1");
+    my $inc1 = $mkinc();
+    my $inc2 = $mkinc();
 
+    is($inc1(), 0, "inc1 == 0");
+    is($inc1(), 1, "inc1 == 1");
+    is($inc2(), 0, "inc2 == 0");
+    is($inc2(), 1, "inc2 == 1");
 }
