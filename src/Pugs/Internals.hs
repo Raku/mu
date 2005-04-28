@@ -51,7 +51,6 @@ module Pugs.Internals (
     module Data.Complex,
     module Data.Set,
     module Data.Map,
-    module Data.IORef,
     module Debug.Trace,
     module Network,
     internalError,
@@ -113,11 +112,11 @@ import Data.Char (chr, ord, digitToInt)
 import Data.Ratio
 import Data.Complex
 import Data.Tree
-import Data.IORef
 import Data.Set (Set)
 import Data.Map (Map)
 import Debug.Trace
 import Pugs.Rule.Pos
+-- import GHC.Conc (unsafeIOToSTM)
 
 -- Instances.
 instance Show Unique where
@@ -187,3 +186,5 @@ modifyTVar var f = do
     x <- readTVar var
     writeTVar var (f x)
 
+-- instance MonadIO STM where
+--     liftIO = unsafeIOToSTM

@@ -29,7 +29,6 @@ import qualified Pugs.Types.Pair   as Pair
 import qualified Pugs.Types.Object as Object
 import qualified Data.Set       as Set
 import qualified Data.Map       as Map
-import qualified Data.HashTable as HTable
 
 type Ident = String
 
@@ -920,8 +919,8 @@ newObject (MkType "Scalar") = liftSTM $
     fmap scalarRef $ newTVar undef
 newObject (MkType "Array")  = liftSTM $
     fmap arrayRef $ (newTVar [] :: STM IArray)
-newObject (MkType "Hash")   = liftIO $
-    fmap hashRef $ (HTable.new (==) HTable.hashString :: IO IHash)
+newObject (MkType "Hash")   = liftSTM $
+    fmap hashRef $ (newTVar Map.empty :: STM IHash)
 newObject (MkType "Code")   = liftSTM $
     fmap codeRef $ newTVar mkSub
 newObject typ = fail ("Cannot create object: " ++ showType typ)
@@ -1150,26 +1149,28 @@ instance Hash.Class IHashEnv where
 
 instance Hash.Class IHash where
     fetch hv = do
-        pairs <- liftIO $ HTable.toList hv
-        fmap Map.fromList $ forM pairs $ \(key, sv) -> do
+        svMap <- liftSTM $ readTVar hv
+        fmap Map.fromList $ forM (Map.assocs svMap) $ \(key, sv) -> do
             val <- readIVar sv
             return (key, val)
     fetchKeys hv = do
-        pairs <- liftIO $ HTable.toList hv
-        return $ map fst pairs
+        liftSTM . fmap Map.keys $ readTVar hv
     fetchElem hv idx = do
-        rv <- liftIO $ HTable.lookup hv idx
-        case rv of
+        svMap <- liftSTM $ readTVar hv
+        case Map.lookup idx svMap of
             Just sv -> return sv
             Nothing -> do
                 sv <- newScalar undef
-                liftIO $ HTable.insert hv idx sv
+                liftSTM $ modifyTVar hv (Map.insert idx sv)
                 return sv
-    storeElem hv idx sv = liftIO $ HTable.insert hv idx sv
-    deleteElem hv idx = liftIO $ HTable.delete hv idx
+    storeElem hv idx sv = do
+        liftSTM $ modifyTVar hv (Map.insert idx sv)
+    deleteElem hv idx = do
+        liftSTM $ modifyTVar hv (Map.delete idx)
     existsElem hv idx = do
-        rv <- liftIO $ HTable.lookup hv idx
-        return $ isJust rv
+        liftSTM $ do
+            svMap <- readTVar hv
+            return $ Map.member idx svMap
 
 instance Array.Class IArraySlice where
     iType = const $ mkType "Array::Slice"
@@ -1301,8 +1302,7 @@ retConstError v = retError "Can't modify constant item" (Val v)
 
 type IArray  = TVar [IVar VScalar]
 type IArraySlice = [IVar VScalar]
-type IHash   = HTable.HashTable VStr (IVar VScalar)
--- type IHash   = TVar (Map VStr (IVar VScalar))
+type IHash   = TVar (Map VStr (IVar VScalar))
 type IScalar = TVar Val
 type ICode   = TVar VCode
 data IHashEnv deriving (Typeable) -- phantom types! fun!
@@ -1313,13 +1313,6 @@ type IScalarLazy = Maybe VScalar
 -- these implementation allows no destructions
 type IRule   = VRule
 type IHandle = VHandle -- XXX maybe TVar?
-
-instance Show IHash   where show _ = "{hash}"
--- instance Show IArray  where show _ = "{array}"
--- instance Show IScalar where show _ = "{scalar}"
--- instance Show IHandle where show _ = "{handle}"
--- instance Show ICode   where show _ = "{code}"
--- instance Show IRule   where show _ = "{rule}"
 
 -- GADTs, here we come!
 data VRef where
@@ -1341,5 +1334,3 @@ instance Typeable1 IVar where
     typeOf1 (IThunk  x) = typeOf x
     typeOf1 (IPair   x) = typeOf x
 
-instance Typeable2 HTable.HashTable where
-    typeOf2 _ = typeOf ' '
