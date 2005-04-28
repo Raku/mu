@@ -24,13 +24,12 @@
 #
 
 my ($x, $y, $k);
-# no substr now
 my $b = ' .:,;!/>)|&IH%*#';
 
 my ($P, $Q, $X, $L);
 my ($r, $i, $z, $Z, $t, $c, $C);
 for ($L = 0;; $L++) {
-    last() if $L > 100;
+    last() if $L > 1;
 for ($y=30;
     $P = $y * 0.1, $C = $P - 1.5, 1;
     ) {

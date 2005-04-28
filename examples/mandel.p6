@@ -28,7 +28,6 @@ use v6;
 ### Should be fixed in a couple days ###
 
 my ($x, $y, $k);
-# no substr now
 my $b = ' .:,;!/>)|&IH%*#';
 
 my ($P, $Q, $X, $L);
