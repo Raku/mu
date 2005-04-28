@@ -9,7 +9,7 @@ use inc::Module::Install;
 my $pugs = "pugs$Config{_exe}";
 my $version_h = "src/Pugs/pugs_version.h";
 my $config_h = "src/Pugs/pugs_config.h";
-my @srcdirs = (grep(-d, glob "src/*"), grep(-d, glob "src/*/*"), grep(-d, glob "src/*/*/*"));
+my @srcdirs = (grep(-d, "src", glob "src/*"), grep(-d, glob "src/*/*"), grep(-d, glob "src/*/*/*"));
 
 deny_cygwin     ();
 
