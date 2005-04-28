@@ -37,7 +37,7 @@ externRequire lang name = do
     liftIO $ do
         bindings    <- externLoad lang name
         newSyms     <- mapM gen bindings
-        modifyIORef glob (\pad -> combine newSyms pad)
+        liftSTM $ modifyTVar glob (\pad -> combine newSyms pad)
     where
     gen (name, fun) = genSym ('&':name) . codeRef $ mkPrim
         { subName       = ('&':name)

@@ -30,11 +30,11 @@ import qualified Pugs.Types.Array as Array
 
 emptyEnv :: (MonadIO m) => [IO (Pad -> Pad)] -> m Env
 emptyEnv genPad = do
-    pad  <- liftIO $ sequence genPad
-    ref  <- liftIO $ newIORef Map.empty
-    uniq <- liftIO $ newUnique
-    syms <- liftIO $ initSyms
-    glob <- liftIO $ newIORef (combine (pad ++ syms) $ mkPad [])
+    pad  <- liftIO  $ sequence genPad
+    ref  <- liftSTM $ newTVar Map.empty
+    uniq <- liftIO  $ newUnique
+    syms <- liftIO  $ initSyms
+    glob <- liftSTM $ newTVar (combine (pad ++ syms) $ mkPad [])
     return $ Env
         { envContext = CxtVoid
         , envLexical = mkPad []
@@ -58,11 +58,13 @@ debug key fun str a = do
     case rv of
         Nothing -> return ()
         Just ref -> liftIO $ do
-            fm <- readIORef ref
-            let val = fun $ Map.findWithDefault "" key fm
+            val <- liftSTM $ do
+                fm <- readTVar ref
+                let val = fun $ Map.findWithDefault "" key fm
+                writeTVar ref (Map.insert key val fm)
+                return val
             when (length val > 100) $ do
                 hPutStrLn stderr "*** Warning: deep recursion"
-            writeIORef ref (Map.insert key val fm)
             putStrLn ("***" ++ val ++ str ++ pretty a)
 
 evaluateMain :: Exp -> Eval Val
@@ -96,7 +98,7 @@ findSyms name = do
         forM names $ \name' -> do
             case lookupPad name' pad of
                 Just ioRefs -> do
-                    refs  <- liftIO $ mapM readIORef ioRefs
+                    refs  <- liftSTM $ mapM readTVar ioRefs
                     forM refs $ \ref -> do
                         val <- readRef ref
                         return (name', val)
@@ -118,9 +120,9 @@ retVal val = evaluate (Val val)  -- casting
 
 addGlobalSym newSym = do
     glob <- asks envGlobal
-    liftIO $ do
-        syms <- readIORef glob
-        writeIORef glob (newSym syms)
+    liftSTM $ do
+        syms <- readTVar glob
+        writeTVar glob (newSym syms)
 
 -- XXX This is a mess. my() and our() etc should not be statement level!
 reduceStatements :: [(Exp, SourcePos)] -> Exp -> Eval Val
@@ -156,7 +158,7 @@ reduceStatements ((exp, pos):rest) = case exp of
         return . VControl $ ControlEnv env
     Syn "dump" [] | null rest -> \e -> do
         Env{ envGlobal = globals, envLexical = lexicals } <- ask
-        liftIO $ modifyIORef globals (unionPads lexicals)
+        liftSTM $ modifyTVar globals (unionPads lexicals)
         reduceStatements rest e
     _ | null rest -> const $ do
         _   <- asks envContext
@@ -205,9 +207,9 @@ findVar env name = do
     rv <- findVarRef env name
     case rv of
         Nothing  -> return Nothing
-        Just ref -> fmap Just $ liftIO (readIORef ref)
+        Just ref -> fmap Just $ liftSTM (readTVar ref)
 
-findVarRef :: Env -> Ident -> Eval (Maybe (IORef VRef))
+findVarRef :: Env -> Ident -> Eval (Maybe (TVar VRef))
 findVarRef env name
     | Just (package, name') <- breakOnGlue "::" name
     , Just (sig, "") <- breakOnGlue "CALLER" package =
@@ -218,7 +220,7 @@ findVarRef env name
         callCC $ \foundIt -> do
             let lexSym = findSym name $ envLexical env
             when (isJust lexSym) $ foundIt lexSym
-            glob <- liftIO . readIORef $ envGlobal env
+            glob <- liftSTM . readTVar $ envGlobal env
             let globSym = findSym name glob
             when (isJust globSym) $ foundIt globSym
             let globSym = findSym (toGlobal name) glob
@@ -383,7 +385,7 @@ reduce env exp@(Syn name exps) = case name of
                 Nothing -> do
                     retError ("Undeclared variable " ++ name) (Val undef)
         forM_ bindings $ \(ioRef, ref) -> do
-            liftIO $ writeIORef ioRef ref
+            liftSTM $ writeTVar ioRef ref
         return $ case map (VRef . snd) bindings of
             [v] -> v
             vs  -> VList vs

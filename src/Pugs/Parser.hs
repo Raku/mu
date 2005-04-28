@@ -660,10 +660,10 @@ litOperators = do
 
 currentFunctions = do
     env     <- getState
-    return . concat . unsafePerformIO $ do
-        glob <- readIORef $ envGlobal env
+    return . concat . unsafePerformSTM $ do
+        glob <- readTVar $ envGlobal env
         forM (padToList glob ++ padToList (envLexical env)) $ \(name, ioRefs) -> do
-            refs <- mapM readIORef ioRefs
+            refs <- mapM readTVar ioRefs
             return $ map (\ref -> (dropWhile isPunctuation $ name, ref)) refs
 
 currentUnaryFunctions = do

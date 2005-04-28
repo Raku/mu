@@ -20,6 +20,7 @@ import Pugs.Parser
 import Pugs.External
 import Text.Printf
 import qualified Data.Set as Set
+import qualified Data.Map as Map
 import qualified Pugs.Types.Array  as Array
 import qualified Pugs.Types.Hash   as Hash
 import qualified Pugs.Types.Scalar as Scalar
@@ -1161,7 +1162,7 @@ pairsFromRef r@(MkRef (IPair _)) = do
     return [VRef r]
 pairsFromRef (MkRef (IHash hv)) = do
     pairs   <- Hash.fetch hv
-    return $ map (\(k, v) -> castV (castV k, v)) pairs
+    return $ map (\(k, v) -> castV (castV k, v)) (Map.assocs pairs)
 pairsFromRef (MkRef (IArray av)) = do
     vals    <- Array.fetch av
     return $ map castV ((map VInt [0..]) `zip` vals)
@@ -1193,7 +1194,7 @@ valuesFromRef (MkRef (IPair pv)) = do
     return [val]
 valuesFromRef (MkRef (IHash hv)) = do
     pairs <- Hash.fetch hv
-    return $ map snd pairs
+    return $ Map.elems pairs
 valuesFromRef (MkRef (IArray av)) = Array.fetch av
 valuesFromRef (MkRef (IScalar sv)) = do
     refVal  <- Scalar.fetch sv

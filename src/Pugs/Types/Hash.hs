@@ -5,6 +5,7 @@ module Pugs.Types.Hash where
 import {-# SOURCE #-} Pugs.AST
 import Pugs.Internals
 import Pugs.Types
+import qualified Data.Map as Map
 
 type Index = VStr
 
@@ -15,11 +16,11 @@ class (Typeable a) => Class a where
     fetch hv = do
         keys <- fetchKeys hv
         vals <- mapM (fetchVal hv) keys
-        return $ keys `zip` vals
+        return . Map.fromList $ keys `zip` vals
     store       :: a -> VHash -> Eval ()
     store hv vals = do
         clear hv
-        forM_ vals $ \(key, val) -> do
+        forM_ (Map.assocs vals) $ \(key, val) -> do
             storeVal hv key val
     fetchElem   :: a -> Index -> Eval (IVar VScalar) -- autovivify
     fetchElem hv key = do
@@ -39,8 +40,8 @@ class (Typeable a) => Class a where
         writeIVar sv val
     fetchKeys   :: a -> Eval [Index]
     fetchKeys hv = do
-        pairs <- fetch hv
-        return $ map fst pairs
+        vals <- fetch hv
+        return $ Map.keys vals
     deleteElem  :: a -> Index -> Eval ()
     existsElem  :: a -> Index -> Eval VBool
     existsElem hv idx = do

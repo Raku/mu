@@ -22,8 +22,8 @@ genIMC :: Eval Val
 genIMC = do
     Env{ envBody = exp, envGlobal = globRef } <- ask
 
-    glob <- liftIO $ readIORef globRef
-    ref  <- liftIO $ newIORef $ Map.fromList [("tempPMC", "9")]
+    glob <- liftSTM $ readTVar globRef
+    ref  <- liftSTM $ newTVar $ Map.fromList [("tempPMC", "9")]
 
     -- get a list of functions
     local (\e -> e{ envDebug = Just ref }) $ do
@@ -50,7 +50,7 @@ instance Compile Doc where
 instance Compile Pad where
     compile pad = fmap vcat $ mapM compile (padToList pad)
 
-instance Compile (String, [IORef VRef]) where
+instance Compile (String, [TVar VRef]) where
     compile (('&':name), [sym]) = do
         imc <- compile sym
         return $ vcat
@@ -60,9 +60,9 @@ instance Compile (String, [IORef VRef]) where
             ]
     compile _ = fail "fnord"
 
-instance Compile (IORef VRef) where
+instance Compile (TVar VRef) where
     compile x = do
-        ref <- liftIO $ readIORef x
+        ref <- liftSTM $ readTVar x
         compile ref
 
 instance Compile VRef where
@@ -98,7 +98,7 @@ varInit x       = error $ "invalid name: " ++ x
 askPMC :: Eval String
 askPMC = do
     Just ioRef <- asks envDebug
-    fm <- liftIO $ readIORef ioRef
+    fm <- liftSTM $ readTVar ioRef
     let cnt = Map.findWithDefault "0" "tempPMC" fm
     return $ "$P" ++ cnt
 
@@ -112,11 +112,11 @@ tempLabels strs = do
 
 incCounter key f = do
     Just ioRef <- asks envDebug
-    liftIO $ do
-        fm <- readIORef ioRef
+    liftSTM $ do
+        fm <- readTVar ioRef
         let cnt = Map.findWithDefault "0" key fm
             cnt' = show (read cnt + (1 :: Int))
-        writeIORef ioRef (Map.insert key cnt' fm)
+        writeTVar ioRef (Map.insert key cnt' fm)
         return $ text (f cnt')
 
 instance Compile SourcePos where

@@ -32,8 +32,9 @@ runAST glob ast = do
     name    <- getProgName
     args    <- getArgs
     env     <- prepareEnv name args
-    glob'   <- readIORef $ envGlobal env
-    globRef <- newIORef (glob `unionPads` glob')
+    globRef <- liftSTM $ do
+        glob' <- readTVar $ envGlobal env
+        newTVar (glob `unionPads` glob')
     runEnv env{ envBody = ast, envGlobal = globRef, envDebug = Nothing }
 
 runComp :: Eval Val -> IO Val
@@ -46,7 +47,7 @@ runComp comp = do
 
 prepareEnv :: VStr -> [VStr] -> IO Env
 prepareEnv name args = do
-    let confHV = [ (k, VStr v) | (k, v) <- Map.toList config ]
+    let confHV = Map.map VStr config
     exec    <- getArg0
     libs    <- getLibs
     pid     <- getProcessID

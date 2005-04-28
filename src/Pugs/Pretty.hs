@@ -58,7 +58,7 @@ instance Pretty (Val, Val) where
 instance Pretty (Exp, SourcePos) where
     format (x, _) = format x 
 
-instance Pretty (IORef VRef) where
+instance Pretty (TVar VRef) where
     format x = braces $ text $ "ref:" ++ show x
 
 instance Pretty VRef where
@@ -106,7 +106,7 @@ instance Pretty Val where
     format t@(VThread _) = text $ vCast t
     format (VSocket x) = text $ show x
     -- format (MVal v) = text $ unsafePerformIO $ do
-    --     val <- readIORef v
+    --     val <- readTVar v
     --     return $ pretty val
     format (VRule _) = text $ "{rule}"
     format (VSubst _) = text $ "{subst}"

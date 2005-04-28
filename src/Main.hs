@@ -92,7 +92,7 @@ dump = (doParseWith $ \env _ -> print $ envBody env) "-"
 
 dumpGlob :: String -> IO ()
 dumpGlob = (doParseWith $ \env _ -> do
-    glob <- readIORef $ envGlobal env
+    glob <- liftSTM $ readTVar $ envGlobal env
     print $ userDefined glob) "-"
 
 userDefined :: Pad -> Pad
@@ -104,8 +104,7 @@ userDefined (MkPad pad) = MkPad $ Map.filterWithKey doFilter pad
 repLoop :: IO ()
 repLoop = do
     initializeShell
-    env <- tabulaRasa >>= newIORef
-    modifyIORef env $ \e -> e{ envDebug = Nothing }
+    env <- liftSTM . newTVar . (\e -> e{ envDebug = Nothing }) =<< tabulaRasa
     fix $ \loop -> do
         command <- getCommand
         case command of
@@ -114,7 +113,7 @@ repLoop = do
             CmdRun opts prog  -> doRunSingle env opts prog >> loop
             CmdParse prog     -> doParse "<interactive>" prog >> loop
             CmdHelp           -> printInteractiveHelp >> loop
-            CmdReset          -> tabulaRasa >>= writeIORef env >> loop
+            CmdReset          -> tabulaRasa >>= (liftSTM . writeTVar env) >> loop
 
 tabulaRasa :: IO Env
 tabulaRasa = prepareEnv "<interactive>" []
@@ -130,9 +129,10 @@ doExternal mod = doParseWith $ \env _ -> do
 
 doCompile :: [Char] -> FilePath -> String -> IO ()
 doCompile backend = doParseWith $ \env _ -> do
-    glob    <- readIORef $ envGlobal env
-    globRef <- newIORef $ userDefined glob
-    str  <- compile backend env{ envGlobal = globRef }
+    globRef <- liftSTM $ do
+        glob <- readTVar $ envGlobal env
+        newTVar $ userDefined glob
+    str     <- compile backend env{ envGlobal = globRef }
     writeFile "dump.ast" str
 
 doParseWith :: (Env -> FilePath -> IO a) -> FilePath -> String -> IO a
@@ -153,39 +153,39 @@ doParse name prog = do
         (Val err@(VError _ _)) -> putStrLn $ pretty err
         exp -> putStrLn $ pretty exp
 
-doLoad :: IORef Env -> String -> IO ()
+doLoad :: TVar Env -> String -> IO ()
 doLoad env fn = do
     runImperatively env (evaluate exp)
     return ()
     where
     exp = App "&require" [] [Val $ VStr fn]
 
-doRunSingle :: IORef Env -> RunOptions -> String -> IO ()
+doRunSingle :: TVar Env -> RunOptions -> String -> IO ()
 doRunSingle menv opts prog = (`catch` handler) $ do
     exp     <- makeProper =<< parse
     env     <- theEnv
     rv      <- runImperatively env (evaluate exp)
     result  <- case rv of
         VControl (ControlEnv env') -> do
-            glob    <- readIORef $ envGlobal env'
+            glob    <- liftSTM . readTVar $ envGlobal env'
             ref     <- findSymRef "$*_" glob
             val     <- runEval env' $ readRef ref
-            writeIORef menv env'
+            liftSTM $ writeTVar menv env'
             return val
         _ -> return rv
     printer env result
     where
     parse = do
-        env <- readIORef menv
+        env <- liftSTM $ readTVar menv
         runRule env (return . envBody) ruleProgram "<interactive>" (decodeUTF8 prog)
     theEnv = do
         ref <- if runOptSeparately opts
-                then tabulaRasa >>= newIORef
+                then (liftSTM . newTVar) =<< tabulaRasa
                 else return menv
         debug <- if runOptDebug opts
-                then liftM Just (newIORef Map.empty)
+                then fmap Just (liftSTM $ newTVar Map.empty)
                 else return Nothing
-        modifyIORef ref $ \e -> e{ envDebug = debug }
+        liftSTM $ modifyTVar ref $ \e -> e{ envDebug = debug }
         return ref
     printer env = if runOptShowPretty opts
         then \val -> do
@@ -205,13 +205,13 @@ doRunSingle menv opts prog = (`catch` handler) $ do
         putStrLn "Internal error while running expression:"
         putStrLn $ ioeGetErrorString err
 
-runImperatively :: IORef Env -> Eval Val -> IO Val
+runImperatively :: TVar Env -> Eval Val -> IO Val
 runImperatively menv eval = do
-    env <- readIORef menv
+    env <- liftSTM $ readTVar menv
     runEval env $ do
         val <- eval
         newEnv <- ask
-        liftIO $ writeIORef menv newEnv
+        liftSTM $ writeTVar menv newEnv
         return val
 
 doRun :: String -> [String] -> String -> IO ()

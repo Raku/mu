@@ -38,6 +38,7 @@ module Pugs.Internals (
     module Control.Monad.RWS,
     module Control.Monad.Error,
     module Control.Concurrent,
+    module Control.Concurrent.STM,
     module Data.Array,
     module Data.Bits,
     module Data.List,
@@ -63,6 +64,9 @@ module Pugs.Internals (
     forM_,
     tryIO,
     combine,
+    liftSTM,
+    modifyTVar,
+    unsafePerformSTM,
 ) where
 
 import UTF8
@@ -93,6 +97,7 @@ import Control.Exception (catchJust, errorCalls)
 import Control.Monad.RWS
 import Control.Monad.Error (MonadError(..))
 import Control.Concurrent
+import Control.Concurrent.STM
 import Data.Bits hiding (shift)
 import Data.Maybe
 import Data.Either
@@ -170,3 +175,15 @@ tryIO :: (MonadIO m) => a -> IO a -> m a
 tryIO err = liftIO . (`catch` (const $ return err))
 
 combine = foldr (.) id
+
+liftSTM :: (MonadIO m) => STM a -> m a
+liftSTM = liftIO . atomically
+
+unsafePerformSTM :: STM a -> a
+unsafePerformSTM = unsafePerformIO . atomically
+
+modifyTVar :: TVar a -> (a -> a) -> STM ()
+modifyTVar var f = do
+    x <- readTVar var
+    writeTVar var (f x)
+

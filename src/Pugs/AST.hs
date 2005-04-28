@@ -78,15 +78,6 @@ retEmpty = do
         (return $ VList [])
         (return VUndef)
 
-{-
-ifContextIsa :: (MonadReader Env m) => Cxt -> m t -> m t -> m t
-ifContextIsa c trueM falseM = do
-    Env{ envClasses = cls, envContext = cxt } <- ask
-    if isaType cls c cxt
-        then trueM
-        else falseM
--}
-
 evalValType :: Val -> Eval Type
 evalValType (VRef r) = do
     cls <- asks envClasses
@@ -159,10 +150,17 @@ instance Value VPair where
             [x, y]  -> return (x, y)
             _       -> castFail v
 
+instance Value [(VStr, Val)] where
+     fromVal v = do
+         list <- fromVal v
+         forM list $ \(k, v) -> do
+             str <- fromVal k
+             return (str, v)
+
 instance Value VHash where
     fromVal v = do
         list <- fromVal v
-        forM list $ \(k, v) -> do
+        fmap Map.fromList $ forM list $ \(k, v) -> do
             str <- fromVal k
             return (str, v)
 
@@ -262,7 +260,7 @@ instance Value VStr where
         if vt /= mkType "Hash" then fromVal' v else do
         --- XXX special case for Hash -- need to Objectify
         hv      <- join $ doHash v Hash.fetch
-        lns     <- forM hv $ \(k, v) -> do
+        lns     <- forM (Map.assocs hv) $ \(k, v) -> do
             str <- fromVal v
             return $ k ++ "\t" ++ str
         return $ unlines lns
@@ -311,9 +309,6 @@ instance Value VList where
     fromVal v = fromVal' v
     castV = VList
     vCast (VList l)     = l
-    -- vCast (VArray l)    = IntMap.elems l
-    -- vCast (VHash h)     = [ VPair (VStr k, v) | (k, v) <- Map.assocs h ]
-    -- vCast (MVal v)      = vCast $ castV v
     vCast (VUndef)      = [VUndef]
     vCast v             = [v]
 
@@ -384,7 +379,7 @@ intCast x   = fromIntegral (vCast x :: VInt)
 type VList = [Val]
 type VSubst = (VRule, Exp)
 type VArray = [Val]
-type VHash = [(VStr, Val)]
+type VHash = Map VStr Val
 newtype VThunk = MkThunk (Eval Val)
     deriving (Typeable)
 newtype VProcess = MkProcess (ProcessHandle)
@@ -532,7 +527,7 @@ mkSub = MkCode
     }
 
 instance Ord VComplex where {- ... -}
-instance (Typeable a) => Show (IORef a) where
+instance (Typeable a) => Show (TVar a) where
     show _ = "<ref>"
 
 data Exp
@@ -660,12 +655,12 @@ defaultArrayParam   = buildParam "" "*" "@_" (Val VUndef)
 defaultHashParam    = buildParam "" "*" "%_" (Val VUndef)
 defaultScalarParam  = buildParam "" "*" "$_" (Val VUndef)
 
-type DebugInfo = Maybe (IORef (Map String String))
+type DebugInfo = Maybe (TVar (Map String String))
 
 data Env = Env { envContext :: !Cxt                 -- Current context
                , envLValue  :: !Bool                -- LValue context?
                , envLexical :: !Pad                 -- Lexical pad
-               , envGlobal  :: !(IORef Pad)         -- Global pad
+               , envGlobal  :: !(TVar Pad)         -- Global pad
                , envClasses :: !ClassTree           -- Current class tree
                , envEval    :: !(Exp -> Eval Val)   -- Active evaluator
                , envCaller  :: !(Maybe Env)         -- Caller's env
@@ -683,7 +678,7 @@ envWant env =
     showCxt (CxtItem typ)   = "Scalar (" ++ showType typ ++ ")"
     showCxt (CxtSlurpy typ) = "List (" ++ showType typ ++ ")"
 
-newtype Pad = MkPad (Map Var [IORef VRef])
+newtype Pad = MkPad (Map Var [TVar VRef])
     deriving (Eq, Ord, Typeable)
 
 instance Show Pad where
@@ -692,13 +687,13 @@ instance Show Pad where
                 "])"
         where
         dump (n, ioRefs) = "(" ++ show n ++ ", [" ++
-                            concat (intersperse ", " $ map dumpIORef ioRefs) ++
+                            concat (intersperse ", " $ map dumpTVar ioRefs) ++
                             "])"
-        dumpIORef ioRef = unsafePerformIO $ do
-            ref  <- readIORef ioRef
+        dumpTVar ioRef = unsafePerformIO $ do
+            ref  <- liftSTM $ readTVar ioRef
             dump <- (`runReaderT` undefined) $ (`runContT` return) $ resetT $ do
                 dumpRef ref
-            return $ "unsafePerformIO (newIORef " ++ vCast dump ++ ")"
+            return $ "unsafePerformIO (newTVar " ++ vCast dump ++ ")"
 
 mkPad = MkPad . Map.fromList
 lookupPad key (MkPad map) = Map.lookup key map
@@ -706,12 +701,12 @@ padToList (MkPad map) = Map.assocs map
 diffPads (MkPad map1) (MkPad map2) = MkPad $ Map.difference map1 map2
 unionPads (MkPad map1) (MkPad map2) = MkPad $ Map.union map1 map2
 
-genMultiSym name ref = liftIO $ do
-    ioRef <- newIORef ref
+genMultiSym name ref = do
+    ioRef <- liftSTM $ newTVar ref
     return $ \(MkPad map) -> MkPad $ Map.insertWith (++) name [ioRef] map
 
-genSym name ref = liftIO $ do
-    ioRef <- newIORef ref
+genSym name ref = do
+    ioRef <- liftSTM $ newTVar ref
     return $ \(MkPad map) -> MkPad $ Map.insert name [ioRef] map
 
 show' :: (Show a) => a -> String
@@ -734,41 +729,25 @@ runEval env eval = withSocketsDo $ do
 findSymRef :: (MonadIO m) => String -> Pad -> m VRef
 findSymRef name pad = do
     case findSym name pad of
-        Just ref -> liftIO $ readIORef ref
+        Just ref -> liftSTM $ readTVar ref
         Nothing  -> fail $ "oops, can't find " ++ name
 
-findSym :: String -> Pad -> Maybe (IORef VRef)
+findSym :: String -> Pad -> Maybe (TVar VRef)
 findSym name pad = case lookupPad name pad of
     Just (x:_)  -> Just x
     _           -> Nothing
 
-{-
-cloneEnv env@Env{ envLexical = lex, envGlobal = globRef } = liftIO $ do
-    glob     <- readIORef globRef
-    lex'     <- sequence $ fmap readIORef lex
-    glob'    <- sequence $ fmap readIORef glob
-    globRef' <- newIORef glob'
-    return $ env{ envLexical = lex', envGlobal = globRef' }
-
-symRef sym = liftIO . readIORef $ symVar sym
-
-cloneSym ref = readIORef
-    rea
-    genSym (symName sym) =<< symRef sym
--}
-
-
 askGlobal :: Eval Pad
 askGlobal = do
     glob <- asks envGlobal
-    liftIO $ readIORef glob
+    liftSTM $ readTVar glob
 
 writeVar :: Var -> Val -> Eval ()
 writeVar name val = do
     glob <- askGlobal
     case findSym name glob of
         Just ioRef -> do
-            ref <- liftIO $ readIORef ioRef
+            ref <- liftSTM $ readTVar ioRef
             writeRef ref val
         _        -> return () -- XXX Wrong
 
@@ -777,7 +756,7 @@ readVar name = do
     glob <- askGlobal
     case findSym name glob of
         Just ioRef -> do
-            ref <- liftIO $ readIORef ioRef
+            ref <- liftSTM $ readTVar ioRef
             readRef ref
         _        -> return undef
 
@@ -855,19 +834,9 @@ naturalOrRat  = (<?> "number") $ do
         power e | e < 0      = 1 % (10^abs(e))
                 | otherwise  = (10^e) % 1
 
-    -- sign            :: CharParser st (Integer -> Integer)
     sign            =   (char '-' >> return False) 
                     <|> (char '+' >> return True)
                     <|> return True
-
-{-
-    nat             = zeroNumber <|> decimalLiteral
-        
-    zeroNumber      = do{ char '0'
-                        ; hexadecimal <|> decimal <|> octalBad <|> octal <|> decimalLiteral <|> return 0
-                        }
-                      <?> ""       
--}
 
     decimalLiteral         = number 10 digit        
     hexadecimal     = do{ char 'x'; number 16 hexDigit }
@@ -876,7 +845,6 @@ naturalOrRat  = (<?> "number") $ do
     octalBad        = do{ many1 octDigit ; fail "0100 is not octal in perl6 any more, use 0o100 instead." }
     binary          = do{ char 'b'; number 2 (oneOf "01")  }
 
-    -- number :: Integer -> CharParser st Char -> CharParser st Integer
     number base baseDigit
         = do{ digits <- many1 baseDigit
             ; let n = foldl (\x d -> base*x + toInteger (digitToInt d)) 0 digits
@@ -913,7 +881,7 @@ readRef (MkRef (ICode cv)) = do
     return $ VCode vsub
 readRef (MkRef (IHash hv)) = do
     pairs <- Hash.fetch hv
-    return $ VList $ map (\(k, v) -> castV (castV k, v)) pairs
+    return $ VList $ map (\(k, v) -> castV (castV k, v)) (Map.assocs pairs)
 readRef (MkRef (IArray av)) = do
     vals <- Array.fetch av
     return $ VList vals
@@ -948,14 +916,14 @@ clearRef (MkRef (IThunk tv)) = clearRef =<< fromVal =<< Thunk.force tv
 clearRef r = retError "cannot clearRef" (Val $ VRef r)
 
 newObject :: (MonadIO m) => Type -> m VRef
-newObject (MkType "Scalar") = liftIO $
-    return . scalarRef =<< newIORef undef
-newObject (MkType "Array")  = liftIO $
-    return . arrayRef =<< (newIORef [] :: IO IArray)
+newObject (MkType "Scalar") = liftSTM $
+    fmap scalarRef $ newTVar undef
+newObject (MkType "Array")  = liftSTM $
+    fmap arrayRef $ (newTVar [] :: STM IArray)
 newObject (MkType "Hash")   = liftIO $
-    return . hashRef =<< (HTable.new (==) HTable.hashString :: IO IHash)
-newObject (MkType "Code")   = liftIO $
-    return . codeRef =<< newIORef mkSub
+    fmap hashRef $ (HTable.new (==) HTable.hashString :: IO IHash)
+newObject (MkType "Code")   = liftSTM $
+    fmap codeRef $ newTVar mkSub
 newObject typ = fail ("Cannot create object: " ++ showType typ)
 
 -- XXX: Refactor doHash and doArray into one -- also see Eval's [] and {}
@@ -1055,7 +1023,7 @@ instance Eq (IVar a) where
     (==) = const $ const False
 instance Ord (IVar a) where
     compare _ _ = EQ
-instance Ord (IORef a) where
+instance Ord (TVar a) where
     compare _ _ = EQ
 instance (Typeable a) => Show (IVar a) where
     show v = show (MkRef v)
@@ -1068,12 +1036,10 @@ thunkRef x  = MkRef (IThunk x)
 pairRef x   = MkRef (IPair x)
 
 newScalar :: (MonadIO m) => VScalar -> m (IVar VScalar)
-newScalar = liftIO . (return . IScalar =<<) . newIORef
+newScalar = liftSTM . (fmap IScalar) . newTVar
 
 newArray :: (MonadIO m) => VArray -> m (IVar VArray)
-newArray vals = liftIO $ do
-    av      <- newIORef (map lazyScalar vals)
-    return $ IArray av
+newArray vals = liftSTM . fmap IArray $ newTVar (map lazyScalar vals)
 
 newHandle :: (MonadIO m) => VHandle -> m (IVar VHandle)
 newHandle = return . IHandle
@@ -1126,7 +1092,7 @@ instance Hash.Class (IVar VPair) where
     fetch pv = do
         (k, v)  <- readIVar pv
         str     <- fromVal k
-        return [(str, v)]
+        return $ Map.singleton str v
     fetchVal pv idx = do
         (k, v)  <- readIVar pv
         str     <- fromVal k
@@ -1139,8 +1105,8 @@ instance Hash.Class (IVar VPair) where
 instance Hash.Class VHash where
     iType = const $ mkType "Hash::Const"
     fetch = return
-    fetchKeys = return . map fst
-    fetchVal hv idx = return . maybe undef id $ lookup idx hv
+    fetchKeys = return . Map.keys
+    fetchVal hv idx = return $ Map.findWithDefault undef idx hv
     clear _ = retConstError undef
     store _ _ = retConstError undef
     storeVal _ _ _ = retConstError undef
@@ -1169,7 +1135,7 @@ instance Hash.Class IHashEnv where
     iType = const $ mkType "Hash::Env"
     fetch _ = do
         envs <- liftIO getEnvironment
-        return [ (k, VStr v) | (k, v) <- envs ]
+        return . Map.map VStr $ Map.fromList envs
     fetchVal _ key = tryIO undef $ do
         str <- getEnv key
         return $ VStr str
@@ -1185,7 +1151,7 @@ instance Hash.Class IHashEnv where
 instance Hash.Class IHash where
     fetch hv = do
         pairs <- liftIO $ HTable.toList hv
-        forM pairs $ \(key, sv) -> do
+        fmap Map.fromList $ forM pairs $ \(key, sv) -> do
             val <- readIVar sv
             return (key, val)
     fetchKeys hv = do
@@ -1216,61 +1182,61 @@ instance Array.Class IArraySlice where
 instance Array.Class IArray where
     store av vals = do
         let svList = map lazyScalar vals
-        liftIO $ writeIORef av svList
+        liftSTM $ writeTVar av svList
     fetchSize av = do
-        svList <- liftIO $ readIORef av
+        svList <- liftSTM $ readTVar av
         return $ length svList
     storeSize av sz = do
-        liftIO . modifyIORef av $ take sz . (++ repeat lazyUndef)
+        liftSTM $ modifyTVar av $ take sz . (++ repeat lazyUndef)
     shift av = do
-        svList <- liftIO $ readIORef av
+        svList <- liftSTM $ readTVar av
         case svList of
             (sv:rest) -> do
-                liftIO $ writeIORef av rest
+                liftSTM $ writeTVar av rest
                 readIVar sv
             _ -> return undef
     unshift av vals = do
-        liftIO $ modifyIORef av
+        liftSTM $ modifyTVar av
             (map lazyScalar vals ++)
     extendSize _ 0 = return ()
     extendSize av sz = do
-        liftIO . modifyIORef av $ \svList ->
+        liftSTM . modifyTVar av $ \svList ->
             if null $ drop (sz-1) svList
                 then take sz (svList ++ repeat lazyUndef)
                 else svList
     fetchVal av idx = do
         readIVar =<< getIndex idx (Just $ constScalar undef)
-            (liftIO $ readIORef av) 
+            (liftSTM $ readTVar av) 
             Nothing -- don't bother extending
     fetchKeys av = do
-        svList <- liftIO $ readIORef av
+        svList <- liftSTM $ readTVar av
         return $ zipWith const [0..] svList
     fetchElem av idx = do
         sv <- getIndex idx Nothing
-            (liftIO $ readIORef av) 
+            (liftSTM $ readTVar av) 
             (Just (Array.extendSize av $ idx+1))
         if refType (MkRef sv) == mkType "Scalar::Lazy"
             then do
                 val <- readIVar sv
                 sv' <- newScalar val
-                liftIO . modifyIORef av $ \svList ->
+                liftSTM . modifyTVar av $ \svList ->
                     let idx' = idx `mod` length svList in
                     take idx' svList ++ (sv' : drop (idx'+1) svList)
                 return sv'
             else return sv
     existsElem av idx | idx < 0 = Array.existsElem av (abs idx - 1)
     existsElem av idx = do
-        svList <- liftIO $ readIORef av
+        svList <- liftSTM $ readTVar av
         return . not . null $ drop idx svList
     deleteElem av idx = do
-        liftIO . modifyIORef av $ \svList ->
+        liftSTM . modifyTVar av $ \svList ->
             let idx' | idx < 0   = idx `mod` length svList -- XXX wrong; wraparound
                      | otherwise = idx in
             if null $ drop (idx' + 1) svList
                 then take idx' svList
                 else take idx' svList ++ (lazyUndef : drop (idx'+1) svList)
     storeElem av idx sv = do
-        liftIO . modifyIORef av $ \svList ->
+        liftSTM . modifyTVar av $ \svList ->
             let idx' | idx < 0   = idx `mod` length svList -- XXX wrong; wraparound
                      | otherwise = idx in
             take idx svList ++ (sv : drop (idx'+1) svList)
@@ -1280,8 +1246,8 @@ instance Handle.Class IHandle where
     store = error "store"
 
 instance Scalar.Class IScalar where
-    fetch = liftIO . readIORef
-    store = (liftIO .) . writeIORef
+    fetch = liftSTM . readTVar
+    store = (liftSTM .) . writeTVar
 
 instance Scalar.Class IScalarLazy where
     iType = const $ mkType "Scalar::Lazy"
@@ -1304,14 +1270,14 @@ instance Scalar.Class VScalar where
     store _ v = retConstError v
 
 instance Code.Class ICode where
-    iType c  = Code.iType . unsafePerformIO $ readIORef c
-    fetch    = liftIO . readIORef
-    store    = (liftIO .) . writeIORef
+    iType c  = Code.iType . unsafePerformSTM $ readTVar c
+    fetch    = liftSTM . readTVar
+    store    = (liftSTM .) . writeTVar
     assuming c [] [] = Code.fetch c
     assuming _ _ _   = undefined
     apply    = error "apply"
-    assoc c  = Code.assoc . unsafePerformIO $ readIORef c
-    params c = Code.params . unsafePerformIO $ readIORef c
+    assoc c  = Code.assoc . unsafePerformSTM $ readTVar c
+    params c = Code.params . unsafePerformSTM $ readTVar c
 
 instance Code.Class VCode where
     -- XXX - subType should really just be a mkType itself
@@ -1333,11 +1299,12 @@ instance Thunk.Class VThunk where
 
 retConstError v = retError "Can't modify constant item" (Val v)
 
-type IArray  = IORef [IVar VScalar]
+type IArray  = TVar [IVar VScalar]
 type IArraySlice = [IVar VScalar]
 type IHash   = HTable.HashTable VStr (IVar VScalar)
-type IScalar = IORef Val
-type ICode   = IORef VCode
+-- type IHash   = TVar (Map VStr (IVar VScalar))
+type IScalar = TVar Val
+type ICode   = TVar VCode
 data IHashEnv deriving (Typeable) -- phantom types! fun!
 data IScalarCwd deriving (Typeable) -- phantom types! fun!
 type IScalarProxy = (Eval VScalar, (VScalar -> Eval ()))
@@ -1345,7 +1312,7 @@ type IScalarLazy = Maybe VScalar
 
 -- these implementation allows no destructions
 type IRule   = VRule
-type IHandle = VHandle -- XXX maybe IORef?
+type IHandle = VHandle -- XXX maybe TVar?
 
 instance Show IHash   where show _ = "{hash}"
 -- instance Show IArray  where show _ = "{array}"

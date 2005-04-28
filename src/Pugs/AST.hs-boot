@@ -18,7 +18,7 @@ import Pugs.Internals
 type VScalar = Val
 type VList = [Val]
 type VSubst = (VRule, Exp)
-type VHash = [(VStr, Val)]
+type VHash = Map VStr Val
 type VArray = [Val]
 type Eval x = ContT Val (ReaderT Env IO) x
 type VPair = (Val, Val)
@@ -35,7 +35,7 @@ data Param
 data Scope
 
 newtype VThunk = MkThunk (Eval Val)
-newtype Pad = MkPad (Map Var [IORef VRef])
+newtype Pad = MkPad (Map Var [TVar VRef])
 
 data Exp
     = Noop
