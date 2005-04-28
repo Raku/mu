@@ -68,10 +68,20 @@ sub set_postamble {
 	  $ghc_flags .= ' -DPUGS_HAVE_HSPLUGINS=1';
 	}
 
-# XXX - this probing is incorrect.
-#	if (has_ghc_package('readline')) {
-#	  $ghc_flags .= ' -package readline';
-#	}
+    if (has_ghc_package('readline') 
+        and  try_compile('import System.Console.Readline;'
+                        .'main = readline "" >> return ()')) 
+    {
+      $ghc_flags .= ' -DPUGS_HAVE_READLINE=1 -package readline';
+    } else {
+      warn << '.';
+
+*** Readline support disabled.  If you want readline support,
+    please install the GNU readline library.
+
+.
+    }
+        
 
     my $ghc_output = "-o pugs$Config{_exe} src/Main.hs";
     my $hasktags = $ENV{HASKTAGS} || 'hasktags';
