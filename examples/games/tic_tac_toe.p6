@@ -2,55 +2,53 @@
 
 use v6;
 
-sub print_board (Array @b) returns Void {
+sub print_board (@b) returns Void {
     say "+---+---+---+";
-    for (@b) -> $x, $y, $z {
-        say "| $x | $y | $z |
-+---+---+---+";
+    for @b -> $x, $y, $z {
+        say "| $x | $y | $z |";
+        say "+---+---+---+";
     }
 }
 
-my @g = ('.') xx 9;
-
-print_board( @g );
-
-my %player = ('X' => 'Player 1', 'O' => 'Player 2');
+my %player  = ( X => 'Player 1', O => 'Player 2' );
 my $entered = any();
-my $choice = any(0 .. 8);
+my $choice  = any(0 .. 8);
 
 my $player = 'X';
-while (any(@g) eq '.') {
-    
-    say %player{$player} ~ " Enter the Position [1-9]:";
+my @board   = '.' xx 9;
+
+print_board @board;
+
+while (any(@board) eq '.') {
+    say %player{$player} ~ ": Enter the Position [1-9]:";
+
     my $idx = =$IN - 1;
 
-    unless $idx == $choice {
-        say "Please enter a value within 1-9";   
+    if (not ($idx == $choice)) {
+        say "*** Please enter a value within 1-9";
     }
-    else {  
-        if $idx == $entered {
-            say "Element already entered at { $idx + 1 }";
-        }
-        else {
-            @g[$idx] = $player;
-            $entered = any($entered.values, $idx); # rebuild the junction            
+    elsif $idx == $entered {
+        say "*** Element already entered at { $idx + 1 }";
+    }
+    else {
+        $entered |= $idx;
+        @board[$idx] = $player;
 
-            for (
-                [ 0, 1, 2 ], [ 3, 4, 5 ], 
-                [ 6, 7, 8 ], [ 0, 3, 6 ], 
-                [ 1, 4, 7 ], [ 2, 5, 8 ], 
-                [ 0, 4, 8 ], [ 2, 4, 6 ]
-            ) -> $c {
-                if @g[$c].join("") eq ('XXX' | 'OOO') {
-                    print_board( @g );
-                    say "  " ~ %player{$player} ~ " Wins \n";
-                    exit();
-                }
+        for (
+            [ 0, 1, 2 ], [ 3, 4, 5 ],
+            [ 6, 7, 8 ], [ 0, 3, 6 ],
+            [ 1, 4, 7 ], [ 2, 5, 8 ],
+            [ 0, 4, 8 ], [ 2, 4, 6 ]
+        ) -> $c {
+            if @board[$c].join('') ~~ ('XXX' | 'OOO') {
+                print_board @board;
+                say "*** %player{$player} Wins!\n";
+                exit;
             }
-
-            print_board( @g );
-            $player = $player eq 'X' ?? 'O' :: 'X';
         }
+
+        print_board @board;
+        $player = ($player eq 'X') ?? 'O' :: 'X';
     }
 }
 
@@ -68,9 +66,11 @@ This is a perl6 implementation of the classic Tic-Tac-Toe game.
 
 mkirank L<http://www.perlmonks.org/index.pl?node_id=451261>
 
-rob kinyon L<http://www.perlmonks.org/index.pl?node_id=451302>
+Rob Kinyon L<http://www.perlmonks.org/index.pl?node_id=451302>
 
-stevan little, E<lt>stevan@iinteractive.comE<gt> 
+Stevan Little, E<lt>stevan@iinteractive.comE<gt>
+
+Autrijus Tang
 
 =cut
 
