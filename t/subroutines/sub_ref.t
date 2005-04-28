@@ -4,7 +4,7 @@ use v6;
 
 use Test;
 
-plan 27;
+plan 31;
 force_todo 5, 8, 10, 13, 26, 27;
 
 =head1 DESCRIPITION
@@ -76,4 +76,17 @@ See L<S06/"Types"> for more information about Code, Routine, Sub, Block, etc.
     ok($!, "calling an anonymous sub expecting a param without a param dies");
     try{ $foo.(42, 5) };
     ok($!, "calling an anonymous sub expecting one param with two params dies");
+}
+
+sub mkinc { my $x = 0; return sub { $x++ }; }
+
+{
+my $inc1 = mkinc();
+my $inc2 = mkinc();
+
+is($inc1(), 0, "inc1 == 0");
+is($inc1(), 1, "inc1 == 1");
+is($inc2(), 0, "inc2 == 0");
+is($inc2(), 1, "inc2 == 1");
+
 }
