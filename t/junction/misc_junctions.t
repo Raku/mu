@@ -140,14 +140,17 @@ L<S03/"Junctive operators">
 
 Tests junction examples from Synopsis 03 
 
-Tests use .perl representation for checking until a better way presents itself
+j() is used to convert a junction to canonical string form, currently
+just using .perl until a better approach presents itself.
 
 L<S03/"Junctive operators">
 
 =cut
 
 # Canonical stringification of a junction
-sub j (*@j is Junction) { return map { $_.perl } @j; }
+sub j (*@j is Junction) { 
+    return map { $_.perl } @j;
+}
 
 {
     # L<S03/"Junctive operators"/"They thread through operations">
@@ -254,23 +257,17 @@ L<S03/"Junctive operators"/"They thread through operations">
 
 # Check functional and operator versions produce the same structure
 {
-    my ($got, $want);
-    $got = ((1|2)^(3&4)).perl;
-    $want = one(any(1,2),all(3,4)).perl;
-    is($got, $want, '((1|2)^(3&4)) equiv to one(any(1,2),all(3,4))');
+    is(j((1|2)^(3&4)), j(one(any(1,2),all(3,4))),
+        '((1|2)^(3&4)) equiv to one(any(1,2),all(3,4))');
 
-    $got = ((1|2)!(3&4)).perl;
-    $want = none(any(1,2),all(3,4)).perl;
-    is($got, $want, '((1|2)!(3&4)) equiv to none(any(1,2),all(3,4))');
+    is(j((1|2)!(3&4)), j(none(any(1,2),all(3,4))),
+        '((1|2)!(3&4)) equiv to none(any(1,2),all(3,4))');
 
-    $got = ((1|2)&(3&4)).perl;
-    $want = all(any(1,2),all(3,4)).perl;
-    is($got, $want, '((1|2)!(3&4)) equiv to all(any(1,2),all(3,4))');
+    is(j((1|2)&(3&4)), j(all(any(1,2),all(3,4))), 
+        '((1|2)!(3&4)) equiv to all(any(1,2),all(3,4))');
 
-    $got = ((1|2)|(3&4)).perl;
-    $want = any(any(1,2),all(3,4)).perl;
-    is($got, $want, '((1|2)|(3&4)) equiv to any(any(1,2),all(3,4))');
-
+    is(j((1|2)|(3&4)), j(any(any(1,2),all(3,4))),
+        '((1|2)|(3&4)) equiv to any(any(1,2),all(3,4))');
 }
 
 is(none(1).pick, undef, 'none(1).pick should be undef');
