@@ -14,7 +14,7 @@ L<S04/"The C<for> statement">
 
 =cut
 
-plan 25;
+plan 27;
 force_todo 3, 4, 7, 8, 13, 14, 17, 18, 20, 22;
 
 ## for with plain old range operator w/out parens
@@ -71,10 +71,16 @@ is($h, '012345', 'for (0 .. 5), &some_sub works');
 
 # ... with implicit topic
 
-for 1 { 
-  is( int(), 1, "Implicit default topic is seen by int()" );
-  is( abs(), 1, "Implicit default topic is seen by abs()" );
+$_ = "GLOBAL VALUE";
+for "INNER VALUE" {
+  is( lc(), "inner value", "Implicit default topic is seen by lc()" );
 };
+is($_,"GLOBAL VALUE","After the loop the implicit topic gets restored");
+
+$_ = "GLOBAL VALUE";
+is( lc(), "inner value", "Implicit default topic is seen by lc()" )
+  for "INNER VALUE";
+is($_,"GLOBAL VALUE","After the loop the implicit topic gets restored");
 
 ## and now for with 'topical' variables
 
@@ -186,5 +192,4 @@ my @list_t = (0..2);
 my @t = (1..3);
 eval 'for @list_t -> $num is rw { $num++ }';
 is(@list_t, @t, 'for @list -> $num is rw { $num++ }', :todo);
-
 
