@@ -39,8 +39,8 @@ while (any(@board) eq '.') {
             [ 6, 7, 8 ], [ 0, 3, 6 ],
             [ 1, 4, 7 ], [ 2, 5, 8 ],
             [ 0, 4, 8 ], [ 2, 4, 6 ]
-        ) -> $c {
-            if @board[$c].join('') ~~ ('XXX' | 'OOO') {
+        ) -> @c {
+            if @board[@c] ~~ (<X X X> | <O O O>) {
                 print_board @board;
                 say "*** %player{$player} Wins!\n";
                 exit;
