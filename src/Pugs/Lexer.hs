@@ -25,7 +25,7 @@ data ParensOption = ParensMandatory | ParensOptional
 perl6Def  = javaStyle
           { P.commentStart   = [] -- "=pod"
           , P.commentEnd     = [] -- "=cut"
-          , P.commentLine    = "#"
+          , P.commentLine    = ""
           , P.nestedComments = False
           , P.identStart     = wordAlpha
           , P.identLetter    = wordAny
