@@ -182,8 +182,7 @@ sub diag (Str $diag) is export {
 
 ## 'private' subs
 
-sub proclaim (Bool $cond, Str ?$desc is copy, Str ?$c, Str ?$got, Str ?$expected) returns Bool {
-    my $context = $c; # no C<is rw> yet
+sub proclaim (Bool $cond, Str ?$desc is copy, Str ?$context is copy, Str ?$got, Str ?$expected) returns Bool {
     $NUM_OF_TESTS_RUN++;
 
     # Check if we have to forcetodo this test 
@@ -193,7 +192,7 @@ sub proclaim (Bool $cond, Str ?$desc is copy, Str ?$c, Str ?$got, Str ?$expected
     # Make all TODO tests fail visibly unless we're releasing.
     if( !$cond and $context eq 'TODO for release' and !%ENV<PUGS_RELEASE> ) {
 	$context = '';
-	$desc = "TODO: $desc";
+	$desc = "TODO for release: $desc";
     }
 
     my $ok := $cond ?? "ok " :: "not ok ";
