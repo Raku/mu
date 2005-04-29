@@ -168,7 +168,7 @@ ruleComment = do
     ruleCommentIntroducer
     (try ruleLineDirective) <|> do
         --trace ("falling back on comment") $ return ()
-        pos <- getPosition
+        --pos <- getPosition
         --trace ((show $ sourceLine pos) ++ ":" ++ (show $ sourceColumn pos)) $ return ()
         skipToLineEnd
         option emptyExp ruleStatementList
