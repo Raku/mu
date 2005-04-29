@@ -14,12 +14,12 @@ ok("a" ne "ab");
 ok("\0" eq "\0");
 
 my $foo;
-ok ($foo eq "");
-ok (!($foo eq "f"));
+ok($foo eq "");
+ok(!($foo eq "f"));
 
 my @foo;
-ok (@foo[0] eq "");
-ok (@foo[0] ne "f");
+ok(@foo[0] eq "");
+ok(@foo[0] ne "f");
 
 @foo = eval '';
-ok (@foo[0] ne "f");
+ok(@foo[0] ne "f");

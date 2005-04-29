@@ -10,32 +10,32 @@ plan 17;
 # test the bit operators '&', '|', '^', '~', '<<', and '>>'
 
 # numerics
-is (0xdead +& 0xbeef, 0x9ead);
-is (0xdead +| 0xbeef, 0xfeef);
-is (0xdead +^ 0xbeef, 0x6042);
-ok (+^0xdead +& 0xbeef == 0x2042);
-# ok (+^(0xdead +& 0xbeef) == 0x2042); # works
+is(0xdead +& 0xbeef, 0x9ead);
+is(0xdead +| 0xbeef, 0xfeef);
+is(0xdead +^ 0xbeef, 0x6042);
+ok(+^0xdead +& 0xbeef == 0x2042);
+# ok(+^(0xdead +& 0xbeef) == 0x2042); # works
 
 # shifts
 ok(32896 == (257 +< 7));
-#ok ((257 +< 7) == 32896); # XXX
+#ok((257 +< 7) == 32896); # XXX
 ok(257 == (33023 +> 7));
-#ok ((33023 +> 7) == 257); # XXX
+#ok((33023 +> 7) == 257); # XXX
 
 # signed vs. unsigned
-#ok ((+^0 +> 0 && do { use integer; ~0 } == -1));
+#ok((+^0 +> 0 && do { use integer; ~0 } == -1));
 
 #my $bits = 0;
 #for (my $i = ~0; $i; $i >>= 1) { ++$bits; }
 #my $cusp = 1 << ($bits - 1);
 
 
-#ok (($cusp & -1) > 0 && do { use integer; $cusp & -1 } < 0);
-#ok (($cusp | 1) > 0 && do { use integer; $cusp | 1 } < 0);
-#ok (($cusp ^ 1) > 0 && do { use integer; $cusp ^ 1 } < 0);
-#ok ((1 << ($bits - 1)) == $cusp &&
+#ok(($cusp & -1) > 0 && do { use integer; $cusp & -1 } < 0);
+#ok(($cusp | 1) > 0 && do { use integer; $cusp | 1 } < 0);
+#ok(($cusp ^ 1) > 0 && do { use integer; $cusp ^ 1 } < 0);
+#ok((1 << ($bits - 1)) == $cusp &&
 #    do { use integer; 1 << ($bits - 1) } == -$cusp);
-#ok (($cusp >> 1) == ($cusp / 2) &&
+#ok(($cusp >> 1) == ($cusp / 2) &&
 #    do { use integer; abs($cusp >> 1) } == ($cusp / 2));
 
 #--
@@ -46,20 +46,20 @@ ok(257 == (33023 +> 7));
 # (for now...)
 
 # short strings
-is ("AAAAA" ~& "zzzzz", '@@@@@');
-is ("AAAAA" ~| "zzzzz", '{{{{{');
-is ("AAAAA" ~^ "zzzzz", ';;;;;');
+is("AAAAA" ~& "zzzzz", '@@@@@');
+is("AAAAA" ~| "zzzzz", '{{{{{');
+is("AAAAA" ~^ "zzzzz", ';;;;;');
 
 # long strings
 my $foo = "A" x 150;
 my $bar = "z" x 75;
 my $zap = "A" x 75;
 # & truncates
-is ($foo ~& $bar, '@' x 75);
+is($foo ~& $bar, '@' x 75);
 # | does not truncate
-is ($foo ~| $bar, '{' x 75 ~ $zap);
+is($foo ~| $bar, '{' x 75 ~ $zap);
 # ^ does not truncate
-is ($foo ~^ $bar, ';' x 75 ~ $zap);
+is($foo ~^ $bar, ';' x 75 ~ $zap);
 
 
 # These ok numbers make absolutely no sense in pugs test suite :)

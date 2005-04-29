@@ -70,9 +70,9 @@ sub mandatory (++$param) {
 }
 
 
-is (mandatory('param' => 5) , 5, "named mandatory parameter is returned");
+is(mandatory('param' => 5) , 5, "named mandatory parameter is returned");
 
-is (eval 'mandatory()', undef, "not specifying a mandatory parameter fails");
+is(eval 'mandatory()', undef, "not specifying a mandatory parameter fails");
 
 
 # From L<S06/"Named parameters" /sub formalize/>
