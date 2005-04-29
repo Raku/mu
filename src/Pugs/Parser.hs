@@ -120,6 +120,10 @@ mergeStmts x@(Syn "sub" [Val (VCode sub)]) y | subType sub >= SubBlock =
     -- bare Block in statement level; run it!
     let app = Syn "()" [x, Syn "invs" [], Syn "args" []] in
     mergeStmts app y
+mergeStmts x y@(Syn "sub" [Val (VCode sub)]) | subType sub >= SubBlock =
+    -- bare Block in statement level; run it!
+    let app = Syn "()" [y, Syn "invs" [], Syn "args" []] in
+    mergeStmts x app
 mergeStmts x (Stmts y Noop) = mergeStmts x y
 mergeStmts x (Stmts Noop y) = mergeStmts x y
 mergeStmts x y = Stmts x y
