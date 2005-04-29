@@ -101,7 +101,7 @@ sub set_postamble {
 
     postamble(fixpaths(<< "."));
 $config_h : lib/Perl6/Pugs.pm util/config_h.pl
-	\$(PERL) util/config_h.pl "$ghc $ghc_flags" 
+	\$(PERL) util/config_h.pl "$ghc $ghc_flags"
 
 $version_h : .svn/entries util/version_h.pl
 	\$(PERL) util/version_h.pl $version_h
@@ -117,6 +117,13 @@ $unicode : $unicode_c
 
 src/Pugs/Config.hs : util/PugsConfig.pm
 	\$(PERL) -Iutil -MPugsConfig -e "PugsConfig->write_config_module" > src/Pugs/Config.hs
+
+%.hpp : %.hs @prereqs
+	$ghc $threaded $ghc_flags -E \$< -o \$@
+	\$(PERL) -i -pe 's/^#.*//' \$@
+
+%.html : %.hpp
+	haddock -vD  \$<
 
 profiled :: src/Pugs/Config.hs @srcfiles $version_h @prereqs
 	$ghc $threaded -auto-all -prof --make $ghc_flags $ghc_output
