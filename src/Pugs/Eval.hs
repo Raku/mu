@@ -210,8 +210,8 @@ reduce env (Var name) = do
         return $ castV ref
     retVal val
 
-reduce env (Stmts this Noop) = reduce env this
-reduce env (Stmts Noop this) = reduce env this
+reduce env (Stmts this rest) | Noop <- unwrap rest = reduce env this
+reduce env (Stmts this rest) | Noop <- unwrap this = reduce env rest
 
 reduce _ (Stmts this rest) = do
     val <- enterContext cxtVoid $ do
@@ -356,7 +356,7 @@ reduce env exp@(Syn name exps) = case name of
             vs  -> VList vs
     ":=" -> do
         let [var, vexp] = exps
-            expand e | e'(Syn "," _) <- unwrap e = e'
+            expand e | e'@(Syn "," _) <- unwrap e = e'
             expand e = Syn "," [e]
         reduce env (Syn ":=" [expand var, expand vexp])
     "=>" -> do
