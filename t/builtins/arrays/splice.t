@@ -57,7 +57,7 @@ sub splice_ok (Array @got, Array @ref, Array @exp, Array @exp_ref, Str $comment)
 @b = splice(@a,+@a,0,11,12);
 
 is( @b, [], "push-via-splice result works" );
-is (@a, ([1..12]), "push-via-splice modification works");
+is( @a, ([1..12]), "push-via-splice modification works");
 
 @a  = ('red', 'green', 'blue');
 is( splice(@a, 1, 2), "blue", "splice() in scalar context returns last element of list");

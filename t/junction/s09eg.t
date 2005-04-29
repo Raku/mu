@@ -17,7 +17,7 @@ plan 3;
 
 my $c = 0;
 
-is (substr("camel", 0, 2),  "ca", "substr()");
+is(substr("camel", 0, 2),  "ca", "substr()");
 
 $c = 0;
 sub my_substr ($str, $i, $j) {
