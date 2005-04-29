@@ -538,7 +538,11 @@ data Pos = MkPos
     , posEndLine        :: !Int
     , posEndColumn      :: !Int
     }
-    deriving (Show, Eq, Ord, Typeable)
+    deriving (Eq, Ord, Typeable)
+
+instance Show Pos where
+    show (MkPos name bln bcl eln ecl) = "(MkPos " ++ show name ++ " " ++
+        (unwords . map show $ [bln, bcl, eln, ecl]) ++ ")"
 
 data Exp
     = Noop

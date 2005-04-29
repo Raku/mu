@@ -26,9 +26,10 @@ import Pugs.Pretty
 ruleProgram :: RuleParser Env
 ruleProgram = rule "program" $ do
     statements <- ruleBlockBody
+    -- error $ show statements
     eof
     env <- getState
-    return $ env { envBody = statements, envStash = "" }
+    return $ env { envBody = mergeStmts emptyExp statements, envStash = "" }
 
 ruleBlock :: RuleParser Exp
 ruleBlock = lexeme ruleVerbatimBlock
@@ -44,9 +45,12 @@ ruleEmptyExp = expRule $ do
 
 expRule rule = do
     pos1 <- getPosition
-    exp <- rule
+    exp  <- rule
     pos2 <- getPosition
-    return $ Pos (mkPos pos1 pos2) exp
+    return $ Pos (mkPos pos1 pos2) (depos exp)
+    where
+    depos (Pos _ x) = x
+    depos x = x
 
 mkPos pos1 pos2 = MkPos
     { posName         = sourceName pos1 
@@ -67,7 +71,7 @@ ruleBlockBody = do
     env'    <- getState
     setState env'{ envLexical = envLexical env }
     return $ case body' of
-        Syn "sub" _ -> mergeStmts body' emptyExp
+        (Pos _ (Syn "sub" _)) -> mergeStmts emptyExp body'
         _           -> body'
 
 ruleStandaloneBlock = tryRule "standalone block" $ do
@@ -116,14 +120,16 @@ mergeStmts (Stmts x1 x2) y = mergeStmts x1 (mergeStmts x2 y)
 mergeStmts Noop y@(Stmts _ _) = y
 mergeStmts (Sym scope name x) y = Sym scope name (mergeStmts x y)
 mergeStmts (Pad scope lex x) y = Pad scope lex (mergeStmts x y)
-mergeStmts x@(Syn "sub" [Val (VCode sub)]) y | subType sub >= SubBlock =
+mergeStmts x@(Pos pos (Syn "sub" [Val (VCode sub)])) y
+    | subType sub >= SubBlock =
     -- bare Block in statement level; run it!
     let app = Syn "()" [x, Syn "invs" [], Syn "args" []] in
-    mergeStmts app y
-mergeStmts x y@(Syn "sub" [Val (VCode sub)]) | subType sub >= SubBlock =
+    mergeStmts (Pos pos app) y
+mergeStmts x y@(Pos pos (Syn "sub" [Val (VCode sub)]))
+    | subType sub >= SubBlock =
     -- bare Block in statement level; run it!
     let app = Syn "()" [y, Syn "invs" [], Syn "args" []] in
-    mergeStmts x app
+    mergeStmts x (Pos pos app)
 mergeStmts x (Stmts y Noop) = mergeStmts x y
 mergeStmts x (Stmts Noop y) = mergeStmts x y
 mergeStmts x y = Stmts x y
@@ -559,7 +565,7 @@ extractHash _ = Nothing
 retBlock SubBlock Nothing exp | Just hashExp <- extractHash exp = return $ Syn "\\{}" [hashExp]
 retBlock typ formal body = retVerbatimBlock typ formal body
 
-retVerbatimBlock typ formal body = do
+retVerbatimBlock typ formal body = expRule $ do
     let (fun, names) = extract body []
         params = (maybe [] id formal) ++ map nameToParam (sort names)
     -- Check for placeholder vs formal parameters
