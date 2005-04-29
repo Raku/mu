@@ -20,15 +20,15 @@ import Pugs.Types
 import qualified Data.Set       as Set
 import qualified Data.Map       as Map
 
-#include "Types/Array.hs"
-#include "Types/Handle.hs"
-#include "Types/Hash.hs"
-#include "Types/Scalar.hs"
-#include "Types/Code.hs"
-#include "Types/Thunk.hs"
-#include "Types/Rule.hs"
-#include "Types/Pair.hs"
-#include "Types/Object.hs"
+{- include "Types/Array.hs" -}
+{- include "Types/Handle.hs" -}
+{- include "Types/Hash.hs" -}
+{- include "Types/Scalar.hs" -}
+{- include "Types/Code.hs" -}
+{- include "Types/Thunk.hs" -}
+{- include "Types/Rule.hs" -}
+{- include "Types/Pair.hs" -}
+{- include "Types/Object.hs" -}
 
 type Ident = String
 
@@ -513,6 +513,7 @@ mkPrim = MkCode
     , subBody = emptyExp
     }
 
+#ifndef HADDOCK
 mkSub = MkCode
     { isMulti = False
     , subName = "&?"
@@ -525,6 +526,7 @@ mkSub = MkCode
     , subReturns = anyType
     , subBody = emptyExp
     }
+#endif
 
 instance Ord VComplex where
     compare (a :+ ai) (b :+ bi) = compare (a, ai) (b, bi)
@@ -1056,6 +1058,7 @@ doArray val f = do
     av  <- fromVal val
     return $ f (av :: VArray)
 
+#ifndef HADDOCK
 data (Typeable v) => IVar v where
     IScalar :: ScalarClass a => a -> IVar VScalar
     IArray  :: ArrayClass  a => a -> IVar VArray
@@ -1085,6 +1088,7 @@ instance Value VOpaque where
     vCast (VOpaque o) = o
     vCast v = MkOpaque v
     castV (MkOpaque x) = castV x
+#endif
 
 readIVar :: IVar v -> Eval v
 readIVar (IScalar x) = scalar_fetch x
@@ -1099,6 +1103,7 @@ writeIVar _ = error "writeIVar"
 
 refType (MkRef x) = object_iType x
 
+#ifndef HADDOCK
 instance Eq VRef where
     (==) = const $ const False
 instance Ord VRef where
@@ -1114,6 +1119,7 @@ instance Ord (TVar a) where
     compare _ _ = EQ
 instance (Typeable a) => Show (IVar a) where
     show v = show (MkRef v)
+#endif
 
 scalarRef x = MkRef (IScalar x)
 codeRef x   = MkRef (ICode x)
@@ -1148,6 +1154,7 @@ constArray = IArray
 
 retConstError val = retError "Can't modify constant item" val
 
+#ifndef HADDOCK
 type IArray  = TVar [IVar VScalar]
 type IArraySlice = [IVar VScalar]
 type IHash   = TVar (Map VStr (IVar VScalar))
@@ -1181,4 +1188,5 @@ instance Typeable1 IVar where
     typeOf1 (IRule   x) = typeOf x
     typeOf1 (IThunk  x) = typeOf x
     typeOf1 (IPair   x) = typeOf x
+#endif
 

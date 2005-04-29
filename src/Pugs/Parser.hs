@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts #-}
+{-# OPTIONS_GHC -fglasgow-exts -cpp #-}
 {-# OPTIONS_GHC -#include "UnicodeC.h" #-}
 
 {-
@@ -938,7 +938,7 @@ ruleVarNameString =   try (string "$!")  -- error variable
                   <|> try ruleMatchVar
                   <|> do
     sigil   <- oneOf "$@%&"
-    -- ^ placeholder, * global, ? magical, . member, : private member
+    --^ \^ placeholder, \* global, \? magical, \. member, \: private member
     caret   <- option "" $ choice $ map string $ words " ^ * ? . : "
     names   <- many1 wordAny `sepBy1` (try $ string "::")
     return $ (sigil:caret) ++ concat (intersperse "::" names)
@@ -1052,6 +1052,7 @@ qInterpolatorPostTerm = try $ do
         ]
 
 qInterpolator :: QFlags -> RuleParser Exp
+#ifndef HADDOCK
 qInterpolator flags = choice [
         closure,
         backslash,
@@ -1098,6 +1099,7 @@ qInterpolator flags = choice [
                     then False -- $ followed by )]# or whitespace
                     else True -- $ followed by anything else is interpolated
             where second = head $ tail var
+#endif
 
 qLiteral = do -- This should include q:anything// as well as '' "" <>
     (qEnd, flags) <- getQDelim

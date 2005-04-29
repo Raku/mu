@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fth #-}
+{-# OPTIONS_GHC -fglasgow-exts -fth -cpp #-}
 
 {-
     Parrot IMC implementation.
@@ -18,7 +18,9 @@ import Language.Haskell.TH
 import Language.Haskell.TH.Ppr
 -- import IMC.Lexer
 
+#ifndef HADDOCK
 run = $( imcX prog )
+#endif
 
 {-
 yow :: String -> IO ()

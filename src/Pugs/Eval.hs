@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts #-}
+{-# OPTIONS_GHC -fglasgow-exts -cpp #-}
 {-# OPTIONS_GHC -#include "UnicodeC.h" #-}
 
 {-
@@ -376,9 +376,11 @@ reduce exp@(Syn name exps) = case name of
         key     <- enterEvalContext cxtItemAny keyExp
         val     <- evalExp valExp
         retVal $ castV (key, val)
+#ifndef HADDOCK
     "*" | [Syn syn [exp]] <- unwrap exps -- * cancels out [] and {}
         , syn == "\\{}" || syn == "\\[]"
         -> enterEvalContext cxtSlurpyAny exp
+#endif
     "*" -> do -- first stab at an implementation
         let [exp] = exps
         val     <- enterRValue $ enterEvalContext cxtSlurpyAny exp
@@ -508,8 +510,10 @@ reduce exp@(Syn name exps) = case name of
             retError "Inline: Unknown language" langVal
         modVal  <- readVar "$?MODULE"
         mod     <- fromVal modVal
+#ifndef HADDOCK
         let file = (`concatMap` mod) $ \v -> case v of
             { '-' -> "__"; _ | isAlphaNum v -> [v] ; _ -> "_" }
+#endif
         op1 "require_haskell" (VStr $ file ++ ".o")
         retEmpty
     syn | last syn == '=' -> do

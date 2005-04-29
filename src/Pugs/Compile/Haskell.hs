@@ -15,6 +15,7 @@ import Pugs.Run
 import Pugs.Prim
 
 genGHC :: Eval Val
+#ifndef HADDOCK
 genGHC = do
     exp <- asks envBody
     liftIO (TH.runQ [d| mainCC = runComp $(compile exp) |]) >>= \str -> return . VStr . unlines $
@@ -30,7 +31,9 @@ genGHC = do
         , ""
         , TH.pprint str
         ]
+#endif
 
+#ifndef HADDOCK
 compile (Stmts stmt rest) = [| do
         $(argC)
         $(argRest)
@@ -57,6 +60,7 @@ compile (Val (VStr s)) = [| return (VStr s) |]
 compile (Val (VBool b)) = [| return (VBool b) |]
 compile Noop = [| return () |]
 compile exp = internalError ("Unrecognized construct: " ++ show exp)
+#endif
 
 #endif
 

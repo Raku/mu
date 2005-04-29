@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fth #-}
+{-# OPTIONS_GHC -fglasgow-exts -fth -cpp #-}
 
 module IMC.Compile where
 
@@ -88,7 +88,9 @@ zzz = do
 
 -- run :: Term a -> IO (Term a)
 -- run program = $( compile [| program |] )
+#ifndef HADDOCK
 foo program = $( compile [| program |] )
+#endif
 
 
 {-
