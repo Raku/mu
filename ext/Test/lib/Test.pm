@@ -191,7 +191,7 @@ sub proclaim (Bool $cond, Str ?$desc is copy, Str ?$c, Str ?$got, Str ?$expected
     $context = "TODO for release" if $NUM_OF_TESTS_RUN == $FORCE_TODO_TEST_JUNCTION;
 
     # Make all TODO tests fail visibly unless we're releasing.
-    if( !$cond and $context eq 'TODO' and !%ENV<PUGS_RELEASE> ) {
+    if( !$cond and $context eq 'TODO for release' and !%ENV<PUGS_RELEASE> ) {
 	$context = '';
 	$desc = "TODO: $desc";
     }
