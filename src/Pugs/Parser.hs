@@ -938,7 +938,7 @@ ruleVarNameString =   try (string "$!")  -- error variable
                   <|> try ruleMatchVar
                   <|> do
     sigil   <- oneOf "$@%&"
-    --^ \^ placeholder, \* global, \? magical, \. member, \: private member
+    -- ^ \^ placeholder, \* global, \? magical, \. member, \: private member
     caret   <- option "" $ choice $ map string $ words " ^ * ? . : "
     names   <- many1 wordAny `sepBy1` (try $ string "::")
     return $ (sigil:caret) ++ concat (intersperse "::" names)

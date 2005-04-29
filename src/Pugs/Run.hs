@@ -72,7 +72,7 @@ prepareEnv name args = do
     argsGV  <- newScalar undef
     errSV   <- newScalar (VStr "")
     defSV   <- newScalar undef
-#if defined(PUGS_HAVE_HSPLUGINS) -}
+#if defined(PUGS_HAVE_HSPLUGINS)
     hspluginsSV <- newScalar (VInt 1)
 #else
     hspluginsSV <- newScalar (VInt 0)
