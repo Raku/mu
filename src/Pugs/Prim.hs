@@ -87,7 +87,7 @@ op1 "undef" = \x -> do
         clearRef ref
     return undef
 op1 "+"    = op1Numeric id
-op1 "abs"  = trop1Numeric abs
+op1 "abs"  = op1Numeric abs
 op1 "cos"  = op1Floating cos
 op1 "sin"  = op1Floating sin
 op1 "tan"  = op1Floating tan
@@ -991,14 +991,6 @@ op1Floating :: (Double -> Double) -> Val -> Eval Val
 op1Floating f v = do
     foo <- fromVal v
     return $ VNum $ f foo
-
-trop1Numeric :: (forall a. (Num a) => a -> a) -> Val -> Eval Val
-trop1Numeric f VUndef     = return . VInt $ trace (show "undef") $ f 0
-trop1Numeric f (VInt x)   = return . VInt $ trace (show x) $ f x
-trop1Numeric f l@(VList _)= fmap (VInt . f) (fromVal l)
-trop1Numeric f (VRat x)   = return . VRat $ trace (show x) $ f x
-trop1Numeric f (VRef x)   = op1Numeric f =<< trace (show "ref->") (readRef x)
-trop1Numeric f x          = fmap (VNum . f) (fromVal x)
 
 op1Numeric :: (forall a. (Num a) => a -> a) -> Val -> Eval Val
 op1Numeric f VUndef     = return . VInt $ f 0
