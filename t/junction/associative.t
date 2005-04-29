@@ -29,7 +29,7 @@ L<S03/"Junctive operators">
     is('1 2 3', ~all(all(1,2),3).values, "Left-associative all()");
     is('1 2 3', ~all(1,all(2,3)).values, "Right-associative all()");
 
-    isnt('1 2 3', ~((1^2)^3).values, "Left-associative one, ^ operator", :todo);
+    isnt('1 2 3', ~((1^2)^3).values, "Left-associative one, ^ operator");
     isnt('1 2 3', ~(1^(2^3)).values, "Right-associative one, ^ operator");
 
     isnt('1 2 3', ~one(one(1,2),3).values, "Left-associative one()");
