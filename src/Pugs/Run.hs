@@ -17,7 +17,6 @@ import Pugs.AST
 import Pugs.Types
 import Pugs.Eval
 import Pugs.Prim
-import Pugs.Pretty
 import qualified Data.Map as Map
 
 runWithArgs f = do
@@ -63,7 +62,6 @@ prepareEnv name args = do
     egidSV  <- newScalar (VInt $ toInteger egid)
     execSV  <- newScalar (VStr exec)
     progSV  <- newScalar (VStr name)
-    modSV   <- newScalar (VStr "main")
     endAV   <- newArray []
     matchAV <- newArray []
     incAV   <- newArray (map VStr libs)
@@ -107,22 +105,14 @@ prepareEnv name args = do
         -- , genSym "%=POD"        (Val . VHash $ emptyHV)
         , genSym "@=POD"        $ MkRef $ constArray []
         , genSym "$=POD"        $ MkRef $ constScalar (VStr "")
-        , genSym "$?OS"         $ MkRef $ constScalar (VStr $ getConfig "osname")
         , genSym "$*OS"         $ MkRef $ constScalar (VStr $ getConfig "osname")
-        , genSym "$?MODULE"     $ MkRef modSV
         , genSym "&?BLOCK_EXIT" $ codeRef $ mkPrim
             { subName = "&?BLOCK_EXIT"
             , subBody = Prim subExit
             }
         , genSym "%?CONFIG" $ hashRef confHV
         , genSym "$*_" $ MkRef defSV
-        , genSym "$?FILE" $ MkRef $ posSym posName
-        , genSym "$?LINE" $ MkRef $ posSym posBeginLine
-        , genSym "$?COLUMN" $ MkRef $ posSym posBeginColumn
-        , genSym "$?POSITION" $ MkRef $ posSym pretty
         ]
-    where
-    posSym f = proxyScalar (fmap (castV . f) $ asks envPos) retConstError
 
 getLibs :: IO [String]
 getLibs = do

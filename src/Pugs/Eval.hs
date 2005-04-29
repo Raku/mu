@@ -13,6 +13,7 @@
 -}
 
 module Pugs.Eval where
+import Pugs.Config
 import Pugs.Internals
 import Prelude hiding ( exp )
 import qualified Data.Map as Map
@@ -146,8 +147,16 @@ findVarRef name
     , Just (sig, "") <- breakOnGlue "CALLER" package = do
         maybeCaller <- asks envCaller
         case maybeCaller of
-            Just caller -> local (const caller) $ findVarRef (sig ++ name')
+            Just caller -> local (const caller) $ do
+                findVarRef (sig ++ name')
             Nothing -> retError "cannot access CALLER:: in top level" name
+    | ('$':'?':_) <- name = do
+        rv  <- getMagical name
+        case rv of
+            Nothing  -> return Nothing
+            Just val -> do
+                tvar <- liftSTM $ newTVar (MkRef . constScalar $ val)
+                return $ Just tvar
     | otherwise = 
         callCC $ \foundIt -> do
             lexSym <- fmap (findSym name . envLexical) ask
@@ -158,6 +167,18 @@ findVarRef name
             let globSym = findSym (toGlobal name) glob
             when (isJust globSym) $ foundIt globSym
             return Nothing
+
+posSym f = fmap (Just . castV . f) $ asks envPos
+constSym = return . Just . castV
+
+getMagical :: String -> Eval (Maybe Val)
+getMagical "$?FILE"     = posSym posName
+getMagical "$?LINE"     = posSym posBeginLine
+getMagical "$?COLUMN"   = posSym posBeginColumn
+getMagical "$?POSITION" = posSym pretty
+getMagical "$?MODULE"   = constSym "main"
+getMagical "$?OS"       = constSym $ getConfig "osname"
+getMagical _            = return Nothing
 
 reduce :: Exp -> Eval Val
 
