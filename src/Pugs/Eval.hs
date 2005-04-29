@@ -335,6 +335,7 @@ reduce env exp@(Syn name exps) = case name of
         -- env' <- cloneEnv env -- FULL THUNKING
         names <- forM vars $ \var -> case var of
             Var name -> return name
+            (Pos _ (Var name)) -> return name
             _        -> retError "Cannot bind this as lhs" var
         bindings <- forM (names `zip` vexps) $ \(name, vexp) -> do
             {- FULL THUNKING
@@ -608,6 +609,8 @@ reduce Env{ envClasses = cls, envContext = cxt } (App name invs args) = do
         listVal  <- fromVal listMVal
         return $ length (vCast listVal :: [Val])
     argSlurpLen (Syn "," list) =  return $ length list
+    argSlurpLen (Pos _ exp) = argSlurpLen exp
+    argSlurpLen (Cxt _ exp) = argSlurpLen exp
     argSlurpLen _ = return 1 -- XXX
     applySub subSyms sub invs args
         -- list-associativity

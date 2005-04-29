@@ -80,12 +80,16 @@ bindEmpty p = case paramName p of
     []      -> internalError $ "bindEmpty: empty string encountered"
 
 isPair :: Exp -> Bool
+isPair (Pos _ exp) = isPair exp
+isPair (Cxt _ exp) = isPair exp
 isPair (Syn "=>" [(Val _), _])   = True
 isPair (App "&infix:=>" [(Cxt _ (Val _)), _] [])   = True
 isPair (App "&infix:=>" [(Val _), _] [])   = True
 isPair _                         = False
 
 unPair :: Exp -> (String, Exp)
+unPair (Pos _ exp) = unPair exp
+unPair (Cxt _ exp) = unPair exp
 unPair (Syn "=>" [(Val k), exp]) = (vCast k, exp)
 unPair (App "&infix:=>" [(Cxt _ (Val k)), exp] []) = (vCast k, exp)
 unPair (App "&infix:=>" [(Val k), exp] []) = (vCast k, exp)
