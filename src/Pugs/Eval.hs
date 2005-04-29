@@ -216,7 +216,7 @@ reduce env (Stmts Noop this) = reduce env this
 reduce _ (Stmts this rest) = do
     val <- enterContext cxtVoid $ do
         reduceExp this
-    trapVal val $ case rest of
+    trapVal val $ case unwrap rest of
         (Syn "env" []) -> do
             env <- ask
             writeVar "$*_" val
@@ -327,17 +327,14 @@ reduce env exp@(Syn name exps) = case name of
             then retVal refVal
             else retVal val
     "::=" -> reduce env (Syn ":=" exps)
-    ":=" | [Pos _ x, y] <- exps -> reduce env (Syn ":=" [x, y])
-    ":=" | [x, Pos _ y] <- exps -> reduce env (Syn ":=" [x, y])
-    ":=" | [Syn "," vars, Syn "," vexps] <- exps -> do
+    ":=" | [Syn "," vars, Syn "," vexps] <- unwrap exps -> do
         when (length vars > length vexps) $ do
             fail $ "Wrong number of binding parameters: "
                 ++ (show $ length vexps) ++ " actual, "
                 ++ (show $ length vars) ++ " expected"
         -- env' <- cloneEnv env -- FULL THUNKING
-        names <- forM vars $ \var -> case var of
+        names <- forM vars $ \var -> case unwrap var of
             Var name -> return name
-            (Pos _ (Var name)) -> return name
             _        -> retError "Cannot bind this as lhs" var
         bindings <- forM (names `zip` vexps) $ \(name, vexp) -> do
             {- FULL THUNKING
@@ -359,7 +356,7 @@ reduce env exp@(Syn name exps) = case name of
             vs  -> VList vs
     ":=" -> do
         let [var, vexp] = exps
-            expand e@(Syn "," _) = e
+            expand e | e'(Syn "," _) <- unwrap e = e'
             expand e = Syn "," [e]
         reduce env (Syn ":=" [expand var, expand vexp])
     "=>" -> do
@@ -367,8 +364,7 @@ reduce env exp@(Syn name exps) = case name of
         key     <- enterEvalContext cxtItemAny keyExp
         val     <- evalExp valExp
         retVal $ castV (key, val)
-    "*" | [Pos _ exp] <- reduce env (Syn "*" exp)
-    "*" | [Syn syn [exp]] <- exps -- * cancels out [] and {}
+    "*" | [Syn syn [exp]] <- unwrap exps -- * cancels out [] and {}
         , syn == "\\{}" || syn == "\\[]"
         -> enterEvalContext cxtSlurpyAny exp
     "*" -> do -- first stab at an implementation
@@ -399,12 +395,11 @@ reduce env exp@(Syn name exps) = case name of
         writeRef av v
         retVal $ VRef av
     -- XXX evil hack for infinite slices
-    "[]" | [lhs, Pos _ exp] <- reduce env (Syn "[]" [lhs, exp])
-    "[]" | [lhs, App "&postfix:..." invs args] <- exps
+    "[]" | [lhs, App "&postfix:..." invs args] <- unwrap exps
          , [idx] <- invs ++ args
          , not (envLValue env)
          -> reduce env (Syn "[...]" [lhs, idx])
-    "[]" | [lhs, App "&infix:.." invs args] <- exps
+    "[]" | [lhs, App "&infix:.." invs args] <- unwrap exps
          , [idx, Val (VNum n)] <- invs ++ args
          , n == 1/0
          , not (envLValue env)
@@ -530,26 +525,6 @@ reduce env exp@(Syn name exps) = case name of
                         _           -> runBody
                 _ -> retVal vbool
 
-{-
---- XXX ALL WRONG
-reduce env (App name invs args)
-    | isPrefix
-    , not . null $ [ undefined | (Syn "," _) <- invs ]
-    = reduce env $ App name (concatMap flatten invs) args
-    | isPrefix
-    , not . null $ [ undefined | (Syn "," _) <- args ]
-    = reduce env $ App name invs (concatMap flatten args)
-    where
-    flatten (Syn "," exps) = exps
-    flatten exp = [exp]
-    fixity = takeWhile (/= ':') name
-    isPrefix
-        | fixity == name        = True
-        | fixity == "&infix"    = False
-        | fixity == "&postfix"  = False
-        | otherwise             = True
--}
-
 -- XXX absolutely evil bloody hack for context hinters
 reduce _ (App "&hash" invs args) =
     enterEvalContext cxtItemAny $ Syn "\\{}" [Syn "," $ invs ++ args]
@@ -599,7 +574,7 @@ reduce _ (App "&infix:=>" [keyExp, valExp] []) = do
 
 reduce Env{ envClasses = cls, envContext = cxt } (App name invs args) = do
     subSyms <- findSyms name
-    lens <- mapM argSlurpLen (invs ++ args)
+    lens <- mapM argSlurpLen (unwrap $ invs ++ args)
     sub <- findSub (sum lens) subSyms
     case sub of
         Just sub    -> applySub subSyms sub invs args
@@ -613,8 +588,6 @@ reduce Env{ envClasses = cls, envContext = cxt } (App name invs args) = do
         listVal  <- fromVal listMVal
         return $ length (vCast listVal :: [Val])
     argSlurpLen (Syn "," list) =  return $ length list
-    argSlurpLen (Pos _ exp) = argSlurpLen exp
-    argSlurpLen (Cxt _ exp) = argSlurpLen exp
     argSlurpLen _ = return 1 -- XXX
     applySub subSyms sub invs args
         -- list-associativity

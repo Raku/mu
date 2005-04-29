@@ -47,10 +47,7 @@ expRule rule = do
     pos1 <- getPosition
     exp  <- rule
     pos2 <- getPosition
-    return $ Pos (mkPos pos1 pos2) (depos exp)
-    where
-    depos (Pos _ x) = x
-    depos x = x
+    return $ Pos (mkPos pos1 pos2) (unwrap exp)
 
 mkPos pos1 pos2 = MkPos
     { posName         = sourceName pos1 
@@ -70,9 +67,9 @@ ruleBlockBody = do
     let body' = foldl mergeStmts (foldl (flip mergeStmts) body pre) post
     env'    <- getState
     setState env'{ envLexical = envLexical env }
-    return $ case body' of
-        (Pos _ (Syn "sub" _)) -> mergeStmts emptyExp body'
-        _           -> body'
+    return $ case unwrap body' of
+        (Syn "sub" _)   -> mergeStmts emptyExp body'
+        _               -> body'
 
 ruleStandaloneBlock = tryRule "standalone block" $ do
     body <- bracesAlone ruleBlockBody
@@ -555,7 +552,6 @@ ruleBlockLiteral = rule "block construct" $ do
     retBlock typ formal body
 
 extractHash :: Exp -> Maybe Exp
-extractHash (Pos _ exp) = extractHash exp
 extractHash (Syn "block" [exp]) = extractHash exp
 extractHash exp@(App "&pair" _ _) = Just exp
 extractHash exp@(App "&infix:=>" _ _) = Just exp
@@ -563,7 +559,7 @@ extractHash exp@(Syn "," (App "&pair" _ _:_)) = Just exp
 extractHash exp@(Syn "," (App "&infix:=>" _ _:_)) = Just exp
 extractHash _ = Nothing
 
-retBlock SubBlock Nothing exp | Just hashExp <- extractHash exp = return $ Syn "\\{}" [hashExp]
+retBlock SubBlock Nothing exp | Just hashExp <- extractHash (unwrap exp) = return $ Syn "\\{}" [hashExp]
 retBlock typ formal body = retVerbatimBlock typ formal body
 
 retVerbatimBlock typ formal body = expRule $ do

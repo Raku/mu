@@ -560,6 +560,21 @@ data Exp
     | NonTerm !Pos
     deriving (Show, Eq, Ord, Typeable)
 
+class Unwrap a where
+    unwrap :: a -> a
+    unwrap = id
+
+instance Unwrap [Exp] where
+    unwrap = map unwrap
+
+instance Unwrap Exp where
+    unwrap (Cxt _ exp)   = unwrap exp
+    unwrap (Pos _ exp)   = unwrap exp
+    unwrap (Parens exp)  = unwrap exp
+    unwrap (Pad _ _ exp) = unwrap exp
+    unwrap (Sym _ _ exp) = unwrap exp
+    unwrap x             = x
+
 fromVals :: (Value n) => Val -> Eval [n]
 fromVals v = mapM fromVal =<< fromVal v
 
