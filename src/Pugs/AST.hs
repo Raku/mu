@@ -16,7 +16,6 @@ module Pugs.AST where
 import Pugs.Internals
 import Pugs.Context
 import Pugs.Rule
-import List
 import Pugs.Types
 import qualified Data.Set       as Set
 import qualified Data.Map       as Map
