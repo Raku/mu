@@ -406,8 +406,10 @@ reduce env exp@(Syn name exps) = case name of
          -> reduce env (Syn "[...]" [lhs, idx])
     "[]" -> do
         let [listExp, indexExp] = exps
-        idxCxt  <- if envLValue env
+        idxCxt  <- cxtOfExp indexExp 
+        {- if envLValue env
             then cxtOfExp indexExp else return (envContext env)
+        -}
         idxVal  <- enterRValue $ enterEvalContext idxCxt indexExp
         varVal  <- enterLValue $ enterEvalContext (cxtItem "Array") listExp
         doFetch (mkFetch $ doArray varVal array_fetchElem)
@@ -425,8 +427,10 @@ reduce env exp@(Syn name exps) = case name of
         retVal $ VList (drop idx $ concat elms)
     "{}" -> do
         let [listExp, indexExp] = exps
-        idxCxt  <- if envLValue env
+        idxCxt  <- cxtOfExp indexExp 
+        {- if envLValue env
             then cxtOfExp indexExp else return (envContext env)
+        -}
         idxVal  <- enterRValue $ enterEvalContext idxCxt indexExp
         varVal  <- enterLValue $ enterEvalContext (cxtItem "Hash") listExp
         doFetch (mkFetch $ doHash varVal hash_fetchElem)
@@ -572,29 +576,18 @@ reduce _ (App "&infix:=>" [keyExp, valExp] []) = do
     val <- enterEvalContext cxtItemAny valExp
     retVal $ castV (key, val)
 
-reduce Env{ envClasses = cls, envContext = cxt } (App name invs args) = do
-    subSyms <- findSyms name
-    lens <- mapM argSlurpLen (unwrap $ invs ++ args)
-    sub <- findSub (sum lens) subSyms
+reduce env (App name invs args) = do
+    sub <- findSub env name invs args
     case sub of
-        Just sub    -> applySub subSyms sub invs args
+        Just sub    -> applySub sub invs args
         Nothing     -> retError "No compatible subroutine found" name
     where
-    argSlurpLen (Val listMVal) = do
-        listVal  <- fromVal listMVal
-        return $ length (vCast listVal :: [Val])
-    argSlurpLen (Var name) = do
-        listMVal <- evalVar name
-        listVal  <- fromVal listMVal
-        return $ length (vCast listVal :: [Val])
-    argSlurpLen (Syn "," list) =  return $ length list
-    argSlurpLen _ = return 1 -- XXX
-    applySub subSyms sub invs args
+    applySub sub invs args
         -- list-associativity
         | MkCode{ subAssoc = "list" }      <- sub
         , (App name' invs' []):rest  <- invs
         , name == name'
-        = applySub subSyms sub (invs' ++ rest)  []
+        = applySub sub (invs' ++ rest)  []
         -- fix subParams to agree with number of actual arguments
         | MkCode{ subAssoc = "list", subParams = (p:_) }   <- sub
         , null args
@@ -612,22 +605,69 @@ reduce Env{ envClasses = cls, envContext = cxt } (App name invs args) = do
     mungeChainSub sub invs = do
         let MkCode{ subAssoc = "chain", subParams = (p:_) } = sub
             (App name' invs' args'):rest = invs
-        subSyms' <- findSyms name'
-        lens'    <- mapM argSlurpLen (invs' ++ args')
-        theSub <- findSub (sum lens') subSyms'
+        theSub   <- findSub env name' invs' args'
         case theSub of
-            Just sub'    -> applyChainSub subSyms' sub invs sub' invs' args' rest
+            Just sub'    -> applyChainSub sub invs sub' invs' args' rest
             Nothing      -> apply sub{ subParams = (length invs) `replicate` p } invs [] -- XXX Wrong
-    applyChainSub subSyms sub invs sub' invs' args' rest
+    applyChainSub sub invs sub' invs' args' rest
         | MkCode{ subAssoc = "chain", subBody = fun, subParams = prm }   <- sub
         , MkCode{ subAssoc = "chain", subBody = fun', subParams = prm' } <- sub'
         , null args'
-        = applySub subSyms sub{ subParams = prm ++ tail prm', subBody = Prim $ chainFun prm' fun' prm fun } (invs' ++ rest) []
+        = applySub sub{ subParams = prm ++ tail prm', subBody = Prim $ chainFun prm' fun' prm fun } (invs' ++ rest) []
         | MkCode{ subAssoc = "chain", subParams = (p:_) }   <- sub
         = apply sub{ subParams = (length invs) `replicate` p } invs [] -- XXX Wrong
         | otherwise
         = internalError "applyChainsub did not match a chain subroutine"
-    findSub slurpLen subSyms = do
+
+reduce env (Parens exp) = reduce env exp
+
+reduce _ exp = retError "Invalid expression" exp
+
+cxtOfExp :: Exp -> Eval Cxt
+cxtOfExp (Pos _ exp)            = cxtOfExp exp
+cxtOfExp (Parens exp)           = cxtOfExp exp
+cxtOfExp (Cxt cxt _)            = return cxt
+cxtOfExp (Syn "," _)            = return cxtSlurpyAny
+cxtOfExp (Syn "[]" [_, exp])    = cxtOfExp exp
+cxtOfExp (Syn "{}" [_, exp])    = cxtOfExp exp
+cxtOfExp (Val (VList _))        = return cxtSlurpyAny
+cxtOfExp (Val (VRef ref))       = do
+    cls <- asks envClasses
+    let typ = refType ref
+    return $ if isaType cls "List" typ
+        then cxtSlurpyAny
+        else CxtItem typ
+cxtOfExp (Val _)                = return cxtItemAny
+cxtOfExp (Var (c:_))            = return $ cxtOfSigil c
+cxtOfExp (App "&list" _ _)      = return cxtSlurpyAny
+cxtOfExp (App "&scalar" _ _)    = return cxtSlurpyAny
+cxtOfExp (App name invs args)   = do
+    -- inspect the return type of the function here
+    env <- ask
+    sub <- findSub env name invs args
+    return $ case sub of
+        Just sub
+            | isaType (envClasses env) "Scalar" (subReturns sub)
+            -> CxtItem (subReturns sub)
+        _ -> cxtSlurpyAny
+cxtOfExp _                      = return cxtSlurpyAny
+
+
+findSub Env{ envClasses = cls, envContext = cxt } name invs args = do
+    subSyms <- findSyms name
+    lens    <- mapM argSlurpLen (unwrap $ invs ++ args)
+    doFindSub (sum lens) subSyms
+    where
+    argSlurpLen (Val listMVal) = do
+        listVal  <- fromVal listMVal
+        return $ length (vCast listVal :: [Val])
+    argSlurpLen (Var name) = do
+        listMVal <- evalVar name
+        listVal  <- fromVal listMVal
+        return $ length (vCast listVal :: [Val])
+    argSlurpLen (Syn "," list) =  return $ length list
+    argSlurpLen _ = return 1 -- XXX
+    doFindSub slurpLen subSyms = do
         subs' <- subs slurpLen subSyms
         -- let foo (x, sub) = show x ++ show (map paramContext $ subParams sub)
         -- trace (unlines $ map foo $ sort subs') return ()
@@ -651,9 +691,6 @@ reduce Env{ envClasses = cls, envContext = cxt } (App name invs args) = do
     deltaFromCxt x          = deltaType cls (typeOfCxt cxt) x
     deltaFromScalar x       = deltaType cls x (mkType "Scalar")
 
-reduce env (Parens exp) = reduce env exp
-
-reduce _ exp = retError "Invalid expression" exp
 
 -- OK... Now let's implement the hideously clever autothreading algorithm.
 -- First pass - thread thru all() and none()

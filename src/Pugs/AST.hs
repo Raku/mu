@@ -630,23 +630,6 @@ extract (Parens ex) vs = ((Parens ex'), vs')
     (ex', vs') = extract ex vs
 extract exp vs = (exp, vs)
 
-cxtOfExp :: Exp -> Eval Cxt
-cxtOfExp (Cxt cxt _)            = return cxt
-cxtOfExp (Syn "," _)            = return cxtSlurpyAny
-cxtOfExp (Syn "[]" [_, exp])    = cxtOfExp exp
-cxtOfExp (Syn "{}" [_, exp])    = cxtOfExp exp
-cxtOfExp (Val (VList _))        = return cxtSlurpyAny
-cxtOfExp (Val (VRef ref))       = do
-    cls <- asks envClasses
-    let typ = refType ref
-    return $ if isaType cls "List" typ
-        then cxtSlurpyAny
-        else CxtItem typ
-cxtOfExp (Val _)                = return cxtItemAny
-cxtOfExp (Var (c:_))            = return $ cxtOfSigil c
-cxtOfExp (App "&list" _ _)      = return cxtSlurpyAny
-cxtOfExp _                      = return cxtItemAny
-
 cxtOfSigil :: Char -> Cxt
 cxtOfSigil '$'  = cxtItemAny
 cxtOfSigil '@'  = cxtSlurpyAny
