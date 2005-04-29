@@ -235,19 +235,26 @@ instance Compile Exp where
     compile (Val (VBool True)) = constPMC $ text "1"
     compile (Val (VBool False)) = constPMC $ text "0"
     compile Noop            = return empty
-    compile (Stmts stmts) = fmap vcat $ sequence
+    compile (Stmts this rest) = do
+        thisC <- compile this
+        restC <- compile rest
+        return $ thisC $+$ restC
+    {-fmap vcat $ sequence
         [ do
             posC  <- compile pos
             stmtC <- compile stmt
             return $ posC $+$ stmtC $+$ text ""
         | (stmt, pos) <- stmts
         ]
-    compile (Pad _ pad) = return $ vcat $ concat
-        [ [ text ".local" <+> text "pmc" <+> varText name
-          , varText name <+> text "=" <+> text "new" <+> varInit name
-          ]
-          | (name, _) <- padToList pad
-        ]
+    -}
+    compile (Pad _ pad rest) = do
+        restC <- compile rest
+        return . ($+$ restC) $ vcat $ concat
+            [ [ text ".local" <+> text "pmc" <+> varText name
+              , varText name <+> text "=" <+> text "new" <+> varInit name
+              ]
+              | (name, _) <- padToList pad
+            ]
     compile (Syn "mval" [exp]) = compile exp
     compile (Syn "," things) = fmap vcat $ mapM compile things
     compile (Syn syn [lhs, exp]) | last syn == '=' =

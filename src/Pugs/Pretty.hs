@@ -31,23 +31,31 @@ instance Pretty Exp where
     format (Val (VError msg (NonTerm pos))) = text "Syntax error at" <+> (format pos) <+> format msg
     format (NonTerm pos) = format pos
     format (Val v) = format v
-    format (Syn x vs) = text "Syn" <+> format x $+$ (braces $ vcat (punctuate (text ";") (map format vs)))
-    format (Stmts lines) = (vcat $ punctuate (text ";") $ (map format) lines)
+    format (Syn x vs) = text "Syn" <+> format x <+> (braces $ vcat (punctuate (text ";") (map format vs)))
+    format (Stmts exp1 exp2) = (vcat $ punctuate (text ";") $ (map format) [exp1, exp2])
     format (App sub invs args) = text "App" <+> format sub <+> parens (nest defaultIndent $ vcat (punctuate (text ", ") (map format $ invs ++ args)))
-    format (Sym scope name) = text "Sym" <+> text (show scope) <+> format name
+    format (Sym scope name exp) = text "Sym" <+> text (show scope) <+> format name $+$ format exp
+    format (Pad scope pad exp) = text "Pad" <+> text (show scope) <+> format pad $+$ format exp
+    format (Pos _ exp) = format exp
     format x = text $ show x
 
 instance Pretty Pad where
-    format pad = cat $ map formatAssoc $ padToList pad
+    format pad = vcat $ map formatAssoc $ padToList pad
         where
         formatAssoc (name, var) = format name <+> text ":=" <+> (nest defaultIndent $ vcat $ map format var)
 
-instance Pretty SourcePos where
+instance Pretty Pos where
     format pos =
-        let file = sourceName pos
-            line = show $ sourceLine pos
-            col  = show $ sourceColumn pos
-        in text $ file ++ " at line " ++ line ++ ", column " ++ col
+        let file = posName pos
+            bln  = show $ posBeginLine pos
+            bcl  = show $ posBeginColumn pos
+            eln  = show $ posEndLine pos
+            ecl  = show $ posEndColumn pos
+            fmt ln cl = text "line" <+> text ln <> comma <+> text "column" <+> text cl
+        in text file <+> case (bln == eln, bcl == ecl) of
+            (True, True)  -> fmt bln bcl
+            (True, False) -> fmt bln (bcl ++ "-" ++ ecl)
+            (False, _)    -> fmt bln bcl <+> (text "-" <+> fmt eln ecl)
 
 instance Pretty Env where
     format x = doubleBraces $ nest defaultIndent (format $ envBody x) 
@@ -97,7 +105,7 @@ instance Pretty Val where
     format (VCode _) = text "sub {...}"
     format (VBlock _) = text "{...}"
     format (VError x y@(NonTerm _)) =
-        text "*** Error:" <+> (text x $+$ (text "at" <+> format y))
+        text "*** Error:" <+> (text x <+> (text "at" <+> format y))
     format (VError x _) = text "*** Error:" <+> text x
 --  format (VArray x) = format (VList $ Array.elems x)
 --  format (VHash h) = braces $ (joinList $ text ", ") $

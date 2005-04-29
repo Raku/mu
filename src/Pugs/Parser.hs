@@ -38,25 +38,37 @@ ruleVerbatimBlock = verbatimRule "block" $ do
     body <- between (symbol "{") (char '}') ruleBlockBody
     retSyn "block" [body]
 
-ruleEmptyExp = do
-    pos <- getPosition
+ruleEmptyExp = expRule $ do
     symbol ";"
-    return $ Stmts [(emptyExp, pos)]
+    return emptyExp
+
+expRule rule = do
+    pos1 <- getPosition
+    exp <- rule
+    pos2 <- getPosition
+    return $ Pos (mkPos pos1 pos2) exp
+
+mkPos pos1 pos2 = MkPos
+    { posName         = sourceName pos1 
+    , posBeginLine    = sourceLine pos1
+    , posBeginColumn  = sourceColumn pos1
+    , posEndLine      = sourceLine pos2
+    , posEndColumn    = sourceColumn pos2
+    }
 
 ruleBlockBody = do
     whiteSpace
-    pos     <- getPosition
+    -- pos     <- getPosition
     env     <- getState
     pre     <- many ruleEmptyExp
     body    <- option emptyExp ruleStatementList
     post    <- many ruleEmptyExp
-    body    <- foldM (flip mergeStatements) body pre
-    body    <- foldM mergeStatements body post
+    let body' = foldl mergeStmts (foldl (flip mergeStmts) body pre) post
     env'    <- getState
     setState env'{ envLexical = envLexical env }
-    return $ case body of
-        Syn "sub" _ -> Stmts [(body, pos)]
-        _           -> body
+    return $ case body' of
+        Syn "sub" _ -> mergeStmts body' emptyExp
+        _           -> body'
 
 ruleStandaloneBlock = tryRule "standalone block" $ do
     body <- bracesAlone ruleBlockBody
@@ -89,28 +101,23 @@ ruleStatementList = rule "statements" $ choice
     semiSep = doSep many1
     doSep count rule = do
         whiteSpace
-        pos     <- getPosition
+        -- pos     <- getPosition
         exp     <- rule
         rest    <- option return $ try $ do
             count (symbol ";")
             stmts <- ruleStatementList
-            return $ \exp -> mergeStatements (Stmts [(exp, pos)]) stmts
+            return $ \exp -> return $ mergeStmts exp stmts
         rest exp
 
-mergeStatements (Stmts xs) (Stmts ys) = return . Stmts $ foldStatements (xs ++ ys)
-mergeStatements (Stmts xs) y = do
-    pos <- if null xs then getPosition else return (snd $ last xs)
-    return . Stmts $ foldStatements (xs ++ [(y, pos)])
-mergeStatements x (Stmts ys) = do
-    pos <- if null ys then getPosition else return (snd $ head ys)
-    return . Stmts $ foldStatements ((x, pos):ys)
-mergeStatements x y = do
-    pos <- getPosition
-    return . Stmts $ foldStatements [(x, pos), (y, pos)]
-
-foldStatements = concatMap $ \(exp, pos) -> case exp of
-    Stmts stmts -> stmts
-    _           -> [(exp, pos)]
+-- Stmt is essentially a cons cell
+-- Stmt (Stmt ...) is illegal
+mergeStmts (Stmts x1 x2) y = mergeStmts x1 (mergeStmts x2 y)
+mergeStmts Noop y@(Stmts _ _) = y
+mergeStmts (Sym scope name x) y = Sym scope name (mergeStmts x y)
+mergeStmts (Pad scope lex x) y = Pad scope lex (mergeStmts x y)
+mergeStmts x (Stmts y Noop) = mergeStmts x y
+mergeStmts x (Stmts Noop y) = mergeStmts x y
+mergeStmts x y = Stmts x y
 
 ruleBeginOfLine = do
     pos <- getPosition
@@ -200,7 +207,7 @@ ruleSubGlobal = rule "global subroutine" $ do
 
 ruleSubDeclaration :: RuleParser Exp
 ruleSubDeclaration = rule "subroutine declaration" $ do
-    namePos <- getPosition
+    -- namePos <- getPosition
     (scope, typ, multi, name) <- tryChoice
         [ ruleSubScopedWithContext
         , ruleSubScoped
@@ -209,9 +216,9 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
     formal  <- option Nothing $ ruleSubParameters ParensMandatory
     typ'    <- option typ $ try $ ruleBareTrait "returns"
     _       <- many $ ruleTrait -- traits; not yet used
-    bodyPos <- getPosition
+    -- bodyPos <- getPosition
     body    <- ruleBlock
-    let (fun, names) = extract (body, [])
+    let (fun, names) = extract body []
         params = map nameToParam (sort names) ++ (maybe [defaultArrayParam] id formal)
     -- Check for placeholder vs formal parameters
     unless (isNothing formal || null names || names == ["$_"] ) $
@@ -229,15 +236,15 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
             , subSlurpLimit = []
             , subBody       = fun
             }
-        decl = (Sym scope name, namePos)
-        exp  = (Syn ":=" [Var name, Syn "sub" [subExp]], bodyPos)
+        -- decl = Sym scope name -- , namePos)
+        exp  = Syn ":=" [Var name, Syn "sub" [subExp]] -- , bodyPos)
     -- XXX: user-defined infix operator
     if scope == SGlobal
-        then do { unsafeEvalExp (Stmts [decl, exp]); return emptyExp }
+        then do { unsafeEvalExp (Sym scope name exp); return emptyExp }
         else do
-            lexDiff <- unsafeEvalLexDiff [decl]
-            let lexExp = (Pad scope lexDiff, namePos)
-            return $ Stmts [lexExp, exp]
+            lexDiff <- unsafeEvalLexDiff (Sym scope name emptyExp)
+            -- namePos
+            return $ Pad scope lexDiff exp
 
 subNameWithPrefix prefix = (<?> "subroutine name") $ lexeme $ try $ do
     star    <- option "" $ string "*"
@@ -297,16 +304,13 @@ ruleVarDeclaration :: RuleParser Exp
 ruleVarDeclaration = rule "variable declaration" $ do
     scope       <- ruleScope
     (decl, lhs) <- choice
-        [ do pos  <- getPosition
+        [ do -- pos  <- getPosition
              name <- parseVarName
-             return ([(Sym scope name, pos)], Var name)
-        , do decl <- parens . (`sepEndBy` symbol ",") $ do
-                pos  <- getPosition
-                name <- parseVarName
-                return (Sym scope name, pos)
-             return (decl, Syn "," (map (\(Sym _ name, _) -> Var name) decl))
+             return ((Sym scope name), Var name)
+        , do names <- parens . (`sepEndBy` symbol ",") $ parseVarName
+             return (combine (map (Sym scope) names), Syn "," (map Var names))
         ]
-    pos <- getPosition
+    -- pos <- getPosition
     (sym, expMaybe) <- option ("=", Nothing) $ do
         sym <- tryChoice $ map string $ words " = := ::= "
         when (sym == "=") $ do
@@ -318,16 +322,13 @@ ruleVarDeclaration = rule "variable declaration" $ do
     lexDiff <- case sym of
         "::="   -> do
             env  <- getState
-            env' <- unsafeEvalStmts decl
-            setState env'
-            env' <- unsafeEvalStmts [(Syn sym [lhs, fromJust expMaybe], pos)]
+            env' <- unsafeEvalEnv $ decl (Syn sym [lhs, fromJust expMaybe])
             return $ envLexical env' `diffPads` envLexical env
-        _       -> unsafeEvalLexDiff decl
-    let lexExp  = (Pad scope lexDiff, pos)
+        _       -> unsafeEvalLexDiff (decl emptyExp)
     return $ case expMaybe of
         Just exp | sym /= "::="
-            -> Stmts [lexExp, (Syn sym [lhs, exp], pos)]
-        _   -> Stmts [lexExp]
+            -> Pad scope lexDiff (Syn sym [lhs, exp])
+        _   -> Pad scope lexDiff emptyExp
 
 ruleUseDeclaration :: RuleParser Exp
 ruleUseDeclaration = rule "use declaration" $ do
@@ -384,7 +385,7 @@ ruleClosureTrait rhs = rule "closure trait" $ do
               | otherwise = " BEGIN END "
     name    <- tryChoice $ map symbol $ words names
     block   <- ruleBlock
-    let (fun, names) = extract (block, [])
+    let (fun, names) = extract block []
     -- Check for placeholder vs formal parameters
     unless (null names) $
         fail "Closure traits takes no formal parameters"
@@ -396,16 +397,16 @@ ruleClosureTrait rhs = rule "closure trait" $ do
             return $ if rhs then rv else emptyExp 
         _       -> fail ""
 
-unsafeEvalLexDiff decl = do
+unsafeEvalLexDiff exp = do
     env  <- getState
-    env' <- unsafeEvalStmts decl
+    env' <- unsafeEvalEnv exp
     setState env'
     return $ envLexical env' `diffPads` envLexical env
 
-unsafeEvalStmts stmts = do
-    pos <- getPosition
+unsafeEvalEnv exp = do
+    -- pos <- getPosition
     env <- getState
-    val <- unsafeEvalExp $ Stmts (stmts ++ [(Syn "env" [], pos)])
+    val <- unsafeEvalExp $ mergeStmts exp (Syn "env" [])
     case val of
         Val (VControl (ControlEnv env')) ->
             return env'{ envDebug = envDebug env }
@@ -550,7 +551,7 @@ retBlock SubBlock Nothing exp | Just hashExp <- extractHash exp = return $ Syn "
 retBlock typ formal body = retVerbatimBlock typ formal body
 
 retVerbatimBlock typ formal body = do
-    let (fun, names) = extract (body, [])
+    let (fun, names) = extract body []
         params = (maybe [] id formal) ++ map nameToParam (sort names)
     -- Check for placeholder vs formal parameters
     unless (isNothing formal || null names || names == ["$_"] ) $
@@ -712,15 +713,15 @@ currentListFunctions = do
     -- " not <== any all one none perl eval "
 -}
 
-parseOp = do
+parseOp = expRule $ do
     ops <- operators
     buildExpressionParser ops parseTerm (Syn "" [])
 
-parseTightOp = do
+parseTightOp = expRule $ do
     ops <- tightOperators
     buildExpressionParser ops parseTerm (Syn "" [])
 
-parseLitOp = do
+parseLitOp = expRule $ do
     ops <- litOperators
     buildExpressionParser ops parseTerm (Syn "" [])
 
@@ -942,10 +943,6 @@ ruleVar = do
 makeVar ('$':rest) | all (`elem` "1234567890") rest =
     Syn "[]" [Var "$/", Val $ VInt $ read rest]
 makeVar var = Var var
-
-nonTerm = do
-    pos <- getPosition
-    return $ NonTerm pos
 
 ruleLit = choice
     [ ruleBlockLiteral
@@ -1274,9 +1271,10 @@ rxLiteral = try $ do
 namedLiteral n v = do { symbol n; return $ Val v }
 
 dotdotdotLiteral = do
-    pos <- getPosition
+    pos1 <- getPosition
     symbol "..."
-    return . Val $ VError "..." (NonTerm pos)
+    pos2 <- getPosition
+    return . Val $ VError "..." (NonTerm (mkPos pos1 pos2))
 
 op_methodPostfix    = []
 op_namedUnary       = []
@@ -1290,7 +1288,10 @@ ternOp pre post syn = (`Infix` AssocRight) $ do
 
 runRule :: Env -> (Env -> a) -> RuleParser Env -> FilePath -> String -> a
 runRule env f p name str = f $ case ( runParser p env name str ) of
-    Left err    -> env { envBody = Val $ VError (showErr err) (NonTerm $ errorPos err) }
+    Left err    -> env { envBody = Val $ VError msg (NonTerm (mkPos pos pos)) }
+        where
+        pos = errorPos err
+        msg = showErr err
     Right env'  -> env'
 
 showErr err =

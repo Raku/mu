@@ -31,14 +31,12 @@ genGHC = do
         , TH.pprint str
         ]
 
-compile (Stmts []) = [| return undef |]
-compile (Stmts [(stmt, _)]) = compile stmt
-compile (Stmts ((stmt, _):stmts)) = [| do
+compile (Stmts stmt rest) = [| do
         $(argC)
         $(argRest)
     |] where
     argC = compile stmt
-    argRest = compile (Stmts stmts)
+    argRest = compile rest
 compile (App op [] []) = [| op0 op [] |]
 compile (App op [] args) = compile (App op args [])
 compile (App ('&':op) [arg] []) = [| do

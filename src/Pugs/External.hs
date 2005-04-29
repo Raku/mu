@@ -15,16 +15,18 @@ import Pugs.AST
 import Pugs.External.Haskell (externalizeHaskell, loadHaskell)
 
 externalize :: String -> Exp -> IO String
-externalize mod (Stmts stmts) = externExternalize backend mod code
+externalize mod stmts = externExternalize backend mod code
     where
     (backend, code)
         | null things   = error "no inline found"
         | [_] <- things = head things
         | otherwise     = error "multiple inline found"
     things = [ (backend, code)
-             | (Syn "inline" [Val (VStr backend), Val (VStr code)], _) <- stmts
+             | (Syn "inline" [Val (VStr backend), Val (VStr code)]) <- flatten stmts
              ]
-externalize _ _ = error "not statements"
+    flatten (Stmts cur rest) = (cur:flatten rest)
+    flatten exp = [exp]
+
 
 externExternalize "Haskell" = externalizeHaskell
 externExternalize backend   = error $ "Unrecognized inline backend: " ++ backend

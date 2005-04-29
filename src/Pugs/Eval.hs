@@ -30,7 +30,7 @@ emptyEnv :: (MonadIO m, MonadSTM m) => String -> [STM (Pad -> Pad)] -> m Env
 emptyEnv name genPad = do
     uniq <- liftIO newUnique
     liftSTM $ do
-        pad  <- sequence $ posSyms (SourcePos name 1 1) ++ genPad
+        pad  <- sequence genPad
         ref  <- newTVar Map.empty
         syms <- initSyms
         glob <- newTVar (combine (pad ++ syms) $ mkPad [])
@@ -47,7 +47,7 @@ emptyEnv name genPad = do
             , envBody    = Val undef
             , envDebug   = Just ref -- Set to "Nothing" to disable debugging
             , envStash   = ""
-            , envPos     = SourcePos name 1 1
+            , envPos     = MkPos name 1 1 1 1
             }
 
 -- Evaluation ---------------------------------------------------------------
@@ -124,72 +124,18 @@ addGlobalSym newSym = do
         syms <- readTVar glob
         writeTVar glob (newSym syms)
 
--- XXX This is a mess. my() and our() etc should not be statement level!
-reduceStatements :: [(Exp, SourcePos)] -> Exp -> Eval Val
-reduceStatements [] = reduceExp
-reduceStatements ((exp, pos):rest) = case exp of
-    Noop -> reduceStatements rest
-
-    Syn ";" exps -> do
-        reduceStatements $ (exps `zip` repeat pos) ++ rest
-
-    Sym scope name -> const $ do
-        ref <- newObject (typeOfSigil $ head name)
-        let doRest = reduceStatements rest (Var name)
-        sym <- genMultiSym name ref
-        case scope of
-            SMy -> enterLex [ sym ] doRest
-            _   -> do { addGlobalSym sym; doRest }
-
+{-
     Syn "sub" [Val (VCode sub)] | subType sub >= SubBlock -> do
         -- bare Block in statement level; run it!
         let app = Syn "()" [exp, Syn "invs" [], Syn "args" []]
         reduceStatements $ (app, pos):rest
-    Pad _ lex' -> \e -> do
-        let doRest = reduceStatements rest e
-        lex <- asks envLexical
-        local (\e -> e{ envLexical = lex' `unionPads` lex }) doRest
-    Syn "env" [] | null rest -> \e -> do
-        env <- ask
-        val <- case e of
-            Val v   -> return v
-            _       -> evalExp e
-        writeVar "$*_" val
-        return . VControl $ ControlEnv env
-    Syn "dump" [] | null rest -> \e -> do
-        Env{ envGlobal = globals, envLexical = lexicals } <- ask
-        liftSTM $ modifyTVar globals (unionPads lexicals)
-        reduceStatements rest e
-    _ | null rest -> const $ do
-        val <- enterPos pos $ reduceExp exp
-        retVal val
-    _ -> const $ do
-        val <- enterContext cxtVoid $ enterPos pos $ do
-            reduceExp exp
-        trapVal val $ do
-            reduceStatements rest $ Val val
+-}
 
 trapVal :: Val -> Eval a -> Eval a
 trapVal val action = case val of
     VError str exp  -> retError str exp
     VControl c      -> retControl c
     _               -> action
-
-enterPos pos action = do
-    pad <- sequence $ posSyms pos
-    enterLex pad $ local (\e -> e{ envPos = pos }) action
-
-posSyms pos = [ genSym n v | (n, v) <- syms ]
-    where
-    file = sourceName pos
-    line = show $ sourceLine pos
-    col  = show $ sourceColumn pos
-    syms =
-        [ ("$?FILE", scalarRef $ castV file)
-        , ("$?LINE", scalarRef $ castV line)
-        , ("$?COLUMN", scalarRef $ castV col)
-        , ("$?POSITION", scalarRef $ castV $ pretty pos)
-        ]
 
 evalVar :: Ident -> Eval Val
 evalVar name = do
@@ -271,12 +217,38 @@ reduce env (Var name) = do
         return $ castV ref
     retVal val
 
-reduce _ (Stmts stmts) = do
-    let (global, local) = partition isGlobalExp stmts
-    reduceStatements (global ++ local) $ Val undef
-    where
-    isGlobalExp (Syn name _, _) = name `elem` (words "::=")
-    isGlobalExp _ = False
+reduce env (Stmts this Noop) = reduce env this
+reduce env (Stmts Noop this) = reduce env this
+
+reduce _ (Stmts this rest) = do
+    val <- enterContext cxtVoid $ do
+        reduceExp this
+    trapVal val $ case rest of
+        (Syn "env" []) -> do
+            env <- ask
+            writeVar "$*_" val
+            return . VControl $ ControlEnv env
+        _ -> reduceExp rest
+
+reduce _ (Syn "env" []) = do
+    env <- ask
+    -- writeVar "$*_" val
+    return . VControl $ ControlEnv env
+
+reduce _ (Pos pos exp) = do
+    local (\e -> e{ envPos = pos }) $ do
+        evalExp exp
+
+reduce _ (Pad _ lex exp) = do
+    local (\e -> e{ envLexical = lex `unionPads` envLexical e }) $ do
+        evalExp exp
+
+reduce _ (Sym scope name exp) = do
+    ref <- newObject (typeOfSigil $ head name)
+    sym <- genMultiSym name ref
+    case scope of
+        SMy -> enterLex [ sym ] $ evalExp exp
+        _   -> do { addGlobalSym sym; evalExp exp }
 
 -- Context forcing
 reduce _ (Cxt cxt exp) = do

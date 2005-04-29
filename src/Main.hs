@@ -193,12 +193,14 @@ doRunSingle menv opts prog = (`catch` handler) $ do
         else print
     makeProper exp = case exp of
         Val err@(VError _ _) -> fail $ pretty err
+{-
         Stmts stmts@((_,pos):_) | not (runOptSeparately opts) -> do
             let withDump = stmts ++ [(Syn "env" [], pos)]
             return $ Stmts withDump
+-}
         _ | not (runOptSeparately opts) -> do
-            let pos = SourcePos "<interactive>" 0 0
-            return $ Stmts [(exp, pos), (Syn "env" [], pos)]
+            -- let pos = SourcePos "<interactive>" 0 0
+            return $ Stmts exp (Syn "env" [])
         _ -> return exp
     handler err = if not (isUserError err) then ioError err else do
         putStrLn "Internal error while running expression:"

@@ -531,20 +531,30 @@ instance Ord VComplex where {- ... -}
 instance (Typeable a) => Show (TVar a) where
     show _ = "<ref>"
 
+data Pos = MkPos
+    { posName           :: !String
+    , posBeginLine      :: !Int
+    , posBeginColumn    :: !Int
+    , posEndLine        :: !Int
+    , posEndColumn      :: !Int
+    }
+    deriving (Show, Eq, Ord, Typeable)
+
 data Exp
     = Noop
     | App !String ![Exp] ![Exp]
     | Syn !String ![Exp]
     | Cxt !Cxt !Exp
-    | Sym !Scope !Var
-    | Pad !Scope !Pad
+    | Pos !Pos !Exp
+    | Pad !Scope !Pad !Exp
+    | Sym !Scope !Var !Exp
+    | Stmts !Exp !Exp
     | Prim !([Val] -> Eval Val)
     | Val !Val
     | Var !Var
     | Parens !Exp
-    | NonTerm !SourcePos
-    | Stmts ![(Exp, SourcePos)]
-    deriving (Show, Eq, Ord)
+    | NonTerm !Pos
+    deriving (Show, Eq, Ord, Typeable)
 
 fromVals :: (Value n) => Val -> Eval [n]
 fromVals v = mapM fromVal =<< fromVal v
@@ -564,27 +574,25 @@ instance Ord VProcess where
 extractExp :: Exp -> ([Exp], [String]) -> ([Exp], [String])
 extractExp ex (exps, vs) = (ex':exps, vs')
     where
-    (ex', vs') = extract (ex, vs)
+    (ex', vs') = extract ex vs
 
-extract :: (Exp, [String]) -> (Exp, [String])
-extract ((App n invs args), vs) = (App n invs' args', vs'')
+extract :: Exp -> [String] -> (Exp, [String])
+extract (App n invs args) vs = (App n invs' args', vs'')
     where
     (invs', vs')  = foldr extractExp ([], vs) invs
     (args', vs'') = foldr extractExp ([], vs') args
-extract ((Stmts stmts), vs) = (Stmts stmts', vs')
+extract (Stmts exp1 exp2) vs = (Stmts exp1' exp2', vs'')
     where
-    exps = map fst stmts
-    poss = map snd stmts
-    (exps', vs') = foldr extractExp ([], vs) exps
-    stmts' = exps' `zip` poss
-extract ((Syn n exps), vs) = (Syn n exps', vs'')
+    (exp1', vs')  = extract exp1 vs
+    (exp2', vs'') = extract exp2 vs'
+extract (Syn n exps) vs = (Syn n exps', vs'')
     where
     (exps', vs') = foldr extractExp ([], vs) exps
     vs'' = case n of
         "when"  -> nub $ vs' ++ ["$_"]
         "given" -> delete "$_" vs'
         _       -> vs'
-extract ((Var name), vs)
+extract (Var name) vs
     | (sigil:'^':identifer) <- name
     , name' <- (sigil : identifer)
     = (Var name', nub (name':vs))
@@ -592,13 +600,13 @@ extract ((Var name), vs)
     = (Var name, nub (name:vs))
     | otherwise
     = (Var name, vs)
-extract ((Cxt cxt ex), vs) = ((Cxt cxt ex'), vs')
+extract (Cxt cxt ex) vs = ((Cxt cxt ex'), vs')
     where
-    (ex', vs') = extract (ex, vs)
-extract ((Parens ex), vs) = ((Parens ex'), vs')
+    (ex', vs') = extract ex vs
+extract (Parens ex) vs = ((Parens ex'), vs')
     where
-    (ex', vs') = extract (ex, vs)
-extract other = other
+    (ex', vs') = extract ex vs
+extract exp vs = (exp, vs)
 
 cxtOfExp :: Exp -> Eval Cxt
 cxtOfExp (Cxt cxt _)            = return cxt
@@ -670,7 +678,7 @@ data Env = Env { envContext :: !Cxt                 -- Current context
                , envID      :: !Unique              -- Unique ID of Env
                , envDebug   :: !DebugInfo           -- Debug info map
                , envStash   :: !String              -- Misc. stash
-               , envPos     :: !SourcePos           -- Source position
+               , envPos     :: !Pos                 -- Source position range
                } deriving (Show, Eq, Ord)
 
 envWant env = 

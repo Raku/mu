@@ -17,6 +17,7 @@ import Pugs.AST
 import Pugs.Types
 import Pugs.Eval
 import Pugs.Prim
+import Pugs.Pretty
 import qualified Data.Map as Map
 
 runWithArgs f = do
@@ -115,9 +116,13 @@ prepareEnv name args = do
             }
         , genSym "%?CONFIG" $ hashRef confHV
         , genSym "$*_" $ MkRef defSV
+        , genSym "$?FILE" $ MkRef $ posSym posName
+        , genSym "$?LINE" $ MkRef $ posSym posBeginLine
+        , genSym "$?COLUMN" $ MkRef $ posSym posBeginColumn
+        , genSym "$?POSITION" $ MkRef $ posSym pretty
         ]
-
-
+    where
+    posSym f = proxyScalar (fmap (castV . f) $ asks envPos) retConstError
 
 getLibs :: IO [String]
 getLibs = do
