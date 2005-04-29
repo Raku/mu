@@ -17,8 +17,8 @@ import Pugs.Compile.Parrot (genIMC)
 import Pugs.Compile.Haskell (genGHC)
 
 compile :: String -> Env -> IO String
-compile "Haskell" env = fmap vCast $ runEval env genGHC
-compile "Pugs"    env = fmap vCast $ runEval env genPugs
-compile "Parrot"  env = fmap vCast $ runEval env genIMC
+compile "Haskell" env = fmap vCast $ runEvalIO env genGHC
+compile "Pugs"    env = fmap vCast $ runEvalIO env genPugs
+compile "Parrot"  env = fmap vCast $ runEvalIO env genIMC
 compile s _ = fail $ "Cannot compile to " ++ s
 

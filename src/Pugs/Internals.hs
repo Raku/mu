@@ -63,7 +63,6 @@ module Pugs.Internals (
     forM_,
     tryIO,
     combine,
-    liftSTM,
     modifyTVar,
     unsafePerformSTM,
 ) where
@@ -174,9 +173,6 @@ tryIO :: (MonadIO m) => a -> IO a -> m a
 tryIO err = liftIO . (`catch` (const $ return err))
 
 combine = foldr (.) id
-
-liftSTM :: (MonadIO m) => STM a -> m a
-liftSTM = liftIO . atomically
 
 unsafePerformSTM :: STM a -> a
 unsafePerformSTM = unsafePerformIO . atomically

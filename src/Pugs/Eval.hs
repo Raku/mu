@@ -26,28 +26,29 @@ import Pugs.Monads
 import Pugs.Pretty
 import Pugs.Types
 
-emptyEnv :: (MonadIO m) => String -> [IO (Pad -> Pad)] -> m Env
+emptyEnv :: (MonadIO m, MonadSTM m) => String -> [STM (Pad -> Pad)] -> m Env
 emptyEnv name genPad = do
-    pad  <- liftIO  . sequence $ posSyms (SourcePos name 1 1) ++ genPad
-    ref  <- liftSTM $ newTVar Map.empty
-    uniq <- liftIO  $ newUnique
-    syms <- liftIO  $ initSyms
-    glob <- liftSTM $ newTVar (combine (pad ++ syms) $ mkPad [])
-    return $ Env
-        { envContext = CxtVoid
-        , envLexical = mkPad []
-        , envLValue  = False
-        , envGlobal  = glob
-        , envClasses = initTree
-        , envEval    = evaluate
-        , envCaller  = Nothing
-        , envDepth   = 0
-        , envID      = uniq
-        , envBody    = Val undef
-        , envDebug   = Just ref -- Set to "Nothing" to disable debugging
-        , envStash   = ""
-        , envPos     = SourcePos name 1 1
-        }
+    uniq <- liftIO newUnique
+    liftSTM $ do
+        pad  <- sequence $ posSyms (SourcePos name 1 1) ++ genPad
+        ref  <- newTVar Map.empty
+        syms <- initSyms
+        glob <- newTVar (combine (pad ++ syms) $ mkPad [])
+        return $ Env
+            { envContext = CxtVoid
+            , envLexical = mkPad []
+            , envLValue  = False
+            , envGlobal  = glob
+            , envClasses = initTree
+            , envEval    = evaluate
+            , envCaller  = Nothing
+            , envDepth   = 0
+            , envID      = uniq
+            , envBody    = Val undef
+            , envDebug   = Just ref -- Set to "Nothing" to disable debugging
+            , envStash   = ""
+            , envPos     = SourcePos name 1 1
+            }
 
 -- Evaluation ---------------------------------------------------------------
 
@@ -56,15 +57,15 @@ debug key fun str a = do
     rv <- asks envDebug
     case rv of
         Nothing -> return ()
-        Just ref -> liftIO $ do
+        Just ref -> do
             val <- liftSTM $ do
                 fm <- readTVar ref
                 let val = fun $ Map.findWithDefault "" key fm
                 writeTVar ref (Map.insert key val fm)
                 return val
             when (length val > 100) $ do
-                hPutStrLn stderr "*** Warning: deep recursion"
-            putStrLn ("***" ++ val ++ str ++ pretty a)
+                trace "*** Warning: deep recursion" return ()
+            trace ("***" ++ val ++ str ++ pretty a) return ()
 
 evaluateMain :: Exp -> Eval Val
 evaluateMain exp = do

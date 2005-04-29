@@ -448,7 +448,7 @@ unsafeEvalStmts stmts = do
 unsafeEvalExp exp = do
     env <- getState
     let val = unsafePerformIO $ do
-        (`runReaderT` env { envDebug = Nothing }) $ (`runContT` return) $ runEvalIO $ resetT $ do
+        runEvalIO (env{ envDebug = Nothing }) $ do
             evl <- asks envEval
             evl exp
     case val of

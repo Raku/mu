@@ -128,15 +128,6 @@ makeParams Env{ envContext = cxt, envLValue = lv }
         , paramDefault = Val VUndef
         } ]
 
--- enter a lexical context
-
-dumpLex :: String -> Eval ()
-dumpLex label = do
-    pad <- asks envLexical
-    depth <- asks envDepth
-    liftIO $ putStrLn ("("++(show depth)++")"++label ++ ": " ++ (show pad))
-    return ()
-
 caller :: Int -> Eval Env
 caller n = do
     depth <- asks envDepth

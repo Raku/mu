@@ -18,7 +18,6 @@ import Pugs.Context
 import Pugs.Rule
 import List
 import Pugs.Types
-import Data.Dynamic
 import qualified Data.Set       as Set
 import qualified Data.Map       as Map
 
@@ -94,12 +93,14 @@ fromVal' (VRef r) = do
 fromVal' (VList vs) | not $ null [ undefined | VRef _ <- vs ] = do
     vs <- forM vs $ \v -> case v of { VRef r -> readRef r; _ -> return v }
     fromVal $ VList vs
-fromVal' v = do
+fromVal' v = return $ vCast v
+{-do
     rv <- liftIO $ catchJust errorCalls (return . Right $ vCast v) $
         \str -> return (Left str)
     case rv of
         Right v -> return v
         Left e  -> retError e v -- XXX: not working yet
+-}
 
 class (Typeable n, Show n, Ord n) => Value n where
     fromVal :: Val -> Eval n
@@ -692,9 +693,8 @@ instance Show Pad where
                             "])"
         dumpTVar ioRef = unsafePerformIO $ do
             ref  <- liftSTM $ readTVar ioRef
-            dump <- (`runReaderT` undefined) $ (`runContT` return) $ runEvalIO $ do
-                dumpRef ref
-            return $ "unsafePerformIO (newTVar " ++ vCast dump ++ ")"
+            dump <- runEvalIO undefined $ dumpRef ref
+            return $ "unsafePerformSTM (newTVar " ++ vCast dump ++ ")"
 
 mkPad = MkPad . Map.fromList
 lookupPad key (MkPad map) = Map.lookup key map
@@ -716,80 +716,103 @@ show' x = "( " ++ show x ++ " )"
 data Scope = SGlobal | SMy | SOur | SLet | STemp | SState
     deriving (Show, Eq, Ord, Read, Enum)
 
--- type Eval x = EvalT (ContT Val (ReaderT Env IO)) x
--- type EvalMonad = EvalT (ContT Val (ReaderT Env IO))
-type EvalT x = Eval x
-type EvalMonad = Eval
+type Eval x = EvalT (ContT Val (ReaderT Env SIO)) x
+type EvalMonad = EvalT (ContT Val (ReaderT Env SIO))
+newtype EvalT m a = EvalT { runEvalT :: m a }
 
-data (Typeable a) => Eval a where
-    EvalIO :: (ContT Val (ReaderT Env IO)) a -> Eval a
-    EvalSTM :: (ContT Val (ReaderT Env STM)) a -> Eval a
+data SIO a where
+    MkSTM :: STM a -> SIO a
+    MkIO  :: IO a -> SIO a
+    MkSIO :: a -> SIO a
 
--- callCC :: ((a -> Eval b) -> Eval a) -> Eval a
+runSTM :: SIO a -> STM a
+runSTM (MkSTM stm)  = stm
+runSTM (MkIO _ )    = fail "Unsafe IO caught in STM"
+{-
+do
+    let rv = unsafePerformIO io
+    trace ("*** Unsafe CALL!") return rv
+-}
+runSTM (MkSIO x)    = return x
 
-runEvalIO (EvalIO x) = x
-runEvalIO (EvalSTM y) = morph y
-    where
-    -- morph :: ContT Val (ReaderT Env STM) a -> ContT Val (ReaderT Env IO) a
-            -- (a -> ReaderT Env STM Val)
-    morph (ContT c) = morph' (c (\_ -> return $ undef))
-    -- morph' :: ReaderT Env STM Val -> ContT Val (ReaderT Env IO) a
-    morph' (ReaderT r) = do
-        env <- ask
-        morph'' (r env)
-    -- morph'' :: STM Val -> ContT Val (ReaderT Env IO) a
-    morph'' stm = do
-        _ <- liftIO $ atomically stm
-        fail "XXX - Should cast STM to IO here"
-runEvalSTM (EvalIO _) = fail "Cannot cast IO to STM"
-runEvalSTM (EvalSTM y) = y
+runIO :: SIO a -> IO a
+runIO (MkIO io)     = io
+runIO (MkSTM stm)   = atomically stm
+runIO (MkSIO x)     = return x
+
+runEvalSTM :: Env -> Eval Val -> STM Val
+runEvalSTM env = runSTM . (`runReaderT` env) . (`runContT` return) . runEvalT
+
+runEvalIO :: Env -> Eval Val -> IO Val
+runEvalIO env = runIO . (`runReaderT` env) . (`runContT` return) . runEvalT
 
 shiftT :: ((a -> Eval Val) -> Eval Val) -> Eval a
-shiftT e = EvalIO . ContT $ \k ->
-    runContT (runEvalIO . e $ EvalIO . lift . k) return
+shiftT e = EvalT . ContT $ \k ->
+    runContT (runEvalT . e $ lift . lift . k) return
 
 resetT :: Eval Val -> Eval Val
-resetT e@(EvalIO _) = EvalIO . lift $
-    runContT (runEvalIO e) return
-resetT e@(EvalSTM _) = EvalSTM . lift $
-    runContT (runEvalSTM e) return
+resetT e = lift . lift $
+    runContT (runEvalT e) return
 
 callCC :: ((a -> Eval b) -> Eval a) -> Eval a
-callCC f = EvalIO . callCCT $ \c -> runEvalIO . f $ \a -> EvalIO $ c a
+callCC f = EvalT . callCCT $ \c -> runEvalT . f $ \a -> EvalT $ c a
+
+instance Monad SIO where
+    return a = MkSIO a
+    (MkIO io)   >>= k = MkIO $ do { a <- io; runIO (k a) }
+    (MkSTM stm) >>= k = MkSTM $ do { a <- stm; runSTM (k a) }
+    (MkSIO x)   >>= k = k x
 
 instance Monad EvalMonad where
-    return a = EvalIO $ return a
-    m@(EvalIO _) >>= k = EvalIO $ do
-        a <- runEvalIO m
-        runEvalIO (k a)
-    m@(EvalSTM _) >>= k = EvalSTM $ do
-        a <- runEvalSTM m
-        runEvalSTM (k a)
+    return a = EvalT $ return a
+    m >>= k = EvalT $ do
+        a <- runEvalT m
+        runEvalT (k a)
     fail str = do
         pos <- asks envPos
         shiftT . const . return $ VError str (NonTerm pos)
 
+instance MonadTrans EvalT where
+    lift x = EvalT x
+
 instance Functor EvalMonad where
-    fmap f (EvalIO a) = EvalIO (fmap f a)
-    fmap f (EvalSTM a) = EvalSTM (fmap f a)
+    fmap f (EvalT a) = EvalT (fmap f a)
+
+class (Monad m) => MonadSTM m where
+    liftSTM :: STM a -> m a
 
 instance MonadIO EvalMonad where
-    liftIO io = EvalIO (liftIO io)
+    liftIO io = EvalT (liftIO io)
+
+instance MonadSTM EvalMonad where
+    -- XXX: Should be this:
+    -- liftSTM stm = EvalT (lift . lift . liftSTM $ stm)
+    liftSTM stm = EvalT (lift . lift . liftIO . liftSTM $ stm)
+
+instance MonadSTM STM where
+    liftSTM = id
+
+instance MonadSTM IO where
+    liftSTM = atomically
+
+instance MonadIO SIO where
+    liftIO io = MkIO io
+
+instance MonadSTM SIO where
+    liftSTM stm = MkSTM stm
 
 instance MonadReader Env EvalMonad where
-    ask       = EvalIO ask
-    local f m@(EvalIO _) = EvalIO $ local f (runEvalIO m)
-    local f m@(EvalSTM _) = EvalSTM $ local f (runEvalSTM m)
+    ask       = lift ask
+    local f m = EvalT $ local f (runEvalT m)
 
-runEval :: Env -> Eval Val -> IO Val
-runEval env eval = withSocketsDo $ do
+runEvalMain :: Env -> Eval Val -> IO Val
+runEvalMain env eval = withSocketsDo $ do
     my_perl <- initPerl5 ""
-    -- val <- (`runReaderT` env) $ (`runContT` return) $ runEvalIO $ resetT eval
-    val <- (`runReaderT` env) $ (`runContT` return) $ runEvalIO eval
+    val     <- runEvalIO env eval
     freePerl5 my_perl
     return val
 
-findSymRef :: (MonadIO m) => String -> Pad -> m VRef
+findSymRef :: (MonadSTM m) => String -> Pad -> m VRef
 findSymRef name pad = do
     case findSym name pad of
         Just ref -> liftSTM $ readTVar ref
@@ -953,7 +976,7 @@ retIVar = return . VRef . MkRef
 
 writeRef :: VRef -> Val -> Eval ()
 writeRef (MkRef (IScalar s)) (VList vals) = do
-    av <- liftIO (newArray vals)
+    av <- newArray vals
     scalar_store s (VRef $ MkRef av)
 writeRef (MkRef (IScalar s)) val = scalar_store s val
 writeRef (MkRef (IArray s)) val  = array_store s =<< fromVals val
@@ -971,7 +994,7 @@ clearRef (MkRef (IPair s))   = pair_storeVal s undef
 clearRef (MkRef (IThunk tv)) = clearRef =<< fromVal =<< thunk_force tv
 clearRef r = retError "cannot clearRef" r
 
-newObject :: (MonadIO m) => Type -> m VRef
+newObject :: (MonadSTM m) => Type -> m VRef
 newObject (MkType "Scalar") = liftSTM $
     fmap scalarRef $ newTVar undef
 newObject (MkType "Array")  = liftSTM $
@@ -1081,13 +1104,13 @@ hashRef x   = MkRef (IHash x)
 thunkRef x  = MkRef (IThunk x)
 pairRef x   = MkRef (IPair x)
 
-newScalar :: (MonadIO m) => VScalar -> m (IVar VScalar)
+newScalar :: (MonadSTM m) => VScalar -> m (IVar VScalar)
 newScalar = liftSTM . (fmap IScalar) . newTVar
 
-newArray :: (MonadIO m) => VArray -> m (IVar VArray)
+newArray :: (MonadSTM m) => VArray -> m (IVar VArray)
 newArray vals = liftSTM . fmap IArray $ newTVar (map lazyScalar vals)
 
-newHandle :: (MonadIO m) => VHandle -> m (IVar VHandle)
+newHandle :: (MonadSTM m) => VHandle -> m (IVar VHandle)
 newHandle = return . IHandle
 
 proxyScalar :: Eval VScalar -> (VScalar -> Eval ()) -> IVar VScalar
@@ -1128,7 +1151,7 @@ data VRef where
 instance Typeable VRef where
     typeOf (MkRef x) = typeOf x
 
-instance Typeable1 Eval where
+instance Typeable1 (EvalT (ContT Val (ReaderT Env SIO))) where
     typeOf1 _ = typeOf ' '
 
 instance Typeable1 IVar where

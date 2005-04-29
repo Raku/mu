@@ -300,7 +300,7 @@ op1 "async" = \v -> do
     env     <- ask
     code    <- fromVal v
     tid     <- liftIO . (if rtsSupportsBoundThreads then forkOS else forkIO) $ do
-        (`runReaderT` env) $ (`runContT` return) $ runEvalIO $ resetT $ do
+        runEvalIO env $ do
             evl <- asks envEval
             local (\e -> e{ envContext = CxtVoid }) $ do
                 evl (Syn "()" [Val code, Syn "invs" [], Syn "args" []])
@@ -1020,7 +1020,7 @@ op2Numeric f x y
         y' <- fromVal y
         return . VNum $ f x' y'
 
-primOp :: String -> String -> Params -> String -> IO (Pad -> Pad)
+primOp :: String -> String -> Params -> String -> STM (Pad -> Pad)
 primOp sym assoc prms ret = genMultiSym name sub
     where
     name | isAlpha (head sym)

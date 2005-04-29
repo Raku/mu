@@ -33,11 +33,11 @@ externLoad "Haskell" = loadHaskell
 externLoad backend   = error $ "Unrecognized inline backend: " ++ backend
 
 externRequire lang name = do
-    glob    <- asks envGlobal
-    liftIO $ do
-        bindings    <- externLoad lang name
+    glob        <- asks envGlobal
+    bindings    <- liftIO $ externLoad lang name
+    liftSTM $ do
         newSyms     <- mapM gen bindings
-        liftSTM $ modifyTVar glob (\pad -> combine newSyms pad)
+        modifyTVar glob (\pad -> combine newSyms pad)
     where
     gen (name, fun) = genSym ('&':name) . codeRef $ mkPrim
         { subName       = ('&':name)

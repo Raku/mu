@@ -24,7 +24,7 @@ runWithArgs f = do
     f $ canonicalArgs args
 
 runEnv :: Env -> IO Val
-runEnv env = runEval env $ evaluateMain (envBody env)
+runEnv env = runEvalMain env $ evaluateMain (envBody env)
 
 runAST :: Pad -> Exp -> IO Val
 runAST glob ast = do
@@ -43,7 +43,7 @@ runComp comp = do
     name <- getProgName
     args <- getArgs
     env  <- prepareEnv name args
-    runEval env{ envDebug = Nothing } comp
+    runEvalMain env{ envDebug = Nothing } comp
 
 prepareEnv :: VStr -> [VStr] -> IO Env
 prepareEnv name args = do
