@@ -836,6 +836,11 @@ findSym name pad = case lookupPad name pad of
     Just (x:_)  -> Just x
     _           -> Nothing
 
+instance MonadEval EvalMonad
+
+class (MonadReader Env m, MonadSTM m) => MonadEval m where
+--     askGlobal :: m Pad
+
 askGlobal :: Eval Pad
 askGlobal = do
     glob <- asks envGlobal
