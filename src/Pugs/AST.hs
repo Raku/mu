@@ -18,6 +18,7 @@ import Pugs.Context
 import Pugs.Rule
 import List
 import Pugs.Types
+import Data.Dynamic
 import qualified Data.Set       as Set
 import qualified Data.Map       as Map
 
@@ -691,7 +692,7 @@ instance Show Pad where
                             "])"
         dumpTVar ioRef = unsafePerformIO $ do
             ref  <- liftSTM $ readTVar ioRef
-            dump <- (`runReaderT` undefined) $ (`runContT` return) $ runEvalT $ do
+            dump <- (`runReaderT` undefined) $ (`runContT` return) $ runEvalIO $ do
                 dumpRef ref
             return $ "unsafePerformIO (newTVar " ++ vCast dump ++ ")"
 
@@ -715,48 +716,76 @@ show' x = "( " ++ show x ++ " )"
 data Scope = SGlobal | SMy | SOur | SLet | STemp | SState
     deriving (Show, Eq, Ord, Read, Enum)
 
-type Eval x = EvalT (ContT Val (ReaderT Env IO)) x
-type EvalMonad = EvalT (ContT Val (ReaderT Env IO))
-newtype EvalT m a = EvalT { runEvalT :: m a }
+-- type Eval x = EvalT (ContT Val (ReaderT Env IO)) x
+-- type EvalMonad = EvalT (ContT Val (ReaderT Env IO))
+type EvalT x = Eval x
+type EvalMonad = Eval
+
+data (Typeable a) => Eval a where
+    EvalIO :: (ContT Val (ReaderT Env IO)) a -> Eval a
+    EvalSTM :: (ContT Val (ReaderT Env STM)) a -> Eval a
+
+-- callCC :: ((a -> Eval b) -> Eval a) -> Eval a
+
+runEvalIO (EvalIO x) = x
+runEvalIO (EvalSTM y) = morph y
+    where
+    -- morph :: ContT Val (ReaderT Env STM) a -> ContT Val (ReaderT Env IO) a
+            -- (a -> ReaderT Env STM Val)
+    morph (ContT c) = morph' (c (\_ -> return $ undef))
+    -- morph' :: ReaderT Env STM Val -> ContT Val (ReaderT Env IO) a
+    morph' (ReaderT r) = do
+        env <- ask
+        morph'' (r env)
+    -- morph'' :: STM Val -> ContT Val (ReaderT Env IO) a
+    morph'' stm = do
+        _ <- liftIO $ atomically stm
+        fail "XXX - Should cast STM to IO here"
+runEvalSTM (EvalIO _) = fail "Cannot cast IO to STM"
+runEvalSTM (EvalSTM y) = y
 
 shiftT :: ((a -> Eval Val) -> Eval Val) -> Eval a
-shiftT e = EvalT . ContT $ \k ->
-    runContT (runEvalT . e $ lift . lift . k) return
+shiftT e = EvalIO . ContT $ \k ->
+    runContT (runEvalIO . e $ EvalIO . lift . k) return
 
 resetT :: Eval Val -> Eval Val
-resetT e = lift . lift $
-    runContT (runEvalT e) return
+resetT e@(EvalIO _) = EvalIO . lift $
+    runContT (runEvalIO e) return
+resetT e@(EvalSTM _) = EvalSTM . lift $
+    runContT (runEvalSTM e) return
 
 callCC :: ((a -> Eval b) -> Eval a) -> Eval a
-callCC f = EvalT . callCCT $ \c -> runEvalT . f $ \a -> EvalT $ c a
+callCC f = EvalIO . callCCT $ \c -> runEvalIO . f $ \a -> EvalIO $ c a
 
 instance Monad EvalMonad where
-    return a = EvalT $ return a
-    m >>= k = EvalT $ do
-        a <- runEvalT m
-        runEvalT (k a)
+    return a = EvalIO $ return a
+    m@(EvalIO _) >>= k = EvalIO $ do
+        a <- runEvalIO m
+        runEvalIO (k a)
+    m@(EvalSTM _) >>= k = EvalSTM $ do
+        a <- runEvalSTM m
+        runEvalSTM (k a)
     fail str = do
         pos <- asks envPos
         shiftT . const . return $ VError str (NonTerm pos)
 
-instance MonadTrans EvalT where
-    lift x = EvalT x
-
 instance Functor EvalMonad where
-    fmap f (EvalT a) = EvalT (fmap f a)
+    fmap f (EvalIO a) = EvalIO (fmap f a)
+    fmap f (EvalSTM a) = EvalSTM (fmap f a)
 
 instance MonadIO EvalMonad where
-    liftIO io = EvalT (liftIO io)
+    liftIO io = EvalIO (liftIO io)
 
 instance MonadReader Env EvalMonad where
-    ask       = lift ask
-    local f m = EvalT $ local f (runEvalT m)
+    ask       = EvalIO ask
+    local f m@(EvalIO _) = EvalIO $ local f (runEvalIO m)
+    local f m@(EvalSTM _) = EvalSTM $ local f (runEvalSTM m)
 
 runEval :: Env -> Eval Val -> IO Val
 runEval env eval = withSocketsDo $ do
     my_perl <- initPerl5 ""
-    -- val <- (`runReaderT` env) $ (`runContT` return) $ runEvalT $ resetT eval
-    val <- (`runReaderT` env) $ (`runContT` return) $ runEvalT eval
+    -- val <- (`runReaderT` env) $ (`runContT` return) $ runEvalIO $ resetT eval
+    val <- (`runReaderT` env) $ (`runContT` return) $ runEvalIO eval
     freePerl5 my_perl
     return val
 
@@ -1099,7 +1128,7 @@ data VRef where
 instance Typeable VRef where
     typeOf (MkRef x) = typeOf x
 
-instance Typeable1 (EvalT (ContT Val (ReaderT Env IO))) where
+instance Typeable1 Eval where
     typeOf1 _ = typeOf ' '
 
 instance Typeable1 IVar where

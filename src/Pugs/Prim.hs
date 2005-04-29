@@ -300,7 +300,7 @@ op1 "async" = \v -> do
     env     <- ask
     code    <- fromVal v
     tid     <- liftIO . (if rtsSupportsBoundThreads then forkOS else forkIO) $ do
-        (`runReaderT` env) $ (`runContT` return) $ runEvalT $ resetT $ do
+        (`runReaderT` env) $ (`runContT` return) $ runEvalIO $ resetT $ do
             evl <- asks envEval
             local (\e -> e{ envContext = CxtVoid }) $ do
                 evl (Syn "()" [Val code, Syn "invs" [], Syn "args" []])
