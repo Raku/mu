@@ -1,4 +1,11 @@
-{-# OPTIONS_GHC -fglasgow-exts -fvia-C -fno-implicit-prelude -O #-}
+{-# OPTIONS_GHC -fglasgow-exts -fvia-C -cpp #-}
+
+#if __GLASGOW_HASKELL__ > 604
+module Unicode (module Char) where
+import Char hiding (chr, ord, digitToInt)
+#else
+
+{-# OPTIONS_GHC -fno-implicit-prelude -O #-}
 {-# OPTIONS_GHC -#include "UnicodeC.h" #-}
 
 {-
@@ -272,3 +279,4 @@ foreign import ccall unsafe "u_towtitle"
 foreign import ccall unsafe "u_gencat"
   wgencat :: CInt -> Int
 
+#endif

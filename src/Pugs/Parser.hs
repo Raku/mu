@@ -663,7 +663,7 @@ currentFunctions = do
         glob <- readTVar $ envGlobal env
         forM (padToList glob ++ padToList (envLexical env)) $ \(name, ioRefs) -> do
             refs <- mapM readTVar ioRefs
-            return $ map (\ref -> (dropWhile isPunctuation $ name, ref)) refs
+            return $ map (\ref -> (dropWhile (not . isAlphaNum) $ name, ref)) refs
 
 currentUnaryFunctions = do
     env     <- getState
