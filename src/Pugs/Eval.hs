@@ -124,13 +124,6 @@ addGlobalSym newSym = do
         syms <- readTVar glob
         writeTVar glob (newSym syms)
 
-{-
-    Syn "sub" [Val (VCode sub)] | subType sub >= SubBlock -> do
-        -- bare Block in statement level; run it!
-        let app = Syn "()" [exp, Syn "invs" [], Syn "args" []]
-        reduceStatements $ (app, pos):rest
--}
-
 trapVal :: Val -> Eval a -> Eval a
 trapVal val action = case val of
     VError str exp  -> retError str exp

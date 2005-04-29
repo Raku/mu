@@ -109,12 +109,17 @@ ruleStatementList = rule "statements" $ choice
             return $ \exp -> return $ mergeStmts exp stmts
         rest exp
 
+
 -- Stmt is essentially a cons cell
 -- Stmt (Stmt ...) is illegal
 mergeStmts (Stmts x1 x2) y = mergeStmts x1 (mergeStmts x2 y)
 mergeStmts Noop y@(Stmts _ _) = y
 mergeStmts (Sym scope name x) y = Sym scope name (mergeStmts x y)
 mergeStmts (Pad scope lex x) y = Pad scope lex (mergeStmts x y)
+mergeStmts x@(Syn "sub" [Val (VCode sub)]) y | subType sub >= SubBlock =
+    -- bare Block in statement level; run it!
+    let app = Syn "()" [x, Syn "invs" [], Syn "args" []] in
+    mergeStmts app y
 mergeStmts x (Stmts y Noop) = mergeStmts x y
 mergeStmts x (Stmts Noop y) = mergeStmts x y
 mergeStmts x y = Stmts x y
