@@ -604,6 +604,9 @@ extract (Var name) vs
     = (Var name, nub (name:vs))
     | otherwise
     = (Var name, vs)
+extract (Pos pos ex) vs = ((Pos pos ex'), vs')
+    where
+    (ex', vs') = extract ex vs
 extract (Cxt cxt ex) vs = ((Cxt cxt ex'), vs')
     where
     (ex', vs') = extract ex vs
