@@ -117,8 +117,8 @@ incCounter key f = do
         writeTVar ioRef (Map.insert key cnt' fm)
         return $ text (f cnt')
 
-instance Compile SourcePos where
-    compile SourcePos{ sourceName = file, sourceLine = line } = return $ hsep $
+instance Compile Pos where
+    compile MkPos{ posName = file, posBeginLine = line } = return $ hsep $
         [ text "#line"
         , doubleQuotes $ text file
         , showText line
@@ -260,6 +260,10 @@ instance Compile Exp where
     compile (Syn syn [lhs, exp]) | last syn == '=' =
         compile $ Syn "=" [lhs, App ("&infix:" ++ init syn) [lhs, exp] []]
     compile (Cxt _ exp) = compile exp
+    compile (Pos pos exp) = do
+	  posC <- compile pos
+	  expC <- compile exp
+	  return $ vcat [posC, expC]
     compile x = error $ "Cannot compile: " ++ (show x)
 
 showText :: (Show a) => a -> Doc
