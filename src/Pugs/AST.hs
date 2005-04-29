@@ -527,7 +527,9 @@ mkSub = MkCode
     , subBody = emptyExp
     }
 
-instance Ord VComplex where {- ... -}
+instance Ord VComplex where
+    compare (a :+ ai) (b :+ bi) = compare (a, ai) (b, bi)
+
 instance (Typeable a) => Show (TVar a) where
     show _ = "<ref>"
 
