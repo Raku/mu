@@ -552,7 +552,7 @@ ruleBlockLiteral = rule "block construct" $ do
     retBlock typ formal body
 
 extractHash :: Exp -> Maybe Exp
-extractHash (Syn "block" [exp]) = extractHash exp
+extractHash (Syn "block" [exp]) = extractHash (unwrap exp)
 extractHash exp@(App "&pair" _ _) = Just exp
 extractHash exp@(App "&infix:=>" _ _) = Just exp
 extractHash exp@(Syn "," (App "&pair" _ _:_)) = Just exp
