@@ -82,7 +82,6 @@ ruleStatementList = rule "statements" $ choice
     , nonSep  ruleBlockDeclaration
     , semiSep ruleDeclaration
     , nonSep  ruleConstruct
-    , semiSep ruleComment
     , semiSep ruleStatement
     ]
     where
@@ -159,39 +158,6 @@ ruleDocBody = (try ruleDocCut) <|> eof <|> do
 ruleQualifiedIdentifier :: RuleParser [String]
 ruleQualifiedIdentifier = rule "qualified identifer" $ do
     identifier `sepBy1` (try $ string "::")
-
-ruleCommentIntroducer = (<?> "cintro") $ do
-    char '#'
-
-skipToLineEnd = do { skipMany $ satisfy (/= '\n') ; skipMany1 newline }
-ruleComment = do
-    ruleCommentIntroducer
-    (try ruleLineDirective) <|> do
-        --trace ("falling back on comment") $ return ()
-        --pos <- getPosition
-        --trace ((show $ sourceLine pos) ++ ":" ++ (show $ sourceColumn pos)) $ return ()
-        skipToLineEnd
-        option emptyExp ruleStatementList
-
-ruleLineDirective = rule "line directive" $ do
-    pos <- getPosition
-    --trace ("rLD: " ++ (show $ sourceLine pos) ++ ":" ++ (show $ sourceColumn pos)) $ return ()
-    ld <- try $ do
-        unless (sourceColumn pos == 2) $ fail ""
-        --trace ("<position right>") $ return ()
-        skipMany $ satisfy (\x -> isSpace x && x /= '\n')
-        symbol "line"
-        --trace ("<line symbol>") $ return ()
-        line <- many1 digit
-        --trace ("<digits>") $ return ()
-        ruleWhiteSpaceLine -- filename support TBA
-        setPosition $ setSourceLine pos (read line)
-        --trace ("<position set>") $ return ()
-        return (True)
-    -- a failed LineDirective is silently just a comment
-    --trace ("<after main try>") $ return ()
-    unless (ld) $ skipToLineEnd
-    option emptyExp ruleStatementList
 
 -- Declarations ------------------------------------------------
 
