@@ -133,11 +133,15 @@ sub pugs_binary {
     "$base/blib/script/$pugs";
 }
 
-sub deny_cygwin {
+sub warn_cygwin {
     if ($^O eq 'cygwin') {
-	die << "."
-** Cygwin currently unsupported on Win32; please use ActivePerl or MinGW Perl
-   instead, with the .msi installer of GHC.
+        warn << "."
+** Note that Cygwin support for pugs still depends on the .msi
+   version of GHC and does not provide POSIX features absent
+   from an MSYS build. If you wish to fix this please refer to:
+
+   http://www.haskell.org/ghc/docs/5.04/html/building/winbuild.html
+   http://www.reed.edu/~carlislp/ghc6-doc/users_guide/x11221.html
 .
     }
 }

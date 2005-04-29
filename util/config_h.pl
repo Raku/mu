@@ -59,7 +59,8 @@ else {
 .
 }
 
-if ($^O =~ /MSWin32|mingw|msys/i) {
+# FIXME: we assume if you have cywin, you're still using ghc-msys
+if ($^O =~ /MSWin32|mingw|msys|cygwin/i) {
     print OUT "#undef PUGS_HAVE_POSIX\n";
 }
 else {

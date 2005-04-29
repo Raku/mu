@@ -11,7 +11,7 @@ my $version_h = "src/Pugs/pugs_version.h";
 my $config_h = "src/Pugs/pugs_config.h";
 my @srcdirs = (grep(-d, "src", glob "src/*"), grep(-d, glob "src/*/*"), grep(-d, glob "src/*/*/*"));
 
-deny_cygwin     ();
+warn_cygwin     ();
 
 name            ('Perl6-Pugs');
 version_from    ('lib/Perl6/Pugs.pm');
