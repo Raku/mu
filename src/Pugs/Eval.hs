@@ -153,11 +153,13 @@ findVarRef name
     | ('$':'?':_) <- name = do
         rv  <- getMagical name
         case rv of
-            Nothing  -> return Nothing
+            Nothing  -> doFindVarRef name
             Just val -> do
                 tvar <- liftSTM $ newTVar (MkRef . constScalar $ val)
                 return $ Just tvar
-    | otherwise = 
+    | otherwise = doFindVarRef name
+    where
+    doFindVarRef name = do
         callCC $ \foundIt -> do
             lexSym <- fmap (findSym name . envLexical) ask
             when (isJust lexSym) $ foundIt lexSym

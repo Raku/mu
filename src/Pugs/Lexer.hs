@@ -68,7 +68,7 @@ oneLineComment = do
     if isPlain then skipToLineEnd else do
     line <- many1 digit
     ruleWhiteSpaceLine -- filename support TBA
-    setPosition $ setSourceLine pos (read line)
+    setPosition $ pos{ sourceLine = read line, sourceColumn = 1 }
     where
     skipToLineEnd = do
         skipMany (satisfy (/= '\n'))

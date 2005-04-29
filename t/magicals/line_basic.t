@@ -3,27 +3,24 @@
 use v6;
 use Test;
 
-plan 7;
+plan 4;
 
 =kwid
 
 Basic tests for #line
 
-Current status: the last subtest fails and the ones before it pass.
-But when you *delete* $last_subtest, the new $last_subtest passes.
-
 =cut
 
-is($?POSITION, "$?FILE at line 17, column 1", 'plain old $?POSITION');
+is($?POSITION, "$?FILE line 14, column 4-14", 'plain old $?POSITION');
 
-my $dummy = 0; # This comment is not at column1
+my $dummy = 0; # This comment is not column1
 $dummy    = 1; # And neither is this one.
 
-is($?POSITION, "$?FILE at line 22, column 1", "plain comments don't disrupt position");
+is($?POSITION, "$?FILE line 19, column 4-14", "plain comments don't disrupt position");
 
-# This comment does start at column1
+# This comment does start column1
 
-is($?POSITION, "$?FILE at line 26, column 1", "comments at column1 don't disrupt position");
+is($?POSITION, "$?FILE line 23, column 4-14", "comments column1 don't disrupt position");
 
 #line 1024
-is($?POSITION, "$?FILE at line 1024, column 1", "basic #line works");
+is($?POSITION, "$?FILE line 1024, column 4-14", "basic #line works");
