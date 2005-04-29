@@ -327,6 +327,8 @@ reduce env exp@(Syn name exps) = case name of
             then retVal refVal
             else retVal val
     "::=" -> reduce env (Syn ":=" exps)
+    ":=" | [Pos _ x, y] <- exps -> reduce env (Syn ":=" [x, y])
+    ":=" | [x, Pos _ y] <- exps -> reduce env (Syn ":=" [x, y])
     ":=" | [Syn "," vars, Syn "," vexps] <- exps -> do
         when (length vars > length vexps) $ do
             fail $ "Wrong number of binding parameters: "
@@ -365,6 +367,7 @@ reduce env exp@(Syn name exps) = case name of
         key     <- enterEvalContext cxtItemAny keyExp
         val     <- evalExp valExp
         retVal $ castV (key, val)
+    "*" | [Pos _ exp] <- reduce env (Syn "*" exp)
     "*" | [Syn syn [exp]] <- exps -- * cancels out [] and {}
         , syn == "\\{}" || syn == "\\[]"
         -> enterEvalContext cxtSlurpyAny exp
@@ -396,6 +399,7 @@ reduce env exp@(Syn name exps) = case name of
         writeRef av v
         retVal $ VRef av
     -- XXX evil hack for infinite slices
+    "[]" | [lhs, Pos _ exp] <- reduce env (Syn "[]" [lhs, exp])
     "[]" | [lhs, App "&postfix:..." invs args] <- exps
          , [idx] <- invs ++ args
          , not (envLValue env)
