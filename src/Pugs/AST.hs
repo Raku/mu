@@ -733,10 +733,8 @@ type Eval x = EvalT (ContT Val (ReaderT Env SIO)) x
 type EvalMonad = EvalT (ContT Val (ReaderT Env SIO))
 newtype EvalT m a = EvalT { runEvalT :: m a }
 
-data SIO a where
-    MkSTM :: STM a -> SIO a
-    MkIO  :: IO a -> SIO a
-    MkSIO :: a -> SIO a
+data SIO a = MkSTM (STM a) | MkIO (IO a) | MkSIO a
+    deriving (Typeable)
 
 runSTM :: SIO a -> STM a
 runSTM (MkSTM stm)  = stm
@@ -766,9 +764,6 @@ shiftT e = EvalT . ContT $ \k ->
 resetT :: Eval Val -> Eval Val
 resetT e = lift . lift $
     runContT (runEvalT e) return
-
-callCC :: ((a -> Eval b) -> Eval a) -> Eval a
-callCC f = EvalT . callCCT $ \c -> runEvalT . f $ \a -> EvalT $ c a
 
 instance Monad SIO where
     return a = MkSIO a
@@ -838,7 +833,11 @@ findSym name pad = case lookupPad name pad of
 
 instance MonadEval EvalMonad
 
-class (MonadReader Env m, MonadSTM m) => MonadEval m where
+instance MonadCont EvalMonad where
+    -- callCC :: ((a -> Eval b) -> Eval a) -> Eval a
+    callCC f = EvalT . callCCT $ \c -> runEvalT . f $ \a -> EvalT $ c a
+
+class (MonadReader Env m, MonadCont m, MonadIO m, MonadSTM m) => MonadEval m where
 --     askGlobal :: m Pad
 
 askGlobal :: Eval Pad

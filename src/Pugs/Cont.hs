@@ -14,15 +14,15 @@ module Pugs.Cont (
     module Control.Monad.Cont,
 ) where
 
-import qualified Control.Monad.Cont as C (callCC, lift)
-import Control.Monad.Cont (mapContT, withContT, mapCont, withCont, Cont(..), ContT(..), MonadCont)
+import qualified Control.Monad.Cont as C (lift)
+import Control.Monad.Cont (mapContT, withContT, mapCont, withCont, Cont(..), ContT(..), MonadCont(..))
 
 -- Cont' m a is the type of a continuation expecting an a within the 
 -- continuation monad Cont m
 type Cont' m a = forall r. a -> m r
 
 callCCT :: forall a m. MonadCont m => (Cont' m a -> m a) -> m a
-callCCT f = C.callCC f' where
+callCCT f = callCC f' where
   f' :: (a -> m (EmptyMonad m)) -> m a
   f' g = f g' where
     g' :: a -> m b
