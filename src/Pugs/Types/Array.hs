@@ -188,6 +188,7 @@ instance ArrayClass VArray where
     array_iType = const $ mkType "Array::Const"
     array_store [] _ = return ()
     array_store _ [] = return ()
+    array_store (VUndef:as) (_:vs) = array_store as vs
     array_store (a:as) vals@(v:vs) = do
         env <- ask
         ref <- fromVal a

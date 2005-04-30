@@ -12,8 +12,8 @@ and perl6-specific tests.
 
 =cut
 
-plan 71;
-force_todo 20, 21, 26, 28 .. 32, 34 .. 36, 40;
+plan 66;
+force_todo 20, 21, 26, 35, 40;
 
 our $GLOBAL;
 
@@ -109,20 +109,20 @@ ok(!defined(undef), "undef is not defined");
 # Test LHS assignment to undef:
 
 my $interesting;
-eval_ok('(undef, undef, $interesting) = (1,2,3)',"Undef on LHS of list assignment");
+(undef, undef, $interesting) = (1,2,3);
 is($interesting, 3, "Undef on LHS of list assignment");
 
-eval_ok('(undef, $interesting, undef) = (1,2,3)', "Undef on LHS of list assignment");
+(undef, $interesting, undef) = (1,2,3);
 is($interesting, 2, "Undef on LHS of list assignment");
 
-eval_ok('($interesting, undef, undef) = (1,2,3)', "Undef on LHS of list assignment");
+($interesting, undef, undef) = (1,2,3);
 is($interesting, 1, "Undef on LHS of list assignment");
 
 sub two_elements() { (1,2) };
-eval_ok( '(undef,$interesting) = two_elements();', "Undef on LHS of function assignment");
+(undef,$interesting) = two_elements();
 is($interesting, 2, "Undef on LHS of function assignment"); 
 
-eval_ok( '($interesting, undef) = two_elements();', "Undef on LHS of function assignment");
+($interesting, undef) = two_elements();
 is($interesting, 1, "Undef on LHS of function assignment");
 
 =kwid
@@ -140,7 +140,7 @@ Perl6-specific tests
 	ok(defined($ary_r), "array reference");
 
 	undef @ary;
-	ok(!defined($ary_r), "undef array referent");
+	ok(!+$ary_r, "undef array referent");
 
 	is(+$ary_r, 0, "dangling array reference"); 
 
