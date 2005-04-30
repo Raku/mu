@@ -411,9 +411,10 @@ ruleClosureTrait rhs = rule "closure trait" $ do
 
 unsafeEvalLexDiff exp = do
     env  <- getState
+    setState env{ envLexical = mkPad [] }
     env' <- unsafeEvalEnv exp
-    setState env'
-    return $ envLexical env' `diffPads` envLexical env
+    setState env'{ envLexical = envLexical env' `unionPads` envLexical env }
+    return $ envLexical env'
 
 unsafeEvalEnv exp = do
     -- pos <- getPosition
