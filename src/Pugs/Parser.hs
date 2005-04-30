@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -cpp #-}
+{-# OPTIONS_GHC -cpp -fglasgow-exts -funbox-strict-fields #-}
 {-# OPTIONS_GHC -#include "UnicodeC.h" #-}
 
 {-
@@ -1065,13 +1065,12 @@ qInterpolator flags = choice [
             then ruleVerbatimBlock
             else mzero
         backslash = case qfInterpolateBackslash flags of
-            'a' -> try qInterpolatorChar
+            QB_All -> try qInterpolatorChar
                <|> (try qInterpolateQuoteConstruct)
                <|> (try $ qInterpolateDelimiter $ qfProtectedChar flags)
-            's' -> try qInterpolateQuoteConstruct
+            QB_Single -> try qInterpolateQuoteConstruct
                <|> (try $ qInterpolateDelimiter $ qfProtectedChar flags)
-            'n' -> mzero
-            _   -> fail ""
+            QB_No -> mzero
         variable = try $ do
             var <- ruleVarNameString
             fs <- case head var of
@@ -1115,10 +1114,9 @@ qLiteral1 qEnd flags = do
     qEnd
     case qfSplitWords flags of
         -- expr ~~ rx:perl5:g/(\S+)/
-        'y' -> return $ doSplit expr
-        'p' -> return $ doSplit expr
-        'n' -> return expr
-        _   -> fail ""
+        QS_Yes      -> return $ doSplit expr
+        QS_Protect  -> return $ doSplit expr
+        QS_No       -> return expr
     where
     -- words() regards \xa0 as (breaking) whitespace. But \xa0 is
     -- a nonbreaking ws char.
@@ -1154,40 +1152,47 @@ angleBracketLiteral :: RuleParser Exp
 angleBracketLiteral = try $
         do
         symbol "<<"
-        qLiteral1 (symbol ">>") (qqFlags { qfSplitWords = 'p', qfProtectedChar = '>' })
+        qLiteral1 (symbol ">>") $ qqFlags
+            { qfSplitWords = QS_Protect, qfProtectedChar = '>' }
     <|> do
         symbol "<"
-        qLiteral1 (char '>') (qFlags { qfSplitWords = 'y', qfProtectedChar = '>' })
+        qLiteral1 (char '>') $ qFlags
+            { qfSplitWords = QS_Yes, qfProtectedChar = '>' }
     <|> do
         symbol "\xab"
-        qLiteral1 (char '\xbb') (qFlags { qfSplitWords = 'y', qfProtectedChar = '\xbb' })
+        qLiteral1 (char '\xbb') $ qFlags
+            { qfSplitWords = QS_Yes, qfProtectedChar = '\xbb' }
 
 -- Quoting delimitor and flags
-data QFlags = QFlags { qfSplitWords :: !Char,           -- No, Yes, Protect
-                       qfInterpolateScalar :: !Bool,
-                       qfInterpolateArray :: !Bool,
-                       qfInterpolateHash :: !Bool,
-                       qfInterpolateFunction :: !Bool,
-                       qfInterpolateClosure :: !Bool,
-                       qfInterpolateBackslash :: !Char, -- No, Single, All
-                       qfProtectedChar :: !Char,
-                       qfP5RegularExpression :: !Bool,
-                       qfFailed :: !Bool -- Failed parse
-                      {- qfProtectedChar is the character to be
-                         protected by backslashes, if
-                         qfInterpolateBackslash is Single or All.
-                       -}
-                     }
+-- qfProtectedChar is the character to be
+--   protected by backslashes, if
+--   qfInterpolateBackslash is Single or All.
+data QS_Flag = QS_No | QS_Yes | QS_Protect deriving (Show, Eq, Ord, Typeable)
+data QB_Flag = QB_No | QB_Single | QB_All deriving (Show, Eq, Ord, Typeable)
+
+data QFlags = MkQFlags
+    { qfSplitWords              :: !QS_Flag -- No, Yes, Protect
+    , qfInterpolateScalar       :: !Bool
+    , qfInterpolateArray        :: !Bool
+    , qfInterpolateHash         :: !Bool
+    , qfInterpolateFunction     :: !Bool
+    , qfInterpolateClosure      :: !Bool
+    , qfInterpolateBackslash    :: !QB_Flag -- No, Single, All
+    , qfProtectedChar           :: !Char
+    , qfP5RegularExpression     :: !Bool
+    , qfFailed                  :: !Bool -- Failed parse
+    }
+    deriving (Show, Eq, Ord, Typeable)
 
 getQFlags :: [String] -> Char -> QFlags
 getQFlags flagnames protectedChar =
     (foldr useflag qFlags $ reverse flagnames) { qfProtectedChar = protectedChar }
     where
         -- Additive flags
-          useflag "w" qf          = qf { qfSplitWords = 'y' }
-          useflag "words" qf      = qf { qfSplitWords = 'y' }
-          useflag "ww" qf         = qf { qfSplitWords = 'p' }
-          useflag "quotewords" qf = qf { qfSplitWords = 'p' }
+          useflag "w" qf          = qf { qfSplitWords = QS_Yes }
+          useflag "words" qf      = qf { qfSplitWords = QS_Yes }
+          useflag "ww" qf         = qf { qfSplitWords = QS_Protect }
+          useflag "quotewords" qf = qf { qfSplitWords = QS_Protect }
           useflag "s" qf          = qf { qfInterpolateScalar = True }
           useflag "scalar" qf     = qf { qfInterpolateScalar = True }
           useflag "a" qf          = qf { qfInterpolateArray = True }
@@ -1198,8 +1203,8 @@ getQFlags flagnames protectedChar =
           useflag "function" qf   = qf { qfInterpolateFunction = True }
           useflag "c" qf          = qf { qfInterpolateClosure = True }
           useflag "closure" qf    = qf { qfInterpolateClosure = True }
-          useflag "b" qf          = qf { qfInterpolateBackslash = 'a' }
-          useflag "backslash" qf  = qf { qfInterpolateBackslash = 'a' }
+          useflag "b" qf          = qf { qfInterpolateBackslash = QB_All }
+          useflag "backslash" qf  = qf { qfInterpolateBackslash = QB_All }
 
         -- Zeroing flags
           useflag "0" _           = rawFlags
@@ -1236,14 +1241,16 @@ getQDelim = try $
         string "<<"
         return (
             string ">>" >> return 'x',
-            qqFlags { qfSplitWords = 'p', qfProtectedChar = '>' }))
+            qqFlags { qfSplitWords = QS_Yes, qfProtectedChar = '>' }))
     <|> do
         delim <- oneOf "\"'<\xab"
         case delim of
             '"'     -> return (char '"',    qqFlags)
             '\''    -> return (char '\'',   qFlags)
-            '<'     -> return (char '>',    qFlags { qfSplitWords = 'y', qfProtectedChar = '>' })
-            '\xab'  -> return (char '\xbb', qqFlags { qfSplitWords = 'p', qfProtectedChar = '\xbb' })
+            '<'     -> return (char '>',    qFlags
+                { qfSplitWords = QS_Yes, qfProtectedChar = '>' })
+            '\xab'  -> return (char '\xbb', qqFlags
+                { qfSplitWords = QS_Protect, qfProtectedChar = '\xbb' })
             _       -> fail ""
 
     where
@@ -1251,10 +1258,10 @@ getQDelim = try $
                        many alphaNum
 
 -- Default flags
-qFlags    = QFlags 'n' False False False False False 's' '\'' False False
-qqFlags   = QFlags 'n' True True True True True 'a' '"' False False
-rawFlags  = QFlags 'n' False False False False False 'n' 'x' False False
-rxP5Flags = QFlags 'n' True True True True True 'n' '/' True False
+qFlags    = MkQFlags QS_No False False False False False QB_Single '\'' False False
+qqFlags   = MkQFlags QS_No True True True True True QB_All '"' False False
+rawFlags  = MkQFlags QS_No False False False False False QB_No 'x' False False
+rxP5Flags = MkQFlags QS_No True True True True True QB_No '/' True False
 
 -- Regexps
 rxLiteral1 :: Char -- Closing delimiter
