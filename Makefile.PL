@@ -125,8 +125,12 @@ src/Pugs/Config.hs : util/PugsConfig.pm
 profiled :: src/Pugs/Config.hs @srcfiles $version_h @prereqs
 	$ghc $threaded -auto-all -prof --make $ghc_flags $ghc_output
 
+optimised :: optimized
+
 optimized :: src/Pugs/Config.hs @srcfiles $version_h @prereqs
 	$ghc $threaded -O1 --make $ghc_flags $ghc_output
+
+unoptimised :: optimized
 
 unoptimized :: src/Pugs/Config.hs @srcfiles $version_h @prereqs
 	$ghc $threaded -O0 --make $ghc_flags $ghc_output
