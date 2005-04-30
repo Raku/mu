@@ -287,8 +287,13 @@ reduce exp@(Syn name exps) = case name of
             runBody [] = retVal undef
             runBody vs = do
                 let (these, rest) = arity `splitAt` vs
-                apply sub [] $ map Val these
+                apply (munge sub) [] $ map Val these
                 runBody rest
+            -- XXX: need clarification -- this makes
+            --      for @x { ... } into for @x -> $_ {...}
+            munge sub | subParams sub == [defaultArrayParam] =
+                sub{ subParams = [defaultScalarParam] }
+            munge sub = sub
         enterLoop $ runBody vals
     "loop" -> do
         let [pre, cond, post, body] = case exps of { [_] -> exps'; _ -> exps }
