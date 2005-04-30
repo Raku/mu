@@ -130,7 +130,7 @@ profiled :: src/Pugs/Config.hs @srcfiles $version_h @prereqs
 	$ghc $threaded -auto-all -prof --make $profiled_flags $ghc_output
 
 pugs.prof :: profiled
-	find t -type f | grep -v D | grep -v R | xargs ./pugs -e
+	find t -type f | grep -v D | grep -v R | xargs ./pugs -e 'require() for \@ARGS'
 
 optimised :: optimized
 
