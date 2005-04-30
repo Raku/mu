@@ -26,8 +26,16 @@ my $tap = My::Model->new_with_struct(delete $data->{meat});
 my $v = My::HTMLMatrix->new($tap, Dump($data));
 inline_css($v) if $Config{inlinecss};
 
-binmode STDOUT, ":utf8" or die "binmode: $!";
-print "$v";
+my $fh;
+if (my $out = shift) {
+    open $fh, '>', $out or die $!;
+}
+else {
+    $fh = \*STDOUT;
+}
+binmode $fh, ":utf8" or die "binmode: $!";
+print $fh "$v";
+close $fh;
 
 sub usage {
   print <<"USAGE";
