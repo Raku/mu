@@ -45,8 +45,8 @@ op0 "File::Spec::tmpdir" = const $ do
     tmp <- liftIO getTemporaryDirectory
     return $ VStr tmp
 op0 "pi" = const $ return (VNum pi)
-op0 "say" = const $ op1 "say" =<< readVar "$*_"
-op0 "print" = const $ op1 "print" =<< readVar "$*_"
+op0 "say" = const $ op1 "say" =<< readVar "$_"
+op0 "print" = const $ op1 "print" =<< readVar "$_"
 op0 "return" = \v -> return (VError "cannot return() outside a subroutine" (Val $ VList v))
 op0 other = \x -> return $ VError ("unimplemented listOp: " ++ other) (App other (map Val x) [])
 
@@ -448,7 +448,7 @@ op1Sum list = do
 
 op1Print :: (Handle -> String -> IO ()) -> Val -> Eval Val
 op1Print f v@(VHandle _) = do
-    def <- readVar "$*_"
+    def <- readVar "$_"
     op1Print f (VList [v, def])
 op1Print f v = do
     val  <- readRef =<< fromVal v
@@ -1084,10 +1084,10 @@ foldParam ""        = id
 foldParam ('?':str)
     | ('r':'w':'!':typ) <- str
     = \ps -> ((buildParam typ "?" "$?1" (Val VUndef)) { isLValue = True }:ps)
-    | (('r':'w':'!':typ), "=$*_") <- break (== '=') str
-    = \ps -> ((buildParam typ "?" "$?1" (Var "$*_")) { isLValue = True }:ps)
+    | (('r':'w':'!':typ), "=$_") <- break (== '=') str
+    = \ps -> ((buildParam typ "?" "$?1" (Var "$_")) { isLValue = True }:ps)
     | (typ, "=$_") <- break (== '=') str
-    = \ps -> ((buildParam typ "?" "$?1" (Var "$*_")) { isLValue = False }:ps)
+    = \ps -> ((buildParam typ "?" "$?1" (Var "$_")) { isLValue = False }:ps)
     | (typ, ('=':def)) <- break (== '=') str
     = let readVal "Num" = Val . VNum . read
           readVal "Int" = Val . VInt . read
