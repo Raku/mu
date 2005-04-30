@@ -130,7 +130,7 @@ profiled :: src/Pugs/Config.hs @srcfiles $version_h @prereqs
 	$ghc $threaded -auto-all -prof --make $profiled_flags $ghc_output
 
 pugs.prof :: profiled
-	find t -type f | grep -v D | grep -v R | grep -v pugsrun | xargs ./pugs +RTS -p -RTS -e 'my sub exit {}; require() for \@ARGS'
+	find t -type f | grep -v D | grep -v R | grep -v pugsrun | ./pugs +RTS -p -RTS -e 'my sub exit {}; for =\$\$*IN -> \$\$t is copy { chomp \$\$t; require \$\$t }'
 
 optimised :: optimized
 
