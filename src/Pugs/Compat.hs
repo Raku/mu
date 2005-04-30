@@ -45,6 +45,7 @@ import System.Posix.Files
 import System.Posix.User
 import qualified System.Posix.Signals
 
+statFileSize :: FilePath -> IO Integer
 statFileSize f = do
     s <- getFileStatus f
     return (toInteger (fileSize s))

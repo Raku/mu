@@ -48,24 +48,33 @@ printCommandLineHelp
         putStrLn "-v or --version  version"
         putStrLn "-l -d and -w are ignored for compatability with perl 5"
 
+name :: String
 name       = "Perl6 User's Golfing System"
+versnum :: String
 versnum    = PUGS_VERSION
+date :: String
 date	   = PUGS_DATE
+version :: String
 version    = name ++ ", version " ++ versnum ++ ", " ++ date ++ revision
+copyright :: String
 copyright  = "Copyright 2005 by Autrijus Tang"
+revnum :: String
 revnum     = show(PUGS_SVN_REVISION :: Integer)
+revision :: String
 revision
     | rev <- revnum
     , rev /= "0"
     = " (r" ++ rev ++ ")"
     | otherwise
     = ""
+disclaimer :: String
 disclaimer =
     "This software is distributed under the terms of the " ++
     "GNU Public Licence.\n" ++
     "NO WARRANTY WHATSOEVER IS PROVIDED. " ++
     "See the details in the documentation."
 
+versionFill :: Int -> String
 versionFill n = fill ++ vstr
     where
     fill = replicate (n - vlen) ' '

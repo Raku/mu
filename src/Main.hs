@@ -33,6 +33,7 @@ main = do
     hSetBuffering stdout NoBuffering
     runWithArgs run
 
+warn :: Show a => a -> IO ()
 warn x = do
             hPrint stderr $ show x
 

@@ -127,6 +127,7 @@ module Pugs.Config (
 import qualified Data.Map as Map
 import qualified Pugs.Help
 
+config :: Map.Map String String
 config = Map.fromList
 	[#all_definitions#
 	,("pugs_versnum", Pugs.Help.versnum)

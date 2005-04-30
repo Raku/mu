@@ -111,6 +111,7 @@ class RegexContext x a where
 (!~) :: RegexLike r x => [x] -> r -> Bool
 s !~ re = not (s =~ re)
 
+regexFailed :: (RegexLike r a, Monad m) => r -> m b
 regexFailed re =  fail $ "regex failed to match: " ++ matchShow re
 
 -- | return number of expressions matched
@@ -151,6 +152,7 @@ instance RegexContext x [Either [x] [x]] where
         xs -> return $  xs
 -}
 
+extract :: [a] -> (Int, Int) -> [a]
 extract s (x,y) = take y (drop x s)
 
 instance RegexContext x [x] where

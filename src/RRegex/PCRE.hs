@@ -58,6 +58,7 @@ compile pattern flags = withCString pattern $ \cstr ->
             return $ Left (fi eo,es)
           else fmap (Right . Regex) (newForeignPtr_ v)
 
+getNumSubs :: Ptr PCRE -> IO CInt
 getNumSubs (pcre_ptr) = 
     --withForeignPtr pcre_fptr $ \pcre_ptr -> 
         alloca $ \st -> do

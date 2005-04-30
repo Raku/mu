@@ -41,19 +41,25 @@ newPos :: SourceName -> Line -> Column -> SourcePos
 newPos sourceName line column
     = SourcePos sourceName line column
 
+initialPos :: SourceName -> SourcePos
 initialPos sourceName
     = newPos sourceName 1 1
 
+incSourceLine :: SourcePos -> Line -> SourcePos
 incSourceLine   s@(SourcePos _ line _)   n = s{sourceLine=(line+n)}
+incSourceColumn :: SourcePos -> Column -> SourcePos
 incSourceColumn s@(SourcePos _ _ column) n = s{sourceColumn=(column+n)}
 
+setSourceName :: SourcePos -> SourceName -> SourcePos
 setSourceName   s n = s{sourceName  =n}
+setSourceLine :: SourcePos -> Line -> SourcePos
 setSourceLine   s n = s{sourceLine  =n}
+setSourceColumn :: SourcePos -> Column -> SourcePos
 setSourceColumn s n = s{sourceColumn=n}
 
 -----------------------------------------------------------
 -- Update source positions on characters
------------------------------------------------------------                         
+-----------------------------------------------------------
 updatePosString :: SourcePos -> String -> SourcePos
 updatePosString pos string
     = forcePos (foldl updatePosChar pos string)

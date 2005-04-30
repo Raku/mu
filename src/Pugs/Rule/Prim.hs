@@ -126,6 +126,7 @@ setParserState st   = updateParserState (const st)
 type Parser a           = GenParser Char () a
 
 newtype GenParser tok st a = Parser (State tok st -> Consumed (Reply tok st a))
+runP :: GenParser tok st a -> State tok st -> Consumed (Reply tok st a)
 runP (Parser p)            = p
 
 data Consumed a         = Consumed a                --input is consumed
@@ -169,6 +170,7 @@ runParser p st name input
         Ok x _ _    -> Right x
         Error err   -> Left err
 
+parserReply :: Consumed a -> a
 parserReply result     
     = case result of
         Consumed reply -> reply
@@ -228,6 +230,7 @@ parsecBind (Parser p) f
                  Error err1       -> Empty (Error err1)
       )                                                              
 
+mergeErrorReply :: ParseError -> Reply tok st t -> Reply tok st t
 mergeErrorReply err1 reply
   = case reply of
       Ok x state err2 -> Ok x state (mergeError err1 err2)
@@ -371,12 +374,15 @@ unexpected msg
     = Parser (\state -> Empty (Error (newErrorMessage (UnExpect msg) (statePos state))))
     
 
+setExpectErrors :: ParseError -> [String] -> ParseError
 setExpectErrors err []         = setErrorMessage (Expect "") err
 setExpectErrors err [msg]      = setErrorMessage (Expect msg) err
 setExpectErrors err (msg:msgs) = foldr (\msg err -> addErrorMessage (Expect msg) err) 
                                        (setErrorMessage (Expect msg) err) msgs
 
+sysUnExpectError :: String -> SourcePos -> Reply tok st a
 sysUnExpectError msg pos  = Error (newErrorMessage (SysUnExpect msg) pos)
+unknownError :: State tok st -> ParseError
 unknownError state        = newErrorUnknown (statePos state)
 
 -----------------------------------------------------------

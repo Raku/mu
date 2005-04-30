@@ -32,6 +32,7 @@ import qualified Data.Map       as Map
 
 type Ident = String
 
+errIndex :: Show a => Maybe b -> a -> Eval b
 errIndex (Just v) _ = return v
 errIndex _ idx =
     retError "Modification of non-creatable array value attempted" idx
@@ -114,6 +115,7 @@ class (Typeable n, Show n, Ord n) => Value n where
     fmapVal :: (n -> n) -> Val -> Val
     fmapVal f = castV . f . vCast
 
+castFail :: (Show a, Typeable b) => a -> b
 castFail v = err
     where
     err = error $ "cannot cast from " ++ show v ++ " to " ++ typ
