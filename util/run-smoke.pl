@@ -6,7 +6,16 @@ use Shell qw(svn);
 use Config;
 use File::Spec;
 
-check_prereq($_) for qw/Test::TAP::Model Test::TAP::HTMLMatrix/;
+my $failed = 0;
+for (qw/YAML Test::TAP::Model Test::TAP::HTMLMatrix/) {
+    check_prereq($_) or $failed++;
+}
+
+die <<"EOF" if $failed;
+
+You don't seem to have the required modules installed.
+Please install it from the CPAN and try again.
+EOF
 
 #
 # run-smoke.pl /some/sandbox/dir /some/www/file.html
@@ -37,16 +46,14 @@ sub upload_smoke {
 
 sub check_prereq {
     my ($mod) = @_;
-    (my $file = $mod) =~ s,::,/,g; # FIXME make portable
-    $file .= ".pm";    # (this sucks.)
-    eval {
-        require $file;
-    } or do {
-        die "The module $mod require failed:\n $@" if $@;
-        die <<"EOF";
-You don't seem to have the module $mod installed.
-Please install it from the CPAN and try again.
-EOF
-    };
+    (my $file = $mod) =~ s,::,/,g;
+    if (eval { require "$file.pm"; 1 }) {
+        return 1;
+    }
+    else {
+        warn "$mod - missing dependency\n";
+        warn "($@)\n" if $@ and $@ !~ /Can't locate \Q$file\E/;
+        return 0;
+    }
 }
 # END
