@@ -99,6 +99,10 @@ sub set_postamble {
     my $threaded = (!$is_win32 and try_compile("main = return ()", "-threaded"))
         ? '-threaded' : '';
 
+    # XXX - hsplugins doesn't build with profiles
+    my $profiled_flags = $ghc_flags;
+    $profiled_flags =~ s{-DPUGS_HAVE_HSPLUGINS=1}{};
+
     postamble(fixpaths(<< "."));
 $config_h : lib/Perl6/Pugs.pm util/config_h.pl
 	\$(PERL) util/config_h.pl "$ghc $ghc_flags"
@@ -123,7 +127,7 @@ src/Pugs/Config.hs : util/PugsConfig.pm
 	\$(PERLRUN) util/munge_haddock.pl \$@
 
 profiled :: src/Pugs/Config.hs @srcfiles $version_h @prereqs
-	$ghc $threaded -auto-all -prof --make $ghc_flags $ghc_output
+	$ghc $threaded -auto-all -prof --make $profiled_flags $ghc_output
 
 pugs.prof :: profiled
 	find t -type f | grep -v D | grep -v R | xargs ./pugs -e
