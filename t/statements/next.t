@@ -64,11 +64,10 @@ plan 7;
 }
 
 {
-    eval_is(
-        'my $tracker=0; for (1 .. 5) -> $out {for (10 .. 11) -> $in {next if $out > 2; $tracker = $in + $out;}$tracker',
+    eval_is('my $tracker=0;for (1..5)->$out {for (10..11)->$in {next if $out > 2;$tracker = $in + $out;}}$tracker;',
         13,
-        'inner loop skips once inner is run twice (next inside nested loops),
-        :todo(1)'
+        'inner loop skips once inner is run twice (next inside nested loops)',
+        :todo(1)
     );
 }
 
