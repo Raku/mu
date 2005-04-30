@@ -181,7 +181,8 @@ instance Compile Exp where
         (valC, p) <- compileArg val
         return $ valC $+$ text ".return" <+> parens p
     compile (App "&last" _ _) = return $ text "invoke last"
-    compile (App "&substr" [] [str, idx, Val (VInt 1)]) = do
+    compile (App "&substr" [] [str, idx, len])
+        | Val v <- unwrap len, vCast v == (1 :: VNum) = do
         (strC, p1) <- enterLValue $ compileArg str
         (idxC, p2) <- enterLValue $ compileArg idx
         rv         <- constPMC $ hcat [ p1, text "[" , p2, text "]"]
