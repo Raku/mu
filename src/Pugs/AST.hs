@@ -549,21 +549,34 @@ instance Show Pos where
     show (MkPos name bln bcl eln ecl) = "(MkPos " ++ show name ++ " " ++
         (unwords . map show $ [bln, bcl, eln, ecl]) ++ ")"
 
+{- Expressions
+   "App" represents function application, e.g. myfun($invocant: $arg)
+
+   "Syn" represents a structure that cannot be represented by an App.
+   For example, Syn "block" [...block body...]
+                Syn "="     [lhs, rhs]
+   ... or class definitions, where traits may be assigned either in
+   the signature or inside the body.
+
+   There is no top-level marker, like unix filesystems don't have
+   volume letters.
+-}
+
 data Exp
-    = Noop
-    | App !String ![Exp] ![Exp]
-    | Syn !String ![Exp]
-    | Cxt !Cxt !Exp
-    | Pos !Pos !Exp
-    | Pad !Scope !Pad !Exp
-    | Sym !Scope !Var !Exp
-    | Stmts !Exp !Exp
-    | Prim !([Val] -> Eval Val)
-    | Val !Val
-    | Var !Var
-    | Parens !Exp
-    | NonTerm !Pos
-    deriving (Show, Eq, Ord, Typeable)
+    = Noop                               -- No-op
+    | App !String ![Exp] ![Exp]          -- Function application
+    | Syn !String ![Exp]                 -- Syntax
+    | Cxt !Cxt !Exp                      -- Context
+    | Pos !Pos !Exp                      -- Position
+    | Pad !Scope !Pad !Exp               -- Lexical pad
+    | Sym !Scope !Var !Exp               -- Symbol
+    | Stmts !Exp !Exp                    -- Statements
+    | Prim !([Val] -> Eval Val)          -- Primitive
+    | Val !Val                           -- Value
+    | Var !Var                           -- Variable
+    | Parens !Exp                        -- Parentheses (not usually used)
+    | NonTerm !Pos                       -- Parse error
+     deriving (Show, Eq, Ord, Typeable)
 
 class Unwrap a where
     unwrap :: a -> a
