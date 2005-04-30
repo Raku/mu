@@ -351,6 +351,7 @@ sub _run_all_tests {
                     skipped     => $results{skip},
                     skip_reason => $results{skip_reason},
                     skip_all    => $Strap->{skip_all},
+                    todo        => $results{todo},
                     ml          => $ml,
                    );
 
@@ -379,6 +380,8 @@ sub _run_all_tests {
                 print "skipped\n        all skipped: no reason given\n";
                 $tot{skipped}++;
             }
+            print("        $test{todo}/$test{max} TODO test" . ($test{todo} > 1 ? "s" : "") . "\n")
+                if $test{todo};    
             $tot{good}++;
         }
         else {
@@ -642,6 +645,10 @@ sub _bonusmsg {
     $bonusmsg = (" ($tot->{bonus} subtest".($tot->{bonus} > 1 ? 's' : '').
                " UNEXPECTEDLY SUCCEEDED)")
         if $tot->{bonus};
+        
+    $bonusmsg .= (" ($tot->{todo} subtest".($tot->{todo} > 1 ? 's' : '').
+                   " TODO)")
+            if $tot->{bonus};        
 
     if ($tot->{skipped}) {
         $bonusmsg .= ", $tot->{skipped} test"
