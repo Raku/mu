@@ -125,6 +125,9 @@ src/Pugs/Config.hs : util/PugsConfig.pm
 profiled :: src/Pugs/Config.hs @srcfiles $version_h @prereqs
 	$ghc $threaded -auto-all -prof --make $ghc_flags $ghc_output
 
+pugs.prof :: profiled
+	find t -type f | grep -v D | grep -v R | xargs ./pugs -e
+
 optimised :: optimized
 
 optimized :: src/Pugs/Config.hs @srcfiles $version_h @prereqs
