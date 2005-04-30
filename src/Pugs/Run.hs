@@ -99,8 +99,8 @@ prepareEnv name args = do
         , genSym "$*ARGS"       $ MkRef argsGV
         , genSym "$!"           $ MkRef errSV
         , genSym "$/"           $ MkRef matchAV
-        , genSym "%*ENV"        $ hashRef (undefined :: IHashEnv)
-        , genSym "$*CWD"        $ scalarRef (undefined :: IScalarCwd)
+        , genSym "%*ENV"        $ hashRef MkHashEnv
+        , genSym "$*CWD"        $ scalarRef MkScalarCwd
         -- XXX What would this even do?
         -- , genSym "%=POD"        (Val . VHash $ emptyHV)
         , genSym "@=POD"        $ MkRef $ constArray []

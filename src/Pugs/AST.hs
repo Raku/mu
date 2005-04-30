@@ -751,7 +751,7 @@ type Eval x = EvalT (ContT Val (ReaderT Env SIO)) x
 type EvalMonad = EvalT (ContT Val (ReaderT Env SIO))
 newtype EvalT m a = EvalT { runEvalT :: m a }
 
-data SIO a = MkSTM (STM a) | MkIO (IO a) | MkSIO a
+data SIO a = MkSTM !(STM a) | MkIO !(IO a) | MkSIO !a
     deriving (Typeable)
 
 runSTM :: SIO a -> STM a
@@ -873,13 +873,21 @@ writeVar name val = do
         _        -> return () -- XXX Wrong
 
 readVar :: Var -> Eval Val
-readVar name = do
+readVar name@(_:'*':_) = do
     glob <- askGlobal
     case findSym name glob of
         Just ioRef -> do
             ref <- liftSTM $ readTVar ioRef
             readRef ref
         _        -> return undef
+readVar name@(sigil:rest) = do
+    lex <- asks envLexical
+    case findSym name lex of
+        Just ioRef -> do
+            ref <- liftSTM $ readTVar ioRef
+            readRef ref
+        _  -> readVar (sigil:'*':rest)
+readVar _ = return undef
 
 emptyExp = Noop
 
@@ -1075,17 +1083,17 @@ doArray val f = do
 
 #ifndef HADDOCK
 data (Typeable v) => IVar v where
-    IScalar :: ScalarClass a => a -> IVar VScalar
-    IArray  :: ArrayClass  a => a -> IVar VArray
-    IHash   :: HashClass   a => a -> IVar VHash
-    ICode   :: CodeClass   a => a -> IVar VCode
-    IHandle :: HandleClass a => a -> IVar VHandle
-    IRule   :: RuleClass   a => a -> IVar VRule
-    IThunk  :: ThunkClass  a => a -> IVar VThunk
-    IPair   :: PairClass   a => a -> IVar VPair
+    IScalar :: ScalarClass a => !a -> IVar VScalar
+    IArray  :: ArrayClass  a => !a -> IVar VArray
+    IHash   :: HashClass   a => !a -> IVar VHash
+    ICode   :: CodeClass   a => !a -> IVar VCode
+    IHandle :: HandleClass a => !a -> IVar VHandle
+    IRule   :: RuleClass   a => !a -> IVar VRule
+    IThunk  :: ThunkClass  a => !a -> IVar VThunk
+    IPair   :: PairClass   a => !a -> IVar VPair
 
 data VOpaque where
-    MkOpaque :: Value a => a -> VOpaque
+    MkOpaque :: Value a => !a -> VOpaque
 
 instance Eq VOpaque where
     (MkOpaque x) == (MkOpaque y) = castV x == castV y
@@ -1175,8 +1183,6 @@ type IArraySlice = [IVar VScalar]
 type IHash   = TVar (Map VStr (IVar VScalar))
 type IScalar = TVar Val
 type ICode   = TVar VCode
-data IHashEnv deriving (Typeable) -- phantom types! fun!
-data IScalarCwd deriving (Typeable) -- phantom types! fun!
 type IScalarProxy = (Eval VScalar, (VScalar -> Eval ()))
 type IScalarLazy = Maybe VScalar
 
@@ -1184,9 +1190,12 @@ type IScalarLazy = Maybe VScalar
 type IRule   = VRule
 type IHandle = VHandle -- XXX maybe TVar?
 
+data IHashEnv = MkHashEnv deriving (Typeable)
+data IScalarCwd = MkScalarCwd deriving (Typeable)
+
 -- GADTs, here we come!
 data VRef where
-    MkRef   :: (Typeable a) => IVar a -> VRef
+    MkRef   :: (Typeable a) => !(IVar a) -> VRef
 
 instance Typeable VRef where
     typeOf (MkRef x) = typeOf x
