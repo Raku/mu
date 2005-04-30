@@ -24,6 +24,9 @@ deltaType = junctivate min max $ \tree base target ->
         then countTree tree - distance
         else distance
 
+junctivate :: (t -> t -> t) -> (t -> t -> t)
+              -> (ClassTree -> Type -> Type -> t)
+              -> ClassTree -> Type -> Type -> t
 junctivate or and f tree base target
     | TypeOr t1 t2 <- target
     = redo base t1 `or` redo base t2
@@ -49,7 +52,7 @@ isaType' = junctivate (||) (&&) $ \tree base target ->
 -- XXX -- Junctive Types -- XXX --
 distanceType :: ClassTree -> Type -> Type -> Int
 distanceType tree base target
-    | not (castOk base target)  = 0
+--  | not (castOk base target)  = 0
     | otherwise         = distance
     where
     distance  = compareList l1 l2
@@ -59,7 +62,7 @@ distanceType tree base target
 castOk :: a -> b -> Bool
 castOk _ _ = True
 
-compareList :: (Eq a) => [a] -> [a] -> Int
+compareList :: [Type] -> [Type] -> Int
 compareList [] _ = 0
 compareList _ [] = 0
 compareList l1 l2
@@ -67,7 +70,7 @@ compareList l1 l2
     | last l2 `elem` l1 = - length(l1 \\ l2) - 1
     | otherwise = compareList l1 (init l2)
 
-findList :: (Eq a) => a -> Tree a -> [a]
+findList :: Type -> Tree Type -> [Type]
 findList base (Node l cs)
     | base == l                             = [l]
     | Just ls <- find (not . null) found    = l:ls
