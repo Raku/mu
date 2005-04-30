@@ -190,10 +190,10 @@ sub proclaim (Bool $cond, Str ?$desc is copy, Str ?$context is copy, Str ?$got, 
     $context = "TODO for release" if $NUM_OF_TESTS_RUN == $FORCE_TODO_TEST_JUNCTION;
 
     # Make all TODO tests fail visibly unless we're releasing.
-    if( !$cond and $context eq 'TODO for release' and !%ENV<PUGS_RELEASE> ) {
-	$context = '';
-	$desc = "TODO for release: $desc";
-    }
+    #if( !$cond and $context eq 'TODO for release' and !%ENV<PUGS_RELEASE> ) {
+	#$context = '';
+	#$desc = "TODO for release: $desc";
+    #}
 
     my $ok := $cond ?? "ok " :: "not ok ";
     my $out = defined($desc) ?? " - $desc" :: "";
