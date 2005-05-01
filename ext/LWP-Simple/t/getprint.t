@@ -24,7 +24,7 @@ sub spawn_server (Int $port) {
   my $sock = listen($port);
 
   my $url = "http://localhost:$port";
-  ok(defined $sock, "Listening on $url");
+  ok(defined($sock), "Listening on $url");
 
   async {
     #diag "Spawned server";
@@ -33,13 +33,13 @@ sub spawn_server (Int $port) {
       my $hdl = $sock.accept;
 
       my $request = =$hdl;
-      $request ~~ s:perl5/\s+$//;
+      $request ~~ s:Perl5/\s+$//;
       #diag $request;
-      if ($request ~~ rx:perl5/^GET \/stop-server\//) {
+      if ($request ~~ rx:Perl5{^GET /stop-server/}) {
         last();
       };
 
-      while (readline($hdl) ~~ rx:perl5/\S/) { 1 };
+      while (readline($hdl) ~~ rx:Perl5/\S/) { 1 };
       $hdl.print( "HTTP/1.0 200 OK\r\n"
                 ~ "Content-Type: text/plain; charset=UTF-8\r\n"
                 ~ "Server: Fake local Pugs HTTPd\r\n"
@@ -87,7 +87,7 @@ for @urls -> $t_url {
   # Will block forever
   # my $output = run_pugs(qq! $inc -MLWP::Simple -e "getprint('$url')" !);
   my $output = run_pugs(qq! -e "print 'Skipping until we get async really working'" !);
-  todo_is( $output, $expected, "getprint() works");
+  is($output, $expected, "getprint() works", :todo);
 };
 
 get("$base_url/stop");

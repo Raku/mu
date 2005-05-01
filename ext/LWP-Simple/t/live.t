@@ -45,13 +45,13 @@ sub spawn_server (Int $port) {
       my $hdl = $sock.accept;
 
       my $request = =$hdl;
-      $request ~~ s:perl5/\s+$//;
+      $request ~~ s:Perl5/\s+$//;
       #diag $request;
-      if ($request ~~ rx:perl5/^GET \/stop-server\//) {
+      if ($request ~~ rx:Perl5{^GET /stop-server/}) {
         last();
       };
 
-      while (readline($hdl) ~~ rx:perl5/\S/) { 1 };
+      while (readline($hdl) ~~ rx:Perl5/\S/) { 1 };
       $hdl.print( "HTTP/1.0 200 OK\r\n"
                 ~ "Content-Type: text/plain; charset=UTF-8\r\n"
                 ~ "Server: Fake local Pugs HTTPd\r\n"
@@ -75,17 +75,17 @@ for @urls -> $t_url {
 
   diag "Getting HEAD of $url";
   my $head = head($url);
-  ok( $head ~~ rx:perl5/.../, "Got some headers as scalar");
+  ok($head ~~ rx:perl5/.../, "Got some headers as scalar");
   my @head = head($url);
-  todo_ok( @head > 3, "Got more than 1 line as list");
+  ok(@head > 3, "Got more than 1 line as list", :todo);
   my %head = head($url);
-  todo_ok( %head.keys() > 3, "Got some headers as hash");
-  todo_is( %head{'Content-Type'}, "text/html", "Got a content type of text/html");
+  ok(%head.keys() > 3, "Got some headers as hash", :todo);
+  is(%head{'Content-Type'}, "text/html", "Got a content type of text/html", :todo);
 
   diag "Retrieving $url";
   my $res = get($url);
   ok(defined $res, "Got some result");
-  ok( defined ($res ~~ rx:perl5/./), "and it's not empty");
+  ok(defined($res ~~ rx:Perl5/./), "and it's not empty");
 
   # TODO: Uncomment once length() is implemented
   # is( length($res), length($expected), "The response has the correct length");
