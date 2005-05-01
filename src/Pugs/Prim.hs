@@ -671,6 +671,18 @@ op2 "sprintf" = \x y -> do
         [x, y]      -> printf str x y
         [x, y, z]   -> printf str x y z
         _           -> printf str
+op2 "exec" = \x y -> do
+    prog  <- fromVal x
+    args  <- fromVals y
+    tryIO (VBool False) $ do
+        executeFile prog True args Nothing
+        return $ VBool True
+op2 "system" = \x y -> do
+    prog  <- fromVal x
+    args  <- fromVals y
+    tryIO (VBool False) $ do
+        rawSystem prog args
+        return $ VBool True
 op2 "chmod" = \x y -> do
     mode  <- fromVal x
     files <- fromVals y
@@ -1444,6 +1456,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   List      pre     slurp   (?Str=$_)\
 \\n   List      pre     slurp   (Handle)\
 \\n   List      pre     readdir (Str)\
+\\n   Bool      pre     exec    (Str: List)\
 \\n   Bool      pre     system  (Str)\
 \\n   Bool      pre     system  (Str: List)\
 \\n   Bool      pre     binmode (IO: ?Int=1)\

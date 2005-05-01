@@ -32,6 +32,7 @@ module Pugs.Compat (
     setEnv,
     unsetEnv,
     signalProcess,
+    executeFile,
 ) where
 
 import Foreign
@@ -114,6 +115,9 @@ getEffectiveGroupID = return 1
 
 signalProcess :: Int -> Int -> IO ()
 signalProcess _ _ = failWith "kill"
+
+executeFile :: FilePath -> Bool -> [String] -> Maybe [(String, String)] -> IO ()
+executeFile _ _ _ _ = failWith "executeFile"
 
 #endif
 
