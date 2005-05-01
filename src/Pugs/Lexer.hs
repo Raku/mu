@@ -193,6 +193,7 @@ literalRule name action = (<?> name) $ postSpace $ action
 
 tryRule name action = (<?> name) $ lexeme $ try action
 
+tryVerbatimRule :: Ident -> GenParser tok st a -> GenParser tok st a
 tryVerbatimRule name action = (<?> name) $ try action
 
 ruleScope :: RuleParser Scope
@@ -208,6 +209,7 @@ ruleScope = tryRule "scope" $ do
         | otherwise
         = SGlobal
 
+postSpace :: GenParser Char st a -> GenParser Char st a
 postSpace rule = try $ do
     rv <- rule
     notFollowedBy wordAny

@@ -123,6 +123,7 @@ instance Pretty Val where
     format (VSubst _) = text $ "{subst}"
     format VUndef = text $ "undef"
 
+quoted :: Char -> String
 quoted '\'' = "\\'"
 quoted '\\' = "\\\\"
 quoted x = [x]
@@ -133,8 +134,10 @@ ratToNum x = (fromIntegral $ numerator x) / (fromIntegral $ denominator x)
 doubleBraces :: Doc -> Doc
 doubleBraces x = vcat [ (lbrace <> lbrace), nest defaultIndent x, rbrace <> rbrace]
 
+joinList :: Doc -> [Doc] -> Doc
 joinList x y = cat $ punctuate x y
 
+commasep :: [Doc] -> Doc
 commasep x = cat $ (punctuate (char ',')) x
 
 pretty :: Pretty a => a -> String

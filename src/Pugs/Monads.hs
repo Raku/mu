@@ -114,11 +114,13 @@ enterSub sub action
         , subBody = Prim $ doCC cc
         }
 
+genSubs :: t -> Ident -> (t -> VCode) -> Eval [Pad -> Pad]
 genSubs env name gen = sequence
     [ genMultiSym name (codeRef $ gen env)
     , genMultiSym name (codeRef $ (gen env) { subParams = [] })
     ]
 
+makeParams :: Env -> [Param]
 makeParams Env{ envContext = cxt, envLValue = lv }
     = [ MkParam
         { isInvocant = False
@@ -141,6 +143,7 @@ caller n = do
         fail "Cannot ask for deeper depth"
     asks $ foldl (.) id $ replicate n (fromJust . envCaller)
 
+evalVal :: Val -> Eval Val
 evalVal val = do
     Env{ envLValue = lv, envClasses = cls } <- ask
     typ <- evalValType val
