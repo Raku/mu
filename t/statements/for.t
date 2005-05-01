@@ -40,8 +40,8 @@ is($c, '012345', 'for 0 .. 5, sub {} works');
 # ... with referential sub
 
 my $d;
-sub some_sub ($arg) { $d = $d ~ $arg; }
-for (0 .. 5), &some_sub;
+sub some_sub_1 ($arg) { $d = $d ~ $arg; }
+for (0 .. 5), &some_sub_1;
 is($d, '012345', 'for 0 .. 5, &some_sub works');
 
 ## and now with parens around the range operator
@@ -122,8 +122,8 @@ is($m, '012345', 'for @list, sub {} works');
 
 my @list_n = (0 .. 5);
 my $n;
-sub some_sub ($arg) { $n = $n ~ $arg; }
-for (@list_n), &some_sub;
+sub some_sub_3 ($arg) { $n = $n ~ $arg; }
+for (@list_n), &some_sub_3;
 is($n, '012345', 'for @list, &some_sub works');
 
 ## and now with parens around the @list
@@ -151,8 +151,8 @@ is($q, '012345', 'for (@list), sub {} works');
 
 my @list_r = (0 .. 5);
 my $r;
-sub some_sub_2 ($arg) { $r ~= $arg; }
-for (@list_r), &some_sub_2;
+sub some_sub_4 ($arg) { $r ~= $arg; }
+for (@list_r), &some_sub_4;
 is($r, '012345', 'for (@list), &some_sub works');
 
 
