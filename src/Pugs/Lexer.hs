@@ -22,6 +22,7 @@ type RuleParser a = GenParser Char Env a
 data ParensOption = ParensMandatory | ParensOptional
     deriving (Show, Eq)
 
+perl6Def  :: LanguageDef st
 perl6Def  = javaStyle
           { P.commentStart   = [] -- "=pod"
           , P.commentEnd     = [] -- "=cut"
@@ -32,14 +33,19 @@ perl6Def  = javaStyle
           , P.caseSensitive  = False
           }
 
+literalIdentifier :: GenParser Char st String
 literalIdentifier = do
     c <- wordAlpha
     cs <- many wordAny
     return (c:cs)
     
+wordAlpha   :: GenParser Char st Char
+wordAny     :: GenParser Char st Char
 wordAlpha   = satisfy isWordAlpha <?> "alphabetic word character"
 wordAny     = satisfy isWordAny <?> "word character"
 
+isWordAny   :: Char -> Bool
+isWordAlpha :: Char -> Bool
 isWordAny x = (isAlphaNum x || x == '_')
 isWordAlpha x = (isAlpha x || x == '_')
 

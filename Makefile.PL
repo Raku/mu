@@ -9,7 +9,11 @@ use inc::Module::Install;
 my $pugs = "pugs$Config{_exe}";
 my $version_h = "src/Pugs/pugs_version.h";
 my $config_h = "src/Pugs/pugs_config.h";
-my @srcdirs = (grep(-d, "src", glob "src/*"), grep(-d, glob "src/*/*"), grep(-d, glob "src/*/*/*"));
+my @srcdirs  = grep {-d} glob("src"), glob("src/*"), glob("src/*/*"), glob("src/*/*/*");
+my @hsfiles  = map {glob "$_/*.hs"} @srcdirs;
+push @hsfiles, "src/Pugs/Config.hs";
+my @hppfiles = map {my $x=$_; $x=~s/\.hs$/.hpp/; $x} @hsfiles;
+
 
 warn_cygwin     ();
 
@@ -122,9 +126,12 @@ $unicode : $unicode_c
 src/Pugs/Config.hs : util/PugsConfig.pm
 	\$(PERL) -Iutil -MPugsConfig -e "PugsConfig->write_config_module" > src/Pugs/Config.hs
 
-%.hpp : %.hs @prereqs
+%.hpp : %.hs @prereqs $version_h
 	$ghc $threaded $ghc_flags -DHADDOCK -E \$< -o \$@
 	\$(PERLRUN) util/munge_haddock.pl \$@
+
+haddock : @hppfiles
+	haddock -h -o docs/haddock/ @hppfiles
 
 profiled :: src/Pugs/Config.hs @srcfiles $version_h @prereqs
 	$ghc $threaded -auto-all -prof --make $profiled_flags $ghc_output

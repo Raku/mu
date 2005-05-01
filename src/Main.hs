@@ -237,7 +237,7 @@ runProgramWith fenv f name args prog = do
     val <- runEnv $ runRule (fenv env) id ruleProgram name $ decodeUTF8 prog
     f val
 
--- createConfigLine :: String -> String -- why doesn't this work?
+createConfigLine :: String -> String
 createConfigLine item = "\t" ++ item ++ ": " ++ (Map.findWithDefault "UNKNOWN" item config)
 
 printConfigInfo :: [String] -> IO ()

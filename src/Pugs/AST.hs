@@ -503,6 +503,7 @@ data VCode = MkCode
     }
     deriving (Show, Eq, Ord, Typeable)
 
+mkPrim :: VCode
 mkPrim = MkCode
     { isMulti = True
     , subName = "&?"
@@ -516,7 +517,7 @@ mkPrim = MkCode
     , subBody = emptyExp
     }
 
-#ifndef HADDOCK
+mkSub :: VCode
 mkSub = MkCode
     { isMulti = False
     , subName = "&?"
@@ -529,7 +530,6 @@ mkSub = MkCode
     , subReturns = anyType
     , subBody = emptyExp
     }
-#endif
 
 instance Ord VComplex where
     compare (a :+ ai) (b :+ bi) = compare (a, ai) (b, bi)
@@ -705,6 +705,7 @@ data Env = Env { envContext :: !Cxt                 -- Current context
                , envPos     :: !Pos                 -- Source position range
                } deriving (Show, Eq, Ord)
 
+envWant :: Env -> String
 envWant env = 
     showCxt (envContext env) ++ (if envLValue env then ", LValue" else "")
     where
@@ -732,16 +733,23 @@ mkPad = MkPad . Map.fromList
 lookupPad key (MkPad map) = case Map.lookup key map of
     Just xs -> Just [tvar | (_, tvar) <- xs]
     Nothing -> Nothing
+
 padToList (MkPad map) = Map.assocs map
+
+diffPads :: Pad -> Pad -> Pad
 diffPads (MkPad map1) (MkPad map2) = MkPad $ Map.difference map1 map2
+
+unionPads :: Pad -> Pad -> Pad
 unionPads (MkPad map1) (MkPad map2) = MkPad $ Map.union map1 map2
 
+genMultiSym :: MonadSTM m => String -> VRef -> m (Pad -> Pad)
 genMultiSym name ref = do
     tvar    <- liftSTM $ newTVar ref
     fresh   <- liftSTM $ newTVar True
     return $ \(MkPad map) -> MkPad $
         Map.insertWith (++) name [(fresh, tvar)] map
 
+genSym :: MonadSTM m => String -> VRef -> m (Pad -> Pad)
 genSym name ref = do
     tvar    <- liftSTM $ newTVar ref
     fresh   <- liftSTM $ newTVar True
@@ -895,6 +903,7 @@ readVar name@(sigil:rest) = do
         _  -> readVar (sigil:'*':rest)
 readVar _ = return undef
 
+emptyExp :: Exp
 emptyExp = Noop
 
 retControl :: VControl -> Eval a
@@ -904,6 +913,7 @@ retControl c = do
 retError :: (Show a) => VStr -> a -> Eval b
 retError str a = fail $ str ++ ": " ++ show a
 
+naturalOrRat :: GenParser Char st (Either Integer (Ratio Integer))
 naturalOrRat  = (<?> "number") $ do
     sig <- sign
     num <- natRat
@@ -984,8 +994,10 @@ evalExp exp = do
     evl <- asks envEval
     evl exp
 
+defined :: VScalar -> Bool
 defined VUndef  = False
 defined _       = True
+undef :: VScalar
 undef = VUndef
 
 forceRef :: VRef -> Eval Val
@@ -1149,6 +1161,7 @@ writeIVar :: IVar v -> v -> Eval ()
 writeIVar (IScalar x) = scalar_store x
 writeIVar _ = error "writeIVar"
 
+refType :: VRef -> Type
 refType (MkRef x) = object_iType x
 
 #ifndef HADDOCK
@@ -1169,11 +1182,17 @@ instance (Typeable a) => Show (IVar a) where
     show v = show (MkRef v)
 #endif
 
+scalarRef   :: ScalarClass a=> a -> VRef
 scalarRef x = MkRef (IScalar x)
+codeRef     :: CodeClass a  => a -> VRef
 codeRef x   = MkRef (ICode x)
+arrayRef    :: ArrayClass a => a -> VRef
 arrayRef x  = MkRef (IArray x)
+hashRef     :: HashClass a  => a -> VRef
 hashRef x   = MkRef (IHash x)
+thunkRef    :: ThunkClass a => a -> VRef
 thunkRef x  = MkRef (IThunk x)
+pairRef     :: PairClass a  => a -> VRef
 pairRef x   = MkRef (IPair x)
 
 newScalar :: (MonadSTM m) => VScalar -> m (IVar VScalar)
@@ -1200,6 +1219,7 @@ lazyUndef = IScalar (Nothing :: IScalarLazy)
 constArray :: VArray -> IVar VArray
 constArray = IArray
 
+retConstError :: VScalar -> Eval b
 retConstError val = retError "Can't modify constant item" val
 
 #ifndef HADDOCK

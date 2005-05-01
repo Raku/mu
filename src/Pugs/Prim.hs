@@ -431,6 +431,7 @@ op1Values (VRef ref) = do
     return $ VList vals
 op1Values v = retError "Not a keyed reference" v
 
+op1StrFirst :: (Char -> Char) -> Val -> Eval Val
 op1StrFirst f = op1Cast $ VStr .
     \str -> case str of
         []      -> []
@@ -451,6 +452,7 @@ op1Pick (VJunc (Junc JOne dups set)) =
     else return undef
 op1Pick v = return $ VError "pick not defined" (Val v)
 
+op1Sum :: Val -> Eval Val
 op1Sum list = do
     vals <- fromVal list
     foldM (op2 "+") undef vals
@@ -473,31 +475,31 @@ op1Print f v = do
         f handle . concatMap encodeUTF8 $ vs'
         return $ VBool True
 
+bool2n :: Bool -> VInt
 bool2n v = if v
   then 1
   else 0
 
+doBoolIO :: Value a => (a -> IO b) -> Val -> Eval Bool
 doBoolIO f v = do
     x <- fromVal v
     tryIO False $ do
         f x
         return True
 
+boolIO :: Value a => (a -> IO b) -> Val -> Eval Val
 boolIO f v = do
     ok <- doBoolIO f v
     return $ VBool ok
 
+boolIO2 :: (Value a, Value b) 
+    => (a -> b -> IO c) -> Val -> Val -> Eval Val
 boolIO2 f u v = do
     x <- fromVal u
     y <- fromVal v
     tryIO (VBool False) $ do
         f x y
         return (VBool True)
-
-boolIO3 f v = do
-    x <- fromVal v
-    ok <- tryIO False $ f x
-    return $ VBool ok
 
 opEval :: Bool -> String -> String -> Eval Val
 opEval fatal name str = do
@@ -508,6 +510,7 @@ opEval fatal name str = do
         evl (envBody env')
     retEvalResult fatal val
 
+retEvalResult :: Bool -> Val -> Eval Val
 retEvalResult fatal val = do
     glob <- askGlobal
     errSV <- findSymRef "$!" glob
@@ -686,6 +689,7 @@ op2 "sort" = \x y -> do
 op2 other = \x y -> return $ VError ("unimplemented binaryOp: " ++ other) (App other [Val x, Val y] [])
 
 -- XXX - need to generalise this
+op2Match :: Val -> Val -> Eval Val
 op2Match x (VRef y) = do
     y' <- readRef y
     op2Match x y'
@@ -837,6 +841,7 @@ op4 "splice" = \x y z w -> do
 
 op4 other = \x y z w -> return $ VError ("unimplemented 4-ary op: " ++ other) (App other [Val x, Val y, Val z, Val w] [])
 
+op2Hyper :: Ident -> Val -> Val -> Eval Val
 op2Hyper op x y
     | VList x' <- x, VList y' <- y
     = fmap VList $ hyperLists x' y'
@@ -864,6 +869,7 @@ op2Array f x y = do
     idx  <- size
     return $ castV idx
 
+op2Grep :: Val -> Val -> Eval Val
 op2Grep sub@(VCode _) list = op2Grep list sub
 op2Grep list sub = do
     args <- fromVal list
@@ -874,6 +880,7 @@ op2Grep list sub = do
         fromVal rv
     return $ VList vals
 
+op2Map :: Val -> Val -> Eval Val
 op2Map sub@(VCode _) list = op2Map list sub
 op2Map list sub = do
     args <- fromVal list
@@ -884,6 +891,7 @@ op2Map list sub = do
         fromVal rv
     return $ VList $ concat vals
 
+op2Join :: Val -> Val -> Eval Val
 op2Join x y = do
     (strVal, listVal) <- ifValTypeIsa x "Scalar"
         (return (x, y))
@@ -899,16 +907,25 @@ vCastStr = fromVal
 vCastRat :: Val -> Eval VRat
 vCastRat = fromVal
 
+op2Str :: (Value v1, Value v2) => (v1 -> v2 -> VStr) -> Val -> Val -> Eval Val
 op2Str f x y = do
     x' <- fromVal x
     y' <- fromVal y
     return $ VStr $ f x' y'
 
+op2Num    :: (Value v1, Value v2) => (v1 -> v2 -> VNum) -> Val -> Val -> Eval Val
 op2Num  f = op2Cast $ (VNum .) . f
+
+op2Bool   :: (Value v1, Value v2) => (v1 -> v2 -> VBool) -> Val -> Val -> Eval Val
 op2Bool f = op2Cast $ (VBool .) . f
+
+op2Int    :: (Value v1, Value v2) => (v1 -> v2 -> VInt) -> Val -> Val -> Eval Val
 op2Int  f = op2Cast $ (VInt .) . f
+
+op2Rat    :: (Value v1, Value v2) => (v1 -> v2 -> VRat) -> Val -> Val -> Eval Val
 op2Rat  f = op2Cast $ (VRat .) . f
 
+op2Exp :: Val -> Val -> Eval Val
 op2Exp x y = do
     num2 <- fromVal =<< fromVal' y
     case reverse $ show (num2 :: VNum) of
@@ -919,11 +936,13 @@ op2Exp x y = do
                 else op2Num ((**) :: VNum -> VNum -> VNum) x y
         _ -> op2Num ((**) :: VNum -> VNum -> VNum) x y
 
+op1Range :: Val -> Val
 op1Range (VStr s)    = VList $ map VStr $ strRangeInf s
 op1Range (VRat n)    = VList $ map VRat [n ..]
 op1Range (VNum n)    = VList $ map VNum [n ..]
 op1Range x           = VList $ map VInt [vCast x ..]
 
+op2Range :: Val -> Val -> Val
 op2Range (VStr s) y  = VList $ map VStr $ strRange s (vCast y)
 op2Range (VNum n) y  = VList $ map VNum [n .. vCast y]
 op2Range x (VNum n)  = VList $ map VNum [vCast x .. n]
@@ -931,6 +950,7 @@ op2Range (VRat n) y  = VList $ map VRat [n .. vCast y]
 op2Range x (VRat n)  = VList $ map VRat [vCast x .. n]
 op2Range x y         = VList $ map VInt [vCast x .. vCast y]
 
+op2Divide :: Val -> Val -> Eval Val
 op2Divide x y
     | VInt x' <- x, VInt y' <- y
     = return $ if y' == 0 then err else VRat $ x' % y'
@@ -945,6 +965,7 @@ op2Divide x y
     where
     err = VError ("Illegal division by zero: " ++ "/") (App "/" [] [Val x, Val y])
 
+op2Modulus :: Val -> Val -> Eval Val
 op2Modulus x y
     | VInt x' <- x, VInt y' <- y
     = return $ if y' == 0 then err else VInt $ x' `mod` y'
@@ -968,12 +989,14 @@ op2Modulus x y
     err = VError ("Illegal modulus zero: " ++ "%") (App "%" [] [Val x, Val y])
     -- typeErr = VError ("Illegal types for modulus: " ++ "%") (App "%" [] [Val x, Val y])
 
+op2ChainedList :: Val -> Val -> Val
 op2ChainedList x y
     | VList xs <- x, VList ys <- y  = VList $ xs ++ ys
     | VList xs <- x                 = VList $ xs ++ [y]
     | VList ys <- y                 = VList (x:ys)
     | otherwise                     = VList [x, y]
 
+op2Logical :: (Value v) => (v -> Bool) -> Val -> Val -> Eval Val
 op2Logical f x y = do
     vx   <- fromVal x
     bool <- fromVal vx
@@ -981,13 +1004,16 @@ op2Logical f x y = do
         then return vx
         else fromVal y
 
+op2DefinedOr :: Val
 op2DefinedOr = undefined
 
+op2Cmp :: (a -> Eval b) -> (b -> b -> VBool) -> a -> a -> Eval Val
 op2Cmp f cmp x y = do
     x' <- f x
     y' <- f y
     return $ VBool $ x' `cmp` y'
 
+op2Ord :: (Ord ord) => (a -> Eval ord) -> a -> a -> Eval Val
 op2Ord f x y = do
     x' <- f x
     y' <- f y
@@ -1072,6 +1098,7 @@ primOp sym assoc prms ret = genMultiSym name sub
         "list"      -> (0, "infix", False)
         other       -> (0, other, True)
 
+primDecl :: String -> STM (Pad -> Pad)
 primDecl str = primOp sym assoc params ret
     where
     (ret:assoc:sym:prms) = words str
@@ -1081,6 +1108,7 @@ primDecl str = primOp sym assoc params ret
     prms'' = foldr foldParam [] prms'
     params = map (\p -> p{ isWritable = isLValue p }) prms''
 
+doFoldParam :: String -> String -> [Param] -> [Param]
 doFoldParam cxt [] []       = [(buildParam cxt "" "$?1" (Val VUndef)) { isLValue = False }]
 doFoldParam cxt [] (p:ps)   = ((buildParam cxt "" (strInc $ paramName p) (Val VUndef)) { isLValue = False }:p:ps)
 doFoldParam cxt (s:name) ps = ((buildParam cxt [s] name (Val VUndef)) { isLValue = False } : ps)
@@ -1124,38 +1152,46 @@ fileTestIO f v = do
     str <- fromVal =<< fromVal' v
     tryIO undef $ f str
 
+fileTestIsReadable :: FilePath -> IO Val
 fileTestIsReadable f = do
     p <- getPermissions f
     let b = readable p
     return $ if b then castV f else VBool False
 
+fileTestIsWritable :: FilePath -> IO Val
 fileTestIsWritable f = do
     p <- getPermissions f
     let b = writable p
     return $ if b then castV f else VBool False
 
+fileTestIsExecutable :: FilePath -> IO Val
 fileTestIsExecutable f = do
     p <- getPermissions f
     let b = executable p || searchable p
     return $ if b then castV f else VBool False
 
+fileTestExists :: FilePath -> IO Val
 fileTestExists f = do
     b1 <- doesFileExist f
     b2 <- doesDirectoryExist f
     return $ if b1 || b2 then castV f else VBool False
 
+fileTestIsFile :: FilePath -> IO Val
 fileTestIsFile f = do
     b <- doesFileExist f
     return $ if b then castV f else VBool False
 
+fileTestIsDirectory :: FilePath -> IO Val
 fileTestIsDirectory f = do
     b <- doesDirectoryExist f
     return $ if b then castV f else VBool False
 
+fileTestFileSize :: FilePath -> IO Val
 fileTestFileSize f = do
     n <- statFileSize f
     return $ VInt n
 
+fileTestSizeIsZero :: FilePath -> IO Val
 fileTestSizeIsZero f = do
     n <- statFileSize f
     return $ if n == 0 then VBool True else VBool False
@@ -1282,6 +1318,7 @@ sortByM f xs  = do
 -- already been assigned in Parser.hs
 
 --    ret_val   assoc   op_name args
+initSyms :: STM [Pad -> Pad]
 initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      spre    !       (Bool)\
 \\n   Num       spre    +       (Num)\

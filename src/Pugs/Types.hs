@@ -22,6 +22,7 @@ data Type
 instance Show Type where
     show t = "(mkType \"" ++ showType t ++ "\")"
 
+showType :: Type -> String
 showType (MkType typ)    = typ
 showType (TypeOr t1 t2)  = showType t1 ++ "|" ++ showType t2
 showType (TypeAnd t1 t2) = showType t1 ++ "&" ++ showType t2
@@ -31,23 +32,33 @@ type ClassTree = Tree Type
 data Cxt = CxtVoid | CxtItem !Type | CxtSlurpy !Type
     deriving (Eq, Show, Ord)
 
+anyType :: Type
 anyType = mkType "Any"
 
+cxtItem   :: String -> Cxt
 cxtItem   = CxtItem . mkType
+cxtSlurpy :: String -> Cxt
 cxtSlurpy = CxtItem . mkType
+cxtVoid   :: Cxt
 cxtVoid   = CxtVoid
 
+typeOfCxt :: Cxt -> Type
 typeOfCxt CxtVoid           = anyType
 typeOfCxt (CxtItem typ)     = typ
 typeOfCxt (CxtSlurpy typ)   = typ
 
+cxtItemAny :: Cxt
 cxtItemAny   = CxtItem anyType
+cxtSlurpyAny :: Cxt
 cxtSlurpyAny = CxtSlurpy anyType
 
+isSlurpyCxt :: Cxt -> Bool
 isSlurpyCxt (CxtSlurpy _) = True
 isSlurpyCxt _             = False
+isItemCxt :: Cxt -> Bool
 isItemCxt   (CxtItem _)   = True
 isItemCxt   _             = False
+isVoidCxt :: Cxt -> Bool
 isVoidCxt   CxtVoid       = True
 isVoidCxt   _             = False
 
