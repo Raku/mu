@@ -115,6 +115,11 @@ class (Typeable n, Show n, Ord n) => Value n where
     fmapVal :: (n -> n) -> Val -> Val
     fmapVal f = castV . f . vCast
 
+castFailM v = err
+    where
+    err = fail $ "cannot cast from " ++ show v ++ " to " ++ typ
+    typ = tail . dropWhile (not . isSpace) . show $ typeOf err
+
 castFail :: (Show a, Typeable b) => a -> b
 castFail v = err
     where
@@ -150,7 +155,7 @@ instance Value VPair where
         vs <- fromVal' v
         case vs of
             [x, y]  -> return (x, y)
-            _       -> castFail v
+            _       -> castFailM v
 
 instance Value [(VStr, Val)] where
      fromVal v = do
@@ -1048,6 +1053,21 @@ newObject (MkType "Code")   = liftSTM $
     fmap codeRef $ newTVar mkSub
 newObject typ = fail ("Cannot create object: " ++ showType typ)
 
+doPair :: Val -> (forall a. PairClass a => a -> b) -> Eval b
+doPair (VRef (MkRef (IPair pv))) f = return $ f pv
+doPair (VRef (MkRef (IScalar sv))) f = do
+    val <- scalar_fetch sv
+    case val of
+        VUndef  -> do
+            ref@(MkRef (IPair pv)) <- newObject (MkType "Pair")
+            scalar_store sv (VRef ref)
+            return $ f pv
+        _  -> doPair val f
+doPair val@(VRef _) _ = retError "Cannot cast into Pair" val
+doPair val f = do
+    pv  <- fromVal val
+    return $ f (pv :: VPair)
+
 -- XXX: Refactor doHash and doArray into one -- also see Eval's [] and {}
 doHash :: Val -> (forall a. HashClass a => a -> b) -> Eval b
 doHash (VRef (MkRef (IHash hv))) f = return $ f hv
@@ -1178,13 +1198,14 @@ constArray = IArray
 retConstError val = retError "Can't modify constant item" val
 
 #ifndef HADDOCK
-type IArray  = TVar [IVar VScalar]
-type IArraySlice = [IVar VScalar]
-type IHash   = TVar (Map VStr (IVar VScalar))
-type IScalar = TVar Val
-type ICode   = TVar VCode
-type IScalarProxy = (Eval VScalar, (VScalar -> Eval ()))
-type IScalarLazy = Maybe VScalar
+type IArray             = TVar [IVar VScalar]
+type IArraySlice        = [IVar VScalar]
+type IHash              = TVar (Map VStr (IVar VScalar))
+type IScalar            = TVar Val
+type ICode              = TVar VCode
+type IScalarProxy       = (Eval VScalar, (VScalar -> Eval ()))
+type IScalarLazy        = Maybe VScalar
+type IPairHashSlice     = (VStr, IVar VScalar)
 
 -- these implementation allows no destructions
 type IRule   = VRule

@@ -316,7 +316,9 @@ op1 "close" = \v -> do
         (VSocket _) -> boolIO sClose v
         _           -> boolIO hClose v
 op1 "key" = fmap fst . (fromVal :: Val -> Eval VPair)
-op1 "value" = fmap snd . (fromVal :: Val -> Eval VPair)
+op1 "value" = \v -> do
+    ivar <- join $ doPair v pair_fetchElem
+    return . VRef . MkRef $ ivar
 op1 "pairs" = \v -> do
     pairs <- op1Pairs v
     return $ VList pairs
@@ -1159,8 +1161,9 @@ pairsFromRef :: VRef -> Eval [Val]
 pairsFromRef r@(MkRef (IPair _)) = do
     return [VRef r]
 pairsFromRef (MkRef (IHash hv)) = do
-    pairs   <- hash_fetch hv
-    return $ map (\(k, v) -> castV (castV k, v)) (Map.assocs pairs)
+    keys    <- hash_fetchKeys hv
+    elems   <- mapM (hash_fetchElem hv) keys
+    return $ map (VRef . MkRef . IPair) (keys `zip` elems)
 pairsFromRef (MkRef (IArray av)) = do
     vals    <- array_fetch av
     return $ map castV ((map VInt [0..]) `zip` vals)

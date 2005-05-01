@@ -200,6 +200,9 @@ instance ArrayClass VArray where
     array_fetch = return
     array_fetchSize = return . length
     array_fetchVal av idx = getIndex idx (Just undef) (return av) Nothing
+    array_fetchElem av idx = do
+        val <- array_fetchVal av idx
+        return $ constScalar val
     array_storeVal _ _ _ = retConstError undef
     array_storeElem _ _ _ = retConstError undef
 

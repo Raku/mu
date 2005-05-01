@@ -31,3 +31,8 @@ instance PairClass VPair where
         return (key, val)
     pair_fetchElem pv = do
         return $ proxyScalar (pair_fetchVal pv) (pair_storeVal pv)
+
+instance PairClass IPairHashSlice where
+    pair_iType = const $ mkType "Pair::HashSlice"
+    pair_fetchKey  = return . VStr . fst
+    pair_fetchElem = return . snd
