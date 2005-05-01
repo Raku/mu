@@ -139,9 +139,10 @@ ${() = '%.hpp : %.hs @prereqs $version_h
 
 haddock : @hppfiles docs/haddock
 	haddock -h -o docs/haddock/ @hppfiles
+	\@\$(PERL) -le "print q-*** API Documentation generated in @{[File::Spec->catdir('docs', 'haddock').File::Spec->catdir('')]}.-"
 
 docs/haddock :
-	\$(PERL) -e "mkdir q-docs/haddock-"
+	\@\$(PERL) -e "mkdir q-docs/haddock-"
 
 profiled :: src/Pugs/Config.hs @srcfiles $version_h @prereqs
 	$ghc $threaded -auto-all -prof --make $profiled_flags $ghc_output
