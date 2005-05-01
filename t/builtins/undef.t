@@ -13,7 +13,7 @@ and perl6-specific tests.
 =cut
 
 plan 66;
-force_todo 20, 21, 26, 35, 40;
+force_todo 20, 21, 26;
 
 our $GLOBAL;
 
