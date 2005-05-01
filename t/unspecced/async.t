@@ -33,9 +33,10 @@ sub spawn_counter () {
 my ($pugs,$redir) = ("./pugs", ">");
 my $todo = 0;
 
-if($?OS eq any<MSWin32 mingw cygwin>) {
+if($?OS eq any<MSWin32 mingw msys cygwin>) {
   $pugs = 'pugs.exe';
-  $todo = 1;
+  skip 1, "async known to be problematic on Win32";
+  exit;
 };
 
 diag "Spawning counter";
