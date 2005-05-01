@@ -343,7 +343,7 @@
 \frame{
   \frametitle{Junctions}
 
-  \begin{block}{"`Wenn \texttt{\synvar{\$a}} einen dieser Werte hat, dann..."'}
+  \begin{block}{"`Wenn \texttt{\$a} einen dieser Werte hat, dann..."'}
     \begin{langs}
       Perl 5: \> \texttt{\synfunc{if}(\synvar{\$a}\ == 3 || \synvar{\$a}\ == 5 || \synvar{\$a}\ == 7) \{...\}} \\
       Perl 6: \> \texttt{\synfunc{if}\ \synvar{\$a}\ == 3|5|7 \{...\}}
