@@ -137,7 +137,7 @@ ${() = '%.hpp : %.hs @prereqs $version_h
 	$ghc $threaded $ghc_flags -DHADDOCK -E \$< -o \$@
 	\$(PERL) util/munge_haddock.pl \$@
 
-haddock : @hppfiles docs/haddock
+haddock : $version_h $config_h @hppfiles docs/haddock
 	haddock -h -o docs/haddock/ @hppfiles
 	\@\$(PERL) -le "print q-*** API Documentation generated in @{[File::Spec->catdir('docs', 'haddock').File::Spec->catdir('')]}.-"
 
