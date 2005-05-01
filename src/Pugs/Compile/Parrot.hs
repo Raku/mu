@@ -248,6 +248,12 @@ instance Compile Exp where
         | (stmt, pos) <- stmts
         ]
     -}
+    compile (Sym _ name rest) = do
+        restC <- compile rest
+        return . ($+$ restC) $ vcat $
+            [ text ".local" <+> text "pmc" <+> varText name
+            , varText name <+> text "=" <+> text "new" <+> varInit name
+            ]
     compile (Pad _ pad rest) = do
         restC <- compile rest
         return . ($+$ restC) $ vcat $ concat
