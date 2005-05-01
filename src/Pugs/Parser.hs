@@ -225,7 +225,8 @@ doExtract formal body = (fun, names', params)
            = filter (/= "$_") names
            | otherwise
            = names
-    params = map nameToParam (sort names') ++ (maybe [defaultArrayParam] id formal)
+    params = map nameToParam (sort names')
+        ++ (maybe (if null names' then [defaultArrayParam] else []) id formal)
 
 ruleSubDeclaration :: RuleParser Exp
 ruleSubDeclaration = rule "subroutine declaration" $ do
