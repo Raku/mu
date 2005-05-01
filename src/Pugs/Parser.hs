@@ -217,6 +217,16 @@ ruleSubGlobal = rule "global subroutine" $ do
     (multi, name) <- ruleSubHead
     return (SGlobal, "Any", multi, name)
 
+
+doExtract formal body = (fun, names', params)
+    where
+    (fun, names) = extract body []
+    names' | Just params <- formal, any (== "$_") (map paramName params)
+           = filter (/= "$_") names
+           | otherwise
+           = names
+    params = map nameToParam (sort names') ++ (maybe [defaultArrayParam] id formal)
+
 ruleSubDeclaration :: RuleParser Exp
 ruleSubDeclaration = rule "subroutine declaration" $ do
     -- namePos <- getPosition
@@ -230,10 +240,9 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
     _       <- many $ ruleTrait -- traits; not yet used
     -- bodyPos <- getPosition
     body    <- ruleBlock
-    let (fun, names) = extract body []
-        params = map nameToParam (sort names) ++ (maybe [defaultArrayParam] id formal)
+    let (fun, names, params) = doExtract formal body
     -- Check for placeholder vs formal parameters
-    unless (isNothing formal || null names || names == ["$_"] ) $
+    unless (isNothing formal || null names) $ 
         fail "Cannot mix placeholder variables with formal parameters"
     env <- getState
     let subExp = Val . VCode $ MkCode
@@ -305,6 +314,7 @@ ruleFormalParam = rule "formal parameter" $ do
     where
     appTrait "rw"   x = x { isWritable = True }
     appTrait "copy" x = x { isLValue = False, isWritable = True }
+    appTrait "lazy" x = x { isLazy = True }
     appTrait _      x = x -- error "unknown trait"
 
 ruleParamDefault True  = return $ Val VUndef
@@ -337,10 +347,11 @@ ruleVarDeclaration = rule "variable declaration" $ do
             env' <- unsafeEvalEnv $ decl (Syn sym [lhs, fromJust expMaybe])
             return $ envLexical env' `diffPads` envLexical env
         _       -> unsafeEvalLexDiff (decl emptyExp)
-    return $ case expMaybe of
-        Just exp | sym /= "::="
-            -> Pad scope lexDiff (Syn sym [lhs, exp])
-        _   -> Pad scope lexDiff emptyExp
+    let rhs | sym == "::=" = emptyExp
+            | otherwise = maybe emptyExp (\exp -> Syn sym [lhs, exp]) expMaybe
+    return $ case scope of
+        SMy -> decl rhs
+        _   -> Pad scope lexDiff rhs
 
 ruleUseDeclaration :: RuleParser Exp
 ruleUseDeclaration = rule "use declaration" $ do
@@ -464,7 +475,8 @@ ruleTryConstruct = ruleKeywordConsturct "try"
 ruleForConstruct = rule "for construct" $ do
     symbol "for"
     list  <- maybeParens ruleExpression
-    block <- ruleBlockLiteral
+    optional (symbol "," <|> symbol ":")
+    block <- ruleBlockLiteral <|> parseLitOp
     retSyn "for" [list, block]
 
 ruleLoopConstruct = rule "loop construct" $ do
@@ -564,10 +576,9 @@ retBlock SubBlock Nothing exp | Just hashExp <- extractHash (unwrap exp) = retur
 retBlock typ formal body = retVerbatimBlock typ formal body
 
 retVerbatimBlock typ formal body = expRule $ do
-    let (fun, names) = extract body []
-        params = (maybe [] id formal) ++ map nameToParam (sort names)
+    let (fun, names, params) = doExtract formal body
     -- Check for placeholder vs formal parameters
-    unless (isNothing formal || null names || names == ["$_"] ) $
+    unless (isNothing formal || null names) $ 
         fail "Cannot mix placeholder variables with formal parameters"
     let sub = MkCode
             { isMulti       = False
@@ -912,10 +923,10 @@ nameToParam name = MkParam
     , isNamed       = False
     , isLValue      = True
     , isWritable    = (name == "$_")
-    , isThunk       = False
+    , isLazy        = False
     , paramName     = name
     , paramContext  = case name of
-        "$_" -> CxtSlurpy $ typeOfSigil (head name)
+        -- "$_" -> CxtSlurpy $ typeOfSigil (head name)
         _    -> CxtItem   $ typeOfSigil (head name)
     , paramDefault  = Val VUndef
     }
