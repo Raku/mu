@@ -22,9 +22,6 @@ Everyone with a FreePAN repository is currently allow to commit to
 anyone else's repository. This will change soon, but it will be very
 easy to add a list or group of people as committer's to any module.
 
-Everyone must still authenticate to commit. The password for every
-account is currently "pugs".
-
 The modules in the "ext" are also on FreePAN but are mirrored in the
 pugs repository. You should continue to make commits to pugs for ext
 modules. Soon you will be able to commit to these modules on FreePAN
