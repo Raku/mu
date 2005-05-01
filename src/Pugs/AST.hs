@@ -151,11 +151,7 @@ instance Value [VStr] where
 instance Value VPair where
     castV pv = VRef $ pairRef pv
     fromVal VUndef  = return (VUndef, VUndef)
-    fromVal v = do
-        vs <- fromVal' v
-        case vs of
-            [x, y]  -> return (x, y)
-            _       -> castFailM v
+    fromVal v       = join $ doPair v pair_fetch
 
 instance Value [(VStr, Val)] where
      fromVal v = do
@@ -1065,8 +1061,12 @@ doPair (VRef (MkRef (IScalar sv))) f = do
         _  -> doPair val f
 doPair val@(VRef _) _ = retError "Cannot cast into Pair" val
 doPair val f = do
-    pv  <- fromVal val
-    return $ f (pv :: VPair)
+    vs <- fromVal val
+    case (vs :: VList) of
+        [x, y]  -> return $ f (x, y)
+        _       -> do
+            pv <- castFailM val
+            return $ f (pv :: VPair)
 
 -- XXX: Refactor doHash and doArray into one -- also see Eval's [] and {}
 doHash :: Val -> (forall a. HashClass a => a -> b) -> Eval b
