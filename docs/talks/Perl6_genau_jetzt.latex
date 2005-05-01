@@ -80,14 +80,14 @@
 }
 
 \section{Perl 6}
-\subsection{Entstehung}
-\frame{
-  \frametitle{Entstehungsgeschichte}
-  \begin{itemize}
-    \item Aprilscherz: Kombination von Perl 5 und Python → Parrot
-    \item ...
-  \end{itemize}
-}
+%\subsection{Entstehung}
+%\frame{
+%  \frametitle{Entstehungsgeschichte}
+%  \begin{itemize}
+%    \item Aprilscherz: Kombination von Perl 5 und Python → Parrot
+%    \item ...
+%  \end{itemize}
+%}
 
 \subsection{Design}
 \frame{
@@ -497,6 +497,77 @@
     \item IRC: \texttt{\#perl6} auf Freenode
     \item Auch Newbies gern gesehen
     \item Viele Beteiligungsmöglichkeiten, nicht nur für Programmierer
+    \item Weitere Informationen: \url{http://dev.perl.org/perl6/}
+  \end{itemize}
+}
+
+
+\section{Parrot}
+\subsection{"Uberblick}
+\frame[t]{
+  \frametitle{Parrot?}
+
+  \begin{itemize}
+    \item \only<2->{Verdammt schnelle r}\only<1>{R}egisterbasierte virtuelle Maschine
+    \item Plattformunabhängiger Bytecode
+    \item "`One bytecode to rule them all"'
+  \end{itemize}
+
+  \pause\pause
+  \[
+    \begin{array}{ll}
+      \text{BASIC}  & \text{Forth} \\
+      \text{Lisp}   & \text{Parakeet} \\
+      \text{Perl 5} & \text{Perl 6} \\
+      \text{PHP}    & \text{Python} \\
+      \text{Ruby}   & \text{Scheme} \\
+      \text{TCL}    & \text{\ldots} \\
+    \end{array}
+    \leftrightarrow \text{Parrot} \leftrightarrow
+    \begin{array}{ll}
+      \text{BASIC}  & \text{Forth} \\
+      \text{Lisp}   & \text{Parakeet} \\
+      \text{Perl 5} & \text{Perl 6} \\
+      \text{PHP}    & \text{Python} \\
+      \text{Ruby}   & \text{Scheme} \\
+      \text{TCL}    & \text{\ldots} \\
+    \end{array}
+  \]
+}
+
+\subsection{Architektur}
+\frame[t]{
+  \frametitle{Architektur}
+
+  \begin{itemize}
+    \item Je 64 Register der Typen \texttt{I}, \texttt{N}, \texttt{S} und \texttt{P}
+	  \vspace*{-1em}
+	  \begin{tabbing}
+	    \texttt{I}: \= Int \\
+	    \texttt{N}: \> Num \\
+	    \texttt{S}: \> String \\
+	    \texttt{P}: \> PMC -- Parrot Magic Cookie
+	  \end{tabbing}
+    \item Bereitstellung von Garbage Collection, Subroutinen, Coroutines,
+	  Continuations, Klassen, Methoden
+    \item Just In Time-Compiler für meist benutzte Plattformen ⇒ Speed!
+    \item HLL → PIR → Bytecode → \\
+	  natives Programm, C oder direkte Ausführung
+  \end{itemize}
+}
+
+\subsection{Mitgestaltungsm"oglichkeiten}
+\frame[t]{
+  \frametitle{Mitgestaltungsmöglichkeiten}
+
+  \begin{itemize}
+    \item Mailingliste: \\
+          \texttt{perl6-internals@perl.org}, \\
+          \texttt{gmane.comp.lang.perl.perl6.internals}
+    \item IRC: \texttt{\#parrot} auf \texttt{irc.perl.org}
+    \item Auch Newbies gern gesehen
+    \item Viele Beteiligungsmöglichkeiten, nicht nur für Programmierer
+    \item Weitere Informationen: \url{http://www.parrotcode.org/}
   \end{itemize}
 }
 
