@@ -8,9 +8,11 @@
 ** Restructured the Eval monad to be reusable on compilers and interpreters
 ** Position handling and statement reduction logic re-written
 ** Add strictness to core Monad and object structures
+* Functions declared as unary are now parsed as such
 * Global subroutine declaration is now visible in the whole file
 * Improved Parrot compiler backend support for mod_pugs
 * Much better error messages, tracking source file range for expressions
+* New loop control routines: `next`, `redo` and `last`
 * On Win32, `-s` and `-z` now work correctly
 * Pugs can now build on Cygwin
 * `#line 123` and `#line 123 "filename"` both works

@@ -20,6 +20,7 @@ import Pugs.Rule
 import Pugs.Rule.Expr
 import Pugs.Rule.Error
 import Pugs.Pretty
+import qualified Data.Set as Set
 
 -- Lexical units --------------------------------------------------
 
@@ -436,6 +437,7 @@ unsafeEvalEnv exp = do
 
 unsafeEvalExp exp = do
     env <- getState
+    setState env{ envStash = "" } -- cleans up function cache
     let val = unsafePerformIO $ do
         runEvalIO (env{ envDebug = Nothing }) $ do
             evl <- asks envEval
@@ -684,9 +686,19 @@ currentFunctions = do
     env     <- getState
     return . concat . unsafePerformSTM $ do
         glob <- readTVar $ envGlobal env
-        forM (padToList glob ++ padToList (envLexical env)) $ \(name, ioRefs) -> do
-            refs <- mapM (readTVar . snd) ioRefs
-            return $ map (\ref -> (dropWhile (not . isAlphaNum) $ name, ref)) refs
+        let funs  = padToList glob ++ padToList (envLexical env)
+        forM [ fun | fun@(('&':_), _) <- funs ] $ \(name, tvars) -> do
+            let name' = dropWhile (not . isAlphaNum) $ name
+            fmap catMaybes $ forM tvars $ \(_, tvar) -> do
+                ref <- readTVar tvar
+                -- read from ref
+                return $ case ref of
+                    MkRef (ICode cv) -> Just $
+                        (name', code_assoc cv, code_params cv)
+                    MkRef (IScalar sv)
+                        | Just (VCode code) <- scalar_const sv -> Just $
+                        (name', code_assoc code, code_params code)
+                    _ -> Nothing
 
 currentUnaryFunctions = do
     env     <- getState
@@ -701,15 +713,19 @@ currentUnaryFunctions = do
 
 currentUnaryFunctions' = do
     funs    <- currentFunctions
+    let (unary, rest) = (`partition` funs) $ \x -> case x of
+            (_, "pre", [param]) | not (isSlurpy param) -> True
+            _  -> False
+        rest' = (`filter` rest) $ \x -> case x of
+            (_, _, (_:_:_)) -> True
+            (_, _, [param])
+                | ('@':_) <- paramName param
+                , isSlurpy param -> True
+            _ -> False
+        restNames = Set.fromList $ map (\(name, _, _) -> name) rest'
     return . mapPair munge . partition fst . sort $
-        [ (opt, encodeUTF8 name) | (name, MkRef (ICode code)) <- funs
-        , code_assoc code == "pre"
-        , length (code_params code) == 1
-        , let param = head $ code_params code
-        , let opt   = isOptional param
-        -- XXX: find other MMD duplicates
-        , name /= "sort", name /= "say" && name /= "print" && name /= "reverse"
-        , not $ isSlurpy param
+        [ (isOptional param, encodeUTF8 name) | (name, _, [param]) <- unary
+        , not (name `Set.member` restNames)
         ]
     where
     munge = unwords . map snd

@@ -4,20 +4,24 @@ class (Typeable a) => ScalarClass a where
     scalar_iType = const $ mkType "Scalar"
     scalar_fetch :: a -> Eval VScalar
     scalar_store :: a -> VScalar -> Eval ()
+    scalar_const :: a -> Maybe VScalar
 
 instance ScalarClass IScalarProxy where
     scalar_iType = const $ mkType "Scalar::Proxy"
     scalar_fetch = fst
     scalar_store = snd
+    scalar_const = const Nothing
 
 instance ScalarClass IScalar where
     scalar_fetch = liftSTM . readTVar
     scalar_store = (liftSTM .) . writeTVar
+    scalar_const = const Nothing
 
 instance ScalarClass IScalarLazy where
     scalar_iType = const $ mkType "Scalar::Lazy"
     scalar_fetch = return . maybe undef id
     scalar_store _ v = retConstError v
+    scalar_const = const Nothing
 
 instance ScalarClass IScalarCwd where
     scalar_iType = const $ mkType "Scalar::Cwd"
@@ -27,10 +31,12 @@ instance ScalarClass IScalarCwd where
     scalar_store _ val = do
         str <- fromVal val
 	tryIO () $ setCurrentDirectory str
+    scalar_const = const Nothing
 
 instance ScalarClass VScalar where
     scalar_iType = const $ mkType "Scalar::Const"
     scalar_fetch (VRef ref) = readRef ref
     scalar_fetch v = return v
     scalar_store _ v = retConstError v
+    scalar_const = Just
 
