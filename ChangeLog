@@ -34,6 +34,7 @@
 * Added simple POD parser into `ext/Pod-Stream-Parser`
 * Added support for generating Haskell documentation with `make haddock`
 * Added the tic-tac-toe game from perlmonks into `examples/games/`
+* Parallel `make smoke` when `%ENV<PUGS_TESTS_CONCURRENT>` is greater than 1
 * Patched local `Test::Harness` to display number of TODO tests
 * Progressive powerset generator from perlmonks added to `examples/`
 * Smoke testing tool now includes timing data in YAML harness data
