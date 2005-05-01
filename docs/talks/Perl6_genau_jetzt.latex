@@ -101,7 +101,7 @@
       \text{Ruby}   & \text{Scheme} \\
       \text{TCL}    & \text{\ldots} \\
     \end{array}
-    \leftrightarrow \text{Parrot} \leftrightarrow
+    \leftrightarrow \text{\syncool{Parrot}} \leftrightarrow
     \begin{array}{ll}
       \text{BASIC}  & \text{Forth} \\
       \text{Lisp}   & \text{Parakeet} \\
@@ -593,7 +593,7 @@
     \item Ursprünglich Haskell-Projekt von Autrijus Tang "`als Übung"'
     \item Projektbeginn: 1. Februar 2005
     \item Nun fast 100 Entwickler
-    \item Version 6.2.2: Alles außer Objektorientierung (!)
+    \item Version 6.2.2: Beinahe Alles (!) außer Objektorientierung
   \end{itemize}
 }
 
@@ -604,13 +604,13 @@
   \begin{itemize}
     \item "`Test-driven development"' --
     \item Camelfolks: Schreiben von Tests in Perl 6 für noch nicht
-	  implementierte Features: \\
+	  implementierte Features \\
 	  \texttt{%
-	    \synfunc{is}\ 23 + 42, 64, "\synstr{Einfache Rechnungen funzen.}";\\
-	    \synfunc{is}\ \~{}\symbol{91}1, 2, 3], "\synstr{1 2 3}",\\
-	    \ \ "\synstr{Arrays wandeln sich richtig in Strings um.}";
-	    \synfunc{is}\ +\symbol{91}1, 2, 3], 3,\\
-	    \ \ "\synstr{Arrays wandeln sich richtig in Ints um.}";
+	    \ \ \synfunc{is}\ 23 + 42, 64, "\synstr{Einfache Rechnungen funzen.}";\\
+	    \ \ \synfunc{is}\ \~{}\symbol{91}1, 2, 3], "\synstr{1 2 3}",\\
+	    \ \ \ \ "\synstr{Arrays wandeln sich richtig in Strings um.}";\\
+	    \ \ \synfunc{is}\ +\symbol{91}1, 2, 3], 3,\\
+	    \ \ \ \ "\synstr{Arrays wandeln sich richtig in Ints um.}";\\
 	  }
     \pause
     \item Lambdafolks: Implementierung dieser Features
@@ -647,8 +647,9 @@
     \item IRC: \texttt{\#perl6} auf Freenode
     \item Auch Newbies gern gesehen
     \item Schreiben von Tests (Perl 6), Implementierung (Haskell), Schreiben
-	  von Dokumentation, Portierung von Perl 5|Python|Ruby|\ldots-Modulen
-	  nach Perl 6, \ldots
+	  von Dokumentation, Portierung von
+	  Perl~5\texttt{|}Python\texttt{|}Ruby\texttt{|}\ldots-Modulen nach
+	  Perl 6, \ldots
     \item Weitere Informationen: \url{http://www.pugscode.org/}
   \end{itemize}
 }
