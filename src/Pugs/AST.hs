@@ -477,7 +477,7 @@ data Param = MkParam
     , isNamed       :: !Bool        -- Is it named-only?
     , isLValue      :: !Bool        -- Is it lvalue (i.e. not `is copy`)?
     , isWritable    :: !Bool        -- Is it writable (i.e. `is rw`)?
-    , isThunk       :: !Bool        -- Is it call-by-name (short-circuit)?
+    , isLazy        :: !Bool        -- Is it call-by-name (short-circuit)?
     , paramName     :: !String      -- Parameter name
     , paramContext  :: !Cxt         -- Parameter context: slurpiness and type
     , paramDefault  :: !Exp         -- Default expression when omitted
@@ -668,8 +668,8 @@ buildParam typ sigil name e = MkParam
     , isOptional    = (sigil ==) `any` ["?", "+"]
     , isNamed       = (null sigil || head sigil /= '+')
     , isLValue      = True
-    , isWritable    = False
-    , isThunk       = False
+    , isWritable    = (name == "$_")
+    , isLazy        = False
     , paramName     = name
     , paramContext  = case sigil of
         ('*':_) -> CxtSlurpy typ'
@@ -685,7 +685,7 @@ defaultScalarParam :: Param
 
 defaultArrayParam   = buildParam "" "*" "@_" (Val VUndef)
 defaultHashParam    = buildParam "" "*" "%_" (Val VUndef)
-defaultScalarParam  = buildParam "" "*" "$_" (Val VUndef)
+defaultScalarParam  = buildParam "" "" "$_" (Val VUndef)
 
 type DebugInfo = Maybe (TVar (Map String String))
 
@@ -719,11 +719,11 @@ instance Show Pad where
                 concat (intersperse ", " $ map dump $ padToList pad) ++
                 "])"
         where
-        dump (n, ioRefs) = "(" ++ show n ++ ", [" ++
-                            concat (intersperse ", " $ map dumpTVar ioRefs) ++
+        dump (n, tvars) = "(" ++ show n ++ ", [" ++
+                            concat (intersperse ", " $ map dumpTVar tvars) ++
                             "])"
-        dumpTVar ioRef = unsafePerformIO $ do
-            ref  <- liftSTM $ readTVar ioRef
+        dumpTVar tvar = unsafePerformIO $ do
+            ref  <- liftSTM $ readTVar tvar
             dump <- runEvalIO undefined $ dumpRef ref
             return $ "unsafePerformSTM (newTVar " ++ vCast dump ++ ")"
 
@@ -734,12 +734,12 @@ diffPads (MkPad map1) (MkPad map2) = MkPad $ Map.difference map1 map2
 unionPads (MkPad map1) (MkPad map2) = MkPad $ Map.union map1 map2
 
 genMultiSym name ref = do
-    ioRef <- liftSTM $ newTVar ref
-    return $ \(MkPad map) -> MkPad $ Map.insertWith (++) name [ioRef] map
+    tvar <- liftSTM $ newTVar ref
+    return $ \(MkPad map) -> MkPad $ Map.insertWith (++) name [tvar] map
 
 genSym name ref = do
-    ioRef <- liftSTM $ newTVar ref
-    return $ \(MkPad map) -> MkPad $ Map.insert name [ioRef] map
+    tvar <- liftSTM $ newTVar ref
+    return $ \(MkPad map) -> MkPad $ Map.insert name [tvar] map
 
 show' :: (Show a) => a -> String
 show' x = "( " ++ show x ++ " )"
@@ -867,8 +867,8 @@ writeVar :: Var -> Val -> Eval ()
 writeVar name val = do
     glob <- askGlobal
     case findSym name glob of
-        Just ioRef -> do
-            ref <- liftSTM $ readTVar ioRef
+        Just tvar -> do
+            ref <- liftSTM $ readTVar tvar
             writeRef ref val
         _        -> return () -- XXX Wrong
 
@@ -876,15 +876,15 @@ readVar :: Var -> Eval Val
 readVar name@(_:'*':_) = do
     glob <- askGlobal
     case findSym name glob of
-        Just ioRef -> do
-            ref <- liftSTM $ readTVar ioRef
+        Just tvar -> do
+            ref <- liftSTM $ readTVar tvar
             readRef ref
         _        -> return undef
 readVar name@(sigil:rest) = do
     lex <- asks envLexical
     case findSym name lex of
-        Just ioRef -> do
-            ref <- liftSTM $ readTVar ioRef
+        Just tvar -> do
+            ref <- liftSTM $ readTVar tvar
             readRef ref
         _  -> readVar (sigil:'*':rest)
 readVar _ = return undef
@@ -990,7 +990,7 @@ forceRef r = retError "cannot forceRef" r
 dumpRef :: VRef -> Eval Val
 dumpRef (MkRef (ICode cv)) = do
     vsub <- code_assuming cv [] []
-    return (VStr $ "(MkRef (ICode $ " ++ show vsub ++ "))")
+    return (VStr $ show (subName vsub)) -- "(MkRef (ICode $ " ++ show vsub ++ "))")
 dumpRef (MkRef (IScalar sv)) | scalar_iType sv == mkType "Scalar::Const" = do
     sv <- scalar_fetch sv
     return (VStr $ "(MkRef (IScalar $ " ++ show sv ++ "))")
