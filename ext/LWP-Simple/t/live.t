@@ -127,3 +127,5 @@ for @live_urls -> $url {
   is( $buf, $res, "... and contains $url");
   is( $f, $res, "... and getstore() returns $url");
 };
+
+unlink $tempfile;
