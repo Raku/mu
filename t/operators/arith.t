@@ -323,7 +323,8 @@ is $inf2, Inf, "Inf**Inf";
 # for why these three values are defined like they are.
 #tryeq 0.9**Inf, 0, "0.9**Inf converges towards 0";
 #tryeq 1.1**Inf, Inf, "1.1**Inf diverges towards Inf";
-is 1**Inf, NaN;
+# is 1**Inf, NaN; ## XXX - platform-specific!
+fail("1**Inf is platform-specific -- it's 1 on OSX and NaN elsewhere", :todo);
 
 # NaN
 is NaN, NaN;
