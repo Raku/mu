@@ -16,7 +16,7 @@
 * On Win32, `-s` and `-z` now work correctly
 * Optimized build is now default; use `make unoptimized` to turn it off
 * Pugs can now build on Cygwin
-* `#line 123` and `#line 123 "filename"` both works
+* `#line 123` and `#line 123 "filename"` both work
 * `&infix:<%>` raises trappable exception when modulus is zero
 * `(undef, $x) = (1, 2)` is now supported
 * `@array.end` implemented
@@ -39,6 +39,7 @@
 * Patched local `Test::Harness` to display number of TODO tests
 * Progressive powerset generator from perlmonks added to `examples/`
 * Smoke testing tool now includes timing data in YAML harness data
+* German talk "Perl 6, genau jetzt!" finished
 
 === Bug Fixes
 
