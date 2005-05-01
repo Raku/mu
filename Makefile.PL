@@ -129,16 +129,19 @@ src/Pugs/Config.hs : util/PugsConfig.pm
 
 ${() = '%.hpp : %.hs @prereqs $version_h
 	$ghc $threaded $ghc_flags -DHADDOCK -E \$< -o \$@
-	\$(PERLRUN) util/munge_haddock.pl \$@'; \''}
+	\$(PERL) util/munge_haddock.pl \$@'; \''}
 
 .SUFFIXES: .hs .hpp
 
 .hs.hpp :
 	$ghc $threaded $ghc_flags -DHADDOCK -E \$< -o \$@
-	\$(PERLRUN) util/munge_haddock.pl \$@
+	\$(PERL) util/munge_haddock.pl \$@
 
-haddock : @hppfiles
+haddock : @hppfiles docs/haddock
 	haddock -h -o docs/haddock/ @hppfiles
+
+docs/haddock :
+	\$(PERL) -e "mkdir q-docs/haddock-"
 
 profiled :: src/Pugs/Config.hs @srcfiles $version_h @prereqs
 	$ghc $threaded -auto-all -prof --make $profiled_flags $ghc_output
