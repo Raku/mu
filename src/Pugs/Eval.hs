@@ -279,28 +279,36 @@ reduce exp@(Syn name exps) = case name of
     "unless" -> doCond not
     "for" -> do
         let [list, body] = exps
-        vlist <- enterEvalContext cxtSlurpyAny list
-        vsub  <- enterEvalContext (cxtItem "Code") body
-        vals  <- fromVal vlist
+        av    <- enterLValue $ enterEvalContext cxtSlurpyAny list
+        vsub  <- enterRValue $ enterEvalContext (cxtItem "Code") body
+        -- XXX this is wrong -- should use Array.next
+        sz    <- join $ doArray av array_fetchSize
+        fetch <- doArray av array_fetchElem
+        elms  <- mapM fetch [0..sz-1]
         VCode sub <- fromVal vsub
-        let arity = length (subParams sub)
-            runBody [] = retVal undef
-            runBody vs = do
+        -- XXX: need clarification -- this makes
+        --      for @x { ... } into for @x -> $_ {...}
+        let arity = min 1 $ length (subParams sub)
+            runBody [] _ = retVal undef
+            runBody vs sub' = do
                 let (these, rest) = arity `splitAt` vs
-                apply (munge sub) [] $ map Val these
-                runBody rest
-            -- XXX: need clarification -- this makes
-            --      for @x { ... } into for @x -> $_ {...}
-            munge sub | subParams sub == [defaultArrayParam] =
-                sub{ subParams = [defaultScalarParam] }
-            munge sub = sub
-        enterLoop $ runBody vals
+                genSymCC "&next" $ \symNext -> do
+                genSymPrim "&redo" (const $ runBody vs sub') $ \symRedo -> do
+                    apply sub'{ subPad = symRedo . symNext $ subPad sub' } [] $
+                        map (Val . VRef . MkRef) these
+                runBody rest sub'
+        genSymCC "&last" $ \symLast -> do
+            let munge sub | subParams sub == [defaultArrayParam] =
+                    munge sub{ subParams = [defaultScalarParam] }
+                munge sub = sub{ subPad = symLast $ subPad sub }
+            runBody elms $ munge sub
     "loop" -> do
         let [pre, cond, post, body] = case exps of { [_] -> exps'; _ -> exps }
             exps' = [emptyExp, Val (VBool True), emptyExp] ++ exps
         evalExp pre
         enterLoop . fix $ \runBody -> do
-            valBody <- evalExp body
+            genSymPrim "&redo" (const $ runBody) $ \symRedo -> do
+            valBody <- enterLex [symRedo] $ evalExp body
             valPost <- evalExp post
             vBool   <- enterEvalContext (cxtItem "Bool") cond
             vb      <- fromVal vBool
@@ -537,15 +545,16 @@ reduce exp@(Syn name exps) = case name of
     -- XXX This treatment of while/until loops probably needs work
     doWhileUntil f = do
         let [cond, body] = exps
-        enterLoop . fix $ \runBody -> do
+        enterLoop . fix $ \runLoop -> do
             vbool <- enterEvalContext (cxtItem "Bool") cond
             vb    <- fromVal vbool
             case f vb of
-                True -> do
-                    rv <- reduce body
+                True -> fix $ \runBody -> do
+                    genSymPrim "&redo" (const $ runBody) $ \symRedo -> do
+                    rv <- enterLex [symRedo] $ reduce body
                     case rv of
                         VError _ _  -> retVal rv
-                        _           -> runBody
+                        _           -> runLoop
                 _ -> retVal vbool
 
 -- XXX absolutely evil bloody hack for context hinters
@@ -791,7 +800,7 @@ doApply Env{ envClasses = cls } sub@MkCode{ subBody = fun, subType = typ } invs 
         newSym   <- genSym name boundRef
         (syms', restArgs) <- doBind (newSym:syms) rest
         return (syms', ApplyArg name val coll:restArgs)
-    expToVal MkParam{ isThunk = thunk, isLValue = lv, paramContext = cxt, paramName = name, isWritable = rw } exp = do
+    expToVal MkParam{ isLazy = thunk, isLValue = lv, paramContext = cxt, paramName = name, isWritable = rw } exp = do
         env <- ask -- freeze environment at this point for thunks
         let eval = local (const env{ envLValue = lv }) $ do
             enterEvalContext (cxtOfSigil $ head name) exp

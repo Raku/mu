@@ -45,14 +45,20 @@ enterWhen break action = callCC $ \esc -> do
         , subBody = break
         }
 
-enterLoop action = callCC $ \esc -> do
-    sym <- genSym "&last" $ lastSub esc
-    enterLex [sym] action
-    where
-    lastSub esc = codeRef $ mkPrim
-        { subName = "last"
-        , subBody = Prim (const $ esc VUndef)
+enterLoop action = genSymCC "&last" $ \symLast -> do
+    genSymPrim "&next" (const action) $ \symNext -> do
+        enterLex [symLast, symNext] action
+
+genSymPrim symName@('&':name) prim action = do
+    newSym <- genSym symName . codeRef $ mkPrim
+        { subName = name
+        , subBody = Prim prim
         }
+    action newSym
+genSymPrim _ _ _ = error "need a &name"
+
+genSymCC symName action = callCC $ \esc -> do
+    genSymPrim symName (const $ esc undef) action
 
 enterBlock action = callCC $ \esc -> do
     env <- ask
@@ -120,7 +126,7 @@ makeParams Env{ envContext = cxt, envLValue = lv }
         , isNamed    = False
         , isLValue   = lv
         , isWritable = lv
-        , isThunk    = False
+        , isLazy     = False
         , paramName = case cxt of
             CxtSlurpy _ -> "@?0"
             _           -> "$?0"
