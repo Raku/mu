@@ -30,7 +30,7 @@ my @t_good = (
 >))
 );
 
-my @t_todo = map{$_.values} (map{$_.values} (
+my @t_todo = map Junction $_ -> {$_.values} (map Junction $_ -> {$_.values} (
   '-C'
     ~ any('Parrot')
     ~ ' examples/'

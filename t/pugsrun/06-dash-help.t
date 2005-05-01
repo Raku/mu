@@ -11,8 +11,8 @@ works.
 =cut
 
 my @examples = any<-h --help>;
-@examples = map { $_.values } 
-            map { $_, "-w $_", "$_ -w", "-w $_ -w" }
+@examples = map -> Junction $_ { $_.values } 
+            map -> Junction $_ { $_, "-w $_", "$_ -w", "-w $_ -w" }
             @examples;
 
 plan +@examples;

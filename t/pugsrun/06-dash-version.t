@@ -11,8 +11,8 @@ works.
 =cut
 
 my @tests = any(< -v --version >);
-@tests = map { $_.values }
-         map { $_, "-w $_", "$_ -w", "-w $_ -w" }
+@tests = map -> Junction $_ { $_.values }
+         map -> Junction $_ { $_, "-w $_", "$_ -w", "-w $_ -w" }
          @tests;
 
 plan +@tests;
