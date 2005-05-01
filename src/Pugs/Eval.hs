@@ -296,7 +296,7 @@ reduce exp@(Syn name exps) = case name of
         VCode sub <- fromVal vsub
         -- XXX: need clarification -- this makes
         --      for @x { ... } into for @x -> $_ {...}
-        let arity = min 1 $ length (subParams sub)
+        let arity = max 1 $ length (subParams sub)
             runBody [] _ = retVal undef
             runBody vs sub' = do
                 let (these, rest) = arity `splitAt` vs
