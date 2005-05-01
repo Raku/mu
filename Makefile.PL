@@ -74,7 +74,7 @@ sub set_postamble {
 
     if (has_ghc_package('readline') 
         and  try_compile('import System.Console.Readline;'
-                        .'main = readline "" >> return ()')) 
+                        .'main :: IO ()\nmain = readline "" >> return ()')) 
     {
       $ghc_flags .= ' -DPUGS_HAVE_READLINE=1 -package readline';
     } else {
@@ -100,7 +100,7 @@ sub set_postamble {
 
     my $config = get_pugs_config();
     my $is_win32 = ($^O =~ /MSWin|mingw|cygwin/i);
-    my $threaded = (!$is_win32 and try_compile("main = return ()", "-threaded"))
+    my $threaded = (!$is_win32 and try_compile("main :: IO ()\nmain = return ()", "-threaded"))
         ? '-threaded' : '';
 
     # XXX - hsplugins doesn't build with profiles
@@ -126,7 +126,13 @@ $unicode : $unicode_c
 src/Pugs/Config.hs : util/PugsConfig.pm
 	\$(PERL) -Iutil -MPugsConfig -e "PugsConfig->write_config_module" > src/Pugs/Config.hs
 
-%.hpp : %.hs @prereqs $version_h
+${() = '%.hpp : %.hs @prereqs $version_h
+	$ghc $threaded $ghc_flags -DHADDOCK -E \$< -o \$@
+	\$(PERLRUN) util/munge_haddock.pl \$@'; \''}
+
+.SUFFIXES: .hs .hpp
+
+.hs.hpp :
 	$ghc $threaded $ghc_flags -DHADDOCK -E \$< -o \$@
 	\$(PERLRUN) util/munge_haddock.pl \$@
 
