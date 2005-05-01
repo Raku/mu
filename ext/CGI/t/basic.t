@@ -23,15 +23,15 @@ is(url_decode('this%20is%20a%20string%20to%20decode'), 'this is a string to deco
 my $query_string = 'test=hello%20world;this%20is%20a%20number=1';
 
 unpack_params($query_string);
-todo_is(pack_params(), $query_string, 'packed the params correctly');
+is(pack_params(), $query_string, 'packed the params correctly');
 
 my @param_keys = param();
 is(+@param_keys, 2, 'we have 2 parameters');
-todo_is(@param_keys[0], 'test', 'the first one is "test"');
-todo_is(@param_keys[1], 'this is a number', 'the second one is "this is a number"');
+is(@param_keys[0], 'test', 'the first one is "test"');
+is(@param_keys[1], 'this is a number', 'the second one is "this is a number"');
 
-todo_is(param(@param_keys[0]), 'hello world', 'the value for param "test" is correct');
-todo_is(param(@param_keys[1]), 1, 'the value for param "this is a number" is correct');
+is(param(@param_keys[0]), 'hello world', 'the value for param "test" is correct');
+is(param(@param_keys[1]), 1, 'the value for param "this is a number" is correct');
 
 # these will all be undefined
 is(query_string(), undef, 'the value returned is undef');

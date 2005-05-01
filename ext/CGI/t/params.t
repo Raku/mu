@@ -17,7 +17,7 @@ use_ok('CGI');
     my $query_string = 'multi=1;multi=2;multi=3';
 
     unpack_params($query_string);
-    todo_is(pack_params(), $query_string, 'packed the params correctly');
+    is(pack_params(), $query_string, 'packed the params correctly');
 
     my @param_keys = param();
     is(+@param_keys, 1, 'we have 1 parameter');
@@ -36,12 +36,12 @@ clear_params();
     my $query_string = 'first_name=Stevan;last_name=Little';
 
     unpack_params($query_string);
-    todo_is(pack_params(), $query_string, 'packed the params correctly');
+    is(pack_params(), $query_string, 'packed the params correctly');
 
     my @param_keys = param();
     is(+@param_keys, 2, 'we have 1 parameter');
-    todo_is(@param_keys[0], 'first_name', 'the first one is "first_name"');
-    todo_is(@param_keys[1], 'last_name', 'the first one is "last_name"');   
+    is(@param_keys[0], 'first_name', 'the first one is "first_name"');
+    is(@param_keys[1], 'last_name', 'the first one is "last_name"');
     
     is(param('first_name'), 'Stevan', 'got the right value for first_name');       
     is(param('last_name'), 'Little', 'got the right value for last_name');
@@ -57,7 +57,7 @@ clear_params();
     my $query_string = 'multi=1&multi=2&multi=3';
 
     unpack_params($query_string);
-    todo_is(pack_params(), $query_string, 'packed the params correctly');
+    is(pack_params(), $query_string, 'packed the params correctly');
 
     my @param_keys = param();
     is(+@param_keys, 1, 'we have 1 parameter');
@@ -73,7 +73,7 @@ clear_params();
 
     $query_string = 'foo=1;foo=2;';
     unpack_params($query_string);
-    todo_is(pack_params(), 'foo=1&foo=2', 'Parms work even if the default delimiter is changed');
+    is(pack_params(), 'foo=1&foo=2', 'Parms work even if the default delimiter is changed');
 }
 
 clear_params();
@@ -82,12 +82,12 @@ clear_params();
     my $query_string = 'first_name=Stevan&last_name=Little';
 
     unpack_params($query_string);
-    todo_is(pack_params(), $query_string, 'packed the params correctly');
+    is(pack_params(), $query_string, 'packed the params correctly');
 
     my @param_keys = param();
     is(+@param_keys, 2, 'we have 1 parameter');
-    todo_is(@param_keys[0], 'first_name', 'the first one is "first_name"');
-    todo_is(@param_keys[1], 'last_name', 'the first one is "last_name"');   
+    is(@param_keys[0], 'first_name', 'the first one is "first_name"');
+    is(@param_keys[1], 'last_name', 'the first one is "last_name"');   
     
     is(param('first_name'), 'Stevan', 'got the right value for first_name');       
     is(param('last_name'), 'Little', 'got the right value for last_name');
