@@ -32,7 +32,7 @@
 * Many new tests and cleanup of older tests, we are now at 4600+ tests
 * Added an example of IRC bot into `examples/network`
 * Added simple POD parser into `ext/Pod-Stream-Parser`
-* Added support for Haskell documentation using Haddock
+* Added support for generating Haskell documentation with `make haddock`
 * Added the tic-tac-toe game from perlmonks into `examples/games/`
 * Patched local `Test::Harness` to display number of TODO tests
 * Progressive powerset generator from perlmonks added to `examples/`
