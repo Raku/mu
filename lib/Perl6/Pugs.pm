@@ -2,7 +2,7 @@ package Perl6::Pugs;
 use 5.006;
 use strict;
 
-our $VERSION = 6.002001;
+our $VERSION = 6.002002;
 
 =head1 NAME
 
@@ -10,7 +10,7 @@ Perl6::Pugs - A Perl 6 Implementation
 
 =head1 VERSION
 
-This document describes version 6.2.1 of Pugs, released April 24, 2005.
+This document describes version 6.2.2 of Pugs, released May 1, 2005.
 
 =head1 SYNOPSIS
 
