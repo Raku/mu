@@ -5,7 +5,7 @@ module Unicode (module Char) where
 import Char hiding (chr, ord, digitToInt)
 #else
 
-{-# OPTIONS_GHC -fno-implicit-prelude -O #-}
+{-# OPTIONS_GHC -fno-implicit-prelude #-}
 {-# OPTIONS_GHC -#include "UnicodeC.h" #-}
 
 {-

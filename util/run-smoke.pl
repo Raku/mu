@@ -32,7 +32,6 @@ sub make { return `$Config{make} @_` };
 my $dev_null = File::Spec->devnull;
 
 my $output ;# = svn("up") or die "Could not update pugs tree: $!";
-$output   .= make("optimized") or die "Could not make pugs: $!";
 system($^X, qw(-w ./util/yaml_harness.pl)) == 0 or die "Could not run yaml harness: $!";
 system($^X, qw(-w ./util/testgraph.pl tests.yml), $html_location) == 0 or die "Could not convert .yml to testgraph: $!";
 upload_smoke($html_location);

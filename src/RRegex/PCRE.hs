@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fvia-C -O #-}
+{-# OPTIONS_GHC -fglasgow-exts -fvia-C #-}
 
 {-# INCLUDE <pcre.h> #-}
 -- #include <sys/types.h>

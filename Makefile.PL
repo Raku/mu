@@ -145,7 +145,7 @@ docs/haddock :
 	\@\$(PERL) -e "mkdir q-docs/haddock-"
 
 profiled :: src/Pugs/Config.hs @srcfiles $version_h @prereqs
-	$ghc $threaded -auto-all -prof --make $profiled_flags $ghc_output
+	$ghc $threaded -O -auto-all -prof --make $profiled_flags $ghc_output
 
 pugs.prof :: profiled
 	find t -type f | grep -v D | grep -v R | grep -v pugsrun | ./pugs +RTS -p -RTS -e 'my sub exit {}; for =\$\$*IN -> \$\$t is copy { chomp \$\$t; require \$\$t }'
@@ -153,7 +153,7 @@ pugs.prof :: profiled
 optimised :: optimized
 
 optimized :: src/Pugs/Config.hs @srcfiles $version_h @prereqs
-	$ghc $threaded -O1 --make $ghc_flags $ghc_output
+	$ghc $threaded -O --make $ghc_flags $ghc_output
 
 unoptimised :: optimized
 
@@ -161,9 +161,9 @@ unoptimized :: src/Pugs/Config.hs @srcfiles $version_h @prereqs
 	$ghc $threaded -O0 --make $ghc_flags $ghc_output
 
 $pugs : src/Pugs/Config.hs @srcfiles $version_h @prereqs
-	$ghc $threaded --make $ghc_flags $ghc_output
+	$ghc $threaded -O --make $ghc_flags $ghc_output
 
-smoke : util/run-smoke.pl
+smoke : $pugs util/run-smoke.pl
 	\$(PERL) util/run-smoke.pl . smoke.html
 
 ghci ::
