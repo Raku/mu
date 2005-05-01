@@ -21,12 +21,12 @@ genGHC = do
     liftIO (TH.runQ [d| mainCC = runComp $(compile exp) |]) >>= \str -> return . VStr . unlines $
         [ "{-# OPTIONS_GHC -fglasgow-exts -fth -O #-}"
         , "module MainCC where"
-        , "import GHC.Base"
-        , "import Pugs.Run"
-        , "import Pugs.AST"
-        , "import Pugs.Types"
-        , "import Pugs.Prim"
-        , "import Pugs.Internals"
+        , "import qualified GHC.Base"
+        , "import qualified Pugs.Run"
+        , "import qualified Pugs.AST"
+        , "import qualified Pugs.Types"
+        , "import qualified Pugs.Prim"
+        , "import qualified Pugs.Internals"
         , "import Language.Haskell.TH as TH"
         , ""
         , TH.pprint str
@@ -60,7 +60,7 @@ compile (Parens arg) = compile arg
 compile (Val (VInt i)) = [| return (VInt i) |]
 compile (Val (VStr s)) = [| return (VStr s) |]
 compile (Val (VBool b)) = [| return (VBool b) |]
-compile Noop = [| return () |]
+compile Noop = [| return undef |]
 compile exp = internalError ("Unrecognized construct: " ++ show exp)
 #endif
 

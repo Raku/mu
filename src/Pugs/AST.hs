@@ -730,7 +730,7 @@ instance Show Pad where
         dumpTVar (_, tvar) = unsafePerformIO $ do
             ref  <- liftSTM $ readTVar tvar
             dump <- runEvalIO undefined $ dumpRef ref
-            return $ "unsafePerformSTM (newTVar " ++ vCast dump ++ ")"
+            return $ "(unsafePerformIO . atomically $ do { bool <- newTVar True; ref <- (newTVar " ++ vCast dump ++ "); return (bool, ref) })"
 
 mkPad :: [(Var, [(TVar Bool, TVar VRef)])] -> Pad
 mkPad = MkPad . Map.fromList
@@ -1015,11 +1015,11 @@ forceRef r = retError "cannot forceRef" r
 dumpRef :: VRef -> Eval Val
 dumpRef (MkRef (ICode cv)) = do
     vsub <- code_assuming cv [] []
-    return (VStr $ show (subName vsub)) -- "(MkRef (ICode $ " ++ show vsub ++ "))")
+    return (VStr $ "(MkRef (ICode $ " ++ show vsub ++ "))")
 dumpRef (MkRef (IScalar sv)) | scalar_iType sv == mkType "Scalar::Const" = do
     sv <- scalar_fetch sv
     return (VStr $ "(MkRef (IScalar $ " ++ show sv ++ "))")
-dumpRef ref = return (VStr $ "(unsafePerformIO . newObject $ mkType \"" ++ show (refType ref) ++ "\")")
+dumpRef ref = return (VStr $ "(unsafePerformIO . newObject $ mkType \"" ++ showType (refType ref) ++ "\")")
 
 readRef :: VRef -> Eval Val
 readRef (MkRef (IScalar sv)) = scalar_fetch sv

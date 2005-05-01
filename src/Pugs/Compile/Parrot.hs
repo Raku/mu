@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -fglasgow-exts #-}
 
-module Pugs.Compile.Parrot where
+module Pugs.Compile.Parrot (genIMC) where
 import Pugs.Internals
 import Pugs.Pretty
 import Pugs.AST
@@ -275,21 +275,6 @@ instance Compile Exp where
 
 showText :: (Show a) => a -> Doc
 showText = text . show
-
-compileAssign :: Doc -> Exp -> Eval Doc
-compileAssign lhsC rhs@(Var _) = do
-    rhsC <- compile rhs
-    return $ hsep [ lhsC, text "=", text "assign", rhsC ]
-compileAssign lhsC (App ('&':name) _ [arg]) = do
-    compileWith (\tmp -> lhsC <+> text "=" <+> text name <> parens tmp) arg
-compileAssign lhsC (Syn "[]" [arr, idx]) = do
-    arrC <- compile arr
-    idxC <- compile idx
-    return $ vcat [ lhsC <+> text "=" <+> arrC <> text "[" <> idxC <> text "]" ]
-compileAssign lhsC rhs = do
-    rhsC <- compile rhs
-    tmp  <- askPMC
-    return $ rhsC $+$ hsep [ lhsC, text "=", text tmp ]
 
 compileWith :: (Doc -> Doc) -> Exp -> Eval Doc
 compileWith f x = do

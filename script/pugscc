@@ -109,10 +109,10 @@ die unless -e $out;
 
 if ($run) {
     if ($backend eq 'Parrot' and !-x '/usr/bin/env') {
-        system("parrot" => $out) == 0 or die $!;
+        system("parrot" => $out);
     }
     else {
-        system($out) == 0 or die $!;
+        system {$out} $out;
     }
 }
 else {
