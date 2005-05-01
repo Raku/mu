@@ -161,7 +161,12 @@ op1 "int"  = op1Cast VInt
 op1 "+^"   = op1Cast (VInt . (toInteger . (complement :: Word -> Word)))
 op1 "~^"   = op1Cast (VStr . mapStr complement)
 op1 "?^"   = op1 "!"
-op1 "\\"   = return . VRef . scalarRef -- XXX
+op1 "\\"   = \v -> do
+    return $ case v of
+        (VRef (MkRef (IScalar _))) -> VRef . scalarRef $ v
+        (VRef _)    -> v
+        (VList vs)  -> VRef . arrayRef $ vs
+        _           -> VRef . scalarRef $ v
 op1 "post:..."  = op1Cast op1Range
 op1 "not"  = op1 "!"
 op1 "true" = op1 "?"
