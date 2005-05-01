@@ -40,6 +40,7 @@
 \newcommand{\synvar}    [1]{\color{purple!50!black}#1\color{black}}
 \newcommand{\synclass}  [1]{\color{green!50!black}#1\color{black}}
 \newcommand{\syncomment}[1]{\color{blue!20!black}#1\color{black}}
+\newcommand{\syncool}   [1]{\color{beamer@blendedblue}#1\color{black}}
 \newcommand{\synoder}      {\ \ \color{black}$\vee$\ \ }
 \newcommand{\hr}        {\rule[4pt]{\textwidth}{0.1pt}\\}
 
@@ -133,9 +134,9 @@
   \end{itemize}
 }
 
-\subsection{Mitgestaltungsm"oglichkeiten}
+\subsection{Beteiligungsm"oglichkeiten}
 \frame[t]{
-  \frametitle{Mitgestaltungsmöglichkeiten}
+  \frametitle{Beteiligungsmöglichkeiten}
 
   \begin{itemize}
     \item Mailingliste: \\
@@ -194,7 +195,7 @@
   \frametitle{Freiheit und Anpassung}
 
   \begin{itemize}
-    \item Kein Zwänge, nur angemessene Defaults
+    \item Kein Zwänge, nur angemessene Standards
     \item Bräuche, keine Gesetze
     \item "`Nur tote Sprachen ändern sich nicht."'
   \end{itemize}
@@ -592,7 +593,7 @@
     \item Ursprünglich Haskell-Projekt von Autrijus Tang "`als Übung"'
     \item Projektbeginn: 1. Februar 2005
     \item Nun fast 100 Entwickler
-    \item Version 6.2.2: Alles außer Objektorientierung
+    \item Version 6.2.2: Alles außer Objektorientierung (!)
   \end{itemize}
 }
 
@@ -623,17 +624,47 @@
   \frametitle{Weitere Pläne}
 
   \begin{tabbing}
-    Pugs 6.283185 \= ... \kill
-    Pugs 6.0 \> Erstes Release \\
-    Pugs 6.2 \> Grundlegende IO- und Kontrollflusselemente, \\\> veränderbare Variablen \\
-    Pugs 6.28 \> Klassen \\
-    Pugs 6.283 \> Rules und Grammars \\
-    Pugs 6.2831 \> Rollen \\
-    Pugs 6.28318 \> Makros \\
-    Pugs 6.283185 \> Portierung von Pugs von Haskell nach Perl 6 \\
-    Pugs $2\pi$ \> Vollendung
+    Pugs 6.283185aaa \= ... \kill
+    \color{beamer@blendedblue}Pugs 6.0 \> Erstes Release \\
+    \color{beamer@blendedblue}Pugs 6.2 \> Grundlegende IO- und Kontrollflusselemente, \\\> veränderbare Variablen \\
+    \color{beamer@blendedblue}Pugs 6.28 \> Klassen \\
+    \color{beamer@blendedblue}Pugs 6.283 \> Rules und Grammars \\
+    \color{beamer@blendedblue}Pugs 6.2831 \> Rollen \\
+    \color{beamer@blendedblue}Pugs 6.28318 \> Makros \\
+    \color{beamer@blendedblue}Pugs 6.283185 \> Portierung von Pugs von Haskell nach Perl 6 \\
+    \color{beamer@blendedblue}Pugs $2\pi$ \> Vollendung
   \end{tabbing}
-  \begin{itemize}\item[a]b\end{itemize}
+}
+
+\subsection{Beteiligungsm"oglichkeiten}
+\frame[t]{
+  \frametitle{Beteiligunsmöglichkeiten}
+
+  \begin{itemize}
+    \item Mailingliste: \\
+          \texttt{perl6-compiler@perl.org}, \\
+          \texttt{gmane.comp.lang.perl.perl6.compiler}
+    \item IRC: \texttt{\#perl6} auf Freenode
+    \item Auch Newbies gern gesehen
+    \item Schreiben von Tests (Perl 6), Implementierung (Haskell), Schreiben
+	  von Dokumentation, Portierung von Perl 5|Python|Ruby|\ldots-Modulen
+	  nach Perl 6, \ldots
+    \item Weitere Informationen: \url{http://www.pugscode.org/}
+  \end{itemize}
+}
+
+
+\section{Ausblick}
+\frame[t]{
+  \frametitle{Ausblick}
+
+  \begin{itemize}
+    \item \syncool{Perl 6}\ ist verdammt cool. :)
+    \item \syncool{Parrot}\ steht bereits und bringt einiges an
+          Geschwindigkeit für viele Sprachen.
+    \item Dank \syncool{Pugs}\ kann man schon \syncool{genau jetzt}\ in Perl 6
+	  programmieren.
+  \end{itemize}
 }
 
 % In der bisher noch ungeschriebenen \section über Pugs unbedingt die Sachen
