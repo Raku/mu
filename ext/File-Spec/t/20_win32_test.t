@@ -13,6 +13,8 @@ This is a test of the FileSpecWin32 module.
 
 use_ok('File::Spec::Win32');
 
+force_todo 149..157, 160..162;
+
 is(curdir(),  '.',         '... got the right curdir');
 is(updir(),   '..',        '... got the right updir');
 is(rootdir(), '/',         '... got the right rootdir');
