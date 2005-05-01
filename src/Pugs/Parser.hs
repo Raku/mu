@@ -349,9 +349,7 @@ ruleVarDeclaration = rule "variable declaration" $ do
         _       -> unsafeEvalLexDiff (decl emptyExp)
     let rhs | sym == "::=" = emptyExp
             | otherwise = maybe emptyExp (\exp -> Syn sym [lhs, exp]) expMaybe
-    return $ case scope of
-        SMy -> decl rhs
-        _   -> Pad scope lexDiff rhs
+    return $ Pad scope lexDiff rhs
 
 ruleUseDeclaration :: RuleParser Exp
 ruleUseDeclaration = rule "use declaration" $ do

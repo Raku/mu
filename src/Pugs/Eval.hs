@@ -246,6 +246,14 @@ reduce (Pos pos exp) = do
     local (\e -> e{ envPos = pos }) $ do
         evalExp exp
 
+reduce (Pad SMy lex exp) = do
+    -- heuristics: if we are repeating ourselves, generate a new TVar.
+    liftSTM $ forM (padToList lex) $ \(name, tvars) -> forM tvars $ \tvar -> do
+        ref <- newObject (typeOfSigil $ head name)
+        writeTVar tvar ref
+    local (\e -> e{ envLexical = lex `unionPads` envLexical e }) $ do
+        evalExp exp
+
 reduce (Pad _ lex exp) = do
     local (\e -> e{ envLexical = lex `unionPads` envLexical e }) $ do
         evalExp exp
