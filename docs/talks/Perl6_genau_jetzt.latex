@@ -96,7 +96,7 @@
   \begin{itemize}
     \item<1-> Glattes Wasserbett
     \item<2-> Eindrücken an einer Stelle (Vereinfachung) ⇒ \\
-	      Hochkommen an einer anderen Stellen (Komplizierung)
+	      Hochkommen an anderen Stellen (Komplizierung)
   \end{itemize}
 
   \vfill\pause\pause 
@@ -132,9 +132,15 @@
   \vfill\pause
   \begin{block}{Möglichkeiten der Anpassung}
     \begin{itemize}
-      \item Neudefinition der Grammatik
-      \item C-like und Lisp-like Makros
       \item Überschreiben/Erweitern von Builtins und Operatoren
+      \item C-like und Lisp-like Makros
+      \pause
+      \item Neudefinition der Grammatik: \\
+	    \texttt{%
+	      \synfunc{use}\ \synclass{Grammar::Python};\\
+	      \synvar{x}\ = [ \synvar{foo}(), \synvar{bar}() ]\\
+	      \synvar{x}.\synvar{push}(3)
+	    }
     \end{itemize}
   \end{block}
 }
@@ -217,28 +223,28 @@
   \end{itemize}
 }
 
-\frame{
-  \frametitle{Tastatureingabe}
-  \begin{langs}
-    Perl 6:  \> \texttt{\synfunc{my}\ \synvar{\${}text}\ = =\synvar{\${}*IN};} \\
-    Perl 5:  \> \texttt{\synfunc{my}\ \synvar{\${}text}\ = <\synvar{STDIN}>;} \\
-    \hr
-    C:       \> \texttt{\synfunc{scanf}("\synstr{\%s}", \&{}\synvar{text});} \\
-    Haskell: \> \texttt{\synvar{x}\ <- \synfunc{getLine}} \\
-    Lua:     \> \texttt{\synvar{text}\ = \synfunc{io.read}()} \\
-    PHP:     \> \texttt{\synvar{\${}text}\ = \synfunc{readline}();} \\
-    Python:  \> \texttt{\synvar{text}\ = \synfunc{sys.stdin.readline}()} \\
-    Ruby:    \> \texttt{\synvar{text}\ = \synfunc{gets}} \\
-    Shell:   \> \texttt{\synfunc{read}\ \synvar{text}} \\
-    Tcl:     \> \texttt{\synfunc{set}\ \synvar{text}\ [\synfunc{gets}\ \synvar{stdin}]}
-  \end{langs}
-}
+%\frame{
+%  \frametitle{Tastatureingabe}
+%  \begin{langs}
+%    Perl 6:  \> \texttt{\synfunc{my}\ \synvar{\${}text}\ = =\synvar{\${}*IN};} \\
+%    Perl 5:  \> \texttt{\synfunc{my}\ \synvar{\${}text}\ = <\synvar{STDIN}>;} \\
+%    \hr
+%    C:       \> \texttt{\synfunc{scanf}("\synstr{\%s}", \&{}\synvar{text});} \\
+%    Haskell: \> \texttt{\synvar{x}\ <- \synfunc{getLine}} \\
+%    Lua:     \> \texttt{\synvar{text}\ = \synfunc{io.read}()} \\
+%    PHP:     \> \texttt{\synvar{\${}text}\ = \synfunc{readline}();} \\
+%    Python:  \> \texttt{\synvar{text}\ = \synfunc{sys.stdin.readline}()} \\
+%    Ruby:    \> \texttt{\synvar{text}\ = \synfunc{gets}} \\
+%    Shell:   \> \texttt{\synfunc{read}\ \synvar{text}} \\
+%    Tcl:     \> \texttt{\synfunc{set}\ \synvar{text}\ [\synfunc{gets}\ \synvar{stdin}]}
+%  \end{langs}
+%}
 
 \frame[t]{
   \frametitle{Operatoren}
 
   \begin{itemize}
-    \item<1-> Standard-Operatoren in Perl 6:
+    \item<1-> Standard-Operatoren:
 	  \begin{itemize}
 	    \item \texttt{+ * - / \~{}}
 	    \item \texttt{[] \{\}}
@@ -256,8 +262,8 @@
 	  \end{itemize}
     \item<3-> Hyper-Operatoren: \\
 	  \texttt{%
-	    (1, 2, 3) »*« 2\ \ \ \ \ \ \ \ \ \# (2, 4, 6)\\
-	    (1, 2, 3) »+« (4, 5, 6) \# (5, 7, 9)\\
+	    \symbol{91}1, 2, 3] »*« 2\ \ \ \ \ \ \ \ \ \# \symbol{91}2, 4, 6]\\
+	    \symbol{91}1, 2, 3] »+« \symbol{91}4, 5, 6] \# \symbol{91}5, 7, 9]\\
 	  }
   \end{itemize}
 }
@@ -281,12 +287,23 @@
   \end{block}
 
   \pause
-  \begin{block}{"`Wenn mindestens einer 18 ist, dann..."'}
-    \begin{langs}
-      Perl 5: \> \texttt{\synfunc{if}(\synfunc{grep} \{ \synvar{\$\_}->\synvar{age}\ >= 18 \} \synvar{@leute}) \{...\}} \\
-      Perl 6: \> \texttt{\synfunc{if}\ \synfunc{any}(\synvar{@leute}».\synvar{age}) >= 18 \{...\}}
-    \end{langs}
-  \end{block}
+  \only<1-3>{
+    \begin{block}{"`Wenn mindestens einer mindestens 18 ist, dann..."'}
+      \begin{langs}
+	Perl 5: \> \texttt{\synfunc{if}(\synfunc{grep}\ \{ \synvar{\$\_}->\synvar{age}\ >= 18 \} \synvar{@leute}) \{...\}} \\
+	Perl 6: \> \texttt{\synfunc{if}\ \synfunc{any}(\synvar{@leute}».\synvar{age}) >= 18 \{...\}}
+      \end{langs}
+    \end{block}
+  }
+
+  \only<4>{
+    \begin{block}{"`Wenn genau einer einer mindestens 18 ist, dann..."'}
+      \begin{langs}
+	Perl 5: \> \texttt{\synfunc{if}(\synfunc{grep}(\{ \synvar{\$\_}->\synvar{age}\ >= 18 \} \synvar{@leute}) == 1) \{...\}} \\
+	Perl 6: \> \texttt{\synfunc{if}\ \synfunc{one}(\synvar{@leute}».\synvar{age}) >= 18 \{...\}}
+      \end{langs}
+    \end{block}
+  }
 }
 
 \frame{
@@ -416,7 +433,7 @@
 \frame{
   \frametitle{Klassendefinition und -instantiierung in Perl 6}
   \begin{block}{Perl 6}\texttt{%
-    \synfunc{class}\ \synclass{Foo}\ \only<4>{\synfunc{is}\ \synclass{Baz}\ }\{\\
+    \synfunc{class}\ \synclass{Foo}\ \only<6>{\synfunc{is}\ \synclass{Baz}\ }\{\\
       \only<1> {\ \ \synfunc{has}\ \synvar{\${}.bar};\\}
       \only<2->{\ \ \synfunc{has}\ \synvar{\${}.bar}\ \synfunc{is}\ \synvar{rw};\\}
       \ \ \synfunc{method}\ \synvar{hallo}(\synclass{Str}\ \synvar{\$name}) \{\\
@@ -425,7 +442,7 @@
     \}\\
     \ \\
     \syncomment{\# Dann:}\\
-    \synfunc{my}\ \synvar{\$obj}\ = \synclass{Foo}.\synvar{new};\\
+    \synfunc{my}\ \only<4->{\synclass{Foo}\ }\synvar{\$obj}\ \only<5->{.}= \only<1-4>{\synclass{Foo}.}\synvar{new};\\
     \only<1> {\synfunc{say}\ \synvar{\$obj}.\synvar{bar};\\}
     \only<2->{\synvar{\$obj}.\synvar{bar}\ = 42;\\}
     \only<1-2>{\synfunc{say}\ \synvar{\$obj}.\synvar{hallo}("\synstr{Ingo}");\\}
@@ -437,22 +454,51 @@
   \frametitle{Rollen}
 
   \texttt{%
-    \synfunc{role}\ \synclass{Num::Cool}\ \{\\
-    \ \ \synfunc{method}\ \synvar{sei\_cool}(\synvar{\$self}:) \{\\
-    \ \ \ \ \synvar{\$self}\ = 42;\\
-    \ \ \}\\
+    \synfunc{role}\ \synclass{Logger::Mail}\ \{\\
+    \ \ \synfunc{method}\ \synvar{log}(\synclass{Str}\ \synvar{\$message}) \{...\}\\
     \}\\
     \ \\
-    \syncomment{\# Dann:}\\
-    \synfunc{my}\ \synvar{\$num}\ = 23;\\
-    \only<1>{\synvar{\$num}\ \synfunc{does}\ \synclass{Num::Cool};\\}
-    \only<2>{\synclass{Num}\ \synfunc{does}\ \synclass{Num::Cool};\\}
-    \synvar{\$num}.\synvar{sei\_cool}();\\
-    \synfunc{say}\ \synvar{\$num};\ \ \ \ \ \ \syncomment{\# 42}\\
+    \synfunc{role}\ \synclass{Logger::Logfile}\ \{\\
+    \ \ \synfunc{method}\ \synvar{log}(\synclass{Str}\ \synvar{\$message}) \{...\}\\
+    \}\\
+    \ \\
+    \synfunc{class}\ \synclass{NormaleKlasse}\ \only<2->{\synfunc{does}\ \synclass{Logger::Mail}\ }\{...\}\\
+    \ \\
+    \synfunc{my}\ \synclass{NormaleKlasse}\ \synvar{\$normales\_{}obj}\ .= \synvar{new}(...);\\
+    \only<1>{\synvar{\$normales\_{}obj}\ \synfunc{does}\ \synclass{Logger::Mail};}\ \\
+    \synvar{\$normales\_{}obj}.\synvar{log}(...);\\
   }
+
+%  \texttt{%
+%    \synfunc{role}\ \synclass{Num::Cool}\ \{\\
+%    \ \ \synfunc{method}\ \synvar{sei\_cool}(\synvar{\$self}:) \{\\
+%    \ \ \ \ \synvar{\$self}\ = 42;\\
+%    \ \ \}\\
+%    \}\\
+%    \ \\
+%    \syncomment{\# Dann:}\\
+%    \synfunc{my}\ \synvar{\$num}\ = 23;\\
+%    \only<1>{\synvar{\$num}\ \synfunc{does}\ \synclass{Num::Cool};\\}
+%    \only<2>{\synclass{Num}\ \synfunc{does}\ \synclass{Num::Cool};\\}
+%    \synvar{\$num}.\synvar{sei\_cool}();\\
+%    \synfunc{say}\ \synvar{\$num};\ \ \ \ \ \ \syncomment{\# 42}\\
+%  }
 }
 
 \subsection{Mitgestaltungsm"oglichkeiten}
+
+\frame[t]{
+  \frametitle{Mitgestaltungsmöglichkeiten}
+
+  \begin{itemize}
+    \item Mailingliste: \\
+          \texttt{perl6-language@perl.org}, \\
+          \texttt{gmane.comp.lang.perl.perl6.language}
+    \item IRC: \texttt{\#perl6} auf Freenode
+    \item Auch Newbies gern gesehen
+    \item Viele Beteiligungsmöglichkeiten, nicht nur für Programmierer
+  \end{itemize}
+}
 
 % In der bisher noch ungeschriebenen \section über Pugs unbedingt die Sachen
 % von http://sial.org/pbot/9451 einbringen! Thanks nothingmuch!
