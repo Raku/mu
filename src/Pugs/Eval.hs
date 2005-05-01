@@ -79,7 +79,9 @@ evaluateMain exp = do
                       ]
     return val
 
-evaluate :: Exp -> Eval Val
+-- |Evaluate an expression. This function mostly just delegates to 'reduce'.
+evaluate :: Exp -- ^ The expression to evaluate
+         -> Eval Val
 evaluate (Val val) = evalVal val
 evaluate exp = do
     want <- asks envWant
@@ -173,7 +175,10 @@ findVarRef name
 posSym f = fmap (Just . castV . f) $ asks envPos
 constSym = return . Just . castV
 
-getMagical :: String -> Eval (Maybe Val)
+-- |Evaluate the 'magical' variable associated with a given name. Returns 
+-- Nothing if the name does not match a known magical.
+getMagical :: String -- ^ Name of the magical var to evaluate
+           -> Eval (Maybe Val)
 getMagical "$?FILE"     = posSym posName
 getMagical "$?LINE"     = posSym posBeginLine
 getMagical "$?COLUMN"   = posSym posBeginColumn
@@ -182,7 +187,9 @@ getMagical "$?MODULE"   = constSym "main"
 getMagical "$?OS"       = constSym $ getConfig "osname"
 getMagical _            = return Nothing
 
-reduce :: Exp -> Eval Val
+-- |Reduce an expression into its value.
+reduce :: Exp -- ^ The expression to reduce
+       -> Eval Val
 
 -- Reduction for mutables
 reduce (Val v@(VRef var)) = do
@@ -405,11 +412,9 @@ reduce exp@(Syn name exps) = case name of
         key     <- enterEvalContext cxtItemAny keyExp
         val     <- evalExp valExp
         retVal $ castV (key, val)
-#ifndef HADDOCK
-    "*" | [Syn syn [exp]] <- unwrap exps -- * cancels out [] and {}
+    "*" | [Syn syn [exp]] <- unwrap exps --  * cancels out [] and {}
         , syn == "\\{}" || syn == "\\[]"
         -> enterEvalContext cxtSlurpyAny exp
-#endif
     "*" -> do -- first stab at an implementation
         let [exp] = exps
         val     <- enterRValue $ enterEvalContext cxtSlurpyAny exp
@@ -666,7 +671,10 @@ reduce (App name invs args) = do
 reduce (Parens exp) = reduce exp
 reduce exp = retError "Invalid expression" exp
 
-cxtOfExp :: Exp -> Eval Cxt
+-- |Return the context that an expression bestows upon a hash or array
+-- subscript. See 'reduce' for \{\} and \[\]. (Is this correct?)
+cxtOfExp :: Exp -- ^ Expression to find the context of
+         -> Eval Cxt
 cxtOfExp (Pos _ exp)            = cxtOfExp exp
 cxtOfExp (Parens exp)           = cxtOfExp exp
 cxtOfExp (Cxt cxt _)            = return cxt
