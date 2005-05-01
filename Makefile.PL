@@ -14,7 +14,6 @@ my @hsfiles  = map {glob "$_/*.hs"} @srcdirs;
 push @hsfiles, "src/Pugs/Config.hs";
 my @hppfiles = map {my $x=$_; $x=~s/\.hs$/.hpp/; $x} @hsfiles;
 
-
 warn_cygwin     ();
 
 name            ('Perl6-Pugs');
