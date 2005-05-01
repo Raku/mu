@@ -410,17 +410,19 @@ op1Pairs v = do
     return vals
 
 op1Keys :: Val -> Eval Val
-op1Keys v = do
-    ref  <- fromVal v
+op1Keys (VList vs) = return . VList $ map VInt [0 .. (genericLength vs) - 1]
+op1Keys (VRef ref) = do
     vals <- keysFromRef ref
     return $ VList vals
+op1Keys v = retError "Not a keyed reference" v
 
 op1Values :: Val -> Eval Val
 op1Values (VJunc j) = return . VList . Set.elems $ juncSet j
-op1Values v = do
-    ref  <- fromVal v
+op1Values v@(VList _) = return v
+op1Values (VRef ref) = do
     vals <- valuesFromRef ref
     return $ VList vals
+op1Values v = retError "Not a keyed reference" v
 
 op1StrFirst f = op1Cast $ VStr .
     \str -> case str of
@@ -1096,7 +1098,7 @@ foldParam ('?':str)
       in \ps -> ((buildParam typ "?" "$?1" (readVal typ def)) { isLValue = False }:ps)
     | otherwise
     = \ps -> (buildParam str "?" "$?1" (Val VUndef):ps)
-foldParam ('~':str) = \ps -> (((buildParam str "" "$?1" (Val VUndef)) { isLValue = False }) { isThunk = True }:ps)
+foldParam ('~':str) = \ps -> (((buildParam str "" "$?1" (Val VUndef)) { isLValue = False }) { isLazy = True }:ps)
 foldParam x         = doFoldParam x []
 
 -- filetest operators --
@@ -1239,12 +1241,6 @@ prettyVal d (VRef r) = do
     v'  <- readRef r
     str <- prettyVal (d+1) v'
     return ('\\':str)
-{-
-prettyVal d (VPair (k, v)) = do
-    k'  <- prettyVal (d+1) k
-    v'  <- prettyVal (d+1) v
-    return $ concat ["(", k', " => ", v', ")"]
--}
 prettyVal d (VList vs) = do
     vs' <- mapM (prettyVal (d+1)) vs
     return $ "(" ++ concat (intersperse ", " vs') ++ ")"
