@@ -12,8 +12,9 @@
 * Global subroutine declaration is now visible in the whole file
 * Improved Parrot compiler backend support for mod_pugs
 * Much better error messages, tracking source file range for expressions
-* New loop control routines: `next`, `redo` and `last`
+* New loop control routines: `next` and `redo`
 * On Win32, `-s` and `-z` now work correctly
+* Optimized build is now default; use `make unoptimized` to turn it off
 * Pugs can now build on Cygwin
 * `#line 123` and `#line 123 "filename"` both works
 * `&infix:<%>` raises trappable exception when modulus is zero
