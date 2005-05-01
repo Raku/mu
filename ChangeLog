@@ -1,3 +1,54 @@
+== Changes for 6.2.2 - May 1, 2005
+
+=== Pugs Internals
+
+* Many performance speed-ups, including:
+** New, much much faster implementation type for Pad
+** Replace Data.HashTable with STM Map
+** Restructured the Eval monad to be reusable on compilers and interpreters
+** Position handling and statement reduction logic re-written
+** Add strictness to core Monad and object structures
+* Global subroutine declaration is now visible in the whole file
+* Improved Parrot compiler backend support for mod_pugs
+* Much better error messages, tracking source file range for expressions
+* On Win32, `-s` and `-z` now work correctly
+* Pugs can now build on Cygwin
+* `&infix:<%>` now raises trappable exception when modulus is zero
+* `(undef, $x) = (1, 2)` is now supported
+* `@array.end` implemented
+* `BEGIN {...}` blocks now work on both statement-level and term level
+* `for @a { say }` is now parsed as `for @a -> $_ { say }`
+* `my $var ::= expr` works
+* `print (4)+4` now prints 8, because the whitespace is no longer skipped
+* `use Module;` supported and happens at `BEGIN` time
+* `|=` `^=` `&=` for junctions
+
+=== Tests, Examples and Documentations
+
+* Many new tests and cleanup of older tests, we are now at 4600+ tests
+* Added an example of IRC bot into `examples/network`
+* Added simple POD parser into `ext/Pod-Stream-Parser`
+* Added support for Haskell documentation using Haddock
+* Added the tic-tac-toe game from perlmonks into `examples/games/`
+* Patched local `Test::Harness` to display number of TODO tests
+* Progressive powerset generator from perlmonks added to `examples/`
+* Smoke testing tool now includes timing data in YAML harness data
+
+=== Bug Fixes
+
+* Constant references now automatically dereference when used in rvalue context
+* Junctive `^` should join junctions instead of autothread them.
+* Lone block does not count as `simple expression` anymore
+* Repair single statements in shell
+* Repair the `list` context hinter
+* The dot in `123.ref` is now parsed correctly as `(123).ref`
+* `$_` in subroutine signatures is no longer slurpy by default
+* `$x = \$x` no longer causes an infinite loop
+* `NaN` calculations no longer causes infinite loop
+* `last if foo` now means `last() if foo()` instead of `last(if(foo()))`
+* `one(1,1).pick` bug fixed; it should return `undef`
+* `splice([], 1)` no longer causes division by zero errors
+
 == Changes for 6.2.1 - April 24, 2005
 
 === Pugs Internals
