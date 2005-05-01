@@ -48,14 +48,14 @@
 \institute{LUGA}
 \date{4. Mai 2005}
 % Outline:
+%   - Parrot
+%     - Entstehung
+%     - Design
 %   - Perl 6
 %     - Geschichte
 %     - Designideen
 %     - Code-Beispiele (mit Vergleichen zu vielen anderen Sprachen)
 %     - Mitgestaltungsmöglichkeiten, etc.
-%   - Parrot
-%     - Entstehung
-%     - Design
 %   - Pugs
 %     - Entstehung
 %     - Überblick
@@ -78,6 +78,76 @@
   \frametitle{Inhalt}
   \tableofcontents
 }
+
+\section{Parrot}
+\subsection{"Uberblick}
+\frame[t]{
+  \frametitle{Parrot?}
+
+  \begin{itemize}
+    \item \only<2->{Verdammt schnelle r}\only<1>{R}egisterbasierte virtuelle Maschine
+    \item Plattformunabhängiger Bytecode
+    \item "`One bytecode to rule them all"'
+  \end{itemize}
+
+  \pause\pause
+  \[
+    \begin{array}{ll}
+      \text{BASIC}  & \text{Forth} \\
+      \text{Lisp}   & \text{Parakeet} \\
+      \text{Perl 5} & \text{Perl 6} \\
+      \text{PHP}    & \text{Python} \\
+      \text{Ruby}   & \text{Scheme} \\
+      \text{TCL}    & \text{\ldots} \\
+    \end{array}
+    \leftrightarrow \text{Parrot} \leftrightarrow
+    \begin{array}{ll}
+      \text{BASIC}  & \text{Forth} \\
+      \text{Lisp}   & \text{Parakeet} \\
+      \text{Perl 5} & \text{Perl 6} \\
+      \text{PHP}    & \text{Python} \\
+      \text{Ruby}   & \text{Scheme} \\
+      \text{TCL}    & \text{\ldots} \\
+    \end{array}
+  \]
+}
+
+\subsection{Architektur}
+\frame[t]{
+  \frametitle{Architektur}
+
+  \begin{itemize}
+    \item Je 64 Register der Typen \texttt{I}, \texttt{N}, \texttt{S} und \texttt{P}
+	  \vspace*{-1em}
+	  \begin{tabbing}
+	    \texttt{I}: \= Int \\
+	    \texttt{N}: \> Num \\
+	    \texttt{S}: \> String \\
+	    \texttt{P}: \> PMC -- Parrot Magic Cookie
+	  \end{tabbing}
+    \item Bereitstellung von Garbage Collection, Subroutinen, Coroutines,
+	  Continuations, Klassen, Methoden
+    \item Just In Time-Compiler für meist benutzte Plattformen ⇒ Speed!
+    \item HLL → PIR → Bytecode → \\
+	  natives Programm, C oder direkte Ausführung
+  \end{itemize}
+}
+
+\subsection{Mitgestaltungsm"oglichkeiten}
+\frame[t]{
+  \frametitle{Mitgestaltungsmöglichkeiten}
+
+  \begin{itemize}
+    \item Mailingliste: \\
+          \texttt{perl6-internals@perl.org}, \\
+          \texttt{gmane.comp.lang.perl.perl6.internals}
+    \item IRC: \texttt{\#parrot} auf \texttt{irc.perl.org}
+    \item Auch Newbies gern gesehen
+    \item Viele Beteiligungsmöglichkeiten, nicht nur für Programmierer
+    \item Weitere Informationen: \url{http://www.parrotcode.org/}
+  \end{itemize}
+}
+
 
 \section{Perl 6}
 %\subsection{Entstehung}
@@ -251,7 +321,8 @@
 	    \item \texttt{.}
 	    \item \texttt{...} (Yadda-Yadda)
 	  \end{itemize}
-    \item<2-> Kontextspezifizierer: \\
+    \item<2-> Chained Operators: \texttt{23 < \synvar{\$a}\ < 42}
+    \item<3-> Kontextspezifizierer: \\
 	  \begin{itemize}
 	    \item \texttt{+\synvar{@array}} (Anzahl Elemente in
 	  	  \texttt{\synvar{@array}})
@@ -260,7 +331,7 @@
 	    \item \texttt{?{}\synvar{@array}} ("`Ist \texttt{\synvar{@array}}
 		  nicht leer?"')
 	  \end{itemize}
-    \item<3-> Hyper-Operatoren: \\
+    \item<4-> Hyper-Operatoren: \\
 	  \texttt{%
 	    \symbol{91}1, 2, 3] »*« 2\ \ \ \ \ \ \ \ \ \# \symbol{91}2, 4, 6]\\
 	    \symbol{91}1, 2, 3] »+« \symbol{91}4, 5, 6] \# \symbol{91}5, 7, 9]\\
@@ -486,7 +557,6 @@
 }
 
 \subsection{Mitgestaltungsm"oglichkeiten}
-
 \frame[t]{
   \frametitle{Mitgestaltungsmöglichkeiten}
 
@@ -502,73 +572,68 @@
 }
 
 
-\section{Parrot}
-\subsection{"Uberblick}
+\section{Pugs}
 \frame[t]{
-  \frametitle{Parrot?}
+  \frametitle{"`Perl 6 ist ja schön und gut, aber das dauert doch noch Jahre,
+  bis es fertig ist!"'}
 
   \begin{itemize}
-    \item \only<2->{Verdammt schnelle r}\only<1>{R}egisterbasierte virtuelle Maschine
-    \item Plattformunabhängiger Bytecode
-    \item "`One bytecode to rule them all"'
-  \end{itemize}
-
-  \pause\pause
-  \[
-    \begin{array}{ll}
-      \text{BASIC}  & \text{Forth} \\
-      \text{Lisp}   & \text{Parakeet} \\
-      \text{Perl 5} & \text{Perl 6} \\
-      \text{PHP}    & \text{Python} \\
-      \text{Ruby}   & \text{Scheme} \\
-      \text{TCL}    & \text{\ldots} \\
-    \end{array}
-    \leftrightarrow \text{Parrot} \leftrightarrow
-    \begin{array}{ll}
-      \text{BASIC}  & \text{Forth} \\
-      \text{Lisp}   & \text{Parakeet} \\
-      \text{Perl 5} & \text{Perl 6} \\
-      \text{PHP}    & \text{Python} \\
-      \text{Ruby}   & \text{Scheme} \\
-      \text{TCL}    & \text{\ldots} \\
-    \end{array}
-  \]
-}
-
-\subsection{Architektur}
-\frame[t]{
-  \frametitle{Architektur}
-
-  \begin{itemize}
-    \item Je 64 Register der Typen \texttt{I}, \texttt{N}, \texttt{S} und \texttt{P}
-	  \vspace*{-1em}
-	  \begin{tabbing}
-	    \texttt{I}: \= Int \\
-	    \texttt{N}: \> Num \\
-	    \texttt{S}: \> String \\
-	    \texttt{P}: \> PMC -- Parrot Magic Cookie
-	  \end{tabbing}
-    \item Bereitstellung von Garbage Collection, Subroutinen, Coroutines,
-	  Continuations, Klassen, Methoden
-    \item Just In Time-Compiler für meist benutzte Plattformen ⇒ Speed!
-    \item HLL → PIR → Bytecode → \\
-	  natives Programm, C oder direkte Ausführung
+    \item Nur tote Produkte sind "`fertig"'.
+    \item Parrot steht bereits.
+    \item Seit dem 1. Februar gibt es nun auch einen Perl 6-Compiler.
   \end{itemize}
 }
 
-\subsection{Mitgestaltungsm"oglichkeiten}
+\subsection{"Ubersicht}
 \frame[t]{
-  \frametitle{Mitgestaltungsmöglichkeiten}
+  \frametitle{Pugs}
+  
+  \begin{itemize}
+    \item Ursprünglich Haskell-Projekt von Autrijus Tang "`als Übung"'
+    \item Projektbeginn: 1. Februar 2005
+    \item Nun fast 100 Entwickler
+    \item Version 6.2.2: Alles außer Objektorientierung
+  \end{itemize}
+}
+
+\subsection{Entwicklung}
+\frame[t]{
+  \frametitle{Entwicklung}
 
   \begin{itemize}
-    \item Mailingliste: \\
-          \texttt{perl6-internals@perl.org}, \\
-          \texttt{gmane.comp.lang.perl.perl6.internals}
-    \item IRC: \texttt{\#parrot} auf \texttt{irc.perl.org}
-    \item Auch Newbies gern gesehen
-    \item Viele Beteiligungsmöglichkeiten, nicht nur für Programmierer
-    \item Weitere Informationen: \url{http://www.parrotcode.org/}
+    \item "`Test-driven development"' --
+    \item Camelfolks: Schreiben von Tests in Perl 6 für noch nicht
+	  implementierte Features: \\
+	  \texttt{%
+	    \synfunc{is}\ 23 + 42, 64, "\synstr{Einfache Rechnungen funzen.}";\\
+	    \synfunc{is}\ \~{}\symbol{91}1, 2, 3], "\synstr{1 2 3}",\\
+	    \ \ "\synstr{Arrays wandeln sich richtig in Strings um.}";
+	    \synfunc{is}\ +\symbol{91}1, 2, 3], 3,\\
+	    \ \ "\synstr{Arrays wandeln sich richtig in Ints um.}";
+	  }
+    \pause
+    \item Lambdafolks: Implementierung dieser Features
+    \item Ergebnis der Zusammenarbeit: \\
+	  Über 4.000 funktionierende Tests
   \end{itemize}
+}
+
+\subsection{Weitere Pl"ane}
+\frame[t]{
+  \frametitle{Weitere Pläne}
+
+  \begin{tabbing}
+    Pugs 6.283185 \= ... \kill
+    Pugs 6.0 \> Erstes Release \\
+    Pugs 6.2 \> Grundlegende IO- und Kontrollflusselemente, \\\> veränderbare Variablen \\
+    Pugs 6.28 \> Klassen \\
+    Pugs 6.283 \> Rules und Grammars \\
+    Pugs 6.2831 \> Rollen \\
+    Pugs 6.28318 \> Makros \\
+    Pugs 6.283185 \> Portierung von Pugs von Haskell nach Perl 6 \\
+    Pugs $2\pi$ \> Vollendung
+  \end{tabbing}
+  \begin{itemize}\item[a]b\end{itemize}
 }
 
 % In der bisher noch ungeschriebenen \section über Pugs unbedingt die Sachen
