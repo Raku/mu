@@ -135,7 +135,7 @@ is((1 && 0 ?? 2 :: 3), 3, "&& binds tighter than ??");
 
 {
 	my @d;
-	eval_ok '@d <== (1, 3) ¥ (2, 4), "left pointing pipe parses"';
+	eval_ok '@d <== (1, 3) ¥ (2, 4), "left pointing pipe parses"', :todo;
 	is(@d, [1 .. 4], "to complicate things further, left pointing pipe *does* DWIM", :todo);
 	my $c = any 1, 2, 3;
 	ok($c == 2, "any is less tight than comma");

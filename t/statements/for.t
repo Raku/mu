@@ -34,14 +34,14 @@ is($b, '012345', 'for 0 .. 5 -> {} works');
 # ... with , sub
 
 my $c;
-eval 'for 0 .. 5, sub { $c = $c ~ $_; }';
+for (0 .. 5), sub { $c = $c ~ $_; };
 is($c, '012345', 'for 0 .. 5, sub {} works');
 
 # ... with referential sub
 
 my $d;
 sub some_sub ($arg) { $d = $d ~ $arg; }
-eval 'for 0 .. 5, &some_sub;';
+for (0 .. 5), &some_sub;
 is($d, '012345', 'for 0 .. 5, &some_sub works');
 
 ## and now with parens around the range operator
@@ -59,14 +59,14 @@ is($f, '012345', 'for () -> {} works');
 # ... with sub
 
 my $g;
-eval 'for (0 .. 5), sub { $g = $g ~ $_; }';
+for (0 .. 5), sub { $g = $g ~ $_; };
 is($g, '012345', 'for (0 .. 5), sub {} works');
 
 # ... with referential sub
 
 my $h;
 sub some_sub_2 ($arg) { $h = $h ~ $arg; }
-eval 'for (0 .. 5), &some_sub_2;';
+for (0 .. 5), &some_sub_2;
 is($h, '012345', 'for (0 .. 5), &some_sub works');
 
 # ... with implicit topic
@@ -115,7 +115,7 @@ is($l, '012345', 'for @list -> {} works');
 
 my @list_m = (0 .. 5);
 my $m;
-eval 'for @list_m, sub { $m = $m ~ $_; }';
+for (@list_m), sub { $m = $m ~ $_; };
 is($m, '012345', 'for @list, sub {} works');
 
 # ... with referential sub
@@ -123,7 +123,7 @@ is($m, '012345', 'for @list, sub {} works');
 my @list_n = (0 .. 5);
 my $n;
 sub some_sub ($arg) { $n = $n ~ $arg; }
-eval 'for @list_n, &some_sub;';
+for (@list_n), &some_sub;
 is($n, '012345', 'for @list, &some_sub works');
 
 ## and now with parens around the @list
@@ -144,15 +144,15 @@ is($p, '012345', 'for (@list) -> {} works');
 
 my @list_q = (0 .. 5);
 my $q;
-eval 'for (@list_q), sub { $q = $q ~ $_; }';
+for (@list_q): sub { $q ~= $_; };
 is($q, '012345', 'for (@list), sub {} works');
 
 # ... with referential sub
 
 my @list_r = (0 .. 5);
 my $r;
-sub some_sub_2 ($arg) { $r = $r ~ $arg; }
-eval 'for (@list_r), &some_sub_2;';
+sub some_sub_2 ($arg) { $r ~= $arg; }
+for (@list_r), &some_sub_2;
 is($r, '012345', 'for (@list), &some_sub works');
 
 
@@ -169,27 +169,25 @@ my @elems = <a b c d e>;
 
 {
 	my @a;
-    for (@elems) -> $_ { push @a, $_ };
+        for (@elems) -> $_ { push @a, $_ };
 	my @e = @elems;
 	is(@a, @e, 'for (@a)->$_ { ... $_ ... } iterates all elems' );
 }
 
 {
 	my @a;
-	for (@elems) {
-		push @a, $_, $_;
-	}
+	for (@elems) { push @a, $_, $_; }
 	my @e = <a a b b c c d d e e>;
 	is(@a, @e, 'for (@a) { ... $_ ... $_ ... } iterates all elems, not just odd');
 }
 
 my @list_s = (0..2);
 my @s = (1..3);
-eval 'for @list_s { $_++ }';
+for @list_s -> { $_++ };
 is(@list_s, @s, 'for @list { $_++ }');
 
 my @list_t = (0..2);
 my @t = (1..3);
-eval 'for @list_t -> $num is rw { $num++ }';
-is(@list_t, @t, 'for @list -> $num is rw { $num++ }', :todo);
+for @list_t -> $num is rw { $num++ };
+is(@list_t, @t, 'for @list -> $num is rw { $num++ }');
 

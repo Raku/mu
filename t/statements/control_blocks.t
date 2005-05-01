@@ -35,9 +35,8 @@ plan 20;
 
 my $var = 1;
 # defined in BEGIN
-my $bvar = 1; # FIXME: this parses as a sub: my $bvar = BEGIN { 3 };
+my $bvar_at_begin = BEGIN { 3 };
 my $var_at_begin;
-my $bvar_at_begin;
 # defined in CHECK
 my $cvar;
 my $cvar_at_begin;
@@ -59,7 +58,6 @@ my $var_at_end;
 
 BEGIN {
 	$var_at_begin = $var;
-	$bvar_at_begin = $bvar;
 	$cvar_at_begin = $cvar;
 };
 
