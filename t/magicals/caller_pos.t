@@ -50,8 +50,8 @@ sub line_set { return "$?CALLER::POSITION" };
 sub get_line { return line_set };
 is(get_line, "$?FILE line 666, column 23-32", "#line works for caller::caller notation");
 
-sub line_set2 { return "$?CALLER::POSITION" } # XXX - here ; is mandatory
+sub line_set2 { return "$?CALLER::POSITION" }
 
 #line 666
 sub get_line2 { return line_set2 };
-is(get_line2, "$?FILE line 666, column 23-32", "#line works for caller::caller notation");
+is(get_line2, "$?FILE line 666, column 24-34", "#line works for caller::caller notation");
