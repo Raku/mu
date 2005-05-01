@@ -32,12 +32,12 @@ is encode_entities_numeric($a), "&#x3C;&#x26;&#x3E;",
 $a = "V&aring;re norske tegn b&oslash;r &#230;res";
 decode_entities($a);
 
-todo_is($a, "Våre norske tegn bør æres",
-    'Decoding entities should work in void context');
+is($a, "Våre norske tegn bør æres",
+    'Decoding entities should work in void context', :todo);
 
 encode_entities($a);
-todo_is($a, "V&aring;re norske tegn b&oslash;r &aelig;res",
-    '... and encoding entities should also work in void context');
+is($a, "V&aring;re norske tegn b&oslash;r &aelig;res",
+    '... and encoding entities should also work in void context', :todo);
 
 $a = "abcdef";
 is encode_entities($a, 'a-c'), "&#97;&#98;&#99;def",
