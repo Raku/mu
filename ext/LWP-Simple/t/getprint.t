@@ -59,10 +59,10 @@ my $base_url = spawn_server( 8086 );
 
 diag "Running under $?OS";
 
-my ($pugs,$redir) = ("./pugs", ">");
+my ($pugs,$redir) = ("../../pugs", ">");
 
 if($?OS eq any<MSWin32 mingw cygwin>) {
-  $pugs = 'pugs.exe';
+  $pugs = '..\\..\\pugs.exe';
 };
 
 sub run_pugs ($c) {
