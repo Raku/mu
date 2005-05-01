@@ -477,7 +477,7 @@ makeTokenParser languageDef
         file <- fileName <|> return Nothing
         many $ satisfy (/= '\n')
         setPosition $ pos
-            { sourceLine    = fromInteger line
+            { sourceLine    = (fromInteger line) - 1
             , sourceColumn  = 1
             , sourceName    = maybe (sourceName pos) id file
             }
