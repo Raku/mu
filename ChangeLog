@@ -31,6 +31,7 @@
 === Tests, Examples and Documentations
 
 * Many new tests and cleanup of older tests, we are now at 4600+ tests
+* API documentation available in `docs/haddock/`
 * Added an example of IRC bot into `examples/network`
 * Added simple POD parser into `ext/Pod-Stream-Parser`
 * Added support for generating Haskell documentation with `make haddock`
@@ -39,14 +40,14 @@
 * Patched local `Test::Harness` to display number of TODO tests
 * Progressive powerset generator from perlmonks added to `examples/`
 * Smoke testing tool now includes timing data in YAML harness data
-* German talk "Perl 6, genau jetzt!" finished
+* German talk /Perl 6, genau jetzt!/ finished
 
 === Bug Fixes
 
 * Constant references now automatically dereference when used in rvalue context
-* Junctive `^` should join junctions instead of autothread them.
+* Junctive `^` should join junctions instead of autothread them
 * Lone block does not count as `simple expression` anymore
-* Repair single statements in shell
+* Repair single statements in shell to preserve lexical context
 * Repair the `list` context hinter
 * The dot in `123.ref` is now parsed correctly as `(123).ref`
 * `$_` in subroutine signatures is no longer slurpy by default
