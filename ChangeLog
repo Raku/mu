@@ -18,7 +18,7 @@
 * `(undef, $x) = (1, 2)` is now supported
 * `@array.end` implemented
 * `BEGIN {...}` blocks now work on both statement-level and term level
-* `for @a { say }` is now parsed as `for @a -> $_ { say }`
+* `for @a { say }` is now parsed as `for @a -> $_ is rw { say }`
 * `for @a -> () { ... }` now consumes one element at a time
 * `my $var ::= expr` works
 * `print (4)+4` now prints 8, because the whitespace is no longer skipped
