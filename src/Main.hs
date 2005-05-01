@@ -194,15 +194,16 @@ doRunSingle menv opts prog = (`catch` handler) $ do
         else print
     makeProper exp = case exp of
         Val err@(VError _ _) -> fail $ pretty err
-{-
-        Stmts stmts@((_,pos):_) | not (runOptSeparately opts) -> do
-            let withDump = stmts ++ [(Syn "env" [], pos)]
-            return $ Stmts withDump
--}
-        _ | not (runOptSeparately opts) -> do
-            -- let pos = SourcePos "<interactive>" 0 0
-            return $ Stmts exp (Syn "env" [])
-        _ -> return exp
+        _ | runOptSeparately opts -> return exp
+        _ -> return $ makeDumpEnv exp
+    -- XXX Generalize this into structural folding
+    makeDumpEnv (Stmts x exp)   = Stmts x   $ makeDumpEnv exp
+    makeDumpEnv (Cxt x exp)     = Cxt x     $ makeDumpEnv exp
+    makeDumpEnv (Pad x y exp)   = Pad x y   $ makeDumpEnv exp
+    makeDumpEnv (Sym x y exp)   = Sym x y   $ makeDumpEnv exp
+    makeDumpEnv (Pos x exp)     = Pos x     $ makeDumpEnv exp
+    makeDumpEnv (Parens exp)    = Parens    $ makeDumpEnv exp
+    makeDumpEnv exp = Stmts exp (Syn "env" [])
     handler err = if not (isUserError err) then ioError err else do
         putStrLn "Internal error while running expression:"
         putStrLn $ ioeGetErrorString err
