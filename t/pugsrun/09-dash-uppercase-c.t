@@ -8,8 +8,11 @@ use Test;
 Test handling of C<-Cbackend>.
 
 =cut
+sub flatten (Any|Junction $x) {
+    ($x.isa('Junction')) ?? map &flatten, $x.values :: $x
+}
 
-my @t_good = (
+my @t_good = map &flatten, (
   '-C'
     ~ any('Pugs')
     ~ ' '
@@ -30,7 +33,7 @@ my @t_good = (
 >))
 );
 
-my @t_todo = map -> Junction $_ {$_.values} (map -> Junction $_ {$_.values} (
+my @t_todo = map &flatten, (
   '-C'
     ~ any('Parrot')
     ~ ' examples/'
@@ -39,7 +42,8 @@ my @t_todo = map -> Junction $_ {$_.values} (map -> Junction $_ {$_.values} (
   hanoi
   junctions/grades
   junctions/all-any 
-  >) ~ '.p6'));
+  >) ~ '.p6'
+);
 
 # I don't know (yet) how to force a junction into expansion
 my (@tests_ok,@tests_todo);
