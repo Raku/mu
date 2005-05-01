@@ -265,7 +265,7 @@
     Perl 6:  \> \texttt{\synfunc{say}\ \ \ "\synstr{Hello, World!}";} \\
     Perl 5:  \> \texttt{\synfunc{print}\ "\synstr{Hello, World!\textbackslash{}n}";} \\
     \hr
-    C:       \> \texttt{\synfunc{printf}("\synstr{\%s}", "\synstr{Hello, World!\textbackslash{}n}");} \\
+    C:       \> \texttt{\synfunc{printf}("\synstr{\%s\textbackslash{}n}", "\synstr{Hello, World!}");} \\
     Haskell: \> \texttt{\synfunc{putStrLn}\ "\synstr{Hello, World!}"} \\
     Lua:     \> \texttt{\synfunc{print}\ "\synstr{Hello, World!}";} \\
     PHP:     \> \texttt{\synfunc{print}("\synstr{Hello, World!\textbackslash{}n}");} \\
@@ -329,8 +329,8 @@
 	  	  \texttt{\synvar{@array}})
 	    \item \texttt{\~{}\synvar{@array}} (\texttt{\synvar{@array}} als
 	      	  Zeichenkette)
-	    \item \texttt{?{}\synvar{@array}} ("`Ist \texttt{\synvar{@array}}
-		  nicht leer?"')
+	    \item \texttt{?{}\synvar{@array}} ("`Enthält \texttt{\synvar{@array}}
+		  Elemente?"')
 	  \end{itemize}
     \item<4-> Hyper-Operatoren: \\
 	  \texttt{%
@@ -343,7 +343,7 @@
 \frame{
   \frametitle{Junctions}
 
-  \begin{block}{"`Wenn dies, dies oder dies wahr ist, dann..."'}
+  \begin{block}{"`Wenn \texttt{\synvar{\$a}} einen dieser Werte hat, dann..."'}
     \begin{langs}
       Perl 5: \> \texttt{\synfunc{if}(\synvar{\$a}\ == 3 || \synvar{\$a}\ == 5 || \synvar{\$a}\ == 7) \{...\}} \\
       Perl 6: \> \texttt{\synfunc{if}\ \synvar{\$a}\ == 3|5|7 \{...\}}
@@ -638,7 +638,7 @@
 
 \subsection{Beteiligungsm"oglichkeiten}
 \frame[t]{
-  \frametitle{Beteiligunsmöglichkeiten}
+  \frametitle{Beteiligungsmöglichkeiten}
 
   \begin{itemize}
     \item Mailingliste: \\
