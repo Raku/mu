@@ -73,8 +73,9 @@ sub set_postamble {
 	}
 
     if (has_ghc_package('readline') 
-        and  try_compile('import System.Console.Readline;'
-                        .'main :: IO ()\nmain = readline "" >> return ()')) 
+        and  try_compile("import System.Console.Readline;\n"
+						."main :: IO ()\n"
+                        .'main = readline "" >> return ()')) 
     {
       $ghc_flags .= ' -DPUGS_HAVE_READLINE=1 -package readline';
     } else {
