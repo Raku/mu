@@ -464,16 +464,38 @@ makeTokenParser languageDef
           noLine  = null (commentLine languageDef)
           noMulti = null (commentStart languageDef)   
           
+
+    oneLineComment = do
+        try (string (commentLine languageDef))
+        pos <- getPosition
+        if sourceColumn pos /= 2 then skipToLineEnd else do
+        isPlain <- do { string "line"; return False } <|> return True
+        if isPlain then skipToLineEnd else do
+        many $ satisfy (\x -> isSpace x && x /= '\n')
+        line <- decimal
+        many $ satisfy (\x -> isSpace x && x /= '\n')
+        file <- fileName <|> return Nothing
+        many $ satisfy (/= '\n')
+        setPosition $ pos
+            { sourceLine    = fromInteger line
+            , sourceColumn  = 1
+            , sourceName    = maybe (sourceName pos) id file
+            }
+        return ()
+
+    fileName = try $ do
+        char '"'
+        file <- many (satisfy (/= '"'))
+        char '"'
+        return $ Just file
+
+    skipToLineEnd = do
+        skipMany (satisfy (/= '\n'))
+        return ()
           
     simpleSpace =
         skipMany1 (satisfy isSpace)    
         
-    oneLineComment =
-        do{ try (string (commentLine languageDef))
-          ; skipMany (satisfy (/= '\n'))
-          ; return ()
-          }
-
     multiLineComment =
         do { try (string (commentStart languageDef))
            ; inComment

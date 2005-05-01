@@ -13,7 +13,8 @@
 * Much better error messages, tracking source file range for expressions
 * On Win32, `-s` and `-z` now work correctly
 * Pugs can now build on Cygwin
-* `&infix:<%>` now raises trappable exception when modulus is zero
+* `#line 123` and `#line 123 "filename"` both works
+* `&infix:<%>` raises trappable exception when modulus is zero
 * `(undef, $x) = (1, 2)` is now supported
 * `@array.end` implemented
 * `BEGIN {...}` blocks now work on both statement-level and term level

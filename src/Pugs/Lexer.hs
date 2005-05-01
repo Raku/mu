@@ -55,27 +55,9 @@ getVar = do
     -- env <- getState
     error ""    
 
-whiteSpace = do
-    skipMany (simpleSpace <|> oneLineComment <?> "")
-
-simpleSpace = skipMany1 (satisfy isSpace)    
-
-oneLineComment = do
-    try (char '#')
-    pos <- getPosition
-    if sourceColumn pos /= 2 then skipToLineEnd else do
-    isPlain <- do { symbol "line"; return False } <|> return True
-    if isPlain then skipToLineEnd else do
-    line <- many1 digit
-    ruleWhiteSpaceLine -- filename support TBA
-    setPosition $ pos{ sourceLine = read line, sourceColumn = 1 }
-    where
-    skipToLineEnd = do
-        skipMany (satisfy (/= '\n'))
-        return ()
-
 perl6Lexer = P.makeTokenParser perl6Def
 parens     = P.parens perl6Lexer
+whiteSpace = P.whiteSpace perl6Lexer
 lexeme     = P.lexeme perl6Lexer
 identifier = P.identifier perl6Lexer
 braces     = P.braces perl6Lexer
