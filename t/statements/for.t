@@ -15,7 +15,6 @@ L<S04/"The C<for> statement">
 =cut
 
 plan 27;
-force_todo 4, 8;
 
 ## for with plain old range operator w/out parens
 # L<S04/"The C<for> statement" /in Perl 6, si it always take a list as an argument/>
