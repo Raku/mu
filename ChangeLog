@@ -46,7 +46,7 @@
 
 * Constant references now automatically dereference when used in rvalue context
 * Junctive `^` should join junctions instead of autothread them
-* Lone block does not count as `simple expression` anymore
+* Lone block does not count as /simple expression/ anymore
 * Repair single statements in shell to preserve lexical context
 * Repair the `list` context hinter
 * The dot in `123.ref` is now parsed correctly as `(123).ref`
