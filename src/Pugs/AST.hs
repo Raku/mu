@@ -115,6 +115,8 @@ class (Typeable n, Show n, Ord n) => Value n where
     fmapVal :: (n -> n) -> Val -> Val
     fmapVal f = castV . f . vCast
 
+
+castFailM :: (Show a, Typeable b) => a -> Eval b
 castFailM v = err
     where
     err = fail $ "cannot cast from " ++ show v ++ " to " ++ typ
@@ -729,11 +731,15 @@ instance Show Pad where
             dump <- runEvalIO undefined $ dumpRef ref
             return $ "unsafePerformSTM (newTVar " ++ vCast dump ++ ")"
 
+mkPad :: [(Var, [(TVar Bool, TVar VRef)])] -> Pad
 mkPad = MkPad . Map.fromList
+
+lookupPad :: Var -> Pad -> Maybe [TVar VRef]
 lookupPad key (MkPad map) = case Map.lookup key map of
     Just xs -> Just [tvar | (_, tvar) <- xs]
     Nothing -> Nothing
 
+padToList :: Pad -> [(Var, [(TVar Bool, TVar VRef)])]
 padToList (MkPad map) = Map.assocs map
 
 diffPads :: Pad -> Pad -> Pad
