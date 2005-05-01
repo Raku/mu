@@ -265,7 +265,6 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
         then do { unsafeEvalExp (Sym scope name exp); return emptyExp }
         else do
             lexDiff <- unsafeEvalLexDiff (Sym scope name emptyExp)
-            -- namePos
             return $ Pad scope lexDiff exp
 
 subNameWithPrefix prefix = (<?> "subroutine name") $ lexeme $ try $ do
@@ -686,7 +685,7 @@ currentFunctions = do
     return . concat . unsafePerformSTM $ do
         glob <- readTVar $ envGlobal env
         forM (padToList glob ++ padToList (envLexical env)) $ \(name, ioRefs) -> do
-            refs <- mapM readTVar ioRefs
+            refs <- mapM (readTVar . snd) ioRefs
             return $ map (\ref -> (dropWhile (not . isAlphaNum) $ name, ref)) refs
 
 currentUnaryFunctions = do

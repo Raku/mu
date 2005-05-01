@@ -96,8 +96,8 @@ findSyms name = do
     syms <- forM [lex, glob] $ \pad -> do
         forM names $ \name' -> do
             case lookupPad name' pad of
-                Just ioRefs -> do
-                    refs  <- liftSTM $ mapM readTVar ioRefs
+                Just tvar -> do
+                    refs  <- liftSTM $ mapM readTVar tvar
                     forM refs $ \ref -> do
                         val <- readRef ref
                         return (name', val)
@@ -248,10 +248,16 @@ reduce (Pos pos exp) = do
 
 reduce (Pad SMy lex exp) = do
     -- heuristics: if we are repeating ourselves, generate a new TVar.
-    liftSTM $ forM (padToList lex) $ \(name, tvars) -> forM tvars $ \tvar -> do
-        ref <- newObject (typeOfSigil $ head name)
-        writeTVar tvar ref
-    local (\e -> e{ envLexical = lex `unionPads` envLexical e }) $ do
+    lex' <- fmap mkPad $ liftSTM $ forM (padToList lex) $ \(name, tvars) -> do
+        tvars' <- forM tvars $ \orig@(fresh, _) -> do
+            isFresh <- readTVar fresh
+            if isFresh then do { writeTVar fresh False; return orig } else do
+            -- regen TVar -- we have re-entered this scope
+            ref     <- newObject (typeOfSigil $ head name)
+            tvar'   <- newTVar ref
+            return (fresh, tvar')
+        return (name, tvars')
+    local (\e -> e{ envLexical = lex' `unionPads` envLexical e }) $ do
         evalExp exp
 
 reduce (Pad _ lex exp) = do
@@ -260,7 +266,9 @@ reduce (Pad _ lex exp) = do
 
 reduce (Sym scope name exp) = do
     ref <- newObject (typeOfSigil $ head name)
-    sym <- genMultiSym name ref
+    sym <- case name of
+        ('&':_) -> genMultiSym name ref
+        _       -> genSym name ref
     case scope of
         SMy -> enterLex [ sym ] $ evalExp exp
         _   -> do { addGlobalSym sym; evalExp exp }

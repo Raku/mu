@@ -39,6 +39,9 @@ instance Pretty Exp where
     format (Pos _ exp) = format exp
     format x = text $ show x
 
+instance Pretty (TVar Bool, TVar VRef) where
+    format (_, tvar) = format tvar
+
 instance Pretty Pad where
     format pad = vcat $ map formatAssoc $ padToList pad
         where

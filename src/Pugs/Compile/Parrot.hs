@@ -48,8 +48,8 @@ instance Compile Doc where
 instance Compile Pad where
     compile pad = fmap vcat $ mapM compile (padToList pad)
 
-instance Compile (String, [TVar VRef]) where
-    compile (('&':name), [sym]) = do
+instance Compile (Var, [(TVar Bool, TVar VRef)]) where
+    compile (('&':name), [(_, sym)]) = do
         imc <- compile sym
         return $ vcat
             [ text (".sub \"" ++ name ++ "\"")

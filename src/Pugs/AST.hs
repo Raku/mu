@@ -564,19 +564,19 @@ instance Show Pos where
 -}
 
 data Exp
-    = Noop                               -- No-op
-    | App !String ![Exp] ![Exp]          -- Function application
-    | Syn !String ![Exp]                 -- Syntax
-    | Cxt !Cxt !Exp                      -- Context
-    | Pos !Pos !Exp                      -- Position
-    | Pad !Scope !Pad !Exp               -- Lexical pad
-    | Sym !Scope !Var !Exp               -- Symbol
-    | Stmts !Exp !Exp                    -- Statements
-    | Prim !([Val] -> Eval Val)          -- Primitive
-    | Val !Val                           -- Value
-    | Var !Var                           -- Variable
-    | Parens !Exp                        -- Parentheses (not usually used)
-    | NonTerm !Pos                       -- Parse error
+    = Noop                              -- No-op
+    | App !String ![Exp] ![Exp]         -- Function application
+    | Syn !String ![Exp]                -- Syntax
+    | Cxt !Cxt !Exp                     -- Context
+    | Pos !Pos !Exp                     -- Position
+    | Pad !Scope !Pad !Exp              -- Lexical pad
+    | Sym !Scope !Var !Exp              -- Symbol
+    | Stmts !Exp !Exp                   -- Statements
+    | Prim !([Val] -> Eval Val)         -- Primitive
+    | Val !Val                          -- Value
+    | Var !Var                          -- Variable
+    | Parens !Exp                       -- Parentheses (not usually used)
+    | NonTerm !Pos                      -- Parse error
      deriving (Show, Eq, Ord, Typeable)
 
 class Unwrap a where
@@ -587,12 +587,12 @@ instance Unwrap [Exp] where
     unwrap = map unwrap
 
 instance Unwrap Exp where
-    unwrap (Cxt _ exp)   = unwrap exp
-    unwrap (Pos _ exp)   = unwrap exp
-    unwrap (Parens exp)  = unwrap exp
-    unwrap (Pad _ _ exp) = unwrap exp
-    unwrap (Sym _ _ exp) = unwrap exp
-    unwrap x             = x
+    unwrap (Cxt _ exp)      = unwrap exp
+    unwrap (Pos _ exp)      = unwrap exp
+    unwrap (Parens exp)     = unwrap exp
+    unwrap (Pad _ _ exp)    = unwrap exp
+    unwrap (Sym _ _ exp)    = unwrap exp
+    unwrap x                = x
 
 fromVals :: (Value n) => Val -> Eval [n]
 fromVals v = mapM fromVal =<< fromVal v
@@ -712,7 +712,7 @@ envWant env =
     showCxt (CxtItem typ)   = "Scalar (" ++ showType typ ++ ")"
     showCxt (CxtSlurpy typ) = "List (" ++ showType typ ++ ")"
 
-newtype Pad = MkPad (Map Var [TVar VRef])
+data Pad = MkPad !(Map Var ([(TVar Bool, TVar VRef)]))
     deriving (Eq, Ord, Typeable)
 
 instance Show Pad where
@@ -723,24 +723,29 @@ instance Show Pad where
         dump (n, tvars) = "(" ++ show n ++ ", [" ++
                             concat (intersperse ", " $ map dumpTVar tvars) ++
                             "])"
-        dumpTVar tvar = unsafePerformIO $ do
+        dumpTVar (_, tvar) = unsafePerformIO $ do
             ref  <- liftSTM $ readTVar tvar
             dump <- runEvalIO undefined $ dumpRef ref
             return $ "unsafePerformSTM (newTVar " ++ vCast dump ++ ")"
 
 mkPad = MkPad . Map.fromList
-lookupPad key (MkPad map) = Map.lookup key map
+lookupPad key (MkPad map) = case Map.lookup key map of
+    Just xs -> Just [tvar | (_, tvar) <- xs]
+    Nothing -> Nothing
 padToList (MkPad map) = Map.assocs map
 diffPads (MkPad map1) (MkPad map2) = MkPad $ Map.difference map1 map2
 unionPads (MkPad map1) (MkPad map2) = MkPad $ Map.union map1 map2
 
 genMultiSym name ref = do
-    tvar <- liftSTM $ newTVar ref
-    return $ \(MkPad map) -> MkPad $ Map.insertWith (++) name [tvar] map
+    tvar    <- liftSTM $ newTVar ref
+    fresh   <- liftSTM $ newTVar True
+    return $ \(MkPad map) -> MkPad $
+        Map.insertWith (++) name [(fresh, tvar)] map
 
 genSym name ref = do
-    tvar <- liftSTM $ newTVar ref
-    return $ \(MkPad map) -> MkPad $ Map.insert name [tvar] map
+    tvar    <- liftSTM $ newTVar ref
+    fresh   <- liftSTM $ newTVar True
+    return $ \(MkPad map) -> MkPad $ Map.insert name [(fresh, tvar)] map
 
 show' :: (Show a) => a -> String
 show' x = "( " ++ show x ++ " )"
