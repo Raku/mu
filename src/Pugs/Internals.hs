@@ -51,6 +51,7 @@ module Pugs.Internals (
     module Data.Complex,
     module Data.Set,
     module Data.Map,
+    module Data.IntMap,
     module Debug.Trace,
     module Network,
     internalError,
@@ -113,6 +114,7 @@ import Data.Complex
 import Data.Tree
 import Data.Set (Set)
 import Data.Map (Map)
+import Data.IntMap (IntMap)
 import Debug.Trace
 import Pugs.Rule.Pos
 -- import GHC.Conc (unsafeIOToSTM)

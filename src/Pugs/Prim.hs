@@ -22,6 +22,7 @@ import Text.Printf
 import Data.Yaml.Syck
 import qualified Data.Set as Set
 import qualified Data.Map as Map
+import qualified Data.IntMap as IntMap
 
 op0 :: Ident -> [Val] -> Eval Val
 op0 "!"  = fmap opJuncNone . mapM fromVal
@@ -398,9 +399,9 @@ op1EvalYaml cv = do
 fromYaml :: YamlNode -> Eval Val
 fromYaml (YamlStr str) = return $ VStr str
 fromYaml (YamlSeq nodes) = do
-    vals    <- forM nodes $ \node -> do
-        newScalar =<< fromYaml node
-    av      <- liftSTM $ (newTVar vals :: STM IArray)
+    vals    <- mapM fromYaml nodes
+    av      <- liftSTM $ newTVar $
+        IntMap.fromAscList ([0..] `zip` map lazyScalar vals)
     return $ VRef (arrayRef av)
 fromYaml (YamlMap nodes) = do
     vals    <- forM nodes $ \(keyNode, valNode) -> do

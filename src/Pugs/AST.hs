@@ -19,6 +19,7 @@ import Pugs.Rule
 import Pugs.Types
 import qualified Data.Set       as Set
 import qualified Data.Map       as Map
+import qualified Data.IntMap    as IntMap
 
 #include "Types/Array.hs"
 #include "Types/Handle.hs"
@@ -55,6 +56,23 @@ getIndex idx def doList ext = do
             Just doExt -> do { doExt ; getIndex idx def doList Nothing }
             Nothing    -> errIndex def idx
         (a:_) -> return a
+
+getMapIndex :: Int -> Maybe a -> Eval (IntMap a) -> Maybe (Eval b) -> Eval a
+getMapIndex idx def doList _ | idx < 0 = do
+    -- first, check if the list is at least abs(idx) long.
+    list <- doList
+    if IntMap.member (abs (idx+1)) list
+        then return . fromJust
+            $ IntMap.lookup (idx `mod` (IntMap.size list)) list
+        else errIndex def idx
+-- now we are all positive; either extend or return
+getMapIndex idx def doList ext = do
+    list <- doList
+    case IntMap.lookup idx list of
+        Just a  -> return a
+        Nothing -> case ext of
+            Just doExt -> do { doExt ; getMapIndex idx def doList Nothing }
+            Nothing    -> errIndex def idx
 
 ifValTypeIsa :: Val -> String -> (Eval a) -> (Eval a) -> Eval a
 ifValTypeIsa v typ trueM falseM = do
@@ -1096,7 +1114,7 @@ newObject :: (MonadSTM m) => Type -> m VRef
 newObject (MkType "Scalar") = liftSTM $
     fmap scalarRef $ newTVar undef
 newObject (MkType "Array")  = liftSTM $
-    fmap arrayRef $ (newTVar [] :: STM IArray)
+    fmap arrayRef $ (newTVar IntMap.empty :: STM IArray)
 newObject (MkType "Hash")   = liftSTM $
     fmap hashRef $ (newTVar Map.empty :: STM IHash)
 newObject (MkType "Code")   = liftSTM $
@@ -1240,7 +1258,9 @@ newScalar :: (MonadSTM m) => VScalar -> m (IVar VScalar)
 newScalar = liftSTM . (fmap IScalar) . newTVar
 
 newArray :: (MonadSTM m) => VArray -> m (IVar VArray)
-newArray vals = liftSTM . fmap IArray $ newTVar (map lazyScalar vals)
+newArray vals = liftSTM $ do
+    av <- newTVar $ IntMap.fromAscList ([0..] `zip` map lazyScalar vals)
+    return $ IArray av
 
 newHandle :: (MonadSTM m) => VHandle -> m (IVar VHandle)
 newHandle = return . IHandle
@@ -1265,7 +1285,7 @@ retConstError val = retError "Can't modify constant item" val
 
 -- Haddock doesn't like these; not sure why ...
 #ifndef HADDOCK
-type IArray             = TVar [IVar VScalar]
+type IArray             = TVar (IntMap (IVar VScalar))
 type IArraySlice        = [IVar VScalar]
 type IHash              = TVar (Map VStr (IVar VScalar))
 type IScalar            = TVar Val

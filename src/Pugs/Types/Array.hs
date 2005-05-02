@@ -125,64 +125,80 @@ instance ArrayClass IArraySlice where
 instance ArrayClass IArray where
     array_store av vals = do
         let svList = map lazyScalar vals
-        liftSTM $ writeTVar av svList
+        liftSTM $ writeTVar av $ IntMap.fromAscList ([0..] `zip` svList)
     array_fetchSize av = do
-        svList <- liftSTM $ readTVar av
-        return $ length svList
+        avMap <- liftSTM $ readTVar av
+        return $ IntMap.size avMap
     array_storeSize av sz = do
-        liftSTM $ modifyTVar av $ take sz . (++ repeat lazyUndef)
+        liftSTM $ modifyTVar av $ \avMap ->
+            let size = IntMap.size avMap in
+            case size `compare` sz of
+                GT -> fst $ IntMap.split sz avMap
+                EQ -> avMap
+                LT -> IntMap.union avMap $
+                    IntMap.fromAscList ([size .. sz-1] `zip` repeat lazyUndef)
     array_shift av = do
-        svList <- liftSTM $ readTVar av
+        svList <- liftSTM $ fmap IntMap.elems $ readTVar av
         case svList of
             (sv:rest) -> do
-                liftSTM $ writeTVar av rest
+                liftSTM $ writeTVar av $ IntMap.fromAscList ([0..] `zip` rest)
                 readIVar sv
             _ -> return undef
     array_unshift av vals = do
-        liftSTM $ modifyTVar av
-            (map lazyScalar vals ++)
+        liftSTM $ modifyTVar av $ \avMap ->
+            let svList = IntMap.elems avMap in
+            IntMap.fromAscList ([0..] `zip` ((map lazyScalar vals) ++ svList))
     array_extendSize _ 0 = return ()
     array_extendSize av sz = do
-        liftSTM . modifyTVar av $ \svList ->
-            if null $ drop (sz-1) svList
-                then take sz (svList ++ repeat lazyUndef)
-                else svList
+        liftSTM $ modifyTVar av $ \avMap ->
+            let size = IntMap.size avMap in
+            case size `compare` sz of
+                GT -> avMap
+                EQ -> avMap
+                LT -> IntMap.union avMap $
+                    IntMap.fromAscList ([size .. sz-1] `zip` repeat lazyUndef)
     array_fetchVal av idx = do
-        readIVar =<< getIndex idx (Just $ constScalar undef)
+        readIVar =<< getMapIndex idx (Just $ constScalar undef)
             (liftSTM $ readTVar av) 
             Nothing -- don't bother extending
     array_fetchKeys av = do
-        svList <- liftSTM $ readTVar av
-        return $ zipWith const [0..] svList
+        avMap <- liftSTM $ readTVar av
+        return $ IntMap.keys avMap
     array_fetchElem av idx = do
-        sv <- getIndex idx Nothing
+        sv <- getMapIndex idx Nothing
             (liftSTM $ readTVar av) 
             (Just (array_extendSize av $ idx+1))
         if refType (MkRef sv) == mkType "Scalar::Lazy"
             then do
                 val <- readIVar sv
                 sv' <- newScalar val
-                liftSTM . modifyTVar av $ \svList ->
-                    let idx' = idx `mod` length svList in
-                    take idx' svList ++ (sv' : drop (idx'+1) svList)
+                liftSTM . modifyTVar av $ \avMap ->
+                    let idx' = idx `mod` IntMap.size avMap in
+                    IntMap.adjust (const sv') idx' avMap
                 return sv'
             else return sv
     array_existsElem av idx | idx < 0 = array_existsElem av (abs idx - 1)
     array_existsElem av idx = do
-        svList <- liftSTM $ readTVar av
-        return . not . null $ drop idx svList
+        avMap <- liftSTM $ readTVar av
+        return $ IntMap.member idx avMap
     array_deleteElem av idx = do
-        liftSTM . modifyTVar av $ \svList ->
-            let idx' | idx < 0   = idx `mod` length svList -- XXX wrong; wraparound
+        liftSTM . modifyTVar av $ \avMap ->
+            let size = IntMap.size avMap
+                idx' | idx < 0   = idx `mod` IntMap.size avMap -- XXX wrong; wraparound
                      | otherwise = idx in
-            if null $ drop (idx' + 1) svList
-                then take idx' svList
-                else take idx' svList ++ (lazyUndef : drop (idx'+1) svList)
+            case (size - 1) `compare` idx' of
+                LT -> avMap
+                EQ -> IntMap.delete idx' avMap
+                GT -> IntMap.adjust (const lazyUndef) idx' avMap
     array_storeElem av idx sv = do
-        liftSTM . modifyTVar av $ \svList ->
-            let idx' | idx < 0   = idx `mod` length svList -- XXX wrong; wraparound
+        liftSTM . modifyTVar av $ \avMap ->
+            let size = IntMap.size avMap
+                idx' | idx < 0   = idx `mod` IntMap.size avMap -- XXX wrong; wraparound
                      | otherwise = idx in
-            take idx svList ++ (sv : drop (idx'+1) svList)
+            if size > idx'
+                then IntMap.adjust (const sv) idx' avMap
+                else IntMap.union avMap $
+                    IntMap.fromAscList ([size .. idx'] `zip` (sv:repeat lazyUndef))
 
 instance ArrayClass VArray where
     array_iType = const $ mkType "Array::Const"
