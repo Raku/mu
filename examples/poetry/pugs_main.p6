@@ -1,3 +1,4 @@
+#
 # From src/Main.hs:  
 #
 #   A ship then new they built for him
@@ -9,6 +10,9 @@
 #   To gleam thereon by Elbereth
 #   Herself was set, who thither came...
 #
+
+use v6;
+
 for $*Larry {
     our Ship $pugs .= new(:of<mithril elven-glass>);
     given $pugs {
