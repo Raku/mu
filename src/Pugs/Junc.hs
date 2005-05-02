@@ -14,12 +14,20 @@ import Pugs.Internals
 import Pugs.AST
 import qualified Data.Set as Set
 
+-- |Construct a @none(...)@ junction from a list of values.
+-- Delegates to 'opJunc'.
 opJuncNone :: [Val] -> Val
 opJuncNone = opJunc JNone
+-- |Construct an @all(...)@ junction from a list of values.
+-- Delegates to 'opJunc'.
 opJuncAll :: [Val] -> Val
 opJuncAll = opJunc JAll
+-- |Construct a n@any(...)@ junction from a list of values.
+-- Delegates to 'opJunc'.
 opJuncAny :: [Val] -> Val
 opJuncAny = opJunc JAny
+-- |Construct a @one(...)@ junction from a list of values.
+-- Handled differently!
 opJuncOne :: [Val] -> Val
 opJuncOne args = VJunc (Junc JOne dups vals)
     where
@@ -27,6 +35,8 @@ opJuncOne args = VJunc (Junc JOne dups vals)
     dups = Set.fromList [ v | (v:_:_) <- groups ]
     groups = group $ sort args
 
+-- |Construct a junction of the specified junctive type, containing all the
+-- values in the list.
 opJunc :: JuncType -> [Val] -> Val
 opJunc t vals = VJunc $ Junc t Set.empty (joined `Set.union` Set.fromList vs)
     where
@@ -35,7 +45,11 @@ opJunc t vals = VJunc $ Junc t Set.empty (joined `Set.union` Set.fromList vs)
     sameType (VJunc (Junc t' _ _))  = t == t'
     sameType _                      = False
 
-juncTypeIs :: Val -> [JuncType] -> Maybe VJunc
+-- |Check if the specified value is a 'VJunc' of one of the specified
+-- junctive types.
+juncTypeIs :: Val -- ^ Value to test
+           -> [JuncType] -- ^ Types to check against
+           -> Maybe VJunc -- ^ Returns 'Nothing' if the test fails
 juncTypeIs v ts
     | (VJunc j) <- v
     , juncType j `elem` ts

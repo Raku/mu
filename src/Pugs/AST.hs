@@ -71,6 +71,8 @@ ifListContext trueM falseM = do
         CxtSlurpy _   -> trueM
         _           -> falseM
 
+-- |Return the appropriate 'empty' value for the current context -- either
+-- an empty list ('VList' []), or undef ('VUndef').
 retEmpty :: Eval Val
 retEmpty = do
     ifListContext
@@ -392,6 +394,10 @@ newtype VProcess = MkProcess (ProcessHandle)
 
 type VPair = (Val, Val)
 
+-- |Represents a value. Note that 'Val' is also a constructor for 'Exp' (i.e.
+-- an expression containing a value), so don't confuse the two. Similarly,
+-- all the constructors for @data 'Val'@ are themselves puns on the types of
+-- values they contain.
 data Val
     = VUndef
     | VBool     !VBool
@@ -446,9 +452,14 @@ data VControl
     | ControlEnv   !Env
     deriving (Show, Eq, Ord)
 
-data VJunc = Junc { juncType :: !JuncType
-                  , juncDup  :: !(Set Val)
-                  , juncSet  :: !(Set Val)
+-- |Represents a junction value.
+-- Note that @VJunc@ is also a pun for a 'Val' constructor /containing/ a
+-- 'VJunc'.
+data VJunc = Junc { juncType :: !JuncType -- ^ 'JAny', 'JAll', 'JNone' or 'JOne'
+                  , juncDup  :: !(Set Val) -- ^ Only used for @one()@ junctions
+                                           -- (right?)
+                  , juncSet  :: !(Set Val) -- ^ Set of values that make up the
+                                           -- junction
                   } deriving (Eq, Ord)
 
 data JuncType = JAny | JAll | JNone | JOne

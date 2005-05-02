@@ -71,15 +71,25 @@ mkType str
     | otherwise
     = MkType str
 
-type Var   = String             -- Variable name
+-- |Variable name
+type Var   = String
+-- |Uses Haskell's underlying representation
 type VStr  = String
+-- |Uses Haskell's underlying representation
 type VBool = Bool
+-- |Uses Haskell's underlying representation
 type VInt  = Integer
+-- |Uses Haskell's underlying representation
 type VRat  = Rational
+-- |Uses Haskell's underlying representation
 type VNum  = Double
+-- |Uses Haskell's underlying representation
 type VComplex = Complex VNum
+-- |Uses Haskell's underlying representation
 type VHandle = Handle
+-- |Uses Haskell's underlying representation
 type VSocket = Socket
+-- |Uses Haskell's underlying representation
 type VThread = ThreadId
 data VRule     = MkRule
     { rxRegex     :: !Regex
