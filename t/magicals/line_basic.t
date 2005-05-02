@@ -37,13 +37,13 @@ is($?POSITION, "$file line 1030, column 4-14", "#line1 1 is ignored");
 is($?POSITION, "oneword line 2048, column 4-14", '#line n "filename"');
 
 #line 4096 two words
-is($?POSITION, "oneword line 2050, column 4-14", '#line n two words ignored (should be quoted)');
+is($?POSITION, "oneword line 2051, column 4-14", '#line n two words ignored (should be quoted)');
 
 #line 8192 unquoted
 is($?POSITION, "unquoted line 8192, column 4-14", '#line n unquoted (one word is ok)');
 
 #line 16384 123
-is($?POSITION, "123 line 16382, column 4-14", '#line n unquoted-n (word can be number, too)');
+is($?POSITION, "123 line 16384, column 4-14", '#line n unquoted-n (word can be number, too)');
 
 #line 32768 "now is the time"
 is($?POSITION, "now is the time line 32768, column 4-14", '#line n "long quoted name"');

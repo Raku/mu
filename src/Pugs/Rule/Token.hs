@@ -24,6 +24,7 @@ module Pugs.Rule.Token
 import Unicode (isAlpha,toLower,toUpper,isSpace)
 import Data.Char (digitToInt)
 import Data.List (nub,sort)
+import Data.Maybe
 import Pugs.Rule
 
 
@@ -469,25 +470,38 @@ makeTokenParser languageDef
         try (string (commentLine languageDef))
         pos <- getPosition
         if sourceColumn pos /= 2 then skipToLineEnd else do
-        isPlain <- do { string "line"; return False } <|> return True
+        isPlain <- (<|> return True) $ try $ do
+            string "line"
+            many1 $ satisfy (\x -> isSpace x && x /= '\n')
+            return False
         if isPlain then skipToLineEnd else do
-        many $ satisfy (\x -> isSpace x && x /= '\n')
         line <- decimal
-        many $ satisfy (\x -> isSpace x && x /= '\n')
-        file <- fileName <|> return Nothing
+        file <- (<|> return Nothing) $ try $ do
+            many1 $ satisfy (\x -> isSpace x && x /= '\n')
+            fileNameQuoted <|> fileNameBare
+        if file == Just Nothing then skipToLineEnd else do
         many $ satisfy (/= '\n')
         setPosition $ pos
             { sourceLine    = (fromInteger line) - 1
             , sourceColumn  = 1
-            , sourceName    = maybe (sourceName pos) id file
+            , sourceName    = maybe (sourceName pos) fromJust file
             }
         return ()
 
-    fileName = try $ do
+    fileNameQuoted = try $ do
         char '"'
         file <- many (satisfy (/= '"'))
         char '"'
-        return $ Just file
+        many $ satisfy (\x -> isSpace x && x /= '\n')
+        lookAhead (satisfy (== '\n'))
+        return $ Just $ Just file
+
+    fileNameBare = try $ do
+        file <- many1 $ satisfy (not . isSpace)
+        many $ satisfy (\x -> isSpace x && x /= '\n')
+        (<|> return (Just Nothing)) $ try $ do
+            lookAhead (satisfy (== '\n'))
+            return $ Just $ Just file
 
     skipToLineEnd = do
         skipMany (satisfy (/= '\n'))
