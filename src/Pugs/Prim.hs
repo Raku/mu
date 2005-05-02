@@ -393,11 +393,11 @@ op1 other   = return . (\x -> VError ("unimplemented unaryOp: " ++ other) (App o
 op1EvalYaml :: Val -> Eval Val
 op1EvalYaml cv = do
     str     <- fromVal cv
-    yaml    <- liftIO $ parseYaml str
+    yaml    <- liftIO $ parseYaml (encodeUTF8 str)
     fromYaml yaml
 
 fromYaml :: YamlNode -> Eval Val
-fromYaml (YamlStr str) = return $ VStr str
+fromYaml (YamlStr str) = return $ VStr (decodeUTF8 str)
 fromYaml (YamlSeq nodes) = do
     vals    <- mapM fromYaml nodes
     av      <- liftSTM $ newTVar $
