@@ -475,7 +475,7 @@ ruleTryConstruct = ruleKeywordConsturct "try"
 ruleForConstruct = rule "for construct" $ do
     symbol "for"
     list  <- maybeParens ruleExpression
-    optional (symbol "," <|> symbol ":")
+    optional (symbol ",")
     block <- ruleBlockLiteral <|> parseLitOp
     retSyn "for" [list, block]
 
