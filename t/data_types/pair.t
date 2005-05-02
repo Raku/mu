@@ -9,7 +9,7 @@ Pair test
 
 =cut
 
-plan 36;
+plan 45;
 
 # basic Pair
 
@@ -93,4 +93,33 @@ my $val;
 ("foo" => $val) = "baz";
 is($val, "baz", "lvalue lists");
 
+# XXX illustrate a bug accessing pairs in subroutines
+my %hash  = ('foo' => 'bar');
+for %hash.pairs -> $pair {
+	isa_ok($pair,'Pair') ; 
+	# get key and value from the pair as many was as possible
+	is($pair.key, 'foo', 'in for loop got the right $pair.key');
+	is($pair.value, 'bar', 'in for loop got the right $pair.value');
+}
 
+# Pairs in subroutines
+
+my $var = 'foo' => 'bar';
+sub test1 (Any $pair) {
+	isa_ok($pair,'Pair') ; 
+	# get key and value from the h as many was as possible
+	is($pair.key, 'foo', 'in sub got the right $pair.key');
+	is($pair.value, 'bar', 'in sub got the right $pair.value');
+}
+test1 $var;
+
+my %hash = ('foo' => 'bar');
+sub test2 (Hash %h){
+	for %h.pairs -> $pair {
+		isa_ok($pair,'Pair') ; 
+		# get key and value from the pair as many was as possible
+		is($pair.key, 'foo', 'in for loop in sub got the right $pair.key');
+		is($pair.value, 'bar', 'in for loop in sub got the right $pair.value');
+	}
+}
+test2 %hash;
