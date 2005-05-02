@@ -48,8 +48,11 @@ exit 0;
 
 sub fixup_concurrency {
     $Config{"concurrent"} ||= $ENV{PUGS_TESTS_CONCURRENT} || 1;
-    die "Sorry, concurrency not supported on your platform\n" if
-        $^O =~ /MSWin32|msys/; # On cygwin we are okay.
+    if ($^O =~ /MSWin32|msys/) { # On cygwin we are okay.
+		warn "Sorry, concurrency not supported on your platform\n";
+		$Config{"concurrent"} = 1;
+		return;
+	}
     require POSIX;
 }
 
