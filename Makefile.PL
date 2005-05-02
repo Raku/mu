@@ -92,13 +92,15 @@ sub set_postamble {
 
     my $pcre_c = "src/pcre/pcre.c";
     my @syck_c = glob("src/syck/*.c");
+    my @pge_c = glob("src/pge/*.c");
     my $pcre = "src/pcre/pcre.o";
     my @syck = map { substr($_, 0, -1) . 'o' } @syck_c;
+    my @pge = map { substr($_, 0, -1) . 'o' } @pge_c;
     my $unicode = "src/UnicodeC.o";
     my $unicode_c = "src/UnicodeC.c";
 
-    my @prereqs = ($config_h, $pcre, @syck, $unicode);
-    $ghc_output .= " $pcre @syck $unicode";
+    my @prereqs = ($config_h, $pcre, @syck, @pge, $unicode);
+    $ghc_output .= " $pcre @syck @pge $unicode";
 
     my $config = get_pugs_config();
     my $is_win32 = ($^O =~ /MSWin|mingw|cygwin/i);
@@ -125,7 +127,7 @@ $version_h : .svn/entries util/version_h.pl
 .svn/entries :
 	\$(NOOP)
 
-@{[join("\n", map {$emit->($_)} ($unicode_c, $pcre_c, @syck_c))]}
+@{[join("\n", map {$emit->($_)} ($unicode_c, $pcre_c, @syck_c, @pge_c))]}
 
 src/Pugs/Config.hs : util/PugsConfig.pm
 	\$(PERL) -Iutil -MPugsConfig -e "PugsConfig->write_config_module" > src/Pugs/Config.hs

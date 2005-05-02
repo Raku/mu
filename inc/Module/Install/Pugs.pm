@@ -162,8 +162,8 @@ sub assert_ghc {
 *** Please install a newer version from http://haskell.org/ghc/.
 .
     }
-    my $ghc_flags = "-H0 -L. -Lsrc -Lsrc/syck -Lsrc/pcre -I. -Isrc -Isrc/pcre -Isrc/syck";
-    $ghc_flags .= " -i. -isrc -isrc/pcre -isrc/syck -static ";
+    my $ghc_flags = "-H0 -L. -Lsrc -Lsrc/syck -Lsrc/pge -Lsrc/pcre -I. -Isrc -Isrc/pcre -Isrc/syck -Isrc/pge";
+    $ghc_flags .= " -i. -isrc -isrc/pcre -isrc/syck -isrc/pge -static ";
     $ghc_flags .= " -Wall -Werror "
       unless $self->is_extension_build;
     $ghc_flags .= " -fno-warn-missing-signatures -fno-warn-name-shadowing ";

@@ -13,6 +13,9 @@
 
 Pugs is Copyright 2005 by Autrijus Tang.  All Rights Reserved.
 
+The "PGE" subsystem is derived from PGE by Patrick Michaud,
+under the Perl license.  See src/pge/README.
+
 The "PCRE" subsystem is derived from PCRE 5.0 by Philip Hazel,
 under a BSD-style license.  See src/pcre/LICENCE.
 

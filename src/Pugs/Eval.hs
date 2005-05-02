@@ -35,7 +35,7 @@ emptyEnv name genPad = do
         ref  <- newTVar Map.empty
         syms <- initSyms
         glob <- newTVar (combine (pad ++ syms) $ mkPad [])
-        return $ Env
+        return $ MkEnv
             { envContext = CxtVoid
             , envLexical = mkPad []
             , envLValue  = False
@@ -507,7 +507,9 @@ reduce exp@(Syn name exps) = case name of
         flag_g  <- fromAdverb hv ["g", "global"]
         flag_i  <- fromAdverb hv ["i", "ignorecase"]
         when (not p5) $ do
-            fail "Perl 6 rules is not implemented yet, use :P5"
+            parsed <- liftIO $ parseRule ("(" ++ encodeUTF8 str ++ ")")
+            let banner = "\n*** Perl 6 rules support coming soon...\n"
+            error $ banner ++ parsed ++ banner
         retVal $ VRule $ MkRule
             { rxRegex  = mkRegexWithPCRE (encodeUTF8 str) $
                 [ pcreUtf8
@@ -787,7 +789,7 @@ apply sub invs args = do
 -- XXX - faking application of lexical contexts
 -- XXX - what about defaulting that depends on a junction?
 doApply :: Env -> VCode -> [Exp] -> [Exp] -> Eval Val
-doApply Env{ envClasses = cls } sub@MkCode{ subBody = fun, subType = typ } invs args =
+doApply env sub@MkCode{ subBody = fun, subType = typ } invs args =
     case bindParams sub invs args of
         Left errMsg -> fail errMsg
         Right sub   -> do
@@ -835,6 +837,7 @@ doApply Env{ envClasses = cls } sub@MkCode{ subBody = fun, subType = typ } invs 
         val <- if thunk then return (VRef . thunkRef $ MkThunk eval) else do
             v   <- eval
             typ <- evalValType v
+            let cls = envClasses env
             if isaType cls "Junction" typ then return v else do
             case (lv, rw) of
                 (True, True)    -> return v
@@ -852,8 +855,8 @@ doApply Env{ envClasses = cls } sub@MkCode{ subBody = fun, subType = typ } invs 
         elms    <- mapM fromVal list -- flatten
         return $ genericDrop n (concat elms :: [Val])
     isCollapsed typ
-        | isaType cls "Bool" typ        = True
-        | isaType cls "Junction" typ    = True
+        | isaType (envClasses env) "Bool" typ        = True
+        | isaType (envClasses env) "Junction" typ    = True
         | otherwise                     = False
 
 toGlobal name
