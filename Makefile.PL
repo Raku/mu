@@ -143,15 +143,6 @@ haddock : $version_h $config_h @hppfiles docs/haddock
 docs/haddock :
 	\@\$(PERL) -e "mkdir q-docs/haddock-"
 
-optimized-profiled :: profiled-optimized
-
-optimised-profiled :: profiled-optimised
-
-profiled-optimised :: profiled-optimized
-
-profiled-optimized :: src/Pugs/Config.hs @srcfiles $version_h @prereqs
-	$ghc $threaded -auto-all -prof -O1 --make $profiled_flags $ghc_output
-
 profiled :: src/Pugs/Config.hs @srcfiles $version_h @prereqs
 	$ghc $threaded -O -auto-all -prof --make $profiled_flags $ghc_output
 
