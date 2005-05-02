@@ -1197,6 +1197,8 @@ readIVar _ = error "readIVar"
 
 writeIVar :: IVar v -> v -> Eval ()
 writeIVar (IScalar x) = scalar_store x
+writeIVar (IArray x) = array_store x
+writeIVar (IHash x) = hash_store x
 writeIVar _ = error "writeIVar"
 
 refType :: VRef -> Type

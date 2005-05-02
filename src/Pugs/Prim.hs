@@ -19,6 +19,7 @@ import Pugs.Pretty
 import Pugs.Parser
 import Pugs.External
 import Text.Printf
+import Data.Yaml.Syck
 import qualified Data.Set as Set
 import qualified Data.Map as Map
 
@@ -200,6 +201,7 @@ op1 "eval" = \v -> do
     opEval False "<eval>" str
 op1 "eval_perl5" = boolIO evalPerl5
 op1 "eval_haskell" = op1EvalHaskell
+op1 "eval_yaml" = op1EvalYaml
 op1 "defined" = op1Cast (VBool . defined)
 op1 "last" = \v -> return (VError "cannot last() outside a loop" (Val v))
 op1 "next" = \v -> return (VError "cannot next() outside a loop" (Val v))
@@ -387,12 +389,33 @@ op1 "log"   = op1Cast (VNum . log)
 op1 "log10" = op1Cast (VNum . logBase 10)
 op1 other   = return . (\x -> VError ("unimplemented unaryOp: " ++ other) (App other [Val x] []))
 
+op1EvalYaml :: Val -> Eval Val
+op1EvalYaml cv = do
+    str     <- fromVal cv
+    yaml    <- liftIO $ parseYaml str
+    fromYaml yaml
+
+fromYaml :: YamlNode -> Eval Val
+fromYaml (YamlStr str) = return $ VStr str
+fromYaml (YamlSeq nodes) = do
+    vals    <- forM nodes $ \node -> do
+        newScalar =<< fromYaml node
+    av      <- liftSTM $ (newTVar vals :: STM IArray)
+    return $ VRef (arrayRef av)
+fromYaml (YamlMap nodes) = do
+    vals    <- forM nodes $ \(keyNode, valNode) -> do
+        key <- fromVal =<< fromYaml keyNode
+        val <- newScalar =<< fromYaml valNode
+        return (key, val)
+    hv      <- liftSTM $ (newTVar (Map.fromList vals) :: STM IHash)
+    return $ VRef (hashRef hv)
+
 op1EvalHaskell :: Val -> Eval Val
 op1EvalHaskell cv = do
-    cstr <- (fromVal cv) :: Eval String
-    ret <- liftIO (evalHaskell cstr)
-    glob <- askGlobal
-    errSV <- findSymRef "$!" glob
+    str     <- fromVal cv :: Eval String
+    ret     <- liftIO (evalHaskell str)
+    glob    <- askGlobal
+    errSV   <- findSymRef "$!" glob
     case ret of
         Right str -> do
             writeRef errSV VUndef
@@ -1421,6 +1444,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Any       pre     eval    (Str)\
 \\n   Any       pre     eval_perl5   (Str)\
 \\n   Any       pre     eval_haskell (Str)\
+\\n   Any       pre     eval_yaml    (Str)\
 \\n   Any       pre     require (?Str=$_)\
 \\n   Any       pre     require_haskell (Str)\
 \\n   Any       pre     last    (?Int=1)\

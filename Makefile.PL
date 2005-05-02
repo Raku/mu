@@ -90,13 +90,15 @@ sub set_postamble {
     my $ghc_output = "-o pugs$Config{_exe} src/Main.hs";
     my $hasktags = $ENV{HASKTAGS} || 'hasktags';
 
-    my $pcre = "src/pcre/pcre.o";
     my $pcre_c = "src/pcre/pcre.c";
+    my @syck_c = glob("src/syck/*.c");
+    my $pcre = "src/pcre/pcre.o";
+    my @syck = map { substr($_, 0, -1) . 'o' } @syck_c;
     my $unicode = "src/UnicodeC.o";
     my $unicode_c = "src/UnicodeC.c";
 
-    my @prereqs = ($config_h, $pcre, $unicode);
-    $ghc_output .= " $pcre $unicode";
+    my @prereqs = ($config_h, $pcre, @syck, $unicode);
+    $ghc_output .= " $pcre @syck $unicode";
 
     my $config = get_pugs_config();
     my $is_win32 = ($^O =~ /MSWin|mingw|cygwin/i);
@@ -106,6 +108,12 @@ sub set_postamble {
     # XXX - hsplugins doesn't build with profiles
     my $profiled_flags = $ghc_flags;
     $profiled_flags =~ s{-DPUGS_HAVE_HSPLUGINS=1}{};
+
+    my $emit = sub {
+        my $c = shift;
+        my $o = substr($c, 0, -1) . 'o';
+        return "$o : $c\n\t$ghc $threaded -no-link -no-hs-main -O -o $o $c\n";
+    };
 
     postamble(fixpaths(<< "."));
 $config_h : lib/Perl6/Pugs.pm util/config_h.pl
@@ -117,11 +125,7 @@ $version_h : .svn/entries util/version_h.pl
 .svn/entries :
 	\$(NOOP)
 
-$pcre : $pcre_c
-	$ghc $threaded -no-link -no-hs-main -O -o $pcre $pcre_c
-
-$unicode : $unicode_c
-	$ghc $threaded -no-link -no-hs-main -O -o $unicode $unicode_c
+@{[join("\n", map {$emit->($_)} ($unicode_c, $pcre_c, @syck_c))]}
 
 src/Pugs/Config.hs : util/PugsConfig.pm
 	\$(PERL) -Iutil -MPugsConfig -e "PugsConfig->write_config_module" > src/Pugs/Config.hs
