@@ -133,8 +133,8 @@ sub _init {
     $self->get_smoker;
     $self->get_revision;
     
-    # XXX: should i just include \%Config here?
-    $self->{_config} = { shuffle => $Config{shuffle}+=0 };
+	$Config{shuffle}+=0;
+    $self->{_config} = \%Config;
     $self->{_timing}{start} = time;
 
     $self->SUPER::_init(@_);
@@ -228,6 +228,7 @@ sub gather_results {
         push @{ $self->{meat}{test_files} }, @{$chunk->{test_files}};
         unlink $file or die "unlink: $!";
     }
+	warn "all chunks completed.\n";
 }
 
 sub run_test {
