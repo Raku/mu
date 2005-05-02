@@ -32,14 +32,17 @@ if($*OS eq any<MSWin32 mingw msys cygwin>) {
   $pugs = 'pugs.exe';
 };
 
+sub nonces () { return (".$*PID." ~ int rand 1000) }
+
 for @examples -> $ex {
-  my $command = "$pugs $ex $redir temp-ex-output";
+  my $out_fn = "temp-ex-output" ~ nonces;
+  my $command = "$pugs $ex $redir $out_fn";
   diag $command;
   system $command;
 
   my $expected = "Unrecognized switch: -foo  (-h will show valid options).\n";
-  my $got      = slurp "temp-ex-output";
-  unlink "temp-ex-output";
+  my $got      = slurp $out_fn;
+  unlink $out_fn;
 
   is $got, $expected, "$ex works", :todo;
 }

@@ -25,13 +25,16 @@ if($*OS eq any<MSWin32 mingw msys cygwin>) {
   $pugs = 'pugs.exe';
 };
 
+sub nonces () { return (".$*PID." ~ int rand 1000) }
+
 for @tests -> $ex {
-  my $command = "$pugs $ex $redir temp-ex-output";
+  my $out_fn = "temp-ex-output" ~ nonces;
+  my $command = "$pugs $ex $redir $out_fn";
   diag $command;
   system $command;
 
-  my $got = slurp "temp-ex-output";
-  unlink "temp-ex-output";
+  my $got = slurp $out_fn;
+  unlink $out_fn;
 
   like($got, rx:perl5/Version:.6\.\d+\.\d+/, "'$ex' displays version");
 };

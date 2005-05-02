@@ -33,14 +33,16 @@ if($*OS eq any(<MSWin32 mingw msys cygwin>)) {
   # $redir = '>';
 };
 
+sub nonces () { return (".$*PID." ~ int rand 1000) }
 for @examples -> $ex {
-  my $command = "$pugs examples/$ex.p6 $redir temp-ex-output";
+  my $fn = <temp-ex-output> ~ nonces;
+  my $command = "$pugs examples/$ex.p6 $redir $fn";
   diag $command;
   system $command;
 
   my $expected = slurp "examples/output/$ex";
-  my $got      = slurp "temp-ex-output";
-  unlink "temp-ex-output";
+  my $got      = slurp $fn;
+  unlink $fn;
 
   is $got, $expected, "$ex.p6 worked";
 }

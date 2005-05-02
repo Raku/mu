@@ -37,20 +37,22 @@ foo
 bar
 ";
 
-my $h = open(">temp-ex-input");
+sub nonces () { return (".$*PID." ~ int rand 1000) }
+my($in_fn, $out_fn) = <temp-ex-input temp-ext-output> >>~<< nonces;
+my $h = open(">$in_fn");
 $h.print($str);
 $h.close();
 
 for @examples -> $ex {
-  my $command = "$pugs $ex $redir_in temp-ex-input $redir_out temp-ex-output";
+  my $command = "$pugs $ex $redir_in $in_fn $redir_out $out_fn";
   diag $command;
   system $command;
 
   my $expected = $str;
-  my $got      = slurp "temp-ex-output";
-  unlink "temp-ex-output";
+  my $got      = slurp $out_fn;
+  unlink $out_fn;
 
   is $got, $expected, "-n -e print works like cat";
 }
 
-unlink "temp-ex-input";
+unlink $in_fn;

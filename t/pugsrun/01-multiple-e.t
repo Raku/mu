@@ -32,23 +32,26 @@ if($*OS eq any<MSWin32 mingw msys cygwin>) {
   $redir = '>';
 };
 
+sub nonces () { return (".$*PID." ~ int rand 1000) }
+my $out_fn = "temp-ex-output" ~ nonces;
+
 for @examples -> $ex {
-  my $command = "$pugs $ex $redir temp-ex-output";
+  my $command = "$pugs $ex $redir $out_fn";
   diag $command;
   system $command;
 
   my $expected = "Hello\nPugs";
-  my $got      = slurp "temp-ex-output";
+  my $got      = slurp $out_fn;
 
   is $got, $expected, "Multiple -e switches work and append the script";
 }
 
-my $command = qq($pugs -e @ARGS.perl.say -e "" Hello Pugs $redir temp-ex-output);
+my $command = qq($pugs -e @ARGS.perl.say -e "" Hello Pugs $redir $out_fn);
 diag $command;
 system $command;
 
 my @expected = <Hello Pugs>;
-my $got      = slurp "temp-ex-output";;
+my $got      = slurp $out_fn;
 chomp $got;
 if (substr($got,0,1) ~~ "\\") {
   $got = substr($got,1);
