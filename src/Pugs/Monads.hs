@@ -90,11 +90,12 @@ enterSub sub action
     doCC cc [v] = cc =<< evalVal v
     doCC _  _   = internalError "enterSub: doCC list length /= 1"
     orig sub = sub { subBindings = [], subParams = (map fst (subBindings sub)) }
-    fixEnv cc env@Env{ envLexical = pad }
+    fixEnv cc env
         | typ >= SubBlock = do
             blockRec <- genSym "&?BLOCK" (codeRef (orig sub))
             return $ \e -> e
-                { envLexical = combine [blockRec] (subPad sub `unionPads` pad) }
+                { envLexical = combine [blockRec]
+                    (subPad sub `unionPads` envLexical env) }
         | otherwise = do
             subRec <- sequence
                 [ genSym "&?SUB" (codeRef (orig sub))
@@ -121,7 +122,7 @@ genSubs env name gen = sequence
     ]
 
 makeParams :: Env -> [Param]
-makeParams Env{ envContext = cxt, envLValue = lv }
+makeParams MkEnv{ envContext = cxt, envLValue = lv }
     = [ MkParam
         { isInvocant = False
         , isOptional = False
@@ -145,7 +146,8 @@ caller n = do
 
 evalVal :: Val -> Eval Val
 evalVal val = do
-    Env{ envLValue = lv, envClasses = cls } <- ask
+    lv  <- asks envLValue
+    cls <- asks envClasses
     typ <- evalValType val
     if lv then return val else do
     case val of

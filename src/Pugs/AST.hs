@@ -732,22 +732,22 @@ defaultScalarParam  = buildParam "" "" "$_" (Val VUndef)
 
 type DebugInfo = Maybe (TVar (Map String String))
 
--- |Evaluation environment. Note that 'Env' is a pun: it denotes both
--- the datatype /and/ the constructor.
-data Env = Env { envContext :: !Cxt                 -- ^ Current context
-               , envLValue  :: !Bool                -- ^ LValue context?
-               , envLexical :: !Pad                 -- ^ Lexical pad
-               , envGlobal  :: !(TVar Pad)          -- ^ Global pad
-               , envClasses :: !ClassTree           -- ^ Current class tree
-               , envEval    :: !(Exp -> Eval Val)   -- ^ Active evaluator
-               , envCaller  :: !(Maybe Env)         -- ^ Caller's env
-               , envBody    :: !Exp                 -- ^ Current AST
-               , envDepth   :: !Int                 -- ^ Recursion depth
-               , envID      :: !Unique              -- ^ Unique ID of Env
-               , envDebug   :: !DebugInfo           -- ^ Debug info map
-               , envStash   :: !String              -- ^ Misc. stash
-               , envPos     :: !Pos                 -- ^ Source position range
-               } deriving (Show, Eq, Ord)
+-- | Evaluation environment. 
+data Env = MkEnv
+    { envContext :: !Cxt                 -- ^ Current context
+    , envLValue  :: !Bool                -- ^ LValue context?
+    , envLexical :: !Pad                 -- ^ Lexical pad
+    , envGlobal  :: !(TVar Pad)          -- ^ Global pad
+    , envClasses :: !ClassTree           -- ^ Current class tree
+    , envEval    :: !(Exp -> Eval Val)   -- ^ Active evaluator
+    , envCaller  :: !(Maybe Env)         -- ^ Caller's env
+    , envBody    :: !Exp                 -- ^ Current AST
+    , envDepth   :: !Int                 -- ^ Recursion depth
+    , envID      :: !Unique              -- ^ Unique ID of Env
+    , envDebug   :: !DebugInfo           -- ^ Debug info map
+    , envStash   :: !String              -- ^ Misc. stash
+    , envPos     :: !Pos                 -- ^ Source position range
+    } deriving (Show, Eq, Ord)
 
 envWant :: Env -> String
 envWant env = 

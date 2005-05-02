@@ -21,6 +21,7 @@ module Pugs.Internals (
     module Pugs.Cont,
     module RRegex,
     module RRegex.Syntax,
+    module Text.PGE,
     module Pugs.Rule.Pos,
     module Data.Dynamic,
     module Data.Unique,
@@ -75,6 +76,7 @@ import Pugs.Embed
 import Pugs.Compat
 import RRegex
 import RRegex.Syntax
+import Text.PGE
 import Data.Dynamic
 import Data.Array (elems)
 import Network

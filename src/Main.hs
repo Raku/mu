@@ -141,7 +141,7 @@ doParseWith f name prog = do
     env <- emptyEnv name []
     runRule env f' ruleProgram name $ decodeUTF8 prog
     where
-    f' Env{ envBody = Val err@(VError _ _) } = do
+    f' env | Val err@(VError _ _) <- envBody env = do
         hPutStrLn stderr $ pretty err
         exitFailure
     f' env = f env name

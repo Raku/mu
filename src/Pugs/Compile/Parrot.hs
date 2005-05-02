@@ -18,9 +18,8 @@ class (Show x) => Compile x where
 
 genIMC :: Eval Val
 genIMC = do
-    Env{ envBody = exp, envGlobal = globRef } <- ask
-
-    glob <- liftSTM $ readTVar globRef
+    exp  <- asks envBody
+    glob <- askGlobal
     ref  <- liftSTM $ newTVar $ Map.fromList [("tempPMC", "9")]
 
     -- get a list of functions

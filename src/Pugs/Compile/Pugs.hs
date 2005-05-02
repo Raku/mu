@@ -93,8 +93,8 @@ instance Compile VRef where
 
 genPugs :: Eval Val
 genPugs = do
-    Env{ envBody = exp, envGlobal = globRef } <- ask
-    glob    <- liftSTM $ readTVar globRef
+    exp     <- asks envBody
+    glob    <- askGlobal
     globC   <- compile glob
     expC    <- compile exp
     return . VStr . unlines $
