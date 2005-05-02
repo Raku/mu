@@ -143,7 +143,7 @@ is($p, '012345', 'for (@list) -> {} works');
 
 my @list_q = (0 .. 5);
 my $q;
-for (@list_q): sub { $q ~= $_; };
+for (@list_q), sub { $q ~= $_; };
 is($q, '012345', 'for (@list), sub {} works');
 
 # ... with referential sub
