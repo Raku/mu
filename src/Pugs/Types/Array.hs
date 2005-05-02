@@ -148,6 +148,18 @@ instance ArrayClass IArray where
         liftSTM $ modifyTVar av $ \avMap ->
             let svList = IntMap.elems avMap in
             IntMap.fromAscList ([0..] `zip` ((map lazyScalar vals) ++ svList))
+    array_pop av = do
+        avMap <- liftSTM $ readTVar av
+        if IntMap.null avMap
+            then return undef
+            else do
+                let idx = IntMap.size avMap - 1
+                liftSTM $ writeTVar av $ IntMap.delete idx avMap
+                readIVar . fromJust $ IntMap.lookup idx avMap
+    array_push av vals = do
+        liftSTM $ modifyTVar av $ \avMap ->
+            let svList = IntMap.elems avMap in
+            IntMap.fromAscList ([0..] `zip` (svList ++ (map lazyScalar vals)))
     array_extendSize _ 0 = return ()
     array_extendSize av sz = do
         liftSTM $ modifyTVar av $ \avMap ->
