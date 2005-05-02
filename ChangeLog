@@ -1,3 +1,9 @@
+== Changes for 6.2.3 - TBD
+
+* The `is lazy` trait for parameters (XXX - or is it `is delayed`?)
+* Much faster random access to arrays; it's now O(1) instead of O(n)
+* Experimental `eval_yaml()` support to deserialize YAML streams.
+
 == Changes for 6.2.2 - May 1, 2005
 
 === Pugs Internals
