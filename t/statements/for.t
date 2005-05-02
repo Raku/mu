@@ -14,7 +14,7 @@ L<S04/"The C<for> statement">
 
 =cut
 
-plan 27;
+plan 30;
 
 ## for with plain old range operator w/out parens
 # L<S04/"The C<for> statement" /in Perl 6, si it always take a list as an argument/>
@@ -158,27 +158,28 @@ is($r, '012345', 'for (@list), &some_sub works');
 my @elems = <a b c d e>;
 
 {
-	my @a;
-	for (@elems) {
-		push @a, $_;
-	}
-	my @e = <a b c d e>;
-	is(@a, @e, 'for (@a) { ... $_ ... } iterates all elems');
+    my @a;
+    for (@elems) {
+        push @a, $_;
+    }
+    my @e = <a b c d e>;
+    is(@a, @e, 'for (@a) { ... $_ ... } iterates all elems');
 }
 
 {
-	my @a;
+    my @a;
         for (@elems) -> $_ { push @a, $_ };
-	my @e = @elems;
-	is(@a, @e, 'for (@a)->$_ { ... $_ ... } iterates all elems' );
+    my @e = @elems;
+    is(@a, @e, 'for (@a)->$_ { ... $_ ... } iterates all elems' );
 }
 
 {
-	my @a;
-	for (@elems) { push @a, $_, $_; }
-	my @e = <a a b b c c d d e e>;
-	is(@a, @e, 'for (@a) { ... $_ ... $_ ... } iterates all elems, not just odd');
+    my @a;
+    for (@elems) { push @a, $_, $_; }
+    my @e = <a a b b c c d d e e>;
+    is(@a, @e, 'for (@a) { ... $_ ... $_ ... } iterates all elems, not just odd');
 }
+
 
 my @list_s = (0..2);
 my @s = (1..3);
@@ -190,3 +191,17 @@ my @t = (1..3);
 for @list_t -> $num is rw { $num++ };
 is(@list_t, @t, 'for @list -> $num is rw { $num++ }');
 
+my @list_v = (0..2);
+my @v = (1..3);
+try { for @list_v.values -> $num is rw { $num++ }; };
+is(@list_v, @v, 'for @list.values -> $num is rw { $num++ }');
+
+my %hash_v = ( a => 1, b => 2, c => 3 );
+my %v = ( a => 2, b => 3, c => 4 );
+try { for %hash_v.values -> $val is rw { $val++ }; };
+is(%hash_v, %v, 'for %hash.values -> $val is rw { $val++ };');
+
+my %hash_kv = ( a => 1, b => 2, c => 3 );
+my %kv = ( a => 2, b => 3, c => 4 );
+try { for %hash_kv.kv -> $key, $val is rw { $val++ }; };
+is( %hash_kv.sort, %kv.sort, 'for %hash.kv -> $key, $val is rw { $val++ };');
