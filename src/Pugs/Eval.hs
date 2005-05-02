@@ -775,7 +775,11 @@ applyExp bound body = do
     formal = mapM argNameValue $ filter (not . null . argName) bound
     argNameValue (ApplyArg name val _) = genSym name (vCast val)
 
-apply :: VCode -> [Exp] -> [Exp] -> Eval Val
+-- |Apply a sub (or other code) to lists of invocants and arguments.
+apply :: VCode -- ^ The sub to apply
+      -> [Exp] -- ^ List of invocants
+      -> [Exp] -- ^ List of arguments (non-invocant)
+      -> Eval Val
 apply sub invs args = do
     env <- ask
     doApply env sub invs args

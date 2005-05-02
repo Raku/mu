@@ -565,15 +565,18 @@ instance Show Pos where
    volume letters.
 -}
 
+-- |Represents an expression tree.
 data Exp
     = Noop                              -- ^ No-op
     | App !String ![Exp] ![Exp]         -- ^ Function application
-    | Syn !String ![Exp]                -- ^ Syntax
+                                        -- e.g. myfun($invocant: $arg)
+    | Syn !String ![Exp]                -- ^ Syntactic construct that cannot
+                                        -- be represented by 'App'.
     | Cxt !Cxt !Exp                     -- ^ Context
     | Pos !Pos !Exp                     -- ^ Position
     | Pad !Scope !Pad !Exp              -- ^ Lexical pad
     | Sym !Scope !Var !Exp              -- ^ Symbol
-    | Stmts !Exp !Exp                   -- ^ Statements
+    | Stmts !Exp !Exp                   -- ^ Multiple statements
     | Prim !([Val] -> Eval Val)         -- ^ Primitive
     | Val !Val                          -- ^ Value
     | Var !Var                          -- ^ Variable
@@ -582,6 +585,9 @@ data Exp
      deriving (Show, Eq, Ord, Typeable)
 
 class Unwrap a where
+    -- |Unwrap a nested expression, throwing away wrappers (such as 'Cxt' or
+    -- 'Pos' to get at the more interesting expression underneath. Works both
+    -- on individual 'Exp's, and elementwise on ['Exp']s.
     unwrap :: a -> a
     unwrap = id
 
@@ -651,6 +657,9 @@ extract (Parens ex) vs = ((Parens ex'), vs')
     (ex', vs') = extract ex vs
 extract exp vs = (exp, vs)
 
+-- |Return the context implied by a particular primary sigil 
+-- (\$, \@, \% or \&). E.g. used to find what context to impose on
+-- the RHS of a binding (based on the sigil of the LHS).
 cxtOfSigil :: Char -> Cxt
 cxtOfSigil '$'  = cxtItemAny
 cxtOfSigil '@'  = cxtSlurpyAny
@@ -692,7 +701,8 @@ defaultScalarParam  = buildParam "" "" "$_" (Val VUndef)
 
 type DebugInfo = Maybe (TVar (Map String String))
 
--- |Environment
+-- |Evaluation environment. Note that 'Env' is a pun: it denotes both
+-- the datatype /and/ the constructor.
 data Env = Env { envContext :: !Cxt                 -- ^ Current context
                , envLValue  :: !Bool                -- ^ LValue context?
                , envLexical :: !Pad                 -- ^ Lexical pad
@@ -735,15 +745,22 @@ instance Show Pad where
 mkPad :: [(Var, [(TVar Bool, TVar VRef)])] -> Pad
 mkPad = MkPad . Map.fromList
 
-lookupPad :: Var -> Pad -> Maybe [TVar VRef]
+-- |Look for a variable in a 'Pad'.
+lookupPad :: Var -- ^ Variable to look for
+          -> Pad -- ^ Pad to look in
+          -> Maybe [TVar VRef] -- ^ Might return 'Nothing' if var is not found
 lookupPad key (MkPad map) = case Map.lookup key map of
     Just xs -> Just [tvar | (_, tvar) <- xs]
     Nothing -> Nothing
 
+-- |Transform a pad into a flat list of bindings.
 padToList :: Pad -> [(Var, [(TVar Bool, TVar VRef)])]
 padToList (MkPad map) = Map.assocs map
 
-diffPads :: Pad -> Pad -> Pad
+-- |Return the difference between two pads.
+diffPads :: Pad -- ^ Pad a
+         -> Pad -- ^ Pad b
+         -> Pad -- ^ a - b
 diffPads (MkPad map1) (MkPad map2) = MkPad $ Map.difference map1 map2
 
 unionPads :: Pad -> Pad -> Pad
