@@ -112,7 +112,7 @@ sub set_postamble {
     my $emit = sub {
         my $c = shift;
         my $o = substr($c, 0, -1) . 'o';
-        return "$o : $c\n\t$ghc $threaded -no-link -no-hs-main -O -o $o $c\n";
+        return "$o : $c\n\t$ghc $threaded $ghc_flags -no-link -no-hs-main -O -o $o $c\n";
     };
 
     postamble(fixpaths(<< "."));
