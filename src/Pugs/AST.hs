@@ -104,6 +104,8 @@ fromVal' v = return $ vCast v
         Left e  -> retError e v -- XXX: not working yet
 -}
 
+-- |Typeclass indicating types that can be converted to\/from 'Val's.
+-- Not to be confused with 'Val' itself, or the 'Exp' constructor @Val@.
 class (Typeable n, Show n, Ord n) => Value n where
     fromVal :: Val -> Eval n
     fromVal = fromVal'
@@ -1153,6 +1155,7 @@ doArray val f = do
     av  <- fromVal val
     return $ f (av :: VArray)
 
+-- Haddock doesn't seem to like data/instance declarations with a where clause.
 #ifndef HADDOCK
 data (Typeable v) => IVar v where
     IScalar :: ScalarClass a => !a -> IVar VScalar
@@ -1199,6 +1202,7 @@ writeIVar _ = error "writeIVar"
 refType :: VRef -> Type
 refType (MkRef x) = object_iType x
 
+-- Haddock doesn't seem to like data/instance declarations with a where clause.
 #ifndef HADDOCK
 instance Eq VRef where
     (==) = const $ const False
@@ -1257,6 +1261,7 @@ constArray = IArray
 retConstError :: VScalar -> Eval b
 retConstError val = retError "Can't modify constant item" val
 
+-- Haddock doesn't like these; not sure why ...
 #ifndef HADDOCK
 type IArray             = TVar [IVar VScalar]
 type IArraySlice        = [IVar VScalar]

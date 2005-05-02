@@ -964,9 +964,7 @@ ruleVarNameString =   try (string "$!")  -- error variable
                   <|> try ruleMatchVar
                   <|> do
     sigil   <- oneOf "$@%&"
-#ifndef HADDOCK
-    -- ^ placeholder, * global, ? magical, . member, : private member
-#endif
+    --  ^ placeholder, * global, ? magical, . member, : private member
     caret   <- option "" $ choice $ map string $ words " ^ * ? . : "
     names   <- many1 wordAny `sepBy1` (try $ string "::")
     return $ (sigil:caret) ++ concat (intersperse "::" names)
@@ -1080,7 +1078,6 @@ qInterpolatorPostTerm = try $ do
         ]
 
 qInterpolator :: QFlags -> RuleParser Exp
-#ifndef HADDOCK
 qInterpolator flags = choice [
         closure,
         backslash,
@@ -1117,16 +1114,15 @@ qInterpolator flags = choice [
             return $ combine (reverse fs) (makeVar var)
         notProtected var flags =
             if second == qfProtectedChar flags
-                then False -- $ followed by delimiter is protected
+                then False --  $ followed by delimiter is protected
                 else if qfP5RegularExpression flags &&
                         second `elem` ")]# \t"
                 {- XXX this doesn't support Unicode whitespace. I'm not
                    sure this is a problem, because it's primarily meant
                    for legacy Perl 5 code -}
-                    then False -- $ followed by )]# or whitespace
-                    else True -- $ followed by anything else is interpolated
+                    then False --  $ followed by )]# or whitespace
+                    else True --  $ followed by anything else is interpolated
             where second = head $ tail var
-#endif
 
 qLiteral = do -- This should include q:anything// as well as '' "" <>
     (qEnd, flags) <- getQDelim

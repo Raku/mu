@@ -15,6 +15,7 @@ import Pugs.Run
 import Pugs.Prim
 
 genGHC :: Eval Val
+-- Haddock doesn't like Template Haskell.
 #ifndef HADDOCK
 genGHC = do
     exp <- asks envBody
@@ -33,6 +34,7 @@ genGHC = do
         ]
 #endif
 
+-- Haddock doesn't like Template Haskell.
 #ifndef HADDOCK
 compile (Stmts stmt rest) = [| do
         $(argC)
