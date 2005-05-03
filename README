@@ -66,6 +66,8 @@ To install Pugs on your system, simply type this in the command line:
     make test
     make install
 
+There is a problem on x86_64 (64 bit Athlon) machines.  See below.
+
 Optionally you may use GHC environment variable to assign the ghc
 executable path before you run "perl Makefile.PL", for example:
 
@@ -102,3 +104,19 @@ For Perl 6 related information, please see:
 
 Enjoy,
 /Autrijus/
+
+
+
+x86_64 ONLY -- There is a problem on x86_64 (64 bit Athlon) machines.
+GHC 6.4.0 has a garbage collector bug.  Until GHC 6.4.1 is released,
+users on x86_64 may see crashes complaining of "strange object"s.
+A partial workaround is to avoid gc by requesting a large heap.
+Use either command line arguments
+    ./pugs +RTS -A200M -RTS
+or an environment variable
+    GHCRTS='-A200M'
+These request a 200 MB heap, which is sufficient to run most tests.  Eg,
+    GHCRTS='-A200M' make test
+Running all tests unfortunately requires a lot more memory (perhaps 1000M).
+A possible alternative, which someone could explore and report on, would
+be to try using a 32big ghc.
