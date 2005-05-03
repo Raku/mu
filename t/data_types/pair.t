@@ -9,7 +9,7 @@ Pair test
 
 =cut
 
-plan 45;
+plan 55;
 
 # basic Pair
 
@@ -93,34 +93,37 @@ my $val;
 ("foo" => $val) = "baz";
 is($val, "baz", "lvalue lists");
 
-# XXX illustrates a question:  accessing pairs in loops and
-# subroutines.  
-# The pairs method behaves differently depending
-# on whether it is used in a list context, or in a scalar 
-# context see 
-# S09.pod
+# illustrate a bug
+
+my $var   = 'foo' => 'bar';
+sub test1 (Any $pair) {
+	isa_ok($pair,'Pair') ; 
+	my $testpair = $pair;
+	isa_ok($testpair,'Pair'); # new lvalue variable is also a Pair
+	my $boundpair := $pair;
+	isa_ok($boundpair,'Pair'); # bound variable is also a Pair
+	is($pair.key, 'foo', 'in sub test1 got the right $pair.key');
+	is($pair.value, 'bar', 'in sub test1 got the right $pair.value');
+
+}
+test1 $var;
 
 my %hash  = ('foo' => 'bar');
-my $var   = 'foo' => 'bar';
 for  %hash.pairs -> $pair {
 	isa_ok($pair,'Pair') ; 
+	my $testpair = $pair;
+	isa_ok($testpair,'Pair'); # new lvalue variable is also a Pair
+	my $boundpair := $pair;
+	isa_ok($boundpair,'Pair'); # bound variable is also a Pair
 	is($pair.key, 'foo', 'in for loop got the right $pair.key');
 	is($pair.value, 'bar', 'in for loop got the right $pair.value');
 }
 
-
-sub test1 (Any $pair) {
-	isa_ok($pair,'Pair') ; 
-	is($pair.key, 'foo', 'in sub got the right $pair.key');
-	is($pair.value, 'bar', 'in sub got the right $pair.value');
-}
-test1 $var;
-
 sub test2 (Hash %h){
 	for %h.pairs -> $pair {
 		isa_ok($pair,'Pair') ; 
-		is($pair.key, 'foo', 'in for loop in sub got the right $pair.key');
-		is($pair.value, 'bar', 'in for loop in sub got the right $pair.value');
+		is($pair.key, 'foo', 'in sub test2 got the right $pair.key');
+		is($pair.value, 'bar', 'in sub test2 got the right $pair.value');
 	}
 }
 test2 %hash;
@@ -128,8 +131,8 @@ test2 %hash;
 sub test3 (Hash %h){
 	for %h.pairs -> $pair {
 		isa_ok($pair,'Pair') ; 
-		is($pair[0], 'foo', 'access by $pair[0] got the right $pair.key');
-		is($pair[1], 'bar', ' access by $pair[1] got the right $pair.value');
+		is($pair[0], 'foo', 'sub test3: access by $pair[0] got the right $pair.key');
+		is($pair[1], 'bar', 'sub test3: access by $pair[1] got the right $pair.value');
 	}
 }
 test3 %hash;
@@ -137,9 +140,11 @@ test3 %hash;
 sub test4 (Hash %h){
 	for %h.pair -> $pair {
 		isa_ok($pair,'Pair') ; 
-		is($pair.key, 'foo', 'access by unspecced "pair" got the right $pair.key');
-		is($pair.value, 'bar', 'access by unspecced "pair" got the right $pair.value');
+		is($pair.key, 'foo', 'sub test4: access by unspecced "pair" got the right $pair.key');
+		is($pair.value, 'bar', 'sub test4: access by unspecced "pair" got the right $pair.value');
+
 	}
 }
 test4 %hash;
+
 
