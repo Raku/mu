@@ -426,7 +426,7 @@ data Val
     | VNum      !VNum
     | VComplex  !VComplex
     | VStr      !VStr
-    | VList     VList -- Lists are lazy.
+    | VList     VList -- ^ Lists are lazy, so no '!'.
     | VRef      !VRef
     | VCode     !VCode
     | VBlock    !VBlock
@@ -442,6 +442,8 @@ data Val
     | VOpaque   !VOpaque
     deriving (Show, Eq, Ord, Typeable)
 
+-- |Find the 'Type' of the value contained by a 'Val'. See "Pugs.Types" for 
+-- info on types.
 valType :: Val -> Type
 valType VUndef          = mkType "Scalar"
 valType (VRef v)        = refType v
@@ -476,10 +478,16 @@ data VControl
 -- Note that @VJunc@ is also a pun for a 'Val' constructor /containing/ a
 -- 'VJunc'.
 data VJunc = Junc { juncType :: !JuncType -- ^ 'JAny', 'JAll', 'JNone' or 'JOne'
-                  , juncDup  :: !(Set Val) -- ^ Only used for @one()@ junctions
-                                           -- (right?)
-                  , juncSet  :: !(Set Val) -- ^ Set of values that make up the
-                                           -- junction
+                  , juncDup  :: !(Set Val)
+                  -- ^ Only used for @one()@ junctions. Contains those values
+                  -- that appear more than once (the actual count is
+                  -- irrelevant), since matching any of these would
+                  -- automatically violate the 'match /only/ one value'
+                  -- junctive semantics.
+                  , juncSet  :: !(Set Val) 
+                  -- ^ Set of values that make up the junction. In @one()@
+                  -- junctions, contains the set of values that appear exactly
+                  -- /once/.
                   } deriving (Eq, Ord)
 
 data JuncType = JAny | JAll | JNone | JOne

@@ -27,7 +27,15 @@ import Pugs.Monads
 import Pugs.Pretty
 import Pugs.Types
 
-emptyEnv :: (MonadIO m, MonadSTM m) => String -> [STM (Pad -> Pad)] -> m Env
+-- |Construct a new, initially empty 'Env' (evaluation environment).
+-- Used in 'Main.doParse', 'Main.doParseWith' and 'Pugs.Run.prepareEnv'.
+-- Of these, only 'Pugs.Run.prepareEnv' seems to make use of the second
+-- argument.
+emptyEnv :: (MonadIO m, MonadSTM m) 
+         => String             -- ^ Name associated with the environment
+         -> [STM (Pad -> Pad)] -- ^ List of 'Pad'-mutating transactions used
+                               -- to declare an initial set of global vars
+         -> m Env
 emptyEnv name genPad = do
     uniq <- liftIO newUnique
     liftSTM $ do
@@ -187,7 +195,7 @@ getMagical "$?MODULE"   = constSym "main"
 getMagical "$?OS"       = constSym $ getConfig "osname"
 getMagical _            = return Nothing
 
--- |Reduce an expression into its value.
+-- |Reduce an expression into its value. This is the workhorse of "Eval".
 reduce :: Exp -- ^ The expression to reduce
        -> Eval Val
 
@@ -778,6 +786,7 @@ applyExp bound body = do
     argNameValue (ApplyArg name val _) = genSym name (vCast val)
 
 -- |Apply a sub (or other code) to lists of invocants and arguments.
+-- Mostly delegates to 'doApply' after explicitly retrieving the local 'Env'.
 apply :: VCode -- ^ The sub to apply
       -> [Exp] -- ^ List of invocants
       -> [Exp] -- ^ List of arguments (non-invocant)
@@ -788,7 +797,13 @@ apply sub invs args = do
 
 -- XXX - faking application of lexical contexts
 -- XXX - what about defaulting that depends on a junction?
-doApply :: Env -> VCode -> [Exp] -> [Exp] -> Eval Val
+-- |Apply a sub (or other code) to lists of invocants
+-- and arguments, in the specified context.
+doApply :: Env   -- ^ Environment to evaluate in
+        -> VCode -- ^ Code to apply
+        -> [Exp] -- ^ Invocants (arguments before the colon)
+        -> [Exp] -- ^ Arguments (not including invocants)
+        -> Eval Val
 doApply env sub@MkCode{ subBody = fun, subType = typ } invs args =
     case bindParams sub invs args of
         Left errMsg -> fail errMsg
