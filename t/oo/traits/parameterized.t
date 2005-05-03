@@ -20,14 +20,14 @@ eval_ok 'role cool {
     $.cool = $val;
     $container does cool($val);
   }
-', "role definition works", :todo;
+', "role definition works", :todo<feature>;
 
 my $a = 42;
 is           $a, 42, "basic sanity (1)";
-eval_ok '$a does cool(23)',   "imperative does worked (1)", :todo;
-eval_is '$a.cool',      23,   "attribute was set correctly (1)", :todo;
+eval_ok '$a does cool(23)',   "imperative does worked (1)", :todo<feature>;
+eval_is '$a.cool',      23,   "attribute was set correctly (1)", :todo<feature>;
 
 my $b = 23;
 is           $b, 23, "basic sanity (2)";
-eval_ok '$b does cool("hi")', "imperative does worked (2)", :todo;
-eval_is '$b.cool',      "hi", "attribute was set correctly (2)", :todo;
+eval_ok '$b does cool("hi")', "imperative does worked (2)", :todo<feature>;
+eval_is '$b.cool',      "hi", "attribute was set correctly (2)", :todo<feature>;

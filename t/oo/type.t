@@ -17,21 +17,21 @@ plan 7;
 # Basic subroutine/method form tests for C<type>.
 {
   my $a = 3;
-  eval_ok 'type $a =:= Int', "subroutine form of type", :todo;
-  eval_ok '$a.type =:= Int', "method form of type", :todo;
+  eval_ok 'type $a =:= Int', "subroutine form of type", :todo<feature>;
+  eval_ok '$a.type =:= Int', "method form of type", :todo<feature>;
 }
 
 # Now testing basic correct inheritance.
 {
   my $a = 3;
-  eval_ok '$a.type ~~ Num',    "an Int isa Num", :todo;
-  eval_ok '$a.type ~~ Object', "an Int isa Object", :todo;
+  eval_ok '$a.type ~~ Num',    "an Int isa Num", :todo<feature>;
+  eval_ok '$a.type ~~ Object', "an Int isa Object", :todo<feature>;
 }
 
 # And a quick test for Code:
 {
   my $a = sub ($x) { 100 + $x };
-  eval_ok '$a.type =:= Sub',    "a sub's type is Sub", :todo;
-  eval_ok '$a.type ~~ Routine', "a sub isa Routine", :todo;
-  eval_ok '$a.type ~~ Code',    "a sub isa Code", :todo;
+  eval_ok '$a.type =:= Sub',    "a sub's type is Sub", :todo<feature>;
+  eval_ok '$a.type ~~ Routine', "a sub isa Routine", :todo<feature>;
+  eval_ok '$a.type ~~ Code',    "a sub isa Code", :todo<feature>;
 }

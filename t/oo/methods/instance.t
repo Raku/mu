@@ -18,12 +18,12 @@ eval 'class Foo {
 }';
 
 my $foo = eval 'Foo.new()';
-eval_is '$foo.doit(1,2,3)', 6, "dot method invocation", :todo;
-eval_is 'doit $foo: 1,2,3', 6, "indirect method invocation", :todo;
+eval_is '$foo.doit(1,2,3)', 6, "dot method invocation", :todo<feature>;
+eval_is 'doit $foo: 1,2,3', 6, "indirect method invocation", :todo<feature>;
 
-eval_is '$foo.noargs',   42,     "parentheses after method (1)", :todo;
-eval_is '$foo.noargs()', 42,     "parentheses after method (2)", :todo;
+eval_is '$foo.noargs',   42,     "parentheses after method (1)", :todo<feature>;
+eval_is '$foo.noargs()', 42,     "parentheses after method (2)", :todo<feature>;
 # ok instead of todo_ok to suppress "unexpected succeeded"-messages
 ok           !eval('$foo.noargs ()'), "parentheses after method (3)";
-eval_is '$foo.noargs.()', 42,    "parentheses after method (4)", :todo;
-eval_is '$foo.noargs .()', 42,   "parentheses after method (5)", :todo;
+eval_is '$foo.noargs.()', 42,    "parentheses after method (4)", :todo<feature>;
+eval_is '$foo.noargs .()', 42,   "parentheses after method (5)", :todo<feature>;
