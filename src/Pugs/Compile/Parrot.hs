@@ -176,6 +176,8 @@ instance Compile Exp where
             , text "goto" <+> start
             , label last
             ]
+    compile (Syn "module" [Val (VStr ns)]) = do
+        return $ text ".namespace ['_Pugs::" <> text ns <> text "']"
     compile (App "&return" [] [val]) = do
         (valC, p) <- compileArg val
         return $ valC $+$ text ".return" <+> parens p
