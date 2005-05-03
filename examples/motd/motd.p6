@@ -12,15 +12,15 @@ require MOTD;
 
 # XXX unimplemented: should be able to say 
 # my @list = =$fh is chomped;
-my $subject   = shift @ARGS || 'Pugs';
-my $surveyed  = shift @ARGS || 20;
-my $dict      = shift @ARGS || canonpath("$progdir/pugspraise");
+my $subject   = @ARGS[0] // 'Pugs';
+my $surveyed  = @ARGS[1] // 20;
+my $dict      = @ARGS[2] // canonpath("$progdir/pugspraise");
 my $fh        = open "<$dict" or die $!;
-my @list      ;
+my @list  ;
 
 # XXX should be able to chomp $_, but can't yet
 # check back
-for =$fh->$line is rw{
+for =$fh ->$line{
   # XXX $line should be declarable as 'is rw'
 	# not yet implemented
 	my $a = $line; #so, we need to make a rw copy 

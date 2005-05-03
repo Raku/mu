@@ -48,11 +48,10 @@ sub addtolist ($x){
 	" $x,";	
 }
 
-sub append_last ($x,$string,$pass){
-    my $rwstring = $string; 
+sub append_last ($x,$string is rw,$pass){
 	if $pass > 2 {
-		chop $rwstring;
-		"$rwstring and " ~  
+		chop $string;
+		"$string and " ~  
 		pick any (
 			"$x",
 			"is $x",
@@ -63,20 +62,20 @@ sub append_last ($x,$string,$pass){
 			"$x, to boot"
 			); 
 	}elsif $pass > 1 {
-		chop $rwstring;
-		"$rwstring and " ~
+		chop $string;
+		"$string and " ~
 		pick any (
 			"$x",
 			"is $x",
 		); 
 	}else{
-	  "$rwstring $x";
+	  "$string $x";
 	}
 }
 
 sub matchval ($x,%x,Int ?$cap) returns Array {
 	my @matches;
-	for (%x.pairs)->$pair{
+	for (%x.pair)->$pair{
 		if $pair.value eq $x { push @matches,$pair.key }  
 		if $cap && +@matches == $cap { return @matches }
 	}

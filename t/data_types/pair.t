@@ -16,7 +16,7 @@ plan 45;
 my $pair = 'foo' => 'bar';
 isa_ok($pair, 'Pair');
 
-# get key and value from the pair as many was as possible
+# get key and value from the pair as many ways as possible
 
 is(key($pair), 'foo', 'got the right key($pair)');
 is(value($pair), 'bar', 'got the right value($pair)');
@@ -93,33 +93,53 @@ my $val;
 ("foo" => $val) = "baz";
 is($val, "baz", "lvalue lists");
 
-# XXX illustrate a bug accessing pairs in subroutines
+# XXX illustrates a question:  accessing pairs in loops and
+# subroutines.  
+# The pairs method behaves differently depending
+# on whether it is used in a list context, or in a scalar 
+# context see 
+# S09.pod
+
 my %hash  = ('foo' => 'bar');
-for %hash.pairs -> $pair {
+my $var   = 'foo' => 'bar';
+for  %hash.pairs -> $pair {
 	isa_ok($pair,'Pair') ; 
-	# get key and value from the pair as many was as possible
 	is($pair.key, 'foo', 'in for loop got the right $pair.key');
 	is($pair.value, 'bar', 'in for loop got the right $pair.value');
 }
 
-# Pairs in subroutines
 
-my $var = 'foo' => 'bar';
 sub test1 (Any $pair) {
 	isa_ok($pair,'Pair') ; 
-	# get key and value from the h as many was as possible
 	is($pair.key, 'foo', 'in sub got the right $pair.key');
 	is($pair.value, 'bar', 'in sub got the right $pair.value');
 }
 test1 $var;
 
-my %hash = ('foo' => 'bar');
 sub test2 (Hash %h){
 	for %h.pairs -> $pair {
 		isa_ok($pair,'Pair') ; 
-		# get key and value from the pair as many was as possible
 		is($pair.key, 'foo', 'in for loop in sub got the right $pair.key');
 		is($pair.value, 'bar', 'in for loop in sub got the right $pair.value');
 	}
 }
 test2 %hash;
+
+sub test3 (Hash %h){
+	for %h.pairs -> $pair {
+		isa_ok($pair,'Pair') ; 
+		is($pair[0], 'foo', 'access by $pair[0] got the right $pair.key');
+		is($pair[1], 'bar', ' access by $pair[1] got the right $pair.value');
+	}
+}
+test3 %hash;
+
+sub test4 (Hash %h){
+	for %h.pair -> $pair {
+		isa_ok($pair,'Pair') ; 
+		is($pair.key, 'foo', 'access by unspecced "pair" got the right $pair.key');
+		is($pair.value, 'bar', 'access by unspecced "pair" got the right $pair.value');
+	}
+}
+test4 %hash;
+

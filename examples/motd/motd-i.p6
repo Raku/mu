@@ -9,8 +9,8 @@ my $progdir      = @path_parts[1];
 unshift @*INC, $progdir;
 require MOTD; 
 
-my $subject   = shift @ARGS || 'Pugs is';
-my $surveyed  = shift @ARGS || 20;
+my $subject   = @ARGS[0] // 'Pugs is';
+my $surveyed  = @ARGS[1] // 20;
 my %tally     ;
 
 # XXX unimplemented: should be able to say 
