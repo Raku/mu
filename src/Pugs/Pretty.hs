@@ -76,11 +76,13 @@ instance Pretty VRef where
     format x = braces $ text $ "ref:" ++ show x
 
 instance Pretty Val where
-    format (VJunc (Junc j dups vals)) = parens $ joinList mark items 
+    format (VJunc j) = parens $ joinList mark items 
         where
+        dups = juncDup j
+        vals = juncSet j
         items = map format $ values
         values = Set.elems vals ++ (concatMap (replicate 2)) (Set.elems dups)
-        mark  = case j of
+        mark  = case juncType j of
             JAny  -> text " | "
             JAll  -> text " & "
             JOne  -> text " ^ "

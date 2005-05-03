@@ -29,7 +29,7 @@ opJuncAny = opJunc JAny
 -- |Construct a @one(...)@ junction from a list of values.
 -- Handled differently!
 opJuncOne :: [Val] -> Val
-opJuncOne args = VJunc (Junc JOne dups vals)
+opJuncOne args = VJunc (MkJunc JOne dups vals)
     where
     vals = Set.fromList [ v | [v] <- groups ]
     dups = Set.fromList [ v | (v:_:_) <- groups ]
@@ -38,11 +38,11 @@ opJuncOne args = VJunc (Junc JOne dups vals)
 -- |Construct a junction of the specified junctive type, containing all the
 -- values in the list.
 opJunc :: JuncType -> [Val] -> Val
-opJunc t vals = VJunc $ Junc t Set.empty (joined `Set.union` Set.fromList vs)
+opJunc t vals = VJunc $ MkJunc t Set.empty (joined `Set.union` Set.fromList vs)
     where
     joined = Set.unions $ map (\(VJunc s) -> juncSet s) js
     (js, vs) = partition sameType vals
-    sameType (VJunc (Junc t' _ _))  = t == t'
+    sameType (VJunc (MkJunc t' _ _))  = t == t'
     sameType _                      = False
 
 -- |Check if the specified value is a 'VJunc' of one of the specified
@@ -59,8 +59,8 @@ juncTypeIs v ts
 
 mergeJunc j ds vs
     = case j of
-       JAny -> Junc j (Set.fromList ds) (Set.fromList vs)
-       JOne -> Junc j dups vals
+       JAny -> MkJunc j (Set.fromList ds) (Set.fromList vs)
+       JOne -> MkJunc j dups vals
        x    -> internalError $ "mergeJunc pattern failure: " ++ (show x)
     where
     vals = Set.fromList [ v | [v] <- group $ sort vs ]
@@ -69,12 +69,12 @@ mergeJunc j ds vs
 juncApply :: ([ApplyArg] -> Eval Val) -> [ApplyArg] -> Eval Val
 juncApply f args
     | this@(_, (pivot:_)) <- break isTotalJunc args
-    , VJunc (Junc j dups vals) <- argValue pivot
+    , VJunc (MkJunc j dups vals) <- argValue pivot
     = do
         vals' <- appSet this vals
-        return $ VJunc (Junc j dups vals')
+        return $ VJunc (MkJunc j dups vals')
     | this@(_, (pivot:_)) <- break isPartialJunc args
-    , VJunc (Junc j dups vals) <- argValue pivot
+    , VJunc (MkJunc j dups vals) <- argValue pivot
     = do
         dups' <- appList this dups
         vals' <- appList this vals

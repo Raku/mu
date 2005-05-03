@@ -224,10 +224,10 @@ instance Value VBool where
     doCast _           = True
 
 juncToBool :: VJunc -> Bool
-juncToBool (Junc JAny  _  vs) = True `Set.member` Set.map vCast vs
-juncToBool (Junc JAll  _  vs) = not (False `Set.member` Set.map vCast vs)
-juncToBool (Junc JNone _  vs) = not (True `Set.member` Set.map vCast vs)
-juncToBool (Junc JOne  ds vs)
+juncToBool (MkJunc JAny  _  vs) = True `Set.member` Set.map vCast vs
+juncToBool (MkJunc JAll  _  vs) = not (False `Set.member` Set.map vCast vs)
+juncToBool (MkJunc JNone _  vs) = not (True `Set.member` Set.map vCast vs)
+juncToBool (MkJunc JOne  ds vs)
     | True `Set.member` Set.map vCast ds
     = False
     | otherwise
@@ -477,18 +477,19 @@ data VControl
 -- |Represents a junction value.
 -- Note that @VJunc@ is also a pun for a 'Val' constructor /containing/ a
 -- 'VJunc'.
-data VJunc = Junc { juncType :: !JuncType -- ^ 'JAny', 'JAll', 'JNone' or 'JOne'
-                  , juncDup  :: !(Set Val)
-                  -- ^ Only used for @one()@ junctions. Contains those values
-                  -- that appear more than once (the actual count is
-                  -- irrelevant), since matching any of these would
-                  -- automatically violate the 'match /only/ one value'
-                  -- junctive semantics.
-                  , juncSet  :: !(Set Val) 
-                  -- ^ Set of values that make up the junction. In @one()@
-                  -- junctions, contains the set of values that appear exactly
-                  -- /once/.
-                  } deriving (Eq, Ord)
+data VJunc = MkJunc
+    { juncType :: !JuncType -- ^ 'JAny', 'JAll', 'JNone' or 'JOne'
+    , juncDup  :: !(Set Val)
+    -- ^ Only used for @one()@ junctions. Contains those values
+    -- that appear more than once (the actual count is
+    -- irrelevant), since matching any of these would
+    -- automatically violate the 'match /only/ one value'
+    -- junctive semantics.
+    , juncSet  :: !(Set Val) 
+    -- ^ Set of values that make up the junction. In @one()@
+    -- junctions, contains the set of values that appear exactly
+    -- /once/.
+    } deriving (Eq, Ord)
 
 data JuncType = JAny | JAll | JNone | JOne
     deriving (Eq, Ord)
@@ -500,7 +501,7 @@ instance Show JuncType where
     show JOne  = "one"
 
 instance Show VJunc where
-    show (Junc jtype _ set) =
+    show (MkJunc jtype _ set) =
        	(show jtype) ++ "(" ++
 	    (foldl (\x y ->
 		if x == "" then (vCast :: Val -> VStr) y
