@@ -2,6 +2,7 @@
 use strict;
 use warnings;
 use Config;
+use Cwd qw(abs_path);
 use File::Spec;
 use lib 'lib';
 use inc::Module::Install;
@@ -85,7 +86,6 @@ sub set_postamble {
 
 .
     }
-        
 
     my $ghc_output = "-o pugs$Config{_exe} src/Main.hs";
     my $hasktags = $ENV{HASKTAGS} || 'hasktags';
@@ -101,6 +101,18 @@ sub set_postamble {
 
     my @prereqs = ($config_h, $pcre, @syck, @pge, $unicode);
     $ghc_output .= " $pcre @syck @pge $unicode";
+
+    my $embed_flags;
+    if ($ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bparrot\b/i) {
+        my $base = $ENV{PARROT_PATH};
+        if (!$base and -d "../parrot") {
+            $base = abs_path('../parrot/');
+        }
+        (-d $base and -e "$base/parrot-config.imc")
+            or die "*** Please set \$ENV{PARROT_PATH} to the base path with a built parrot tree.\n";
+        $embed_flags .= " -I$base/include -L$base/blib/lib -DPUGS_HAVE_PARROT=1 -L/usr/local/lib";
+        $ghc_output .= " -lparrot -licuuc -licudata "
+    }
 
     my $config = get_pugs_config();
     my $is_win32 = ($^O =~ /MSWin|mingw|cygwin/i);
@@ -158,21 +170,21 @@ pugs.prof :: profiled
 optimised :: optimized
 
 optimized :: src/Pugs/Config.hs @srcfiles $version_h @prereqs
-	$ghc $threaded -O --make $ghc_flags $ghc_output
+	$ghc $threaded -O --make $ghc_flags $embed_flags $ghc_output
 
 unoptimised :: optimized
 
 unoptimized :: src/Pugs/Config.hs @srcfiles $version_h @prereqs
-	$ghc $threaded -O0 --make $ghc_flags $ghc_output
+	$ghc $threaded -O0 --make $ghc_flags $embed_flags $ghc_output
 
 $pugs : src/Pugs/Config.hs @srcfiles $version_h @prereqs
-	$ghc $threaded -O --make $ghc_flags $ghc_output
+	$ghc $threaded -O --make $ghc_flags $embed_flags $ghc_output
 
 smoke : $pugs util/run-smoke.pl
 	\$(PERL) util/run-smoke.pl . smoke.html
 
 ghci ::
-	$ghc --interactive $ghc_flags $ghc_output
+	$ghc --interactive $ghc_flags $embed_flags $ghc_output
 
 tags : @srcfiles
 	$hasktags -c @srcfiles

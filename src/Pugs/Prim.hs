@@ -181,6 +181,10 @@ op1 "require_haskell" = \v -> do
     name    <- fromVal v
     externRequire "Haskell" name
     return $ VBool True
+op1 "require_parrot" = \v -> do
+    name    <- fromVal v
+    liftIO $ evalParrot name
+    return $ VBool True
 op1 "require" = \v -> do
     file    <- fromVal v
     incs    <- fromVal =<< readVar "@*INC"
@@ -1448,6 +1452,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Any       pre     eval_yaml    (Str)\
 \\n   Any       pre     require (?Str=$_)\
 \\n   Any       pre     require_haskell (Str)\
+\\n   Any       pre     require_parrot  (Str)\
 \\n   Any       pre     last    (?Int=1)\
 \\n   Any       pre     next    (?Int=1)\
 \\n   Any       pre     redo    (?Int=1)\
