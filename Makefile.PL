@@ -102,7 +102,7 @@ sub set_postamble {
     my @prereqs = ($config_h, $pcre, @syck, @pge, $unicode);
     $ghc_output .= " $pcre @syck @pge $unicode";
 
-    my $embed_flags;
+    my $embed_flags = "";
     if ($ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bparrot\b/i) {
         my $base = $ENV{PARROT_PATH};
         if (!$base and -d "../parrot") {
