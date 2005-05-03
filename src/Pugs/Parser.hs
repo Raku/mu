@@ -40,16 +40,19 @@ ruleVerbatimBlock = verbatimRule "block" $ do
     body <- between (symbol "{") (char '}') ruleBlockBody
     retSyn "block" [body]
 
+ruleEmptyExp :: RuleParser Exp
 ruleEmptyExp = expRule $ do
     symbol ";"
     return emptyExp
 
+expRule :: RuleParser Exp -> RuleParser Exp
 expRule rule = do
     pos1 <- getPosition
     exp  <- rule
     pos2 <- getPosition
     return $ Pos (mkPos pos1 pos2) (unwrap exp)
 
+mkPos :: SourcePos -> SourcePos -> Pos
 mkPos pos1 pos2 = MkPos
     { posName         = sourceName pos1 
     , posBeginLine    = sourceLine pos1
@@ -58,6 +61,7 @@ mkPos pos1 pos2 = MkPos
     , posEndColumn    = sourceColumn pos2
     }
 
+ruleBlockBody :: RuleParser Exp
 ruleBlockBody = do
     whiteSpace
     -- pos     <- getPosition
@@ -72,6 +76,7 @@ ruleBlockBody = do
         (Syn "sub" _)   -> mergeStmts emptyExp body'
         _               -> body'
 
+ruleStandaloneBlock :: RuleParser Exp
 ruleStandaloneBlock = tryRule "standalone block" $ do
     body <- bracesAlone ruleBlockBody
     retBlock SubBlock Nothing body
@@ -81,6 +86,7 @@ ruleStandaloneBlock = tryRule "standalone block" $ do
         char '}'
         ruleWhiteSpaceLine
 
+ruleStatement :: RuleParser Exp
 ruleStatement = do
     exp <- ruleExpression
     f <- option return $ choice
@@ -114,6 +120,7 @@ ruleStatementList = rule "statements" $ choice
 
 -- Stmt is essentially a cons cell
 -- Stmt (Stmt ...) is illegal
+mergeStmts :: Exp -> Exp -> Exp
 mergeStmts (Stmts x1 x2) y = mergeStmts x1 (mergeStmts x2 y)
 mergeStmts Noop y@(Stmts _ _) = y
 mergeStmts (Sym scope name x) y = Sym scope name (mergeStmts x y)
@@ -132,21 +139,25 @@ mergeStmts x (Stmts y Noop) = mergeStmts x y
 mergeStmts x (Stmts Noop y) = mergeStmts x y
 mergeStmts x y = Stmts x y
 
+ruleBeginOfLine :: RuleParser ()
 ruleBeginOfLine = do
     pos <- getPosition
     unless (sourceColumn pos == 1) $ fail ""
     return ()
 
+ruleDocIntroducer :: RuleParser Char
 ruleDocIntroducer = (<?> "intro") $ do
     ruleBeginOfLine
     char '='
 
+ruleDocCut :: RuleParser ()
 ruleDocCut = (<?> "cut") $ do
     ruleDocIntroducer
     string "cut"
     ruleWhiteSpaceLine
     return ()
 
+ruleDocBlock :: RuleParser Exp
 ruleDocBlock = verbatimRule "Doc block" $ do
     isEnd <- try $ do
         ruleDocIntroducer
@@ -169,6 +180,7 @@ ruleDocBlock = verbatimRule "Doc block" $ do
             whiteSpace
             option emptyExp ruleStatementList
 
+ruleDocBody :: RuleParser ()
 ruleDocBody = (try ruleDocCut) <|> eof <|> do
     many $ satisfy  (/= '\n')
     many1 newline -- XXX - paragraph mode
@@ -203,22 +215,27 @@ ruleSubHead = rule "subroutine head" $ do
     name    <- ruleSubName
     return (multi, name)
 
+-- | Scope, context, multi, name
+ruleSubScopedWithContext :: RuleParser (Scope, String, Bool, String)
 ruleSubScopedWithContext = rule "scoped subroutine with context" $ do
     scope   <- ruleScope
     cxt     <- identifier
     (multi, name) <- ruleSubHead
     return (scope, cxt, multi, name)
 
+ruleSubScoped :: RuleParser (Scope, String, Bool, String)
 ruleSubScoped = rule "scoped subroutine" $ do
     scope <- ruleScope
     (multi, name) <- ruleSubHead
     return (scope, "Any", multi, name)
 
+ruleSubGlobal :: RuleParser (Scope, String, Bool, String)
 ruleSubGlobal = rule "global subroutine" $ do
     (multi, name) <- ruleSubHead
     return (SGlobal, "Any", multi, name)
 
 
+doExtract :: Maybe [Param] -> Exp -> (Exp, [String], [Param])
 doExtract formal body = (fun, names', params)
     where
     (fun, names) = extract body []
@@ -228,6 +245,7 @@ doExtract formal body = (fun, names', params)
            = names
     params = map nameToParam (sort names')
         ++ (maybe (if null names' then [defaultArrayParam] else []) id formal)
+
 
 ruleSubDeclaration :: RuleParser Exp
 ruleSubDeclaration = rule "subroutine declaration" $ do
@@ -268,12 +286,14 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
             lexDiff <- unsafeEvalLexDiff (Sym scope name emptyExp)
             return $ Pad scope lexDiff exp
 
+subNameWithPrefix :: String -> RuleParser String
 subNameWithPrefix prefix = (<?> "subroutine name") $ lexeme $ try $ do
     star    <- option "" $ string "*"
     c       <- wordAlpha
     cs      <- many wordAny
     return $ "&" ++ star ++ prefix ++ (c:cs)
 
+ruleSubName :: RuleParser String
 ruleSubName = verbatimRule "subroutine name" $ do
     star    <- option "" $ string "*"
     fixity  <- option "" $ choice (map (try . string) $ words fixities)
@@ -291,6 +311,7 @@ ruleSubParameters wantParens = rule "subroutine parameters" $ do
     where
     setInv e = e { isInvocant = True }
 
+ruleParamList :: ParensOption -> RuleParser a -> RuleParser (Maybe [[a]])
 ruleParamList wantParens parse = rule "parameter list" $ do
     (formal, hasParens) <- f $
         ((parse `sepEndBy` symbol ",") `sepEndBy` symbol ":")
@@ -304,6 +325,7 @@ ruleParamList wantParens parse = rule "parameter list" $ do
         ParensOptional  -> maybeParensBool
         ParensMandatory -> \x -> do rv <- parens x; return (rv, True)
 
+ruleFormalParam :: RuleParser Param
 ruleFormalParam = rule "formal parameter" $ do
     cxt     <- option "" $ ruleContext
     sigil   <- option "" $ choice . map symbol $ words " ? * + ++ "
@@ -318,6 +340,7 @@ ruleFormalParam = rule "formal parameter" $ do
     appTrait "lazy" x = x { isLazy = True }
     appTrait _      x = x -- error "unknown trait"
 
+ruleParamDefault :: Bool -> RuleParser Exp
 ruleParamDefault True  = return $ Val VUndef
 ruleParamDefault False = rule "default value" $ option (Val VUndef) $ do
     symbol "="
@@ -357,6 +380,7 @@ ruleUseDeclaration = rule "use declaration" $ do
     symbol "use"
     tryChoice [ ruleUseVersion, ruleUsePackage ]
 
+ruleUseVersion :: RuleParser Exp
 ruleUseVersion = rule "use version" $ do
     option ' ' $ char 'v'
     version <- many1 (choice [ digit, char '.' ])
@@ -365,6 +389,7 @@ ruleUseVersion = rule "use version" $ do
         error $ "Perl v" ++ version ++ " required--this is only v" ++ versnum ++ ", stopped at " ++ (show pos)
     return emptyExp
 
+ruleUsePackage :: RuleParser Exp
 ruleUsePackage = rule "use package" $ do
     names <- identifier `sepBy1` (try $ string "::")
     _ <- option "" $ do -- version - XXX
@@ -373,6 +398,7 @@ ruleUsePackage = rule "use package" $ do
     unsafeEvalExp $ App "&require" [] [Val . VStr $ concat (intersperse "/" names) ++ ".pm"]
     return emptyExp
 
+ruleInlineDeclaration :: RuleParser Exp
 ruleInlineDeclaration = tryRule "inline declaration" $ do
     symbol "inline"
     args <- ruleExpression
@@ -381,6 +407,7 @@ ruleInlineDeclaration = tryRule "inline declaration" $ do
             return $ Syn "inline" $ map (Val . VStr . vCast) [key, val]
         _ -> fail "not yet parsed"
 
+ruleRequireDeclaration :: RuleParser Exp
 ruleRequireDeclaration = tryRule "require declaration" $ do
     symbol "require"
     names <- identifier `sepBy1` (try $ string "::")
@@ -389,6 +416,7 @@ ruleRequireDeclaration = tryRule "require declaration" $ do
         many1 (choice [ digit, char '.' ])
     return $ App "&require" [] [Val . VStr $ concat (intersperse "/" names) ++ ".pm"]
 
+ruleModuleDeclaration :: RuleParser Exp
 ruleModuleDeclaration = rule "module declaration" $ do
     symbol "module"
     n <- identifier `sepBy1` (try $ string "::") -- name - XXX
@@ -402,6 +430,7 @@ ruleModuleDeclaration = rule "module declaration" $ do
         return ('-':str)
     return $ Syn "module" [Val . VStr $ concat (intersperse "::" n) ++ v ++ a] -- XXX
 
+ruleClosureTrait :: Bool -> RuleParser Exp
 ruleClosureTrait rhs = rule "closure trait" $ do
     let names | rhs       = " BEGIN "
               | otherwise = " BEGIN END "
@@ -419,6 +448,7 @@ ruleClosureTrait rhs = rule "closure trait" $ do
             return $ if rhs then rv else emptyExp 
         _       -> fail ""
 
+unsafeEvalLexDiff :: Exp -> RuleParser Pad
 unsafeEvalLexDiff exp = do
     env  <- getState
     setState env{ envLexical = mkPad [] }
@@ -426,6 +456,8 @@ unsafeEvalLexDiff exp = do
     setState env'{ envLexical = envLexical env' `unionPads` envLexical env }
     return $ envLexical env'
 
+-- XXX: Should these fail instead of error?
+unsafeEvalEnv :: Exp -> RuleParser Env
 unsafeEvalEnv exp = do
     -- pos <- getPosition
     env <- getState
@@ -435,6 +467,7 @@ unsafeEvalEnv exp = do
             return env'{ envDebug = envDebug env }
         _  -> error $ pretty val
 
+unsafeEvalExp :: Exp -> RuleParser Exp
 unsafeEvalExp exp = do
     env <- getState
     setState env{ envStash = "" } -- cleans up function cache
@@ -446,10 +479,12 @@ unsafeEvalExp exp = do
         VError _ _  -> error $ pretty (val :: Val)
         _           -> return $ Val val
 
+rulePackageDeclaration :: RuleParser a
 rulePackageDeclaration = rule "package declaration" $ fail ""
 
 -- Constructs ------------------------------------------------
 
+ruleConstruct :: RuleParser Exp
 ruleConstruct = rule "construct" $ tryChoice
     [ ruleGatherConstruct
     , ruleForConstruct
@@ -463,15 +498,19 @@ ruleConstruct = rule "construct" $ tryChoice
     , ruleDefaultConstruct
     ]
 
+ruleKeywordConsturct :: String -> RuleParser Exp
 ruleKeywordConsturct keyword = rule (keyword ++ " construct") $ do
     symbol keyword
     block <- ruleBlock
     retSyn keyword [block]
 
+ruleGatherConstruct :: RuleParser Exp
 ruleGatherConstruct = ruleKeywordConsturct "gather"
 
+ruleTryConstruct :: RuleParser Exp
 ruleTryConstruct = ruleKeywordConsturct "try"
 
+ruleForConstruct :: RuleParser Exp
 ruleForConstruct = rule "for construct" $ do
     symbol "for"
     list  <- maybeParens ruleExpression
@@ -479,6 +518,7 @@ ruleForConstruct = rule "for construct" $ do
     block <- ruleBlockLiteral <|> parseLitOp
     retSyn "for" [list, block]
 
+ruleLoopConstruct :: RuleParser Exp
 ruleLoopConstruct = rule "loop construct" $ do
     symbol "loop"
     conds <- option [] $ maybeParens $ try $ do
@@ -492,16 +532,19 @@ ruleLoopConstruct = rule "loop construct" $ do
     -- XXX while/until
     retSyn "loop" (conds ++ [block])
 
+ruleCondConstruct :: RuleParser Exp
 ruleCondConstruct = rule "conditional construct" $ do
     csym <- choice [ symbol "if", symbol "unless" ]
     ruleCondBody $ csym
 
+ruleCondBody :: String -> RuleParser Exp
 ruleCondBody csym = rule "conditional expression" $ do
     cond <- maybeParens $ ruleExpression
     body <- ruleBlock
     bodyElse <- option emptyExp ruleElseConstruct
     retSyn csym [cond, body, bodyElse]
 
+ruleElseConstruct :: RuleParser Exp
 ruleElseConstruct = rule "else or elsif construct" $
     do
         symbol "else"
@@ -510,18 +553,21 @@ ruleElseConstruct = rule "else or elsif construct" $
         symbol "elsif"
         ruleCondBody "if"
 
+ruleWhileUntilConstruct :: RuleParser Exp
 ruleWhileUntilConstruct = rule "while/until construct" $ do
     sym <- choice [ symbol "while", symbol "until" ]
     cond <- maybeParens $ ruleExpression
     body <- ruleBlock
     retSyn sym [ cond, body ]
 
+ruleGivenConstruct :: RuleParser Exp
 ruleGivenConstruct = rule "given construct" $ do
     sym <- symbol "given"
     topic <- maybeParens $ ruleExpression
     body <- ruleBlock
     retSyn sym [ topic, body ]
 
+ruleWhenConstruct :: RuleParser Exp
 ruleWhenConstruct = rule "when construct" $ do
     sym <- symbol "when"
     match <- maybeParens $ ruleExpression
@@ -530,6 +576,7 @@ ruleWhenConstruct = rule "when construct" $ do
 
 -- XXX: make this translate into when true, when smartmatch
 -- against true works
+ruleDefaultConstruct :: RuleParser Exp
 ruleDefaultConstruct = rule "default construct" $ do
     sym <- symbol "default"
     body <- ruleBlock
@@ -537,18 +584,22 @@ ruleDefaultConstruct = rule "default construct" $ do
 
 -- Expressions ------------------------------------------------
 
+ruleExpression :: RuleParser Exp
 ruleExpression = (<?> "expression") $ parseOp
 
+rulePostConditional :: RuleParser (Exp -> RuleParser Exp)
 rulePostConditional = rule "postfix conditional" $ do
     cond <- tryChoice $ map symbol ["if", "unless"]
     exp <- ruleExpression
     return $ \body -> retSyn cond [exp, body, emptyExp]
 
+rulePostLoop :: RuleParser (Exp -> RuleParser Exp)
 rulePostLoop = rule "postfix loop" $ do
     cond <- tryChoice $ map symbol ["while", "until"]
     exp <- ruleExpression
     return $ \body -> retSyn cond [exp, body]
 
+rulePostIterate :: RuleParser (Exp -> RuleParser Exp)
 rulePostIterate = rule "postfix iteration" $ do
     cond <- tryChoice $ map symbol ["for"]
     exp <- ruleExpression
@@ -556,6 +607,7 @@ rulePostIterate = rule "postfix iteration" $ do
         block <- retBlock SubBlock Nothing body
         retSyn cond [exp, block]
 
+ruleBlockLiteral :: RuleParser Exp
 ruleBlockLiteral = rule "block construct" $ do
     (typ, formal) <- option (SubBlock, Nothing) $ choice
         [ ruleBlockFormalPointy
@@ -572,9 +624,11 @@ extractHash exp@(Syn "," (App "&pair" _ _:_)) = Just exp
 extractHash exp@(Syn "," (App "&infix:=>" _ _:_)) = Just exp
 extractHash _ = Nothing
 
+retBlock :: SubType -> Maybe [Param] -> Exp -> RuleParser Exp
 retBlock SubBlock Nothing exp | Just hashExp <- extractHash (unwrap exp) = return $ Syn "\\{}" [hashExp]
 retBlock typ formal body = retVerbatimBlock typ formal body
 
+retVerbatimBlock :: SubType -> Maybe [Param] -> Exp -> RuleParser Exp
 retVerbatimBlock typ formal body = expRule $ do
     let (fun, names, params) = doExtract formal body
     -- Check for placeholder vs formal parameters
@@ -594,11 +648,13 @@ retVerbatimBlock typ formal body = expRule $ do
             }
     return (Syn "sub" [Val $ VCode sub])
 
+ruleBlockFormalStandard :: RuleParser (SubType, Maybe [Param])
 ruleBlockFormalStandard = rule "standard block parameters" $ do
     symbol "sub"
     params <- option Nothing $ ruleSubParameters ParensMandatory
     return $ (SubRoutine, params)
 
+ruleBlockFormalPointy :: RuleParser (SubType, Maybe [Param])
 ruleBlockFormalPointy = rule "pointy block parameters" $ do
     symbol "->"
     params <- ruleSubParameters ParensOptional
@@ -624,6 +680,8 @@ ruleBlockFormalPointy = rule "pointy block parameters" $ do
 
 -- Not yet transcribed ------------------------------------------------
 
+
+tightOperators :: RuleParser [[Operator Char Env Exp]]
 tightOperators = do
   (optionary, unary) <- currentUnaryFunctions
   return $
@@ -658,6 +716,7 @@ tightOperators = do
                " +&= +|= +^= ~&= ~|= ~^= ?|= ?^= |= ^= &= "
     ]
 
+looseOperators :: RuleParser [[Operator Char Env Exp]]
 looseOperators = do
     names <- currentListFunctions
     return $
@@ -667,6 +726,7 @@ looseOperators = do
         , leftOps  " or xor err "                       -- Loose Or
         ]
 
+operators :: RuleParser (OperatorTable Char Env Exp)
 operators = do
     tight <- tightOperators
     loose <- looseOperators
@@ -677,11 +737,13 @@ operators = do
     --  , [ listSyn  " ; " ]                            -- Terminator
         ]
 
+litOperators :: RuleParser (OperatorTable Char Env Exp)
 litOperators = do
     tight <- tightOperators
     loose <- looseOperators
     return $ tight ++ loose
 
+currentFunctions :: RuleParser [(Ident, VStr, Params)]
 currentFunctions = do
     env     <- getState
     return . concat . unsafePerformSTM $ do
@@ -700,6 +762,7 @@ currentFunctions = do
                         (name', code_assoc code, code_params code)
                     _ -> Nothing
 
+currentUnaryFunctions :: RuleParser (String, String)
 currentUnaryFunctions = do
     env     <- getState
     case envStash env of
@@ -711,6 +774,7 @@ currentUnaryFunctions = do
             let [x, y] = lines lns
             return (x, y)
 
+currentUnaryFunctions' :: RuleParser (String, String)
 currentUnaryFunctions' = do
     funs    <- currentFunctions
     let (unary, rest) = (`partition` funs) $ \x -> case x of
@@ -731,13 +795,14 @@ currentUnaryFunctions' = do
     munge = unwords . map snd
     mapPair f (x, y) = (f x, f y)
 
+parseName :: String -> String
 parseName str
     | (_, (_:name)) <- break (== ':') str
     = name
     | otherwise
     = dropWhile (not . isAlpha) str
 
-
+currentListFunctions :: RuleParser [a]
 currentListFunctions = do
     return []
 {-
@@ -751,41 +816,65 @@ currentListFunctions = do
     -- " not <== any all one none perl eval "
 -}
 
+parseOp :: RuleParser Exp
 parseOp = expRule $ do
     ops <- operators
     buildExpressionParser ops parseTerm (Syn "" [])
 
+parseTightOp :: RuleParser Exp
 parseTightOp = expRule $ do
     ops <- tightOperators
     buildExpressionParser ops parseTerm (Syn "" [])
 
+parseLitOp :: RuleParser Exp
 parseLitOp = expRule $ do
     ops <- litOperators
     buildExpressionParser ops parseTerm (Syn "" [])
 
+ops :: (String -> a) -> String -> [a]
 ops f s = [f n | n <- sortBy revLength (words $ decodeUTF8 s)]
     where
     revLength x y = compare (length y) (length x)
 
+doApp :: String -> [Exp] -> Exp
 doApp str args = App str args []
 
+preSyn      :: String -> [Operator Char Env Exp]
 preSyn      = ops $ makeOp1 Prefix "" Syn
+preOps      :: String -> [Operator Char Env Exp]
 preOps      = ops $ makeOp1 Prefix "&prefix:" doApp
+postOps     :: String -> [Operator Char Env Exp]
 postOps     = ops $ makeOp1 Postfix "&postfix:" doApp
+optOps      :: String -> [Operator Char Env Exp]
 optOps      = ops $ makeOp1 OptionalPrefix "&prefix:" doApp
+leftOps     :: String -> [Operator Char Env Exp]
 leftOps     = ops $ makeOp2 AssocLeft "&infix:" doApp
+rightOps    :: String -> [Operator Char Env Exp]
 rightOps    = ops $ makeOp2 AssocRight "&infix:" doApp
+noneOps     :: String -> [Operator Char Env Exp]
 noneOps     = ops $ makeOp2 AssocNone "&infix:" doApp
+listOps     :: String -> [Operator Char Env Exp]
 listOps     = leftOps
+chainOps    :: String -> [Operator Char Env Exp]
 chainOps    = leftOps
+leftSyn     :: String -> [Operator Char Env Exp]
 leftSyn     = ops $ makeOp2 AssocLeft "" Syn
+rightSyn    :: String -> [Operator Char Env Exp]
 rightSyn    = ops $ makeOp2 AssocRight "" Syn
+noneSyn     :: String -> [Operator Char Env Exp]
 noneSyn     = ops $ makeOp2 AssocNone "" Syn
+listSyn     :: String -> [Operator Char Env Exp]
 listSyn     = ops $ makeOp0 AssocList "" Syn
+chainSyn    :: String -> [Operator Char Env Exp]
 chainSyn    = leftSyn
 
 -- chainOps    = ops $ makeOpChained
 
+makeOp1 :: (RuleParser (Exp -> a) -> b) -> 
+        String -> 
+        (String -> [Exp] -> a) -> 
+        String -> 
+        b
 makeOp1 prec sigil con name = prec $ try $ do
     symbol name
     -- `int(3)+4` should not be parsed as `int((3)+4)`
@@ -803,16 +892,27 @@ makeOp1 prec sigil con name = prec $ try $ do
         | otherwise
         = sigil ++ name
 
+makeOp2 :: Assoc -> 
+           String -> 
+           (String -> [a] -> a) -> 
+           String -> 
+           Operator Char Env a
 makeOp2 prec sigil con name = (`Infix` prec) $ do
     symbol name
     return $ \x y -> con (sigil ++ name) [x,y]
 
+makeOp0 :: Assoc -> 
+           String -> 
+           (String -> [a] -> a) -> 
+           String -> 
+           Operator Char Env a
 makeOp0 prec sigil con name = (`InfixList` prec) $ do
     many1 $ do
         string name
         whiteSpace
     return . con $ sigil ++ name
 
+parseTerm :: RuleParser Exp
 parseTerm = rule "term" $ do
     term <- choice
         [ ruleVar
@@ -824,6 +924,7 @@ parseTerm = rule "term" $ do
     fs <- many rulePostTerm
     return $ combine (reverse fs) term
 
+rulePostTerm :: RuleParser (Exp -> Exp)
 rulePostTerm = tryVerbatimRule "term postfix" $ do
     hasDot <- option False $ do whiteSpace; char '.'; return True
     choice $ (if hasDot then [ruleInvocation] else []) ++
@@ -832,6 +933,7 @@ rulePostTerm = tryVerbatimRule "term postfix" $ do
         , ruleCodeSubscript
         ]
 
+ruleInvocation :: RuleParser (Exp -> Exp)
 ruleInvocation = tryVerbatimRule "invocation" $ do
     hasEqual <- option False $ do char '='; whiteSpace; return True
     name            <- ruleSubName
@@ -840,6 +942,7 @@ ruleInvocation = tryVerbatimRule "invocation" $ do
         then Syn "=" [x, App name (x:invs) args]
         else App name (x:invs) args
 
+ruleInvocationParens :: RuleParser (Exp -> Exp)
 ruleInvocationParens = do
     hasEqual <- option False $ do char '='; whiteSpace; return True
     name            <- ruleSubName
@@ -850,29 +953,35 @@ ruleInvocationParens = do
         then Syn "=" [x, App name (x:invs) args]
         else App name (x:invs) args
 
+ruleArraySubscript :: RuleParser (Exp -> Exp)
 ruleArraySubscript = tryVerbatimRule "array subscript" $ do
     symbol "["
     p <- option id $ do exp <- ruleExpression; return $ \x -> Syn "[]" [x, exp]
     char ']'
     return p
 
+ruleHashSubscript :: RuleParser (Exp -> Exp)
 ruleHashSubscript = tryVerbatimRule "hash subscript" $ do
     choice [ ruleHashSubscriptBraces, ruleHashSubscriptQW ]
 
+ruleHashSubscriptBraces :: RuleParser (Exp -> Exp)
 ruleHashSubscriptBraces = do
     symbol "{"
     p <- option id $ do exp <- ruleExpression; return $ \x -> Syn "{}" [x, exp]
     char '}'
     return p
 
+ruleHashSubscriptQW :: RuleParser (Exp -> Exp)
 ruleHashSubscriptQW = do
     exp <- angleBracketLiteral
     return $ \x -> Syn "{}" [x, exp]
 
+ruleCodeSubscript :: RuleParser (Exp -> Exp)
 ruleCodeSubscript = tryRule "code subscript" $ do
     (invs,args) <- parens $ parseParamList
     return $ \x -> Syn "()" [x, Syn "invs" invs, Syn "args" args]
 
+parseApply :: RuleParser Exp
 parseApply = tryRule "apply" $ do
     name    <- ruleSubName
     when ((name ==) `any` words " &if &unless &while &until &for ") $
@@ -883,8 +992,10 @@ parseApply = tryRule "apply" $ do
         else parseParenParamList <|> do { whiteSpace; parseNoParenParamList }
     return $ App name invs args
 
+parseParamList :: RuleParser ([Exp], [Exp])
 parseParamList = parseParenParamList <|> parseNoParenParamList
 
+parseParenParamList :: RuleParser ([Exp], [Exp])
 parseParenParamList = try $ do
     params <- option Nothing $ fmap Just (parens parseNoParenParamList)
     block       <- option [] ruleAdverbBlock
@@ -894,12 +1005,14 @@ parseParenParamList = try $ do
     -- it really goes into the *& slot if there is one. -lp
     processFormals [inv, norm ++ block]
 
+ruleAdverbBlock :: RuleParser [Exp]
 ruleAdverbBlock = tryRule "adverbial block" $ do
     char ':'
     rblock <- ruleBlockLiteral
     next <- option [] ruleAdverbBlock
     return (rblock:next)
 
+parseNoParenParamList :: RuleParser ([Exp], [Exp])
 parseNoParenParamList = do
     formal <- (`sepEndBy` symbol ":") $ fix $ \rec -> do
         rv <- option Nothing $ do
@@ -945,20 +1058,25 @@ nameToParam name = MkParam
     , paramDefault  = Val VUndef
     }
 
+maybeParensBool :: RuleParser a -> RuleParser (a, Bool)
 maybeParensBool p = choice
     [ do rv <- parens p; return (rv, True)
     , do rv <- p; return (rv, False)
     ]
 
+maybeParens :: CharParser Env a -> RuleParser a
 maybeParens p = choice [ parens p, p ]
+maybeDotParens :: CharParser Env a -> RuleParser a
 maybeDotParens p = choice [ dotParens p, p ]
     where
     dotParens rule = do
         option ' ' $ char '.'
         parens rule
 
+parseVarName :: RuleParser String
 parseVarName = rule "variable name" ruleVarNameString
 
+ruleVarNameString :: RuleParser String
 ruleVarNameString =   try (string "$!")  -- error variable
                   <|> try (string "$/")  -- match object
                   <|> try ruleMatchVar
@@ -969,19 +1087,23 @@ ruleVarNameString =   try (string "$!")  -- error variable
     names   <- many1 wordAny `sepBy1` (try $ string "::")
     return $ (sigil:caret) ++ concat (intersperse "::" names)
 
+ruleMatchVar :: RuleParser String
 ruleMatchVar = do
     sigil   <- oneOf "$@%&"
     digits  <- many1 digit
     return $ (sigil:digits)
 
+ruleVar :: RuleParser Exp
 ruleVar = do
     name    <- ruleVarNameString
     return $ makeVar name
 
+makeVar :: String -> Exp
 makeVar ('$':rest) | all (`elem` "1234567890") rest =
     Syn "[]" [Var "$/", Val $ VInt $ read rest]
 makeVar var = Var var
 
+ruleLit :: RuleParser Exp
 ruleLit = choice
     [ ruleBlockLiteral
     , numLiteral
@@ -999,6 +1121,7 @@ ruleLit = choice
     , substLiteral
     ]
 
+undefLiteral :: RuleParser Exp
 undefLiteral = try $ do
     symbol "undef"
     (invs,args)   <- maybeParens $ parseParamList
@@ -1006,26 +1129,32 @@ undefLiteral = try $ do
         then Val VUndef
         else App "&undef" invs args
 
+numLiteral :: RuleParser Exp
 numLiteral = do
     n <- naturalOrRat
     case n of
         Left  i -> return . Val $ VInt i
         Right d -> return . Val $ VRat d
 
+emptyListLiteral :: RuleParser Exp
 emptyListLiteral = tryRule "empty list" $ do
     parens whiteSpace
     return $ Syn "," []
 
+emptyArrayLiteral :: RuleParser Exp
 emptyArrayLiteral = tryRule "empty array" $ do
     brackets whiteSpace
     return $ Syn "\\[]" [emptyExp]
 
+arrayLiteral :: RuleParser Exp
 arrayLiteral = do
     item <- brackets ruleExpression
     return $ Syn "\\[]" [item]
 
+pairLiteral :: RuleParser Exp
 pairLiteral = tryChoice [ pairArrow, pairAdverb ]
 
+pairArrow :: RuleParser Exp
 pairArrow = do
     key <- identifier
     symbol "=>"
@@ -1033,6 +1162,7 @@ pairArrow = do
     return (Val (VStr key), val)
     return $ App "&infix:=>" [Val (VStr key), val] []
 
+pairAdverb :: RuleParser Exp
 pairAdverb = do
     string ":"
     key <- many1 wordAny
@@ -1050,16 +1180,19 @@ pairAdverb = do
         ]
 
 -- Interpolating constructs
+qInterpolatorChar :: RuleParser Exp
 qInterpolatorChar = do
     char '\\'
     nextchar <- escapeCode -- see Lexer.hs
     return (Val $ VStr [nextchar])
 
+qInterpolateDelimiter :: Char -> RuleParser Exp
 qInterpolateDelimiter protectedChar = do
     char '\\'
     c <- oneOf (protectedChar:"\\")
     return (Val $ VStr [c])
 
+qInterpolateQuoteConstruct :: RuleParser Exp
 qInterpolateQuoteConstruct = try $ do
     string "\\q"
     flag <- many1 alphaNum
@@ -1068,6 +1201,7 @@ qInterpolateQuoteConstruct = try $ do
     char ']'
     return expr
 
+qInterpolatorPostTerm :: RuleParser (Exp -> Exp)
 qInterpolatorPostTerm = try $ do
     option ' ' $ char '.'
     choice
@@ -1124,6 +1258,7 @@ qInterpolator flags = choice [
                     else True --  $ followed by anything else is interpolated
             where second = head $ tail var
 
+qLiteral :: RuleParser Exp
 qLiteral = do -- This should include q:anything// as well as '' "" <>
     (qEnd, flags) <- getQDelim
     qLiteral1 qEnd flags
@@ -1240,10 +1375,13 @@ getQFlags flagnames protectedChar =
         -- in case of unknown flag, we simply abort the parse.
           useflag _ qf            = qf { qfFailed = True }
 
-openingDelim = anyChar
-{- XXX can be later defined to exclude alphanumerics, maybe also exclude
-closing delims from being openers (disallow q]a]) -}
 
+{- | XXX can be later defined to exclude alphanumerics, maybe also exclude
+closing delims from being openers (disallow q]a]) -}
+openingDelim :: CharParser Env Char
+openingDelim = anyChar
+
+getQDelim :: RuleParser (CharParser Env Char, QFlags)
 getQDelim = try $
     do  string "q"
         flags <- do
@@ -1279,22 +1417,31 @@ getQDelim = try $
           oneflag = do string ":"
                        many alphaNum
 
--- Default flags
+-- | Default flags
+qFlags    :: QFlags
 qFlags    = MkQFlags QS_No False False False False False QB_Single '\'' False False
+-- | Default flags
+qqFlags   :: QFlags
 qqFlags   = MkQFlags QS_No True True True True True QB_All '"' False False
+-- | Default flags
+rawFlags  :: QFlags
 rawFlags  = MkQFlags QS_No False False False False False QB_No 'x' False False
+-- | Default flags
+rxP5Flags :: QFlags
 rxP5Flags = MkQFlags QS_No True True True True True QB_No '/' True False
 
 -- Regexps
-rxLiteral1 :: Char -- Closing delimiter
+rxLiteral1 :: Char -- | Closing delimiter
              -> RuleParser Exp
 rxLiteral1 delim = qLiteral1 (char delim) $
         rxP5Flags { qfProtectedChar = delim }
 
+ruleAdverbHash :: RuleParser Exp
 ruleAdverbHash = do
     pairs <- many pairAdverb
     return $ Syn "\\{}" [Syn "," pairs]
 
+substLiteral :: RuleParser Exp
 substLiteral = try $ do
     symbol "s"
     adverbs <- ruleAdverbHash
@@ -1306,6 +1453,7 @@ substLiteral = try $ do
     subst   <- qLiteral1 (char endch) qqFlags { qfProtectedChar = endch }
     return $ Syn "subst" [expr, subst, adverbs]
 
+rxLiteral :: RuleParser Exp
 rxLiteral = try $ do
     symbol "rx"
     adverbs <- ruleAdverbHash
@@ -1313,18 +1461,24 @@ rxLiteral = try $ do
     expr    <- rxLiteral1 $ balancedDelim ch
     return $ Syn "rx" [expr, adverbs]
 
+namedLiteral :: String -> Val -> RuleParser Exp
 namedLiteral n v = do { symbol n; return $ Val v }
 
+dotdotdotLiteral :: RuleParser Exp
 dotdotdotLiteral = do
     pos1 <- getPosition
     symbol "..."
     pos2 <- getPosition
     return . Val $ VError "..." (NonTerm (mkPos pos1 pos2))
 
+op_methodPostfix    :: [a]
 op_methodPostfix    = []
+op_namedUnary       :: [a]
 op_namedUnary       = []
+methOps             :: a -> [b]
 methOps _ = []
 
+ternOp :: String -> String -> String -> Operator Char Env Exp
 ternOp pre post syn = (`Infix` AssocRight) $ do
     symbol pre
     y <- parseTightOp
@@ -1339,6 +1493,7 @@ runRule env f p name str = f $ case ( runParser p env name str ) of
         msg = showErr err
     Right env'  -> env'
 
+showErr :: ParseError -> String
 showErr err =
       showErrorMessages "or" "unknown parse error"
                         "expecting" "unexpected" "end of input"
