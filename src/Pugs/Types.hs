@@ -14,9 +14,9 @@ module Pugs.Types where
 import Pugs.Internals
 
 data Type
-    = MkType !String
-    | TypeOr  !Type !Type
-    | TypeAnd !Type !Type
+    = MkType !String      -- ^ A regular type
+    | TypeOr  !Type !Type -- ^ The disjunction (|) of two types
+    | TypeAnd !Type !Type -- ^ The conjunction (&) of two types
     deriving (Eq, Ord)
 
 instance Show Type where
@@ -47,8 +47,10 @@ typeOfCxt CxtVoid           = anyType
 typeOfCxt (CxtItem typ)     = typ
 typeOfCxt (CxtSlurpy typ)   = typ
 
+-- |Return a 'Cxt' indicating a context expecting a scalar of any type
 cxtItemAny :: Cxt
 cxtItemAny   = CxtItem anyType
+-- |Return a 'Cxt' indicating a context expecting a list of any type
 cxtSlurpyAny :: Cxt
 cxtSlurpyAny = CxtSlurpy anyType
 
@@ -62,7 +64,10 @@ isVoidCxt :: Cxt -> Bool
 isVoidCxt   CxtVoid       = True
 isVoidCxt   _             = False
 
-mkType :: String -> Type
+-- |Make a type value representing the type with the specified name.
+-- Recognises conjunctive (&) and disjunctive (|) types.
+mkType :: String -- ^ Name of the type, e.g. \"Hash\" or \"Str|Int\"
+       -> Type
 mkType str
     | (t1, (_:t2)) <- span (/= '|') str
     = TypeOr (MkType t1) (mkType t2)
@@ -73,27 +78,31 @@ mkType str
 
 -- |Variable name
 type Var   = String
--- |Uses Haskell's underlying representation
+-- |Uses Haskell's underlying representation for strings.
 type VStr  = String
--- |Uses Haskell's underlying representation
+-- |Uses Haskell's underlying representation for booleans.
 type VBool = Bool
--- |Uses Haskell's underlying representation
+-- |Uses Haskell's underlying representation for integers.
 type VInt  = Integer
--- |Uses Haskell's underlying representation
+-- |Uses Haskell's underlying representation for rational numbers.
 type VRat  = Rational
--- |Uses Haskell's underlying representation
+-- |Uses Haskell's 'Double' type to represent arbitrary numbers.
 type VNum  = Double
--- |Uses Haskell's underlying representation
+-- |Uses Haskell's underlying representation for complex numbers.
 type VComplex = Complex VNum
--- |Uses Haskell's underlying representation
+-- |Uses Haskell's underlying representation for filehandles.
 type VHandle = Handle
--- |Uses Haskell's underlying representation
+-- |Uses Haskell's underlying representation for sockets.
 type VSocket = Socket
--- |Uses Haskell's underlying representation
+-- |Uses Haskell's underlying representation for threads.
 type VThread = ThreadId
+-- |Representation for rules (i.e. regexes). Currently consists of a
+-- "RRegex" 'Regex', and a boolean flag indicating whether the rule has
+-- \'global\' semantics (Perl5's \/g), i.e. whether it matches all occurences
+-- or just the first.
 data VRule     = MkRule
-    { rxRegex     :: !Regex
-    , rxGlobal    :: !Bool
+    { rxRegex     :: !Regex -- ^ The \'regular\' expression
+    , rxGlobal    :: !Bool  -- ^ Flag indicating \'global\' (match-all)
     }
     deriving (Show, Eq, Ord)
 

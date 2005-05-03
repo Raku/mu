@@ -12,6 +12,7 @@
     And one white tree.
 -}
 
+-- |Abstract Syntax Tree representation.
 module Pugs.AST where
 import Pugs.Internals
 import Pugs.Context
@@ -419,25 +420,25 @@ type VPair = (Val, Val)
 -- all the constructors for @data 'Val'@ are themselves puns on the types of
 -- values they contain.
 data Val
-    = VUndef
-    | VBool     !VBool
-    | VInt      !VInt
-    | VRat      !VRat
-    | VNum      !VNum
-    | VComplex  !VComplex
-    | VStr      !VStr
-    | VList     VList -- ^ Lists are lazy, so no '!'.
-    | VRef      !VRef
+    = VUndef                 -- ^ Undefined value
+    | VBool     !VBool       -- ^ Boolean value
+    | VInt      !VInt        -- ^ Integer value
+    | VRat      !VRat        -- ^ Rational number value
+    | VNum      !VNum        -- ^ Number (i.e. a double)
+    | VComplex  !VComplex    -- ^ Complex number value
+    | VStr      !VStr        -- ^ String value
+    | VList     VList        -- ^ List value (lists are lazy, so no '!')
+    | VRef      !VRef        -- ^ Reference value
     | VCode     !VCode
     | VBlock    !VBlock
-    | VJunc     !VJunc
+    | VJunc     !VJunc       -- ^ Junction value
     | VError    !VStr !Exp
     | VHandle   !VHandle
     | VSocket   !VSocket
     | VThread   !VThread
     | VProcess  !VProcess
     | VRule     !VRule
-    | VSubst    !VSubst
+    | VSubst    !VSubst      -- ^ Substitution value (correct?)
     | VControl  !VControl
     | VOpaque   !VOpaque
     deriving (Show, Eq, Ord, Typeable)
@@ -744,13 +745,14 @@ type DebugInfo = Maybe (TVar (Map String String))
 -- | Evaluation environment. 
 data Env = MkEnv
     { envContext :: !Cxt                 -- ^ Current context
-    , envLValue  :: !Bool                -- ^ LValue context?
-    , envLexical :: !Pad                 -- ^ Lexical pad
-    , envGlobal  :: !(TVar Pad)          -- ^ Global pad
+                                         -- ('CxtVoid', 'CxtItem' or 'CxtSlurpy')
+    , envLValue  :: !Bool                -- ^ Are we in an LValue context?
+    , envLexical :: !Pad                 -- ^ Lexical pad for variable lookup
+    , envGlobal  :: !(TVar Pad)          -- ^ Global pad for variable lookup
     , envClasses :: !ClassTree           -- ^ Current class tree
     , envEval    :: !(Exp -> Eval Val)   -- ^ Active evaluator
     , envCaller  :: !(Maybe Env)         -- ^ Caller's env
-    , envBody    :: !Exp                 -- ^ Current AST
+    , envBody    :: !Exp                 -- ^ Current AST expression
     , envDepth   :: !Int                 -- ^ Recursion depth
     , envID      :: !Unique              -- ^ Unique ID of Env
     , envDebug   :: !DebugInfo           -- ^ Debug info map
@@ -822,7 +824,13 @@ genSym name ref = do
 show' :: (Show a) => a -> String
 show' x = "( " ++ show x ++ " )"
 
-data Scope = SGlobal | SMy | SOur | SLet | STemp | SState
+-- |The scope of a variable declaration.
+data Scope = SGlobal -- ^ Global
+           | SMy     -- ^ Local
+           | SOur    -- ^ Package
+           | SLet    -- ^ Hypotheticalised (reverted upon failure)
+           | STemp   -- ^ Temporary (reverted at scope exit)
+           | SState  -- ^ Persistent across calls
     deriving (Show, Eq, Ord, Read, Enum)
 
 type Eval x = EvalT (ContT Val (ReaderT Env SIO)) x
