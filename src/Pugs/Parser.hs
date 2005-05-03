@@ -1431,7 +1431,7 @@ rxP5Flags :: QFlags
 rxP5Flags = MkQFlags QS_No True True True True True QB_No '/' True False
 
 -- Regexps
-rxLiteral1 :: Char -- | Closing delimiter
+rxLiteral1 :: Char -- ^ Closing delimiter
              -> RuleParser Exp
 rxLiteral1 delim = qLiteral1 (char delim) $
         rxP5Flags { qfProtectedChar = delim }
