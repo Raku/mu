@@ -110,8 +110,10 @@ sub set_postamble {
         }
         (-d $base and -e "$base/parrot-config.imc")
             or die "*** Please set \$ENV{PARROT_PATH} to the base path with a built parrot tree.\n";
-        $embed_flags .= " -I$base/include -L$base/blib/lib -DPUGS_HAVE_PARROT=1 -L/usr/local/lib";
-        $ghc_output .= " -lparrot -licuuc -licudata "
+        my $ldflags = parrot_config($base, 'ldflags');
+        my $libs = parrot_config($base, 'libs');
+        $embed_flags .= " -I$base/include -L$base/blib/lib -DPUGS_HAVE_PARROT=1 -L$base/blib/lib -L/usr/local/lib $ldflags ";
+        $ghc_output .= " -lparrot $libs ";
     }
 
     my $config = get_pugs_config();
@@ -235,4 +237,11 @@ sub try_compile {
     unlink("$temp.hi");
     unlink("$temp.o");
     return $ok;
+}
+
+sub parrot_config {
+    my ($base, $config) = @_;
+    my $value = `cd $base; $base/parrot parrot-config.imc $config`;
+    chomp($value);
+    return $value;
 }
