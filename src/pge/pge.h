@@ -64,6 +64,8 @@ int pge_is_bos_anchored(PGE_Exp* e);
 char* pge_p5re_pir(const unsigned char* s);
 char* pge_glob_pir(const unsigned char* s);
 
+PGE_Exp* pge_parse(const unsigned char* s);
+
 #endif /* PGE_H_GUARD */ 
 
 /*

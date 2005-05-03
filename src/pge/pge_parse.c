@@ -304,7 +304,7 @@ pge_parse_expr(PGE_Text* t)
 
 /* pge_parse() builds a regular expression tree from the perl 6 
    rule string specified in s. */
-static PGE_Exp*
+PGE_Exp*
 pge_parse(const unsigned char* s)
 {
     PGE_Text t;
