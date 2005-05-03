@@ -288,8 +288,9 @@ reduce (Sym scope name exp) = do
         ('&':_) -> genMultiSym name ref
         _       -> genSym name ref
     case scope of
-        SMy -> enterLex [ sym ] $ evalExp exp
-        _   -> do { addGlobalSym sym; evalExp exp }
+        SMy     -> enterLex [ sym ] $ evalExp exp
+        SState  -> enterLex [ sym ] $ evalExp exp
+        _       -> do { addGlobalSym sym; evalExp exp }
 
 -- Context forcing
 reduce (Cxt cxt exp) = do
