@@ -353,8 +353,10 @@ ruleVarDeclaration = rule "variable declaration" $ do
         [ do -- pos  <- getPosition
              name <- parseVarName
              return ((Sym scope name), Var name)
-        , do names <- parens . (`sepEndBy` symbol ",") $ parseVarName
-             return (combine (map (Sym scope) names), Syn "," (map Var names))
+        , do names <- parens . (`sepEndBy` symbol ",") $
+                parseVarName <|> do { undefLiteral; return "" }
+             let mkVar v = if null v then Val undef else Var v
+             return (combine (map (Sym scope) names), Syn "," (map mkVar names))
         ]
     -- pos <- getPosition
     (sym, expMaybe) <- option ("=", Nothing) $ do

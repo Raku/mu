@@ -279,6 +279,9 @@ reduce (Pad _ lex exp) = do
     local (\e -> e{ envLexical = lex `unionPads` envLexical e }) $ do
         evalExp exp
 
+-- Special case: my (undef) is no-op
+reduce (Sym _ "" exp) = evalExp exp
+
 reduce (Sym scope name exp) = do
     ref <- newObject (typeOfSigil $ head name)
     sym <- case name of
