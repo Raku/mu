@@ -23,7 +23,7 @@ ok(2 + 2 == 4, desc => '2 and 2 make 4');
 ok(2 + 2 == 4, :desc('2 and 2 make 4'));
 
 ok(2 + 2 == 5, '2 and 2 doesnt make 5', 1);
-ok(2 + 2 == 5, desc => '2 and 2 doesnt make 5', todo => 1);
+ok(2 + 2 == 5, desc => '2 and 2 doesnt make 5', todo => <bug>);
 ok(2 + 2 == 5, :desc('2 and 2 doesnt make 5'), :todo(1));
 
 ## is
@@ -34,7 +34,7 @@ is(2 + 2, 4, :desc('2 and 2 make 4'));
 
 is(2 + 2, 5, '2 and 2 doesnt make 5', 1);
 is(2 + 2, 5, todo => 1, desc => '2 and 2 doesnt make 5');
-is(2 + 2, 5, :todo(1), :desc('2 and 2 doesnt make 5'));
+is(2 + 2, 5, :todo<feature>, :desc('2 and 2 doesnt make 5'));
 
 ## isnt
 
@@ -54,7 +54,7 @@ isa_ok(@list, 'List');
 isa_ok({ 'one' => 1 }, 'Hash');
 
 isa_ok(@list, 'Hash', 'this is a description', todo => 1);
-isa_ok(@list, 'Hash', desc => 'this is a description', :todo(1));
+isa_ok(@list, 'Hash', desc => 'this is a description', :todo<bug>);
 isa_ok(@list, 'Array', :desc('this is a description'));
 
 ## like
@@ -63,7 +63,7 @@ like("Hello World", rx:perl5{\s}, '... testing like()');
 like("Hello World", rx:perl5{\s}, desc => '... testing like()');
 like("Hello World", rx:perl5{\s}, :desc('... testing like()'));
 
-like("HelloWorld", rx:perl5{\s}, '... testing like()', 1);
+like("HelloWorld", rx:perl5{\s}, '... testing like()', 'feature');
 like("HelloWorld", rx:perl5{\s}, desc => '... testing like()', todo => 1);
 like("HelloWorld", rx:perl5{\s}, :todo(1), :desc('... testing like()'));
 

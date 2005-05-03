@@ -342,6 +342,22 @@ sub _run_all_tests {
         # state of the current test.
         my @failed = grep { !$results{details}[$_-1]{ok} }
                      1..@{$results{details}};
+        
+        ## XXX - Begin Pugs addition
+        # This addition analyzes the reason for the TODO    
+        my %todos;
+        foreach my $detail (@{$results{details}}) {
+            if ($detail->{type} eq 'todo') {
+                if ($detail->{reason}) {            
+                    $todos{$detail->{reason}}++
+                }
+                else {
+                    $todos{'__'}++
+                }   
+            }
+        }
+        ## XXX - End Pugs addition        
+        
         my %test = (
                     ok          => $results{ok},
                     'next'      => $Strap->{'next'},
@@ -379,9 +395,26 @@ sub _run_all_tests {
             } else {
                 print "skipped\n        all skipped: no reason given\n";
                 $tot{skipped}++;
-            }
-            print("        $test{todo}/$test{max} TODO test" . ($test{todo} > 1 ? "s" : "") . "\n")
-                if $test{todo};    
+            }             
+            
+            # This was our old TODO handler
+            #print("        $test{todo}/$test{max} TODO test" . ($test{todo} > 1 ? "s" : "") . "\n")
+            #    if $test{todo};  
+            
+            ## XXX - Begin Pugs addition
+            # this addition prints out the differnt TODO types
+            foreach my $todo_type (keys %todos) {
+                my $num_tests = $todos{$todo_type};
+                if ($todo_type eq '__') {
+                    $todo_type = '' ;
+                }
+                else {
+                    $todo_type .= ' ';
+                }            
+                print("        $num_tests/$test{max} TODO ${todo_type}test" . ($test{todo} > 1 ? "s" : "") . "\n");                
+            }  
+            ## XXX - End Pugs addition
+                    
             $tot{good}++;
         }
         else {

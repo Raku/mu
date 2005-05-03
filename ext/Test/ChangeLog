@@ -1,5 +1,15 @@
 
-== Changes for 0.0.5 for April _, 2005
+== Changes for 0.0.6 for May 2, 2005
+
+* more TODO refactoring
+** Removed type for `$todo` parameter on all to all
+** Allow :todo<key> to pass key through as our TODO reason 
+
+NOTE: 
+The copy of Test::Harness in inc/ has been altered to 
+accomidate and print out the new TODO information.
+
+== Changes for 0.0.5 for April 24, 2005
 
 * Changed `skip (Str)` and `skip(Int, Str)` into multi sub
 * More force-TODO refactoring

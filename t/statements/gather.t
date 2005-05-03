@@ -17,10 +17,8 @@ plan 5;
 	}';
 
 	ok(!$i, "not yet gathered");
-	is(+@a, 5, "5 elements gathered", :todo);
-	ok($i, "gather code executed", :todo);
-	is(@a[0], 1, "first elem taken", :todo);
-	fail "uncatchable die", :todo;
-	# XXX Because of release preparation
-	# is(@a[-1], 5, "last elem taken", :todo);
+	is(+@a, 5, "5 elements gathered", :todo<feature>);
+	ok($i, "gather code executed", :todo<feature>);
+	is(@a[0], 1, "first elem taken", :todo<feature>);
+	is(@a[-1], 5, "last elem taken", :todo<feature>);
 };

@@ -1,4 +1,4 @@
-module Test-0.0.5;
+module Test-0.0.6;
 use v6;
 
 ### GLOBALS
@@ -29,44 +29,44 @@ sub force_todo (*@todo_tests) returns Void is export {
 
 ## ok
 
-sub ok (Bool $cond, Str +$desc, Bool +$todo) returns Bool is export {
-    proclaim($cond, $desc, $todo ?? 'TODO' :: undef);
+sub ok (Bool $cond is lazy, Str +$desc, +$todo) returns Bool is export {
+    proclaim($cond, $desc, $todo);
 }
 
 ## is
 
-sub is (Str $got, Str $expected, Str +$desc, Bool +$todo) returns Bool is export {
+sub is (Str $got, Str $expected, Str +$desc, +$todo) returns Bool is export {
     my $test := $got eq $expected;
-    proclaim($test, $desc, $todo ?? 'TODO' :: undef, $got, $expected);
+    proclaim($test, $desc, $todo, $got, $expected);
 }
 
 ## isnt
 
-sub isnt (Str $got, Str $expected, Str +$desc, Bool +$todo) returns Bool is export {
+sub isnt (Str $got, Str $expected, Str +$desc, +$todo) returns Bool is export {
     my $test := not($got eq $expected);
-    proclaim($test, "FAILS by matching expected: $desc", $todo ?? 'TODO' :: undef, $got, $expected);
+    proclaim($test, "FAILS by matching expected: $desc", $todo, $got, $expected);
 }
 
 ## like
 
-sub like (Str $got, Rule $expected, Str +$desc, Bool +$todo) returns Bool is export {
+sub like (Str $got, Rule $expected, Str +$desc, +$todo) returns Bool is export {
     my $test := $got ~~ $expected;
-    proclaim($test, $desc, $todo ?? 'TODO' :: undef, $got, $expected);
+    proclaim($test, $desc, $todo, $got, $expected);
 }
 
 ## unlike
 
-sub unlike (Str $got, Rule $expected, Str +$desc, Bool +$todo) returns Bool is export {
+sub unlike (Str $got, Rule $expected, Str +$desc, +$todo) returns Bool is export {
     my $test := not($got ~~ $expected);
-    proclaim($test, $desc, $todo ?? 'TODO' :: undef, $got, $expected);
+    proclaim($test, $desc, $todo, $got, $expected);
 }
 
 ## eval_ok
 
-sub eval_ok (Str $code, Str +$desc, Bool +$todo) returns Bool is export {
+sub eval_ok (Str $code, Str +$desc, +$todo) returns Bool is export {
     my $result := eval $code;
     if (defined $!) {
-	    proclaim(undef, $desc, $todo ?? 'TODO' :: undef, "eval was fatal: $!");
+	    proclaim(undef, $desc, $todo, "eval was fatal: $!");
     }
     else {
         #diag "'$desc' was non-fatal and maybe shouldn't use eval_ok()";
@@ -76,10 +76,10 @@ sub eval_ok (Str $code, Str +$desc, Bool +$todo) returns Bool is export {
 
 ## eval_is
 
-sub eval_is (Str $code, Str $expected, Str +$desc, Bool +$todo) returns Bool is export {
+sub eval_is (Str $code, Str $expected, Str +$desc, +$todo) returns Bool is export {
     my $result := eval $code;
     if (defined $!) {
-	    proclaim(undef, $desc, $todo ?? 'TODO' :: undef, "eval was fatal: $!", $expected);
+	    proclaim(undef, $desc, $todo, "eval was fatal: $!", $expected);
     }
     else {
         #diag "'$desc' was non-fatal and maybe shouldn't use eval_is()";
@@ -89,25 +89,25 @@ sub eval_is (Str $code, Str $expected, Str +$desc, Bool +$todo) returns Bool is 
 
 ## cmp_ok
 
-sub cmp_ok (Str $got, Code $compare_func, Str $expected, Str +$desc, Bool +$todo) returns Bool is export {
+sub cmp_ok (Str $got, Code $compare_func, Str $expected, Str +$desc, +$todo) returns Bool is export {
     my $test := $compare_func($got, $expected);
-    proclaim($test, $desc, $todo ?? 'TODO' :: undef); # << needs better error message handling
+    proclaim($test, $desc, $todo); # << needs better error message handling
 }
 
 ## isa_ok
 
-sub isa_ok ($ref is rw, Str $expected_type, Str +$desc, Bool +$todo) returns Bool is export {
+sub isa_ok ($ref is rw, Str $expected_type, Str +$desc, +$todo) returns Bool is export {
     my $out := defined($desc) ?? $desc :: "The object is-a '$expected_type'";
     my $test := $ref.isa($expected_type);
-    proclaim($test, $out, $todo ?? 'TODO' :: undef, $ref.ref, $expected_type);
+    proclaim($test, $out, $todo, $ref.ref, $expected_type);
 }
 
 ## use_ok
 
-sub use_ok (Str $module, Bool +$todo) is export {
+sub use_ok (Str $module, +$todo) is export {
     eval "require $module";
     if ($!) {
-	    proclaim(undef, "require $module;", $todo ?? 'TODO' :: undef, "Import error when loading $module: $!");
+	    proclaim(undef, "require $module;", $todo, "Import error when loading $module: $!");
     }
     else {
         &ok.goto(1, "$module imported OK", $todo);
@@ -116,34 +116,34 @@ sub use_ok (Str $module, Bool +$todo) is export {
 
 ## throws ok
 
-sub throws_ok (Sub $code, Any $match, Str +$desc, Bool +$todo) returns Bool is export {
+sub throws_ok (Sub $code, Any $match, Str +$desc, +$todo) returns Bool is export {
     try { $code() };
     if ($!) {
         &ok.goto($! ~~ $match, $desc, $todo);            
     }
     else {
-	    proclaim(undef, $desc, $todo ?? 'TODO' :: undef, "No exception thrown");
+	    proclaim(undef, $desc, $todo, "No exception thrown");
     }
 }
 
 ## dies_ok
 
-sub dies_ok (Sub $code, Str +$desc, Bool +$todo) returns Bool is export {
+sub dies_ok (Sub $code, Str +$desc, +$todo) returns Bool is export {
     try { $code() };
     if ($!) {
         &ok.goto(1, $desc, $todo);
     }
     else {
-	    proclaim(undef, $desc, $todo ?? 'TODO' :: undef, "No exception thrown");
+	    proclaim(undef, $desc, $todo, "No exception thrown");
     }
 }
 
 ## lives ok
 
-sub lives_ok (Sub $code, Str +$desc, Bool +$todo) returns Bool is export {
+sub lives_ok (Sub $code, Str +$desc, +$todo) returns Bool is export {
     try { $code() };
     if ($!) {
-        proclaim(undef, $desc, $todo ?? 'TODO' :: undef, "An exception was thrown : $!");
+        proclaim(undef, $desc, $todo, "An exception was thrown : $!");
     }
     else {
         &ok.goto(1, $desc, $todo);
@@ -170,8 +170,8 @@ sub pass (Str +$desc) returns Bool is export {
     proclaim(1, $desc);
 }
 
-sub fail (Str +$desc, Bool +$todo) returns Bool is export {
-    proclaim(0, $desc, $todo ?? 'TODO' :: undef);
+sub fail (Str +$desc, +$todo) returns Bool is export {
+    proclaim(0, $desc, $todo);
 }
 
 sub diag (Str $diag) is export {
@@ -182,24 +182,29 @@ sub diag (Str $diag) is export {
 
 ## 'private' subs
 
-sub proclaim (Bool $cond, Str ?$desc is copy, Str ?$context is copy, Str ?$got, Str ?$expected) returns Bool {
+sub proclaim (Bool $cond, Str ?$desc is copy, ?$todo, Str ?$got, Str ?$expected) returns Bool {
     $NUM_OF_TESTS_RUN++;
 
+    # $context is now the raw TODO, so we have to check it
+    my $context;
+    if $todo.defined {
+        if (substr($todo, 0, 4) eq 'skip') {
+            $context = $todo;        
+        }
+        else {
+            $context =  "TODO " ~ ($todo.isa('Str') ?? $todo :: '');    
+        }
+    }
+    
     # Check if we have to forcetodo this test 
     # because we're preparing for a release.
-    $context = "TODO for release" if $NUM_OF_TESTS_RUN == $FORCE_TODO_TEST_JUNCTION;
-
-    # Make all TODO tests fail visibly unless we're releasing.
-    #if( !$cond and $context eq 'TODO for release' and !%ENV<PUGS_RELEASE> ) {
-	#$context = '';
-	#$desc = "TODO for release: $desc";
-    #}
+    $context = "TODO for release" if $NUM_OF_TESTS_RUN == $FORCE_TODO_TEST_JUNCTION;    
 
     my $ok := $cond ?? "ok " :: "not ok ";
-    my $out = defined($desc) ?? " - $desc" :: "";
+    my $out = $desc.defined ?? " - $desc" :: "";
     $out = "$out <pos:$?CALLER::CALLER::POSITION>" if $ALWAYS_CALLER;
 
-    my $context_out = defined($context) ?? " # $context" :: "";
+    my $context_out = $context.defined ?? " # $context" :: "";
 
     say $ok, $NUM_OF_TESTS_RUN, $out, $context_out;
 
