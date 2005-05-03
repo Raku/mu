@@ -9,7 +9,7 @@ Push tests
 
 =cut
 
-plan 35;
+plan 39;
 
 # basic push tests
 {
@@ -113,3 +113,14 @@ plan 35;
 #    # best not to uncomment this it just go on forever
 #    todo_throws_ok { 'push @push, 10' }, '?? what should this error message be ??', 'cannot push onto a Inf list';
 #}
+
+# nested arrayref
+{
+    my @push;
+    push @push, [ 21 .. 25 ];
+
+    is(@push.elems,     1, 'nested arrayref, array length is 1');
+    is(@push[0].elems,  5, 'nested arrayref, arrayref length is 5');
+    is(@push[0][0],    21, 'nested arrayref, first value is 21');
+    is(@push[0][-1],   25, 'nested arrayref, last value is 25');
+}
