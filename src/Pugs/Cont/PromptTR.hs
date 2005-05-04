@@ -8,7 +8,7 @@
 
 -- Transformer
 
-module PromptTR (
+module Pugs.Cont.PromptTR (
   P, Prompt, runP,
   newPrompt, eqPrompt
 ) where

@@ -6,12 +6,12 @@
 -- We can append two sequences and split a sequence at the first
 --   occurrence of a given prompt
 
-module SeqTR (
+module Pugs.Cont.SeqTR (
   Seq (..), 
   splitSeq, appendSeq
 ) where
 
-import qualified PromptTR as Prompt
+import qualified Pugs.Cont.PromptTR as Prompt
 
 ------------------------------------------------------------------------
 
@@ -21,7 +21,7 @@ data Seq s r a b = EmptyS (a -> b)
                  | forall c. PushCO (a -> c) (Seq s r c b)
 
 splitSeq :: Prompt.Prompt r b -> Seq s r a ans -> (Seq s r a b, Seq s r b ans)
-splitSeq p (EmptyS _) = error ("Prompt was not found on the stack")
+splitSeq _ (EmptyS _) = error ("Prompt was not found on the stack")
 splitSeq p (PushP p' sk) = 
   case Prompt.eqPrompt p' p of 
     Nothing -> let (subk,sk') = splitSeq p sk

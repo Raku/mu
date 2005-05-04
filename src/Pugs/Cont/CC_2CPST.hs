@@ -4,18 +4,16 @@
 -- (implemented using 2-level CPS)
 -- Transformer
 
-module CC_2CPST (
+module Pugs.Cont.CC_2CPST (
   CC, Prompt, SubCont, 
   runCC,
   newPrompt, pushPrompt, -- operations on prompts
   letSubCont, pushSubCont, -- operations on subcontinuations
 ) where
 
-import qualified PromptTR
-import SeqTR
+import qualified Pugs.Cont.PromptTR as PromptTR
+import Pugs.Cont.SeqTR
 import Control.Monad.Trans
-
-import Debug.Trace
 
 ----------------------------------------------------------------------
 -- Types
