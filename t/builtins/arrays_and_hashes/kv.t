@@ -55,7 +55,7 @@ Basic C<kv> tests, see S29.
 
 my %hash  = ('foo' => 'baz', 'boo' => 'bar');
 for %hash.kv -> $key,$value {
-    state $pass = 0;
+    state $pass ;
     is($key, "{$pass ?? 'foo':: 'boo'}", "in pass $pass of for() loop got the right \$key");
     is($value, "{$pass ?? 'baz':: 'bar'}", "in pass $pass of for() loop got the right \$value");
     $pass++; 
@@ -63,7 +63,7 @@ for %hash.kv -> $key,$value {
 
 sub test1 (Hash %h){
     for %h.kv -> $key,$value {
-	state $pass = 0;
+	state $pass ;
 	is($key, "{$pass ?? 'foo':: 'boo'}", "in pass $pass of test1 got the right \$key");
 	is($value, "{$pass ?? 'baz':: 'bar'}", "in pass $pass of test1 got the right \$value");
 	$pass++;
