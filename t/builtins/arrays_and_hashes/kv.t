@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 11;
+plan 19;
 
 =pod
 
@@ -49,3 +49,25 @@ Basic C<kv> tests, see S29.
     is(+@kv, 2, '$pair.kv inner list has two elems');
     is(~@kv, "a 1", '$pair.kv inner list matched expectation');
 }
+
+
+# illustrate a bug
+
+my %hash  = ('foo' => 'baz', 'boo' => 'bar');
+for  %hash.kv -> $key,$value {
+    state $pass ;
+	is($key, "{$pass ?? 'foo':: 'boo'}", "in pass $pass of for() loop got the right \$key");
+	is($value, "{$pass ?? 'baz':: 'bar'}", "in pass $pass of for() loop got the right \$value");
+	$pass++; 
+}
+
+sub test1 (Hash %h){
+	for  %h.kv -> $key,$value {
+		state  $pass ;
+		is($key, "{$pass ?? 'foo':: 'boo'}", "in pass $pass of test1 got the right \$key");
+		is($value, "{$pass ?? 'baz':: 'bar'}", "in pass $pass of test1 got the right \$value");
+		$pass++;
+	}
+}
+test1 %hash;
+
