@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 9;
+plan 20;
 
 # L<S04/"The Relationship of Blocks and Declarations" /function has been renamed/>
 {
@@ -28,9 +28,53 @@ plan 9;
   is $a, 42, "temp() restored the variable (2)";
 }
 
+# Block TEMP{}
+# L<S06/"Temporization" /You can also modify the behaviour of temporized code structures/>
+# (Test is more or less directly from S06.)
+{
+  my $next    = 0;
+  # We stub &advance so we don't need to eval() the whole test.
+  sub advance() {}
+
+  # Here is the real implementation of $advance.
+  eval 'sub advance() {
+    my $curr = $next++;
+    TEMP {{ $next = $curr }}  # TEMP block returns the closure { $next = $curr }
+    return $curr;
+  }';
+
+  # and later...
+									  
+  is advance(), 0, "TEMP{} block (1)", :todo<feature>;
+  is advance(), 1, "TEMP{} block (2)", :todo<feature>;
+  is advance(), 2, "TEMP{} block (3)", :todo<feature>;
+  is $next,     3, "TEMP{} block (4)", :todo<feature>;
+
+  fail "TEMP{} block (5)", :todo<feature>;
+  fail "TEMP{} block (6)", :todo<feature>;
+  fail "TEMP{} block (7)", :todo<feature>;
+  fail "TEMP{} block (8)", :todo<feature>;
+
+  # Following does parse, but isn't executed (don't know why).
+  # If the "{" on the following line is changed to "if(1) {", it is executed,
+  # too, but then it dies complaining about not finding a matching temp()
+  # function.  So, for now, we just comment the following block and add
+  # unconditional fail()s.
+  #{
+  #  is temp(advance()), 3, "TEMP{} block (5)", :todo<feature>;
+  #  is $next,           4, "TEMP{} block (6)", :todo<feature>;
+  #  is temp(advance()), 4, "TEMP{} block (7)", :todo<feature>;
+  #  is temp(advance()), 5, "TEMP{} block (8)", :todo<feature>;
+  #}  # $next = 3
+
+  is $next,     3, "TEMP{} block (9)",  :todo<feature>;
+  is advance(), 3, "TEMP{} block (10)", :todo<feature>;
+  is $next,     4, "TEMP{} block (11)", :todo<feature>;
+}
+
 # Following are OO tests, but I think they fit better in var/temp.t than in
 # oo/.
-# L<S06/"Temporization">
+# L<S06/"Temporization" /temp invokes its argument's .TEMP method./>
 {
   my $was_in_own_temp_handler = 0;
   eval '
