@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 19;
+plan 23;
 
 =pod
 
@@ -51,23 +51,46 @@ Basic C<kv> tests, see S29.
 }
 
 
-# illustrate a bug
+# test3 illustrates a bug 
+
+sub test1{
+	my $pair = boo=>'baz'; 
+	my $type = $pair.ref;
+	my $elems= $pair.elems;
+	for $pair.kv->$key,$value{
+		is($key, 'boo', "test1: $elems-elem $type \$pair got the right \$key");
+		is($value, 'baz', "test1: $elems-elem $type \$pair got the right \$value");
+	}
+}
+test1;
+
+sub test2{
+	my %pair = boo=>'baz'; 
+	my $type = %pair.ref;
+	my $elems= %pair.elems;
+	for %pair.kv->$key,$value{
+		is($key, 'boo', "test2: $elems-elem $type \%pair got the right \$key");
+		is($value, 'baz', "test2: $elems-elem $type \%pair got the right \$value");
+	}
+}
+test2;
 
 my %hash  = ('foo' => 'baz', 'boo' => 'bar');
-for %hash.kv -> $key,$value {
-    state $pass ;
-    is($key, "{$pass ?? 'foo':: 'boo'}", "in pass $pass of for() loop got the right \$key");
-    is($value, "{$pass ?? 'baz':: 'bar'}", "in pass $pass of for() loop got the right \$value");
-    $pass++; 
+sub test3 (Hash %h){
+  for %h.kv -> $key,$value {
+		state $pass ;
+		is($key, "{$pass ?? 'foo':: 'boo'}", "test3: pass $pass, from {%h.elems}-elem {%h.ref} \%h got the right \$key");
+		is($value, "{$pass ?? 'baz':: 'bar'}", "test3: pass $pass, from {%h.elems}-elem {%h.ref} \%h got the right \$value");
+		$pass++;
+  }
 }
+test3 %hash;
 
-sub test1 (Hash %h){
-    for %h.kv -> $key,$value {
+# sanity
+for %hash.kv -> $key,$value {
 	state $pass ;
-	is($key, "{$pass ?? 'foo':: 'boo'}", "in pass $pass of test1 got the right \$key");
-	is($value, "{$pass ?? 'baz':: 'bar'}", "in pass $pass of test1 got the right \$value");
-	$pass++;
-    }
+	is($key, "{$pass ?? 'foo':: 'boo'}", "for(): pass $pass, from {%hash.elems}-elem {%hash.ref} \%hash got the right \$key");
+	is($value, "{$pass ?? 'baz':: 'bar'}", "for(): pass $pass, from {%hash.elems}-elem {%hash.ref} \%hash got the right \$value");
+	$pass++; 
 }
-test1 %hash;
 
