@@ -44,7 +44,6 @@ import System.Posix.Process
 import System.Posix.Env
 import System.Posix.Files
 import System.Posix.User
-import System.Posix.Internals
 import qualified System.Posix.Signals
 
 statFileSize :: FilePath -> IO Integer
