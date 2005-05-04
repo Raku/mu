@@ -9,7 +9,7 @@ plan 3;
 {
   my $gen = {
     state $svar = 42;
-    sub () { $svar++ };
+    my $ret = { $svar++ };
   };
 
   my $a = $gen(); # $svar == 42
@@ -23,7 +23,7 @@ plan 3;
 {
   sub gen {
     state $svar = 42;
-    sub () { $svar++ };
+    my $ret = { $svar++ };
   };
 
   my $a = gen(); # $svar == 42
