@@ -75,31 +75,25 @@ sub test2{
 }
 test2;
 
-my %hash  = ('foo' => 'baz', 'boo' => 'bar');
-my %pair  = ('foo' => 'baz');
+my %hash  = ('foo' => 'baz');
 sub test3 (Hash %h){
   for %h.kv -> $key,$value {
-		state $pass ;
-		is($key, "{$pass ?? 'foo':: 'boo'}", "test3: pass $pass, from {%h.elems}-elem {%h.ref} \%h got the right \$key");
-		is($value, "{$pass ?? 'baz':: 'bar'}", "test3: pass $pass, from {%h.elems}-elem {%h.ref} \%h got the right \$value");
-		$pass++;
+		is($key, 'foo', "test3:  from {%h.elems}-elem {%h.ref} \%h got the right \$key",:todo<bug>);
+		is($value, 'baz', "test3: from {%h.elems}-elem {%h.ref} \%h got the right \$value",:todo<bug>);
   }
 }
 test3 %hash;
-test3 %pair;
 
 sub test4 (Hash %h){
 	for 0..%h.kv.end -> $idx {
-		is(%h.kv[$idx], %hash.kv[$idx], "test4: elem $idx of {%h.kv.elems}-elem {%h.kv.ref} \%hash.kv correctly accessed");
+		is(%h.kv[$idx], %hash.kv[$idx], "test4: elem $idx of {%h.kv.elems}-elem {%h.kv.ref} \%hash.kv correctly accessed",:todo<bug>);
 	}
 }
 test4 %hash;
 
 # sanity
 for %hash.kv -> $key,$value {
-	state $pass ;
-	is($key, "{$pass ?? 'foo':: 'boo'}", "for(): pass $pass, from {%hash.elems}-elem {%hash.ref} \%hash got the right \$key");
-	is($value, "{$pass ?? 'baz':: 'bar'}", "for(): pass $pass, from {%hash.elems}-elem {%hash.ref} \%hash got the right \$value");
-	$pass++; 
+	is($key, 'foo', "for(): from {%hash.elems}-elem {%hash.ref} \%hash got the right \$key");
+	is($value, 'baz', "for(): from {%hash.elems}-elem {%hash.ref} \%hash got the right \$value");
 }
 
