@@ -467,6 +467,11 @@ op1StrFirst f = op1Cast $ VStr .
 
 op1Pick :: Val -> Eval Val
 op1Pick (VRef r) = op1Pick =<< readRef r
+op1Pick (VList []) = return undef
+op1Pick (VList vs) = do
+    rand <- liftIO $ randomRIO (0, length vs - 1)
+    return $ vs !! rand
+op1Pick (VJunc (MkJunc _ _ set)) | Set.null set = return undef
 op1Pick (VJunc (MkJunc JAny _ set)) = do -- pick mainly works on 'any'
     rand <- liftIO $ randomRIO (0 :: Int, (Set.size set) - 1)
     return $ (Set.elems set) !! rand
@@ -1513,7 +1518,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   List      pre     values  (Pair|Junction)\
 \\n   List      pre     kv      (rw!Pair)\
 \\n   List      pre     pairs   (rw!Pair)\
-\\n   Any       pre     pick    (Junction)\
+\\n   Any       pre     pick    (Any|Junction)\
 \\n   Bool      pre     rename  (Str, Str)\
 \\n   Bool      pre     symlink (Str, Str)\
 \\n   Bool      pre     link    (Str, Str)\
