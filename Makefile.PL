@@ -112,13 +112,15 @@ sub set_postamble {
             or die "*** Please set \$ENV{PARROT_PATH} to the base path with a built parrot tree.\n";
         my $ldflags = parrot_config($base, 'ldflags');
         my $libs = parrot_config($base, 'libs');
+        my $icuflags = parrot_config($base, 'icu_shared');
 
         # strip non-GHC flags
         $ldflags =~ s/-[^IlL]\S*//g;
         $libs =~ s/-[^IlL]\S*//g;
+        $icuflags =~ s/-[^IlL]\S*//g;
 
         $embed_flags .= " -I$base/include -L$base/blib/lib -DPUGS_HAVE_PARROT=1 -L$base/blib/lib -L/usr/local/lib $ldflags ";
-        $ghc_output .= " -lparrot $libs ";
+        $ghc_output .= " -lparrot $libs $icuflags ";
     }
 
     my $config = get_pugs_config();
