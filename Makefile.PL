@@ -179,7 +179,7 @@ optimised :: optimized
 optimized :: src/Pugs/Config.hs @srcfiles $version_h @prereqs
 	$ghc $threaded -O --make $ghc_flags $embed_flags $ghc_output
 
-unoptimised :: optimized
+unoptimised :: unoptimized
 
 unoptimized :: src/Pugs/Config.hs @srcfiles $version_h @prereqs
 	$ghc $threaded -O0 --make $ghc_flags $embed_flags $ghc_output
