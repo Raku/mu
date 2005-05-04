@@ -310,9 +310,9 @@ instance Value VStr where
         pad x = (replicate (40 - length x) '0') ++ x
     vCast (VNum n)      = showNum n
     vCast (VList l)     = unwords $ map vCast l
-    vCast (VCode s)      = "<" ++ show (subType s) ++ "(" ++ subName s ++ ")>"
+    vCast (VCode s)     = "<" ++ show (subType s) ++ "(" ++ subName s ++ ")>"
     vCast (VJunc j)     = show j
-    vCast (VThread t)   = dropWhile (not . isDigit) $ show t
+    vCast (VThread t)   = takeWhile isDigit $ dropWhile (not . isDigit) $ show t
     vCast x             = castFail x
 
 showNum :: Show a => a -> String
@@ -350,7 +350,7 @@ instance Value VSocket where
     doCast (VSocket x)  = x
     doCast x            = castFail x
 
-instance Value VThread where
+instance Value (VThread Val) where
     castV = VThread
     doCast (VThread x)  = x
     doCast x            = castFail x
@@ -435,7 +435,7 @@ data Val
     | VError    !VStr !Exp
     | VHandle   !VHandle
     | VSocket   !VSocket
-    | VThread   !VThread
+    | VThread   !(VThread Val)
     | VProcess  !VProcess
     | VRule     !VRule
     | VSubst    !VSubst      -- ^ Substitution value (correct?)

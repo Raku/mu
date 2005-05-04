@@ -308,16 +308,36 @@ op1 "accept" = \v -> do
 op1 "yield" = const $ do
     ok <- tryIO False $ do { yield ; return True }
     return $ VBool ok
+op1 "detach" = \v -> do
+    case v of
+        VThread thr -> do
+            liftSTM $ tryPutTMVar (threadLock thr) undef
+            return $ VBool True
+        _           -> fail $ "Not a thread: " ++ show v
+op1 "kill" = \v -> do
+    case v of
+        VThread thr -> do
+            liftIO . killThread $ threadId thr
+            return $ VBool True
+        _           -> fail $ "Not a thread: " ++ show v
+op1 "join" = \v -> do
+    case v of
+        VThread thr -> liftSTM $ takeTMVar (threadLock thr)
+        _           -> op2Join v (VList [])
 op1 "async" = \v -> do
     env     <- ask
     code    <- fromVal v
+    lock    <- liftSTM $ newEmptyTMVar
     tid     <- liftIO . (if rtsSupportsBoundThreads then forkOS else forkIO) $ do
-        runEvalIO env $ do
+        val <- runEvalIO env $ do
             evl <- asks envEval
             local (\e -> e{ envContext = CxtVoid }) $ do
                 evl (Syn "()" [Val code, Syn "invs" [], Syn "args" []])
-        return ()
-    return $ VThread tid
+        liftSTM $ tryPutTMVar lock val
+    return . VThread $ MkThread
+        { threadId      = tid
+        , threadLock    = lock
+        }
 op1 "listen" = \v -> do
     port    <- fromVal v
     socket  <- liftIO $ listenOn (PortNumber $ fromInteger port)
@@ -1437,6 +1457,8 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Num       pre     sum     (List)\
 \\n   Str       pre     join    (Array: Str)\
 \\n   Str       pre     join    (Str, List)\
+\\n   Any       pre     join    (Thread)\
+\\n   Bool      pre     detach  (Thread)\
 \\n   List      pre     zip     (List)\
 \\n   List      pre     keys    (rw!Hash)\
 \\n   List      pre     values  (rw!Hash)\
@@ -1607,6 +1629,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Thread    pre     async   (Code)\
 \\n   Bool      pre     yield   (?Thread)\
 \\n   Int       pre     sign    (Num)\
+\\n   Bool      pre     kill    (Thread)\
 \\n   Int       pre     kill    (Int, List)\
 \\n   List      pre     Pugs::Internals::runInteractiveCommand    (?Str=$_)\
 \\n   List      pre     Pugs::Internals::openFile    (?Str,?Str=$_)\

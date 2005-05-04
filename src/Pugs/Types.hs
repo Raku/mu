@@ -95,7 +95,12 @@ type VHandle = Handle
 -- |Uses Haskell's underlying representation for sockets.
 type VSocket = Socket
 -- |Uses Haskell's underlying representation for threads.
-type VThread = ThreadId
+data VThread a = MkThread
+    { threadId      :: ThreadId
+    , threadLock    :: TMVar a
+    }
+    deriving (Show, Eq, Ord, Typeable)
+
 -- |Representation for rules (i.e. regexes). Currently consists of a
 -- "RRegex" 'Regex', and a boolean flag indicating whether the rule has
 -- \'global\' semantics (Perl5's \/g), i.e. whether it matches all occurences
@@ -104,11 +109,17 @@ data VRule     = MkRule
     { rxRegex     :: !Regex -- ^ The \'regular\' expression
     , rxGlobal    :: !Bool  -- ^ Flag indicating \'global\' (match-all)
     }
-    deriving (Show, Eq, Ord)
+    deriving (Show, Eq, Ord, Typeable)
 
 instance Ord VHandle where
-    compare x y = compare (show x) (show y)
+    compare _ _ = EQ
 instance Ord VSocket where
     compare x y = compare (show x) (show y)
 instance (Ord a) => Ord (Tree a) where
     compare _ _ = EQ
+instance Ord (TMVar a) where
+    compare x y = compare (show x) (show y)
+instance Eq (TMVar a) where
+    _ == _ = True
+instance Show (TMVar a) where
+    show _ = "<tmvar>"
