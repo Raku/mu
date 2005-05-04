@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 23;
+plan 27;
 
 =pod
 
@@ -51,7 +51,7 @@ Basic C<kv> tests, see S29.
 }
 
 
-# test3 illustrates a bug 
+# test3 and test4 illustrate a bug 
 
 sub test1{
 	my $pair = boo=>'baz'; 
@@ -76,6 +76,7 @@ sub test2{
 test2;
 
 my %hash  = ('foo' => 'baz', 'boo' => 'bar');
+my %pair  = ('foo' => 'baz');
 sub test3 (Hash %h){
   for %h.kv -> $key,$value {
 		state $pass ;
@@ -85,6 +86,14 @@ sub test3 (Hash %h){
   }
 }
 test3 %hash;
+test3 %pair;
+
+sub test4 (Hash %h){
+	for 0..%h.kv.end -> $idx {
+		is(%h.kv[$idx], %hash.kv[$idx], "test4: elem $idx of {%h.kv.elems}-elem {%h.kv.ref} \%hash.kv correctly accessed");
+	}
+}
+test4 %hash;
 
 # sanity
 for %hash.kv -> $key,$value {
