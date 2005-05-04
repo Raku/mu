@@ -772,16 +772,16 @@ envWant env =
 associates them with the things they actually represent.
 
 It is represented as a mapping from names to /lists/ of bound items.
-This is to allow for multi subs (right?), because we will need to keep
+This is to allow for multi subs, because we will need to keep
 /multiple/ subs associated with one symbol. In other cases, the list
 should just contain a single value. See 'genSym' and 'genMultiSym' for
-more details. (Correct?)
+more details.
 
 @TVar@ indicates that the mapped-to items are STM transactional variables.
 
 The @Bool@ is a \'freshness\' flag used to ensure that @my@ variable slots
 are re-generated each time we enter their scope; see the 
-'Eval.reduce' entry for ('Pad' 'SMy' ... ).
+'Pugs.Eval.reduce' entry for ('Pad' 'SMy' ... ).
 -}
 data Pad = MkPad !(Map Var ([(TVar Bool, TVar VRef)]))
     deriving (Eq, Ord, Typeable)
