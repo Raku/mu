@@ -334,6 +334,7 @@ op1 "async" = \v -> do
             local (\e -> e{ envContext = CxtVoid }) $ do
                 evl (Syn "()" [Val code, Syn "invs" [], Syn "args" []])
         liftSTM $ tryPutTMVar lock val
+        return ()
     return . VThread $ MkThread
         { threadId      = tid
         , threadLock    = lock
