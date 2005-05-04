@@ -1,14 +1,15 @@
+#!perl6
 # Demo of the state() variable declaration.
 # This is also a neat way of doing OO without actually having OO available.
 
 use v6;
 
-sub gen_cashier {
+sub gen_cashier () {
     # This variable corresponds to a class variable.
     # It is shared across all "instances" of gen_cashier().
     state $cash_in_store = 0;
 
-    # One could add my variables here, which correspond to instance variables.
+    # One could add my() variables here, which correspond to instance variables.
     # These would not be shared.
 
     # Finally, we return a hashref which maps method names to code.
@@ -20,8 +21,8 @@ sub gen_cashier {
 }
 
 my $drawer;
-for 1 .. 3 { $drawer.{$_} = gen_cashier() }
+$drawer[$_] = gen_cashier() for 1..3;
 
-$drawer.{1}<add>( 59 );
-$drawer.{2}<del>( 17 );
-say $drawer.{3}<bal>();
+$drawer[1]<add>( 59 );
+$drawer[2]<del>( 17 );
+say $drawer[3]<bal>();  # This should say "42"
