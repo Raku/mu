@@ -54,20 +54,20 @@ Basic C<kv> tests, see S29.
 # illustrate a bug
 
 my %hash  = ('foo' => 'baz', 'boo' => 'bar');
-for  %hash.kv -> $key,$value {
-    state $pass ;
-	is($key, "{$pass ?? 'foo':: 'boo'}", "in pass $pass of for() loop got the right \$key");
-	is($value, "{$pass ?? 'baz':: 'bar'}", "in pass $pass of for() loop got the right \$value");
-	$pass++; 
+for %hash.kv -> $key,$value {
+    state $pass = 0;
+    is($key, "{$pass ?? 'foo':: 'boo'}", "in pass $pass of for() loop got the right \$key");
+    is($value, "{$pass ?? 'baz':: 'bar'}", "in pass $pass of for() loop got the right \$value");
+    $pass++; 
 }
 
 sub test1 (Hash %h){
-	for  %h.kv -> $key,$value {
-		state  $pass ;
-		is($key, "{$pass ?? 'foo':: 'boo'}", "in pass $pass of test1 got the right \$key");
-		is($value, "{$pass ?? 'baz':: 'bar'}", "in pass $pass of test1 got the right \$value");
-		$pass++;
-	}
+    for %h.kv -> $key,$value {
+	state $pass = 0;
+	is($key, "{$pass ?? 'foo':: 'boo'}", "in pass $pass of test1 got the right \$key");
+	is($value, "{$pass ?? 'baz':: 'bar'}", "in pass $pass of test1 got the right \$value");
+	$pass++;
+    }
 }
 test1 %hash;
 
