@@ -6,7 +6,7 @@ sub fisher_yates_shuffle (@deck) {
    my $i = +@copy;
    while ($i--) {
       my $j = int(rand($i+1));
-      @copy[[$i,$j]] = @copy[[$j,$i]];
+      @copy[$i,$j] = @copy[$j,$i];
    }
    return @copy;
 }
