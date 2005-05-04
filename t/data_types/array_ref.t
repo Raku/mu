@@ -99,9 +99,13 @@ is     $array9[1][1][1][0], 42, "recursive array access (3)";
 my $array10 = [[2]];
 eval_is('$array10[0][0] = 6; $array10[0][0]', 6, "changing nested array");
 
-# creating a AoA using ";"
-my $array11;
-eval '$array11 = [ "a","b","c"; "d","e","f" ]';
-is +$array11,      2, "AoA created using ';' contains correct number of elems", :todo;
-is +$array11[0],   3, "AoA's subarray created using ';' contains correct number of elems", :todo;
-is $array11[1][1], "e", "AoA created using ';' contains correct elem", :todo;
+# creating a AoA using ";" doesn't work any longer
+# As of http://www.nntp.perl.org/group/perl.perl6.language/20795:
+#   In ordinary list context, infix:<;> is just a list-op-ending "big comma",
+#   but is otherwise treated like an ordinary comma (but only if the
+#   list is in some kind of brackets, of course).
+#my $array11;
+#eval '$array11 = [ "a","b","c"; "d","e","f" ]';
+#is +$array11,      2, "AoA created using ';' contains correct number of elems", :todo;
+#is +$array11[0],   3, "AoA's subarray created using ';' contains correct number of elems", :todo;
+#is $array11[1][1], "e", "AoA created using ';' contains correct elem", :todo;
