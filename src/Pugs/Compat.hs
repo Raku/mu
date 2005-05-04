@@ -98,7 +98,7 @@ statFileSize n = bracket (openFile n ReadMode) hClose hFileSize
 
 -- Again, Win32 specific magic, as stolen from GHC
 -- see http://cvs.haskell.org/cgi-bin/cvsweb.cgi/fptools/ghc/compiler/main/SysTools.lhs?rev=1.115
-foreign unsafe import stdcall "_getpid" getProcessID :: IO Int -- relies on Int == Int32 on Windows
+foreign import stdcall "_getpid" getProcessID :: IO Int -- relies on Int == Int32 on Windows
 
 type UserID = Int
 type GroupID = Int
