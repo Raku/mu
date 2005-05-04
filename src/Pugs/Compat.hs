@@ -44,6 +44,7 @@ import System.Posix.Process
 import System.Posix.Env
 import System.Posix.Files
 import System.Posix.User
+import System.Posix.Internals
 import qualified System.Posix.Signals
 
 statFileSize :: FilePath -> IO Integer
@@ -95,8 +96,9 @@ statFileSize :: FilePath -> IO Integer
 statFileSize n = bracket (openFile n ReadMode) hClose hFileSize
 -- statFileSize _ = failWith "-s"
 
-getProcessID :: IO ProcessID
-getProcessID = return 1
+-- Again, Win32 specific magic, as stolen from GHC
+-- see http://cvs.haskell.org/cgi-bin/cvsweb.cgi/fptools/ghc/compiler/main/SysTools.lhs?rev=1.115
+foreign unsafe import stdcall "_getpid" getProcessID :: IO Int -- relies on Int == Int32 on Windows
 
 type UserID = Int
 type GroupID = Int
@@ -131,4 +133,3 @@ getArg0 = do
         getProgArgv p_argc p_argv
         argv <- peek p_argv
         peekCString =<< peekElemOff argv 0
-
