@@ -616,7 +616,7 @@ data Exp
     | Cxt !Cxt !Exp                     -- ^ Context
     | Pos !Pos !Exp                     -- ^ Position
     | Pad !Scope !Pad !Exp              -- ^ Lexical pad
-    | Sym !Scope !Var !Exp              -- ^ Symbol
+    | Sym !Scope !Var !Exp              -- ^ Symbol (declaration?)
     | Stmts !Exp !Exp                   -- ^ Multiple statements
     | Prim !([Val] -> Eval Val)         -- ^ Primitive
     | Val !Val                          -- ^ Value
@@ -768,6 +768,21 @@ envWant env =
     showCxt (CxtItem typ)   = "Scalar (" ++ showType typ ++ ")"
     showCxt (CxtSlurpy typ) = "List (" ++ showType typ ++ ")"
 
+{- |A 'Pad' keeps track of the names of all currently-bound symbols, and
+associates them with the things they actually represent.
+
+It is represented as a mapping from names to /lists/ of bound items.
+This is to allow for multi subs (right?), because we will need to keep
+/multiple/ subs associated with one symbol. In other cases, the list
+should just contain a single value. See 'genSym' and 'genMultiSym' for
+more details. (Correct?)
+
+@TVar@ indicates that the mapped-to items are STM transactional variables.
+
+The @Bool@ is a \'freshness\' flag used to ensure that @my@ variable slots
+are re-generated each time we enter their scope; see the 
+'Eval.reduce' entry for ('Pad' 'SMy' ... ).
+-}
 data Pad = MkPad !(Map Var ([(TVar Bool, TVar VRef)]))
     deriving (Eq, Ord, Typeable)
 
@@ -784,18 +799,22 @@ instance Show Pad where
             dump <- runEvalIO undefined $ dumpRef ref
             return $ "(unsafePerformIO . atomically $ do { bool <- newTVar True; ref <- (newTVar " ++ vCast dump ++ "); return (bool, ref) })"
 
+-- |Produce a 'Pad' from a list of bindings. The inverse of 'padToList'.
+-- Not to be confused with the actual 'Pad' constructor @MkPad@.
 mkPad :: [(Var, [(TVar Bool, TVar VRef)])] -> Pad
 mkPad = MkPad . Map.fromList
 
--- |Look for a variable in a 'Pad'.
-lookupPad :: Var -- ^ Variable to look for
+-- |Look up a symbol in a 'Pad'.
+lookupPad :: Var -- ^ Symbol to look for
           -> Pad -- ^ Pad to look in
           -> Maybe [TVar VRef] -- ^ Might return 'Nothing' if var is not found
 lookupPad key (MkPad map) = case Map.lookup key map of
     Just xs -> Just [tvar | (_, tvar) <- xs]
     Nothing -> Nothing
 
--- |Transform a pad into a flat list of bindings.
+-- |Transform a pad into a flat list of bindings. The inverse of 'mkPad'.
+-- Note that @Data.Map.assocs@ returns a list of mappings in ascending key 
+-- order.
 padToList :: Pad -> [(Var, [(TVar Bool, TVar VRef)])]
 padToList (MkPad map) = Map.assocs map
 
@@ -808,6 +827,11 @@ diffPads (MkPad map1) (MkPad map2) = MkPad $ Map.difference map1 map2
 unionPads :: Pad -> Pad -> Pad
 unionPads (MkPad map1) (MkPad map2) = MkPad $ Map.union map1 map2
 
+-- |Create a 'Pad'-transforming transaction that will install a symbol 
+-- definition in the 'Pad' it is applied to, /alongside/ any other mappings
+-- of the same name. This is to allow for overloaded (i.e. multi) subs,
+-- where one sub name actually maps to /all/ the different multi subs.
+-- (Is this correct?)
 genMultiSym :: MonadSTM m => String -> VRef -> m (Pad -> Pad)
 genMultiSym name ref = do
     tvar    <- liftSTM $ newTVar ref
@@ -815,6 +839,10 @@ genMultiSym name ref = do
     return $ \(MkPad map) -> MkPad $
         Map.insertWith (++) name [(fresh, tvar)] map
 
+-- |Create a 'Pad'-transforming transaction that will install a symbol
+-- mapping from a name to a thing, in the 'Pad' it is applied to.
+-- Unlike 'genMultiSym', this version just installs a single definition
+-- (right?), shadowing any earlier or outer definition.
 genSym :: MonadSTM m => String -> VRef -> m (Pad -> Pad)
 genSym name ref = do
     tvar    <- liftSTM $ newTVar ref
