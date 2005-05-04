@@ -557,6 +557,19 @@
 %  }
 }
 
+\frame[t]{
+  \frametitle{Laziness}
+
+  \begin{tabbing}
+    \texttt{\synfunc{my}\ @prims\symbol{95}{}mal\symbol{95}{}zwei} \= \texttt{=} \= \kill
+    \texttt{\synfunc{my}\ \synvar{@$\mathbb{N}$}} \> \texttt{=} \> \texttt{(1..Inf);} \\
+    \texttt{\synfunc{my}\ \synvar{@prims}} \> \texttt{=} \> \texttt{\synvar{@$\mathbb{N}$}.\synvar{grep}:\{ \synvar{is\symbol{95}{}prime}(\$\^{}a, \$\^{}b) \};} \\
+    \texttt{\synfunc{my}\ \synvar{@prims\symbol{95}{}mal\symbol{95}{}zwei}} \> \texttt{=} \> \texttt{\synvar{@prims}.\synvar{map}:\{ \synvar{\$\^{}zahl}\ * 2 \};} \\
+    \texttt{\synfunc{say}\ \synvar{@prims\symbol{95}{}mal\symbol{95}{}zwei}\symbol{91}42];}\\
+    \texttt{\syncomment{\# Gibt das doppelte der 42. Primzahl aus, also 346. :)}}
+  \end{tabbing}
+}
+
 \subsection{Mitgestaltungsm"oglichkeiten}
 \frame[t]{
   \frametitle{Mitgestaltungsmöglichkeiten}
