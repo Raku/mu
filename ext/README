@@ -4,6 +4,10 @@ The `ext` directory is currently intended for modules that are:
 + Are completed works
 + Pass all tests
 
+Modules should also contain a Makefile.PL, a ChangeLog and some
+POD or Kwid documentation. These modules are not meant to be just
+examples, but to be working tools.
+
 These modules will be built, tested and installed from the top level
 Pugs installation commands. They will be installed as Perl6 modules in
 the Perl6 lib directories.

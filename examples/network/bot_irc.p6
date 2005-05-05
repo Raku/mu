@@ -5,6 +5,7 @@ use v6;
 # version 0.1, michael scherer, misc@zarb.org
 # some additions by:
 #     stevan little <stevan@iinteractive.com>
+#     Luke Palmer
 # the first perl6 irc bot ( or at least, what i hope to be the first ).
 
 say "A irc perl 6 bot";
