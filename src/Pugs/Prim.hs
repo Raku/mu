@@ -187,7 +187,9 @@ op1 "require_parrot" = \v -> do
     return $ VBool True
 op1 "eval_parrot" = \v -> do
     code    <- fromVal v
-    liftIO $ evalParrot code
+    liftIO . evalParrot $ if ".sub" `isPrefixOf` dropWhile isSpace code
+        then code
+        else ".sub pugs_eval_parrot\n" ++ code ++ "\n.end\n"
     return $ VBool True
 op1 "require" = \v -> do
     file    <- fromVal v
