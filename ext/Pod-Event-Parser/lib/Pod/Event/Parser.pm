@@ -18,14 +18,16 @@ my @EVENTS = (
 );
 
 sub parse (Str $filename, Hash %events is rw) returns Void is export {
-    for (@EVENTS) -> $e { %events{$e} = sub { } unless ?%events{$e} }
-    my $fh = open($filename);    
+    
+    for @EVENTS -> $e { %events{$e} = sub { } unless ?%events{$e} }
+    
     my $is_parsing = 0;
     my @for_or_begin;
     
-    my $line = $fh.readline;
-    while (defined($line)) {
-        $line = $fh.readline;
+    my $fh = open($filename);    
+    loop {
+        my $line = $fh.readline;
+        last unless $line.defined; # exit as soon as possible
         chomp($line);
         if ($line ~~ rx:perl5{^=pod}) {
             $is_parsing = 1;
@@ -161,12 +163,15 @@ Pod::Event::Parser - A simple event based POD parser
 
 =head1 DESCRIPTION
 
-This is a very simple event based POD parser, it is modeled after SAX style parsers
-and is currently still in the very early stages of development.  
+This is a straightforward event based POD parser, it is modeled after XML SAX 
+parsers and is currently in the early stages of development.   
 
 =head1 LIMITATIONS & CAVEATS
 
-Functionality is B<severaly> limited right now. See the tests for more details.
+Basic parsing functionality is fairly solid right now. The F<t/complex.t> test 
+actually roundtrip parses this document successfully. However, more complex POD 
+documents may not do as well. Error reporting is still pretty minimal and the 
+parser is not very forgiving about whitespace in some situations. 
 
 =head1 FUNCTIONS
 
