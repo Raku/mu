@@ -94,9 +94,11 @@ sub new_bot(
   # Instance methods
   my $self = {
     # Readonly accessors
-    nick       => { $nick },
-    servername => { $servername },
-    connected  => { $connected },
+    nick          => { $nick },
+    servername    => { $servername },
+    connected     => { $connected },
+    last_traffic  => { $last_traffic },
+    last_autoping => { $last_autoping },
 
     # Handler register methods
     add_numeric_handler => -> Str $code, Code $cb {
@@ -127,11 +129,13 @@ sub new_bot(
       if($connected) {
 	debug "Disconnecting from $host:$port... ";
 	try { $hdl.close }
-	$connected  = 0;
-	$inside     = 0;
-	@on_chans   = ();
-	$servername = undef;
-	$hdl        = undef;
+	$connected     = 0;
+	$inside        = 0;
+	@on_chans      = ();
+	$servername    = undef;
+	$hdl           = undef;
+	$last_traffic  = 0;
+	$last_autoping = 0;
 	debug "done.";
       }
     },
@@ -210,7 +214,7 @@ sub new_bot(
     # Check that our connection is still alive
     livecheck => {
       if($connected) {
-	if(time() - $last_traffic >= $autoping and time() - $last_autoping >= 60) {
+	if($servername and time() - $last_traffic >= $autoping and time() - $last_autoping >= 60) {
 	  debug "No traffic seen for {time() - $last_traffic} seconds; pinging server.";
 	  $self<raw>("PING :$servername");
 	  $last_autoping = time;
