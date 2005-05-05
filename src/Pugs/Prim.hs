@@ -183,7 +183,11 @@ op1 "require_haskell" = \v -> do
     return $ VBool True
 op1 "require_parrot" = \v -> do
     name    <- fromVal v
-    liftIO $ evalParrot name
+    liftIO $ evalParrotFile name
+    return $ VBool True
+op1 "eval_parrot" = \v -> do
+    code    <- fromVal v
+    liftIO $ evalParrot code
     return $ VBool True
 op1 "require" = \v -> do
     file    <- fromVal v
@@ -1478,6 +1482,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      pre     exists  (rw!Array: Int)\
 \\n   Str       pre     perl    (rw!Any|Junction)\
 \\n   Any       pre     eval    (Str)\
+\\n   Any       pre     eval_parrot   (Str)\
 \\n   Any       pre     eval_perl5   (Str)\
 \\n   Any       pre     eval_haskell (Str)\
 \\n   Any       pre     eval_yaml    (Str)\

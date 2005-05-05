@@ -45,6 +45,7 @@ clean_files     (map fixpaths($_),
     "pugs*", "src/Pugs/pugs_config.h", $version_h, $config_h,
     'src/Pugs/Config.hs', 'blib6',
     'test.log',
+    'src/Pugs/Embed/Parrot.hs',
     map {("$_/*.hpp", "$_/*.hi", "$_/*.o*")} @srcdirs
 );
 
@@ -103,6 +104,7 @@ sub set_postamble {
     $ghc_output .= " $pcre @syck @pge $unicode";
 
     my $embed_flags = "";
+    my $hsc2hs_flags = "";
     if ($ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bparrot\b/i) {
         my $base = $ENV{PARROT_PATH};
         if (!$base and -d "../parrot") {
@@ -121,6 +123,9 @@ sub set_postamble {
 
         $embed_flags .= " -I$base/include -L$base/blib/lib -DPUGS_HAVE_PARROT=1 -L$base/blib/lib -L/usr/local/lib $ldflags ";
         $ghc_output .= " -lparrot $libs $icuflags ";
+
+        # parrot include paths for hsc2hs
+        $hsc2hs_flags = "-DPUGS_HAVE_PARROT -I$base/include";
     }
 
     my $config = get_pugs_config();
@@ -157,6 +162,9 @@ ${() = '%.hpp : %.hs @prereqs $version_h
 	$ghc $threaded $ghc_flags -DHADDOCK -E \$< -o \$@
 	\$(PERL) util/munge_haddock.pl \$@'; \''}
 
+src/Pugs/Embed/Parrot.hs : src/Pugs/Embed/Parrot.hsc $config_h
+	hsc2hs $hsc2hs_flags -o \$@ \$<
+
 .SUFFIXES: .hs .hpp
 
 .hs.hpp :
@@ -170,7 +178,7 @@ haddock : $version_h $config_h @hppfiles docs/haddock
 docs/haddock :
 	\@\$(PERL) -e "mkdir q-docs/haddock-"
 
-profiled :: src/Pugs/Config.hs @srcfiles $version_h @prereqs
+profiled :: src/Pugs/Config.hs src/Pugs/Embed/Parrot.hs @srcfiles $version_h @prereqs
 	$ghc $threaded -O -auto-all -prof --make $profiled_flags $ghc_output
 
 pugs.prof :: profiled
@@ -178,15 +186,15 @@ pugs.prof :: profiled
 
 optimised :: optimized
 
-optimized :: src/Pugs/Config.hs @srcfiles $version_h @prereqs
+optimized :: src/Pugs/Config.hs src/Pugs/Embed/Parrot.hs @srcfiles $version_h @prereqs
 	$ghc $threaded -O --make $ghc_flags $embed_flags $ghc_output
 
 unoptimised :: unoptimized
 
-unoptimized :: src/Pugs/Config.hs @srcfiles $version_h @prereqs
+unoptimized :: src/Pugs/Config.hs src/Pugs/Embed/Parrot.hs @srcfiles $version_h @prereqs
 	$ghc $threaded -O0 --make $ghc_flags $embed_flags $ghc_output
 
-$pugs : src/Pugs/Config.hs @srcfiles $version_h @prereqs
+$pugs : src/Pugs/Config.hs src/Pugs/Embed/Parrot.hs @srcfiles $version_h @prereqs
 	$ghc $threaded -O --make $ghc_flags $embed_flags $ghc_output
 
 smoke : $pugs util/run-smoke.pl
