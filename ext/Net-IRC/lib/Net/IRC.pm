@@ -1,4 +1,4 @@
-module Net::IRC-0.01;
+module Net::IRC-0.03;
 # This is a take at a Perl 6 IRC library.
 # You can run it, too.
 # This library provides the "classes" bot and queue, to be used in other bots.
@@ -38,7 +38,7 @@ sub new_bot(
   Int ?$autoping     = 90,     # Autoping the server when we haven't seen traffic for 90s
   Int ?$live_timeout = 120,    # Drop connection when we haven't seen traffic for 120s
   Bool ?$debug_raw = 0,
-) {
+) is export {
   my $connected = 0;
   my $inside    = 0;
   my @on_chans;            # Which chans did we join?
