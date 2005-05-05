@@ -45,6 +45,8 @@ if($*OS eq any<MSWin32 mingw msys cygwin>) {
 
 my $expected = 'Hello from subprocess';
 %*ENV<PUGS_ROCKS> = $expected;
+# Note that the "?" preceeding the "(" is necessary, because we need a Bool,
+# not a junction of Bools.
 is %*ENV<PUGS_ROCKS>, $expected,'%*ENV is rw', "todo" => ?($*OS eq any<MSWin32 mingw msys cygwin>);
 
 my $tempfile = "temp-ex-output." ~ $*PID ~ "." ~ rand 1000;
