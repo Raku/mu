@@ -418,6 +418,7 @@ op1 other   = return . (\x -> VError ("unimplemented unaryOp: " ++ other) (App o
 op1EvalYaml :: Val -> Eval Val
 op1EvalYaml cv = do
     str     <- fromVal cv
+    if all isSpace str then return undef else do
     yaml    <- liftIO $ parseYaml (encodeUTF8 str)
     fromYaml yaml
 
