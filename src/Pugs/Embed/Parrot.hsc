@@ -44,6 +44,12 @@ initParrot = do
     parrot_set_run_core interp PARROT_JIT_CORE
 #endif
     parrot_imcc_init interp
+    pf      <- parrot_packfile_new interp 0
+    pf_dir  <- get_pf_directory pf
+    seg     <- withCString "test_code" $ \p -> do
+        parrot_packfile_segment_new_seg interp pf_dir 4 p 1
+    set_pf_cur_cs pf seg
+    parrot_loadbc interp pf
     return interp
 
 evalParrotFile :: FilePath -> IO ()
@@ -56,12 +62,6 @@ evalParrotFile file = do
 evalParrot :: String -> IO ()
 evalParrot code = do
     interp  <- initParrot
-    pf      <- parrot_packfile_new interp 0
-    pf_dir  <- get_pf_directory pf
-    seg     <- withCString "test_code" $ \p -> do
-        parrot_packfile_segment_new_seg interp pf_dir 4 p 1
-    set_pf_cur_cs pf seg
-    parrot_loadbc interp pf
     sub     <- withCString code $ \p -> do
         parrot_imcc_compile_pir interp p 0
     withCString "vv" $ parrot_call_sub interp sub
