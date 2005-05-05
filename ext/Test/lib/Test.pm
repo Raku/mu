@@ -187,7 +187,7 @@ sub proclaim (Bool $cond, Str ?$desc is copy, ?$todo, Str ?$got, Str ?$expected)
 
     # $context is now the raw TODO, so we have to check it
     my $context;
-    if $todo.defined {
+    if $todo {
         if (substr($todo, 0, 4) eq 'skip') {
             $context = $todo;        
         }
