@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-use Pod::Stream::Parser;
+use Pod::Event::Parser;
 use File::Spec;
 
 my $test_output;

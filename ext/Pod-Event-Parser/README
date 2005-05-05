@@ -1,13 +1,10 @@
 ---------------------------------------------------------------------
- Pod::Stream::Parser v0.0.1
+ Pod::Event::Parser v0.0.2
 ---------------------------------------------------------------------
-Note: this parser will eventually be superceded by one based on the
-Perldoc design, which is being prototyped in Perl 5 - see ext/Perldoc
---
 
-This is a very basic POD stream parser modeled after XML SAX parsers. 
-My goal is to have a working POD parser for Pugs which can parse the 
-perl6 Synposis POD documents. 
+This is a very basic POD parser using an event based API (modeled 
+after XML SAX parsers). My goal is to have a working POD parser for 
+Pugs which can parse the perl6 Synposis POD documents. 
 
 Not the greatest reason in the world, but thats about all I have 
 for now :)
@@ -15,10 +12,10 @@ for now :)
 And of course the act of writing this will hopefully produce a number
 of tests for specific features as well (already is has produced a few).
 
-Oh, and as to why a stream/event based parser. For one, Pugs does not 
-(yet) have support for the complex data structures of another kind of 
-parser. Also, since all that kind of stuff gets pushed onto the event 
-handling portion, it really allows for the simple building of 
+Oh, and as to why a event based parser. For one, Pugs does not 
+(yet) have support for the objects & complex data structures that other
+kinds of parser require. Also, since all that kind of stuff gets pushed 
+onto the eventhandling portion, it really allows for the simple building of 
 arbitrarily complex structures at a later date without having to 
 re-write the parser itself, while still allowing for simpler techniques
 here in the Perl6 Stone-Age. Oh yeah, and they are kinda fun too.

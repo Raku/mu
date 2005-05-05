@@ -2,9 +2,9 @@ use strict;
 use lib "../..", "../../inc";
 use inc::Module::Install prefix => '../../inc';
 
-name       ('Pod::Stream::Parser');
-version    ('0.01');
-abstract   ('Stream/Event based POD parser');
+name       ('Pod::Event::Parser');
+version    ('0.02');
+abstract   ('Event based POD parser');
 author     ('Stevan Little <stevan@iinteractive.com>');
 license    ('perl');
 

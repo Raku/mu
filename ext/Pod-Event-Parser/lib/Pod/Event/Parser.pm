@@ -1,6 +1,6 @@
 
 use v6;
-module Pod::Stream::Parser-0.0.2;
+module Pod::Event::Parser-0.0.2;
 
 my @EVENTS = (
     'start_document',
@@ -150,18 +150,18 @@ sub interpolate (Str $text, Hash %events) returns Void {
 
 =head1 NAME
 
-Pod::Stream::Parser - A simple event based POD parser
+Pod::Event::Parser - A simple event based POD parser
 
 =head1 SYNOPSIS
 
   use v6;
-  use Pod::Stream::Parser;
+  use Pod::Event::Parser;
   
   parse("path/to/file.pod", %event_handlers);
 
 =head1 DESCRIPTION
 
-This is a very simple stream based POD parser, it is modeled after SAX style parsers
+This is a very simple event based POD parser, it is modeled after SAX style parsers
 and is currently still in the very early stages of development.  
 
 =head1 LIMITATIONS & CAVEATS

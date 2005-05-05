@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-use Pod::Stream::Parser;
+use Pod::Event::Parser;
 use File::Spec;
 
 my $test_output;
@@ -60,7 +60,7 @@ my %events = (
     string => -> ($str) { $test_output ~= $str }         
 );
 
-my $file_path = catfile('lib', 'Pod', 'Stream', 'Parser.pm');
+my $file_path = catfile('lib', 'Pod', 'Event', 'Parser.pm');
 
 my $expected_output;
 my $start = 0;
