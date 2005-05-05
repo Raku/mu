@@ -7,6 +7,7 @@ module Data.Yaml.Syck (
 ) where
 
 import Control.Exception (bracket)
+import Data.IORef
 import Foreign.Ptr
 import Foreign.StablePtr
 import Foreign.C.Types
@@ -30,16 +31,21 @@ type SyckNodePtr = Ptr CString
 data SyckKind = SyckMap | SyckSeq | SyckStr
     deriving (Show, Ord, Eq, Enum)
 
-parseYaml :: String -> IO YamlNode
+parseYaml :: String -> IO (Either String (Maybe YamlNode))
 parseYaml str = withCString str $ \cstr -> do
     bracket syck_new_parser syck_free_parser $ \parser -> do
+        err <- newIORef Nothing
         syck_parser_str_auto parser cstr nullFunPtr
         syck_parser_handler parser =<< mkNodeCallback nodeCallback
-        syck_parser_error_handler parser =<< mkErrorCallback errorCallback
+        syck_parser_error_handler parser =<< mkErrorCallback (errorCallback err)
         syck_parser_implicit_typing parser 1
         syck_parser_taguri_expansion parser 0
         symId   <- syck_parse parser
-        readNode parser symId
+        if symId /= 0 then fmap (Right . Just) (readNode parser symId) else do
+        rv <- readIORef err
+        return $ case rv of
+            Nothing     -> Right Nothing
+            Just err    -> Left err
 
 nodeCallback :: SyckParser -> SyckNode -> IO SYMID
 nodeCallback parser syckNode = do
@@ -50,13 +56,13 @@ nodeCallback parser syckNode = do
     symId   <- syck_add_sym parser nodePtr
     return (toEnum . fromEnum $ symId)
 
-errorCallback :: SyckParser -> CString -> IO ()
-errorCallback parser cstr = do
+errorCallback :: IORef (Maybe String) -> SyckParser -> CString -> IO ()
+errorCallback err parser cstr = do
     msg     <- peekCString cstr
     lineptr <- peekByteOff parser offsetLinePtr :: IO CChar
     cursor  <- peekByteOff parser (offsetLinePtr + (3 * sizeOfCString)) :: IO CChar
     linect  <- peekByteOff parser (offsetLinePtr + (6 * sizeOfCString)) :: IO CChar
-    fail $ concat
+    writeIORef err . Just $ concat
         [ msg
         , ": line ", show (1 + fromEnum linect)
         , ", column ", show (cursor - lineptr)
