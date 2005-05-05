@@ -56,5 +56,10 @@ sub on_privmsg($event) {
       my $start_time = BEGIN { time };
       $bot<notice>(to => $reply_to, text => "Running for {time() - $start_time} seconds.");
     }
+
+    when rx:P5/^\?sleep\s+(\d+)$/ {
+      debug "Got sleep request from \"$event<from>\".";
+      sleep $1;
+    }
   }
 }

@@ -29,11 +29,22 @@ sub debug_recv(Str $msg) { say "< $msg" }
 sub debug_sent(Str $msg) { say "> $msg" }
 
 # Definition of the bot "class"
-sub new_bot(Str $nick is copy, Str $host, Int ?$port = 6667, Bool $debug_raw) {
+sub new_bot(
+  Str $nick is copy,
+  Str ?$username = $nick,
+  Str ?$ircname  = $nick,
+  Str $host,
+  Int ?$port         = 6667,
+  Int ?$autoping     = 90,     # Autoping the server when we haven't seen traffic for 90s
+  Int ?$live_timeout = 120,    # Drop connection when we haven't seen traffic for 120s
+  Bool ?$debug_raw = 0,
+) {
   my $connected = 0;
   my $inside    = 0;
   my @on_chans;            # Which chans did we join?
   my $servername;          # What is the IRC servername?
+  my $last_traffic;        # Timestamp of last traffic seen from server
+  my $last_autoping;       # Timestamp of last ping sent to server
   my $hdl;                 # Socket
   my $queue = new_queue(); # Queue (will later throttle our bot's output)
   my %numeric_handler;     # Callbacks for numeric messages (001)
@@ -105,6 +116,8 @@ sub new_bot(Str $nick is copy, Str $host, Int ?$port = 6667, Bool $debug_raw) {
       if($hdl) {
 	try { $hdl.autoflush(1) }
 	$connected++;
+	$last_traffic  = time;
+	$last_autoping = time;
 	debug "done.";
       } else {
 	debug "failed ($!).";
@@ -128,7 +141,7 @@ sub new_bot(Str $nick is copy, Str $host, Int ?$port = 6667, Bool $debug_raw) {
       if($connected) {
 	$queue<enqueue>({
 	  $say("NICK $nick");
-	  $say("USER $nick $nick $nick $nick");
+	  $say("USER $username * * :$ircname");
 	});
       }
     },
@@ -138,6 +151,7 @@ sub new_bot(Str $nick is copy, Str $host, Int ?$port = 6667, Bool $debug_raw) {
       while($connected) {
 	$queue<run>();
 	$self<readline>();
+	$self<livecheck>();
       }
     },
 
@@ -146,6 +160,7 @@ sub new_bot(Str $nick is copy, Str $host, Int ?$port = 6667, Bool $debug_raw) {
       my $line = readline $hdl;
       $line ~~ s:P5/[\015\012]*$//; # Hack to remove all "\r\n"s
       debug_recv $line if $debug_raw;
+      $last_traffic = time;
 
       if($line ~~ rx:P5/^:([^ ]+) (\d+) ([^ ]+) ?(.*)$/) {
 	$self<handle_numeric>($line, $1, $2, $3, $4);
@@ -189,6 +204,22 @@ sub new_bot(Str $nick is copy, Str $host, Int ?$port = 6667, Bool $debug_raw) {
 
       if(%command_handler{$command}) {
 	$_($event) for *%command_handler{$command};
+      }
+    },
+
+    # Check that our connection is still alive
+    livecheck => {
+      if($connected) {
+	if(time() - $last_traffic >= $autoping and time() - $last_autoping >= 60) {
+	  debug "No traffic seen for {time() - $last_traffic} seconds; pinging server.";
+	  $self<raw>("PING :$servername");
+	  $last_autoping = time;
+	}
+
+	if(time() - $last_traffic >= $live_timeout) {
+	  debug "No traffic seen for {time() - $last_traffic} seconds; disconnecting.";
+	  $self<disconnect>();
+	}
       }
     },
 
