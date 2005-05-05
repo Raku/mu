@@ -95,8 +95,11 @@ sub new_bot(
   my $self = {
     # Readonly accessors
     nick          => { $nick },
+    username      => { $username },
+    ircname       => { $ircname },
     servername    => { $servername },
     connected     => { $connected },
+    logged_in     => { $inside },
     last_traffic  => { $last_traffic },
     last_autoping => { $last_autoping },
 
@@ -185,7 +188,6 @@ sub new_bot(
       my $event = {
 	line   => $line,
 	server => $server,
-	code   => $code,
 	to     => $to,
 	rest   => strip_colon($rest),
       };
@@ -279,7 +281,16 @@ Net::IRC - IRC library for Pugs
   use Net::IRC;
   
   # Create new bot "object"
-  my $bot = new_bot(nick => "blechbot", host => "localhost");
+  my $bot = new_bot(
+    nick     => "blechbot",
+    username => "blech",      # (optional, defaults to $nick)
+    ircname  => "Ingo's Bot", # (optional, defaults to $nick)
+    host     => "localhost",
+    port     => 6667,         # (optional)
+    autoping => 90,           # (optional, defaults to 90)
+    live_timeout => 120,      # (optional, defaults to 120)
+    debug_raw => 0,           # (optional, defaults to 0)
+  );
   
   # Register callbacks
   $bot<add_command_handler>("INVITE",  \&on_invite);
@@ -296,6 +307,74 @@ Net::IRC - IRC library for Pugs
 
 C<Net::IRC> is an IRC library for Pugs. Note that it is I<not> a port of Perl
 5's C<Net::IRC>.
+
+=head1 METHODS
+
+=head2 C<new_bot(...)>
+
+Creates a new bot "object". See L<SYNOPSIS> for accepted parameters.
+
+The bot will autoping the server if it hasn't seen traffic for C<$autoping>
+seconds, and it'll drop the connection if it hasn't seen traffic for
+C<$live_timeout> seconds.
+
+=head2 C<nick()>, C<username()>, C<ircname()>, C<last_traffic()>, C<last_autoping()>
+
+=head2 C<connected()>
+
+Returns a true value if the bot's socket to the server is currently connected.
+
+=head2 C<logged_in()>
+
+Returns a true value if the bot is logged in.
+
+=head2 C<add_numeric_handler("001", -E<gt> $event {...})>
+
+=head2 C<add_command_handler("JOIN", -E<gt> $event {...})>
+
+Adds a callback to be executed when the bot receives a corresponding message.
+
+The callback is given a C<$event> hashref, containing:
+
+=over
+
+=item C<line>
+
+The original line received from the server (unmodified).
+
+=item C<server>
+
+The server the line was sent from. This is I<not> necessarily the server you
+connected to.
+
+=item C<to>
+
+The nick the message was sent to.
+
+=item C<rest>
+
+Additional information (varies).
+
+=item C<from>
+
+The C<nick!hostmask> the message was sent from. Not available for numeric
+handlers.
+
+=item C<from_nick>
+
+The nick part of C<from>. Not available for numeric handlers.
+
+=item C<object>
+
+The nick/channel/whatever the message operated (varies).
+
+=back
+
+=head2 C<join("#chan")>, C<part("#chan")>, C<quit("reason")>
+
+=head2 C<privmsg(to =E<gt> "...", text =E<gt> "...")>, C<notice(to =E<gt> "...", text =E<gt> "...")>
+
+=head2 C<raw("...")>
 
 =head1 EXAMPLES
 
