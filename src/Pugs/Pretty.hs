@@ -1,14 +1,14 @@
 {-# OPTIONS_GHC -fglasgow-exts #-}
 
-{-
+{-|
     Pretty printing for various data structures.
 
-    Galadriel! Galadriel!
-    Clear is the water of your well;
-    White is the stars in your white hand;
-    Unmarred, unstained is leaf and land
-    In Dwimordene, in Lorien
-    More fair than thoughts of Mortal Men.
+>   Galadriel! Galadriel!
+>   Clear is the water of your well;
+>   White is the stars in your white hand;
+>   Unmarred, unstained is leaf and land
+>   In Dwimordene, in Lorien
+>   More fair than thoughts of Mortal Men.
 -}
 
 module Pugs.Pretty where

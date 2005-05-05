@@ -1,12 +1,12 @@
 {-# OPTIONS_GHC -fglasgow-exts #-}
 
-{-
+{-|
     Context propagators and equalizers.
 
-    Tree and flower and leaf and grass,
-    Let them pass! Let them pass!
-    Hill and water under sky,
-    Pass them by! Pass them by!
+>   Tree and flower and leaf and grass,
+>   Let them pass! Let them pass!
+>   Hill and water under sky,
+>   Pass them by! Pass them by!
 -}
 
 module Pugs.Context where

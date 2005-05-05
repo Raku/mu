@@ -1,12 +1,12 @@
 {-# OPTIONS_GHC -fglasgow-exts -cpp #-}
 
-{-
+{-|
     Runtime engine.
 
-    The mountain throne once more is freed!
-    O! Wandering folk, the summons heed!
-    Come haste! Come haste! Across the waste!
-    The king of friend and kin has need...
+>   The mountain throne once more is freed!
+>   O! Wandering folk, the summons heed!
+>   Come haste! Come haste! Across the waste!
+>   The king of friend and kin has need...
 -}
 
 module Pugs.Run where

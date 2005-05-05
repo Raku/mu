@@ -1,12 +1,12 @@
 {-# OPTIONS_GHC -fglasgow-exts #-}
 
-{-
+{-|
     Regular expressions, based on PCRE.
 
-    A king he was on carven throne
-    In many-pillared halls of stone
-    With golden roof and silver floor,
-    And runes of power upon the door...
+>   A king he was on carven throne
+>   In many-pillared halls of stone
+>   With golden roof and silver floor,
+>   And runes of power upon the door...
 -}
 
 module RRegex (

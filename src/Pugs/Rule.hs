@@ -1,12 +1,12 @@
 {-# OPTIONS_GHC -fglasgow-exts #-}
 
-{-
+{-|
     Rule-based grammar engine.
 
-    From the ashes a fire shall be woken
-    A light from the shadows shall spring
-    Renewed shall be blade that was broken
-    The crownless again shall be king.
+>   From the ashes a fire shall be woken
+>   A light from the shadows shall spring
+>   Renewed shall be blade that was broken
+>   The crownless again shall be king.
 -}
 
 -- Based on the Parsec library, Copyright 1999-2000, Daan Leijen.

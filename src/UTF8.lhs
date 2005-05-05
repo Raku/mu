@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -fglasgow-exts -O #-}
 
-{-
+{-|
     UTF-8 handling.
 
     A Elbereth Gilthoniel,

@@ -1,12 +1,12 @@
 {-# OPTIONS_GHC -fglasgow-exts -cpp #-}
 
-{-
+{-|
     Embedded interpreters.
 
-    As Beren looked into her eyes
-    Within the shadows of her hair,
-    The trembling starlight of the skies
-    He saw there mirrored shimmering...
+>   As Beren looked into her eyes
+>   Within the shadows of her hair,
+>   The trembling starlight of the skies
+>   He saw there mirrored shimmering...
 -}
 
 module Pugs.Embed (

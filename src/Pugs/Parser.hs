@@ -1,13 +1,13 @@
 {-# OPTIONS_GHC -cpp -fglasgow-exts -funbox-strict-fields #-}
 {-# OPTIONS_GHC -#include "UnicodeC.h" #-}
 
-{-
+{-|
     Higher-level parser for building ASTs.
 
-    I sang of leaves, of leaves of gold, and leaves of gold there grew:
-    Of wind I sang, a wind there came and in the branches blew.
-    Beyond the Sun, beyond the Moon, the foam was on the Sea,
-    And by the strand of Ilmarin there grew a golden Tree...
+>   I sang of leaves, of leaves of gold, and leaves of gold there grew:
+>   Of wind I sang, a wind there came and in the branches blew.
+>   Beyond the Sun, beyond the Moon, the foam was on the Sea,
+>   And by the strand of Ilmarin there grew a golden Tree...
 -}
 
 module Pugs.Parser where

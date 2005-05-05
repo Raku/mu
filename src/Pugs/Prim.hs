@@ -1,13 +1,13 @@
 {-# OPTIONS_GHC -fglasgow-exts #-}
 {-# OPTIONS_GHC -#include "UnicodeC.h" #-}
 
-{-
+{-|
     Primitive operators.
 
-    There hammer on the anvil smote,
-    There chisel clove, and graver wrote;
-    There forged was blade, and bound was hilt;
-    The delver mined, the mason built...
+>   There hammer on the anvil smote,
+>   There chisel clove, and graver wrote;
+>   There forged was blade, and bound was hilt;
+>   The delver mined, the mason built...
 -}
 
 module Pugs.Prim where

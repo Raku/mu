@@ -1,12 +1,12 @@
 {-# OPTIONS_GHC -fglasgow-exts #-}
 
-{-
+{-|
     Parameter binding.
 
-    A star was bound upon her brows,
-    A light was on her hair
-    As sun upon the golden boughs
-    In Lorien the fair...
+>   A star was bound upon her brows,
+>   A light was on her hair
+>   As sun upon the golden boughs
+>   In Lorien the fair...
 -}
 
 module Pugs.Bind where

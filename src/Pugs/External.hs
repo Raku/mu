@@ -1,12 +1,12 @@
 {-# OPTIONS_GHC -fglasgow-exts -cpp #-}
 
-{-
+{-|
     External call utilities.
 
-    To the Sea, to the Sea! The white gulls are crying,
-    The wind is blowing, and the white foam is flying.
-    West, west away, the round sun is falling.
-    Grey ship, grey ship, do you hear them calling?
+>   To the Sea, to the Sea! The white gulls are crying,
+>   The wind is blowing, and the white foam is flying.
+>   West, west away, the round sun is falling.
+>   Grey ship, grey ship, do you hear them calling?
 -}
 
 module Pugs.External where

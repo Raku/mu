@@ -1,15 +1,15 @@
 {-# OPTIONS_GHC -cpp -fglasgow-exts -fno-warn-orphans -funbox-strict-fields #-}
 {-# OPTIONS_GHC -#include "UnicodeC.h" #-}
 
-{-
+{-|
     Abstract syntax tree.
 
-    Tall ships and tall kings
-    Three times three.
-    What brought they from the foundered land
-    Over the flowing sea?
-    Seven stars and seven stones
-    And one white tree.
+>   Tall ships and tall kings
+>   Three times three.
+>   What brought they from the foundered land
+>   Over the flowing sea?
+>   Seven stars and seven stones
+>   And one white tree.
 -}
 
 -- |Abstract Syntax Tree representation.

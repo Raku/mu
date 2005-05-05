@@ -1,13 +1,13 @@
 {-# OPTIONS_GHC -fglasgow-exts -cpp #-}
 
-{-
+{-|
     Interactive shell.
 
-    There is an inn, a merry old inn,
-    beneath an old grey hill,
-    And there they brew a beer so brown
-    That the Man in the Moon himself came down
-    one night to drink his fill...
+>   There is an inn, a merry old inn,
+>   beneath an old grey hill,
+>   And there they brew a beer so brown
+>   That the Man in the Moon himself came down
+>   one night to drink his fill...
 -}
 
 module Pugs.Shell where

@@ -1,13 +1,13 @@
 {-# OPTIONS_GHC -fglasgow-exts #-}
 {-# OPTIONS_GHC -#include "UnicodeC.h" #-}
 
-{-
+{-|
     Lexical analyzer.
 
-    No words were laid on stream or stone
-    When Durin woke and walked alone.
-    He named the nameless hills and dells;
-    He drank from yet untasted wells...
+>   No words were laid on stream or stone
+>   When Durin woke and walked alone.
+>   He named the nameless hills and dells;
+>   He drank from yet untasted wells...
 -}
 
 module Pugs.Lexer where

@@ -1,12 +1,12 @@
 {-# OPTIONS_GHC -fglasgow-exts -cpp #-}
 
-{-
+{-|
     Online help and banner text.
 
-    But if of ships I now should sing,
-    what ship would come to me,
-    What ship would bear me ever back
-    across so wide a Sea?
+>   But if of ships I now should sing,
+>   what ship would come to me,
+>   What ship would bear me ever back
+>   across so wide a Sea?
 -}
 
 #define PUGS_VERSION "6"

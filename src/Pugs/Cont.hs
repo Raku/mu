@@ -1,12 +1,12 @@
 {-# OPTIONS_GHC -fglasgow-exts -fno-warn-unused-binds #-}
 
-{-
+{-|
     Continuation with shift/reset operators.
 
-    The Road goes ever on and on
-    Down from the door where it began.
-    Now far ahead the Road has gone,
-    And I must follow, if I can...
+>   The Road goes ever on and on
+>   Down from the door where it began.
+>   Now far ahead the Road has gone,
+>   And I must follow, if I can...
 -}
 
 module Pugs.Cont (

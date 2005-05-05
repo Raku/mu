@@ -1,15 +1,15 @@
 {-# OPTIONS_GHC -fglasgow-exts -cpp #-}
 {-# OPTIONS_GHC -#include "UnicodeC.h" #-}
 
-{-
+{-|
     Evaluation and reduction engine.
 
-    Home is behind, the world ahead,
-    And there are many paths to tread
-    Through shadows to the edge of night,
-    Until the stars are all alight.
-    Then world behind and home ahead,
-    We'll wander back to home and bed...
+>   Home is behind, the world ahead,
+>   And there are many paths to tread
+>   Through shadows to the edge of night,
+>   Until the stars are all alight.
+>   Then world behind and home ahead,
+>   We'll wander back to home and bed...
 -}
 
 module Pugs.Eval where

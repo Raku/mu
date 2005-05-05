@@ -1,12 +1,12 @@
 {-# OPTIONS_GHC -fglasgow-exts #-}
 
-{-
+{-|
     Junction logic.
 
-    Still round the corner there may wait
-    A new road or a secret gate,
-    And though we pass them by today,
-    Tomorrow we may come this way...
+>   Still round the corner there may wait
+>   A new road or a secret gate,
+>   And though we pass them by today,
+>   Tomorrow we may come this way...
 -}
 
 module Pugs.Junc where

@@ -8,17 +8,17 @@ import Char hiding (chr, ord, digitToInt)
 {-# OPTIONS_GHC -fno-implicit-prelude #-}
 {-# OPTIONS_GHC -#include "UnicodeC.h" #-}
 
-{-
+{-|
     Unicode internals.
 
-    Sí na veth bâden im derel
-    Vi dúath dofn tummen.
-    Atham meraid velig a tynd
-    Athan eryd bain beraidh.
-    Or 'waith bain nura Anor
-    A panlû elin cuinar
-    Ú-pedithon 'i-aur gwann'
-    Egor nai îl 'namarië'.
+>   Sí na veth bâden im derel
+>   Vi dúath dofn tummen.
+>   Atham meraid velig a tynd
+>   Athan eryd bain beraidh.
+>   Or 'waith bain nura Anor
+>   A panlû elin cuinar
+>   Ú-pedithon 'i-aur gwann'
+>   Egor nai îl 'namarië'.
 -}
 
 -- Based on the GHC.Unicode library, Copyright 2005, Dimitry Golubovsky.
