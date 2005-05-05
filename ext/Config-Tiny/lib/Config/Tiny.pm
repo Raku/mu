@@ -7,7 +7,7 @@ use v6;
 # Unfortunately, OO doesn't exist in Pugs yet so
 # I decided to write OO before OO existed
 
-sub new () returns Ref {
+sub Config::Tiny::new () returns Ref {
     my %self;
     my %methods = (
         'err_str' => { %self<_err_str> },
@@ -17,7 +17,7 @@ sub new () returns Ref {
             }
             my $input = open($file);
             if ( ref $input ne 'IO' ) {
-                %self<_err_str> = "Failed to open $file for reading" and return FALSE;
+                %self<_err_str> = "Failed to open '$file' for reading" and return FALSE;
             }
             my $sect = '';
             my $cnt  = 0;
@@ -97,7 +97,7 @@ Config::Tiny - Read/Write .ini style files with as little code as possible
     $cfg<read>( 'cfg.ini' ) || die $cfg<err_str>();
 
     # Reading properties 
-    my $rootproperty = $cfg<data>(){}<rootproperty>; # Syntax below is nicer 
+    my $rootproperty = $cfg<data>(){''}<rootproperty>; # Syntax below is nicer 
 
     my $data = $cfg<data>();
     my $one = $data<section><one>;
@@ -117,8 +117,9 @@ Config::Tiny - Read/Write .ini style files with as little code as possible
 
 Config::Tiny is a utility to read and write .ini style configuration files
 with as little code as possible, reducing load time and memory overhead.
+
 Written using Pugs as of 2005-05-05, it was written to provide functionality
-while Perl6 was still being developed
+while Perl6 was still being developed.
 
 This module is primarily for reading human written files, and anything we
 write shouldn't need to have documentation/comments. If you need something
@@ -135,7 +136,7 @@ Files are the same as windows .ini files, for example.
         var2=value2
 
 If a property is outside of a section, it will be assigned to the root
-section, available at C<$Config-E<gt>{''}>.
+section, available at C<$config<data>{''}>.
 
 Lines starting with '#' or ';' are comments, and blank lines are ignored.
 
@@ -144,47 +145,76 @@ When writing back to the config file, any comments are discarded.
 =head1 METHODS
 
 Since the current version of Pugs does not support OO, methods are
-current hash keys to code refs
+implemented as hash keys to code refs. The only function this module
+exports is the constructor. 
 
-=head2 new
+=over 4
 
-The constructor C<new> creates and returns an empty Config::Tiny object.
+=item B<Config::Tiny::new>
 
-=head2 read $filename
+The constructor C<Config::Tiny::new> creates and returns an empty 
+Config::Tiny (pseudo) object.
+
+NOTE: To avoid name collisions, we use a fully qualified function name.
+
+=back
+
+The following are the (pseudo) methods for Config::Tiny objects. These
+methods can be called with the following syntax:
+
+  $config<read>('config.ini');
+  
+where C<$config> is an 'instance' returned by the C<Config::Tiny::new> 
+constructor.
+
+=over 4
+
+=item read ($filename)
 
 The C<read> method reads a config file, and returns a boolean value
 of success or failure
 
-=head2 data
+=item data
 
 The C<data> method returns a hash reference representing the configuration data
 
-=head2 write
+=item write
 
 The C<write> method the file for the properties, and writes it
 to disk.  Returns boolean value of success or failure;
 
-=head2 err_str
+=item err_str
 
 The C<err_str> method returns the last error message
 
-=head1 AUTHOR
+=back
 
-Joshua Gatcomb, <Limbic_Region_2000@Yahoo.com>
+=head1 AUTHORS
 
 This module is based on Adam Kennedy's Perl5 module by the same name
 
+Joshua Gatcomb, <Limbic_Region_2000@Yahoo.com>
+
+Stevan Little, <stevan@iinteractive.com>
+
 =head1 SEE ALSO
 
-Adam's Perl5 implementation
+=over 4
+
+=item Adam's Perl5 implementation
+
 L<http://search.cpan.org/~adamk/Config-Tiny-2.01/lib/Config/Tiny.pm>
-Adam's Perl6 implementation
+
+=item OO Perl6 implementation by Ingo Blechschmidt 
+
 L<http://tpe.freepan.org/repos/adamk/Config-Tiny/lib/Config/Tiny.pm>
+
+=back
 
 =head1 COPYRIGHT
 
- Copyright (c) 2005 Joshua Gatcomb. All rights reserved.
- This program is free software; you can redistribute it
- and/or modify it under the same terms as Perl itself.
+Copyright (c) 2005 Joshua Gatcomb. All rights reserved.
+This program is free software; you can redistribute it
+and/or modify it under the same terms as Perl itself.
 
 =cut
