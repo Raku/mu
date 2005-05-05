@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 6;
+plan 7;
 
 # L<S04/"The Relationship of Blocks and Declarations" /There is a new state declarator that introduces/>
 
@@ -90,4 +90,19 @@ plan 6;
 
   my $svar_ref = $gen();    # $svar == 2
   is $svar_ref, 2, "reference to a state() var";
+}
+
+# http://www.nntp.perl.org/group/perl.perl6.language/20888
+# ("Re: Declaration and definition of state() vars" from Larry)
+{
+  my $gen = {
+    (state $svar) = 42;
+    my $ret = { $svar++ };
+  };
+
+  my $a = gen();    # $svar == 42
+  $a(); $a();       # $svar == 44
+  my $b = gen();    # $svar == 42
+  is $b(), 42, "state() and parens";
+                    # $svar == 43
 }
