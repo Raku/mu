@@ -764,10 +764,12 @@ findSub name invs args = do
     deltaFromScalar x = do
         cls <- asks envClasses
         return $ deltaType cls x (mkType "Scalar")
+    deltaFromPair (x, (Var var)) = do
+        cls <- asks envClasses
+        return $ deltaType cls x $ typeOfSigil (head var)
     deltaFromPair (x, (Val val)) = do
         cls <- asks envClasses
         typ <- evalValType val
-        liftIO $ print (x, typ)
         return $ deltaType cls x typ
     deltaFromPair (x, _) = do
         deltaFromScalar x
