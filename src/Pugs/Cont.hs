@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -fglasgow-exts -fno-warn-unused-binds #-}
 
 {-|
-    Continuation with shift/reset operators.
+    Continuation with shift and reset operators.
 
 >   The Road goes ever on and on
 >   Down from the door where it began.

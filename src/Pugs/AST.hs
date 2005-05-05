@@ -12,7 +12,6 @@
 >   And one white tree.
 -}
 
--- |Abstract Syntax Tree representation.
 module Pugs.AST where
 import Pugs.Internals
 import Pugs.Context
