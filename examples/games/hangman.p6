@@ -37,7 +37,7 @@ sub get_committer_list (Str $dict_file) returns List {
     return @committers;
 }
 
-sub pick_committer (*@committers) returns Str {
+sub pick_committer (@committers) returns Str {
     any(@committers).pick;
 }
 
