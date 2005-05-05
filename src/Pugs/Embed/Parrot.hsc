@@ -16,10 +16,12 @@ evalParrot _ = fail "need parrot for eval_parrot"
 
 module Pugs.Embed.Parrot where
 
+import Data.IORef
 import Foreign.Ptr
 import Foreign.C.Types
 import Foreign.C.String
 import Foreign.Storable
+import System.IO.Unsafe
 
 type ParrotInterp   = Ptr ()
 type ParrotPackFile = Ptr ()
@@ -28,34 +30,41 @@ type ParrotPackFileDirectory = Ptr ()
 type ParrotPMC = Ptr ()
 type ParrotRunCore  = CInt
 
-evalParrotFile :: FilePath -> IO ()
-evalParrotFile file = do
-    interp  <- parrot_new nullPtr
-    parrot_init interp
-#if PARROT_JIT_CAPABLE && defined(PARROT_JIT_CORE)
-    parrot_set_run_core interp PARROT_JIT_CORE
-#endif
-    pf      <- withCString file $ parrot_readbc interp
-    parrot_loadbc interp pf
-    parrot_runcode interp 0 nullPtr
-    parrot_destroy interp
+{-# NOINLINE _ParrotInterp #-}
+_ParrotInterp :: IORef ParrotInterp
+_ParrotInterp = unsafePerformIO $ newIORef nullPtr
 
-evalParrot :: String -> IO ()
-evalParrot code = do
-    interp  <- parrot_new nullPtr
-    parrot_init interp -- XXX should make interpreter persistent
+initParrot :: IO ParrotInterp
+initParrot = do
+    interp <- readIORef _ParrotInterp 
+    if interp /= nullPtr then return interp else do
+    interp <- parrot_new nullPtr
+    writeIORef _ParrotInterp interp
 #if PARROT_JIT_CAPABLE && defined(PARROT_JIT_CORE)
     parrot_set_run_core interp PARROT_JIT_CORE
 #endif
     parrot_imcc_init interp
-    pf <- parrot_packfile_new interp 0
-    pf_directory <- get_pf_directory pf
-    seg <- withCString "test_code" $ \p -> parrot_packfile_segment_new_seg interp pf_directory 4 p 1
+    return interp
+
+evalParrotFile :: FilePath -> IO ()
+evalParrotFile file = do
+    interp  <- initParrot
+    pf      <- withCString file $ parrot_readbc interp
+    parrot_loadbc interp pf
+    parrot_runcode interp 0 nullPtr
+
+evalParrot :: String -> IO ()
+evalParrot code = do
+    interp  <- initParrot
+    pf      <- parrot_packfile_new interp 0
+    pf_dir  <- get_pf_directory pf
+    seg     <- withCString "test_code" $ \p -> do
+        parrot_packfile_segment_new_seg interp pf_dir 4 p 1
     set_pf_cur_cs pf seg
     parrot_loadbc interp pf
-    sub <- withCString code $ \p -> parrot_imcc_compile_pir interp p 0
+    sub     <- withCString code $ \p -> do
+        parrot_imcc_compile_pir interp p 0
     withCString "vv" $ parrot_call_sub interp sub
-    parrot_destroy interp -- XXX should make interpreter persistent
 
 foreign import ccall "Parrot_new"
     parrot_new :: ParrotInterp -> IO ParrotInterp
