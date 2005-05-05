@@ -1,3 +1,4 @@
 == Changes for 0.0.1 - May 5, 2005
 
 * Module ported from Perl5 by Joshua Gatcomb
+* Test suite written by Stevan Little
