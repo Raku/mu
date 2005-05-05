@@ -60,6 +60,9 @@ sub set_postamble {
     push @srcfiles, grep !/MainCC/, map glob("$_/*.*hs-boot"), @srcdirs;
 
     my ($ghc, $ghc_version, $ghc_flags) = assert_ghc();
+    my $hsc2hs = $ghc;
+    $hsc2hs =~ s{(.*)ghc}{$1hsc2hs};
+
     # $ghc_flags .= ' -dcore-lint';
     $ghc_flags .= " -keep-tmp-files";
 	if (!has_ghc_package('plugins')) {
@@ -162,14 +165,16 @@ ${() = '%.hpp : %.hs @prereqs $version_h
 	$ghc $threaded $ghc_flags -DHADDOCK -E \$< -o \$@
 	\$(PERL) util/munge_haddock.pl \$@'; \''}
 
-src/Pugs/Embed/Parrot.hs : src/Pugs/Embed/Parrot.hsc $config_h
-	hsc2hs $hsc2hs_flags \$\@c -o \$@ \$< 
-
 .SUFFIXES: .hs .hpp
 
 .hs.hpp :
 	$ghc $threaded $ghc_flags -DHADDOCK -E \$< -o \$@
 	\$(PERL) util/munge_haddock.pl \$@
+
+.SUFFIXES: .hsc .hs
+
+.hsc.hs :
+	$hsc2hs $hsc2hs_flags \$\@c -o \$@ \$< 
 
 haddock : $version_h $config_h @hppfiles docs/haddock
 	haddock -h -o docs/haddock/ @hppfiles
