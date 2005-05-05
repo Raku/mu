@@ -163,7 +163,7 @@ ${() = '%.hpp : %.hs @prereqs $version_h
 	\$(PERL) util/munge_haddock.pl \$@'; \''}
 
 src/Pugs/Embed/Parrot.hs : src/Pugs/Embed/Parrot.hsc $config_h
-	hsc2hs $hsc2hs_flags -o \$@ \$<
+	hsc2hs $hsc2hs_flags \$\@c -o \$@ \$< 
 
 .SUFFIXES: .hs .hpp
 
