@@ -1,45 +1,24 @@
-use v6;
 
-module Pod::Stream::Parser-0.0.1;
+use v6;
+module Pod::Stream::Parser-0.0.2;
 
 my @EVENTS = (
     'start_document',
     'end_document',
     
-    'start_header',
-    'end_header',
+    'start_element',
+    'end_element',
 
-    'start_begin',
-    'end_begin',
-
-    'start_for',
-    'end_for',
-    
-    'start_list',
-    'end_list',
-    
-    'start_item',
-    'end_item',
-    
-    'start_verbatim',
-    'end_verbatim',
-    'verbatim',        
-    
-    'start_paragraph',
-    'end_paragraph',
-    
-    'start_line_interpolation',
-    'end_line_interpolation',    
-        
     'start_modifier',
     'end_modifier',
+
+    'verbatim',        
     'string',
-    
     'newline'
 );
 
 sub parse (Str $filename, Hash %events is rw) returns Void is export {
-    for (@EVENTS) -> $e { %events{$e} = sub { '' } unless ?%events{$e} }
+    for (@EVENTS) -> $e { %events{$e} = sub { } unless ?%events{$e} }
     my $fh = open($filename);    
     my $is_parsing = 0;
     my @for_or_begin;
@@ -61,36 +40,36 @@ sub parse (Str $filename, Hash %events is rw) returns Void is export {
                     }
                     when rx:perl5{^=head(\d)\s(.*?)$} {
                         my $size = $1;
-                        %events<start_header>($size);
+                        %events<start_element>('header', $size);
                         interpolate($2, %events);
-                        %events<end_header>($size);                       
+                        %events<end_element>('header', $size);                       
                     }
                     when rx:perl5{^=over\s(\d)$} {
-                        %events<start_list>($1);
+                        %events<start_element>('list', $1);
                     }
                     when rx:perl5{^=item\s(.*?)$} {
-                        %events<start_item>();
+                        %events<start_element>('item');
                         interpolate($1, %events);
-                        %events<end_item>();                     
+                        %events<end_element>('item');                     
                     }
                     when rx:perl5{^=back} {
-                        %events<end_list>();
+                        %events<end_element>('list');
                     }
                     when rx:perl5{^=begin\s(.*?)$} {
                         push(@for_or_begin, 'begin');
-                        %events<start_begin>($1);
+                        %events<start_element>('begin', $1);
                     }                    
                     when rx:perl5{^=for\s(.*?)$} {
                         push(@for_or_begin, 'for');
-                        %events<start_for>($1);
+                        %events<start_element>('for', $1);
                     }                    
                     when rx:perl5{^=end\s(.*?)$} {
                         my $last_for_or_begin = pop(@for_or_begin);
                         if ($last_for_or_begin eq 'for') {
-                            %events<end_for>($1);
+                            %events<end_element>('for', $1);
                         }
                         else {
-                            %events<end_begin>($1);
+                            %events<end_element>('begin', $1);
                         }
                     }                    
                     when rx:perl5{^\s(.*?)$} {
@@ -102,13 +81,13 @@ sub parse (Str $filename, Hash %events is rw) returns Void is export {
                             $verbatim ~= "$1\n";
                             $_line = $fh.readline;
                         }                        
-                        %events<start_verbatim>();
+                        %events<start_element>('verbatim');
                         %events<verbatim>($verbatim);
-                        %events<end_verbatim>();                        
+                        %events<end_element>('verbatim');                        
                     }
                     default {
                         if ($line ne '') {
-                            %events<start_paragraph>();
+                            %events<start_element>('paragraph');
                             interpolate($line, %events);   
                             my $_line = $fh.readline;
                             while (defined($_line)             && 
@@ -117,7 +96,7 @@ sub parse (Str $filename, Hash %events is rw) returns Void is export {
                                 interpolate($_line, %events);
                                 $_line = $fh.readline;
                             }                          
-                            %events<end_paragraph>();
+                            %events<end_element>('paragraph');
                         }
                         else {
                             %events<newline>();
@@ -131,12 +110,12 @@ sub parse (Str $filename, Hash %events is rw) returns Void is export {
 }
 
 sub interpolate (Str $text, Hash %events) returns Void {    
-    %events<start_line_interpolation>();
+    %events<start_element>('line_interpolation');
     # grab all the tokens with a split
 	my @tokens = split(rx:perl5{([A-Z]<\s+|[A-Z]<|\s+>|>)}, $text);
     @tokens = @tokens.grep:{ defined($_) }; 
 	# this is a memory stack for modifiers
-	# it helps up track down problems
+	# it helps us track down problems
 	my @modifier_stack;
 	for (@tokens) -> $token {	
         given $token {
@@ -164,19 +143,19 @@ sub interpolate (Str $text, Hash %events) returns Void {
 	# we need to throw an exception about it.
 	(!@modifier_stack) 
 		|| die "Unbalanced modifier(s) found (" ~ join(", ", @modifier_stack) ~ ") in the string (@tokens)";
-    %events<end_line_interpolation>();        
+    %events<end_element>('line_interpolation');        
 }
 
 =pod
 
 =head1 NAME
 
-Pod::Stream::Parser - A simple stream based POD parser
+Pod::Stream::Parser - A simple event based POD parser
 
 =head1 SYNOPSIS
 
   use v6;
-  require Pod::Stream::Parser;
+  use Pod::Stream::Parser;
   
   parse("path/to/file.pod", %event_handlers);
 
@@ -202,6 +181,8 @@ which it uses to process each line of the file.
 
 =head1 EVENTS
 
+=head2 Document Events
+
 =over 4
 
 =item I<start_document>
@@ -209,75 +190,86 @@ which it uses to process each line of the file.
 This event is fired when a '=pod' directive is reached.
 
 =item I<end_document>
-    
+
 This event is fired when a '=cut' directive is reached.
 
-=item I<start_header>
+=back
 
-This event is fired once the '=head<n>' directive is reached. This does not include 
+=head2 Element Events
+
+For each POD element, an event is fired, the first argument to all these events is
+the C<$event_type> (header, list, item, etc.). 
+
+=over 4
+
+=item I<start_element ('header', $size)>
+
+This event is fired once the '=head(n)' directive is reached. This does not include 
 the text of the header, that will be processed as a interpolated string (to allow for
 any modifiers).
 
-=item I<end_header>
+=item I<end_element ('header')>
 
-This event is fired after the '=head<n>' directive and it's accompanying text has been
+This event is fired after the '=head(n)' directive and it's accompanying text has been
 parsed.
 
-=item I<start_begin>
+=item I<start_element ('begin')>
 
 This event is fired when a '=begin' directive is reached.
 
-=item I<end_begin>
+=item I<end_element ('begin')>
 
 This event is fired when a '=end' directive (which is preceeded by an '=begin' directive) 
 is reached.
 
-=item I<start_for>
+=item I<start_element ('for')>
 
 This event is fired when a '=for' directive is reached.
 
-=item I<end_for>
-    
+=item I<end_element ('for')>
+
 This event is fired when a '=end' directive (which is preceeded by an '=for' directive) 
 is reached.    
     
-=item I<start_list>
+=item I<start_element ('list')>
 
 This event is fired when an '=over' directive is reached.
 
-=item I<end_list>
+=item I<end_element ('list')>
 
 This event is fired when a '=back' directive is reached.
     
-=item I<start_item>
+=item I<start_element ('item')>
 
 This event is fired when an '=item' directive is reached, the next event fired will be
 any text which follows the item.
 
-=item I<end_item>
+=item I<end_element ('item')>
 
 This event is fired once the last '=item' directive, followed by any text on the same line.
 
-=item I<start_verbatim>
+=item I<start_element ('verbatim')>
 
 This event is fired once a verbatim section is found.
     
-=item I<verbatim>
-
-This event handles the entire verbatim string.
-
-=item I<end_verbatim>
+=item I<end_element ('verbatim')>
 
 This event closes a verbatim section.
-    
-=item I<start_interpolation>
+
+=item I<start_element ('line_interpolation')>
 
 This event is begun when any block of characters is interpolated for modifiers.
 
-=item I<end_interpolation>
+=item I<end_element ('line_interpolation')>
 
 This event is fired when interpolation is complete.
-        
+
+=back
+
+=head2 Modifier Events
+
+=over 4
+
 =item I<start_modifier>
 
 This event is fired when a modifier is encountered.
@@ -285,6 +277,16 @@ This event is fired when a modifier is encountered.
 =item I<end_modifier>
 
 This event closes a modifier.
+
+=back
+
+=head2 Text Events
+
+=over 4    
+    
+=item I<verbatim>
+
+This event handles the entire verbatim string.
 
 =item I<string>
 
@@ -298,7 +300,13 @@ This event handles newlines in the text, it is a specialization of the 'string' 
 
 =head1 SEE ALSO
 
-Any of the Perl5 POD parsers
+=over 4
+
+=item Any of the Perl5 POD parsers
+
+=item XML::SAX
+
+=back
 
 =head1 AUTHOR
 

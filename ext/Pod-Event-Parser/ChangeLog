@@ -1,0 +1,10 @@
+
+== Changes for 0.0.2
+
+* combining start_* and end_* events into (start|end)_element events
+** re-write tests to take reflect this change
+** add test to parse the module's own POD
+
+== 0.0.1
+
+* initial (working) release

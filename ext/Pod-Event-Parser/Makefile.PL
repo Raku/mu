@@ -4,7 +4,7 @@ use inc::Module::Install prefix => '../../inc';
 
 name       ('Pod::Stream::Parser');
 version    ('0.01');
-abstract   ('Minimal Stream based POD parser');
+abstract   ('Stream/Event based POD parser');
 author     ('Stevan Little <stevan@iinteractive.com>');
 license    ('perl');
 
