@@ -9,7 +9,7 @@ Pair test
 
 =cut
 
-plan 55;
+plan 56;
 
 # basic Pair
 
@@ -147,4 +147,5 @@ sub test4 (Hash %h){
 }
 test4 %hash;
 
-
+my $should_be_a_pair = (a => 25/1);
+isa_ok $should_be_a_pair, "Pair", "=> has correct precedence";
