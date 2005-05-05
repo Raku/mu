@@ -1,5 +1,4 @@
 {-# OPTIONS_GHC -fglasgow-exts -cpp -fvia-C #-}
-#include "../pugs_config.h"
 #if !defined(PUGS_HAVE_PARROT)
 
 module Pugs.Embed.Parrot where
