@@ -13,6 +13,7 @@ module Pugs.Embed (
     module Pugs.Embed.Perl5,
     module Pugs.Embed.Haskell,
     module Pugs.Embed.Parrot,
+    evalEmbedded
     -- module Pugs.Embed.Ponie,
 ) where
 import Pugs.Embed.Perl5
@@ -20,3 +21,13 @@ import Pugs.Embed.Haskell
 import Pugs.Embed.Parrot
 -- import Pugs.Embed.Ponie
 
+evalEmbedded "Parrot"  code = do
+    evalParrot code
+evalEmbedded "Haskell" code = do
+    evalHaskell code
+    return ()
+evalEmbedded "Perl5" code = do
+    interp <- initPerl5 ""
+    evalPerl5 code
+    freePerl5 interp
+evalEmbedded s _ = fail $ "Cannot evaluate in " ++ s

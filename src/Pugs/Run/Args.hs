@@ -58,7 +58,7 @@ unpackOption opt
 
 longOptions = [("--help", "-h"), ("--version", "-v")]
 composable = "cdlnpw"
-withParam = ["e", "C", "I", "M", "V:"]
+withParam = words "e C B I M V:"
 prefixOpt opt = msum $ map (findArg opt) withParam
 findArg arg prefix = do
     param <- afterPrefix prefix arg
@@ -92,6 +92,7 @@ argRank(Switch 'd')         = 1
 argRank(Switch 'w')         = 2
 argRank(Switch 'c')         = 3
 argRank(Opt "-C" _)         = 4
+argRank(Opt "-B" _)         = 4
 argRank(Opt "--external" _) = 5
 argRank(Opt "-M" _)         = 98
 argRank(Switch 'n')         = 99   -- translated into Perl code (later)
@@ -109,6 +110,7 @@ gatherArgs("--external":mod:rest) = [Opt "--external" mod] ++ gatherArgs(rest)
 gatherArgs("-I":dir:rest)         = [Opt "-I" dir] ++ gatherArgs(rest)
 gatherArgs("-M":mod:rest)         = [Opt "-M" mod] ++ gatherArgs(rest)
 gatherArgs("-C":backend:rest)     = [Opt "-C" backend] ++ gatherArgs(rest)
+gatherArgs("-B":backend:rest)     = [Opt "-B" backend] ++ gatherArgs(rest)
 gatherArgs("-V:":item:rest)       = [Opt "-V:" item] ++ gatherArgs(rest)
 gatherArgs(('-':[]):xs)           = [File "-"] ++ gatherArgs(xs)
 gatherArgs(('-':x):xs)            = [Switch (head x)] ++ gatherArgs(xs)

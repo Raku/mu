@@ -64,8 +64,12 @@ run ("-v":_)                    = banner
 run ("-c":"-e":prog:_)          = doCheck "-e" prog
 run ("-c":file:_)               = readFile file >>= doCheck file
 
-run ("-C":backend:"-e":prog:_)           = doCompile backend "-e" prog
-run ("-C":backend:file:_)                = readFile file >>= doCompile backend file
+run ("-C":backend:"-e":prog:_)           = doCompileDump backend "-e" prog
+run ("-C":backend:file:_)                = readFile file >>= doCompileDump backend file
+
+run ("-B":backend:"-e":prog:_)           = doCompileRun backend "-e" prog
+run ("-B":backend:file:_)                = readFile file >>= doCompileRun backend file
+
 run ("--external":mod:"-e":prog:_)    = doExternal mod "-e" prog
 run ("--external":mod:file:_)         = readFile file >>= doExternal mod file
 
@@ -129,13 +133,22 @@ doExternal mod = doParseWith $ \env _ -> do
     str <- externalize mod $ envBody env
     putStrLn str
 
-doCompile :: [Char] -> FilePath -> String -> IO ()
+doCompile :: [Char] -> FilePath -> String -> IO String
 doCompile backend = doParseWith $ \env _ -> do
     globRef <- liftSTM $ do
         glob <- readTVar $ envGlobal env
         newTVar $ userDefined glob
-    str     <- compile backend env{ envGlobal = globRef }
+    compile backend env{ envGlobal = globRef }
+
+doCompileDump :: [Char] -> FilePath -> String -> IO ()
+doCompileDump backend file prog = do
+    str <- doCompile backend file prog
     writeFile "dump.ast" str
+
+doCompileRun :: [Char] -> FilePath -> String -> IO ()
+doCompileRun backend file prog = do
+    str <- doCompile backend file prog
+    evalEmbedded backend str
 
 doParseWith :: (Env -> FilePath -> IO a) -> FilePath -> String -> IO a
 doParseWith f name prog = do
