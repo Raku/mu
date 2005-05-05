@@ -128,8 +128,10 @@ sub set_postamble {
         $ghc_output .= " -lparrot $libs $icuflags ";
 
         # parrot include paths for hsc2hs
-        $hsc2hs_flags = "-DPUGS_HAVE_PARROT -I$base/include";
+        $hsc2hs_flags .= " -DPUGS_HAVE_PARROT -I$base/include ";
     }
+
+    $hsc2hs_flags .= " -Isrc/syck "; # for Data.Yaml
 
     my $config = get_pugs_config();
     my $is_win32 = ($^O =~ /MSWin|mingw|cygwin/i);

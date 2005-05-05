@@ -746,9 +746,11 @@ findSub name invs args = do
         if isNothing fun then return Nothing else do
         -- if deltaFromCxt ret == 0 then return Nothing else do
         let invocants = filter isInvocant prms
-        let prms' = if null invocants then prms else invocants
+            prms' = if null invocants then prms else invocants
+            pairs = map (typeOfCxt . paramContext) prms'
+                        `zip` (map unwrap $ invs ++ args)
         deltaCxt    <- deltaFromCxt ret
-        deltaArgs   <- mapM (deltaFromScalar . typeOfCxt . paramContext) prms'
+        deltaArgs   <- mapM deltaFromPair pairs
         let distance = (deltaCxt : deltaArgs)
         let bound = either (const False) (const True) $ bindParams sub invs args
         return $ Just
@@ -762,6 +764,13 @@ findSub name invs args = do
     deltaFromScalar x = do
         cls <- asks envClasses
         return $ deltaType cls x (mkType "Scalar")
+    deltaFromPair (x, (Val val)) = do
+        cls <- asks envClasses
+        typ <- evalValType val
+        liftIO $ print (x, typ)
+        return $ deltaType cls x typ
+    deltaFromPair (x, _) = do
+        deltaFromScalar x
 
 
 -- OK... Now let's implement the hideously clever autothreading algorithm.
