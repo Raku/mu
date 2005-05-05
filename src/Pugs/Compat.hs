@@ -62,12 +62,20 @@ import Debug.Trace
 import System.Environment
 import IO
 import System.IO
+import Foreign.C.String
 
 failWith s = fail $ "'" ++ s ++ "' not implemented on this platform."
 warnWith s = trace ("'" ++ s ++ "' not implemented on this platform.") $ return ()
 
+-- setEnv :: String -> String -> Bool -> IO ()
+foreign import stdcall "SetEnvironmentVariableW" win32SetEnv :: CWString -> CWString -> IO ()
+
 setEnv :: String -> String -> Bool -> IO ()
-setEnv _ _ _ = warnWith "setEnv"
+setEnv k v _ = withCWString k $ \ key ->
+               withCWString v $ \ value -> do
+                 -- rc <- trace ("Setting " ++ k ++ "=" ++ v) win32SetEnv key value
+                 rc <- win32SetEnv key value
+                 return $ rc
 
 unsetEnv :: String -> IO ()
 unsetEnv _ = warnWith "unsetEnv"
@@ -97,7 +105,14 @@ statFileSize n = bracket (openFile n ReadMode) hClose hFileSize
 
 -- Again, Win32 specific magic, as stolen from GHC
 -- see http://cvs.haskell.org/cgi-bin/cvsweb.cgi/fptools/ghc/compiler/main/SysTools.lhs?rev=1.115
-foreign import stdcall "_getpid" getProcessID :: IO Int -- relies on Int == Int32 on Windows
+foreign import ccall "_getpid" getProcessID :: IO Int
+
+-- In theory, the following should work as well on Win32,
+-- but in practice, it doesn't
+-- foreign import stdcall "GetCurrentProcessID" c_getProcessID :: Int -- relies on Int == Int32 on Windows
+
+-- getProcessID :: IO Int
+-- getProcessID = return $ 1
 
 type UserID = Int
 type GroupID = Int
