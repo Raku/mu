@@ -29,7 +29,11 @@ showType (TypeAnd t1 t2) = showType t1 ++ "&" ++ showType t2
 
 type ClassTree = Tree Type
 
-data Cxt = CxtVoid | CxtItem !Type | CxtSlurpy !Type
+
+data Cxt = CxtVoid         -- ^ Context that isn't expecting any values
+         | CxtItem !Type   -- ^ Context expecting a value of the specified type
+         | CxtSlurpy !Type -- ^ Context expecting multiple values of the
+                           --     specified type
     deriving (Eq, Show, Ord)
 
 anyType :: Type
@@ -54,12 +58,18 @@ cxtItemAny   = CxtItem anyType
 cxtSlurpyAny :: Cxt
 cxtSlurpyAny = CxtSlurpy anyType
 
+-- |Return true if the given 'Cxt' (context) is 'CxtSlurpy', rather than
+-- 'CxtItem' or 'CxtVoid'.
 isSlurpyCxt :: Cxt -> Bool
 isSlurpyCxt (CxtSlurpy _) = True
 isSlurpyCxt _             = False
+-- |Return true if the given 'Cxt' (context) is 'CxtItem', rather than
+-- 'CxtSlurpy' or 'CxtVoid'.
 isItemCxt :: Cxt -> Bool
 isItemCxt   (CxtItem _)   = True
 isItemCxt   _             = False
+-- |Return true if the given 'Cxt' (context) is 'CxtVoid', rather than
+-- 'CxtSlurpy' or 'CxtItem'.
 isVoidCxt :: Cxt -> Bool
 isVoidCxt   CxtVoid       = True
 isVoidCxt   _             = False

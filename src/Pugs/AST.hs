@@ -492,6 +492,7 @@ data VJunc = MkJunc
     -- /once/.
     } deriving (Eq, Ord)
 
+-- |The combining semantics of a junction. See 'VJunc' for more info.
 data JuncType = JAny | JAll | JNone | JOne
     deriving (Eq, Ord)
 
@@ -515,34 +516,40 @@ data SubType = SubMethod | SubRoutine | SubBlock | SubPrim
 isSlurpy :: Param -> Bool
 isSlurpy param = isSlurpyCxt $ paramContext param
 
+-- |A formal parameter of a sub (or other callable). These represent
+-- declared parameters; don't confuse them with actual parameter values.
 data Param = MkParam
-    { isInvocant    :: !Bool        -- Is it in invocant slot?
-    , isOptional    :: !Bool        -- Is it optional?
-    , isNamed       :: !Bool        -- Is it named-only?
-    , isLValue      :: !Bool        -- Is it lvalue (i.e. not `is copy`)?
-    , isWritable    :: !Bool        -- Is it writable (i.e. `is rw`)?
-    , isLazy        :: !Bool        -- Is it call-by-name (short-circuit)?
-    , paramName     :: !String      -- Parameter name
-    , paramContext  :: !Cxt         -- Parameter context: slurpiness and type
-    , paramDefault  :: !Exp         -- Default expression when omitted
+    { isInvocant    :: !Bool        -- ^ Is it in invocant slot?
+    , isOptional    :: !Bool        -- ^ Is it optional?
+    , isNamed       :: !Bool        -- ^ Is it named-only?
+    , isLValue      :: !Bool        -- ^ Is it lvalue (i.e. not `is copy`)?
+    , isWritable    :: !Bool        -- ^ Is it writable (i.e. `is rw`)?
+    , isLazy        :: !Bool        -- ^ Is it call-by-name (short-circuit)?
+    , paramName     :: !String      -- ^ Parameter name
+    , paramContext  :: !Cxt         -- ^ Parameter context: slurpiness and type
+    , paramDefault  :: !Exp         -- ^ Default expression (to evaluate to)
+                                    --     when omitted
     }
     deriving (Show, Eq, Ord)
 
+-- |A list of formal parameters.
 type Params     = [Param]
+-- |A list of bindins from formal parameters ('Param') to actual parameter
+-- expressions ('Exp').
 type Bindings   = [(Param, Exp)]
 type SlurpLimit = [(VInt, Exp)]
 
 data VCode = MkCode
-    { isMulti       :: !Bool        -- Is this a multi sub/method?
-    , subName       :: !String      -- Name of the closure
-    , subType       :: !SubType     -- Type of the closure
-    , subPad        :: !Pad         -- Lexical pad for sub/method
-    , subAssoc      :: !String      -- Associativity
-    , subParams     :: !Params      -- Parameters list
-    , subBindings   :: !Bindings    -- Currently assumed bindings
-    , subSlurpLimit :: !SlurpLimit  -- Max. number of slurpy arguments
-    , subReturns    :: !Type        -- Return type
-    , subBody       :: !Exp         -- Body of the closure
+    { isMulti       :: !Bool        -- ^ Is this a multi sub\/method?
+    , subName       :: !String      -- ^ Name of the closure
+    , subType       :: !SubType     -- ^ Type of the closure
+    , subPad        :: !Pad         -- ^ Lexical pad for sub\/method
+    , subAssoc      :: !String      -- ^ Associativity
+    , subParams     :: !Params      -- ^ Parameters list
+    , subBindings   :: !Bindings    -- ^ Currently assumed bindings
+    , subSlurpLimit :: !SlurpLimit  -- ^ Max. number of slurpy arguments
+    , subReturns    :: !Type        -- ^ Return type
+    , subBody       :: !Exp         -- ^ Body of the closure
     }
     deriving (Show, Eq, Ord, Typeable)
 
