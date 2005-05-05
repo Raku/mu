@@ -31,7 +31,6 @@ sub spawn_counter () {
 };
 
 my ($pugs,$redir) = ("./pugs", ">");
-my $todo = 0;
 
 if($?OS eq any<MSWin32 mingw msys cygwin>) {
   $pugs = 'pugs.exe';
@@ -43,7 +42,7 @@ diag "Spawning counter";
 spawn_counter();
 system( qq!$pugs -e "sleep(5)"!); 
 
-if (!ok(@events == $event_count, "Our async counter finished while we were running a subprocess", :todo($todo))) {
+if (!ok(@events == $event_count, "Our async counter finished while we were running a subprocess")) {
   diag "Got      " ~ +@events ~ " element(s).";
   diag "Expected $event_count elements."
 };
