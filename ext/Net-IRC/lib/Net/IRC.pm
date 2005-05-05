@@ -11,6 +11,7 @@ module Net::IRC-0.03;
 # Note that this is *not* a port of Perl 5's Net::IRC.
 
 use v6;
+use Algorithm::TokenBucket;
 
 sub debug(Str $msg) is export {
   state $is_fresh;
@@ -34,9 +35,10 @@ sub new_bot(
   Str ?$username = $nick,
   Str ?$ircname  = $nick,
   Str $host,
-  Int ?$port         = 6667,
-  Int ?$autoping     = 90,     # Autoping the server when we haven't seen traffic for 90s
-  Int ?$live_timeout = 120,    # Drop connection when we haven't seen traffic for 120s
+  Int ?$port          = 6667,
+  Int ?$autoping      = 90,     # Autoping the server when we haven't seen traffic for 90s
+  Int ?$live_timeout  = 120,    # Drop connection when we haven't seen traffic for 120s
+  Bool ?$floodcontrol = 0,      # Check that we don't flood excessively
   Bool ?$debug_raw = 0,
 ) is export {
   my $connected = 0;
@@ -46,7 +48,8 @@ sub new_bot(
   my $last_traffic;        # Timestamp of last traffic seen from server
   my $last_autoping;       # Timestamp of last ping sent to server
   my $hdl;                 # Socket
-  my $queue = new_queue(); # Queue (will later throttle our bot's output)
+  my $queue = new_queue(floodcontrol => $floodcontrol);
+			   # Queue
   my %numeric_handler;     # Callbacks for numeric messages (001)
   my %command_handler;     # Callbacks for command messages (PRIVMSG)
 
@@ -250,15 +253,28 @@ sub new_bot(
 }
 
 # Definition of queue "class"
-sub new_queue() {
+sub new_queue(Bool ?$floodcontrol = 0) {
   my @queue;
+
+  my $bucket = $floodcontrol
+    ?? new_bucket(rate => (1/2),    burst_size => 5)
+    :: new_bucket(rate => (1000/2), burst_size => 5000); # hack
+  $bucket<fill>();
 
   # "Instance methods"
   return {
     # Run all entries of @queue. Will need throttling later.
     run => {
       my @q = splice @queue;
-      $_() for @q;
+      while(@q) {
+	if($bucket<conform>(1)) {
+	  $bucket<count>(1);
+	  @q.shift().();
+	} else {
+	  last;
+	}
+      }
+      @queue.unshift(@q);
     },
 
     # Enqueue a new callback
@@ -267,7 +283,7 @@ sub new_queue() {
 }
 
 sub strip_colon(Str $str is copy) {
-  $str = $1 if $str ~~ rx:P5/^:(.*)/;
+  $str = substr $str, 1 if substr($str, 0, 1) eq ":";
   return $str;
 }
 
@@ -289,6 +305,7 @@ Net::IRC - IRC library for Pugs
     port     => 6667,         # (optional)
     autoping => 90,           # (optional, defaults to 90)
     live_timeout => 120,      # (optional, defaults to 120)
+    floodcontrol => 0,        # (optional, defaults to 0)
     debug_raw => 0,           # (optional, defaults to 0)
   );
   

@@ -72,7 +72,7 @@ items per second and C<burst size> in items.
 
 =cut
 
-sub new_bucket(Num $rate, Int $burst_size) {
+sub new_bucket(Num $rate, Int $burst_size) is export {
   my $last_check_time = time;
   my $tokens          = 0;
 
@@ -98,10 +98,14 @@ sub new_bucket(Num $rate, Int $burst_size) {
       $tokens -= $n;
       $tokens = 0 if $tokens < 0;
     },
+    fill => { $tokens = $burst_size },
   };
 
   return $self;
 }
+
+1;
+
 
 =item conform(Num $n)
 
@@ -117,12 +121,9 @@ It returns a boolean value.
 This sub removes I<N> (or all if there are less than I<N> available) tokens
 from the bucket.  Does not return a meaningful value.
 
-=cut
+=item fill()
 
-
-1;
-
-=begin end
+Fills the bucket.
 
 =back
 
