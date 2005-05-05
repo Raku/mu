@@ -1,12 +1,16 @@
-#!perl6
+#!/usr/bin/pugs
+
 use v6;
 
 # version 0.1, michael scherer, misc@zarb.org
+# some additions by:
+#     stevan little <stevan@iinteractive.com>
 # the first perl6 irc bot ( or at least, what i hope to be the first ).
 
 say "A irc perl 6 bot";
+
+my $nick = @*ARGS[0] // "didie_p6";
 my $server = "irc.freenode.net";
-my $nick = "didie_p6";
 my $chan = "#perl6";
 my $debug;
 
@@ -23,23 +27,26 @@ my $ligne = readline($hdl);
 $hdl.say("JOIN $chan\n");
 $hdl.flush;
 
+say "Joined $chan";
+
 while ($ligne = readline($hdl))
 {
     chomp($ligne);
-    say "Serveur said : $ligne" if $debug;
+    say "Serveur said : $ligne"; # if $debug;
 
     given $ligne {
 
         when rx:perl5/^PING/ {
-	    say "Reply to ping";
-	    $hdl.say("PONG $nick\n");
-	    $hdl.flush;
+    	    say "Reply to ping";
+	        $hdl.say("PONG $nick\n");
+	        $hdl.flush;
         }
 
-        when rx:perl5/PRIVMSG $chan :$nick: !hello/  {
-	    $hdl.say("PRIVMSG $chan :Hello from a perl 6 irc bot\n");
-	    $hdl.flush;
+        when rx:perl5/^\:(.*?)\!.*?\sPRIVMSG $chan :$nick: hello/  {
+    	    $hdl.say("PRIVMSG $chan :Hello $1 from a perl 6 irc bot\n");
+	        $hdl.flush;
         }
+                
     };
 
 }
