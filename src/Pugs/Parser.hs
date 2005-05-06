@@ -691,7 +691,6 @@ tightOperators = do
     , preSyn "* **"                                     -- Symbolic Unary
       ++ preOps (concatMap (\x -> " -" ++ [x]) "rwxoRWXOezsfdlpSbctugkTBMAC")
       ++ preOps " = ! + - ~ ? +^ ~^ ?^ \\ "
-      ++ preOps " [+] "
     , leftOps $
                " »*« »/« »x« »xx« »~« " ++
                " >>*<< >>/<< >>x<< >>xx<< >>~<< " ++
@@ -719,9 +718,10 @@ tightOperators = do
 
 looseOperators :: RuleParser [[Operator Char Env Exp]]
 looseOperators = do
-    names <- currentListFunctions
+    -- names <- currentListFunctions
     return $
-        [ preOps names                                  -- List Operator
+        [ preOps " [+] "
+       -- preOps names                                  -- List Operator
         , leftOps  " ==> "                              -- Pipe Forward
         , leftOps  " and nor "                          -- Loose And
         , leftOps  " or xor err "                       -- Loose Or
