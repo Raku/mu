@@ -644,7 +644,7 @@ reduce (App (Var "&infix:=>") [keyExp, valExp] []) = do
     val <- enterEvalContext cxtItemAny valExp
     retVal $ castV (key, val)
 
-reduce (App (Var name) invs args) = do
+reduce (App (Var name@('&':_)) invs args) = do
     sub <- findSub name invs args
     case sub of
         Just sub    -> applySub sub invs args
