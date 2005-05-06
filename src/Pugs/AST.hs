@@ -552,7 +552,7 @@ data Param = MkParam
 
 -- |A list of formal parameters.
 type Params     = [Param]
--- |A list of bindins from formal parameters ('Param') to actual parameter
+-- |A list of bindings from formal parameters ('Param') to actual parameter
 -- expressions ('Exp').
 type Bindings   = [(Param, Exp)]
 type SlurpLimit = [(VInt, Exp)]
