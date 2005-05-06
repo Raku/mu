@@ -128,13 +128,11 @@ mergeStmts (Pad scope lex x) y = Pad scope lex (mergeStmts x y)
 mergeStmts x@(Pos pos (Syn "sub" [Val (VCode sub)])) y
     | subType sub >= SubBlock =
     -- bare Block in statement level; run it!
-    let app = Syn "()" [x, Syn "invs" [], Syn "args" []] in
-    mergeStmts (Pos pos app) y
+    mergeStmts (Pos pos $ App x [] []) y
 mergeStmts x y@(Pos pos (Syn "sub" [Val (VCode sub)]))
     | subType sub >= SubBlock =
     -- bare Block in statement level; run it!
-    let app = Syn "()" [y, Syn "invs" [], Syn "args" []] in
-    mergeStmts x (Pos pos app)
+    mergeStmts x (Pos pos $ App y [] [])
 mergeStmts x (Stmts y Noop) = mergeStmts x y
 mergeStmts x (Stmts Noop y) = mergeStmts x y
 mergeStmts x y = Stmts x y
@@ -397,7 +395,7 @@ ruleUsePackage = rule "use package" $ do
     _ <- option "" $ do -- version - XXX
         char '-'
         many1 (choice [ digit, char '.' ])
-    unsafeEvalExp $ App "&require" [] [Val . VStr $ concat (intersperse "/" names) ++ ".pm"]
+    unsafeEvalExp $ App (Var "&require") [] [Val . VStr $ concat (intersperse "/" names) ++ ".pm"]
     return emptyExp
 
 ruleInlineDeclaration :: RuleParser Exp
@@ -405,7 +403,7 @@ ruleInlineDeclaration = tryRule "inline declaration" $ do
     symbol "inline"
     args <- ruleExpression
     case args of
-        App "&infix:=>" [Val key, Val val] [] -> do
+        App (Var "&infix:=>") [Val key, Val val] [] -> do
             return $ Syn "inline" $ map (Val . VStr . vCast) [key, val]
         _ -> fail "not yet parsed"
 
@@ -416,7 +414,7 @@ ruleRequireDeclaration = tryRule "require declaration" $ do
     _ <- option "" $ do -- version - XXX
         char '-'
         many1 (choice [ digit, char '.' ])
-    return $ App "&require" [] [Val . VStr $ concat (intersperse "/" names) ++ ".pm"]
+    return $ App (Var "&require") [] [Val . VStr $ concat (intersperse "/" names) ++ ".pm"]
 
 ruleModuleDeclaration :: RuleParser Exp
 ruleModuleDeclaration = rule "module declaration" $ do
@@ -444,7 +442,7 @@ ruleClosureTrait rhs = rule "closure trait" $ do
         fail "Closure traits takes no formal parameters"
     let code = VCode mkSub { subName = name, subBody = fun } 
     case name of
-        "END"   -> return $ App "&unshift" [Var "@*END"] [Syn "sub" [Val code]]
+        "END"   -> return $ App (Var "&unshift") [Var "@*END"] [Syn "sub" [Val code]]
         "BEGIN" -> do
             rv <- unsafeEvalExp fun
             return $ if rhs then rv else emptyExp 
@@ -620,10 +618,10 @@ ruleBlockLiteral = rule "block construct" $ do
 
 extractHash :: Exp -> Maybe Exp
 extractHash (Syn "block" [exp]) = extractHash (unwrap exp)
-extractHash exp@(App "&pair" _ _) = Just exp
-extractHash exp@(App "&infix:=>" _ _) = Just exp
-extractHash exp@(Syn "," (App "&pair" _ _:_)) = Just exp
-extractHash exp@(Syn "," (App "&infix:=>" _ _:_)) = Just exp
+extractHash exp@(App (Var "&pair") _ _) = Just exp
+extractHash exp@(App (Var "&infix:=>") _ _) = Just exp
+extractHash exp@(Syn "," (App (Var "&pair") _ _:_)) = Just exp
+extractHash exp@(Syn "," (App (Var "&infix:=>") _ _:_)) = Just exp
 extractHash _ = Nothing
 
 retBlock :: SubType -> Maybe [Param] -> Exp -> RuleParser Exp
@@ -839,7 +837,7 @@ ops f s = [f n | n <- sortBy revLength (words $ decodeUTF8 s)]
     revLength x y = compare (length y) (length x)
 
 doApp :: String -> [Exp] -> Exp
-doApp str args = App str args []
+doApp str args = App (Var str) args []
 
 preSyn      :: String -> [Operator Char Env Exp]
 preSyn      = ops $ makeOp1 Prefix "" Syn
@@ -941,8 +939,8 @@ ruleInvocation = tryVerbatimRule "invocation" $ do
     name            <- ruleSubName
     (invs,args)     <- option ([],[]) $ parseParenParamList
     return $ \x -> if hasEqual
-        then Syn "=" [x, App name (x:invs) args]
-        else App name (x:invs) args
+        then Syn "=" [x, App (Var name) (x:invs) args]
+        else App (Var name) (x:invs) args
 
 ruleInvocationParens :: RuleParser (Exp -> Exp)
 ruleInvocationParens = do
@@ -952,8 +950,8 @@ ruleInvocationParens = do
     -- XXX we just append the adverbial block onto the end of the arg list
     -- it really goes into the *& slot if there is one. -lp
     return $ \x -> if hasEqual
-        then Syn "=" [x, App name (x:invs) args]
-        else App name (x:invs) args
+        then Syn "=" [x, App (Var name) (x:invs) args]
+        else App (Var name) (x:invs) args
 
 ruleArraySubscript :: RuleParser (Exp -> Exp)
 ruleArraySubscript = tryVerbatimRule "array subscript" $ do
@@ -981,7 +979,7 @@ ruleHashSubscriptQW = do
 ruleCodeSubscript :: RuleParser (Exp -> Exp)
 ruleCodeSubscript = tryRule "code subscript" $ do
     (invs,args) <- parens $ parseParamList
-    return $ \x -> Syn "()" [x, Syn "invs" invs, Syn "args" args]
+    return $ \x -> App x invs args
 
 parseApply :: RuleParser Exp
 parseApply = tryRule "apply" $ do
@@ -992,7 +990,7 @@ parseApply = tryRule "apply" $ do
     (invs, args) <- if hasDot
         then parseNoParenParamList
         else parseParenParamList <|> do { whiteSpace; parseNoParenParamList }
-    return $ App name invs args
+    return $ App (Var name) invs args
 
 parseParamList :: RuleParser ([Exp], [Exp])
 parseParamList = parseParenParamList <|> parseNoParenParamList
@@ -1129,7 +1127,7 @@ undefLiteral = try $ do
     (invs,args)   <- maybeParens $ parseParamList
     return $ if null (invs ++ args)
         then Val VUndef
-        else App "&undef" invs args
+        else App (Var "&undef") invs args
 
 numLiteral :: RuleParser Exp
 numLiteral = do
@@ -1162,14 +1160,14 @@ pairArrow = do
     symbol "=>"
     val <- parseTerm
     return (Val (VStr key), val)
-    return $ App "&infix:=>" [Val (VStr key), val] []
+    return $ App (Var "&infix:=>") [Val (VStr key), val] []
 
 pairAdverb :: RuleParser Exp
 pairAdverb = do
     string ":"
     key <- many1 wordAny
     val <- option (Val $ VInt 1) (valueDot <|> valueExp)
-    return $ App "&infix:=>" [Val (VStr key), val] []
+    return $ App (Var "&infix:=>") [Val (VStr key), val] []
     where
     valueDot = do
         skipMany1 (satisfy isSpace)
@@ -1284,7 +1282,7 @@ qLiteral1 qEnd flags = do
         [x] -> Val (VStr x)
         xs  -> Syn "," $ map (Val . VStr) xs
     
-    doSplit expr = Cxt cxtSlurpyAny $ App "&infix:~~" [expr, rxSplit] []
+    doSplit expr = Cxt cxtSlurpyAny $ App (Var "&infix:~~") [expr, rxSplit] []
     rxSplit = Syn "rx" $
         [ Val $ VStr "(\\S+)"
         , Val $ VList

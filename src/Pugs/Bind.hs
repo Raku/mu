@@ -83,16 +83,16 @@ isPair :: Exp -> Bool
 isPair (Pos _ exp) = isPair exp
 isPair (Cxt _ exp) = isPair exp
 isPair (Syn "=>" [(Val _), _])   = True
-isPair (App "&infix:=>" [(Cxt _ (Val _)), _] [])   = True
-isPair (App "&infix:=>" [(Val _), _] [])   = True
+isPair (App (Var "&infix:=>") [(Cxt _ (Val _)), _] [])   = True
+isPair (App (Var "&infix:=>") [(Val _), _] [])   = True
 isPair _                         = False
 
 unPair :: Exp -> (String, Exp)
 unPair (Pos _ exp) = unPair exp
 unPair (Cxt _ exp) = unPair exp
 unPair (Syn "=>" [(Val k), exp]) = (vCast k, exp)
-unPair (App "&infix:=>" [(Cxt _ (Val k)), exp] []) = (vCast k, exp)
-unPair (App "&infix:=>" [(Val k), exp] []) = (vCast k, exp)
+unPair (App (Var "&infix:=>") [(Cxt _ (Val k)), exp] []) = (vCast k, exp)
+unPair (App (Var "&infix:=>") [(Val k), exp] []) = (vCast k, exp)
 unPair x                                = error ("Not a pair: " ++ show x)
 
 -- performs a binding and then verifies that it's complete in one go

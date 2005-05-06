@@ -179,24 +179,24 @@ instance Compile Exp where
     -- XXX broken! this needs to emit IMC *outside* of the main sub
     -- compile (Syn "module" [Val (VStr ns)]) = do
     --    return $ text ".namespace ['_Pugs::" <> text ns <> text "']"
-    compile (App "&return" [] [val]) = do
+    compile (App (Var "&return") [] [val]) = do
         (valC, p) <- compileArg val
         return $ valC $+$ text ".return" <+> parens p
-    compile (App "&last" _ _) = return $ text "invoke last"
-    compile (App "&substr" [] [str, idx, len])
+    compile (App (Var "&last") _ _) = return $ text "invoke last"
+    compile (App (Var "&substr") [] [str, idx, len])
         | Val v <- unwrap len, vCast v == (1 :: VNum) = do
         (strC, p1) <- enterLValue $ compileArg str
         (idxC, p2) <- enterLValue $ compileArg idx
         rv         <- constPMC $ hcat [ p1, text "[" , p2, text "]"]
         return $ vcat [strC, idxC, rv]
-    compile (App "&postfix:++" [inv] []) = do
+    compile (App (Var "&postfix:++") [inv] []) = do
         (invC, p) <- enterLValue $ compileArg inv
         return $ invC $+$ text "inc" <+> p
-    compile (App "&postfix:--" [inv] []) = do
+    compile (App (Var "&postfix:--") [inv] []) = do
         (invC, p) <- enterLValue $ compileArg inv
         return $ invC $+$ text "dec" <+> p
     -- compile (App "&infix:~" [exp, Val (VStr "")] []) = compile exp
-    compile (App "&infix:~" [exp1, exp2] []) = do
+    compile (App (Var "&infix:~") [exp1, exp2] []) = do
         tmp <- currentStash
         (arg1, p1) <- compileArg exp1
         (arg2, p2) <- compileArg exp2
@@ -206,7 +206,7 @@ instance Compile Exp where
             , tmp <+> text "= new PerlUndef"
             , text "concat" <+> tmp <> comma <+> p1 <> comma <+> p2
             ]
-    compile (App ('&':'i':'n':'f':'i':'x':':':op) [lhs, rhs] []) = do
+    compile (App (Var ('&':'i':'n':'f':'i':'x':':':op)) [lhs, rhs] []) = do
         (lhsC, p1) <- compileArg lhs
         (rhsC, p2) <- compileArg rhs
         rv  <- case op of
@@ -220,16 +220,16 @@ instance Compile Exp where
             _ -> do
                 constPMC $ p1 <+> text op <+> p2
         return $ vcat [ lhsC, rhsC, rv ]
-    compile (App "&say" invs args) = 
-        compile $ App "&print" invs (args ++ [Val $ VStr "\n"])
-    compile (App "&print" invs args) = do
+    compile (App (Var "&say") invs args) = 
+        compile $ App (Var "&print") invs (args ++ [Val $ VStr "\n"])
+    compile (App (Var "&print") invs args) = do
         actions <- fmap vcat $ mapM (compileWith (text "print" <+>)) (invs ++ args)
         rv      <- compile (Val (VBool True))
         return $ actions $+$ rv
-    compile (App ('&':name) _ [arg]) = do
+    compile (App (Var ('&':name)) _ [arg]) = do
         lhsC <- tempPMC
         compileWith (\tmp -> lhsC <+> text "=" <+> text name <> parens tmp) arg
-    compile (App "&not" [] []) = return $ text "new PerlUndef"
+    compile (App (Var "&not") [] []) = return $ text "new PerlUndef"
     compile (Val (VStr x))  = constPMC $ showText $ encodeUTF8 (concatMap quoted x)
     compile (Val (VInt x))  = constPMC $ integer x
     compile (Val (VNum x))  = constPMC $ showText x
@@ -267,7 +267,7 @@ instance Compile Exp where
     compile (Syn "mval" [exp]) = compile exp
     compile (Syn "," things) = fmap vcat $ mapM compile things
     compile (Syn syn [lhs, exp]) | last syn == '=' =
-        compile $ Syn "=" [lhs, App ("&infix:" ++ init syn) [lhs, exp] []]
+        compile $ Syn "=" [lhs, App (Var ("&infix:" ++ init syn)) [lhs, exp] []]
     compile (Cxt _ exp) = compile exp
     compile (Pos pos exp) = do
 	  posC <- compile pos

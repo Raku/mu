@@ -50,7 +50,7 @@ op0 "pi" = const $ return (VNum pi)
 op0 "say" = const $ op1 "say" =<< readVar "$_"
 op0 "print" = const $ op1 "print" =<< readVar "$_"
 op0 "return" = \v -> return (VError "cannot return() outside a subroutine" (Val $ VList v))
-op0 other = \x -> return $ VError ("unimplemented listOp: " ++ other) (App other (map Val x) [])
+op0 other = \_ -> fail ("Unimplemented listOp: " ++ other)
 
 op0Zip :: [[Val]] -> [[Val]]
 op0Zip lists | all null lists = []
@@ -136,7 +136,7 @@ op1 "sort" = \v -> do
             evl <- asks envEval
             sorted <- (`sortByM` valList) $ \v1 v2 -> do
                 rv  <- local (\e -> e{ envContext = cxtItem "Int" }) $ do
-                    evl (Syn "()" [Val sub, Syn "invs" [Val v1, Val v2], Syn "args" []])
+                    evl (App (Val sub) [Val v1, Val v2] [])
                 int <- fromVal rv
                 return (int <= (0 :: Int))
             return $ VList sorted
@@ -338,7 +338,7 @@ op1 "async" = \v -> do
         val <- runEvalIO env $ do
             evl <- asks envEval
             local (\e -> e{ envContext = CxtVoid }) $ do
-                evl (Syn "()" [Val code, Syn "invs" [], Syn "args" []])
+                evl (App (Val code) [] [])
         liftSTM $ tryPutTMVar lock val
         return ()
     return . VThread $ MkThread
@@ -419,7 +419,7 @@ op1 "ord"   = op1Cast $ \str -> if null str then undef else (castV . ord . head)
 op1 "hex"   = op1Cast (VInt . read . ("0x"++))
 op1 "log"   = op1Cast (VNum . log)
 op1 "log10" = op1Cast (VNum . logBase 10)
-op1 other   = return . (\x -> VError ("unimplemented unaryOp: " ++ other) (App other [Val x] []))
+op1 other   = \_ -> fail ("Unimplemented unaryOp: " ++ other)
 
 op1EvalYaml :: Val -> Eval Val
 op1EvalYaml cv = do
@@ -763,7 +763,7 @@ op2 "sort" = \x y -> do
     op1 "sort" . VList $ xs ++ ys
 op2 "say" = \x (VList ys) -> op1Print hPutStrLn (VList (x:ys))
 op2 "print" = \x (VList ys) -> op1Print hPutStr (VList (x:ys))
-op2 other = \x y -> return $ VError ("unimplemented binaryOp: " ++ other) (App other [Val x, Val y] [])
+op2 other = \_ _ -> fail ("Unimplemented binaryOp: " ++ other)
 
 -- XXX - need to generalise this
 op2Match :: Val -> Val -> Eval Val
@@ -882,7 +882,7 @@ op3 "rindex" = \x y z -> do
 
 op3 "splice" = \x y z -> do
     op4 "splice" x y z (VList [])
-op3 other = \x y z -> return $ VError ("unimplemented 3-ary op: " ++ other) (App other [Val x, Val y, Val z] [])
+op3 other = \_ _ _ -> fail ("Unimplemented 3-ary op: " ++ other)
 
 op4 :: Ident -> Val -> Val -> Val -> Val -> Eval Val
 op4 "substr" = \x y z w -> do
@@ -916,7 +916,7 @@ op4 "splice" = \x y z w -> do
         (return $ VList vals')
         (return $ last (undef:vals'))
 
-op4 other = \x y z w -> return $ VError ("unimplemented 4-ary op: " ++ other) (App other [Val x, Val y, Val z, Val w] [])
+op4 other = \_ _ _ _ -> fail ("Unimplemented 4-ary op: " ++ other)
 
 op2Hyper :: Ident -> Val -> Val -> Eval Val
 op2Hyper op x y
@@ -953,7 +953,7 @@ op2Grep list sub = do
     vals <- (`filterM` args) $ \x -> do
         evl <- asks envEval
         rv  <- local (\e -> e{ envContext = cxtItem "Bool" }) $ do
-            evl (Syn "()" [Val sub, Syn "invs" [Val x], Syn "args" []])
+            evl (App (Val sub) [Val x] [])
         fromVal rv
     return $ VList vals
 
@@ -964,7 +964,7 @@ op2Map list sub = do
     vals <- (`mapM` args) $ \x -> do
         evl <- asks envEval
         rv  <- local (\e -> e{ envContext = cxtSlurpyAny }) $ do
-            evl (Syn "()" [Val sub, Syn "invs" [Val x], Syn "args" []])
+            evl (App (Val sub) [Val x] [])
         fromVal rv
     return $ VList $ concat vals
 
@@ -1030,28 +1030,28 @@ op2Range x y         = VList $ map VInt [vCast x .. vCast y]
 op2Divide :: Val -> Val -> Eval Val
 op2Divide x y
     | VInt x' <- x, VInt y' <- y
-    = return $ if y' == 0 then err else VRat $ x' % y'
+    = if y' == 0 then err else return . VRat $ x' % y'
     | VInt x' <- x, VRat y' <- y
-    = return $ if y' == 0 then err else VRat $ (x' % 1) / y'
+    = if y' == 0 then err else return . VRat $ (x' % 1) / y'
     | VRat x' <- x, VInt y' <- y
-    = return $ if y' == 0 then err else VRat $ x' / (y' % 1)
+    = if y' == 0 then err else return . VRat $ x' / (y' % 1)
     | VRat x' <- x, VRat y' <- y
-    = return $ if y' == 0 then err else VRat $ x' / y'
+    = if y' == 0 then err else return . VRat $ x' / y'
     | otherwise
     = op2Num (/) x y
     where
-    err = VError ("Illegal division by zero: " ++ "/") (App "/" [] [Val x, Val y])
+    err = fail "Illegal division by zero"
 
 op2Modulus :: Val -> Val -> Eval Val
 op2Modulus x y
     | VInt x' <- x, VInt y' <- y
-    = return $ if y' == 0 then err else VInt $ x' `mod` y'
+    = if y' == 0 then err else return . VInt $ x' `mod` y'
     | VInt x' <- x, VRat y' <- y
-    = return $ if y' == 0 then err else VInt $ x' `mod` (truncate y')
+    = if y' == 0 then err else return . VInt $ x' `mod` (truncate y')
     | VRat x' <- x, VInt y' <- y
-    = return $ if y' == 0 then err else VInt $ (truncate x') `mod` y'
+    = if y' == 0 then err else return . VInt $ (truncate x') `mod` y'
     | VRat x' <- x, VRat y' <- y
-    = return $ if y' == 0 then err else VInt $ (truncate x') `mod` (truncate y')
+    = if y' == 0 then err else return . VInt $ (truncate x') `mod` (truncate y')
     | VRef ref <- x
     = do
         x' <- readRef ref
@@ -1063,8 +1063,7 @@ op2Modulus x y
     | otherwise      -- pray for the best
     = op2Int mod x y -- typeErr
     where
-    err = VError ("Illegal modulus zero: " ++ "%") (App "%" [] [Val x, Val y])
-    -- typeErr = VError ("Illegal types for modulus: " ++ "%") (App "%" [] [Val x, Val y])
+    err = fail "Illegal modulus zero"
 
 op2ChainedList :: Val -> Val -> Val
 op2ChainedList x y

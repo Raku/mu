@@ -637,7 +637,7 @@ instance Show Pos where
 -- |Represents an expression tree.
 data Exp
     = Noop                              -- ^ No-op
-    | App !String ![Exp] ![Exp]         -- ^ Function application
+    | App !Exp ![Exp] ![Exp]            -- ^ Function application
                                         --     e.g. myfun($invocant: $arg)
     | Syn !String ![Exp]                -- ^ Syntactic construct that cannot
                                         --     be represented by 'App'.

@@ -139,7 +139,7 @@ interpolatingStringLiteral endrule interpolator = do
     homogenConcat (Val (VStr x):Val (VStr y):xs)
         = homogenConcat (Val (VStr (x ++ y)) : xs)
     homogenConcat (x:xs)
-        = App "&infix:~" [x, homogenConcat xs] []
+        = App (Var "&infix:~") [x, homogenConcat xs] []
     
     stringList = do
         lookAhead endrule

@@ -95,9 +95,7 @@ evaluateMain exp = do
     endAV   <- evalVar "@*END"
     subs    <- fromVals endAV
     enterContext CxtVoid $ do
-        mapM_ evalExp [ Syn "()" [Val sub, Syn "invs" [], Syn "args" []]
-                      | sub <- subs
-                      ]
+        mapM_ evalExp [ App (Val sub) [] [] | sub <- subs ]
     return val
 
 -- |Evaluate an expression. This function mostly just delegates to 'reduce'.
@@ -468,11 +466,11 @@ reduce exp@(Syn name exps) = case name of
         writeRef av v
         retVal $ VRef av
     -- XXX evil hack for infinite slices
-    "[]" | [lhs, App "&postfix:..." invs args] <- unwrap exps
+    "[]" | [lhs, App (Var "&postfix:...") invs args] <- unwrap exps
          , [idx] <- invs ++ args
 --       , not (envLValue env)
          -> reduce (Syn "[...]" [lhs, idx])
-    "[]" | [lhs, App "&infix:.." invs args] <- unwrap exps
+    "[]" | [lhs, App (Var "&infix:..") invs args] <- unwrap exps
          , [idx, Val (VNum n)] <- invs ++ args
          , n == 1/0
 --       , not (envLValue env)
@@ -509,12 +507,6 @@ reduce exp@(Syn name exps) = case name of
         doFetch (mkFetch $ doHash varVal hash_fetchElem)
                 (mkFetch $ doHash varVal hash_fetchVal)
                 (fromVal idxVal) lv (not (isSlurpyCxt idxCxt))
-    "()" -> do
-        let [subExp, Syn "invs" invs, Syn "args" args] = exps
-        vsub <- enterEvalContext (cxtItem "Code") subExp
-        (`juncApply` [ApplyArg "" vsub False]) $ \[arg] -> do
-            sub  <- fromVal $ argValue arg
-            apply sub invs args
     "try" -> do
         val <- resetT $ evalExp (head exps)
         retEvalResult False val
@@ -580,7 +572,7 @@ reduce exp@(Syn name exps) = case name of
     syn | last syn == '=' -> do
         let [lhs, exp] = exps
             op = "&infix:" ++ init syn
-        evalExp $ Syn "=" [lhs, App op [lhs, exp] []]
+        evalExp $ Syn "=" [lhs, App (Var op) [lhs, exp] []]
     _ -> retError "Unknown syntactic construct" exp
     where
     doCond f = do
@@ -606,27 +598,27 @@ reduce exp@(Syn name exps) = case name of
                 _ -> retVal vbool
 
 -- XXX absolutely evil bloody hack for context hinters
-reduce (App "&hash" invs args) =
+reduce (App (Var "&hash") invs args) =
     enterEvalContext cxtItemAny $ Syn "\\{}" [Syn "," $ invs ++ args]
 
-reduce (App "&list" invs args) =
+reduce (App (Var "&list") invs args) =
     enterEvalContext cxtSlurpyAny $ case invs ++ args of
         []    -> Val (VList [])
         [exp] -> exp
         exps  -> Syn "," exps
 
-reduce (App "&scalar" invs args)
+reduce (App (Var "&scalar") invs args)
     | [exp] <- invs ++ args = enterEvalContext cxtItemAny exp
     | otherwise = enterEvalContext cxtItemAny $ Syn "," (invs ++ args)
 
 -- XXX absolutely evil bloody hack for "zip"
-reduce (App "&zip" invs args) = do
+reduce (App (Var "&zip") invs args) = do
     vals <- mapM (enterRValue . enterEvalContext (cxtItem "Array")) (invs ++ args)
     val  <- op0 "Y" vals
     retVal val
 
 -- XXX absolutely evil bloody hack for "goto"
-reduce (App "&goto" (subExp:invs) args) = do
+reduce (App (Var "&goto") (subExp:invs) args) = do
     vsub <- enterEvalContext (cxtItem "Code") subExp
     sub <- fromVal vsub
     local callerEnv $ do
@@ -640,19 +632,19 @@ reduce (App "&goto" (subExp:invs) args) = do
            }
 
 -- XXX absolutely evil bloody hack for "assuming"
-reduce (App "&assuming" (subExp:invs) args) = do
+reduce (App (Var "&assuming") (subExp:invs) args) = do
     vsub <- enterEvalContext (cxtItem "Code") subExp
     sub <- fromVal vsub
     case bindSomeParams sub invs args of
         Left errMsg      -> fail errMsg
         Right curriedSub -> retVal $ castV $ curriedSub
 
-reduce (App "&infix:=>" [keyExp, valExp] []) = do
+reduce (App (Var "&infix:=>") [keyExp, valExp] []) = do
     key <- enterEvalContext cxtItemAny keyExp
     val <- enterEvalContext cxtItemAny valExp
     retVal $ castV (key, val)
 
-reduce (App name invs args) = do
+reduce (App (Var name) invs args) = do
     sub <- findSub name invs args
     case sub of
         Just sub    -> applySub sub invs args
@@ -661,7 +653,7 @@ reduce (App name invs args) = do
     applySub sub invs args
         -- list-associativity
         | MkCode{ subAssoc = "list" }      <- sub
-        , (App name' invs' []):rest  <- invs
+        , (App (Var name') invs' []):rest  <- invs
         , name == name'
         = applySub sub (invs' ++ rest)  []
         -- fix subParams to agree with number of actual arguments
@@ -669,8 +661,8 @@ reduce (App name invs args) = do
         , null args
         = apply sub{ subParams = (length invs) `replicate` p } invs []
         -- chain-associativity
-        | MkCode{ subAssoc = "chain" }   <- sub
-        , (App _ _ []):_              <- invs
+        | MkCode{ subAssoc = "chain" }  <- sub
+        , (App _ _ []):_                <- invs
         , null args
         = mungeChainSub sub invs
         | MkCode{ subAssoc = "chain", subParams = (p:_) }   <- sub
@@ -680,7 +672,7 @@ reduce (App name invs args) = do
         = apply sub invs args
     mungeChainSub sub invs = do
         let MkCode{ subAssoc = "chain", subParams = (p:_) } = sub
-            (App name' invs' args'):rest = invs
+            (App (Var name') invs' args'):rest = invs
         theSub   <- findSub name' invs' args'
         case theSub of
             Just sub'    -> applyChainSub sub invs sub' invs' args' rest
@@ -694,6 +686,12 @@ reduce (App name invs args) = do
         = apply sub{ subParams = (length invs) `replicate` p } invs [] -- XXX Wrong
         | otherwise
         = internalError "applyChainsub did not match a chain subroutine"
+
+reduce (App subExp invs args) = do
+    vsub <- enterEvalContext (cxtItem "Code") subExp
+    (`juncApply` [ApplyArg "" vsub False]) $ \[arg] -> do
+        sub  <- fromVal $ argValue arg
+        apply sub invs args
 
 reduce exp = retError "Invalid expression" exp
 
@@ -715,9 +713,9 @@ cxtOfExp (Val (VRef ref))       = do
         else CxtItem typ
 cxtOfExp (Val _)                = return cxtItemAny
 cxtOfExp (Var (c:_))            = return $ cxtOfSigil c
-cxtOfExp (App "&list" _ _)      = return cxtSlurpyAny
-cxtOfExp (App "&scalar" _ _)    = return cxtSlurpyAny
-cxtOfExp (App name invs args)   = do
+cxtOfExp (App (Var "&list") _ _)   = return cxtSlurpyAny
+cxtOfExp (App (Var "&scalar") _ _) = return cxtSlurpyAny
+cxtOfExp (App (Var name) invs args)   = do
     -- inspect the return type of the function here
     env <- ask
     sub <- findSub name invs args
