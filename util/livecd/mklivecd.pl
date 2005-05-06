@@ -64,6 +64,9 @@ enter commands requiring root privilegies.
 systems, too. For now, I made the script stop if you aren't running under
 Linux, you may want to change that.
 
+*Note*: A precompiled (but most of the time outdated) image is available at
+http://m19s28.vlinux.de/iblech/pugs/livecd.iso.
+
 Available options:
   --kernel-uri=http://path/to/kernel/to/use
     Selects the kernel the livecd should use.
