@@ -3,7 +3,7 @@
 use Test;
 use v6;
 
-plan 2;
+plan 6;
 
 =head1 DESCRIPTION
 
@@ -21,3 +21,11 @@ eval_is 'reduce:{ $^a + $^b } 0, @array', $sum,
   "basic reduce works (1)", :todo;
 eval_is 'reduce:{ $^a + $^b } 100, @array', 100 + $sum,
   "basic reduce works (2)", :todo;
+
+
+# New [...] metaoperator
+# Thread "reduce metaoperator" from p6l
+is ([+] @array),        $sum, "[+] works";
+eval_is '[*] 1,2,3',   1*2*3, "[*] works";
+eval_is '[-] 1,2,3',   1-2-3, "[-] works";
+eval_is '[/] 12,4,3',      1, "[/] works";
