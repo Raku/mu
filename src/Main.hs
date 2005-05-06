@@ -139,19 +139,19 @@ doExternal mod = doParseWith $ \env _ -> do
     str <- externalize mod $ envBody env
     putStrLn str
 
-doCompile :: [Char] -> FilePath -> String -> IO String
+doCompile :: String -> FilePath -> String -> IO String
 doCompile backend = doParseWith $ \env _ -> do
     globRef <- liftSTM $ do
         glob <- readTVar $ envGlobal env
         newTVar $ userDefined glob
     compile backend env{ envGlobal = globRef }
 
-doCompileDump :: [Char] -> FilePath -> String -> IO ()
+doCompileDump :: String -> FilePath -> String -> IO ()
 doCompileDump backend file prog = do
     str <- doCompile backend file prog
     writeFile "dump.ast" str
 
-doCompileRun :: [Char] -> FilePath -> String -> IO ()
+doCompileRun :: String -> FilePath -> String -> IO ()
 doCompileRun backend file prog = do
     str <- doCompile backend file prog
     evalEmbedded backend str
