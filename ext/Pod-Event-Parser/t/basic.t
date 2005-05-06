@@ -27,7 +27,7 @@ This is the B<items> body
 
 =head2 This is header 2
 
-This is regular text which
+This is regular text which 
 wraps I<up B<to>> two lines
 
  This is verbatim text
@@ -63,7 +63,7 @@ This is the B<items> body
 
 =head2 This is header 2
 
-This is regular text which
+This is regular text which 
 wraps I<up B<to>> two lines
 
  This is verbatim text

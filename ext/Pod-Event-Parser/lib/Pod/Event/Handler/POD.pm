@@ -49,7 +49,6 @@ multi sub pod2pod (Str $buffer is rw) returns Hash is export {
                 else {
                     $buffer ~= " $line\n";                                            
                 }
-
             }
         },
         string => -> ($str) { $buffer ~= $str }
@@ -104,7 +103,6 @@ multi sub pod2pod (IO $fh) returns Hash is export {
                 else {
                     $fh.print(" $line\n");                                            
                 }
-
             }
         },
         string => -> ($str) { $fh.print($str) }

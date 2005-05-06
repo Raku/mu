@@ -287,8 +287,8 @@ This event closes a modifier.
 
 =head2 Text Events
 
-=over 4    
-    
+=over 4
+
 =item I<verbatim>
 
 This event handles the entire verbatim string.
@@ -324,6 +324,6 @@ Copyright (c) 2005. Stevan Little. All rights reserved.
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
-See http://www.perl.com/perl/misc/Artistic.html
+See L<http://www.perl.com/perl/misc/Artistic.html>
 
 =cut
