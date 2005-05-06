@@ -123,6 +123,10 @@ repLoop = do
             CmdHelp           -> printInteractiveHelp >> loop
             CmdReset          -> tabulaRasa >>= (liftSTM . writeTVar env) >> loop
 
+-- |Create a \'blank\' 'Env' for our program to execute in. Of course,
+-- 'prepareEnv' actually declares quite a few symbols in the environment,
+-- e.g. \'\@\*ARGS\', \'\$\*PID\', \'\$\*ERR\' etc.
+-- ('Tabula rasa' is Latin for 'a blank slate'.)
 tabulaRasa :: IO Env
 tabulaRasa = prepareEnv "<interactive>" []
 

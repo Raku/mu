@@ -10,6 +10,19 @@
 >   Until the stars are all alight.
 >   Then world behind and home ahead,
 >   We'll wander back to home and bed...
+
+This module takes an Abstract Syntaxt Tree and recursively evaluates it,
+thereby evaluating the program.
+
+The AST is represented as a hierarchy of nested 'Exp's (see "Pugs.AST").
+Some understanding of 'Exp' and "Pugs.AST" in general will be necessary
+before this module can be properly understood.
+
+Functions of notable interest:
+
+* 'evaluate' and 'reduce' (the guts of the whole evaluation\/reduction engine)
+
+* 'apply' and 'doApply' (the guts of function application)
 -}
 
 module Pugs.Eval where

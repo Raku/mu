@@ -74,7 +74,13 @@ getMapIndex idx def doList ext = do
             Just doExt -> do { doExt ; getMapIndex idx def doList Nothing }
             Nothing    -> errIndex def idx
 
-ifValTypeIsa :: Val -> String -> (Eval a) -> (Eval a) -> Eval a
+-- |Check whether a 'Val' is of the specified type. Based on the result,
+-- either the first or the second evaluation should be performed.
+ifValTypeIsa :: Val      -- ^ Value to check the type of
+             -> String   -- ^ Name of the type to check against
+             -> (Eval a) -- ^ The @then@ case
+             -> (Eval a) -- ^ The @else@ case
+             -> Eval a
 ifValTypeIsa v typ trueM falseM = do
     env <- ask
     vt  <- evalValType v
@@ -82,7 +88,12 @@ ifValTypeIsa v typ trueM falseM = do
         then trueM
         else falseM
 
-ifListContext :: (MonadReader Env m) => m t -> m t -> m t
+-- |If we are in list context (i.e. 'CxtSlurpy'), then perform the first
+-- evaluation; otherwise perform the second.
+ifListContext :: (MonadReader Env m) 
+              => m t -- ^ The @then@ case
+              -> m t -- ^ The @else@ case
+              -> m t
 ifListContext trueM falseM = do
     cxt <- asks envContext
     case cxt of
@@ -1106,6 +1117,8 @@ naturalOrRat  = (<?> "number") $ do
             ; seq n (return n)
             }          
 
+-- |Evaluate the given expression, using the currently active evaluator
+-- (as given by the 'envEval' slot of the current 'Env').
 evalExp :: Exp -> Eval Val
 evalExp exp = do
     evl <- asks envEval
@@ -1114,6 +1127,7 @@ evalExp exp = do
 defined :: VScalar -> Bool
 defined VUndef  = False
 defined _       = True
+-- |Return an undefined value (i.e. 'VUndef').
 undef :: VScalar
 undef = VUndef
 
