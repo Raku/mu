@@ -2,6 +2,7 @@
 #if !defined(PUGS_HAVE_PARROT)
 
 module Pugs.Embed.Parrot where
+import Data.IORef
 
 evalParrotFile :: FilePath -> IO ()
 evalParrotFile _ = fail "need parrot for eval_parrot"
