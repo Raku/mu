@@ -2,6 +2,11 @@
 
 use v6;
 
+BEGIN {
+    require lib;
+    import('lib': 'ext/Pod-Event-Parser/lib/');
+}
+
 use Pod::Event::Parser;
 use Pod::Event::Handler::HTML;
 
