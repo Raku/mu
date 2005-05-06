@@ -29,6 +29,8 @@ import Pugs.Pretty
 import Pugs.Compile
 import qualified Data.Map as Map
 
+-- |Pugs' entry point. Uses 'Pugs.Run.runWithArgs' to normalise the command-line 
+-- arguments and pass them to 'run'.
 main :: IO ()
 main = do
     hSetBuffering stdout NoBuffering

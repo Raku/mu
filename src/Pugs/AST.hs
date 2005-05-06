@@ -509,7 +509,15 @@ instance Show VJunc where
 		else x ++ "," ++ (vCast :: Val -> VStr) y)
 	    "" $ Set.elems set) ++ ")"
 
-data SubType = SubMethod | SubRoutine | SubBlock | SubPrim
+-- |Each 'VCode' structure has a 'SubType' indicating what \'level\' of
+-- callable item it is. 'doApply' uses this to figure out how to enter
+-- the proper scope and 'Env' when the sub is called.
+-- Note that this is the \'type\' of a \'sub\', and has nothing to do with
+-- subtyping.
+data SubType = SubMethod  -- ^ Method
+             | SubRoutine -- ^ Regular subroutine
+             | SubBlock   -- ^ Pointy sub or bare block
+             | SubPrim    -- ^ Built-in primitive operator (see "Pugs.Prim")
     deriving (Show, Eq, Ord)
 
 isSlurpy :: Param -> Bool
@@ -538,6 +546,7 @@ type Params     = [Param]
 type Bindings   = [(Param, Exp)]
 type SlurpLimit = [(VInt, Exp)]
 
+-- |Represents a sub, method, closure etc. -- basically anything callable.
 data VCode = MkCode
     { isMulti       :: !Bool        -- ^ Is this a multi sub\/method?
     , subName       :: !String      -- ^ Name of the closure
@@ -552,6 +561,8 @@ data VCode = MkCode
     }
     deriving (Show, Eq, Ord, Typeable)
 
+-- |Construct a 'VCode' representing a built-in primitive operator.
+-- See "Pugs.Prim" for more info.
 mkPrim :: VCode
 mkPrim = MkCode
     { isMulti = True
@@ -616,9 +627,9 @@ instance Show Pos where
 data Exp
     = Noop                              -- ^ No-op
     | App !String ![Exp] ![Exp]         -- ^ Function application
-                                        -- e.g. myfun($invocant: $arg)
+                                        --     e.g. myfun($invocant: $arg)
     | Syn !String ![Exp]                -- ^ Syntactic construct that cannot
-                                        -- be represented by 'App'.
+                                        --     be represented by 'App'.
     | Cxt !Cxt !Exp                     -- ^ Context
     | Pos !Pos !Exp                     -- ^ Position
     | Pad !Scope !Pad !Exp              -- ^ Lexical pad
