@@ -38,7 +38,7 @@ printCommandLineHelp
         putStrLn "Command-line flags:"
         putStrLn "-e program       one line of program (several -e's allowed, omit programfile)"
         putStrLn "-n               wrap the -e fragments in while(=<>){...} loop"
-        putStrLn "-p               wrap the -e fragments in while(=<>){...;print} loop"
+        putStrLn "-p               wrap the -e fragments in while(=<>){...;say} loop"
         putStrLn "-c               parse the file or -e, but do not run it"
         putStrLn "-Bbackend        execute using the compiler backend"
         putStrLn "-Cbackend        compile using the compiler backend"
