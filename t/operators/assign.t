@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 51;
+plan 52;
 
 # tests various assignment styles
 
@@ -84,6 +84,9 @@ plan 51;
     is($a, 3, "//= operator");
     $a //= 10;
     is($a, 3, "... and second");
+    my %hash;
+    %hash<foo> //= hash {};
+    is(ref %hash<foo>, 'Hash', "Verify //= autovivifies correctly");
 }
 
 {
