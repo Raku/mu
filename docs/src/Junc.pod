@@ -113,15 +113,17 @@ of the C<argCollapsed> slot if this test passes and False otherwise.
 
 =head1 errata
 
-20:58] <autrijus> it will take some used to at first
+[20:58] <autrijus> it will take some used to at first
 [20:58] <autrijus> but the context will make it clear
 [20:58] <autrijus> cool with it?
 [20:59] <autrijus> juncSet is used for all junctions
 [20:59] <metaperl> yes
-[20:59] <autrijus> juncDup is only used for none()
-[20:59] <autrijus> the reason is that none() cannot be represent as
+[20:59] <autrijus> juncDup is only used for one()
+[20:59] <autrijus> the reason is that one() cannot be represent as
 one set
 [20:59] <autrijus> must use two sets.
+
+* autrijus said none() originally, but it should be one().
 
 =head2 argsCollapsed
 
