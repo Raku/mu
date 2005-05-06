@@ -720,9 +720,8 @@ looseOperators :: RuleParser [[Operator Char Env Exp]]
 looseOperators = do
     -- names <- currentListFunctions
     return $
-        [ preOps " [+] "
-       -- preOps names                                  -- List Operator
-        , leftOps  " ==> "                              -- Pipe Forward
+        [ -- preOps names                               -- List Operator
+          leftOps  " ==> "                              -- Pipe Forward
         , leftOps  " and nor "                          -- Loose And
         , leftOps  " or xor err "                       -- Loose Or
         ]
@@ -984,7 +983,7 @@ ruleCodeSubscript = tryRule "code subscript" $ do
 
 parseApply :: RuleParser Exp
 parseApply = tryRule "apply" $ do
-    name    <- ruleSubName
+    name    <- ruleSubName <|> ruleFoldOp
     when ((name ==) `any` words " &if &unless &while &until &for ") $
         fail "reserved word"
     hasDot  <- option False $ try $ do { whiteSpace; char '.'; return True }
@@ -992,6 +991,13 @@ parseApply = tryRule "apply" $ do
         then parseNoParenParamList
         else parseParenParamList <|> do { whiteSpace; parseNoParenParamList }
     return $ App (Var name) invs args
+
+ruleFoldOp :: RuleParser String
+ruleFoldOp = verbatimRule "reduce metaoperator" $ do
+    char '['
+    name <- string "+" -- XXX - Query all infix here
+    char ']'
+    return $ "&prefix:[" ++ name ++ "]"
 
 parseParamList :: RuleParser ([Exp], [Exp])
 parseParamList = parseParenParamList <|> parseNoParenParamList
@@ -1148,7 +1154,7 @@ emptyArrayLiteral = tryRule "empty array" $ do
     return $ Syn "\\[]" [emptyExp]
 
 arrayLiteral :: RuleParser Exp
-arrayLiteral = do
+arrayLiteral = try $ do
     item <- brackets ruleExpression
     return $ Syn "\\[]" [item]
 
