@@ -222,7 +222,7 @@ op1 "sign" = \v -> if defined v
     then op1Cast (VInt . signum) v
     else return undef
 
--- Side-effectful function: how far into Monadic IO shall we go?
+op1 ('[':op) = op1Fold . init $ op
 op1 "rand"  = \v -> do
     x    <- fromVal v
     rand <- liftIO $ randomRIO (0, if x == 0 then 1 else x)
@@ -421,6 +421,13 @@ op1 "log"   = op1Cast (VNum . log)
 op1 "log10" = op1Cast (VNum . logBase 10)
 op1 other   = \_ -> fail ("Unimplemented unaryOp: " ++ other)
 
+op1Fold :: String -> Val -> Eval Val
+op1Fold op v = do
+    args    <- fromVal v
+    case args of
+        (a:as)  -> foldM (op2 op) a as
+        _       -> return undef
+
 op1EvalYaml :: Val -> Eval Val
 op1EvalYaml cv = do
     str     <- fromVal cv
@@ -601,8 +608,6 @@ mapStr2Fill f x y = map (chr . fromEnum . uncurry f) $ x `zipFill` y
 
 
 op2 :: Ident -> Val -> Val -> Eval Val
-op2 op | "»" `isPrefixOf` op = op2Hyper . init . init . drop 2 $ op
-op2 op | ">>" `isPrefixOf` op = op2Hyper . init . init . drop 2 $ op
 op2 "rename" = boolIO2 rename
 op2 "symlink" = boolIO2 createSymbolicLink
 op2 "link" = boolIO2 createLink
@@ -763,6 +768,8 @@ op2 "sort" = \x y -> do
     op1 "sort" . VList $ xs ++ ys
 op2 "say" = \x (VList ys) -> op1Print hPutStrLn (VList (x:ys))
 op2 "print" = \x (VList ys) -> op1Print hPutStr (VList (x:ys))
+op2 op | "»" `isPrefixOf` op = op2Hyper . init . init . drop 2 $ op
+op2 ('>':'>':op) = op2Hyper . init . init $ op
 op2 other = \_ _ -> fail ("Unimplemented binaryOp: " ++ other)
 
 -- XXX - need to generalise this
@@ -1577,6 +1584,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Str       left    ~&      (Str, Str)\
 \\n   Str       left    ~<      (Str, Str)\
 \\n   Str       left    ~>      (Str, Str)\
+\\n   Num       spre    [+]     (Array)\
 \\n   Num       right   **      (Num, Num)\
 \\n   Num       left    +       (Num, Num)\
 \\n   Num       left    -       (Num, Num)\

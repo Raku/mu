@@ -688,9 +688,10 @@ tightOperators = do
     [ methOps  " . .+ .? .* .+ .() .[] .{} .<<>> .= "   -- Method postfix
     , postOps  " ++ -- " ++ preOps " ++ -- "            -- Auto-Increment
     , rightOps " ** "                                   -- Exponentiation
-    , preSyn "* **"
+    , preSyn "* **"                                     -- Symbolic Unary
       ++ preOps (concatMap (\x -> " -" ++ [x]) "rwxoRWXOezsfdlpSbctugkTBMAC")
-      ++ preOps " = ! + - ~ ? +^ ~^ ?^ \\ "             -- Symbolic Unary
+      ++ preOps " = ! + - ~ ? +^ ~^ ?^ \\ "
+      ++ preOps " [+] "
     , leftOps $
                " »*« »/« »x« »xx« »~« " ++
                " >>*<< >>/<< >>x<< >>xx<< >>~<< " ++
@@ -720,7 +721,7 @@ looseOperators :: RuleParser [[Operator Char Env Exp]]
 looseOperators = do
     names <- currentListFunctions
     return $
-        [ preOps   names                                -- List Operator
+        [ preOps names                                  -- List Operator
         , leftOps  " ==> "                              -- Pipe Forward
         , leftOps  " and nor "                          -- Loose And
         , leftOps  " or xor err "                       -- Loose Or
