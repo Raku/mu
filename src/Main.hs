@@ -28,12 +28,15 @@ import Pugs.Help
 import Pugs.Pretty
 import Pugs.Compile
 import qualified Data.Map as Map
+import Data.IORef
 
 -- |Pugs' entry point. Uses 'Pugs.Run.runWithArgs' to normalise the command-line 
 -- arguments and pass them to 'run'.
 main :: IO ()
 main = do
     hSetBuffering stdout NoBuffering
+    when (isJust _DoCompile) $ do
+        writeIORef (fromJust _DoCompile) doCompile
     runWithArgs run
 
 warn :: Show a => a -> IO ()
