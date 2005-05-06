@@ -136,7 +136,7 @@ Files are the same as windows .ini files, for example.
         var2=value2
 
 If a property is outside of a section, it will be assigned to the root
-section, available at C<$config<data>{''}>.
+section, available at C<$configE<lt>dataE<gt>{''}>.
 
 Lines starting with '#' or ';' are comments, and blank lines are ignored.
 
@@ -193,9 +193,9 @@ The C<err_str> method returns the last error message
 
 This module is based on Adam Kennedy's Perl5 module by the same name
 
-Joshua Gatcomb, <Limbic_Region_2000@Yahoo.com>
+Joshua Gatcomb, E<lt>Limbic_Region_2000@Yahoo.comE<gt>
 
-Stevan Little, <stevan@iinteractive.com>
+Stevan Little, E<lt>stevan@iinteractive.comE<gt>
 
 =head1 SEE ALSO
 

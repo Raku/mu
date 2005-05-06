@@ -4,6 +4,8 @@ use strict;
 
 our $VERSION = 6.002002;
 
+=pod
+
 =head1 NAME
 
 Perl6::Pugs - A Perl 6 Implementation
@@ -39,7 +41,7 @@ and available via NNTP at L<nntp://nntp.perl.org/perl.perl6.compiler>.
 You can also read the list via Google Groups at
 L<http://groups-beta.google.com/group/perl.perl6.compiler>
 
-Please submit bug reports to E<lt>pugsbugs@perl.org<gt>.
+Please submit bug reports to E<lt>pugsbugs@perl.orgE<gt>.
 
 =head1 COPYRIGHT
 
