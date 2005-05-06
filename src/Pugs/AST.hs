@@ -90,7 +90,7 @@ ifValTypeIsa v typ trueM falseM = do
 
 -- |If we are in list context (i.e. 'CxtSlurpy'), then perform the first
 -- evaluation; otherwise perform the second.
-ifListContext :: (MonadReader Env m) 
+ifListContext :: (MonadReader Env m)
               => m t -- ^ The @then@ case
               -> m t -- ^ The @else@ case
               -> m t
@@ -323,6 +323,7 @@ instance Value VStr where
     vCast (VCode s)     = "<" ++ show (subType s) ++ "(" ++ subName s ++ ")>"
     vCast (VJunc j)     = show j
     vCast (VThread t)   = takeWhile isDigit $ dropWhile (not . isDigit) $ show t
+    vCast (VHandle h)   = "<" ++ "VHandle (" ++ (show h) ++ ">"
     vCast x             = castFail x
 
 showNum :: Show a => a -> String
@@ -333,7 +334,7 @@ showNum x
     = i -- strip the trailing ".0"
     | otherwise = str
     where
-    str = show x 
+    str = show x
 
 valToStr :: Val -> Eval VStr
 valToStr = fromVal
@@ -453,7 +454,7 @@ data Val
     | VOpaque   !VOpaque
     deriving (Show, Eq, Ord, Typeable)
 
--- |Find the 'Type' of the value contained by a 'Val'. See "Pugs.Types" for 
+-- |Find the 'Type' of the value contained by a 'Val'. See "Pugs.Types" for
 -- info on types.
 valType :: Val -> Type
 valType VUndef          = mkType "Scalar"
@@ -496,7 +497,7 @@ data VJunc = MkJunc
     -- irrelevant), since matching any of these would
     -- automatically violate the 'match /only/ one value'
     -- junctive semantics.
-    , juncSet  :: !(Set Val) 
+    , juncSet  :: !(Set Val)
     -- ^ Set of values that make up the junction. In @one()@
     -- junctions, contains the set of values that appear exactly
     -- /once/.
@@ -721,7 +722,7 @@ extract (Cxt cxt ex) vs = ((Cxt cxt ex'), vs')
     (ex', vs') = extract ex vs
 extract exp vs = (exp, vs)
 
--- |Return the context implied by a particular primary sigil 
+-- |Return the context implied by a particular primary sigil
 -- (\$, \@, \% or \&). E.g. used to find what context to impose on
 -- the RHS of a binding (based on the sigil of the LHS).
 cxtOfSigil :: Char -> Cxt
@@ -765,7 +766,7 @@ defaultScalarParam  = buildParam "" "" "$_" (Val VUndef)
 
 type DebugInfo = Maybe (TVar (Map String String))
 
--- | Evaluation environment. 
+-- | Evaluation environment.
 data Env = MkEnv
     { envContext :: !Cxt                 -- ^ Current context
                                          -- ('CxtVoid', 'CxtItem' or 'CxtSlurpy')
@@ -784,7 +785,7 @@ data Env = MkEnv
     } deriving (Show, Eq, Ord)
 
 envWant :: Env -> String
-envWant env = 
+envWant env =
     showCxt (envContext env) ++ (if envLValue env then ", LValue" else "")
     where
     showCxt CxtVoid         = "Void"
@@ -803,14 +804,14 @@ more details.
 @TVar@ indicates that the mapped-to items are STM transactional variables.
 
 The @Bool@ is a \'freshness\' flag used to ensure that @my@ variable slots
-are re-generated each time we enter their scope; see the 
+are re-generated each time we enter their scope; see the
 'Pugs.Eval.reduce' entry for ('Pad' 'SMy' ... ).
 -}
 data Pad = MkPad !(Map Var ([(TVar Bool, TVar VRef)]))
     deriving (Eq, Ord, Typeable)
 
 instance Show Pad where
-    show pad = "(mkPad [" ++ 
+    show pad = "(mkPad [" ++
                 concat (intersperse ", " $ map dump $ padToList pad) ++
                 "])"
         where
@@ -836,7 +837,7 @@ lookupPad key (MkPad map) = case Map.lookup key map of
     Nothing -> Nothing
 
 -- |Transform a pad into a flat list of bindings. The inverse of 'mkPad'.
--- Note that @Data.Map.assocs@ returns a list of mappings in ascending key 
+-- Note that @Data.Map.assocs@ returns a list of mappings in ascending key
 -- order.
 padToList :: Pad -> [(Var, [(TVar Bool, TVar VRef)])]
 padToList (MkPad map) = Map.assocs map
@@ -850,7 +851,7 @@ diffPads (MkPad map1) (MkPad map2) = MkPad $ Map.difference map1 map2
 unionPads :: Pad -> Pad -> Pad
 unionPads (MkPad map1) (MkPad map2) = MkPad $ Map.union map1 map2
 
--- |Create a 'Pad'-transforming transaction that will install a symbol 
+-- |Create a 'Pad'-transforming transaction that will install a symbol
 -- definition in the 'Pad' it is applied to, /alongside/ any other mappings
 -- of the same name. This is to allow for overloaded (i.e. multi) subs,
 -- where one sub name actually maps to /all/ the different multi subs.
@@ -1050,14 +1051,14 @@ naturalOrRat  = (<?> "number") $ do
             char '0'
             zeroNumRat
         <|> decimalRat
-                      
+
     zeroNumRat = do
             n <- hexadecimal <|> decimal <|> octalBad <|> octal <|> binary
             return (Left n)
         <|> decimalRat
         <|> fractRat 0
-        <|> return (Left 0)                  
-                      
+        <|> return (Left 0)
+
     decimalRat = do
         n <- decimalLiteral
         option (Left n) (try $ fractRat n)
@@ -1074,7 +1075,7 @@ naturalOrRat  = (<?> "number") $ do
 
     fraction = do
             char '.'
-            notFollowedBy . satisfy $ \x -> 
+            notFollowedBy . satisfy $ \x ->
                 (isAlpha x && ((x /=) `all` "eE"))
                 || ((x ==) `any` ".=")
             digits <- many digit <?> "fraction"
@@ -1082,7 +1083,7 @@ naturalOrRat  = (<?> "number") $ do
         <?> "fraction"
         where
         digitsToRat d = digitsNum d % (10 ^ length d)
-        digitsNum d = foldl (\x y -> x * 10 + (toInteger $ digitToInt y)) 0 d 
+        digitsNum d = foldl (\x y -> x * 10 + (toInteger $ digitToInt y)) 0 d
 
     expo :: GenParser Char st Rational
     expo = do
@@ -1095,11 +1096,11 @@ naturalOrRat  = (<?> "number") $ do
         power e | e < 0      = 1 % (10^abs(e))
                 | otherwise  = (10^e) % 1
 
-    sign            =   (char '-' >> return False) 
+    sign            =   (char '-' >> return False)
                     <|> (char '+' >> return True)
                     <|> return True
 
-    decimalLiteral         = number 10 digit        
+    decimalLiteral         = number 10 digit
     hexadecimal     = do{ char 'x'; number 16 hexDigit }
     decimal         = do{ char 'd'; number 10 digit }
     octal           = do{ char 'o'; number 8 octDigit }
@@ -1110,7 +1111,7 @@ naturalOrRat  = (<?> "number") $ do
         = do{ digits <- many1 baseDigit
             ; let n = foldl (\x d -> base*x + toInteger (digitToInt d)) 0 digits
             ; seq n (return n)
-            }          
+            }
 
 -- |Evaluate the given expression, using the currently active evaluator
 -- (as given by the 'envEval' slot of the current 'Env').
@@ -1158,7 +1159,7 @@ readRef (MkRef (IHandle io)) = return . VHandle =<< handle_fetch io
 readRef (MkRef (IRule rx)) = return . VRule =<< rule_fetch rx
 readRef (MkRef (IThunk tv)) = readRef =<< fromVal =<< thunk_force tv
 
-retIVar :: (Typeable a) => IVar a -> Eval Val 
+retIVar :: (Typeable a) => IVar a -> Eval Val
 retIVar = return . VRef . MkRef
 
 writeRef :: VRef -> Val -> Eval ()
@@ -1392,4 +1393,3 @@ instance Typeable1 IVar where
     typeOf1 (IThunk  x) = typeOf x
     typeOf1 (IPair   x) = typeOf x
 #endif
-
