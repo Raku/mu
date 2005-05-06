@@ -263,7 +263,12 @@ sub try_compile {
 
 sub parrot_config {
     my ($base, $config) = @_;
-    my $value = `cd $base; $base/parrot parrot-config.imc $config`;
+    my $ac_path = abs_path();
+    my $sp_base = $base;
+    $sp_base =~ s{\\}{\/}g;
+    chdir( $sp_base ) or die "Cant't change dir to '$sp_base'";
+    my $value = `parrot parrot-config.imc $config`;
     chomp($value);
+    chdir( $ac_path ) or die "Cant't change dir to '$ac_path'";
     return $value;
 }
