@@ -208,7 +208,7 @@ smoke : $pugs util/run-smoke.pl
 	\$(PERL) util/run-smoke.pl . smoke.html
 
 ghci ::
-	$ghc --interactive $ghc_flags $embed_flags $ghc_output
+	$ghc --interactive $ghc_flags $ghc_output
 
 tags : @srcfiles
 	$hasktags -c @srcfiles
