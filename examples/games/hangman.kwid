@@ -33,7 +33,7 @@ C<@letters> by forcing the array into numerical context:
 
     for (0 .. (+@letters - 1)) -> $i {
 
-Now, C<~=> might throw you. You Perl 5'ers are seeing the regepx matching 
+Now, C<~=> might throw you. You Perl 5'ers are seeing the regexp matching 
 operator in reverse. But what you should be seeing is the Perl 6 string
 concatenation operator (C<~>) followed by an equal sign. Which therefore 
 means that
@@ -94,4 +94,5 @@ ternary operator syntax.
 Terrence "metaperl" Brannon
 
 Substantial #perl6 help from 
-mauke, ninereaons, revdiablo, autrijus, stevan
+
+  mauke, ninereaons, revdiablo, autrijus, stevan
