@@ -1122,7 +1122,7 @@ ruleLit = choice
 --    , namedLiteral "undef"  VUndef
     , namedLiteral "NaN"    (VNum $ 0/0)
     , namedLiteral "Inf"    (VNum $ 1/0)
-    , dotdotdotLiteral
+    , yadaLiteral
     , qLiteral
     , rxLiteral
     , substLiteral
@@ -1471,12 +1471,17 @@ rxLiteral = try $ do
 namedLiteral :: String -> Val -> RuleParser Exp
 namedLiteral n v = do { symbol n; return $ Val v }
 
-dotdotdotLiteral :: RuleParser Exp
-dotdotdotLiteral = do
+yadaLiteral :: RuleParser Exp
+yadaLiteral = do
     pos1 <- getPosition
-    symbol "..."
+    sym  <- choice . map symbol $ words " ... ??? !!! "
     pos2 <- getPosition
-    return . Val $ VError "..." (NonTerm (mkPos pos1 pos2))
+    return . Val $ VError sym (NonTerm (mkPos pos1 pos2))
+{-
+    return . Val . VRef . thunkRef . MkThunk $
+        local (\e -> e{ envPos = mkPos pos1 pos2}) $ do
+            fail "This function is not yet implemented"
+-}
 
 op_methodPostfix    :: [a]
 op_methodPostfix    = []
