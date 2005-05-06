@@ -222,7 +222,6 @@ doRunSingle menv opts prog = (`catch` handler) $ do
     makeDumpEnv (Pad x y exp)   = Pad x y   $ makeDumpEnv exp
     makeDumpEnv (Sym x y exp)   = Sym x y   $ makeDumpEnv exp
     makeDumpEnv (Pos x exp)     = Pos x     $ makeDumpEnv exp
-    makeDumpEnv (Parens exp)    = Parens    $ makeDumpEnv exp
     makeDumpEnv exp = Stmts exp (Syn "env" [])
     handler err = if not (isUserError err) then ioError err else do
         putStrLn "Internal error while running expression:"

@@ -644,12 +644,11 @@ data Exp
     | Cxt !Cxt !Exp                     -- ^ Context
     | Pos !Pos !Exp                     -- ^ Position
     | Pad !Scope !Pad !Exp              -- ^ Lexical pad
-    | Sym !Scope !Var !Exp              -- ^ Symbol (declaration?)
+    | Sym !Scope !Var !Exp              -- ^ Symbol declaration
     | Stmts !Exp !Exp                   -- ^ Multiple statements
     | Prim !([Val] -> Eval Val)         -- ^ Primitive
     | Val !Val                          -- ^ Value
     | Var !Var                          -- ^ Variable
-    | Parens !Exp                       -- ^ Parentheses (not usually used)
     | NonTerm !Pos                      -- ^ Parse error
      deriving (Show, Eq, Ord, Typeable)
 
@@ -666,7 +665,6 @@ instance Unwrap [Exp] where
 instance Unwrap Exp where
     unwrap (Cxt _ exp)      = unwrap exp
     unwrap (Pos _ exp)      = unwrap exp
-    unwrap (Parens exp)     = unwrap exp
     unwrap (Pad _ _ exp)    = unwrap exp
     unwrap (Sym _ _ exp)    = unwrap exp
     unwrap x                = x
@@ -719,9 +717,6 @@ extract (Pos pos ex) vs = ((Pos pos ex'), vs')
     where
     (ex', vs') = extract ex vs
 extract (Cxt cxt ex) vs = ((Cxt cxt ex'), vs')
-    where
-    (ex', vs') = extract ex vs
-extract (Parens ex) vs = ((Parens ex'), vs')
     where
     (ex', vs') = extract ex vs
 extract exp vs = (exp, vs)

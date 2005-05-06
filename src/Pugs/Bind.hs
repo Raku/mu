@@ -129,8 +129,8 @@ finalizeBindings sub = do
             ++ (show $ length reqPrms) ++ " expected"
 
     let unboundOptPrms = optPrms \\ (map fst boundOpt) -- unbound optParams are allPrms - boundPrms
-        optPrmsDefaults = map paramDefault $ unboundOptPrms -- get a list of default values
-        boundDefOpts = unboundOptPrms `zip` (map Parens optPrmsDefaults) -- turn into exprs, so that +$y = $x will work
+        optPrmsDefaults = [ Syn "default" [paramDefault prm] | prm <- unboundOptPrms ] -- get a list of default values
+        boundDefOpts = unboundOptPrms `zip` optPrmsDefaults -- turn into exprs, so that +$y = $x will work
         
     return sub {
         subBindings = ((subBindings sub) ++ boundDefOpts)

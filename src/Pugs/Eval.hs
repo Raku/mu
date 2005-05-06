@@ -695,7 +695,6 @@ reduce (App name invs args) = do
         | otherwise
         = internalError "applyChainsub did not match a chain subroutine"
 
-reduce (Parens exp) = reduce exp
 reduce exp = retError "Invalid expression" exp
 
 -- |Return the context that an expression bestows upon a hash or array
@@ -703,7 +702,6 @@ reduce exp = retError "Invalid expression" exp
 cxtOfExp :: Exp -- ^ Expression to find the context of
          -> Eval Cxt
 cxtOfExp (Pos _ exp)            = cxtOfExp exp
-cxtOfExp (Parens exp)           = cxtOfExp exp
 cxtOfExp (Cxt cxt _)            = return cxt
 cxtOfExp (Syn "," _)            = return cxtSlurpyAny
 cxtOfExp (Syn "[]" [_, exp])    = cxtOfExp exp
@@ -869,8 +867,8 @@ doApply env sub@MkCode{ subBody = fun, subType = typ } invs args =
         let name = paramName prm
             cxt = cxtOfSigil $ head name
         (val, coll) <- enterContext cxt $ case exp of
-            Parens exp  -> local fixEnv $ enterLex syms $ expToVal prm exp
-            _           -> expToVal prm exp
+            Syn "default" [exp] -> local fixEnv $ enterLex syms $ expToVal prm exp
+            _                   -> expToVal prm exp
         -- trace ("==> " ++ (show val)) $ return ()
         boundRef <- fromVal val
         newSym   <- genSym name boundRef

@@ -58,7 +58,6 @@ compile (App ('&':op) [arg1, arg2] []) = [| do
     argC2 = compile arg2
 compile (Cxt _ arg) = compile arg
 compile (Pos _ arg) = compile arg
-compile (Parens arg) = compile arg
 compile (Val (VInt i)) = [| return (VInt i) |]
 compile (Val (VStr s)) = [| return (VStr s) |]
 compile (Val (VBool b)) = [| return (VBool b) |]
