@@ -105,7 +105,11 @@ is(@lines7[1], "Foo Bar Baz\n", 'readline($in) worked in list context');
 is(@lines7[2], "The End\n", 'readline($in) worked in list context');
 is(@lines7[3], "... Its not over yet!\n", 'readline($in) worked in list context');
 
-# now be sure to delete the file as well
+# Following test is spread across io.t and io_final.t
+# Writes to a filehandle without explicit close do not output
+# even after program termination
 
-ok(?unlink($filename), 'file has been removed');
+my $out2 = open('>' ~ $filename);
+is(ref $out2, 'IO', "Confirm IO handle before writing");
+$out2.say("Hello World");
 
