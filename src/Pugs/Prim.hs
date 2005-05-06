@@ -761,6 +761,8 @@ op2 "sort" = \x y -> do
     xs <- fromVals x
     ys <- fromVals y
     op1 "sort" . VList $ xs ++ ys
+op2 "say" = \x (VList ys) -> op1Print hPutStrLn (VList (x:ys))
+op2 "print" = \x (VList ys) -> op1Print hPutStr (VList (x:ys))
 op2 other = \x y -> return $ VError ("unimplemented binaryOp: " ++ other) (App other [Val x, Val y] [])
 
 -- XXX - need to generalise this
