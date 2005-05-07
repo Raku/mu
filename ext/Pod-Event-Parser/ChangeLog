@@ -5,6 +5,9 @@
 ** re-write tests to take reflect this change
 ** add test to parse the module's own POD
 
+* add Pod::Event::Handlers::* modules
+* add `scripts/` directory with `pod2html.p6`
+
 == 0.0.1
 
 * initial (working) release
