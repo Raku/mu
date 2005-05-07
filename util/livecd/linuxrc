@@ -1,0 +1,17 @@
+#!/bin/bash
+
+export PATH=/bin
+
+pugs -w /welcome.p6
+pugs
+
+echo
+echo "You may want to restart Pugs by entering"
+echo "  pugs"
+echo "on the command prompt."
+PS1="[root@pugs] \w # " bash
+
+echo
+echo "Thanks for trying Pugs!"
+echo "You can safely switch your computer off now."
+while :; do pugs -we 'sleep 86400'; done

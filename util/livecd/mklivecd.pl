@@ -51,6 +51,9 @@ my $grub_uri     = "http://m19s28.vlinux.de/iblech/pugs/grub.tar.bz2";
 my $kernel_local = "vmlinuz";
 my $grub_local   = "grub.tar.bz2";
 my $pugs         = "../../pugs";
+my $bash         = "/bin/bash";
+my $linuxrc      = "linuxrc";
+my $welcome_p6   = "welcome.p6";
 my $initrd_gz    = "initrd.gz";
 my $initrd_img   = "initrd.img";
 my $initrd_mnt   = "/mnt/loop0";
@@ -71,6 +74,8 @@ You can stop this program at any time, it'll continue when you run it again.
 *Note*: This program should be run as unpreviliged user, it will ask you to
 enter commands requiring root privilegies.
 
+*Note*: The only option you'll have to specify is probably --initrd-mnt.
+
 *Note*: I only tested this program on Linux, but it should work on other *nix
 systems, too. For now, I made the script stop if you aren't running under
 Linux, you may want to change that.
@@ -78,42 +83,36 @@ Linux, you may want to change that.
 *Note*: A precompiled (but most of the time outdated) image is available at
 http://m19s28.vlinux.de/iblech/pugs/livecd.iso.
 
-Available options:
-  --kernel-uri=http://path/to/kernel/to/use
-    Selects the kernel the livecd should use.
-    Defaults to "$kernel_uri".
-  --kernel-local=vmlinuz
-    Selects the local name for the kernel.
-    Defaults to "$kernel_local".
-  --grub-uri=http://path/to/kernel/to/use
-    Selects the tar.bz2 GRUB is contained in.
-    Defaults to "$grub_uri".
-  --grub-local=grub.tar.bz2
-    Selects the local name for the GRUB tar.bz2.
-    Defaults to "$grub_local".
-  --pugs=/path/to/pugs
-    Selects the Pugs binary to use.
-    Defaults to \"$pugs\".
-  --initrd-gz=initrd.gz
-    Selects the file the initrd.img will be gzipped to.
-    Defaults to \"$initrd_gz\".
-  --initrd-img=initrd.img
-    Selects the file the initrd-dir will be put in.
-    Defaults to \"$initrd_img\".
-  --initrd-size=20480
-    Selects the size of the initrd.img (in KiB).
-    Defaults to \"$initrd_size\".
-  --initrd-mnt=/mnt/mountpoint
-    Selects the mountpoint to mount the initrd in.
-    Defaults to \"$initrd_mnt\".
-  --cdroot=cdroot
-    Selects the directory which will later be the / of the CD.
-    Defaults to \"$cdroot\".
-  --iso=cd.iso
-    Selects the final ISO9660 image name to use.
-    Defaults to \"$iso\".
-  --help
-    Displays this help.
+Available options and defaults:
+  --kernel-uri=$kernel_uri
+    mklivecd.pl automatically fetches a kernel from the Internet.
+  --kernel-local=$kernel_local
+    Locally, the kernel is saved as --kernel-local.
+  --grub-uri=$grub_uri
+    mklivecd.pl automatically fetches a GRUB tarball.
+  --grub-local=$grub_local
+    Locally, the GRUB tarball is saved as --grub-local.
+  --pugs=$pugs
+    mklivecd.pl takes --pugs as the binary to put on the CD.
+  --bash=$bash
+    linuxrc needs a bash-compatible shell.
+  --linuxrc=$linuxrc
+    --linuxrc is the first script to run after the kernel has started.
+  --welcome-p6=$welcome_p6
+    --welcome-p6 is a Perl 6 program runnable by Pugs which will
+    introduce Pugs.
+  --initrd-gz=$initrd_gz
+    mklivecd.pl automatically generates a gzipped initrd suitable for GRUB.
+  --initrd-img=$initrd_img
+    --initrd-img is the temporary image of the initrd, which will be mounted.
+  --initrd-size=$initrd_size
+    --initrd-size specifies the size of the (uncompressed) initrd (in KiB).
+  --initrd-mnt=$initrd_mnt
+    --initrd-img will be mounted to --initrd-mnt in order to copy files to it.
+  --cdroot=$cdroot
+    --cdroot is the directory which will later be the / of the CD.
+  --iso=$iso
+    The final ISO9660 image name will be --iso.
 
 Options may be abbreviated to uniqueness.
 
@@ -127,6 +126,9 @@ GetOptions(
   "kernel-local=s" => \$kernel_local,
   "grub-local=s"   => \$grub_local,
   "pugs=s"         => \$pugs,
+  "bash=s"         => \$bash,
+  "linuxrc=s"      => \$linuxrc,
+  "welcome-p6=s"   => \$welcome_p6,
   "initrd-gz=s"    => \$initrd_gz,
   "initrd-img=s"   => \$initrd_img,
   "initrd-size=i"  => \$initrd_size,
@@ -170,18 +172,28 @@ step
   help   => "Compile Pugs if you haven't done so already.",
   ensure => sub { -r $pugs and -s $pugs };
 
+step
+  descr  => "Checking for Bash binary",
+  ensure => sub { -r $bash and -s $bash };
+
+my $pugs_version;
+step
+  descr  => "Querying Pugs for its version",
+  ensure => sub { defined $pugs_version },
+  using  => sub { $pugs_version = get_version($pugs) };
+
 my $rebuild;
 step
   descr  => "Checking if we have to rebuild the initrd",
   ensure => sub { defined $rebuild },
-  using  => sub { $rebuild = !(-r $initrd_gz and -M $initrd_gz <= -M $pugs) };
+  using  => sub { $rebuild = !(-r $initrd_gz and -M $initrd_gz <= -M $pugs and -M $initrd_gz <= -M $linuxrc and -M $initrd_gz <= -M $bash and -M $initrd_gz <= -M $welcome_p6) };
 
 if($rebuild) {
   my @libs;
   step
-    descr  => "Checking which shared libraries pugs requires",
+    descr  => "Checking which shared libraries pugs and bash require",
     ensure => sub { @libs > 1 },
-    using  => sub { @libs = ldd($pugs) },
+    using  => sub { my %l; @l{ldd($pugs), ldd($bash)} = (); @libs = keys %l },
     help   => <<HELP;
       We use 'ldd' to read the list of shared libraries (*.so) pugs
       requires. This is necessary so we can copy them on the CD later.
@@ -208,26 +220,38 @@ HELP
       # mount -o loop -t ext2 $initrd_img $initrd_mnt
 HELP
 
-  my @dirs = map { "$initrd_mnt/$_" } "dev", "lib";
+  my @dirs = map { "$initrd_mnt/$_" } "bin", "dev", "lib";
   step
     descr  => "Creating directories " . join(", ", map { "$_" } @dirs),
     ensure => sub { -d $_ or return for @dirs; 1 },
-    using  => sub { utime $initrd_img; mkdir $_ for @dirs },
+    using  => sub { utime undef, undef, $initrd_img; mkdir $_ for @dirs },
     help   => <<HELP;
       We need a temporary directory the initrd.gz will be built later from.
       We'll copy pugs and the libraries it needs to it.
 HELP
 
+  my @files = (
+    [$pugs       => "$initrd_mnt/bin/pugs"],
+    [$bash       => "$initrd_mnt/bin/bash"],
+    [$linuxrc    => "$initrd_mnt/linuxrc"],
+    [$welcome_p6 => "$initrd_mnt/welcome.p6"],
+  );
   step
-    descr  => "Copying Pugs binary to \"$initrd_mnt/linuxrc\"",
+    descr  => "Copying Pugs, Bash, linuxrc, and welcome.p6 to the initrd",
     ensure => sub {
-      -r "$initrd_mnt/linuxrc" and -x "$initrd_mnt/linuxrc" and
-      -M "$initrd_mnt/linuxrc" <= -M $pugs;
+      for(@files) {
+	my ($src, $dest) = @$_;
+        -r $dest and -x $dest and -M $dest <= -M $src or return;
+      }
+      1;
     },
     using  => sub {
-      utime $initrd_img;
-      copy $pugs => "$initrd_mnt/linuxrc";
-      chmod 0755, "$initrd_mnt/linuxrc";
+      utime undef, undef, $initrd_img;
+      for(@files) {
+	my ($src, $dest) = @$_;
+	copy $src => $dest;
+	chmod 0755, $dest;
+      };
     };
 
   step
@@ -237,7 +261,7 @@ HELP
       1;
     },
     using  => sub {
-      utime $initrd_img;
+      utime undef, undef, $initrd_img;
       for(@libs) {
 	copy $_ => "$initrd_mnt/lib/" . basename $_;
 	chmod 0755, "$initrd_mnt/lib/" . basename $_;
@@ -248,7 +272,7 @@ HELP
     descr  => "Copying necessary device files to \"$initrd_mnt/dev\"",
     ensure => sub { -c "$initrd_mnt/dev/console" },
     pause  => 1,
-    using  => sub { utime $initrd_img },
+    using  => sub { utime undef, undef, $initrd_img },
     help   => <<HELP;
       Please create a $initrd_mnt/dev/console by entering the following command
       as root:
@@ -292,7 +316,7 @@ default  0
 timeout  5
 color light-blue/black black/light-gray
 
-title    Pugs
+title    $pugs_version
 root     (cd)
 kernel   /boot/vmlinuz root=/dev/ram init=/linuxrc ramdisk_size=$initrd_size quiet
 initrd   /boot/initrd.gz
@@ -346,4 +370,15 @@ sub check_for_evil_chars {
     die "Error: Parameter \"$_\" contains potential unsafe characters.\n"
       if /[ <>;&\\\$'"]/;
   }
+}
+
+sub get_version {
+  my $bin = shift;
+
+  open my $fh, "-|", $bin, "-V:pugs_version" or
+    die "Couldn't open pipe to \"$bin -V:pugs_version\": $!\n";
+  my $rev = <$fh>;
+  $rev =~ s/^.*?: //g;
+
+  return $rev;
 }
