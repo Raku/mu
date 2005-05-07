@@ -1,5 +1,5 @@
 {-# OPTIONS_GHC -fglasgow-exts -fvia-C #-}
-{-# OPTIONS_GHC -#include "syck.h" #-}
+#include <syck.h>
 
 module Data.Yaml.Syck (
     parseYaml,
@@ -59,9 +59,9 @@ nodeCallback parser syckNode = do
 errorCallback :: IORef (Maybe String) -> SyckParser -> CString -> IO ()
 errorCallback err parser cstr = do
     msg     <- peekCString cstr
-    lineptr <- peekByteOff parser offsetLinePtr :: IO CChar
-    cursor  <- peekByteOff parser (offsetLinePtr + (3 * sizeOfCString)) :: IO CChar
-    linect  <- peekByteOff parser (offsetLinePtr + (6 * sizeOfCString)) :: IO CChar
+    lineptr <- #{peek SyckParser, lineptr} parser :: IO CChar
+    cursor  <- #{peek SyckParser, cursor} parser  :: IO CChar
+    linect  <- #{peek SyckParser, linect} parser  :: IO CChar
     writeIORef err . Just $ concat
         [ msg
         , ": line ", show (1 + fromEnum linect)
@@ -79,37 +79,13 @@ readNode parser symId = alloca $ \nodePtr -> do
     ptr     <- peek . castPtr =<< peek nodePtr
     deRefStablePtr (castPtrToStablePtr ptr)
 
-sizeOfSYMID         = sizeOf (undefined :: SYMID)
-sizeOfCInt          = sizeOf (undefined :: CInt)
-sizeOfCString       = sizeOf (undefined :: CString)
-sizeOfCLong         = sizeOf (undefined :: CLong)
-sizeOfCSize         = sizeOf (undefined :: CSize)
-sizeOfFunPtr        = sizeOf (undefined :: FunPtr ())
-sizeOfNodeHeader    = sizeOfSYMID + sizeOfCInt + (sizeOfCString * 2)
-
-offsetLinePtr = sum
-    [ sizeOfSYMID   * 2
-    , sizeOfCInt    * 2
-    , sizeOfFunPtr  * 3
-    , sizeOfCInt    * 2
-    , sizeOfCSize
-    , sizeOfCString * 2
-    ]
-
-offsetLength :: SyckKind -> Int
-offsetLength SyckMap = sizeOfCInt + (2 * sizeOfSYMID) + sizeOfCLong
-offsetLength SyckSeq = sizeOfCInt + sizeOfSYMID + sizeOfCLong
-offsetLength SyckStr = sizeOfCInt + sizeOfCString
-
 syckNodeKind :: SyckNode -> IO SyckKind
-syckNodeKind syckNode = do
-    cint    <- peekByteOff syckNode sizeOfSYMID :: IO CInt
-    return (toEnum . fromEnum $ cint)
+syckNodeKind syckNode = fmap toEnum $ #{peek SyckNode, kind} syckNode
 
 syckNodeLength :: SyckKind -> SyckNode -> IO CLong
-syckNodeLength kind syckNode = do
-    ptr     <- peekByteOff syckNode sizeOfNodeHeader :: IO (Ptr ())
-    peekByteOff ptr (offsetLength kind)
+syckNodeLength SyckMap = (#{peek struct SyckMap, idx} =<<) . #{peek SyckNode, data}
+syckNodeLength SyckSeq = (#{peek struct SyckSeq, idx} =<<) . #{peek SyckNode, data}
+syckNodeLength SyckStr = (#{peek struct SyckStr, len} =<<) . #{peek SyckNode, data}
 
 parseNode :: SyckKind -> SyckParser -> SyckNode -> CLong -> IO YamlNode
 parseNode SyckMap parser syckNode len = do
@@ -176,4 +152,3 @@ foreign import ccall
 
 foreign import ccall
     syck_map_read :: SyckNode -> CInt -> CLong -> IO SYMID
-
