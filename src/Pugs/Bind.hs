@@ -14,11 +14,20 @@ import Pugs.Internals
 import Pugs.AST
 import Pugs.Types
 
+-- |Contains either a valid value of \'a\' (@Right@), or a @String@ error
+-- message (@Left@).
 type MaybeError a = Either String a
 
 isRequired prm = not ( isOptional prm || isNamed prm )
 
-bindNames :: [Exp] -> [Param] -> (Bindings, [Exp], [Param])
+-- |Match up named arguments with named parameters, producing a list of new
+-- bindings, and lists of remaining unbound args and params.
+bindNames :: [Exp] -- ^ List of argument expressions to be bound
+          -> [Param] -- ^ List of parameters to try binding; includes both
+                     --     named params and positional params
+          -> (Bindings, [Exp], [Param]) -- ^ Bindings made; remaining (unbound)
+                                        --     named args; remaining
+                                        --     (positional) params
 bindNames exps prms = (bound, exps', prms')
     where
     prms' = prms \\ (map fst bound)
@@ -79,6 +88,8 @@ bindEmpty p = case paramName p of
     (x:_)   -> internalError $ "bindEmpty: unexpected char: " ++ (show x)
     []      -> internalError $ "bindEmpty: empty string encountered"
 
+-- |Return @True@ if the given expression represents a pair (i.e. it uses the
+-- \"=>\" pair composer).
 isPair :: Exp -> Bool
 isPair (Pos _ exp) = isPair exp
 isPair (Cxt _ exp) = isPair exp
@@ -87,6 +98,8 @@ isPair (App (Var "&infix:=>") [(Cxt _ (Val _)), _] [])   = True
 isPair (App (Var "&infix:=>") [(Val _), _] [])   = True
 isPair _                         = False
 
+-- |Decompose a pair-constructor 'Exp'ression (\"=>\") into a Haskell pair
+-- (@key :: 'String'@, @value :: 'Exp'@).
 unPair :: Exp -> (String, Exp)
 unPair (Pos _ exp) = unPair exp
 unPair (Cxt _ exp) = unPair exp
@@ -96,7 +109,18 @@ unPair (App (Var "&infix:=>") [(Val k), exp] []) = (vCast k, exp)
 unPair x                                = error ("Not a pair: " ++ show x)
 
 -- performs a binding and then verifies that it's complete in one go
-bindParams :: VCode -> [Exp] -> [Exp] -> MaybeError VCode
+{-|
+Bind parameters to a callable, then verify that the binding is complete
+(i.e. all mandatory params are bound; all unspecified params have default
+bindings). Uses 'bindSomeParams' to perform the initial binding, then uses
+'finalizeBindings' to check all required params and give default values to
+any unbound optional ones.
+-}
+bindParams :: VCode -- ^ A code object to perform bindings on
+           -> [Exp] -- ^ List of invocants to bind
+           -> [Exp] -- ^ List of arguments (actual params) to bind
+           -> MaybeError VCode -- ^ Returns either a new 'VCode' with all the
+                               --     bindings in place, or an error message
 bindParams sub invsExp argsExp = do
     case bindSomeParams sub invsExp argsExp of
         Left errMsg -> Left errMsg
@@ -137,6 +161,11 @@ finalizeBindings sub = do
     }
 
 -- takes invocants and arguments, and creates a binding from the remaining params in the sub
+{-|
+Take a code object and lists of invocants and arguments, and produce (if
+possible) a new 'VCode' value representing the same code object, with as many
+parameters bound as possible (using the given invocants and args).
+-}
 bindSomeParams :: VCode -> [Exp] -> [Exp] -> MaybeError VCode
 bindSomeParams sub invsExp argsExp = do
     let params     = subParams sub
