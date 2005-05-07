@@ -182,7 +182,7 @@ ${() = '%.hpp : %.hs @prereqs $version_h
 .SUFFIXES: .hsc .hs
 
 .hsc.hs :
-	$hsc2hs $hsc2hs_flags \$\@c -o \$@ \$< 
+	$hsc2hs $hsc2hs_flags \$<
 
 haddock : $version_h $config_h @hppfiles docs/haddock
 	haddock -h -o docs/haddock/ @hppfiles
