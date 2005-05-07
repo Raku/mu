@@ -4,9 +4,9 @@
 
 use v6;
 
-# XXX: should make these tmp files unique (using $$ say).
-my $intmp  = 'insanta.tmp';
-my $outtmp = 'outsanta.tmp';
+sub nonces () { return (".$*PID." ~ int rand 1000) }
+my $intmp  = 'insanta'  ~ nonces();
+my $outtmp = 'outsanta' ~ nonces();
 
 # XXX: would like to use 'pugs' in normal use, './pugs' when run
 # from 'make test'.
