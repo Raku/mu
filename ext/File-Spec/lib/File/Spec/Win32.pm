@@ -4,7 +4,7 @@ module File::Spec::Win32-0.0.1;
 
 sub curdir        returns Str  is export { '.'   }
 sub updir         returns Str  is export { '..'  }
-sub rootdir       returns Str  is export { '/'   }
+sub rootdir       returns Str  is export { '\\'  }
 sub devnull       returns Str  is export { 'nul' }
 sub case_tolerant returns Bool is export { 1     }
 
