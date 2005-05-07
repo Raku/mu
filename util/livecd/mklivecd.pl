@@ -20,16 +20,27 @@ sub step {
   $args{using}  ||= sub {};
   $args{help}   ||= "";
 
-  printf STDERR " %s*%s %s...\n", BOLD . BLUE, RESET, $args{descr};
-  print STDERR "   : $_\n" for map { (/^\s*(.*)$/g)[0] } split "\n", $args{help};
+  if($args{help}) {
+    printf STDERR " %s*%s %s...\n", BOLD . BLUE, RESET, $args{descr};
+    print STDERR "   : $_\n" for map { (/^\s*(.*)$/g)[0] } split "\n", $args{help};
+    print STDERR "   > ";
+  } else {
+    printf STDERR " %s*%s %s... ", BOLD . BLUE, RESET, $args{descr};
+  }
+
   if($args{ensure}->()) {
-    printf STDERR "   = skipped (%sgood%s).\n", BOLD . GREEN, RESET;
+    printf STDERR "skipped (%sgood%s).\n", BOLD . GREEN, RESET;
   } else {
     $args{using}->();
+    if($args{pause}) {
+      print STDERR "\b\b\b\b\b   : Press a key to continue... ";
+      <STDIN>;
+      print STDERR "   > ";
+    }
     if($args{ensure}->()) {
-      printf STDERR "   = %sgood%s.\n", BOLD . GREEN, RESET;
+      printf STDERR "%sgood%s.\n", BOLD . GREEN, RESET;
     } else {
-      printf STDERR "   = %sfailed%s.\n", BOLD . RED, RESET;
+      printf STDERR "%sfailed%s.\n", BOLD . RED, RESET;
       exit 1;
     }
   }
@@ -130,7 +141,8 @@ my $welcomed = 0;
 step
   descr  => "Welcome",
   ensure => sub { $welcomed },
-  using  => sub { print STDERR "   : Press a key to continue... "; <STDIN>; $welcomed++ },
+  using  => sub { $welcomed++ },
+  pause  => 1,
   help   => <<HELP;
     Have you read --help?
     You can stop this program by hitting ^C (<Ctrl>+<C>).
@@ -158,95 +170,105 @@ step
   help   => "Compile Pugs if you haven't done so already.",
   ensure => sub { -r $pugs and -s $pugs };
 
-my @libs;
+my $rebuild;
 step
-  descr  => "Checking which shared libraries pugs requires",
-  ensure => sub { @libs > 1 },
-  using  => sub { @libs = ldd($pugs) },
-  help   => <<HELP;
-    We use 'ldd' to read the list of shared libraries (*.so) pugs
-    requires. This is necessary so we can copy them on the CD later.
+  descr  => "Checking if we have to rebuild the initrd",
+  ensure => sub { defined $rebuild },
+  using  => sub { $rebuild = !(-r $initrd_gz and -M $initrd_gz <= -M $pugs) };
+
+if($rebuild) {
+  my @libs;
+  step
+    descr  => "Checking which shared libraries pugs requires",
+    ensure => sub { @libs > 1 },
+    using  => sub { @libs = ldd($pugs) },
+    help   => <<HELP;
+      We use 'ldd' to read the list of shared libraries (*.so) pugs
+      requires. This is necessary so we can copy them on the CD later.
 HELP
 
-step
-  descr  => "Creating an empty \"$initrd_img\"",
-  ensure => sub { -r $initrd_img and -s $initrd_img == 1024 * $initrd_size },
-  using  => sub { system "dd", "if=/dev/zero", "of=$initrd_img", "bs=1K", "count=$initrd_size" },
-  help   => "We're now creating a zeroed image we will later mount.";
+  step
+    descr  => "Creating an empty \"$initrd_img\"",
+    ensure => sub { -r $initrd_img and -s $initrd_img == 1024 * $initrd_size },
+    using  => sub { system "dd", "if=/dev/zero", "of=$initrd_img", "bs=1K", "count=$initrd_size" },
+    help   => "We're now creating a zeroed image we will later mount.";
 
-step
-  descr  => "Creating an ext2 filesystem on \"$initrd_img\"",
-  ensure => sub { `file $initrd_img` =~ /ext2/ },
-  using  => sub { system "mkfs.ext2", "-F", $initrd_img };
+  step
+    descr  => "Creating an ext2 filesystem on \"$initrd_img\"",
+    ensure => sub { `file $initrd_img` =~ /ext2/ },
+    using  => sub { system "mkfs.ext2", "-F", $initrd_img };
 
-step
-  descr  => "Mounting \"$initrd_img\"",
-  ensure => sub { `mount` =~ /\Q$initrd_img/ },
-  using  => sub { print STDERR "   : Press a key to continue... "; <STDIN> },
-  help   => <<HELP;
-    Please mount \"$initrd_img\" into \"$initrd_mnt\" by entering the following
-    command as root:
-    # mount -o loop -t ext2 $initrd_img $initrd_mnt
+  step
+    descr  => "Mounting \"$initrd_img\"",
+    ensure => sub { `mount` =~ /\Q$initrd_img/ },
+    pause  => 1,
+    help   => <<HELP;
+      Please mount \"$initrd_img\" into \"$initrd_mnt\" by entering the following
+      command as root:
+      # mount -o loop -t ext2 $initrd_img $initrd_mnt
 HELP
 
-my @dirs = map { "$initrd_mnt/$_" } "dev", "lib";
-step
-  descr  => "Creating directories " . join(", ", map { "$_" } @dirs),
-  ensure => sub { -d $_ or return for @dirs; 1 },
-  using  => sub { mkdir $_ for @dirs },
-  help   => <<HELP;
-    We need a temporary directory the initrd.gz will be built later from.
-    We'll copy pugs and the libraries it needs to it.
+  my @dirs = map { "$initrd_mnt/$_" } "dev", "lib";
+  step
+    descr  => "Creating directories " . join(", ", map { "$_" } @dirs),
+    ensure => sub { -d $_ or return for @dirs; 1 },
+    using  => sub { utime $initrd_img; mkdir $_ for @dirs },
+    help   => <<HELP;
+      We need a temporary directory the initrd.gz will be built later from.
+      We'll copy pugs and the libraries it needs to it.
 HELP
 
-step
-  descr  => "Copying Pugs binary to \"$initrd_mnt/linuxrc\"",
-  ensure => sub {
-    -r "$initrd_mnt/linuxrc" and -x "$initrd_mnt/linuxrc" and
-    -M "$initrd_mnt/linuxrc" <= -M $pugs;
-  },
-  using  => sub {
-    copy $pugs => "$initrd_mnt/linuxrc";
-    chmod 0755, "$initrd_mnt/linuxrc";
-  };
+  step
+    descr  => "Copying Pugs binary to \"$initrd_mnt/linuxrc\"",
+    ensure => sub {
+      -r "$initrd_mnt/linuxrc" and -x "$initrd_mnt/linuxrc" and
+      -M "$initrd_mnt/linuxrc" <= -M $pugs;
+    },
+    using  => sub {
+      utime $initrd_img;
+      copy $pugs => "$initrd_mnt/linuxrc";
+      chmod 0755, "$initrd_mnt/linuxrc";
+    };
 
-step
-  descr  => "Copying shared libraries to \"$initrd_mnt/lib\"",
-  ensure => sub {
-    -r "$_" && -x "$_" or return for map { "$initrd_mnt/lib/" . basename $_ } @libs;
-    1;
-  },
-  using  => sub {
-    for(@libs) {
-      copy $_ => "$initrd_mnt/lib/" . basename $_;
-      chmod 0755, "$initrd_mnt/lib/" . basename $_;
-    }
-  };
+  step
+    descr  => "Copying shared libraries to \"$initrd_mnt/lib\"",
+    ensure => sub {
+      -r "$_" && -x "$_" or return for map { "$initrd_mnt/lib/" . basename $_ } @libs;
+      1;
+    },
+    using  => sub {
+      utime $initrd_img;
+      for(@libs) {
+	copy $_ => "$initrd_mnt/lib/" . basename $_;
+	chmod 0755, "$initrd_mnt/lib/" . basename $_;
+      }
+    };
 
-step
-  descr  => "Copying necessary device files to \"$initrd_mnt/dev\"",
-  ensure => sub { -c "$initrd_mnt/dev/console" },
-  using  => sub { print STDERR "   : Press a key to continue... "; <STDIN> },
-  help   => <<HELP;
-    Please create a $initrd_mnt/dev/console by entering the following command
-    as root:
-    # mknod $initrd_mnt/dev/console c 5 1
+  step
+    descr  => "Copying necessary device files to \"$initrd_mnt/dev\"",
+    ensure => sub { -c "$initrd_mnt/dev/console" },
+    pause  => 1,
+    using  => sub { utime $initrd_img },
+    help   => <<HELP;
+      Please create a $initrd_mnt/dev/console by entering the following command
+      as root:
+      # mknod $initrd_mnt/dev/console c 5 1
 HELP
 
-step
-  descr  => "Unmounting \"$initrd_img\"",
-  ensure => sub { `mount` !~ /\Q$initrd_img/ },
-  using  => sub { print STDERR "   : Press a key to continue... "; <STDIN> },
-  help   => <<HELP;
-    Please umount \"$initrd_img\" by entering the following command as root:
-    # umount $initrd_img
+  step
+    descr  => "Unmounting \"$initrd_img\"",
+    ensure => sub { `mount` !~ /\Q$initrd_img/ },
+    pause  => 1,
+    help   => <<HELP;
+      Please umount \"$initrd_img\" by entering the following command as root:
+      # umount $initrd_img
 HELP
 
-my $ran_gzip = 0;
-step
-  descr  => "Compressing \"$initrd_img\"",
-  ensure => sub { -r $initrd_gz and $ran_gzip },
-  using  => sub { system "gzip -vvv -9 -c $initrd_img > $initrd_gz"; $ran_gzip++ };
+  step
+    descr  => "Compressing \"$initrd_img\"",
+    ensure => sub { -r $initrd_gz and -M $initrd_gz <= -M $initrd_img },
+    using  => sub { system "gzip -vvv -9 -c $initrd_img > $initrd_gz" };
+}
 
 step
   descr  => "Creating directory \"$cdroot\"",
@@ -255,15 +277,20 @@ step
 
 step
   descr  => "Unpacking GRUB in \"$cdroot\"",
-  ensure => sub { -d "$cdroot/boot/grub" and -r "$cdroot/boot/grub/stage2_eltorito" },
+  ensure => sub {
+    -r "$cdroot/boot/grub/stage2_eltorito" and
+    -M "$cdroot/boot/grub/stage2_eltorito" <= -M $grub_local;
+  },
   using  => sub { system "tar", "-xvjf", $grub_local, "-C", $cdroot };
 
+my $wrote_menulst = 0;
 step
   descr  => "Creating \"$cdroot/boot/grub/menu.lst\"",
-  ensure => sub { -r "$cdroot/boot/grub/menu.lst" },
-  using  => sub { open my $fh, ">", "$cdroot/boot/grub/menu.lst"; print $fh <<GRUB };
+  ensure => sub { -r "$cdroot/boot/grub/menu.lst" and $wrote_menulst },
+  using  => sub { open my $fh, ">", "$cdroot/boot/grub/menu.lst"; print $fh <<GRUB; $wrote_menulst++ };
 default  0
 timeout  5
+color light-blue/black black/light-gray
 
 title    Pugs
 root     (cd)
@@ -274,17 +301,17 @@ GRUB
 
 step
   descr  => "Copying \"$initrd_gz\" to \"$cdroot/boot/initrd.gz\"",
-  ensure => sub { -r "$cdroot/boot/initrd.gz" },
+  ensure => sub { -r "$cdroot/boot/initrd.gz" and -M "$cdroot/boot/initrd.gz" <= -M $initrd_gz },
   using  => sub { copy $initrd_gz => "$cdroot/boot/initrd.gz" };
 
 step
   descr  => "Copying kernel to \"$cdroot/boot/vmlinuz\"",
-  ensure => sub { -r "$cdroot/boot/vmlinuz" },
+  ensure => sub { -r "$cdroot/boot/vmlinuz" and -M "$cdroot/boot/vmlinuz" <= -M $kernel_local },
   using  => sub { copy $kernel_local => "$cdroot/boot/vmlinuz" };
 
 step
   descr  => "Creating final ISO",
-  ensure => sub { -r $iso and -M $iso <= -M $initrd_gz },
+  ensure => sub { -r $iso and -M $iso <= -M $initrd_gz and -M $iso <= -M "$cdroot/boot/grub/menu.lst" },
   using  => sub {
     system
       "mkisofs",
