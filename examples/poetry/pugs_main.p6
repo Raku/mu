@@ -19,7 +19,7 @@ for $*Larry {
         $.prow does Shine;
         Silver $.mast but none(Oar::Shaven, Sail);
         Light  $.lantern := $*Silmaril;
-        Bright $.banner  := Flame.bless({});
+        Bright $.banner  := Flame.bless:{};
         when $*Elbereth.gleam {
             .sail(...);
         }
