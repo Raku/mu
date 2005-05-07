@@ -50,29 +50,29 @@ sub new_bot(
   my $hdl;                 # Socket
   my $queue = new_queue(floodcontrol => $floodcontrol);
 			   # Queue
-  my %numeric_handler;     # Callbacks for numeric messages (001)
-  my %command_handler;     # Callbacks for command messages (PRIVMSG)
+  my %handler;             # Callbacks for numeric (001) and command (PRIVMSG)
+                           # messages
 
   # Default (passive) handlers
-  %numeric_handler<001> = [ -> $event {
+  %handler<001> = [ -> $event {
     $inside++;
     $servername = $event<server>;
     $nick       = $event<to>;
     debug "Logged in to \"$servername\" as \"$nick\".";
   }];
-  %command_handler<JOIN> = [ -> $event {
+  %handler<JOIN> = [ -> $event {
     if($event<from_nick> eq $nick) {
       push @on_chans, $event<object>;
       debug "Joined channel \"$event<object>\".";
     }
   }];
-  %command_handler<PART> = [ -> $event {
+  %handler<PART> = [ -> $event {
     if($event<from_nick> eq $nick) {
       @on_chans .= grep:{ $^chan ne $event<object> };
       debug "Left channel \"$event<object>\".";
     }
   }];
-  %command_handler<KICK> = [ -> $event {
+  %handler<KICK> = [ -> $event {
     my ($kickee, $reason) = split " ", $event<rest>;
     $reason = strip_colon($reason);
     if($kickee eq $nick) {
@@ -80,7 +80,7 @@ sub new_bot(
       debug "Was kicked from channel \"$event<object>\" by \"$event<from>\" (\"$reason\").";
     }
   }];
-  %command_handler<NICK> = [ -> $event {
+  %handler<NICK> = [ -> $event {
     if($event<from_nick> eq $nick) {
       $nick = $event<object>;
       debug "Changed nick to \"$event<object>\".";
@@ -107,12 +107,7 @@ sub new_bot(
     last_autoping => { $last_autoping },
 
     # Handler register methods
-    add_numeric_handler => -> Str $code, Code $cb {
-      %numeric_handler{$code}.push($cb);
-    },
-    add_command_handler => -> Str $cmd,  Code $cb {
-      %command_handler{$cmd}.push($cb);
-    },
+    add_handler => -> Str $code, Code $cb { %handler{$code}.push($cb) },
 
     # Connect/disconnect methods
     connect    => { $self<reconnect>() },
@@ -195,8 +190,8 @@ sub new_bot(
 	rest   => strip_colon($rest),
       };
 
-      if(%numeric_handler{$code}) {
-	$_($event) for *%numeric_handler{$code};
+      if(%handler{$code}) {
+	$_($event) for *%handler{$code};
       }
     },
 
@@ -211,8 +206,8 @@ sub new_bot(
 	object    => strip_colon($object),
       };
 
-      if(%command_handler{$command}) {
-	$_($event) for *%command_handler{$command};
+      if(%handler{$command}) {
+	$_($event) for *%handler{$command};
       }
     },
 

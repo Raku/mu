@@ -15,8 +15,8 @@ my %seen;
 my $bot = new_bot(nick => $nick, host => $host, port => $port, debug_raw => 1);
 $bot<connect>();
 $bot<login>();
-$bot<add_command_handler>("INVITE",  \&on_invite);
-$bot<add_command_handler>("PRIVMSG", \&on_privmsg);
+$bot<add_handler>("INVITE",  \&on_invite);
+$bot<add_handler>("PRIVMSG", \&on_privmsg);
 $bot<run>();
 
 sub on_invite($event) {
