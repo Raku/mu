@@ -59,7 +59,7 @@ my $welcome_p6   = "welcome.p6";
 my $initrd_gz    = "initrd.gz";
 my $initrd_img   = "initrd.img";
 my $initrd_mnt   = "/mnt/loop0";
-my $initrd_size  = 20 * 1024;
+my $initrd_size  = 9.5 * 1024;
 my $cdroot       = "cdroot";
 my $iso          = "cd.iso";
 
