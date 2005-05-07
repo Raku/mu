@@ -54,6 +54,11 @@ no_index        (directory => 'inc', 'examples');
 sign            (1);
 WritePugs       (5);
 
+print << ".";
+*** Enter '$Config{make}' to build Pugs.  If compilation is too slow,
+    consider using '$Config{make} unoptimized' instead.
+.
+
 ################################################################################
 sub set_postamble {
     my @srcfiles = grep !/MainCC/, map glob("$_/*.*hs"), @srcdirs;
