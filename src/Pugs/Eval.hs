@@ -524,9 +524,8 @@ reduce exp@(Syn name exps) = case name of
         flag_g  <- fromAdverb hv ["g", "global"]
         flag_i  <- fromAdverb hv ["i", "ignorecase"]
         when (not p5) $ do
-            parsed <- liftIO $ parseRule (encodeUTF8 str ++ ".?")
             let banner = "\n*** Perl 6 rules support coming soon...\n"
-            error $ banner ++ parsed ++ banner
+            error $ banner
         retVal $ VRule $ MkRule
             { rxRegex  = mkRegexWithPCRE (encodeUTF8 str) $
                 [ pcreUtf8
