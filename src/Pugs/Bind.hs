@@ -89,7 +89,7 @@ bindEmpty p = case paramName p of
     []      -> internalError $ "bindEmpty: empty string encountered"
 
 -- |Return @True@ if the given expression represents a pair (i.e. it uses the
--- \"=>\" pair composer).
+-- \"=>\" pair constructor).
 isPair :: Exp -> Bool
 isPair (Pos _ exp) = isPair exp
 isPair (Cxt _ exp) = isPair exp
@@ -108,13 +108,13 @@ unPair (App (Var "&infix:=>") [(Cxt _ (Val k)), exp] []) = (vCast k, exp)
 unPair (App (Var "&infix:=>") [(Val k), exp] []) = (vCast k, exp)
 unPair x                                = error ("Not a pair: " ++ show x)
 
--- performs a binding and then verifies that it's complete in one go
 {-|
 Bind parameters to a callable, then verify that the binding is complete
 (i.e. all mandatory params are bound; all unspecified params have default
 bindings). Uses 'bindSomeParams' to perform the initial binding, then uses
 'finalizeBindings' to check all required params and give default values to
-any unbound optional ones.
+any unbound optional ones. Once this is complete, /everything/ should be
+bound.
 -}
 bindParams :: VCode -- ^ A code object to perform bindings on
            -> [Exp] -- ^ List of invocants to bind
@@ -126,8 +126,10 @@ bindParams sub invsExp argsExp = do
         Left errMsg -> Left errMsg
         Right boundSub -> finalizeBindings boundSub
 
--- verifies that all invocants and required params were given
--- and binds default values to unbound optionals
+{-|
+Verify that all invocants and required parameters are bound, and give default
+values to any unbound optional parameters.
+-}
 finalizeBindings :: VCode -> MaybeError VCode
 finalizeBindings sub = do
     let params    = subParams sub
@@ -160,13 +162,16 @@ finalizeBindings sub = do
         subBindings = ((subBindings sub) ++ boundDefOpts)
     }
 
--- takes invocants and arguments, and creates a binding from the remaining params in the sub
 {-|
 Take a code object and lists of invocants and arguments, and produce (if
 possible) a new 'VCode' value representing the same code object, with as many
 parameters bound as possible (using the given invocants and args).
 -}
-bindSomeParams :: VCode -> [Exp] -> [Exp] -> MaybeError VCode
+bindSomeParams :: VCode -- ^ Code object to perform bindings on
+               -> [Exp] -- ^ List of invocant expressions
+               -> [Exp] -- ^ List of argument expressions
+               -> MaybeError VCode -- ^ A new 'VCode' structure, augmented
+                                   --     with the new bindings
 bindSomeParams sub invsExp argsExp = do
     let params     = subParams sub
         bindings   = subBindings sub
