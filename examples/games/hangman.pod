@@ -3,30 +3,32 @@
 =head1 sub cls
 
 Returns nothing.
-Checks the magical lexical (S02) C<$?OS> against 
-a junction consisting of 3 values. Use the ternary operator C<?? ::> to decide what system command to use to clear the screen.
+
+Checks the magical lexical (S02) C<$?OS> against a junction consisting of 3
+values. Use the ternary operator C<?? ::> to decide what system command to use
+to clear the screen.
 
 =head1 sub get_committer_list
 
-C<err> is the low precedence form of C<//> (S03). C<//> is especially useful 
-as 
+C<err> is the low precedence form of C<//> (S03). C<//> is especially useful
+in its assignment form:
 
-	$x //= $y;
+    $x //= $y;
 
-To summarize, C<||> and C<or> relate to truth, while C<//> and Cerr> relate
+To summarize, C<||> and C<or> relate to truth, while C<//> and C<err> relate
 to definedness.
 
 Next, we use smart matching, C<~~>, to skip all of the lines from the
 beginning of the file which have something other than whitespace.
 
-Next:
+In the loop that follows:
 
-	    for (=$dict) -> $name {
+    for (=$dict) -> $name {
 
-we use the unary C<=> to perform a readline operation on the
+we use the unary C<=> to perform a C<readline> operation on the
 filehandle.
 
-=head1 sub draw_board returns Str { 
+=head1 sub draw_board
 
 We look over the numbers which are the indices to the elements of the array 
 C<@letters> by forcing the array into numerical context:
@@ -44,50 +46,51 @@ translates to:
 
   $output = $output ~ @letters[$i] ;
 
-=head1 sub has_won returns Bool {
+=head1 sub has_won
 
- sub has_won returns Bool {
+In the C<grep> here:
+
     @letters == @solution.grep:{ $_ ne '' };
- }
-[15:00] <autrijus> _metaperl: it represents an adverbial block.
-[15:00] <ninereasons> thank you, autrijus 
-[15:00] <autrijus> it's like saying
-[15:01] <autrijus> grep(@solutions : {$_ ne ''})
-[15:01] <autrijus> where @solutions is the invocant
-[15:01] <autrijus> and {} the argument
-[15:01] *** jhorwitz (~chatzilla@pool-68-236-4-147.phil.east.verizon.net) joined
-[15:01] <autrijus> you can read more about it on p6l
 
-=head1 sub guess (Str $g) returns Bool {
+the block beginning with a colon is called an I<adverbial block>.  It is
+equivalent with:
 
-The loop constru (S04) is used without the the statement modifiers 
+    grep(@solutions: { $_ ne '' })
+
+In both cases, C<@solutions> is the invocant, and the block is the argument.
+
+=head1 sub guess
+
+The loop construction (S04) is used without the the statement modifiers 
 C<until> or <while> which it can take.
 
-=head1 sub draw_if_greater_than (Str $char, Int $num) returns Bool { 
+=head1 sub draw_if_greater_than
 
- sub draw_if_greater_than (Str $char, Int $num) returns Bool { 
-    ($number_of_bad_guesses >= $num) ?? $char :: ' ';
- }
+    sub draw_if_greater_than (Str $char, Int $num) returns Bool { 
+        ($number_of_bad_guesses >= $num) ?? $char :: ' ';
+    }
 
 The character for blank should be a constant, e.g.:
 
-	 my ($BLANK) is constant = ' ';
+    my ($BLANK) is constant = ' ';
 
 but it is not implemented yet.
 
-=head1 sub draw_hangman (Str ?$msg) returns Str {
+=head1 sub draw_hangman
 
-Here we see function interpolation
+Here we see function interpolation, i.e. the use of C<{ ... }> blocks
+inside strings.
 
 =head1 ## main loop
 
-  @solution = ('' xx +@letters); # "x" in p5 is now "xx" in p6
+Note that the list-context C<x> in Perl 5 is now C<xx> in Perl 6:
+
+    @solution = ('' xx +@letters);
 
 =head1 ERRATA
 
 If you read Apocalypse 03, you will see strong motivation for changing the
 ternary operator syntax.
-
 
 =head1 AUTHOR
 
