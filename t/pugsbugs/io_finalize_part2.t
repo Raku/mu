@@ -11,12 +11,9 @@ I/O tests
 
 plan 4;
 
-sub nonces () { return (".$*PID." ~ int rand 1000) }
-my $filename = 'tempfile' ~ nonces();
+my $filename = 'tempfile';
 
-skip 4, "skipping because tests would create, but not delete tempfiles (because of a bug in Pugs)";
-exit;
-
+# Test is continued from io_finalized_part1.t
 # Should see "Hello World\n" but with bug it is undef
 
 my $fh = open($filename);

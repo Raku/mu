@@ -11,12 +11,11 @@ I/O tests
 
 plan 1;
 
-sub nonces () { return (".$*PID." ~ int rand 1000) }
-my $filename = 'tempfile' ~ nonces();
+my $filename = 'tempfile';
 
 # Following test is spread across io_finalize_part1.t and io_finalize_part2.t
 # Writes to a filehandle without explicit close do not output even after
-# program termination
+# program termination.  tempfile is created here and deleted in part2
 
 my $fh = open('>' ~ $filename);
 isa_ok($fh, 'IO');
