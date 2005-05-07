@@ -61,8 +61,9 @@ print << ".";
 
 ################################################################################
 sub set_postamble {
-    my @srcfiles = grep !/MainCC/, map glob("$_/*.*hs"), @srcdirs;
-    push @srcfiles, grep !/MainCC/, map glob("$_/*.*hs-boot"), @srcdirs;
+    my @srcfiles = map { glob("$_/*.*hs") } @srcdirs;
+    push @srcfiles, map { glob("$_/*.*hs-boot") } @srcdirs;
+    push @srcfiles, map { map { substr($_, 0, -1) } glob("$_/*.*hsc") } @srcdirs;
 
     my ($ghc, $ghc_version, $ghc_flags) = assert_ghc();
     my $hsc2hs = $ghc;
@@ -190,7 +191,7 @@ haddock : $version_h $config_h @hppfiles docs/haddock
 docs/haddock :
 	\@\$(PERL) -e "mkdir q-docs/haddock-"
 
-profiled :: src/Pugs/Config.hs src/Pugs/Embed/Parrot.hs @srcfiles $version_h @prereqs
+profiled :: src/Pugs/Config.hs @srcfiles $version_h @prereqs
 	$ghc $threaded -O -auto-all -prof --make $profiled_flags $ghc_output
 
 pugs.prof :: profiled
@@ -198,15 +199,15 @@ pugs.prof :: profiled
 
 optimised :: optimized
 
-optimized :: src/Pugs/Config.hs src/Pugs/Embed/Parrot.hs @srcfiles $version_h @prereqs
+optimized :: src/Pugs/Config.hs @srcfiles $version_h @prereqs
 	$ghc $threaded -O --make $ghc_flags $embed_flags $ghc_output
 
 unoptimised :: unoptimized
 
-unoptimized :: src/Pugs/Config.hs src/Pugs/Embed/Parrot.hs @srcfiles $version_h @prereqs
+unoptimized :: src/Pugs/Config.hs @srcfiles $version_h @prereqs
 	$ghc $threaded -O0 --make $ghc_flags $embed_flags $ghc_output
 
-$pugs : src/Pugs/Config.hs src/Pugs/Embed/Parrot.hs @srcfiles $version_h @prereqs
+$pugs : src/Pugs/Config.hs @srcfiles $version_h @prereqs
 	$ghc $threaded -O --make $ghc_flags $embed_flags $ghc_output
 
 smoke : $pugs util/run-smoke.pl
