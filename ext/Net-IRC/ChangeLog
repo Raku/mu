@@ -2,6 +2,8 @@
 
 * Dropped `add_command_handler` and `add_numeric_handler` in favour of a single
   `add_handler`.
+* Automated nick permuting if chosen nick is already used.
+* `loggedin` pseudo event.
 
 == Changes for 0.0.2 - May 6, 2005
 

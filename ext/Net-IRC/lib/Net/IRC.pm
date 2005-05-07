@@ -31,7 +31,7 @@ sub debug_sent(Str $msg) { say "> $msg" }
 
 # Definition of the bot "class"
 sub new_bot(
-  Str $nick is copy,
+  Str $nick,
   Str ?$username = $nick,
   Str ?$ircname  = $nick,
   Str $host,
@@ -43,7 +43,7 @@ sub new_bot(
 ) is export {
   my $connected = 0;
   my $inside    = 0;
-  my @on_chans;            # Which chans did we join?
+  my @on_chans;            # Which chans have we joined?
   my $servername;          # What is the IRC servername?
   my $last_traffic;        # Timestamp of last traffic seen from server
   my $last_autoping;       # Timestamp of last ping sent to server
@@ -52,37 +52,58 @@ sub new_bot(
 			   # Queue
   my %handler;             # Callbacks for numeric (001) and command (PRIVMSG)
                            # messages
+  my $curnick;             # Our current nick.
+  my $nickgen = new_permutation($nick);
+			   # A permutation object, providing the methods
+			   # "reset" and "next".
+  my $in_login_phase;
+
+  my $self;
 
   # Default (passive) handlers
-  %handler<001> = [ -> $event {
+  %handler<001> = [-> $event {
     $inside++;
-    $servername = $event<server>;
-    $nick       = $event<to>;
-    debug "Logged in to \"$servername\" as \"$nick\".";
+    $servername     = $event<server>;
+    $curnick        = $event<to>;
+    $in_login_phase = 0;
+    $self<handle_pseudo>("loggedin");
+    debug "Logged in to \"$servername\" as \"$curnick\".";
   }];
-  %handler<JOIN> = [ -> $event {
-    if($event<from_nick> eq $nick) {
+  %handler<433> = [-> $event {
+    if $in_login_phase {
+      $self<nick>($nickgen<next>());
+    }
+  }];
+  %handler<JOIN> = [-> $event {
+    if(normalize($event<from_nick>) eq normalize($curnick)) {
       push @on_chans, $event<object>;
       debug "Joined channel \"$event<object>\".";
     }
   }];
-  %handler<PART> = [ -> $event {
-    if($event<from_nick> eq $nick) {
+  %handler<PART> = [-> $event {
+    if(normalize($event<from_nick>) eq normalize($curnick)) {
       @on_chans .= grep:{ $^chan ne $event<object> };
       debug "Left channel \"$event<object>\".";
     }
   }];
-  %handler<KICK> = [ -> $event {
+  %handler<KICK> = [-> $event {
     my ($kickee, $reason) = split " ", $event<rest>;
     $reason = strip_colon($reason);
-    if($kickee eq $nick) {
+    if(normalize($kickee) eq normalize($curnick)) {
       @on_chans .= grep:{ $^chan ne $event<object> };
       debug "Was kicked from channel \"$event<object>\" by \"$event<from>\" (\"$reason\").";
     }
   }];
-  %handler<NICK> = [ -> $event {
-    if($event<from_nick> eq $nick) {
-      $nick = $event<object>;
+  %handler<KILL> = [-> $event {
+    my ($killee, $reason) = $event<object rest>;
+    if(normalize($killee) eq normalize($curnick)) {
+      @on_chans = ();
+      debug "Was killed by \"$event<from>\" (\"$reason\").";
+    }
+  }];
+  %handler<NICK> = [-> $event {
+    if(normalize($event<from_nick>) eq normalize($curnick)) {
+      $curnick = $event<object>;
       debug "Changed nick to \"$event<object>\".";
     }
   }];
@@ -95,9 +116,9 @@ sub new_bot(
   };
 
   # Instance methods
-  my $self = {
+  $self = {
     # Readonly accessors
-    nick          => { $nick },
+    curnick       => { $curnick },
     username      => { $username },
     ircname       => { $ircname },
     servername    => { $servername },
@@ -105,6 +126,7 @@ sub new_bot(
     logged_in     => { $inside },
     last_traffic  => { $last_traffic },
     last_autoping => { $last_autoping },
+    channels      => { @on_chans },
 
     # Handler register methods
     add_handler => -> Str $code, Code $cb { %handler{$code}.push($cb) },
@@ -130,13 +152,16 @@ sub new_bot(
       if($connected) {
 	debug "Disconnecting from $host:$port... ";
 	try { $hdl.close }
-	$connected     = 0;
-	$inside        = 0;
-	@on_chans      = ();
-	$servername    = undef;
-	$hdl           = undef;
-	$last_traffic  = 0;
-	$last_autoping = 0;
+	$connected      = 0;
+	$inside         = 0;
+	@on_chans       = ();
+	$servername     = undef;
+	$hdl            = undef;
+	$last_traffic   = 0;
+	$last_autoping  = 0;
+	$in_login_phase = 0;
+	$queue<clear>();
+	$nickgen<reset>();
 	debug "done.";
       }
     },
@@ -145,7 +170,8 @@ sub new_bot(
     login => {
       if($connected) {
 	$queue<enqueue>({
-	  $say("NICK $nick");
+	  $in_login_phase++;
+	  $say("NICK {$nickgen<next>()}");
 	  $say("USER $username * * :$ircname");
 	});
       }
@@ -160,7 +186,7 @@ sub new_bot(
       }
     },
 
-    # Read a line from server and process it
+    # Read a line from the server and process it
     "readline" => {
       my $line = readline $hdl;
       $line ~~ s:P5/[\015\012]*$//; # Hack to remove all "\r\n"s
@@ -211,6 +237,17 @@ sub new_bot(
       }
     },
 
+    handle_pseudo => -> Str $pseudo, *@args {
+      my $event = {
+	pseudo => $pseudo,
+	args   => @args,
+      };
+
+      if(%handler{$pseudo}) {
+	$_($event) for *%handler{$pseudo};
+      }
+    },
+
     # Check that our connection is still alive
     livecheck => {
       if($connected) {
@@ -228,20 +265,21 @@ sub new_bot(
     },
 
     # Join/part/kick/...
-    join => -> Str $chan { if($connected) { $queue<enqueue>({ $say("JOIN $chan") }) } },
-    part => -> Str $chan { if($connected) { $queue<enqueue>({ $say("PART $chan") }) } },
-    quit => -> Str $reason { if($connected) { $queue<enqueue>({ $say("QUIT :$reason") }) } },
+    join => -> Str $chan    { $queue<enqueue>({ $say("JOIN $chan") })    if $connected },
+    part => -> Str $chan    { $queue<enqueue>({ $say("PART $chan") })    if $connected },
+    quit => -> Str $reason  { $queue<enqueue>({ $say("QUIT :$reason") }) if $connected },
+    nick => -> Str $newnick { $queue<enqueue>({ $say("NICK $newnick") }) if $connected },
 
     # PRIVMSG/NOTICE
     privmsg => -> Str $to, Str $text {
-      if($connected) { $queue<enqueue>({ $say("PRIVMSG $to :$text") }) }
+      $queue<enqueue>({ $say("PRIVMSG $to :$text") }) if $connected;
     },
     notice  => -> Str $to, Str $text {
-      if($connected) { $queue<enqueue>({ $say("NOTICE $to :$text") }) }
+      $queue<enqueue>({ $say("NOTICE $to :$text") }) if $connected;
     },
 
     # RAW
-    raw => -> Str $command { if($connected) { $queue<enqueue>({ $say($command) }) } }
+    raw => -> Str $command { $queue<enqueue>({ $say($command) }) if $connected }
   };
 
   return $self;
@@ -274,7 +312,34 @@ sub new_queue(Bool ?$floodcontrol = 0) {
 
     # Enqueue a new callback
     enqueue => -> Code $code { push @queue, $code },
+
+    # Remove all items from the queue
+    clear => { @queue = () },
   };
+}
+
+sub new_permutation(Str $nick) {
+  my @perms;
+
+  my $self = {
+    reset => {
+      @perms = (
+	"$nick",
+	"{$nick}_", "{$nick}__",
+	"_{$nick}", "__{$nick}",
+	"_{$nick}_", "__{$nick}__",
+      );
+    },
+    "next" => {
+      my $cur = @perms.shift;
+      @perms.push($cur);
+
+      $cur;
+    },
+  };
+
+  $self<reset>();
+  return $self;
 }
 
 sub strip_colon(Str $str is copy) {
@@ -282,6 +347,7 @@ sub strip_colon(Str $str is copy) {
   return $str;
 }
 
+sub normalize(Str $str) { return lc $str }
 
 =head1 NAME
 
@@ -305,8 +371,9 @@ Net::IRC - IRC library for Pugs
   );
   
   # Register callbacks
-  $bot<add_command_handler>("INVITE",  \&on_invite);
-  $bot<add_command_handler>("PRIVMSG", \&on_privmsg);
+  $bot<add_command_handler>("INVITE",   \&on_invite);
+  $bot<add_command_handler>("PRIVMSG",  \&on_privmsg);
+  $bot<add_command_handler>("loggedin", \&on_ready);
 
   # Connect and login
   $bot<connect>();
@@ -330,7 +397,7 @@ The bot will autoping the server if it hasn't seen traffic for C<$autoping>
 seconds, and it'll drop the connection if it hasn't seen traffic for
 C<$live_timeout> seconds.
 
-=head2 C<nick()>, C<username()>, C<ircname()>, C<last_traffic()>, C<last_autoping()>
+=head2 C<curnick()>, C<username()>, C<ircname()>, C<last_traffic()>, C<last_autoping()>
 
 =head2 C<connected()>
 
@@ -340,11 +407,19 @@ Returns a true value if the bot's socket to the server is currently connected.
 
 Returns a true value if the bot is logged in.
 
-=head2 C<add_numeric_handler("001", -E<gt> $event {...})>
+=head2 C<channels()>
 
-=head2 C<add_command_handler("JOIN", -E<gt> $event {...})>
+Returns a list of channels the bot has joined.
+
+=head2 C<add_handler("001", -E<gt> $event {...})>
+
+=head2 C<add_handler("JOIN", -E<gt> $event {...})>
+
+=head2 C<add_handler("loggedin", -E<gt> $event {...})>
 
 Adds a callback to be executed when the bot receives a corresponding message.
+Event name all lowercase are "pseudo" events. Currently, there's only the
+C<loggedin> pseudo event, indicating that the bot has successfully logged in.
 
 The callback is given a C<$event> hashref, containing:
 
@@ -380,9 +455,13 @@ The nick part of C<from>. Not available for numeric handlers.
 
 The nick/channel/whatever the message operated (varies).
 
+=item C<pseudo>
+
+The pseudo event.
+
 =back
 
-=head2 C<join("#chan")>, C<part("#chan")>, C<quit("reason")>
+=head2 C<join("#chan")>, C<part("#chan")>, C<quit("reason")>, C<nick("newnick")>
 
 =head2 C<privmsg(to =E<gt> "...", text =E<gt> "...")>, C<notice(to =E<gt> "...", text =E<gt> "...")>
 

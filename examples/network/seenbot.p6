@@ -10,14 +10,20 @@ my ($host, $port) = split ":", $server;
 $port //= 6667;
 
 my %seen;
+my @chans;
 
 # Create new bot "object"
 my $bot = new_bot(nick => $nick, host => $host, port => $port, debug_raw => 1);
 $bot<connect>();
 $bot<login>();
-$bot<add_handler>("INVITE",  \&on_invite);
-$bot<add_handler>("PRIVMSG", \&on_privmsg);
+$bot<add_handler>("INVITE",   \&on_invite);
+$bot<add_handler>("PRIVMSG",  \&on_privmsg);
+$bot<add_handler>("loggedin", \&on_loggedin);
 $bot<run>();
+
+sub on_loggedin($event) {
+  $bot<join>($_) for @chans;
+}
 
 sub on_invite($event) {
   my ($from, $chan) = $event<from rest>;
@@ -60,6 +66,13 @@ sub on_privmsg($event) {
     when rx:P5/^\?sleep\s+(\d+)$/ {
       debug "Got sleep request from \"$event<from>\".";
       sleep $1;
+    }
+
+    when rx:P5/^\?reconnect/ {
+      debug "Got reconnect request from \"$event<from>\".";
+      @chans = $bot<channels>();
+      $bot<reconnect>();
+      $bot<login>();
     }
   }
 }
