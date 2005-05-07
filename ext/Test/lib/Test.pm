@@ -256,30 +256,30 @@ Test - Test support module for perl6
 
   use v6;
   require Test;
-
+  
   plan 10;
   force_todo(1, 3 .. 5, 9);
-
+  
   use_ok('Some::Module');
   use_ok('Some::Other::Module', todo => 1);
-
+  
   ok(2 + 2 == 4, '2 and 2 make 4');
   is(2 + 2, 4, '2 and 2 make 4');
   isa_ok([1, 2, 3], 'List');
-
+  
   ok(2 + 2 == 5, '2 and 2 make 5', :todo(1));
   is(2 + 2, 5, desc => '2 and 2 make 5', todo => 1);
   isa_ok({'one' => 1}, 'Hash', :todo(1));
-
+  
   use_ok('My::Module');
-
+  
   pass('This test passed');
   fail('This test failed');
-
+  
   skip('skip this test for now');
-
+  
   fail('this fails, but might work soon', :todo(1));
-
+  
   diag('some misc comments and documentation');
 
 = DESCRIPTION
