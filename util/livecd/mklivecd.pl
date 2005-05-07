@@ -20,12 +20,14 @@ sub step {
   $args{using}  ||= sub {};
   $args{help}   ||= "";
 
+  $args{help} =~ s/# (.*)$/# @{[BOLD . WHITE]}$1@{[RESET]}/m;
+
   if($args{help}) {
-    printf STDERR " %s*%s %s...\n", BOLD . BLUE, RESET, $args{descr};
-    print STDERR "   : $_\n" for map { (/^\s*(.*)$/g)[0] } split "\n", $args{help};
-    print STDERR "   > ";
+    printf STDERR "%s»%s %s%s%s...\n", BOLD . BLUE, RESET, BOLD . RED, $args{descr}, RESET;
+    print STDERR "  : $_\n" for map { (/^\s*(.*)$/g)[0] } split "\n", $args{help};
+    print STDERR "  > ";
   } else {
-    printf STDERR " %s*%s %s... ", BOLD . BLUE, RESET, $args{descr};
+    printf STDERR "%s»%s %s%s%s... ", BOLD . BLUE, RESET, BOLD . RED, $args{descr}, RESET;
   }
 
   if($args{ensure}->()) {
@@ -35,7 +37,7 @@ sub step {
     if($args{pause}) {
       print STDERR "\b\b\b\b\b   : Press a key to continue... ";
       <STDIN>;
-      print STDERR "   > ";
+      print STDERR "  > ";
     }
     if($args{ensure}->()) {
       printf STDERR "%sgood%s.\n", BOLD . GREEN, RESET;
@@ -157,13 +159,13 @@ step
 
 step
   descr  => "Fetching GRUB from \"$grub_uri\"",
-  help   => "Remove \"$grub_local\" if you want to refetch GRUB.",
+  help   => "Remove \"$grub_local\" if you want mklivecd.pl to refetch GRUB.",
   ensure => sub { -r $grub_local and -s $grub_local },
   using  => sub { getstore $grub_uri => $grub_local };
 
 step
   descr  => "Fetching kernel from \"$kernel_uri\"",
-  help   => "Remove \"$kernel_local\" if you want to refetch the kernel.",
+  help   => "Remove \"$kernel_local\" if you want mklivecd.pl to refetch the kernel.",
   ensure => sub { -r $kernel_local and -s $kernel_local },
   using  => sub { getstore $kernel_uri => $kernel_local };
 
@@ -301,10 +303,7 @@ step
 
 step
   descr  => "Unpacking GRUB in \"$cdroot\"",
-  ensure => sub {
-    -r "$cdroot/boot/grub/stage2_eltorito" and
-    -M "$cdroot/boot/grub/stage2_eltorito" <= -M $grub_local;
-  },
+  ensure => sub { -r "$cdroot/boot/grub/stage2_eltorito" },
   using  => sub { system "tar", "-xvjf", $grub_local, "-C", $cdroot };
 
 my $wrote_menulst = 0;
