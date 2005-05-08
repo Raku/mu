@@ -111,7 +111,7 @@ sub new_bot(
   # Sub which sends $msg, flushes $hdl and logs $msg to STDERR.
   my $say = -> Str $msg {
     debug_sent $msg if $debug_raw;
-    $hdl.say($msg);
+    $hdl.print("$msg\13\10");
     $hdl.flush();
   };
 
@@ -390,37 +390,56 @@ C<Net::IRC> is an IRC library for Pugs. Note that it is I<not> a port of Perl
 
 =head1 METHODS
 
-=head2 C<new_bot(...)>
+=head2 C<$botE<lt>new_botE<gt>(...)>
 
 Creates a new bot "object". See L<SYNOPSIS> for accepted parameters.
 
 The bot will autoping the server if it hasn't seen traffic for C<$autoping>
 seconds, and it'll drop the connection if it hasn't seen traffic for
-C<$live_timeout> seconds.
+C<$live_timeout> seconds. Furthermore, it'll track its status (its nick, the
+channels it has joined, etc.).
 
-=head2 C<curnick()>, C<username()>, C<ircname()>, C<last_traffic()>, C<last_autoping()>
+=head2 C<$botE<lt>curnickE<gt>()>
 
-=head2 C<connected()>
+Retrieves the current nickname. Note that this is I<not> necessarily the
+nickname you specified in the constructor. C<Net::IRC> automatically tries to
+use slight variations of the nickname in the login phase (for example C<bot_>,
+C<_bot>, etc.) if the desired nick is already used.
+
+This is a readonly accessor. To set the nickname, use the C<nick> method.
+
+=head2 C<$botE<lt>usernameE<gt>()>, C<$botE<lt>ircnameE<gt>()>,
+C<$botE<lt>last_trafficE<gt>()>, C<$botE<lt>last_autopingE<gt>()>
+
+These are readonly accessors. C<username> and C<ircname> correspond to the
+parameters you've given to the constructor, C<last_traffic> is the timestamp of
+when the last traffic from the server was seen, and C<last_autoping> is the
+timestamp of the last autoping.
+
+=head2 C<$botE<lt>connectedE<gt>()>
 
 Returns a true value if the bot's socket to the server is currently connected.
 
-=head2 C<logged_in()>
+Note that you might want to use the C<logged_in> method instead.
+
+=head2 C<$botE<lt>logged_inE<gt>()>
 
 Returns a true value if the bot is logged in.
 
-=head2 C<channels()>
+=head2 C<$botE<lt>channelsE<gt>()>
 
-Returns a list of channels the bot has joined.
+Returns a list of channels the bot has joined. This is a readonly accessor, you
+have to use the C<join> and C<part> methods to join or leave channels.
 
-=head2 C<add_handler("001", -E<gt> $event {...})>
+=head2 C<$botE<lt>add_handlerE<gt>("001", -E<gt> $event {...})>
 
-=head2 C<add_handler("JOIN", -E<gt> $event {...})>
+=head2 C<$botE<lt>add_handlerE<gt>("JOIN", -E<gt> $event {...})>
 
-=head2 C<add_handler("loggedin", -E<gt> $event {...})>
+=head2 C<$botE<lt>add_handlerE<gt>("loggedin", -E<gt> $event {...})>
 
 Adds a callback to be executed when the bot receives a corresponding message.
-Event name all lowercase are "pseudo" events. See below for a list of pseudo
-events.
+Event names which are all lowercase are "pseudo" events. See below for a list
+of pseudo events.
 
 The callback is given a C<$event> hashref, containing:
 
@@ -458,15 +477,38 @@ The nick/channel/whatever the message operated (varies).
 
 =item C<pseudo>
 
-The pseudo event.
+The pseudo event (if appropriate).
 
 =back
 
-=head2 C<join("#chan")>, C<part("#chan")>, C<quit("reason")>, C<nick("newnick")>
+=head2 C<$botE<lt>joinE<gt>("#chan")>, C<$botE<lt>partE<gt>("#chan")>,
+C<$botE<lt>quitE<gt>("reason")>, C<$botE<lt>nickE<gt>("newnick")>
 
-=head2 C<privmsg(to =E<gt> "...", text =E<gt> "...")>, C<notice(to =E<gt> "...", text =E<gt> "...")>
+Joins or leaves a channel, quits the connection to the server, or tries to
+change the bot's nickname.
 
-=head2 C<raw("...")>
+=head2 C<$botE<lt>privmsgE<gt>(to =E<gt> "...", text =E<gt> "...")>,
+C<E<lt>noticeE<gt>(to =E<gt> "...", text =E<gt> "...")>
+
+Sends a C<PRIVMSG> or a C<NOTICE> to a destination.
+
+B<Note>: A bot should I<always> use C<NOTICE> to send replies. Quoting L<RFC
+1459|http://www.ietf.org/rfc/rfc1459.txt>:
+
+  The NOTICE message is used similarly to PRIVMSG.  The difference between
+  NOTICE and PRIVMSG is that automatic replies must never be sent in response
+  to a NOTICE message.  This rule applies to servers too - they must not send
+  any error reply back to the client on receipt of a notice.  The object of
+  this rule is to avoid loops between a client automatically sending something
+  in response to something it received.  This is typically used by automatons
+  (clients with either an AI or other interactive program controlling their
+  actions) which are always seen to be replying lest they end up in a loop with
+  another automaton.
+
+=head2 C<$botE<lt>rawE<gt>("...")>
+
+Sends a command to the server. The command is not modified by C<Net::IRC>,
+aside from appending the correct newline characters.
 
 =head1 PSEUDO EVENTS
 

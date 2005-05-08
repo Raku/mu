@@ -74,5 +74,13 @@ sub on_privmsg($event) {
       $bot<reconnect>();
       $bot<login>();
     }
+
+    # This is *not* correct CTCP parsing (the CTCP specification is much more
+    # complex than this simple regex), but IRC clients only send this when
+    # their users enter /PING bot.
+    when rx:P5/^\001PING (.*)\001$/ {
+      debug "Was CTCP-PINGed from \"$event<from>\".";
+      $bot<notice>(to => $event<from_nick>, text => "\001PING $1\001");
+    }
   }
 }
