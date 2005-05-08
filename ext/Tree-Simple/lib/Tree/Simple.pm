@@ -5,73 +5,73 @@ use v6;
 my %INSTANCES;
 
 sub Tree::Simple::new (+$node, +$parent) returns Int is export {
-    my $instance = substr(rand() ~ "", 2, 15);
+    my $self = substr(rand() ~ "", 2, 15);
     my %tree = (
         node     => $node,
         parent   => $parent, 
         depth    => ($parent.defined ?? ($parent.depth() + 1) :: 0),
         children => []
     );
-    %INSTANCES{$instance} = %tree;
-    return $instance;
+    %INSTANCES{$self} = %tree;
+    return $self;
 }
 
-sub depth ($instance:) returns Int {
-    return %INSTANCES{$instance}<depth>;
+sub depth ($self:) returns Int {
+    return %INSTANCES{$self}<depth>;
 }
 
-sub node ($instance: ?$node) returns Any {
-    %INSTANCES{$instance}<node> = $node if $node.defined;
-    return %INSTANCES{$instance}<node>;
+sub node ($self: ?$node) returns Any {
+    %INSTANCES{$self}<node> = $node if $node.defined;
+    return %INSTANCES{$self}<node>;
 }
 
-sub parent ($instance: ?$parent) returns Int {
+sub parent ($self: ?$parent) returns Int {
     if $parent {
-        %INSTANCES{$instance}<parent> = $parent;
-        %INSTANCES{$instance}<depth> = $parent.depth() + 1;
+        %INSTANCES{$self}<parent> = $parent;
+        %INSTANCES{$self}<depth> = $parent.depth() + 1;
     }
-    return %INSTANCES{$instance}<parent>;
+    return %INSTANCES{$self}<parent>;
 }
 
-sub is_root ($instance:) returns Bool {
-    return (%INSTANCES{$instance}<parent> == undef ?? 1 :: 0) ;
+sub is_root ($self:) returns Bool {
+    return (%INSTANCES{$self}<parent> == undef ?? 1 :: 0) ;
 }
 
-sub is_leaf ($instance:) returns Bool {
-    return ($instance.child_count() == 0);
+sub is_leaf ($self:) returns Bool {
+    return ($self.child_count() == 0);
 }
 
-sub child_count ($instance:) returns Int {
-    return $instance.get_all_children() + 0;
+sub child_count ($self:) returns Int {
+    return $self.get_all_children() + 0;
 }
 
-sub add_child ($instance: $child) returns Void {
-    $child.parent($instance);    
-    my %self := %INSTANCES{$instance};    
+sub add_child ($self: $child) returns Void {
+    $child.parent($self);    
+    my %self := %INSTANCES{$self};    
     my @children;
     @children.push(%self<children>) if %self<children>;
     @children.push($child);
     %self<children> = \@children;
 }
 
-sub add_children ($instance: *@children) returns Void {
+sub add_children ($self: *@children) returns Void {
     for @children -> $child {
-        $instance.add_child($child);
+        $self.add_child($child);
     }
 }
 
-sub get_child ($instance: $index) returns Int {
-    my %self := %INSTANCES{$instance};
+sub get_child ($self: $index) returns Int {
+    my %self := %INSTANCES{$self};
     return %self<children>[$index];
 }
 
-sub get_all_children ($instance:) returns Array {
-    my %self := %INSTANCES{$instance};
+sub get_all_children ($self:) returns Array {
+    my %self := %INSTANCES{$self};
     return %self<children>;    
 }
 
-sub traverse ($instance: Code $func) returns Void {
-    for $instance.get_all_children() -> $child {
+sub traverse ($self: Code $func) returns Void {
+    for $self.get_all_children() -> $child {
         $func($child);
         $child.traverse($func);
     }
@@ -97,27 +97,27 @@ This is an inside-out object implementation based on the perl5 module Tree::Simp
 
 =item B<Tree::Simple::new(?$node, ?$parent)>
 
-=item B<depth ($instance:) returns Int>
+=item B<depth ($self:) returns Int>
 
-=item B<node ($instance: ?$node) returns Any>
+=item B<node ($self: ?$node) returns Any>
 
-=item B<parent ($instance: ?$parent) returns Int>
+=item B<parent ($self: ?$parent) returns Int>
 
-=item B<is_root ($instance:) returns Bool>
+=item B<is_root ($self:) returns Bool>
 
-=item B<is_leaf ($instance:) returns Bool>
+=item B<is_leaf ($self:) returns Bool>
 
-=item B<child_count ($instance:) returns Int>
+=item B<child_count ($self:) returns Int>
 
-=item B<add_child ($instance: $child) returns Void>
+=item B<add_child ($self: $child) returns Void>
 
-=item B<add_children ($instance: *@children) returns Void>
+=item B<add_children ($self: *@children) returns Void>
 
-=item B<get_child ($instance: $index) returns Int>
+=item B<get_child ($self: $index) returns Int>
 
-=item B<get_all_children ($instance:) returns Array>
+=item B<get_all_children ($self:) returns Array>
 
-=item B<traverse ($instance: Code $func) returns Void>
+=item B<traverse ($self: Code $func) returns Void>
 
 =back
 
