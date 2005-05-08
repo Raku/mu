@@ -26,7 +26,7 @@ dies_ok  { mods_param_rw(1) }, 'can\'t modify constant even if we claim it\'s rw
 sub mods_param_rw_does_nothing ($x is rw) { $x; }
 lives_ok { mods_param_rw_does_nothing(1) }, 'is rw with non-lvalue should autovivify';
 
-lives_ok  { mods_param_rw($foo) }, 'can\'t modify constant even if we claim it\'s rw';
+lives_ok  { mods_param_rw($foo) }, 'pass by reference doesn\'t die';
 is($foo, 2, 'pass by reference works');
 
 #icopy
