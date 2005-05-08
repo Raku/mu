@@ -56,6 +56,7 @@ my $pugs         = "../../pugs";
 my $bash         = "/bin/bash";
 my $linuxrc      = "linuxrc";
 my $welcome_p6   = "welcome.p6";
+my $lib6         = "../../blib6/lib";
 my $initrd_gz    = "initrd.gz";
 my $initrd_img   = "initrd.img";
 my $initrd_mnt   = "/mnt/loop0";
@@ -103,6 +104,8 @@ Available options and defaults:
   --welcome-p6=$welcome_p6
     --welcome-p6 is a Perl 6 program runnable by Pugs which will
     introduce Pugs.
+  --lib6=$lib6
+    --lib6 will be copied to the CD, too.
   --initrd-gz=$initrd_gz
     mklivecd.pl automatically generates a gzipped initrd suitable for GRUB.
   --initrd-img=$initrd_img
@@ -139,7 +142,7 @@ GetOptions(
   "iso=s"          => \$iso,
   help             => \&usage,
 ) or usage();
-check_for_evil_chars($initrd_img, $initrd_gz);
+check_for_evil_chars($initrd_img, $initrd_gz, $lib6);
 
 my $welcomed = 0;
 step
@@ -184,11 +187,33 @@ step
   ensure => sub { defined $pugs_version },
   using  => sub { $pugs_version = get_version($pugs) };
 
+my @modfiles;
+step
+  descr  => "Searching for module files",
+  ensure => sub { @modfiles > 0 },
+  using  => sub {
+    @modfiles = map { (/^\Q$lib6\E\/(.+)$/)[0] }
+		split "\000",
+		`find $lib6 -print0`;
+  };
+my $newest_mod_stamp = 100000; # ugly
+-M "$lib6/$_" <= $newest_mod_stamp and $newest_mod_stamp = -M "$lib6/$_"
+  for @modfiles;
+
 my $rebuild;
 step
   descr  => "Checking if we have to rebuild the initrd",
   ensure => sub { defined $rebuild },
-  using  => sub { $rebuild = !(-r $initrd_gz and -M $initrd_gz <= -M $pugs and -M $initrd_gz <= -M $linuxrc and -M $initrd_gz <= -M $bash and -M $initrd_gz <= -M $welcome_p6) };
+  using  => sub {
+    $rebuild = !(
+      -r $initrd_gz and
+      -M $initrd_gz <= -M $pugs and
+      -M $initrd_gz <= -M $linuxrc and
+      -M $initrd_gz <= -M $bash and
+      -M $initrd_gz <= -M $welcome_p6 and
+      -M $initrd_gz <= $newest_mod_stamp,
+    );
+  };
 
 if($rebuild) {
   my @libs;
@@ -222,7 +247,7 @@ HELP
       # mount -o loop -t ext2 $initrd_img $initrd_mnt
 HELP
 
-  my @dirs = map { "$initrd_mnt/$_" } "bin", "dev", "lib";
+  my @dirs = map { "$initrd_mnt/$_" } "bin", "dev", "lib", "lib6";
   step
     descr  => "Creating directories " . join(", ", map { "$_" } @dirs),
     ensure => sub { -d $_ or return for @dirs; 1 },
@@ -254,6 +279,20 @@ HELP
 	copy $src => $dest;
 	chmod 0755, $dest;
       };
+    };
+
+  step
+    descr  => "Copying Perl 6 modules to the initrd",
+    ensure => sub { -r "$initrd_mnt/lib6/$_" or return for @modfiles; 1 },
+    using  => sub {
+      utime undef, undef, $initrd_img;
+      for(@modfiles) {
+	if(-d "$lib6/$_") {
+	  mkdir "$initrd_mnt/lib6/$_";
+	} else {
+	  copy "$lib6/$_" => "$initrd_mnt/lib6/$_";
+	}
+      }
     };
 
   step

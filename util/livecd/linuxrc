@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export PATH=/bin
+export PATH=/bin PERL6LIB=/lib6
 
 pugs -w /welcome.p6
 pugs
