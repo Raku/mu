@@ -52,7 +52,8 @@ sub new_bot(
 			   # Queue
   my %handler;             # Callbacks for numeric (001) and command (PRIVMSG)
                            # messages
-  my $curnick;             # Our current nick.
+  my ($curnick, $curusername, $curircname, $curhostname);
+			   # Our current nick, username, ircname, etc.
   my $nickgen = new_permutation($nick);
 			   # A permutation object, providing the methods
 			   # "reset" and "next".
@@ -67,11 +68,22 @@ sub new_bot(
     $curnick        = $event<to>;
     $in_login_phase = 0;
     $self<handle_pseudo>("loggedin");
+    # We want to know our username and host, so we /WHO ourselves.
+    $self<who>($curnick);
     debug "Logged in to \"$servername\" as \"$curnick\".";
   }];
   %handler<433> = [-> $event {
     if $in_login_phase {
       $self<nick>($nickgen<next>());
+    }
+  }];
+  %handler<352> = [-> $event {
+    my %rest;
+    %rest<_ username hostname servername nickname umode _ ircname> =
+      split " ", $event<rest>;
+    if(normalize(%rest<nickname>) eq normalize($curnick)) {
+      ($curusername, $curhostname, $curircname) =
+	%rest<username hostname ircname>;
     }
   }];
   %handler<JOIN> = [-> $event {
@@ -119,8 +131,9 @@ sub new_bot(
   $self = {
     # Readonly accessors
     curnick       => { $curnick },
-    username      => { $username },
-    ircname       => { $ircname },
+    curusername   => { $curusername },
+    curircname    => { $curircname },
+    curhostname   => { $curhostname },
     servername    => { $servername },
     connected     => { $connected },
     logged_in     => { $inside },
@@ -157,6 +170,10 @@ sub new_bot(
 	@on_chans       = ();
 	$servername     = undef;
 	$hdl            = undef;
+	$curnick        = undef;
+	$curusername    = undef;
+	$curircname     = undef;
+	$curhostname    = undef;
 	$last_traffic   = 0;
 	$last_autoping  = 0;
 	$in_login_phase = 0;
@@ -249,15 +266,22 @@ sub new_bot(
       }
     },
 
-    # Check that our connection is still alive
+    # Check that our connection is still alive.
     livecheck => {
       if($connected) {
+	# We haven't seen any traffic for at least $autoping seconds, so we
+	# PING the server. If the connection is still alive, the server will
+	# respond with a PONG, so everything's fine. But if the connection is
+	# somehow b0rked, we won't get a reply.
 	if($servername and time() - $last_traffic >= $autoping and time() - $last_autoping >= 60) {
 	  debug "No traffic seen for {time() - $last_traffic} seconds; pinging server.";
 	  $self<raw>("PING :$servername");
 	  $last_autoping = time;
 	}
 
+	# So we haven't seen any traffic for at least $live_timeout seconds,
+	# even though we've pinged the server (probably several times). So, we
+	# conclude, the connection is b0rked, and we disconnect.
 	if(time() - $last_traffic >= $live_timeout) {
 	  debug "No traffic seen for {time() - $last_traffic} seconds; disconnecting.";
 	  $self<disconnect>();
@@ -265,11 +289,20 @@ sub new_bot(
       }
     },
 
-    # Join/part/kick/...
-    join => -> Str $chan    { $queue<enqueue>({ $say("JOIN $chan") })    if $connected },
-    part => -> Str $chan    { $queue<enqueue>({ $say("PART $chan") })    if $connected },
-    quit => -> Str $reason  { $queue<enqueue>({ $say("QUIT :$reason") }) if $connected },
-    nick => -> Str $newnick { $queue<enqueue>({ $say("NICK $newnick") }) if $connected },
+    # JOIN/PART/KICK/...
+    join => -> Str $channel, Str ?$key {
+      if $connected {
+	if defined $key {
+	  $queue<enqueue>({ $say("JOIN $channel $key") });
+	} else {
+	  $queue<enqueue>({ $say("JOIN $channel") });
+	}
+      }
+    },
+    part => -> Str $channel { $queue<enqueue>({ $say("PART $channnel") }) if $connected },
+    quit => -> Str $reason  { $queue<enqueue>({ $say("QUIT :$reason") })  if $connected },
+    nick => -> Str $newnick { $queue<enqueue>({ $say("NICK $newnick") })  if $connected },
+    who  => -> Str $target  { $queue<enqueue>({ $say("WHO $target") })    if $connected },
 
     # PRIVMSG/NOTICE
     privmsg => -> Str $to, Str $text {
@@ -399,22 +432,25 @@ seconds, and it'll drop the connection if it hasn't seen traffic for
 C<$live_timeout> seconds. Furthermore, it'll track its status (its nick, the
 channels it has joined, etc.).
 
-=head2 C<$botE<lt>curnickE<gt>()>
+=head2 C<$botE<lt>curnickE<gt>()>, C<$botE<lt>curusernameE<gt>()>,
+C<$botE<lt>curircnameE<gt>()>, C<$botE<lt>curhostnameE<gt>()>
 
-Retrieves the current nickname. Note that this is I<not> necessarily the
-nickname you specified in the constructor. C<Net::IRC> automatically tries to
-use slight variations of the nickname in the login phase (for example C<bot_>,
-C<_bot>, etc.) if the desired nick is already used.
+Returns the current nickname, username, or ircname. Note that thesse are I<not>
+necessarily the names you specified in the constructor. For example,
+C<Net::IRC> automatically tries to use slight variations of the nickname in the
+login phase (for example C<bot_>, C<_bot>, etc.) if the desired nick is already
+used.
+
+C<Net::IRC> will C</WHO> itself after login, so it can give you accurate
+C<username> and C<ircname> information.
 
 This is a readonly accessor. To set the nickname, use the C<nick> method.
 
-=head2 C<$botE<lt>usernameE<gt>()>, C<$botE<lt>ircnameE<gt>()>,
-C<$botE<lt>last_trafficE<gt>()>, C<$botE<lt>last_autopingE<gt>()>
+=head2 C<$botE<lt>last_trafficE<gt>()>, C<$botE<lt>last_autopingE<gt>()>
 
-These are readonly accessors. C<username> and C<ircname> correspond to the
-parameters you've given to the constructor, C<last_traffic> is the timestamp of
-when the last traffic from the server was seen, and C<last_autoping> is the
-timestamp of the last autoping.
+These are readonly accessors. C<last_traffic> is the timestamp of when the last
+traffic from the server was seen, and C<last_autoping> is the timestamp of the
+last autoping.
 
 =head2 C<$botE<lt>connectedE<gt>()>
 
@@ -481,7 +517,7 @@ The pseudo event (if appropriate).
 
 =back
 
-=head2 C<$botE<lt>joinE<gt>("#chan")>, C<$botE<lt>partE<gt>("#chan")>,
+=head2 C<$botE<lt>joinE<gt>(channel =E<gt> "#chan", key =E<gt> "password")>, C<$botE<lt>partE<gt>("#chan")>,
 C<$botE<lt>quitE<gt>("reason")>, C<$botE<lt>nickE<gt>("newnick")>
 
 Joins or leaves a channel, quits the connection to the server, or tries to
