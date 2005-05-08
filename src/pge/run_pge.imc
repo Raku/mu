@@ -1,0 +1,11 @@
+.sub _main
+    .include "iglobals.pasm"
+    getinterp $P0
+    set $P0, $P0[.IGLOBALS_ARGV_LIST]
+    $S1 = $P0[1]
+    $S2 = $P0[2]
+    load_bytecode "PGE.pbc"
+    $P0 = find_global "PGE::Hs", "match"
+    $S0 = $P0($S1, $S2)
+    print $S0
+.end
