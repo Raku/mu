@@ -2,39 +2,39 @@
 module Tree::Simple-0.0.1;
 use v6;
 
-my @INSTANCES = [ 'we start at 1 otherwise things get ugly' ];
+my %INSTANCES;
 
 sub Tree::Simple::new (+$node, +$parent) returns Int is export {
-    my $instance = +@INSTANCES; # get the next index
+    my $instance = substr(rand() ~ "", 2, 15);
     my %tree = (
         node     => $node,
         parent   => $parent, 
         depth    => ($parent.defined ?? ($parent.depth() + 1) :: 0),
         children => []
     );
-    @INSTANCES[$instance] = %tree;
+    %INSTANCES{$instance} = %tree;
     return $instance;
 }
 
 sub depth ($instance:) returns Int {
-    return @INSTANCES[$instance]<depth>;
+    return %INSTANCES{$instance}<depth>;
 }
 
 sub node ($instance: ?$node) returns Any {
-    @INSTANCES[$instance]<node> = $node if $node.defined;
-    return @INSTANCES[$instance]<node>;
+    %INSTANCES{$instance}<node> = $node if $node.defined;
+    return %INSTANCES{$instance}<node>;
 }
 
 sub parent ($instance: ?$parent) returns Int {
     if $parent {
-        @INSTANCES[$instance]<parent> = $parent;
-        @INSTANCES[$instance]<depth> = $parent.depth() + 1;
+        %INSTANCES{$instance}<parent> = $parent;
+        %INSTANCES{$instance}<depth> = $parent.depth() + 1;
     }
-    return @INSTANCES[$instance]<parent>;
+    return %INSTANCES{$instance}<parent>;
 }
 
 sub is_root ($instance:) returns Bool {
-    return ($instance.parent() == undef ?? 1 :: 0) ;
+    return (%INSTANCES{$instance}<parent> == undef ?? 1 :: 0) ;
 }
 
 sub is_leaf ($instance:) returns Bool {
@@ -47,7 +47,7 @@ sub child_count ($instance:) returns Int {
 
 sub add_child ($instance: $child) returns Void {
     $child.parent($instance);    
-    my %self := @INSTANCES[$instance];    
+    my %self := %INSTANCES{$instance};    
     my @children;
     @children.push(%self<children>) if %self<children>;
     @children.push($child);
@@ -61,12 +61,12 @@ sub add_children ($instance: *@children) returns Void {
 }
 
 sub get_child ($instance: $index) returns Int {
-    my %self := @INSTANCES[$instance];
+    my %self := %INSTANCES{$instance};
     return %self<children>[$index];
 }
 
 sub get_all_children ($instance:) returns Array {
-    my %self := @INSTANCES[$instance];
+    my %self := %INSTANCES{$instance};
     return %self<children>;    
 }
 
