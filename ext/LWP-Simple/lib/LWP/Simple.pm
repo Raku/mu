@@ -148,7 +148,7 @@ sub _make_request (Str $method, Str $uri) {
   };
 
   join "\n", # $CRLF,
-    "$method $u HTTP/1.1",
+    "$method $u HTTP/1.0",
     "Host: $h",
     "User-Agent: lwp-trivial-pugs/$VERSION",
     "Connection: close",
