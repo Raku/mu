@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -fglasgow-exts -fvia-C #-}
 
 {-# INCLUDE <pcre.h> #-}
--- #include <sys/types.h>
+-- \#include <sys/types.h>
 -- arch-tag: 0852a460-683f-4abb-9108-8205777e2033
 
 module RRegex.PCRE (

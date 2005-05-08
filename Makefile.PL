@@ -183,7 +183,7 @@ ${() = '%.hpp : %.hs @prereqs $version_h
 	$hsc2hs $hsc2hs_flags \$<
 
 haddock : $version_h $config_h @hppfiles docs/haddock
-	haddock -h -o docs/haddock/ @hppfiles
+	haddock -t Pugs-$version -h -o docs/haddock/ @hppfiles
 	\@\$(PERL) -le "print q-*** API Documentation generated in @{[File::Spec->catdir('docs', 'haddock').File::Spec->catdir('')]}.-"
 
 docs/haddock :
