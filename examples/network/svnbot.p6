@@ -71,13 +71,13 @@ sub svn_check($event) {
 
   # We don't want to flood poor openfoundry.
   if(time() - $last_check >= $interval) {
+    $last_check = time;
     debug "Checking for new commits (ignore error messages)... ";
     # svn_commits() sets $cur_svnrev, if needed.
     my $commits = svn_commits();
     debug "done, HEAD revision: $cur_svnrev";
     return unless $commits;
 
-    $last_check = time;
     my @lines   = split("\n", $commits).grep:{ $_ };
 
     # We inform all channels we've joined of new commits.
