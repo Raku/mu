@@ -230,6 +230,9 @@ instance Compile Exp where
         lhsC <- tempPMC
         compileWith (\tmp -> lhsC <+> text "=" <+> text name <> parens tmp) arg
     compile (App (Var "&not") [] []) = return $ text "new PerlUndef"
+    compile (App (Var ('&':name)) [] []) = do
+        lhsC <- tempPMC
+        return $ lhsC <+> text "=" <+> text name <> text "()"
     compile (Val (VStr x))  = constPMC $ showText $ encodeUTF8 (concatMap quoted x)
     compile (Val (VInt x))  = constPMC $ integer x
     compile (Val (VNum x))  = constPMC $ showText x
