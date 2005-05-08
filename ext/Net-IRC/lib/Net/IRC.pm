@@ -183,6 +183,7 @@ sub new_bot(
 	$queue<run>();
 	$self<readline>();
 	$self<livecheck>();
+	$self<handle_pseudo>("runloop");
       }
     },
 
@@ -418,8 +419,8 @@ Returns a list of channels the bot has joined.
 =head2 C<add_handler("loggedin", -E<gt> $event {...})>
 
 Adds a callback to be executed when the bot receives a corresponding message.
-Event name all lowercase are "pseudo" events. Currently, there's only the
-C<loggedin> pseudo event, indicating that the bot has successfully logged in.
+Event name all lowercase are "pseudo" events. See below for a list of pseudo
+events.
 
 The callback is given a C<$event> hashref, containing:
 
@@ -467,9 +468,22 @@ The pseudo event.
 
 =head2 C<raw("...")>
 
+=head1 PSEUDO EVENTS
+
+=head2 C<loggedin>
+
+The C<loggedin> event is fired when the bot has successfully logged in.
+
+=head2 C<runloop>
+
+The C<runloop> event is fired when an iteration of the main runloop is
+finished.
+
 =head1 EXAMPLES
 
-See F<examples/network/seenbot.p6> for a example bot using C<Net::IRC>.
+See F<examples/network/seenbot.p6>, F<examples/network/logbot.p6> and
+F<examples/network/svnbot.p6> in the L<Pugs Subversion
+Repository|svn.openfoundry.org/pugs/> for example bots using C<Net::IRC>.
 
 =head1 AUTHOR
 
