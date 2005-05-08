@@ -15,6 +15,7 @@ debug "  Will connect as...                  $nick";
 debug "  to...                               $host:$port";
 debug "  checking for new revisions every... $interval seconds.";
 
+# Initialize $cur_svnrev
 my $cur_svnrev;
 svn_headrev();
 
