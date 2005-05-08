@@ -14,7 +14,7 @@ import Pugs.Internals
 import Pugs.AST
 import Pugs.Types
 
--- |Contains either a valid value of \'a\' (@Right@), or a @String@ error
+-- |Contains either a valid value of @a@ (@Right@), or a @String@ error
 -- message (@Left@).
 type MaybeError a = Either String a
 
@@ -43,7 +43,16 @@ emptyHashExp  = Val $ VList [] -- VHash $ vCast $ VList []
 emptyArrayExp :: Exp
 emptyArrayExp = Val $ VList [] -- VArray $ vCast $ VList []
 
-bindHash :: [Exp] -> [Param] -> MaybeError Bindings
+{-|
+Create a binding from the slurpy hash parameter (e.g. @\*%_@) to a hash
+containing all the remaining named arguments. If multiple slurpy hashes
+are given, only the first gets the arguments--the rest get an empty hash.
+Used by 'bindSomeParams'.
+-}
+bindHash :: [Exp]   -- ^ Named arguments (pair expressions) that were not
+                    --     consumed by explicit named parameters
+         -> [Param] -- ^ List of slurpy hash parameters
+         -> MaybeError Bindings
 bindHash _ []           = return []
 bindHash [] [p]         = return [ (p, emptyHashExp) ]
 bindHash vs (p:ps@(_:_))= do
@@ -65,10 +74,19 @@ bindArray vs ps oldLimit = do
     where
     prms = map (\p -> (p, (head (paramName p)))) ps 
 
-doSlice :: Exp -> VInt -> Exp
+-- |Construct an expression representing an infinite slice of the given
+-- array expression, beginning at element /n/ (i.e. @\@array\[\$n...\]@).
+-- Used by 'doBindArray' to bind a slurpy array parameter to the rest of
+-- the slurpable arguments.
+doSlice :: Exp -- ^ The array expression to slice
+        -> VInt -- ^ Index of the first element in the resulting slice (/n/)
+        -> Exp 
 doSlice v n = Syn "[...]" [v, Val $ VInt n]
 
 -- XXX - somehow force failure
+-- |Construct an expression representing element /n/ in the given array
+-- expression (i.e. @\@array\[\$n\]@). Used by 'doBindArray' to bind a
+-- particular slurpy scalar parameter to one of the slurpable arguments.
 doIndex :: Exp -> VInt -> Exp
 doIndex v n = Syn "[]" [Syn "val" [v], Val $ VInt n]
 
@@ -81,6 +99,8 @@ doBindArray v (xs, n)  (p, '$') = case v of
     _               -> return (((p, doIndex v n):xs), n+1)
 doBindArray _ (_, _)  (_, x) = internalError $ "doBindArray: unexpected char: " ++ (show x)
 
+-- |(Does this even get used? It seems to be a leftover fragment of
+-- 'doBindArray'...)
 bindEmpty :: Param -> MaybeError (Param, Exp)
 bindEmpty p = case paramName p of
     ('@':_) -> return (p, emptyArrayExp)
