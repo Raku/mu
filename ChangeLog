@@ -1,8 +1,49 @@
-== Changes for 6.2.3 - TBD
+== Changes for 6.2.3 - May *, 2005
 
-* The `is lazy` trait for parameters (XXX - or is it `is delayed`?)
+=== Pugs Internals
+
+* The `is lazy` trait for parameters
 * Much faster random access to arrays; it's now O(1) instead of O(n)
 * Experimental `eval_yaml()` support to deserialize YAML streams.
+** `eval_yaml` takes and emits UTF8 strings.
+* `system(Str: List)` and `exec(Str: List)` on *nix platforms.
+* Adding support for profiling of Haskell
+* PGE is now part of Pugs; `:P5` restriction lifted from `rx//` and `s///`.
+* undef in grouped lhs: `my ($x, undef, $y) = 1..3;` is now legal.
+* implement `state $var`.
+* Pugs now embeds Parrot (see journal for details)
+** implement `eval_parrot` for executing arbitrary IMC code
+** Pugs is also a registered Parrot compiler.
+* Monadic subcontinuation transformer added.
+* rvalue only `%hash.pick`, `@array.pick` and `(list).pick`.
+* `$thread.kill`, `$thread.detach`, `$thread.join` implemented.
+* MMD support improved.
+* Experimental support for folding metaoperator: [+]
+* Stringify VHandle much nicer
+
+=== Tests, Examples and Documentations
+
+* Many new test and several tests refactored, we now have +4800 tests
+* TODO tests now use `:todo<reason>` for better reporting
+* local Test::Harness updated to handle `:todo<reason>`
+* The first Perl 6 poem in `examples/poetry/`.
+* Several IRC bots added to `examples/network` including svnbot and logbot.
+* Documentation for hangman.p6 added in `examples/games/hangman.pod`
+* new "Monads in Perl 6" example.
+* several modules added to `ext/` (NOTE: all modules have thier own ChangeLog now)
+** added Net::IRC implemented with hash/closure object 
+** added Algorithm::TokenBucket implemented with hash/closure object 
+** added Config::Tiny implemented with hash/closure object 
+** renamed Pod::Stream::Parser to Pod::Event::Parser and added more functionality
+** added Kwid::Event::Parser
+** added Tree::Simple implemented with inside-out object
+** added non-working Perl6 port of Test::Builder (using Perl6 OO)
+* script to generate a Pugs Live CD in `util/`.
+
+=== Bug Fixes
+
+* `any().pick` no longer dies.
+* `$*PID` now works on Win32
 
 == Changes for 6.2.2 - May 1, 2005
 
