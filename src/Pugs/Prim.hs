@@ -793,6 +793,11 @@ matchPGE cs re = do
         Just m  -> return m
         Nothing -> fail ("Cannot parse PGE: " ++ pge)
 
+matchFromMR mr = VMatch $ PGE_Match 0 0 (decodeUTF8 all) subsMatch []
+    where
+    (all:subs) = elems $ mrSubs mr
+    subsMatch = [ PGE_Match 0 0 (decodeUTF8 sub) [] [] | sub <- subs ]
+
 -- XXX - need to generalise this
 op2Match :: Val -> Val -> Eval Val
 op2Match x (VRef y) = do
@@ -815,9 +820,10 @@ op2Match x (VSubst (rx@MkRulePCRE{ rxGlobal = True }, subst)) = do
             Nothing -> return (str, subs)
             Just mr -> do
                 glob    <- askGlobal
-                let subs = elems $ mrSubs mr
                 matchSV <- findSymRef "$/" glob
-                writeRef matchSV $ VList $ map (VStr . decodeUTF8) subs
+                let match = matchFromMR mr
+                    subs = elems $ mrSubs mr
+                writeRef matchSV match
                 str'    <- fromVal =<< evalExp subst
                 (after', rv) <- doReplace (mrAfter mr) (Just subs)
                 let subs' = fromMaybe subs rv
@@ -830,13 +836,13 @@ op2Match x (VSubst (rx@MkRulePCRE{ rxGlobal = False }, subst)) = do
         Nothing -> return $ VBool False
         Just mr -> do
             glob <- askGlobal
-            let subs = elems $ mrSubs mr
             matchSV <- findSymRef "$/" glob
-            writeRef matchSV $ VList $ map (VStr . decodeUTF8) subs
+            let match = matchFromMR mr
+            writeRef matchSV match
             str' <- fromVal =<< evalExp subst
             writeRef ref $
                 (VStr $ decodeUTF8 $ concat [mrBefore mr, encodeUTF8 str', mrAfter mr])
-            return $ VBool True
+            return $ match
 
 op2Match x (VRule rx@MkRulePCRE{ rxGlobal = True }) = do
     str     <- fromVal x
@@ -851,6 +857,18 @@ op2Match x (VRule rx@MkRulePCRE{ rxGlobal = True }) = do
             Just mr -> do
                 rest <- doMatch $ mrAfter mr
                 return $ (tail $ elems (mrSubs mr)) ++ rest
+
+op2Match x (VRule rx@MkRulePCRE{ rxGlobal = False }) = do
+    str     <- fromVal x
+    case encodeUTF8 str =~~ rxRegex rx of
+        Nothing -> return $ VMatch PGE_Fail
+        Just mr -> do
+            --- XXX: Fix $/ and make it lexical.
+            glob <- askGlobal
+            matchSV <- findSymRef "$/" glob
+            let match = matchFromMR mr
+            writeRef matchSV match
+            return match
 
 op2Match x (VRule rx@MkRulePGE{ rxGlobal = True }) = do
     str     <- fromVal x
@@ -877,18 +895,6 @@ op2Match x (VRule rx@MkRulePGE{ rxGlobal = False }) = do
     ifListContext
         (return $ VList (map VMatch $ matchList match))
         (return $ VMatch match)
-
-op2Match x (VRule rx@MkRulePCRE{ rxGlobal = False }) = do
-    str     <- fromVal x
-    case encodeUTF8 str =~~ rxRegex rx of
-        Nothing -> return $ VBool False
-        Just mr -> do
-            --- XXX: Fix $/ and make it lexical.
-            glob <- askGlobal
-            let subs = elems $ mrSubs mr
-            matchSV <- findSymRef "$/" glob
-            writeRef matchSV $ VList $ map (VStr . decodeUTF8) subs
-            return $ VBool True
 
 op2Match x y = op2Cmp vCastStr (==) x y
 

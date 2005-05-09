@@ -1115,6 +1115,7 @@ ruleVar = do
     return $ makeVar name
 
 makeVar :: String -> Exp
+makeVar "$0" = (App (Var "&prefix:~") [Var "$/"] [])
 makeVar ('$':rest) | all (`elem` "1234567890") rest =
     Syn "[]" [Var "$/", Val $ VInt (read rest - 1)]
 makeVar ('$':'<':name) =
