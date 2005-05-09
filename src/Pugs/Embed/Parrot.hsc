@@ -26,8 +26,8 @@ evalParrotFile file = do
 
 evalParrot :: String -> IO ()
 evalParrot str = do
-    tmp <- getTemporaryDirectory
-    (file, fh) <- openTempFile tmp "pugs.imc"
+    tmp         <- getTemporaryDirectory
+    (file, fh)  <- openTempFile tmp "pugs.imc"
     hPutStr fh str
     hClose fh
     evalParrotFile file
