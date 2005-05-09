@@ -785,8 +785,10 @@ instance RegexLike VRegex Char where
             pwd2 = getConfig "sourcedir" ++ "/src/pge"
         hasSrc <- doesDirectoryExist pwd2
         let pwd = if hasSrc then pwd2 else pwd1
-        out <- evalPGE pwd cs re
-        fmap (fmap $ uncurry listArray) $ readIO out
+        rv <- readIO =<< evalPGE pwd cs re
+        return $ case rv of
+            Just list   -> Just $ listArray (0, length list - 1) list
+            Nothing     -> Nothing
     matchShow (MkRegexPCRE _) = "PCRE Regex"
     matchShow (MkRegexPGE _)  = "PGE Regex"
 
