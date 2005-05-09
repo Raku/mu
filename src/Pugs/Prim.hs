@@ -865,7 +865,7 @@ op2Match x (VRule rx@MkRulePGE{ rxGlobal = True }) = do
             PGE_Fail        -> return []
             PGE_Array ms    -> return ms -- XXX impossible
             PGE_Match _ to _ ms _ -> do
-                rest <- doMatch $ genericDrop (to - 1) str
+                rest <- doMatch $ genericDrop to str
                 return $ ms ++ rest
 
 op2Match x (VRule rx@MkRulePGE{ rxGlobal = False }) = do

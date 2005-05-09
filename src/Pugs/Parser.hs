@@ -1116,7 +1116,7 @@ ruleVar = do
 
 makeVar :: String -> Exp
 makeVar ('$':rest) | all (`elem` "1234567890") rest =
-    Syn "[]" [Var "$/", Val $ VInt $ read rest]
+    Syn "[]" [Var "$/", Val $ VInt (read rest - 1)]
 makeVar ('$':'<':name) =
     Syn "{}" [Var "$/", doSplitStr name]
 makeVar var = Var var

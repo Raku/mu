@@ -372,8 +372,8 @@ matchList PGE_Fail = []
 
 matchPairs (PGE_Match _ _ _ ms ns) =
     [ (VStr str, VMatch m) | (str, m) <- ns ]
-    ++ ((map VInt [0..]) `zip` (map VMatch ms))
-matchPairs (PGE_Array ms) = (map VInt [0..]) `zip` (map VMatch ms)
+    ++ ((map VInt [1..]) `zip` (map VMatch ms))
+matchPairs (PGE_Array ms) = (map VInt [1..]) `zip` (map VMatch ms)
 matchPairs PGE_Fail = []
 
 
