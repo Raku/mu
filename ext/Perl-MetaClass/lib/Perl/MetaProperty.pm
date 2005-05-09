@@ -2,13 +2,14 @@
 use v6;
 module Perl::MetaProperty-0.0.1;
 
-use Hack::Instances;
+use Hack::Instances; 
 
-sub Perl::MetaProperty::new(Str $type) returns Str is export {
+sub Perl::MetaProperty::new(Str $type, Any +$default) returns Str is export {
     my $id = make_instance("Perl::MetaProperty", { 
-        type    => $type,
-        default => undef
+        'type'    => $type,
+        'default' => undef
     });
+    $id.propDefault($default) if $default.defined;
     return $id;
 }
 
@@ -62,7 +63,7 @@ Perl::MetaProperty - A meta-model for Perl Classes
 
 =over 4
 
-=item B<Perl::MetaProperty::new(Str $type)>
+=item B<Perl::MetaProperty::new(Str $type, Any ?$default)>
 
 =item B<propType($inv: ?$type)>
 

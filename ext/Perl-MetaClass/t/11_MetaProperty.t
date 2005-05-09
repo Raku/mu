@@ -37,5 +37,10 @@ lives_ok {
     $prop.propDefault(Perl::MetaClass::new('Foo::Bar'));
 }, '... we set the property default successfully';
 
+my $prop2;
+lives_ok {
+    $prop2 = Perl::MetaProperty::new('Str', :default("Hello World"));
+}, '... set our default in the constructor successfully'
 
-
+is($prop2.propType(), 'Str', '... our property type is "Str"');
+is($prop2.propDefault(), "Hello World", '... our property default is defined');

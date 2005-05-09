@@ -4,14 +4,11 @@ module Perl::MetaClass-0.0.1;
 
 use Hack::Instances;
 
+use Perl::MetaProperty;
 #use Perl::MetaMethod;
 #use Perl::MetaAssoc;
-#use Perl::MetaProperty;
 
 sub Perl::MetaClass::new(Str $name) returns Str is export {
-#    my %props;
-#    my %methods;
-#    my %assoc;
     my $id = make_instance("Perl::MetaClass", { 
         'name'       => $name,
         'super'      => undef,
@@ -50,6 +47,9 @@ sub clsSuper(Str $inv: Str ?$super) returns Str {
     return %self<super>;
 }
 
+# XXX -- we need to enforce Set like behavior here
+# maybe with a hash? keyed by subclass name?
+
 sub clsSubClasses(Str $inv: Array *@subclasses) returns Array {
     my %self := get_instance($inv, "Perl::MetaClass");
     if @subclasses {
@@ -71,6 +71,11 @@ sub clsSubClasses(Str $inv: Array *@subclasses) returns Array {
     }
     return %self<subclasses>;
 }
+
+# XXX -- what do we do about visibility here?
+# is it a property of the MetaProperty? or is
+# it a property of the relationship with the
+# MetaClass? 
 
 sub clsProperties(Str $inv: Array *@properties) returns Hash {
     my %self := get_instance($inv, "Perl::MetaClass");
