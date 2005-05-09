@@ -110,20 +110,26 @@ data VThread a = MkThread
     , threadLock    :: TMVar a
     }
     deriving (Show, Eq, Ord, Typeable)
+-- |Rule Match object
+data VMatch
+    = PGE_Match !VInt !VInt !VStr ![VMatch] ![(VStr, VMatch)]
+    | PGE_Array ![VMatch]
+    | PGE_Fail
+    deriving (Show, Eq, Ord, Read)
 
-data VRegex
-    = MkRegexPCRE !Regex
-    | MkRegexPGE !String
-    deriving (Show, Eq, Ord, Typeable)
-    
 -- |Representation for rules (i.e. regexes). Currently consists of a
 -- "RRegex" 'Regex', and a boolean flag indicating whether the rule has
 -- \'global\' semantics (Perl5's \/g), i.e. whether it matches all occurences
 -- or just the first.
-data VRule     = MkRule
-    { rxRegex     :: !VRegex -- ^ The \'regular\' expression
-    , rxGlobal    :: !Bool  -- ^ Flag indicating \'global\' (match-all)
-    }
+data VRule
+    = MkRulePCRE
+        { rxRegex     :: !Regex -- ^ The \'regular\' expression
+        , rxGlobal    :: !Bool  -- ^ Flag indicating \'global\' (match-all)
+        }
+    | MkRulePGE
+        { rxRule      :: !String -- ^ The \'rule\' expression
+        , rxGlobal    :: !Bool   -- ^ Flag indicating \'global\' (match-all)
+        }
     deriving (Show, Eq, Ord, Typeable)
 
 instance Ord VHandle where

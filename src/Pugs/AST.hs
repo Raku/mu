@@ -203,6 +203,7 @@ instance Value VHash where
             return (str, v)
 
 instance Value [VPair] where
+    fromVal (VMatch m) = return $ matchPairs m
     fromVal v = do
         list <- fromVals v
         doFrom $ concat list
@@ -232,6 +233,7 @@ instance Value VBool where
     doCast (VRat 0)    = False
     doCast (VNum 0)    = False
     doCast (VList [])  = False
+    doCast (VMatch PGE_Fail) = False
     doCast _           = True
 
 juncToBool :: VJunc -> Bool
@@ -284,6 +286,7 @@ instance Value VNum where
                 Right d -> realToFrac d
     doCast (VList l)    = genericLength l
     doCast t@(VThread _)  = read $ vCast t
+    doCast (VMatch m)   = matchNum m
     doCast _            = 0/0 -- error $ "cannot cast as Num: " ++ show x
 
 instance Value VComplex where
@@ -324,6 +327,7 @@ instance Value VStr where
     vCast (VJunc j)     = show j
     vCast (VThread t)   = takeWhile isDigit $ dropWhile (not . isDigit) $ show t
     vCast (VHandle h)   = "<" ++ "VHandle (" ++ (show h) ++ ">"
+    vCast (VMatch m)    = matchStr m
     vCast x             = castFail x
 
 showNum :: Show a => a -> String
@@ -338,6 +342,25 @@ showNum x
 
 valToStr :: Val -> Eval VStr
 valToStr = fromVal
+
+matchNum (PGE_Match _ _ _ _ _) = 1
+matchNum (PGE_Array ms) = genericLength ms
+matchNum PGE_Fail = 0
+
+matchStr (PGE_Match _ _ s _ _) = s
+matchStr (PGE_Array ms) = concatMap matchStr ms
+matchStr PGE_Fail = ""
+
+matchList (PGE_Match _ _ _ ms _) = ms
+matchList (PGE_Array ms) = ms
+matchList PGE_Fail = []
+
+matchPairs (PGE_Match _ _ _ ms ns) =
+    [ (VStr str, VMatch m) | (str, m) <- ns ]
+    ++ ((map VInt [0..]) `zip` (map VMatch ms))
+matchPairs (PGE_Array ms) = (map VInt [0..]) `zip` (map VMatch ms)
+matchPairs PGE_Fail = []
+
 
 instance Value VList where
     fromVal (VRef r) = do
@@ -451,6 +474,7 @@ data Val
     | VRule     !VRule
     | VSubst    !VSubst      -- ^ Substitution value (correct?)
     | VControl  !VControl
+    | VMatch    !VMatch
     | VOpaque   !VOpaque
     deriving (Show, Eq, Ord, Typeable)
 
@@ -477,6 +501,7 @@ valType (VProcess _)    = mkType "Process"
 valType (VControl _)    = mkType "Control"
 valType (VRule    _)    = mkType "Rule"
 valType (VSubst   _)    = mkType "Subst"
+valType (VMatch   _)    = mkType "Match"
 valType (VOpaque  _)    = mkType "Object"
 
 type VBlock = Exp
@@ -1241,6 +1266,8 @@ doArray (VRef (MkRef (IScalar sv))) f = do
             return $ f hv
 doArray (VRef (MkRef p@(IPair _))) f = return $ f p
 doArray val@(VRef _) _ = retError "Cannot cast into Array" val
+doArray (VMatch m) f = do
+    return $ f (map VMatch (matchList m) :: VArray)
 doArray val f = do
     av  <- fromVal val
     return $ f (av :: VArray)

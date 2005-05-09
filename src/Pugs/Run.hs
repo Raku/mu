@@ -63,7 +63,7 @@ prepareEnv name args = do
     execSV  <- newScalar (VStr exec)
     progSV  <- newScalar (VStr name)
     endAV   <- newArray []
-    matchAV <- newArray []
+    matchAV <- newScalar (VMatch PGE_Fail)
     incAV   <- newArray (map VStr libs)
     argsAV  <- newArray (map VStr args)
     inGV    <- newHandle stdin

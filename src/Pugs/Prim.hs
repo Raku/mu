@@ -14,10 +14,10 @@ module Pugs.Prim where
 import Pugs.Internals
 import Pugs.Junc
 import Pugs.AST
-import Pugs.Config
 import Pugs.Types
 import Pugs.Pretty
 import Pugs.Parser
+import Pugs.Config
 import Pugs.External
 import Text.Printf
 import Data.Array
@@ -778,32 +778,17 @@ op2 op | "»" `isPrefixOf` op = op2Hyper . init . init . drop 2 $ op
 op2 ('>':'>':op) = op2Hyper . init . init $ op
 op2 other = \_ _ -> fail ("Unimplemented binaryOp: " ++ other)
 
-data VMatch
-    = PGE_Match !Int !Int ![VMatch] ![(String, VMatch)]
-    | PGE_Array ![VMatch]
-    | PGE_Fail
-    deriving (Show, Eq, Ord, Read)
-
-instance RegexLike VRegex Char where
-    matchOnce (MkRegexPCRE re) cs bol = matchOnce re cs bol
-    matchOnce (MkRegexPGE re) cs _ = unsafePerformIO $ do
-        let pwd1 = getConfig "installarchlib" ++ "/CORE/pugs/pge"
-            pwd2 = getConfig "sourcedir" ++ "/src/pge"
-        hasSrc <- doesDirectoryExist pwd2
-        let pwd = if hasSrc then pwd2 else pwd1
-        pge <- evalPGE pwd cs re
-        rv <- readIO pge `catch` (const $ fail ("Cannot parse PGE: " ++ pge))
-        return $ case rv of
-            PGE_Match from to pos _ -> Just $
-                listArray (0, length pos)
-                    ((from, to) : map unroll pos)
-            _ -> Nothing
-        where
-        unroll (PGE_Match from to _ _) = (from, to)
-        unroll (PGE_Array ms@(m:_)) = (fst (unroll m), snd (unroll (last ms)))
-        unroll _ = (0, 0)
-    matchShow (MkRegexPCRE _) = "PCRE Regex"
-    matchShow (MkRegexPGE _)  = "PGE Regex"
+matchPGE :: String -> String -> Eval VMatch
+matchPGE cs re = do
+    let pwd1 = getConfig "installarchlib" ++ "/CORE/pugs/pge"
+        pwd2 = getConfig "sourcedir" ++ "/src/pge"
+    hasSrc <- liftIO $ doesDirectoryExist pwd2
+    let pwd = if hasSrc then pwd2 else pwd1
+    pge <- liftIO $ evalPGE pwd (encodeUTF8 cs) (encodeUTF8 re)
+    rv  <- tryIO Nothing $ fmap Just (readIO $ decodeUTF8 pge) 
+    case rv of
+        Just m  -> return m
+        Nothing -> fail ("Cannot parse PGE: " ++ pge)
 
 -- XXX - need to generalise this
 op2Match :: Val -> Val -> Eval Val
@@ -811,7 +796,7 @@ op2Match x (VRef y) = do
     y' <- readRef y
     op2Match x y'
 
-op2Match x (VSubst (rx@MkRule{ rxGlobal = True }, subst)) = do
+op2Match x (VSubst (rx@MkRulePCRE{ rxGlobal = True }, subst)) = do
     str     <- fromVal x
     rv      <- doReplace (encodeUTF8 str) Nothing
     case rv of
@@ -828,14 +813,14 @@ op2Match x (VSubst (rx@MkRule{ rxGlobal = True }, subst)) = do
             Just mr -> do
                 glob    <- askGlobal
                 let subs = elems $ mrSubs mr
-                matchAV <- findSymRef "$/" glob
-                writeRef matchAV $ VList $ map (VStr . decodeUTF8) subs
+                matchSV <- findSymRef "$/" glob
+                writeRef matchSV $ VList $ map (VStr . decodeUTF8) subs
                 str'    <- fromVal =<< evalExp subst
                 (after', rv) <- doReplace (mrAfter mr) (Just subs)
                 let subs' = fromMaybe subs rv
                 return (concat [mrBefore mr, encodeUTF8 str', after'], Just subs')
 
-op2Match x (VSubst (rx@MkRule{ rxGlobal = False }, subst)) = do
+op2Match x (VSubst (rx@MkRulePCRE{ rxGlobal = False }, subst)) = do
     str     <- fromVal x
     ref     <- fromVal x
     case encodeUTF8 str =~~ rxRegex rx of
@@ -843,14 +828,14 @@ op2Match x (VSubst (rx@MkRule{ rxGlobal = False }, subst)) = do
         Just mr -> do
             glob <- askGlobal
             let subs = elems $ mrSubs mr
-            matchAV <- findSymRef "$/" glob
-            writeRef matchAV $ VList $ map (VStr . decodeUTF8) subs
+            matchSV <- findSymRef "$/" glob
+            writeRef matchSV $ VList $ map (VStr . decodeUTF8) subs
             str' <- fromVal =<< evalExp subst
             writeRef ref $
                 (VStr $ decodeUTF8 $ concat [mrBefore mr, encodeUTF8 str', mrAfter mr])
             return $ VBool True
 
-op2Match x (VRule rx@MkRule{ rxGlobal = True }) = do
+op2Match x (VRule rx@MkRulePCRE{ rxGlobal = True }) = do
     str     <- fromVal x
     rv      <- doMatch (encodeUTF8 str)
     ifListContext
@@ -864,7 +849,17 @@ op2Match x (VRule rx@MkRule{ rxGlobal = True }) = do
                 rest <- doMatch $ mrAfter mr
                 return $ (tail $ elems (mrSubs mr)) ++ rest
 
-op2Match x (VRule rx@MkRule{ rxGlobal = False }) = do
+op2Match x (VRule rx@MkRulePGE{ rxGlobal = False }) = do
+    str     <- fromVal x
+    match   <- str `matchPGE` rxRule rx
+    glob    <- askGlobal
+    matchSV <- findSymRef "$/" glob
+    writeRef matchSV (VMatch match)
+    ifListContext
+        (return $ VList (map VMatch $ matchList match))
+        (return $ VMatch match)
+
+op2Match x (VRule rx@MkRulePCRE{ rxGlobal = False }) = do
     str     <- fromVal x
     case encodeUTF8 str =~~ rxRegex rx of
         Nothing -> return $ VBool False
@@ -872,8 +867,8 @@ op2Match x (VRule rx@MkRule{ rxGlobal = False }) = do
             --- XXX: Fix $/ and make it lexical.
             glob <- askGlobal
             let subs = elems $ mrSubs mr
-            matchAV <- findSymRef "$/" glob
-            writeRef matchAV $ VList $ map (VStr . decodeUTF8) subs
+            matchSV <- findSymRef "$/" glob
+            writeRef matchSV $ VList $ map (VStr . decodeUTF8) subs
             return $ VBool True
 
 op2Match x y = op2Cmp vCastStr (==) x y

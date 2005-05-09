@@ -523,18 +523,16 @@ reduce exp@(Syn name exps) = case name of
         p5flags <- fromAdverb hv ["P5", "Perl5", "perl5"]
         flag_g  <- fromAdverb hv ["g", "global"]
         flag_i  <- fromAdverb hv ["i", "ignorecase"]
-        let rx | p5 = MkRegexPCRE . mkRegexWithPCRE (encodeUTF8 str) $
+        let rx | p5 = (`MkRulePCRE` g) . mkRegexWithPCRE (encodeUTF8 str) $
                         [ pcreUtf8
                         , ('i' `elem` p5flags || flag_i) `implies` pcreCaseless
                         , ('m' `elem` p5flags) `implies` pcreMultiline
                         , ('s' `elem` p5flags) `implies` pcreDotall
                         , ('x' `elem` p5flags) `implies` pcreExtended
                         ]
-               | otherwise = MkRegexPGE (encodeUTF8 str)
-        retVal $ VRule $ MkRule
-            { rxRegex  = rx
-            , rxGlobal = ('g' `elem` p5flags || flag_g)
-            }
+               | otherwise = MkRulePGE str g
+            g = ('g' `elem` p5flags || flag_g)
+        retVal $ VRule rx
         where
         implies True  = id
         implies False = const 0
