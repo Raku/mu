@@ -778,6 +778,9 @@ op2 op | "»" `isPrefixOf` op = op2Hyper . init . init . drop 2 $ op
 op2 ('>':'>':op) = op2Hyper . init . init $ op
 op2 other = \_ _ -> fail ("Unimplemented binaryOp: " ++ other)
 
+data PGE = PGE_Match !Int !Int ![PGE]
+    deriving (Show, Eq, Ord, Read)
+
 instance RegexLike VRegex Char where
     matchOnce (MkRegexPCRE re) cs bol = matchOnce re cs bol
     matchOnce (MkRegexPGE re) cs _ = unsafePerformIO $ do
@@ -785,10 +788,13 @@ instance RegexLike VRegex Char where
             pwd2 = getConfig "sourcedir" ++ "/src/pge"
         hasSrc <- doesDirectoryExist pwd2
         let pwd = if hasSrc then pwd2 else pwd1
-        rv <- readIO =<< evalPGE pwd cs re
+        pge <- evalPGE pwd cs re
+        rv <- readIO pge `catch` (const $ fail ("Cannot parse PGE: " ++ pge))
         return $ case rv of
-            Just list   -> Just $ listArray (0, length list - 1) list
-            Nothing     -> Nothing
+            Just (PGE_Match from to capt) -> Just $
+                listArray (0, length capt)
+                    ((from, to) : [ (f, t) | PGE_Match f t _ <- capt ])
+            Nothing -> Nothing
     matchShow (MkRegexPCRE _) = "PCRE Regex"
     matchShow (MkRegexPGE _)  = "PGE Regex"
 
