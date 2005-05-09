@@ -132,6 +132,8 @@ sub set_postamble {
 
         $embed_flags .= " -I$base/include -L$base/blib/lib -DPUGS_HAVE_PARROT=1 -L$base/blib/lib -L/usr/local/lib $ldflags ";
         $ghc_output .= " -lparrot $libs $icuflags ";
+        my $config = "$base/src/parrot_config$Config{_o}";
+        $ghc_output .= " $config " if -e $config;
 
         # parrot include paths for hsc2hs
         $hsc2hs_flags .= " -DPUGS_HAVE_PARROT -I$base/include ";
