@@ -2,8 +2,11 @@
 use v6;
 module Hack::Instances-0.0.1;
 
-subtype Instance of Str where { $^str ~~ qx:perl5/^OBJECT;/ #:#for cperl-mode
-			    }
+BEGIN {
+    mkType "Instance";
+}
+#subtype Instance of Str where { $^str ~~ qx:perl5/^OBJECT;/ #:#for cperl-mode
+#			    }
 
 my %INSTANCES;
 
@@ -17,6 +20,7 @@ sub make_instance($class, $obj) returns Instance is export {
 }
 
 sub make_class($class) is export {
+    mkType($class);
     eval "subtype $class of Instance where \{ "
 	~ '$^str ~~ qx:perl5/^OBJECT;' ~ $class ~ ';/ \}';
 }

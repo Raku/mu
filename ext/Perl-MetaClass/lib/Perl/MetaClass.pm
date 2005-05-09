@@ -11,6 +11,32 @@ sub Perl::MetaClass::new($name) returns Perl::MetaClass is export {
     return $id;
 }
 
+# these could be a little less cut 'n' paste, but for now this is fine
+sub clsName(Perl::MetaClass $inv) returns Str is rw {
+    return get_instance($inv)<name>;
+}
+
+# FIXME - the below methods do not enforce the rule;
+#  ∃ MetaClass A, B | A.clsSuper = B ↔ A ∈ B.clsSubClasses
+sub clsSuper(Perl::MetaClass $inv) returns Perl::MetaClass is rw {
+    return get_instance($inv)<super>;
+}
+
+sub clsSubClasses(Perl::MetaClass $inv) returns Array(Perl::MetaClass) is rw {
+    return get_instance($inv)<subclasses> ||= [];
+}
+
+sub clsProperties(Perl::MetaClass $inv) returns Map(Str, Perl::MetaProperty) is rw {
+    return get_instance($inv)<subclasses> ||= {};
+}
+
+sub clsMethods(Perl::MetaClass $inv) returns Map(Str, Perl::MetaMethod) is rw {
+    return get_instance($inv)<methods> ||= {};
+}
+
+sub clsAssocs(Perl::MetaClass $inc) returns Map(Str, Perl::MetaAssoc) is rw {
+    return get_instance($inv)<assocs> ||= {};
+}
 
 
 =pod

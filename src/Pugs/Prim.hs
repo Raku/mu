@@ -421,7 +421,11 @@ op1 "ord"   = op1Cast $ \str -> if null str then undef else (castV . ord . head)
 op1 "hex"   = op1Cast (VInt . read . ("0x"++))
 op1 "log"   = op1Cast (VNum . log)
 op1 "log10" = op1Cast (VNum . logBase 10)
+op1 "mkType" = return . op1mkType . vCast
 op1 other   = \_ -> fail ("Unimplemented unaryOp: " ++ other)
+
+-- op1mkType :: VStr -> Eval VStr
+op1mkType str = (VStr . showType . mkType) str
 
 op1Fold :: String -> Val -> Eval Val
 op1Fold op v = do
@@ -1672,6 +1676,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Int       pre     sign    (Num)\
 \\n   Bool      pre     kill    (Thread)\
 \\n   Int       pre     kill    (Int, List)\
+\\n   Str      pre     mkType  (Str)\
 \\n   List      pre     Pugs::Internals::runInteractiveCommand    (?Str=$_)\
 \\n   List      pre     Pugs::Internals::openFile    (?Str,?Str=$_)\
 \\n"
