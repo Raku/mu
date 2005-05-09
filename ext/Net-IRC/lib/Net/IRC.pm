@@ -299,10 +299,32 @@ sub new_bot(
 	}
       }
     },
-    part => -> Str $channel { $queue<enqueue>({ $say("PART $channnel") }) if $connected },
-    quit => -> Str $reason  { $queue<enqueue>({ $say("QUIT :$reason") })  if $connected },
-    nick => -> Str $newnick { $queue<enqueue>({ $say("NICK $newnick") })  if $connected },
-    who  => -> Str $target  { $queue<enqueue>({ $say("WHO $target") })    if $connected },
+    part  => -> Str $channel { $queue<enqueue>({ $say("PART $channnel") }) if $connected },
+    quit  => -> Str $reason  { $queue<enqueue>({ $say("QUIT :$reason") })  if $connected },
+    nick  => -> Str $newnick { $queue<enqueue>({ $say("NICK $newnick") })  if $connected },
+    who   => -> Str $target  { $queue<enqueue>({ $say("WHO $target") })    if $connected },
+    topic => -> Str $channel, Str ?$topic {
+      if $connected {
+	if defined $topic {
+	  $queue<enqueue>({ $say("TOPIC $channel :$topic") });
+	} else {
+	  $queue<enqueue>({ $say("TOPIC $channel") });
+	}
+      }
+    },
+    kick  => -> Str $channel, Str $nick, Str ?$reason {
+      $queue<enqueue>({ $say("KICK $channel $nick :{$reason // ""}") })
+	if $connected;
+    },
+    mode  => -> Str $target, Str ?$mode {
+      if $connected {
+	if defined $mode {
+	  $queue<enqueue>({ $say("MODE $target $mode") });
+	} else {
+	  $queue<enqueue>({ $say("MODE $target") });
+	}
+      }
+    },
 
     # PRIVMSG/NOTICE
     privmsg => -> Str $to, Str $text {
@@ -432,6 +454,17 @@ seconds, and it'll drop the connection if it hasn't seen traffic for
 C<$live_timeout> seconds. Furthermore, it'll track its status (its nick, the
 channels it has joined, etc.).
 
+=head2 C<$botE<lt>loginE<gt>()>
+
+Tries to login, using the C<nickname>, C<username>, and C<ircname> you've
+specified in the constructor. If the nickname is already used, C<Net::IRC> will
+try to use a permuted nick (for example C<bot_>, C<_bot>, etc.).
+
+=head2 C<$botE<lt>runE<gt>()>
+
+Starts the main runloop, which is only exited if the connection to the server
+dies. To read data from the server, a blocking C<readline> call is used.
+
 =head2 C<$botE<lt>curnickE<gt>()>, C<$botE<lt>curusernameE<gt>()>,
 C<$botE<lt>curircnameE<gt>()>, C<$botE<lt>curhostnameE<gt>()>
 
@@ -517,11 +550,32 @@ The pseudo event (if appropriate).
 
 =back
 
-=head2 C<$botE<lt>joinE<gt>(channel =E<gt> "#chan", key =E<gt> "password")>, C<$botE<lt>partE<gt>("#chan")>,
-C<$botE<lt>quitE<gt>("reason")>, C<$botE<lt>nickE<gt>("newnick")>
+=head2 C<$botE<lt>joinE<gt>(channel =E<gt> "#chan", key =E<gt> "password")>
 
-Joins or leaves a channel, quits the connection to the server, or tries to
-change the bot's nickname.
+Joins a channel (optionally using the specified key).
+
+=head2 C<$botE<lt>partE<gt>("#chan")>
+
+Parts a channel.
+
+=head2 C<$botE<lt>quitE<gt>("reason")>
+
+Quits the connection to the server by sending a C</QUIT> command. Note that the
+socket usually stays connected for a few seconds.
+
+=head2 C<$botE<lt>nickE<gt>("newnick")>
+
+Tries to change the bot's nick. Also see C<nick> below.
+
+=head2 C<$botE<lt>topicE<gt>("#chan")>, C<$botE<lt>topicE<gt>(channel =E<gt> "#chan",
+topic =E<gt> "new topic")>
+
+Retrieves a channel's topic or tries to set it.
+
+=head2 C<$botE<lt>kickE<gt>(channel =E<gt> "#chan", nick
+=E<gt> "...", reason =E<gt> "...")>
+
+Kicks somebody from a channel, stating a reason optionally.
 
 =head2 C<$botE<lt>privmsgE<gt>(to =E<gt> "...", text =E<gt> "...")>,
 C<E<lt>noticeE<gt>(to =E<gt> "...", text =E<gt> "...")>

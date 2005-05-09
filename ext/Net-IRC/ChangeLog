@@ -5,6 +5,7 @@
 * Automated nick permuting if chosen nick is already used.
 * `loggedin` and `runloop` pseudo events.
 * Own `username`, `hostname`, and `ircname` detection.
+* Implemented most of the basic IRC commands.
 
 == Changes for 0.0.2 - May 6, 2005
 
