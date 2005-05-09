@@ -111,7 +111,7 @@ loadPGE interp path = do
     sym     <- withCString "match" $ const_string interp
     sub     <- parrot_find_global interp ns sym
     if sub /= nullPtr then return sub else do
-    pf      <- withCString (path ++ "/PGE.pbc") $ parrot_readbc interp
+    pf      <- withCString (path ++ "/PGE-Hs.pbc") $ parrot_readbc interp
     parrot_loadbc interp pf
     parrot_runcode interp 0 nullPtr
     loadPGE interp path

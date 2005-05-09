@@ -780,7 +780,8 @@ op2 other = \_ _ -> fail ("Unimplemented binaryOp: " ++ other)
 
 data VMatch
     = PGE_Match !Int !Int ![VMatch] ![(String, VMatch)]
-    | PGE_MatchFail
+    | PGE_Array ![VMatch]
+    | PGE_Fail
     deriving (Show, Eq, Ord, Read)
 
 instance RegexLike VRegex Char where
