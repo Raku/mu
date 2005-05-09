@@ -778,7 +778,9 @@ op2 op | "»" `isPrefixOf` op = op2Hyper . init . init . drop 2 $ op
 op2 ('>':'>':op) = op2Hyper . init . init $ op
 op2 other = \_ _ -> fail ("Unimplemented binaryOp: " ++ other)
 
-data PGE = PGE_Match !Int !Int ![PGE] ![(String, PGE)]
+data VMatch
+    = PGE_Match !Int !Int ![VMatch] ![(String, VMatch)]
+    | PGE_MatchFail
     deriving (Show, Eq, Ord, Read)
 
 instance RegexLike VRegex Char where
@@ -791,10 +793,10 @@ instance RegexLike VRegex Char where
         pge <- evalPGE pwd cs re
         rv <- readIO pge `catch` (const $ fail ("Cannot parse PGE: " ++ pge))
         return $ case rv of
-            Just (PGE_Match from to pos _) -> Just $
+            PGE_Match from to pos _ -> Just $
                 listArray (0, length pos)
                     ((from, to) : [ (f, t) | PGE_Match f t _ _ <- pos ])
-            Nothing -> Nothing
+            _ -> Nothing
     matchShow (MkRegexPCRE _) = "PCRE Regex"
     matchShow (MkRegexPGE _)  = "PGE Regex"
 
