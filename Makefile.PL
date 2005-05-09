@@ -55,8 +55,10 @@ sign            (1);
 WritePugs       (5);
 
 print << ".";
+
 *** Enter '$Config{make}' to build Pugs.  If compilation is too slow,
     consider using '$Config{make} unoptimized' instead.
+
 .
 
 ################################################################################
@@ -133,6 +135,16 @@ sub set_postamble {
 
         # parrot include paths for hsc2hs
         $hsc2hs_flags .= " -DPUGS_HAVE_PARROT -I$base/include ";
+    }
+    else {
+    warn << '.';
+
+*** Parrot linking disabled; external 'parrot' executable will be used for
+    Rules support.  If you want to link against Parrot, set the PUGS_EMBED
+    environment variable to 'parrot', the PARROT_PATH environment variable
+    to the path of a built parrot source tree, then run Makefile.PL again.
+
+.
     }
 
     $hsc2hs_flags .= " -Isrc/syck "; # for Data.Yaml
