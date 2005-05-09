@@ -115,7 +115,7 @@ data VMatch
     = PGE_Match !VInt !VInt !VStr ![VMatch] ![(VStr, VMatch)]
     | PGE_Array ![VMatch]
     | PGE_Fail
-    deriving (Show, Eq, Ord, Read)
+    deriving (Show, Eq, Ord, Read, Typeable)
 
 -- |Representation for rules (i.e. regexes). Currently consists of a
 -- "RRegex" 'Regex', and a boolean flag indicating whether the rule has

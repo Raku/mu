@@ -166,6 +166,11 @@ instance Value (IVar VScalar) where
     fromVal (VRef r) = fromVal =<< readRef r
     fromVal v = return $ constScalar v
 
+instance Value VMatch where
+    fromVal (VMatch m) = return m
+    fromVal (VRef r) = fromVal =<< readRef r
+    fromVal v = castFail v
+
 instance Value VRef where
     fromVal v = return (vCast v)
     vCast (VRef r)   = r
@@ -346,6 +351,16 @@ valToStr = fromVal
 matchNum (PGE_Match _ _ _ _ _) = 1
 matchNum (PGE_Array ms) = genericLength ms
 matchNum PGE_Fail = 0
+
+matchFrom (PGE_Match f _ _ _ _) = VInt f
+matchFrom (PGE_Array []) = undef
+matchFrom (PGE_Array ms) = matchFrom (head ms)
+matchFrom PGE_Fail = undef
+
+matchTo (PGE_Match _ t _ _ _) = VInt t
+matchTo (PGE_Array []) = undef
+matchTo (PGE_Array ms) = matchTo (last ms)
+matchTo PGE_Fail = undef
 
 matchStr (PGE_Match _ _ s _ _) = s
 matchStr (PGE_Array ms) = concatMap matchStr ms

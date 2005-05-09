@@ -122,6 +122,7 @@ initTree = fmap MkType $ Node "Any" [ Node "Void"
                         [ Node "Parametric" [] ] ]
                 ]
             , Node "Rule" []
+            , Node "Match" []
             , Node "Junction" []
             , Node "Scalar::Const" []
             , Node "Scalar::Proxy" []

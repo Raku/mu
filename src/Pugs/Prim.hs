@@ -422,6 +422,9 @@ op1 "hex"   = op1Cast (VInt . read . ("0x"++))
 op1 "log"   = op1Cast (VNum . log)
 op1 "log10" = op1Cast (VNum . logBase 10)
 op1 "mkType" = return . op1mkType . vCast
+op1 "from"  = op1Cast matchFrom
+op1 "to"    = op1Cast matchTo
+op1 "matches" = op1Cast (VList . map VMatch . matchList)
 op1 other   = \_ -> fail ("Unimplemented unaryOp: " ++ other)
 
 -- op1mkType :: VStr -> Eval VStr
@@ -848,6 +851,22 @@ op2Match x (VRule rx@MkRulePCRE{ rxGlobal = True }) = do
             Just mr -> do
                 rest <- doMatch $ mrAfter mr
                 return $ (tail $ elems (mrSubs mr)) ++ rest
+
+op2Match x (VRule rx@MkRulePGE{ rxGlobal = True }) = do
+    str     <- fromVal x
+    rv      <- doMatch str
+    ifListContext
+        (return . VList $ map VMatch rv)
+        (return . VInt $ genericLength rv)
+    where
+    doMatch str = do
+        match <- str `matchPGE` rxRule rx
+        case match of
+            PGE_Fail        -> return []
+            PGE_Array ms    -> return ms -- XXX impossible
+            PGE_Match _ to _ ms _ -> do
+                rest <- doMatch $ genericDrop (to - 1) str
+                return $ ms ++ rest
 
 op2Match x (VRule rx@MkRulePGE{ rxGlobal = False }) = do
     str     <- fromVal x
@@ -1669,6 +1688,9 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Str       pre     chr     (?Int=$_)\
 \\n   Int       pre     ord     (?Str=$_)\
 \\n   Str       pre     hex     (?Str=$_)\
+\\n   Int       pre     from    (Match)\
+\\n   Int       pre     to      (Match)\
+\\n   List      pre     matches (Match)\
 \\n   Str       pre     hex     (Int)\
 \\n   Num       pre     log     (Int)\
 \\n   Num       pre     log     (Num)\
