@@ -117,7 +117,7 @@ prepareEnv name args = do
 getLibs :: IO [String]
 getLibs = do
     args    <- getArgs
-    p6lib   <- tryIO "" (getEnv "PERL6LIB")
+    p6lib   <- (getEnv "PERL6LIB") >>= (return . (fromMaybe ""))
     return $ filter (not . null) (libs p6lib $ canonicalArgs args)
     where
     -- broken, need real parser

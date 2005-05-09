@@ -80,7 +80,7 @@ instance HashClass IHashEnv where
         return . Map.map VStr $ Map.fromList envs
     hash_fetchVal _ key = tryIO undef $ do
         str <- getEnv key
-        return $ VStr str
+        return $ fromMaybe VUndef (fmap VStr str)
     hash_storeVal _ key val = do
         str <- fromVal val
         liftIO $ setEnv key str True
