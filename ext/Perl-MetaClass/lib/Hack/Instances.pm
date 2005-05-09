@@ -9,13 +9,13 @@ my %INSTANCES;
 
 sub make_instance($class) returns Instance is export {
     my $id;
-    $id = "OBJECT;$class;" _ substr(rand() ~ "", 2, 15)
-	until not exists %INSTANCES<$id>;
+    $id = "OBJECT;$class;" ~ substr(rand() ~ "", 2, 15)
+    	until not exists %INSTANCES<$id>;
 }
 
 sub make_class($class) is export {
     eval "subtype $class of Instance where \{ "
-	_ '$^str ~~ qx:perl5/^OBJECT;' _ $class _ ';/ \}';
+	~ '$^str ~~ qx:perl5/^OBJECT;' ~ $class ~ ';/ \}';
 }
 
 sub get_instance(Instance $inst) returns Hash is export {

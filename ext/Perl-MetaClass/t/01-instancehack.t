@@ -25,7 +25,7 @@ eval_ok '
   sub counter(My::Class $inv:) returns Int {
     my $self = get_instance($inv);
 
-    return ++$self->{value};
+    return ++$self<value>;
   }
 ';
 
