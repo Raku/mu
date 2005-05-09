@@ -78,7 +78,7 @@ import RRegex.Syntax
 import Data.Dynamic
 import Data.Array (elems)
 import Network
-import System.Environment (getArgs, withArgs, getProgName, getEnv)
+import System.Environment (getArgs, withArgs, getProgName)
 import System.Random hiding (split)
 import System.Exit
 import System.Time
@@ -130,7 +130,7 @@ instance Ord (a -> b) where
     compare _ _ = LT
 
 internalError :: String -> a
-internalError s = error $ 
+internalError s = error $
     "Internal error:\n    " ++ s ++ "\nPlease file a bug report."
 
 split :: (Eq a) => [a] -> [a] -> [[a]]

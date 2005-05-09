@@ -13,7 +13,7 @@ sub flatten (Any|Junction $x) {
 }
 
 my @t_good = map &flatten, (
-  '-C'
+  any('-C')
     ~ any('Pugs')
     ~ ' '
     ~ any('-e1', map( {"examples/$_.p6"}<

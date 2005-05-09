@@ -5,11 +5,11 @@
 use v6;
 use Test;
 
-plan 9;
+plan 10;
 
 =kwid
 
-= DESCRIPTION 
+= DESCRIPTION
 
 Tests for %*ENV
 
@@ -33,8 +33,10 @@ ok %*ENV<PATH> ne "42",
 
 # Similarily, I don't think creating a new entry in %vars should affect the
 # environment:
+diag '%*ENV<PUGS_ROCKS>=' ~ %*ENV<PUGS_ROCKS>;
 ok !defined(%*ENV<PUGS_ROCKS>), "there's no env variable 'PUGS_ROCKS'";
 %vars<PUGS_ROCKS> = "42";
+diag '%*ENV<PUGS_ROCKS>=' ~ %*ENV<PUGS_ROCKS>;
 ok !defined(%*ENV<PUGS_ROCKS>), "there's still no env variable 'PUGS_ROCKS'";
 
 my ($pugs,$redir,$squo) = ("./pugs", ">", "'");
@@ -47,7 +49,7 @@ my $expected = 'Hello from subprocess';
 %*ENV<PUGS_ROCKS> = $expected;
 # Note that the "?" preceeding the "(" is necessary, because we need a Bool,
 # not a junction of Bools.
-is %*ENV<PUGS_ROCKS>, $expected,'%*ENV is rw', "todo" => ?($*OS eq any<MSWin32 mingw msys cygwin>);
+is %*ENV<PUGS_ROCKS>, $expected,'%*ENV is rw';
 
 my $tempfile = "temp-ex-output." ~ $*PID ~ "." ~ rand 1000;
 
@@ -69,17 +71,14 @@ for %*ENV.kv -> $k,$v {
     diag "Expected: $k=$v";
     diag "Got:      $k=%child_env{$k}";
   } else {
-    diag "$k=$v";
+    # diag "$k=$v";
   };
 };
 if (! $err) {
   ok(1,"Environment gets propagated to child.");
 };
 
-skip 2, 'Deleting items from %*ENV does not work yet';
-exit;
-
-delete %*ENV<PUGS_ROCKS>;
+%*ENV.delete('PUGS_ROCKS');
 is(%*ENV<PUGS_ROCKS>,undef,'We can remove keys from %*ENV');
 
 my $command = qq!$pugs -e "\%*ENV.perl.say" $redir $tempfile!;
@@ -89,6 +88,8 @@ system $command;
 my $child_env = slurp $tempfile;
 my %child_env = eval $child_env;
 unlink $tempfile;
+
+is(%child_env<PUGS_ROCKS>,undef,'The child did not see %*ENV<PUGS_ROCKS>');
 
 my $err = 0;
 for %*ENV.kv -> $k,$v {
@@ -100,7 +101,7 @@ for %*ENV.kv -> $k,$v {
     diag "Expected: $k=$v";
     diag "Got:      $k=%child_env{$k}";
   } else {
-    diag "$k=$v";
+    # diag "$k=$v";
   };
 };
 if (! $err) {

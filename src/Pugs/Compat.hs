@@ -30,6 +30,7 @@ module Pugs.Compat (
     getRealGroupID,
     getEffectiveGroupID,
     setEnv,
+    getEnv,
     unsetEnv,
     signalProcess,
     executeFile,
@@ -59,26 +60,45 @@ signalProcess = System.Posix.Signals.signalProcess
 #else
 
 import Debug.Trace
-import System.Environment
+-- import System.Environment
+import qualified System.Environment
 import IO
 import System.IO
 import Foreign.C.String
+import Foreign.Ptr
 
 failWith s = fail $ "'" ++ s ++ "' not implemented on this platform."
 warnWith s = trace ("'" ++ s ++ "' not implemented on this platform.") $ return ()
 
--- setEnv :: String -> String -> Bool -> IO ()
-foreign import stdcall "SetEnvironmentVariableW" win32SetEnv :: CWString -> CWString -> IO ()
+-- This should all be moved into Compat.Win32, once we go that route
+
+foreign import stdcall unsafe "SetEnvironmentVariableW" win32SetEnv :: CWString -> CWString -> IO ()
+foreign import stdcall unsafe "GetEnvironmentVariableW" win32GetEnv :: CWString -> CWString -> Int -> IO Int
+-- also implement/redefine getEnvironment as GetEnvironmentStrings
 
 setEnv :: String -> String -> Bool -> IO ()
 setEnv k v _ = withCWString k $ \ key ->
                withCWString v $ \ value -> do
-                 -- rc <- trace ("Setting " ++ k ++ "=" ++ v) win32SetEnv key value
                  rc <- win32SetEnv key value
                  return $ rc
 
+getEnv :: String -> IO String
+getEnv k = withCWString k $ \ key ->
+           withCWString (replicate size ' ') $ \ buf -> do
+             rc <- win32GetEnv key buf size
+             if rc > 0
+               then peekCWString buf
+               else ioError $ userError "environment variable does not exist"
+             where
+             size = 32768
+             -- b = mallocForeignPtrBytes size
+
 unsetEnv :: String -> IO ()
-unsetEnv _ = warnWith "unsetEnv"
+unsetEnv k = withCWString k $ \ key -> withCWString "" $ \ v -> do
+               win32SetEnv key v
+-- #unsetEnv _ = warnWith "unsetEnv"
+
+getEnvironment = System.Environment.getEnvironment
 
 createLink :: FilePath -> FilePath -> IO ()
 createLink _ _ = warnWith "link"
