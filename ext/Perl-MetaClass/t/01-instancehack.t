@@ -5,15 +5,9 @@
 use v6;
 use Test;
 
-plan 5;
+plan 6;
 
 use_ok('Hack::Instances');
-
-#make_class("My::Class");
-
-#sub counter(Str $inv) returns Int {
-#    return -1;
-#}
 
 eval_ok '
   module My::Class;
@@ -31,12 +25,14 @@ eval_ok '
     return $value;
   };
 1;
-';
+', '... our "Class" compiled ok';
 
 my $object1 = My::Class::new();
 my $object2 = My::Class::new();
 
-is($object1.counter(), 4, ".counter()");
-is($object2.counter(), 4, ".counter()");
-is($object1.counter(), 5, ".counter()");
+is($object1.counter(), 4, '... $object1.counter() == 4');
+is($object2.counter(), 4, '... $object2.counter() == 4');
+is($object1.counter(), 5, '... $object1.counter() == 5');
+
+dies_ok { 'Not an Instance'.count() }, '... check for correct errors';
 
