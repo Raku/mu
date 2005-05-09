@@ -1125,6 +1125,7 @@ ruleLit = choice
     , yadaLiteral
     , qLiteral
     , rxLiteral
+    , rxLiteralBare
     , substLiteral
     ]
 
@@ -1467,6 +1468,12 @@ rxLiteral = try $ do
     ch      <- anyChar
     expr    <- rxLiteral1 $ balancedDelim ch
     return $ Syn "rx" [expr, adverbs]
+
+rxLiteralBare :: RuleParser Exp
+rxLiteralBare = try $ do
+    ch      <- char '/'
+    expr    <- rxLiteral1 $ balancedDelim ch
+    return $ Syn "rx" [expr, Val undef]
 
 namedLiteral :: String -> Val -> RuleParser Exp
 namedLiteral n v = do { symbol n; return $ Val v }
