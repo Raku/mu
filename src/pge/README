@@ -1,0 +1,143 @@
+=head1 Parrot Grammar Engine (PGE)
+
+This is the second implementation of a regular expression/rules/grammar
+engine designed to run in Parrot.  It's still a work in progress, and
+some parts of the impelementation are designed simply to "bootstrap" 
+us along (i.e., some parts such as the parser and generator are 
+expected to be discarded).  The current work is also largely incomplete 
+-- although it has support for groups (capturing and non-capturing), 
+quantifiers, alterations, etc., many of the standard assertions and 
+character classes are not implemented yet but will be coming soon.
+
+The previous version of PGE used a C-based parser and generator,
+but after the capture semantics were redesigned (Winter 2005) Pm
+decided that it would be better to just write the parser and generator
+in Parrot.  Thus, the current version.
+
+In addition we'll be looking at writing a parser and compiler for
+Perl *5* regular expressions, but the focus for the time being is
+(obviously) on Perl 6.
+
+=head1 Installation
+
+PGE assumes that it is part of the parrot distribution in the 
+F<compilers/pge> directory.   Simply type C<make> in this directory
+to build the various *.pbc files and install them into
+runtime/parrot/library.  
+
+The distribution comes with a small F<demo.pir> program that gives an
+example of using PGE.  To run the demo, simply do 
+C<parrot demo.pir>.  The demo understands the following commands:
+
+    rule pattern      - compile a Perl 6 rule from "pattern"
+    save name         - save the current rule as "name"
+    text              - a text string to match against previously entered rule
+    pir               - display the PIR cod generated for current rule
+    exp               - display the expression tree for the current rule
+    trace             - toggle pattern execution tracing
+    next              - repeat last match on target string
+
+=head1 Using PGE
+
+Once PGE is compiled and installed, you generally load it using
+the load_bytecode operation, as in
+
+    load_bytecode "runtime/parrot/library/PGE.pbc"          
+
+This imports the C<PGE::p6rule> subroutine, which can be used to
+compile Perl 6 rules.  A sample compile sequence would be:
+
+    .local pmc p6rule_compile
+    find_global p6rule_compile, "PGE", "p6rule"    # get the compiler
+
+    .local string pattern       
+    .local pmc rulesub                     
+    pattern = "^(From|Subject):"                   # pattern to compile
+    rulesub = p6rule_compile(pattern)              # compile it to rulesub
+
+Then, to match a target string we simply call the subroutine
+to get back a C<PGE::Match> object:
+
+    .local pmc match
+    $S0 = "From: pmichaud@pobox.com"               # target string
+    match = rulesub($S0)                           # execute rule
+
+The Match object is true if it successfully matched, and contains
+the strings and subpatterns that were matched as part of the capture.
+The C<dump> method can be used to quickly view the results of
+the match:
+
+  match_loop:
+    unless match goto match_fail                   # if match fails stop
+    print "match succeeded\n"
+    match."dump"()                                 # display matches
+    match."next"()                                 # find the next match
+    goto match_loop
+
+  match_fail:
+    print "match failed\n"            
+
+One can also get the intermediate PIR code that PGE generates for
+the rule subroutine -- just use
+
+    (rulesub, $S0) = p6rule_compiler(target)
+
+and you can print/inspect the contents of $S0 to see the generated code.
+
+=head1 Known Limitations
+
+Since the Parrot rewrite, PGE knows and uses as much of Unicode strings
+as Parrot does.  
+
+Some backslashes aren't implemented yet, although the major ones
+are (\d, \s, \n, \D, \S, \N).
+
+PGE doesn't (yet) properly handle nested repetitions of zero-length 
+patterns in groups -- that's coming next.
+
+This is just the first-cut framework for building the 
+remainder of the engine, so many items (lookaround, 
+conjunctions, closures, character classes, and hypotheticals)
+just aren't implemented yet.  They're on their way!
+
+Also, many well-known optimizations (e.g., Boyer-Moore) aren't 
+implemented yet -- my primary goals at this point are to
+"release early, often" and to get sufficient features in place so
+that more people can be testing and building upon the engine.
+
+Lastly, error handling needs to be improved, but this will likely
+be decided as we discover how PGE integrates with the rest of
+Parrot.
+
+=head1 Implementation notes
+
+Basically, PGE is a compiler just like any other, except that its
+"language" is the Perl 6 rules syntax and its output is a subroutine
+that can match strings.  So, PGE consists of a series of parsers
+(for each pattern matching language), an intermediate expression
+format, and a code generator.
+
+The generated code uses bsr/ret for its internal subroutine calls
+(also optimized for tailcalls) and then uses Parrot calling 
+conventions for all interfaces with external callers/callees.
+This should give some performance improvements.
+
+PGE also uses Parrot coroutines for the matching
+engine, so that after a successful match is found, the 
+next match within the same string can be found by simply 
+returning control to the matching coroutine (which then
+picks up from where it had previously left off until
+another match is discovered).
+
+The code still needs a fair amount of commenting.  In general,
+if you have a question about a particular section of code,
+send Pm an email and he'll write the comments for it.
+
+=head1 AUTHOR
+
+Patrick Michaud (pmichaud@pobox.com) is the author and maintainer.
+Patches and suggestions should be sent to the Perl 6 compiler list
+(perl6-compiler@perl.org).
+
+=cut
+
