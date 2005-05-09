@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts #-}
+{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans #-}
 {-# OPTIONS_GHC -#include "UnicodeC.h" #-}
 
 {-|
@@ -14,11 +14,13 @@ module Pugs.Prim where
 import Pugs.Internals
 import Pugs.Junc
 import Pugs.AST
+import Pugs.Config
 import Pugs.Types
 import Pugs.Pretty
 import Pugs.Parser
 import Pugs.External
 import Text.Printf
+import Data.Array
 import Data.Yaml.Syck
 import qualified Data.Set as Set
 import qualified Data.Map as Map
@@ -771,6 +773,25 @@ op2 "print" = \x (VList ys) -> op1Print hPutStr (VList (x:ys))
 op2 op | "»" `isPrefixOf` op = op2Hyper . init . init . drop 2 $ op
 op2 ('>':'>':op) = op2Hyper . init . init $ op
 op2 other = \_ _ -> fail ("Unimplemented binaryOp: " ++ other)
+
+instance RegexLike VRegex Char where
+    matchOnce (MkRegexPCRE re) cs bol = matchOnce re cs bol
+    matchOnce (MkRegexPGE re) cs _ = unsafePerformIO $ do
+        let pwd1 = getConfig "installarchlib" ++ "/CORE/pugs/pge"
+            pwd2 = getConfig "sourcedir" ++ "/src/pge"
+        hasSrc <- doesDirectoryExist pwd2
+        let pwd = if hasSrc then pwd2 else pwd1
+        (_, out, err, pid) <- runInteractiveProcess "parrot"
+            ["run_pge.imc", cs, re] (Just pwd) Nothing 
+        rv      <- waitForProcess pid
+        errMsg  <- hGetContents err
+        case (errMsg, rv) of
+            ("", ExitSuccess) -> do
+                fmap (fmap $ uncurry listArray) $ readIO =<< hGetContents out
+            ("", _) -> fail $ "*** Running external 'parrot' failed:\n" ++ show rv
+            _       -> fail $ "*** Running external 'parrot' failed:\n" ++ errMsg
+    matchShow (MkRegexPCRE _) = "PCRE Regex"
+    matchShow (MkRegexPGE _)  = "PGE Regex"
 
 -- XXX - need to generalise this
 op2Match :: Val -> Val -> Eval Val

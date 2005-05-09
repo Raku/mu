@@ -111,12 +111,17 @@ data VThread a = MkThread
     }
     deriving (Show, Eq, Ord, Typeable)
 
+data VRegex
+    = MkRegexPCRE !Regex
+    | MkRegexPGE !String
+    deriving (Show, Eq, Ord, Typeable)
+    
 -- |Representation for rules (i.e. regexes). Currently consists of a
 -- "RRegex" 'Regex', and a boolean flag indicating whether the rule has
 -- \'global\' semantics (Perl5's \/g), i.e. whether it matches all occurences
 -- or just the first.
 data VRule     = MkRule
-    { rxRegex     :: !Regex -- ^ The \'regular\' expression
+    { rxRegex     :: !VRegex -- ^ The \'regular\' expression
     , rxGlobal    :: !Bool  -- ^ Flag indicating \'global\' (match-all)
     }
     deriving (Show, Eq, Ord, Typeable)
@@ -133,3 +138,4 @@ instance Eq (TMVar a) where
     _ == _ = True
 instance Show (TMVar a) where
     show _ = "<tmvar>"
+
