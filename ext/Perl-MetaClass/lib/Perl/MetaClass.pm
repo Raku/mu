@@ -5,8 +5,8 @@ module Perl::MetaClass-0.0.1;
 use Hack::Instances;
 
 use Perl::MetaProperty;
-#use Perl::MetaMethod;
-#use Perl::MetaAssoc;
+use Perl::MetaMethod;
+use Perl::MetaAssoc;
 
 sub Perl::MetaClass::new(Str $name) returns Str is export {
     my $id = make_instance("Perl::MetaClass", { 
@@ -112,10 +112,23 @@ Perl::MetaClass - A meta-model for Perl Classes
 
 =head1 SYNOPSIS
   
-  my $superclass = Perl::MetaClass::new('Foo');
-  my $class = Perl::MetaClass::new('Foo::Bar');  
+  #         Package
+  #          |
+  #    +-----+----+
+  #    |          |
+  #  Module      Role
+  #               |
+  #             Class
   
-  $class.clsSuperClass($superclass);
+  my $package = Perl::MetaClass::new('Package');
+  my $role = Perl::MetaClass::new('Role');  
+  my $module = Perl::MetaClass::new('Module');    
+  
+  $role.clsSuperClass($package);
+  $module.clsSuperClass($package);  
+  
+  my $class = Perl::MetaClass::new('Class');  
+  $class.clsSuperClass($role);  
 
 =head1 DESCRIPTION
 

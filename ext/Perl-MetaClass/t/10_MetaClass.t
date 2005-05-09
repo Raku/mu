@@ -10,31 +10,29 @@ use_ok('Perl::MetaProperty');
 # This test attempts to model the following class.
 # --------------------------------------------------------------
 #
-#           Bar           <- Super Class
+#         Package        <- Super-MetaClass
 #            |
-#           Foo           <- Class
+#          Role          <- MetaClass
 #            |
-#    [ .prop1 .prop2 ]    <- Properties
+#    [ .prop1 .prop2 ]   <- Properties
 #            |
-#   [ method1 method2 ]   <- Methods
+#   [ method1 method2 ]  <- Methods
 #            |
-#      +-----+----+
-#      |          |
-#   Foo::Bar   Bar::Baz   <- SubClasses
+#          Class         <- SubClasses
 #
 # --------------------------------------------------------------
 
-my $class = Perl::MetaClass::new('Foo');
+my $class = Perl::MetaClass::new('Role');
 
-is($class.clsName(), 'Foo', '... we got the right class name');
+is($class.clsName(), 'Role', '... we got the right class name');
 
 # Super Class
 
-my $superclass = Perl::MetaClass::new('Bar');
+my $superclass = Perl::MetaClass::new('Package');
 
 is($class.clsSuper(), undef, '... we do not have a superclass');
 $class.clsSuper($superclass);
-is($class.clsSuper().clsName(), 'Bar', '... we now have a superclass');
+is($class.clsSuper().clsName(), 'Package', '... we now have a superclass');
 
 # Sub Classes
 
@@ -43,23 +41,13 @@ is($class.clsSuper().clsName(), 'Bar', '... we now have a superclass');
     is(+@subclasses, 0, '... no subclasses yet');
 }
 
-my $subclass1 = Perl::MetaClass::new('Foo::Bar');
+my $subclass1 = Perl::MetaClass::new('Class');
 $subclass1.clsSuper($class);
 
 {
     my @subclasses = $class.clsSubClasses();
     is(+@subclasses, 1, '... we have 1 subclasses now');
     is(@subclasses[0].clsName(), 'Foo::Bar', '... this is our first subclass');
-}
-
-my $subclass2 = Perl::MetaClass::new('Bar::Baz');
-$subclass2.clsSuper($class);
-
-{
-    my @subclasses = $class.clsSubClasses();
-    is(+@subclasses, 2, '... we have 2 subclasses now');
-    is(@subclasses[0].clsName(), 'Foo::Bar', '... this is our first subclass');
-    is(@subclasses[1].clsName(), 'Bar::Baz', '... this is our second subclass');    
 }
 
 # Properties
