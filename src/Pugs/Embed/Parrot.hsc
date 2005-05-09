@@ -3,12 +3,47 @@
 
 module Pugs.Embed.Parrot where
 import Data.IORef
+import System.Cmd
+import System.Process
+import System.Directory
+import System.IO
+import System.Exit
+import Data.Maybe
+import Control.Monad
+
+findParrot :: IO FilePath
+findParrot = do
+    rv <- findExecutable "parrot"
+    case rv of
+        Nothing     -> fail "Cannot find the parrot executable in PATH"
+        Just cmd    -> return cmd
 
 evalParrotFile :: FilePath -> IO ()
-evalParrotFile _ = fail "need parrot for eval_parrot"
+evalParrotFile file = do
+    cmd <- findParrot
+    rawSystem cmd [file]
+    return ()
 
 evalParrot :: String -> IO ()
-evalParrot _ = fail "need parrot for eval_parrot"
+evalParrot str = do
+    tmp <- getTemporaryDirectory
+    (file, fh) <- openTempFile tmp "pugs.imc"
+    hPutStr fh str
+    hClose fh
+    evalParrotFile file
+    removeFile file
+
+evalPGE :: FilePath -> String -> String -> IO String
+evalPGE path str pattern = do
+    cmd <- findParrot
+    (_, out, err, pid) <- runInteractiveProcess cmd
+        ["run_pge.pbc", str, pattern] (Just path) Nothing 
+    rv      <- waitForProcess pid
+    errMsg  <- hGetContents err
+    case (errMsg, rv) of
+        ("", ExitSuccess) -> hGetContents out
+        ("", _) -> fail $ "*** Running external 'parrot' failed:\n" ++ show rv
+        _       -> fail $ "*** Running external 'parrot' failed:\n" ++ errMsg
 
 _DoCompile :: Maybe (IORef (String -> FilePath -> String -> IO String))
 _DoCompile = Nothing
@@ -16,6 +51,11 @@ _DoCompile = Nothing
 #else
 {-# OPTIONS_GHC -#include "parrot/embed.h" #-}
 {-# OPTIONS_GHC -#include "parrot/extend.h" #-}
+
+#include <parrot/packfile.h>
+#include <parrot/interpreter.h>
+#include <parrot/register.h>
+#include <parrot/string_funcs.h>
 
 module Pugs.Embed.Parrot where
 
@@ -27,7 +67,7 @@ import Foreign.Storable
 import System.IO.Unsafe
 
 type ParrotString               = Ptr ()
-type ParrotInterp               = Ptr ()
+type ParrotInterp               = Ptr (Ptr ())
 type ParrotPackFile             = Ptr ()
 type ParrotPackFileByteCode     = Ptr ()
 type ParrotPackFileDirectory    = Ptr ()
@@ -65,6 +105,28 @@ initParrot = do
     parrot_loadbc interp pf
     return interp
 
+loadPGE :: ParrotInterp -> FilePath -> IO ParrotPMC
+loadPGE interp path = do
+    ns      <- withCString "PGE::Hs" $ const_string interp
+    sym     <- withCString "match" $ const_string interp
+    sub     <- parrot_find_global interp ns sym
+    if sub /= nullPtr then return sub else do
+    pf      <- withCString (path ++ "/PGE.pbc") $ parrot_readbc interp
+    parrot_loadbc interp pf
+    parrot_runcode interp 0 nullPtr
+    loadPGE interp path
+
+evalPGE :: FilePath -> String -> String -> IO String
+evalPGE path str pattern = do
+    interp  <- initParrot
+    sub     <- loadPGE interp path
+    s1      <- withCString str $ const_string interp
+    s2      <- withCString pattern $ const_string interp
+    withCString "SSS" $ \sig -> do
+        parrot_call_sub_SSS interp sub sig s1 s2
+    s5      <- parrot_get_strreg interp 5
+    peekCString =<< #{peek STRING, strstart} s5
+
 evalParrotFile :: FilePath -> IO ()
 evalParrotFile file = do
     interp  <- initParrot
@@ -76,8 +138,8 @@ evalParrot :: String -> IO ()
 evalParrot code = do
     interp  <- initParrot
     sub     <- withCString code $ \p -> do
-        parrot_imcc_compile_pir interp p 0
-    withCString "vv" $ parrot_call_sub interp sub
+        parrot_imcc_compile_pir interp p
+    withCString "vv" $ parrot_call_sub_vv interp sub
 
 compileToParrot :: ParrotInterp -> CString -> IO ParrotPMC
 compileToParrot interp cstr = do
@@ -86,7 +148,7 @@ compileToParrot interp cstr = do
         Nothing     -> error "unregistered?"
     code        <- doCompile "Parrot" "-" =<< peekCString cstr
     withCString code $ \p -> do
-        parrot_imcc_compile_pir interp p 0
+        parrot_imcc_compile_pir interp p
 
 foreign import ccall "wrapper"  
     mkCompileCallback :: ParrotCompilerFunc -> IO (FunPtr ParrotCompilerFunc)
@@ -125,18 +187,29 @@ foreign import ccall "Parrot_compreg"
     parrot_compreg :: ParrotInterp -> ParrotString -> FunPtr ParrotCompilerFunc -> IO ()
 
 foreign import ccall "Parrot_call_sub"
-    parrot_call_sub :: ParrotInterp -> ParrotPMC -> CString -> IO ()
+    parrot_call_sub_vv :: ParrotInterp -> ParrotPMC -> CString -> IO ()
+
+foreign import ccall "Parrot_call_sub"
+    parrot_call_sub_SSS :: ParrotInterp -> ParrotPMC -> CString -> ParrotString -> ParrotString -> IO ()
 
 foreign import ccall "const_string"
     const_string :: ParrotInterp -> CString -> IO ParrotString
+
+foreign import ccall "Parrot_find_global"
+    parrot_find_global :: ParrotInterp -> ParrotString -> ParrotString -> IO ParrotPMC
+
+foreign import ccall "Parrot_get_strreg"
+    parrot_get_strreg :: ParrotInterp -> CInt -> IO ParrotString
 
 foreign import ccall "imcc_init"
     parrot_imcc_init :: ParrotInterp -> IO ()
 
 foreign import ccall "imcc_compile_pir"
-    parrot_imcc_compile_pir :: ParrotInterp -> CString -> CInt -> IO ParrotPMC
+    parrot_imcc_compile_pir :: ParrotInterp -> CString -> IO ParrotPMC
 
-#include <parrot/packfile.h>
+#def void imcc_init(Parrot_Interp interpreter)
+#def PMC * imcc_compile_pir(Parrot_Interp interp, const char *s)
+
 get_pf_directory :: ParrotPackFile -> IO ParrotPackFileByteCode
 get_pf_directory = #peek struct PackFile, directory
 

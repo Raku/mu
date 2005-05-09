@@ -785,15 +785,8 @@ instance RegexLike VRegex Char where
             pwd2 = getConfig "sourcedir" ++ "/src/pge"
         hasSrc <- doesDirectoryExist pwd2
         let pwd = if hasSrc then pwd2 else pwd1
-        (_, out, err, pid) <- runInteractiveProcess "parrot"
-            ["run_pge.imc", cs, re] (Just pwd) Nothing 
-        rv      <- waitForProcess pid
-        errMsg  <- hGetContents err
-        case (errMsg, rv) of
-            ("", ExitSuccess) -> do
-                fmap (fmap $ uncurry listArray) $ readIO =<< hGetContents out
-            ("", _) -> fail $ "*** Running external 'parrot' failed:\n" ++ show rv
-            _       -> fail $ "*** Running external 'parrot' failed:\n" ++ errMsg
+        out <- evalPGE pwd cs re
+        fmap (fmap $ uncurry listArray) $ readIO out
     matchShow (MkRegexPCRE _) = "PCRE Regex"
     matchShow (MkRegexPGE _)  = "PGE Regex"
 
