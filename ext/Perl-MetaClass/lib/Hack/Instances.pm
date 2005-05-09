@@ -13,16 +13,19 @@ sub make_instance($class, $obj is rw) returns Str is export {
     return $id;
 }
 
-sub get_instance(Str $inst) is export {
-    die "The instance '$inst' is not a valid instance (key not found)" 
-        unless %INSTANCES.exists($inst);
+sub get_instance(Str $inst, Str ?$class) is export {
+    (%INSTANCES.exists($inst))
+        || die "The instance '$inst' is not a valid instance (key not found)";
+    ($inst.instance_isa($class))        
+        || die "The instance '$inst' is not of class '$class'"
+            if $class.defined;
     my $self := %INSTANCES{$inst};
     return $self;
 }
 
 sub instance_isa(Str $inst: Str $class) is export {
-    die "The instance '$inst' is not a valid instance (key not found)" 
-        unless %INSTANCES.exists($inst);
+    (%INSTANCES.exists($inst))
+        || die "The instance '$inst' is not a valid instance (key not found)";
     my (undef, $inv_class, undef) = split(';', $inst);
     return ($inv_class eq $class);
 }
@@ -35,6 +38,8 @@ Hack::Instances - An abstraction of inside-out classes
 
 =head1 SYNOPSIS
 
+  module My::Class;
+
   use Hack::Instance;
 
   sub My::Class::new returns Str is export {
@@ -43,7 +48,7 @@ Hack::Instances - An abstraction of inside-out classes
   }
 
   sub counter(Str $inv:) returns Int {
-      my $self = get_instance($inv);
+      my $self = get_instance($inv, "My::Class");
       my $value = ++$self<value>;
       return $value;
   }
@@ -90,13 +95,16 @@ This function then returns a string which is the key into our global
 C<%INSTNACES> hash. The string constructed is a unique identifier for our
 object.
 
-=item B<get_instance (Str $inst)>
+=item B<get_instance (Str $inst, Str ?$class)>
 
 Given the string key C<$inst>, this function will return the instance stored in
 our global C<%INSTANCES> hash.
 
 If the Str C<$inst> is not found in our global C<%INSTANCES> hash, an exception
 is thrown.
+
+There is an optional C<$class> parameter, which can be used to make sure that the 
+C<$inst> is actually of the right class.
 
 =item B<instance_isa (Str $inv: Str $class)>
 
