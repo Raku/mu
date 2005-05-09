@@ -796,8 +796,12 @@ instance RegexLike VRegex Char where
         return $ case rv of
             PGE_Match from to pos _ -> Just $
                 listArray (0, length pos)
-                    ((from, to) : [ (f, t) | PGE_Match f t _ _ <- pos ])
+                    ((from, to) : map unroll pos)
             _ -> Nothing
+        where
+        unroll (PGE_Match from to _ _) = (from, to)
+        unroll (PGE_Array ms@(m:_)) = (fst (unroll m), snd (unroll (last ms)))
+        unroll _ = (0, 0)
     matchShow (MkRegexPCRE _) = "PCRE Regex"
     matchShow (MkRegexPGE _)  = "PGE Regex"
 
