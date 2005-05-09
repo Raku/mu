@@ -20,6 +20,13 @@ sub get_instance(Str $inst) is export {
     return $self;
 }
 
+sub instance_isa(Str $inst: Str $class) is export {
+    die "The instance '$inst' is not a valid instance (key not found)" 
+        unless %INSTANCES.exists($inst);
+    my (undef, $inv_class, undef) = split(';', $inst);
+    return ($inv_class eq $class);
+}
+
 =pod
 
 =head1 NAME
@@ -44,6 +51,8 @@ Hack::Instances - An abstraction of inside-out classes
   my $object1 = My::Class::new();
   my $object2 = My::Class::new();
 
+  $object1.instance_isa('My::Class'); # check the "class"
+  
   say $object1.counter(); # prints 4
   say $object2.counter(); # prints 4
   say $object1.counter(); # prints 5
@@ -88,6 +97,11 @@ our global C<%INSTANCES> hash.
 
 If the Str C<$inst> is not found in our global C<%INSTANCES> hash, an exception
 is thrown.
+
+=item B<instance_isa (Str $inv: Str $class)>
+
+This method can be used to check the "class" of the invocant. It is a hack to 
+make up for a lack of a proper C<.isa()>.
 
 =back
 
