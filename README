@@ -58,6 +58,15 @@ Pugs needs the Glasgow Haskell Compiler (GHC) 6.4 or above.  To install GHC,
 download a binary build from http://haskell.org/ghc/.  Although source code
 for GHC is available, it will take a very long time to build by yourself. 
 
+Pugs needs a Parrot installation to support Perl 6 Rules.  To install Parrot,
+follow the instructions at http://www.parrotcode.org/.  Binary builds for
+Win32 is available at http://jwcs.net/~jonathan/perl6/.
+
+For dynamic loading/inlining of Haskell modules, you should install the
+hs-plugin library, available here:
+
+    ftp://ftp.cse.unsw.edu.au/pub/users/dons/hs-plugins/snapshots/
+
 To install Pugs on your system, simply type this in the command line:
 
     cpansign -v         # optional; see SIGNATURE for details
@@ -66,18 +75,31 @@ To install Pugs on your system, simply type this in the command line:
     make test
     make install
 
-There is a problem on x86_64 (64 bit Athlon) machines.  See below.
-
 Optionally you may use GHC environment variable to assign the ghc
 executable path before you run "perl Makefile.PL", for example:
 
     export GHC=${HOME}/bin/ghc (bash)
     setenv GHC ${HOME}/bin/ghc (csh)
 
-For dynamic loading/inlining of Haskell modules, you should install the
-hs-plugin library, available here:
+CAVEATS FOR x86_64 MACHINES
+---------------------------
 
-    ftp://ftp.cse.unsw.edu.au/pub/users/dons/hs-plugins/snapshots/
+GHC 6.4 has a garbage collector bug on x86_64 (64 bit Athlon) machines.
+Until GHC 6.4.1 is released, users on x86_64 may see crashes complaining
+of "strange objects".  A partial workaround is to avoid GC by requesting
+a large heap, using either command line arguments:
+
+    ./pugs +RTS -A200M -RTS
+
+or an environment variable:
+
+    GHCRTS='-A200M'
+
+These request a 200 MB heap, which is sufficient to run most programs.
+
+Running all tests unfortunately requires a lot more memory (perhaps 1000M).
+A possible alternative, which someone could explore and report on, would be to
+try using a 32-bit GHC instead.
 
 MAILING LISTS
 -------------
@@ -104,19 +126,3 @@ For Perl 6 related information, please see:
 
 Enjoy,
 /Autrijus/
-
-
-
-x86_64 ONLY -- There is a problem on x86_64 (64 bit Athlon) machines.
-GHC 6.4.0 has a garbage collector bug.  Until GHC 6.4.1 is released,
-users on x86_64 may see crashes complaining of "strange object"s.
-A partial workaround is to avoid gc by requesting a large heap.
-Use either command line arguments
-    ./pugs +RTS -A200M -RTS
-or an environment variable
-    GHCRTS='-A200M'
-These request a 200 MB heap, which is sufficient to run most tests.  Eg,
-    GHCRTS='-A200M' make test
-Running all tests unfortunately requires a lot more memory (perhaps 1000M).
-A possible alternative, which someone could explore and report on, would
-be to try using a 32big ghc.
