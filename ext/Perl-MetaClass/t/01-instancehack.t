@@ -5,28 +5,31 @@
 use v6;
 use Test;
 
+plan 5;
+
 use_ok('Hack::Instances');
 
-make_class("My::Class");
+#make_class("My::Class");
 
-sub counter(Str $inv:) returns Int {
-    return -1;
-}
+#sub counter(Str $inv) returns Int {
+#    return -1;
+#}
 
 eval_ok '
   module My::Class;
 
   use Hack::Instances;
 
-  sub My::Class::new returns My::Class is export {
-    return make_instance("My::Class", { value => 3 });
-  }
+  sub My::Class::new returns Str is export {
+	make_instance("My::Class", { "value" => 3 });
+  };
 
-  sub counter(My::Class $inv:) returns Int {
+  sub counter(Str $inv:) returns Int {
     my $self = get_instance($inv);
-
-    return ++$self<value>;
-  }
+    my $value = ++$self<value>;
+    return $value;
+  };
+1;
 ';
 
 my $object1 = My::Class::new();

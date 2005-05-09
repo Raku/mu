@@ -2,31 +2,23 @@
 use v6;
 module Hack::Instances-0.0.1;
 
-BEGIN {
-    mkType "Instance";
-}
-#subtype Instance of Str where { $^str ~~ qx:perl5/^OBJECT;/ #:#for cperl-mode
-#			    }
-
 my %INSTANCES;
 
-sub make_instance($class, $obj) returns Instance is export {
+sub make_instance($class, $obj) returns Str is export {
     my $id;
-    $id = "OBJECT;$class;" ~ substr(rand() ~ "", 2, 15)
-    	until not exists %INSTANCES<$id>;
+    while ( !$id or %INSTANCES.exists($id) ) {
+	$id = "OBJECT;$class;" ~ substr(rand() ~ "", 2, 15);
+    }
 
-    %INSTANCES<$id> = $obj;
+    %INSTANCES{$id} = $obj;
+    say "Created { $obj } as $id";
     return $id;
 }
 
-sub make_class($class) is export {
-    mkType($class);
-    eval "subtype $class of Instance where \{ "
-	~ '$^str ~~ qx:perl5/^OBJECT;' ~ $class ~ ';/ \}';
-}
-
-sub get_instance(Instance $inst) returns Hash is export {
-    return %INSTANCES<$inst>;
+sub get_instance(Str $inst) returns Hash is rw is export {
+    my %self = %INSTANCES{$inst};
+    say "Returning { %self } from $inst";
+    return %self;
 }
 
 =pod
