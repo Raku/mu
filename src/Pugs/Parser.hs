@@ -1450,12 +1450,20 @@ rawFlags  = MkQFlags QS_No False False False False False QB_No 'x' False False
 -- | Default flags
 rxP5Flags :: QFlags
 rxP5Flags = MkQFlags QS_No True True True True True QB_No '/' True False
+-- | Default flags
+rxP6Flags :: QFlags
+rxP6Flags = MkQFlags QS_No False False False False False QB_No '/' False False
 
 -- Regexps
-rxLiteral1 :: Char -- ^ Closing delimiter
+rxLiteral5 :: Char -- ^ Closing delimiter
              -> RuleParser Exp
-rxLiteral1 delim = qLiteral1 (char delim) $
+rxLiteral5 delim = qLiteral1 (char delim) $
         rxP5Flags { qfProtectedChar = delim }
+
+rxLiteral6 :: Char -- ^ Closing delimiter
+             -> RuleParser Exp
+rxLiteral6 delim = qLiteral1 (char delim) $
+        rxP6Flags { qfProtectedChar = delim }
 
 ruleAdverbHash :: RuleParser Exp
 ruleAdverbHash = do
@@ -1468,7 +1476,8 @@ substLiteral = try $ do
     adverbs <- ruleAdverbHash
     ch      <- openingDelim
     let endch = balancedDelim ch
-    expr    <- rxLiteral1 endch
+    -- XXX - probe for adverbs to determine p5 vs p6
+    expr    <- rxLiteral5 endch
     ch      <- if ch == endch then return ch else do { whiteSpace ; anyChar }
     let endch = balancedDelim ch
     subst   <- qLiteral1 (char endch) qqFlags { qfProtectedChar = endch }
@@ -1479,13 +1488,14 @@ rxLiteral = try $ do
     symbol "rx"
     adverbs <- ruleAdverbHash
     ch      <- anyChar
-    expr    <- rxLiteral1 $ balancedDelim ch
+    -- XXX - probe for adverbs to determine p5 vs p6
+    expr    <- rxLiteral5 $ balancedDelim ch
     return $ Syn "rx" [expr, adverbs]
 
 rxLiteralBare :: RuleParser Exp
 rxLiteralBare = try $ do
     ch      <- char '/'
-    expr    <- rxLiteral1 $ balancedDelim ch
+    expr    <- rxLiteral6 $ balancedDelim ch
     return $ Syn "rx" [expr, Val undef]
 
 namedLiteral :: String -> Val -> RuleParser Exp
