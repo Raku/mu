@@ -2,6 +2,10 @@
 use v6;
 module Perl::MetaClass-0.0.1;
 
+use Perl::MetaMethod;
+use Perl::MetaAssoc;
+use Perl::MetaProperty;
+
 sub Perl::MetaClass::new($name) returns Str is export {
     my $id = make_instance("Perl::MetaClass", { name => $name });
     return $id;
