@@ -4,21 +4,19 @@ module Hack::Instances-0.0.1;
 
 my %INSTANCES;
 
-sub make_instance($class, $obj) returns Str is export {
+sub make_instance($class, $obj is rw) returns Str is export {
     my $id;
     while ( !$id or %INSTANCES.exists($id) ) {
 	$id = "OBJECT;$class;" ~ substr(rand() ~ "", 2, 15);
     }
 
     %INSTANCES{$id} = $obj;
-    say "Created { $obj } as $id";
     return $id;
 }
 
-sub get_instance(Str $inst) returns Hash is rw is export {
-    my %self = %INSTANCES{$inst};
-    say "Returning { %self } from $inst";
-    return %self;
+sub get_instance(Str $inst) is export {
+    my $self := %INSTANCES{$inst};
+    return $self;
 }
 
 =pod

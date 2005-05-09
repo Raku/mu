@@ -21,7 +21,8 @@ eval_ok '
   use Hack::Instances;
 
   sub My::Class::new returns Str is export {
-	make_instance("My::Class", { "value" => 3 });
+	my %self = ( "value" => 3 );
+	make_instance("My::Class", %self);
   };
 
   sub counter(Str $inv:) returns Int {
