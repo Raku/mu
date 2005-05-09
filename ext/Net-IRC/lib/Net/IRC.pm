@@ -230,7 +230,7 @@ sub new_bot(
       my $event = {
 	line   => $line,
 	server => $server,
-	to     => $to,
+	"to"   => $to,
 	rest   => strip_colon($rest),
       };
 
@@ -240,11 +240,11 @@ sub new_bot(
     },
 
     # Handle word commands (e.g. JOIN, INVITE)
-    handle_command => -> Str $line, Str $from, Str $command, Str $object is copy, Str $rest is copy {
+    handle_command => -> Str $line, Str $from, Str $command, Str $object, Str $rest {
       my $from_nick; $from_nick = $1 if $from ~~ rx:P5/^([^!]+)!/; #/#--vim
       my $event = {
 	line      => $line,
-	from      => $from,
+	"from"    => $from,
 	from_nick => $from_nick,
 	rest      => strip_colon($rest),
 	object    => strip_colon($object),
@@ -290,7 +290,7 @@ sub new_bot(
     },
 
     # JOIN/PART/KICK/...
-    join => -> Str $channel, Str ?$key {
+    "join" => -> Str $channel, Str ?$key {
       if $connected {
 	if defined $key {
 	  $queue<enqueue>({ $say("JOIN $channel $key") });
