@@ -19,7 +19,7 @@ eval_ok '
   use Hack::Instances;
 
   sub My::Class::new returns My::Class is export {
-    return make_instance("My::Class");
+    return make_instance("My::Class", { value => 3 });
   }
 
   sub counter(My::Class $inv:) returns Int {
@@ -32,7 +32,7 @@ eval_ok '
 my $object1 = My::Class::new();
 my $object2 = My::Class::new();
 
-is($object1.counter(), 1, ".counter()");
-is($object2.counter(), 1, ".counter()");
-is($object1.counter(), 2, ".counter()");
+is($object1.counter(), 4, ".counter()");
+is($object2.counter(), 4, ".counter()");
+is($object1.counter(), 5, ".counter()");
 

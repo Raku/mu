@@ -7,10 +7,13 @@ subtype Instance of Str where { $^str ~~ qx:perl5/^OBJECT;/ #:#for cperl-mode
 
 my %INSTANCES;
 
-sub make_instance($class) returns Instance is export {
+sub make_instance($class, $obj) returns Instance is export {
     my $id;
     $id = "OBJECT;$class;" ~ substr(rand() ~ "", 2, 15)
     	until not exists %INSTANCES<$id>;
+
+    %INSTANCES<$id> = $obj;
+    return $id;
 }
 
 sub make_class($class) is export {
@@ -19,7 +22,7 @@ sub make_class($class) is export {
 }
 
 sub get_instance(Instance $inst) returns Hash is export {
-    return (%INSTANCES<$inst> ||= {});
+    return %INSTANCES<$inst>;
 }
 
 =pod
