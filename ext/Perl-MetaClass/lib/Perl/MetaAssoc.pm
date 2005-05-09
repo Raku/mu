@@ -36,3 +36,22 @@ sub assocCompanion(Str $inc) returns Str is rw {
     return get_instance($inv)<companion>;
 }
 
+
+=pod
+
+=head1 NAME
+
+Perl::MetaAssoc - A meta-model for Perl Classes
+
+=head1 SYNOPSIS
+
+=head1 DESCRIPTION
+
+=head1 AUTHORS
+
+Sam Vilain
+
+Stevan Little E<lt>stevan@iinteractive.comE<gt>
+
+=cut
+

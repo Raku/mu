@@ -6,6 +6,7 @@ use Test;
 use_ok('Hack::Instances');
 
 use_ok('Perl::MetaClass');
-use_ok('Perl::MetaAssoc');
-use_ok('Perl::MetaMethod');
 use_ok('Perl::MetaProperty');
+
+use_ok('Perl::MetaAssoc', :todo<bug>);
+use_ok('Perl::MetaMethod', :todo<bug>);

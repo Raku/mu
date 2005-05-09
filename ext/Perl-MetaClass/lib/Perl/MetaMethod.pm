@@ -16,4 +16,21 @@ sub methodInvoke(Str $inv) {
     return get_instance($inv)<sub>(@_);
 }
 
+=pod
+
+=head1 NAME
+
+Perl::MetaAssoc - A meta-model for Perl Classes
+
+=head1 SYNOPSIS
+
+=head1 DESCRIPTION
+
+=head1 AUTHORS
+
+Sam Vilain
+
+Stevan Little E<lt>stevan@iinteractive.comE<gt>
+
+=cut
 
