@@ -21,24 +21,26 @@ sub Perl::MetaAssoc::new(Str $class) returns Str is export {
 
 # XXX - we need to follow these (?):
 # 
-# ∃ MetaClass A, MetaAssoc C : A.clsCats ∋ C ↔ C.catClass = A
+#   ∃ MetaClass A, MetaAssoc C : A.clsAssoc ∋ C ↔ C.assocClass = A
+# (meta-class to meta-assoc is one-to-many, but meta-assoc to meta-class is one-to-one) <- am I right here?
 # 
-# ∃ MetaAssoc C₁, C₂ : C₁.catPair = C₂ ↔ C₂.catPair = C₁
+#   ∃ MetaAssoc C₁, C₂ : C₁.assocPair = C₂ ↔ C₂.assocPair = C₁
+# (this is just bi-directional pairing of the two associations)
 # 
 # -- can't be composite both ways
 # 
-# ∃ MetaAssoc C₁, C₂ : C₁.catPair = C₂ ∧ C₁.catIsComposite
+# ∃ MetaAssoc C₁, C₂ : C₁.assocPair = C₂ ∧ C₁.assocIsComposite
 #      → ¬(C₂.catIsComposite)
 # 
 # -- this seems the simplest way to specify complementary categories
 # 
 # ∃ MetaAssoc C₁, C₂, MetaClass M₁, M₂
-#    : C₁.catPair = C₂ ∧ C₁.catClass = M₁ ∧ C₂.catClass = M₂
-#    → (   ∃ M₁.clsCats{C₂.catCompanion}
-#        ∧ ∃ M₂.clsCats{C₁.catCompanion}
-#        ∧ M₁.clsCats{C₂.catCompanion}[1] = C₁
-#        ∧ M₂.clsCats{C₁.catCompanion}[1] = C₂
-#        ∧ M₁.clsCats{C₂.catCompanion}[0] = M₂.clsCats{C₁.catCompanion}[0]
+#    : C₁.assocPair = C₂ ∧ C₁.assocClass = M₁ ∧ C₂.assocClass = M₂
+#    → (   ∃ M₁.clsAssoc{C₂.assocCompanion}
+#        ∧ ∃ M₂.clsAssoc{C₁.assocCompanion}
+#        ∧ M₁.clsAssoc{C₂.assocCompanion}[1] = C₁
+#        ∧ M₂.clsAssoc{C₁.assocCompanion}[1] = C₂
+#        ∧ M₁.clsAssoc{C₂.assocCompanion}[0] = M₂.clsAssoc{C₁.assocCompanion}[0]
 #        )
 
 
