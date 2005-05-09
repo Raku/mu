@@ -1086,7 +1086,8 @@ parseVarName = rule "variable name" ruleVarNameString
 ruleVarNameString :: RuleParser String
 ruleVarNameString =   try (string "$!")  -- error variable
                   <|> try (string "$/")  -- match object
-                  <|> try ruleMatchVar
+                  <|> try ruleMatchPos
+                  <|> try ruleMatchNamed
                   <|> do
     sigil   <- oneOf "$@%&"
     --  ^ placeholder, * global, ? magical, . member, : private member
@@ -1094,11 +1095,19 @@ ruleVarNameString =   try (string "$!")  -- error variable
     names   <- many1 wordAny `sepBy1` (try $ string "::")
     return $ (sigil:caret) ++ concat (intersperse "::" names)
 
-ruleMatchVar :: RuleParser String
-ruleMatchVar = do
-    sigil   <- oneOf "$@%&"
+ruleMatchPos :: RuleParser String
+ruleMatchPos = do
+    sigil   <- char '$'
     digits  <- many1 digit
     return $ (sigil:digits)
+
+ruleMatchNamed :: RuleParser String
+ruleMatchNamed = do
+    sigil   <- char '$'
+    twigil  <- char '<'
+    name    <- many (do { char '\\'; anyChar } <|> satisfy (/= '>'))
+    char '>'
+    return $ (sigil:twigil:name)
 
 ruleVar :: RuleParser Exp
 ruleVar = do
@@ -1108,6 +1117,8 @@ ruleVar = do
 makeVar :: String -> Exp
 makeVar ('$':rest) | all (`elem` "1234567890") rest =
     Syn "[]" [Var "$/", Val $ VInt $ read rest]
+makeVar ('$':'<':name) =
+    Syn "{}" [Var "$/", doSplitStr name]
 makeVar var = Var var
 
 ruleLit :: RuleParser Exp
@@ -1285,10 +1296,7 @@ qLiteral1 qEnd flags = do
     where
     -- words() regards \xa0 as (breaking) whitespace. But \xa0 is
     -- a nonbreaking ws char.
-    doSplit (Cxt (CxtItem _) (Val (VStr str))) = case perl6Words str of
-        []  -> Syn "," []
-        [x] -> Val (VStr x)
-        xs  -> Syn "," $ map (Val . VStr) xs
+    doSplit (Cxt (CxtItem _) (Val (VStr str))) = doSplitStr str
     
     doSplit expr = Cxt cxtSlurpyAny $ App (Var "&infix:~~") [expr, rxSplit] []
     rxSplit = Syn "rx" $
@@ -1298,7 +1306,12 @@ qLiteral1 qEnd flags = do
             , castV (VStr "g", VInt 1)
             ]
         ]
-        
+
+doSplitStr str = case perl6Words str of
+    []  -> Syn "," []
+    [x] -> Val (VStr x)
+    xs  -> Syn "," $ map (Val . VStr) xs
+    where
     perl6Words :: String -> [String]
     perl6Words s
       | findSpace == [] = []
