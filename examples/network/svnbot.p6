@@ -25,9 +25,9 @@ svn_headrev();
 
 # Create new bot "object"
 my $bot = new_bot(nick => $nick, host => $host, port => $port, debug_raw => 0);
-$bot<add_handler>("INVITE",  \&on_invite);  # We want to invite our bot
-$bot<add_handler>("PRIVMSG", \&on_privmsg); # Remote control
-$bot<add_handler>("runloop", \&svn_check);  # Check for new revisions
+$bot<add_handler>("INVITE",  &on_invite);  # We want to invite our bot
+$bot<add_handler>("PRIVMSG", &on_privmsg); # Remote control
+$bot<add_handler>("runloop", &svn_check);  # Check for new revisions
 $bot<connect>();
 $bot<login>();
 $bot<run>();

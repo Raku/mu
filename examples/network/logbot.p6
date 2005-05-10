@@ -11,11 +11,11 @@ $port //= 6667;
 
 # Create new bot "object"
 my $bot = new_bot(nick => $nick, host => $host, port => $port, debug_raw => 0);
-$bot<add_handler>("INVITE",  \&on_invite);
-$bot<add_handler>("PRIVMSG", \&on_privmsg);
-$bot<add_handler>("JOIN",    \&on_join);
-$bot<add_handler>("PART",    \&on_part);
-$bot<add_handler>("QUIT",    \&on_quit);
+$bot<add_handler>("INVITE",  &on_invite);
+$bot<add_handler>("PRIVMSG", &on_privmsg);
+$bot<add_handler>("JOIN",    &on_join);
+$bot<add_handler>("PART",    &on_part);
+$bot<add_handler>("QUIT",    &on_quit);
 $bot<connect>();
 $bot<login>();
 $bot<run>();
