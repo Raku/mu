@@ -241,6 +241,9 @@ instance Value VBool where
     doCast (VMatch PGE_Fail) = False
     doCast _           = True
 
+-- |Collapse a junction value into a single boolean value. Works by
+-- recursively casting the junction members to booleans, then performing
+-- the actual junction test.
 juncToBool :: VJunc -> Bool
 juncToBool (MkJunc JAny  _  vs) = True `Set.member` Set.map vCast vs
 juncToBool (MkJunc JAll  _  vs) = not (False `Set.member` Set.map vCast vs)
@@ -424,15 +427,25 @@ instance Value VScalar where
     vCast = id
     castV = id -- XXX not really correct; need to referencify things
 
+-- |Return an infinite (lazy) Haskell list of the given string and its
+-- successors. 'strInc' is used to determine what the \'next\' string is.
+-- Is used to implement the @...@ infinite-range operator on strings.
 strRangeInf :: String -> [String]
 strRangeInf s = (s:strRangeInf (strInc s))
 
+-- |Return a range of strings from the first argument to the second, inclusive
+-- (as a Haskell list). 'strInc' is used to determine what the \'next\' string 
+-- is. Is used to implement the @..@ range operator on strings.
 strRange :: String -> String -> [String]
 strRange s1 s2
     | s1 == s2              = [s2]
     | length s1 > length s2 = []
     | otherwise             = (s1:strRange (strInc s1) s2)
 
+-- |Find the successor of a string (i.e. the next string \'after\' it).
+-- Special rules are used to handle strings ending in an alphanumeric
+-- character; otherwise the last character is simply incremented using
+-- 'charInc'.
 strInc :: String -> String
 strInc []       = "1"
 strInc "z"      = "aa"
@@ -447,6 +460,7 @@ strInc str
     x   = last str
     xs  = init str
 
+-- |Return the code-point-wise successor of a given character.
 charInc :: Char -> Char
 charInc x   = chr $ 1 + ord x
 
@@ -478,14 +492,14 @@ data Val
     | VStr      !VStr        -- ^ String value
     | VList     VList        -- ^ List value (lists are lazy, so no '!')
     | VRef      !VRef        -- ^ Reference value
-    | VCode     !VCode
+    | VCode     !VCode       -- ^ A code object
     | VBlock    !VBlock
     | VJunc     !VJunc       -- ^ Junction value
     | VError    !VStr !Exp
-    | VHandle   !VHandle
-    | VSocket   !VSocket
+    | VHandle   !VHandle     -- ^ File handle
+    | VSocket   !VSocket     -- ^ Socket handle
     | VThread   !(VThread Val)
-    | VProcess  !VProcess
+    | VProcess  !VProcess    -- ^ PID value
     | VRule     !VRule
     | VSubst    !VSubst      -- ^ Substitution value (correct?)
     | VControl  !VControl
@@ -544,7 +558,10 @@ data VJunc = MkJunc
     } deriving (Eq, Ord)
 
 -- |The combining semantics of a junction. See 'VJunc' for more info.
-data JuncType = JAny | JAll | JNone | JOne
+data JuncType = JAny  -- ^ Matches if /at least one/ member matches
+              | JAll  -- ^ Matches only if /all/ members match
+              | JNone -- ^ Matches only if /no/ members match
+              | JOne  -- ^ Matches if /exactly one/ member matches
     deriving (Eq, Ord)
 
 instance Show JuncType where
@@ -649,6 +666,8 @@ instance Ord VComplex where
 instance (Typeable a) => Show (TVar a) where
     show _ = "<ref>"
 
+-- |Represents the position of a chunk of source code: filename; start
+-- line & column; end line & column.
 data Pos = MkPos
     { posName           :: !String
     , posBeginLine      :: !Int
@@ -725,11 +744,14 @@ instance Eq VProcess
 instance Ord VProcess where
     compare _ _ = EQ
 
+-- |(Is this even used? A @grep@ through the sources doesn't find any
+-- callers...)
 extractExp :: Exp -> ([Exp], [String]) -> ([Exp], [String])
 extractExp ex (exps, vs) = (ex':exps, vs')
     where
     (ex', vs') = extract ex vs
 
+-- |(Used by 'extractExp'...)
 extract :: Exp -> [String] -> (Exp, [String])
 extract (App n invs args) vs = (App n invs' args', vs'')
     where
@@ -772,6 +794,8 @@ cxtOfSigil '%'  = cxtSlurpyAny
 cxtOfSigil '&'  = CxtItem $ mkType "Code"
 cxtOfSigil x    = internalError $ "cxtOfSigil: unexpected character: " ++ show x
 
+-- |Return the type of variable implied by a name beginning with the specified
+-- sigil.
 typeOfSigil :: Char -> Type
 typeOfSigil '$'  = mkType "Scalar"
 typeOfSigil '@'  = mkType "Array"
@@ -779,7 +803,11 @@ typeOfSigil '%'  = mkType "Hash"
 typeOfSigil '&'  = mkType "Code"
 typeOfSigil x    = internalError $ "typeOfSigil: unexpected character: " ++ show x
 
-buildParam :: String -> String -> String -> Exp -> Param
+buildParam :: String -- ^ Type of the parameter
+           -> String -- ^ Parameter-sigil (@+@ or @?@)
+           -> String -- ^ Name of the parameter (including primary sigil)
+           -> Exp    -- ^ Expression for the param's default value
+           -> Param
 buildParam typ sigil name e = MkParam
     { isInvocant    = False
     , isOptional    = (sigil ==) `any` ["?", "+"]
@@ -806,7 +834,9 @@ defaultScalarParam  = buildParam "" "" "$_" (Val VUndef)
 
 type DebugInfo = Maybe (TVar (Map String String))
 
--- | Evaluation environment.
+-- | Evaluation environment. The current environment is stored in the
+-- @Reader@ monad inside the current 'Eval' monad, and can be retrieved using
+-- @ask@ for the whole 'Env', or @asks@ if you just want a single field.
 data Env = MkEnv
     { envContext :: !Cxt                 -- ^ Current context
                                          -- ('CxtVoid', 'CxtItem' or 'CxtSlurpy')
@@ -846,6 +876,9 @@ more details.
 The @Bool@ is a \'freshness\' flag used to ensure that @my@ variable slots
 are re-generated each time we enter their scope; see the
 'Pugs.Eval.reduce' entry for ('Pad' 'SMy' ... ).
+
+The current global and lexical pads are stored in the current 'Env', which
+is stored in the @Reader@-monad component of the current 'Eval' monad.
 -}
 data Pad = MkPad !(Map Var ([(TVar Bool, TVar VRef)]))
     deriving (Eq, Ord, Typeable)
