@@ -31,14 +31,27 @@ sub instance_isa(Str $inst: Str $class) is export {
 }
 
 sub blessed(Str $inst:) returns Bool is export {
-    return %INSTANCES.exists($inst);
-    # hmm, this didn't work for me... need to get PGE going anyway
-	#($inst ~~ rx:perl5:{^OBJECT} && %INSTANCES.exists($inst));
+    return ($inst ~~ rx:perl5{^OBJECT} && %INSTANCES.exists($inst));
 }
 
 # fallback method for other types of things that can't be objects,
 # like numbers or subs.
 sub blessed returns Bool is export { }
+
+sub can(Str $inst:) returns Code is export {
+    # FIXME - ISA
+    if ( $inst.blessed ) {
+	my $class = $inst.class();
+    }
+}
+sub class(Str $inst:) returns Str is export {
+    if ( ($inst ~~ rx:perl5/^OBJECT;(.*?);/ ) && %INSTANCES.exists($inst) ) {
+	return $/[0];
+    }
+}
+
+sub class returns Str is export { undef }
+sub can returns Code is export { undef }
 
 =pod
 

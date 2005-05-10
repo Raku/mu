@@ -5,7 +5,7 @@
 use v6;
 use Test;
 
-plan 16;
+plan 22;
 
 use_ok('Hack::Instances');
 
@@ -43,10 +43,18 @@ dies_ok { 'Not an Instance'.count() }, '... check for correct errors';
 dies_ok { get_instance($object1, "Not::My::Class"); }, '... check for correct errors';
 
 ok(!"Not an instance".blessed(), "... check 'blessed' method (negative)");
-ok(!"OBJECT;Martian;12345".blessed(), "... check 'blessed' method (negative)");
+ok(!"OBJECT;Martian;12345".blessed(), "... check 'blessed' method (negative - fake)");
 ok($object1.blessed(), "... check 'blessed' method (positive)");
 
 ok(!1.blessed(), "... check 'blessed' method (negative - Num)");
 ok(!{}.blessed(), "... check 'blessed' method (negative - \{})");
 my $sub = sub { return (1) };
 ok(!$sub.blessed(), "... check 'blessed' method (negative - sub)");
+
+ok(!1.can("counter"), "... check 'can' method (negative - Num)");
+ok(!"OBJECT;My::Class;1234".can("counter"), "... check 'can' method (negative - fake)");
+is($object1.can("counter"), &counter, "... check 'can' method (positive)");
+
+is(1.class(), undef, "... check 'class' method (negative - Num)");
+is("OBJECT;My::Class;1234".class(), undef, "... check 'class' method (negative - fake)");
+is($object1.class(), "My::Class", "... check 'class' method (positive)");
