@@ -125,13 +125,9 @@ mergeStmts (Stmts x1 x2) y = mergeStmts x1 (mergeStmts x2 y)
 mergeStmts Noop y@(Stmts _ _) = y
 mergeStmts (Sym scope name x) y = Sym scope name (mergeStmts x y)
 mergeStmts (Pad scope lex x) y = Pad scope lex (mergeStmts x y)
-mergeStmts x@(Pos pos (Syn "rx" _)) y =
+mergeStmts x@(Pos pos (Syn syn _)) y | (syn ==) `any` words "subst match //"  =
     mergeStmts (Pos pos (App (Var "&infix:~~") [Var "$_", x] [])) y
-mergeStmts x y@(Pos pos (Syn "rx" _)) =
-    mergeStmts x (Pos pos (App (Var "&infix:~~") [Var "$_", y] []))
-mergeStmts x@(Pos pos (Syn "subst" _)) y =
-    mergeStmts (Pos pos (App (Var "&infix:~~") [Var "$_", x] [])) y
-mergeStmts x y@(Pos pos (Syn "subst" _)) =
+mergeStmts x y@(Pos pos (Syn syn _)) | (syn ==) `any` words "subst match //"  =
     mergeStmts x (Pos pos (App (Var "&infix:~~") [Var "$_", y] []))
 mergeStmts x@(Pos pos (Syn "sub" [Val (VCode sub)])) y
     | subType sub >= SubBlock =
@@ -1466,6 +1462,13 @@ rxP6Flags :: QFlags
 rxP6Flags = MkQFlags QS_No False False False False False QB_No '/' False False
 
 -- Regexps
+rxLiteralAny adverbs
+    | Syn "\\{}" [Syn "," pairs] <- adverbs
+    , not (null [ True | (App (Var "&infix:=>") [Val (VStr "P5"), _] []) <- pairs ])
+    = rxLiteral5
+    | otherwise
+    = rxLiteral6
+
 rxLiteral5 :: Char -- ^ Closing delimiter
              -> RuleParser Exp
 rxLiteral5 delim = qLiteral1 (char delim) $
@@ -1488,7 +1491,7 @@ substLiteral = try $ do
     ch      <- openingDelim
     let endch = balancedDelim ch
     -- XXX - probe for adverbs to determine p5 vs p6
-    expr    <- rxLiteral5 endch
+    expr    <- rxLiteralAny adverbs endch
     ch      <- if ch == endch then return ch else do { whiteSpace ; anyChar }
     let endch = balancedDelim ch
     subst   <- qLiteral1 (char endch) qqFlags { qfProtectedChar = endch }
@@ -1496,18 +1499,21 @@ substLiteral = try $ do
 
 rxLiteral :: RuleParser Exp
 rxLiteral = try $ do
-    symbol "rx"
+    sym     <- symbol "rx" <|> do { symbol "m"; return "match" } <|> do
+        symbol "rule"
+        lookAhead (char '{')
+        return "rx"
     adverbs <- ruleAdverbHash
     ch      <- anyChar
     -- XXX - probe for adverbs to determine p5 vs p6
-    expr    <- rxLiteral5 $ balancedDelim ch
-    return $ Syn "rx" [expr, adverbs]
+    expr    <- rxLiteralAny adverbs $ balancedDelim ch
+    return $ Syn sym [expr, adverbs]
 
 rxLiteralBare :: RuleParser Exp
 rxLiteralBare = try $ do
     ch      <- char '/'
     expr    <- rxLiteral6 $ balancedDelim ch
-    return $ Syn "rx" [expr, Val undef]
+    return $ Syn "//" [expr, Val undef]
 
 namedLiteral :: String -> Val -> RuleParser Exp
 namedLiteral n v = do { symbol n; return $ Val v }

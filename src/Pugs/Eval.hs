@@ -540,6 +540,8 @@ reduce exp@(Syn name exps) = case name of
         fromAdverb hv (k:ks) = case lookup k hv of
             Just v  -> fromVal v
             Nothing -> fromAdverb hv ks
+    "//" -> reduce (Syn "rx" exps)
+    "match" -> reduce (Syn "rx" exps) -- XXX - this is wrong
     "subst" -> do
         let [exp, subst, adverbs] = exps
         (VRule rx)  <- reduce (Syn "rx" [exp, adverbs])
