@@ -144,7 +144,7 @@ sub clsAssocs(Str $inv: Array *@assocs) returns Hash {
 
 =head1 NAME
 
-Perl::MetaClass - A meta-model for Perl Classes
+Perl::MetaClass - A meta-meta-model for Perl Classes
 
 =head1 SYNOPSIS
 
@@ -173,31 +173,7 @@ Perl::MetaClass - A meta-model for Perl Classes
 Perl::MetaClass is the meta-model of the Perl6 object system. The code 
 in this module itself is the meta-meta-model of the Perl6 object system.
 
-  Perl::MetaClass    S12 term     Access from Perl as
-  ---------------    ---------    -------------------
-  Perl::MetaClass    -            MyClass.meta.meta
-  Perl::Class        MetaClass    MyClass.meta
-  ?                  Class        MyClass
-
-=head1 PRIOR ART
-
-In the T2 CPAN module, the Class::Tangram module is behaving as a
-Class Meta-Model, and T2 is describing the Class Model.  A set of T2
-objects represent a set of Classes.
-
-However, the T2 module only represents a classical single inheritance
-model without interfaces, so cannot represent everything that the
-Roles-based model of Perl 6 will.
-
-=head1 RECOMMENDED LISTENING
-
-=over 4
-
-=item I<Squarepusher - Alive in Japan>
-
-=item I<Boogie Down Productions - Ghetto Music: The Blueprint of Hip Hop>
-
-=back
+See the L<Perl::MetaModel> module for more details.
 
 =head1 NOTES ON USAGE
 
