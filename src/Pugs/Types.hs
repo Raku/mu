@@ -110,12 +110,14 @@ data VThread a = MkThread
     , threadLock    :: TMVar a
     }
     deriving (Show, Eq, Ord, Typeable)
--- |Rule Match object
-data VMatch
-    = PGE_Match !VInt !VInt !VStr ![VMatch] ![(VStr, VMatch)]
-    | PGE_Array ![VMatch]
+
+-- |Rule Match object from PGE
+data MatchPGE
+    = PGE_Match !Int !Int ![MatchPGE] ![(VStr, MatchPGE)]
+    | PGE_Array ![MatchPGE]
     | PGE_Fail
     deriving (Show, Eq, Ord, Read, Typeable)
+
 
 -- |Representation for rules (i.e. regexes). Currently consists of a
 -- "RRegex" 'Regex', and a boolean flag indicating whether the rule has

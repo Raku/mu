@@ -201,6 +201,7 @@ instance Value [(VStr, Val)] where
              return (str, v)
 
 instance Value VHash where
+    fromVal (VMatch m) = return $ matchSubNamed m
     fromVal v = do
         list <- fromVal v
         fmap Map.fromList $ forM list $ \(k, v) -> do
@@ -208,7 +209,6 @@ instance Value VHash where
             return (str, v)
 
 instance Value [VPair] where
-    fromVal (VMatch m) = return $ matchPairs m
     fromVal v = do
         list <- fromVals v
         doFrom $ concat list
@@ -230,6 +230,7 @@ instance Value VCode where
 instance Value VBool where
     castV = VBool
     doCast (VJunc j)   = juncToBool j
+    doCast (VMatch m)  = matchOk m
     doCast (VBool b)   = b
     doCast VUndef      = False
     doCast (VStr "")   = False
@@ -238,7 +239,6 @@ instance Value VBool where
     doCast (VRat 0)    = False
     doCast (VNum 0)    = False
     doCast (VList [])  = False
-    doCast (VMatch PGE_Fail) = False
     doCast _           = True
 
 -- |Collapse a junction value into a single boolean value. Works by
@@ -294,7 +294,7 @@ instance Value VNum where
                 Right d -> realToFrac d
     doCast (VList l)    = genericLength l
     doCast t@(VThread _)  = read $ vCast t
-    doCast (VMatch m)   = matchNum m
+    doCast (VMatch m)   = genericLength $ matchSubPos m
     doCast _            = 0/0 -- error $ "cannot cast as Num: " ++ show x
 
 instance Value VComplex where
@@ -350,35 +350,6 @@ showNum x
 
 valToStr :: Val -> Eval VStr
 valToStr = fromVal
-
-matchNum (PGE_Match _ _ _ _ _) = 1
-matchNum (PGE_Array ms) = genericLength ms
-matchNum PGE_Fail = 0
-
-matchFrom (PGE_Match f _ _ _ _) = VInt f
-matchFrom (PGE_Array []) = undef
-matchFrom (PGE_Array ms) = matchFrom (head ms)
-matchFrom PGE_Fail = undef
-
-matchTo (PGE_Match _ t _ _ _) = VInt t
-matchTo (PGE_Array []) = undef
-matchTo (PGE_Array ms) = matchTo (last ms)
-matchTo PGE_Fail = undef
-
-matchStr (PGE_Match _ _ s _ _) = s
-matchStr (PGE_Array ms) = concatMap matchStr ms
-matchStr PGE_Fail = ""
-
-matchList (PGE_Match _ _ _ ms _) = ms
-matchList (PGE_Array ms) = ms
-matchList PGE_Fail = []
-
-matchPairs (PGE_Match _ _ _ ms ns) =
-    [ (VStr str, VMatch m) | (str, m) <- ns ]
-    ++ ((map VInt [1..]) `zip` (map VMatch ms))
-matchPairs (PGE_Array ms) = (map VInt [1..]) `zip` (map VMatch ms)
-matchPairs PGE_Fail = []
-
 
 instance Value VList where
     fromVal (VRef r) = do
@@ -1315,7 +1286,7 @@ doArray (VRef (MkRef (IScalar sv))) f = do
 doArray (VRef (MkRef p@(IPair _))) f = return $ f p
 doArray val@(VRef _) _ = retError "Cannot cast into Array" val
 doArray (VMatch m) f = do
-    return $ f (map VMatch (matchList m) :: VArray)
+    return $ f (matchSubPos m)
 doArray val f = do
     av  <- fromVal val
     return $ f (av :: VArray)
@@ -1334,6 +1305,19 @@ data (Typeable v) => IVar v where
 
 data VOpaque where
     MkOpaque :: Value a => !a -> VOpaque
+
+data VMatch = MkMatch
+    { matchOk           :: !VBool   -- success?
+    , matchFrom         :: !Int     -- .from
+    , matchTo           :: !Int     -- .to
+    , matchStr          :: !VStr    -- captured str
+    , matchSubPos       :: !VList   -- positional submatches
+    , matchSubNamed     :: !VHash   -- named submatches
+    }
+    deriving (Show, Eq, Ord, Typeable)
+
+mkMatchFail = MkMatch False 0 0 "" [] Map.empty
+mkMatchOk   = MkMatch True
 
 instance Eq VOpaque where
     (MkOpaque x) == (MkOpaque y) = castV x == castV y
