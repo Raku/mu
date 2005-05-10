@@ -21,14 +21,13 @@ import Pugs.Config
 import Pugs.External
 import Text.Printf
 import Data.Array
-import Data.Yaml.Syck
 import qualified RRegex.PCRE as PCRE
 import qualified Data.Set as Set
 import qualified Data.Map as Map
 import qualified Data.Array as Array
-import qualified Data.IntMap as IntMap
 
 import Pugs.Prim.Keyed
+import Pugs.Prim.Yaml
 
 op0 :: Ident -> [Val] -> Eval Val
 op0 "!"  = fmap opJuncNone . mapM fromVal
@@ -218,7 +217,7 @@ op1 "eval" = \v -> do
     opEval False "<eval>" str
 op1 "eval_perl5" = boolIO evalPerl5
 op1 "eval_haskell" = op1EvalHaskell
-op1 "eval_yaml" = op1EvalYaml
+op1 "eval_yaml" = evalYaml
 op1 "defined" = op1Cast (VBool . defined)
 op1 "last" = \v -> return (VError "cannot last() outside a loop" (Val v))
 op1 "next" = \v -> return (VError "cannot next() outside a loop" (Val v))
@@ -365,16 +364,16 @@ op1 "value" = \v -> do
     ivar <- join $ doPair v pair_fetchElem
     return . VRef . MkRef $ ivar
 op1 "pairs" = \v -> do
-    pairs <- op1Pairs v
+    pairs <- pairsFromVal v
     return $ VList pairs
 op1 "kv" = \v -> do
-    pairs <- op1Pairs v
+    pairs <- pairsFromVal v
     kvs   <- forM pairs $ \(VRef ref) -> do
         pair   <- readRef ref
         fromVal pair
     return (VList $ concat kvs)
-op1 "keys" = op1Keys
-op1 "values" = op1Values
+op1 "keys" = keysFromVal
+op1 "values" = valuesFromVal
 op1 "readline" = op1 "="
 op1 "=" = \v -> do
     fh  <- handleOf v
@@ -441,29 +440,6 @@ op1Fold op v = do
         (a:as)  -> foldM (op2 op) a as
         _       -> return undef
 
-op1EvalYaml :: Val -> Eval Val
-op1EvalYaml cv = do
-    str     <- fromVal cv
-    rv      <- liftIO (parseYaml $ encodeUTF8 str)
-    case rv of
-        Left err            -> fail err
-        Right Nothing       -> return undef
-        Right (Just node)   -> fromYaml node
-
-fromYaml :: YamlNode -> Eval Val
-fromYaml (YamlStr str) = return $ VStr (decodeUTF8 str)
-fromYaml (YamlSeq nodes) = do
-    vals    <- mapM fromYaml nodes
-    av      <- liftSTM $ newTVar $
-        IntMap.fromAscList ([0..] `zip` map lazyScalar vals)
-    return $ VRef (arrayRef av)
-fromYaml (YamlMap nodes) = do
-    vals    <- forM nodes $ \(keyNode, valNode) -> do
-        key <- fromVal =<< fromYaml keyNode
-        val <- newScalar =<< fromYaml valNode
-        return (key, val)
-    hv      <- liftSTM $ (newTVar (Map.fromList vals) :: STM IHash)
-    return $ VRef (hashRef hv)
 
 op1EvalHaskell :: Val -> Eval Val
 op1EvalHaskell cv = do
@@ -487,15 +463,6 @@ op2Cast f x y = do
     x' <- fromVal =<< fromVal' x
     y' <- fromVal =<< fromVal' y
     return (f x' y')
-
-op1Pairs :: Val -> Eval [Val]
-op1Pairs = pairsFromVal
-
-op1Keys :: Val -> Eval Val
-op1Keys = keysFromVal
-
-op1Values :: Val -> Eval Val
-op1Values = valuesFromVal
 
 op1StrFirst :: (Char -> Char) -> Val -> Eval Val
 op1StrFirst f = op1Cast $ VStr .
