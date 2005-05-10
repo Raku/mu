@@ -39,7 +39,14 @@ sub clsSuper(Str $inv: Str ?$super) returns Str {
         # we enforce the following rule on superclasses:
         # - it must be an instance of Perl::MetaClass
         ($super.instance_isa('Perl::MetaClass'))
-            || die "Super class must be a Perl::MetaClass instance";        
+            || die "Super class must be a Perl::MetaClass instance";   
+        # if super is being changed ...
+        if %self<super> {
+            # we need to remove the invocant 
+            # from the super's list of subclasses
+            %self<super>._removeSubClass($inv);
+        }
+        # ... and now we can set super    
         %self<super> = $super;
         # now add the invocant to the super's subclasses
         $super.clsSubClasses($inv);
@@ -47,8 +54,9 @@ sub clsSuper(Str $inv: Str ?$super) returns Str {
     return %self<super>;
 }
 
-# XXX -- we need to enforce Set like behavior here
-# maybe with a hash? keyed by subclass name?
+sub _removeSubClass(Str $inv: Str $subclass) returns Void {
+    get_instance($inv, "Perl::MetaClass")<subclasses>.delete($subclass);
+}
 
 sub clsSubClasses(Str $inv: Array *@subclasses) returns Array {
     my %self := get_instance($inv, "Perl::MetaClass");
