@@ -3,6 +3,8 @@
 use v6;
 use Test;
 
+plan 21;
+
 use_ok('Perl::MetaProperty');
 use_ok('Perl::MetaClass');
 

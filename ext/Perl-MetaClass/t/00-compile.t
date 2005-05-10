@@ -3,6 +3,8 @@
 use v6;
 use Test;
 
+plan 5;
+
 use_ok('Hack::Instances');
 
 use_ok('Perl::MetaClass');

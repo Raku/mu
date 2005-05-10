@@ -3,6 +3,8 @@
 use v6;
 use Test;
 
+plan 4;
+
 use_ok('Perl::MetaAssoc');
 use_ok('Perl::MetaClass');
 

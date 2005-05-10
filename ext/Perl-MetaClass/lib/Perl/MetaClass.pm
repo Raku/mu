@@ -82,6 +82,19 @@ sub clsSubClasses(Str $inv: Array *@subclasses) returns Array {
     return keys(%self<subclasses>);
 }
 
+sub clsIsa (Str $inv: Str $class) returns Bool {
+    # recurse if we are given a $class instance and not a Class name
+    return $inv.clsIsa($class.clsName()) if $class.instance_isa('Perl::MetaClass');
+    # if the class name itself matches the class return true
+    return 1 if $inv.clsName() eq $class;
+    # return false if the $inv has no superclass
+    return 0 unless $inv.clsSuper();
+    # if the superclass is equal to class then return true
+    return 1 if $inv.clsSuper().clsName() eq $class;
+    # if not, check against the superclass 
+    return $inv.clsSuper().clsIsa($class);
+}
+
 # visibility is not as important on the MetaModel as it is on the real
 # Class Model.
 sub clsProperties(Str $inv: Array *@properties) returns Hash {
@@ -188,6 +201,10 @@ Roles-based model of Perl 6 will.
 =item B<clsSuperClass($inv: ?$superclass)>
 
 =item B<clsSubClasses($inv: *@subclasses)>
+
+=item B<clsIsa ($inv: $class)>
+
+This accepts both a Class name and C<$class> instance.
 
 =item B<clsProperties($inv: ?%properties)>
 

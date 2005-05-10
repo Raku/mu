@@ -3,6 +3,8 @@
 use v6;
 use Test;
 
+plan 42;
+
 use_ok('Perl::MetaClass');
 use_ok('Perl::MetaProperty');
 
@@ -25,15 +27,21 @@ use_ok('Perl::MetaProperty');
 my $role = Perl::MetaClass::new('Role');
 
 is($role.clsName(), 'Role', '... we got the right class name');
+ok($role.clsIsa('Role'), '... $role is-a Role');
+ok($role.clsIsa($role), '... $role is-a $role');
 
 # Super Class
 
 my $package = Perl::MetaClass::new('Package');
 
 is($role.clsSuper(), undef, '... we do not have a superclass');
+ok($package.clsIsa('Package'), '... $package is-a Package');
 
 $role.clsSuper($package);
 is($role.clsSuper().clsName(), 'Package', '... we now have a superclass');
+
+ok($role.clsIsa('Package'), '... $role is-a Package');
+ok($role.clsIsa($package), '... $role is-a $package');
 
 # confirm the circular reference ...
 
@@ -56,6 +64,19 @@ $class.clsSuper($role);
     is(+@subclasses, 1, '... we have 1 subclasses now');
     is(@subclasses[0].clsName(), 'Class', '... this is our first subclass');
 }
+
+ok($class.clsIsa('Class'), '... $class is-a Class');
+ok($class.clsIsa($class), '... $class is-a $class');
+
+ok($class.clsIsa('Role'), '... $class is-a Role');
+ok($class.clsIsa($role), '... $class is-a $role');
+
+ok($class.clsIsa('Package'), '... $class is-a Package');
+ok($class.clsIsa($package), '... $class is-a $package');
+
+ok(!$class.clsIsa('Nothing'), '... $class is-not-a Nothing');
+ok(!$role.clsIsa('Nothing'), '... $role is-not-a Nothing');
+ok(!$package.clsIsa('Nothing'), '... $package is-not-a Nothing');
 
 # change the superclass
 $class.clsSuper($package);

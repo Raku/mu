@@ -3,6 +3,8 @@
 use v6;
 use Test;
 
+plan 9;
+
 use_ok('Perl::MetaMethod');
 
 my $method = Perl::MetaMethod::new(sub { return "Hello Meta-World" });
