@@ -22,8 +22,10 @@ import Pugs.External
 import Text.Printf
 import Data.Array
 import Data.Yaml.Syck
+import qualified RRegex.PCRE as PCRE
 import qualified Data.Set as Set
 import qualified Data.Map as Map
+import qualified Data.Array as Array
 import qualified Data.IntMap as IntMap
 
 op0 :: Ident -> [Val] -> Eval Val
@@ -422,9 +424,9 @@ op1 "hex"   = op1Cast (VInt . read . ("0x"++))
 op1 "log"   = op1Cast (VNum . log)
 op1 "log10" = op1Cast (VNum . logBase 10)
 op1 "mkType" = return . op1mkType . vCast
-op1 "from"  = op1Cast matchFrom
-op1 "to"    = op1Cast matchTo
-op1 "matches" = op1Cast (VList . map VMatch . matchList)
+op1 "from"  = op1Cast (castV . matchFrom)
+op1 "to"    = op1Cast (castV . matchTo)
+op1 "matches" = op1Cast (VList . matchSubPos)
 op1 other   = \_ -> fail ("Unimplemented unaryOp: " ++ other)
 
 -- op1mkType :: VStr -> Eval VStr
@@ -683,6 +685,7 @@ op2 "nor"= op2 "!!"
 op2 "grep" = op2Grep
 op2 "map"  = op2Map
 op2 "join" = op2Join
+op2 "reduce" = op2Fold
 op2 "kill" = \s v -> do
     sig  <- fromVal s
     pids <- fromVals v
@@ -781,22 +784,38 @@ op2 op | "»" `isPrefixOf` op = op2Hyper . init . init . drop 2 $ op
 op2 ('>':'>':op) = op2Hyper . init . init $ op
 op2 other = \_ _ -> fail ("Unimplemented binaryOp: " ++ other)
 
-matchPGE :: String -> String -> Eval VMatch
-matchPGE cs re = do
+doMatch :: String -> VRule -> Eval VMatch
+doMatch cs MkRulePGE{ rxRule = re } = do
     let pwd1 = getConfig "installarchlib" ++ "/CORE/pugs/pge"
         pwd2 = getConfig "sourcedir" ++ "/src/pge"
     hasSrc <- liftIO $ doesDirectoryExist pwd2
     let pwd = if hasSrc then pwd2 else pwd1
     pge <- liftIO $ evalPGE pwd (encodeUTF8 cs) (encodeUTF8 re)
     rv  <- tryIO Nothing $ fmap Just (readIO $ decodeUTF8 pge) 
+    let matchToVal PGE_Fail = VMatch mkMatchFail
+        matchToVal (PGE_Array ms) = VList (map matchToVal ms)
+        matchToVal (PGE_Match from to pos named) = VMatch $
+            mkMatchOk from to substr pos' named'
+            where
+            substr  = genericTake (to - from) (genericDrop from cs)
+            pos'    = map matchToVal pos
+            named'  = Map.map matchToVal $ Map.fromList named
     case rv of
-        Just m  -> return m
+        Just m  -> fromVal (matchToVal m)
         Nothing -> fail ("Cannot parse PGE: " ++ pge)
 
-matchFromMR mr = VMatch $ PGE_Match 0 0 (decodeUTF8 all) subsMatch []
+doMatch cs MkRulePCRE{ rxRegex = re } = do
+    rv <- liftIO $ PCRE.execute re (encodeUTF8 cs) 0
+    if isNothing rv then return mkMatchFail else do
+    let ((from, len):subs) = Array.elems (fromJust rv)
+        substr from len = genericTake len (genericDrop from cs)
+        subsMatch = [ VMatch $ mkMatchOk f (f + t) (substr f t) [] Map.empty | (f, t) <- subs ]
+    return $ mkMatchOk from (from + len) (substr from len) subsMatch Map.empty
+
+matchFromMR mr = VMatch $ mkMatchOk 0 0 (decodeUTF8 all) subsMatch Map.empty
     where
     (all:subs) = elems $ mrSubs mr
-    subsMatch = [ PGE_Match 0 0 (decodeUTF8 sub) [] [] | sub <- subs ]
+    subsMatch = [ VMatch $ mkMatchOk 0 0 (decodeUTF8 sub) [] Map.empty | sub <- subs ]
 
 -- XXX - need to generalise this
 op2Match :: Val -> Val -> Eval Val
@@ -804,96 +823,63 @@ op2Match x (VRef y) = do
     y' <- readRef y
     op2Match x y'
 
-op2Match x (VSubst (rx@MkRulePCRE{ rxGlobal = True }, subst)) = do
-    str     <- fromVal x
-    rv      <- doReplace (encodeUTF8 str) Nothing
-    case rv of
-        (str', Just _) -> do
-            ref     <- fromVal x
-            writeRef ref (VStr $ decodeUTF8 str')
-            return $ VBool True
-        _ -> return $ VBool False
+op2Match x (VSubst (rx, subst)) | rxGlobal rx = do
+    str         <- fromVal x
+    (str', cnt) <- doReplace str 0
+    if cnt == 0 then return (VBool False) else do
+    ref     <- fromVal x
+    writeRef ref $ VStr str'
+    return $ castV cnt
     where
-    doReplace :: String -> Maybe [String] -> Eval (String, Maybe [String])
-    doReplace str subs = do
-        case str =~~ rxRegex rx of
-            Nothing -> return (str, subs)
-            Just mr -> do
-                glob    <- askGlobal
-                matchSV <- findSymRef "$/" glob
-                let match = matchFromMR mr
-                    subs = elems $ mrSubs mr
-                writeRef matchSV match
-                str'    <- fromVal =<< evalExp subst
-                (after', rv) <- doReplace (mrAfter mr) (Just subs)
-                let subs' = fromMaybe subs rv
-                return (concat [mrBefore mr, encodeUTF8 str', after'], Just subs')
+    doReplace :: String -> Int -> Eval (String, Int)
+    doReplace str ok = do
+        match <- str `doMatch` rx
+        if not (matchOk match) then return (str, ok) else do
+        glob    <- askGlobal
+        matchSV <- findSymRef "$/" glob
+        writeRef matchSV (VMatch match)
+        str'    <- fromVal =<< evalExp subst
+        (after', ok') <- doReplace (genericDrop (matchTo match) str) (ok + 1)
+        return (concat [genericTake (matchFrom match) str, str', after'], ok')
 
-op2Match x (VSubst (rx@MkRulePCRE{ rxGlobal = False }, subst)) = do
+op2Match x (VSubst (rx, subst)) = do
     str     <- fromVal x
     ref     <- fromVal x
-    case encodeUTF8 str =~~ rxRegex rx of
-        Nothing -> return $ VBool False
-        Just mr -> do
-            glob <- askGlobal
-            matchSV <- findSymRef "$/" glob
-            let match = matchFromMR mr
-            writeRef matchSV match
-            str' <- fromVal =<< evalExp subst
-            writeRef ref $
-                (VStr $ decodeUTF8 $ concat [mrBefore mr, encodeUTF8 str', mrAfter mr])
-            return $ match
+    match   <- str `doMatch` rx
+    if not (matchOk match) then return (VBool False) else do
+    glob    <- askGlobal
+    matchSV <- findSymRef "$/" glob
+    writeRef matchSV (VMatch match)
+    str'    <- fromVal =<< evalExp subst
+    writeRef ref . VStr $ concat
+        [ genericTake (matchFrom match) str
+        , str'
+        , genericDrop (matchTo match) str
+        ]
+    return $ VBool True
 
-op2Match x (VRule rx@MkRulePCRE{ rxGlobal = True }) = do
+op2Match x (VRule rx) | rxGlobal rx = do
     str     <- fromVal x
-    rv      <- doMatch (encodeUTF8 str)
+    rv      <- matchOnce str
     ifListContext
-        (return . VList $ map (VStr . decodeUTF8) rv)
+        (return $ VList rv)
         (return . VInt $ genericLength rv)
     where
-    doMatch str = do
-        case str =~~ rxRegex rx of
-            Nothing -> return []
-            Just mr -> do
-                rest <- doMatch $ mrAfter mr
-                return $ (tail $ elems (mrSubs mr)) ++ rest
+    matchOnce :: String -> Eval [Val]
+    matchOnce str = do
+        match <- str `doMatch` rx
+        if not (matchOk match) then return [] else do
+        rest <- matchOnce (genericDrop (matchTo match) str)
+        return $ matchSubPos match ++ rest
 
-op2Match x (VRule rx@MkRulePCRE{ rxGlobal = False }) = do
+op2Match x (VRule rx) = do
     str     <- fromVal x
-    case encodeUTF8 str =~~ rxRegex rx of
-        Nothing -> return $ VMatch PGE_Fail
-        Just mr -> do
-            --- XXX: Fix $/ and make it lexical.
-            glob <- askGlobal
-            matchSV <- findSymRef "$/" glob
-            let match = matchFromMR mr
-            writeRef matchSV match
-            return match
-
-op2Match x (VRule rx@MkRulePGE{ rxGlobal = True }) = do
-    str     <- fromVal x
-    rv      <- doMatch str
-    ifListContext
-        (return . VList $ map VMatch rv)
-        (return . VInt $ genericLength rv)
-    where
-    doMatch str = do
-        match <- str `matchPGE` rxRule rx
-        case match of
-            PGE_Fail        -> return []
-            PGE_Array ms    -> return ms -- XXX impossible
-            PGE_Match _ to _ ms _ -> do
-                rest <- doMatch $ genericDrop to str
-                return $ ms ++ rest
-
-op2Match x (VRule rx@MkRulePGE{ rxGlobal = False }) = do
-    str     <- fromVal x
-    match   <- str `matchPGE` rxRule rx
+    match   <- str `doMatch` rx
     glob    <- askGlobal
     matchSV <- findSymRef "$/" glob
     writeRef matchSV (VMatch match)
     ifListContext
-        (return $ VList (map VMatch $ matchList match))
+        (return $ VList (matchSubPos match))
         (return $ VMatch match)
 
 op2Match x y = op2Cmp vCastStr (==) x y
@@ -1005,6 +991,17 @@ op2Array f x y = do
     size <- doArray x array_fetchSize
     idx  <- size
     return $ castV idx
+
+op2Fold :: Val -> Val -> Eval Val
+op2Fold sub@(VCode _) list = op2Fold list sub
+op2Fold list sub = do
+    args <- fromVal list
+    if null args then return undef else do
+    let doFold x y = do
+        evl <- asks envEval
+        local (\e -> e{ envContext = cxtItemAny }) $ do
+            evl (App (Val sub) [Val x, Val y] [])
+    foldM doFold (head args) (tail args)
 
 op2Grep :: Val -> Val -> Eval Val
 op2Grep sub@(VCode _) list = op2Grep list sub
@@ -1514,10 +1511,12 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   List      pre     map     (Code, List)\
 \\n   List      pre     grep    (Code, List)\
 \\n   List      pre     sort    (Code, List)\
+\\n   List      pre     reduce  (Code, List)\
 \\n   List      pre     sort    (Array)\
 \\n   List      pre     map     (Array: Code)\
 \\n   List      pre     grep    (Array: Code)\
 \\n   List      pre     sort    (Array: Code)\
+\\n   List      pre     reduce  (Array: Code)\
 \\n   Any       pre     splice  (rw!Array, ?Int=0)\
 \\n   Any       pre     splice  (rw!Array, Int, Int)\
 \\n   Any       pre     splice  (rw!Array, Int, Int, List)\
@@ -1638,6 +1637,10 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Str       left    ~<      (Str, Str)\
 \\n   Str       left    ~>      (Str, Str)\
 \\n   Num       spre    [+]     (List)\
+\\n   Num       spre    [-]     (List)\
+\\n   Num       spre    [*]     (List)\
+\\n   Num       spre    [/]     (List)\
+\\n   Str       spre    [~]     (List)\
 \\n   Num       right   **      (Num, Num)\
 \\n   Num       left    +       (Num, Num)\
 \\n   Num       left    -       (Num, Num)\
@@ -1707,7 +1710,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Int       pre     sign    (Num)\
 \\n   Bool      pre     kill    (Thread)\
 \\n   Int       pre     kill    (Int, List)\
-\\n   Str      pre     mkType  (Str)\
+\\n   Str       pre     mkType  (Str)\
 \\n   List      pre     Pugs::Internals::runInteractiveCommand    (?Str=$_)\
 \\n   List      pre     Pugs::Internals::openFile    (?Str,?Str=$_)\
 \\n"
