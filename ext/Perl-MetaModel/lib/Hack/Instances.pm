@@ -30,6 +30,16 @@ sub instance_isa(Str $inst: Str $class) is export {
     return ($inv_class eq $class);
 }
 
+sub blessed(Str $inst:) returns Bool is export {
+    return %INSTANCES.exists($inst);
+    # hmm, this didn't work for me... need to get PGE going anyway
+	#($inst ~~ rx:perl5:{^OBJECT} && %INSTANCES.exists($inst));
+}
+
+# fallback method for other types of things that can't be objects,
+# like numbers or subs.
+sub blessed returns Bool is export { }
+
 =pod
 
 =head1 NAME
