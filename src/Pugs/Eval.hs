@@ -35,6 +35,7 @@ import Pugs.AST
 import Pugs.Junc
 import Pugs.Bind
 import Pugs.Prim
+import Pugs.Prim.Match (op2Match)
 import Pugs.Context
 import Pugs.Monads
 import Pugs.Pretty
