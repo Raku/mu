@@ -28,6 +28,7 @@ import qualified Data.Array as Array
 
 import Pugs.Prim.Keyed
 import Pugs.Prim.Yaml
+import qualified Pugs.Prim.FileTest as FileTest
 
 op0 :: Ident -> [Val] -> Eval Val
 op0 "!"  = fmap opJuncNone . mapM fromVal
@@ -249,14 +250,14 @@ op1 "sleep" = boolIO (threadDelay . (* 1000000))
 op1 "mkdir" = boolIO createDirectory
 op1 "rmdir" = boolIO removeDirectory
 op1 "chdir" = boolIO setCurrentDirectory
-op1 "-r"    = fileTestIO fileTestIsReadable
-op1 "-w"    = fileTestIO fileTestIsWritable
-op1 "-x"    = fileTestIO fileTestIsExecutable
-op1 "-e"    = fileTestIO fileTestExists
-op1 "-z"    = fileTestIO fileTestSizeIsZero
-op1 "-s"    = fileTestIO fileTestFileSize
-op1 "-f"    = fileTestIO fileTestIsFile
-op1 "-d"    = fileTestIO fileTestIsDirectory
+op1 "-r"    = FileTest.isReadable
+op1 "-w"    = FileTest.isWritable
+op1 "-x"    = FileTest.isExecutable
+op1 "-e"    = FileTest.exists
+op1 "-z"    = FileTest.sizeIsZero
+op1 "-s"    = FileTest.fileSize
+op1 "-f"    = FileTest.isFile
+op1 "-d"    = FileTest.isDirectory
 op1 "end"   = op1Cast (VInt . (-1 +) . (genericLength :: VList -> VInt))
 op1 "elems" = op1Cast (VInt . (genericLength :: VList -> VInt))
 op1 "graphs"= op1Cast (VInt . (genericLength :: String -> VInt)) -- XXX Wrong
@@ -1231,66 +1232,6 @@ foldParam ('?':str)
     = \ps -> (buildParam str "?" "$?1" (Val VUndef):ps)
 foldParam ('~':str) = \ps -> (((buildParam str "" "$?1" (Val VUndef)) { isLValue = False }) { isLazy = True }:ps)
 foldParam x         = doFoldParam x []
-
--- filetest operators --
-
--- Officially, these should return a stat object, which sometimes pretends
--- to be a boolean, and may(?) return the filename in string context.
--- DARCS was working on stat, and we should perhaps grab their work:
---  http://www.abridgegame.org/pipermail/darcs-users/2005-February/005499.html
--- They currently (2004-04-05) seem to be using:
---  http://abridgegame.org/cgi-bin/darcs.cgi/darcs/win32/System/Posix.hs
--- For the moment, these return filename and false or undef.
--- Known Bugs: multiple stat()s are done, and filename isnt a boolean.
-
-fileTestIO :: (Value n) => (n -> IO Val) -> Val -> Eval Val
-fileTestIO f v = do
-    str <- fromVal =<< fromVal' v
-    tryIO undef $ f str
-
-fileTestIsReadable :: FilePath -> IO Val
-fileTestIsReadable f = do
-    p <- getPermissions f
-    let b = readable p
-    return $ if b then castV f else VBool False
-
-fileTestIsWritable :: FilePath -> IO Val
-fileTestIsWritable f = do
-    p <- getPermissions f
-    let b = writable p
-    return $ if b then castV f else VBool False
-
-fileTestIsExecutable :: FilePath -> IO Val
-fileTestIsExecutable f = do
-    p <- getPermissions f
-    let b = executable p || searchable p
-    return $ if b then castV f else VBool False
-
-fileTestExists :: FilePath -> IO Val
-fileTestExists f = do
-    b1 <- doesFileExist f
-    b2 <- doesDirectoryExist f
-    return $ if b1 || b2 then castV f else VBool False
-
-fileTestIsFile :: FilePath -> IO Val
-fileTestIsFile f = do
-    b <- doesFileExist f
-    return $ if b then castV f else VBool False
-
-fileTestIsDirectory :: FilePath -> IO Val
-fileTestIsDirectory f = do
-    b <- doesDirectoryExist f
-    return $ if b then castV f else VBool False
-
-fileTestFileSize :: FilePath -> IO Val
-fileTestFileSize f = do
-    n <- statFileSize f
-    return $ VInt n
-
-fileTestSizeIsZero :: FilePath -> IO Val
-fileTestSizeIsZero f = do
-    n <- statFileSize f
-    return $ if n == 0 then VBool True else VBool False
 
 prettyVal :: Int -> Val -> Eval VStr
 prettyVal 10 _ = return "..."
