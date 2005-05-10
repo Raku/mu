@@ -118,7 +118,7 @@ sub svn_commits() {
 	# Break the loop if we see $cur_svnrev -- that means, there're no new
 	# commits.
 	return if $1 == $cur_svnrev;
-	$cur_svnrev = $1;
+	$cur_svnrev = $1 if $1 > $cur_svnrev;
       }
 
       when rx:P5/\S/ {
