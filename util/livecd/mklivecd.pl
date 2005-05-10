@@ -74,17 +74,21 @@ it needs on it. Finally, it will call mkisofs to create a ISO9660 image.
 
 You can stop this program at any time, it'll continue when you run it again.
 
-*Note*: This program should be run as unpreviliged user, it will ask you to
-enter commands requiring root privilegies.
+Note: This program should be run as unpreviliged user, it will ask you to enter
+      commands requiring root privilegies.
 
-*Note*: The only option you'll have to specify is probably --initrd-mnt.
+Note: The only option you'll have to specify is probably --initrd-mnt.
 
-*Note*: I only tested this program on Linux, but it should work on other *nix
-systems, too. For now, I made the script stop if you aren't running under
-Linux, you may want to change that.
+Note: I only tested this program on Linux, but it should work on other *nix
+      systems, too. For now, I made the script stop if you aren't running under
+      Linux, you may want to change that.
 
-*Note*: A precompiled (but most of the time outdated) image is available at
-http://m19s28.vlinux.de/iblech/pugs/livecd.iso.
+Note: A precompiled (but most of the time outdated) image is available at
+      http://m19s28.vlinux.de/iblech/pugs/livecd.iso.
+
+Note: If you want to modify the kernel used, you may want to use the
+      configuration at
+      http://m19s28.vlinux.de/iblech/pugs/livecd-kernel.config.
 
 Available options and defaults:
   --kernel-uri=$kernel_uri

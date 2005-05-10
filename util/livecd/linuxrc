@@ -14,4 +14,5 @@ PS1="[root@pugs] \w # " bash
 echo
 echo "Thanks for trying Pugs!"
 echo "You can safely switch your computer off now."
+echo "If you want to find out more about Pugs, visit http://www.pugscode.org/."
 while :; do pugs -we 'sleep 86400'; done
