@@ -28,7 +28,10 @@ runP :: Monad m => (forall r. P r m a) -> m a
 runP pe = evalStateT pe 0
 
 newPrompt :: Monad m => P r m (Prompt r a)
-newPrompt = get >>= (return . Prompt)
+newPrompt = do
+            n <- get
+            put (n+1)
+            return $ Prompt n
 
 eqPrompt :: Prompt r a -> Prompt r b -> Maybe (a -> b, b -> a)
 eqPrompt (Prompt p1) (Prompt p2)  
