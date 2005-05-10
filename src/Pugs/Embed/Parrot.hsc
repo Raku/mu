@@ -37,7 +37,7 @@ evalPGE :: FilePath -> String -> String -> [(String, String)] -> IO String
 evalPGE path str pattern subrules = do
     cmd <- findParrot
     (_, out, err, pid) <- runInteractiveProcess cmd
-        ["run_pge.pbc", str, pattern] ++ concatMap (\(n, r) -> [n, r]) subrules
+        (["run_pge.pbc", str, pattern] ++ concatMap (\(n, r) -> [n, r]) subrules)
         (Just path) Nothing 
     rv      <- waitForProcess pid
     errMsg  <- hGetContents err
