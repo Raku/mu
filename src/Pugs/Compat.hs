@@ -82,16 +82,20 @@ setEnv k v _ = withCWString k $ \ key ->
                  rc <- win32SetEnv key value
                  return $ rc
 
-getEnv :: String -> IO String
-getEnv k = withCWString k $ \ key ->
-           withCWString (replicate size ' ') $ \ buf -> do
-             rc <- win32GetEnv key buf size
-             if rc > 0
-               then peekCWString buf
-               else ioError $ userError "environment variable does not exist"
-             where
-             size = 32768
-             -- b = mallocForeignPtrBytes size
+getEnv :: String -> IO (Maybe String)
+getEnv k = do
+    e <- getEnv' k
+    return $ Just e
+
+getEnv' k' = withCWString k' $ \ key ->
+    withCWString (replicate size ' ') $ \ buf -> do
+      rc <- win32GetEnv key buf size
+      if rc > 0
+        then peekCWString buf
+        else ioError $ userError "environment variable does not exist"
+      where
+        size = 32768
+        -- b = mallocForeignPtrBytes size
 
 unsetEnv :: String -> IO ()
 unsetEnv k = withCWString k $ \ key -> withCWString "" $ \ v -> do
