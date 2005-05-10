@@ -50,6 +50,8 @@ Meta-Model Hacking can be a mind-bending exercise, good music helps :)
 
 =item I<Boogie Down Productions - Ghetto Music: The Blueprint of Hip Hop>
 
+=item I<Glenn Branca - Symphony No. 6 (Devil Choir At The Gates of Heaven)>
+
 =back
 
 =head1 AUTHORS

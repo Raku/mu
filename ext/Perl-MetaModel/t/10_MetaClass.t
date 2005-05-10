@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 42;
+plan 44;
 
 use_ok('Perl::MetaClass');
 use_ok('Perl::MetaProperty');
@@ -48,6 +48,13 @@ ok($role.clsIsa($package), '... $role is-a $package');
 my @subclasses = $package.clsSubClasses();
 is(+@subclasses, 1, '... $package has one subclass');
 is(@subclasses[0], $role, '... and it is the $role');
+
+# make sure we *dont* do circular inheritence
+
+dies_ok {
+    $package.clsSuper($role);
+}, '... cannot make a subclass into a superclass';
+like($!, rx:perl5/^The super class cannot inherit from the invocant \(circular inheritance\)/, '... got the right error');
 
 # Sub Classes
 

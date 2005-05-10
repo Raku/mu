@@ -38,8 +38,12 @@ sub clsSuper(Str $inv: Str ?$super) returns Str {
         # NOTE:
         # we enforce the following rule on superclasses:
         # - it must be an instance of Perl::MetaClass
+        # - the intended super class cannot itself inherit 
+        #   from the invocant (circular inheritance)
         ($super.instance_isa('Perl::MetaClass'))
             || die "Super class must be a Perl::MetaClass instance";   
+        (!$super.clsIsa($inv))
+            || die "The super class cannot inherit from the invocant (circular inheritance)";            
         # if super is being changed ...
         if %self<super> {
             # we need to remove the invocant 
@@ -72,9 +76,6 @@ sub clsSubClasses(Str $inv: Array *@subclasses) returns Array {
                 || die "Sub class must be a Perl::MetaClass instance (got: '$subclass')"; 
             ($subclass.clsSuper() && $subclass.clsSuper().clsName() eq $inv.clsName())
                 || die "Sub class's superclass must be the invocant (got: '{ $subclass.clsSuper() }')";    
-            ($subclass.clsName() ne $inv.clsSuper().clsName())
-                || die "Subclass cannot be the superclass of the invocant"
-                    if $inv.clsSuper();
             %inv_subclasses{$subclass} = undef;
         } 
         %self<subclasses> = \%inv_subclasses;    
@@ -90,7 +91,7 @@ sub clsIsa (Str $inv: Str $class) returns Bool {
     # return false if the $inv has no superclass
     return 0 unless $inv.clsSuper();
     # if the superclass is equal to class then return true
-    return 1 if $inv.clsSuper().clsName() eq $class;
+    return 1 if $inv.clsSuper().clsName() eq $class; 
     # if not, check against the superclass 
     return $inv.clsSuper().clsIsa($class);
 }
