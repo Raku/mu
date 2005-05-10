@@ -2,12 +2,13 @@
 use v6;
 module Hack::Instances-0.0.1;
 
+my $INSTANCE_COUNT = 0;
 my %INSTANCES;
 
 sub make_instance($class, $obj is rw) returns Str is export {
     my $id;
     while ( !$id.defined or %INSTANCES.exists($id) ) {
-	    $id = "OBJECT;$class;" ~ substr(rand() ~ "", 2, 15);
+	    $id = "OBJECT;$class;" ~ substr(rand() ~ "", 2, 15) ~ ";" ~ $INSTANCE_COUNT++;
     }
     %INSTANCES{$id} = $obj;
     return $id;
