@@ -4,12 +4,14 @@ module Perl::MetaProperty-0.0.1;
 
 use Hack::Instances; 
 
-sub Perl::MetaProperty::new(Str $type, Any +$default) returns Str is export {
+sub Perl::MetaProperty::new(Str $type, Any +$default, Str +$visibility) returns Str is export {
     my $id = make_instance("Perl::MetaProperty", { 
-        'type'    => $type,
-        'default' => undef
+        'type'       => $type,
+        'default'    => undef,
+        'visibility' => undef,
     });
-    $id.propDefault($default) if $default.defined;
+    $id.propDefault($default)       if $default.defined;
+    $id.propVisibility($visibility) if $visibility.defined;    
     return $id;
 }
 
@@ -47,6 +49,16 @@ sub propDefault(Str $inv: Any ?$default) returns Any {
     return %self<default>;
 }
 
+sub propVisibility(Str $inv: Str ?$visibility) returns Str {
+    my %self := get_instance($inv, "Perl::MetaProperty");
+    if $visibility.defined {
+        ($visibility ~~ rx:perl5:i/(private|public)/)
+            || die "Visibility must be either 'Private' of 'Public' (got: '$visibility')";
+        %self<visibility> = $visibility;
+    }
+    return %self<visibility>;
+}
+
 =pod
 
 =head1 NAME
@@ -68,6 +80,8 @@ Perl::MetaProperty - A meta-model for Perl Classes
 =item B<propType($inv: ?$type)>
 
 =item B<propDefault($inv: ?$default)>
+
+=item B<propVisibility($inv: ?$visibility)>
 
 =back
 

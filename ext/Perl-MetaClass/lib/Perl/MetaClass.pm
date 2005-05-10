@@ -91,15 +91,31 @@ sub clsProperties(Str $inv: Array *@properties) returns Hash {
     return %self<properties>;
 }
 
-sub clsMethods(Str $inv: Hash ?%methods) returns Hash {
+sub clsMethods(Str $inv: Array *@methods) returns Hash {
     my %self := get_instance($inv, "Perl::MetaClass");
-    %self<methods> = \%methods if %methods.defined;
+    if @methods {
+        for @methods -> $key, $value {
+            ($value.instance_isa('Perl::MetaMethod'))
+                || die "Method values must be a Perl::MetaMethod instance (got: '$value')";             
+            my %methods = %self<methods>;
+            %methods{$key} = $value;
+            %self<methods> = \%methods;                 
+        }
+    }
     return %self<methods>;
 }
 
-sub clsAssocs(Str $inv: Hash ?%assocs) returns Hash {
+sub clsAssocs(Str $inv: Array *@assocs) returns Hash {
     my %self := get_instance($inv, "Perl::MetaClass");
-    %self<assocs> = \%assocs if %assocs.defined;
+    if @assocs {
+        for @assocs -> $key, $value {
+            ($value.instance_isa('Perl::MetaAssoc'))
+                || die "Assoc values must be a Perl::MetaAssoc instance (got: '$value')";             
+            my %assocs = %self<assocs>;
+            %assocs{$key} = $value;
+            %self<assocs> = \%assocs;                 
+        }
+    }
     return %self<assocs>;
 }
 
