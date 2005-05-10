@@ -83,19 +83,17 @@ setEnv k v _ = withCWString k $ \ key ->
                  return $ rc
 
 getEnv :: String -> IO (Maybe String)
-getEnv k = do
-    e <- getEnv' k
-    return $ Just e
-
-getEnv' k' = withCWString k' $ \ key ->
+getEnv k = withCWString k $ \ key ->
     withCWString (replicate size ' ') $ \ buf -> do
       rc <- win32GetEnv key buf size
       if rc > 0
-        then peekCWString buf
-        else ioError $ userError "environment variable does not exist"
+        then do
+          t <- peekCWString buf
+          return $ Just t
+        else
+          return $ Nothing
       where
         size = 32768
-        -- b = mallocForeignPtrBytes size
 
 unsetEnv :: String -> IO ()
 unsetEnv k = withCWString k $ \ key -> withCWString "" $ \ v -> do
@@ -128,12 +126,7 @@ statFileSize n = bracket (openFile n ReadMode) hClose hFileSize
 -- statFileSize _ = failWith "-s"
 
 -- Again, Win32 specific magic, as stolen from GHC
--- see http://cvs.haskell.org/cgi-bin/cvsweb.cgi/fptools/ghc/compiler/main/SysTools.lhs?rev=1.115
-foreign import ccall "_getpid" getProcessID :: IO Int
-
--- In theory, the following should work as well on Win32,
--- but in practice, it doesn't
--- foreign import stdcall "GetCurrentProcessID" c_getProcessID :: Int -- relies on Int == Int32 on Windows
+foreign import stdcall "GetCurrentProcessId" getProcessID :: IO Int -- relies on Int == Int32 on Windows
 
 -- getProcessID :: IO Int
 -- getProcessID = return $ 1
