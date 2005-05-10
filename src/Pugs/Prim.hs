@@ -28,6 +28,8 @@ import qualified Data.Map as Map
 import qualified Data.Array as Array
 import qualified Data.IntMap as IntMap
 
+import Pugs.Prim.Keyed
+
 op0 :: Ident -> [Val] -> Eval Val
 op0 "!"  = fmap opJuncNone . mapM fromVal
 op0 "&"  = fmap opJuncAll  . mapM fromVal
@@ -487,25 +489,13 @@ op2Cast f x y = do
     return (f x' y')
 
 op1Pairs :: Val -> Eval [Val]
-op1Pairs v = do
-    ref  <- fromVal v
-    vals <- pairsFromRef ref
-    return vals
+op1Pairs = pairsFromVal
 
 op1Keys :: Val -> Eval Val
-op1Keys (VList vs) = return . VList $ map VInt [0 .. (genericLength vs) - 1]
-op1Keys (VRef ref) = do
-    vals <- keysFromRef ref
-    return $ VList vals
-op1Keys v = retError "Not a keyed reference" v
+op1Keys = keysFromVal
 
 op1Values :: Val -> Eval Val
-op1Values (VJunc j) = return . VList . Set.elems $ juncSet j
-op1Values v@(VList _) = return v
-op1Values (VRef ref) = do
-    vals <- valuesFromRef ref
-    return $ VList vals
-op1Values v = retError "Not a keyed reference" v
+op1Values = valuesFromVal
 
 op1StrFirst :: (Char -> Char) -> Val -> Eval Val
 op1StrFirst f = op1Cast $ VStr .
@@ -1332,89 +1322,6 @@ fileTestSizeIsZero :: FilePath -> IO Val
 fileTestSizeIsZero f = do
     n <- statFileSize f
     return $ if n == 0 then VBool True else VBool False
-
--- XXX These bulks of code below screams for refactoring
-
-pairsFromRef :: VRef -> Eval [Val]
-pairsFromRef r@(MkRef (IPair _)) = do
-    return [VRef r]
-pairsFromRef (MkRef (IHash hv)) = do
-    keys    <- hash_fetchKeys hv
-    elems   <- mapM (hash_fetchElem hv) keys
-    return $ map (VRef . MkRef . IPair) (keys `zip` elems)
-pairsFromRef (MkRef (IArray av)) = do
-    vals    <- array_fetch av
-    return $ map castV ((map VInt [0..]) `zip` vals)
-pairsFromRef (MkRef (IScalar sv)) = do
-    refVal  <- scalar_fetch sv
-    op1Pairs refVal
-pairsFromRef ref = retError "Not a keyed reference" ref
-
-keysFromRef :: VRef -> Eval [Val]
-keysFromRef (MkRef (IPair pv)) = do
-    key     <- pair_fetchKey pv
-    return [key]
-keysFromRef (MkRef (IHash hv)) = do
-    keys    <- hash_fetchKeys hv
-    return $ map castV keys
-keysFromRef (MkRef (IArray av)) = do
-    keys    <- array_fetchKeys av
-    return $ map castV keys
-keysFromRef (MkRef (IScalar sv)) = do
-    refVal  <- scalar_fetch sv
-    if defined refVal
-        then fromVal =<< op1Keys refVal
-        else return []
-keysFromRef ref = retError "Not a keyed reference" ref
-
-valuesFromRef :: VRef -> Eval [Val]
-valuesFromRef (MkRef (IPair pv)) = do
-    val   <- pair_fetchVal pv
-    return [val]
-valuesFromRef (MkRef (IHash hv)) = do
-    pairs <- hash_fetch hv
-    return $ Map.elems pairs
-valuesFromRef (MkRef (IArray av)) = array_fetch av
-valuesFromRef (MkRef (IScalar sv)) = do
-    refVal  <- scalar_fetch sv
-    if defined refVal
-        then fromVal =<< op1Values refVal
-        else return []
-valuesFromRef ref = retError "Not a keyed reference" ref
-
-existsFromRef :: VRef -> Val -> Eval VBool
-existsFromRef (MkRef (IHash hv)) val = do
-    idx     <- fromVal val
-    hash_existsElem hv idx
-existsFromRef (MkRef (IArray av)) val = do
-    idx     <- fromVal val
-    array_existsElem av idx
-existsFromRef (MkRef (IScalar sv)) val = do
-    refVal  <- scalar_fetch sv
-    ref     <- fromVal refVal
-    existsFromRef ref val
-existsFromRef ref _ = retError "Not a keyed reference" ref
-
-deleteFromRef :: VRef -> Val -> Eval Val
-deleteFromRef (MkRef (IHash hv)) val = do
-    idxs    <- fromVals val
-    rv      <- forM idxs $ \idx -> do
-        val <- hash_fetchVal hv idx
-        hash_deleteElem hv idx
-        return val
-    return $ VList rv
-deleteFromRef (MkRef (IArray av)) val = do
-    idxs    <- fromVals val
-    rv      <- forM idxs $ \idx -> do
-        val <- array_fetchVal av idx
-        array_deleteElem av idx
-        return val
-    return $ VList rv
-deleteFromRef (MkRef (IScalar sv)) val = do
-    refVal  <- scalar_fetch sv
-    ref     <- fromVal refVal
-    deleteFromRef ref val
-deleteFromRef ref _ = retError "Not a keyed reference" ref
 
 prettyVal :: Int -> Val -> Eval VStr
 prettyVal 10 _ = return "..."
