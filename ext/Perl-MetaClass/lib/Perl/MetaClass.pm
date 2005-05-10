@@ -160,17 +160,24 @@ Perl::MetaClass - A meta-model for Perl Classes
   my $role = Perl::MetaClass::new('Role');  
   my $module = Perl::MetaClass::new('Module');    
   
-  $role.clsSuperClass($package);
-  $module.clsSuperClass($package);  
+  $role.clsSuper($package);
+  $module.clsSuper($package);  
   
   my $class = Perl::MetaClass::new('Class');  
-  $class.clsSuperClass($role);  
+  $class.clsSuper($role);  
+  
+  $class.clsIsa('Package');
 
 =head1 DESCRIPTION
 
-A Perl::MetaClass object is an object which holds objects that
-describe the Perl 6 Class system (or, potentially, any other Class
-system too).
+Perl::MetaClass is the meta-model of the Perl6 object system. The code 
+in this module itself is the meta-meta-model of the Perl6 object system.
+
+  Perl::MetaClass    S12 term     Access from Perl as
+  ---------------    ---------    -------------------
+  Perl::MetaClass    -            MyClass.meta.meta
+  Perl::Class        MetaClass    MyClass.meta
+  ?                  Class        MyClass
 
 =head1 PRIOR ART
 
@@ -186,9 +193,44 @@ Roles-based model of Perl 6 will.
 
 =over 4
 
-=item I<Squarpusher - Alive in Japan>
+=item I<Squarepusher - Alive in Japan>
+
+=item I<Boogie Down Productions - Ghetto Music: The Blueprint of Hip Hop>
 
 =back
+
+=head1 NOTES ON USAGE
+
+=head2 Modeling Inheritance
+
+Inheritance relationships are best defined using C<.clsSuper> rather that C<.clsSubClasses>.
+Currently C<.clsSuper> will deal with all subclass related issues automagically, while 
+C<.clsSubClasses> will not allow a subclass to be assigned unless already has it's superclass
+assigned (which would have already taken care of the subclass, making the entire action 
+redundant anyway).
+
+So this means that this is the proper way to set up an inheritance relationship:
+
+  my $package = Perl::MetaClass::new('Package');
+  my $role = Perl::MetaClass::new('Role');  
+
+  $role.clsSuper($package);
+  
+And this code would fail:
+
+  my $package = Perl::MetaClass::new('Package');
+  my $role = Perl::MetaClass::new('Role');  
+
+  $package.clsSubClasses($role);  # << this will die
+  
+And this would just be redundant: 
+
+  my $package = Perl::MetaClass::new('Package');
+  my $role = Perl::MetaClass::new('Role');  
+
+  $role.clsSuper($package);
+  $package.clsSubClasses($role); # << this is redundant, it is already done automagically
+
 
 =head1 METHODS
 
@@ -198,7 +240,7 @@ Roles-based model of Perl 6 will.
 
 =item B<clsName($inv: ?$name)>
 
-=item B<clsSuperClass($inv: ?$superclass)>
+=item B<clsSuper($inv: ?$superclass)>
 
 =item B<clsSubClasses($inv: *@subclasses)>
 
