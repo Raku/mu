@@ -67,6 +67,7 @@ sub new_bot(
   my $self;
 
   # Default (passive) handlers
+  # First event we get, indicating a successful login
   %handler<001> = [-> $event {
     $inside++;
     $servername     = $event<server>;
@@ -77,11 +78,16 @@ sub new_bot(
     $self<who>($curnick);
     debug "Logged in to \"$servername\" as \"$curnick\".";
   }];
+
+  # Nick already used, so we permute our nick.
   %handler<433> = [-> $event {
     if $in_login_phase {
       $self<nick>($nickgen<next>());
     }
   }];
+
+  # /WHO (we /WHO ourselves so we can provide accurate username, hostname, and
+  # ircname information.)
   %handler<352> = [-> $event {
     my %rest;
     %rest<_ username hostname servername nickname umode _ ircname> =
@@ -91,6 +97,19 @@ sub new_bot(
 	%rest<username hostname ircname>;
     }
   }];
+
+  # The topic of a chan.
+  %handler<332> = [-> $event {
+    my ($chan, $topic) = split " ", $event<rest>;
+    $topic = strip_colon($topic);
+
+    # %channels{normalize $chan}<topic> = $topic;
+  }];
+  %handler<TOPIC> = [-> $event {
+    # %channels{normalize $event<object>}<topic> = $event<rest>;
+  }];
+
+  # We track our status, especially the channels we've joined.
   %handler<JOIN> = [-> $event {
     if(normalize($event<from_nick>) eq normalize($curnick)) {
       push @on_chans, $event<object>;
@@ -171,7 +190,7 @@ sub new_bot(
     channels      => { @on_chans },
     channel       => -> Str $channel { %channels{normalize $channel} },
 
-    # Handler register methods
+    # Main handler register method
     add_handler => -> Str $code, Code $cb { %handler{$code}.push($cb) },
 
     # Connect/disconnect methods
@@ -195,6 +214,7 @@ sub new_bot(
       if($connected) {
 	debug "Disconnecting from $host:$port... ";
 	try { $hdl.close }
+	# We want to have a sane state when we connect next time.
 	$connected      = 0;
 	$inside         = 0;
 	@on_chans       = ();
@@ -218,6 +238,9 @@ sub new_bot(
     login => {
       if($connected) {
 	$queue<enqueue>({
+	  # Indicate that we're currently logging in, so our nick_already_used
+	  # handler can choose a different nick. $in_login_phase is reset to 0
+	  # when we're successfully logged in.
 	  $in_login_phase++;
 	  $say("NICK {$nickgen<next>()}");
 	  $say("USER $username * * :$ircname");
@@ -240,6 +263,8 @@ sub new_bot(
       my $line = readline $hdl;
       $line ~~ s:P5/[\015\012]*$//; # Hack to remove all "\r\n"s
       debug_recv $line if $debug_raw;
+      # We record the time the last traffic from the server was seen, so we can
+      # autoping the server if needed.
       $last_traffic = time;
 
       if($line ~~ rx:P5/^:([^ ]+) (\d+) ([^ ]+) ?(.*)$/) {
@@ -286,6 +311,7 @@ sub new_bot(
       }
     },
 
+    # Handle pseudo events (runloop, loggedin)
     handle_pseudo => -> Str $pseudo, *@args {
       my $event = {
 	pseudo => $pseudo,
