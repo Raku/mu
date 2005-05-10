@@ -109,7 +109,6 @@ import Data.Unique
 import Data.Ratio
 import Data.Word
 import Data.Char (chr, ord, digitToInt)
-import Data.Ratio
 import Data.Complex
 import Data.Tree
 import Data.Set (Set)
