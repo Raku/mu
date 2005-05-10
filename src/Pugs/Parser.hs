@@ -125,6 +125,10 @@ mergeStmts (Stmts x1 x2) y = mergeStmts x1 (mergeStmts x2 y)
 mergeStmts Noop y@(Stmts _ _) = y
 mergeStmts (Sym scope name x) y = Sym scope name (mergeStmts x y)
 mergeStmts (Pad scope lex x) y = Pad scope lex (mergeStmts x y)
+mergeStmts x@(Pos pos (Syn "rx" _)) y =
+    mergeStmts (Pos pos (App (Var "&infix:~~") [Var "$_", x] [])) y
+mergeStmts x y@(Pos pos (Syn "rx" _)) =
+    mergeStmts x (Pos pos (App (Var "&infix:~~") [Var "$_", y] []))
 mergeStmts x@(Pos pos (Syn "subst" _)) y =
     mergeStmts (Pos pos (App (Var "&infix:~~") [Var "$_", x] [])) y
 mergeStmts x y@(Pos pos (Syn "subst" _)) =
