@@ -57,6 +57,11 @@ sub new_bot(
   my $nickgen = new_permutation($nick);
 			   # A permutation object, providing the methods
 			   # "reset" and "next".
+  my %channels;            # Stores the current topic, the users on the
+                           # channel, etc. Note: Hash keys are always
+			   # normalized() first!
+  my %users;               # Stores the channels a user is on. Note: As with
+			   # %channels, hash keys are always normalized().
   my $in_login_phase;
 
   my $self;
@@ -91,12 +96,19 @@ sub new_bot(
       push @on_chans, $event<object>;
       debug "Joined channel \"$event<object>\".";
     }
+
+    # %channels{normalize $event<object>}<users>{$event<from_nick>}++;
+    # %users{normalize $event<from_nick>}<channels>{normalize $event<object>}++;
   }];
   %handler<PART> = [-> $event {
     if(normalize($event<from_nick>) eq normalize($curnick)) {
       @on_chans .= grep:{ $^chan ne $event<object> };
       debug "Left channel \"$event<object>\".";
     }
+
+    # %channels{normalize $event<object>}<users>.delete(normalize $event<from_nick>);
+    # %users{normalize $event<from_nick>}<channels>.delete(normalize $event<object>)
+    #   if %users{normalize $event<from_nick>}<channels>;
   }];
   %handler<KICK> = [-> $event {
     my ($kickee, $reason) = split " ", $event<rest>;
@@ -105,6 +117,10 @@ sub new_bot(
       @on_chans .= grep:{ $^chan ne $event<object> };
       debug "Was kicked from channel \"$event<object>\" by \"$event<from>\" (\"$reason\").";
     }
+
+    # %channels{normalize $event<object>}<users>.delete(normalize $kickee);
+    # %users{normalize $kickee}<channels>.delete(normalize $event<object>)
+    #   if %users{normalize $kickee}<channels>;
   }];
   %handler<KILL> = [-> $event {
     my ($killee, $reason) = $event<object rest>;
@@ -112,12 +128,25 @@ sub new_bot(
       @on_chans = ();
       debug "Was killed by \"$event<from>\" (\"$reason\").";
     }
+
+    # my @chans = %users{normalize $killee}<channels>.keys;
+    # %channels{$_}<users>.delete(normalize $killee) for @chans;
+    # %users.delete(normalize $killee);
   }];
   %handler<NICK> = [-> $event {
     if(normalize($event<from_nick>) eq normalize($curnick)) {
       $curnick = $event<object>;
       debug "Changed nick to \"$event<object>\".";
     }
+
+    # my $oldnick = normalize $event<from_nick>;
+    # my $newnick = normalize $event<object>;
+    # for %users{$oldnick}<channels> {
+    #   %channels{$_}<users>.delete($oldnick);
+    #   %channels{$_}<users>{$newnick}++;
+    # }
+    # my %old = %users.delete($oldnick);
+    # %users{$newnick} = %old;
   }];
 
   # Sub which sends $msg, flushes $hdl and logs $msg to STDERR.
@@ -140,6 +169,7 @@ sub new_bot(
     last_traffic  => { $last_traffic },
     last_autoping => { $last_autoping },
     channels      => { @on_chans },
+    channel       => -> Str $channel { %channels{normalize $channel} },
 
     # Handler register methods
     add_handler => -> Str $code, Code $cb { %handler{$code}.push($cb) },
@@ -177,6 +207,7 @@ sub new_bot(
 	$last_traffic   = 0;
 	$last_autoping  = 0;
 	$in_login_phase = 0;
+	%channels       = ();
 	$queue<clear>();
 	$nickgen<reset>();
 	debug "done.";
@@ -205,7 +236,7 @@ sub new_bot(
     },
 
     # Read a line from the server and process it
-    "readline" => {
+    readline => {
       my $line = readline $hdl;
       $line ~~ s:P5/[\015\012]*$//; # Hack to remove all "\r\n"s
       debug_recv $line if $debug_raw;
@@ -244,7 +275,7 @@ sub new_bot(
       my $from_nick; $from_nick = $1 if $from ~~ rx:P5/^([^!]+)!/; #/#--vim
       my $event = {
 	line      => $line,
-	"from"    => $from,
+	from      => $from,
 	from_nick => $from_nick,
 	rest      => strip_colon($rest),
 	object    => strip_colon($object),
@@ -290,7 +321,7 @@ sub new_bot(
     },
 
     # JOIN/PART/KICK/...
-    "join" => -> Str $channel, Str ?$key {
+    join => -> Str $channel, Str ?$key {
       if $connected {
 	if defined $key {
 	  $queue<enqueue>({ $say("JOIN $channel $key") });
@@ -403,7 +434,7 @@ sub strip_colon(Str $str is copy) {
   return $str;
 }
 
-sub normalize(Str $str) { return lc $str }
+sub normalize(Str $str) returns Str { return lc $str }
 
 =head1 NAME
 
