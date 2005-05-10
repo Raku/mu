@@ -44,7 +44,7 @@ sub on_privmsg($event) {
       my $reply_msg = %seen{$1}
 	?? "$1 was last seen {time() - %seen{$1}<date>} seconds ago, saying: %seen{$1}<text>"
 	:: "Never seen $1.";
-      $bot<notice>("to" => $reply_to, text => $reply_msg);
+      $bot<notice>(to => $reply_to, text => $reply_msg);
     }
 
     when rx:P5/^\?quit\s*(.*)$/ {
@@ -60,7 +60,7 @@ sub on_privmsg($event) {
     when rx:P5/^\?uptime$/ {
       debug "Got uptime request from \"$event<from>\".";
       my $start_time = BEGIN { time };
-      $bot<notice>("to" => $reply_to, text => "Running for {time() - $start_time} seconds.");
+      $bot<notice>(to => $reply_to, text => "Running for {time() - $start_time} seconds.");
     }
 
     when rx:P5/^\?sleep\s+(\d+)$/ {
@@ -80,7 +80,7 @@ sub on_privmsg($event) {
     # their users enter /PING bot.
     when rx:P5/^\001PING (.*)\001$/ {
       debug "Was CTCP-PINGed from \"$event<from>\".";
-      $bot<notice>("to" => $event<from_nick>, text => "\001PING $1\001");
+      $bot<notice>(to => $event<from_nick>, text => "\001PING $1\001");
     }
   }
 }

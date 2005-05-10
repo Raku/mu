@@ -878,9 +878,11 @@ makeOp1 :: (RuleParser (Exp -> a) -> b) ->
 makeOp1 prec sigil con name = prec $ try $ do
     symbol name
     -- `int(3)+4` should not be parsed as `int((3)+4)`
-    when (isWordAny (last name)) $ do
-        lookAhead (satisfy (/= '('))
-        return ()
+    when (isWordAny (last name)) $ try $ choice
+        [ do { char '('; unexpected "(" } 
+        , do { string "=>"; unexpected "=>" } 
+        , return ()
+        ]
     return $ \x -> con fullName $ case x of
         Syn "" []   -> []
         _           -> [x]

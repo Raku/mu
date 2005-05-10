@@ -230,7 +230,7 @@ sub new_bot(
       my $event = {
 	line   => $line,
 	server => $server,
-	"to"   => $to,
+	to     => $to,
 	rest   => strip_colon($rest),
       };
 
