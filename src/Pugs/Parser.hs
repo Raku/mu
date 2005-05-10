@@ -199,6 +199,7 @@ ruleBlockDeclaration :: RuleParser Exp
 ruleBlockDeclaration = rule "block declaration" $ choice
     [ ruleSubDeclaration
     , ruleClosureTrait False
+    , ruleRuleDeclaration
     ]
 
 ruleDeclaration :: RuleParser Exp
@@ -248,6 +249,16 @@ doExtract formal body = (fun, names', params)
     params = map nameToParam (sort names')
         ++ (maybe (if null names' then [defaultArrayParam] else []) id formal)
 
+ruleRuleDeclaration :: RuleParser Exp
+ruleRuleDeclaration = rule "rule declaration" $ try $ do
+    symbol "rule"
+    name    <- identifier
+    adverbs <- ruleAdverbHash
+    ch      <- char '{'
+    expr    <- rxLiteralAny adverbs $ balancedDelim ch
+    let exp = Syn ":=" [Var ('<':name), Syn "rx" [expr, adverbs]] -- , bodyPos)
+    unsafeEvalExp (Sym SGlobal ('<':name) exp)
+    return emptyExp
 
 ruleSubDeclaration :: RuleParser Exp
 ruleSubDeclaration = rule "subroutine declaration" $ do
@@ -1501,11 +1512,10 @@ rxLiteral :: RuleParser Exp
 rxLiteral = try $ do
     sym     <- symbol "rx" <|> do { symbol "m"; return "match" } <|> do
         symbol "rule"
-        lookAhead (char '{')
+        lookAhead $ do { ruleAdverbHash; char '{' }
         return "rx"
     adverbs <- ruleAdverbHash
     ch      <- anyChar
-    -- XXX - probe for adverbs to determine p5 vs p6
     expr    <- rxLiteralAny adverbs $ balancedDelim ch
     return $ Syn sym [expr, adverbs]
 

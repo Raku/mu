@@ -764,6 +764,7 @@ cxtOfSigil '$'  = cxtItemAny
 cxtOfSigil '@'  = cxtSlurpyAny
 cxtOfSigil '%'  = cxtSlurpyAny
 cxtOfSigil '&'  = CxtItem $ mkType "Code"
+cxtOfSigil '<'  = CxtItem $ mkType "Rule"
 cxtOfSigil x    = internalError $ "cxtOfSigil: unexpected character: " ++ show x
 
 -- |Return the type of variable implied by a name beginning with the specified
@@ -773,6 +774,7 @@ typeOfSigil '$'  = mkType "Scalar"
 typeOfSigil '@'  = mkType "Array"
 typeOfSigil '%'  = mkType "Hash"
 typeOfSigil '&'  = mkType "Code"
+typeOfSigil '<'  = mkType "Rule"
 typeOfSigil x    = internalError $ "typeOfSigil: unexpected character: " ++ show x
 
 buildParam :: String -- ^ Type of the parameter
@@ -1236,6 +1238,8 @@ newObject (MkType "Hash")   = liftSTM $
     fmap hashRef $ (newTVar Map.empty :: STM IHash)
 newObject (MkType "Code")   = liftSTM $
     fmap codeRef $ newTVar mkSub
+newObject (MkType "Rule") = liftSTM $
+    fmap scalarRef $ newTVar undef
 newObject typ = fail ("Cannot create object: " ++ showType typ)
 
 doPair :: Val -> (forall a. PairClass a => a -> b) -> Eval b

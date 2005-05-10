@@ -33,11 +33,12 @@ evalParrot str = do
     evalParrotFile file
     removeFile file
 
-evalPGE :: FilePath -> String -> String -> IO String
-evalPGE path str pattern = do
+evalPGE :: FilePath -> String -> String -> [(String, String)] -> IO String
+evalPGE path str pattern subrules = do
     cmd <- findParrot
     (_, out, err, pid) <- runInteractiveProcess cmd
-        ["run_pge.pbc", str, pattern] (Just path) Nothing 
+        ["run_pge.pbc", str, pattern] ++ concatMap (\(n, r) -> [n, r]) subrules
+        (Just path) Nothing 
     rv      <- waitForProcess pid
     errMsg  <- hGetContents err
     case (errMsg, rv) of
@@ -105,25 +106,32 @@ initParrot = do
     parrot_loadbc interp pf
     return interp
 
-loadPGE :: ParrotInterp -> FilePath -> IO ParrotPMC
+loadPGE :: ParrotInterp -> FilePath -> IO (ParrotPMC, ParrotPMC)
 loadPGE interp path = do
     ns      <- withCString "PGE::Hs" $ const_string interp
     sym     <- withCString "match" $ const_string interp
-    sub     <- parrot_find_global interp ns sym
-    if sub /= nullPtr then return sub else do
+    match   <- parrot_find_global interp ns sym
+    sym     <- withCString "add_rule" $ const_string interp
+    add     <- parrot_find_global interp ns sym
+    if match /= nullPtr then return (match, add) else do
     pf      <- withCString (path ++ "/PGE-Hs.pbc") $ parrot_readbc interp
     parrot_loadbc interp pf
     parrot_runcode interp 0 nullPtr
     loadPGE interp path
 
-evalPGE :: FilePath -> String -> String -> IO String
-evalPGE path str pattern = do
-    interp  <- initParrot
-    sub     <- loadPGE interp path
-    s1      <- withCString str $ const_string interp
-    s2      <- withCString pattern $ const_string interp
-    s5      <- withCString "SSS" $ \sig -> do
-        parrot_call_sub_SSS interp sub sig s1 s2
+evalPGE :: FilePath -> String -> String -> [(String, String)] -> IO String
+evalPGE path str pattern subrules = do
+    interp          <- initParrot
+    (match, add)    <- loadPGE interp path
+    (`mapM_` subrules) $ \(name, rule) -> do
+        s1  <- withCString name $ const_string interp
+        s2  <- withCString rule $ const_string interp
+        withCString "SSS" $ \sig -> do
+            parrot_call_sub_SSS interp add sig s1 s2
+    s1  <- withCString str $ const_string interp
+    s2  <- withCString pattern $ const_string interp
+    s5  <- withCString "SSS" $ \sig -> do
+        parrot_call_sub_SSS interp match sig s1 s2
     peekCString =<< #{peek STRING, strstart} s5
 
 evalParrotFile :: FilePath -> IO ()
