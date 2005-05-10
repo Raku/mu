@@ -26,7 +26,7 @@ doMatch cs MkRulePGE{ rxRule = re } = do
         (VRule rule) <- fromVal =<< readRef ref
         return (name, rxRule rule)
     pge <- liftIO $ evalPGE pwd (encodeUTF8 cs) (encodeUTF8 re) subrules
-    rv  <- tryIO Nothing $ fmap Just (readIO $ decodeUTF8 pge) 
+    rv  <- tryIO Nothing $ fmap Just (readIO $ decodeUTF8 pge)
     let matchToVal PGE_Fail = VMatch mkMatchFail
         matchToVal (PGE_Array ms) = VList (map matchToVal ms)
         matchToVal (PGE_Match from to pos named) = VMatch $
@@ -42,12 +42,19 @@ doMatch cs MkRulePGE{ rxRule = re } = do
             return mkMatchFail
 
 doMatch cs MkRulePCRE{ rxRegex = re } = do
-    rv <- liftIO $ PCRE.execute re (encodeUTF8 cs) 0
+    rv <- liftIO $ PCRE.execute re csUTF8 0
     if isNothing rv then return mkMatchFail else do
-    let ((from, len):subs) = Array.elems (fromJust rv)
-        substr from len = genericTake len (genericDrop from cs)
+    let ((fromBytes, lenBytes):subs) = Array.elems (fromJust rv)
+        substr from len = genericTake len (genericDrop from cs) -- in bytes
         subsMatch = [ VMatch $ mkMatchOk f (f + t) (substr f t) [] Map.empty | (f, t) <- subs ]
-    return $ mkMatchOk from (from + len) (substr from len) subsMatch Map.empty
+
+        leftmatch = decodeUTF8 $ genericTake fromBytes csUTF8
+        fromChars = genericLength leftmatch
+        lenChars  = genericLength $ decodeUTF8 $ (substr fromBytes lenBytes)
+
+    return $ mkMatchOk fromChars (fromChars + lenChars) (substr fromBytes lenBytes) subsMatch Map.empty
+    where
+    csUTF8 = encodeUTF8 cs
 
 matchFromMR mr = VMatch $ mkMatchOk 0 0 (decodeUTF8 all) subsMatch Map.empty
     where
@@ -130,7 +137,7 @@ op2Cmp f cmp x y = do
 rxSplit :: VRule -> String -> Eval [String]
 rxSplit _  [] = return []
 rxSplit rx str = do
-    match <- str `doMatch` rx 
+    match <- str `doMatch` rx
     if not (matchOk match) then return [str] else do
     if matchFrom match == matchTo match
         then do
