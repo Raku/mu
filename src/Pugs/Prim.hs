@@ -887,15 +887,19 @@ op2Match x y = op2Cmp vCastStr (==) x y
 rxSplit :: VRule -> String -> Eval [String]
 rxSplit _  [] = return []
 rxSplit rx str = do
-    case str =~~ rxRegex rx of
-        Nothing -> return [str]
-        Just mr | null $ mrMatch mr -> do
+    match <- str `doMatch` rx 
+    if not (matchOk match) then return [str] else do
+    if matchFrom match == matchTo match
+        then do
             let (c:cs) = str
             rest <- rxSplit rx (cs)
             return ([c]:rest)
-        Just mr -> do
-            rest <- rxSplit rx (mrAfter mr)
-            return $ (mrBefore mr:mrSubList mr) ++ rest
+        else do
+            let before = genericTake (matchFrom match) str
+                after  = genericDrop (matchTo match) str
+            rest <- rxSplit rx after
+            strs <- mapM fromVal (matchSubPos match)
+            return $ (before:concat strs) ++ rest
 
 op3 :: Ident -> Val -> Val -> Val -> Eval Val
 op3 "index" = \x y z -> do

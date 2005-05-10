@@ -125,6 +125,10 @@ mergeStmts (Stmts x1 x2) y = mergeStmts x1 (mergeStmts x2 y)
 mergeStmts Noop y@(Stmts _ _) = y
 mergeStmts (Sym scope name x) y = Sym scope name (mergeStmts x y)
 mergeStmts (Pad scope lex x) y = Pad scope lex (mergeStmts x y)
+mergeStmts x@(Pos pos (Syn "subst" _)) y =
+    mergeStmts (Pos pos (App (Var "&infix:~~") [Var "$_", x] [])) y
+mergeStmts x y@(Pos pos (Syn "subst" _)) =
+    mergeStmts x (Pos pos (App (Var "&infix:~~") [Var "$_", y] []))
 mergeStmts x@(Pos pos (Syn "sub" [Val (VCode sub)])) y
     | subType sub >= SubBlock =
     -- bare Block in statement level; run it!
@@ -997,9 +1001,9 @@ parseApply = tryRule "apply" $ do
 ruleFoldOp :: RuleParser String
 ruleFoldOp = verbatimRule "reduce metaoperator" $ do
     char '['
-    name <- string "+" -- XXX - Query all infix here
+    name <- oneOf "+-*/~" -- XXX - Query all infix here
     char ']'
-    return $ "&prefix:[" ++ name ++ "]"
+    return $ "&prefix:[" ++ [name] ++ "]"
 
 parseParamList :: RuleParser ([Exp], [Exp])
 parseParamList = parseParenParamList <|> parseNoParenParamList
