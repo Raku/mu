@@ -122,9 +122,8 @@ evalPGE path str pattern = do
     sub     <- loadPGE interp path
     s1      <- withCString str $ const_string interp
     s2      <- withCString pattern $ const_string interp
-    withCString "SSS" $ \sig -> do
+    s5      <- withCString "SSS" $ \sig -> do
         parrot_call_sub_SSS interp sub sig s1 s2
-    s5      <- parrot_get_strreg interp 5
     peekCString =<< #{peek STRING, strstart} s5
 
 evalParrotFile :: FilePath -> IO ()
@@ -190,7 +189,7 @@ foreign import ccall "Parrot_call_sub"
     parrot_call_sub_vv :: ParrotInterp -> ParrotPMC -> CString -> IO ()
 
 foreign import ccall "Parrot_call_sub"
-    parrot_call_sub_SSS :: ParrotInterp -> ParrotPMC -> CString -> ParrotString -> ParrotString -> IO ()
+    parrot_call_sub_SSS :: ParrotInterp -> ParrotPMC -> CString -> ParrotString -> ParrotString -> IO ParrotString
 
 foreign import ccall "const_string"
     const_string :: ParrotInterp -> CString -> IO ParrotString
