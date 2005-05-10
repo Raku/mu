@@ -28,7 +28,7 @@ sub clsName(Str $inv: Str ?$name) returns Str {
 
 # NOTE: 
 # the next 2 methods enforce the rule;
-#   ∃ MetaClass A, B | A.clsSuper = B ↔ A ∈ B.clsSubClasses
+#   ∀ MetaClass A, B | A.clsSuper = B ↔ A ∈ B.clsSubClasses
 # which in english means:
 #   A is a superclass of B and A is found within B's list of subclasses
 
@@ -72,11 +72,8 @@ sub clsSubClasses(Str $inv: Array *@subclasses) returns Array {
     return %self<subclasses>;
 }
 
-# XXX -- what do we do about visibility here?
-# is it a property of the MetaProperty? or is
-# it a property of the relationship with the
-# MetaClass? 
-
+# visibility is not as important on the MetaModel as it is on the real
+# Class Model.
 sub clsProperties(Str $inv: Array *@properties) returns Hash {
     my %self := get_instance($inv, "Perl::MetaClass");
     if @properties {
@@ -127,7 +124,7 @@ sub clsAssocs(Str $inv: Array *@assocs) returns Hash {
 Perl::MetaClass - A meta-model for Perl Classes
 
 =head1 SYNOPSIS
-  
+
   #         Package
   #          |
   #    +-----+----+

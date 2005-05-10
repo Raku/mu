@@ -106,7 +106,8 @@ data MetaAssoc = MetaAssoc
     -- this seems the simplest way to specify complementary categories
 
     ∀ MetaAssoc C₁, C₂, MetaClass M₁, M₂
-       : C₁.catPair = C₂ ∧ C₁.catClass = M₁ ∧ C₂.catClass = M₂
+       :   C₁.catPair = C₂  ∧ C₁.assocCompanion
+         ∧ C₁.catClass = M₁ ∧ C₂.catClass = M₂
        → (   ∃ M₁.clsCats{C₂.catCompanion}
            ∧ ∃ M₂.clsCats{C₁.catCompanion}
            ∧ M₁.clsCats{C₂.catCompanion}[1] = C₁
