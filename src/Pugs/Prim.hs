@@ -26,6 +26,7 @@ import Pugs.Prim.Match
 import qualified Pugs.Prim.FileTest as FileTest
 import Pugs.Prim.List
 import Pugs.Prim.Numeric
+import Pugs.Prim.Lifts
 
 op0 :: Ident -> [Val] -> Eval Val
 op0 "!"  = fmap opJuncNone . mapM fromVal
@@ -436,15 +437,6 @@ op1EvalHaskell cv = do
             writeRef errSV (VStr err)
             retEmpty
 
-op1Cast :: (Value n) => (n -> Val) -> Val -> Eval Val
-op1Cast f val = fmap f (fromVal =<< fromVal' val)
-
-op2Cast :: (Value n, Value m) => (n -> m -> Val) -> Val -> Val -> Eval Val
-op2Cast f x y = do
-    x' <- fromVal =<< fromVal' x
-    y' <- fromVal =<< fromVal' y
-    return (f x' y')
-
 op1StrFirst :: (Char -> Char) -> Val -> Eval Val
 op1StrFirst f = op1Cast $ VStr .
     \str -> case str of
@@ -783,49 +775,6 @@ op2Hyper op x y
         rest <- hyperLists xs ys
         return (val:rest)
 
-op2Array :: (forall a. ArrayClass a => a -> [Val] -> Eval ()) -> Val -> Val -> Eval Val
-op2Array f x y = do
-    f    <- doArray x f
-    vals <- fromVal y
-    f vals
-    size <- doArray x array_fetchSize
-    idx  <- size
-    return $ castV idx
-
-vCastStr :: Val -> Eval VStr
-vCastStr = fromVal
-vCastRat :: Val -> Eval VRat
-vCastRat = fromVal
-
-op2Str :: (Value v1, Value v2) => (v1 -> v2 -> VStr) -> Val -> Val -> Eval Val
-op2Str f x y = do
-    x' <- fromVal x
-    y' <- fromVal y
-    return $ VStr $ f x' y'
-
-op2Num    :: (Value v1, Value v2) => (v1 -> v2 -> VNum) -> Val -> Val -> Eval Val
-op2Num  f = op2Cast $ (VNum .) . f
-
-op2Bool   :: (Value v1, Value v2) => (v1 -> v2 -> VBool) -> Val -> Val -> Eval Val
-op2Bool f = op2Cast $ (VBool .) . f
-
-op2Int    :: (Value v1, Value v2) => (v1 -> v2 -> VInt) -> Val -> Val -> Eval Val
-op2Int  f = op2Cast $ (VInt .) . f
-
-op2Rat    :: (Value v1, Value v2) => (v1 -> v2 -> VRat) -> Val -> Val -> Eval Val
-op2Rat  f = op2Cast $ (VRat .) . f
-
-op2Exp :: Val -> Val -> Eval Val
-op2Exp x y = do
-    num2 <- fromVal =<< fromVal' y
-    case reverse $ show (num2 :: VNum) of
-        ('0':'.':_) -> do
-            num1 <- fromVal =<< fromVal' x
-            if isDigit . head $ show (num1 :: VNum)
-                then op2Rat ((^^) :: VRat -> VInt -> VRat) x y
-                else op2Num ((**) :: VNum -> VNum -> VNum) x y
-        _ -> op2Num ((**) :: VNum -> VNum -> VNum) x y
-
 op1Range :: Val -> Val
 op1Range (VStr s)    = VList $ map VStr $ strRangeInf s
 op1Range (VRat n)    = VList $ map VRat [n ..]
@@ -839,44 +788,6 @@ op2Range x (VNum n)  = VList $ map VNum [vCast x .. n]
 op2Range (VRat n) y  = VList $ map VRat [n .. vCast y]
 op2Range x (VRat n)  = VList $ map VRat [vCast x .. n]
 op2Range x y         = VList $ map VInt [vCast x .. vCast y]
-
-op2Divide :: Val -> Val -> Eval Val
-op2Divide x y
-    | VInt x' <- x, VInt y' <- y
-    = if y' == 0 then err else return . VRat $ x' % y'
-    | VInt x' <- x, VRat y' <- y
-    = if y' == 0 then err else return . VRat $ (x' % 1) / y'
-    | VRat x' <- x, VInt y' <- y
-    = if y' == 0 then err else return . VRat $ x' / (y' % 1)
-    | VRat x' <- x, VRat y' <- y
-    = if y' == 0 then err else return . VRat $ x' / y'
-    | otherwise
-    = op2Num (/) x y
-    where
-    err = fail "Illegal division by zero"
-
-op2Modulus :: Val -> Val -> Eval Val
-op2Modulus x y
-    | VInt x' <- x, VInt y' <- y
-    = if y' == 0 then err else return . VInt $ x' `mod` y'
-    | VInt x' <- x, VRat y' <- y
-    = if y' == 0 then err else return . VInt $ x' `mod` (truncate y')
-    | VRat x' <- x, VInt y' <- y
-    = if y' == 0 then err else return . VInt $ (truncate x') `mod` y'
-    | VRat x' <- x, VRat y' <- y
-    = if y' == 0 then err else return . VInt $ (truncate x') `mod` (truncate y')
-    | VRef ref <- x
-    = do
-        x' <- readRef ref
-        op2Modulus x' y
-    | VRef ref <- y
-    = do
-        y' <- readRef ref
-        op2Modulus x y'
-    | otherwise      -- pray for the best
-    = op2Int mod x y -- typeErr
-    where
-    err = fail "Illegal modulus zero"
 
 op2ChainedList :: Val -> Val -> Val
 op2ChainedList x y
