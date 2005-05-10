@@ -12,7 +12,7 @@ sub Perl::MetaClass::new(Str $name) returns Str is export {
     my $id = make_instance("Perl::MetaClass", { 
         'name'       => $name,
         'super'      => undef,
-        'subclasses' => [],
+        'subclasses' => hash(),
         'properties' => hash(),
         'methods'    => hash(),
         'assoc'      => hash(),
@@ -53,23 +53,25 @@ sub clsSuper(Str $inv: Str ?$super) returns Str {
 sub clsSubClasses(Str $inv: Array *@subclasses) returns Array {
     my %self := get_instance($inv, "Perl::MetaClass");
     if @subclasses {
+        my %inv_subclasses = %self<subclasses>;
         # NOTE:
         # enforce the following rules on all @subclasses:
-        # - they are instances of Perl::MetaClass
-        # - they're superclass is our invocant
+        # - the subclass is an instance of Perl::MetaClass
+        # - if the subclass has a superclass, it's superclass is our invocant
+        # - if the invocant has a superclass, the subclass is not the superclass of our invocant
         for @subclasses -> $subclass {
             ($subclass.instance_isa('Perl::MetaClass'))
                 || die "Sub class must be a Perl::MetaClass instance (got: '$subclass')"; 
             ($subclass.clsSuper() && $subclass.clsSuper().clsName() eq $inv.clsName())
-                || die "Sub class's superclass must be the invocant (got: '{ $subclass.clsSuper() }')";             
+                || die "Sub class's superclass must be the invocant (got: '{ $subclass.clsSuper() }')";    
+            ($subclass.clsName() ne $inv.clsSuper().clsName())
+                || die "Subclass cannot be the superclass of the invocant"
+                    if $inv.clsSuper();
+            %inv_subclasses{$subclass} = undef;
         } 
-        # NOTE: 
-        # this is kind of ugly, but I get a 
-        # "can't modify constant" error otherwise
-        my @inv_subclasses = %self<subclasses>;
-        %self<subclasses> = [ @inv_subclasses, @subclasses ];    
+        %self<subclasses> = \%inv_subclasses;    
     }
-    return %self<subclasses>;
+    return keys(%self<subclasses>);
 }
 
 # visibility is not as important on the MetaModel as it is on the real

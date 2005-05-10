@@ -24,8 +24,7 @@ sub get_instance(Str $inst, Str ?$class) is export {
 }
 
 sub instance_isa(Str $inst: Str $class) is export {
-    (%INSTANCES.exists($inst))
-        || die "The instance '$inst' is not a valid instance (key not found)";
+    return 0 unless %INSTANCES.exists($inst);
     my (undef, $inv_class, undef) = split(';', $inst);
     return ($inv_class eq $class);
 }

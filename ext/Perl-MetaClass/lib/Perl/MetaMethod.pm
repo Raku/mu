@@ -4,11 +4,13 @@ module Perl::MetaMethod-0.0.1;
 
 use Hack::Instances;
 
-sub Perl::MetaMethod::new(Code $sub) returns Str is export {
+sub Perl::MetaMethod::new(Code $sub, Str +$visibility) returns Str is export {
     my $id = make_instance("Perl::MetaMethod", { 
-        'sub'    => $sub,
-        'params' => [],
+        'sub'        => $sub,
+        'params'     => [],
+        'visibility' => 'public',
     });
+    $id.methodVisibility($visibility) if $visibility.defined;
     return $id;
 }
 
@@ -26,6 +28,16 @@ sub methodParams(Str $inv: *@params) returns Array {
 sub methodInvoke(Str $inv: Array *@args) returns Any {
     my %self := get_instance($inv, "Perl::MetaMethod");
     return %self<sub>(@args);
+}
+
+sub methodVisibility(Str $inv: Str ?$visibility) returns Str {
+    my %self := get_instance($inv, "Perl::MetaMethod");
+    if $visibility.defined {
+        ($visibility ~~ rx:perl5:i/(private|public)/)
+            || die "Visibility must be either 'private' or 'public' (got: '$visibility')";
+        %self<visibility> = lc($visibility);
+    }
+    return %self<visibility>;
 }
 
 =pod

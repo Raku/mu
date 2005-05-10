@@ -88,17 +88,17 @@ Perl::MetaAssoc - A meta-model for Perl Classes
   # called .properties on the Class end, and .class on the
   # property end.
 
-  my $Property_mc = Perl::MetaClass->new("Property");
-  my $Class_mc    = Perl::MetaClass->new("Class");
+  my $Property_mc = Perl::MetaClass::new("Property");
+  my $Class_mc    = Perl::MetaClass::new("Class");
 
-  $Class_mc->clsAssocs
-       (properties => Perl::MetaAssoc->new
+  $Class_mc.clsAssocs
+       (properties => Perl::MetaAssoc::new
            (
              assocOrdered => false,
-             assocRange => [0, inf],
+             assocRange => [0, Inf],
              assocCompanion => "class",
-             assocIsComposite => true,
-             assocPair => Perl::MetaAssoc->new
+             assocIsComposite => 1,
+             assocPair => Perl::MetaAssoc::new
                              ( assocRange => [1, 1],
                                assocClass => $Property_mc )
            )

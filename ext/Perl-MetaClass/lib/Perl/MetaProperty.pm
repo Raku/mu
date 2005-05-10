@@ -8,7 +8,7 @@ sub Perl::MetaProperty::new(Str $type, Any +$default, Str +$visibility) returns 
     my $id = make_instance("Perl::MetaProperty", { 
         'type'       => $type,
         'default'    => undef,
-        'visibility' => undef,
+        'visibility' => 'public',
     });
     $id.propDefault($default)       if $default.defined;
     $id.propVisibility($visibility) if $visibility.defined;    
@@ -53,8 +53,8 @@ sub propVisibility(Str $inv: Str ?$visibility) returns Str {
     my %self := get_instance($inv, "Perl::MetaProperty");
     if $visibility.defined {
         ($visibility ~~ rx:perl5:i/(private|public)/)
-            || die "Visibility must be either 'Private' of 'Public' (got: '$visibility')";
-        %self<visibility> = $visibility;
+            || die "Visibility must be either 'private' or 'public' (got: '$visibility')";
+        %self<visibility> = lc($visibility);
     }
     return %self<visibility>;
 }
