@@ -19,12 +19,13 @@ import Pugs.Pretty
 import Pugs.Parser
 import Pugs.External
 import Text.Printf
-import qualified Data.Set as Set
 
 import Pugs.Prim.Keyed
 import Pugs.Prim.Yaml
 import Pugs.Prim.Match
 import qualified Pugs.Prim.FileTest as FileTest
+import Pugs.Prim.List
+import Pugs.Prim.Numeric
 
 op0 :: Ident -> [Val] -> Eval Val
 op0 "!"  = fmap opJuncNone . mapM fromVal
@@ -53,15 +54,6 @@ op0 "say" = const $ op1 "say" =<< readVar "$_"
 op0 "print" = const $ op1 "print" =<< readVar "$_"
 op0 "return" = \v -> return (VError "cannot return() outside a subroutine" (Val $ VList v))
 op0 other = \_ -> fail ("Unimplemented listOp: " ++ other)
-
-op0Zip :: [[Val]] -> [[Val]]
-op0Zip lists | all null lists = []
-op0Zip lists = (map zipFirst lists):(op0Zip (map zipRest lists))
-    where
-    zipFirst []     = undef
-    zipFirst (x:_)  = x
-    zipRest  []     = []
-    zipRest  (_:xs) = xs
 
 op1 :: Ident -> Val -> Eval Val
 op1 "!"    = op1Cast (VBool . not)
@@ -224,7 +216,7 @@ op1 "sign" = \v -> if defined v
     then op1Cast (VInt . signum) v
     else return undef
 
-op1 ('[':op) = op1Fold . init $ op
+op1 ('[':op) = op1Fold . op2 . init $ op
 op1 "rand"  = \v -> do
     x    <- fromVal v
     rand <- liftIO $ randomRIO (0, if x == 0 then 1 else x)
@@ -430,14 +422,6 @@ op1 other   = \_ -> fail ("Unimplemented unaryOp: " ++ other)
 -- op1mkType :: VStr -> Eval VStr
 op1mkType str = (VStr . showType . mkType) str
 
-op1Fold :: String -> Val -> Eval Val
-op1Fold op v = do
-    args    <- fromVal v
-    case args of
-        (a:as)  -> foldM (op2 op) a as
-        _       -> return undef
-
-
 op1EvalHaskell :: Val -> Eval Val
 op1EvalHaskell cv = do
     str     <- fromVal cv :: Eval String
@@ -466,31 +450,6 @@ op1StrFirst f = op1Cast $ VStr .
     \str -> case str of
         []      -> []
         (c:cs)  -> (f c:cs)
-
-op1Pick :: Val -> Eval Val
-op1Pick (VRef r) = op1Pick =<< readRef r
-op1Pick (VList []) = return undef
-op1Pick (VList vs) = do
-    rand <- liftIO $ randomRIO (0, length vs - 1)
-    return $ vs !! rand
-op1Pick (VJunc (MkJunc _ _ set)) | Set.null set = return undef
-op1Pick (VJunc (MkJunc JAny _ set)) = do -- pick mainly works on 'any'
-    rand <- liftIO $ randomRIO (0 :: Int, (Set.size set) - 1)
-    return $ (Set.elems set) !! rand
-op1Pick (VJunc (MkJunc JNone _ _)) = return undef
-op1Pick (VJunc (MkJunc JAll _ set)) =
-    if (Set.size $ set) == 1 then return $ head $ Set.elems set
-    else return undef
-op1Pick (VJunc (MkJunc JOne dups set)) =
-    if (Set.size $ set) == 1 && (Set.size $ dups) == 0
-    then return $ head $ Set.elems set
-    else return undef
-op1Pick v = return $ VError "pick not defined" (Val v)
-
-op1Sum :: Val -> Eval Val
-op1Sum list = do
-    vals <- fromVal list
-    foldM (op2 "+") undef vals
 
 op1Print :: (Handle -> String -> IO ()) -> Val -> Eval Val
 op1Print f v@(VHandle _) = do
@@ -833,50 +792,6 @@ op2Array f x y = do
     idx  <- size
     return $ castV idx
 
-op2Fold :: Val -> Val -> Eval Val
-op2Fold sub@(VCode _) list = op2Fold list sub
-op2Fold list sub = do
-    args <- fromVal list
-    if null args then return undef else do
-    let doFold x y = do
-        evl <- asks envEval
-        local (\e -> e{ envContext = cxtItemAny }) $ do
-            evl (App (Val sub) [Val x, Val y] [])
-    foldM doFold (head args) (tail args)
-
-op2Grep :: Val -> Val -> Eval Val
-op2Grep sub@(VCode _) list = op2Grep list sub
-op2Grep list sub = do
-    args <- fromVal list
-    vals <- (`filterM` args) $ \x -> do
-        evl <- asks envEval
-        rv  <- local (\e -> e{ envContext = cxtItem "Bool" }) $ do
-            evl (App (Val sub) [Val x] [])
-        fromVal rv
-    return $ VList vals
-
-op2Map :: Val -> Val -> Eval Val
-op2Map sub@(VCode _) list = op2Map list sub
-op2Map list sub = do
-    args <- fromVal list
-    vals <- (`mapM` args) $ \x -> do
-        evl <- asks envEval
-        rv  <- local (\e -> e{ envContext = cxtSlurpyAny }) $ do
-            evl (App (Val sub) [Val x] [])
-        fromVal rv
-    return $ VList $ concat vals
-
-op2Join :: Val -> Val -> Eval Val
-op2Join x y = do
-    (strVal, listVal) <- ifValTypeIsa x "Scalar"
-        (return (x, y))
-        (return (y, x))
-    str     <- fromVal strVal
-    ref     <- fromVal listVal
-    list    <- readRef ref
-    strList <- fromVals list
-    return . VStr . concat . intersperse str $ strList
-
 vCastStr :: Val -> Eval VStr
 vCastStr = fromVal
 vCastRat :: Val -> Eval VRat
@@ -996,39 +911,6 @@ op2Ord f x y = do
         EQ -> 0
         GT -> 1
 
-op1Floating :: (Double -> Double) -> Val -> Eval Val
-op1Floating f v = do
-    foo <- fromVal v
-    return $ VNum $ f foo
-
-op1Numeric :: (forall a. (Num a) => a -> a) -> Val -> Eval Val
-op1Numeric f VUndef     = return . VInt $ f 0
-op1Numeric f (VInt x)   = return . VInt $ f x
-op1Numeric f l@(VList _)= fmap (VInt . f) (fromVal l)
-op1Numeric f (VRat x)   = return . VRat $ f x
-op1Numeric f (VRef x)   = op1Numeric f =<< readRef x
-op1Numeric f x          = fmap (VNum . f) (fromVal x)
-
---- XXX wrong: try num first, then int, then vcast to Rat (I think)
-op2Numeric :: (forall a. (Num a) => a -> a -> a) -> Val -> Val -> Eval Val
-op2Numeric f x y
-    | VUndef <- x = op2Numeric f (VInt 0) y
-    | VUndef <- y = op2Numeric f x (VInt 0)
-    | (VInt x', VInt y') <- (x, y)  = return $ VInt $ f x' y'
-    | (VRat x', VInt y') <- (x, y)  = return $ VRat $ f x' (y' % 1)
-    | (VInt x', VRat y') <- (x, y)  = return $ VRat $ f (x' % 1) y'
-    | (VRat x', VRat y') <- (x, y)  = return $ VRat $ f x' y'
-    | VRef r <- x = do
-        x' <- readRef r
-        op2Numeric f x' y
-    | VRef r <- y = do
-        y' <- readRef r
-        op2Numeric f x y'
-    | otherwise = do
-        x' <- fromVal x
-        y' <- fromVal y
-        return . VNum $ f x' y'
-
 primOp :: String -> String -> Params -> String -> STM (Pad -> Pad)
 primOp sym assoc prms ret = genMultiSym name sub
     where
@@ -1120,28 +1002,6 @@ prettyVal d (VList vs) = do
     vs' <- mapM (prettyVal (d+1)) vs
     return $ "(" ++ concat (intersperse ", " vs') ++ ")"
 prettyVal _ v = return $ pretty v
-
-sortByM :: (Val -> Val -> Eval Bool) -> [Val] -> Eval [Val]
-sortByM _ []  = return []
-sortByM _ [x] = return [x]
-sortByM f xs  = do
-    let (as, bs) = splitAt (length xs `quot` 2) xs
-    aSorted <- sortByM f as
-    bSorted <- sortByM f bs
-    doMerge f aSorted bSorted
-    where
-    doMerge :: (Val -> Val -> Eval Bool) -> [Val] -> [Val] -> Eval [Val]
-    doMerge _ [] ys = return ys
-    doMerge _ xs [] = return xs
-    doMerge f (x:xs) (y:ys) = do
-        isLessOrEqual <- f x y
-        if isLessOrEqual
-            then do
-                rest <- doMerge f xs (y:ys)
-                return (x:rest)
-            else do
-                rest <- doMerge f (x:xs) ys
-                return (y:rest)
 
 -- XXX -- Junctive Types -- XXX --
 

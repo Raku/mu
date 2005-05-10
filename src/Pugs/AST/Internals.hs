@@ -10,8 +10,10 @@ import qualified Data.Set       as Set
 import qualified Data.Map       as Map
 import qualified Data.IntMap    as IntMap
 
+import Pugs.Parser.Number
 import Pugs.AST.Pos
 import Pugs.AST.Scope
+import Pugs.AST.SIO
 
 #include "../Types/Array.hs"
 #include "../Types/Handle.hs"
@@ -390,43 +392,6 @@ instance Value VScalar where
     fromVal v = return v
     vCast = id
     castV = id -- XXX not really correct; need to referencify things
-
--- |Return an infinite (lazy) Haskell list of the given string and its
--- successors. 'strInc' is used to determine what the \'next\' string is.
--- Is used to implement the @...@ infinite-range operator on strings.
-strRangeInf :: String -> [String]
-strRangeInf s = (s:strRangeInf (strInc s))
-
--- |Return a range of strings from the first argument to the second, inclusive
--- (as a Haskell list). 'strInc' is used to determine what the \'next\' string 
--- is. Is used to implement the @..@ range operator on strings.
-strRange :: String -> String -> [String]
-strRange s1 s2
-    | s1 == s2              = [s2]
-    | length s1 > length s2 = []
-    | otherwise             = (s1:strRange (strInc s1) s2)
-
--- |Find the successor of a string (i.e. the next string \'after\' it).
--- Special rules are used to handle strings ending in an alphanumeric
--- character; otherwise the last character is simply incremented using
--- 'charInc'.
-strInc :: String -> String
-strInc []       = "1"
-strInc "z"      = "aa"
-strInc "Z"      = "AA"
-strInc "9"      = "10"
-strInc str
-    | x == 'z'  = strInc xs ++ "a"
-    | x == 'Z'  = strInc xs ++ "A"
-    | x == '9'  = strInc xs ++ "0"
-    | otherwise = xs ++ [charInc x]
-    where
-    x   = last str
-    xs  = init str
-
--- |Return the code-point-wise successor of a given character.
-charInc :: Char -> Char
-charInc x   = chr $ 1 + ord x
 
 intCast :: Num b => Val -> b
 intCast x   = fromIntegral (vCast x :: VInt)
@@ -904,24 +869,6 @@ type Eval x = EvalT (ContT Val (ReaderT Env SIO)) x
 type EvalMonad = EvalT (ContT Val (ReaderT Env SIO))
 newtype EvalT m a = EvalT { runEvalT :: m a }
 
-data SIO a = MkSTM !(STM a) | MkIO !(IO a) | MkSIO !a
-    deriving (Typeable)
-
-runSTM :: SIO a -> STM a
-runSTM (MkSTM stm)  = stm
-runSTM (MkIO _ )    = fail "Unsafe IO caught in STM"
-{-
-do
-    let rv = unsafePerformIO io
-    trace ("*** Unsafe CALL!") return rv
--}
-runSTM (MkSIO x)    = return x
-
-runIO :: SIO a -> IO a
-runIO (MkIO io)     = io
-runIO (MkSTM stm)   = atomically stm
-runIO (MkSIO x)     = return x
-
 runEvalSTM :: Env -> Eval Val -> STM Val
 runEvalSTM env = runSTM . (`runReaderT` env) . (`runContT` return) . runEvalT
 
@@ -935,12 +882,6 @@ shiftT e = EvalT . ContT $ \k ->
 resetT :: Eval Val -> Eval Val
 resetT e = lift . lift $
     runContT (runEvalT e) return
-
-instance Monad SIO where
-    return a = MkSIO a
-    (MkIO io)   >>= k = MkIO $ do { a <- io; runIO (k a) }
-    (MkSTM stm) >>= k = MkSTM $ do { a <- stm; runSTM (k a) }
-    (MkSIO x)   >>= k = k x
 
 instance Monad EvalMonad where
     return a = EvalT $ return a
@@ -957,9 +898,6 @@ instance MonadTrans EvalT where
 instance Functor EvalMonad where
     fmap f (EvalT a) = EvalT (fmap f a)
 
-class (Monad m) => MonadSTM m where
-    liftSTM :: STM a -> m a
-
 instance MonadIO EvalMonad where
     liftIO io = EvalT (liftIO io)
 
@@ -967,18 +905,6 @@ instance MonadSTM EvalMonad where
     -- XXX: Should be this:
     -- liftSTM stm = EvalT (lift . lift . liftSTM $ stm)
     liftSTM stm = EvalT (lift . lift . liftIO . liftSTM $ stm)
-
-instance MonadSTM STM where
-    liftSTM = id
-
-instance MonadSTM IO where
-    liftSTM = atomically
-
-instance MonadIO SIO where
-    liftIO io = MkIO io
-
-instance MonadSTM SIO where
-    liftSTM stm = MkSTM stm
 
 instance MonadReader Env EvalMonad where
     ask       = lift ask
@@ -1051,82 +977,6 @@ retControl c = do
 
 retError :: (Show a) => VStr -> a -> Eval b
 retError str a = fail $ str ++ ": " ++ show a
-
-naturalOrRat :: GenParser Char st (Either Integer (Ratio Integer))
-naturalOrRat  = (<?> "number") $ do
-    sig <- sign
-    num <- natRat
-    return $ if sig
-        then num
-        else case num of
-            Left i  -> Left $ -i
-            Right d -> Right $ -d
-    where
-    natRat = do
-            char '0'
-            zeroNumRat
-        <|> decimalRat
-
-    zeroNumRat = do
-            n <- hexadecimal <|> decimal <|> octalBad <|> octal <|> binary
-            return (Left n)
-        <|> decimalRat
-        <|> fractRat 0
-        <|> return (Left 0)
-
-    decimalRat = do
-        n <- decimalLiteral
-        option (Left n) (try $ fractRat n)
-
-    fractRat n = do
-            fract <- try fraction
-            expo  <- option (1%1) expo
-            return (Right $ ((n % 1) + fract) * expo) -- Right is Rat
-        <|> do
-            expo <- expo
-            if expo < 1
-                then return (Right $ (n % 1) * expo)
-                else return (Right $ (n % 1) * expo)
-
-    fraction = do
-            char '.'
-            notFollowedBy . satisfy $ \x ->
-                (isAlpha x && ((x /=) `all` "eE"))
-                || ((x ==) `any` ".=")
-            digits <- many digit <?> "fraction"
-            return (digitsToRat digits)
-        <?> "fraction"
-        where
-        digitsToRat d = digitsNum d % (10 ^ length d)
-        digitsNum d = foldl (\x y -> x * 10 + (toInteger $ digitToInt y)) 0 d
-
-    expo :: GenParser Char st Rational
-    expo = do
-            oneOf "eE"
-            f <- sign
-            e <- decimalLiteral <?> "exponent"
-            return (power (if f then e else -e))
-        <?> "exponent"
-        where
-        power e | e < 0      = 1 % (10^abs(e))
-                | otherwise  = (10^e) % 1
-
-    sign            =   (char '-' >> return False)
-                    <|> (char '+' >> return True)
-                    <|> return True
-
-    decimalLiteral         = number 10 digit
-    hexadecimal     = do{ char 'x'; number 16 hexDigit }
-    decimal         = do{ char 'd'; number 10 digit }
-    octal           = do{ char 'o'; number 8 octDigit }
-    octalBad        = do{ many1 octDigit ; fail "0100 is not octal in perl6 any more, use 0o100 instead." }
-    binary          = do{ char 'b'; number 2 (oneOf "01")  }
-
-    number base baseDigit
-        = do{ digits <- many1 baseDigit
-            ; let n = foldl (\x d -> base*x + toInteger (digitToInt d)) 0 digits
-            ; seq n (return n)
-            }
 
 -- |Evaluate the given expression, using the currently active evaluator
 -- (as given by the 'envEval' slot of the current 'Env').

@@ -22,6 +22,8 @@ import Pugs.Rule.Error
 import Pugs.Pretty
 import qualified Data.Set as Set
 
+import Pugs.Parser.Number
+
 -- Lexical units --------------------------------------------------
 
 ruleProgram :: RuleParser Env

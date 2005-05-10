@@ -36,10 +36,9 @@ module Pugs.AST (
     ObjectClass(..), PairClass(..), RuleClass(..), ScalarClass(..),
     ThunkClass(..),
 
-    MonadSTM(..),
     -- MonadEval(..),
 
-    runSTM, runIO, runEvalSTM, runEvalIO, shiftT, resetT, runEvalMain,
+    runEvalSTM, runEvalIO, shiftT, resetT, runEvalMain,
     evalExp,
     undef, defined,
     readRef, writeRef, clearRef, dumpRef, forceRef,
@@ -62,13 +61,51 @@ module Pugs.AST (
     strRangeInf, strRange, strInc, charInc,
     doPair, doHash, doArray,
 
-    -- TODO: move to Pugs.Parser.NaturalOrRat
-    naturalOrRat,
-
     module Pugs.AST.Pos,
     module Pugs.AST.Scope,
+    module Pugs.AST.SIO,
 ) where
+import Pugs.Internals
 
 import Pugs.AST.Internals
 import Pugs.AST.Pos
 import Pugs.AST.Scope
+import Pugs.AST.SIO
+
+-- |Return an infinite (lazy) Haskell list of the given string and its
+-- successors. 'strInc' is used to determine what the \'next\' string is.
+-- Is used to implement the @...@ infinite-range operator on strings.
+strRangeInf :: String -> [String]
+strRangeInf s = (s:strRangeInf (strInc s))
+
+-- |Return a range of strings from the first argument to the second, inclusive
+-- (as a Haskell list). 'strInc' is used to determine what the \'next\' string 
+-- is. Is used to implement the @..@ range operator on strings.
+strRange :: String -> String -> [String]
+strRange s1 s2
+    | s1 == s2              = [s2]
+    | length s1 > length s2 = []
+    | otherwise             = (s1:strRange (strInc s1) s2)
+
+-- |Find the successor of a string (i.e. the next string \'after\' it).
+-- Special rules are used to handle strings ending in an alphanumeric
+-- character; otherwise the last character is simply incremented using
+-- 'charInc'.
+strInc :: String -> String
+strInc []       = "1"
+strInc "z"      = "aa"
+strInc "Z"      = "AA"
+strInc "9"      = "10"
+strInc str
+    | x == 'z'  = strInc xs ++ "a"
+    | x == 'Z'  = strInc xs ++ "A"
+    | x == '9'  = strInc xs ++ "0"
+    | otherwise = xs ++ [charInc x]
+    where
+    x   = last str
+    xs  = init str
+
+-- |Return the code-point-wise successor of a given character.
+charInc :: Char -> Char
+charInc x   = chr $ 1 + ord x
+
