@@ -17,6 +17,7 @@
     $S2 = args[spi]
     inc spi
     add_rule($S1, $S2)
+    goto subrules
   do_match:
     match = find_global "PGE::Hs", "match"
     $S1 = args[1]
