@@ -759,7 +759,9 @@ doMatch cs MkRulePGE{ rxRule = re } = do
             named'  = Map.map matchToVal $ Map.fromList named
     case rv of
         Just m  -> fromVal (matchToVal m)
-        Nothing -> fail ("Cannot parse PGE: " ++ pge)
+        Nothing -> do
+            liftIO $ putStrLn ("*** Cannot parse PGE: " ++ re ++ "\n*** Error: " ++ pge)
+            return mkMatchFail
 
 doMatch cs MkRulePCRE{ rxRegex = re } = do
     rv <- liftIO $ PCRE.execute re (encodeUTF8 cs) 0

@@ -167,9 +167,10 @@ instance Value (IVar VScalar) where
     fromVal v = return $ constScalar v
 
 instance Value VMatch where
-    fromVal (VMatch m) = return m
     fromVal (VRef r) = fromVal =<< readRef r
-    fromVal v = castFail v
+    fromVal (VMatch m) = return m
+    fromVal (VList (x:_)) = fromVal x
+    fromVal _ = return $ mkMatchFail
 
 instance Value VRef where
     fromVal v = return (vCast v)
