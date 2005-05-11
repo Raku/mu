@@ -8,6 +8,7 @@ import Pugs.Internals
 import Pugs.Embed
 import Pugs.AST
 import Pugs.Types
+import Pugs.Context
 import Pugs.Config
 import qualified RRegex.PCRE as PCRE
 import qualified Data.Map as Map
@@ -66,6 +67,11 @@ op2Match :: Val -> Val -> Eval Val
 op2Match x (VRef y) = do
     y' <- readRef y
     op2Match x y'
+
+op2Match x (VType t) = do
+    typ <- evalValType x
+    cls <- asks envClasses
+    return $ VBool (isaType cls (showType t) typ)
 
 op2Match x (VSubst (rx, subst)) | rxGlobal rx = do
     str         <- fromVal x

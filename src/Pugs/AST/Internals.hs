@@ -1152,8 +1152,8 @@ data VOpaque where
     MkOpaque :: Value a => !a -> VOpaque
 
 data VObject = MkObject
-    { objType   :: VType
-    , objAttrs  :: IHash
+    { objType   :: !VType
+    , objAttrs  :: !IHash
     }
     deriving (Show, Eq, Ord, Typeable)
 

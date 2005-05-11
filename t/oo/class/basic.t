@@ -13,13 +13,13 @@ Very basic class tests from L<S12/"Classes">
 
 # L<S12/"Classes">
 
-eval 'class Foo {}';
+class Foo {};
 
-my $foo = eval 'Foo.new()';
-eval_ok('$foo ~~ Foo', '... smartmatch our $foo to the Foo class', :todo);
+my $foo = Foo.new();
+ok($foo ~~ Foo, '... smartmatch our $foo to the Foo class');
 
-my $foo_clone = eval '$foo.clone()';
-eval_ok('$foo_clone ~~ Foo', '... smartmatch our $foo_clone to the Foo class', :todo<feature>);
+my $foo_clone = $foo.clone();
+ok($foo_clone ~~ Foo, '... smartmatch our $foo_clone to the Foo class');
 
 # L<S12/"Classes" /An \"isa\" is just a trait that happens to be another class\:/>
 

@@ -59,6 +59,12 @@ op0 other = \_ -> fail ("Unimplemented listOp: " ++ other)
 
 op1 :: Ident -> Val -> Eval Val
 op1 "!"    = op1Cast (VBool . not)
+op1 "clone" = \x -> do
+    (VObject o) <- fromVal x
+    attrs   <- readIVar (IHash $ objAttrs o)
+    attrs'  <- liftSTM $ newTVar Map.empty
+    writeIVar (IHash attrs') attrs
+    return $ VObject o{ objAttrs = attrs' }
 op1 "chop" = \x -> do
     ref <- fromVal x
     str <- fromVal x
@@ -1186,6 +1192,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      pre     kill    (Thread)\
 \\n   Int       pre     kill    (Int, List)\
 \\n   Object    pre     new     (Type: Named)\
+\\n   Object    pre     clone   (Object)\
 \\n   List      pre     Pugs::Internals::runInteractiveCommand    (?Str=$_)\
 \\n   List      pre     Pugs::Internals::openFile    (?Str,?Str=$_)\
 \\n"

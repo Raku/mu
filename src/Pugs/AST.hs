@@ -49,7 +49,7 @@ module Pugs.AST (
     scalarRef, codeRef, arrayRef, hashRef, thunkRef, pairRef,
     newScalar, newArray, newHandle, newObject,
     proxyScalar, constScalar, lazyScalar, lazyUndef, constArray,
-    retError, retControl, retEmpty, retIVar, writeIVar,
+    retError, retControl, retEmpty, retIVar, readIVar, writeIVar,
     fromVals, refType,
     mkPad, lookupPad, padToList, diffPads, unionPads,
     genMultiSym, genSym,
