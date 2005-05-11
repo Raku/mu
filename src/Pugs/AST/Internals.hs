@@ -1076,8 +1076,16 @@ doHash (VRef (MkRef p@(IPair _))) f = return $ f p
 doHash (VObject o) f = return $ f (objAttrs o)
 doHash val@(VRef _) _ = retError "Cannot cast into Hash" val
 doHash val f = do
-    hv  <- fromVal val
-    return $ f (hv :: VHash)
+    typ <- evalValType val
+    cls <- asks envClasses
+    if (isaType cls "List" typ)
+        then do
+            hv  <- fromVal val
+            return $ f (hv :: VHash)
+        else do
+            -- XXX: Fail or return undef?
+            -- return $ f (Map.empty :: VHash)
+            fail $ "Not an Hash reference: " ++ show val
 
 -- can be factored out
 doArray :: Val -> (forall a. ArrayClass a => a -> b) -> Eval b
