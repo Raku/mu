@@ -48,11 +48,11 @@ sub on_privmsg($event) {
     my $reply_to = substr($event<object>, 0, 1) eq "#" ?? $event<object> :: $event<from_nick>;
 
     when rx:P5/^\?quit\s*(.*)$/ {
-      $bot<quit>($1);
+      $bot<quit>($0);
     }
 
     when rx:P5/^\?raw\s+(.+)$/ {
-      $bot<raw>($1);
+      $bot<raw>($0);
     }
 
     when rx:P5/^\?uptime$/ {
@@ -114,17 +114,17 @@ sub svn_commits() {
       }
 
       when rx:P5/^r(\d+) \| (\w+)/ {
-	$cur_entry = "r$1 ($2)";
+	$cur_entry = "r$0 ($1)";
 	# Break the loop if we see $cur_svnrev -- that means, there're no new
 	# commits.
-	return if $1 == $cur_svnrev;
-	$cur_svnrev = $1 if $1 > $cur_svnrev;
+	return if $0 == $cur_svnrev;
+	$cur_svnrev = $0 if $0 > $cur_svnrev;
       }
 
       when rx:P5/\S/ {
 	if($cur_entry) {
 	  $_ ~~ rx:P5/^(.*)$/;
-	  $commits ~= "$cur_entry -- $1\n";
+	  $commits ~= "$cur_entry -- $0\n";
 	}
       }
     }

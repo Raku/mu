@@ -350,14 +350,14 @@ sub new_bot(
       $last_traffic = time;
 
       if($line ~~ rx:P5/^:([^ ]+) (\d+) ([^ ]+) ?(.*)$/) {
-	$self<handle_numeric>($line, $1, $2, $3, $4);
+	$self<handle_numeric>($line, $0, $1, $2, $3);
       } elsif($line ~~ rx:P5/^:([^ ]+) (\w+) ([^ ]+) ?(.*)$/) {
-	$self<handle_command>($line, $1, $2, $3, $4);
+	$self<handle_command>($line, $0, $1, $2, $3);
       } elsif($line ~~ rx:P5/^ERROR ?:?(.*)$/) {
-	debug "Error in connection to $host:$port (\"$1\").";
+	debug "Error in connection to $host:$port (\"$0\").";
 	$self<disconnect>();
       } elsif($line ~~ rx:P5/^PING ?:?(.*)$/) {
-	$say("PONG $1");
+	$say("PONG $0");
       } else {
 	debug "No handler found for \"$line\".";
       }
@@ -379,7 +379,7 @@ sub new_bot(
 
     # Handle word commands (e.g. JOIN, INVITE)
     handle_command => -> Str $line, Str $from, Str $command, Str $object, Str $rest {
-      my $from_nick; $from_nick = $1 if $from ~~ rx:P5/^([^!]+)!/; #/#--vim
+      my $from_nick; $from_nick = $0 if $from ~~ rx:P5/^([^!]+)!/; #/#--vim
       my $event = {
 	line      => $line,
 	from      => $from,
