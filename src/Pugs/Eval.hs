@@ -452,7 +452,6 @@ reduce exp@(Syn name exps) = case name of
     "*" -> do -- first stab at an implementation
         let [exp] = exps
         val     <- enterRValue $ enterEvalContext cxtSlurpyAny exp
-        error $ show val
         vals    <- fromVals val
         retVal $ VList $ concat vals
     "," -> do
