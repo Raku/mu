@@ -112,7 +112,7 @@ method :_header(
     $field = lc $field;
     unless defined %standard_case{$field} {
       # generate a %standard_case entry for this field
-      $old ~~ s:g/\b(\w)/{ucfirst $1}/;
+      $old ~~ s:g/\b(\w)/{ucfirst $0}/;
       %standard_case{$field} = $old;
     }
   }
@@ -171,7 +171,7 @@ method as_string(Str ?$endl = "\n") {
       # must handle header values with embedded newlines with care
       $val ~~ s/\s+$//;                    # trailing newlines and space must go
       $val ~~ s:g/\n\n+/\n/;               # no empty lines
-      $val ~~ s:g/\n(<-[\040\t]>)/\n $1/;  # intial space for continuation
+      $val ~~ s:g/\n(<-[\040\t]>)/\n $0/;  # intial space for continuation
       $val ~~ s:g/\n/$endl/;               # substitute with requested line ending
     }
     push @result, "$field: $val";
@@ -196,7 +196,7 @@ method last_modified()       is rw { .:date_header("Last-Modified")       }
 
 # This is used as a private LWP extension.  The Client-Date header is
 # added as a timestamp to a response when it has been received.
-,ethod client_date()         is rw { .:date_header('Client-Date')         }
+method client_date()         is rw { .:date_header('Client-Date')         }
 
 # The retry_after field is dual format (can also be a expressed as
 # number of seconds from now), so we don't provide an easy way to

@@ -68,7 +68,7 @@ sub head (Str $url) is export {
   # memory all at once
 
   if ($head ~~ rx:perl5{^HTTP\/\d+\.\d+\s+(\d+) (?:.*?\015?\012)((?:.*?\015?\012)*?)\015?\012}) {
-    my ($code,$head) = ($1,$2);
+    my ($code,$head) = ($0,$1);
 
     # if (want.Boolean) {
     #  return $code ~~ rx:perl5/^2/;
@@ -86,7 +86,7 @@ sub head (Str $url) is export {
     # my @list = "X-LWP-HTTP-Status: $code", (split rx:perl5/\015?\012/, $head);
     #if (want.List) { return @list };
     #if (want.Hash) {
-    #  my %res = map { rx:perl5/^(.*?): (.*)/; ($1 => $2) } @list;
+    #  my %res = map { rx:perl5/^(.*?): (.*)/; ($0 => $1) } @list;
     #  return %res
     #} else {
     #  # What context can we also get?
@@ -99,9 +99,9 @@ sub head (Str $url) is export {
 sub split_uri (Str $url) {
   $url ~~ rx:perl5{^http://([^/:\@]+)(?::(\d+))?(/\S*)?$};
 
-  my ($host) = $1;
-  my ($port) = $2 || 80;
-  my ($path) = $3 || "/";
+  my ($host) = $0;
+  my ($port) = $1 || 80;
+  my ($path) = $2 || "/";
 
   return ($host,$port,$path);
 };
@@ -128,7 +128,7 @@ sub _trivial_http_get (Str $url) returns Str {
 
   # if ($buffer ~~ s:perl5{^HTTP\/\d+\.\d+\s+(\d+)([^\012]*?\015?\012)+?\015?\012}{}) {
   if ($buffer ~~ s:perl5{^HTTP\/\d+\.\d+\s+(\d+)([^\x0A]*?\x0D?\x0A)+?\x0D?\x0A}{}) {
-    my $code = $1;
+    my $code = $0;
 
     # XXX: Add 30[1237] checking/recursion
 
@@ -163,8 +163,8 @@ sub _send_request (Str $host, Str $port, Str $request) {
   if (%*ENV.exists("HTTP_PROXY")) {
     #if (%*ENV<HTTP_PROXY> ~~ rx:perl5!http://()(:(\d+))?$!) {
     if (%*ENV<HTTP_PROXY> ~~ rx:perl5!http://()(:(\d+))?$!) {
-      $h = $1;
-      $p = $2 || 80;
+      $h = $0;
+      $p = $1 || 80;
     } else {
       die "Unhandled/unknown proxy settings: \"" ~ %*ENV<HTTP_PROXY> ~ "\"";
     }

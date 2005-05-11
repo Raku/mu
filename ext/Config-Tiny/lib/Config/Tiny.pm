@@ -31,11 +31,11 @@ sub Config::Tiny::new () returns Ref {
                 else {
                     # Handle section headers
                     if ($line ~~ rx:perl5/^\s*\[(.+?)\]\s*$/) {
-                        $sect = $1;
+                        $sect = $0;
                     }
                     # Handle properties
                     elsif ($line ~~ rx:perl5/^\s*([^=]+?)\s*=\s*(.*?)\s*$/) {
-                        my ($key, $val) = ($1, $2);
+                        my ($key, $val) = ($0, $1);
                         %self{$sect}{$key} = $val;
                     }
                     else {

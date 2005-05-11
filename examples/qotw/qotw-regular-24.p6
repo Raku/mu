@@ -20,12 +20,12 @@ my $trans = open "< $transition_file" err
 
 for =$trans {
   my $line = $_; # avoid "can't modify a constant"
-  $line ~~ s:perl5/#.*//;
+  $line ~~ s:Perl5/#.*//;
 
-  if($line ~~ rx:perl5/\S/) {
-    $line ~~ rx:perl5/^\s*(\w+)\s+(\w)\s+(\w+)\s+(\w)\s+([LR])\s*$/;
+  if($line ~~ rx:Perl5/\S/) {
+    $line ~~ rx:Perl5/^\s*(\w+)\s+(\w)\s+(\w+)\s+(\w)\s+([LR])\s*$/;
     my ($current_state, $current_char, $new_state, $new_char, $direction) =
-      ($1, $2, $3, $4, $5);
+      ($0, $1, $2, $3, $4);
 
     if(%instructions{"$current_state $current_char"}) {
       die "$current_state $current_char redefined.\n";
