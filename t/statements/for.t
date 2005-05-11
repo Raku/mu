@@ -14,7 +14,7 @@ L<S04/"The C<for> statement">
 
 =cut
 
-plan 30;
+plan 31;
 
 ## for with plain old range operator w/out parens
 # L<S04/"The C<for> statement" /in Perl 6, si it always take a list as an argument/>
@@ -96,63 +96,63 @@ for (0 .. 5) -> $topic { $j = $j ~ $topic; };
 is($j, '012345', 'for () -> $topic {} works');
 
 
-## for with @list operator w/out parens
+## for with @array operator w/out parens
 
-my @list_k = (0 .. 5);
+my @array_k = (0 .. 5);
 my $k;
-for @list_k { $k = $k ~ $_; };
-is($k, '012345', 'for @list {} works');
+for @array_k { $k = $k ~ $_; };
+is($k, '012345', 'for @array {} works');
 
 # ... with 'pointer'
 
-my @list_l = (0 .. 5);
+my @array_l = (0 .. 5);
 my $l;
-for @list_l -> { $l = $l ~ $_; };
-is($l, '012345', 'for @list -> {} works');
+for @array_l -> { $l = $l ~ $_; };
+is($l, '012345', 'for @array -> {} works');
 
 # ... with , sub
 
-my @list_m = (0 .. 5);
+my @array_m = (0 .. 5);
 my $m;
-for (@list_m), sub { $m = $m ~ $_; };
-is($m, '012345', 'for @list, sub {} works');
+for (@array_m), sub { $m = $m ~ $_; };
+is($m, '012345', 'for @array, sub {} works');
 
 # ... with referential sub
 
-my @list_n = (0 .. 5);
+my @array_n = (0 .. 5);
 my $n;
 sub some_sub_3 ($arg) { $n = $n ~ $arg; }
-for (@list_n), &some_sub_3;
-is($n, '012345', 'for @list, &some_sub works');
+for (@array_n), &some_sub_3;
+is($n, '012345', 'for @array, &some_sub works');
 
-## and now with parens around the @list
+## and now with parens around the @array
 
-my @list_o = (0 .. 5);
+my @array_o = (0 .. 5);
 my $o;
-for (@list_o) { $o = $o ~ $_; };
-is($o, '012345', 'for (@list) {} works');
+for (@array_o) { $o = $o ~ $_; };
+is($o, '012345', 'for (@array) {} works');
 
 # ... with 'pointer'
 
-my @list_p = (0 .. 5);
+my @array_p = (0 .. 5);
 my $p;
-for (@list_p) -> { $p = $p ~ $_; };
-is($p, '012345', 'for (@list) -> {} works');
+for (@array_p) -> { $p = $p ~ $_; };
+is($p, '012345', 'for (@array) -> {} works');
 
 # ... with sub
 
-my @list_q = (0 .. 5);
+my @array_q = (0 .. 5);
 my $q;
-for (@list_q), sub { $q ~= $_; };
-is($q, '012345', 'for (@list), sub {} works');
+for (@array_q), sub { $q ~= $_; };
+is($q, '012345', 'for (@array), sub {} works');
 
 # ... with referential sub
 
-my @list_r = (0 .. 5);
+my @array_r = (0 .. 5);
 my $r;
 sub some_sub_4 ($arg) { $r ~= $arg; }
-for (@list_r), &some_sub_4;
-is($r, '012345', 'for (@list), &some_sub works');
+for (@array_r), &some_sub_4;
+is($r, '012345', 'for (@array), &some_sub works');
 
 
 my @elems = <a b c d e>;
@@ -181,27 +181,34 @@ my @elems = <a b c d e>;
 }
 
 
-my @list_s = (0..2);
+# for with "is rw"
+
+my @array_s = (0..2);
 my @s = (1..3);
-for @list_s -> { $_++ };
-is(@list_s, @s, 'for @list { $_++ }');
+for @array_s -> { $_++ };
+is(@array_s, @s, 'for @array { $_++ }');
 
-my @list_t = (0..2);
+my @array_t = (0..2);
 my @t = (1..3);
-for @list_t -> $num is rw { $num++ };
-is(@list_t, @t, 'for @list -> $num is rw { $num++ }');
+for @array_t -> $val is rw { $val++ };
+is(@array_t, @t, 'for @array -> $val is rw { $val++ }');
 
-my @list_v = (0..2);
+my @array_v = (0..2);
 my @v = (1..3);
-try { for @list_v.values -> $num is rw { $num++ }; };
-is(@list_v, @v, 'for @list.values -> $num is rw { $num++ }');
+try { for @array_v.values -> $val is rw { $val++ }; };
+is(@array_v, @v, 'for @array.values -> $val is rw { $val++ }');
+
+my @array_kv = (0..2);
+my @kv = (1..3);
+try { for @array_kv.kv -> $key, $val is rw { $val++ }; };
+is(@array_kv, @kv, 'for @array.kv -> $key, $val is rw { $val++ }');
 
 my %hash_v = ( a => 1, b => 2, c => 3 );
 my %v = ( a => 2, b => 3, c => 4 );
 try { for %hash_v.values -> $val is rw { $val++ }; };
-is(%hash_v, %v, 'for %hash.values -> $val is rw { $val++ };');
+is(%hash_v, %v, 'for %hash.values -> $val is rw { $val++ }');
 
 my %hash_kv = ( a => 1, b => 2, c => 3 );
 my %kv = ( a => 2, b => 3, c => 4 );
 try { for %hash_kv.kv -> $key, $val is rw { $val++ }; };
-is( %hash_kv.sort, %kv.sort, 'for %hash.kv -> $key, $val is rw { $val++ };');
+is( %hash_kv.sort, %kv.sort, 'for %hash.kv -> $key, $val is rw { $val++ }');
