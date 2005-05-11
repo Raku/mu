@@ -714,6 +714,7 @@ extract (Cxt cxt ex) vs = ((Cxt cxt ex'), vs')
     (ex', vs') = extract ex vs
 extract exp vs = (exp, vs)
 
+-- can be factored
 -- |Return the context implied by a particular primary sigil
 -- (\$, \@, \% or \&). E.g. used to find what context to impose on
 -- the RHS of a binding (based on the sigil of the LHS).
@@ -881,9 +882,6 @@ genSym name ref = do
     fresh   <- liftSTM $ newTVar True
     return $ \(MkPad map) -> MkPad $ Map.insert name [(fresh, tvar)] map
 
-show' :: (Show a) => a -> String
-show' x = "( " ++ show x ++ " )"
-
 type Eval x = EvalT (ContT Val (ReaderT Env SIO)) x
 type EvalMonad = EvalT (ContT Val (ReaderT Env SIO))
 newtype EvalT m a = EvalT { runEvalT :: m a }
@@ -996,13 +994,6 @@ retControl c = do
 
 retError :: (Show a) => VStr -> a -> Eval b
 retError str a = fail $ str ++ ": " ++ show a
-
--- |Evaluate the given expression, using the currently active evaluator
--- (as given by the 'envEval' slot of the current 'Env').
-evalExp :: Exp -> Eval Val
-evalExp exp = do
-    evl <- asks envEval
-    evl exp
 
 defined :: VScalar -> Bool
 defined VUndef  = False
@@ -1118,6 +1109,7 @@ doHash val f = do
     hv  <- fromVal val
     return $ f (hv :: VHash)
 
+-- can be factored out
 doArray :: Val -> (forall a. ArrayClass a => a -> b) -> Eval b
 doArray (VRef (MkRef (IArray hv))) f = return $ f hv
 doArray (VRef (MkRef (IScalar sv))) f = do

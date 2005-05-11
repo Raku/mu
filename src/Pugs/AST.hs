@@ -110,3 +110,9 @@ strInc str
 charInc :: Char -> Char
 charInc x   = chr $ 1 + ord x
 
+-- |Evaluate the given expression, using the currently active evaluator
+-- (as given by the 'envEval' slot of the current 'Env').
+evalExp :: Exp -> Eval Val
+evalExp exp = do
+    evl <- asks envEval
+    evl exp

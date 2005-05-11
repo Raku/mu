@@ -10,7 +10,10 @@
 >   And by the strand of Ilmarin there grew a golden Tree...
 -}
 
-module Pugs.Parser where
+module Pugs.Parser (
+    runRule,
+    ruleProgram,
+) where
 import Pugs.Internals
 import Pugs.AST
 import Pugs.Types
@@ -192,9 +195,11 @@ ruleDocBody = (try ruleDocCut) <|> eof <|> do
     ruleDocBody
     return ()
 
+{- unused
 ruleQualifiedIdentifier :: RuleParser [String]
 ruleQualifiedIdentifier = rule "qualified identifer" $ do
     identifier `sepBy1` (try $ string "::")
+-}
 
 -- Declarations ------------------------------------------------
 
@@ -331,12 +336,14 @@ selfParam typ = MkParam
     , paramDefault  = Noop
     }
 
+{- unused
 subNameWithPrefix :: String -> RuleParser String
 subNameWithPrefix prefix = (<?> "subroutine name") $ lexeme $ try $ do
     star    <- option "" $ string "*"
     c       <- wordAlpha
     cs      <- many wordAny
     return $ "&" ++ star ++ prefix ++ (c:cs)
+-}
 
 ruleSubName :: RuleParser String
 ruleSubName = verbatimRule "subroutine name" $ do
@@ -532,8 +539,10 @@ unsafeEvalExp exp = do
         VError _ _  -> error $ pretty (val :: Val)
         _           -> return $ Val val
 
+{- unused
 rulePackageDeclaration :: RuleParser a
 rulePackageDeclaration = rule "package declaration" $ fail ""
+-}
 
 -- Constructs ------------------------------------------------
 
@@ -848,16 +857,20 @@ currentUnaryFunctions' = do
     munge = unwords . map snd
     mapPair f (x, y) = (f x, f y)
 
+{- unused
 parseName :: String -> String
 parseName str
     | (_, (_:name)) <- break (== ':') str
     = name
     | otherwise
     = dropWhile (not . isAlpha) str
+-}
 
+{- unused
 currentListFunctions :: RuleParser [a]
 currentListFunctions = do
     return []
+-}
 {-
     funs <- currentFunctions
     return $ unwords [
@@ -910,16 +923,20 @@ listOps     :: String -> [Operator Char Env Exp]
 listOps     = leftOps
 chainOps    :: String -> [Operator Char Env Exp]
 chainOps    = leftOps
+{- unused
 leftSyn     :: String -> [Operator Char Env Exp]
 leftSyn     = ops $ makeOp2 AssocLeft "" Syn
+-}
 rightSyn    :: String -> [Operator Char Env Exp]
 rightSyn    = ops $ makeOp2 AssocRight "" Syn
 noneSyn     :: String -> [Operator Char Env Exp]
 noneSyn     = ops $ makeOp2 AssocNone "" Syn
 listSyn     :: String -> [Operator Char Env Exp]
 listSyn     = ops $ makeOp0 AssocList "" Syn
+{- unused
 chainSyn    :: String -> [Operator Char Env Exp]
 chainSyn    = leftSyn
+-}
 
 -- chainOps    = ops $ makeOpChained
 
@@ -1135,12 +1152,14 @@ maybeParensBool p = choice
 
 maybeParens :: CharParser Env a -> RuleParser a
 maybeParens p = choice [ parens p, p ]
+{- unused
 maybeDotParens :: CharParser Env a -> RuleParser a
 maybeDotParens p = choice [ dotParens p, p ]
     where
     dotParens rule = do
         option ' ' $ char '.'
         parens rule
+-}
 
 parseVarName :: RuleParser String
 parseVarName = rule "variable name" ruleVarNameString
@@ -1587,10 +1606,12 @@ yadaLiteral = do
             fail "This function is not yet implemented"
 -}
 
+{- unused
 op_methodPostfix    :: [a]
 op_methodPostfix    = []
 op_namedUnary       :: [a]
 op_namedUnary       = []
+-}
 methOps             :: a -> [b]
 methOps _ = []
 
