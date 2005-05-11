@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -fglasgow-exts #-}
 
-module Pugs.Compile.Parrot (genIMC) where
+module Pugs.Compile.Parrot (genPIR) where
 import Pugs.Internals
 import Pugs.Pretty
 import Pugs.AST
@@ -16,8 +16,8 @@ class (Show x) => Compile x where
     compile :: x -> Eval Doc
     compile x = fail ("Unrecognized construct: " ++ show x)
 
-genIMC :: Eval Val
-genIMC = do
+genPIR :: Eval Val
+genPIR = do
     exp  <- asks envBody
     glob <- askGlobal
     ref  <- liftSTM $ newTVar $ Map.fromList [("tempPMC", "9")]
@@ -176,7 +176,7 @@ instance Compile Exp where
             , text "goto" <+> start
             , label last
             ]
-    -- XXX broken! this needs to emit IMC *outside* of the main sub
+    -- XXX broken! this needs to emit PIR *outside* of the main sub
     -- compile (Syn "module" [Val (VStr ns)]) = do
     --    return $ text ".namespace ['_Pugs::" <> text ns <> text "']"
     compile (App (Var "&return") [] [val]) = do
