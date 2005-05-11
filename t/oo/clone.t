@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 7;
+plan 8;
 
 # L<S12/"Construction and Initialization" /you can clone an object, changing some of the attributes:/>
 class Foo { 
@@ -19,6 +19,7 @@ is($a.get_attr(), 13, '... got the right attr value');
 my $c = $a.clone();
 isa_ok($c, 'Foo');
 is($c.get_attr(), 13, '... cloned object retained attr value');
+ok(eval('not $c =:= $a'), "... cloned object isn't identity equal to the original object"); 
 
 my $d;
 lives_ok {
