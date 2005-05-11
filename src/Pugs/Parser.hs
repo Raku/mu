@@ -14,6 +14,7 @@ module Pugs.Parser where
 import Pugs.Internals
 import Pugs.AST
 import Pugs.Types
+import Pugs.Context
 import Pugs.Help
 import Pugs.Lexer
 import Pugs.Rule
@@ -202,42 +203,44 @@ ruleBlockDeclaration = rule "block declaration" $ choice
     [ ruleSubDeclaration
     , ruleClosureTrait False
     , ruleRuleDeclaration
+    , ruleClassDeclaration
     ]
 
 ruleDeclaration :: RuleParser Exp
 ruleDeclaration = rule "declaration" $ choice
     [ ruleModuleDeclaration
     , ruleVarDeclaration
+    , ruleMemberDeclaration
     , ruleUseDeclaration
     , ruleInlineDeclaration
     , ruleRequireDeclaration
     ]
 
-ruleSubHead :: RuleParser (Bool, String)
+ruleSubHead :: RuleParser (Bool, Bool, String)
 ruleSubHead = rule "subroutine head" $ do
     multi   <- option False $ do { symbol "multi" ; return True }
-    symbol "sub"
+    method  <- do { symbol "sub"; return False } <|> do { symbol "method"; return True }
     name    <- ruleSubName
-    return (multi, name)
+    return (multi, method, name)
 
 -- | Scope, context, multi, name
-ruleSubScopedWithContext :: RuleParser (Scope, String, Bool, String)
+ruleSubScopedWithContext :: RuleParser (Scope, String, Bool, Bool, String)
 ruleSubScopedWithContext = rule "scoped subroutine with context" $ do
     scope   <- ruleScope
     cxt     <- identifier
-    (multi, name) <- ruleSubHead
-    return (scope, cxt, multi, name)
+    (multi, method, name) <- ruleSubHead
+    return (scope, cxt, multi, method, name)
 
-ruleSubScoped :: RuleParser (Scope, String, Bool, String)
+ruleSubScoped :: RuleParser (Scope, String, Bool, Bool, String)
 ruleSubScoped = rule "scoped subroutine" $ do
     scope <- ruleScope
-    (multi, name) <- ruleSubHead
-    return (scope, "Any", multi, name)
+    (multi, method, name) <- ruleSubHead
+    return (scope, "Any", multi, method, name)
 
-ruleSubGlobal :: RuleParser (Scope, String, Bool, String)
+ruleSubGlobal :: RuleParser (Scope, String, Bool, Bool, String)
 ruleSubGlobal = rule "global subroutine" $ do
-    (multi, name) <- ruleSubHead
-    return (SGlobal, "Any", multi, name)
+    (multi, method, name) <- ruleSubHead
+    return (SGlobal, "Any", multi, method, name)
 
 
 doExtract :: Maybe [Param] -> Exp -> (Exp, [String], [Param])
@@ -258,14 +261,28 @@ ruleRuleDeclaration = rule "rule declaration" $ try $ do
     adverbs <- ruleAdverbHash
     ch      <- char '{'
     expr    <- rxLiteralAny adverbs $ balancedDelim ch
-    let exp = Syn ":=" [Var ('<':name), Syn "rx" [expr, adverbs]] -- , bodyPos)
+    let exp = Syn ":=" [Var ('<':name), Syn "rx" [expr, adverbs]]
     unsafeEvalExp (Sym SGlobal ('<':name) exp)
     return emptyExp
+
+ruleClassDeclaration :: RuleParser Exp
+ruleClassDeclaration = rule "class declaration" $ try $ do
+    symbol "class"
+    name    <- identifier
+    -- XXX - traits - eg inheritance
+    env     <- getState
+    let exp = Syn ":=" [Var (':':name), Syn "\\{}" [Syn "," []]]
+    unsafeEvalExp (Sym SGlobal (':':name) exp)
+    setState env{ envPackage = name, envClasses = envClasses env `addNode` mkType name }
+    body    <- between (symbol "{") (char '}') ruleBlockBody
+    env'    <- getState
+    setState env'{ envPackage = envPackage env }
+    return body
 
 ruleSubDeclaration :: RuleParser Exp
 ruleSubDeclaration = rule "subroutine declaration" $ do
     -- namePos <- getPosition
-    (scope, typ, multi, name) <- tryChoice
+    (scope, typ, multi, method, name) <- tryChoice
         [ ruleSubScopedWithContext
         , ruleSubScoped
         , ruleSubGlobal
@@ -282,24 +299,37 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
     env <- getState
     let subExp = Val . VCode $ MkCode
             { isMulti       = multi
-            , subName       = name
+            , subName       = name'
             , subPad        = envLexical env
             , subType       = SubRoutine
             , subAssoc      = "pre"
             , subReturns    = mkType typ'
-            , subParams     = params
+            , subParams     = (if method then [selfParam $ envPackage env] else []) ++ params
             , subBindings   = []
             , subSlurpLimit = []
             , subBody       = fun
             }
+        name' = if method then "&" ++ envPackage env ++ "::" ++ tail name else name
         -- decl = Sym scope name -- , namePos)
-        exp  = Syn ":=" [Var name, Syn "sub" [subExp]] -- , bodyPos)
+        exp  = Syn ":=" [Var name', Syn "sub" [subExp]] -- , bodyPos)
     -- XXX: user-defined infix operator
     if scope == SGlobal
-        then do { unsafeEvalExp (Sym scope name exp); return emptyExp }
+        then do { unsafeEvalExp (Sym scope name' exp); return emptyExp }
         else do
-            lexDiff <- unsafeEvalLexDiff (Sym scope name emptyExp)
+            lexDiff <- unsafeEvalLexDiff (Sym scope name' emptyExp)
             return $ Pad scope lexDiff exp
+
+selfParam typ = MkParam
+    { isInvocant    = True
+    , isOptional    = False
+    , isNamed       = False
+    , isLValue      = True
+    , isWritable    = True
+    , isLazy        = False
+    , paramName     = "$?SELF"
+    , paramContext  = CxtItem (mkType typ)
+    , paramDefault  = Noop
+    }
 
 subNameWithPrefix :: String -> RuleParser String
 subNameWithPrefix prefix = (<?> "subroutine name") $ lexeme $ try $ do
@@ -360,6 +390,12 @@ ruleParamDefault True  = return $ Val VUndef
 ruleParamDefault False = rule "default value" $ option (Val VUndef) $ do
     symbol "="
     parseLitOp
+
+ruleMemberDeclaration :: RuleParser Exp
+ruleMemberDeclaration = do
+    symbol "has"
+    parseVarName
+    return Noop
 
 ruleVarDeclaration :: RuleParser Exp
 ruleVarDeclaration = rule "variable declaration" $ do
@@ -937,11 +973,18 @@ parseTerm = rule "term" $ do
         [ ruleVar
         , ruleLit
         , ruleClosureTrait True
+        , ruleTypeLiteral
         , parseApply
         , parens ruleExpression
         ]
     fs <- many rulePostTerm
     return $ combine (reverse fs) term
+
+ruleTypeLiteral :: RuleParser Exp
+ruleTypeLiteral = rule "type" $ do
+    env     <- getState
+    name    <- choice [ symbol name | (MkType name) <- flatten (envClasses env) ]
+    return . Val . VType $ mkType name
 
 rulePostTerm :: RuleParser (Exp -> Exp)
 rulePostTerm = tryVerbatimRule "term postfix" $ do
@@ -1139,6 +1182,8 @@ makeVar ('$':rest) | all (`elem` "1234567890") rest =
     Syn "[]" [Var "$/", Val $ VInt (read rest - 1)]
 makeVar ('$':'<':name) =
     Syn "{}" [Var "$/", doSplitStr name]
+makeVar (sigil:'.':name) =
+    Cxt (cxtOfSigil sigil) (Syn "{}" [Var "$?SELF", Val (VStr name)])
 makeVar var = Var var
 
 ruleLit :: RuleParser Exp

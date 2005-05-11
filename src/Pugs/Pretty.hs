@@ -125,6 +125,8 @@ instance Pretty Val where
     --     return $ pretty val
     format (VRule _) = text $ "{rule}"
     format (VSubst _) = text $ "{subst}"
+    format (VType t) = text $ "::" ++ showType t
+    format (VObject o) = text $ "{obj:" ++ showType (objType o) ++ "}"
     format VUndef = text $ "undef"
 
 quoted :: Char -> String

@@ -62,6 +62,7 @@ emptyEnv name genPad = do
             , envLexical = mkPad []
             , envLValue  = False
             , envGlobal  = glob
+            , envPackage = "main"
             , envClasses = initTree
             , envEval    = evaluate
             , envCaller  = Nothing
@@ -725,10 +726,19 @@ cxtOfExp (App (Var name) invs args)   = do
         _ -> cxtSlurpyAny
 cxtOfExp _                      = return cxtSlurpyAny
 
-
+findSub name [Var var] args = do
+    pos <- asks envPos
+    rv  <- findVar var
+    let findNext n = findSub n [Pos pos (Var var)] args -- XXX hack
+    case rv of
+        Nothing  -> findNext name
+        Just ref -> do
+            typ     <- evalValType (VRef ref)
+            subs    <- findNext $ ('&':showType typ) ++ "::" ++ tail name
+            if isNothing subs then findNext name else return subs
 findSub name invs args = do
-    subSyms <- findSyms name
-    lens    <- mapM argSlurpLen (unwrap $ invs ++ args)
+    subSyms     <- findSyms name
+    lens        <- mapM argSlurpLen (unwrap $ invs ++ args)
     doFindSub (sum lens) subSyms
     where
     argSlurpLen (Val listMVal) = do

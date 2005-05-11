@@ -25,9 +25,9 @@ isRequired prm = not ( isOptional prm || isNamed prm )
 bindNames :: [Exp] -- ^ List of argument expressions to be bound
           -> [Param] -- ^ List of parameters to try binding; includes both
                      --     named params and positional params
-          -> (Bindings, [Exp], [Param]) -- ^ Bindings made; remaining (unbound)
-                                        --     named args; remaining
-                                        --     (positional) params
+          -> (Bindings, [Exp], [Param]) -- ^ Bindings made;
+                                        --   remaining (unbound) named args;
+                                        --   remaining (positional) params
 bindNames exps prms = (bound, exps', prms')
     where
     prms' = prms \\ (map fst bound)
@@ -36,7 +36,7 @@ bindNames exps prms = (bound, exps', prms')
         | Just prm <- find ((name ==) . tail . paramName) prms
         = ( ((prm, exp) : bound), exps )
         | otherwise
-        = ( bound, (exp:exps) )
+        = ( bound, (Syn "=>" [Val (VStr name), exp]:exps) )
 
 emptyHashExp :: Exp
 emptyHashExp  = Val $ VList [] -- VHash $ vCast $ VList []
@@ -58,7 +58,7 @@ bindHash [] [p]         = return [ (p, emptyHashExp) ]
 bindHash vs (p:ps@(_:_))= do
     first <- (bindHash vs [p])
     return $ first ++ (ps `zip` repeat emptyHashExp)
-bindHash vs [p]         = return [ (p, Syn "\\{}" vs) ] -- XXX cast to Hash
+bindHash vs [p]         = return [ (p, Syn "\\{}" [Syn "," vs]) ] -- XXX cast to Hash
 
 bindArray :: [Exp] -> [Param] -> SlurpLimit -> MaybeError (Bindings, SlurpLimit)
 bindArray vs ps oldLimit = do

@@ -26,6 +26,7 @@ module Pugs.AST (
     VMatch(..), mkMatchFail, mkMatchOk,
     VCode(..), SubType(..),
     VJunc(..), JuncType(..),
+    VObject(..), VType,
 
     IVar(..),
     IArray, IArraySlice, IHash, IScalar, ICode, IScalarProxy,
@@ -48,7 +49,7 @@ module Pugs.AST (
     scalarRef, codeRef, arrayRef, hashRef, thunkRef, pairRef,
     newScalar, newArray, newHandle, newObject,
     proxyScalar, constScalar, lazyScalar, lazyUndef, constArray,
-    retError, retControl, retEmpty, retIVar,
+    retError, retControl, retEmpty, retIVar, writeIVar,
     fromVals, refType,
     mkPad, lookupPad, padToList, diffPads, unionPads,
     genMultiSym, genSym,

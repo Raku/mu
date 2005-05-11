@@ -160,6 +160,10 @@ instance Value (IVar VScalar) where
     fromVal (VRef r) = fromVal =<< readRef r
     fromVal v = return $ constScalar v
 
+instance Value VType where
+    fromVal (VType t)   = return t
+    fromVal v           = return $ valType v
+
 instance Value VMatch where
     fromVal (VRef r) = fromVal =<< readRef r
     fromVal (VMatch m) = return m
@@ -197,6 +201,11 @@ instance Value [(VStr, Val)] where
 
 instance Value VHash where
     fromVal (VMatch m) = return $ matchSubNamed m
+    fromVal (VObject o) = do
+        attrs <- liftSTM $ readTVar (objAttrs o)
+        fmap Map.fromAscList $ forM (Map.assocs $ attrs) $ \(k, ivar) -> do
+            v <- readIVar ivar
+            return (k, v)
     fromVal v = do
         list <- fromVal v
         fmap Map.fromList $ forM list $ \(k, v) -> do
@@ -331,6 +340,8 @@ instance Value VStr where
     vCast (VThread t)   = takeWhile isDigit $ dropWhile (not . isDigit) $ show t
     vCast (VHandle h)   = "<" ++ "VHandle (" ++ (show h) ++ ">"
     vCast (VMatch m)    = matchStr m
+    vCast (VType typ)   = "::" ++ showType typ
+    vCast (VObject o)   = "<obj:" ++ showType (objType o) ++ ">"
     vCast x             = castFail x
 
 showNum :: Show a => a -> String
@@ -406,6 +417,7 @@ newtype VProcess = MkProcess (ProcessHandle)
     deriving (Typeable)
 
 type VPair = (Val, Val)
+type VType = Type
 
 -- |Represents a value. Note that 'Val' is also a constructor for 'Exp' (i.e.
 -- an expression containing a value), so don't confuse the two. Similarly,
@@ -433,6 +445,8 @@ data Val
     | VSubst    !VSubst      -- ^ Substitution value (correct?)
     | VControl  !VControl
     | VMatch    !VMatch
+    | VType     !VType
+    | VObject   !VObject
     | VOpaque   !VOpaque
     deriving (Show, Eq, Ord, Typeable)
 
@@ -460,6 +474,8 @@ valType (VControl _)    = mkType "Control"
 valType (VRule    _)    = mkType "Rule"
 valType (VSubst   _)    = mkType "Subst"
 valType (VMatch   _)    = mkType "Match"
+valType (VType    _)    = mkType "Type"
+valType (VObject  o)    = objType o
 valType (VOpaque  _)    = mkType "Object"
 
 type VBlock = Exp
@@ -707,6 +723,7 @@ cxtOfSigil '@'  = cxtSlurpyAny
 cxtOfSigil '%'  = cxtSlurpyAny
 cxtOfSigil '&'  = CxtItem $ mkType "Code"
 cxtOfSigil '<'  = CxtItem $ mkType "Rule"
+cxtOfSigil ':'  = CxtItem $ mkType "Type"
 cxtOfSigil x    = internalError $ "cxtOfSigil: unexpected character: " ++ show x
 
 -- |Return the type of variable implied by a name beginning with the specified
@@ -717,6 +734,7 @@ typeOfSigil '@'  = mkType "Array"
 typeOfSigil '%'  = mkType "Hash"
 typeOfSigil '&'  = mkType "Code"
 typeOfSigil '<'  = mkType "Rule"
+typeOfSigil ':'  = mkType "Type"
 typeOfSigil x    = internalError $ "typeOfSigil: unexpected character: " ++ show x
 
 buildParam :: String -- ^ Type of the parameter
@@ -759,6 +777,7 @@ data Env = MkEnv
     , envLValue  :: !Bool                -- ^ Are we in an LValue context?
     , envLexical :: !Pad                 -- ^ Lexical pad for variable lookup
     , envGlobal  :: !(TVar Pad)          -- ^ Global pad for variable lookup
+    , envPackage :: !String              -- ^ Current package
     , envClasses :: !ClassTree           -- ^ Current class tree
     , envEval    :: !(Exp -> Eval Val)   -- ^ Active evaluator
     , envCaller  :: !(Maybe Env)         -- ^ Caller's env
@@ -1058,6 +1077,8 @@ newObject (MkType "Code")   = liftSTM $
     fmap codeRef $ newTVar mkSub
 newObject (MkType "Rule")   = liftSTM $
     fmap scalarRef $ newTVar undef
+newObject (MkType "Type")   = liftSTM $
+    fmap scalarRef $ newTVar undef
 newObject typ = fail ("Cannot create object: " ++ showType typ)
 
 doPair :: Val -> (forall a. PairClass a => a -> b) -> Eval b
@@ -1091,6 +1112,7 @@ doHash (VRef (MkRef (IScalar sv))) f = do
             return $ f hv
         _  -> doHash val f
 doHash (VRef (MkRef p@(IPair _))) f = return $ f p
+doHash (VObject o) f = return $ f (objAttrs o)
 doHash val@(VRef _) _ = retError "Cannot cast into Hash" val
 doHash val f = do
     hv  <- fromVal val
@@ -1128,6 +1150,12 @@ data (Typeable v) => IVar v where
 
 data VOpaque where
     MkOpaque :: Value a => !a -> VOpaque
+
+data VObject = MkObject
+    { objType   :: VType
+    , objAttrs  :: IHash
+    }
+    deriving (Show, Eq, Ord, Typeable)
 
 data VMatch = MkMatch
     { matchOk           :: !VBool   -- success?

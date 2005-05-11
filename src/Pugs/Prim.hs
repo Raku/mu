@@ -19,6 +19,7 @@ import Pugs.Pretty
 import Pugs.Parser
 import Pugs.External
 import Text.Printf
+import qualified Data.Map as Map
 
 import Pugs.Prim.Keyed
 import Pugs.Prim.Yaml
@@ -414,14 +415,10 @@ op1 "ord"   = op1Cast $ \str -> if null str then undef else (castV . ord . head)
 op1 "hex"   = op1Cast (VInt . read . ("0x"++))
 op1 "log"   = op1Cast (VNum . log)
 op1 "log10" = op1Cast (VNum . logBase 10)
-op1 "mkType" = return . op1mkType . vCast
 op1 "from"  = op1Cast (castV . matchFrom)
 op1 "to"    = op1Cast (castV . matchTo)
 op1 "matches" = op1Cast (VList . matchSubPos)
 op1 other   = \_ -> fail ("Unimplemented unaryOp: " ++ other)
-
--- op1mkType :: VStr -> Eval VStr
-op1mkType str = (VStr . showType . mkType) str
 
 op1EvalHaskell :: Val -> Eval Val
 op1EvalHaskell cv = do
@@ -720,6 +717,12 @@ op3 "rindex" = \x y z -> do
 
 op3 "splice" = \x y z -> do
     op4 "splice" x y z (VList [])
+op3 "new" = \t n _ -> do
+    typ     <- fromVal t
+    named   <- fromVal n
+    attrs   <- liftSTM $ newTVar Map.empty
+    writeIVar (IHash attrs) named
+    return . VObject $ MkObject{ objType = typ, objAttrs = attrs }
 op3 other = \_ _ _ -> fail ("Unimplemented 3-ary op: " ++ other)
 
 op4 :: Ident -> Val -> Val -> Val -> Val -> Eval Val
@@ -881,6 +884,9 @@ doFoldParam cxt [] (p:ps)   = ((buildParam cxt "" (strInc $ paramName p) (Val VU
 doFoldParam cxt (s:name) ps = ((buildParam cxt [s] name (Val VUndef)) { isLValue = False } : ps)
 
 foldParam :: String -> Params -> Params
+foldParam "Named" = \ps -> (
+    (buildParam "Hash" "*" "@?0" (Val VUndef)):
+    (buildParam "Hash" "*" "%?0" (Val VUndef)):ps)
 foldParam "List"    = doFoldParam "List" "*@?1"
 foldParam ('r':'w':'!':"List") = \ps -> ((buildParam "List" "" "@?0" (Val VUndef)) { isLValue = True }:ps)
 foldParam ('r':'w':'!':str) = \ps -> ((buildParam str "" "$?1" (Val VUndef)) { isLValue = True }:ps)
@@ -1179,7 +1185,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Int       pre     sign    (Num)\
 \\n   Bool      pre     kill    (Thread)\
 \\n   Int       pre     kill    (Int, List)\
-\\n   Str       pre     mkType  (Str)\
+\\n   Object    pre     new     (Type: Named)\
 \\n   List      pre     Pugs::Internals::runInteractiveCommand    (?Str=$_)\
 \\n   List      pre     Pugs::Internals::openFile    (?Str,?Str=$_)\
 \\n"

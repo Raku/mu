@@ -17,7 +17,7 @@ data Type
     = MkType !String      -- ^ A regular type
     | TypeOr  !Type !Type -- ^ The disjunction (|) of two types
     | TypeAnd !Type !Type -- ^ The conjunction (&) of two types
-    deriving (Eq, Ord)
+    deriving (Eq, Ord, Typeable)
 
 instance Show Type where
     show t = "(mkType \"" ++ showType t ++ "\")"
