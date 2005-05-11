@@ -1,4 +1,4 @@
-module Net::IRC-0.03;
+module Net::IRC-0.04;
 # This is a take at a Perl 6 IRC library.
 # You can run it, too.
 # This library provides the "classes" bot and queue, to be used in other bots.
@@ -103,44 +103,57 @@ sub new_bot(
     my ($chan, $topic) = split " ", $event<rest>;
     $topic = strip_colon($topic);
 
-    # %channels{normalize $chan}<topic> = $topic;
+    %channels{normalize $chan}<topic> = $topic;
   }];
   %handler<TOPIC> = [-> $event {
-    # %channels{normalize $event<object>}<topic> = $event<rest>;
+    %channels{normalize $event<object>}<topic> = $event<rest>;
   }];
 
   # We track our status, especially the channels we've joined.
+  # Somebody joined. Update %channels and %users accordingly.
   %handler<JOIN> = [-> $event {
     if(normalize($event<from_nick>) eq normalize($curnick)) {
       push @on_chans, $event<object>;
       debug "Joined channel \"$event<object>\".";
     }
 
-    # %channels{normalize $event<object>}<users>{$event<from_nick>}++;
-    # %users{normalize $event<from_nick>}<channels>{normalize $event<object>}++;
+    %channels{normalize $event<object>}<users>{$event<from_nick>}++;
+    %users{normalize $event<from_nick>}<channels>{normalize $event<object>}++;
   }];
+
+  # Somebody left a channel. Update %channels and %users accordingly.
   %handler<PART> = [-> $event {
     if(normalize($event<from_nick>) eq normalize($curnick)) {
       @on_chans .= grep:{ $^chan ne $event<object> };
+      %channels.delete(normalize $event<object>);
+      %users{normalize $event<from_nick>}<channels>.delete(normalize $event<object>)
+	if %users{normalize $event<from_nick>}<channels>;
       debug "Left channel \"$event<object>\".";
+    } else {
+      %channels{normalize $event<object>}<users>.delete(normalize $event<from_nick>);
+      %users{normalize $event<from_nick>}<channels>.delete(normalize $event<object>)
+	if %users{normalize $event<from_nick>}<channels>;
     }
-
-    # %channels{normalize $event<object>}<users>.delete(normalize $event<from_nick>);
-    # %users{normalize $event<from_nick>}<channels>.delete(normalize $event<object>)
-    #   if %users{normalize $event<from_nick>}<channels>;
   }];
+
+  # Somebody was kicked. Update %channels and %users accordingly.
   %handler<KICK> = [-> $event {
     my ($kickee, $reason) = split " ", $event<rest>;
     $reason = strip_colon($reason);
     if(normalize($kickee) eq normalize($curnick)) {
       @on_chans .= grep:{ $^chan ne $event<object> };
+      %channels.delete(normalize $event<object>);
+      %users{normalize $kickee}<channels>.delete(normalize $event<object>)
+	if %users{normalize $kickee}<channels>;
       debug "Was kicked from channel \"$event<object>\" by \"$event<from>\" (\"$reason\").";
+    } else {
+      %channels{normalize $event<object>}<users>.delete(normalize $kickee);
+      %users{normalize $kickee}<channels>.delete(normalize $event<object>)
+	if %users{normalize $kickee}<channels>;
     }
-
-    # %channels{normalize $event<object>}<users>.delete(normalize $kickee);
-    # %users{normalize $kickee}<channels>.delete(normalize $event<object>)
-    #   if %users{normalize $kickee}<channels>;
   }];
+
+  # Somebody was killed. Update %channels and %users accordingly.
   %handler<KILL> = [-> $event {
     my ($killee, $reason) = $event<object rest>;
     if(normalize($killee) eq normalize($curnick)) {
@@ -148,24 +161,41 @@ sub new_bot(
       debug "Was killed by \"$event<from>\" (\"$reason\").";
     }
 
-    # my @chans = %users{normalize $killee}<channels>.keys;
-    # %channels{$_}<users>.delete(normalize $killee) for @chans;
-    # %users.delete(normalize $killee);
+    my @chans = %users{normalize $killee}<channels>.keys;
+    %channels{$_}<users>.delete(normalize $killee) for @chans;
+    %users.delete(normalize $killee);
   }];
+
+  # Somebody quit. Remove him/she from %users and %channels.
+  %handler<QUIT> = [-> $event {
+    my @chans = %users{normalize $event<from_nick>}<channels>.keys;
+    %channels{$_}<users>.delete(normalize $event<from_nick>) for @chans;
+    %users.delete(normalize $event<from_nick>);
+  }];
+
+  # Somebody changed his/her nick. Rename his/her entry in %users, and update
+  # all %channels he/she has joined.
   %handler<NICK> = [-> $event {
     if(normalize($event<from_nick>) eq normalize($curnick)) {
       $curnick = $event<object>;
       debug "Changed nick to \"$event<object>\".";
     }
 
-    # my $oldnick = normalize $event<from_nick>;
-    # my $newnick = normalize $event<object>;
-    # for %users{$oldnick}<channels> {
-    #   %channels{$_}<users>.delete($oldnick);
-    #   %channels{$_}<users>{$newnick}++;
-    # }
-    # my %old = %users.delete($oldnick);
-    # %users{$newnick} = %old;
+    my $oldnick = normalize $event<from_nick>;
+    my $newnick = normalize $event<object>;
+    if %users{$oldnick}<channels> {
+      for %users{$oldnick}<channels>.keys {
+	%channels{$_}<users>.delete($oldnick);
+	%channels{$_}<users>{$newnick}++;
+      }
+    }
+
+    # The more elegant %users{$newnick} = %users.delete($oldnick) doesn't work
+    # yet in Pugs, because, so it seems, delete stringifies its return values,
+    # but I was unable to work out a test case, and in interactive Pugs delete
+    # seems to work...
+    %users{$newnick} = %users{$oldnick};
+    %users.delete($oldnick);
   }];
 
   # Sub which sends $msg, flushes $hdl and logs $msg to STDERR.
@@ -189,6 +219,7 @@ sub new_bot(
     last_autoping => { $last_autoping },
     channels      => { @on_chans },
     channel       => -> Str $channel { %channels{normalize $channel} },
+    user          => -> Str $nick    { %users{normalize $nick} },
 
     # Main handler register method
     add_handler => -> Str $code, Code $cb { %handler{$code}.push($cb) },
@@ -306,7 +337,7 @@ sub new_bot(
 	object    => strip_colon($object),
       };
 
-      if(%handler{$command}) {
+      if %handler{$command} {
 	$_($event) for *%handler{$command};
       }
     },
@@ -556,6 +587,18 @@ Returns a true value if the bot is logged in.
 
 Returns a list of channels the bot has joined. This is a readonly accessor, you
 have to use the C<join> and C<part> methods to join or leave channels.
+
+=head2 C<$botE<lt>channelE<gt>("#chan")>
+
+Returns a hashref describing C<#chan>. Its keys are C<topic> (the current
+topic) and C<users>, a hashref, which has the nicks who are on the channel as
+keys.  Note that the nicknames are normalized.
+
+=head2 C<$botE<lt>userE<gt>("nick")>
+
+Returns a hashref describing C<nick>. Currently, there's only one key,
+C<channels>, which is a hashref, which has the channels C<nick> has joined as
+keys. Note that the channel names are normalized.
 
 =head2 C<$botE<lt>add_handlerE<gt>("001", -E<gt> $event {...})>
 
