@@ -17,5 +17,5 @@ my $bot = new_bot(
   debug_raw => 0,
 );
 
-ok $bot,                     "instantiation of a bot 'object' worked";
-is $bot<nick>(), "blechbot", "calling a method on a bot 'object' worked";
+ok $bot,               "instantiation of a bot 'object' worked";
+ok !$bot<connected>(), "calling a method on a bot 'object' worked";
