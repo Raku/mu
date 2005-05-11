@@ -18,16 +18,27 @@ import Pugs.Types
 headVal []    = retEmpty
 headVal (v:_) = return v
 
-enterLex :: [Pad -> Pad] -> Eval a -> Eval a
+-- |Perform the specified evaluation in a lexical scope that has been
+-- augmented by the given list of lexical 'Pad' transformers. Subsequent
+-- chained 'Eval's do /not/ see this new scope.
+enterLex :: [Pad -> Pad] -- ^ Transformations on current 'Pad' to produce the
+                         --     new 'Pad'.
+         -> Eval a       -- ^ Evaluation to be performed in the new scope
+         -> Eval a       -- ^ Resulting evaluation (lexical scope enter & exit
+                         --     are encapsulated)
 enterLex newSyms = local (\e -> e{ envLexical = combine newSyms (envLexical e) })
 
+-- |Perform the specified evaluation in the specified context ('Cxt').
+-- Subsequent chained 'Eval's do /not/ see this new scope.
 enterContext :: Cxt -> Eval a -> Eval a
 enterContext cxt = local (\e -> e{ envContext = cxt })
 
+enterGiven :: VRef -> Eval a -> Eval a
 enterGiven topic action = do
     sym <- genSym "$_" topic
     enterLex [sym] action
 
+enterWhen :: Exp -> Eval Val -> Eval Val
 enterWhen break action = callCC $ \esc -> do
     env <- ask
     contRec  <- genSubs env "&continue" $ continueSub esc
@@ -45,10 +56,16 @@ enterWhen break action = callCC $ \esc -> do
         , subBody = break
         }
 
+enterLoop :: Eval Val -> Eval Val
 enterLoop action = genSymCC "&last" $ \symLast -> do
     genSymPrim "&next" (const action) $ \symNext -> do
         enterLex [symLast, symNext] action
 
+genSymPrim :: (MonadSTM m) 
+           => String 
+           -> ([Val] -> Eval Val)     
+           -> ((Pad -> Pad) -> m t)
+           -> m t
 genSymPrim symName@('&':name) prim action = do
     newSym <- genSym symName . codeRef $ mkPrim
         { subName = name
@@ -57,9 +74,13 @@ genSymPrim symName@('&':name) prim action = do
     action newSym
 genSymPrim _ _ _ = error "need a &name"
 
+genSymCC :: String
+         -> ((Pad -> Pad) -> Eval Val)
+         -> Eval Val
 genSymCC symName action = callCC $ \esc -> do
     genSymPrim symName (const $ esc undef) action
 
+enterBlock :: Eval Val -> Eval Val
 enterBlock action = callCC $ \esc -> do
     env <- ask
     exitRec <- genSubs env "&?BLOCK_EXIT" $ escSub esc
@@ -71,6 +92,7 @@ enterBlock action = callCC $ \esc -> do
         , subBody = Prim ((esc =<<) . headVal)
         }
   
+enterSub :: VCode -> Eval Val -> Eval Val
 enterSub sub action
     | typ >= SubPrim = action -- primitives just happen
     | otherwise     = do
