@@ -39,7 +39,7 @@ import Pugs.Prim.Numeric
 import Pugs.Prim.Lifts
 import Pugs.Prim.Eval
 
-op0 :: Ident -> [Val] -> Eval Val
+op0 :: String -> [Val] -> Eval Val
 op0 "!"  = fmap opJuncNone . mapM fromVal
 op0 "&"  = fmap opJuncAll  . mapM fromVal
 op0 "^"  = fmap opJuncOne  . mapM fromVal
@@ -67,7 +67,7 @@ op0 "print" = const $ op1 "print" =<< readVar "$_"
 op0 "return" = \v -> return (VError "cannot return() outside a subroutine" (Val $ VList v))
 op0 other = \_ -> fail ("Unimplemented listOp: " ++ other)
 
-op1 :: Ident -> Val -> Eval Val
+op1 :: String -> Val -> Eval Val
 op1 "!"    = op1Cast (VBool . not)
 op1 "clone" = \x -> do
     (VObject o) <- fromVal x
@@ -503,7 +503,7 @@ mapStr2Fill f x y = map (chr . fromEnum . uncurry f) $ x `zipFill` y
     zipFill (a:as) (b:bs) = (a,b) : zipFill as bs
 
 
-op2 :: Ident -> Val -> Val -> Eval Val
+op2 :: String -> Val -> Val -> Eval Val
 op2 "rename" = boolIO2 rename
 op2 "symlink" = boolIO2 createSymbolicLink
 op2 "link" = boolIO2 createLink
@@ -669,7 +669,7 @@ op2 op | "»" `isPrefixOf` op = op2Hyper . init . init . drop 2 $ op
 op2 ('>':'>':op) = op2Hyper . init . init $ op
 op2 other = \_ _ -> fail ("Unimplemented binaryOp: " ++ other)
 
-op3 :: Ident -> Val -> Val -> Val -> Eval Val
+op3 :: String -> Val -> Val -> Val -> Eval Val
 op3 "index" = \x y z -> do
     str <- fromVal x
     sub <- fromVal y
@@ -708,7 +708,7 @@ op3 "new" = \t n _ -> do
     return . VObject $ MkObject{ objType = typ, objAttrs = attrs }
 op3 other = \_ _ _ -> fail ("Unimplemented 3-ary op: " ++ other)
 
-op4 :: Ident -> Val -> Val -> Val -> Val -> Eval Val
+op4 :: String -> Val -> Val -> Val -> Val -> Eval Val
 op4 "substr" = \x y z w -> do
     str  <- fromVal x
     pos  <- fromVal y
@@ -742,7 +742,7 @@ op4 "splice" = \x y z w -> do
 
 op4 other = \_ _ _ _ -> fail ("Unimplemented 4-ary op: " ++ other)
 
-op2Hyper :: Ident -> Val -> Val -> Eval Val
+op2Hyper :: String -> Val -> Val -> Eval Val
 op2Hyper op x y
     | VList x' <- x, VList y' <- y
     = fmap VList $ hyperLists x' y'

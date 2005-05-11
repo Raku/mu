@@ -224,7 +224,7 @@ literalRule name action = (<?> name) $ postSpace $ action
 tryRule :: String -> GenParser Char st a -> GenParser Char st a
 tryRule name action = (<?> name) $ lexeme $ try action
 
-tryVerbatimRule :: Ident -> GenParser tok st a -> GenParser tok st a
+tryVerbatimRule :: String -> GenParser tok st a -> GenParser tok st a
 tryVerbatimRule name action = (<?> name) $ try action
 
 ruleScope :: RuleParser Scope

@@ -19,7 +19,7 @@ module Pugs.AST (
     Val(..),
     Value(..),
 
-    Pad(..), Ident, Unwrap(..), Param(..), Params, Bindings, SlurpLimit,
+    Pad(..), Unwrap(..), Param(..), Params, Bindings, SlurpLimit,
     
     VRef(..), VOpaque(..), VControl(..), VScalar, VList, VPair,
     VSubst, VArray, VHash, VProcess(..), VThunk(..),

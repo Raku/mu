@@ -785,7 +785,7 @@ litOperators = do
     loose <- looseOperators
     return $ tight ++ loose
 
-currentFunctions :: RuleParser [(Ident, VStr, Params)]
+currentFunctions :: RuleParser [(Var, VStr, Params)]
 currentFunctions = do
     env     <- getState
     return . concat . unsafePerformSTM $ do

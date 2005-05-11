@@ -62,7 +62,7 @@ bindHash vs [p]         = return [ (p, Syn "\\{}" [Syn "," vs]) ] -- XXX cast to
 
 bindArray :: [Exp] -> [Param] -> SlurpLimit -> MaybeError (Bindings, SlurpLimit)
 bindArray vs ps oldLimit = do
-    let exp = Syn "*" [Syn "," vs]
+    let exp = Cxt cxtSlurpyAny (Syn "," vs)
     case foldM (doBindArray exp) ([], 0) prms of
         Left errMsg      -> fail errMsg
         Right (bound, n) -> do

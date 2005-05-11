@@ -138,7 +138,7 @@ enterSub sub action
         , subBody = Prim $ doCC cc
         }
 
-genSubs :: t -> Ident -> (t -> VCode) -> Eval [Pad -> Pad]
+genSubs :: t -> Var -> (t -> VCode) -> Eval [Pad -> Pad]
 genSubs env name gen = sequence
     [ genMultiSym name (codeRef $ gen env)
     , genMultiSym name (codeRef $ (gen env) { subParams = [] })
