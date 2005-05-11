@@ -1077,6 +1077,9 @@ doHash (VMatch m) f = do
     return $ f (matchSubNamed m)
 doHash val@(VRef _) _ = retError "Cannot cast into Hash" val
 doHash val f = do
+    hv  <- fromVal val
+    return $ f (hv :: VHash)
+    {-
     typ <- evalValType val
     cls <- asks envClasses
     if (isaType cls "List" typ)
@@ -1087,6 +1090,7 @@ doHash val f = do
             -- XXX: Fail or return undef?
             -- return $ f (Map.empty :: VHash)
             fail $ "Not an Hash reference: " ++ show val
+    -}
 
 -- can be factored out
 doArray :: Val -> (forall a. ArrayClass a => a -> b) -> Eval b
@@ -1104,6 +1108,9 @@ doArray val@(VRef _) _ = retError "Cannot cast into Array" val
 doArray (VMatch m) f = do
     return $ f (matchSubPos m)
 doArray val f = do
+    av  <- fromVal val
+    return $ f (av :: VArray)
+    {-
     typ <- evalValType val
     cls <- asks envClasses
     if (isaType cls "List" typ)
@@ -1114,6 +1121,7 @@ doArray val f = do
             -- XXX: Fail or return undef?
             -- return $ f ([] :: VArray)
             fail $ "Not an Array reference: " ++ show val
+    -}
 
 -- Haddock doesn't seem to like data/instance declarations with a where clause.
 #ifndef HADDOCK
