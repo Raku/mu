@@ -19,7 +19,7 @@ is($a.get_attr(), 13, '... got the right attr value');
 my $c = $a.clone();
 isa_ok($c, 'Foo');
 is($c.get_attr(), 13, '... cloned object retained attr value');
-ok(eval('not $c =:= $a'), "... cloned object isn't identity equal to the original object"); 
+ok(eval('not $c =:= $a'), "... cloned object isn't identity equal to the original object", :todo<feature>); 
 
 my $d;
 lives_ok {
