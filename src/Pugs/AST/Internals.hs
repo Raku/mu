@@ -199,7 +199,6 @@ instance Value [(VStr, Val)] where
              return (str, v)
 
 instance Value VHash where
-    fromVal (VMatch m) = return $ matchSubNamed m
     fromVal (VObject o) = do
         attrs <- liftSTM $ readTVar (objAttrs o)
         fmap Map.fromAscList $ forM (Map.assocs $ attrs) $ \(k, ivar) -> do
@@ -1074,6 +1073,8 @@ doHash (VRef (MkRef (IScalar sv))) f = do
         _  -> doHash val f
 doHash (VRef (MkRef p@(IPair _))) f = return $ f p
 doHash (VObject o) f = return $ f (objAttrs o)
+doHash (VMatch m) f = do
+    return $ f (matchSubNamed m)
 doHash val@(VRef _) _ = retError "Cannot cast into Hash" val
 doHash val f = do
     typ <- evalValType val
