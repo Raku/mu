@@ -6,6 +6,7 @@ import Pugs.Internals
 import Pugs.Context
 import Pugs.Rule
 import Pugs.Types
+import Pugs.Cont hiding (shiftT, resetT)
 import qualified Data.Set       as Set
 import qualified Data.Map       as Map
 import qualified Data.IntMap    as IntMap
@@ -860,28 +861,6 @@ diffPads (MkPad map1) (MkPad map2) = MkPad $ Map.difference map1 map2
 unionPads :: Pad -> Pad -> Pad
 unionPads (MkPad map1) (MkPad map2) = MkPad $ Map.union map1 map2
 
--- |Create a 'Pad'-transforming transaction that will install a symbol
--- definition in the 'Pad' it is applied to, /alongside/ any other mappings
--- of the same name. This is to allow for overloaded (i.e. multi) subs,
--- where one sub name actually maps to /all/ the different multi subs.
--- (Is this correct?)
-genMultiSym :: MonadSTM m => String -> VRef -> m (Pad -> Pad)
-genMultiSym name ref = do
-    tvar    <- liftSTM $ newTVar ref
-    fresh   <- liftSTM $ newTVar True
-    return $ \(MkPad map) -> MkPad $
-        Map.insertWith (++) name [(fresh, tvar)] map
-
--- |Create a 'Pad'-transforming transaction that will install a symbol
--- mapping from a name to a thing, in the 'Pad' it is applied to.
--- Unlike 'genMultiSym', this version just installs a single definition
--- (right?), shadowing any earlier or outer definition.
-genSym :: MonadSTM m => String -> VRef -> m (Pad -> Pad)
-genSym name ref = do
-    tvar    <- liftSTM $ newTVar ref
-    fresh   <- liftSTM $ newTVar True
-    return $ \(MkPad map) -> MkPad $ Map.insert name [(fresh, tvar)] map
-
 type Eval x = EvalT (ContT Val (ReaderT Env SIO)) x
 type EvalMonad = EvalT (ContT Val (ReaderT Env SIO))
 newtype EvalT m a = EvalT { runEvalT :: m a }
@@ -926,13 +905,6 @@ instance MonadSTM EvalMonad where
 instance MonadReader Env EvalMonad where
     ask       = lift ask
     local f m = EvalT $ local f (runEvalT m)
-
-runEvalMain :: Env -> Eval Val -> IO Val
-runEvalMain env eval = withSocketsDo $ do
-    my_perl <- initPerl5 ""
-    val     <- runEvalIO env eval
-    freePerl5 my_perl
-    return val
 
 findSymRef :: (MonadSTM m) => String -> Pad -> m VRef
 findSymRef name pad = do

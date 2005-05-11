@@ -10,15 +10,24 @@
 >   The delver mined, the mason built...
 -}
 
-module Pugs.Prim where
+module Pugs.Prim (
+    primOp,
+    primDecl,
+    initSyms,
+    op2DefinedOr,
+    op2ChainedList,
+    op1Exit,
+    -- used by Pugs.Compile.Haskell
+    op0, op1, op2,
+) where
 import Pugs.Internals
 import Pugs.Junc
 import Pugs.AST
 import Pugs.Types
 import Pugs.Pretty
-import Pugs.Parser
-import Pugs.External
 import Text.Printf
+import Pugs.External
+import Pugs.Embed
 import qualified Data.Map as Map
 
 import Pugs.Prim.Keyed
@@ -28,6 +37,7 @@ import qualified Pugs.Prim.FileTest as FileTest
 import Pugs.Prim.List
 import Pugs.Prim.Numeric
 import Pugs.Prim.Lifts
+import Pugs.Prim.Eval
 
 op0 :: Ident -> [Val] -> Eval Val
 op0 "!"  = fmap opJuncNone . mapM fromVal
@@ -43,7 +53,7 @@ op0 "time"  = const $ do
     epoch = CalendarTime 2000 January 1 0 0 0 0 Saturday 0 "UTC" 0 False
 op0 "not" = const retEmpty
 op0 "so" = const (return $ VBool True)
-op0 "¥" = fmap (VList . concat . op0Zip) . mapM fromVal
+op0 "¥" = op0Zip
 op0 "Y" = op0 "¥"
 op0 "File::Spec::cwd" = const $ do
     cwd <- liftIO getCurrentDirectory
@@ -234,11 +244,7 @@ op1 "say" = op1Print hPutStrLn
 op1 "die" = \v -> do
     strs <- fromVal v
     fail (concat strs)
-op1 "exit" = \v -> do
-    rv <- fromVal v
-    if rv /= 0
-        then shiftT . const . return . VControl . ControlExit . ExitFailure $ rv
-        else shiftT . const . return . VControl . ControlExit $ ExitSuccess
+op1 "exit" = op1Exit
 op1 "readlink" = \v -> do
     str  <- fromVal v
     tryIO undef $ fmap VStr (readSymbolicLink str)
@@ -426,19 +432,11 @@ op1 "to"    = op1Cast (castV . matchTo)
 op1 "matches" = op1Cast (VList . matchSubPos)
 op1 other   = \_ -> fail ("Unimplemented unaryOp: " ++ other)
 
-op1EvalHaskell :: Val -> Eval Val
-op1EvalHaskell cv = do
-    str     <- fromVal cv :: Eval String
-    ret     <- liftIO (evalHaskell str)
-    glob    <- askGlobal
-    errSV   <- findSymRef "$!" glob
-    case ret of
-        Right str -> do
-            writeRef errSV VUndef
-            return $ VStr str
-        Left  err -> do
-            writeRef errSV (VStr err)
-            retEmpty
+op1Exit v = do
+    rv <- fromVal v
+    if rv /= 0
+        then shiftT . const . return . VControl . ControlExit . ExitFailure $ rv
+        else shiftT . const . return . VControl . ControlExit $ ExitSuccess
 
 op1StrFirst :: (Char -> Char) -> Val -> Eval Val
 op1StrFirst f = op1Cast $ VStr .
@@ -489,27 +487,6 @@ boolIO2 f u v = do
     tryIO (VBool False) $ do
         f x y
         return (VBool True)
-
-opEval :: Bool -> String -> String -> Eval Val
-opEval fatal name str = do
-    env <- ask
-    let env' = runRule env id ruleProgram name str
-    val <- resetT $ local (const env') $ do
-        evl <- asks envEval
-        evl (envBody env')
-    retEvalResult fatal val
-
-retEvalResult :: Bool -> Val -> Eval Val
-retEvalResult fatal val = do
-    glob <- askGlobal
-    errSV <- findSymRef "$!" glob
-    case val of
-        VError str _ | not fatal  -> do
-            writeRef errSV (VStr str)
-            retEmpty
-        _ -> do
-            writeRef errSV VUndef
-            return val
 
 mapStr :: (Word8 -> Word8) -> [Word8] -> String
 mapStr f = map (chr . fromEnum . f)

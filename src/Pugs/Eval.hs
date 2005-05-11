@@ -36,10 +36,13 @@ import Pugs.Junc
 import Pugs.Bind
 import Pugs.Prim
 import Pugs.Prim.Match (op2Match)
+import Pugs.Prim.List (op0Zip)
 import Pugs.Context
 import Pugs.Monads
 import Pugs.Pretty
 import Pugs.Types
+import Pugs.Prim.Eval (retEvalResult)
+import Pugs.External
 
 -- |Construct a new, initially empty 'Env' (evaluation environment).
 -- Used in 'Main.doParse', 'Main.doParseWith' and 'Pugs.Run.prepareEnv'.
@@ -567,7 +570,7 @@ reduce exp@(Syn name exps) = case name of
         let file = (`concatMap` mod) $ \v -> case v of
             { '-' -> "__"; _ | isAlphaNum v -> [v] ; _ -> "_" }
 #endif
-        op1 "require_haskell" (VStr $ file ++ ".o")
+	externRequire "Haskell" (file ++ ".o")
         retEmpty
     syn | last syn == '=' -> do
         let [lhs, exp] = exps
@@ -614,7 +617,7 @@ reduce (App (Var "&scalar") invs args)
 -- XXX absolutely evil bloody hack for "zip"
 reduce (App (Var "&zip") invs args) = do
     vals <- mapM (enterRValue . enterEvalContext (cxtItem "Array")) (invs ++ args)
-    val  <- op0 "Y" vals
+    val  <- op0Zip vals
     retVal val
 
 -- XXX absolutely evil bloody hack for "goto"

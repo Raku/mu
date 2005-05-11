@@ -10,9 +10,11 @@ import qualified Data.Set as Set
 
 import Pugs.Prim.Numeric
 
-op0Zip :: [[Val]] -> [[Val]]
-op0Zip lists | all null lists = []
-op0Zip lists = (map zipFirst lists):(op0Zip (map zipRest lists))
+op0Zip = fmap (VList . concat . op0Zip') . mapM fromVal
+
+op0Zip' :: [[Val]] -> [[Val]]
+op0Zip' lists | all null lists = []
+op0Zip' lists = (map zipFirst lists):(op0Zip' (map zipRest lists))
     where
     zipFirst []     = undef
     zipFirst (x:_)  = x

@@ -39,7 +39,7 @@ module Pugs.AST (
 
     -- MonadEval(..),
 
-    runEvalSTM, runEvalIO, shiftT, resetT, runEvalMain,
+    runEvalSTM, runEvalIO, shiftT, resetT, callCC,
     evalExp,
     undef, defined,
     readRef, writeRef, clearRef, dumpRef, forceRef,
@@ -67,6 +67,8 @@ module Pugs.AST (
     module Pugs.AST.SIO,
 ) where
 import Pugs.Internals
+import Pugs.Cont (callCC)
+import qualified Data.Map as Map
 
 import Pugs.AST.Internals
 import Pugs.AST.Pos
@@ -116,3 +118,25 @@ evalExp :: Exp -> Eval Val
 evalExp exp = do
     evl <- asks envEval
     evl exp
+
+-- |Create a 'Pad'-transforming transaction that will install a symbol
+-- definition in the 'Pad' it is applied to, /alongside/ any other mappings
+-- of the same name. This is to allow for overloaded (i.e. multi) subs,
+-- where one sub name actually maps to /all/ the different multi subs.
+-- (Is this correct?)
+genMultiSym :: MonadSTM m => String -> VRef -> m (Pad -> Pad)
+genMultiSym name ref = do
+    tvar    <- liftSTM $ newTVar ref
+    fresh   <- liftSTM $ newTVar True
+    return $ \(MkPad map) -> MkPad $
+        Map.insertWith (++) name [(fresh, tvar)] map
+
+-- |Create a 'Pad'-transforming transaction that will install a symbol
+-- mapping from a name to a thing, in the 'Pad' it is applied to.
+-- Unlike 'genMultiSym', this version just installs a single definition
+-- (right?), shadowing any earlier or outer definition.
+genSym :: MonadSTM m => String -> VRef -> m (Pad -> Pad)
+genSym name ref = do
+    tvar    <- liftSTM $ newTVar ref
+    fresh   <- liftSTM $ newTVar True
+    return $ \(MkPad map) -> MkPad $ Map.insert name [(fresh, tvar)] map

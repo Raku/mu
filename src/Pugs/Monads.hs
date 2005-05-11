@@ -15,6 +15,7 @@ import Pugs.AST
 import Pugs.Context
 import Pugs.Types
 
+headVal :: [Val] -> Eval Val
 headVal []    = retEmpty
 headVal (v:_) = return v
 
@@ -91,7 +92,7 @@ enterBlock action = callCC $ \esc -> do
         , subParams = makeParams env
         , subBody = Prim ((esc =<<) . headVal)
         }
-  
+
 enterSub :: VCode -> Eval Val -> Eval Val
 enterSub sub action
     | typ >= SubPrim = action -- primitives just happen

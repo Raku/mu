@@ -17,11 +17,19 @@ import Pugs.AST
 import Pugs.Types
 import Pugs.Eval
 import Pugs.Prim
+import Pugs.Embed
 import qualified Data.Map as Map
 
 runWithArgs f = do
     args <- getArgs
     f $ canonicalArgs args
+
+runEvalMain :: Env -> Eval Val -> IO Val
+runEvalMain env eval = withSocketsDo $ do
+    my_perl <- initPerl5 ""
+    val     <- runEvalIO env eval
+    freePerl5 my_perl
+    return val
 
 runEnv :: Env -> IO Val
 runEnv env = runEvalMain env $ evaluateMain (envBody env)
@@ -78,8 +86,8 @@ prepareEnv name args = do
     hspluginsSV <- newScalar (VInt 0)
 #endif
     let subExit = \x -> case x of
-            [x] -> op1 "exit" x
-            _   -> op1 "exit" undef
+            [x] -> op1Exit x     -- needs refactoring (out of Prim)
+            _   -> op1Exit undef
     emptyEnv name $
         [ genSym "@*ARGS"       $ MkRef argsAV
         , genSym "@*INC"        $ MkRef incAV

@@ -16,9 +16,7 @@
 module Pugs.Internals (
     module UTF8,
     module Unicode,
-    module Pugs.Embed,
     module Pugs.Compat,
-    module Pugs.Cont,
     module RRegex,
     module RRegex.Syntax,
     module Pugs.Rule.Pos,
@@ -70,8 +68,6 @@ module Pugs.Internals (
 
 import UTF8
 import Unicode
-import Pugs.Cont hiding (shiftT, resetT)
-import Pugs.Embed
 import Pugs.Compat
 import RRegex
 import RRegex.Syntax

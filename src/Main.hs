@@ -27,6 +27,7 @@ import Pugs.Parser
 import Pugs.Help
 import Pugs.Pretty
 import Pugs.Compile
+import Pugs.Embed
 import qualified Data.Map as Map
 import Data.IORef
 
