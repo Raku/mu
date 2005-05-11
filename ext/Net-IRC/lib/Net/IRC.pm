@@ -62,6 +62,9 @@ sub new_bot(
 			   # normalized() first!
   my %users;               # Stores the channels a user is on. Note: As with
 			   # %channels, hash keys are always normalized().
+  my %cache353;            # We need a temporary storage for the names we
+                           # receive after we've done a /NAMES (the numeric
+			   # code for /NAMES is 353).
   my $in_login_phase;
 
   my $self;
@@ -109,6 +112,48 @@ sub new_bot(
     %channels{normalize $event<object>}<topic> = $event<rest>;
   }];
 
+  # /NAMES response
+  %handler<353> = [-> $event {
+    my ($chan, $nicks) = $event<rest> ~~ m:P5/^. ([^ ]+) :?(.*)$/;
+    return unless defined $chan;
+    $chan = normalize $chan;
+
+    my @nicks = split(" ", $nicks)
+               .map:{ ($_ ~~ m:P5/^[@+%]?(.+)/)[0] }
+	       .grep:{ defined $_ }
+	       .map:{ normalize $_ };
+
+    unless defined %cache353{$chan} {
+      # We initialize %cache353{$chan} by makeing %cache353{$chan} a hashref
+      # which has the nicks, which we currently think are on the channel, as
+      # keys. Then, we delete all nicks we see as response from the /NAMES.
+      # Finally, we delete all nicks, which are still in %cache353{$chan}.
+
+      %cache353{$chan}{$_}++ for %channels{$chan}<users>.keys;
+    }
+
+    # We have already initialized %cache353{$chan}.
+    %cache353{$chan}.delete(@nicks);
+
+    # For each nick, make sure we've registered them as people who are on
+    # $chan:
+    %channels{$chan}<users>{$_}++ for @nicks;
+    %users{$_}<channels>{$chan}++ for @nicks;
+  }];
+
+  # End of /NAMES
+  %handler<366> = [-> $event {
+    # (Perl 6)++ for new parenthesis rules! :)
+    my $chan = normalize (split " ", $event<rest>)[0];
+
+    unless defined %cache353{$chan} {
+      %cache353{$chan} = %channels{$chan}<users>;
+    }
+
+    %channels{$chan}<users>.delete(%cache353{$chan}.keys);
+    %users{$_}<channels>.delete($chan) for %cache353{$chan}.keys;
+  }];
+
   # We track our status, especially the channels we've joined.
   # Somebody joined. Update %channels and %users accordingly.
   %handler<JOIN> = [-> $event {
@@ -123,15 +168,18 @@ sub new_bot(
 
   # Somebody left a channel. Update %channels and %users accordingly.
   %handler<PART> = [-> $event {
+    my $chan = normalize $event<object>;
+
     if(normalize($event<from_nick>) eq normalize($curnick)) {
       @on_chans .= grep:{ $^chan ne $event<object> };
-      %channels.delete(normalize $event<object>);
-      %users{normalize $event<from_nick>}<channels>.delete(normalize $event<object>)
-	if %users{normalize $event<from_nick>}<channels>;
-      debug "Left channel \"$event<object>\".";
+      for %channels{$chan}<users>.keys {
+	%users{$_}<channels>.delete($chan) if %users{$_}<channels>;
+      }
+      %channels.delete($chan);
+      debug "Left channel \"$chan\".";
     } else {
-      %channels{normalize $event<object>}<users>.delete(normalize $event<from_nick>);
-      %users{normalize $event<from_nick>}<channels>.delete(normalize $event<object>)
+      %channels{$chan}<users>.delete(normalize $event<from_nick>);
+      %users{normalize $event<from_nick>}<channels>.delete($chan)
 	if %users{normalize $event<from_nick>}<channels>;
     }
   }];
@@ -140,15 +188,18 @@ sub new_bot(
   %handler<KICK> = [-> $event {
     my ($kickee, $reason) = split " ", $event<rest>;
     $reason = strip_colon($reason);
+    my $chan = normalize $event<object>;
+
     if(normalize($kickee) eq normalize($curnick)) {
       @on_chans .= grep:{ $^chan ne $event<object> };
-      %channels.delete(normalize $event<object>);
-      %users{normalize $kickee}<channels>.delete(normalize $event<object>)
-	if %users{normalize $kickee}<channels>;
-      debug "Was kicked from channel \"$event<object>\" by \"$event<from>\" (\"$reason\").";
+      for %channels{$chan}<users>.keys {
+	%users{$_}<channels>.delete($chan) if %users{$_}<channels>;
+      }
+      %channels.delete($chan);
+      debug "Was kicked from channel \"$chan\" by \"$event<from>\" (\"$reason\").";
     } else {
-      %channels{normalize $event<object>}<users>.delete(normalize $kickee);
-      %users{normalize $kickee}<channels>.delete(normalize $event<object>)
+      %channels{$chan}<users>.delete(normalize $kickee);
+      %users{normalize $kickee}<channels>.delete($chan)
 	if %users{normalize $kickee}<channels>;
     }
   }];
