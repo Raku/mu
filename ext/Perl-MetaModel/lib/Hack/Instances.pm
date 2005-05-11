@@ -30,32 +30,27 @@ sub instance_isa(Str $inst: Str $class) is export {
     return ($inv_class eq $class);
 }
 
-sub blessed(Str $inst:) returns Bool is export {
+multi sub blessed(Str $inst:) returns Bool is export {
     return ($inst ~~ rx:perl5{^OBJECT} && %INSTANCES.exists($inst));
 }
 
-# fallback method for other types of things that can't be objects,
-# like numbers or subs.
-sub blessed returns Bool is export { }
-
-sub can(Str $inst: Str $method) returns Code is export {
-    # FIXME - ISA
-    if ( $inst.blessed ) {
-	my $class = $inst.class();
-	# hmm, does this work yet?  :)
-	#if ( &{"$class::$method"}.defined ) {
-	    #return &{"$class::$method"};
-	#}
-    }
-}
-sub class(Str $inst:) returns Str is export {
-    if ( ($inst ~~ rx:perl5/^OBJECT;(.*?);/ ) && %INSTANCES.exists($inst) ) {
-	return $/[0];
+multi sub can(Str $inst: Str $method) returns Code is export {
+    if $inst.blessed() {
+        eval 'defined(&' ~ $method ~ ')' ?? eval '&' ~ $method :: 0; 
     }
 }
 
-sub class returns Str is export { undef }
-sub can returns Code is export { undef }
+multi sub class(Str $inst:) returns Str is export {
+    if (($inst ~~ rx:perl5/^OBJECT;(.*?);/) && %INSTANCES.exists($inst)) {
+	    return $/[0];
+    }
+}
+
+# fallback method for other types of things 
+# that can't be objects, like numbers or subs.
+multi sub blessed returns Bool is export { undef }
+multi sub class   returns Str  is export { undef }
+multi sub can     returns Code is export { undef }
 
 =pod
 
@@ -137,6 +132,18 @@ C<$inst> is actually of the right class.
 
 This method can be used to check the "class" of the invocant. It is a hack to 
 make up for a lack of a proper C<.isa()>.
+
+=item B<blessed ($inv)>
+
+Returns true if the invocant is a "blessed" instance.
+
+=item B<can ($inv: $method)>
+
+Return a reference to the method if it is found.
+
+=item B<class ($inv:)>
+
+Return the class name.
 
 =back
 

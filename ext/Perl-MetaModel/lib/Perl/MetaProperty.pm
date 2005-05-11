@@ -9,6 +9,7 @@ sub Perl::MetaProperty::new(Str $type, Any +$default, Str +$visibility) returns 
         'type'       => $type,
         'default'    => undef,
         'visibility' => 'public',
+        'class'      => undef,
     });
     $id.propDefault($default)       if $default.defined;
     $id.propVisibility($visibility) if $visibility.defined;    
@@ -57,6 +58,18 @@ sub propVisibility(Str $inv: Str ?$visibility) returns Str {
         %self<visibility> = lc($visibility);
     }
     return %self<visibility>;
+}
+
+sub propClassAssociatedWith(Str $inv: Str ?$class) returns Str {
+    my %self := get_instance($inv, "Perl::MetaProperty");
+    if $class.defined {
+        ($class.instance_isa('Perl::MetaClass'))
+            || die "The class argument must be a Perl::MetaClass instance";
+        (!%self<class>)
+            || die "This property has already be associated with a class";            
+        %self<class> = $class;
+    }
+    return %self<class>;
 }
 
 =pod

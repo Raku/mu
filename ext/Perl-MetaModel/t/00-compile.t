@@ -3,11 +3,11 @@
 use v6;
 use Test;
 
-plan 10;
+plan 9;
 
 use_ok('Hack::Instances');
 
-use_ok('Perl::MetaModel');
+#use_ok('Perl::MetaModel');
 
 use_ok('Perl::MetaClass');
 use_ok('Perl::MetaProperty');

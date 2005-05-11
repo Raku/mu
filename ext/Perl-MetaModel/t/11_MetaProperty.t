@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 21;
+plan 25;
 
 use_ok('Perl::MetaProperty');
 use_ok('Perl::MetaClass');
@@ -12,6 +12,7 @@ my $prop = Perl::MetaProperty::new('Str');
 
 is($prop.propType(), 'Str', '... our property type is "Str"');
 is($prop.propDefault(), undef, '... our property default is not defined');
+is($prop.propClassAssociatedWith(), undef, '... our property is not associated with a class by default');
 is($prop.propVisibility(), 'public', '... our property by default is public');
 
 lives_ok {
@@ -42,6 +43,7 @@ lives_ok {
     $prop.propDefault(Perl::MetaClass::new('Foo::Bar'));
 }, '... we set the property default successfully';
 
+$! = undef;
 dies_ok {
     $prop.propVisibility('invisible');
 }, '...  property must be either public or private';
@@ -56,4 +58,12 @@ is($prop2.propType(), 'Str', '... our property type is "Str"');
 is($prop2.propDefault(), "Hello World", '... our property default is defined');
 is($prop2.propVisibility(), 'private', '... our property is private');
 
+my $class = Perl::MetaClass::new('Role');
+$prop.propClassAssociatedWith($class);
+is($prop.propClassAssociatedWith(), $class, '... our property is now associated with a class');
 
+$! = undef;
+dies_ok {
+    $prop.propClassAssociatedWith(Perl::MetaClass::new('Role'))        
+}, '... property can only be associated with one class';
+like($!, rx:perl5/^This property has already be associated with a class/, '... got the right error');

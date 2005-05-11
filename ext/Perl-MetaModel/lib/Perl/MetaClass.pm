@@ -102,11 +102,16 @@ sub clsProperties(Str $inv: Array *@properties) returns Hash {
     my %self := get_instance($inv, "Perl::MetaClass");
     if @properties {
         for @properties -> $key, $value {
+            # NOTE:
+            # we check the following rules here:
+            # - the value is a Perl::MetaProperty
             ($value.instance_isa('Perl::MetaProperty'))
                 || die "Property values must be a Perl::MetaProperty instance (got: '$value')";             
+            # - the value is not already associated with a class
+            $value.propClassAssociatedWith($inv);                
             my %props = %self<properties>;
             %props{$key} = $value;
-            %self<properties> = \%props;        
+            %self<properties> = \%props;    
         }
     }
     return %self<properties>;
@@ -116,8 +121,13 @@ sub clsMethods(Str $inv: Array *@methods) returns Hash {
     my %self := get_instance($inv, "Perl::MetaClass");
     if @methods {
         for @methods -> $key, $value {
+            # NOTE:
+            # we check the following rules here:
+            # - the value is a Perl::MetaMethod
             ($value.instance_isa('Perl::MetaMethod'))
-                || die "Method values must be a Perl::MetaMethod instance (got: '$value')";             
+                || die "Method values must be a Perl::MetaMethod instance (got: '$value')";                          
+            # - the value is not already associated with a class                        
+            $value.methodClassAssociatedWith($inv);    
             my %methods = %self<methods>;
             %methods{$key} = $value;
             %self<methods> = \%methods;                 

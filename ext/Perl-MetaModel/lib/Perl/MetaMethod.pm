@@ -9,6 +9,7 @@ sub Perl::MetaMethod::new(Code $sub, Str +$visibility) returns Str is export {
         'sub'        => $sub,
         'params'     => [],
         'visibility' => 'public',
+        'class'      => undef,
     });
     $id.methodVisibility($visibility) if $visibility.defined;
     return $id;
@@ -38,6 +39,18 @@ sub methodVisibility(Str $inv: Str ?$visibility) returns Str {
         %self<visibility> = lc($visibility);
     }
     return %self<visibility>;
+}
+
+sub methodClassAssociatedWith(Str $inv: Str ?$class) returns Str {
+    my %self := get_instance($inv, "Perl::MetaMethod");
+    if $class.defined {
+        ($class.instance_isa('Perl::MetaClass'))
+            || die "The class argument must be a Perl::MetaClass instance";
+        (!%self<class>)
+            || die "This method has already be associated with a class";                        
+        %self<class> = $class;
+    }
+    return %self<class>;
 }
 
 =pod
