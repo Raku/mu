@@ -38,10 +38,14 @@ sub blessed(Str $inst:) returns Bool is export {
 # like numbers or subs.
 sub blessed returns Bool is export { }
 
-sub can(Str $inst:) returns Code is export {
+sub can(Str $inst: Str $method) returns Code is export {
     # FIXME - ISA
     if ( $inst.blessed ) {
 	my $class = $inst.class();
+	# hmm, does this work yet?  :)
+	#if ( &{"$class::$method"}.defined ) {
+	    #return &{"$class::$method"};
+	#}
     }
 }
 sub class(Str $inst:) returns Str is export {
