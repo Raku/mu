@@ -11,7 +11,7 @@ plan 34;
     is(@array.elems,     5, 'array has 5 elements');
     is(@array[0],       11, 'first value is 11');
     is(@array[-1],      15, 'last value is 15');
-    is(@array[0][0], undef, 'no nested arrayref');
+    dies_ok({ @array[0][0] }, 'no nested arrayref');
 }
 
 {

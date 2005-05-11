@@ -109,9 +109,9 @@ evaluate :: Exp -- ^ The expression to evaluate
 evaluate (Val val) = evalVal val
 evaluate exp = do
     want <- asks envWant
-    debug "indent" (' ':) ("Evl [" ++ want ++ "]:\n") exp
+    debug "indent" ('-':) (" Evl [" ++ want ++ "]:\n") exp
     val <- local (\e -> e{ envBody = exp }) $ reduce exp
-    debug "indent" (tail) " Ret: " val
+    debug "indent" (tail) "- Ret: " val
     trapVal val (return val)
 
 findSyms :: Var -> Eval [(String, Val)]
@@ -136,7 +136,13 @@ enterEvalContext cxt = enterContext cxt . evalExp
 -- Reduction ---------------------------------------------------------------
 
 retVal :: Val -> Eval Val
-retVal val = evaluate (Val val)  -- casting
+retVal val = evaluate (Val val)
+
+retItem :: Val -> Eval Val
+retItem val = do
+    ifListContext
+        (retVal $ VList [val])
+        (retVal $ val)
 
 addGlobalSym newSym = do
     glob <- asks envGlobal
@@ -150,7 +156,7 @@ trapVal val action = case val of
     VControl c      -> retControl c
     _               -> action
 
-evalVar :: Ident -> Eval Val
+evalVar :: Var -> Eval Val
 evalVar name = do
     v <- findVar name
     case v of
@@ -160,14 +166,14 @@ evalVar name = do
 enterLValue = local (\e -> e{ envLValue = True })
 enterRValue = local (\e -> e{ envLValue = False })
 
-findVar :: Ident -> Eval (Maybe VRef)
+findVar :: Var -> Eval (Maybe VRef)
 findVar name = do
     rv <- findVarRef name
     case rv of
         Nothing  -> return Nothing
         Just ref -> fmap Just $ liftSTM (readTVar ref)
 
-findVarRef :: Ident -> Eval (Maybe (TVar VRef))
+findVarRef :: Var -> Eval (Maybe (TVar VRef))
 findVarRef name
     | Just (package, name') <- breakOnGlue "::" name
     , Just (sig, "") <- breakOnGlue "CALLER" package = do
@@ -437,15 +443,16 @@ reduce exp@(Syn name exps) = case name of
         reduce (Syn ":=" [expand var, expand vexp])
     "=>" -> do
         let [keyExp, valExp] = exps
-        key     <- enterEvalContext cxtItemAny keyExp
-        val     <- evalExp valExp
-        retVal $ castV (key, val)
+        key <- enterEvalContext cxtItemAny keyExp
+        val <- enterEvalContext cxtItemAny valExp
+        retItem $ castV (key, val)
     "*" | [Syn syn [exp]] <- unwrap exps --  * cancels out [] and {}
         , syn == "\\{}" || syn == "\\[]"
         -> enterEvalContext cxtSlurpyAny exp
     "*" -> do -- first stab at an implementation
         let [exp] = exps
         val     <- enterRValue $ enterEvalContext cxtSlurpyAny exp
+        error $ show val
         vals    <- fromVals val
         retVal $ VList $ concat vals
     "," -> do
@@ -469,7 +476,7 @@ reduce exp@(Syn name exps) = case name of
         v   <- enterRValue $ enterEvalContext cxtSlurpyAny exp
         av  <- newObject (MkType "Array")
         writeRef av v
-        retVal $ VRef av
+        retItem $ VRef av
     -- XXX evil hack for infinite slices
     "[]" | [lhs, App (Var "&postfix:...") invs args] <- unwrap exps
          , [idx] <- invs ++ args
@@ -496,10 +503,11 @@ reduce exp@(Syn name exps) = case name of
         let [listExp, indexExp] = exps
         idxVal  <- enterRValue $ enterEvalContext (cxtItem "Int") indexExp
         idx     <- fromVal idxVal
-        listVal <- enterLValue $ enterEvalContext (cxtItem "Array") listExp
+        listVal <- enterRValue $ enterEvalContext (cxtItem "Array") listExp
         list    <- fromVal listVal
-        elms    <- mapM fromVal list -- flatten
-        retVal $ VList (drop idx $ concat elms)
+        -- error $ show list
+        -- elms    <- mapM fromVal list -- flatten
+        retVal $ VList (drop idx $ list)
     "{}" -> do
         let [listExp, indexExp] = exps
         idxCxt  <- cxtOfExp indexExp 
@@ -642,10 +650,7 @@ reduce (App (Var "&assuming") (subExp:invs) args) = do
         Left errMsg      -> fail errMsg
         Right curriedSub -> retVal $ castV $ curriedSub
 
-reduce (App (Var "&infix:=>") [keyExp, valExp] []) = do
-    key <- enterEvalContext cxtItemAny keyExp
-    val <- enterEvalContext cxtItemAny valExp
-    retVal $ castV (key, val)
+reduce (App (Var "&infix:=>") invs args) = reduce (Syn "=>" (invs ++ args))
 
 reduce (App (Var name@('&':_)) invs args) = do
     sub <- findSub name invs args
