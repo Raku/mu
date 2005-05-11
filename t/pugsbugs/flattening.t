@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 27;
+plan 34;
 
 {
     my @array = 11 .. 15;
@@ -56,3 +56,24 @@ plan 27;
     is(%hash<12>,    undef, 'nothing at key "12"');
     is(%hash<22>,    undef, 'nothing at key "22"');
 }
+
+{
+    my @a;
+    push @a, 1;
+    is(@a.elems, 1, 'Simple push works');
+    push @a, [];
+    is(@a.elems, 2, 'Arrayref literal not flattened');
+    push @a, {};
+    is(@a.elems, 3, 'Hashref literal not flattened');
+    my @foo;
+    push @a, \@foo;
+    is(@a.elems, 4, 'Arrayref not flattened');
+    my %foo;
+    push @a, \%foo;
+    is(@a.elems, 5, 'Hashref not flattened');
+    push @a, @foo;
+    is(@a.elems, 5, 'Array flattened');
+    push @a, %foo;
+    is(@a.elems, 5, 'Hash flattened');
+}
+    
