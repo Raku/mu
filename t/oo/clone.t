@@ -3,25 +3,31 @@
 use v6;
 use Test;
 
-plan 9;
+plan 7;
 
 # L<S12/"Construction and Initialization" /you can clone an object, changing some of the attributes:/>
-eval_ok 'class Foo { has $.attr = 13 is rw }',
-  "basic class definition", :todo<feature>;
+class Foo { 
+    has $.attr; 
+    method set_attr ($attr) { $.attr = $attr; }
+    method get_attr () { $.attr }
+}
 
-my $a;
-eval_ok '$a = Foo.new',  "basic instantiation", :todo<feature>;
-eval_is '$a.attr', 13,   "default attribute", :todo<feature>;
+my $a = Foo.new(:attr(13));
+isa_ok($a, 'Foo');
+is($a.get_attr(), 13, '... got the right attr value');
 
-my $b = $a;
-eval_ok '$b =:= $a',     "identity equal", :todo<feature>;
-
-my $c;
-eval_ok '$c = $a.clone', "basic cloning", :todo<feature>;
-eval_is '$c.attr', 13,   "default attribute after cloning", :todo<feature>;
-eval_ok 'not $c =:= $a', "cloning creates objects which are not identity equal", :todo<feature>;
+my $c = $a.clone();
+isa_ok($c, 'Foo');
+is($c.get_attr(), 13, '... cloned object retained attr value');
 
 my $d;
-eval_ok '$d = $a.clone(attr => 42)',
-  "cloning with supplying a new attribute value", :todo<feature>;
-eval_is '$d.attr', 42,   "changed attribute after cloning", :todo<feature>;
+lives_ok {
+    $d = $a.clone(attr => 42)
+}, '... cloning with supplying a new attribute value', :todo<feature>;
+
+my $val;
+lives_ok {
+   $val = $d.get_attr()
+}, '... getting attr from cloned value', :todo<feature>;
+
+is($val, 42, '... cloned object has proper attr value', :todo<feature>);
