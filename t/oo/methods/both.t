@@ -3,17 +3,27 @@
 use v6;
 use Test;
 
-plan 3;
+plan 4;
 
 # L<A12/"Class|object Invocant">
-eval_ok '
-  class Foo {
-    method blarb(Class|Foo $class: $arg) {
-      return 100 + $arg;
-    }
-  }
-', "basic class and class method definition worked", :todo<feature>;
-eval_is 'A.blarb(42)', 142, "basic class method access worked", :todo<feature>;
-# Double eval() needed to bypass smart compilers :)
-eval_is 'A.new.blarb(42)', 142,
-  "class|instance methods work on instances, too", :todo<feature>;
+
+class Foo {
+    method bar (Class|Foo $class: $arg) { return 100 + $arg }
+}
+
+{
+    my $val;
+    lives_ok {
+        $val = Foo.bar(42);
+    }, '... class|instance methods work for class', :todo<feature>;
+    is($val, 142, '... basic class method access worked', :todo<feature>);
+}
+
+{
+    my $foo = Foo.new();
+    my $val;
+    lives_ok {
+        $val = $foo.bar(42);
+    }, '... class|instance methods work for instance', :todo<feature>;
+    is($val, 142, '... basic instance method access worked', :todo<feature>);
+}

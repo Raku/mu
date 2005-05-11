@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 7;
+plan 11;
 
 =pod
 
@@ -12,18 +12,48 @@ Very basic instance method tests from L<S12/"Methods">
 =cut
 
 # L<S12/"Methods" /"either the dot notation or indirect object notation:">
-eval 'class Foo {
+class Foo {
   method doit ($a, $b, $c) { $a + $b + $c }
   method noargs () { 42 }
-}';
+}
 
-my $foo = eval 'Foo.new()';
-eval_is '$foo.doit(1,2,3)', 6, "dot method invocation", :todo<feature>;
-eval_is 'doit $foo: 1,2,3', 6, "indirect method invocation", :todo<feature>;
+my $foo = Foo.new();
+is($foo.doit(1,2,3), 6, "dot method invocation");
 
-eval_is '$foo.noargs',   42,     "parentheses after method (1)", :todo<feature>;
-eval_is '$foo.noargs()', 42,     "parentheses after method (2)", :todo<feature>;
-# ok instead of todo_ok to suppress "unexpected succeeded"-messages
-ok           !eval('$foo.noargs ()'), "parentheses after method (3)";
-eval_is '$foo.noargs.()', 42,    "parentheses after method (4)", :todo<feature>;
-eval_is '$foo.noargs .()', 42,   "parentheses after method (5)", :todo<feature>;
+my $val;
+lives_ok{
+    $val = doit $foo: 1,2,3;
+}, '... indirect method invocation works', :todo<feature>;
+is($val, 6, '... got the right value for indirect method invocation', :todo<feature>);
+
+is($foo.noargs, 42, "... no parentheses after method");
+is($foo.noargs(), 42, "... parentheses after method");
+
+{
+    my $val;
+    lives_ok {
+        eval '$val = $foo.noargs ()';
+        die $! if $!;
+    }, "... <space> + parentheses after method", :todo<parsefail>;
+    is($val, 42, '... we got the value correctly', :todo<feature>);
+}
+
+{
+    my $val;
+    lives_ok {
+        #eval '$val = $foo.noargs.()';
+        #die $! if $!;
+        die 'cannot parse "val = $foo.noargs.()"'
+    }, "... '.' + parentheses after method", :todo<hardfail>;
+    is($val, 42, '... we got the value correctly', :todo<feature>);
+}
+
+{
+    my $val;
+    lives_ok {
+        #eval '$val = $foo.noargs .()';
+        #die $! if $!;
+        die 'cannot parse "$foo.noargs .()"'
+    }, "... <space> + '.' + parentheses after method", :todo<hardfail>;
+    is($val, 42, '... we got the value correctly', :todo<feature>);
+}
