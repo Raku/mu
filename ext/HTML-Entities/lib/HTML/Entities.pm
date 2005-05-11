@@ -284,9 +284,9 @@ sub decode_entities($string is rw) is export
 {
     my $result = $string;
     #$string := $result unless want.count;
-    $result ~~ s:perl5:g/&\#(\d+);?/{chr($1)}/;
-    $result ~~ s:perl5:g/(&\#[xX]([0-9a-fA-F]+);?)/{my $c = hex($2); $c < 256 ?? chr($c) :: $1}/;
-    $result ~~ s:perl5:g/(&(\w+);?)/{%entity_to_char{$2} // $1}/;
+    $result ~~ s:perl5:g/&\#(\d+);?/{chr($0)}/;
+    $result ~~ s:perl5:g/(&\#[xX]([0-9a-fA-F]+);?)/{my $c = hex($1); $c < 256 ?? chr($c) :: $0}/;
+    $result ~~ s:perl5:g/(&(\w+);?)/{%entity_to_char{$1} // $0}/;
     return $result;
 }
 
@@ -307,7 +307,7 @@ sub encode_entities (Str $string, ?$unsafe_chars) is export
     if ($string.defined && $unsafe_chars.defined) {
         #unless (exists %subst{$unsafe_chars}) {
         #    # Because we can't compile regex we fake it with a cached sub
-        #    my $code = "sub {$string =~ s:perl5:g/([$string])/{\%char_to_entity{\$1} || num_entity(\$1)}/; return $string}";
+        #    my $code = "sub {$string =~ s:perl5:g/([$string])/{\%char_to_entity{\$0} || num_entity(\$0)}/; return $string}";
         #    %subst{$unsafe_chars} = eval $code;
         #    die( 
         #        $! ~ " while trying to turn range: \"$string\"\n "
@@ -315,11 +315,11 @@ sub encode_entities (Str $string, ?$unsafe_chars) is export
         #    ) if $!;
         #}
         #%subst{$unsafe_chars}($string);
-        $result ~~ s:perl5:g/([$unsafe_chars])/{%char_to_entity{$1} // num_entity($1)}/;
+        $result ~~ s:perl5:g/([$unsafe_chars])/{%char_to_entity{$0} // num_entity($0)}/;
     }
     else {
         # Encode control chars, high bit chars and '<', '&', '>', '"'
-        $result ~~ s:perl5:g/([^\n\r\t !\#\$%\'-;=?-~])/{%char_to_entity{$1} // num_entity($1)}/;
+        $result ~~ s:perl5:g/([^\n\r\t !\#\$%\'-;=?-~])/{%char_to_entity{$0} // num_entity($0)}/;
     }
     return $result;
 }

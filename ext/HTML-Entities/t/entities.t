@@ -49,8 +49,8 @@ is encode_entities($a, 'a-c'), "&#97;&#98;&#99;def",
 $ent = $plain = "";
 while (<DATA>) {
     next unless /^\s*<!ENTITY\s+(\w+)\s*CDATA\s*\"&\#(\d+)/;
-    $ent .= "&$1;";
-    $plain .= chr($2);
+    $ent .= "&$0;";
+    $plain .= chr($1);
 }
 print ">>>>$ent\n>>>>$plain\n";
 

@@ -184,7 +184,7 @@ Perl6-specific tests
 
 # rules
 # TODO. refer to S05
-# L<<S05/"Hypothetical variables" /backtracks past the closure/>>
+# L<S05/"Hypothetical variables" /backtracks past the closure/>
 
 {
 	# - unmatched alternative should bind to undef
@@ -192,8 +192,8 @@ Perl6-specific tests
 	my($rx1, $rx2);
 	eval '
 		$rx1 = rx
-			/ [ (\d+)      { let $<num>   := $1 }
-			  | (<alpha>+) { let $<alpha> := $2 }
+			/ [ (\d+)      { let $<num>   := $0 }
+			  | (<alpha>+) { let $<alpha> := $1 }
 			  ]
 			/;
 		$rx2 = rx
@@ -224,11 +224,11 @@ Perl6-specific tests
 }
 
 {
-	# - $1, $2 etc. should all be undef after a failed match
+	# - $0, $1 etc. should all be undef after a failed match
 	#   (except for special circumstances)
         "abcde" ~~ rx:perl5/(.)(.)(.)/;
         "abcde" ~~ rx:perl5/(\d)/;
-	ok(eval '! grep { defined($_) }, ($1, $2, $3, $4, $5, $6)',
+	ok(eval '! grep { defined($_) }, ($0, $1, $2, $3, $4, $5)',
 			"all submatches undefined after failed match", :todo) or
 		diag("match state: " ~ eval '$/');
 

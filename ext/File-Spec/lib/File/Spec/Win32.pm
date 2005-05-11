@@ -25,14 +25,14 @@ sub splitpath (Str $path, Bool ?$nofile) returns Array is export {
     my ($volume, $directory, $file) = ('','','');
     if ($nofile) {
         $path ~~ rx:perl5{^((?:[a-zA-Z]:|(?:\\\\|//)[^\\/]+[\\/][^\\/]+)?)(.*)};
-        $volume    = $1;
-        $directory = $2;
+        $volume    = $0;
+        $directory = $1;
     }
     else {
         $path ~~ rx:perl5{^((?:[a-zA-Z]:|(?:\\\\|//)[^\\/]+[\\/][^\\/]+)?)((?:.*[\\/](?:\.\.?\Z(?!\n))?)?)(.*)};
-        $volume    = $1;
-        $directory = $2;
-        $file      = $3;
+        $volume    = $0;
+        $directory = $1;
+        $file      = $2;
     }
     return ($volume, $directory, $file);
 }
@@ -75,7 +75,7 @@ sub catpath (Str $volume, Str $directory, Str $file) returns Str is export {
     # If it's UNC, make sure the glue separator is there, reusing
     # whatever separator is first in the $volume
     my $vol = $volume;
-    $vol ~= $1 if ($vol ~~ rx:perl5{^([\\/])[\\/][^\\/]+[\\/][^\\/]+$} && $directory ~~ rx:perl5{^[^\\/]});
+    $vol ~= $0 if ($vol ~~ rx:perl5{^([\\/])[\\/][^\\/]+[\\/][^\\/]+$} && $directory ~~ rx:perl5{^[^\\/]});
     $vol ~= $directory;
     # If the volume is not just A:, make sure the glue separator is
     # there, reusing whatever separator is first in the $volume if possible.
@@ -84,7 +84,7 @@ sub catpath (Str $volume, Str $directory, Str $file) returns Str is export {
            $file ~~ rx:perl5{[^\\/]}
        ) {
         $vol ~~ rx:perl5{([\\/])};
-        my $sep = $1 ?? $1 :: "\\";
+        my $sep = $0 ?? $0 :: "\\";
         $vol ~= $sep;
     }
     $vol ~= $file;
@@ -101,11 +101,11 @@ sub canonpath (Str $_path) returns Str is export {
     my $orig_path = $path;
     {
         $path ~~ rx:perl5{^([a-z]:)};
-        my $match = uc($1);
+        my $match = uc($0);
         $path ~~ s:perl5{^([a-z]:)}{$match}; #s;
     }
     $path ~~ s:perl5:g{/}{\\};
-    $path ~~ s:perl5:g{([^\\])\\+}{$1\\};                                                 # xx\\\\xx  -> xx\xx
+    $path ~~ s:perl5:g{([^\\])\\+}{$0\\};                                                 # xx\\\\xx  -> xx\xx
     $path ~~ s:perl5:g{(\\\.)+\\}{\\};                                           # xx\.\.\xx -> xx\xx
     $path ~~ s:perl5{^(\.\\)+}{} unless $path eq ".\\";                             # .\xx      -> xx
     $path ~~ s:perl5{\\\Z(?!\n)}{} unless $path ~~ rx:perl5{^([A-Z]:)?\\\Z(?!\n)};  # xx\       -> xx

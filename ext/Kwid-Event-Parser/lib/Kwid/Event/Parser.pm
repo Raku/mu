@@ -48,9 +48,9 @@ sub parse (Str $filename, Hash %events is rw) returns Void is export {
                             %events<end_element>('list');
                             $in_list = 0;
                         }
-                        my $size = $1.bytes;
+                        my $size = $0.bytes;
                         %events<start_element>('header', $size);
-                        interpolate($2, %events);
+                        interpolate($1, %events);
                         %events<end_element>('header', $size);                       
                     }
                     when rx:perl5{^([\*\-]+)\s(.*?)$} {
@@ -58,9 +58,9 @@ sub parse (Str $filename, Hash %events is rw) returns Void is export {
                             %events<start_element>('list');
                             $in_list = 1;
                         }
-                        my $depth = $1.bytes;
+                        my $depth = $0.bytes;
                         %events<start_element>('item');
-                        interpolate($2, %events);
+                        interpolate($1, %events);
                         %events<end_element>('item');                     
                     }                   
                     when rx:perl5{^\s(.*?)$} {
@@ -68,12 +68,12 @@ sub parse (Str $filename, Hash %events is rw) returns Void is export {
                             %events<end_element>('list');
                             $in_list = 0;
                         }                    
-                        my $verbatim = "$1\n";
+                        my $verbatim = "$0\n";
                         my $_line = $fh.readline;
                         while (defined($_line)             && 
                               !($_line ~~ rx:perl5{^\n$})  && 
                                 $_line ~~ rx:perl5{^\s(.*?)$} ) {                                
-                            $verbatim ~= "$1\n";
+                            $verbatim ~= "$0\n";
                             $_line = $fh.readline;
                         }           
                         chomp($verbatim);             

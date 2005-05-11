@@ -42,8 +42,8 @@ is(int(-1.49), -1, "int(-1.49) is -1");
 is(int(-1.1), -1, "int(-1.1) is -1");
 
 sub __int( Str $s ) {
-  if ($s ~~ rx:Perl5/^(-?\d+)$/) { return $1 };
-  if ($s ~~ rx:Perl5/^(-?\d+)\./) { return $1 };
+  if ($s ~~ rx:Perl5/^(-?\d+)$/) { return $0 };
+  if ($s ~~ rx:Perl5/^(-?\d+)\./) { return $0 };
   if ($s ~~ rx:Perl5/^\./) { return 0 };
   return undef;
 };

@@ -41,17 +41,17 @@ sub parse (Str $filename, Hash %events is rw) returns Void is export {
                         %events<end_document>();                    
                     }
                     when rx:perl5{^=head(\d)\s(.*?)$} {
-                        my $size = $1;
+                        my $size = $0;
                         %events<start_element>('header', $size);
-                        interpolate($2, %events);
+                        interpolate($1, %events);
                         %events<end_element>('header', $size);                       
                     }
                     when rx:perl5{^=over\s(\d)$} {
-                        %events<start_element>('list', $1);
+                        %events<start_element>('list', $0);
                     }
                     when rx:perl5{^=item\s(.*?)$} {
                         %events<start_element>('item');
-                        interpolate($1, %events);
+                        interpolate($0, %events);
                         %events<end_element>('item');                     
                     }
                     when rx:perl5{^=back} {
@@ -59,28 +59,28 @@ sub parse (Str $filename, Hash %events is rw) returns Void is export {
                     }
                     when rx:perl5{^=begin\s(.*?)$} {
                         push(@for_or_begin, 'begin');
-                        %events<start_element>('begin', $1);
+                        %events<start_element>('begin', $0);
                     }                    
                     when rx:perl5{^=for\s(.*?)$} {
                         push(@for_or_begin, 'for');
-                        %events<start_element>('for', $1);
+                        %events<start_element>('for', $0);
                     }                    
                     when rx:perl5{^=end\s(.*?)$} {
                         my $last_for_or_begin = pop(@for_or_begin);
                         if ($last_for_or_begin eq 'for') {
-                            %events<end_element>('for', $1);
+                            %events<end_element>('for', $0);
                         }
                         else {
-                            %events<end_element>('begin', $1);
+                            %events<end_element>('begin', $0);
                         }
                     }                    
                     when rx:perl5{^\s(.*?)$} {
-                        my $verbatim = "$1\n";
+                        my $verbatim = "$0\n";
                         my $_line = $fh.readline;
                         while (defined($_line)             && 
                               !($_line ~~ rx:perl5{^\n$})  && 
                                 $_line ~~ rx:perl5{^\s(.*?)$} ) {                                
-                            $verbatim ~= "$1\n";
+                            $verbatim ~= "$0\n";
                             $_line = $fh.readline;
                         }                        
                         %events<start_element>('verbatim');
@@ -122,8 +122,8 @@ sub interpolate (Str $text, Hash %events) returns Void {
 	for (@tokens) -> $token {	
         given $token {
             when rx:perl5{^([A-Z])<$} {
-                push(@modifier_stack, $1);
-                %events<start_modifier>($1);
+                push(@modifier_stack, $0);
+                %events<start_modifier>($0);
             }
             when rx:perl5{^>$} {
                 # if we dont have anything on the stack
