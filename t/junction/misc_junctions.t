@@ -148,9 +148,7 @@ L<S03/"Junctive operators">
 =cut
 
 # Canonical stringification of a junction
-sub j (*@j is Junction) { 
-    return map { $_.perl } @j;
-}
+sub j (Junction $j) { return $j.perl }
 
 {
     # L<S03/"Junctive operators"/"They thread through operations">
