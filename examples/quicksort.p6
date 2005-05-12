@@ -6,7 +6,8 @@ multi sub quicksort ( ) { () }
 multi sub quicksort ( *$x, *@xs ) {
     my @pre  := @xs.grep:{ $_ < $x };
     my @post := @xs.grep:{ $_ >= $x };
-    return (@pre.quicksort, $x, @post.quicksort);
+    (@pre.quicksort, $x, @post.quicksort);
+    # return(@pre.quicksort, $x, @post.quicksort); -- XXX - breaks.
 }
 
 (1, 5, 2, 4, 3).quicksort.say;
