@@ -97,7 +97,7 @@ sub head (Str $url) is export {
 
 # Unify with URI.pm
 sub split_uri (Str $url) {
-  $url ~~ rx:perl5{^http://([^/:\@]+)(?::(\d+))?(/\S*)?$};
+  $url ~~ rx:Perl5{^http://([^/:\@]+)(?::(\d+))?(/\S*)?$}; #/#--vim
 
   my ($host) = $0;
   my ($port) = $1 || 80;
@@ -127,12 +127,12 @@ sub _trivial_http_get (Str $url) returns Str {
   # memory all at once
 
   # if ($buffer ~~ s:perl5{^HTTP\/\d+\.\d+\s+(\d+)([^\012]*?\015?\012)+?\015?\012}{}) {
-  if ($buffer ~~ s:perl5{^HTTP\/\d+\.\d+\s+(\d+)([^\x0A]*?\x0D?\x0A)+?\x0D?\x0A}{}) {
+  if ($buffer ~~ s:Perl5{^HTTP\/\d+\.\d+\s+(\d+)([^\x0A]*?\x0D?\x0A)+?\x0D?\x0A}{}) {
     my $code = $0;
 
     # XXX: Add 30[1237] checking/recursion
 
-    if ($code ~~ rx:perl5/^[^2]../) {
+    if ($code ~~ rx:Perl5/^[^2]../) {  # /#--vim
        return ();
     };
 
@@ -155,22 +155,21 @@ sub _make_request (Str $method, Str $uri) {
     $CRLF;
 };
 
-sub _send_request (Str $host, Str $port, Str $request) {
+sub _send_request (Str $host, Int $port, Str $request) {
   # XXX clean up!
 
   my ($h,$p) = ($host,$port);
-  # TODO: Replace with exists() once it is there
-  if (%*ENV.exists("HTTP_PROXY")) {
-    #if (%*ENV<HTTP_PROXY> ~~ rx:perl5!http://()(:(\d+))?$!) {
-    if (%*ENV<HTTP_PROXY> ~~ rx:perl5!http://()(:(\d+))?$!) {
+  my $http_proxy = %*ENV<HTTP_PROXY> // %*ENV<http_proxy>;
+  if defined $http_proxy {
+    if $http_proxy ~~ rx:Perl5!http://()(:(\d+))?$! {
       $h = $0;
       $p = $1 || 80;
     } else {
-      die "Unhandled/unknown proxy settings: \"" ~ %*ENV<HTTP_PROXY> ~ "\"";
+      die "Unhandled/unknown proxy settings: \"$http_proxy\"";
     }
   }
 
-  my $hdl = connect($h, $p);
+  my $hdl = connect $h, $p;
   $hdl.print($request);
   $hdl.flush;
   $hdl;
