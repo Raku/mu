@@ -219,7 +219,11 @@ Perl6-specific tests
 	# - binding to hash keys only would leave values undef
 	eval '"a=b\nc=d\n" ~~ / $<matches> := [ (\w) = \N+ ]* /';
 	ok(eval '$<matches> ~~ all(<a b>)', "match keys exist", :todo);
+
+fail("FIXME (match values don't)", :todo<parsefail>); 
+=pod 
 	ok(!defined($<matches>{"a"}) && !defined($<matches>{"b"}), "match values don't");
+=cut
 }
 
 {
@@ -254,7 +258,7 @@ Perl6-specific tests
 # autoloading
 # L<S10/Autoloading>
 
-fail("FIXME parsefail (autoload tests)", :todo); 
+fail("FIXME (autoload tests)", :todo<parsefail>); 
 # Currently waiting on
 # - packages
 # - symtable hash
