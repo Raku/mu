@@ -405,7 +405,7 @@ ruleParamDefault False = rule "default value" $ option (Val VUndef) $ do
 ruleMemberDeclaration :: RuleParser Exp
 ruleMemberDeclaration = do
     symbol "has"
-    optional ruleQualifiedIdentifier -- Type
+    optional $ do { ruleQualifiedIdentifier ; whiteSpace } -- Type
     attr <- ruleVarName
     case attr of
         (sigil:'.':key) -> do
@@ -433,7 +433,7 @@ ruleMemberDeclaration = do
 ruleVarDeclaration :: RuleParser Exp
 ruleVarDeclaration = rule "variable declaration" $ do
     scope       <- ruleScope
-    optional ruleQualifiedIdentifier -- Type
+    optional $ do { ruleQualifiedIdentifier ; whiteSpace } -- Type
     (decl, lhs) <- choice
         [ do -- pos  <- getPosition
              name <- ruleVarName

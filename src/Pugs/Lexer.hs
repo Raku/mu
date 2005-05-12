@@ -86,7 +86,7 @@ decimal    :: CharParser st Integer
 decimal    = P.decimal    perl6Lexer
 
 ruleQualifiedIdentifier :: GenParser Char st String
-ruleQualifiedIdentifier = rule "qualified identifier" $ do
+ruleQualifiedIdentifier = verbatimRule "qualified identifier" $ do
     chunks  <- ruleVerbatimIdentifier `sepBy1` (try $ string "::")
     return $ concat (intersperse "::" chunks)
 
