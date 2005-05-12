@@ -8,12 +8,12 @@ plan 12;
 class Foo {
     has $.num;
     
-    method bar ($self: $num) {
+    method bar ($self: $num) returns Foo {
         $.num = $num; 
         return $self;
     }
     
-    method baz ($self: $num) {
+    method baz ($self: $num) returns Foo {
         $.num += $num;
         return $self;
     }

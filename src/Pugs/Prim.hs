@@ -289,17 +289,16 @@ op1 "readdir" = \v -> do
     files <- liftIO $ getDirectoryContents path
     return . VList $ map VStr files
 op1 "slurp" = \v -> do
-    val         <- fromVal v
-    case val of
-        (VHandle h) -> do
+    ifValTypeIsa v "IO"
+        (do h <- fromVal v
             ifListContext
-                (op1 "=" val)
-                (fmap VStr (liftIO $ hGetContents h))
-        _ -> do
-            fileName    <- fromVal val
+                (op1 "=" v)
+                (fmap VStr (liftIO $ hGetContents h)))
+        (do
+            fileName    <- fromVal v
             ifListContext
                 (slurpList fileName)
-                (slurpScalar fileName)
+                (slurpScalar fileName))
     where
     slurpList file = op1 "=" (VList [VStr file])
     slurpScalar file = tryIO VUndef $ do
@@ -458,18 +457,20 @@ op1StrFirst f = op1Cast $ VStr .
         (c:cs)  -> (f c:cs)
 
 op1Print :: (Handle -> String -> IO ()) -> Val -> Eval Val
-op1Print f v@(VHandle _) = do
-    def <- readVar "$_"
-    op1Print f (VList [v, def])
 op1Print f v = do
     val  <- readRef =<< fromVal v
     vals <- case val of
         VList _   -> fromVal v
---      VArray _  -> fromVal v
         _         -> return [v]
-    let (handle, vs) = case vals of
-                        (VHandle h:vs)  -> (h, vs)
-                        _               -> (stdout, vals)
+    (handle, vs) <- case vals of
+        []      -> return (stdout, vals)
+        (h:vs)  -> do
+            ifValTypeIsa h "IO"
+                (do 
+                    hdl <- fromVal h
+                    vs' <- if null vs then fmap (:[]) (readVar "$_") else return vs
+                    return (hdl, vs'))
+                (return (stdout, vals))
     vs' <- mapM fromVal vs
     tryIO undef $ do
         f handle . concatMap encodeUTF8 $ vs'
