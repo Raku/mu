@@ -1,3 +1,9 @@
+pugs (6.2.3-1) experimental; urgency=low
+
+  * New upstream version.
+
+ -- Ingo Blechschmidt <iblech@web.de>  Do Mai 12 18:04:06 CEST 2005
+
 pugs (6.2.2-1) experimental; urgency=low
 
   * New upstream version.
