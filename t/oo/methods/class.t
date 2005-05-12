@@ -26,5 +26,5 @@ class Foo {
     # this dies for the wrong reason actually
     dies_ok {
         $val = $foo.bar(42);
-    }, '... class methods should not work for instances';
+    }, '... class methods should not work for instances', :todo<feature>;
 }
