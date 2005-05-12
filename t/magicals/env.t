@@ -5,7 +5,7 @@
 use v6;
 use Test;
 
-plan 10;
+plan 11;
 
 =kwid
 
@@ -107,3 +107,5 @@ for %*ENV.kv -> $k,$v {
 if (! $err) {
   ok(1,"Environment gets propagated to child.");
 };
+
+ok !%*ENV.exists("does_not_exist"), "exists() returns false on a not defined env var";
