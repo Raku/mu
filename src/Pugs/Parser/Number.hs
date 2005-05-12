@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -#include "UnicodeC.h" #-}
+
 module Pugs.Parser.Number (
     naturalOrRat,
 ) where
