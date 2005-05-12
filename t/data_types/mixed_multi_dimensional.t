@@ -50,16 +50,16 @@ this test should be added too more.
     is(@array[0]<key1>, 'value1', 'got the right value1 for key1');    
 }
 
-{ # Array of Lists
+{ # Array of Arrays
     my @array = (1, [2, 3], [4, 5], 6);
     isa_ok(@array, 'Array');
     
-    is(+@array, 4, 'got 4 elements in the array of Lists');
+    is(+@array, 4, 'got 4 elements in the Array of Arrays');
     is(@array[0], 1, 'got the right first element');
-    isa_ok(@array[1], 'List');
+    isa_ok(@array[1], 'Array');
     is(@array[1][0], 2, 'got the right second/first element');    
     is(@array[1][1], 3, 'got the right second/second element');        
-    isa_ok(@array[2], 'List');    
+    isa_ok(@array[2], 'Array');    
     is(@array[2][0], 4, 'got the right third/first element');    
     is(@array[2][1], 5, 'got the right third/second element');            
     is(@array[3], 6, 'got the right fourth element');
@@ -73,7 +73,7 @@ this test should be added too more.
     @array[1] = { 2 };
     @array[2] = -> { 3 };
     
-    is(+@array, 3, 'got three elements in the list');
+    is(+@array, 3, 'got three elements in the Array');
     isa_ok(@array[0], 'Sub');
     isa_ok(@array[1], 'Block');
     isa_ok(@array[2], 'Block');        
@@ -83,12 +83,12 @@ this test should be added too more.
     is(@array[2](), 3, 'the third element (when executed) is 3');
 }
 
-{ # Hash of Lists
+{ # Hash of Arrays
     my %hash;
     isa_ok(%hash, 'Hash');
     
     %hash<key> = [ 1, 2, 3 ];
-    isa_ok(%hash<key>, 'List');
+    isa_ok(%hash<key>, 'Array');
     
     is(+%hash<key>, 3, 'it should have 3 values in it');    
     is(%hash<key>[0], 1, 'got the right value');
@@ -96,11 +96,11 @@ this test should be added too more.
     is(%hash<key>[2], 3, 'got the right value');
 
     {
-        my $list = %hash<key>;
-        is(+$list, 3, 'it should have 3 values in it');    
-        is($list[0], 1, 'got the right value (when I pull the list out)');
-        is($list[1], 2, 'got the right value (when I pull the list out)');    
-        is($list[2], 3, 'got the right value (when I pull the list out)');    
+        my $array = %hash<key>;
+        is(+$array, 3, 'it should have 3 values in it');    
+        is($array[0], 1, 'got the right value (when I pull the array out)');
+        is($array[1], 2, 'got the right value (when I pull the array out)');    
+        is($array[2], 3, 'got the right value (when I pull the array out)');    
     }
     
     eval '%hash<key>.push(4)';

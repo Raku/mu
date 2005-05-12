@@ -20,14 +20,14 @@ is(+$multi1, 3, 'the multi1 has 3 elements');
 is($multi1[0], 1, 'got the right value at multi1 index 0');
 
 {
-    my $list = $multi1[1];
-    is(+$list, 3, 'multi1[1] has 3 elements');
+    my $array = $multi1[1];
+    is(+$array, 3, 'multi1[1] has 3 elements');
     is(+$multi1[1], 3, '+$multi1[1] works')
 }
 isa_ok($multi1[1], 'List');
 
 # multi-dimensional array slices 
-# L<S09/"Subscript and slice notation" /index value to each slice list:/>
+# L<S09/"Subscript and slice notation" /index value to each slice array:/>
 
 is(eval '$multi1[1;0]', 'foo', 'got the right value at multi1 index 1,0', :todo);
 is(eval '$multi1[1;1]', 'bar', 'got the right value at multi1 index 1,1', :todo);
@@ -50,8 +50,8 @@ my $multi2 = [ $array_ref1, $array_ref2 ];
 is(+$multi2, 2, 'the multi2 has 2 elements');
 
 {
-    my $list = $multi2[0];
-    is(+$list, 3, 'multi2[0] has 3 elements');
+    my $array = $multi2[0];
+    is(+$array, 3, 'multi2[0] has 3 elements');
     is(+$multi2[0], 3, '+$multi2[0] works');
 }
 isa_ok($multi2[0], 'List');
@@ -71,8 +71,8 @@ is($multi2[0][2], 3, 'got the right value at multi2 index 0,2');
 
 
 {
-    my $list = $multi2[1];
-    is(+$list, 3, 'multi2[1] has 3 elements');
+    my $array = $multi2[1];
+    is(+$array, 3, 'multi2[1] has 3 elements');
     is(+$multi2[1], 3, '+$multi2[1] works');
 }
 isa_ok($multi2[1], 'List');

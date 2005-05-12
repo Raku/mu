@@ -9,7 +9,7 @@ Hash tests
 
 =cut
 
-plan 26;
+plan 32;
 
 # basic lvalue assignment
 {
@@ -29,26 +29,26 @@ plan 26;
 }
 
 # basic hash creation w/ comma seperated key/values
-# {
-#   my $hash = ("1st", 1);
-#   isa_ok $hash, 'List';
-#   is $hash{"1st"}, 1, 'comma seperated key/value hash creation works';
-#   is $hash<1st>,   1, 'unquoted <key> fetching works';
-# }
+{
+   my $hash = hash("1st", 1);
+   isa_ok $hash, 'Hash';
+   is $hash{"1st"}, 1, 'comma seperated key/value hash creation works';
+   is $hash<1st>,   1, 'unquoted <key> fetching works';
+}
 
-# {
-#   my $hash = ("1st", 1, "2nd", 2);
-#   isa_ok $hash, 'List';
-#   is $hash{"1st"}, 1,
-#     'comma seperated key/value hash creation works with more than 1st pair';
-#   is $hash{"2nd"}, 2,
-#     'comma seperated key/value hash creation works with more than 1st pair';
-# }
+{
+   my $hash = hash("1st", 1, "2nd", 2);
+   isa_ok $hash, 'Hash';
+   is $hash{"1st"}, 1,
+     'comma seperated key/value hash creation works with more than 1st pair';
+   is $hash{"2nd"}, 2,
+     'comma seperated key/value hash creation works with more than 1st pair';
+}
 
 # hash slicing
 {
   my $hash = {'1st' => 1, '2nd' => 2, '3rd' => 3};
-  isa_ok $hash, 'List';
+  isa_ok $hash, 'Array';
 
   my @slice1 = $hash{"1st", "3rd"};
   is +@slice1,   2, 'got the right amount of values from the %hash{} slice';
@@ -76,8 +76,8 @@ plan 26;
 {
   my $hash_a = { a => 1, b => 2 };              isa_ok $hash_a, "Hash";
   my $hash_b = { a => 1, "b", 2 };              isa_ok $hash_b, "Hash";
-  my $hash_c = hash(a => 1, "b", 2);            isa_ok $hash_c, "Hash";
-  my $hash_d = hash a => 1, "b", 2;             isa_ok $hash_d, "Hash";
+  my $hash_c = hash('a', 1, "b", 2);              isa_ok $hash_c, "Hash";
+  my $hash_d = hash 'a', 1, "b", 2;               isa_ok $hash_d, "Hash";
   my $hash_e = { pair "a", 1, "b", 2 };         isa_ok $hash_e, "Hash";
 }
 

@@ -15,7 +15,7 @@ plan 13;
 
 { # invocant style
     my @array = ();
-    is(@array.end, -1, 'we have an empty list');
+    is(@array.end, -1, 'we have an empty array');
 
     @array = (1..43);
     is(@array.end, 42, 'index of last element is 42 after assignment');
@@ -35,7 +35,7 @@ plan 13;
 
 { # non-invocant style
     my @array = ();
-    is(end(@array), -1, 'we have an empty list');
+    is(end(@array), -1, 'we have an empty array');
 
     @array = (1..43);
     is(end(@array), 42, 'index of last element is 42 after assignment');

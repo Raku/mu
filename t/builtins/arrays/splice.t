@@ -27,7 +27,7 @@ plan 32;
 
 my (@a,@b,@res);
 
-# Somehow, this doesn't propagate list context
+# Somehow, this doesn't propagate array context
 # to splice(). The intermediate array in the calls
 # should be removed later
 
@@ -60,12 +60,12 @@ is( @b, [], "push-via-splice result works" );
 is( @a, ([1..12]), "push-via-splice modification works");
 
 @a  = ('red', 'green', 'blue');
-is( splice(@a, 1, 2), "blue", "splice() in scalar context returns last element of list");
+is( splice(@a, 1, 2), "blue", "splice() in scalar context returns last element of array");
 
 # Test the single arg form of splice (which should die IMO)
 @a = (1..10);
 @res = splice(@a);
-splice_ok( @res, @a, [1..10],[], "Single-arg splice returns the whole list" );
+splice_ok( @res, @a, [1..10],[], "Single-arg splice returns the whole array" );
 
 @a = (1..10);
 @res = splice(@a,8,2);
@@ -96,14 +96,14 @@ splice_ok splice(@a,0,0,0,1), @a, [], [0..10], "Prepending values works";
 splice_ok splice(@a,5,1,5), @a, [5], [0..11], "Replacing an element with itself";
 
 @a = (0..11);
-splice_ok splice(@a, @a, 0, 12, 13), @a, [], [0..13], "Appending a list";
+splice_ok splice(@a, @a, 0, 12, 13), @a, [], [0..13], "Appending a array";
 
 @a = (0..13);
 @res = splice(@a, -@a, @a, 1, 2, 3);
 splice_ok @res, @a, [0..13], [1..3], "Replacing the array contents from right end";
 
 @a = (1, 2, 3);
-splice_ok splice(@a, 1, -1, 7, 7), @a, [2], [1,7,7,3], "Replacing a list into the middle";
+splice_ok splice(@a, 1, -1, 7, 7), @a, [2], [1,7,7,3], "Replacing a array into the middle";
 
 @a = (1,7,7,3);
 splice_ok splice(@a,-3,-2,2), @a, [7], [1,2,7,3], "Replacing negative count of elements";
@@ -132,4 +132,4 @@ is( @a, [8], "Explicit scalar context returns the last element");
 
 # un comment this to test, but now it causes a fatal error
 @a = splice([], 1);
-is +@a, 0, '... empty lists are not fatal anymore';
+is +@a, 0, '... empty arrays are not fatal anymore';

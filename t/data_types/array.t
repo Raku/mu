@@ -108,7 +108,7 @@ isa_ok(@array9, 'Array');
 is(+@array9, 0, "new arrays are empty");
 
 my @array10 = (1, 2, 3,);
-is(+@array10, 3, "trailing commas make correct list"); 
+is(+@array10, 3, "trailing commas make correct array"); 
 
 # declare a multidimension array
 eval_ok('@array11[0...3; 0...1]', "multidimension array", :todo);
@@ -142,8 +142,8 @@ my @b = 0..3;
 ((@b[-3,-2,-1,-4] = @array13)= @array13[-1,-2,-3,-4]);
 
 is ~@b, 
-	'a d c b', 
-	"hat trick:
-	assign to a negatively indexed slice array from array  
-	lvalue in assignment is then lvalue to negatively indexed slice as rvalue"; 
+    'a d c b', 
+    "hat trick:
+    assign to a negatively indexed slice array from array  
+    lvalue in assignment is then lvalue to negatively indexed slice as rvalue"; 
 #
