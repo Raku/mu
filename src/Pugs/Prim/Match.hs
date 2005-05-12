@@ -46,17 +46,17 @@ doMatch csChars MkRulePCRE{ rxRegex = re } = do
     rv <- liftIO $ PCRE.execute re csBytes 0
     if isNothing rv then return mkMatchFail else do
     let ((fromBytes, lenBytes):subs) = Array.elems (fromJust rv)
-        substr str from len = genericTake len (genericDrop from str)
+        substr str from len = take len (drop from str)
         subsMatch = [
             VMatch $ mkMatchOk
                 fChars (fChars + lChars)
                 (substr csChars fChars lChars)
                 [] Map.empty
             | (fBytes, lBytes) <- subs
-            , let fChars = chars $ genericTake fBytes csBytes
+            , let fChars = chars $ take fBytes csBytes
             , let lChars = chars $ substr csBytes fBytes lBytes
             ]
-        fromChars = chars $ genericTake fromBytes csBytes
+        fromChars = chars $ take fromBytes csBytes
         lenChars  = chars $ substr csBytes fromBytes lenBytes
         chars = genericLength . decodeUTF8
 
