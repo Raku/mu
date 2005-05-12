@@ -27,6 +27,7 @@ doMatch cs MkRulePGE{ rxRule = re } = do
         (VRule rule) <- fromVal =<< readRef ref
         return (name, rxRule rule)
     pge <- liftIO $ evalPGE pwd (encodeUTF8 cs) (encodeUTF8 re) subrules
+            `catch` (\e -> return $ ioeGetErrorString e)
     rv  <- tryIO Nothing $ fmap Just (readIO $ decodeUTF8 pge)
     let matchToVal PGE_Fail = VMatch mkMatchFail
         matchToVal (PGE_Array ms) = VList (map matchToVal ms)
