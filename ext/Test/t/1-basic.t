@@ -96,11 +96,11 @@ $! = undef; # clear $!
 eval_ok('my $a = 1; $a', :desc("eval_ok"));
 $! = undef; # clear $!
 
-eval_ok('my my $a = 1; $a', "eval_ok", 1);
+eval_ok('my my my $a = 1; $a', "eval_ok", 1);
 $! = undef; # clear $!
-eval_ok('my my $a = 1; $a', desc => "eval_ok", :todo(1));
+eval_ok('my my my $a = 1; $a', desc => "eval_ok", :todo(1));
 $! = undef; # clear $!
-eval_ok('my my $a = 1; $a', :desc("eval_ok"), todo => 1);
+eval_ok('my my my $a = 1; $a', :desc("eval_ok"), todo => 1);
 $! = undef; # clear $!
 
 ## eval_is
