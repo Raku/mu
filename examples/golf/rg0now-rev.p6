@@ -1,1 +1,1 @@
-print reverse=<>
+[=<>].reverse.print
