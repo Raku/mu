@@ -2,7 +2,7 @@
     .local int spi, spc
     .local pmc args, match, add_rule
     .include "iglobals.pasm"
-    load_bytecode "PGE-Hs.pbc"
+    load_bytecode "PGE/Hs.pir"
 
     getinterp args
     set args, args[.IGLOBALS_ARGV_LIST]
