@@ -77,8 +77,9 @@ op1 "clone" = \x -> do
     (VObject o) <- fromVal x
     attrs   <- readIVar (IHash $ objAttrs o)
     attrs'  <- liftSTM $ newTVar Map.empty
+    uniq    <- liftIO $ newUnique
     writeIVar (IHash attrs') attrs
-    return $ VObject o{ objAttrs = attrs' }
+    return $ VObject o{ objAttrs = attrs', objId = uniq }
 op1 "chop" = \x -> do
     ref <- fromVal x
     str <- fromVal x
@@ -560,6 +561,7 @@ op2 "gt" = op2Cmp vCastStr (>)
 op2 "ge" = op2Cmp vCastStr (>=)
 op2 "~~" = op2Match
 op2 "!~" = op2Cmp vCastStr (/=)
+op2 "=:=" = op2Identity
 op2 "&&" = op2Logical not
 op2 "||" = op2Logical id
 op2 "^^" = \x y -> do
@@ -719,7 +721,8 @@ op3 "new" = \t n _ -> do
     named   <- fromVal n
     attrs   <- liftSTM $ newTVar Map.empty
     writeIVar (IHash attrs) named
-    return . VObject $ MkObject{ objType = typ, objAttrs = attrs }
+    uniq    <- liftIO $ newUnique
+    return . VObject $ MkObject{ objType = typ, objAttrs = attrs, objId = uniq }
 op3 other = \_ _ _ -> fail ("Unimplemented 3-ary op: " ++ other)
 
 op4 :: String -> Val -> Val -> Val -> Val -> Eval Val
@@ -812,6 +815,9 @@ op2Logical f x y = do
 
 op2DefinedOr :: Val
 op2DefinedOr = undefined
+
+op2Identity (VObject x) (VObject y) = return $ VBool (objId x == objId y)
+op2Identity x y = return $ VBool (x == y)
 
 op2Cmp :: (a -> Eval b) -> (b -> b -> VBool) -> a -> a -> Eval Val
 op2Cmp f cmp x y = do
@@ -1134,6 +1140,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   List      non     ..      (Scalar, Scalar)\
 \\n   Bool      chain   !=      (Num, Num)\
 \\n   Bool      chain   ==      (Num, Num)\
+\\n   Bool      chain   =:=     (Any, Any)\
 \\n   Bool      chain   ~~      (rw!Any, Any)\
 \\n   Bool      chain   !~      (Any, Any)\
 \\n   Bool      chain   <       (Num, Num)\

@@ -1145,6 +1145,7 @@ data VOpaque where
 data VObject = MkObject
     { objType   :: !VType
     , objAttrs  :: !IHash
+    , objId     :: !Unique
     }
     deriving (Show, Eq, Ord, Typeable)
 
