@@ -49,10 +49,12 @@ instance Compile Pad where
 
 instance Compile (Var, [(TVar Bool, TVar VRef)]) where
     compile (('&':name), [(_, sym)]) = do
+        ret <- askPMC
         imc <- compile sym
         return $ vcat
             [ text (".sub \"" ++ name ++ "\"")
             , nest 4 imc
+            , text $ ".return (" ++ ret ++ ")"
             , text ".end"
             ]
     compile _ = fail "fnord"
@@ -227,12 +229,12 @@ instance Compile Exp where
         rv      <- compile (Val (VBool True))
         return $ actions $+$ rv
     compile (App (Var ('&':name)) _ [arg]) = do
-        lhsC <- tempPMC
-        compileWith (\tmp -> lhsC <+> text "=" <+> text name <> parens tmp) arg
+        lhsC <- askPMC
+        compileWith (\tmp -> text lhsC <+> text "=" <+> text name <> parens tmp) arg
     compile (App (Var "&not") [] []) = return $ text "new PerlUndef"
     compile (App (Var ('&':name)) [] []) = do
-        lhsC <- tempPMC
-        return $ lhsC <+> text "=" <+> text name <> text "()"
+        lhsC <- askPMC
+        return $ text lhsC <+> text "=" <+> text name <> text "()"
     compile (Val (VStr x))  = constPMC $ showText $ encodeUTF8 (concatMap quoted x)
     compile (Val (VInt x))  = constPMC $ integer x
     compile (Val (VNum x))  = constPMC $ showText x
