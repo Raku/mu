@@ -32,7 +32,7 @@ is($foo.noargs(), 42, "... parentheses after method");
 {
     my $val;
     lives_ok {
-        eval '$val = $foo.noargs ()';
+        eval '$val = $foo.noargs()';
         die $! if $!;
     }, "... <space> + parentheses after method";
     is($val, 42, '... we got the value correctly');
