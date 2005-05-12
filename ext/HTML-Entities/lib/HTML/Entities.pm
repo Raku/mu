@@ -315,11 +315,19 @@ sub encode_entities (Str $string, ?$unsafe_chars) is export
         #    ) if $!;
         #}
         #%subst{$unsafe_chars}($string);
-        $result ~~ s:perl5:g/([$unsafe_chars])/{%char_to_entity{$0} // num_entity($0)}/;
+        $result ~~ s:perl5:g/([$unsafe_chars])/{
+            %char_to_entity.exists($0)
+                ?? %char_to_entity{$0}
+                :: num_entity($0)
+        }/;
     }
     else {
         # Encode control chars, high bit chars and '<', '&', '>', '"'
-        $result ~~ s:perl5:g/([^\n\r\t !\#\$%\'-;=?-~])/{%char_to_entity{$0} // num_entity($0)}/;
+        $result ~~ s:perl5:g/([^\n\r\t !\#\$%\'-;=?-~])/{
+            %char_to_entity.exists($0)
+                ?? %char_to_entity{$0}
+                :: num_entity($0)
+        }/;
     }
     return $result;
 }
