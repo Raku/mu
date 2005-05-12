@@ -267,7 +267,7 @@ ruleRuleDeclaration = rule "rule declaration" $ try $ do
 ruleClassDeclaration :: RuleParser Exp
 ruleClassDeclaration = rule "class declaration" $ try $ do
     symbol "class"
-    name    <- identifier
+    name    <- ruleQualifiedIdentifier
     -- XXX - traits - eg inheritance
     env     <- getState
     let exp = Syn ":=" [Var (':':name), Syn "\\{}" [Syn "," []]]
@@ -330,12 +330,17 @@ selfParam typ = MkParam
     , paramDefault  = Noop
     }
 
+ruleQualifiedIdentifier :: RuleParser String
+ruleQualifiedIdentifier = do
+    chunks  <- verbatimIdentifier `sepBy1` (try $ string "::")
+    return $ concat (intersperse "::" chunks)
+
 ruleSubName :: RuleParser String
 ruleSubName = verbatimRule "subroutine name" $ do
     star    <- option "" $ string "*"
     fixity  <- option "" $ choice (map (try . string) $ words fixities)
-    names   <- verbatimIdentifier `sepBy1` (try $ string "::")
-    return $ "&" ++ star ++ fixity ++ concat (intersperse "::" names)
+    name    <- ruleQualifiedIdentifier
+    return $ "&" ++ star ++ fixity ++ name
     where
     fixities = " prefix: postfix: infix: circumfix: "
 
