@@ -98,10 +98,10 @@ sub clsIsa (Str $inv: Str $class) returns Bool {
 
 # visibility is not as important on the MetaModel as it is on the real
 # Class Model.
-sub clsProperties(Str $inv: Array *@properties) returns Hash {
+sub clsProperties(Str $inv: Hash %properties) returns Hash {
     my %self := get_instance($inv, "Perl::MetaClass");
-    if @properties {
-        for @properties -> $key, $value {
+    if %properties {
+        for %properties.kv -> $key, $value {
             # NOTE:
             # we check the following rules here:
             # - the value is a Perl::MetaProperty

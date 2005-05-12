@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 44;
+plan 36;
 
 use_ok('Perl::MetaClass');
 use_ok('Perl::MetaProperty');
@@ -123,6 +123,8 @@ like($!, rx:perl5/^Sub class\'s superclass must be the invocant/, '... got the r
 
 # Properties
 
+=pod
+
 {
     my %props = $role.clsProperties();
     is(+keys(%props), 0, '... we have no properties yet');
@@ -132,7 +134,8 @@ my $prop1 = Perl::MetaProperty::new('Str');
 my $prop2 = Perl::MetaProperty::new('Int');
 
 {
-    my %props = $role.clsProperties('.prop1', $prop1, '.prop2', $prop2);
+    my %_props = ('.prop1' => $prop1, '.prop2' => $prop2);
+    my %props = $role.clsProperties(%_props);
     my @keys = keys(%props);
     is(+@keys, 2, '... we have 2 properties now');
     is(@keys[0], '.prop1', '... we have the right property name');
@@ -143,5 +146,7 @@ my $prop2 = Perl::MetaProperty::new('Int');
     ok(%props<.prop2>.instance_isa('Perl::MetaProperty'), '... our property is a Perl::MetaProperty');
     is(%props<.prop2>.propType(), 'Int', '... the properties type is a string');
 }
+
+=cut
 
 

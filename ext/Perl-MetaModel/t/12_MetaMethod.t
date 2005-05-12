@@ -14,14 +14,14 @@ is($method.methodInvoke(), 'Hello Meta-World', '... got the expected value from 
 is($method.methodVisibility(), 'public', '... by default it is public');
 
 {
-    my @params = $method.methodParams();
-    is(+@params, 0, '... we dont have any params');
+    my $params = $method.methodParams();
+    is(+$params, 0, '... we dont have any params');
 }
 
 {
-    my @params = $method.methodParams(1, 2, 3);
-    is(+@params, 3, '... we have 3 params');
-    is(~@params, '1 2 3', '... get have the right params');
+    my $params = $method.methodParams(1, 2, 3);
+    is(+$params, 3, '... we have 3 params');
+    is(~$params, '1 2 3', '... get have the right params');
 }
 
 my $method2 = Perl::MetaMethod::new(sub { return "Hello (Private) Meta-World" }, :visibility<private>);
