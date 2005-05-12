@@ -29,7 +29,7 @@ sub force_todo (*@todo_tests) returns Void is export {
 
 ## ok
 
-sub ok (Bool $cond is lazy, Str +$desc, +$todo) returns Bool is export {
+sub ok (Bool $cond, Str +$desc, +$todo) returns Bool is export {
     proclaim($cond, $desc, $todo);
 }
 
