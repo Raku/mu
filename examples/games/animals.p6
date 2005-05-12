@@ -5,16 +5,16 @@ use v6;
 
 sub try(Any $this) {
   # XXX $this ~~ Hash'd be nicer
-  say "c {$this.perl}";
-  say "d {$this.ref}";
+  # say "c {$this.perl}";
+  # say "d {$this.ref}";
   if(ref $this eq "Hash") {
     my $yesno    = yes($this<question>) ?? "yes" :: "no";
     my %new      = $this;
-    say "a {%new.ref}";
-    say "a' {(%new{$yesno}).ref}";
+    # say "a {%new.ref}";
+    # say "a' {(%new{$yesno}).ref}";
     %new{$yesno} = try %new{$yesno};
-    say "b {%new.ref}";
-    say "b' {(%new{$yesno}).ref}";
+    # say "b {%new.ref}";
+    # say "b' {(%new{$yesno}).ref}";
     return \%new;
   }
 
@@ -37,9 +37,9 @@ sub try(Any $this) {
     yes      => sub { $yes ?? $new  :: $this }.(),
     no       => sub { $yes ?? $this :: $new  }.(),
   );
-  say "f {%new.perl}";
-  say "g {(\%new).ref}";
-  say "h {\%new.ref}";
+  # say "f {%new.perl}";
+  # say "g {(\%new).ref}";
+  # say "h {\%new.ref}";
   return \%new;
 }
 
