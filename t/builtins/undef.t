@@ -88,7 +88,7 @@ ok(!defined(undef), "undef is not defined");
 	ok(defined(&a_sub), "defined sub");
 	eval_ok('defined(%«$?PACKAGE\::»<&a_sub>)', "defined sub (symbol table)", :todo);
 
-	eval_ok('!defined(&a_subwoofer)', "undefined sub"); 
+	eval_ok('!defined(&a_subwoofer)', "undefined sub");
 	eval_ok('!defined(%«$?PACKAGE\::»<&a_subwoofer>)', "undefined sub (symbol table)", :todo);
 }
 
@@ -120,7 +120,7 @@ is($interesting, 1, "Undef on LHS of list assignment");
 
 sub two_elements() { (1,2) };
 (undef,$interesting) = two_elements();
-is($interesting, 2, "Undef on LHS of function assignment"); 
+is($interesting, 2, "Undef on LHS of function assignment");
 
 ($interesting, undef) = two_elements();
 is($interesting, 1, "Undef on LHS of function assignment");
@@ -142,7 +142,7 @@ Perl6-specific tests
 	undef @ary;
 	ok(!+$ary_r, "undef array referent");
 
-	is(+$ary_r, 0, "dangling array reference"); 
+	is(+$ary_r, 0, "dangling array reference");
 
 	my %hash = (1, 2, 3, 4);
 	my $hash_r = %hash;
@@ -150,7 +150,7 @@ Perl6-specific tests
 	ok(defined($hash_r), "hash reference");
 	undef %hash;
 	ok(defined($hash_r), "undef hash referent:");
-	is(+$hash_r.keys, 0, "dangling hash reference"); 
+	is(+$hash_r.keys, 0, "dangling hash reference");
 }
 
 {
@@ -220,10 +220,11 @@ Perl6-specific tests
 	eval '"a=b\nc=d\n" ~~ / $<matches> := [ (\w) = \N+ ]* /';
 	ok(eval '$<matches> ~~ all(<a b>)', "match keys exist", :todo);
 
-fail("FIXME (match values don't)", :todo<parsefail>); 
-=pod 
-	ok(!defined($<matches>{"a"}) && !defined($<matches>{"b"}), "match values don't");
-=cut
+	eval_ok('!defined($<matches>{"a"}) && !defined($<matches>{"b"})', "match values don't", :todo);
+#fail("FIXME (match values don't)", :todo<parsefail>);
+#=pod
+#	ok(!defined($<matches>{"a"}) && !defined($<matches>{"b"}), "match values don't");
+#=cut
 }
 
 {
@@ -232,7 +233,7 @@ fail("FIXME (match values don't)", :todo<parsefail>);
         "abcde" ~~ rx:perl5/(.)(.)(.)/;
         "abcde" ~~ rx:perl5/(\d)/;
 	ok((!grep { defined($_) } ($0, $1, $2, $3, $4, $5)),
-			"all submatches undefined after failed match",:todo<bug>) or
+			"all submatches undefined after failed match") or
 		diag("match state: " ~ eval '$/');
 
 	# XXX write me: "special circumstances"
@@ -258,7 +259,7 @@ fail("FIXME (match values don't)", :todo<parsefail>);
 # autoloading
 # L<S10/Autoloading>
 
-fail("FIXME (autoload tests)", :todo<parsefail>); 
+fail("FIXME (autoload tests)", :todo<parsefail>);
 # Currently waiting on
 # - packages
 # - symtable hash
