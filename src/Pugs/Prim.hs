@@ -928,10 +928,12 @@ foldParam x         = doFoldParam x []
 
 prettyVal :: Int -> Val -> Eval VStr
 prettyVal 10 _ = return "..."
-prettyVal d (VRef r) = do
+prettyVal d v@(VRef r) = do
     v'  <- readRef r
     str <- prettyVal (d+1) v'
-    return ('\\':str)
+    ifValTypeIsa v "Array"
+        (return $ ('[':(init (tail str))) ++ "]")
+        (return ('\\':str))
 prettyVal d (VList vs) = do
     vs' <- mapM (prettyVal (d+1)) vs
     return $ "(" ++ concat (intersperse ", " vs') ++ ")"
