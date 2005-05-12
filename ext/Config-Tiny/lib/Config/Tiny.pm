@@ -36,7 +36,7 @@ sub Config::Tiny::new () returns Ref {
                     # Handle properties
                     elsif ($line ~~ rx:perl5/^\s*([^=]+?)\s*=\s*(.*?)\s*$/) {
                         my ($key, $val) = ($0, $1);
-                        %self{$sect}{$key} = $val;
+                        %self{$sect}{$key} = "$val";
                     }
                     else {
                         %self<_err_str> = "Syntax error at line $cnt: $line" and return FALSE;

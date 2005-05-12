@@ -27,6 +27,7 @@ isa_ok($data, 'Hash');
 is($data<section><one>, 'two', '... got the right value for section/one');
 is($data<section><three>, 'four', '... got the right value for section/three');
 is($data<section><Foo>, 'Bar', '... got the right value for section/Foo');
+
 ok(!$data<section><empty>, '... got the no value for section/empty');
 
 # Changing data
@@ -54,7 +55,7 @@ one=two
 three=four
 ", '... got the right config text');
 
-ok(!unlink($new_config_path), '... removing the new config file');
+ok(unlink($new_config_path), '... removing the new config file');
 ok(!-e $new_config_path, '... the file is really gone');
 
 # check some errors
