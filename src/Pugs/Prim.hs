@@ -1073,6 +1073,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      pre     system  (Str: List)\
 \\n   Bool      pre     binmode (IO: ?Int=1)\
 \\n   Void      pre     return  ()\
+\\n   Void      pre     return  (rw!Any)\
 \\n   Void      pre     return  (List)\
 \\n   Junction  pre     any     (List)\
 \\n   Junction  pre     all     (List)\
