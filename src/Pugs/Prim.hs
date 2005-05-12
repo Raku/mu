@@ -930,10 +930,17 @@ prettyVal :: Int -> Val -> Eval VStr
 prettyVal 10 _ = return "..."
 prettyVal d v@(VRef r) = do
     v'  <- readRef r
-    str <- prettyVal (d+1) v'
-    ifValTypeIsa v "Array"
-        (return $ ('[':(init (tail str))) ++ "]")
-        (return ('\\':str))
+    ifValTypeIsa v "Pair"
+        (do let (VList [ks, vs]) = v'
+            kStr <- prettyVal (d+1) ks
+            vStr <- prettyVal (d+1) vs
+            return $ "(" ++ kStr ++ " => " ++ vStr ++ ")")
+        (do str <- prettyVal (d+1) v'
+            ifValTypeIsa v "Array"
+                (return $ ('[':(init (tail str))) ++ "]")
+                (ifValTypeIsa v "Hash"
+                    (return $ ('{':(init (tail str))) ++ "}")
+                    (return ('\\':str))))
 prettyVal d (VList vs) = do
     vs' <- mapM (prettyVal (d+1)) vs
     return $ "(" ++ concat (intersperse ", " vs') ++ ")"
