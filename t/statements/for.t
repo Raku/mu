@@ -196,19 +196,19 @@ is(@array_t, @t, 'for @array -> $val is rw { $val++ }');
 my @array_v = (0..2);
 my @v = (1..3);
 try { for @array_v.values -> $val is rw { $val++ }; };
-is(@array_v, @v, 'for @array.values -> $val is rw { $val++ }');
+is(@array_v, @v, 'for @array.values -> $val is rw { $val++ }', :todo<feature>);
 
 my @array_kv = (0..2);
 my @kv = (1..3);
 try { for @array_kv.kv -> $key, $val is rw { $val++ }; };
-is(@array_kv, @kv, 'for @array.kv -> $key, $val is rw { $val++ }');
+is(@array_kv, @kv, 'for @array.kv -> $key, $val is rw { $val++ }', :todo<feature>);
 
 my %hash_v = ( a => 1, b => 2, c => 3 );
 my %v = ( a => 2, b => 3, c => 4 );
 try { for %hash_v.values -> $val is rw { $val++ }; };
-is(%hash_v, %v, 'for %hash.values -> $val is rw { $val++ }');
+is(%hash_v, %v, 'for %hash.values -> $val is rw { $val++ }', :todo<feature>);
 
 my %hash_kv = ( a => 1, b => 2, c => 3 );
 my %kv = ( a => 2, b => 3, c => 4 );
 try { for %hash_kv.kv -> $key, $val is rw { $val++ }; };
-is( %hash_kv.sort, %kv.sort, 'for %hash.kv -> $key, $val is rw { $val++ }');
+is( %hash_kv.sort, %kv.sort, 'for %hash.kv -> $key, $val is rw { $val++ }', :todo<feature>);
