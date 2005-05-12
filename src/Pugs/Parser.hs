@@ -1271,7 +1271,7 @@ pairArrow :: RuleParser Exp
 pairArrow = do
     key <- identifier
     symbol "=>"
-    val <- parseTerm
+    val <- parseTightOp
     return (Val (VStr key), val)
     return $ App (Var "&infix:=>") [Val (VStr key), val] []
 
