@@ -25,6 +25,7 @@ genGHC = do
         , "import qualified GHC.Base"
         , "import qualified Pugs.Run"
         , "import qualified Pugs.AST"
+        , "import qualified Pugs.AST.Interals"
         , "import qualified Pugs.Types"
         , "import qualified Pugs.Prim"
         , "import qualified Pugs.Internals"
