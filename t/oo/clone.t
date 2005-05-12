@@ -22,8 +22,8 @@ is($c.get_attr(), 13, '... cloned object retained attr value');
 my $val;
 lives_ok {
     $val = $c =:= $a;
-}, "... cloned object isn't identity equal to the original object", :todo<feature>; 
-ok($val.defined && !$val, "... cloned object isn't identity equal to the original object", :todo<feature>);
+}, "... cloned object isn't identity equal to the original object";
+ok($val.defined && !$val, "... cloned object isn't identity equal to the original object");
 
 my $d;
 lives_ok {
