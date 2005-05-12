@@ -1511,7 +1511,11 @@ rxP6Flags = MkQFlags QS_No False False False False False QB_No '/' False False
 -- Regexps
 rxLiteralAny adverbs
     | Syn "\\{}" [Syn "," pairs] <- adverbs
-    , not (null [ True | (App (Var "&infix:=>") [Val (VStr "P5"), _] []) <- pairs ])
+    , not (null [
+        True
+        | (App (Var "&infix:=>") [Val (VStr name), _] []) <- pairs
+        , (name ==) `any` words "P5 Perl5 perl5"
+        ])
     = rxLiteral5
     | otherwise
     = rxLiteral6
