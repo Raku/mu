@@ -9,12 +9,12 @@ has Test::Builder::Output   $.output handles 'diag';
 has Test::Builder::TestPlan $.plan;
 has                         @:results;
 
-method new ( Test::Builder ::Class:, *@args )
+method new ( Test::Builder ::Class: *@args )
 {
     return $:singleton //= Class.create( @args );
 }
 
-method create ( Test::Builder ::Class, *@args )
+method create ( Test::Builder ::Class: *@args )
 {
     return Class.BUILD( @args );
 }
@@ -94,7 +94,7 @@ method skip_all
     exit 0;
 }
 
-method BAILOUT ( Str $reason = '' )
+method BAILOUT ( Str ?$reason = '' )
 {
     $.output.write( "Bail out!  $reason" );
     exit 255;

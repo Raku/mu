@@ -218,7 +218,11 @@ ruleDeclaration = rule "declaration" $ choice
 ruleSubHead :: RuleParser (Bool, Bool, String)
 ruleSubHead = rule "subroutine head" $ do
     isMulti   <- option False $ do { symbol "multi" ; return True }
-    isMethod  <- do { symbol "sub"; return False } <|> do { symbol "method"; return True }
+    isMethod  <- choice
+        [ do { symbol "sub"; return False }
+        , do { symbol "submethod"; return True }
+        , do { symbol "method"; return True }
+        ]
     name    <- ruleSubName
     return (isMulti, isMethod, name)
 
@@ -266,8 +270,12 @@ ruleRuleDeclaration = rule "rule declaration" $ try $ do
 
 ruleClassDeclaration :: RuleParser Exp
 ruleClassDeclaration = rule "class declaration" $ try $ do
-    symbol "class"
+    symbol "class" <|> symbol "role"
     name    <- ruleQualifiedIdentifier
+    optional ruleVersionPart
+    optional ruleAuthorPart
+    whiteSpace
+    _       <- many $ ruleTrait -- traits; not yet used
     -- XXX - traits - eg inheritance
     env     <- getState
     let exp = Syn ":=" [Var (':':name), Syn "\\{}" [Syn "," []]]
@@ -286,8 +294,9 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
         , ruleSubScoped
         , ruleSubGlobal
         ]
-    formal  <- option Nothing $ ruleSubParameters ParensMandatory
     typ'    <- option typ $ try $ ruleBareTrait "returns"
+    formal  <- option Nothing $ ruleSubParameters ParensMandatory
+    typ''   <- option typ' $ try $ ruleBareTrait "returns"
     _       <- many $ ruleTrait -- traits; not yet used
     -- bodyPos <- getPosition
     body    <- ruleBlock
@@ -302,7 +311,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
             , subPad        = envLexical env
             , subType       = SubRoutine
             , subAssoc      = "pre"
-            , subReturns    = mkType typ'
+            , subReturns    = mkType typ''
             , subLValue     = False -- XXX "is rw"
             , subParams     = self ++ params
             , subBindings   = []
@@ -376,7 +385,7 @@ ruleFormalParam :: RuleParser Param
 ruleFormalParam = rule "formal parameter" $ do
     cxt     <- option "" $ ruleContext
     sigil   <- option "" $ choice . map symbol $ words " ? * + ++ "
-    name    <- ruleVarName -- XXX support *[...]
+    name    <- ruleParamName -- XXX support *[...]
     traits  <- many ruleTrait
     let required = (sigil /=) `all` ["?", "+"]
     exp     <- ruleParamDefault required
@@ -396,12 +405,15 @@ ruleParamDefault False = rule "default value" $ option (Val VUndef) $ do
 ruleMemberDeclaration :: RuleParser Exp
 ruleMemberDeclaration = do
     symbol "has"
-    attr <- parseVarName
+    optional ruleQualifiedIdentifier -- Type
+    attr <- ruleVarName
     case attr of
         (sigil:'.':key) -> do
-            -- manufacture an accessor - currently just read-only
-            isRW <- option False $ do { symbol "is rw"; return True }
-            env <- getState
+            isRW    <- option False $ do { symbol "is rw"; return True }
+            _       <- many $ ruleTrait -- traits; not yet used
+            optional $ do { symbol "handles"; ruleExpression }
+            env     <- getState
+            -- manufacture an accessor
             let sub = mkPrim
                     { isMulti       = False
                     , subName       = name
@@ -421,12 +433,13 @@ ruleMemberDeclaration = do
 ruleVarDeclaration :: RuleParser Exp
 ruleVarDeclaration = rule "variable declaration" $ do
     scope       <- ruleScope
+    optional ruleQualifiedIdentifier -- Type
     (decl, lhs) <- choice
         [ do -- pos  <- getPosition
-             name <- parseVarName
+             name <- ruleVarName
              return ((Sym scope name), Var name)
         , do names <- parens . (`sepEndBy` symbol ",") $
-                parseVarName <|> do { undefLiteral; return "" }
+                ruleVarName <|> do { undefLiteral; return "" }
              let mkVar v = if null v then Val undef else Var v
              return (combine (map (Sym scope) names), Syn "," (map mkVar names))
         ]
@@ -492,17 +505,21 @@ ruleRequireDeclaration = tryRule "require declaration" $ do
 
 ruleModuleDeclaration :: RuleParser Exp
 ruleModuleDeclaration = rule "module declaration" $ do
-    symbol "module"
-    n <- identifier `sepBy1` (try $ string "::") -- name - XXX
-    v <- option "" $ do -- version - XXX
-        char '-'
-        str <- many1 (choice [ digit, char '.' ])
-        return ('-':str)
-    a <- option "" $ do -- author - XXX
-        char '-'
-        str <- many1 (satisfy (/= ';'))
-        return ('-':str)
-    return $ Syn "module" [Val . VStr $ concat (intersperse "::" n) ++ v ++ a] -- XXX
+    symbol "module" <|> symbol "class"
+    n <- ruleQualifiedIdentifier
+    v <- option "" $ ruleVersionPart
+    a <- option "" $ ruleAuthorPart
+    return $ Syn "module" [Val . VStr $ n ++ v ++ a] -- XXX
+
+ruleVersionPart = do -- version - XXX
+    char '-'
+    str <- many1 (choice [ digit, char '.' ])
+    return ('-':str)
+
+ruleAuthorPart = do -- author - XXX
+    char '-'
+    str <- many1 (satisfy (/= ';'))
+    return ('-':str)
 
 ruleClosureTrait :: Bool -> RuleParser Exp
 ruleClosureTrait rhs = rule "closure trait" $ do
@@ -977,6 +994,7 @@ parseTerm = rule "term" $ do
 ruleTypeLiteral :: RuleParser Exp
 ruleTypeLiteral = rule "type" $ do
     env     <- getState
+    optional $ string "::"
     name    <- tryChoice [
         do { symbol n; notFollowedBy (alphaNum <|> char ':'); return n }
         | (MkType n) <- flatten (envClasses env) ]
@@ -1041,14 +1059,17 @@ ruleCodeSubscript = tryRule "code subscript" $ do
 
 parseApply :: RuleParser Exp
 parseApply = tryRule "apply" $ do
-    name    <- ruleSubName <|> ruleFoldOp
+    isMethod    <- option False $ try $ do { char '.'; return True }
+    name        <- ruleSubName <|> ruleFoldOp
     when ((name ==) `any` words " &if &unless &while &until &for ") $
         fail "reserved word"
     hasDot  <- option False $ try $ do { whiteSpace; char '.'; return True }
     (invs, args) <- if hasDot
         then parseNoParenParamList
         else parseParenParamList <|> do { whiteSpace; parseNoParenParamList }
-    return $ App (Var name) invs args
+    let self | isMethod  = [Var "$?SELF"]
+             | otherwise = []
+    return $ App (Var name) (self ++ invs) args
 
 ruleFoldOp :: RuleParser String
 ruleFoldOp = verbatimRule "reduce metaoperator" $ do
@@ -1132,8 +1153,15 @@ maybeParensBool p = choice
 maybeParens :: CharParser Env a -> RuleParser a
 maybeParens p = choice [ parens p, p ]
 
-parseVarName :: RuleParser String
-parseVarName = rule "variable name" ruleVarNameString
+ruleParamName :: GenParser Char st String
+ruleParamName = literalRule "parameter name" $ do
+    sigil   <- oneOf "$@%&:"
+    caret   <- option "" $ choice $ map string $ words " ^ * ? . : "
+    name    <- many1 wordAny
+    return $ (sigil:caret) ++ name
+
+ruleVarName :: RuleParser String
+ruleVarName = rule "variable name" ruleVarNameString
 
 ruleVarNameString :: RuleParser String
 ruleVarNameString =   try (string "$!")  -- error variable

@@ -1,8 +1,8 @@
-class Test::Builder:Test-0.0.1
+class Test::Builder::Test-0.0.1
 {
-    method new(
+    method new (
         $number,     
-        $passed       = 1,
+        ?$passed      = 1,
         ?$skip        = 0,
         ?$todo        = 0,
         ?$reason      = '', 

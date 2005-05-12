@@ -85,12 +85,16 @@ balancedDelim = P.balancedDelim perl6Lexer
 decimal    :: CharParser st Integer
 decimal    = P.decimal    perl6Lexer
 
-verbatimIdentifier :: GenParser Char st String
-verbatimIdentifier = (<?> "identifier") $ do
+ruleQualifiedIdentifier :: GenParser Char st String
+ruleQualifiedIdentifier = rule "qualified identifier" $ do
+    chunks  <- ruleVerbatimIdentifier `sepBy1` (try $ string "::")
+    return $ concat (intersperse "::" chunks)
+
+ruleVerbatimIdentifier :: GenParser Char st String
+ruleVerbatimIdentifier = (<?> "identifier") $ do
     c  <- identStart perl6Def
     cs <- many (identLetter perl6Def)
     return (c:cs)
-
 
 ruleWhiteSpaceLine :: GenParser Char st ()
 ruleWhiteSpaceLine = do
@@ -249,8 +253,8 @@ postSpace rule = try $ do
 
 ruleTrait :: GenParser Char st String
 ruleTrait = do
-    symbol "is"
-    trait <- identifier
+    symbol "is" <|> symbol "does"
+    trait <- ruleQualifiedIdentifier
     return trait
 
 ruleTraitName :: String -> GenParser Char st String
@@ -268,15 +272,8 @@ ruleBareTrait trait = do
 ruleContext :: GenParser Char st String
 ruleContext = literalRule "context" $ do
     lead    <- upper
-    rest    <- many1 (wordAny <|> oneOf "&|")
+    rest    <- many1 (wordAny <|> oneOf ":&|")
     return (lead:rest)
-
-ruleVarName :: GenParser Char st String
-ruleVarName = literalRule "variable name" $ do
-    sigil   <- oneOf "$@%&"
-    caret   <- option "" $ choice $ map string $ words " ^ * ? "
-    name    <- many1 wordAny
-    return $ (sigil:caret) ++ name
 
 tryChoice :: [GenParser tok st a] -> GenParser tok st a
 tryChoice = choice . map try
