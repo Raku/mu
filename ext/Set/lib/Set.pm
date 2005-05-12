@@ -3,55 +3,53 @@ use v6;
 
 class Set;
 
-sub set(*@contents) is export returns Set {
-    return Set.new(*@contents);
-};
+sub set (*@contents) returns Set is export {
+    my $set = Set.new;
+    $set.insert(@contents);
+    return $set;
+}
 
 # the Set is represented as a hash of (v => v)
 has Hash %:members;
 
-sub new($self: *@items) {
-    $self.insert(@items);
-};
-
-sub members($self:) returns List {
+method members() returns List {
     %:members.values;
-};
+}
 
-sub insert($self: *@items) returns int {
-    my int $inserted = 0;
+method insert(*@items) returns Int {
+    my Int $inserted = 0;
     for @items -> $item {
-	if ( !%:members.exists($item) ) {
+	unless ( %:members.exists($item) ) {
 	    $inserted++;
-	    %:members<$item> = $item;
+	    %:members{$item} = $item;
 	}
     }
     return $inserted;
-};
+}
 
-sub remove($self: *@items) returns int {
-    my int $removed = 0;
+method remove(*@items) returns Int {
+    my Int $removed = 0;
     for @items -> $item {
 	if ( %:members.delete($item) ) {
 	    $removed++;
 	}
     }
     return $removed;
-};
+}
 
-sub includes($self: *@items) returns Bool {
+method includes(*@items) returns Bool {
     return %:members.exists(all(@items));
-};
+}
 
-sub member($self: $item) returns Object {
-    return %:members<$item>;
-};
+method member($item) returns Object {
+    return %:members{$item}
+}
 
-sub size($self:) returns int {
-    %:members.size;
-};
+method size() returns int {
+    +%:members.keys;
+}
 
-sub invert($self: *@items) returns int {
+method invert(*@items) returns int {
     my int $rv;
     for @items -> $item {
 	if ( $self.includes($item) ) {
@@ -62,16 +60,11 @@ sub invert($self: *@items) returns int {
 	}
     }
     return $rv;
-};
+}
 
-sub clear($self:) {
-    %:members=();
-};
+method clear() {
+    undef %:members;
+}
 
-&element  ::= &member;
-&has      ::= &includes;
-&contains ::= &includes;
-&count    ::= &size;
-&delete   ::= &remove;
-
-
+our &Set::count ::= &Set::size;
+our &Set::has   ::= &Set::includes;

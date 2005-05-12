@@ -94,8 +94,10 @@ existsFromRef (MkRef (IArray av)) val = do
     array_existsElem av idx
 existsFromRef (MkRef (IScalar sv)) val = do
     refVal  <- scalar_fetch sv
-    ref     <- fromVal refVal
-    existsFromRef ref val
+    case refVal of
+        VRef ref    -> existsFromRef ref val
+        VList _     -> (`existsFromRef` val) =<< fromVal refVal
+        _           -> return False
 existsFromRef ref _ = retError "Not a keyed reference" ref
 
 deleteFromRef :: VRef -> Val -> Eval Val
@@ -115,6 +117,8 @@ deleteFromRef (MkRef (IArray av)) val = do
     return $ VList rv
 deleteFromRef (MkRef (IScalar sv)) val = do
     refVal  <- scalar_fetch sv
-    ref     <- fromVal refVal
-    deleteFromRef ref val
+    case refVal of
+        VRef ref    -> deleteFromRef ref val
+        VList _     -> (`deleteFromRef` val) =<< fromVal refVal
+        _           -> return undef
 deleteFromRef ref _ = retError "Not a keyed reference" ref

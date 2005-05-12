@@ -45,6 +45,8 @@ op0 "&"  = fmap opJuncAll  . mapM fromVal
 op0 "^"  = fmap opJuncOne  . mapM fromVal
 op0 "|"  = fmap opJuncAny  . mapM fromVal
 op0 "want"  = const $ fmap VStr (asks envWant)
+op0 "bool::true" = const $ return (VBool True)
+op0 "bool::false" = const $ return (VBool False)
 op0 "time"  = const $ do
     clkt <- liftIO getClockTime
     return $ VInt $ toInteger $ tdSec $ diffClockTimes clkt epochClkT
@@ -430,7 +432,7 @@ op1 "=" = \v -> do
             Just hdl -> return hdl
     handleOf (VList [x]) = handleOf x
     handleOf v = fromVal v
-op1 "ref"   = fmap (VStr . showType) . evalValType
+op1 "ref"   = fmap VType . evalValType
 op1 "pop"   = \x -> join $ doArray x array_pop -- monadic join
 op1 "shift" = \x -> join $ doArray x array_shift -- monadic join
 op1 "pick"  = op1Pick
@@ -1206,4 +1208,6 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Object    pre     clone   (Any)\
 \\n   List      pre     Pugs::Internals::runInteractiveCommand    (?Str=$_)\
 \\n   List      pre     Pugs::Internals::openFile    (?Str,?Str=$_)\
+\\n   Bool      pre     bool::true ()\
+\\n   Bool      pre     bool::false ()\
 \\n"

@@ -32,11 +32,16 @@ import Pugs.Parser.Number
 
 ruleProgram :: RuleParser Env
 ruleProgram = rule "program" $ do
+    env <- getState
     statements <- ruleBlockBody
     -- error $ show statements
     eof
-    env <- getState
-    return $ env { envBody = mergeStmts emptyExp statements, envStash = "" }
+    env' <- getState
+    return $ env'
+        { envBody       = mergeStmts emptyExp statements
+        , envStash      = ""
+        , envPackage    = envPackage env
+        }
 
 ruleBlock :: RuleParser Exp
 ruleBlock = lexeme ruleVerbatimBlock
@@ -309,7 +314,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
             { isMulti       = isMulti
             , subName       = name'
             , subPad        = envLexical env
-            , subType       = SubRoutine
+            , subType       = if isMethod then SubMethod else SubRoutine
             , subAssoc      = "pre"
             , subReturns    = mkType typ''
             , subLValue     = False -- XXX "is rw"
@@ -500,11 +505,15 @@ ruleRequireDeclaration = tryRule "require declaration" $ do
 
 ruleModuleDeclaration :: RuleParser Exp
 ruleModuleDeclaration = rule "module declaration" $ do
-    symbol "module" <|> symbol "class"
-    n <- ruleQualifiedIdentifier
-    v <- option "" $ ruleVersionPart
-    a <- option "" $ ruleAuthorPart
-    return $ Syn "module" [Val . VStr $ n ++ v ++ a] -- XXX
+    symbol "package" <|> symbol "module" <|> symbol "class"
+    name    <- ruleQualifiedIdentifier
+    v       <- option "" $ ruleVersionPart
+    a       <- option "" $ ruleAuthorPart
+    env     <- getState
+    let exp = Syn ":=" [Var (':':name), Syn "\\{}" [Syn "," []]]
+    unsafeEvalExp (Sym SGlobal (':':name) exp)
+    setState env{ envPackage = name, envClasses = envClasses env `addNode` mkType name }
+    return $ Syn "module" [Val . VStr $ name ++ v ++ a] -- XXX
 
 ruleVersionPart = do -- version - XXX
     char '-'
@@ -979,6 +988,7 @@ parseTerm = rule "term" $ do
         [ ruleVar
         , ruleLit
         , ruleClosureTrait True
+        , ruleTypeVar
         , ruleTypeLiteral
         , parseApply
         , parens ruleExpression
@@ -986,10 +996,15 @@ parseTerm = rule "term" $ do
     fs <- many rulePostTerm
     return $ combine (reverse fs) term
 
+ruleTypeVar :: RuleParser Exp
+ruleTypeVar = rule "type" $ try $ do
+    string "::"
+    name <- ruleQualifiedIdentifier
+    return . Val . VType $ mkType name
+
 ruleTypeLiteral :: RuleParser Exp
 ruleTypeLiteral = rule "type" $ do
     env     <- getState
-    optional $ string "::"
     name    <- tryChoice [
         do { symbol n; notFollowedBy (alphaNum <|> char ':'); return n }
         | (MkType n) <- flatten (envClasses env) ]
@@ -1195,6 +1210,8 @@ makeVar ('$':rest) | all (`elem` "1234567890") rest =
     Syn "[]" [Var "$/", Val $ VInt (read rest)]
 makeVar ('$':'<':name) = Syn "{}" [Var "$/", doSplitStr (tail name)]
 makeVar (sigil:'.':name) =
+    Cxt (cxtOfSigil sigil) (Syn "{}" [Var "$?SELF", Val (VStr name)])
+makeVar (sigil:':':name) =
     Cxt (cxtOfSigil sigil) (Syn "{}" [Var "$?SELF", Val (VStr name)])
 makeVar var = Var var
 

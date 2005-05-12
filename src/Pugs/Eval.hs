@@ -822,22 +822,22 @@ findSub name invs args = do
 
 chainFun :: Params -> Exp -> Params -> Exp -> [Val] -> Eval Val
 chainFun p1 f1 p2 f2 (v1:v2:vs) = do
-    val <- applyExp (chainArgs p1 [v1, v2]) f1
+    val <- applyExp SubPrim (chainArgs p1 [v1, v2]) f1
     case val of
         VBool False -> return val
-        _           -> applyExp (chainArgs p2 (v2:vs)) f2
+        _           -> applyExp SubPrim (chainArgs p2 (v2:vs)) f2
     where
     chainArgs prms vals = map chainArg (prms `zip` vals)
     chainArg (p, v) = ApplyArg (paramName p) v False
 chainFun _ _ _ _ _ = internalError "chainFun: Not enough parameters in Val list"
 
-applyExp :: [ApplyArg] -> Exp -> Eval Val
-applyExp bound (Prim f) =
+applyExp :: SubType -> [ApplyArg] -> Exp -> Eval Val
+applyExp _ bound (Prim f) =
     f [ argValue arg | arg <- bound, (argName arg !! 1) /= '_' ]
-applyExp [] body = evalExp body
-applyExp bound@(arg:_) body = do
+applyExp _ [] body = evalExp body
+applyExp styp bound@(arg:_) body = do
     -- introduce $?SELF and $_ as the first invocant.
-    inv <- invocant
+    inv <- if styp <= SubMethod then invocant else return []
     pad <- formal
     enterLex (inv ++ pad) $ evalExp body
     where
@@ -881,7 +881,7 @@ doApply env sub@MkCode{ subBody = fun, subType = typ } invs args =
                 val <- local fixEnv $ enterLex syms $ do
                     (`juncApply` bound) $ \realBound -> do
                         enterSub sub $ do
-                            applyExp realBound fun
+                            applyExp (subType sub) realBound fun
                 retVal val
     where
     enterScope :: Eval Val -> Eval Val

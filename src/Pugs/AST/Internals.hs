@@ -74,6 +74,7 @@ ifValTypeIsa :: Val      -- ^ Value to check the type of
              -> (Eval a) -- ^ The @then@ case
              -> (Eval a) -- ^ The @else@ case
              -> Eval a
+ifValTypeIsa v (':':typ) trueM falseM = ifValTypeIsa v typ trueM falseM
 ifValTypeIsa v typ trueM falseM = do
     env <- ask
     vt  <- evalValType v
@@ -338,7 +339,7 @@ instance Value VStr where
     vCast (VThread t)   = takeWhile isDigit $ dropWhile (not . isDigit) $ show t
     vCast (VHandle h)   = "<" ++ "VHandle (" ++ (show h) ++ ">"
     vCast (VMatch m)    = matchStr m
-    vCast (VType typ)   = "::" ++ showType typ
+    vCast (VType typ)   = showType typ -- "::" ++ showType typ
     vCast (VObject o)   = "<obj:" ++ showType (objType o) ++ ">"
     vCast x             = castFail x
 
