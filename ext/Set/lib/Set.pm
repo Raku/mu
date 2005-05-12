@@ -1,110 +1,77 @@
 
 use v6;
 
-Val ::= Object;     # within the scope of this file?
-# but does "==";
+class Set;
 
-# Val.can("==");
+sub set(*@contents) is export returns Set {
+    return Set.new(*@contents);
+};
 
-Role Set {
+# the Set is represented as a hash of (v => v)
+has Hash %:members;
 
-    method new(Val @items) {
-	.bless();
-	.insert(@items);
-    };
+sub new($self: *@items) {
+    $self.insert(@items);
+};
 
-    # we could probably get the mimimum implementation requirements
-    # down to just insert_one and members ;)
-    method members(Val $item) returns Array of Val { ... };
-    method insert(Val @items) returns Int  { ... };
-    method remove(Val @items) returns Int  { ... };
+sub members($self:) returns List {
+    %:members.values;
+};
 
-    method includes(Val @items) returns Bool {
-	all(@items) == any(.members)
-    };
-
-    method member(Val $item) returns Val {
-	any(.members) == $item
-    };
-
-    method size returns Int {
-	.members
-    };
-
-    method invert(Val @items) returns Int {
-	my int $rv;
-	for @items -> $item {
-	    if ( .includes($item) ) {
-		.remove($item);
-		$rv++;
-	    } else {
-		.insert($item);
-	    }
+sub insert($self: *@items) returns int {
+    my int $inserted = 0;
+    for @items -> $item {
+	if ( !%:members.exists($item) ) {
+	    $inserted++;
+	    %:members<$item> = $item;
 	}
-	$rv;
-    };
+    }
+    return $inserted;
+};
 
-    method clear {
-	.remove(.members);
-    };
-
-    &element  ::= &member;
-    &has      ::= &includes;
-    &contains ::= &includes;
-    &count    ::= &size;
-    &delete   ::= &remove;
-}
-
-# an implementation of the Set class using junctions
-class Set does Set {
-
-    has junction $:junc;
-
-    method set(@anything) is export {
-	.bless();
-	$:junc=any(@anything);
-    };
-
-    &new ::= &set;
-
-    method insert(@items) {
-	my $success;
-	for @item -> $item {
-	    if ( $item != $:junc ) {
-		$success++;
-		$:junc = any($:junc, $item);
-	    }
+sub remove($self: *@items) returns int {
+    my int $removed = 0;
+    for @items -> $item {
+	if ( %:members.delete($item) ) {
+	    $removed++;
 	}
-	$success;
     }
-    method remove(@items) {
-	my $success;
-	for @item -> $item {
-	    if ( $item == $:junc ) {
-		$success++;
-		# ENOTSPECCED
-		$:junc = any($:junc) - $item;
-	    }
+    return $removed;
+};
+
+sub includes($self: *@items) returns Bool {
+    return %:members.exists(all(@items));
+};
+
+sub member($self: $item) returns Object {
+    return %:members<$item>;
+};
+
+sub size($self:) returns int {
+    %:members.size;
+};
+
+sub invert($self: *@items) returns int {
+    my int $rv;
+    for @items -> $item {
+	if ( $self.includes($item) ) {
+	    $self.remove($item);
+	    $rv++;
+	} else {
+	    $self.insert($item);
 	}
-	return $success;
     }
+    return $rv;
+};
 
-    method includes(@items) {
-	( all(@items) == .junc );
-    }
+sub clear($self:) {
+    %:members=();
+};
 
-    method member($item) {
-	# alternate precedence should make it return correct thing
-	( $:junc == $item )
-    }
+&element  ::= &member;
+&has      ::= &includes;
+&contains ::= &includes;
+&count    ::= &size;
+&delete   ::= &remove;
 
-    method members {
-	return $:junc.members;  # ENOTSPECCED
-    }
-
-    method clear {
-	$:junc = any();
-    }
-
-}
 
