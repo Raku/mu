@@ -64,7 +64,7 @@ unlink $tempfile;
 my $err = 0;
 for %*ENV.kv -> $k,$v {
   # Ignore env vars which bash and maybe other shells set automatically.
-  next if $k eq any<SHLVL _>;
+  next if $k eq any<SHLVL _ OLDPWD PS1>;
   if (%child_env{$k} !~ $v) {
     if (! $err) {
       fail("Environment gets propagated to child.");
@@ -96,7 +96,7 @@ is(%child_env<PUGS_ROCKS>,undef,'The child did not see %*ENV<PUGS_ROCKS>');
 my $err = 0;
 for %*ENV.kv -> $k,$v {
   # Ignore env vars which bash and maybe other shells set automatically.
-  next if $k eq any<SHLVL _>;
+  next if $k eq any<SHLVL _ OLDPWD PS1>;
   if (%child_env{$k} !~ $v) {
     if (! $err) {
       fail("Environment gets propagated to child.");
