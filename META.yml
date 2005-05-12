@@ -8,6 +8,7 @@ build_requires:
 no_index:
   directory:
     - inc
+    - debian
     - modules
     - ext
     - script
