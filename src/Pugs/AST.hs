@@ -13,61 +13,16 @@
 -}
 
 module Pugs.AST (
-    Eval,
-    Exp(..),
-    Env(..),
-    Val(..),
-    Value(..),
-
-    Pad(..), Unwrap(..), Param(..), Params, Bindings, SlurpLimit,
-    
-    VRef(..), VOpaque(..), VControl(..), VScalar, VList, VPair,
-    VSubst, VArray, VHash, VProcess(..), VThunk(..),
-    VMatch(..), mkMatchFail, mkMatchOk,
-    VCode(..), SubType(..),
-    VJunc(..), JuncType(..),
-    VObject(..), VType,
-
-    IVar(..),
-    IArray, IArraySlice, IHash, IScalar, ICode, IScalarProxy,
-    IScalarLazy, IPairHashSlice, IRule, IHandle, IHashEnv(..),
-    IScalarCwd(..),
-
-    ArrayClass(..), CodeClass(..), HandleClass(..), HashClass(..),
-    ObjectClass(..), PairClass(..), RuleClass(..), ScalarClass(..),
-    ThunkClass(..),
-
-    -- MonadEval(..),
-
-    runEvalSTM, runEvalIO, shiftT, resetT, callCC,
     evalExp,
-    undef, defined,
-    readRef, writeRef, clearRef, dumpRef, forceRef,
-    askGlobal, writeVar, readVar,
-    findSymRef, findSym,
-    ifListContext, ifValTypeIsa, evalValType, fromVal',
-    scalarRef, codeRef, arrayRef, hashRef, thunkRef, pairRef,
-    newScalar, newArray, newHandle, newObject,
-    proxyScalar, constScalar, lazyScalar, lazyUndef, constArray,
-    retError, retControl, retEmpty, retIVar, readIVar, writeIVar,
-    fromVals, refType,
-    mkPad, lookupPad, padToList, diffPads, unionPads,
     genMultiSym, genSym,
-    mkPrim, mkSub,
-    cxtOfSigil, typeOfSigil,
-    buildParam, defaultArrayParam, defaultHashParam, defaultScalarParam,
-    emptyExp,
-    isSlurpy, envWant,
-    extract,
     strRangeInf, strRange, strInc, charInc,
-    doPair, doHash, doArray,
 
+    module Pugs.AST.Internals,
     module Pugs.AST.Pos,
     module Pugs.AST.Scope,
     module Pugs.AST.SIO,
 ) where
 import Pugs.Internals
-import Pugs.Cont (callCC)
 import qualified Data.Map as Map
 
 import Pugs.AST.Internals

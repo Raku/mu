@@ -25,7 +25,11 @@ Functions of notable interest:
 * 'apply' and 'doApply' (the guts of function application)
 -}
 
-module Pugs.Eval where
+module Pugs.Eval (
+    evaluate,
+    emptyEnv, evaluateMain,
+    enterLValue, enterRValue,
+) where
 import Pugs.Config
 import Pugs.Internals
 import Prelude hiding ( exp )

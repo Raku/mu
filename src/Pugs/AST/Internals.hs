@@ -1,7 +1,68 @@
 {-# OPTIONS_GHC -cpp -fglasgow-exts -fno-warn-orphans -funbox-strict-fields #-}
 {-# OPTIONS_GHC -#include "UnicodeC.h" #-}
 
-module Pugs.AST.Internals where
+module Pugs.AST.Internals (
+    Eval,      -- uses Val, Env, SIO
+    Exp(..),   -- uses Pad, Eval, Val
+    Env(..),   -- uses Pad, TVar, Exp, Eval, Val
+    Val(..),   -- uses V.* (which ones?)
+    Value(..), -- uses Val, Eval
+
+    Pad(..), -- uses Var, TVar, VRef
+    Param(..), -- uses Cxt, Exp
+    Params, -- uses Param
+    Bindings, -- uses Param, Exp
+    SlurpLimit, -- VInt, Exp
+    
+    VRef(..), -- uses IVar
+    VOpaque(..), -- uses Value
+    VControl(..), -- uses Env, Eval, Val
+    VScalar, -- uses Val
+    VPair, -- uses Val
+    VList, -- uses Val
+    VSubst, -- uses VRule, Expr
+    VArray, -- uses Val
+    VHash, -- uses VStr, Val
+    VThunk(..), -- uses Eval, Val
+    VProcess(..),
+    VMatch(..), mkMatchFail, mkMatchOk, -- uses VList, VHash
+    VCode(..), SubType(..), -- uses Pad, Exp, Type
+    VJunc(..), JuncType(..), -- uss Val
+    VObject(..), -- uses VType, IHash, Unique
+    VType, -- uses Type
+
+    IVar(..), -- uses *Class and V*
+    IArray, IArraySlice, IHash, IScalar, ICode, IScalarProxy,
+    IScalarLazy, IPairHashSlice, IRule, IHandle, IHashEnv(..),
+    IScalarCwd(..),
+
+    ArrayClass(..), CodeClass(..), HandleClass(..), HashClass(..),
+    ObjectClass(..), PairClass(..), RuleClass(..), ScalarClass(..),
+    ThunkClass(..),
+
+    -- MonadEval(..),
+
+    runEvalSTM, runEvalIO, shiftT, resetT, callCC,
+    undef, defined,
+    readRef, writeRef, clearRef, dumpRef, forceRef,
+    askGlobal, writeVar, readVar,
+    findSymRef, findSym,
+    ifListContext, ifValTypeIsa, evalValType, fromVal',
+    scalarRef, codeRef, arrayRef, hashRef, thunkRef, pairRef,
+    newScalar, newArray, newHandle, newObject,
+    proxyScalar, constScalar, lazyScalar, lazyUndef, constArray,
+    retError, retControl, retEmpty, retIVar, readIVar, writeIVar,
+    fromVals, refType,
+    mkPad, lookupPad, padToList, diffPads, unionPads,
+    mkPrim, mkSub,
+    cxtOfSigil, typeOfSigil,
+    buildParam, defaultArrayParam, defaultHashParam, defaultScalarParam,
+    emptyExp,
+    isSlurpy, envWant,
+    extract,
+    doPair, doHash, doArray,
+    unwrap, -- Unwrap(..) -- not used in this file, suitable for factoring out
+) where
 import Pugs.Internals
 import Pugs.Context
 import Pugs.Rule

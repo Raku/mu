@@ -10,7 +10,24 @@
 >   He drank from yet untasted wells...
 -}
 
-module Pugs.Lexer where
+module Pugs.Lexer (
+    RuleParser,
+    ParensOption(..),
+
+    wordAlpha, wordAny, isWordAlpha, isWordAny,
+    parens, whiteSpace, lexeme, identifier,
+    braces, brackets, angles, balanced, balancedDelim, decimal,
+
+    ruleQualifiedIdentifier, ruleWhiteSpaceLine,
+
+    symbol, interpolatingStringLiteral, escapeCode,
+
+    rule, verbatimRule, literalRule,
+    tryRule, tryVerbatimRule,
+    tryChoice,
+
+    ruleScope, ruleTrait, ruleTraitName, ruleBareTrait, ruleContext,
+) where
 import Pugs.Internals
 import Pugs.AST
 import Pugs.Rule
@@ -33,12 +50,6 @@ perl6Def  = javaStyle
           , P.caseSensitive  = False
           }
 
-literalIdentifier :: GenParser Char st String
-literalIdentifier = do
-    c <- wordAlpha
-    cs <- many wordAny
-    return (c:cs)
-    
 wordAlpha   :: GenParser Char st Char
 wordAny     :: GenParser Char st Char
 wordAlpha   = satisfy isWordAlpha <?> "alphabetic word character"
@@ -48,18 +59,6 @@ isWordAny   :: Char -> Bool
 isWordAlpha :: Char -> Bool
 isWordAny x = (isAlphaNum x || x == '_')
 isWordAlpha x = (isAlpha x || x == '_')
-
-setVar :: String -> Val -> RuleParser ()
-setVar = do
-    -- env <- getState
-    -- let lex = envLexical env
-    -- setState env{ envLexical = lex' }
-    error ""
-
-getVar :: String -> RuleParser Val
-getVar = do
-    -- env <- getState
-    error ""    
 
 perl6Lexer :: P.TokenParser st
 perl6Lexer = P.makeTokenParser perl6Def
