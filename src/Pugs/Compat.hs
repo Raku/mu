@@ -42,9 +42,10 @@ import System.Posix.Types
 
 #ifdef PUGS_HAVE_POSIX
 import System.Posix.Process
-import System.Posix.Env
+import System.Posix.Env hiding (getEnvironment)
 import System.Posix.Files
 import System.Posix.User
+import System.Environment (getEnvironment)
 import qualified System.Posix.Signals
 
 statFileSize :: FilePath -> IO Integer
