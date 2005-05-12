@@ -303,6 +303,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
             , subType       = SubRoutine
             , subAssoc      = "pre"
             , subReturns    = mkType typ'
+            , subLValue     = False -- XXX "is rw"
             , subParams     = self ++ params
             , subBindings   = []
             , subSlurpLimit = []
@@ -399,6 +400,7 @@ ruleMemberDeclaration = do
     case attr of
         (sigil:'.':key) -> do
             -- manufacture an accessor - currently just read-only
+            isRW <- option False $ do { symbol "is rw"; return True }
             env <- getState
             let sub = mkPrim
                     { isMulti       = False
@@ -407,6 +409,7 @@ ruleMemberDeclaration = do
                     , subReturns    = typeOfSigil sigil
                     , subBody       = fun
                     , subParams     = [selfParam $ envPackage env]
+                    , subLValue     = isRW
                     }
                 exp = Syn ":=" [Var name, Syn "sub" [Val $ VCode sub]] -- , bodyPos)
                 name = '&':(envPackage env ++ "::" ++ key)
@@ -709,6 +712,7 @@ retVerbatimBlock typ formal body = expRule $ do
             , subType       = typ
             , subAssoc      = "pre"
             , subReturns    = anyType
+            , subLValue     = False -- XXX "is rw"
             , subParams     = if null params then [defaultArrayParam] else params
             , subBindings   = []
             , subSlurpLimit = []

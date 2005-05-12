@@ -569,6 +569,7 @@ data VCode = MkCode
     , subBindings   :: !Bindings    -- ^ Currently assumed bindings
     , subSlurpLimit :: !SlurpLimit  -- ^ Max. number of slurpy arguments
     , subReturns    :: !Type        -- ^ Return type
+    , subLValue     :: !Bool        -- ^ Is this a lvalue sub?
     , subBody       :: !Exp         -- ^ Body of the closure
     }
     deriving (Show, Eq, Ord, Typeable)
@@ -587,6 +588,7 @@ mkPrim = MkCode
     , subSlurpLimit = []
     , subReturns = anyType
     , subBody = emptyExp
+    , subLValue = False
     }
 
 mkSub :: VCode
@@ -601,6 +603,7 @@ mkSub = MkCode
     , subSlurpLimit = []
     , subReturns = anyType
     , subBody = emptyExp
+    , subLValue = False
     }
 
 instance Ord VComplex where
