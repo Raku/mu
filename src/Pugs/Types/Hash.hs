@@ -85,8 +85,8 @@ instance HashClass IHashEnv where
         str <- fromVal val
         liftIO $ setEnv key str True
     hash_existsElem _ key = tryIO False $ do
-        getEnv key
-        return True
+        str <- getEnv key
+        return $ isJust str
     hash_deleteElem _ key = do
         liftIO $ unsetEnv key
 
