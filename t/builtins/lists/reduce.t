@@ -23,7 +23,8 @@ is((reduce { $^a + $^b } 100, @array), 100 + $sum, "basic reduce works (2)");
 
 # New [...] metaoperator
 # Thread "reduce metaoperator" from p6l
-is ([+] @array),        $sum, "[+] works";
-eval_is '[*] 1,2,3',   1*2*3, "[*] works";
-eval_is '[-] 1,2,3',   1-2-3, "[-] works";
-eval_is '[/] 12,4,3',      1, "[/] works";
+is(([+] @array),        $sum, "[+] works");
+is(([*] 1,2,3),   (1*2*3), "[*] works");
+is(([-] 1,2,3),   (1-2-3), "[-] works");
+is(([/] 12,4,3), (12/4/3), "[/] works");
+

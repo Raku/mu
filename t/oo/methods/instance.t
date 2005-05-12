@@ -34,8 +34,8 @@ is($foo.noargs(), 42, "... parentheses after method");
     lives_ok {
         eval '$val = $foo.noargs ()';
         die $! if $!;
-    }, "... <space> + parentheses after method", :todo<parsefail>;
-    is($val, 42, '... we got the value correctly', :todo<feature>);
+    }, "... <space> + parentheses after method";
+    is($val, 42, '... we got the value correctly');
 }
 
 {
