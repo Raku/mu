@@ -246,7 +246,7 @@ doExtract :: Maybe [Param] -> Exp -> (Exp, [String], [Param])
 doExtract formal body = (fun, names', params)
     where
     (fun, names) = extract body []
-    names' | Just params <- formal, any (== "$_") (map paramName params)
+    names' | isJust formal -- Just params <- formal, any (== "$_") (map paramName params)
            = filter (/= "$_") names
            | otherwise
            = names
