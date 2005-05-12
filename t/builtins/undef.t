@@ -232,7 +232,7 @@ fail("FIXME (match values don't)", :todo<parsefail>);
         "abcde" ~~ rx:perl5/(.)(.)(.)/;
         "abcde" ~~ rx:perl5/(\d)/;
 	ok((!grep { defined($_) } ($0, $1, $2, $3, $4, $5)),
-			"all submatches undefined after failed match") or
+			"all submatches undefined after failed match",:todo<bug>) or
 		diag("match state: " ~ eval '$/');
 
 	# XXX write me: "special circumstances"
