@@ -7,6 +7,7 @@ use Net::IRC;
 my $nick     = @*ARGS[0] // "blechbot";
 my $server   = @*ARGS[1] // "localhost";
 my $interval = @*ARGS[2] // 300;
+my $repository = @*ARGS[3] // ".";
 my ($host, $port) = split ":", $server;
 $port //= 6667;
 
@@ -98,10 +99,10 @@ sub svn_commits() {
   # If this is an incremental update...
   if($cur_svnrev) {
     # ...only query for new commits since we last checked.
-    system "svn log -r {$cur_svnrev + 1}:HEAD . > $tempfile";
+    system "svn log -r {$cur_svnrev + 1}:HEAD $repository > $tempfile";
   } else {
     # Else query only for the newest commit.
-    system "svn log -r HEAD . > $tempfile";
+    system "svn log -r HEAD $repository > $tempfile";
   }
 
   my $commits;
@@ -114,7 +115,7 @@ sub svn_commits() {
       }
 
       when rx:P5/^r(\d+) \| (\w+)/ {
-	$cur_entry = "r$0 ($1)";
+	$cur_entry = "r$0 ($1++)";
 	# Break the loop if we see $cur_svnrev -- that means, there're no new
 	# commits.
 	return if $0 == $cur_svnrev;
