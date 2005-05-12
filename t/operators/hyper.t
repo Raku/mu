@@ -9,7 +9,7 @@ Hyper operators L<S03/"Hyper operators">
 
 =cut
 
-plan 30;
+plan 32;
 
 { # binary infix
         my @r;
@@ -146,3 +146,16 @@ plan 30;
         @e = (1, 2, 3);
         is(~@r, ~@e, :todo);
 };
+
+{ # regression test, ensure that hyper works on arrays
+        my @r1;
+        my @r2;
+        my @e1 = (2, 4, 6);
+        my @e2 = (2, 3, 4);
+        my @a = (1, 2, 3);
+        @r1 = @a >>+<< @a;
+        @r2 = @a >>+<< 1;
+        is(~@r1, ~@e1, "hyper op works on variables, too.");
+        is(~@r2, ~@e2, "hyper op and correctly promotes scalars");
+};
+

@@ -335,7 +335,7 @@ selfParam typ = MkParam
     }
 
 ruleQualifiedIdentifier :: RuleParser String
-ruleQualifiedIdentifier = do
+ruleQualifiedIdentifier = rule "qualified identifier" $ do
     chunks  <- verbatimIdentifier `sepBy1` (try $ string "::")
     return $ concat (intersperse "::" chunks)
 

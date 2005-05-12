@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 7;
+plan 8;
 
 =pod
 
@@ -20,6 +20,11 @@ ok($foo ~~ Foo, '... smartmatch our $foo to the Foo class');
 
 my $foo_clone = $foo.clone();
 ok($foo_clone ~~ Foo, '... smartmatch our $foo_clone to the Foo class');
+
+class Foo::Bar {};
+
+my $foo_bar = Foo::Bar.new();
+eval_ok($foo_bar ~~ Foo::Bar, '... smartmatch our $foo_bar to the Foo::Bar class');
 
 # L<S12/"Classes" /An \"isa\" is just a trait that happens to be another class\:/>
 
