@@ -11,7 +11,8 @@ plan 34;
     is(@array.elems,     5, 'array has 5 elements');
     is(@array[0],       11, 'first value is 11');
     is(@array[-1],      15, 'last value is 15');
-    dies_ok({ @array[0][0] }, 'no nested arrayref');
+    is(@array[0][0],    11, 'scalar is implicitly array');
+    # dies_ok({ @array[0][0] }, 'no nested arrayref');
 }
 
 {
