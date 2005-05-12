@@ -6,6 +6,7 @@ use Config;
 use FindBin;
 use File::Copy;
 use File::Basename;
+use File::Glob 'bsd_glob';
 
 if (!@ARGV || grep /^--help$/, @ARGV) {
     die "Usage: $0 [--run] [--pugs|--haskell|--parrot] [ source[.p6] | -e oneliner ]\n";
@@ -89,7 +90,7 @@ else {
     }
 
     push @ghc_flags, "$core/pcre/pcre.o";
-    push @ghc_flags, "$core/syck/syck.o";
+    push @ghc_flags, bsd_glob("$core/syck/*.o");
     push @ghc_flags, "$core/UnicodeC.o";
 
     my $rv = system(
