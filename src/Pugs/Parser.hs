@@ -395,8 +395,25 @@ ruleParamDefault False = rule "default value" $ option (Val VUndef) $ do
 ruleMemberDeclaration :: RuleParser Exp
 ruleMemberDeclaration = do
     symbol "has"
-    parseVarName
-    return Noop
+    attr <- parseVarName
+    case attr of
+        (sigil:'.':key) -> do
+            -- manufacture an accessor - currently just read-only
+            env <- getState
+            let sub = mkPrim
+                    { isMulti       = False
+                    , subName       = name
+                    , subPad        = mkPad [] -- XXX really?
+                    , subReturns    = typeOfSigil sigil
+                    , subBody       = fun
+                    , subParams     = [selfParam $ envPackage env]
+                    }
+                exp = Syn ":=" [Var name, Syn "sub" [Val $ VCode sub]] -- , bodyPos)
+                name = '&':(envPackage env ++ "::" ++ key)
+                fun = Cxt (cxtOfSigil sigil) (Syn "{}" [Var "$?SELF", Val (VStr key)])
+            unsafeEvalExp (Sym SGlobal name exp)
+            return emptyExp
+        _ -> return emptyExp
 
 ruleVarDeclaration :: RuleParser Exp
 ruleVarDeclaration = rule "variable declaration" $ do
@@ -956,7 +973,9 @@ parseTerm = rule "term" $ do
 ruleTypeLiteral :: RuleParser Exp
 ruleTypeLiteral = rule "type" $ do
     env     <- getState
-    name    <- choice [ symbol name | (MkType name) <- flatten (envClasses env) ]
+    name    <- tryChoice [
+        do { symbol n; notFollowedBy (alphaNum <|> char ':'); return n }
+        | (MkType n) <- flatten (envClasses env) ]
     return . Val . VType $ mkType name
 
 rulePostTerm :: RuleParser (Exp -> Exp)
