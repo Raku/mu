@@ -597,8 +597,8 @@ op2 "split"= \x y -> do
     str <- fromVal y
     case val of
         VRule rx -> do
-            chunks <- rxSplit rx (encodeUTF8 str)
-            return $ VList $ map (VStr . decodeUTF8) chunks
+            chunks <- rxSplit rx str
+            return . VList $ map VStr chunks
         _ -> do
             delim <- fromVal val
             return $ split' delim str

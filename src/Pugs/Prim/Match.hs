@@ -42,20 +42,27 @@ doMatch cs MkRulePGE{ rxRule = re } = do
             liftIO $ putStrLn ("*** Cannot parse PGE: " ++ re ++ "\n*** Error: " ++ pge)
             return mkMatchFail
 
-doMatch cs MkRulePCRE{ rxRegex = re } = do
-    rv <- liftIO $ PCRE.execute re csUTF8 0
+doMatch csChars MkRulePCRE{ rxRegex = re } = do
+    rv <- liftIO $ PCRE.execute re csBytes 0
     if isNothing rv then return mkMatchFail else do
     let ((fromBytes, lenBytes):subs) = Array.elems (fromJust rv)
-        substr from len = genericTake len (genericDrop from cs) -- in bytes
-        subsMatch = [ VMatch $ mkMatchOk f (f + t) (substr f t) [] Map.empty | (f, t) <- subs ]
+        substr str from len = genericTake len (genericDrop from str)
+        subsMatch = [
+            VMatch $ mkMatchOk
+                fChars (fChars + lChars)
+                (substr csChars fChars lChars)
+                [] Map.empty
+            | (fBytes, lBytes) <- subs
+            , let fChars = chars $ genericTake fBytes csBytes
+            , let lChars = chars $ substr csBytes fBytes lBytes
+            ]
+        fromChars = chars $ genericTake fromBytes csBytes
+        lenChars  = chars $ substr csBytes fromBytes lenBytes
+        chars = genericLength . decodeUTF8
 
-        leftmatch = decodeUTF8 $ genericTake fromBytes csUTF8
-        fromChars = genericLength leftmatch
-        lenChars  = genericLength $ decodeUTF8 $ (substr fromBytes lenBytes)
-
-    return $ mkMatchOk fromChars (fromChars + lenChars) (substr fromBytes lenBytes) subsMatch Map.empty
+    return $ mkMatchOk fromChars (fromChars + lenChars) (substr csChars fromChars lenChars) subsMatch Map.empty
     where
-    csUTF8 = encodeUTF8 cs
+    csBytes = encodeUTF8 csChars
 
 matchFromMR mr = VMatch $ mkMatchOk 0 0 (decodeUTF8 all) subsMatch Map.empty
     where
