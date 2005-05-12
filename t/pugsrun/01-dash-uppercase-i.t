@@ -64,13 +64,13 @@ for @tests -> $t {
   # (currently, this should work for WinNT and Unix shells)
   $command = join " ", map { qq("-I$_") } @dirs;
   my $got = run_pugs( $command ~ " $fragment" );
+  chomp $got;
 
-  if (substr($got,0,1) ~~ "\\") {
+  if (substr($got,0,1) ~~ "[") {
     # Convert from arrayref to array
-    $got = substr($got, 1);
+    $got = substr($got, 1, -1);
   };
 
-  chomp $got;
   my @got = eval $got;
   @got = @got[ 0..@dirs-1 ];
   my @expected = @dirs;
@@ -80,11 +80,11 @@ for @tests -> $t {
   $command = join " ", map { qq(-I "$_") } @dirs;
   $got = run_pugs( $command ~ " $fragment" );
   
-  if (substr($got,0,1) ~~ "\\") {
-    # Convert from arrayref to array
-    $got = substr($got, 1);
-  };
   chomp $got;
+  if (substr($got,0,1) ~~ "[") {
+    # Convert from arrayref to array
+    $got = substr($got, 1, -1);
+  };
   
   my @got = eval $got;
   @got = @got[ 0..@dirs-1 ];
