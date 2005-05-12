@@ -817,11 +817,15 @@ chainFun _ _ _ _ _ = internalError "chainFun: Not enough parameters in Val list"
 applyExp :: [ApplyArg] -> Exp -> Eval Val
 applyExp bound (Prim f) =
     f [ argValue arg | arg <- bound, (argName arg !! 1) /= '_' ]
-applyExp bound body = do
+applyExp [] body = evalExp body
+applyExp bound@(arg:_) body = do
+    -- introduce $?SELF and $_ as the first invocant.
+    inv <- invocant
     pad <- formal
-    enterLex pad $ evalExp body
+    enterLex (inv ++ pad) $ evalExp body
     where
     formal = mapM argNameValue $ filter (not . null . argName) bound
+    invocant = mapM (`genSym` (vCast $ argValue arg)) $ words "$?SELF $_"
     argNameValue (ApplyArg name val _) = genSym name (vCast val)
 
 -- |Apply a sub (or other code) to lists of invocants and arguments.
