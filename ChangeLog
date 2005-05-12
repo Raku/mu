@@ -17,7 +17,7 @@
 ** Accessors generated for public attributes
 ** Identity operator: `=:=`
 ** Method chaining: `$foo.bar().baz()`
-** Method invocants `foo ($self: $x)` and topicalized invocants in `$_` 
+** Method invocant: `method foo ($self: $x)` and topicalized as `$_` 
 ** Public and private attributes, as well as `has $.attr is rw`
 ** `$obj ~~ Class` support
 ** `$obj.clone()` support
@@ -48,7 +48,7 @@
 * `Perl::MetaModel`, prototype of Perl 6 OO meta-model in Perl 6
 * `Pod::Stream::Parser` renamed to `Pod::Event::Parser` and added more functionality
 * `Set`, with Perl 6 objects
-* `Test::Builder`, with Perl 6 objects (parses, but does not working yet)
+* `Test::Builder`, with Perl 6 objects (parses, but does not work yet)
 * `Tree::Simple`, with closure objects
 
 === Tests, Examples and Documentations
