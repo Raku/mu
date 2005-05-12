@@ -9,7 +9,7 @@ tests for "reverse"
 
 =cut
 
-plan 30;
+plan 29;
 
 my @a = reverse(1, 2, 3, 4);
 my @e = (4, 3, 2, 1);
@@ -37,9 +37,9 @@ is(@a[1], "foo", 'the list was reversed properly');
     my @b = @a.reverse;
     isa_ok(@b, 'Array');
     my $b = @a.reverse;
-    isa_ok($b, 'List');
+    isa_ok($b, 'Str');
     is(@b[0], "foo", 'our list is reversed properly'); 
-    is($b[0], "foo", 'but our list reference was not');
+    is($b, "oof", 'in scalar context it is a string');
     is(@a[0], "foo", "original array left untouched");
     @a.=reverse;
     is(@a[0], "foo", 'in place reversal works');
@@ -50,12 +50,11 @@ is(@a[1], "foo", 'the list was reversed properly');
     my @b = @a.reverse;
     isa_ok(@b, 'Array');
     my $b = @a.reverse;
-    isa_ok($b, 'List');
+    isa_ok($b, 'Str');
     is(@b[0], "bar", 'our array is reversed');
     is(@b[1], "foo", 'our array is reversed');
     
-    is($b[0], "bar", 'our array-ref is reversed');
-    is($b[1], "foo", 'our array-ref is reversed');
+    is($b, "rab oof", 'in scalar context it is a string');
     
     is(@a[0], "foo", "original array left untouched");
     is(@a[1], "bar", "original array left untouched");
