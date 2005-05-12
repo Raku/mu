@@ -63,19 +63,18 @@
 
 === Bug Fixes
 
-* Logical short-circuiting operators no longer flattens references.
-* Prohibit Array and Hash dereference on plain values.
+* Logical short-circuiting operators no longer flattens references
+* Prohibit Array and Hash dereference on plain values
 * Slurpy context no longer flattens
-* Stringify IO handles is no longer fatal
+* Stringifying IO handles is no longer fatal
 * `$*PID` now works on Win32
 * `%*ENV` now completely works on Win32
-* `(a => 3+4)` is now parsed as `(a => (3+4))`, not `(a => 3)+4`.
-* `any().pick` no longer dies.
-* `my @x = [1]; @x[0][0] = 2` should now work.
+* `(a => 3+4)` is now parsed as `(a => (3+4))`, not `(a => 3)+4`
+* `any().pick` no longer dies
+* `my @x = [1]; @x[0][0] = 2` should now work
 * `next` in nested `for {}` blocks no longer escapes the outer loop
-* `to => 123` parses again; arrow pairs now always trumps unary functions.
+* `to => 123` parses again; arrow pairs now always trumps unary functions
 * `{}` in P5 rules is no longer closure interpolation
-* rw! is no longer neccessary around IO prototypes.
 
 == Changes for 6.2.2 - May 1, 2005
 
