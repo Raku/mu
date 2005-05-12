@@ -27,7 +27,7 @@ sub get_committer_list (Str $dict_file) returns List {
     for (=$dict) -> $name {
         # Capture the real name part
         if ($name ~~ rx:perl5/^(.+?)(?:\s\s|$)/) {
-            my $realname = $1;
+            my $realname = $0;
             # Remove nickname
             $realname ~~ s:perl5/\s*".*"\s*/ /;
             @committers.push($realname);
