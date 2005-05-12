@@ -35,7 +35,7 @@ is($foo.num(), 20, '... got the right num value');
 
 my $_foo2 = $foo.baz(20);
 isa_ok($_foo2, 'Foo');
-ok($foo =:= $_foo2 =:= $_foo1, '... $_foo1, $_foo2 and $foo are the same instances', :todo<feature>);
+ok($foo =:= $_foo2 =:= $_foo1, '... $_foo1, $_foo2 and $foo are the same instances');
 
 is($foo.num(), 40, '... got the right num value');
 
@@ -44,9 +44,9 @@ is($foo.num(), 40, '... got the right num value');
 my $_foo3;
 lives_ok {
     $_foo3 = $foo.bar(10).baz(5);
-}, '... method chainging works';
+}, '... method chaining works';
 
 isa_ok($_foo3, 'Foo');
-ok($_foo3 =:= $_foo2 =:= $_foo1 =:= $foo, '... $_foo3, $_foo1, $_foo2 and $foo are the same instances', :todo<feature>);
+ok($_foo3 =:= $_foo2 =:= $_foo1 =:= $foo, '... $_foo3, $_foo1, $_foo2 and $foo are the same instances');
 
 is($foo.num(), 15, '... got the right num value');
