@@ -356,6 +356,7 @@ valToStr :: Val -> Eval VStr
 valToStr = fromVal
 
 instance Value VList where
+    fromVal (VList vs) = return vs
     fromVal (VRef r) = do
         v <- readRef r
         case v of
@@ -1014,7 +1015,7 @@ writeRef (MkRef (IScalar s)) (VList vals) = do
     av <- newArray vals
     scalar_store s (VRef $ MkRef av)
 writeRef (MkRef (IScalar s)) val = scalar_store s val
-writeRef (MkRef (IArray s)) val  = array_store s =<< fromVals val
+writeRef (MkRef (IArray s)) val  = array_store s =<< fromVal val
 writeRef (MkRef (IHash s)) val   = hash_store s =<< fromVal val
 writeRef (MkRef (ICode s)) val   = code_store s =<< fromVal val
 writeRef (MkRef (IPair s)) val   = pair_storeVal s val
