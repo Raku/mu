@@ -34,10 +34,6 @@ ok(eval 'twice(5 - 3) == 4');
 
 my $_;
 
-sub callerunderscore {
-    return "wrong one, needed to avoid errors"
-}
-
 sub callerunderscore (?$foo = $CALLER::_) {
     return "-" ~ $foo ~ "-"
 }
