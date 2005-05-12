@@ -10,7 +10,7 @@ sub set (*@contents) returns Set is export {
 }
 
 # the Set is represented as a hash of (v => v)
-has Hash %:members;
+has %:members;
 
 method members() returns List {
     %:members.values;
