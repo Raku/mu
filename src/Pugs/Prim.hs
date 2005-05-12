@@ -938,10 +938,10 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Num       spre    -       (Num)\
 \\n   Str       spre    ~       (Str)\
 \\n   Bool      spre    ?       (Bool)\
-\\n   Str       spre    =       (?rw!IO)\
-\\n   List      spre    =       (?rw!IO)\
-\\n   Str       pre     readline (?rw!IO)\
-\\n   List      pre     readline (?rw!IO)\
+\\n   Str       spre    =       (?IO)\
+\\n   List      spre    =       (?IO)\
+\\n   Str       pre     readline (?IO)\
+\\n   List      pre     readline (?IO)\
 \\n   Int       pre     int     (?Int=$_)\
 \\n   List      pre     list    (List)\
 \\n   Hash      pre     hash    (List)\
@@ -1027,13 +1027,13 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Str       pre     want    ()\
 \\n   Str       pre     File::Spec::cwd  ()\
 \\n   Str       pre     File::Spec::tmpdir  ()\
-\\n   Bool      pre     print   (rw!IO)\
-\\n   Bool      pre     print   (rw!IO: List)\
+\\n   Bool      pre     print   (IO)\
+\\n   Bool      pre     print   (IO: List)\
 \\n   Bool      pre     print   ()\
 \\n   Bool      pre     print   (List)\
 \\n   Str       pre     sprintf (Str, List)\
-\\n   Bool      pre     say     (rw!IO)\
-\\n   Bool      pre     say     (rw!IO: List)\
+\\n   Bool      pre     say     (IO)\
+\\n   Bool      pre     say     (IO: List)\
 \\n   Bool      pre     say     ()\
 \\n   Bool      pre     say     (List)\
 \\n   Bool      pre     close   (IO)\
