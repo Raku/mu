@@ -45,7 +45,7 @@ while ($ligne = readline($hdl))
 
         when rx:perl5/$nick/ 
           && rx:perl5/^\:(.*?)\!.*?\sPRIVMSG $chan/ {
-            my $writer = $1;
+            my $writer = $0;
             given $ligne {   
                 when rx:perl5/\b(?i:hello|hi)\b/ {
                     $hdl.say("PRIVMSG $chan :Hello $writer from a perl 6 irc bot\n");

@@ -45,7 +45,7 @@ $revwords = join " ", reverse split " ", $string;
 $revwords = $string.split(" ").reverse.join(" ");
 
 # to do the same, preserving whitespace
-$revwords = join $1, reverse split /(\s+)/, $string;
+$revwords = join $0, reverse split /(\s+)/, $string;
 
 # test if a word is a palindrome
 $word = "reviver";

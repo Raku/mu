@@ -110,7 +110,7 @@ the original examples for the moment --gcomnz
 	# emulate a   s l o w   line printer
 	# usage: slowcat [-DELAY] [files ...]
 	#
-	my $DELAY = (@*ARGS[0] =~ m/^-([.\d]+)/) ?? (shift @*ARGS, $1) :: 1;
+	my $DELAY = (@*ARGS[0] =~ m/^-([.\d]+)/) ?? (shift @*ARGS, $0) :: 1;
 	
 	# output buffer modification is probably becoming a $* variable 
 	# or a trait on $*OUT, but i can't find a doc for it --gcomnz

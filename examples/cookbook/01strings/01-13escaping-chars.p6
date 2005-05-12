@@ -22,10 +22,10 @@ Placeholder binding		For SQL quoting
 system/exec calls		For shell quoting
 
 	# backslash escaping
-	$var ~~ s:g/(<[CHARLIST]>)/\\$1/;
+	$var ~~ s:g/(<[CHARLIST]>)/\\$0/;
 
 	# double-character escaping
-	$var ~~ s:g/(<[CHARLIST]>)/$1$1/;
+	$var ~~ s:g/(<[CHARLIST]>)/$0$0/;
 
 XXX Oh, (<[]>) is just horrible!
 	-- not sure what you're suggesting here? ~gcomnz
@@ -50,7 +50,7 @@ shell usage. People might get the impression that quote escaping is enough.
 Escaping for VMS DCL:
 
 	$string = q(Mom said, "Don't do that.");
-	$string ~~ s:g/(<['"]>)/$1$1/g;
+	$string ~~ s:g/(<['"]>)/$0$0/g;
 XXX I don't get at all why this example is included, seems very
 	obscure ~gcomnz
 
@@ -58,7 +58,7 @@ Escape anything besides A-Z:
 
 	# TODO: Keep up to date with moving target of range and 
 	# negative matching
-	$string ~~ s:g/(<-[A..Z]>)/\\$1/;
+	$string ~~ s:g/(<-[A..Z]>)/\\$0/;
 
 You can escape all non-word metacharacters using the quotemeta function:
 

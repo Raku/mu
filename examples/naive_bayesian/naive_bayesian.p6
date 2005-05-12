@@ -30,7 +30,7 @@ sub parse_file (Str $file) returns Hash {
     for (=$fh) -> $_line {
         my $line = $_line;       
         while ($line ~~ s:perl5/(\w+)[ \t\n\r]//) {
-            %words_in_file{lc($1)}++;
+            %words_in_file{lc($0)}++;
         }
     }
     $fh.close;
@@ -50,7 +50,7 @@ sub classify (%words_in_file) returns Void {
     
     for (%words.kv) -> $key, $value {
         $key ~~ rx:perl5/^(.+)-(.+)$/;
-        %count{$1} += $value;
+        %count{$0} += $value;
         $total     += $value;
     }
 

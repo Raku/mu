@@ -11,7 +11,7 @@ $hdl.say(
 $hdl.flush;
 
 if ($hdl.slurp ~~ rx:perl5{<description>(.+)</description>\s*</item>}) {
-    say $1;
+    say $0;
 }
 else {
     say "*** Oops, connection failed."

@@ -37,7 +37,7 @@ sub parse_file {
     open FILE, "<$file" || die "Cannot open the '$file' file : $!";
     while (my $line = <FILE>) {
         while ($line =~ s/(\w+)[ \t\n\r]//) {
-            $word_counts{lc($1)}++;
+            $word_counts{lc($0)}++;
         }
     }
     close FILE;
@@ -58,7 +58,7 @@ sub classify {
     my $total = 0;
     foreach my $entry (keys %words) {
         $entry =~ /^(.+)-(.+)$/;
-        $count{$1} += $words{$entry};
+        $count{$0} += $words{$entry};
         $total += $words{$entry};
     }
     
