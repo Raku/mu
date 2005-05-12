@@ -217,29 +217,29 @@ ruleDeclaration = rule "declaration" $ choice
 
 ruleSubHead :: RuleParser (Bool, Bool, String)
 ruleSubHead = rule "subroutine head" $ do
-    multi   <- option False $ do { symbol "multi" ; return True }
-    method  <- do { symbol "sub"; return False } <|> do { symbol "method"; return True }
+    isMulti   <- option False $ do { symbol "multi" ; return True }
+    isMethod  <- do { symbol "sub"; return False } <|> do { symbol "method"; return True }
     name    <- ruleSubName
-    return (multi, method, name)
+    return (isMulti, isMethod, name)
 
--- | Scope, context, multi, name
+-- | Scope, context, isMulti, isMethod, name
 ruleSubScopedWithContext :: RuleParser (Scope, String, Bool, Bool, String)
 ruleSubScopedWithContext = rule "scoped subroutine with context" $ do
     scope   <- ruleScope
     cxt     <- identifier
-    (multi, method, name) <- ruleSubHead
-    return (scope, cxt, multi, method, name)
+    (isMulti, isMethod, name) <- ruleSubHead
+    return (scope, cxt, isMulti, isMethod, name)
 
 ruleSubScoped :: RuleParser (Scope, String, Bool, Bool, String)
 ruleSubScoped = rule "scoped subroutine" $ do
     scope <- ruleScope
-    (multi, method, name) <- ruleSubHead
-    return (scope, "Any", multi, method, name)
+    (isMulti, isMethod, name) <- ruleSubHead
+    return (scope, "Any", isMulti, isMethod, name)
 
 ruleSubGlobal :: RuleParser (Scope, String, Bool, Bool, String)
 ruleSubGlobal = rule "global subroutine" $ do
-    (multi, method, name) <- ruleSubHead
-    return (SGlobal, "Any", multi, method, name)
+    (isMulti, isMethod, name) <- ruleSubHead
+    return (SGlobal, "Any", isMulti, isMethod, name)
 
 
 doExtract :: Maybe [Param] -> Exp -> (Exp, [String], [Param])
@@ -281,7 +281,7 @@ ruleClassDeclaration = rule "class declaration" $ try $ do
 ruleSubDeclaration :: RuleParser Exp
 ruleSubDeclaration = rule "subroutine declaration" $ do
     -- namePos <- getPosition
-    (scope, typ, multi, method, name) <- tryChoice
+    (scope, typ, isMulti, isMethod, name) <- tryChoice
         [ ruleSubScopedWithContext
         , ruleSubScoped
         , ruleSubGlobal
@@ -297,18 +297,22 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
         fail "Cannot mix placeholder variables with formal parameters"
     env <- getState
     let subExp = Val . VCode $ MkCode
-            { isMulti       = multi
+            { isMulti       = isMulti
             , subName       = name'
             , subPad        = envLexical env
             , subType       = SubRoutine
             , subAssoc      = "pre"
             , subReturns    = mkType typ'
-            , subParams     = (if method then [selfParam $ envPackage env] else []) ++ params
+            , subParams     = self ++ params
             , subBindings   = []
             , subSlurpLimit = []
             , subBody       = fun
             }
-        name' = if method then "&" ++ envPackage env ++ "::" ++ tail name else name
+        name' = if isMethod then "&" ++ envPackage env ++ "::" ++ tail name else name
+        self :: [Param]
+        self | not isMethod = []
+             | (prm:_) <- params, isInvocant prm = []
+             | otherwise = [selfParam $ envPackage env]
         -- decl = Sym scope name -- , namePos)
         exp  = Syn ":=" [Var name', Syn "sub" [subExp]] -- , bodyPos)
     -- XXX: user-defined infix operator
