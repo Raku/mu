@@ -455,7 +455,7 @@ reduce exp@(Syn name exps) = case name of
         vals    <- fromVals val
         retVal $ VList $ concat vals
     "," -> do
-        vals <- mapM evalExp exps
+        vals <- mapM (enterEvalContext cxtSlurpyAny) exps
         liftIO $ print vals
         -- in slurpy context, flatten each arguments
         ifListContext
