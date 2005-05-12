@@ -37,7 +37,7 @@ evalPGE :: FilePath -> String -> String -> [(String, String)] -> IO String
 evalPGE path str pattern subrules = do
     cmd <- findParrot
     (_, out, err, pid) <- runInteractiveProcess cmd
-        (["run_pge.pbc", str, pattern] ++ concatMap (\(n, r) -> [n, r]) subrules)
+        (["run_pge.pir", str, pattern] ++ concatMap (\(n, r) -> [n, r]) subrules)
         (Just path) Nothing 
     rv      <- waitForProcess pid
     errMsg  <- hGetContents err
@@ -66,6 +66,7 @@ import Foreign.C.Types
 import Foreign.C.String
 import Foreign.Storable
 import System.IO.Unsafe
+import System.Directory
 
 type ParrotString               = Ptr ()
 type ParrotInterp               = Ptr (Ptr ())
@@ -114,9 +115,10 @@ loadPGE interp path = do
     sym     <- withCString "add_rule" $ const_string interp
     add     <- parrot_find_global interp ns sym
     if match /= nullPtr then return (match, add) else do
-    pf      <- withCString (path ++ "/PGE-Hs.pbc") $ parrot_readbc interp
-    parrot_loadbc interp pf
-    parrot_runcode interp 0 nullPtr
+    cwd     <- getCurrentDirectory
+    setCurrentDirectory path
+    evalParrot ".sub main\nload_bytecode 'PGE/Hs.pir'\n.end\n"
+    setCurrentDirectory cwd
     loadPGE interp path
 
 evalPGE :: FilePath -> String -> String -> [(String, String)] -> IO String

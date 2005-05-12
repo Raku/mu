@@ -344,11 +344,6 @@ selfParam typ = MkParam
     , paramDefault  = Noop
     }
 
-ruleQualifiedIdentifier :: RuleParser String
-ruleQualifiedIdentifier = rule "qualified identifier" $ do
-    chunks  <- verbatimIdentifier `sepBy1` (try $ string "::")
-    return $ concat (intersperse "::" chunks)
-
 ruleSubName :: RuleParser String
 ruleSubName = verbatimRule "subroutine name" $ do
     star    <- option "" $ string "*"
