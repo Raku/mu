@@ -56,7 +56,7 @@ my @re;
 #    )> ] $ 
 #};
 
-say @re.perl;
+$re = join('|', @re);
 
 =foo
 
