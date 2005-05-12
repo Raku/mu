@@ -20,7 +20,7 @@ class Person {
     has %.weapons  is rw;
             
     method where () {
-        return "You are currently in the " ~ $.location
+        return "You are currently in the $.location";
     };
 
     method battle_choice (Monster $enemy) {
@@ -33,19 +33,20 @@ class Person {
                 say "\t$key-attack with $wep.name()"
             }
             say "\tf-flee in terror!";
-            $choice = prompt("Your choice? ");
-            given $choice {
+            given prompt("Your choice?") {
                 when 'f' {
                     say "You ran away from the $enemy.name()!"
                 }
                 if ($.weapons.exists($_)) {
-                    .attack($enemy, $.weapons{$choice});
+                    .attack($enemy, $.weapons{$_});
                 }
                 else {
                     say "Please enter a valid command!"
                 }
             }
         }
+
+        say "Ths $enemy.name()", " is dead!"
     }
       
     method attack ($enemy, $weapon) {
@@ -60,9 +61,9 @@ class Monster {
     has $.gold is rw;
     has $.life is rw;
 
-    method hit  ($power) { $.life -= $power; };
-    method dead ()       { $.life > 0 ?? 0 :: 1 };
-    method attack  ()    { int rand $.life };
+    method hit  ($power) { $.life -= $power; }
+    method dead ()       { $.life <= 0 }
+    method attack  ()    { int rand $.life }
 }
 
 my $person = Person.new(:life(100), :attack(1), :spell(2));
@@ -72,7 +73,7 @@ $person.weapons<s> = Weapon.new(:name<spell>, :power(2) );
 my $enemy  = Monster.new(:name("Army of frogs"), :gold(int rand 100), :life(50) );
 
 $person.location = "Lobby";
-$person.name = 'x'; # prompt("What is your name: ");
-say "Hello " ~ $person.name;
+$person.name = prompt("What is your name: ");
+say "Hello $person.name()";
 say $person.where;
 $person.battle_choice($enemy);
