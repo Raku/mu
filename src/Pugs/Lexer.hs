@@ -252,19 +252,19 @@ postSpace rule = try $ do
     return rv
 
 ruleTrait :: GenParser Char st String
-ruleTrait = do
+ruleTrait = rule "trait" $ do
     symbol "is" <|> symbol "does"
     trait <- ruleQualifiedIdentifier
     return trait
 
 ruleTraitName :: String -> GenParser Char st String
-ruleTraitName trait = do
+ruleTraitName trait = rule "named trait" $ do
     symbol "is"
     symbol trait
     identifier
 
 ruleBareTrait :: String -> GenParser Char st String
-ruleBareTrait trait = do
+ruleBareTrait trait = rule "bare trait" $ do
     choice [ ruleTraitName trait
            , do { symbol trait ; identifier }
            ]
