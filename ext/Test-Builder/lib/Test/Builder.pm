@@ -11,17 +11,21 @@ has                         @:results;
 
 method new ( Test::Builder ::Class: *@args )
 {
-    return $:singleton //= Class.create( @args );
+    return $:singleton //= Class.SUPER::new( @args );
 }
 
 method create ( Test::Builder ::Class: *@args )
 {
-    return Class.BUILD( @args );
+    return Class.SUPER::new( @args );
 }
 
-submethod BUILD ( Test::Builder::Output ?$.output, ?$TestPlan )
+submethod BUILD
+(
+    Test::Builder::Output   ?$.output,
+    Test::Builder::TestPlan ?$plan
+)
 {
-    $.plan     = $TestPlan if $TestPlan;
+    $.plan     = $plan if $plan;
     $.output //= Test::Builder::Output.new();
 }
 
@@ -102,6 +106,8 @@ method BAILOUT ( Str ?$reason = '' )
 
 method report_test ( Test::Builder::Test $test )
 {
+	fail 'No plan set!' unless $.plan;
+
     push $.results, $test;
     $.output.write( $test.report() );
 }
@@ -118,7 +124,7 @@ Test::Builder - Backend for building test libraries
 
 =head1 DESCRIPTION
 
-This is a perl6 port of the perl5 module Test::Builder.
+This is a Perl 6 port of the Perl 5 module Test::Builder.
 
 =head1 PUBLIC ATTRIBUTES
 
@@ -134,38 +140,79 @@ This is a perl6 port of the perl5 module Test::Builder.
 
 =over 4
 
-=item B<new (*@args)>
+=item B<new( *@args )>
 
-This method actually creates the Test::Builder singleton.
+This method actually returns a Test::Builder singleton, creating it if
+necessary.  The optional named arguments are:
 
-=item B<create (*@args)>
+=over 4
 
-This method actually creates the singleton instance. 
+=item C<output>
 
-=item B<plan ( Str ?$explanation, Int ?$tests )>
+A Test::Builder::Output object.
+
+=item C<plan>
+
+A Test::Builder::TestPlan object.
+
+=back
+
+=item B<create( *@args )>
+
+This method actually creates and returns a new Test::Builder instance.  It
+takes the same optional named arguments as C<new>.
+
+=item B<plan( Str ?$explanation, Int ?$tests )>
+
+Sets the current test plan or throws an exception if there's already a plan in
+place.  You have two options for the plan.  If you pass a pair such as C<tests
+=Egt 10>, the plan is to run ten tests.  If you pass the string C<no_plan>,
+there is no set number of tests to run.
+
+Those are the only valid arguments.
+
+You must have a plan set before you can record any tests.
 
 =item B<ok returns Bit ( Bit $passed, Str ?$description = '' )>
 
+Records that a test has passed or failed, depending on the value of C<$passed>,
+recording C<$description> as an optional explanation.
+
 =item B<todo returns Bit ( Bit $passed, Str ?$description, Str ?$reason )>
 
-=item B<skip ( Int ?$num = 1, Str ?$reason = 'skipped' )>
+Records that a test has passed or failed, depending on C<$passed> with an
+optional C<$description>, but marks it as a TODO test with an optional
+C<$reason>.
 
-=item B<skip_all>
+=item B<skip( Int ?$num = 1, Str ?$reason = 'skipped' )>
 
-=item B<BAILOUT ( Str $reason = '' )>
+Records the skipping of C<$num> tests (one by default), giving an optional
+C<$reason> for skipping them.
 
-=item B<report_test ( Test::Builder::Test $test )>
+=item B<skip_all()>
+
+Skips all of the tests before running them.
+
+Fails if there is a test plan set.
+
+=item B<BAILOUT( Str $reason = '' )>
+
+Aborts the entire test run.
+
+=item B<report_test( Test::Builder::Test $test )>
+
+Records a test.  Internal use only, probably.
 
 =back
 
 =head1 SEE ALSO
 
-Perl5 Test::Builder
+Perl 5 Test::Builder.
 
 =head1 AUTHORS
 
 code by chromatic E<lt>chromatic@wgz.orgE<gt>
 
-documentation by Stevan Little E<lt>stevan@iinteractive.comE<gt>
+documentation by Stevan Little E<lt>stevan@iinteractive.comE<gt> and chromatic.
 
 =cut

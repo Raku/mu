@@ -46,16 +46,18 @@ Test::Builder::TestPlan
 =head1 DESCRIPTION
 
 This file contains both the Test::Builder::TestPlan object and 
-a subclass of it, Test::Builder::NullPlan. 
+a subclass, Test::Builder::NullPlan. 
 
 Test::Builder::NullPlan is roughly equivalent to C<plan('no_plan')>
-in the perl5 Test::Builder.
+in the Perl 5 Test::Builder.
 
 =head1 PUBLIC ATTRIBUTES
 
 =over 4
 
 =item B<Int $.expect>
+
+The number of tests expected to run.
 
 =back
 
@@ -65,18 +67,22 @@ in the perl5 Test::Builder.
 
 =item B<header returns Str>
 
+Returns a string containing the TAP header for this plan.
+
 =item B<footer returns Str (Int $run)>
+
+Returns a string containing the TAP footer for this plan.
 
 =back
 
 =head1 SEE ALSO
 
-Perl5 Test::Builder
+Perl 5 Test::Builder and Test::Harness::TAP.
 
 =head1 AUTHORS
 
 code by chromatic E<lt>chromatic@wgz.orgE<gt>
 
-documentation by Stevan Little E<lt>stevan@iinteractive.comE<gt>
+documentation by Stevan Little E<lt>stevan@iinteractive.comE<gt> and chromatic.
 
 =cut

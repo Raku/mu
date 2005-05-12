@@ -10,19 +10,19 @@ class Test::Builder::Test-0.0.1
     )
     {
         return Test::Builder::Test::TODO.new(
-            description => $description, reason => $reason, passed => $passed
+            description => $description, passed => $passed, reason => $reason
         ) if $todo;
 
         return Test::Builder::Test::Skip.new(
-            description => $description, reason => $reason, passed => 1
+            description => $description, passed =>       1, reason => $reason
         ) if $skip;
 
         return Test::Builder::Test::Pass.new(
-            description => $description, passed => 1
-        ) if $passed;
+            description => $description, passed =>       1,
+		) if $passed;
 
         return Test::Builder::Test::Fail.new(
-            description => $description, passed => 0
+            description => $description, passed =>       0,
         );
     }
 }
@@ -133,8 +133,8 @@ classes which C<does> the Test::Builder::Test::Base role.
 
 =item B<new>
 
-This method is actually a Factory method to create a specific 
-class instances which C<does> the Test::Builder::Test::Base role.
+This is a Factory method used to create a specific class instances which
+perform the Test::Builder::Test::Base role.
 
 =over 4
 
@@ -148,31 +148,30 @@ This parameter defaults to true, and so the factory returns a
 Test::Builder::Test::Pass instance, passing on the C<$description> 
 parameter, and setting the passed parameter to a true value. 
 
-If this parameter is set to false the factory will return a 
-Test::Builder::Test::Fail instance, passing on the C<$description>
-parameter, and setting the passed parameter to a false value. 
+If this parameter is false, the factory returns a Test::Builder::Test::Fail
+instance, passing on the C<$description> parameter and setting the passed
+parameter to a false value. 
 
 =item C<?$skip = 0>
 
-This parameter defaults to false, but if it is true, the factory returns
-a Test::Builder::Test::Skip instance, passing on the C<$description>, 
-and C<$reason> parameters and a true value for the passed parameter.
+This parameter defaults to false. If it is true, the factory returns a
+Test::Builder::Test::Skip instance, passing on the C<$description> and
+C<$reason> parameters and a true value for the passed parameter.
 
 =item C<?$todo = 0>
 
-This parameter defaults to false, but if it is true, the factory returns
+This parameter defaults to false.  If it is true, the factory returns
 a Test::Builder::Test::TODO instance, passing on the C<$description>, 
-C<$reason> and C<$passed> parameters. 
+C<$reason>, and C<$passed> parameters. 
 
 =item C<?$reason = ''> 
 
-This parameter is only used for the Skip and TODO tests, and should contain
-a string describing why the test was skipped or is still TODO.
+This parameter is for the skip and TODO tests and should contain
+a string describing why the test is a skip or TODO test.
 
 =item C<?$description = ''>
 
-This parameter is passed to all the classes, and contains a description of
-the test itself.
+This parameter and contains the test description.
 
 =back
 
@@ -184,42 +183,51 @@ the test itself.
 
 =item B<Test::Builder::Test::Base>
 
-This role contains a number of public attributes all of which can be 
-set using named parameters in the constructor.
+This role contains several public attributes.
 
 =over 4
 
 =item B<Bool $.passed>
 
+Whether the test passed.
+
 =item B<Int $.number>
 
-=item B<Str $.diagnostic>
+The number of the test in the current test file.
 
 =item B<Str $.description>
 
+The test's description (optional).
+
+=item B<Str $.diagnostic>
+
+The test's diagnostic message (optional).
+
 =back 
 
-This role contains two methods
+This role contains two methods:
 
 =over 4
 
 =item B<status returns Hash>
 
-This returns a hash containing two keys C<passed> and C<description>.
+This returns a hash containing two keys, C<passed> and C<description>, from the
+test's attributes.
 
 =item B<report returns Str>
 
-This returns a string which follows the TAP protocol.
+This returns a string which follows the TAP protocol:
 
   ok 1 - test description
   not ok 2 - test description
+  # test diagnoistic
 
 =back
 
 =item B<Test::Builder::Test::WithReason>
 
-This role actually extends the Test::Builder::Test::Base role. It adds a 
-simple public attribute.
+This role extends the Test::Builder::Test::Base role to add a simple public
+attribute.
 
 =over 4
 
@@ -227,14 +235,14 @@ simple public attribute.
 
 =back
 
-And overrides a single method
+It also overrides a single method:
 
 =over 4
 
 =item B<status returns Hash>
 
-This method actually just calls the superclass C<status> method and adds
-a C<skip> and C<reason> attribute to the hash before returning it.
+This method calls the superclass C<status> method and adds the values of the
+test's C<skip> and C<reason> attributes to the hash before returning it.
 
 =back
 
@@ -244,15 +252,14 @@ a C<skip> and C<reason> attribute to the hash before returning it.
 
 =over 4
 
-These first two classes do nothing more than C<does> the 
-Test::Builder::Test::Base role.
+These first two classes perform the Test::Builder::Test::Base role.
 
 =item B<Test::Builder::Test::Pass>
 
 =item B<Test::Builder::Test::Fail>
 
-These next two classes both C<does> the Test::Builder::Test::WithReason
-role, but they also override some methods to provide specific functionality.
+These next two classes both perform the Test::Builder::Test::WithReason role
+and override some methods to provide additional features.
 
 =item B<Test::Builder::Test::TODO>
 
@@ -262,13 +269,13 @@ This overrides two methods.
 
 =item B<report returns Str>
 
-This is overridden to handle the specific details TAP output for TODO tests.
+This handles the specific details of TAP output for TODO tests.
 
 =item B<status returns Hash>
 
-This adds a C<TODO> key, as well as makes sure the C<passed> key is set to 
-true, and adds a C<really_passed> key which contains the boolean representing
-if the test truely did pass or not.
+This adds a C<TODO> key, sets the C<passed> key to true, and adds a
+C<really_passed> key which contains the boolean representing if the test truly
+did pass.
 
 =back
 
@@ -280,11 +287,11 @@ This also overrides two methods.
 
 =item B<report returns Str>
 
-This is overridden to handle the specific details TAP output for Skip tests.
+This handles the specific details of TAP output for Skip tests.
 
 =item B<status returns Hash>
 
-This just makes sure the C<skip> key is set to true in the hash.
+This sets the C<skip> key to true in the hash.
 
 =back
 
@@ -292,12 +299,12 @@ This just makes sure the C<skip> key is set to true in the hash.
 
 =head1 SEE ALSO
 
-Perl5 Test::Builder
+Perl 5 Test::Builder and Test::Harness::TAP.
 
 =head1 AUTHORS
 
 code by chromatic E<lt>chromatic@wgz.orgE<gt>
 
-documentation by Stevan Little E<lt>stevan@iinteractive.comE<gt>
+documentation by Stevan Little E<lt>stevan@iinteractive.comE<gt> and chromatic.
 
 =cut
