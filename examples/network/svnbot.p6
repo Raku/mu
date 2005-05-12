@@ -59,7 +59,7 @@ sub on_privmsg($event) {
       # Note: This is not actually the time we were started, but the time we
       # were compiled (waiting for Pugs to support INIT {}).
       my $start_time = BEGIN { time };
-      $bot<notice>(to => $reply_to, text => "Running for {time() - $start_time} seconds.");
+      $bot<privmsg>(to => $reply_to, text => "Running for {time() - $start_time} seconds.");
     }
   }
 }
@@ -85,7 +85,7 @@ sub svn_check($event) {
     return unless $chans;
 
     # Finally, send the announcement.
-    $bot<notice>($chans, $_) for @lines;
+    $bot<privmsg>($chans, $_) for @lines;
   }
 }
 
