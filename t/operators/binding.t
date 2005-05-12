@@ -23,7 +23,7 @@ is($x, 'Just Another', 'normal assignment works');
 my $y := $x;
 is($y, 'Just Another', 'y is now bound to x');
 
-ok(eval '$y =:= $x', 'y is bound to x (we checked with the =:= identity op)', :todo);
+ok($y =:= $x, 'y is bound to x (we checked with the =:= identity op)');
 
 my $z = $x;
 is($z, 'Just Another', 'z is not bound to x');

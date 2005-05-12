@@ -817,6 +817,12 @@ op2DefinedOr :: Val
 op2DefinedOr = undefined
 
 op2Identity (VObject x) (VObject y) = return $ VBool (objId x == objId y)
+op2Identity (VRef ref) y = do
+    x <- readRef ref
+    op2Identity x y
+op2Identity x (VRef ref) = do
+    y <- readRef ref
+    op2Identity x y
 op2Identity x y = return $ VBool (x == y)
 
 op2Cmp :: (a -> Eval b) -> (b -> b -> VBool) -> a -> a -> Eval Val
@@ -1141,7 +1147,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   List      non     ..      (Scalar, Scalar)\
 \\n   Bool      chain   !=      (Num, Num)\
 \\n   Bool      chain   ==      (Num, Num)\
-\\n   Bool      chain   =:=     (Any, Any)\
+\\n   Bool      chain   =:=     (rw!Any, rw!Any)\
 \\n   Bool      chain   ~~      (rw!Any, Any)\
 \\n   Bool      chain   !~      (Any, Any)\
 \\n   Bool      chain   <       (Num, Num)\
