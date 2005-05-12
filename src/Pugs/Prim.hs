@@ -564,15 +564,15 @@ op2 "ge" = op2Cmp vCastStr (>=)
 op2 "~~" = op2Match
 op2 "!~" = op2Cmp vCastStr (/=)
 op2 "=:=" = op2Identity
-op2 "&&" = op2Logical not
-op2 "||" = op2Logical id
+op2 "&&" = op2Logical (fmap not . fromVal)
+op2 "||" = op2Logical (fmap id . fromVal)
 op2 "^^" = \x y -> do
     let xor True True   = VBool False
         xor True False  = x
         xor False True  = y
         xor False False = VBool False
     op2Cast xor x y
-op2 "//" = op2Logical defined
+op2 "//" = op2Logical (return . defined)
 op2 "!!" = \x y -> callCC $ \esc -> do
     bx <- fromVal x
     when bx $ esc (VBool False)
@@ -807,13 +807,12 @@ op2ChainedList x y
     | VList ys <- y                 = VList (x:ys)
     | otherwise                     = VList [x, y]
 
-op2Logical :: (Value v) => (v -> Bool) -> Val -> Val -> Eval Val
+op2Logical :: (Val -> Eval Bool) -> Val -> Val -> Eval Val
 op2Logical f x y = do
-    vx   <- fromVal x
-    bool <- fromVal vx
-    if f bool
-        then return vx
-        else fromVal y
+    ok <- f x 
+    if ok then return x else do
+    ref <- fromVal y
+    forceRef ref
 
 op2DefinedOr :: Val
 op2DefinedOr = undefined

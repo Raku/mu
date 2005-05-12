@@ -85,7 +85,7 @@ plan 52;
     $a //= 10;
     is($a, 3, "... and second");
     my %hash;
-    %hash<foo> //= hash {};
+    %hash<foo> //= hash();
     is(ref %hash<foo>, 'Hash', "Verify //= autovivifies correctly");
 }
 
