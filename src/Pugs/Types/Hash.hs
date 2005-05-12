@@ -86,7 +86,9 @@ instance HashClass IHashEnv where
         liftIO $ setEnv key str True
     hash_existsElem _ key = tryIO False $ do
         str <- getEnv key
-        return $ isJust str
+        return $ case str of
+            Just (_:_)  -> True
+            _           -> False
     hash_deleteElem _ key = do
         liftIO $ unsetEnv key
 
