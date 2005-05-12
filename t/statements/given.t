@@ -25,12 +25,13 @@ Tests the given block, as defined in L<S04/"Switch statements">
 {
 	# simple case, with fall through L<S04/"Switch statements" /If the smart match fails, control passes to the next statement normally/>
 	my ($two, $five, $int, $unreached);
-	eval 'given 5 {
-		when 2 { $two = 1 }
-		when 5 { $five = 1; next }
-		when Int { $int = 1 }
-		when 5 { $unreached = 1 }
-	}';
+
+        given 5 {
+            when 2 { $two = 1 }
+            when 5 { $five = 1; eval 'next' }
+            when (Int) { $int = 1 }
+            when 5 { $unreached = 1 }
+	}
 
 	ok(!$two, "5 is not two");
 	ok($five, "5 is five");
