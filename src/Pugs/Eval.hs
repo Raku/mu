@@ -456,7 +456,7 @@ reduce exp@(Syn name exps) = case name of
         retVal $ VList $ concat vals
     "," -> do
         vals <- mapM evalExp exps
-        -- retVal . VList . concat $ map vCast vals
+        liftIO $ print vals
         -- in slurpy context, flatten each arguments
         ifListContext
             (retVal . VList . concat $ map vCast vals)

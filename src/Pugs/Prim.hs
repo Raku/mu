@@ -743,6 +743,12 @@ op4 "splice" = \x y z w -> do
 op4 other = \_ _ _ _ -> fail ("Unimplemented 4-ary op: " ++ other)
 
 op2Hyper :: String -> Val -> Val -> Eval Val
+op2Hyper op (VRef ref) y = do
+    x <- readRef ref
+    op2Hyper op x y
+op2Hyper op x (VRef ref) = do
+    y <- readRef ref
+    op2Hyper op x y
 op2Hyper op x y
     | VList x' <- x, VList y' <- y
     = fmap VList $ hyperLists x' y'
