@@ -48,7 +48,7 @@ plan 32;
 # hash slicing
 {
   my $hash = {'1st' => 1, '2nd' => 2, '3rd' => 3};
-  isa_ok $hash, 'Array';
+  isa_ok $hash, 'Hash';
 
   my @slice1 = $hash{"1st", "3rd"};
   is +@slice1,   2, 'got the right amount of values from the %hash{} slice';
@@ -66,7 +66,7 @@ plan 32;
   is $hash<1st>,  5, 'value was changed successfully with slice assignment';
   is $hash<3rd>, 10, 'value was changed successfully with slice assignment';
 
-  $hash<1st 3rd> = [3, 1];
+  $hash<1st 3rd> = (3, 1);
   is $hash<1st>, 3, 'value was changed successfully with slice assignment';
   is $hash<3rd>, 1, 'value was changed successfully with slice assignment';
 }
