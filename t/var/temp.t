@@ -12,7 +12,7 @@ plan 20;
     temp $a = 23;
     is $a, 23, "temp() changed the variable (1)";
   }
-  is $a, 42, "temp() restored the variable (1)";
+  is $a, 42, "temp() restored the variable (1)", :todo<feature>;
 }
 
 # Test that temp() restores the variable at scope exit, not at subroutine
@@ -25,7 +25,7 @@ plan 20;
     is $a,       23, "temp() changed the variable (2-1)";
     is $get_a(), 23, "temp() changed the variable (2-2)";
   }
-  is $a, 42, "temp() restored the variable (2)";
+  is $a, 42, "temp() restored the variable (2)", :todo<feature>;
 }
 
 # Block TEMP{}
