@@ -31,7 +31,7 @@ eval_is("$abs; my_abs(-5)", 5, "and they actually work", :todo<feature>);
 # Basic subtype creation
 eval_ok 'subtype Num::Odd of Num where { $^num % 2 == 1 }',
   "subtype is correctly parsed", :todo<feature>;
-eval_is 'my Num::Odd $a = 3', 3, "3 is an odd num", :todo<feature>;
+eval_is 'my Num::Odd $a = 3', 3, "3 is an odd num";
 # The eval inside the eval is/will be necessary to hider our smarty
 # compiler's compile-time from bailing.
 # (Actually, if the compiler is *really* smarty, it will notice our eval trick,
@@ -55,7 +55,7 @@ eval_ok '!try { my Num::Even $d }',
 eval_ok 'sub only_accepts_odds(Num::Odd $odd) { $odd + 1 }',
   "sub requiring a Num::Odd as argument defined (1)", :todo<feature>;
 eval_is 'only_accepts_odds(3)', 4,
-  "calling sub worked", :todo<feature>;
+  "calling sub worked";
 eval_ok '!try { only_accepts_odds(4) }',
   "calling sub did not work", :todo<feature>;
 
@@ -63,7 +63,7 @@ eval_ok '!try { only_accepts_odds(4) }',
 eval_ok 'sub is_num_odd(Num::Odd $odd) { $odd ~~ Num::Odd }',
   "sub requiring a Num::Odd as argument defined (2)", :todo<feature>;
 eval_ok 'is_num_odd(3)', "Int automatically morphed to Num::Odd", :todo<feature>;
-eval_is 'only_accepts_odds("3")', 4, "Str automatically morphed to Num::Odd", :todo<feature>;
+eval_is 'only_accepts_odds("3")', 4, "Str automatically morphed to Num::Odd";
 
 # Following code is evil, but should work:
 my $eval2 = '
@@ -79,6 +79,6 @@ my $eval2 = '
   
   $multiple_of = 6;
   ok !try { my Num::Multiple $e = eval 10 },
-    "changed subtype definition worked", :todo<feature>;
+    "changed subtype definition worked";
 ';
 eval $eval2;
