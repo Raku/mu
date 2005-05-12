@@ -108,4 +108,4 @@ is(@lines7[3], "... Its not over yet!\n", 'readline($in) worked in list context'
 
 #now be sure to delete the file as well
 
-ok(?unlink($filename), 'file has been removed');
+is(unlink($filename), 1, 'file has been removed');

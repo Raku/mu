@@ -38,4 +38,4 @@ my $filename = 'tempfile';
     $fh.close();
 }
 
-ok(?unlink($filename), 'file has been removed');
+is(unlink($filename), 1, 'file has been removed');

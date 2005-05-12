@@ -15,7 +15,7 @@ my $fn = "unlink-test-file" ~ nonces;
   close $fh;
 
   ok -e $fn,      "open() created a tempfile";
-  ok unlink($fn), "unlink() returned true";
+  is(unlink($fn), 1, "unlink() returned true");
   ok !-e $fn,     "unlink() actually deleted the tempfile";
 }
 
@@ -24,6 +24,6 @@ my $fn = "unlink-test-file" ~ nonces;
   { my $fh = open "> $fn" }
 
   ok -e $fn,      "open() created a tempfile";
-  ok unlink($fn), "unlink() returned true";
+  is(unlink($fn), 1, "unlink() returned true");
   ok !-e $fn,     "unlink() actually deleted the tempfile";
 }
