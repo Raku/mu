@@ -107,9 +107,6 @@ enterSub sub action
                 local doFix action
     where
     typ = subType sub
-    doReturn [] = shiftT $ const $ retEmpty
-    doReturn [v] = shiftT $ const $ evalVal v
-    doReturn _   = internalError "enterSub: doReturn list length /= 1"
     doCC cc [v] = cc =<< evalVal v
     doCC _  _   = internalError "enterSub: doCC list length /= 1"
     orig sub = sub { subBindings = [], subParams = (map fst (subBindings sub)) }
@@ -123,15 +120,10 @@ enterSub sub action
             subRec <- sequence
                 [ genSym "&?SUB" (codeRef (orig sub))
                 , genSym "$?SUBNAME" (scalarRef $ VStr $ subName sub)]
-            retRec    <- genSubs env "&return" retSub
+            -- retRec    <- genSubs env "&return" retSub
             callerRec <- genSubs env "&?CALLER_CONTINUATION" (ccSub cc)
             return $ \e -> e
-                { envLexical = combine (concat [subRec, retRec, callerRec]) (subPad sub) }
-    retSub env = mkPrim
-        { subName = "return"
-        , subParams = makeParams env
-        , subBody = Prim doReturn
-        }
+                { envLexical = combine (concat [subRec, callerRec]) (subPad sub) }
     ccSub cc env = mkPrim
         { subName = "CALLER_CONTINUATION"
         , subParams = makeParams env

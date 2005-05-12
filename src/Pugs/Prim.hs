@@ -64,8 +64,12 @@ op0 "File::Spec::tmpdir" = const $ do
 op0 "pi" = const $ return (VNum pi)
 op0 "say" = const $ op1 "say" =<< readVar "$_"
 op0 "print" = const $ op1 "print" =<< readVar "$_"
-op0 "return" = \v -> return (VError "cannot return() outside a subroutine" (Val $ VList v))
-op0 other = \_ -> fail ("Unimplemented listOp: " ++ other)
+op0 "return" = \_ -> do
+    depth <- asks envDepth
+    if depth == 0
+        then fail "cannot return() outside a subroutine"
+        else shiftT $ const $ retEmpty
+op0 other = const $ fail ("Unimplemented listOp: " ++ other)
 
 op1 :: String -> Val -> Eval Val
 op1 "!"    = op1Cast (VBool . not)
@@ -229,7 +233,11 @@ op1 "defined" = op1Cast (VBool . defined)
 op1 "last" = \v -> return (VError "cannot last() outside a loop" (Val v))
 op1 "next" = \v -> return (VError "cannot next() outside a loop" (Val v))
 op1 "redo" = \v -> return (VError "cannot redo() outside a loop" (Val v))
-op1 "return" = \v -> return (VError "cannot return() outside a subroutine" (Val v))
+op1 "return" = \v -> do
+    depth <- asks envDepth
+    if depth == 0
+        then fail "cannot return() outside a subroutine"
+        else shiftT $ const $ return v
 op1 "sign" = \v -> if defined v
     then op1Cast (VInt . signum) v
     else return undef

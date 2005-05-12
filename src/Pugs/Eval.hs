@@ -632,9 +632,10 @@ reduce (App (Var "&goto") (subExp:invs) args) = do
         shiftT $ const (retVal val)
     where
     callerEnv env = let caller = maybe env id (envCaller env) in
-        env{ envCaller = envCaller caller
+        env{ envCaller  = envCaller caller
            , envContext = envContext caller
-           , envLValue = envLValue caller
+           , envLValue  = envLValue caller
+           , envDepth   = envDepth caller
            }
 
 -- XXX absolutely evil bloody hack for "assuming"
@@ -873,7 +874,9 @@ doApply env sub@MkCode{ subBody = fun, subType = typ } invs args =
         | otherwise       = resetT
     fixEnv env
         | typ >= SubBlock = env
-        | otherwise       = env{ envCaller = Just env }
+        | otherwise       = env
+            { envCaller = Just env
+            , envDepth = envDepth env + 1 }
     doBind :: [Pad -> Pad] -> [(Param, Exp)] -> Eval ([Pad -> Pad], [ApplyArg])
     doBind syms [] = return (syms, [])
     doBind syms ((prm, exp):rest) = do
