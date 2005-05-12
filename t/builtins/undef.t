@@ -228,7 +228,7 @@ Perl6-specific tests
 	#   (except for special circumstances)
         "abcde" ~~ rx:perl5/(.)(.)(.)/;
         "abcde" ~~ rx:perl5/(\d)/;
-	ok(eval '! grep { defined($_) }, ($0, $1, $2, $3, $4, $5)',
+	ok((!grep { defined($_) } ($0, $1, $2, $3, $4, $5)),
 			"all submatches undefined after failed match") or
 		diag("match state: " ~ eval '$/');
 
