@@ -42,7 +42,7 @@ C<parrot demo.pir>.  The demo understands the following commands:
 Once PGE is compiled and installed, you generally load it using
 the load_bytecode operation, as in
 
-    load_bytecode "runtime/parrot/library/PGE.pbc"          
+    load_bytecode "PGE.pbc"          
 
 This imports the C<PGE::p6rule> subroutine, which can be used to
 compile Perl 6 rules.  A sample compile sequence would be:
@@ -93,11 +93,11 @@ Some backslashes aren't implemented yet, although the major ones
 are (\d, \s, \n, \D, \S, \N).
 
 PGE doesn't (yet) properly handle nested repetitions of zero-length 
-patterns in groups -- that's coming next.
+patterns in groups -- that's coming soon.
 
 This is just the first-cut framework for building the 
 remainder of the engine, so many items (lookaround, 
-conjunctions, closures, character classes, and hypotheticals)
+conjunctions, closures, and hypotheticals)
 just aren't implemented yet.  They're on their way!
 
 Also, many well-known optimizations (e.g., Boyer-Moore) aren't 
