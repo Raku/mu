@@ -1205,12 +1205,11 @@ ruleVar = do
     return $ makeVar name
 
 makeVar :: String -> Exp
-makeVar "$<>" =
-    Syn "~" [Var "$/"] -- XXX hack
+makeVar "$<>" = Var "$/"
 makeVar ('$':rest) | all (`elem` "1234567890") rest =
-    Syn "~" [Syn "[]" [Var "$/", Val $ VInt (read rest)]]
+    Syn "[]" [Var "$/", Val $ VInt (read rest)]
 makeVar ('$':'<':name) =
-    Syn "~" [Syn "{}" [Var "$/", doSplitStr (tail name)]]
+    Syn "{}" [Var "$/", doSplitStr (tail name)]
 makeVar (sigil:'.':name) =
     Cxt (cxtOfSigil sigil) (Syn "{}" [Var "$?SELF", Val (VStr name)])
 makeVar (sigil:':':name) =

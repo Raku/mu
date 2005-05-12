@@ -579,12 +579,6 @@ reduce exp@(Syn name exps) = case name of
 #endif
 	externRequire "Haskell" (file ++ ".o")
         retEmpty
-    "~" -> do
-        let [exp] = exps
-        val     <- enterRValue $ enterEvalContext (cxtItem "Str") exp
-        if defined val
-            then retVal =<< fmap VStr (fromVal val)
-            else retVal undef
     syn | last syn == '=' -> do
         let [lhs, exp] = exps
             op = "&infix:" ++ init syn
