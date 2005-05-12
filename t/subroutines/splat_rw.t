@@ -28,7 +28,7 @@ eval '
 	sub should_fail (*@list is rw) { }
 ';
 
-ok(defined($!), "trying to define an 'is rw' splat doesn't work either");
+ok(defined($!), "trying to define an 'is rw' splat doesn't work either", :todo<feature>);
 
 
 
