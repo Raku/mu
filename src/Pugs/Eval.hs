@@ -350,9 +350,9 @@ reduce exp@(Syn name exps) = case name of
             runBody vs sub' = do
                 let (these, rest) = arity `splitAt` vs
                 genSymCC "&next" $ \symNext -> do
-                genSymPrim "&redo" (const $ runBody vs sub') $ \symRedo -> do
-                    apply sub'{ subPad = symRedo . symNext $ subPad sub' } [] $
-                        map (Val . VRef . MkRef) these
+                    genSymPrim "&redo" (const $ runBody vs sub') $ \symRedo -> do
+                        apply sub'{ subPad = symRedo . symNext $ subPad sub' } [] $
+                            map (Val . VRef . MkRef) these
                 runBody rest sub'
         genSymCC "&last" $ \symLast -> do
             let munge sub | subParams sub == [defaultArrayParam] =
