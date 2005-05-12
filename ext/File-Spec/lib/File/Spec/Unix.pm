@@ -22,7 +22,7 @@ sub splitpath (Str $path, Bool ?$nofile) returns Array is export {
     else {
         $path ~~ rx:perl5{^((?:.*/(?:\.\.?\Z(?!\n))?)?)([^/]*)};
         $directory = $0;
-        $file      = $0;
+        $file      = $1;
     }
     return ($volume, $directory, $file);
 }

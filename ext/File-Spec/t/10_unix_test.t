@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 101;
+plan 106;
 
 =pod
 
@@ -103,18 +103,18 @@ ok(!file_name_is_absolute("\n/path/from/root"), '... checking if path is absolut
     my @path = path();
     ok(+@path, '... we have elements in the path'); 
 
-#     my $orig_path = %*ENV{'PATH'};
-#     
-#     %*ENV{'PATH'} = 'path/to/bin:path/to/some/other/bin:other/path:';
-#     
-#     my @path = path();
-#     is(+@path, 4, '... we have 4 elements in the path'); 
-#     is(@path[0], 'path/to/bin', '... correct first element in the path'); 
-#     is(@path[1], 'path/to/some/other/bin', '... correct second element in the path'); 
-#     is(@path[2], 'other/path', '... correct third element in the path'); 
-#     is(@path[3], '.', '... correct fourth element in the path');             
-#     
-#     %*ENV{'PATH'} = $orig_path;
+     my $orig_path = %*ENV{'PATH'};
+     
+     %*ENV{'PATH'} = 'path/to/bin:path/to/some/other/bin:other/path:';
+     
+     my @path = path();
+     is(+@path, 4, '... we have 4 elements in the path'); 
+     is(@path[0], 'path/to/bin', '... correct first element in the path'); 
+     is(@path[1], 'path/to/some/other/bin', '... correct second element in the path'); 
+     is(@path[2], 'other/path', '... correct third element in the path'); 
+     is(@path[3], '.', '... correct fourth element in the path');             
+     
+     %*ENV{'PATH'} = $orig_path;
 }
 
 {

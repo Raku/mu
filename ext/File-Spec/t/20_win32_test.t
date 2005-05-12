@@ -13,11 +13,9 @@ This is a test of the FileSpecWin32 module.
 
 use_ok('File::Spec::Win32');
 
-force_todo 149..157, 160..162;
-
 is(curdir(),  '.',         '... got the right curdir');
 is(updir(),   '..',        '... got the right updir');
-is(rootdir(), '/',         '... got the right rootdir');
+is(rootdir(), '\\',         '... got the right rootdir');
 is(devnull(), 'nul', '... got the right devnull');
 
 ok(case_tolerant(), '... Win32 is case tolerant');
@@ -215,20 +213,20 @@ is(rel2abs("../temp", "//prague_main/work/"),    "\\\\prague_main\\work\\temp" ,
 is(rel2abs('temp', "//prague_main/work"),        "\\\\prague_main\\work\\temp" ,'checking real2abs');
 is(rel2abs("../", "//prague_main/work"),         "\\\\prague_main\\work"       ,'checking real2abs');
 
-is(abs2rel("/t1/t2/t3", "/t1/t2/t3"),         ''                       ,'checking abs2rel');
-is(abs2rel("/t1/t2/t4", "/t1/t2/t3"),         "..\\t4"                 ,'checking abs2rel');
-is(abs2rel("/t1/t2", "/t1/t2/t3"),            '..'                     ,'checking abs2rel');
-is(abs2rel("/t1/t2/t3/t4", "/t1/t2/t3"),      't4'                     ,'checking abs2rel');
-is(abs2rel("/t4/t5/t6", "/t1/t2/t3"),         "..\\..\\..\\t4\\t5\\t6" ,'checking abs2rel');
-is(abs2rel("/", "/t1/t2/t3"),                 "..\\..\\.."             ,'checking abs2rel');
-is(abs2rel("///", "/t1/t2/t3"),               "..\\..\\.."             ,'checking abs2rel');
-is(abs2rel("/.", "/t1/t2/t3"),                "..\\..\\.."             ,'checking abs2rel');
-is(abs2rel("/./", "/t1/t2/t3"),               "..\\..\\.."             ,'checking abs2rel');
+is(abs2rel("/t1/t2/t3", "/t1/t2/t3"),         ''                       ,'checking abs2rel', :todo<bug>);
+is(abs2rel("/t1/t2/t4", "/t1/t2/t3"),         "..\\t4"                 ,'checking abs2rel', :todo<bug>);
+is(abs2rel("/t1/t2", "/t1/t2/t3"),            '..'                     ,'checking abs2rel', :todo<bug>);
+is(abs2rel("/t1/t2/t3/t4", "/t1/t2/t3"),      't4'                     ,'checking abs2rel', :todo<bug>);
+is(abs2rel("/t4/t5/t6", "/t1/t2/t3"),         "..\\..\\..\\t4\\t5\\t6" ,'checking abs2rel', :todo<bug>);
+is(abs2rel("/", "/t1/t2/t3"),                 "..\\..\\.."             ,'checking abs2rel', :todo<bug>);
+is(abs2rel("///", "/t1/t2/t3"),               "..\\..\\.."             ,'checking abs2rel', :todo<bug>);
+is(abs2rel("/.", "/t1/t2/t3"),                "..\\..\\.."             ,'checking abs2rel', :todo<bug>);
+is(abs2rel("/./", "/t1/t2/t3"),               "..\\..\\.."             ,'checking abs2rel', :todo<bug>);
 is(abs2rel("\\\\a/t1/t2/t4", "/t2/t3"),       "\\\\a\\t1\\t2\\t4"      ,'checking abs2rel');
 is(abs2rel("//a/t1/t2/t4", "/t2/t3"),         "\\\\a\\t1\\t2\\t4"      ,'checking abs2rel');
-is(abs2rel("A:/t1/t2/t3", "A:/t1/t2/t3"),     ''                       ,'checking abs2rel');
-is(abs2rel("A:/t1/t2/t3/t4", "A:/t1/t2/t3"),  't4'                     ,'checking abs2rel');
-is(abs2rel("A:/t1/t2/t3", "A:/t1/t2/t3/t4"),  '..'                     ,'checking abs2rel');
+is(abs2rel("A:/t1/t2/t3", "A:/t1/t2/t3"),     ''                       ,'checking abs2rel', :todo<bug>);
+is(abs2rel("A:/t1/t2/t3/t4", "A:/t1/t2/t3"),  't4'                     ,'checking abs2rel', :todo<bug>);
+is(abs2rel("A:/t1/t2/t3", "A:/t1/t2/t3/t4"),  '..'                     ,'checking abs2rel', :todo<bug>);
 is(abs2rel("A:/t1/t2/t3", "B:/t1/t2/t3"),     "A:\\t1\\t2\\t3"         ,'checking abs2rel');
 is(abs2rel("A:/t1/t2/t3/t4", "B:/t1/t2/t3"),  "A:\\t1\\t2\\t3\\t4"     ,'checking abs2rel');
 is(abs2rel("E:/foo/bar/baz"),                 "E:\\foo\\bar\\baz"      ,'checking abs2rel');
