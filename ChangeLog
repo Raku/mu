@@ -1,49 +1,77 @@
-== Changes for 6.2.3 - May *, 2005
+== Changes for 6.2.3 - May *, 2005 (up to r3045)
 
 === Pugs Internals
 
-* The `is lazy` trait for parameters
-* Much faster random access to arrays; it's now O(1) instead of O(n)
-* Experimental `eval_yaml()` support to deserialize YAML streams.
-** `eval_yaml` takes and emits UTF8 strings.
-* `system(Str: List)` and `exec(Str: List)` on *nix platforms.
-* Adding support for profiling of Haskell
-* PGE is now part of Pugs; `:P5` restriction lifted from `rx//` and `s///`.
-* undef in grouped lhs: `my ($x, undef, $y) = 1..3;` is now legal.
-* implement `state $var`.
 * Pugs now embeds Parrot (see journal for details)
 ** implement `eval_parrot` for executing arbitrary IMC code
 ** Pugs is also a registered Parrot compiler.
+* Rules (PGE) support via embedded Parrot: 
+** `//`, `rx//`, `m//`, `rule{}`, and assorted other rules things work.
+** named rules and subrule support.
+** `s///` and `//` in statement level operates on `$_`.
+** `.from`, `.to`, `.matches`.
+** `split` now works for P6 regexes.
+** `$0` is now the same as `~$/[0]`, i.e. the same as Perl 5's `$1`.
+** The former `$0` (entire match) is now `$<>`.
+** `{}` in P5 rules is no longer closure interpolation.
+* Basic Object support:
+** `class Foo {}` works (no inheritance yet)
+** public and private attributes, as well as `has $.attr is rw` trait
+** accessors generated for public attributes
+** method invocants `foo ($self: $x)` and topicalized invocants in `$_` 
+** method chaining `$foo.bar().baz()`
+** `$obj.clone()` support.
+** `$obj ~~ Class` support.
+** Prototype of Perl6 OO meta-model in Perl6 begun in `ext/Perl-MetaModel`
+* Experimental `eval_yaml()` support to deserialize YAML streams.
+** `eval_yaml` takes and emits UTF8 strings.
+* Identity operator `=:=` works
+* The `is lazy` trait for parameters
+* Refactoring of large Haskell modules to improve compilation speed
+* Much faster random access to arrays; it's now O(1) instead of O(n)
+* `system(Str: List)` and `exec(Str: List)` on *nix platforms.
+* Adding support for profiling of Haskell
+* undef in grouped lhs: `my ($x, undef, $y) = 1..3;` is now legal.
+* implement `state $var`.
 * Monadic subcontinuation transformer added.
 * rvalue only `%hash.pick`, `@array.pick` and `(list).pick`.
 * `$thread.kill`, `$thread.detach`, `$thread.join` implemented.
+* `reduce` primitive.
 * MMD support improved.
 * Experimental support for folding metaoperator: [+]
+* Hyper operators now works on arrays too.
 * Stringify VHandle much nicer
 
 === Tests, Examples and Documentations
 
-* Many new test and several tests refactored, we now have +4800 tests
-* TODO tests now use `:todo<reason>` for better reporting
-* local Test::Harness updated to handle `:todo<reason>`
+* Many new test and several tests refactored, we now have ~5000 tests
+* Improved handling of TODO tests
+** TODO tests now use `:todo<reason>` for better reporting
+** local Test::Harness updated to handle `:todo<reason>`
 * The first Perl 6 poem in `examples/poetry/`.
 * Several IRC bots added to `examples/network` including svnbot and logbot.
 * Documentation for hangman.p6 added in `examples/games/hangman.pod`
 * new "Monads in Perl 6" example.
-* several modules added to `ext/` (NOTE: all modules have thier own ChangeLog now)
+* script to generate a Pugs Live CD in `util/`.
+* several modules added to `ext/` (NOTE: all modules have their own ChangeLog now)
 ** added Net::IRC implemented with hash/closure object 
 ** added Algorithm::TokenBucket implemented with hash/closure object 
 ** added Config::Tiny implemented with hash/closure object 
 ** renamed Pod::Stream::Parser to Pod::Event::Parser and added more functionality
 ** added Kwid::Event::Parser
 ** added Tree::Simple implemented with inside-out object
-** added non-working Perl6 port of Test::Builder (using Perl6 OO)
-* script to generate a Pugs Live CD in `util/`.
+** added non-working (but parsing) Perl6 port of Test::Builder (using Perl6 OO)
 
 === Bug Fixes
 
 * `any().pick` no longer dies.
 * `$*PID` now works on Win32
+* `%*ENV` now completely works on Win32
+* `to => 123` parses again; arrow pairs now always trumps unary functions.
+* Prohibit Array and Hash dereference on plain values.
+* Slurpy context no longer flattens.
+* `my @x = [1]; @x[0][0] = 2` should now work.
+* rw! is no longer neccessary around IO prototypes.
 
 == Changes for 6.2.2 - May 1, 2005
 
