@@ -24,6 +24,6 @@ class Foo {
     my $val;
     lives_ok {
         $val = $foo.bar(42);
-    }, '... class|instance methods work for instance');
+    }, '... class|instance methods work for instance';
     is($val, 142, '... basic instance method access worked');
 }
