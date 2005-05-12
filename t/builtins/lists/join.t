@@ -20,7 +20,7 @@ my $joined3 = join("|", "a", "b", "c");
 is($joined3, "a|b|c", 'join("|", 1, 2, 3) works');
 
 my $joined4 = join("|", [ "a", "b", "c" ]);
-is($joined4, "a|b|c", 'join("|", []) works');
+is($joined4, "a b c", 'join("|", []) should not join anything');
 
 # join() with $sep as a variable
 
@@ -37,7 +37,7 @@ my $joined3a = join($sep, "a", "b", "c");
 is($joined3a, "a, b, c", 'join($sep, "a", "b", "c") works');
 
 my $joined4a = join($sep, [ "a", "b", "c" ]);
-is($joined4a, "a, b, c", 'join($sep, []) works');
+is($joined4a, "a b c", 'join($sep, []) works');
 
 # join ... without parens
 
@@ -54,10 +54,10 @@ my $joined3c = join ":", "a", "b", "c";
 is($joined3c, "a:b:c", 'join(":", "a", "b", "c") works');
 
 my $joined4b = join $sep, [ "a", "b", "c" ];
-is($joined4b, "a, b, c", 'join $sep, [] works');
+is($joined4b, "a b c", 'join $sep, [] should not join anything');
 
 my $joined4c = join ":", [ "a", "b", "c" ];
-is($joined4c, "a:b:c", 'join ":", [] works');
+is($joined4c, "a b c", 'join ":", [] should not join anything');
 
 # join() with empty string as seperator
 
@@ -74,7 +74,7 @@ my $joined3d = join('', "a", "b", "c");
 is($joined3d, "abc", 'join("", 1, 2, 3) works');
 
 my $joined4d = join("", [ "a", "b", "c" ]);
-is($joined4d, "abc", 'join("", []) works');
+is($joined4d, "a b c", 'join("", []) works');
 
 # some odd edge cases
 

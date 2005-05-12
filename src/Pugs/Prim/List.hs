@@ -89,6 +89,7 @@ op2Map list sub = do
     return $ VList $ concat vals
 
 op2Join :: Val -> Val -> Eval Val
+op2Join (VList [x@(VRef _)]) y = op2Join x y
 op2Join x y = do
     (strVal, listVal) <- ifValTypeIsa x "Scalar"
         (return (x, y))
