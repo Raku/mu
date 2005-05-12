@@ -3,21 +3,62 @@
 use v6;
 use Test;
 
-plan 4;
+plan 23;
+
+ok(1 =:= 1, "int");
+ok(!(2 =:= 1), "int (neg)");
+ok("foo" =:= "foo", "str");
+ok(!("foo" =:= "foe"), "str (neg)");
+
+ok(("7" == 7), "sanity");
+ok(("7" eq 7), "sanity");
+ok(!("7" =:= 7), "identify checks type mismatch");
 
 {
-  my $a = 3;
-  my $b = 3;
+  my $foo = 1;
+  my $bar = 1;
+  ok($foo =:= $foo, "int in one scalar");
+  ok($foo =:= $bar, "int in two scalars");
 
-  ok $a == $b,       "our two variables are equal";
-  ok not($a =:= $b), "our two variables are not identity equal", :todo<feature>;
+  eval_ok('$foo = 1 but false', :todo<feature>);
+  ok($foo == $bar, "sanity");
+  ok(!($foo =:= $bar), "being an object makes it not identical",
+	:todo<feature>);
 }
+
+class TestObj {
+   has $:a;
+   sub new($x) {
+      $:a = $x;
+   }
+};
 
 {
-  my $sub = -> $arg1, $arg2 { $arg1 =:= $arg2 };
-  my $a   = 3;
-  my $b   = 3;
+  my $foo = TestObj.new(3);
+  my $bar = TestObj.new(3);
+  my $baz = $foo;
+  my $frop := $foo;
 
-  ok !$sub($a, $b), "our two variables are not identity equal when passed to a sub", :todo<bug>;
-  ok $sub($a, $a),  "our two variables are identity equal when passed to a sub";
+  ok(!($foo =:= $bar), "two identical objects are not the same object");
+  ok(($foo =:= $baz), "two references to one object are the same object");
+  ok(($foo =:= $frop), "binding makes two objects the same object");
+
+  my $test = sub($arg) {
+     return ($foo =:= $arg); 
+  };
+
+  ok($test($foo), "binding via -> retains identity");
+  ok(!$test($bar), "..");
+  ok($test($baz), "..");
+  ok($test($frop), "..");
+
+  $test = sub {
+     return ($foo =:= @_[0]);
+  };
+
+  ok($test($foo), "binding via @_ retains identity");
+  ok(!$test($bar), "..");
+  ok($test($baz), "..");
+  ok($test($frop), "..");
 }
+
