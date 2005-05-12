@@ -217,10 +217,9 @@ Perl6-specific tests
 
 {
 	# - binding to hash keys only would leave values undef
-	my %matches;
-	eval '"a=b\nc=d\n" ~~ / %<matches> := [ (\w) = \N+ ]* /';
-	ok(eval '%matches ~~ all(<a b>)', "match keys exist", :todo);
-	ok(!defined(%matches{"a"}) && !defined(%matches{"b"}), "match values don't");
+	eval '"a=b\nc=d\n" ~~ / $<matches> := [ (\w) = \N+ ]* /';
+	ok(eval '$<matches> ~~ all(<a b>)', "match keys exist", :todo);
+	ok(!defined($<matches>{"a"}) && !defined($<matches>{"b"}), "match values don't");
 }
 
 {
