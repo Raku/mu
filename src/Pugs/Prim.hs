@@ -237,7 +237,12 @@ op1 "return" = \v -> do
     depth <- asks envDepth
     if depth == 0
         then fail "cannot return() outside a subroutine"
-        else shiftT $ const $ return v
+        else shiftT $ const $ do
+            let exp = case v of
+                    VList [x]   -> Val x
+                    _           -> Val v
+            evl <- asks envEval
+            evl exp
 op1 "sign" = \v -> if defined v
     then op1Cast (VInt . signum) v
     else return undef
