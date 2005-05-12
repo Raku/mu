@@ -26,9 +26,9 @@ $path ~~ s:perl5:g{/+}{/};
 is($path, "/path/to/a/file", 'substitute regexp works with :g modifier');
 
 my $baz = "baz"; 
-$baz ~~ s:perl5{.(a)(.)}{$2$1p}; 
+$baz ~~ s:perl5{.(a)(.)}{$1$0p}; 
 is($baz, "zap", 'substitute regexp with capturing variables works');
 
 my $bazz = "bazz"; 
-$bazz ~~ s:perl5:g{(.)}{x$1}; 
+$bazz ~~ s:perl5:g{(.)}{x$0}; 
 is($bazz, "xbxaxzxz", 'substitute regexp with capturing variables works with :g');
