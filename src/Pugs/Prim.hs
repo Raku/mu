@@ -616,7 +616,7 @@ op2 "split"= \x y -> do
     case val of
         VRule rx -> do
             chunks <- rxSplit rx str
-            return . VList $ map VStr chunks
+            return $ VList chunks
         _ -> do
             delim <- fromVal val
             return $ split' delim str

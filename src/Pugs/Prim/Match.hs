@@ -148,19 +148,18 @@ op2Cmp f cmp x y = do
     y' <- f y
     return $ VBool $ x' `cmp` y'
 
-rxSplit :: VRule -> String -> Eval [String]
+rxSplit :: VRule -> String -> Eval [Val]
 rxSplit _  [] = return []
 rxSplit rx str = do
     match <- str `doMatch` rx
-    if not (matchOk match) then return [str] else do
+    if not (matchOk match) then return [VStr str] else do
     if matchFrom match == matchTo match
         then do
             let (c:cs) = str
             rest <- rxSplit rx (cs)
-            return ([c]:rest)
+            return (VStr [c]:rest)
         else do
             let before = genericTake (matchFrom match) str
                 after  = genericDrop (matchTo match) str
             rest <- rxSplit rx after
-            strs <- mapM fromVal (matchSubPos match)
-            return $ (before:concat strs) ++ rest
+            return $ (VStr before:matchSubPos match) ++ rest
