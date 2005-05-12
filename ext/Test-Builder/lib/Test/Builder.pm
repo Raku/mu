@@ -1,4 +1,4 @@
-class Test::Builder-0.0.1;
+class Test::Builder-0.1.0;
 
 use Test::Builder::Test;
 use Test::Builder::Output;

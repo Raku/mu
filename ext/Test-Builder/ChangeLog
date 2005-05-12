@@ -1,3 +1,9 @@
+== Changes for version 0.1.0
+
+* A handful of typos fixed
+* Fixed the singleton constructor mess in Test::Builder
+* Filled out stub documentation
+* Added Makefile.PL
 
 == Changes for version 0.0.1
 
