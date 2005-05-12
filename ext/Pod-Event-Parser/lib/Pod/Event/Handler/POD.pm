@@ -53,7 +53,7 @@ multi sub pod2pod (Str $buffer is rw) returns Hash is export {
         },
         string => -> ($str) { $buffer ~= $str }
     );
-    return %events;
+    return \%events;
 }
 
 multi sub pod2pod (IO $fh) returns Hash is export {
@@ -107,7 +107,7 @@ multi sub pod2pod (IO $fh) returns Hash is export {
         },
         string => -> ($str) { $fh.print($str) }
     );
-    return %events;
+    return \%events;
 }
 
 =pod

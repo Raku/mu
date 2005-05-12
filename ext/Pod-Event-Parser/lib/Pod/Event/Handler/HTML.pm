@@ -91,97 +91,97 @@ multi sub pod2html (Str $buffer is rw) returns Hash is export {
         },
         string  => -> ($str)  { $buffer ~= $str  }
     );
-    return %events;
+    return \%events;
 }
 
 multi sub pod2html (IO $fh) returns Hash is export {
-my %events = (
-    # Elements
-    start_element => -> ($event_type, @args) { 
-        given $event_type {
-            when 'header' {
-                my $size = @args.shift;
-                $fh.print("<H$size>");          
+    my %events = (
+        # Elements
+        start_element => -> ($event_type, @args) { 
+            given $event_type {
+                when 'header' {
+                    my $size = @args.shift;
+                    $fh.print("<H$size>");          
+                }
+                when 'list' {
+                    my $indent = @args.shift;
+                    $fh.print("<UL>\n");
+                }
+                when 'item' {
+                    $fh.print("<LI>");
+                }
+                when 'paragraph' {
+                    $fh.print("<P>"); 
+                }          
+                when 'verbatim' {
+                    $fh.print("<PRE>\n") 
+                }                                                                                                                                      
             }
-            when 'list' {
-                my $indent = @args.shift;
-                $fh.print("<UL>\n");
+        },
+        end_element => -> ($event_type, @args) { 
+            given $event_type {
+                when 'header' {
+                    my $size = @args.shift;
+                    $fh.print("</H$size>\n");                     
+                }
+                when 'list' {
+                    $fh.print("</UL>\n");
+                }  
+                when 'item' {
+                    $fh.print("</LI>\n");
+                }                
+                when 'paragraph' {
+                    $fh.print("</P>\n");
+                }     
+                when 'verbatim' {
+                    $fh.print("</PRE>\n");
+                }                                                       
             }
-            when 'item' {
-                $fh.print("<LI>");
-            }
-            when 'paragraph' {
-                $fh.print("<P>"); 
-            }          
-            when 'verbatim' {
-                $fh.print("<PRE>\n") 
-            }                                                                                                                                      
-        }
-    },
-    end_element => -> ($event_type, @args) { 
-        given $event_type {
-            when 'header' {
-                my $size = @args.shift;
-                $fh.print("</H$size>\n");                     
-            }
-            when 'list' {
-                $fh.print("</UL>\n");
-            }  
-            when 'item' {
-                $fh.print("</LI>\n");
-            }                
-            when 'paragraph' {
-                $fh.print("</P>\n");
-            }     
-            when 'verbatim' {
-                $fh.print("</PRE>\n");
-            }                                                       
-        }
-    },          
+        },          
 
-    # Modifiers
-    start_modifier => -> ($mod) { 
-        given $mod {
-            when 'E' {
-                $fh.print("&")
+        # Modifiers
+        start_modifier => -> ($mod) { 
+            given $mod {
+                when 'E' {
+                    $fh.print("&")
+                }
+                when rx:perl5/[CF]/ {
+                    $fh.print("<CODE>")
+                }
+                when rx:perl5/[BI]/ {
+                    $fh.print("<" ~ $mod ~ ">");             
+                }
             }
-            when rx:perl5/[CF]/ {
-                $fh.print("<CODE>")
+        },
+        end_modifier   => -> ($mod) { 
+            given $mod {
+                when 'E' {
+                    $fh.print(";");                     
+                }
+                when rx:perl5/[CF]/ {
+                    $fh.print("</CODE>");                     
+                }                        
+                when rx:perl5/[BI]/ {
+                    $fh.print("</" ~ $mod ~ ">");
+                }
             }
-            when rx:perl5/[BI]/ {
-                $fh.print("<" ~ $mod ~ ">");             
-            }
-        }
-    },
-    end_modifier   => -> ($mod) { 
-        given $mod {
-            when 'E' {
-                $fh.print(";");                     
-            }
-            when rx:perl5/[CF]/ {
-                $fh.print("</CODE>");                     
-            }                        
-            when rx:perl5/[BI]/ {
-                $fh.print("</" ~ $mod ~ ">");
-            }
-        }
-    },      
+        },      
 
-    # Text handling
-    verbatim => -> ($text) { 
-        my @lines = split("\n", $text); 
-        for (@lines) -> $line {
-            if ($line eq '') {
-                $fh.print("\n");
+        # Text handling
+        verbatim => -> ($text) { 
+            my @lines = split("\n", $text); 
+            for (@lines) -> $line {
+                if ($line eq '') {
+                    $fh.print("\n");
+                }
+                else {
+                    $fh.print(" $line\n");                                            
+                }
             }
-            else {
-                $fh.print(" $line\n");                                            
-            }
-        }
-    },
-    string  => -> ($str)  { $fh.print($str) }
-);
-return %events;
+        },
+        string  => -> ($str)  { $fh.print($str) }
+    );
+    return \%events;
 }
 
 =pod

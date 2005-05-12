@@ -41,13 +41,13 @@ sub parse (Str $filename, Hash %events is rw) returns Void is export {
                         %events<end_document>();                    
                     }
                     when rx:perl5{^=head(\d)\s(.*?)$} {
-                        my $size = $0;
+                        my $size = "$0";
                         %events<start_element>('header', $size);
                         interpolate($1, %events);
                         %events<end_element>('header', $size);                       
                     }
                     when rx:perl5{^=over\s(\d)$} {
-                        %events<start_element>('list', $0);
+                        %events<start_element>('list', "$0");
                     }
                     when rx:perl5{^=item\s(.*?)$} {
                         %events<start_element>('item');
@@ -59,19 +59,19 @@ sub parse (Str $filename, Hash %events is rw) returns Void is export {
                     }
                     when rx:perl5{^=begin\s(.*?)$} {
                         push(@for_or_begin, 'begin');
-                        %events<start_element>('begin', $0);
+                        %events<start_element>('begin', "$0");
                     }                    
                     when rx:perl5{^=for\s(.*?)$} {
                         push(@for_or_begin, 'for');
-                        %events<start_element>('for', $0);
+                        %events<start_element>('for', "$0");
                     }                    
                     when rx:perl5{^=end\s(.*?)$} {
                         my $last_for_or_begin = pop(@for_or_begin);
                         if ($last_for_or_begin eq 'for') {
-                            %events<end_element>('for', $0);
+                            %events<end_element>('for', "$0");
                         }
                         else {
-                            %events<end_element>('begin', $0);
+                            %events<end_element>('begin', "$0");
                         }
                     }                    
                     when rx:perl5{^\s(.*?)$} {

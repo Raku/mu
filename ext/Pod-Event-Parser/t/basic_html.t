@@ -28,4 +28,4 @@ is($test_output,
 </PRE>
 <P>This is regular text again</P>
 ',
-'... POD round-tripping worked');
+'... POD -> to -> HTML worked');
