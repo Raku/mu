@@ -42,7 +42,7 @@ ok($lasttest == 1, "last");
 
 my $nexttest = 0;
 eval 'for (1..10) { $nexttest++; next; $nexttest++; }; 1';
-ok($nexttest == 10, "next", :todo);
+ok($nexttest == 10, "next");
 
 is(12.eval, 12, "12.eval");
 is(eval(1 ?? 1 :: 0), 1, "?? ::");
