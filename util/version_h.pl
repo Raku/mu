@@ -7,12 +7,11 @@ my $version_h = shift || Cwd::cwd() . "src/Pugs/pugs_version.h";
 my $base = shift || Cwd::cwd();
 my $svn_entries = "$base/.svn/entries";
 
-print "Writing version from $svn_entries to $version_h\n";
-
 my $revision = 0;
 open OUT, "> $version_h" or die $!;
 print OUT "#undef PUGS_SVN_REVISION\n";
 if (-r $svn_entries) {
+    print "Writing version from $svn_entries to $version_h\n";
     open FH, $svn_entries or die $!;
     while (<FH>) {
         /^ *committed-rev=.(\d+)./ or next;
@@ -20,9 +19,11 @@ if (-r $svn_entries) {
     }
     close FH;
 } elsif (my @info = qx/svk info/ and $? == 0) {
-    my ($line) = grep /Mirrored From/, @info;
-    ($revision) = $line =~ /Rev\. (\d+)/;
+    print "Writing version from `svk info` to $version_h\n";
+    my ($line) = grep /(?:file|svn|https?)\b/, @info;
+    ($revision) = $line =~ / (\d+)$/;
 }
+$revision ||= 0;
 print OUT "#define PUGS_SVN_REVISION $revision\n";
 close OUT;
 
