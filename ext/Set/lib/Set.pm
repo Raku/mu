@@ -98,18 +98,18 @@ method union($self: Set $other) returns Set {
     set($self.members, $other.members);
 }
 method intersection($self: Set $other) returns Set {
-    set(grep:{ $other.includes($_) } $self.members);
+    set($self.members.grep:{ $other.includes($_) });
 }
 method difference($self: Set $other) returns Set {
-    set(grep:{ !$other.includes($_) } $self.members);
+    set($self.members.grep:{ !$other.includes($_) });
 }
 
 method symmetric_difference($self: Set $other) returns Set {
     $self.difference($other).union($other.difference($self));
 }
 
-#our &Set::count ::= &Set::size;
-#our &Set::has   ::= &Set::includes;
+our &Set::count ::= &Set::size;
+our &Set::has   ::= &Set::includes;
 
 =for a later time, when 'overloading' works...
 
