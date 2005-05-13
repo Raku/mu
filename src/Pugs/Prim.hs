@@ -329,7 +329,12 @@ op1 "Pugs::Internals::runInteractiveCommand" = \v -> do
                        , VHandle err
                        , VProcess (MkProcess phand)
                        ]
-op1 "system" = boolIO system
+op1 "system" = \v -> do
+    cmd <- fromVal v
+    exitCode <- liftIO $ system cmd
+    case exitCode of
+        ExitFailure x -> return $ VInt $ toInteger x
+        ExitSuccess -> return $ VInt 0
 op1 "accept" = \v -> do
     socket      <- fromVal v
     (h, _, _)   <- liftIO $ accept socket
@@ -663,9 +668,10 @@ op2 "exec" = \x y -> do
 op2 "system" = \x y -> do
     prog  <- fromVal x
     args  <- fromVals y
-    tryIO (VBool False) $ do
-        rawSystem prog args
-        return $ VBool True
+    exitCode <- liftIO $ rawSystem prog args
+    case exitCode of
+        ExitFailure x -> return $ VInt $ toInteger x
+        ExitSuccess -> return $ VInt 0
 op2 "chmod" = \x y -> do
     mode  <- fromVal x
     files <- fromVals y
@@ -1085,8 +1091,8 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   List      pre     slurp   (Handle)\
 \\n   List      pre     readdir (Str)\
 \\n   Bool      pre     exec    (Str: List)\
-\\n   Bool      pre     system  (Str)\
-\\n   Bool      pre     system  (Str: List)\
+\\n   Int       pre     system  (Str)\
+\\n   Int       pre     system  (Str: List)\
 \\n   Bool      pre     binmode (IO: ?Int=1)\
 \\n   Void      pre     return  ()\
 \\n   Void      pre     return  (rw!Any)\
