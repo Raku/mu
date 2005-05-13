@@ -69,6 +69,20 @@ sub new_bot(
 
   my $self;
 
+  # Sub which sends $msg, flushes $hdl and logs $msg to STDERR.
+  my $say = -> Str $msg {
+    debug_sent $msg if $debug_raw;
+    $hdl.print("$msg\13\10");
+    $hdl.flush();
+  };
+
+  # Thin wrapper around $queue<enqueue>.
+  # (Perl 6)++ for allowing me to define &subs easily. :)
+  my &enqueue = -> Str $msg {
+    $queue<enqueue>({ $say($msg) })
+      if $connected;
+  };
+
   # Default (passive) handlers
   # First event we get, indicating a successful login
   %handler<001> = [-> $event {
@@ -249,13 +263,6 @@ sub new_bot(
     %users.delete($oldnick);
   }];
 
-  # Sub which sends $msg, flushes $hdl and logs $msg to STDERR.
-  my $say = -> Str $msg {
-    debug_sent $msg if $debug_raw;
-    $hdl.print("$msg\13\10");
-    $hdl.flush();
-  };
-
   # Instance methods
   $self = {
     # Readonly accessors
@@ -432,49 +439,48 @@ sub new_bot(
     join => -> Str $channel, Str ?$key {
       if $connected {
 	if defined $key {
-	  $queue<enqueue>({ $say("JOIN $channel $key") });
+	  enqueue "JOIN $channel $key";
 	} else {
-	  $queue<enqueue>({ $say("JOIN $channel") });
+	  enqueue "JOIN $channel";
 	}
       }
     },
-    part  => -> Str $channel { $queue<enqueue>({ $say("PART $channnel") }) if $connected },
-    quit  => -> Str $reason  { $queue<enqueue>({ $say("QUIT :$reason") })  if $connected },
-    nick  => -> Str $newnick { $queue<enqueue>({ $say("NICK $newnick") })  if $connected },
-    who   => -> Str $target  { $queue<enqueue>({ $say("WHO $target") })    if $connected },
+    part  => -> Str $channel { enqueue "PART $channnel" },
+    quit  => -> Str $reason  { enqueue "QUIT :$reason" },
+    nick  => -> Str $newnick { enqueue "NICK $newnick" },
+    who   => -> Str $target  { enqueue "WHO $target" },
+    whois => -> Str $target  { enqueue "WHOIS $target" },
+    ison  => -> Str @targets { enqueue "ISON @targets[]" },
     topic => -> Str $channel, Str ?$topic {
-      if $connected {
-	if defined $topic {
-	  $queue<enqueue>({ $say("TOPIC $channel :$topic") });
-	} else {
-	  $queue<enqueue>({ $say("TOPIC $channel") });
-	}
+      if defined $topic {
+	enqueue "TOPIC $channel :$topic";
+      } else {
+	enqueue "TOPIC $channel";
       }
     },
     kick  => -> Str $channel, Str $nick, Str ?$reason {
-      $queue<enqueue>({ $say("KICK $channel $nick :{$reason // ""}") })
-	if $connected;
+      enqueue "KICK $channel $nick :{$reason // ""}";
     },
     mode  => -> Str $target, Str ?$mode {
-      if $connected {
-	if defined $mode {
-	  $queue<enqueue>({ $say("MODE $target $mode") });
-	} else {
-	  $queue<enqueue>({ $say("MODE $target") });
-	}
+      if defined $mode {
+	enqueue "MODE $target $mode";
+      } else {
+	enqueue "MODE $target";
       }
     },
+    invite => -> Str $channel, Str $target { enqueue "INVITE $target $channel" },
+    oper   => -> Str $username, Str $password { enqueue "OPER $username $password" },
 
     # PRIVMSG/NOTICE
     privmsg => -> Str $to, Str $text {
-      $queue<enqueue>({ $say("PRIVMSG $to :$text") }) if $connected;
+      enqueue "PRIVMSG $to :$text";
     },
     notice  => -> Str $to, Str $text {
-      $queue<enqueue>({ $say("NOTICE $to :$text") }) if $connected;
+      enqueue "NOTICE $to :$text",
     },
 
     # RAW
-    raw => -> Str $command { $queue<enqueue>({ $say($command) }) if $connected }
+    raw => -> Str $command { enqueue $command },
   };
 
   return $self;
