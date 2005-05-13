@@ -44,7 +44,7 @@ sub is (Str $got, Str $expected, Str +$desc, +$todo) returns Bool is export {
 
 sub isnt (Str $got, Str $expected, Str +$desc, +$todo) returns Bool is export {
     my $test := not($got eq $expected);
-    proclaim($test, "FAILS by matching expected: $desc", $todo, $got, $expected);
+    proclaim($test, "Should not match: $desc", $todo, $got, $expected);
 }
 
 ## like
