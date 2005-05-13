@@ -29,7 +29,7 @@ class Person {
         my $choice;
 
         say "";
-        say $enemy.name, " is attatcking you! What will you do?";
+        say $enemy.name, " is attacking you! What will you do?";
 
         until ($choice eq 'f' or $enemy.dead) {
             for $.weapons.kv -> $key, $wep {
