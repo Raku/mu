@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 38;
+plan 41;
 
 =kwid
 
@@ -193,8 +193,12 @@ Tests the given block, as defined in L<S04/"Switch statements">
 
 # given + objects
 {
-    class TestIt { method pass { 1; } };
-    my $test = TestIt.new;
-    given $test { eval_ok(".pass",'. method calls (should default to $_ not $?SELF') }
+    class TestIt { method passit { 1; }; has %.testing is rw; };
+    my $passed = 0;
+    eval_ok( 'given TestIt.new { $_.passit; };', '$_. method calls' );    
+    eval_ok( 'given TestIt.new { .passit; };'  , '. method calls'   );
+    eval_ok( 'given TestIt.new { $_.testing<a> = 1; };','$_. attribute access');
+    eval_ok( 'given TestIt.new { .testing<a> = 1; };',  '. attribute access', :todo<bug>);
+             
 }
 
