@@ -1069,7 +1069,10 @@ ruleCodeSubscript = tryRule "code subscript" $ do
 
 parseApply :: RuleParser Exp
 parseApply = tryRule "apply" $ do
-    isMethod    <- option False $ try $ do { char '.'; return True }
+    implicitInv <- option [] $ choice
+        [ do { char '.'; return [Var "$_"] }
+        , do { char '^'; return [Var "$?SELF"] }
+        ]
     name        <- ruleSubName <|> ruleFoldOp
     when ((name ==) `any` words " &if &unless &while &until &for ") $
         fail "reserved word"
@@ -1077,9 +1080,7 @@ parseApply = tryRule "apply" $ do
     (invs, args) <- if hasDot
         then parseNoParenParamList
         else parseParenParamList <|> do { whiteSpace; parseNoParenParamList }
-    let self | isMethod  = [Var "$?SELF"]
-             | otherwise = []
-    return $ App (Var name) (self ++ invs) args
+    return $ App (Var name) (implicitInv ++ invs) args
 
 ruleFoldOp :: RuleParser String
 ruleFoldOp = verbatimRule "reduce metaoperator" $ do
