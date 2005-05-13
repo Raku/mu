@@ -41,7 +41,6 @@ class Person {
 				system(($?OS eq any<MSWin32 mingw>) ?? 'cls' :: 'clear');
                 when 'f' {
                     say "You ran away from the $enemy.name()!"; 
-					exit; 
                 }
                 if ($.weapons.exists($_)) {
                     ^attack($enemy, $.weapons{$_});
