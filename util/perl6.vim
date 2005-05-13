@@ -12,7 +12,7 @@ if exists("b:current_syntax")
 endif
 
 " Billions of keywords
-syn keyword p6Attn		 ACHTUNG ATTN ATTENTION todo FIXME Todo TODO WTF XXX contained
+syn keyword p6Attn		ACHTUNG ATTN ATTENTION todo FIXME Todo TODO WTF XXX contained
 syn keyword p6Module		module class use require
 syn keyword p6KeyDecl		sub submethod method is but multi returns
 syn keyword p6KeyScopeDecl	my our local let temp
@@ -35,8 +35,9 @@ syn match p6KeyIO "-[rwxoRWXOezsfdlpSbctugkTBMAC]"
 syn match p6Comment "#.*" contains=p6Attn
 
 " POD
-syn region p6POD start="^=[a-z]" end="^=cut" contains=P6Attn 
-syn region p6MultComment start="^=begin [a-zA-Z]" end="^=end [a-zA-Z]" contains=p6Attn 
+syn region p6POD start="^=[a-z]\+$" end="^=cut" contains=p6Attn 
+syn region p6MultComment start="^=begin [A-Z]\+$" end="^=end [A-Z]\+$" contains=p6Attn 
+syn region p6ParaComment start="^=for [A-Z]\+$" end="^\n$" contains=p6Attn
 
 " Variables, arrays, and hashes with ordinary \w+ names
 syn match p6VarPlain "[$@%][a-zA-Z_]\w*"
@@ -185,6 +186,7 @@ hi link p6Keyword  Statement
 hi link p6Number   Number
 hi link p6Comment  Comment
 hi link p6MultComment	Comment
+hi link p6ParaComment	Special
 hi link p6POD      Comment
 hi link p6Variable Identifier
 hi link p6VarException Special
