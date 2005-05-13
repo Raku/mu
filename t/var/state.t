@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 8;
+plan 9;
 
 # L<S04/"The Relationship of Blocks and Declarations" /There is a new state declarator that introduces/>
 
@@ -108,4 +108,22 @@ plan 8;
         $b = $gen()();      # $svar == 42
     '
     is $b, 42, "state() and parens", :todo<feature>; # svar == 43
+}
+
+# state() inside regular expressions
+{
+    my $str = "abc";
+
+    my $re  = {
+	# Perl 5 RE, as we don't want to force people to install Parrot ATM. (The
+	# test passes when using the Perl 6 RE, too.)
+	s:Perl5/^(.)/{
+	  state $svar;
+	  ++$svar;
+	}/;
+    };
+    $re($str);
+    $re($str);
+    $re($str);
+    is +$str, 3, "state() inside regular expressions works";
 }
