@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 34;
+plan 37;
 
 =kwid
 
@@ -174,4 +174,20 @@ Tests the given block, as defined in L<S04/"Switch statements">
 
    is ret_test("a"), "A", "given returns the correct value (1)"; 
    is ret_test("b"), "B", "given returns the correct value (2)"; 
+}
+
+# given/when and junctions
+{
+    my $any = 0;
+    my $all = 0;
+    my $one = 0;
+    given 1 {
+          when any(1 .. 3) { $any = 1; }
+          when all(1)      { $all = 1; }
+          when one(1)      { $one = 1; }          
+    }
+    is($any, 1, 'when any', :todo<bug>);
+    is($all, 1, 'when all', :todo<bug>);
+    is($one, 1, 'when one', :todo<bug>);    
+    
 }
