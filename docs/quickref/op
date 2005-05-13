@@ -1,0 +1,94 @@
+PRECEDENCE
+terms               42 "eek" $x /abc/ (1+2) a(1) :by(2) .meth listop
+method postfix      . .+ .? .* .+ .() .[] .{} .«» .=
+autoincrement       ++ --
+exponentiation      **
+symbolic unary      ! + - ~ ? * ** +^ ~^ ?^ \
+multiplicative      * / % x xx +& +< +> ~& ~< ~>
+additive            + - ~ +| +^ ~| ~^
+junctive and (all)  &
+junctive or (any)   | ^
+named unary         rand sleep abs etc.
+nonchaining binary  => but does cmp <=> .. ^.. ..^ ^..^
+chaining binary     != == < <= > >= ~~ !~ eq ne lt le gt ge =:=
+tight and           &&
+tight or            || ^^ //
+ternary             ?? ::
+assignment          = := ::= += -= **= xx= etc.
+list item separator , ¥
+list op (rightward) <== print push any all true not etc.
+pipe forward        ==>
+loose and           and
+loose or            or xor err
+expr terminator     ; {} as control block, statement modifiers
+
+SIMPLE ARITHMATIC OPERATORS
+4 + 2        # 6, addition
+4 - 2        # 2, substraction
+4 * 2        # 8, multiplication
+4 / 2        # 2, division
+4 ** 2       # 16, exponentiation
+
+BIT OPERATORS
+Numeric   Stringy   Boolean
+  +|        ~|        ?|           OR
+  +&        ~&        ?&           AND
+  +^        ~^        ?^           XOR
+  +^        ~^        ?^           Negation (prefix unary)
+  +<        ~<                     Shift left
+  +>        ~>                     Shift right
+
+UNARY CONTEXT OPERATORS
+scalar      # Scalar
++           # Num
+~           # Str
+?           # Bool
+list        # List
+
+ASSIGNMENT OPERATORS
+$copy = $foo     # assign
+$alias := $foo   # bind, runtime
+$alias ::= $foo  # bind, compile time
+$foo++           # postincrement
+$foo--           # postdecrement
+++$foo           # preincrement
+--$foo           # predecrement
+$foo op= $bar    # mutate ($foo = $foo op $bar), where op is any infix
+
+COMPARISON OPERATORS
+Num   Str   Generic
+==    eq              # equality (value)
+!=    ne              # negated equality (value)
+<     lt              # less than
+>     gt              # greater than
+<=    le              # less than or equal to
+>=    ge              # greater than or equal to
+<=>   cmp             # lt => -1, eq => 0, gt => 1
+             ~~       # smart match
+             !~       # negated smart match
+             =:=      # equality (container)
+
+LOGIC OPERATORS
+HighPrec  LowPrec
+&&        and
+||        or
+^^        xor
+//        err     # defined-or
+!         not
+?         true
+
+QUOTE-LIKE OPERATORS
+Generalized   Short   Shorter
+q:0
+q:1           q       ''
+q:2           qq      ""
+q:to
+              rx      //
+q:0:w         qw      <>
+q:2:w         qqw     <<>>
+
+MISCELLANEOUS
+x         # repeat string
+xx        # repeat element, returns list
+Y         # zip
+
