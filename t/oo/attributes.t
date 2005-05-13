@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 52;
+plan 56;
 
 =pod
 
@@ -144,6 +144,27 @@ class Foo6 {
         
     is($foo.bar,        1, "getting a public rw attribute (1)");
     is($foo.baz,        2, "getting a public rw attribute (2)");
+    is($foo.get_hidden, 3, "getting a private ro attribute (3)");
+}
+
+# check that doing something in submethod BUILD works
+class Foo6a {
+  has $.bar is rw;
+  has $.baz;
+  has $:hidden;
+
+  submethod BUILD($.bar, $.baz, $:hidden) {
+    $.baz = 5;
+  }
+  method get_hidden() { $:hidden }
+}
+
+{
+    my $foo = Foo6a.new(bar => 1, hidden => 3);
+    ok($foo ~~ Foo6a, '... our Foo6a instance was created');
+        
+    is($foo.bar,        1, "getting a public rw attribute (1)");
+    is($foo.baz,        5, "getting a public rw attribute (2)");
     is($foo.get_hidden, 3, "getting a private ro attribute (3)");
 }
 
