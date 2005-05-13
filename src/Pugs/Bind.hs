@@ -48,12 +48,6 @@ Create a binding from the slurpy hash parameter (e.g. @\*%_@) to a hash
 containing all the remaining named arguments. If multiple slurpy hashes
 are given, only the first gets the arguments--the rest get an empty hash.
 Used by 'bindSomeParams'.
-
->[12:16] <scook0> autrijus: At the moment, if you call a sub that has multiple slurpy arrays, 
->                   Pugs deliberately binds the first one normally, and makes all the rest empty
->[12:17] <scook0> Is this proper behaviour, or is it just a quirk of the current implementation?
->[12:17] <autrijus> no, that's specced.
->[12:17] <autrijus> i.e. correct
 -}
 bindHash :: [Exp]   -- ^ Named arguments (pair expressions) that were not
                     --     consumed by explicit named parameters
@@ -66,7 +60,26 @@ bindHash vs (p:ps@(_:_))= do
     return $ first ++ (ps `zip` repeat emptyHashExp)
 bindHash vs [p]         = return [ (p, Syn "\\{}" [Syn "," vs]) ] -- XXX cast to Hash
 
-bindArray :: [Exp] -> [Param] -> SlurpLimit -> MaybeError (Bindings, SlurpLimit)
+{-|
+Create bindings from the slurpy scalar and array parameters to the remaining
+positional arguments. The first slurpy array param gets all of the remaining
+args; subsequent slurpy array params get an empty array. Slurpy scalars may
+not appear after slurpy array params.
+
+Returns the bindings performed, and the sub's new 'SlurpLimit'.
+
+Mostly uses 'doBindArray' to do its dirty work. Used by 'bindSomeParams'.
+
+>[12:16] <scook0> autrijus: At the moment, if you call a sub that has multiple slurpy arrays, 
+>                   Pugs deliberately binds the first one normally, and makes all the rest empty
+>[12:17] <scook0> Is this proper behaviour, or is it just a quirk of the current implementation?
+>[12:17] <autrijus> no, that's specced.
+>[12:17] <autrijus> i.e. correct
+-}
+bindArray :: [Exp]      -- ^ List of slurpable argument expressions
+          -> [Param]    -- ^ List of all slurpy positional params (scalar and array)
+          -> SlurpLimit -- ^ The sub's current 'SlurpLimit'
+          -> MaybeError (Bindings, SlurpLimit)
 bindArray vs ps oldLimit = do
     let exp = Cxt cxtSlurpyAny (Syn "," vs)
     case foldM (doBindArray exp) ([], 0) prms of
