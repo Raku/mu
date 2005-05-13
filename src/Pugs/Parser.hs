@@ -525,6 +525,11 @@ ruleAuthorPart = do -- author - XXX
     str <- many1 (satisfy (/= ';'))
     return ('-':str)
 
+ruleDoBlock :: RuleParser Exp
+ruleDoBlock = rule "do block" $ try $ do
+    symbol "do"
+    ruleBlock
+
 ruleClosureTrait :: Bool -> RuleParser Exp
 ruleClosureTrait rhs = rule "closure trait" $ do
     let names | rhs       = " BEGIN "
@@ -1219,7 +1224,8 @@ makeVar var = Var var
 
 ruleLit :: RuleParser Exp
 ruleLit = choice
-    [ ruleBlockLiteral
+    [ ruleDoBlock
+    , ruleBlockLiteral
     , numLiteral
     , emptyListLiteral
     , emptyArrayLiteral

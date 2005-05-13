@@ -1090,7 +1090,6 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      pre     flush   (IO)\
 \\n   Bool      pre     close   (Socket)\
 \\n   Bool      pre     die     (List)\
-\\n   Any       pre     do      (Str)\
 \\n   IO        pre     open    (Str)\
 \\n   Socket    pre     listen  (Int)\
 \\n   Socket    pre     connect (Str, Int)\
