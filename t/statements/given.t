@@ -167,8 +167,8 @@ Tests the given block, as defined in L<S04/"Switch statements">
 {
     sub ret_test($arg) {
       given $arg {
-	when "a" { "A" }
-	when "b" { "B" }
+    	when "a" { "A" }
+    	when "b" { "B" }
       }
     }
 
@@ -195,6 +195,6 @@ Tests the given block, as defined in L<S04/"Switch statements">
 {
     class TestIt { method pass { 1; } };
     my $test = TestIt.new;
-    given $test { eval_ok(".pass",'. method calls (should default to $_ not $?SELF', :todo<bug>) }
+    given $test { eval_ok(".pass",'. method calls (should default to $_ not $?SELF') }
 }
 
