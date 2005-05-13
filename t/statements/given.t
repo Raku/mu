@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 37;
+plan 38;
 
 =kwid
 
@@ -188,6 +188,13 @@ Tests the given block, as defined in L<S04/"Switch statements">
     }
     is($any, 1, 'when any', :todo<bug>);
     is($all, 1, 'when all', :todo<bug>);
-    is($one, 1, 'when one', :todo<bug>);    
-    
+    is($one, 1, 'when one', :todo<bug>);      
 }
+
+# given + objects
+{
+    class TestIt { method pass { 1; } };
+    my $test = TestIt.new;
+    given $test { eval_ok(".pass",'. method calls (should default to $_ not $?SELF', :todo<bug>) }
+}
+
