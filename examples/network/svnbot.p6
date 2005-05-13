@@ -125,7 +125,7 @@ sub svn_commits() {
       when rx:P5/\S/ {
 	if($cur_entry) {
 	  $_ ~~ rx:P5/^(.*)$/;
-	  $commits ~= "$cur_entry --> $0\n";
+	  $commits ~= "$cur_entry | $0\n";
 	}
       }
     }
