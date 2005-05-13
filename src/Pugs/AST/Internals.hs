@@ -619,6 +619,29 @@ type Params     = [Param]
 -- |A list of bindings from formal parameters ('Param') to actual parameter
 -- expressions ('Exp').
 type Bindings   = [(Param, Exp)]
+{-|
+A sub that has a non-empty 'SlurpLimit' is a bound (or partially bound) sub
+that has a finite number of slurpy scalar params bound, and no slurpy array
+param bound (see 'VCode' and "Pugs.Bind").
+
+Each list entry consists of the number of slurpable args expected, and an
+expression that will evaluate to the actual list of slurpable args.
+When the sub is called (see 'Pugs.Eval.apply'), the expression is evaluated.
+If it evaluates to /too many/ args, the call will fail.
+
+This needs to be a list (rather than a @Maybe@) because Perl6's @.assuming@
+(i.e. explicit currying) means that a sub can have its arguments bound in
+separate stages, and each of the bindings needs to be checked.
+
+>[12:02] <autrijus> scook0: .assuming will impose multiple limits
+>[12:02] <autrijus> because you can assume (curry) multiple times
+>[12:02] <scook0> ah
+>[12:02] <scook0> I'll have to write that in the docs then
+>[12:03] <scook0> Am I correct in that they only apply to subs that take a finite number of slurpy scalars?
+>[12:04] <scook0> Slurpy array params seem to nuke the SlurpLimit
+>[12:04] <scook0> because slurpy arrays can take any number of args
+>[12:07] <autrijus> scook0: yes, and yes.
+-}
 type SlurpLimit = [(VInt, Exp)]
 
 -- |Represents a sub, method, closure etc. -- basically anything callable.
@@ -868,7 +891,7 @@ associates them with the things they actually represent.
 It is represented as a mapping from names to /lists/ of bound items.
 This is to allow for multi subs, because we will need to keep
 /multiple/ subs associated with one symbol. In other cases, the list
-should just contain a single value. See 'genSym' and 'genMultiSym' for
+should just contain a single value. See 'Pugs.AST.genSym' and 'Pugs.AST.genMultiSym' for
 more details.
 
 @TVar@ indicates that the mapped-to items are STM transactional variables.
@@ -879,6 +902,13 @@ are re-generated each time we enter their scope; see the
 
 The current global and lexical pads are stored in the current 'Env', which
 is stored in the @Reader@-monad component of the current 'Eval' monad.
+
+>[11:56] <autrijus> scook0: I'm been thinking to split a Pad entry into single and multiple variants
+>[11:57] <autrijus> MkPad !(Map Var ([(TVar Bool, TVar VRef)]))
+>[11:57] <autrijus> becomes
+>[11:58] <autrijus> data Pad = MkPad !(Map Var PadEntry)
+>[11:58] <autrijus> data PadEntry = MkEntry (TVar Bool, TVar VRef) | MkEntryMulti [(TVar Bool, TVar VRef)]
+>[11:58] <autrijus> yeah. but it's not critical, so is low priority
 -}
 data Pad = MkPad !(Map Var ([(TVar Bool, TVar VRef)]))
     deriving (Eq, Ord, Typeable)

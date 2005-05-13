@@ -2,6 +2,9 @@
 
 {-|
     Monad structures.
+    
+    Note that there aren't actually any monads defined here--try looking in
+    "Pugs.AST.SIO" and "Pugs.AST.Internals".
 
 >   One Ring to rule them all,
 >   One Ring to find them,

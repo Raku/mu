@@ -48,6 +48,12 @@ Create a binding from the slurpy hash parameter (e.g. @\*%_@) to a hash
 containing all the remaining named arguments. If multiple slurpy hashes
 are given, only the first gets the arguments--the rest get an empty hash.
 Used by 'bindSomeParams'.
+
+>[12:16] <scook0> autrijus: At the moment, if you call a sub that has multiple slurpy arrays, 
+>                   Pugs deliberately binds the first one normally, and makes all the rest empty
+>[12:17] <scook0> Is this proper behaviour, or is it just a quirk of the current implementation?
+>[12:17] <autrijus> no, that's specced.
+>[12:17] <autrijus> i.e. correct
 -}
 bindHash :: [Exp]   -- ^ Named arguments (pair expressions) that were not
                     --     consumed by explicit named parameters
