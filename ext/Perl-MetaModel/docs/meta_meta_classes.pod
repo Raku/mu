@@ -1,0 +1,233 @@
+=pod
+
+=head1 Meta-Meta-Classes
+
+... or How to twist your brain up in knots without even trying.
+
+=head1 Introduction
+
+This document is an attempt to clarify (and hopefully simplify) the all too hairy
+topic of MetaClasses. I wrote this document to help me with my own understanding 
+of this topic. I make no guarentees that this will make sense to anyone else or 
+that the information contained within is I<correct> or I<one and only way> to view 
+the concept of MetaClasses.
+
+That said, I will first attempt to define the environment in which our objects 
+exist. I will then define the entities which populate said environment.
+
+=head1 The Object Environment
+
+Let us assume for a moment that all our object's live in an I<object> environment 
+(B<O>), which is a finite set of objects, each of which is identified with a 
+unique object reference.
+
+Here is a diagram of the entire object environment, and each of it's subsets:
+
+    +---{instance}-----------------------------------------------------------+
+    |                                                                        |
+    |              +---{class}---------------------------------------------+ |
+    |              |                                                       | |
+    |              |              +---{meta}-----------------------------+ | |
+    |              |              |                                      | | |
+    |              |              |                +----{meta-meta}----+ | | |
+    |              |              |                |                   | | | |
+    |   ------     |    -----     |    -------     |    -----------    | | | |
+    |  ( iFoo )------->( Foo )------->( Class )------->( MetaClass )   | | | | 
+    |   ------     |    -----     |    -------     |    -----------    | | | |
+    |              |              |                +-------------------+ | | |
+    |              |              +--------------------------------------+ | |
+    |              +-------------------------------------------------------+ |  
+    +------------------------------------------------------------------------+
+
+=head2 Rules of the object environment
+
+Our object environment has a set of rules which help to define the elements that 
+exist within it. 
+
+=over 4
+
+=item B<Every I<instance> is an object.>
+
+These are the occupants of our environment B<O>. It should also be noted that 
+every I<instance> has a uniquely associated entity called a I<class>.
+
+=item B<Every I<class> is itself an I<object>.>
+
+This means that the I<class> space (B<C>) is a subset of B<O>.
+
+=item B<Every I<meta-class> is an I<object> whose instances are I<classes>.>
+
+This means that the I<meta> space (B<M>) is a subset of B<C> which is a subset of B<O>.
+
+=item B<Every I<meta-meta-class> is an I<object> whose instances are I<meta-classes>.>
+
+This means that the I<meta-meta> space (B<MM>) is a subset of B<M> which is a subset 
+of B<C>, which is a subset of B<O>.
+
+=back
+
+=head2 Querying the Object environment
+
+Since everything is simply a set or a subset of a set, we can use simple set difference 
+operations to query the contents of our overall object environment.
+
+=over 4
+
+=item to get all ordinary object do (C<B<O> - B<C>>)
+
+=item to get all ordinary classes do (C<B<C> - B<M>>)
+
+=item to get all ordinart meta-classes do (C<B<M> - B<MM>>)
+
+=back
+
+=head1 So what is a Meta-Meta-Class anyway?
+
+Lets first define the other objects in our environment.
+
+=head2 So what is an Object?
+
+An C<Object> is a primitve in our model and can be viewed as a simple data dictionary.
+
+Here is an example of how an object describing a book might look like:
+
+  {
+      Book => { 
+        'title'  => "VALIS"
+        'author' => "Phillip K. Dick"
+      }
+  }
+
+=head2 So what is an Instance?
+
+An I<Instance> is simply an object with a I<class> key in the data dictionary whose 
+value is the class reference from which the instance is derived, and a set of instance 
+variables (which are defined by the class (and which we will see later)).
+
+So a C<iBook> instance of the class I<Book> would look like this:
+
+    {
+        'class' => Book
+        Book => { 
+            'title'  => "VALIS"
+            'author' => "Phillip K. Dick"
+        }
+    }
+
+=head2 So what is a Class?
+
+A I<Class> is itself just another data dictionary, however it's structure is a bit 
+more complex. 
+
+First, our class must have a name.
+
+A class also needs to have a set of default instance variables from which new 
+instances can be created. 
+
+Next, our class needs to have a method table, which is just another data dictionary 
+whose keys are labels and whose values are code references. This table is seperate 
+from the instance variables becuase methods remain in the class, and are not 
+copied into the instance.
+
+And lastly, we have inheritance. Our class needs to have parents, which we represent
+as an ordered list of other I<Class> objects.
+
+So given that, our I<Book> class might be structured something like this:
+
+    {
+        'class' => Class,
+        Class => {
+            'name' => 'Book'
+            'parents' => [ ... ],
+            'instance_vars' => {
+                Book => { title => '', author => '' }
+            },
+            'method_table' => {
+                'get_author' => sub { ... },
+                'set_author' => sub { ... },                    
+                'get_title'  => sub { ... },
+                'set_title'  => sub { ... },                                        
+            }
+        }
+    }
+
+As you can see, our I<Book> class is itself an instance of the meta-class I<Class>. 
+
+A list of supported instance variables and methods can be found by accumulating a properly 
+sorted unique list of all a class's instance_vars and method_tables merged with those of 
+it's ancestors. These lists make it is possible to determine the instance variable and 
+method resolution order. 
+
+=head2 So what is a MetaClass?
+
+Once again, we can represent our meta-class as a data dictionary. Here is an example of 
+how the meta-class I<Class> would look:
+
+    {
+        'class' => MetaClass,
+        MetaClass => {
+            'name' => 'Class',
+            'parents' => [ ... ],
+            'instance_vars' => {
+                Class => { 
+                    'name'          => "",
+                    'parents'       => [],
+                    'instance_vars' => {},
+                    'method_table'  => {}    
+                }
+            },
+            'method_table' => {
+                'create_instance' => sub { 
+                    return { 'class' => Class, Class.<instance_vars> }
+                }
+            }
+        }
+    }
+
+The C<instance_vars> or a I<Class> are basically those of an empty parent-less class, 
+nothing more, nothing less. The simplicity of this notion can be somewhat difficult to
+swallow. The tempation is to make it seem much more complex, but in reality it is not.
+
+We also take this opportunity to define a C<create_instance> method for our I<MetaClass> 
+which basically just creates a new data dictionary, adding the required 'class' key and 
+value pair, along with a copy of the C<instance_vars>. Again, it need not be any more 
+complex than that.
+
+=head2 So what is a MetaMetaClass?
+
+Now we are back to our original question, and hopefully by now the answer is quite obvious.
+
+A MetaMetaClass is simply a concrete implementation of the data structures we have been 
+constructing above. Our MetaMetaClass is the root of our object hierarchy, and the object from
+which all others can be defined.
+
+"That's all?" you say. "But it can't possibly be all!". 
+
+It is of course important to keep a few things in mind, the first of which is that this 
+MetaMetaClass is actually independent of a given programming language. That it is not 
+something which the "user" should ever really have access too. It is a part of the compiler 
+and/or runtime environment upon which a programming language resides.
+
+=head1 ACKNOWLEDGEMENTS
+
+Much of what is found in this document is a direct rip-off of the contents of the first
+few chapter of this book (defined here as an instance of a Book class):
+
+    {
+        'class' => Book,
+        Book => {
+            'title'     => "Putting Metaclasses to Work",
+            'authors'   => [ 'Ira R. Forman', 'Scott H. Danforth' ],
+            'publisher' => 'Addison-Wesley'
+            'isbn'      => 0-201-43305-2,
+        }
+    }
+
+However, despite my plagarism/summariazation, I still take responsibility for all errors, 
+inconsistencies or outright lies this document might contain.
+
+=head1 AUTHOR
+
+Stevan Little E<lt>stevan@iinteractive.comE<gt>
+
+=cut
