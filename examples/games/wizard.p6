@@ -60,7 +60,7 @@ class Person {
     method attack (Monster $enemy, Weapon $weapon) {
         say "You attack the $enemy.name()", " with your $weapon.name()!";
         $enemy.hit($weapon.damage);
-        $enemy.attack($_, $enemy.weapon);
+        $enemy.attack($_);
         say "";
         say "Your health: $.life\t$enemy.name(): $enemy.life()";
     }
@@ -78,9 +78,9 @@ class Monster {
 
     method hit  ($power) { $.life -= $power; $.life = 0 if $.life < 0; }
     method dead ()       { $.life <= 0 };
-    method attack (Person $human, Weapon $weapon) {
-        say "$_.name()", " attacks $human.name()", " with $weapon.name()!";
-        $human.hit($weapon.damage);
+    method attack (Person $human) {
+        say "$_.name()", " attacks $human.name()", " with $.weapon.name()!";
+        $human.hit($.weapon.damage);
     };
 }
 
