@@ -34,7 +34,12 @@ enterLex newSyms = local (\e -> e{ envLexical = combine newSyms (envLexical e) }
 enterContext :: Cxt -> Eval a -> Eval a
 enterContext cxt = local (\e -> e{ envContext = cxt })
 
-enterGiven :: VRef -> Eval a -> Eval a
+-- |Bind @\$_@ to the given topic value in a new lexical scope, then perform
+-- the given evaluation in that scope. Used by "Pugs.Eval"'s implementation
+-- of 'Pugs.Eval.reduce' for @\"given\"@.
+enterGiven :: VRef   -- ^ Reference to the value to topicalise
+           -> Eval a -- ^ Action to perform within the new scope
+           -> Eval a
 enterGiven topic action = do
     sym <- genSym "$_" topic
     enterLex [sym] action
@@ -81,6 +86,13 @@ genSymCC :: String
 genSymCC symName action = callCC $ \esc -> do
     genSymPrim symName (const $ esc undef) action
 
+{-|
+Perform the specified evaluation in a new lexical scope in which
+@&?BLOCK_EXIT@ is bound to a continuation that will break out of the block
+when called. (Actually, @&?BLOCK_EXIT@ is bound to a 'Prim' 'VCode'
+that is /implemented/ using the continuation.) Used by 'Pugs.Eval.reduce'
+when evaluating @('Syn' \"block\" ... )@ expressions.
+-}
 enterBlock :: Eval Val -> Eval Val
 enterBlock action = callCC $ \esc -> do
     env <- ask
