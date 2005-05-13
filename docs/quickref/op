@@ -1,4 +1,4 @@
-== PRECEDENCE
+Precedence
 
     terms               42 "eek" $x /abc/ (1+2) a(1) :by(2) .meth listop
     method postfix      . .+ .? .* .+ .() .[] .{} .«» .=
@@ -23,7 +23,7 @@
     loose or            or xor err
     expr terminator     ; {} as control block, statement modifiers
 
-== SIMPLE ARITHMETIC OPERATORS
+Simple arithmetic operators
 
     4 + 2        # 6, addition
     4 - 2        # 2, substraction
@@ -32,7 +32,7 @@
     4 ** 2       # 16, exponentiation
     4 % 2        # 0, modulo
 
-== BIT OPERATORS
+Bit operators
 
     Numeric   Stringy   Boolean
     ---------------------------
@@ -43,7 +43,7 @@
     +<        ~<                     # Shift left
     +>        ~>                     # Shift right
 
-== UNARY CONTEXT OPERATORS
+Unary context operators
 
     +           # Num
     ~           # Str
@@ -54,13 +54,13 @@
     hash        # Hash
     pair        # Pair
 
-== HYPER META-OPERATORS
+Hyper meta-operators
 
     @foo >>op $bar    # loop over left side
     $foo op<< @bar    # loop over right side
     @foo >>op<< @bar  # loop over both sides, parallel
 
-== ASSIGNMENT OPERATORS
+Assignment operators
 
     $copy = $foo     # assign
     $alias := $foo   # bind, runtime
@@ -71,7 +71,7 @@
     --$foo           # predecrement
     $foo op= $bar    # mutate ($foo = $foo op $bar), where op is any infix
 
-== COMPARISON OPERATORS
+Comparison operators
 
     Num   Str   Generic
     -------------------
@@ -86,7 +86,7 @@
                 !~      # negated smart match
                 =:=     # equality (container)
 
-== LOGIC OPERATORS
+Logic operators
 
     HighPrec  LowPrec
     -----------------
@@ -98,7 +98,7 @@
     ?         true      # prefix
     ?? ::               # ternary
 
-== QUOTE-LIKE OPERATORS
+Quote-like operators
 
     Generalized Short   Shorter
     -----------------------------
@@ -110,26 +110,20 @@
     q:2:w       qqw     «» <<>>
                 rx      //
 
-== MISCELLANEOUS
-
-    x           # repeat string
-    xx          # repeat element, returns list
-    ¥           # zip (also written as Y)
-
-== JUNCTIVE OPERATORS
+Junctive operators
 
     $foo | $bar | $baz   # any($foo, $bar, $baz)
     $foo & $bar & $baz   # all($foo, $bar, $baz)
     $foo ^ $bar ^ $baz   # one($foo, $bar, $baz)
     $foo ! $bar ! $baz   # none($foo, $bar, $baz)
 
-== YADA YADA YADA OPERATORS (terms)
+Yada yada yada operators (terms)
 
     ...  # fail "$?BLOCKNAME is not yet implemented"
     ???  # warn "$?BLOCKNAME is not yet implemented"
     !!!  # die  "$?BLOCKNAME is not yet implemented"
 
-== MISCELLANEOUS OPERATORS
+Miscellaneous operators
 
     \$foo               # reference
     $foo ~ $bar         # string concat
@@ -140,7 +134,7 @@
     1..5                # (1, 2, 3, 4, 5)
     ;                   # statement separator
 
-== SEE ALSO
+See also
 
     .method         # oo
     ^method         # oo
