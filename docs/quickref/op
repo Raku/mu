@@ -54,11 +54,13 @@ Unary context operators
     hash        # Hash
     pair        # Pair
 
-Hyper meta-operators
+Meta-operators
 
-    @foo >>op $bar    # loop over left side
-    $foo op<< @bar    # loop over right side
-    @foo >>op<< @bar  # loop over both sides, parallel
+    @foo >>op $bar    # hyper loop over left side
+    $foo op<< @bar    # hyper loop over right side
+    @foo >>op<< @bar  # hyper loop over both sides, parallel
+    [+] @foo          # reduce with specified infix op
+    [+] 1, 2, 3       # 1 + 2 + 3
 
 Assignment operators
 
