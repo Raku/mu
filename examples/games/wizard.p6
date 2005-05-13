@@ -38,8 +38,10 @@ class Person {
             say "\tf-flee in terror!";
             $choice = prompt("Your choice?");
             given $choice {
+				system(($?OS eq any<MSWin32 mingw>) ?? 'cls' :: 'clear');
                 when 'f' {
-                    say "You ran away from the $enemy.name()!"
+                    say "You ran away from the $enemy.name()!"; 
+					exit; 
                 }
                 if ($.weapons.exists($_)) {
                     ^attack($enemy, $.weapons{$_});
@@ -88,6 +90,7 @@ my $enemy  = Monster.new(:name("Army of frogs"), :gold(int rand 100), :life(50),
                          :weapon($wep) );
 
 $person.location = "Lobby";
+system(($?OS eq any<MSWin32 mingw>) ?? 'cls' :: 'clear');
 $person.name = prompt("What is your name:");
 say "Greetings, $person.name()!";
 say $person.where;
