@@ -38,7 +38,7 @@ sub get_committer_list (Str $dict_file) returns List {
 }
 
 sub pick_committer (@committers) returns Str {
-    any(@committers).pick;
+    @committers.pick;
 }
 
 sub draw_board returns Str { 
@@ -131,7 +131,7 @@ while ($letter = =$*IN) {
         $number_of_bad_guesses++;
         if ($number_of_bad_guesses >= $allowed_bad_guesses) {
             print draw_hangman(
-                "You have exceedded the maximum number of tries.\n" ~
+                "You have exceeded the maximum number of tries.\n" ~
                 "Sorry, the committer was '$current_committer'\n"
             ); 
             exit;
