@@ -734,37 +734,18 @@ cxtOfExp (App (Var name) invs args)   = do
         _ -> cxtSlurpyAny
 cxtOfExp _                      = return cxtSlurpyAny
 
-findSub name [Var var] args = do
-    pos <- asks envPos
-    let findNext n = findSub n [Pos pos (Var var)] args -- XXX hack
-    rv  <- findVar var
-    case rv of
-        Nothing  -> findNext name
-        Just ref -> do
-            typ     <- evalValType (VRef ref)
-            subs    <- findNext $ ('&':showType typ) ++ "::" ++ tail name
-            if isNothing subs then findNext name else return subs
-findSub name [Val val] args = do
-    pos     <- asks envPos
-    let findNext n = findSub n [Pos pos (Val val)] args -- XXX hack
-    typ     <- evalValType val
-    subs    <- findNext $ ('&':showType typ) ++ "::" ++ tail name
-    if isNothing subs then findNext name else return subs
-findSub name [inv@(App (Var name') invs' args')] args = do
-    pos     <- asks envPos
-    let findNext n = findSub n [Pos pos inv] args -- XXX hack
-    sub     <- findSub name' invs' args'
-    case sub of
-        Just sub    -> do
-            let typ = subReturns sub
-            subs    <- findNext $ ('&':showType typ) ++ "::" ++ tail name
-            if isNothing subs then findNext name else return subs
-        Nothing     -> findNext name
 findSub name invs args = do
-    subSyms     <- findSyms name
-    lens        <- mapM argSlurpLen (unwrap $ invs ++ args)
-    doFindSub (sum lens) subSyms
+    case invs of
+        [exp] | not (':' `elem` name) -> do
+            typ     <- evalExpType exp
+            subs    <- findSub' (('&':showType typ) ++ "::" ++ tail name)
+            if isNothing subs then findSub' name else return subs
+        _ -> findSub' name
     where
+    findSub' name' = do
+        subSyms     <- findSyms name'
+        lens        <- mapM argSlurpLen (unwrap $ invs ++ args)
+        doFindSub (sum lens) subSyms
     argSlurpLen (Val listMVal) = do
         listVal  <- fromVal listMVal
         return $ length (vCast listVal :: [Val])
@@ -803,22 +784,34 @@ findSub name invs args = do
         cls <- asks envClasses
         cxt <- asks envContext
         return $ deltaType cls (typeOfCxt cxt) x
-    deltaFromScalar x = do
+    deltaFromPair (x, y) = do
         cls <- asks envClasses
-        return $ deltaType cls x (mkType "Scalar")
-    deltaFromPair (x, (Var var)) = do
-        cls <- asks envClasses
-        rv  <- findVar var
-        case rv of
-            Nothing  -> return $ deltaType cls x $ typeOfSigil (head var)
-            Just ref -> deltaFromPair (x, (Val $ VRef ref))
-    deltaFromPair (x, (Val val)) = do
-        cls <- asks envClasses
-        typ <- evalValType val
+        typ <- evalExpType y
         return $ deltaType cls x typ
-    deltaFromPair (x, _) = do
-        deltaFromScalar x
 
+evalExpType (Var var) = do
+    rv  <- findVar var
+    case rv of
+        Nothing  -> return $ typeOfSigil (head var)
+        Just ref -> evalValType (VRef ref)
+evalExpType (Val val) = evalValType val
+evalExpType (App (Val val) _ _) = do
+    sub <- fromVal val
+    return $ subReturns sub
+evalExpType (App (Var "&new") [(Val (VType typ))] _) = return typ
+evalExpType (App (Var name) invs args) = do
+    sub <- findSub name invs args
+    case sub of
+        Just sub    -> return $ subReturns sub
+        Nothing     -> return $ mkType "Any"
+evalExpType exp@(Syn syn _) | (syn ==) `any` words "{} []" = do
+    val <- evalExp exp
+    evalValType val
+evalExpType exp =
+    let exp' = unwrap exp in
+    if exp == exp'
+        then return $ mkType "Any"
+        else evalExpType exp'
 
 -- OK... Now let's implement the hideously clever autothreading algorithm.
 -- First pass - thread thru all() and none()
