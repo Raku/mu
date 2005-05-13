@@ -260,12 +260,12 @@ ruleTraitName :: String -> GenParser Char st String
 ruleTraitName trait = rule "named trait" $ do
     symbol "is"
     symbol trait
-    identifier
+    ruleQualifiedIdentifier
 
 ruleBareTrait :: String -> GenParser Char st String
 ruleBareTrait trait = rule "bare trait" $ do
     choice [ ruleTraitName trait
-           , do { symbol trait ; identifier }
+           , do { symbol trait ; ruleQualifiedIdentifier }
            ]
 
 ruleContext :: GenParser Char st String
