@@ -330,11 +330,15 @@ op1 "Pugs::Internals::runInteractiveCommand" = \v -> do
                        , VProcess (MkProcess phand)
                        ]
 op1 "system" = \v -> do
-    cmd <- fromVal v
-    exitCode <- liftIO $ system cmd
+    cmd         <- fromVal v
+    exitCode    <- liftIO $ system cmd
     case exitCode of
-        ExitFailure x -> return $ VInt $ toInteger x
-        ExitSuccess -> return $ VInt 0
+        ExitFailure x -> do
+            glob    <- askGlobal
+            errSV   <- findSymRef "$!" glob
+            writeRef errSV (VInt $ toInteger x)
+            return $ VBool False
+        ExitSuccess -> return $ VBool True
 op1 "accept" = \v -> do
     socket      <- fromVal v
     (h, _, _)   <- liftIO $ accept socket
@@ -666,12 +670,16 @@ op2 "exec" = \x y -> do
         executeFile prog True args Nothing
         return $ VBool True
 op2 "system" = \x y -> do
-    prog  <- fromVal x
-    args  <- fromVals y
-    exitCode <- liftIO $ rawSystem prog args
+    prog        <- fromVal x
+    args        <- fromVals y
+    exitCode    <- liftIO $ rawSystem prog args
     case exitCode of
-        ExitFailure x -> return $ VInt $ toInteger x
-        ExitSuccess -> return $ VInt 0
+        ExitFailure x -> do
+            glob    <- askGlobal
+            errSV   <- findSymRef "$!" glob
+            writeRef errSV (VInt $ toInteger x)
+            return $ VBool False
+        ExitSuccess -> return $ VBool True
 op2 "chmod" = \x y -> do
     mode  <- fromVal x
     files <- fromVals y
