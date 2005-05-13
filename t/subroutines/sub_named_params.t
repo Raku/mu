@@ -109,6 +109,26 @@ sub h($a,$b,$d) { $d ?? h($b,$a,$d-1) :: $a~$b }
 is(h('a','b',1),'ba',"parameters don\'t bind incorrectly");
 }
 
+# Slurpy Hash Params
+{
+sub slurp(*%args) { return %args }
+my %fellowship = slurp(hobbit => 'Frodo', wizard => 'Gandalf');
+is(%fellowship<hobbit>, 'Frodo', "hobbit arg was slurped", :todo<bug>);
+is(%fellowship<wizard>, 'Gandalf', "wizard arg was slurped", :todo<bug>);
+is(%fellowship<dwarf>, undef, "dwarf arg was not given", :todo<bug>);
+is(+%fellowship, 2, "exactly 2 arguments were slurped", :todo<bug>);
+}
+
+{
+sub named_and_slurp(+$grass, *%rest) { return($grass, %rest) }
+my ($grass, %rest) = named_and_slurp(sky => 'blue', grass => 'green', fire => 'red');
+is($grass, 'green', "explicit named arg received despite slurpy hash", :todo<bug>);
+is(+%rest, 2, "exactly 2 arguments were slurped", :todo<bug>);
+is(%rest{sky}, 'blue', "sky argument was slurped", :todo<bug>);
+is(%rest{fire}, 'red', "fire argument was slurped", :todo<bug>);
+is(%rest{grass}, undef, "grass argument was NOT slurped", :todo<bug>);
+}
+
 =kwid
 
 = AUTHOR
