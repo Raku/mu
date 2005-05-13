@@ -64,7 +64,7 @@ my $initrd_size  = 9.5 * 1024;
 my $cdroot       = "cdroot";
 my $iso          = "cd.iso";
 
-sub usage { die <<USAGE }
+sub usage { print <<USAGE; exit }
 Usage: $0 [options]
 
 $0 creates a very minimalistic Pugs Live CD.
