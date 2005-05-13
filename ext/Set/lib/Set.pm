@@ -66,5 +66,111 @@ method clear() {
     undef %:members;
 }
 
-our &Set::count ::= &Set::size;
-our &Set::has   ::= &Set::includes;
+method clone ($self:) returns Set {
+    my $set = Set.new;
+    $set.insert($self.members);
+    return $set;
+}
+
+method equal($self: Set $other) returns Bool {
+    return (($self.size == $other.size) &&
+	    ($self.includes($other.members)));
+}
+
+method not_equal($self: Set $other) returns Bool {
+    return !$self.equal($other);
+}
+
+method subset($self: Set $other) returns Bool {
+    return ($self.size <= $other.size && $other.includes($self.members));
+}
+method proper_subset($self: Set $other) returns Bool {
+    return ($self.size < $other.size && $other.includes($self.members));
+}
+method superset($self: Set $other) returns Bool {
+    return ($other.subset($self));
+}
+method proper_superset($self: Set $other) returns Bool {
+    return ($other.proper_subset($self));
+}
+
+method union($self: Set $other) returns Set {
+    set($self.members, $other.members);
+}
+method intersection($self: Set $other) returns Set {
+    set(grep:{ $other.includes($_) } $self.members);
+}
+method difference($self: Set $other) returns Set {
+    set(grep:{ !$other.includes($_) } $self.members);
+}
+
+method symmetric_difference($self: Set $other) returns Set {
+    $self.difference($other).union($other.difference($self));
+}
+
+#our &Set::count ::= &Set::size;
+#our &Set::has   ::= &Set::includes;
+
+=for a later time, when 'overloading' works...
+
+# what will be used for stringify?
+method prefix:<~> (Set $one, *@args) returns Set {
+    $one.symmetric_difference(set(@args));
+}
+
+# addition is union
+method infix:<+> (Set $one, Set $two) returns Set {
+    $one.union($two);
+}
+method infix:<+> (Set $one, *@args) returns Set {
+    $one.union(set(@args));
+}
+
+# subtraction is difference
+method infix:<-> (Set $one, Set $two) returns Set {
+    $one.difference($two);
+}
+method infix:<-> (Set $one, *@args) returns Set {
+    $one.difference(set(@args));
+}
+
+# multiplication is intersection
+method infix:<*> (Set $one, Set $two) returns Set {
+    $one.intersection($two);
+}
+method infix:<*> (Set $one, *@args) returns Set {
+    $one.intersection(set(@args));
+}
+
+# modulus is symmetric difference
+# subtraction is difference
+method infix:<%> (Set $one, Set $two) returns Set {
+    $one.symmetric_difference($two);
+}
+method infix:<%> (Set $one, *@args) returns Set {
+    $one.symmetric_difference(set(@args));
+}
+
+# comparison is subset/superset
+method infix:"==" (Set $one, Set $two) returns Set {
+    $one.equal($two);
+}
+method infix:"!=" (Set $one, Set $two) returns Set {
+    $one.not_equal($two);
+}
+method infix:"<" (Set $one, Set $two) returns Set {
+    $one.proper_subset($two);
+}
+method infix:">" (Set $one, *@args) returns Set {
+    $one.proper_superset(set(@args));
+}
+method infix:"<=" (Set $one, Set $two) returns Set {
+    $one.subset($two);
+}
+method infix:">=" (Set $one, *@args) returns Set {
+    $one.superset(set(@args));
+}
+
+
+
+=cut
