@@ -28,15 +28,16 @@ SIMPLE ARITHMATIC OPERATORS
 4 * 2        # 8, multiplication
 4 / 2        # 2, division
 4 ** 2       # 16, exponentiation
+4 % 2        # 0, modulo
 
 BIT OPERATORS
 Numeric   Stringy   Boolean
-  +|        ~|        ?|           OR
-  +&        ~&        ?&           AND
-  +^        ~^        ?^           XOR
-  +^        ~^        ?^           Negation (prefix unary)
-  +<        ~<                     Shift left
-  +>        ~>                     Shift right
+  +|        ~|        ?|     # OR
+  +&        ~&        ?&     # AND
+  +^        ~^        ?^     # XOR
+  +^        ~^        ?^     # Negation (prefix unary)
+  +<        ~<               # Shift left
+  +>        ~>               # Shift right
 
 UNARY CONTEXT OPERATORS
 scalar      # Scalar
@@ -75,7 +76,8 @@ HighPrec  LowPrec
 ^^        xor
 //        err     # defined-or
 !         not
-?         true
+?         true    # "true" is not a value
+?? ::     ternary
 
 QUOTE-LIKE OPERATORS
 Generalized   Short   Shorter
@@ -87,8 +89,42 @@ q:to
 q:0:w         qw      <>
 q:2:w         qqw     <<>>
 
-MISCELLANEOUS
-x         # repeat string
-xx        # repeat element, returns list
-Y         # zip
+HYPER META-OPERATORS
+@foo >>op $bar    # loop over left side
+$foo op<< @bar    # loop over right side
+@foo >>op<< @bar  # loop over both sides, parallel
 
+JUNCTIVE OPERATORS
+$foo | $bar | $baz   # any($foo, $bar, $baz)
+$foo & $bar & $baz   # all($foo, $bar, $baz)
+$foo ^ $bar ^ $baz   # one($foo, $bar, $baz)
+none(operator :-))   # none(...)
+
+YADA YADA YADA OPERATORS (terms)
+...  # fail "$?BLOCKNAME is not yet implemented"
+???  # warn ditto
+!!!  # die  ditto
+
+MISCELLANEOUS OPERATORS
+\$foo               # reference
+$foo ~ $bar         # string concat
+$foo x 3            # $foo ~ $foo ~ $foo
+$foo xx 3           # ($foo, $foo, $foo)
+@foo Y @bar Y @baz  # zip(@foo, @bar, @baz)
+scalar($foo, $bar)  # [ $foo, $bar ]
+1..5                # (1, 2, 3, 4, 5)
+;                   # statement separator
+
+SEE ALSO
+.method         # oo
+^method         # oo
+.=method        # oo
+.()             # sub
+.[]             # data
+.{}             # data
+.<>             # data
+.<<>>           # data
+$, @, %, &, ::  # data
+k => $v         # data
+:k($v)          # data
+<==, ==>        # sub
