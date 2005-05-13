@@ -37,7 +37,7 @@ syn match p6Comment "#.*" contains=p6Attn
 " POD
 syn region p6POD start="^=[a-z]\+$" end="^=cut" contains=p6Attn 
 syn region p6MultComment start="^=begin [A-Z]\+$" end="^=end [A-Z]\+$" contains=p6Attn 
-syn region p6ParaComment start="^=for [A-Z]\+$" end="^\n$" contains=p6Attn
+syn region p6ParaComment start="^=for [A-Z]\+$" end="^$" contains=p6Attn
 
 " Variables, arrays, and hashes with ordinary \w+ names
 syn match p6VarPlain "[$@%][a-zA-Z_]\w*"
