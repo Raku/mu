@@ -1,11 +1,8 @@
 {-# OPTIONS_GHC -fglasgow-exts #-}
 
 {-|
-    Monad structures.
+    Common operations on Eval monad.
     
-    Note that there aren't actually any monads defined here--try looking in
-    "Pugs.AST.SIO" and "Pugs.AST.Internals".
-
 >   One Ring to rule them all,
 >   One Ring to find them,
 >   One Ring to bring them all
@@ -18,9 +15,10 @@ import Pugs.AST
 import Pugs.Context
 import Pugs.Types
 
-headVal :: [Val] -> Eval Val
-headVal []    = retEmpty
-headVal (v:_) = return v
+{-|
+    Note that the actual monads are defined elsewhere -- try looking at
+    "Pugs.AST.SIO" and "Pugs.AST.Internals".
+-}
 
 -- |Perform the specified evaluation in a lexical scope that has been
 -- augmented by the given list of lexical 'Pad' transformers. Subsequent
@@ -187,3 +185,8 @@ evalVal val = do
             evalVal =<< readRef ref
         _ -> do
             return val
+
+headVal :: [Val] -> Eval Val
+headVal []    = retEmpty
+headVal (v:_) = return v
+

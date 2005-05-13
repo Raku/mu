@@ -199,7 +199,7 @@ ${() = '%.hpp : %.hs @prereqs $version_h
 haddock : $version_h $config_h @hppfiles docs/haddock
 	haddock -t Pugs-$version -h -o docs/haddock/ @hppfiles
 	\@\$(RM_F) @{[map "$_.pre", @hppfiles]} @hppfiles
-	\@\$(PERL) -le "print and print q-*** API Documentation generated in @{[File::Spec->catfile('docs', 'haddock', 'index.html')]}.-"
+	\@\$(PERL) -le "print and print q-*** API Documentation generated in @{[File::Spec->catfile('docs', 'haddock', 'index.html')]}-"
 
 docs/haddock :
 	\@\$(PERL) -e "mkdir q-docs/haddock-"
