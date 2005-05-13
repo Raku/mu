@@ -50,8 +50,9 @@ if($*OS eq any<MSWin32 mingw msys cygwin>) {
   $pugs = 'pugs.exe';
 };
 
+sub nonces () { return (".$*PID." ~ int rand 1000) }
 sub run_pugs ($c) {
-  my $tempfile = "temp-ex-output";
+  my $tempfile = "temp-ex-output" ~ nonces;
   my $command = "$pugs $c $redir $tempfile";
   diag $command;
   system $command;

@@ -62,3 +62,4 @@ my @got      = eval $got;
 # ??? Worksforme on win32 (CORION)
 is @got, @expected, "-e '' does not eat a following argument";
 
+unlink $out_fn;

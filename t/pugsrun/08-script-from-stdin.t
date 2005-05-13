@@ -26,8 +26,10 @@ if($*OS eq any<MSWin32 mingw msys cygwin>) {
   $pugs = 'pugs.exe';
 };
 
+sub nonces () { return (".$*PID." ~ int rand 1000) }
+my $tempfile = "temp-ex-output" ~ nonces;
 for @examples -> $ex {
-  my $command = qq($echo $ex | $pugs - "Hello Pugs" $redir temp-ex-output);
+  my $command = qq($echo $ex | $pugs - "Hello Pugs" $redir $tempfile);
   diag $command;
   system $command;
 
@@ -35,4 +37,5 @@ for @examples -> $ex {
   my $got      = slurp "temp-ex-output";
 
   is $got, $expected, "Running a script from stdin works";
+  unlink $tempfile;
 }

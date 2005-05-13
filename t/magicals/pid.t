@@ -20,7 +20,8 @@ if($*OS eq any<MSWin32 mingw msys cygwin>) {
     $pugs = 'pugs.exe';
 };
 
-my $tempfile = "temp-ex-output";
+sub nonces () { return (".$*PID." ~ int rand 1000) }
+my $tempfile = "temp-ex-output" ~ nonces;
 
 my $command = qq!$pugs -e "say eval chr(36)~'PID'" $redir $tempfile!;
 diag $command;
