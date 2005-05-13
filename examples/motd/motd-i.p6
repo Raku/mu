@@ -1,31 +1,23 @@
 #!/usr/bin/pugs
 
 use v6;
-#XXX just so that File:;Spec can be used w/o being installed
+
 unshift @*INC, 'ext/File-Spec/lib', '../ext/File-Spec/lib', '../../ext/File-Spec /lib';
-use File::Spec;
-my @path_parts   = splitpath($*PROGRAM_NAME);
-my $progdir      = @path_parts[1];
+require File::Spec;
+my $progdir   = splitpath($*PROGRAM_NAME)[1] || '.';
 unshift @*INC, $progdir;
-require MOTD; 
+require Motd; 
 
 my $subject   = @ARGS[0] // 'Pugs is';
 my $surveyed  = @ARGS[1] // 20;
 my %tally     ;
-
-# XXX unimplemented: should be able to say 
-# my @list = =$fh is chomped;
 my @list      ;
 my $dict = canonpath("$progdir/pugspraise");
 
 my $fh = open("<$dict") || die $!;
 
-# XXX should be able to chomp $_, but can't yet
-# check back
 for =$fh->$line is rw{
-  # XXX $line should be declarable as 'is rw'
-	# not yet implemented
-	my $a = $line; #so, we need to make a rw copy 
+	my $a = $line; 
 	chomp $a; 
 	push @list,$a || next()
 };
@@ -49,20 +41,20 @@ my $keyed;
 while $keyed = =$*IN {
 	clear;
 	chomp $keyed;
- 	my @keyed ;
+ 	my @keyed_args ;
 	if $keyed {
-		@keyed = parse_args($keyed);
+		@keyed_args = parse_args($keyed);
 	}
-	@list      = (*@keyed , *@list);
+	@list      = (*@keyed_args , *@list);
 	%tally     = whisper_about $surveyed,*@list ;
 	tell @mostsaid( $most = %tally.values.max ); 
-	@keyed.perl.say;
+	@keyed_args.perl.say;
 }
 
 unless $orig eq ~@list {
 	say "Do you want to save your changes?";
 	print "y/N ..."; 
-	my $ans = =$*IN; # XXX is chomped;
+	my $ans = =$*IN ;# XXX is chomped;
 	chomp $ans; 
 	# User wants to save changes
 	# Save the original $dict to a backup

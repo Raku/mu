@@ -12,7 +12,6 @@ L<S04/"Conditional statements">
 =cut
 
 plan 16;
-force_todo 8;
 
 my $x = 'test';
 if ($x eq $x) { pass("if ($x eq $x) {} works"); } else { fail("if ($x eq $x) {} failed"); }
@@ -37,7 +36,7 @@ is $foo, 1, "die should stop execution immediately.";
 {
 	my $foo = 1;
 	eval 'if { 1 > 0 } { $foo = 2 } else { $foo = 3 }';
-	is $foo, 2, 'if with no parens, and closure as cond';
+	is $foo, 2, 'if with no parens, and closure as cond',:todo<bug>;
 	### This is a parser problem.  This test has been copied to perlbugs.
 };
 

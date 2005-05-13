@@ -4,28 +4,21 @@ use v6;
 
 #XXX just so that File:;Spec can be used w/o being installed
 unshift @*INC, 'ext/File-Spec/lib', '../ext/File-Spec/lib', '../../ext/File-Spec /lib';
-use File::Spec;
-my @path_parts   = splitpath($*PROGRAM_NAME);
-my $progdir      = @path_parts[1];
-unshift @*INC, $progdir;
-require MOTD; 
+require File::Spec;
+my $progdir = splitpath($*PROGRAM_NAME)[1] || '.'; 
+@*INC.push($progdir);
+require Motd; 
 
-# XXX unimplemented: should be able to say 
-# my @list = =$fh is chomped;
 my $subject   = @ARGS[0] // 'Pugs';
 my $surveyed  = @ARGS[1] // 20;
 my $dict      = @ARGS[2] // canonpath("$progdir/pugspraise");
-my $fh        = open "<$dict" or die $!;
-my @list  ;
+my $fh        = open "< $dict" err die $!;
+my @list;
 
-# XXX should be able to chomp $_, but can't yet
-# check back
 for =$fh ->$line{
-  # XXX $line should be declarable as 'is rw'
-	# not yet implemented
-	my $a = $line; #so, we need to make a rw copy 
+	my $a = $line; 
 	chomp $a; 
-	push @list,$a || next()
+	push @list, $a || next()
 };
 $fh.close;
 
@@ -33,7 +26,7 @@ my %opinions = $surveyed  # number
                .whisper_about( @list) ;
 
 my $most     = %opinions.values.max;
-my &tell := -> $limit {
+my &tell = -> $limit {
 		say "$subject is{ 
 			report matchval $most,%opinions,$limit;
 		}."

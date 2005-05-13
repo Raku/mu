@@ -4,7 +4,6 @@ use v6;
 use Test;
 
 plan 26;
-force_todo 18, 19;
 
 =kwid
 
@@ -77,11 +76,11 @@ is($b, -(++$a), 'est oder of predecrement in -(++$a)');
 
 $a = undef;
 $a++;
-is($a, 0, 'undef++ == 0');
+is($a, 0, 'undef++ == 0',:todo);
 
 $a = undef;
 $a--;
-is($a, undef, 'undef-- is undefined');
+is($a, undef, 'undef-- is undefined',:todo);
 
 $a = 'x';
 is($a++, 'x', 'magical ++ should not be numified');

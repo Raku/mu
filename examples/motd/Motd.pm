@@ -1,6 +1,8 @@
-use v6;
 
-sub finger (*@arr) returns Str {
+use v6;
+module Motd;
+
+sub finger (*@arr) returns Str is export {
 		my @default = (
 			"boring",
 			"missing examples",
@@ -8,7 +10,7 @@ sub finger (*@arr) returns Str {
 	  pick any @arr || @default
 }
 
-sub report (@x) returns Str{
+sub report (@x) returns Str is export {
  	my $str = '';
 	my $iter = 0 ;
 	for @x -> $x{
@@ -23,7 +25,7 @@ sub report (@x) returns Str{
 
 
 #Autrijus' "cls"
-sub clear returns Void {
+sub clear returns Void is export{
 	system(($?OS eq any<MSWin32 mingw cygwin>) ?? 'cls' :: 'clear');
 }
 
@@ -35,7 +37,8 @@ sub max (Array @x) returns Int{
 	$max.int
 }	
 
-sub whisper_about (Int $sizeof_crowd, Array ?@x) returns Hash {
+sub whisper_about (Int $sizeof_crowd, Array ?@x) returns Hash is
+export{
     my %terms;
     for 1 .. $sizeof_crowd {
 		my $phrase = finger @x;
@@ -73,7 +76,7 @@ sub append_last ($x,$string is rw,$pass){
 	}
 }
 
-sub matchval ($x,%x,Int ?$cap) returns Array {
+sub matchval ($x,%x,Int ?$cap) returns Array is export{
 	my @matches;
 	for (%x.pair)->$pair{
 		if $pair.value eq $x { push @matches,$pair.key }  
@@ -89,5 +92,6 @@ sub parse_args (Str $x) returns Array {
 
 1;
 =end
+
 
 

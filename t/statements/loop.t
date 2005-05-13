@@ -12,7 +12,6 @@ L<S04/"The general loop statement">
 =cut
 
 plan 8;
-force_todo 8;
 
 # basic loop
 
@@ -39,8 +38,8 @@ is($i, 0, 'verify our starting condition');
 loop (;;) { $i++; last(); }
 is($i, 1, 'verify our ending condition');
 
-# declare variable inside loop
-my $count = 0;
+# declare variable $j inside loop
+my $count  = 0;
 is($count, 0, 'verify our starting condition');
 eval 'loop (my $j = 0; $j < 10; $j++) { $count++; }';
-is($count, 10, 'verify our ending condition');
+is($count, 10, 'verify our ending condition',:todo);

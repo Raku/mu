@@ -13,7 +13,6 @@ and perl6-specific tests.
 =cut
 
 plan 66;
-force_todo 20, 21, 26;
 
 our $GLOBAL;
 
@@ -71,10 +70,10 @@ ok(!defined(undef), "undef is not defined");
 	ok(defined(%hash), "aggregate hash defined");
 
 	undef(@ary);
-    ok(!defined(@ary), "undef array");
+    ok(!defined(@ary), "undef array",:todo<bug>);
 
 	undef(%hash);
-    ok(!defined(%hash), "undef hash");
+    ok(!defined(%hash), "undef hash",:todo<bug>);
 
 	@ary = (1);
 	ok(defined(@ary), "define array again");
@@ -86,10 +85,12 @@ ok(!defined(undef), "undef is not defined");
 	sub a_sub { "møøse" }
 
 	ok(defined(&a_sub), "defined sub");
-	eval_ok('defined(%«$?PACKAGE\::»<&a_sub>)', "defined sub (symbol table)", :todo);
+	eval_ok('defined(%«$?PACKAGE\::»<&a_sub>)', "defined sub (symbol
+	table)", :todo<parsefail>);
 
-	eval_ok('!defined(&a_subwoofer)', "undefined sub");
-	eval_ok('!defined(%«$?PACKAGE\::»<&a_subwoofer>)', "undefined sub (symbol table)", :todo);
+	eval_ok('!defined(&a_subwoofer)', "undefined sub",:todo<feature>);
+	eval_ok('!defined(%«$?PACKAGE\::»<&a_subwoofer>)', "undefined
+	sub (symbol table)");
 }
 
 # TODO: find a read-only value to try and assign to, since we don't

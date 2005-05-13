@@ -5,7 +5,6 @@ use v6;
 use Test;
 
 plan 4;
-force_todo 4;
 
 	my $a := $_; 
 	for 1 .. 3 { $a++ }; 
@@ -22,7 +21,7 @@ force_todo 4;
 
 	is $s,"3\n", 'and is the default argument for "say"';
 
-#pugs> for 1 .. 3 { say }; 
+#pugs> for .. { say }; 
 
 	my $out = open ">tmpfile" ;  
     for 1 { say $out, };
@@ -32,7 +31,6 @@ force_todo 4;
 	unlink "tmpfile";
 
 	isnt $s,"3\n", 'and global $_ should not be the default topic of "for"'; 
-
-    eval_ok 'for 1 .. 3 { $_++ } ', 'default topic is rw by default'; 
+    eval_ok 'for 1 .. 3 { $_++ } ', 'default topic is rw by default',:todo<bug>; 
 # #*** Error: cannot modify constant item at 1
 

@@ -4,7 +4,6 @@ use v6;
 use Test;
 
 plan 1;
-force_todo 1;
 
 =pod
 

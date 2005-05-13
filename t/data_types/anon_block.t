@@ -16,7 +16,6 @@ L<S04/"The Relationship of Blocks and Declarations">
 =cut
 
 plan 25;
-force_todo 14, 15;
 
 # anon blocks L<S06/"Standard Subroutines">
 my $anon_sub = sub { 1 };
@@ -47,8 +46,8 @@ is($pointy_block_w_multiple_args(3, 4), 7, '-> $arg1, $arg2 {} <"pointy" block w
 
 my $pointy_block_nested = -> $a { -> $b { $a + $b }};
 isa_ok($pointy_block_nested, 'Block');
-isa_ok($pointy_block_nested(5), 'Block'); 
-eval_is('$pointy_block_nested(5)(6)', 11, '-> $a { -> $b { $a+$b }} nested <"pointy" block> works'); 
+isa_ok($pointy_block_nested(5), 'Block',:todo); 
+eval_is('$pointy_block_nested(5)(6)', 11, '-> $a { -> $b { $a+$b }} nested <"pointy" block> works',:todo<parsefail>); 
 
 # bare blocks L<S06/"Blocks">
 

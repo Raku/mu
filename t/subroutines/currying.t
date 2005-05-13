@@ -14,7 +14,6 @@ Tests curried subs as defined by L<S06/Currying>
 =cut
 
 plan 7;
-force_todo 6, 7;
 
 sub foo (+$x, +$y, +$z = 'd') {
 	"x=$x y=$y z=$z";
@@ -29,7 +28,7 @@ is((&foo.assuming("y" => 2))(1), foo(1, 2), "curried sub, mixed notation");
 
 is((&foo.assuming("x" => 1))(2), foo(1, 2), "same thing, but the other way around");
 
-ok(!(eval '&foo.assuming(1)'), "can't curry without named params"); # L<S06/Currying /takes a series of named arguments/> 
+ok(!(eval '&foo.assuming(1)'), "can't curry without named params",:todo); # L<S06/Currying /takes a series of named arguments/> 
 
-ok(!(eval '&foo.assuming("f" => 3)'), "can't curry nonexistent named param"); # L<S06/Currying /whose names must match parameters of the subroutine itself/> 
+ok(!(eval '&foo.assuming("f" => 3)'), "can't curry nonexistent named param",:todo); # L<S06/Currying /whose names must match parameters of the subroutine itself/> 
 

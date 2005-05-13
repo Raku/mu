@@ -16,7 +16,6 @@ it is closely related to || and && and //.
 # test cases by Andrew Savige
 
 plan 30;
-force_todo 30;
 
 {
     my $x = 1;
@@ -132,5 +131,5 @@ force_todo 30;
     my $x0 = 0;
     my @a0 = () or $x0 = 1;
     is($x0, 1,    "'or' operator seems to be short circuiting");
-    is(+@a0, 0, "'or' operator seems to be working with list assignment");
+    is(+@a0, 0, "'or' operator seems to be working with list assignment", :todo);
 }

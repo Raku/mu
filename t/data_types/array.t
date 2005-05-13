@@ -10,7 +10,6 @@ Arrays
 =cut
 
 plan 58;
-force_todo 48, 50 .. 52;
 
 # array of strings
 
@@ -111,35 +110,35 @@ my @array10 = (1, 2, 3,);
 is(+@array10, 3, "trailing commas make correct array"); 
 
 # declare a multidimension array
-eval_ok('@array11[0...3; 0...1]', "multidimension array", :todo);
+eval_ok('my @multidim[0...3; 0...1]', "multidimension array", :todo);
+eval_ok('my @array11 is shape(2,4)', "another way to declare a multidimension array", :todo);
 eval_ok('@array11[2,0] = 12', "push the value to a multidimension array", :todo);
-eval_ok('@array12 is shape(2,4)', "another way to declare a multidimension array", :todo);
 
 # declare the array with data type
 eval_ok('my Int @array', "declare a array for integer only", :todo);
 eval_ok('@array[0] = 23', "declare the array value", :todo);
 
 # negative index
-my @array11 = ('a', 'b', 'c', 'e'); 
-is @array11[-1],'e', "negative index [-1]";
+my @array12 = ('a', 'b', 'c', 'e'); 
+is @array12[-1],'e', "negative index [-1]";
 
 # negative index range
-is ~@array11[-4 .. -2], 'a b c', "negative index [-4 .. -2]";
+is ~@array12[-4 .. -2], 'a b c', "negative index [-4 .. -2]";
 
 # negative index as lvalue
-@array11[-1]   = 'd';
-is @array11[-1], 'd', "assigns to the correct negative slice index"; 
-is ~@array11,'a b c d', "assignment to neg index correctly alters the array";
+@array12[-1]   = 'd';
+is @array12[-1], 'd', "assigns to the correct negative slice index"; 
+is ~@array12,'a b c d', "assignment to neg index correctly alters the array";
 
-my @array12 = ('a', 'b', 'c', 'd'); 
+my @array13 = ('a', 'b', 'c', 'd'); 
 # negative index range as lvalue
-@array12[-4 .. -1]   = ('d', 'c', 'b', 'a'); #('a'..'d').reverse
-is ~@array12, 'd c b a', "negative range as lvalue"; 
+@array13[-4 .. -1]   = ('d', 'c', 'b', 'a'); #('a'..'d').reverse
+is ~@array13, 'd c b a', "negative range as lvalue"; 
 
 #hat trick
-my @array13 = ('a', 'b', 'c', 'd');
+my @array14 = ('a', 'b', 'c', 'd');
 my @b = 0..3;
-((@b[-3,-2,-1,-4] = @array13)= @array13[-1,-2,-3,-4]);
+((@b[-3,-2,-1,-4] = @array14)= @array14[-1,-2,-3,-4]);
 
 is ~@b, 
     'a d c b', 

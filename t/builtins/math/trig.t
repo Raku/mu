@@ -4,7 +4,7 @@ use v6;
 use Test;
 
 plan 45;
-force_todo 2 .. 8, 12 .. 20;
+# force_todo 2 .. 8, 12 .. 20;
 
 =head1 DESCRIPTION
 

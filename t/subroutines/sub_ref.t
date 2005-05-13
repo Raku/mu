@@ -5,7 +5,7 @@ use v6;
 use Test;
 
 plan 31;
-force_todo 5, 8, 10, 13, 26, 27;
+
 
 =head1 DESCRIPITION
 
@@ -33,24 +33,24 @@ See L<S06/"Types"> for more information about Code, Routine, Sub, Block, etc.
     isa_ok($foo, 'Sub');
     is $foo.(), 42,                 "basic invocation of an anonymous sub";
     try { $foo.(23) };
-    ok($!, "invocation of an parameterless anonymous sub with a parameter dies");
+    ok($!, "invocation of an parameterless anonymous sub with a parameter dies",:todo);
 }
 
 {
     my $foo = -> () { 42 };
     isa_ok($foo, 'Code');
     isa_ok($foo, 'Block');
-    isa_ok($foo, 'Bare');
+    isa_ok($foo, 'Bare',:todo);
     is $foo.(), 42,                 "basic invocation of a pointy block";
     try { $foo.(23) };
-    ok($!, "invocation of an parameterless pointy block with a parameter dies");
+    ok($!, "invocation of an parameterless pointy block with a parameter dies",:todo);
 }
 
 {
     my $foo = { 100 + $^x };
     isa_ok($foo, 'Code');
     isa_ok($foo, 'Block');
-    isa_ok($foo, 'Parametric');
+    isa_ok($foo, 'Parametric',:todo);
     is $foo.(42), 142,              "basic invocation of a pointy block with a param";
     try { $foo.() };
     ok($!, "invocation of an parameterized block expecting a param without a param dies");
@@ -73,9 +73,9 @@ See L<S06/"Types"> for more information about Code, Routine, Sub, Block, etc.
     is $foo.(42),      142,    "calling an anonymous sub with a positional param";
     is $foo.(x => 42), 142,    "calling an anonymous sub with a positional param addressed by name";
     try{ $foo.() };
-    ok($!, "calling an anonymous sub expecting a param without a param dies");
+    ok($!, "calling an anonymous sub expecting a param without a param dies",:todo);
     try{ $foo.(42, 5) };
-    ok($!, "calling an anonymous sub expecting one param with two params dies");
+    ok($!, "calling an anonymous sub expecting one param with two params dies",:todo);
 }
 
 {
