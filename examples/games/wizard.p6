@@ -15,6 +15,10 @@ class Weapon {
    method damage { return int(rand($.powerHigh - $.powerLow + 1) + $.powerLow); };      
 }
 
+sub cls returns Void {
+    system(($?OS eq any<MSWin32 mingw>) ?? 'cls' :: 'clear');
+}
+
 class Person {
     has $.location is rw;
     has $.name     is rw;
@@ -38,7 +42,7 @@ class Person {
             say "\tf-flee in terror!";
             $choice = prompt("Your choice?");
             given $choice {
-				system(($?OS eq any<MSWin32 mingw>) ?? 'cls' :: 'clear');
+				cls;
                 when 'f' {
                     say "You ran away from the $enemy.name()!"; 
                 }
@@ -89,7 +93,7 @@ my $enemy  = Monster.new(:name("Army of frogs"), :gold(int rand 100), :life(50),
                          :weapon($wep) );
 
 $person.location = "Lobby";
-system(($?OS eq any<MSWin32 mingw>) ?? 'cls' :: 'clear');
+cls;
 $person.name = prompt("What is your name:");
 say "Greetings, $person.name()!";
 say $person.where;
