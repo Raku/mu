@@ -22,7 +22,6 @@
     loose and           and
     loose or            or xor err
     expr terminator     ; {} as control block, statement modifiers
-4 % 2        # 0, modulo
 
 == SIMPLE ARITHMETIC OPERATORS
 
@@ -31,6 +30,7 @@
     4 * 2        # 8, multiplication
     4 / 2        # 2, division
     4 ** 2       # 16, exponentiation
+    4 % 2        # 0, modulo
 
 == BIT OPERATORS
 
