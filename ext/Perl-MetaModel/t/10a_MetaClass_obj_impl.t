@@ -60,7 +60,7 @@ class Perl::MetaClass {
     
     sub _removeSubClass($self: $subclass) returns Void {
         my $count = 0;
-        for @.subclasses -> $my_subclass {
+        for @.subclasses -> $my_subclass { 
             last if $subclass =:= $my_subclass;
             $count++;
         }
@@ -83,7 +83,7 @@ class Perl::MetaClass {
             }
             @.subclasses.push(@subclasses);                           
         }
-        return @.subclasses;
+        return \@.subclasses;
     }       
 
 }
@@ -129,8 +129,8 @@ ok($role.clsIsa($package), '... $role is-a $package');
 
 # confirm the circular reference ...
 
-my $subclasses = $package.clsSubClasses();
-is(+$subclasses, 1, '... $package has one subclass');
+my @subclasses = $package.clsSubClasses();
+is(+@subclasses, 1, '... $package has one subclass');
 {
     my $subclass = $subclasses[0];
     isa_ok($subclass, 'Perl::MetaClass');
