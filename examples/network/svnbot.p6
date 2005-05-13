@@ -115,7 +115,7 @@ sub svn_commits() {
       }
 
       when rx:P5/^r(\d+) \| (\w+)/ {
-	$cur_entry = "r$0 $1++ :";
+	$cur_entry = "r$0, $1++";
 	# Break the loop if we see $cur_svnrev -- that means, there're no new
 	# commits.
 	return if $0 == $cur_svnrev;
@@ -125,7 +125,7 @@ sub svn_commits() {
       when rx:P5/\S/ {
 	if($cur_entry) {
 	  $_ ~~ rx:P5/^(.*)$/;
-	  $commits ~= "$cur_entry -- $0\n";
+	  $commits ~= "$cur_entry --> $0\n";
 	}
       }
     }
