@@ -28,8 +28,9 @@ if($*OS eq any<MSWin32 mingw msys cygwin>) {
   $pugs = 'pugs.exe';
 };
 
+sub nonces () { return (".$*PID." ~ (int rand 1000) ~ ".tmp") }
 sub run_pugs ($c) {
-  my $tempfile = "temp-ex-output";
+  my $tempfile = "temp-ex-output" ~ nonces;
   my $command = "$pugs $c $redir $tempfile";
   diag $command;
   system $command;
@@ -43,6 +44,5 @@ use_ok('Dummy');
 
 for @tests -> $test {
   my $output = run_pugs($test);
-  is( $output, "Module was loaded\n", "Module was loaded");
+  is( $output, "Module Dummy.pm was loaded\n", "Module was loaded");
 };
-
