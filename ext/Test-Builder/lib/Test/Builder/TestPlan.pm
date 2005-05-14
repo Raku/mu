@@ -1,4 +1,4 @@
-class Test::Builder::TestPlan-0.1.0
+class Test::Builder::TestPlan-0.1.1
 {
     has Int $.expect;
 

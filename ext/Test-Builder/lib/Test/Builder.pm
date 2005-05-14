@@ -1,4 +1,4 @@
-class Test::Builder-0.1.0;
+class Test::Builder-0.1.1;
 
 use Test::Builder::Test;
 use Test::Builder::Output;
@@ -49,9 +49,9 @@ method plan ( Str ?$explanation, Int ?$tests )
     $.output.write( $.plan.header() );
 }
 
-method ok returns Bit ( Bit $passed, Str ?$description = '' )
+method ok returns Bit ( $self: Bit $passed, Str ?$description = '' )
 {
-    .report_test(
+    $self.report_test(
         Test::Builder::Test.create(
             number      => +$.results + 1,
             passed      =>  $passed,
@@ -62,9 +62,9 @@ method ok returns Bit ( Bit $passed, Str ?$description = '' )
     return $passed;
 }
 
-method todo returns Bit ( Bit $passed, Str ?$description, Str ?$reason )
+method todo returns Bit ( $self: Bit $passed, Str ?$description, Str ?$reason )
 {
-    .report_test(
+    $self.report_test(
         Test::Builder::Test.create(
             todo        => 1,
             number      => +$.results + 1,
@@ -76,11 +76,11 @@ method todo returns Bit ( Bit $passed, Str ?$description, Str ?$reason )
     return $passed;
 }
 
-method skip ( Int ?$num = 1, Str ?$reason = 'skipped' )
+method skip ( $self: Int ?$num = 1, Str ?$reason = 'skipped' )
 {
     for 1 .. $num
     {
-        .report_test(
+        $self.report_test(
             Test::Builder::Test.create(
                 skip   => 1,
                 number => +$.results + 1,
