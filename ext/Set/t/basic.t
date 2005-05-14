@@ -41,7 +41,7 @@ is($set.remove(4, 5), 2, ".remove");
 
 # members returns all the items.  testing this with junctions is maybe
 # not thorough enough...
-is($set.members, [0, 1, 2, 3, $bob], ".members()");
+is($set.members, [0, 1, 2, 3, $bob ], ".members()");
 
 $set.clear();
 

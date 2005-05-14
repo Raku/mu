@@ -13,51 +13,67 @@ sub set (*@contents) returns Set is export {
 has %:members;
 
 method members() returns List {
-    %:members.values;
+    # XXX - this is nessecary because the hash 
+    # does not seem to get initialized properly
+    # and calling members before any values are
+    # set results in a error
+    %:members ?? %:members.values :: ();
 }
 
-method insert(*@items) returns Int {
+# NOTE:
+# this is a hack to make this work well
+# with objects. Eventually it should be 
+# removed (IIRC hash keys are not supposed
+# to stringify).
+method _stringify ($item) returns Str {
+    my $str_item = ~$item;
+    $str_item ~= $item.id() if $str_item ~~ rx:perl5/^\<obj\:/;
+    return $str_item;
+}
+
+method insert($self: *@items) returns Int {
     my Int $inserted = 0;
     for @items -> $item {
-	unless ( %:members.exists($item) ) {
-	    $inserted++;
-	    %:members{$item} = $item;
-	}
+        my $key = $self._stringify($item);
+    	unless ( %:members.exists($key) ) {
+	        $inserted++;
+    	    %:members{$key} = $item;
+    	}
     }
     return $inserted;
 }
 
-method remove(*@items) returns Int {
+method remove($self: *@items) returns Int {
     my Int $removed = 0;
     for @items -> $item {
-	if ( %:members.delete($item) ) {
-	    $removed++;
-	}
+	    if ( %:members.delete($self._stringify($item)) ) {
+	        $removed++;
+	    }
     }
     return $removed;
 }
 
-method includes(*@items) returns Bool {
-    return %:members.exists(all(@items));
+method includes($self: *@items) returns Bool {
+    return %:members.exists(all(@items.map:{ $self._stringify($_) }));
 }
 
-method member($item) returns Object {
-    return %:members{$item}
+method member($self: $item) returns Object {
+    return %:members{$self._stringify($item)}
 }
 
 method size() returns int {
     +%:members.keys;
 }
 
-method invert(*@items) returns int {
+method invert($self: *@items) returns int {
     my int $rv;
     for @items -> $item {
-	if ( $self.includes($item) ) {
-	    $self.remove($item);
-	    $rv++;
-	} else {
-	    $self.insert($item);
-	}
+    	if ( $self.includes($item) ) {
+	        $self.remove($item);
+    	    $rv++;
+    	} else {
+	        $self.insert($item);
+    	}
     }
     return $rv;
 }
