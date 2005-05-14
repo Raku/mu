@@ -1,17 +1,18 @@
-module Net::IRC-0.04;
+module Net::IRC-0.05;
 # This is a take at a Perl 6 IRC library.
-# You can run it, too.
 # This library provides the "classes" bot and queue, to be used in other bots.
-# One will be able/is able to say:
+# One is able to say:
 #   my $bot = new_bot(nick => $nick, host => $host, port => $port);
 #   $bot<connect>();
 #   $bot<login>();
 #   $bot<join>("#channel");
 #   $bot<run>();            # Enter main event loop
 # Note that this is *not* a port of Perl 5's Net::IRC.
+# See the POD of this document for more documentation.
 
 use v6;
 use Algorithm::TokenBucket;
+use Set;
 
 sub debug(Str $msg) is export {
   state $is_fresh;
@@ -43,7 +44,7 @@ sub new_bot(
 ) is export {
   my $connected = 0;
   my $inside    = 0;
-  my @on_chans;            # Which chans have we joined?
+  my $chans = set();       # Which chans have we joined?
   my $servername;          # What is the IRC servername?
   my $last_traffic;        # Timestamp of last traffic seen from server
   my $last_autoping;       # Timestamp of last ping sent to server
@@ -172,7 +173,7 @@ sub new_bot(
   # Somebody joined. Update %channels and %users accordingly.
   %handler<JOIN> = [-> $event {
     if(normalize($event<from_nick>) eq normalize($curnick)) {
-      push @on_chans, $event<object>;
+      $chans.insert(normalize $event<object>);
       debug "Joined channel \"$event<object>\".";
     }
 
@@ -185,7 +186,7 @@ sub new_bot(
     my $chan = normalize $event<object>;
 
     if(normalize($event<from_nick>) eq normalize($curnick)) {
-      @on_chans .= grep:{ $^chan ne $event<object> };
+      $chans.remove(normalize $event<object>);
       for %channels{$chan}<users>.keys {
 	%users{$_}<channels>.delete($chan) if %users{$_}<channels>;
       }
@@ -205,7 +206,7 @@ sub new_bot(
     my $chan = normalize $event<object>;
 
     if(normalize($kickee) eq normalize($curnick)) {
-      @on_chans .= grep:{ $^chan ne $event<object> };
+      $chans.remove(normalize $event<object>);
       for %channels{$chan}<users>.keys {
 	%users{$_}<channels>.delete($chan) if %users{$_}<channels>;
       }
@@ -222,7 +223,7 @@ sub new_bot(
   %handler<KILL> = [-> $event {
     my ($killee, $reason) = $event<object rest>;
     if(normalize($killee) eq normalize($curnick)) {
-      @on_chans = ();
+      $chans.clear;
       debug "Was killed by \"$event<from>\" (\"$reason\").";
     }
 
@@ -275,7 +276,7 @@ sub new_bot(
     logged_in     => { $inside },
     last_traffic  => { $last_traffic },
     last_autoping => { $last_autoping },
-    channels      => { @on_chans },
+    channels      => { $chans.members },
     channel       => -> Str $channel { %channels{normalize $channel} },
     user          => -> Str $nick    { %users{normalize $nick} },
 
@@ -306,7 +307,7 @@ sub new_bot(
 	# We want to have a sane state when we connect next time.
 	$connected      = 0;
 	$inside         = 0;
-	@on_chans       = ();
+	$chans          = set();
 	$servername     = undef;
 	$hdl            = undef;
 	$curnick        = undef;
