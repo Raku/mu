@@ -7,23 +7,25 @@ sub prompt (?$prompt) {
     return $temp;
 };
 
-class Weapon {
-   has $.name     is rw;
-   
-   has $.powerLow    is rw;
-	has $.powerHigh   is rw;
-   method damage { return int(rand($.powerHigh - $.powerLow + 1) + $.powerLow); };      
-}
-
-sub cls returns Void {
+sub cls {
     system(($?OS eq any<MSWin32 mingw>) ?? 'cls' :: 'clear');
 }
 
+class Weapon {
+    has Str $.name          is rw;
+    has Int $.powerLow      is rw;
+    has Int $.powerHigh     is rw;
+
+    method damage () {
+        return int(rand($.powerHigh - $.powerLow + 1) + $.powerLow);
+    };
+}
+
 class Person {
-    has $.location is rw;
-    has $.name     is rw;
-    has $.life     is rw;
-    has %.weapons  is rw;
+    has Str     $.location  is rw;
+    has Str     $.name      is rw;
+    has Int     $.life      is rw;
+    has Weapon  %.weapons   is rw;
             
     method where () {
         return "You are currently in the $.location";
@@ -42,7 +44,7 @@ class Person {
             say "\tf-flee in terror!";
             $choice = prompt("Your choice?");
             given $choice {
-				cls;
+                cls;
                 when 'f' {
                     say "You ran away from the $enemy.name()!"; 
                 }
