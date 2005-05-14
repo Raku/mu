@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use Cwd;
 
-my $version_h = shift || Cwd::cwd() . "src/Pugs/pugs_version.h";
+my $version_h = shift || Cwd::cwd() . "/src/Pugs/pugs_version.h";
 my $base = shift || Cwd::cwd();
 my $svn_entries = "$base/.svn/entries";
 
@@ -16,6 +16,7 @@ if (-r $svn_entries) {
     while (<FH>) {
         /^ *committed-rev=.(\d+)./ or next;
 	$revision = $1;
+	last;
     }
     close FH;
 } elsif (my @info = qx/svk info/ and $? == 0) {
