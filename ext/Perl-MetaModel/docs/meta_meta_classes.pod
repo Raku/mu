@@ -77,7 +77,7 @@ operations to query the contents of our overall object environment.
 
 =item to get all ordinary classes do (C<B<C> - B<M>>)
 
-=item to get all ordinart meta-classes do (C<B<M> - B<MM>>)
+=item to get all ordinary meta-classes do (C<B<M> - B<MM>>)
 
 =back
 
