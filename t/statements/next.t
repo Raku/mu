@@ -14,7 +14,7 @@ next <label> in nested loops
 
 =cut
 
-plan 7;
+plan 9;
 
 # test for loops with next
 
@@ -74,4 +74,37 @@ plan 7;
         "tracker is 0 because next before increment in nested loop",
         :todo(1)
     );
+}
+
+=pod
+
+Check that C<next> works on the correct loop/block
+
+=cut
+
+{
+  my $foo;
+  for 1..2 -> $a {
+    $foo ~= "A";
+    for 1..2 -> $b {
+        $foo ~= "B";
+        next;             # works on higher level loop, should work on inner
+    }
+  }
+  is($foo, "ABBABB", "next works on inner loop of 2");
+}
+
+{
+    my $bar;
+    for 1..2 -> $a {
+        $bar ~= "A";
+        for 1..2 -> $b {
+            $bar ~= "B";
+            for 1..2 -> $c {
+                $bar ~= "C";
+                next;         # same thing
+            }
+        }
+    }
+	is($bar, "ABCCBCCABCCBCC", "next works on inner loop of 3");
 }
