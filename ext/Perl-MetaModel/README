@@ -1,0 +1,26 @@
+---------------------------------------------------------------------
+ Perl6 Object Meta Model
+---------------------------------------------------------------------
+
+This is a first sketch/prototype of the Perl 6 Object Meta Model. It 
+is very much a work in progress, and any thoughts/ideas/suggestions
+are very much welcome. 
+
+Currently the people involved in this are:
+
+    Stevan "stevan" Little & Sam "mugwump" Vilian 
+
+Contact them on #perl6 for more details.
+
+More information can be found in:
+
+    lib/Perl/MetaModel.pm
+
+    docs/meta_meta_classes.pod
+
+and off the Pugs root:
+
+    docs/classes/*
+    
+    src/Pugs/Class.hs
+    
