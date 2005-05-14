@@ -1,34 +1,55 @@
 .sub _main
-    .local int spi, spc, utf8
+    .local int spi, spc, utf8, pos, size1, size2
     .local pmc args, match, add_rule
-    .local string name, rule, input, result
-    .include "iglobals.pasm"
+    .local string name, rule, input, result, cmd, sizeStr, arg1, arg2
+    .local pmc stdin
 
     load_bytecode "PGE/Hs.pir"
-    utf8        = charset "utf8"
-    add_rule    = find_global "PGE::Hs", "add_rule"
+    match = find_global "PGE::Hs", "match"
 
-    getinterp args
-    set args, args[.IGLOBALS_ARGV_LIST]
-    spi = 3
-    spc = elements args
+  loop:
+    getstdin stdin
+    readline input, stdin
+    length pos, input 
+    if pos < 1 goto end
+    pos = index input, " "
+    if pos == 0 goto loop
+    cmd = substr input, 0, pos
+    inc pos
+    input = substr input, pos
+    pos = index input, " "
+    if pos == 0 goto loop
+    sizeStr = substr input, 0, pos
+    size1 = sizeStr
+    inc pos
+    sizeStr = substr input, pos
+    size2 = sizeStr
 
-  subrules:
-    unless spi < spc goto do_match
-    name    = args[spi]
-    inc spi
-    rule    = args[spi]
-    inc spi
-    trans_charset name, utf8
-    trans_charset rule, utf8
-    add_rule(name, rule)
-    goto subrules
+    # Now read up arg1 and arg2
+    inc size1
+    arg1 = read stdin, size1
+    chopn arg1, 1 # skip \n
+    inc size2
+    arg2 = read stdin, size2
+    chopn arg2, 1 # skip \n
+
+    if cmd == "add_rule" goto do_add_rule
+    if cmd == "match" goto do_match
+    goto loop
+ 
+  do_add_rule:
+    add_rule(arg1, arg2)
+    goto loop
+
   do_match:
-    match   = find_global "PGE::Hs", "match"
-    input   = args[1]
-    rule    = args[2]
-    trans_charset input, utf8
-    trans_charset rule, utf8
-    result  = match(input, rule)
+    result = match(arg1, arg2)
+    length pos, result 
+    print "OK "
+    print pos
+    print "\n"
     print result
+    print "\n"
+    goto loop
+
+  end:
 .end

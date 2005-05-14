@@ -7,7 +7,7 @@ import System.Cmd
 import System.Process
 import System.Directory
 import System.IO
-import System.Exit
+import System.IO.Unsafe
 import Data.Maybe
 import Control.Monad
 
@@ -35,16 +35,50 @@ evalParrot str = do
 
 evalPGE :: FilePath -> String -> String -> [(String, String)] -> IO String
 evalPGE path str pattern subrules = do
-    cmd <- findParrot
-    (_, out, err, pid) <- runInteractiveProcess cmd
-        (["run_pge.pir", str, pattern] ++ concatMap (\(n, r) -> [n, r]) subrules)
-        (Just path) Nothing 
-    rv      <- waitForProcess pid
-    errMsg  <- hGetContents err
-    case (errMsg, rv) of
-        ("", ExitSuccess) -> hGetContents out
-        ("", _) -> fail $ "*** Running external 'parrot' failed:\n" ++ show rv
-        _       -> fail $ "*** Running external 'parrot' failed:\n" ++ errMsg
+    (inp, out, err, pid) <- initPGE path
+    (`mapM` subrules) $ \(name, rule) -> do
+	hPutStrLn inp $ unwords ["add_rule", show (length name), show (length rule)]
+	hPutStrLn inp name
+	hPutStrLn inp rule
+    hPutStrLn inp $ unwords ["match", show (length str), show (length pattern)]
+    hPutStrLn inp str
+    hPutStrLn inp pattern
+    hFlush inp
+    rv <- hGetLine out
+    case rv of
+	('O':'K':' ':sizeStr) -> do
+	    size <- readIO sizeStr
+	    rv	 <- sequence (replicate size (hGetChar out))
+	    ln	 <- hGetLine out
+	    return $ rv ++ ln
+	_ -> do
+	    errMsg  <- hGetContents err
+	    rv      <- waitForProcess pid
+	    writeIORef _ParrotInterp Nothing
+	    let msg | null errMsg = show rv
+		    | otherwise   = errMsg
+	    fail $ "*** Running external 'parrot' failed:\n" ++ msg
+
+initPGE :: FilePath -> IO ParrotInterp
+initPGE path = do
+    rv <- readIORef _ParrotInterp
+    case rv of
+	Just interp@(_, _, _, pid) -> do
+	    gone <- getProcessExitCode pid
+	    if isNothing gone then return interp else do
+	    writeIORef _ParrotInterp Nothing
+	    initPGE path
+	Nothing -> do
+	    cmd <- findParrot
+	    interp <- runInteractiveProcess cmd ["run_pge.pir"] (Just path) Nothing 
+	    writeIORef _ParrotInterp (Just interp)
+	    return interp
+
+type ParrotInterp = (Handle, Handle, Handle, ProcessHandle)
+
+{-# NOINLINE _ParrotInterp #-}
+_ParrotInterp :: IORef (Maybe ParrotInterp)
+_ParrotInterp = unsafePerformIO $ newIORef Nothing
 
 _DoCompile :: Maybe (IORef (String -> FilePath -> String -> IO String))
 _DoCompile = Nothing
