@@ -359,7 +359,6 @@ instance Value VNum where
     doCast (VList l)    = genericLength l
     doCast t@(VThread _)  = read $ vCast t
     doCast (VMatch m)   = vCast (VStr $ matchStr m)
-    doCast (VObject o)  = fromIntegral (hashUnique $ objId o)
     doCast _            = 0/0 -- error $ "cannot cast as Num: " ++ show x
 
 instance Value VComplex where

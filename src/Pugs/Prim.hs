@@ -75,6 +75,9 @@ op0 other = const $ fail ("Unimplemented listOp: " ++ other)
 
 op1 :: String -> Val -> Eval Val
 op1 "!"    = op1Cast (VBool . not)
+op1 "id" = \x -> do
+    (VObject o) <- fromVal x
+    return . castV . hashUnique $ objId o
 op1 "clone" = \x -> do
     (VObject o) <- fromVal x
     attrs   <- readIVar (IHash $ objAttrs o)
@@ -1227,6 +1230,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Int       pre     kill    (Int, List)\
 \\n   Object    pre     new     (Type: Named)\
 \\n   Object    pre     clone   (Any)\
+\\n   Object    pre     id      (Any)\
 \\n   List      pre     Pugs::Internals::runInteractiveCommand    (?Str=$_)\
 \\n   List      pre     Pugs::Internals::openFile    (?Str,?Str=$_)\
 \\n   Bool      pre     bool::true ()\
