@@ -17,30 +17,30 @@ multi sub foo (Array @bar) { "Array " ~ join(', ', @bar) }
 multi sub foo (Hash %bar)  { "Hash " ~ join(', ', %bar.keys) }
 multi sub foo (IO $fh)     { "IO" }
 
-is(foo('test'), 'Str test', 'dispatched to the Str sub'); 
-is(foo(2), 'Int 2', 'dispatched to the Int sub'); 
+is(foo('test'), 'Str test', 'dispatched to the Str sub');
+is(foo(2), 'Int 2', 'dispatched to the Int sub');
 
 my $num = '4';
-is(foo(+$num), 'Num 4', 'dispatched to the Num sub', :todo<bug>); 
-is(foo(1.5), 'Rat 1.5', 'dispatched to the Rat sub'); 
+is(foo(+$num), 'Num 4', 'dispatched to the Num sub');
+is(foo(1.5), 'Rat 1.5', 'dispatched to the Rat sub');
 is(foo(1 == 1), 'Bool 1', 'dispatched to the Bool sub');
-is(foo(sub { 'baz' }), 'Sub baz', 'dispatched to the Sub sub', :todo<bug>); 
+is(foo(sub { 'baz' }), 'Sub baz', 'dispatched to the Sub sub', :todo<bug>);
 
 my @array = ('foo', 'bar', 'baz');
-is(foo(@array), 'Array foo, bar, baz', 'dispatched to the Array sub'); 
+is(foo(@array), 'Array foo, bar, baz', 'dispatched to the Array sub');
 
 my %hash = ('foo' => 1, 'bar' => 2, 'baz' => 3);
-is(foo(%hash), 'Hash foo, bar, baz', 'dispatched to the Hash sub', :todo<bug>); 
+is(foo(%hash), 'Hash foo, bar, baz', 'dispatched to the Hash sub', :todo<bug>);
 
 is(foo($*ERR), 'IO', 'dispatched to the IO sub');
 
 eval_ok('multi sub foo( (Int, Str) $tuple: ) '
 	~ '{ "Tuple(2) " ~ $tuple.join(",") }',
-	"declare sub with tuple argument", :todo<feature>);	
+	"declare sub with tuple argument", :todo<feature>);
 
 eval_ok('multi sub foo( (Int, Str, Str) $tuple: ) '
 	~ '{ "Tuple(3) " ~ $tuple.join(",") }',
-	"declare multi sub with tuple argument", :todo<feature>);	
+	"declare multi sub with tuple argument", :todo<feature>);
 
 is(foo([3, "Four"]), "Tuple(2) 3,Four", "call tuple multi sub", :todo<feature>);
 is(foo([3, "Four", "Five"]), "Tuple(3) 3,Four,Five", "call tuple multi sub", :todo<feature>);
