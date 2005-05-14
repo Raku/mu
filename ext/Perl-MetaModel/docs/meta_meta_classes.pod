@@ -51,7 +51,7 @@ exist within it.
 These are the occupants of our environment B<O>. It should also be noted that 
 every I<instance> has a uniquely associated entity called a I<class>.
 
-=item B<Every I<class> is itself an I<object>.>
+=item B<Every I<class> is itself an I<object> whose instances are (obviously) I<instances>.>
 
 This means that the I<class> space (B<C>) is a subset of B<O>.
 
@@ -184,7 +184,7 @@ how the meta-class I<Class> would look:
         }
     }
 
-The C<instance_vars> or a I<Class> are basically those of an empty parent-less class, 
+The C<instance_vars> for a I<Class> are basically those of an empty parent-less class, 
 nothing more, nothing less. The simplicity of this notion can be somewhat difficult to
 swallow. The tempation is to make it seem much more complex, but in reality it is not.
 
