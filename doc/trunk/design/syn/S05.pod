@@ -875,8 +875,7 @@ alternations to immediately fail:
     /
 
 (i.e. there's no point trying to match a different keyword if one
-was already found but failed).  It is illegal to use C<::> outside
-of an alternation.
+was already found but failed).  
 
 =item *
 
