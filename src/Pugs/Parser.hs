@@ -1136,7 +1136,7 @@ processFormals :: Monad m => [[Exp]] -> m ([Exp], [Exp])
 processFormals formal = do
     case formal of
         []                  -> return ([], [])
-        [args]              -> return ([], unwind args)
+        [invocants]         -> return (unwind invocants, [])
         [invocants,args]    -> return (unwind invocants, unwind args)
         _                   -> fail "Only one invocant list allowed"
     where
