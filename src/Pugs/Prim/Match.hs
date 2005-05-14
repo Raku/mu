@@ -119,9 +119,12 @@ op2Match x (VSubst (rx, subst)) = do
 op2Match x (VRule rx) | rxGlobal rx = do
     str     <- fromVal x
     rv      <- matchOnce str
-    ifListContext
-        (return $ VList rv)
-        (return . VInt $ genericLength rv)
+    cxt	    <- asks envContext
+    if (not $ isSlurpyCxt cxt)
+	then return (VInt $ genericLength rv)
+	else return . VList $ if rxStringify rx
+	    then map (VStr . vCast) rv
+	    else rv
     where
     matchOnce :: String -> Eval [Val]
     matchOnce str = do

@@ -127,10 +127,12 @@ data VRule
     = MkRulePCRE
         { rxRegex     :: !Regex -- ^ The \'regular\' expression
         , rxGlobal    :: !Bool  -- ^ Flag indicating \'global\' (match-all)
+	, rxStringify :: !Bool
         }
     | MkRulePGE
         { rxRule      :: !String -- ^ The \'rule\' expression
         , rxGlobal    :: !Bool   -- ^ Flag indicating \'global\' (match-all)
+	, rxStringify :: !Bool
         }
     deriving (Show, Eq, Ord, Typeable)
 

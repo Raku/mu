@@ -535,15 +535,17 @@ reduce exp@(Syn name exps) = case name of
         p5flags <- fromAdverb hv ["P5", "Perl5", "perl5"]
         flag_g  <- fromAdverb hv ["g", "global"]
         flag_i  <- fromAdverb hv ["i", "ignorecase"]
-        let rx | p5 = (`MkRulePCRE` g) . mkRegexWithPCRE (encodeUTF8 str) $
+        flag_s  <- fromAdverb hv ["stringify"] -- XXX hack
+        let rx | p5 = MkRulePCRE p5re g flag_s 
+               | otherwise = MkRulePGE str g flag_s
+            g = ('g' `elem` p5flags || flag_g)
+	    p5re = mkRegexWithPCRE (encodeUTF8 str) $
                         [ pcreUtf8
                         , ('i' `elem` p5flags || flag_i) `implies` pcreCaseless
                         , ('m' `elem` p5flags) `implies` pcreMultiline
                         , ('s' `elem` p5flags) `implies` pcreDotall
                         , ('x' `elem` p5flags) `implies` pcreExtended
                         ]
-               | otherwise = MkRulePGE str g
-            g = ('g' `elem` p5flags || flag_g)
         retVal $ VRule rx
         where
         implies True  = id
@@ -807,11 +809,12 @@ evalExpType (App (Var name) invs args) = do
 evalExpType exp@(Syn syn _) | (syn ==) `any` words "{} []" = do
     val <- evalExp exp
     evalValType val
-evalExpType exp =
-    let exp' = unwrap exp in
-    if exp == exp'
-        then return $ mkType "Any"
-        else evalExpType exp'
+evalExpType (Cxt cxt _) = return $ typeOfCxt cxt
+evalExpType (Pos _ exp) = evalExpType exp
+evalExpType (Pad _ _ exp) = evalExpType exp
+evalExpType (Sym _ _ exp) = evalExpType exp
+evalExpType (Stmts _ exp) = evalExpType exp
+evalExpType _ = return $ mkType "Any"
 
 -- OK... Now let's implement the hideously clever autothreading algorithm.
 -- First pass - thread thru all() and none()

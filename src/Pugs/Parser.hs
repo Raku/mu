@@ -1402,12 +1402,13 @@ qLiteral1 qEnd flags = do
     -- a nonbreaking ws char.
     doSplit (Cxt (CxtItem _) (Val (VStr str))) = doSplitStr str
     
-    doSplit expr = Cxt cxtSlurpyAny $ App (Var "&infix:~~") [expr, rxSplit] []
+    doSplit expr = App (Var "&infix:~~") [expr, rxSplit] []
     rxSplit = Syn "rx" $
         [ Val $ VStr "(\\S+)"
         , Val $ VList
             [ castV (VStr "P5", VInt 1)
             , castV (VStr "g", VInt 1)
+            , castV (VStr "stringify", VInt 1)
             ]
         ]
 
