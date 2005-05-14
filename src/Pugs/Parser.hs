@@ -1028,7 +1028,7 @@ ruleInvocation :: RuleParser (Exp -> Exp)
 ruleInvocation = tryVerbatimRule "invocation" $ do
     hasEqual <- option False $ do char '='; whiteSpace; return True
     name            <- ruleSubName
-    (invs,args)     <- option ([],[]) $ parseParenParamList
+    (invs,args)     <- option ([],[]) $ parseParenParamList False
     return $ \x -> if hasEqual
         then Syn "=" [x, App (Var name) (x:invs) args]
         else App (Var name) (x:invs) args
@@ -1037,7 +1037,7 @@ ruleInvocationParens :: RuleParser (Exp -> Exp)
 ruleInvocationParens = do
     hasEqual <- option False $ do char '='; whiteSpace; return True
     name            <- ruleSubName
-    (invs,args)     <- parens $ parseNoParenParamList
+    (invs,args)     <- parens $ parseNoParenParamList False
     -- XXX we just append the adverbial block onto the end of the arg list
     -- it really goes into the *& slot if there is one. -lp
     return $ \x -> if hasEqual
@@ -1076,15 +1076,15 @@ parseApply :: RuleParser Exp
 parseApply = tryRule "apply" $ do
     implicitInv <- option [] $ choice
         [ do { char '.'; return [Var "$_"] }
-        , do { char '^'; return [Var "$?SELF"] }
+     -- , do { char '^'; return [Var "$?SELF"] }
         ]
     name        <- ruleSubName <|> ruleFoldOp
     when ((name ==) `any` words " &if &unless &while &until &for ") $
         fail "reserved word"
     hasDot  <- option False $ try $ do { whiteSpace; char '.'; return True }
     (invs, args) <- if hasDot
-        then parseNoParenParamList
-        else parseParenParamList <|> do { whiteSpace; parseNoParenParamList }
+        then parseNoParenParamList True
+        else parseParenParamList True <|> do { whiteSpace; parseNoParenParamList True }
     return $ App (Var name) (implicitInv ++ invs) args
 
 ruleFoldOp :: RuleParser String
@@ -1095,17 +1095,17 @@ ruleFoldOp = verbatimRule "reduce metaoperator" $ do
     return $ "&prefix:[" ++ [name] ++ "]"
 
 parseParamList :: RuleParser ([Exp], [Exp])
-parseParamList = parseParenParamList <|> parseNoParenParamList
+parseParamList = parseParenParamList True <|> parseNoParenParamList True
 
-parseParenParamList :: RuleParser ([Exp], [Exp])
-parseParenParamList = try $ do
-    params <- option Nothing $ fmap Just (parens parseNoParenParamList)
+parseParenParamList :: Bool -> RuleParser ([Exp], [Exp])
+parseParenParamList defaultToInvs = try $ do
+    params <- option Nothing $ fmap Just (parens $ parseNoParenParamList defaultToInvs)
     block       <- option [] ruleAdverbBlock
     when (isNothing params && null block) $ fail ""
     let (inv, norm) = maybe ([], []) id params
     -- XXX we just append the adverbial block onto the end of the arg list
     -- it really goes into the *& slot if there is one. -lp
-    processFormals [inv, norm ++ block]
+    processFormals False [inv, norm ++ block]
 
 ruleAdverbBlock :: RuleParser [Exp]
 ruleAdverbBlock = tryRule "adverbial block" $ do
@@ -1114,8 +1114,8 @@ ruleAdverbBlock = tryRule "adverbial block" $ do
     next <- option [] ruleAdverbBlock
     return (rblock:next)
 
-parseNoParenParamList :: RuleParser ([Exp], [Exp])
-parseNoParenParamList = do
+parseNoParenParamList :: Bool -> RuleParser ([Exp], [Exp])
+parseNoParenParamList defaultToInvs = do
     formal <- (`sepEndBy` symbol ":") $ fix $ \rec -> do
         rv <- option Nothing $ do
             fmap Just $ tryChoice
@@ -1130,13 +1130,15 @@ parseNoParenParamList = do
             Just (exp, trail) -> do
                 rest <- option [] $ do { trail; rec }
                 return (exp:rest)
-    processFormals formal
+    processFormals defaultToInvs formal
 
-processFormals :: Monad m => [[Exp]] -> m ([Exp], [Exp])
-processFormals formal = do
+processFormals :: Monad m => Bool -> [[Exp]] -> m ([Exp], [Exp])
+processFormals defaultToInvs formal = do
     case formal of
         []                  -> return ([], [])
-        [invocants]         -> return (unwind invocants, [])
+        [invocants]         -> return $ if defaultToInvs
+	    then (unwind invocants, [])
+	    else ([], unwind invocants)
         [invocants,args]    -> return (unwind invocants, unwind args)
         _                   -> fail "Only one invocant list allowed"
     where
