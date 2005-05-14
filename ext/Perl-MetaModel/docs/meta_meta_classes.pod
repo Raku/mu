@@ -21,7 +21,7 @@ Let us assume for a moment that all our object's live in an I<object> environmen
 (B<O>), which is a finite set of objects, each of which is identified with a 
 unique object reference.
 
-Here is a diagram of the entire object environment, and each of it's subsets:
+Here is a diagram of the entire object environment, and each of its subsets:
 
     +---{instance}-----------------------------------------------------------+
     |                                                                        |
@@ -93,8 +93,8 @@ Here is an example of how an object describing a book might look like:
 
   {
       Book => { 
-        'title'  => "VALIS"
-        'author' => "Phillip K. Dick"
+        'title'  => "VALIS",
+        'author' => "Phillip K. Dick",
       }
   }
 
@@ -109,14 +109,14 @@ So a C<iBook> instance of the class I<Book> would look like this:
     {
         'class' => Book
         Book => { 
-            'title'  => "VALIS"
-            'author' => "Phillip K. Dick"
+            'title'  => "VALIS",
+            'author' => "Phillip K. Dick",
         }
     }
 
 =head2 So what is a Class?
 
-A I<Class> is itself just another data dictionary, however it's structure is a bit 
+A I<Class> is itself just another data dictionary, however its structure is a bit 
 more complex. 
 
 First, our class must have a name.
@@ -137,7 +137,7 @@ So given that, our I<Book> class might be structured something like this:
     {
         'class' => Class,
         Class => {
-            'name' => 'Book'
+            'name' => 'Book',
             'parents' => [ ... ],
             'instance_vars' => {
                 Book => { title => '', author => '' }
@@ -155,7 +155,7 @@ As you can see, our I<Book> class is itself an instance of the meta-class I<Clas
 
 A list of supported instance variables and methods can be found by accumulating a properly 
 sorted unique list of all a class's instance_vars and method_tables merged with those of 
-it's ancestors. These lists make it is possible to determine the instance variable and 
+its ancestors. These lists make it is possible to determine the instance variable and 
 method resolution order. 
 
 =head2 So what is a MetaClass?
@@ -173,7 +173,7 @@ how the meta-class I<Class> would look:
                     'name'          => "",
                     'parents'       => [],
                     'instance_vars' => {},
-                    'method_table'  => {}    
+                    'method_table'  => {}
                 }
             },
             'method_table' => {
