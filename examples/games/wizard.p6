@@ -49,7 +49,7 @@ class Person {
                     say "You ran away from the $enemy.name()!"; 
                 }
                 if ($.weapons.exists($_)) {
-                    ^attack($enemy, $.weapons{$_});
+                    $?SELF.attack($enemy, $.weapons{$_});
                 }
                 else {
                     say "Please enter a valid command!"

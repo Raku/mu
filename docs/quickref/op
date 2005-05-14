@@ -139,7 +139,6 @@ Miscellaneous operators
 See also
 
     .method         # oo
-    ^method         # oo
     .=method        # oo
     .()             # sub
     .[]             # data
