@@ -81,6 +81,16 @@ executable before you run "perl Makefile.PL", for example:
     export GHC=${HOME}/bin/ghc (bash)
     setenv GHC ${HOME}/bin/ghc (csh)
 
+CAVEATS FOR GCC 4.0 USERS
+-------------------------
+
+Until GHC 6.4.1 is released, Mac OS X 10.4 "Tiger" users may need to issue a
+
+    gcc_select 3.3
+
+Before compiling Pugs.  Other users of GCC 4.0 systems may also need to
+switch to use GCC 3.3 to compile Pugs at this moment.
+
 CAVEATS FOR x86_64 MACHINES
 ---------------------------
 
