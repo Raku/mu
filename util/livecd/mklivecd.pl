@@ -53,6 +53,8 @@ my $grub_uri     = "http://m19s28.vlinux.de/iblech/pugs/grub.tar.bz2";
 my $kernel_local = "vmlinuz";
 my $grub_local   = "grub.tar.bz2";
 my $pugs         = "../../pugs";
+my $pge          = "../../src/pge";
+my $parrot_path  = "../../../parrot-trunk";
 my $bash         = "/bin/bash";
 my $linuxrc      = "linuxrc";
 my $welcome_p6   = "welcome.p6";
@@ -60,7 +62,7 @@ my $lib6         = "../../blib6/lib";
 my $initrd_gz    = "initrd.gz";
 my $initrd_img   = "initrd.img";
 my $initrd_mnt   = "/mnt/loop0";
-my $initrd_size  = 9.5 * 1024;
+my $initrd_size  = 25 * 1024;
 my $cdroot       = "cdroot";
 my $iso          = "cd.iso";
 
@@ -101,6 +103,10 @@ Available options and defaults:
     Locally, the GRUB tarball is saved as --grub-local.
   --pugs=$pugs
     mklivecd.pl takes --pugs as the binary to put on the CD.
+  --parrot-path=$parrot_path
+    mklivecd.pl takes --parrot-path as the root of an Parrot source directory.
+  --pge=$pge
+    mklivecd.pl takes --pge as the path of the PGE shipped with Pugs.
   --bash=$bash
     linuxrc needs a bash-compatible shell.
   --linuxrc=$linuxrc
@@ -146,7 +152,7 @@ GetOptions(
   "iso=s"          => \$iso,
   help             => \&usage,
 ) or usage();
-check_for_evil_chars($initrd_img, $initrd_gz, $lib6);
+check_for_evil_chars($initrd_img, $initrd_gz, $initrd_mnt, $lib6, $parrot_path);
 
 my $welcomed = 0;
 step
@@ -191,6 +197,10 @@ step
   ensure => sub { defined $pugs_version },
   using  => sub { $pugs_version = get_version($pugs) };
 
+step
+  descr  => "Checking for Parrot binary",
+  ensure => sub { -r "$parrot_path/parrot" and -s "$parrot_path/parrot" };
+
 my @modfiles;
 step
   descr  => "Searching for module files",
@@ -204,6 +214,21 @@ my $newest_mod_stamp = 100000; # ugly
 -M "$lib6/$_" <= $newest_mod_stamp and $newest_mod_stamp = -M "$lib6/$_"
   for @modfiles;
 
+my @pfiles;
+step
+  descr  => "Searching for Parrot include files",
+  ensure => sub { @pfiles > 0 },
+  using  => sub {
+    @pfiles = map { (/^\Q$parrot_path\/runtime\/parrot\/include\E(.+)$/)[0] }
+	      grep { !/\b\.svn\b/ }
+	      split "\000",
+	      `find $parrot_path/runtime/parrot/include -print0`;
+  };
+my $newest_p_stamp = 100000; # ugly
+-M "$parrot_path/runtime/parrot/include/$_" <= $newest_p_stamp and
+  $newest_p_stamp = -M "$parrot_path/runtime/parrot/include/$_"
+  for @pfiles;
+
 my $rebuild;
 step
   descr  => "Checking if we have to rebuild the initrd",
@@ -212,19 +237,21 @@ step
     $rebuild = !(
       -r $initrd_gz and
       -M $initrd_gz <= -M $pugs and
+      -M $initrd_gz <= -M "$parrot_path/parrot" and
       -M $initrd_gz <= -M $linuxrc and
       -M $initrd_gz <= -M $bash and
       -M $initrd_gz <= -M $welcome_p6 and
-      -M $initrd_gz <= $newest_mod_stamp,
+      -M $initrd_gz <= $newest_mod_stamp and
+      -M $initrd_gz <= $newest_p_stamp
     );
   };
 
 if($rebuild) {
   my @libs;
   step
-    descr  => "Checking which shared libraries pugs and bash require",
+    descr  => "Checking which shared libraries pugs, parrot and bash require",
     ensure => sub { @libs > 1 },
-    using  => sub { my %l; @l{ldd($pugs), ldd($bash)} = (); @libs = keys %l },
+    using  => sub { my %l; @l{ldd($pugs), ldd("$parrot_path/parrot"), ldd($bash)} = (); @libs = keys %l },
     help   => <<HELP;
       We use 'ldd' to read the list of shared libraries (*.so) pugs
       requires. This is necessary so we can copy them on the CD later.
@@ -262,17 +289,21 @@ HELP
 HELP
 
   my @files = (
-    [$pugs       => "$initrd_mnt/bin/pugs"],
-    [$bash       => "$initrd_mnt/bin/bash"],
-    [$linuxrc    => "$initrd_mnt/linuxrc"],
-    [$welcome_p6 => "$initrd_mnt/welcome.p6"],
+    [$pugs                 => "$initrd_mnt/bin/pugs"],
+    ["$parrot_path/parrot" => "$initrd_mnt/bin/parrot"],
+    [$bash                 => "$initrd_mnt/bin/bash"],
+    [$linuxrc              => "$initrd_mnt/linuxrc"],
+    [$welcome_p6           => "$initrd_mnt/welcome.p6"],
   );
   step
-    descr  => "Copying Pugs, Bash, linuxrc, and welcome.p6 to the initrd",
+    descr  => "Copying Pugs, Parrot, Bash, linuxrc, and welcome.p6 to the initrd",
     ensure => sub {
       for(@files) {
 	my ($src, $dest) = @$_;
-        -r $dest and -x $dest and -M $dest <= -M $src or return;
+        -r $dest and -x $dest and
+	-M $dest <= -M $src   and
+	-s $dest == -s $src
+	  or return;
       }
       1;
     },
@@ -295,6 +326,35 @@ HELP
 	  mkdir "$initrd_mnt/lib6/$_";
 	} else {
 	  copy "$lib6/$_" => "$initrd_mnt/lib6/$_";
+	}
+      }
+    };
+
+  step
+    descr  => "Copying Parrot include files to the initrd",
+    ensure => sub { -r "$initrd_mnt/$_" or return for @pfiles; 1 },
+    using  => sub {
+      utime undef, undef, $initrd_img;
+      for(@pfiles) {
+	if(-d "$parrot_path/runtime/parrot/include/$_") {
+	  mkdir "$initrd_mnt/$_";
+	} else {
+	  copy "$parrot_path/runtime/parrot/include/$_" => "$initrd_mnt/$_";
+	}
+      }
+    };
+
+  my @pge = map { s/^\Q$pge//; $_ } glob "$pge/* $pge/*/* $pge/*/*/*";
+  step
+    descr  => "Copying PGE to the initrd",
+    ensure => sub { -r "$initrd_mnt/$_" or return for @pge; 1 },
+    using  => sub {
+      utime undef, undef, $initrd_img;
+      for(@pge) {
+	if(-d "$pge/$_") {
+	  mkdir "$initrd_mnt/$_";
+	} else {
+	  copy "$pge/$_" => "$initrd_mnt/$_";
 	}
       }
     };
