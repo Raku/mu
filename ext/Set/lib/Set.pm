@@ -127,7 +127,9 @@ method symmetric_difference($self: Set $other) returns Set {
 our &Set::count ::= &Set::size;
 our &Set::has   ::= &Set::includes;
 
-=for a later time, when 'overloading' works...
+=begin LATER
+
+...for a later time, when 'overloading' works...
 
 # what will be used for stringify?
 method prefix:<~> (Set $one, *@args) returns Set {
@@ -187,6 +189,125 @@ method infix:">=" (Set $one, *@args) returns Set {
     $one.superset(set(@args));
 }
 
+=end LATER
 
+
+=head1 NAME
+
+Set - Sets for Perl 6
+
+=head1 SYNOPSIS
+
+  use Set;
+
+  my $set = set 23, 42, $some_object;
+
+  say "42 is in the set" if $set.includes(42);
+  say "The set contains {$set.size} items";
+
+  $set.insert(13);
+  $set.remove(23);
+
+  my @members = $set.members;
+
+=head1 CONSTRUCTORS
+
+=head2 C<set(...)>
+
+Returns a new set containing all parameters.
+
+=head2 C<Set.new()>
+
+Returns a new, empty set.
+
+=head1 METHODS
+
+=head2 C<$set.insert(...)>
+
+Inserts the specifiend items into the set. Returns the number of items inserted.
+
+It is not fatal to insert an item which is already inserted.
+
+=head2 C<$set.remove(...)>
+
+Removes the specified items from the set. Returns the number of items removed.
+
+It is not fatal to remove an item which is not in the set.
+
+=head2 C<$set.includes(...)>, C<$set.has(...)>
+
+Returns true if all given items are in the set. C<has> is an alias for C<includes>.
+
+=head2 C<$set.member($item)>
+
+Returns the specified item if it's in the set.
+
+=head2 C<$set.size()>, C<$set.count()>
+
+Returns the number of elements in the set. C<count> is an alias for C<size>.
+
+=head2 C<$set.invert(...)>
+
+Removes the given items if they are already in the set, or inserts the items if they're not in the set.
+
+Returns the number of items removed.
+
+=head2 C<$set.clear()>
+
+Clears the set.
+
+=head1 COMPARISION METHODS
+
+=head2 C<$set1.equal($set2)>
+
+Returns true if C<$set1> equals C<$set2>, i.e. if C<$set1> contains all the
+items of C<$set2> and C<$set1> and C<$set2> have the same size.
+
+=head2 C<$set1.not_equal($set2)>
+
+Returns true if C<$set1> does not equal C<$set2>.
+
+=head2 C<$set1.subset($set2)>
+
+Returns true if C<$set1> is a subset of C<$set2>.
+
+=head2 C<$set1.superset($set2)>
+
+Returns true if C<$set1> is a superset of C<$set2>.
+
+=head2 C<$set1.proper_subset($set2)>, C<$set1.proper_superset($set2)>
+
+Returns true if C<$set1> is a proper subset (superset) of C<$set2>, i.e. if
+C<$set1> has at least one element less (more) than C<$set2>.
+
+=head2 C<$set1.union($set2)>
+
+Returns a new set containing all the elements of C<$set1> and C<$set2>
+
+=head2 C<$set1.intersection($set2)>
+
+Returns a new set containing all the elements of C<$set1> which are in C<$set2>, too.
+
+=head2 C<$set1.difference($set2)>
+
+Returns a new set containing all the elements of C<$set1> which are not in C<$set2>.
+
+=head2 C<$set1.symmetric_difference($set2)>
+
+XXX
+
+=head1 BUGS
+
+Currently, no operators are overloaded. This will change as soon Pugs supports overload operators.
+
+=head1 AUTHORS
+
+Sam "mugwump" Vilain (Code)
+
+Ingo "iblech" Blechschmidt (Documentation)
+
+=head1 SEE ALSO
+
+You might want to read the tests of Set.
 
 =cut
