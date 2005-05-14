@@ -38,6 +38,9 @@ sub on_privmsg($event) {
   };
 
   given $event<rest> {
+    debug "Received a ?-request from $event<from>: $event<rest>"
+      if substr($event<rest>, 0, 1) eq "?";
+
     my $reply_to = substr($event<object>, 0, 1) eq "#" ?? $event<object> :: $event<from_nick>;
 
     when rx:P5/^\?seen\s+(.+)$/ {
@@ -48,28 +51,23 @@ sub on_privmsg($event) {
     }
 
     when rx:P5/^\?quit\s*(.*)$/ {
-      debug "Got quit request from \"$event<from>\".";
       $bot<quit>($0);
     }
 
     when rx:P5/^\?raw\s+(.+)$/ {
-      debug "Got raw request from \"$event<from>\".";
       $bot<raw>($0);
     }
 
     when rx:P5/^\?uptime$/ {
-      debug "Got uptime request from \"$event<from>\".";
       my $start_time = BEGIN { time };
       $bot<notice>(to => $reply_to, text => "Running for {time() - $start_time} seconds.");
     }
 
     when rx:P5/^\?sleep\s+(\d+)$/ {
-      debug "Got sleep request from \"$event<from>\".";
       sleep $0;
     }
 
     when rx:P5/^\?reconnect/ {
-      debug "Got reconnect request from \"$event<from>\".";
       @chans = $bot<channels>();
       $bot<reconnect>();
       $bot<login>();
@@ -79,7 +77,6 @@ sub on_privmsg($event) {
     # complex than this simple regex), but IRC clients only send this when
     # their users enter /PING bot.
     when rx:P5/^\001PING (.*)\001$/ {
-      debug "Was CTCP-PINGed from \"$event<from>\".";
       $bot<notice>(to => $event<from_nick>, text => "\001PING $0\001");
     }
   }
