@@ -24,7 +24,7 @@ my $val;
 lives_ok{
     $val = doit $foo: 1,2,3;
 }, '... indirect method invocation works';
-is($val, 6, '... got the right value for indirect method invocation', :todo<feature>);
+is($val, 6, '... got the right value for indirect method invocation');
 
 is($foo.noargs, 42, "... no parentheses after method");
 is($foo.noargs(), 42, "... parentheses after method");
