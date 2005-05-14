@@ -734,6 +734,19 @@ Retrieves a channel's topic or tries to set it.
 
 Kicks somebody from a channel, stating a reason optionally.
 
+=head2 C<$botE<lt>modeE<gt>(target =E<gt> $nick|$channel, mode =E<gt> "+o iblech")>
+
+Performs the C</MODE> command. Note that you can supply both a nickname and a
+channel name to the C<target> parameter.
+
+=head2 C<$botE<lt>inviteE<gt>(channel =E<gt> "#chan", target =E<gt> "nick")>
+
+Invites C<nick> to C<#chan>.
+
+=head2 C<$botE<lt>operE<gt>(username =E<gt> "...", password =E<gt> "...")>
+
+Tries to gain IRC operator rights.
+
 =head2 C<$botE<lt>privmsgE<gt>(to =E<gt> "...", text =E<gt> "...")>,
 C<E<lt>noticeE<gt>(to =E<gt> "...", text =E<gt> "...")>
 
@@ -767,6 +780,14 @@ The C<loggedin> event is fired when the bot has successfully logged in.
 
 The C<runloop> event is fired when an iteration of the main runloop is
 finished.
+
+=head1 FLOODCONTROL
+
+Most IRC servers disconnect you if you post too many commands in too short time.
+
+If you supply C<:floodcontrol(1)> to the constructor, C<Net::IRC> won't simply
+send all commands immediately to the server, but creates a queue, which is then
+slowly sent to the server.
 
 =head1 EXAMPLES
 
