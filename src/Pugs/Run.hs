@@ -22,7 +22,6 @@ import qualified Data.Map as Map
 
 -- |Run 'Main.run' with command line args. 
 -- See 'Main.main' and 'Pugs.Run.Args.canonicalArgs'
-runWithArgs :: IO()
 runWithArgs f = do
     args <- getArgs
     f $ canonicalArgs args
@@ -128,7 +127,7 @@ prepareEnv name args = do
         , genSym "$*_" $ MkRef defSV
         ]
 
--- |Combine @%*ENV<PERL6LIB>@, -I, 'Pugs.Config.config' values and \".\" into
+-- |Combine @%*ENV\<PERL6LIB\>@, -I, 'Pugs.Config.config' values and \".\" into
 -- the @\@*INC@ list for 'Main.printConfigInfo'
 getLibs :: IO [String]
 getLibs = do
