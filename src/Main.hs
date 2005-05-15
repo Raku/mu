@@ -31,7 +31,7 @@ import Pugs.Embed
 import qualified Data.Map as Map
 import Data.IORef
 
--- |Pugs' entry point. Uses 'Pugs.Run.runWithArgs' to normalise the command-line 
+-- |Pugs' entry point. Uses 'Pugs.Run.runWithArgs' to normalise the command-line
 -- arguments and pass them to 'run'.
 main :: IO ()
 main = do
@@ -44,7 +44,7 @@ warn :: Show a => a -> IO ()
 warn x = do
             hPrint stderr $ show x
 
--- see also ArgParse.hs
+-- see also Run/Args.hs
 run :: [String] -> IO ()
 run (("-d"):rest)                 = run rest
 

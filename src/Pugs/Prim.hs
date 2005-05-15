@@ -39,6 +39,8 @@ import Pugs.Prim.Numeric
 import Pugs.Prim.Lifts
 import Pugs.Prim.Eval
 
+-- |Implementation of 0-ary and variadic primitive operators and functions
+-- (including list ops).
 op0 :: String -> [Val] -> Eval Val
 op0 "!"  = fmap opJuncNone . mapM fromVal
 op0 "&"  = fmap opJuncAll  . mapM fromVal
@@ -73,6 +75,7 @@ op0 "return" = \_ -> do
         else shiftT $ const $ retEmpty
 op0 other = const $ fail ("Unimplemented listOp: " ++ other)
 
+-- |Implementation of unary primitive operators and functions
 op1 :: String -> Val -> Eval Val
 op1 "!"    = op1Cast (VBool . not)
 op1 "id" = \x -> do
@@ -532,6 +535,7 @@ mapStr2Fill f x y = map (chr . fromEnum . uncurry f) $ x `zipFill` y
     zipFill (a:as) (b:bs) = (a,b) : zipFill as bs
 
 
+-- |Implementation of 2-arity primitive operators and functions
 op2 :: String -> Val -> Val -> Eval Val
 op2 "rename" = boolIO2 rename
 op2 "symlink" = boolIO2 createSymbolicLink
@@ -704,6 +708,7 @@ op2 op | "»" `isPrefixOf` op = op2Hyper . init . init . drop 2 $ op
 op2 ('>':'>':op) = op2Hyper . init . init $ op
 op2 other = \_ _ -> fail ("Unimplemented binaryOp: " ++ other)
 
+-- |Implementation of 3-arity primitive operators and functions
 op3 :: String -> Val -> Val -> Val -> Eval Val
 op3 "index" = \x y z -> do
     str <- fromVal x
@@ -744,6 +749,8 @@ op3 "new" = \t n _ -> do
     return . VObject $ MkObject{ objType = typ, objAttrs = attrs, objId = uniq }
 op3 other = \_ _ _ -> fail ("Unimplemented 3-ary op: " ++ other)
 
+-- |Implementation of 4-arity primitive operators and functions.
+-- Only substr and splice
 op4 :: String -> Val -> Val -> Val -> Val -> Eval Val
 op4 "substr" = \x y z w -> do
     str  <- fromVal x
@@ -858,6 +865,13 @@ op2Ord f x y = do
         EQ -> 0
         GT -> 1
 
+-- |Returns a transaction to install a primitive operator using 
+-- 'Pugs.AST.genMultiSym'.
+-- The associativity determines the arity and fixity of ops.
+-- The primitive\'s subBody is defined in 'op0', 'op1', etc depending on arity,
+-- the default is 'op0'.
+-- The Pad symbol name is prefixed with \"&*\" for functions and
+-- \"&*\" ~ fixity ~ \":\" for operators.
 primOp :: String -> String -> Params -> String -> STM (Pad -> Pad)
 primOp sym assoc prms ret = genMultiSym name sub
     where
@@ -889,6 +903,8 @@ primOp sym assoc prms ret = genMultiSym name sub
         4 -> \[x,y,z,w] -> op4 symStr x y z w
         _ -> error (show arity)
     symName = if modify then assoc ++ ":" ++ symStr else symStr
+    -- prefix symName with post, circum or other (not yet used)
+    -- to disambiguate, for example, &*prefix:++ and &*postfix:++ in 'op0'
     (arity, fixity, modify) = case assoc of
         "pre"       -> (1, "prefix", False)
         "spre"      -> (1, "prefix", False)
@@ -901,6 +917,7 @@ primOp sym assoc prms ret = genMultiSym name sub
         "list"      -> (0, "infix", False)
         other       -> (0, other, True)
 
+-- |Produce a Pad update transaction with 'primOp' from a string description
 primDecl :: String -> STM (Pad -> Pad)
 primDecl str = primOp sym assoc params ret
     where
@@ -942,6 +959,7 @@ foldParam ('?':str)
 foldParam ('~':str) = \ps -> (((buildParam str "" "$?1" (Val VUndef)) { isLValue = False }) { isLazy = True }:ps)
 foldParam x         = doFoldParam x []
 
+-- op1 "perl"
 prettyVal :: Int -> Val -> Eval VStr
 prettyVal 10 _ = return "..."
 prettyVal d v@(VRef r) = do
@@ -967,7 +985,12 @@ prettyVal _ v = return $ pretty v
 -- spre is "symbolic pre", that is, operators for which a precedence has
 -- already been assigned in Parser.hs
 
---    ret_val   assoc   op_name args
+-- |Initial set global symbols to populate the evaluation environment
+--  in the form of Pad mutating transactions built with 'primDecl'.
+--
+--  The source string format is:
+--
+-- >  ret_val   assoc   op_name args
 initSyms :: STM [Pad -> Pad]
 initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      spre    !       (Bool)\

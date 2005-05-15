@@ -51,7 +51,7 @@ import Pugs.External
 -- |Construct a new, initially empty 'Env' (evaluation environment).
 -- Used in 'Main.doParse', 'Main.doParseWith' and 'Pugs.Run.prepareEnv'.
 -- Of these, only 'Pugs.Run.prepareEnv' seems to make use of the second
--- argument.
+-- argument.  See 'Pugs.Prims.initSyms'
 emptyEnv :: (MonadIO m, MonadSTM m) 
          => String             -- ^ Name associated with the environment
          -> [STM (Pad -> Pad)] -- ^ List of 'Pad'-mutating transactions used
