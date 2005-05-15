@@ -247,6 +247,9 @@ instance Compile Exp where
         actions <- fmap vcat $ mapM (compileWith (text "print" <+>)) (invs ++ args)
         rv      <- compile (Val (VBool True))
         return $ actions $+$ rv
+    compile (App (Var ('&':method)) [(Var ('$':obj))] [arg]) = do
+        lhsC <- askPMC
+        compileWith (\tmp -> text lhsC <+> text "=" <+> varText ("$" ++ obj) <> text "." <> text ("'" ++ method ++ "'") <> parens tmp) arg
     compile (App (Var ('&':name)) _ [arg]) = do
         lhsC <- askPMC
         compileWith (\tmp -> text lhsC <+> text "=" <+> text name <> parens tmp) arg
