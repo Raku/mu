@@ -106,7 +106,7 @@ method get_message_variables( $message: ) returns Hash of Str {
 method as_string( $message: ) returns Str {
 	# This method is intended for debugging use only.
 	return $message.:msg_key~': '~$message.:msg_vars.pairs.sort
-		.map:{ .key~'='~.value }.join( ', ' ); # S02 says sorting Pairs sorts keys by default.
+		.map:{ .key~'='~(.value || '') }.join( ', ' ); # S02 says sorting Pairs sorts keys by default.
 		# (.value // '')
 	# we expect that .map will be invoked off of the list that .sort returns
 	# I might use %hash.as() later, but don't know if it is customizable to sort or make undefs the empty str.
@@ -139,12 +139,12 @@ method new( $class: Str @set_names, Str @member_names ) returns Locale::KeyedTex
 
 ######################################################################
 
-method get_template_set_names( $translator: ) returns Array { # returns Array of Str
-	return @{$translator.:tmpl_set_nms}; # copy list values
+method get_template_set_names( $translator: ) returns Array of Str {
+	return array @{$translator.:tmpl_set_nms}; # copy list values
 }
 
-method get_template_member_names( $translator: ) returns Array { # returns Array of Str
-	return @{$translator.:tmpl_mem_nms}; # copy list values
+method get_template_member_names( $translator: ) returns Array of Str {
+	return array @{$translator.:tmpl_mem_nms}; # copy list values
 }
 
 ######################################################################
@@ -154,7 +154,7 @@ method translate_message( $translator: Locale::KeyedText::Message $message ) ret
 	my Str $text = undef;
 #	MEMBER: for $translator.:tmpl_mem_nms -> $member_name {
 #		SET: for $translator.:tmpl_set_nms -> $set_name {
-#			my PkgName $template_module_name = $set_name~$member_name;
+#			my Str $template_module_name = $set_name~$member_name;
 #			unless( $template_module_name.meta.can("get_text_by_key") ) {
 #				require $template_module_name;
 #				unless( $template_module_name.meta.can("get_text_by_key") ) {
@@ -184,8 +184,6 @@ method as_string( $translator: ) returns Str {
 	# This method is intended for debugging use only.
 	return 'SETS: '~$translator.:tmpl_set_nms.as( '%s', ', ' )~'; MEMBERS: '~
 		$translator.:tmpl_mem_nms.as( '%s', ', ' );
-	# return 'SETS: '~$translator.:tmpl_set_nms.as( '%s', ', ' )~'; MEMBERS: '~
-	# 	$translator.:tmpl_mem_nms.as( '%s', ', ' );
 }
 
 ######################################################################
