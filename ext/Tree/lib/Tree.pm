@@ -3,10 +3,6 @@ use v6;
 
 class Tree-0.0.1;
 
-sub Tree::new (+$node) returns Tree is export { 
-    Tree.new(node => $node) 
-}
-
 ## ----------------------------------------------------------------------------
 ## attributes
 

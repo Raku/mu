@@ -7,7 +7,7 @@ plan 29;
 
 use_ok('Tree');
 
-my $tree = Tree::new(node => 'my tree');
+my $tree = ::Tree.new(node => 'my tree');
 
 # check our default values/state
 is($tree.node(), 'my tree', '... got the right node value');
@@ -23,7 +23,7 @@ ok($tree.is_leaf(), '... this tree is a leaf');
 $tree.node('my tree again');
 is($tree.node(), 'my tree again', '... got the right changed node value');
 
-my $tree2 = Tree::new(node => 'my other tree');
+my $tree2 = ::Tree.new(node => 'my other tree');
 is($tree.node(), 'my tree again', '... the new instance did not spoil my old one');
 
 # check our initial state again
@@ -51,8 +51,8 @@ is($tree3, $tree2, '... tree3 is the same as tree2');
 is($tree.get_child(0).node(), 'my other tree', '... method chaining even works :)');
 
 $tree.add_children(
-    Tree::new(node => 'my tree 3'),
-    Tree::new(node => 'my tree 4')
+    ::Tree.new(node => 'my tree 3'),
+    ::Tree.new(node => 'my tree 4')
 );
 
 is($tree.get_child(1).node(), 'my tree 3', '... add_children worked');
@@ -60,7 +60,7 @@ is($tree.get_child(2).node(), 'my tree 4', '... add_children worked');
 
 is($tree.child_count(), 3, '... $tree has a child count of 1');
 
-$tree.get_child(1).add_child(Tree::new(node => 'tree 1.1'));
+$tree.get_child(1).add_child(::Tree.new(node => 'tree 1.1'));
 my $tree4 = $tree.get_child(1).get_child(0);
 is($tree4.node(), 'tree 1.1', '... chained add_child worked');
 is($tree4.depth(), 2, '... $tree4 has a depth of 2');

@@ -9,9 +9,9 @@ use_ok('Tree');
 
 { # test height (with pictures)
     
-    my $tree = Tree::new();
+    my $tree = ::Tree.new();
     
-    my $D = Tree::new(node => 'D');
+    my $D = ::Tree.new(node => 'D');
     
     $tree.add_child($D);
     
@@ -20,7 +20,7 @@ use_ok('Tree');
     
     is($D.height(), 1, '... D has a height of 1');
     
-    my $E = Tree::new(node => 'E');
+    my $E = ::Tree.new(node => 'E');
     
     $D.add_child($E);
     
@@ -32,7 +32,7 @@ use_ok('Tree');
     is($D.height(), 2, '... D has a height of 2');
     is($E.height(), 1, '... E has a height of 1');
     
-    my $F = Tree::new(node => 'F');
+    my $F = ::Tree.new(node => 'F');
     
     $E.add_child($F);
     
@@ -47,7 +47,7 @@ use_ok('Tree');
     is($E.height(), 2, '... E has a height of 2');
     is($F.height(), 1, '... F has a height of 1');
     
-    my $C = Tree::new(node => 'C');
+    my $C = ::Tree.new(node => 'C');
     
     $D.add_child($C);
     
@@ -63,7 +63,7 @@ use_ok('Tree');
     is($F.height(), 1, '... F has a height of 1');
     is($C.height(), 1, '... C has a height of 1');
     
-    my $B = Tree::new(node => 'B');
+    my $B = ::Tree.new(node => 'B');
     
     $C.add_child($B);
     
@@ -81,7 +81,7 @@ use_ok('Tree');
     is($C.height(), 2, '... C has a height of 2');
     is($B.height(), 1, '... B has a height of 1');
     
-    my $A = Tree::new(node => 'A');
+    my $A = ::Tree.new(node => 'A');
     
     $B.add_child($A);
     
@@ -101,7 +101,7 @@ use_ok('Tree');
     is($B.height(), 2, '... B has a height of 2');
     is($A.height(), 1, '... A has a height of 1');
     
-    my $G = Tree::new(node => 'G');
+    my $G = ::Tree.new(node => 'G');
     
     $E.insert_child(0, $G);
     
@@ -122,7 +122,7 @@ use_ok('Tree');
     is($B.height(), 2, '... B has a height of 2');
     is($A.height(), 1, '... A has a height of 1');
     
-    my $H = Tree::new(node => 'H');
+    my $H = ::Tree.new(node => 'H');
     
     $G.add_child($H);
     
