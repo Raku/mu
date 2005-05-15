@@ -1089,10 +1089,10 @@ ruleCodeSubscript = tryVerbatimRule "code subscript" $ do
 
 parseApply :: RuleParser Exp
 parseApply = tryRule "apply" $ do
-    implicitInv <- option [] $ choice
-        [ do { char '.'; return [Var "$_"] }
-     -- , do { char '^'; return [Var "$?SELF"] }
-        ]
+    implicitInv <- option [] $ do
+        char '.'
+        topic <- option "$_" $ do { char '/'; return "$?SELF" }
+        return [Var topic]
     name        <- ruleSubName <|> ruleFoldOp
     when ((name ==) `any` words " &if &unless &while &until &for ") $
         fail "reserved word"
