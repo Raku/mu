@@ -51,8 +51,8 @@ role Test::Builder::Test::Base {
 
     method report returns Str
     {
-        my $ok          = $.passed ?? 'ok ' :: 'not ok ';
-        my $description = " - $.description";
+        my $ok          = $.passed ?? 'ok' :: 'not ok';
+        my $description = "- $.description";
         return join( ' ', $ok, $.number, $description );
     }
 
@@ -96,8 +96,8 @@ class Test::Builder::Test::TODO does Test::Builder::Test::WithReason
 {
     method report returns Str
     {
-        my $ok          = $.really_passed ?? 'ok ' :: 'not ok ';
-        my $description = " # TODO $.description";
+        my $ok          = $.really_passed ?? 'ok' :: 'not ok';
+        my $description = "# TODO $.description";
         return join( ' ', $ok, $.number, $description );
     }
 
