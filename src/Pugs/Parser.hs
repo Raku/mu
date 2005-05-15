@@ -1098,8 +1098,8 @@ parseApply = tryRule "apply" $ do
         fail "reserved word"
     hasDot  <- option False $ try $ do { whiteSpace; char '.'; return True }
     (invs, args) <- if hasDot
-        then parseNoParenParamList True
-        else parseParenParamList True <|> do { whiteSpace; parseNoParenParamList True }
+        then parseNoParenParamList (null implicitInv)
+        else parseParenParamList (null implicitInv) <|> do { whiteSpace; parseNoParenParamList (null implicitInv) }
     return $ App (Var name) (implicitInv ++ invs) args
 
 ruleFoldOp :: RuleParser String
