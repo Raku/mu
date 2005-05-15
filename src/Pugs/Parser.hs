@@ -1055,7 +1055,8 @@ ruleInvocationParens = do
     colon       <- maybeColon
     hasEqual    <- option False $ do { char '='; whiteSpace; return True }
     name        <- do { str <- ruleSubName; return $ colon str }
-    (invs,args) <- parens $ parseNoParenParamList False
+    (invs,args) <- between (symbol "(") (char ')') $ do
+        parseNoParenParamList False
     -- XXX we just append the adverbial block onto the end of the arg list
     -- it really goes into the *& slot if there is one. -lp
     return $ \x -> if hasEqual
@@ -1064,10 +1065,8 @@ ruleInvocationParens = do
 
 ruleArraySubscript :: RuleParser (Exp -> Exp)
 ruleArraySubscript = tryVerbatimRule "array subscript" $ do
-    symbol "["
-    p <- option id $ do exp <- ruleExpression; return $ \x -> Syn "[]" [x, exp]
-    char ']'
-    return p
+    between (symbol "[") (char ']') $ option id $ do
+        exp <- ruleExpression; return $ \x -> Syn "[]" [x, exp]
 
 ruleHashSubscript :: RuleParser (Exp -> Exp)
 ruleHashSubscript = tryVerbatimRule "hash subscript" $ do
@@ -1075,10 +1074,8 @@ ruleHashSubscript = tryVerbatimRule "hash subscript" $ do
 
 ruleHashSubscriptBraces :: RuleParser (Exp -> Exp)
 ruleHashSubscriptBraces = do
-    symbol "{"
-    p <- option id $ do exp <- ruleExpression; return $ \x -> Syn "{}" [x, exp]
-    char '}'
-    return p
+    between (symbol "{") (char '}') $ option id $ do
+        exp <- ruleExpression; return $ \x -> Syn "{}" [x, exp]
 
 ruleHashSubscriptQW :: RuleParser (Exp -> Exp)
 ruleHashSubscriptQW = do
@@ -1086,7 +1083,7 @@ ruleHashSubscriptQW = do
     return $ \x -> Syn "{}" [x, exp]
 
 ruleCodeSubscript :: RuleParser (Exp -> Exp)
-ruleCodeSubscript = tryRule "code subscript" $ do
+ruleCodeSubscript = tryVerbatimRule "code subscript" $ do
     (invs,args) <- parens $ parseParamList
     return $ \x -> App x invs args
 
