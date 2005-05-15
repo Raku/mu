@@ -52,10 +52,14 @@ First we define our B<AbstractClass> meta-class:
             },
             'method_table' => {
                 'create_instance' => { 
-                    return { 'class' => AbstractClass, AbstractClass.<instance_vars> }
+                    return {
+			'class' => AbstractClass,
+			AbstractClass.<instance_vars>
+		    };
                 },
                 'add_method_to_class' => ($class, $label) -> {
-                    $class.<method_table>.<$label> = \&abstractMethodHandler;
+                    $class.<method_table>.<$label> =
+			\&abstractMethodHandler;
                 },
                 ...
             }
@@ -127,7 +131,8 @@ Here is what that would look like:
                 'add_method_to_class' => ($class: $label, $impl) -> {
                     $class<method_table><$label> = ($self: @args) {
                         $self<semaphore>.acquire();
-                        @return_vals = $self.invoke_method($impl, @args);
+                        @return_vals =
+			    $self.invoke_method($impl, @args);
                         $self<semaphore>.release();                        
                         return @return_vals;
                     }
