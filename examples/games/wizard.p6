@@ -52,7 +52,7 @@ class Person is Mortal {
                     say "You ran away from the $enemy.name()!"; 
                 }
                 if ($.weapons.exists($_)) {
-                    $?SELF.attack($enemy, $.weapons{$_});
+                    ./attack($enemy, $.weapons{$_});
                 }
                 else {
                     say "Please enter a valid command!"
