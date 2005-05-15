@@ -1,11 +1,17 @@
 .sub _main
-    .local int spi, spc, utf8, pos, size1, size2
+    .local int argc, pos, size1, size2
     .local pmc args, match, add_rule
-    .local string name, rule, input, result, cmd, sizeStr, arg1, arg2
+    .local string input, result, cmd, sizeStr, arg1, arg2
     .local pmc stdin
+    .include "iglobals.pasm"
 
     load_bytecode "PGE/Hs.pir"
     match = find_global "PGE::Hs", "match"
+
+    getinterp args
+    set args, args[.IGLOBALS_ARGV_LIST]
+    argc = elements args
+    if argc == 3 goto do_args
 
   loop:
     getstdin stdin
@@ -50,6 +56,12 @@
     print result
     print "\n"
     goto loop
+
+  do_args:
+    arg1 = args[1]
+    arg2 = args[2]
+    result = match(arg1, arg2)
+    print result
 
   end:
 .end
