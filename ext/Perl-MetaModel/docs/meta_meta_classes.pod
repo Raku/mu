@@ -208,6 +208,71 @@ MetaMetaClass is actually independent of a given programming language. That it i
 something which the "user" should ever really have access too. It is a part of the compiler 
 and/or runtime environment upon which a programming language resides.
 
+The second thing is ... hmmm, what was it??
+
+=head1 Why do we need all this abstraction?
+
+I am currently pondering this section. How best to explain it. What follows is a (slightly edited) snippet of a converstation where I attempted to explain this. It is a start :)
+
+    <gaal>	    why do we need one more level after classes?
+    <gaal>	    and how come just one more level is enough?
+    <gaal>	    what do you do with that? that kind of stuff
+    <stevan>	well, there is not a really a quick answer
+    <stevan>	but I will try :)
+    <stevan>	basically it is this
+    <stevan>	a class needs to be something
+    <stevan>	an instance of something that is
+    <stevan>	because there are more than one class in any system
+    <gaal>	    why not an object, like in java?
+    <stevan>	well the Object type in Java is sort of like a metaclass
+    <gaal>	    okay
+    <stevan>	it is the base from which all things are derived
+    <stevan>	just automagically
+    <gaal>	    yes, i see that.
+    <stevan>	the heirarchy must come to a point/root
+    <stevan>	in Java it is the Object
+    <stevan>	in Smalltalk it is MetaClass (i think)
+    <stevan>	take a theoretical object model 
+    <gaal>	    uh huh
+    <stevan>	where we have basic Classes
+    <stevan>	which have methods and properties
+    <stevan>	say you want to add Final classes
+    <stevan>	like Java
+    <stevan>	how would you do that?
+    <stevan>	subclass Class of course
+    <stevan>	but this means that Class itself must be an instance of something 
+    <gaal>	    okay, yes
+    <stevan>	remember too that this is not something the "user" of the language ever sees
+    <gaal>	    yup
+    <gaal>	    that was clear enough from your explanation
+    <stevan>	so you can subclass Class and get FinalClass
+    <stevan>	so this brings up the question, what is Class an instance of
+    <stevan>	MetaClass
+    <stevan>	so you can stop your model at MetaClass
+    <stevan>	and say that is the root
+    <stevan>	OR
+    <stevan>	you can go one level higher
+    <stevan>	which then makes it easier to have Roles, Classes, Traits, etc.
+    <stevan>	the MetaMetaClass is the root now, and each MetaClass is an instance of it
+    <stevan>	some of the MetaClasses in Perl6 will be Role, Class
+    <stevan>	mugwump also included Module and Package too
+    <gaal>	    the perl code in ext/, is it part of the actual implementation of oop in pugs?
+    <stevan>	no
+    <gaal>	    has autrijus assimilated that into the haskell code?    
+    <stevan>	right now it is just a prototype to play around with an object model
+    <gaal>	    ah, okay
+    <stevan>	he might eventually do that
+    <stevan>	if it works out
+    <gaal>	    i see. this is cool stuff.    
+    <stevan>	but it is easier to prototype in perl (5|6) then it is in Haskell (at least for me)
+    <gaal>	    yeah, me too.
+    <stevan>	meta-meta-hacking :)
+    <stevan>	basically you are modeling the class/object system
+    <gaal>	    yes, i get that. i think java is a big help here because it's so consistent
+    <stevan>	I will try to update the meta-meta doc later today
+    <gaal>	    okay thanks for the brief.
+    <stevan>	np
+
 =head1 ACKNOWLEDGEMENTS
 
 Much of what is found in this document is a direct rip-off of the contents of the first
