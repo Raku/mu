@@ -234,6 +234,13 @@ instance Compile Exp where
             , text "$I10 = iseq $I9, 0"
             , rc
             ]
+    compile (App (Var "&require_parrot") [arg] []) = do
+        (path, p) <- compileArg arg
+        return $ vcat $
+            [ path
+            , text "$S9" <+> text "=" <+> p
+            , text "load_bytecode" <+> text "$S9"
+            ]
     compile (App (Var "&say") invs args) = 
         compile $ App (Var "&print") invs (args ++ [Val $ VStr "\n"])
     compile (App (Var "&print") invs args) = do
