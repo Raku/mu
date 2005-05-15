@@ -2,31 +2,31 @@
 
 =head1 Create Your Own Object Model
 
-So all this meta-meta-stuff can be interesting, but the real question is 
-how does it fit into a real-world scenario. I mean, what do you do with 
-all this abstraction?
+So all this meta-meta-stuff can be interesting, but the real question is: How
+does it fit into a real-world scenario? I mean, what do you do with all this
+abstraction?
 
 Why make your own object model of course :)
 
 =head2 Designing your object model
 
 First we need to decide what to put into our object model. For the sake 
-of keeping the example small and clean I will keep it simple. 
+of keeping the example small and clean, I will keep it simple. 
 
 Obviously we will have classes. We will define a class as simply a 
 collection of properties and methods, and we wont bother about public/private
 or any such things.
 
-Now, the next we will add Abstract classes to our model. We will define an 
+Now, the next we will add are Abstract classes to our model. We will define an 
 abstract class as being a class, but with no instance variables, and whose methods 
-are defined but cannot be implemented. This is a very simplistic defintion of 
+are defined, but cannot be implemented. This is a very simplistic defintion of 
 abstract classes, but we want to avoid complexity for this example.
 
-The last thing we will add to our object model is ThreadSafe classes. These are 
-classes for which will be guaranteed to be thread safe. And despite what you might 
+The last thing we will add to our object model are ThreadSafe classes. These are 
+classes which will be guaranteed to be thread safe. And despite what you might 
 think, this is very simple to implement.
 
-Now with our object model defined, lets build it.
+Now with our object model defined, let's build it.
 
 =head2 Building your object model
 
@@ -60,10 +60,10 @@ So lets define our AbstractClass meta-class:
         }
     }
 
-An AbstractClass does not have any 'instance_var' slot since they are not allowed.
-We also implement an 'add_method_to_class' in our AbstractClass method_table which 
+An AbstractClass does not have a 'instance_var' slot since they are not allowed.
+We also implement a 'add_method_to_class' method in our AbstractClass method_table which 
 allows us to enforce that all our methods use the same C<\&abstractMethodHandler> 
-which will throw the appropriate error.
+which will throw an appropriate error.
 
 Now we define the Class meta-class (which is actually a subclass of the 
 AbstractClass meta-class):
@@ -103,12 +103,12 @@ the parent (AbstractClass) with the instance vars of the Class, and of course ou
 'add_method_to_class' meta-class method now accepts a method implementation (C<$impl>).
 
 Okay, so now we have a basic object model here. We have abstract classes as well as 
-regular basic everyday classes. Simple right? :)
+regular basic everyday classes. Simple, right? :)
 
 Now comes our last meta-class, the ThreadSafeClass. 
 
-Now for the purposes of my example I am keeping it very simple and saying that in 
-order to be thread safe every method must aquire an instance specific semaphore 
+For the purposes of my example, I am keeping it very simple and saying that in 
+order to be thread safe, every method must aquire an instance specific semaphore 
 prior to executing, and then release that semaphore after execution. 
 
 Here is what that would look like:
