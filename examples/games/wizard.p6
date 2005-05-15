@@ -41,7 +41,7 @@ class Person is Mortal {
         say $enemy.name, " is attacking you! What will you do?";
 
         until ($choice eq 'f' or $enemy.dead) {
-            for $.weapons.kv -> $key, $wep {
+            for %.weapons.kv -> $key, $wep {
                 say "\t$key-attack with $wep.name()"
             }
             say "\tf-flee in terror!";
@@ -51,8 +51,8 @@ class Person is Mortal {
                 when 'f' {
                     say "You ran away from the $enemy.name()!"; 
                 }
-                if ($.weapons.exists($_)) {
-                    ./attack($enemy, $.weapons{$_});
+                if (%.weapons.exists($_)) {
+                    ./attack($enemy, %.weapons{$_});
                 }
                 else {
                     say "Please enter a valid command!"
