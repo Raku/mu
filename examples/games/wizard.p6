@@ -21,10 +21,13 @@ class Weapon {
     };
 }
 
-class Person {
-    has Str     $.location  is rw;
+class Mortal {
     has Str     $.name      is rw;
     has Int     $.life      is rw;
+}
+
+class Person is Mortal {
+    has Str     $.location  is rw;
     has Weapon  %.weapons   is rw;
             
     method where () {
@@ -72,16 +75,14 @@ class Person {
     
 }
 
-class Monster {
-    has $.name   is rw;
-    has $.gold   is rw;
-    has $.life   is rw;
-    has $.weapon is rw;
+class Monster is Mortal {
+    has Int    $.gold   is rw;
+    has Weapon $.weapon is rw;
 
     method hit  ($power) { $.life -= $power; $.life = 0 if $.life < 0; }
     method dead ()       { $.life <= 0 };
     method attack (Person $human) {
-        say "$_.name()", " attacks $human.name()", " with $.weapon.name()!";
+        say "$.name attacks $human.name()", " with $.weapon.name()!";
         $human.hit($.weapon.damage);
     };
 }

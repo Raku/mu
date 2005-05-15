@@ -280,10 +280,18 @@ ruleClassDeclaration = rule "class declaration" $ try $ do
     optional ruleVersionPart
     optional ruleAuthorPart
     whiteSpace
-    _       <- many $ ruleTrait -- traits; not yet used
-    -- XXX - traits - eg inheritance
+    traits  <- many $ ruleTrait -- traits; not yet used
     env     <- getState
-    let exp = Syn ":=" [Var (':':name), Syn "\\{}" [Syn "," []]]
+    let exp = Syn ":="
+	    [ Var (':':name)
+	    , App (Var "&new")
+		[ Val (VType $ mkType "Class") ]
+		[ App (Var "&infix:=>")
+		    [ Val (VStr "traits")
+		    , Val (VList $ map VStr traits)
+		    ] []
+		]
+	    ]
     unsafeEvalExp (Sym SGlobal (':':name) exp)
     setState env{ envPackage = name, envClasses = envClasses env `addNode` mkType name }
     body    <- between (symbol "{") (char '}') ruleBlockBody
@@ -405,7 +413,7 @@ ruleParamDefault False = rule "default value" $ option (Val VUndef) $ do
 ruleMemberDeclaration :: RuleParser Exp
 ruleMemberDeclaration = do
     symbol "has"
-    optional $ do { ruleQualifiedIdentifier ; whiteSpace } -- Type
+    typ  <- option "" $ lexeme ruleQualifiedIdentifier
     attr <- ruleVarName
     case attr of
         (sigil:'.':key) -> do
@@ -418,7 +426,7 @@ ruleMemberDeclaration = do
                     { isMulti       = False
                     , subName       = name
                     , subPad        = mkPad [] -- XXX really?
-                    , subReturns    = typeOfSigil sigil
+                    , subReturns    = if null typ then typeOfSigil sigil else mkType typ
                     , subBody       = fun
                     , subParams     = [selfParam $ envPackage env]
                     , subLValue     = isRW

@@ -740,10 +740,23 @@ findSub name invs args = do
     case invs of
         [exp] | not (':' `elem` name) -> do
             typ     <- evalExpType exp
-            subs    <- findSub' (('&':showType typ) ++ "::" ++ tail name)
-            if isNothing subs then findSub' name else return subs
+            subs    <- findWithPkg (showType typ)
+            if isJust subs then return subs else findSub' name
         _ -> findSub' name
     where
+    findWithPkg pkg = do
+	subs <- findSub' (('&':pkg) ++ "::" ++ tail name)
+	if isJust subs then return subs else do
+	-- get superclasses
+	rv <- findVar (':':pkg)
+	if isNothing rv then findSub' name else do
+	obj	<- readRef (fromJust rv)
+	fetch	<- doHash obj hash_fetchVal
+	attrs	<- fromVal =<< fetch "traits"
+	(`fix` attrs) $ \run pkgs -> do
+	    if null pkgs then return Nothing else do
+	    subs <- findWithPkg (head pkgs)
+            if isJust subs then return subs else run (tail pkgs)
     findSub' name' = do
         subSyms     <- findSyms name'
         lens        <- mapM argSlurpLen (unwrap $ invs ++ args)
@@ -809,7 +822,8 @@ evalExpType (App (Var name) invs args) = do
 evalExpType exp@(Syn syn _) | (syn ==) `any` words "{} []" = do
     val <- evalExp exp
     evalValType val
-evalExpType (Cxt cxt _) = return $ typeOfCxt cxt
+evalExpType (Cxt cxt _) | typeOfCxt cxt /= (mkType "Any") = return $ typeOfCxt cxt
+evalExpType (Cxt _ exp) = evalExpType exp
 evalExpType (Pos _ exp) = evalExpType exp
 evalExpType (Pad _ _ exp) = evalExpType exp
 evalExpType (Sym _ _ exp) = evalExpType exp
