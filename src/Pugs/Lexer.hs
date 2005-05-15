@@ -265,7 +265,11 @@ ruleTraitName trait = rule "named trait" $ do
 ruleBareTrait :: String -> GenParser Char st String
 ruleBareTrait trait = rule "bare trait" $ do
     choice [ ruleTraitName trait
-           , do { symbol trait ; ruleQualifiedIdentifier }
+           , do symbol trait
+                str <- ruleQualifiedIdentifier
+                -- Hierarchical types like Hash of Str -- not yet recognised
+                many . try $ do { whiteSpace; symbol "of"; ruleQualifiedIdentifier }
+                return str
            ]
 
 ruleContext :: GenParser Char st String

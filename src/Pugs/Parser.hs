@@ -236,7 +236,7 @@ ruleSubHead = rule "subroutine head" $ do
 
 maybeColon = option id $ do
     char ':'
-    return $ \(sigil:name) -> trace ("***********"++ name) (sigil:':':name)
+    return $ \(sigil:name) -> (sigil:':':name)
 
 -- | Scope, context, isMulti, isMethod, name
 ruleSubScopedWithContext :: RuleParser (Scope, String, Bool, Bool, String)
