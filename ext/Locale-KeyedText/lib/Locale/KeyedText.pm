@@ -89,24 +89,23 @@ method new( $class: Str $msg_key, Str ?%msg_vars ) returns Locale::KeyedText::Me
 ######################################################################
 
 method get_message_key( $message: ) returns Str {
-	return $message:msg_key; # $message.:msg_key
+	return $message.:msg_key;
 }
 
 method get_message_variable( $message: Str $var_name ) returns Str {
 	$var_name.defined or return;
-	return $message:msg_vars{$var_name}; # $message.:msg_vars{$var_name}
+	return $message.:msg_vars{$var_name};
 }
 
-method get_message_variables( $message: ) returns Hash { # returns Hash of Str
-	return $message:msg_vars; # copy list values; new hash ref puts attr in list context, so it flattens
-	# return {$message.:msg_vars};
+method get_message_variables( $message: ) returns Hash of Str {
+	return hash %{$message.:msg_vars}; # copy list values
 }
 
 ######################################################################
 
 method as_string( $message: ) returns Str {
 	# This method is intended for debugging use only.
-	return $message:msg_key~': '~$message:msg_vars.pairs.sort
+	return $message.:msg_key~': '~$message.:msg_vars.pairs.sort
 		.map:{ .key~'='~.value }.join( ', ' ); # S02 says sorting Pairs sorts keys by default.
 		# (.value // '')
 	# we expect that .map will be invoked off of the list that .sort returns
@@ -141,13 +140,11 @@ method new( $class: Str @set_names, Str @member_names ) returns Locale::KeyedTex
 ######################################################################
 
 method get_template_set_names( $translator: ) returns Array { # returns Array of Str
-	return $translator:tmpl_set_nms; # copy list values; new array ref puts attr in list context, so it flattens
-	# return [$translator.:tmpl_set_nms];
+	return @{$translator.:tmpl_set_nms}; # copy list values
 }
 
 method get_template_member_names( $translator: ) returns Array { # returns Array of Str
-	return $translator:tmpl_mem_nms; # copy list values; new array ref puts attr in list context, so it flattens
-	# return [$translator.:tmpl_mem_nms];
+	return @{$translator.:tmpl_mem_nms}; # copy list values
 }
 
 ######################################################################
@@ -185,8 +182,8 @@ method translate_message( $translator: Locale::KeyedText::Message $message ) ret
 
 method as_string( $translator: ) returns Str {
 	# This method is intended for debugging use only.
-	return 'SETS: '~$translator:tmpl_set_nms.as( '%s', ', ' )~'; MEMBERS: '~
-		$translator:tmpl_mem_nms.as( '%s', ', ' );
+	return 'SETS: '~$translator.:tmpl_set_nms.as( '%s', ', ' )~'; MEMBERS: '~
+		$translator.:tmpl_mem_nms.as( '%s', ', ' );
 	# return 'SETS: '~$translator.:tmpl_set_nms.as( '%s', ', ' )~'; MEMBERS: '~
 	# 	$translator.:tmpl_mem_nms.as( '%s', ', ' );
 }
