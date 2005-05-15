@@ -7,6 +7,9 @@
 >   One Ring to find them,
 >   One Ring to bring them all
 >   and in the darkness bind them...
+
+    Note that the actual monads are defined elsewhere -- try looking at
+    "Pugs.AST.SIO" and "Pugs.AST.Internals".
 -}
 
 module Pugs.Monads where
@@ -14,11 +17,6 @@ import Pugs.Internals
 import Pugs.AST
 import Pugs.Context
 import Pugs.Types
-
-{-|
-    Note that the actual monads are defined elsewhere -- try looking at
-    "Pugs.AST.SIO" and "Pugs.AST.Internals".
--}
 
 -- |Perform the specified evaluation in a lexical scope that has been
 -- augmented by the given list of lexical 'Pad' transformers. Subsequent
@@ -45,7 +43,19 @@ enterGiven topic action = do
     sym <- genSym "$_" topic
     enterLex [sym] action
 
-enterWhen :: Exp -> Eval Val -> Eval Val
+{-|
+Bind @&continue@ and @&break@ to subs that break out of the @when@ body
+and topicalising block respectively, then perform the given evaluation
+in the new lexical scope.
+
+Note that this function is /not/ responsible for performing the actual @when@
+test, nor is it responsible for adding the implicit @break@ to the end of the
+@when@'s block--those are already taken care of by 'Pugs.Eval.reduce'
+(see the entry for @('Syn' \"when\" ... )@).
+-}
+enterWhen :: Exp      -- ^ The expression that @&break@ should be bound to
+          -> Eval Val -- ^ The @when@'s body block, as an evaluation
+          -> Eval Val
 enterWhen break action = callCC $ \esc -> do
     env <- ask
     contRec  <- genSubs env "&continue" $ continueSub esc
@@ -68,11 +78,25 @@ enterLoop action = genSymCC "&last" $ \symLast -> do
     genSymPrim "&next" (const action) $ \symNext -> do
         enterLex [symLast, symNext] action
 
+{-|
+Generate a new Perl6 operation from a Haskell function, give it a name, and
+generate a @('Pad' -> 'Pad')@ transformer that can be used to install it into
+a pad.
+
+This transformer is passed into a given \'action\' function, which is
+expected to apply the pad-transformer (e.g. in a new lexical scope), then
+perform some evaluation in that scope.
+
+Most of the time, this \'action\' is an anonymous function that passes its
+argument into 'enterLex'.
+-}
 genSymPrim :: (MonadSTM m) 
-           => String 
-           -> ([Val] -> Eval Val)     
-           -> ((Pad -> Pad) -> m t)
-           -> m t
+           => String                -- ^ Name installed in 'Pad'
+                                    --     (must have leading @&@ sigil)
+           -> ([Val] -> Eval Val)   -- ^ The actual primitive to wrap
+           -> ((Pad -> Pad) -> m t) -- ^ A (lambda) function that the 'Pad'
+                                    --     transformer is given to
+           -> m t -- ^ Result of passing the pad-transformer to the \'action\'
 genSymPrim symName@('&':name) prim action = do
     newSym <- genSym symName . codeRef $ mkPrim
         { subName = name
@@ -81,18 +105,32 @@ genSymPrim symName@('&':name) prim action = do
     action newSym
 genSymPrim _ _ _ = error "need a &name"
 
-genSymCC :: String
-         -> ((Pad -> Pad) -> Eval Val)
-         -> Eval Val
+{-|
+Generate a Perl6 primitive that, when called, will activate the /current/
+continuation (i.e. one that can be used to immediately break out of whatever 
+evaluation we are about to perform). This is great for @&last@ and the like.
+
+This produces a pad-transformer @('Pad' -> 'Pad')@. This transformer is given
+to an \'action\' function, which is expected to apply it (e.g. in a lexical
+scope), then perform some evaluation in that scope.
+-}
+genSymCC :: String -- ^ Name of the primitive in the symbol table ('Pad').
+         -> ((Pad -> Pad) -> Eval Val) -- ^ An \'action\' function that will
+                                       --     take the pad-transformer and use
+                                       --     it to perform some evaluation 
+         -> Eval Val -- ^ Result of passing the pad-transformer to the 
+                     --     \'action\'
 genSymCC symName action = callCC $ \esc -> do
     genSymPrim symName (const $ esc undef) action
 
 {-|
-Perform the specified evaluation in a new lexical scope in which
-@&?BLOCK_EXIT@ is bound to a continuation that will break out of the block
-when called. (Actually, @&?BLOCK_EXIT@ is bound to a 'Prim' 'VCode'
-that is /implemented/ using the continuation.) Used by 'Pugs.Eval.reduce'
-when evaluating @('Syn' \"block\" ... )@ expressions.
+Create a Perl6 @&?BLOCK_EXIT@ function that, when activated, breaks out of
+the block scope by activating the current continuation. The block body
+evaluation is then performed in a new lexical scope with @&?BLOCK_EXIT@
+installed.
+
+Used by 'Pugs.Eval.reduce' when evaluating @('Syn' \"block\" ... )@ 
+expressions.
 -}
 enterBlock :: Eval Val -> Eval Val
 enterBlock action = callCC $ \esc -> do
