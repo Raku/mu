@@ -222,14 +222,21 @@ ruleDeclaration = rule "declaration" $ choice
 
 ruleSubHead :: RuleParser (Bool, Bool, String)
 ruleSubHead = rule "subroutine head" $ do
-    isMulti   <- option False $ do { symbol "multi" ; return True }
-    isMethod  <- choice
-        [ do { symbol "sub"; return False }
-        , do { symbol "submethod"; return True }
-        , do { symbol "method"; return True }
+    isMulti             <- option False $ do { symbol "multi" ; return True }
+    (isMethod, name)    <- choice
+        [ do symbol "sub"
+             str    <- ruleSubName
+             return (False, str)
+        , do (symbol "submethod" <|> symbol "method")
+             colon  <- maybeColon
+             str    <- ruleSubName
+             return (True, colon str)
         ]
-    name    <- ruleSubName
     return (isMulti, isMethod, name)
+
+maybeColon = option id $ do
+    char ':'
+    return $ \(sigil:name) -> trace ("***********"++ name) (sigil:':':name)
 
 -- | Scope, context, isMulti, isMethod, name
 ruleSubScopedWithContext :: RuleParser (Scope, String, Bool, Bool, String)
@@ -337,7 +344,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
              | (prm:_) <- params, isInvocant prm = []
              | otherwise = [selfParam $ envPackage env]
         -- decl = Sym scope name -- , namePos)
-        exp  = Syn ":=" [Var name', Syn "sub" [subExp]] -- , bodyPos)
+        exp  = Syn ":=" [Var name', Syn "sub" [subExp]]
     -- XXX: user-defined infix operator
     if scope == SGlobal
         then do { unsafeEvalExp (Sym scope name' exp); return emptyExp }
@@ -416,9 +423,8 @@ ruleMemberDeclaration = do
     typ  <- option "" $ lexeme ruleQualifiedIdentifier
     attr <- ruleVarName
     case attr of
-        (sigil:'.':key) -> do
-            isRW    <- option False $ do { symbol "is rw"; return True }
-            _       <- many $ ruleTrait -- traits; not yet used
+        (sigil:twigil:key) | twigil `elem` ".:" -> do
+            traits  <- many $ ruleTrait
             optional $ do { symbol "handles"; ruleExpression }
             env     <- getState
             -- manufacture an accessor
@@ -429,10 +435,11 @@ ruleMemberDeclaration = do
                     , subReturns    = if null typ then typeOfSigil sigil else mkType typ
                     , subBody       = fun
                     , subParams     = [selfParam $ envPackage env]
-                    , subLValue     = isRW
+                    , subLValue     = "rw" `elem` traits
                     }
-                exp = Syn ":=" [Var name, Syn "sub" [Val $ VCode sub]] -- , bodyPos)
-                name = '&':(envPackage env ++ "::" ++ key)
+                exp = Syn ":=" [Var name, Syn "sub" [Val $ VCode sub]]
+                name | twigil == '.' = '&':(envPackage env ++ "::" ++ key)
+                     | otherwise     = '&':(envPackage env ++ "::" ++ (twigil:key))
                 fun = Cxt (cxtOfSigil sigil) (Syn "{}" [Var "$?SELF", Val (VStr key)])
             unsafeEvalExp (Sym SGlobal name exp)
             return emptyExp
@@ -1034,18 +1041,20 @@ rulePostTerm = tryVerbatimRule "term postfix" $ do
 
 ruleInvocation :: RuleParser (Exp -> Exp)
 ruleInvocation = tryVerbatimRule "invocation" $ do
-    hasEqual <- option False $ do char '='; whiteSpace; return True
-    name            <- ruleSubName
-    (invs,args)     <- option ([],[]) $ parseParenParamList False
+    colon       <- maybeColon
+    hasEqual    <- option False $ do char '='; whiteSpace; return True
+    name        <- do { str <- ruleSubName; return $ colon str }
+    (invs,args) <- option ([],[]) $ parseParenParamList False
     return $ \x -> if hasEqual
         then Syn "=" [x, App (Var name) (x:invs) args]
         else App (Var name) (x:invs) args
 
 ruleInvocationParens :: RuleParser (Exp -> Exp)
 ruleInvocationParens = do
-    hasEqual <- option False $ do char '='; whiteSpace; return True
-    name            <- ruleSubName
-    (invs,args)     <- parens $ parseNoParenParamList False
+    colon       <- maybeColon
+    hasEqual    <- option False $ do { char '='; whiteSpace; return True }
+    name        <- do { str <- ruleSubName; return $ colon str }
+    (invs,args) <- parens $ parseNoParenParamList False
     -- XXX we just append the adverbial block onto the end of the arg list
     -- it really goes into the *& slot if there is one. -lp
     return $ \x -> if hasEqual

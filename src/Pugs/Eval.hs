@@ -738,7 +738,7 @@ cxtOfExp _                      = return cxtSlurpyAny
 
 findSub name invs args = do
     case invs of
-        [exp] | not (':' `elem` name) -> do
+        [exp] | not (':' `elem` drop 2 name) -> do
             typ     <- evalExpType exp
             subs    <- findWithPkg (showType typ)
             if isJust subs then return subs else findSub' name
