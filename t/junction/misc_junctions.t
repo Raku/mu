@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 56;
+plan 55;
 
 =pod
 
@@ -258,11 +258,8 @@ L<S03/"Junctive operators"/"They thread through operations">
     is(j((1|2)^(3&4)), j(one(any(1,2),all(3,4))),
         '((1|2)^(3&4)) equiv to one(any(1,2),all(3,4))');
 
-    is(j((1|2)!(3&4)), j(none(any(1,2),all(3,4))),
-        '((1|2)!(3&4)) equiv to none(any(1,2),all(3,4))');
-
     is(j((1|2)&(3&4)), j(all(any(1,2),all(3,4))), 
-        '((1|2)!(3&4)) equiv to all(any(1,2),all(3,4))');
+        '((1|2)&(3&4)) equiv to all(any(1,2),all(3,4))');
 
     is(j((1|2)|(3&4)), j(any(any(1,2),all(3,4))),
         '((1|2)|(3&4)) equiv to any(any(1,2),all(3,4))');
