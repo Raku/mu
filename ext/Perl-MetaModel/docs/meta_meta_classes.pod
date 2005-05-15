@@ -212,7 +212,7 @@ The second thing is ... hmmm, what was it??
 
 =head1 Why do we need all this abstraction?
 
-I am currently pondering this section. How best to explain it. What follows is a (slightly edited) snippet of a converstation where I attempted to explain this. It is a start :)
+What follows is a (slightly edited) snippet of a converstation which took place on IRC.
 
     <gaal>	    why do we need one more level after classes?
     <gaal>	    and how come just one more level is enough?
@@ -272,6 +272,13 @@ I am currently pondering this section. How best to explain it. What follows is a
     <stevan>	I will try to update the meta-meta doc later today
     <gaal>	    okay thanks for the brief.
     <stevan>	np
+
+Since I always find that the best way to explain things is to use examples. So for an 
+example of how one might use meta-classes (not meta-meta-classes), please see the 
+F<create_your_own_object_model.pod> document in this same folder.
+
+Soon (once I get my head around it fully), I will try writing a similar document on 
+meta-meta-classes, and hopefully touch on the eventual Perl6 object model itself.
 
 =head1 ACKNOWLEDGEMENTS
 
