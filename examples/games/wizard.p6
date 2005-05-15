@@ -59,11 +59,11 @@ class Person is Mortal {
                 }
             }
         }
-        say "Ths $enemy.name()", " is dead!" unless $choice eq 'f';
+        say "The $enemy.name() is dead!" unless $choice eq 'f';
     }
       
     method attack (Monster $enemy, Weapon $weapon) {
-        say "You attack the $enemy.name()", " with your $weapon.name()!";
+        say "You attack the $enemy.name() with your $weapon.name()!";
         $enemy.hit($weapon.damage);
         $enemy.attack($_);
         say "";
@@ -82,7 +82,7 @@ class Monster is Mortal {
     method hit  ($power) { $.life -= $power; $.life = 0 if $.life < 0; }
     method dead ()       { $.life <= 0 };
     method attack (Person $human) {
-        say "$.name attacks $human.name()", " with $.weapon.name()!";
+        say "$.name attacks $human.name() with $.weapon.name()!";
         $human.hit($.weapon.damage);
     };
 }
