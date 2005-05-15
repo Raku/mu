@@ -809,7 +809,7 @@ tightOperators = do
                " >>*<< >>/<< >>x<< >>xx<< >>~<< " ++
                " * / % x xx +& +< +> ~& ~< ~> "         -- Multiplicative
     , leftOps  " »+« >>+<< + - ~ +| +^ ~| ~^ ?| "       -- Additive
-    , listOps  " & ! "                                  -- Junctive And
+    , listOps  " & "                                    -- Junctive And
     , listOps  " ^ | "                                  -- Junctive Or
     , optOps optionary, preOps unary                    -- Named Unary
     , noneSyn  " is but does "                          -- Traits

@@ -42,7 +42,6 @@ import Pugs.Prim.Eval
 -- |Implementation of 0-ary and variadic primitive operators and functions
 -- (including list ops).
 op0 :: String -> [Val] -> Eval Val
-op0 "!"  = fmap opJuncNone . mapM fromVal
 op0 "&"  = fmap opJuncAll  . mapM fromVal
 op0 "^"  = fmap opJuncOne  . mapM fromVal
 op0 "|"  = fmap opJuncAny  . mapM fromVal
@@ -1163,7 +1162,6 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Junction  list    |       (Any|Junction)\
 \\n   Junction  list    &       (Any|Junction)\
 \\n   Junction  list    ^       (Any|Junction)\
-\\n   Junction  list    !       (Any|Junction)\
 \\n   Num       left    *       (Num, Num)\
 \\n   Num       left    /       (Num, Num)\
 \\n   Num       left    %       (Num, Num)\
