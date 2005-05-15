@@ -14,93 +14,78 @@ use v6;
 
 # Input / output are int arrays - slooow - needs a rewrite
 #
-sub Print(@world) {
-    my ($i, $j);
-    for (0..15) -> $i {
-	for (0..15) -> $j {
-	    print +@world[$i * 16 + $j] ?? '*' :: ' ';
-	}
-	say "";
+sub print_world($world) {  
+    for ($world) -> $row {
+    	  say $row.map:{ +$_ ?? '*' :: ' '}.join("");
     }
     say "----------------";
 }
 
-sub Generate(@input) {
-    my ($cell, $neighbours, $i);
-    my $len = 256; #@input;
-    my ($pos, $offset);
-    #my str $birth = "   *     ";
-    #my str $death = "  **     ";
+sub neighbors($cell_x, $cell_y, $input) {
+   my $neighbors;
+   for -1,0,1 -> $x_off {
+	  for -1,0,1 -> $y_off {   	
+   	$neighbors +=  $input[$cell_x + $x_off][$cell_y + $y_off];
+     }
+   }
+   return $neighbors;
+}
+
+sub sycle($input) {
+
     my @death = (0,0,1,1,0,0,0,0,0);
-
-    my @output = @input;
-
-    loop ( $cell = 0; $cell < $len; $cell++ ) {
-	$neighbours = 0;
-	$i = $cell + $len;
-	$neighbours++ if +@input[($i - 1) % $len];
-	$neighbours++ if +@input[($i + 1) % $len];
-	$neighbours++ if +@input[($i - 17) % $len];
-	$neighbours++ if +@input[($i + 17) % $len];
-	$neighbours++ if +@input[($i - 16) % $len];
-	$neighbours++ if +@input[($i + 16) % $len];
-	$neighbours++ if +@input[($i - 15) % $len];
-	$neighbours++ if +@input[($i + 15) % $len];
-	if (@input[$cell]) {
-            if (@death[$neighbours]) {
-                @output[$cell] = 1;
+    my $output;
+    for 0..15 -> $x {
+      print ".";
+      for 0 .. 15 -> $y {
+         my $neighbors = neighbors($x,$y,$input);        
+      	if ($input[$x][$y]) {
+                  if (@death[$neighbors]) {
+                      $output[$x][$y] = 1;
+                      
+                  }
+                  else {
+                      $output[$x][$y] = 0;
+                  }
+      	} else {
+            if ($neighbors == 3) {
+                $output[$x][$y] = 1;
             }
-            else {
-                @output[$cell] = 0;
-            }
-	}
-        else {
-            if ($neighbours == 3) {
-                @output[$cell] = 1;
-            }
-	}
+         }
+      }
     }
-
-    return @output;
+    say "";
+    return $output;
 }
 
-#static void Main()
+my  $world = (
+	[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,],
+	[0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,],
+	[0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,],
+	[1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,],
+	[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,],
+	[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,],
+	[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,],
+	[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,],
+	[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,],
+	[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,],
+	[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,],
+	[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,],
+	[0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,],
+	[0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,],
+	[0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,],
+	[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+);
 
-sub main() {
-    my  @world = (
-	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-	0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-	0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,
-	1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,
-	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-	0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,
-	0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,
-	0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,
-	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-    );
+my $gen = @ARGS[0] || 100;
+say "Running ", $gen, " generations";
+my $ts = time;
 
-    my ($i, $j, @new);
-    my $gen = @ARGS[0] || 100;
-
-    say "Running ", $gen, " generations";
-
-    my $ts = time;
-    loop ( $j= 0 ; $j < $gen; $j++ ) {
-	@world = Generate @world;
-        Print(@world);
-    }
-    my $tdelta = time() - $ts + 1;
-
-    my $ratio = $gen / $tdelta;
-    say "Gens/s: ", $ratio;
+for 1 .. $gen {
+  print_world($world);
+  $world = sycle($world);
 }
+my $tdelta = time() - $ts + 1;
 
-main();
-
+my $ratio = $gen / $tdelta;
+say "Gens/s: ", $ratio;
