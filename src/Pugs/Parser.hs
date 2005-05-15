@@ -1005,7 +1005,8 @@ makeOp0 prec sigil con name = (`InfixList` prec) $ do
 parseTerm :: RuleParser Exp
 parseTerm = rule "term" $ do
     term <- choice
-        [ ruleVar
+        [ ruleDereference
+        , ruleVar
         , ruleLit
         , ruleClosureTrait True
         , ruleTypeVar
@@ -1223,6 +1224,12 @@ ruleMatchNamed = do
     name    <- many (do { char '\\'; anyChar } <|> satisfy (/= '>'))
     char '>'
     return $ (sigil:twigil:name) ++ ">"
+
+ruleDereference :: RuleParser Exp
+ruleDereference = try $ do
+    sigil   <- oneOf "$@%&"
+    exp     <- ruleDereference <|> ruleVar <|> braces ruleExpression
+    return $ Syn (sigil:"{}") [exp]
 
 ruleVar :: RuleParser Exp
 ruleVar = do

@@ -221,25 +221,8 @@ getMagical "$?MODULE"   = constSym "main"
 getMagical "$?OS"       = constSym $ getConfig "osname"
 getMagical _            = return Nothing
 
--- |Reduce an expression into its value. This is the workhorse of "Eval".
-reduce :: Exp -- ^ The expression to reduce
-       -> Eval Val
-
--- Reduction for mutables
-reduce (Val v@(VRef var)) = do
-    lv <- asks envLValue
-    if lv then retVal v else do
-    rv <- readRef var
-    retVal rv
-
--- Reduction for constants
-reduce (Val v) = retVal v
-
--- Reduction for variables
-reduce (Var name) = do
-    v <- findVar name
-    if isNothing v then retError "Undeclared variable" name else do
-    let ref = fromJust v
+evalRef :: VRef -> Eval Val
+evalRef ref = do
     if refType ref == (mkType "Thunk") then forceRef ref else do
     val <- callCC $ \esc -> do
         cxt <- asks envContext
@@ -265,6 +248,26 @@ reduce (Var name) = do
             writeRef ref (VRef ref')
         return $ castV ref
     retVal val
+
+-- |Reduce an expression into its value. This is the workhorse of "Eval".
+reduce :: Exp -- ^ The expression to reduce
+       -> Eval Val
+
+-- Reduction for mutables
+reduce (Val v@(VRef var)) = do
+    lv <- asks envLValue
+    if lv then retVal v else do
+    rv <- readRef var
+    retVal rv
+
+-- Reduction for constants
+reduce (Val v) = retVal v
+
+-- Reduction for variables
+reduce (Var name) = do
+    v <- findVar name
+    if isNothing v then retError "Undeclared variable" name else do
+    evalRef (fromJust v)
 
 reduce (Stmts this rest) | Noop <- unwrap rest = reduce this
 reduce (Stmts this rest) | Noop <- unwrap this = reduce rest
@@ -507,6 +510,26 @@ reduce exp@(Syn name exps) = case name of
         -- error $ show list
         -- elms    <- mapM fromVal list -- flatten
         retVal $ VList (drop idx $ list)
+    "@{}" -> do
+        let [exp] = exps
+        val     <- enterEvalContext (cxtItem "Hash") exp
+        ivar    <- doArray val IArray
+        evalRef (MkRef ivar)
+    "%{}" -> do
+        let [exp] = exps
+        val     <- enterEvalContext (cxtItem "Hash") exp
+        ivar    <- doHash val IHash
+        evalRef (MkRef ivar)
+    "&{}" -> do
+        let [exp] = exps
+        val     <- enterEvalContext (cxtItem "Hash") exp
+        sub     <- fromVal val
+        return $ VCode sub
+    "${}" -> do
+        let [exp] = exps
+        val     <- enterEvalContext (cxtItem "Hash") exp
+        ref     <- fromVal val
+        evalRef ref
     "{}" -> do
         let [listExp, indexExp] = exps
         idxCxt  <- cxtOfExp indexExp 
@@ -714,6 +737,7 @@ cxtOfExp (Cxt cxt _)            = return cxt
 cxtOfExp (Syn "," _)            = return cxtSlurpyAny
 cxtOfExp (Syn "[]" [_, exp])    = cxtOfExp exp
 cxtOfExp (Syn "{}" [_, exp])    = cxtOfExp exp
+cxtOfExp (Syn (sigil:"{}") _) = return $ cxtOfSigil sigil
 cxtOfExp (Val (VList _))        = return cxtSlurpyAny
 cxtOfExp (Val (VRef ref))       = do
     cls <- asks envClasses
@@ -722,7 +746,7 @@ cxtOfExp (Val (VRef ref))       = do
         then cxtSlurpyAny
         else CxtItem typ
 cxtOfExp (Val _)                = return cxtItemAny
-cxtOfExp (Var (c:_))            = return $ cxtOfSigil c
+cxtOfExp (Var (sigil:_))            = return $ cxtOfSigil sigil
 cxtOfExp (App (Var "&list") _ _)   = return cxtSlurpyAny
 cxtOfExp (App (Var "&scalar") _ _) = return cxtSlurpyAny
 cxtOfExp (App (Var name) invs args)   = do
