@@ -222,6 +222,18 @@ instance Compile Exp where
             _ -> do
                 constPMC $ p1 <+> text op <+> p2
         return $ vcat [ lhsC, rhsC, rv ]
+    -- XXX store return code in $@, whereever that may be in Parrotland
+    compile (App (Var "&system") [cmd] []) = do
+        (arg, p) <- compileArg cmd
+        rc <- constPMC (text "$I10")
+        return $ vcat $ 
+            [ arg
+            , text "$S9" <+> text "=" <+> p
+            , text "$I9" <+> text "=" <+> text "spawnw" <+> text "$S9"
+            , text "$I10 = 0"
+            , text "$I10 = iseq $I9, 0"
+            , rc
+            ]
     compile (App (Var "&say") invs args) = 
         compile $ App (Var "&print") invs (args ++ [Val $ VStr "\n"])
     compile (App (Var "&print") invs args) = do
