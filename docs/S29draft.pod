@@ -6,7 +6,7 @@
 
  Maintainer:    Rod Adams <rod@rodadams.net>
  Date:          12 Mar 2005
- Last Modified: 16 Mar 2005
+ Last Modified: 03 Apr 2005
 
 This document attempts to document the list of builtin functions in Perl 6.
 It assumes familiarity with Perl 5 and prior synopses.
@@ -32,23 +32,67 @@ Where code is given here, it is intended to define semantics, not to
 dictate implementation.
 
 
+=head1 Type Declarations
+
+The following type declarations are assumed:
+
+=over
+
+=item Char
+
+The root class of all "character" types, regardless of level. 
+
+This is a subtype of C<Str>, limited to a length of 1 at it's highest
+supported Unicode level.
+
+Subclasses (things that are C<isa Char>:
+
+=over
+
+=item LanguageChar aka LChar
+
+=item Grapheme aka Grf
+
+=item CodePoint aka CdPt
+
+=item Byte
+
+Yes, Byte is both a string and a number.
+
+=back
+
+
+
+=item MatchTest
+
+ type MatchTest ::= Scalar | Junction;
+
+Used to supply a test to match against. Assume C<~~> will be used against it.
+
+
+
+=back
+
+
 
 =head1 Function Packages
 
 =head2 Math::Basic
 
-=over 4
+=over
 
 =item abs
 
- multi sub abs (: Num ?$x = $CALLER::_ ) returns Num
+ multi sub  Perl6::Num::abs (  Num  $x              ) returns Num
+ multi sub Math::Basic::abs (: Num ?$x = $CALLER::_ ) returns Num
 
 Absolute Value.
 
 
 =item exp
 
- multi sub exp (: Num ?$exponent = $CALLER::_, Num +$base) returns Num
+ multi sub  Perl6::Num::exp (  Num  $exponent             : Num +$base) returns Num
+ multi sub Math::Basic::exp (: Num ?$exponent = $CALLER::_, Num +$base) returns Num
 
 Performs similar to C<$base ** $exponent>. $base defaults to the
 constant I<e>.
@@ -56,7 +100,8 @@ constant I<e>.
 
 =item log
 
- multi sub log (: Num ?$x = $CALLER::_, Num +$base) returns Num
+ multi sub  Perl6::Num::log (  Num  $x             : Num +$base) returns Num
+ multi sub Math::Basic::log (: Num ?$x = $CALLER::_, Num +$base) returns Num
 
 Logarithm of base $base, default Natural. Calling with C<$x == 0> is an
 error.
@@ -69,15 +114,15 @@ error.
 
 =item rand
 
- multi sub rand (: Num ?$x = 1, Num +$seed) returns Num
+ multi sub Math::Basic::rand (: Num ?$x = 1) returns Num
 
-Random Number between 0 and 1, or rand()*$x. Optionally seed the
-generator with $seed.
+Psuedo random number between 0 and $x.
 
 
 =item sign
 
- multi sub sign (: Num ?$x = $CALLER::_) returns Int {
+ multi sub  Perl6::Num::sign (  Num  $x             ) returns Int
+ multi sub Math::Basic::sign (: Num ?$x = $CALLER::_) returns Int {
    if !defined($x) { return undef };
    if $x < 0       { return -1    };
    if $x > 0       { return  1    };
@@ -85,9 +130,20 @@ generator with $seed.
    undef;
  }
 
+
+=item srand
+
+ multi sub Math::Basic::srand (: Num ?$seed)
+
+Seed the generator C<rand> uses. C<$seed> defaults to some combination
+of various platform dependent characteristics to yield a non-
+deterministic seed.
+
+
 =item sqrt
 
- multi sub sqrt (: Num ?$x = $CALLER::_) returns Num
+ multi sub  Perl6::Num::sqrt (  Num  $x             ) returns Num
+ multi sub Math::Basic::sqrt (: Num ?$x = $CALLER::_) returns Num
 
 $x ** 0.5
 
@@ -101,7 +157,8 @@ $x ** 0.5
 
 =item I<Standard Trig Functions>
 
- multi sub func (: Num ?$x = $CALLER::_, +$base) returns Num
+ multi sub Perl6::Num::func (  Num  $x             : +$base) returns Num
+ multi sub Math::Trig::func (: Num ?$x = $CALLER::_, +$base) returns Num
 
 where I<func> is one of:
 sin, cos, tan, asin, acos, atan, sec, cosec, cotan, asec, acosec,
@@ -123,7 +180,7 @@ Given the value of an arc representing a single full revolution.
 
 =item atan
 
- multi sub atan (Num $x, Num $y : Num +$base) returns Num
+ multi sub Math::Trig::atan (Num $x, Num $y : Num +$base) returns Num
 
 This second form of C<atan> computes the arctangent of $y/$x, and takes
 the quadrant into account. Otherwise behaves as other trigonometric functions.
@@ -132,26 +189,19 @@ Replaces Perl 5 C<atan2>.
 
 =item pi
 
- multi sub pi () returns Num
+ multi sub Math::Trig::pi () returns Num
 
 
 
 =back
 
-=head2 Perl6::Arrays
-
-I<Note:> These package names are pluralized to distinguish them from the
-classes that will likely assume the singular names.
-
-=for review
-
-
+=head2 Perl6::Array
 
 =over
 
 =item delete
 
- multi method Perl6::Array::delete (: *@indices) returns List
+ multi method Perl6::Array::delete (@array : *@indices) returns List
 
 Sets elements specified by C<@indices> in the invocant to a
 non-existent state, as if they never had a value. Deleted elements at
@@ -163,12 +213,12 @@ slices and multidimensionality. See Synopsis 9 for details.
 
 Returns the value(s) previously held in deleted locations.
 
-An unary form is expected. See Perl6::Hashes::delete
+An unary form is expected. See Perl6::Hash::delete
 
 
 =item exists
 
- multi method Perl6::Array::exists (: Int *@indices) returns Bool
+ multi method Perl6::Array::exists (@array : Int *@indices) returns Bool
 
 Returns True if the specified Array element has been assigned to. This
 is not the same as being defined.
@@ -176,43 +226,42 @@ is not the same as being defined.
 Supplying a different number of indices than invocant has dimensions is
 an error.
 
-An unary form is expected. See Perl6::Hashes::delete
+An unary form is expected. See Perl6::Hash::delete
 
 
 =item pop
 
- multi sub pop () returns Scalar {
+ &Perl6::Array::pop<Array> := &Perl6::Array::splice<Array>.assuming(:offset(-1) :length(1));
+
+ multi sub Perl6::Array::pop () returns Scalar {
    pop @CALLER::_;
  }
- &pop<Array> := &splice<Array>.assuming(:offset(-1) :length(1));
-
-B<Question>: is C<@CALLER::_> the right way to address the caller's
-slurpy array, per A06?
 
 
 =item push
 
- multi sub push (@array is rw : *@values) returns Int {
-   splice(@array, @array.elems, 0, @values);
+ multi sub Perl6::Array::push (@array is rw : *@values) returns Int {
+   Perl6::Array::splice(@array, @array.elems, 0, @values);
    @array.elems;
  }
 
 
 =item shift
 
- multi sub shift () returns Scalar {
-   shift @CALLER::_;
+ &Perl6::Array::shift<Array> := &Perl6::Array::splice<Array>.assuming(:offset(0) :length(1));
+
+ multi sub Perl6::Array::shift () returns Scalar {
+   Perl6::Array::shift @CALLER::_;
  }
- &shift<Array> := &splice<Array>.assuming(:offset(0) :length(1));
 
 
 =item splice
 
- multi sub splice (     @array is rw
-                 : Int ?$offset = 0,
-                   Int ?$length,
-                       *@values)
-   returns List is Lvalue
+ multi sub Perl6::Array::splice (       @array is rw 
+                                 : Int ?$offset = 0,
+                                   Int ?$length,
+                                       *@values
+                                ) returns List is rw
 
 Behaves the similar as Perl 5 C<splice>.
 
@@ -222,8 +271,8 @@ dimension, and works with Array References.
 
 =item unshift
 
- multi sub unshift (@array is rw : *@values) returns Int {
-   splice(@array, 0, 0, @values);
+ multi sub Perl6::Array::unshift (@array is rw : *@values) returns Int {
+   Perl6::Array::splice(@array, 0, 0, @values);
    @array.elems;
  }
 
@@ -236,15 +285,15 @@ dimension, and works with Array References.
 
 =item values
 
- multi sub keys   (@array : Any|Junction *@indextests) returns Int|List
- multi sub kv     (@array : Any|Junction *@indextests) returns Int|List
- multi sub pairs  (@array : Any|Junction *@indextests) returns Int|(List of Pair)
- multi sub values (@array : Any|Junction *@indextests) returns Int|List
+ multi sub Perl6::Array::keys   (@array : MatchTest *@indextests) returns Int|List
+ multi sub Perl6::Array::kv     (@array : MatchTest *@indextests) returns Int|List
+ multi sub Perl6::Array::pairs  (@array : MatchTest *@indextests) returns Int|(List of Pair)
+ multi sub Perl6::Array::values (@array : MatchTest *@indextests) returns Int|List
 
 Iterates the elements of C<@array>, in order. 
 
-If C<@indextests> are provided, only elements whose indices evaluate
-C<$index ~~ any(@indextests)> as true are iterated.
+If C<@indextests> are provided, only elements whose indices match
+C<$index ~~ any(@indextests)> are iterated.
 
 What is returned at each element of the iteration varies with function.
 C<values> returns the value of the associated element; C<kv> returns 
@@ -261,13 +310,15 @@ been iterated.
 
 
 
-=head2 Perl6::Lists
+=head2 Perl6::List
 
 =over
 
 =item grep
 
- multi sub grep (Any|Junction $test : *@values) returns List {
+ multi sub Perl6::Array::grep (@values :      Code *&test  ) returns Lazy
+ multi sub Perl6::Array::grep (@values,   MatchTest $test  ) returns Lazy
+ multi sub  Perl6::List::grep (MatchTest $test :   *@values) returns Lazy {
    gather {
      for @values -> $x {
        take $x if $x ~~ $test;
@@ -278,7 +329,8 @@ been iterated.
 
 =item join
 
- multi sub join (Str $delimiter : *@values) returns List {
+ multi sub Perl6::Array::join (@values,   Str $delimiter) returns Str
+ multi sub  Perl6::List::join (Str $delimiter : *@values) returns Str {
    my $str = ~@values[0];
    for 1..@values.end {
      $str ~= $delimiter ~ @values[$_];
@@ -290,7 +342,8 @@ been iterated.
 
 =item map 
 
- multi sub map (Code $expression : *@values) returns List {
+ multi sub Perl6::Array::map (@values,   Code $expression) returns Lazy 
+ multi sub  Perl6::List::map (Code $expression : *@values) returns Lazy {
    gather {
      while @values {
        take $expression
@@ -302,7 +355,8 @@ been iterated.
 
 =item reduce
 
- multi sub reduce (Code $expression : *@values) returns List {
+ multi sub Perl6::Array::reduce (@values : Code *&expression) returns Scalar
+ multi sub  Perl6::List::reduce (Code $expression : *@values) returns Scalar {
    my $res;
    for @values -> $cur {
         FIRST {$res = $cur; next;}
@@ -314,7 +368,7 @@ been iterated.
 
 =item reverse
 
- multi sub reverse (%hash) returns Hash is default {
+ multi sub Perl6::Hash::reverse (%hash) returns Hash is default {
    my %result;
    for %hash.kv -> $k, $v {
      %result{$v} = $k;
@@ -322,7 +376,8 @@ been iterated.
    %result;
  }
 
- multi sub reverse (: *@values) returns List|Str {
+ multi sub Perl6::Array::reverse (   @values) returns Lazy|Str {
+ multi sub  Perl6::List::reverse (: *@values) returns Lazy|Str {
    given want {
      when List {
        gather {
@@ -338,14 +393,34 @@ been iterated.
 
 =item sort
 
- multi sub sort(Criterion @by : *@values) returns List
- multi sub sort(Criterion $by : *@values) returns List
- &sort<> := &sort<Criterion>.assuming(by => &infix:<cmp>);
+ type KeyExtractor  ::= Code(Any) returns Any;
+ type Comparator    ::= Code(Any, Any) returns Int;
+ type SortCriterion ::= KeyExtractor
+                      | Comparator
+                      | Pair(KeyExtractor, Comparator);
 
- type KeyExtractor ::= Code(Any) returns Any;
- type Comparator   ::= Code(Any, Any) returns Int;
- type Criterion    ::= KeyExtractor | Comparator
-                       | Pair(KeyExtractor, Comparator);
+ multi sub Perl6::Array::sort(                 @values is rw,
+                                              *&by
+                              :           Bit +$inplace
+                             ) returns Array
+
+ multi sub Perl6::Array::sort(                 @values is rw,
+                                SortCriterion  @by
+                              :           Bit +$inplace
+                             ) returns Array
+
+ multi sub Perl6::Array::sort(                 @values is rw
+                              : SortCriterion +$by = &infix:<cmp>,
+                                          Bit +$inplace
+                             ) returns Array
+
+ multi sub  Perl6::List::sort(  SortCriterion  @by
+                              :               *@values
+                             ) returns List
+
+ multi sub  Perl6::List::sort(: SortCriterion  $by = &infix:<cmp>,
+                                              *@values
+                             ) returns List
 
 Returns C<@values> sorted, using criteria C<$by> or C<@by> for
 comparisions. C<@by> differs from C<$by> in that each criteria is
@@ -377,21 +452,24 @@ C<cmp>.
 =back
 
 Any Criterion may recieve either or both of the traits C<is descending>
-and C<in insensitive> to reverse the order of sort, or the adjust the
+and C<is insensitive> to reverse the order of sort, or the adjust the
 case sensitivity of C<cmp> as a Comparator.
 
 If all criteria are exhausted when comparing two elements, sort should
 return them in the same relative order they had in C<@values>.
 
+If C<$inplace> is specified, the array is sorted in place.
+
 See L<http://www.nntp.perl.org/group/perl.perl6.language/16578> for more
 details and examples.
 
 
+
 =item zip
 
- multi sub zip (Array *@lists) returns List {
+ multi sub Perl6::Lists::zip (: Array *@lists, Bit +$shortest) returns Lazy {
    gather {
-     while any(@lists) {
+     while $shortest ?? all (@lists) :: any(@lists) {
        for @lists -> @list {
          take shift @list;
        }
@@ -399,21 +477,19 @@ details and examples.
    }
  }
 
-Example: C<zip (1,4,7,10 ; 2,5,8,11 ; 3,6)> generates
-C<(1,2,3,4,5,6,7,8,undef,10,11,undef)>
 
 =back
 
 
 
-=head2 Perl6::Hashes
+=head2 Perl6::Hash
 
 =over 4
 
 =item delete
 
- multi method Hash::delete (: *@keys) returns List
- multi method Hash::delete (   $key ) returns Scalar is default
+ multi method Perl6::Hash::delete (: *@keys) returns List
+ multi method Perl6::Hash::delete (   $key ) returns Scalar is default
 
 Deletes the elements specified by C<$key> or C<$keys> from the invocant.
 returns the value(s) that were associated to those keys.
@@ -430,20 +506,18 @@ example translations. This list is I<not> exhaustive.
  delete %hash<key>                 %hash.delete{'key'}
  delete %hash<key1>{@keys}         %hash<key1>.delete{@keys}
 
-Since different implementations parse in different ways, no general
-macro will be provided at this time.
 
 =back
 
 
 =item exists
  
- multi method Hash::exists ($key) returns Bool
+ multi method Perl6::Hash::exists ($key) returns Bool
 
 True if invocant has an element whose key matches C<$key>, false
 otherwise.
 
-An unary form is expected. See Perl6::Hashes::delete
+An unary form is expected. See Perl6::Hash::delete
 
 
 =item keys
@@ -454,10 +528,10 @@ An unary form is expected. See Perl6::Hashes::delete
 
 =item values
 
- multi sub keys   (%hash : Any|Junction *@keytests) returns Int|List
- multi sub kv     (%hash : Any|Junction *@keytests) returns Int|List
- multi sub pairs  (%hash : Any|Junction *@keytests) returns Int|(List of Pair)
- multi sub values (%hash : Any|Junction *@keytests) returns Int|List
+ multi sub Perl6::Hash::keys   (%hash : MatchTest *@keytests) returns Int|List
+ multi sub Perl6::Hash::kv     (%hash : MatchTest *@keytests) returns Int|List
+ multi sub Perl6::Hash::pairs  (%hash : MatchTest *@keytests) returns Int|(List of Pair)
+ multi sub Perl6::Hash::values (%hash : MatchTest *@keytests) returns Int|List
  
 Iterates the elements of C<%hash> in no apparent order, but the order
 will be the same between successive calls to these functions, as long as
@@ -481,30 +555,97 @@ property instead.
 =back
 
 
+=head2 Perl6::Str
 
+General notes about strings:
 
+A Str can exist at several Unicode levels at once. Which level you
+interact with typically depends on what your current lexical context has
+declared the "working unicode level to be". Default is LChars.
 
-=head2 I<TODO>
+Attempting to use a string at a level higher it can support is handled
+without warning. The highest supported level is simply mapped char for
+char to the desired level. However, attempting to stuff something into
+the string at a higher level that doesn't map to the lower level is an
+error (for example, attempting to store Kanji in a Byte uplifted to an LChar).
 
-=over 4
+Attempting to use a string at a level lower than what it supports is not
+allowed.
+
+If a function takes a C<Str> and returns a C<Str>, the returned C<Str>
+will support the same levels as the input, unless specified otherwise.
+
+=over
+
+=item chop
+
+ multi sub Perl6::Str::chop (  Str  $string is rw                 ) returns Char
+ multi sub Perl6::Str::chop (: Str *@strings = ($CALLER::_) is rw ) returns Char
+
+Trims the last character from $string, and returns it. Called with a
+list, it chops each item in turn, and returns the last character
+chopped.
+
 
 =item chomp
 
-=item chr
+ multi sub Perl6::Str::chomp (  Str  $string is rw                 ) returns Int
+ multi sub Perl6::Str::chomp (: Str *@strings = ($CALLER::_) is rw ) returns Int
 
-=item hex
+Related to C<chop>, only removes trailing chars that match C</\n/>. In
+either case, it returns the number of chars removed.
 
-=item index 
+Note: Most users should consider setting their I/O handles to autochomp
+instead of this step.
+
 
 =item lc
 
+ multi sub Perl6::Str::lc         (  Str  $string              ) returns Str
+ multi sub Perl6::Str::lc         (: Str ?$string = $CALLER::_ ) returns Str
+
+Returns the input string after converting each character to it's lowercase
+form, if uppercase.
+
+
 =item lcfirst
+
+ multi sub Perl6::Str::lcfirst    (  Str  $string              ) returns Str
+ multi sub Perl6::Str::lcfirst    (: Str ?$string = $CALLER::_ ) returns Str
+
+Like C<lc>, but only affects the first character.
+
+
+=item uc
+
+ multi sub Perl6::Str::uc         (  Str  $string              ) returns Str
+ multi sub Perl6::Str::uc         (: Str ?$string = $CALLER::_ ) returns Str
+
+Returns the input string after converting each character to it's uppercase
+form, if lowercase. This is not a Unicode "titlecase" operation, but a
+full "uppercase".
+
+
+=item ucfirst
+
+ multi sub Perl6::Str::ucfirst    (  Str  $string              ) returns Str
+ multi sub Perl6::Str::ucfirst    (: Str ?$string = $CALLER::_ ) returns Str
+
+Performs a Unicode "titlecase" operation on the first character of the string.
+
+
+=item capitalize
+
+ multi sub Perl6::Str::capitalize (  Str  $string              ) returns Str
+ multi sub Perl6::Str::capitalize (: Str ?$string = $CALLER::_ ) returns Str
+
+Has the effect of first doing an C<lc> on the entire string, then performing a
+C<s:g/(\w+)/{ucfirst $1}/> on it.
+
 
 =item length
 
-=item oct
-
-=item ord
+=item index 
 
 =item pack
 
@@ -518,35 +659,126 @@ property instead.
 
 =item sprintf
 
-=item study
-
 =item substr
 
-=item uc
+ multi sub substr(Str $s, StrPos $start  : StrPos ?$end,     ?$replace)
+ multi sub substr(Str $s, StrPos $start,   StrLen $length  : ?$replace)
+ multi sub substr(Str $s, StrLen $offset : StrLen ?$length,  ?$replace)
 
-=item ucfirst
 
 =item unpack
 
-=item caller
+=item vec
 
-=item defined
+=back
 
-=item prototype
 
-=item ref
 
-=item die 
+=head2 Control::Basic
 
-=item do 
+=over
 
 =item eval 
+ 
+ multi sub Control::Basic::eval (: Str $code = $CALLER::_, Str +$lang = 'Perl6')
+
+Execute C<$code> as if it were code written in C<$lang>. 'Perl6' is the
+only required language, but supporting 'Perl 5' is I<strongly>
+recommended.
+
+Returns whatever C<$code> returns, or undef on error.
+
+
+=item evalfile
+
+ multi sub Control::Basic::evalfile (Str $filename : Str +$lang = 'Perl6')
+
+Behaves like, and replaces Perl 5 C<do EXPR>, with optional C<$lang>
+support.
+
 
 =item exit 
 
+ multi sub Control::Basic::exit (: Int ?$status = 0)
+
+Stops all program execution, and returns C<$status> to the calling environment.
+
+
+=item nothing
+
+ multi sub Control::Basic::nothing ()
+
+No operation. Literally does nothing.
+
+
 =item sleep
 
+ multi sub Control::Basic::sleep (: Num ?$for = Inf ) returns Num
+
+Attempt to sleep for up to C<$for> seconds. Implementations are only obligated
+to support integral seconds, but higher resolutions are preferred.
+
+
+=item die 
+
+=item fail
+
+B<TODO>: Research the exception handling system.
+
+
+=back
+
+
+=head2 Conversions
+
+=over
+
 =item bless 
+
+ sub 
+
+=item chr
+
+=item ord
+
+B<Question>: I think these should be strictly Code Point level
+activitities, but I'm not sure. They likely need to be renamed, as well.
+
+
+=item list
+
+ multi sub Conversions::List:list (: *@list) returns List
+
+Forces List Context on it's arguements, and returns them.
+
+
+=item scalar
+
+ multi sub Conversions::Scalar:scalar ($scalar) returns Scalar
+
+Forces generic Scalar context on it's arguement, and returns it.
+
+
+=item 0x, 0o, 0b, 0d
+ 
+ multi sub prefix::<0x> (: Str ?$hexstr = $CALLER::_) returns Num
+ multi sub prefix::<0o> (: Str ?$octstr = $CALLER::_) returns Num
+ multi sub prefix::<0b> (: Str ?$binstr = $CALLER::_) returns Num
+ multi sub prefix::<0d> (: Str ?$binstr = $CALLER::_) returns Num
+
+Interprets string as a number, with a default
+hexadecimal/octal/binary/decimal radix. Any radix mentioned inside the
+string will be override this operator.  Returns C<undef> on failure.
+
+Replaces Perl 5 C<hex> and C<oct>
+
+
+=back 
+
+
+=head2 Time::Local
+
+=over
 
 =item gmtime 
 
@@ -554,9 +786,23 @@ property instead.
 
 =item time
 
+
+
+
+=back
+
+
+=head2 I<TODO>
+
+=over 4
+
+=item study
+
+=item defined
+
 =item undef
 
-=item vec
+=item scalar 
 
 =item want
 
@@ -569,10 +815,6 @@ property instead.
 =head2 Obsolete
 
 =over 4
-
-=item chop
-
-Use C<chomp> or C<substr>
 
 
 =item dbmopen, dbmclose
@@ -587,11 +829,7 @@ With Parrot?
 
 =item each
 
- while (defined(($key, $value) = each %hash)) { ... }
-
-is now
-
- for %hash.kv -> $key, $value { ... };
+See C<Perl6::Hash::kv> or C<Perl6::Hash::pairs> instead.
 
 
 =item format, formline, write
@@ -599,20 +837,25 @@ is now
 See Exgesis 7.
 
 
+=item /[msg|sem|shm].*/
+
+ use IPC::SysV;
+
+
+=item ref
+
+Can be done with C<$var.meta.name>, but you're likely better off
+performing an C<isa>, or just C<$var ~~ TYPE>.
+
+
 =item reset
 
 Was there a I<good> use for this?
 
 
-=item scalar EXPR
+=item prototype
 
-Use the appropriate C</ \+ | ~ | \? | int /> operator. See S04
-
-B<Question>: Is this correct?
-
-=item srand
-
-C<rand(:seed($x))>
+ &func.meta.signature;
 
 
 =back
@@ -634,16 +877,16 @@ tie tied untie
 
 -X accept alarm bind binmode chown close closedir connect eof fcntl
 fileno flock getc getpeername
-/[get|set][host|net|proto|serv|sock].*/ glob ioctl kill link listen 
-lstat mkdir /msg.*/ open opendir pipe print printf read readdir readline
+/[get|set][host|net|proto|serv|sock].*/ glob ioctl link listen 
+lstat mkdir open opendir pipe print printf read readdir readline
 readlink readpipe recv rename rewinddir rmdir seek seekdir select(both)
-/sem.*/ send setsockopt /shm.*/ shutdown socket socketpair stat symlink
+send setsockopt shutdown slurp socket socketpair stat symlink
 syscall sysopen sysread sysseek syswrite tell telldir truncate umask
 unlink utime warn
 
 =item A/S??: OS Interaction
 
-chroot crypt exec getlogin /[get|set][pw|gr].*/ setpgrp setpriority
+chroot crypt exec getlogin /[get|set][pw|gr].*/ kill setpgrp setpriority
 system times
 
 =item A/S17: Threads and Multiprocessing
