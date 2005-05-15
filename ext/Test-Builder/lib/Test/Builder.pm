@@ -120,7 +120,53 @@ Test::Builder - Backend for building test libraries
 
 =head1 SYNOPSIS
 
+  module My::Test::Module;
+
   use Test::Builder;
+  use Test::Builder::Output;
+
+  my Test::Builder $Test .= new(
+        output => Test::Builder::Output.new(
+	       error_output => open('my_error_log_file')
+        )
+    );
+
+  sub plan (Str ?$explanation, Int ?$tests) is export {
+	 $Test.plan($explanation, $tests);
+  }
+
+  sub ok ($passed, ?$description, ?$todo) is export {
+	 if $todo {
+		$Test.todo($passed, $description, $todo) 
+		    || $Test->diag("FAILED : $desciption");
+	 }
+	 else {
+		$Test.ok($passed, $description)
+		    || $Test->diag("FAILED : $desciption");
+	 }
+  }
+
+  sub is ($got, $expected, ?$description, ?$todo) is export {
+	 if $todo {
+		$Test.todo($got eq $expected, $description, $todo)
+		    || $Test->diag("FAILED : $desciption");		
+	 }
+	 else {
+		$Test.ok($got eq $expected, $description)
+		    || $Test->diag("FAILED : $desciption");		
+	 }
+  }
+
+  # then using our test module the test file themselves ...
+
+  use My::Test::Module;
+
+  plan('no_plan');
+  # or
+  plan :tests<20>;
+
+  ok(2 == 2, '... 2 is equal to 2');
+  is(2 + 2, 5, '... 2 plus 2 should be 5', :todo<bug>);
 
 =head1 DESCRIPTION
 

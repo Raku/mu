@@ -16,7 +16,7 @@ class Test::Builder::TestPlan-0.1.1
     method footer returns Str (Int $run)
     {
         return '' if $run == $.expect;
-        return "Expected $self.expect but ran $run";
+        return "Expected $.expect but ran $run";
     }
 }
 
