@@ -29,6 +29,12 @@ submethod BUILD
     $.output //= Test::Builder::Output.new();
 }
 
+submethod DESTROY
+{
+	my $footer = $.plan.footer();
+	$.output.write( $footer ) if $footer;
+}
+
 method plan ( Str ?$explanation, Int ?$tests )
 {
     fail "Plan already set!" if $.plan;
