@@ -6,70 +6,178 @@
 
 =head1 Introduction
 
-This document is an attempt to clarify (and hopefully simplify) the all too hairy
-topic of MetaClasses. I wrote this document to help me with my own understanding 
-of this topic. I make no guarentees that this will make sense to anyone else or 
-that the information contained within is I<correct> or I<one and only way> to view 
-the concept of MetaClasses.
+This document is a working document to clarify (and hopefully
+simplify) the all too hairy topic of MetaClasses.  This may not be the
+I<correct> or I<one and only way> to view the concept of MetaClasses;
+many books have been written on the subject which all use subtly
+different concepts and terminology.
 
-That said, I will first attempt to define the environment in which our objects 
-exist. I will then define the entities which populate said environment.
+This document hopes to provide the working basis for the Perl 6
+Meta-Model; in a sense, it builds on the brief notes at the end of
+Synopsis 12 (see L<S12>) that describe introspection, and carries it
+to its logical conclusion.
 
 =head1 The Object Environment
 
-Let us assume for a moment that all our object's live in an I<object> environment 
-(B<O>), which is a finite set of objects, each of which is identified with a 
-unique object reference.
+Let us assume for a moment that all our object's live in an I<object>
+environment (B<O>), which is a finite set of objects, each of which is
+identified with a unique object reference.
 
-Here is a diagram of the entire object environment, and each of its subsets:
+Here is a diagram of the entire object environment:
 
-    +---{instance}-----------------------------------------------------------+
-    |                                                                        |
-    |              +---{class}---------------------------------------------+ |
-    |              |                                                       | |
-    |              |              +---{meta}-----------------------------+ | |
-    |              |              |                                      | | |
-    |              |              |                +----{meta-meta}----+ | | |
-    |              |              |                |                   | | | |
-    |   ------     |    -----     |    -------     |    -----------    | | | |
-    |  ( iFoo )------->( Foo )------->( Class )------->( MetaClass )   | | | | 
-    |   ------     |    -----     |    -------     |    -----------    | | | |
-    |              |              |                +-------------------+ | | |
-    |              |              +--------------------------------------+ | |
-    |              +-------------------------------------------------------+ |  
-    +------------------------------------------------------------------------+
+  +-{Object}--+ +--{Class}--+ +{MetaClass}+ +{MetaMetaClass}+
+  |           | |           | |           | |               |
+  |  ------   | |   -----   | |  -------  | |  -----------  |
+  | ( $foo )------>( Foo )----->( Class )---->( MetaClass ) |
+  |  ------   | |   -----   | |  -------  | |  -----------  |
+  |           | |           | |           | |               |
+  +-----------+ +-----------+ +-----------+ +---------------+
 
 =head2 Rules of the object environment
 
-Our object environment has a set of rules which help to define the elements that 
-exist within it. 
+Our object environment has a set of rules which help to define the
+elements that exist within it.
 
 =over 4
 
-=item B<Every I<instance> is an object.>
+=item B<type of XXX, instance of XXX english operators>
 
-These are the occupants of our environment B<O>. It should also be noted that 
-every I<instance> has a uniquely associated entity called a I<class>.
+(this is a nomenclature point)
 
-=item B<Every I<class> is itself an I<object> whose instances are (obviously) I<instances>.>
+When we write "type of XXX", we are moving upwards in the object
+environment (to the right on the above diagram); the type of an
+instance is a Class, the type of a Class is a MetaClass, and so on.
 
-This means that the I<class> space (B<C>) is a subset of B<O>.
+As a shorthand, the term C<Meta> may be prepended to anything to imply
+this I<derivative> function.  This is how we arrive at C<MetaClass>
+from C<Class>, for example.  In theory, a C<MetaObject> would be a
+C<Class>, but C<MetaObject> sounds silly.
 
-=item B<Every I<meta-class> is an I<object> whose instances are I<classes>.>
+When we write "instance of XXX", we are moving downwards.  An instance
+of a MetaMetaClass is a MetaClass, an instance of a MetaClass is a
+Class, etc.
 
-This means that the I<meta> space (B<M>) is a subset of B<C> which is a subset of B<O>.
+To stay on the same level, use the term "XXX object".
 
-=item B<Every I<meta-meta-class> is an I<object> whose instances are I<meta-classes>.>
+=item B<each "level" is independant of the levels above and below it>
 
-This means that the I<meta-meta> space (B<MM>) is a subset of B<M> which is a subset 
-of B<C>, which is a subset of B<O>.
+Relationships such as "is a", "does a", etc only make sense within a
+particular level of the object system.  So, for example, it does not
+make sense to describe all of these objects as descending from some
+I<über>-Object class.  Rules and principles that apply on one level do
+not necessarily transfer to the levels below.
+
+To a type system freak, you could say that each level is seperated by
+exactly one lamdba; that is, the distance between a type and a value.
+By starting with a solid type definition at some level arbitrarily
+designated as the "top", it is possible (in principle, at least) to
+induct the lamdba calculus safely down to the lower levels.  This is
+important when writing I<type-safe> compilers that are capable of
+mutating their object systems at any time.
+
+=item B<each "level" looks like Objects from Perl>
+
+Despite this inherant heterogeneity of each level, they all look like
+Objects from Perl.  They are described and accessed in exactly the
+same way, and can even share type definitions and refer to each other,
+to some extent.
+
+Not that references "between" levels may inhibit the capability of the
+code to be compiled so far as to run without an interpreter.
+
+To summarise the above two principles in code;
+
+  MyClass.isa(Object);   # false
+  MyClass.isa(Class);    # true
+  MyClass.does(Object);  # true
+
+  MyClass.meta.isa(Object);    # false
+  MyClass.meta.isa(Class);     # false
+  MyClass.meta.isa(MetaClass); # true
+  MyClass.meta.does(Object);   # true
+
+  MyClass.meta.meta.isa(Object);        # false
+  MyClass.meta.meta.isa(Class);         # false
+  MyClass.meta.meta.isa(MetaClass);     # false
+  MyClass.meta.meta.isa(MetaMetaClass); # true
+  MyClass.meta.meta.does(Object);       # true
+
+Even the above is in an ideal situation; it might be that with some
+weird MetaModels, you simply don't get those guarantees.  However,
+such situations are probably a bit 'obstruese' so won't be mentioned
+further.
+
+=item B<Every C<Object> is an instance of some C<Class>>
+
+These are the occupants of our environment B<O>.  Every noted
+O<Object> has a uniquely associated entity called a C<Class>.
+Instances are the normalisation of the type system; there is no such
+thing (to Perl, anyway) as an instance of an C<Object>.
+
+99% of code will be using C<Objects> for absolutely everything.
+
+=item B<Every C<Class> is an instance of some C<MetaClass>>
+
+These objects are what would normally be described as your program's
+I<Model>; ie, objects that are I<Classes> (or I<Roles>, etc) will be
+called "Dog", "Tree", etc.
+
+When you write:
+
+  class Dog {
+  }
+
+You are actually doing something like this;
+
+  Class.new(name => Dog).apply;   # FIXME perl6ify
+
+This is because the term C<Class> actually refers to a C<MetaClass>,
+not a C<Class>.  There is nothing special about the term C<Class> that
+makes it so, other than it was defined so.  If we had chosen the term
+C<Qualifarniciferate> to refer to instances of C<MetaClasses>, then
+the above would simply create an object of class (sorry,
+Qualifarniciferate) C<Class>.
+
+C<Class> objects are presented to Perl in much the same manner as
+instances of some C<Class> called C<MetaClass> might be.  This might
+fool you into thinking that they are also instances of some C<Class>,
+however in truth they are only ever instances of C<MetaClass> objects.
+
+=item B<Every C<MetaClass> is an instance of some C<MetaMetaClass>>
+
+These objects are what would normally be described as your B<language>
+I<Model>, or program I<Meta-Model>.  These will be called "Class",
+"Role", etc.
+
+It is these objects that implement methods like C<.isa>, C<.does>,
+etc.  They will almost certainly provide proxy methods in the C<Class>
+objects that they produce, that when compiled will produce the desired
+behaviour.
+
+=item B<Every I<MetaMetaClass> is an instance of the underlying system>
+
+In theory, we could extend this relationship to any level.  However,
+it simply does not make much sense to deal with these objects
+directly; they might be Haskell definitions in the case of C<pugs>, or
+perhaps in a Pure Perl Interpreter they will actually be real
+C<Object>s; but you will not see the definition of C<MetaMetaClass> in
+this module; in a sense, Perl 6 classes are being used as an
+underlying I<Meta-Meta-Model>.
 
 =back
 
+In Perl, not everything is an object.  But everything can behave as
+objects (when asked).
+
+=for EDITOR
+
+(the above probably duplicates much of what is below... )
+
 =head2 Querying the Object environment
 
-Since everything is simply a set or a subset of a set, we can use simple set difference 
-operations to query the contents of our overall object environment.
+Since everything is simply a set or a subset of a set, we can use
+simple set difference operations to query the contents of our overall
+object environment.
 
 =over 4
 
@@ -301,5 +409,7 @@ inconsistencies or outright lies this document might contain.
 =head1 AUTHOR
 
 Stevan Little E<lt>stevan@iinteractive.comE<gt>
+
+Sam Vilain E<lt>samv@cpan.orgE<gt>
 
 =cut
