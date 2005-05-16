@@ -32,7 +32,7 @@ my $fail_diag = Test::Builder::Test::Fail.new(
 );
 
 is( $fail_diag.diagnostic(), 'some reason this failed',
-	'... or the provided doiagnostic' );
+	'... or the provided diagnostic' );
 
 is( $fail_test.report(), 'not ok 1 - first test description',
 	'report() should produce the correct TAP line' );

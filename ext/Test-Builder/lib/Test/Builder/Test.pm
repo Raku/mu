@@ -67,7 +67,7 @@ role Test::Builder::Test::WithReason does Test::Builder::Test::Base
 
     submethod BUILD ( $.reason ) {}
 
-    method status returns Hash
+    method status returns Hash ( $self: )
     {
         my $status        = $self.*WALK[:super];
         $status{"skip"}   = 1;
@@ -83,7 +83,7 @@ class Test::Builder::Test::Skip does Test::Builder::Test::WithReason
         return "not ok $.number #skip $.reason";
     }
 
-    method status ($self: ) returns Hash
+    method status returns Hash ($self: ) 
     {
         my $status      = $self.*WALK[:super];
         $status{"skip"} = 1;
@@ -101,7 +101,7 @@ class Test::Builder::Test::TODO does Test::Builder::Test::WithReason
         return join( ' ', $ok, $.number, $description );
     }
 
-    method status returns Hash
+    method status returns Hash ( $self: ) 
     {
         my $status               = $self.*WALK[:super];
         $status{"TODO"}          = 1;

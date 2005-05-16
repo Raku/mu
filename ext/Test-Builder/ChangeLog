@@ -4,6 +4,8 @@
 * made the `expect` attribute for Test::Builder::Plan private 
 * added tests
 * print TestPlan footer when T::B object goes out of scope (DESTROY())
+* fix some parsing errors
+* fix some typos
 
 == Changes for version 0.1.0
 
