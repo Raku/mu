@@ -653,6 +653,13 @@ reduce (App (Var "&zip") invs args) = do
     retVal val
 
 -- XXX absolutely evil bloody hack for "goto"
+reduce (App (Var "&not") [] []) = retEmpty
+
+reduce (App (Var "&not") invs args) = do
+    bool <- fromVal =<< evalExp (last $ invs ++ args)
+    retVal $ VBool (not bool)
+
+-- XXX absolutely evil bloody hack for "goto"
 reduce (App (Var "&goto") (subExp:invs) args) = do
     vsub <- enterEvalContext (cxtItem "Code") subExp
     sub <- fromVal vsub

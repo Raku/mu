@@ -54,7 +54,6 @@ op0 "time"  = const $ do
     where
     epochClkT = toClockTime epoch
     epoch = CalendarTime 2000 January 1 0 0 0 0 Saturday 0 "UTC" 0 False
-op0 "not" = const retEmpty
 op0 "so" = const (return $ VBool True)
 op0 "¥" = op0Zip
 op0 "Y" = op0 "¥"
@@ -203,7 +202,6 @@ op1 "\\"   = \v -> do
         (VList vs)  -> VRef . arrayRef $ vs
         _           -> VRef . scalarRef $ v
 op1 "post:..."  = op1Cast op1Range
-op1 "not"  = op1 "!"
 op1 "true" = op1 "?"
 op1 "any"  = op1Cast opJuncAny
 op1 "all"  = op1Cast opJuncAll
@@ -1040,8 +1038,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Num       post    --      (rw!Num)\
 \\n   Any       spre    ++      (rw!Num)\
 \\n   Num       spre    --      (rw!Num)\
-\\n   Any       pre     not     ()\
-\\n   Bool      pre     not     (Bool)\
+\\n   Bool      pre     not     (List)\
 \\n   Bool      pre     true    (Bool)\
 \\n   List      pre     map     (Code, List)\
 \\n   List      pre     grep    (Code, List)\
