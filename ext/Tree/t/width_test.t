@@ -2,16 +2,15 @@
 
 use v6;
 use Test;
+use Tree;
 
-plan 67;
-
-use_ok('Tree');
+plan 66;
 
 { # test height (with pictures)
     
-    my $tree = ::Tree.new();
+    my $tree = Tree.new();
     
-    my $D = ::Tree.new(node => 'D');
+    my $D = Tree.new(node => 'D');
     
     $tree.add_child($D);
     
@@ -20,7 +19,7 @@ use_ok('Tree');
     
     is($D.width(), 1, '... D has a width of 1');
     
-    my $E = ::Tree.new(node => 'E');
+    my $E = Tree.new(node => 'E');
     
     $D.add_child($E);
     
@@ -32,7 +31,7 @@ use_ok('Tree');
     is($D.width(), 1, '... D has a width of 1');
     is($E.width(), 1, '... E has a width of 1');
     
-    my $F = ::Tree.new(node => 'F');
+    my $F = Tree.new(node => 'F');
     
     $E.add_child($F);
     
@@ -47,7 +46,7 @@ use_ok('Tree');
     is($E.width(), 1, '... E has a width of 1');
     is($F.width(), 1, '... F has a width of 1');
     
-    my $C = ::Tree.new(node => 'C');
+    my $C = Tree.new(node => 'C');
     
     $D.add_child($C);
     
@@ -63,7 +62,7 @@ use_ok('Tree');
     is($F.width(), 1, '... F has a width of 1');
     is($C.width(), 1, '... C has a width of 1');
     
-    my $B = ::Tree.new(node => 'B');
+    my $B = Tree.new(node => 'B');
     
     $D.add_child($B);
     
@@ -82,7 +81,7 @@ use_ok('Tree');
     is($B.width(), 1, '... B has a width of 1');
         
     
-    my $A = ::Tree.new(node => 'A');
+    my $A = Tree.new(node => 'A');
     
     $E.add_child($A);
     
@@ -100,7 +99,7 @@ use_ok('Tree');
     is($B.width(), 1, '... B has a width of 1');
     is($A.width(), 1, '... A has a width of 1');
     
-    my $G = ::Tree.new(node => 'G');
+    my $G = Tree.new(node => 'G');
     
     $E.insert_child(1, $G);
     
@@ -119,7 +118,7 @@ use_ok('Tree');
     is($B.width(), 1, '... B has a width of 1');
     is($A.width(), 1, '... A has a width of 1');
     
-    my $H = ::Tree.new(node => 'H');
+    my $H = Tree.new(node => 'H');
     
     $G.add_child($H);
     
@@ -141,7 +140,7 @@ use_ok('Tree');
     is($B.width(), 1, '... B has a width of 1');
     is($A.width(), 1, '... A has a width of 1');
     
-    my $I = ::Tree.new(node => 'I');
+    my $I = Tree.new(node => 'I');
     
     $G.add_child($I);
     

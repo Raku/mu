@@ -224,25 +224,11 @@ op1 "eval_parrot" = \v -> do
         ('.':_) -> code
         _       -> ".sub pugs_eval_parrot\n" ++ code ++ "\n.end\n"
     return $ VBool True
-op1 "require" = \v -> do
-    file    <- fromVal v
-    incs    <- fromVal =<< readVar "@*INC"
-    requireInc incs file (errMsg file incs)
-    where
-    errMsg file incs = "Can't locate " ++ file ++ " in @INC (@INC contains: " ++ unwords incs ++ ")."
-    requireInc [] _ msg = do
-        return $ VError msg (Val VUndef)
-    requireInc (p:ps) file msg = do
-        let pathName = p ++ "/" ++ file
-        ok <- liftIO $ doesFileExist pathName
-        if (not ok)
-            then requireInc ps file msg
-            else do
-                str <- liftIO $ readFile pathName
-                opEval True pathName (decodeUTF8 str)
+op1 "use" = opRequire True
+op1 "require" = opRequire False
 op1 "eval" = \v -> do
     str <- fromVal v
-    opEval False "<eval>" str
+    opEval Nothing "<eval>" str
 op1 "eval_perl5" = boolIO evalPerl5
 op1 "eval_haskell" = op1EvalHaskell
 op1 "eval_yaml" = evalYaml
@@ -1098,6 +1084,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Any       pre     eval_haskell (Str)\
 \\n   Any       pre     eval_yaml    (Str)\
 \\n   Any       pre     require (?Str=$_)\
+\\n   Any       pre     use     (?Str=$_)\
 \\n   Any       pre     require_haskell (Str)\
 \\n   Any       pre     require_parrot  (Str)\
 \\n   Any       pre     last    (?Int=1)\
