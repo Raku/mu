@@ -83,7 +83,7 @@ class Test::Builder::Test::Skip does Test::Builder::Test::WithReason
         return "not ok $.number #skip $.reason";
     }
 
-    method status returns Hash
+    method status ($self: ) returns Hash
     {
         my $status      = $self.*WALK[:super];
         $status{"skip"} = 1;

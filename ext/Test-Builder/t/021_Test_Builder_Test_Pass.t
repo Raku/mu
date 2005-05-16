@@ -19,7 +19,7 @@ is( $pass_test.ref, 'Test::Builder::Test::Pass',
 is( $pass_test.number(), 1, 'number() should return the provided test number' );
 ok( $pass_test.passed(),    'passed() should report the right passed value' );
 is( $pass_test.description(), 'first test description',
-    'description() should report test description' );
+    'description() should report the test description' );
 is( $pass_test.diagnostic(), '???',
     'diagnostic() should report the default diagnostic if needed',
     :todo<feature> );
