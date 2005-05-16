@@ -13,6 +13,7 @@
 module Pugs.Parser (
     runRule,
     ruleProgram,
+    mergeStmts,
 ) where
 import Pugs.Internals
 import Pugs.AST
@@ -493,11 +494,14 @@ ruleUseVersion = rule "use version" $ do
 
 ruleUsePackage :: RuleParser Exp
 ruleUsePackage = rule "use package" $ do
-    names <- identifier `sepBy1` (try $ string "::")
-    _ <- option "" $ do -- version - XXX
-        char '-'
-        many1 (choice [ digit, char '.' ])
-    unsafeEvalExp $ App (Var "&require") [] [Val . VStr $ concat (intersperse "/" names) ++ ".pm"]
+    names   <- identifier `sepBy1` (try $ string "::")
+    _       <- option "" $ ruleVersionPart
+    _       <- option "" $ ruleAuthorPart
+    val <- unsafeEvalExp $
+        App (Var "&use") [Val . VStr $ concat (intersperse "/" names) ++ ".pm"] []
+    case val of
+        Val (VControl (ControlEnv env')) -> setState env'
+        _  -> error $ pretty val
     return emptyExp
 
 ruleInlineDeclaration :: RuleParser Exp
@@ -516,7 +520,7 @@ ruleRequireDeclaration = tryRule "require declaration" $ do
     _ <- option "" $ do -- version - XXX
         char '-'
         many1 (choice [ digit, char '.' ])
-    return $ App (Var "&require") [] [Val . VStr $ concat (intersperse "/" names) ++ ".pm"]
+    return $ App (Var "&require") [Val . VStr $ concat (intersperse "/" names) ++ ".pm"] []
 
 ruleModuleDeclaration :: RuleParser Exp
 ruleModuleDeclaration = rule "module declaration" $ do
@@ -1011,7 +1015,7 @@ parseTerm = rule "term" $ do
         , ruleClosureTrait True
         , ruleTypeVar
         , ruleTypeLiteral
-        , parseApply
+        , ruleApply
         , parens ruleExpression
         ]
     fs <- many rulePostTerm
@@ -1087,8 +1091,8 @@ ruleCodeSubscript = tryVerbatimRule "code subscript" $ do
     (invs,args) <- parens $ parseParamList
     return $ \x -> App x invs args
 
-parseApply :: RuleParser Exp
-parseApply = tryRule "apply" $ do
+ruleApply :: RuleParser Exp
+ruleApply = tryVerbatimRule "apply" $ do
     (colon, implicitInv) <- option (id, []) $ do
         char '.'
         option (id, [Var "$_"]) $ choice
@@ -1119,7 +1123,9 @@ parseParamList = parseParenParamList True <|> parseNoParenParamList True
 
 parseParenParamList :: Bool -> RuleParser ([Exp], [Exp])
 parseParenParamList defaultToInvs = try $ do
-    params <- option Nothing $ fmap Just (parens $ parseNoParenParamList defaultToInvs)
+    params      <- option Nothing . fmap Just $
+        between (symbol "(") (char ')') $
+            parseNoParenParamList defaultToInvs
     block       <- option [] ruleAdverbBlock
     when (isNothing params && null block) $ fail ""
     let (inv, norm) = maybe ([], []) id params
