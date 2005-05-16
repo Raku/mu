@@ -107,6 +107,15 @@ op1 "lc" = op1Cast (VStr . map toLower)
 op1 "lcfirst" = op1StrFirst toLower
 op1 "uc" = op1Cast (VStr . map toUpper)
 op1 "ucfirst" = op1StrFirst toUpper
+op1 "capitalize" = op1Cast $ VStr . (mapEachWord capitalizeWord)
+  where
+    mapEachWord _ [] = []
+    mapEachWord f str@(c:cs)
+        | isSpace c = c:(mapEachWord f cs)
+	| otherwise = f word ++ mapEachWord f rest
+	  where (word,rest) = break isSpace str
+    capitalizeWord []     = []
+    capitalizeWord (c:cs) = toUpper c:(map toLower cs)
 op1 "undef" = \x -> do
     when (defined x) $ do
         ref <- fromVal x
@@ -1040,6 +1049,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Str       pre     lcfirst (?Str=$_)\
 \\n   Str       pre     uc      (?Str=$_)\
 \\n   Str       pre     ucfirst (?Str=$_)\
+\\n   Str       pre     capitalize (?Str=$_)\
 \\n   Any       post    ++      (rw!Num)\
 \\n   Num       post    --      (rw!Num)\
 \\n   Any       spre    ++      (rw!Num)\
