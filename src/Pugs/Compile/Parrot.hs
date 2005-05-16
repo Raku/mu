@@ -181,11 +181,11 @@ instance Compile Exp where
     -- XXX broken! this needs to emit PIR *outside* of the main sub
     -- compile (Syn "module" [Val (VStr ns)]) = do
     --    return $ text ".namespace ['_Pugs::" <> text ns <> text "']"
-    compile (App (Var "&return") [] [val]) = do
+    compile (App (Var "&return") [val] []) = do
         (valC, p) <- compileArg val
         return $ valC $+$ text ".return" <+> parens p
     compile (App (Var "&last") _ _) = return $ text "invoke last"
-    compile (App (Var "&substr") [] [str, idx, len])
+    compile (App (Var "&substr") [str, idx, len] [])
         | Val v <- unwrap len, vCast v == (1 :: VNum) = do
         (strC, p1) <- enterLValue $ compileArg str
         (idxC, p2) <- enterLValue $ compileArg idx
