@@ -11,7 +11,7 @@ L<S04/"The general loop statement">
 
 =cut
 
-plan 8;
+plan 10;
 
 # basic loop
 
@@ -43,3 +43,25 @@ my $count  = 0;
 is($count, 0, 'verify our starting condition');
 eval 'loop (my $j = 0; $j < 10; $j++) { $count++; }';
 is($count, 10, 'verify our ending condition',:todo);
+
+# Ensure condition is tested on the first iteration
+{
+	my $never_did_body = 1;
+	loop (;0;)
+	{
+		$never_did_body = 0;
+	}
+	ok($never_did_body, "loop with an initially-false condition executes 0 times");
+}
+
+# Loop with next should still execute the continue expression
+{
+	my ($i,	$continued);
+	loop ($i = 0;; $continued = 1)
+	{
+		last if $i;
+		$i++;
+		next;
+	}
+	ok($continued, "next performs a loop's continue expression");
+}
