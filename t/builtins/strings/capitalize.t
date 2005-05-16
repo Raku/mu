@@ -5,6 +5,8 @@ use Test;
 
 plan 5;
 
+# L<S29/"Perl6::Str" /capitalize/>
+
 is capitalize(""),             "",               "capitalize('') works";
 is capitalize("puGS Is cOOl!"), "Pugs Is Cool!", "capitalize('...') works";
 is "puGS Is cOOl!".capitalize,  "Pugs Is Cool!", "'...'.capitalize works";

@@ -5,6 +5,8 @@ use Test;
 
 plan 7;
 
+# L<S29/"Perl6::Str" /lc/>
+
 is(lc("Hello World"), "hello world", "simple lc test");
 is(lc(""), "", "empty string");
 is(lc("ÅÄÖ"), "åäö", "some finnish non-ascii chars");

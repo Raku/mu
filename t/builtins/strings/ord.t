@@ -13,6 +13,8 @@ NOTE: these tests only deal with ASCII
 
 =cut
 
+# L<S29/"Conversions" /ord/>
+
 # What is the best way to test 0 through 31??
 
 is(ord(" "), 32, 'got the right ord for  ');

@@ -5,6 +5,8 @@ use Test;
 
 plan 23;
 
+# L<S29/"Perl6::Str" /substr/>
+
 { # read only
 	my $str = "foobar";
 

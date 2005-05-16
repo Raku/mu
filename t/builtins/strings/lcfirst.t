@@ -5,6 +5,8 @@ use Test;
 
 plan 4;
 
+# L<S29/"Perl6::Str" /lcfirst/>
+
 is lcfirst("HELLO WORLD"), "hELLO WORLD", "simple";
 is lcfirst(""),            "",            "empty string";
 is lcfirst("ÜÜÜÜ"),        "üÜÜÜ",        "umlaut";

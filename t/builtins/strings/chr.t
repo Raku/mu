@@ -7,11 +7,13 @@ plan 95;
 
 =pod
 
-Basic tests for the char() builtin
+Basic tests for the chr() builtin
 
 NOTE: these tests only deal with ASCII
 
 =cut
+
+# L<S29/"Conversion" /chr/>
 
 # What is the best way to test 0 through 31??
 

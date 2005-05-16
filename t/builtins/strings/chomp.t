@@ -11,6 +11,8 @@ Basic tests for the chomp() builtin
 
 =cut
 
+# L<S29/"Perl6::Str" /chomp/>
+
 {
     my $foo = "foo\n";
     chomp($foo);
