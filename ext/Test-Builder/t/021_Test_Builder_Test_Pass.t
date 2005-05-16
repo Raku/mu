@@ -14,7 +14,7 @@ my $pass_test = ::Test::Builder::Test::Pass.new(
         );
 
 is( $pass_test.ref, 'Test::Builder::Test::Pass',
-    '... we got a Test::Builder::Test::Pass instance' );
+    'new() should return a Test::Builder::Test::Pass instance' );
 
 is( $pass_test.number(), 1, 'number() should return the provided test number' );
 ok( $pass_test.passed(),    'passed() should report the right passed value' );
