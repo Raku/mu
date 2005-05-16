@@ -9,9 +9,9 @@ plan 2;
 	my @oldval  = (5, 8, 12);
 	my @newval1 = (17, 15, 14); # all greater
 	my @newval2 = (15, 7,  20); # some less some greater
-	ok(eval 'all(@newval2) < any(@oldval); all(@newval1) > all(@oldval);', "parses correctly, second statement is true", :todo);
+	ok(eval('all(@newval2) < any(@oldval); all(@newval1) > all(@oldval);'), "parses correctly, second statement is true");
 
 	my %hash = ("foo", "bar");
-	ok(!(eval '%hash <foo>'), '%hash \s+ <subscript> doesnt parse');
+	ok(!(eval '%hash <foo>; 1'), '%hash \s+ <subscript> doesnt parse');
+	isnt($!,"",'... and it sets $!');
 };
-
