@@ -15,12 +15,12 @@ my @list = (1 .. 5);
 
 {
     my @result = map { $_ * 2 } @list;
-    is(+@result, 5, 'we got a list back'); 
-    is(@result[0], 2, 'got the value we expected'); 
-    is(@result[1], 4, 'got the value we expected'); 
-    is(@result[2], 6, 'got the value we expected'); 
-    is(@result[3], 8, 'got the value we expected'); 
-    is(@result[4], 10, 'got the value we expected'); 
+    is(+@result, 5, 'we got a list back');
+    is(@result[0], 2, 'got the value we expected');
+    is(@result[1], 4, 'got the value we expected');
+    is(@result[2], 6, 'got the value we expected');
+    is(@result[3], 8, 'got the value we expected');
+    is(@result[4], 10, 'got the value we expected');
 }
 
 {
@@ -76,7 +76,7 @@ my @list = (1 .. 5);
          $fullpath;
     }, @list;
     is(+@result, 5, 'we got a list back');
-    is(@result[0], "fish/1", 'got the value we expected', :todo<bug>);
+    is(@result[0], "fish/1", 'got the value we expected');
     is(@result[1], "fish/2", 'got the value we expected', :todo<bug>);
     is(@result[2], "fish/3", 'got the value we expected', :todo<bug>);
     is(@result[3], "fish/4", 'got the value we expected', :todo<bug>);
