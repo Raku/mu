@@ -57,7 +57,7 @@ instance Compile (Var, [(TVar Bool, TVar VRef)]) where
             , text $ ".return (" ++ ret ++ ")"
             , text ".end"
             ]
-    compile _ = fail "fnord"
+    compile _ = error "fnord"
 
 instance Compile (TVar VRef) where
     compile x = do
