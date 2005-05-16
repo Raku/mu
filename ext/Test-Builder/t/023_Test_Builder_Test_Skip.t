@@ -9,9 +9,9 @@ use_ok( 'Test::Builder::Test' );
 
 my $skip_test = ::Test::Builder::Test::Skip.new(
     number      => 1,     
-       passed      => 1,
-       description => 'first test description',
-       reason      => 'reason for skipping'
+    passed      => 1,
+    description => 'first test description',
+    reason      => 'reason for skipping'
 );
 
 is( $skip_test.ref, 'Test::Builder::Test::Skip',
@@ -45,9 +45,18 @@ is( $skip_test.report(), 'not ok 1 #skip reason for skipping',
 my %status;
 lives_ok { %status = $skip_test.status() }, 'status() parses', :todo<feature>;
 
-is( +( keys %status ), 4, 'status() should return a hash' );
-is( %status<passed>,   1, '... with a passed key set to true' );
+is( +( keys %status ), 4, 'status() should return a hash',
+    :todo<feature> );
+
+is( %status<passed>,   1, '... with a passed key set to true',
+    :todo<feature> );
+
 is( %status<description>, 'first test description',
-    '... the correct test description' );
-is( %status<skip>,     1, '... a skip key set to true' );
-is( %status<reason>, 'reason for skipping', '... and the skip reason' );
+    '... the correct test description',
+    :todo<feature> );
+
+is( %status<skip>,     1, '... a skip key set to true',
+    :todo<feature> );
+
+is( %status<reason>, 'reason for skipping', '... and the skip reason',
+    :todo<feature> );
