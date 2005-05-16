@@ -15,6 +15,10 @@ be valid perl6.
 
 plan 4;
 
+if(eval('!("a" ~~ /a/)')) {
+  skip_rest "skipped tests - rules support appears to be missing";
+} else {
+
 rule abc { a b c }
 
 my $var = "";
@@ -28,3 +32,6 @@ ok(!( "aaabccc" ~~ m/aa <{ $var ?? $var :: rx{abc} }> cc/ ), 'Rule block fail');
 
 $var = rx/<?abc>/;
 ok("aaabccc" ~~ m/aa <{ $var ?? $var :: rx{abc} }> cc/, 'Rule block interp');
+
+}
+

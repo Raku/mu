@@ -15,6 +15,10 @@ be valid perl6.
 
 plan 419;
 
+if(eval('!("a" ~~ /a/)')) {
+  skip_rest "skipped tests - rules support appears to be missing";
+} else {
+
 ok("abc\x[a]def" ~~ m/\c[LINE FEED (LF)]/, 'Unanchored named LINE FEED (LF)');
 ok("abc\c[LINE FEED (LF)]def" ~~ m/\x[A]/, 'Unanchored \x[A]');
 ok("abc\c[LINE FEED (LF)]def" ~~ m/\0[12]/, 'Unanchored \0[12]');
@@ -435,3 +439,6 @@ ok(!( "\x[ff6e]" ~~ m/^ <[\X[FF6E]]>/ ), 'Negative charclass hex \X[FF6E] nomatc
 ok("\x[ff6e]" ~~ m/^ \X[A42D]/, 'Negative hex \X[A42D] match');
 ok("\x[ff6e]" ~~ m/^ <[\X[A42D]]>/, 'Negative charclass hex \X[A42D] match');
  
+
+}
+

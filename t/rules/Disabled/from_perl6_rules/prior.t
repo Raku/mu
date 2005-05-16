@@ -15,6 +15,10 @@ be valid perl6.
 
 plan 31;
 
+if(eval('!("a" ~~ /a/)')) {
+  skip_rest "skipped tests - rules support appears to be missing";
+} else {
+
 ok(!eval { "A" ~~ m/<?prior>/ }, 'No prior successful match');
 ok($!, 'Error');
 
@@ -60,3 +64,6 @@ is($/<prior>[1], 'A', 'Capture 1');
 is($/<prior>[2], 'A', 'Capture 2');
 is($/<prior>[3], 'A', 'Capture 3');
 ok(! defined $/<prior>[4], 'Capture 4');
+
+}
+

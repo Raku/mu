@@ -15,6 +15,10 @@ be valid perl6.
 
 plan 29;
 
+if(eval('!("a" ~~ /a/)')) {
+  skip_rest "skipped tests - rules support appears to be missing";
+} else {
+
 my $var = "a*b";
 my @var = qw(a b c);
 my %var = (a=>1, b=>2, c=>3);
@@ -66,3 +70,6 @@ ok("====a=====" ~~ m/%var/, 'Nested hash interpolation (a)');
 ok(!( "abca" ~~ m/^%var$/ ), 'Simple hash non-matching');
 
 ok("a b c a" ~~ m:w/^[ %var]+$/, 'Simple hash repeated matching');
+
+}
+

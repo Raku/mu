@@ -15,6 +15,10 @@ be valid perl6.
 
 plan 10;
 
+if(eval('!("a" ~~ /a/)')) {
+  skip_rest "skipped tests - rules support appears to be missing";
+} else {
+
 my $str = "abrAcadAbbra";
 
 my @expected = (
@@ -50,3 +54,6 @@ for (@$/) {
 	ok( $_[1] = substr($_[0],1,-1), "Captured within '$_'" );
 	delete %expected{$_};
 }
+
+}
+

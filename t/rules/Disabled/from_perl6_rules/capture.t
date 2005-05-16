@@ -15,6 +15,10 @@ be valid perl6.
 
 plan 65;
 
+if(eval('!("a" ~~ /a/)')) {
+  skip_rest "skipped tests - rules support appears to be missing";
+} else {
+
 rule dotdot { (.)(.) };
 
 ok("zzzabcdefzzz" ~~ m/(a.)<?dotdot>(..)/, 'Match');
@@ -104,3 +108,6 @@ is($/, "john", 'Metaname match is john');
 ok($/ ne "jean", "Metaname match isn't jean");
 is($/<name>, "john", 'Metaname is john');
 is($/<name><name>, "john", 'Metaname name is john');
+
+}
+

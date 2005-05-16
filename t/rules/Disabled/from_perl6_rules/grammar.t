@@ -15,6 +15,10 @@ be valid perl6.
 
 plan 17;
 
+if(eval('!("a" ~~ /a/)')) {
+  skip_rest "skipped tests - rules support appears to be missing";
+} else {
+
 grammar Other {
 	rule abc { a (<?bee>) c }
 
@@ -49,3 +53,6 @@ ok(!( 'abc' ~~ m/ (<?bee>) / ), '<?bee>');
 
 ok(!eval { 'abc' ~~ m/ (<?Other.sea>) / }, '<?Other.sea>');
 ok($!, 'Error');
+
+}
+

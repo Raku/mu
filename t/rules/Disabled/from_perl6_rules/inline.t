@@ -15,5 +15,12 @@ be valid perl6.
 
 plan 2;
 
+if(eval('!("a" ~~ /a/)')) {
+  skip_rest "skipped tests - rules support appears to be missing";
+} else {
+
 ok("abcDEFghi" ~~ m/abc (:i def) ghi/, 'Match');
 ok(!( "abcDEFGHI" ~~ m/abc (:i def) ghi/ ), 'Mismatch');
+
+}
+

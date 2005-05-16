@@ -15,6 +15,10 @@ be valid perl6.
 
 plan 45;
 
+if(eval('!("a" ~~ /a/)')) {
+  skip_rest "skipped tests - rules support appears to be missing";
+} else {
+
 my $str = "abrAcadAbbra";
 
 my @expected = (
@@ -142,3 +146,6 @@ is($/.matches[2]<noun>, 'arrow', 'Rule capture 2 noun');
 
 ok(!( "fooooo" ~~ m:exhaustive{ s o+ } ), 'Subsequent failed any match...');
 ok(@$/ == 0, '...leaves @$/ empty');
+
+}
+

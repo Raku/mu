@@ -15,6 +15,10 @@ be valid perl6.
 
 plan 26;
 
+if(eval('!("a" ~~ /a/)')) {
+  skip_rest "skipped tests - rules support appears to be missing";
+} else {
+
 ok("abcd" ~~ m/a  $<foo>:=(..)  d/, 'Hypothetical variable capture');
 is($/<foo>, "bc", 'Hypothetical variable captured');
 
@@ -58,3 +62,6 @@ ok("22 <= foo" ~~ m:w/$0:=(foo) =\> (\d+) | $1:=(\d+) \<= $0:=(foo) /,
   );
 is($0, 'foo', 'Reverse key match');
 is($1, '22', 'Reverse value match');
+
+}
+

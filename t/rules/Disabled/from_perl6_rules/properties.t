@@ -15,6 +15,10 @@ be valid perl6.
 
 plan 1881;
 
+if(eval('!("a" ~~ /a/)')) {
+  skip_rest "skipped tests - rules support appears to be missing";
+} else {
+
 # L           Letter
 
 
@@ -2844,3 +2848,6 @@ ok(!( "\c[PARALLEL WITH HORIZONTAL STROKE]"  ~~ m/^<?InYiSyllables>$/ ), q{Don't
 ok("\c[PARALLEL WITH HORIZONTAL STROKE]"  ~~ m/^<!InYiSyllables>.$/, q{Match unrelated negated <?InYiSyllables>} );
 ok("\c[PARALLEL WITH HORIZONTAL STROKE]"  ~~ m/^<-InYiSyllables>$/, q{Match unrelated inverted <?InYiSyllables>} );
 ok("\c[PARALLEL WITH HORIZONTAL STROKE]\c[YI SYLLABLE IT]" ~~ m/<?InYiSyllables>/, q{Match unanchored <?InYiSyllables>} );
+
+}
+

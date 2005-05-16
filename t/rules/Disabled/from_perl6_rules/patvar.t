@@ -15,6 +15,10 @@ be valid perl6.
 
 plan 19;
 
+if(eval('!("a" ~~ /a/)')) {
+  skip_rest "skipped tests - rules support appears to be missing";
+} else {
+
 my $var = rx/a+b/;
 
 my @var = (rx/a/, rx/b/, rx/c/, rx/\w/);
@@ -54,3 +58,6 @@ ok(!( "abca" ~~ m/^%var$/ ), 'Simple hash non-matching');
 
 
 ok("a 4 b cos c 99  a 4" ~~ m:w/^[ %var]+$/, 'Simple hash repeated matching');
+
+}
+

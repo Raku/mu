@@ -15,8 +15,15 @@ be valid perl6.
 
 plan 4;
 
+if(eval('!("a" ~~ /a/)')) {
+  skip_rest "skipped tests - rules support appears to be missing";
+} else {
+
 ok('1' ~~ m/ (\d) <($0 < 5)> /, '1 < 5');
 ok(!( '5' ~~ m/ (\d) <($/[-1] < 5)> / ), '5 !< 5');
 
 ok(' x 254' ~~ m/x (\d+): <($/[-1] < 255)> /, '254 < 255');
 ok(!( ' x 255' ~~ m/x (\d+): <($/[-1] < 255)> / ), '255 !< 255');
+
+}
+

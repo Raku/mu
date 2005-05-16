@@ -15,6 +15,10 @@ be valid perl6.
 
 plan 23;
 
+if(eval('!("a" ~~ /a/)')) {
+  skip_rest "skipped tests - rules support appears to be missing";
+} else {
+
 # HASHES WITH KEYMATCH
 
 our %var is keymatch(rx/b|c|d/) = (a=>1, b=>2, c=>3);
@@ -54,3 +58,6 @@ ok(!( "b2 b3 c3 e3" ~~ m:w/^[ %var2]+$/ ),
 
 ok("c3 e3 e3 c3" ~~ m:w/^[ %var2]+$/,
     'Simple hash repeated matching (c3 e3 e3 c3)');
+
+}
+

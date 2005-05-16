@@ -15,6 +15,10 @@ be valid perl6.
 
 plan 9;
 
+if(eval('!("a" ~~ /a/)')) {
+  skip_rest "skipped tests - rules support appears to be missing";
+} else {
+
 my $str = "abrAcadAbbra";
 
 ok($str ~~ m/ a .+ A /, 'Match from start');
@@ -30,3 +34,6 @@ rule Aa { A .* a }
 ok($str ~~ m/ .*? <Aa> /, 'Subrule match from 3');
 ok($/.pos == 0, 'Full match pos is 0');
 ok($/<Aa>.pos == 3, 'Subrule match pos is 3');
+
+}
+

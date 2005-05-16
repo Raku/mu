@@ -15,6 +15,10 @@ be valid perl6.
 
 plan 22;
 
+if(eval('!("a" ~~ /a/)')) {
+  skip_rest "skipped tests - rules support appears to be missing";
+} else {
+
 ok("zyxaxyz" ~~ m/(<[aeiou]>)/, 'Simple set');
 is($0, 'a', 'Simple set capture');
 ok(!( "a" ~~ m/<-[aeiou]>/ ), 'Simple neg set failure');
@@ -39,3 +43,6 @@ ok('[' ~~ m/(<[\[]>)/, 'quoted open LSB match');
 is($0, '[', 'quoted open LSB capture');
 ok('{' ~~ m{(<[\{]>)}, 'quoted open LCB match');
 is($0, '{', 'quoted open LCB capture');
+
+}
+

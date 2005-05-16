@@ -15,6 +15,10 @@ be valid perl6.
 
 plan 116;
 
+if(eval('!("a" ~~ /a/)')) {
+  skip_rest "skipped tests - rules support appears to be missing";
+} else {
+
 ok("  a b\tc" ~~ m/%<chars>:=( \s+ \S+ )/, 'Named unrepeated hash capture');
 ok(exists $/<chars>{'  a'}, 'One key captured');
 ok(!defined $/<chars>{'  a'}, 'One value undefined');
@@ -157,3 +161,6 @@ ok(exists %bases{t}, 't key');
 ok(!defined %bases{t}, 'No t value');
 ok(%bases.keys == 3, 'No other bases');
 is("$1", "aca", 'Trailing aca');
+
+}
+

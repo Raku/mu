@@ -15,6 +15,10 @@ be valid perl6.
 
 plan 10;
 
+if(eval('!("a" ~~ /a/)')) {
+  skip_rest "skipped tests - rules support appears to be missing";
+} else {
+
 rule bc { b?c }
 
 ok("a cdef" ~~ m/<after a <?sp> c> def/, 'Lookbehind');
@@ -28,3 +32,6 @@ ok(!( "abcdef" ~~ m/abc <before d <?sp> f>/ ), 'Lookahead failure');
 ok(!( "abcd f" ~~ m/abc <!before d <?sp> f>/ ), 'Negative lookahead failure');
 ok("abcdef" ~~ m/abc <!before d <?sp> f> (.)/, 'Negative lookahead');
 is($0, 'd', 'Verify negative lookahead');
+
+}
+

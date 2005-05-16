@@ -15,6 +15,10 @@ be valid perl6.
 
 plan 19;
 
+if(eval('!("a" ~~ /a/)')) {
+  skip_rest "skipped tests - rules support appears to be missing";
+} else {
+
 my $str = q{abc
 def
 ghi};
@@ -38,3 +42,6 @@ ok($str ~~ m/ghi\n?$$/, 'ghi newline EOL');
 ok($str ~~ m/ghi$$/, 'ghi EOL');
 ok($str ~~ m/ghi$/, 'ghi EOS');
 ok($str ~~ m/^abc\n$$^^d.*f\n$$^^ghi$/, 'All dot');
+
+}
+

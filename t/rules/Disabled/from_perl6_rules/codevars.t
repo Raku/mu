@@ -15,6 +15,10 @@ be valid perl6.
 
 plan 10;
 
+if(eval('!("a" ~~ /a/)')) {
+  skip_rest "skipped tests - rules support appears to be missing";
+} else {
+
 ok("abc" ~~ m/a(bc){$<caught> = $0}/, 'Inner match');
 is($/<caught>, "bc", 'Inner caught');
 
@@ -29,3 +33,6 @@ is($0, "BC", 'Numeric caught');
 ok("abc" ~~ m/a(bc){$/ = new Match: (uc $0)}/, 'Zero match');
 is($/, "BC", 'Zero matched');
 is($0, "bc", 'One matched');
+
+}
+

@@ -15,6 +15,10 @@ be valid perl6.
 
 plan 3;
 
+if(eval('!("a" ~~ /a/)')) {
+  skip_rest "skipped tests - rules support appears to be missing";
+} else {
+
 my $s = "ZBC"; my @a = ("A", 'ZBC');
 
 my $_ = q{Now I know my abc's};
@@ -27,3 +31,6 @@ is($_, q{Wow I know my ZBC's}, 'Scalar substitution');
 
 s:g/BC/@a/;
 is($_, q{Wow I know my ZA ZBC's}, 'List substitution');
+
+}
+

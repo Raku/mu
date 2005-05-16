@@ -15,6 +15,10 @@ be valid perl6.
 
 plan 15;
 
+if(eval('!("a" ~~ /a/)')) {
+  skip_rest "skipped tests - rules support appears to be missing";
+} else {
+
 ok("\n" ~~ m/\n/, '\n');
 
 ok("\015\012" ~~ m/\n/, 'CR/LF');
@@ -35,3 +39,6 @@ ok(!( "\x85" ~~ m/\N/ ), 'not NEL');
 ok(!( "\x2028" ~~ m/\N/ ), 'not LINE SEP');
 
 ok("abc" ~~ m/\N/, 'abc');
+
+}
+

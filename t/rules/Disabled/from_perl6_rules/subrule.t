@@ -15,6 +15,10 @@ be valid perl6.
 
 plan 31;
 
+if(eval('!("a" ~~ /a/)')) {
+  skip_rest "skipped tests - rules support appears to be missing";
+} else {
+
 rule abc {abc}
 
 
@@ -67,3 +71,6 @@ ok($/, 'Caprep matched');
 is($/, "abcabcabcabc", 'Caprep matched');
 is($/<caprep>, "abcabcabcabc", 'Caprep captured');
 is($/<caprep>[0], "abcabcabcabc", 'Caprep abc one captured');
+
+}
+

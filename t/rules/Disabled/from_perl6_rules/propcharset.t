@@ -15,6 +15,10 @@ be valid perl6.
 
 plan 2349;
 
+if(eval('!("a" ~~ /a/)')) {
+  skip_rest "skipped tests - rules support appears to be missing";
+} else {
+
 # L           Letter
 
 
@@ -3314,3 +3318,6 @@ ok(!( "\c[BRAILLE PATTERN DOTS-1578]"  ~~ m/^<+<?InYiSyllables>>$/ ), q{Don't ma
 ok("\c[BRAILLE PATTERN DOTS-1578]"  ~~ m/^<-<?InYiSyllables>>$/, q{Match unrelated externally inverted <?InYiSyllables>} );
 ok("\c[BRAILLE PATTERN DOTS-1578]"  ~~ m/^<+<-InYiSyllables>>$/, q{Match unrelated internally inverted <?InYiSyllables>} );
 ok("\c[BRAILLE PATTERN DOTS-1578]\c[YI SYLLABLE IT]" ~~ m/<+<?InYiSyllables>>/, q{Match unanchored <?InYiSyllables>} );
+
+}
+

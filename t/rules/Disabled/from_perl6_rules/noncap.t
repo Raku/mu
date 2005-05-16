@@ -15,6 +15,10 @@ be valid perl6.
 
 plan 8;
 
+if(eval('!("a" ~~ /a/)')) {
+  skip_rest "skipped tests - rules support appears to be missing";
+} else {
+
 my $str = "abbbbbbbbc";
 
 ok($str ~~ m{a(b+)c}, 'Matched 1');
@@ -26,3 +30,6 @@ ok($str ~~ m{a[b+]c}, 'Matched 2');
 ok($/, 'Saved 2');
 is($/, $str, 'Grabbed all 2');
 ok(!defined $/[0], "Correctly didn't capture 2");
+
+}
+

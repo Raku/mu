@@ -15,6 +15,10 @@ be valid perl6.
 
 plan 44;
 
+if(eval('!("a" ~~ /a/)')) {
+  skip_rest "skipped tests - rules support appears to be missing";
+} else {
+
 ok("  a b\tc" ~~ m/@<chars>:=[ \s+ \S+ ]+/, 'Named simple array capture');
 is(join("|",@{$/<chars>}), "  a| b|\tc", 'Captured strings');
 
@@ -82,3 +86,6 @@ is("@bases", "G A T T A C A", '...are belong to us');
 ok("GATTACA" ~~ m/ @bases:=[A|C|G|T]**{4} (@bases+) /, 'Array reinterpolation');
 is("@bases", "G A T T", '...are belong to...');
 is("$0", "ACA", '...ACA');
+
+}
+

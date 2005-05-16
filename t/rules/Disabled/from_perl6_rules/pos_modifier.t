@@ -15,6 +15,10 @@ be valid perl6.
 
 plan 6;
 
+if(eval('!("a" ~~ /a/)')) {
+  skip_rest "skipped tests - rules support appears to be missing";
+} else {
+
 for ("abcdef") {
 	ok(m:pos/abc/, "Matched 1: '$/'" );
 	ok(.pos == 3, 'Interim position correct');
@@ -25,3 +29,6 @@ for ("abcdef") {
 my $_ = "foofoofoo foofoofoo";
 ok(s:globally:pos/foo/FOO/, 'Globally contiguous substitution');
 is($_, "FOOFOOFOO foofoofoo", 'Correctly substituted contiguously');
+
+}
+

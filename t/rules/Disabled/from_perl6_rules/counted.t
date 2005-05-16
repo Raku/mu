@@ -15,6 +15,10 @@ be valid perl6.
 
 plan 152;
 
+if(eval('!("a" ~~ /a/)')) {
+  skip_rest "skipped tests - rules support appears to be missing";
+} else {
+
 my $data = "f fo foo fooo foooo fooooo foooooo";
 my $sub1 = "f bar foo fooo foooo fooooo foooooo";
 my $sub2 = "f fo bar fooo foooo fooooo foooooo";
@@ -332,3 +336,6 @@ is($try, $gsub6, 'substituted :g:6th correctly');
 my $try = $data;
 ok(!( $try ~~ s:g:7th{fo+}{bar} ), 'Global :7th match');
 is($try, $data, 'substituted :g:7th correctly');
+
+}
+

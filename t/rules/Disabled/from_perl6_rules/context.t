@@ -15,6 +15,10 @@ be valid perl6.
 
 plan 7;
 
+if(eval('!("a" ~~ /a/)')) {
+  skip_rest "skipped tests - rules support appears to be missing";
+} else {
+
 my $str = "abcabcabc";
 ok($str ~~ m:p/abc/, 'Continued match');
 ok($str.pos == 3, 'Continued match pos');
@@ -34,3 +38,6 @@ ok($str.pos == 9, 'Insensitive repeated continued match pos');
 $str = "abcabcabc";
 @x = scalar $str ~~ m:p:i:g/abc/;
 ok($str.pos == 3, 'Insensitive scalar repeated continued match pos');
+
+}
+

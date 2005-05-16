@@ -15,6 +15,10 @@ be valid perl6.
 
 plan 221;
 
+if(eval('!("a" ~~ /a/)')) {
+  skip_rest "skipped tests - rules support appears to be missing";
+} else {
+
 ok("abc1_2" ~~ m/^ <ident> $/, '<ident>');
 is($/<ident>, 'abc1_2', 'Captured <ident>');
 ok("abc1_2" ~~ m/^ <?ident> $/, '<?ident>');
@@ -297,3 +301,6 @@ ok(!( "\c[RIGHT CURLY BRACKET]"  ~~ m/^<+<?xdigit>>$/ ), q{Don't match unrelated
 ok("\c[RIGHT CURLY BRACKET]"  ~~ m/^<-<?xdigit>>$/, q{Match unrelated externally inverted xdigit as charset} );
 ok("\c[RIGHT CURLY BRACKET]"  ~~ m/^<+<-xdigit>>$/, q{Match unrelated internally inverted xdigit as charset} );
 ok("\c[RIGHT CURLY BRACKET]\c[DIGIT ZERO]" ~~ m/<+<?xdigit>>/, q{Match unanchored xdigit as charset} );
+
+}
+
