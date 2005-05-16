@@ -56,13 +56,15 @@ my $pugs         = "../../pugs";
 my $pge          = "../../src/pge";
 my $parrot_path  = "../../../parrot-trunk";
 my $bash         = "/bin/bash";
+my $inputrc      = "/etc/inputrc";
+my $terminfo     = "/etc/terminfo/l/linux";
 my $linuxrc      = "linuxrc";
 my $welcome_p6   = "welcome.p6";
 my $lib6         = "../../blib6/lib";
 my $initrd_gz    = "initrd.gz";
 my $initrd_img   = "initrd.img";
 my $initrd_mnt   = "/mnt/loop0";
-my $initrd_size  = 25 * 1024;
+my $initrd_size  = 22 * 1024;
 my $cdroot       = "cdroot";
 my $iso          = "cd.iso";
 
@@ -109,6 +111,11 @@ Available options and defaults:
     mklivecd.pl takes --pge as the path of the PGE shipped with Pugs.
   --bash=$bash
     linuxrc needs a bash-compatible shell.
+  --inputrc=$inputrc
+    The readline library likes to have a /etc/inputrc.
+  --terminfo=$terminfo
+    To make, for example, the <Pos1> and <End> keys working, we need a terminfo
+    file.
   --linuxrc=$linuxrc
     --linuxrc is the first script to run after the kernel has started.
   --welcome-p6=$welcome_p6
@@ -220,7 +227,7 @@ step
   ensure => sub { @pfiles > 0 },
   using  => sub {
     @pfiles = map { (/^\Q$parrot_path\/runtime\/parrot\/include\E(.+)$/)[0] }
-	      grep { !/\b\.svn\b/ }
+	      grep { !/(^|\/)\.(?!\.)/ }
 	      split "\000",
 	      `find $parrot_path/runtime/parrot/include -print0`;
   };
@@ -240,6 +247,8 @@ step
       -M $initrd_gz <= -M "$parrot_path/parrot" and
       -M $initrd_gz <= -M $linuxrc and
       -M $initrd_gz <= -M $bash and
+      -M $initrd_gz <= -M $inputrc and
+      -M $initrd_gz <= -M $terminfo and
       -M $initrd_gz <= -M $welcome_p6 and
       -M $initrd_gz <= $newest_mod_stamp and
       -M $initrd_gz <= $newest_p_stamp
@@ -278,7 +287,9 @@ HELP
       # mount -o loop -t ext2 $initrd_img $initrd_mnt
 HELP
 
-  my @dirs = map { "$initrd_mnt/$_" } "bin", "dev", "lib", "lib6";
+  my @dirs = map { "$initrd_mnt/$_" }
+	       "bin", "dev", "lib", "lib6",
+	       "etc", "etc/terminfo", "etc/terminfo/l";
   step
     descr  => "Creating directories " . join(", ", map { "$_" } @dirs),
     ensure => sub { -d $_ or return for @dirs; 1 },
@@ -292,11 +303,13 @@ HELP
     [$pugs                 => "$initrd_mnt/bin/pugs"],
     ["$parrot_path/parrot" => "$initrd_mnt/bin/parrot"],
     [$bash                 => "$initrd_mnt/bin/bash"],
+    [$inputrc              => "$initrd_mnt/etc/inputrc"],
+    [$terminfo             => "$initrd_mnt/etc/terminfo/l/linux"],
     [$linuxrc              => "$initrd_mnt/linuxrc"],
     [$welcome_p6           => "$initrd_mnt/welcome.p6"],
   );
   step
-    descr  => "Copying Pugs, Parrot, Bash, linuxrc, and welcome.p6 to the initrd",
+    descr  => "Copying Pugs, Parrot, Bash, inputrc, the terminfo description, linuxrc, and welcome.p6 to the initrd",
     ensure => sub {
       for(@files) {
 	my ($src, $dest) = @$_;
