@@ -45,7 +45,7 @@ The root class of all "character" types, regardless of level.
 This is a subtype of C<Str>, limited to a length of 1 at it's highest
 supported Unicode level.
 
-Subclasses (things that are C<isa Char>:
+Subclasses (things that are C<isa Char>):
 
 =over
 
@@ -94,7 +94,7 @@ Absolute Value.
  multi sub  Perl6::Num::exp (  Num  $exponent             : Num +$base) returns Num
  multi sub Math::Basic::exp (: Num ?$exponent = $CALLER::_, Num +$base) returns Num
 
-Performs similar to C<$base ** $exponent>. $base defaults to the
+Performs similar to C<$base ** $exponent>. C<$base> defaults to the
 constant I<e>.
 
 
@@ -103,7 +103,7 @@ constant I<e>.
  multi sub  Perl6::Num::log (  Num  $x             : Num +$base) returns Num
  multi sub Math::Basic::log (: Num ?$x = $CALLER::_, Num +$base) returns Num
 
-Logarithm of base $base, default Natural. Calling with C<$x == 0> is an
+Logarithm of base C<$base>, default Natural. Calling with C<$x == 0> is an
 error.
 
 
@@ -116,7 +116,7 @@ error.
 
  multi sub Math::Basic::rand (: Num ?$x = 1) returns Num
 
-Psuedo random number between 0 and $x.
+Psuedo random number between C<0> and C<$x>.
 
 
 =item sign
@@ -145,7 +145,7 @@ deterministic seed.
  multi sub  Perl6::Num::sqrt (  Num  $x             ) returns Num
  multi sub Math::Basic::sqrt (: Num ?$x = $CALLER::_) returns Num
 
-$x ** 0.5
+C<$x ** 0.5>
 
 =back
 
@@ -213,20 +213,20 @@ slices and multidimensionality. See Synopsis 9 for details.
 
 Returns the value(s) previously held in deleted locations.
 
-An unary form is expected. See Perl6::Hash::delete
+An unary form is expected. See C<Perl6::Hash::delete>.
 
 
 =item exists
 
  multi method Perl6::Array::exists (@array : Int *@indices) returns Bool
 
-Returns True if the specified Array element has been assigned to. This
+True if the specified Array element has been assigned to. This
 is not the same as being defined.
 
 Supplying a different number of indices than invocant has dimensions is
 an error.
 
-An unary form is expected. See Perl6::Hash::delete
+An unary form is expected. See C<Perl6::Hash::delete>.
 
 
 =item pop
@@ -263,7 +263,7 @@ An unary form is expected. See Perl6::Hash::delete
                                        *@values
                                 ) returns List is rw
 
-Behaves the similar as Perl 5 C<splice>.
+Behaves similar as Perl 5 C<splice>.
 
 If C<@array> is multidimensional, C<splice> operates only on the first
 dimension, and works with Array References.
@@ -582,7 +582,7 @@ will support the same levels as the input, unless specified otherwise.
  multi sub Perl6::Str::chop (  Str  $string is rw                 ) returns Char
  multi sub Perl6::Str::chop (: Str *@strings = ($CALLER::_) is rw ) returns Char
 
-Trims the last character from $string, and returns it. Called with a
+Trims the last character from C<$string>, and returns it. Called with a
 list, it chops each item in turn, and returns the last character
 chopped.
 
@@ -770,7 +770,7 @@ Interprets string as a number, with a default
 hexadecimal/octal/binary/decimal radix. Any radix mentioned inside the
 string will be override this operator.  Returns C<undef> on failure.
 
-Replaces Perl 5 C<hex> and C<oct>
+Replaces Perl 5 C<hex> and C<oct>.
 
 
 =back 
@@ -905,4 +905,3 @@ thread on L<http://www.nntp.perl.org/group/perl.perl6.language>, and
 it'll get listed.
 
 Post errors to perl6-language.
-
