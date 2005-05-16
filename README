@@ -94,7 +94,15 @@ switch to use GCC 3.3 to compile Pugs at this moment.
 CAVEATS FOR x86_64 MACHINES
 ---------------------------
 
-GHC 6.4 has a garbage collector bug on x86_64 (64 bit Athlon) machines;
+Until GHC 6.4.1 is released, users with x86_64 (64 bit Athlon) CPU's should
+consider using a development snapshot of GHC.  GHC 6.4 had bugs on x86_64
+which break garbage collection and rules (regexps).  These bugs were fixed
+in GHC CVS by around 11-May.  There are hints on using snapshots at the end
+of this section.
+
+Here are the known problems:
+
+(1) GHC 6.4 has a garbage collector bug on x86_64 (64 bit Athlon) machines;
 users may see crashes complaining about "strange objects".
 
 Until GHC 6.4.1 is released, a partial workaround is to avoid GC by
@@ -111,6 +119,34 @@ These request a 200 MB heap, which is sufficient to run most programs.
 Running all tests unfortunately requires a lot more memory (perhaps 1000M).
 A possible alternative, which someone could explore and report on, would be
 to try using a 32-bit GHC instead.
+
+(2) Rules (regexps) may not work with GHC 6.4 on x86_64.  Users may see
+"internal error: adjustor creation not supported on this platform".
+There is no known workaround.  This bug has been fixed in current
+development snapshots.
+
+Hints on using a development snapshot of GHC:
+
+Note that this will take a long time, and it may not work.
+
+First, check if a sufficiently recent "Stable" source snapshot is available
+(as of 15-May, there isn't one yet).  If not, you might try a "HEAD" snapshot
+(it is not clear anyone has actually tried this).  Otherwise, use might use
+cvs to grab your own snapshot:
+
+    CVSROOT=:pserver:anoncvs@glass.cse.ogi.edu:/cvs; export CVSROOT
+    cvs login     # passord cvs
+    cvs checkout fpconfig
+    cd fptools
+    cvs checkout ghc hslibs libraries happy alex
+
+    autoreconf
+    ./configure
+    make
+    make install
+
+There are no guarantees with a CVS snapshot.  It may not even compile.
+
 
 MAILING LISTS
 -------------
