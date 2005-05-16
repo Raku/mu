@@ -94,6 +94,7 @@ instance Pretty Val where
     format (VStr x) = text $ "'" ++ encodeUTF8 (concatMap quoted x) ++ "'"
     format v@(VRat _) = text $ vCast v
     format (VComplex x) = text $ show x
+    format (VControl (ControlEnv _)) = text "<env>"
     format (VControl x) = text $ show x
     format (VProcess x) = text $ show x
     format (VMatch x) = text $ show x
