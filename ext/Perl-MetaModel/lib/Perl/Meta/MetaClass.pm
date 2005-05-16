@@ -7,18 +7,16 @@ use Set;
 
 sub Perl::Meta::MetaClass::new (?$name) returns Perl::Meta::MetaClass is export {
     return Perl::Meta::MetaClass.new(
-        name => $name,
-        subclasses => set(),
-        properties => set(),
-        methods    => set(),        
-        );
+        name       => $name,
+        subclasses => set(),       
+    );
 }
 
 has $:name;
 has $:parent;
 has Set $:subclasses;
-has Set $:properties;
-has Set $:methods;
+has %:properties;
+has %:methods;
 
 submethod BUILD($:name, $:subclasses, $:properties, $:methods) {}
 
