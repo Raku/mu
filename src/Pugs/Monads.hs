@@ -18,9 +18,13 @@ import Pugs.AST
 import Pugs.Context
 import Pugs.Types
 
--- |Perform the specified evaluation in a lexical scope that has been
--- augmented by the given list of lexical 'Pad' transformers. Subsequent
--- chained 'Eval's do /not/ see this new scope.
+{-|
+Create a new lexical scope by applying the list of 'Pad'-transformers
+(which install new bindings), then perform the specified evaluation in that
+new scope.
+
+(Subsequent chained 'Eval's do /not/ see this new scope.)
+-}
 enterLex :: [Pad -> Pad] -- ^ Transformations on current 'Pad' to produce the
                          --     new 'Pad'.
          -> Eval a       -- ^ Evaluation to be performed in the new scope
@@ -28,14 +32,20 @@ enterLex :: [Pad -> Pad] -- ^ Transformations on current 'Pad' to produce the
                          --     are encapsulated)
 enterLex newSyms = local (\e -> e{ envLexical = combine newSyms (envLexical e) })
 
--- |Perform the specified evaluation in the specified context ('Cxt').
--- Subsequent chained 'Eval's do /not/ see this new scope.
+{-|
+Perform the specified evaluation in the specified (Perl6) context ('Cxt').
+
+(Subsequent chained 'Eval's do /not/ see this new scope.)
+-}
 enterContext :: Cxt -> Eval a -> Eval a
 enterContext cxt = local (\e -> e{ envContext = cxt })
 
--- |Bind @\$_@ to the given topic value in a new lexical scope, then perform
--- the given evaluation in that scope. Used by "Pugs.Eval"'s implementation
--- of 'Pugs.Eval.reduce' for @\"given\"@.
+{-|
+Bind @\$_@ to the given topic value in a new lexical scope, then perform
+the specified evaluation in that scope.
+
+Used by "Pugs.Eval"'s implementation of 'Pugs.Eval.reduce' for @\"given\"@.
+-}
 enterGiven :: VRef   -- ^ Reference to the value to topicalise
            -> Eval a -- ^ Action to perform within the new scope
            -> Eval a
