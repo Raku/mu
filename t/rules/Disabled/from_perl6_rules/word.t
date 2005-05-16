@@ -19,13 +19,13 @@ if(eval('!("a" ~~ /a/)')) {
   skip_rest "skipped tests - rules support appears to be missing";
 } else {
 
-ok(!( "abc  def" ~~ m/abc  def/ ), 'Literal space nonmatch');
-ok("abcdef" ~~ m/abc  def/, 'Nonspace match');
-ok("abc  def" ~~ m:w/abc  def/, 'Word space match');
-ok("abc\ndef" ~~ m:words/abc  def/, 'Word newline match');
-ok(!( "abcdef" ~~ m:words/abc  def/ ), 'Word nonspace nonmatch');
-ok(!( "abc  def" ~~ m:words/abc <?sp> def/ ), 'Word explicit space non-match');
-ok("abc  def" ~~ m:words/abc <?ws> def/, 'Word explicit space match');
+ok(!( "abc  def" ~~ m/abc  def/ ), 'Literal space nonmatch' );
+ok(   "abcdef"   ~~ m/abc  def/, 'Nonspace match' );
+ok(   "abc  def" ~~ m:w/abc  def/, 'Word space match', :todo<feature> );
+ok(   "abc\ndef" ~~ m:words/abc  def/, 'Word newline match', :todo<feature> );
+ok(!( "abcdef"   ~~ m:words/abc  def/ ), 'Word nonspace nonmatch', :todo<feature> );
+ok(!( "abc  def" ~~ m:words/abc <?sp> def/ ), 'Word explicit space non-match' );
+ok(   "abc  def" ~~ m:words/abc <?ws> def/, 'Word explicit space match', :todo<feature> );
 
 }
 
