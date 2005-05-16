@@ -57,6 +57,8 @@ instance Compile (Var, [(TVar Bool, TVar VRef)]) where
             , text $ ".return (" ++ ret ++ ")"
             , text ".end"
             ]
+    compile ((':':name), [(_, _)]) =
+        return $ text ".namespace" <+> text "['" <> text "_Pugs::" <> text name <> text "']"
     compile _ = error "fnord"
 
 instance Compile (TVar VRef) where
@@ -178,9 +180,8 @@ instance Compile Exp where
             , text "goto" <+> start
             , label last
             ]
-    -- XXX broken! this needs to emit PIR *outside* of the main sub
-    -- compile (Syn "module" [Val (VStr ns)]) = do
-    --    return $ text ".namespace ['_Pugs::" <> text ns <> text "']"
+    -- XXX "module" is handled in glob, need stub here to avoid compile error
+    compile (Syn "module" [Val (VStr _)]) = return empty
     compile (App (Var "&return") [val] []) = do
         (valC, p) <- compileArg val
         return $ valC $+$ text ".return" <+> parens p
@@ -250,7 +251,7 @@ instance Compile Exp where
     compile (App (Var ('&':method)) [(Var ('$':obj))] [arg]) = do
         lhsC <- askPMC
         compileWith (\tmp -> text lhsC <+> text "=" <+> varText ("$" ++ obj) <> text "." <> text ("'" ++ method ++ "'") <> parens tmp) arg
-    compile (App (Var ('&':name)) _ [arg]) = do
+    compile (App (Var ('&':name)) [arg] _) = do
         lhsC <- askPMC
         compileWith (\tmp -> text lhsC <+> text "=" <+> text name <> parens tmp) arg
     compile (App (Var "&not") [] []) = return $ text "new PerlUndef"
