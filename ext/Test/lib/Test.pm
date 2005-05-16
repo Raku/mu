@@ -1,30 +1,32 @@
 module Test-0.0.6;
 use v6;
 
-### GLOBALS
-
-# globals to keep track of our tests
-my $NUM_OF_TESTS_RUN    = 0; 
-my $NUM_OF_TESTS_FAILED = 0;
-my $NUM_OF_TESTS_PLANNED;
+### CONSTANTS
 
 # some options available through the environment
 my $ALWAYS_CALLER = %ENV<TEST_ALWAYS_CALLER>;
 
+### GLOBALS
+
+# globals to keep track of our tests
+my $num_of_tests_run    = 0; 
+my $num_of_tests_failed = 0;
+my $num_of_tests_planned;
+
 # a Junction to hold our FORCE_TODO tests
-my $FORCE_TODO_TEST_JUNCTION;
+my $force_todo_test_junction;
 
 ### FUNCTIONS
 
 ## plan
 
 sub plan (Int $number_of_tests) returns Void is export {
-    $NUM_OF_TESTS_PLANNED = $number_of_tests;
+    $num_of_tests_planned = $number_of_tests;
     say "1..$number_of_tests";
 }
 
 sub force_todo (*@todo_tests) returns Void is export {
-     $FORCE_TODO_TEST_JUNCTION = any(@todo_tests);
+     $force_todo_test_junction = any(@todo_tests);
 }
 
 ## ok
@@ -163,7 +165,7 @@ multi sub skip (Int $count, Str $reason) returns Bool is export {
 }
 
 sub skip_rest (Str ?$reason) returns Bool is export {
-    skip($NUM_OF_TESTS_PLANNED - $NUM_OF_TESTS_RUN, $reason // "");
+    skip($num_of_tests_planned - $num_of_tests_run, $reason // "");
 }
 
 sub pass (Str +$desc) returns Bool is export {
@@ -183,7 +185,7 @@ sub diag (Str $diag) is export {
 ## 'private' subs
 
 sub proclaim (Bool $cond, Str ?$desc is copy, ?$todo, Str ?$got, Str ?$expected) returns Bool {
-    $NUM_OF_TESTS_RUN++;
+    $num_of_tests_run++;
 
     # $context is now the raw TODO, so we have to check it
     my $context;
@@ -198,7 +200,7 @@ sub proclaim (Bool $cond, Str ?$desc is copy, ?$todo, Str ?$got, Str ?$expected)
     
     # Check if we have to forcetodo this test 
     # because we're preparing for a release.
-    $context = "TODO for release" if $NUM_OF_TESTS_RUN == $FORCE_TODO_TEST_JUNCTION;    
+    $context = "TODO for release" if $num_of_tests_run == $force_todo_test_junction;    
 
     my $ok := $cond ?? "ok " :: "not ok ";
     my $out = $desc.defined ?? " - $desc" :: "";
@@ -206,7 +208,7 @@ sub proclaim (Bool $cond, Str ?$desc is copy, ?$todo, Str ?$got, Str ?$expected)
 
     my $context_out = $context.defined ?? " # $context" :: "";
 
-    say $ok, $NUM_OF_TESTS_RUN, $out, $context_out;
+    say $ok, $num_of_tests_run, $out, $context_out;
 
     report_failure($context, $got, $expected) unless $cond;
 
@@ -219,7 +221,7 @@ sub report_failure (Str ?$todo, Str ?$got, Str ?$expected) returns Bool {
     }
     else {
 	    diag("  Failed test ($?CALLER::CALLER::CALLER::POSITION)");
-        $NUM_OF_TESTS_FAILED++;
+        $num_of_tests_failed++;
     }
 
     if ($?CALLER::CALLER::SUBNAME eq ('&is' | '&isnt' | '&cmp_ok' | '&eval_is' | '&isa_ok' | '&todo_is' | '&todo_isnt' | '&todo_cmp_ok' | '&todo_eval_is' | '&todo_isa_ok')) {
@@ -234,15 +236,15 @@ sub report_failure (Str ?$todo, Str ?$got, Str ?$expected) returns Bool {
 
 
 END {
-    if (!defined($NUM_OF_TESTS_PLANNED)) {
-        say("1..$NUM_OF_TESTS_RUN");
+    if (!defined($num_of_tests_planned)) {
+        say("1..$num_of_tests_run");
     }
-    elsif ($NUM_OF_TESTS_PLANNED != $NUM_OF_TESTS_RUN) {
-	    $*ERR.say("# Looks like you planned $NUM_OF_TESTS_PLANNED tests, but ran $NUM_OF_TESTS_RUN");
+    elsif ($num_of_tests_planned != $num_of_tests_run) {
+	    $*ERR.say("# Looks like you planned $num_of_tests_planned tests, but ran $num_of_tests_run");
     }
 
-    if ($NUM_OF_TESTS_FAILED) {
-        $*ERR.say("# Looks like you failed $NUM_OF_TESTS_FAILED tests of $NUM_OF_TESTS_RUN");
+    if ($num_of_tests_failed) {
+        $*ERR.say("# Looks like you failed $num_of_tests_failed tests of $num_of_tests_run");
     }
 }
 
