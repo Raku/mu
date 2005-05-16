@@ -37,7 +37,7 @@ eval_is '$a.shake("sentry")', "A", "conflict resolution works (1-1)", :todo<feat
 is      $was_in_general_shake,  1, "conflict resolution works (1-2)", :todo<feature>;
 is      $was_in_sentry_shake,   1, "conflict resolution works (1-3)", :todo<feature>;
 # As usual, is instead of todo_is to avoid unexpected suceedings.
-is           $was_in_pet_shake,      0, "conflict resolution works (1-4)";
+is      $was_in_pet_shake,      0, "conflict resolution works (1-4)";
 eval_is '$a.shake("pet")',    "B", "conflict resolution works (2-1)", :todo<feature>;
 is      $was_in_general_shake,  2, "conflict resolution works (2-2)", :todo<feature>;
 is      $was_in_sentry_shake,   1, "conflict resolution works (2-3)", :todo<feature>;

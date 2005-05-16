@@ -1,0 +1,64 @@
+#!/usr/bin/pugs
+
+use v6;
+use Test;
+
+plan 9;
+
+class Foo {
+  method get_self()  { $?SELF }
+  method get_class() { eval '$?CLASS' }
+  method dummy()     { 42 }
+}
+
+role Bar {
+  method get_self()  { $?SELF }
+  method get_class() { eval '$?CLASS' }
+  method get_role()  { eval '$?ROLE'  }
+  method dummy()     { 42 }
+}
+
+class SimpleClass does Bar {}
+
+{
+  my $foo_obj = Foo.new;
+  my $class   = $foo_obj.get_class;
+
+  is $class ~~ Foo, 'the thing returned by $?CLASS in our class smartmatches against our class';
+  my $fourty_two;
+  lives_ok { $fourty_two = $class.new.dummy },
+    'the class returned by $?CLASS in our class way really our class (1)';
+  is $fourty_two, 42, 'the class returned by $?CLASS in our class way really our class (2)';
+}
+
+{
+  my $foo1 = Foo.new;
+  my $foo2 = $foo1.get_self;
+
+  ok $foo1 =:= $foo2, '$?SELF in classes works';
+}
+
+{
+  my $bar   = SimpleClass.new;
+  my $class = $bar.get_class;
+
+  is $class ~~ SimpleClass, 'the thing returned by $?CLASS in our role smartmatches against our class';
+  my $fourty_two;
+  lives_ok { $fourty_two = $class.new.dummy },
+    'the class returned by $?CLASS in our role way really our class (1)';
+  is $fourty_two, 42, 'the class returned by $?CLASS in our role way really our class (2)';
+}
+
+{
+  my $bar1 = SimpleClass.new;
+  my $bar2 = $bar1.get_self;
+
+  ok $bar1 =:= $bar2, '$?SELF in roles works';
+}
+
+{
+  my $bar  = SimpleClass.new;
+  my $role = $bar.get_role;
+
+  ok $role ~~ Bar, 'the returned by $?ROLE smartmatches against our role';
+}

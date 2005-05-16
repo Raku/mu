@@ -16,6 +16,6 @@ my $a;
 eval_ok '$a = Foo.new()',  "basic instantiation", :todo<feature>;
 eval_ok '$a ~~ Foo',       "smartmatching the class name", :todo<feature>;
 # As usual, is instead of todo_is to suppress unexpected succeedings.
-is           $in_destructor, 0, "own destructor was not yet called";
+is      $in_destructor, 0, "own destructor was not yet called";
 undef $a;
 is      $in_destructor, 1, "own destructor was called", :todo<feature>;
