@@ -16,4 +16,4 @@ be valid perl6.
 plan 2;
 
 ok("abcDEFghi" ~~ m/abc (:i def) ghi/, 'Match');
-ok(not "abcDEFGHI" ~~ m/abc (:i def) ghi/, 'Mismatch');
+ok(!( "abcDEFGHI" ~~ m/abc (:i def) ghi/ ), 'Mismatch');

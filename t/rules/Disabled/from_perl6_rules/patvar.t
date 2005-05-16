@@ -24,8 +24,8 @@ my %var = (a=>rx:w/ 4/, b=>rx:w/ cos/, c=>rx:w/ \d+/);
 
 # SCALARS
 
-ok(not "a+b" ~~ m/<{$var}>/, 'Simple scalar match');
-ok(not "zzzzzza+bzzzzzz" ~~ m/<{$var}>/, 'Nested scalar match');
+ok(!( "a+b" ~~ m/<{$var}>/ ), 'Simple scalar match');
+ok(!( "zzzzzza+bzzzzzz" ~~ m/<{$var}>/ ), 'Nested scalar match');
 ok("aaaaab" ~~ m/<{$var}>/, 'Rulish scalar match');
 
 
@@ -35,12 +35,12 @@ ok("a" ~~ m/@var/, 'Simple array match (a)');
 ok("b" ~~ m/@var/, 'Simple array match (b)');
 ok("c" ~~ m/@var/, 'Simple array match (c)');
 ok("d" ~~ m/@var/, 'Simple array match (d)');
-ok(not "!" ~~ m/@var/, 'Simple array match (!)');
+ok(!( "!" ~~ m/@var/ ), 'Simple array match (!)');
 ok("!!!!a!!!!!" ~~ m/@var/, 'Nested array match (a)');
 ok("!!!!e!!!!!" ~~ m/@var/, 'Nested array match (e)');
 
 ok("abca" ~~ m/^@var+$/, 'Multiple array matching');
-ok(not "abca!" ~~ m/^@var+$/, 'Multiple array non-matching');
+ok(!( "abca!" ~~ m/^@var+$/ ), 'Multiple array non-matching');
 
 
 # HASHES
@@ -48,9 +48,9 @@ ok(not "abca!" ~~ m/^@var+$/, 'Multiple array non-matching');
 ok("a 4" ~~ m/%var/, 'Simple hash interpolation (a)');
 ok("b cos" ~~ m/%var/, 'Simple hash interpolation (b)');
 ok("c 1234" ~~ m/%var/, 'Simple hash interpolation (c)');
-ok(not "d" ~~ m/%var/, 'Simple hash interpolation (d)');
+ok(!( "d" ~~ m/%var/ ), 'Simple hash interpolation (d)');
 ok("====a 4=====" ~~ m/%var/, 'Nested hash interpolation (a)');
-ok(not "abca" ~~ m/^%var$/, 'Simple hash non-matching');
+ok(!( "abca" ~~ m/^%var$/ ), 'Simple hash non-matching');
 
 
 ok("a 4 b cos c 99  a 4" ~~ m:w/^[ %var]+$/, 'Simple hash repeated matching');

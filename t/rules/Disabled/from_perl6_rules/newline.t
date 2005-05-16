@@ -24,14 +24,14 @@ ok("\015" ~~ m/\n/, 'CR');
 ok("\x85" ~~ m/\n/, 'NEL');
 ok("\x2028" ~~ m/\n/, 'LINE SEP');
 
-ok(not "abc" ~~ m/\n/, 'not abc');
+ok(!( "abc" ~~ m/\n/ ), 'not abc');
 
-ok(not "\n" ~~ m/\N/, 'not \n');
+ok(!( "\n" ~~ m/\N/ ), 'not \n');
 
-ok(not "\012" ~~ m/\N/, 'not LF');
-ok(not "\015\012" ~~ m/\N/, 'not CR/LF');
-ok(not "\015" ~~ m/\N/, 'not CR');
-ok(not "\x85" ~~ m/\N/, 'not NEL');
-ok(not "\x2028" ~~ m/\N/, 'not LINE SEP');
+ok(!( "\012" ~~ m/\N/ ), 'not LF');
+ok(!( "\015\012" ~~ m/\N/ ), 'not CR/LF');
+ok(!( "\015" ~~ m/\N/ ), 'not CR');
+ok(!( "\x85" ~~ m/\N/ ), 'not NEL');
+ok(!( "\x2028" ~~ m/\N/ ), 'not LINE SEP');
 
 ok("abc" ~~ m/\N/, 'abc');

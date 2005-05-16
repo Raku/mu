@@ -44,7 +44,7 @@ for (1..2) -> $rep {
 	ok(%expected.keys == 0, "No matches missed ($rep)" );
 }
 
-ok(not "abcdefgh" ~~ m:exhaustive/ a .+ a /, 'Failed every-way match');
+ok(!( "abcdefgh" ~~ m:exhaustive/ a .+ a / ), 'Failed every-way match');
 ok(@$/ == 0, 'No matches');
 
 ok($str ~~ m:ex:i/ a (.+) a /, 'Capturing every-way match');
@@ -140,5 +140,5 @@ is($/.matches[2]<art>,  'an',    'Rule capture 2 art');
 is($/.matches[2]<noun>, 'arrow', 'Rule capture 2 noun');
 
 
-ok(not "fooooo" ~~ m:exhaustive{ s o+ }, 'Subsequent failed any match...');
+ok(!( "fooooo" ~~ m:exhaustive{ s o+ } ), 'Subsequent failed any match...');
 ok(@$/ == 0, '...leaves @$/ empty');

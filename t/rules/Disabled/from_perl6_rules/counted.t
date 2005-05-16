@@ -25,7 +25,7 @@ my $sub6 = "f fo foo fooo foooo fooooo bar";
 
 # :nth(N)...
 
-ok(not $data ~~ m:nth(0)/fo+/, 'No match nth(0)');
+ok(!( $data ~~ m:nth(0)/fo+/ ), 'No match nth(0)');
 
 ok($data ~~ m:nth(1)/fo+/, 'Match nth(1)');
 is($/, 'fo', 'Matched value for nth(1)');
@@ -45,7 +45,7 @@ is($/, 'fooooo', 'Matched value for nth(5)');
 ok($data ~~ m:nth(6)/fo+/, 'Match nth(6)');
 is($/, 'foooooo', 'Matched value for nth(6)');
 
-ok(not $data ~~ m:nth(7)/fo+/, 'No match nth(7)');
+ok(!( $data ~~ m:nth(7)/fo+/ ), 'No match nth(7)');
 
 
 # :nth($N)...
@@ -76,7 +76,7 @@ is($/, 'fooooo', 'Matched value for 5st');
 ok($data ~~ m:6st/fo+/, 'Match 6st');
 is($/, 'foooooo', 'Matched value for 6st');
 
-ok(not $data ~~ m:7st/fo+/, 'No match 7st');
+ok(!( $data ~~ m:7st/fo+/ ), 'No match 7st');
 
 
 # :Nnd...
@@ -99,7 +99,7 @@ is($/, 'fooooo', 'Matched value for 5nd');
 ok($data ~~ m:6nd/fo+/, 'Match 6nd');
 is($/, 'foooooo', 'Matched value for 6nd');
 
-ok(not $data ~~ m:7nd/fo+/, 'No match 7nd');
+ok(!( $data ~~ m:7nd/fo+/ ), 'No match 7nd');
 
 
 # :Nrd...
@@ -122,7 +122,7 @@ is($/, 'fooooo', 'Matched value for 5rd');
 ok($data ~~ m:6rd/fo+/, 'Match 6rd');
 is($/, 'foooooo', 'Matched value for 6rd');
 
-ok(not $data ~~ m:7rd/fo+/, 'No match 7rd');
+ok(!( $data ~~ m:7rd/fo+/ ), 'No match 7rd');
 
 
 # :Nth...
@@ -145,13 +145,13 @@ is($/, 'fooooo', 'Matched value for 5th');
 ok($data ~~ m:6th/fo+/, 'Match 6th');
 is($/, 'foooooo', 'Matched value for 6th');
 
-ok(not $data ~~ m:7th/fo+/, 'No match 7th');
+ok(!( $data ~~ m:7th/fo+/ ), 'No match 7th');
 
 
 # Substitutions...
 
 my $try = $data;
-ok(not $try ~~ s:0th{fo+}{bar}, "Can't substitute 0th" );
+ok(!( $try ~~ s:0th{fo+}{bar} ), "Can't substitute 0th" );
 is($try, $data, 'No change to data for 0th');
 
 my $try = $data;
@@ -179,7 +179,7 @@ ok($try ~~ s:6th{fo+}{bar}, 'substitute 6th');
 is($try, $sub6, 'substituted 6th correctly');
 
 my $try = $data;
-ok(not $try ~~ s:7th{fo+}{bar}, "Can't substitute 7th" );
+ok(!( $try ~~ s:7th{fo+}{bar} ), "Can't substitute 7th" );
 is($try, $data, 'No change to data for 7th');
 
 
@@ -229,7 +229,7 @@ is($/, 'fooooo', 'Matched value for x(5)');
 ok($data ~~ m:x(6)/fo+/, 'Match x(6)');
 is($/, 'foooooo', 'Matched value for x(6)');
 
-ok(not $data ~~ m:x(7)/fo+/, 'no match x(7)');
+ok(!( $data ~~ m:x(7)/fo+/ ), 'no match x(7)');
 
 # :x($N)...
 
@@ -258,12 +258,12 @@ is($/, 'fooooo', 'Matched value for 5x');
 ok($data ~~ m:6x/fo+/, 'Match 6x');
 is($/, 'foooooo', 'Matched value for 6x');
 
-ok(not $data ~~ m:7x/fo+/, 'No match 7x');
+ok(!( $data ~~ m:7x/fo+/ ), 'No match 7x');
 
 # Substitutions...
 
 my $try = $data;
-ok(not $try ~~ s:0x{fo+}{bar}, "Can't substitute 0x" );
+ok(!( $try ~~ s:0x{fo+}{bar} ), "Can't substitute 0x" );
 is($try, $data, 'No change to data for 0x');
 
 my $try = $data;
@@ -330,5 +330,5 @@ ok($try ~~ s:g:6th{fo+}{bar}, 'Global :6th match');
 is($try, $gsub6, 'substituted :g:6th correctly');
 
 my $try = $data;
-ok(not $try ~~ s:g:7th{fo+}{bar}, 'Global :7th match');
+ok(!( $try ~~ s:g:7th{fo+}{bar} ), 'Global :7th match');
 is($try, $data, 'substituted :g:7th correctly');

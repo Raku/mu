@@ -38,7 +38,7 @@ for (1..2) -> $rep {
 	ok(%expected.keys == 0, "No matches missed ($rep)" );
 }
  
-ok(not "abcdefgh" ~~ m:overlap/ a .+ a /, 'Failed overlapping match');
+ok(!( "abcdefgh" ~~ m:overlap/ a .+ a / ), 'Failed overlapping match');
 ok(@$/ == 0, 'No matches');
 
 ok($str ~~ m:i:overlap/ a (.+) a /, 'Capturing overlapping match');

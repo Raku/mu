@@ -64,8 +64,8 @@ ok("bookkeeper" ~~ m/(<?single>) ($0)/, 'Positional backref');
 is($0, 'o', 'Named capture');
 is($1, 'o', 'Backref capture');
 
-ok(not "bokeper" ~~ m/(<?single>) ($0)/, 'Failed positional backref');
-ok(not "bokeper" ~~ m/<single> ($/<single>)/, 'Failed named backref');
+ok(!( "bokeper" ~~ m/(<?single>) ($0)/ ), 'Failed positional backref');
+ok(!( "bokeper" ~~ m/<single> ($/<single>)/ ), 'Failed named backref');
 
 is("\$0", '$'~'1', 'Non-translation of non-interpolated "\\$0"' );
 is('$0',  '$'~'1', 'Non-translation of non-interpolated \'$0\'' );

@@ -23,7 +23,7 @@ ok($/.pos == 0, 'Match pos is 0');
 ok($str ~~ m/ A .+ a /, 'Match from 3');
 ok($/.pos == 3, 'Match pos is 3');
 
-ok(not $str ~~ m/ Z .+ a /, 'No match');
+ok(!( $str ~~ m/ Z .+ a / ), 'No match');
 ok(!defined $/.pos, 'Match pos is undef');
 
 rule Aa { A .* a }

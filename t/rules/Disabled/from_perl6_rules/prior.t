@@ -21,29 +21,29 @@ ok($!, 'Error');
 ok("A" ~~ m/<[A-Z]>/, 'Successful match');
 
 ok("B" ~~ m/<?prior>/, 'Prior successful match');
-ok(not "!" ~~ m/<?prior>/, 'Prior successful non-match');
+ok(!( "!" ~~ m/<?prior>/ ), 'Prior successful non-match');
 
-ok(not "A" ~~ m/B/, 'Unsuccessful match');
+ok(!( "A" ~~ m/B/ ), 'Unsuccessful match');
 
 ok("B" ~~ m/<?prior>/, 'Still prior successful match');
 ok("B" ~~ m/<?prior>/, 'And still prior successful match');
 
 ok("AB" ~~ m/A <?prior>/, 'Nested prior successful match');
-ok(not "A" ~~ m/A <?prior>/, 'Nested prior successful non-match');
+ok(!( "A" ~~ m/A <?prior>/ ), 'Nested prior successful non-match');
 ok("B" ~~ m/<?prior>/, 'And even now prior successful match');
 
 ok("!" ~~ m/<-[A-Z]>/, 'New successful match');
 
-ok(not "B" ~~ m/<?prior>/, 'New prior successful non-match');
+ok(!( "B" ~~ m/<?prior>/ ), 'New prior successful non-match');
 ok("!" ~~ m/<?prior>/, 'New prior successful match');
 
-ok(not "A" ~~ m/B/, 'New unsuccessful match');
+ok(!( "A" ~~ m/B/ ), 'New unsuccessful match');
 
 ok("%" ~~ m/<?prior>/, 'New still prior successful match');
 ok("@" ~~ m/<?prior>/, 'New and still prior successful match');
 
 ok("A!" ~~ m/A <?prior>/, 'New nested prior successful match');
-ok(not "A" ~~ m/A <?prior>/, 'New nested prior successful non-match');
+ok(!( "A" ~~ m/A <?prior>/ ), 'New nested prior successful non-match');
 ok("^" ~~ m/<?prior>/, 'New and even now prior successful match');
 
 

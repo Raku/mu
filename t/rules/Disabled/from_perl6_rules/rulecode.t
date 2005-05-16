@@ -24,7 +24,7 @@ $var = rx/<?abc>/;
 ok("aaabccc" ~~ m/aa <{ $var ?? $var :: rx{<?null>} }> cc/, 'Rule block first');
 
 $var = rx/xyz/;
-ok(not "aaabccc" ~~ m/aa <{ $var ?? $var :: rx{abc} }> cc/, 'Rule block fail');
+ok(!( "aaabccc" ~~ m/aa <{ $var ?? $var :: rx{abc} }> cc/ ), 'Rule block fail');
 
 $var = rx/<?abc>/;
 ok("aaabccc" ~~ m/aa <{ $var ?? $var :: rx{abc} }> cc/, 'Rule block interp');

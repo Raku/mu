@@ -26,7 +26,7 @@ my $href = \%var;
 
 ok($var ~~ m/$var/, 'Simple scalar interpolation');
 ok("zzzzzz${var}zzzzzz" ~~ m/$var/, 'Nested scalar interpolation');
-ok(not "aaaaab" ~~ m/$var/, 'Rulish scalar interpolation');
+ok(!( "aaaaab" ~~ m/$var/ ), 'Rulish scalar interpolation');
 
 ok('a' ~~ m/$aref[0]/, 'Array ref 0');
 ok('a' ~~ m/$aref.[0]/, 'Array ref dot 0');
@@ -36,12 +36,12 @@ ok('1' ~~ m/$href.{a}/, 'Hash ref dot A');
 ok('1' ~~ m/$href{a}/, 'Hash ref A');
 ok('1' ~~ m/%var{a}/, 'Hash A');
 
-ok(not 'a' ~~ m/$aref[1]/, 'Array ref 1');
-ok(not 'a' ~~ m/$aref.[1]/, 'Array ref dot 1');
-ok(not 'a' ~~ m/@var[1]/, 'Array 1');
-ok(not '1' ~~ m/$href.{b}/, 'Hash ref dot B');
-ok(not '1' ~~ m/$href{b}/, 'Hash ref B');
-ok(not '1' ~~ m/%var{b}/, 'Hash B');
+ok(!( 'a' ~~ m/$aref[1]/ ), 'Array ref 1');
+ok(!( 'a' ~~ m/$aref.[1]/ ), 'Array ref dot 1');
+ok(!( 'a' ~~ m/@var[1]/ ), 'Array 1');
+ok(!( '1' ~~ m/$href.{b}/ ), 'Hash ref dot B');
+ok(!( '1' ~~ m/$href{b}/ ), 'Hash ref B');
+ok(!( '1' ~~ m/%var{b}/ ), 'Hash B');
 
 
 # ArrayS
@@ -49,11 +49,11 @@ ok(not '1' ~~ m/%var{b}/, 'Hash B');
 ok("a" ~~ m/@var/, 'Simple array interpolation (a)');
 ok("b" ~~ m/@var/, 'Simple array interpolation (b)');
 ok("c" ~~ m/@var/, 'Simple array interpolation (c)');
-ok(not "d" ~~ m/@var/, 'Simple array interpolation (d)');
+ok(!( "d" ~~ m/@var/ ), 'Simple array interpolation (d)');
 ok("ddddaddddd" ~~ m/@var/, 'Nested array interpolation (a)');
 
 ok("abca" ~~ m/^@var+$/, 'Multiple array matching');
-ok(not "abcad" ~~ m/^@var+$/, 'Multiple array non-matching');
+ok(!( "abcad" ~~ m/^@var+$/ ), 'Multiple array non-matching');
 
 
 # HASHES
@@ -61,8 +61,8 @@ ok(not "abcad" ~~ m/^@var+$/, 'Multiple array non-matching');
 ok("a" ~~ m/%var/, 'Simple hash interpolation (a)');
 ok("b" ~~ m/%var/, 'Simple hash interpolation (b)');
 ok("c" ~~ m/%var/, 'Simple hash interpolation (c)');
-ok(not "d" ~~ m/%var/, 'Simple hash interpolation (d)');
+ok(!( "d" ~~ m/%var/ ), 'Simple hash interpolation (d)');
 ok("====a=====" ~~ m/%var/, 'Nested hash interpolation (a)');
-ok(not "abca" ~~ m/^%var$/, 'Simple hash non-matching');
+ok(!( "abca" ~~ m/^%var$/ ), 'Simple hash non-matching');
 
 ok("a b c a" ~~ m:w/^[ %var]+$/, 'Simple hash repeated matching');

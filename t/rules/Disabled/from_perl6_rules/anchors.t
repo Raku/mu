@@ -20,19 +20,19 @@ def
 ghi};
 
 ok($str ~~ m/^abc/, 'SOS abc');
-ok(not $str ~~ m/^bc/, 'SOS bc');
+ok(!( $str ~~ m/^bc/ ), 'SOS bc');
 ok($str ~~ m/^^abc/, 'SOL abc');
-ok(not $str ~~ m/^^bc/, 'SOL bc');
+ok(!( $str ~~ m/^^bc/ ), 'SOL bc');
 ok($str ~~ m/abc\n?$$/, 'abc newline EOL');
-ok(not $str ~~ m/abc$$/, 'abc EOL');
-ok(not $str ~~ m/ab$$/, 'ab EOL');
-ok(not $str ~~ m/abc$/, 'abc EOS');
-ok(not $str ~~ m/^def/, 'SOS def');
+ok(!( $str ~~ m/abc$$/ ), 'abc EOL');
+ok(!( $str ~~ m/ab$$/ ), 'ab EOL');
+ok(!( $str ~~ m/abc$/ ), 'abc EOS');
+ok(!( $str ~~ m/^def/ ), 'SOS def');
 ok($str ~~ m/^^def/, 'SOL def');
 ok($str ~~ m/def\n?$$/, 'def newline EOL');
-ok(not $str ~~ m/def$$/, 'def newline EOL');
-ok(not $str ~~ m/def$/, 'def EOS');
-ok(not $str ~~ m/^ghi/, 'SOS ghi');
+ok(!( $str ~~ m/def$$/ ), 'def newline EOL');
+ok(!( $str ~~ m/def$/ ), 'def EOS');
+ok(!( $str ~~ m/^ghi/ ), 'SOS ghi');
 ok($str ~~ m/^^ghi/, 'SOL ghi');
 ok($str ~~ m/ghi\n?$$/, 'ghi newline EOL');
 ok($str ~~ m/ghi$$/, 'ghi EOL');

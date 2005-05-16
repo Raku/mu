@@ -64,12 +64,12 @@ ok('abc' ~~ m/^ (<Yet::Another.abc>) $/, '<Yet::Another.abc>');
 is($/, "abc", 'abc $/');
 is($0, "abc", 'abc $0');
 
-ok(not 'abc' ~~ m/ (<Yet::Another.bee>) /, 'abc <Yet::Another.bee>');
+ok(!( 'abc' ~~ m/ (<Yet::Another.bee>) / ), 'abc <Yet::Another.bee>');
 ok('aBc' ~~ m/ (<Yet::Another.bee>) /, 'aBc <Yet::Another.bee>');
 is($/, "B", 'Yet::Another::bee $/');
 is($0, "B", 'Yet::Another::bee $0');
 
-ok(not 'def' ~~ m/^ (<Yet::Another.def>) $/, 'def (<Yet::Another.def>)');
+ok(!( 'def' ~~ m/^ (<Yet::Another.def>) $/ ), 'def (<Yet::Another.def>)');
 ok('DeF' ~~ m/^ (<Yet::Another.def>) $/, 'DeF (<Yet::Another.def>)');
 is($/, "DeF", 'DeF $/');
 is($0, "DeF", 'DeF $0');

@@ -16,6 +16,6 @@ be valid perl6.
 plan 4;
 
 ok("ab cd" ~~ m/a <'b c'> d/, 'ab cd 1');
-ok(not "abcd" ~~ m/a <'b c'> d/, 'not abcd 1');
+ok(!( "abcd" ~~ m/a <'b c'> d/ ), 'not abcd 1');
 ok("ab cd" ~~ m/ab <' '> c d/, 'ab cd 2');
 ok("ab/cd" ~~ m/ab <'/'> c d/, 'ab/cd');

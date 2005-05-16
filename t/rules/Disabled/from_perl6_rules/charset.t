@@ -17,17 +17,17 @@ plan 22;
 
 ok("zyxaxyz" ~~ m/(<[aeiou]>)/, 'Simple set');
 is($0, 'a', 'Simple set capture');
-ok(not "a" ~~ m/<-[aeiou]>/, 'Simple neg set failure');
+ok(!( "a" ~~ m/<-[aeiou]>/ ), 'Simple neg set failure');
 ok("f" ~~ m/(<-[aeiou]>)/, 'Simple neg set match');
 is($0, 'f', 'Simple neg set capture');
 
-ok(not "a" ~~ m/(<[a-z]-[aeiou]>)/, 'Difference set failure');
+ok(!( "a" ~~ m/(<[a-z]-[aeiou]>)/ ), 'Difference set failure');
 ok("y" ~~ m/(<[a-z]-[aeiou]>)/, 'Difference set match');
 is($0, 'y', 'Difference set capture');
-ok(not "a" ~~ m/(<+<?alpha>-[aeiou]>)/, 'Named difference set failure');
+ok(!( "a" ~~ m/(<+<?alpha>-[aeiou]>)/ ), 'Named difference set failure');
 ok("y" ~~ m/(<+<?alpha>-[aeiou]>)/, 'Named difference set match');
 is($0, 'y', 'Named difference set capture');
-ok(not "y" ~~ m/(<[a-z]-[aeiou]-[y]>)/, 'Multi-difference set failure');
+ok(!( "y" ~~ m/(<[a-z]-[aeiou]-[y]>)/ ), 'Multi-difference set failure');
 ok("f" ~~ m/(<[a-z]-[aeiou]-[y]>)/, 'Multi-difference set match');
 is($0, 'f', 'Multi-difference set capture');
 

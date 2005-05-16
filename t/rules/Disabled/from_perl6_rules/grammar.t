@@ -45,7 +45,7 @@ ok($0 ne "def", '?def $0');
 is($/<def>, "def", '?def $/<def>');
 is($/<def><eh>, "e", '?def $/<def><eh>');
 
-ok(not 'abc' ~~ m/ (<?bee>) /, '<?bee>');
+ok(!( 'abc' ~~ m/ (<?bee>) / ), '<?bee>');
 
 ok(!eval { 'abc' ~~ m/ (<?Other.sea>) / }, '<?Other.sea>');
 ok($!, 'Error');
