@@ -25,7 +25,7 @@ sub step {
   if($args{help}) {
     printf STDERR "%s»%s %s%s%s...\n", BOLD . BLUE, RESET, BOLD . RED, $args{descr}, RESET;
     print STDERR "  : $_\n" for map { (/^\s*(.*)$/g)[0] } split "\n", $args{help};
-    print STDERR "  > ";
+    print STDERR "  » ";
   } else {
     printf STDERR "%s»%s %s%s%s... ", BOLD . BLUE, RESET, BOLD . RED, $args{descr}, RESET;
   }
@@ -37,7 +37,7 @@ sub step {
     if($args{pause}) {
       print STDERR "\b\b\b\b\b   : Press a key to continue... ";
       <STDIN>;
-      print STDERR "  > ";
+      print STDERR "  » ";
     }
     if($args{ensure}->()) {
       printf STDERR "%sgood%s.\n", BOLD . GREEN, RESET;

@@ -62,13 +62,19 @@ sub on_privmsg($event) {
       my $start_time = BEGIN { time };
       $bot<privmsg>(to => $reply_to, text => "Running for {time() - $start_time} seconds.");
     }
+
+    when rx:P5/^\?check$/ {
+      svn_check "now";
+    }
   }
 }
 
 # This sub checks for new commits.
 sub svn_check($event) {
   state $last_check;
-  $last_check //= time;  # "state $last_check = 0" doesn't work yet in Pugs.
+  $last_check //= time;  # "state $last_check = time" doesn't work yet in Pugs.
+
+  $last_check = 0 if $event eq "now";
 
   # We don't want to flood poor openfoundry.
   if(time() - $last_check >= $interval) {
