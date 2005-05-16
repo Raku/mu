@@ -18,7 +18,7 @@ has Set $:subclasses;
 has %:properties;
 has %:methods;
 
-submethod BUILD($:name, $:subclasses, $:properties, $:methods) {}
+submethod BUILD($:name, $:subclasses) {}
 
 method clsName ($self: ?$name) returns Str {
     $:name = $name if $name.defined;

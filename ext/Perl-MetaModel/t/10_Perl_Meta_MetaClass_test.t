@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-use_ok('Perl::Meta::MetaClass');
+use Perl::Meta::MetaClass;
 
 # --------------------------------------------------------------
 # This test attempts to model the following class.
