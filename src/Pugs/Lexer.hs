@@ -27,6 +27,7 @@ module Pugs.Lexer (
     tryChoice,
 
     ruleScope, ruleTrait, ruleTraitName, ruleBareTrait, ruleContext,
+    verbatimParens,
 ) where
 import Pugs.Internals
 import Pugs.AST
@@ -280,4 +281,6 @@ ruleContext = literalRule "context" $ do
 
 tryChoice :: [GenParser tok st a] -> GenParser tok st a
 tryChoice = choice . map try
+
+verbatimParens = between (lexeme $ char '(') (char ')')
 

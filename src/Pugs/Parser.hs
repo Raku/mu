@@ -1059,8 +1059,7 @@ ruleInvocationParens = do
     colon       <- maybeColon
     hasEqual    <- option False $ do { char '='; whiteSpace; return True }
     name        <- do { str <- ruleSubName; return $ colon str }
-    (invs,args) <- between (symbol "(") (char ')') $ do
-        parseNoParenParamList False
+    (invs,args) <- verbatimParens $ parseNoParenParamList False
     -- XXX we just append the adverbial block onto the end of the arg list
     -- it really goes into the *& slot if there is one. -lp
     return $ \x -> if hasEqual
@@ -1122,10 +1121,9 @@ parseParamList :: RuleParser ([Exp], [Exp])
 parseParamList = parseParenParamList True <|> parseNoParenParamList True
 
 parseParenParamList :: Bool -> RuleParser ([Exp], [Exp])
-parseParenParamList defaultToInvs = try $ do
+parseParenParamList defaultToInvs = do
     params      <- option Nothing . fmap Just $
-        between (symbol "(") (char ')') $
-            parseNoParenParamList defaultToInvs
+        verbatimParens $ parseNoParenParamList defaultToInvs
     block       <- option [] ruleAdverbBlock
     when (isNothing params && null block) $ fail ""
     let (inv, norm) = maybe ([], []) id params
