@@ -3,11 +3,11 @@
 use v6;
 use Test;
 
-plan 15;
+plan 14;
 
-use_ok( 'Test::Builder::Test' );
+use Test::Builder::Test;
 
-my $skip_test = ::Test::Builder::Test::Skip.new(
+my $skip_test = Test::Builder::Test::Skip.new(
     number      => 1,     
     passed      => 1,
     description => 'first test description',
@@ -25,7 +25,7 @@ is( $skip_test.diagnostic(), '???',
     'diagnostic() should return the default diagnostic if needed',
     :todo<feature>);
 
-my $skip_diag = ::Test::Builder::Test::Skip.new(
+my $skip_diag = Test::Builder::Test::Skip.new(
     number      => 1,     
     passed      => 1,
     reason      => 'reason for skipping',

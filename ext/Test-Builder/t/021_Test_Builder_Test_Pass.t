@@ -3,11 +3,11 @@
 use v6;
 use Test;
 
-plan 11;
+plan 10;
 
-use_ok( 'Test::Builder::Test' );
+use Test::Builder::Test;
 
-my $pass_test = ::Test::Builder::Test::Pass.new(
+my $pass_test = Test::Builder::Test::Pass.new(
         number      => 1,     
         passed      => 1,
         description => 'first test description'

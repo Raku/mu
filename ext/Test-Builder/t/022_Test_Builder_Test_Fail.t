@@ -3,11 +3,11 @@
 use v6;
 use Test;
 
-plan 11;
+plan 10;
 
-use_ok( 'Test::Builder::Test' );
+use Test::Builder::Test;
 
-my $fail_test = ::Test::Builder::Test::Fail.new(
+my $fail_test = Test::Builder::Test::Fail.new(
         number      => 1,     
         passed      => 0,
         description => 'first test description'
@@ -24,7 +24,7 @@ is( $fail_test.diagnostic(), '???',
 	'diagnostic() should report the default diagnostic if needed',
 	:todo<feature>);
 
-my $fail_diag = ::Test::Builder::Test::Fail.new(
+my $fail_diag = Test::Builder::Test::Fail.new(
         number      => 1,     
         passed      => 0,
 		diagnostic  => 'some reason this failed',

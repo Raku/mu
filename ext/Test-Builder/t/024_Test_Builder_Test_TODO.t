@@ -3,11 +3,11 @@
 use v6;
 use Test;
 
-plan 14;
+plan 13;
 
-use_ok( 'Test::Builder::Test' );
+use Test::Builder::Test;
 
-my $todo_test = ::Test::Builder::Test::TODO.new(
+my $todo_test = Test::Builder::Test::TODO.new(
     number      => 1,     
     passed      => 1,
     description => 'first test description',
@@ -25,7 +25,7 @@ is( $todo_test.diagnostic(), '???',
     'diagnostic() should return the default diagnostic if needed',
     :todo<feature>);
 
-my $todo_diag = ::Test::Builder::Test::TODO.new(
+my $todo_diag = Test::Builder::Test::TODO.new(
     number      => 1,     
     passed      => 0,
     diagnostic  => 'some test diagnostic',

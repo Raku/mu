@@ -3,14 +3,14 @@
 use v6;
 use Test;
 
-plan 4;
+plan 3;
 
-use_ok('Test::Builder::Output');
+use Test::Builder::Output;
 
 my $output = open(">output");
 my $error_output = open(">error_output");
 
-my $output = ::Test::Builder::Output.new(
+my $output = Test::Builder::Output.new(
     output       => $output,
     error_output => $error_output,    
     );

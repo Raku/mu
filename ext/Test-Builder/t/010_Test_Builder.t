@@ -3,15 +3,15 @@
 use v6;
 use Test;
 
-plan 6;
+plan 3;
 
-use_ok( 'Test::Builder' );
+use Test::Builder;
 
-my $Test = ::Test::Builder.new();
+my $Test = Test::Builder.new();
 is( $Test.ref, 'Test::Builder', '... we got a Test::Builder instance' );
 
 {
-    my $Test2 = ::Test::Builder.new();
+    my $Test2 = Test::Builder.new();
     ok( $Test =:= $Test2, '... Test::Builder is a singleton', :todo<feature> );
 }
 
@@ -27,8 +27,8 @@ is( $Test.ref, 'Test::Builder', '... we got a Test::Builder instance' );
 	my $Test3;
 	lives_ok
 	{
-		my $custom_plan = ::Test::Builder::CustomPlan.new();
-		$Test3          = ::Test::Builder.create( plan => $custom_plan );
+		my $custom_plan = Test::Builder::CustomPlan.new();
+		$Test3          = Test::Builder.create( plan => $custom_plan );
 		is( ! $Test3 =:= $Test,
 		      'create() should return non-singleton instance'
 		);
