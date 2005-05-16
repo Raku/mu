@@ -54,12 +54,11 @@ First we define our B<AbstractClass> meta-class:
                 'create_instance' => { 
                     return {
 			'class' => AbstractClass,
-			AbstractClass.<instance_vars>
+			AbstractClass.instance_vars
 		    };
                 },
-                'add_method_to_class' => ($class, $label) -> {
-                    $class.<method_table>.<$label> =
-			\&abstractMethodHandler;
+                'add_method_to_class' => sub ($class: $label) {
+                    $class<method_table>{$label} = &abstractMethodHandler;
                 },
                 ...
             }
@@ -86,13 +85,14 @@ B<AbstractClass> meta-class):
             },
             'method_table' => {
                 'create_instance' => { 
-                    return merge(
-                        Class.parent.<instance_vars>,
-                        { 'class' => Class, Class.<instance_vars> }
-                    ); 
+                    return {
+                        Class.parent.instance_vars,
+                        'class' => Class,
+                        Class.instance_vars # overrides parent's vars
+                    }; 
                 },
-                'add_method_to_class' => ($class: $label, $impl) -> {
-                    $class<method_table><$label> = $impl;
+                'add_method_to_class' => sub ($class: $label, $impl) {
+                    $class<method_table>{$label} = $impl;
                 },
                 ...
             }
@@ -128,8 +128,8 @@ Here is what that would look like:
                 'semaphore' => <semaphore>
             },
             'method_table' => {
-                'add_method_to_class' => ($class: $label, $impl) -> {
-                    $class<method_table><$label> = ($self: @args) {
+                'add_method_to_class' => sub ($class: $label, $impl) {
+                    $class<method_table>{$label} = sub ($self: @args) {
                         $self<semaphore>.acquire();
                         @return_vals =
 			    $self.invoke_method($impl, @args);
