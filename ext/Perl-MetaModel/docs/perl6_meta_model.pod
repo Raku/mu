@@ -28,7 +28,7 @@ The following describes some of the details of this leveled environment.
 Relationships such as "is a", "does a", etc only make sense within a
 particular level of the object system.  So, for example, it does not
 make sense to describe all of these objects as descending from some
-I<über>-Object class.  Rules and principles that apply on one level do
+I<Ã¼ber>-Object class.  Rules and principles that apply on one level do
 not necessarily transfer to the levels below.
 
 To a type system freak, you could say that each level is seperated by
