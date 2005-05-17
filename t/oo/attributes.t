@@ -164,7 +164,7 @@ class Foo6a {
     ok($foo ~~ Foo6a, '... our Foo6a instance was created');
         
     is($foo.bar,        1, "getting a public rw attribute (1)");
-    is($foo.baz,        5, "getting a public rw attribute (2)");
+    is($foo.baz,        5, "getting a public rw attribute (2)", :todo<feature>);
     is($foo.get_hidden, 3, "getting a private ro attribute (3)");
 }
 
