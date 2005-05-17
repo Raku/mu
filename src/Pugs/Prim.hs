@@ -1211,6 +1211,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   List      left    »/«     (Any, Any)\
 \\n   List      left    »x«     (Any, Any)\
 \\n   List      left    »xx«    (Any, Any)\
+\\n   List      left    »~«     (Any, Any)\
 \\n   List      left    >>+<<   (Any, Any)\
 \\n   List      left    >>*<<   (Any, Any)\
 \\n   List      left    >>/<<   (Any, Any)\
