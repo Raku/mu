@@ -4,7 +4,6 @@ use v6;
 class Perl::Meta::MetaClass-0.0.1;
 
 use Set;
-
 use Perl::Meta::Property;
 use Perl::Meta::Method;
 
@@ -148,6 +147,22 @@ method removeMethod ($self: Str $label) returns Perl::Meta::Method {
 
 method methods      ($self:) returns Hash  { %:methods        }
 method methodLabels ($self:) returns Array { %:methods.keys() }
+
+## Method Sketches ....
+
+=pod
+
+method invokeMethod ($self: Str $label, @args) returns Any {
+    # NOTE:
+    # need make this traverse the hierarchy
+    unless %:methods.exists($label) {
+        die "Method '$label' does not exists in this instance";
+    }    
+    my $method = %:methods{'label'}.code();
+    return $method($self, @args);
+}
+
+=cut
 
 =pod
 
