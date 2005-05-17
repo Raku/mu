@@ -800,7 +800,7 @@ ruleBlockFormalPointy = rule "pointy block parameters" $ do
 
 tightOperators :: RuleParser [[Operator Char Env Exp]]
 tightOperators = do
-  (optionary, unary) <- currentUnaryFunctions
+  [optionary, unary, symUnary] <- currentUnaryFunctions
   return $
     [ methOps  " . .+ .? .* .+ .() .[] .{} .<<>> .= "   -- Method postfix
     , postOps  " ++ -- " ++ preOps " ++ -- "            -- Auto-Increment
@@ -808,6 +808,7 @@ tightOperators = do
     , preSyn "* **"                                     -- Symbolic Unary
       ++ preOps (concatMap (\x -> " -" ++ [x]) "rwxoRWXOezsfdlpSbctugkTBMAC")
       ++ preOps " = ! + - ~ ? +^ ~^ ?^ \\ "
+      ++ preOps symUnary
     , leftOps $
                " »*« »/« »x« »xx« »~« " ++
                " >>*<< >>/<< >>x<< >>xx<< >>~<< " ++
@@ -879,19 +880,18 @@ currentFunctions = do
                         (name', code_assoc code, code_params code)
                     _ -> Nothing
 
-currentUnaryFunctions :: RuleParser (String, String)
+currentUnaryFunctions :: RuleParser [String]
 currentUnaryFunctions = do
     env     <- getState
     case envStash env of
         "" -> do
-            (x, y) <- currentUnaryFunctions'
-            setState env{ envStash = unlines [x, y] }
-            return (x, y)
+            funs <- currentUnaryFunctions'
+            setState env{ envStash = unlines funs }
+            return funs
         lns -> do
-            let [x, y] = lines lns
-            return (x, y)
+            return $ lines lns
 
-currentUnaryFunctions' :: RuleParser (String, String)
+currentUnaryFunctions' :: RuleParser [String]
 currentUnaryFunctions' = do
     funs    <- currentFunctions
     let (unary, rest) = (`partition` funs) $ \x -> case x of
@@ -904,10 +904,11 @@ currentUnaryFunctions' = do
                 , isSlurpy param -> True
             _ -> False
         restNames = Set.fromList $ map (\(name, _, _) -> name) rest'
-    return . mapPair munge . partition fst . sort $
-        [ (isOptional param, encodeUTF8 name) | (name, _, [param]) <- unary
-        , not (name `Set.member` restNames)
-        ]
+    let (optionary, unary') = mapPair munge . partition fst . sort $
+            [ (isOptional param, encodeUTF8 name) | (name, _, [param]) <- unary
+            , not (name `Set.member` restNames)
+            ]
+    return [optionary, unary', []]
     where
     munge = unwords . map snd
     mapPair f (x, y) = (f x, f y)
@@ -1247,7 +1248,7 @@ makeVar "$<>" = Var "$/"
 makeVar ('$':rest) | all (`elem` "1234567890") rest =
     Syn "[]" [Var "$/", Val $ VInt (read rest)]
 makeVar ('$':'<':name) =
-    Syn "{}" [Var "$/", doSplitStr (tail name)]
+    Syn "{}" [Var "$/", doSplitStr (init name)]
 makeVar (sigil:'.':name) =
     Cxt (cxtOfSigil sigil) (Syn "{}" [Var "$?SELF", Val (VStr name)])
 makeVar (sigil:':':name) =

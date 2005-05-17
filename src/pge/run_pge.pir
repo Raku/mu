@@ -7,6 +7,7 @@
 
     load_bytecode "PGE/Hs.pir"
     match = find_global "PGE::Hs", "match"
+    add_rule = find_global "PGE::Hs", "add_rule"
 
     getinterp args
     set args, args[.IGLOBALS_ARGV_LIST]
