@@ -13,9 +13,6 @@ GetOptions \our %Config, qw(inlinecss|e cssfile|c=s help|h);
 $Config{cssfile} ||= Test::TAP::HTMLMatrix->css_file();
 usage() if $Config{help};
 
-use Data::Dumper;
-warn Dumper(\%Config);
-
 my $yamlfile = shift || 'tests.yml';
 
 open(my $yamlfh, '<', $yamlfile) or die "Couldn't open $yamlfile for reading: $!";
