@@ -42,13 +42,25 @@ Methods
     method methodname(::?CLASS $self: ...) {...}
     # Instance method
 
+Roles
+
+    role RoleName {
+	method methodname(...) {...}
+    }
+
+    class SomeClass does RoleName {...}
+    # or
+    class SomeClass {
+	does RoleName;
+    }
+
 Magical variables
 
     $?SELF    # The current instance as scalar variable
     $?CLASS   # The current class as scalar variable
-    ::?CLASS  # The current class as XXX variable
+    ::?CLASS  # The current class as package variable
     $?ROLE    # The current role as scalar variable
-    ::?ROLE   # The current role as XXX variable
+    ::?ROLE   # The current role as package variable
 
 Subtypes
 
