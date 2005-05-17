@@ -27,6 +27,29 @@ Inheritance
 	...;
     }
 
+Methods
+
+    method methodname(...) {...}
+    # Standard subroutine signature
+
+    method methodname($invocant: ...) {...}
+    # The invocant (the class or the instance) is explicitly bound to
+    # $invocant. In any case, there's $?SELF and $?CLASS, too.
+
+    method methodname(Class $class: ...) {...}
+    # Class method
+
+    method methodname(::?CLASS $self: ...) {...}
+    # Instance method
+
+Magical variables
+
+    $?SELF    # The current instance as scalar variable
+    $?CLASS   # The current class as scalar variable
+    ::?CLASS  # The current class as XXX variable
+    $?ROLE    # The current role as scalar variable
+    ::?ROLE   # The current role as XXX variable
+
 Subtypes
 
     my subtype Int::Odd of Int where { $^value % 2 == 1 };
