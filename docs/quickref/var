@@ -1,49 +1,51 @@
 Secondary Sigils (also known as "twigils"):
 
-    $?   # lexically-scoped (compile time)
-    $*   # global (run time)
-    $=   # file-scoped
-    $^   # implicit block argument
-    $.   # public attribute
-    $:   # private attribute
+    $?   # lexically-scoped (compile time, see S02)
+    $*   # global (run time, see S02)
+    $=   # file-scoped (see S02)
+    $^   # implicit block argument (see S06 placeholder variables)
+    $.   # public attribute (see S12 attributes)
+    $:   # private attribute (see S12 attributes)
 
 Named variables (see S02):
 
-    $/        # match object from last rule
-    $0        # first captured value from match: $/.[0]
-    @*ARGS    # command-line arguments
-    &?BLOCK   # current block (itself)
-    @?BLOCK   # current blocks (themselves)
-    ::?CLASS  # current class (as package name)
-    $?CLASS   # current class (as variable)
-    @?CLASS   # current classes
-    $=DATA    # data block handle (=begin DATA ... =end)
-    %*ENV     # system environment
-    $*ERR     # standard error handle
-    $?FILE    # current file
-    $?GRAMMAR # current grammar
-    @?GRAMMAR # current grammars
-    $*IN      # standard input handle
-    $?LABEL   # label of current block
-    @?LABEL   # labels of current blocks
-    $?LINE    # current line
-    $?MODULE  # current module
-    @?MODULE  # current modules
-    $?PACKAGE # current package
-    @?PACKAGE # current packages
-    $?OS      # operating system compiled for
-    $*OS      # operating system running under
-    $?OSVER   # operating system version compiled for
-    $*OSVER   # operating system version running under
-    $*OUT     # standard output handle
-    $?PERLVER # perl version compiled for
-    $*PERLVER # perl version running under
-    $*PID     # system process id
-    ::?ROLE   # current role (as package name)
-    $?ROLE    # current role (as variable)
-    @?ROLE    # current roles
-    &?SUB     # current sub (itself)
-    @?SUB     # current subs (themselves)
-    $?SUBNAME # name of current sub
-    @?SUBNAME # names of current subs
-    $*UID     # system user id
+    $/             # match object from last rule
+    $0             # first captured value from match: $/.[0]
+    @*ARGS         # command-line arguments
+    &?BLOCK        # current block (itself, see S06)
+    @?BLOCK        # current blocks (themselves, see S06)
+    $?BLOCKLABEL   # label of current block (see S06) # XXX redundant with $?LABEL?
+    ::?CLASS       # current class (as package name)
+    $?CLASS        # current class (as variable)
+    @?CLASS        # current classes
+    $=DATA         # data block handle (=begin DATA ... =end)
+    %*ENV          # system environment
+    $*ERR          # standard error handle
+    $?FILE         # current file
+    $?GRAMMAR      # current grammar
+    @?GRAMMAR      # current grammars
+    $*IN           # standard input handle
+    $?LABEL        # label of current block
+    @?LABEL        # labels of current blocks
+    $?LINE         # current line
+    $?MODULE       # current module
+    @?MODULE       # current modules
+    $?PACKAGE      # current package
+    @?PACKAGE      # current packages
+    $?PACKAGENAME  # name of current package (see S10) # XXX redundant with $?PACKAGE?
+    $?OS           # operating system compiled for
+    $*OS           # operating system running under
+    $?OSVER        # operating system version compiled for
+    $*OSVER        # operating system version running under
+    $*OUT          # standard output handle
+    $?PERLVER      # perl version compiled for
+    $*PERLVER      # perl version running under
+    $*PID          # system process id
+    ::?ROLE        # current role (as package name)
+    $?ROLE         # current role (as variable)
+    @?ROLE         # current roles
+    &?SUB          # current sub (itself, see S06)
+    @?SUB          # current subs (themselves)
+    $?SUBNAME      # name of current sub (see S06)
+    @?SUBNAME      # names of current subs
+    $*UID          # system user id
