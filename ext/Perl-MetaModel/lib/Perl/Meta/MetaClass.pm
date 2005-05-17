@@ -91,11 +91,11 @@ method :addSubclass ($self: Perl::Meta::MetaClass $subclass) returns Void {
     $:subclasses.insert($subclass);        
 }
 
-method subclasses ($self:) returns Arrary of Perl::Meta::MetaClass {
+method subclasses ($self:) returns Array of Perl::Meta::MetaClass {
     $:subclasses.members();
 }
 
-method allSubclasses ($self:) returns Arrary of Perl::Meta::MetaClass {
+method allSubclasses ($self:) returns Array of Perl::Meta::MetaClass {
     # NOTE:
     # again, this is not a Set for the same reasons that allSuperclasses 
     # is not a set (see that method for more info)
