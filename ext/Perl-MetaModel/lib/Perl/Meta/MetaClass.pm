@@ -5,6 +5,8 @@ class Perl::Meta::MetaClass-0.0.1;
 
 use Set;
 
+use Perl::Meta::Property;
+
 sub Perl::Meta::MetaClass::new (?$name) returns Perl::Meta::MetaClass is export {
     return Perl::Meta::MetaClass.new(
         name       => $name,
@@ -108,6 +110,23 @@ method allSubclasses ($self:) returns Array of Perl::Meta::MetaClass {
 
 ## Properties
 
+method addProperty ($self: Str $label, Perl::Meta::Property $prop) returns Void {
+    %:properties{$label} = $prop;
+    $prop.associatedWith($self);
+}
+
+method removeProperty ($self: Str $label) returns Perl::Meta::Property {
+    unless %:properties.exists($label) {
+        die "Property '$label' does not exists in this instance";
+    }
+    my $removed_prop = %:properties{$label};
+    $removed_prop.removeAssociation();    
+    %:properties.delete($label);
+    return $removed_prop;
+}
+
+method properties     ($self:) returns Hash  { %:properties        }
+method propertyLabels ($self:) returns Array { %:properties.keys() }
 
 =pod
 
@@ -158,6 +177,12 @@ in this module itself is the meta-meta-model of the Perl6 object system.
 
 =item B<isATypeOf ($self: Str $type) returns Bool>
 
+=back
+
+=head2 Super/Sub Class methods
+
+=over 4
+
 =item B<superclass ($self: Perl::Meta::MetaClass ?$super) returns Perl::Meta::MetaClass>
 
 =item B<allSuperclasses ($self:) returns Array of Perl::Meta::MetaClass>
@@ -165,6 +190,16 @@ in this module itself is the meta-meta-model of the Perl6 object system.
 =item B<subclasses ($self:) returns Arrary of Perl::Meta::MetaClass>
 
 =item B<allSubclasses ($self:) returns Arrary of Perl::Meta::MetaClass>
+
+=back
+
+=head2 Property methods
+
+=over 4
+
+=item B<addProperty ($self: Str $label, Perl::Meta::Property $prop) returns Void>
+
+=item B<removeProperty ($self: Str $label) returns Perl::Meta::Property>
 
 =back
 

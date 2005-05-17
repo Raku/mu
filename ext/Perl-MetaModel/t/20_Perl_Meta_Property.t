@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 17;
+plan 21;
 
 use Perl::Meta::Property;
 use Perl::Meta::MetaClass;
@@ -22,6 +22,8 @@ like($!, rx:perl5/^Incorrect value type for property default/, '... got the righ
 
 my $mmc = Perl::Meta::MetaClass.new(:name<Class>);
 
+is($prop.associatedWith(), undef, '... we are associated with nothing');
+
 $prop.associatedWith($mmc);
 ok($prop.associatedWith() =:= $mmc, '... we are associated with $mmc');
 
@@ -30,6 +32,15 @@ dies_ok {
     $prop.associatedWith(Perl::Meta::MetaClass.new(:name<Role>));
 }, '... incorrect type of default dies as expected';
 like($!, rx:perl5/^This property has already be associated with a something/, '... got the right error too');
+
+$prop.removeAssociation();
+is($prop.associatedWith(), undef, '... we are associated with nothing again');
+
+lives_ok {
+    $prop.associatedWith(Perl::Meta::MetaClass.new(:name<Role>));
+}, '... we can now associate with another class';
+
+is($prop.associatedWith().name(), 'Role', '... we are associated with a Role');
 
 $prop.type('Str');
 is($prop.type(), 'Str', '... the type is still "Str"');

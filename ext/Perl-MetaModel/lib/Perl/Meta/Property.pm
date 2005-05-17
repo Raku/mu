@@ -38,7 +38,7 @@ method associatedWith ($self: Perl::Meta::MetaClass ?$class) returns Perl::Meta:
     return $:associated_with;
 }
 
-methods removeAssociation ($self:) returns Void {
+method removeAssociation ($self:) returns Void {
     $:associated_with = undef;
 }
 

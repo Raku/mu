@@ -7,6 +7,13 @@ plan 32;
 
 use Perl::Meta::MetaClass;
 
+=pod
+
+This test primarily tests the super and subclass methods
+and the rules which they enforce.
+
+=cut
+
 my $role = Perl::Meta::MetaClass::new('Role');
 
 is($role.name(), 'Role', '... we got the right class name');
