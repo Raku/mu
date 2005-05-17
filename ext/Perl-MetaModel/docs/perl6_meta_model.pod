@@ -46,7 +46,7 @@ Objects from Perl.  They are described and accessed in exactly the
 same way, and can even share type definitions and refer to each other,
 to some extent.
 
-Not that references "between" levels may inhibit the capability of the
+Note that references "between" levels may inhibit the capability of the
 code to be compiled so far as to run without an interpreter.
 
 To summarise the above two principles in code;
