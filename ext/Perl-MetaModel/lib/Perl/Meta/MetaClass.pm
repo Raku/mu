@@ -33,6 +33,18 @@ method isA ($self: Perl::Meta::MetaClass $class) returns Bool {
     return $super.isA($class);
 } 
 
+method isATypeOf ($self: Str $type) returns Bool {
+    return 1 if $self.name eq $type;
+    # now go up the hierarchy ...
+    my $super = $self.superclass();
+    # return false if the $inv has no superclass
+    return 0 unless $super.defined;
+    # if the superclass is equal to class then return true
+    return 1 if $super.name() eq $type; 
+    # if not, check against the superclass 
+    return $super.isATypeOf($type);    
+}
+
 ## Superclass methods
 
 method superclass ($self: Perl::Meta::MetaClass ?$super) returns Perl::Meta::MetaClass {
@@ -124,6 +136,8 @@ in this module itself is the meta-meta-model of the Perl6 object system.
 =over 4
 
 =item B<isA ($self: Perl::Meta::MetaClass $class) returns Bool>
+
+=item B<isATypeOf ($self: Str $type) returns Bool>
 
 =item B<superclass ($self: Perl::Meta::MetaClass ?$super) returns Perl::Meta::MetaClass>
 

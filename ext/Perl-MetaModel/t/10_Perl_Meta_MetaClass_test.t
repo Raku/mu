@@ -3,6 +3,8 @@
 use v6;
 use Test;
 
+plan 29;
+
 use Perl::Meta::MetaClass;
 
 my $role = Perl::Meta::MetaClass::new('Role');
