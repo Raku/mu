@@ -801,7 +801,7 @@ ruleBlockFormalPointy = rule "pointy block parameters" $ do
 
 tightOperators :: RuleParser [[Operator Char Env Exp]]
 tightOperators = do
-  [optionary, unary, preUnary, postUnary] <- currentUnaryFunctions
+  [optionary, namedUnary, preUnary, postUnary] <- currentUnaryFunctions
   return $
     [ methOps  " . .+ .? .* .+ .() .[] .{} .<<>> .= "   -- Method postfix
     , postOps  " ++ -- " ++ preOps " ++ -- "            -- Auto-Increment
@@ -809,7 +809,7 @@ tightOperators = do
     , preSyn "* **"                                     -- Symbolic Unary
       ++ preOps (concatMap (\x -> " -" ++ [x]) "rwxoRWXOezsfdlpSbctugkTBMAC")
       ++ preOps " = ! + - ~ ? +^ ~^ ?^ \\ "
-      ++ preOps preUnary
+      ++ preSymOps preUnary
       ++ postOps postUnary
     , leftOps $
                " »*« »/« »x« »xx« »~« " ++
@@ -818,7 +818,7 @@ tightOperators = do
     , leftOps  " »+« >>+<< + - ~ +| +^ ~| ~^ ?| "       -- Additive
     , listOps  " & "                                    -- Junctive And
     , listOps  " ^ | "                                  -- Junctive Or
-    , optOps optionary, preOps unary                    -- Named Unary
+    , optOps optionary, preOps namedUnary               -- Named Unary
     , noneSyn  " is but does "                          -- Traits
       ++ rightOps " => "                                -- Pair constructor
       ++ noneOps " cmp <=> .. ^.. ..^ ^..^ "            -- Non-chaining Binary
@@ -914,6 +914,9 @@ currentUnaryFunctions' = do
         splitUnary ('p':'r':'e':'f':'i':'x':':':op) (n, pre, post) = (n, (op:pre), post)
         splitUnary ('p':'o':'s':'t':'f':'i':'x':':':op) (n, pre, post) = (n, pre, (op:post))
         splitUnary op (n, pre, post) = ((op:n), pre, post)
+    unsafePerformIO $ do
+        print preUnary
+        return (return ())
     return $ map (unwords . nub) [optionary, namedUnary, preUnary, postUnary]
     where
     mapPair f (x, y) = (f x, f y)
@@ -941,10 +944,16 @@ ops f s = [f n | n <- sortBy revLength (words $ decodeUTF8 s)]
 doApp :: String -> [Exp] -> Exp
 doApp str args = App (Var str) args []
 
+doAppSym :: String -> [Exp] -> Exp
+doAppSym (sigil:name) args = App (Var (sigil:("prefix:"++name))) args []
+doAppSym _ _ = error "doAppSym: bad name"
+
 preSyn      :: String -> [Operator Char Env Exp]
 preSyn      = ops $ makeOp1 Prefix "" Syn
 preOps      :: String -> [Operator Char Env Exp]
 preOps      = ops $ makeOp1 Prefix "&prefix:" doApp
+preSymOps   :: String -> [Operator Char Env Exp]
+preSymOps   = ops $ makeOp1 Prefix "&prefix:" doAppSym
 postOps     :: String -> [Operator Char Env Exp]
 postOps     = ops $ makeOp1 Postfix "&postfix:" doApp
 optOps      :: String -> [Operator Char Env Exp]
