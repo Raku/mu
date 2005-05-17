@@ -22,22 +22,21 @@ sub step {
 
   $args{help} =~ s/# (.*)$/# @{[BOLD . WHITE]}$1@{[RESET]}/m;
 
-  if($args{help}) {
-    printf STDERR "%s»%s %s%s%s...\n", BOLD . BLUE, RESET, BOLD . RED, $args{descr}, RESET;
-    print STDERR "  : $_\n" for map { (/^\s*(.*)$/g)[0] } split "\n", $args{help};
-    print STDERR "  » ";
-  } else {
-    printf STDERR "%s»%s %s%s%s... ", BOLD . BLUE, RESET, BOLD . RED, $args{descr}, RESET;
-  }
+  printf STDERR "%s»%s %s%s%s... ", BOLD . BLUE, RESET, BOLD . RED, $args{descr}, RESET;
 
   if($args{ensure}->()) {
     printf STDERR "skipped (%sgood%s).\n", BOLD . GREEN, RESET;
   } else {
+    if($args{help}) {
+      printf STDERR "\b\n";
+      printf STDERR "  %s:%s %s\n", BOLD . BLUE, RESET, $_ for map { (/^\s*(.*)$/g)[0] } split "\n", $args{help};
+      printf STDERR "  %s»%s ", BOLD . BLUE, RESET;
+    }
     $args{using}->();
     if($args{pause}) {
-      print STDERR "\b\b\b\b\b   : Press a key to continue... ";
+      printf STDERR "\b\b\b\b\b   %s:%s Press a key to continue... ", BOLD . BLUE, RESET;
       <STDIN>;
-      print STDERR "  » ";
+      printf STDERR "  %s»%s ", BOLD . BLUE, RESET;
     }
     if($args{ensure}->()) {
       printf STDERR "%sgood%s.\n", BOLD . GREEN, RESET;
@@ -60,6 +59,7 @@ my $inputrc      = "/etc/inputrc";
 my $terminfo     = "/etc/terminfo/l/linux";
 my $linuxrc      = "linuxrc";
 my $welcome_p6   = "welcome.p6";
+my $splashscreen = "splashscreen.txt";
 my $lib6         = "../../blib6/lib";
 my $initrd_gz    = "initrd.gz";
 my $initrd_img   = "initrd.img";
@@ -121,6 +121,8 @@ Available options and defaults:
   --welcome-p6=$welcome_p6
     --welcome-p6 is a Perl 6 program runnable by Pugs which will
     introduce Pugs.
+  --splashscreen=$splashscreen
+    The file referenced by --splashscreen will be displayed before booting.
   --lib6=$lib6
     --lib6 will be copied to the CD, too.
   --initrd-gz=$initrd_gz
@@ -427,26 +429,31 @@ step
   descr  => "Creating \"$cdroot/boot/grub/menu.lst\"",
   ensure => sub { -r "$cdroot/boot/grub/menu.lst" and $wrote_menulst },
   using  => sub { open my $fh, ">", "$cdroot/boot/grub/menu.lst"; print $fh <<GRUB; $wrote_menulst++ };
-default  0
-timeout  5
+default 0
+timeout 0
 color light-blue/black black/light-gray
+hiddenmenu
 
 title    $pugs_version
 root     (cd)
 kernel   /boot/vmlinuz root=/dev/ram init=/linuxrc ramdisk_size=$initrd_size quiet
 initrd   /boot/initrd.gz
-boot
+clear
+cat      /boot/splashscreen.txt
 GRUB
 
-step
-  descr  => "Copying \"$initrd_gz\" to \"$cdroot/boot/initrd.gz\"",
-  ensure => sub { -r "$cdroot/boot/initrd.gz" and -M "$cdroot/boot/initrd.gz" <= -M $initrd_gz },
-  using  => sub { copy $initrd_gz => "$cdroot/boot/initrd.gz" };
+for(
+  [$splashscreen => "$cdroot/boot/splashscreen.txt"],
+  [$initrd_gz    => "$cdroot/boot/initrd.gz"],
+  [$kernel_local => "$cdroot/boot/vmlinuz"],
+) {
+  my ($src, $dest) = @$_;
 
-step
-  descr  => "Copying kernel to \"$cdroot/boot/vmlinuz\"",
-  ensure => sub { -r "$cdroot/boot/vmlinuz" and -M "$cdroot/boot/vmlinuz" <= -M $kernel_local },
-  using  => sub { copy $kernel_local => "$cdroot/boot/vmlinuz" };
+  step
+    descr  => "Copying \"$src\" to \"$dest\"",
+    ensure => sub { -r $dest and -M $dest <= -M $src },
+    using  => sub { copy $src => $dest };
+}
 
 step
   descr  => "Creating final ISO",
