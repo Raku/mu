@@ -1,0 +1,38 @@
+Basic class definition
+
+    class ClassName {
+	has $.public_instance_var;
+	# Untyped instance variable, a readonly accessor is automatically
+	# generated. Methods have readwrite access to $.instance_var.
+
+	has $.public_instance_var is rw;
+	# Untyped instance variable, a readwrite accessor is automatically
+	# generated.
+
+	has Type $.public_instance_var;
+	# Typed instance variable.
+
+	has $:private_instance_var;
+	# Private instance variable, no accessor is automatically generated.
+    }
+
+Inheritance
+
+    class ParentClass {...}
+
+    class SubClass is ParentClass {...}
+    # or
+    class SubClass {
+	is ParentClass;
+	...;
+    }
+
+Subtypes
+
+    my subtype Int::Odd of Int where { $^value % 2 == 1 };
+    # Declaration of a new, lexical subtype of Int, allowing only odd integers.
+    
+    my Int::Odd $var = 3;    # valid
+    $var++;                  # invalid
+
+    my Int::Odd $var = 4;    # invalid
