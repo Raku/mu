@@ -48,10 +48,13 @@ import Pugs.Types
 import Pugs.Prim.Eval (retEvalResult)
 import Pugs.External
 
--- |Construct a new, initially empty 'Env' (evaluation environment).
--- Used in 'Main.doParse', 'Main.doParseWith' and 'Pugs.Run.prepareEnv'.
--- Of these, only 'Pugs.Run.prepareEnv' seems to make use of the second
--- argument.  See 'Pugs.Prims.initSyms'
+{-|
+Construct a new, initially empty 'Env' (evaluation environment).
+
+Used in 'Main.doParse', 'Main.doParseWith' and 'Pugs.Run.prepareEnv'.
+Of these, only 'Pugs.Run.prepareEnv' seems to make use of the second
+argument.  See 'Pugs.Prims.initSyms'
+-}
 emptyEnv :: (MonadIO m, MonadSTM m) 
          => String             -- ^ Name associated with the environment
          -> [STM (Pad -> Pad)] -- ^ List of 'Pad'-mutating transactions used
@@ -107,7 +110,7 @@ evaluateMain exp = do
         mapM_ evalExp [ App (Val sub) [] [] | sub <- subs ]
     return val
 
--- |Evaluate an expression. This function mostly just delegates to 'reduce'.
+-- | Evaluate an expression. This function mostly just delegates to 'reduce'.
 evaluate :: Exp -- ^ The expression to evaluate
          -> Eval Val
 evaluate (Val val) = evalVal val
@@ -209,8 +212,10 @@ findVarRef name
 posSym f = fmap (Just . castV . f) $ asks envPos
 constSym = return . Just . castV
 
--- |Evaluate the 'magical' variable associated with a given name. Returns 
--- Nothing if the name does not match a known magical.
+{-|
+Evaluate the \'magical\' variable associated with a given name. Returns 
+@Nothing@ if the name does not match a known magical.
+-}
 getMagical :: String -- ^ Name of the magical var to evaluate
            -> Eval (Maybe Val)
 getMagical "$?FILE"     = posSym posName
@@ -249,7 +254,7 @@ evalRef ref = do
         return $ castV ref
     retVal val
 
--- |Reduce an expression into its value. This is the workhorse of "Eval".
+-- | Reduce an expression into its value. This is the workhorse of "Pugs.Eval".
 reduce :: Exp -- ^ The expression to reduce
        -> Eval Val
 
@@ -735,8 +740,10 @@ reduce (App subExp invs args) = do
 
 reduce exp = retError "Invalid expression" exp
 
--- |Return the context that an expression bestows upon a hash or array
--- subscript. See 'reduce' for \{\} and \[\]. (Is this correct?)
+{-|
+Return the context that an expression bestows upon a hash or array
+subscript. See 'reduce' for \{\} and \[\]. (Is this correct?)
+-}
 cxtOfExp :: Exp -- ^ Expression to find the context of
          -> Eval Cxt
 cxtOfExp (Pos _ exp)            = cxtOfExp exp
@@ -890,8 +897,11 @@ applyExp styp bound@(arg:_) body = do
     invocant = mapM (`genSym` (vCast $ argValue arg)) $ words "$?SELF $_"
     argNameValue (ApplyArg name val _) = genSym name (vCast val)
 
--- |Apply a sub (or other code) to lists of invocants and arguments.
--- Mostly delegates to 'doApply' after explicitly retrieving the local 'Env'.
+{-|
+Apply a sub (or other code) to lists of invocants and arguments.
+
+Mostly delegates to 'doApply' after explicitly retrieving the local 'Env'.
+-}
 apply :: VCode -- ^ The sub to apply
       -> [Exp] -- ^ List of invocants
       -> [Exp] -- ^ List of arguments (non-invocant)

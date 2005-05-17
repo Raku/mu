@@ -14,20 +14,35 @@ import Pugs.Internals
 import Pugs.AST
 import qualified Data.Set as Set
 
--- |Construct a @none(...)@ junction from a list of values.
--- Delegates to 'opJunc'.
+{-|
+Construct a @none(...)@ junction from a list of values.
+
+Delegates to 'opJunc'.
+-}
 opJuncNone :: [Val] -> Val
 opJuncNone = opJunc JNone
--- |Construct an @all(...)@ junction from a list of values.
--- Delegates to 'opJunc'.
+
+{-|
+Construct an @all(...)@ junction from a list of values.
+
+Delegates to 'opJunc'.
+-}
 opJuncAll :: [Val] -> Val
 opJuncAll = opJunc JAll
--- |Construct a n@any(...)@ junction from a list of values.
--- Delegates to 'opJunc'.
+
+{-|
+Construct a n@any(...)@ junction from a list of values.
+
+Delegates to 'opJunc'.
+-}
 opJuncAny :: [Val] -> Val
 opJuncAny = opJunc JAny
--- |Construct a @one(...)@ junction from a list of values.
--- Handled differently!
+
+{-|
+Construct a @one(...)@ junction from a list of values.
+
+Does /not/ delegate to 'opJunc'!
+-}
 opJuncOne :: [Val] -> Val
 opJuncOne args = VJunc (MkJunc JOne dups vals)
     where
@@ -35,8 +50,10 @@ opJuncOne args = VJunc (MkJunc JOne dups vals)
     dups = Set.fromList [ v | (v:_:_) <- groups ]
     groups = group $ sort args
 
--- |Construct a junction of the specified junctive type, containing all the
--- values in the list.
+{-|
+Construct a junction of the specified junctive type, containing all the
+values in the list.
+-}
 opJunc :: JuncType -> [Val] -> Val
 opJunc t vals = VJunc $ MkJunc t Set.empty (joined `Set.union` Set.fromList vs)
     where
@@ -45,8 +62,10 @@ opJunc t vals = VJunc $ MkJunc t Set.empty (joined `Set.union` Set.fromList vs)
     sameType (VJunc (MkJunc t' _ _))  = t == t'
     sameType _                      = False
 
--- |Check if the specified value is a 'VJunc' of one of the specified
--- junctive types.
+{-|
+Check if the specified value is a 'VJunc' of one of the specified
+junctive types. If it is, return it as a 'VJunc'.
+-}
 juncTypeIs :: Val -- ^ Value to test
            -> [JuncType] -- ^ Types to check against
            -> Maybe VJunc -- ^ Returns 'Nothing' if the test fails
@@ -57,6 +76,7 @@ juncTypeIs v ts
     | otherwise
     = Nothing
 
+mergeJunc :: JuncType -> [Val] -> [Val] -> VJunc
 mergeJunc j ds vs
     = case j of
        JAny -> MkJunc j (Set.fromList ds) (Set.fromList vs)
@@ -89,6 +109,7 @@ juncApply f args
         mapM (\v -> juncApply f (before ++ ((ApplyArg name v coll):after))) $ Set.elems vs
     appList _ _ = internalError "appList: list doesn't begin with ApplyArg"
 
+isTotalJunc :: ApplyArg -> Bool
 isTotalJunc arg
     | (ApplyArg _ (VJunc j) b) <- arg
     , (juncType j ==) `any` [JAll, JNone]
@@ -96,6 +117,7 @@ isTotalJunc arg
     | otherwise
     = False
 
+isPartialJunc :: ApplyArg -> Bool
 isPartialJunc arg
     | (ApplyArg _ (VJunc j) b) <- arg
     , (juncType j ==) `any` [JOne, JAny]

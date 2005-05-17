@@ -28,7 +28,7 @@ instance Monad SIO where
     (MkSTM stm) >>= k = MkSTM $ do { a <- stm; runSTM (k a) }
     (MkSIO x)   >>= k = k x
 
--- |Typeclass of monadic types that an @STM@ monad can be lifted to.
+-- | Typeclass of monadic types that an @STM@ monad can be lifted to.
 class (Monad m) => MonadSTM m where
     liftSTM :: STM a -> m a
 
