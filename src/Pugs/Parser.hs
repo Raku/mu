@@ -942,6 +942,7 @@ doApp :: String -> [Exp] -> Exp
 doApp str args = App (Var str) args []
 
 doAppSym :: String -> [Exp] -> Exp
+doAppSym name@(_:'p':'r':'e':'f':'i':'x':':':_) args = App (Var name) args []
 doAppSym (sigil:name) args = App (Var (sigil:("prefix:"++name))) args []
 doAppSym _ _ = error "doAppSym: bad name"
 
