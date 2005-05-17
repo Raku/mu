@@ -170,7 +170,9 @@ evalVar name = do
         Just var -> readRef var
         Nothing  -> retError "Undeclared variable" name
 
+enterLValue :: Eval a -> Eval a
 enterLValue = local (\e -> e{ envLValue = True })
+enterRValue :: Eval a -> Eval a
 enterRValue = local (\e -> e{ envLValue = False })
 
 findVar :: Var -> Eval (Maybe VRef)
@@ -209,7 +211,9 @@ findVarRef name
             when (isJust globSym) $ foundIt globSym
             return Nothing
 
+posSym :: Value a => (Pos -> a) -> Eval (Maybe Val)
 posSym f = fmap (Just . castV . f) $ asks envPos
+constSym :: String -> Eval (Maybe Val)
 constSym = return . Just . castV
 
 {-|
@@ -774,6 +778,7 @@ cxtOfExp (App (Var name) invs args)   = do
         _ -> cxtSlurpyAny
 cxtOfExp _                      = return cxtSlurpyAny
 
+findSub :: String -> [Exp] -> [Exp] -> Eval (Maybe VCode)
 findSub name invs args = do
     case invs of
         [exp] | not (':' `elem` drop 2 name) -> do
@@ -842,6 +847,7 @@ findSub name invs args = do
         typ <- evalExpType y
         return $ deltaType cls x typ
 
+evalExpType :: Exp -> Eval Type
 evalExpType (Var var) = do
     rv  <- findVar var
     case rv of

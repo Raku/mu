@@ -104,7 +104,9 @@ juncApply f args
     | otherwise
     = f args
     where
+    appSet :: ([ApplyArg], [ApplyArg]) -> Set Val -> Eval (Set Val)
     appSet x y = return . Set.fromList =<< appList x y
+    appList :: ([ApplyArg], [ApplyArg]) -> Set Val -> Eval [Val]
     appList (before, (ApplyArg name _ coll):after) vs = do
         mapM (\v -> juncApply f (before ++ ((ApplyArg name v coll):after))) $ Set.elems vs
     appList _ _ = internalError "appList: list doesn't begin with ApplyArg"
