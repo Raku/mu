@@ -6,6 +6,7 @@ class Perl::Meta::MetaClass-0.0.1;
 use Set;
 
 use Perl::Meta::Property;
+use Perl::Meta::Method;
 
 sub Perl::Meta::MetaClass::new (?$name) returns Perl::Meta::MetaClass is export {
     return Perl::Meta::MetaClass.new(
@@ -128,6 +129,26 @@ method removeProperty ($self: Str $label) returns Perl::Meta::Property {
 method properties     ($self:) returns Hash  { %:properties        }
 method propertyLabels ($self:) returns Array { %:properties.keys() }
 
+## Methods
+
+method addMethod ($self: Str $label, Perl::Meta::Method $method) returns Void {
+    %:methods{$label} = $method;
+    $method.associatedWith($self);
+}
+
+method removeMethod ($self: Str $label) returns Perl::Meta::Method {
+    unless %:methods.exists($label) {
+        die "Method '$label' does not exists in this instance";
+    }
+    my $removed_method = %:methods{$label};
+    $removed_method.removeAssociation();    
+    %:methods.delete($label);
+    return $removed_method;
+}
+
+method methods      ($self:) returns Hash  { %:methods        }
+method methodLabels ($self:) returns Array { %:methods.keys() }
+
 =pod
 
 =head1 NAME
@@ -144,14 +165,14 @@ Perl::Meta::MetaClass - A meta-meta-model for Perl Classes
   #               |
   #             Class
   
-  my $package = Perl::Meta::MetaClass.new('Package');
-  my $role = Perl::Meta::MetaClass.new('Role');  
-  my $module = Perl::Meta::MetaClass.new('Module');    
+  my $package = Perl::Meta::MetaClass.new(name => 'Package');
+  my $role = Perl::Meta::MetaClass.new(name => 'Role');  
+  my $module = Perl::Meta::MetaClass.new(name => 'Module');    
   
   $role.superclass($package);
   $module.superclass($package);  
   
-  my $class = Perl::Meta::MetaClass.new('Class');  
+  my $class = Perl::Meta::MetaClass.new(name => 'Class');  
   $class.superclass($role);  
   
   $class.isA('Package');
@@ -200,6 +221,24 @@ in this module itself is the meta-meta-model of the Perl6 object system.
 =item B<addProperty ($self: Str $label, Perl::Meta::Property $prop) returns Void>
 
 =item B<removeProperty ($self: Str $label) returns Perl::Meta::Property>
+
+=item B<properties ($self:) returns Hash>
+
+=item B<propertyLabels ($self:) returns Array>
+
+=back
+
+=head2 Method methods
+
+=over 4
+
+=item B<addMethod ($self: Str $label, Perl::Meta::Method $prop) returns Void>
+
+=item B<removeMethod ($self: Str $label) returns Perl::Meta::Method>
+
+=item B<methods ($self:) returns Hash>
+
+=item B<methodLabels ($self:) returns Array>
 
 =back
 
