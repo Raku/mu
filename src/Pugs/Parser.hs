@@ -914,9 +914,6 @@ currentUnaryFunctions' = do
         splitUnary ('p':'r':'e':'f':'i':'x':':':op) (n, pre, post) = (n, (op:pre), post)
         splitUnary ('p':'o':'s':'t':'f':'i':'x':':':op) (n, pre, post) = (n, pre, (op:post))
         splitUnary op (n, pre, post) = ((op:n), pre, post)
-    unsafePerformIO $ do
-        print preUnary
-        return (return ())
     return $ map (unwords . nub) [optionary, namedUnary, preUnary, postUnary]
     where
     mapPair f (x, y) = (f x, f y)
