@@ -38,6 +38,10 @@ method associatedWith ($self: Perl::Meta::MetaClass ?$class) returns Perl::Meta:
     return $:associated_with;
 }
 
+methods removeAssociation ($self:) returns Void {
+    $:associated_with = undef;
+}
+
 =pod
 
 =head1 NAME
@@ -59,6 +63,8 @@ Perl::Meta::Property
 =item B<default ($self: Any ?$value) returns Any>
 
 =item B<associatedWith ($self: Perl::Meta::MetaClass ?$class) returns Perl::Meta::MetaClass>
+
+=item B<removeAssociation ($self:) returns Void>
 
 =back
 

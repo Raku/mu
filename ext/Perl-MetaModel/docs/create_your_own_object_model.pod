@@ -52,10 +52,7 @@ First we define our B<AbstractClass> meta-class:
         },
         'method_table' => {
             'create_instance' => { 
-                return {
-		            'class' => AbstractClass,
-        			AbstractClass.<instance_vars>
-	            };
+                die "You cannot instantiate an AbstractClass";
             },
             'add_method_to_class' => ($class, $label) -> {
                 $class.<method_table>.<$label> = \&abstractMethodHandler;
@@ -68,7 +65,9 @@ First we define our B<AbstractClass> meta-class:
 An B<AbstractClass> does not have a C<instance_var> slot since they are not allowed.
 We also implement a C<add_method_to_class> method in our B<AbstractClass> method table 
 which will allow us to easily enforce the fact that all our methods use the same 
-C<\&abstractMethodHandler> (which will throw an appropriate error if called).
+C<\&abstractMethodHandler> (which will throw an appropriate error if called). We also 
+throw an error with the C<create_instance> method since B<AbstractClasses> can be 
+instantiated.
 
 Next we define the B<Class> meta-class (which is actually a subclass of the 
 B<AbstractClass> meta-class):

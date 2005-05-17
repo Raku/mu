@@ -106,6 +106,9 @@ method allSubclasses ($self:) returns Array of Perl::Meta::MetaClass {
     return @all_subclasses;
 }
 
+## Properties
+
+
 =pod
 
 =head1 NAME
