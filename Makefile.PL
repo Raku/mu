@@ -68,8 +68,14 @@ sub set_postamble {
     push @srcfiles, map { map { substr($_, 0, -1) } glob("$_/*.*hsc") } @srcdirs;
 
     my ($ghc, $ghc_version, $ghc_flags) = assert_ghc();
-    my $hsc2hs = $ghc;
-    $hsc2hs =~ s{(.*)ghc}{$1hsc2hs};
+    my $hsc2hs;
+    if ($ENV{HSC2HS}) {
+        $hsc2hs = $ENV{HSC2HS};
+    }
+    else {
+        $hsc2hs = $ghc;
+        $hsc2hs =~ s{(.*)ghc}{$1hsc2hs};
+    }
 
     # $ghc_flags .= ' -dcore-lint';
     $ghc_flags .= " -keep-tmp-files";
