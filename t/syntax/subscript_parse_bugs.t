@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 2;
+plan 3;
 
 { # from t/03-operator.t, as noted by afbach on #perl6, 2005-03-06
 	my @oldval  = (5, 8, 12);
