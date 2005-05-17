@@ -10,8 +10,11 @@ use Test::TAP::Model::Visual;
 
 
 GetOptions \our %Config, qw(inlinecss|e cssfile|c=s help|h);
-$Config{cssfile} ||= My::HTMLMatrix->css_file();
+$Config{cssfile} ||= Test::TAP::HTMLMatrix->css_file();
 usage() if $Config{help};
+
+use Data::Dumper;
+warn Dumper(\%Config);
 
 my $yamlfile = shift || 'tests.yml';
 
@@ -23,8 +26,8 @@ my $data = Load(<$yamlfh>);
 undef $yamlfh;
 
 my $tap = My::Model->new_with_struct(delete $data->{meat});
-my $v = My::HTMLMatrix->new($tap, Dump($data));
-inline_css($v) if $Config{inlinecss};
+my $v = Test::TAP::HTMLMatrix->new($tap, Dump($data));
+$v->has_inline_css($Config{inlinecss});
 
 my $fh;
 if (my $out = shift) {
@@ -55,38 +58,7 @@ USAGE
   exit 0;
 }
 
-sub inline_css { # horrible hack.
-    local $/;
-    open my $fh, $Config{cssfile} or die "open:$Config{cssfile}:$!";
-    my $css = <$fh>;
-    $_[0] =~ s/^\s*<link[^\n]*css[^\n]*\r?\n/<style><!--\n$css\n--><\/style>/sm;
-}
-
 {
-	# these subclass override some defaults
-	package My::HTMLMatrix;
-	use base qw/Test::TAP::HTMLMatrix/;
-
-	use File::Basename;
-	use File::Copy;
-	use File::Spec;
-
-	sub css_uri {
-		my $self = shift;
-
-		my $path = $main::Config{cssfile};
-		
-		if (File::Spec->file_name_is_absolute($path)){
-			my $new = File::Spec->catfile(qw/util testgraph.css/);
-			warn "renaming $new to $new.old";
-			rename($new, "$new.old"); # move the old one
-			copy($path, $new); # put it where it used to be
-			return "util/testgraph.css"; # this is a URI, not a path
-		}
-		
-		return $path;
-	}
-	
 	package My::Model;
 	use base qw/Test::TAP::Model::Visual/;
 	sub file_class { "My::File" }

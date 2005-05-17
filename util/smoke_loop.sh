@@ -69,7 +69,7 @@ while true; do
 			[ $clean = "1" ] && make clean
 			perl Makefile.PL
 			nice env PUGS_TESTS_CONCURRENT=$PARALLEL_PROCS make smoke -j$PARALLEL_PROCS -s || continue
-			-x ./pugs || continue # in case make lied
+			[ -x ./pugs ] || continue # in case make lied
 			mv smoke.html html/index.html
 			mv tests.yml html
 			break
