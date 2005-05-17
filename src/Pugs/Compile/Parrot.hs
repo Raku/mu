@@ -44,14 +44,17 @@ genPIR = do
 instance Compile Doc where
     compile = return
 
-padSort ((a::[Char]), [(_, _)]) ((b::[Char]), [(_, _)]) | (head a == ':' && head b == '&') = LT
-                                                        | (head b == ':' && head a == '&') = GT
-                                                        | otherwise = GT
+padSort ((a::[Char]), [(_, _)]) ((b::[Char]), [(_, _)])
+    | (head a == ':' && head b == '&') = LT
+    | (head b == ':' && head a == '&') = GT
+    | otherwise = GT
 padSort _ _ = EQ
 
 instance Compile Pad where
+    {- XXX The padSort will misplace multiple namespaces in the same pad.
+           We *should* compile the namespaces & subs in order of declaration.
+    -}   
     compile pad = do
-        -- fmap vcat $ mapM compile (filter (\((p), [(_, _)]) -> head p == ':') $ padToList pad)
         fmap vcat $ mapM compile (sortBy padSort $ padToList pad)
 
 instance Compile (Var, [(TVar Bool, TVar VRef)]) where
