@@ -832,10 +832,9 @@ findSub name invs args = do
                         `zip` (map unwrap $ invs ++ args)
         deltaCxt    <- deltaFromCxt ret
         deltaArgs   <- mapM deltaFromPair pairs
-        let distance = (deltaCxt : deltaArgs)
         let bound = either (const False) (const True) $ bindParams sub invs args
         return $ Just
-            ( (isGlobal, subT, isMulti sub, bound, distance)
+            ( (isGlobal, subT, isMulti sub, bound, sum deltaArgs, deltaCxt)
             , fromJust fun
             )
     deltaFromCxt x  = do
