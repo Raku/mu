@@ -370,6 +370,7 @@ ruleSubName = verbatimRule "subroutine name" $ do
     star    <- option "" $ string "*"
     fixity  <- option "" $ choice (map (try . string) $ words fixities)
     name    <- ruleQualifiedIdentifier
+                <|> between (char '<') (char '>') (many1 $ satisfy (/= '>'))
     return $ "&" ++ star ++ fixity ++ name
     where
     fixities = " prefix: postfix: infix: circumfix: "
@@ -800,7 +801,7 @@ ruleBlockFormalPointy = rule "pointy block parameters" $ do
 
 tightOperators :: RuleParser [[Operator Char Env Exp]]
 tightOperators = do
-  [optionary, unary, symUnary] <- currentUnaryFunctions
+  [optionary, unary, preUnary, postUnary] <- currentUnaryFunctions
   return $
     [ methOps  " . .+ .? .* .+ .() .[] .{} .<<>> .= "   -- Method postfix
     , postOps  " ++ -- " ++ preOps " ++ -- "            -- Auto-Increment
@@ -808,7 +809,8 @@ tightOperators = do
     , preSyn "* **"                                     -- Symbolic Unary
       ++ preOps (concatMap (\x -> " -" ++ [x]) "rwxoRWXOezsfdlpSbctugkTBMAC")
       ++ preOps " = ! + - ~ ? +^ ~^ ?^ \\ "
-      ++ preOps symUnary
+      ++ preOps preUnary
+      ++ postOps postUnary
     , leftOps $
                " »*« »/« »x« »xx« »~« " ++
                " >>*<< >>/<< >>x<< >>xx<< >>~<< " ++
@@ -904,13 +906,16 @@ currentUnaryFunctions' = do
                 , isSlurpy param -> True
             _ -> False
         restNames = Set.fromList $ map (\(name, _, _) -> name) rest'
-    let (optionary, unary') = mapPair munge . partition fst . sort $
+    let (optionary, unary') = mapPair (map snd) . partition fst . sort $
             [ (isOptional param, encodeUTF8 name) | (name, _, [param]) <- unary
             , not (name `Set.member` restNames)
             ]
-    return [optionary, unary', []]
+        (namedUnary, preUnary, postUnary) = foldr splitUnary ([],[],[]) unary'
+        splitUnary ('p':'r':'e':'f':'i':'x':':':op) (n, pre, post) = (n, (op:pre), post)
+        splitUnary ('p':'o':'s':'t':'f':'i':'x':':':op) (n, pre, post) = (n, pre, (op:post))
+        splitUnary op (n, pre, post) = ((op:n), pre, post)
+    return $ map (unwords . nub) [optionary, namedUnary, preUnary, postUnary]
     where
-    munge = unwords . map snd
     mapPair f (x, y) = (f x, f y)
 
 parseOp :: RuleParser Exp
