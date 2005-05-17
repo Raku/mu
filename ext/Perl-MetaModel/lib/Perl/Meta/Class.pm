@@ -128,6 +128,18 @@ method removeProperty ($self: Str $label) returns Perl::Meta::Property {
 method properties     ($self:) returns Hash  { %:properties        }
 method propertyLabels ($self:) returns Array { %:properties.keys() }
 
+method allProperties ($self:) returns Hash {
+    
+}
+
+method allPropertyLabels ($self:) returns Array {
+    
+}
+
+method isPropertySupported ($self: $label) returns Bool {
+    
+}
+
 ## Methods
 
 method addMethod ($self: Str $label, Perl::Meta::Method $method) returns Void {
@@ -145,24 +157,23 @@ method removeMethod ($self: Str $label) returns Perl::Meta::Method {
     return $removed_method;
 }
 
+# can we remove these?
 method methods      ($self:) returns Hash  { %:methods        }
 method methodLabels ($self:) returns Array { %:methods.keys() }
 
-## Method Sketches ....
+method findMethod ($self: $label) returns Perl::Meta::Method {
 
-=pod
-
-method invokeMethod ($self: Str $label, @args) returns Any {
-    # NOTE:
-    # need make this traverse the hierarchy
-    unless %:methods.exists($label) {
-        die "Method '$label' does not exists in this instance";
-    }    
-    my $method = %:methods{'label'}.code();
-    return $method($self, @args);
 }
 
-=cut
+our &Perl::Meta::Class::isMethodSupported ::= &Perl::Meta::Class::findMethod;
+
+method invokeMethod ($self: Str $label, @args) returns Any {  
+    my $method = $self.findMethod($label);
+    ($method.defined)
+        || die "Method not found";
+    my $impl = $method.code();
+    return $impl($self, @args);
+}
 
 =pod
 
