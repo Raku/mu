@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 29;
+plan 32;
 
 use Perl::Meta::MetaClass;
 
@@ -101,4 +101,11 @@ $class.superclass($role);
     my @subclasses = $package.subclasses();
     is(+@subclasses, 1, '... we now have 1 subclass in $package again');
     ok(@subclasses[0] =:= $role, '... this is our first subclass');       
+}
+
+{
+    my @all_subclasses = $package.allSubclasses();
+    is(+@@all_subclasses, 2, '... $package has 2 subclasses in the hierarchy');
+    ok(@all_subclasses[0] =:= $role, '... this is our first subclass');    
+    ok(@all_subclasses[1] =:= $class, '... this is second first subclass');           
 }

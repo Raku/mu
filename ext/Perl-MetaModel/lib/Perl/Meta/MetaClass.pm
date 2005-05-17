@@ -71,6 +71,11 @@ method superclass ($self: Perl::Meta::MetaClass ?$super) returns Perl::Meta::Met
 }
 
 method allSuperclasses ($self:) returns Array of Perl::Meta::MetaClass {
+    # NOTE:
+    # I considered making this a Set, however it occured to me that
+    # not only is a Set unordered (at least our implementation is)
+    # but that it would remove elements from the heirarchy at arbitrary
+    # points (because of duplicates) and that is not good
     return ($:parent, $:parent.allSuperclasses()) if $:parent.defined;
 }
 
@@ -88,6 +93,17 @@ method :addSubclass ($self: Perl::Meta::MetaClass $subclass) returns Void {
 
 method subclasses ($self:) returns Arrary of Perl::Meta::MetaClass {
     $:subclasses.members();
+}
+
+method allSubclasses ($self:) returns Arrary of Perl::Meta::MetaClass {
+    # NOTE:
+    # again, this is not a Set for the same reasons that allSuperclasses 
+    # is not a set (see that method for more info)
+    my @all_subclasses;
+    for $self.subclasses() -> $subclass {
+        @all_subclasses.push($subclass, $subclass.allSubclasses());
+    }
+    return @all_subclasses;
 }
 
 =pod
@@ -144,6 +160,8 @@ in this module itself is the meta-meta-model of the Perl6 object system.
 =item B<allSuperclasses ($self:) returns Array of Perl::Meta::MetaClass>
 
 =item B<subclasses ($self:) returns Arrary of Perl::Meta::MetaClass>
+
+=item B<allSubclasses ($self:) returns Arrary of Perl::Meta::MetaClass>
 
 =back
 
