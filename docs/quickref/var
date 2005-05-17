@@ -1,9 +1,9 @@
-Secondary Sigils:
+Secondary Sigils (also known as "twigils"):
 
     $?   # lexically-scoped (compile time)
     $*   # global (run time)
     $=   # file-scoped
-    $^   # 
+    $^   # implicit block argument
     $.   # public attribute
     $:   # private attribute
 
