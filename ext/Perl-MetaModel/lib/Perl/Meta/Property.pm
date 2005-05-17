@@ -23,13 +23,13 @@ method default ($self: Any ?$value) returns Any {
     if $value.defined {
         die "Incorrect value type for property default"
             unless $value.isa($:type) ||
-                   $value.isa('Perl::Meta::MetaClass') && $value.isATypeOf($:type);
+                   $value.isa('Perl::Meta::Class') && $value.isATypeOf($:type);
         $:default = $value;
     }
     return $:default;
 }
 
-method associatedWith ($self: Perl::Meta::MetaClass ?$class) returns Perl::Meta::MetaClass {
+method associatedWith ($self: Perl::Meta::Class ?$class) returns Perl::Meta::Class {
     if $class.defined {
         (!$:associated_with.defined)
             || die "This property has already be associated with a something";            
@@ -62,7 +62,7 @@ Perl::Meta::Property
 
 =item B<default ($self: Any ?$value) returns Any>
 
-=item B<associatedWith ($self: Perl::Meta::MetaClass ?$class) returns Perl::Meta::MetaClass>
+=item B<associatedWith ($self: Perl::Meta::Class ?$class) returns Perl::Meta::Class>
 
 =item B<removeAssociation ($self:) returns Void>
 

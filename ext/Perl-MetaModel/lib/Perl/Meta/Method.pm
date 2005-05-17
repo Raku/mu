@@ -23,7 +23,7 @@ method signature ($self: Any ?$signature) returns Any {
     return $:signature;
 }
 
-method associatedWith ($self: Perl::Meta::MetaClass ?$class) returns Perl::Meta::MetaClass {
+method associatedWith ($self: Perl::Meta::Class ?$class) returns Perl::Meta::Class {
     if $class.defined {
         (!$:associated_with.defined)
             || die "This method has already be associated with a something";            
@@ -56,7 +56,7 @@ Perl::Meta::Method
 
 =item B<signature ($self: Any ?$signature) returns Any>
 
-=item B<associatedWith ($self: Perl::Meta::MetaClass ?$class) returns Perl::Meta::MetaClass>
+=item B<associatedWith ($self: Perl::Meta::Class ?$class) returns Perl::Meta::Class>
 
 =item B<removeAssociation ($self:) returns Void>
 

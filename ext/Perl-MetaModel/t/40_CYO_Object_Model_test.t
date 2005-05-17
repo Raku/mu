@@ -14,7 +14,7 @@ However it does compile :)
 
 =cut
 
-use Perl::Meta::MetaClass;
+use Perl::Meta::Class;
 use Perl::Meta::Method;
 use Perl::Meta::Property;
 
@@ -50,7 +50,7 @@ use Perl::Meta::Property;
 my $abstract_class;
 
 lives_ok {
-    $abstract_class = Perl::Meta::MetaClass::new('AbstractClass');
+    $abstract_class = Perl::Meta::Class::new('AbstractClass');
 
     # create properties
     $abstract_class.addProperty('name',         Perl::Meta::Property.new(:type<Str>)  );
@@ -107,7 +107,7 @@ lives_ok {
 my $class;
 
 lives_ok {
-    $class = Perl::Meta::MetaClass::new('Class');
+    $class = Perl::Meta::Class::new('Class');
 
     # set parent
     $class.superclass($abstract_class);
@@ -160,7 +160,7 @@ lives_ok {
 
 my $thread_safe_class;
 lives_ok {
-    $thread_safe_class = Perl::Meta::MetaClass::new('ThreadSafeClass');
+    $thread_safe_class = Perl::Meta::Class::new('ThreadSafeClass');
 
     # set parent
     $thread_safe_class.superclass($class);

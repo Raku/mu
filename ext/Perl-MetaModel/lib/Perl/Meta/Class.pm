@@ -1,14 +1,14 @@
 
 use v6;
 
-class Perl::Meta::MetaClass-0.0.1;
+class Perl::Meta::Class-0.0.1;
 
 use Set;
 use Perl::Meta::Property;
 use Perl::Meta::Method;
 
-sub Perl::Meta::MetaClass::new (?$name) returns Perl::Meta::MetaClass is export {
-    return Perl::Meta::MetaClass.new(
+sub Perl::Meta::Class::new (?$name) returns Perl::Meta::Class is export {
+    return Perl::Meta::Class.new(
         name       => $name,
         subclasses => set(),      
     );
@@ -22,7 +22,7 @@ has %:methods;
 
 submethod BUILD($:name, $:subclasses) {}
 
-method isA ($self: Perl::Meta::MetaClass $class) returns Bool {
+method isA ($self: Perl::Meta::Class $class) returns Bool {
     # if the class name itself matches the class return true
     return 1 if $self.name() eq $class.name();
     # now go up the hierarchy ...
@@ -49,7 +49,7 @@ method isATypeOf ($self: Str $type) returns Bool {
 
 ## Superclass methods
 
-method superclass ($self: Perl::Meta::MetaClass ?$super) returns Perl::Meta::MetaClass {
+method superclass ($self: Perl::Meta::Class ?$super) returns Perl::Meta::Class {
     if $super.defined {   
         # NOTE:
         # we enforce the following rule on superclasses:
@@ -72,7 +72,7 @@ method superclass ($self: Perl::Meta::MetaClass ?$super) returns Perl::Meta::Met
     return $:parent;    
 }
 
-method allSuperclasses ($self:) returns Array of Perl::Meta::MetaClass {
+method allSuperclasses ($self:) returns Array of Perl::Meta::Class {
     # NOTE:
     # I considered making this a Set, however it occured to me that
     # not only is a Set unordered (at least our implementation is)
@@ -83,21 +83,21 @@ method allSuperclasses ($self:) returns Array of Perl::Meta::MetaClass {
 
 ## Subclass methods
 
-method :removeSubclass ($self: Perl::Meta::MetaClass $subclass) returns Void {
+method :removeSubclass ($self: Perl::Meta::Class $subclass) returns Void {
     $:subclasses.remove($subclass);
 }
 
-method :addSubclass ($self: Perl::Meta::MetaClass $subclass) returns Void { 
+method :addSubclass ($self: Perl::Meta::Class $subclass) returns Void { 
     ($subclass.superclass() && $subclass.superclass().name() eq $self.name())
         || die "Sub class's superclass must be the invocant (got: '{ $subclass.clsSuper() }')";                          
     $:subclasses.insert($subclass);        
 }
 
-method subclasses ($self:) returns Array of Perl::Meta::MetaClass {
+method subclasses ($self:) returns Array of Perl::Meta::Class {
     $:subclasses.members();
 }
 
-method allSubclasses ($self:) returns Array of Perl::Meta::MetaClass {
+method allSubclasses ($self:) returns Array of Perl::Meta::Class {
     # NOTE:
     # again, this is not a Set for the same reasons that allSuperclasses 
     # is not a set (see that method for more info)
@@ -168,7 +168,7 @@ method invokeMethod ($self: Str $label, @args) returns Any {
 
 =head1 NAME
 
-Perl::Meta::MetaClass - A meta-meta-model for Perl Classes
+Perl::Meta::Class - A meta-meta-model for Perl Classes
 
 =head1 SYNOPSIS
 
@@ -180,21 +180,21 @@ Perl::Meta::MetaClass - A meta-meta-model for Perl Classes
   #               |
   #             Class
   
-  my $package = Perl::Meta::MetaClass.new(name => 'Package');
-  my $role = Perl::Meta::MetaClass.new(name => 'Role');  
-  my $module = Perl::Meta::MetaClass.new(name => 'Module');    
+  my $package = Perl::Meta::Class.new(name => 'Package');
+  my $role = Perl::Meta::Class.new(name => 'Role');  
+  my $module = Perl::Meta::Class.new(name => 'Module');    
   
   $role.superclass($package);
   $module.superclass($package);  
   
-  my $class = Perl::Meta::MetaClass.new(name => 'Class');  
+  my $class = Perl::Meta::Class.new(name => 'Class');  
   $class.superclass($role);  
   
   $class.isA('Package');
 
 =head1 DESCRIPTION
 
-Perl::Meta::MetaClass is the meta-model of the Perl6 object system. The code 
+Perl::Meta::Class is the meta-model of the Perl6 object system. The code 
 in this module itself is the meta-meta-model of the Perl6 object system.
 
 =head1 PUBLIC ATTRIBUTES
@@ -209,7 +209,7 @@ in this module itself is the meta-meta-model of the Perl6 object system.
 
 =over 4
 
-=item B<isA ($self: Perl::Meta::MetaClass $class) returns Bool>
+=item B<isA ($self: Perl::Meta::Class $class) returns Bool>
 
 =item B<isATypeOf ($self: Str $type) returns Bool>
 
@@ -219,13 +219,13 @@ in this module itself is the meta-meta-model of the Perl6 object system.
 
 =over 4
 
-=item B<superclass ($self: Perl::Meta::MetaClass ?$super) returns Perl::Meta::MetaClass>
+=item B<superclass ($self: Perl::Meta::Class ?$super) returns Perl::Meta::Class>
 
-=item B<allSuperclasses ($self:) returns Array of Perl::Meta::MetaClass>
+=item B<allSuperclasses ($self:) returns Array of Perl::Meta::Class>
 
-=item B<subclasses ($self:) returns Arrary of Perl::Meta::MetaClass>
+=item B<subclasses ($self:) returns Arrary of Perl::Meta::Class>
 
-=item B<allSubclasses ($self:) returns Arrary of Perl::Meta::MetaClass>
+=item B<allSubclasses ($self:) returns Arrary of Perl::Meta::Class>
 
 =back
 

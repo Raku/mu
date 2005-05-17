@@ -5,7 +5,7 @@ use Test;
 
 plan 10;
 
-use Perl::Meta::MetaClass;
+use Perl::Meta::Class;
 use Perl::Meta::Property;
 
 =pod
@@ -14,7 +14,7 @@ This class tests property assignment and removal
 
 =cut
 
-my $mmc = Perl::Meta::MetaClass::new('Class');
+my $mmc = Perl::Meta::Class::new('Class');
 
 {
     my @property_labels = $mmc.propertyLabels();
