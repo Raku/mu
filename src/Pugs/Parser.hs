@@ -347,7 +347,6 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
              | otherwise = [selfParam $ envPackage env]
         -- decl = Sym scope name -- , namePos)
         exp  = Syn ":=" [Var name', Syn "sub" [subExp]]
-    -- XXX: user-defined infix operator
     if scope == SGlobal
         then do { unsafeEvalExp (Sym scope name' exp); return emptyExp }
         else do
@@ -822,11 +821,8 @@ tightOperators = do
                " »*« »/« »x« »xx« »~« " ++
                " >>*<< >>/<< >>x<< >>xx<< >>~<< " ++
                " * / % x xx +& +< +> ~& ~< ~> "         -- Multiplicative
-    , leftOps infixOps                                  -- User defined ops
-                                                        -- XXX: But they shouldn't
-							-- automatically be leftOps,
-							-- right? --iblech
     , leftOps  " »+« >>+<< + - ~ +| +^ ~| ~^ ?| "       -- Additive
+      ++ leftOps infixOps                               -- User defined ops
     , listOps  " & "                                    -- Junctive And
     , listOps  " ^ | "                                  -- Junctive Or
     , optOps optionary, preOps namedUnary               -- Named Unary
