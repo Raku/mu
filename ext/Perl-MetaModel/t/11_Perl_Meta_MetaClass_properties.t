@@ -21,31 +21,46 @@ my $mmc = Perl::Meta::Class::new('Class');
     is(+@property_labels, 0, '... we have no property labels yet'); 
 }
 
-my $prop1 = Perl::Meta::Property.new(:type<Str>);
-my $prop2 = Perl::Meta::Property.new(:type<Int>);
+my $rw_prop = Perl::Meta::Property.new(:type<Bool>);
+my $name_prop = Perl::Meta::Property.new(:type<Str>);
 
-$mmc.addProperty('prop1', $prop1);
-$mmc.addProperty('prop2', $prop2);
+# note that properties of classes are called Class traits.
+
+# So, when you *define* a trait, it modifies the MetaModel to add the
+# possibility of the property.
+
+# When you *attach* a trait to a class at compile time, it modifies
+# the Model.
+
+# When you *attach* a trait to a class at run time, it modifies the
+# Model, possibly by making new minimal sub-class/role objects, and
+# then marks that object as being in that new minimal sub-class.
+
+# these Class traits are mentioned in the synopses..
+$mmc.addProperty('rw', $rw_prop);
+$mmc.addProperty('name', $name_prop);
+
+# however, these 
 
 {
     my @property_labels = sort $mmc.propertyLabels();
-    is(+@property_labels, 2, '... we have 2 property labels'); 
-    is(@property_labels[0], 'prop1', '... the first is prop1'); 
-    is(@property_labels[1], 'prop2', '... the second is prop2');     
+    is(+@property_labels, 2, '... we have 2 property labels');
+    is(@property_labels[0], 'name', '... the first is name');
+    is(@property_labels[1], 'rw', '... the second is rw');
 }
 
 {
     my %properties = sort $mmc.properties();
-    is(+%properties, 2, '... we have 2 properties'); 
-    ok(%properties{'prop1'} =:= $prop1, '... the first is $prop1'); 
-    ok(%properties{'prop2'} =:= $prop2, '... the second is $prop2');     
+    is(+%properties, 2, '... we have 2 properties');
+    ok(%properties{'rw'} =:= $rw_prop, '... the first is $rw_prop');
+    ok(%properties{'name'} =:= $name_prop, '... the second is $name_prop');
 }
 
-my $removed_prop = $mmc.removeProperty('prop2');
-ok($removed_prop =:= $prop2, '... removed $prop2');
+my $removed_prop = $mmc.removeProperty('name');
+ok($removed_prop =:= $name_prop, '... removed $name_prop');
 
 {
     my %properties = sort $mmc.properties();
     is(+%properties, 1, '... we have 1 property'); 
-    ok(%properties{'prop1'} =:= $prop1, '... the first is $prop1');     
+    ok(%properties{'rw'} =:= $rw_prop, '... the first is $rw_prop');     
 }
