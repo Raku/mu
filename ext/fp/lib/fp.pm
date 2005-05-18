@@ -2,7 +2,7 @@ module fp-0.0.1;
 
 # Function composition
 sub infix:<o> (Code &f, Code &g) { sub($x) { f g $x } }
-sub infix:<○> (Code &f, Code &g) { sub($x) { f g $x } }
+sub infix:<∘> (Code &f, Code &g) { sub($x) { f g $x } }
 
 # Haskell `...` metaoperator
 sub infix:<`map`>  (Code &f, *@y) { map &f, @y }
@@ -20,7 +20,7 @@ fp - Functional programming for Perl 6
   use fp;
 
   (&say o &int)(10/3);               # 3
-  (&say ○ &int)(10/3);               # 3
+  (&say ∘ &int)(10/3);               # 3
   { $_ % 2 == 0 } `grep` [1,2,3,4];  # [2,4]
   { $_ * 2 } `map` [1,2,3];          # [2,4,6]
   my $pair = key ⇒ "value";
@@ -32,7 +32,7 @@ techniques in Perl 6.
 
 =head1 OVERLOADED OPERATORS
 
-=head2 C<< infix:<○> (Code &f, Code &g) >>
+=head2 C<< infix:<∘> (Code &f, Code &g) >>
 
 Function composition, think of Haskell's C<.>. There's also the ASCII
 equivalent C<o>.
