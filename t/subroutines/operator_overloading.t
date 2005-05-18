@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 11;
+plan 15;
 
 =pod
 
@@ -52,13 +52,20 @@ eval_ok( ' ("romeo & juliet" (C) "Shakespeare") eq
 	 'infix operator overloading for new operator (nasty)',
 	 :todo<feature>);
 
+# don't know if these syntaxes are legal...
 eval_ok('sub infix:"<"($one, $two) { return (rand(1) <=> 0.5) }',
-	"quoted infix subs", :todo<bug>);
+	"quoted infix sub", :todo<bug>);
+eval_ok('sub infix:«<»($one, $two) { return (rand(1) <=> 0.5) }',
+	"frenchquoted infix sub", :todo<bug>);
 
 sub postfix:<W> ($wobble) { return "ANDANDAND$wobble"; };
 
 is("boop" W, "ANDANDANDboop", 
    'postfix operator overloading for new operator');
+
+sub postfix:<&&&&&> ($wobble) { return "ANDANDANDANDAND$wobble"; };
+is("boop"&&&&&, "ANDANDANDANDANDboop",
+   "postfix operator overloading for new operator (weird)");
 
 my $var = 0;
 eval_ok('macro circumfix:<!--...-->   ($text) { "" }; <!-- $var = 1; -->; $var == 0;', 'circumfix macro', :todo);
@@ -68,7 +75,11 @@ eval_ok('macro circumfix:<!--...-->   ($text) { "" }; <!-- $var = 1; -->; $var =
 sub prefix:<Σ> (@x) { [+] *@x }
 is(Σ [1..10], 55, "sum prefix operator");
 
+# check that the correct overloaded method is called
 sub postfix:<!> ($x) { [*] 1..$x }
+sub postfix:<!> (Str $x) { return($x.uc ~ "!!!") }
+
 is(10!, 3628800, "factorial postfix operator");
+is("boobies"!, "BOOBIES!!!", "correct overloaded method called");
 
 
