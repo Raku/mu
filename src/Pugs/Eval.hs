@@ -46,6 +46,7 @@ import Pugs.Monads
 import Pugs.Pretty
 import Pugs.Types
 import Pugs.Prim.Eval (retEvalResult)
+import Pugs.Prim.List (op2Fold)
 import Pugs.External
 
 {-|
@@ -786,8 +787,46 @@ findSub name invs args = do
             typ     <- evalExpType exp
             subs    <- findWithPkg (showType typ)
             if isJust subs then return subs else findSub' name
-        _ -> findSub' name
+        _ -> do
+	    sub <- findSub' name
+	    if isNothing sub then possiblyBuildMetaopVCode name else return sub
     where
+    possiblyBuildMetaopVCode ('&':'p':'r':'e':'f':'i':'x':':':'[':op') = do
+	-- Strip the trailing "]" from op
+	let op = init op'
+	trace (show $ invs) return ()
+	trace (show $ args) return ()
+	-- We try to find the userdefined sub.
+	-- We use the first two elements of invs as invocants, as these are the
+	-- types of the op.
+	userdefined_sub <- findSub ("&infix:" ++ op) (take 2 invs) []
+	subbody <- return $ case userdefined_sub of
+	    -- If we've found a userdefined sub, we use it.
+	    (Just sub) -> Prim $ \_ -> do
+			      list_of_args <- return $ map evaluate invs
+			      list_of_args' <- mapM (\a -> do { z <- a; return z }) list_of_args
+			      op2Fold (VList list_of_args') (VCode sub)
+	    -- Else, we use the code as defined in Pugs.Prim
+	    _          -> Prim $ f op
+	-- Now we construct the sub. Is there a more simple way to do it?
+	code <- return $ mkPrim
+			    { subName     = "&prefix:[" ++ op ++ "]"
+			    , subType     = SubPrim
+			    , subAssoc    = "spre"
+			    , subParams   = params
+			    , subReturns  = mkType "Str"
+			    , subBody     = subbody
+			    }
+	return $ Just code
+	where
+	-- Taken from Pugs.Prim. Probably this should be refactored. (?)
+	f op     = \[a] -> op1 ("[" ++ op ++ "]") a
+	prms'    = map takeWord ["(List)"]
+	prms''   = foldr foldParam [] prms'
+	params   = map (\p -> p{ isWritable = isLValue p }) prms''
+	takeWord = takeWhile isWord . dropWhile (not . isWord)
+	isWord   = not . (`elem` "(),:")
+    possiblyBuildMetaopVCode _ = return Nothing
     findWithPkg pkg = do
 	subs <- findSub' (('&':pkg) ++ "::" ++ tail name)
 	if isJust subs then return subs else do

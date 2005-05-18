@@ -19,6 +19,8 @@ module Pugs.Prim (
     op1Exit,
     -- used by Pugs.Compile.Haskell
     op0, op1, op2,
+    -- used Pugs.Eval
+    foldParam,
 ) where
 import Pugs.Internals
 import Pugs.Junc
@@ -1169,17 +1171,6 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Str       left    ~&      (Str, Str)\
 \\n   Str       left    ~<      (Str, Str)\
 \\n   Str       left    ~>      (Str, Str)\
-\\n   Num       spre    [+]     (List)\
-\\n   Num       spre    [-]     (List)\
-\\n   Num       spre    [*]     (List)\
-\\n   Num       spre    [/]     (List)\
-\\n   Str       spre    [~]     (List)\
-\\n   Num       spre    [<]     (List)\
-\\n   Num       spre    [>]     (List)\
-\\n   Num       spre    [<=]    (List)\
-\\n   Num       spre    [>=]    (List)\
-\\n   Num       spre    [==]    (List)\
-\\n   Num       spre    [!=]    (List)\
 \\n   Num       right   **      (Num, Num)\
 \\n   Num       left    +       (Num, Num)\
 \\n   Num       left    -       (Num, Num)\
