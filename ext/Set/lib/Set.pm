@@ -206,6 +206,22 @@ method infix:<*> (Set $one, *@args) returns Set {
 method infix:<%> (Set $one, *@args) returns Set {
     $one.symmetric_difference(set(@args));
 }
+method infix:<~~> (Set $one, $member) returns Bool {
+    $one.includes($member);
+}
+# XXX -- IIRC, there's a "is commutative" or such, so duplicating shouldn't be
+# necessary.
+method infix:<~~> ($member, Set $one) returns Bool {
+    $one.includes($member);
+}
+
+# Subs to make set operations on arrays
+# E.g. [1,2,3] +# [2,5]  ==>  [1,2,3,5]
+# (Similar to Ruby)
+sub infix:<+#> (@a, @b) returns Array { set(@a).union(set @b).members }
+sub infix:<-#> (@a, @b) returns Array { set(@a).difference(set @b).members }
+sub infix:<*#> (@a, @b) returns Array { set(@a).intersection(set @b).members }
+sub infix:<%#> (@a, $b) returns Array { set(@a).symmetric_difference(set @b).members }
 
 =head1 NAME
 
@@ -224,6 +240,12 @@ Set - Sets for Perl 6
   $set.remove(23);
 
   my @members = $set.members;
+
+  # Set arithmetic with arrays
+  say ~([1,2,3] +# [1,2,6])    # 1 2 3 6  (in no particular order)
+  say ~([1,2,3] -# [1,2,6])    # 3        (in no particular order)
+  say ~([1,2,3] *# [1,2,6])    # 1 2      (in no particular order)
+  say ~([1,2,3] %# [1,2,6])    # 3 6      (in no particular order)
 
 =head1 CONSTRUCTORS
 
@@ -263,7 +285,8 @@ Returns the number of elements in the set. C<count> is an alias for C<size>.
 
 =head2 C<$set.invert(...)>
 
-Removes the given items if they are already in the set, or inserts the items if they're not in the set.
+Removes the given items if they are already in the set, or inserts the items if
+they're not in the set.
 
 Returns the number of items removed.
 

@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 29;
+plan 38;
 
 use Set;
 
@@ -73,3 +73,19 @@ ok($simpsons > $empty, "infix:'>' (empty)", :todo<bug>);
 ok($parents >= $empty, "infix:'>=' (empty)");
 
 eval_ok('set(1,2,3) ∋ 1', "infix:<∋>", :todo<bug>);
+
+# Smartmatch operator
+ok     42 ~~ set(23, 42, 63),  "infix:<~~> works (1)", :todo<feature>;
+# No :todo here as the test succeeds.
+ok not(42 ~~ set(23, 43, 63)), "infix:<~~> works (2)";
+
+# Rubyish set operations on arrays
+# Note: We only test for the correct number of elements, as there's no
+# particular order.
+eval_is '+([1,2,3] +# [1,2,3])',   3, "infix:<+#> works (1)", :todo<feature>;
+eval_is '+([1,2,3] +# [1,2,3,4])', 4, "infix:<+#> works (2)", :todo<feature>;
+eval_is '+([1,2,3] -# [1,2,3])',   0, "infix:<-#> works (1)", :todo<feature>;
+eval_is '+([1,2,3] -# [1,2,3,4])', 0, "infix:<-#> works (2)", :todo<feature>;
+eval_is '+([1,2,3] *# [2,3])',     2, "infix:<*#> works (1)", :todo<feature>;
+eval_is '+([1,2,3] *# [])',        0, "infix:<*#> works (2)", :todo<feature>;
+eval_is '+([1,2,3] %# [1,2,6])',   2, "infix:<%#> works",     :todo<feature>;
