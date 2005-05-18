@@ -172,6 +172,20 @@ underlying I<Meta-Meta-Model>.
     	return Perl::Meta::Class;
           },
         );
+ 
+=head2 Comments from t/11_Perl_Meta_Class_properties.t
+
+    # note that properties of classes are called Class traits.
+
+    # So, when you *define* a trait, it modifies the MetaModel to add the
+    # possibility of the property.
+
+    # When you *attach* a trait to a class at compile time, it modifies
+    # the Model.
+
+    # When you *attach* a trait to a class at run time, it modifies the
+    # Model, possibly by making new minimal sub-class/role objects, and
+    # then marks that object as being in that new minimal sub-class.
 
 =head1 AUTHORS
 

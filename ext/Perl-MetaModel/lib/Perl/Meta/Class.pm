@@ -129,14 +129,21 @@ method properties     ($self:) returns Hash  { %:properties        }
 method propertyLabels ($self:) returns Array { %:properties.keys() }
 
 method allProperties ($self:) returns Hash {
-
+    my %props;
+    $self.:allProperties(\%props);
+    return %props;
 }
 
-method allPropertyLabels ($self:) returns Array {
-    
+method :allProperties ($self: Hash %props is rw) returns Void {
+    # collect all the parents first ...
+    $:parent.:allProperties(\%props) if $:parent.defined;
+    # then all the local ones will overwrite ...
+    for %:properties.kv() -> $label, $prop {
+        %props{$label} = $prop;    
+    }
 }
 
-method isPropertySupported ($self: $label) returns Bool {
+method isPropertySupported ($self: Str $label) returns Bool {
     return %:properties{$label} if %:properties.exists($label);
     return $:parent.isPropertySupported($label) if $:parent.defined;
     return undef;    
@@ -162,13 +169,13 @@ method removeMethod ($self: Str $label) returns Perl::Meta::Method {
 method methods      ($self:) returns Hash  { %:methods        }
 method methodLabels ($self:) returns Array { %:methods.keys() }
 
-method findMethod ($self: $label) returns Perl::Meta::Method {
+method findMethod ($self: Str $label) returns Perl::Meta::Method {
     return %:methods{$label} if %:methods.exists($label);
     return $:parent.findMethod($label) if $:parent.defined;
     return undef;
 }
 
-method isMethodSupported ($self: $label) returns Bool {
+method isMethodSupported ($self: Str $label) returns Bool {
     $self.findMethod($label) ?? 1 :: 0;
 }
 
@@ -267,6 +274,10 @@ in this module itself is the meta-meta-model of the Perl6 object system.
 
 =item B<propertyLabels ($self:) returns Array>
 
+=item B<allProperties ($self:) returns Hash>
+
+=item B<isPropertySupported ($self: Str $label) returns Bool>
+
 =back
 
 =head2 Method methods
@@ -280,6 +291,12 @@ in this module itself is the meta-meta-model of the Perl6 object system.
 =item B<methods ($self:) returns Hash>
 
 =item B<methodLabels ($self:) returns Array>
+
+=item B<findMethod ($self: Str $label) returns Perl::Meta::Method>
+
+=item B<isMethodSupported ($self: Str $label) returns Bool>
+
+=item B<invokeMethod ($self: Str $label, *@args) returns Any>
 
 =back
 
