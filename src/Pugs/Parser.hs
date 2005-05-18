@@ -1140,9 +1140,10 @@ ruleApply = tryVerbatimRule "apply" $ do
 ruleFoldOp :: RuleParser String
 ruleFoldOp = verbatimRule "reduce metaoperator" $ do
     char '['
-    name <- oneOf "+-*/~" -- XXX - Query all infix here
+    [_, _, _, _, infixOps] <- currentTightFunctions
+    name <- choice $ map string $ words infixOps
     char ']'
-    return $ "&prefix:[" ++ [name] ++ "]"
+    return $ "&prefix:[" ++ name ++ "]"
 
 parseParamList :: RuleParser ([Exp], [Exp])
 parseParamList = parseParenParamList True <|> parseNoParenParamList True

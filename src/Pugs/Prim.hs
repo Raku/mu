@@ -1174,6 +1174,12 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Num       spre    [*]     (List)\
 \\n   Num       spre    [/]     (List)\
 \\n   Str       spre    [~]     (List)\
+\\n   Num       spre    [<]     (List)\
+\\n   Num       spre    [>]     (List)\
+\\n   Num       spre    [<=]    (List)\
+\\n   Num       spre    [>=]    (List)\
+\\n   Num       spre    [==]    (List)\
+\\n   Num       spre    [!=]    (List)\
 \\n   Num       right   **      (Num, Num)\
 \\n   Num       left    +       (Num, Num)\
 \\n   Num       left    -       (Num, Num)\
