@@ -2,16 +2,42 @@ package Inline::Pugs;
 
 use strict;
 use vars qw<$VERSION @ISA>;
-
-@ISA     = 'Inline';
-$VERSION = Perl6::Pugs->VERSION;
-
-use Perl6::Pugs;
-use Data::Dumper;
-use IPC::Open2;
 use constant MAGIC =>
     'my$Z= =$*IN;while 1{$_=perl eval eval=$*IN;say$!//$_;print$Z;flush$*OUT}';
 use constant COOKIE => rand();
+use Perl6::Pugs;
+use IPC::Open2;
+use Data::Dumper;
+
+@ISA     = 'Inline';
+$VERSION = 0.01;
+
+=head1 NAME
+
+Inline::Pugs - Inline Perl 6 code in Perl 5
+
+=head1 SYNOPSIS
+
+    use Inline Pugs => '
+        sub postfix:<!> { [*] 1..$_ }
+        sub sum_factorial { [+] 0..$_! }
+    ';
+    print sum_factorial(3); # 21
+
+=head1 DESCRIPTION
+
+Is it Perl 5?  Is it Perl 6?  It's neither, it's both.  It's Inline::Pugs!
+
+The Inline::Pugs module allows you to insert Perl 6 source code directly 
+I<inline> in a Perl 5 script or module.
+
+=head1 CAVEATS
+
+Currently, only the Perl 5 side can invoke subroutines defined from the
+Perl 6 size, but not vise versa.  This whole thing is just a proof of
+concept -- use it at your own risk. :-)
+
+=cut
 
 sub register {
     return {
@@ -82,3 +108,22 @@ sub quote_pugs {
 }
 
 1;
+
+=head1 AUTHORS
+
+Autrijus Tang E<lt>autrijus@autrijus.orgE<gt>
+
+=head1 COPYRIGHT
+
+Copyright 2005 by Autrijus Tang E<lt>autrijus@autrijus.orgE<gt>.
+
+This code is free software; you can redistribute it and/or modify it under
+the terms of either:
+
+    a) the GNU General Public License, version 2, or
+    b) the Artistic License, version 2.0beta5.
+
+For the full license text, please see the F<GPL-2> and F<Artistic-2> files
+under the F<LICENSE> directory in the Pugs distribution.
+
+=cut
