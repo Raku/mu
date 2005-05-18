@@ -34,15 +34,21 @@ evalParrot str = do
     removeFile file
 
 evalPGE :: FilePath -> String -> String -> [(String, String)] -> IO String
-evalPGE path str pattern subrules = do
+evalPGE path match rule subrules = do
     (inp, out, err, pid) <- initPGE path
     (`mapM` subrules) $ \(name, rule) -> do
-	hPutStrLn inp $ unwords ["add_rule", show (length name), show (length rule)]
-	hPutStrLn inp name
-	hPutStrLn inp rule
-    hPutStrLn inp $ unwords ["match", show (length str), show (length pattern)]
-    hPutStrLn inp str
-    hPutStrLn inp pattern
+        let nameStr = escape name
+            ruleStr = escape rule
+	hPutStrLn inp $ unwords
+            ["add_rule", show (length nameStr), show (length nameStr)]
+	hPutStrLn inp nameStr
+	hPutStrLn inp ruleStr
+    let matchStr = escape match
+        ruleStr  = escape rule
+    hPutStrLn inp $ unwords
+        ["match", show (length matchStr), show (length ruleStr)]
+    hPutStrLn inp $ matchStr
+    hPutStrLn inp $ ruleStr
     hFlush inp
     rv <- hGetLine out
     case rv of
@@ -58,6 +64,11 @@ evalPGE path str pattern subrules = do
 	    let msg | null errMsg = show rv
 		    | otherwise   = errMsg
 	    fail $ "*** Running external 'parrot' failed:\n" ++ msg
+    where
+    escape "" = ""
+    escape ('\\':xs) = "\\\\" ++ escape xs
+    escape ('\n':xs) = "\\n" ++ escape xs
+    escape (x:xs) = (x:escape xs)
 
 initPGE :: FilePath -> IO ParrotInterp
 initPGE path = do

@@ -40,6 +40,9 @@
     arg2 = read stdin, size2
     chopn arg2, 1 # skip \n
 
+    arg1 = unescape(arg1)
+    arg2 = unescape(arg2)
+
     if cmd == "add_rule" goto do_add_rule
     if cmd == "match" goto do_match
     goto loop
@@ -61,8 +64,48 @@
   do_args:
     arg1 = args[1]
     arg2 = args[2]
+    arg1 = unescape(arg1)
+    arg2 = unescape(arg2)
     result = match(arg1, arg2)
     print result
 
   end:
+.end
+
+.sub unescape
+    .param string str
+    .local string ret, tmp
+    .local int i, j
+
+    ret = ""
+    j = length str
+    if j == 0 goto END
+    i = 0
+
+LOOP:
+    tmp = str[i]
+    inc i
+    if i >= j goto FIN
+
+    eq tmp, "\\", ESC
+    concat ret, tmp
+    goto LOOP
+
+ESC:
+    tmp = str[i]
+    inc i
+    eq tmp, "n", LF
+    concat ret, tmp
+    goto UNESC
+LF:
+    concat ret, "\n"
+UNESC:
+    inc i
+    if i >= j goto END
+    goto LOOP
+
+FIN:
+    concat ret, tmp
+END:
+    .return(ret)
 .end
