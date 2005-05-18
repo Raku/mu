@@ -1239,7 +1239,6 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Num       pre     log     (Int)\
 \\n   Num       pre     log     (Num)\
 \\n   Num       pre     log10   (Num)\
-\\n   Any       list    ;       (Any)\
 \\n   Thread    pre     async   (Code)\
 \\n   Bool      pre     yield   (?Thread)\
 \\n   Int       pre     sign    (Num)\
