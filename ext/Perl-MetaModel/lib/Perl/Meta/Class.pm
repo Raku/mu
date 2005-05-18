@@ -129,7 +129,7 @@ method properties     ($self:) returns Hash  { %:properties        }
 method propertyLabels ($self:) returns Array { %:properties.keys() }
 
 method allProperties ($self:) returns Hash {
-    
+
 }
 
 method allPropertyLabels ($self:) returns Array {
@@ -137,7 +137,9 @@ method allPropertyLabels ($self:) returns Array {
 }
 
 method isPropertySupported ($self: $label) returns Bool {
-    
+    return %:properties{$label} if %:properties.exists($label);
+    return $:parent.isPropertySupported($label) if $:parent.defined;
+    return undef;    
 }
 
 ## Methods
