@@ -14,77 +14,118 @@ This class tests property assignment and removal
 
 =cut
 
-my $mmc = Perl::Meta::Class::new('Class');
+my $mmc = Perl::Meta::Class::new('Role');
 
 {
     my @labels = $mmc.methodLabels();
     is(+@labels, 0, '... we have no method labels yet'); 
 }
 
-my $method1 = Perl::Meta::Method.new();
-my $method2 = Perl::Meta::Method.new(code => sub { 'Hello World' });
+# what's a nice real-world example of a method that can be called on
+# the Model?
 
-$mmc.addMethod('method1', $method1);
-$mmc.addMethod('method2', $method2);
+# Well, .new(), .isa(), .meta(), .addMethod(), etc of course!
 
-ok($mmc.findMethod('method1') =:= $method1, '... found the right method');
-ok($mmc.findMethod('method2') =:= $method2, '... found the right method');
+# so what the hell is $mmc.new doing?  Creating a new Role, of
+# course!  this is very similar to putting the method in Role::new().
+# This method would be called by Perl when you go class { } at compile
+# time; it is NOT the default new() method for user classes.
+my $new = Perl::Meta::Method.new( # what it does exactly I'm not sure ;)
+				);
 
-ok(!$mmc.isMethodSupported('method3'), '... did not find the method (as expected)');
+# you might note that this can't accept a string; we need MMD for
+# that.  We do not need to complicate the M3 layer with it.
+
+# In a sense, the "signature" of the call is actually the key, not
+# just the method name.  But let's prototype what we can first.
+
+# but the lack of MMD at this level doesn't mean that the interface
+# presented to the final layer need be so strict.  In fact, we could
+# even call name the methods differently on each level, and return
+# "Facade" objects that query/manipulate the objects on the lower
+# levels that perform the actual work.
+my $isa = Perl::Meta::Method.new
+    (code => sub($self: Perl::Meta::Class $other) returns Bool {
+	$self.allSuperclasses.grep :{ $other =:= $self }
+    });
+
+my $meta = Perl::Meta::Method.new
+    ( code => sub returns Any {
+	# should this return a Perl::Meta::Class, or merely a facade
+	# for Perl::Meta::Class that expresses it in terms of `Role'
+	# objects?
+	return Perl::Meta::Class;
+      },
+    );
+
+$mmc.addMethod('new', $new);
+$mmc.addMethod('isa', $isa);
+
+ok($mmc.findMethod('new') =:= $new, '... found the right method');
+ok($mmc.findMethod('isa') =:= $isa, '... found the right method');
+
+ok(!$mmc.isMethodSupported('meta'), '... did not find the method (as expected)');
+
+$mmc.addMethod('meta', $meta);
 
 {
     my @labels = sort $mmc.methodLabels();
-    is(+@labels, 2, '... we have 2 method labels'); 
-    is(@labels[0], 'method1', '... the first is method1'); 
-    is(@labels[1], 'method2', '... the second is method2');     
+    is(+@labels, 3, '... we have 3 method labels'); 
+    is(@labels[0], 'isa', '... the first is isa'); 
+    is(@labels[1], 'meta', '... the second is meta');     
+    is(@labels[2], 'new', '... the second is new');     
 }
 
 {
     my %methods = sort $mmc.methods();
-    is(+%methods, 2, '... we have 2 methods'); 
-    ok(%methods{'method1'} =:= $method1, '... the first is $method1'); 
-    ok(%methods{'method2'} =:= $method2, '... the second is $method2');     
+    is(+%methods, 3, '... we have 2 methods'); 
+    ok(%methods{'isa'} =:= $isa, '... the first is $isa'); 
+    ok(%methods{'meta'} =:= $meta, '... the second is $meta');     
+    ok(%methods{'new'} =:= $new, '... the second is $new');     
 }
 
-my $removed_method = $mmc.removeMethod('method2');
-ok($removed_method =:= $method2, '... removed $method2');
+my $removed_method = $mmc.removeMethod('meta');
+ok($removed_method =:= $meta, '... removed $meta');
 
 {
     my %methods = sort $mmc.methods();
-    is(+%methods, 1, '... we have 1 method'); 
-    ok(%methods{'method1'} =:= $method1, '... the first is $method1');     
+    is(+%methods, 2, '... we have 2 methods left'); 
+    ok(%methods{'isa'} =:= $isa, '... the first is $isa');     
+    ok(%methods{'new'} =:= $new, '... the first is $new');     
 }
 
-my $sub_mmc = Perl::Meta::Class::new('SubClass');
+my $sub_mmc = Perl::Meta::Class::new('Class');
 $sub_mmc.superclass($mmc);
 
-$sub_mmc.addMethod('method2', $method2);
+# for some reason, we're deciding that only Class objects have
+# meta-objects.
+$sub_mmc.addMethod('meta', $meta);
 
-ok($sub_mmc.isMethodSupported('method1'), '... did find the method in parent class');
-ok($sub_mmc.findMethod('method1') =:= $method1, '... found the right method (in parent class)');
+ok($sub_mmc.isMethodSupported('new'), '... did find the method in parent class');
+ok($sub_mmc.findMethod('new') =:= $new, '... found the right method (in parent class)');
 
-ok(!$mmc.isMethodSupported('method2'), '... did not find the method (as expected) in parent class');
-ok($sub_mmc.isMethodSupported('method2'), '... did find the method (as expected) in class');
+ok(!$mmc.isMethodSupported('meta'), '... did not find the method (as expected) in parent class');
+ok($sub_mmc.isMethodSupported('meta'), '... did find the method (as expected) in class');
 
-my $sub_sub_mmc = Perl::Meta::Class::new('SubSubClass');
+my $sub_sub_mmc = Perl::Meta::Class::new('ThreadSafeClass');
 $sub_sub_mmc.superclass($sub_mmc);
 
-ok($sub_sub_mmc.isMethodSupported('method1'), '... did find the method in parents parent class');
-ok($sub_sub_mmc.findMethod('method1') =:= $method1, '... found the right method (in parents parent class)');
-ok($sub_sub_mmc.findMethod('method2'), '... did find the method (as expected) in parents class');
+ok($sub_sub_mmc.isMethodSupported('new'), '... did find the method in parents parent class');
+ok($sub_sub_mmc.findMethod('new') =:= $new, '... found the right method (in parents parent class)');
+ok($sub_sub_mmc.findMethod('meta'), '... did find the method (as expected) in parents class');
 
 # check some errors
 
 $!= undef; 
 dies_ok {
-    $mmc.invokeMethod('method2');
+    $mmc.invokeMethod('meta');
 }, '... this dies as expected';
 like($!, rx:perl5/^Method not found/, '... got the right error');
 
 $!= undef; 
 dies_ok {
-    $sub_sub_mmc.invokeMethod('method1');
+    $sub_sub_mmc.invokeMethod('new');
 }, '... this dies as expected';
 like($!, rx:perl5/^Method has no code/, '... got the right error');
 
-is($sub_mmc.invokeMethod('method2'), 'Hello World', '... the method returned what we expected');
+is($sub_mmc.invokeMethod('meta'), Perl::Meta::Class, '... the method returned what we expected');

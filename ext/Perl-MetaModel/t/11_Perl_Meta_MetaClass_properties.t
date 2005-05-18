@@ -40,8 +40,6 @@ my $name_prop = Perl::Meta::Property.new(:type<Str>);
 $mmc.addProperty('rw', $rw_prop);
 $mmc.addProperty('name', $name_prop);
 
-# however, these 
-
 {
     my @property_labels = sort $mmc.propertyLabels();
     is(+@property_labels, 2, '... we have 2 property labels');
