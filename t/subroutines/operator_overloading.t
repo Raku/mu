@@ -52,6 +52,9 @@ eval_ok( ' ("romeo & juliet" (C) "Shakespeare") eq
 	 'infix operator overloading for new operator (nasty)',
 	 :todo<feature>);
 
+eval_ok('sub infix:"<"($one, $two) { return (rand(1) <=> 0.5) }',
+	"quoted infix subs", :todo<bug>);
+
 sub postfix:<W> ($wobble) { return "ANDANDAND$wobble"; };
 
 is("boop" W, "ANDANDANDboop", 
