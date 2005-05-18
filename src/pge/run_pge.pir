@@ -104,7 +104,6 @@ ESC:
 LF:
     concat ret, "\n"
 UNESC:
-    inc i
     if i >= j goto END
     goto LOOP
 
