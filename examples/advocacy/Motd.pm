@@ -7,7 +7,7 @@ sub finger (*@arr) returns Str is export {
 			"boring",
 			"missing examples",
 		);
-	  pick any @arr || @default
+	  pick @arr || @default
 }
 
 sub report (@x) returns Str is export {
@@ -23,16 +23,15 @@ sub report (@x) returns Str is export {
 	}
 }	
 
-
 #Autrijus' "cls"
 sub clear returns Void is export{
-	system(($?OS eq any<MSWin32 mingw cygwin>) ?? 'cls' :: 'clear');
+	system(($?OS eq any<MSWin32 mingw>) ?? 'cls' :: 'clear');
 }
 
 sub max (Array @x) returns Int{
 	my $max;
 	for @x->$try{
-	$max =	$max > $try ?? $max :: $try; 
+		$max =	$max > $try ?? $max :: $try; 
 	}
 	$max.int
 }	
@@ -55,7 +54,7 @@ sub append_last ($x,$string is rw,$pass){
 	if $pass > 2 {
 		chop $string;
 		"$string and " ~  
-		pick any (
+		pick (
 			"$x",
 			"is $x",
 			"$x, period",
@@ -67,7 +66,7 @@ sub append_last ($x,$string is rw,$pass){
 	}elsif $pass > 1 {
 		chop $string;
 		"$string and " ~
-		pick any (
+		pick (
 			"$x",
 			"is $x",
 		); 

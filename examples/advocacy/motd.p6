@@ -9,26 +9,19 @@ my $progdir = splitpath($*PROGRAM_NAME)[1] || '.';
 @*INC.push($progdir);
 require Motd; 
 
-my $subject   = @ARGS[0] // 'Pugs';
-my $surveyed  = @ARGS[1] // 20;
-my $dict      = @ARGS[2] // canonpath("$progdir/pugspraise");
+my $limit     = @ARGS[0] // '2';
+my $dict      = canonpath("$progdir/pugspraise");
 my $fh        = open "< $dict" err die $!;
-my @list;
+my @list      = map -> $a{my $b = $a; chomp $b; $b;} =$fh;
 
-for =$fh ->$line{
-	my $a = $line; 
-	chomp $a; 
-	push @list, $a || next()
-};
-$fh.close;
+#XXX it sure would make things tidier if the topic could be chomped,
+# or better, if the filehandle could be autochomped.
 
-my %opinions = $surveyed  # number 
-               .whisper_about( @list) ;
-
-my $most     = %opinions.values.max;
-my &tell = -> $limit {
-		say "$subject is{ 
-			report matchval $most,%opinions,$limit;
+my &tell = -> $max {
+		say "Pugs is{ 
+			my @a; for 1..pick(1..$max){push @a,pick @list;} report @a;
 		}."
 };
-tell 2;
+
+tell $limit; 
+

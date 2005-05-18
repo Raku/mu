@@ -26,7 +26,7 @@ $fh.close;
 my $orig 	  = ~@list;
 my $most      = 0;
 my @mostsaid := { matchval \$most,\%tally,3};
-my &tell := sub {
+my &tell = sub {
 	 say "{ 
 			$subject~report @mostsaid(1) 
 		}.{
@@ -47,7 +47,8 @@ while $keyed = =$*IN {
 	}
 	@list      = (*@keyed_args , *@list);
 	%tally     = whisper_about $surveyed,*@list ;
-	tell @mostsaid( $most = %tally.values.max ); 
+	$most = %tally.values.max;
+	tell @mostsaid(); 
 	@keyed_args.perl.say;
 }
 
