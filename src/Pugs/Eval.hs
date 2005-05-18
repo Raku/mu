@@ -794,8 +794,6 @@ findSub name invs args = do
     possiblyBuildMetaopVCode ('&':'p':'r':'e':'f':'i':'x':':':'[':op') = do
 	-- Strip the trailing "]" from op
 	let op = init op'
-	trace (show $ invs) return ()
-	trace (show $ args) return ()
 	-- We try to find the userdefined sub.
 	-- We use the first two elements of invs as invocants, as these are the
 	-- types of the op.
