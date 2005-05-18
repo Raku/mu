@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 26;
+plan 28;
 
 use Set;
 
@@ -15,6 +15,11 @@ my $bert = Person.new;
 my $set = set(0, 1, 2, 3, $bob);
 my $union = $set.union(set(4,5,6));
 is($union.ref, ::Set, "set() - union");
+
+my $stringified = $set.stringify;
+ok($stringified ~~ rx:perl5/^set\([^<]*<obj:Person>[^<]*\)$/,
+   "stringify");
+diag("stringified to $stringified");
 
 ok($union.equal(set(0..6, $bob)), "set() - equal");
 ok(!$union.not_equal(set(0..6, $bob)), "set() - !not_equal");
@@ -35,6 +40,9 @@ ok($difference.equal(set(0,1)), "difference");
 
 my $sym_difference = $set.symmetric_difference($other_set);
 ok($sym_difference.equal(set(0,1,7,$bert)), "symmetric_difference");
+
+ok($set.difference($other_set).union($other_set.difference($set))
+	.equal($sym_difference), "long form of symmetric difference");
 
 my ($homer, $marge, $bart, $lisa, $maggie) = (1..5).map:{ Person.new };
 

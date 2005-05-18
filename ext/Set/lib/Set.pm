@@ -27,7 +27,7 @@ method members() returns List {
 # to stringify).
 method _stringify ($item) returns Str {
     my $str_item = ~$item;
-    $str_item ~= $item.id() if $str_item ~~ rx:perl5/^\<obj\:/;
+    $str_item ~= $item.id() if $str_item ~~ rx:perl5/^\<obj\:/; #/#cperl-mode--
     return $str_item;
 }
 
@@ -110,6 +110,11 @@ method proper_superset($self: Set $other) returns Bool {
     return ($other.proper_subset($self));
 }
 
+method stringify() returns Str {
+    return("set(" ~ $?SELF.members.join(" ") ~ ")");
+}
+
+
 method union($self: Set $other) returns Set {
     set($self.members, $other.members);
 }
@@ -127,70 +132,80 @@ method symmetric_difference($self: Set $other) returns Set {
 our &Set::count ::= &Set::size;
 our &Set::has   ::= &Set::includes;
 
-=begin LATER
-
-...for a later time, when 'overloading' works...
-
-# what will be used for stringify?
-method prefix:<~> (Set $one, *@args) returns Set {
-    $one.symmetric_difference(set(@args));
-}
-
 # addition is union
 method infix:<+> (Set $one, Set $two) returns Set {
     $one.union($two);
-}
-method infix:<+> (Set $one, *@args) returns Set {
-    $one.union(set(@args));
 }
 
 # subtraction is difference
 method infix:<-> (Set $one, Set $two) returns Set {
     $one.difference($two);
 }
-method infix:<-> (Set $one, *@args) returns Set {
-    $one.difference(set(@args));
-}
 
 # multiplication is intersection
 method infix:<*> (Set $one, Set $two) returns Set {
     $one.intersection($two);
 }
-method infix:<*> (Set $one, *@args) returns Set {
-    $one.intersection(set(@args));
-}
 
 # modulus is symmetric difference
-# subtraction is difference
 method infix:<%> (Set $one, Set $two) returns Set {
     $one.symmetric_difference($two);
+}
+
+# comparison is subset/superset
+method infix:<==> (Set $one, Set $two) returns Set {
+    $one.equal($two);
+}
+method infix:<!=> (Set $one, Set $two) returns Set {
+    $one.not_equal($two);
+}
+
+# what will be used for stringify?
+method prefix:<~> (Set $self) returns Str {
+    ./stringify
+}
+
+=begin DREAMING
+
+# these are all currently parsefail
+
+method infix:«<» (Set $one, Set $two) returns Set {
+    $one.proper_subset($two);
+}
+method infix:«>» (Set $one, *@args) returns Set {
+    $one.proper_superset(set(@args));
+}
+method infix:«<=» (Set $one, Set $two) returns Set {
+    $one.subset($two);
+}
+method infix:«>=» (Set $one, *@args) returns Set {
+    $one.superset(set(@args));
+}
+
+=end DREAMING
+
+=cut
+
+# methods below this point are currently not tested.
+
+# a unicode operator for includes!
+method infix:<∋> (Set $one, $member) returns Bool {
+    $one.includes($member);
+}
+
+# these methods are for overloaded operations with non-sets
+method infix:<+> (Set $one, *@args) returns Set {
+    $one.union(set(@args));
+}
+method infix:<-> (Set $one, *@args) returns Set {
+    $one.difference(set(@args));
+}
+method infix:<*> (Set $one, *@args) returns Set {
+    $one.intersection(set(@args));
 }
 method infix:<%> (Set $one, *@args) returns Set {
     $one.symmetric_difference(set(@args));
 }
-
-# comparison is subset/superset
-method infix:"==" (Set $one, Set $two) returns Set {
-    $one.equal($two);
-}
-method infix:"!=" (Set $one, Set $two) returns Set {
-    $one.not_equal($two);
-}
-method infix:"<" (Set $one, Set $two) returns Set {
-    $one.proper_subset($two);
-}
-method infix:">" (Set $one, *@args) returns Set {
-    $one.proper_superset(set(@args));
-}
-method infix:"<=" (Set $one, Set $two) returns Set {
-    $one.subset($two);
-}
-method infix:">=" (Set $one, *@args) returns Set {
-    $one.superset(set(@args));
-}
-
-=end LATER
-
 
 =head1 NAME
 
