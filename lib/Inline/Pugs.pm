@@ -46,7 +46,7 @@ sub load {
     # XXX - bloody hack for now
 
     no strict 'refs';
-    foreach my $sym ($code =~ /^\s*sub\s+(\w+)\s+/g) {
+    foreach my $sym ($code =~ /^\s*sub\s+(\w+)\s+/mg) {
         *{"$pkg\::$sym"} = sub {
             local $Data::Dumper::Terse = 1;
             my @args = map { $self->quote_pugs(Dumper($_)).'.eval' } @_;
@@ -66,21 +66,19 @@ sub init_pugs {
 
 sub eval_pugs {
     my $self = shift;
-    # print "EVAL: ", $self->quote_pugs($_[0]), "\n";
     print IN $self->quote_pugs($_[0]), "\n";
     local $/ = COOKIE;
     my $out = substr(<OUT>, 0, -length($/));
     $out =~ s{\n+$}{};
     $out =~ s{^\n+}{};
-    die eval $out if $out =~ /\n/;
+    die $out if $out =~ /\n/;
     return eval $out;
 }
 
 sub quote_pugs {
     my $self = shift;
-    my $q = '"'.quotemeta($_[0]).'"';
-    $q =~ s{\n}{n}g;
-    return $q;
+    my $q = join '', map { sprintf("\\x%02X", ord) } split(//, $_[0]);
+    return qq["$q"];
 }
 
 1;
