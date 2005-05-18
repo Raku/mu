@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 25;
+plan 28;
 
 use Perl::Meta::Class;
 use Perl::Meta::Method;
@@ -22,41 +22,15 @@ my $mmc = Perl::Meta::Class::new('Role');
 }
 
 # what's a nice real-world example of a method that can be called on
-# the Model?
+# the Model? Well, .new(), .isa(), .meta() of course!
 
-# Well, .new(), .isa(), .meta(), .addMethod(), etc of course!
-
-# so what the hell is $mmc.new doing?  Creating a new Role, of
-# course!  this is very similar to putting the method in Role::new().
-# This method would be called by Perl when you go class { } at compile
-# time; it is NOT the default new() method for user classes.
-my $new = Perl::Meta::Method.new( # what it does exactly I'm not sure ;)
-				);
-
-# you might note that this can't accept a string; we need MMD for
-# that.  We do not need to complicate the M3 layer with it.
-
-# In a sense, the "signature" of the call is actually the key, not
-# just the method name.  But let's prototype what we can first.
-
-# but the lack of MMD at this level doesn't mean that the interface
-# presented to the final layer need be so strict.  In fact, we could
-# even call name the methods differently on each level, and return
-# "Facade" objects that query/manipulate the objects on the lower
-# levels that perform the actual work.
-my $isa = Perl::Meta::Method.new
-    (code => sub($self: Perl::Meta::Class $other) returns Bool {
-	$self.allSuperclasses.grep :{ $other =:= $self }
-    });
-
-my $meta = Perl::Meta::Method.new
-    ( code => sub returns Any {
-	# should this return a Perl::Meta::Class, or merely a facade
-	# for Perl::Meta::Class that expresses it in terms of `Role'
-	# objects?
-	return Perl::Meta::Class;
-      },
-    );
+my $new = Perl::Meta::Method.new();
+my $isa = Perl::Meta::Method.new(code => 
+    sub ($self, $other) {
+        $self.allSuperclasses().grep:{ $other =:= $self }
+    }
+);
+my $meta = Perl::Meta::Method.new(code => sub { Perl::Meta::Class });
 
 $mmc.addMethod('new', $new);
 $mmc.addMethod('isa', $isa);

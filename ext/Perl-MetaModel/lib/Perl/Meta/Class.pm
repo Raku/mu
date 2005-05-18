@@ -182,6 +182,14 @@ method invokeMethod ($self: Str $label, *@args) returns Any {
     return $impl($self, @args);
 }
 
+## Instance Creation
+
+
+
+## Subclass Creation
+
+
+
 =pod
 
 =head1 NAME
