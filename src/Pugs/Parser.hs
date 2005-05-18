@@ -372,8 +372,8 @@ ruleSubName = verbatimRule "subroutine name" $ do
     star    <- option "" $ string "*"
     fixity  <- option "" $ choice (map (try . string) $ words fixities)
     name    <- ruleQualifiedIdentifier
-                <|> between (string "<<") (string ">>")
-                    (many1 (satisfy (/= '>') <|> lookAhead (satisfy (/= '>'))))
+                <|> try (between (string "<<") (string ">>")
+                    (many1 (satisfy (/= '>') <|> lookAhead (satisfy (/= '>')))))
                 <|> between (char '<') (char '>') (many1 $ satisfy (/= '>'))
                 <|> between (char '\171') (char '\187') (many1 $ satisfy (/= '\187'))
     return $ "&" ++ star ++ fixity ++ name
