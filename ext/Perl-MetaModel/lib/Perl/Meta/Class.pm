@@ -157,21 +157,26 @@ method removeMethod ($self: Str $label) returns Perl::Meta::Method {
     return $removed_method;
 }
 
-# can we remove these?
 method methods      ($self:) returns Hash  { %:methods        }
 method methodLabels ($self:) returns Array { %:methods.keys() }
 
 method findMethod ($self: $label) returns Perl::Meta::Method {
-
+    return %:methods{$label} if %:methods.exists($label);
+    return $:parent.findMethod($label) if $:parent.defined;
+    return undef;
 }
 
-our &Perl::Meta::Class::isMethodSupported ::= &Perl::Meta::Class::findMethod;
+method isMethodSupported ($self: $label) returns Bool {
+    $self.findMethod($label) ?? 1 :: 0;
+}
 
-method invokeMethod ($self: Str $label, @args) returns Any {  
+method invokeMethod ($self: Str $label, *@args) returns Any {  
     my $method = $self.findMethod($label);
     ($method.defined)
         || die "Method not found";
     my $impl = $method.code();
+    ($impl.defined)
+        || die "Method has no code";    
     return $impl($self, @args);
 }
 
