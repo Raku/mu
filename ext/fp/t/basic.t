@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-BEGIN { plan 4 };
+BEGIN { plan 5 };
 
 # We can't use "use_ok" here, as the overloaded operators won't go into our
 # namespace, then (I think.)
@@ -15,6 +15,7 @@ pass "fp was use()d successfully.";
   my $g = -> $x { $x + 4 };
 
   is ($f o $g)(5), 18, "(o) works";
+  is ($f ○ $g)(5), 18, "(o) works";
 }
 
 is ~({ $_ % 2 == 0 } `grep` [1,2,3,4,5]), "2 4",   "(`grep`) works";
