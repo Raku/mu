@@ -165,10 +165,6 @@ method prefix:<~> (Set $self) returns Str {
     ./stringify
 }
 
-=begin DREAMING
-
-# these are all currently parsefail
-
 method infix:«<» (Set $one, Set $two) returns Set {
     $one.proper_subset($two);
 }
@@ -181,10 +177,6 @@ method infix:«<=» (Set $one, Set $two) returns Set {
 method infix:«>=» (Set $one, *@args) returns Set {
     $one.superset(set(@args));
 }
-
-=end DREAMING
-
-=cut
 
 # methods below this point are currently not tested.
 
