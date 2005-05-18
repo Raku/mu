@@ -1162,7 +1162,6 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Num       left    /       (Num, Num)\
 \\n   Num       left    %       (Num, Num)\
 \\n   Str       left    x       (Str, Int)\
-\\n   Any       left    is      (Any, Any)\
 \\n   List      left    xx      (Any, Int)\
 \\n   Int       left    +&      (Int, Int)\
 \\n   Int       left    +<      (Int, Int)\

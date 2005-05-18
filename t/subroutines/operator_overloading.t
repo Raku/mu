@@ -21,36 +21,25 @@ is(X "fish", "ROUGHLYfish",
    'prefix operator overloading for new operator');
 
 sub prefix:<±> ($thing) { return "AROUND$thing"; };
-eval_ok('(± "fish") eq "AROUNDfish',
-	'prefix operator overloading for new operator (unicode)',
-	:todo<bug>
-       );
+is ± "fish", "AROUNDfish", 'prefix operator overloading for new operator (unicode)';
 sub prefix:<(+-)> ($thing) { return "ABOUT$thing"; };
-eval_ok('((+-) "fish") eq "ABOUTfish',
-	'prefix operator overloading for new operator (nasty)',
-	:todo<feature>
-       );
+is (+-) "fish", "ABOUTfish", 'prefix operator overloading for new operator (nasty)';
 
 sub prefix:<->($thing) { return "CROSS$thing"; };
 is(-"fish", "CROSSfish",
    'prefix operator overloading for existing operator');
 
 sub infix:<C> ($text, $owner) { return "$text copyright $owner"; };
-eval_ok( ' ("romeo & juliet" C "Shakespeare") eq
-            "romeo & juliet copyright Shakespeare" ',
-	 'infix operator overloading for new operator', :todo<feature>);
+is "romeo & juliet" C "Shakespeare", "romeo & juliet copyright Shakespeare",
+    'infix operator overloading for new operator';
 
 sub infix:<©> ($text, $owner) { return "$text Copyright $owner"; };
-eval_ok( ' ("romeo & juliet" © "Shakespeare") eq
-            "romeo & juliet copyright Shakespeare" ',
-	 'infix operator overloading for new operator (unicode)',
-	 :todo<feature>);
+is "romeo & juliet" © "Shakespeare", "romeo & juliet Copyright Shakespeare",
+    'infix operator overloading for new operator (unicode)';
 
 sub infix:<(C)> ($text, $owner) { return "$text CopyRight $owner"; };
-eval_ok( ' ("romeo & juliet" (C) "Shakespeare") eq
-            "romeo & juliet copyright Shakespeare" ',
-	 'infix operator overloading for new operator (nasty)',
-	 :todo<feature>);
+is "romeo & juliet" (C) "Shakespeare", "romeo & juliet CopyRight Shakespeare",
+    'infix operator overloading for new operator (nasty)';
 
 # don't know if these syntaxes are legal...
 eval_ok('sub infix:"<"($one, $two) { return (rand(1) <=> 0.5) }',
