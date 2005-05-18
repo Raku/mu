@@ -808,8 +808,7 @@ ruleBlockFormalPointy = rule "pointy block parameters" $ do
 
 tightOperators :: RuleParser [[Operator Char Env Exp]]
 tightOperators = do
-  [optionary, namedUnary, preUnary, postUnary] <- currentUnaryFunctions
-  infixOps <- currentInfixOps
+  [optionary, namedUnary, preUnary, postUnary, infixOps] <- currentTightFunctions
   return $
     [ methOps  " . .+ .? .* .+ .() .[] .{} .<<>> .= "   -- Method postfix
     , postOps  " ++ -- " ++ preOps " ++ -- "            -- Auto-Increment
@@ -823,7 +822,7 @@ tightOperators = do
                " »*« »/« »x« »xx« »~« " ++
                " >>*<< >>/<< >>x<< >>xx<< >>~<< " ++
                " * / % x xx +& +< +> ~& ~< ~> "         -- Multiplicative
-    , leftOps $ " " ++ unwords infixOps ++ " "          -- User defined ops
+    , leftOps infixOps                                  -- User defined ops
                                                         -- XXX: But they shouldn't
 							-- automatically be leftOps,
 							-- right? --iblech
@@ -894,19 +893,19 @@ currentFunctions = do
                         (name', code_assoc code, code_params code)
                     _ -> Nothing
 
-currentUnaryFunctions :: RuleParser [String]
-currentUnaryFunctions = do
+currentTightFunctions :: RuleParser [String]
+currentTightFunctions = do
     env     <- getState
     case envStash env of
         "" -> do
-            funs <- currentUnaryFunctions'
+            funs <- currentTightFunctions'
             setState env{ envStash = unlines funs }
             return funs
         lns -> do
             return $ lines lns
 
-currentUnaryFunctions' :: RuleParser [String]
-currentUnaryFunctions' = do
+currentTightFunctions' :: RuleParser [String]
+currentTightFunctions' = do
     funs    <- currentFunctions
     let (unary, rest) = (`partition` funs) $ \x -> case x of
             (_, "pre", [param]) | not (isSlurpy param) -> True
@@ -918,36 +917,24 @@ currentUnaryFunctions' = do
                 , isSlurpy param -> True
             _ -> False
         restNames = Set.fromList $ map (\(name, _, _) -> name) rest'
-    let (optionary, unary') = mapPair (map snd) . partition fst . sort $
-            [ (isOptional param, encodeUTF8 name) | (name, _, [param]) <- unary
+        (optionary, unary') = mapPair (map snd) . partition fst . sort $
+            [ (isOptional param, name) | (name, _, [param]) <- unary
             , not (name `Set.member` restNames)
             ]
         (namedUnary, preUnary, postUnary) = foldr splitUnary ([],[],[]) unary'
         splitUnary ('p':'r':'e':'f':'i':'x':':':op) (n, pre, post) = (n, (op:pre), post)
         splitUnary ('p':'o':'s':'t':'f':'i':'x':':':op) (n, pre, post) = (n, pre, (op:post))
         splitUnary op (n, pre, post) = ((op:n), pre, post)
-    return $ map (unwords . nub) [optionary, namedUnary, preUnary, postUnary]
-    where
-    mapPair f (x, y) = (f x, f y)
-
--- Following code is from a Haskell newbie.
--- Please check for correctness. --iblech
-currentInfixOps :: RuleParser [String]
-currentInfixOps = do
-    -- We retrieve the list of all current functions
-    funs    <- currentFunctions
-    -- Then we grep for the &infix:... ones.
-    let (infixs, _) = (`partition` funs) $ \x -> case x of
-            ('i':'n':'f':'i':'x':':':_, _, _) -> True
-            _  -> False
+        -- Then we grep for the &infix:... ones.
+        (infixs, _) = (`partition` rest) $ \x -> case x of
+                ('i':'n':'f':'i':'x':':':_, _, _) -> True
+                _  -> False
+        infixOps = map (\(name, _, _) -> drop 6 name) infixs
+        mapPair f (x, y) = (f x, f y)
     -- Finally, we return the names of the ops.
     -- But we've to s/^infix://, as we've to return (say) "+" instead of "infix:+".
-    return $ map extractName infixs
-    where
-    extractName ('i':'n':'f':'i':'x':':':name, _, _) = encodeUTF8 name
-    -- GHC dies with "non exhaustive patterns" if I omit the following line.
-    -- But as we grep above for /^infix:/, we can't possible branch here.
-    extractName _ = error "Should never happen (Parser.hs:currentInfixOps:extractName)"
+    return $ map (encodeUTF8 . unwords . nub)
+        [optionary, namedUnary, preUnary, postUnary, infixOps]
 
 parseOp :: RuleParser Exp
 parseOp = expRule $ do
