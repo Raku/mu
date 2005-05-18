@@ -2,7 +2,7 @@
     .local int argc, pos, size1, size2
     .local pmc args, match, add_rule
     .local string input, result, cmd, sizeStr, arg1, arg2
-    .local pmc stdin
+    .local pmc stdin, stdout
     .include "iglobals.pasm"
 
     load_bytecode "PGE/Hs.pir"
@@ -14,8 +14,12 @@
     argc = elements args
     if argc == 3 goto do_args
 
-  loop:
     getstdin stdin
+    getstdout stdout
+    stdin."setbuf"(0)
+    stdout."setbuf"(0)
+
+  loop:
     readline input, stdin
     length pos, input 
     if pos < 1 goto end
