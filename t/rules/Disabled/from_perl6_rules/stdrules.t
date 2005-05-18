@@ -22,15 +22,15 @@ if(eval('!("a" ~~ /a/)')) {
 ok("abc1_2" ~~ m/^ <ident> $/, '<ident>');
 is($/<ident>, 'abc1_2', 'Captured <ident>');
 ok("abc1_2" ~~ m/^ <?ident> $/, '<?ident>');
-ok(!defined $/<ident>, 'Uncaptured <?ident>');
+ok(!defined($/<ident>), 'Uncaptured <?ident>');
 ok(!( "7abc1_2" ~~ m/^ <?ident> $/ ), 'not <?ident>');
 
 ok("\t \n\t" ~~ m/^ <?ws> $/, '<?ws>');
-ok(!defined $/<ws>, 'Uncaptured <?ws>');
+ok(!defined($/<ws>), 'Uncaptured <?ws>');
 ok(!( "7abc1_2" ~~ m/^ <?ws> $/ ), 'not <?ws>');
 
 ok(" " ~~ m/^ <?sp> $/, '<?sp>');
-ok(!defined $/<sp>, 'Uncaptured <?sp>');
+ok(!defined($/<sp>), 'Uncaptured <?sp>');
 ok(!( "7abc1_2" ~~ m/<?sp>/ ), 'not <?sp>');
 
 ok(" \t\t \t" ~~ m/^ (\h+) $/, '\h');
