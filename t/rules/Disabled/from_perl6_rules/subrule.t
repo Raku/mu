@@ -31,7 +31,8 @@ ok(@$/ == 0, 'Once no array capture');
 ok(%$/.keys == 0, 'Once no hash capture');
 
 
-rule rep {<?abc>**{4}}
+fail("FIXME parsefail", :todo);
+#rule rep {<?abc>**{4}}
 
 ok("abcabcabcabcd" ~~ m/<?rep>/, 'Rep match');
 ok($/, 'Rep matched');
@@ -51,7 +52,8 @@ ok(@$/ == 0, 'Cap no array capture');
 ok(%$/.keys == 1, 'Cap hash capture');
 
 
-rule repcap {<abc>**{4}}
+fail("FIXME parsefail", :todo);
+#rule repcap {<abc>**{4}}
 
 ok("abcabcabcabcd" ~~ m/<repcap>/, 'Repcap match');
 ok($/, 'Repcap matched');
@@ -64,7 +66,8 @@ is($/<repcap><abc>[3], "abc", 'Repcap abc three captured');
 ok(@$/ == 0, 'Repcap no array capture');
 
 
-rule caprep {(<?abc>**{4})}
+fail("FIXME parsefail", :todo);
+#rule caprep {(<?abc>**{4})}
 
 ok("abcabcabcabcd" ~~ m/<caprep>/, 'Caprep match');
 ok($/, 'Caprep matched');
