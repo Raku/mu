@@ -809,6 +809,7 @@ ruleBlockFormalPointy = rule "pointy block parameters" $ do
 tightOperators :: RuleParser [[Operator Char Env Exp]]
 tightOperators = do
   [optionary, namedUnary, preUnary, postUnary] <- currentUnaryFunctions
+  infixOps <- currentInfixOps
   return $
     [ methOps  " . .+ .? .* .+ .() .[] .{} .<<>> .= "   -- Method postfix
     , postOps  " ++ -- " ++ preOps " ++ -- "            -- Auto-Increment
@@ -822,6 +823,10 @@ tightOperators = do
                " »*« »/« »x« »xx« »~« " ++
                " >>*<< >>/<< >>x<< >>xx<< >>~<< " ++
                " * / % x xx +& +< +> ~& ~< ~> "         -- Multiplicative
+    , leftOps $ " " ++ unwords infixOps ++ " "          -- User defined ops
+                                                        -- XXX: But they shouldn't
+							-- automatically be leftOps,
+							-- right? --iblech
     , leftOps  " »+« >>+<< + - ~ +| +^ ~| ~^ ?| "       -- Additive
     , listOps  " & "                                    -- Junctive And
     , listOps  " ^ | "                                  -- Junctive Or
@@ -924,6 +929,25 @@ currentUnaryFunctions' = do
     return $ map (unwords . nub) [optionary, namedUnary, preUnary, postUnary]
     where
     mapPair f (x, y) = (f x, f y)
+
+-- Following code is from a Haskell newbie.
+-- Please check for correctness. --iblech
+currentInfixOps :: RuleParser [String]
+currentInfixOps = do
+    -- We retrieve the list of all current functions
+    funs    <- currentFunctions
+    -- Then we grep for the &infix:... ones.
+    let (infixs, _) = (`partition` funs) $ \x -> case x of
+            ('i':'n':'f':'i':'x':':':_, _, _) -> True
+            _  -> False
+    -- Finally, we return the names of the ops.
+    -- But we've to s/^infix://, as we've to return (say) "+" instead of "infix:+".
+    return $ map extractName infixs
+    where
+    extractName ('i':'n':'f':'i':'x':':':name, _, _) = encodeUTF8 name
+    -- GHC dies with "non exhaustive patterns" if I omit the following line.
+    -- But as we grep above for /^infix:/, we can't possible branch here.
+    extractName _ = error "Should never happen (Parser.hs:currentInfixOps:extractName)"
 
 parseOp :: RuleParser Exp
 parseOp = expRule $ do
