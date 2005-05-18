@@ -44,7 +44,7 @@ fp - Functional programming for Perl 6
 This is an experimental module which eases the use of functional programming
 techniques in Perl 6.
 
-=head1 OVERLOADED OPERATORS
+=head1 OPERATORS
 
 =head2 C<< infix:<∘> (Code &f, Code &g) >>
 
@@ -63,6 +63,22 @@ Then, all functions can be "infixized".
 =head2 C<< infix:<⇒> ($key, $value) >>
 
 Pair constructor (equivalent to C<< => >>).
+
+=head2 C<≥>, C<≤>, C<≠>
+
+Standard comparision operators.
+
+=head2 C<≣>, C<≡>
+
+Equivalent to C<=:=>.
+
+=head2 C<< prefix:<∑>(@nums) >>, C<< prefix:<∏>(@nums) >>
+
+Sum and product.
+
+=head2 C<< postfix:<!>(Int $x) >>
+
+Factorial.
 
 =head1 BUGS
 
