@@ -3,7 +3,7 @@
 use Test;
 use v6;
 
-plan 15;
+plan 16;
 
 =head1 DESCRIPTION
 
@@ -47,6 +47,10 @@ ok eval('my $is_monotonic = not [>] 4, 2, 3, 1'), "[>] works (2)", :todo<bug>;
   is eval('[.{}] $hash, <a b c d>'), 42, '[.{}] works';
 }
 
-# Follonw two tests taken verbatim from former t/operators/reduce.t
+# Following two tests taken verbatim from former t/operators/reduce.t
 eval_ok('my @foo = [1..3] >>+<< [1..3] >>+<< [1..3];','Sanity Check');
 eval_ok('my @foo = [>>+<<] ([1..3],[1..3],[1..3]);','Parse [>>+<<]', :todo<bug>);
+
+# Check that user defined infix ops work with [...], too.
+sub infix:<more_than_plus>(Int $a, Int $b) { $a + $b + 1 }
+is eval('[more_than_plus] 1, 2, 3'), 8, "[...] works on user defined ops", :todo<bug>;
