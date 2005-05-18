@@ -235,6 +235,7 @@ ruleSubHead = rule "subroutine head" $ do
         ]
     return (isMulti, isMethod, name)
 
+maybeColon :: RuleParser ([Char] -> [Char])
 maybeColon = option id $ do
     char ':'
     return $ \(sigil:name) -> (sigil:':':name)
@@ -353,6 +354,8 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
             lexDiff <- unsafeEvalLexDiff (Sym scope name' emptyExp)
             return $ Pad scope lexDiff exp
 
+-- | A Param representing the default (unnamed) invocant of a method on the given type.
+selfParam :: String -> Param
 selfParam typ = MkParam
     { isInvocant    = True
     , isOptional    = False
@@ -535,11 +538,15 @@ ruleModuleDeclaration = rule "module declaration" $ do
     setState env{ envPackage = name, envClasses = envClasses env `addNode` mkType name }
     return $ Syn "module" [Val . VStr $ name ++ v ++ a] -- XXX
 
+-- | The version part of a full class specification.
+ruleVersionPart :: RuleParser String
 ruleVersionPart = do -- version - XXX
     char '-'
     str <- many1 (choice [ digit, char '.' ])
     return ('-':str)
 
+-- | The author part of a full class specification.
+ruleAuthorPart :: RuleParser String
 ruleAuthorPart = do -- author - XXX
     char '-'
     str <- many1 (satisfy (/= ';'))
@@ -1455,6 +1462,9 @@ qLiteral1 qEnd flags = do
             ]
         ]
 
+-- | splits the string into expressions on whitespace.
+-- Implements the <> operator at parse-time.
+doSplitStr :: String -> Exp
 doSplitStr str = case perl6Words str of
     []  -> Syn "," []
     [x] -> Val (VStr x)
@@ -1603,6 +1613,9 @@ rxP6Flags :: QFlags
 rxP6Flags = MkQFlags QS_No False False False False False QB_No '/' False False
 
 -- Regexps
+
+-- | A parser returning a regex, given a hashref of adverbs and a closing delimiter.
+rxLiteralAny :: Exp -> Char -> RuleParser Exp
 rxLiteralAny adverbs
     | Syn "\\{}" [Syn "," pairs] <- adverbs
     , not (null [

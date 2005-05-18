@@ -42,6 +42,7 @@ data PCRE
 newtype Regex = Regex (ForeignPtr PCRE)
     deriving (Show, Eq, Ord)
 
+fi :: (Num b, Integral a) => a -> b
 fi x = fromIntegral x
 
 -- | Compiles a regular expression

@@ -10,6 +10,7 @@ import qualified Data.Set as Set
 
 import Pugs.Prim.Numeric
 
+op0Zip :: [Val] -> Eval Val
 op0Zip = fmap (VList . concat . op0Zip') . mapM fromVal
 
 op0Zip' :: [[Val]] -> [[Val]]

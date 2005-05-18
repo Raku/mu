@@ -1290,6 +1290,7 @@ data VObject = MkObject
     }
     deriving (Show, Eq, Ord, Typeable)
 
+-- | A $/ object, the return of a rx match operation.
 data VMatch = MkMatch
     { matchOk           :: !VBool   -- success?
     , matchFrom         :: !Int     -- .from
@@ -1300,7 +1301,12 @@ data VMatch = MkMatch
     }
     deriving (Show, Eq, Ord, Typeable)
 
+-- | An empty failed match
+mkMatchFail :: VMatch
 mkMatchFail = MkMatch False 0 0 "" [] Map.empty
+
+-- | Makes a successful match
+mkMatchOk :: Int -> Int -> VStr -> VList -> VHash -> VMatch
 mkMatchOk   = MkMatch True
 
 instance Eq VOpaque where

@@ -28,12 +28,15 @@ externalize mod stmts = externExternalize backend mod code
     flatten exp = [exp]
 
 
+externExternalize :: String -> String -> String -> IO String
 externExternalize "Haskell" = externalizeHaskell
 externExternalize backend   = error $ "Unrecognized inline backend: " ++ backend
 
+externLoad :: String -> FilePath -> IO [(String, [Val] -> Eval Val)]
 externLoad "Haskell" = loadHaskell
 externLoad backend   = error $ "Unrecognized inline backend: " ++ backend
 
+externRequire :: String -> FilePath -> Eval ()
 externRequire lang name = do
     glob        <- asks envGlobal
     bindings    <- liftIO $ externLoad lang name

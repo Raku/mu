@@ -17,14 +17,22 @@ import Pugs.AST hiding (isWritable)
 -- For the moment, these return filename and false or undef.
 -- Known Bugs: multiple stat()s are done, and filename isnt a boolean.
 
-isReadable = fileTestIO fileTestIsReadable
-isWritable = fileTestIO fileTestIsWritable
+isReadable   :: Val -> Eval Val
+isReadable   = fileTestIO fileTestIsReadable
+isWritable   :: Val -> Eval Val
+isWritable   = fileTestIO fileTestIsWritable
+isExecutable :: Val -> Eval Val
 isExecutable = fileTestIO fileTestIsExecutable
-exists = fileTestIO fileTestExists
-isFile = fileTestIO fileTestIsFile
-isDirectory = fileTestIO fileTestIsDirectory
-fileSize = fileTestIO fileTestFileSize
-sizeIsZero = fileTestIO fileTestSizeIsZero
+exists       :: Val -> Eval Val
+exists       = fileTestIO fileTestExists
+isFile       :: Val -> Eval Val
+isFile       = fileTestIO fileTestIsFile
+isDirectory  :: Val -> Eval Val
+isDirectory  = fileTestIO fileTestIsDirectory
+fileSize     :: Val -> Eval Val
+fileSize     = fileTestIO fileTestFileSize
+sizeIsZero   :: Val -> Eval Val
+sizeIsZero   = fileTestIO fileTestSizeIsZero
 
 fileTestIO :: (Value n) => (n -> IO Val) -> Val -> Eval Val
 fileTestIO f v = do

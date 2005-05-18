@@ -65,6 +65,7 @@ doMatch csChars MkRulePCRE{ rxRegex = re } = do
     where
     csBytes = encodeUTF8 csChars
 
+matchFromMR :: MatchResult Char -> Val
 matchFromMR mr = VMatch $ mkMatchOk 0 0 (decodeUTF8 all) subsMatch Map.empty
     where
     (all:subs) = elems $ mrSubs mr

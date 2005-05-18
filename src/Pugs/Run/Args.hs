@@ -66,10 +66,22 @@ unpackOption opt
     | Just (prefix, param) <- prefixOpt opt = ['-':prefix, param]
     | otherwise = ['-':opt]
 
+-- | List of options with long and sort variants, as tupples of long, short (with the dashes).
+longOptions :: [(String, String)]
 longOptions = [("--help", "-h"), ("--version", "-v")]
+
+-- | List of options that can have their argument just after, with no space.
+composable :: [Char]
 composable = "cdlnpw"
+
+-- | List of options that can take arguments
+withParam :: [String]
 withParam = words "e C B I M V:"
+
+prefixOpt :: [Char] -> Maybe (String, String)
 prefixOpt opt = msum $ map (findArg opt) withParam
+
+findArg :: Eq a => [a] -> [a] -> Maybe ([a], [a])
 findArg arg prefix = do
     param <- afterPrefix prefix arg
     guard (not (null param))
@@ -89,6 +101,7 @@ findArg arg prefix = do
    *  -p uses say() instead of print()
 -}
 
+compareArgs :: Arg -> Arg -> Ordering
 compareArgs a b = compare (argRank a) (argRank b)
 
 argRank :: Arg -> Int

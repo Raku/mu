@@ -21,6 +21,7 @@ import Pugs.Embed.Haskell
 import Pugs.Embed.Parrot
 -- import Pugs.Embed.Ponie
 
+evalEmbedded :: String -> String -> IO ()
 evalEmbedded "Parrot"  code = do
     evalParrot code
 evalEmbedded "Haskell" code = do

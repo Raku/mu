@@ -44,6 +44,7 @@ genPIR = do
 instance Compile Doc where
     compile = return
 
+padSort :: (Var, [(TVar Bool, TVar VRef)]) -> (String, [(a, b)]) -> Ordering
 padSort ((a::[Char]), [(_, _)]) ((b::[Char]), [(_, _)])
     | (head a == ':' && head b == '&') = LT
     | (head b == ':' && head a == '&') = GT
@@ -96,11 +97,13 @@ instance Compile VCode where
 instance Compile Param where
     compile prm = return $ text ".param pmc" <+> varText (paramName prm)
 
+varText :: String -> Doc
 varText ('$':name)  = text $ "s__" ++ name
 varText ('@':name)  = text $ "a__" ++ name
 varText ('%':name)  = text $ "h__" ++ name
 varText x           = error $ "invalid name: " ++ x
 
+varInit :: String -> Doc
 varInit ('$':_) = text $ "PerlUndef"
 varInit ('@':_) = text $ "PerlArray"
 varInit ('%':_) = text $ "PerlHash"
@@ -121,6 +124,7 @@ tempLabels strs = do
     tmp <- incCounter "label" ("LABEL_" ++)
     return $ map ((tmp <> text "_" <>) . text) strs
 
+incCounter :: String -> (String -> String) -> Eval Doc
 incCounter key f = do
     Just ioRef <- asks envDebug
     liftSTM $ do
@@ -138,8 +142,10 @@ instance Compile Pos where
         ]
 
 
+label :: Doc -> Doc
 label doc = doc <> text ":"
 
+compileCond :: Compile a => String -> [a] -> Eval Doc
 compileCond neg [cond, bodyIf, bodyElse] = do
     [alt, end]  <- tempLabels ["else", "endif"]
     (condC, p)  <- compileArg cond
@@ -323,7 +329,10 @@ compileWith f x = do
     argC <- local (\e -> e{ envStash = pmc }) $ compile x
     return $ vcat [ argC, f tmp ]
 
+currentStash :: Eval Doc
 currentStash = fmap text $ asks envStash
+
+constPMC :: Doc -> Eval Doc
 constPMC doc = do
     tmp  <- currentStash
     return $ vcat
@@ -331,6 +340,7 @@ constPMC doc = do
         , tmp <+> text "=" <+> doc
         ]
 
+compileArg :: Compile a => a -> Eval (Doc, Doc)
 compileArg exp = do
     tmp  <- tempPMC
     pmc  <- askPMC

@@ -86,7 +86,7 @@ emptyEnv name genPad = do
 
 -- Evaluation ---------------------------------------------------------------
 
--- debug :: (Pretty a) => String -> String -> a -> Eval ()
+debug :: Pretty a => String -> (String -> String) -> String -> a -> Eval ()
 debug key fun str a = do
     rv <- asks envDebug
     case rv of
@@ -151,6 +151,7 @@ retItem val = do
         (retVal $ VList [val])
         (retVal $ val)
 
+addGlobalSym :: (Pad -> Pad) -> Eval ()
 addGlobalSym newSym = do
     glob <- asks envGlobal
     liftSTM $ do
@@ -996,6 +997,7 @@ doApply env sub@MkCode{ subBody = fun, subType = typ } invs args =
         | isaType (envClasses env) "Junction" typ    = True
         | otherwise                     = False
 
+toGlobal :: String -> String
 toGlobal name
     | (sigil, identifier) <- break (\x -> isAlpha x || x == '_') name
     , last sigil /= '*'
@@ -1003,6 +1005,7 @@ toGlobal name
     | otherwise = name
 
 
+arityMatch :: VCode -> Int -> Int -> Maybe VCode
 arityMatch sub@MkCode{ subAssoc = assoc, subParams = prms } argLen argSlurpLen
     | assoc == "list" || assoc == "chain"
     = Just sub

@@ -282,5 +282,6 @@ ruleContext = literalRule "context" $ do
 tryChoice :: [GenParser tok st a] -> GenParser tok st a
 tryChoice = choice . map try
 
+verbatimParens :: GenParser Char st a -> GenParser Char st a
 verbatimParens = between (lexeme $ char '(') (char ')')
 

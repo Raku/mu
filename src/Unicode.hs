@@ -221,6 +221,11 @@ toUpper                 :: Char -> Char
 -- equivalent is transformed.
 toLower                 :: Char -> Char
 
+-- | Convert a letter to the cooresponding title-case letter, leaving any
+-- other character unchanged.  Any Unicode letter which has a title-case
+-- equivalent is transformed.
+toTitle                 :: Char -> Char
+
 -- -----------------------------------------------------------------------------
 -- Implementation with the supplied auto-generated Unicode character properties
 -- table (default)

@@ -8,8 +8,9 @@ module Pugs.Compile.Haskell where
 genGHC = error "Template Haskell support not compiled in"
 #else
 
-import Pugs.Internals
 import qualified Language.Haskell.TH as TH
+import qualified Language.Haskell.TH.Lib
+import Pugs.Internals
 import Pugs.AST
 import Pugs.Run
 import Pugs.Prim
@@ -36,6 +37,7 @@ genGHC = do
 #endif
 
 -- Haddock doesn't like Template Haskell.
+compile :: Exp -> Language.Haskell.TH.Lib.ExpQ
 #ifndef HADDOCK
 compile (Stmts stmt rest) = [| do
         $(argC)

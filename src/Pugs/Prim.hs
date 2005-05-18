@@ -454,6 +454,7 @@ op1 "to"    = op1Cast (castV . matchTo)
 op1 "matches" = op1Cast (VList . matchSubPos)
 op1 other   = \_ -> fail ("Unimplemented unaryOp: " ++ other)
 
+op1Exit :: Val -> Eval a
 op1Exit v = do
     rv <- fromVal v
     if rv /= 0
@@ -833,6 +834,7 @@ op2Logical f x y = do
 op2DefinedOr :: Val
 op2DefinedOr = undefined
 
+op2Identity :: Val -> Val -> Eval Val
 op2Identity (VObject x) (VObject y) = return $ VBool (objId x == objId y)
 op2Identity (VRef ref) y = do
     x <- readRef ref

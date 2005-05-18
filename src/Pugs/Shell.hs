@@ -29,13 +29,14 @@ data RunOptions = RunOpts { runOptDebug :: Bool
                           , runOptSeparately :: Bool
                           , runOptShowPretty :: Bool}
 
--- read some input from the user
+-- | read some input from the user
 -- parse the input and return the corresponding command
 getCommand :: IO Command
 getCommand = do
     input <- readline "pugs> " 
     doCommand input
 
+doCommand :: Maybe String -> IO Command
 doCommand Nothing = return CmdQuit
 doCommand (Just line)
     | all isSpace line  = getCommand

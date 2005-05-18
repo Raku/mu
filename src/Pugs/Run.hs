@@ -22,6 +22,7 @@ import qualified Data.Map as Map
 
 -- |Run 'Main.run' with command line args. 
 -- See 'Main.main' and 'Pugs.Run.Args.canonicalArgs'
+runWithArgs :: ([String] -> IO t) -> IO t
 runWithArgs f = do
     args <- getArgs
     f $ canonicalArgs args
