@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 47;
+plan 56;
 
 my $foo = "FOO";
 my $bar = "BAR";
@@ -117,25 +117,51 @@ Tests quoting constructs as defined in L<S02/Literals>
 { # adverb variation
 	my @q = ();
 	eval '@q = (q:w/$foo $bar/)';
-	is(+@q, 2, "q:w// is also identical");
+	is(+@q, 2, "q:w// is like <>");
 	is(@q[0], '$foo', "...");
 	is(@q[1], '$bar', "...");
 };
 
+{ # whitespace sep aration does not break quote constructor 
+  # L<S02/Literals /Whitespace is allowed between the "q" and its adverb: q :w /..././>
+	my @q = ();
+	eval '@q = (q :w /$foo $bar/)';
+	is(+@q, 2, "q :w // is the same as q:w//",:todo<bug>);
+	is(@q[0], '$foo', "...",:todo<bug>);
+	is(@q[1], '$bar', "...",:todo<bug>);
+};
 
-{ # qw, interpolating L<S02/Literals /do not interpolate while double angles do/>
-	my (@q1, @q2, @q3) = ();
-	@q1 = q:ww/$foo gorch $bar/;
-	@q2 = «$foo gorch $bar»; # french
-	@q3 = <<$foo gorch $bar>>; # texas
 
-	is(+@q1, 3, 'q:ww// correct number of elements');
-	is(+@q2, 3, 'french double angle');
-	is(+@q3, 3, 'texas double angle');
+{ # qq:w, interpolating L<S02/Literals /double angles do interpolate/>
+  # L<S02/Literals /Split result on words (no quote protection)/>
+	my (@q1, @q2) = ();
+	@q1 = qq:w/$foo "gorch $bar"/;
+	@q2 = qq:words/$foo "gorch $bar"/;
 
-	is(~@q1, "FOO gorch BAR", "explicit quote word interpolates", :todo);
-	is(~@q2, "FOO gorch BAR", "output is the same as french,");
-	is(~@q3, "FOO gorch BAR", "and texas quotes");
+	is(+@q1, 3, 'qq:w// correct number of elements');
+	is(+@q2, 3, 'qq:words correct number of elements');
+
+	is(~@q1, 'FOO "gorch BAR"', "explicit quote word interpolates");
+	is(~@q2, 'FOO "gorch BAR"', "long form output is the same as the short");
+};
+
+{ # qq:ww, interpolating L<S02/Literals /double angles do interpolate/>
+  # L<S02/Literals /Split result on words (with quote protection)/>
+	my (@q1, @q2, @q3, @q4) = ();
+	@q1 = qq:ww/$foo "gorch $bar"/;
+	@q2 = «$foo "gorch $bar"»; # french
+	@q3 = <<$foo "gorch $bar">>; # texas
+	@q4 = qq:quotewords/$foo "gorch $bar"/; # long
+
+	is(+@q1, 2, 'qq:ww// correct number of elements',:todo<bug>);
+	is(+@q2, 2, 'french double angle',:todo<bug>);
+	is(+@q3, 2, 'texas double angle',:todo<bug>);
+	is(+@q4, 2, 'long form',:todo<bug>);
+
+	is(~@q1, 'FOO gorch BAR', "explicit quote word interpolates", :todo<bug>);
+	is(~@q2, 'FOO gorch BAR', "output is the same as french",:todo<bug>);
+	is(~@q3, 'FOO gorch BAR', ", texas quotes",:todo<bug>);
+	is(~@q4, 'FOO gorch BAR', ", and long form",:todo<bug>);
 };
 
 { # qw, interpolating, shell quoting L<S02/Literals /respects quotes in a shell-like fashion/>
