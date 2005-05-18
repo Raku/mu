@@ -18,8 +18,11 @@ my @list      = map -> $a{my $b = $a; chomp $b; $b;} =$fh;
 # or better, if the filehandle could be autochomped.
 
 my &tell = -> $max {
-		say "Pugs is{ 
-			my @a; for 1..pick(1..$max){push @a,pick @list;} report @a;
+		# the hash prevents the pick of identical phrases for a single
+		# sentence
+		say "Pugs is{   
+			my %a; for 1..$max {%a{pick @list}=1;} report
+			matchval 1,%a,$max;
 		}."
 };
 
