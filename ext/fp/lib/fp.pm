@@ -11,6 +11,20 @@ sub infix:<`grep`> (Code &f, *@y) { grep &f, @y }
 # Pair constructor
 sub infix:<⇒> { $^x => $^y }
 
+# Comparision ops
+sub infix:<≥> { $^a >= $^b }
+sub infix:<≤> { $^a <= $^b }
+sub infix:<≠> { $^a != $^b }
+sub infix:<≣> { $^a =:= $^b }
+sub infix:<≡> { $^a =:= $^b }
+
+# Misc. mathematical chars
+sub prefix:<∑>  { [+] *@^nums }
+sub prefix:<∏>  { [*] *@^nums }
+sub postfix:<!> { [*] 1..$^x }
+# sub ∞()       { Inf } -- doesn't work
+sub infix:<÷>   { $^a / $^b }
+
 =head1 NAME
 
 fp - Functional programming for Perl 6
