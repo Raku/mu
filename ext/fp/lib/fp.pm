@@ -8,6 +8,8 @@ sub infix:<○> (Code &f, Code &g) { sub($x) { f g $x } }
 sub infix:<`map`>  (Code &f, *@y) { map &f, @y }
 sub infix:<`grep`> (Code &f, *@y) { grep &f, @y }
 
+# Pair constructor
+sub infix:<⇒> { $^x => $^y }
 
 =head1 NAME
 
@@ -21,6 +23,7 @@ fp - Functional programming for Perl 6
   (&say ○ &int)(10/3);               # 3
   { $_ % 2 == 0 } `grep` [1,2,3,4];  # [2,4]
   { $_ * 2 } `map` [1,2,3];          # [2,4,6]
+  my $pair = key ⇒ "value";
 
 =head1 DESCRIPTION
 
@@ -42,6 +45,10 @@ Infix versions of C<map> and C<grep>.
 
 These will go when we can define own metaoperators (like C<[...]> or C<»...«>).
 Then, all functions can be "infixized".
+
+=head2 C<< infix:<⇒> ($key, $value) >>
+
+Pair constructor (equivalent to C<< => >>).
 
 =head1 BUGS
 
