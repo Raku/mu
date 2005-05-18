@@ -80,15 +80,20 @@ run ("--external":mod:"-e":prog:_)    = doExternal mod "-e" prog
 run ("--external":mod:file:_)         = readFile file >>= doExternal mod file
 
 run (("-e"):prog:args)          = do doRun "-e" args prog
-run ("-":args)                  = do
-                                    prog <- getContents
-                                    doRun "-" args prog
+run ("-":args)                  = do doRun "-" args =<< readStdin
 run (file:args)                 = readFile file >>= doRun file args
 run []                          = do
     isTTY <- hIsTerminalDevice stdin
     if isTTY
         then do banner >> intro >> repLoop
         else run ["-"]
+
+readStdin = do
+    eof     <- isEOF
+    if eof then return [] else do
+    ch      <- getChar
+    rest    <- readStdin
+    return (ch:rest)
 
 -- convenience functions for GHCi
 eval :: String -> IO ()
