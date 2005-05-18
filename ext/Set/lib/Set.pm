@@ -132,6 +132,16 @@ method symmetric_difference($self: Set $other) returns Set {
 our &Set::count ::= &Set::size;
 our &Set::has   ::= &Set::includes;
 
+# unicode intersection
+method infix:<∩> (Set $one, Set $two) returns Set {
+    $one.intersection($two);
+}
+
+# unicode union
+method infix:<∪> (Set $one, Set $two) returns Set {
+    $one.union($two);
+}
+
 # addition is union
 method infix:<+> (Set $one, Set $two) returns Set {
     $one.union($two);
