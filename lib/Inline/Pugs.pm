@@ -3,7 +3,7 @@ package Inline::Pugs;
 use strict;
 use vars qw<$VERSION @ISA>;
 use constant MAGIC =>
-    'my$Z= =$*IN;while 1{$_=perl eval eval=$*IN;say$!//$_;print$Z;flush$*OUT}';
+    'my$Z= =$*IN;while 1{$_=perl eval eval=$*IN;print$Z;say$!//$_;print$Z;flush$*OUT}';
 use constant COOKIE => rand();
 use Perl6::Pugs;
 use IPC::Open2;
@@ -93,7 +93,8 @@ sub init_pugs {
 sub eval_pugs {
     my $self = shift;
     print IN $self->quote_pugs($_[0]), "\n";
-    local $/ = COOKIE;
+    local $/ = COOKIE . "\n";
+    print substr(<OUT>, 0, -length($/));
     my $out = substr(<OUT>, 0, -length($/));
     $out =~ s{\n+$}{};
     $out =~ s{^\n+}{};
