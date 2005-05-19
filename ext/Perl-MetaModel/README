@@ -24,3 +24,6 @@ and off the Pugs root:
     
     src/Pugs/Class.hs
     
+lib/Perl/*.pm classes are what you would get out of introspecting the
+Haskell source.  Attribute names should be taken from the Haskell
+source where possible.
