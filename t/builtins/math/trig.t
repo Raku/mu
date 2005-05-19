@@ -27,36 +27,36 @@ eval_is("approx(pi + 3, $PI + 3)", "'pi()' may drop its parentheses before +3");
 # L<S29/"Math::Trig" /"atan"/> -- atan
 # The basic form of atan (one argument) returns a value in ]-pi, pi[.
 # Quadrants I, III
-eval_ok("approx(atan(1)           / $PI * 180, 45)");
-eval_ok("approx(atan(1/3*sqrt(3)) / $PI * 180, 30)");
-eval_ok("approx(atan(3*sqrt(3))   / $PI * 180, 60)");
+ok(approx(atan(1)           / $PI * 180, 45));
+ok(approx(atan(1/3*sqrt(3)) / $PI * 180, 30));
+ok(approx(atan(sqrt(3))     / $PI * 180, 60));
 
 # Quadrants II, IV
-eval_ok("approx(atan(-1)           / $PI * 180, -45)");
-eval_ok("approx(atan(-1/3*sqrt(3)) / $PI * 180, -30)");
-eval_ok("approx(atan(-3*sqrt(3))   / $PI * 180, -60)");
+ok(approx(atan(-1)           / $PI * 180, -45));
+ok(approx(atan(-1/3*sqrt(3)) / $PI * 180, -30));
+ok(approx(atan(-sqrt(3))     / $PI * 180, -60));
 
 # S29: This second form of C<atan> computes the arctangent of $y/$x, and
 # **takes the quadrant into account**.
 # Quadrant I
 ok(approx(atan(1, 1)           / $PI * 180, 45));
-ok(approx(atan(1/3*sqrt(3), 1) / $PI * 180, 30));
-ok(approx(atan(sqrt(3), 1)     / $PI * 180, 60));
+ok(approx(atan(1, sqrt(3))     / $PI * 180, 30));
+ok(approx(atan(1, 1/3*sqrt(3)) / $PI * 180, 60));
 
 # Quadrant II
-ok(approx(atan(-1, 1)           / $PI * 180, 135));
-ok(approx(atan(-1/3*sqrt(3), 1) / $PI * 180, 150));
-ok(approx(atan(-sqrt(3), 1)     / $PI * 180, 120));
+ok(approx(atan(1, -1)           / $PI * 180, 135));
+ok(approx(atan(1, -1/3*sqrt(3)) / $PI * 180, 120));
+ok(approx(atan(1, -sqrt(3))     / $PI * 180, 150));
 
 # Quadrant III
-ok(approx(atan(-1, -1)           / $PI * 180, 225));
-ok(approx(atan(-1/3*sqrt(3), -1) / $PI * 180, 210));
-ok(approx(atan(-sqrt(3), -1)     / $PI * 180, 240));
+ok(approx(atan(-1, -1)           / $PI * 180 + 360, 225));
+ok(approx(atan(-1, -sqrt(3))     / $PI * 180 + 360, 210));
+ok(approx(atan(-1, -1/3*sqrt(3)) / $PI * 180 + 360, 240));
 
 # Quadrant IV
-ok(approx(atan(1, -1)           / $PI * 180, 315));
-ok(approx(atan(1/3*sqrt(3), -1) / $PI * 180, 330));
-ok(approx(atan(sqrt(3), -1)     / $PI * 180, 300));
+ok(approx(atan(-1, 1)           / $PI * 180 + 360, 315));
+ok(approx(atan(-1, sqrt(3))     / $PI * 180 + 360, 330));
+ok(approx(atan(-1, 1/3*sqrt(3)) / $PI * 180 + 360, 300));
 
 # L<S29/"Math::Trig"> -- sin, cos, tan
 # sin

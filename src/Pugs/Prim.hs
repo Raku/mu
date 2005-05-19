@@ -128,6 +128,7 @@ op1 "cos"  = op1Floating cos
 op1 "sin"  = op1Floating sin
 op1 "tan"  = op1Floating tan
 op1 "sqrt" = op1Floating sqrt
+op1 "atan" = op1Floating atan
 op1 "post:++" = \x -> do
     val <- fromVal x
     ref <- fromVal x
@@ -992,6 +993,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      spre    !       (Bool)\
 \\n   Num       spre    +       (Num)\
 \\n   Num       pre     abs     (?Num=$_)\
+\\n   Num       pre     atan    (Num)\
 \\n   Num       pre     atan    (Num, Num)\
 \\n   Num       pre     cos     (?Num=$_)\
 \\n   Num       pre     sin     (?Num=$_)\

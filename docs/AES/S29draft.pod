@@ -180,7 +180,7 @@ Given the value of an arc representing a single full revolution.
 
 =item atan
 
- multi sub Math::Trig::atan (Num $x, Num $y : Num +$base) returns Num
+ multi sub Math::Trig::atan (Num $y, Num $x : Num +$base) returns Num
 
 This second form of C<atan> computes the arctangent of $y/$x, and takes
 the quadrant into account. Otherwise behaves as other trigonometric functions.
