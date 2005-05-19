@@ -3,7 +3,7 @@
 use Test;
 use v6;
 
-plan 20;
+BEGIN { plan 23 }
 
 =head1 DESCRIPTION
 
@@ -58,3 +58,10 @@ eval_ok('my @foo = [>>+<<] ([1..3],[1..3],[1..3]);','Parse [>>+<<]', :todo<bug>)
 # Check that user defined infix ops work with [...], too.
 sub infix:<more_than_plus>(Int $a, Int $b) { $a + $b + 1 }
 is eval('[more_than_plus] 1, 2, 3'), 8, "[...] metaop works on user defined ops", :todo<bug>;
+
+# 18:45 < autrijus> hm, I found a way to easily do linked list consing in Perl6
+# 18:45 < autrijus> [=>] 1..10;
+my $list = [=>] 1,2,3;
+is $list.key,         1, "[=>] works (1)";
+is $list.value.key,   2, "[=>] works (2)";
+is $list.value.value, 3, "[=>] works (3)";
