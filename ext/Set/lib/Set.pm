@@ -9,6 +9,16 @@ sub set (*@contents) returns Set is export {
     return $set;
 }
 
+=for LATER
+
+# parsefail :(
+
+sub ∅ returns Set is export {
+    set();
+}
+
+=cut
+
 # the Set is represented as a hash of (v => v)
 has %:members;
 
@@ -152,6 +162,12 @@ method infix:<-> (Set $one, Set $two) returns Set {
     $one.difference($two);
 }
 
+# unicode set difference operator
+#  note the difference - ∖ vs \ (backslash)
+method infix:<∖> (Set $one, Set $two) returns Set {
+    $one.difference($two);
+}
+
 # multiplication is intersection
 method infix:<*> (Set $one, Set $two) returns Set {
     $one.intersection($two);
@@ -169,6 +185,9 @@ method infix:<==> (Set $one, Set $two) returns Set {
 method infix:<!=> (Set $one, Set $two) returns Set {
     $one.not_equal($two);
 }
+method infix:<≠> (Set $one, Set $two) returns Set {
+    $one.not_equal($two);
+}
 
 # what will be used for stringify?
 method prefix:<~> (Set $self) returns Str {
@@ -178,21 +197,66 @@ method prefix:<~> (Set $self) returns Str {
 method infix:«<» (Set $one, Set $two) returns Set {
     $one.proper_subset($two);
 }
-method infix:«>» (Set $one, *@args) returns Set {
-    $one.proper_superset(set(@args));
+method infix:«>» (Set $one, Set $two) returns Set {
+    $one.proper_superset($two);
 }
 method infix:«<=» (Set $one, Set $two) returns Set {
     $one.subset($two);
 }
-method infix:«>=» (Set $one, *@args) returns Set {
-    $one.superset(set(@args));
+method infix:«>=» (Set $one, Set $two) returns Set {
+    $one.superset($two);
 }
 
-# methods below this point are currently not tested.
+# look at all these great unicode operators!  :D
+method infix:«⊂» (Set $one, Set $two) returns Set {
+    $one.proper_subset($two);
+}
+method infix:«⊃» (Set $one, Set $two) returns Set {
+    $one.proper_superset($two);
+}
+method infix:«⊆» (Set $one, Set $two) returns Set {
+    $one.subset($two);
+}
+method infix:«⊇» (Set $one, Set $two) returns Set {
+    $one.superset($two);
+}
+method infix:«⊄» (Set $one, Set $two) returns Set {
+    !$one.proper_subset($two);
+}
+method infix:«⊅» (Set $one, Set $two) returns Set {
+    !$one.proper_superset($two);
+}
+method infix:«⊈» (Set $one, Set $two) returns Set {
+    !$one.subset($two);
+}
+method infix:«⊉» (Set $one, Set $two) returns Set {
+    !$one.superset($two);
+}
+method infix:«⊊» (Set $one, Set $two) returns Set {
+    $one.proper_subset($two);
+}
+method infix:«⊋» (Set $one, Set $two) returns Set {
+    $one.proper_superset($two);
+}
 
-# a unicode operator for includes!
+# several unicode operators for includes!
 method infix:<∋> (Set $one, $member) returns Bool {
     $one.includes($member);
+}
+method infix:<∈> ($member, Set $set) returns Bool {
+    $set.includes($member);
+}
+method infix:<∍> (Set $one, $member) returns Bool {
+    $one.includes($member);
+}
+method infix:<∊> ($member, Set $set) returns Bool {
+    $set.includes($member);
+}
+method infix:<∌> (Set $one, $member) returns Bool {
+    !$one.includes($member);
+}
+method infix:<∉> ($member, Set $set) returns Bool {
+    !$set.includes($member);
 }
 
 # these methods are for overloaded operations with non-sets
@@ -353,3 +417,4 @@ Stevan "stevan" Little (misc. ugly hacks to make things work for now)
 You might want to read the tests of Set.
 
 =cut
+
