@@ -261,6 +261,11 @@ op1 "say" = op1Print hPutStrLn
 op1 "die" = \v -> do
     strs <- fromVal v
     fail (concat strs)
+op1 "warn" = \v -> do
+    strs <- fromVal v
+    errh <- readVar "$*ERR"
+    pos  <- asks envPos
+    op2 "print" errh $ VList [ VStr $ pretty (VError strs (NonTerm pos)) ++ "\n" ]
 op1 "exit" = op1Exit
 op1 "readlink" = \v -> do
     str  <- fromVal v
@@ -1115,6 +1120,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      pre     flush   (IO)\
 \\n   Bool      pre     close   (Socket)\
 \\n   Bool      pre     die     (List)\
+\\n   Bool      pre     warn    (List)\
 \\n   IO        pre     open    (Str)\
 \\n   Socket    pre     listen  (Int)\
 \\n   Socket    pre     connect (Str, Int)\
