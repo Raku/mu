@@ -811,8 +811,8 @@ findSub name invs args = do
         code <- findSub ("&infix:" ++ op) (take 2 (invs ++ [Val undef, Val undef])) []
         if isNothing code then return Nothing else do
         let subBody = const $ do
-                list_of_args    <- mapM evaluate invs
-                op2Fold (VList list_of_args) (VCode $ fromJust code)
+                list_of_args    <- evalExp $ Cxt cxtSlurpyAny (Syn "," invs)
+                op2Fold (list_of_args) (VCode $ fromJust code)
 	-- Now we construct the sub. Is there a more simple way to do it?
         return . Just $ mkPrim
             { subName     = "&prefix:[" ++ op ++ "]"
