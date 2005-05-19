@@ -16,8 +16,6 @@
 #define SYCK_VERSION    "0.55"
 #define YAML_DOMAIN     "yaml.org,2002"
 
-#include <stdlib.h>
-#include <string.h>
 #include <stdio.h>
 #include <ctype.h>
 #ifdef HAVE_ST_H
