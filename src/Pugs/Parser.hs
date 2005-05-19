@@ -284,7 +284,7 @@ ruleRuleDeclaration = rule "rule declaration" $ try $ do
 
 ruleClassDeclaration :: RuleParser Exp
 ruleClassDeclaration = rule "class declaration" $ try $ do
-    symbol "class" <|> symbol "role"
+    _       <- choice $ map symbol (words "class role grammar")
     name    <- ruleQualifiedIdentifier
     optional ruleVersionPart
     optional ruleAuthorPart
@@ -530,7 +530,7 @@ ruleRequireDeclaration = tryRule "require declaration" $ do
 
 ruleModuleDeclaration :: RuleParser Exp
 ruleModuleDeclaration = rule "module declaration" $ do
-    symbol "package" <|> symbol "module" <|> symbol "class"
+    _       <- choice $ map symbol (words "package module class grammar")
     name    <- ruleQualifiedIdentifier
     v       <- option "" $ ruleVersionPart
     a       <- option "" $ ruleAuthorPart
