@@ -53,7 +53,7 @@ module Pugs.AST.Internals (
     proxyScalar, constScalar, lazyScalar, lazyUndef, constArray,
     retError, retControl, retEmpty, retIVar, readIVar, writeIVar,
     fromVals, refType,
-    mkPad, lookupPad, padToList, diffPads, unionPads,
+    mkPad, lookupPad, padToList, diffPads, unionPads, subPad, updateSubPad,
     mkPrim, mkSub,
     cxtOfSigil, typeOfSigil,
     buildParam, defaultArrayParam, defaultHashParam, defaultScalarParam,
@@ -678,7 +678,7 @@ data VCode = MkCode
     { isMulti       :: !Bool        -- ^ Is this a multi sub\/method?
     , subName       :: !String      -- ^ Name of the closure
     , subType       :: !SubType     -- ^ Type of the closure
-    , subPad        :: !Pad         -- ^ Lexical pad for sub\/method
+    , subEnv        :: !(Maybe Env) -- ^ Lexical pad for sub\/method
     , subAssoc      :: !String      -- ^ Associativity
     , subParams     :: !Params      -- ^ Parameters list
     , subBindings   :: !Bindings    -- ^ Currently assumed bindings
@@ -699,7 +699,7 @@ mkPrim = MkCode
     { isMulti = True
     , subName = "&?"
     , subType = SubPrim
-    , subPad = mkPad []
+    , subEnv = Nothing
     , subAssoc = "pre"
     , subParams = []
     , subBindings = []
@@ -714,7 +714,7 @@ mkSub = MkCode
     { isMulti = False
     , subName = "&?"
     , subType = SubBlock
-    , subPad = mkPad []
+    , subEnv = Nothing
     , subAssoc = "pre"
     , subParams = []
     , subBindings = []
@@ -912,6 +912,7 @@ data Env = MkEnv
     , envClasses :: !ClassTree           -- ^ Current class tree
     , envEval    :: !(Exp -> Eval Val)   -- ^ Active evaluator
     , envCaller  :: !(Maybe Env)         -- ^ Caller's env
+    , envOuter   :: !(Maybe Env)         -- ^ Outer block's env
     , envBody    :: !Exp                 -- ^ Current AST expression
     , envDepth   :: !Int                 -- ^ Recursion depth
     , envID      :: !Unique              -- ^ Unique ID of Env
@@ -1002,6 +1003,14 @@ diffPads (MkPad map1) (MkPad map2) = MkPad $ Map.difference map1 map2
 
 unionPads :: Pad -> Pad -> Pad
 unionPads (MkPad map1) (MkPad map2) = MkPad $ Map.union map1 map2
+
+updateSubPad :: VCode -> (Pad -> Pad) -> VCode
+updateSubPad sub f = sub
+    { subEnv = fmap (\e -> e{ envLexical = f (subPad sub) }) (subEnv sub) 
+    }
+
+subPad :: VCode -> Pad
+subPad sub = maybe (mkPad []) envLexical (subEnv sub)
 
 type Eval x = EvalT (ContT Val (ReaderT Env SIO)) x
 type EvalMonad = EvalT (ContT Val (ReaderT Env SIO))

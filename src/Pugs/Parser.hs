@@ -330,7 +330,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
     let subExp = Val . VCode $ MkCode
             { isMulti       = isMulti
             , subName       = name'
-            , subPad        = envLexical env
+            , subEnv        = Just env
             , subType       = if isMethod then SubMethod else SubRoutine
             , subAssoc      = "pre"
             , subReturns    = mkType typ''
@@ -438,7 +438,7 @@ ruleMemberDeclaration = do
             let sub = mkPrim
                     { isMulti       = False
                     , subName       = name
-                    , subPad        = mkPad [] -- XXX really?
+                    , subEnv        = Nothing
                     , subReturns    = if null typ then typeOfSigil sigil else mkType typ
                     , subBody       = fun
                     , subParams     = [selfParam $ envPackage env]
@@ -760,10 +760,11 @@ retVerbatimBlock typ formal body = expRule $ do
     -- Check for placeholder vs formal parameters
     unless (isNothing formal || null names) $ 
         fail "Cannot mix placeholder variables with formal parameters"
+    env <- getState
     let sub = MkCode
             { isMulti       = False
             , subName       = "<anon>"
-            , subPad        = mkPad []
+            , subEnv        = Just env
             , subType       = typ
             , subAssoc      = "pre"
             , subReturns    = anyType

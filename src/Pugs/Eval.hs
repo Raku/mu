@@ -77,6 +77,7 @@ emptyEnv name genPad = do
             , envClasses = initTree
             , envEval    = evaluate
             , envCaller  = Nothing
+            , envOuter   = Nothing
             , envDepth   = 0
             , envID      = uniq
             , envBody    = Val undef
@@ -190,9 +191,16 @@ findVarRef name
     , Just (sig, "") <- breakOnGlue "CALLER" package = do
         maybeCaller <- asks envCaller
         case maybeCaller of
-            Just caller -> local (const caller) $ do
+            Just env -> local (const env) $ do
                 findVarRef (sig ++ name')
             Nothing -> retError "cannot access CALLER:: in top level" name
+    | Just (package, name') <- breakOnGlue "::" name
+    , Just (sig, "") <- breakOnGlue "OUTER" package = do
+        maybeOuter <- asks envOuter
+        case maybeOuter of
+            Just env -> local (const env) $ do
+                findVarRef (sig ++ name')
+            Nothing -> retError "cannot access OUTER:: in top level" name
     | ('$':'?':_) <- name = do
         rv  <- getMagical name
         case rv of
@@ -348,8 +356,8 @@ reduce exp@(Syn name exps) = case name of
     "sub" -> do
         let [exp] = exps
         (VCode sub) <- enterEvalContext (cxtItem "Code") exp
-        lex <- asks envLexical
-        retVal $ VCode sub{ subPad = lex }
+        env <- ask
+        retVal $ VCode sub{ subEnv = Just env }
     "if" -> doCond id 
     "unless" -> doCond not
     "for" -> do
@@ -369,13 +377,13 @@ reduce exp@(Syn name exps) = case name of
                 let (these, rest) = arity `splitAt` vs
                 genSymCC "&next" $ \symNext -> do
                     genSymPrim "&redo" (const $ runBody vs sub') $ \symRedo -> do
-                        apply sub'{ subPad = symRedo . symNext $ subPad sub' } [] $
+                        apply (updateSubPad sub' (symRedo . symNext)) [] $
                             map (Val . VRef . MkRef) these
                 runBody rest sub'
         genSymCC "&last" $ \symLast -> do
             let munge sub | subParams sub == [defaultArrayParam] =
                     munge sub{ subParams = [defaultScalarParam] }
-                munge sub = sub{ subPad = symLast $ subPad sub }
+                munge sub = updateSubPad sub symLast
             runBody elms $ munge sub
     "loop" -> do
         let [pre, cond, post, body] = case exps of { [_] -> exps'; _ -> exps }

@@ -146,7 +146,7 @@ enterBlock :: Eval Val -> Eval Val
 enterBlock action = callCC $ \esc -> do
     env <- ask
     exitRec <- genSubs env "&?BLOCK_EXIT" $ escSub esc
-    enterLex exitRec action
+    local (\e -> e{ envOuter = Just env }) $ enterLex exitRec action
     where
     escSub esc env = mkPrim
         { subName = "BLOCK_EXIT"
@@ -175,7 +175,8 @@ enterSub sub action
         | typ >= SubBlock = do
             blockRec <- genSym "&?BLOCK" (codeRef (orig sub))
             return $ \e -> e
-                { envLexical = combine [blockRec]
+                { envOuter = Just env
+                , envLexical = combine [blockRec]
                     (subPad sub `unionPads` envLexical env) }
         | otherwise = do
             subRec <- sequence
@@ -184,7 +185,9 @@ enterSub sub action
             -- retRec    <- genSubs env "&return" retSub
             callerRec <- genSubs env "&?CALLER_CONTINUATION" (ccSub cc)
             return $ \e -> e
-                { envLexical = combine (concat [subRec, callerRec]) (subPad sub) }
+                { envLexical = combine (concat [subRec, callerRec]) (subPad sub)
+                , envOuter   = maybe Nothing envOuter (subEnv sub)
+                }
     ccSub cc env = mkPrim
         { subName = "CALLER_CONTINUATION"
         , subParams = makeParams env
