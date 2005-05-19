@@ -954,7 +954,7 @@ parseLitOp = expRule $ do
     buildExpressionParser ops parseTerm (Syn "" [])
 
 ops :: (String -> a) -> String -> [a]
-ops f s = [f n | n <- sortBy revLength (words $ decodeUTF8 s)]
+ops f s = [f n | n <- sortBy revLength (nub . words $ decodeUTF8 s)]
     where
     revLength x y = compare (length y) (length x)
 
@@ -1147,9 +1147,20 @@ ruleFoldOp :: RuleParser String
 ruleFoldOp = verbatimRule "reduce metaoperator" $ do
     char '['
     [_, _, _, _, infixOps] <- currentTightFunctions
-    name <- choice $ map string $ words infixOps
+    name <- tryChoice $ ops string (infixOps ++ defaultInfixOps)
     char ']'
     return $ "&prefix:[" ++ name ++ "]"
+    where
+    defaultInfixOps = concat
+        [ " * / % x xx +& +< +> ~& ~< ~> "
+        , " + - ~ +| +^ ~| ~^ ?| "
+        , " & ^ | "
+        , " => "
+        , " != == < <= > >= ~~ !~ "
+        , " eq ne lt le gt ge =:= "
+        , " && !! "
+        , " || ^^ // "
+        ]
 
 parseParamList :: RuleParser ([Exp], [Exp])
 parseParamList = parseParenParamList True <|> parseNoParenParamList True
