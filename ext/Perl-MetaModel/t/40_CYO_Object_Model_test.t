@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 3;
+plan 15;
 
 =pod
 
@@ -73,6 +73,14 @@ lives_ok {
     );
 }, '... created the AbstractClass ok';
 
+lives_ok {
+    $abstract_class.compile();
+}, '... AbstractClass compiled correctly';
+
+my $abstract_instance = ::AbstractClass.new();
+ok($abstract_instance.isa('AbstractClass'), '... isa() AbstractClass instance');
+ok($abstract_instance.meta() =:= $abstract_class, '... meta() is the $abstract_class meta-class instance');
+
 =pod
 
 {
@@ -127,7 +135,16 @@ lives_ok {
             $self.properties()<method_table>{$label} = $impl;
         })
     );
-}, '... created the Class okay';
+}, '... created the Klass okay';
+
+lives_ok {
+    $class.compile();
+}, '... Class compiled correctly';
+
+my $class_instance = ::Class.new();
+ok($class_instance.isa('Class'), '... isa() Class instance');
+ok($class_instance.isa('AbstractClass'), '... isa() AbstractClass instance');
+ok($class_instance.meta() =:= $class, '... meta() is the $class meta-class instance');
 
 =pod
 
@@ -180,3 +197,13 @@ lives_ok {
         })
     );
 }, '... created the ThreadSafeClass ok';
+
+lives_ok {
+    $thread_safe_class.compile();
+}, '... ThreadSafeClass compiled correctly';
+
+my $thread_safe_class_instance = ::ThreadSafeClass.new();
+ok($thread_safe_class_instance.isa('ThreadSafeClass'), '... isa() ThreadSafeClass instance');
+ok($thread_safe_class_instance.isa('Class'), '... isa() Class instance');
+ok($thread_safe_class_instance.isa('AbstractClass'), '... isa() AbstractClass instance');
+ok($thread_safe_class_instance.meta() =:= $thread_safe_class, '... meta() is the $thread_safe_class meta-class instance');

@@ -191,7 +191,21 @@ method invokeMethod ($self: Str $label, *@args) returns Any {
 
 ## Instance Creation
 
+my $DEBUG = 0;
 
+method compile ($meta:) returns Void {
+    my $class_code = 'class ' ~ $.name;
+    $class_code ~= ' is ' ~ $:parent.name() if $:parent.defined;
+    $class_code ~= ' {
+        method meta returns Perl::Meta::Class { $meta }
+    
+        method isa ($self: Str $class) returns Bool {  
+            $self.meta().isATypeOf($class);
+        }
+    }';
+    say "evaling code:\n(\n$class_code\n)\n" if $DEBUG;
+    eval $class_code;
+}
 
 ## Subclass Creation
 
