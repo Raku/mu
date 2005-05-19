@@ -22,7 +22,7 @@ my $PI = 3.14159265358979323846264338327950288419716939937510;
 
 # L<S29/"Math::Trig" /"pi"/> -- pi
 ok(approx(pi, $PI), "pi()");
-eval_is("approx(pi + 3)", $PI + 3, "'pi()' may drop its parentheses before +3");
+eval_is("approx(pi + 3, $PI + 3)", "'pi()' may drop its parentheses before +3");
 
 # L<S29/"Math::Trig" /"atan"/> -- atan
 # The basic form of atan (one argument) returns a value in ]-pi, pi[.
