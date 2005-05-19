@@ -1044,11 +1044,12 @@ parseTerm = rule "term" $ do
     term <- choice
         [ ruleDereference
         , ruleVar
-        , ruleApply
+        , ruleApply True    -- Folded metaoperators
         , ruleLit
         , ruleClosureTrait True
         , ruleTypeVar
         , ruleTypeLiteral
+        , ruleApply False   -- Normal application
         , parens ruleExpression
         ]
     fs <- many rulePostTerm
@@ -1123,8 +1124,8 @@ ruleCodeSubscript = tryVerbatimRule "code subscript" $ do
     (invs,args) <- parens $ parseParamList
     return $ \x -> App x invs args
 
-ruleApply :: RuleParser Exp
-ruleApply = tryVerbatimRule "apply" $ do
+ruleApply :: Bool -> RuleParser Exp
+ruleApply isFolded = tryVerbatimRule "apply" $ do
     (colon, implicitInv) <- option (id, []) $ do
         char '.'
         option (id, [Var "$_"]) $ choice
@@ -1134,7 +1135,7 @@ ruleApply = tryVerbatimRule "apply" $ do
                         , [Var "$?SELF"]
                         )
             ]
-    name    <- fmap colon ruleSubName <|> ruleFoldOp
+    name    <- if isFolded then ruleFoldOp else fmap colon ruleSubName
     when ((name ==) `any` words " &if &unless &while &until &for ") $
         fail "reserved word"
     hasDot  <- option False $ try $ do { whiteSpace; char '.'; return True }
@@ -1309,7 +1310,6 @@ ruleLit = choice
     , arrayLiteral
     , pairLiteral
     , undefLiteral
---    , namedLiteral "undef"  VUndef
     , namedLiteral "NaN"    (VNum $ 0/0)
     , namedLiteral "Inf"    (VNum $ 1/0)
     , yadaLiteral
