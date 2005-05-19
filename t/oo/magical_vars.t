@@ -30,7 +30,7 @@ class SimpleClass does Bar {}
 
   ok( $class ~~ Foo, 'the thing returned by $?CLASS in our class smartmatches against our class' );
   my $fourty_two;
-  lives_ok { $fourty_two = $class.new.dummy },
+  lives_ok { my $obj = $class.new; $fourty_two = $obj.dummy },
     'the class returned by $?CLASS in our class was really our class (1)';
   is $fourty_two, 42, 'the class returned by $?CLASS in our class way really our class (2)';
 }
@@ -51,7 +51,7 @@ class SimpleClass does Bar {}
 
   is $class ~~ SimpleClass, 'the thing returned by $?CLASS in our role smartmatches against our class';
   my $fourty_two;
-  lives_ok { $fourty_two = $class.new.dummy },
+  lives_ok { my $obj = $class.new; $fourty_two = $obj.dummy },
     'the class returned by $?CLASS in our role way really our class (1)';
   is $fourty_two, 42, 'the class returned by $?CLASS in our role way really our class (2)';
 }
