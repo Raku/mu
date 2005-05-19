@@ -52,8 +52,8 @@ ok("  a b\tc" ~~ m/@<chars>:=( @<spaces>:=[\s+] (\S+))+/, 'Nested array capture'
 is("@{$/<chars>}", "a b c", 'Outer array capture');
 is(join("|",@{$/<spaces>}), "  | |\t", 'Inner array capture');
 
-fail("FIXME parsefail", :todo); # causes skip test at top of file to trigger.
-#rule spaces { @<spaces>:=[(\s+)] }
+# FIXME parsefail
+eval('  rule spaces { @<spaces>:=[(\s+)] }  ');
 
 ok("  a b\tc" ~~ m/@<chars>:=( <spaces> (\S+))+/, 'Subrule array capture');
 

@@ -19,8 +19,8 @@ if(eval('!("a" ~~ /a/)')) {
   skip_rest "skipped tests - rules support appears to be missing";
 } else {
 
-fail("FIXME parsefail", :todo);
-#rule dotdot { (.)(.) };
+# FIXME parsefail
+eval('  rule dotdot { (.)(.) };  ');
 
 ok("zzzabcdefzzz" ~~ m/(a.)<?dotdot>(..)/, 'Match');
 ok($/, 'Matched');
@@ -59,8 +59,8 @@ ok("bookkeeper" ~~ m/(((\w)$0[0][0])+)/, 'Backreference');
 is($0, 'ookkee', Captured );
 is($0[0], 'ee', Captured );
 
-fail("FIXME parsefail", :todo);
-#rule single { o | k | e };
+# FIXME parsefail
+eval('  rule single { o | k | e };  ');
 
 eval_ok(' "bookkeeper" ~~ m/<single> ($/<single>)/ ', 'Named backref');
 is($/<single>, 'o', 'Named capture');
@@ -103,8 +103,8 @@ ok("ivan" ~~ m/<?English.name> | <?French.name> | <?Russian.name>/, 'Russian nam
 is($/, "ivan", 'Match is ivan');
 is($/<name>, "ivan", 'Name is ivan');
 
-fail("FIXME parsefail", :todo);
-#rule name { <?English.name> | <?French.name> | <?Russian.name> }
+# FIXME parsefail
+eval('  rule name { <?English.name> | <?French.name> | <?Russian.name> }  ');
  
 ok("john" ~~ m/<name>/, 'English metaname');
 is($/, "john", 'Metaname match is john');
