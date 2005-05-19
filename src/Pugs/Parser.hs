@@ -1044,11 +1044,11 @@ parseTerm = rule "term" $ do
     term <- choice
         [ ruleDereference
         , ruleVar
+        , ruleApply
         , ruleLit
         , ruleClosureTrait True
         , ruleTypeVar
         , ruleTypeLiteral
-        , ruleApply
         , parens ruleExpression
         ]
     fs <- many rulePostTerm
