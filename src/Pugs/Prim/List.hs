@@ -58,7 +58,6 @@ op2Fold list sub = do
         local (\e -> e{ envContext = cxtItemAny }) $ do
             evl (App (Val sub) [Val x, Val y] [])
     case subAssoc code of
-        "left"  -> foldM doFold (head args) (tail args)
         "right" -> do
             let args' = reverse args
             foldM (flip doFold) (head args') (tail args')
@@ -69,7 +68,8 @@ op2Fold list sub = do
                     VBool False -> esc val
                     _           -> return val
             foldM doFold' (head args) (tail args)
-        _ -> fail $ "Cannot reduce over associativity:" ++ show (subAssoc code)
+        "non"   -> fail $ "Cannot reduce over non-associativity"
+        _       -> foldM doFold (head args) (tail args) -- "left", "pre"
 
 op2Grep :: Val -> Val -> Eval Val
 op2Grep sub@(VCode _) list = op2Grep list sub
