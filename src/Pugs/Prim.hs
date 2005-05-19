@@ -264,7 +264,7 @@ op1 "die" = \v -> do
     -- To avoid the uncatchable error "Prelude.last: empty list" and to present
     -- a nicer error message to the user.
     where
-    errmsg "" = "Died."
+    errmsg "" = "Died"
     errmsg x  = x
 op1 "warn" = \v -> do
     strs <- fromVal v
@@ -272,7 +272,7 @@ op1 "warn" = \v -> do
     pos  <- asks envPos
     op2 "say" errh $ VList [ VStr $ pretty (VError (errmsg strs) (NonTerm pos)) ]
     where
-    errmsg "" = "Something's wrong."
+    errmsg "" = "Warning: something's wrong"
     errmsg x  = x
 op1 "exit" = op1Exit
 op1 "readlink" = \v -> do
