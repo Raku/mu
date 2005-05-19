@@ -22,12 +22,11 @@ plan 25;
   is((reduce { $^a + $^b } 0, @array), $sum, "basic reduce works (1)");
   is((reduce { $^a + $^b } 100, @array), 100 + $sum, "basic reduce works (2)");
 
-  is(([+]  @array),        $sum, "[+] works");
-  is(([*]  1,2,3),      (1*2*3), "[*] works");
-  is(([-]  1,2,3),      (1-2-3), "[-] works");
-  is(([/]  12,4,3),    (12/4/3), "[/] works");
-  # XXX -- is [...] always left-associative?
-  is(([**] 2,2,3),  ((2**2)**3), "[**] works");
+  is(([+]  @array),      $sum, "[+] works");
+  is(([*]  1,2,3),    (1*2*3), "[*] works");
+  is(([-]  1,2,3),    (1-2-3), "[-] works");
+  is(([/]  12,4,3),  (12/4/3), "[/] works");
+  is(([**] 2,2,3),  (2**2**3), "[**] works", :todo<bug>);
 }
 
 ok (    [<]  1, 2, 3, 4), "[<] works (1)";
