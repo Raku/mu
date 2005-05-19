@@ -22,26 +22,25 @@ plan 25;
   is((reduce { $^a + $^b } 0, @array), $sum, "basic reduce works (1)");
   is((reduce { $^a + $^b } 100, @array), 100 + $sum, "basic reduce works (2)");
 
-  is(([+]  @array),      $sum, "[+] works");
+  is(([+] *@array),      $sum, "[+] works");
   is(([*]  1,2,3),    (1*2*3), "[*] works");
   is(([-]  1,2,3),    (1-2-3), "[-] works");
   is(([/]  12,4,3),  (12/4/3), "[/] works");
-  is(([**] 2,2,3),  (2**2**3), "[**] works", :todo<bug>);
+  is(([**] 2,2,3),  (2**2**3), "[**] works");
 }
 
 ok (    [<]  1, 2, 3, 4), "[<] works (1)";
-ok (not [<]  1, 3, 2, 4), "[<] works (2)", :todo<bug>;
-ok (    [>]  4, 3, 2, 1), "[>] works (1)", :todo<bug>;
+ok (not [<]  1, 3, 2, 4), "[<] works (2)";
+ok (    [>]  4, 3, 2, 1), "[>] works (1)";
 ok (not [>]  4, 2, 3, 1), "[>] works (2)";
-ok eval '(    [==] 4, 4, 4)',    "[==] works (1)", :todo<bug>;
-ok eval '(not [==] 4, 5, 4)',    "[==] works (2)", :todo<bug>;
-ok eval '(    [!=] 4, 5, 6)',    "[!=] works (1)", :todo<bug>;
-ok eval '(not [!=] 4, 4, 4)',    "[!=] works (2)", :todo<bug>;
+ok eval '(    [==] 4, 4, 4)',    "[==] works (1)";
+ok eval '(not [==] 4, 5, 4)',    "[==] works (2)";
+ok eval '(    [!=] 4, 5, 6)',    "[!=] works (1)";
+ok eval '(not [!=] 4, 4, 4)',    "[!=] works (2)";
 
 {
   my @array = (undef, undef, 3, undef, 5);
-  skip "Skipping hanging test";
-  # is eval('[//] @array'), 3, "[//] works", :todo<bug>;
+  is eval('[//] *@array'), 3, "[//] works";
 }
 
 {
@@ -57,9 +56,9 @@ ok eval '(not [!=] 4, 4, 4)',    "[!=] works (2)", :todo<bug>;
   # 18:45 < autrijus> hm, I found a way to easily do linked list consing in Perl6
   # 18:45 < autrijus> [=>] 1..10;
   my $list = [=>] 1,2,3;
-  eval_is '$list.key',         1, "[=>] works (1)";
-  eval_is '$list.value.key',   2, "[=>] works (2)";
-  eval_is '$list.value.value', 3, "[=>] works (3)";
+  is eval('$list.key'),         1, "[=>] works (1)";
+  is eval('$list.value.key'),   2, "[=>] works (2)";
+  is eval('$list.value.value'), 3, "[=>] works (3)";
 }
 
 {
