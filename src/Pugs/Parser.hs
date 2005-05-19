@@ -1258,6 +1258,7 @@ ruleVarNameString =   try (string "$!")  -- error variable
                   <|> try ruleMatchNamed
                   <|> do
     sigil   <- oneOf "$@%&"
+    if sigil == '&' then ruleSubName else do
     --  ^ placeholder, * global, ? magical, . member, : private member
     caret   <- option "" $ choice $ map string $ words " ^ * ? . : "
     names   <- many1 wordAny `sepBy1` (try $ string "::")
