@@ -75,10 +75,13 @@ sub append_last ($x,$string is rw,$pass){
 	}
 }
 
-sub matchval ($x,%x,Int ?$cap) returns Array is export{
-	my @matches;
-	for (%x.pair)->$pair{
-		if $pair.value eq $x { push @matches,$pair.key }  
+sub matchval ($x,Hash %x,Int ?$cap) returns Array is export{
+	my @matches; 
+	my %copy = hash %x; #XXX Bug
+	# say %x.ref    ; # List  
+	# say %copy.ref ; # Hash
+	for %copy.kv->$key,$value{
+		if $value eq $x { push @matches,$key }  
 		if $cap && +@matches == $cap { return @matches }
 	}
 	@matches
