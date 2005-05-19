@@ -20,7 +20,7 @@ More information can be found in:
 
 and off the Pugs root:
 
-    docs/classes/*
+    docs/class/*
     
     src/Pugs/Class.hs
     
