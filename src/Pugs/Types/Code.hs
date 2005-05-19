@@ -9,6 +9,7 @@ class (Typeable a) => CodeClass a where
     code_apply    :: a -> Eval Val
     code_assoc    :: a -> VStr
     code_params   :: a -> Params
+    code_type     :: a -> SubType
 
 instance CodeClass ICode where
     code_iType c  = code_iType . unsafePerformSTM $ readTVar c
@@ -19,6 +20,7 @@ instance CodeClass ICode where
     code_apply    = error "apply"
     code_assoc c  = code_assoc . unsafePerformSTM $ readTVar c
     code_params c = code_params . unsafePerformSTM $ readTVar c
+    code_type c   = code_type . unsafePerformSTM $ readTVar c
 
 instance CodeClass VCode where
     -- XXX - subType should really just be a mkType itself
@@ -34,4 +36,5 @@ instance CodeClass VCode where
     code_apply    = error "apply"
     code_assoc    = subAssoc
     code_params   = subParams
+    code_type     = subType
 

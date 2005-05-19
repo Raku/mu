@@ -885,11 +885,13 @@ currentFunctions = do
                 ref <- readTVar tvar
                 -- read from ref
                 return $ case ref of
-                    MkRef (ICode cv) -> Just $
-                        (name', code_assoc cv, code_params cv)
+                    MkRef (ICode cv)
+                        | code_assoc cv == "pre" || code_type cv /= SubPrim
+                        -> Just (name', code_assoc cv, code_params cv)
                     MkRef (IScalar sv)
-                        | Just (VCode code) <- scalar_const sv -> Just $
-                        (name', code_assoc code, code_params code)
+                        | Just (VCode cv) <- scalar_const sv
+                        , code_assoc cv == "pre" || code_type cv /= SubPrim
+                        -> Just (name', code_assoc cv, code_params cv)
                     _ -> Nothing
 
 currentTightFunctions :: RuleParser [String]
