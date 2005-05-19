@@ -15,6 +15,7 @@ has Any $paramDefault;
 
 # from S06, "Parameter types"
 
-has Perl::Type $paramType;
+has Perl::Type $paramValueType;
+has Perl::Type $paramImplType;
 
 # deriving (Show, Eq, Ord)
