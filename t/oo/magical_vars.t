@@ -3,18 +3,20 @@
 use v6;
 use Test;
 
-plan 9;
+plan 11;
 
 class Foo {
   method get_self()  { $?SELF }
-  method get_class() { eval '$?CLASS' }
+  method get_class() { $?CLASS }
+  method get_package() { $?PACKAGE }
   method dummy()     { 42 }
 }
 
 role Bar {
   method get_self()  { $?SELF }
-  method get_class() { eval '$?CLASS' }
-  method get_role()  { eval '$?ROLE'  }
+  method get_class() { $?CLASS }
+  method get_role()  { $?ROLE }
+  method get_package() { $?PACKAGE }
   method dummy()     { 42 }
 }
 
@@ -23,11 +25,13 @@ class SimpleClass does Bar {}
 {
   my $foo_obj = Foo.new;
   my $class   = $foo_obj.get_class;
+  my $package = $foo_obj.get_package;
+  is( $package, 'Foo', '$?PACKAGE should be the package name' );
 
-  is $class ~~ Foo, 'the thing returned by $?CLASS in our class smartmatches against our class';
+  ok( $class ~~ Foo, 'the thing returned by $?CLASS in our class smartmatches against our class' );
   my $fourty_two;
   lives_ok { $fourty_two = $class.new.dummy },
-    'the class returned by $?CLASS in our class way really our class (1)';
+    'the class returned by $?CLASS in our class was really our class (1)';
   is $fourty_two, 42, 'the class returned by $?CLASS in our class way really our class (2)';
 }
 
@@ -41,6 +45,9 @@ class SimpleClass does Bar {}
 {
   my $bar   = SimpleClass.new;
   my $class = $bar.get_class;
+  my $package = $bar.get_package;
+
+  is( $package, 'SimpleClass', '$?PACKAGE should be the package name' );
 
   is $class ~~ SimpleClass, 'the thing returned by $?CLASS in our role smartmatches against our class';
   my $fourty_two;
