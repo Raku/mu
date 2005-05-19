@@ -64,8 +64,6 @@ Perl::Meta::Method
 
 =head1 AUTHORS
 
-Sam Vilain
-
 Stevan Little E<lt>stevan@iinteractive.comE<gt>
 
 =cut

@@ -3,15 +3,15 @@ use v6;
 
 class Perl::Meta::Property-0.0.1;
 
-has $:type;
-has $:default;
-has $:associated_with;
+has Perl::Meta::Type  $:type;
+has Any               $:default;
+has Perl::Meta::Class $:associated_with;
 
-submethod BUILD ($:type, $:default) {}
+submethod BUILD (Perl::Meta::Type $:type, $:default) {}
 
-method type ($self: Str ?$type) returns Str {
+method type ($self: Perl::Meta::Type ?$type) returns Perl::Meta::Type {
     if $type.defined {
-        if $:type ne $type {
+        if $:type.name() ne $type.name() {
             $:default = undef;
         }
         $:type = $type;
@@ -22,8 +22,8 @@ method type ($self: Str ?$type) returns Str {
 method default ($self: Any ?$value) returns Any {
     if $value.defined {
         die "Incorrect value type for property default"
-            unless $value.isa($:type) ||
-                   $value.isa('Perl::Meta::Class') && $value.isATypeOf($:type);
+            unless $value.isa($:type.name()) ||
+                   $value.isa('Perl::Meta::Class') && $value.isATypeOf($:type.name());
         $:default = $value;
     }
     return $:default;
@@ -69,8 +69,6 @@ Perl::Meta::Property
 =back
 
 =head1 AUTHORS
-
-Sam Vilain
 
 Stevan Little E<lt>stevan@iinteractive.comE<gt>
 

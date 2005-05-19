@@ -6,12 +6,13 @@ use Test;
 plan 21;
 
 use Perl::Meta::Property;
+use Perl::Meta::Type;
 use Perl::Meta::Class;
 
-my $prop = Perl::Meta::Property.new(type => 'Str', default => "Hello World");
+my $prop = Perl::Meta::Property.new(type => MkType('Str'), default => "Hello World");
 ok($prop ~~ Perl::Meta::Property, '... we have a Perl::Meta::Property instance');
 
-is($prop.type(), 'Str', '... the type is "Str"');
+is($prop.type().name(), 'Str', '... the type is "Str"');
 is($prop.default(), 'Hello World', '... the default is "Hello World"');
 
 $! = undef;
@@ -42,19 +43,19 @@ lives_ok {
 
 is($prop.associatedWith().name(), 'Role', '... we are associated with a Role');
 
-$prop.type('Str');
-is($prop.type(), 'Str', '... the type is still "Str"');
+$prop.type(MkType('Str'));
+is($prop.type().name(), 'Str', '... the type is still "Str"');
 is($prop.default(), 'Hello World', '... the default is still "Hello World"');
 
-$prop.type('Int');
-is($prop.type(), 'Int', '... the type is now "Int"');
+$prop.type(MkType('Int'));
+is($prop.type().name(), 'Int', '... the type is now "Int"');
 is($prop.default(), undef, '... the default is now undef');
 
-$prop.type('Class');
+$prop.type(MkType('Class'));
 lives_ok {
     $prop.default($mmc);
 }, '... the default is set successfully';
-is($prop.type(), 'Class', '... the type is now "Class"');
+is($prop.type().name(), 'Class', '... the type is now "Class"');
 ok($prop.default() =:= $mmc, '... the default is now $mmc');
 
 $! = undef;

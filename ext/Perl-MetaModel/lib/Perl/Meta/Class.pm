@@ -89,7 +89,7 @@ method :removeSubclass ($self: Perl::Meta::Class $subclass) returns Void {
 
 method :addSubclass ($self: Perl::Meta::Class $subclass) returns Void { 
     ($subclass.superclass() && $subclass.superclass().name() eq $self.name())
-        || die "Sub class's superclass must be the invocant (got: '{ $subclass.clsSuper() }')";                          
+        || die "Sub class's superclass must be the invocant (got: '{ $subclass.clsSuper() }')";              
     $:subclasses.insert($subclass);        
 }
 
@@ -188,27 +188,6 @@ method invokeMethod ($self: Str $label, *@args) returns Any {
         || die "Method has no code";    
     return $impl($self, @args);
 }
-
-## Instance Creation
-
-my $DEBUG = 0;
-
-method compile ($meta:) returns Void {
-    my $class_code = 'class ' ~ $.name;
-    $class_code ~= ' is ' ~ $:parent.name() if $:parent.defined;
-    $class_code ~= ' {
-        method meta returns Perl::Meta::Class { $meta }
-    
-        method isa ($self: Str $class) returns Bool {  
-            $self.meta().isATypeOf($class);
-        }
-    }';
-    say "evaling code:\n(\n$class_code\n)\n" if $DEBUG;
-    eval $class_code;
-}
-
-## Subclass Creation
-
 
 
 =pod
@@ -322,8 +301,8 @@ See the F<docs/meta_meta_classes.pod> file as well.
 
 =head1 AUTHORS
 
-Sam Vilain
-
 Stevan Little E<lt>stevan@iinteractive.comE<gt>
+
+Sam Vilain
 
 =cut

@@ -6,6 +6,7 @@ use Test;
 plan 29;
 
 use Perl::Meta::Class;
+use Perl::Meta::Type;
 use Perl::Meta::Property;
 
 =pod
@@ -21,8 +22,8 @@ my $class = Perl::Meta::Class::new('Class');
     is(+@property_labels, 0, '... we have no property labels yet'); 
 }
 
-my $rw_prop = Perl::Meta::Property.new(:type<Bool>);
-my $name_prop = Perl::Meta::Property.new(:type<Str>);
+my $rw_prop = Perl::Meta::Property.new(MkType('Bool'));
+my $name_prop = Perl::Meta::Property.new(MkType('Bool'));
 
 # note that properties of classes are called Class traits.
 
@@ -74,8 +75,8 @@ ok(!$class.isPropertySupported('foo'), '... the "foo" property is not supported'
 my $ts_class = Perl::Meta::Class::new('ThreadSafeClass');
 $ts_class.superclass($class);
 
-my $semaphore_prop = Perl::Meta::Property.new(:type<Semaphore>);
-my $name_prop_2 = Perl::Meta::Property.new(:type<Str>);
+my $semaphore_prop = Perl::Meta::Property.new(MkType('Semaphore'));
+my $name_prop_2 = Perl::Meta::Property.new(MkType('Str'));
 
 $ts_class.addProperty('semaphore', $semaphore_prop);
 $ts_class.addProperty('name', $name_prop_2);
