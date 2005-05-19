@@ -39,7 +39,8 @@ ok eval '(not [!=] 4, 4, 4)',    "[!=] works (2)", :todo<bug>;
 
 {
   my @array = (undef, undef, 3, undef, 5);
-  is eval('[//] @array'), 3, "[//] works", :todo<bug>;
+  skip "Skipping hanging test";
+  # is eval('[//] @array'), 3, "[//] works", :todo<bug>;
 }
 
 {
@@ -62,7 +63,7 @@ ok eval '(not [!=] 4, 4, 4)',    "[!=] works (2)", :todo<bug>;
 
 {
   my @array = <5 -3 7 0 1 -9>;
-  eval_is('([,] @array)', @array, "[,] works (a noop)");
+  is eval('[,] @array'), @array, "[,] works (a noop)";
 }
 
 
@@ -72,5 +73,4 @@ eval_ok('my @foo = [>>+<<] ([1..3],[1..3],[1..3]);','Parse [>>+<<]', :todo<bug>)
 
 # Check that user defined infix ops work with [...], too.
 sub infix:<more_than_plus>(Int $a, Int $b) { $a + $b + 1 }
-is eval('[more_than_plus] 1, 2, 3'), 8, "[...] metaop works on user defined ops", :todo<bug>;
-
+is eval('[more_than_plus] 1, 2, 3'), 8, "[...] reduce metaop works on user defined ops";
