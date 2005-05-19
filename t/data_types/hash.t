@@ -9,7 +9,7 @@ Hash tests
 
 =cut
 
-plan 52;
+plan 54;
 
 # basic lvalue assignment
 
@@ -138,4 +138,23 @@ like(~%hash9, rx:perl5/1\s+2\s+2\s+3/, "hash can stringify");
 
 my %hash10 = <1 2>;
 is(%hash10<1>, 2, "assignment of pointy qw to hash");
+
+# after t/pugsbugs/unhashify.t
+
+sub test1{
+	my %sane = hash ('a'=>'b');
+	is(%sane.ref,'Hash','%sane is a Hash');
+}
+
+sub test2 (Hash %hash) returns Void{
+	is(%hash.ref,'Hash','%hash is a Hash',:todo<bug>);
+}
+
+my %h = hash (a => 'b');
+
+#sanity: Hash created in a sub is a Hash 
+test1;
+
+#XXX Hash passed to a sub becomes a List 
+test2 %h;
 
