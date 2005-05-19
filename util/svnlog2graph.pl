@@ -44,7 +44,7 @@ while(<>) {
 # E.g. $commits_till_day[42] = 1500 (1500 commits from day 1 to day 42)
 my @commits_till_day = dayify(@commits);
 my @devs_till_day    = dayify(@developers);
-# @devs_till_day should has the same length as @commits_till_day --
+# @devs_till_day should have the same length as @commits_till_day --
 # fill if needed
 push @devs_till_day, $devs_till_day[-1] while
   @devs_till_day < @commits_till_day;
@@ -56,7 +56,7 @@ $graph->set(
   x_label      => "Days",
   y_label      => "Commits/Developers",
   x_label_skip => 5,
-  y_max_value  => 3500,
+  y_max_value  => 4000,
 ) or die $graph->error;
 
 my @data = (
