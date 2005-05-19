@@ -13,4 +13,8 @@ has Str $paramName;
 has Perl::Cxt $paramContext;
 has Any $paramDefault;
 
+# from S06, "Parameter types"
+
+has Perl::Type $paramType;
+
 # deriving (Show, Eq, Ord)
