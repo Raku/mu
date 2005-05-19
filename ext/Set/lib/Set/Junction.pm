@@ -45,7 +45,7 @@ method remove($self: *@items) returns Int {
     if ( $:members.defined ) {
 	$pre_size = $self.size;
 	my $to_remove = any(@items);
-	$:members = any($:members.values.grep:{ !($_ =:= any($to_remove)) });
+	$:members = any($:members.values.grep:{ $_ =:= none($to_remove) });
     } else {
 	$:members = any();
     }
