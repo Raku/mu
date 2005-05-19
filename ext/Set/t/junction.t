@@ -5,7 +5,7 @@ use Test;
 
 plan 20;
 
-use Set;
+use Set::Junction;
 
 class Bob {};
 class Bert {};
@@ -14,7 +14,7 @@ my $bob = Bob.new;
 my $bert = Bert.new;
 
 my $set = set(0, 1, 2, 3, $bob);
-is($set.ref, ::Set, "set()");
+is($set.ref, ::Set::Junction, "set()");
 
 ok($set.includes(0), ".includes(0)");
 ok($set.includes($bob), ".includes(\$bob)");
