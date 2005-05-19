@@ -176,6 +176,7 @@ enterSub sub action
             blockRec <- genSym "&?BLOCK" (codeRef (orig sub))
             return $ \e -> e
                 { envOuter = Just env
+                , envPackage = maybe (envPackage e) envPackage (subEnv sub)
                 , envLexical = combine [blockRec]
                     (subPad sub `unionPads` envLexical env) }
         | otherwise = do
@@ -186,6 +187,7 @@ enterSub sub action
             callerRec <- genSubs env "&?CALLER_CONTINUATION" (ccSub cc)
             return $ \e -> e
                 { envLexical = combine (concat [subRec, callerRec]) (subPad sub)
+                , envPackage = maybe (envPackage e) envPackage (subEnv sub)
                 , envOuter   = maybe Nothing envOuter (subEnv sub)
                 }
     ccSub cc env = mkPrim
