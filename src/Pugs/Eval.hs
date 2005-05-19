@@ -238,8 +238,8 @@ getMagical "$?COLUMN"   = posSym posBeginColumn
 getMagical "$?POSITION" = posSym pretty
 getMagical "$?MODULE"   = constSym "main"
 getMagical "$?OS"       = constSym $ getConfig "osname"
-getMagical "$?CLASS"    = constSym =<< asks envPackage
-getMagical "$?PACKAGE"  = constSym =<< asks envPackage
+getMagical "$?CLASS"    = constSym =<< (asks envPackage)
+getMagical "$?PACKAGE"  = fmap (Just . VType . mkType) (asks envPackage)
 getMagical _            = return Nothing
 
 evalRef :: VRef -> Eval Val
