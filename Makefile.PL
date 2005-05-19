@@ -149,7 +149,8 @@ sub set_postamble {
     warn << '.';
 
 *** Parrot linking disabled; external 'parrot' executable will be used for
-    Rules support.  If you want to link against Parrot, set the PUGS_EMBED
+    Rules support -- please make sure that the executable is available in
+    your PATH.  If you want to link against Parrot, set the PUGS_EMBED
     environment variable to 'parrot', the PARROT_PATH environment variable
     to the path of a built parrot source tree, then run Makefile.PL again.
 
