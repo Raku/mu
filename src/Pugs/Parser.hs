@@ -1153,7 +1153,7 @@ ruleFoldOp = verbatimRule "reduce metaoperator" $ do
     return $ "&prefix:[" ++ name ++ "]"
     where
     defaultInfixOps = concat
-        [ " * / % x xx +& +< +> ~& ~< ~> "
+        [ " ** * / % x xx +& +< +> ~& ~< ~> "
         , " + - ~ +| +^ ~| ~^ ?| "
         , " & ^ | "
         , " => "

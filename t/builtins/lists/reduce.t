@@ -13,7 +13,7 @@ L<http://groups.google.de/group/perl.perl6.language/msg/bd9eb275d5da2eda>
 
 =cut
 
-plan 24;
+plan 25;
 
 {
   my @array = <5 -3 7 0 1 -9>;
@@ -22,10 +22,12 @@ plan 24;
   is((reduce { $^a + $^b } 0, @array), $sum, "basic reduce works (1)");
   is((reduce { $^a + $^b } 100, @array), 100 + $sum, "basic reduce works (2)");
 
-  is(([+] @array),     $sum, "[+] works");
-  is(([*] 1,2,3),   (1*2*3), "[*] works");
-  is(([-] 1,2,3),   (1-2-3), "[-] works");
-  is(([/] 12,4,3), (12/4/3), "[/] works");
+  is(([+]  @array),        $sum, "[+] works");
+  is(([*]  1,2,3),      (1*2*3), "[*] works");
+  is(([-]  1,2,3),      (1-2-3), "[-] works");
+  is(([/]  12,4,3),    (12/4/3), "[/] works");
+  # XXX -- is [...] always left-associative?
+  is(([**] 2,2,3),  ((2**2)**3), "[**] works");
 }
 
 ok (    [<]  1, 2, 3, 4), "[<] works (1)";
