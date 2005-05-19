@@ -32,7 +32,18 @@ method :compileClass ($self: Perl::Meta::Class $meta) returns Void {
     method isa ($self: Str $class) returns Bool {  
         $self.meta().isATypeOf($class);
     }
+    
+    method can ($self: Str $method_label) returns Bool {
+        $self.meta().isMethodSupported($method_label);
+    }
     ';
+    for $meta.methodLabels() -> $label {
+        $methods ~= '
+    method ' ~ $label ~ ' ($self: *@args) returns Any {
+        return $self.meta().invokeMethod("' ~ $label ~ '", $self, @args);
+    }
+    ';
+    }
     $class_code ~= " \{\n\n" ~ $properties ~ $methods ~ "\n}"; 
     say "evaling class (\n$class_code\n)\n" if $DEBUG;
     eval $class_code;

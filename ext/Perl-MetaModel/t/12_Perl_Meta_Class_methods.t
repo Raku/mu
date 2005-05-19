@@ -90,16 +90,18 @@ ok($sub_sub_mmc.findMethod('meta'), '... did find the method (as expected) in pa
 
 # check some errors
 
+my $FakeInstance;
+
 $!= undef; 
 dies_ok {
-    $mmc.invokeMethod('meta');
+    $mmc.invokeMethod('meta', $FakeInstance);
 }, '... this dies as expected';
 like($!, rx:perl5/^Method not found/, '... got the right error');
 
 $!= undef; 
 dies_ok {
-    $sub_sub_mmc.invokeMethod('new');
+    $sub_sub_mmc.invokeMethod('new', $FakeInstance);
 }, '... this dies as expected';
 like($!, rx:perl5/^Method has no code/, '... got the right error');
 
-is($sub_mmc.invokeMethod('meta'), Perl::Meta::Class, '... the method returned what we expected');
+is($sub_mmc.invokeMethod('meta', $FakeInstance), Perl::Meta::Class, '... the method returned what we expected');
