@@ -808,28 +808,22 @@ findSub name invs args = do
 	-- We try to find the userdefined sub.
 	-- We use the first two elements of invs as invocants, as these are the
 	-- types of the op.
-	userdefined_sub <- findSub ("&infix:" ++ op) (take 2 invs) []
-	subbody <- return $ case userdefined_sub of
-	    -- If we've found a userdefined sub, we use it.
-	    (Just sub) -> Prim $ \_ -> do
-			      list_of_args <- return $ map evaluate invs
-			      list_of_args' <- mapM (\a -> do { z <- a; return z }) list_of_args
-			      op2Fold (VList list_of_args') (VCode sub)
-	    -- Else, we use the code as defined in Pugs.Prim
-	    _          -> Prim $ f op
+        code <- findSub ("&infix:" ++ op) (take 2 (invs ++ [Val undef, Val undef])) []
+        if isNothing code then return Nothing else do
+        let subBody = const $ do
+                list_of_args    <- mapM evaluate invs
+                op2Fold (VList list_of_args) (VCode $ fromJust code)
 	-- Now we construct the sub. Is there a more simple way to do it?
-	code <- return $ mkPrim
-			    { subName     = "&prefix:[" ++ op ++ "]"
-			    , subType     = SubPrim
-			    , subAssoc    = "spre"
-			    , subParams   = params
-			    , subReturns  = mkType "Str"
-			    , subBody     = subbody
-			    }
-	return $ Just code
+        return . Just $ mkPrim
+            { subName     = "&prefix:[" ++ op ++ "]"
+            , subType     = SubPrim
+            , subAssoc    = "spre"
+            , subParams   = params
+            , subReturns  = mkType "Str"
+            , subBody     = Prim subBody
+            }
 	where
 	-- Taken from Pugs.Prim. Probably this should be refactored. (?)
-	f op     = \[a] -> op1 ("[" ++ op ++ "]") a
 	prms'    = map takeWord ["(List)"]
 	prms''   = foldr foldParam [] prms'
 	params   = map (\p -> p{ isWritable = isLValue p }) prms''

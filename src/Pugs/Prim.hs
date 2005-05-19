@@ -251,7 +251,6 @@ op1 "sign" = \v -> if defined v
     then op1Cast (VInt . signum) v
     else return undef
 
-op1 ('[':op) = op1Fold . op2 . init $ op
 op1 "rand"  = \v -> do
     x    <- fromVal v
     rand <- liftIO $ randomRIO (0, if x == 0 then 1 else x)
@@ -1196,7 +1195,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Str       left    ~|      (Str, Str)\
 \\n   Str       left    ~^      (Str, Str)\
 \\n   Str       left    ?|      (Str, Str)\
-\\n   Pair      non     =>      (Any, Any)\
+\\n   Pair      right   =>      (Any, Any)\
 \\n   Int       non     cmp     (Str, Str)\
 \\n   Int       non     <=>     (Num, Num)\
 \\n   List      non     ..      (Scalar, Scalar)\

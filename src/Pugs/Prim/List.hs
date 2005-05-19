@@ -1,5 +1,5 @@
 module Pugs.Prim.List (
-    op0Zip, op1Fold, op1Pick, op1Sum,
+    op0Zip, op1Pick, op1Sum,
     op2Fold, op2Grep, op2Map, op2Join,
     sortByM,
 ) where
@@ -21,13 +21,6 @@ op0Zip' lists = (map zipFirst lists):(op0Zip' (map zipRest lists))
     zipFirst (x:_)  = x
     zipRest  []     = []
     zipRest  (_:xs) = xs
-
-op1Fold :: (Val -> Val -> Eval Val) -> Val -> Eval Val
-op1Fold op v = do
-    args    <- fromVal v
-    case args of
-        (a:as)  -> foldM op a as
-        _       -> return undef
 
 op1Pick :: Val -> Eval Val
 op1Pick (VRef r) = op1Pick =<< readRef r
@@ -57,13 +50,26 @@ op1Sum list = do
 op2Fold :: Val -> Val -> Eval Val
 op2Fold sub@(VCode _) list = op2Fold list sub
 op2Fold list sub = do
+    code <- fromVal sub
     args <- fromVal list
     if null args then return undef else do
     let doFold x y = do
         evl <- asks envEval
         local (\e -> e{ envContext = cxtItemAny }) $ do
             evl (App (Val sub) [Val x, Val y] [])
-    foldM doFold (head args) (tail args)
+    case subAssoc code of
+        "left"  -> foldM doFold (head args) (tail args)
+        "right" -> do
+            let args' = reverse args
+            foldM (flip doFold) (head args') (tail args')
+        "chain" -> callCC $ \esc -> do
+            let doFold' x y = do
+                val <- doFold x y
+                case val of
+                    VBool False -> esc val
+                    _           -> return val
+            foldM doFold' (head args) (tail args)
+        _ -> fail $ "Cannot reduce over associativity:" ++ show (subAssoc code)
 
 op2Grep :: Val -> Val -> Eval Val
 op2Grep sub@(VCode _) list = op2Grep list sub
