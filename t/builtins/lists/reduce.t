@@ -3,8 +3,6 @@
 use Test;
 use v6;
 
-BEGIN { plan 23 }
-
 =head1 DESCRIPTION
 
 This test tests the C<reduce> builtin and the reduce metaoperator C<[...]>.
@@ -14,6 +12,8 @@ L<http://groups.google.com/groups?selm=420DB295.3000902%40conway.org> and
 L<http://groups.google.de/group/perl.perl6.language/msg/bd9eb275d5da2eda>
 
 =cut
+
+plan 24;
 
 {
   my @array = <5 -3 7 0 1 -9>;
@@ -55,15 +55,16 @@ ok eval '(not [!=] 4, 4, 4)',    "[!=] works (2)", :todo<bug>;
   # 18:45 < autrijus> hm, I found a way to easily do linked list consing in Perl6
   # 18:45 < autrijus> [=>] 1..10;
   my $list = [=>] 1,2,3;
-  is $list.key,         1, "[=>] works (1)";
-  is $list.value.key,   2, "[=>] works (2)";
-  is $list.value.value, 3, "[=>] works (3)";
+  eval_is '$list.key',         1, "[=>] works (1)";
+  eval_is '$list.value.key',   2, "[=>] works (2)";
+  eval_is '$list.value.value', 3, "[=>] works (3)";
 }
 
 {
   my @array = <5 -3 7 0 1 -9>;
-  is(([,] @array), @array, "[,] works (a noop)");
+  eval_is('([,] @array)', @array, "[,] works (a noop)");
 }
+
 
 # Following two tests taken verbatim from former t/operators/reduce.t
 eval_ok('my @foo = [1..3] >>+<< [1..3] >>+<< [1..3];','Sanity Check');
