@@ -612,7 +612,7 @@ op2 "nor"= op2 "!!"
 op2 "grep" = op2Grep
 op2 "map"  = op2Map
 op2 "join" = op2Join
-op2 "reduce" = op2Fold
+op2 "reduce" = op2FoldL
 op2 "kill" = \s v -> do
     sig  <- fromVal s
     pids <- fromVals v

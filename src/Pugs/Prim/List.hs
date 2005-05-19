@@ -1,6 +1,6 @@
 module Pugs.Prim.List (
     op0Zip, op1Pick, op1Sum,
-    op2Fold, op2Grep, op2Map, op2Join,
+    op2FoldL, op2Fold, op2Grep, op2Map, op2Join,
     sortByM,
 ) where
 import Pugs.Internals
@@ -46,6 +46,12 @@ op1Sum :: Val -> Eval Val
 op1Sum list = do
     vals <- fromVal list
     foldM (op2Numeric (+)) undef vals
+
+op2FoldL :: Val -> Val -> Eval Val
+op2FoldL sub@(VCode _) list = op2FoldL list sub
+op2FoldL list sub = do
+    code <- fromVal sub
+    op2Fold list $ VCode code{ subAssoc = "left" }
 
 op2Fold :: Val -> Val -> Eval Val
 op2Fold sub@(VCode _) list = op2Fold list sub
