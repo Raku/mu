@@ -31,13 +31,15 @@ $meta_package.addProperty('subs',
 );
 
 $meta_package.addMethod('name', 
-    Perl::Meta::Method.new(code => sub ($self) { $self.meta().name() })
+    Perl::Meta::Method.new(
+        code => sub ($self) { $self.meta().name() }
+    )
 );
 
 $meta_package.addMethod('identifier', 
-    Perl::Meta::Method.new(code => sub ($self) {
-       $self.name() ~ '-' ~ $self.version();
-    })
+    Perl::Meta::Method.new(
+        code => sub ($self) { $self.name() ~ '-' ~ $self.version() }
+    )
 );
 
 ## Perl::Role

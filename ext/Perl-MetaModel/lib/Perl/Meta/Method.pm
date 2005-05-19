@@ -9,7 +9,7 @@ has $:associated_with;
 
 submethod BUILD ($:signature, $:code) {}
 
-method code ($self: Sub ?$code) returns Code {
+method code ($self: Sub ?$code) returns Sub {
     $:code = $code if $code.defined;
     return $:code;
 }

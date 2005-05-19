@@ -186,7 +186,7 @@ method invokeMethod ($self: Str $label, $inv, *@args) returns Any {
     my $impl = $method.code();
     ($impl.defined)
         || die "Method has no code";    
-    return $impl($inv, @args);
+    return $impl($inv, *@args);
 }
 
 
