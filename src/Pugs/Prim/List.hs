@@ -66,8 +66,9 @@ op2Fold list sub = do
                 val <- doFold x y
                 case val of
                     VBool False -> esc val
-                    _           -> return val
+                    _           -> return y
             foldM doFold' (head args) (tail args)
+            return $ VBool True
         "non"   -> fail $ "Cannot reduce over non-associativity"
         _       -> foldM doFold (head args) (tail args) -- "left", "pre"
 
