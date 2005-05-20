@@ -467,6 +467,8 @@ op1 "gather" = \v -> do
 op1 "Thread::yield" = const $ do
     ok <- tryIO False $ do { yield ; return True }
     return $ VBool ok
+-- [,] is a noop -- It simply returns the input list
+op1 "prefix:[,]" = return
 op1 other   = \_ -> fail ("Unimplemented unaryOp: " ++ other)
 
 op1Return action = do
@@ -1308,4 +1310,5 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   List      pre     Pugs::Internals::openFile    (?Str,?Str=$_)\
 \\n   Bool      pre     bool::true ()\
 \\n   Bool      pre     bool::false ()\
+\\n   List      spre    prefix:[,] (List)\
 \\n"
