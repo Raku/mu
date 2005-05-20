@@ -25,7 +25,7 @@ Pugs is an implementation of Perl 6, written in Haskell. It aims to support
 the full Perl 6 specification, as detailed in the Synopses.
 
 The Pugs project was started on February 1st 2005.  It is under active
-development on IRC (irc.freenode.net #perl6).
+development on IRC (C<irc.freenode.net>, C<#perl6>).
 
 Please read the Pugs Apocrypha in the F<docs/> directory for more details.
 
@@ -34,12 +34,12 @@ Please read the Pugs Apocrypha in the F<docs/> directory for more details.
 The Pugs homepage is at L<http://pugscode.org/>.
 
 The mailing list for Pugs is perl6-compiler.  Subscribe by sending mail to
-E<lt>perl6-compiler-subscribe@perl.orgE<gt>. It is archived at
+C<E<lt>perl6-compiler-subscribe@perl.orgE<gt>>. It is archived at
 L<http://www.nntp.perl.org/group/perl.perl6.compiler>
 and available via NNTP at L<nntp://nntp.perl.org/perl.perl6.compiler>.
 
 You can also read the list via Google Groups at
-L<http://groups-beta.google.com/group/perl.perl6.compiler>
+L<http://groups-beta.google.com/group/perl.perl6.compiler>.
 
 Please submit bug reports to E<lt>pugsbugs@perl.orgE<gt>.
 
