@@ -2,13 +2,15 @@ package pugs;
 use strict;
 use Filter::Simple;
 
-$pugs::VERSION = '0.01';
+$pugs::VERSION = '0.02';
 
 FILTER {
+    my $marker = 'XXXXXXXX';
+    $marker++ while /^$marker$/m;
     $_ = <<END;
-use Inline Pugs => <<'END_OF_INLINE_PUGS_SECTION';
+use Inline Pugs => <<'$marker';
 $_
-END_OF_INLINE_PUGS_SECTION
+$marker
 END
 };
 
@@ -39,6 +41,10 @@ a line of:
 To switch back to Perl 5:
 
     no pugs;
+
+=head1 SEE ALSO
+
+L<Perl6::Pugs>
 
 =head1 AUTHOR
 
