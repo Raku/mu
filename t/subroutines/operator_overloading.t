@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 15;
+plan 16;
 
 =pod
 
@@ -71,4 +71,16 @@ sub postfix:<!> (Str $x) { return($x.uc ~ "!!!") }
 is(10!, 3628800, "factorial postfix operator");
 is("boobies"!, "BOOBIES!!!", "correct overloaded method called");
 
+# great.  Now, what about those silent auto-conversion operators a la:
+# multi sub prefix:<+> (Str $x) returns Num { ... }
+# ?
 
+# I mean, + is all well and good for number classes.  But what about
+# defining other conversions that may happen?
+
+# here is one that co-erces a "MyNumberClass into a Str.  The term
+# "coerce:" is from A12
+eval_ok('class MyNumberClass {
+has $.val;
+method coerce:'' ($self:) returns Str
+}', :todo<feature>);
