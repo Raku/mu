@@ -72,7 +72,7 @@ sub load {
     # XXX - bloody hack for now
 
     no strict 'refs';
-    foreach my $sym ($code =~ /^\s*sub\s+(\w+)\s+/mg) {
+    foreach my $sym ($code =~ /^\s*(?:sub|coro)\s+(\w+)\s+/mg) {
         *{"$pkg\::$sym"} = sub {
             local $Data::Dumper::Terse = 1;
             my @args = map { $self->quote_pugs(Dumper($_)).'.eval' } @_;
