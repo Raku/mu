@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 5;
+plan 6;
 
 # L<S02/"Names and Variables" /All symbolic references are done with this notation:/>
 {
@@ -25,6 +25,13 @@ plan 5;
   my $b_var = "a_var";
 
   is %::($b_var)<a>, 42, 'basic symbolic hash dereferentiation works';
+}
+
+{
+  my &a_var = { 42 };
+  my $b_var = "a_var";
+
+  is &::($b_var)(), 42, 'basic symbolic code dereferentiation works';
 }
 
 {

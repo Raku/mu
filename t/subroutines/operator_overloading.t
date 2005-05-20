@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 18;
+plan 20;
 
 =pod
 
@@ -70,6 +70,27 @@ sub postfix:<!> (Str $x) { return($x.uc ~ "!!!") }
 
 is(10!, 3628800, "factorial postfix operator");
 is("boobies"!, "BOOBIES!!!", "correct overloaded method called");
+
+# Overloading by setting the appropriate code variable
+{
+  my &infix:<plus>;
+  BEGIN {
+    &infix:<plus> = { $^a + $^b };
+  }
+
+  is 3 plus 5, 8, 'overloading an operator using "my &infix:<...>" worked';
+}
+
+# Overloading by setting the appropriate code variable using symbolic
+# dereferentiation
+{
+  my &infix:<times>;
+  BEGIN {
+    try { &::("infix:<times>") = { $^a * $^b } };
+  }
+
+  is eval('3 times 5'), 15, 'operator overloading using symbolic dereferentiation';
+}
 
 # great.  Now, what about those silent auto-conversion operators a la:
 # multi sub prefix:<+> (Str $x) returns Num { ... }
