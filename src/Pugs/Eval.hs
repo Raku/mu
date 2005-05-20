@@ -569,6 +569,10 @@ reduce exp@(Syn name exps) = case name of
         val     <- enterEvalContext (cxtItem "Hash") exp
         ref     <- fromVal val
         evalRef ref
+    sigil:"::()" -> do
+	rv      <- evalExp $ head exps
+	varname <- fromVal rv
+	evalExp . Var $ sigil:varname
     "{}" -> do
         let [listExp, indexExp] = exps
         idxCxt  <- cxtOfExp indexExp 
