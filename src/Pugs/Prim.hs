@@ -459,6 +459,8 @@ op1 "pop"   = \x -> join $ doArray x array_pop -- monadic join
 op1 "shift" = \x -> join $ doArray x array_shift -- monadic join
 op1 "pick"  = op1Pick
 op1 "sum"   = op1Sum
+op1 "min"   = op1Min
+op1 "max"   = op1Max
 op1 "chr"   = op1Cast (VStr . (:[]) . chr)
 op1 "ord"   = op1Cast $ \str -> if null str then undef else (castV . ord . head) str
 op1 "hex"   = op1Cast (VInt . read . ("0x"++))
@@ -1078,7 +1080,9 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Int       pre     unshift (rw!Array, List)\
 \\n   Scalar    pre     pop     (rw!Array)\
 \\n   Scalar    pre     shift   (rw!Array)\
-\\n   Num       pre     sum     (List)\
+\\n   Scalar    pre     sum     (List)\
+\\n   Scalar    pre     min     (List)\
+\\n   Scalar    pre     max     (List)\
 \\n   Str       pre     join    (Array: Str)\
 \\n   Str       pre     join    (Str, List)\
 \\n   Any       pre     join    (Thread)\
