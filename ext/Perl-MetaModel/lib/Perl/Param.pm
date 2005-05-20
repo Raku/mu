@@ -14,3 +14,17 @@ has Perl::Cxt $paramContext;
 has Any $paramDefault;
 
 # deriving (Show, Eq, Ord)
+method Show {
+    ...
+}
+
+method &infix:«==»($self, Perl::Param $other) {
+    ...
+}
+
+method &infix:«<»($self, Perl::Param $other) {
+    ...
+}
+
+# maybe something like  this?
+type Perl::Params Array of Perl::Param;
