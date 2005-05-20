@@ -1171,6 +1171,7 @@ ruleFoldOp = verbatimRule "reduce metaoperator" $ do
         , " && !! "
         , " || ^^ // "
 	, " and nor or xor err "
+	, " .[] .{} "
         ]
 
 parseParamList :: RuleParser ([Exp], [Exp])

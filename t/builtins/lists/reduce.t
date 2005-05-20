@@ -13,7 +13,7 @@ L<http://groups.google.de/group/perl.perl6.language/msg/bd9eb275d5da2eda>
 
 =cut
 
-plan 25;
+plan 29;
 
 {
   my @array = <5 -3 7 0 1 -9>;
@@ -57,6 +57,9 @@ ok (not [!=] 4, 4, 4),    "[!=] works (2)";
 {
   my $hash = {a => {b => {c => {d => 42, e => 23}}}};
   is eval('[.{}] $hash, <a b c d>'), 42, '[.{}] works', :todo<bug>;
+
+  my $arr = [[[1,2,3],[4,5,6]],[[7,8,9],[10,11,12]]];
+  is ([.[]] $arr, 1, 0, 2), 9, '[.[]] works';
 }
 
 {
