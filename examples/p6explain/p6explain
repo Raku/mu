@@ -12,7 +12,7 @@ for =$fh {
   state $cur_entry;
 
   # Skip comments
-  next if m:Perl5/^\s*#/;
+  # next if m:Perl5/^\s*a/;
 
   # Extract title
   when m:Perl5/^(\S.*)$/ {
@@ -63,7 +63,7 @@ for %things.kv -> $key_, $value {
   };
 
   my @new = deref $key_;
-  %things{@new} = ($value) xx Inf;
+  %things{$_} //= $value for @new;
 }
 
 die "Usage: $*PROGRAM_NAME thing1_to_explain thing2_to_explain...\n"
