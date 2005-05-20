@@ -1,10 +1,12 @@
 ﻿Match object:
-    $/  -- contains current bindings of any submatches, e.g. $0, $1, $2...
-        -- contains hash of named subrules, e.g. $/{"sub"}
+    $/  -- can be accessed as an array of submatches, e.g. $/[0], $/[1], ...
+        -- can be accessed as a hash of named subrules, e.g. $/{"subrule"}
+
+    $0, $1, $2, ... -- aliases for $/[0], $/[1], $/[2], ...
     
     CONTEXT     BEHAVIOUR
     String      stringifies to entire match
-    Number      XXX
+    Number      numifies to the numification of the entire match
     Boolean     true if success, false otherwise
 
 Backtracking:
@@ -101,7 +103,7 @@ Binding:
         
         / %x := [ (\S+) \s* ]* /        # capture only keys, values = undef
     
-    Can capture return value of closure:
+    Can capture return values of closures:
         
         / $x := { "Scalar context" } /
         / @x := { "List", "context" } /
