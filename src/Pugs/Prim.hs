@@ -619,36 +619,12 @@ op2 "!!" = \x y -> callCC $ \esc -> do
     by <- fromVal y
     when by $ esc (VBool False)
     return (VBool True)
-op2 ".[]" = derefArray
-    where
-    derefArray :: Val -> Val -> Eval Val
-    -- If it's almost a normal Haskell list...
-    derefArray v@(VList _) idx = do
-	lv   <- fromVal v
-	idx' <- fromVal idx
-	return $ lv !! idx'
-    -- If it's some kind of reference...
-    derefArray (VRef ref) idx = derefArrayRef ref idx
-    -- Else...
-    derefArray v _ = retError "Not an array" v
-    -- If it's an array reference...
-    derefArrayRef (MkRef (IArray av)) idx =
-	-- Convert the Val into a VInt, retrieve the array element, extract the
-	-- element
-	fromVal idx >>= array_fetchElem av >>= readIVar
-    -- If it's a scalar reference...
-    derefArrayRef (MkRef (IScalar sv)) idx = do
-	-- Dereference the scalar ref one level
-	refVal <- scalar_fetch sv
-	if defined refVal
-	    -- It seems to be a real ref, try to deref it.
-	    then do
-		v <- derefArray refVal idx
-		return v
-	    -- No, wasn't one -- return undef.
-	    else return undef
-    -- Else...
-    derefArrayRef v _ = retError "Not an array reference" v
+op2 ".[]" = \x y -> do
+    evl <- asks envEval
+    evl $ Syn "[]" [Val x, Val y]
+op2 ".{}" = \x y -> do
+    evl <- asks envEval
+    evl $ Syn "{}" [Val x, Val y]
 -- XXX pipe forward XXX
 op2 "and"= op2 "&&"
 op2 "or" = op2 "||"
@@ -1276,6 +1252,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Scalar    left    ^^      (Bool, Bool)\
 \\n   Scalar    left    //      (Bool, ~Bool)\
 \\n   Scalar    left    .[]     (Array, Int)\
+\\n   Scalar    left    .{}     (Hash, Str)\
 \\n   List      left    »+«     (Any, Any)\
 \\n   List      left    »*«     (Any, Any)\
 \\n   List      left    »/«     (Any, Any)\
