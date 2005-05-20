@@ -32,6 +32,7 @@ genGHC = do
         , "import qualified Pugs.Internals"
         , "import Language.Haskell.TH as TH"
         , ""
+	, "mainCC :: IO Pugs.AST.Internals.Val"
         , TH.pprint str
         ]
 #endif
