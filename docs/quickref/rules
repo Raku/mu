@@ -1,5 +1,5 @@
 Match object:
-    $/  -- can be accessed as an array of submatches, e.g. $/[0], $/[1]...
+    $/  -- can be accessed as an array of submatches, e.g. $/[0], $/[1] ...
         -- can be accessed as a hash of named subrules, e.g. $/{"sub"}
 
     $0, $1, $2, ... -- aliases for $/[0], $/[1], $/[2], ...
@@ -24,7 +24,7 @@ Modifiers:
 
     and can appear within rules
     
-        sub rule { <foo> [:i <bar>] }   # only ignore <bar>s case
+        sub rule { <foo> [:i <bar>] }   # only ignore <bar>'s case
     
     :bytes              Match individual bytes
     :c, :continue       Start scanning from string's current .pos
@@ -70,19 +70,20 @@ Built-in assertions:
     <self>              Matches the same pattern as the current rule
                         (useful for recursion)
     <!pattern>          Matches anything which *doesn't* match pattern
-    <alnum>         Alphanumeric character
-    <alpha>         Alphabetic character
-    <ascii>         ASCII character
-    <blank>         Horizontal whitespace ([ \t])
-    <cntrl>         Control character
-    <digit>         Numeric character
-    <graph>         An alphanumeric character or punctuation
-    <lower>         Lowercase character
-    <print>         Printable character -- alphanumeric, punctuation or whitespace
-    <space>         Whitespace character ([\s\ck])
-    <upper>         Uppercase character
-    <word>          Word character (alphanumeric + _)
-    <xdigit>        Hexadecimal digit
+    
+    <alnum>             Alphanumeric character
+    <alpha>             Alphabetic character
+    <ascii>             ASCII character
+    <blank>             Horizontal whitespace ([ \t])
+    <cntrl>             Control character
+    <digit>             Numeric character
+    <graph>             An alphanumeric character or punctuation
+    <lower>             Lowercase character
+    <print>             Printable character -- alphanumeric, punctuation or whitespace
+    <space>             Whitespace character ([\s\ck])
+    <upper>             Uppercase character
+    <word>              Word character (alphanumeric + _)
+    <xdigit>            Hexadecimal digit
 
 Hypothetical variables:
     Assign value to variable only if entire pattern succeeds.  
