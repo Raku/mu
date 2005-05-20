@@ -7,7 +7,7 @@ Match object:
     CONTEXT     BEHAVIOUR
     String      Stringifies to entire match
     Number      The numeric value of the matched string (i.e. given 
-		"foo123bar"~~/\d+/, then $/ in numeric context will be 123)
+                "foo123bar"~~/\d+/, then $/ in numeric context will be 123)
     Boolean     True if success, false otherwise
 
 Backtracking:
@@ -50,8 +50,8 @@ Modifiers:
     :x(N)               Repetition -- find N times (N is an integer)
 
 Built-in assertions:
-    <[...]>             Matches ... as a character class
     <'...'>             Matches ... as a literal string
+    <"...">             Matches ... as a literal string (after interpolation)
     <sp>                Matches a literal space
     <ws>                Matches any sequence of whitespace, like the :w modifier
     <dot>               Matches a literal . (same as <'.'>)
@@ -69,8 +69,8 @@ Built-in assertions:
                         ([ [<alpha> | _] \w* | " [<alpha>|_] \w* " ])
     <self>              Matches the same pattern as the current rule
                         (useful for recursion)
-    <!pattern>          Matches anything which *doesn't* match pattern
-    
+    <!XXX>              Zero width assertion that XXX *doesn't* match at 
+                        this location
     <alnum>             Alphanumeric character
     <alpha>             Alphabetic character
     <ascii>             ASCII character
@@ -79,11 +79,32 @@ Built-in assertions:
     <digit>             Numeric character
     <graph>             An alphanumeric character or punctuation
     <lower>             Lowercase character
-    <print>             Printable character -- alphanumeric, punctuation or whitespace
+    <print>             Printable character -- alphanumeric, punctuation or 
+                        whitespace
     <space>             Whitespace character ([\s\ck])
     <upper>             Uppercase character
     <word>              Word character (alphanumeric + _)
     <xdigit>            Hexadecimal digit
+
+Named rules are stored in the match object unless the rule name is
+prefixed with a ?
+
+    /<?item> <quantity> <price>/
+
+would store values in $/{'quantity'} and $/{'price'} but not $/{'item'}
+
+Character classes:
+    <[abcd]>            Matches one of the characters a,b,c, or d.  Ranges
+                        may be used as <[a..z]>.  Can be combined with + 
+                        and - like so: <[a..z]-[m..p]> (which is the same
+                        as <[a..l]+[q..z]>)
+    <-XXX>              Matches XXX as a negated character class.  For
+                        instance, <-alpha> would match one non-alpha
+                        character. May also be combined as above. 
+                        (<-alpha+[qrst]> will match any non-alpha character
+                        and the characters q,r,s, and t)
+    <+XXX>              Matches XXX as a character class. <+alpha> matches
+                        one alpha character.
 
 Hypothetical variables:
     Assign value to variable only if entire pattern succeeds.  
@@ -111,8 +132,8 @@ Binding:
     Hashes:
     
         / %x := [ (\S+)\: \s* (.*) ]* / # key/value pairs
-        # $1 = list of keys
-        # $2 = list of values
+        # $0 = list of keys
+        # $1 = list of values
         
         / %x := [ (\S+) \s* ]* /        # capture only keys, values = undef
     
