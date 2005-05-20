@@ -68,11 +68,8 @@ op0 "File::Spec::tmpdir" = const $ do
 op0 "pi" = const $ return (VNum pi)
 op0 "say" = const $ op1 "say" =<< readVar "$_"
 op0 "print" = const $ op1 "print" =<< readVar "$_"
-op0 "return" = \_ -> do
-    depth <- asks envDepth
-    if depth == 0
-        then fail "cannot return() outside a subroutine"
-        else shiftT $ const $ retEmpty
+op0 "return" = const $ op1Return (shiftT . const $ retEmpty)
+op0 "yield" = const $ op1Yield (shiftT . const $ retEmpty)
 op0 other = const $ fail ("Unimplemented listOp: " ++ other)
 
 -- |Implementation of unary primitive operators and functions
@@ -237,16 +234,8 @@ op1 "defined" = op1Cast (VBool . defined)
 op1 "last" = \v -> return (VError "cannot last() outside a loop" (Val v))
 op1 "next" = \v -> return (VError "cannot next() outside a loop" (Val v))
 op1 "redo" = \v -> return (VError "cannot redo() outside a loop" (Val v))
-op1 "return" = \v -> do
-    depth <- asks envDepth
-    if depth == 0
-        then fail "cannot return() outside a subroutine"
-        else shiftT $ const $ do
-            let exp = case v of
-                    VList [x]   -> Val x
-                    _           -> Val v
-            evl <- asks envEval
-            evl exp
+op1 "return" = op1Return . op1ShiftOut
+op1 "yield" = op1Yield . op1ShiftOut
 op1 "sign" = \v -> if defined v
     then op1Cast (VInt . signum) v
     else return undef
@@ -356,9 +345,6 @@ op1 "accept" = \v -> do
     socket      <- fromVal v
     (h, _, _)   <- liftIO $ accept socket
     return $ VHandle h
-op1 "yield" = const $ do
-    ok <- tryIO False $ do { yield ; return True }
-    return $ VBool ok
 op1 "detach" = \v -> do
     case v of
         VThread thr -> do
@@ -470,7 +456,34 @@ op1 "log10" = op1Cast (VNum . logBase 10)
 op1 "from"  = op1Cast (castV . matchFrom)
 op1 "to"    = op1Cast (castV . matchTo)
 op1 "matches" = op1Cast (VList . matchSubPos)
+op1 "Thread::yield" = const $ do
+    ok <- tryIO False $ do { yield ; return True }
+    return $ VBool ok
 op1 other   = \_ -> fail ("Unimplemented unaryOp: " ++ other)
+
+op1Return action = do
+    depth <- asks envDepth
+    if depth == 0 then fail "cannot return() outside a subroutine" else do
+    sub   <- fromVal =<< readVar "&?SUB"
+    case subCont sub of
+        Nothing -> action
+        _       -> fail $ "cannot return() from a " ++ pretty (subType sub)
+
+op1Yield action = do
+    depth <- asks envDepth
+    if depth == 0 then fail "cannot yield() outside a coroutine" else do
+    sub   <- fromVal =<< readVar "&?SUB"
+    case subCont sub of
+        Nothing -> fail $ "cannot yield() from a " ++ pretty (subType sub)
+        Just tvar -> callCC $ \esc -> do
+            liftSTM $ writeTVar tvar (MkThunk (esc undef))
+            action
+
+op1ShiftOut v = shiftT . const $ do
+    evl <- asks envEval
+    evl $ case v of
+        VList [x]   -> Val x
+        _           -> Val v
 
 op1Exit :: Val -> Eval a
 op1Exit v = do
@@ -1152,6 +1165,9 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Void      pre     return  ()\
 \\n   Void      pre     return  (rw!Any)\
 \\n   Void      pre     return  (List)\
+\\n   Void      pre     yield   ()\
+\\n   Void      pre     yield   (rw!Any)\
+\\n   Void      pre     yield   (List)\
 \\n   Junction  pre     any     (List)\
 \\n   Junction  pre     all     (List)\
 \\n   Junction  pre     one     (List)\
@@ -1261,13 +1277,13 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Num       pre     log     (Num)\
 \\n   Num       pre     log10   (Num)\
 \\n   Thread    pre     async   (Code)\
-\\n   Bool      pre     yield   (?Thread)\
 \\n   Int       pre     sign    (Num)\
 \\n   Bool      pre     kill    (Thread)\
 \\n   Int       pre     kill    (Int, List)\
 \\n   Object    pre     new     (Type: Named)\
 \\n   Object    pre     clone   (Any)\
 \\n   Object    pre     id      (Any)\
+\\n   Bool      pre     Thread::yield   (Thread)\
 \\n   List      pre     Pugs::Internals::runInteractiveCommand    (?Str=$_)\
 \\n   List      pre     Pugs::Internals::openFile    (?Str,?Str=$_)\
 \\n   Bool      pre     bool::true ()\

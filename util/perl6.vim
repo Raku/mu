@@ -14,7 +14,7 @@ endif
 " Billions of keywords
 syn keyword p6Attn		ACHTUNG ATTN ATTENTION FIXME NB todo Todo TODO WTF XXX contained
 syn keyword p6Module		module class use require
-syn keyword p6KeyDecl		sub submethod method is but multi returns
+syn keyword p6KeyDecl		coro sub submethod method is but multi returns
 syn keyword p6KeyScopeDecl	let local my our state temp 
 syn keyword p6KeyFlow		else elsif for foreach loop while until if unless when
 syn keyword p6KeyFlow		given next last redo or and err xor return not

@@ -221,43 +221,47 @@ ruleDeclaration = rule "declaration" $ choice
     , ruleRequireDeclaration
     ]
 
-ruleSubHead :: RuleParser (Bool, Bool, String)
+ruleSubHead :: RuleParser (Bool, SubType, String)
 ruleSubHead = rule "subroutine head" $ do
-    isMulti             <- option False $ do { symbol "multi" ; return True }
-    (isMethod, name)    <- choice
+    isMulti     <- option False $ do { symbol "multi" ; return True }
+    (styp, name) <- choice
         [ do symbol "sub"
              str    <- ruleSubName
-             return (False, str)
+             return (SubRoutine, str)
+        , do symbol "coro"
+             colon  <- maybeColon
+             str    <- ruleSubName
+             return (SubCoroutine, colon str)
         , do (symbol "submethod" <|> symbol "method")
              colon  <- maybeColon
              str    <- ruleSubName
-             return (True, colon str)
+             return (SubMethod, colon str)
         ]
-    return (isMulti, isMethod, name)
+    return (isMulti, styp, name)
 
 maybeColon :: RuleParser ([Char] -> [Char])
 maybeColon = option id $ do
     char ':'
     return $ \(sigil:name) -> (sigil:':':name)
 
--- | Scope, context, isMulti, isMethod, name
-ruleSubScopedWithContext :: RuleParser (Scope, String, Bool, Bool, String)
+-- | Scope, context, isMulti, styp, name
+ruleSubScopedWithContext :: RuleParser (Scope, String, Bool, SubType, String)
 ruleSubScopedWithContext = rule "scoped subroutine with context" $ do
     scope   <- ruleScope
     cxt     <- identifier
-    (isMulti, isMethod, name) <- ruleSubHead
-    return (scope, cxt, isMulti, isMethod, name)
+    (isMulti, styp, name) <- ruleSubHead
+    return (scope, cxt, isMulti, styp, name)
 
-ruleSubScoped :: RuleParser (Scope, String, Bool, Bool, String)
+ruleSubScoped :: RuleParser (Scope, String, Bool, SubType, String)
 ruleSubScoped = rule "scoped subroutine" $ do
     scope <- ruleScope
-    (isMulti, isMethod, name) <- ruleSubHead
-    return (scope, "Any", isMulti, isMethod, name)
+    (isMulti, styp, name) <- ruleSubHead
+    return (scope, "Any", isMulti, styp, name)
 
-ruleSubGlobal :: RuleParser (Scope, String, Bool, Bool, String)
+ruleSubGlobal :: RuleParser (Scope, String, Bool, SubType, String)
 ruleSubGlobal = rule "global subroutine" $ do
-    (isMulti, isMethod, name) <- ruleSubHead
-    return (SGlobal, "Any", isMulti, isMethod, name)
+    (isMulti, styp, name) <- ruleSubHead
+    return (SGlobal, "Any", isMulti, styp, name)
 
 
 doExtract :: Maybe [Param] -> Exp -> (Exp, [String], [Param])
@@ -311,7 +315,7 @@ ruleClassDeclaration = rule "class declaration" $ try $ do
 ruleSubDeclaration :: RuleParser Exp
 ruleSubDeclaration = rule "subroutine declaration" $ do
     -- namePos <- getPosition
-    (scope, typ, isMulti, isMethod, name) <- tryChoice
+    (scope, typ, isMulti, styp, name) <- tryChoice
         [ ruleSubScopedWithContext
         , ruleSubScoped
         , ruleSubGlobal
@@ -331,7 +335,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
             { isMulti       = isMulti
             , subName       = name'
             , subEnv        = Just env
-            , subType       = if isMethod then SubMethod else SubRoutine
+            , subType       = styp
             , subAssoc      = "pre"
             , subReturns    = mkType typ''
             , subLValue     = False -- XXX "is rw"
@@ -339,10 +343,11 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
             , subBindings   = []
             , subSlurpLimit = []
             , subBody       = fun
+            , subCont       = Nothing
             }
-        name' = if isMethod then "&" ++ envPackage env ++ "::" ++ tail name else name
+        name' = if styp <= SubMethod then "&" ++ envPackage env ++ "::" ++ tail name else name
         self :: [Param]
-        self | not isMethod = []
+        self | styp >= SubMethod = []
              | (prm:_) <- params, isInvocant prm = []
              | otherwise = [selfParam $ envPackage env]
         -- decl = Sym scope name -- , namePos)
@@ -369,14 +374,14 @@ selfParam typ = MkParam
 
 ruleSubName :: RuleParser String
 ruleSubName = verbatimRule "subroutine name" $ do
-    star    <- option "" $ string "*"
+    twigil  <- ruleTwigil
     fixity  <- option "" $ choice (map (try . string) $ words fixities)
     name    <- ruleQualifiedIdentifier
                 <|> try (between (string "<<") (string ">>")
                     (many1 (satisfy (/= '>') <|> lookAhead (satisfy (/= '>')))))
                 <|> between (char '<') (char '>') (many1 $ satisfy (/= '>'))
                 <|> between (char '\171') (char '\187') (many1 $ satisfy (/= '\187'))
-    return $ "&" ++ star ++ fixity ++ name
+    return $ "&" ++ twigil ++ fixity ++ name
     where
     fixities = " prefix: postfix: infix: circumfix: "
 
@@ -773,14 +778,18 @@ retVerbatimBlock typ formal body = expRule $ do
             , subBindings   = []
             , subSlurpLimit = []
             , subBody       = fun
+            , subCont       = Nothing
             }
     return (Syn "sub" [Val $ VCode sub])
 
 ruleBlockFormalStandard :: RuleParser (SubType, Maybe [Param])
 ruleBlockFormalStandard = rule "standard block parameters" $ do
-    symbol "sub"
+    styp <- choice
+        [ do { symbol "sub"; return SubRoutine }
+        , do { symbol "coro"; return SubCoroutine }
+        ]
     params <- option Nothing $ ruleSubParameters ParensMandatory
-    return $ (SubRoutine, params)
+    return $ (styp, params)
 
 ruleBlockFormalPointy :: RuleParser (SubType, Maybe [Param])
 ruleBlockFormalPointy = rule "pointy block parameters" $ do
@@ -1242,12 +1251,12 @@ maybeParensBool p = choice
 maybeParens :: CharParser Env a -> RuleParser a
 maybeParens p = choice [ parens p, p ]
 
-ruleParamName :: GenParser Char st String
+ruleParamName :: RuleParser String
 ruleParamName = literalRule "parameter name" $ do
     sigil   <- oneOf "$@%&:"
-    caret   <- option "" $ choice $ map string $ words " ^ * ? . : "
+    twigil  <- ruleTwigil
     name    <- many1 wordAny
-    return $ (sigil:caret) ++ name
+    return $ (sigil:twigil) ++ name
 
 ruleVarName :: RuleParser String
 ruleVarName = rule "variable name" ruleVarNameString
@@ -1261,9 +1270,12 @@ ruleVarNameString =   try (string "$!")  -- error variable
     sigil   <- oneOf "$@%&"
     if sigil == '&' then ruleSubName else do
     --  ^ placeholder, * global, ? magical, . member, : private member
-    caret   <- option "" $ choice $ map string $ words " ^ * ? . : "
+    twigil  <- ruleTwigil
     names   <- many1 wordAny `sepBy1` (try $ string "::")
-    return $ (sigil:caret) ++ concat (intersperse "::" names)
+    return $ (sigil:twigil) ++ concat (intersperse "::" names)
+
+ruleTwigil :: RuleParser String
+ruleTwigil = option "" . choice . map string $ words " ^ * ? . : "
 
 ruleMatchPos :: RuleParser String
 ruleMatchPos = do
@@ -1708,11 +1720,6 @@ yadaLiteral = do
     sym  <- choice . map symbol $ words " ... ??? !!! "
     pos2 <- getPosition
     return . Val $ VError sym (NonTerm (mkPos pos1 pos2))
-{-
-    return . Val . VRef . thunkRef . MkThunk $
-        local (\e -> e{ envPos = mkPos pos1 pos2}) $ do
-            fail "This function is not yet implemented"
--}
 
 methOps             :: a -> [b]
 methOps _ = []

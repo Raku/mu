@@ -61,6 +61,9 @@ instance Pretty Pos where
             (True, False) -> fmt bln (bcl ++ "-" ++ ecl)
             (False, _)    -> fmt bln bcl <+> (text "-" <+> fmt eln ecl)
 
+instance Pretty SubType where
+    format = text . map toLower . drop 3 . show
+
 instance Pretty Env where
     format x = doubleBraces $ nest defaultIndent (format $ envBody x) 
 

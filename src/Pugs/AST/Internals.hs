@@ -612,10 +612,11 @@ the proper scope and 'Env' when the sub is called.
 Note that this is the \'type\' of a \'sub\', and has nothing to do with
 subtyping.
 -}
-data SubType = SubMethod  -- ^ Method
-             | SubRoutine -- ^ Regular subroutine
-             | SubBlock   -- ^ Pointy sub or bare block
-             | SubPrim    -- ^ Built-in primitive operator (see "Pugs.Prim")
+data SubType = SubMethod    -- ^ Method
+             | SubCoroutine -- ^ Coroutine
+             | SubRoutine   -- ^ Regular subroutine
+             | SubBlock     -- ^ Pointy sub or bare block
+             | SubPrim      -- ^ Built-in primitive operator (see "Pugs.Prim")
     deriving (Show, Eq, Ord)
 
 isSlurpy :: Param -> Bool
@@ -686,6 +687,7 @@ data VCode = MkCode
     , subReturns    :: !Type        -- ^ Return type
     , subLValue     :: !Bool        -- ^ Is this a lvalue sub?
     , subBody       :: !Exp         -- ^ Body of the closure
+    , subCont       :: !(Maybe (TVar VThunk)) -- ^ Coroutine re-entry point
     }
     deriving (Show, Eq, Ord, Typeable)
 
@@ -707,6 +709,7 @@ mkPrim = MkCode
     , subReturns = anyType
     , subBody = emptyExp
     , subLValue = False
+    , subCont = Nothing
     }
 
 mkSub :: VCode
@@ -722,6 +725,7 @@ mkSub = MkCode
     , subReturns = anyType
     , subBody = emptyExp
     , subLValue = False
+    , subCont = Nothing
     }
 
 instance Ord VComplex where

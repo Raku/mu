@@ -359,8 +359,19 @@ reduce exp@(Syn name exps) = case name of
     "sub" -> do
         let [exp] = exps
         (VCode sub) <- enterEvalContext (cxtItem "Code") exp
-        env <- ask
-        retVal $ VCode sub{ subEnv = Just env }
+        env     <- ask
+        cont    <- if subType sub /= SubCoroutine then return Nothing else liftSTM $ do
+            tvar <- newTVar undefined
+            let thunk = MkThunk . fix $ \redo -> do
+                evalExp $ subBody sub
+                liftSTM $ writeTVar tvar thunk
+                redo
+            writeTVar tvar thunk
+            return $ Just tvar
+        retVal $ VCode sub
+            { subEnv  = Just env
+            , subCont = cont
+            }
     "if" -> doCond id 
     "unless" -> doCond not
     "for" -> do
@@ -933,12 +944,15 @@ chainFun _ _ _ _ _ = internalError "chainFun: Not enough parameters in Val list"
 applyExp :: SubType -> [ApplyArg] -> Exp -> Eval Val
 applyExp _ bound (Prim f) =
     f [ argValue arg | arg <- bound, (argName arg !! 1) /= '_' ]
-applyExp _ [] body = evalExp body
-applyExp styp bound@(arg:_) body = do
+applyExp styp bound body = applyThunk styp bound (MkThunk $ evalExp body)
+
+applyThunk :: SubType -> [ApplyArg] -> VThunk -> Eval Val
+applyThunk _ [] thunk = thunk_force thunk
+applyThunk styp bound@(arg:_) thunk = do
     -- introduce $?SELF and $_ as the first invocant.
     inv <- if styp <= SubMethod then invocant else return []
     pad <- formal
-    enterLex (inv ++ pad) $ evalExp body
+    enterLex (inv ++ pad) $ thunk_force thunk
     where
     formal = mapM argNameValue $ filter (not . null . argName) bound
     invocant = mapM (`genSym` (vCast $ argValue arg)) $ words "$?SELF $_"
@@ -966,7 +980,7 @@ doApply :: Env   -- ^ Environment to evaluate in
         -> [Exp] -- ^ Invocants (arguments before the colon)
         -> [Exp] -- ^ Arguments (not including invocants)
         -> Eval Val
-doApply env sub@MkCode{ subBody = fun, subType = typ } invs args =
+doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args =
     case bindParams sub invs args of
         Left errMsg -> fail errMsg
         Right sub   -> do
@@ -982,8 +996,11 @@ doApply env sub@MkCode{ subBody = fun, subType = typ } invs args =
                 -- trace (show bound) $ return ()
                 val <- local fixEnv $ enterLex syms $ do
                     (`juncApply` bound) $ \realBound -> do
-                        enterSub sub $ do
-                            applyExp (subType sub) realBound fun
+                        enterSub sub $ case cont of
+                            Just tvar   -> do
+                                thunk <- liftSTM $ readTVar tvar
+                                applyThunk (subType sub) realBound thunk
+                            Nothing     -> applyExp (subType sub) realBound fun
                 retVal val
     where
     enterScope :: Eval Val -> Eval Val

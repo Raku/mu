@@ -26,9 +26,8 @@ instance CodeClass VCode where
     -- XXX - subType should really just be a mkType itself
     code_iType c  = case subType c of
         SubBlock    -> mkType "Block"
-        SubRoutine  -> mkType "Sub"
-        SubPrim     -> mkType "Sub"
         SubMethod   -> mkType "Method"
+        _           -> mkType "Sub"
     code_fetch    = return
     code_store _ _= retConstError undef
     code_assuming c [] [] = return c
