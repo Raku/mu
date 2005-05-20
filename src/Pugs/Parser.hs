@@ -1159,7 +1159,7 @@ ruleFoldOp = verbatimRule "reduce metaoperator" $ do
     where
     defaultInfixOps = concat
         [ " ** * / % x xx +& +< +> ~& ~< ~> "
-        , " + - ~ +| +^ ~| ~^ ?| "
+        , " + - ~ +| +^ ~| ~^ ?| , "
         , " & ^ | "
         , " => "
         , " != == < <= > >= ~~ !~ "
