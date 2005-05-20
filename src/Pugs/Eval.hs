@@ -570,9 +570,13 @@ reduce exp@(Syn name exps) = case name of
         ref     <- fromVal val
         evalRef ref
     sigil:"::()" -> do
-	rv      <- evalExp $ head exps
-	varname <- fromVal rv
-	evalExp . Var $ sigil:varname
+	-- These are all parts of the name
+	parts   <- mapM fromVal =<< mapM evalExp exps
+	-- Now we only have to add the sigil in front of the string and join
+	-- the parts with "::".
+	let varname = sigil:(concat . (intersperse "::") $ parts)
+	-- Finally, eval the varname.
+	evalExp . Var $ varname
     "{}" -> do
         let [listExp, indexExp] = exps
         idxCxt  <- cxtOfExp indexExp 

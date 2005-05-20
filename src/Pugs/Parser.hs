@@ -1301,11 +1301,12 @@ ruleVar = try ruleNormalVar <|> ruleSymbolicDeref
 
 ruleSymbolicDeref :: RuleParser Exp
 ruleSymbolicDeref = do
-    sigil   <- oneOf "$@%&"
-    string "::"
-    -- nameExp is the expression which will yield the varname.
-    nameExp <- parens ruleExpression
-    return $ Syn (sigil:"::()") [nameExp]
+    sigil    <- oneOf "$@%&"
+    nameExps <- many1 $ do
+	string "::"
+        -- nameExp is the expression which will yield the varname.
+	(parens ruleExpression) <|> (liftM (Val . VStr) $ many1 wordAny)
+    return $ Syn (sigil:"::()") nameExps
 
 makeVar :: String -> Exp
 makeVar "$<>" = Var "$/"
