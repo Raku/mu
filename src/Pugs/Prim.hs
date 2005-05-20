@@ -27,7 +27,6 @@ import Pugs.Junc
 import Pugs.AST
 import Pugs.Types
 import Pugs.Pretty
-import Pugs.Monads
 import Text.Printf
 import Pugs.External
 import Pugs.Embed
@@ -463,11 +462,8 @@ op1 "from"  = op1Cast (castV . matchFrom)
 op1 "to"    = op1Cast (castV . matchTo)
 op1 "matches" = op1Cast (VList . matchSubPos)
 op1 "gather" = \v -> do
-    av  <- newArray []
     evl <- asks envEval
-    symTake <- genSym "@?TAKE" (MkRef av)
-    enterLex [symTake] $ evl (App (Val v) [] [])
-    fmap VList $ readIVar av
+    evl (Syn "gather" [Val v])
 op1 "Thread::yield" = const $ do
     ok <- tryIO False $ do { yield ; return True }
     return $ VBool ok

@@ -399,6 +399,13 @@ reduce exp@(Syn name exps) = case name of
                     munge sub{ subParams = [defaultScalarParam] }
                 munge sub = updateSubPad sub symLast
             runBody elms $ munge sub
+    "gather" -> do
+        let [exp] = exps
+        sub     <- fromVal =<< evalExp exp
+        av      <- newArray []
+        symTake <- genSym "@?TAKE" (MkRef av)
+        apply (updateSubPad sub symTake) [] []
+        fmap VList $ readIVar av
     "loop" -> do
         let [pre, cond, post, body] = case exps of { [_] -> exps'; _ -> exps }
             exps' = [emptyExp, Val (VBool True), emptyExp] ++ exps
