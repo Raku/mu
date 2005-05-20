@@ -31,16 +31,7 @@ opRequire dumpEnv v = do
 op1EvalHaskell :: Val -> Eval Val
 op1EvalHaskell cv = do
     str     <- fromVal cv :: Eval String
-    ret     <- liftIO (evalHaskell str)
-    glob    <- askGlobal
-    errSV   <- findSymRef "$!" glob
-    case ret of
-        Right str -> do
-            writeRef errSV VUndef
-            return $ VStr str
-        Left  err -> do
-            writeRef errSV (VStr err)
-            retEmpty
+    evalHaskell str
 
 opEval :: Maybe Bool -> String -> String -> Eval Val
 opEval flag name str = do

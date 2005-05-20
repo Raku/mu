@@ -101,6 +101,7 @@ op1MinMax min_or_max v = do
 	let cmp = if a' < b' then (-1) else if a' == b' then 0 else 1
 	return $ if min_or_max (cmp > (0::VInt)) then a else b
 
+op1Uniq :: Val -> Eval Val
 op1Uniq v = do
     -- We want to have a real Haskell list
     args    <- fromVal v

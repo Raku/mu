@@ -88,6 +88,7 @@ run []                          = do
         then do banner >> intro >> repLoop
         else run ["-"]
 
+readStdin :: IO String
 readStdin = do
     eof     <- isEOF
     if eof then return [] else do

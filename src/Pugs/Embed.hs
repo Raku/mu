@@ -24,9 +24,9 @@ import Pugs.Embed.Parrot
 evalEmbedded :: String -> String -> IO ()
 evalEmbedded "Parrot"  code = do
     evalParrot code
-evalEmbedded "Haskell" code = do
+{- evalEmbedded "Haskell" code = do
     evalHaskell code
-    return ()
+    return () -}
 evalEmbedded "Perl5" code = do
     interp <- initPerl5 ""
     evalPerl5 code

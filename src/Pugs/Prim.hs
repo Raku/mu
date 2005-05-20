@@ -471,6 +471,7 @@ op1 "Thread::yield" = const $ do
 op1 "prefix:[,]" = return
 op1 other   = \_ -> fail ("Unimplemented unaryOp: " ++ other)
 
+op1Return :: Eval Val -> Eval Val
 op1Return action = do
     depth <- asks envDepth
     if depth == 0 then fail "cannot return() outside a subroutine" else do
@@ -479,6 +480,7 @@ op1Return action = do
         Nothing -> action
         _       -> fail $ "cannot return() from a " ++ pretty (subType sub)
 
+op1Yield :: Eval Val -> Eval Val
 op1Yield action = do
     depth <- asks envDepth
     if depth == 0 then fail "cannot yield() outside a coroutine" else do
@@ -489,6 +491,7 @@ op1Yield action = do
             liftSTM $ writeTVar tvar (MkThunk (esc undef))
             action
 
+op1ShiftOut :: Val -> Eval Val
 op1ShiftOut v = shiftT . const $ do
     evl <- asks envEval
     evl $ case v of
