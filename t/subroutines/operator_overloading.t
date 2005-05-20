@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 16;
+plan 18;
 
 =pod
 
@@ -78,9 +78,27 @@ is("boobies"!, "BOOBIES!!!", "correct overloaded method called");
 # I mean, + is all well and good for number classes.  But what about
 # defining other conversions that may happen?
 
-# here is one that co-erces a "MyNumberClass into a Str.  The term
-# "coerce:" is from A12
-eval_ok('class MyNumberClass {
-has $.val;
-method coerce:'' ($self:) returns Str
-}', :todo<feature>);
+# here is one that co-erces a MyClass into a Str and a Num.
+# L<A12/"Overloading" /Coercions to other classes can also be defined:/>
+{
+  eval '
+    class MyClass {
+      method prefix:<~> { "hi" }
+      method prefix:<+> { 42   }
+      method coerce:<as>($self, OtherClass $to) {
+	my $obj = $to.new;
+	$obj.x = 23;
+	return $obj;
+      }
+    }
+
+    class OtherClass {
+      has $.x is rw;
+    }
+  ';
+
+  my $obj;
+  lives_ok { $obj = MyClass.new }, "instantiation of a prefix:<...> and coerce:<as> overloading class worked";
+  is ~$obj, "hi", "our object was stringified correctly";
+  is eval('($obj as OtherClass).x'), 23, "our object was coerced correctly";
+}
