@@ -25,6 +25,14 @@ sub postfix:<!> { [*] 1..$^x }
 # sub ∞()       { Inf } -- doesn't work
 sub infix:<÷>   { $^a / $^b }
 
+# Standard functions of fp
+sub id($x)        { $x }
+sub const($x)     { return -> $y { $x } }
+sub tail(@array)  { @array[1...] }
+sub init(@array)  { @array[0..@array.end-1] }
+
+sub take(Int $n, Code &f) { (1..$n).map:{ f() } }
+
 =head1 NAME
 
 fp - Functional programming for Perl 6
@@ -79,6 +87,28 @@ Sum and product.
 =head2 C<< postfix:<!>(Int $x) >>
 
 Factorial.
+
+=head1 FUNCTIONS
+
+=head2 C<< id($x) >>
+
+The identity function.
+
+=head2 C<< const($x) >>
+
+Returns a new function which always returns C<$x>.
+
+=head2 C<< tail(@array) >>
+
+Returns all except the first element of C<@array>.
+
+=head2 C<< init(@array) >>
+
+Returns all except the last element of C<@array>.
+
+=head2 C<< take(Int $n, Code &f) >>
+
+Runs C<&f> C<$n> times and returns the results.
 
 =head1 BUGS
 
