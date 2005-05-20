@@ -1,0 +1,73 @@
+Package-like things (they are namespaces)
+
+Where's the beef:
+
+            Adds:
+  package    namespace, traits, autoload
+   module    export/import, version
+    role     methods, attributes, inheritance, parameterized
+     class   instantiation, _not_ parameterized
+      enum   weird methods
+
+Name and duration:
+                   Name:   Name-Visibility: Package Duration:
+     package P   top-level     global      until exit or deletion
+  my package P   top-level     lexical        dynamic
+ our package P   relative to   same as        same as  ...current package.
+     package     anonymous       n/a          dynamic
+
+Scope of declaration:
+ ... package P; ...   to end of enclosing scope
+ ... package P {...}  block scope
+ ... package   {...}  block scope
+
+Same for modules, classes.
+Same for roles?, enums?, subtypes?.
+But grammars and rules have a separate system.
+
+Hierarchical naming:
+
+ symbol example meaning
+  ::*    ::*A    root; begins absolute names.
+  ::     ::A     begins relative names
+  ::  ...::A     separator
+  ($expr)        a subpath expanded at runtime.
+                  ..::($expr)::.. but not ..::($expr)baz::..
+  ::*Main        The user's default namespace.
+
+A single hierarchy is shared by modules, classes, roles, enums, and
+subtypes. [yes?]
+
+Grammars and rules use the same separator, but otherwise have a
+separate system.
+
+Names are searched for from innermost scopes to outermost.
+# Which names?  relative names?  names without separators?
+
+Symbol table:
+
+  %Name      symbol table
+  %Name<$x>  lookup
+  %::*       global symbol table
+  %::*P      symbol table of top-level P
+  %P::       symbol table of some P
+  %P::<$s>   lookup $s
+  %P::<@a>   lookup @a
+  %P::{'$s'} lookup $s again, just quoted differently.
+  %P::{$sym} lookup some symbol specified at runtime
+
+Traits/properties:
+
+Autoloading:
+
+Version:
+
+Export/import/inheritance(is/does):
+
+Types:
+
+Parameterization:
+
+Dispatch:
+
+Instantiation/Objects:
