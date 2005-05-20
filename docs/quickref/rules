@@ -124,10 +124,8 @@ Hypothetical variables:
         / (\S*) { let $x = .pos } \s* foo /
         
 
-Grouping:
 
-
-Capture:
+Aliasing:
     Syntax: let $foo = $1
     Shorthand: $foo := $1
     
