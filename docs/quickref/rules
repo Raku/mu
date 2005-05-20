@@ -49,6 +49,10 @@ Modifiers:
                         pattern with \s+ or \s* according to <?ws> rule
     :x(N)               Repetition -- find N times (N is an integer)
 
+[:ex vs :ov could use clarification.  see
+ http://www.nntp.perl.org/group/perl.perl6.language/20985 ]
+[re :w, except where there is already and explicty space rule]
+
 Built-in assertions:
     <'...'>             Matches ... as a literal string
     <"...">             Matches ... as a literal string (after interpolation)
@@ -105,6 +109,8 @@ Character classes:
                         and the characters q,r,s, and t)
     <+XXX>              Matches XXX as a character class. <+alpha> matches
                         one alpha character.
+
+[This does not seem to match S05.  Which one is wrong?]
 
 Hypothetical variables:
     Assign value to variable only if entire pattern succeeds.  
