@@ -577,10 +577,6 @@ reduce exp@(Syn name exps) = case name of
     "try" -> do
         val <- resetT $ evalExp (head exps)
         retEvalResult False val
-    "gather" -> do
-        val     <- enterEvalContext cxtSlurpyAny exp
-        -- ignore val
-        retVal val
     "rx" -> do
         let [exp, adverbs] = exps
         hv      <- fromVal =<< evalExp adverbs

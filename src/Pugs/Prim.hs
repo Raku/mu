@@ -27,6 +27,7 @@ import Pugs.Junc
 import Pugs.AST
 import Pugs.Types
 import Pugs.Pretty
+import Pugs.Monads
 import Text.Printf
 import Pugs.External
 import Pugs.Embed
@@ -70,6 +71,7 @@ op0 "say" = const $ op1 "say" =<< readVar "$_"
 op0 "print" = const $ op1 "print" =<< readVar "$_"
 op0 "return" = const $ op1Return (shiftT . const $ retEmpty)
 op0 "yield" = const $ op1Yield (shiftT . const $ retEmpty)
+op0 "take" = const $ retEmpty
 op0 other = const $ fail ("Unimplemented listOp: " ++ other)
 
 -- |Implementation of unary primitive operators and functions
@@ -236,6 +238,10 @@ op1 "next" = \v -> return (VError "cannot next() outside a loop" (Val v))
 op1 "redo" = \v -> return (VError "cannot redo() outside a loop" (Val v))
 op1 "return" = op1Return . op1ShiftOut
 op1 "yield" = op1Yield . op1ShiftOut
+op1 "take" = \v -> do
+    lex <- asks envLexical
+    arr <- findSymRef "@?TAKE" lex
+    op2 "push" (VRef arr) v
 op1 "sign" = \v -> if defined v
     then op1Cast (VInt . signum) v
     else return undef
@@ -456,6 +462,12 @@ op1 "log10" = op1Cast (VNum . logBase 10)
 op1 "from"  = op1Cast (castV . matchFrom)
 op1 "to"    = op1Cast (castV . matchTo)
 op1 "matches" = op1Cast (VList . matchSubPos)
+op1 "gather" = \v -> do
+    av  <- newArray []
+    evl <- asks envEval
+    symTake <- genSym "@?TAKE" (MkRef av)
+    enterLex [symTake] $ evl (App (Val v) [] [])
+    fmap VList $ readIVar av
 op1 "Thread::yield" = const $ do
     ok <- tryIO False $ do { yield ; return True }
     return $ VBool ok
@@ -1084,6 +1096,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Num       spre    --      (rw!Num)\
 \\n   Bool      pre     not     (List)\
 \\n   Bool      pre     true    (Bool)\
+\\n   List      pre     gather  (Code)\
 \\n   List      pre     map     (Code, List)\
 \\n   List      pre     grep    (Code, List)\
 \\n   List      pre     sort    (Code, List)\
@@ -1174,6 +1187,9 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Void      pre     yield   ()\
 \\n   Void      pre     yield   (rw!Any)\
 \\n   Void      pre     yield   (List)\
+\\n   Void      pre     take    ()\
+\\n   Void      pre     take    (rw!Any)\
+\\n   Void      pre     take    (List)\
 \\n   Junction  pre     any     (List)\
 \\n   Junction  pre     all     (List)\
 \\n   Junction  pre     one     (List)\

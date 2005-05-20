@@ -617,8 +617,7 @@ unsafeEvalExp exp = do
 
 ruleConstruct :: RuleParser Exp
 ruleConstruct = rule "construct" $ tryChoice
-    [ ruleGatherConstruct
-    , ruleForConstruct
+    [ ruleForConstruct
     , ruleLoopConstruct
     , ruleCondConstruct
     , ruleWhileUntilConstruct
@@ -634,9 +633,6 @@ ruleKeywordConsturct keyword = rule (keyword ++ " construct") $ do
     symbol keyword
     block <- ruleBlock
     retSyn keyword [block]
-
-ruleGatherConstruct :: RuleParser Exp
-ruleGatherConstruct = ruleKeywordConsturct "gather"
 
 ruleTryConstruct :: RuleParser Exp
 ruleTryConstruct = ruleKeywordConsturct "try"
