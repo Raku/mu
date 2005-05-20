@@ -799,9 +799,6 @@ instance Eq VProcess
 instance Ord VProcess where
     compare _ _ = EQ
 
-{-|
-(Is this even used? A @grep@ through the sources doesn't find any callers...)
--}
 extractExp :: Exp -> ([Exp], [String]) -> ([Exp], [String])
 extractExp ex (exps, vs) = (ex':exps, vs')
     where
@@ -809,10 +806,11 @@ extractExp ex (exps, vs) = (ex':exps, vs')
 
 -- | (Used by 'extractExp'...)
 extract :: Exp -> [String] -> (Exp, [String])
-extract (App n invs args) vs = (App n invs' args', vs'')
+extract (App n invs args) vs = (App n' invs' args', vs''')
     where
-    (invs', vs')  = foldr extractExp ([], vs) invs
-    (args', vs'') = foldr extractExp ([], vs') args
+    (n', vs')      = extract n vs
+    (invs', vs'')  = foldr extractExp ([], vs') invs
+    (args', vs''') = foldr extractExp ([], vs'') args
 extract (Stmts exp1 exp2) vs = (Stmts exp1' exp2', vs'')
     where
     (exp1', vs')  = extract exp1 vs
