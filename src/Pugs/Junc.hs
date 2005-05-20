@@ -86,6 +86,10 @@ mergeJunc j ds vs
     vals = Set.fromList [ v | [v] <- group $ sort vs ]
     dups = Set.fromList (ds ++ [ v | (v:_:_) <- group $ sort (vs ++ ds) ])
 
+-- OK... Now let's implement the hideously clever autothreading algorithm.
+-- First pass - thread thru all() and none()
+-- Second pass - thread thru any() and one()
+
 juncApply :: ([ApplyArg] -> Eval Val) -> [ApplyArg] -> Eval Val
 juncApply f args
     | this@(_, (pivot:_)) <- break isTotalJunc args

@@ -929,10 +929,6 @@ evalExpType (Sym _ _ exp) = evalExpType exp
 evalExpType (Stmts _ exp) = evalExpType exp
 evalExpType _ = return $ mkType "Any"
 
--- OK... Now let's implement the hideously clever autothreading algorithm.
--- First pass - thread thru all() and none()
--- Second pass - thread thru any() and one()
-
 chainFun :: Params -> Exp -> Params -> Exp -> [Val] -> Eval Val
 chainFun p1 f1 p2 f2 (v1:v2:vs) = do
     val <- applyExp SubPrim (chainArgs p1 [v1, v2]) f1
