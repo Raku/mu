@@ -1,6 +1,6 @@
 module Pugs.Prim.List (
     op0Zip, op1Pick, op1Sum,
-    op1Min, op1Max,
+    op1Min, op1Max, op1Uniq,
     op2FoldL, op2Fold, op2Grep, op2Map, op2Join,
     sortByM,
 ) where
@@ -100,6 +100,55 @@ op1MinMax min_or_max v = do
 	b' <- vCastRat b
 	let cmp = if a' < b' then (-1) else if a' == b' then 0 else 1
 	return $ if min_or_max (cmp > (0::VInt)) then a else b
+
+op1Uniq v = do
+    -- We want to have a real Haskell list
+    args    <- fromVal v
+    -- Extract our comparator sub, or Nothing if none was specified
+    (valList, cmp) <- case args of
+        (v:vs) -> do
+            ifValTypeIsa v "Code"
+                (return (vs, Just v))
+                (ifValTypeIsa (last args) "Code"
+                    (return (init args, Just $ last args))
+                    (return (args, Nothing)))
+        _  -> return (args, Nothing)
+    -- After this parameter unpacking, we begin doing the real work.
+    op1Uniq' cmp valList
+    where
+    op1Uniq' :: (Maybe Val) -> [Val] -> Eval Val
+    -- If the user didn't specify an own comparasion sub, we can simply use
+    -- Haskell's nub.
+    op1Uniq' Nothing valList = return . VList $ nub valList
+    -- Else, we have to write our own nubByM and use that.
+    op1Uniq' (Just subVal) valList = do
+	sub <- fromVal subVal
+	evl <- asks envEval
+	-- Here we execute the user's sub
+	result <- nubByM (\a b -> do
+	    rv  <- local (\e -> e{ envContext = cxtItem "Bool" }) $ do
+		evl (App (Val sub) [Val a, Val b] [])
+	    -- The sub returns either true or false.
+	    bool <- fromVal rv
+	    return . VBool $ bool) valList
+	return . VList $ result
+    -- This is the same as nubBy, only lifted into the Eval monad
+    nubByM :: (Val -> Val -> Eval Val) -> [Val] -> Eval [Val]
+    nubByM eq l = nubByM' l []
+      where
+	nubByM' [] _      = return []
+	nubByM' (y:ys) xs = do
+	    -- elemByM returns a Val, but we need a VBool, so we have to use fromVal.
+	    cond <- fromVal =<< elemByM eq y xs
+	    if cond then nubByM' ys xs else do
+		result <- nubByM' ys (y:xs)
+		return (y:result)
+	elemByM :: (Val -> Val -> Eval Val) -> Val -> [Val] -> Eval Val
+	elemByM _  _ []     = return . VBool $ False
+	elemByM eq y (x:xs) = do
+	    cond <- fromVal =<< eq x y
+	    -- Same here (we need a VBool, not a Var).
+	    if cond then return . VBool $ cond else elemByM eq y xs
 
 op2FoldL :: Val -> Val -> Eval Val
 op2FoldL sub@(VCode _) list = op2FoldL list sub
