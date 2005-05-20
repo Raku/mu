@@ -3,9 +3,9 @@ use v6;
 
 class Perl::Meta::Method-0.0.1;
 
-has $:code;
-has $:signature;
-has $:associated_with;
+has Sub $:code;
+has Array $:signature;
+has Perl::Meta::Class $:associated_with;
 
 submethod BUILD ($:signature, $:code) {}
 
@@ -14,7 +14,7 @@ method code ($self: Sub ?$code) returns Sub {
     return $:code;
 }
 
-method signature ($self: Any ?$signature) returns Any {
+method signature ($self: Array ?$signature) returns Array {
     # NOTE:
     # we make no assumptions about the structure
     # of a method signature, this field may not 
