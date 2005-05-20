@@ -3,8 +3,8 @@ class Perl::Role-0.01;
 
 isa Perl::Package;
 
-has @.super_roles;
+has Array of Perl::Roles @.super_roles;
 
-has %.properties;
+has Hash of Str, Perl::Meta::Property %.properties;
 
-has Perl::Method %.methods;
+has Hash of Str, Perl::Method %.methods;

@@ -23,6 +23,12 @@ method signature ($self: Any ?$signature) returns Any {
     return $:signature;
 }
 
+method invoke ($self: $inv, @args) returns Any {
+    ($:code.defined)
+        || die "No method impl defined";
+    $:code($inv, @args);
+}
+
 method associatedWith ($self: Perl::Meta::Class ?$class) returns Perl::Meta::Class {
     if $class.defined {
         (!$:associated_with.defined)

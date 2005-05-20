@@ -102,6 +102,6 @@ $!= undef;
 dies_ok {
     $sub_sub_mmc.invokeMethod('new', $FakeInstance);
 }, '... this dies as expected';
-like($!, rx:perl5/^Method has no code/, '... got the right error');
+like($!, rx:perl5/^No method impl defined/, '... got the right error');
 
 is($sub_mmc.invokeMethod('meta', $FakeInstance), Perl::Meta::Class, '... the method returned what we expected');

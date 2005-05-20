@@ -183,10 +183,7 @@ method invokeMethod ($self: Str $label, $inv, *@args) returns Any {
     my $method = $self.findMethod($label);
     ($method.defined)
         || die "Method not found";
-    my $impl = $method.code();
-    ($impl.defined)
-        || die "Method has no code";    
-    return $impl($inv, *@args);
+    return $method.invoke($inv, @args);
 }
 
 

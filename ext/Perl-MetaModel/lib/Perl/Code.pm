@@ -15,9 +15,9 @@ has SubType $.subType;
 
 has Str $.subAssoc;
 
-has Perl::Param @.subParams;
+has Array of Perl::Param @.subParams;
 
-has Perl::Binding @.subBindings;
+has Array of Perl::Binding @.subBindings;
 
 has Perl::SlurpLimit $.subSlurpLimit;
 

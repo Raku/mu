@@ -38,7 +38,7 @@ $meta_package.addMethod('name',
 
 $meta_package.addMethod('identifier', 
     Perl::Meta::Method.new(
-        code => sub ($self) { $self.name() ~ '-' ~ $self.version() }
+        code => sub { $_.name() ~ '-' ~ $_.version() }
     )
 );
 

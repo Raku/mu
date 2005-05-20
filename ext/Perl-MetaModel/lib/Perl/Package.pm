@@ -1,7 +1,7 @@
 
 class Perl::Package-0.01;
 
-has Any %.variables;
+has Hash of Str, Any %.variables;
 
-has Code %.subs;
+has Hash of Str, Code %.subs;
 

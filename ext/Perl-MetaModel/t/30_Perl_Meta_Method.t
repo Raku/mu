@@ -3,21 +3,18 @@
 use v6;
 use Test;
 
-plan 9;
+plan 10;
 
 use Perl::Meta::Method;
 use Perl::Meta::Class;
 
-sub double (Int $int) { $int++ }
+sub double ($self, Int $int) { $int*2 }
 
-my $method = Perl::Meta::Method.new(
-    signature => 'Int -> Int', 
-    code      => &double
-);
+my $method = Perl::Meta::Method.new(code => \&double);
 ok($method ~~ Perl::Meta::Method, '... we have a Perl::Meta::Method instance');
 
-is($method.signature(), 'Int -> Int', '... the signature is "Int -> Int"');
-#ok($method.code() =:= &double, '... the method is &double');
+is($method.code().ref, 'Sub', '... the method is a "Sub"');
+is($method.invoke('FakeInstance', 5), 10, '... invoking the method works');
 
 my $mmc = Perl::Meta::Class.new(:name<Class>);
 
