@@ -1,3 +1,7 @@
+Resources:
+  http://search.cpan.org/dist/Perl6-Bible/lib/Perl6/Bible/S05.pod
+  http://www.nntp.perl.org/group/perl.perl6.language/20985
+
 Match object:
     $/  -- can be accessed as an array of submatches, e.g. $/[0], $/[1] ...
         -- can be accessed as a hash of named subrules, e.g. $/<foo>
