@@ -6,7 +6,8 @@
     
     CONTEXT     BEHAVIOUR
     String      stringifies to entire match
-    Number      numifies to the numification of the entire match
+    Number      the numeric value of the matched string (i.e. given 
+		"foo123bar"~~/\d+/, then $/ in numeric context will be 123)
     Boolean     true if success, false otherwise
 
 Backtracking:
@@ -17,9 +18,14 @@ Backtracking:
     Also <commit> and <cut> (see below).
 
 Modifiers:
-    Must be placed at beginning of rule:
+    Used as adverbial modifiers:
     
         "foO bar" ~~ m:w:ignorecase:g/[o | r] ./
+	sub rule :i:g { ... }
+
+    and can appear within rules
+
+	sub rule { <foo> [:i <bar>] }	# only ignore <bar>s case
 
     :bytes              match individual bytes
     :c, :continue       start scanning from string's current .pos
@@ -30,13 +36,18 @@ Modifiers:
     :i, :ignorecase     ignore letter case
     :keepall            force rule and all subrules to remember everything
     :langs              match individual, language-dependent characters
-    :nth(N)             (N is an integer) find Nth occurrence (can also use 1st, 2nd, 3rd, 4th...) -- junctions allowed, e.g. :nth(1|2|3|5)
+    :nth(N)             (N is an integer) find Nth occurrence (can also 
+			use 1st, 2nd, 3rd, 4th...) -- junctions allowed, 
+			e.g. :nth(1|2|3|5)
     :once               only match first time
     :p, :pos            only try to match at string's current .pos
     :perl5              use Perl 5 syntax for regex
-    :ov, :overlap       match at all possible character positions, including overlapping; return all matches in list context, disjunction in scalar context
+    :ov, :overlap       match at all possible character positions, including 
+			overlapping; return all matches in list context, 
+			disjunction in scalar context
     :rw                 claim string for modification, instead of copy-on-write
-    :w, :words          replaces every sequence of literal whitespace in pattern with \s+ or \s* according to <?ws> rule
+    :w, :words          replaces every sequence of literal whitespace in
+			pattern with \s+ or \s* according to <?ws> rule
     :x(N)               (N is an integer) repetition -- find N times
 
 Built-in assertions:
@@ -51,31 +62,35 @@ Built-in assertions:
     <after pattern>     matches only after pattern (zero-width)
     <before pattern>    matches only before pattern (zero-width)
     <commit>            fails the entire match if backtracked over
-    <cut>               fails the entire match if backtracked over, and removes the portion of the string matched uptil then
+    <cut>               fails the entire match if backtracked over, and 
+			removes the portion of the string matched uptil then
     <fail>              fails the entire match if reached
     <null>              matches nothing
-    <ident>             matches an "identifier" ([ [<alpha> | _] \w* | " [<alpha>|_] \w* " ])
-    <self>              matches the same pattern as the current rule (useful for recursion)
+    <ident>             matches an "identifier" the same as 
+			([ [<alpha> | _] \w* | " [<alpha>|_] \w* " ])
+    <self>              matches the same pattern as the current rule 
+			(useful for recursion)
     <!pattern>          matches anything which *doesn't* match pattern
 
-POSIX character classes:
-    <alnum>     matches any alphanumeric character
-    <alpha>     matches any alphabetic character
-    <ascii>     matches any ASCII character
-    <blank>     matches any horizontal whitespace ([ \t])
-    <cntrl>     matches any control character
-    <digit>     matches any numeric character
-    <graph>     matches either an alphanumeric character or punctuation
-    <lower>     matches any lowercase character
-    <print>     matches any printable character -- a character that is alphanumeric, punctuation or whitespace
-    <space>     matches any whitespace character ([\s\ck])
-    <upper>     matches any uppercase character
-    <word>      matches any word character (alphanumeric + _)
-    <xdigit>    matches any hexadecimal digit
+    <alnum>     	matches any alphanumeric character
+    <alpha>     	matches any alphabetic character
+    <ascii>     	matches any ASCII character
+    <blank>     	matches any horizontal whitespace ([ \t])
+    <cntrl>     	matches any control character
+    <digit>		matches any numeric character
+    <graph>		matches either an alphanumeric character or punctuation
+    <lower>		matches any lowercase character
+    <print>		matches any printable character -- a character that is 
+			alphanumeric, punctuation or whitespace
+    <space>     	matches any whitespace character ([\s\ck])
+    <upper>     	matches any uppercase character
+    <word>      	matches any word character (alphanumeric + _)
+    <xdigit>    	matches any hexadecimal digit
 
 Hypothetical variables:
-    Assign value to variable only if entire pattern succeeds.  Syntax: let $foo = value
-    
+    Assign value to variable only if entire pattern succeeds.  
+    Syntax: let $foo = value
+
         my $x;
         / (\S*) { let $x = .pos } \s* foo /
         
@@ -113,7 +128,7 @@ Binding:
 Grouping:
     Reorder paren groups:
     
-        / $2 := (.*?), \h* $1 := (.*) /
+        / $1 := (.*?), \h* $0 := (.*) /
         # renumbering occurs
         / $2 := (.*?), \h* (.*) /       # $3 = (.*)
     
