@@ -179,7 +179,7 @@ evalPGE path str pattern subrules = do
     s2  <- withCString pattern $ const_string interp
     s5  <- withCString "SSS" $ \sig -> do
         parrot_call_sub_SSS interp match sig s1 s2
-    peekCString =<< #{peek STRING, strstart} s5
+    peekCString =<< parrot_string_to_cstring interp s5
 
 evalParrotFile :: FilePath -> IO ()
 evalParrotFile file = do
@@ -254,6 +254,9 @@ foreign import ccall "Parrot_find_global"
 
 foreign import ccall "Parrot_get_strreg"
     parrot_get_strreg :: ParrotInterp -> CInt -> IO ParrotString
+
+foreign import ccall "string_to_cstring"
+    parrot_string_to_cstring :: ParrotInterp -> ParrotString -> IO CString
 
 foreign import ccall "imcc_init"
     parrot_imcc_init :: ParrotInterp -> IO ()
