@@ -1,0 +1,122 @@
+﻿Match object:
+    $/  -- contains current bindings of any submatches, e.g. $0, $1, $2...
+        -- contains hash of named subrules, e.g. $/{"sub"}
+    
+    CONTEXT     BEHAVIOUR
+    String      stringifies to entire match
+    Number      XXX
+    Boolean     true if success, false otherwise
+
+Backtracking:
+    :       prevents backtracking over previous atom
+    ::      fails entire group if previous atom is backtracked over
+    :::     fails entire rule if previous atom is backtracked over
+    
+    Also <commit> and <cut> (see below).
+
+Modifiers:
+    Must be placed at beginning of rule:
+    
+        "foO bar" ~~ m:w:ignorecase:g/[o | r] ./
+
+    :bytes              match individual bytes
+    :c, :continue       start scanning from string's current .pos
+    :codes              match individual codepoints
+    :ex, :exhaustive    match every possible way (including overlapping)
+    :g, :global         find all non-overlapping matches
+    :graphs             match individual graphemes
+    :i, :ignorecase     ignore letter case
+    :keepall            force rule and all subrules to remember everything
+    :langs              match individual, language-dependent characters
+    :nth(N)             (N is an integer) find Nth occurrence (can also use 1st, 2nd, 3rd, 4th...) -- junctions allowed, e.g. :nth(1|2|3|5)
+    :once               only match first time
+    :p, :pos            only try to match at string's current .pos
+    :perl5              use Perl 5 syntax for regex
+    :ov, :overlap       match at all possible character positions, including overlapping; return all matches in list context, disjunction in scalar context
+    :rw                 claim string for modification, instead of copy-on-write
+    :w, :words          replaces every sequence of literal whitespace in pattern with \s+ or \s* according to <?ws> rule
+    :x(N)               (N is an integer) repetition -- find N times
+
+Built-in assertions:
+    <[...]>             matches ... as a character class
+    <'...'>             matches ... as a literal string
+    <sp>                matches a literal space
+    <ws>                matches any sequence of whitespace, like the :w modifier
+    <dot>               matches a literal . (same as <'.'>)
+    <lt>                matches a literal < (same as <'<'>)
+    <gt>                matches a literal > (same as <'>'>)
+    <prior>             match whatever the most recent successful match did
+    <after pattern>     matches only after pattern (zero-width)
+    <before pattern>    matches only before pattern (zero-width)
+    <commit>            fails the entire match if backtracked over
+    <cut>               fails the entire match if backtracked over, and removes the portion of the string matched uptil then
+    <fail>              fails the entire match if reached
+    <null>              matches nothing
+    <ident>             matches an "identifier" ([ [<alpha> | _] \w* | " [<alpha>|_] \w* " ])
+    <self>              matches the same pattern as the current rule (useful for recursion)
+    <!pattern>          matches anything which *doesn't* match pattern
+
+POSIX character classes:
+    <alnum>     matches any alphanumeric character
+    <alpha>     matches any alphabetic character
+    <ascii>     matches any ASCII character
+    <blank>     matches any horizontal whitespace ([ \t])
+    <cntrl>     matches any control character
+    <digit>     matches any numeric character
+    <graph>     matches either an alphanumeric character or punctuation
+    <lower>     matches any lowercase character
+    <print>     matches any printable character -- a character that is alphanumeric, punctuation or whitespace
+    <space>     matches any whitespace character ([\s\ck])
+    <upper>     matches any uppercase character
+    <word>      matches any word character (alphanumeric + _)
+    <xdigit>    matches any hexadecimal digit
+
+Hypothetical variables:
+    Assign value to variable only if entire pattern succeeds.  Syntax: let $foo = value
+    
+        my $x;
+        / (\S*) { let $x = .pos } \s* foo /
+        
+Binding:
+    Syntax: let $foo = $1
+    Shorthand: $foo := $1
+    
+        my $x;
+        / $x := (\S*) \s* foo /
+        
+    Can use arrays:
+    
+        / @x := [ (\S+) \s* ]* /
+        
+        # returns anonymous list in scalar context for *, +, **{n,m}:
+        / $x := [ (\S+) \s* ]* /
+        
+        # ? does not pluralize -- result or undef
+    
+    Hashes:
+    
+        / %x := [ (\S+)\: \s* (.*) ]* / # key/value pairs
+        # $1 = list of keys
+        # $2 = list of values
+        
+        / %x := [ (\S+) \s* ]* /        # capture only keys, values = undef
+    
+    Can capture return value of closure:
+        
+        / $x := { "Scalar context" } /
+        / @x := { "List", "context" } /
+        / %x := { "Hash" => "context" } /
+        # note: no parens around closure
+
+Grouping:
+    Reorder paren groups:
+    
+        / $2 := (.*?), \h* $1 := (.*) /
+        # renumbering occurs
+        / $2 := (.*?), \h* (.*) /       # $3 = (.*)
+    
+    Relative to current location: $-1, $-2, $-3...
+    
+    Named subrules:
+    
+        / <key>\: <value> { let $hash{$<key>} = $<value> } /
