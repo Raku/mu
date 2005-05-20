@@ -13,12 +13,9 @@ sub cls {
 
 class Weapon {
     has Str $.name          is rw;
-    has Int $.powerLow      is rw;
-    has Int $.powerHigh     is rw;
-
-    method damage () {
-        return int(rand($.powerHigh - $.powerLow + 1) + $.powerLow);
-    };
+    has Int $.power         is rw;
+    has Int $.powerRange    is rw;
+    method damage () {($.power - $.powerRange .. $.power + $.powerRange).pick;};
 }
 
 class Mortal {
@@ -26,12 +23,22 @@ class Mortal {
     has Int     $.life      is rw;
     has Weapon  $.weapon    is rw;
     
+    method damage ($damage) {
+           $.life -= $damage;
+           $.life = 0 if $.life < 0;
+    }
+    
     method hit  (Mortal $enemy) {
       my $weapon = $.weapon;
       my $power  = $.weapon.damage;
-		say "$.name attacks $enemy.name() with $weapon.name() doing $power damage!";       
-    	$enemy.life -= $power;
-      $enemy.life = 0 if $.life < 0;
+      if ($power > 0) {
+            say "$.name attacks $enemy.name() " ~
+                "with $weapon.name() doing $power damage!";
+            $enemy.damage($power);                
+      } elsif ($power < 0 ) {
+            say "$.name hurts himself doing $power damage!";
+            ./damage($power);                
+      }       
     }
     method dead ()       { $.life <= 0 }    
 }
@@ -85,11 +92,11 @@ class Person is Mortal {
 class Monster is Mortal { }
 
 my $person = Person.new(:life(100));
-push $person.weapons, Weapon.new(:name<sword>, :powerLow(3), :powerHigh(5) );
-push $person.weapons, Weapon.new(:name<spell>, :powerLow(0), :powerHigh(7) );
+push $person.weapons, Weapon.new(:name<sword>, :power(4), :powerRange(2) );
+push $person.weapons, Weapon.new(:name<spell>, :power(0), :powerRange(7) );
 
-my $wep = Weapon.new(:name<froggers>, :powerLow(3), :powerHigh(5));
-my $enemy  = Monster.new(:name("Army of frogs"), :gold(int rand 100), :life((int rand 20) + 10),
+my $wep = Weapon.new(:name<froggers>, :power(5), :powerHigh(2));
+my $enemy  = Monster.new(:name("Army of frogs"), :gold(int rand 100), :life((20..30).pick),
                          :weapon($wep) );
 
 $person.location = "Lobby";
