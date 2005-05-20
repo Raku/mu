@@ -1,6 +1,6 @@
 Match object:
     $/  -- can be accessed as an array of submatches, e.g. $/[0], $/[1] ...
-        -- can be accessed as a hash of named subrules, e.g. $/{"sub"}
+        -- can be accessed as a hash of named subrules, e.g. $/<foo>
 
     $0, $1, $2, ... -- aliases for $/[0], $/[1], $/[2], ...
     
@@ -113,7 +113,11 @@ Hypothetical variables:
         my $x;
         / (\S*) { let $x = .pos } \s* foo /
         
-Binding:
+
+Grouping:
+
+
+Capture:
     Syntax: let $foo = $1
     Shorthand: $foo := $1
     
@@ -144,7 +148,6 @@ Binding:
         / %x := { "Hash" => "context" } /
         # note: no parens around closure
 
-Grouping:
     Reorder paren groups:
     
         / $1 := (.*?), \h* $0 := (.*) /
