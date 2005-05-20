@@ -51,7 +51,7 @@ Modifiers:
 
 [:ex vs :ov could use clarification.  see
  http://www.nntp.perl.org/group/perl.perl6.language/20985 ]
-[re :w, except where there is already and explicty space rule]
+[re :w, except where there is already an explict space rule]
 
 Built-in assertions:
     <'...'>             Matches ... as a literal string
