@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 7*2;
+plan 9*2;
 
 # L<S06/"Operator overloading">
 # Later, we want to run the same tests with two classes, Foo and Bar.
@@ -67,8 +67,11 @@ sub run_tests_with($class) {
       }, "instantiating a class which defines operators worked", :todo<feature>;
 
       my @foo = ($obj, $obj, $obj);
-      is ~@foo, "pugs pugs pugs", "stringification overloading worked in array stringification", :todo<feature>;
+      my $res;
+      lives_ok { $res = ~@foo }, "stringification didn't die", :todo<feature>;
+      is $res, "pugs pugs pugs", "stringification overloading worked in array stringification", :todo<feature>;
 
-      is ~[@foo »~« "!"], "pugs! pugs! pugs!", "stringification overloading was hyperized correctly", :todo<feature>;
+      lives_ok { $res = ~[@foo »~« "!"] }, "stringification with hyperization didn't die", :todo<feature>;
+      is $res, "pugs! pugs! pugs!", "stringification overloading was hyperized correctly", :todo<feature>;
     }
 }
