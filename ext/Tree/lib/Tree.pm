@@ -74,7 +74,7 @@ method add_children ($self: *@children) returns Tree {
 ## getting children
 
 method get_child ($self: Int $index) returns Tree { @:children[$index] }
-method get_all_children returns Array { @:children }
+method get_all_children returns Array of Tree { @:children }
 
 ## ----------------------------------------------------------------------------
 ## inserting children
