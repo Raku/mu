@@ -2,156 +2,161 @@ THIS IS VERY VERY DRAFTY (so lots of bugs flew in)
 
 Package-like things (they are namespaces)
 
-[todo - rationalize when to say "namespace" vs "package"]
+    [todo - rationalize when to say "namespace" vs "package"]
 
-Where's the beef:
-
-            Adds:
-  package    namespace, traits, autoload
-   module    export/import, version
-    role     methods, attributes, inheritance, parameterized
-    class    methods, attributes, composition, instantiation
-     enum    weird methods
+    Keyword   Adds
+    -------------------------------------------------------------
+    package   namespace, traits, autoload
+    module    export/import, version
+    role      methods, attributes, inheritance, parameterized
+    class     methods, attributes, composition, instantiation
+    enum      weird methods
 
 
 Name and duration:
 
-                   Name:   Name-Visibility: Package Duration:
-     package P   top-level     global      until exit or deletion
-  my package P   top-level     lexical        dynamic?
- our package P   relative to   same as        same as  ...current package.
-     package     anonymous       n/a          dynamic
+     Syntax          Name          Name visibility   Duration
+     --------------------------------------------------------------------------
+         package P   top-level     global            until exit or deletion
+      my package P   top-level     lexical           dynamic?
+     our package P   relative to   same as           same as current package (?)
+         package     anonymous     n/a               dynamic
 
-Scope of declaration:
- ... package P; ...   to end of enclosing scope
- ... package P {...}  block scope
- ... package   {...}  block scope
+Scope of declaration
 
-Same for modules, classes.
-Same for roles?, enums?, subtypes?.
-But grammars and rules have a separate system.
+    ... package P; ...    # to end of enclosing scope
+    ... package P {...}   # block scope
+    ... package   {...}   # block scope
 
+    Same for modules, classes, roles?, enums?, subtypes?
+    But grammars and rules have a separate system.
 
 Names
 
-Names are hierarchical, like filesystem path names.
-They start with :: . The separator is also :: .  Just like / in unix.
-Strings can be interpolated into names by ($expr) , but must begin and
-end at separator boundaries.
+    Names are hierarchical, like filesystem path names.
+    They start with :: . The separator is also :: .  Just like / in unix.
+    Strings can be interpolated into names by ($expr) , but must begin and end
+    at separator boundaries.
 
-Some notable namespaces are:
-  ::*        global (root)
-  ::MY       current lexical
-  ::*::Main  the user default
+Special namespaces
+
+    ::*        global (root)
+    ::MY       current lexical
+    ::CALLER   a view of the caller's namespace
+    ::*::Main  the user default
 
 A name N can be used:
-  N              by itself
-  %N::           as a hash (symbol table)
-  $N @N %N &N    to name variables
 
-The beginning of a name can be abbreviated, to make short names even simpler.
-  example shorter  rule
-  %::A     %A    the starting :: can be dropped if it's not at the word beginning
-  ::*::A   ::*A  root doesn't need a separator
-  ::A      A     a declared name doesn't need the starting ::
-  ::*A     *A    root's starting :: can be dropped where there is no confusion
-                  with unary * (such as declarations).
+    N              by itself
+    %N::           as a hash (symbol table)
+    $N @N %N &N    to name variables
 
-There are a bunch of examples below.
+    The beginning of a name can be abbreviated, to make short names even 
+    simpler.
 
-A single hierarchy is shared by modules, classes, roles, enums, and
-subtypes. [yes?]
+    Example   Shorter   Rule
+    ---------------------------------------------------------------------------
+    %::A      %A        Starting :: can be dropped if not at the word beginning
+    ::*::A    ::*A      Root doesn't need a separator
+    ::A       A         Declared name doesn't need the starting ::
+    ::*A      *A        Root's starting :: can be dropped where there is no confusion
+                        with unary * (such as declarations).
 
-Grammars and rules use the same separator, but otherwise have a
-separate system.
+    There are a bunch of examples below.
 
-Relative package names are searched for
-  from inner lexical scopes to outer, then
-  from inner packages to outer, then
-  in the global namespace.
+    A single hierarchy is shared by modules, classes, roles, enums, and
+    subtypes. [yes?]
 
-[this deserves elaboration]
+    Grammars and rules use the same separator, but otherwise have a
+    separate system.
 
+    Relative package names are searched for
+    - from inner lexical scopes to outer, then
+    - from inner packages to outer, then
+    - in the global namespace.
 
-Autoloading:
+    [this deserves elaboration]
 
-The presense of names in a namespace can be faked.  Or implemented
-lazily.  If a user inquires about (defined(...)), or tries to use a
-variable, which is not in the symbol table, hooks are called.
+Autoloading
 
-For SCALAR ARRAY HASH SUB METH ...:
+    The presense of names in a namespace can be faked.  Or implemented
+    lazily.  If a user inquires about (defined(...)), or tries to use a
+    variable, which is not in the symbol table, hooks are called.
 
-AUTO...    predicates test the existance of a variable,
-             returning undef or _any_ ref of the right type.
-AUTO...DEF accessors actually fetch the requested variable.
+    For SCALAR ARRAY HASH SUB METH ...:
 
-[Can a package or role AUTOMETH?]
+    AUTO...    predicates test the existance of a variable,
+                 returning undef or _any_ ref of the right type.
+    AUTO...DEF accessors actually fetch the requested variable.
 
+    [Can a package or role AUTOMETH?]
 
-Binding:
+Binding
 
-:= ::=
-# todo
+    := ::=  # todo
 
+Examples
 
+    ::A               namespace name, relative
+    ::A::B
+    ::A::B::C
+    ::*               namespace name, absolute (::* is root)
+    ::*A                (root doesn't need a separator)
+    ::*A::B
+    ::*A::B::C
+    %A::              namespace as hash; relative name
+    %A::B::
+    %*::              namespace as hash; absolute name
+    %*A::
+    %*A::B::
+    %x                variable name, lexical   ("%" could be any sigil $@%& etc)
+    %A::x             variable name, relative  ("%" could be any sigil $@%& etc)
+    %A::B::x                                   ("%" could be any sigil $@%& etc)
+    %*x               variable name, absolute  ("%" could be any sigil $@%& etc)
+    %*A::x                                     ("%" could be any sigil $@%& etc)
+    %*A::B::x                                  ("%" could be any sigil $@%& etc)
 
-Here are assorted examples of names:
+Abbreviations used
 
- ::A               namespace name, relative
- ::A::B
- ::A::B::C
- ::*               namespace name, absolute (::* is root)
- ::*A                (root doesn't need a separator)
- ::*A::B
- ::*A::B::C
- %A::              namespace as hash; relative name
- %A::B::
- %*::              namespace as hash; absolute name
- %*A::
- %*A::B::
- %x                variable name, lexical   ("%" could be any sigil $@%& etc)
- %A::x             variable name, relative  ("%" could be any sigil $@%& etc)
- %A::B::x                                   ("%" could be any sigil $@%& etc)
- %*x               variable name, absolute  ("%" could be any sigil $@%& etc)
- %*A::x                                     ("%" could be any sigil $@%& etc)
- %*A::B::x                                  ("%" could be any sigil $@%& etc)
-Abbreviations used above:
- ::*::A            ::*A   (root doesn't need a separator)
- %::A::            %A::   (the leading :: is only needed if it starts the word)
-                              (::A::B could NOT be abbreviated A::B)
- %::A::x           %A::x
- %::*::x           %*x    (using both)
- %::*::A::         %*A::
-Notable namespaces:
- ::MY              current lexical namespace
- %MY::                 as hash
- %MY::x                a variable in        ("%" could be any sigil $@%& etc)
- ::*Main           default user namespace
- %*Main::              as hash
- %*Main::x             a variable in        ("%" could be any sigil $@%& etc)
+    ::*::A            ::*A    # root doesn't need a separator
+    %::A::            %A::    # leading :: is only needed if it starts the word
+                              # ::A::B could NOT be abbreviated A::B (??)
+    %::A::x           %A::x
+    %::*::x           %*x     # using both
+    %::*::A::         %*A::
+     
+Notable namespaces
+
+    ::MY              # current lexical namespace
+    %MY::             # \__ as hash
+    %MY::x            # \__ a variable in        ("%" could be any sigil $@%& etc)
+    ::*Main           # default user namespace
+    %*Main::          # \__ as hash
+    %*Main::x         # \__ a variable in        ("%" could be any sigil $@%& etc)
+     
 Runtime interpolation:
- ::("A")           ::A
- ::("A::B")        ::A::B
- ::("A::")B   # ILLEGAL
- ::("A")::B        ::A::B
- ::A::("B")        ::A::B
- ::A::("B")::C     ::A::B::C
- ::("*")           ::*
- ::("*A")          ::*A
- ::("*::A")        ::*A
- %::("A")::        %A::
- %::("A::")   # ILLEGAL
- %::("A::x")       %A::x                    ("%" could be any sigil $@%& etc)
- ::($expr)         a namespace name
- ::($e1)::($e2)    a namespace name
- %::($expr)::      a namespace used as a hash
- %::($expr)        a variable name          ("%" could be any sigil $@%& etc)
+
+    ::("A")           ::A
+    ::("A::B")        ::A::B
+    ::("A::")B        # ILLEGAL
+    ::("A")::B        ::A::B
+    ::A::("B")        ::A::B
+    ::A::("B")::C     ::A::B::C
+    ::("*")           ::*
+    ::("*A")          ::*A
+    ::("*::A")        ::*A
+    %::("A")::        %A::
+    %::("A::")        # ILLEGAL
+    %::("A::x")       %A::x                    ("%" could be any sigil $@%& etc)
+    ::($expr)         a namespace name
+    ::($e1)::($e2)    a namespace name
+    %::($expr)::      a namespace used as a hash
+    %::($expr)        a variable name          ("%" could be any sigil $@%& etc)
+    
 Using a namespace hash (a symbol table):
-  %P::       namespace P as a hash (a symbol table)
-  %P::<$s>   lookup $s
-  %P::<@a>   lookup @a
-  %P::{'$s'} lookup $s again, just quoted differently.
-  %P::{$sym} lookup some symbol specified at runtime
 
-
-
+    %P::        # namespace P as a hash (a symbol table)
+    %P::<$s>    # lookup $s
+    %P::<@a>    # lookup @a
+    %P::{'$s'}  # lookup $s again, just quoted differently.
+    %P::{$sym}  # lookup some symbol specified at runtime
