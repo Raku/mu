@@ -3,7 +3,19 @@
 use v6;
 use Test;
 
-plan 33;
+plan 38;
+
+=pod
+
+This test demonstrates the use of the Perl::Meta::Compiler.
+
+NOTE:
+The object model created here is by no means the actual 
+perl6 object model. It is just an experiment with the 
+class in Perl::Meta::* and how they work with the 
+Perl::Meta::Compiler itself.
+
+=cut
 
 use Perl::Meta::Compiler;
 
@@ -66,9 +78,7 @@ $meta_role.addProperty('methods',
 $meta_role.addMethod('does', 
     Perl::Meta::Method.new(
         code => sub ($self, @roles) { 
-            if @roles {
-                $self.super_roles().push(@roles) 
-            }
+            $self.super_roles().push(@roles) if @roles;
             $self.super_roles();         
         }
     )    
@@ -82,7 +92,16 @@ $meta_class.superclass($meta_role);
 
 # has @.super_classes;
 $meta_class.addProperty('super_classes',
-    Perl::Meta::Property.new(type => MkType('Array'))
+    Perl::Meta::Property.new(type => MkType('Array'), :trait<rw>)
+);
+
+$meta_class.addMethod('is', 
+    Perl::Meta::Method.new(
+        code => sub ($self, @classes) { 
+            $self.super_classes().push(@classes) if @classes;
+            $self.super_classes();         
+        }
+    )    
 );
 
 ## now make a compiler
@@ -137,7 +156,6 @@ lives_ok {
     ok($my_roles[1] =:= @roles[1], '... this is the correct role');    
 }
 
-
 my $class;
 lives_ok {
     $class = ::Perl::Class.new(:version(0.01));
@@ -151,6 +169,19 @@ is($class.version(), 0.01, '... got the right version number');
 
 ok($class.can('name'), '... we $class.can() call the name() method');
 ok($class.can('identifier'), '... we $class.can() call the identifier() method');
+ok($class.can('is'), '... we $class.can() call the is() method');
 
 is($class.name(), 'Perl::Class', '... got the right name');
 is($class.identifier(), 'Perl::Class-0.01', '... got the right identifier');
+
+my @classes = (::Perl::Class.new(), ::Perl::Class.new()); # just empty classes for now
+lives_ok {
+    $class.is(@classes);
+}, '... we added classes succussfully';
+
+{
+    my $my_classes = $class.is();
+    is(+$my_classes, 2, '... we got back 2 classs');
+    ok($my_classes[0] =:= @classes[0], '... this is the correct class');
+    ok($my_classes[1] =:= @classes[1], '... this is the correct class');    
+}
