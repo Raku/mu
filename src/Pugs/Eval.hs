@@ -1033,6 +1033,7 @@ doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args
         newSym   <- genSym name boundRef
         (syms', restArgs) <- doBind (newSym:syms) rest
         return (syms', ApplyArg name val coll:restArgs)
+    expToVal :: Param -> Exp -> Eval (Val, Bool)
     expToVal MkParam{ isLazy = thunk, isLValue = lv, paramContext = cxt, paramName = name, isWritable = rw } exp = do
         env <- ask -- freeze environment at this point for thunks
         let eval = local (const env{ envLValue = lv }) $ do

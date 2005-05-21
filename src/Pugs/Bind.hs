@@ -174,6 +174,10 @@ Uses 'bindSomeParams' to perform the initial binding, then uses
 'finalizeBindings' to check all required params and give default values to
 any unbound optional ones. Once this is complete, /everything/ should be
 bound.
+
+Note that while 'bindParams' produces values /representing/ the bindings from
+params to args, it does not actually introduce any symbols--that occurs later
+on in the call process.
 -}
 bindParams :: VCode -- ^ A code object to perform bindings on
            -> [Exp] -- ^ List of invocants to bind
@@ -203,7 +207,7 @@ finalizeBindings sub = do
         fail $ "Wrong number of invocant parameters: "
             ++ (show $ act) ++ " actual, "
             ++ (show $ act + cnt) ++ " expected"
-   
+            
     let (boundReq, boundOpt) = partition (\x -> isRequired (fst x)) bindings -- bound params which are required
         (reqPrms, optPrms)   = span isRequired params -- all params which are required, and all params which are opt
 

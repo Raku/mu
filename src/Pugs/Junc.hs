@@ -76,7 +76,20 @@ juncTypeIs v ts
     | otherwise
     = Nothing
 
-mergeJunc :: JuncType -> [Val] -> [Val] -> VJunc
+{-|
+Merge the contents of two @any@ or @one@ junctions into a single, combined 
+junction value.
+
+For 'JAny', values are simply collapsed into @Set@s (duplicate values are
+discarded).
+
+For 'JOne', newly-created duplicates are extracted from the combined list of
+values and moved into the combined set of duplicates.
+-}
+mergeJunc :: JuncType -- ^ Type of the junctions being combined
+          -> [Val]    -- ^ Concatenated list of duplicates (only used for @one@)
+          -> [Val]    -- ^ Concatenated list of regular values
+          -> VJunc
 mergeJunc j ds vs
     = case j of
        JAny -> MkJunc j (Set.fromList ds) (Set.fromList vs)
@@ -90,7 +103,29 @@ mergeJunc j ds vs
 -- First pass - thread thru all() and none()
 -- Second pass - thread thru any() and one()
 
-juncApply :: ([ApplyArg] -> Eval Val) -> [ApplyArg] -> Eval Val
+{-|
+Core of the \"hideously clever\" autothreading algorithm.
+
+This function scans through the list of 'ApplyArg's, finds any that are
+uncollapsed junctions, and transposes the \'sub call with junction argument\'
+into \'junction of sub calls with non-junction arguments\'. It then recursively
+applies itself to each of those newly-created \'threads\', so ultimately all
+the call's arguments are properly collapsed.
+
+The scanning process will thread through @all@ and @none@ before it threads
+through @any@ and @one@.
+
+Once all the args /are/ collapsed, we call our first argument with the final,
+collapsed args. This happens once for each possible combination of (collapsed)
+arguments.
+
+Note that 'juncApply' takes place /after/ parameter binding (because it must),
+but /before/ we actually introduce any bindings into the sub's lexical scope.
+-}
+juncApply :: ([ApplyArg] -> Eval Val) -- ^ Function to call once we know the
+                                      --     collapsed arg values
+          -> [ApplyArg]               -- ^ List of arguments to autothread over
+          -> Eval Val
 juncApply f args
     | this@(_, (pivot:_)) <- break isTotalJunc args
     , VJunc (MkJunc j dups vals) <- argValue pivot
@@ -115,6 +150,13 @@ juncApply f args
         mapM (\v -> juncApply f (before ++ ((ApplyArg name v coll):after))) $ Set.elems vs
     appList _ _ = internalError "appList: list doesn't begin with ApplyArg"
 
+{-|
+Return @True@ if the given 'ApplyArg' (autothreaded argument) represents a
+junction value that is @all@ or @none@, /and/ still needs to autothreaded.
+
+Other junctions, total junctions that don't need collapsing, and non-junction
+values will all produce @False@.
+-}
 isTotalJunc :: ApplyArg -> Bool
 isTotalJunc arg
     | (ApplyArg _ (VJunc j) b) <- arg
@@ -123,6 +165,13 @@ isTotalJunc arg
     | otherwise
     = False
 
+{-|
+Return @True@ if the given 'ApplyArg' (autothreaded argument) represents a
+junction value that is @one@ or @any@, /and/ still needs to be autothreaded.
+
+Other junctions, partial junctions that don't need collapsing, and non-junction
+values will all produce @False@.
+-}
 isPartialJunc :: ApplyArg -> Bool
 isPartialJunc arg
     | (ApplyArg _ (VJunc j) b) <- arg
@@ -131,10 +180,18 @@ isPartialJunc arg
     | otherwise
     = False
 
+{-|
+Represents a sub argument during the junction autothreading process.
+
+Note that 'argCollapsed' is set to @True@ only if the corresponding sub param
+is explicitly specified as being (Perl6) type @Junc@.
+-}
 data ApplyArg = ApplyArg
-    { argName       :: String
-    , argValue      :: Val
-    , argCollapsed  :: Bool
+    { argName       :: String -- ^ Name of the param that this arg is for
+    , argValue      :: Val    -- ^ Actual argument value, which may still be
+                              --     a junction
+    , argCollapsed  :: Bool   -- ^ @True@ if we have confirmed that this arg
+                              --     doesn't need any further autothreading
     }
     deriving (Show, Eq, Ord)
 
