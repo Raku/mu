@@ -1,0 +1,281 @@
+=pod
+
+=head1 NAME
+
+Pugs Apocryphon 2 - Overview of Pugs Internals
+
+=head1 DATE
+
+This document could get out of date very quickly. If it seems that more than a
+week has passed between the time there was an update to the time you read these
+words, prod someone on #perl6, or read http://use.perl.org/~autrijus/journal and
+see if there's been any big change.
+
+The currenct copy was last revised on 2005-05-21.
+
+=head1 PRELUDE
+
+Pugs is written in the Haskell language. Before dabbling with Pugs internals it
+may be wise to study a bit of Haskell.
+
+=head1 INTRODUCTION
+
+Pugs is a versatile project, tapping into the power of many other projects. Pugs
+itself fits into a star toplogy, optionally using these projects to gain more
+features.
+
+Each will be discussed later in more detail.
+
+=head1 PUGS RUNTIME OVERVIEW
+
+Pugs' own core is also componentized. The separation roughly coincides with Perl
+6's runtime and compile time. However, it is notable that the parts are
+intermixed, since Perl 6 is a very dynamic language.
+
+The two parts are roughly
+
+=head2 The Parser
+
+This part takes a string of Perl 6 and converts it into the AST, or Abstract
+Syntax Tree. The AST represents the program's structure, which the evaluator
+later executes.
+
+This part is responsible for the compilation of Perl 6 source code.
+
+=head2 The Evaluator
+
+The evaluator combines the program's AST with what is known as the I<Env>, or
+roughly speaking, the current state of the program's execution.
+
+It walks the nodes of the tree, reducing them into values. Of course, the
+interesting part is what happens during the reduction - this is the actual
+execution of the code.
+
+This part is reponsible for the runtime - the execution of compiled Perl 6 ASTs.
+
+=head1 SOURCE TREE OVERVIEW
+
+This section does not discuss the files in detail. Pugs is documented with
+haddock, and for reference that is the place to look.
+
+What this section B<does> provide is an overview of the responsibilities each
+part has in overall structure of Pugs.
+
+=head2 F<src/Pugs/AST.hs>
+
+This file contains the definitions of the AST's types.
+
+It is more or less a description of how how Perl 6 programs can look after
+compilation.
+
+=head2 F<src/Pugs/Parser.hs>
+
+This file contains the parser for Perl 6 code. It is written using the Parsec
+library.
+
+It produces Syn and Exp structures as defined in F<AST.hs>, and puts them in the
+envBody of the env.
+
+=head2 F<src/Pugs/Eval.hs>
+
+This file implements the evaluation logic for the AST. It's main job is reducing
+Exps into Vals. Most Exps require applying VCode objects, which represent
+closures (blocks, subroutines, operators...), looking up variables, or other
+basic features Perl 6 provides, and this is where most of this is coded.
+
+=head2 F<src/Pugs/Prim.hs>
+
+This file contains the implementations of many of the primitive operators. For
+example, the addition operator, C<< &infix:<+> >> is defined here. It converts
+the two Perl values it gets into Haskell Nums, applies Haskell's builtin
+addition operator to these, and then makes a Perl value out of the result.
+
+The various operators and builtin functions are implemented using the opN
+function, and the definition of their Perlish behavior is defined in the table
+at the bottom.
+
+The table basicallly says whether the builtin is infix or not, how many
+parameters it accepts, and so forth.
+
+=head2 F<src/Pugs/Run.hs>
+
+This is the file that ties it all together, it takes a Perl 6 file, slurps the
+string out of it, hands it to the parser, then takes the AST out and sends it's
+envBody into the evaluator.
+
+=head1 A PROGRAM'S LIFE CYCLE IN DETAIL
+
+Earlier we discussed how eventually what the parser emits is fed to the
+evaluator. Now we'll look at the details and special cases more closely.
+
+As we've seen before, the runtime calls the parser on the Perl code, and it, in
+turn, generates an AST. Most parsed things result in trivial structures- just a
+representation of the program in something a bit more manipulatable than a
+string of source code.
+
+This basic structure, a node of the AST is called an C<Exp> - an expression. It
+represents the combination of values and operation, and the evaluator knows to
+boild it down into a C<Val>.
+
+Matters get a little more complex when the code not only I<is> something at
+compile time, but actually I<does> something, like declarations of variables
+which create the variables, or C<BEGIN> blocks which execute code at compile
+time.
+
+=head2 Enter unsafe unsafeEvalExp
+
+The parser is pure in that it does not affect the outside world when it does
+it's thing. It constructs the AST, but not much more.
+
+In order to execute things like C<BEGIN> blocks there are exceptions to this.
+
+	BEGIN { print "compile time" };
+
+This operation has side effects - it causes the world outside the pugs
+interpreter to change. However, it must happen within the "pure" parser, and
+haskell does not normally allow these things.
+
+The C<unsafe> in the name denotes that an effort was made to not care about that
+bit of safety, and do IO in the pure parser anyway.
+
+But it does not strictly mean IO - what C<unsafeEvalExp> is just a short circuit
+from the parser to the evaluator, allowing code to run at compile time.
+
+C<BEGIN> blocks are evaluated by calling C<unsafeEvalExp> on the resulting
+C<Exp> immediately after the block finished parsing, and then replacing that
+point in the syntax tree with a the value the block was reduced to.
+
+Declarations of sorts create a node in the syntax tree called a C<Syn>. These
+nodes, when evaluated, create a type of C<Exp> that will modify the C<Env>,
+adding a new symbol, and then roll back the change later. They are also
+evaluated immediately using C<unsafeEvalExp>.
+
+=head2 reduce :: Exp -> Eval Val
+
+The heading of this section is the type declaration for the evaluator's
+C<reduce> function.
+
+Let's break it down.
+
+The C<Exp> means that the single argument C<reduce> accepts is an expression.
+The C<Eval> is the monadic fudgeting of the C<Val> type, indicating that the
+reduction process of the C<Val> from the C<Exp> is controlled by the C<Eval>
+monad.
+
+Lets try to explain this with an example:
+
+	reduce (Val v) = retVal v
+
+This form of reduce takes the expression that is just a value, like C<3> or
+C<"foo"> and encapsulates the data into the C<Eval> monad using C<retVal>.
+
+	reduce (Var name) = do
+		v <- findVar name
+		if isNothing v then retError "Undeclared variable" name else do
+		evalRef (fromJust v)
+
+This reduction takes an expression like C<$a> and reduces it into a value. Here
+the C<Eval> monad's purpose comes into play a bit more clearly.
+
+The first line finds the container named by C<name> using the C<findVar>
+function.
+
+The C<Eval> monad is in use because such an operation might fail - in this case,
+the variable does not exist. The second line throws an exception when that
+happens.
+
+Lastly, if everything went OK, the container is dereferenced to return the value
+it contains. Here is the type signature of C<evalRef>, for refernce:
+
+	evalRef :: VRef -> Eval Val
+
+=head2 Many different reductions
+
+F<src/Pugs/Eval.hs> contains nearly 30 different variants of reduce. Each one
+serves a different purpose, and most are pretty streight forward.
+
+For example C<reduce (Syn "env" [])> is the reduce that takes care of variable
+declaration using C<VControl>, while C<reduce (Cxt cxt exp)> forces the sub
+expression C<exp> to be evaluated in the context C<cxt>.
+
+Let's look at some of the more interesting C<reduce>s. My personal favourite is
+C<for>.
+
+It is defined in the C<reduce exp@(Syn name exps)> declaration, which is the
+reduction of the various syntatic constructs. It begins with C<case name of>,
+and then there's a reduction variant for the values of C<name>. Here's the case
+C<for>, annotated:
+
+    "for" -> do
+        let [list, body] = exps
+
+This takes the two expressions to the C<for> syntax thingy, the list part, and
+the body. C<for (@list) { print "i'm the body" }>.
+
+The body is actually a subroutine, we'll look at that in a bit. After those
+lines are some details which we don't care about right now. Lets pretend they
+don't exist and jump down to
+
+	let arity = max 1 $ length (subParams sub)
+
+That part determines how many elements to take out of C<list> for each iteration
+of C<body>. After that comes a lexically scoped function definition, C<runBody>.
+Let's analyze it.
+
+	runBody [] _ = retVal undef
+
+This takes care the case where there are no more lements in C<list>. Contrast it
+with:
+
+	runBody vs sub' = do
+		let (these, rest) = arity `splitAt` vs
+		genSymCC "&next" $ \symNext -> do
+			genSymPrim "&redo" (const $ runBody vs sub') $ \symRedo -> do
+				apply (updateSubPad sub' (symRedo . symNext)) [] $
+					map (Val . VRef . MkRef) these
+		runBody rest sub'
+
+Which matches C<vs> that isn't an empty list (the first C<runBody> matched
+that case). The C<splitAt> takes C<arity> elements out of C<vs>, that is the
+number of parameters the body subroutine wants, and puts them in C<these>. The
+rest go into C<rest>.
+
+The lines after that set the C<&redo> and C<&next> variables so that they
+contain functions which will control the flow of the current iteration of the
+loop.
+
+The line starting with C<apply> applies the subroutine currently in C<sub'>, and
+gives it C<these> as it's paramters on the line starting with C<map>.
+
+Lastly, after the subroutine is applied, C<runBody> is run again on C<rest>.
+
+	genSymCC "&last" $ \symLast -> do
+		let munge sub | subParams sub == [defaultArrayParam] =
+				munge sub{ subParams = [defaultScalarParam] }
+			munge sub = updateSubPad sub symLast
+
+Outside of C<runBody>'s definition, the C<&last> variable is also defined. It
+controls the whole loop, not only a single step, so it doesn't need to be in
+C<&runBody>.
+
+When all the auxillery functions have been define, we can run the body with the
+
+list passed into the for (munging into C<elms> omitted):
+
+	runBody elms $ munge sub
+
+=head2 VCode application
+
+Now that we've seen a nice example of how a subroutine (which might be
+masquerading as a simple block) is used, lets see how C<VCode>, the value
+representing closures (subroutines, blocks, coroutines, etc) is called.
+
+
+Subroutine application be very simple, in the case of a C<Prim>. At other times
+it involves entering a lexical scope, due to block open. Sometimes parameter
+binding is involved too.
+
+But have no fear, we will soon see that like most parts of pugs, these things
+are actually pretty simple.
+
+=cut
