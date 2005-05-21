@@ -728,8 +728,13 @@ reduce (App (Var name@('&':_)) invs args) = do
     sub     <- findSub name invs args
     case sub of
         Just sub    -> applySub sub invs args
-        Nothing     -> retError "No compatible subroutine found" name
+        _ | [Syn "," invs'] <- unwrap invs, null args -> do
+            sub <- findSub name invs' []
+            if isNothing sub then err else do
+            fail $ "Extra space found after " ++ name ++ " (...) -- did you mean " ++ name ++ "(...) instead?"
+        _ -> err
     where
+    err = retError "No compatible subroutine found" name
     applySub sub invs args
         -- list-associativity
         | MkCode{ subAssoc = "list" }      <- sub
