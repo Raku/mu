@@ -347,7 +347,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
             }
         name' = if styp <= SubMethod then "&" ++ envPackage env ++ "::" ++ tail name else name
         self :: [Param]
-        self | styp >= SubMethod = []
+        self | styp > SubMethod = []
              | (prm:_) <- params, isInvocant prm = []
              | otherwise = [selfParam $ envPackage env]
         -- decl = Sym scope name -- , namePos)
