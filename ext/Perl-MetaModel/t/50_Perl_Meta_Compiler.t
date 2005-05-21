@@ -125,7 +125,7 @@ ok($role.can('does'), '... we $role.can() call the does() method');
 is($role.name(), 'Perl::Role', '... got the right name');
 is($role.identifier(), 'Perl::Role-0.01', '... got the right identifier');
 
-my @roles = (::Perl::Role.new(:name<Test>), ::Perl::Role.new(:name<This>));
+my @roles = (::Perl::Role.new(), ::Perl::Role.new()); # just empty roles for now
 lives_ok {
     $role.does(@roles);
 }, '... we added roles succussfully';

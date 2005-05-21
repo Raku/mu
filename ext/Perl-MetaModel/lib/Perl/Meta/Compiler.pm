@@ -16,15 +16,12 @@ method compile ($self: Perl::Meta::Class $class) returns Void {
 
 method :analyzeClass ($self: Perl::Meta::Class $class) returns Void {
     # flatten the roles into the class
-    $self.:flattenRoles($class) if $class.hasRoles();
+    $self.:flattenRoles($class);
     return $class;
 }
 
 method :flattenRoles ($self: Perl::Meta::Class $class) returns Void {
-    my @roles = $class.roles();
-    for @roles -> $role {
-        # make sure all super-roles are compiled
-    }
+    # hmm, ... I need to think about this
 }
 
 my $DEBUG = 1;
