@@ -69,12 +69,14 @@ else {
 
 my $has_readline = try_compile(<< '.');
 import System.Console.Readline
+main :: IO ()
 main = readline "" >> return ()
 .
 
 
 my $has_th = try_compile(<< '.');
 {-# OPTIONS_GHC -fth #-}
+main :: (Monad m) => m ()
 main = $([| return () |])
 .
 
