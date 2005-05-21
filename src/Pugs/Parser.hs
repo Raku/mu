@@ -571,20 +571,37 @@ ruleDoBlock = rule "do block" $ try $ do
 
 ruleClosureTrait :: Bool -> RuleParser Exp
 ruleClosureTrait rhs = rule "closure trait" $ do
-    let names | rhs       = " BEGIN "
-              | otherwise = " BEGIN END "
+    let names | rhs       = " BEGIN FIRST "
+              | otherwise = " BEGIN FIRST END "
     name    <- tryChoice $ map symbol $ words names
     block   <- ruleBlock
     let (fun, names) = extract block []
     -- Check for placeholder vs formal parameters
     unless (null names) $
-        fail "Closure traits takes no formal parameters"
+        fail "Closure traits take no formal parameters"
     let code = VCode mkSub { subName = name, subBody = fun } 
     case name of
         "END"   -> return $ App (Var "&unshift") [Var "@*END"] [Syn "sub" [Val code]]
         "BEGIN" -> do
             rv <- unsafeEvalExp fun
             return $ if rhs then rv else emptyExp 
+	"FIRST" -> do
+	    -- Ok. Now that's the tricky thing.
+	    -- This is the general idea:
+	    -- FIRST { 42 } is transformed into
+	    -- { state $?FIRST_RESULT; $?FIRST_RESULT //= { 42 }() }()
+	    -- This is the $?FIRST_RESULT symbol.
+	    symbol <- return $ Sym SState "$?FIRST_RESULT"
+	    -- This will soon add $?FIRST_RESULT to our pad
+	    lexdiff <- unsafeEvalLexDiff $ symbol emptyExp
+	    -- And that's the transformation part.
+	    return $
+		-- The outer block
+		Syn "block" [
+		    -- state $?FIRST_RESULT
+		    Pad SState lexdiff (
+			-- $?FIRST_RESULT //= { 42 }()
+			Syn "//=" [Var "$?FIRST_RESULT", App (Val code) [] []])]
         _       -> fail ""
 
 unsafeEvalLexDiff :: Exp -> RuleParser Pad
