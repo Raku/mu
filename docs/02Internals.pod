@@ -28,7 +28,7 @@ Each will be discussed later in more detail.
 
 =head1 PUGS RUNTIME OVERVIEW
 
-Pugs' own core is also componentized. The separation roughly coincides with Perl
+Pugs's own core is also componentized. The separation roughly coincides with Perl
 6's runtime and compile time. However, it is notable that the parts are
 intermixed, since Perl 6 is a very dynamic language.
 
