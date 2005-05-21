@@ -1008,12 +1008,14 @@ lookupPad key (MkPad map) = case Map.lookup (fixName key) map of
     fixName' ('p':'r':'e':'f':'i':'x':':':rest)     = "prefix:"  ++ dropBrackets rest
     fixName' ('p':'o':'s':'t':'f':'i':'x':':':rest) = "postfix:" ++ dropBrackets rest
     fixName' x                                      = x
+    -- We have to make sure that the last character(s) match the first one(s),
+    -- otherwise 4 <= 4 will stop working.
     -- «bar» --> bar
-    dropBrackets ('\171':(rest@(_:_)))    = init rest
+    dropBrackets ('\171':(rest@(_:_)))    = if (last rest) == '\187' then init rest else '\171':rest
     -- <<bar>> --> bar
-    dropBrackets ('<':'<':(rest@(_:_:_))) = init . init $ rest
+    dropBrackets ('<':'<':(rest@(_:_:_))) = if (last rest) == '>' && (last . init $ rest) == '>' then init . init $ rest else "<<" ++ rest
     -- <bar> --> bar
-    dropBrackets ('<':(rest@(_:_)))       = init rest
+    dropBrackets ('<':(rest@(_:_)))       = if (last rest) == '>' then init rest else '<':rest
     dropBrackets x              = x
 
 {-|
