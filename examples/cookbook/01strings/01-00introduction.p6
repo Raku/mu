@@ -20,23 +20,33 @@ contexts.
 A string may consist of zero or more characters, including spaces and
 numbers: 
 
-# text preceded by # is ignored by the Perl 6 interpretor 
+Note:
+text preceded by # is ignored by the Perl 6 interpretor 
+
 	print ""        ; # output is an empty string
+
 	print "Hello\n" ; # output is Hello followed by a new line  
+
 	say   "Hello"   ; # same
+
 	say   'Hello'   ; # same 
 
 Strings can be appended to one another, using the concatenation
 operator, ~
 
 	say "Hello" ~ " World" ~ "!"; 
+
 	# Here, three strings are concatenated into a 
 	# single string.  Output is Hello World! followed by a new line  
 
 A number might be interpreted as a string, depending on the context
+
 	say    1  ; # The number 1 is interpreted as a string, in this 
+
 	            # context
+
     say  1+1  ; # The + operator returns the number 2, which is
+
 	            # interpreted in this context as the string "2"  
 
 Conversely, sometimes a string might be interpreted as a number:
@@ -44,7 +54,9 @@ Conversely, sometimes a string might be interpreted as a number:
 	print  "1" + 1 ; # 2 
 
 	# The string, "1" is treated as a number in this context, added
+
 	# to the number 1 by the + operator, which returns the string,
+
 	# "2", for output.
 
 Context sensitivity is the essence of Perl.  Keeping it in mind, what
