@@ -30,11 +30,11 @@ our $code_s   = 'code';
 # symref syntax
 
 eval_is('$::("MY::$lex_s")',         $lex,    "loopup of lexical in current scope", :todo);
-eval_is('$::($global_s)',            $global, "lookup of global in default package", :todo);
+eval_is('$::($global_s)',            $global, "lookup of global in default package");
 eval_is('$::("*Main::$global_s")',   $global, "lookup of global in *Main package", :todo);
-eval_is('~ @::($ary_s)',             ~ @ary,  "array lookup", :todo);
-eval_is('~ %::($hash_s)',            ~ %hash, "hash lookup", :todo);
-eval_is('&::($code_s).()',           code(),  "named sub lookup", :todo);
+eval_is('~ @::($ary_s)',             ~ @ary,  "array lookup");
+eval_is('~ %::($hash_s)',            ~ %hash, "hash lookup");
+eval_is('&::($code_s).()',           code(),  "named sub lookup");
 
 eval_ok( '!defined($::("nosuch"))',            "unknown scalar lookup", :todo);
 eval_ok( '!defined($::("nosuch"))',            "unknown scalar lookup doesn't autovivify", :todo);
