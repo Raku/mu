@@ -8,15 +8,11 @@ plan 3;
 # L<S04/"Exceptions" /The fail function/>
 
 
-skip 3, "builtin fail() clashes with Test::fail";
-
-=begin END
-
 {
   # "use fatal" is not standard, so we don't have to disable it here
   my $was_after_fail  = 0;
   my $was_before_fail = 0;
-  my $sub = { $was_before_fail++; fail 42; $was_after_fail++ };
+  my $sub = sub { $was_before_fail++; my $exception = fail_ 42; $was_after_fail++ };
 
   my $unthrown_exception = $sub();
   # Note: We don't further access $unthrown_exception, so it doesn't get thrown
@@ -26,10 +22,10 @@ skip 3, "builtin fail() clashes with Test::fail";
 
 {
   # Explicitly "use fatal"
-  use fatal;
+  # use fatal; -- Commented as there's no fatal.pm yet.
   my $was_after_fail = 0;
   my $was_after_sub  = 0;
-  my $sub = { fail 42; $was_after_fail++ };
+  my $sub = sub { fail_ 42; $was_after_fail++ };
 
   try { $sub(); $was_after_sub++ }
   is $was_after_fail, 0, "fail() causes our sub to return (2)";

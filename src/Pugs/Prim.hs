@@ -270,6 +270,27 @@ op1 "warn" = \v -> do
     where
     errmsg "" = "Warning: something's wrong"
     errmsg x  = x
+op1 "fail_" = \v -> do
+    strs  <- fromVal v
+    throw <- fromVal =<< readVar "$?FAIL_SHOULD_DIE"
+    if throw
+	-- "use fatal" is in effect, so die.
+	then fail strs
+	-- We've to return a unthrown exception.
+	else do
+	    pos   <- asks envPos
+	    -- The error message to output
+	    let msg = pretty (VError (errmsg strs) (NonTerm pos))
+	    -- The unthrown exception "object"
+	    let ret = proxyScalar (fail $ msg ++ "\n") (fail $ msg ++ "\n")
+	    -- We've to return ret in a VList, as a VList is the only Val which
+	    -- is lazy. If we return something strict, readIVar ret will be called,
+	    -- resulting in a immediate death.
+	    -- Should we add a, say, VLazyException to Val?
+	    op1Return $ shiftT . const $ return . VList $ [ VRef (MkRef ret) ]
+    where
+    errmsg "" = "Failed"
+    errmsg x  = x
 op1 "exit" = op1Exit
 op1 "readlink" = \v -> do
     str  <- fromVal v
@@ -1174,6 +1195,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      pre     close   (Socket)\
 \\n   Bool      pre     die     (List)\
 \\n   Bool      pre     warn    (List)\
+\\n   Bool      pre     fail_   (List)\
 \\n   IO        pre     open    (Str)\
 \\n   Socket    pre     listen  (Int)\
 \\n   Socket    pre     connect (Str, Int)\
