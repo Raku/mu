@@ -104,7 +104,7 @@ to have it evaluated as a program expression, by using the -e switch:
 
     ./pugs -e "say 1+1"; # 2
 
-=head1 Using Strings 
+=head1 Assigning Strings 
 
 A string object can be created explictly, by declaring a variable
 using the Str keyword, and assigning a string value to it. 
@@ -152,65 +152,114 @@ say '~$scalar is ' ~ (~$scalar).ref;
 TODO: a short paragraph on the difference between the my $scalar 
 and my Str $string examples above.
 
-=head2 Almost Verbatim Strings 
+=head1 Quotes, Interpolation and Quote-like operators
+
+=head2 Single-quoted Strings
 
 Strings that are written with single quotes are almost
-verbatim.  However, two backslashes together in single 
-quotes are interpolated as one backslash. 
-
-This is so that you can write literal single-quotes within a single-
-quoted string, and also be able to write a backslash at the end of a 
-single-quote-enclosed string:
+verbatim.  However, backslashes are an escape character.
+This is so that you can write literal single-quotes 
+within a single-quoted string, and also be able to write 
+a backslash at the end of a single-quote-enclosed string:
 
     say 'n\'     ; # Error: perl sees no closing '
-    say '\\'     ; # \ 
+    say '\\'     ; # \
     say 'n\''    ; # n'
     say 'n\n'    ; # n\n
     say 'n\\n'   ; # n\n
     say 'n\\\n'  ; # n\\n
 
-=head2 Interpolation
+XXX A few other backslashy escapes work in single quotes too
 
-If you want to interpolate variables within a literal
-string, use double quotes around the value:
+=head2 Double-quoted Strings
+
+If you want to interpolate variables and other special characters 
+within a literal string, use double quotes around the value:
 
     my $var1 = 'dog' ;
     say "The quick brown fox jumps over the lazy $var1";
+    
 
-Double quoted strings can also interpolate the elements of an array or a hash, 
-backslashed control characters, and other good stuff:
+=head2 Interpolation
 
+Double-quoted strings interpolate the elements of an array or
+a hash, closures, functions, backslashed control characters, and 
+other good stuff.  Single-quoted strings do not.
+
+    # literal spaces and tabs are the the same
+    say 	"    The quick brown fox jumps over the lazy dog.";
+    say 	'    The quick brown fox jumps over the lazy dog.';
+    
+    # but literal new lines don't work in single-quotes
+    say 	"    The quick brown fox
+    jumps over the lazy dog.";
+
+    #ERROR - perl 6 sees 'jumps' as an undefined function
+    say 	'    The quick brown fox   
+    jumps over the lazy dog.'; 
+
+    # Double-quotes interpolate special backslash values,
+    # but single-quotes do not
+    say 'The quick brown fox\n\tjumps over the lazy dog\n';
+    say "The quick brown fox\n\tjumps over the lazy dog\n";
+    
     # interpolate array elements:
     my @animal = ("fox", "dog");
+    say 'The quick brown @animal[0] jumps over the lazy @animal[1]';
     say "The quick brown @animal[0] jumps over the lazy @animal[1]";
-    
+
     # interpolate hash elements:
     my %animal = (quick => 'fox', lazy => 'dog');
+    say 'The quick brown %animal{\'quick\'} jumps over the lazy %animal{\'lazy\'}.';
     say "The quick brown %animal{'quick'} jumps over the lazy %animal{'lazy'}.";
-
-    # interpolate special backslash values:
-    print "The quick brown fox\n\tjumps over the lazy dog\n";
-
-XXX A few other backslashy escapes work in single quotes too
-
+    
+    # interpolate methods, closures, and functions:
+    say '@animal.elems() {@animal.elems} &elems(@animal)';
+    say "@animal.elems() {@animal.elems} &elems(@animal)";
+    
 =cut
 
+
+# literal spaces and tabs are the the same
+say 	"    The quick brown fox jumps over the lazy dog.";
+say 	'    The quick brown fox jumps over the lazy dog.';
+
+# but literal new lines don't work in single-quotes
+say 	"    The quick brown fox
+    jumps over the lazy dog.";
+say 	'    The quick brown fox  # ERROR - perl 6 sees "jumps" as an undefined function ' ;
+
+# Double-quotes interpolate special backslash values,
+# but single-quotes do not
+say 'The quick brown fox\n\tjumps over the lazy dog\n';
+say "The quick brown fox\n\tjumps over the lazy dog\n";
+
+# Variables
 my $var1 = 'dog' ;
+say 'The quick brown fox jumps over the lazy $var1';
 say "The quick brown fox jumps over the lazy $var1";
 
+# interpolate array elements:
 my @animal = ("fox", "dog");
+say 'The quick brown @animal[0] jumps over the lazy @animal[1]';
 say "The quick brown @animal[0] jumps over the lazy @animal[1]";
 
+# interpolate hash elements:
 my %animal = (quick => 'fox', lazy => 'dog');
+say 'The quick brown %animal{\'quick\'} jumps over the lazy %animal{\'lazy\'}.';
 say "The quick brown %animal{'quick'} jumps over the lazy %animal{'lazy'}.";
-print "The quick brown fox jumps\n\tover the lazy dog\n";
 
+# interpolate methods, closures, and functions:
+say '@animal.elems() {@animal.elems} &elems(@animal)';
+say "@animal.elems() {@animal.elems} &elems(@animal)";
+ 
 =pod
 
-=head2 Using Perl's Quote-like Operators
+=head2 Perl's Quote-like Operators
 
-It's often useful to use something other than single or double quotes when
-declaring strings. To do so use the q// and qq// quote operators:
+It's often useful to use something other than single or double quotes
+when declaring strings. To do so use the q// and qq// quote operators, 
+which provide advanced interpolation control:
 
     # Single quoted strings
     say 'I have to escape my \'single quotes\' in this string';
@@ -220,7 +269,9 @@ declaring strings. To do so use the q// and qq// quote operators:
     say "I have to escape my \"double quotes\" in this string";
     say q/This string allows "double quotes" seamlessly/;
 
-The slashes in q// and qq// can be replaced with most other delimiters.
+The slashes in q// and qq// can be replaced with most of the
+delimiters that worked in Perl 5. All of Unicode above Latin-1 is reserved 
+for user-defined quotes.
 
     # Single quoted strings
     say q'Many delimiters are available for quoting';
@@ -230,25 +281,44 @@ The slashes in q// and qq// can be replaced with most other delimiters.
     say q(Many delimiters are available for quoting);
     say q<Many delimiters are available for quoting>;
     say q{Many delimiters are available for quoting};
-    say q«Many delimiters are available for quoting»;
+    say q?Many delimiters are available for quoting?;
+    
+    # But not the colon B<:>
+    q:illegal_perl6:; #legal perl 5
 
 =head2 Advanced Interpolation Control
 
-Perl 6 allows very fine control over string quoting using the q// quote
-operator with specialized adverbs. For instance, q:s// signifies that we only
-want scalars interpolated. These adverbs can also be expressed in a short form,
-for instance q:s// can be expressed as qs//.
+Perl 6 allows very fine control over string quoting using the q//
+quote operator with specialized adverbs. For instance, q:s// signifies
+that we only want scalars interpolated. These adverbs can also be
+expressed in a short form, for instance q:s// can be expressed as
+qs//.
+
+    :0          :raw            No escapes at all (unless otherwise adverbed)
+    :1          :single         Interpolate \\, \q and \' (or whatever)
+    :2          :double         Interpolate all the following
+    :s          :scalar         Interpolate $ vars
+    :a          :array          Interpolate @ vars
+    :h          :hash           Interpolate % vars
+    :f          :function       Interpolate & calls
+    :c          :closure        Interpolate {...} expressions
+    :b          :backslash      Interpolate \n, \t, etc. (implies :m)
+    :x          :exec           Execute as command and return results
+    :w          :words          Split result on words (no quote protection)
+    :ww         :quotewords     Split result on words (with quote protection)
+    :t          :to             Interpret result as heredoc terminator
 
     # Raw quoting: no escaping at all (unless otherwise adverbed)
-    say q:0/Here is a code sample &function($param) (no interpolation)/;
-    say q0/Here is a code sample &function($param) (no interpolation)/;
+    say q:raw(:raw (no interpolation) even backslash has no special meaning: \\ \/;
+    say q:0/:0 (no interpolation) even backslash has no special meaning: \\ \/;
+    say q0/0 (no interpolation) even backslash has no special meaning: \\ \/;
 
     # Single quoting:
     say 'Lots of options for single quotes';
     say q/Lots of options for single quotes/;
     say q:1/Lots of options for single quotes/;
     say q1/Lots of options for single quotes/;
-    
+
     # Double quoting: interpolates scalars, arrays, hashes, functions,
     # closures, and backslash codes
     say "Plenty of ways to double quote too";
@@ -256,41 +326,19 @@ for instance q:s// can be expressed as qs//.
     say q:2/Plenty of ways to double quote too/;
     say q2/Plenty of ways to double quote too/;
 
-    # Interplate scalars only:
-    my ($var1, $var2) = <dog fox>;
-    say q:s/The quick brown $var1 jumps over the lazy $var2/;
-    say qs/The quick brown $var1 jumps over the lazy $var2/;
+    # Interpolate scalars only:
+    say q:s/The quick brown $var1 jumps over the lazy dog/;
+    say qs/The quick brown $var1 jumps over the lazy dog/;
 
     # Interpolate @ vars only:
     say q:a/The quick brown @animal[0] jumps over the lazy @animal[1]/;
     say qa/The quick brown @animal[0] jumps over the lazy @animal[1]/;
-    say qa/We have @animal.elems() elements in the \@animals array/;
+    say qa/We have @animal.elems() elements in @animal[]/;
 
-XXX But @animal[0] is not an array, it is an array element.
-    -- see comment below
-    
     # interpolate % vars only:
     say q:h/The quick brown %animal{'quick'} jumps over the.../;
     say qh/The quick brown %animal{'quick'} jumps over the.../;
-
-XXX But %animal{quick} is not a hash, it is a hash element.
-    -- i think that's irrelevant to the examples, however I will also 
-        demonstrate the many other things you can do with hashes and 
-        arrays during interpolation --gcomnz
-XXX It's relevant because what you say now is just wrong. Both arrays|hashes
-*and* array|hash elements are interpolated. While %foo is a hash, %foo{bar} is
-just a scalar! 
-    -- yeah, you're right. i went looking for a short way to say
-        what i mean, and it seems like the synopses is the closest
-        i can get right now, so i replaced the comments with
-        "% vars" and "@ vars" for now. I'm hesitant to put in an
-        interpolation of actual straight %hash and @array right now
-        because it seems like it's too complex an example for
-        chapter 01-00 --gcomnz
-XXX By the way, you probably want %animal{'quick'} there, because
-%animal{quick} is %animal{quick()}.
-    -- phew, thanks, I just caught up on that whole hash
-        subscripting thread  --gcomnz
+    say qh/We have %animal.elems() key in %animal{}/;
 
     # interpolate functions only: both & and () are required
     say q:f/The quick brown &get_animal('quick') jumps.../;
@@ -304,41 +352,77 @@ XXX By the way, you probably want %animal{'quick'} there, because
     say q:b/The quick brown fox\n\tJumps over the lazy dog/;
     say qb/The quick brown fox\n\tJumps over the lazy dog/;
 
-Adverbs can be strung together to make a specialized quoting environment for
-your string.
+Adverbs can be strung together to make a specialized quoting
+environment for your string.
 
     # interpolate only scalars and arrays:
     say q:s:a/The quick brown $fox jumps over the lazy @animal[1]/;
 
-=head2 Defining Multiline Strings (Here Documents)
+=head2 Special adverbs and synonymns
+
+=over 4
+
+=item :w Split on words
+
+    my ($fox,$dog)     = q:w/brown lazy/;
+    my @array          = qw/fox dog/;
+
+The <> synonymn for q:w has many uses
+
+    @animals           = <fox dog monkey>; 
+    say @animals[0]    ; # fox
+    %animal            = <brown fox lazy dog>;
+    say %animal<lazy>  ; # dog 
+
+=item :ww Split on Quoted Words
+
+    @animals           = q:ww<"brown fox" "lazy dog">;
+    # Quoted words and variable interpolation
+    @animals           = qq:ww/"brown $fox" "lazy %animal{'lazy'}"/;
+
+The «» synonymn for qq:ww has many uses, also spelled <<>> 
+
+    $dog                 = <<lazy>>;
+    %animal              = « brown $fox lazy "lazy dog" »;
+    say %animal« $dog »  ; # lazy dog 
+    say %animal<<$dog>>  ; # lazy dog 
+
+=item :x Execute
+
+TODO
+
+=back
+   
+=item :t Defining Multiline Strings (Here Documents)
 
 Multiline strings (here documents) can be defined using the q// and qq//
 operators with the :to adverb added.
 
     # A double quoted multiline string:
     my $a = qq:to/EOF/
-        This is a multiline here document terminated by EOF on a 
-        line by itself with any amount of whitespace before or 
-        after the termination string. Leading whitespace equivalent 
-        to the indentation of the delimiter will be removed from 
+        This is a multiline here document terminated by EOF on a
+        line by itself with any amount of whitespace before or
+        after the termination string. Leading whitespace equivalent
+        to the indentation of the delimiter will be removed from
         all preceding lines.
         EOF
 
-When defined in this way the whitespace at the start of each line will be 
-removed up to the same amount of indentation used by the closing delimiter, 
-a tab character being equal to 8 normal spaces.
+When defined in this way the whitespace at the start of each line will
+be removed up to the same amount of indentation used by the closing
+delimiter, a tab character being equal to 8 normal spaces.
 
-A here document can be as exacting with adverbs as any other quoted string. For
-instance you can specify that you only want scalars interpolated by adding
-the :s adverb.
+A here document can be as exacting with adverbs as any other quoted
+string. For instance you can specify that you only want scalars
+interpolated by adding the :s adverb.
 
     # This multiline string will only interpolate scalars
     my $multiline = q:s:to/EOF/
         This $scalar will be interpolated, but this @array won't be.
         EOF
 
-These adverbs apply to the body of the heredoc, not to the terminator, because
-the terminator has to be known at compile time. This means that
-q:s:to/EO$thing/ doesn't do what you mean.
+These adverbs apply to the body of the heredoc, not to the terminator,
+because the terminator has to be known at compile time. This means
+that q:s:to/EO$thing/ doesn't do what you mean.
 
 =cut
+
