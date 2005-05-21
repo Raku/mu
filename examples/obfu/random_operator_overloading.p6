@@ -16,6 +16,8 @@ BEGIN {
   #    - my() expects a ruleVarName (ruleVarName :: RuleParser String), but the
   #      rule which is reponsible for the symbolic dereferentiation is
   #      incompatible to that type (ruleSymbolicDeref :: RuleParser Exp).
+  #    - Additionally, it's forbidden to use symbolic dereferentiation in my()
+  #      :)   (compare with Perl 5: 'my $abc = "def"; my $$abc = 42' dies.)
 }
 
 # Now one of +-*/ will return 42, the other ops will continue to work as

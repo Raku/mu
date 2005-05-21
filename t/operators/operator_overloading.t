@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 20;
+plan 22;
 
 =pod
 
@@ -89,7 +89,15 @@ is("boobies"!, "BOOBIES!!!", "correct overloaded method called");
     try { &::("infix:<times>") = { $^a * $^b } };
   }
 
-  is eval('3 times 5'), 15, 'operator overloading using symbolic dereferentiation';
+  is 3 times 5, 15, 'operator overloading using symbolic dereferentiation';
+}
+
+# Accessing an operator using its subroutine name
+{
+  is &infix:<+>(2, 3), 5, "accessing a builtin operator using its subroutine name";
+
+  my &infix:<z> = { $^a + $^b };
+  is &infix:<z>(2, 3), 5, "accessing a userdefined operator using its subroutine name";
 }
 
 # great.  Now, what about those silent auto-conversion operators a la:

@@ -985,9 +985,32 @@ mkPad = MkPad . Map.fromList
 lookupPad :: Var -- ^ Symbol to look for
           -> Pad -- ^ Pad to look in
           -> Maybe [TVar VRef] -- ^ Might return 'Nothing' if var is not found
-lookupPad key (MkPad map) = case Map.lookup key map of
-    Just xs -> Just [tvar | (_, tvar) <- xs]
-    Nothing -> Nothing
+-- We (may) have to fix the name, as the user can write things like
+--   &::("infix:<+>")(2, 3)
+-- which, without fixName, wouldn't work, as all operators are currently stored
+-- as &infix:+, i.e. without the brackets.
+lookupPad key (MkPad map) = case Map.lookup (fixName key) map of
+	Just xs -> Just [tvar | (_, tvar) <- xs]
+	Nothing -> Nothing
+    where
+    -- It doesn't matter if we lookup &foo or &*foo
+    fixName  ('&':'*':rest) = "&*" ++ fixName' rest
+    fixName  ('&':rest)     = "&"  ++ fixName' rest
+    fixName  x              = x
+    -- We've to strip the <>s for &infix:<...>, &prefix:<...>, and
+    -- &postfix:<...>.
+    -- The other &...:<...> things aren't that simple (e.g. circumfix.).
+    fixName' ('i':'n':'f':'i':'x':':':rest)         = "infix:"   ++ dropBrackets rest
+    fixName' ('p':'r':'e':'f':'i':'x':':':rest)     = "prefix:"  ++ dropBrackets rest
+    fixName' ('p':'o':'s':'t':'f':'i':'x':':':rest) = "postfix:" ++ dropBrackets rest
+    fixName' x                                      = x
+    -- «bar» --> bar
+    dropBrackets ('\171':(rest@(_:_)))    = init rest
+    -- <<bar>> --> bar
+    dropBrackets ('<':'<':(rest@(_:_:_))) = init . init $ rest
+    -- <bar> --> bar
+    dropBrackets ('<':(rest@(_:_)))       = init rest
+    dropBrackets x              = x
 
 {-|
 Transform a pad into a flat list of bindings. The inverse of 'mkPad'.
