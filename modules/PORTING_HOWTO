@@ -1,5 +1,9 @@
 Mini HowTo: How to port Perl 5 modules to Perl 6
 
+  - Other resources:
+      http://pugs.kwiki.org/?ConversionGuide
+      http://perlmonks.org/index.pl?node_id=442402
+
   - Before you start porting a module, make sure you understand the class
     hierarchy of that module. It helps if you've actually used that module in
     Perl 5 :)
