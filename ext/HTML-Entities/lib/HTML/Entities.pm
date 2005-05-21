@@ -1,4 +1,4 @@
-module HTML::Entities-0.0.1;
+module HTML::Entities-0.2;
 use v6;
 
 #@EXPORT = qw(encode_entities decode_entities _decode_entities);
@@ -280,14 +280,26 @@ for 0 .. 255 -> $ascii_val {
     %char_to_entity{chr($ascii_val)} //= "&#$ascii_val;";
 }
 
-sub decode_entities($string is rw) is export
+multi sub decode_entities($string is rw) is export
 {
     my $result = $string;
-    #$string := $result unless want.count;
+    
     $result ~~ s:perl5:g/&\#(\d+);?/{chr($0)}/;
     $result ~~ s:perl5:g/(&\#[xX]([0-9a-fA-F]+);?)/{my $c = hex($1); $c < 256 ?? chr($c) :: $0}/;
     $result ~~ s:perl5:g/(&(\w+);?)/{%entity_to_char{$1} // $0}/;
+    
+    $string = $result;
+    
     return $result;
+}
+
+multi sub decode_entities(*@strings is rw) is export
+{
+    @strings;
+    
+    my @results = @strings.map:-> $string is rw { decode_entities($string); };
+    
+    return @results;
 }
 
 sub encode_entities_numeric (Str $string) returns Str {
@@ -295,13 +307,14 @@ sub encode_entities_numeric (Str $string) returns Str {
     #temp %char_to_entity;
     my %temp        = %char_to_entity;
     %char_to_entity = ();
-    my $result      = encode_entities($string);
+    my $temp        = $string;
+    my $result      = encode_entities($temp);
     %char_to_entity = %temp;
     return $result;
 }
 
 my %subst;  # compiled encoding regexps
-sub encode_entities (Str $string, ?$unsafe_chars) is export
+sub encode_entities (Str $string is rw, ?$unsafe_chars) is export
 {
     my $result = $string;
     if ($string.defined && $unsafe_chars.defined) {
@@ -329,6 +342,7 @@ sub encode_entities (Str $string, ?$unsafe_chars) is export
                 :: num_entity($0)
         }/;
     }
+    $string = $result;
     return $result;
 }
 
@@ -337,6 +351,7 @@ sub num_entity($char) {
 }
 
 1;
+
 # Set up aliases
 #*encode = \&encode_entities;
 #*encode_numeric = \&encode_entities_numeric;
