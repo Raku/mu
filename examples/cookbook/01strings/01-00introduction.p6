@@ -9,77 +9,104 @@ Perl 6 Cookbook: Introduction to Strings
 =head1 Definition
 
 In Perl 6, a string is a sequence of zero or more characters and other
-simple objects, forming a single unit of data usually in its
-reportable or printable form. 
+simple objects, forming a single unit of data of the type Str.  A
+string is data usually in its reportable or printable form. Strings are 
+formed using single-quotes '', double-quotes "", and various quote-like 
+operators.   
 
 =head1 Description
 
 Perl 6 interprets strings variously, as they appear in different
-contexts. 
+contexts.  A string may consist of zero or more characters, including
+letters, spaces, numbers, and other characters: 
 
-A string may consist of zero or more characters, including spaces and
-numbers: 
-
-Note:
-text preceded by # is ignored by the Perl 6 interpretor 
+	Note:
+	text preceded by # is ignored by the Perl 6 interpretor 
 
 	print ""        ; # output is an empty string
-
 	print "Hello\n" ; # output is Hello followed by a new line  
-
 	say   "Hello"   ; # same
-
 	say   'Hello'   ; # same 
+
+=cut
+
+print ""        ; # output is an empty string
+print "Hello\n" ; # output string is Hello followed by a new line  
+say   "Hello"   ; # same
+say   'Hello'   ; # same 
+
+=pod
 
 Strings can be appended to one another, using the concatenation
 operator, ~
 
-	say "Hello" ~ " World" ~ "!"; 
+    say "Hello" ~ " World" ~ "!"; 
 
-	# Here, three strings are concatenated into a 
-	# single string.  Output is Hello World! followed by a new line  
+    # Here, three strings are concatenated into a 
+    # single string.  Output is Hello World! followed by a new line  
+
+
+=cut
+
+say "Hello" ~ " World" ~ "!"; 
+
+=pod
 
 A number might be interpreted as a string, depending on the context
 
-	say    1  ; # The number 1 is interpreted as a string, in this 
-
-	            # context
+    say    1  ; # The number 1 is interpreted as a string, in this 
+                # context
 
     say  1+1  ; # The + operator returns the number 2, which is
+                # interpreted in this context as the string "2" for
+                # output  
 
-	            # interpreted in this context as the string "2"  
+=cut
+
+say    1  ; # 1  
+say  1+1  ; # 2 
+
+=pod
 
 Conversely, sometimes a string might be interpreted as a number:
 
-	print  "1" + 1 ; # 2 
+    print  +""     ; # a num-ified empty string evaluates as 0 
+    print  "1" + 1 ; # 2 
 
-	# The string, "1" is treated as a number in this context, added
+The string, "1" is treated as a number in this context, added to the
+number 1 by the + operator, which returns the number, 2, as a 
+string for output.  
 
-	# to the number 1 by the + operator, which returns the string,
+=cut
 
-	# "2", for output.
+print  +""     ; # a num-ified empty string evaluates as 0 
+print  "1" + 1 ; # 2 
 
-Context sensitivity is the essence of Perl.  Keeping it in mind, what
-would you expect the following to produce? 
+=pod
 
-	print "1" ~ "1" + 1 ; # 12 
+Context sensitivity is the essence of Perl.  Keeping this in mind, what
+would you expect to be the output string, for the following?  
+
+    print "1" ~ "1" + 1 ; # 12 
 
 But, "1+1", surrounded by quotation marks, either '' or "", stringifies
 the expression, so that it is evaluated as a string. 
 
-	print "1 + 1" ; # literally: 1 + 1
+    print "1 + 1" ; # literally: 1 + 1
 
-To force the interpretation of this string for any programmatic
+To force the interpretation of a string for any programmatic
 value it might contain, use the built-in eval() function:
 
-	say eval "1 + 1";    # 2
+    say eval "1 + 1";    # 2
 
 On the command-line, you may pass a string to the perl 6 interpretor,
 to have it evaluated as a program expression, by using the -e switch: 
 
-	./pugs -e "say 1+1"; # 2
+    ./pugs -e "say 1+1"; # 2
 
-=head2 Quotes and Quote-like Operators
+=head1 Quotes and Quote-like Operators
+
+TODO
 
 =head1 Using Strings 
 
