@@ -26,9 +26,69 @@ Mini HowTo: How to port Perl 5 modules to Perl 6
     - foreach my $foo (@baz) {...} ->
       for @baz -> $foo {...}
     - Regular expressions:
-      [abc]   -> <[abc]>
-      [^abc]  -> <-[abc]>
-      (?:...) -> [...]
+      m/ a * b /x       -> m/ a * b /               # /x now default
+      m/ a\  b /x       -> m/ a\  b /
+                           m/ a <sp> b /            # also see below
+                           m:w/ a b /               # :w == :words
+      (space)           -> <sp>                     # or \c[SPACE], \x20, \040,
+                                                    # <' '>
+      
+      [abc]             -> <[abc]>
+      [^abc]            -> <-[abc]>
+      (?:...)           -> [...]
+      
+      \p{prop}          -> <prop>
+      \P{prop}          -> <-prop>
+      
+      \Qstring\E        -> <{ quotemeta 'string' }> # or <'literal string'>
+      \Q$var\E          -> $var                     # always literal
+      $var              -> <$var>
+      
+      \A                -> ^
+      \z                -> $
+      \Z                -> \n?$
+      
+      \n                -> \c[LF]                   # specifically a linefeed
+      \r?\n             -> \n                       # logical newline
+      [^\n]             -> \N                       # not a logical newline
+                           \C[LF]                   # not a linefeed
+      
+      \G                -> <( .pos == $oldpos )>
+                           m:p/pat/
+      
+      \a                -> \c[BEL]
+      \N{CENT SIGN}     -> \c[CENT SIGN]
+      [^\N{CENT SIGN}]  -> \C[CENT SIGN]
+      \c[               -> \e
+      \cX               -> \c[^X]
+      [^\t]             -> \T
+      [^\r]             -> \R
+      [^\f]             -> \F
+      [^\e]             -> \E
+      [^\x1B]           -> \X1B
+      [^\x{263a}]       -> \X[263a]
+      
+      \1                -> $1
+      /$1/              -> my $old1 = $1; /$old1/
+      
+      \C                -> [:bytes .]               # forced byte in UTF-8 (not
+                                                    # recommended)
+      \X                -> <.>                      # single grapheme
+                           [:graphs .]
+      
+      x{2}              -> x**{2}
+      x{1,2}            -> x**{1,2}
+      x{1,2}?           -> x**{1,2}?
+      
+      (?=foo)           -> <before foo>
+      (?!foo)           -> <!before foo>
+      (?<=foo)          -> <after foo>
+      (?<!foo)          -> <!after foo>
+      
+      s/foo/bar()/e     -> s/foo/{ bar() }/
+      m/^foo$/s         -> m/^foo$/
+      m/^foo$/m         -> m/^^foo$$/
+      m?foo?            -> m:once/foo/
       
     - Heredocs:
       <<END    -> qq:to/END/
