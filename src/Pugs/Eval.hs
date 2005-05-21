@@ -39,7 +39,6 @@ import Pugs.AST
 import Pugs.Junc
 import Pugs.Bind
 import Pugs.Prim
-import Pugs.Prim.Match (op2Match)
 import Pugs.Prim.List (op0Zip)
 import Pugs.Context
 import Pugs.Monads
@@ -428,9 +427,7 @@ reduce exp@(Syn name exps) = case name of
         let [match, body] = exps
         break  <- evalVar "&?BLOCK_EXIT"
         vbreak <- fromVal break
-        match  <- reduce match
-        topic  <- evalVar "$_"
-        result <- op2Match topic match
+        result <- reduce (App (Var "&infix:~~") [(Var "$_"), match] [])
         rb     <- fromVal result
         if rb
             then enterWhen (subBody vbreak) $ apply vbreak [body] []
