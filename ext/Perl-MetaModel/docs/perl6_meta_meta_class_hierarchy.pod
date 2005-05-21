@@ -1,0 +1,82 @@
+
+=pod
+
+=head1 Perl 6 Meta Meta Class Hierarchy
+
+This document attempts to explain the Meta-Meta-Class hierarchy and 
+implementation.
+
+ +--{ Implementation Layer }--------------------+
+ |                                              |  ---> isSubclassOf
+ |   +----------->Role::Behavior                |  - -> isInstanceOf
+ |   |                  ^                       |  ...> does()
+ |   |                  |                       |
+ |   |           Class::Behavior<-----------+   |
+ |   |                  ^                   |   |
+ +---|------------------|-------------------|---+
+     |                  |                   |
+     |                  |                   |
+    Role - - - - -> MetaClass <- - - - - -Class
+     ^                                      :                   
+     :......................................:
+     
+                { Meta Space }
+
+=head2 A Note about Roles
+
+=head3 Roles B<are not> and B<do not> inherit.
+
+A Role is I<flattened> into either a Class or another Role. This
+act of flattening negates any real "hierarchy" like that of a 
+Class hierarchy. 
+
+This is an important distinction to remember.
+
+=head1 Implementation Layer
+
+The behavior of classes and roles must be described somehow, and we
+should be able to re-use that implementation as well.
+
+I propose a Class::Behavior and Role::Behavior implementation. 
+
+A Role::Behavior has a hash of methods and a hash of properties, as 
+well as an array of Roles. 
+
+A Class::Behavior is a subclass of Role::Behavior because a class also
+has a hash of methods and properties and an array of roles. It then adds
+to that with a parent class as well as a set of subclasses.
+
+=head1 Meta Space
+
+The Meta Space contains all of our meta-objects of which I see 3 distinct
+types.
+
+=over 4
+
+=item MetaClass
+
+This is the "root" of our MetaClass hierarchy, and the loopback point of our
+object model. It is a subclass of Class::Behavior.
+
+=item Role
+
+The Role is itself an instance of the MetaClass, but it is also a subclass of
+the Role::Behavior.
+
+=item Class
+
+The Class too is an instance of the MetaClass, and it is a subclass of 
+Class::Behavior. 
+
+The Class also does() the role Role. 
+
+NOTE: this Class.does(Role) relationship may not be needed, but I am leaving 
+it in for now.
+
+=back
+
+=head1 AUTHORS
+
+Stevan Little E<lt>stevan@iinteractive.comE<gt>
+
+=cut
