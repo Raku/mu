@@ -35,18 +35,18 @@ plan 9;
     $a(); $a();     # $svar == 44
     my $b = $gen(); # $svar == 44
 
-    is $b(), 44, "state() works inside coderefs", :todo<feature>;
+    is $b(), 44, "state() works inside coderefs";
 }
 
 # state() inside for-loops
 {
-    for [1,2,3] -> $val {
+    for 1,2,3 -> $val {
         state $svar;
         $svar++;
 
         # Only check on last run
         if($val == 3) {
-            is $svar, 3, "state() works inside for-loops", :todo<feature>;
+            is $svar, 3, "state() works inside for-loops";
         }
     }
 }
@@ -78,7 +78,7 @@ plan 9;
     $svar_ref++; $svar_ref++;
 
     my $svar_ref = $gen();
-    is $svar_ref, 44, "reference to a state() var", :todo<feature>;
+    is $svar_ref, 44, "reference to a state() var", :todo<bug>;
 }
 
 # Anonymous state vars

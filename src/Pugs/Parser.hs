@@ -494,7 +494,12 @@ ruleVarDeclaration = rule "variable declaration" $ do
         _       -> unsafeEvalLexDiff (decl emptyExp)
     let rhs | sym == "::=" = emptyExp
             | otherwise = maybe emptyExp (\exp -> Syn sym [lhs, exp]) expMaybe
-    return $ Pad scope lexDiff rhs
+    -- state $x = 42 is really syntax sugar for state $x; FIRST { $x = 42 }
+    case scope of
+	SState -> do
+	    implicit_first_block <- vcode2firstBlock $ VCode mkSub { subBody = rhs }
+	    return $ Pad scope lexDiff implicit_first_block
+	_      -> return $ Pad scope lexDiff rhs
 
 ruleUseDeclaration :: RuleParser Exp
 ruleUseDeclaration = rule "use declaration" $ do
@@ -585,24 +590,27 @@ ruleClosureTrait rhs = rule "closure trait" $ do
         "BEGIN" -> do
             rv <- unsafeEvalExp fun
             return $ if rhs then rv else emptyExp 
-	"FIRST" -> do
-	    -- Ok. Now that's the tricky thing.
-	    -- This is the general idea:
-	    -- FIRST { 42 } is transformed into
-	    -- { state $?FIRST_RESULT; $?FIRST_RESULT //= { 42 }() }()
-	    -- This is the $?FIRST_RESULT symbol.
-	    symbol <- return $ Sym SState "$?FIRST_RESULT"
-	    -- This will soon add $?FIRST_RESULT to our pad
-	    lexdiff <- unsafeEvalLexDiff $ symbol emptyExp
-	    -- And that's the transformation part.
-	    return $
-		-- The outer block
-		Syn "block" [
-		    -- state $?FIRST_RESULT
-		    Pad SState lexdiff (
-			-- $?FIRST_RESULT //= { 42 }()
-			Syn "//=" [Var "$?FIRST_RESULT", App (Val code) [] []])]
+	"FIRST" -> vcode2firstBlock code
         _       -> fail ""
+
+vcode2firstBlock :: Val -> RuleParser Exp
+vcode2firstBlock code = do
+    -- Ok. Now the tricky thing.
+    -- This is the general idea:
+    -- FIRST { 42 } is transformed into
+    -- { state $?FIRST_RESULT; $?FIRST_RESULT //= { 42 }() }()
+    -- This is the $?FIRST_RESULT symbol.
+    symbol <- return $ Sym SState "$?FIRST_RESULT"
+    -- This will soon add $?FIRST_RESULT to our pad
+    lexdiff <- unsafeEvalLexDiff $ symbol emptyExp
+    -- And that's the transformation part.
+    return $
+	-- The outer block
+	Syn "block" [
+	    -- state $?FIRST_RESULT
+	    Pad SState lexdiff (
+		-- $?FIRST_RESULT //= { 42 }()
+		Syn "//=" [Var "$?FIRST_RESULT", App (Val code) [] []])]
 
 unsafeEvalLexDiff :: Exp -> RuleParser Pad
 unsafeEvalLexDiff exp = do
