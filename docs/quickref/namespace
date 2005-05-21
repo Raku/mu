@@ -6,14 +6,13 @@ Package-like things (they are namespaces)
 
 Kinds of packages:
 
-              Adds
+    Structure       Adds
     -------------------------------------------------------------
-    Package   namespace, traits, autoload
-     Module   export/import, version
-      Role    methods, attributes, inheritance, parameterized
-      Class   methods, attributes, composition, instantiation
-       Enum   weird methods
-
+    Package         namespace, traits, autoload
+    +- Module       export/import, version
+       +- Role      methods, attributes, inheritance, parameterized
+       +- Class     methods, attributes, composition, instantiation
+          +- Enum   weird methods
 
 Name and duration:
 
