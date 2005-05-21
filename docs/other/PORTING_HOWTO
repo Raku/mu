@@ -17,7 +17,7 @@ Mini HowTo: How to port Perl 5 modules to Perl 6
     - $self->method(...) -> .method(...)
     - sub { my ($self, $a, $b) = @_; ... } ->
       method($a, $b) { ... }
-    - $x =~ s/.../.../g -> $x ~~ s:g/.../.../
+    - $x =~ s/.../.../g -> $x ~~ s:P5:g/.../.../
     - $self->{foo} -> $.foo
     - $foo = "bar" unless defined $foo ->
       $foo //= "bar" # (//) and (//=) will be in 5.9, too, IIRC
@@ -29,25 +29,28 @@ Mini HowTo: How to port Perl 5 modules to Perl 6
       [abc]   -> <[abc]>
       [^abc]  -> <-[abc]>
       (?:...) -> [...]
+      
     - Heredocs:
       <<END    -> qq:to/END/
       <<'END'  ->  q:to/END/
       <<' END' ->  q:to/ END/
 
-  - Often, you can remove all that Perl 5 argument parsing and simply
-    substitute it by a nice signature.
+  - You can normally remove all that Perl 5 argument parsing and simply replace
+    it with a nice signature.
 
-  - require Exporter;
+  - # Perl 5
+    require Exporter;
     our @ISA    = qw< Exporter >;
     our @EXPORT = qw< foo >;
     sub foo { ... }
-    # ->
+    
+    # -> Perl 6
     sub foo(...) is export { ... }
 
   - return map {.4.} sort {.3.} grep {.2.} map {.1.} ->
     map {.1.} ==> grep {.2.} ==> sort {.3.} ==> map {.4.} ==> return
 
-  - Especially Perl 6's translation of Perl 5's getter/setter idiom is cool:
+  - The Perl 6 translation of Perl 5's getter/setter idiom is especially cool:
 
     # Perl 5
     sub get_foo {
@@ -80,7 +83,8 @@ Mini HowTo: How to port Perl 5 modules to Perl 6
                       # Assignments should look like assignments, not like
                       # method calls
   
-  - If you trust the user to give correct data to accessors, you can also use:
+  - If you trust the user to give appropriate data to the accessors, you can
+    also use:
     has $.foo is rw;
   - Or:
     subtype OddInt of Int where { $^n % 2 == 1 }
