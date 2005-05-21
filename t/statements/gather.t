@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 9;
+plan 10;
 
 # Standard gather
 {
@@ -29,7 +29,7 @@ plan 9;
   my @outer = gather {
     for 1..3 -> $i {
       my @inner = gather {
-	take "$i,$_" for 1..3;
+         take "$i,$_" for 1..3;
       };
 
       take ~@inner;
@@ -81,4 +81,11 @@ plan 9;
   @outer = (take(), @outer);
 
   is ~@outer, "7 1", "gather shadows existing take", :todo;
+}
+
+# take on array-ref
+{
+  my @list  = gather { take [1,2,3]; take [4,5,6];};
+  my @list2 = ([1,2,3],[4,5,6]);
+  is @list.perl, @list2.perl , "gather array-refs", :todo<bug>;
 }
