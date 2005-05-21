@@ -72,7 +72,7 @@ Built-in assertions:
     <cut>               Fails the entire match if backtracked over,
                         and removes the portion of the string matched uptil then
     <fail>              Fails the entire match if reached
-    <null>              Matches nothing
+    <null>              Matches null string
     <ident>             Matches an "identifier", same as
                         ([ [<alpha> | _] \w* | " [<alpha>|_] \w* " ])
     <self>              Matches the same pattern as the current rule
