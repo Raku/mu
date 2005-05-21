@@ -20,9 +20,9 @@ evalHaskell code = do
     let imports = []
     -- eval_ code [import] [flags] [package.confs] [load paths]
     --   -> IO (Either [error-strings] (Maybe a))
-    ret <- Eval.eval_ code imports [] [] []
+    ret <- liftIO $ Eval.eval_ code imports [] [] []
     case ret of
-        Right (Just x) -> return x
+        Right (Just x) -> return $ VStr x
         Right Nothing  -> fail "Something strange happened"
         Left x         -> fail $ unlines x
 
