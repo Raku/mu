@@ -122,7 +122,12 @@ sub set_postamble {
 
     my $embed_flags = "";
     my $hsc2hs_flags = "";
-    if ($ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bparrot\b/i) {
+    
+    if ($ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bparrot\b/i and $Config{cc} eq 'cl') {
+        warn "*** Parrot linking not supported with MSVC.  Parrot linking will be disabled.\n\n";
+        $ENV{PUGS_EMBED} =~ s/\bparrot\b//g;
+    }
+	if ($ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bparrot\b/i) {
         my $base = $ENV{PARROT_PATH};
         if (!$base and -d "../parrot") {
             $base = abs_path('../parrot/');
