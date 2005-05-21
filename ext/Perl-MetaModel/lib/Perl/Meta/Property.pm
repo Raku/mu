@@ -5,9 +5,10 @@ class Perl::Meta::Property-0.0.1;
 
 has Perl::Meta::Type  $:type;
 has Any               $:default;
+has Str               $:trait;
 has Perl::Meta::Class $:associated_with;
 
-submethod BUILD (Perl::Meta::Type $:type, $:default) {}
+submethod BUILD (Perl::Meta::Type $:type, $:default, $:trait) {}
 
 method type ($self: Perl::Meta::Type ?$type) returns Perl::Meta::Type {
     if $type.defined {
@@ -27,6 +28,15 @@ method default ($self: Any ?$value) returns Any {
         $:default = $value;
     }
     return $:default;
+}
+
+method trait ($self: Str ?$trait) returns Str {
+    if $trait.defined {
+        ($trait ~~ rx:perl5/^r[ow]$/)
+            || die "Currently only 'ro' and 'rw' traits are supported";
+        $:trait = $trait;
+    }
+    return $:trait;
 }
 
 method associatedWith ($self: Perl::Meta::Class ?$class) returns Perl::Meta::Class {

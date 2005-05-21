@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 28;
+plan 33;
 
 use Perl::Meta::Compiler;
 
@@ -22,12 +22,12 @@ $meta_package.addProperty('version',
 
 # has %.variables;
 $meta_package.addProperty('variables',
-    Perl::Meta::Property.new(type => MkType('Hash'))
+    Perl::Meta::Property.new(type => MkType('Hash'), :trait<rw>)
 );
 
 # has %.subs;
 $meta_package.addProperty('subs', 
-    Perl::Meta::Property.new(type => MkType('Hash'))
+    Perl::Meta::Property.new(type => MkType('Hash'), :trait<rw>)
 );
 
 $meta_package.addMethod('name', 
@@ -50,7 +50,7 @@ $meta_role.superclass($meta_package);
 
 # has @.super_roles;
 $meta_role.addProperty('super_roles',
-    Perl::Meta::Property.new(type => MkType('Array'))
+    Perl::Meta::Property.new(type => MkType('Array'), :trait<rw>)
 );
 
 # has %.properties;
@@ -61,6 +61,17 @@ $meta_role.addProperty('properties',
 # has Perl::Method %.methods;
 $meta_role.addProperty('methods',
     Perl::Meta::Property.new(type => MkType('Hash'))
+);
+
+$meta_role.addMethod('does', 
+    Perl::Meta::Method.new(
+        code => sub ($self, @roles) { 
+            if @roles {
+                $self.super_roles().push(@roles) 
+            }
+            $self.super_roles();         
+        }
+    )    
 );
 
 ## Perl::Class
@@ -109,9 +120,23 @@ is($role.version(), 0.01, '... got the right version number');
 
 ok($role.can('name'), '... we $role.can() call the name() method');
 ok($role.can('identifier'), '... we $role.can() call the identifier() method');
+ok($role.can('does'), '... we $role.can() call the does() method');
 
 is($role.name(), 'Perl::Role', '... got the right name');
 is($role.identifier(), 'Perl::Role-0.01', '... got the right identifier');
+
+my @roles = (::Perl::Role.new(:name<Test>), ::Perl::Role.new(:name<This>));
+lives_ok {
+    $role.does(@roles);
+}, '... we added roles succussfully';
+
+{
+    my $my_roles = $role.does();
+    is(+$my_roles, 2, '... we got back 2 roles');
+    ok($my_roles[0] =:= @roles[0], '... this is the correct role');
+    ok($my_roles[1] =:= @roles[1], '... this is the correct role');    
+}
+
 
 my $class;
 lives_ok {

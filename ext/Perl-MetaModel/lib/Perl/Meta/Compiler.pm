@@ -14,9 +14,23 @@ method compile ($self: Perl::Meta::Class $class) returns Void {
     $self.:compileClass($class);
 }
 
-my $DEBUG = 0;
+method :analyzeClass ($self: Perl::Meta::Class $class) returns Void {
+    # flatten the roles into the class
+    $self.:flattenRoles($class) if $class.hasRoles();
+    return $class;
+}
 
-method :compileClass ($self: Perl::Meta::Class $meta) returns Void {
+method :flattenRoles ($self: Perl::Meta::Class $class) returns Void {
+    my @roles = $class.roles();
+    for @roles -> $role {
+        # make sure all super-roles are compiled
+    }
+}
+
+my $DEBUG = 1;
+
+method :compileClass ($self: Perl::Meta::Class $class) returns Void {
+    my $meta = $self.:analyzeClass($class);
     my $class_code = 'class ' ~ $meta.name();
     $class_code ~= ' is ' ~ $meta.superclass().name() if $meta.superclass().defined;
     my $properties = '';
@@ -24,7 +38,9 @@ method :compileClass ($self: Perl::Meta::Class $meta) returns Void {
         $properties ~= '    has ' 
                               ~ $prop.type().name()  ~ ' ' 
                               ~ $prop.type().sigil() ~ '.' 
-                              ~ $label ~ ";\n"; 
+                              ~ $label
+                              ~ ($prop.trait() ?? ' is ' ~ $prop.trait() :: '') ~ 
+                              ";\n"; 
     } 
     my $methods = '
     method meta returns Perl::Meta::Class { $meta }

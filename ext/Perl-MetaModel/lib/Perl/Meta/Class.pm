@@ -17,6 +17,7 @@ sub Perl::Meta::Class::new (?$name) returns Perl::Meta::Class is export {
 has $.name is rw;
 has $:parent;
 has Set $:subclasses;
+has @.roles;
 has %:properties;
 has %:methods;
 
@@ -107,6 +108,21 @@ method allSubclasses ($self:) returns Array of Perl::Meta::Class {
     }
     return @all_subclasses;
 }
+
+## Roles 
+
+method addRole ($self: Perl::Meta::Class $role) returns Void {
+    ($role.isATypeOf('Role'))
+        || die "The role must be a Type Of 'Role'";
+    @.roles.push($role);
+}
+
+method roles ($self:) returns Array { @:roles }
+
+# NOTE: Roles are not inherited, they are composed so we dont need
+# to deal with them in relation to the parent
+
+method hasRoles ($self:) returns Bool { ?+@:roles }
 
 ## Properties
 

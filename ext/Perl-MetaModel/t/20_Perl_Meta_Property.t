@@ -3,17 +3,18 @@
 use v6;
 use Test;
 
-plan 21;
+plan 22;
 
 use Perl::Meta::Property;
 use Perl::Meta::Type;
 use Perl::Meta::Class;
 
-my $prop = Perl::Meta::Property.new(type => MkType('Str'), default => "Hello World");
+my $prop = Perl::Meta::Property.new(type => MkType('Str'), default => "Hello World", :trait<rw>);
 ok($prop ~~ Perl::Meta::Property, '... we have a Perl::Meta::Property instance');
 
 is($prop.type().name(), 'Str', '... the type is "Str"');
 is($prop.default(), 'Hello World', '... the default is "Hello World"');
+is($prop.trait(), 'rw', '... the trait is "rw"');
 
 $! = undef;
 dies_ok {
