@@ -4,13 +4,15 @@ Package-like things (they are namespaces)
 
     [todo - rationalize when to say "namespace" vs "package"]
 
-    Keyword   Adds
+Kinds of packages:
+
+              Adds
     -------------------------------------------------------------
-    package   namespace, traits, autoload
-    module    export/import, version
-    role      methods, attributes, inheritance, parameterized
-    class     methods, attributes, composition, instantiation
-    enum      weird methods
+    Package   namespace, traits, autoload
+     Module   export/import, version
+      Role    methods, attributes, inheritance, parameterized
+      Class   methods, attributes, composition, instantiation
+       Enum   weird methods
 
 
 Name and duration:
@@ -59,8 +61,8 @@ A name N can be used:
     %::A      %A        Starting :: can be dropped if not at the word beginning
     ::*::A    ::*A      Root doesn't need a separator
     ::A       A         Declared name doesn't need the starting ::
-    ::*A      *A        Root's starting :: can be dropped where there is no confusion
-                        with unary * (such as declarations).
+    ::*A      *A        Root's starting :: can be dropped where there is no
+                        confusion with unary * (such as declarations).
 
     There are a bunch of examples below.
 
