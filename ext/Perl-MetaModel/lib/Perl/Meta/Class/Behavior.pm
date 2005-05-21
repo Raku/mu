@@ -1,28 +1,15 @@
 
 use v6;
+use Perl::Meta::Role::Behavior;
 
-class Perl::Meta::Class-0.0.1;
+class Perl::Meta::Class::Behavior is ::Perl::Meta::Role::Behavior;
 
 use Set;
-use Perl::Meta::Property;
-use Perl::Meta::Method;
 
-sub Perl::Meta::Class::new (?$name) returns Perl::Meta::Class is export {
-    return Perl::Meta::Class.new(
-        name       => $name,
-        subclasses => set(),      
-    );
-}
-
-has $.name is rw;
 has $:parent;
 has Set $:subclasses;
-has %:properties;
-has %:methods;
 
-submethod BUILD($:name, $:subclasses) {}
-
-method isA ($self: Perl::Meta::Class $class) returns Bool {
+method isA ($self: Perl::Meta::Class::Behavior $class) returns Bool {
     # if the class name itself matches the class return true
     return 1 if $self.name() eq $class.name();
     # now go up the hierarchy ...
@@ -49,7 +36,7 @@ method isATypeOf ($self: Str $type) returns Bool {
 
 ## Superclass methods
 
-method superclass ($self: Perl::Meta::Class ?$super) returns Perl::Meta::Class {
+method superclass ($self: Perl::Meta::Class::Behavior ?$super) returns Perl::Meta::Class::Behavior {
     if $super.defined {   
         # NOTE:
         # we enforce the following rule on superclasses:
@@ -72,7 +59,7 @@ method superclass ($self: Perl::Meta::Class ?$super) returns Perl::Meta::Class {
     return $:parent;    
 }
 
-method allSuperclasses ($self:) returns Array of Perl::Meta::Class {
+method allSuperclasses ($self:) returns Array of Perl::Meta::Class::Behavior {
     # NOTE:
     # I considered making this a Set, however it occured to me that
     # not only is a Set unordered (at least our implementation is)
@@ -83,21 +70,25 @@ method allSuperclasses ($self:) returns Array of Perl::Meta::Class {
 
 ## Subclass methods
 
-method :removeSubclass ($self: Perl::Meta::Class $subclass) returns Void {
+method :removeSubclass ($self: Perl::Meta::Class::Behavior $subclass) returns Void {
+    $:subclass = set() unless $:subclasses.defined;
     $:subclasses.remove($subclass);
 }
 
-method :addSubclass ($self: Perl::Meta::Class $subclass) returns Void { 
+method :addSubclass ($self: Perl::Meta::Class::Behavior $subclass) returns Void { 
+    $:subclass = set() unless $:subclasses.defined;
     ($subclass.superclass() && $subclass.superclass().name() eq $self.name())
         || die "Sub class's superclass must be the invocant (got: '{ $subclass.clsSuper() }')";              
     $:subclasses.insert($subclass);        
 }
 
-method subclasses ($self:) returns Array of Perl::Meta::Class {
+method subclasses ($self:) returns Array of Perl::Meta::Class::Behavior {
+    $:subclass = set() unless $:subclasses.defined;
     $:subclasses.members();
 }
 
-method allSubclasses ($self:) returns Array of Perl::Meta::Class {
+method allSubclasses ($self:) returns Array of Perl::Meta::Class::Behavior {
+    $:subclass = set() unless $:subclasses.defined;
     # NOTE:
     # again, this is not a Set for the same reasons that allSuperclasses 
     # is not a set (see that method for more info)
@@ -109,24 +100,6 @@ method allSubclasses ($self:) returns Array of Perl::Meta::Class {
 }
 
 ## Properties
-
-method addProperty ($self: Str $label, Perl::Meta::Property $prop) returns Void {
-    %:properties{$label} = $prop;
-    $prop.associatedWith($self);
-}
-
-method removeProperty ($self: Str $label) returns Perl::Meta::Property {
-    unless %:properties.exists($label) {
-        die "Property '$label' does not exists in this instance";
-    }
-    my $removed_prop = %:properties{$label};
-    $removed_prop.removeAssociation();    
-    %:properties.delete($label);
-    return $removed_prop;
-}
-
-method properties     ($self:) returns Hash  { %:properties        }
-method propertyLabels ($self:) returns Array { %:properties.keys() }
 
 method allProperties ($self:) returns Hash {
     my %props;
@@ -144,87 +117,38 @@ method :allProperties ($self: Hash %props is rw) returns Void {
 }
 
 method isPropertySupported ($self: Str $label) returns Bool {
-    return %:properties{$label} if %:properties.exists($label);
+    my $prop = $self.::Perl::Meta::Role::Behavior::isPropertySupported($label);
+    return $prop if $method.defined;
     return $:parent.isPropertySupported($label) if $:parent.defined;
     return undef;    
 }
 
 ## Methods
 
-method addMethod ($self: Str $label, Perl::Meta::Method $method) returns Void {
-    %:methods{$label} = $method;
-    $method.associatedWith($self);
-}
-
-method removeMethod ($self: Str $label) returns Perl::Meta::Method {
-    unless %:methods.exists($label) {
-        die "Method '$label' does not exists in this instance";
-    }
-    my $removed_method = %:methods{$label};
-    $removed_method.removeAssociation();    
-    %:methods.delete($label);
-    return $removed_method;
-}
-
-method methods      ($self:) returns Hash  { %:methods        }
-method methodLabels ($self:) returns Array { %:methods.keys() }
-
 method findMethod ($self: Str $label) returns Perl::Meta::Method {
-    return %:methods{$label} if %:methods.exists($label);
+    my $method = $self.::Perl::Meta::Role::Behavior::findMethod($label);
+    return $method if $method.defined;
+    # otherwise, go to the parent ...
     return $:parent.findMethod($label) if $:parent.defined;
+    # and lastly return undef for failure
     return undef;
 }
-
-method isMethodSupported ($self: Str $label) returns Bool {
-    $self.findMethod($label) ?? 1 :: 0;
-}
-
-method invokeMethod ($self: Str $label, $inv, *@args) returns Any {  
-    my $method = $self.findMethod($label);
-    ($method.defined)
-        || die "Method not found";
-    return $method.invoke($inv, @args);
-}
-
 
 =pod
 
 =head1 NAME
 
-Perl::Meta::Class - A meta-meta-model for Perl Classes
+Perl::Meta::Class::Behavior - A meta-meta-model for Perl Classes
 
 =head1 SYNOPSIS
 
-  #         Package
-  #          |
-  #    +-----+----+
-  #    |          |
-  #  Module      Role
-  #               |
-  #             Class
-  
-  my $package = Perl::Meta::Class.new(name => 'Package');
-  my $role = Perl::Meta::Class.new(name => 'Role');  
-  my $module = Perl::Meta::Class.new(name => 'Module');    
-  
-  $role.superclass($package);
-  $module.superclass($package);  
-  
-  my $class = Perl::Meta::Class.new(name => 'Class');  
-  $class.superclass($role);  
-  
-  $class.isA('Package');
-
 =head1 DESCRIPTION
 
-Perl::Meta::Class is the meta-model of the Perl6 object system. The code 
-in this module itself is the meta-meta-model of the Perl6 object system.
-
-=head1 PUBLIC ATTRIBUTES
+=head1 SUPERCLASS
 
 =over 4
 
-=item B<$.name is rw>
+=item B<Perl::Meta::Role::Behavior>
 
 =back
 
@@ -256,14 +180,6 @@ in this module itself is the meta-meta-model of the Perl6 object system.
 
 =over 4
 
-=item B<addProperty ($self: Str $label, Perl::Meta::Property $prop) returns Void>
-
-=item B<removeProperty ($self: Str $label) returns Perl::Meta::Property>
-
-=item B<properties ($self:) returns Hash>
-
-=item B<propertyLabels ($self:) returns Array>
-
 =item B<allProperties ($self:) returns Hash>
 
 =item B<isPropertySupported ($self: Str $label) returns Bool>
@@ -274,32 +190,14 @@ in this module itself is the meta-meta-model of the Perl6 object system.
 
 =over 4
 
-=item B<addMethod ($self: Str $label, Perl::Meta::Method $prop) returns Void>
-
-=item B<removeMethod ($self: Str $label) returns Perl::Meta::Method>
-
-=item B<methods ($self:) returns Hash>
-
-=item B<methodLabels ($self:) returns Array>
-
 =item B<findMethod ($self: Str $label) returns Perl::Meta::Method>
-
-=item B<isMethodSupported ($self: Str $label) returns Bool>
-
-=item B<invokeMethod ($self: Str $label, *@args) returns Any>
 
 =back
 
 =head1 SEE ALSO
 
-See the L<Perl::MetaModel> module for more details.
-
-See the F<docs/meta_meta_classes.pod> file as well.
-
 =head1 AUTHORS
 
 Stevan Little E<lt>stevan@iinteractive.comE<gt>
-
-Sam Vilain
 
 =cut

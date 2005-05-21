@@ -5,7 +5,7 @@ use Test;
 
 plan 32;
 
-use Perl::Meta::Class;
+use Perl::Meta::MetaClass;
 
 =pod
 
@@ -14,14 +14,14 @@ and the rules which they enforce.
 
 =cut
 
-my $role = Perl::Meta::Class::new('Role');
+my $role = ::Perl::Meta::MetaClass.new('Role');
 
 is($role.name(), 'Role', '... we got the right class name');
 ok($role.isA($role), '... $role is-a $role');
 
 # Super Class
 
-my $package =  Perl::Meta::Class::new('Package');
+my $package =  ::Perl::Meta::MetaClass.new('Package');
 
 is($role.superclass(), undef, '... we do not have a superclass');
 ok($package.isA($package), '... $package is-a Package');
@@ -59,7 +59,7 @@ like($!, rx:perl5/^The super class cannot inherit from the invocant \(circular i
     is(+@subclasses, 0, '... no subclasses yet');
 }
 
-my $class =  Perl::Meta::Class::new('Class');
+my $class =  ::Perl::Meta::MetaClass.new('Class');
 $class.superclass($role);
 
 {
