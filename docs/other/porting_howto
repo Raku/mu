@@ -25,6 +25,7 @@ Mini HowTo: How to port Perl 5 modules to Perl 6
       if $foo eq "a"|"b"|"c" {...}
     - foreach my $foo (@baz) {...} ->
       for @baz -> $foo {...}
+    - length("foo") -> "foo".bytes
     - Regular expressions:
       m/ a * b /x       -> m/ a * b /               # /x now default
       m/ a\  b /x       -> m/ a\  b /
