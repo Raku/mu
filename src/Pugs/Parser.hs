@@ -289,28 +289,35 @@ ruleRuleDeclaration = rule "rule declaration" $ try $ do
 ruleClassDeclaration :: RuleParser Exp
 ruleClassDeclaration = rule "class declaration" $ try $ do
     _       <- choice $ map symbol (words "class role grammar")
-    name    <- ruleQualifiedIdentifier
-    optional ruleVersionPart
-    optional ruleAuthorPart
-    whiteSpace
-    traits  <- many $ ruleTrait -- traits; not yet used
+    (name, _, _) <- rulePackageHead
     env     <- getState
-    let exp = Syn ":="
-	    [ Var (':':name)
-	    , App (Var "&new")
-		[ Val (VType $ mkType "Class") ]
-		[ App (Var "&infix:=>")
-		    [ Val (VStr "traits")
-		    , Val (VList $ map VStr traits)
-		    ] []
-		]
-	    ]
-    unsafeEvalExp (Sym SGlobal (':':name) exp)
     setState env{ envPackage = name, envClasses = envClasses env `addNode` mkType name }
     body    <- between (symbol "{") (char '}') ruleBlockBody
     env'    <- getState
     setState env'{ envPackage = envPackage env }
     return body
+
+rulePackageHead :: RuleParser (String, String, String)
+rulePackageHead = do
+    name    <- ruleQualifiedIdentifier
+    v       <- option "" $ ruleVersionPart
+    a       <- option "" $ ruleAuthorPart
+    whiteSpace
+    traits  <- many $ ruleTrait
+    unsafeEvalExp (newClass name traits)
+    return (name, v, a)
+
+newClass :: String -> [String] -> Exp
+newClass name traits = Sym SGlobal (':':name) $ Syn ":="
+    [ Var (':':name)
+    , App (Var "&new")
+        [ Val (VType $ mkType "Class") ]
+        [ App (Var "&infix:=>")
+            [ Val (VStr "traits")
+            , Val (VList $ map VStr traits)
+            ] []
+        ]
+    ]
 
 ruleSubDeclaration :: RuleParser Exp
 ruleSubDeclaration = rule "subroutine declaration" $ do
@@ -536,9 +543,7 @@ ruleRequireDeclaration = tryRule "require declaration" $ do
 ruleModuleDeclaration :: RuleParser Exp
 ruleModuleDeclaration = rule "module declaration" $ do
     _       <- choice $ map symbol (words "package module class grammar")
-    name    <- ruleQualifiedIdentifier
-    v       <- option "" $ ruleVersionPart
-    a       <- option "" $ ruleAuthorPart
+    (name, v, a)    <- rulePackageHead
     env     <- getState
     let exp = Syn ":=" [Var (':':name), Syn "\\{}" [Syn "," []]]
     unsafeEvalExp (Sym SGlobal (':':name) exp)

@@ -254,7 +254,9 @@ postSpace rule = try $ do
 ruleTrait :: GenParser Char st String
 ruleTrait = rule "trait" $ do
     symbol "is" <|> symbol "does"
-    trait <- ruleQualifiedIdentifier
+    trait <- do
+        optional $ string "::" -- XXX Bad Hack
+        ruleQualifiedIdentifier
     return trait
 
 ruleTraitName :: String -> GenParser Char st String
