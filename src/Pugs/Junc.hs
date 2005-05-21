@@ -120,6 +120,8 @@ through @any@ and @one@.
 >[09:10] <autrijus> scook0: specced this way.
 >[09:10] <autrijus> I don't think S09 gives reasons
 
+<http://dev.perl.org/perl6/doc/design/syn/S09.html>
+
 Once all the args /are/ collapsed, we call the (Haskell) function that 
 'juncApply'\'s was given, passing to it the final list of collapsed args.
 This happens once for /each/ possible combination of (collapsed) arguments.
