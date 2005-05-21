@@ -3,10 +3,9 @@
 use v6;
 use Test;
 
-plan 3;
+plan 4;
 
 # L<S04/"Exceptions" /The fail function/>
-
 
 {
   # "use fatal" is not standard, so we don't have to disable it here
@@ -23,6 +22,8 @@ plan 3;
 {
   # Explicitly "use fatal"
   # use fatal; -- Commented as there's no fatal.pm yet.
+  # Instead, we set the magical variable $?FAIL_SHOULD_DIE to a true value.
+  my $?FAIL_SHOULD_DIE = 1;
   my $was_after_fail = 0;
   my $was_after_sub  = 0;
   my $sub = sub { fail_ 42; $was_after_fail++ };

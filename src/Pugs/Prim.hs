@@ -273,15 +273,15 @@ op1 "warn" = \v -> do
 op1 "fail_" = \v -> do
     strs  <- fromVal v
     throw <- fromVal =<< readVar "$?FAIL_SHOULD_DIE"
+    pos   <- asks envPos
+    let msg = pretty (VError (errmsg strs) (NonTerm pos)) ++ "\n"
     if throw
 	-- "use fatal" is in effect, so die.
-	then fail strs
+	then fail msg
 	-- We've to return a unthrown exception.
 	else do
-	    pos   <- asks envPos
 	    -- The error message to output
-	    let msg = pretty (VError (errmsg strs) (NonTerm pos))
-	    let err = fail $ msg ++ "\n"
+	    let err = fail msg
 	    op1Return $ shiftT . const $ return . VRef . thunkRef . MkThunk $ err
     where
     errmsg "" = "Failed"
