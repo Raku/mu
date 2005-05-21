@@ -52,10 +52,13 @@ op0 "bool::true" = const $ return (VBool True)
 op0 "bool::false" = const $ return (VBool False)
 op0 "time"  = const $ do
     clkt <- liftIO getClockTime
-    return $ VInt $ toInteger $ tdSec $ diffClockTimes clkt epochClkT
+    return $ VNum $ fdiff $ diffClockTimes clkt epochClkT
     where
-    epochClkT = toClockTime epoch
-    epoch = CalendarTime 2000 January 1 0 0 0 0 Saturday 0 "UTC" 0 False
+       epochClkT = toClockTime epoch
+       epoch = CalendarTime 2000 January 1 0 0 0 0 Saturday 0 "UTC" 0 False
+       -- 10^12 is expanded because the alternatives tried gave type warnings.
+       fdiff = \d -> (fromInteger $ tdPicosec d) / (1000*1000*1000*1000)
+                   + (fromIntegral $ tdSec d)
 op0 "so" = const (return $ VBool True)
 op0 "¥" = op0Zip
 op0 "Y" = op0 "¥"
