@@ -380,11 +380,11 @@ The <> synonymn for q:w has many uses
     # Quoted words and variable interpolation
     @animals           = qq:ww/"brown $fox" "lazy %animal{'lazy'}"/;
 
-The «» synonymn for qq:ww has many uses, also spelled <<>> 
+The Â«Â» synonymn for qq:ww has many uses, also spelled <<>> 
 
     $dog                 = <<lazy>>;
-    %animal              = « brown $fox lazy "lazy dog" »;
-    say %animal« $dog »  ; # lazy dog 
+    %animal              = Â« brown $fox lazy "lazy dog" Â»;
+    say %animalÂ« $dog Â»  ; # lazy dog 
     say %animal<<$dog>>  ; # lazy dog 
 
 =item :x Execute
