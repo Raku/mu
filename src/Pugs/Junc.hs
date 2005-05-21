@@ -63,8 +63,8 @@ opJunc t vals = VJunc $ MkJunc t Set.empty (joined `Set.union` Set.fromList vs)
     sameType _                      = False
 
 {-|
-Check if the specified value is a 'VJunc' of one of the specified
-junctive types. If it is, return it as a 'VJunc'.
+Check if the specified value is a 'Pugs.Internals.VJunc' of one of the specified
+junctive types. If it is, return it as a 'Pugs.Internals.VJunc'.
 -}
 juncTypeIs :: Val -- ^ Value to test
            -> [JuncType] -- ^ Types to check against
@@ -80,11 +80,11 @@ juncTypeIs v ts
 Merge the contents of two @any@ or @one@ junctions into a single, combined 
 junction value.
 
-For 'JAny', values are simply collapsed into @Set@s (duplicate values are
-discarded).
+For 'Pugs.Internals.JAny', values are simply collapsed into @Set@s (duplicate
+values are discarded).
 
-For 'JOne', newly-created duplicates are extracted from the combined list of
-values and moved into the combined set of duplicates.
+For 'Pugs.Internals.JOne', newly-created duplicates are extracted from the 
+combined list of values and moved into the combined set of duplicates.
 -}
 mergeJunc :: JuncType -- ^ Type of the junctions being combined
           -> [Val]    -- ^ Concatenated list of duplicates (only used for @one@)
@@ -106,21 +106,24 @@ mergeJunc j ds vs
 {-|
 Core of the \"hideously clever\" autothreading algorithm.
 
-This function scans through the list of 'ApplyArg's, finds any that are
-uncollapsed junctions, and transposes the \'sub call with junction argument\'
-into \'junction of sub calls with non-junction arguments\'. It then recursively
-applies itself to each of those newly-created \'threads\', so ultimately all
-the call's arguments are properly collapsed.
+This function scans through the list of 'ApplyArg's, finds the first
+uncollapsed junction, and transposes e.g. @foo($a|$b|$c)@ into
+@( foo($a) | foo($b) | foo($c) )@.
+
+It then recursively applies itself to each of those newly-created \'threads\', 
+so ultimately all the call's arguments are properly collapsed.
 
 The scanning process will thread through @all@ and @none@ before it threads
 through @any@ and @one@.
 
-Once all the args /are/ collapsed, we call our first argument with the final,
-collapsed args. This happens once for each possible combination of (collapsed)
-arguments.
+Once all the args /are/ collapsed, we call the (Haskell) function that 
+'juncApply'\'s was given, passing to it the final list of collapsed args.
+This happens once for /each/ possible combination of (collapsed) arguments.
+The function is expected to perform the actual subroutine call.
 
 Note that 'juncApply' takes place /after/ parameter binding (because it must),
-but /before/ we actually introduce any bindings into the sub's lexical scope.
+but /before/ we actually introduce any bindings into the sub's lexical scope
+(because otherwise we wouldn't know which value to bind).
 -}
 juncApply :: ([ApplyArg] -> Eval Val) -- ^ Function to call once we know the
                                       --     collapsed arg values
