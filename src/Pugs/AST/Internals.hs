@@ -985,10 +985,14 @@ mkPad = MkPad . Map.fromList
 lookupPad :: Var -- ^ Symbol to look for
           -> Pad -- ^ Pad to look in
           -> Maybe [TVar VRef] -- ^ Might return 'Nothing' if var is not found
--- We (may) have to fix the name, as the user can write things like
---   &::("infix:<+>")(2, 3)
--- which, without fixName, wouldn't work, as all operators are currently stored
--- as &infix:+, i.e. without the brackets.
+
+{-
+    We (may) have to fix the name, as the user can write things like
+        &::("infix:<+>")(2, 3)
+    which, without fixName, wouldn't work, as all operators are currently
+    stored as &infix:+, i.e. without the brackets.
+-}
+
 lookupPad key (MkPad map) = case Map.lookup (fixName key) map of
 	Just xs -> Just [tvar | (_, tvar) <- xs]
 	Nothing -> Nothing

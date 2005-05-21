@@ -26,6 +26,7 @@ ourPackageConfigs = [
         extra_libraries = ["UnicodeC.o"]
     }
 ] -}
+ourPackageConfigs :: [a]
 ourPackageConfigs = []
 
 loadOrDie 
@@ -70,7 +71,10 @@ externalizeHaskell :: String -> String -> IO String
 #ifndef HADDOCK
 externalizeHaskell mod code = do
     let names = map snd exports
-    symTable <- runQ [d| extern__ = names |]
+    symTable <- runQ [d|
+        extern__ :: [String]
+        extern__ = names
+        |]
     symDecls <- mapM wrap names
     return $ unlines $
         [ "module " ++ mod ++ " where"
@@ -98,6 +102,7 @@ wrap :: String -> IO Dec
 #ifndef HADDOCK
 wrap fun = do
     [quoted] <- runQ [d|
+            name :: [Val] -> Eval Val
             name = \[v] -> do
                 s <- fromVal v
                 return (castV ($(dyn fun) s))
@@ -105,6 +110,7 @@ wrap fun = do
     return $ munge quoted ("extern__" ++ fun)
 #endif
 
+munge :: Dec -> String -> Dec
 munge (ValD _ x y) name = ValD (VarP (mkName name)) x y
 munge _ _ = error "impossible"
 
