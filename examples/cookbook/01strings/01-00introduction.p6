@@ -167,9 +167,11 @@ a backslash at the end of a single-quote-enclosed string:
     say 'n\''    ; # n'
     say 'n\n'    ; # n\n
     say 'n\\n'   ; # n\n
-    say 'n\\\n'  ; # n\\n
+    say 'n\\\n'  ; # n\\n better spelled as: 
+    say 'n\\\\n' ; # n\\n  
 
-XXX A few other backslashy escapes work in single quotes too
+
+A few other backslashy escapes work in single quotes too
 
 =head2 Double-quoted Strings
 
@@ -303,9 +305,9 @@ qs//.
     :f          :function       Interpolate & calls
     :c          :closure        Interpolate {...} expressions
     :b          :backslash      Interpolate \n, \t, etc. (implies :m)
-    :x          :exec           Execute as command and return results
     :w          :words          Split result on words (no quote protection)
     :ww         :quotewords     Split result on words (with quote protection)
+    :x          :exec           Execute as command and return results
     :t          :to             Interpret result as heredoc terminator
 
     # Raw quoting: no escaping at all (unless otherwise adverbed)
@@ -358,7 +360,7 @@ environment for your string.
     # interpolate only scalars and arrays:
     say q:s:a/The quick brown $fox jumps over the lazy @animal[1]/;
 
-=head2 Special adverbs and synonymns
+=head2 Special adverbs and synonyms
 
 =over 4
 
@@ -367,7 +369,7 @@ environment for your string.
     my ($fox,$dog)     = q:w/brown lazy/;
     my @array          = qw/fox dog/;
 
-The <> synonymn for q:w has many uses
+The <> synonym for q:w has many uses
 
     @animals           = <fox dog monkey>; 
     say @animals[0]    ; # fox
@@ -380,12 +382,13 @@ The <> synonymn for q:w has many uses
     # Quoted words and variable interpolation
     @animals           = qq:ww/"brown $fox" "lazy %animal{'lazy'}"/;
 
-The «» synonymn for qq:ww has many uses, also spelled <<>> 
+The «» synonym for qq:ww has many uses, also spelled <<>> 
 
-    $dog                 = <<lazy>>;
-    %animal              = « brown $fox lazy "lazy dog" »;
+    $dog                 = «lazy»;
+    $fox                 = <<brown>>;
+    %animal              = « $fox fox lazy "lazy dog" »;
     say %animal« $dog »  ; # lazy dog 
-    say %animal<<$dog>>  ; # lazy dog 
+    say %animal<<$dog>>    ; # lazy dog 
 
 =item :x Execute
 
