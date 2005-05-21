@@ -25,15 +25,15 @@ pugs - Pragma for using Perl 6 inside Perl 5
 =head1 SYNOPSIS
 
     #!/usr/bin/perl
-    use pugs;
+    use pugs;   # Here is some Perl 6 code...
     sub postfix:<!> { [*] 1..$_ }
     sub sum_factorial { [+] 0..$_! }
-    no pugs;
+    no pugs;    # Here is some Perl 5 code...
     print sum_factorial(3); # 21
 
 =head1 DESCRIPTION
 
-The C<Pugs> module lets you put Perl 6 code in Perl 5 source code after
+The B<pugs> module lets you put Perl 6 code in Perl 5 source code after
 a line of:
 
     use pugs;
@@ -48,7 +48,7 @@ L<Perl6::Pugs>
 
 =head1 AUTHOR
 
-Brian Ingerson <INGY@cpan.org>
+Brian Ingerson E<lt>INGY@cpan.orgE<gt>
 
 =head1 COPYRIGHT
 
