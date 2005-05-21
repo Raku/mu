@@ -8,8 +8,9 @@ Pugs Apocryphon 2 - Overview of Pugs Internals
 
 This document could get out of date very quickly. If it seems that more than a
 week has passed between the time there was an update to the time you read these
-words, prod someone on #perl6, or read http://use.perl.org/~autrijus/journal and
-see if there's been any big change.
+words, prod someone on C<#perl6>, or read
+L<http://use.perl.org/~autrijus/journal> and see if there's been any big
+change.
 
 The currenct copy was last revised on 2005-05-21.
 
