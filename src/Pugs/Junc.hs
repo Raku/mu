@@ -116,6 +116,10 @@ so ultimately all the call's arguments are properly collapsed.
 The scanning process will thread through @all@ and @none@ before it threads
 through @any@ and @one@.
 
+>[09:09] <scook0> any specific reason for all() & none() getting autothreaded before one() & any()?
+>[09:10] <autrijus> scook0: specced this way.
+>[09:10] <autrijus> I don't think S09 gives reasons
+
 Once all the args /are/ collapsed, we call the (Haskell) function that 
 'juncApply'\'s was given, passing to it the final list of collapsed args.
 This happens once for /each/ possible combination of (collapsed) arguments.
