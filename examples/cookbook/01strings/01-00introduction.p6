@@ -6,19 +6,80 @@ use v6;
 
 Perl 6 Cookbook: Introduction to Strings
 
+=head1 Definition
+
+In Perl 6, a string is a sequence of zero or more characters and other
+simple objects, forming a single unit of data usually in its
+reportable or printable form. 
+
 =head1 Description
 
-=head1 Discussion
+Perl 6 interprets strings variously, as they appear in different
+contexts. 
 
-A string can be created implicitly, by declaring a scalar and assigning a 
-quoted value to it:
+A string may consist of zero or more characters, including spaces and
+numbers: 
 
-	# declare a scalar and place a string into it
-	my $scalar = 'This is a scalar holding a String';
+# text preceded by # is ignored by the Perl 6 interpretor 
+	print ""        ; # output is an empty string
+	print "Hello\n" ; # output is Hello followed by a new line  
+	say   "Hello"   ; # same
+	say   'Hello'   ; # same 
 
-Or it can be declared explicitly:
+Strings can be appended to one another, using the concatenation
+operator, ~
+
+	say "Hello" ~ " World" ~ "!"; 
+	# Here, three strings are concatenated into a 
+	# single string.  Output is Hello World! followed by a new line  
+
+A number might be interpreted as a string, depending on the context
+	say    1  ; # The number 1 is interpreted as a string, in this 
+	            # context
+    say  1+1  ; # The + operator returns the number 2, which is
+	            # interpreted in this context as the string "2"  
+
+Conversely, sometimes a string might be interpreted as a number:
+
+	print  "1" + 1 ; # 2 
+
+	# The string, "1" is treated as a number in this context, added
+	# to the number 1 by the + operator, which returns the string,
+	# "2", for output.
+
+Context sensitivity is the essence of Perl.  Keeping it in mind, what
+would you expect the following to produce? 
+
+	print "1" ~ "1" + 1 ; # 12 
+
+But, "1+1", surrounded by quotation marks, either '' or "", stringifies
+the expression, so that it is evaluated as a string. 
+
+	print "1 + 1" ; # literally: 1 + 1
+
+To force the interpretation of this string for any programmatic
+value it might contain, use the built-in eval() function:
+
+	say eval "1 + 1";    # 2
+
+On the command-line, you may pass a string to the perl 6 interpretor,
+to have it evaluated as a program expression, by using the -e switch: 
+
+	./pugs -e "say 1+1"; # 2
+
+=head2 Quotes and Quote-like Operators
+
+=head1 Using Strings 
+
+A string can be created explicitly, by declaring a scalar of the type
+Str, and assigning a quoted value to it:
 
 	my Str $string = 'This Str is holding a String';
+
+Or it can be declared implicitly:
+	# declare a scalar variable and set its type and value with a string 
+	my $scalar = 'This is a scalar holding a String';
+
 
 Assignments of non-strings can cause an implicit conversion:
 
