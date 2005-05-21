@@ -281,13 +281,8 @@ op1 "fail_" = \v -> do
 	    pos   <- asks envPos
 	    -- The error message to output
 	    let msg = pretty (VError (errmsg strs) (NonTerm pos))
-	    -- The unthrown exception "object"
-	    let ret = proxyScalar (fail $ msg ++ "\n") (fail $ msg ++ "\n")
-	    -- We've to return ret in a VList, as a VList is the only Val which
-	    -- is lazy. If we return something strict, readIVar ret will be called,
-	    -- resulting in a immediate death.
-	    -- Should we add a, say, VLazyException to Val?
-	    op1Return $ shiftT . const $ return . VList $ [ VRef (MkRef ret) ]
+	    let err = fail $ msg ++ "\n"
+	    op1Return $ shiftT . const $ return . VRef . thunkRef . MkThunk $ err
     where
     errmsg "" = "Failed"
     errmsg x  = x
