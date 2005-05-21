@@ -94,7 +94,6 @@ Mini HowTo: How to port Perl 5 modules to Perl 6
     - Heredocs:
       <<END    -> qq:to/END/
       <<'END'  ->  q:to/END/
-      <<' END' ->  q:to/ END/
 
   - You can normally remove all that Perl 5 argument parsing and simply replace
     it with a nice signature.
