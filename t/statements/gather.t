@@ -57,3 +57,28 @@ plan 7;
 
   is ~@outer, "1,1,1 1,1,2 1,2,1 1,2,2 2,1,1 2,1,2 2,2,1 2,2,2", "nested gather works (three levels)";
 }
+
+# take on lists, multiple takes per loop
+{
+  my @outer = gather {
+	my @l = (1, 2, 3);
+	take 5;
+	take @l;
+	take 5;
+  };
+
+  is ~@outer, "5 1 2 3 5", "take on lists and multiple takes work";
+}
+
+# gather shadows take procedure
+{
+  #sub take { 7; } # enabling this line breaks all tests
+  
+  my @outer = gather {
+	take 1;
+  };
+
+  @outer = (take(), @outer);
+
+  is ~@outer, "7 1", "gather shadows existing take", :todo;
+}
