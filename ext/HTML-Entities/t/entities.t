@@ -1,9 +1,9 @@
-#!/usr/bin/pugs
+﻿#!/usr/bin/pugs
 
 use v6;
 require Test;
 
-#plan 6;
+plan 10;
 
 use_ok('HTML::Entities');
 
@@ -42,6 +42,9 @@ is($a, "V&aring;re norske tegn b&oslash;r &aelig;res",
 $a = "abcdef";
 is encode_entities($a, 'a-c'), "&#97;&#98;&#99;def",
     'We should be able to include the range of characters to encode.';
+
+my $b = "&lt;&amp;&gt;";
+is decode_entities([ $a, $b ]), [ 'abcdef', '<&>' ], "Decoding a list should work.";
 
 =head
 
