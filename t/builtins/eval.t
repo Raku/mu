@@ -22,4 +22,4 @@ is(eval('$foo'), $foo);
 # traps die?
 ok(!eval('die; 1'));
 
-ok(not eval 'my @a = (1); @a<0>', "eval returns undef on syntax error");
+ok(!eval('my @a = (1); @a<0>'), "eval returns undef on syntax error");
