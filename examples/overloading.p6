@@ -34,4 +34,7 @@ sub base (Int $M, Int $N) {
 }
 
 multi sub infix:<<base>> ($x,$y) {base($x,$y)};
-say $_ base 2 for (1..5);	
+say $_ base 2 for (1..5);
+
+multi sub infix:<<.?.>> ($low,$high) {int ( rand ($high - $low) + $low ) + 1; };
+say 1 .?. 5;	
