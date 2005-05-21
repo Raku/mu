@@ -1,0 +1,89 @@
+Mini HowTo: How to port Perl 5 modules to Perl 6
+
+  - Other resources:
+      http://pugs.kwiki.org/?ConversionGuide
+      http://perlmonks.org/index.pl?node_id=442402
+
+  - Before you start porting a module, make sure you understand the class
+    hierarchy of that module. It helps if you've actually used that module in
+    Perl 5 :)
+
+  - Port a module even if it depends on some other (not yet ported) modules --
+    the dependencies can be ported later on.
+
+  - Often, the translation P5 -> P6 is quite mechanic:
+    - $array[idx] -> @array[idx]
+    - a ? b : c -> a ?? b :: c
+    - $self->method(...) -> .method(...)
+    - sub { my ($self, $a, $b) = @_; ... } ->
+      method($a, $b) { ... }
+    - $x =~ s/.../.../g -> $x ~~ s:g/.../.../
+    - $self->{foo} -> $.foo
+    - $foo = "bar" unless defined $foo ->
+      $foo //= "bar" # (//) and (//=) will be in 5.9, too, IIRC
+    - if($foo eq "a" or $foo eq "b" or $foo eq "c") {...} ->
+      if $foo eq "a"|"b"|"c" {...}
+    - foreach my $foo (@baz) {...} ->
+      for @baz -> $foo {...}
+    - Regular expressions:
+      [abc]   -> <[abc]>
+      [^abc]  -> <-[abc]>
+      (?:...) -> [...]
+    - Heredocs:
+      <<END    -> qq:to/END/
+      <<'END'  ->  q:to/END/
+      <<' END' ->  q:to/ END/
+
+  - Often, you can remove all that Perl 5 argument parsing and simply
+    substitute it by a nice signature.
+
+  - require Exporter;
+    our @ISA    = qw< Exporter >;
+    our @EXPORT = qw< foo >;
+    sub foo { ... }
+    # ->
+    sub foo(...) is export { ... }
+
+  - return map {.4.} sort {.3.} grep {.2.} map {.1.} ->
+    map {.1.} ==> grep {.2.} ==> sort {.3.} ==> map {.4.} ==> return
+
+  - Especially Perl 6's translation of Perl 5's getter/setter idiom is cool:
+
+    # Perl 5
+    sub get_foo {
+      my $self = shift;
+
+      my $ret = $self->{foo};
+      return lc $ret; # always normalize
+    }
+    
+    sub set_foo {
+      my ($self, $to) = @_;
+
+      $to =~ s/\s+$//; # strip whitespace at the end
+      $self->{foo} = $to;
+    }
+
+    # -> Perl 6 (see L<S06/"Lvalue subroutines"> for information about Proxy)
+    has $:foo;
+    sub foo() is rw {
+      return new Proxy:
+        FETCH => { lc $:foo },
+        STORE => -> $to is copy {
+          $to ~~ s/\s+$//;
+          $:foo = $to;
+        };
+    }
+    # And then:
+    say $obj.foo;
+    $obj.foo = "..."; # Notice: Standard assignment syntax!
+                      # Assignments should look like assignments, not like
+                      # method calls
+  
+  - If you trust the user to give correct data to accessors, you can also use:
+    has $.foo is rw;
+  - Or:
+    subtype OddInt of Int where { $^n % 2 == 1 }
+    has OddInt $.foo is rw;
+    # And then:
+    $obj.foo = 12; # will die
