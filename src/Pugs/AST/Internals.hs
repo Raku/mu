@@ -1010,6 +1010,8 @@ lookupPad key (MkPad map) = case Map.lookup (fixName key) map of
     fixName' x                                      = x
     -- We have to make sure that the last character(s) match the first one(s),
     -- otherwise 4 <= 4 will stop working.
+    -- Kludge. <=> is ambigious.
+    dropBrackets "<=>" = "<=>"
     -- «bar» --> bar
     dropBrackets ('\171':(rest@(_:_)))    = if (last rest) == '\187' then init rest else '\171':rest
     -- <<bar>> --> bar
