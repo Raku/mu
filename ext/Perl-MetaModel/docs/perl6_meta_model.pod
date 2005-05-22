@@ -11,12 +11,13 @@ at times.
 The perl6 object environment will be a multi-layered environment which 
 might look something like this:
 
- +-{Instance}-+ +--{Class}--+ +{MetaClass}+ +{MetaMetaClass}+
+ +-{Instance}-+ +---{Type}--+ +--{Class}--+ +--{MetaClass}--+
  |            | |           | |           | |               |
  |   ------   | |   -----   | |  -------  | |  -----------  |
  |  ( $foo )------>( Foo )----->( Class )---->( MetaClass ) |
  |   ------   | |   -----   | |  -------  | |  -----------  |
- |            | |           | |           | |               |
+ |            | |::Foo      | |::Foo.meta | |::Foo.meta.meta|
+ |            | |$foo.ref   | |           | |               |
  +------------+ +-----------+ +-----------+ +---------------+
 
 The following describes some of the details of this leveled environment.
@@ -51,25 +52,32 @@ code to be compiled so far as to run without an interpreter.
 
 To summarise the above two principles in code;
 
-  MyClass.isa(Object);   # false
-  MyClass.isa(Class);    # true
-  MyClass.does(Object);  # true
+In the below table,
 
-  MyClass.meta.isa(Object);    # false
-  MyClass.meta.isa(Class);     # false
-  MyClass.meta.isa(MetaClass); # true
-  MyClass.meta.does(Object);   # true
+   $foo = MyClass.new
+   $type = ::MyClass;
+   $meta = MyClass.meta;
+   $meta_meta = MyClass.meta.meta;
 
-  MyClass.meta.meta.isa(Object);        # false
-  MyClass.meta.meta.isa(Class);         # false
-  MyClass.meta.meta.isa(MetaClass);     # false
-  MyClass.meta.meta.isa(MetaMetaClass); # true
-  MyClass.meta.meta.does(Object);       # true
+ Topic:          $foo       $type      $meta     $meta_meta
+ .ref          ::MyClass   ::Type     ::Class  ::Meta::Class
+ .isa(Object)      true     false      false      false
+ .does(Object)     true     true       true       true
+ .isa(MyClass)     true     true       false      false
+ .does(MyClass)    true     true       false      false
+ .isa(Class)       false    false      true       false
+ .does(Class)      false    true       true       true
+ .isa(Meta::Class) false    false      false      true
+ .does(Meta::Class)false    false      false      true
+ .meta             dies     $meta    $meta_meta   dies(*)
 
-Even the above is in an ideal situation; it might be that with some
-weird MetaModels, you simply don't get those guarantees.  However,
-such situations are probably a bit 'obstruese' so won't be mentioned
-further.
+(*) - this might return magic proxy objects that go on
+forever, but this is not required for core operation.
+
+Even the above is in an ideal situation; it might be that
+with some weird MetaModels, you simply don't get those
+guarantees.  However, such situations are probably a bit
+'obstruese' so won't be mentioned further.
 
 =back
 
