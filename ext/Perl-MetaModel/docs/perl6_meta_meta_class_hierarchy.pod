@@ -3,22 +3,58 @@
 
 =head1 Perl 6 Meta Meta Class Hierarchy
 
-This document attempts to explain the Meta-Meta-Class hierarchy and 
+This document attempts to explain the Meta-Meta-Class hierarchy and
 implementation.
+
+       .............> MetaClass <...............
+       :                 |                     :         ---> isSubclassOf
+       :                 |                     :         ...> isInstanceOf             
+       :                 V                     :         - -> does()
+       :          Class::Behavior<----------+  :
+       :                 |                  |  :
+       :                 |                  |  :       
+       :                 V                  |  :       
+       :  +------> Role::Behavior           |  :                                  
+       :  |              |                  |  :
+ metaclass(Role)         |      ..... > metaclass(Class)
+       ^                 V      : 
+       :              Object    :
+       :                 |      :
+       :                 |      : 
+       :                 V      :
+      Role - - - - - -> Class ...   
+   
+ 
+ role Role {}
+ class Class does Role {}  
+ 
+ class Object is Class {}
+ class Role::Behavior is Object {}
+ class Class::Behavior is Role::Behavior {} 
+ class MetaClass is Class::Behavior {}  
+ 
+ my $Role = MetaClass.new('Role');
+ $Role.superclass(Role::Behavior); 
+ 
+ my $Class = MetaClass.new('Class'); 
+ $Class.superclass(Class::Behavior);
+ $Class.roles($Role);
+ 
+Or a sligthly different view of the same:
 
  +--{ Implementation Layer }--------------------+
  |                                              |  ---> isSubclassOf
- |   +----------->Role::Behavior                |  - -> isInstanceOf
- |   |                  ^                       |  ...> does()
+ |   +----------->Role::Behavior                |  ...> isInstanceOf
+ |   |                  ^                       |  - -> does()
  |   |                  |                       |
  |   |           Class::Behavior<-----------+   |
  |   |                  ^                   |   |
  +---|------------------|-------------------|---+
  |   |                  |                   |   |
  |   |                  |                   |   |
- |  Role - - - - -> MetaClass <- - - - - -Class |
- |   ^                                      :   |                
- |   :......................................:   |
+ |  Role .........> MetaClass <.......... Class |
+ |   ^                                      |   |                
+ |   + - - - - - - - - - - - - - - - - - - -+   |
  |                                              |
  +---------------{ Meta Space }-----------------+
 
@@ -41,11 +77,13 @@ should be able to re-use that implementation as well.
 I propose a Class::Behavior and Role::Behavior implementation. 
 
 A Role::Behavior has a hash of methods and a hash of properties, as 
-well as an array of Roles. 
+well as an array of Roles. Role::Behavior encapsulates all of the behavior
+needed to compose a Role.
 
 A Class::Behavior is a subclass of Role::Behavior because a class also
 has a hash of methods and properties and an array of roles. It then adds
-to that with a parent class as well as a set of subclasses.
+to that with a parent class as well as a set of subclasses. Class::Behavior 
+encapsulates all of the behavior needed to compose a Class.
 
 =head1 Meta Space
 
@@ -76,24 +114,7 @@ it in for now.
 
 =back
 
-=head1 Rough sketches
-
-All class models must be circular at some point. Here is how I envision the Perl6 
-model to be (NOTE: this is heavily modeled after Smalltalk).
-
-    MetaClass <................
-        |                     :        ....> instanceOf()
-        |                     :        ----> subclassOf()             
-        V                     :
- Class::Behavior<----------+  :          
-        |                  |  :
-        |                  |  :
-        V                  |  :
-     Object                |  :
-        |                  |  :
-        |                  |  :
-        V                  |  V
-      Class ........ > metaclass(Class)
+=head1 Rough Code Sketches
 
 =head2 Conventions
 
@@ -107,15 +128,19 @@ model to be (NOTE: this is heavily modeled after Smalltalk).
 
 =head2 metametaclass(MetaClass)
 
-    metametaclass MetaClass {
+    metametaclass MetaClass is Class::Behavior {
         has $.name;   
-        has @:roles;        
+        has @:roles;   
+        has $:superclass;
+        has @:subclasses;            
         has %.properties;
         has %.methods;   
         
         method addProperties {}
         method addMethods {} 
         method invokeMethod {}
+        method super { ... } # a class must be able to inherit from another class
+        method subclasses { ... } # a class must be able to be inherited from        
         method doesRole {} # doing a Role just folds properties and methods into the metaclass
     }
     
@@ -148,7 +173,7 @@ model to be (NOTE: this is heavily modeled after Smalltalk).
 
 When "compiled" the metaclass(Role) will look like this:
 
-    metaclass Role {
+    metaclass Role is Role::Behavior {
         has $.name;
         has @.roles;
         has %.properties;
@@ -177,7 +202,7 @@ When "compiled" the metaclass(Role) will look like this:
 
 When "compiled" the metaclass(Class) will look like this:
 
-    metaclass Class does metaclass(Role) {
+    metaclass Class is Class::Behavior does metaclass(Role) {
     
         # the following properties are from metaclass(Role)
         #   $.name, @.roles, %.properties, %.methods;
