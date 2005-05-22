@@ -859,28 +859,32 @@ op4 "splice" = \x y z w -> do
 
 op4 other = \_ _ _ _ -> fail ("Unimplemented 4-ary op: " ++ other)
 
-op2Hyper :: String -> Val -> Val -> Eval Val
-op2Hyper op (VRef ref) y = do
+op2Hyper :: VCode -> Val -> Val -> Eval Val
+op2Hyper sub (VRef ref) y = do
     x <- readRef ref
-    op2Hyper op x y
-op2Hyper op x (VRef ref) = do
+    op2Hyper sub x y
+op2Hyper sub x (VRef ref) = do
     y <- readRef ref
-    op2Hyper op x y
-op2Hyper op x y
+    op2Hyper sub x y
+op2Hyper sub x y
     | VList x' <- x, VList y' <- y
     = fmap VList $ hyperLists x' y'
     | VList x' <- x
-    = fmap VList $ mapM ((flip (op2 op)) y) x'
+    = fmap VList $ mapM ((flip doHyper) y) x'
     | VList y' <- y
-    = fmap VList $ mapM (op2 op x) y'
+    = fmap VList $ mapM (doHyper x) y'
     | otherwise
     = fail "Hyper OP only works on lists"
     where
+    doHyper x y = do
+        evl <- asks envEval
+        local (\e -> e{ envContext = cxtItemAny }) $ do
+            evl (App (Val $ VCode sub) [Val x, Val y] [])
     hyperLists [] [] = return []
     hyperLists xs [] = return xs
     hyperLists [] ys = return ys
     hyperLists (x:xs) (y:ys) = do
-        val  <- op2 op x y
+        val  <- doHyper x y
         rest <- hyperLists xs ys
         return (val:rest)
 

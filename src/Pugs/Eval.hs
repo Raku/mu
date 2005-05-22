@@ -872,7 +872,7 @@ findSub name invs args = do
             , subAssoc    = subAssoc (fromJust code)
             , subParams   = params
             , subReturns  = mkType "List"
-            , subBody     = Prim (\[x, y] -> op2Hyper op x y)
+            , subBody     = Prim (\[x, y] -> op2Hyper (fromJust code) x y)
             }
 	where
 	-- Taken from Pugs.Prim. Probably this should be refactored. (?)
