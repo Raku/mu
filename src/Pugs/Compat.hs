@@ -29,6 +29,7 @@ module Pugs.Compat (
     getEffectiveUserID,
     getRealGroupID,
     getEffectiveGroupID,
+    getProcessTimes,
     setEnv,
     getEnv,
     unsetEnv,
@@ -120,6 +121,8 @@ removeLink _ = warnWith "unlink"
 
 setFileMode :: FilePath -> FileMode -> IO ()
 setFileMode _ _ = warnWith "chmod"
+
+getProcessTimes = failWith "times"
 
 -- This is Win32 specific, dunno about other non POSIX platforms
 statFileSize :: FilePath -> IO Integer

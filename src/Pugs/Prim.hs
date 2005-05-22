@@ -59,6 +59,8 @@ op0 "time"  = const $ do
        -- 10^12 is expanded because the alternatives tried gave type warnings.
        fdiff = \d -> (fromInteger $ tdPicosec d) / (1000*1000*1000*1000)
                    + (fromIntegral $ tdSec d)
+op0 "times"  = const $ do
+    return $ VList [VNum 0,VNum 0,VNum 0,VNum 0];
 op0 "so" = const (return $ VBool True)
 op0 "¥" = op0Zip
 op0 "Y" = op0 "¥"
@@ -1173,6 +1175,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Str       pre     ref     (rw!Any|Junction)\
 \\n   Str       pre     isa     (rw!Any|Junction, Str)\
 \\n   Num       pre     time    ()\
+\\n   List      pre     times   ()\
 \\n   Str       pre     want    ()\
 \\n   Str       pre     File::Spec::cwd  ()\
 \\n   Str       pre     File::Spec::tmpdir  ()\
