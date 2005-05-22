@@ -491,6 +491,12 @@ op1 "matches" = op1Cast (VList . matchSubPos)
 op1 "gather" = \v -> do
     evl <- asks envEval
     evl (Syn "gather" [Val v])
+op1 "name" = \v -> do
+    sub <- fromVal v
+    return . castV $ subName sub
+op1 "arity" = \v -> do
+    sub <- fromVal v
+    return . castV . length $ subParams sub
 op1 "Thread::yield" = const $ do
     ok <- tryIO False $ do { yield ; return True }
     return $ VBool ok
@@ -1337,6 +1343,8 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Object    pre     new     (Type: Named)\
 \\n   Object    pre     clone   (Any)\
 \\n   Object    pre     id      (Any)\
+\\n   Str       pre     name    (Code)\
+\\n   Int       pre     arity   (Code)\
 \\n   Bool      pre     Thread::yield   (Thread)\
 \\n   List      pre     Pugs::Internals::runInteractiveCommand    (?Str=$_)\
 \\n   List      pre     Pugs::Internals::openFile    (?Str,?Str=$_)\
