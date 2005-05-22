@@ -898,11 +898,8 @@ tightOperators = do
       ++ preOps " = ! + - ~ ? +^ ~^ ?^ \\ "
       ++ preSymOps preUnary
       ++ postOps postUnary
-    , leftOps $
-               " »*« »/« »x« »xx« " ++
-               " >>*<< >>/<< >>x<< >>xx<< " ++
-               " * / % x xx +& +< +> ~& ~< ~> "         -- Multiplicative
-    , leftOps  " »+« >>+<< »-« >>-<< »~« >>~<< + - ~ +| +^ ~| ~^ ?| " -- Additive
+    , leftOps  " * / % x xx +& +< +> ~& ~< ~> "         -- Multiplicative
+    , leftOps  " + - ~ +| +^ ~| ~^ ?| " -- Additive
       ++ leftOps infixOps                               -- User defined ops
     , listOps  " & "                                    -- Junctive And
     , listOps  " ^ | "                                  -- Junctive Or
@@ -1046,29 +1043,44 @@ doAppSym _ _ = error "doAppSym: bad name"
 preSyn      :: String -> [Operator Char Env Exp]
 preSyn      = ops $ makeOp1 Prefix "" Syn
 preOps      :: String -> [Operator Char Env Exp]
-preOps      = ops $ makeOp1 Prefix "&prefix:" doApp
+preOps      = (ops $ makeOp1 Prefix "&prefix:" doApp) . addHyperPrefix
 preSymOps   :: String -> [Operator Char Env Exp]
-preSymOps   = ops $ makeOp1 Prefix "&prefix:" doAppSym
+preSymOps   = (ops $ makeOp1 Prefix "&prefix:" doAppSym) . addHyperPrefix
 postOps     :: String -> [Operator Char Env Exp]
-postOps     = ops $ makeOp1 Postfix "&postfix:" doApp
+postOps     = (ops $ makeOp1 Postfix "&postfix:" doApp) . addHyperPostfix
 optOps      :: String -> [Operator Char Env Exp]
-optOps      = ops $ makeOp1 OptionalPrefix "&prefix:" doApp
+optOps      = (ops $ makeOp1 OptionalPrefix "&prefix:" doApp) . addHyperPrefix
 leftOps     :: String -> [Operator Char Env Exp]
-leftOps     = ops $ makeOp2 AssocLeft "&infix:" doApp
+leftOps     = (ops $ makeOp2 AssocLeft "&infix:" doApp) . addHyperInfix
 rightOps    :: String -> [Operator Char Env Exp]
-rightOps    = ops $ makeOp2 AssocRight "&infix:" doApp
+rightOps    = (ops $ makeOp2 AssocRight "&infix:" doApp) . addHyperInfix
 noneOps     :: String -> [Operator Char Env Exp]
 noneOps     = ops $ makeOp2 AssocNone "&infix:" doApp
 listOps     :: String -> [Operator Char Env Exp]
-listOps     = leftOps
+listOps     = ops $ makeOp2 AssocLeft "&infix:" doApp
 chainOps    :: String -> [Operator Char Env Exp]
-chainOps    = leftOps
+chainOps    = (ops $ makeOp2 AssocLeft "&infix:" doApp) . addHyperInfix
 rightSyn    :: String -> [Operator Char Env Exp]
 rightSyn    = ops $ makeOp2 AssocRight "" Syn
 noneSyn     :: String -> [Operator Char Env Exp]
 noneSyn     = ops $ makeOp2 AssocNone "" Syn
 listSyn     :: String -> [Operator Char Env Exp]
 listSyn     = ops $ makeOp0 AssocList "" Syn
+
+addHyperInfix :: String -> String
+addHyperInfix = unwords . concatMap hyperForm . words
+    where
+    hyperForm op = [op, ">>" ++ op ++ "<<", "»" ++ op ++ "«"]
+
+addHyperPrefix :: String -> String
+addHyperPrefix = unwords . concatMap hyperForm . words
+    where
+    hyperForm op = [op, op ++ "<<", op ++ "«"]
+
+addHyperPostfix :: String -> String
+addHyperPostfix = unwords . concatMap hyperForm . words
+    where
+    hyperForm op = [op, op ++ "<<", op ++ "«"]
 
 -- chainOps    = ops $ makeOpChained
 

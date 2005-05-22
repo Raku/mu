@@ -20,7 +20,7 @@ module Pugs.Prim (
     -- used by Pugs.Compile.Haskell
     op0, op1, op2,
     -- used Pugs.Eval
-    foldParam,
+    foldParam, op2Hyper,
 ) where
 import Pugs.Internals
 import Pugs.Junc
@@ -780,8 +780,6 @@ op2 "sort" = \x y -> do
     op1 "sort" . VList $ xs ++ ys
 op2 "say" = \x (VList ys) -> op1Print hPutStrLn (VList (x:ys))
 op2 "print" = \x (VList ys) -> op1Print hPutStr (VList (x:ys))
-op2 op | "»" `isPrefixOf` op = op2Hyper . init . init . drop 2 $ op
-op2 ('>':'>':op) = op2Hyper . init . init $ op
 op2 other = \_ _ -> fail ("Unimplemented binaryOp: " ++ other)
 
 -- |Implementation of 3-arity primitive operators and functions
@@ -1305,20 +1303,6 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Scalar    left    //      (Bool, ~Bool)\
 \\n   Scalar    left    .[]     (Array, Int)\
 \\n   Scalar    left    .{}     (Hash, Str)\
-\\n   List      left    »+«     (Any, Any)\
-\\n   List      left    »-«     (Any, Any)\
-\\n   List      left    »*«     (Any, Any)\
-\\n   List      left    »/«     (Any, Any)\
-\\n   List      left    »x«     (Any, Any)\
-\\n   List      left    »xx«    (Any, Any)\
-\\n   List      left    »~«     (Any, Any)\
-\\n   List      left    >>+<<   (Any, Any)\
-\\n   List      left    >>-<<   (Any, Any)\
-\\n   List      left    >>*<<   (Any, Any)\
-\\n   List      left    >>/<<   (Any, Any)\
-\\n   List      left    >>x<<   (Any, Any)\
-\\n   List      left    >>xx<<  (Any, Any)\
-\\n   List      left    >>~<<   (Any, Any)\
 \\n   List      list    ¥               (Array)\
 \\n   List      list    Y               (Array)\
 \\n   List      spre    <==     (List)\

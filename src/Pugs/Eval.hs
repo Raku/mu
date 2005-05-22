@@ -832,16 +832,16 @@ findSub name invs args = do
 	    sub <- findSub' name
 	    if isNothing sub then possiblyBuildMetaopVCode name else return sub
     where
-    possiblyBuildMetaopVCode ('&':'p':'r':'e':'f':'i':'x':':':'[':op') = do
+    possiblyBuildMetaopVCode op' | "&prefix:[" `isPrefixOf` op', "]" `isSuffixOf` op' = do 
 	-- Strip the trailing "]" from op
-	let op = init op'
+	let op = drop 9 (init op')
 	-- We try to find the userdefined sub.
 	-- We use the first two elements of invs as invocants, as these are the
 	-- types of the op.
         code <- findSub ("&infix:" ++ op) (take 2 (invs ++ [Val undef, Val undef])) []
         if isNothing code then return Nothing else do
-        let subBody = const $ do
-                list_of_args    <- evalExp $ Cxt cxtSlurpyAny (Syn "," invs)
+        let body = \[vs] -> do
+                list_of_args <- fromVal vs
                 op2Fold (list_of_args) (VCode $ fromJust code)
 	-- Now we construct the sub. Is there a more simple way to do it?
         return . Just $ mkPrim
@@ -850,11 +850,33 @@ findSub name invs args = do
             , subAssoc    = "spre"
             , subParams   = params
             , subReturns  = mkType "Str"
-            , subBody     = Prim subBody
+            , subBody     = Prim body
             }
 	where
 	-- Taken from Pugs.Prim. Probably this should be refactored. (?)
-	prms'    = map takeWord ["(List)"]
+	prms'    = map takeWord ["List"]
+	prms''   = foldr foldParam [] prms'
+	params   = map (\p -> p{ isWritable = isLValue p }) prms''
+	takeWord = takeWhile isWord . dropWhile (not . isWord)
+	isWord   = not . (`elem` "(),:")
+    possiblyBuildMetaopVCode op' | "&infix:\187" `isPrefixOf` op', "\171" `isSuffixOf` op' = do 
+	let op = drop 8 (init op')
+	possiblyBuildMetaopVCode ("&infix:>>" ++ op ++ "<<")
+    possiblyBuildMetaopVCode op' | "&infix:>>" `isPrefixOf` op', "<<" `isSuffixOf` op' = do 
+	let op = drop 9 (init (init op'))
+        code <- findSub ("&infix:" ++ op) (take 2 (invs ++ [Val undef, Val undef])) []
+        if isNothing code then return Nothing else do
+        return . Just $ mkPrim
+            { subName     = "&infix:>>" ++ op ++ "<<"
+            , subType     = SubPrim
+            , subAssoc    = subAssoc (fromJust code)
+            , subParams   = params
+            , subReturns  = mkType "List"
+            , subBody     = Prim (\[x, y] -> op2Hyper op x y)
+            }
+	where
+	-- Taken from Pugs.Prim. Probably this should be refactored. (?)
+	prms'    = map takeWord ["Any", "Any"]
 	prms''   = foldr foldParam [] prms'
 	params   = map (\p -> p{ isWritable = isLValue p }) prms''
 	takeWord = takeWhile isWord . dropWhile (not . isWord)
