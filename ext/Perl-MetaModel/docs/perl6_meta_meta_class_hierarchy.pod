@@ -22,7 +22,7 @@ implementation.
        :                 |      :
        :                 |      : 
        :                 V      :
-      Role - - - - - -> Class ...   
+      Role < - - - - - Class ...   
    
  
  role Role {}
