@@ -24,18 +24,18 @@ ok($foo_clone ~~ Foo, '... smartmatch our $foo_clone to the Foo class');
 class Foo::Bar {};
 
 my $foo_bar = Foo::Bar.new();
-eval_ok($foo_bar ~~ Foo::Bar, '... smartmatch our $foo_bar to the Foo::Bar class');
+ok($foo_bar ~~ Foo::Bar, '... smartmatch our $foo_bar to the Foo::Bar class');
 
 # L<S12/"Classes" /An \"isa\" is just a trait that happens to be another class\:/>
 
-eval 'class Bar is Foo {}';
+class Bar is Foo {};
 
-eval_ok('Bar ~~ Foo', '... smartmatch our Bar to the Foo class', :todo<feature>);
+ok(Bar ~~ Foo, '... smartmatch our Bar to the Foo class', :todo<feature>);
 
-my $bar = eval 'Bar.new()';
-eval_ok('$bar ~~ Bar', '... smartmatch our $bar to the Bar class', :todo<feature>);
-eval_ok('$bar ~~ Foo', '... smartmatch our $bar to the Foo class', :todo<feature>);
+my $bar = Bar.new();
+ok($bar ~~ Bar, '... smartmatch our $bar to the Bar class');
+ok($bar ~~ Foo, '... smartmatch our $bar to the Foo class', :todo<feature>);
 
-my $bar_clone = eval '$bar.clone()';
-eval_ok('$bar_clone ~~ Bar', '... smartmatch our $bar_clone to the Bar class', :todo<feature>);
-eval_ok('$bar_clone ~~ Foo', '... smartmatch our $bar_clone to the Foo class', :todo<feature>);
+my $bar_clone = $bar.clone();
+ok($bar_clone ~~ Bar, '... smartmatch our $bar_clone to the Bar class');
+ok($bar_clone ~~ Foo, '... smartmatch our $bar_clone to the Foo class', :todo<feature>);
