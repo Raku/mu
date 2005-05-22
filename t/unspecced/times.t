@@ -5,8 +5,6 @@ use Test;
 
 plan 2;
 
-sub n_le(Int $a, Int $b) { ?($a <= $b) }; # how stupid is this?
-
 my @start = times();
 for (1..1000) {
     1+1;
@@ -14,4 +12,4 @@ for (1..1000) {
 my @end = times();
 ok(@end[0] > @start[0], 'something changed in times()');
 
-cmp_ok(@end[0] - @start[0], &n_le, 10, 'sensible time spent');
+cmp_ok(@end[0] - @start[0], &infix:«<=», 10, 'sensible time spent');
