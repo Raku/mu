@@ -14,7 +14,7 @@ sub flatten (Any|Junction $x) {
 
 my @t_good = map &flatten, (
   any('-C')
-    ~ any('Pugs')
+    ~ any('Pugs', 'pugs', 'pUGs')
     ~ ' '
     ~ any('-e1', map( {"examples/$_.p6"}<
   functional/fp
@@ -24,7 +24,11 @@ my @t_good = map &flatten, (
   junctions/3 junctions/all-any junctions/any-any
   junctions/any-any2 junctions/grades
   quicksort
->)), '-CParrot ' ~ any('-e1', map( {"examples/$_.p6"}<
+>)),
+  any('-C')
+    ~ any('Parrot', 'parrot', 'paRRot')
+    ~ ' '
+    ~ any('-e1', map( {"examples/$_.p6"}<
   junctions/1
   junctions/any-any
   junctions/any-any2
@@ -36,7 +40,7 @@ my @t_good = map &flatten, (
 
 my @t_todo = map &flatten, (
   '-C'
-    ~ any('Parrot')
+    ~ any('Parrot', 'parrot', 'paRRot')
     ~ ' examples/'
     ~ any(<
   functional/fp

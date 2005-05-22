@@ -158,13 +158,21 @@ doCompile backend = doParseWith $ \env _ -> do
 
 doCompileDump :: String -> FilePath -> String -> IO ()
 doCompileDump backend file prog = do
-    str <- doCompile backend file prog
+    str <- doCompile backend' file prog
     writeFile "dump.ast" str
+    where
+    backend' = capitalizeWord backend
+    capitalizeWord []     = []
+    capitalizeWord (c:cs) = toUpper c:(map toLower cs)
 
 doCompileRun :: String -> FilePath -> String -> IO ()
 doCompileRun backend file prog = do
-    str <- doCompile backend file prog
-    evalEmbedded backend str
+    str <- doCompile backend' file prog
+    evalEmbedded backend' str
+    where
+    backend' = capitalizeWord backend
+    capitalizeWord []     = []
+    capitalizeWord (c:cs) = toUpper c:(map toLower cs)
 
 doParseWith :: (Env -> FilePath -> IO a) -> FilePath -> String -> IO a
 doParseWith f name prog = do
