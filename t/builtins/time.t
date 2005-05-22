@@ -8,15 +8,15 @@ use Test;
 
 plan 10;
 
-#-- subs -- 
+#-- subs --
 
 # Sub for evaulation valid date-time strings
 # Used in place of Rules for the moment
 sub is_dt (Str $datetime) returns Bool {
-	
+
 	my ($dow, $mon, $day, $time, $year) = split(' ', $datetime);
 	my $result = 0;
-	
+
 	for qw(Sun Mon Tue Wed Thu Fri Sat) {
 		if $dow eq $_ {
 			$result++;
@@ -47,7 +47,7 @@ sub is_dt (Str $datetime) returns Bool {
 		$result++;
 	}
 
-	return ($result == 5); 
+	return ($result == 5);
 }
 
 # Before we get started, sanity check the is_dt sub
@@ -58,9 +58,9 @@ my $gen_dt      = "Tue Mar 15 14:43:10 2005";
 my $hibound_dt 	= "Mon Jan 31 23:59:59 9999";
 my $lowbound_dt = "Mon Jan 1 00:00:00 0";
 
-ok(is_dt($gen_dt) && 
-   is_dt($hibound_dt) && 
-   is_dt($lowbound_dt) , 
+ok(is_dt($gen_dt) &&
+   is_dt($hibound_dt) &&
+   is_dt($lowbound_dt) ,
    'test datetime string tester, pos cases');
 
 #-- 2 --
@@ -81,7 +81,7 @@ ok(!is_dt($fail_dt_1) &&
    !is_dt($fail_dt_6) &&
    !is_dt($fail_dt_7) ,
    'test datetime string tester, neg cases');
-   
+
 #-- Real Tests Start --
 
 #-- 3 --
@@ -89,7 +89,7 @@ ok(!is_dt($fail_dt_1) &&
 my $beg = time;
 my $now;
 
-# Loop until $beg in the past 
+# Loop until $beg in the past
 while (($now = time) == $beg) { sleep 1 }
 
 ok($now > $beg && $now - $beg < 10, 'very basic time test');
@@ -97,22 +97,19 @@ eval_ok 'time + 10', "'time()' may drop its parentheses";
 
 #-- 4 --
 {
-	my ($beguser,$begsys); 
+	my ($beguser,$begsys);
 	my ($nowuser,$nowsys);
 
-	eval '($beguser,$begsys) = times';
-	if $! {
-		ok(0, 'very basic times test', :todo);
-	} else {
+	# eval '($beguser,$begsys) = times';
+	($beguser,$begsys) = times;
 		my $i;
 		loop $i = 0; $i < 100000; $i++ {
 			($nowuser, $nowsys) = times;
 			$i = 200000 if $nowuser > $beguser && ( $nowsys >= $begsys || (!$nowsys && !$begsys));
 			$now = time;
-			last() if ($now - $beg > 20); 
+			last() if ($now - $beg > 20);
 		}
-		ok($i >= 200000, 'very basic times test', :todo);
-	}
+		ok($i >= 200000, 'very basic times test');
 }
 
 #-- 5 --
@@ -157,7 +154,7 @@ if ($localyday && $yday) {
 		$day_diff == 364  ||
 		$day_diff == 365  ||
 		$day_diff == -364 ||
-		$day_diff == -365, 
+		$day_diff == -365,
     	  'gmtime() and localtime() agree what day of year', :todo);
 } else {
 	ok(0, 'gmtime() and localtime() agree what day of year', :todo);
@@ -173,4 +170,3 @@ ok(is_dt(eval 'gmtime()'), 'gmtime(), scalar context', :todo);
 #                      \d\d\s\d\d:\d\d:\d\d\s\d**{4}$
 #                    /,
 #			'gmtime(), scalar context');
-
