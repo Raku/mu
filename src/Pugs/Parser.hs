@@ -1084,7 +1084,7 @@ addHyperPrefix = unwords . concatMap hyperForm . words
 addHyperPostfix :: String -> String
 addHyperPostfix = unwords . concatMap hyperForm . words
     where
-    hyperForm op = [op, op ++ "<<", op ++ "«"]
+    hyperForm op = [op, ">>" ++ op, "»" ++ op]
 
 -- chainOps    = ops $ makeOpChained
 

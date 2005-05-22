@@ -880,7 +880,7 @@ op1HyperPrefix sub x
         return (val:rest)
 
 op1HyperPostfix :: VCode -> Val -> Eval Val
-op1HyperPostfix = fail "op2HyperPostfix not yet implemented"
+op1HyperPostfix = op1HyperPrefix
 
 op2Hyper :: VCode -> Val -> Val -> Eval Val
 op2Hyper sub (VRef ref) y = do
