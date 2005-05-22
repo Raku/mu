@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 22;
+plan 24;
 
 =pod
 
@@ -28,6 +28,9 @@ is (+-) "fish", "ABOUTfish", 'prefix operator overloading for new operator (nast
 sub prefix:<->($thing) { return "CROSS$thing"; };
 is(-"fish", "CROSSfish",
    'prefix operator overloading for existing operator');
+
+sub infix:<×> { $^a * $^b }
+is(5 × 3, 15, "infix Unicode operator");
 
 sub infix:<C> ($text, $owner) { return "$text copyright $owner"; };
 is "romeo & juliet" C "Shakespeare", "romeo & juliet copyright Shakespeare",
@@ -57,7 +60,7 @@ is("boop"&&&&&, "ANDANDANDANDANDboop",
    "postfix operator overloading for new operator (weird)");
 
 my $var = 0;
-eval_ok('macro circumfix:<!--...-->   ($text) { "" }; <!-- $var = 1; -->; $var == 0;', 'circumfix macro', :todo);
+eval_ok('macro circumfix:<!--...-->   ($text) { "" }; <!-- $var = 1; -->; $var == 0;', 'circumfix macro', :todo<feature>);
 
 # demonstrate sum prefix
 
@@ -110,7 +113,7 @@ is("boobies"!, "BOOBIES!!!", "correct overloaded method called");
 # here is one that co-erces a MyClass into a Str and a Num.
 # L<A12/"Overloading" /Coercions to other classes can also be defined:/>
 {
-  eval '
+  eval_ok '
     class MyClass {
       method prefix:<~> { "hi" }
       method prefix:<+> { 42   }
@@ -124,10 +127,10 @@ is("boobies"!, "BOOBIES!!!", "correct overloaded method called");
     class OtherClass {
       has $.x is rw;
     }
-  ';
+  ', "definition of a prefix:<...> and coerce:<as> overloading class worked", :todo<feature>;
 
   my $obj;
-  lives_ok { $obj = MyClass.new }, "instantiation of a prefix:<...> and coerce:<as> overloading class worked";
-  is ~$obj, "hi", "our object was stringified correctly";
-  is eval('($obj as OtherClass).x'), 23, "our object was coerced correctly";
+  lives_ok { $obj = MyClass.new }, "instantiation of a prefix:<...> and coerce:<as> overloading class worked", :todo<feature>;
+  is ~$obj, "hi", "our object was stringified correctly", :todo<feature>;
+  is eval('($obj as OtherClass).x'), 23, "our object was coerced correctly", :todo<feature>;
 }
