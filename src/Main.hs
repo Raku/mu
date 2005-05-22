@@ -187,7 +187,7 @@ doParseWith f name prog = do
 
 doParse :: (Exp -> String) -> FilePath -> String -> IO ()
 doParse prettyFunc name prog = do
-    env <- emptyEnv name []
+    env <- tabulaRasa
     case runRule env envBody ruleProgram name (decodeUTF8 prog) of
         (Val err@(VError _ _)) -> putStrLn $ pretty err
         exp -> putStrLn $ prettyFunc exp

@@ -37,6 +37,13 @@ ruleProgram = rule "program" $ do
     statements <- ruleBlockBody
     -- error $ show statements
     eof
+    -- S04: CHECK {...}*      at compile time, ALAP
+    -- check_subs is of type Val (VList [...]).
+    check_subs <- unsafeEvalExp $ Var "@?CHECK"
+    -- We extract the list...
+    let Val (VList sublist) = check_subs
+    -- ...and run each sub of it.
+    mapM_ unsafeEvalExp [ App (Val sub) [] [] | sub <- sublist ]
     env' <- getState
     return $ env'
         { envBody       = mergeStmts emptyExp statements
@@ -576,8 +583,8 @@ ruleDoBlock = rule "do block" $ try $ do
 
 ruleClosureTrait :: Bool -> RuleParser Exp
 ruleClosureTrait rhs = rule "closure trait" $ do
-    let names | rhs       = " BEGIN INIT FIRST "
-              | otherwise = " BEGIN INIT FIRST END "
+    let names | rhs       = " BEGIN CHECK INIT FIRST "
+              | otherwise = " BEGIN CHECK INIT FIRST END "
     name    <- tryChoice $ map symbol $ words names
     block   <- ruleBlock
     let (fun, names) = extract block []
@@ -590,6 +597,7 @@ ruleClosureTrait rhs = rule "closure trait" $ do
         "BEGIN" -> do
             rv <- unsafeEvalExp fun
             return $ if rhs then rv else emptyExp 
+	"CHECK" -> vcode2checkBlock code
 	"INIT"  -> vcode2initBlock code
 	"FIRST" -> vcode2firstBlock code
         _       -> fail ""
@@ -620,23 +628,31 @@ vcode2firstBlock code = do
             (Var "$?FIRST_RESULT") --  $?FIRST_RESULT;
         ]
 
-
 vcode2initBlock :: Val -> RuleParser Exp
-vcode2initBlock code = do
-    -- As with FIRST {...}, we transform our input:
-    -- my $x = INIT { 42 }   is transformed to
+vcode2initBlock code = vcode2initOrCheckBlock "@?INIT" code
+
+vcode2checkBlock :: Val -> RuleParser Exp
+vcode2checkBlock code = vcode2initOrCheckBlock "@?CHECK" code
+
+vcode2initOrCheckBlock :: String -> Val -> RuleParser Exp
+vcode2initOrCheckBlock magicalVar code = do
+    -- Similar as with FIRST {...}, we transform our input:
+    -- my $x = INIT { 42 }   is transformed into
     -- BEGIN { push @?INIT, { FIRST { 42 } } }; my $x = @?INIT[(index)]();
-    -- This is the FIRST {...} block we generate
+    -- Or, with CHECK:
+    -- my $x = CHECK { 42 }  is transformed into
+    -- BEGIN { push @?CHECK, { FIRST { 42 } } }; my $x = @?CHECK[(index)]();
+    -- This is the inner FIRST {...} block we generate.
     body <- vcode2firstBlock code
     rv <- unsafeEvalExp $
 	-- BEGIN { push @?INIT, { FIRST {...} } }
-	App (Var "&push") [Var "@?INIT"] [Syn "sub" [Val $ VCode mkSub { subBody = body }]]
+	App (Var "&push") [Var magicalVar] [Syn "sub" [Val $ VCode mkSub { subBody = body }]]
     -- rv is the return value of the push. Now we extract the actual num out of it:
     let (Val (VInt elems)) = rv
     -- Finally, we can return the transformed expression.
     -- elems is the new number of elems in @?INIT (as push returns the new
     -- number of elems), but we're interested in the index, so we -1 it.
-    return $ App (Syn "[]" [Var "@?INIT", Val . VInt $ elems - 1]) [] []
+    return $ App (Syn "[]" [Var magicalVar, Val . VInt $ elems - 1]) [] []
 
 unsafeEvalLexDiff :: Exp -> RuleParser Pad
 unsafeEvalLexDiff exp = do

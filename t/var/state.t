@@ -90,7 +90,7 @@ plan 9;
     $svar_ref++; $svar_ref++; # $svar == 2
 
     my $svar_ref = $gen();    # $svar == 2
-    is $svar_ref, 2, "reference to a state() var", :todo<feature>;
+    is $svar_ref, 2, "anonymous state() vars", :todo<feature>;
 }
 
 # http://www.nntp.perl.org/group/perl.perl6.language/20888
