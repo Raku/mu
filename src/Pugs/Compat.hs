@@ -124,7 +124,7 @@ setFileMode :: FilePath -> FileMode -> IO ()
 setFileMode _ _ = warnWith "chmod"
 
 -- XXX stub
-data ProcessTimes = ProcessTimes !Int !Int !Int !Int
+data ProcessTimes = ProcessTimes !Int !Int !Int !Int !Int
 
 getProcessTimes :: IO ProcessTimes
 getProcessTimes = failWith "times"
