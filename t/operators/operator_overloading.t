@@ -44,11 +44,8 @@ sub infix:<(C)> ($text, $owner) { return "$text CopyRight $owner"; };
 is "romeo & juliet" (C) "Shakespeare", "romeo & juliet CopyRight Shakespeare",
     'infix operator overloading for new operator (nasty)';
 
-# don't know if these syntaxes are legal...
-eval_ok('sub infix:"<"($one, $two) { return (rand(1) <=> 0.5) }',
-	"quoted infix sub", :todo<bug>);
-eval_ok('sub infix:«<»($one, $two) { return (rand(1) <=> 0.5) }',
-	"frenchquoted infix sub", :todo<bug>);
+sub infix:«_<_»($one, $two) { return 42 }
+is 3 _<_ 5, 42, "frenchquoted infix sub";
 
 sub postfix:<W> ($wobble) { return "ANDANDAND$wobble"; };
 
@@ -101,6 +98,8 @@ is("boobies"!, "BOOBIES!!!", "correct overloaded method called");
 
   my &infix:<z> = { $^a + $^b };
   is &infix:<z>(2, 3), 5, "accessing a userdefined operator using its subroutine name";
+
+  is ~(&infix:<»+«>([1,2,3],[4,5,6])), "5 7 9", "accessing a hyperoperator using its subroutine name";
 }
 
 # great.  Now, what about those silent auto-conversion operators a la:

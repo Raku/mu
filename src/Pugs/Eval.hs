@@ -190,7 +190,13 @@ findVar :: Var -> Eval (Maybe VRef)
 findVar name = do
     rv <- findVarRef name
     case rv of
-        Nothing  -> return Nothing
+        Nothing  -> case name of
+	    '&':_ -> do
+		sub <- findSub name [] []
+		case sub of
+		    Nothing  -> return Nothing
+		    (Just x) -> return $ Just $ codeRef x
+	    _ -> return Nothing
         Just ref -> fmap Just $ liftSTM (readTVar ref)
 
 findVarRef :: Var -> Eval (Maybe (TVar VRef))
@@ -824,11 +830,12 @@ cxtOfExp (App (Var name) invs args)   = do
 cxtOfExp _                      = return cxtSlurpyAny
 
 findSub :: String -> [Exp] -> [Exp] -> Eval (Maybe VCode)
-findSub name invs args = do
+findSub name' invs args = do
+    let name = possiblyFixOperatorName name'
     case invs of
         [exp] | not (':' `elem` drop 2 name) -> do
             typ     <- evalExpType exp
-            subs    <- findWithPkg (showType typ)
+            subs    <- findWithPkg (showType typ) name
             if isJust subs then return subs else findSub' name
         _ -> do
 	    sub <- findSub' name
@@ -904,7 +911,7 @@ findSub name invs args = do
     makeParams = map (\p -> p{ isWritable = isLValue p }) . foldr foldParam [] . map takeWord
     takeWord = takeWhile isWord . dropWhile (not . isWord)
     isWord   = not . (`elem` "(),:")
-    findWithPkg pkg = do
+    findWithPkg pkg name = do
 	subs <- findSub' (('&':pkg) ++ "::" ++ tail name)
 	if isJust subs then return subs else do
 	-- get superclasses
@@ -915,10 +922,10 @@ findSub name invs args = do
 	attrs	<- fromVal =<< fetch "traits"
 	(`fix` attrs) $ \run pkgs -> do
 	    if null pkgs then return Nothing else do
-	    subs <- findWithPkg (head pkgs)
+	    subs <- findWithPkg (head pkgs) name
             if isJust subs then return subs else run (tail pkgs)
-    findSub' name' = do
-        subSyms     <- findSyms name'
+    findSub' name = do
+        subSyms     <- findSyms name
         lens        <- mapM argSlurpLen (unwrap $ invs ++ args)
         doFindSub (sum lens) subSyms
     argSlurpLen (Val listMVal) = do

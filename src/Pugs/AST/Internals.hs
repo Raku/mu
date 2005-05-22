@@ -993,32 +993,9 @@ lookupPad :: Var -- ^ Symbol to look for
     stored as &infix:+, i.e. without the brackets.
 -}
 
-lookupPad key (MkPad map) = case Map.lookup (fixName key) map of
+lookupPad key (MkPad map) = case Map.lookup (possiblyFixOperatorName key) map of
 	Just xs -> Just [tvar | (_, tvar) <- xs]
 	Nothing -> Nothing
-    where
-    -- It doesn't matter if we lookup &foo or &*foo
-    fixName  ('&':'*':rest) = "&*" ++ fixName' rest
-    fixName  ('&':rest)     = "&"  ++ fixName' rest
-    fixName  x              = x
-    -- We've to strip the <>s for &infix:<...>, &prefix:<...>, and
-    -- &postfix:<...>.
-    -- The other &...:<...> things aren't that simple (e.g. circumfix.).
-    fixName' ('i':'n':'f':'i':'x':':':rest)         = "infix:"   ++ dropBrackets rest
-    fixName' ('p':'r':'e':'f':'i':'x':':':rest)     = "prefix:"  ++ dropBrackets rest
-    fixName' ('p':'o':'s':'t':'f':'i':'x':':':rest) = "postfix:" ++ dropBrackets rest
-    fixName' x                                      = x
-    -- We have to make sure that the last character(s) match the first one(s),
-    -- otherwise 4 <= 4 will stop working.
-    -- Kludge. <=> is ambigious.
-    dropBrackets "<=>" = "<=>"
-    -- «bar» --> bar
-    dropBrackets ('\171':(rest@(_:_)))    = if (last rest) == '\187' then init rest else '\171':rest
-    -- <<bar>> --> bar
-    dropBrackets ('<':'<':(rest@(_:_:_))) = if (last rest) == '>' && (last . init $ rest) == '>' then init . init $ rest else "<<" ++ rest
-    -- <bar> --> bar
-    dropBrackets ('<':(rest@(_:_)))       = if (last rest) == '>' then init rest else '<':rest
-    dropBrackets x              = x
 
 {-|
 Transform a pad into a flat list of bindings. The inverse of 'mkPad'.
