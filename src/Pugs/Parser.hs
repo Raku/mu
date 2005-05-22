@@ -1770,7 +1770,7 @@ yadaLiteral = do
     pos1 <- getPosition
     sym  <- choice . map symbol $ words " ... ??? !!! "
     pos2 <- getPosition
-    return . Val $ VError sym (NonTerm (mkPos pos1 pos2))
+    return . Val $ VError sym [mkPos pos1 pos2]
 
 methOps             :: a -> [b]
 methOps _ = []
@@ -1784,7 +1784,7 @@ ternOp pre post syn = (`Infix` AssocRight) $ do
 
 runRule :: Env -> (Env -> a) -> RuleParser Env -> FilePath -> String -> a
 runRule env f p name str = f $ case ( runParser p env name str ) of
-    Left err    -> env { envBody = Val $ VError msg (NonTerm (mkPos pos pos)) }
+    Left err    -> env { envBody = Val $ VError msg [mkPos pos pos] }
         where
         pos = errorPos err
         msg = showErr err

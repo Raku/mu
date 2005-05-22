@@ -42,7 +42,7 @@ op1Pick (VJunc (MkJunc JOne dups set)) =
     if (Set.size $ set) == 1 && (Set.size $ dups) == 0
     then return $ head $ Set.elems set
     else return undef
-op1Pick v = return $ VError "pick not defined" (Val v)
+op1Pick v = retError "pick not defined" v
 
 op1Sum :: Val -> Eval Val
 op1Sum list = do

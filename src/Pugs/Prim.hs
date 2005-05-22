@@ -235,9 +235,9 @@ op1 "eval_perl5" = boolIO evalPerl5
 op1 "eval_haskell" = op1EvalHaskell
 op1 "eval_yaml" = evalYaml
 op1 "defined" = op1Cast (VBool . defined)
-op1 "last" = \v -> return (VError "cannot last() outside a loop" (Val v))
-op1 "next" = \v -> return (VError "cannot next() outside a loop" (Val v))
-op1 "redo" = \v -> return (VError "cannot redo() outside a loop" (Val v))
+op1 "last" = const $ fail "cannot last() outside a loop"
+op1 "next" = const $ fail "cannot next() outside a loop"
+op1 "redo" = const $ fail "cannot redo() outside a loop"
 op1 "return" = op1Return . op1ShiftOut
 op1 "yield" = op1Yield . op1ShiftOut
 op1 "take" = \v -> do
@@ -266,7 +266,7 @@ op1 "warn" = \v -> do
     strs <- fromVal v
     errh <- readVar "$*ERR"
     pos  <- asks envPos
-    op2 "say" errh $ VList [ VStr $ pretty (VError (errmsg strs) (NonTerm pos)) ]
+    op2 "say" errh $ VList [ VStr $ pretty (VError (errmsg strs) [pos]) ]
     where
     errmsg "" = "Warning: something's wrong"
     errmsg x  = x
@@ -274,7 +274,7 @@ op1 "fail_" = \v -> do
     strs  <- fromVal v
     throw <- fromVal =<< readVar "$?FAIL_SHOULD_DIE"
     pos   <- asks envPos
-    let msg = pretty (VError (errmsg strs) (NonTerm pos)) ++ "\n"
+    let msg = pretty (VError (errmsg strs) [pos]) ++ "\n"
     if throw
 	-- "use fatal" is in effect, so die.
 	then fail msg
@@ -862,7 +862,7 @@ op2Hyper op x y
     | VList y' <- y
     = fmap VList $ mapM (op2 op x) y'
     | otherwise
-    = return $ VError "Hyper OP only works on lists" (Val VUndef)
+    = fail "Hyper OP only works on lists"
     where
     hyperLists [] [] = return []
     hyperLists xs [] = return xs

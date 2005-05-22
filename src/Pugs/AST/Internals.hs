@@ -512,7 +512,7 @@ data Val
     | VCode     !VCode       -- ^ A code object
     | VBlock    !VBlock
     | VJunc     !VJunc       -- ^ Junction value
-    | VError    !VStr !Exp
+    | VError    !VStr ![Pos] -- ^ Error
     | VHandle   !VHandle     -- ^ File handle
     | VSocket   !VSocket     -- ^ Socket handle
     | VThread   !(VThread Val)
@@ -1070,7 +1070,7 @@ instance Monad EvalMonad where
         runEvalT (k a)
     fail str = do
         pos <- asks envPos
-        shiftT . const . return $ VError str (NonTerm pos)
+        shiftT . const . return $ VError str [pos]
 
 instance MonadTrans EvalT where
     lift x = EvalT x

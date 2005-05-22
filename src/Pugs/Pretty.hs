@@ -28,8 +28,7 @@ class (Show a) => Pretty a where
 instance Pretty VStr
 
 instance Pretty Exp where
-    format (Val (VError msg (NonTerm pos))) = text "Syntax error at" <+> (format pos) <+> format msg
-    format (NonTerm pos) = format pos
+    format (NonTerm pos) = text "Syntax error at" <+> format pos
     format (Val v) = format v
     format (Syn x vs) = text "Syn" <+> format x <+> (braces $ vcat (punctuate (text ";") (map format vs)))
     format (Stmts exp1 exp2) = (vcat $ punctuate (text ";") $ (map format) [exp1, exp2])
@@ -115,11 +114,11 @@ instance Pretty Val where
         | otherwise = parens $ (joinList $ text ", ") (map format x)
     format (VCode _) = text "sub {...}"
     format (VBlock _) = text "{...}"
-    format (VError x y@(NonTerm _))
+    format (VError x posList)
 	-- Is this correct? Does this work on win32, too?
 	| last x == '\n' = text . init $ x
-	| otherwise      = text "*** Error:" <+> (text x <+> (text "at" <+> format y))
-    format (VError x _) = text "*** Error:" <+> text x
+	| otherwise      = text "***" <+>
+            (text x <+> (text "at" <+> vcat (map format posList)))
 --  format (VArray x) = format (VList $ Array.elems x)
 --  format (VHash h) = braces $ (joinList $ text ", ") $
 --      [ format (VStr k, v) | (k, v) <- Map.toList h ]
