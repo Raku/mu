@@ -10,11 +10,11 @@
 * We have `OUTER::` scope now.
 * `warn()`, `uniq()`, `fail()`, `times()` implemented.
 * `gather { take }` now implemented.
-* `$?CLASS` and `$?PACKAGE` work, and `$?ROLE` parses (and returns `$?CLASS`)
+* `$?CLASS` and `$?PACKAGE` work, and `$?ROLE` parses (and returns `$?CLASS`).
 * Parsing of hierarchical return types: `sub foo returns Hash of Str`.
-* Experimental support for `coro { ... }` added
-* Symboloc refs `[$@%&]::(...)` work.
-* Nested Symbolic refs work too `$::some::("var")::($bar)`
+* Experimental support for `coro { ... }` added.
+* Symbolic refs `[$@%&]::(...)` work.
+* Nested symbolic refs work, too (`$::some::("var")::($bar)`).
 * `FIRST {...}` and `my $x = FIRST {...}` support.
 * `INIT {...}` and `CHECK {...}` blocks in void context and as rvalues.
 * `s:globally//` is now `s:global//`.
@@ -32,6 +32,8 @@
 ** User-defined symbolic infix functions too.
 ** Operators can be Unicode too.
 ** Operators can be chained with `[]` as well.
+** Almost all operators, user-defined ones too, can be hypered (`»+«`, `[+]«`,
+   etc.).
 
 === Bundled Modules
 
