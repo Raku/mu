@@ -177,7 +177,7 @@ doCompileRun backend file prog = do
 
 doParseWith :: (Env -> FilePath -> IO a) -> FilePath -> String -> IO a
 doParseWith f name prog = do
-    env <- emptyEnv name []
+    env <- tabulaRasa
     runRule env f' ruleProgram name $ decodeUTF8 prog
     where
     f' env | Val err@(VError _ _) <- envBody env = do
