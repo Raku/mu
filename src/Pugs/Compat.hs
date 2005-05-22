@@ -127,11 +127,24 @@ removeLink _ = warnWith "unlink"
 setFileMode :: FilePath -> FileMode -> IO ()
 setFileMode _ _ = warnWith "chmod"
 
--- XXX stub
+-- Win32 specific
 data ProcessTimes = ProcessTimes !Int !Int !Int !Int !Int
+foreign import stdcall unsafe "GetProcessTimes" win32GetProcessTimes ::
+  Int -> Ptr Int -> Ptr Int -> Ptr Int -> Ptr Int -> IO Int 
+-- relies on Int == Int32 on Windows
 
+-- See Perl5 win32/win32.c for the complete implementation
+-- that works on Windows 95 as well
 getProcessTimes :: IO ProcessTimes
-getProcessTimes = failWith "times"
+getProcessTimes = do
+                    pid <- getProcessID
+                    alloca $ \ pDummy  -> do
+                    alloca $ \ pKernel -> do
+                    alloca $ \ pUser   -> do
+                      rc      <- win32GetProcessTimes pid pDummy pDummy pKernel pUser
+                      user    <- peek pUser
+                      kernel  <- peek pKernel                    
+                      return $ ProcessTimes 0 user kernel 0 0
 
 -- This is Win32 specific, dunno about other non POSIX platforms
 statFileSize :: FilePath -> IO Integer
