@@ -12,7 +12,7 @@ and perl6-specific tests.
 
 =cut
 
-plan 66;
+plan 72;
 
 our $GLOBAL;
 
@@ -293,3 +293,11 @@ fail("FIXME (autoload tests)", :todo<parsefail>);
 #	is(&AutoMechanic::sub.(), "autosubdef",               "autoloaddef - sub");
 #	is(AutoMechanic.meth(),   "automethdef",              "autoloaddef - method");
 #}
+
+# Extra tests added due to apparent bugs
+eval_is('undef + 1', undef, 'undef + 1', :todo<bug>);
+eval_is('1 + undef', undef, '1 + undef', :todo<bug>);
+eval_is('undef * 2', undef, 'undef * 2');
+eval_is('2 * undef', undef, '2 * undef', :todo<bug>);
+eval_is('undef xx 2', undef, 'undef xx 2', :todo<bug>);
+eval_is('undef * undef', undef, 'undef * undef');
