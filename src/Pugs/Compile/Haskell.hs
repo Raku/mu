@@ -5,6 +5,7 @@ module Pugs.Compile.Haskell where
 #undef PUGS_HAVE_TH
 #include "../pugs_config.h"
 #ifndef PUGS_HAVE_TH
+genGHC :: a
 genGHC = error "Template Haskell support not compiled in"
 #else
 
