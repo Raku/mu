@@ -1242,9 +1242,12 @@ ruleFoldOp :: RuleParser String
 ruleFoldOp = verbatimRule "reduce metaoperator" $ do
     char '['
     [_, _, _, _, infixOps] <- currentTightFunctions
-    name <- tryChoice $ ops string (infixOps ++ defaultInfixOps)
+    name <- tryChoice $ ops string (addHyperInfix $ infixOps ++ defaultInfixOps)
     char ']'
-    return $ "&prefix:[" ++ name ++ "]"
+    -- XXX: I don't know why the "«" doesn't work. [+]<< parses fine, but [+]«
+    -- does not.
+    possiblyHyper <- many $ string "«" <|> string "<<"
+    return $ "&prefix:[" ++ name ++ "]" ++ concat possiblyHyper
     where
     defaultInfixOps = concat
         [ " ** * / % x xx +& +< +> ~& ~< ~> "

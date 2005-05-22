@@ -3,7 +3,7 @@
 use v6;
 
 use Test;
-plan 24;
+plan 20;
 
 =head1 DESCRIPTION
 
@@ -60,23 +60,4 @@ Basic C<pairs> tests, see S29.
     is @pairs[0].key,   "a", "key of pair returned by pair.pairs";
     is @pairs[0].value,   1, "value of pair returned by pair.pairs";
   }
-}
-
-# Stated by Larry on p6l in:
-# http://www.nntp.perl.org/group/perl.perl6.language/20122
-# "Oh, and we recently moved => to assignment precedence so it would
-# more naturally be right associative, and to keep the non-chaining
-# binaries consistently non-associative.  Also lets you say:
-#    key => $x ?? $y :: $z;
-# plus it moves it closer to the comma that it used to be in Perl 5."
-# Note: this contradicts current S03 so I could be wrong.
-{
-  # This should always work.
-  my %x = ( "Zaphod" => (0 ?? 1 :: 2), "Ford" => 42 );
-  is %x{"Zaphod"}, 2, "Zaphod is 2";
-  is %x{"Ford"},  42, "Ford is 42";
-  # This should work only if => is lower precedence than ?? ::
-  my %z = ( "Zaphod" => 0 ?? 1 :: 2, "Ford" => 42 );
-  is %z{"Zaphod"}, 2, "Zaphod is still 2", :todo;
-  is %z{"Ford"},  42, "Ford is still 42",  :todo;
 }

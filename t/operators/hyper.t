@@ -9,7 +9,7 @@ Hyper operators L<S03/"Hyper operators">
 
 =cut
 
-plan 34;
+plan 35;
 
 { # binary infix
         my @r;
@@ -167,3 +167,9 @@ plan 34;
         is(~@r2, ~@e2, "hyper op and correctly promotes scalars");
 };
 
+
+{ # mixed hyper and reduce metaops
+    is ~([+]<< ([1,2,3], [4,5,6])), "6 15", "mixed hyper and reduce metaop [+]<< works";
+
+    # XXX: Test for [+]<<<<
+}

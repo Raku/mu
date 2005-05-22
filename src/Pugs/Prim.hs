@@ -867,10 +867,14 @@ op1HyperPrefix sub x
     | otherwise
     = fail "Hyper OP only works on lists"
     where
-    doHyper x = do
-        evl <- asks envEval
-        local (\e -> e{ envContext = cxtItemAny }) $ do
-            evl (App (Val $ VCode sub) [Val x] [])
+    doHyper x
+	| VRef x' <- x
+	= doHyper =<< readRef x'
+	| otherwise
+	= do
+	    evl <- asks envEval
+	    local (\e -> e{ envContext = cxtItemAny }) $ do
+		evl (App (Val $ VCode sub) [Val x] [])
     hyperList []     = return []
     hyperList (x:xs) = do
         val  <- doHyper x
