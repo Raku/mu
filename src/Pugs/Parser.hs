@@ -576,8 +576,8 @@ ruleDoBlock = rule "do block" $ try $ do
 
 ruleClosureTrait :: Bool -> RuleParser Exp
 ruleClosureTrait rhs = rule "closure trait" $ do
-    let names | rhs       = " BEGIN FIRST "
-              | otherwise = " BEGIN FIRST END "
+    let names | rhs       = " BEGIN INIT FIRST "
+              | otherwise = " BEGIN INIT FIRST END "
     name    <- tryChoice $ map symbol $ words names
     block   <- ruleBlock
     let (fun, names) = extract block []
@@ -590,6 +590,7 @@ ruleClosureTrait rhs = rule "closure trait" $ do
         "BEGIN" -> do
             rv <- unsafeEvalExp fun
             return $ if rhs then rv else emptyExp 
+	"INIT"  -> vcode2initBlock code
 	"FIRST" -> vcode2firstBlock code
         _       -> fail ""
 
@@ -626,6 +627,24 @@ vcode2firstBlock code = do
 			(Syn "=" [Var "$?FIRST_RESULT", App (Val code) [] []]))] [])
 		    --  $?FIRST_RESULT;
 		    (Var "$?FIRST_RESULT"))))]
+
+
+vcode2initBlock :: Val -> RuleParser Exp
+vcode2initBlock code = do
+    -- As with FIRST {...}, we transform our input:
+    -- my $x = INIT { 42 }   is transformed to
+    -- BEGIN { push @?INIT, { FIRST { 42 } } }; my $x = @?INIT[(index)]();
+    -- This is the FIRST {...} block we generate
+    body <- vcode2firstBlock code
+    rv <- unsafeEvalExp $
+	-- BEGIN { push @?INIT, { FIRST {...} } }
+	App (Var "&push") [Var "@?INIT"] [Syn "sub" [Val $ VCode mkSub { subBody = body }]]
+    -- rv is the return value of the push. Now we extract the actual num out of it:
+    let (Val (VInt elems)) = rv
+    -- Finally, we can return the transformed expression.
+    -- elems is the new number of elems in @?INIT (as push returns the new
+    -- number of elems), but we're interested in the index, so we -1 it.
+    return $ App (Syn "[]" [Var "@?INIT", Val . VInt $ elems - 1]) [] []
 
 unsafeEvalLexDiff :: Exp -> RuleParser Pad
 unsafeEvalLexDiff exp = do

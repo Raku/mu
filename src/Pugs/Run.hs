@@ -77,6 +77,7 @@ prepareEnv name args = do
     execSV  <- newScalar (VStr exec)
     progSV  <- newScalar (VStr name)
     endAV   <- newArray []
+    initAV  <- newArray []
     matchAV <- newScalar (VMatch mkMatchFail)
     incAV   <- newArray (map VStr libs)
     argsAV  <- newArray (map VStr args)
@@ -107,6 +108,7 @@ prepareEnv name args = do
         , genSym "$*GID"        $ MkRef gidSV
         , genSym "$*EGID"       $ MkRef egidSV
         , genSym "@*END"        $ MkRef endAV
+        , genSym "@?INIT"       $ MkRef initAV
         , genSym "$*IN"         $ MkRef inGV
         , genSym "$*OUT"        $ MkRef outGV
         , genSym "$*ERR"        $ MkRef errGV
