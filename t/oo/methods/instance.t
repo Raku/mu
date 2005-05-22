@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 11;
+plan 17;
 
 =pod
 
@@ -15,6 +15,9 @@ Very basic instance method tests from L<S12/"Methods">
 class Foo {
   method doit ($a, $b, $c) { $a + $b + $c }
   method noargs () { 42 }
+  method nobrackets { 'mice' }
+  method callsmethod1() { .noargs(); }
+  method callsmethod2 { .noargs(); }
 }
 
 my $foo = Foo.new();
@@ -57,3 +60,21 @@ is($foo.noargs(), 42, "... parentheses after method");
     }, "... <space> + '.' + parentheses after method", :todo<hardfail>;
     is($val, 42, '... we got the value correctly', :todo<feature>);
 }
+
+{
+    my $val;
+    lives_ok { $val = $foo.nobrackets() }, 'method declared with no brackets';
+    is($val, 'mice', '... we got the value correctly');
+}
+
+{
+    my $val;
+    lives_ok { $val = $foo.callsmethod1() }, 'method calling method';
+    is($val, 42, '... we got the value correctly');
+};
+
+{
+    my $val;
+    lives_ok { $val = $foo.callsmethod2() }, 'method calling method with no brackets', :todo<feature>;
+    is($val, 'mice', '... we got the value correctly', :todo<feature>);
+};
