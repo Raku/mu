@@ -5,7 +5,7 @@ use Test;
 
 plan 29;
 
-use Perl::Meta::Class;
+use Perl::Meta::MetaClass;
 use Perl::Meta::Type;
 use Perl::Meta::Property;
 
@@ -15,7 +15,7 @@ This class tests property assignment and removal
 
 =cut
 
-my $class = Perl::Meta::Class::new('Class');
+my $class = Perl::Meta::MetaClass.new('Class');
 
 {
     my @property_labels = $class.propertyLabels();
@@ -72,7 +72,7 @@ ok(!$class.isPropertySupported('foo'), '... the "foo" property is not supported'
     ok(%properties{'rw'} =:= $rw_prop, '... the first is $rw_prop');     
 }
 
-my $ts_class = Perl::Meta::Class::new('ThreadSafeClass');
+my $ts_class = Perl::Meta::MetaClass.new('ThreadSafeClass');
 $ts_class.superclass($class);
 
 my $semaphore_prop = Perl::Meta::Property.new(MkType('Semaphore'));

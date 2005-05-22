@@ -134,6 +134,13 @@ method findMethod ($self: Str $label) returns Perl::Meta::Method {
     return undef;
 }
 
+method invokeMethod ($self: Str $label, $inv, *@args) returns Any {  
+    my $method = $self.findMethod($label);
+    ($method.defined)
+        || die "Method not found";
+    return $method.invoke($inv, @args);
+}
+
 =pod
 
 =head1 NAME
@@ -191,6 +198,8 @@ Perl::Meta::Class::Behavior - A meta-meta-model for Perl Classes
 =over 4
 
 =item B<findMethod ($self: Str $label) returns Perl::Meta::Method>
+
+=item B<invokeMethod ($self: Str $label, *@args) returns Any>
 
 =back
 

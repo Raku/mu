@@ -6,12 +6,19 @@ class Perl::Meta::Role::Behavior;
 use Perl::Meta::Property;
 use Perl::Meta::Method;
 
-has $.name is rw;
+has $:name;
 has @:roles;
 has %:properties;
 has %:methods;
 
 submethod BUILD($:name) {}
+
+method name ($self: Str ?$name) returns Str {
+    if $name.defined {
+        $:name = $name;
+    }
+    return $:name;
+}
 
 ## Roles
 
@@ -87,13 +94,6 @@ method isMethodSupported ($self: Str $label) returns Bool {
     $self.findMethod($label) ?? 1 :: 0;
 }
 
-method invokeMethod ($self: Str $label, $inv, *@args) returns Any {  
-    my $method = $self.findMethod($label);
-    ($method.defined)
-        || die "Method not found";
-    return $method.invoke($inv, @args);
-}
-
 =pod
 
 =head1 NAME
@@ -157,8 +157,6 @@ Perl::Meta::Role::Behavior - A meta-meta-model for Perl Classes
 =item B<findMethod ($self: Str $label) returns Perl::Meta::Method>
 
 =item B<isMethodSupported ($self: Str $label) returns Bool>
-
-=item B<invokeMethod ($self: Str $label, *@args) returns Any>
 
 =back
 

@@ -5,7 +5,7 @@ use Test;
 
 plan 28;
 
-use Perl::Meta::Class;
+use Perl::Meta::MetaClass;
 use Perl::Meta::Method;
 
 =pod
@@ -14,7 +14,7 @@ This class tests property assignment and removal
 
 =cut
 
-my $mmc = Perl::Meta::Class::new('Role');
+my $mmc = Perl::Meta::MetaClass.new('Role');
 
 {
     my @labels = $mmc.methodLabels();
@@ -68,7 +68,7 @@ ok($removed_method =:= $meta, '... removed $meta');
     ok(%methods{'new'} =:= $new, '... the first is $new');     
 }
 
-my $sub_mmc = Perl::Meta::Class::new('Class');
+my $sub_mmc = Perl::Meta::MetaClass.new('Class');
 $sub_mmc.superclass($mmc);
 
 # for some reason, we're deciding that only Class objects have
@@ -81,7 +81,7 @@ ok($sub_mmc.findMethod('new') =:= $new, '... found the right method (in parent c
 ok(!$mmc.isMethodSupported('meta'), '... did not find the method (as expected) in parent class');
 ok($sub_mmc.isMethodSupported('meta'), '... did find the method (as expected) in class');
 
-my $sub_sub_mmc = Perl::Meta::Class::new('ThreadSafeClass');
+my $sub_sub_mmc = Perl::Meta::MetaClass.new('ThreadSafeClass');
 $sub_sub_mmc.superclass($sub_mmc);
 
 ok($sub_sub_mmc.isMethodSupported('new'), '... did find the method in parents parent class');

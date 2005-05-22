@@ -7,7 +7,7 @@ plan 22;
 
 use Perl::Meta::Property;
 use Perl::Meta::Type;
-use Perl::Meta::Class;
+use Perl::Meta::MetaClass;
 
 my $prop = Perl::Meta::Property.new(type => MkType('Str'), default => "Hello World", :trait<rw>);
 ok($prop ~~ Perl::Meta::Property, '... we have a Perl::Meta::Property instance');
@@ -22,7 +22,7 @@ dies_ok {
 }, '... incorrect type of default dies as expected';
 like($!, rx:perl5/^Incorrect value type for property default/, '... got the right error too');
 
-my $mmc = Perl::Meta::Class.new(:name<Class>);
+my $mmc = Perl::Meta::MetaClass.new(:name<Class>);
 
 is($prop.associatedWith(), undef, '... we are associated with nothing');
 
@@ -31,7 +31,7 @@ ok($prop.associatedWith() =:= $mmc, '... we are associated with $mmc');
 
 $! = undef;
 dies_ok {
-    $prop.associatedWith(Perl::Meta::Class.new(:name<Role>));
+    $prop.associatedWith(Perl::Meta::MetaClass.new(:name<Role>));
 }, '... incorrect type of default dies as expected';
 like($!, rx:perl5/^This property has already be associated with a something/, '... got the right error too');
 
@@ -39,7 +39,7 @@ $prop.removeAssociation();
 is($prop.associatedWith(), undef, '... we are associated with nothing again');
 
 lives_ok {
-    $prop.associatedWith(Perl::Meta::Class.new(:name<Role>));
+    $prop.associatedWith(Perl::Meta::MetaClass.new(:name<Role>));
 }, '... we can now associate with another class';
 
 is($prop.associatedWith().name(), 'Role', '... we are associated with a Role');
@@ -61,6 +61,6 @@ ok($prop.default() =:= $mmc, '... the default is now $mmc');
 
 $! = undef;
 dies_ok {
-    $prop.default(Perl::Meta::Class.new(:name<Role>));
+    $prop.default(Perl::Meta::MetaClass.new(:name<Role>));
 }, '... incorrect type of default dies as expected';
 like($!, rx:perl5/^Incorrect value type for property default/, '... got the right error too');

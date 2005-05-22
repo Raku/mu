@@ -19,13 +19,13 @@ Perl::Meta::Compiler itself.
 
 use Perl::Meta::Compiler;
 
-use Perl::Meta::Class;
+use Perl::Meta::MetaClass;
 use Perl::Meta::Property;
 use Perl::Meta::Type;
 use Perl::Meta::Method;
 
 ## Perl::Package
-my $meta_package = Perl::Meta::Class::new('Perl::Package');
+my $meta_package = Perl::Meta::MetaClass.new('Perl::Package');
 
 # has $.version;
 $meta_package.addProperty('version',
@@ -55,7 +55,7 @@ $meta_package.addMethod('identifier',
 );
 
 ## Perl::Role
-my $meta_role = Perl::Meta::Class::new('Perl::Role');
+my $meta_role = Perl::Meta::MetaClass.new('Perl::Role');
 
 # isa Perl::Package;
 $meta_role.superclass($meta_package);
@@ -85,7 +85,7 @@ $meta_role.addMethod('does',
 );
 
 ## Perl::Class
-my $meta_class = Perl::Meta::Class::new('Perl::Class');
+my $meta_class = Perl::Meta::MetaClass.new('Perl::Class');
 
 # isa Perl::Role;
 $meta_class.superclass($meta_role);
