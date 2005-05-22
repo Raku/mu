@@ -860,7 +860,24 @@ op4 "splice" = \x y z w -> do
 op4 other = \_ _ _ _ -> fail ("Unimplemented 4-ary op: " ++ other)
 
 op1HyperPrefix :: VCode -> Val -> Eval Val
-op1HyperPrefix = fail "op2HyperPrefix not yet implemented"
+op1HyperPrefix sub (VRef ref) = do
+    x <- readRef ref
+    op1HyperPrefix sub x
+op1HyperPrefix sub x
+    | VList x' <- x
+    = fmap VList $ hyperList x'
+    | otherwise
+    = fail "Hyper OP only works on lists"
+    where
+    doHyper x = do
+        evl <- asks envEval
+        local (\e -> e{ envContext = cxtItemAny }) $ do
+            evl (App (Val $ VCode sub) [Val x] [])
+    hyperList []     = return []
+    hyperList (x:xs) = do
+        val  <- doHyper x
+        rest <- hyperList xs
+        return (val:rest)
 
 op1HyperPostfix :: VCode -> Val -> Eval Val
 op1HyperPostfix = fail "op2HyperPostfix not yet implemented"
