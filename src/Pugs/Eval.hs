@@ -854,7 +854,7 @@ findSub name invs args = do
             }
     possiblyBuildMetaopVCode op' | "&prefix:" `isPrefixOf` op', "\171" `isSuffixOf` op' = do 
 	let op = drop 8 (init op')
-	possiblyBuildMetaopVCode ("&prefix" ++ op ++ "<<")
+	possiblyBuildMetaopVCode ("&prefix:" ++ op ++ "<<")
     possiblyBuildMetaopVCode op' | "&prefix:" `isPrefixOf` op', "<<" `isSuffixOf` op' = do 
 	let op = drop 8 (init (init op'))
         code <- findSub ("&prefix:" ++ op) [head $ invs ++ [Val undef]] []
