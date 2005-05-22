@@ -12,7 +12,7 @@ words, prod someone on C<#perl6>, or read
 L<http://use.perl.org/~autrijus/journal> and see if there's been any big
 change.
 
-The currenct copy was last revised on 2005-05-21.
+The current copy was last revised on 2005-05-21.
 
 =head1 PRELUDE
 
@@ -22,7 +22,7 @@ may be wise to study a bit of Haskell.
 =head1 INTRODUCTION
 
 Pugs is a versatile project, tapping into the power of many other projects. Pugs
-itself fits into a star toplogy, optionally using these projects to gain more
+itself fits into a star topology, optionally using these projects to gain more
 features.
 
 Each will be discussed later in more detail.
@@ -33,7 +33,7 @@ Pugs's own core is also componentized. The separation roughly coincides with Per
 6's runtime and compile time. However, it is notable that the parts are
 intermixed, since Perl 6 is a very dynamic language.
 
-The two parts are roughly
+The two parts are roughly:
 
 =head2 The Parser
 
@@ -79,7 +79,7 @@ envBody of the env.
 
 =head2 F<src/Pugs/Eval.hs>
 
-This file implements the evaluation logic for the AST. It's main job is reducing
+This file implements the evaluation logic for the AST. Its main job is reducing
 Exps into Vals. Most Exps require applying VCode objects, which represent
 closures (blocks, subroutines, operators...), looking up variables, or other
 basic features Perl 6 provides, and this is where most of this is coded.
@@ -196,7 +196,7 @@ it contains. Here is the type signature of C<evalRef>, for refernce:
 =head2 Many different reductions
 
 F<src/Pugs/Eval.hs> contains nearly 30 different variants of reduce. Each one
-serves a different purpose, and most are pretty streight forward.
+serves a different purpose, and most are pretty straightforward.
 
 For example C<reduce (Syn "env" [])> is the reduce that takes care of variable
 declaration using C<VControl>, while C<reduce (Cxt cxt exp)> forces the sub
@@ -228,7 +228,7 @@ Let's analyze it.
 
 	runBody [] _ = retVal undef
 
-This takes care the case where there are no more lements in C<list>. Contrast it
+This takes care the case where there are no more elements in C<list>. Contrast it
 with:
 
 	runBody vs sub' = do
