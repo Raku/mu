@@ -23,13 +23,13 @@ my $s = "ZBC"; my @a = ("A", 'ZBC');
 
 my $_ = q{Now I know my abc's};
 
-s:globally/Now/Wow/;
+s:global/Now/Wow/;
 is($_, q{Wow I know my abc's}, 'Constant substitution');
 
-s:globally/abc/$s/;
+s:global/abc/$s/;
 is($_, q{Wow I know my ZBC's}, 'Scalar substitution');
 
-s:g/BC/@a/;
+s:g/BC/@a[]/;
 is($_, q{Wow I know my ZA ZBC's}, 'List substitution');
 
 }

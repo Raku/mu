@@ -27,7 +27,7 @@ for ("abcdef") {
 }
 
 my $_ = "foofoofoo foofoofoo";
-ok(s:globally:pos/foo/FOO/, 'Globally contiguous substitution');
+ok(s:global:pos/foo/FOO/, 'Globally contiguous substitution');
 is($_, "FOOFOOFOO foofoofoo", 'Correctly substituted contiguously');
 
 }
