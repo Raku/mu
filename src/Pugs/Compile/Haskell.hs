@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fno-warn-missing-signatures -fth -cpp #-}
+{-# OPTIONS_GHC -fglasgow-exts -fth -cpp #-}
 
 module Pugs.Compile.Haskell where
 
@@ -21,10 +21,12 @@ genGHC :: Eval Val
 genGHC = do
     exp <- asks envBody
     liftIO (TH.runQ [d|
+        mainCC :: IO Val
         mainCC = runComp $(compile exp) |]) >>= \str -> return . VStr . unlines $
             [ "{-# OPTIONS_GHC -fglasgow-exts -fth -O #-}"
             , "module MainCC where"
             , "import qualified GHC.Base"
+            , "import qualified GHC.IOBase"
             , "import qualified Pugs.Run"
             , "import qualified Pugs.AST"
             , "import qualified Pugs.AST.Internals"
@@ -33,7 +35,6 @@ genGHC = do
             , "import qualified Pugs.Internals"
             , "import Language.Haskell.TH as TH"
             , ""
-            , "mainCC :: IO Pugs.AST.Internals.Val"
             , TH.pprint str
             ]
 #endif
