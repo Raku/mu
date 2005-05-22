@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 1;
+plan 2;
 
 sub n_le(Int $a, Int $b) { ?($a <= $b) }; # how stupid is this?
 
