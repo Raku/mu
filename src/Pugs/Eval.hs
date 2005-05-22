@@ -168,7 +168,9 @@ addGlobalSym newSym = do
 
 trapVal :: Val -> Eval a -> Eval a
 trapVal val action = case val of
-    VError str exp  -> retError str exp
+    VError str posList -> do
+        pos <- asks envPos
+        shiftT . const . return $ VError str (pos:posList)
     VControl c      -> retControl c
     _               -> action
 
