@@ -1,0 +1,19 @@
+Uses of the reduction meta-operator
+
+    [+]       # sum(...)
+    [~]       # join('', ...)
+    [+^]      # numeric parity
+    [~^]      # string parity
+    [?^]      # boolean parity
+    [<]       # monotony
+    [==]      # equality
+    [&]       # all(...)
+    [|]       # any(...)
+    [^]       # one(...)
+    [.{}]     # key path
+    [.[]]     # index path
+    [.]       # method path
+    [.()]     # subcall "path"
+    [¥]       # zip(...), note: not [Y]!
+    [,]       # ?
+    [;]       # ?
