@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 10;
+plan 11;
 
 {
   my $var;
@@ -43,4 +43,16 @@ plan 10;
   is $sub(), 23, 'our FIRST {} wasn\'t invoked again (2-1)';
   is $sub(), 23, 'our FIRST {} wasn\'t invoked again (2-2)';
   is $was_in_first, 1, 'our FIRST {} block was invoked exactly once';
+}
+
+# Test that FIRST {} blocks are executed only once even if they return undef
+# (the first implementation ran than twice instead).
+{
+  my $was_in_first;
+  my $sub = { FIRST { $was_in_first++; undef } };
+
+  $sub();
+  $sub();
+  $sub();
+  is $was_in_first, 1, 'our FIRST { ...; undef } block was invoked exactly once';
 }
