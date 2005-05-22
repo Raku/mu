@@ -603,30 +603,22 @@ vcode2firstBlock code = do
     --   state $?FIRST_RESULT;
     --   state $?FIRST_RUN;
     --   $?FIRST_RUN || { $?FIRST_RUN++; $?FIRST_RESULT = { 42 }() };
-    --   $?FIRST_RUN;
+    --   $?FIRST_RESULT;
     -- }
     -- These are the two state variables we need.
-    symResult <- return $ Sym SState "$?FIRST_RESULT"
-    symRun    <- return $ Sym SState "$?FIRST_RUN"
     -- This will soon add our two state vars to our pad
-    lexdiffResult <- unsafeEvalLexDiff $ symResult emptyExp
-    lexdiffRun    <- unsafeEvalLexDiff $ symRun    emptyExp
+    lexDiff <- unsafeEvalLexDiff $
+        (Sym SState "$?FIRST_RESULT") . (Sym SState "$?FIRST_RUN") $ emptyExp
     -- And that's the transformation part.
-    return $
-	-- The outer block
-	Syn "block" [
-	    -- state $?FIRST_RESULT
-	    Pad SState lexdiffResult (
-		-- state $?FIRST_RUN
-		Pad SState lexdiffRun (
-		    --  $?FIRST_RUN ||
-		    (Stmts (App (Var "&infix:||") [Var "$?FIRST_RUN",
-			--  $?FIRST_RUN++;
-			(Stmts (App (Var "&postfix:++") [Var "$?FIRST_RUN"] [])
-			--  $?FIRST_RESULT = { 42 }();
-			(Syn "=" [Var "$?FIRST_RESULT", App (Val code) [] []]))] [])
-		    --  $?FIRST_RESULT;
-		    (Var "$?FIRST_RESULT"))))]
+    return $ Syn "block"        -- The outer block
+        [ Pad SState lexDiff $  -- state ($?FIRST_RESULT, $?FIRST_RUN);
+            Stmts (App (Var "&infix:||")    -- $?FIRST_RUN ||
+                [ Var "$?FIRST_RUN"
+                , Stmts (App (Var "&postfix:++") [Var "$?FIRST_RUN"] [])
+                        (Syn "=" [Var "$?FIRST_RESULT", App (Val code) [] []])
+                ] [])   -- { $?FIRST_RUN++; $?FIRST_RESULT = { 42 }() };
+            (Var "$?FIRST_RESULT") --  $?FIRST_RESULT;
+        ]
 
 
 vcode2initBlock :: Val -> RuleParser Exp
