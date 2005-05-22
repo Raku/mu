@@ -60,7 +60,8 @@ op0 "time"  = const $ do
        fdiff = \d -> (fromInteger $ tdPicosec d) / (1000*1000*1000*1000)
                    + (fromIntegral $ tdSec d)
 op0 "times"  = const $ do
-    return $ VList [VNum 0,VNum 0,VNum 0,VNum 0];
+    ProcessTimes _ u s cu cs <- liftIO getProcessTimes
+    return . VList $ map (castV . fromEnum) [u, s, cu, cs]
 op0 "so" = const (return $ VBool True)
 op0 "¥" = op0Zip
 op0 "Y" = op0 "¥"

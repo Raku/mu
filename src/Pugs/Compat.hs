@@ -35,6 +35,7 @@ module Pugs.Compat (
     unsetEnv,
     signalProcess,
     executeFile,
+    ProcessTimes(..),
 ) where
 
 import Foreign
@@ -122,6 +123,10 @@ removeLink _ = warnWith "unlink"
 setFileMode :: FilePath -> FileMode -> IO ()
 setFileMode _ _ = warnWith "chmod"
 
+-- XXX stub
+data ProcessTimes = ProcessTimes !Int !Int !Int !Int
+
+getProcessTimes :: IO ProcessTimes
 getProcessTimes = failWith "times"
 
 -- This is Win32 specific, dunno about other non POSIX platforms
