@@ -41,6 +41,9 @@ import Pugs.Prim.Numeric
 import Pugs.Prim.Lifts
 import Pugs.Prim.Eval
 
+clocksPerSecond :: (Num a) => a
+clocksPerSecond = 1000000
+
 -- |Implementation of 0-ary and variadic primitive operators and functions
 -- (including list ops).
 op0 :: String -> [Val] -> Eval Val
@@ -57,11 +60,13 @@ op0 "time"  = const $ do
        epochClkT = toClockTime epoch
        epoch = CalendarTime 2000 January 1 0 0 0 0 Saturday 0 "UTC" 0 False
        -- 10^12 is expanded because the alternatives tried gave type warnings.
-       fdiff = \d -> (fromInteger $ tdPicosec d) / (1000*1000*1000*1000)
+       fdiff = \d -> (fromInteger $ tdPicosec d)
+                   / (clocksPerSecond * clocksPerSecond)
                    + (fromIntegral $ tdSec d)
 op0 "times"  = const $ do
     ProcessTimes _ u s cu cs <- liftIO getProcessTimes
-    return . VList $ map (castV . fromEnum) [u, s, cu, cs]
+    return . VList $ map (castV . (% (clocksPerSecond :: VInt)) . toInteger . fromEnum)
+        [u, s, cu, cs]
 op0 "so" = const (return $ VBool True)
 op0 "¥" = op0Zip
 op0 "Y" = op0 "¥"
@@ -293,7 +298,7 @@ op1 "exit" = op1Exit
 op1 "readlink" = \v -> do
     str  <- fromVal v
     tryIO undef $ fmap VStr (readSymbolicLink str)
-op1 "sleep" = boolIO (threadDelay . (* 1000000))
+op1 "sleep" = boolIO (threadDelay . (* clocksPerSecond))
 op1 "mkdir" = boolIO createDirectory
 op1 "rmdir" = boolIO removeDirectory
 op1 "chdir" = boolIO setCurrentDirectory
