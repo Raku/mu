@@ -1,12 +1,16 @@
 Uses of the reduction meta-operator
 
     [+]                    # sum(...)
+    [*]                    # product
+    [*] 1..$x              # factorial
     [~]                    # join('', ...)
     [+^]                   # numeric parity
     [~^]                   # string parity
     [?^]                   # boolean parity
     [<]                    # monotony
     [==]                   # equality
+    [//]                   # first defined element
+    [||]                   # first true element
     [&]                    # all(...)
     [|]                    # any(...)
     [^]                    # one(...)
@@ -14,7 +18,6 @@ Uses of the reduction meta-operator
     [.[]] $aref, @indices  # index path
     [.()] $cref, @args     # subcall "path"
     [.]   $invc, @meths    # method path
-    [¥]                    # zip(...), note: not [Y]!
-    [,]                    # ?
+    [Â¥]                    # zip(...), note: not [Y]!
+    [,]                    # noop, returns input list
     [;]                    # ?
-    [*] 1..$x              # factorial
