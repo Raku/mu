@@ -287,10 +287,8 @@ op1 "fail_" = \v -> do
 	-- "use fatal" is in effect, so die.
 	then fail msg
 	-- We've to return a unthrown exception.
-	else do
-	    -- The error message to output
-	    let err = fail msg
-	    op1Return $ shiftT . const $ return . VRef . thunkRef . MkThunk $ err
+        -- The error message to output
+	else shiftT . const $ return . VRef . thunkRef . MkThunk $ fail msg
     where
     errmsg "" = "Failed"
     errmsg x  = x

@@ -702,6 +702,7 @@ ruleConstruct = rule "construct" $ tryChoice
     , ruleGivenConstruct
     , ruleWhenConstruct
     , ruleDefaultConstruct
+    , yadaLiteral
     ]
 
 ruleKeywordConsturct :: String -> RuleParser Exp
@@ -1809,11 +1810,14 @@ namedLiteral :: String -> Val -> RuleParser Exp
 namedLiteral n v = do { symbol n; return $ Val v }
 
 yadaLiteral :: RuleParser Exp
-yadaLiteral = do
-    pos1 <- getPosition
+yadaLiteral = expRule $ do
     sym  <- choice . map symbol $ words " ... ??? !!! "
-    pos2 <- getPosition
-    return . Val $ VError sym [mkPos pos1 pos2]
+    return $ App (Var $ doYada sym) [Val $ VStr (sym ++ " - not yet implemented")] []
+    where
+    doYada "..." = "&fail_" -- XXX rename to fail() eventually
+    doYada "???" = "&warn"
+    doYada "!!!" = "&die"
+    doYada _ = error "Bad yada symbol"
 
 methOps             :: a -> [b]
 methOps _ = []
