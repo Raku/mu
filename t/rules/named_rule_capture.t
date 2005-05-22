@@ -19,8 +19,8 @@ L<S05/"Rule-scoped variables">
 {
   rule fishy { (.*)shark };
   "whaleshark" ~~ m/<fishy>/;
-  eval_is('$/<fishy>[0]', "whale", "named rule ordinal capture", :todo<bug>);
-  eval_is('$<fishy>[0]', "whale", "named rule ordinal capture with abbreviated variable", :todo<bug>);
+  eval_is('$/<fishy>[0]', "whale", "named rule ordinal capture");
+  eval_is('$<fishy>[0]', "whale", "named rule ordinal capture with abbreviated variable");
 };
 
 {

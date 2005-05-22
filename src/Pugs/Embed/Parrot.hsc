@@ -40,7 +40,7 @@ evalPGE path match rule subrules = do
         let nameStr = escape name
             ruleStr = escape rule
 	hPutStrLn inp $ unwords
-            ["add_rule", show (length nameStr), show (length nameStr)]
+            ["add_rule", show (length nameStr), show (length ruleStr)]
 	hPutStrLn inp nameStr
 	hPutStrLn inp ruleStr
     let matchStr = escape match
