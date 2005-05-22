@@ -883,10 +883,10 @@ tightOperators = do
       ++ preSymOps preUnary
       ++ postOps postUnary
     , leftOps $
-               " »*« »/« »x« »xx« »~« " ++
-               " >>*<< >>/<< >>x<< >>xx<< >>~<< " ++
+               " »*« »/« »x« »xx« " ++
+               " >>*<< >>/<< >>x<< >>xx<< " ++
                " * / % x xx +& +< +> ~& ~< ~> "         -- Multiplicative
-    , leftOps  " »+« >>+<< + - ~ +| +^ ~| ~^ ?| "       -- Additive
+    , leftOps  " »+« >>+<< »-« >>-<< »~« >>~<< + - ~ +| +^ ~| ~^ ?| " -- Additive
       ++ leftOps infixOps                               -- User defined ops
     , listOps  " & "                                    -- Junctive And
     , listOps  " ^ | "                                  -- Junctive Or

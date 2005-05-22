@@ -1306,6 +1306,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Scalar    left    .[]     (Array, Int)\
 \\n   Scalar    left    .{}     (Hash, Str)\
 \\n   List      left    »+«     (Any, Any)\
+\\n   List      left    »-«     (Any, Any)\
 \\n   List      left    »*«     (Any, Any)\
 \\n   List      left    »/«     (Any, Any)\
 \\n   List      left    »x«     (Any, Any)\

@@ -9,7 +9,7 @@ Hyper operators L<S03/"Hyper operators">
 
 =cut
 
-plan 33;
+plan 34;
 
 { # binary infix
         my @r;
@@ -24,6 +24,10 @@ plan 33;
         eval '@r = (1, 2, 3) >>+<< (2, 4, 6)';
         @e = (3, 6, 9);
         is(~@r, ~@e, "hyper-sum two arrays ASCII notation");
+
+        eval '@r = (1, 2, 3) >>-<< (2, 4, 6)';
+        @e = (-1, -2, -3);
+        is(~@r, ~@e, "hyper-subtract two arrays");
 
         @r = (1, 2, 3) »*« (2, 4, 6);
         @e = (2, 8, 18);
