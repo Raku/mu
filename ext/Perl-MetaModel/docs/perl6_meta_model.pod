@@ -67,6 +67,8 @@ In the below table,
  .does(MyClass)    true     true       false      false
  .isa(Class)       false    false      true       false
  .does(Class)      false    true       true       true
+ .isa(Type)        false    true       true?      true?
+ .does(Type)       false    true       true       true
  .isa(Meta::Class) false    false      false      true
  .does(Meta::Class)false    false      false      true
  .meta             dies     $meta    $meta_meta   dies(*)
