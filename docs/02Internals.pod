@@ -146,10 +146,13 @@ C<BEGIN> blocks are evaluated by calling C<unsafeEvalExp> on the resulting
 C<Exp> immediately after the block finished parsing, and then replacing that
 point in the syntax tree with a the value the block was reduced to.
 
-Declarations of sorts create a node in the syntax tree called a C<Syn>. These
-nodes, when evaluated, create a type of C<Exp> that will modify the C<Env>,
-adding a new symbol, and then roll back the change later. They are also
-evaluated immediately using C<unsafeEvalExp>.
+Declarations of sorts create a node in the syntax tree called a C<Syn>. C<Syn>s
+represents syntactic constructs of sorts, amongst which are variable
+declarations. When evaluated, variable declarations create a type of C<Exp>
+that will modify the C<Env>, adding a new symbol, and then roll back the change
+later. They are also evaluated immediately using C<unsafeEvalExp>.
+
+Other C<Syn>s include control flow structure, and various keywords, but they will be discussed later.
 
 =head2 reduce :: Exp -> Eval Val
 
