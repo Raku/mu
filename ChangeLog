@@ -4,20 +4,20 @@
 
 * Much work on the Haddock Haskell documentation done.
 * `do {...}` literal added.
-* external parrot for Rules is now kept in a single process.
-* Much Parrot codegen work
-* dereferencers: `@{...}` and `@$var`.
+* External parrot for Rules is now kept in a single process.
+* Much Parrot codegen work.
+* Dereferencers: `@{...}` and `@$var`.
 * We have `OUTER::` scope now.
 * `warn()`, `uniq()`, `fail()`, `times()` implemented.
 * `gather { take }` now implemented.
 * `$?CLASS` and `$?PACKAGE` work, and `$?ROLE` parses (and returns `$?CLASS`)
-* parsing of hierarchical return types: `sub foo returns Hash of Str`
+* Parsing of hierarchical return types: `sub foo returns Hash of Str`.
 * Experimental support for `coro { ... }` added
 * Symboloc refs `[$@%&]::(...)` work.
 * Nested Symbolic refs work too `$::some::("var")::($bar)`
 * `FIRST {...}` and `my $x = FIRST {...}` support.
-* `INIT {...}` blocks in void context and as rvalues.
-* `s:globally//` is now `s:global//`
+* `INIT {...}` and `CHECK {...}` blocks in void context and as rvalues.
+* `s:globally//` is now `s:global//`.
 * `&code.name` and `&code.arity` added.
 * Several Object changes:
 ** MMD handling is now more sophisticated, and `$.chained.attr.methods` works.
@@ -26,44 +26,44 @@
 ** Inheritance has been added.
 ** Private methods: `method :foo ()` and `$obj.:foo`.
 ** Private attributes: `has $:foo` now generates private accessors.
-** New `./method` syntax implemented
+** New `./method` syntax implemented.
 * Operator Overloading and Defintion added:
-** user-defined symbolic postfix and prefix unary functions.
-** user-defined symbolic infix functions too.
-** Operators can be unicode too.
-** Operators can be chained with `[]` as well
+** User-defined symbolic postfix and prefix unary functions.
+** User-defined symbolic infix functions too.
+** Operators can be Unicode too.
+** Operators can be chained with `[]` as well.
 
 === Bundled Modules
 
-* `Inline::Pugs` and `pugs` perl5 module to run Pugs inline
-* `fp` module added for functional programming
-* `Net::IRC`, OO version added
-* `Set` now has many overloaded operators
-* `Set::Junction`, Set implemented with Junctions, added
-* `Perl::MetaModel`, prototype of Perl 6 OO meta-model in Perl 6 OO
-* `Test::Builder`, with Perl 6 objects (parses, and mostly works (see tests))
-* `Tree::Simple`, renamed to `Tree` and converted to OO
-* `Locale::KeyedText` re-added (this was our first `ext/` module)
+* `Inline::Pugs` and `pugs` Perl 5 module to run Pugs inline.
+* `fp` module added for functional programming.
+* `Net::IRC`, OO version added.
+* `Set` now has many overloaded operators.
+* `Set::Junction`, Set implemented with Junctions, added.
+* `Perl::MetaModel`, prototype of Perl 6 OO meta-model in Perl 6 OO.
+* `Test::Builder`, with Perl 6 objects (parses, and mostly works (see tests)).
+* `Tree::Simple`, renamed to `Tree` and converted to OO.
+* `Locale::KeyedText` re-added (this was our first `ext/` module).
 
 === Tests, Examples and Documentations
 
-* Many new test and several tests refactored, we now have 5600+ tests
-* Perl6::Rules test suite incorporate into `t/rules/`
-* hangman IRC bot created from `hangman.p6`
-* OO Wizard RPG game added in `examples/games/`
-* removed usage of `force_todo()` in favor of `:todo`
-* Perl6 quick reference documents add to `docs/quickref`
-* Parrot is now include in the Pugs Live CD
-* IRC logfile to HTML converted added
+* Many new test and several tests refactored, we now have 5600+ tests.
+* Perl6::Rules test suite incorporate into `t/rules/`.
+* Hangman IRC bot created from `hangman.p6`.
+* OO Wizard RPG game added in `examples/games/`.
+* Removed usage of `force_todo()` in favor of `:todo`.
+* Perl 6 quick reference documents added to `docs/quickref`.
+* Parrot is now include in the Pugs Live CD.
+* IRC logfile to HTML converter added.
 
 === Bug Fixes
 
 * `split//` now attaches the submatches to the resulting list.
-* return proper exit codes from system()
+* `system()` returns proper exit codes.
 * `returns Foo::Bar` from subs/methods now works.
 * Post-term code/method invocation in interpolated strings no longer
   eat trailing whitespace.
-* `next` now re-evaluates condition in `loop` constructs
+* `next` now re-evaluates condition in `loop` constructs.
 
 == Changes for 6.2.3 (r3111) - May 12, 2005
 
