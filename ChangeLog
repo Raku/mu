@@ -35,7 +35,7 @@
 
 === Bundled Modules
 
-* `Inline::Pugs` perl5 module to run Pugs inline
+* `Inline::Pugs` and `pugs` perl5 module to run Pugs inline
 * `fp` module added for functional programming
 * `Net::IRC`, OO version added
 * `Set` now has many overloaded operators
@@ -47,7 +47,7 @@
 
 === Tests, Examples and Documentations
 
-* Many new test and several tests refactored, we now have +5600 tests
+* Many new test and several tests refactored, we now have 5600+ tests
 * Perl6::Rules test suite incorporate into `t/rules/`
 * hangman IRC bot created from `hangman.p6`
 * OO Wizard RPG game added in `examples/games/`
