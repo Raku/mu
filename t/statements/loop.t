@@ -11,7 +11,7 @@ L<S04/"The general loop statement">
 
 =cut
 
-plan 10;
+plan 12;
 
 # basic loop
 
@@ -64,4 +64,22 @@ is($count, 10, 'verify our ending condition',:todo);
 		next;
 	}
 	ok($continued, "next performs a loop's continue expression");
+}
+
+=kwid
+
+loop { } while tests... i.e. loops without the () bits
+
+L<S04/"Loop statements">
+
+=cut
+
+{
+  my $x=0;
+  eval_is('loop { $x++ } while $x < 10; $x', 10, 'loop {} while', :todo<feature>);
+}
+
+{
+  my $x = 1;
+  eval_is('loop { $x++ } while false; $x', 2, 'ensure loop {} while runs at least once', :todo<feature>);
 }
