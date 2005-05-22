@@ -93,7 +93,7 @@ sub eval_is (Str $code, Str $expected, Str +$desc, +$todo) returns Bool is expor
 
 sub cmp_ok (Str $got, Code $compare_func, Str $expected, Str +$desc, +$todo) returns Bool is export {
     my $test := $compare_func($got, $expected);
-    proclaim($test, $desc, $todo, $got, "{ $compare_func.name } $expected");
+    proclaim($test, $desc, $todo, $got, "$compare_func.name() $expected");
 }
 
 ## isa_ok
