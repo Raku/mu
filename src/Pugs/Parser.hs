@@ -609,7 +609,7 @@ vcode2firstBlock code = do
 	Syn "block" [
 	    -- state $?FIRST_RESULT
 	    Pad SState lexdiff (
-		-- $?FIRST_RESULT //= { 42 }()
+		--  $?FIRST_RESULT //= { 42 }()
 		Syn "//=" [Var "$?FIRST_RESULT", App (Val code) [] []])]
 
 unsafeEvalLexDiff :: Exp -> RuleParser Pad
