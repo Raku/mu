@@ -848,17 +848,40 @@ findSub name invs args = do
             { subName     = "&prefix:[" ++ op ++ "]"
             , subType     = SubPrim
             , subAssoc    = "spre"
-            , subParams   = params
+            , subParams   = makeParams ["List"]
             , subReturns  = mkType "Str"
             , subBody     = Prim body
             }
-	where
-	-- Taken from Pugs.Prim. Probably this should be refactored. (?)
-	prms'    = map takeWord ["List"]
-	prms''   = foldr foldParam [] prms'
-	params   = map (\p -> p{ isWritable = isLValue p }) prms''
-	takeWord = takeWhile isWord . dropWhile (not . isWord)
-	isWord   = not . (`elem` "(),:")
+    possiblyBuildMetaopVCode op' | "&prefix:" `isPrefixOf` op', "\171" `isSuffixOf` op' = do 
+	let op = drop 8 (init op')
+	possiblyBuildMetaopVCode ("&prefix" ++ op ++ "<<")
+    possiblyBuildMetaopVCode op' | "&prefix:" `isPrefixOf` op', "<<" `isSuffixOf` op' = do 
+	let op = drop 8 (init (init op'))
+        code <- findSub ("&prefix:" ++ op) [head $ invs ++ [Val undef]] []
+        if isNothing code then return Nothing else do
+        return . Just $ mkPrim
+            { subName     = "&prefix:" ++ op ++ "<<"
+            , subType     = SubPrim
+            , subAssoc    = subAssoc (fromJust code)
+            , subParams   = subParams (fromJust code)
+            , subReturns  = mkType "List"
+            , subBody     = Prim (\[x] -> op1HyperPrefix (fromJust code) x)
+            }
+    possiblyBuildMetaopVCode op' | "&postfix:\187" `isPrefixOf` op' = do
+	let op = drop 10 op'
+	possiblyBuildMetaopVCode ("&postfix:>>" ++ op)
+    possiblyBuildMetaopVCode op' | "&postfix:>>" `isPrefixOf` op' = do
+	let op = drop 11 op'
+        code <- findSub ("&postfix:" ++ op) [head $ invs ++ [Val undef]] []
+        if isNothing code then return Nothing else do
+        return . Just $ mkPrim
+            { subName     = "&postfix:>>" ++ op
+            , subType     = SubPrim
+            , subAssoc    = subAssoc (fromJust code)
+            , subParams   = subParams (fromJust code)
+            , subReturns  = mkType "List"
+            , subBody     = Prim (\[x] -> op1HyperPostfix (fromJust code) x)
+            }
     possiblyBuildMetaopVCode op' | "&infix:\187" `isPrefixOf` op', "\171" `isSuffixOf` op' = do 
 	let op = drop 8 (init op')
 	possiblyBuildMetaopVCode ("&infix:>>" ++ op ++ "<<")
@@ -870,18 +893,15 @@ findSub name invs args = do
             { subName     = "&infix:>>" ++ op ++ "<<"
             , subType     = SubPrim
             , subAssoc    = subAssoc (fromJust code)
-            , subParams   = params
+            , subParams   = makeParams ["Any", "Any"]
             , subReturns  = mkType "List"
             , subBody     = Prim (\[x, y] -> op2Hyper (fromJust code) x y)
             }
-	where
 	-- Taken from Pugs.Prim. Probably this should be refactored. (?)
-	prms'    = map takeWord ["Any", "Any"]
-	prms''   = foldr foldParam [] prms'
-	params   = map (\p -> p{ isWritable = isLValue p }) prms''
-	takeWord = takeWhile isWord . dropWhile (not . isWord)
-	isWord   = not . (`elem` "(),:")
     possiblyBuildMetaopVCode _ = return Nothing
+    makeParams = map (\p -> p{ isWritable = isLValue p }) . foldr foldParam [] . map takeWord
+    takeWord = takeWhile isWord . dropWhile (not . isWord)
+    isWord   = not . (`elem` "(),:")
     findWithPkg pkg = do
 	subs <- findSub' (('&':pkg) ++ "::" ++ tail name)
 	if isJust subs then return subs else do

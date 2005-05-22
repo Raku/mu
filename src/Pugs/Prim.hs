@@ -20,7 +20,7 @@ module Pugs.Prim (
     -- used by Pugs.Compile.Haskell
     op0, op1, op2,
     -- used Pugs.Eval
-    foldParam, op2Hyper,
+    foldParam, op2Hyper, op1HyperPrefix, op1HyperPostfix,
 ) where
 import Pugs.Internals
 import Pugs.Junc
@@ -858,6 +858,12 @@ op4 "splice" = \x y z w -> do
         (return $ last (undef:vals'))
 
 op4 other = \_ _ _ _ -> fail ("Unimplemented 4-ary op: " ++ other)
+
+op1HyperPrefix :: VCode -> Val -> Eval Val
+op1HyperPrefix = fail "op2HyperPrefix not yet implemented"
+
+op1HyperPostfix :: VCode -> Val -> Eval Val
+op1HyperPostfix = fail "op2HyperPostfix not yet implemented"
 
 op2Hyper :: VCode -> Val -> Val -> Eval Val
 op2Hyper sub (VRef ref) y = do
