@@ -38,12 +38,16 @@ ruleProgram = rule "program" $ do
     -- error $ show statements
     eof
     -- S04: CHECK {...}*      at compile time, ALAP
-    -- check_subs is of type Val (VList [...]).
-    check_subs <- unsafeEvalExp $ Var "@?CHECK"
-    -- We extract the list...
-    let Val (VList sublist) = check_subs
-    -- ...and run each sub of it.
-    mapM_ unsafeEvalExp [ App (Val sub) [] [] | sub <- sublist ]
+    --  $_() for @?CHECK
+    unsafeEvalExp $ Syn "for"
+	[ Var "@?CHECK"
+	, Syn "sub"
+	    [ Val . VCode $ mkSub
+		{ subBody   = App (Var "$_") [] []
+		, subParams = [defaultScalarParam]
+		}
+	    ]
+	]
     env' <- getState
     return $ env'
         { envBody       = mergeStmts emptyExp statements
@@ -620,11 +624,11 @@ vcode2firstBlock code = do
     -- And that's the transformation part.
     return $ Syn "block"        -- The outer block
         [ Pad SState lexDiff $  -- state ($?FIRST_RESULT, $?FIRST_RUN);
-            Stmts (App (Var "&infix:||")    -- $?FIRST_RUN ||
+            Stmts (App (Var "&infix:||")    --  $?FIRST_RUN ||
                 [ Var "$?FIRST_RUN"
                 , Stmts (App (Var "&postfix:++") [Var "$?FIRST_RUN"] [])
                         (Syn "=" [Var "$?FIRST_RESULT", App (Val code) [] []])
-                ] [])   -- { $?FIRST_RUN++; $?FIRST_RESULT = { 42 }() };
+                ] [])   --  { $?FIRST_RUN++; $?FIRST_RESULT = { 42 }() };
             (Var "$?FIRST_RESULT") --  $?FIRST_RESULT;
         ]
 
