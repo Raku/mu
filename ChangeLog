@@ -1,4 +1,71 @@
-== Changes for 6.2.3 - May 12, 2005
+== Changes for 6.2.4 (up to r3656) - May 22, 2005
+
+=== Pugs Internals
+
+* Much work on the Haddock Haskell documentation done.
+* `do {...}` literal added.
+* external parrot for Rules is now kept in a single process.
+* Much Parrot codegen work
+* dereferencers: `@{...}` and `@$var`.
+* We have `OUTER::` scope now.
+* `warn()`, `uniq()`, `fail()`, `times()` implemented.
+* `gather { take }` now implemented.
+* `$?CLASS` and `$?PACKAGE` work, and `$?ROLE` parses (and returns `$?CLASS`)
+* parsing of hierarchical return types: `sub foo returns Hash of Str`
+* Experimental support for `coro { ... }` added
+* Symboloc refs `[$@%&]::(...)` work.
+* Nested Symbolic refs work too `$::some::("var")::($bar)`
+* `FIRST {...}` and `my $x = FIRST {...}` support.
+* `INIT {...}` blocks in void context and as rvalues.
+* `s:globally//` is now `s:global//`
+* `&code.name` and `&code.arity` added.
+* Several Object changes:
+** MMD handling is now more sophisticated, and `$.chained.attr.methods` works.
+** switch to Manhattan distance for MMD dispatch on invocants.
+** Objects numify to a unique value accessible with `$obj.id()`
+** Inheritance has been added.
+** Private methods: `method :foo ()` and `$obj.:foo`.
+** Private attributes: `has $:foo` now generates private accessors.
+** New `./method` syntax implemented
+* Operator Overloading and Defintion added:
+** user-defined symbolic postfix and prefix unary functions.
+** user-defined symbolic infix functions too.
+** Operators can be unicode too.
+** Operators can be chained with `[]` as well
+
+=== Bundled Modules
+
+* `Inline::Pugs` perl5 module to run Pugs inline
+* `fp` module added for functional programming
+* `Net::IRC`, OO version added
+* `Set` now has many overloaded operators
+* `Set::Junction`, Set implemented with Junctions, added
+* `Perl::MetaModel`, prototype of Perl 6 OO meta-model in Perl 6 OO
+* `Test::Builder`, with Perl 6 objects (parses, and mostly works (see tests))
+* `Tree::Simple`, renamed to `Tree` and converted to OO
+* `Locale::KeyedText` re-added (this was our first `ext/` module)
+
+=== Tests, Examples and Documentations
+
+* Many new test and several tests refactored, we now have +5600 tests
+* Perl6::Rules test suite incorporate into `t/rules/`
+* hangman IRC bot created from `hangman.p6`
+* OO Wizard RPG game added in `examples/games/`
+* removed usage of `force_todo()` in favor of `:todo`
+* Perl6 quick reference documents add to `docs/quickref`
+* Parrot is now include in the Pugs Live CD
+* IRC logfile to HTML converted added
+
+=== Bug Fixes
+
+* `split//` now attaches the submatches to the resulting list.
+* return proper exit codes from system()
+* `returns Foo::Bar` from subs/methods now works.
+* Post-term code/method invocation in interpolated strings no longer
+  eat trailing whitespace.
+* `next` now re-evaluates condition in `loop` constructs
+
+== Changes for 6.2.3 (r3111) - May 12, 2005
 
 === Pugs Internals
 
@@ -76,7 +143,7 @@
 * `to => 123` parses again; arrow pairs now always trumps unary functions
 * `{}` in P5 rules is no longer closure interpolation
 
-== Changes for 6.2.2 - May 1, 2005
+== Changes for 6.2.2 (r2604) - May 1, 2005
 
 === Pugs Internals
 
@@ -135,7 +202,7 @@
 * `one(1,1).pick` bug fixed; it should return `undef`
 * `splice([], 1)` no longer causes division by zero errors
 
-== Changes for 6.2.1 - April 24, 2005
+== Changes for 6.2.1 (r2288) - April 24, 2005
 
 === Pugs Internals
 
@@ -221,7 +288,7 @@
 * `=cut` without a newline at EOF is now parsed correctly
 * `return() if 1` now works correctly
 
-== Changes for 6.2.0 - April 13, 2005
+== Changes for 6.2.0 (r1921) - April 13, 2005
 
 === Pugs Internals
 
@@ -439,7 +506,7 @@
 * Hanoi.p6 was broken due to premature binding of subroutine parameters
 * "&sub.foo" no longer attempts to interpolate
 
-== Changes for 6.0.11 - March 14, 2005
+== Changes for 6.0.11 (r690) - March 14, 2005
 
 === Pugs Internals
 
@@ -535,7 +602,7 @@
 * Fixed `grep`/`map`/`push`/`unshift` parsing so they are properly binOp now
 * Fixed prefix function parsing bug that eats more parens than it should
 
-== Changes for 6.0.9 - February 28, 2005
+== Changes for 6.0.9 (r335) - February 28, 2005
 
 * First Perl 6 module: `Test.pm`
 * First Pugs Apocryphon: `docs/01Overview.html`
