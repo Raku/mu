@@ -103,7 +103,7 @@ eval prog = do
     runProgramWith id (putStrLn . pretty) "<interactive>" args prog
 
 parse :: String -> IO ()
-parse = doParse "-"
+parse = doParse pretty "-"
 
 dump :: String -> IO ()
 dump = (doParseWith $ \env _ -> print $ envBody env) "-"
@@ -129,7 +129,8 @@ repLoop = do
             CmdQuit           -> putStrLn "Leaving pugs."
             CmdLoad fn        -> doLoad env fn >> loop
             CmdRun opts prog  -> doRunSingle env opts prog >> loop
-            CmdParse prog     -> doParse "<interactive>" prog >> loop
+            CmdParse prog     -> doParse pretty "<interactive>" prog >> loop
+            CmdParseRaw prog  -> doParse show   "<interactive>" prog >> loop
             CmdHelp           -> printInteractiveHelp >> loop
             CmdReset          -> tabulaRasa >>= (liftSTM . writeTVar env) >> loop
 
@@ -184,13 +185,12 @@ doParseWith f name prog = do
         exitFailure
     f' env = f env name
 
-
-doParse :: FilePath -> String -> IO ()
-doParse name prog = do
+doParse :: (Exp -> String) -> FilePath -> String -> IO ()
+doParse prettyFunc name prog = do
     env <- emptyEnv name []
     case runRule env envBody ruleProgram name (decodeUTF8 prog) of
         (Val err@(VError _ _)) -> putStrLn $ pretty err
-        exp -> putStrLn $ pretty exp
+        exp -> putStrLn $ prettyFunc exp
 
 doLoad :: TVar Env -> String -> IO ()
 doLoad env fn = do

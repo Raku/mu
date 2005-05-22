@@ -21,6 +21,7 @@ data Command
    = CmdLoad FilePath
    | CmdQuit
    | CmdParse String
+   | CmdParseRaw String
    | CmdRun RunOptions String
    | CmdHelp
    | CmdReset
@@ -49,6 +50,7 @@ doCommand (Just line)
 parseCommandLine :: String -> Command 
 parseCommandLine ('?':str)      = CmdRun (RunOpts True True  True) str
 parseCommandLine ('!':str)      = CmdRun (RunOpts True False True) str
+parseCommandLine ('.':'.':str)  = CmdParseRaw str
 parseCommandLine ('.':str)      = CmdParse str
 parseCommandLine (':':'q':_)    = CmdQuit
 parseCommandLine (':':'h':_)    = CmdHelp
