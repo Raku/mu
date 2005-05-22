@@ -1,19 +1,20 @@
 Uses of the reduction meta-operator
 
-    [+]       # sum(...)
-    [~]       # join('', ...)
-    [+^]      # numeric parity
-    [~^]      # string parity
-    [?^]      # boolean parity
-    [<]       # monotony
-    [==]      # equality
-    [&]       # all(...)
-    [|]       # any(...)
-    [^]       # one(...)
-    [.{}]     # key path
-    [.[]]     # index path
-    [.]       # method path
-    [.()]     # subcall "path"
-    [¥]       # zip(...), note: not [Y]!
-    [,]       # ?
-    [;]       # ?
+    [+]                    # sum(...)
+    [~]                    # join('', ...)
+    [+^]                   # numeric parity
+    [~^]                   # string parity
+    [?^]                   # boolean parity
+    [<]                    # monotony
+    [==]                   # equality
+    [&]                    # all(...)
+    [|]                    # any(...)
+    [^]                    # one(...)
+    [.{}] $href, @keys     # key path
+    [.[]] $aref, @indices  # index path
+    [.()] $cref, @args     # subcall "path"
+    [.]   $invc, @meths    # method path
+    [¥]                    # zip(...), note: not [Y]!
+    [,]                    # ?
+    [;]                    # ?
+    [*] 1..$x              # factorial
