@@ -15,4 +15,4 @@ my $bar = sub { return $?SUBNAME };
 is($bar(), '<anon>', 'got the right subname (anon-block)');
 
 my $baz = eval '$?SUBNAME';
-ok(not defined $baz, '$?SUBNAME not defined outside of a sub');
+ok(not(defined $baz), '$?SUBNAME not defined outside of a sub');

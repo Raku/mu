@@ -19,18 +19,18 @@ See the thread "[S29] uniq" on p6l, too.
 {
   my @array = <a b b c d e b b b b f b>;
   is ~@array, "a b b c d e b b b b f b",  "basic sanity";
-  is eval('~@array.uniq'), "a b c d e f", "method form of uniq works";
-  is eval('~uniq @array'), "a b c d e f", "subroutine form of uniq works";
-  ok eval('@array.=uniq'),                "inplace form of uniq works (1)";
-  is      ~@array,         "a b c d e f", "inplace form of uniq works (2)";
+  is ~@array.uniq,  "a b c d e f", "method form of uniq works";
+  is ~uniq(@array), "a b c d e f", "subroutine form of uniq works";
+  ok @array.=uniq,                 "inplace form of uniq works (1)";
+  is      ~@array,  "a b c d e f", "inplace form of uniq works (2)";
 }
 
 # With a userspecified criterion
 {
   my @array = <a b A c b d>;
   # Semantics w/o junctions
-  is eval('~@array.uniq:{ lc $^a eq lc $^b }'), "a b c d", "method form of uniq with own comparator works";
-  is eval('~uniq { lc $^a eq lc $^b } @array'), "a b c d", "subroutine form of uniq with own comparator works";
+  is ~@array.uniq:{ lc $^a eq lc $^b }, "a b c d", "method form of uniq with own comparator works";
+  is ~uniq({ lc $^a eq lc $^b } @array), "a b c d", "subroutine form of uniq with own comparator works";
 
   # Semantics w/ junctions
   # is eval('~@array.uniq:{ lc $^a eq lc $^b }.values.sort'),

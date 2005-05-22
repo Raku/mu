@@ -9,23 +9,7 @@ Bits and Pieces.
 
 =cut
 
-plan 21;
-
-my $foo = "Foo";
-my $foobar = "Foo::Bar";
-my $bar;
-
-eval '$bar = $::($foo)';
-ok($bar, 'symbolic deref', :todo);
-$bar = '';
-eval '$bar = $::("MY::$foo")';
-ok($bar, 'symbolic deref on lexical scope', :todo);
-$bar = '';
-eval '$bar = $::($foobar)';
-ok($bar, 'more symbolic deref', :todo);
-$bar = undef;
-eval ' $bar = %MY::<$foo> ';
-ok($bar, 'hash deref on lexical scope', :todo);
+plan 17;
 
 my $str;
 eval '$str = "hello"';
@@ -63,24 +47,27 @@ my %hash;
 eval ' %hash<Mon Tue Wed Thu Fri Sat Sun> = 1..7; ';
 ok(%hash{'Mon'} eq '1' and %hash{'Sun'} eq '7', '%hash<>');
 
-my $out = open(">tmpfile");
+sub nonces () { return (".$*PID." ~ int rand 1000) }
+my $filename = "tmpfile" ~ nonces;
+
+my $out = open(">$filename");
 $out.say("line1");
 $out.say("line2");
 $out.close;
 
-my $in0 = open("tmpfile");
+my $in0 = open("$filename");
 my $line = $in0.readline;
 is($line, "line1\n", "file I/O (scalar, readline)");
 $in0.close;
 
-my $in1 = open("tmpfile");
+my $in1 = open("$filename");
 my $line = =$in1;
 is($line, "line1\n", "file I/O (scalar, unary =)");
 $in1.close;
 
-my $in2 = open("tmpfile");
+my $in2 = open("$filename");
 my @line = =$in2;
 is("@line[]", "line1\n line2\n", "file I/O (list, unary =)");
 $in2.close;
 
-ok(unlink("tmpfile"), "file unlinked");
+ok(unlink("$filename"), "file unlinked");
