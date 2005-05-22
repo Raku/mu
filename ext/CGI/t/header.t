@@ -58,3 +58,25 @@ is(header(content_type => 'text/xml', charset => 'Chinese', status => '500 Inter
 Content-type: text/xml; charset=Chinese
 
 ", 'got the header we expected (using named args)');
+
+is header(cookies => "Foo"),
+    "Status: 200 OK
+Set-Cookie: Foo
+Content-type: text/html
+
+", "single cookie";
+is header(cookies => ["Foo", "Bar"]),
+    "Status: 200 OK
+Set-Cookie: Foo
+Set-Cookie: Bar
+Content-type: text/html
+
+", "two cookies";
+is header(cookies => ["Foo", "Bar", "Baz"]),
+    "Status: 200 OK
+Set-Cookie: Foo
+Set-Cookie: Bar
+Set-Cookie: Baz
+Content-type: text/html
+
+", "three cookies";
