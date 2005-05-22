@@ -70,7 +70,10 @@ import System.IO
 import Foreign.C.String
 import Foreign.Ptr
 
+failWith :: (Monad m) => String -> m a
 failWith s = fail $ "'" ++ s ++ "' not implemented on this platform."
+
+warnWith :: String -> IO ()
 warnWith s = trace ("'" ++ s ++ "' not implemented on this platform.") $ return ()
 
 -- This should all be moved into Compat.Win32, once we go that route
@@ -103,6 +106,7 @@ unsetEnv k = withCWString k $ \ key -> withCWString "" $ \ v -> do
                win32SetEnv key v
 -- #unsetEnv _ = warnWith "unsetEnv"
 
+getEnvironment :: IO [(String, String)]
 getEnvironment = System.Environment.getEnvironment
 
 createLink :: FilePath -> FilePath -> IO ()
