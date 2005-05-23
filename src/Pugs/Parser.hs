@@ -697,22 +697,12 @@ ruleConstruct = rule "construct" $ tryChoice
     , ruleLoopConstruct
     , ruleCondConstruct
     , ruleWhileUntilConstruct
-    , ruleTryConstruct
     , ruleStandaloneBlock
     , ruleGivenConstruct
     , ruleWhenConstruct
     , ruleDefaultConstruct
     , yadaLiteral
     ]
-
-ruleKeywordConsturct :: String -> RuleParser Exp
-ruleKeywordConsturct keyword = rule (keyword ++ " construct") $ do
-    symbol keyword
-    block <- ruleBlock
-    retSyn keyword [block]
-
-ruleTryConstruct :: RuleParser Exp
-ruleTryConstruct = ruleKeywordConsturct "try"
 
 ruleForConstruct :: RuleParser Exp
 ruleForConstruct = rule "for construct" $ do
@@ -893,7 +883,7 @@ ruleBlockFormalPointy = rule "pointy block parameters" $ do
 
 tightOperators :: RuleParser [[Operator Char Env Exp]]
 tightOperators = do
-  [optionary, namedUnary, preUnary, postUnary, infixOps] <- currentTightFunctions
+  [_, optionary, namedUnary, preUnary, postUnary, infixOps] <- currentTightFunctions
   return $
     [ methOps  " . .+ .? .* .+ .() .[] .{} .<<>> .= "   -- Method postfix
     , postOps  " ++ -- " ++ preOps " ++ -- "            -- Auto-Increment
@@ -990,14 +980,20 @@ currentTightFunctions' = do
     funs    <- currentFunctions
     let (unary, rest) = (`partition` funs) $ \x -> case x of
             (_, "pre", [param]) | not (isSlurpy param) -> True
-            _  -> False
+            _ -> False
+        (maybeNullary, notNullary) = (`partition` funs) $ \x -> case x of
+            (_, "pre", []) -> True
+            _ -> False
         rest' = (`filter` rest) $ \x -> case x of
             (_, _, (_:_:_)) -> True
             (_, _, [param])
                 | ('@':_) <- paramName param
                 , isSlurpy param -> True
             _ -> False
-        restNames = Set.fromList $ map (\(name, _, _) -> name) rest'
+        namesFrom = map (\(name, _, _) -> name)
+        restNames = Set.fromList $ namesFrom rest'
+        notNullaryNames = Set.fromList $ namesFrom notNullary
+        nullary = filter (not . (`Set.member` notNullaryNames)) $ namesFrom maybeNullary
         (optionary, unary') = mapPair (map snd) . partition fst . sort $
             [ (isOptional param, name) | (name, _, [param]) <- unary
             , not (name `Set.member` restNames)
@@ -1015,7 +1011,7 @@ currentTightFunctions' = do
     -- Finally, we return the names of the ops.
     -- But we've to s/^infix://, as we've to return (say) "+" instead of "infix:+".
     return $ map (encodeUTF8 . unwords . nub)
-        [optionary, namedUnary, preUnary, postUnary, infixOps]
+        [nullary, optionary, namedUnary, preUnary, postUnary, infixOps]
 
 parseOp :: RuleParser Exp
 parseOp = expRule $ do
@@ -1165,7 +1161,8 @@ ruleTypeLiteral = rule "type" $ do
 
 rulePostTerm :: RuleParser (Exp -> Exp)
 rulePostTerm = tryVerbatimRule "term postfix" $ do
-    hasDot <- option False $ do whiteSpace; char '.'; return True
+    hasDot <- option False $ try $ do
+        whiteSpace; char '.'; notFollowedBy (char '.'); return True
     choice $ (if hasDot then [ruleInvocation] else []) ++
         [ ruleArraySubscript
         , ruleHashSubscript
@@ -1221,6 +1218,7 @@ ruleCodeSubscript = tryVerbatimRule "code subscript" $ do
 ruleApply :: Bool -> RuleParser Exp
 ruleApply isFolded = tryVerbatimRule "apply" $ do
     (colon, implicitInv) <- option (id, []) $ do
+        when isFolded $ fail ""
         char '.'
         option (id, [Var "$_"]) $ choice
             [ do { char '/'; return (id, [Var "$?SELF"]) }
@@ -1241,7 +1239,7 @@ ruleApply isFolded = tryVerbatimRule "apply" $ do
 ruleFoldOp :: RuleParser String
 ruleFoldOp = verbatimRule "reduce metaoperator" $ do
     char '['
-    [_, _, _, _, infixOps] <- currentTightFunctions
+    [_, _, _, _, _, infixOps] <- currentTightFunctions
     name <- tryChoice $ ops string (addHyperInfix $ infixOps ++ defaultInfixOps)
     char ']'
     -- XXX: I don't know why the "«" doesn't work. [+]<< parses fine, but [+]«
@@ -1429,7 +1427,15 @@ ruleLit = choice
     , rxLiteral
     , rxLiteralBare
     , substLiteral
+    , nullaryLiteral
     ]
+
+nullaryLiteral :: RuleParser Exp
+nullaryLiteral = try $ do
+    (nullary:_) <- currentTightFunctions
+    name <- choice $ map symbol $ words nullary
+    notFollowedBy (char '(')
+    return $ App (Var ('&':name)) [] []
 
 undefLiteral :: RuleParser Exp
 undefLiteral = try $ do
