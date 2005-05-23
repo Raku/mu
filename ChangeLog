@@ -2,83 +2,76 @@
 
 === Pugs Internals
 
-* Parsing for user-defined nullary functions.
-* `try {...}` literal allowed at expression level.
-* Interactive shell commands normalised to always begin with `:`.
-* Much work on the Haddock Haskell documentation done.
-* `do {...}` literal added.
-* External parrot for Rules is now kept in a single process.
-* Much Parrot codegen work.
-* Dereferencers: `@{...}` and `@$var`.
-* We have `OUTER::` scope now.
-* `warn()`, `uniq()`, `fail()`, `times()` implemented.
-* `gather { take }` now implemented.
-* `$?CLASS` and `$?PACKAGE` work, and `$?ROLE` parses (and returns `$?CLASS`).
-* Parsing of hierarchical return types: `sub foo returns Hash of Str`.
-* Experimental support for `coro { ... }` added.
-* Symbolic refs `[$@%&]::(...)` work.
-* Nested symbolic refs work, too (`$::some::("var")::($bar)`).
-* `FIRST {...}` and `my $x = FIRST {...}` support.
-* `INIT {...}` and `CHECK {...}` blocks in void context and as rvalues.
-* `s:globally//` is now `s:global//`.
-* `&code.name` and `&code.arity` added.
-* Much better error messages, with cascading stack trace.
-* Tentative `lazy {...}` implementation added.
-* Several Object changes:
-** MMD handling is now more sophisticated, and `$.chained.attr.methods` works.
-** switch to Manhattan distance for MMD dispatch on invocants.
-** Objects numify to a unique value accessible with `$obj.id()`
-** Inheritance has been added.
-** Private methods: `method :foo ()` and `$obj.:foo`.
-** Private attributes: `has $:foo` now generates private accessors.
-** `submethod BUILD` is called for each parent class and class itself.
-** New `./method` syntax implemented.
-* Operator Overloading and Defintion added:
-** User-defined symbolic postfix and prefix unary functions.
-** User-defined symbolic infix functions too.
-** Operators can be Unicode too.
-** Operators can be chained with `[]` as well.
-** Almost all operators, user-defined ones too, can be hypered (`»+«`, `[+]«`,
-   etc.).
+* All infix operators now receive reduction forms, such as `[+]`
+* All operators now receive hyperised forms, such as `>>+<<` and `~<<`
+* Dereferencers: `@{...}` and `@$var`
+* Experimental support for `coro { ... }` added
+* External Parrot for Rules is now kept in a single process
+* Inheritance: `class Foo is Bar` and `class Foo does Bar`
+* Interactive shell commands normalised to always begin with `:`
+* MMD handling is now more sophisticated, and `$.chained.attr.methods` works
+* Much better error messages, with cascading stack trace
+* New `./method` syntax implemented
+* Objects numify to a unique value accessible with `$obj.id()`
+* Parrot compiler backend now handles namespaces and method calls
+* Parsing of hierarchical return types: `sub foo returns Hash of Str`
+* Private attributes: `has $:foo` now generates private accessors
+* Private methods: `method :foo ()` and `$obj.:foo`
+* Switch to sum-of-inheritance-level distance for MMD dispatch on invocants
+* Symbolic references: `$::(...)` and `$::some::("var")::($bar)`
+* Tentative `lazy {...}` implementation added
+* User-defined symbolic infix, postfix and prefix unary functions
+* `$?CLASS` and `$?PACKAGE` works; `$?ROLE` currently works as `$?CLASS`
+* `&code.name` and `&code.arity` added
+* `FIRST {...}` and `my $x = FIRST {...}` support
+* `INIT {...}` and `CHECK {...}` blocks in void context and as rvalues
+* `OUTER::` scope implemented
+* `do {...}` literal added
+* `gather { take }` now implemented
+* `submethod BUILD` is called for each parent class and class itself
+* `try {...}` literal allowed at expression level
+* `warn()`, `uniq()`, `fail()`, `times()` implemented
 
 === Bundled Modules
 
-* `Inline::Pugs` and `pugs` Perl 5 module to run Pugs inline.
-* `fp` module added for functional programming.
-* `Net::IRC`, OO version added.
-* `Set` now has many overloaded operators.
-* `Set::Junction`, Set implemented with Junctions, added.
-* `Perl::MetaModel`, prototype of Perl 6 OO meta-model in Perl 6 OO.
-* `Test::Builder`, with Perl 6 objects (parses, and mostly works (see tests)).
-* `Tree::Simple`, renamed to `Tree` and converted to OO.
-* `Locale::KeyedText` re-added (this was our first `ext/` module).
+* `Inline::Pugs` and `pugs` Perl 5 module to run Pugs inline
+* `Locale::KeyedText` re-added (this was our first contributed module)
+* `Net::IRC`, OO version added
+* `Perl::MetaModel`, prototype of Perl 6 OO meta-model in Perl 6 OO
+* `Set::Junction`, Set implemented with Junctions, added
+* `Set` now has many overloaded operators
+* `Test::Builder`, with Perl 6 objects (parses, and mostly works (see tests))
+* `Tree::Simple`, renamed to `Tree` and converted to OO
+* `fp` module added for functional programming
 
 === Tests, Examples and Documentations
 
-* Many new test and several tests refactored, we now have 5600+ tests.
-* Perl6::Rules test suite incorporated into `t/rules/`.
-* Hangman IRC bot created from `hangman.p6`.
-* OO Wizard RPG game added in `examples/games/`.
-* Removed usage of `force_todo()` in favor of `:todo`.
-* Perl 6 quick reference documents added to `docs/quickref`.
-* Parrot is now include in the Pugs Live CD.
-* IRC logfile to HTML converter added.
+* Hangman IRC bot created from `hangman.p6`
+* IRC logfile to HTML converter added
+* Initial sketch of Pugs Apocryphon 2 as `docs/02Internals.pod`
+* Many new test and several tests refactored, we now have 5600+ tests
+* Much work on internal Haddock Haskell documentation
+* OO Wizard RPG game added in `examples/games/`
+* Parrot is now include in the Pugs Live CD
+* Perl 6 quick reference documents added to `docs/quickref`
+* Perl6::Rules test suite incorporated into `t/rules/`
+* Removed usage of `force_todo()` in favor of `:todo`
 
 === Bug Fixes
 
-* `split//` now attaches the submatches to the resulting list.
-* `system()` returns proper exit codes.
-* `returns Foo::Bar` from subs/methods now works.
-* Post-term code/method invocation in interpolated strings no longer
-  eat trailing whitespace.
-* `next` now re-evaluates condition in `loop` constructs.
-* Type-to-type smartmatch, e.g. `Int ~~ Num`, now works.
-* `loop (;0;) {...}` will no longer execute the loop body.
-* `$obj.method($arg1, $arg2)` can now MMD dispatche over all arguments.
-* Hash and array sub parameters are read-only by default, same as scalars.
-* Slurpy hash parameters no longer count as nonslurpy during arity matching.
-* `map({...} @list)` is no longer valid syntax.
-* `foo 3 and foo 4` is now parsed as two separate function calls.
+* Correct parsing for user-defined nullary functions
+* Hash and array sub parameters are read-only by default, same as scalars
+* Post-term invocation in interpolation no longer eat trailing whitespace
+* Slurpy hash parameters no longer count as nonslurpy during arity matching
+* Type-to-type smartmatch, e.g. `Int ~~ Num`, now works
+* `$obj.method($arg1, $arg2)` can now MMD dispatche over all arguments
+* `foo 3 and foo 4` is now parsed as two separate function calls
+* `loop (;0;) {...}` will no longer execute the loop body
+* `map({...} @list)` is no longer valid syntax
+* `next` now re-evaluates condition in `loop` constructs
+* `returns Foo::Bar` from subs/methods now works
+* `split//` now attaches the submatches to the resulting list
+* `system()` returns proper exit codes
 
 == Changes for 6.2.3 (r3111) - May 12, 2005
 
