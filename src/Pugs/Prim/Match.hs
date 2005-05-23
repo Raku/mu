@@ -77,14 +77,6 @@ op2Match x (VRef y) = do
     y' <- readRef y
     op2Match x y'
 
-op2Match (VType typ) (VType t) = do
-    cls <- asks envClasses
-    return $ VBool (isaType cls (showType t) typ)
-
-op2Match x y@(VType _) = do
-    typ <- evalValType x
-    op2Match (VType typ) y
-
 op2Match x (VSubst (rx, subst)) | rxGlobal rx = do
     str         <- fromVal x
     (str', cnt) <- doReplace str 0
@@ -146,6 +138,18 @@ op2Match x (VRule rx) = do
     ifListContext
         (return $ VList (matchSubPos match))
         (return $ VMatch match)
+
+op2Match (VRef x) y = do
+    x' <- readRef x
+    op2Match x' y
+
+op2Match (VType typ) (VType t) = do
+    cls <- asks envClasses
+    return $ VBool (isaType cls (showType t) typ)
+
+op2Match x y@(VType _) = do
+    typ <- evalValType x
+    op2Match (VType typ) y
 
 op2Match x y = op2Cmp (fromVal :: Val -> Eval VStr) (==) x y
 

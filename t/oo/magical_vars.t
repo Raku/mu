@@ -47,9 +47,9 @@ class SimpleClass does Bar {}
   my $class = $bar.get_class;
   my $package = $bar.get_package;
 
-  is( $package, 'SimpleClass', '$?PACKAGE should be the package name' );
+  is( $package, SimpleClass, '$?PACKAGE should be the package name', :todo<bug> );
 
-  is $class ~~ SimpleClass, 'the thing returned by $?CLASS in our role smartmatches against our class';
+  is $class ~~ SimpleClass, 'the thing returned by $?CLASS in our role smartmatches against our class', :todo<bug>;
   my $fourty_two;
   lives_ok { my $obj = $class.new; $fourty_two = $obj.dummy },
     'the class returned by $?CLASS in our role way really our class (1)';
