@@ -11,12 +11,15 @@ perlcheat-like document.
 
 I suggest we use the following files:
 
-- control    # looping / topicalizing constructs (while, given, if, etc)
-- data       # data types (scalars, arrays, hashes, pairs, ...)
-- func       # list of functions with their arguments
-- mod        # modules
-- oo         # object orientation
-- op         # operators
-- rules      # rules
-- sub        # subroutine signatures and calling
-- var        # special variables
+- control      # looping / topicalizing constructs (while, given, if, etc)
+- data         # data types (scalars, arrays, hashes, pairs, ...)
+- func         # list of functions with their arguments
+- smartmatch   # smartmatching possibilities
+- mod          # modules
+- namespace    # namespaces
+- oo           # object orientation
+- op           # operators
+- reduction    # reduce metaoperator
+- rules        # rules
+- sub          # subroutine signatures and calling
+- var          # special variables
