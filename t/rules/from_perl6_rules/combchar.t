@@ -22,9 +22,9 @@ if(eval('!("a" ~~ /a/)')) {
 my $unichar = "\c[GREEK CAPITAL LETTER ALPHA]";
 my $combchar = "\c[LATIN CAPITAL LETTER A]\c[COMBINING ACUTE ACCENT]";
 
-ok("A" ~~ m/^<.>$/, 'ASCII');
-ok($combchar ~~ m/^<.>$/, 'Unicode combining');
-ok($unichar ~~ m/^<.>$/, 'Unicode');
+ok("A" ~~ m/^<.>$/, 'ASCII', :todo<feature>);
+ok($combchar ~~ m/^<.>$/, 'Unicode combining', :todo<feature>);
+ok($unichar ~~ m/^<.>$/, 'Unicode', :todo<feature>);
 
 }
 

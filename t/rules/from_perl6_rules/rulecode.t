@@ -22,16 +22,16 @@ if(eval('!("a" ~~ /a/)')) {
 rule abc { a b c }
 
 my $var = "";
-ok("aaabccc" ~~ m/aa <{ $var ?? $var :: rx{abc} }> cc/, 'Rule block second');
+ok("aaabccc" ~~ m/aa <{ $var ?? $var :: rx{abc} }> cc/, 'Rule block second', :todo<feature>);
 
 $var = rx/<?abc>/;
-ok("aaabccc" ~~ m/aa <{ $var ?? $var :: rx{<?null>} }> cc/, 'Rule block first');
+ok("aaabccc" ~~ m/aa <{ $var ?? $var :: rx{<?null>} }> cc/, 'Rule block first', :todo<feature>);
 
 $var = rx/xyz/;
 ok(!( "aaabccc" ~~ m/aa <{ $var ?? $var :: rx{abc} }> cc/ ), 'Rule block fail');
 
 $var = rx/<?abc>/;
-ok("aaabccc" ~~ m/aa <{ $var ?? $var :: rx{abc} }> cc/, 'Rule block interp');
+ok("aaabccc" ~~ m/aa <{ $var ?? $var :: rx{abc} }> cc/, 'Rule block interp', :todo<feature>);
 
 }
 

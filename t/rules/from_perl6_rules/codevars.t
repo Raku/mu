@@ -19,20 +19,20 @@ if(eval('!("a" ~~ /a/)')) {
   skip_rest "skipped tests - rules support appears to be missing";
 } else {
 
-ok("abc" ~~ m/a(bc){$<caught> = $0}/, 'Inner match');
+ok("abc" ~~ m/a(bc){$<caught> = $0}/, 'Inner match', :todo<feature>);
 is($/<caught>, "bc", 'Inner caught');
 
 my $caught = "oops!";
-ok("abc" ~~ m/a(bc){$caught = $0}/, 'Outer match');
+ok("abc" ~~ m/a(bc){$caught = $0}/, 'Outer match', :todo<feature>);
 is($caught, "bc", 'Outer caught');
 
-ok("abc" ~~ m/a(bc){$0 = uc $0}/, 'Numeric match');
-is($/, "abc", 'Numeric matched');
-is($0, "BC", 'Numeric caught');
+ok("abc" ~~ m/a(bc){$0 = uc $0}/, 'Numeric match', :todo<feature>);
+is($/, "abc", 'Numeric matched', :todo<feature>);
+is($0, "BC", 'Numeric caught', :todo<feature>);
 
-eval_ok(' "abc" ~~ m/a(bc){$/ = Match.new(uc $0)}/ ', 'Zero match');
-is($/, "BC", 'Zero matched');
-is($0, "bc", 'One matched');
+eval_ok(' "abc" ~~ m/a(bc){$/ = Match.new(uc $0)}/ ', 'Zero match', :todo<feature>);
+is($/, "BC", 'Zero matched', :todo<feature>);
+is($0, "bc", 'One matched', :todo<feature>);
 
 }
 
