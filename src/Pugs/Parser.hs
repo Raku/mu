@@ -39,7 +39,7 @@ ruleProgram = rule "program" $ do
     eof
     -- S04: CHECK {...}*      at compile time, ALAP
     --  $_() for @?CHECK
-    unsafeEvalExp $ Syn "for"
+    rv <- unsafeEvalExp $ Syn "for"
 	[ Var "@?CHECK"
 	, Syn "sub"
 	    [ Val . VCode $ mkSub
@@ -48,6 +48,8 @@ ruleProgram = rule "program" $ do
 		}
 	    ]
 	]
+    -- If there was a exit() in a CHECK block, we've to exit.
+    possiblyExit rv
     env' <- getState
     return $ env'
         { envBody       = mergeStmts emptyExp statements
@@ -597,12 +599,37 @@ ruleClosureTrait rhs = rule "closure trait" $ do
         fail "Closure traits take no formal parameters"
     let code = VCode mkSub { subName = name, subBody = fun } 
     case name of
-        "END"   -> return $ App (Var "&unshift") [Var "@*END"] [Syn "sub" [Val code]]
-        "BEGIN" -> unsafeEvalExp fun
+        "END"   -> do
+	    -- We unshift END blocks to @*END at compile-time.
+	    -- They're then run at the end of runtime or at the end of the
+	    -- whole program.
+	    unsafeEvalExp $ App (Var "&unshift") [Var "@*END"] [Syn "sub" [Val code]]
+        "BEGIN" -> do
+	    -- We've to exit if the user has written code like BEGIN { exit }.
+	    possiblyExit =<< unsafeEvalExp fun
 	"CHECK" -> vcode2checkBlock code
 	"INIT"  -> vcode2initBlock code
 	"FIRST" -> vcode2firstBlock code
         _       -> fail ""
+
+-- | If we've executed code like @BEGIN { exit }@, we've to run all @\@*END@
+--   blocks and then exit. Returns the input expression if there's no need to
+--   exit.
+possiblyExit :: Exp -> RuleParser Exp
+possiblyExit (Val (VControl (ControlExit exit))) = do
+    -- Run all @*END blocks...
+    unsafeEvalExp $ Syn "for"
+	[ Var "@*END"
+	, Syn "sub"
+	    [ Val . VCode $ mkSub
+		{ subBody   = App (Var "$_") [] []
+		, subParams = [defaultScalarParam]
+		}
+	    ]
+	]
+    -- ...and then exit.
+    return $ unsafePerformIO $ exitWith exit
+possiblyExit x = return x
 
 vcode2firstBlock :: Val -> RuleParser Exp
 vcode2firstBlock code = do
