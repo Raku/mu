@@ -4,9 +4,9 @@
 
 use v6;
 
-sub nonces () { return (".$*PID." ~ int rand 1000) }
-my $intmp  = 'insanta'  ~ nonces();
-my $outtmp = 'outsanta' ~ nonces();
+sub nonce () { return (".$*PID." ~ int rand 1000) }
+my $intmp  = 'insanta'  ~ nonce();
+my $outtmp = 'outsanta' ~ nonce();
 
 # XXX: would like to use 'pugs' in normal use, './pugs' when run
 # from 'make test'.

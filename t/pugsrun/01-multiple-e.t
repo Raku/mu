@@ -32,8 +32,8 @@ if($*OS eq any<MSWin32 mingw msys cygwin>) {
   $redir = '>';
 };
 
-sub nonces () { return (".$*PID." ~ int rand 1000) }
-my $out_fn = "temp-ex-output" ~ nonces;
+sub nonce () { return (".$*PID." ~ int rand 1000) }
+my $out_fn = "temp-ex-output" ~ nonce;
 
 for @examples -> $ex {
   my $command = "$pugs $ex $redir $out_fn";

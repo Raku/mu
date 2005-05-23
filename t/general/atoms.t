@@ -47,8 +47,8 @@ my %hash;
 eval ' %hash<Mon Tue Wed Thu Fri Sat Sun> = 1..7; ';
 ok(%hash{'Mon'} eq '1' and %hash{'Sun'} eq '7', '%hash<>');
 
-sub nonces () { return (".$*PID." ~ int rand 1000) }
-my $filename = "tmpfile" ~ nonces;
+sub nonce () { return (".$*PID." ~ int rand 1000) }
+my $filename = "tmpfile" ~ nonce;
 
 my $out = open(">$filename");
 $out.say("line1");

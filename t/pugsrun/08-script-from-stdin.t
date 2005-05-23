@@ -26,8 +26,8 @@ if($*OS eq any<MSWin32 mingw msys cygwin>) {
   $pugs = 'pugs.exe';
 };
 
-sub nonces () { return (".$*PID." ~ (int rand 1000) ~ ".tmp") }
-my $tempfile = "temp-ex-output" ~ nonces;
+sub nonce () { return (".$*PID." ~ (int rand 1000) ~ ".tmp") }
+my $tempfile = "temp-ex-output" ~ nonce;
 for @examples -> $ex {
   my $command = qq($echo $ex | $pugs - "Hello Pugs" $redir $tempfile);
   diag $command;

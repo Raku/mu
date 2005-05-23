@@ -37,8 +37,8 @@ foo
 bar
 ";
 
-sub nonces () { return (".$*PID." ~ int rand 1000) }
-my($in_fn, $out_fn) = <temp-ex-input temp-ext-output> >>~<< nonces;
+sub nonce () { return (".$*PID." ~ int rand 1000) }
+my($in_fn, $out_fn) = <temp-ex-input temp-ext-output> >>~<< nonce;
 my $h = open(">$in_fn");
 $h.print($str);
 $h.close();

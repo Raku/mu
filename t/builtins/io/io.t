@@ -11,8 +11,8 @@ I/O tests
 
 plan 48;
 
-sub nonces () { return (".$*PID." ~ int rand 1000) }
-my $filename = 'tempfile' ~ nonces();
+sub nonce () { return (".$*PID." ~ int rand 1000) }
+my $filename = 'tempfile' ~ nonce();
 
 # create and write a file
 

@@ -33,9 +33,9 @@ if($*OS eq any(<MSWin32 mingw msys cygwin>)) {
   # $redir = '>';
 };
 
-sub nonces () { return (".$*PID." ~ int rand 1000) }
+sub nonce () { return (".$*PID." ~ int rand 1000) }
 for @examples -> $ex {
-  my $fn = <temp-ex-output> ~ nonces;
+  my $fn = <temp-ex-output> ~ nonce;
   my $command = "$pugs examples/$ex.p6 $redir $fn";
   diag $command;
   system $command;

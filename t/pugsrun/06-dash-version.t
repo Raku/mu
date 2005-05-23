@@ -25,10 +25,10 @@ if($*OS eq any<MSWin32 mingw msys cygwin>) {
   $pugs = 'pugs.exe';
 };
 
-sub nonces () { return (".$*PID." ~ int rand 1000) }
+sub nonce () { return (".$*PID." ~ int rand 1000) }
 
 for @tests -> $ex {
-  my $out_fn = "temp-ex-output" ~ nonces;
+  my $out_fn = "temp-ex-output" ~ nonce;
   my $command = "$pugs $ex $redir $out_fn";
   diag $command;
   system $command;

@@ -22,8 +22,8 @@ $PUGS           = 'pugs' if $*OS eq any(<MSWin32 mingw msys cygwin>);
 
 # XXX: this $outtmp/slurp will go away when backticks supported.
 # XXX: should also check to verify that nothing is written to stderr.
-sub nonces () { return (".$*PID." ~ int rand 1000) }
-my $outtmp      = 'outgolf' ~ nonces();
+sub nonce () { return (".$*PID." ~ int rand 1000) }
+my $outtmp      = 'outgolf' ~ nonce();
 my $golfdir     = 'examples/golf';
 my $tsanta      = "$golfdir/tsanta.p6";
 

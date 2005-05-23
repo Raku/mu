@@ -5,9 +5,9 @@ use Test;
 
 plan 6;
 
-sub nonces() { ".$*PID." ~ int rand 1000 }
+sub nonce() { ".$*PID." ~ int rand 1000 }
 
-my $fn = "unlink-test-file" ~ nonces;
+my $fn = "unlink-test-file" ~ nonce;
 
 my $iswin32 = ?($*OS eq any<MSWin32 mingw msys cygwin>) ?? "Timely closing of file handles does not yet work" :: undef;
 
