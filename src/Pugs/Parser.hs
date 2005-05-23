@@ -104,7 +104,7 @@ ruleBlockBody = do
 ruleStandaloneBlock :: RuleParser Exp
 ruleStandaloneBlock = tryRule "standalone block" $ do
     body <- bracesAlone ruleBlockBody
-    retBlock SubBlock Nothing body
+    retBlock SubBlock (Just []) body
     where
     bracesAlone p  = between (symbol "{") closingBrace p
     closingBrace = do
