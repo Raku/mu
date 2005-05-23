@@ -23,13 +23,13 @@ printInteractiveHelp
    = do putStrLn "Commands available from the prompt:"
         putStrLn ":h              = show this help message"
         putStrLn ":q              = quit"
-        putStrLn ". <exp>         = show the syntax tree of an expression"
-        putStrLn "? <exp>         = evaluate an expression in small steps"
-        putStrLn "! <exp>         = same, but in the interactive environment"
-        putStrLn "<exp>           = run a command"
-        putStrLn ":i <exp>        = run a command, and ugly-print the result"
         putStrLn ":r              = reset the evaluation environment"
         putStrLn ":l <filename>   = load a pugs file"
+        putStrLn ":d <exp>        = show syntax tree of an expression"
+        putStrLn ":D <exp>        = show raw syntax tree of an expression"
+        putStrLn ":e <exp>        = run a command, and ugly-print the result"
+        putStrLn ":E <exp>        = same, but evaluate in small steps"
+        putStrLn "<exp>           = run a command"
 
 {- FIXME: Somebody with more UI skillz should make this nicer -}
 printCommandLineHelp :: IO ()

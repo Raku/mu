@@ -48,14 +48,13 @@ doCommand (Just line)
         return $ parseCommandLine line
 
 parseCommandLine :: String -> Command 
-parseCommandLine ('?':str)      = CmdRun (RunOpts True True  True) str
-parseCommandLine ('!':str)      = CmdRun (RunOpts True False True) str
-parseCommandLine ('.':'.':str)  = CmdParseRaw str
-parseCommandLine ('.':str)      = CmdParse str
+parseCommandLine (':':'e':str)  = CmdRun (RunOpts False True False) str
+parseCommandLine (':':'E':str)  = CmdRun (RunOpts True True False) str
+parseCommandLine (':':'d':str)  = CmdParse str
+parseCommandLine (':':'D':str)  = CmdParseRaw str
 parseCommandLine (':':'q':_)    = CmdQuit
 parseCommandLine (':':'h':_)    = CmdHelp
 parseCommandLine (':':'r':_)    = CmdReset
-parseCommandLine (':':'i':str)  = CmdRun (RunOpts False False False) str
 parseCommandLine (':':'l':str)  = CmdLoad $ unwords (words str)
 parseCommandLine str            = CmdRun (RunOpts False False True) str
 
