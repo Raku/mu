@@ -1,0 +1,23 @@
+Loop Structures
+    loop { ... };
+    loop { ... } while EXPR;
+    loop { ... } until EXPR;
+    loop $i = 0; $i < 10; $i++ { ... }
+    
+    while EXPR { ... }
+    until EXPR { ... }
+    
+For Loop structures
+    for @foo { ... }
+    for @foo -> $x { ... }
+    for @foo -> $x, $y, $x { ... }
+    for @foo.kv -> $index, $value { ... }
+    
+    for %hash.kv -> $key, $value { ... }
+    
+    for =<> {...} # was while (<>) { ... } in p5
+    
+Switch/Case style control elements
+	given $x { ... }   # $x is now topic for block
+	when EXPR { ... }  # perform $_ ~~ EXPR execute block and break
+   default { ... }    # same as when true { ... }    
