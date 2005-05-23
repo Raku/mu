@@ -19,7 +19,7 @@ Uses of the reduction meta-operator
     [.[]] $aref, @indices  # index path
     [.()] $cref, @args     # subcall "path"
     [.]   $invc, @meths    # method path
-    [¥]                   # zip(...), note: not [Y]!
+    [¥]                    # zip(...), note: not [Y]!
     [,]                    # noop, returns input list
     [;]                    # ?
-    [>>op<<]				   # perform op on each colum
+    [>>op<<]               # perform op on each colum
