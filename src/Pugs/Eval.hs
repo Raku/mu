@@ -44,7 +44,6 @@ import Pugs.Context
 import Pugs.Monads
 import Pugs.Pretty
 import Pugs.Types
-import Pugs.Prim.Eval (retEvalResult)
 import Pugs.Prim.List (op2Fold)
 import Pugs.External
 
@@ -383,7 +382,7 @@ reduce exp@(Syn name exps) = case name of
             writeTVar tvar thunk
             return $ Just tvar
         retVal $ VCode sub
-            { subEnv  = Just env
+            { subEnv  = Just (env{ envStash = "" })
             , subCont = cont
             }
     "if" -> doCond id 
@@ -601,9 +600,6 @@ reduce exp@(Syn name exps) = case name of
         doFetch (mkFetch $ doHash varVal hash_fetchElem)
                 (mkFetch $ doHash varVal hash_fetchVal)
                 (fromVal idxVal) lv (not (isSlurpyCxt idxCxt))
-    "try" -> do
-        val <- resetT $ evalExp (head exps)
-        retEvalResult False val
     "rx" -> do
         let [exp, adverbs] = exps
         hv      <- fromVal =<< evalExp adverbs
@@ -874,7 +870,8 @@ findSub name' invs args = do
             , subAssoc    = subAssoc (fromJust code)
             , subParams   = subParams (fromJust code)
             , subReturns  = mkType "List"
-            , subBody     = Prim (\[x] -> op1HyperPrefix (fromJust code) x)
+            , subBody     = Prim
+                (\x -> op1HyperPrefix (fromJust code) (listArg x))
             }
     possiblyBuildMetaopVCode op' | "&postfix:\187" `isPrefixOf` op' = do
 	let op = drop 10 op'
@@ -889,7 +886,8 @@ findSub name' invs args = do
             , subAssoc    = subAssoc (fromJust code)
             , subParams   = subParams (fromJust code)
             , subReturns  = mkType "List"
-            , subBody     = Prim (\[x] -> op1HyperPostfix (fromJust code) x)
+            , subBody     = Prim
+                (\x -> op1HyperPostfix (fromJust code) (listArg x))
             }
     possiblyBuildMetaopVCode op' | "&infix:\187" `isPrefixOf` op', "\171" `isSuffixOf` op' = do 
 	let op = drop 8 (init op')
@@ -908,6 +906,8 @@ findSub name' invs args = do
             }
 	-- Taken from Pugs.Prim. Probably this should be refactored. (?)
     possiblyBuildMetaopVCode _ = return Nothing
+    listArg [x] = x
+    listArg xs = VList xs
     makeParams = map (\p -> p{ isWritable = isLValue p }) . foldr foldParam [] . map takeWord
     takeWord = takeWhile isWord . dropWhile (not . isWord)
     isWord   = not . (`elem` "(),:")
@@ -1010,7 +1010,7 @@ chainFun _ _ _ _ _ = internalError "chainFun: Not enough parameters in Val list"
 
 applyExp :: SubType -> [ApplyArg] -> Exp -> Eval Val
 applyExp _ bound (Prim f) =
-    f [ argValue arg | arg <- bound, (argName arg !! 1) /= '_' ]
+    f [ argValue arg | arg <- bound, (argName arg) /= "%_" ]
 applyExp styp bound body = applyThunk styp bound (MkThunk $ evalExp body)
 
 applyThunk :: SubType -> [ApplyArg] -> VThunk -> Eval Val
