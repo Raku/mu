@@ -9,7 +9,7 @@ plan 1;
 
 Test that a constant list can have C<map> applied to it.
 
-  ("foo","bar").map(){ $_.substr(1,1) }
+  ("foo","bar").map:{ $_.substr(1,1) }
 
 should be equivalent to
 
@@ -21,5 +21,4 @@ should be equivalent to
 my @expected = ("foo","bar");
 @expected = map { substr($_,1,1) }, @expected;
 
-fail("FIXME parsefail");
-# eval_is( '("foo","bar").map(){ $_.substr(1,1) }', @expected, todo => 1);
+eval_is('("foo","bar").map:{ $_.substr(1,1) }', @expected);
