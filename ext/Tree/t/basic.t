@@ -4,7 +4,7 @@ use v6;
 use Test;
 use Tree;
 
-plan 28;
+plan 29;
 
 my $tree = Tree.new(node => 'my tree');
 
@@ -68,6 +68,22 @@ my $output;
 $tree.traverse(-> $t {
     $output ~= ('--' x $t.depth()) ~ " " ~ $t.node() ~ "\n";
 });
+is($output, 
+'-- my other tree
+-- my tree 3
+---- tree 1.1
+-- my tree 4
+', '... got the right output');
+
+
+# test iterator version
+my $iter = $tree.traverse_iter;
+
+$output = "";
+while =$iter() -> $t {
+    $output ~= ('--' x $t.depth()) ~ " " ~ $t.node() ~ "\n";
+});
+
 is($output, 
 '-- my other tree
 -- my tree 3
