@@ -23,6 +23,7 @@
 * `s:globally//` is now `s:global//`.
 * `&code.name` and `&code.arity` added.
 * Much better error messages, with cascading stack trace.
+* Tentative `lazy {...}` implementation added.
 * Several Object changes:
 ** MMD handling is now more sophisticated, and `$.chained.attr.methods` works.
 ** switch to Manhattan distance for MMD dispatch on invocants.
