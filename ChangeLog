@@ -1,4 +1,4 @@
-== Changes for 6.2.4 (up to r3656) - May 24, 2005
+== Changes for 6.2.4 (up to r3775) - May 24, 2005
 
 === Pugs Internals
 
@@ -38,7 +38,8 @@
 * `Locale::KeyedText` re-added (this was our first contributed module)
 * `Net::IRC`, OO version added
 * `Perl::MetaModel`, prototype of Perl 6 OO meta-model in Perl 6 OO
-* `Set::Junction`, Set implemented with Junctions, added
+* `Set::Junction` and `Set::Hash`, `Set` implemented with Junctions
+  respectively Hashes, added
 * `Set` now has many overloaded operators
 * `Test::Builder`, with Perl 6 objects (parses, and mostly works (see tests))
 * `Tree::Simple`, renamed to `Tree` and converted to OO
@@ -52,7 +53,7 @@
 * Many new test and several tests refactored, we now have 5600+ tests
 * Much work on internal Haddock Haskell documentation
 * OO Wizard RPG game added in `examples/games/`
-* Parrot is now include in the Pugs Live CD
+* Parrot is now included in the Pugs Live CD
 * Perl 6 quick reference documents added to `docs/quickref`
 * Perl6::Rules test suite incorporated into `t/rules/`
 * Removed usage of `force_todo()` in favor of `:todo`
@@ -64,7 +65,7 @@
 * Post-term invocation in interpolation no longer eat trailing whitespace
 * Slurpy hash parameters no longer count as nonslurpy during arity matching
 * Type-to-type smartmatch, e.g. `Int ~~ Num`, now works
-* `$obj.method($arg1, $arg2)` can now MMD dispatche over all arguments
+* `$obj.method($arg1, $arg2)` can now MMD dispatch over all arguments
 * `foo 3 and foo 4` is now parsed as two separate function calls
 * `loop (;0;) {...}` will no longer execute the loop body
 * `map({...} @list)` is no longer valid syntax
@@ -72,6 +73,7 @@
 * `returns Foo::Bar` from subs/methods now works
 * `split//` now attaches the submatches to the resulting list
 * `system()` returns proper exit codes
+* Bare blocks containing `$_` work correctly now
 
 == Changes for 6.2.3 (r3111) - May 12, 2005
 
