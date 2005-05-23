@@ -11,7 +11,7 @@ perlcheat-like document.
 
 I suggest we use the following files:
 
-- con        # looping / topicalizing constructs (while, given, if, etc)
+- control    # looping / topicalizing constructs (while, given, if, etc)
 - data       # data types (scalars, arrays, hashes, pairs, ...)
 - func       # list of functions with their arguments
 - mod        # modules
