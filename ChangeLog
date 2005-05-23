@@ -1,3 +1,9 @@
+== Changes for 6.2.5 (r3794) - May 24, 2005
+
+=== Tests, Examples and Documentations
+
+* Fix one broken test from the `Set` module.
+
 == Changes for 6.2.4 (r3790) - May 24, 2005
 
 === Pugs Internals
