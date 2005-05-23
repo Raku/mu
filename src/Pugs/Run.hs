@@ -20,8 +20,11 @@ import Pugs.Prim
 import Pugs.Embed
 import qualified Data.Map as Map
 
--- |Run 'Main.run' with command line args. 
--- See 'Main.main' and 'Pugs.Run.Args.canonicalArgs'
+{-|
+Run 'Main.run' with command line args. 
+
+See 'Main.main' and 'Pugs.Run.Args.canonicalArgs'
+-}
 runWithArgs :: ([String] -> IO t) -> IO t
 runWithArgs f = do
     args <- getArgs
@@ -37,7 +40,7 @@ runEvalMain env eval = withSocketsDo $ do
 runEnv :: Env -> IO Val
 runEnv env = runEvalMain env $ evaluateMain (envBody env)
 
--- |Run for 'Pugs.Compile.Pugs' backend
+-- | Run for 'Pugs.Compile.Pugs' backend
 runAST :: Pad -> Exp -> IO Val
 runAST glob ast = do
     hSetBuffering stdout NoBuffering
@@ -49,7 +52,7 @@ runAST glob ast = do
         newTVar (glob `unionPads` glob')
     runEnv env{ envBody = ast, envGlobal = globRef, envDebug = Nothing }
 
--- |Run for 'Pugs.Compile.Haskell' backend
+-- | Run for 'Pugs.Compile.Haskell' backend
 runComp :: Eval Val -> IO Val
 runComp comp = do
     hSetBuffering stdout NoBuffering
@@ -58,7 +61,7 @@ runComp comp = do
     env  <- prepareEnv name args
     runEvalMain env{ envDebug = Nothing } comp
 
--- |Initialize globals and install primitives in an 'Env'
+-- | Initialize globals and install primitives in an 'Env'
 prepareEnv :: VStr -> [VStr] -> IO Env
 prepareEnv name args = do
     let confHV = Map.map VStr config
@@ -132,8 +135,10 @@ prepareEnv name args = do
         , genSym "$*_" $ MkRef defSV
         ]
 
--- |Combine @%*ENV\<PERL6LIB\>@, -I, 'Pugs.Config.config' values and \".\" into
--- the @\@*INC@ list for 'Main.printConfigInfo'
+{-|
+Combine @%*ENV\<PERL6LIB\>@, -I, 'Pugs.Config.config' values and \".\" into
+the @\@*INC@ list for 'Main.printConfigInfo'
+-}
 getLibs :: IO [String]
 getLibs = do
     args    <- getArgs

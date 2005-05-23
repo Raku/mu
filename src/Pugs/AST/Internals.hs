@@ -286,6 +286,7 @@ instance Value [VPair] where
         list <- fromVals v
         doFrom $ concat list
         where
+        doFrom :: [Val] -> Eval [VPair]
         doFrom [] = return []
         doFrom (k:v:list) = do
             rest <- doFrom list
@@ -573,14 +574,14 @@ data VJunc = MkJunc
     { juncType :: !JuncType -- ^ 'JAny', 'JAll', 'JNone' or 'JOne'
     , juncDup  :: !(Set Val)
     -- ^ Only used for @one()@ junctions. Contains those values
-    -- that appear more than once (the actual count is
-    -- irrelevant), since matching any of these would
-    -- automatically violate the 'match /only/ one value'
-    -- junctive semantics.
+    --     that appear more than once (the actual count is
+    --     irrelevant), since matching any of these would
+    --     automatically violate the 'match /only/ one value'
+    --     junctive semantics.
     , juncSet  :: !(Set Val)
     -- ^ Set of values that make up the junction. In @one()@
-    -- junctions, contains the set of values that appear exactly
-    -- /once/.
+    --     junctions, contains the set of values that appear exactly
+    --     /once/.
     } deriving (Eq, Ord)
 
 -- | The combining semantics of a junction. See 'VJunc' for more info.
@@ -1087,6 +1088,13 @@ instance MonadCont EvalMonad where
 class (MonadReader Env m, MonadCont m, MonadIO m, MonadSTM m) => MonadEval m where
 --     askGlobal :: m Pad
 
+{-|
+Retrieve the global 'Pad' from the current evaluation environment.
+
+'Env' stores the global 'Pad' in an STM variable, so we have to @asks@
+'Eval'\'s @ReaderT@ for the variable, then extract the pad itself from the
+STM var.
+-}
 askGlobal :: Eval Pad
 askGlobal = do
     glob <- asks envGlobal

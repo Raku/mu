@@ -57,7 +57,7 @@ argument.  See 'Pugs.Prims.initSyms'
 emptyEnv :: (MonadIO m, MonadSTM m) 
          => String             -- ^ Name associated with the environment
          -> [STM (Pad -> Pad)] -- ^ List of 'Pad'-mutating transactions used
-                               -- to declare an initial set of global vars
+                               --     to declare an initial set of global vars
          -> m Env
 emptyEnv name genPad = do
     uniq <- liftIO newUnique
@@ -223,6 +223,7 @@ findVarRef name
                 return $ Just tvar
     | otherwise = doFindVarRef name
     where
+    doFindVarRef :: Var -> Eval (Maybe (TVar VRef))
     doFindVarRef name = do
         callCC $ \foundIt -> do
             lexSym <- fmap (findSym name . envLexical) ask
@@ -664,6 +665,7 @@ reduce exp@(Syn name exps) = case name of
         evalExp $ Syn "=" [lhs, App (Var op) [lhs, exp] []]
     _ -> retError "Unknown syntactic construct" exp
     where
+    doCond :: (Bool -> Bool) -> Eval Val
     doCond f = do
         let [cond, bodyIf, bodyElse] = exps
         vbool     <- enterEvalContext (cxtItem "Bool") cond
@@ -672,6 +674,7 @@ reduce exp@(Syn name exps) = case name of
             then reduce bodyIf
             else reduce bodyElse
     -- XXX This treatment of while/until loops probably needs work
+    doWhileUntil :: (Bool -> Bool) -> Eval Val
     doWhileUntil f = do
         let [cond, body] = exps
         enterLoop . fix $ \runLoop -> do
@@ -721,6 +724,7 @@ reduce (App (Var "&goto") (subExp:invs) args) = do
         val <- apply sub invs args
         shiftT $ const (retVal val)
     where
+    callerEnv :: Env -> Env
     callerEnv env = let caller = maybe env id (envCaller env) in
         env{ envCaller  = envCaller caller
            , envContext = envContext caller
@@ -749,6 +753,7 @@ reduce (App (Var name@('&':_)) invs args) = do
         _ -> err
     where
     err = retError "No compatible subroutine found" name
+    applySub :: VCode -> [Exp] -> [Exp] -> Eval Val
     applySub sub invs args
         -- list-associativity
         | MkCode{ subAssoc = "list" }      <- sub
@@ -769,6 +774,7 @@ reduce (App (Var name@('&':_)) invs args) = do
         -- normal application
         | otherwise
         = apply sub invs args
+    mungeChainSub :: VCode -> [Exp] -> Eval Val
     mungeChainSub sub invs = do
         let MkCode{ subAssoc = "chain", subParams = (p:_) } = sub
             (App (Var name') invs' args'):rest = invs
@@ -776,6 +782,7 @@ reduce (App (Var name@('&':_)) invs args) = do
         case theSub of
             Just sub'    -> applyChainSub sub invs sub' invs' args' rest
             Nothing      -> apply sub{ subParams = (length invs) `replicate` p } invs [] -- XXX Wrong
+    applyChainSub :: VCode -> [Exp] -> VCode -> [Exp] -> [a] -> [Exp] -> Eval Val
     applyChainSub sub invs sub' invs' args' rest
         | MkCode{ subAssoc = "chain", subBody = fun, subParams = prm }   <- sub
         , MkCode{ subAssoc = "chain", subBody = fun', subParams = prm' } <- sub'
@@ -1043,8 +1050,10 @@ apply sub invs args = do
 
 -- XXX - faking application of lexical contexts
 -- XXX - what about defaulting that depends on a junction?
--- |Apply a sub (or other code) to lists of invocants
--- and arguments, in the specified context.
+{-|
+Apply a sub (or other code) to lists of invocants and arguments, in the 
+specified context.
+-}
 doApply :: Env   -- ^ Environment to evaluate in
         -> VCode -- ^ Code to apply
         -> [Exp] -- ^ Invocants (arguments before the colon)
@@ -1077,6 +1086,7 @@ doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args
     enterScope
         | typ >= SubBlock = id
         | otherwise       = resetT
+    fixEnv :: Env -> Env
     fixEnv env
         | typ >= SubBlock = env
         | otherwise       = env
@@ -1116,11 +1126,13 @@ doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args
                     writeRef ref v
                     return (VRef ref)
         return (val, (isSlurpyCxt cxt || isCollapsed (typeOfCxt cxt)))
+    checkSlurpyLimit :: (VInt, Exp) -> Eval [Val]
     checkSlurpyLimit (n, exp) = do
         listVal <- enterLValue $ enterEvalContext (cxtItem "Array") exp
         list    <- fromVal listVal
         elms    <- mapM fromVal list -- flatten
         return $ genericDrop n (concat elms :: [Val])
+    isCollapsed :: Type -> Bool
     isCollapsed typ
         | isaType (envClasses env) "Bool" typ        = True
         | isaType (envClasses env) "Junction" typ    = True

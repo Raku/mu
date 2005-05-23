@@ -31,8 +31,10 @@ import Pugs.Embed
 import qualified Data.Map as Map
 import Data.IORef
 
--- |Pugs' entry point. Uses 'Pugs.Run.runWithArgs' to normalise the command-line
--- arguments and pass them to 'run'.
+{-|
+Pugs' entry point. Uses 'Pugs.Run.runWithArgs' to normalise the command-line
+arguments and pass them to 'run'.
+-}
 main :: IO ()
 main = do
     hSetBuffering stdout NoBuffering
@@ -134,10 +136,13 @@ repLoop = do
             CmdHelp           -> printInteractiveHelp >> loop
             CmdReset          -> tabulaRasa >>= (liftSTM . writeTVar env) >> loop
 
--- |Create a \'blank\' 'Env' for our program to execute in. Of course,
--- 'prepareEnv' actually declares quite a few symbols in the environment,
--- e.g. \'\@\*ARGS\', \'\$\*PID\', \'\$\*ERR\' etc.
--- ('Tabula rasa' is Latin for 'a blank slate'.)
+{-|
+Create a \'blank\' 'Env' for our program to execute in. Of course,
+'prepareEnv' actually declares quite a few symbols in the environment,
+e.g. \'\@\*ARGS\', \'\$\*PID\', \'\$\*ERR\' etc.
+
+('Tabula rasa' is Latin for 'a blank slate'.)
+-}
 tabulaRasa :: IO Env
 tabulaRasa = prepareEnv "<interactive>" []
 

@@ -168,9 +168,12 @@ enterSub sub action
                 local doFix action
     where
     typ = subType sub
+    doCC :: (Val -> Eval b) -> [Val] -> Eval b
     doCC cc [v] = cc =<< evalVal v
     doCC _  _   = internalError "enterSub: doCC list length /= 1"
+    orig :: VCode -> VCode
     orig sub = sub { subBindings = [], subParams = (map fst (subBindings sub)) }
+    fixEnv :: (Val -> Eval Val) -> Env -> Eval (Env -> Env)
     fixEnv cc env
         | typ >= SubBlock = do
             blockRec <- genSym "&?BLOCK" (codeRef (orig sub))
@@ -190,6 +193,7 @@ enterSub sub action
                 , envPackage = maybe (envPackage e) envPackage (subEnv sub)
                 , envOuter   = maybe Nothing envOuter (subEnv sub)
                 }
+    ccSub :: (Val -> Eval Val) -> Env -> VCode
     ccSub cc env = mkPrim
         { subName = "CALLER_CONTINUATION"
         , subParams = makeParams env
