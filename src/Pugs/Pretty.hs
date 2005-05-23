@@ -118,7 +118,7 @@ instance Pretty Val where
 	-- Is this correct? Does this work on win32, too?
 	| last x == '\n' = text . init $ x
 	| otherwise      = text "***" <+>
-            (text x <+> (text "at" <+> vcat (map format posList)))
+            (text x $+$ (text "at" <+> vcat (map format posList)))
 --  format (VArray x) = format (VList $ Array.elems x)
 --  format (VHash h) = braces $ (joinList $ text ", ") $
 --      [ format (VStr k, v) | (k, v) <- Map.toList h ]
