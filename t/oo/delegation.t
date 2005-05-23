@@ -18,7 +18,7 @@ ok eval('
   class Backend2 { method hi() { 23 } method cool() {  539 } }
   class Frontend { has $.backend is rw handles "hi" }
   1
-'), "class definition worked", :todo<feature>;
+'), "class definition worked";
 
 is eval('Backend1.new.hi'), 42, "basic sanity (1)", :todo<feature>;
 is eval('Backend2.new.hi'), 23, "basic sanity (2)", :todo<feature>;
@@ -44,7 +44,7 @@ is eval('Backend2.new.hi'), 23, "basic sanity (2)", :todo<feature>;
 
 # L<S12/"Delegation" /Any other kind of argument to handles is considered to be a smartmatch selector for methods/>
 ok eval('class ReFrontend { has $.backend is rw handles /^hi/ }; 1'),
-  "class definition using a smartmatch handle worked", :todo<feature>;
+  "class definition using a smartmatch handle worked";
 {
   my $a;
   ok eval('$a = ReFrontend.new'), "basic instantiation worked (3)", :todo<feature>;
@@ -57,7 +57,7 @@ ok eval('class ReFrontend { has $.backend is rw handles /^hi/ }; 1'),
 
 # L<S12/"Delegation" /If you say/>
 ok eval('class ClassFrontend { has $.backend is rw handles Backend2 }; 1'),
-  "class definition using a Class handle worked", :todo<feature>;
+  "class definition using a Class handle worked";
 {
   my $a;
   ok eval('$a = ClassFrontend.new'), "basic instantiation worked (4)", :todo<feature>;
@@ -71,7 +71,7 @@ ok eval('class ClassFrontend { has $.backend is rw handles Backend2 }; 1'),
 
 # L<S12/"Delegation" /You can specify multiple method names:/>
 ok eval('class MultiFrontend { has $.backend is rw handles <hi cool> }; 1'),
-  "class definition using multiple method names worked", :todo<feature>;
+  "class definition using multiple method names worked";
 {
   my $a;
   ok eval('$a = MultiFrontend.new'), "basic instantiation worked (5)", :todo<feature>;
