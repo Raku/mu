@@ -104,7 +104,7 @@ ruleBlockBody = do
 ruleStandaloneBlock :: RuleParser Exp
 ruleStandaloneBlock = tryRule "standalone block" $ do
     body <- bracesAlone ruleBlockBody
-    retBlock SubBlock (Just []) body
+    retBlock SubBlock Nothing body
     where
     bracesAlone p  = between (symbol "{") closingBrace p
     closingBrace = do
@@ -154,14 +154,14 @@ mergeStmts x@(Pos pos (Syn syn _)) y | (syn ==) `any` words "subst match //"  =
     mergeStmts (Pos pos (App (Var "&infix:~~") [Var "$_", x] [])) y
 mergeStmts x y@(Pos pos (Syn syn _)) | (syn ==) `any` words "subst match //"  =
     mergeStmts x (Pos pos (App (Var "&infix:~~") [Var "$_", y] []))
-mergeStmts x@(Pos pos (Syn "sub" [Val (VCode sub)])) y
+mergeStmts (Pos pos (Syn "sub" [Val (VCode sub)])) y
     | subType sub >= SubBlock =
-    -- bare Block in statement level; run it!
-    mergeStmts (Pos pos $ App x [] []) y
-mergeStmts x y@(Pos pos (Syn "sub" [Val (VCode sub)]))
+    -- bare Block in statement level; annul all its parameters and run it!
+    mergeStmts (Pos pos $ App (Val $ VCode sub{ subParams = [] }) [] []) y
+mergeStmts x (Pos pos (Syn "sub" [Val (VCode sub)]))
     | subType sub >= SubBlock =
-    -- bare Block in statement level; run it!
-    mergeStmts x (Pos pos $ App y [] [])
+    -- bare Block in statement level; annul all its parameters and run it!
+    mergeStmts x (Pos pos $ App (Val $ VCode sub{ subParams = [] }) [] [])
 mergeStmts x (Stmts y Noop) = mergeStmts x y
 mergeStmts x (Stmts Noop y) = mergeStmts x y
 mergeStmts x y = Stmts x y
