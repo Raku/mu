@@ -960,9 +960,7 @@ findSub name' invs args = do
         let fun = arityMatch sub (length (invs ++ args)) slurpLen
         if isNothing fun then return Nothing else do
         -- if deltaFromCxt ret == 0 then return Nothing else do
-        let invocants = filter isInvocant prms
-            prms' = if null invocants then prms else invocants
-            pairs = map (typeOfCxt . paramContext) prms'
+        let pairs = map (typeOfCxt . paramContext) prms
                         `zip` (map unwrap $ invs ++ args)
         deltaCxt    <- deltaFromCxt ret
         deltaArgs   <- mapM deltaFromPair pairs

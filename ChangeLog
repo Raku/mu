@@ -72,6 +72,7 @@
 * `next` now re-evaluates condition in `loop` constructs.
 * Type-to-type smartmatch, e.g. `Int ~~ Num`, now works.
 * `loop (;0;) {...}` will no longer execute the loop body.
+* `$obj.method($arg1, $arg2)` can now MMD dispatche over all arguments.
 
 == Changes for 6.2.3 (r3111) - May 12, 2005
 
