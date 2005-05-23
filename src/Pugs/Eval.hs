@@ -1104,7 +1104,12 @@ doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args
             if isaType cls "Junction" typ then return v else do
             case (lv, rw) of
                 (True, True)    -> return v
-                (True, False)   -> return (VRef $ scalarRef v) 
+                (True, False)   -> do
+                    --- not scalarRef!
+                    case showType (typeOfSigil $ head name) of
+                        "Hash"  -> fmap (VRef . hashRef) (fromVal v :: Eval VHash)
+                        "Array" -> fmap (VRef . arrayRef) (fromVal v :: Eval VArray)
+                        _       -> return (VRef $ scalarRef v) 
                 (False, False)  -> return v -- XXX reduce to val?
                 (False, True)   -> do
                     -- make a copy
