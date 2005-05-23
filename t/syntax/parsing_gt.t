@@ -22,3 +22,9 @@ ok(rand() >= 0, 'random numbers are greater than or equal to 0');
 ok(rand() < 1, 'random numbers are less than 1');
 
 ok 3 > 0, "3 is greater than 0";
+
+# Now, that Autrijus has fixed the bug, the explanation is simple, too:
+# The thing got parsed as
+#   rand()< 1
+# (hash subscript), and then, of course, it had to die, as there was no
+# matching >.
