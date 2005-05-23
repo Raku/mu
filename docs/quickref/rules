@@ -1,27 +1,32 @@
-Resources:
+Resources
+
   http://search.cpan.org/dist/Perl6-Bible/lib/Perl6/Bible/S05.pod
   http://www.nntp.perl.org/group/perl.perl6.language/20985
 
-Match object:
+Match object
+
     $/  -- can be accessed as an array of submatches, e.g. $/[0], $/[1] ...
         -- can be accessed as a hash of named subrules, e.g. $/<foo>
 
     $0, $1, $2, ... -- aliases for $/[0], $/[1], $/[2], ...
     
-    CONTEXT     BEHAVIOUR
+    Context     Behaviour
+    ------------------------------------------------------------------------
     String      Stringifies to entire match
     Number      The numeric value of the matched string (i.e. given 
                 "foo123bar"~~/\d+/, then $/ in numeric context will be 123)
     Boolean     True if success, false otherwise
 
-Backtracking:
+Backtracking
+
     :       Prevents backtracking over previous atom
     ::      Fails entire group if previous atom is backtracked over
     :::     Fails entire rule if previous atom is backtracked over
     
     Also <commit> and <cut> (see below).
 
-Modifiers:
+Modifiers
+
     Used as adverbial modifiers:
 
         "foO bar" ~~ m:w:ignorecase:g/[o | r] ./
@@ -53,11 +58,12 @@ Modifiers:
                         pattern with \s+ or \s* according to <?ws> rule
     :x(N)               Repetition -- find N times (N is an integer)
 
-[:ex vs :ov could use clarification.  see
- http://www.nntp.perl.org/group/perl.perl6.language/20985 ]
-[re :w, except where there is already an explict space rule]
+    [:ex vs :ov could use clarification.  see
+     http://www.nntp.perl.org/group/perl.perl6.language/20985 ]
+    [re :w, except where there is already an explict space rule]
 
-Built-in assertions:
+Built-in assertions
+
     <'...'>             Matches ... as a literal string
     <"...">             Matches ... as a literal string (after interpolation)
     <sp>                Matches a literal space
@@ -94,14 +100,15 @@ Built-in assertions:
     <word>              Word character (alphanumeric + _)
     <xdigit>            Hexadecimal digit
 
-Named rules are stored in the match object unless the rule name is
-prefixed with a ?
+    Named rules are stored in the match object unless the rule name is
+    prefixed with a ?
 
-    /<?item> <quantity> <price>/
+        /<?item> <quantity> <price>/
 
-would store values in $/{'quantity'} and $/{'price'} but not $/{'item'}
+    would store values in $/{'quantity'} and $/{'price'} but not $/{'item'}
 
-Character classes:
+Character classes
+
     <[abcd]>            Matches one of the characters a,b,c, or d.  Ranges
                         may be used as <[a..z]>.  Can be combined with + 
                         and - like so: <[a..z]-[m..p]> (which is the same
@@ -114,18 +121,18 @@ Character classes:
     <+XXX>              Matches XXX as a character class. <+alpha> matches
                         one alpha character.
 
-[This does not seem to match S05.  Which one is wrong?]
+    [This does not seem to match S05.  Which one is wrong?]
 
-Hypothetical variables:
+Hypothetical variables
+
     Assign value to variable only if entire pattern succeeds.  
     Syntax: let $foo = value
 
         my $x;
         / (\S*) { let $x = .pos } \s* foo /
-        
 
+Aliasing
 
-Aliasing:
     Syntax: let $foo = $1
     Shorthand: $foo := $1
     
