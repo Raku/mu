@@ -78,15 +78,15 @@ test2;
 my %hash  = ('foo' => 'baz');
 sub test3 (Hash %h){
   for %h.kv -> $key,$value {
-		is($key, 'foo', "test3:  from {%h.elems}-elem {%h.ref} \%h got the right \$key",:todo<bug>);
-		is($value, 'baz', "test3: from {%h.elems}-elem {%h.ref} \%h got the right \$value",:todo<bug>);
+		is($key, 'foo', "test3:  from {%h.elems}-elem {%h.ref} \%h got the right \$key");
+		is($value, 'baz', "test3: from {%h.elems}-elem {%h.ref} \%h got the right \$value");
   }
 }
 test3 %hash;
 
 sub test4 (Hash %h){
 	for 0..%h.kv.end -> $idx {
-		is(%h.kv[$idx], %hash.kv[$idx], "test4: elem $idx of {%h.kv.elems}-elem {%h.kv.ref} \%hash.kv correctly accessed",:todo<bug>);
+		is(%h.kv[$idx], %hash.kv[$idx], "test4: elem $idx of {%h.kv.elems}-elem {%h.kv.ref} \%hash.kv correctly accessed");
 	}
 }
 test4 %hash;

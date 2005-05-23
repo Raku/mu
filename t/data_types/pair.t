@@ -122,8 +122,8 @@ for  %hash.pairs -> $pair {
 sub test2 (Hash %h){
 	for %h.pairs -> $pair {
 		isa_ok($pair,'Pair',:todo<bug>) ; 
-		is($pair.key, 'foo', 'in sub test2 got the right $pair.key',:todo<bug>);
-		is($pair.value, 'bar', 'in sub test2 got the right $pair.value',:todo<bug>);
+		is($pair.key, 'foo', 'in sub test2 got the right $pair.key');
+		is($pair.value, 'bar', 'in sub test2 got the right $pair.value');
 	}
 }
 test2 %hash;
@@ -131,8 +131,8 @@ test2 %hash;
 sub test3 (Hash %h){
 	for %h.pairs -> $pair {
 		isa_ok($pair,'Pair',:todo<bug>) ; 
-		is($pair[0], 'foo', 'sub test3: access by $pair[0] got the right $pair.key',:todo<bug>);
-		is($pair[1], 'bar', 'sub test3: access by $pair[1] got the right $pair.value',:todo<bug>);
+		is($pair[0], 'foo', 'sub test3: access by $pair[0] got the right $pair.key');
+		is($pair[1], 'bar', 'sub test3: access by $pair[1] got the right $pair.value');
 	}
 }
 test3 %hash;
