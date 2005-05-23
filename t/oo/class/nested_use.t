@@ -35,14 +35,14 @@ my $foobar = ::FooBar.new();
     my $val;
     lives_ok {
         $val = $foobar.bar()
-    }, '... the Bar::bar method resolved', :todo<bug>;
-    is($val, 'bar', '... the Bar::bar method resolved', :todo<bug>);
+    }, '... the Bar::bar method resolved';
+    is($val, 'bar', '... the Bar::bar method resolved');
 }
 
 {
     my $val;
     lives_ok {
         $val = $foobar.foo()
-    }, '... the Foo::foo method resolved', :todo<bug>;
-    is($val, 'foo', '... the Foo::foo method resolved', :todo<bug>);
+    }, '... the Foo::foo method resolved';
+    is($val, 'foo', '... the Foo::foo method resolved');
 }
