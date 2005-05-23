@@ -30,18 +30,17 @@ ok(!( $str ~~ m/^^bc/ ), 'SOL bc' );
 ok(   $str ~~ m/abc\n?$$/, 'abc newline EOL' );
 ok(   $str ~~ m/abc$$/, 'abc EOL' );
 ok(!( $str ~~ m/ab$$/ ), 'ab EOL' );
-eval_ok(' !( $str ~~ m/abc$/ ) ', 'abc EOS', :todo<bug> );
-eval_ok(' !( $str ~~ m/^def/ ) ', 'SOS def', :todo<bug> );
-eval_ok('    $str ~~ m/^^def/ ', 'SOL def', :todo<bug> );
-eval_ok('    $str ~~ m/def\n?$$/ ', 'def newline EOL', :todo<bug> );
-eval_ok('    $str ~~ m/def$$/ ', 'def EOL', :todo<bug> );
-eval_ok(' !( $str ~~ m/def$/ ) ', 'def EOS', :todo<bug> );
-eval_ok(' !( $str ~~ m/^ghi/ ) ', 'SOS ghi', :todo<bug> );
-eval_ok('    $str ~~ m/^^ghi/ ', 'SOL ghi', :todo<bug> );
-eval_ok('    $str ~~ m/ghi\n?$$/ ', 'ghi newline EOL', :todo<bug> );
-eval_ok('    $str ~~ m/ghi$$/ ', 'ghi EOL', :todo<bug> );
-eval_ok('    $str ~~ m/ghi$/ ', 'ghi EOS', :todo<bug> );
-eval_ok('    $str ~~ m/^abc$$\n^^d.*f$$\n^^ghi$/ ', 'All dot', :todo<bug> );
+ok(eval(' !( $str ~~ m/abc$/ ) '), 'abc EOS' );
+ok(eval(' !( $str ~~ m/^def/ ) '), 'SOS def' );
+ok(eval('    $str ~~ m/^^def/ '), 'SOL def' );
+ok(eval('    $str ~~ m/def\n?$$/ '), 'def newline EOL' );
+ok(eval('    $str ~~ m/def$$/ '), 'def EOL' );
+ok(eval(' !( $str ~~ m/def$/ ) '), 'def EOS' );
+ok(eval(' !( $str ~~ m/^ghi/ ) '), 'SOS ghi' );
+ok(eval('    $str ~~ m/^^ghi/ '), 'SOL ghi' );
+ok(eval('    $str ~~ m/ghi\n?$$/ '), 'ghi newline EOL' );
+ok(eval('    $str ~~ m/ghi$$/ '), 'ghi EOL' );
+ok(eval('    $str ~~ m/ghi$/ '), 'ghi EOS' );
+ok(eval('    $str ~~ m/^abc$$\n^^d.*f$$\n^^ghi$/ '), 'All dot' );
 
 }
-

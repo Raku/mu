@@ -22,13 +22,13 @@ if(eval('!("a" ~~ /a/)')) {
 # FIXME parsefail
 eval('  rule dotdot { (.)(.) };  ');
 
-ok("zzzabcdefzzz" ~~ m/(a.)<?dotdot>(..)/, 'Match');
-ok($/, 'Matched');
-is($/, "abcdef", 'Captured');
-is($/[0], 'ab', '$/[0]');
-is($0, 'ab', '$0');
-is($/[1], 'ef', '$/[1]');
-is($1, 'ef', '$1');
+ok("zzzabcdefzzz" ~~ m/(a.)<?dotdot>(..)/, 'Match', :todo<feature>);
+ok($/, 'Matched', :todo<feature>);
+is($/, "abcdef", 'Captured', :todo<feature>);
+is($/[0], 'ab', '$/[0]', :todo<feature>);
+is($0, 'ab', '$0', :todo<feature>);
+is($/[1], 'ef', '$/[1]', :todo<feature>);
+is($1, 'ef', '$1', :todo<feature>);
 ok(!defined($/[2]), 'no $/[2]');
 ok(!defined($2), 'no $2');
 ok(!defined($/<dotdot>), 'no $/<dotdot>');
@@ -55,62 +55,62 @@ is($0[0], "bc", 'Nested $1');
 is($0[0][0], "c", 'Nested $2');
 is($0[1], "d", 'Nested $3');
 
-ok("bookkeeper" ~~ m/(((\w)$0[0][0])+)/, 'Backreference');
-is($0, 'ookkee', Captured );
-is($0[0], 'ee', Captured );
+ok("bookkeeper" ~~ m/(((\w)$0[0][0])+)/, 'Backreference', :todo<feature>);
+is($0, 'ookkee', 'Captured', :todo<feature>);
+is(try { $0[0] }, 'ee', 'Captured', :todo<feature>);
 
 # FIXME parsefail
 eval('  rule single { o | k | e };  ');
 
-eval_ok(' "bookkeeper" ~~ m/<single> ($/<single>)/ ', 'Named backref');
-is($/<single>, 'o', 'Named capture');
-is($0, 'o', 'Backref capture');
+eval_ok(' "bookkeeper" ~~ m/<single> ($/<single>)/ ', 'Named backref', :todo<feature>);
+is($/<single>, 'o', 'Named capture', :todo<feature>);
+is($0, 'o', 'Backref capture', :todo<feature>);
 
-ok("bookkeeper" ~~ m/(<?single>) ($0)/, 'Positional backref');
-is($0, 'o', 'Named capture');
-is($1, 'o', 'Backref capture');
+ok("bookkeeper" ~~ m/(<?single>) ($0)/, 'Positional backref', :todo<feature>);
+is($0, 'o', 'Named capture', :todo<feature>);
+is($1, 'o', 'Backref capture', :todo<feature>);
 
 ok(!( "bokeper" ~~ m/(<?single>) ($0)/ ), 'Failed positional backref');
-eval_ok(' !( "bokeper" ~~ m/<single> ($/<single>)/ ) ', 'Failed named backref');
+eval_ok(' !( "bokeper" ~~ m/<single> ($/<single>)/ ) ', 'Failed named backref', :todo<feature>);
 
-is("\$0", '$'~'1', 'Non-translation of non-interpolated "\\$0"' );
-is('$0',  '$'~'1', 'Non-translation of non-interpolated \'$0\'' );
-is(q($0), '$'~'1', 'Non-translation of non-interpolated q($0)');
-is(q{$0}, '$'~'1', 'Non-translation of non-interpolated q{$0}');
-is(q[$0], '$'~'1', 'Non-translation of non-interpolated q[$0]');
-is(q<$0>, '$'~'1', 'Non-translation of non-interpolated q<$0>');
-eval_ok(q( q<$0 <<<>>>> eq '$'~'1 <<<>>>' ), 'Non-translation of nested q<$0>');
-is(q/$0/, '$'~'1', 'Non-translation of non-interpolated q/$0/');
-is(q!$0!, '$'~'1', 'Non-translation of non-interpolated q!$0!');
-is(q|$0|, '$'~'1', 'Non-translation of non-interpolated q|$0|');
-eval_is(q( q#$0#, '$'~'0' ), 'Non-translation of non-interpolated q#$0#');
+is("\$0", '$'~'1', 'Non-translation of non-interpolated "\\$0"', :todo<feature> );
+is('$0',  '$'~'1', 'Non-translation of non-interpolated \'$0\'', :todo<feature> );
+is(q($0), '$'~'1', 'Non-translation of non-interpolated q($0)', :todo<feature>);
+is(q{$0}, '$'~'1', 'Non-translation of non-interpolated q{$0}', :todo<feature>);
+is(q[$0], '$'~'1', 'Non-translation of non-interpolated q[$0]', :todo<feature>);
+is(q<$0>, '$'~'1', 'Non-translation of non-interpolated q<$0>', :todo<feature>);
+eval_ok(q( q<$0 <<<>>>> eq '$'~'1 <<<>>>' ), 'Non-translation of nested q<$0>', :todo<feature>);
+is(q/$0/, '$'~'1', 'Non-translation of non-interpolated q/$0/', :todo<feature>);
+is(q!$0!, '$'~'1', 'Non-translation of non-interpolated q!$0!', :todo<feature>);
+is(q|$0|, '$'~'1', 'Non-translation of non-interpolated q|$0|', :todo<feature>);
+eval_is(q( q#$0#, '$'~'0' ), 'Non-translation of non-interpolated q#$0#', :todo<feature>);
 
 
 grammar English { rule name { john } }
 grammar French  { rule name { jean } }
 grammar Russian { rule name { ivan } }
 
-ok("john" ~~ m/<?English.name> | <?French.name> | <?Russian.name>/, 'English name');
-is($/, "john", 'Match is john');
+ok("john" ~~ m/<?English.name> | <?French.name> | <?Russian.name>/, 'English name', :todo<feature>);
+is($/, "john", 'Match is john', :todo<feature>);
 ok($/ ne "jean", "Match isn't jean");
-is($/<name>, "john", 'Name is john');
+is($/<name>, "john", 'Name is john', :todo<feature>);
 
-ok("jean" ~~ m/<?English.name> | <?French.name> | <?Russian.name>/, 'French name');
-is($/, "jean", 'Match is jean');
-is($/<name>, "jean", 'Name is jean');
+ok("jean" ~~ m/<?English.name> | <?French.name> | <?Russian.name>/, 'French name', :todo<feature>);
+is($/, "jean", 'Match is jean', :todo<feature>);
+is($/<name>, "jean", 'Name is jean', :todo<feature>);
 
-ok("ivan" ~~ m/<?English.name> | <?French.name> | <?Russian.name>/, 'Russian name');
-is($/, "ivan", 'Match is ivan');
-is($/<name>, "ivan", 'Name is ivan');
+ok("ivan" ~~ m/<?English.name> | <?French.name> | <?Russian.name>/, 'Russian name', :todo<feature>);
+is($/, "ivan", 'Match is ivan', :todo<feature>);
+is($/<name>, "ivan", 'Name is ivan', :todo<feature>);
 
 # FIXME parsefail
 eval('  rule name { <?English.name> | <?French.name> | <?Russian.name> }  ');
  
-ok("john" ~~ m/<name>/, 'English metaname');
-is($/, "john", 'Metaname match is john');
-ok($/ ne "jean", "Metaname match isn't jean");
-is($/<name>, "john", 'Metaname is john');
-is($/<name><name>, "john", 'Metaname name is john');
+ok("john" ~~ m/<name>/, 'English metaname', :todo<feature>);
+is($/, "john", 'Metaname match is john', :todo<feature>);
+ok($/ ne "jean", "Metaname match isn't jean", :todo<feature>);
+is($/<name>, "john", 'Metaname is john', :todo<feature>);
+is(try { $/<name><name> }, "john", 'Metaname name is john', :todo<feature>);
 
 }
 

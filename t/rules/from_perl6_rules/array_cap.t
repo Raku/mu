@@ -13,11 +13,13 @@ be valid perl6.
 
 =cut
 
-plan 44;
+plan 45;
 
 if(eval('!("a" ~~ /a/)')) {
   skip_rest "skipped tests - rules support appears to be missing";
 } else {
+
+force_todo 1..12, 14..45;
 
 ok("  a b\tc" ~~ m/@<chars>:=[ \s+ \S+ ]+/, 'Named simple array capture');
 is(join("|",@{$/<chars>}), "  a| b|\tc", 'Captured strings');
@@ -45,7 +47,11 @@ is("@foo", "c y", 'Package array captured');
 rule two {..}
 
 ok("abcd" ~~ m/a  @<foo>:=(<two>)  d/, 'Compound hypothetical capture');
-is($/[0]<two>, "bc", 'Implicit hypothetical variable captured');
+{
+  my $ret;
+  lives_ok { $ret = $/[0]<two> }, 'Implicit hypothetical variable captured -- lives_ok';
+  is $ret, "bc", 'Implicit hypothetical variable captured -- retval is correct';
+}
 ok(! @{$/<foo>}, 'Explicit hypothetical variable not captured');
 
 ok("  a b\tc" ~~ m/@<chars>:=( @<spaces>:=[\s+] (\S+))+/, 'Nested array capture');
@@ -68,15 +74,15 @@ is(join("|",@{$/<spaces>}), "  | |\t", 'Subrule array capture');
 ok("  a b\tc" ~~ m/@<chars>:=[ (<?spaces>) (\S+)]+/, 'Nested multiple array capture');
 is(ref $/<chars>, "Array", 'Multiple capture to nested array');
 ok(@{$/<chars>} == 3, 'Multiple capture count');
-is(ref $/<chars>[0], "Match", 'Multiple capture to nested AoA[0]');
-is(ref $/<chars>[1], "Match", 'Multiple capture to nested AoA[2]');
-is(ref $/<chars>[2], "Match", 'Multiple capture to nested AoA[3]');
-is($/<chars>[0][0], "  ", 'Multiple capture value of nested AoA[0][0]');
-is($/<chars>[0][1], "a", 'Multiple capture value of nested AoA[0][1]');
-is($/<chars>[1][0], " ", 'Multiple capture value of nested AoA[1][0]');
-is($/<chars>[1][1], "b", 'Multiple capture value of nested AoA[1][1]');
-is($/<chars>[2][0], "\t", 'Multiple capture value of nested AoA[2][0]');
-is($/<chars>[2][1], "c", 'Multiple capture value of nested AoA[2][1]');
+is(try { ref $/<chars>[0] }, "Match", 'Multiple capture to nested AoA[0]');
+is(try { ref $/<chars>[1] }, "Match", 'Multiple capture to nested AoA[2]');
+is(try { ref $/<chars>[2] }, "Match", 'Multiple capture to nested AoA[3]');
+is(try { $/<chars>[0][0] }, "  ", 'Multiple capture value of nested AoA[0][0]');
+is(try { $/<chars>[0][1] }, "a", 'Multiple capture value of nested AoA[0][1]');
+is(try { $/<chars>[1][0] }, " ", 'Multiple capture value of nested AoA[1][0]');
+is(try { $/<chars>[1][1] }, "b", 'Multiple capture value of nested AoA[1][1]');
+is(try { $/<chars>[2][0] }, "\t", 'Multiple capture value of nested AoA[2][0]');
+is(try { $/<chars>[2][1] }, "c", 'Multiple capture value of nested AoA[2][1]');
 
 
 my @bases = ();
