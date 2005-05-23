@@ -81,7 +81,7 @@ sub run_pugs ($c) {
   return $res;
 }
 
-my $dump_file = "dump.ast" ~ nonces;
+my $dump_file = "dump.ast";
 
 for @tests_ok -> $test {
 
