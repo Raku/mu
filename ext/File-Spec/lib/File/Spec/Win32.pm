@@ -99,11 +99,7 @@ sub canonpath (Str $_path) returns Str is export {
     # trait at some point    
     my $path = $_path;
     my $orig_path = $path;
-    {
-        $path ~~ rx:perl5{^([a-z]:)};
-        my $match = uc($0);
-        $path ~~ s:perl5{^([a-z]:)}{$match}; #s;
-    }
+    $path ~~ s:perl5{^([a-z]:)}{{uc$0}};
     $path ~~ s:perl5:g{/}{\\};
     $path ~~ s:perl5:g{([^\\])\\+}{$0\\};                                                 # xx\\\\xx  -> xx\xx
     $path ~~ s:perl5:g{(\\\.)+\\}{\\};                                           # xx\.\.\xx -> xx\xx
