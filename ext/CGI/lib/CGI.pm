@@ -185,7 +185,7 @@ sub load_params {
         else {
             die "Invalid Content Type" if $REQUEST_METHOD; # only die if we are running under CGI
         }
-    }
+    };
     if ($!) {
         print header;
         say "There was an error getting the params:\n\t" ~ $!;
