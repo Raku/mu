@@ -10,7 +10,7 @@ You want to provide default values for false or undefined variables.
 
     my ($true,$false,$string,$defined,$last);
 
-    # Provide a default for undefined values
+    # Provide a default for undefined variables
 
     $false //= 0; 
 
@@ -38,6 +38,13 @@ You want to provide default values for false or undefined variables.
 
     sub infix:<\\>($lhs,$rhs){ $rhs // $lhs };
     $last = [\\] ($true,$false,$string,$defined,$last); # 0  
+
+    # Or ... 
+    $last=undef;
+
+    # Reverse the array and use the builtin definedness test
+    # use the reduce operator
+    $last = [//] reverse($true,$false,$string,$defined,$last); # 0  
     
     # force strict boolean context on a variable 
 
@@ -60,14 +67,21 @@ $string = $false || 'string'; # 0 is (normally) False:
 say "Default if False: $string"; # string 
 
 $defined = [//] ($true,$false,$string,$defined,$last); # 0 
-say "Default is first defined value of list: $defined";
+say "Default is first defined value of a list: $defined";
 
 $true = [||] ($true,$false,$string,$defined,$last); # 'string' 
-say "Default is first True value of list: $true";
+say "Default is first True value of a list: $true";
 
 sub infix:<\\>($lhs,$rhs){ $rhs // $lhs ;}
 $last = [\\] ($true,$false,$string,$defined,$last); # 0  
-say "Default is last defined value of List: $last";
+#use a custom definedness test
+say "Default is last defined value of a list: $last";
+
+# Or ...
+$last=undef;
+#use the reverse() function, and the builtin definedness test
+$last = [//] reverse($true,$false,$string,$defined,$last); # 0  
+say "Default is last defined value of a list: $last";
 
 #my $y is 0 but true;
 # TODO Error
