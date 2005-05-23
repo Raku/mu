@@ -1144,12 +1144,12 @@ arityMatch sub@MkCode{ subAssoc = assoc, subParams = prms } argLen argSlurpLen
     | isNothing $ find (not . isSlurpy) prms -- XXX - what about empty ones?
     , assoc == "pre"
     , slurpLen <- length $ filter (\p -> isSlurpy p && head (paramName p) == '$') prms
-    , hasArray <- isJust $ find (\p -> isSlurpy p && head (paramName p) == '@') prms
+    , hasArray <- isJust $ find (\p -> isSlurpy p && head (paramName p) /= '$') prms
     , if hasArray then slurpLen <= argSlurpLen else slurpLen == argSlurpLen
     = Just sub
     | reqLen <- length $ filter (\p -> not (isOptional p || isSlurpy p)) prms
     , optLen <- length $ filter (\p -> isOptional p) prms
-    , hasArray <- isJust $ find (\p -> isSlurpy p && head (paramName p) == '@') prms
+    , hasArray <- isJust $ find (\p -> isSlurpy p && head (paramName p) /= '$') prms
     , argLen >= reqLen && (hasArray || argLen <= (reqLen + optLen))
     = Just sub
     | otherwise

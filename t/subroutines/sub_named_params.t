@@ -4,7 +4,7 @@ use v6;
 
 use Test;
 
-plan 28;
+plan 37;
 
 =kwid
 
@@ -62,7 +62,8 @@ sub assign_based_on_named_positional ($x, +$y = $x) { $y }
 is(assign_based_on_named_positional(5), 5, "When we don't explicitly specify, we get the original value");
 is(assign_based_on_named_positional(5, "y"=> 2), 2, "When we explicitly specify, we get our value");
 is(assign_based_on_named_positional(5, y => 2), 2, "When we explicitly specify, we get our value");
-eval_is('my $var = "y"; assign_based_on_named_positional(5, $var => 2)', 2, "When we explicitly specify, we get our value", :todo);
+my $var = "y";
+is(assign_based_on_named_positional(5, $var => 2), 2, "When we explicitly specify, we get our value", :todo);
 
 # L<S06/"Named parameters" /a \+\+ prefix.*?required/>
 sub mandatory (++$param) {
@@ -113,20 +114,20 @@ is(h('a','b',1),'ba',"parameters don\'t bind incorrectly");
 {
 sub slurp(*%args) { return %args }
 my %fellowship = slurp(hobbit => 'Frodo', wizard => 'Gandalf');
-is(%fellowship<hobbit>, 'Frodo', "hobbit arg was slurped", :todo<bug>);
-is(%fellowship<wizard>, 'Gandalf', "wizard arg was slurped", :todo<bug>);
-is(%fellowship<dwarf>, undef, "dwarf arg was not given", :todo<bug>);
-is(+%fellowship, 2, "exactly 2 arguments were slurped", :todo<bug>);
+is(%fellowship<hobbit>, 'Frodo', "hobbit arg was slurped");
+is(%fellowship<wizard>, 'Gandalf', "wizard arg was slurped");
+is(+%fellowship, 2, "exactly 2 arguments were slurped");
+is(%fellowship<dwarf>, undef, "dwarf arg was not given");
 }
 
 {
 sub named_and_slurp(+$grass, *%rest) { return($grass, %rest) }
 my ($grass, %rest) = named_and_slurp(sky => 'blue', grass => 'green', fire => 'red');
-is($grass, 'green', "explicit named arg received despite slurpy hash", :todo<bug>);
-is(+%rest, 2, "exactly 2 arguments were slurped", :todo<bug>);
-is(%rest{sky}, 'blue', "sky argument was slurped", :todo<bug>);
-is(%rest{fire}, 'red', "fire argument was slurped", :todo<bug>);
-is(%rest{grass}, undef, "grass argument was NOT slurped", :todo<bug>);
+is($grass, 'green', "explicit named arg received despite slurpy hash");
+is(+%rest, 2, "exactly 2 arguments were slurped");
+is(%rest<sky>, 'blue', "sky argument was slurped");
+is(%rest<fire>, 'red', "fire argument was slurped");
+is(%rest<grass>, undef, "grass argument was NOT slurped");
 }
 
 =kwid
