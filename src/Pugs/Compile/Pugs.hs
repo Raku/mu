@@ -42,11 +42,13 @@ instance Compile Pad where
     compile pad = do
         symsC <- mapM compile syms
         return $ text "fmap mkPad . sequence $ "
-            $+$ nest 4 (brackets $ vcat (punctuate (text ",") symsC))
+            $+$ nest 4 (brackets $ vcat (punctuate (text ",") $ filter (not . isEmpty) symsC))
         where
         syms = padToList pad
 
 instance Compile (String, [(TVar Bool, TVar VRef)]) where
+    compile ((_:'?':_), _) = return empty -- XXX - @?INIT etc; punt for now
+    compile ((_:'=':_), _) = return empty -- XXX - @=POS etc; punt for now
     compile (n, tvars) = do
         tvarsC <- mapM compile tvars
         return $ parens $
