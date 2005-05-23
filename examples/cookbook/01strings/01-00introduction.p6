@@ -188,7 +188,7 @@ Double-quoted strings interpolate the elements of an array or
 a hash, closures, functions, backslashed control characters, and 
 other good stuff.  Single-quoted strings do not.
 
-    # literal spaces and tabs are the the same
+    # literal spaces and tabs are the same
     say 	"    The quick brown fox jumps over the lazy dog.";
     say 	'    The quick brown fox jumps over the lazy dog.';
     
@@ -222,7 +222,7 @@ other good stuff.  Single-quoted strings do not.
 =cut
 
 
-# literal spaces and tabs are the the same
+# literal spaces and tabs are the same
 say 	"    The quick brown fox jumps over the lazy dog.";
 say 	'    The quick brown fox jumps over the lazy dog.';
 
@@ -357,7 +357,7 @@ qs//.
 Adverbs can be strung together to make a specialized quoting
 environment for your string.
 
-    # interpolate only scalars and arrays:
+    # interpolate only scalars and array variables:
     say q:s:a/The quick brown $fox jumps over the lazy @animal[1]/;
 
 =head2 Special adverbs and synonyms
@@ -384,8 +384,8 @@ The <> synonym for q:w has many uses
 
 The «» synonym for qq:ww has many uses, also spelled <<>> 
 
-    $dog                 = «lazy»;
-    $fox                 = <<brown>>;
+    ($fox,$dog)          = «brown lazy»;
+    ($fox,$dog)          = <<brown lazy>>; # same
     %animal              = « $fox fox lazy "lazy dog" »;
     say %animal« $dog »  ; # lazy dog 
     say %animal<<$dog>>    ; # lazy dog 

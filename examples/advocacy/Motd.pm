@@ -2,7 +2,7 @@
 use v6;
 module Motd;
 
-sub finger (*@arr) returns Str is export {
+sub finger (@arr) returns Str is export {
 		my @default = (
 			"boring",
 			"missing examples",
@@ -28,7 +28,7 @@ sub clear returns Void is export{
 	system(($?OS eq any<MSWin32 mingw>) ?? 'cls' :: 'clear');
 }
 
-sub max (Array @x) returns Int{
+sub max (Array @x) returns Int is export{
 	my $max;
 	for @x->$try{
 		$max =	$max > $try ?? $max :: $try; 
@@ -87,7 +87,7 @@ sub matchval ($x,Hash %x,Int ?$cap) returns Array is export{
 	@matches
 } 
 
-sub parse_args (Str $x) returns Array {
+sub parse_args (Str $x) returns Array is export{
 	my @args = split ',', $x;
 	@args
 }
