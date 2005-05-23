@@ -2,6 +2,9 @@
 
 === Pugs Internals
 
+* Parsing for user-defined nullary functions.
+* `try {...}` literal allowed at expression level.
+* Interactive shell commands normalised to always begin with `:`.
 * Much work on the Haddock Haskell documentation done.
 * `do {...}` literal added.
 * External parrot for Rules is now kept in a single process.
@@ -19,6 +22,7 @@
 * `INIT {...}` and `CHECK {...}` blocks in void context and as rvalues.
 * `s:globally//` is now `s:global//`.
 * `&code.name` and `&code.arity` added.
+* Much better error messages, with cascading stack trace
 * Several Object changes:
 ** MMD handling is now more sophisticated, and `$.chained.attr.methods` works.
 ** switch to Manhattan distance for MMD dispatch on invocants.
