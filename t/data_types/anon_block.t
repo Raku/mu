@@ -45,8 +45,8 @@ isa_ok($pointy_block_w_multiple_args, 'Block');
 is($pointy_block_w_multiple_args(3, 4), 7, '-> $arg1, $arg2 {} <"pointy" block w/multiple args> works');
 
 my $pointy_block_nested = -> $a { -> $b { $a + $b }};
-isa_ok($pointy_block_nested, 'Block');
-isa_ok($pointy_block_nested(5), 'Block',:todo); 
+isa_ok($pointy_block_nested, Block);
+isa_ok($pointy_block_nested(5), Block);
 eval_is('$pointy_block_nested(5)(6)', 11, '-> $a { -> $b { $a+$b }} nested <"pointy" block> works',:todo<parsefail>); 
 
 # bare blocks L<S06/"Blocks">
