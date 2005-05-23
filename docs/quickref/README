@@ -9,17 +9,17 @@ Think of this as a small booklet, a pocket reference.
 This is the place to describe syntax rather than semantics. It's a huge
 perlcheat-like document.
 
-I suggest we use the following files:
+Alphabetically sorted:
 
 - control      # looping / topicalizing constructs (while, given, if, etc)
 - data         # data types (scalars, arrays, hashes, pairs, ...)
 - func         # list of functions with their arguments
-- smartmatch   # smartmatching possibilities
 - mod          # modules
 - namespace    # namespaces
 - oo           # object orientation
 - op           # operators
 - reduction    # reduce metaoperator
 - rules        # rules
+- smartmatch   # smart matching operator
 - sub          # subroutine signatures and calling
 - var          # special variables

@@ -86,7 +86,7 @@ Comparison operators
     <=    le            # less than or equal to
     >=    ge            # greater than or equal to
     <=>   cmp           # lt => -1, eq => 0, gt => 1
-                ~~      # smart match
+                ~~      # smart match (see smartmatch)
                 !~      # negated smart match
                 =:=     # equality (container)
 
@@ -153,4 +153,5 @@ See also
     k => $v         # data
     :k($v)          # data
     <==, ==>        # sub
+    ~~              # smartmatch
 
