@@ -20,11 +20,11 @@ if(eval('!("a" ~~ /a/)')) {
 } else {
 
 ok("abc" ~~ m/a(bc){$<caught> = $0}/, 'Inner match', :todo<feature>);
-is($/<caught>, "bc", 'Inner caught');
+is($/<caught>, "bc", 'Inner caught', :todo<feature>);
 
 my $caught = "oops!";
 ok("abc" ~~ m/a(bc){$caught = $0}/, 'Outer match', :todo<feature>);
-is($caught, "bc", 'Outer caught');
+is($caught, "bc", 'Outer caught', :todo<feature>);
 
 ok("abc" ~~ m/a(bc){$0 = uc $0}/, 'Numeric match', :todo<feature>);
 is($/, "abc", 'Numeric matched', :todo<feature>);
