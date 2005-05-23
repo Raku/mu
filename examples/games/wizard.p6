@@ -23,11 +23,12 @@ multi sub prompt ($prompt, @data is copy) {
 }	
 
 sub cls { system(($?OS eq any<MSWin32 mingw>) ?? 'cls' :: 'clear'); }
-multi sub infix:<<.?.>> ($low,$high) {int ( rand ($high - $low) + $low ) + 1; };
+multi sub infix:<<.?.>> ($low,$high) {int( rand($high - $low) + $low ) + 1; };
 
 class Object {
 	has Str $.name     is rw;
    has Str $.location is rw;
+   has Str $.last_location is rw;
    has Int $.plural;
    method where () {
       return $.name ~ ($.plural ?? " are" :: " is") ~
@@ -50,6 +51,8 @@ class Room is Object {
 
 class Mortal is Object {
     has Int     $.life      is rw;
+    has Int     $.max_life  is rw;
+    
     has Weapon  $.weapon    is rw;
     method damage ($damage) {
            $.life -= $damage;
@@ -98,14 +101,18 @@ class Person is Mortal {
                 }
             }
         }
-        say "The $enemy.name() is dead!" unless $choice eq 'f';
+        unless ($choice eq 'f') {
+	        say "The $enemy.name() is dead!" ;
+           return 1;
+		  }
+        return 0;
     }
       
     method attack (Monster $enemy) {
         ./hit($enemy);
         $enemy.hit($_);
         say "";
-        say "Your health: $.life\t$enemy.name(): $enemy.life()";
+        say "Your health: $.life/$.max_life\t$enemy.name(): $enemy.life()/$enemy.max_life()";
         exit if .dead;
     }
 
@@ -114,34 +121,50 @@ class Person is Mortal {
 
 class Monster is Mortal { }
 
-my $person = Person.new(:life(100),
+my $person = Person.new(:life(100),:max_life(100),
 	:weapons((Weapon.new(:name<sword>, :power(4), :powerRange(2)),
    			 Weapon.new(:name<spell>, :power(0), :powerRange(7)))),
 );
 
 
-my $frogs  = Monster.new(:name("Army of frogs"), :gold(int rand 100), :life((20..30).pick),
-                         :weapon(Weapon.new(:name<froggers>, :power(5), :powerRange(2))) );
-my $bat    = Monster.new(:name("Bat"), :gold(int rand 100), :life((10..30).pick),
-                         :weapon(Weapon.new(:name<claws>, :power(6), :powerRange(2))) );
-my $skeleton  = Monster.new(:name("Skeleton"), :gold(int rand 100), :life((40..50).pick),
-                         :weapon(Weapon.new(:name<Fists>, :power(10), :powerRange(10))) );
-                         
+my $frogs  = sub {
+   my $life = 10 .?. 20;
+   warn $life;
+	Monster.new(:name("Army of frogs"), :gold(0 .?. 100), :life($life),:max_life($life),
+               :weapon(Weapon.new(:name<froggers>, :power(5), :powerRange(2))) );
+};
+my $bat    = sub {
+   my $life = 20 .?. 30;
+   warn $life;
+   Monster.new(:name("Bat"), :gold(0 .?. 100), :life($life), :max_life($life),
+               :weapon(Weapon.new(:name<claws>, :power(5), :powerRange(3))) );
+};
+my $skeleton  = sub {
+	my $life = 30 .?. 50;
+   warn $life;
+	Monster.new(:name("Skeleton"), :gold(0 .?. 100), :life($life),:max_life($life),
+               :weapon(Weapon.new(:name<Fists>, :power(5), :powerRange(10))) );
+};
 my %world;
-%world<Lobby>   = Room.new( :name("Lobby")  , :exits("Forest","Dungeon"), :monsters([$frogs]));
-%world<Forest>  = Room.new( :name("Forest") , :exits("Lobby"), :monsters([$bat]));
-%world<Dungeon> = Room.new( :name("Dungeon"), :exits("Lobby"), :monsters([$skeleton]));
-$person.location = "Lobby";
-cls;
+%world<Lobby>   = Room.new( :name("Lobby")  , :exits("Forest","Dungeon"), :monsters([$frogs()]));
+%world<Forest>  = Room.new( :name("Forest") , :exits("Lobby"), :monsters([$bat()]));
+%world<Dungeon> = Room.new( :name("Dungeon"), :exits("Lobby"), :monsters([$skeleton()]));
+$person.last_location = $person.location = "Lobby";
+#cls;
 $person.name = capitalize(prompt("What is your name:"));
 say "Greetings, $person.name()!";
 say $person.where;
 until ($person.dead) {
-  if (%world.{$person.location}.are_monsters > 0){ 
+  if (%world.{$person.location}.are_monsters){ 
   	  my $monster = shift %world.{$person.location}.monster;
-     $person.battle($monster);
+     unless ( $person.battle($monster) ) {
+         push %world.{$person.location}.monsters, $monster;
+     		$person.location = $person.last_location;
+     }	
   } else {
+     cls;
   	  my @choices = %world.{$person.location}.exits.map:{ [undef, $_,$_] };
+     $person.last_location = $person.location;
      $person.location = prompt("Go to:" ,@choices);
   }
 }
