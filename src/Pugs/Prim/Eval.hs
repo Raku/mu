@@ -30,8 +30,9 @@ opRequire dumpEnv v = do
 
 op1EvalHaskell :: Val -> Eval Val
 op1EvalHaskell cv = do
-    str     <- fromVal cv :: Eval String
-    evalHaskell str
+    str     <- fromVal cv
+    val     <- resetT $ evalHaskell str
+    retEvalResult False val
 
 opEval :: Maybe Bool -> String -> String -> Eval Val
 opEval flag name str = do
