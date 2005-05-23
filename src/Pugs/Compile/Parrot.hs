@@ -70,7 +70,7 @@ instance Compile (Var, [(TVar Bool, TVar VRef)]) where
             , text $ ".return (" ++ ret ++ ")"
             , text ".end"
             ]
-    compile ((':':name), [(_, _)]) =
+    compile ((':':'*':name), [(_, _)]) =
         return $ text ".namespace" <+> text "['" <> text name <> text "']"
     -- compile v = error $ show v
     compile _ = return $ empty
