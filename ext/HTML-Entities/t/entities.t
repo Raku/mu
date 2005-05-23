@@ -33,11 +33,11 @@ $a = "V&aring;re norske tegn b&oslash;r &#230;res";
 decode_entities($a);
 
 is($a, "Våre norske tegn bør æres",
-    'Decoding entities should work in void context', :todo);
+    'Decoding entities should work in void context');
 
 encode_entities($a);
 is($a, "V&aring;re norske tegn b&oslash;r &aelig;res",
-    '... and encoding entities should also work in void context', :todo);
+    '... and encoding entities should also work in void context');
 
 $a = "abcdef";
 is encode_entities($a, 'a-c'), "&#97;&#98;&#99;def",
