@@ -77,10 +77,13 @@ op2Match x (VRef y) = do
     y' <- readRef y
     op2Match x y'
 
-op2Match x (VType t) = do
-    typ <- evalValType x
+op2Match (VType typ) (VType t) = do
     cls <- asks envClasses
     return $ VBool (isaType cls (showType t) typ)
+
+op2Match x y@(VType _) = do
+    typ <- evalValType x
+    op2Match (VType typ) y
 
 op2Match x (VSubst (rx, subst)) | rxGlobal rx = do
     str         <- fromVal x

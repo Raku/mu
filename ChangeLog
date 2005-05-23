@@ -70,6 +70,7 @@
 * Post-term code/method invocation in interpolated strings no longer
   eat trailing whitespace.
 * `next` now re-evaluates condition in `loop` constructs.
+* Type-to-type smartmatch, e.g. `Int ~~ Num`, now works.
 
 == Changes for 6.2.3 (r3111) - May 12, 2005
 
