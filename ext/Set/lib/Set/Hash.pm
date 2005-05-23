@@ -1,10 +1,10 @@
 
 use v6;
 
-class Set;
+class Set::Hash;
 
-sub set (*@contents) returns Set is export {
-    my $set = Set.new;
+sub set (*@contents) returns Set::Hash is export {
+    my $set = Set::Hash.new;
     $set.insert(@contents);
     return $set;
 }
@@ -42,7 +42,7 @@ method _stringify ($item) returns Str {
 }
 
 method insert($self: *@items) returns Int {
-    my Int $inserted = 0;
+    my Int $pre_size = 0;
     for @items -> $item {
         my $key = $self._stringify($item);
     	unless ( %:members.exists($key) ) {
@@ -92,8 +92,8 @@ method clear() {
     undef %:members;
 }
 
-method clone ($self:) returns Set {
-    my $set = Set.new;
+method clone ($self:) returns Set::Hash {
+    my $set = Set::Hash.new;
     $set.insert($self.members);
     return $set;
 }

@@ -1,13 +1,13 @@
 
 use v6;
 
-class Set::Junction;
+class Set;
 
 # FIXME - refactor out into a Set role, and a Set::Hash and
 # Set::Junction module.
 
 sub set (*@contents) returns Set is export {
-    my $set = Set::Junction.new;
+    my $set = Set.new;
     $set.insert(@contents);
     return $set;
 }
@@ -44,7 +44,7 @@ method remove($self: *@items) returns Int {
     my $pre_size = 0;
     if ( $:members.defined ) {
 	$pre_size = $self.size;
-	my $to_remove = any(@items);
+	my $to_remove = none(@items);
 	$:members = any($:members.values.grep:{ $_ =:= none($to_remove) });
     } else {
 	$:members = any();
@@ -130,8 +130,8 @@ method symmetric_difference($self: Set $other) returns Set {
 }
 
 # FIXME ... $?PACKAGE ?
-our &Set::Junction::count ::= &Set::Junction::size;
-our &Set::Junction::has   ::= &Set::Junction::includes;
+our &Set::count ::= &Set::size;
+our &Set::has   ::= &Set::includes;
 
 # unicode intersection
 method infix:<∩> (Set $one, Set $two) returns Set {
@@ -286,6 +286,9 @@ Set - Sets for Perl 6
 
 =head1 SYNOPSIS
 
+  # WARNING - this manual page contains substantial use of Unicode
+  # characters.  They may not be rendered correctly.  ASCII versions
+  # are supplied nearby.
   use Set;
 
   my $set = set 23, 42, $some_object;
@@ -297,6 +300,37 @@ Set - Sets for Perl 6
   $set.remove(23);
 
   my @members = $set.members;
+
+  # various common set operations
+  my $set2 = set(1..10);
+
+  # various set operations
+  my $union        = $set ∪ $set2;  # or "+"
+  my $intersection = $set ∩ $set2;  # or "*"
+  my $difference   = $set ∖ $set2;  # or "-"
+
+  # symmetric difference doesn't have a maths operator
+  my $sym_difference = $set % $set2;
+
+  # same as
+  $sym_difference = ( $set ∖ $set2 ) ∪ ( $set2 ∖ $set );
+  $sym_difference = ( $set - $set2 ) + ( $set2 - $set );
+
+  # sets support subset, superset, etc operators
+  my $is_proper_superset = $set ⊃ $set2;  # or ">"
+  my $is_proper_subset   = $set ⊂ $set2;  # or "<"
+  my $is_superset        = $set ⊇ $set2;  # or ">="
+  my $is_subset          = $set ⊆ $set2;  # or "<="
+
+  # other comparison operators available: ⊄, ⊅, ⊈, ⊉
+  # ⊊ is the same as ⊂, and ⊋ is the same as ⊃
+
+  # to test membership
+  my $contains_7  = $set2 ∋ 7;  # or  7 ∈ $set2
+  my $contains_11 = $set2 ∌ 11; # or 11 ∉ $set2
+
+  # smartmatch may also be used
+  $contains_7     = $set2 ~~ 7;
 
   # Set arithmetic with arrays
   say ~([1,2,3] +# [1,2,6])    # 1 2 3 6  (in no particular order)
@@ -314,23 +348,62 @@ Returns a new set containing all parameters.
 
 Returns a new, empty set.
 
+=head2 C<∅>
+
+Also returns a new, empty set.
+
 =head1 METHODS
 
 =head2 C<$set.insert(...)>
 
-Inserts the specifiend items into the set. Returns the number of items inserted.
+Inserts the specifiend items into the set. Returns the number of items
+inserted.
 
-It is not fatal to insert an item which is already inserted.
+It is not fatal to insert an item which is already inserted.  In fact,
+this is commonly used for directed graph traversal;
+
+  my @to_do = ($object);
+  my $seen = set(@to_do);
+
+  while my $item = @to_do.shift {
+
+      # ... do something with $item ...
+
+      if ($item.isa(Container)) {
+          @to_do.push($item.members.grep:{ $seen.insert($_) });
+      }
+  }
+
+You can also use the `+=' operator to add new values into a set;
+
+  $set += (1,2,3,4);
+
+Note that in this instance, the information about how many members
+were actually new is discarded.
 
 =head2 C<$set.remove(...)>
 
-Removes the specified items from the set. Returns the number of items removed.
+Removes the specified items from the set. Returns the number of items
+removed.
 
 It is not fatal to remove an item which is not in the set.
 
 =head2 C<$set.includes(...)>, C<$set.has(...)>
 
-Returns true if all given items are in the set. C<has> is an alias for C<includes>.
+Returns true if all given items are in the set. C<has> is an alias for
+C<includes>.
+
+=head2 C<$set ~~ $item>, C<$item ~~ $set>
+
+Operator version of C<.includes()>.
+
+=head2 C<$set ∋ $item>, C<$item ∈ $set>
+
+Unicode versions of C<.includes()>.
+
+=head2 C<$set ∌ $item>, C<$item ∉ $set>
+
+Complemented unicode versions of C<.includes()>.
 
 =head2 C<$set.member($item)>
 
@@ -355,41 +428,92 @@ Clears the set.
 
 =head2 C<$set1.equal($set2)>
 
+=head2 C<$set1 == $set2>
+
 Returns true if C<$set1> equals C<$set2>, i.e. if C<$set1> contains all the
 items of C<$set2> and C<$set1> and C<$set2> have the same size.
 
 =head2 C<$set1.not_equal($set2)>
 
+=head2 C<$set1 != $set2>
+
+=head2 C<$set1 ≠ $set2>
+
 Returns true if C<$set1> does not equal C<$set2>.
 
 =head2 C<$set1.subset($set2)>
+
+=head2 C<$set1 E<lt>= $set2)>
+
+=head2 C<$set1 ⊆ $set2)>
 
 Returns true if C<$set1> is a subset of C<$set2>.
 
 =head2 C<$set1.superset($set2)>
 
+=head2 C<$set1 E<gt>= $set2)>
+
+=head2 C<$set1 ⊇ $set2>
+
 Returns true if C<$set1> is a superset of C<$set2>.
 
-=head2 C<$set1.proper_subset($set2)>, C<$set1.proper_superset($set2)>
+=head2 C<$set1.proper_subset($set2)>
+
+=head2 C<$set1 ⊂ $set2>
+
+=head2 C<$set1 ⊊ $set2>
+
+=head2 C<$set1 E<lt> $set2)>
+
+=head2 C<$set1.proper_superset($set2)>
+
+=head2 C<$set1 ⊃ $set2>
+
+=head2 C<$set1 ⊋ $set2>
+
+=head2 C<$set1 E<gt> $set2)>
 
 Returns true if C<$set1> is a proper subset (superset) of C<$set2>, i.e. if
 C<$set1> has at least one element less (more) than C<$set2>.
 
 =head2 C<$set1.union($set2)>
 
+=head2 C<$set1 ∪ $set2>
+
+=head2 C<$set1 + $set2>
+
 Returns a new set containing all the elements of C<$set1> and C<$set2>
 
 =head2 C<$set1.intersection($set2)>
+
+=head2 C<$set1 ∩ $set2>
+
+=head2 C<$set1 * $set2>
 
 Returns a new set containing all the elements of C<$set1> which are in C<$set2>, too.
 
 =head2 C<$set1.difference($set2)>
 
-Returns a new set containing all the elements of C<$set1> which are not in C<$set2>.
+=head2 C<$set1 ∖ $set2>
+
+=head2 C<$set1 * $set2>
+
+Returns a new set containing all the elements of C<$set1> which are
+not in C<$set2>.  Note that "∖" (\x{2216} - set minus) is not the same
+character as "\" (\x{005C} - backslash).
 
 =head2 C<$set1.symmetric_difference($set2)>
 
-XXX
+=head2 C<$set1 % $set2>
+
+Returns all items that are only in one of the two sets.  This is
+equivalent to any of the below:
+
+   ( $set1 ∪ $set2 ) ∖ ( $set1 ∩ $set2 )
+   ( $set1 ∖ $set2 ) ∪ ( $set2 ∖ $set1 )
+
+   ( $set1 + $set2 ) - ( $set1 * $set2 )
+   ( $set1 - $set2 ) + ( $set2 - $set1 )
 
 =head1 BUGS
 

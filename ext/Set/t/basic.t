@@ -5,7 +5,7 @@ use Test;
 
 plan 20;
 
-use Set;
+use Set::Hash;
 
 class Bob {};
 class Bert {};
