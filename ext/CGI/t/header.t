@@ -3,7 +3,7 @@
 use v6;
 require Test;
 
-plan 8;
+plan 11;
 
 =pod
 
