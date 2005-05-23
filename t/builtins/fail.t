@@ -28,7 +28,8 @@ plan 4;
   my $was_after_sub  = 0;
   my $sub = sub { fail_ 42; $was_after_fail++ };
 
-  try { $sub(); $was_after_sub++ }
+  try { $sub(); $was_after_sub++ };
+
   is $was_after_fail, 0, "fail() causes our sub to return (2)";
   is $was_after_sub,  0, "fail() causes our try{} to die";
 }
