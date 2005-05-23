@@ -422,13 +422,16 @@ reduce exp@(Syn name exps) = case name of
     "loop" -> do
         let [pre, cond, post, body] = case exps of { [_] -> exps'; _ -> exps }
             exps' = [emptyExp, Val (VBool True), emptyExp] ++ exps
+            evalCond | unwrap cond == Noop = return True
+                     | otherwise = fromVal =<< enterEvalContext (cxtItem "Bool") cond
         evalExp pre
+        vb  <- evalCond
+        if not vb then retEmpty else do
         genSymCC "&last" $ \symLast -> enterLex [symLast] $ fix $ \runBody -> do
             genSymPrim "&redo" (const $ runBody) $ \symRedo -> do
             let runNext = do
                 valPost <- evalExp post
-                vBool   <- enterEvalContext (cxtItem "Bool") cond
-                vb      <- fromVal vBool
+                vb      <- evalCond
                 trapVal valPost $ if vb then runBody else retEmpty
             genSymPrim "&next" (const $ runNext) $ \symNext -> do
             valBody <- enterLex [symRedo, symNext] $ evalExp body
