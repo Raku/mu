@@ -14,7 +14,8 @@ Named variables (see S02):
     @*ARGS         # command-line arguments
     &?BLOCK        # current block (itself, see S06)
     @?BLOCK        # current blocks (themselves, see S06)
-    $?BLOCKLABEL   # label of current block (see S06) # XXX redundant with $?LABEL?
+    $?BLOCKLABEL   # label of current block (see S06) 
+                   #   XXX redundant with $?LABEL?
     ::?CLASS       # current class (as package name)
     $?CLASS        # current class (as variable)
     @?CLASS        # current classes
@@ -32,7 +33,8 @@ Named variables (see S02):
     @?MODULE       # current modules
     $?PACKAGE      # current package
     @?PACKAGE      # current packages
-    $?PACKAGENAME  # name of current package (see S10) # XXX redundant with $?PACKAGE?
+    $?PACKAGENAME  # name of current package (see S10) 
+                   #   XXX redundant with $?PACKAGE?
     $?OS           # operating system compiled for
     $*OS           # operating system running under
     $?OSVER        # operating system version compiled for
