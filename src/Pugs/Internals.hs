@@ -22,6 +22,7 @@ module Pugs.Internals (
     module Pugs.Rule.Pos,
     module Data.Dynamic,
     module Data.Unique,
+    module Data.FunctorM,
     module Control.Exception,
     module System.Environment,
     module System.Random,
@@ -65,6 +66,7 @@ module Pugs.Internals (
     modifyTVar,
     unsafePerformSTM,
     possiblyFixOperatorName,
+    maybeM,
 ) where
 
 import UTF8
@@ -97,6 +99,7 @@ import Control.Concurrent.STM
 import Data.Bits hiding (shift)
 import Data.Maybe
 import Data.Either
+import Data.FunctorM
 import Data.List (
     (\\), find, genericLength, insert, sortBy, intersperse,
     partition, group, sort, genericReplicate, isPrefixOf, isSuffixOf,
@@ -183,6 +186,9 @@ modifyTVar var f = do
 
 -- instance MonadIO STM where
 --     liftIO = unsafeIOToSTM
+
+maybeM :: (FunctorM f, Monad m) => m (f a) -> (a -> m b) -> m (f b)
+maybeM f m = fmapM m =<< f
 
 {-|
 Transform an operator name, for example @&infix:<+>@ or @&prefix:«[+]»@, into

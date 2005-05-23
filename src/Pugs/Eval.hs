@@ -144,9 +144,6 @@ findSyms name = do
                 Nothing -> return []
     return $ concat (concat syms)
 
-enterEvalContext :: Cxt -> Exp -> Eval Val
-enterEvalContext cxt = enterContext cxt . evalExp
-
 -- Reduction ---------------------------------------------------------------
 
 retVal :: Val -> Eval Val
@@ -190,12 +187,9 @@ findVar name = do
     rv <- findVarRef name
     case rv of
         Nothing  -> case name of
-	    '&':_ -> do
-		sub <- findSub name [] []
-		case sub of
-		    Nothing  -> return Nothing
-		    (Just x) -> return $ Just $ codeRef x
-	    _ -> return Nothing
+            ('&':_) -> maybeM (findSub name [] []) $ \sub -> do
+                return $ codeRef sub
+            _ -> return Nothing
         Just ref -> fmap Just $ liftSTM (readTVar ref)
 
 findVarRef :: Var -> Eval (Maybe (TVar VRef))
@@ -585,13 +579,13 @@ reduce exp@(Syn name exps) = case name of
         ref     <- fromVal val
         evalRef ref
     sigil:"::()" -> do
-	-- These are all parts of the name
-	parts   <- mapM fromVal =<< mapM evalExp exps
-	-- Now we only have to add the sigil in front of the string and join
-	-- the parts with "::".
-	let varname = sigil:(concat . (intersperse "::") $ parts)
-	-- Finally, eval the varname.
-	evalExp . Var $ varname
+        -- These are all parts of the name
+        parts   <- mapM fromVal =<< mapM evalExp exps
+        -- Now we only have to add the sigil in front of the string and join
+        -- the parts with "::".
+        let varname = sigil:(concat . (intersperse "::") $ parts)
+        -- Finally, eval the varname.
+        evalExp . Var $ varname
     "{}" -> do
         let [listExp, indexExp] = exps
         idxCxt  <- cxtOfExp indexExp 
@@ -617,7 +611,7 @@ reduce exp@(Syn name exps) = case name of
         let rx | p5 = MkRulePCRE p5re g flag_s 
                | otherwise = MkRulePGE str g flag_s
             g = ('g' `elem` p5flags || flag_g)
-	    p5re = mkRegexWithPCRE (encodeUTF8 str) $
+            p5re = mkRegexWithPCRE (encodeUTF8 str) $
                         [ pcreUtf8
                         , ('i' `elem` p5flags || flag_i) `implies` pcreCaseless
                         , ('m' `elem` p5flags) `implies` pcreMultiline
@@ -657,7 +651,7 @@ reduce exp@(Syn name exps) = case name of
         let file = (`concatMap` mod) $ \v -> case v of
             { '-' -> "__"; _ | isAlphaNum v -> [v] ; _ -> "_" }
 #endif
-	externRequire "Haskell" (file ++ ".o")
+        externRequire "Haskell" (file ++ ".o")
         retEmpty
     syn | last syn == '=' -> do
         let [lhs, exp] = exps
@@ -844,95 +838,92 @@ findSub name' invs args = do
             subs    <- findWithPkg (showType typ) name
             if isJust subs then return subs else findSub' name
         _ -> do
-	    sub <- findSub' name
-	    if isNothing sub then possiblyBuildMetaopVCode name else return sub
+            sub <- findSub' name
+            if isNothing sub then possiblyBuildMetaopVCode name else return sub
     where
     possiblyBuildMetaopVCode op' | "&prefix:[" `isPrefixOf` op', "]" `isSuffixOf` op' = do 
-	-- Strip the trailing "]" from op
-	let op = drop 9 (init op')
-	-- We try to find the userdefined sub.
-	-- We use the first two elements of invs as invocants, as these are the
-	-- types of the op.
-        code <- findSub ("&infix:" ++ op) (take 2 (invs ++ [Val undef, Val undef])) []
-        if isNothing code then return Nothing else do
-        let body = \[vs] -> do
-                list_of_args <- fromVal vs
-                op2Fold (list_of_args) (VCode $ fromJust code)
-	-- Now we construct the sub. Is there a more simple way to do it?
-        return . Just $ mkPrim
+        -- Strip the trailing "]" from op
+        let op = drop 9 (init op')
+        -- We try to find the userdefined sub.
+        -- We use the first two elements of invs as invocants, as these are the
+        -- types of the op.
+            rv = findSub ("&infix:" ++ op) (take 2 (invs ++ [Val undef, Val undef])) []
+        maybeM rv $ \code -> return $ mkPrim
             { subName     = "&prefix:[" ++ op ++ "]"
             , subType     = SubPrim
             , subAssoc    = "spre"
             , subParams   = makeParams ["List"]
             , subReturns  = mkType "Str"
-            , subBody     = Prim body
+            , subBody     = Prim $ \[vs] -> do
+                list_of_args <- fromVal vs
+                op2Fold (list_of_args) (VCode code)
             }
+        -- Now we construct the sub. Is there a more simple way to do it?
     possiblyBuildMetaopVCode op' | "&prefix:" `isPrefixOf` op', "\171" `isSuffixOf` op' = do 
-	let op = drop 8 (init op')
-	possiblyBuildMetaopVCode ("&prefix:" ++ op ++ "<<")
+        let op = drop 8 (init op')
+        possiblyBuildMetaopVCode ("&prefix:" ++ op ++ "<<")
     possiblyBuildMetaopVCode op' | "&prefix:" `isPrefixOf` op', "<<" `isSuffixOf` op' = do 
-	let op = drop 8 (init (init op'))
-        code <- findSub ("&prefix:" ++ op) [head $ invs ++ [Val undef]] []
-        if isNothing code then return Nothing else do
-        return . Just $ mkPrim
+        let op = drop 8 (init (init op'))
+            rv = findSub ("&prefix:" ++ op) [head $ invs ++ [Val undef]] []
+        maybeM rv $ \code -> return $ mkPrim
             { subName     = "&prefix:" ++ op ++ "<<"
             , subType     = SubPrim
-            , subAssoc    = subAssoc (fromJust code)
-            , subParams   = subParams (fromJust code)
+            , subAssoc    = subAssoc code
+            , subParams   = subParams code
             , subReturns  = mkType "List"
             , subBody     = Prim
-                (\x -> op1HyperPrefix (fromJust code) (listArg x))
+                (\x -> op1HyperPrefix code (listArg x))
             }
     possiblyBuildMetaopVCode op' | "&postfix:\187" `isPrefixOf` op' = do
-	let op = drop 10 op'
-	possiblyBuildMetaopVCode ("&postfix:>>" ++ op)
+        let op = drop 10 op'
+        possiblyBuildMetaopVCode ("&postfix:>>" ++ op)
     possiblyBuildMetaopVCode op' | "&postfix:>>" `isPrefixOf` op' = do
-	let op = drop 11 op'
-        code <- findSub ("&postfix:" ++ op) [head $ invs ++ [Val undef]] []
-        if isNothing code then return Nothing else do
-        return . Just $ mkPrim
+        let op = drop 11 op'
+            rv = findSub ("&postfix:" ++ op) [head $ invs ++ [Val undef]] []
+        maybeM rv $ \code -> return $ mkPrim
             { subName     = "&postfix:>>" ++ op
             , subType     = SubPrim
-            , subAssoc    = subAssoc (fromJust code)
-            , subParams   = subParams (fromJust code)
+            , subAssoc    = subAssoc code
+            , subParams   = subParams code
             , subReturns  = mkType "List"
             , subBody     = Prim
-                (\x -> op1HyperPostfix (fromJust code) (listArg x))
+                (\x -> op1HyperPostfix code (listArg x))
             }
     possiblyBuildMetaopVCode op' | "&infix:\187" `isPrefixOf` op', "\171" `isSuffixOf` op' = do 
-	let op = drop 8 (init op')
-	possiblyBuildMetaopVCode ("&infix:>>" ++ op ++ "<<")
+        let op = drop 8 (init op')
+        possiblyBuildMetaopVCode ("&infix:>>" ++ op ++ "<<")
     possiblyBuildMetaopVCode op' | "&infix:>>" `isPrefixOf` op', "<<" `isSuffixOf` op' = do 
-	let op = drop 9 (init (init op'))
-        code <- findSub ("&infix:" ++ op) (take 2 (invs ++ [Val undef, Val undef])) []
-        if isNothing code then return Nothing else do
-        return . Just $ mkPrim
+        let op = drop 9 (init (init op'))
+            rv = findSub ("&infix:" ++ op) (take 2 (invs ++ [Val undef, Val undef])) []
+        maybeM rv $ \code -> return $ mkPrim
             { subName     = "&infix:>>" ++ op ++ "<<"
             , subType     = SubPrim
-            , subAssoc    = subAssoc (fromJust code)
+            , subAssoc    = subAssoc code
             , subParams   = makeParams ["Any", "Any"]
             , subReturns  = mkType "List"
-            , subBody     = Prim (\[x, y] -> op2Hyper (fromJust code) x y)
+            , subBody     = Prim (\[x, y] -> op2Hyper code x y)
             }
-	-- Taken from Pugs.Prim. Probably this should be refactored. (?)
+        -- Taken from Pugs.Prim. Probably this should be refactored. (?)
     possiblyBuildMetaopVCode _ = return Nothing
     listArg [x] = x
     listArg xs = VList xs
     makeParams = map (\p -> p{ isWritable = isLValue p }) . foldr foldParam [] . map takeWord
     takeWord = takeWhile isWord . dropWhile (not . isWord)
     isWord   = not . (`elem` "(),:")
+    findAttrs pkg = do
+        maybeM (findVar (':':pkg)) $ \ref -> do
+            obj     <- readRef ref
+            fetch   <- doHash obj hash_fetchVal
+            fromVal =<< fetch "traits"
     findWithPkg pkg name = do
-	subs <- findSub' (('&':pkg) ++ "::" ++ tail name)
-	if isJust subs then return subs else do
-	-- get superclasses
-	rv <- findVar (':':pkg)
-	if isNothing rv then findSub' name else do
-	obj	<- readRef (fromJust rv)
-	fetch	<- doHash obj hash_fetchVal
-	attrs	<- fromVal =<< fetch "traits"
-	(`fix` attrs) $ \run pkgs -> do
-	    if null pkgs then return Nothing else do
-	    subs <- findWithPkg (head pkgs) name
+        subs <- findSub' (('&':pkg) ++ "::" ++ tail name)
+        if isJust subs then return subs else do
+        -- get superclasses
+        attrs <- findAttrs pkg
+        if isNothing attrs then findSub' name else do
+        (`fix` (fromJust attrs)) $ \run pkgs -> do
+            if null pkgs then return Nothing else do
+            subs <- findWithPkg (head pkgs) name
             if isJust subs then return subs else run (tail pkgs)
     findSub' name = do
         subSyms     <- findSyms name
@@ -957,18 +948,15 @@ findSub name' invs args = do
     subs slurpLen subSyms = (liftM catMaybes) $ (`mapM` subSyms) $ \(n, val) -> do
         sub@(MkCode{ subType = subT, subReturns = ret, subParams = prms }) <- fromVal val
         let isGlobal = '*' `elem` n
-        let fun = arityMatch sub (length (invs ++ args)) slurpLen
-        if isNothing fun then return Nothing else do
-        -- if deltaFromCxt ret == 0 then return Nothing else do
-        let pairs = map (typeOfCxt . paramContext) prms
-                        `zip` (map unwrap $ invs ++ args)
-        deltaCxt    <- deltaFromCxt ret
-        deltaArgs   <- mapM deltaFromPair pairs
-        let bound = either (const False) (const True) $ bindParams sub invs args
-        return $ Just
-            ( (isGlobal, subT, isMulti sub, bound, sum deltaArgs, deltaCxt)
-            , fromJust fun
-            )
+        let rv = return $ arityMatch sub (length (invs ++ args)) slurpLen
+        maybeM rv $ \fun -> do
+            -- if deltaFromCxt ret == 0 then return Nothing else do
+            let pairs = map (typeOfCxt . paramContext) prms
+                            `zip` (map unwrap $ invs ++ args)
+            deltaCxt    <- deltaFromCxt ret
+            deltaArgs   <- mapM deltaFromPair pairs
+            let bound = either (const False) (const True) $ bindParams sub invs args
+            return ((isGlobal, subT, isMulti sub, bound, sum deltaArgs, deltaCxt), fun)
     deltaFromCxt x  = do
         cls <- asks envClasses
         cxt <- asks envContext

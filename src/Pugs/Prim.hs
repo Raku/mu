@@ -26,6 +26,7 @@ import Pugs.Internals
 import Pugs.Junc
 import Pugs.AST
 import Pugs.Types
+import Pugs.Monads
 import Pugs.Pretty
 import Text.Printf
 import Pugs.External
@@ -177,10 +178,8 @@ op1 "sort" = \v -> do
             return . VList . map snd . sort $ (strs :: [VStr]) `zip` valList
         Just subVal -> do
             sub <- fromVal subVal
-            evl <- asks envEval
             sorted <- (`sortByM` valList) $ \v1 v2 -> do
-                rv  <- local (\e -> e{ envContext = cxtItem "Int" }) $ do
-                    evl (App (Val sub) [Val v1, Val v2] [])
+                rv  <- enterEvalContext (cxtItem "Int") $ App (Val sub) [Val v1, Val v2] []
                 int <- fromVal rv
                 return (int <= (0 :: Int))
             return $ VList sorted
@@ -405,9 +404,7 @@ op1 "async" = \v -> do
     lock    <- liftSTM $ newEmptyTMVar
     tid     <- liftIO . (if rtsSupportsBoundThreads then forkOS else forkIO) $ do
         val <- runEvalIO env $ do
-            evl <- asks envEval
-            local (\e -> e{ envContext = CxtVoid }) $ do
-                evl (App (Val code) [] [])
+            enterEvalContext CxtVoid $ App (Val code) [] []
         liftSTM $ tryPutTMVar lock val
         return ()
     return . VThread $ MkThread
@@ -826,7 +823,10 @@ op3 "new" = \t n _ -> do
     attrs   <- liftSTM $ newTVar Map.empty
     writeIVar (IHash attrs) named
     uniq    <- liftIO $ newUnique
-    return . VObject $ MkObject{ objType = typ, objAttrs = attrs, objId = uniq }
+    let obj = VObject $ MkObject{ objType = typ, objAttrs = attrs, objId = uniq }
+    -- Now start calling BUILD for each of parent classes (if defined)
+
+    return obj
 op3 other = \_ _ _ -> fail ("Unimplemented 3-ary op: " ++ other)
 
 -- |Implementation of 4-arity primitive operators and functions.
@@ -879,10 +879,7 @@ op1HyperPrefix sub x
 	| VRef x' <- x
 	= doHyper =<< readRef x'
 	| otherwise
-	= do
-	    evl <- asks envEval
-	    local (\e -> e{ envContext = cxtItemAny }) $ do
-		evl (App (Val $ VCode sub) [Val x] [])
+	= enterEvalContext cxtItemAny $ App (Val $ VCode sub) [Val x] []
     hyperList []     = return []
     hyperList (x:xs) = do
         val  <- doHyper x
@@ -909,10 +906,7 @@ op2Hyper sub x y
     | otherwise
     = fail "Hyper OP only works on lists"
     where
-    doHyper x y = do
-        evl <- asks envEval
-        local (\e -> e{ envContext = cxtItemAny }) $ do
-            evl (App (Val $ VCode sub) [Val x, Val y] [])
+    doHyper x y = enterEvalContext cxtItemAny $ App (Val $ VCode sub) [Val x, Val y] []
     hyperLists [] [] = return []
     hyperLists xs [] = return xs
     hyperLists [] ys = return ys

@@ -41,6 +41,14 @@ enterContext :: Cxt -> Eval a -> Eval a
 enterContext cxt = local (\e -> e{ envContext = cxt })
 
 {-|
+Evaluate the specified wxpression in the specified (Perl6) context ('Cxt').
+
+(Subsequent chained 'Eval's do /not/ see this new scope.)
+-}
+enterEvalContext :: Cxt -> Exp -> Eval Val
+enterEvalContext cxt = enterContext cxt . evalExp
+
+{-|
 Bind @\$_@ to the given topic value in a new lexical scope, then perform
 the specified evaluation in that scope.
 
