@@ -48,7 +48,7 @@ Array, sigil: @
           +@foo        # @foo.elems
           ~@foo        # join ' ', @foo
           ?@foo        # ? @foo.elems
-          "@foo"       # join ' ', @foo
+          "@foo[]"     # join ' ', @foo
            @foo[i]     # subscript
            @foo[i, i]  # slice
            @foo[i; i]  # multi-dimensional access
@@ -83,7 +83,7 @@ Hash, sigil: %
           +%foo        # +%foo.keys
           ~%foo        # ???
           ?%foo        # ? %foo.keys
-          "%foo"       # ???
+          "%foo{}"     # ???
            %foo{k}     # subscript
            %foo{k, k}  # slice
            %foo<>      # %foo{<>}
