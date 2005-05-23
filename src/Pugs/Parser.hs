@@ -1289,7 +1289,7 @@ parseParamList = parseParenParamList True <|> parseNoParenParamList True
 parseParenParamList :: Bool -> RuleParser ([Exp], [Exp])
 parseParenParamList defaultToInvs = do
     params      <- option Nothing . fmap Just $
-        verbatimParens $ parseNoParenParamList defaultToInvs
+        verbatimParens $ parseHasParenParamList defaultToInvs
     block       <- option [] ruleAdverbBlock
     when (isNothing params && null block) $ fail ""
     let (inv, norm) = maybe ([], []) id params
@@ -1304,6 +1304,19 @@ ruleAdverbBlock = tryRule "adverbial block" $ do
     next <- option [] ruleAdverbBlock
     return (rblock:next)
 
+parseHasParenParamList :: Bool -> RuleParser ([Exp], [Exp])
+parseHasParenParamList defaultToInvs = do
+    formal <- (`sepEndBy` symbol ":") $ fix $ \rec -> do
+        rv <- option Nothing $ fmap Just $ do
+            x <- parseLitOp
+            return (x, symbol ",")
+        case rv of
+            Nothing           -> return []
+            Just (exp, trail) -> do
+                rest <- option [] $ do { trail; rec }
+                return (exp:rest)
+    processFormals defaultToInvs formal
+
 parseNoParenParamList :: Bool -> RuleParser ([Exp], [Exp])
 parseNoParenParamList defaultToInvs = do
     formal <- (`sepEndBy` symbol ":") $ fix $ \rec -> do
@@ -1312,7 +1325,7 @@ parseNoParenParamList defaultToInvs = do
                 [ do x <- ruleBlockLiteral
                      lookAhead (satisfy (/= ','))
                      return (x, return "")
-                , do x <- parseLitOp
+                , do x <- parseTightOp
                      return (x, symbol ",")
                 ]
         case rv of

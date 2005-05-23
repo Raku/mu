@@ -77,6 +77,8 @@
 * `$obj.method($arg1, $arg2)` can now MMD dispatche over all arguments.
 * Hash and array sub parameters are read-only by default, same as scalars.
 * Slurpy hash parameters no longer count as nonslurpy during arity matching.
+* `map({...} @list)` is no longer valid syntax.
+* `foo 3 and foo 4` is now parsed as two separate function calls.
 
 == Changes for 6.2.3 (r3111) - May 12, 2005
 
