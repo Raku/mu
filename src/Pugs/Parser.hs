@@ -598,9 +598,7 @@ ruleClosureTrait rhs = rule "closure trait" $ do
     let code = VCode mkSub { subName = name, subBody = fun } 
     case name of
         "END"   -> return $ App (Var "&unshift") [Var "@*END"] [Syn "sub" [Val code]]
-        "BEGIN" -> do
-            rv <- unsafeEvalExp fun
-            return $ if rhs then rv else emptyExp 
+        "BEGIN" -> unsafeEvalExp fun
 	"CHECK" -> vcode2checkBlock code
 	"INIT"  -> vcode2initBlock code
 	"FIRST" -> vcode2firstBlock code
