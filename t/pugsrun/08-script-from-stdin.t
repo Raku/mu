@@ -34,7 +34,7 @@ for @examples -> $ex {
   system $command;
 
   my $expected = "Hello Pugs\n";
-  my $got      = slurp "temp-ex-output";
+  my $got      = slurp $tempfile;
 
   is $got, $expected, "Running a script from stdin works";
   unlink $tempfile;
