@@ -6,9 +6,9 @@ use Test;
 
 plan 4;
 
-	my $a := $_; 
+	my $a := $_; $_ = 30;
 	for 1 .. 3 { $a++ }; 
-	is $a, 3, 'global $_ increments' ;
+	is $a, 33, 'global $_ increments' ;
 
 # work around missing capabilities
 # to get the output of 'say' into a test; 
