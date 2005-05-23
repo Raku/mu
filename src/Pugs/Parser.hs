@@ -155,16 +155,21 @@ mergeStmts x@(Pos pos (Syn syn _)) y | (syn ==) `any` words "subst match //"  =
 mergeStmts x y@(Pos pos (Syn syn _)) | (syn ==) `any` words "subst match //"  =
     mergeStmts x (Pos pos (App (Var "&infix:~~") [Var "$_", y] []))
 mergeStmts (Pos pos (Syn "sub" [Val (VCode sub)])) y
-    | subType sub >= SubBlock =
+    | subType sub >= SubBlock, isEmptyParams (subParams sub) =
     -- bare Block in statement level; annul all its parameters and run it!
     mergeStmts (Pos pos $ App (Val $ VCode sub{ subParams = [] }) [] []) y
 mergeStmts x (Pos pos (Syn "sub" [Val (VCode sub)]))
-    | subType sub >= SubBlock =
+    | subType sub >= SubBlock, isEmptyParams (subParams sub) =
     -- bare Block in statement level; annul all its parameters and run it!
     mergeStmts x (Pos pos $ App (Val $ VCode sub{ subParams = [] }) [] [])
 mergeStmts x (Stmts y Noop) = mergeStmts x y
 mergeStmts x (Stmts Noop y) = mergeStmts x y
 mergeStmts x y = Stmts x y
+
+isEmptyParams :: [Param] -> Bool
+isEmptyParams [] = True
+isEmptyParams [x] | [_, '_'] <- paramName x = True
+isEmptyParams _ = False
 
 ruleBeginOfLine :: RuleParser ()
 ruleBeginOfLine = do
