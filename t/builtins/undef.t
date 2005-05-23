@@ -214,7 +214,11 @@ Perl6-specific tests
 	}
 }
 
-{
+
+if(eval('!("a" ~~ /a/)')) {
+  skip 2, "skipped tests - rules support appears to be missing";
+}
+else {
 	# - binding to hash keys only would leave values undef
 	eval '"a=b\nc=d\n" ~~ / $<matches> := [ (\w) = \N+ ]* /';
 	ok(eval '$<matches> ~~ all(<a b>)', "match keys exist", :todo);
