@@ -1,11 +1,12 @@
-== Changes for 6.2.4 (up to r3775) - May 24, 2005
+== Changes for 6.2.4 (r3789) - May 24, 2005
 
 === Pugs Internals
 
 * All infix operators now receive reduction forms, such as `[+]`
 * All operators now receive hyperised forms, such as `>>+<<` and `~<<`
 * Dereferencers: `@{...}` and `@$var`
-* Experimental support for `coro { ... }` added
+* Experimental support for `coro { ... }`, `coro name { ... }` and `yield()`
+* Experimental support for `lazy {...}`
 * External Parrot for Rules is now kept in a single process
 * Inheritance: `class Foo is Bar` and `class Foo does Bar`
 * Interactive shell commands normalised to always begin with `:`
@@ -19,7 +20,6 @@
 * Private methods: `method :foo ()` and `$obj.:foo`
 * Switch to sum-of-inheritance-level distance for MMD dispatch on invocants
 * Symbolic references: `$::(...)` and `$::some::("var")::($bar)`
-* Tentative `lazy {...}` implementation added
 * User-defined symbolic infix, postfix and prefix unary functions
 * `$?CLASS` and `$?PACKAGE` works; `$?ROLE` currently works as `$?CLASS`
 * `&code.name` and `&code.arity` added
@@ -27,14 +27,15 @@
 * `INIT {...}` and `CHECK {...}` blocks in void context and as rvalues
 * `OUTER::` scope implemented
 * `do {...}` literal added
-* `gather { take }` now implemented
+* `gather { ... }` and `take()` implemented
 * `submethod BUILD` is called for each parent class and class itself
+* `time()` now returns a fractional number
 * `try {...}` literal allowed at expression level
 * `warn()`, `uniq()`, `fail()`, `times()` implemented
 
 === Bundled Modules
 
-* `Inline::Pugs` and `pugs` Perl 5 module to run Pugs inline
+* `Inline::Pugs` and `pugs` module to inline Perl 6 into Perl 5 programs
 * `Locale::KeyedText` re-added (this was our first contributed module)
 * `Net::IRC`, OO version added
 * `Perl::MetaModel`, prototype of Perl 6 OO meta-model in Perl 6 OO
@@ -42,14 +43,15 @@
 * `Set` now has many overloaded operators
 * `Test::Builder`, with Perl 6 objects (parses, and mostly works -- see tests)
 * `Tree::Simple`, renamed to `Tree` and converted to OO
+* `Test` now gives better diagnostics to `cmp_ok()`
 * `fp` module added for functional programming
 
 === Tests, Examples and Documentations
 
+* Many new test and several tests refactored, we now have 5600+ tests
 * Hangman IRC bot created from `hangman.p6`
 * IRC logfile to HTML converter added
 * Initial sketch of Pugs Apocryphon 2 as `docs/02Internals.pod`
-* Many new test and several tests refactored, we now have 5600+ tests
 * Much work on internal Haddock Haskell documentation
 * OO Wizard RPG game added in `examples/games/`
 * Parrot is now included in the Pugs Live CD
@@ -72,6 +74,7 @@
 * `next` now re-evaluates condition in `loop` constructs
 * `returns Foo::Bar` from subs/methods now works
 * `split//` now attaches the submatches to the resulting list
+* `state $x = 42` now only assigns `$x` once
 * `system()` returns proper exit codes
 
 == Changes for 6.2.3 (r3111) - May 12, 2005
