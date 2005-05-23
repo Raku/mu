@@ -14,7 +14,7 @@ class Foo {
 
 {
   my $foo = Foo.new;
-  lives_ok { $foo.bar_ref }, "returning a method reference works";
+  lives_ok { $foo.bar_ref }, "returning a method reference works", :todo<feature>;
 }
 
 try {
@@ -22,13 +22,13 @@ try {
     method bar() { 42 }
     &baz ::= &bar;
   }
-}
+};
 
 {
   my $ret;
   lives_ok {
     my $baz = Baz.new;
     $ret    = $baz.baz();
-  }, "calling an aliased method worked";
-  is $ret, 42, "the aliased method returned the right thing";
+  }, "calling an aliased method worked", :todo<feature>;
+  is $ret, 42, "the aliased method returned the right thing", :todo<feature>;
 }

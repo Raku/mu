@@ -43,12 +43,12 @@ is(@log[1], "wrapper after", "wrapper after");
 my $wrapped;
 try {
 	$wrapped = &foo.wrap(&wrapper);
-}
+};
 
 isa_ok($wrapped, "Sub", :todo);
 
 $wrapped ||= -> { };
-try { $wrapped.() }
+try { $wrapped.() };
 
 is(+@log, 3, "three events logged", :todo);
 is(@log[0], "wrapper before", "wrapper before", :todo);
@@ -60,11 +60,11 @@ is(@log[2], "wrapper after", "wrapper after", :todo);
 my $doublywrapped;
 try {
 	$doublywrapped = $wrapped.wrap(&other_wrapper);
-}
+};
 
 isa_ok($doublywrapped, "Sub", :todo);
 $doublywrapped ||= -> { };
-try { $doublywrapped.() }
+try { $doublywrapped.() };
 
 is(+@log, 4, "four events", :todo);
 is(@log[0], "wrapper2", "additional wrapping takes effect", :todo);
@@ -82,11 +82,11 @@ is(@log[0], "wrapper before", "the original wrapper is still in effect", :todo);
 my $unwrapped;
 try {
 	$unwrapped = $wrapped.unwrap(&wrapper);
-}
+};
 
 isa_ok($unwrapped, "Sub", :todo);
 $unwrapped ||= -> {};
-try { $unwrapped.() }
+try { $unwrapped.() };
 
 is(+@log, 2, "two events for unwrapped", :todo);
 is(@log[0], "wrapper2", :todo);
