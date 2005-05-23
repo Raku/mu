@@ -22,7 +22,7 @@
 * `INIT {...}` and `CHECK {...}` blocks in void context and as rvalues.
 * `s:globally//` is now `s:global//`.
 * `&code.name` and `&code.arity` added.
-* Much better error messages, with cascading stack trace
+* Much better error messages, with cascading stack trace.
 * Several Object changes:
 ** MMD handling is now more sophisticated, and `$.chained.attr.methods` works.
 ** switch to Manhattan distance for MMD dispatch on invocants.
@@ -54,7 +54,7 @@
 === Tests, Examples and Documentations
 
 * Many new test and several tests refactored, we now have 5600+ tests.
-* Perl6::Rules test suite incorporate into `t/rules/`.
+* Perl6::Rules test suite incorporated into `t/rules/`.
 * Hangman IRC bot created from `hangman.p6`.
 * OO Wizard RPG game added in `examples/games/`.
 * Removed usage of `force_todo()` in favor of `:todo`.

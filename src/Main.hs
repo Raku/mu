@@ -289,8 +289,7 @@ printConfigInfo [] = do
     putStrLn $ unlines $
         ["This is " ++ version ++ " built for " ++ getConfig "archname"
         ,""
-        ,"Summary of pugs configuration:"
-        ,"" ]
+        ,"Summary of pugs configuration:" ]
         ++ map (\x -> createConfigLine x) (map (fst) (Map.toList config))
         ++ [ "" ]
         ++ [ "@*INC:" ] ++ libs

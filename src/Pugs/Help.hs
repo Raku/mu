@@ -48,7 +48,7 @@ printCommandLineHelp
         putStrLn "-V               long configuration information & version"
         putStrLn "-V:item          short configuration information for item"
         putStrLn "-v or --version  version"
-        putStrLn "-l -d and -w are ignored for compatability with perl 5"
+        putStrLn "-l -d and -w are ignored for compatability with Perl 5"
 
 name :: String
 name       = "Perl6 User's Golfing System"
@@ -101,5 +101,5 @@ banner = putStrLn $ unlines
 intro :: IO ()
 intro = putStrLn $ unlines
     [ "Welcome to Pugs -- " ++ name
-    , "Type :h for help"
+    , "Type :h for help."
     ]
