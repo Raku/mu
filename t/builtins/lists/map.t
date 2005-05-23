@@ -9,7 +9,7 @@ built-in map tests
 
 =cut
 
-plan 41;
+plan 48;
 
 my @list = (1 .. 5);
 
@@ -81,4 +81,18 @@ my @list = (1 .. 5);
     is(@result[2], "fish/3", 'got the value we expected', :todo<bug>);
     is(@result[3], "fish/4", 'got the value we expected', :todo<bug>);
     is(@result[4], "fish/5", 'got the value we expected', :todo<bug>);
+}
+
+{
+    my @list;
+    ok eval('@list = 1 .. 5; my @a = map {;$_ => 1 } @list'),
+            'heuristic for block - looks like a closure';
+
+    my %result = map {; $_ => ($_*2) } @list;
+    isa_ok(%result, 'Hash');
+    is(%result<1>, 2,  'got the value we expected');
+    is(%result<2>, 4,  'got the value we expected');
+    is(%result<3>, 6,  'got the value we expected');
+    is(%result<4>, 8,  'got the value we expected');
+    is(%result<5>, 10, 'got the value we expected');
 }
