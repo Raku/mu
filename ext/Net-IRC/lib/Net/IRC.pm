@@ -289,9 +289,9 @@ sub new_bot(
       $self<disconnect>() if $connected;
 
       debug "Connecting to $host:$port... ";
-      try { $hdl = connect($host, $port) }
+      try { $hdl = connect($host, $port) };
       if($hdl) {
-	try { $hdl.autoflush(1) }
+	try { $hdl.autoflush(1) };
 	$connected++;
 	$last_traffic  = time;
 	$last_autoping = time;
@@ -303,7 +303,7 @@ sub new_bot(
     disconnect => {
       if($connected) {
 	debug "Disconnecting from $host:$port... ";
-	try { $hdl.close }
+	try { $hdl.close };
 	# We want to have a sane state when we connect next time.
 	$connected      = 0;
 	$inside         = 0;

@@ -59,8 +59,8 @@ sub on_privmsg($event) {
     }
 
     when rx:P5/^\?uptime$/ {
-      my $start_time = BEGIN { time };
-      $bot<notice>(to => $reply_to, text => "Running for {time() - $start_time} seconds.");
+      my $start_time = INIT { time };
+      $bot<notice>(to => $reply_to, text => "Running for {int(time() - $start_time)} seconds.");
     }
 
     when rx:P5/^\?sleep\s+(\d+)$/ {

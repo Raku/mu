@@ -59,7 +59,7 @@ sub on_privmsg($event) {
     when rx:P5/^\?uptime$/ {
       # Note: This is not actually the time we were started, but the time we
       # were compiled (waiting for Pugs to support INIT {}).
-      my $start_time = BEGIN { time };
+      my $start_time = INIT { time };
       $bot<privmsg>(to => $reply_to, text => "Running for {time() - $start_time} seconds.");
     }
 
