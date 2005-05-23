@@ -59,8 +59,11 @@ download a binary build from http://haskell.org/ghc/.  Although source code
 for GHC is available, it will take a very long time to build by yourself. 
 
 Pugs needs Parrot 0.2.0 or above to support Perl 6 Rules.  To install Parrot,
-follow the instructions at http://www.parrotcode.org/.  Binary builds for
-Win32 are available at http://wiki.kn.vutbr.cz/mj/?Perl%206%20and%20Parrot
+follow the instructions at http://www.parrotcode.org/.
+
+http://www.jwcs.net/~jonathan/perl6/ has binary builds for Win32.  If you'd
+like to build by hand, http://wiki.kn.vutbr.cz/mj/?Perl%206%20and%20Parrot has
+instructions (and binaries, too).
 
 For dynamic loading/inlining of Haskell modules, you should install the
 hs-plugin library, available here:
