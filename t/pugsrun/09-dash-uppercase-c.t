@@ -9,14 +9,14 @@ Test handling of C<-Cbackend>.
 
 =cut
 sub flatten (Any|Junction $x) {
-    ($x.isa('Junction')) ?? map &flatten, $x.values :: $x
+    ($x.isa(Junction)) ?? map &flatten, $x.values :: $x
 }
 
 my @t_good = map &flatten, (
   any('-C')
     ~ any('Pugs', 'pugs', 'pUGs')
     ~ ' '
-    ~ any('-e1', map( {"examples/$_.p6"}<
+    ~ any('-e1', map { "examples/$_.p6" } <
   functional/fp
   hanoi
   junctions/1
@@ -24,18 +24,18 @@ my @t_good = map &flatten, (
   junctions/3 junctions/all-any junctions/any-any
   junctions/any-any2 junctions/grades
   quicksort
->)),
+>),
   any('-C')
     ~ any('Parrot', 'parrot', 'paRRot')
     ~ ' '
-    ~ any('-e1', map( {"examples/$_.p6"}<
+    ~ any('-e1', map {"examples/$_.p6"} <
   junctions/1
   junctions/any-any
   junctions/any-any2
   junctions/3
   junctions/all-all
   junctions/grades
->))
+>)
 );
 
 my @t_todo = map &flatten, (
