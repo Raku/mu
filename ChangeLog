@@ -38,10 +38,9 @@
 * `Locale::KeyedText` re-added (this was our first contributed module)
 * `Net::IRC`, OO version added
 * `Perl::MetaModel`, prototype of Perl 6 OO meta-model in Perl 6 OO
-* `Set::Junction` and `Set::Hash`, `Set` implemented with Junctions
-  respectively Hashes, added
+* `Set::Junction` and `Set::Hash` added as implementation backends to `Set`
 * `Set` now has many overloaded operators
-* `Test::Builder`, with Perl 6 objects (parses, and mostly works (see tests))
+* `Test::Builder`, with Perl 6 objects (parses, and mostly works -- see tests)
 * `Tree::Simple`, renamed to `Tree` and converted to OO
 * `fp` module added for functional programming
 
@@ -60,6 +59,7 @@
 
 === Bug Fixes
 
+* Bare blocks containing `$_` is now executed correctly
 * Correct parsing for user-defined nullary functions
 * Hash and array sub parameters are read-only by default, same as scalars
 * Post-term invocation in interpolation no longer eat trailing whitespace
@@ -73,7 +73,6 @@
 * `returns Foo::Bar` from subs/methods now works
 * `split//` now attaches the submatches to the resulting list
 * `system()` returns proper exit codes
-* Bare blocks containing `$_` work correctly now
 
 == Changes for 6.2.3 (r3111) - May 12, 2005
 
