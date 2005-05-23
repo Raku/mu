@@ -11,6 +11,7 @@ Uses of the reduction meta-operator
     [==]                   # equality
     [//]                   # first defined element
     [||]                   # first true element
+    [=>]                   # linked list construction
     [&]                    # all(...)
     [|]                    # any(...)
     [^]                    # one(...)
