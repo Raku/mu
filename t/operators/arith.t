@@ -13,7 +13,7 @@ unless ($five == 5) {
     exit();
 }
 
-sub try ($ok, ?$todo = '') {
+sub tryok ($ok, ?$todo = '') {
     if ($todo) {
         &ok.goto($ok,$todo, :todo);
     } else {
@@ -53,10 +53,10 @@ tryeq -13 % -4, -1;
 
 my $limit = 1e6;
 
-try abs( 13e21 %  4e21 -  1e21) < $limit;
-try abs(-13e21 %  4e21 -  3e21) < $limit;
-try abs( 13e21 % -4e21 - -3e21) < $limit;
-try abs(-13e21 % -4e21 - -1e21) < $limit;
+tryok abs( 13e21 %  4e21 -  1e21) < $limit;
+tryok abs(-13e21 %  4e21 -  3e21) < $limit;
+tryok abs( 13e21 % -4e21 - -3e21) < $limit;
+tryok abs(-13e21 % -4e21 - -1e21) < $limit;
 
 # UVs, IVs, etc make no sense but the tests are useful anyhow.
 

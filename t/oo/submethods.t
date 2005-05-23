@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 22;
+plan 20;
 
 =pod
 
@@ -15,13 +15,13 @@ Basic submethod tests. See L<S12/"Submethods">
   my $was_in_foo_build = 0;
   my $was_in_bar_build = 0;
 
-  eval_ok '
+  lives_ok {
     class Foo        { submethod BUILD() { $was_in_foo_build++ } }
     class Bar is Foo { submethod BUILD() { $was_in_bar_build++ } }
-  ', "class definitions were parsed/run/compiled", :todo<feature>;
+  }, "class definitions were parsed/run/compiled";
 
   my $a;
-  ok eval('$a = Foo.new()'),    "Foo.new() worked (1)", :todo<feature>;
+  ok eval('$a = Foo.new()'),    "Foo.new() worked (1)";
   is $was_in_foo_build, 1,      "Foo's BUILD was called", :todo<feature>;
   # is instead of todo_is to avoid unexpected succeedings
   is $was_in_bar_build, 0,      "Bar's BUILD was not called";
@@ -35,7 +35,7 @@ Basic submethod tests. See L<S12/"Submethods">
   # Bar.new didn't removed/changed some internal structures which'd prevent
   # Foo.BUILD of getting called.
   my $c;
-  ok eval('my $c = Foo.new()'), "Foo.new() worked (2)", :todo<feature>;
+  ok eval('my $c = Foo.new()'), "Foo.new() worked (2)";
   is $was_in_foo_build, 3,      "Foo's BUILD was called again", :todo<feature>;
   is $was_in_bar_build, 1,      "Bar's BUILD was not called again", :todo<feature>;
 }
@@ -75,8 +75,8 @@ Basic submethod tests. See L<S12/"Submethods">
   class ClassA does RoleA1 does RoleA2 {}
   ClassA.new;
 
-  is $was_in_a1_build, 1, "roles' BUILD submethods were called when mixed in a class (1)";
-  is $was_in_a2_build, 2, "roles' BUILD submethods were called when mixed in a class (2)";
+  is $was_in_a1_build, 1, "roles' BUILD submethods were called when mixed in a class (1)", :todo<feature>;
+  is $was_in_a2_build, 2, "roles' BUILD submethods were called when mixed in a class (2)", :todo<feature>;
 }
 
 {
@@ -91,6 +91,6 @@ Basic submethod tests. See L<S12/"Submethods">
   is $was_in_b2_build, 0, "roles' BUILD submethods were not yet called (2)";
 
   eval '$B does RoleB1 does RoleB2';
-  is $was_in_b1_build, 1, "roles' BUILD submethods were called now (1)";
-  is $was_in_b2_build, 1, "roles' BUILD submethods were called now (2)";
+  is $was_in_b1_build, 1, "roles' BUILD submethods were called now (1)", :todo<feature>;
+  is $was_in_b2_build, 1, "roles' BUILD submethods were called now (2)", :todo<feature>;
 }
