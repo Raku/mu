@@ -104,7 +104,8 @@ sub abs2rel (Str $_path, Str $_base) returns Str is export {
     my @pathchunks = splitdir($path);
     my @basechunks = splitdir($base);
 
-    while (@pathchunks && @basechunks && @pathchunks[0] eq @basechunks[0]) {
+    while (@pathchunks and @basechunks) {
+        @pathchunks[0] eq @basechunks[0] or last;
         shift(@pathchunks);
         shift(@basechunks);
     }
