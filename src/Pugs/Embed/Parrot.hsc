@@ -21,7 +21,7 @@ findParrot = do
 evalParrotFile :: FilePath -> IO ()
 evalParrotFile file = do
     cmd <- findParrot
-    rawSystem cmd [file]
+    rawSystem cmd ["-j", file]
     return ()
 
 evalParrot :: String -> IO ()
