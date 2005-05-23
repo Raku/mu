@@ -31,6 +31,7 @@
 ** Inheritance has been added.
 ** Private methods: `method :foo ()` and `$obj.:foo`.
 ** Private attributes: `has $:foo` now generates private accessors.
+** `submethod BUILD` is called for each parent class and class itself.
 ** New `./method` syntax implemented.
 * Operator Overloading and Defintion added:
 ** User-defined symbolic postfix and prefix unary functions.
