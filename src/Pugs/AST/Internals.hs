@@ -269,6 +269,11 @@ instance Value [(VStr, Val)] where
              str <- fromVal k
              return (str, v)
 
+instance Value VObject where
+    fromVal (VObject o) = return o
+    fromVal v@(VRef _) = fromVal' v
+    fromVal _ = fail "auto-boxing not yet implemented"
+
 instance Value VHash where
     fromVal (VObject o) = do
         attrs <- liftSTM $ readTVar (objAttrs o)

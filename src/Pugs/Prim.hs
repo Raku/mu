@@ -503,10 +503,27 @@ op1 "arity" = \v -> do
 op1 "Thread::yield" = const $ do
     ok <- tryIO False $ do { yield ; return True }
     return $ VBool ok
+op1 "BUILDALL" = \v -> do
+    pkgs    <- pkgParents =<< fmap showType (evalValType v)
+    forM_ pkgs $ \pkg -> do
+        maybeM (fmap (findSym $ ('&':pkg) ++ "::BUILD") askGlobal) $ \tvar -> do
+            ref <- liftSTM $ readTVar tvar
+            enterEvalContext CxtVoid (App (Val $ VRef ref) [Val v] [])
+    return undef
 -- [,] is a noop -- It simply returns the input list
 op1 "prefix:[,]" = return
 op1 other   = \_ -> fail ("Unimplemented unaryOp: " ++ other)
 
+pkgParents :: VStr -> Eval [VStr]
+pkgParents pkg = do
+    ref     <- readVar (':':'*':pkg)
+    if ref == undef then return [] else do
+    meta    <- readRef =<< fromVal ref
+    fetch   <- doHash meta hash_fetchVal
+    attrs   <- fromVal =<< fetch "traits"
+    pkgs    <- mapM pkgParents attrs
+    return $ nub (pkg:concat pkgs)
+    
 op1Return :: Eval Val -> Eval Val
 op1Return action = do
     depth <- asks envDepth
@@ -825,7 +842,7 @@ op3 "new" = \t n _ -> do
     uniq    <- liftIO $ newUnique
     let obj = VObject $ MkObject{ objType = typ, objAttrs = attrs, objId = uniq }
     -- Now start calling BUILD for each of parent classes (if defined)
-
+    op1 "BUILDALL" obj
     return obj
 op3 other = \_ _ _ -> fail ("Unimplemented 3-ary op: " ++ other)
 
@@ -1360,6 +1377,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      pre     kill    (Thread)\
 \\n   Int       pre     kill    (Int, List)\
 \\n   Object    pre     new     (Type: Named)\
+\\n   Object    pre     BUILDALL (Object)\
 \\n   Object    pre     clone   (Any)\
 \\n   Object    pre     id      (Any)\
 \\n   Str       pre     name    (Code)\

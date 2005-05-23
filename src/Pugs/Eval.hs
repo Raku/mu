@@ -911,9 +911,9 @@ findSub name' invs args = do
     takeWord = takeWhile isWord . dropWhile (not . isWord)
     isWord   = not . (`elem` "(),:")
     findAttrs pkg = do
-        maybeM (findVar (':':pkg)) $ \ref -> do
-            obj     <- readRef ref
-            fetch   <- doHash obj hash_fetchVal
+        maybeM (findVar (':':'*':pkg)) $ \ref -> do
+            meta    <- readRef ref
+            fetch   <- doHash meta hash_fetchVal
             fromVal =<< fetch "traits"
     findWithPkg pkg name = do
         subs <- findSub' (('&':pkg) ++ "::" ++ tail name)

@@ -321,8 +321,8 @@ rulePackageHead = do
     return (name, v, a)
 
 newClass :: String -> [String] -> Exp
-newClass name traits = Sym SGlobal (':':name) $ Syn ":="
-    [ Var (':':name)
+newClass name traits = Sym SGlobal (':':'*':name) $ Syn ":="
+    [ Var (':':'*':name)
     , App (Var "&new")
         [ Val (VType $ mkType "Class") ]
         [ App (Var "&infix:=>")
@@ -563,8 +563,6 @@ ruleModuleDeclaration = rule "module declaration" $ do
     _       <- choice $ map symbol (words "package module class grammar")
     (name, v, a)    <- rulePackageHead
     env     <- getState
-    let exp = Syn ":=" [Var (':':name), Syn "\\{}" [Syn "," []]]
-    unsafeEvalExp (Sym SGlobal (':':name) exp)
     setState env{ envPackage = name, envClasses = envClasses env `addNode` mkType name }
     return $ Syn "module" [Val . VStr $ name ++ v ++ a] -- XXX
 
