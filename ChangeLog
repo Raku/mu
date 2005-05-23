@@ -1,6 +1,6 @@
 == Changes for 6.2.5 (r3794) - May 24, 2005
 
-=== Tests, Examples and Documentations
+=== Bundled Modules
 
 * Fix one broken test from the `Set` module.
 
