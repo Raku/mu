@@ -10,7 +10,7 @@ $failed = 1;
 
 # When we end, we check if $failed is still 0. If yes, we've never reached runtime.
 END {
-  is $failed == 0, 'exit() works in BEGIN {}';
+  is $failed // 0, 0, 'exit() works in BEGIN {}';
 }
 
 BEGIN {
