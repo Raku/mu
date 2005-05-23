@@ -64,7 +64,7 @@ eval_ok '$c.meta.does(InitialAttribType[Code])',
 eval_is '$c.hi(sub {})', 42,
   "type information was processed correctly (1)", :todo<feature>;
 eval_ok '!try { $c.hi("not a code object") }',
-  "type information was processed correctly (2)", :todo<feature>;
+  "type information was processed correctly (2)";
 
 
 

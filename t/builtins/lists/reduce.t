@@ -79,7 +79,7 @@ ok (not [!=] 4, 4, 4),    "[!=] works (2)";
 
 # Following two tests taken verbatim from former t/operators/reduce.t
 eval_ok('my @foo = [1..3] >>+<< [1..3] >>+<< [1..3];','Sanity Check');
-eval_ok('my @foo = [>>+<<] ([1..3],[1..3],[1..3]);','Parse [>>+<<]', :todo<bug>);
+eval_ok('my @foo = [>>+<<] ([1..3],[1..3],[1..3]);','Parse [>>+<<]');
 
 # Check that user defined infix ops work with [...], too.
 sub infix:<more_than_plus>(Int $a, Int $b) { $a + $b + 1 }

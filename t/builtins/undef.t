@@ -85,12 +85,10 @@ ok(!defined(undef), "undef is not defined");
 	sub a_sub { "møøse" }
 
 	ok(defined(&a_sub), "defined sub");
-	eval_ok('defined(%«$?PACKAGE\::»<&a_sub>)', "defined sub (symbol
-	table)", :todo<parsefail>);
+	eval_ok('defined(%«$?PACKAGE\::»<&a_sub>)', "defined sub (symbol table)", :todo<parsefail>);
 
 	eval_ok('!defined(&a_subwoofer)', "undefined sub",:todo<feature>);
-	eval_ok('!defined(%«$?PACKAGE\::»<&a_subwoofer>)', "undefined
-	sub (symbol table)");
+	eval_ok('!defined(%«$?PACKAGE\::»<&a_subwoofer>)', "undefined sub (symbol table)", :todo<feature>);
 }
 
 # TODO: find a read-only value to try and assign to, since we don't
@@ -221,11 +219,7 @@ Perl6-specific tests
 	eval '"a=b\nc=d\n" ~~ / $<matches> := [ (\w) = \N+ ]* /';
 	ok(eval '$<matches> ~~ all(<a b>)', "match keys exist", :todo);
 
-	eval_ok('!defined($<matches>{"a"}) && !defined($<matches>{"b"})', "match values don't", :todo);
-#fail("FIXME (match values don't)", :todo<parsefail>);
-#=pod
-#	ok(!defined($<matches>{"a"}) && !defined($<matches>{"b"}), "match values don't");
-#=cut
+	ok(!defined($<matches>{"a"}) && !defined($<matches>{"b"}), "match values don't");
 }
 
 {

@@ -49,7 +49,7 @@ my $eval1 = '{
 }';
 eval $eval1;
 eval_ok '!try { my Num::Even $d }',
-  "lexically declared subtype went out of scope", :todo<feature>;
+  "lexically declared subtype went out of scope";
 
 # Subs with arguments of a subtype
 eval_ok 'sub only_accepts_odds(Num::Odd $odd) { $odd + 1 }',

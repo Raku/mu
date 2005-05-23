@@ -86,11 +86,11 @@ plan 35;
         my @r;
         eval '@r = -« (3, 2, 1)';
         my @e = (-3, -2, -1);
-        is(~@r, ~@e, "hyper op on assignment/pipeline", :todo);
+        is(~@r, ~@e, "hyper op on assignment/pipeline");
 
         eval '@r = -<< (3, 2, 1)';
         @e = (-3, -2, -1);
-        is(~@r, ~@e, "hyper op on assignment/pipeline ASCII notation", :todo);
+        is(~@r, ~@e, "hyper op on assignment/pipeline ASCII notation");
 };
 
 { # dimension upgrade
