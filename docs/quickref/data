@@ -66,6 +66,7 @@ Array, sigil: @
     .unshift($elem)
     .reverse
     .sort( { cond }, { cond }, ... )
+    .kv            # return index,value pairs
     
     Shapes:
 
