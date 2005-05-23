@@ -43,10 +43,11 @@ method _stringify ($item) returns Str {
 
 method insert($self: *@items) returns Int {
     my Int $pre_size = 0;
+    my $inserted = 0;
     for @items -> $item {
         my $key = $self._stringify($item);
     	unless ( %:members.exists($key) ) {
-	        $inserted++;
+            $inserted++;
     	    %:members{$key} = $item;
     	}
     }
@@ -56,9 +57,11 @@ method insert($self: *@items) returns Int {
 method remove($self: *@items) returns Int {
     my Int $removed = 0;
     for @items -> $item {
-	    if ( %:members.delete($self._stringify($item)) ) {
-	        $removed++;
-	    }
+        # Work around Pugs bug WRT undef turning into a [undef].
+        my @deleted = %:members.delete($self._stringify($item));
+        if ( @deleted and defined @deleted[0] ) {
+            $removed++;
+        }
     }
     return $removed;
 }
@@ -139,8 +142,8 @@ method symmetric_difference($self: Set $other) returns Set {
     $self.difference($other).union($other.difference($self));
 }
 
-our &Set::count ::= &Set::size;
-our &Set::has   ::= &Set::includes;
+our &Set::Hash::count ::= &Set::Hash::size;
+our &Set::Hash::has   ::= &Set::Hash::includes;
 
 # unicode intersection
 method infix:<∩> (Set $one, Set $two) returns Set {

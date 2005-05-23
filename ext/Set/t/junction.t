@@ -5,7 +5,7 @@ use Test;
 
 plan 20;
 
-use Set;
+use Set::Junction;
 
 class Bob {};
 class Bert {};
