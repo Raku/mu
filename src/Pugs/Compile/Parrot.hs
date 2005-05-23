@@ -59,6 +59,8 @@ instance Compile Pad where
         fmap vcat $ mapM compile (sortBy padSort $ padToList pad)
 
 instance Compile (Var, [(TVar Bool, TVar VRef)]) where
+    compile ((_:'?':_), _) = return empty -- XXX - @?INIT etc; punt for now
+    compile ((_:'=':_), _) = return empty -- XXX - @=POS etc; punt for now
     compile (('&':name), [(_, sym)]) = do
         ret <- askPMC
         imc <- compile sym
@@ -70,7 +72,8 @@ instance Compile (Var, [(TVar Bool, TVar VRef)]) where
             ]
     compile ((':':name), [(_, _)]) =
         return $ text ".namespace" <+> text "['" <> text name <> text "']"
-    compile _ = error "fnord"
+    -- compile v = error $ show v
+    compile _ = return $ empty
 
 instance Compile (TVar VRef) where
     compile x = do
