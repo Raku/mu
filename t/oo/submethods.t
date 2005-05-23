@@ -41,6 +41,8 @@ Basic submethod tests. See L<S12/"Submethods">
   is $was_in_bar_build, 1,      "Bar's BUILD was not called again";
 }
 
+# See thread "BUILD and other submethods" on p6l
+# http://groups-beta.google.com/group/perl.perl6.language/msg/e9174e5538ded4a3
 {
   my $was_in_baz_submethod  = 0;
   my $was_in_grtz_submethod = 0;
@@ -52,15 +54,15 @@ Basic submethod tests. See L<S12/"Submethods">
   ok eval('$baz  = Baz.new'),  "Baz.new() worked";
   ok eval('$grtz = Grtz.new'), "Grtz.new() worked";
 
-  try { $baz.blarb }
+  try { $baz.blarb };
   is $was_in_baz_submethod,  1, "Baz's submethod blarb was called";
   # No :todo to avoid unexpected suceedings
   is $was_in_grtz_submethod, 0, "Grtz's submethod blarb was not called";
 
-  try { $grtz.blarb }
+  try { $grtz.blarb };
   is $was_in_baz_submethod,  1, "Baz's submethod blarb was not called again";
   # No :todo to avoid unexpected suceedings
-  is $was_in_grtz_submethod, 0, "Grtz's submethod blarb was not called";
+  is $was_in_grtz_submethod, 1, "Grtz's submethod blarb was called now";
 }
 
 # Roles with BUILD
