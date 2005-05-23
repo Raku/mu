@@ -246,6 +246,10 @@ op1 "try" = \v -> do
     sub <- fromVal v
     val <- resetT $ evalExp (App (Val $ VCode sub) [] [])
     retEvalResult False val
+-- Tentative implementation of nothingsmuch's lazy proposal.
+op1 "lazy" = \v -> do
+    sub <- fromVal v
+    return $ VRef . thunkRef . MkThunk . evalExp $ App (Val $ VCode sub) [] []
 op1 "defined" = op1Cast (VBool . defined)
 op1 "last" = const $ fail "cannot last() outside a loop"
 op1 "next" = const $ fail "cannot next() outside a loop"
@@ -1201,6 +1205,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      pre     exists  (rw!Array: Int)\
 \\n   Str       pre     perl    (rw!Any|Junction)\
 \\n   Any       pre     try     (Code)\
+\\n   Any       pre     lazy    (Code)\
 \\n   Any       pre     eval    (Str)\
 \\n   Any       pre     eval_parrot   (Str)\
 \\n   Any       pre     eval_perl5   (Str)\
