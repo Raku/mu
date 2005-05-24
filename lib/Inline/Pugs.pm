@@ -34,7 +34,7 @@ I<inline> in a Perl 5 script or module.
 =head1 CAVEATS
 
 Currently, only the Perl 5 side can invoke subroutines defined from the
-Perl 6 size, but not vise versa.  This whole thing is just a proof of
+Perl 6 side, but not vise versa.  This whole thing is just a proof of
 concept -- use it at your own risk. :-)
 
 =cut
