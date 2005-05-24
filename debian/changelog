@@ -1,3 +1,15 @@
+pugs (6.2.5-1) experimental; urgency=low
+
+  * New upstream version.
+
+ -- Carey Tilden <revdiablo@wd39.com>  Mon, 23 May 2005 17:18:35 -0700
+
+pugs (6.2.4-1) experimental; urgency=low
+
+  * New upstream version.
+
+ -- Carey Tilden <revdiablo@wd39.com>  Mon, 23 May 2005 17:18:35 -0700
+
 pugs (6.2.3-1) experimental; urgency=low
 
   * New upstream version.
