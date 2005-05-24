@@ -19,32 +19,32 @@ You want to provide default values for false or undefined variables.
     # as True.
     # Similar to Perl 5, use with caution. 
 
-    $string = $false || 'string'; # 0 is (normally) Bool::False: 
+    $string ||= $false || 'string'; # 0 is (normally) Bool::False: 
                                   # thus default is 'string' 
     
     # Default to the first defined value in a list
     # use the reduce operator
 
-    $defined = [//] ($true,$false,$string,$defined,$last); # 0 
+    $defined //= [//] ($true,$false,$string,$defined,$last); # 0 
     
     # Default to the first true value in a list 
     # use the reduce operator
 
-    $true = [||] ($true,$false,$string,$defined,$last); # 'string' 
+    $true ||= [||] ($true,$false,$string,$defined,$last); # 'string' 
 
     # To provide the last defined value in a list, as default,
     # define your own right-hand side definedness test
     # use the reduce operator
 
     sub infix:<\\>($lhs,$rhs){ $rhs // $lhs };
-    $last = [\\] ($true,$false,$string,$defined,$last); # 0  
+    $last //= [\\] ($true,$false,$string,$defined,$last); # 0  
 
     # Or ... 
     $last=undef;
 
     # Reverse the array and use the builtin definedness test
     # use the reduce operator
-    $last = [//] reverse($true,$false,$string,$defined,$last); # 0  
+    $last //= [//] reverse($true,$false,$string,$defined,$last); # 0  
     
     # force strict boolean context on a variable 
 
@@ -60,28 +60,28 @@ You want to provide default values for false or undefined variables.
 
 my ($true,$false,$string,$defined,$last);
 
+# Provide a default for undefined variables
+
 $false //= 0; 
 say "Default for undefined: $false"; 
 
-$string = $false || 'string'; # 0 is (normally) False: 
-say "Default if False: $string"; # string 
+$string ||= $false || 'string'; 
+say "Default if false: $string"; # string 
 
-$defined = [//] ($true,$false,$string,$defined,$last); # 0 
-say "Default is first defined value of a list: $defined";
+$defined //= [//] ($true,$false,$string,$defined,$last); # 0 
+say "Default to first defined value of a list: $defined";
 
-$true = [||] ($true,$false,$string,$defined,$last); # 'string' 
-say "Default is first True value of a list: $true";
+$true ||= [||] ($true,$false,$string,$defined,$last); # 'string' 
+say "Default to first True value of a list: $true";
 
-sub infix:<\\>($lhs,$rhs){ $rhs // $lhs ;}
-$last = [\\] ($true,$false,$string,$defined,$last); # 0  
-#use a custom definedness test
-say "Default is last defined value of a list: $last";
+sub infix:<\\>($lhs,$rhs){ $rhs // $lhs };
+$last //= [\\] ($true,$false,$string,$defined,$last); # 0  
+say "Default to last defined value of a list: $last";
 
-# Or ...
+# Or ... 
 $last=undef;
-#use the reverse() function, and the builtin definedness test
-$last = [//] reverse($true,$false,$string,$defined,$last); # 0  
-say "Default is last defined value of a list: $last";
+$last //= [//] reverse($true,$false,$string,$defined,$last); # 0  
+say "Default to last defined value of a list: $last";
 
 #my $y is 0 but true;
 # TODO Error
