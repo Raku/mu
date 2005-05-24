@@ -49,6 +49,7 @@ import System.Posix.Files
 import System.Posix.User
 import System.Environment (getEnvironment)
 import Foreign.C.Types
+import Foreign.C.String
 import qualified System.Posix.Signals
 
 statFileSize :: FilePath -> IO Integer
@@ -215,3 +216,4 @@ getArg0 = do
         getProgArgv p_argc p_argv
         argv <- peek p_argv
         peekCString =<< peekElemOff argv 0
+
