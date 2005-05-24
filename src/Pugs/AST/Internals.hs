@@ -53,7 +53,7 @@ module Pugs.AST.Internals (
     proxyScalar, constScalar, lazyScalar, lazyUndef, constArray,
     retError, retControl, retEmpty, retIVar, readIVar, writeIVar,
     fromVals, refType,
-    mkPad, lookupPad, padToList, diffPads, unionPads, subPad, updateSubPad,
+    lookupPad, padToList,
     mkPrim, mkSub,
     cxtOfSigil, typeOfSigil,
     buildParam, defaultArrayParam, defaultHashParam, defaultScalarParam,
@@ -937,6 +937,7 @@ envWant env =
     showCxt (CxtItem typ)   = "Scalar (" ++ showType typ ++ ")"
     showCxt (CxtSlurpy typ) = "List (" ++ showType typ ++ ")"
 
+{- Pad -}
 {-|
 A 'Pad' keeps track of the names of all currently-bound symbols, and
 associates them with the things they actually represent.
@@ -964,28 +965,7 @@ is stored in the @Reader@-monad component of the current 'Eval' monad.
 >[11:58] <autrijus> yeah. but it's not critical, so is low priority
 -}
 data Pad = MkPad !(Map Var ([(TVar Bool, TVar VRef)]))
-    deriving (Eq, Ord, Typeable)
-
-instance Show Pad where
-    show pad = "(mkPad [" ++
-                concat (intersperse ", " $ map dump $ padToList pad) ++
-                "])"
-        where
-        dump (n, tvars) = "(" ++ show n ++ ", [" ++
-                            concat (intersperse ", " $ map dumpTVar tvars) ++
-                            "])"
-        dumpTVar (_, tvar) = unsafePerformIO $ do
-            ref  <- liftSTM $ readTVar tvar
-            dump <- runEvalIO undefined $ dumpRef ref
-            return $ "(unsafePerformIO . atomically $ do { bool <- newTVar True; ref <- (newTVar " ++ vCast dump ++ "); return (bool, ref) })"
-
-{-|
-Produce a 'Pad' from a list of bindings. The inverse of 'padToList'.
-
-Not to be confused with the actual 'Pad' constructor @MkPad@.
--}
-mkPad :: [(Var, [(TVar Bool, TVar VRef)])] -> Pad
-mkPad = MkPad . Map.fromList
+    deriving (Show, Eq, Ord, Typeable)
 
 -- | Look up a symbol in a 'Pad', returning the ref it is bound to.
 lookupPad :: Var -- ^ Symbol to look for
@@ -1011,23 +991,7 @@ Note that @Data.Map.assocs@ returns a list of mappings in ascending key order.
 padToList :: Pad -> [(Var, [(TVar Bool, TVar VRef)])]
 padToList (MkPad map) = Map.assocs map
 
--- | Return the difference between two pads.
-diffPads :: Pad -- ^ Pad a
-         -> Pad -- ^ Pad b
-         -> Pad -- ^ a - b
-diffPads (MkPad map1) (MkPad map2) = MkPad $ Map.difference map1 map2
-
-unionPads :: Pad -> Pad -> Pad
-unionPads (MkPad map1) (MkPad map2) = MkPad $ Map.union map1 map2
-
-updateSubPad :: VCode -> (Pad -> Pad) -> VCode
-updateSubPad sub f = sub
-    { subEnv = fmap (\e -> e{ envLexical = f (subPad sub) }) (subEnv sub) 
-    }
-
-subPad :: VCode -> Pad
-subPad sub = maybe (mkPad []) envLexical (subEnv sub)
-
+{- Eval Monad -}
 type Eval x = EvalT (ContT Val (ReaderT Env SIO)) x
 type EvalMonad = EvalT (ContT Val (ReaderT Env SIO))
 newtype EvalT m a = EvalT { runEvalT :: m a }

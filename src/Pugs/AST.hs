@@ -22,6 +22,7 @@ module Pugs.AST (
     module Pugs.AST.Pos,
     module Pugs.AST.Scope,
     module Pugs.AST.SIO,
+    module Pugs.AST.Pad,
 ) where
 import Pugs.Internals
 import qualified Data.Map as Map
@@ -30,6 +31,7 @@ import Pugs.AST.Internals
 import Pugs.AST.Pos
 import Pugs.AST.Scope
 import Pugs.AST.SIO
+import Pugs.AST.Pad
 
 {-|
 Return an infinite (lazy) Haskell list of the given string and its
