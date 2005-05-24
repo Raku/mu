@@ -3,6 +3,7 @@
 use Test;
 use v6;
 
+=pod
 =head1 DESCRIPTION
 
 This test tests the C<reduce> builtin and the reduce metaoperator C<[...]>.
@@ -34,7 +35,7 @@ plan 30;
   my @array  = <1 2 3 4 5 6 7 8>;
   my $result = (((1 + 2 * 3) + 4 * 5) + 6 * 7) + 8 * undef;
 
-  is @array.reduce:{ $^a + $^b * $^c }, $result, "n-ary reduce() works";
+  eval_is '@array.reduce:{ $^a + $^b * $^c }', $result, "n-ary reduce() works";
 }
 
 ok (    [<]  1, 2, 3, 4), "[<] works (1)";
