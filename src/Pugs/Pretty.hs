@@ -118,7 +118,12 @@ instance Pretty Val where
 	-- Is this correct? Does this work on win32, too?
 	| last x == '\n' = text . init $ x
 	| otherwise      = text "***" <+>
-            (text x $+$ (text "at" <+> vcat (map format posList)))
+            (vcat (map text splittedAtNewlines) $+$ (text "at" <+> vcat (map format posList)))
+        where
+        -- We want 'die "a\nb\nc"' to vertically align correctly.
+        splittedAtNewlines = (\f -> foldl f [""] x) $ \a b -> if b == '\n'
+            then a ++ [""]
+            else (init a) ++ [last a ++ [b]]
 --  format (VArray x) = format (VList $ Array.elems x)
 --  format (VHash h) = braces $ (joinList $ text ", ") $
 --      [ format (VStr k, v) | (k, v) <- Map.toList h ]
