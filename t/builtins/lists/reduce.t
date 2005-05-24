@@ -13,7 +13,7 @@ L<http://groups.google.de/group/perl.perl6.language/msg/bd9eb275d5da2eda>
 
 =cut
 
-plan 29;
+plan 30;
 
 {
   my @array = <5 -3 7 0 1 -9>;
@@ -27,6 +27,14 @@ plan 29;
   is(([-]  1,2,3),    (1-2-3), "[-] works");
   is(([/]  12,4,3),  (12/4/3), "[/] works");
   is(([**] 2,2,3),  (2**2**3), "[**] works");
+}
+
+# Reduce with n-ary functions
+{
+  my @array  = <1 2 3 4 5 6 7 8>;
+  my $result = (((1 + 2 * 3) + 4 * 5) + 6 * 7) + 8 * undef;
+
+  is @array.reduce:{ $^a + $^b * $^c }, $result, "n-ary reduce() works";
 }
 
 ok (    [<]  1, 2, 3, 4), "[<] works (1)";
