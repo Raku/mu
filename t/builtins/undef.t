@@ -56,15 +56,15 @@ ok(!defined(undef), "undef is not defined");
 	ok(!defined($a), "shift from empty array");
 
 	my %hash = ( bar => 'baz', quux => 'quuz' );
-	ok(defined(%hash{"bar"}), "hash subscript");
-	ok(!defined(%hash{"bargho"}), "non-existent hash subscript");
+	ok(defined(%hash<bar>), "hash subscript");
+	ok(!defined(%hash<bargho>), "non-existent hash subscript");
 
-	undef %hash{"bar"};
-	ok(!defined(%hash{"bar"}), "undef hash subscript");
+	undef %hash<bar>;
+	ok(!defined(%hash<bar>), "undef hash subscript");
 
-	%hash{"bar"} = "baz";
+	%hash<bar> = "baz";
 	%hash.delete("bar");
-	ok(!defined(%hash{"bar"}), "delete hash subscript");
+	ok(!defined(%hash<bar>), "delete hash subscript");
 
 	ok(defined(@ary), "aggregate array defined");
 	ok(defined(%hash), "aggregate hash defined");
@@ -165,11 +165,11 @@ Perl6-specific tests
 
 	eval 'my Hash $a_hash';
 	ok(eval '!defined($a_hash)', "my Hash", :todo);
-	ok(eval '!defined($a_hash{"blergh"})', "my Hash subscript - undef", :todo);
-	ok(eval '!defined($a_hash{"blergh"})', "my Hash subscript - undef, even after autovivification", :todo);
-	eval '$a_hash{"blergh"} = 1';
-	ok(eval 'defined($a_hash{"blergh"}.delete)', "delete", :todo);
-	ok(eval '!defined($a_hash{"blergh"}.delete)', " - once only", :todo);
+	ok(eval '!defined($a_hash<blergh>)', "my Hash subscript - undef", :todo);
+	ok(eval '!defined($a_hash<blergh>)', "my Hash subscript - undef, even after autovivification", :todo);
+	eval '$a_hash<blergh> = 1';
+	ok(eval 'defined($a_hash<blergh>.delete)', "delete", :todo);
+	ok(eval '!defined($a_hash<blergh>.delete)', " - once only", :todo);
 
 	eval '
 		class Dog {};
@@ -223,7 +223,7 @@ else {
 	eval '"a=b\nc=d\n" ~~ / $<matches> := [ (\w) = \N+ ]* /';
 	ok(eval '$<matches> ~~ all(<a b>)', "match keys exist", :todo);
 
-	ok(!defined($<matches>{"a"}) && !defined($<matches>{"b"}), "match values don't");
+	ok(!defined($<matches><a>) && !defined($<matches><b>), "match values don't");
 }
 
 {
@@ -272,11 +272,11 @@ fail("FIXME (autoload tests)", :todo<parsefail>);
 #		AUTOSUB       { { "code" } }
 #		AUTOMETH      { { "code" } }
 #
-#		AUTOSCALARDEF { %::«'$' ~ $_» = "autoscalardef" }
-#		AUTOARRAYDEF  { %::«'@' ~ $_» = "autoarraydef".split(//) }
-#		AUTOHASHDEF   { %::«'%' ~ $_» = <autohashdef yes> }
-#		AUTOSUBDEF    { %::«'&' ~ $_» = { "autosubdef" } }
-#		AUTOMETHDEF   { %::«'&' ~ $_» = { "automethdef" } }
+#		AUTOSCALARDEF { %::«{'$' ~ $_}» = "autoscalardef" }
+#		AUTOARRAYDEF  { %::«{'@' ~ $_}» = "autoarraydef".split("") }
+#		AUTOHASHDEF   { %::«{'%' ~ $_}» = <autohashdef yes> }
+#		AUTOSUBDEF    { %::«{'&' ~ $_}» = { "autosubdef" } }
+#		AUTOMETHDEF   { %::«{'&' ~ $_}» = { "automethdef" } }
 #	}
 #
 #	is(ref $AutoMechanic::scalar0,    "Scalar", "autload - scalar");
@@ -286,7 +286,7 @@ fail("FIXME (autoload tests)", :todo<parsefail>);
 #	is(ref AutoMechanic.can("meth0"), "Code",   "autload - meth");
 #
 #	is($AutoMechanic::scalar, "autoscalardef",            "autoloaddef - scalar");
-#	is(~@AutoMechanic::ary,   ~("autoarraydef".split(//), "autoloaddef - array");
+#	is(~@AutoMechanic::ary,   ~("autoarraydef".split(""), "autoloaddef - array");
 #	is(~%AutoMechanic::hash,  ~<autohashdef yes>,         "autoloaddef - hash");
 #	is(&AutoMechanic::sub.(), "autosubdef",               "autoloaddef - sub");
 #	is(AutoMechanic.meth(),   "automethdef",              "autoloaddef - method");
