@@ -36,10 +36,10 @@ module Pugs.Compat (
     signalProcess,
     executeFile,
     ProcessTimes(..),
+    clocksPerSecond,
 ) where
 
 import Foreign
-import Foreign.C
 import System.Posix.Types
 
 #ifdef PUGS_HAVE_POSIX
@@ -56,19 +56,22 @@ statFileSize f = do
     return (toInteger (fileSize s))
 
 type Signal = System.Posix.Signals.Signal
---type ProcessID = System.Posix.Types.ProcessID
 signalProcess :: Signal -> ProcessID -> IO ()
 signalProcess = System.Posix.Signals.signalProcess
+
+clocksPerSecond :: (Num a) => a
+clocksPerSecond = 1000000
 
 #else
 
 import Debug.Trace
--- import System.Environment
 import qualified System.Environment
 import IO
 import System.IO
 import Foreign.C.String
 import Foreign.Ptr
+import Foreign.C.Types
+import Data.Ratio
 
 failWith :: (Monad m) => String -> m a
 failWith s = fail $ "'" ++ s ++ "' not implemented on this platform."
@@ -77,6 +80,10 @@ warnWith :: String -> IO ()
 warnWith s = trace ("'" ++ s ++ "' not implemented on this platform.") $ return ()
 
 -- This should all be moved into Compat.Win32, once we go that route
+
+-- This is partially right - but some APIs return even "better" resolution
+clocksPerSecond :: (Num a) => a
+clocksPerSecond = 1000000
 
 foreign import stdcall unsafe "SetEnvironmentVariableW" win32SetEnv :: CWString -> CWString -> IO ()
 foreign import stdcall unsafe "GetEnvironmentVariableW" win32GetEnv :: CWString -> CWString -> Int -> IO Int
@@ -128,23 +135,39 @@ setFileMode :: FilePath -> FileMode -> IO ()
 setFileMode _ _ = warnWith "chmod"
 
 -- Win32 specific
-data ProcessTimes = ProcessTimes !Int !Int !Int !Int !Int
+
+type FILETIME = CULLong -- we'll keep the accuracy as long as possible
+
+data ProcessTimes = ProcessTimes {
+  elapsedTime :: Rational
+  , userTime :: Rational
+  , systemTime :: Rational
+  , childUserTime :: Rational
+  , childSystemTime :: Rational
+}
+
 foreign import stdcall unsafe "GetProcessTimes" win32GetProcessTimes ::
-  Int -> Ptr Int -> Ptr Int -> Ptr Int -> Ptr Int -> IO Int 
+  Int -> Ptr FILETIME -> Ptr FILETIME -> Ptr FILETIME -> Ptr FILETIME -> IO Int
 -- relies on Int == Int32 on Windows
+
+filetimeToSeconds :: FILETIME -> Rational
+filetimeToSeconds ft = ((toInteger ft) % 10)
 
 -- See Perl5 win32/win32.c for the complete implementation
 -- that works on Windows 95 as well
 getProcessTimes :: IO ProcessTimes
 getProcessTimes = do
-                    pid <- getProcessID
+                    pid <- getProcessHandle
                     alloca $ \ pDummy  -> do
                     alloca $ \ pKernel -> do
                     alloca $ \ pUser   -> do
-                      rc      <- win32GetProcessTimes pid pDummy pDummy pKernel pUser
+                      poke pDummy 0
+                      poke pKernel 0
+                      poke pUser 0
+                      win32GetProcessTimes pid pDummy pDummy pKernel pUser
                       user    <- peek pUser
-                      kernel  <- peek pKernel                    
-                      return $ ProcessTimes 0 user kernel 0 0
+                      kernel  <- peek pKernel
+                      return $ ProcessTimes 0 (filetimeToSeconds user) (filetimeToSeconds kernel) 0 0
 
 -- This is Win32 specific, dunno about other non POSIX platforms
 statFileSize :: FilePath -> IO Integer
@@ -152,7 +175,8 @@ statFileSize n = bracket (openFile n ReadMode) hClose hFileSize
 -- statFileSize _ = failWith "-s"
 
 -- Again, Win32 specific magic, as stolen from GHC
-foreign import stdcall "GetCurrentProcessId" getProcessID :: IO Int -- relies on Int == Int32 on Windows
+foreign import stdcall unsafe "GetCurrentProcessId" getProcessID :: IO Int -- relies on Int == Int32 on Windows
+foreign import stdcall "GetCurrentProcess" getProcessHandle :: IO Int -- relies on Int == Int32 on Windows
 
 -- getProcessID :: IO Int
 -- getProcessID = return $ 1

@@ -42,9 +42,6 @@ import Pugs.Prim.Numeric
 import Pugs.Prim.Lifts
 import Pugs.Prim.Eval
 
-clocksPerSecond :: (Num a) => a
-clocksPerSecond = 1000000
-
 -- |Implementation of 0-ary and variadic primitive operators and functions
 -- (including list ops).
 op0 :: String -> [Val] -> Eval Val
@@ -523,7 +520,7 @@ pkgParents pkg = do
     attrs   <- fromVal =<< fetch "traits"
     pkgs    <- mapM pkgParents attrs
     return $ nub (pkg:concat pkgs)
-    
+
 op1Return :: Eval Val -> Eval Val
 op1Return action = do
     depth <- asks envDepth
@@ -574,7 +571,7 @@ op1Print f v = do
         []      -> return (stdout, vals)
         (h:vs)  -> do
             ifValTypeIsa h "IO"
-                (do 
+                (do
                     hdl <- fromVal h
                     vs' <- if null vs then fmap (:[]) (readVar "$_") else return vs
                     return (hdl, vs'))
@@ -601,7 +598,7 @@ boolIO f v = do
     ok <- doBoolIO f v
     return $ VBool ok
 
-boolIO2 :: (Value a, Value b) 
+boolIO2 :: (Value a, Value b)
     => (a -> b -> IO c) -> Val -> Val -> Eval Val
 boolIO2 f u v = do
     x <- fromVal u
@@ -955,7 +952,7 @@ op2ChainedList x y
 
 op2Logical :: (Val -> Eval Bool) -> Val -> Val -> Eval Val
 op2Logical f x y = do
-    ok <- f x 
+    ok <- f x
     if ok then return x else do
     ref <- fromVal y
     forceRef ref
@@ -988,7 +985,7 @@ op2Ord f x y = do
         EQ -> 0
         GT -> 1
 
--- |Returns a transaction to install a primitive operator using 
+-- |Returns a transaction to install a primitive operator using
 -- 'Pugs.AST.genMultiSym'.
 -- The associativity determines the arity and fixity of ops.
 -- The primitive\'s subBody is defined in 'op0', 'op1', etc depending on arity,
