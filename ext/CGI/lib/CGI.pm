@@ -193,6 +193,67 @@ sub load_params {
     }    
 }
 
+sub escapeHTML (Str $string, Bool +$newlines) returns Str {
+    # XXX check for $self.escape == 0
+    #unless ($self.escape != 0) { return $toencode; }
+    
+    $string ~~ s:P5:g/&/&amp;/;
+    $string ~~ s:P5:g/</&lt;/;
+    $string ~~ s:P5:g/>/&gt;/;
+    
+    # XXX check for HTML 3.2
+    #if ($self.DTD_PUBLIC_IDENTIFIER ~~ rx:P5/[^X]HTML 3\.2/i) {
+        # $quot; was accidentally omitted from the HTML 3.2 DTD -- see
+        # <http://validator.w3.org/docs/errors.html#bad-entity> /
+        # <http://lists.w3.org/Archives/Public/www-html/1997Mar/0003.html>.
+        
+        #$string ~~ s:P5:g/"/&#34;/;
+    #} else {
+        $string ~~ s:P5:g/"/&quot;/;
+    #}
+    
+    my $latin;
+    
+    # XXX check $self.charset
+    #$latin = ?(uc $self.charset eq "ISO-8859-1"|"WINDOWS-1252");
+    $latin = 1;
+    
+    if ($latin) {
+        $string ~~ s:P5:g/'/&#39;/;
+        $string ~~ s:P5:g/\x8b/&#8249;/;
+        $string ~~ s:P5:g/\x9b/&#8250;/;
+        
+        if ($newlines) {
+            $string ~~ s:P5:g/\012/&#10;/;
+            $string ~~ s:P5:g/\015/&#13;/;
+        }
+    }
+    
+    return $string;
+}
+
+sub unescapeHTML (Str $string) returns Str {
+    # XXX check $self.charset
+    #my $latin = ?(uc $self.charset eq "ISO-8859-1"|"WINDOWS-1252");
+    my $latin = 1;
+    
+    $string ~~ s:g/&(<-[;]>*);/
+        given (lc $1) {
+            when "amp"  { "&" }
+            when "quot" { '"' }
+            when "gt"   { ">" }
+            when "lt"   { "<" }
+            
+            if ($latin) {
+                when /^#(\d+)$/     { chr($1) }
+                when /^#x(\d+)$/    { chr(hex($1)) }
+            }
+        }
+    /;
+    
+    return $string;
+}
+
 # information functions (again)
 
 multi sub param returns Array is export { unless($IS_PARAMS_LOADED) {load_params}; %PARAMS.keys; }
