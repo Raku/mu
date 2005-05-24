@@ -193,7 +193,7 @@ sub load_params {
     }    
 }
 
-sub escapeHTML (Str $string, Bool +$newlines) returns Str {
+sub escapeHTML (Str $string, Bool +$newlines) is export returns Str {
     # XXX check for $self.escape == 0
     #unless ($self.escape != 0) { return $toencode; }
     
@@ -232,7 +232,7 @@ sub escapeHTML (Str $string, Bool +$newlines) returns Str {
     return $string;
 }
 
-sub unescapeHTML (Str $string) returns Str {
+sub unescapeHTML (Str $string) is export returns Str {
     # XXX check $self.charset
     #my $latin = ?(uc $self.charset eq "ISO-8859-1"|"WINDOWS-1252");
     my $latin = 1;
