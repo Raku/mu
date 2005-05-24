@@ -48,6 +48,7 @@ import System.Posix.Env hiding (getEnvironment)
 import System.Posix.Files
 import System.Posix.User
 import System.Environment (getEnvironment)
+import Foreign.C.Types
 import qualified System.Posix.Signals
 
 statFileSize :: FilePath -> IO Integer
