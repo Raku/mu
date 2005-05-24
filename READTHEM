@@ -13,7 +13,7 @@ be just programming books, anything goes, really.
 
 = Autrijus's recommended Haskell reading:
 
-Algorithms : A Functional Programming Approach - Fethi A. Rabhi, Guy Lapalme
+Algorithms: A Functional Programming Approach  - Fethi A. Rabhi, Guy Lapalme
 The Haskell School of Expression                                - Paul Hudak
 Haskell: The Craft of Functional Programming                - Simon Thompson
 
@@ -30,9 +30,9 @@ Haskell Mini-Primer                    (this covers infix $ and . operators)
 
 = Perl 6 books (always outdated :))
 
-Perl 6 and Parrot Essenti     - Allison Randal, Dan Sugalski, Leopold Tőtsch
+Perl 6 and Parrot Essentials  - Allison Randal, Dan Sugalski, Leopold Tőtsch
 Perl 6 Now: The core ideas illustrated with Perl 5           - Scott Walters
-Perl 6 Bible (Perl6::Bible)                                             - VA
+Perl 6 Bible (Perl6::Bible)                                - Various Authors
 
 = Non-Haskell books
 
