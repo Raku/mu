@@ -23,7 +23,7 @@ import Pugs.Types
 import Pugs.Eval
 import Pugs.External
 import Pugs.Shell
-import Pugs.Parser
+import Pugs.Parser.Program
 import Pugs.Help
 import Pugs.Pretty
 import Pugs.Compile

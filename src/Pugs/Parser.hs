@@ -11,8 +11,9 @@
 -}
 
 module Pugs.Parser (
-    runRule,
-    ruleProgram,
+    ruleBlockBody,
+    possiblyExit,
+    mkPos,
 ) where
 import Pugs.Internals
 import Pugs.AST
@@ -22,39 +23,13 @@ import Pugs.Help
 import Pugs.Lexer
 import Pugs.Rule
 import Pugs.Rule.Expr
-import Pugs.Rule.Error
 import Pugs.Pretty
 import qualified Data.Set as Set
 
 import Pugs.Parser.Number
+import Pugs.Parser.Unsafe
 
 -- Lexical units --------------------------------------------------
-
-ruleProgram :: RuleParser Env
-ruleProgram = rule "program" $ do
-    env <- getState
-    statements <- ruleBlockBody
-    -- error $ show statements
-    eof
-    -- S04: CHECK {...}*      at compile time, ALAP
-    --  $_() for @?CHECK
-    rv <- unsafeEvalExp $ Syn "for"
-	[ Var "@?CHECK"
-	, Syn "sub"
-	    [ Val . VCode $ mkSub
-		{ subBody   = App (Var "$_") [] []
-		, subParams = [defaultScalarParam]
-		}
-	    ]
-	]
-    -- If there was a exit() in a CHECK block, we've to exit.
-    possiblyExit rv
-    env' <- getState
-    return $ env'
-        { envBody       = mergeStmts emptyExp statements
-        , envStash      = ""
-        , envPackage    = envPackage env
-        }
 
 ruleBlock :: RuleParser Exp
 ruleBlock = lexeme ruleVerbatimBlock
@@ -229,20 +204,22 @@ maybeColon = option id $ do
     return $ \(sigil:name) -> (sigil:':':name)
 
 -- | Scope, context, isMulti, styp, name
-ruleSubScopedWithContext :: RuleParser (Scope, String, Bool, SubType, String)
+type SubDescription = (Scope, String, Bool, SubType, String)
+
+ruleSubScopedWithContext :: RuleParser SubDescription
 ruleSubScopedWithContext = rule "scoped subroutine with context" $ do
     scope   <- ruleScope
     cxt     <- identifier
     (isMulti, styp, name) <- ruleSubHead
     return (scope, cxt, isMulti, styp, name)
 
-ruleSubScoped :: RuleParser (Scope, String, Bool, SubType, String)
+ruleSubScoped :: RuleParser SubDescription
 ruleSubScoped = rule "scoped subroutine" $ do
     scope <- ruleScope
     (isMulti, styp, name) <- ruleSubHead
     return (scope, "Any", isMulti, styp, name)
 
-ruleSubGlobal :: RuleParser (Scope, String, Bool, SubType, String)
+ruleSubGlobal :: RuleParser SubDescription
 ruleSubGlobal = rule "global subroutine" $ do
     (isMulti, styp, name) <- ruleSubHead
     return (SGlobal, "Any", isMulti, styp, name)
@@ -290,18 +267,6 @@ rulePackageHead = do
     traits  <- many $ ruleTrait
     unsafeEvalExp (newClass name traits)
     return (name, v, a)
-
-newClass :: String -> [String] -> Exp
-newClass name traits = Sym SGlobal (':':'*':name) $ Syn ":="
-    [ Var (':':'*':name)
-    , App (Var "&new")
-        [ Val (VType $ mkType "Class") ]
-        [ App (Var "&infix:=>")
-            [ Val (VStr "traits")
-            , Val (VList $ map VStr traits)
-            ] []
-        ]
-    ]
 
 ruleSubDeclaration :: RuleParser Exp
 ruleSubDeclaration = rule "subroutine declaration" $ do
@@ -366,7 +331,7 @@ selfParam typ = MkParam
 ruleSubName :: RuleParser String
 ruleSubName = verbatimRule "subroutine name" $ do
     twigil  <- ruleTwigil
-    fixity  <- option "" $ choice (map (try . string) $ words fixities)
+    fixity  <- option "" $ choice (map (try . string) $ fixities)
     name    <- ruleQualifiedIdentifier
                 <|> try (between (string "<<") (string ">>")
                     (many1 (satisfy (/= '>') <|> lookAhead (satisfy (/= '>')))))
@@ -374,7 +339,7 @@ ruleSubName = verbatimRule "subroutine name" $ do
                 <|> between (char '\171') (char '\187') (many1 $ satisfy (/= '\187'))
     return $ "&" ++ twigil ++ fixity ++ name
     where
-    fixities = " prefix: postfix: infix: circumfix: "
+    fixities = words " prefix: postfix: infix: circumfix: "
 
 ruleSubParameters :: ParensOption -> RuleParser (Maybe [Param])
 ruleSubParameters wantParens = rule "subroutine parameters" $ do
@@ -489,17 +454,18 @@ ruleUseDeclaration :: RuleParser Exp
 ruleUseDeclaration = rule "use declaration" $ do
     symbol "use"
     tryChoice [ ruleUseVersion, ruleUsePackage ]
+    return emptyExp
 
-ruleUseVersion :: RuleParser Exp
+ruleUseVersion :: RuleParser ()
 ruleUseVersion = rule "use version" $ do
     option ' ' $ char 'v'
     version <- many1 (choice [ digit, char '.' ])
     when (version > versnum) $ do
         pos <- getPosition
         error $ "Perl v" ++ version ++ " required--this is only v" ++ versnum ++ ", stopped at " ++ (show pos)
-    return emptyExp
+    return ()
 
-ruleUsePackage :: RuleParser Exp
+ruleUsePackage :: RuleParser ()
 ruleUsePackage = rule "use package" $ do
     names   <- identifier `sepBy1` (try $ string "::")
     _       <- option "" $ ruleVersionPart
@@ -509,7 +475,22 @@ ruleUsePackage = rule "use package" $ do
     case val of
         Val (VControl (ControlEnv env')) -> setState env'
         _  -> error $ pretty val
-    return emptyExp
+    return ()
+
+-- | The version part of a full class specification.
+ruleVersionPart :: RuleParser String
+ruleVersionPart = do -- version - XXX
+    char '-'
+    str <- many1 (choice [ digit, char '.' ])
+    return ('-':str)
+
+-- | The author part of a full class specification.
+ruleAuthorPart :: RuleParser String
+ruleAuthorPart = do -- author - XXX
+    char '-'
+    str <- many1 (satisfy (/= ';'))
+    return ('-':str)
+{- end of ruleUseDeclaration -}
 
 ruleInlineDeclaration :: RuleParser Exp
 ruleInlineDeclaration = tryRule "inline declaration" $ do
@@ -536,20 +517,6 @@ ruleModuleDeclaration = rule "module declaration" $ do
     env     <- getState
     setState env{ envPackage = name, envClasses = envClasses env `addNode` mkType name }
     return $ Syn "module" [Val . VStr $ name ++ v ++ a] -- XXX
-
--- | The version part of a full class specification.
-ruleVersionPart :: RuleParser String
-ruleVersionPart = do -- version - XXX
-    char '-'
-    str <- many1 (choice [ digit, char '.' ])
-    return ('-':str)
-
--- | The author part of a full class specification.
-ruleAuthorPart :: RuleParser String
-ruleAuthorPart = do -- author - XXX
-    char '-'
-    str <- many1 (satisfy (/= ';'))
-    return ('-':str)
 
 ruleDoBlock :: RuleParser Exp
 ruleDoBlock = rule "do block" $ try $ do
@@ -651,37 +618,6 @@ vcode2initOrCheckBlock magicalVar code = do
     -- elems is the new number of elems in @?INIT (as push returns the new
     -- number of elems), but we're interested in the index, so we -1 it.
     return $ App (Syn "[]" [Var magicalVar, Val . VInt $ elems - 1]) [] []
-
-unsafeEvalLexDiff :: Exp -> RuleParser Pad
-unsafeEvalLexDiff exp = do
-    env  <- getState
-    setState env{ envLexical = mkPad [] }
-    env' <- unsafeEvalEnv exp
-    setState env'{ envLexical = envLexical env' `unionPads` envLexical env }
-    return $ envLexical env'
-
--- XXX: Should these fail instead of error?
-unsafeEvalEnv :: Exp -> RuleParser Env
-unsafeEvalEnv exp = do
-    -- pos <- getPosition
-    env <- getState
-    val <- unsafeEvalExp $ mergeStmts exp (Syn "env" [])
-    case val of
-        Val (VControl (ControlEnv env')) ->
-            return env'{ envDebug = envDebug env }
-        _  -> error $ pretty val
-
-unsafeEvalExp :: Exp -> RuleParser Exp
-unsafeEvalExp exp = do
-    env <- getState
-    setState env{ envStash = "" } -- cleans up function cache
-    let val = unsafePerformIO $ do
-        runEvalIO (env{ envDebug = Nothing }) $ do
-            evl <- asks envEval
-            evl exp
-    case val of
-        VError _ _  -> error $ pretty (val :: Val)
-        _           -> return $ Val val
 
 -- Constructs ------------------------------------------------
 
@@ -931,15 +867,17 @@ operators = do
     --  , [ listSyn  " ; " ]                            -- Terminator
         ]
 
+-- not a parser!
 litOperators :: RuleParser (OperatorTable Char Env Exp)
 litOperators = do
     tight <- tightOperators
     loose <- looseOperators
     return $ tight ++ loose
 
+-- read just the current state (ie, not a parser)
 currentFunctions :: RuleParser [(Var, VStr, Params)]
 currentFunctions = do
-    env     <- getState
+    env     <- getState -- should use get from MonadState
     return . concat . unsafePerformSTM $ do
         glob <- readTVar $ envGlobal env
         let funs  = padToList glob ++ padToList (envLexical env)
@@ -958,6 +896,7 @@ currentFunctions = do
                         -> Just (name', code_assoc cv, code_params cv)
                     _ -> Nothing
 
+-- read just the current state
 currentTightFunctions :: RuleParser [String]
 currentTightFunctions = do
     env     <- getState
@@ -969,6 +908,7 @@ currentTightFunctions = do
         lns -> do
             return $ lines lns
 
+-- read just the current state
 currentTightFunctions' :: RuleParser [String]
 currentTightFunctions' = do
     funs    <- currentFunctions
@@ -1844,20 +1784,6 @@ ternOp pre post syn = (`Infix` AssocRight) $ do
     y <- parseTightOp
     symbol post
     return $ \x z -> Syn syn [x, y, z]
-
-runRule :: Env -> (Env -> a) -> RuleParser Env -> FilePath -> String -> a
-runRule env f p name str = f $ case ( runParser p env name str ) of
-    Left err    -> env { envBody = Val $ VError msg [mkPos pos pos] }
-        where
-        pos = errorPos err
-        msg = showErr err
-    Right env'  -> env'
-
-showErr :: ParseError -> String
-showErr err =
-      showErrorMessages "or" "unknown parse error"
-                        "expecting" "unexpected" "end of input"
-                       (errorMessages err)
 
 retSyn :: String -> [Exp] -> RuleParser Exp
 retSyn sym args = do

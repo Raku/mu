@@ -7,7 +7,7 @@ module Pugs.Prim.Eval (
     retEvalResult, 
 ) where
 import Pugs.AST
-import Pugs.Parser
+import Pugs.Parser.Program
 import Pugs.Embed
 import Pugs.Internals
 
