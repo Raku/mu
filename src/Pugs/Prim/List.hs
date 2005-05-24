@@ -198,13 +198,36 @@ op2Map :: Val -> Val -> Eval Val
 op2Map sub@(VCode _) list = op2Map list sub
 op2Map (VList [v@(VRef _)]) sub = op2Map v sub
 op2Map list sub = do
-    args <- fromVal list
-    vals <- (`mapM` args) $ \x -> do
-        evl <- asks envEval
+    args  <- fromVal list
+    arity <- liftM length $ (fromVal sub >>= return . subParams)
+    evl  <- asks envEval
+    vals <- mapMn args arity $ \x -> do
         rv  <- local (\e -> e{ envContext = cxtSlurpyAny }) $ do
-            evl (App (Val sub) [Val x] [])
+            evl (App (Val sub) (map Val x) [])
         fromVal rv
-    return $ VList $ concat vals
+    return $ VList vals
+    where
+    -- Takes a list, an arity, and a function.
+    mapMn  :: [Val] -> Int -> ([Val] -> Eval [Val]) -> Eval [Val]
+    mapMn list n f = mapMn' (l2lol n list) f
+    -- Takes a LoL and a function and applies the function to the inputlist.
+    mapMn' :: [[Val]] -> ([Val] -> Eval [Val]) -> Eval [Val]
+    mapMn' (x:xs) f = liftM2 (++) (f x) (mapMn' xs f)
+    mapMn' []     _ = return []
+    -- Takes a list and returns a LoL.
+    -- Ex.: l2lol 3 [1,2,3,4,5] = [[1,2,3],[4,5,undef]]
+    l2lol n list
+        | n == 0           = fail "Cannot map() using a nullary function."
+        -- If the list has exactly n elements, we've finished our work.
+        | length list == n = [list]
+        -- If the list is empty, we're done, too.
+        | length list == 0 = []
+        -- But if the list contains more elems than we need, we process the
+        -- first n ones and the rest separately.
+        | length list  > n = (l2lol n $ take n list) ++ (l2lol n $ drop n list)
+        -- And if the list contains less elems than we need, we pad with undefs.
+        | length list  < n = l2lol n $ list ++ [undef :: Val]
+        | otherwise        = fail "Invalid arguments to internal function l2lol passed."
 
 op2Join :: Val -> Val -> Eval Val
 op2Join (VList [x@(VRef _)]) y = op2Join x y

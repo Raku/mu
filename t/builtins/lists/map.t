@@ -9,7 +9,7 @@ built-in map tests
 
 =cut
 
-plan 48;
+plan 52;
 
 my @list = (1 .. 5);
 
@@ -95,4 +95,12 @@ my @list = (1 .. 5);
     is(%result<3>, 6,  'got the value we expected');
     is(%result<4>, 8,  'got the value we expected');
     is(%result<5>, 10, 'got the value we expected');
+}
+
+# map with n-ary functions
+{
+  is ~(1,2,3,4).map:{ $^a + $^b             }, "3 7", "map() works with 2-ary functions";
+  is ~(1,2,3,4).map:{ $^a + $^b + $^c       }, "6 4", "map() works with 3-ary functions";
+  is ~(1,2,3,4).map:{ $^a + $^b + $^c + $^d }, "10",  "map() works with 4-ary functions";
+  is ~(1,2,3,4).map:{ $^a+$^b+$^c+$^d+$^e   }, "10",  "map() works with 5-ary functions";
 }
