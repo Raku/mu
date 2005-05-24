@@ -16,6 +16,7 @@ module Pugs.AST (
     evalExp,
     genMultiSym, genSym,
     strRangeInf, strRange, strInc, charInc,
+    mergeStmts, isEmptyParams,
 
     module Pugs.AST.Internals,
     module Pugs.AST.Pos,
@@ -110,3 +111,31 @@ genSym name ref = do
     tvar    <- liftSTM $ newTVar ref
     fresh   <- liftSTM $ newTVar True
     return $ \(MkPad map) -> MkPad $ Map.insert name [(fresh, tvar)] map
+
+-- Stmt is essentially a cons cell
+-- Stmt (Stmt ...) is illegal
+mergeStmts :: Exp -> Exp -> Exp
+mergeStmts (Stmts x1 x2) y = mergeStmts x1 (mergeStmts x2 y)
+mergeStmts Noop y@(Stmts _ _) = y
+mergeStmts (Sym scope name x) y = Sym scope name (mergeStmts x y)
+mergeStmts (Pad scope lex x) y = Pad scope lex (mergeStmts x y)
+mergeStmts x@(Pos pos (Syn syn _)) y | (syn ==) `any` words "subst match //"  =
+    mergeStmts (Pos pos (App (Var "&infix:~~") [Var "$_", x] [])) y
+mergeStmts x y@(Pos pos (Syn syn _)) | (syn ==) `any` words "subst match //"  =
+    mergeStmts x (Pos pos (App (Var "&infix:~~") [Var "$_", y] []))
+mergeStmts (Pos pos (Syn "sub" [Val (VCode sub)])) y
+    | subType sub >= SubBlock, isEmptyParams (subParams sub) =
+    -- bare Block in statement level; annul all its parameters and run it!
+    mergeStmts (Pos pos $ App (Val $ VCode sub{ subParams = [] }) [] []) y
+mergeStmts x (Pos pos (Syn "sub" [Val (VCode sub)]))
+    | subType sub >= SubBlock, isEmptyParams (subParams sub) =
+    -- bare Block in statement level; annul all its parameters and run it!
+    mergeStmts x (Pos pos $ App (Val $ VCode sub{ subParams = [] }) [] [])
+mergeStmts x (Stmts y Noop) = mergeStmts x y
+mergeStmts x (Stmts Noop y) = mergeStmts x y
+mergeStmts x y = Stmts x y
+
+isEmptyParams :: [Param] -> Bool
+isEmptyParams [] = True
+isEmptyParams [x] | [_, '_'] <- paramName x = True
+isEmptyParams _ = False
