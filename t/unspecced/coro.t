@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 10;
+plan 11;
 
 # Standard function of fp
 sub take(Int $n, Code &f) { (1..$n).map:{ f() } }
@@ -54,3 +54,25 @@ sub take(Int $n, Code &f) { (1..$n).map:{ f() } }
   is ~take(5, @array[1]),     "6 7 8 9 10", "state() in coroutines work (2)";
   is ~take(5, @array[0]), "11 12 13 14 15", "state() in coroutines work (3)";
 }
+
+# Test that there's still only one instance of each state() variable
+eval {
+  my @array = take 5, {
+    coro {
+	(sub {
+          while 1 {
+	    state $num;
+	    yield ++$num;
+          }
+        })();
+    };
+  };
+
+  is ~take(5, @array[0]),      "1 2 3 4 5", "yield from inside closure";
+};
+
+# I've marked this failure as unspecced, should a yield be able to
+# jump up many scopes like that?
+fail "couldn't yield from inside closure", :todo<unspecced> if $!;
+
+

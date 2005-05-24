@@ -77,17 +77,23 @@ is($output,
 
 
 # test iterator version
+eval {
 my $iter = $tree.traverse_iter;
 
 $output = "";
-while =$iter() -> $t {
+
+my $t;
+
+while ($t = $iter()) {
     $output ~= ('--' x $t.depth()) ~ " " ~ $t.node() ~ "\n";
-});
+};
 
 is($output, 
 '-- my other tree
 -- my tree 3
 ---- tree 1.1
 -- my tree 4
-', '... got the right output');
+', '... got the right output (iterator)');
+};
 
+fail "iterator/coroutine test", :todo<feature> if $!;
