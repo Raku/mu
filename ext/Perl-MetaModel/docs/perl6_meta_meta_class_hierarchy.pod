@@ -69,6 +69,26 @@ Class hierarchy.
 
 This is an important distinction to remember.
 
+=head2 A Note about Duck-Typing
+
+Duck typing is usually described like this:
+
+  If it quacks like a duck, it must be a duck.
+
+Which basically means that a Type is defined by the methods it responds to, 
+instead of some label it has been given. However, this is a very simple defintion
+of duck-typing from the I<users> point of view, and fails to explain it from 
+the implementation point of view.
+
+From the implementation point-of-view, duck-typing means that instead of an object's
+behavior being defined by a class, it is defined by a B<Type> entity which exists in
+the somewhat muddy area between Class and Instances. 
+
+  [ Class + [ Role, ... ]] --> ::Type <--- Instances
+
+A class and it's attached roles are "compiled" into a Type, which is then used by 
+instances in the system. 
+
 =head1 Implementation Layer
 
 The behavior of classes and roles must be described somehow, and we
@@ -122,7 +142,7 @@ it in for now.
 
 =item "metaclass(Foo)" means the instance of MetaClass with the name of Foo
 
-=item "class(Foo)" means the instance of Clas with the name of Foo
+=item "class(Foo)" means the instance of Class with the name of Foo
 
 =back
 
@@ -145,6 +165,7 @@ it in for now.
     }
     
     my $Role = MetaClass.new('Role'); # metaclass(Role) is an instance of metametaclass(MetaClass)
+    $Role.superclass(Role::Behavior); 
     $Role.addProperties(
         $.name,
         @:roles,
@@ -158,6 +179,7 @@ it in for now.
     # Hmmm,... MetaClass and Role look suspiciously similar
     
     my $Class = MetaClass.new('Class'); # metaclass(Class) is an instance of metametaclass(MetaClass)    
+    $Class.superclass(Class::Behavior); 
     $Class.doesRole($Role);
     $Class.addProperties(
         $:superclass,
@@ -166,12 +188,12 @@ it in for now.
     $Class.addMethods(
         super,
         subclasses,
-        invokeMethod        
+        invokeMethod 
     );
 
 =head2 metaclass(Role)
 
-When "compiled" the metaclass(Role) will look like this:
+When "compiled" the metaclass(Role) will look something like this:
 
     metaclass Role is Role::Behavior {
         has $.name;
@@ -183,6 +205,12 @@ When "compiled" the metaclass(Role) will look like this:
         # property access is made possible through methods
     }
 
+NOTE: In order for the metaclass(Role) to be able to compose more roles, it must
+have all the methods of a Role::Behavior. Since we don't want these methods to 
+actually be inherited down to the next level (the "user" space), we make the 
+metaclass inherit from Role::Behavior in the implementation itself, and not as a
+C<superclass()>. The same is done for metaclass(Class) and Class::Behavior.
+
     my $bar_role = Role.new('Bar'); # role(Bar) is an instance of metaclass(Role)
     $bar_role.addProperties(
         $.baz
@@ -191,7 +219,7 @@ When "compiled" the metaclass(Role) will look like this:
         baz
     );
     
-    # creates this ...
+Can then be "compiled" into this role(Bar):
     
     role Bar {
         has $.baz;
@@ -226,7 +254,7 @@ When "compiled" the metaclass(Class) will look like this:
         foo
     );
     
-    # creates this ...
+This can then be compiled into this class(Foo):
     
     class Foo {
         has $.foo;

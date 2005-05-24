@@ -59,9 +59,13 @@ method allProperties ($self:) returns Hash {
 }
 
 method isPropertySupported ($self: Str $label) returns Bool {
+    return ?$self.getProperty($label); 
+}
+
+method getProperty ($self: Str $label) returns Perl::Meta::Preoperty {
     return %:properties{$label} if %:properties.exists($label);
     # Roles have no parents so they do not search "up"
-    return undef;    
+    return undef; 
 }
 
 ## Methods

@@ -24,7 +24,6 @@ method :flattenRoles ($self: Perl::Meta::Class $class) returns Void {
     # hmm, ... I need to think about this
 }
 
-my $DEBUG = 1;
 
 method :compileClass ($self: Perl::Meta::Class $class) returns Void {
     my $meta = $self.:analyzeClass($class);
@@ -40,15 +39,7 @@ method :compileClass ($self: Perl::Meta::Class $class) returns Void {
                               ";\n"; 
     } 
     my $methods = '
-    method meta returns Perl::Meta::Class { $meta }
-
-    method isa ($self: Str $class) returns Bool {  
-        $self.meta().isATypeOf($class);
-    }
-    
-    method can ($self: Str $method_label) returns Bool {
-        $self.meta().isMethodSupported($method_label);
-    }
+    method :meta returns Perl::Meta::Class { $meta }
     ';
     for $meta.methodLabels() -> $label {
         $methods ~= '
@@ -58,8 +49,8 @@ method :compileClass ($self: Perl::Meta::Class $class) returns Void {
     ';
     }
     $class_code ~= " \{\n\n" ~ $properties ~ $methods ~ "\n}"; 
-    say "evaling class (\n$class_code\n)\n" if $DEBUG;
     eval $class_code;
+    return $class_code;
 }
 
 =pod
