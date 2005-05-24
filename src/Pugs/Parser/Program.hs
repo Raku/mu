@@ -5,15 +5,9 @@ module Pugs.Parser.Program (
 ) where
 import Pugs.Internals
 import Pugs.AST
-import Pugs.Types
-import Pugs.Context
-import Pugs.Help
 import Pugs.Lexer
 import Pugs.Rule
-import Pugs.Rule.Expr
 import Pugs.Rule.Error
-import Pugs.Pretty
-import qualified Data.Set as Set
 
 import Pugs.Parser
 import Pugs.Parser.Unsafe
