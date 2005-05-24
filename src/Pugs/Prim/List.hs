@@ -162,25 +162,41 @@ op2Fold sub@(VCode _) list = op2Fold list sub
 op2Fold list sub = do
     code <- fromVal sub
     args <- fromVal list
+    let arity = length $ subParams code
+    if arity < 2 then fail "Cannot reduce() using a unary or nullary function." else do
+    -- n is the number of *additional* arguments to be passed to the sub.
+    -- Ex.: reduce { $^a + $^b       }, ...   # n = 1
+    -- Ex.: reduce { $^a + $^b + $^c }, ...   # n = 2
+    let n = arity - 1
+    -- Break on empty list.
     if null args then return undef else do
-    let doFold x y = do
+    let doFold xs = do
         evl <- asks envEval
         local (\e -> e{ envContext = cxtItemAny }) $ do
-            evl (App (Val sub) [Val x, Val y] [])
+            evl (App (Val sub) (map Val xs) [])
     case subAssoc code of
         "right" -> do
             let args' = reverse args
-            foldM (flip doFold) (head args') (tail args')
-        "chain" -> callCC $ \esc -> do
-            let doFold' x y = do
-                val <- doFold x y
-                case val of
-                    VBool False -> esc val
-                    _           -> return y
-            foldM doFold' (head args) (tail args)
-            return $ VBool True
+            foldMn args' n (doFold . reverse)
+        "chain" -> if arity /= 2
+            then fail
+                "When reducing using a chain-associative sub,\nthe sub must take exactly two arguments."
+            else callCC $ \esc -> do
+                let doFold' x y = do
+                    val <- doFold [x, y]
+                    case val of
+                        VBool False -> esc val
+                        _           -> return y
+                foldM doFold' (head args) (tail args)
+                return $ VBool True
         "non"   -> fail $ "Cannot reduce over non-associativity"
-        _       -> foldM doFold (head args) (tail args) -- "left", "pre"
+        _       -> foldMn args n doFold -- "left", "pre"
+    where
+    -- This is a generalized foldM.
+    -- It takes an input list (from which the first elem will be used as start
+    -- value), the number of additional arguments, and a reducing function.
+    foldMn :: [Val] -> Int -> ([Val] -> Eval Val) -> Eval Val
+    foldMn list n f = foldM (\a b -> f (a:b)) (head list) $ list2LoL n $ drop 1 list
 
 op2Grep :: Val -> Val -> Eval Val
 op2Grep sub@(VCode _) list = op2Grep list sub
@@ -208,26 +224,29 @@ op2Map list sub = do
     return $ VList vals
     where
     -- Takes a list, an arity, and a function.
-    mapMn  :: [Val] -> Int -> ([Val] -> Eval [Val]) -> Eval [Val]
-    mapMn list n f = mapMn' (l2lol n list) f
+    mapMn           :: [Val] -> Int -> ([Val] -> Eval [Val]) -> Eval [Val]
+    mapMn list n f   = mapMn' (list2LoL n list) f
     -- Takes a LoL and a function and applies the function to the inputlist.
-    mapMn' :: [[Val]] -> ([Val] -> Eval [Val]) -> Eval [Val]
-    mapMn' (x:xs) f = liftM2 (++) (f x) (mapMn' xs f)
-    mapMn' []     _ = return []
-    -- Takes a list and returns a LoL.
-    -- Ex.: l2lol 3 [1,2,3,4,5] = [[1,2,3],[4,5,undef]]
-    l2lol n list
-        | n == 0           = fail "Cannot map() using a nullary function."
-        -- If the list has exactly n elements, we've finished our work.
-        | length list == n = [list]
-        -- If the list is empty, we're done, too.
-        | length list == 0 = []
-        -- But if the list contains more elems than we need, we process the
-        -- first n ones and the rest separately.
-        | length list  > n = (l2lol n $ take n list) ++ (l2lol n $ drop n list)
-        -- And if the list contains less elems than we need, we pad with undefs.
-        | length list  < n = l2lol n $ list ++ [undef :: Val]
-        | otherwise        = fail "Invalid arguments to internal function l2lol passed."
+    mapMn'          :: [[Val]] -> ([Val] -> Eval [Val]) -> Eval [Val]
+    mapMn' (x:xs) f  = liftM2 (++) (f x) (mapMn' xs f)
+    mapMn' []     _  = return []
+
+-- | Takes an int and a list and returns a LoL.
+--   Ex.:
+--   > list2LoL 3 [1,2,3,4,5] = [[1,2,3],[4,5,undef]]
+list2LoL :: Int -> [Val] -> [[Val]]
+list2LoL n list
+    | n == 0           = fail "Cannot map() using a nullary function."
+    -- If the list has exactly n elements, we've finished our work.
+    | length list == n = [list]
+    -- If the list is empty, we're done, too.
+    | length list == 0 = []
+    -- But if the list contains more elems than we need, we process the
+    -- first n ones and the rest separately.
+    | length list  > n = (list2LoL n $ take n list) ++ (list2LoL n $ drop n list)
+    -- And if the list contains less elems than we need, we pad with undefs.
+    | length list  < n = list2LoL n $ list ++ [undef :: Val]
+    | otherwise        = fail "Invalid arguments to internal function list2LoL passed."
 
 op2Join :: Val -> Val -> Eval Val
 op2Join (VList [x@(VRef _)]) y = op2Join x y
