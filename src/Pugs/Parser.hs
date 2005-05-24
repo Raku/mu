@@ -211,20 +211,16 @@ ruleDeclaration = rule "declaration" $ choice
 
 ruleSubHead :: RuleParser (Bool, SubType, String)
 ruleSubHead = rule "subroutine head" $ do
-    isMulti     <- option False $ do { symbol "multi" ; return True }
-    (styp, name) <- choice
+    isMulti <- option False $ do { symbol "multi" ; return True }
+    styp    <- choice
         [ do symbol "sub"
-             str    <- ruleSubName
-             return (SubRoutine, str)
+             return SubRoutine
         , do symbol "coro"
-             colon  <- maybeColon
-             str    <- ruleSubName
-             return (SubCoroutine, colon str)
+             return SubCoroutine
         , do (symbol "submethod" <|> symbol "method")
-             colon  <- maybeColon
-             str    <- ruleSubName
-             return (SubMethod, colon str)
+             return SubMethod
         ]
+    name    <- ruleSubName
     return (isMulti, styp, name)
 
 maybeColon :: RuleParser ([Char] -> [Char])
