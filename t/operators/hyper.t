@@ -173,3 +173,17 @@ plan 35;
 
     # XXX: Test for [+]<<<<
 }
+
+{ # hyper dereferencing
+    my @array = (
+        { key => 'val' },
+        { key => 'val' },
+        { key => 'val' }
+    );
+
+    my $full = join '', @array>><key>;
+    is($full, 'valvalval', 'hyper-dereference an array');
+
+    my $part = join '', @array[0,1]>><key>;
+    is($part, 'valval', 'hyper-dereference an array slice');
+}
