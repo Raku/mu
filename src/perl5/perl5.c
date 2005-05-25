@@ -167,6 +167,12 @@ perl5_call(char *subname, int argc, SV** args)
     return rv;
 }
 
+SV *
+perl5_eval(char *code)
+{
+    return (eval_pv(code, TRUE));
+}
+
 bool
 perl5_can(SV *inv, char *subname)
 {

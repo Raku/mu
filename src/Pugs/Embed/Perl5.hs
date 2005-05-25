@@ -58,8 +58,6 @@ foreign import ccall "perl.h perl_destruct"
     perl_destruct :: PerlInterpreter -> IO CInt
 foreign import ccall "perl.h perl_free"
     perl_free :: PerlInterpreter -> IO ()
-foreign import ccall "perl.h Perl_eval_pv"
-    eval_pv :: CString -> Word32 -> IO PerlSV
 foreign import ccall "perl.h boot_DynaLoader"
     boot_DynaLoader :: Ptr () -> IO ()
 foreign import ccall "perl5.h perl5_SvPV"
@@ -72,6 +70,8 @@ foreign import ccall "perl5.h perl5_call"
     perl5_call :: CString -> CInt -> Ptr PerlSV -> IO PerlSV
 foreign import ccall "perl5.h perl5_can"
     perl5_can :: PerlSV -> CString -> IO Bool
+foreign import ccall "perl.h perl5_eval"
+    perl5_eval :: CString -> IO PerlSV
 foreign import ccall "perl5.h perl5_init"
     perl5_init :: CInt -> Ptr CString -> IO PerlInterpreter
 
@@ -100,9 +100,7 @@ canPerl5 :: PerlSV -> String -> IO Bool
 canPerl5 sv meth = withCString meth $ \cstr -> perl5_can sv cstr
 
 evalPerl5 :: String -> IO PerlSV
-evalPerl5 str = do
-    withCString str $ \cstr -> do
-        eval_pv cstr 1
+evalPerl5 str = withCString str perl5_eval
 
 freePerl5 :: PerlInterpreter -> IO ()
 freePerl5 my_perl = do
