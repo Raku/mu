@@ -46,19 +46,6 @@ while (<IN>) {
     last;
 }
 
-if ($ghc =~ /-DPUGS_EMBED_PERL5/ or ($ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /perl5/i)) {
-    print OUT "#define PUGS_EMBED_PERL5 1\n";
-}
-else {
-    print OUT "#undef PUGS_EMBED_PERL5\n";
-    warn << '.';
-
-*** Perl 5 embedding disabled.  If you want Perl 5 support, please set the
-    PUGS_EMBED environment variable to contain "perl5".
-
-.
-}
-
 # FIXME: we assume if you have cywin, you're still using ghc-msys
 if ($^O =~ /MSWin32|mingw|msys|cygwin/i) {
     print OUT "#undef PUGS_HAVE_POSIX\n";

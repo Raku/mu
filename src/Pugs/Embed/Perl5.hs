@@ -1,9 +1,6 @@
 {-# OPTIONS_GHC -fglasgow-exts -cpp #-}
 
-#undef PUGS_EMBED_PERL5
-#include "../pugs_config.h"
-
-#ifndef PUGS_EMBED_PERL5
+#ifndef PUGS_HAVE_PERL5
 module Pugs.Embed.Perl5 where
 
 type PerlInterpreter = ()

@@ -126,7 +126,15 @@ sub set_postamble {
     if ($ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bperl5\b/i) {
         push @prereqs, "src/perl5/perl5.o";
         $ghc_output .= " src/perl5/perl5.o ";
-        $ghc_flags .= " -DPUGS_EMBED_PERL5 ";
+        $ghc_flags .= " -DPUGS_HAVE_PERL5 ";
+    }
+    else {
+        warn << '.';
+
+*** Perl 5 embedding disabled.  If you want Perl 5 support, please set the
+    PUGS_EMBED environment variable to contain "perl5".
+
+.
     }
     
     if ($ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bparrot\b/i and $Config{cc} eq 'cl') {
@@ -163,8 +171,8 @@ sub set_postamble {
 *** Parrot linking disabled; external 'parrot' executable will be used for
     Rules support -- please make sure that the executable is available in
     your PATH.  If you want to link against Parrot, set the PUGS_EMBED
-    environment variable to 'parrot', the PARROT_PATH environment variable
-    to the path of a built parrot source tree, then run Makefile.PL again.
+    environment variable to contain 'parrot', the PARROT_PATH environment
+    variable to the path of a built parrot tree, then run Makefile.PL again.
 
 .
     }
