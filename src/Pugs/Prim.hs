@@ -806,10 +806,6 @@ op2 "sort" = \x y -> do
     op1 "sort" . VList $ xs ++ ys
 op2 "say" = \x (VList ys) -> op1Print hPutStrLn (VList (x:ys))
 op2 "print" = \x (VList ys) -> op1Print hPutStr (VList (x:ys))
-op2 "Type::AUTOLOAD" = \typ args -> do
-    str  <- fromVal typ
-    inv  <- readVar (':':'*':str)
-    op2 "Scalar::Perl5::AUTOLOAD" inv args
 op2 "Scalar::Perl5::AUTOLOAD" = \inv args -> do
     meth <- readVar "$*AUTOLOAD"
     str  <- fromVal meth
@@ -852,7 +848,13 @@ op3 "rindex" = \x y z -> do
 op3 "splice" = \x y z -> do
     op4 "splice" x y z (VList [])
 op3 "new" = \t n _ -> do
-    typ     <- fromVal t
+    metaTyp <- evalValType t
+    typ <- if metaTyp == mkType "Type" then fromVal t else do
+        meta    <- readRef =<< fromVal t
+        fetch   <- doHash meta hash_fetchVal
+        str     <- fromVal =<< fetch "name"
+        return $ mkType str
+    liftIO $ print (t, metaTyp, typ)
     named   <- fromVal n
     attrs   <- liftSTM $ newTVar Map.empty
     writeIVar (IHash attrs) named
@@ -1394,7 +1396,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Int       pre     sign    (Num)\
 \\n   Bool      pre     kill    (Thread)\
 \\n   Int       pre     kill    (Int, List)\
-\\n   Object    pre     new     (Type: Named)\
+\\n   Object    pre     new     (Object: Named)\
 \\n   Object    pre     BUILDALL (Object)\
 \\n   Object    pre     clone   (Any)\
 \\n   Object    pre     id      (Any)\
@@ -1402,7 +1404,6 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Int       pre     arity   (Code)\
 \\n   Bool      pre     Thread::yield   (Thread)\
 \\n   Scalar::Perl5    pre     Scalar::Perl5::AUTOLOAD (Object: List)\
-\\n   Scalar::Perl5    pre     Type::AUTOLOAD (Object: List)\
 \\n   List      pre     Pugs::Internals::runInteractiveCommand    (?Str=$_)\
 \\n   List      pre     Pugs::Internals::openFile    (?Str,?Str=$_)\
 \\n   Bool      pre     bool::true ()\

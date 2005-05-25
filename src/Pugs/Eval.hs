@@ -46,6 +46,7 @@ import Pugs.Pretty
 import Pugs.Types
 import Pugs.Prim.List (op2Fold)
 import Pugs.External
+import Pugs.Embed.Perl5
 
 {-|
 Construct a new, initially empty 'Env' (evaluation environment).
@@ -835,16 +836,20 @@ findSub name' invs args = do
     case invs of
         [exp] | not (':' `elem` drop 2 name) -> do
             typ     <- evalExpType exp
+            if typ == mkType "Scalar::Perl5" then findPerl5Sub name else do
             subs    <- findWithPkg (showType typ) name
-            if isJust subs then return subs else do
-            subs    <- findWithPkg (showType typ) "&AUTOLOAD"
-            if isNothing subs then findSub' name else do
-            writeVar "$*AUTOLOAD" (VStr $ tail name)
-            return subs
+            if isJust subs then return subs else findSub' name
         _ -> do
             sub <- findSub' name
             if isNothing sub then possiblyBuildMetaopVCode name else return sub
     where
+    findPerl5Sub name = do
+        sv      <- fromVal =<< fromVal =<< evalExp (head invs)
+        found   <- liftIO $ canPerl5 sv (tail name)
+        if not found then findSub' name else do
+        subs    <- findWithPkg "Scalar::Perl5" "&AUTOLOAD"
+        writeVar "$*AUTOLOAD" (VStr $ tail name)
+        return subs
     possiblyBuildMetaopVCode op' | "&prefix:[" `isPrefixOf` op', "]" `isSuffixOf` op' = do 
         -- Strip the trailing "]" from op
         let op = drop 9 (init op')
@@ -981,6 +986,7 @@ evalExpType (App (Val val) _ _) = do
     sub <- fromVal val
     return $ subReturns sub
 evalExpType (App (Var "&new") [(Val (VType typ))] _) = return typ
+evalExpType (App (Var "&new") [(Var (':':name))] _) = return $ mkType name
 evalExpType (App (Var name) invs args) = do
     sub <- findSub name invs args
     case sub of

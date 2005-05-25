@@ -33,6 +33,9 @@ vintToSV = constFail
 callPerl5 :: String -> [PerlSV] -> IO PerlSV
 callPerl5 _ = constFail
 
+canPerl5 :: PerlSV -> String -> IO Bool
+canPerl5 _ = constFail
+
 #else
 
 {-# INCLUDE <perl5.h> #-}
@@ -67,6 +70,8 @@ foreign import ccall "perl5.h perl5_newSViv"
     perl5_newSViv :: CInt -> IO PerlSV
 foreign import ccall "perl5.h perl5_call"
     perl5_call :: CString -> CInt -> Ptr PerlSV -> IO PerlSV
+foreign import ccall "perl5.h perl5_can"
+    perl5_can :: PerlSV -> CString -> IO Bool
 foreign import ccall "perl5.h perl5_init"
     perl5_init :: CInt -> Ptr CString -> IO PerlInterpreter
 
@@ -90,6 +95,9 @@ callPerl5 str args = do
     withCString str $ \cstr -> do
         withArray args $ \argv -> do
             perl5_call cstr (toEnum $ length args) argv
+
+canPerl5 :: PerlSV -> String -> IO Bool
+canPerl5 sv meth = withCString meth $ \cstr -> perl5_can sv cstr
 
 evalPerl5 :: String -> IO PerlSV
 evalPerl5 str = do
