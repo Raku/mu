@@ -838,8 +838,9 @@ findSub name' invs args = do
             subs    <- findWithPkg (showType typ) name
             if isJust subs then return subs else do
             subs    <- findWithPkg (showType typ) "&AUTOLOAD"
-            if isJust subs then return subs else do
-            findSub' name
+            if isNothing subs then findSub' name else do
+            writeVar "$*AUTOLOAD" (VStr $ tail name)
+            return subs
         _ -> do
             sub <- findSub' name
             if isNothing sub then possiblyBuildMetaopVCode name else return sub

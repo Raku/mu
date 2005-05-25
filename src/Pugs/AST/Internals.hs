@@ -424,6 +424,10 @@ instance Value VStr where
     vCast (VObject o)   = "<obj:" ++ showType (objType o) ++ ">"
     vCast x             = castFail x
 
+instance Value PerlSV where
+    fromVal (PerlSV sv) = return sv
+    fromVal v = castFailM v -- XXX vivify
+
 showNum :: Show a => a -> String
 showNum x
     | str == "Infinity"

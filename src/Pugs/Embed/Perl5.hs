@@ -13,13 +13,16 @@ initPerl5 :: String -> IO PerlInterpreter
 initPerl5 _ = return ()
 
 evalPerl5 :: String -> IO PerlSV
-evalPerl5 _ = return ()
+evalPerl5 _ = fail "perl5 not embedded"
 
 freePerl5 :: PerlInterpreter -> IO ()
 freePerl5 _ = return ()
 
-svToVStr :: PerlSV -> IO a
-svToVStr _ = fail "not implemented"
+svToVStr :: PerlSV -> IO String
+svToVStr _ = fail "perl5 not embedded"
+
+callPerl5 :: String -> [PerlSV] -> IO PerlSV
+callPerl5 _ _ = fail "perl5 not embedded"
 
 #else
 
@@ -49,6 +52,8 @@ foreign import ccall "perl.h boot_DynaLoader"
     boot_DynaLoader :: Ptr () -> IO ()
 foreign import ccall "perl5.h perl5_SvPV"
     perl5_SvPV :: PerlSV -> IO CString
+foreign import ccall "perl5.h perl5_call"
+    perl5_call :: CString -> CInt -> Ptr PerlSV -> IO PerlSV
 foreign import ccall "perl5.h perl5_init"
     perl5_init :: CInt -> Ptr CString -> IO PerlInterpreter
 
@@ -60,6 +65,12 @@ initPerl5 str = do
 
 svToVStr :: PerlSV -> IO String
 svToVStr sv = peekCString =<< perl5_SvPV sv
+
+callPerl5 :: String -> [PerlSV] -> IO PerlSV
+callPerl5 str args = do
+    withCString str $ \cstr -> do
+        withArray args $ \argv -> do
+            perl5_call cstr (toEnum $ length args) argv
 
 evalPerl5 :: String -> IO PerlSV
 evalPerl5 str = do
