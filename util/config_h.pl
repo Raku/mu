@@ -46,7 +46,7 @@ while (<IN>) {
     last;
 }
 
-if ($ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /perl5/i) {
+if ($ghc =~ /-DPUGS_EMBED_PERL5/ or ($ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /perl5/i)) {
     print OUT "#define PUGS_EMBED_PERL5 1\n";
 }
 else {
