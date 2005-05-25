@@ -41,7 +41,7 @@ foreign import ccall "perl.h perl_destruct"
     perl_destruct :: PerlInterpreter -> IO CInt
 foreign import ccall "perl.h perl_free"
     perl_free :: PerlInterpreter -> IO ()
-foreign import ccall "perl.h eval_pv"
+foreign import ccall "perl.h Perl_eval_pv"
     eval_pv :: CString -> Word32 -> IO ()
 
 initPerl5 :: String -> IO PerlInterpreter
