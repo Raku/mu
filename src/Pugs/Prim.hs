@@ -854,7 +854,7 @@ op3 "new" = \t n _ -> do
         fetch   <- doHash meta hash_fetchVal
         str     <- fromVal =<< fetch "name"
         return $ mkType str
-    liftIO $ print (t, metaTyp, typ)
+    -- liftIO $ print (t, metaTyp, typ)
     named   <- fromVal n
     attrs   <- liftSTM $ newTVar Map.empty
     writeIVar (IHash attrs) named
