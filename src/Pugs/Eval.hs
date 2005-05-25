@@ -845,8 +845,18 @@ findSub name' invs args = do
     where
     findPerl5Sub name = do
         sv      <- fromVal =<< fromVal =<< evalExp (head invs)
+        -- liftIO $ print ("Starting to handle", name, sv)
         found   <- liftIO $ canPerl5 sv (tail name)
-        if not found then findSub' name else do
+        -- liftIO $ print ("Stage 1", found)
+        if found then runPerl5Sub name else do
+        sub     <- findSub' name
+        -- liftIO $ print ("Stage 2", sub)
+        if isJust sub then return sub else do
+        found   <- liftIO $ canPerl5 sv "AUTOLOAD"
+        -- liftIO $ print ("Stage 3", found)
+        if found then runPerl5Sub name else do
+        possiblyBuildMetaopVCode name
+    runPerl5Sub name = do
         subs    <- findWithPkg "Scalar::Perl5" "&AUTOLOAD"
         writeVar "$*AUTOLOAD" (VStr $ tail name)
         return subs
