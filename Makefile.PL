@@ -175,6 +175,17 @@ sub set_postamble {
     my $threaded = (!$is_win32 and try_compile("main :: IO ()\nmain = return ()", "-threaded"))
         ? '-threaded' : '';
 
+    if ($ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bperl5\b/ and !$Config{usethreads}) {
+    warn << '.';
+
+*** Thread support disabled because you are building perl5 and your perl5
+    is not threaded.
+
+.
+
+	$threaded = '';
+    }
+
     # XXX - hsplugins doesn't build with profiles
     my $profiled_flags = $ghc_flags;
     $profiled_flags =~ s{-DPUGS_HAVE_HSPLUGINS=1}{};
