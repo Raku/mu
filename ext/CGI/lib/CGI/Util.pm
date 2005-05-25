@@ -18,7 +18,7 @@ sub make_attribute(%attrs, Bool ?$escape = 0) is export {
     return @return;
 }
 
-sub simple_escape (Str $string) returns Str {
+sub simple_escape (Str $string is copy) returns Str {
     $string ~~ s:P5:g/&/&amp;/;
     $string ~~ s:P5:g/</&lt;/;
     $string ~~ s:P5:g/>/&gt;/;
