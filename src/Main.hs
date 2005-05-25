@@ -264,7 +264,7 @@ doRun = do
     runProgramWith (\e -> e{ envDebug = Nothing }) end
     where
     end err@(VError _ _)  = do
-        hPutStrLn stderr (pretty err)
+        hPutStrLn stderr $ encodeUTF8 $ pretty err
         exitFailure
     end (VControl (ControlExit exit)) = exitWith exit
     end _ = return ()
