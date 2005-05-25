@@ -458,7 +458,7 @@ op1 "=" = \v -> do
             else return $ VList []
     getLine :: VHandle -> Eval Val
     getLine fh = tryIO undef $
-        fmap (VStr . (++ "\n")) (hGetLine fh)
+        fmap (VStr . (++ "\n") . decodeUTF8) (hGetLine fh)
     handleOf VUndef = handleOf (VList [])
     handleOf (VList []) = do
         argsGV  <- readVar "$*ARGS"
