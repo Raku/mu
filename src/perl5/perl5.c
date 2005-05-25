@@ -166,3 +166,33 @@ perl5_call(char *subname, int argc, SV** args)
 
     return rv;
 }
+
+bool
+perl5_can(SV *inv, char *subname)
+{
+    int rv;
+
+    dSP;
+
+    ENTER;
+    SAVETMPS;
+
+    PUSHMARK(SP);
+    XPUSHs(inv);
+    XPUSHs(newSVpv(subname, 0));
+    PUTBACK;
+
+    call_pv("UNIVERSAL::can", G_SCALAR);
+
+    SPAGAIN;
+
+    rv = POPi;
+    /* printf("Checking: %s->can(%s), ret %d\n", SvPV_nolen(inv), subname, rv); */
+
+    PUTBACK;
+    FREETMPS;
+    LEAVE;
+
+    return rv;
+}
+
