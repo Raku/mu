@@ -129,21 +129,28 @@ SV *
 perl5_call(char *subname, int argc, SV** args)
 {
     int i;
+    SV *rv;
+
     dSP;
 
     ENTER;
     SAVETMPS;
 
     PUSHMARK(SP);
-    for (i = 0; i <= argc; i++) {
+    for (i = 0; i < argc; i++) {
         XPUSHs(args[i]);
     }
     PUTBACK;
 
     call_method(subname, G_SCALAR);
 
+    SPAGAIN;
+
+    rv = newSVsv(POPs);
+
+    PUTBACK;
     FREETMPS;
     LEAVE;
 
-    return(POPs);
+    return rv;
 }
