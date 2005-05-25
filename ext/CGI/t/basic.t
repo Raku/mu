@@ -13,8 +13,18 @@ Very basic tests for CGI
 
 use_ok('CGI');
 
-is(header(), "Status: 200 OK\nContent-type: text/html\n\n", 'got the header correctly');
-is(redirect("http://www.yahoo.com"), "Status: 302 Moved\nLocation: http://www.yahoo.com\n\n", 'got the header correctly');
+is(header(),
+    "Status: 200 OK
+Content-Type: text/html
+
+", 'got the header correctly');
+
+is(redirect("http://www.yahoo.com"),
+    "Status: 302 Found
+Content-Type: 
+Location: http://www.yahoo.com
+
+", 'got the header correctly');
 
 is(url_encode('this is a string to encode'), 'this%20is%20a%20string%20to%20encode', 'got the right encoded string');
 is(url_decode('this+is+a+string+to+decode'), 'this is a string to decode', 'got the right decoded string');
