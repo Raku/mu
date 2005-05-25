@@ -469,9 +469,11 @@ ruleUsePackage :: RuleParser ()
 ruleUsePackage = rule "use package" $ do
     names   <- identifier `sepBy1` (try $ string "::")
     _       <- option "" $ ruleVersionPart
-    _       <- option "" $ ruleAuthorPart
+    author  <- option "" $ ruleAuthorPart
     val <- unsafeEvalExp $
-        App (Var "&use") [Val . VStr $ concat (intersperse "/" names) ++ ".pm"] []
+        if (map toLower author) == "-perl5"
+            then Stmts (App (Var "&require_perl5") [Val . VStr $ concat (intersperse "::" names)] []) (Syn "env" [])
+            else App (Var "&use") [Val . VStr $ concat (intersperse "/" names) ++ ".pm"] []
     case val of
         Val (VControl (ControlEnv env')) -> setState env'
         _  -> error $ pretty val

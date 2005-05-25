@@ -226,7 +226,9 @@ op1 "require_parrot" = \v -> do
     return $ VBool True
 op1 "require_perl5" = \v -> do
     name    <- fromVal v
-    op1 "eval_perl5" (VStr $ "use " ++ name);
+    val     <- op1 "eval_perl5" (VStr $ "require " ++ name ++ "; '" ++ name ++ "'");
+    evalExp $ Sym SGlobal (':':'*':name) (Syn "=" [Var (':':'*':name), Val val])
+    return val
 op1 "eval_parrot" = \v -> do
     code    <- fromVal v
     liftIO . evalParrot $ case code of
