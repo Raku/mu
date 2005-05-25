@@ -1180,9 +1180,7 @@ ruleFoldOp = verbatimRule "reduce metaoperator" $ do
     [_, _, _, _, _, infixOps] <- currentTightFunctions
     name <- tryChoice $ ops string (addHyperInfix $ infixOps ++ defaultInfixOps)
     char ']'
-    -- XXX: I don't know why the "«" doesn't work. [+]<< parses fine, but [+]«
-    -- does not.
-    possiblyHyper <- many $ string "«" <|> string "<<"
+    possiblyHyper <- many $ (char '\171' >> return "<<") <|> (string "<<")
     return $ "&prefix:[" ++ name ++ "]" ++ concat possiblyHyper
     where
     defaultInfixOps = concat
