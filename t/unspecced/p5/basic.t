@@ -21,7 +21,7 @@ unless eval 'eval_perl5("1")' {
 }
 
 {
-    my $r = eval_perl5("perl6 now");
+    my $r = eval_perl5('"perl6 now"');
     is($r, 'perl6 now', "string");
 }
 
