@@ -18,6 +18,9 @@ evalPerl5 _ = return ()
 freePerl5 :: PerlInterpreter -> IO ()
 freePerl5 _ = return ()
 
+svToVStr :: PerlSV -> IO a
+svToVStr _ = fail "not implemented"
+
 #else
 
 {-# INCLUDE <perl5.h> #-}
@@ -44,6 +47,8 @@ foreign import ccall "perl.h Perl_eval_pv"
     eval_pv :: CString -> Word32 -> IO PerlSV
 foreign import ccall "perl.h boot_DynaLoader"
     boot_DynaLoader :: Ptr () -> IO ()
+foreign import ccall "perl5.h perl5_SvPV"
+    perl5_SvPV :: PerlSV -> IO CString
 foreign import ccall "perl5.h perl5_init"
     perl5_init :: CInt -> Ptr CString -> IO PerlInterpreter
 
@@ -52,6 +57,9 @@ initPerl5 str = do
     withCString "-e" $ \prog -> withCString str $ \cstr -> do
         withArray [prog, prog, cstr] $ \argv -> do
             perl5_init 3 argv
+
+svToVStr :: PerlSV -> IO String
+svToVStr sv = peekCString =<< perl5_SvPV sv
 
 evalPerl5 :: String -> IO PerlSV
 evalPerl5 str = do

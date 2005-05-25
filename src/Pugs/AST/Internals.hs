@@ -387,6 +387,7 @@ instance Value VComplex where
 instance Value VStr where
     castV = VStr
     fromVal (VList l)   = return . unwords =<< mapM fromVal l
+    fromVal (PerlSV sv) = liftIO $ svToVStr sv
     fromVal v = do
         vt  <- evalValType v
         if vt /= mkType "Hash" then fromVal' v else do

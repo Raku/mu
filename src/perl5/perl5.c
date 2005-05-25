@@ -1,4 +1,5 @@
 #include <perl5.h>
+#include <XSUB.h>
 #include "perlxsi.c"
 
 /* Workaround for mapstart: the only op which needs a different ppaddr */
@@ -114,4 +115,12 @@ perl5_init ( int argc, char **argv )
 
     return exitstatus;
     */
+}
+
+char *
+perl5_SvPV ( SV *sv )
+{
+    char *rv;
+    rv = SvPV_nolen(sv);
+    return rv;
 }
