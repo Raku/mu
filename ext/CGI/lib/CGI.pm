@@ -78,7 +78,7 @@ sub header (
         # XXX use $key is rw;
         my $temp_key = ucfirst(lc($key));
         
-        $temp_key ~~ s:P5:g/[-_](\w)/{ "-" ~ uc($1) }/;
+        $temp_key ~~ s:P5:g/[-_](\w)/-$0.uc()/;
         
         given $key {
             when "Target" { $header ~= "\nWindow-Target: " ~ $value; }
@@ -239,7 +239,7 @@ sub load_params {
     }    
 }
 
-sub escapeHTML (Str $string, Bool +$newlines) {
+sub escapeHTML (Str $string, Bool +$newlines) returns Str is export {
     # XXX check for $self.escape == 0
     #unless ($self.escape != 0) { return $toencode; }
     
@@ -278,7 +278,7 @@ sub escapeHTML (Str $string, Bool +$newlines) {
     return $string;
 }
 
-sub unescapeHTML (Str $string) {
+sub unescapeHTML (Str $string) returns Str is export {
     # XXX check $self.charset
     #my $latin = ?(uc $self.charset eq "ISO-8859-1"|"WINDOWS-1252");
     my $latin = 1;
