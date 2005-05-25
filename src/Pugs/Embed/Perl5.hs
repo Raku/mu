@@ -43,7 +43,7 @@ foreign import ccall "perl.h perl_free"
     perl_free :: PerlInterpreter -> IO ()
 foreign import ccall "perl.h Perl_eval_pv"
     eval_pv :: CString -> Word32 -> IO ()
-foreign import ccall "perl.h newXS"
+foreign import ccall "perl.h Perl_newXS"
     newXS :: CString -> FunPtr () -> CString -> IO ()
 foreign import ccall "perl.h boot_DynaLoader"
     boot_DynaLoader :: Ptr () -> IO ()
