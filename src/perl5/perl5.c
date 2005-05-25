@@ -124,3 +124,26 @@ perl5_SvPV ( SV *sv )
     rv = SvPV_nolen(sv);
     return rv;
 }
+
+char *
+perl5_call(char *subname, int argc, SV** args)
+{
+    int i;
+    dSP;
+
+    ENTER;
+    SAVETMPS;
+
+    PUSHMARK(SP);
+    for (i = 0; i <= argc; i++) {
+        XPUSHs(args[i]);
+    }
+    PUTBACK;
+
+    call_method(subname, G_SCALAR);
+
+    FREETMPS;
+    LEAVE;
+
+    return(POPs);
+}
