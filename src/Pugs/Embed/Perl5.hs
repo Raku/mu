@@ -42,6 +42,8 @@ foreign import ccall "perl.h perl_free"
     perl_free :: PerlInterpreter -> IO ()
 foreign import ccall "perl.h Perl_eval_pv"
     eval_pv :: CString -> Word32 -> IO PerlSV
+foreign import ccall "perl.h boot_DynaLoader"
+    boot_DynaLoader :: Ptr () -> IO ()
 foreign import ccall "perl5.h perl5_init"
     perl5_init :: CInt -> Ptr CString -> IO PerlInterpreter
 
