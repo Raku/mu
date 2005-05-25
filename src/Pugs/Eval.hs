@@ -836,7 +836,10 @@ findSub name' invs args = do
         [exp] | not (':' `elem` drop 2 name) -> do
             typ     <- evalExpType exp
             subs    <- findWithPkg (showType typ) name
-            if isJust subs then return subs else findSub' name
+            if isJust subs then return subs else do
+            subs    <- findWithPkg (showType typ) "&AUTOLOAD"
+            if isJust subs then return subs else do
+            findSub' name
         _ -> do
             sub <- findSub' name
             if isNothing sub then possiblyBuildMetaopVCode name else return sub

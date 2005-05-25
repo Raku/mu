@@ -91,6 +91,7 @@ prepareEnv name args = do
     argsGV  <- newScalar undef
     errSV   <- newScalar (VStr "")
     defSV   <- newScalar undef
+    autoSV  <- newScalar undef
 #if defined(PUGS_HAVE_HSPLUGINS)
     hspluginsSV <- newScalar (VInt 1)
 #else
@@ -133,6 +134,7 @@ prepareEnv name args = do
             }
         , genSym "%?CONFIG" $ hashRef confHV
         , genSym "$*_" $ MkRef defSV
+        , genSym "$*AUTOLOAD" $ MkRef autoSV
         ]
 
 {-|

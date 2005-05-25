@@ -565,7 +565,7 @@ valType (VMatch   _)    = mkType "Match"
 valType (VType    _)    = mkType "Type"
 valType (VObject  o)    = objType o
 valType (VOpaque  _)    = mkType "Object"
-valType (PerlSV   _)    = mkType "Object"
+valType (PerlSV   _)    = mkType "Scalar::Perl5"
 
 type VBlock = Exp
 data VControl
