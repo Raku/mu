@@ -7,6 +7,7 @@
 module Pugs.Embed.Perl5 where
 
 type PerlInterpreter = ()
+type PerlSV = ()
 
 initPerl5 :: String -> IO PerlInterpreter
 initPerl5 _ = return ()
@@ -27,13 +28,12 @@ import Foreign.C.Types
 import Foreign.C.String
 
 type PerlInterpreter = Ptr ()
+type PerlSV = Ptr ()
 
 foreign import ccall "perl.h perl_alloc"
     perl_alloc :: IO PerlInterpreter
 foreign import ccall "perl.h perl_construct"
     perl_construct :: PerlInterpreter -> IO ()
-foreign import ccall "perl.h perl_parse"
-    perl_parse :: PerlInterpreter -> FunPtr (Ptr () -> IO ()) -> CInt -> Ptr CString -> Ptr CString -> IO CInt
 foreign import ccall "perl.h perl_run"
     perl_run :: PerlInterpreter -> IO CInt
 foreign import ccall "perl.h perl_destruct"
@@ -41,13 +41,7 @@ foreign import ccall "perl.h perl_destruct"
 foreign import ccall "perl.h perl_free"
     perl_free :: PerlInterpreter -> IO ()
 foreign import ccall "perl.h Perl_eval_pv"
-    eval_pv :: CString -> Word32 -> IO ()
-foreign import ccall "perl.h Perl_newXS"
-    newXS :: CString -> FunPtr () -> CString -> IO ()
-foreign import ccall "perl.h boot_DynaLoader"
-    boot_DynaLoader :: Ptr () -> IO ()
-foreign import ccall "wrapper"  
-    mkBootCallback :: (Ptr () -> IO ()) -> IO (FunPtr (Ptr () -> IO ()))
+    eval_pv :: CString -> Word32 -> IO PerlSV
 foreign import ccall "perl5.h perl5_init"
     perl5_init :: CInt -> Ptr CString -> IO PerlInterpreter
 
