@@ -227,7 +227,7 @@ op1 "require_parrot" = \v -> do
 op1 "require_perl5" = \v -> do
     name    <- fromVal v
     val     <- op1 "eval_perl5" (VStr $ "require " ++ name ++ "; '" ++ name ++ "'");
-    evalExp $ Sym SGlobal ('$':'*':name) (Syn "=" [Var ('$':name), Val val])
+    evalExp $ Sym SGlobal ('$':'*':name) (Syn ":=" [Var ('$':'*':name), Val val])
     return val
 op1 "eval_parrot" = \v -> do
     code    <- fromVal v
@@ -806,6 +806,10 @@ op2 "sort" = \x y -> do
     op1 "sort" . VList $ xs ++ ys
 op2 "say" = \x (VList ys) -> op1Print hPutStrLn (VList (x:ys))
 op2 "print" = \x (VList ys) -> op1Print hPutStr (VList (x:ys))
+op2 "Type::AUTOLOAD" = \typ args -> do
+    str  <- fromVal typ
+    inv  <- readVar (':':'*':str)
+    op2 "Scalar::Perl5::AUTOLOAD" inv args
 op2 "Scalar::Perl5::AUTOLOAD" = \inv args -> do
     meth <- readVar "$*AUTOLOAD"
     str  <- fromVal meth
@@ -1397,7 +1401,8 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Str       pre     name    (Code)\
 \\n   Int       pre     arity   (Code)\
 \\n   Bool      pre     Thread::yield   (Thread)\
-\\n   Object    pre     Scalar::Perl5::AUTOLOAD (Object: List)\
+\\n   Scalar::Perl5    pre     Scalar::Perl5::AUTOLOAD (Object: List)\
+\\n   Scalar::Perl5    pre     Type::AUTOLOAD (Object: List)\
 \\n   List      pre     Pugs::Internals::runInteractiveCommand    (?Str=$_)\
 \\n   List      pre     Pugs::Internals::openFile    (?Str,?Str=$_)\
 \\n   Bool      pre     bool::true ()\
