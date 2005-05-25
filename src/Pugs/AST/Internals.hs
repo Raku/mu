@@ -76,6 +76,7 @@ import Pugs.Parser.Number
 import Pugs.AST.Pos
 import Pugs.AST.Scope
 import Pugs.AST.SIO
+import Pugs.Embed.Perl5
 
 #include "../Types/Array.hs"
 #include "../Types/Handle.hs"
@@ -530,6 +531,7 @@ data Val
     | VType     !VType
     | VObject   !VObject
     | VOpaque   !VOpaque
+    | PerlSV    !PerlSV
     deriving (Show, Eq, Ord, Typeable)
 
 {-|
@@ -562,6 +564,7 @@ valType (VMatch   _)    = mkType "Match"
 valType (VType    _)    = mkType "Type"
 valType (VObject  o)    = objType o
 valType (VOpaque  _)    = mkType "Object"
+valType (PerlSV   _)    = mkType "Object"
 
 type VBlock = Exp
 data VControl

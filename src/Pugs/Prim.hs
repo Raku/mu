@@ -238,7 +238,11 @@ op1 "require" = opRequire False
 op1 "eval" = \v -> do
     str <- fromVal v
     opEval Nothing "<eval>" str
-op1 "eval_perl5" = boolIO evalPerl5
+op1 "eval_perl5" = \v -> do
+    str <- fromVal v
+    tryIO undef $ do
+        sv <- evalPerl5 str
+        return $ PerlSV sv
 op1 "eval_haskell" = op1EvalHaskell
 op1 "eval_yaml" = evalYaml
 op1 "try" = \v -> do

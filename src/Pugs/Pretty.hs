@@ -133,6 +133,7 @@ instance Pretty Val where
     format (VSubst _) = text $ "{subst}"
     format (VType t) = text $ "::" ++ showType t
     format (VObject o) = text $ "{obj:" ++ showType (objType o) ++ "}"
+    format (PerlSV _) = text $ "{obj-perl5}"
     format VUndef = text $ "undef"
 
 quoted :: Char -> String

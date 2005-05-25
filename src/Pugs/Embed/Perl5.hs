@@ -12,7 +12,7 @@ type PerlSV = ()
 initPerl5 :: String -> IO PerlInterpreter
 initPerl5 _ = return ()
 
-evalPerl5 :: String -> IO ()
+evalPerl5 :: String -> IO PerlSV
 evalPerl5 _ = return ()
 
 freePerl5 :: PerlInterpreter -> IO ()
@@ -53,11 +53,10 @@ initPerl5 str = do
         withArray [prog, prog, cstr] $ \argv -> do
             perl5_init 3 argv
 
-evalPerl5 :: String -> IO ()
+evalPerl5 :: String -> IO PerlSV
 evalPerl5 str = do
     withCString str $ \cstr -> do
         eval_pv cstr 1
-    return ()
 
 freePerl5 :: PerlInterpreter -> IO ()
 freePerl5 my_perl = do
