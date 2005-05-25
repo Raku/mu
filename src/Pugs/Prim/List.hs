@@ -231,9 +231,12 @@ op2Map list sub = do
     mapMn' (x:xs) f  = liftM2 (++) (f x) (mapMn' xs f)
     mapMn' []     _  = return []
 
--- | Takes an int and a list and returns a LoL.
---   Ex.:
---   > list2LoL 3 [1,2,3,4,5] = [[1,2,3],[4,5,undef]]
+{-|
+Takes an int and a list and returns a LoL.
+Ex.:
+
+> list2LoL 3 [1,2,3,4,5] = [[1,2,3],[4,5,undef]]
+-}
 list2LoL :: Int -> [Val] -> [[Val]]
 list2LoL n list
     | n == 0           = fail "Cannot map() using a nullary function."

@@ -58,7 +58,7 @@ ASTs.
 =head1 SOURCE TREE OVERVIEW
 
 This section does not discuss the files in detail. Pugs is documented with
-haddock, and for reference that is the place to look.
+Haddock, and for reference that is the place to look.
 
 What this section B<does> provide is an overview of the responsibilities each
 part has in overall structure of Pugs.
@@ -98,14 +98,14 @@ The various operators and builtin functions are implemented using the opN
 function, and the definition of their Perlish behavior is defined in the
 table at the bottom.
 
-The table basicallly says whether the builtin is infix or not, how many
+The table basically says whether the builtin is infix or not, how many
 parameters it accepts, and so forth.
 
 =head2 F<src/Pugs/Run.hs>
 
 This is the file that ties it all together, it takes a Perl 6 file, slurps
 the string out of it, hands it to the parser, then takes the AST out and
-sends it's envBody into the evaluator.
+sends its envBody into the evaluator.
 
 =head1 A PROGRAM'S LIFE CYCLE IN DETAIL
 
@@ -114,10 +114,10 @@ evaluator. Now we'll look at the details and special cases more closely.
 
 As we've seen before, the runtime calls the parser on the Perl code, and it,
 in turn, generates an AST. Most parsed things result in trivial structures --
-just a representation of the program in something a bit more manipulatable
+just a representation of the program in something a bit more manipulable
 than a string of source code.
 
-This basic structure, a node of the AST is called an C<Exp> - an expression.
+This basic structure, a node of the AST, is called an C<Exp> - an expression.
 It represents the combination of values and operation, and the evaluator
 knows to boil it down into a C<Val>.
 
@@ -129,7 +129,7 @@ time.
 =head2 Enter unsafe unsafeEvalExp
 
 The parser is pure in that it does not affect the outside world when it does
-it's thing. It constructs the AST, but not much more.
+its thing. It constructs the AST, but not much more.
 
 In order to execute things like C<BEGIN> blocks there are exceptions to
 this.
@@ -138,7 +138,7 @@ this.
 
 This operation has side effects - it causes the world outside the pugs
 interpreter to change. However, it must happen within the "pure" parser, and
-haskell does not normally allow these things.
+Haskell does not normally allow these things.
 
 The C<unsafe> in the name denotes that an effort was made to not care about
 that bit of safety, and do IO in the pure parser anyway.
@@ -205,8 +205,8 @@ F<src/Pugs/Eval.hs> contains nearly 30 different variants of reduce. Each one
 serves a different purpose, and most are pretty straightforward.
 
 For example C<reduce (Syn "env" [])> is the reduce that takes care of variable
-declaration using C<VControl>, while C<reduce (Cxt cxt exp)> forces the sub
-expression C<exp> to be evaluated in the context C<cxt>.
+declaration using C<VControl>, while C<reduce (Cxt cxt exp)> forces the 
+subexpression C<exp> to be evaluated in the context C<cxt>.
 
 Let's look at some of the more interesting C<reduce>s. My personal favourite is
 C<for>.
@@ -222,8 +222,8 @@ C<for>, annotated:
 This takes the two expressions to the C<for> syntax thingy, the list part, and
 the body. C<for (@list) { print "i'm the body" }>.
 
-The body is actually a subroutine, we'll look at that in a bit. After those
-lines are some details which we don't care about right now. Lets pretend they
+The body is actually a subroutine; we'll look at that in a bit. After those
+lines are some details which we don't care about right now. Let's pretend they
 don't exist and jump down to
 
     let arity = max 1 $ length (subParams sub)
@@ -255,7 +255,7 @@ contain functions which will control the flow of the current iteration of the
 loop.
 
 The line starting with C<apply> applies the subroutine currently in C<sub'>,
-and gives it C<these> as it's paramters on the line starting with C<map>.
+and gives it C<these> as its parameters on the line starting with C<map>.
 
 Lastly, after the subroutine is applied, C<runBody> is run again on C<rest>.
 
@@ -268,7 +268,7 @@ Outside of C<runBody>'s definition, the C<&last> variable is also defined. It
 controls the whole loop, not only a single step, so it doesn't need to be in
 C<&runBody>.
 
-When all the auxillery functions have been define, we can run the body with
+When all the auxiliary functions have been defined, we can run the body with
 the list passed into the for (munging into C<elms> omitted):
 
     runBody elms $ munge sub
@@ -280,7 +280,7 @@ masquerading as a simple block) is used, lets see how C<VCode>, the value
 representing closures (subroutines, blocks, coroutines, etc) is called.
 
 
-Subroutine application be very simple, in the case of a C<Prim>. At other
+Subroutine application can be very simple, in the case of a C<Prim>. At other
 times it involves entering a lexical scope, due to block open. Sometimes
 parameter binding is involved too.
 
