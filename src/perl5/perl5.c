@@ -126,6 +126,18 @@ perl5_SvPV ( SV *sv )
 }
 
 SV *
+perl5_newSVpv ( char * pv )
+{
+    return(newSVpv(pv, 0));
+}
+
+SV *
+perl5_newSViv ( int iv )
+{
+    return(newSViv(iv));
+}
+
+SV *
 perl5_call(char *subname, int argc, SV** args)
 {
     int i;

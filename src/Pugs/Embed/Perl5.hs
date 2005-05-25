@@ -9,20 +9,29 @@ module Pugs.Embed.Perl5 where
 type PerlInterpreter = ()
 type PerlSV = ()
 
+constFail :: a -> IO b
+constFail = const $ fail "perl5 not embedded"
+
 initPerl5 :: String -> IO PerlInterpreter
 initPerl5 _ = return ()
-
-evalPerl5 :: String -> IO PerlSV
-evalPerl5 _ = fail "perl5 not embedded"
 
 freePerl5 :: PerlInterpreter -> IO ()
 freePerl5 _ = return ()
 
+evalPerl5 :: String -> IO PerlSV
+evalPerl5 = constFail
+
 svToVStr :: PerlSV -> IO String
-svToVStr _ = fail "perl5 not embedded"
+svToVStr = constFail
+
+vstrToSV :: String -> IO PerlSV
+vstrToSV = constFail
+
+vintToSV :: Integer -> IO PerlSV
+vintToSV = constFail
 
 callPerl5 :: String -> [PerlSV] -> IO PerlSV
-callPerl5 _ _ = fail "perl5 not embedded"
+callPerl5 _ = constFail
 
 #else
 
@@ -52,6 +61,10 @@ foreign import ccall "perl.h boot_DynaLoader"
     boot_DynaLoader :: Ptr () -> IO ()
 foreign import ccall "perl5.h perl5_SvPV"
     perl5_SvPV :: PerlSV -> IO CString
+foreign import ccall "perl5.h perl5_newSVpv"
+    perl5_newSVpv :: CString -> IO PerlSV
+foreign import ccall "perl5.h perl5_newSViv"
+    perl5_newSViv :: CInt -> IO PerlSV
 foreign import ccall "perl5.h perl5_call"
     perl5_call :: CString -> CInt -> Ptr PerlSV -> IO PerlSV
 foreign import ccall "perl5.h perl5_init"
@@ -65,6 +78,12 @@ initPerl5 str = do
 
 svToVStr :: PerlSV -> IO String
 svToVStr sv = peekCString =<< perl5_SvPV sv
+
+vstrToSV :: String -> IO PerlSV
+vstrToSV str = withCString str perl5_newSVpv 
+
+vintToSV :: Integer -> IO PerlSV
+vintToSV int = perl5_newSViv (fromIntegral int)
 
 callPerl5 :: String -> [PerlSV] -> IO PerlSV
 callPerl5 str args = do

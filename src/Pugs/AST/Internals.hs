@@ -426,6 +426,8 @@ instance Value VStr where
 
 instance Value PerlSV where
     fromVal (PerlSV sv) = return sv
+    fromVal (VStr str) = liftIO $ vstrToSV str
+    fromVal (VInt int) = liftIO $ vintToSV int
     fromVal v = castFailM v -- XXX vivify
 
 showNum :: Show a => a -> String

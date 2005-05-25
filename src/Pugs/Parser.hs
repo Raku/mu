@@ -485,7 +485,7 @@ ruleUsePackage = rule "use package" $ do
 ruleVersionPart :: RuleParser String
 ruleVersionPart = do -- version - XXX
     char '-'
-    str <- many1 (choice [ digit, char '.' ])
+    str <- many (choice [ digit, char '.' ])
     return ('-':str)
 
 -- | The author part of a full class specification.
