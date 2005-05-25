@@ -125,7 +125,7 @@ perl5_SvPV ( SV *sv )
     return rv;
 }
 
-char *
+SV *
 perl5_call(char *subname, int argc, SV** args)
 {
     int i;

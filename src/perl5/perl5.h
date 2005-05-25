@@ -4,4 +4,4 @@
 
 PerlInterpreter * perl5_init ( int argc, char **argv );
 char * perl5_SvPV ( SV * sv );
-char * perl5_call(char *subname, int argc, SV** args);
+SV * perl5_call(char *subname, int argc, SV** args);
