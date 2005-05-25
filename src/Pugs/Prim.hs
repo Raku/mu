@@ -224,6 +224,9 @@ op1 "require_parrot" = \v -> do
     name    <- fromVal v
     liftIO $ evalParrotFile name
     return $ VBool True
+op1 "require_perl5" = \v -> do
+    name    <- fromVal v
+    op1 "eval_perl5" (VStr $ "use " ++ name);
 op1 "eval_parrot" = \v -> do
     code    <- fromVal v
     liftIO . evalParrot $ case code of
@@ -1223,6 +1226,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Any       pre     use     (?Str=$_)\
 \\n   Any       pre     require_haskell (Str)\
 \\n   Any       pre     require_parrot  (Str)\
+\\n   Any       pre     require_perl5   (Str)\
 \\n   Any       pre     last    (?Int=1)\
 \\n   Any       pre     next    (?Int=1)\
 \\n   Any       pre     redo    (?Int=1)\
