@@ -53,41 +53,87 @@ sub set_url_encoding(Str $encoding) is export {
 # utility functions
 
 sub header (
-    +$status = '200 OK', 
-    +$content_type = 'text/html', 
-    +$charset,
-    +$cookies,
-    +$location
+    Str ?$content_type = 'text/html',
+    Str ?$status = '200 OK',
+    Str ?$charset,
+    Str +$cookies,
+    Str +$target,
+    +$expires,
+    Bool +$nph,
+    *%extra
 ) returns Str is export {
     # construct our header
     my $header;
-    $header ~= "Status: " ~ $status ~ "\n";
+    $header ~= "Status: " ~ $status;
     # TODO:
     # Need to add support for -
+    #    NPH
     #    Expires:
     #    Pragma: (caching)
+    
+    $header ~= "\nContent-Type: " ~ $content_type;
+    $header ~= "; charset=$charset" if $charset.defined;
+    
+    for %extra.kv -> $key, $value {
+        # XXX use $key is rw;
+        my $temp_key = ucfirst(lc($key));
+        
+        $temp_key ~~ s:P5:g/[-_](\w)/{ "-" ~ uc($1) }/;
+        
+        given $key {
+            when "Target" { $header ~= "\nWindow-Target: " ~ $value; }
+            default { $header ~= "\n" ~ $temp_key ~ ": " ~ $value; }
+        }
+    }
+    
     if ($cookies) {
         my @cookies = ($cookies !~ Array) ?? ($cookies) :: @{$cookies};
         
         for @cookies -> $cookie {
             #$cookie = ($cookie ~~ CGI::Cookie) ?? $cookie.as_string :: $cookie;
             
-            $header ~= "Set-Cookie: " ~ $cookie ~ "\n"
+            $header ~= "\nSet-Cookie: " ~ $cookie
                 unless $cookie eq "";
         }
     }
-    if ($location.defined) {
-        $header ~= "Location: " ~ $location;
-    }
-    else {
-        $header ~= "Content-type: " ~ $content_type;
-        $header ~= "; charset=$charset" if $charset.defined;        
-    }
+    
     return "$header\n\n";
 }
 
-sub redirect (Str $location) returns Str is export { 
-    header(status => '302 Moved', location => $location) 
+sub redirect (
+    Str $location,
+    Str ?$target,
+    Str ?$status = "302 Found",
+    Str +$cookie,
+    Bool +$nph,
+    *%extra
+) returns Str is export {
+    my %out;
+    
+    # XXX provide default for $location
+    #$location //= $self.location;
+    
+    # XXX just clone %extra
+    #%out = %extra.clone();
+    
+    %out<Location> = $location;
+    
+    for %extra.kv -> $header, $value {
+        %out{$header} = $value;
+    }
+    
+    if ($target.defined) { %out<Target> = $target; }
+    
+    for %out.keys -> $key {
+        %out{$key} = unescapeHTML(%out{$key})
+            unless $key eq "Cookie";
+    }
+    
+    if ($cookie.defined) {
+        return header('', $status, cookies => $cookie, nph => $nph, extra => %out);
+    } else {
+        return header('', $status, nph => $nph, extra => %out);
+    }
 }
 
 sub url_decode (Str $to_decode) returns Str is export {
@@ -193,7 +239,7 @@ sub load_params {
     }    
 }
 
-sub escapeHTML (Str $string, Bool +$newlines) is export returns Str {
+sub escapeHTML (Str $string, Bool +$newlines) {
     # XXX check for $self.escape == 0
     #unless ($self.escape != 0) { return $toencode; }
     
@@ -232,12 +278,12 @@ sub escapeHTML (Str $string, Bool +$newlines) is export returns Str {
     return $string;
 }
 
-sub unescapeHTML (Str $string) is export returns Str {
+sub unescapeHTML (Str $string) {
     # XXX check $self.charset
     #my $latin = ?(uc $self.charset eq "ISO-8859-1"|"WINDOWS-1252");
     my $latin = 1;
     
-    $string ~~ s:g/&(<-[;]>*);/
+    $string ~~ s:P5:g/&([^;]*);/{
         given (lc $1) {
             when "amp"  { "&" }
             when "quot" { '"' }
@@ -249,7 +295,7 @@ sub unescapeHTML (Str $string) is export returns Str {
                 when /^#x(\d+)$/    { chr(hex($1)) }
             }
         }
-    /;
+    }/;
     
     return $string;
 }
@@ -364,7 +410,7 @@ Curtis "Ovid" Poe
  
 Andras Barthazi, E<lt>andras@barthazi.huE<gt>
 
-"Aankhen``"
+"Aankhen"
 
 =head1 COPYRIGHT
 
