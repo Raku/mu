@@ -153,5 +153,9 @@ newClass name traits = Sym SGlobal (':':'*':name) $ Syn ":="
             [ Val (VStr "traits")
             , Val (VList $ map VStr traits)
             ] []
+        , App (Var "&infix:=>")
+            [ Val (VStr "name")
+            , Val (VStr name)
+            ] []
         ]
     ]

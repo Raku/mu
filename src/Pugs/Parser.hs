@@ -1095,7 +1095,7 @@ ruleTypeLiteral = rule "type" $ do
     name    <- tryChoice [
         do { symbol n; notFollowedBy (alphaNum <|> char ':'); return n }
         | (MkType n) <- flatten (envClasses env) ]
-    return . Val . VType $ mkType name
+    return $ Var (':':name)
 
 rulePostTerm :: RuleParser (Exp -> Exp)
 rulePostTerm = tryVerbatimRule "term postfix" $ do
