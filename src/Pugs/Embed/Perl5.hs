@@ -34,7 +34,7 @@ foreign import ccall "perl.h perl_alloc"
 foreign import ccall "perl.h perl_construct"
     perl_construct :: PerlInterpreter -> IO ()
 foreign import ccall "perl.h perl_parse"
-    perl_parse :: PerlInterpreter -> FunPtr () -> CInt -> Ptr CString -> Ptr CString -> IO CInt
+    perl_parse :: PerlInterpreter -> FunPtr (Ptr () -> IO ()) -> CInt -> Ptr CString -> Ptr CString -> IO CInt
 foreign import ccall "perl.h perl_run"
     perl_run :: PerlInterpreter -> IO CInt
 foreign import ccall "perl.h perl_destruct"
@@ -43,11 +43,18 @@ foreign import ccall "perl.h perl_free"
     perl_free :: PerlInterpreter -> IO ()
 foreign import ccall "perl.h Perl_eval_pv"
     eval_pv :: CString -> Word32 -> IO ()
+foreign import ccall "perl.h newXS"
+    newXS :: CString -> FunPtr () -> CString -> IO ()
+foreign import ccall "perl.h boot_DynaLoader"
+    boot_DynaLoader :: Ptr () -> IO ()
+foreign import ccall "wrapper"  
+    mkBootCallback :: (Ptr () -> IO ()) -> IO (FunPtr (Ptr () -> IO ()))
 
 initPerl5 :: String -> IO PerlInterpreter
 initPerl5 str = do
     my_perl <- perl_alloc
     perl_construct my_perl
+    -- callback <- mkBootCallback boot_DynaLoader
     withCString "-e" $ \prog -> withCString str $ \cstr -> do
         withArray [prog, prog, cstr] $ \argv -> do
             perl_parse my_perl nullFunPtr 3 argv nullPtr

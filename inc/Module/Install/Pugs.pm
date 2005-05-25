@@ -170,7 +170,7 @@ sub assert_ghc {
     $ghc_flags .= " -I../../src -i../../src "
       if $self->is_extension_build;
     $ghc_flags .= join(' ', grep { m{^/} or m{^-[DILl]} or m{^-Wl,-R} }
-		       split (' ', `$^X -MExtUtils::Embed -e ldopts`))
+		       split (' ', `$^X -MExtUtils::Embed -e ccopts,ldopts`))
       if $ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /perl5/i;
     chomp $ghc_flags;
     return ($ghc, $ghc_version, $ghc_flags);
