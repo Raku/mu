@@ -122,6 +122,11 @@ sub set_postamble {
 
     my $embed_flags = "";
     my $hsc2hs_flags = "";
+
+    if ($ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bperl5\b/i) {
+        push @prereqs, "src/perl5/perl5.o";
+        $ghc_output .= " src/perl5/perl5.o ";
+    }
     
     if ($ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bparrot\b/i and $Config{cc} eq 'cl') {
         warn "*** Parrot linking not supported with MSVC.  Parrot linking will be disabled.\n\n";
@@ -191,6 +196,9 @@ $version_h : .svn/entries util/version_h.pl
 	\$(NOOP)
 
 @{[join("\n", map {$emit->($_)} ($unicode_c, $pcre_c, @syck_c))]}
+
+src/perl5/perl5.o :
+	$ghc $threaded $ghc_flags -no-link -no-hs-main -O -o src/perl5/perl5.o src/perl5/perl5.c
 
 src/Pugs/Config.hs : util/PugsConfig.pm
 	\$(PERL) -Iutil -MPugsConfig -e "PugsConfig->write_config_module" > src/Pugs/Config.hs

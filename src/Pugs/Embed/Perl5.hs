@@ -19,8 +19,7 @@ freePerl5 _ = return ()
 
 #else
 
-{-# INCLUDE <EXTERN.h> #-}
-{-# INCLUDE <perl.h> #-}
+{-# INCLUDE <perl5.h> #-}
 
 module Pugs.Embed.Perl5 where
 import Foreign
@@ -49,17 +48,14 @@ foreign import ccall "perl.h boot_DynaLoader"
     boot_DynaLoader :: Ptr () -> IO ()
 foreign import ccall "wrapper"  
     mkBootCallback :: (Ptr () -> IO ()) -> IO (FunPtr (Ptr () -> IO ()))
+foreign import ccall "perl5.h perl5_init"
+    perl5_init :: CInt -> Ptr CString -> IO PerlInterpreter
 
 initPerl5 :: String -> IO PerlInterpreter
 initPerl5 str = do
-    my_perl <- perl_alloc
-    perl_construct my_perl
-    -- callback <- mkBootCallback boot_DynaLoader
     withCString "-e" $ \prog -> withCString str $ \cstr -> do
         withArray [prog, prog, cstr] $ \argv -> do
-            perl_parse my_perl nullFunPtr 3 argv nullPtr
-            perl_run my_perl
-    return my_perl
+            perl5_init 3 argv
 
 evalPerl5 :: String -> IO ()
 evalPerl5 str = do

@@ -169,9 +169,11 @@ sub assert_ghc {
     $ghc_flags .= " -fno-warn-name-shadowing ";
     $ghc_flags .= " -I../../src -i../../src "
       if $self->is_extension_build;
-    $ghc_flags .= join(' ', grep { m{^/} or m{^-[DILl]} or m{^-Wl,-R} }
-		       split (' ', `$^X -MExtUtils::Embed -e ccopts,ldopts`))
-      if $ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /perl5/i;
+    if ($ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /perl5/i) {
+        $ghc_flags .= " -isrc/perl5 -Isrc/perl5 ";
+        $ghc_flags .= join(' ', grep { m{^/} or m{^-[DILl]} or m{^-Wl,-R} }
+                        split (' ', `$^X -MExtUtils::Embed -e ccopts,ldopts`));
+    }
     chomp $ghc_flags;
     return ($ghc, $ghc_version, $ghc_flags);
 }
