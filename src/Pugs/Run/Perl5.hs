@@ -6,10 +6,18 @@ module Pugs.Run.Perl5 () where
 
 import Pugs.Internals
 import Pugs.AST
+import Pugs.Prim.Eval
 import Pugs.Embed.Perl5
 import Foreign
 import Foreign.C.Types
 import Foreign.C.String
+import Foreign.Marshal.Array
+
+foreign export ccall "pugs_Eval"
+    pugs_eval :: CString -> IO PugsVal
+
+foreign export ccall "pugs_Apply"
+    pugs_apply :: PugsVal -> PugsVal -> Ptr PugsVal -> IO PugsVal
 
 foreign export ccall "pugs_ValToSv"
     valToSv :: PugsVal -> IO PerlSV
@@ -26,11 +34,42 @@ foreign export ccall "pugs_NvToVal"
 foreign export ccall "pugs_PvToVal"
     pvToVal :: CString -> IO PugsVal
 
+askPerl5Env :: IO Env
+askPerl5Env = do
+    sv  <- withCString "pugs::env" perl5_get_sv 
+    val <- svToVal sv
+    case val of
+        VControl (ControlEnv env)   -> return env
+        _                           -> fail "cannot fetch $pugs::env"
+
+pugs_eval :: CString -> IO PugsVal
+pugs_eval cstr = do
+    str <- peekCString cstr
+    env <- askPerl5Env
+    val <- runEvalIO env $ opEval Nothing "<eval>" str
+    mkVal val
+
+pugs_apply :: PugsVal -> PugsVal -> Ptr PugsVal -> IO PugsVal
+pugs_apply subPtr invPtr argsPtr = do
+    env     <- askPerl5Env
+    sub     <- deVal subPtr
+    inv     <- deValMaybe invPtr
+    args    <- mapM deVal =<< peekArray0 nullPtr argsPtr
+    let subExp = case sub of
+            VStr name   -> Var name
+            _           -> Val sub
+    val <- runEvalIO env $ evalExp (App subExp (fmap Val inv) (map Val args))
+    mkVal val
+
 mkVal :: Val -> IO PugsVal
 mkVal val = fmap castStablePtrToPtr $ newStablePtr val
 
 deVal :: PugsVal -> IO Val
 deVal ptr = deRefStablePtr (castPtrToStablePtr ptr)
+
+deValMaybe :: PugsVal -> IO (Maybe Val)
+deValMaybe ptr | ptr == nullPtr = return Nothing
+deValMaybe ptr = fmap Just (deVal ptr)
 
 valToSv :: PugsVal -> IO PerlSV
 valToSv ptr = do

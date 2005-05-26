@@ -13,3 +13,4 @@ SV * perl5_newSVnv ( double iv );
 SV * perl5_call(char *subname, int argc, SV** args, int cxt);
 bool perl5_can(SV *inv, char *subname);
 SV * perl5_eval(char *code, SV *env, int cxt);
+SV * perl5_get_sv ( const char *name );

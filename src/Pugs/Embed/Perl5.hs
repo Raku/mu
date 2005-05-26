@@ -95,6 +95,8 @@ foreign import ccall "perl5.h perl5_newSViv"
     perl5_newSViv :: CInt -> IO PerlSV
 foreign import ccall "perl5.h perl5_newSVnv"
     perl5_newSVnv :: CDouble -> IO PerlSV
+foreign import ccall "perl5.h perl5_get_sv"
+    perl5_get_sv :: CString -> IO PerlSV
 foreign import ccall "perl5.h perl5_call"
     perl5_call :: CString -> CInt -> Ptr PerlSV -> CInt -> IO PerlSV
 foreign import ccall "perl5.h perl5_can"

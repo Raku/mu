@@ -195,6 +195,12 @@ perl5_call(char *subname, int argc, SV** args, int cxt)
 }
 
 SV *
+perl5_get_sv(const char *name)
+{
+    return (get_sv(name, 1));
+}
+
+SV *
 perl5_eval(char *code, SV *env, int cxt)
 {
     dSP;
