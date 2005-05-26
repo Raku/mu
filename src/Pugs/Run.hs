@@ -33,7 +33,7 @@ runWithArgs f = do
 
 runEvalMain :: Env -> Eval Val -> IO Val
 runEvalMain env eval = withSocketsDo $ do
-    my_perl <- initPerl5 ""
+    my_perl <- initPerl5 "" env
     val     <- runEvalIO env eval
     freePerl5 my_perl
     return val

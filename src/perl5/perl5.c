@@ -200,6 +200,11 @@ perl5_get_sv(const char *name)
     return (get_sv(name, 1));
 }
 
+void * perl5_set_sv (const char *name, SV *sv)
+{
+    sv_setsv(get_sv(name, 1), sv);
+}
+
 SV *
 perl5_eval(char *code, SV *env, int cxt)
 {
