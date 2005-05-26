@@ -176,7 +176,8 @@ evalVar name = do
     v <- findVar name
     case v of
         Just var -> readRef var
-        Nothing  -> retError "Undeclared variable" name
+        _ | (':':rest) <- name -> return $ VType (mkType rest)
+        _ -> retError "Undeclared variable" name
 
 enterLValue :: Eval a -> Eval a
 enterLValue = local (\e -> e{ envLValue = True })
@@ -297,8 +298,10 @@ reduce (Val v) = retVal v
 -- Reduction for variables
 reduce (Var name) = do
     v <- findVar name
-    if isNothing v then retError "Undeclared variable" name else do
-    evalRef (fromJust v)
+    case v of
+        Just var -> evalRef var
+        _ | (':':rest) <- name -> return $ VType (mkType rest)
+        _ -> retError "Undeclared variable" name
 
 reduce (Stmts this rest) | Noop <- unwrap rest = reduce this
 reduce (Stmts this rest) | Noop <- unwrap this = reduce rest

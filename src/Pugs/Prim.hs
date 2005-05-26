@@ -842,13 +842,7 @@ op3 "rindex" = \x y z -> do
 op3 "splice" = \x y z -> do
     op4 "splice" x y z (VList [])
 op3 "new" = \t n _ -> do
-    metaTyp <- evalValType t
-    typ <- if metaTyp == mkType "Type" then fromVal t else do
-        meta    <- readRef =<< fromVal t
-        fetch   <- doHash meta hash_fetchVal
-        str     <- fromVal =<< fetch "name"
-        return $ mkType str
-    -- liftIO $ print (t, metaTyp, typ)
+    typ     <- fromVal t
     named   <- fromVal n
     attrs   <- liftSTM $ newTVar Map.empty
     writeIVar (IHash attrs) named

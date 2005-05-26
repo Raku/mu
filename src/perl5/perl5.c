@@ -125,6 +125,21 @@ perl5_SvPV ( SV *sv )
     return rv;
 }
 
+bool
+perl5_SvTRUE ( SV * sv )
+{
+    bool *rv;
+    rv = SvTRUE(sv);
+    return rv;
+}
+
+void *
+perl5_SvPtr ( SV *sv )
+{
+    IV tmp = SvIV((SV*)SvRV(sv));
+    return((void *)tmp);
+}
+
 SV *
 perl5_newSVpv ( char * pv )
 {
@@ -135,6 +150,14 @@ SV *
 perl5_newSViv ( int iv )
 {
     return(newSViv(iv));
+}
+
+SV *
+perl5_newSVptr ( void * ptr )
+{
+    SV *sv = newSV(0);
+    sv_setref_pv(sv, "pugs", ptr);
+    return(sv);
 }
 
 SV *

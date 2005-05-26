@@ -186,6 +186,7 @@ fromVal' (VRef r) = do
 fromVal' (VList vs) | not $ null [ undefined | VRef _ <- vs ] = do
     vs <- forM vs $ \v -> case v of { VRef r -> readRef r; _ -> return v }
     fromVal $ VList vs
+fromVal' (PerlSV sv) = liftIO $ svToAny sv
 fromVal' v = return $ vCast v
 {-do
     rv <- liftIO $ catchJust errorCalls (return . Right $ vCast v) $
@@ -233,6 +234,11 @@ instance Value (IVar VScalar) where
 
 instance Value VType where
     fromVal (VType t)   = return t
+    fromVal v@(VObject obj) | objType obj == (mkType "Class") = do
+        meta    <- readRef =<< fromVal v
+        fetch   <- doHash meta hash_fetchVal
+        str     <- fromVal =<< fetch "name"
+        return $ mkType str
     fromVal v           = return $ valType v
 
 instance Value VMatch where
@@ -309,6 +315,8 @@ instance Value VCode where
 
 instance Value VBool where
     castV = VBool
+    fromVal (PerlSV sv) = liftIO $ svToVBool sv
+    fromVal v = fromVal' v
     doCast (VJunc j)   = juncToBool j
     doCast (VMatch m)  = matchOk m
     doCast (VBool b)   = b
@@ -428,7 +436,7 @@ instance Value PerlSV where
     fromVal (PerlSV sv) = return sv
     fromVal (VStr str) = liftIO $ vstrToSV str
     fromVal (VInt int) = liftIO $ vintToSV int
-    fromVal v = castFailM v -- XXX vivify
+    fromVal v = liftIO $ anyToSV v
 
 showNum :: Show a => a -> String
 showNum x

@@ -44,7 +44,7 @@ my $obj;
 
 {
     $obj = eval_perl5("FooBar->new");
-    isa_ok($obj, 'Scalar::Perl5', "blessed");
+    isa_ok($obj, Scalar::Perl5, "blessed");
     like($obj, rx:perl5/FooBar/, "blessed");
 }
 

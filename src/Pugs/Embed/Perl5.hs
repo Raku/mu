@@ -22,6 +22,15 @@ evalPerl5 _ = constFail
 svToVStr :: PerlSV -> IO String
 svToVStr = constFail
 
+svToVBool :: PerlSV -> IO Bool
+svToVBool = constFail
+
+svToAny :: PerlSV -> IO a
+svToAny = constFail
+
+anyToSV :: a -> IO PerlSV
+anyToSV = constFail
+
 vstrToSV :: String -> IO PerlSV
 vstrToSV = constFail
 
@@ -60,10 +69,16 @@ foreign import ccall "perl.h boot_DynaLoader"
     boot_DynaLoader :: Ptr () -> IO ()
 foreign import ccall "perl5.h perl5_SvPV"
     perl5_SvPV :: PerlSV -> IO CString
+foreign import ccall "perl5.h perl5_SvTRUE"
+    perl5_SvTRUE :: PerlSV -> IO Bool
+foreign import ccall "perl5.h perl5_SvPtr"
+    perl5_SvPtr :: PerlSV -> IO (StablePtr a)
 foreign import ccall "perl5.h perl5_newSVpv"
     perl5_newSVpv :: CString -> IO PerlSV
 foreign import ccall "perl5.h perl5_newSViv"
     perl5_newSViv :: CInt -> IO PerlSV
+foreign import ccall "perl5.h perl5_newSVptr"
+    perl5_newSVptr :: StablePtr a -> IO PerlSV
 foreign import ccall "perl5.h perl5_call"
     perl5_call :: CString -> CInt -> Ptr PerlSV -> CInt -> IO PerlSV
 foreign import ccall "perl5.h perl5_can"
@@ -81,6 +96,19 @@ initPerl5 str = do
 
 svToVStr :: PerlSV -> IO String
 svToVStr sv = peekCString =<< perl5_SvPV sv
+
+svToVBool :: PerlSV -> IO Bool
+svToVBool = perl5_SvTRUE
+
+anyToSV :: a -> IO PerlSV
+anyToSV x = do
+    ptr <- newStablePtr x
+    perl5_newSVptr ptr
+
+svToAny :: PerlSV -> IO a
+svToAny sv = do
+    ptr <- perl5_SvPtr sv
+    deRefStablePtr ptr
 
 vstrToSV :: String -> IO PerlSV
 vstrToSV str = withCString str perl5_newSVpv 
