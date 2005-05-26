@@ -49,14 +49,13 @@ compile (Stmts stmt rest) = [| do
     |] where
     argC = compile stmt
     argRest = compile rest
-compile (App (Var op) [] []) = [| op0 op [] |]
-compile (App (Var op) [] args) = compile (App (Var op) args [])
-compile (App (Var ('&':op)) [arg] []) = [| do
+compile (App (Var op) Nothing []) = [| op0 op [] |]
+compile (App (Var ('&':op)) Nothing [arg]) = [| do
         val <- $(argC)
         op1 op val
     |] where
     argC = compile arg
-compile (App (Var ('&':op)) [arg1, arg2] []) = [| do
+compile (App (Var ('&':op)) Nothing [arg1, arg2]) = [| do
         val1 <- $(argC1)
         val2 <- $(argC2)
         op2 op val1 val2

@@ -124,17 +124,17 @@ mergeStmts Noop y@(Stmts _ _) = y
 mergeStmts (Sym scope name x) y = Sym scope name (mergeStmts x y)
 mergeStmts (Pad scope lex x) y = Pad scope lex (mergeStmts x y)
 mergeStmts x@(Pos pos (Syn syn _)) y | (syn ==) `any` words "subst match //"  =
-    mergeStmts (Pos pos (App (Var "&infix:~~") [Var "$_", x] [])) y
+    mergeStmts (Pos pos (App (Var "&infix:~~") Nothing [Var "$_", x])) y
 mergeStmts x y@(Pos pos (Syn syn _)) | (syn ==) `any` words "subst match //"  =
-    mergeStmts x (Pos pos (App (Var "&infix:~~") [Var "$_", y] []))
+    mergeStmts x (Pos pos (App (Var "&infix:~~") Nothing [Var "$_", y]))
 mergeStmts (Pos pos (Syn "sub" [Val (VCode sub)])) y
     | subType sub >= SubBlock, isEmptyParams (subParams sub) =
     -- bare Block in statement level; annul all its parameters and run it!
-    mergeStmts (Pos pos $ App (Val $ VCode sub{ subParams = [] }) [] []) y
+    mergeStmts (Pos pos $ App (Val $ VCode sub{ subParams = [] }) Nothing []) y
 mergeStmts x (Pos pos (Syn "sub" [Val (VCode sub)]))
     | subType sub >= SubBlock, isEmptyParams (subParams sub) =
     -- bare Block in statement level; annul all its parameters and run it!
-    mergeStmts x (Pos pos $ App (Val $ VCode sub{ subParams = [] }) [] [])
+    mergeStmts x (Pos pos $ App (Val $ VCode sub{ subParams = [] }) Nothing [])
 mergeStmts x (Stmts y Noop) = mergeStmts x y
 mergeStmts x (Stmts Noop y) = mergeStmts x y
 mergeStmts x y = Stmts x y
@@ -148,14 +148,14 @@ newClass :: String -> [String] -> Exp
 newClass name traits = Sym SGlobal (':':'*':name) $ Syn ":="
     [ Var (':':'*':name)
     , App (Var "&new")
-        [ Val (VType $ mkType "Class") ]
-        [ App (Var "&infix:=>")
+        (Just $ Val (VType $ mkType "Class"))
+        [ App (Var "&infix:=>") Nothing
             [ Val (VStr "traits")
             , Val (VList $ map VStr traits)
-            ] []
-        , App (Var "&infix:=>")
+            ]
+        , App (Var "&infix:=>") Nothing
             [ Val (VStr "name")
             , Val (VStr name)
-            ] []
+            ]
         ]
     ]

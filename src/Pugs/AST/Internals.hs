@@ -774,7 +774,7 @@ instance (Typeable a) => Show (TVar a) where
 -- | Represents an expression tree.
 data Exp
     = Noop                              -- ^ No-op
-    | App !Exp ![Exp] ![Exp]            -- ^ Function application
+    | App !Exp !(Maybe Exp) ![Exp]      -- ^ Function application
                                         --     e.g. myfun($invocant: $arg)
     | Syn !String ![Exp]                -- ^ Syntactic construct that cannot
                                         --     be represented by 'App'.
@@ -833,7 +833,7 @@ extract :: Exp -> [String] -> (Exp, [String])
 extract (App n invs args) vs = (App n' invs' args', vs''')
     where
     (n', vs')      = extract n vs
-    (invs', vs'')  = foldr extractExp ([], vs') invs
+    (invs', vs'')  = maybe (invs, vs') (\inv -> let (x, y) = extract inv vs' in (Just x, y)) invs
     (args', vs''') = foldr extractExp ([], vs'') args
 extract (Stmts exp1 exp2) vs = (Stmts exp1' exp2', vs'')
     where

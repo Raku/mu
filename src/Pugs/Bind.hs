@@ -149,8 +149,8 @@ isPair :: Exp -> Bool
 isPair (Pos _ exp) = isPair exp
 isPair (Cxt _ exp) = isPair exp
 isPair (Syn "=>" [(Val _), _])   = True
-isPair (App (Var "&infix:=>") [(Cxt _ (Val _)), _] [])   = True
-isPair (App (Var "&infix:=>") [(Val _), _] [])   = True
+isPair (App (Var "&infix:=>") Nothing [(Cxt _ (Val _)), _])   = True
+isPair (App (Var "&infix:=>") Nothing [(Val _), _])   = True
 isPair _                         = False
 
 {-|
@@ -161,8 +161,8 @@ unPair :: Exp -> (String, Exp)
 unPair (Pos _ exp) = unPair exp
 unPair (Cxt _ exp) = unPair exp
 unPair (Syn "=>" [(Val k), exp]) = (vCast k, exp)
-unPair (App (Var "&infix:=>") [(Cxt _ (Val k)), exp] []) = (vCast k, exp)
-unPair (App (Var "&infix:=>") [(Val k), exp] []) = (vCast k, exp)
+unPair (App (Var "&infix:=>") Nothing [(Cxt _ (Val k)), exp]) = (vCast k, exp)
+unPair (App (Var "&infix:=>") Nothing [(Val k), exp]) = (vCast k, exp)
 unPair x                                = error ("Not a pair: " ++ show x)
 
 {-|
@@ -180,7 +180,7 @@ params to args, it does not actually introduce any symbols--that occurs later
 on in the call process.
 -}
 bindParams :: VCode -- ^ A code object to perform bindings on
-           -> [Exp] -- ^ List of invocants to bind
+           -> (Maybe Exp) -- ^ List of invocants to bind
            -> [Exp] -- ^ List of arguments (actual params) to bind
            -> MaybeError VCode -- ^ Returns either a new 'VCode' with all the
                                --     bindings in place, or an error message
@@ -231,7 +231,7 @@ possible) a new 'VCode' value representing the same code object, with as many
 parameters bound as possible (using the given invocants and args).
 -}
 bindSomeParams :: VCode -- ^ Code object to perform bindings on
-               -> [Exp] -- ^ List of invocant expressions
+               -> (Maybe Exp) -- ^ List of invocant expressions
                -> [Exp] -- ^ List of argument expressions
                -> MaybeError VCode -- ^ A new 'VCode' structure, augmented
                                    --     with the new bindings
@@ -241,8 +241,8 @@ bindSomeParams sub invsExp argsExp = do
         slurpLimit = subSlurpLimit sub
         (invPrms, argPrms) = span isInvocant params
         (givenInvs, givenArgs) = if null invPrms
-            then ([], (invsExp++argsExp))
-            else (invsExp, argsExp)
+            then ([], (maybeToList invsExp++argsExp))
+            else (maybeToList invsExp, argsExp)
 
     let boundInv                = invPrms `zip` givenInvs -- invocants are just bound, params to given
         (namedArgs, posArgs)    = partition isPair givenArgs -- pairs are named arguments, they go elsewhere

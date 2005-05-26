@@ -201,24 +201,24 @@ instance Compile Exp where
             ]
     -- XXX "module" is handled in glob, need stub here to avoid compile error
     compile (Syn "module" [Val (VStr _)]) = return empty
-    compile (App (Var "&return") [val] []) = do
+    compile (App (Var "&return") Nothing [val]) = do
         (valC, p) <- compileArg val
         return $ valC $+$ text ".return" <+> parens p
     compile (App (Var "&last") _ _) = return $ text "invoke last"
-    compile (App (Var "&substr") [str, idx, len] [])
+    compile (App (Var "&substr") Nothing [str, idx, len])
         | Val v <- unwrap len, vCast v == (1 :: VNum) = do
         (strC, p1) <- enterLValue $ compileArg str
         (idxC, p2) <- enterLValue $ compileArg idx
         rv         <- constPMC $ hcat [ p1, text "[" , p2, text "]"]
         return $ vcat [strC, idxC, rv]
-    compile (App (Var "&postfix:++") [inv] []) = do
+    compile (App (Var "&postfix:++") Nothing [inv]) = do
         (invC, p) <- enterLValue $ compileArg inv
         return $ invC $+$ text "inc" <+> p
-    compile (App (Var "&postfix:--") [inv] []) = do
+    compile (App (Var "&postfix:--") Nothing [inv]) = do
         (invC, p) <- enterLValue $ compileArg inv
         return $ invC $+$ text "dec" <+> p
     -- compile (App "&infix:~" [exp, Val (VStr "")] []) = compile exp
-    compile (App (Var "&infix:~") [exp1, exp2] []) = do
+    compile (App (Var "&infix:~") Nothing [exp1, exp2]) = do
         tmp <- currentStash
         (arg1, p1) <- compileArg exp1
         (arg2, p2) <- compileArg exp2
@@ -228,7 +228,7 @@ instance Compile Exp where
             , tmp <+> text "= new PerlUndef"
             , text "concat" <+> tmp <> comma <+> p1 <> comma <+> p2
             ]
-    compile (App (Var ('&':'i':'n':'f':'i':'x':':':op)) [lhs, rhs] []) = do
+    compile (App (Var ('&':'i':'n':'f':'i':'x':':':op)) Nothing [lhs, rhs]) = do
         (lhsC, p1) <- compileArg lhs
         (rhsC, p2) <- compileArg rhs
         rv  <- case op of
@@ -243,7 +243,7 @@ instance Compile Exp where
                 constPMC $ p1 <+> text op <+> p2
         return $ vcat [ lhsC, rhsC, rv ]
     -- XXX store return code in $@, whereever that may be in Parrotland
-    compile (App (Var "&system") [cmd] []) = do
+    compile (App (Var "&system") Nothing [cmd]) = do
         (arg, p) <- compileArg cmd
         rc <- constPMC (text "$I10")
         return $ vcat $ 
@@ -254,7 +254,7 @@ instance Compile Exp where
             , text "$I10 = iseq $I9, 0"
             , rc
             ]
-    compile (App (Var "&require_parrot") [arg] []) = do
+    compile (App (Var "&require_parrot") Nothing [arg]) = do
         (path, p) <- compileArg arg
         return $ vcat $
             [ path
@@ -264,17 +264,17 @@ instance Compile Exp where
     compile (App (Var "&say") invs args) = 
         compile $ App (Var "&print") invs (args ++ [Val $ VStr "\n"])
     compile (App (Var "&print") invs args) = do
-        actions <- fmap vcat $ mapM (compileWith (text "print" <+>)) (invs ++ args)
+        actions <- fmap vcat $ mapM (compileWith (text "print" <+>)) (maybeToList invs ++ args)
         rv      <- compile (Val (VBool True))
         return $ actions $+$ rv
-    compile (App (Var ('&':method)) [(Var ('$':obj))] [arg]) = do
+    compile (App (Var ('&':method)) (Just (Var ('$':obj))) [arg]) = do
         lhsC <- askPMC
         compileWith (\tmp -> text lhsC <+> text "=" <+> varText ("$" ++ obj) <> text "." <> text ("'" ++ method ++ "'") <> parens tmp) arg
-    compile (App (Var ('&':name)) [arg] _) = do
+    compile (App (Var ('&':name)) Nothing [arg]) = do
         lhsC <- askPMC
         compileWith (\tmp -> text lhsC <+> text "=" <+> text name <> parens tmp) arg
-    compile (App (Var "&not") [] []) = return $ text "new PerlUndef"
-    compile (App (Var ('&':name)) [] []) = do
+    compile (App (Var "&not") Nothing []) = return $ text "new PerlUndef"
+    compile (App (Var ('&':name)) Nothing []) = do
         lhsC <- askPMC
         return $ text lhsC <+> text "=" <+> text name <> text "()"
     compile (Val (VStr x))  = constPMC $ showText $ encodeUTF8 (concatMap quoted x)
@@ -314,7 +314,7 @@ instance Compile Exp where
     compile (Syn "mval" [exp]) = compile exp
     compile (Syn "," things) = fmap vcat $ mapM compile things
     compile (Syn syn [lhs, exp]) | last syn == '=' =
-        compile $ Syn "=" [lhs, App (Var ("&infix:" ++ init syn)) [lhs, exp] []]
+        compile $ Syn "=" [lhs, App (Var ("&infix:" ++ init syn)) Nothing [lhs, exp]]
     compile (Cxt _ exp) = compile exp
     compile (Pos pos exp) = do
 	  posC <- compile pos

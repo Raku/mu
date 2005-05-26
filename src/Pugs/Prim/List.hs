@@ -85,7 +85,7 @@ op1MinMax min_or_max v = do
 	  -- Here we execute the user's sub
 	  foldM (\a b -> do
 	      rv  <- local (\e -> e{ envContext = cxtItem "Int" }) $ do
-		  evl (App (Val sub) [Val a, Val b] [])
+		  evl (App (Val sub) Nothing [Val a, Val b])
 	      int <- fromVal rv
 	      -- If the return value from the sub was
 	      --   -1 ==> a < b
@@ -128,7 +128,7 @@ op1Uniq v = do
 	-- Here we execute the user's sub
 	result <- nubByM (\a b -> do
 	    rv  <- local (\e -> e{ envContext = cxtItem "Bool" }) $ do
-		evl (App (Val sub) [Val a, Val b] [])
+		evl (App (Val sub) Nothing [Val a, Val b])
 	    -- The sub returns either true or false.
 	    bool <- fromVal rv
 	    return . VBool $ bool) valList
@@ -173,7 +173,7 @@ op2Fold list sub = do
     let doFold xs = do
         evl <- asks envEval
         local (\e -> e{ envContext = cxtItemAny }) $ do
-            evl (App (Val sub) (map Val xs) [])
+            evl (App (Val sub) Nothing (map Val xs))
     case subAssoc code of
         "right" -> do
             let args' = reverse args
@@ -206,7 +206,7 @@ op2Grep list sub = do
     vals <- (`filterM` args) $ \x -> do
         evl <- asks envEval
         rv  <- local (\e -> e{ envContext = cxtItem "Bool" }) $ do
-            evl (App (Val sub) [Val x] [])
+            evl (App (Val sub) Nothing [Val x])
         fromVal rv
     return $ VList vals
 
@@ -219,7 +219,7 @@ op2Map list sub = do
     evl  <- asks envEval
     vals <- mapMn args arity $ \x -> do
         rv  <- local (\e -> e{ envContext = cxtSlurpyAny }) $ do
-            evl (App (Val sub) (map Val x) [])
+            evl (App (Val sub) Nothing (map Val x))
         fromVal rv
     return $ VList vals
     where

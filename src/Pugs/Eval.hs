@@ -108,14 +108,14 @@ evaluateMain exp = do
     initAV   <- evalVar "@?INIT"
     initSubs <- fromVals initAV
     enterContext CxtVoid $ do
-        mapM_ evalExp [ App (Val sub) [] [] | sub <- initSubs ]
+        mapM_ evalExp [ App (Val sub) Nothing [] | sub <- initSubs ]
     -- The main runtime
     val      <- resetT $ evaluate exp
     -- S04: END {...}       at run time, ALAP
     endAV    <- evalVar "@*END"
     endSubs  <- fromVals endAV
     enterContext CxtVoid $ do
-        mapM_ evalExp [ App (Val sub) [] [] | sub <- endSubs ]
+        mapM_ evalExp [ App (Val sub) Nothing [] | sub <- endSubs ]
     return val
 
 -- | Evaluate an expression. This function mostly just delegates to 'reduce'.
@@ -189,7 +189,7 @@ findVar name = do
     rv <- findVarRef name
     case rv of
         Nothing  -> case name of
-            ('&':_) -> maybeM (findSub name [] []) $ \sub -> do
+            ('&':_) -> maybeM (findSub name Nothing []) $ \sub -> do
                 return $ codeRef sub
             _ -> return Nothing
         Just ref -> fmap Just $ liftSTM (readTVar ref)
@@ -403,7 +403,7 @@ reduce exp@(Syn name exps) = case name of
                 let (these, rest) = arity `splitAt` vs
                 genSymCC "&next" $ \symNext -> do
                     genSymPrim "&redo" (const $ runBody vs sub') $ \symRedo -> do
-                        apply (updateSubPad sub' (symRedo . symNext)) [] $
+                        apply (updateSubPad sub' (symRedo . symNext)) Nothing $
                             map (Val . VRef . MkRef) these
                 runBody rest sub'
         genSymCC "&last" $ \symLast -> do
@@ -416,7 +416,7 @@ reduce exp@(Syn name exps) = case name of
         sub     <- fromVal =<< evalExp exp
         av      <- newArray []
         symTake <- genSym "@?TAKE" (MkRef av)
-        apply (updateSubPad sub symTake) [] []
+        apply (updateSubPad sub symTake) Nothing []
         fmap VList $ readIVar av
     "loop" -> do
         let [pre, cond, post, body] = case exps of { [_] -> exps'; _ -> exps }
@@ -443,16 +443,16 @@ reduce exp@(Syn name exps) = case name of
         let [match, body] = exps
         break  <- evalVar "&?BLOCK_EXIT"
         vbreak <- fromVal break
-        result <- reduce (App (Var "&infix:~~") [(Var "$_"), match] [])
+        result <- reduce (App (Var "&infix:~~") Nothing [(Var "$_"), match])
         rb     <- fromVal result
         if rb
-            then enterWhen (subBody vbreak) $ apply vbreak [body] []
+            then enterWhen (subBody vbreak) $ apply vbreak Nothing [body]
             else retVal undef
     "default" -> do
         let [body] = exps
         break  <- evalVar "&?BLOCK_EXIT"
         vbreak <- fromVal break
-        enterWhen (subBody vbreak) $ apply vbreak [body] []
+        enterWhen (subBody vbreak) $ apply vbreak Nothing [body]
     "while" -> doWhileUntil id
     "until" -> doWhileUntil not
     "=" -> do
@@ -533,11 +533,11 @@ reduce exp@(Syn name exps) = case name of
         retItem $ VRef av
     -- XXX evil hack for infinite slices
     "[]" | [lhs, App (Var "&postfix:...") invs args] <- unwrap exps
-         , [idx] <- invs ++ args
+         , [idx] <- maybeToList invs ++ args
 --       , not (envLValue env)
          -> reduce (Syn "[...]" [lhs, idx])
     "[]" | [lhs, App (Var "&infix:..") invs args] <- unwrap exps
-         , [idx, Val (VNum n)] <- invs ++ args
+         , [idx, Val (VNum n)] <- maybeToList invs ++ args
          , n == 1/0
 --       , not (envLValue env)
          -> reduce (Syn "[...]" [lhs, idx])
@@ -660,7 +660,7 @@ reduce exp@(Syn name exps) = case name of
     syn | last syn == '=' -> do
         let [lhs, exp] = exps
             op = "&infix:" ++ init syn
-        evalExp $ Syn "=" [lhs, App (Var op) [lhs, exp] []]
+        evalExp $ Syn "=" [lhs, App (Var op) Nothing [lhs, exp]]
     _ -> retError "Unknown syntactic construct" exp
     where
     doCond :: (Bool -> Bool) -> Eval Val
@@ -689,33 +689,33 @@ reduce exp@(Syn name exps) = case name of
 
 -- XXX absolutely evil bloody hack for context hinters
 reduce (App (Var "&hash") invs args) =
-    enterEvalContext cxtItemAny $ Syn "\\{}" [Syn "," $ invs ++ args]
+    enterEvalContext cxtItemAny $ Syn "\\{}" [Syn "," $ maybeToList invs ++ args]
 
 reduce (App (Var "&list") invs args) =
-    enterEvalContext cxtSlurpyAny $ case invs ++ args of
+    enterEvalContext cxtSlurpyAny $ case maybeToList invs ++ args of
         []    -> Val (VList [])
         [exp] -> exp
         exps  -> Syn "," exps
 
 reduce (App (Var "&scalar") invs args)
-    | [exp] <- invs ++ args = enterEvalContext cxtItemAny exp
-    | otherwise = enterEvalContext cxtItemAny $ Syn "," (invs ++ args)
+    | [exp] <- maybeToList invs ++ args = enterEvalContext cxtItemAny exp
+    | otherwise = enterEvalContext cxtItemAny $ Syn "," (maybeToList invs ++ args)
 
 -- XXX absolutely evil bloody hack for "zip"
 reduce (App (Var "&zip") invs args) = do
-    vals <- mapM (enterRValue . enterEvalContext (cxtItem "Array")) (invs ++ args)
+    vals <- mapM (enterRValue . enterEvalContext (cxtItem "Array")) (maybeToList invs ++ args)
     val  <- op0Zip vals
     retVal val
 
 -- XXX absolutely evil bloody hack for "goto"
-reduce (App (Var "&not") [] []) = retEmpty
+reduce (App (Var "&not") Nothing []) = retEmpty
 
 reduce (App (Var "&not") invs args) = do
-    bool <- fromVal =<< evalExp (last $ invs ++ args)
+    bool <- fromVal =<< evalExp (last $ maybeToList invs ++ args)
     retVal $ VBool (not bool)
 
 -- XXX absolutely evil bloody hack for "goto"
-reduce (App (Var "&goto") (subExp:invs) args) = do
+reduce (App (Var "&goto") invs@(Just subExp) args) = do
     vsub <- enterEvalContext (cxtItem "Code") subExp
     sub <- fromVal vsub
     local callerEnv $ do
@@ -731,63 +731,60 @@ reduce (App (Var "&goto") (subExp:invs) args) = do
            }
 
 -- XXX absolutely evil bloody hack for "assuming"
-reduce (App (Var "&assuming") (subExp:invs) args) = do
+reduce (App (Var "&assuming") invs@(Just subExp) args) = do
     vsub <- enterEvalContext (cxtItem "Code") subExp
     sub <- fromVal vsub
     case bindSomeParams sub invs args of
         Left errMsg      -> fail errMsg
         Right curriedSub -> retVal $ castV $ curriedSub
 
-reduce (App (Var "&infix:=>") invs args) = reduce (Syn "=>" (invs ++ args))
+reduce (App (Var "&infix:=>") invs args) = reduce (Syn "=>" (maybeToList invs ++ args))
 
 reduce (App (Var name@('&':_)) invs args) = do
     sub     <- findSub name invs args
     case sub of
         Just sub    -> applySub sub invs args
-        _ | [Syn "," invs'] <- unwrap invs, null args -> do
-            sub <- findSub name invs' []
+        _ | [Syn "," args'] <- unwrap args -> do
+            sub <- findSub name invs args'
             if isNothing sub then err else do
             fail $ "Extra space found after " ++ name ++ " (...) -- did you mean " ++ name ++ "(...) instead?"
         _ -> err
     where
     err = retError "No compatible subroutine found" name
-    applySub :: VCode -> [Exp] -> [Exp] -> Eval Val
+    applySub :: VCode -> (Maybe Exp) -> [Exp] -> Eval Val
     applySub sub invs args
         -- list-associativity
         | MkCode{ subAssoc = "list" }      <- sub
-        , (App (Var name') invs' []):rest  <- invs
+        , (App (Var name') Nothing args'):rest  <- args
         , name == name'
-        = applySub sub (invs' ++ rest)  []
+        = applySub sub invs (args' ++ rest)
         -- fix subParams to agree with number of actual arguments
         | MkCode{ subAssoc = "list", subParams = (p:_) }   <- sub
-        , null args
-        = apply sub{ subParams = (length invs) `replicate` p } invs []
+        = apply sub{ subParams = (length args) `replicate` p } invs args
         -- chain-associativity
         | MkCode{ subAssoc = "chain" }  <- sub
-        , (App _ _ []):_                <- invs
-        , null args
-        = mungeChainSub sub invs
+        , (App _ _ []):_                <- args
+        = mungeChainSub sub args
         | MkCode{ subAssoc = "chain", subParams = (p:_) }   <- sub
-        = apply sub{ subParams = (length invs) `replicate` p } invs []
+        = apply sub{ subParams = (length args) `replicate` p } invs args
         -- normal application
         | otherwise
         = apply sub invs args
     mungeChainSub :: VCode -> [Exp] -> Eval Val
-    mungeChainSub sub invs = do
+    mungeChainSub sub args = do
         let MkCode{ subAssoc = "chain", subParams = (p:_) } = sub
-            (App (Var name') invs' args'):rest = invs
+            (App (Var name') invs' args'):rest = args
         theSub   <- findSub name' invs' args'
         case theSub of
-            Just sub'    -> applyChainSub sub invs sub' invs' args' rest
-            Nothing      -> apply sub{ subParams = (length invs) `replicate` p } invs [] -- XXX Wrong
-    applyChainSub :: VCode -> [Exp] -> VCode -> [Exp] -> [a] -> [Exp] -> Eval Val
-    applyChainSub sub invs sub' invs' args' rest
+            Just sub'    -> applyChainSub sub args sub' args' rest
+            Nothing      -> apply sub{ subParams = (length args) `replicate` p } Nothing args -- XXX Wrong
+    applyChainSub :: VCode -> [Exp] -> VCode -> [Exp] -> [Exp] -> Eval Val
+    applyChainSub sub args sub' args' rest
         | MkCode{ subAssoc = "chain", subBody = fun, subParams = prm }   <- sub
         , MkCode{ subAssoc = "chain", subBody = fun', subParams = prm' } <- sub'
-        , null args'
-        = applySub sub{ subParams = prm ++ tail prm', subBody = Prim $ chainFun prm' fun' prm fun } (invs' ++ rest) []
+        = applySub sub{ subParams = prm ++ tail prm', subBody = Prim $ chainFun prm' fun' prm fun } Nothing (args' ++ rest)
         | MkCode{ subAssoc = "chain", subParams = (p:_) }   <- sub
-        = apply sub{ subParams = (length invs) `replicate` p } invs [] -- XXX Wrong
+        = apply sub{ subParams = (length args) `replicate` p } Nothing args -- XXX Wrong
         | otherwise
         = internalError "applyChainsub did not match a chain subroutine"
 
@@ -833,11 +830,11 @@ cxtOfExp (App (Var name) invs args)   = do
         _ -> cxtSlurpyAny
 cxtOfExp _                      = return cxtSlurpyAny
 
-findSub :: String -> [Exp] -> [Exp] -> Eval (Maybe VCode)
+findSub :: String -> Maybe Exp -> [Exp] -> Eval (Maybe VCode)
 findSub name' invs args = do
     let name = possiblyFixOperatorName name'
     case invs of
-        [exp] | not (':' `elem` drop 2 name) -> do
+        Just exp | not (':' `elem` drop 2 name) -> do
             typ     <- evalExpType exp
             if typ == mkType "Scalar::Perl5" then runPerl5Sub name else do
             subs    <- findWithPkg (showType typ) name
@@ -859,7 +856,7 @@ findSub name' invs args = do
                 sv      <- fromVal inv
                 svs     <- fromVals args
                 found   <- liftIO $ canPerl5 sv (tail name) `mplus` canPerl5 sv "AUTOLOAD"
-                if not found then evalExp (App (Var name) [] (map (Val . PerlSV) (sv:svs))) else do
+                if not found then evalExp (App (Var name) Nothing (map (Val . PerlSV) (sv:svs))) else do
                 cxt     <- asks envContext
                 rv      <- liftIO $ callPerl5 (tail name) (sv:svs) (enumCxt cxt)
                 return $ PerlSV rv
@@ -870,7 +867,7 @@ findSub name' invs args = do
         -- We try to find the userdefined sub.
         -- We use the first two elements of invs as invocants, as these are the
         -- types of the op.
-            rv = findSub ("&infix:" ++ op) (take 2 (invs ++ [Val undef, Val undef])) []
+            rv = findSub ("&infix:" ++ op) Nothing (take 2 (maybeToList invs ++ [Val undef, Val undef]))
         maybeM rv $ \code -> return $ mkPrim
             { subName     = "&prefix:[" ++ op ++ "]"
             , subType     = SubPrim
@@ -887,7 +884,7 @@ findSub name' invs args = do
         possiblyBuildMetaopVCode ("&prefix:" ++ op ++ "<<")
     possiblyBuildMetaopVCode op' | "&prefix:" `isPrefixOf` op', "<<" `isSuffixOf` op' = do 
         let op = drop 8 (init (init op'))
-            rv = findSub ("&prefix:" ++ op) [head $ invs ++ [Val undef]] []
+            rv = findSub ("&prefix:" ++ op) Nothing [head $ maybeToList invs ++ [Val undef]]
         maybeM rv $ \code -> return $ mkPrim
             { subName     = "&prefix:" ++ op ++ "<<"
             , subType     = SubPrim
@@ -902,7 +899,7 @@ findSub name' invs args = do
         possiblyBuildMetaopVCode ("&postfix:>>" ++ op)
     possiblyBuildMetaopVCode op' | "&postfix:>>" `isPrefixOf` op' = do
         let op = drop 11 op'
-            rv = findSub ("&postfix:" ++ op) [head $ invs ++ [Val undef]] []
+            rv = findSub ("&postfix:" ++ op) Nothing [head $ maybeToList invs ++ [Val undef]]
         maybeM rv $ \code -> return $ mkPrim
             { subName     = "&postfix:>>" ++ op
             , subType     = SubPrim
@@ -917,7 +914,7 @@ findSub name' invs args = do
         possiblyBuildMetaopVCode ("&infix:>>" ++ op ++ "<<")
     possiblyBuildMetaopVCode op' | "&infix:>>" `isPrefixOf` op', "<<" `isSuffixOf` op' = do 
         let op = drop 9 (init (init op'))
-            rv = findSub ("&infix:" ++ op) (take 2 (invs ++ [Val undef, Val undef])) []
+            rv = findSub ("&infix:" ++ op) Nothing (take 2 (maybeToList invs ++ [Val undef, Val undef]))
         maybeM rv $ \code -> return $ mkPrim
             { subName     = "&infix:>>" ++ op ++ "<<"
             , subType     = SubPrim
@@ -950,7 +947,7 @@ findSub name' invs args = do
             if isJust subs then return subs else run (tail pkgs)
     findSub' name = do
         subSyms     <- findSyms name
-        lens        <- mapM argSlurpLen (unwrap $ invs ++ args)
+        lens        <- mapM argSlurpLen (unwrap $ maybeToList invs ++ args)
         doFindSub (sum lens) subSyms
     argSlurpLen (Val listMVal) = do
         listVal  <- fromVal listMVal
@@ -971,11 +968,11 @@ findSub name' invs args = do
     subs slurpLen subSyms = (liftM catMaybes) $ (`mapM` subSyms) $ \(n, val) -> do
         sub@(MkCode{ subType = subT, subReturns = ret, subParams = prms }) <- fromVal val
         let isGlobal = '*' `elem` n
-        let rv = return $ arityMatch sub (length (invs ++ args)) slurpLen
+        let rv = return $ arityMatch sub (length (maybeToList invs ++ args)) slurpLen
         maybeM rv $ \fun -> do
             -- if deltaFromCxt ret == 0 then return Nothing else do
             let pairs = map (typeOfCxt . paramContext) prms
-                            `zip` (map unwrap $ invs ++ args)
+                            `zip` (map unwrap $ maybeToList invs ++ args)
             deltaCxt    <- deltaFromCxt ret
             deltaArgs   <- mapM deltaFromPair pairs
             let bound = either (const False) (const True) $ bindParams sub invs args
@@ -999,8 +996,8 @@ evalExpType (Val val) = evalValType val
 evalExpType (App (Val val) _ _) = do
     sub <- fromVal val
     return $ subReturns sub
-evalExpType (App (Var "&new") [(Val (VType typ))] _) = return typ
-evalExpType (App (Var "&new") [(Var (':':name))] _) = return $ mkType name
+evalExpType (App (Var "&new") (Just (Val (VType typ))) _) = return typ
+evalExpType (App (Var "&new") (Just (Var (':':name))) _) = return $ mkType name
 evalExpType (App (Var name) invs args) = do
     sub <- findSub name invs args
     case sub of
@@ -1050,9 +1047,9 @@ Apply a sub (or other code) to lists of invocants and arguments.
 
 Mostly delegates to 'doApply' after explicitly retrieving the local 'Env'.
 -}
-apply :: VCode -- ^ The sub to apply
-      -> [Exp] -- ^ List of invocants
-      -> [Exp] -- ^ List of arguments (non-invocant)
+apply :: VCode       -- ^ The sub to apply
+      -> (Maybe Exp) -- ^ invocant
+      -> [Exp]       -- ^ List of arguments (non-invocant)
       -> Eval Val
 apply sub invs args = do
     env <- ask
@@ -1066,7 +1063,7 @@ specified context.
 -}
 doApply :: Env   -- ^ Environment to evaluate in
         -> VCode -- ^ Code to apply
-        -> [Exp] -- ^ Invocants (arguments before the colon)
+        -> (Maybe Exp) -- ^ Invocants (arguments before the colon)
         -> [Exp] -- ^ Arguments (not including invocants)
         -> Eval Val
 doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args =

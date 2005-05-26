@@ -176,7 +176,7 @@ op1 "sort" = \v -> do
         Just subVal -> do
             sub <- fromVal subVal
             sorted <- (`sortByM` valList) $ \v1 v2 -> do
-                rv  <- enterEvalContext (cxtItem "Int") $ App (Val sub) [Val v1, Val v2] []
+                rv  <- enterEvalContext (cxtItem "Int") $ App (Val sub) Nothing [Val v1, Val v2]
                 int <- fromVal rv
                 return (int <= (0 :: Int))
             return $ VList sorted
@@ -250,12 +250,12 @@ op1 "eval_haskell" = op1EvalHaskell
 op1 "eval_yaml" = evalYaml
 op1 "try" = \v -> do
     sub <- fromVal v
-    val <- resetT $ evalExp (App (Val $ VCode sub) [] [])
+    val <- resetT $ evalExp (App (Val $ VCode sub) Nothing [])
     retEvalResult False val
 -- Tentative implementation of nothingsmuch's lazy proposal.
 op1 "lazy" = \v -> do
     sub <- fromVal v
-    return $ VRef . thunkRef . MkThunk . evalExp $ App (Val $ VCode sub) [] []
+    return $ VRef . thunkRef . MkThunk . evalExp $ App (Val $ VCode sub) Nothing []
 op1 "defined" = op1Cast (VBool . defined)
 op1 "last" = const $ fail "cannot last() outside a loop"
 op1 "next" = const $ fail "cannot next() outside a loop"
@@ -411,7 +411,7 @@ op1 "async" = \v -> do
     lock    <- liftSTM $ newEmptyTMVar
     tid     <- liftIO . (if rtsSupportsBoundThreads then forkOS else forkIO) $ do
         val <- runEvalIO env $ do
-            enterEvalContext CxtVoid $ App (Val code) [] []
+            enterEvalContext CxtVoid $ App (Val code) Nothing []
         liftSTM $ tryPutTMVar lock val
         return ()
     return . VThread $ MkThread
@@ -515,7 +515,7 @@ op1 "BUILDALL" = \v -> do
     forM_ pkgs $ \pkg -> do
         maybeM (fmap (findSym $ ('&':pkg) ++ "::BUILD") askGlobal) $ \tvar -> do
             ref <- liftSTM $ readTVar tvar
-            enterEvalContext CxtVoid (App (Val $ VRef ref) [Val v] [])
+            enterEvalContext CxtVoid (App (Val $ VRef ref) (Just $ Val v) [])
     return undef
 -- [,] is a noop -- It simply returns the input list
 op1 "prefix:[,]" = return
@@ -903,7 +903,7 @@ op1HyperPrefix sub x
 	| VRef x' <- x
 	= doHyper =<< readRef x'
 	| otherwise
-	= enterEvalContext cxtItemAny $ App (Val $ VCode sub) [Val x] []
+	= enterEvalContext cxtItemAny $ App (Val $ VCode sub) Nothing [Val x]
     hyperList []     = return []
     hyperList (x:xs) = do
         val  <- doHyper x
@@ -930,7 +930,7 @@ op2Hyper sub x y
     | otherwise
     = fail "Hyper OP only works on lists"
     where
-    doHyper x y = enterEvalContext cxtItemAny $ App (Val $ VCode sub) [Val x, Val y] []
+    doHyper x y = enterEvalContext cxtItemAny $ App (Val $ VCode sub) Nothing [Val x, Val y]
     hyperLists [] [] = return []
     hyperLists xs [] = return xs
     hyperLists [] ys = return ys

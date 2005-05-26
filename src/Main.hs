@@ -202,7 +202,7 @@ doLoad env fn = do
     runImperatively env (evaluate exp)
     return ()
     where
-    exp = App (Var "&require") [] [Val $ VStr fn]
+    exp = App (Var "&require") Nothing [Val $ VStr fn]
 
 doRunSingle :: TVar Env -> RunOptions -> String -> IO ()
 doRunSingle menv opts prog = (`catch` handler) $ do

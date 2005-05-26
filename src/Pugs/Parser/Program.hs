@@ -40,7 +40,7 @@ ruleProgram = rule "program" $ do
 	[ Var "@?CHECK"
 	, Syn "sub"
 	    [ Val . VCode $ mkSub
-		{ subBody   = App (Var "$_") [] []
+		{ subBody   = App (Var "$_") Nothing []
 		, subParams = [defaultScalarParam]
 		}
 	    ]
