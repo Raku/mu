@@ -2,6 +2,7 @@
 
 #ifndef PUGS_HAVE_PERL5
 module Pugs.Embed.Perl5 where
+import Foreign.C.Types
 
 type PerlInterpreter = ()
 type PerlSV = ()
@@ -27,7 +28,7 @@ vstrToSV = constFail
 vintToSV :: Integer -> IO PerlSV
 vintToSV = constFail
 
-callPerl5 :: String -> [PerlSV] -> IO PerlSV
+callPerl5 :: String -> [PerlSV] -> CInt -> IO PerlSV
 callPerl5 _ = constFail
 
 canPerl5 :: PerlSV -> String -> IO Bool
