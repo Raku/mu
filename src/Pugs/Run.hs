@@ -33,9 +33,8 @@ runWithArgs f = do
 
 runEvalMain :: Env -> Eval Val -> IO Val
 runEvalMain env eval = withSocketsDo $ do
-    my_perl <- initPerl5 "" (Just . VControl $ ControlEnv env)
     val     <- runEvalIO env eval
-    freePerl5 my_perl
+    -- freePerl5 my_perl
     return val
 
 runEnv :: Env -> IO Val
@@ -101,7 +100,7 @@ prepareEnv name args = do
     let subExit = \x -> case x of
             [x] -> op1Exit x     -- needs refactoring (out of Prim)
             _   -> op1Exit undef
-    emptyEnv name $
+    env <- emptyEnv name $
         [ genSym "@*ARGS"       $ MkRef argsAV
         , genSym "@*INC"        $ MkRef incAV
         , genSym "$*PUGS_HAS_HSPLUGINS" $ MkRef hspluginsSV
@@ -137,6 +136,8 @@ prepareEnv name args = do
         , genSym "$*_" $ MkRef defSV
         , genSym "$*AUTOLOAD" $ MkRef autoSV
         ]
+    initPerl5 "" (Just . VControl $ ControlEnv env)
+    return env
 
 {-|
 Combine @%*ENV\<PERL6LIB\>@, -I, 'Pugs.Config.config' values and \".\" into
