@@ -717,8 +717,10 @@ op2 "kill" = \s v -> do
     rets <- mapM (tryIO 0 . doKill) pids
     return . VInt $ sum rets
 op2 "isa"   = \x y -> do
-    typ <- fromVal y
-    ifValTypeIsa x (showType typ)
+    typ <- case y of
+        VStr str -> return str
+        _        -> fmap showType $ fromVal y
+    ifValTypeIsa x typ
         (return $ VBool True)
         (return $ VBool False)
 op2 "delete" = \x y -> do
