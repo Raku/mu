@@ -31,7 +31,7 @@ svToVNum = constFail
 svToVBool :: PerlSV -> IO Bool
 svToVBool = constFail
 
-svToVal :: PerlSV -> IO (Maybe a)
+svToVal :: PerlSV -> IO a
 svToVal = constFail
 
 valToSV :: a -> IO PerlSV
@@ -122,12 +122,10 @@ svToVNum sv = fmap realToFrac $ perl5_SvNV sv
 svToVBool :: PerlSV -> IO Bool
 svToVBool = perl5_SvTRUE
 
-svToVal :: PerlSV -> IO (Maybe a)
+svToVal :: PerlSV -> IO a
 svToVal sv = do
     ptr <- pugs_SvToVal sv
-    if ptr == nullPtr
-        then return Nothing
-        else fmap Just $ deRefStablePtr (castPtrToStablePtr ptr)
+    deRefStablePtr (castPtrToStablePtr ptr)
 
 valToSV :: a -> IO PerlSV
 valToSV x = do

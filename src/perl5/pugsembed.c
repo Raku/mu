@@ -28,6 +28,4 @@ Val *pugs_NvToVal ( NV iv ) { return NULL; }
 
 Val *pugs_PvToVal ( char *pv ) { return NULL; }
 
-Val *pugs_MkSvRef  ( SV *sv ) { return NULL; }
-
 SV  *pugs_ValToSv ( Val *val ) { return NULL; }

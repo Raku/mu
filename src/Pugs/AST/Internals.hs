@@ -189,17 +189,9 @@ fromVal' (VList vs) | not $ null [ undefined | VRef _ <- vs ] = do
 fromVal' (PerlSV sv) = do
     v <- liftIO $ svToVal sv
     case v of
-        -- (PerlSV sv') -> fromSV sv'   -- it was a SV
-        Nothing     -> fromSV sv
-        Just val    -> fromVal val    -- it was a Val
+        PerlSV sv'  -> fromSV sv'   -- it was a SV
+        val         -> fromVal val  -- it was a Val
 fromVal' v = return $ vCast v
-{-do
-    rv <- liftIO $ catchJust errorCalls (return . Right $ vCast v) $
-        \str -> return (Left str)
-    case rv of
-        Right v -> return v
-        Left e  -> retError e v -- XXX: not working yet
--}
 
 {-|
 Typeclass indicating types that can be converted to\/from 'Val's.

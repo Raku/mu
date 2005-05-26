@@ -11,6 +11,7 @@
 
 module Pugs.Run where
 import Pugs.Run.Args
+import Pugs.Run.Perl5 ()
 import Pugs.Internals
 import Pugs.Config
 import Pugs.AST
