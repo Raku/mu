@@ -34,14 +34,17 @@ svToVBool = constFail
 svToVal :: PerlSV -> IO a
 svToVal = constFail
 
-valToSV :: a -> IO PerlSV
-valToSV = constFail
+mkValRef :: a -> IO PerlSV
+mkValRef = constFail
 
 vstrToSV :: String -> IO PerlSV
 vstrToSV = constFail
 
-vintToSV :: Integer -> IO PerlSV
+vintToSV :: (Integral a) => a -> IO PerlSV
 vintToSV = constFail
+
+vnumToSV :: (Real a) => a -> IO PerlSV
+vnumToSV = constFail
 
 callPerl5 :: String -> [PerlSV] -> CInt -> IO PerlSV
 callPerl5 _ _ = constFail
@@ -90,6 +93,8 @@ foreign import ccall "perl5.h perl5_newSVpv"
     perl5_newSVpv :: CString -> IO PerlSV
 foreign import ccall "perl5.h perl5_newSViv"
     perl5_newSViv :: CInt -> IO PerlSV
+foreign import ccall "perl5.h perl5_newSVnv"
+    perl5_newSVnv :: CDouble -> IO PerlSV
 foreign import ccall "perl5.h perl5_call"
     perl5_call :: CString -> CInt -> Ptr PerlSV -> CInt -> IO PerlSV
 foreign import ccall "perl5.h perl5_can"
@@ -127,16 +132,19 @@ svToVal sv = do
     ptr <- pugs_SvToVal sv
     deRefStablePtr (castPtrToStablePtr ptr)
 
-valToSV :: a -> IO PerlSV
-valToSV x = do
+mkValRef :: a -> IO PerlSV
+mkValRef x = do
     ptr <- fmap castStablePtrToPtr $ newStablePtr x
     pugs_MkValRef ptr
 
 vstrToSV :: String -> IO PerlSV
 vstrToSV str = withCString str perl5_newSVpv 
 
-vintToSV :: Integer -> IO PerlSV
+vintToSV :: (Integral a) => a -> IO PerlSV
 vintToSV int = perl5_newSViv (fromIntegral int)
+
+vnumToSV :: (Real a) => a -> IO PerlSV
+vnumToSV int = perl5_newSVnv (realToFrac int)
 
 callPerl5 :: String -> [PerlSV] -> CInt -> IO PerlSV
 callPerl5 str args cxt = do

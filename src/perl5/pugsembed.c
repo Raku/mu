@@ -19,7 +19,4 @@ pugs_MkValRef ( Val *val )
 }
 
 Val *pugs_Eval ( char *code ) { return NULL; }
-
 Val *pugs_Apply ( Val *sub, Val *inv, Val **args ) { return NULL; }
-
-SV  *pugs_ValToSv ( Val *val ) { return NULL; }

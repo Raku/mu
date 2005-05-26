@@ -159,6 +159,12 @@ perl5_newSViv ( int iv )
 }
 
 SV *
+perl5_newSVnv ( double iv )
+{
+    return(newSVnv(iv));
+}
+
+SV *
 perl5_call(char *subname, int argc, SV** args, int cxt)
 {
     int i;

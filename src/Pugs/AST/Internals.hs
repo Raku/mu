@@ -436,7 +436,9 @@ instance Value PerlSV where
     fromVal (PerlSV sv) = return sv
     fromVal (VStr str) = liftIO $ vstrToSV str
     fromVal (VInt int) = liftIO $ vintToSV int
-    fromVal v = liftIO $ valToSV v
+    fromVal (VRat int) = liftIO $ vnumToSV int
+    fromVal (VNum int) = liftIO $ vnumToSV int
+    fromVal v = liftIO $ mkValRef v
 
 showNum :: Show a => a -> String
 showNum x

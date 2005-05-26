@@ -11,6 +11,9 @@ import Foreign
 import Foreign.C.Types
 import Foreign.C.String
 
+foreign export ccall "pugs_ValToSv"
+    valToSv :: PugsVal -> IO PerlSV
+
 foreign export ccall "pugs_MkSvRef"
     mkSvRef :: PerlSV -> IO PugsVal
 
@@ -25,6 +28,16 @@ foreign export ccall "pugs_PvToVal"
 
 mkVal :: Val -> IO PugsVal
 mkVal val = fmap castStablePtrToPtr $ newStablePtr val
+
+deVal :: PugsVal -> IO Val
+deVal ptr = deRefStablePtr (castPtrToStablePtr ptr)
+
+valToSv :: PugsVal -> IO PerlSV
+valToSv ptr = do
+    val <- deVal ptr
+    case val of
+        PerlSV sv   -> return sv
+        _           -> mkValRef val
 
 mkSvRef :: PerlSV -> IO PugsVal
 mkSvRef = mkVal . PerlSV
