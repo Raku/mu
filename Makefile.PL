@@ -89,7 +89,7 @@ sub set_postamble {
     dated 2005-04-10 or later -- remember to "make register" too!
 .
 	} else {
-	  $ghc_flags .= ' -DPUGS_HAVE_HSPLUGINS=1';
+	  $ghc_flags .= ' -package eval -DPUGS_HAVE_HSPLUGINS=1 ';
 	}
 
     if (has_ghc_package('readline') 
