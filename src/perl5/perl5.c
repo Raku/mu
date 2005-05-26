@@ -214,12 +214,16 @@ perl5_call(char *subname, int argc, SV** args, int cxt)
 SV *
 perl5_get_sv(const char *name)
 {
-    return (get_sv(name, 1));
+    SV *sv = get_sv(name, 1);
+    /* sv_dump(sv); */
+    return sv;
 }
 
 void * perl5_set_svref (const char *name, void *val)
 {
-    SV *container = get_sv(name, TRUE);
+    /* fprintf(stderr, "setsvref: name: %s, mkvalref: %p\n", name, val); */
+
+    SV *container = get_sv("pugs::env", TRUE);
 
     SV *sv = newSV(0);
     sv_setref_pv(sv, "pugs", val);

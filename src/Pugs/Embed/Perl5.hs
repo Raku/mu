@@ -113,7 +113,7 @@ foreign import ccall "pugsembed.h pugs_SvToVal"
 foreign import ccall "pugsembed.h pugs_MkValRef"
     pugs_MkValRef :: PugsVal -> IO PerlSV
 
-initPerl5 :: String -> Maybe a -> IO PerlInterpreter
+initPerl5 :: (Show a) => String -> Maybe a -> IO PerlInterpreter
 initPerl5 str env = do
     withCString "-e" $ \prog -> withCString str $ \cstr -> do
         withArray [prog, prog, cstr] $ \argv -> do
@@ -137,7 +137,7 @@ svToVNum sv = fmap realToFrac $ perl5_SvNV sv
 svToVBool :: PerlSV -> IO Bool
 svToVBool = perl5_SvTRUE
 
-svToVal :: PerlSV -> IO a
+svToVal :: (Show a) => PerlSV -> IO a
 svToVal sv = do
     ptr <- pugs_SvToVal sv
     deRefStablePtr (castPtrToStablePtr ptr)

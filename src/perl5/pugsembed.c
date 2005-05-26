@@ -18,7 +18,7 @@ pugs_MkValRef ( Val *val )
     Val *isa[2];
     isa[0] = pugs_PvToVal("Code");
     isa[1] = NULL;
-    if (pugs_ValToIv(pugs_Apply("&isa", val, isa))) {
+    if (pugs_ValToIv(pugs_Apply(pugs_PvToVal("&isa"), val, isa))) {
 	fprintf(stderr, "got a code!!\n");
     }
     sv_setref_pv(sv, "pugs", val);

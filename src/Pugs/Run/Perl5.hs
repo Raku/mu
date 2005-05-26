@@ -61,8 +61,11 @@ pugs_eval cstr = do
 pugs_apply :: PugsVal -> PugsVal -> Ptr PugsVal -> IO PugsVal
 pugs_apply subPtr invPtr argsPtr = do
     env     <- askPerl5Env
+    -- print "DEREF #1"
     sub     <- deVal subPtr
+    -- print "DEREF #2"
     inv     <- deValMaybe invPtr
+    -- print "DEREF #3"
     args    <- mapM deVal =<< peekArray0 nullPtr argsPtr
     let subExp = case sub of
             VStr name   -> Var name
@@ -74,7 +77,11 @@ mkVal :: Val -> IO PugsVal
 mkVal val = fmap castStablePtrToPtr $ newStablePtr val
 
 deVal :: PugsVal -> IO Val
-deVal ptr = deRefStablePtr (castPtrToStablePtr ptr)
+deVal ptr = do
+    -- print ("DEVAL", ptr)
+    x <- deRefStablePtr (castPtrToStablePtr ptr)
+    -- print ("INTO", x)
+    return x
 
 deValMaybe :: PugsVal -> IO (Maybe Val)
 deValMaybe ptr | ptr == nullPtr = return Nothing
@@ -82,6 +89,7 @@ deValMaybe ptr = fmap Just (deVal ptr)
 
 valToSv :: PugsVal -> IO PerlSV
 valToSv ptr = do
+    -- print "1"
     val <- deVal ptr
     case val of
         PerlSV sv   -> return sv
@@ -89,6 +97,7 @@ valToSv ptr = do
 
 valToIv :: PugsVal -> IO CInt
 valToIv ptr = do
+    -- print "2"
     val     <- deVal ptr
     env     <- askPerl5Env
     VInt x  <- runEvalIO env $ fmap VInt (fromVal val)
@@ -96,6 +105,7 @@ valToIv ptr = do
 
 valToNv :: PugsVal -> IO CDouble
 valToNv ptr = do
+    -- print "3"
     val     <- deVal ptr
     env     <- askPerl5Env
     VRat x  <- runEvalIO env $ fmap VInt (fromVal val)
@@ -103,6 +113,7 @@ valToNv ptr = do
 
 valToPv :: PugsVal -> IO CString
 valToPv ptr = do
+    -- print "4"
     val     <- deVal ptr
     env     <- askPerl5Env
     VStr x  <- runEvalIO env $ fmap VInt (fromVal val)
@@ -118,6 +129,10 @@ nvToVal :: CDouble -> IO PugsVal
 nvToVal = mkVal . VNum . realToFrac
 
 pvToVal :: CString -> IO PugsVal
-pvToVal = (mkVal . VStr =<<) . peekCString
+pvToVal cstr = do
+    str <- peekCString cstr
+    ptr <- mkVal $ VStr str
+    -- print ("PVTOVAL", str, ptr)
+    return ptr
 
 #endif
