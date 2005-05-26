@@ -29,6 +29,6 @@ evalEmbedded "Parrot"  code = do
     return () -}
 evalEmbedded "Perl5" code = do
     interp <- initPerl5 ""
-    evalPerl5 code
+    evalPerl5 code 0
     freePerl5 interp
 evalEmbedded s _ = fail $ "Cannot evaluate in " ++ s

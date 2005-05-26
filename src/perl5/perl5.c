@@ -138,7 +138,7 @@ perl5_newSViv ( int iv )
 }
 
 SV *
-perl5_call(char *subname, int argc, SV** args)
+perl5_call(char *subname, int argc, SV** args, int cxt)
 {
     int i;
     SV *rv;
@@ -154,7 +154,7 @@ perl5_call(char *subname, int argc, SV** args)
     }
     PUTBACK;
 
-    call_method(subname, G_SCALAR);
+    call_method(subname, cxt);
 
     SPAGAIN;
 
@@ -168,8 +168,9 @@ perl5_call(char *subname, int argc, SV** args)
 }
 
 SV *
-perl5_eval(char *code)
+perl5_eval(char *code, int cxt)
 {
+    /* XXX - does not respect context yet */
     return (eval_pv(code, TRUE));
 }
 

@@ -74,6 +74,12 @@ isVoidCxt :: Cxt -> Bool
 isVoidCxt   CxtVoid       = True
 isVoidCxt   _             = False
 
+-- |Return the Perl 5 calling convention bit value for the context
+enumCxt :: (Num a) => Cxt -> a
+enumCxt CxtVoid       = 128
+enumCxt (CxtItem _)   = 0
+enumCxt (CxtSlurpy _) = 1
+
 -- |Make a type value representing the type with the specified name.
 -- Recognises conjunctive (&) and disjunctive (|) types.
 mkType :: String -- ^ Name of the type, e.g. \"Hash\" or \"Str|Int\"

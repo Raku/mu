@@ -15,7 +15,7 @@ initPerl5 _ = return ()
 freePerl5 :: PerlInterpreter -> IO ()
 freePerl5 _ = return ()
 
-evalPerl5 :: String -> IO PerlSV
+evalPerl5 :: String -> CInt -> IO PerlSV
 evalPerl5 = constFail
 
 svToVStr :: PerlSV -> IO String
@@ -64,11 +64,11 @@ foreign import ccall "perl5.h perl5_newSVpv"
 foreign import ccall "perl5.h perl5_newSViv"
     perl5_newSViv :: CInt -> IO PerlSV
 foreign import ccall "perl5.h perl5_call"
-    perl5_call :: CString -> CInt -> Ptr PerlSV -> IO PerlSV
+    perl5_call :: CString -> CInt -> Ptr PerlSV -> CInt -> IO PerlSV
 foreign import ccall "perl5.h perl5_can"
     perl5_can :: PerlSV -> CString -> IO Bool
 foreign import ccall "perl.h perl5_eval"
-    perl5_eval :: CString -> IO PerlSV
+    perl5_eval :: CString -> CInt -> IO PerlSV
 foreign import ccall "perl5.h perl5_init"
     perl5_init :: CInt -> Ptr CString -> IO PerlInterpreter
 
@@ -87,17 +87,17 @@ vstrToSV str = withCString str perl5_newSVpv
 vintToSV :: Integer -> IO PerlSV
 vintToSV int = perl5_newSViv (fromIntegral int)
 
-callPerl5 :: String -> [PerlSV] -> IO PerlSV
-callPerl5 str args = do
+callPerl5 :: String -> [PerlSV] -> CInt -> IO PerlSV
+callPerl5 str args cxt = do
     withCString str $ \cstr -> do
         withArray args $ \argv -> do
-            perl5_call cstr (toEnum $ length args) argv
+            perl5_call cstr (toEnum $ length args) argv cxt
 
 canPerl5 :: PerlSV -> String -> IO Bool
 canPerl5 sv meth = withCString meth $ \cstr -> perl5_can sv cstr
 
-evalPerl5 :: String -> IO PerlSV
-evalPerl5 str = withCString str perl5_eval
+evalPerl5 :: String -> CInt -> IO PerlSV
+evalPerl5 str cxt = withCString str $ \cstr -> perl5_eval cstr cxt
 
 freePerl5 :: PerlInterpreter -> IO ()
 freePerl5 my_perl = do
