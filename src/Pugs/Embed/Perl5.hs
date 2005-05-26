@@ -17,7 +17,7 @@ freePerl5 :: PerlInterpreter -> IO ()
 freePerl5 _ = return ()
 
 evalPerl5 :: String -> CInt -> IO PerlSV
-evalPerl5 = constFail
+evalPerl5 _ = constFail
 
 svToVStr :: PerlSV -> IO String
 svToVStr = constFail
@@ -29,7 +29,7 @@ vintToSV :: Integer -> IO PerlSV
 vintToSV = constFail
 
 callPerl5 :: String -> [PerlSV] -> CInt -> IO PerlSV
-callPerl5 _ = constFail
+callPerl5 _ _ = constFail
 
 canPerl5 :: PerlSV -> String -> IO Bool
 canPerl5 _ = constFail
