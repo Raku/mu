@@ -1,6 +1,7 @@
 #include <perl5.h>
 #include <XSUB.h>
 #include "perlxsi.c"
+#include "pugsembed.c"
 
 /* Workaround for mapstart: the only op which needs a different ppaddr */
 #undef Perl_pp_mapstart
@@ -125,22 +126,24 @@ perl5_SvPV ( SV *sv )
     return rv;
 }
 
+int
+perl5_SvIV ( SV *sv )
+{
+    return((int)SvIV(sv));
+}
+
+double
+perl5_SvNV ( SV *sv )
+{
+    return((double)SvNV(sv));
+}
+
 bool
 perl5_SvTRUE ( SV * sv )
 {
     bool *rv;
     rv = SvTRUE(sv);
     return rv;
-}
-
-void *
-perl5_SvPtr ( SV *sv )
-{
-    if (!sv_isa(sv, "pugs")) {
-        return NULL;
-    }
-    IV tmp = SvIV((SV*)SvRV(sv));
-    return((void *)tmp);
 }
 
 SV *
@@ -153,14 +156,6 @@ SV *
 perl5_newSViv ( int iv )
 {
     return(newSViv(iv));
-}
-
-SV *
-perl5_newSVptr ( void * ptr )
-{
-    SV *sv = newSV(0);
-    sv_setref_pv(sv, "pugs", ptr);
-    return(sv);
 }
 
 SV *

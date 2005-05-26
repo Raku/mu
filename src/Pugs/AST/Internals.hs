@@ -187,10 +187,11 @@ fromVal' (VList vs) | not $ null [ undefined | VRef _ <- vs ] = do
     vs <- forM vs $ \v -> case v of { VRef r -> readRef r; _ -> return v }
     fromVal $ VList vs
 fromVal' (PerlSV sv) = do
-    rv <- liftIO $ svToAny sv
-    case rv of
-        Just v  -> fromVal v    -- it was a Val
-        _       -> fromSV sv    -- it was a SV
+    v <- liftIO $ svToVal sv
+    case v of
+        -- (PerlSV sv') -> fromSV sv'   -- it was a SV
+        Nothing     -> fromSV sv
+        Just val    -> fromVal val    -- it was a Val
 fromVal' v = return $ vCast v
 {-do
     rv <- liftIO $ catchJust errorCalls (return . Right $ vCast v) $
@@ -319,8 +320,7 @@ instance Value VCode where
 
 instance Value VBool where
     castV = VBool
-    fromVal (PerlSV sv) = liftIO $ svToVBool sv
-    fromVal v = fromVal' v
+    fromSV sv = liftIO $ svToVBool sv
     doCast (VJunc j)   = juncToBool j
     doCast (VMatch m)  = matchOk m
     doCast (VBool b)   = b
@@ -351,11 +351,13 @@ juncToBool (MkJunc JOne  ds vs)
 
 instance Value VInt where
     castV = VInt
+    fromSV sv = liftIO $ svToVInt sv
     doCast (VInt i)     = i
     doCast x            = truncate (vCast x :: VRat)
 
 instance Value VRat where
     castV = VRat
+    fromSV sv = liftIO $ svToVNum sv
     doCast (VInt i)     = i % 1
     doCast (VRat r)     = r
     doCast (VBool b)    = if b then 1 % 1 else 0 % 1
@@ -372,6 +374,7 @@ instance Value VRat where
 
 instance Value VNum where
     castV = VNum
+    fromSV sv = liftIO $ svToVNum sv
     doCast VUndef       = 0
     doCast (VBool b)    = if b then 1 else 0
     doCast (VInt i)     = fromIntegral i
@@ -398,8 +401,9 @@ instance Value VComplex where
 
 instance Value VStr where
     castV = VStr
+    fromSV sv = liftIO $ svToVStr sv
     fromVal (VList l)   = return . unwords =<< mapM fromVal l
-    fromVal (PerlSV sv) = liftIO $ svToVStr sv
+    fromVal v@(PerlSV _) = fromVal' v
     fromVal v = do
         vt  <- evalValType v
         if vt /= mkType "Hash" then fromVal' v else do
@@ -440,7 +444,7 @@ instance Value PerlSV where
     fromVal (PerlSV sv) = return sv
     fromVal (VStr str) = liftIO $ vstrToSV str
     fromVal (VInt int) = liftIO $ vintToSV int
-    fromVal v = liftIO $ anyToSV v
+    fromVal v = liftIO $ valToSV v
 
 showNum :: Show a => a -> String
 showNum x
@@ -488,7 +492,8 @@ instance Value VProcess where
     doCast (VProcess x)  = x
     doCast x            = castFail x
 
-instance Value Int   where
+instance Value Int where
+    fromSV sv = liftIO $ svToVInt sv
     doCast = intCast
     castV = VInt . fromIntegral
 instance Value Word  where doCast = intCast
@@ -498,6 +503,7 @@ instance Value [Word8] where doCast = map (toEnum . ord) . vCast
 type VScalar = Val
 
 instance Value VScalar where
+    fromSV sv = return $ PerlSV sv
     fromVal (VRef r) = fromVal =<< readRef r
     fromVal v = return v
     vCast = id

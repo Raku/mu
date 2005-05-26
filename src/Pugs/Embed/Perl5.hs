@@ -22,14 +22,20 @@ evalPerl5 _ = constFail
 svToVStr :: PerlSV -> IO String
 svToVStr = constFail
 
+svToVInt :: (Num a) => PerlSV -> IO a
+svToVInt = constFail
+
+svToVNum :: (Fractional a) => PerlSV -> IO a
+svToVNum = constFail
+
 svToVBool :: PerlSV -> IO Bool
 svToVBool = constFail
 
-svToAny :: PerlSV -> IO (Maybe a)
-svToAny = constFail
+svToVal :: PerlSV -> IO (Maybe a)
+svToVal = constFail
 
-anyToSV :: a -> IO PerlSV
-anyToSV = constFail
+valToSV :: a -> IO PerlSV
+valToSV = constFail
 
 vstrToSV :: String -> IO PerlSV
 vstrToSV = constFail
@@ -46,6 +52,7 @@ canPerl5 _ = constFail
 #else
 
 {-# INCLUDE <perl5.h> #-}
+{-# INCLUDE <pugsembed.h> #-}
 
 module Pugs.Embed.Perl5 where
 import Foreign
@@ -54,6 +61,7 @@ import Foreign.C.String
 
 type PerlInterpreter = Ptr ()
 type PerlSV = Ptr ()
+type PugsVal = Ptr ()
 
 foreign import ccall "perl.h perl_alloc"
     perl_alloc :: IO PerlInterpreter
@@ -69,16 +77,16 @@ foreign import ccall "perl.h boot_DynaLoader"
     boot_DynaLoader :: Ptr () -> IO ()
 foreign import ccall "perl5.h perl5_SvPV"
     perl5_SvPV :: PerlSV -> IO CString
+foreign import ccall "perl5.h perl5_SvIV"
+    perl5_SvIV :: PerlSV -> IO CInt
+foreign import ccall "perl5.h perl5_SvNV"
+    perl5_SvNV :: PerlSV -> IO CDouble
 foreign import ccall "perl5.h perl5_SvTRUE"
     perl5_SvTRUE :: PerlSV -> IO Bool
-foreign import ccall "perl5.h perl5_SvPtr"
-    perl5_SvPtr :: PerlSV -> IO (Ptr ())
 foreign import ccall "perl5.h perl5_newSVpv"
     perl5_newSVpv :: CString -> IO PerlSV
 foreign import ccall "perl5.h perl5_newSViv"
     perl5_newSViv :: CInt -> IO PerlSV
-foreign import ccall "perl5.h perl5_newSVptr"
-    perl5_newSVptr :: Ptr () -> IO PerlSV
 foreign import ccall "perl5.h perl5_call"
     perl5_call :: CString -> CInt -> Ptr PerlSV -> CInt -> IO PerlSV
 foreign import ccall "perl5.h perl5_can"
@@ -87,6 +95,11 @@ foreign import ccall "perl.h perl5_eval"
     perl5_eval :: CString -> CInt -> IO PerlSV
 foreign import ccall "perl5.h perl5_init"
     perl5_init :: CInt -> Ptr CString -> IO PerlInterpreter
+
+foreign import ccall "pugsembed.h pugs_SvToVal"
+    pugs_SvToVal :: PerlSV -> IO PugsVal
+foreign import ccall "pugsembed.h pugs_MkValRef"
+    pugs_MkValRef :: PugsVal -> IO PerlSV
 
 initPerl5 :: String -> IO PerlInterpreter
 initPerl5 str = do
@@ -97,20 +110,26 @@ initPerl5 str = do
 svToVStr :: PerlSV -> IO String
 svToVStr sv = peekCString =<< perl5_SvPV sv
 
+svToVInt :: (Num a) => PerlSV -> IO a
+svToVInt sv = fmap fromIntegral $ perl5_SvIV sv
+
+svToVNum :: (Fractional a) => PerlSV -> IO a
+svToVNum sv = fmap realToFrac $ perl5_SvNV sv
+
 svToVBool :: PerlSV -> IO Bool
 svToVBool = perl5_SvTRUE
 
-anyToSV :: a -> IO PerlSV
-anyToSV x = do
-    ptr <- fmap castStablePtrToPtr $ newStablePtr x
-    perl5_newSVptr ptr
-
-svToAny :: PerlSV -> IO (Maybe a)
-svToAny sv = do
-    ptr <- perl5_SvPtr sv
+svToVal :: PerlSV -> IO (Maybe a)
+svToVal sv = do
+    ptr <- pugs_SvToVal sv
     if ptr == nullPtr
         then return Nothing
-        else fmap Just . deRefStablePtr $ castPtrToStablePtr ptr
+        else fmap Just $ deRefStablePtr (castPtrToStablePtr ptr)
+
+valToSV :: a -> IO PerlSV
+valToSV x = do
+    ptr <- fmap castStablePtrToPtr $ newStablePtr x
+    pugs_MkValRef ptr
 
 vstrToSV :: String -> IO PerlSV
 vstrToSV str = withCString str perl5_newSVpv 
