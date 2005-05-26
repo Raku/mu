@@ -9,7 +9,7 @@ Testing hash slices.
 
 =cut
 
-plan 8;
+plan 12;
 
 {   my %hash = (1=>2,3=>4,5=>6);
     my @s=(2,4,6);
@@ -25,4 +25,10 @@ plan 8;
     is(@s, [%hash{%hash.keys.sort}],     "values from hash keys, part 2");
     is(@s, [%hash{(1,2,3)>>+<<(0,1,2)}], "calculated slice: hyperop");
 
+    my @slice = (3,5);
+
+    is(%hash{@slice}, "4 6",      "slice from array, part 1");
+    is(%hash{@slice}, (4,6),      "slice from array, part 2");
+    is(%hash{@slice[1]}, (6),     "slice from array slice, part 1");
+    is(%hash{@slice[0,1]}, (4,6), "slice from array slice, part 2");
 }
