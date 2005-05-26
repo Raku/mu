@@ -217,9 +217,14 @@ perl5_get_sv(const char *name)
     return (get_sv(name, 1));
 }
 
-void * perl5_set_sv (const char *name, SV *sv)
+void * perl5_set_svref (const char *name, void *val)
 {
-    sv_setsv(get_sv(name, 1), sv);
+    SV *container = get_sv(name, TRUE);
+
+    SV *sv = newSV(0);
+    sv_setref_pv(sv, "pugs", val);
+
+    sv_setsv(container, sv);
 }
 
 SV *

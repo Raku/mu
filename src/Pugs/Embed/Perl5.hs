@@ -10,7 +10,7 @@ type PerlSV = ()
 constFail :: a -> IO b
 constFail = const $ fail "perl5 not embedded"
 
-initPerl5 :: String -> PerlSV -> IO PerlInterpreter
+initPerl5 :: String -> Maybe a -> IO PerlInterpreter
 initPerl5 _ _ = return ()
 
 freePerl5 :: PerlInterpreter -> IO ()
@@ -97,8 +97,8 @@ foreign import ccall "perl5.h perl5_newSVnv"
     perl5_newSVnv :: CDouble -> IO PerlSV
 foreign import ccall "perl5.h perl5_get_sv"
     perl5_get_sv :: CString -> IO PerlSV
-foreign import ccall "perl5.h perl5_set_sv"
-    perl5_set_sv :: CString -> PerlSV -> IO PerlSV
+foreign import ccall "perl5.h perl5_set_svref"
+    perl5_set_svref :: CString -> PugsVal -> IO ()
 foreign import ccall "perl5.h perl5_call"
     perl5_call :: CString -> CInt -> Ptr PerlSV -> CInt -> IO PerlSV
 foreign import ccall "perl5.h perl5_can"
@@ -113,13 +113,17 @@ foreign import ccall "pugsembed.h pugs_SvToVal"
 foreign import ccall "pugsembed.h pugs_MkValRef"
     pugs_MkValRef :: PugsVal -> IO PerlSV
 
-initPerl5 :: String -> PerlSV -> IO PerlInterpreter
+initPerl5 :: String -> Maybe a -> IO PerlInterpreter
 initPerl5 str env = do
     withCString "-e" $ \prog -> withCString str $ \cstr -> do
         withArray [prog, prog, cstr] $ \argv -> do
-            perl5_init 3 argv
-            withCString "pugs::env" $ \name -> do
-                perl5_set_sv name env
+            interp <- perl5_init 3 argv
+            case env of
+                Just val -> withCString "pugs::env" $ \name -> do
+                    ptr <- fmap castStablePtrToPtr $ newStablePtr val
+                    perl5_set_svref name ptr
+                Nothing -> return ()
+            return interp
 
 svToVStr :: PerlSV -> IO String
 svToVStr sv = peekCString =<< perl5_SvPV sv
