@@ -22,6 +22,15 @@ foreign export ccall "pugs_Apply"
 foreign export ccall "pugs_ValToSv"
     valToSv :: PugsVal -> IO PerlSV
 
+foreign export ccall "pugs_ValToIv"
+    valToIv :: PugsVal -> IO CInt
+
+foreign export ccall "pugs_ValToNv"
+    valToNv :: PugsVal -> IO CDouble
+
+foreign export ccall "pugs_ValToPv"
+    valToPv :: PugsVal -> IO CString
+
 foreign export ccall "pugs_MkSvRef"
     mkSvRef :: PerlSV -> IO PugsVal
 
@@ -77,6 +86,24 @@ valToSv ptr = do
     case val of
         PerlSV sv   -> return sv
         _           -> mkValRef val
+
+valToIv :: PugsVal -> IO CInt
+valToIv ptr = do
+    val <- deVal ptr
+    fmap fromInteger (fromVal'' val)
+
+valToNv :: PugsVal -> IO CDouble
+valToNv ptr = do
+    val <- deVal ptr
+    fmap fromRational (fromVal'' val)
+
+valToPv :: PugsVal -> IO CString
+valToPv ptr = do
+    val <- deVal ptr
+    newCString =<< (fromVal'' val)
+
+fromVal'' :: (Value a) => Val -> IO a
+fromVal'' = return . vCast
 
 mkSvRef :: PerlSV -> IO PugsVal
 mkSvRef = mkVal . PerlSV

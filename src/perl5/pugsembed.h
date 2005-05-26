@@ -15,6 +15,9 @@ extern Val *pugs_PvToVal ( char *pv );
 
 extern Val *pugs_MkSvRef  ( SV *sv );
 extern SV  *pugs_ValToSv ( Val *val );
+extern IV   pugs_ValToIv ( Val *val );
+extern NV   pugs_ValToNv ( Val *val );
+extern char *pugs_ValToSv ( Val *val );
 
 Val *pugs_SvToVal ( SV *sv );
 SV  *pugs_MkValRef ( Val *val );
