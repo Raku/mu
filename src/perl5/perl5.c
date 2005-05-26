@@ -11,6 +11,28 @@
 
 static PerlInterpreter *my_perl;
 
+const char eval_file_code[] =
+"use strict;"
+"package pugs;"
+
+"our $AUTOLOAD;"
+"sub AUTOLOAD { }"
+"warn 'perl5 glue compiled';"
+//"pugs::guts::test();"
+
+"package pugs::code;"
+"sub new { }"
+"1;";
+
+XS(_pugs_guts_test) {
+    dXSARGS;
+    if (items != 1)
+        Perl_croak(aTHX_ "hate software");
+
+    XSRETURN(1);
+}
+
+
 #ifdef HAS_PROCSELFEXE
 /* This is a function so that we don't hold on to MAXPATHLEN
    bytes of stack longer than necessary
@@ -97,25 +119,20 @@ perl5_init ( int argc, char **argv )
 
     if (exitstatus == 0)
 	exitstatus = perl_run( my_perl );
-
-    return my_perl;
-    /*
-    perl_destruct( my_perl );
-
-    if ( par_getenv("PAR_SPAWNED") == NULL ) {
-        if ( stmpdir == NULL ) {
-            stmpdir = par_getenv("PAR_TEMP");
-        }
-        if ( stmpdir != NULL ) {
-            par_cleanup(stmpdir);
-        }
-    }
-
-    perl_free( my_perl );
-    PERL_SYS_TERM();
-
     return exitstatus;
-    */
+
+    fprintf(stderr, "hello, perl5\n");
+
+    newXS((char*) "pugs::guts::test", _pugs_guts_test, (char*)__FILE__);
+
+    eval_pv(eval_file_code, FALSE);
+
+    if (SvTRUE(ERRSV)) {
+        STRLEN n_a;
+        printf("Error init perl: %s\n", SvPV(ERRSV,n_a));
+        exit(1);
+    }
+    return my_perl;
 }
 
 char *

@@ -24,12 +24,14 @@ sub foo {
 }
 
 sub echo {
-    my $self = shift;
-    return shift;
+    my ($self, $what) = @_;
+warn "==> got $what";
+    return $what;
 }
 
 sub callcode {
     my ($self, $code) = @_;
+warn "==> got $code";
     return $code->($self);
 }
 
