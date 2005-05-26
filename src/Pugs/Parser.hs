@@ -1113,10 +1113,11 @@ ruleInvocation = tryVerbatimRule "invocation" $ do
     colon       <- maybeColon
     hasEqual    <- option False $ do char '='; whiteSpace; return True
     name        <- do { str <- ruleSubName; return $ colon str }
-    (invs,args) <- option ([],[]) $ parseParenParamList False
+    (invs,args) <- option (Nothing,[]) $ parseParenParamList False
+    when (isJust invs) $ fail "Only one invocant allowed"
     return $ \x -> if hasEqual
-        then Syn "=" [x, App (Var name) (Just x) (invs ++ args)]
-        else App (Var name) (Just x) (invs ++ args)
+        then Syn "=" [x, App (Var name) (Just x) args]
+        else App (Var name) (Just x) args
 
 ruleInvocationParens :: RuleParser (Exp -> Exp)
 ruleInvocationParens = do
@@ -1124,11 +1125,10 @@ ruleInvocationParens = do
     hasEqual    <- option False $ do { char '='; whiteSpace; return True }
     name        <- do { str <- ruleSubName; return $ colon str }
     (invs,args) <- verbatimParens $ parseNoParenParamList False
-    -- XXX we just append the adverbial block onto the end of the arg list
-    -- it really goes into the *& slot if there is one. -lp
+    when (isJust invs) $ fail "Only one invocant allowed"
     return $ \x -> if hasEqual
-        then Syn "=" [x, App (Var name) (Just x) (invs ++ args)]
-        else App (Var name) (Just x) (invs ++ args)
+        then Syn "=" [x, App (Var name) (Just x) args]
+        else App (Var name) (Just x) args
 
 ruleArraySubscript :: RuleParser (Exp -> Exp)
 ruleArraySubscript = tryVerbatimRule "array subscript" $ do
@@ -1152,28 +1152,29 @@ ruleHashSubscriptQW = do
 ruleCodeSubscript :: RuleParser (Exp -> Exp)
 ruleCodeSubscript = tryVerbatimRule "code subscript" $ do
     (invs,args) <- parens $ parseParamList
-    return $ \x -> App x (listToMaybe invs) args
+    return $ \x -> App x invs args
 
 ruleApply :: Bool -> RuleParser Exp
 ruleApply isFolded = tryVerbatimRule "apply" $ do
-    (colon, implicitInv) <- option (id, []) $ do
+    (colon, inv) <- option (id, Nothing) $ do
         when isFolded $ fail ""
         char '.'
-        option (id, [Var "$_"]) $ choice
-            [ do { char '/'; return (id, [Var "$?SELF"]) }
+        option (id, Just $ Var "$_") $ choice
+            [ do { char '/'; return (id, (Just $ Var "$?SELF")) }
             , do char ':'
                  return ( \(sigil:name) -> (sigil:':':name)
-                        , [Var "$?SELF"]
+                        , Just $ Var "$?SELF"
                         )
             ]
     name    <- if isFolded then ruleFoldOp else fmap colon ruleSubName
     when ((name ==) `any` words " &if &unless &while &until &for ") $
         fail "reserved word"
     hasDot  <- option False $ try $ do { whiteSpace; char '.'; return True }
-    (invs, args) <- if hasDot
-        then parseNoParenParamList (null implicitInv)
-        else parseParenParamList (null implicitInv) <|> do { whiteSpace; parseNoParenParamList (null implicitInv) }
-    return $ App (Var name) (listToMaybe $ implicitInv ++ invs) args
+    (inv', args) <- if hasDot
+        then parseNoParenParamList (isNothing inv)
+        else parseParenParamList (isNothing inv) <|> do { whiteSpace; parseNoParenParamList (isNothing inv) }
+    -- XXX - warn when there's both inv and inv'
+    return $ App (Var name) (inv `mplus` inv') args
 
 ruleFoldOp :: RuleParser String
 ruleFoldOp = verbatimRule "reduce metaoperator" $ do
@@ -1197,19 +1198,17 @@ ruleFoldOp = verbatimRule "reduce metaoperator" $ do
 	, " .[] .{} "
         ]
 
-parseParamList :: RuleParser ([Exp], [Exp])
+parseParamList :: RuleParser (Maybe Exp, [Exp])
 parseParamList = parseParenParamList True <|> parseNoParenParamList True
 
-parseParenParamList :: Bool -> RuleParser ([Exp], [Exp])
+parseParenParamList :: Bool -> RuleParser (Maybe Exp, [Exp])
 parseParenParamList defaultToInvs = do
     params      <- option Nothing . fmap Just $
         verbatimParens $ parseHasParenParamList defaultToInvs
-    block       <- option [] ruleAdverbBlock
-    when (isNothing params && null block) $ fail ""
-    let (inv, norm) = maybe ([], []) id params
-    -- XXX we just append the adverbial block onto the end of the arg list
-    -- it really goes into the *& slot if there is one. -lp
-    processFormals False [inv, norm ++ block]
+    blocks      <- option [] ruleAdverbBlock
+    when (isNothing params && null blocks) $ fail ""
+    let (inv, args) = maybe (Nothing, []) id params
+    return (inv, args ++ blocks)
 
 ruleAdverbBlock :: RuleParser [Exp]
 ruleAdverbBlock = tryRule "adverbial block" $ do
@@ -1218,7 +1217,7 @@ ruleAdverbBlock = tryRule "adverbial block" $ do
     next <- option [] ruleAdverbBlock
     return (rblock:next)
 
-parseHasParenParamList :: Bool -> RuleParser ([Exp], [Exp])
+parseHasParenParamList :: Bool -> RuleParser (Maybe Exp, [Exp])
 parseHasParenParamList defaultToInvs = do
     formal <- (`sepEndBy` symbol ":") $ fix $ \rec -> do
         rv <- option Nothing $ fmap Just $ do
@@ -1231,7 +1230,7 @@ parseHasParenParamList defaultToInvs = do
                 return (exp:rest)
     processFormals defaultToInvs formal
 
-parseNoParenParamList :: Bool -> RuleParser ([Exp], [Exp])
+parseNoParenParamList :: Bool -> RuleParser (Maybe Exp, [Exp])
 parseNoParenParamList defaultToInvs = do
     formal <- (`sepEndBy` symbol ":") $ fix $ \rec -> do
         rv <- option Nothing $ do
@@ -1249,15 +1248,13 @@ parseNoParenParamList defaultToInvs = do
                 return (exp:rest)
     processFormals defaultToInvs formal
 
-processFormals :: Monad m => Bool -> [[Exp]] -> m ([Exp], [Exp])
-processFormals defaultToInvs formal = do
-    case formal of
-        []                  -> return ([], [])
-        [invocants]         -> return $ if defaultToInvs
-	    then (unwind invocants, [])
-	    else ([], unwind invocants)
-        [invocants,args]    -> return (unwind invocants, unwind args)
-        _                   -> fail "Only one invocant list allowed"
+processFormals :: Monad m => Bool -> [[Exp]] -> m (Maybe Exp, [Exp])
+processFormals defaultToInvs formal = case formal of
+    []      -> return (Nothing, [])
+    [invs] | defaultToInvs, [inv] <- unwind invs -> return (Just inv, [])
+    [args] -> return (Nothing, unwind args)
+    [invs,args] | [inv] <- unwind invs -> return (Just inv, unwind args)
+    _                   -> fail "Only one invocant allowed"
     where
     unwind :: [Exp] -> [Exp]
     unwind [] = []
@@ -1391,9 +1388,9 @@ undefLiteral :: RuleParser Exp
 undefLiteral = try $ do
     symbol "undef"
     (invs,args)   <- maybeParens $ parseParamList
-    return $ if null (invs ++ args)
+    return $ if isNothing invs && null args
         then Val VUndef
-        else App (Var "&undef") (listToMaybe invs) args
+        else App (Var "&undef") invs args
 
 numLiteral :: RuleParser Exp
 numLiteral = do
