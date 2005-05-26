@@ -718,7 +718,7 @@ op2 "kill" = \s v -> do
     return . VInt $ sum rets
 op2 "isa"   = \x y -> do
     typ <- fromVal y
-    ifValTypeIsa x typ
+    ifValTypeIsa x (showType typ)
         (return $ VBool True)
         (return $ VBool False)
 op2 "delete" = \x y -> do
