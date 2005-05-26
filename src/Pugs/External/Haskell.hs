@@ -15,7 +15,7 @@ loadHaskell         = error "Template Haskell support not compiled in"
 import Language.Haskell.TH as TH
 import Language.Haskell.Parser
 import Language.Haskell.Syntax
-import Plugins
+import System.Plugins
 import Pugs.Config
 import Pugs.Internals
 
