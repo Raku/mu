@@ -675,7 +675,7 @@ reduce exp@(Syn name exps) = case name of
     doWhileUntil :: (Bool -> Bool) -> Eval Val
     doWhileUntil f = do
         let [cond, body] = exps
-        enterLoop . fix $ \runLoop -> do
+        enterWhile . fix $ \runLoop -> do
             vbool <- enterEvalContext (cxtItem "Bool") cond
             vb    <- fromVal vbool
             case f vb of
@@ -1180,10 +1180,11 @@ arityMatch sub@MkCode{ subAssoc = assoc, subParams = prms } argLen argSlurpLen
     = Nothing
 
 doFetch :: (Val -> Eval (IVar VScalar))
-            -> (Val -> Eval Val)
-            -> (forall v. (Value v) => Eval v)
-            -> Bool -> Bool
-            -> Eval Val
+        -> (Val -> Eval Val)
+        -> (forall v. (Value v) => Eval v)
+        -> Bool
+        -> Bool
+        -> Eval Val
 doFetch fetchElem fetchVal fetchIdx isLV isSV = case (isLV, isSV) of
     (True, True) -> do
         -- LValue, Scalar context

@@ -91,8 +91,17 @@ enterWhen break action = callCC $ \esc -> do
         , subBody = break
         }
 
-enterLoop :: Eval Val -> Eval Val
-enterLoop action = genSymCC "&last" $ \symLast -> do
+{-|
+Bind @&last@ and @&next@ to subs that respectively break-out-of and repeat the 
+@while@\/@until@, then perform the given evaluation in the new lexical scope.
+
+Note that this function is /not/ responsible for performing the actual
+@while@\/@until@ test; it is the responsibility of the caller to add such a
+test to the top of the body evaluation.
+-}
+enterWhile :: Eval Val -- ^ Evaluation representing loop test & body
+           -> Eval Val
+enterWhile action = genSymCC "&last" $ \symLast -> do
     genSymPrim "&next" (const action) $ \symNext -> do
         enterLex [symLast, symNext] action
 
@@ -230,6 +239,7 @@ makeParams MkEnv{ envContext = cxt, envLValue = lv }
         , paramDefault = Val VUndef
         } ]
 
+-- | (This doesn't seem to be used at the moment...)
 caller :: Int -> Eval Env
 caller n = do
     depth <- asks envDepth

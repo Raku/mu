@@ -164,22 +164,56 @@ decodeUTF8 str = fst $ decode bytes
     where
     bytes = map (toEnum . ord) str
 
-forM :: (Monad m) => [a] -> (a -> m b) -> m [b]
+{-|
+Take a list of values, and a monad-producing function, and apply that function
+to each element of the list. The resulting monads are combined into a single
+monad producing a list of the resulting values.
+
+(This is just @mapM@ with the arguments reversed.)
+-}
+forM :: (Monad m) 
+     => [a]        -- ^ List of values to loop over
+     -> (a -> m b) -- ^ The \'body\' of the for loop
+     -> m [b]      -- ^ Monad containing a list of the results
 forM = flip mapM
 
-forM_ :: (Monad m) => [a] -> (a -> m b) -> m ()
+{-|
+Take a list of values, and a monad-producing function, and apply that function
+to each element of the list in sequence. The values produced by the monadic
+function are discarded.
+
+(This is just @mapM_@ with the arguments reversed.)
+-}
+forM_ :: (Monad m) 
+      => [a]        -- ^ List of values to loop over
+      -> (a -> m b) -- ^ The \'body\' of the for loop
+      -> m ()
 forM_ = flip mapM_
 
 tryIO :: (MonadIO m) => a -> IO a -> m a
 tryIO err = liftIO . (`catch` (const $ return err))
 
-combine :: [a->a] -> a -> a
+{-|
+Compose a list of @(a -> a)@ transformer functions into a single chained
+function, using @foldr@ via the @(.)@ operator.
+
+Note that the transformations are applied to the eventual argument in 
+right-to-left order.
+-}
+combine :: [a -> a] -- ^ List of transformer functions
+        -> (a -> a) -- ^ The final combined transformer
 combine = foldr (.) id
 
 unsafePerformSTM :: STM a -> a
 unsafePerformSTM = unsafePerformIO . atomically
 
-modifyTVar :: TVar a -> (a -> a) -> STM ()
+{-|
+Read an STM variable, apply some transformation function to it, and write the
+transformed value back to the same variable.
+-}
+modifyTVar :: TVar a 
+           -> (a -> a) 
+           -> STM ()
 modifyTVar var f = do
     x <- readTVar var
     writeTVar var (f x)
@@ -187,12 +221,28 @@ modifyTVar var f = do
 -- instance MonadIO STM where
 --     liftIO = unsafeIOToSTM
 
-maybeM :: (FunctorM f, Monad m) => m (f a) -> (a -> m b) -> m (f b)
+{-|
+Extract a @Maybe@ value from the first argument (a monad).
+
+If it's a @Just@ (i.e. it contains a value), apply the second argument
+(a monad-producing function) to it, and @return@ the contents of /that/ 
+wrapped in a @Just@.
+
+Otherwise, merely @return Nothing@.
+
+(Strictly speaking, this function can operate with any @FunctorM@, not just
+@Maybe@, but it helps to have a concrete example to explain things.)
+-}
+maybeM :: (FunctorM f, Monad m) 
+       => m (f a)    -- ^ A @Maybe@ value encapsulated in a monad
+       -> (a -> m b) -- ^ Action to perform on the first arg /if/ it contains
+                     --     a value
+       -> m (f b)    -- ^ Monad containing (@Just@ /result/) or @Nothing@
 maybeM f m = fmapM m =<< f
 
 {-|
-Transform an operator name, for example @&infix:<+>@ or @&prefix:«[+]»@, into
-its internal name (@&infix:+@ and @&prefix:[+]@ respectively).
+Transform an operator name, for example @&infix:\<+\>@ or @&prefix:«[+]»@, 
+into its internal name (@&infix:+@ and @&prefix:[+]@ respectively).
 -}
 possiblyFixOperatorName :: String -> String
 possiblyFixOperatorName name
