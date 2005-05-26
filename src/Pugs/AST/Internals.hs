@@ -212,7 +212,7 @@ class (Typeable n, Show n, Ord n) => Value n where
     fromSV :: PerlSV -> Eval n
     fromSV sv = do
         str <- liftIO $ svToVStr sv
-        fail $ "cannot cast from SV (" ++ str ++ " to " ++ errType (undefined :: n)
+        fail $ "cannot cast from SV (" ++ str ++ ") to " ++ errType (undefined :: n)
     vCast :: Val -> n
     vCast v@(VRef _)    = castFail v
     vCast v             = doCast v

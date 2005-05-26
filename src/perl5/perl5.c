@@ -189,17 +189,30 @@ perl5_call(char *subname, int argc, SV** args, int cxt)
 }
 
 SV *
-perl5_eval(char *code, int cxt)
+perl5_eval(char *code, SV *env, int cxt)
 {
     dSP;
-    SV* sv = newSVpv(code, 0);
+    SV* sv;
 
+    ENTER;
+
+    if (env != NULL) {
+        sv = get_sv("pugs::env", 1);
+        save_item(sv);
+        sv_setsv(sv, env);
+    }
+
+    sv = newSVpv(code, 0);
     eval_sv(sv, cxt);
     SvREFCNT_dec(sv);
 
     SPAGAIN;
     sv = POPs;
+    SvREFCNT_inc(sv);
     PUTBACK;
+
+    FREETMPS;
+    LEAVE;
 
     return sv;
 }

@@ -242,9 +242,10 @@ op1 "eval" = \v -> do
     opEval Nothing "<eval>" str
 op1 "eval_perl5" = \v -> do
     str <- fromVal v
-    cxt <- asks envContext
+    env <- ask
     tryIO undef $ do
-        sv <- evalPerl5 str $ enumCxt cxt
+        envSV <- valToSV (VControl $ ControlEnv env)
+        sv <- evalPerl5 str envSV $ enumCxt (envContext env)
         return $ PerlSV sv
 op1 "eval_haskell" = op1EvalHaskell
 op1 "eval_yaml" = evalYaml

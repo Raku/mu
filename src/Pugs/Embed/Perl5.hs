@@ -16,8 +16,8 @@ initPerl5 _ = return ()
 freePerl5 :: PerlInterpreter -> IO ()
 freePerl5 _ = return ()
 
-evalPerl5 :: String -> CInt -> IO PerlSV
-evalPerl5 _ = constFail
+evalPerl5 :: String -> PerlSV -> CInt -> IO PerlSV
+evalPerl5 _ _ = constFail
 
 svToVStr :: PerlSV -> IO String
 svToVStr = constFail
@@ -48,6 +48,9 @@ callPerl5 _ _ = constFail
 
 canPerl5 :: PerlSV -> String -> IO Bool
 canPerl5 _ = constFail
+
+nullSV :: PerlSV
+nullSV = error "perl5 not embedded"
 
 #else
 
@@ -92,7 +95,7 @@ foreign import ccall "perl5.h perl5_call"
 foreign import ccall "perl5.h perl5_can"
     perl5_can :: PerlSV -> CString -> IO Bool
 foreign import ccall "perl.h perl5_eval"
-    perl5_eval :: CString -> CInt -> IO PerlSV
+    perl5_eval :: CString -> PerlSV -> CInt -> IO PerlSV
 foreign import ccall "perl5.h perl5_init"
     perl5_init :: CInt -> Ptr CString -> IO PerlInterpreter
 
@@ -146,13 +149,16 @@ callPerl5 str args cxt = do
 canPerl5 :: PerlSV -> String -> IO Bool
 canPerl5 sv meth = withCString meth $ \cstr -> perl5_can sv cstr
 
-evalPerl5 :: String -> CInt -> IO PerlSV
-evalPerl5 str cxt = withCString str $ \cstr -> perl5_eval cstr cxt
+evalPerl5 :: String -> PerlSV -> CInt -> IO PerlSV
+evalPerl5 str env cxt = withCString str $ \cstr -> perl5_eval cstr env cxt
 
 freePerl5 :: PerlInterpreter -> IO ()
 freePerl5 my_perl = do
     perl_destruct my_perl
     return ()
+
+nullSV :: PerlSV
+nullSV = nullPtr
 
 #endif
 
