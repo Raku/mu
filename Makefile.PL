@@ -122,11 +122,13 @@ sub set_postamble {
 
     my $embed_flags = "";
     my $hsc2hs_flags = "";
+    my $ccdlflags = "";
 
     if ($ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bperl5\b/i) {
         push @prereqs, "src/perl5/perl5.o";
         $ghc_output .= " src/perl5/perl5.o ";
         $ghc_flags .= " -DPUGS_HAVE_PERL5 ";
+	$ccdlflags .= " -optl $Config{ccdlflags} ";
     }
     else {
         warn << '.';
@@ -247,7 +249,7 @@ docs/haddock :
 	\@\$(PERL) -e "mkdir q-docs/haddock-"
 
 profiled :: src/Pugs/Config.hs @srcfiles $version_h @prereqs
-	$ghc $threaded -O -auto-all -prof --make $profiled_flags $ghc_output
+	$ghc $threaded -O -auto-all -prof --make $profiled_flags $ccdlflags $ghc_output
 
 pugs.prof :: profiled
 	find t -type f | grep -v D | grep -v R | grep -v pugsrun | ./pugs +RTS -p -RTS -e 'my sub exit {}; for =\$\$*IN -> \$\$t is copy { chomp \$\$t; require \$\$t }'
@@ -255,15 +257,15 @@ pugs.prof :: profiled
 optimised :: optimized
 
 optimized :: src/Pugs/Config.hs @srcfiles $version_h @prereqs
-	$ghc $threaded -O --make $ghc_flags $embed_flags $ghc_output
+	$ghc $threaded -O --make $ghc_flags $embed_flags $ccdlflags $ghc_output
 
 unoptimised :: unoptimized
 
 unoptimized :: src/Pugs/Config.hs @srcfiles $version_h @prereqs
-	$ghc $threaded -O0 --make $ghc_flags $embed_flags $ghc_output
+	$ghc $threaded -O0 --make $ghc_flags $embed_flags $ccdlflags $ghc_output
 
 $pugs : src/Pugs/Config.hs @srcfiles $version_h @prereqs
-	$ghc $threaded -O --make $ghc_flags $embed_flags $ghc_output
+	$ghc $threaded -O --make $ghc_flags $embed_flags $ccdlflags $ghc_output
 
 smoke : $pugs util/run-smoke.pl
 	\$(PERL) util/run-smoke.pl . smoke.html
