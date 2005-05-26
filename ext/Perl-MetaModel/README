@@ -25,15 +25,16 @@ off the Pugs root there is some more information:
 
 Each level is currently being developed in parallel, as 
 
-M1 - Class level
-~~~~~~~~~~~~~~~~
+M1 - Class level - the language Model
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The Perl6 "clean" prototypes of Perl 6 core language entities, for
-example the "Perl::Class" class defined as a class, can be found in;
+example the "Class" class defined as a class, can be found in;
 
-    lib/Perl/*
+    lib/*
 
 These entities should be derived primarily from features required by
-things in the Synopses.
+things in the Synopses.  In particular, most of S29 should end up
+defined as methods on classes in this directory.
 
 Currently in Pugs, the closest corresponding entities are;
 
@@ -50,13 +51,33 @@ Currently in Pugs, the closest corresponding entities are;
         VArray, VHash, VThunk, VProcess, VMatch, VCode, VJunc,
         VObject, VType in Pugs/AST/Internals.hs
 
-lib/Pugs/*.pm classes are what you would get out of introspecting the
-Haskell source.  Attribute names should be taken from the Haskell
-source where possible.
+Classes that are what you would get out of introspecting the Haskell
+source at:
 
-M2 - Meta::Class level
-~~~~~~~~~~~~~~~~~~~~~~
+    lib/Pugs/*.pm 
+
+Attribute names should be taken from the Haskell source where
+possible.  Note that there are several Haskell constructs that are
+hazy areas about how the same thing is written in Perl 6; Haskell is
+an advanced language!
+
+M2 - Meta::Class level - the langauge Meta-Model
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 These objects represent data structures capable of describing the M1
-classes.
+classes, and changes that are permitted to the M1 objects, such as
+defining new Class traits.  These are being built in:
 
-k
+    lib/Meta/*.pm
+
+M3 - Meta::Meta::Class - the language Meta-Meta-Model
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+These are designed to be a minimal set of classes that can describe
+any Meta::Model.  This level is being built in case it ends up being
+important for representing the compiler, which must be able to load in
+new Meta::Class structures when dealing with alternate object
+systems...
+
+This work is currently largely based on Smalltalk traits, and can be
+found in:
+
+    lib/Perl/Meta/*.pm
