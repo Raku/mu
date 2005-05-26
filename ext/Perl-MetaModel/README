@@ -12,18 +12,51 @@ Currently the people involved in this are:
 
 Contact them on #perl6 for more details.
 
-More information can be found in:
-
-    lib/Perl/MetaModel.pm
+The many levels of introspection
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+There are several "layers" to the Perl 6 object system.  Overview
+information can be found in:
 
     docs/meta_meta_classes.pod
 
-and off the Pugs root:
-
+off the Pugs root there is some more information:
     docs/class/*
-    
     src/Pugs/Class.hs
-    
-lib/Perl/*.pm classes are what you would get out of introspecting the
+
+Each level is currently being developed in parallel, as 
+
+M1 - Class level
+~~~~~~~~~~~~~~~~
+The Perl6 "clean" prototypes of Perl 6 core language entities, for
+example the "Perl::Class" class defined as a class, can be found in;
+
+    lib/Perl/*
+
+These entities should be derived primarily from features required by
+things in the Synopses.
+
+Currently in Pugs, the closest corresponding entities are;
+
+  - Compiled Types:
+      - MkType inserting to envClasses in Pugs/AST/Internals.hs
+
+  - "Core" types, including "Classes":
+      - Type in Pugs/Types.hs (as a base class)
+
+      - VStr, VBool, VInt, VRat, VNum, VComplex, VHandle, VSocket,
+	VThread, MatchPGE in Pugs/Types.hs
+
+      - VRef, VOpaque, VControl, VScalar, VPair, VList, VSubst,
+        VArray, VHash, VThunk, VProcess, VMatch, VCode, VJunc,
+        VObject, VType in Pugs/AST/Internals.hs
+
+lib/Pugs/*.pm classes are what you would get out of introspecting the
 Haskell source.  Attribute names should be taken from the Haskell
 source where possible.
+
+M2 - Meta::Class level
+~~~~~~~~~~~~~~~~~~~~~~
+These objects represent data structures capable of describing the M1
+classes.
+
+k
