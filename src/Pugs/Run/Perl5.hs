@@ -89,21 +89,24 @@ valToSv ptr = do
 
 valToIv :: PugsVal -> IO CInt
 valToIv ptr = do
-    val <- deVal ptr
-    fmap fromInteger (fromVal'' val)
+    val     <- deVal ptr
+    env     <- askPerl5Env
+    VInt x  <- runEvalIO env $ fmap VInt (fromVal val)
+    return $ fromInteger x
 
 valToNv :: PugsVal -> IO CDouble
 valToNv ptr = do
-    val <- deVal ptr
-    fmap fromRational (fromVal'' val)
+    val     <- deVal ptr
+    env     <- askPerl5Env
+    VRat x  <- runEvalIO env $ fmap VInt (fromVal val)
+    return $ fromRational x
 
 valToPv :: PugsVal -> IO CString
 valToPv ptr = do
-    val <- deVal ptr
-    newCString =<< (fromVal'' val)
-
-fromVal'' :: (Value a) => Val -> IO a
-fromVal'' = return . vCast
+    val     <- deVal ptr
+    env     <- askPerl5Env
+    VStr x  <- runEvalIO env $ fmap VInt (fromVal val)
+    newCString x
 
 mkSvRef :: PerlSV -> IO PugsVal
 mkSvRef = mkVal . PerlSV
