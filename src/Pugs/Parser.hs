@@ -1467,9 +1467,9 @@ qInterpolatorPostTerm :: RuleParser (Exp -> Exp)
 qInterpolatorPostTerm = try $ do
     option ' ' $ char '.'
     choice
-        [ ruleInvocationParens
-        , ruleArraySubscript
-        , ruleHashSubscript
+        [ try ruleInvocationParens
+        , try ruleArraySubscript
+        , try ruleHashSubscript
         , ruleCodeSubscript
         ]
 
