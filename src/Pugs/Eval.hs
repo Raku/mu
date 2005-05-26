@@ -836,30 +836,31 @@ findSub name' invs args = do
     case invs of
         [exp] | not (':' `elem` drop 2 name) -> do
             typ     <- evalExpType exp
-            if typ == mkType "Scalar::Perl5" then findPerl5Sub name else do
+            if typ == mkType "Scalar::Perl5" then runPerl5Sub name else do
             subs    <- findWithPkg (showType typ) name
             if isJust subs then return subs else findSub' name
         _ -> do
             sub <- findSub' name
             if isNothing sub then possiblyBuildMetaopVCode name else return sub
     where
-    findPerl5Sub name = do
-        sv      <- fromVal =<< fromVal =<< evalExp (head invs)
-        -- liftIO $ print ("Starting to handle", name, sv)
-        found   <- liftIO $ canPerl5 sv (tail name)
-        -- liftIO $ print ("Stage 1", found)
-        if found then runPerl5Sub name else do
-        sub     <- findSub' name
-        -- liftIO $ print ("Stage 2", sub)
-        if isJust sub then return sub else do
-        found   <- liftIO $ canPerl5 sv "AUTOLOAD"
-        -- liftIO $ print ("Stage 3", found)
-        if found then runPerl5Sub name else do
-        possiblyBuildMetaopVCode name
     runPerl5Sub name = do
-        subs    <- findWithPkg "Scalar::Perl5" "&AUTOLOAD"
-        writeVar "$*AUTOLOAD" (VStr $ tail name)
-        return subs
+        metaSub <- possiblyBuildMetaopVCode name
+        if isJust metaSub then return metaSub else do
+        return . Just $ mkPrim
+            { subName     = name
+            , subType     = SubPrim
+            , subAssoc    = "pre"
+            , subParams   = makeParams ["Object", "List"]
+            , subReturns  = mkType "Scalar::Perl5"
+            , subBody     = Prim $ \(inv:args:_) -> do
+                sv      <- fromVal inv
+                svs     <- fromVals args
+                found   <- liftIO $ canPerl5 sv (tail name) `mplus` canPerl5 sv "AUTOLOAD"
+                if not found then evalExp (App (Var name) [] (map (Val . PerlSV) (sv:svs))) else do
+                cxt     <- asks envContext
+                rv      <- liftIO $ callPerl5 (tail name) (sv:svs) (enumCxt cxt)
+                return $ PerlSV rv
+            }
     possiblyBuildMetaopVCode op' | "&prefix:[" `isPrefixOf` op', "]" `isSuffixOf` op' = do 
         -- Strip the trailing "]" from op
         let op = drop 9 (init op')

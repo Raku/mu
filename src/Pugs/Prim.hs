@@ -242,8 +242,9 @@ op1 "eval" = \v -> do
     opEval Nothing "<eval>" str
 op1 "eval_perl5" = \v -> do
     str <- fromVal v
+    cxt <- asks envContext
     tryIO undef $ do
-        sv <- evalPerl5 str
+        sv <- evalPerl5 str $ enumCxt cxt
         return $ PerlSV sv
 op1 "eval_haskell" = op1EvalHaskell
 op1 "eval_yaml" = evalYaml
@@ -806,13 +807,6 @@ op2 "sort" = \x y -> do
     op1 "sort" . VList $ xs ++ ys
 op2 "say" = \x (VList ys) -> op1Print hPutStrLn (VList (x:ys))
 op2 "print" = \x (VList ys) -> op1Print hPutStr (VList (x:ys))
-op2 "Scalar::Perl5::AUTOLOAD" = \inv args -> do
-    meth <- readVar "$*AUTOLOAD"
-    str  <- fromVal meth
-    sv   <- fromVal inv
-    svs  <- fromVals args
-    rv   <- liftIO $ callPerl5 str (sv:svs)
-    return $ PerlSV rv
 op2 other = \_ _ -> fail ("Unimplemented binaryOp: " ++ other)
 
 -- |Implementation of 3-arity primitive operators and functions
@@ -1403,7 +1397,6 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Str       pre     name    (Code)\
 \\n   Int       pre     arity   (Code)\
 \\n   Bool      pre     Thread::yield   (Thread)\
-\\n   Scalar::Perl5    pre     Scalar::Perl5::AUTOLOAD (Object: List)\
 \\n   List      pre     Pugs::Internals::runInteractiveCommand    (?Str=$_)\
 \\n   List      pre     Pugs::Internals::openFile    (?Str,?Str=$_)\
 \\n   Bool      pre     bool::true ()\
