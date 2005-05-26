@@ -86,10 +86,10 @@ sub set_postamble {
 *** Inline Haskell support disabled.  If you want dynamic loading
     of haskell modules, please install the hs-plugins library,
 	ftp://ftp.cse.unsw.edu.au/pub/users/dons/hs-plugins/snapshots/ ,
-    dated 2005-04-10 or later -- remember to "make register" too!
+    dated 2005-05-21 or later -- remember to "make register" too!
 .
 	} else {
-	  $ghc_flags .= ' -package eval -DPUGS_HAVE_HSPLUGINS=1 ';
+	  $ghc_flags .= ' -package plugins -DPUGS_HAVE_HSPLUGINS=1 ';
 	}
 
     if (has_ghc_package('readline') 

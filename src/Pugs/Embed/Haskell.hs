@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -cpp -package eval #-}
+{-# OPTIONS_GHC -fglasgow-exts -cpp -package plugins #-}
 
 module Pugs.Embed.Haskell where
 
@@ -12,7 +12,7 @@ evalHaskell _ = fail "need hs-plugins for eval_haskell"
 
 #else
 
-import qualified Eval
+import qualified System.Eval
 import Pugs.AST
 
 evalHaskell :: String -> Eval Val
@@ -20,7 +20,7 @@ evalHaskell code = do
     let imports = []
     -- eval_ code [import] [flags] [package.confs] [load paths]
     --   -> IO (Either [error-strings] (Maybe a))
-    ret <- liftIO $ Eval.eval_ code imports [] [] []
+    ret <- liftIO $ System.Eval.eval_ code imports [] [] []
     case ret of
         Right (Just x) -> return $ VStr x
         Right Nothing  -> fail "Something strange happened"
