@@ -158,7 +158,7 @@ perl5_SvNV ( SV *sv )
 bool
 perl5_SvTRUE ( SV * sv )
 {
-    bool *rv;
+    bool rv;
     rv = SvTRUE(sv);
     return rv;
 }
@@ -182,15 +182,21 @@ perl5_newSVnv ( double iv )
 }
 
 SV *
-perl5_call(char *subname, int argc, SV** args, int cxt)
+perl5_call(char *subname, int argc, SV** args, SV *env, int cxt)
 {
     int i;
-    SV *rv;
+    SV *rv, *sv;
 
     dSP;
 
     ENTER;
     SAVETMPS;
+
+    if (env != NULL) {
+        sv = get_sv("pugs::env", 1);
+        save_item(sv);
+        sv_setsv(sv, env);
+    }
 
     PUSHMARK(SP);
     for (i = 0; i < argc; i++) {
@@ -238,6 +244,7 @@ perl5_eval(char *code, SV *env, int cxt)
     SV* sv;
 
     ENTER;
+    SAVETMPS;
 
     if (env != NULL) {
         sv = get_sv("pugs::env", 1);

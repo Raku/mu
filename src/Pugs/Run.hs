@@ -136,7 +136,7 @@ prepareEnv name args = do
         , genSym "$*_" $ MkRef defSV
         , genSym "$*AUTOLOAD" $ MkRef autoSV
         ]
-    initPerl5 "" (Just . VControl $ ControlEnv env)
+    initPerl5 "" (Just . VControl $ ControlEnv env{ envDebug = Nothing })
     return env
 
 {-|
