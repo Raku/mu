@@ -87,6 +87,7 @@ sub set_postamble {
     of haskell modules, please install the hs-plugins library,
 	ftp://ftp.cse.unsw.edu.au/pub/users/dons/hs-plugins/snapshots/ ,
     dated 2005-05-21 or later -- remember to "make register" too!
+
 .
 	} else {
 	  $ghc_flags .= ' -package plugins -DPUGS_HAVE_HSPLUGINS=1 ';
@@ -100,7 +101,6 @@ sub set_postamble {
       $ghc_flags .= ' -DPUGS_HAVE_READLINE=1 -package readline';
     } else {
       warn << '.';
-
 *** Readline support disabled.  If you want readline support,
     please install the GNU readline library.
 
@@ -132,7 +132,6 @@ sub set_postamble {
     }
     else {
         warn << '.';
-
 *** Perl 5 embedding disabled.  If you want Perl 5 support, please set the
     PUGS_EMBED environment variable to contain "perl5".
 
@@ -169,7 +168,6 @@ sub set_postamble {
     }
     else {
         warn << '.';
-
 *** Parrot linking disabled; external 'parrot' executable will be used for
     Rules support -- please make sure that the executable is available in
     your PATH.  If you want to link against Parrot, set the PUGS_EMBED
@@ -188,7 +186,6 @@ sub set_postamble {
 
     if ($threaded and $ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bperl5\b/ and !$Config{usethreads}) {
         warn << '.';
-
 *** Thread support disabled because you are building perl5 and your perl5
     is not threaded.
 
