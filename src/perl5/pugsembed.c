@@ -17,6 +17,3 @@ pugs_MkValRef ( Val *val )
     sv_setref_pv(sv, "pugs", val);
     return (sv);
 }
-
-Val *pugs_Eval ( char *code ) { return NULL; }
-Val *pugs_Apply ( Val *sub, Val *inv, Val **args ) { return NULL; }
