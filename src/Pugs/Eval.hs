@@ -842,7 +842,9 @@ findSub name' invs args = do
         _ | [exp] <- args -> do
             typ     <- evalExpType exp
             subs    <- findWithPkg (showType typ) name
-            if isJust subs then return subs else findSub' name
+            if isJust subs then return subs else do
+            sub <- findSub' name
+            if isNothing sub then possiblyBuildMetaopVCode name else return sub
         _ -> do
             sub <- findSub' name
             if isNothing sub then possiblyBuildMetaopVCode name else return sub
@@ -874,7 +876,7 @@ findSub name' invs args = do
         -- We try to find the userdefined sub.
         -- We use the first two elements of invs as invocants, as these are the
         -- types of the op.
-            rv = findSub ("&infix:" ++ op) Nothing (take 2 (maybeToList invs ++ [Val undef, Val undef]))
+            rv = findSub ("&infix:" ++ op) Nothing (take 2 $ args ++ [Val undef, Val undef])
         maybeM rv $ \code -> return $ mkPrim
             { subName     = "&prefix:[" ++ op ++ "]"
             , subType     = SubPrim
@@ -891,7 +893,7 @@ findSub name' invs args = do
         possiblyBuildMetaopVCode ("&prefix:" ++ op ++ "<<")
     possiblyBuildMetaopVCode op' | "&prefix:" `isPrefixOf` op', "<<" `isSuffixOf` op' = do 
         let op = drop 8 (init (init op'))
-            rv = findSub ("&prefix:" ++ op) Nothing [head $ maybeToList invs ++ [Val undef]]
+            rv = findSub ("&prefix:" ++ op) Nothing [head $ args ++ [Val undef]]
         maybeM rv $ \code -> return $ mkPrim
             { subName     = "&prefix:" ++ op ++ "<<"
             , subType     = SubPrim
@@ -906,7 +908,7 @@ findSub name' invs args = do
         possiblyBuildMetaopVCode ("&postfix:>>" ++ op)
     possiblyBuildMetaopVCode op' | "&postfix:>>" `isPrefixOf` op' = do
         let op = drop 11 op'
-            rv = findSub ("&postfix:" ++ op) Nothing [head $ maybeToList invs ++ [Val undef]]
+            rv = findSub ("&postfix:" ++ op) Nothing [head $ args ++ [Val undef]]
         maybeM rv $ \code -> return $ mkPrim
             { subName     = "&postfix:>>" ++ op
             , subType     = SubPrim
@@ -921,7 +923,7 @@ findSub name' invs args = do
         possiblyBuildMetaopVCode ("&infix:>>" ++ op ++ "<<")
     possiblyBuildMetaopVCode op' | "&infix:>>" `isPrefixOf` op', "<<" `isSuffixOf` op' = do 
         let op = drop 9 (init (init op'))
-            rv = findSub ("&infix:" ++ op) Nothing (take 2 (maybeToList invs ++ [Val undef, Val undef]))
+            rv = findSub ("&infix:" ++ op) Nothing (take 2 (args ++ [Val undef, Val undef]))
         maybeM rv $ \code -> return $ mkPrim
             { subName     = "&infix:>>" ++ op ++ "<<"
             , subType     = SubPrim
