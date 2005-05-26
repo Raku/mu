@@ -1113,7 +1113,7 @@ ruleInvocation = tryVerbatimRule "invocation" $ do
     colon       <- maybeColon
     hasEqual    <- option False $ do char '='; whiteSpace; return True
     name        <- do { str <- ruleSubName; return $ colon str }
-    (invs,args) <- option (Nothing,[]) $ parseParenParamList False
+    (invs,args) <- option (Nothing,[]) $ parseParenParamList
     when (isJust invs) $ fail "Only one invocant allowed"
     return $ \x -> if hasEqual
         then Syn "=" [x, App (Var name) (Just x) args]
@@ -1124,7 +1124,7 @@ ruleInvocationParens = do
     colon       <- maybeColon
     hasEqual    <- option False $ do { char '='; whiteSpace; return True }
     name        <- do { str <- ruleSubName; return $ colon str }
-    (invs,args) <- verbatimParens $ parseNoParenParamList False
+    (invs,args) <- verbatimParens $ parseNoParenParamList
     when (isJust invs) $ fail "Only one invocant allowed"
     return $ \x -> if hasEqual
         then Syn "=" [x, App (Var name) (Just x) args]
@@ -1171,8 +1171,8 @@ ruleApply isFolded = tryVerbatimRule "apply" $ do
         fail "reserved word"
     hasDot  <- option False $ try $ do { whiteSpace; char '.'; return True }
     (inv', args) <- if hasDot
-        then parseNoParenParamList (isNothing inv)
-        else parseParenParamList (isNothing inv) <|> do { whiteSpace; parseNoParenParamList (isNothing inv) }
+        then parseNoParenParamList
+        else parseParenParamList <|> do { whiteSpace; parseNoParenParamList }
     -- XXX - warn when there's both inv and inv'
     return $ App (Var name) (inv `mplus` inv') args
 
@@ -1199,12 +1199,12 @@ ruleFoldOp = verbatimRule "reduce metaoperator" $ do
         ]
 
 parseParamList :: RuleParser (Maybe Exp, [Exp])
-parseParamList = parseParenParamList True <|> parseNoParenParamList True
+parseParamList = parseParenParamList <|> parseNoParenParamList
 
-parseParenParamList :: Bool -> RuleParser (Maybe Exp, [Exp])
-parseParenParamList defaultToInvs = do
+parseParenParamList :: RuleParser (Maybe Exp, [Exp])
+parseParenParamList = do
     params      <- option Nothing . fmap Just $
-        verbatimParens $ parseHasParenParamList defaultToInvs
+        verbatimParens $ parseHasParenParamList
     blocks      <- option [] ruleAdverbBlock
     when (isNothing params && null blocks) $ fail ""
     let (inv, args) = maybe (Nothing, []) id params
@@ -1217,8 +1217,8 @@ ruleAdverbBlock = tryRule "adverbial block" $ do
     next <- option [] ruleAdverbBlock
     return (rblock:next)
 
-parseHasParenParamList :: Bool -> RuleParser (Maybe Exp, [Exp])
-parseHasParenParamList defaultToInvs = do
+parseHasParenParamList :: RuleParser (Maybe Exp, [Exp])
+parseHasParenParamList = do
     formal <- (`sepEndBy` symbol ":") $ fix $ \rec -> do
         rv <- option Nothing $ fmap Just $ do
             x <- parseLitOp
@@ -1228,10 +1228,10 @@ parseHasParenParamList defaultToInvs = do
             Just (exp, trail) -> do
                 rest <- option [] $ do { trail; rec }
                 return (exp:rest)
-    processFormals defaultToInvs formal
+    processFormals formal
 
-parseNoParenParamList :: Bool -> RuleParser (Maybe Exp, [Exp])
-parseNoParenParamList defaultToInvs = do
+parseNoParenParamList :: RuleParser (Maybe Exp, [Exp])
+parseNoParenParamList = do
     formal <- (`sepEndBy` symbol ":") $ fix $ \rec -> do
         rv <- option Nothing $ do
             fmap Just $ tryChoice
@@ -1246,13 +1246,12 @@ parseNoParenParamList defaultToInvs = do
             Just (exp, trail) -> do
                 rest <- option [] $ do { trail; rec }
                 return (exp:rest)
-    processFormals defaultToInvs formal
+    processFormals formal
 
-processFormals :: Monad m => Bool -> [[Exp]] -> m (Maybe Exp, [Exp])
-processFormals defaultToInvs formal = case formal of
+processFormals :: Monad m => [[Exp]] -> m (Maybe Exp, [Exp])
+processFormals formal = case formal of
     []      -> return (Nothing, [])
-    [invs] | defaultToInvs, [inv] <- unwind invs -> return (Just inv, [])
-    [args] -> return (Nothing, unwind args)
+    [args]  -> return (Nothing, unwind args)
     [invs,args] | [inv] <- unwind invs -> return (Just inv, unwind args)
     _                   -> fail "Only one invocant allowed"
     where

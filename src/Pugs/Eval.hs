@@ -839,6 +839,10 @@ findSub name' invs args = do
             if typ == mkType "Scalar::Perl5" then runPerl5Sub name else do
             subs    <- findWithPkg (showType typ) name
             if isJust subs then return subs else findSub' name
+        _ | [exp] <- args -> do
+            typ     <- evalExpType exp
+            subs    <- findWithPkg (showType typ) name
+            if isJust subs then return subs else findSub' name
         _ -> do
             sub <- findSub' name
             if isNothing sub then possiblyBuildMetaopVCode name else return sub
@@ -855,8 +859,11 @@ findSub name' invs args = do
             , subBody     = Prim $ \(inv:args:_) -> do
                 sv      <- fromVal inv
                 svs     <- fromVals args
-                found   <- liftIO $ canPerl5 sv (tail name) `mplus` canPerl5 sv "AUTOLOAD"
-                if not found then evalExp (App (Var name) Nothing (map (Val . PerlSV) (sv:svs))) else do
+                found   <- liftIO $ canPerl5 sv (tail name)
+                found'  <- liftIO $ if found
+                    then return found
+                    else canPerl5 sv "AUTOLOAD"
+                if not found' then evalExp (App (Var name) Nothing (map (Val . PerlSV) (sv:svs))) else do
                 cxt     <- asks envContext
                 rv      <- liftIO $ callPerl5 (tail name) (sv:svs) (enumCxt cxt)
                 return $ PerlSV rv
