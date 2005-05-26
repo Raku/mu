@@ -80,7 +80,7 @@ sub set_postamble {
     }
 
     # $ghc_flags .= ' -dcore-lint';
-    $ghc_flags .= " -keep-tmp-files";
+    # $ghc_flags .= " -keep-tmp-files";
 	if (!has_ghc_package('plugins')) {
 	  warn << '.';
 *** Inline Haskell support disabled.  If you want dynamic loading
