@@ -24,7 +24,7 @@ sub foo {
 }
 
 sub echo {
-    my $self = shfit;
+    my $self = shift;
     return shift;
 }
 
@@ -44,7 +44,7 @@ my $obj;
 
 {
     $obj = eval_perl5("FooBar->new");
-    isa_ok($obj, Scalar::Perl5, "blessed");
+    isa_ok($obj, 'FooBar', "blessed");
     like($obj, rx:perl5/FooBar/, "blessed");
 }
 
@@ -53,13 +53,13 @@ my $obj;
 }
 
 {
-    my $r = eval '$obj.echo("bar")';
+    my $r = $obj.echo("bar");
     is($r, 'bar', 'invoke method');
 }
 
 {
-    my $callback = -> { "baz" };
-    my $r = eval '$obj.callcode($callback)';
+    my $callback = { "baz" };
+    my $r = $obj.callcode($callback);
     is($r, 'baz', 'invoke method with callback');
 }
 

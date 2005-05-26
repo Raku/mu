@@ -136,6 +136,9 @@ perl5_SvTRUE ( SV * sv )
 void *
 perl5_SvPtr ( SV *sv )
 {
+    if (!sv_isa(sv, "pugs")) {
+        return NULL;
+    }
     IV tmp = SvIV((SV*)SvRV(sv));
     return((void *)tmp);
 }

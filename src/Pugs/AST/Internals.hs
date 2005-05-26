@@ -186,7 +186,11 @@ fromVal' (VRef r) = do
 fromVal' (VList vs) | not $ null [ undefined | VRef _ <- vs ] = do
     vs <- forM vs $ \v -> case v of { VRef r -> readRef r; _ -> return v }
     fromVal $ VList vs
-fromVal' (PerlSV sv) = liftIO $ svToAny sv
+fromVal' (PerlSV sv) = do
+    rv <- liftIO $ svToAny sv
+    case rv of
+        Just v  -> fromVal v    -- it was a Val
+        _       -> fromSV sv    -- it was a SV
 fromVal' v = return $ vCast v
 {-do
     rv <- liftIO $ catchJust errorCalls (return . Right $ vCast v) $
@@ -204,6 +208,10 @@ Not to be confused with 'Val' itself, or the 'Exp' constructor @Val@.
 class (Typeable n, Show n, Ord n) => Value n where
     fromVal :: Val -> Eval n
     fromVal = fromVal'
+    fromSV :: PerlSV -> Eval n
+    fromSV sv = do
+        str <- liftIO $ svToVStr sv
+        fail $ "cannot cast from SV (" ++ str ++ " to " ++ errType (undefined :: n)
     vCast :: Val -> n
     vCast v@(VRef _)    = castFail v
     vCast v             = doCast v
@@ -214,18 +222,14 @@ class (Typeable n, Show n, Ord n) => Value n where
     fmapVal :: (n -> n) -> Val -> Val
     fmapVal f = castV . f . vCast
 
+errType :: (Typeable a) => a -> String
+errType x = show (typeOf x)
 
-castFailM :: (Show a, Typeable b) => a -> Eval b
-castFailM v = err
-    where
-    err = fail $ "cannot cast from " ++ show v ++ " to " ++ typ
-    typ = tail . dropWhile (not . isSpace) . show $ typeOf err
+castFailM :: forall a b. (Show a, Typeable b) => a -> Eval b
+castFailM v = fail $ "cannot cast from " ++ show v ++ " to " ++ errType (undefined :: b)
 
-castFail :: (Show a, Typeable b) => a -> b
-castFail v = err
-    where
-    err = error $ "cannot cast from " ++ show v ++ " to " ++ typ
-    typ = show $ typeOf err
+castFail :: forall a b. (Show a, Typeable b) => a -> b
+castFail v = error $ "cannot cast from " ++ show v ++ " to " ++ errType (undefined :: b)
 
 instance Value (IVar VScalar) where
     fromVal (VRef (MkRef v@(IScalar _))) = return v

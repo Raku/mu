@@ -25,7 +25,7 @@ svToVStr = constFail
 svToVBool :: PerlSV -> IO Bool
 svToVBool = constFail
 
-svToAny :: PerlSV -> IO a
+svToAny :: PerlSV -> IO (Maybe a)
 svToAny = constFail
 
 anyToSV :: a -> IO PerlSV
@@ -72,13 +72,13 @@ foreign import ccall "perl5.h perl5_SvPV"
 foreign import ccall "perl5.h perl5_SvTRUE"
     perl5_SvTRUE :: PerlSV -> IO Bool
 foreign import ccall "perl5.h perl5_SvPtr"
-    perl5_SvPtr :: PerlSV -> IO (StablePtr a)
+    perl5_SvPtr :: PerlSV -> IO (Ptr ())
 foreign import ccall "perl5.h perl5_newSVpv"
     perl5_newSVpv :: CString -> IO PerlSV
 foreign import ccall "perl5.h perl5_newSViv"
     perl5_newSViv :: CInt -> IO PerlSV
 foreign import ccall "perl5.h perl5_newSVptr"
-    perl5_newSVptr :: StablePtr a -> IO PerlSV
+    perl5_newSVptr :: Ptr () -> IO PerlSV
 foreign import ccall "perl5.h perl5_call"
     perl5_call :: CString -> CInt -> Ptr PerlSV -> CInt -> IO PerlSV
 foreign import ccall "perl5.h perl5_can"
@@ -102,13 +102,15 @@ svToVBool = perl5_SvTRUE
 
 anyToSV :: a -> IO PerlSV
 anyToSV x = do
-    ptr <- newStablePtr x
+    ptr <- fmap castStablePtrToPtr $ newStablePtr x
     perl5_newSVptr ptr
 
-svToAny :: PerlSV -> IO a
+svToAny :: PerlSV -> IO (Maybe a)
 svToAny sv = do
     ptr <- perl5_SvPtr sv
-    deRefStablePtr ptr
+    if ptr == nullPtr
+        then return Nothing
+        else fmap Just . deRefStablePtr $ castPtrToStablePtr ptr
 
 vstrToSV :: String -> IO PerlSV
 vstrToSV str = withCString str perl5_newSVpv 
