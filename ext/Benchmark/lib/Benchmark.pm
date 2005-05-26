@@ -34,7 +34,7 @@ sub timethese ($count, $hash) is export {
 
 =head1 NAME
 
-CGI - A module for programming CGI
+Benchmark - Benchmark running time of Perl 6 code
 
 =head1 SYNOPSIS
 
@@ -42,15 +42,14 @@ CGI - A module for programming CGI
     use v6;
     use Benchmark;
 
-    @t = timeit($count, "code");
-    @t = timeit($count, -> { 1 + 1});
+    @t = timeit($count, 'code');
+    @t = timeit($count, { 1 + 1 });
 
-    timethese($count, { <hyper> => sub { my @r = @a >>+<< @b },
-                        <normal> => sub {
-			  my @r;
-			  for (0..2) {
-			      push @r, @a[$_] + @b[$_];
-			  }
+    timethese($count, { hyper => { my @r = @a >>+<< @b },
+                        normal => {
+			  my @r = gather {
+                            take(@a[$_] + @b[$_]) for 0..@a.end;
+                          }
 		         }
                        });
 
