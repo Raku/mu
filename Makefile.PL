@@ -141,7 +141,7 @@ sub set_postamble {
         warn "*** Parrot linking not supported with MSVC.  Parrot linking will be disabled.\n\n";
         $ENV{PUGS_EMBED} =~ s/\bparrot\b//g;
     }
-	if ($ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bparrot\b/i) {
+    if ($ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bparrot\b/i) {
         my $base = $ENV{PARROT_PATH};
         if (!$base and -d "../parrot") {
             $base = abs_path('../parrot/');
@@ -166,7 +166,7 @@ sub set_postamble {
         $hsc2hs_flags .= " -DPUGS_HAVE_PARROT -I$base/include ";
     }
     else {
-    warn << '.';
+        warn << '.';
 
 *** Parrot linking disabled; external 'parrot' executable will be used for
     Rules support -- please make sure that the executable is available in
@@ -184,8 +184,8 @@ sub set_postamble {
     my $threaded = (!$is_win32 and try_compile("main :: IO ()\nmain = return ()", "-threaded"))
         ? '-threaded' : '';
 
-    if ($ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bperl5\b/ and !$Config{usethreads}) {
-    warn << '.';
+    if ($threaded and $ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bperl5\b/ and !$Config{usethreads}) {
+        warn << '.';
 
 *** Thread support disabled because you are building perl5 and your perl5
     is not threaded.
