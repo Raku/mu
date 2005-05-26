@@ -170,8 +170,17 @@ perl5_call(char *subname, int argc, SV** args, int cxt)
 SV *
 perl5_eval(char *code, int cxt)
 {
-    /* XXX - does not respect context yet */
-    return (eval_pv(code, TRUE));
+    dSP;
+    SV* sv = newSVpv(code, 0);
+
+    eval_sv(sv, cxt);
+    SvREFCNT_dec(sv);
+
+    SPAGAIN;
+    sv = POPs;
+    PUTBACK;
+
+    return sv;
 }
 
 bool
