@@ -250,9 +250,23 @@ instance ArrayClass (IVar VPair) where
     array_storeElem _ _ _  = retConstError undef
     array_deleteElem _ _   = retConstError undef
 
+evalPerl5Sub :: String -> [PerlSV] -> Eval Val
+evalPerl5Sub code args = do
+    env   <- ask
+    fmap PerlSV . liftIO $ do
+        envSV <- mkVal env
+        subSV <- evalPerl5 code envSV (enumCxt cxtItemAny)
+        callPerl5 subSV nullSV args envSV (enumCxt cxtItemAny)
+
 instance ArrayClass PerlSV where
     array_iType = const $ mkType "Array::Perl"
-    array_fetchVal _  _    = return undef
-    array_storeVal _ _ _   = retConstError undef
+    array_fetchVal sv idx = do
+        idxSV   <- fromVal $ castV idx
+        evalPerl5Sub "sub { $_[0]->[$_[1]] }" [sv, idxSV]
+    array_storeVal sv idx val = do
+        idxSV   <- fromVal $ castV idx
+        valSV   <- fromVal val
+        evalPerl5Sub "sub { $_[0]->[$_[1]] = $_[2] }" [sv, idxSV, valSV]
+        return ()
     array_storeElem _ _ _  = retConstError undef
     array_deleteElem _ _   = retConstError undef

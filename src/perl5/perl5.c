@@ -278,6 +278,10 @@ perl5_eval(char *code, void *env, int cxt)
     SvREFCNT_inc(sv);
     PUTBACK;
 
+    if (SvTRUE(ERRSV)) {
+        STRLEN n_a;
+        fprintf(stderr, "Error eval perl5: \"%s\"\n*** %s\n", code, SvPV(ERRSV,n_a));
+    }
 
     FREETMPS;
     LEAVE;

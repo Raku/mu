@@ -119,8 +119,15 @@ instance HashClass IHash where
 
 instance HashClass PerlSV where
     hash_iType = const $ mkType "Hash::Perl"
+    hash_fetchVal sv key = do
+        keySV   <- fromVal $ castV key
+        evalPerl5Sub "sub { $_[0]->{$_[1]} }" [sv, keySV]
     hash_clear _ = retConstError undef
     hash_store _ _ = retConstError undef
-    hash_storeVal _ _ _ = retConstError undef
+    hash_storeVal sv key val = do
+        keySV   <- fromVal $ castV key
+        valSV   <- fromVal val
+        evalPerl5Sub "sub { $_[0]->{$_[1]} = $_[2] }" [sv, keySV, valSV]
+        return ()
     hash_storeElem _ _ _ = retConstError undef
     hash_deleteElem _ _ = retConstError undef
