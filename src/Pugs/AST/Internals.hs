@@ -1237,6 +1237,7 @@ doPair val f = do
 
 -- XXX: Refactor doHash and doArray into one -- also see Eval's [] and {}
 doHash :: Val -> (forall a. HashClass a => a -> b) -> Eval b
+doHash (PerlSV sv) f = return $ f sv
 doHash (VRef (MkRef (IHash hv))) f = return $ f hv
 doHash (VRef (MkRef (IScalar sv))) f = do
     val <- scalar_fetch sv
@@ -1269,6 +1270,7 @@ doHash val f = do
 
 -- can be factored out
 doArray :: Val -> (forall a. ArrayClass a => a -> b) -> Eval b
+doArray (PerlSV sv) f = return $ f sv
 doArray (VRef (MkRef (IArray hv))) f = return $ f hv
 doArray (VRef (MkRef (IScalar sv))) f = do
     val <- scalar_fetch sv

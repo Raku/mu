@@ -250,3 +250,9 @@ instance ArrayClass (IVar VPair) where
     array_storeElem _ _ _  = retConstError undef
     array_deleteElem _ _   = retConstError undef
 
+instance ArrayClass PerlSV where
+    array_iType = const $ mkType "Array::Perl"
+    array_fetchVal _  _    = return undef
+    array_storeVal _ _ _   = retConstError undef
+    array_storeElem _ _ _  = retConstError undef
+    array_deleteElem _ _   = retConstError undef

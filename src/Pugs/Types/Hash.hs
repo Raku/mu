@@ -116,3 +116,11 @@ instance HashClass IHash where
         liftSTM $ do
             svMap <- readTVar hv
             return $ Map.member idx svMap
+
+instance HashClass PerlSV where
+    hash_iType = const $ mkType "Hash::Perl"
+    hash_clear _ = retConstError undef
+    hash_store _ _ = retConstError undef
+    hash_storeVal _ _ _ = retConstError undef
+    hash_storeElem _ _ _ = retConstError undef
+    hash_deleteElem _ _ = retConstError undef
