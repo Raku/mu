@@ -59,12 +59,16 @@ canPerl5 _ = constFail
 nullSV :: PerlSV
 nullSV = error "perl5 not embedded"
 
+mkSV :: IO PerlSV -> IO PerlSV
+mkSV = id
+
 #else
 
 {-# INCLUDE <perl5.h> #-}
 {-# INCLUDE <pugsembed.h> #-}
 
 module Pugs.Embed.Perl5 where
+import Pugs.Internals
 import Foreign
 import Foreign.C.Types
 import Foreign.C.String
@@ -85,6 +89,8 @@ foreign import ccall "perl.h perl_free"
     perl_free :: PerlInterpreter -> IO ()
 foreign import ccall "perl.h boot_DynaLoader"
     boot_DynaLoader :: Ptr () -> IO ()
+foreign import ccall "perl5.h perl5_finalize"
+    perl5_finalize :: PerlSV -> IO ()
 foreign import ccall "perl5.h perl5_SvPV"
     perl5_SvPV :: PerlSV -> IO CString
 foreign import ccall "perl5.h perl5_SvIV"
@@ -172,8 +178,17 @@ callPerl5 sub inv args env cxt = do
 canPerl5 :: PerlSV -> String -> IO Bool
 canPerl5 sv meth = withCString meth $ \cstr -> perl5_can sv cstr
 
+mkSV :: IO PerlSV -> IO PerlSV
+mkSV = id
+{- 
+action = do
+    sv <- action 
+    addFinalizer sv (perl5_finalize sv)
+    return sv
+-}
+
 evalPerl5 :: String -> PugsVal -> CInt -> IO PerlSV
-evalPerl5 str env cxt = withCString str $ \cstr -> perl5_eval cstr env cxt
+evalPerl5 str env cxt = mkSV $ withCString str $ \cstr -> perl5_eval cstr env cxt
 
 freePerl5 :: PerlInterpreter -> IO ()
 freePerl5 my_perl = do

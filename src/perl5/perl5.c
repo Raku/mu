@@ -319,3 +319,7 @@ perl5_can(SV *inv, char *subname)
     return rv;
 }
 
+void perl5_finalize ( SV* sv )
+{
+    SvREFCNT_dec(sv);
+}

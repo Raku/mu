@@ -77,14 +77,7 @@ pugs_apply subPtr invPtr argsPtr cxt = do
             _                   -> Val sub
     val <- runEvalIO env $
         evalExp (Cxt (cxtEnum cxt) $ App subExp (fmap Val inv) (map Val args))
-    case val of
-        PerlSV sv   -> return sv
-        VStr str    -> vstrToSV str
-        VBool bool  -> vintToSV (fromEnum bool)
-        VInt int    -> vintToSV int
-        VRat rat    -> vnumToSV rat
-        VNum num    -> vnumToSV num
-        _           -> mkValRef val
+    newSVval val
 
 deVal :: PugsVal -> IO Val
 deVal ptr = do
@@ -101,9 +94,17 @@ valToSv :: PugsVal -> IO PerlSV
 valToSv ptr = do
     -- print "1"
     val <- deVal ptr
-    case val of
-        PerlSV sv   -> return sv
-        _           -> mkValRef val
+    newSVval val
+
+newSVval :: Val -> IO PerlSV
+newSVval val = case val of
+    PerlSV sv   -> return sv
+    VStr str    -> vstrToSV str
+    VBool bool  -> vintToSV (fromEnum bool)
+    VInt int    -> vintToSV int
+    VRat rat    -> vnumToSV rat
+    VNum num    -> vnumToSV num
+    _           -> mkValRef val
 
 valToIv :: PugsVal -> IO CInt
 valToIv ptr = do
