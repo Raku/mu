@@ -131,7 +131,8 @@ sub set_postamble {
         push @prereqs, "src/perl5/perl5.o";
         $ghc_output .= " src/perl5/perl5.o ";
         $ghc_flags .= " -DPUGS_HAVE_PERL5 ";
-	$ccdlflags .= " -optl '$Config{ccdlflags}' ";
+	$ccdlflags .= " -optl '$Config{ccdlflags}' "
+	  if $Config{ccdlflags} =~ /\S/;
     }
     else {
         warn << '.';
