@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 14;
+plan 13;
 
 use Test::Builder::Test;
 
@@ -42,8 +42,7 @@ is( $skip_test.reason(), 'reason for skipping',
 is( $skip_test.report(), 'not ok 1 #skip reason for skipping',
     'report() should return a TAP-formatted skip message' );
 
-my %status;
-lives_ok { %status = $skip_test.status() }, 'status() parses', :todo<feature>;
+my %status = $skip_test.status();
 
 is( +( keys %status ), 4, 'status() should return a hash',
     :todo<feature> );

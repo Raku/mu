@@ -9,14 +9,14 @@ has Test::Builder::Output   $.output handles 'diag';
 has Test::Builder::TestPlan $.plan;
 has                         @:results;
 
-method new ( Test::Builder ::Class: *@args )
+method new ( Test::Builder $Class: *@args )
 {
-    return $:singleton //= Class.SUPER::new( @args );
+    return $:singleton //= $Class.SUPER::new( @args );
 }
 
-method create ( Test::Builder ::Class: *@args )
+method create ( Test::Builder $Class: *@args )
 {
-    return Class.SUPER::new( @args );
+    return $Class.new( @args );
 }
 
 submethod BUILD

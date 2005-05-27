@@ -2,10 +2,9 @@ class Test::Builder::TestPlan-0.1.1
 {
     has Int $:expect;
 
-    submethod BUILD ( ?$expect = 0 )
+    submethod BUILD ( ?$:expect = 0 )
     {
-        fail "Invalid or missing plan" unless $expect;
-        $:expect = $expect;
+        fail "Invalid or missing plan" unless $:expect;
     }
 
     method header returns Str
@@ -20,7 +19,9 @@ class Test::Builder::TestPlan-0.1.1
     }
 }
 
-class Test::Builder::NullPlan is Test::Builder::TestPlan
+# XXX: extract the useful similarities into a role
+# cannot inherit from TestPlan because of the lack of $:expect
+class Test::Builder::NullPlan
 {
     method header returns Str
     {

@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 13;
+plan 12;
 
 use Test::Builder::Test;
 
@@ -40,9 +40,7 @@ is( $todo_test.diagnostic(), 'some test diagnostic',
 is( $todo_test.reason(), 'reason for TODO-ing',
     'reason() should return the test reason' );
 
-my %status;
-lives_ok { %status = $todo_diag.status() }, 'status() parses',
-    :todo<feature>;
+my %status = $todo_diag.status();
 
 is( +( keys %status ),      5, 'status() should return a hash',
     :todo<feature> );
