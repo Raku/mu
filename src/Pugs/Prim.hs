@@ -42,6 +42,8 @@ import Pugs.Prim.Numeric
 import Pugs.Prim.Lifts
 import Pugs.Prim.Eval
 
+import System.Mem.Weak
+
 -- |Implementation of 0-ary and variadic primitive operators and functions
 -- (including list ops).
 op0 :: String -> [Val] -> Eval Val
@@ -518,6 +520,13 @@ op1 "BUILDALL" = \v -> do
             ref <- liftSTM $ readTVar tvar
             enterEvalContext CxtVoid (App (Val $ VRef ref) (Just $ Val v) [])
     return undef
+op1 "DESTROYALL" = \v -> do
+    pkgs    <- pkgParents =<< fmap showType (evalValType v)
+    forM_ pkgs $ \pkg -> do
+        maybeM (fmap (findSym $ ('&':pkg) ++ "::DESTROY") askGlobal) $ \tvar -> do
+            ref <- liftSTM $ readTVar tvar
+            enterEvalContext CxtVoid (App (Val $ VRef ref) (Just $ Val v) [])
+    return undef
 -- [,] is a noop -- It simply returns the input list
 op1 "prefix:[,]" = return
 op1 other   = \_ -> fail ("Unimplemented unaryOp: " ++ other)
@@ -850,9 +859,11 @@ op3 "new" = \t n _ -> do
     attrs   <- liftSTM $ newTVar Map.empty
     writeIVar (IHash attrs) named
     uniq    <- liftIO $ newUnique
+    env     <- ask
     let obj = VObject $ MkObject{ objType = typ, objAttrs = attrs, objId = uniq }
     -- Now start calling BUILD for each of parent classes (if defined)
     op1 "BUILDALL" obj
+    liftIO $ addFinalizer obj (objectFinalizer env obj)
     return obj
 op3 other = \_ _ _ -> fail ("Unimplemented 3-ary op: " ++ other)
 
@@ -1116,6 +1127,12 @@ prettyVal d (VList vs) = do
     vs' <- mapM (prettyVal (d+1)) vs
     return $ "(" ++ concat (intersperse ", " vs') ++ ")"
 prettyVal _ v = return $ pretty v
+
+-- | Call object destructors when GC takes them away
+objectFinalizer :: Env -> Val -> IO ()
+objectFinalizer env obj = do
+    runEvalIO env (evalExp (App (Var "&DESTROYALL") (Just $ Val $ obj) []))
+    return ()
 
 -- XXX -- Junctive Types -- XXX --
 
@@ -1389,6 +1406,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Int       pre     kill    (Int, List)\
 \\n   Object    pre     new     (Object: Named)\
 \\n   Object    pre     BUILDALL (Object)\
+\\n   Object    pre     DESTROYALL (Object)\
 \\n   Object    pre     clone   (Any)\
 \\n   Object    pre     id      (Any)\
 \\n   Str       pre     name    (Code)\

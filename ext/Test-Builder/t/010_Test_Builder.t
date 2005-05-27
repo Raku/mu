@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 3;
+plan 5;
 
 use Test::Builder;
 
@@ -19,7 +19,7 @@ is( $Test.ref, 'Test::Builder', '... we got a Test::Builder instance' );
 	{
 		method footer returns Str ( Int $run )
 		{
-			return 'ok 6 - DESTROY should write plan footer, if it exists';
+			return 'ok 5 - DESTROY should write plan footer, if it exists';
 		}
 	}
 
@@ -36,5 +36,9 @@ is( $Test.ref, 'Test::Builder', '... we got a Test::Builder instance' );
 	:todo<feature>;
 
 	# hopefully launch DESTROY()
-	undef $Test3;
+
+	for 1 .. 100
+	{
+		$Test3 = Test::Builder.create();
+	}
 }

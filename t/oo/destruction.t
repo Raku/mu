@@ -3,19 +3,25 @@
 use v6;
 use Test;
 
-plan 5;
+plan 3;
 
 # L<A12/"Object Deconstruction">
 
 my $in_destructor = 0;
 
-eval_ok 'class Foo { submethod DESTROY { $in_destructor++ } }',
-  "class definition", :todo<feature>;
+class Foo
+{
+    submethod DESTROY { $in_destructor++ }
+}
 
-my $a;
-eval_ok '$a = Foo.new()',  "basic instantiation", :todo<feature>;
-eval_ok '$a ~~ Foo',       "smartmatching the class name", :todo<feature>;
-# As usual, is instead of todo_is to suppress unexpected succeedings.
-is      $in_destructor, 0, "own destructor was not yet called";
-undef $a;
-is      $in_destructor, 1, "own destructor was called", :todo<feature>;
+my $a = Foo.new();
+is( $a.ref,        'Foo', 'basic instantiation of declared class' );
+ok( ! $in_destructor,     'destructor should not fire while object is active' );
+
+# no guaranteed timely destruction, so replace $a and try to force some GC here
+for 1 .. 100
+{
+    $a = Foo.new();
+}
+
+ok( $in_destructor, '... only when object goes away everywhere' );
