@@ -6,6 +6,7 @@ import Foreign.C.Types
 
 type PerlInterpreter = ()
 type PerlSV = ()
+type PugsVar = ()
 
 constFail :: a -> IO b
 constFail = const $ fail "perl5 not embedded"
@@ -34,8 +35,11 @@ svToVBool = constFail
 svToVal :: PerlSV -> IO a
 svToVal = constFail
 
+mkVal :: (Show a) => a -> IO PugsVal
+mkVal = return ()
+
 mkValRef :: a -> IO PerlSV
-mkValRef = constFail
+mkValRef = return ()
 
 vstrToSV :: String -> IO PerlSV
 vstrToSV = constFail
