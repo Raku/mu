@@ -443,7 +443,9 @@ reduce exp@(Syn name exps) = case name of
         let [match, body] = exps
         break  <- evalVar "&?BLOCK_EXIT"
         vbreak <- fromVal break
-        result <- reduce (App (Var "&infix:~~") Nothing [(Var "$_"), match])
+        result <- reduce $ case unwrap match of
+            App _ (Just (Var "$_")) _ -> exp
+            _ -> App (Var "&infix:~~") Nothing [(Var "$_"), match]
         rb     <- fromVal result
         if rb
             then enterWhen (subBody vbreak) $ apply vbreak Nothing [body]
