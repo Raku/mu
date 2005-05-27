@@ -26,13 +26,13 @@ sub foo {
 
 sub echo {
     my ($self, $what) = @_;
-print "==> echo got $what\n";
+#print "==> echo got $what\n";
     return $what;
 }
 
 sub callcode {
     my ($self, $code) = @_;
-print "==> callcode got $code\n";
+#print "==> callcode got $code\n";
     return $code->($self);
 }
 
