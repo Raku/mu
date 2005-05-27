@@ -5,11 +5,11 @@ use Test;
 
 =kwid
 
-built-in map tests
+ built-in map tests
 
 =cut
 
-plan 52;
+plan 53;
 
 my @list = (1 .. 5);
 
@@ -103,4 +103,23 @@ my @list = (1 .. 5);
   is ~(1,2,3,4).map:{ $^a + $^b + $^c       }, "6 4", "map() works with 3-ary functions";
   is ~(1,2,3,4).map:{ $^a + $^b + $^c + $^d }, "10",  "map() works with 4-ary functions";
   is ~(1,2,3,4).map:{ $^a+$^b+$^c+$^d+$^e   }, "10",  "map() works with 5-ary functions";
+}
+
+=pod
+
+Test that a constant list can have C<map> applied to it.
+
+  ("foo","bar").map:{ $_.substr(1,1) }
+
+should be equivalent to
+
+  my @val = ("foo","bar");
+  @val = map { substr($_,1,1) }, @val;
+
+=cut
+{
+my @expected = ("foo","bar");
+@expected = map { substr($_,1,1) }, @expected;
+
+is(("foo","bar").map:{ $_.substr(1,1) }, @expected,"map of constant list works");
 }
