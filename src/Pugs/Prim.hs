@@ -24,6 +24,7 @@ module Pugs.Prim (
 ) where
 import Pugs.Internals
 import Pugs.Junc
+import Pugs.Context
 import Pugs.AST
 import Pugs.Types
 import Pugs.Monads
@@ -732,12 +733,12 @@ op2 "kill" = \s v -> do
     rets <- mapM (tryIO 0 . doKill) pids
     return . VInt $ sum rets
 op2 "isa"   = \x y -> do
-    typ <- case y of
-        VStr str -> return str
-        _        -> fmap showType $ fromVal y
-    ifValTypeIsa x typ
-        (return $ VBool True)
-        (return $ VBool False)
+    typX <- fromVal x
+    typY <- case y of
+        VStr str -> return $ mkType str
+        _        -> fromVal y
+    cls  <- asks envClasses
+    return . VBool $ isaType cls (showType typY) typX
 op2 "delete" = \x y -> do
     ref <- fromVal x
     deleteFromRef ref y
@@ -1281,8 +1282,8 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Any       pre     exit    (?Int=0)\
 \\n   Num       pre     rand    (?Num=1)\
 \\n   Bool      pre     defined (Any)\
-\\n   Str       pre     ref     (rw!Any|Junction)\
-\\n   Str       pre     isa     (rw!Any|Junction, Str)\
+\\n   Str       pre     ref     (Any|Junction)\
+\\n   Str       pre     isa     (Any|Junction, Str)\
 \\n   Num       pre     time    ()\
 \\n   List      pre     times   ()\
 \\n   Str       pre     want    ()\
