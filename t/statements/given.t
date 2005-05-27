@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 41;
+plan 44;
 
 =kwid
 
@@ -205,12 +205,12 @@ Tests the given block, as defined in L<S04/"Switch statements">
     eval_ok( 'given TestIt.new { .testing<a> = 1; };',  '. attribute access', :todo<bug>);
     my $t = TestIt.new;
     given $t { when TestIt { $passed = 1;} };
-    is($passed, 1,"when Type {} works");
+    is($passed, 1,"when Type {}", :todo<bug>);
     $passed = 0;
-    given $t { when .isa(TestIt) { $passed =1;}}
-    is($passed, 1,"when .isa(Type) works");
+    given $t { when .isa(TestIt) { $passed = 1;}}
+    is($passed, 1,"when .isa(Type) {}");
     $passed = 0;
-    given $t { when (Type) { $passed = 1; }};
-    is($passed, 1,"when (Type) works");
+    given $t { when (TestIt) { $passed = 1; }};
+    is($passed, 1,"when (Type) {}");
 }
 
