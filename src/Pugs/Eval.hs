@@ -835,12 +835,12 @@ findSub name' invs args = do
     let name = possiblyFixOperatorName name'
     case invs of
         Just exp | not (':' `elem` drop 2 name) -> do
-            typ     <- evalExpType exp
+            typ     <- evalInvType exp
             if typ == mkType "Scalar::Perl5" then runPerl5Sub name else do
             subs    <- findWithPkg (showType typ) name
             if isJust subs then return subs else findSub' name
         _ | [exp] <- args -> do
-            typ     <- evalExpType exp
+            typ     <- evalInvType exp
             subs    <- findWithPkg (showType typ) name
             if isJust subs then return subs else do
             sub <- findSub' name
@@ -849,6 +849,9 @@ findSub name' invs args = do
             sub <- findSub' name
             if isNothing sub then possiblyBuildMetaopVCode name else return sub
     where
+    evalInvType (Var (':':typ)) = return $ mkType typ
+    evalInvType (Val (VType typ)) = return typ
+    evalInvType x = evalExpType x
     runPerl5Sub name = do
         metaSub <- possiblyBuildMetaopVCode name
         if isJust metaSub then return metaSub else do
@@ -997,7 +1000,6 @@ findSub name' invs args = do
         return $ deltaType cls x typ
 
 evalExpType :: Exp -> Eval Type
-evalExpType (Var (':':typ)) = return $ mkType typ
 evalExpType (Var var) = do
     rv  <- findVar var
     case rv of
