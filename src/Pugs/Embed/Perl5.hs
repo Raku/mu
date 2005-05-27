@@ -36,10 +36,10 @@ svToVal :: PerlSV -> IO a
 svToVal = constFail
 
 mkVal :: (Show a) => a -> IO PugsVal
-mkVal = return ()
+mkVal = const $ return ()
 
 mkValRef :: a -> IO PerlSV
-mkValRef = return ()
+mkValRef = const $ return ()
 
 vstrToSV :: String -> IO PerlSV
 vstrToSV = constFail
