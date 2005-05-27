@@ -80,6 +80,7 @@ op0 "print" = const $ op1 "print" =<< readVar "$_"
 op0 "return" = const $ op1Return (shiftT . const $ retEmpty)
 op0 "yield" = const $ op1Yield (shiftT . const $ retEmpty)
 op0 "take" = const $ retEmpty
+op0 "nothing" = const $ return $ VBool True
 op0 other = const $ fail ("Unimplemented listOp: " ++ other)
 
 -- |Implementation of unary primitive operators and functions
@@ -240,6 +241,9 @@ op1 "require" = opRequire False
 op1 "eval" = \v -> do
     str <- fromVal v
     opEval Nothing "<eval>" str
+op1 "evalfile" = \v -> do
+    filename <- fromVal v
+    opEvalfile filename
 op1 "eval_perl5" = \v -> do
     str <- fromVal v
     env <- ask
@@ -1171,6 +1175,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Num       pre     sin     (?Num=$_)\
 \\n   Num       pre     tan     (?Num=$_)\
 \\n   Any       pre     pi      ()\
+\\n   Bool      pre     nothing ()\
 \\n   Num       pre     exp     (?Num=$_, ?Num)\
 \\n   Num       pre     sqrt    (?Num=$_)\
 \\n   Bool      spre    -r      (?Str=$_)\
@@ -1260,7 +1265,8 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Any       pre     try     (Code)\
 \\n   Any       pre     lazy    (Code)\
 \\n   Any       pre     eval    (Str)\
-\\n   Any       pre     eval_parrot   (Str)\
+\\n   Any       pre     evalfile     (Str)\
+\\n   Any       pre     eval_parrot  (Str)\
 \\n   Any       pre     eval_perl5   (Str)\
 \\n   Any       pre     eval_haskell (Str)\
 \\n   Any       pre     eval_yaml    (Str)\
