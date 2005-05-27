@@ -11,7 +11,8 @@ multi sub prompt ($prompt, @data is copy) {
     my $i = 1;
     for @data -> $item { $item[0] //= $i++; };
     my $choice;
-    while (not @data.grep:{ $_[0] eq $choice} ) {
+    my @choices = @data.map:{$_[0]};
+    until ($choice eq any(@choices) ) {
     say $prompt;
       for @data -> $item {
       	say "\t", $item[0], " ", $item[1];
@@ -88,15 +89,16 @@ class Person is Mortal {
             }
             push @choices , ['f', "flee for your life",undef];
             $choice = prompt("Your choice?",@choices);
-            cls;            
+            cls;     
             given $choice {
                 when 'f' {
                     say "You ran away from the $enemy.name()!"; 
                 }
-                if ( @.weapons.exists($_) ) {
-                    $.weapon = @.weapons[$_];
+                if ($_.isa(Weapon)) {  # work around when Weapon bug!
+                    $.weapon = $_;
                     ./attack($enemy);
-                } else {
+                } else {           # work around bug 
+                #   default {
                     say "Please enter a valid command!"
                 }
             }
@@ -105,7 +107,7 @@ class Person is Mortal {
 	        say "The $enemy.name() is dead!" ;
            return 1;
 		  }
-        return 0;
+      return 0;
     }
       
     method attack (Monster $enemy) {
@@ -153,15 +155,15 @@ say "Greetings, $person.name()!";
 say $person.where;
 until ($person.dead) {
   if (%world.{$person.location}.are_monsters){ 
-         my $monster = shift %world.{$person.location}.monster;
+     my $monster = shift %world.{$person.location}.monster;
      unless ( $person.battle($monster) ) {
          push %world.{$person.location}.monsters, $monster;
          $person.location = $person.last_location;
      }	
   } else {
-     cls;
      my @choices = %world.{$person.location}.exits.map:{ [undef, $_,$_] };
      $person.last_location = $person.location;
      $person.location = prompt("Go to:" ,@choices);
+     cls;     
   }
 }
