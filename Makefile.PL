@@ -89,9 +89,9 @@ sub set_postamble {
     } else {
         warn << '.';
 *** Inline Haskell support disabled.  If you want dynamic loading
-of haskell modules, please install the hs-plugins library,
-    ftp://ftp.cse.unsw.edu.au/pub/users/dons/hs-plugins/snapshots/ ,
-dated 2005-05-21 or later -- remember to "make register" too!
+    of haskell modules, please install the hs-plugins library,
+        ftp://ftp.cse.unsw.edu.au/pub/users/dons/hs-plugins/snapshots/,
+    dated 2005-05-21 or later -- remember to "make register" too!
 
 .
     }
@@ -189,8 +189,8 @@ dated 2005-05-21 or later -- remember to "make register" too!
 
     if ($threaded and $ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bperl5\b/ and !$Config{usethreads}) {
         warn << '.';
-*** Thread support disabled because you are building perl5 and your perl5
-    is not threaded.
+*** Thread support disabled because you are building with embedded perl5 and
+    your perl5 is not threaded.
 
 .
 
