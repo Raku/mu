@@ -34,6 +34,8 @@ module Pugs.Internals (
     module System.Directory,
     module System.Cmd,
     module System.Process,
+    module System.Mem,
+    module System.Mem.Weak,
     module Control.Monad.RWS,
     module Control.Monad.Error,
     module Control.Concurrent,
@@ -91,6 +93,8 @@ import System.IO (
 import System.IO.Unsafe
 import System.IO.Error (ioeGetErrorString, isUserError)
 import System.Directory
+import System.Mem
+import System.Mem.Weak
 import Control.Exception (catchJust, errorCalls)
 import Control.Monad.RWS
 import Control.Monad.Error (MonadError(..))

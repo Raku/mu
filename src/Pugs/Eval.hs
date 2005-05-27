@@ -104,18 +104,22 @@ debug key fun str a = do
 
 evaluateMain :: Exp -> Eval Val
 evaluateMain exp = do
+    liftIO $ performGC
     -- S04: INIT {...}*      at run time, ASAP
     initAV   <- evalVar "@?INIT"
     initSubs <- fromVals initAV
     enterContext CxtVoid $ do
         mapM_ evalExp [ App (Val sub) Nothing [] | sub <- initSubs ]
     -- The main runtime
+    liftIO $ performGC
     val      <- resetT $ evaluate exp
+    liftIO $ performGC
     -- S04: END {...}       at run time, ALAP
     endAV    <- evalVar "@*END"
     endSubs  <- fromVals endAV
     enterContext CxtVoid $ do
         mapM_ evalExp [ App (Val sub) Nothing [] | sub <- endSubs ]
+    liftIO $ performGC
     return val
 
 -- | Evaluate an expression. This function mostly just delegates to 'reduce'.

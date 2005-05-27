@@ -42,8 +42,6 @@ import Pugs.Prim.Numeric
 import Pugs.Prim.Lifts
 import Pugs.Prim.Eval
 
-import System.Mem.Weak
-
 -- |Implementation of 0-ary and variadic primitive operators and functions
 -- (including list ops).
 op0 :: String -> [Val] -> Eval Val
