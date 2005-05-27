@@ -120,8 +120,8 @@ op1 "capitalize" = op1Cast $ VStr . (mapEachWord capitalizeWord)
     mapEachWord _ [] = []
     mapEachWord f str@(c:cs)
         | isSpace c = c:(mapEachWord f cs)
-	| otherwise = f word ++ mapEachWord f rest
-	  where (word,rest) = break isSpace str
+        | otherwise = f word ++ mapEachWord f rest
+          where (word,rest) = break isSpace str
     capitalizeWord []     = []
     capitalizeWord (c:cs) = toUpper c:(map toLower cs)
 op1 "undef" = \x -> do
@@ -299,11 +299,11 @@ op1 "fail_" = \v -> do
     pos   <- asks envPos
     let msg = pretty (VError (errmsg strs) [pos]) ++ "\n"
     if throw
-	-- "use fatal" is in effect, so die.
-	then fail msg
-	-- We've to return a unthrown exception.
+        -- "use fatal" is in effect, so die.
+        then fail msg
+        -- We've to return a unthrown exception.
         -- The error message to output
-	else shiftT . const $ return . VRef . thunkRef . MkThunk $ fail msg
+        else shiftT . const $ return . VRef . thunkRef . MkThunk $ fail msg
     where
     errmsg "" = "Failed"
     errmsg x  = x
@@ -758,17 +758,22 @@ op2 "connect" = \x y -> do
     port <- fromVal y
     hdl  <- liftIO $ connectTo host (PortNumber $ fromInteger port)
     return $ VHandle hdl
+op2 "Pugs::Internals::hSetBinaryMode" = \x y -> do
+    fh    <- fromVal x
+    mode  <- fromVal y
+    liftIO $ hSetBinaryMode fh mode
+    return $ VBool True
 op2 "Pugs::Internals::openFile" = \x y -> do
-    mode     <- fromVal x
-    filename <- fromVal y
+    filename <- fromVal x
+    mode     <- fromVal y
     tryIO undef $ do
         fh <- openFile filename (modeOf mode)
         return $ VHandle fh
     where
-    modeOf "<"  = ReadMode
-    modeOf ">"  = WriteMode
-    modeOf ">>" = AppendMode
-    modeOf "+>" = ReadWriteMode
+    modeOf "r"  = ReadMode
+    modeOf "w"  = WriteMode
+    modeOf "a"  = AppendMode
+    modeOf "rw" = ReadWriteMode
     modeOf m    = error $ "unknown mode: " ++ m
 op2 "exp" = \x y -> if defined y
     then op2Num (**) x y
@@ -912,10 +917,10 @@ op1HyperPrefix sub x
     = fail "Hyper OP only works on lists"
     where
     doHyper x
-	| VRef x' <- x
-	= doHyper =<< readRef x'
-	| otherwise
-	= enterEvalContext cxtItemAny $ App (Val $ VCode sub) Nothing [Val x]
+        | VRef x' <- x
+        = doHyper =<< readRef x'
+        | otherwise
+        = enterEvalContext cxtItemAny $ App (Val $ VCode sub) Nothing [Val x]
     hyperList []     = return []
     hyperList (x:xs) = do
         val  <- doHyper x
@@ -1410,8 +1415,9 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Str       pre     name    (Code)\
 \\n   Int       pre     arity   (Code)\
 \\n   Bool      pre     Thread::yield   (Thread)\
-\\n   List      pre     Pugs::Internals::runInteractiveCommand    (?Str=$_)\
-\\n   List      pre     Pugs::Internals::openFile    (?Str,?Str=$_)\
+\\n   List      pre     Pugs::Internals::runInteractiveCommand    (Str)\
+\\n   Bool      pre     Pugs::Internals::hSetBinaryMode    (IO,Str)\
+\\n   IO        pre     Pugs::Internals::openFile    (Str,Str)\
 \\n   Bool      pre     bool::true ()\
 \\n   Bool      pre     bool::false ()\
 \\n   List      spre    prefix:[,] (List)\
