@@ -66,17 +66,17 @@ method BUILD(Str *%headers) {
 method header(Str $field) is rw {
   return new Proxy:
     FETCH => { %:headers{$field} },
-    STORE => -> Str $val { .:_header($field, $val) };
+    STORE => -> Str $val { .:header($field, $val) };
 }
 
 method clear() { %:headers = () }
 
 method push_header(Str $field, Str $val) {
-  .:_header($field, $val, "PUSH");
+  .:header($field, $val, "PUSH");
 }
 
 method init_header(Str $field, Str $val) {
-  .:_header($field, $val, "INIT");
+  .:header($field, $val, "INIT");
 }
 
 method remove_header(Str *@fields) {
@@ -101,7 +101,7 @@ method remove_content_headers() {
   return $c;
 }
 
-method :_header(
+method :header(
   Str where { length $^str > 0 } $field is copy,
   Str $val is copy,
   Str ?$op = ""
@@ -184,7 +184,7 @@ method :date_header(Str $header) is rw {
   return new Proxy:
     FETCH => { HTTP::Date::str2time(%:headers{$header}) },
     STORE => -> $time {
-      .:_header($header, HTTP::Date::time2str($time));
+      .:header($header, HTTP::Date::time2str($time));
     };
 }
 
@@ -208,7 +208,7 @@ method client_date()         is rw { .:date_header('Client-Date')         }
 method content_type() is rw {
   return new Proxy:
     FETCH => {
-      my $ct = (.:_header("Content-Type"))[0];
+      my $ct = (.:header("Content-Type"))[0];
       return "" unless defined $ct and length $ct;
 
       my @ct = split m/;\s*/, $ct, 2;
@@ -223,13 +223,13 @@ method content_type() is rw {
       }
     },
     STORE => -> $type {
-      .:_header("Content-Type", $type);
+      .:header("Content-Type", $type);
     };
 }
 
 method referer() is rw {
   return new Proxy:
-    FETCH => { (.:_header("Referer")[0]) },
+    FETCH => { (.:header("Referer")[0]) },
     STORE => -> Str|URI $new is copy {
       if $new ~~ m/#/ {
 	# Strip fragment per RFC 2616, section 14.36.
@@ -241,7 +241,7 @@ method referer() is rw {
 	}
       }
 
-      .:_header("Referer", $new);
+      .:header("Referer", $new);
     };
 }
 &referrer ::= &referer;  # on tchrist's request
@@ -269,7 +269,7 @@ method proxy_authorization_basic() is rw { .:basic_auth("Proxy-Authorization") }
 method :basic_auth(Str $h) is rw {
   return new Proxy:
     FETCH => {
-      my $cur = .:_header($h);
+      my $cur = .:header($h);
       if defined $old and $old ~~ s/^\s*Basic\s+// {
 	my $val = MIME::Base64::decode($cur);
 
