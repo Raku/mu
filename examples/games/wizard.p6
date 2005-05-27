@@ -7,19 +7,19 @@ multi sub prompt (Str ?$prompt) {
     return $temp;
 }
 
-multi sub prompt ($prompt, @data is copy) {
+multi sub prompt ($prompt, @prompts is copy) {
     my $i = 1;
-    for @data -> $item { $item[0] //= $i++; };
+    for @prompts -> $item { $item[0] //= $i++; };
     my $choice;
-    my @choices = @data.map:{$_[0]};
+    my @choices = @prompts.map:{$_[0]};
     until ($choice eq any(@choices) ) {
     say $prompt;
-      for @data -> $item {
+      for @prompts -> $item {
       	say "\t", $item[0], " ", $item[1];
       }
       $choice = prompt;
     }
-    for @data -> $item { return $item[2] // $item[0] if $item[0] eq $choice;}
+    for @prompts -> $item { return $item[2] // $item[0] if $item[0] eq $choice;}
     return $choice;
 }	
 
