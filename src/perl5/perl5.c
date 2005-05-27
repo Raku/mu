@@ -36,7 +36,7 @@ XS(_pugs_guts_invoke) {
     val = pugs_SvToVal(ST(0));
     inv = pugs_SvToVal(ST(1));
 
-    stack = (Val **)malloc(sizeof(Val*)*items-2);
+    stack = (Val **)malloc(sizeof(Val*)*items-1);
     for (i = 2; i < items; ++i) {
 	stack[i-2] = pugs_SvToVal(ST(i));
     }
@@ -44,8 +44,9 @@ XS(_pugs_guts_invoke) {
 
     /* fprintf(stderr, "back to pugs\n"); */
     ret = pugs_ValToSv(pugs_Apply (val, inv, stack));
-
     free (stack);
+
+    ST(0) = ret;
     
     XSRETURN(1);
 }
