@@ -520,7 +520,7 @@ op1 "BUILDALL" = \v -> do
     return undef
 op1 "DESTROYALL" = \v -> do
     pkgs    <- pkgParents =<< fmap showType (evalValType v)
-    forM_ pkgs $ \pkg -> do
+    forM_ (reverse pkgs) $ \pkg -> do
         maybeM (fmap (findSym $ ('&':pkg) ++ "::DESTROY") askGlobal) $ \tvar -> do
             ref <- liftSTM $ readTVar tvar
             enterEvalContext CxtVoid (App (Val $ VRef ref) (Just $ Val v) [])
