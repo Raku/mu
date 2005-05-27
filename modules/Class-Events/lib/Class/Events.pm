@@ -20,7 +20,7 @@ module Class::Events-0.0.1;
 
 role Class::Events::Publisher {
 	use Set;
-	has Set $.subscriptions; # FIXME both instance data and class data
+	has Set $.subscriptions handles :note_subscription<insert> :remove_subscription<remove> .= new; # FIXME we need one at the class level too
 
 	method notify (Class::Events::Event $event) {
 		(.get_notifications($event) ==> .mk_notifications)».dispatch;
@@ -44,18 +44,11 @@ role Class::Events::Publisher {
 			#}
 		}
 	}
-
-	method add_subscription ($subscription) {
-		$.subscriptions.insert($subscription);
-	}
-
-	method remove_subscription ($subscription) {
-		$.subscriptions.remove($subscription);
-	}
 }
 
 role Class::Events::Subscriber {
-	# used only to control mmd, might have meta methods later
+	use Set;
+	has Set $.subscriptions handles :note_subscription<insert> :remove_subscription<remove> .= new;
 }
 
 class Class::Events::Subscription {
@@ -86,11 +79,14 @@ class Class::Events::Subscription::Named {
 
 		# when you say add_subscription("foo", ...) then "foo" is the name of the subscription
 		method add_subscription (String $name, $subscriber = $?CALLER::?SELF) {
-			( %.subscriptions<$name> ||= Set.new ).insert( Class::Events::Subscription::Named.new(:name($name), :subscriber($subscriber), :publisher($?SELF)) );
+			my $subscription = Class::Events::Subscription::Named.new(:name($name), :subscriber($subscriber), :publisher($?SELF));
+			( %.subscriptions<$name> ||= Set.new ).insert($subscription);
+			$subscriber.note_subscription($subscription);
 		}
 
 		method remove_subscription (Class::Events::Subscription::Named $subscription) {
 			%.subscriptions<$subscrption.name>.remove($subscription);
+			$subscription.subscriber.remove_subscription($subscription);
 		}
 		
 		method get_subscriptions (Class::Publisher::Event::Named $event) {
