@@ -80,6 +80,12 @@ enumCxt CxtVoid       = 128
 enumCxt (CxtItem _)   = 0
 enumCxt (CxtSlurpy _) = 1
 
+cxtEnum :: (Show a, Num a) => a -> Cxt
+cxtEnum 128 = CxtVoid
+cxtEnum 0   = cxtItemAny
+cxtEnum 1   = cxtSlurpyAny
+cxtEnum n   = error ("Invalid cxt: " ++ show n)
+
 -- |Make a type value representing the type with the specified name.
 -- Recognises conjunctive (&) and disjunctive (|) types.
 mkType :: String -- ^ Name of the type, e.g. \"Hash\" or \"Str|Int\"

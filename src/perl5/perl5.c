@@ -51,7 +51,7 @@ XS(_pugs_guts_invoke) {
     }
     stack[i-2] = NULL;
     
-    ST(0) = pugs_Apply(val, inv, stack);
+    ST(0) = pugs_Apply(val, inv, stack, GIMME_V);
     sv_dump (ret);
     free (stack);
     

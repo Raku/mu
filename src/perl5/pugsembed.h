@@ -7,7 +7,7 @@ typedef HsStablePtr Val;
 #endif
 
 extern Val *pugs_Eval ( char *code );
-extern SV *pugs_Apply ( Val *sub, Val *inv, Val **args );
+extern SV *pugs_Apply ( Val *sub, Val *inv, Val **args, int cxt );
 
 extern Val *pugs_IvToVal ( IV iv );
 extern Val *pugs_NvToVal ( NV iv );

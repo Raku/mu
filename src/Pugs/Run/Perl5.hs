@@ -8,6 +8,7 @@ import Pugs.Internals
 import Pugs.AST
 import Pugs.Prim.Eval
 import Pugs.Embed.Perl5
+import Pugs.Types
 import Foreign
 import Foreign.C.Types
 import Foreign.C.String
@@ -17,7 +18,7 @@ foreign export ccall "pugs_Eval"
     pugs_eval :: CString -> IO PugsVal
 
 foreign export ccall "pugs_Apply"
-    pugs_apply :: PugsVal -> PugsVal -> Ptr PugsVal -> IO PerlSV
+    pugs_apply :: PugsVal -> PugsVal -> Ptr PugsVal -> CInt -> IO PerlSV
 
 foreign export ccall "pugs_ValToSv"
     valToSv :: PugsVal -> IO PerlSV
@@ -59,8 +60,8 @@ pugs_eval cstr = do
     val <- runEvalIO env $ opEval Nothing "<eval>" str
     mkVal val
 
-pugs_apply :: PugsVal -> PugsVal -> Ptr PugsVal -> IO PerlSV
-pugs_apply subPtr invPtr argsPtr = do
+pugs_apply :: PugsVal -> PugsVal -> Ptr PugsVal -> CInt -> IO PerlSV
+pugs_apply subPtr invPtr argsPtr cxt = do
     -- print "DEREF #0"
     env     <- askPerl5Env
     -- print "DEREF #1"
@@ -73,7 +74,8 @@ pugs_apply subPtr invPtr argsPtr = do
     let subExp = case sub of
             VStr name   -> Var name
             _           -> Val sub
-    val <- runEvalIO env $ evalExp (App subExp (fmap Val inv) (map Val args))
+    val <- runEvalIO env $
+        evalExp (Cxt (cxtEnum cxt) $ App subExp (fmap Val inv) (map Val args))
     case val of
         PerlSV sv   -> return sv
         VStr str    -> vstrToSV str

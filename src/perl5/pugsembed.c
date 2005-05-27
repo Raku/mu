@@ -22,7 +22,7 @@ pugs_MkValRef ( Val *val )
 
     isa[0] = pugs_PvToVal("Code");
     isa[1] = NULL;
-    if (SvTRUE(pugs_Apply(pugs_PvToVal("&isa"), val, isa))) {
+    if (SvTRUE(pugs_Apply(pugs_PvToVal("&isa"), val, isa, G_SCALAR))) {
 	if (__init) {
 	    stack[0] = sv;
 	    stack[1] = NULL;
