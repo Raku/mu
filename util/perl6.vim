@@ -36,11 +36,12 @@ syn match p6KeyIO "-[rwxoRWXOezsfdlpSbctugkTBMAC]"
 
 " Comments
 syn match p6Comment "#.*" contains=p6Attn
+syn region p6CommentMline start="^=begin [A-Z]\+$" end="^=end [A-Z]\+$" contains=p6Attn 
+syn region p6CommentPara start="^=for [A-Z]\+$" end="^$" contains=p6Attn
 
 " POD
-syn region p6POD start="^=[a-z]\+$" end="^=cut" contains=p6Attn 
-syn region p6MultComment start="^=begin [A-Z]\+$" end="^=end [A-Z]\+$" contains=p6Attn 
-syn region p6ParaComment start="^=for [A-Z]\+$" end="^$" contains=p6Attn
+syn region p6POD start="^=[a-z]\+\s*$" end="^=cut" contains=p6Attn,p6PODVerbatim,p6PODCmd 
+syn match p6PODVerbatim "^\s.*" contained 
 
 " Variables, arrays, and hashes with ordinary \w+ names
 syn match p6VarPlain "[$@%][a-zA-Z_]\w*"
@@ -185,18 +186,19 @@ hi link p6KeyType       Type
 hi link p6Pattern       p6Keyword
 hi link p6VarPlain      p6Variable
 hi link p6VarPunct      p6Variable
-hi link p6Invocant   Identifier
+hi link p6Invocant      Identifier
 hi link p6InterpString  p6String
 hi link p6LiteralString p6String
 
-hi link p6Keyword  Statement
-hi link p6Number   Number
-hi link p6Comment  Comment
-hi link p6MultComment	Comment
-hi link p6ParaComment	Special
-hi link p6POD      Comment
-hi link p6Variable Identifier
-hi link p6VarException Special
-hi link p6String   String
+hi link p6Keyword       Statement
+hi link p6Number        Number
+hi link p6Comment       Comment
+hi link p6CommentMline  Comment
+hi link p6CommentPara   Comment
+hi link p6POD           Comment
+hi link p6PODVerbatim   Special
+hi link p6Variable      Identifier
+hi link p6VarException  Special
+hi link p6String        String
 
 let b:current_syntax = "perl6"
