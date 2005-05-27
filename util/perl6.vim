@@ -12,25 +12,25 @@ if exists("b:current_syntax")
 endif
 
 " Billions of keywords
-syn keyword p6Attn		ACHTUNG ATTN ATTENTION FIXME NB todo Todo TODO WTF XXX contained
-syn keyword p6Module		module class use require
-syn keyword p6KeyDecl		coro sub submethod method is but multi returns
-syn keyword p6KeyScopeDecl	let local my our state temp 
-syn keyword p6KeyFlow		else elsif for foreach loop while until if unless when
-syn keyword p6KeyFlow		given next last redo or and err xor return not
-syn keyword p6KeyException	die fail try CATCH
-syn keyword p6KeyIO			print open read write readline say seek
-syn keyword p6KeyProperty	constant prec key value kv irs ofs ors pos int export
-syn keyword p6KeyProperty	float str true false rw
-syn keyword p6KeyProperty	Int Str Num Hash Array Code Rule Class NumRange
-syn keyword p6KeyProperty	StrRange Role Bool Rat
-syn keyword p6KeyFunc		grep map sort join split reduce reverse truncate zip
-syn keyword p6KeyFunc		keys values pairs defined delete exists  
-syn keyword p6KeyFunc		gather take any pick all none
-syn keyword p6KeyFunc		pop push shift splice unshift  
-syn keyword p6KeyFunc	    abs exp log log10 rand sign sqrt  	
-syn keyword p6KeySpecial	operator undef
-syn keyword p6KeyCompare	eq ne lt le gt ge
+syn keyword p6Attn          ACHTUNG ATTN ATTENTION FIXME NB todo Todo TODO WTF XXX contained
+syn keyword p6Module        module class use require
+syn keyword p6KeyDecl       coro sub submethod method is but multi returns
+syn keyword p6KeyScopeDecl  let local my our state temp 
+syn keyword p6KeyFlow       else elsif for foreach loop while until if unless when
+syn keyword p6KeyFlow       given next last redo or and err xor return not
+syn keyword p6KeyException  die fail try CATCH
+syn keyword p6KeyIO         print open read write readline say seek
+syn keyword p6KeyProperty   constant prec key value kv irs ofs ors pos int export
+syn keyword p6KeyProperty   float str true false rw
+syn keyword p6KeyProperty   Int Str Num Hash Array Code Rule Class NumRange
+syn keyword p6KeyProperty   StrRange Role Bool Rat
+syn keyword p6KeyFunc       grep map sort join split reduce reverse truncate zip
+syn keyword p6KeyFunc       keys values pairs defined delete exists  
+syn keyword p6KeyFunc       gather take any pick all none
+syn keyword p6KeyFunc       pop push shift splice unshift  
+syn keyword p6KeyFunc       abs exp log log10 rand sign sqrt      
+syn keyword p6KeySpecial    operator undef
+syn keyword p6KeyCompare    eq ne lt le gt ge
 
 syn match p6KeyIO "-[rwxoRWXOezsfdlpSbctugkTBMAC]"
 
@@ -40,7 +40,7 @@ syn region p6CommentMline start="^=begin [A-Z]\+$" end="^=end [A-Z]\+$" contains
 syn region p6CommentPara start="^=for [A-Z]\+$" end="^$" contains=p6Attn
 
 " POD
-syn region p6POD start="^=[a-z]\+\s*$" end="^=cut" contains=p6Attn,p6PODVerbatim,p6PODCmd 
+syn region p6POD start="^=[a-z]\+\s*$" end="^=cut" contains=p6Attn,p6PODVerbatim 
 syn match p6PODVerbatim "^\s.*" contained 
 
 " Variables, arrays, and hashes with ordinary \w+ names
