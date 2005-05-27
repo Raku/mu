@@ -19,7 +19,6 @@ const char pugs_guts_code[] =
 
 "our $AUTOLOAD;"
 "sub AUTOLOAD { }"
-"warn 'perl5 glue compiled';"
 
 "package pugs::guts;"
 "sub code { my ($class, $val) = @_;"
@@ -139,7 +138,6 @@ perl5_init ( int argc, char **argv )
 	exitstatus = perl_run( my_perl );
 
     __init = 1;
-    fprintf(stderr, "hello, perl5\n");
 
     newXS((char*) "pugs::guts::invoke", _pugs_guts_invoke, (char*)__FILE__);
 
