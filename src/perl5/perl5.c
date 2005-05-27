@@ -43,10 +43,8 @@ XS(_pugs_guts_invoke) {
     stack[i-2] = NULL;
 
     /* fprintf(stderr, "back to pugs\n"); */
-    ret = pugs_Apply(val, inv, stack);
+    ST(0) = pugs_Apply(val, inv, stack);
     free (stack);
-
-    sv_setsv(ST(0), ret);
     
     XSRETURN(1);
 }
