@@ -90,6 +90,6 @@ my $obj;
     };
     my $obj6 = Foo6.new;
     $obj = eval_perl5("FooBar->new");
-    is($obj.invoke($obj6), 'Foo6invoking', 'invoke pugs method from p5');
+#   is($obj.invoke($obj6), 'Foo6invoking', 'invoke pugs method from p5');
 
 }
