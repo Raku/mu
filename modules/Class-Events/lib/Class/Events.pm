@@ -27,7 +27,7 @@ role Class::Events::Publisher {
 	}
 	
 	method notify (*@args) {
-		.notify(Class::Events::Event(*@args));
+		.notify(Class::Events::Event.new(*@args));
 	}
 
 	method mk_notifications (*@subscriptions of Class::Events::Subscription) {
@@ -55,7 +55,7 @@ role Class::Events::Publisher {
 }
 
 role Class::Events::Subscriber {
-	# used only to control mmd
+	# used only to control mmd, might have meta methods later
 }
 
 class Class::Events::Subscription {
@@ -64,6 +64,10 @@ class Class::Events::Subscription {
 
 	method match ($notification) {
 		# this is really up to your subscription and event subclasses to define these
+		# if at all.
+
+		# the default Event/Subscriber pair really means that all notifications are sent everywhere
+		1;
 	}
 
 	method delete {
@@ -108,15 +112,18 @@ class Class::Events::Subscription::Named {
 
 class Class::Events::Event {
 	# pretty much an abstract baseclass
+	# an empty implementation is useful on it's own
+
+	has @.args;
+	method new (*@.args) { super }
 }
 
 class Class::Events::Event::Named {
 	has $.name;
 
-	method new ($.name) {
-		super;
+	method new ($.name, *@args) {
+		super *@args;
 	}
-
 }
 
 class Class::Events::Notification {
