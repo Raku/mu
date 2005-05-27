@@ -1,0 +1,11 @@
+How to enter various non-ASCII characters in editors
+
+vim users see :help digraph-table
+    
+    Unicode     ASCII           key sequence
+    char        fallback    vim         emacs            
+
+    «           <<          ^k < <      C-x 8 <
+    »           >>          ^k > >      C-x 8 >
+    ¥           Y           ^k Y e      C-x 8 Y
+

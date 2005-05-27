@@ -22,4 +22,5 @@ Alphabetically sorted:
 - rules        # rules
 - smartmatch   # smart matching operator
 - sub          # subroutine signatures and calling
+- unicode      # how to enter Unicode in various editors
 - var          # special variables
