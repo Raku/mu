@@ -4,7 +4,7 @@ module Pugs.AST.Scope (
     Scope(..),
 ) where
 
--- |The scope of a variable declaration.
+-- | The scope of a variable declaration.
 data Scope = SGlobal -- ^ Global
            | SMy     -- ^ Local
            | SOur    -- ^ Package

@@ -24,9 +24,13 @@ deltaType = junctivate min max $ \tree base target ->
         then countTree tree - distance
         else distance
 
-junctivate :: (t -> t -> t) -> (t -> t -> t)
-              -> (ClassTree -> Type -> Type -> t)
-              -> ClassTree -> Type -> Type -> t
+junctivate :: (t -> t -> t) 
+           -> (t -> t -> t)
+           -> (ClassTree -> Type -> Type -> t)
+           -> ClassTree 
+           -> Type 
+           -> Type 
+           -> t
 junctivate or and f tree base target
     | TypeOr t1 t2 <- target
     = redo base t1 `or` redo base t2
