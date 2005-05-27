@@ -46,7 +46,7 @@ vintToSV = constFail
 vnumToSV :: (Real a) => a -> IO PerlSV
 vnumToSV = constFail
 
-callPerl5 :: PerlSV -> Maybe PerlSV -> [PerlSV] -> PerlSV -> CInt -> IO PerlSV
+callPerl5 :: PerlSV -> PerlSV -> [PerlSV] -> PerlSV -> CInt -> IO PerlSV
 callPerl5 _ _ _ _ = constFail
 
 canPerl5 :: PerlSV -> String -> IO Bool
