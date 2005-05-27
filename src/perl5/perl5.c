@@ -11,24 +11,42 @@
 
 static PerlInterpreter *my_perl;
 
-const char eval_file_code[] =
+int __init = 0;
+
+const char pugs_guts_code[] =
 "use strict;"
 "package pugs;"
 
 "our $AUTOLOAD;"
 "sub AUTOLOAD { }"
 "warn 'perl5 glue compiled';"
-//"pugs::guts::test();"
 
-"package pugs::code;"
-"sub new { }"
+"package pugs::guts;"
+"sub code { my ($class, $val) = @_;"
+"          sub { pugs::guts::invoke($val, undef, @_) } }"
 "1;";
 
-XS(_pugs_guts_test) {
+XS(_pugs_guts_invoke) {
+    Val *val, *inv, **stack;
+    SV *ret;
+    int i;
     dXSARGS;
-    if (items != 1)
+    if (items < 1)
         Perl_croak(aTHX_ "hate software");
 
+    val = pugs_SvToVal(ST(0));
+    inv = pugs_SvToVal(ST(1));
+
+    stack = (Val **)malloc(sizeof(Val*)*items-2);
+    for (i = 2; i < items; ++i) {
+	stack[i-2] = pugs_SvToVal(ST(i));
+    }
+
+    fprintf(stderr, "back to pugs\n");
+    ret = pugs_ValToSv(pugs_Apply (val, inv, stack));
+
+    free (stack);
+    
     XSRETURN(1);
 }
 
@@ -116,16 +134,17 @@ perl5_init ( int argc, char **argv )
 #endif
 
     exitstatus = perl_parse(my_perl, xs_init, argc, argv, (char **)NULL);
+    fprintf(stderr, "hello, perl5: %d\n", exitstatus);
 
     if (exitstatus == 0)
 	exitstatus = perl_run( my_perl );
-    return exitstatus;
 
+    __init = 1;
     fprintf(stderr, "hello, perl5\n");
 
-    newXS((char*) "pugs::guts::test", _pugs_guts_test, (char*)__FILE__);
+    newXS((char*) "pugs::guts::invoke", _pugs_guts_invoke, (char*)__FILE__);
 
-    eval_pv(eval_file_code, FALSE);
+    eval_pv(pugs_guts_code, TRUE);
 
     if (SvTRUE(ERRSV)) {
         STRLEN n_a;

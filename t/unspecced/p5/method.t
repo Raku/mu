@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan(6);
+plan(8);
 
 unless eval 'eval_perl5("1")' {
     skip_rest;
@@ -35,6 +35,11 @@ warn "==> got $code";
     return $code->($self);
 }
 
+sub asub {
+    return sub { return "asub" };
+}
+
+
 /);
 
 {
@@ -56,7 +61,15 @@ my $obj;
 
 {
     my $r = $obj.echo("bar");
-    is($r, 'bar', 'invoke method');
+    is($r, 'bar', 'invoke method with pugs arg');
+}
+
+{
+    my $r = $obj.asub;
+    isa_ok($r, 'CODE', "returning a coderef");
+#    is ($r.(), 'asub', 'invoking p5 coderef');
+    my $rr = $obj.callcode($r);
+    is($rr, 'asub', 'invoke with p5 coderef');
 }
 
 {
