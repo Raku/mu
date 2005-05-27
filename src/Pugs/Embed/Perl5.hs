@@ -6,7 +6,7 @@ import Foreign.C.Types
 
 type PerlInterpreter = ()
 type PerlSV = ()
-type PugsVar = ()
+type PugsVal = ()
 
 constFail :: a -> IO b
 constFail = const $ fail "perl5 not embedded"
@@ -101,8 +101,6 @@ foreign import ccall "perl5.h perl5_newSVnv"
     perl5_newSVnv :: CDouble -> IO PerlSV
 foreign import ccall "perl5.h perl5_get_sv"
     perl5_get_sv :: CString -> IO PerlSV
-foreign import ccall "perl5.h perl5_set_svref"
-    perl5_set_svref :: CString -> PugsVal -> IO ()
 foreign import ccall "perl5.h perl5_apply"
     perl5_apply :: PerlSV -> PerlSV -> Ptr PerlSV -> PugsVal -> CInt -> IO PerlSV
 foreign import ccall "perl5.h perl5_can"
