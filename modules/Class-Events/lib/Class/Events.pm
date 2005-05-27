@@ -126,15 +126,15 @@ class Class::Events::Notification {
 	has Class::Events::Subscription $.subscription;
 	has Class::Events::Event $.event;
 
-	multi method dispatch (::?CLASS $notification) {
-		dispatch($notification, $.subscription.subscriber);
+	method dispatch {
+		dispatch($?SELF, $.subscription.subscriber);
 	}
 	
-	multi method dispatch (::?CLASS $notification, Code & Class::Events::Subscriber $subscriber) {
+	method dispatch (Code & Class::Events::Subscriber $subscriber) {
 		$subscriber.($.subscription, $.event.args);
 	}
 
-	multi method dispatch (::?CLASS $notification, Class::Events::Subscriber $subscriber) {
+	method dispatch (Class::Events::Subscriber $subscriber) {
 		$subscriber.update($.subscription, $.event.args);
 	}
 }
