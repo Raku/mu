@@ -670,6 +670,9 @@ op2 "=>" = \x y -> return $ castV (x, y)
 op2 "cmp"= op2Ord vCastStr
 op2 "<=>"= op2Ord vCastRat
 op2 ".." = op2Cast op2Range
+op2 "..^" = op2Cast op2RangeExclRight
+op2 "^.." = op2Cast op2RangeExclLeft
+op2 "^..^" = op2Cast op2RangeExclBoth
 op2 "!=" = op2Cmp vCastRat (/=)
 op2 "==" = op2Cmp vCastRat (==)
 op2 "<"  = op2Cmp vCastRat (<)
@@ -969,6 +972,15 @@ op2Range x (VNum n)  = VList $ map VNum [vCast x .. n]
 op2Range (VRat n) y  = VList $ map VRat [n .. vCast y]
 op2Range x (VRat n)  = VList $ map VRat [vCast x .. n]
 op2Range x y         = VList $ map VInt [vCast x .. vCast y]
+
+op2RangeExclRight :: Val -> Val -> Val
+op2RangeExclRight x y = VList $ init $ vCast $ op2Range x y
+
+op2RangeExclLeft :: Val -> Val -> Val
+op2RangeExclLeft x y = VList $ tail $ vCast $ op2Range x y 
+
+op2RangeExclBoth :: Val -> Val -> Val
+op2RangeExclBoth x y = VList $ tail $ init $ vCast $ op2Range x y
 
 op2ChainedList :: Val -> Val -> Val
 op2ChainedList x y
@@ -1362,6 +1374,9 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Int       non     cmp     (Str, Str)\
 \\n   Int       non     <=>     (Num, Num)\
 \\n   List      non     ..      (Scalar, Scalar)\
+\\n   List      non     ..^     (Scalar, Scalar)\
+\\n   List      non     ^..     (Scalar, Scalar)\
+\\n   List      non     ^..^    (Scalar, Scalar)\
 \\n   Bool      chain   !=      (Num, Num)\
 \\n   Bool      chain   ==      (Num, Num)\
 \\n   Bool      chain   =:=     (rw!Any, rw!Any)\
