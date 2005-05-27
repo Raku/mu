@@ -21,4 +21,4 @@ should be equivalent to
 my @expected = ("foo","bar");
 @expected = map { substr($_,1,1) }, @expected;
 
-eval_is('("foo","bar").map:{ $_.substr(1,1) }', @expected);
+is(("foo","bar").map:{ $_.substr(1,1) }, @expected);

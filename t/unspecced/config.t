@@ -82,9 +82,9 @@ if($*OS eq any<MSWin32 mingw msys cygwin>) {
   $pugs = 'pugs.exe';
 };
 
-eval_ok( 'defined %?CONFIG', '%?CONFIG is defined' );
-eval_ok( '%?CONFIG.keys() > 0', '%?CONFIG contains keys and values' );
+ ok( defined %?CONFIG, '%?CONFIG is defined' );
+ ok( %?CONFIG.keys() > 0, '%?CONFIG contains keys and values' );
 for @config -> $entry {
   # diag $entry;
-  eval_ok( 'defined %?CONFIG{"' ~ $entry ~ '"}', '%?CONFIG{'~$entry~'} exists' );
+  ok( defined %?CONFIG<<$entry>>, '%?CONFIG{'~$entry~'} exists' ,:todo<UNSPECCED>);
 };
