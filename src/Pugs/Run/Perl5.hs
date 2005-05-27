@@ -61,14 +61,15 @@ pugs_eval cstr = do
 
 pugs_apply :: PugsVal -> PugsVal -> Ptr PugsVal -> IO PugsVal
 pugs_apply subPtr invPtr argsPtr = do
-    print "DEREF #0"
+    -- print "DEREF #0"
     env     <- askPerl5Env
-    print "DEREF #1"
+    -- print "DEREF #1"
     sub     <- deVal subPtr
-    print "DEREF #2"
+    -- print "DEREF #2"
     inv     <- deValMaybe invPtr
-    print "DEREF #3"
+    -- print ("DEREF #3", inv)
     args    <- mapM deVal =<< peekArray0 nullPtr argsPtr
+    -- print ("DEREF #4", args)
     let subExp = case sub of
             VStr name   -> Var name
             _           -> Val sub

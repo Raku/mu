@@ -5,11 +5,8 @@ Val *
 pugs_SvToVal ( SV *sv )
 {
     if (!sv_isa(sv, "pugs")) {
-        fprintf(stderr, "bad cast\n");
-        sv_dump(sv);
         return (pugs_MkSvRef(sv));
     }
-    fprintf(stderr, "good cast\n");
     IV tmp = SvIV((SV*)SvRV(sv));
     return ((Val *)tmp);
 }
@@ -36,7 +33,7 @@ pugs_MkValRef ( Val *val )
 Val *pugs_getenv ()
 {
     SV** rv = hv_fetch(PL_modglobal, "PugsEnv", 7, 0);
-    if (*rv == NULL)
+    if (rv == NULL)
         Perl_croak(aTHX_ "hate software so much");
     IV tmp = SvIV((SV*)SvRV(*rv));
     return ((Val *)tmp);

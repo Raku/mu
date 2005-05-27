@@ -40,8 +40,9 @@ XS(_pugs_guts_invoke) {
     for (i = 2; i < items; ++i) {
 	stack[i-2] = pugs_SvToVal(ST(i));
     }
+    stack[i-2] = NULL;
 
-    fprintf(stderr, "back to pugs\n");
+    /* fprintf(stderr, "back to pugs\n"); */
     ret = pugs_ValToSv(pugs_Apply (val, inv, stack));
 
     free (stack);
@@ -209,7 +210,7 @@ perl5_apply(SV *sub, SV *inv, SV** args, void *env, int cxt)
     ENTER;
     SAVETMPS;
 
-    pugs_setenv(env);
+    /* pugs_setenv(env); XXX*/
 
     PUSHMARK(SP);
     if (inv != NULL) {
@@ -267,7 +268,7 @@ perl5_eval(char *code, void *env, int cxt)
     ENTER;
     SAVETMPS;
 
-    pugs_setenv(env);
+    /* pugs_setenv(env); XXX */
 
     sv = newSVpv(code, 0);
     eval_sv(sv, cxt);
