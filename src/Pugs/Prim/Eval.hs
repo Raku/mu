@@ -1,7 +1,7 @@
 module Pugs.Prim.Eval (
     -- used by Pugs.Prim
     op1EvalHaskell,
-    opEval,
+    opEval, opEvalfile,
     opRequire,
     -- used by Pugs.Eval -- needs factored somewhere bettwen
     retEvalResult, 
@@ -27,6 +27,15 @@ opRequire dumpEnv v = do
             else do
                 str <- liftIO $ readFile pathName
                 opEval (Just dumpEnv) pathName (decodeUTF8 str)
+
+opEvalfile :: String -> Eval Val
+opEvalfile filename = do
+    ok <- liftIO $ doesFileExist filename
+    if (not ok)
+        then fail $ "Can't locate " ++ filename ++ "."
+        else do
+            contents <- liftIO $ readFile filename
+            opEval Nothing filename $ decodeUTF8 contents
 
 op1EvalHaskell :: Val -> Eval Val
 op1EvalHaskell cv = do
