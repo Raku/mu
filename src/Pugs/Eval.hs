@@ -834,21 +834,28 @@ findSub :: String -> Maybe Exp -> [Exp] -> Eval (Maybe VCode)
 findSub name' invs args = do
     let name = possiblyFixOperatorName name'
     case invs of
+        Just exp | Just (package, name') <- breakOnGlue "::" name
+                 , Just (sig, "") <- breakOnGlue "SUPER" package -> do
+            typ <- evalInvType exp
+            findSuperSub typ (sig ++ name')
         Just exp | not (':' `elem` drop 2 name) -> do
             typ     <- evalInvType exp
             if typ == mkType "Scalar::Perl5" then runPerl5Sub name else do
-            subs    <- findWithPkg (showType typ) name
-            if isJust subs then return subs else findSub' name
+            findTypedSub typ name
         _ | [exp] <- args -> do
             typ     <- evalInvType exp
-            subs    <- findWithPkg (showType typ) name
-            if isJust subs then return subs else do
-            sub <- findSub' name
-            if isNothing sub then possiblyBuildMetaopVCode name else return sub
-        _ -> do
-            sub <- findSub' name
-            if isNothing sub then possiblyBuildMetaopVCode name else return sub
+            findTypedSub typ name
+        _ -> findBuiltinSub name
     where
+    findSuperSub typ name = do
+        subs    <- findWithSuper (showType typ) name
+        if isJust subs then return subs else findBuiltinSub name
+    findTypedSub typ name = do
+        subs    <- findWithPkg (showType typ) name
+        if isJust subs then return subs else findBuiltinSub name
+    findBuiltinSub name = do
+        sub <- findSub' name
+        if isNothing sub then possiblyBuildMetaopVCode name else return sub
     evalInvType (Var (':':typ)) = return $ mkType typ
     evalInvType (Val (VType typ)) = return typ
     evalInvType x = evalExpType x
@@ -951,6 +958,8 @@ findSub name' invs args = do
     findWithPkg pkg name = do
         subs <- findSub' (('&':pkg) ++ "::" ++ tail name)
         if isJust subs then return subs else do
+        findWithSuper pkg name
+    findWithSuper pkg name = do
         -- get superclasses
         attrs <- findAttrs pkg
         if isNothing attrs then findSub' name else do
