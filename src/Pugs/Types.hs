@@ -10,7 +10,22 @@
 >   In the Land of Mordor where the Shadows lie.
 -}
 
-module Pugs.Types where
+module Pugs.Types (
+    Type(..), mkType, anyType, showType,
+    ClassTree,
+
+    Cxt(..), 
+    cxtItem, cxtSlurpy, cxtVoid, cxtItemAny, cxtSlurpyAny,
+    typeOfCxt, isSlurpyCxt, isItemCxt, isVoidCxt,
+    enumCxt, cxtEnum,
+
+    Var, 
+
+    VStr, VBool, VInt, VRat, VNum, VComplex, VHandle, VSocket,
+    VThread(..), VRule(..),
+
+    MatchPGE(..)
+) where
 import Pugs.Internals
 
 data Type
