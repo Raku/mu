@@ -81,25 +81,28 @@ sub set_postamble {
 
     # $ghc_flags .= ' -dcore-lint';
     # $ghc_flags .= " -keep-tmp-files";
-	if (!has_ghc_package('plugins')) {
-	  warn << '.';
+    if (has_ghc_package('plugins')
+        and  try_compile("import System.Eval\n"
+                        ."main :: IO ()\n"
+                        .'main = (eval_ "return ()" [] [] [] [] :: IO (Either [String] (Maybe ()))) >> return ()', '-package', 'plugins')) {
+        $ghc_flags .= ' -package plugins -DPUGS_HAVE_HSPLUGINS=1 ';
+    } else {
+        warn << '.';
 *** Inline Haskell support disabled.  If you want dynamic loading
-    of haskell modules, please install the hs-plugins library,
-	ftp://ftp.cse.unsw.edu.au/pub/users/dons/hs-plugins/snapshots/ ,
-    dated 2005-05-21 or later -- remember to "make register" too!
+of haskell modules, please install the hs-plugins library,
+    ftp://ftp.cse.unsw.edu.au/pub/users/dons/hs-plugins/snapshots/ ,
+dated 2005-05-21 or later -- remember to "make register" too!
 
 .
-	} else {
-	  $ghc_flags .= ' -package plugins -DPUGS_HAVE_HSPLUGINS=1 ';
-	}
+    }
 
     if (has_ghc_package('readline') 
-        and  try_compile("import System.Console.Readline;\n"
-						."main :: IO ()\n"
-                        .'main = readline "" >> return ()')) 
-    {
+        and  try_compile("import System.Console.Readline\n"
+                        ."main :: IO ()\n"
+                        .'main = readline "" >> return ()')) {
       $ghc_flags .= ' -DPUGS_HAVE_READLINE=1 -package readline';
-    } else {
+    }
+    else {
       warn << '.';
 *** Readline support disabled.  If you want readline support,
     please install the GNU readline library.
