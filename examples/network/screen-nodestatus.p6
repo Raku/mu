@@ -22,6 +22,9 @@
 # But as screen(1) will only ever display the last line, you have a nice view
 # on the status of your computers! :)
 # Note: You might need to change &ping (at the end of this file).
+# See a screenshot of screen-nodestatus.p6 in action at
+# http://m19s28.vlinux.de/iblech/screen-nodestatus.png (look at the bottom
+# right corner).
 
 use v6;
 
