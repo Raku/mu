@@ -127,6 +127,7 @@ symbol s
     aheadSym '?' y   = not (y `elem` "&|^?")
     aheadSym '+' y   = not (y `elem` "&|^<>+")
     aheadSym '~' y   = not (y `elem` "&|^<>~")
+    aheadSym '^' y   = not (y `elem` ".")
     aheadSym x   y   = y `elem` ";!" || x /= y
 
 interpolatingStringLiteral :: RuleParser x      -- ^ Closing delimiter 

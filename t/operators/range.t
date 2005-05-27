@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 13;
+plan 12;
 
 is ~(3..6), "3 4 5 6", "(..) works (1)";
 is ~(3..3), "3",       "(..) works (2)";
@@ -21,10 +21,10 @@ is ~(2+1..6), "3 4 5 6", "(..) has correct precedence (2)";
 
 # Test the three exclusive range operators:
 # L<S03/"New Operators"/binary range operator has variants/>
-eval_is '(1^.. 9)', (2..9), "bottom-exclusive range (^..) works";
-eval_is '(1 ..^9)', (1..8), "top-exclusive range (..^) works";
-eval_is '(1^..^9)', (2..8), "double-exclusive range (^..^) works";
+is [1^..9], [2..9],  "bottom-exclusive range (^..) works";
+is [1 ..^9], [1..8], "top-exclusive range (..^) works";
+[1^..^9], [2..8], "double-exclusive range (^..^) works";
 
-eval_is '("a" ^.. "z")', ("b".."z"), "bottom-exclusive string range (^..) works";
-eval_is '("a" ..^ "z")', ("a".."y"), "top-exclusive string range (..^) works";
-eval_is '("a" ^..^ "z")', ("b".."y"), "double-exclusive string range (^..^) works";
+is ["a"^.."z"], ["b".."z"], "bottom-exclusive string range (^..) works";
+is ["a"..^"z"], ["a".."y"], "top-exclusive string range (..^) works";
+is ["a"^..^"z"], ["b".."y"], "double-exclusive string range (^..^) works";
