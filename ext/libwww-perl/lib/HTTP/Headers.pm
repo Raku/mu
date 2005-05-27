@@ -84,9 +84,9 @@ method remove_header (Str *@fields) {
   my @values;
 
   for @fields -> $field is copy {
-    $field ~~ tr/_/-/ if not $field ~~ m/^:/ and $TRANSLATE_UNDERSCORE;
-    my $v = delete %:headers{lc $field};
-    push @values, $v ~~ Array ? @$v : $v if defined $v;
+    $field ~~ tr/_/-/ if not $field ~~ /^\:/ and $TRANSLATE_UNDERSCORE;
+    my $v = %:headers.delete($field.lc);
+    push @values, $v ~~ Array ?? @$v :: $v if defined $v;
   }
 
   return @values;
@@ -95,8 +95,8 @@ method remove_header (Str *@fields) {
 method remove_content_headers () {
   my $c = ::?CLASS.new;
 
-  for grep { %entity_header{$_} or m/^content-/ } keys %:headers -> $f {
-    $c.:headers{$f} = delete %:headers{$f}; # XXX -- correct?
+  for %:headers.keys.grep:{ %entity_header{$_} || /^content-/ } -> $f {
+    $c.:headers{$f} = %:headers.delete($f); # XXX -- correct?
   }
 
   return $c;
@@ -107,49 +107,50 @@ method :header (
   Str $val is copy,
   Str ?$op = ""
 ) {
-  unless $field ~~ /^:/ {
+  unless $field ~~ /^\:/ {
     $field ~~ tr/_/-/ if $TRANSLATE_UNDERSCORE;
     my $old = $field;
     $field = lc $field;
-    unless defined %:standard_case{$field} {
+    unless %:standard_case{$field}.defined {
       # generate a %:standard_case entry for this field
-      $old ~~ s:g/\b(\w)/{ucfirst $0}/;
+      $old ~~ s:g/\b(\w)/{$0.ucfirst}/;
       %:standard_case{$field} = $old;
     }
   }
 
   my $h = %:headers{$field};
-  $h  //= [];
-  my @old = $h ~~ Array ? @$h : ($h);
+  $h //= [];
+  my @old = $h ~~ Array ?? @$h :: ($h);
 
   $val = undef if $op eq "INIT" and @old;
-  if defined $val {
-    my @new = ($op eq "PUSH") ? @old : ();
-    if not $val ~~ Array
+  if $val.defined {
+    my @new = ($op eq "PUSH") ?? @old :: ();
+    if $val !~ Array {
       push @new, $val;
     } else {
-      push @new, @$val;
+      push @new, *@$val;
     }
-    %:headers{$field} = @new > 1 ? \@new : @new[0];
+    %:headers{$field} = @new > 1 ?? \@new :: @new[0];
   }
 
   return @old;
 }
 
 method :sorted_field_names () {
-  return sort {
+  return %:headers.key.sort:{
     (%:header_order{$^a} || 999) <=> (%:header_order{$^b} || 999) ||
     $a cmp $b
-  } keys %:headers;
+  };
+  
 }
 
 method header_field_names () {
-  return map { %:standard_case{$_} || $_ } .:sorted_field_names;
+  return .:sorted_field_names.map:{ %:standard_case{$_} || $_ };
 }
 
 method scan (Code $sub) {
   for .:sorted_field_names -> $key {
-    next if $key ~~ m/^_/;
+    next if $key ~~ /^_/;
     my $vals = %:headers{$key};
     if $vals ~~ Array {
       for @$vals -> $val {
@@ -163,7 +164,7 @@ method scan (Code $sub) {
 
 multi sub *coerce:<as> (::?CLASS $self, Str ::to) { $self.as_string("\n") }
 
-method as_string (Str ?$endl = "\n") {
+method as_string (Str ?$ending = "\n") {
   my @result;
 
   .scan(-> $field is copy, $val is copy {
@@ -172,13 +173,15 @@ method as_string (Str ?$endl = "\n") {
       # must handle header values with embedded newlines with care
       $val ~~ s/\s+$//;                    # trailing newlines and space must go
       $val ~~ s:g/\n\n+/\n/;               # no empty lines
-      $val ~~ s:g/\n(<-[\040\t]>)/\n $0/;  # intial space for continuation
-      $val ~~ s:g/\n/$endl/;               # substitute with requested line ending
+      $val ~~ s:g/\n(<-[\040\t]>)/\n $0/;  # initial space for continuation
+      $val ~~ s:g/\n/$ending/;             # substitute with requested line ending
     }
-    push @result, "$field: $val";
+    @result.push("$field: $val");
   });
 
-  return join $endl, @result, "";
+  @result.push("");
+
+  return @result.join($ending);
 }
 
 method :date_header (Str $header) is rw {
@@ -210,9 +213,9 @@ method content_type () is rw {
   return new Proxy:
     FETCH => {
       my $ct = (.:header("Content-Type"))[0];
-      return "" unless defined $ct and length $ct;
+      return "" unless $ct.defined and $ct.chars;
 
-      my @ct = split m/;\s*/, $ct, 2;
+      my @ct = split /;\s*/, $ct, 2;
       given @ct[0] {
 	s:g/\s+//;
 	$_ .= lc;
@@ -223,7 +226,7 @@ method content_type () is rw {
 	when Scalar { return @ct[0] }
       }
     },
-    STORE => -> $type {
+    STORE => -> Str $type {
       .:header("Content-Type", $type);
     };
 }
@@ -232,7 +235,7 @@ method referer () is rw {
   return new Proxy:
     FETCH => { (.:header("Referer")[0]) },
     STORE => -> Str|URI $new is copy {
-      if $new ~~ m/#/ {
+      if $new ~~ /\#/ {
 	# Strip fragment per RFC 2616, section 14.36.
 	if $new ~~ URI {
 	  $new .= clone;
@@ -246,7 +249,7 @@ method referer () is rw {
     };
 }
 
-&referrer ::= &referer;  # on tchrist's request
+&referrer ::= &referer;  # at tchrist's request
 
 method title ()                     is rw { .header("Title") }
 method content_encoding ()          is rw { .header("Content-Encoding") }
@@ -272,12 +275,12 @@ method :basic_auth (Str $h) is rw {
   return new Proxy:
     FETCH => {
       my $cur = .:header($h);
-      if defined $old and $old ~~ s/^\s*Basic\s+// {
+      if defined $old and $old ~~ s/^\s* Basic \s+// {
 	my $val = MIME::Base64::decode($cur);
 
 	given want {
 	  when Scalar { return $val }
-	  when List   { return split m/:/, $val, 2 }
+	  when List   { return split /\:/, $val, 2 }
 	}
       }
 
@@ -286,7 +289,7 @@ method :basic_auth (Str $h) is rw {
     # -- XXX does this create a reasonable warning? If not, put
     #   Carp::croak("Basic authorization user name can't contain ':'")
     # back.
-    STORE => -> Str where { not $^str ~~ m/:/ } $user, Str ?$passwd = "" {
+    STORE => -> Str where { $^str !~ /\:/ } $user, Str ?$passwd = "" {
       .:header($h, "Basic " ~ MIME::Base64::encode("$user:$passwd", ""));
     };
 }
