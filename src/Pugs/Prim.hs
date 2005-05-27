@@ -516,20 +516,8 @@ op1 "arity" = \v -> do
 op1 "Thread::yield" = const $ do
     ok <- tryIO False $ do { yield ; return True }
     return $ VBool ok
-op1 "BUILDALL" = \v -> do
-    pkgs    <- pkgParents =<< fmap showType (evalValType v)
-    forM_ pkgs $ \pkg -> do
-        maybeM (fmap (findSym $ ('&':pkg) ++ "::BUILD") askGlobal) $ \tvar -> do
-            ref <- liftSTM $ readTVar tvar
-            enterEvalContext CxtVoid (App (Val $ VRef ref) (Just $ Val v) [])
-    return undef
-op1 "DESTROYALL" = \v -> do
-    pkgs    <- pkgParents =<< fmap showType (evalValType v)
-    forM_ (reverse pkgs) $ \pkg -> do
-        maybeM (fmap (findSym $ ('&':pkg) ++ "::DESTROY") askGlobal) $ \tvar -> do
-            ref <- liftSTM $ readTVar tvar
-            enterEvalContext CxtVoid (App (Val $ VRef ref) (Just $ Val v) [])
-    return undef
+op1 "BUILDALL" = op1WalkAll id "BUILD"
+op1 "DESTROYALL" = op1WalkAll reverse "DESTROY"
 -- [,] is a noop -- It simply returns the input list
 op1 "prefix:[,]" = return
 op1 other   = \_ -> fail ("Unimplemented unaryOp: " ++ other)
@@ -543,6 +531,15 @@ pkgParents pkg = do
     attrs   <- fromVal =<< fetch "traits"
     pkgs    <- mapM pkgParents attrs
     return $ nub (pkg:concat pkgs)
+
+op1WalkAll :: ([VStr] -> [VStr]) -> VStr -> Val -> Eval Val
+op1WalkAll f meth v = do
+    pkgs    <- pkgParents =<< fmap showType (evalValType v)
+    forM_ (f pkgs) $ \pkg -> do
+        maybeM (fmap (findSym $ ('&':pkg) ++ "::" ++ meth) askGlobal) $ \tvar -> do
+            ref <- liftSTM $ readTVar tvar
+            enterEvalContext CxtVoid (App (Val $ VRef ref) (Just $ Val v) [])
+    return undef
 
 op1Return :: Eval Val -> Eval Val
 op1Return action = do
