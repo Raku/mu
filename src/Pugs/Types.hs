@@ -148,13 +148,15 @@ Currently there are two types of rules: Perl 5 rules, implemented with PCRE,
 and Perl 6 rules, implemented with PGE.
 -}
 data VRule
-    = MkRulePCRE -- ^ Perl5-compatible regular expression
+    -- | Perl5-compatible regular expression
+    = MkRulePCRE
         { rxRegex     :: !Regex -- ^ The \'regular\' expression (as a PCRE
                                 --     'Regex' object)
         , rxGlobal    :: !Bool  -- ^ Flag indicating \'global\' (match-all)
 	    , rxStringify :: !Bool
         }
-    | MkRulePGE  -- ^ Parrot Grammar Engine rule
+    -- | Parrot Grammar Engine rule
+    | MkRulePGE
         { rxRule      :: !String -- ^ The rule string
         , rxGlobal    :: !Bool   -- ^ Flag indicating \'global\' (match-all)
 	    , rxStringify :: !Bool
