@@ -59,27 +59,28 @@ has %:standard_case;
 }
 
 has %:headers;
-method BUILD(Str *%headers) {
+
+method BUILD (Str *%headers) {
   .header($_.key) = $_.value for pairs %headers;
 }
 
-method header(Str $field) is rw {
+method header (Str $field) is rw {
   return new Proxy:
     FETCH => { %:headers{$field} },
     STORE => -> Str $val { .:header($field, $val) };
 }
 
-method clear() { %:headers = () }
+method clear () { %:headers = () }
 
-method push_header(Str $field, Str $val) {
+method push_header (Str $field, Str $val) {
   .:header($field, $val, "PUSH");
 }
 
-method init_header(Str $field, Str $val) {
+method init_header (Str $field, Str $val) {
   .:header($field, $val, "INIT");
 }
 
-method remove_header(Str *@fields) {
+method remove_header (Str *@fields) {
   my @values;
 
   for @fields -> $field is copy {
@@ -91,7 +92,7 @@ method remove_header(Str *@fields) {
   return @values;
 }
 
-method remove_content_headers() {
+method remove_content_headers () {
   my $c = ::?CLASS.new;
 
   for grep { %entity_header{$_} or m/^content-/ } keys %:headers -> $f {
@@ -101,7 +102,7 @@ method remove_content_headers() {
   return $c;
 }
 
-method :header(
+method :header (
   Str where { length $^str > 0 } $field is copy,
   Str $val is copy,
   Str ?$op = ""
@@ -135,18 +136,18 @@ method :header(
   return @old;
 }
 
-method :sorted_field_names() {
+method :sorted_field_names () {
   return sort {
     (%:header_order{$^a} || 999) <=> (%:header_order{$^b} || 999) ||
     $a cmp $b
   } keys %:headers;
 }
 
-method header_field_names() {
+method header_field_names () {
   return map { %:standard_case{$_} || $_ } .:sorted_field_names;
 }
 
-method scan(Code $sub) {
+method scan (Code $sub) {
   for .:sorted_field_names -> $key {
     next if $key ~~ m/^_/;
     my $vals = %:headers{$key};
@@ -162,10 +163,10 @@ method scan(Code $sub) {
 
 multi sub *coerce:<as> (::?CLASS $self, Str ::to) { $self.as_string("\n") }
 
-method as_string(Str ?$endl = "\n") {
+method as_string (Str ?$endl = "\n") {
   my @result;
 
-  .scan(-> $field is copy, $val is copy{
+  .scan(-> $field is copy, $val is copy {
     $field ~~ s/^://;
     if $val ~~ m/\n/ {
       # must handle header values with embedded newlines with care
@@ -180,7 +181,7 @@ method as_string(Str ?$endl = "\n") {
   return join $endl, @result, "";
 }
 
-method :date_header(Str $header) is rw {
+method :date_header (Str $header) is rw {
   return new Proxy:
     FETCH => { HTTP::Date::str2time(%:headers{$header}) },
     STORE => -> $time {
@@ -188,15 +189,15 @@ method :date_header(Str $header) is rw {
     };
 }
 
-method date()                is rw { .:date_header("Date")                }
-method expires()             is rw { .:date_header("Expires")             }
-method if_modified_since()   is rw { .:date_header("If-Modified-Since")   }
-method if_unmodified_since() is rw { .:date_header("If-Unmodified-Since") }
-method last_modified()       is rw { .:date_header("Last-Modified")       }
+method date ()                is rw { .:date_header("Date")                }
+method expires ()             is rw { .:date_header("Expires")             }
+method if_modified_since ()   is rw { .:date_header("If-Modified-Since")   }
+method if_unmodified_since () is rw { .:date_header("If-Unmodified-Since") }
+method last_modified ()       is rw { .:date_header("Last-Modified")       }
 
 # This is used as a private LWP extension.  The Client-Date header is
 # added as a timestamp to a response when it has been received.
-method client_date()         is rw { .:date_header('Client-Date')         }
+method client_date ()         is rw { .:date_header('Client-Date')         }
 
 # The retry_after field is dual format (can also be a expressed as
 # number of seconds from now), so we don't provide an easy way to
@@ -205,7 +206,7 @@ method client_date()         is rw { .:date_header('Client-Date')         }
 # relative seconds and a positive value for epoch based time values.
 #sub retry_after       { shift->_date_header('Retry-After',       @_); }
 
-method content_type() is rw {
+method content_type () is rw {
   return new Proxy:
     FETCH => {
       my $ct = (.:header("Content-Type"))[0];
@@ -227,7 +228,7 @@ method content_type() is rw {
     };
 }
 
-method referer() is rw {
+method referer () is rw {
   return new Proxy:
     FETCH => { (.:header("Referer")[0]) },
     STORE => -> Str|URI $new is copy {
@@ -244,29 +245,30 @@ method referer() is rw {
       .:header("Referer", $new);
     };
 }
+
 &referrer ::= &referer;  # on tchrist's request
 
-method title()               is rw { .header("Title") }
-method content_encoding()    is rw { .header("Content-Encoding") }
-method content_language()    is rw { .header("Content-Language") }
-method content_length()      is rw { .header("Content-Length") }
+method title ()                     is rw { .header("Title") }
+method content_encoding ()          is rw { .header("Content-Encoding") }
+method content_language ()          is rw { .header("Content-Language") }
+method content_length ()            is rw { .header("Content-Length") }
 
-method user_agent()          is rw { .header("User-Agent") }
-method server()              is rw { .header("Server") }
+method user_agent ()                is rw { .header("User-Agent") }
+method server ()                    is rw { .header("Server") }
 
-method from()                is rw { .header("From") }
-method warning()             is rw { .header("Warning") }
+method from ()                      is rw { .header("From") }
+method warning ()                   is rw { .header("Warning") }
 
-method www_authenticate()    is rw { .header("WWW-Authenticate") }
-method authorization()       is rw { .header("Authorization") }
+method www_authenticate ()          is rw { .header("WWW-Authenticate") }
+method authorization ()             is rw { .header("Authorization") }
 
-method proxy_authenticate()  is rw { .header("Proxy-Authenticate") }
-method proxy_authorization() is rw { .header("Proxy-Authorization") }
+method proxy_authenticate ()        is rw { .header("Proxy-Authenticate") }
+method proxy_authorization ()       is rw { .header("Proxy-Authorization") }
 
-method authorization_basic()       is rw { .:basic_auth("Authorization") }
-method proxy_authorization_basic() is rw { .:basic_auth("Proxy-Authorization") }
+method authorization_basic ()       is rw { .:basic_auth("Authorization") }
+method proxy_authorization_basic () is rw { .:basic_auth("Proxy-Authorization") }
 
-method :basic_auth(Str $h) is rw {
+method :basic_auth (Str $h) is rw {
   return new Proxy:
     FETCH => {
       my $cur = .:header($h);
