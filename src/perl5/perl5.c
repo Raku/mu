@@ -210,7 +210,7 @@ perl5_apply(SV *sub, SV *inv, SV** args, void *env, int cxt)
     ENTER;
     SAVETMPS;
 
-    /* pugs_setenv(env); XXX*/
+    pugs_setenv(env);
 
     PUSHMARK(SP);
     if (inv != NULL) {
@@ -268,7 +268,7 @@ perl5_eval(char *code, void *env, int cxt)
     ENTER;
     SAVETMPS;
 
-    /* pugs_setenv(env); XXX */
+    pugs_setenv(env);
 
     sv = newSVpv(code, 0);
     eval_sv(sv, cxt);

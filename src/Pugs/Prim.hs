@@ -244,7 +244,7 @@ op1 "eval_perl5" = \v -> do
     str <- fromVal v
     env <- ask
     tryIO undef $ do
-        envSV <- mkValRef (VControl $ ControlEnv env)
+        envSV <- mkVal (VControl $ ControlEnv env)
         sv <- evalPerl5 str envSV $ enumCxt (envContext env)
         return $ PerlSV sv
 op1 "eval_haskell" = op1EvalHaskell

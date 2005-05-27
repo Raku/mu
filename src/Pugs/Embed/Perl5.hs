@@ -124,11 +124,12 @@ initPerl5 str env = do
         withArray [prog, prog, cstr] $ \argv -> do
             interp <- perl5_init 3 argv
             case env of
-                Just val -> do
-                    ptr <- fmap castStablePtrToPtr $ newStablePtr val
-                    pugs_setenv ptr
+                Just val -> pugs_setenv =<< mkVal val
                 Nothing -> return ()
             return interp
+
+mkVal :: (Show a) => a -> IO PugsVal
+mkVal val = fmap castStablePtrToPtr $ newStablePtr val
 
 svToVStr :: PerlSV -> IO String
 svToVStr sv = peekCString =<< perl5_SvPV sv

@@ -76,9 +76,6 @@ pugs_apply subPtr invPtr argsPtr = do
     val <- runEvalIO env $ evalExp (App subExp (fmap Val inv) (map Val args))
     mkVal val
 
-mkVal :: Val -> IO PugsVal
-mkVal val = fmap castStablePtrToPtr $ newStablePtr val
-
 deVal :: PugsVal -> IO Val
 deVal ptr = do
     -- print ("DEVAL", ptr)

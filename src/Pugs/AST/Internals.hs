@@ -314,7 +314,7 @@ instance Value VCode where
             svs     <- fromVals args
             env     <- ask
             rv      <- liftIO $ do
-                envSV   <- mkValRef (VControl $ ControlEnv env)
+                envSV   <- mkVal (VControl $ ControlEnv env)
                 callPerl5 sv nullSV svs envSV (enumCxt $ envContext env)
             return $ PerlSV rv
         }

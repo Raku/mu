@@ -866,7 +866,7 @@ findSub name' invs args = do
                 if not found' then evalExp (App (Var name) Nothing (map (Val . PerlSV) (sv:svs))) else do
                 env     <- ask
                 rv      <- liftIO $ do
-                    envSV   <- mkValRef (VControl $ ControlEnv env)
+                    envSV   <- mkVal (VControl $ ControlEnv env)
                     subSV   <- vstrToSV $ tail name
                     callPerl5 subSV sv svs envSV (enumCxt $ envContext env)
                 return $ PerlSV rv
