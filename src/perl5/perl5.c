@@ -134,7 +134,6 @@ perl5_init ( int argc, char **argv )
 #endif
 
     exitstatus = perl_parse(my_perl, xs_init, argc, argv, (char **)NULL);
-    fprintf(stderr, "hello, perl5: %d\n", exitstatus);
 
     if (exitstatus == 0)
 	exitstatus = perl_run( my_perl );
@@ -203,7 +202,7 @@ perl5_newSVnv ( double iv )
 SV *
 perl5_apply(SV *sub, SV *inv, SV** args, SV *env, int cxt)
 {
-    SV *arg;
+    SV **arg;
     SV *rv;
     SV *sv;
 
@@ -222,8 +221,8 @@ perl5_apply(SV *sub, SV *inv, SV** args, SV *env, int cxt)
     if (inv != NULL) {
         XPUSHs(inv);
     }
-    for (arg = args; arg != NULL; arg++) {
-        XPUSHs(arg);
+    for (arg = args; *arg != NULL; arg++) {
+        XPUSHs(*arg);
     }
     PUTBACK;
 
