@@ -5,7 +5,7 @@ use Test;
 
 =kwid 
 
-Pair test
+ Pair test
 
 =cut
 
@@ -150,19 +150,29 @@ test4 %hash;
 my $should_be_a_pair = (a => 25/1);
 isa_ok $should_be_a_pair, "Pair", "=> has correct precedence";
 
-# Stated by Larry on p6l in:
-# http://www.nntp.perl.org/group/perl.perl6.language/20122
-# "Oh, and we recently moved => to assignment precedence so it would
-# more naturally be right associative, and to keep the non-chaining
-# binaries consistently non-associative.  Also lets you say:
-#    key => $x ?? $y :: $z;
-# plus it moves it closer to the comma that it used to be in Perl 5."
-# Note: this contradicts current S03 so I could be wrong.
+=pod
+
+Stated by Larry on p6l in:
+http://www.nntp.perl.org/group/perl.perl6.language/20122
+
+ "Oh, and we recently moved => to assignment precedence so it would
+ more naturally be right associative, and to keep the non-chaining
+ binaries consistently non-associative.  Also lets you say:
+
+   key => $x ?? $y :: $z;
+
+ plus it moves it closer to the comma that it used to be in Perl 5."
+
+(iblech) XXX: this contradicts current S03 so I could be wrong.
+
+=cut
+
 {
   # This should always work.
   my %x = ( "Zaphod" => (0 ?? 1 :: 2), "Ford" => 42 );
   is %x{"Zaphod"}, 2, "Zaphod is 2";
   is %x{"Ford"},  42, "Ford is 42";
+
   # This should work only if => is lower precedence than ?? ::
   my %z = ( "Zaphod" => 0 ?? 1 :: 2, "Ford" => 42 );
   is %z{"Zaphod"}, 2, "Zaphod is still 2", :todo;
