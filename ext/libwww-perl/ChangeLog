@@ -1,0 +1,4 @@
+== Changes for 0.0.1
+
+* changelog created May 5, 2005
+* Changed to use HTTP/1.0 instead of HTTP/1.1
