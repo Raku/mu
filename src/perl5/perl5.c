@@ -39,7 +39,7 @@ XS(_pugs_guts_invoke) {
 	val = pugs_SvToVal(ST(0));
     }
     else {
-	sv_dump (sv);
+	/* sv_dump (sv); */
 	val = pugs_PvToVal(SvPV_nolen(sv));
 	fprintf(stderr, "from method\n");
     }
@@ -52,7 +52,7 @@ XS(_pugs_guts_invoke) {
     stack[i-2] = NULL;
     
     ST(0) = pugs_Apply(val, inv, stack, GIMME_V);
-    sv_dump (ret);
+    /* sv_dump (ret); */
     free (stack);
     
     XSRETURN(1);
