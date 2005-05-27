@@ -203,6 +203,14 @@ Tests the given block, as defined in L<S04/"Switch statements">
     eval_ok( 'given TestIt.new { .passit; };'  , '. method calls'   );
     eval_ok( 'given TestIt.new { $_.testing<a> = 1; };','$_. attribute access');
     eval_ok( 'given TestIt.new { .testing<a> = 1; };',  '. attribute access', :todo<bug>);
-             
+    my $t = TestIt.new;
+    given $t { when TestIt { $passed = 1;} };
+    is($passed, 1,"when Type {} works");
+    $passed = 0;
+    given $t { when .isa(TestIt) { $passed =1;}}
+    is($passed, 1,"when .isa(Type) works");
+    $passed = 0;
+    given $t { when (Type) { $passed = 1; }};
+    is($passed, 1,"when (Type) works");
 }
 
