@@ -14,4 +14,3 @@ SV * perl5_apply(SV *sub, SV *inv, SV** args, void *env, int cxt);
 bool perl5_can(SV *inv, char *subname);
 SV * perl5_eval(char *code, void *env, int cxt);
 SV * perl5_get_sv ( const char *name );
-void perl5_set_svref ( const char *name, void *sv );

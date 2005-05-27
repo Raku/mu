@@ -203,6 +203,7 @@ perl5_apply(SV *sub, SV *inv, SV** args, void *env, int cxt)
     SV **arg;
     SV *rv;
     SV *sv;
+    void *old_env = pugs_getenv();
 
     dSP;
 
@@ -235,6 +236,7 @@ perl5_apply(SV *sub, SV *inv, SV** args, void *env, int cxt)
     FREETMPS;
     LEAVE;
 
+    pugs_setenv(old_env);
     return rv;
 }
 
@@ -246,23 +248,12 @@ perl5_get_sv(const char *name)
     return sv;
 }
 
-void perl5_set_svref (const char *name, void *val)
-{
-    /* fprintf(stderr, "setsvref: name: %s, mkvalref: %p\n", name, val); */
-
-    SV *container = get_sv("pugs::env", TRUE);
-
-    SV *sv = newSV(0);
-    sv_setref_pv(sv, "pugs", val);
-
-    sv_setsv(container, sv);
-}
-
 SV *
 perl5_eval(char *code, void *env, int cxt)
 {
     dSP;
     SV* sv;
+    void *old_env = pugs_getenv();
 
     ENTER;
     SAVETMPS;
@@ -278,9 +269,11 @@ perl5_eval(char *code, void *env, int cxt)
     SvREFCNT_inc(sv);
     PUTBACK;
 
+
     FREETMPS;
     LEAVE;
 
+    pugs_setenv(old_env);
     return sv;
 }
 
