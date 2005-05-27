@@ -104,22 +104,18 @@ debug key fun str a = do
 
 evaluateMain :: Exp -> Eval Val
 evaluateMain exp = do
-    liftIO $ performGC
     -- S04: INIT {...}*      at run time, ASAP
     initAV   <- evalVar "@?INIT"
     initSubs <- fromVals initAV
     enterContext CxtVoid $ do
         mapM_ evalExp [ App (Val sub) Nothing [] | sub <- initSubs ]
     -- The main runtime
-    liftIO $ performGC
     val      <- resetT $ evaluate exp
-    liftIO $ performGC
     -- S04: END {...}       at run time, ALAP
     endAV    <- evalVar "@*END"
     endSubs  <- fromVals endAV
     enterContext CxtVoid $ do
         mapM_ evalExp [ App (Val sub) Nothing [] | sub <- endSubs ]
-    liftIO $ performGC
     return val
 
 -- | Evaluate an expression. This function mostly just delegates to 'reduce'.
@@ -719,11 +715,11 @@ reduce (App (Var "&not") invs args) = do
     retVal $ VBool (not bool)
 
 -- XXX absolutely evil bloody hack for "goto"
-reduce (App (Var "&goto") invs@(Just subExp) args) = do
+reduce (App (Var "&goto") (Just subExp) args) = do
     vsub <- enterEvalContext (cxtItem "Code") subExp
     sub <- fromVal vsub
     local callerEnv $ do
-        val <- apply sub invs args
+        val <- apply sub Nothing args
         shiftT $ const (retVal val)
     where
     callerEnv :: Env -> Env
@@ -735,10 +731,10 @@ reduce (App (Var "&goto") invs@(Just subExp) args) = do
            }
 
 -- XXX absolutely evil bloody hack for "assuming"
-reduce (App (Var "&assuming") invs@(Just subExp) args) = do
+reduce (App (Var "&assuming") (Just subExp) args) = do
     vsub <- enterEvalContext (cxtItem "Code") subExp
     sub <- fromVal vsub
-    case bindSomeParams sub invs args of
+    case bindSomeParams sub Nothing args of
         Left errMsg      -> fail errMsg
         Right curriedSub -> retVal $ castV $ curriedSub
 

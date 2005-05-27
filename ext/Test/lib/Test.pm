@@ -91,9 +91,9 @@ sub eval_is (Str $code, Str $expected, Str +$desc, +$todo) returns Bool is expor
 
 ## cmp_ok
 
-sub cmp_ok (Str $got, Code $compare_func, Str $expected, Str +$desc, +$todo) returns Bool is export {
-    my $test := $compare_func($got, $expected);
-    proclaim($test, $desc, $todo, $got, "$compare_func.name() $expected");
+sub cmp_ok (Str $got, Code &compare_func, Str $expected, Str +$desc, +$todo) returns Bool is export {
+    my $test := compare_func($got, $expected);
+    proclaim($test, $desc, $todo, $got, "&compare_func.name() $expected");
 }
 
 ## isa_ok
@@ -118,8 +118,8 @@ sub use_ok (Str $module, +$todo) is export {
 
 ## throws ok
 
-sub throws_ok (Sub $code, Any $match, Str +$desc, +$todo) returns Bool is export {
-    try { $code() };
+sub throws_ok (Code &code, Any $match, Str +$desc, +$todo) returns Bool is export {
+    try { code() };
     if ($!) {
         &ok.goto($! ~~ $match, $desc, $todo);            
     }
@@ -130,8 +130,8 @@ sub throws_ok (Sub $code, Any $match, Str +$desc, +$todo) returns Bool is export
 
 ## dies_ok
 
-sub dies_ok (Sub $code, Str +$desc, +$todo) returns Bool is export {
-    try { $code() };
+sub dies_ok (Code &code, Str +$desc, +$todo) returns Bool is export {
+    try { code() };
     if ($!) {
         &ok.goto(1, $desc, $todo);
     }
@@ -142,8 +142,8 @@ sub dies_ok (Sub $code, Str +$desc, +$todo) returns Bool is export {
 
 ## lives ok
 
-sub lives_ok (Sub $code, Str +$desc, +$todo) returns Bool is export {
-    try { $code() };
+sub lives_ok (Code &code, Str +$desc, +$todo) returns Bool is export {
+    try { code() };
     if ($!) {
         proclaim(undef, $desc, $todo, "An exception was thrown : $!");
     }
@@ -330,9 +330,9 @@ These functions should work with most reg-exps, but given that they are still a
 somewhat experimental feature in Pugs, it is suggested you don't try anything
 too funky.
 
-- `cmp_ok (Str $got, Code $compare_func, Str $expected, Str +$desc, Bool +$todo) returns Bool`
+- `cmp_ok (Str $got, Code &compare_func, Str $expected, Str +$desc, Bool +$todo) returns Bool`
 
-This function will compare `$got` and `$expected` using `$compare_func`. This will
+This function will compare `$got` and `$expected` using `&compare_func`. This will
 eventually allow Test::More-style cmp_ok() though the following syntax:
 
   cmp_ok('test', &infix:<gt>, 'me', '... testing gt on two strings');
@@ -355,14 +355,14 @@ maintain backwards compatibility as well.
 These functions will eval a code snippet, and then pass the result to is or ok
 on success, or report that the eval was not successful on failure.
 
-- `throws_ok (Sub $code, Any $expected, Str +$desc, Bool +$todo) returns Bool`
+- `throws_ok (Code &code, Any $expected, Str +$desc, Bool +$todo) returns Bool`
 
 This function takes a block of code and runs it. It then smart-matches (`~~`) any `$!` 
 value with the `$expected` value.
 
-- `dies_ok (Sub $code, Str +$desc, Bool +$todo) returns Bool`
+- `dies_ok (Code &code, Str +$desc, Bool +$todo) returns Bool`
 
-- `lives_ok (Sub $code, Str +$desc, Bool +$todo) returns Bool`
+- `lives_ok (Code &code, Str +$desc, Bool +$todo) returns Bool`
 
 These functions both take blocks of code, run the code, and test whether they live or die.
 

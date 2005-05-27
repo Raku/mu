@@ -1034,7 +1034,10 @@ runEvalSTM :: Env -> Eval Val -> STM Val
 runEvalSTM env = runSTM . (`runReaderT` env) . (`runContT` return) . runEvalT
 
 runEvalIO :: Env -> Eval Val -> IO Val
-runEvalIO env = runIO . (`runReaderT` env) . (`runContT` return) . runEvalT
+runEvalIO env action = do
+    val <- runIO . (`runReaderT` env) . (`runContT` return) . runEvalT $ action
+    performGC -- sweep unreachable stuff
+    return val
 
 shiftT :: ((a -> Eval Val) -> Eval Val) -> Eval a
 shiftT e = EvalT . ContT $ \k ->
