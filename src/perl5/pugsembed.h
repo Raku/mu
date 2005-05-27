@@ -22,3 +22,6 @@ extern char *pugs_ValToPv ( Val *val );
 Val *pugs_SvToVal ( SV *sv );
 SV  *pugs_MkValRef ( Val *val );
 
+Val *pugs_getenv ();
+void pugs_setenv ( Val *env );
+

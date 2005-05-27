@@ -45,11 +45,12 @@ foreign export ccall "pugs_PvToVal"
 
 askPerl5Env :: IO Env
 askPerl5Env = do
-    sv  <- withCString "pugs::env" perl5_get_sv 
-    val <- svToVal sv
+    val <- deVal =<< pugs_getenv
     case val of
         VControl (ControlEnv env)   -> return env
-        _                           -> fail "cannot fetch $pugs::env"
+        _                           -> do
+            print val
+            fail "cannot fetch $pugs::env"
 
 pugs_eval :: CString -> IO PugsVal
 pugs_eval cstr = do
@@ -60,12 +61,13 @@ pugs_eval cstr = do
 
 pugs_apply :: PugsVal -> PugsVal -> Ptr PugsVal -> IO PugsVal
 pugs_apply subPtr invPtr argsPtr = do
+    print "DEREF #0"
     env     <- askPerl5Env
-    -- print "DEREF #1"
+    print "DEREF #1"
     sub     <- deVal subPtr
-    -- print "DEREF #2"
+    print "DEREF #2"
     inv     <- deValMaybe invPtr
-    -- print "DEREF #3"
+    print "DEREF #3"
     args    <- mapM deVal =<< peekArray0 nullPtr argsPtr
     let subExp = case sub of
             VStr name   -> Var name

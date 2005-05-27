@@ -100,13 +100,18 @@ foreign import ccall "perl5.h perl5_get_sv"
 foreign import ccall "perl5.h perl5_set_svref"
     perl5_set_svref :: CString -> PugsVal -> IO ()
 foreign import ccall "perl5.h perl5_apply"
-    perl5_apply :: PerlSV -> PerlSV -> Ptr PerlSV -> PerlSV -> CInt -> IO PerlSV
+    perl5_apply :: PerlSV -> PerlSV -> Ptr PerlSV -> PugsVal -> CInt -> IO PerlSV
 foreign import ccall "perl5.h perl5_can"
     perl5_can :: PerlSV -> CString -> IO Bool
 foreign import ccall "perl.h perl5_eval"
-    perl5_eval :: CString -> PerlSV -> CInt -> IO PerlSV
+    perl5_eval :: CString -> PugsVal -> CInt -> IO PerlSV
 foreign import ccall "perl5.h perl5_init"
     perl5_init :: CInt -> Ptr CString -> IO PerlInterpreter
+
+foreign import ccall "pugsembed.h pugs_getenv"
+    pugs_getenv :: IO PugsVal
+foreign import ccall "pugsembed.h pugs_setenv"
+    pugs_setenv :: PugsVal -> IO ()
 
 foreign import ccall "pugsembed.h pugs_SvToVal"
     pugs_SvToVal :: PerlSV -> IO PugsVal
@@ -119,9 +124,9 @@ initPerl5 str env = do
         withArray [prog, prog, cstr] $ \argv -> do
             interp <- perl5_init 3 argv
             case env of
-                Just val -> withCString "pugs::env" $ \name -> do
+                Just val -> do
                     ptr <- fmap castStablePtrToPtr $ newStablePtr val
-                    perl5_set_svref name ptr
+                    pugs_setenv ptr
                 Nothing -> return ()
             return interp
 
@@ -156,7 +161,7 @@ vintToSV int = perl5_newSViv (fromIntegral int)
 vnumToSV :: (Real a) => a -> IO PerlSV
 vnumToSV int = perl5_newSVnv (realToFrac int)
 
-callPerl5 :: PerlSV -> PerlSV -> [PerlSV] -> PerlSV -> CInt -> IO PerlSV
+callPerl5 :: PerlSV -> PerlSV -> [PerlSV] -> PugsVal -> CInt -> IO PerlSV
 callPerl5 sub inv args env cxt = do
     withArray0 nullPtr args $ \argv -> do
         perl5_apply sub inv argv env cxt
@@ -164,7 +169,7 @@ callPerl5 sub inv args env cxt = do
 canPerl5 :: PerlSV -> String -> IO Bool
 canPerl5 sv meth = withCString meth $ \cstr -> perl5_can sv cstr
 
-evalPerl5 :: String -> PerlSV -> CInt -> IO PerlSV
+evalPerl5 :: String -> PugsVal -> CInt -> IO PerlSV
 evalPerl5 str env cxt = withCString str $ \cstr -> perl5_eval cstr env cxt
 
 freePerl5 :: PerlInterpreter -> IO ()
