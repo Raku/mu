@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan(8);
+plan(9);
 
 unless eval 'eval_perl5("1")' {
     skip_rest;
@@ -12,6 +12,7 @@ unless eval 'eval_perl5("1")' {
 
 
 eval_perl5(q/
+#line 16 method.t
 package FooBar;
 our $VERSION = '6.0';
 
@@ -67,7 +68,7 @@ my $obj;
 {
     my $r = $obj.asub;
     isa_ok($r, 'CODE', "returning a coderef");
-#    is ($r.(), 'asub', 'invoking p5 coderef');
+    is($r.(), 'asub', 'invoking p5 coderef');
     my $rr = $obj.callcode($r);
     is($rr, 'asub', 'invoke with p5 coderef');
 }
