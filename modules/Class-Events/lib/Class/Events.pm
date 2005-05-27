@@ -73,7 +73,7 @@ class Class::Events::Subscription::Named {
 
 	has $.name;
 
-	role Class::Events::Publisher {
+	role Class::Events::Publisher is extended {
 		use Set;
 		has %.subscriptions of Set;
 
