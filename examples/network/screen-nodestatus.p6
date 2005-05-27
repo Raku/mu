@@ -80,11 +80,12 @@ for @*ARGS -> $arg {
   %last_check.{$hostname} = time - rand $interval;
 }
 
-die "No hostnames specified, look at the source of this program for usage help."
-  unless %letter;
+usage() unless %letter;
 
+# Initial status
 write_status();
 
+# The main loop
 loop {
   for sort keys %last_check -> $host {
     # Skip this host if we've already checked it.
@@ -97,6 +98,30 @@ loop {
 
   # We don't want to hog the CPU.
   sleep 1;
+}
+
+sub usage() {
+  die "Usage: $*EXECUTABLE_NAME $*PROGRAM_NAME hostdef hostdef ...
+
+A host definition consists of three parts:
+  router:R:30
+  ^      ^ ^
+  |      | |
+  |      | +-- The check interval.
+  |      |
+  |      +-- The letter to use if the host is reachable.
+  |          It doesn't matter if you use upper- or lowercase here --
+  |          If the host is only, the letter will be uc()ed, and if the host
+  |          is offline, it will be lc()ed.
+  |
+  +-- The hostname of the host to ping(1).
+
+A complete command line might look like:
+  $*EXECUTABLE_NAME $*PROGRAM_NAME router:R:30 printer:P:60 box:B:10
+
+Look at the source of $*PROGRAM_NAME for more information
+or see a screenshot at http://m19s28.vlinux.de/iblech/screen-nodestatus.png
+(look at the bottom right corner).\n";
 }
 
 # Write the new status line iff the status of $host has changed after executing
