@@ -39,10 +39,10 @@ my @entity_headers = <
 my %entity_header = @entity_headers.map:{ lc $_  => 1 };
 
 my @header_order = (
- @general_headers,
- @request_headers,
- @response_headers,
- @entity_headers,
+ *@general_headers,
+ *@request_headers,
+ *@response_headers,
+ *@entity_headers,
 );
 
 # Make alternative representations of @header_order.  This is used
