@@ -40,6 +40,11 @@ sub asub {
     return sub { return "asub" };
 }
 
+# takes an object and invoke me on that
+sub invoke {
+    my ($class, $obj) = @_;
+    $obj->me ('invoking');
+}
 
 /);
 
@@ -79,3 +84,12 @@ my $obj;
     is($r, 'baz', 'invoke method with callback');
 }
 
+{
+    class Foo6 {
+	method mex (Class|Foo6 $class: $arg) { 'Foo6'~$arg };
+    };
+    my $obj6 = Foo6.new;
+    $obj = eval_perl5("FooBar->new");
+    is($obj.invoke($obj6), 'Foo6invoking', 'invoke pugs method from p5');
+
+}

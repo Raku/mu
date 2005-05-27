@@ -18,22 +18,31 @@ const char pugs_guts_code[] =
 "package pugs;"
 
 "our $AUTOLOAD;"
-"sub AUTOLOAD { }"
-
+"sub AUTOLOAD { pugs::guts::invoke($AUTOLOAD, @_) } "
+"sub DESTROY {}"
 "package pugs::guts;"
+"our @ISA=('pugs');"
 "sub code { my ($class, $val) = @_;"
 "          sub { pugs::guts::invoke($val, undef, @_) } }"
 "1;";
 
 XS(_pugs_guts_invoke) {
     Val *val, *inv, **stack;
-    SV *ret;
+    SV *ret, *sv;
     int i;
     dXSARGS;
     if (items < 1)
         Perl_croak(aTHX_ "hate software");
 
-    val = pugs_SvToVal(ST(0));
+    sv = ST(0);
+    if (sv_isa(sv, "pugs")) {
+	val = pugs_SvToVal(ST(0));
+    }
+    else {
+	sv_dump (sv);
+	val = pugs_PvToVal(SvPV_nolen(sv));
+	fprintf(stderr, "from method\n");
+    }
     inv = pugs_SvToVal(ST(1));
 
     stack = (Val **)malloc(sizeof(Val*)*items-1);
@@ -41,9 +50,9 @@ XS(_pugs_guts_invoke) {
 	stack[i-2] = pugs_SvToVal(ST(i));
     }
     stack[i-2] = NULL;
-
-    /* fprintf(stderr, "back to pugs\n"); */
+    
     ST(0) = pugs_Apply(val, inv, stack);
+    sv_dump (ret);
     free (stack);
     
     XSRETURN(1);
