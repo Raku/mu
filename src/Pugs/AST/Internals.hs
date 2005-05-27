@@ -306,6 +306,18 @@ instance Value [VPair] where
 
 instance Value VCode where
     castV = VCode
+    fromSV sv = return $ mkPrim
+        { subName     = "<anon>"
+        , subParams   = [defaultArrayParam]
+        , subReturns  = mkType "Scalar::Perl5"
+        , subBody     = Prim $ \(args:_) -> do
+            svs     <- fromVals args
+            env     <- ask
+            rv      <- liftIO $ do
+                envSV   <- mkValRef (VControl $ ControlEnv env)
+                callPerl5 sv nullSV svs envSV (enumCxt $ envContext env)
+            return $ PerlSV rv
+        }
     doCast (VCode b) = b
     doCast (VList [VCode b]) = b -- XXX Wrong
     doCast v = castFail v

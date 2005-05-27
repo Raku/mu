@@ -46,8 +46,8 @@ vintToSV = constFail
 vnumToSV :: (Real a) => a -> IO PerlSV
 vnumToSV = constFail
 
-callPerl5 :: String -> [PerlSV] -> PerlSV -> CInt -> IO PerlSV
-callPerl5 _ _ _ = constFail
+callPerl5 :: PerlSV -> Maybe PerlSV -> [PerlSV] -> PerlSV -> CInt -> IO PerlSV
+callPerl5 _ _ _ _ = constFail
 
 canPerl5 :: PerlSV -> String -> IO Bool
 canPerl5 _ = constFail
@@ -99,8 +99,8 @@ foreign import ccall "perl5.h perl5_get_sv"
     perl5_get_sv :: CString -> IO PerlSV
 foreign import ccall "perl5.h perl5_set_svref"
     perl5_set_svref :: CString -> PugsVal -> IO ()
-foreign import ccall "perl5.h perl5_call"
-    perl5_call :: CString -> CInt -> Ptr PerlSV -> PerlSV -> CInt -> IO PerlSV
+foreign import ccall "perl5.h perl5_apply"
+    perl5_apply :: PerlSV -> PerlSV -> Ptr PerlSV -> PerlSV -> CInt -> IO PerlSV
 foreign import ccall "perl5.h perl5_can"
     perl5_can :: PerlSV -> CString -> IO Bool
 foreign import ccall "perl.h perl5_eval"
@@ -156,11 +156,10 @@ vintToSV int = perl5_newSViv (fromIntegral int)
 vnumToSV :: (Real a) => a -> IO PerlSV
 vnumToSV int = perl5_newSVnv (realToFrac int)
 
-callPerl5 :: String -> [PerlSV] -> PerlSV -> CInt -> IO PerlSV
-callPerl5 str args env cxt = do
-    withCString str $ \cstr -> do
-        withArray args $ \argv -> do
-            perl5_call cstr (toEnum $ length args) argv env cxt
+callPerl5 :: PerlSV -> PerlSV -> [PerlSV] -> PerlSV -> CInt -> IO PerlSV
+callPerl5 sub inv args env cxt = do
+    withArray0 nullPtr args $ \argv -> do
+        perl5_apply sub inv argv env cxt
 
 canPerl5 :: PerlSV -> String -> IO Bool
 canPerl5 sv meth = withCString meth $ \cstr -> perl5_can sv cstr

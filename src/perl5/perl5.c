@@ -201,10 +201,11 @@ perl5_newSVnv ( double iv )
 }
 
 SV *
-perl5_call(char *subname, int argc, SV** args, SV *env, int cxt)
+perl5_apply(SV *sub, SV *inv, SV** args, SV *env, int cxt)
 {
-    int i;
-    SV *rv, *sv;
+    SV *arg;
+    SV *rv;
+    SV *sv;
 
     dSP;
 
@@ -218,12 +219,20 @@ perl5_call(char *subname, int argc, SV** args, SV *env, int cxt)
     }
 
     PUSHMARK(SP);
-    for (i = 0; i < argc; i++) {
-        XPUSHs(args[i]);
+    if (inv != NULL) {
+        XPUSHs(inv);
+    }
+    for (arg = args; arg != NULL; arg++) {
+        XPUSHs(arg);
     }
     PUTBACK;
 
-    call_method(subname, cxt);
+    if (inv != NULL) {
+        call_method(SvPV_nolen(sub), cxt);
+    }
+    else {
+        call_sv(sub, cxt);
+    }
 
     SPAGAIN;
 

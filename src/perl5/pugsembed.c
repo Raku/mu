@@ -25,9 +25,8 @@ pugs_MkValRef ( Val *val )
     isa[1] = NULL;
     if (__init && pugs_ValToIv(pugs_Apply(pugs_PvToVal("&isa"), val, isa))) {
 	fprintf(stderr, "got a code!!\n");
-	stack[0] = newSVpv("pugs::guts", 0);
-	stack[1] = sv;
-	sv = perl5_call("code", 2, stack, NULL, G_SCALAR);
+	stack[0] = sv;
+	sv = perl5_apply(newSVpv("code", 0), newSVpv("pugs::guts", 0), stack, NULL, G_SCALAR);
     }
     return (sv);
 }

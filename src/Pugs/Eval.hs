@@ -854,8 +854,6 @@ findSub name' invs args = do
         if isJust metaSub then return metaSub else do
         return . Just $ mkPrim
             { subName     = name
-            , subType     = SubPrim
-            , subAssoc    = "pre"
             , subParams   = makeParams ["Object", "List"]
             , subReturns  = mkType "Scalar::Perl5"
             , subBody     = Prim $ \(inv:args:_) -> do
@@ -869,7 +867,8 @@ findSub name' invs args = do
                 env     <- ask
                 rv      <- liftIO $ do
                     envSV   <- mkValRef (VControl $ ControlEnv env)
-                    callPerl5 (tail name) (sv:svs) envSV (enumCxt $ envContext env)
+                    subSV   <- vstrToSV $ tail name
+                    callPerl5 subSV sv svs envSV (enumCxt $ envContext env)
                 return $ PerlSV rv
             }
     possiblyBuildMetaopVCode op' | "&prefix:[" `isPrefixOf` op', "]" `isSuffixOf` op' = do 
