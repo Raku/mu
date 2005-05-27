@@ -23,7 +23,7 @@ role Class::Events::Publisher {
 	has Set $.subscriptions handles :add_subscription<insert> :remove_subscription<remove> .= new; # FIXME we need one at the class level too
 
 	method notify (Class::Events::Event $event) {
-		(.get_notifications($event) ==> .mk_notifications)».dispatch;
+		(.get_subscriptions($event) ==> .mk_notifications)».dispatch;
 	}
 	
 	method notify (*@args) {
