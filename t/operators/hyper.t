@@ -5,7 +5,7 @@ use Test;
 
 =pod
 
-Hyper operators L<S03/"Hyper operators">
+ Hyper operators L<S03/"Hyper operators">
 
 =cut
 
@@ -187,8 +187,8 @@ plan 39;
     );
 
     my $full = join '', eval '@array>>.<key>';
-    is($full, 'valvalval', 'hyper-dereference an array');
+    is($full, 'valvalval', 'hyper-dereference an array',:todo);
 
     my $part = join '', eval '@array[0,1]>>.<key>';
-    is($part, 'valval', 'hyper-dereference an array slice');
+    is($part, 'valval', 'hyper-dereference an array slice',:todo);
 }
