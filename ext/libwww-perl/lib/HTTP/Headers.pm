@@ -38,23 +38,23 @@ my @entity_headers = <
 
 my %entity_header = @entity_headers.map:{ lc $_  => 1 };
 
-my @header_order = (
+has @:header_order = (
  *@general_headers,
  *@request_headers,
  *@response_headers,
  *@entity_headers,
 );
 
-# Make alternative representations of @header_order.  This is used
+# Make alternative representations of @:header_order.  This is used
 # for sorting and case matching.
-my %header_order;
-my %standard_case;
+has %:header_order;
+has %:standard_case;
 
 {
-  for @header_order.kv -> $i, $header {
+  for @:header_order.kv -> $i, $header {
     my $lc = lc $header;
-    %header_order{$lc}  = $i + 1;
-    %standard_case{$lc} = $_;
+    %:header_order{$lc}  = $i + 1;
+    %:standard_case{$lc} = $_;
   }
 }
 
@@ -110,10 +110,10 @@ method :_header(
     $field ~~ tr/_/-/ if $TRANSLATE_UNDERSCORE;
     my $old = $field;
     $field = lc $field;
-    unless defined %standard_case{$field} {
-      # generate a %standard_case entry for this field
+    unless defined %:standard_case{$field} {
+      # generate a %:standard_case entry for this field
       $old ~~ s:g/\b(\w)/{ucfirst $0}/;
-      %standard_case{$field} = $old;
+      %:standard_case{$field} = $old;
     }
   }
 
@@ -137,13 +137,13 @@ method :_header(
 
 method :sorted_field_names() {
   return sort {
-    (%header_order{$^a} || 999) <=> (%header_order{$^b} || 999) ||
+    (%:header_order{$^a} || 999) <=> (%:header_order{$^b} || 999) ||
     $a cmp $b
   } keys %:headers;
 }
 
 method header_field_names() {
-  return map { %standard_case{$_} || $_ } .:sorted_field_names;
+  return map { %:standard_case{$_} || $_ } .:sorted_field_names;
 }
 
 method scan(Code $sub) {
@@ -152,10 +152,10 @@ method scan(Code $sub) {
     my $vals = %:headers{$key};
     if $vals ~~ Array {
       for @$vals -> $val {
-	$sub.(%standard_case{$key} || $key, $val);
+	$sub.(%:standard_case{$key} || $key, $val);
       }
     } else {
-      $sub.(%standard_case{$key} || $key, $vals);
+      $sub.(%:standard_case{$key} || $key, $vals);
     }
   }
 }
