@@ -86,7 +86,7 @@ my $obj;
 
 {
     class Foo6 {
-	method mex (Class|Foo6 $class: $arg) { 'Foo6'~$arg };
+	method me (Class|Foo6 $class: $arg) { 'Foo6'~$arg };
     };
     my $obj6 = Foo6.new;
     $obj = eval_perl5("FooBar->new");
