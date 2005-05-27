@@ -22,11 +22,11 @@ pugs_MkValRef ( Val *val )
 
     isa[0] = pugs_PvToVal("Code");
     isa[1] = NULL;
-    if (pugs_ValToIv(pugs_Apply(pugs_PvToVal("&isa"), val, isa))) {
+    if (SvTRUE(pugs_Apply(pugs_PvToVal("&isa"), val, isa))) {
 	if (__init) {
 	    stack[0] = sv;
 	    stack[1] = NULL;
-	    fprintf (stderr, "isa code\n");
+	    /* fprintf (stderr, "isa code\n"); */
 	    sv = perl5_apply(newSVpv("code", 0), newSVpv("pugs::guts", 0), stack, NULL, G_SCALAR);
 	}
 	else {

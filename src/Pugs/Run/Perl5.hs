@@ -17,7 +17,7 @@ foreign export ccall "pugs_Eval"
     pugs_eval :: CString -> IO PugsVal
 
 foreign export ccall "pugs_Apply"
-    pugs_apply :: PugsVal -> PugsVal -> Ptr PugsVal -> IO PugsVal
+    pugs_apply :: PugsVal -> PugsVal -> Ptr PugsVal -> IO PerlSV
 
 foreign export ccall "pugs_ValToSv"
     valToSv :: PugsVal -> IO PerlSV
@@ -59,13 +59,13 @@ pugs_eval cstr = do
     val <- runEvalIO env $ opEval Nothing "<eval>" str
     mkVal val
 
-pugs_apply :: PugsVal -> PugsVal -> Ptr PugsVal -> IO PugsVal
+pugs_apply :: PugsVal -> PugsVal -> Ptr PugsVal -> IO PerlSV
 pugs_apply subPtr invPtr argsPtr = do
     -- print "DEREF #0"
     env     <- askPerl5Env
     -- print "DEREF #1"
     sub     <- deVal subPtr
-    -- print "DEREF #2"
+    -- print ("DEREF #2", sub)
     inv     <- deValMaybe invPtr
     -- print ("DEREF #3", inv)
     args    <- mapM deVal =<< peekArray0 nullPtr argsPtr
@@ -74,7 +74,14 @@ pugs_apply subPtr invPtr argsPtr = do
             VStr name   -> Var name
             _           -> Val sub
     val <- runEvalIO env $ evalExp (App subExp (fmap Val inv) (map Val args))
-    mkVal val
+    case val of
+        PerlSV sv   -> return sv
+        VStr str    -> vstrToSV str
+        VBool bool  -> vintToSV (fromEnum bool)
+        VInt int    -> vintToSV int
+        VRat rat    -> vnumToSV rat
+        VNum num    -> vnumToSV num
+        _           -> mkValRef val
 
 deVal :: PugsVal -> IO Val
 deVal ptr = do
