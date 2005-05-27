@@ -997,6 +997,7 @@ findSub name' invs args = do
         return $ deltaType cls x typ
 
 evalExpType :: Exp -> Eval Type
+evalExpType (Var (':':typ)) = return $ mkType typ
 evalExpType (Var var) = do
     rv  <- findVar var
     case rv of
