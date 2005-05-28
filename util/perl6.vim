@@ -61,8 +61,7 @@ syn match p6VarPlain     "\(::?\|[$@%][:\.*^?]\?\)[a-zA-Z_]\w*"
 syn match p6VarException "\$!"
 syn match p6VarCapt      "\$[0-9\/]"
 syn match p6VarPunct     "\$\d\+"
-syn match p6Invocant     "./[a-zA-Z_]\w*"
-syn match p6Invocant     ":/[a-zA-Z_]\w*"
+syn match p6Invoke       "\(&\|[.:]/\)[a-zA-Z_]\w*"
 
 syn cluster p6Interp contains=p6VarPlain,p6InterpExpression,p6VarPunct,p6VarException,p6InterpClosure
 
@@ -154,18 +153,18 @@ syn region p6SubBracket matchgroup=p6Keyword contained start="<" skip="\\>" end=
 syn region p6TransNonBracket matchgroup=p6Keyword contained start="\z(\W\)" skip="\\\z1" end="\z1"
 
 
-syn match p6RuleCall contained "<\s*!\{0,1}\s*\w\+"hs=s+1
+syn match p6RuleCall  contained "<\s*!\{0,1}\s*\w\+"hs=s+1
 syn match p6CharClass contained "<\s*!\{0,1}\s*\[\]\{0,1}[^]]*\]\s*>"
 syn match p6CharClass contained "<\s*!\{0,1}\s*-\{0,1}\(alpha\|digit\|sp\|ws\|null\)\s*>"
 syn match p6CharClass contained "\\[HhVvNnTtEeRrFfWwSs]"
 syn match p6CharClass contained "\\[xX]\(\[[0-9a-f;]\+\]\|\x\+\)"
 syn match p6CharClass contained "\\0\(\[[0-7;]\+\]\|\o\+\)"
-syn region p6CharClass contained start="\\[QqCc]\[" end="]" skip="\\]"
+syn region p6CharClass   contained start="\\[QqCc]\[" end="]" skip="\\]"
 syn match p6RegexSpecial contained "\\\@<!:\{1,3\}"
 syn match p6RegexSpecial contained "<\s*\(cut\|commit\)\s*>"
 "syn match p6RegexSpecial contained "\\\@<![+*|]"
 syn match p6RegexSpecial contained ":="
-syn region p6CharClass contained start=+<\s*!\{0,1}\s*\z(['"]\)+ skip=+\\\z1+ end=+\z1\s*>+
+syn region p6CharClass   contained start=+<\s*!\{0,1}\s*\z(['"]\)+ skip=+\\\z1+ end=+\z1\s*>+
 syn region p6TestExpr contained start="<\s*!\{0,1}\s*(" end=")\s*>" contains=TOP
 
 
@@ -203,7 +202,7 @@ hi link p6Pattern       p6Keyword
 hi link p6VarPlain      p6Variable
 hi link p6VarPunct      p6Variable
 hi link p6VarCapt       p6Variable
-hi link p6Invocant      Identifier
+hi link p6Invoke        Type
 hi link p6InterpString  p6String
 hi link p6LiteralString p6String
 
