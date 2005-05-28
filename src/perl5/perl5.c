@@ -39,9 +39,12 @@ XS(_pugs_guts_invoke) {
 	val = pugs_SvToVal(ST(0));
     }
     else {
-	/* sv_dump (sv); */
-	val = pugs_PvToVal(SvPV_nolen(sv));
-	fprintf(stderr, "from method\n");
+	char pugs_method[128], *method, *fullname;
+	fullname = SvPV_nolen(sv);
+	method = strrchr(fullname, ':');
+	method = method ? method+1 : fullname;
+	snprintf(pugs_method, 128, "&%s", method);
+	val = pugs_PvToVal(pugs_method);
     }
     inv = pugs_SvToVal(ST(1));
 
