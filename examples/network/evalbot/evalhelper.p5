@@ -34,7 +34,12 @@ $ENV{PUGS_SAFEMODE} eq  "true" or die "Couldn't set \$ENV{PUGS_SAFEMODE}!\n";
 $code = quotemeta $code;
 
 # Run the code.
+# We use an anonymous sub instead the more clear "my $ret = eval(...)" so we
+# don't pollute the namespace with our variables. The code to eval should have
+# exactly the same environment as if typed in the interactive Pugs, i.e.
+# tabulaRasa.
 system $pugs, "-e", '
-  my $___ret = eval("' . $code . '").perl;
-  Pugs::Safe::safe_print(($! ?? "Error: $!" :: $___ret) ~ "\n");
+  -> $ret {
+    Pugs::Safe::safe_print ($! ?? "Error: $!" :: $ret) ~ "\n";
+  }(eval("' . $code . '").perl);
 ';
