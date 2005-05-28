@@ -7,6 +7,23 @@ multi sub prompt (Str ?$prompt) {
     return $temp;
 }
 
+# multi sub prompt ($prompt, @options is copy) {
+#     my $i = 0;
+#     .<key> //= ++$i for @options;
+# 
+#     my $choice;
+#     until ($choice eq any(@options>>.<key>)) {
+#         say $prompt;
+#         say "\t$_<key> $_<text>" for @options;
+#         $choice = prompt;
+#     }
+#     
+#     my %options_by_key = { map { .<key> => $_ } @options };
+#     $choice = %options_by_key{$choice};
+# 
+#     return $choice<param> // $choice<key>;
+# }	
+
 multi sub prompt ($prompt, @prompts is copy) {
     my $i = 1;
     for @prompts -> $item { $item[0] //= $i++; };
@@ -86,6 +103,10 @@ class Person is Mortal {
         		my @choices;
             for @.weapons -> $wep {
                 push @choices , [undef,"attack with $wep.name()", $wep];
+                # push @options, {
+                #     text => "attack with ...",
+                #     param => $wep
+                # };
             }
             push @choices , ['f', "flee for your life",undef];
             $choice = prompt("Your choice?",@choices);
