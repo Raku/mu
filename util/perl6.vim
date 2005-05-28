@@ -1,8 +1,8 @@
 " Vim syntax file
 " Language: 	Perl 6
 " Maintainer:	Luke Palmer <fibonaci@babylonia.flatirons.org>
-" Last Change:	2002 Jun 12
-"
+" Last Change:  ???? ?? ??	
+" 
 " This is a big undertaking. Perl 6 is the sort of language that only Perl
 " can parse. But I'll do my best to get vim to.
 
@@ -40,10 +40,15 @@ syn region p6CommentMline start="^=begin [a-zA-Z]\+$" end="^=end [a-zA-Z]\+$" co
 syn region p6CommentPara start="^=for [a-zA-Z]\+$" end="^$" contains=p6Attn
 
 " POD
-syn region p6POD start="^=[a-z]\+\s*$" end="^=cut" contains=p6Attn,p6PODVerbatim,p6PODHeadKwid,p6PODHead 
-syn match p6PODHeadKwid "^=\+ .\+" contained 
-syn match p6PODHead "^=head[1-4] .\+" contained 
+syn region p6POD start="^=[a-z]\+\s*$" end="^=cut" contains=p6Attn,p6PODVerbatim,p6PODHead,p6PODSec,p6PODHeadKwid,p6PODSecKwid 
+
 syn match p6PODVerbatim "^\s.*" contained 
+syn match p6PODHeadKwid "^=\{1,2\} " nextgroup=p6PODTitle 
+syn match p6PODHead	"^=head[12]" nextgroup=p6PODTitle 
+syn match p6PODTitle ".*$" contained 
+syn match p6PODSecKwid "^=\{3,4\} " nextgroup=p6PODSecTitle 
+syn match p6PODSec	"^=head[34]" nextgroup=p6PODSecTitle 
+syn match p6PODSecTitle ".*$" contained 
 
 " Variables, arrays, and hashes with ordinary \w+ names
 syn match p6VarPlain "[$@%][a-zA-Z_]\w*"
@@ -199,9 +204,13 @@ hi link p6Number        Number
 hi link p6Comment       Comment
 hi link p6CommentMline  Comment
 hi link p6CommentPara   Comment
-hi link p6POD           Comment
-hi link p6PODHeadKwid   Title 
-hi link p6PODHead       Title
+hi link p6POD           Comment 
+hi link p6PODHead       Comment
+hi link p6PODHeadKwid   Comment 
+hi link p6PODTitle      Title 
+hi link p6PODSec        Comment
+hi link p6PODSecKwid    Comment 
+hi link p6PODSecTitle   String 
 hi link p6PODVerbatim   Special
 hi link p6Variable      Identifier
 hi link p6VarException  Special
