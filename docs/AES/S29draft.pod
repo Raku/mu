@@ -682,8 +682,8 @@ C<s:g/(\w+)/{ucfirst $1}/> on it.
  
  multi sub Control::Basic::eval (: Str $code = $CALLER::_, Str +$lang = 'Perl6')
 
-Execute C<$code> as if it were code written in C<$lang>. 'Perl6' is the
-only required language, but supporting 'Perl 5' is I<strongly>
+Execute C<$code> as if it were code written in C<$lang>. C<Perl6> is the
+only required language, but supporting C<Perl5> is I<strongly>
 recommended.
 
 Returns whatever C<$code> returns, or undef on error.
