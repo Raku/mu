@@ -12,18 +12,20 @@ if exists("b:current_syntax")
 endif
 
 " Billions of keywords
-syn keyword p6Attn          ACHTUNG ATTN ATTENTION FIXME NB todo Todo TODO WTF XXX contained
+syn keyword p6Attn          ACHTUNG ATTN ATTENTION FIXME NB contained 
+syn keyword p6Attn          todo Todo TODO WTF XXX contained
 syn keyword p6Module        module class role use require package
 syn keyword p6KeyDecl       coro sub submethod method is but does trusts multi returns
 syn keyword p6KeyScopeDecl  let my our state temp has
-syn keyword p6KeyFlow       else elsif for foreach loop while until if unless when
-syn keyword p6KeyFlow       given next last redo or and err xor return not
+syn keyword p6KeyFlow       if else elsif for unless  
+syn keyword p6KeyFlow       foreach loop while until when next last redo
+syn keyword p6KeyFlow       given yield not or and err xor return 
 syn keyword p6ClosureTrait  BEGIN CHECK INIT FIRST ENTER LEAVE KEEP UNDO NEXT LAST
 syn keyword p6ClosureTrait  PRE POST END
 syn keyword p6KeyException  die fail try CATCH CONTROL
 syn keyword p6KeyIO         print open read write readline say seek
-syn keyword p6KeyProperty   constant prec key value kv irs ofs ors pos int export
-syn keyword p6KeyProperty   float str true false rw
+syn keyword p6KeyProperty   constant prec key value kv irs ofs ors pos export
+syn keyword p6KeyProperty   float int str true false rw
 syn keyword p6KeyProperty   Int Str Num Hash Array Code Rule Class NumRange
 syn keyword p6KeyProperty   StrRange Role Bool Rat
 syn match   p6KeyProperty   "::\w\+"
