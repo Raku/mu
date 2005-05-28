@@ -835,7 +835,6 @@ tightOperators = do
     , listOps  " ^ | "                                  -- Junctive Or
     , optOps optionary, preOps namedUnary               -- Named Unary
     , noneSyn  " is but does "                          -- Traits
-      ++ rightOps " => "                                -- Pair constructor
       ++ noneOps " cmp <=> .. ^.. ..^ ^..^ "            -- Non-chaining Binary
       ++ postOps "..."                                  -- Infinite range
     , chainOps $
@@ -845,10 +844,11 @@ tightOperators = do
     , leftOps  " || ^^ // "                             -- Tight Or
     , [ternOp "??" "::" "if"]                           -- Ternary
     -- Assignment
-    , rightSyn $
+    , rightOps " => "                                -- Pair constructor
+      ++ rightSyn (
                " = := ::= " ++
                " ~= += -= *= /= %= x= Y= ¥= **= xx= ||= &&= //= ^^= " ++
-               " +&= +|= +^= ~&= ~|= ~^= ?|= ?^= |= ^= &= "
+               " +&= +|= +^= ~&= ~|= ~^= ?|= ?^= |= ^= &= ")
     ]
 
 looseOperators :: RuleParser [[Operator Char Env Exp]]
