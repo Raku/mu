@@ -36,11 +36,13 @@ syn match p6KeyIO "-[rwxoRWXOezsfdlpSbctugkTBMAC]"
 
 " Comments
 syn match p6Comment "#.*" contains=p6Attn
-syn region p6CommentMline start="^=begin [A-Z]\+$" end="^=end [A-Z]\+$" contains=p6Attn 
-syn region p6CommentPara start="^=for [A-Z]\+$" end="^$" contains=p6Attn
+syn region p6CommentMline start="^=begin [a-zA-Z]\+$" end="^=end [a-zA-Z]\+$" contains=p6Attn 
+syn region p6CommentPara start="^=for [a-zA-Z]\+$" end="^$" contains=p6Attn
 
 " POD
-syn region p6POD start="^=[a-z]\+\s*$" end="^=cut" contains=p6Attn,p6PODVerbatim 
+syn region p6POD start="^=[a-z]\+\s*$" end="^=cut" contains=p6Attn,p6PODVerbatim,p6PODHeadKwid,p6PODHead 
+syn match p6PODHeadKwid "^=\+ .\+" contained 
+syn match p6PODHead "^=head[1-4] .\+" contained 
 syn match p6PODVerbatim "^\s.*" contained 
 
 " Variables, arrays, and hashes with ordinary \w+ names
@@ -48,6 +50,7 @@ syn match p6VarPlain "[$@%][a-zA-Z_]\w*"
 syn match p6VarPlain "[$@%][:.][a-zA-Z_]\w*"
 syn match p6VarPlain "\$\^\w\+"
 syn match p6VarException "\$!"
+syn match p6VarCapt "\$[0-9\/]"
 syn match p6VarPunct	"\$\d\+"
 
 syn match p6Invocant "./\w\+"
@@ -186,6 +189,7 @@ hi link p6KeyType       Type
 hi link p6Pattern       p6Keyword
 hi link p6VarPlain      p6Variable
 hi link p6VarPunct      p6Variable
+hi link p6VarCapt       p6Variable
 hi link p6Invocant      Identifier
 hi link p6InterpString  p6String
 hi link p6LiteralString p6String
@@ -196,6 +200,8 @@ hi link p6Comment       Comment
 hi link p6CommentMline  Comment
 hi link p6CommentPara   Comment
 hi link p6POD           Comment
+hi link p6PODHeadKwid   Title 
+hi link p6PODHead       Title
 hi link p6PODVerbatim   Special
 hi link p6Variable      Identifier
 hi link p6VarException  Special
