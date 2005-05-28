@@ -148,7 +148,7 @@ op2Match (VType typ) (VType t) = do
     return $ VBool (isaType cls (showType t) typ)
 
 op2Match x y@(VType _) = do
-    typ <- evalValType x
+    typ <- fromVal x
     op2Match (VType typ) y
 
 op2Match x y = op2Cmp (fromVal :: Val -> Eval VStr) (==) x y
