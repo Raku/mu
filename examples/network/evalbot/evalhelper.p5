@@ -29,8 +29,12 @@ open STDERR, ">>", $tmpfile or
 $ENV{PUGS_SAFEMODE} = "true";
 $ENV{PUGS_SAFEMODE} eq  "true" or die "Couldn't set \$ENV{PUGS_SAFEMODE}!\n";
 
+# Escape the code.
+# (Wow! My first use of quotemeta, me thinks!)
+$code = quotemeta $code;
+
 # Run the code.
 system $pugs, "-e", '
-  my $ret = eval(%*ENV<EVALBOT_CODE>).perl;
-  Pugs::Safe::safe_print(($! ?? "Error: $!" :: $ret) ~ "\n");
+  my $___ret = eval("' . $code . '").perl;
+  Pugs::Safe::safe_print(($! ?? "Error: $!" :: $___ret) ~ "\n");
 ';

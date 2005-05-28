@@ -121,12 +121,7 @@ prepareEnv name args = do
         , genSym "$*ARGS"       $ hideInSafemode $ MkRef argsGV
         , genSym "$!"           $ MkRef errSV
         , genSym "$/"           $ MkRef matchAV
-        -- We don't hide %*ENV in safemode, as evalbot reads the source to eval
-        -- from the environment. Other ways are much harder: Reading the source
-        -- from a file won't work, as slurp() is forbidden in safemode. And to
-        -- give the source in @*ARGS is complicated, too: evalbot would need to
-        -- quote the source, etc...
-        , genSym "%*ENV"        $ hashRef MkHashEnv
+        , genSym "%*ENV"        $ hideInSafemode $ hashRef MkHashEnv
         , genSym "$*CWD"        $ hideInSafemode $ scalarRef MkScalarCwd
         -- XXX What would this even do?
         -- , genSym "%=POD"        (Val . VHash $ emptyHV)
