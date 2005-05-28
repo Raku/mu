@@ -1,8 +1,8 @@
 use v6;
 
-module HTTP::Headers::Util-0.0.1;
+module HTTP::Headers::Util-0.2;
 
-sub split_header_words (*@values) returns Str is export {
+sub split_header_words (*@values) is export {
     my @return;
     
     for @values -> $value {
@@ -16,7 +16,7 @@ sub split_header_words (*@values) returns Str is export {
                 if ($value ~~ s:P5/^\s*=\s*\"([^\"\\]*(?:\\.[^\"\\]*)*)\"//) {
                     my $val = $0;
                     $val ~~ s:P5:g/\\(.)/$0/;
-                    push @current, $val
+                    push @current, $val;
                 # some unquoted value
                 } elsif ($value ~~ s:P5/^\s*=\s*([^;,\s]*)//) {
                     my $val = $0;
@@ -42,7 +42,7 @@ sub split_header_words (*@values) returns Str is export {
     return @return;
 }
 
-multi sub join_header_words(*%words is copy) {
+multi sub join_header_words(*%words is copy) is export {
     my @return;
     
     for %words.kv -> $key, $value {
@@ -60,4 +60,16 @@ multi sub join_header_words(*%words is copy) {
     }
     
     return @return.join("; ");
+}
+
+multi sub join_header_words(*@words) is export {
+    my @return;
+    
+    for @words -> $list {
+        for $list -> $k, $v {
+            push @return, join_header_words($kv => $v);
+        }
+    }
+    
+    return @return.join(", ");
 }
