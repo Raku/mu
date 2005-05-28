@@ -136,7 +136,7 @@ Mini HowTo: How to port Perl 5 modules to Perl 6
 
     # -> Perl 6 (see L<S06/"Lvalue subroutines"> for information about Proxy)
     has $:foo;
-    sub foo() is rw {
+    method foo() is rw {
       return new Proxy:
         FETCH => { lc $:foo },
         STORE => -> $to is copy {

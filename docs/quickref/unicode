@@ -1,11 +1,14 @@
 How to enter various non-ASCII characters in editors
 
-vim users see :help digraph-table
+Vim users see ":help digraph-table" and ":digraphs".
+
+Unix/X11 users see
+http://www.gentoo.org/news/en/gwn/20041206-newsletter.xml#doc_chap8 for how to
+enable the Compose Key.
     
-    Unicode     ASCII           key sequence
-    char        fallback    vim         emacs            
+    Unicode     ASCII                        key sequence
+    char        fallback    Vim        Emacs       Unix Compose Key combination
 
-    «           <<          ^k < <      C-x 8 <
-    »           >>          ^k > >      C-x 8 >
-    ¥           Y           ^k Y e      C-x 8 Y
-
+    «           <<          ^k < <     C-x 8 <     Compose < <
+    »           >>          ^k > >     C-x 8 >     Compose > >
+    ¥           Y           ^k Y e     C-x 8 Y     Compose Y =
