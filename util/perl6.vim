@@ -15,7 +15,7 @@ endif
 syn keyword p6Attn          ACHTUNG ATTN ATTENTION FIXME NB todo Todo TODO WTF XXX contained
 syn keyword p6Module        module class role use require package
 syn keyword p6KeyDecl       coro sub submethod method is but does trusts multi returns
-syn keyword p6KeyScopeDecl  let my our state temp 
+syn keyword p6KeyScopeDecl  let my our state temp has
 syn keyword p6KeyFlow       else elsif for foreach loop while until if unless when
 syn keyword p6KeyFlow       given next last redo or and err xor return not
 syn keyword p6ClosureTrait  BEGIN CHECK INIT FIRST ENTER LEAVE KEEP UNDO NEXT LAST
@@ -80,25 +80,25 @@ syn region p6InterpString start=+`+ skip=+\\`+ end=+`+ contains=@p6Interp
 syn region p6InterpString start=+«+ end=+»+ contains=@p6Interp
 syn region p6InterpString start=+<<+ end=+>>+ contains=@p6Interp
 " \w-delimited strings
-syn region p6InterpString start="q[qwx]\s\+\z([a-zA-Z0-9_]\)" skip="\\\z1" end="\z1" contains=@p6Interp
+syn region p6InterpString start="\<q[qwx]\s\+\z([a-zA-Z0-9_]\)" skip="\\\z1" end="\z1" contains=@p6Interp
 " Punctuation-delimited strings
-syn region p6InterpString start="q[qwx]\s*\z([^a-zA-Z0-9_ ]\)" skip="\\\z1" end="\z1" contains=@p6Interp
-syn region p6InterpString start="q[qwx]\s*{" skip="\\}" end="}" contains=@p6Interp
-syn region p6InterpString start="q[qwx]\s*(" skip="\\)" end=")" contains=@p6Interp
-syn region p6InterpString start="q[qwx]\s*\[" skip="\\]" end="]" contains=@p6Interp
-syn region p6InterpString start="q[qwx]\s*<" skip="\\>" end=">" contains=@p6Interp
+syn region p6InterpString start="\<q[qwx]\s*\z([^a-zA-Z0-9_ ]\)" skip="\\\z1" end="\z1" contains=@p6Interp
+syn region p6InterpString start="\<q[qwx]\s*{" skip="\\}" end="}" contains=@p6Interp
+syn region p6InterpString start="\<q[qwx]\s*(" skip="\\)" end=")" contains=@p6Interp
+syn region p6InterpString start="\<q[qwx]\s*\[" skip="\\]" end="]" contains=@p6Interp
+syn region p6InterpString start="\<q[qwx]\s*<" skip="\\>" end=">" contains=@p6Interp
 
 " Single-quoted, q, '' strings
 syn region p6LiteralString start=+'+ skip=+\\'+ end=+'+
 syn region p6LiteralString start=+<<\@!\(.*>\)\@=+ end=+>\@<!>+
 " \w-delimited strings
-syn region p6LiteralString start="q\s\+\z([a-zA-Z0-9_]\)" skip="\\\z1" end="\z1"
+syn region p6LiteralString start="\<q\s\+\z([a-zA-Z0-9_]\)" skip="\\\z1" end="\z1"
 " Punctuation-delimited strings
-syn region p6LiteralString start="q\s*\z([^a-zA-Z0-9_ ]\)" skip="\\\z1" end="\z1"
-syn region p6LiteralString start="q\s*\[" skip="\\]" end="]"
-syn region p6LiteralString start="q\s*(" skip="\\)" end=")"
-syn region p6LiteralString start="q\s*{" skip="\\}" end="}"
-syn region p6LiteralString start="q\s*<" skip="\\>" end=">"
+syn region p6LiteralString start="\<q\s*\z([^a-zA-Z0-9_ ]\)" skip="\\\z1" end="\z1"
+syn region p6LiteralString start="\<q\s*\[" skip="\\]" end="]"
+syn region p6LiteralString start="\<q\s*(" skip="\\)" end=")"
+syn region p6LiteralString start="\<q\s*{" skip="\\}" end="}"
+syn region p6LiteralString start="\<q\s*<" skip="\\>" end=">"
 
 " Numbers
 syn match  p6Number "\<\(\d*\.\d\+\|\d\+\.\d*\|\d\+\)\(e\d\+\)\{0,1}"
