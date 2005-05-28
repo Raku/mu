@@ -19,8 +19,8 @@ multi sub prompt ($prompt, @options is copy) {
         $choice = prompt;
     }
      
-    my $options_by_key = hash( map { $_.key, $_ } @options );
-    $choice = $options_by_key.{$choice};
+    my %options_by_key = map { $_.key => $_; } @options;
+    $choice = %options_by_key.{$choice};
     return $choice.param // $choice.key;
 }
 
