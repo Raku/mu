@@ -837,10 +837,10 @@ findSub :: String -> Maybe Exp -> [Exp] -> Eval (Maybe VCode)
 findSub name' invs args = do
     let name = possiblyFixOperatorName name'
     case invs of
-        Just exp | Just (package, name') <- breakOnGlue "::" name
+        Just _ | Just (package, name') <- breakOnGlue "::" name
                  , Just (sig, "") <- breakOnGlue "SUPER" package -> do
-            typ <- evalInvType exp
-            findSuperSub typ (sig ++ name')
+            typ <- asks envPackage
+            findSuperSub (mkType typ) (sig ++ name')
         Just exp | not (':' `elem` drop 2 name) -> do
             typ     <- evalInvType exp
             if typ == mkType "Scalar::Perl5" then runPerl5Sub name else do
