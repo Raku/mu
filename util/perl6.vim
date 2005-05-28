@@ -17,9 +17,9 @@ syn keyword p6Attn          todo Todo TODO WTF XXX contained
 syn keyword p6Module        module class role use require package
 syn keyword p6KeyDecl       coro sub submethod method is but does trusts multi returns
 syn keyword p6KeyScopeDecl  let my our state temp has
-syn keyword p6KeyFlow       if else elsif for unless  
-syn keyword p6KeyFlow       foreach loop while until when next last redo
-syn keyword p6KeyFlow       given yield not or and err xor return 
+syn keyword p6KeyFlow       if else elsif unless  
+syn keyword p6KeyFlow       for foreach loop while until when next last redo
+syn keyword p6KeyFlow       given not or and err xor return 
 syn keyword p6ClosureTrait  BEGIN CHECK INIT FIRST ENTER LEAVE KEEP UNDO NEXT LAST
 syn keyword p6ClosureTrait  PRE POST END
 syn keyword p6KeyException  die fail try CATCH CONTROL
@@ -48,24 +48,21 @@ syn match  p6Shebang "^#!.*"
 " POD
 syn region p6POD start="^=[a-z]\+\s*$" end="^=cut" contains=p6Attn,p6PODVerbatim,p6PODHead,p6PODSec,p6PODHeadKwid,p6PODSecKwid 
 
-syn match p6PODVerbatim "^\s.*" contained 
-syn match p6PODHeadKwid "^=\{1,2\} " nextgroup=p6PODTitle 
-syn match p6PODHead	"^=head[12]" nextgroup=p6PODTitle 
-syn match p6PODTitle ".*$" contained 
-syn match p6PODSecKwid "^=\{3,4\} " nextgroup=p6PODSecTitle 
-syn match p6PODSec	"^=head[34]" nextgroup=p6PODSecTitle 
-syn match p6PODSecTitle ".*$" contained 
+syn match p6PODVerbatim  "^\s.*"      contained 
+syn match p6PODHeadKwid  "^=\{1,2\} " nextgroup=p6PODTitle 
+syn match p6PODHead      "^=head[12]" nextgroup=p6PODTitle 
+syn match p6PODTitle     ".*$"        contained 
+syn match p6PODSecKwid   "^=\{3,4\} " nextgroup=p6PODSecTitle 
+syn match p6PODSec       "^=head[34]" nextgroup=p6PODSecTitle 
+syn match p6PODSecTitle  ".*$"        contained 
 
 " Variables, arrays, and hashes with ordinary \w+ names
-syn match p6VarPlain "[$@%]\*\?[a-zA-Z_]\w*"
-syn match p6VarPlain "[$@%][:.][a-zA-Z_]\w*"
-syn match p6VarPlain "\$\^\w\+"
+syn match p6VarPlain     "\(::?\|[$@%][:\.*^?]\?\)[a-zA-Z_]\w*"
 syn match p6VarException "\$!"
-syn match p6VarCapt "\$[0-9\/]"
-syn match p6VarPunct	"\$\d\+"
-
-syn match p6Invocant "./\w\+"
-syn match p6Invocant ":/\w\+"
+syn match p6VarCapt      "\$[0-9\/]"
+syn match p6VarPunct     "\$\d\+"
+syn match p6Invocant     "./[a-zA-Z_]\w*"
+syn match p6Invocant     ":/[a-zA-Z_]\w*"
 
 syn cluster p6Interp contains=p6VarPlain,p6InterpExpression,p6VarPunct,p6VarException,p6InterpClosure
 
