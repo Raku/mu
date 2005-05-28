@@ -453,14 +453,8 @@ op1 "kv" = \v -> do
     return (VList $ concat kvs)
 op1 "keys" = keysFromVal
 op1 "values" = valuesFromVal
-op1 "readline" = op1 "="
-op1 "=" = \v ->
-    -- XXX: primOp doesn't filter this prim, dunno why.
-    if safeMode then fail "Can't use readline() in safemode." else do
-    fh  <- handleOf v
-    ifListContext
-        (getLines fh)
-        (getLine fh)
+op1 "="        = op1 "readline"
+op1 "readline" = \v -> op1Read v (getLines) (getLine)
     where
     getLines :: VHandle -> Eval Val
     getLines fh = do
@@ -473,28 +467,28 @@ op1 "=" = \v ->
     getLine :: VHandle -> Eval Val
     getLine fh = tryIO undef $
         fmap (VStr . (++ "\n") . decodeUTF8) (hGetLine fh)
-    handleOf VUndef = handleOf (VList [])
-    handleOf (VList []) = do
-        argsGV  <- readVar "$*ARGS"
-        gv      <- fromVal argsGV
-        if defined gv
-            then handleOf gv
-            else do
-                args    <- readVar "@*ARGS"
-                files   <- fromVal args
-                if null files
-                    then return stdin
-                    else do
-                        hdl <- handleOf (VStr (head files)) -- XXX wrong
-                        writeVar "$*ARGS" (VHandle hdl)
-                        return hdl
-    handleOf (VStr x) = do
-        rv <- tryIO Nothing (fmap Just $ openFile x ReadMode)
-        case rv of
-            Nothing  -> retError "No such file or directory" x
-            Just hdl -> return hdl
-    handleOf (VList [x]) = handleOf x
-    handleOf v = fromVal v
+op1 "getc"     = \v -> op1Read v (getChar) (getChar)
+    where
+    getChar :: VHandle -> Eval Val
+    getChar fh = tryIO undef $ do
+        char <- hGetChar fh
+        str  <- getChar' fh char
+        return $ VStr $ decodeUTF8 str
+    -- We may have to read more than one byte, as one utf-8 char can span
+    -- multiple bytes.
+    getChar' :: VHandle -> Char -> IO String
+    getChar' fh char
+        | ord char < 0x80 = return [char]
+        | ord char < 0xE0 = readNmore 1
+        | ord char < 0xEE = readNmore 2
+        | ord char < 0xF5 = readNmore 3
+        | otherwise       = fail "Invalid utf-8 read by getc()"
+        where
+        readNmore :: Int -> IO String
+        readNmore n = do
+            new <- sequence $ replicate n (hGetChar fh)
+            return $ char:new
+
 op1 "ref"   = fmap VType . evalValType
 op1 "pop"   = \x -> join $ doArray x array_pop -- monadic join
 op1 "shift" = \x -> join $ doArray x array_shift -- monadic join
@@ -607,6 +601,45 @@ op1Print f v = do
     tryIO undef $ do
         f handle . concatMap encodeUTF8 $ vs'
         return $ VBool True
+
+{-|
+Read a char or a line from a handle.
+-}
+op1Read :: Val                   -- ^ The handle to read from (packed in a 'Val')
+        -> (VHandle -> Eval Val) -- ^ The function to call in list context
+        -> (VHandle -> Eval Val) -- ^ The function to call in scalar context
+        -> Eval Val              -- ^ The return value (a list of strings or a
+                                 --   string, packed in a 'Val')
+op1Read v fList fScalar = do
+    -- XXX: primOp doesn't filter this prim, dunno why.
+    if safeMode then fail "Can't use readline() or getc() in safemode." else do
+    fh  <- handleOf v
+    ifListContext
+        (fList fh)
+        (fScalar fh)
+    where
+    handleOf VUndef = handleOf (VList [])
+    handleOf (VList []) = do
+        argsGV  <- readVar "$*ARGS"
+        gv      <- fromVal argsGV
+        if defined gv
+            then handleOf gv
+            else do
+                args    <- readVar "@*ARGS"
+                files   <- fromVal args
+                if null files
+                    then return stdin
+                    else do
+                        hdl <- handleOf (VStr (head files)) -- XXX wrong
+                        writeVar "$*ARGS" (VHandle hdl)
+                        return hdl
+    handleOf (VStr x) = do
+        rv <- tryIO Nothing (fmap Just $ openFile x ReadMode)
+        case rv of
+            Nothing  -> retError "No such file or directory" x
+            Just hdl -> return hdl
+    handleOf (VList [x]) = handleOf x
+    handleOf v = fromVal v
 
 bool2n :: Bool -> VInt
 bool2n v = if v
@@ -1206,6 +1239,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   List      spre    =       unsafe (?IO)\
 \\n   Str       pre     readline unsafe (?IO)\
 \\n   List      pre     readline unsafe (?IO)\
+\\n   Str       pre     getc     unsafe (?IO)\
 \\n   Int       pre     int     safe   (?Int=$_)\
 \\n   List      pre     list    safe   (List)\
 \\n   Hash      pre     hash    safe   (List)\

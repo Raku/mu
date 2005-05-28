@@ -546,7 +546,7 @@ data Val
     | VNum      !VNum        -- ^ Number (i.e. a double)
     | VComplex  !VComplex    -- ^ Complex number value
     | VStr      !VStr        -- ^ String value
-    | VList     !VList       -- ^ List value (lists are lazy, so no '!')
+    | VList     !VList       -- ^ List value
     | VRef      !VRef        -- ^ Reference value
     | VCode     !VCode       -- ^ A code object
     | VBlock    !VBlock
@@ -556,12 +556,12 @@ data Val
     | VSocket   !VSocket     -- ^ Socket handle
     | VThread   !(VThread Val)
     | VProcess  !VProcess    -- ^ PID value
-    | VRule     !VRule
+    | VRule     !VRule       -- ^ Rule\/regex value
     | VSubst    !VSubst      -- ^ Substitution value (correct?)
     | VControl  !VControl
-    | VMatch    !VMatch
-    | VType     !VType
-    | VObject   !VObject
+    | VMatch    !VMatch      -- ^ Match value
+    | VType     !VType       -- ^ Type value (e.g. @Int@ or @Type@)
+    | VObject   !VObject     -- ^ Object
     | VOpaque   !VOpaque
     | PerlSV    !PerlSV
     deriving (Show, Eq, Ord, Typeable)
