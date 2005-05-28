@@ -473,6 +473,7 @@ instance Value VList where
             (VList vs) -> return vs
             _          -> return [v]
     fromVal v = fromVal' v
+    fromSV sv = return [PerlSV sv]
     castV = VList
     vCast (VList l)     = l
     vCast (VUndef)      = [VUndef]
