@@ -46,7 +46,7 @@ XS(_pugs_guts_invoke) {
 	snprintf(pugs_method, 128, "&%s", method);
 	val = pugs_PvToVal(pugs_method);
     }
-    inv = pugs_SvToVal(ST(1));
+    inv = SvOK(ST(1)) ? pugs_SvToVal(ST(1)) : NULL;
 
     stack = (Val **)malloc(sizeof(Val*)*items-1);
     for (i = 2; i < items; ++i) {
