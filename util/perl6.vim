@@ -13,8 +13,8 @@ endif
 
 " Billions of keywords
 syn keyword p6Attn          ACHTUNG ATTN ATTENTION FIXME NB todo Todo TODO WTF XXX contained
-syn keyword p6Module        module class use require
-syn keyword p6KeyDecl       coro sub submethod method is but multi returns
+syn keyword p6Module        module class role use require package
+syn keyword p6KeyDecl       coro sub submethod method is but does trusts multi returns
 syn keyword p6KeyScopeDecl  let my our state temp 
 syn keyword p6KeyFlow       else elsif for foreach loop while until if unless when
 syn keyword p6KeyFlow       given next last redo or and err xor return not
@@ -26,6 +26,7 @@ syn keyword p6KeyProperty   constant prec key value kv irs ofs ors pos int expor
 syn keyword p6KeyProperty   float str true false rw
 syn keyword p6KeyProperty   Int Str Num Hash Array Code Rule Class NumRange
 syn keyword p6KeyProperty   StrRange Role Bool Rat
+syn match   p6KeyProperty   "::\w\+"
 syn keyword p6KeyFunc       grep map sort join split reduce reverse truncate zip
 syn keyword p6KeyFunc       keys values pairs defined delete exists  
 syn keyword p6KeyFunc       gather take any pick all none
