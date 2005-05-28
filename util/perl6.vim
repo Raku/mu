@@ -55,7 +55,7 @@ syn match p6PODSec	"^=head[34]" nextgroup=p6PODSecTitle
 syn match p6PODSecTitle ".*$" contained 
 
 " Variables, arrays, and hashes with ordinary \w+ names
-syn match p6VarPlain "[$@%][a-zA-Z_]\w*"
+syn match p6VarPlain "[$@%]\*\?[a-zA-Z_]\w*"
 syn match p6VarPlain "[$@%][:.][a-zA-Z_]\w*"
 syn match p6VarPlain "\$\^\w\+"
 syn match p6VarException "\$!"
