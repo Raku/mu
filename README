@@ -68,7 +68,7 @@ instructions (and binaries, too).
 For dynamic loading/inlining of Haskell modules, you should install the
 hs-plugin library, available here:
 
-    ftp://ftp.cse.unsw.edu.au/pub/users/dons/hs-plugins/snapshots/
+    http://www.cse.unsw.edu.au/~dons/code/hs-plugins
 
 To install Pugs on your system, simply type this in the command line:
 
