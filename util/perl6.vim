@@ -90,7 +90,7 @@ syn region p6InterpString start="q[qwx]\s*<" skip="\\>" end=">" contains=@p6Inte
 
 " Single-quoted, q, '' strings
 syn region p6LiteralString start=+'+ skip=+\\'+ end=+'+
-syn region p6LiteralString start=+<<\@!+ end=+>\@<!>+
+syn region p6LiteralString start=+<<\@!\(.*>\)\@=+ end=+>\@<!>+
 " \w-delimited strings
 syn region p6LiteralString start="q\s\+\z([a-zA-Z0-9_]\)" skip="\\\z1" end="\z1"
 " Punctuation-delimited strings
