@@ -1,0 +1,36 @@
+#!/usr/bin/perl
+# "Why is the helper written in Perl 5?" --
+# Because we don't want Pugs to start two times (slow), we have to use
+# BSD::Resouce, and because we can't yet redirect STDOUT and STDERR.
+
+use warnings;
+use strict;
+
+use BSD::Resource;
+
+my ($code, $tmpfile, $pugs) = @ENV{qw<EVALBOT_CODE EVALBOT_TMPFILE EVALBOT_PUGS>};
+die "This program should only be run from evalbot.p6.\n" unless
+  defined $code and defined $tmpfile and defined $pugs;
+
+# 5s-7s CPU time, 30 MiB RAM, maximum of 500 bytes output.
+setrlimit RLIMIT_CPU,   5, 7                   or die "Couldn't setrlimit: $!\n";
+setrlimit RLIMIT_VMEM,  30 * 2**20, 30 * 2**20 or die "Couldn't setrlimit: $!\n";
+setrlimit RLIMIT_FSIZE, 500, 500,              or die "Couldn't setrlimit: $!\n";
+
+unlink $tmpfile or die "Couldn't unlink \"$tmpfile\": $!\n" if -e $tmpfile;
+close STDOUT or die "Couldn't close STDOUT: $!\n";
+close STDERR or die "Couldn't close STDERR: $!\n";;
+open STDOUT, ">>", $tmpfile or
+  die "Couldn't redirect STDOUT: $!\n";
+open STDERR, ">>", $tmpfile or
+  die "Couldn't redirect STDERR: $!\n";
+
+# Set the safemode.
+$ENV{PUGS_SAFEMODE} = "true";
+$ENV{PUGS_SAFEMODE} eq  "true" or die "Couldn't set \$ENV{PUGS_SAFEMODE}!\n";
+
+# Run the code.
+system $pugs, "-e", '
+  my $ret = eval(%*ENV<EVALBOT_CODE>).perl;
+  Pugs::Safe::safe_print(($! ?? "Error: $!" :: $ret) ~ "\n");
+';
