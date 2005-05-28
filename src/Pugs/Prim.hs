@@ -751,20 +751,7 @@ op2 "exists" = \x y -> do
     fmap VBool (existsFromRef ref y)
 op2 "unshift" = op2Array array_unshift
 op2 "push" = op2Array array_push
-op2 "split"= \x y -> do
-    val <- fromVal x
-    str <- fromVal y
-    case val of
-        VRule rx -> do
-            chunks <- rxSplit rx str
-            return $ VList chunks
-        _ -> do
-            delim <- fromVal val
-            return $ split' delim str
-    where
-    split' :: VStr -> VStr -> Val
-    split' [] xs = VList $ map (VStr . (:[])) xs
-    split' glue xs = VList $ map VStr $ split glue xs
+op2 "split"= op2Split
 op2 "connect" = \x y -> do
     host <- fromVal x
     port <- fromVal y
@@ -835,6 +822,23 @@ op2 "sort" = \x y -> do
 op2 "say" = \x (VList ys) -> op1Print hPutStrLn (VList (x:ys))
 op2 "print" = \x (VList ys) -> op1Print hPutStr (VList (x:ys))
 op2 other = \_ _ -> fail ("Unimplemented binaryOp: " ++ other)
+
+op2Split :: Val -> Val -> Eval Val
+op2Split x y@(VRule _) = op2Split y x
+op2Split x y = do
+    val <- fromVal x
+    str <- fromVal y
+    case val of
+        VRule rx -> do
+            chunks <- rxSplit rx str
+            return $ VList chunks
+        _ -> do
+            delim <- fromVal val
+            return $ split' delim str
+    where
+    split' :: VStr -> VStr -> Val
+    split' [] xs = VList $ map (VStr . (:[])) xs
+    split' glue xs = VList $ map VStr $ split glue xs
 
 -- |Implementation of 3-arity primitive operators and functions
 op3 :: String -> Val -> Val -> Val -> Eval Val
@@ -1361,6 +1365,8 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Int       pre     unlink  unsafe (List)\
 \\n   Str       pre     readlink unsafe (Str)\
 \\n   List      pre     split   safe   (Str, Str)\
+\\n   List      pre     split   safe   (Rule, Str)\
+\\n   List      pre     split   safe   (Str: Rule)\
 \\n   Str       spre    =       safe   (IO)\
 \\n   List      spre    =       safe   (IO)\
 \\n   Junction  list    |       safe   (Any|Junction)\
