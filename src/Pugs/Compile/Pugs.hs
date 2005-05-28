@@ -1,10 +1,11 @@
-{-# OPTIONS_GHC -fglasgow-exts #-}
+{-# OPTIONS_GHC -fglasgow-exts -fth #-}
 
 module Pugs.Compile.Pugs (genPugs) where
 import Pugs.AST
 import Pugs.Types
 import Pugs.Internals
 import Text.PrettyPrint
+import qualified Language.Haskell.TH as TH
 
 class (Show x) => Compile x where
     compile :: x -> Eval Doc
@@ -20,7 +21,10 @@ prettyList = brackets . vcat . punctuate comma
 
 prettyDo :: [Doc] -> Doc
 prettyDo docs = parens $ text "do" <+> (braces $ vcat (punctuate semi docs))
-                                                       
+
+prettyRecord :: String -> [(String, Doc)] -> Doc
+prettyRecord con = (text con <+>) . braces . sep . punctuate semi . map assign
+    where assign (name, val) = text name <+> char '=' <+> val
 
 instance Compile Exp where
     compile (Syn syn exps) = do
@@ -106,10 +110,22 @@ instance Compile VRef where
         return $ text $ "newObject (mkType \"" ++ showType (refType ref) ++ "\")"
 
 instance Compile Val where
+    compile (VCode vc) = liftM ((text "VCode" <+>) . parens) $ compile vc
     compile x = return $ text $ show x
 
 instance Compile VCode where
-    compile x = return $ text $ show x
+    compile code = do 
+        return $ prettyRecord "MkCode" $
+            $(liftM TH.ListE $ 
+              mapM (\name -> [|(name, tshow $
+                                $(TH.varE $ TH.mkName name) code)|]) $
+              ["isMulti", "subName", "subType", "subEnv", "subAssoc",
+              "subParams", "subBindings", "subSlurpLimit",
+              "subReturns", "subLValue", "subCont"])
+
+        where 
+        tshow :: Show a => a -> Doc
+        tshow = text . show
 
 genPugs :: Eval Val
 genPugs = do
