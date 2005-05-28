@@ -63,7 +63,8 @@ is(assign_based_on_named_positional(5), 5, "When we don't explicitly specify, we
 is(assign_based_on_named_positional(5, "y"=> 2), 2, "When we explicitly specify, we get our value");
 is(assign_based_on_named_positional(5, y => 2), 2, "When we explicitly specify, we get our value");
 my $var = "y";
-is(assign_based_on_named_positional(5, $var => 2), 2, "When we explicitly specify, we get our value", :todo);
+is(assign_based_on_named_positional(5, $var => 2), 2,
+   "When we explicitly specify, we get our value", :todo<feature>);
 
 # L<S06/"Named parameters" /a \+\+ prefix.*?required/>
 sub mandatory (++$param) {
@@ -112,8 +113,8 @@ is(h('a','b',1),'ba',"parameters don\'t bind incorrectly");
 
 # Slurpy Hash Params
 {
-sub slurp(*%args) { return %args }
-my %fellowship = slurp(hobbit => 'Frodo', wizard => 'Gandalf');
+sub slurpee(*%args) { return %args }
+my %fellowship = slurpee(hobbit => 'Frodo', wizard => 'Gandalf');
 is(%fellowship<hobbit>, 'Frodo', "hobbit arg was slurped");
 is(%fellowship<wizard>, 'Gandalf', "wizard arg was slurped");
 is(+%fellowship, 2, "exactly 2 arguments were slurped");
