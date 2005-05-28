@@ -842,11 +842,11 @@ findSub name' invs args = do
             typ <- asks envPackage
             findSuperSub (mkType typ) (sig ++ name')
         Just exp | not (':' `elem` drop 2 name) -> do
-            typ     <- evalInvType exp
+            typ     <- evalInvType $ unwrap exp
             if typ == mkType "Scalar::Perl5" then runPerl5Sub name else do
             findTypedSub typ name
         _ | [exp] <- args -> do
-            typ     <- evalInvType exp
+            typ     <- evalInvType $ unwrap exp
             findTypedSub typ name
         _ -> findBuiltinSub name
     where
@@ -862,8 +862,12 @@ findSub name' invs args = do
     evalInvType x@(Var (':':typ)) = do
         typ' <- evalExpType x
         return $ if typ' == mkType "Scalar::Perl5" then typ' else mkType typ
-    evalInvType (Val (VType typ)) = return typ
-    evalInvType x = evalExpType x
+    evalInvType (App (Var "&new") (Just inv) _) = do
+        evalInvType $ unwrap inv
+    evalInvType x@(App (Var _) (Just inv) _) = do
+        typ <- evalInvType $ unwrap inv
+        if typ == mkType "Scalar::Perl5" then return typ else evalExpType x
+    evalInvType x = evalExpType $ unwrap x
     runPerl5Sub name = do
         metaSub <- possiblyBuildMetaopVCode name
         if isJust metaSub then return metaSub else do
@@ -1023,7 +1027,6 @@ evalExpType (Val val) = evalValType val
 evalExpType (App (Val val) _ _) = do
     sub <- fromVal val
     return $ subReturns sub
-evalExpType (App (Var "&new") (Just (Val (VType typ))) _) = return typ
 evalExpType (App (Var "&new") (Just (Var (':':name))) _) = return $ mkType name
 evalExpType (App (Var name) invs args) = do
     sub <- findSub name invs args

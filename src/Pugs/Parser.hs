@@ -1088,7 +1088,7 @@ ruleTypeVar :: RuleParser Exp
 ruleTypeVar = rule "type" $ try $ do
     string "::"
     name <- ruleQualifiedIdentifier
-    return . Val . VType $ mkType name
+    return $ Var (':':name)
 
 ruleTypeLiteral :: RuleParser Exp
 ruleTypeLiteral = rule "type" $ do
