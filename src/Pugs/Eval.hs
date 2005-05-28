@@ -116,6 +116,7 @@ evaluateMain exp = do
     endSubs  <- fromVals endAV
     enterContext CxtVoid $ do
         mapM_ evalExp [ App (Val sub) Nothing [] | sub <- endSubs ]
+    liftIO $ performGC
     return val
 
 -- | Evaluate an expression. This function mostly just delegates to 'reduce'.
