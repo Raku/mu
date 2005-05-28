@@ -1,5 +1,12 @@
 use v6;
 
+# multi sub prompt (Str ?$prompt) {
+#     print $prompt;
+#     my $input; ($input = =<>).chomp;
+#     say "";
+#     return $input;
+# }
+
 multi sub prompt (Str ?$prompt) {
     print "$prompt";
     my $temp; ($temp= =<>).chomp;
