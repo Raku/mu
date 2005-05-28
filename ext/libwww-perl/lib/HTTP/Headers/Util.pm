@@ -59,5 +59,5 @@ multi sub join_header_words(*%words is copy) {
         push @return, $key;
     }
     
-    return @return.join(", ");
+    return @return.join("; ");
 }
