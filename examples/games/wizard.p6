@@ -13,13 +13,13 @@ multi sub prompt ($prompt, @options is copy) {
 
     my $choice;
 #    until ($choice eq any(@options>>.<key>)) {  #not implemented in pugs yet
-    until ($choice eq any(@options.map:{ $_.key }) ) {
+    until ($choice eq any(@options.map:{ .key }) ) {
         say $prompt;
         say "\t$_.key() $_.text()" for @options;
         $choice = prompt;
     }
      
-    my %options_by_key = map { $_.key => $_; } @options;
+    my %options_by_key = map { .key => $_; } @options;
     $choice = %options_by_key.{$choice};
     return $choice.param // $choice.key;
 }
@@ -39,8 +39,7 @@ class Object {
     has Str $.last_location is rw;
     has Int $.plural;
     method where () {
-        return $.name ~ ($.plural ?? " are" :: " is") ~
-               " currently in the $.location";
+        "$.name {$.plural ?? 'are' :: 'is'} currently in the $.location";
     };
 };
    
@@ -71,11 +70,11 @@ class Mortal is Object {
       my $weapon = $.weapon;
       my $power  = $.weapon.damage;
       if ($power > 0) {
-            say $.name ~ " attacks $enemy.name() " ~
+            say "$.name attacks $enemy.name() ",
                 "with $weapon.name() doing $power damage!";
             $enemy.damage($power);                
-      } elsif ($power < 0 ) {
-            say $.name ~ " hurts himself doing $power damage!";
+      } elsif ($power < 0) {
+            say "$.name hurts himself doing $power damage!";
             ./damage($power);                
       }       
     }
@@ -88,7 +87,9 @@ class Person is Mortal {
     method battle (Mortal $enemy) {
         my $choice;
 
-        say "\n", $enemy.name, " is attacking you! What will you do?";
+        say '';
+        say "$enemy.name() is attacking you! What will you do?";
+
         until ($choice eq 'f' or $enemy.dead) {
             my @options;
             for @.weapons -> $wep {
@@ -98,13 +99,13 @@ class Person is Mortal {
                 );
             }
             push @options , Option.new( :key<f>, :text("flee for your life"));
-            $choice = prompt("Your choice?", @options);
+            $choice = prompt("Your choice? ", @options);
             cls;     
             given $choice {
                 when 'f' {
                     say "You ran away from the $enemy.name()!"; 
                 }
-                if ($_.isa(Weapon)) {  # work around when Weapon bug!
+                if (.isa(Weapon)) {  # work around when Weapon bug!
                     $.weapon = $_;
                     ./attack($enemy);
                 } else {           # work around bug 
@@ -114,7 +115,7 @@ class Person is Mortal {
             }
       }
       unless ($choice eq 'f') {
-        say "The $enemy.name() is dead!" ;
+        say "The $enemy.name() is dead!";
         return 1;
       }
       return 0;
@@ -123,8 +124,11 @@ class Person is Mortal {
     method attack (Monster $enemy) {
         ./hit($enemy);
         $enemy.hit($_);
-        say "";
-        say "Your health: $.life/$.max_life\t$enemy.name(): $enemy.life()/$enemy.max_life()";
+
+        say '';
+        say "Your health: $.life/$.max_life\t",
+            "$enemy.name(): $enemy.life()/$enemy.max_life()";
+
         exit if .dead;
     }
 
@@ -160,7 +164,7 @@ my %world;
 %world<Dungeon> = Room.new( :name("Dungeon"), :exits("Lobby"), :monsters([$skeleton()]));
 $person.last_location = $person.location = "Lobby";
 #cls;
-$person.name = capitalize(prompt("What is your name:"));
+$person.name = capitalize(prompt("What is your name: "));
 say "Greetings, $person.name()!";
 say $person.where;
 until ($person.dead) {
