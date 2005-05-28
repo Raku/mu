@@ -475,6 +475,9 @@ ruleUsePackage = rule "use package" $ do
         if (map toLower author) == "-perl5"
             then Stmts (Sym SGlobal (':':'*':pkg) (Syn ":=" [ Var (':':'*':pkg), App (Var "&require_perl5") Nothing [Val . VStr $ concat (intersperse "::" names)] ])) (Syn "env" [])
             else App (Var "&use") Nothing [Val . VStr $ concat (intersperse "/" names) ++ ".pm"]
+    try $ do
+        imp <- ruleExpression
+        unsafeEvalExp $ App (Var "&import") (Just val) [imp]
     case val of
         Val (VControl (ControlEnv env')) -> setState env'
             { envClasses = envClasses env' `addNode` mkType pkg }
