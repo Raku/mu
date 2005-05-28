@@ -101,43 +101,50 @@ prepareEnv name args = do
             [x] -> op1Exit x     -- needs refactoring (out of Prim)
             _   -> op1Exit undef
     env <- emptyEnv name $
-        [ genSym "@*ARGS"       $ MkRef argsAV
-        , genSym "@*INC"        $ MkRef incAV
-        , genSym "$*PUGS_HAS_HSPLUGINS" $ MkRef hspluginsSV
-        , genSym "$*EXECUTABLE_NAME"    $ MkRef execSV
-        , genSym "$*PROGRAM_NAME"       $ MkRef progSV
-        , genSym "$*PID"        $ MkRef pidSV
+        [ genSym "@*ARGS"       $ hideInSafemode $ MkRef argsAV
+        , genSym "@*INC"        $ hideInSafemode $ MkRef incAV
+        , genSym "$*PUGS_HAS_HSPLUGINS" $ hideInSafemode $ MkRef hspluginsSV
+        , genSym "$*EXECUTABLE_NAME"    $ hideInSafemode $ MkRef execSV
+        , genSym "$*PROGRAM_NAME"       $ hideInSafemode $ MkRef progSV
+        , genSym "$*PID"        $ hideInSafemode $ MkRef pidSV
         -- XXX these four need a proper `set' magic
-        , genSym "$*UID"        $ MkRef uidSV
-        , genSym "$*EUID"       $ MkRef euidSV
-        , genSym "$*GID"        $ MkRef gidSV
-        , genSym "$*EGID"       $ MkRef egidSV
+        , genSym "$*UID"        $ hideInSafemode $ MkRef uidSV
+        , genSym "$*EUID"       $ hideInSafemode $ MkRef euidSV
+        , genSym "$*GID"        $ hideInSafemode $ MkRef gidSV
+        , genSym "$*EGID"       $ hideInSafemode $ MkRef egidSV
         , genSym "@?CHECK"      $ MkRef checkAV
         , genSym "@?INIT"       $ MkRef initAV
         , genSym "@*END"        $ MkRef endAV
-        , genSym "$*IN"         $ MkRef inGV
-        , genSym "$*OUT"        $ MkRef outGV
-        , genSym "$*ERR"        $ MkRef errGV
-        , genSym "$*ARGS"       $ MkRef argsGV
+        , genSym "$*IN"         $ hideInSafemode $ MkRef inGV
+        , genSym "$*OUT"        $ hideInSafemode $ MkRef outGV
+        , genSym "$*ERR"        $ hideInSafemode $ MkRef errGV
+        , genSym "$*ARGS"       $ hideInSafemode $ MkRef argsGV
         , genSym "$!"           $ MkRef errSV
         , genSym "$/"           $ MkRef matchAV
+        -- We don't hide %*ENV in safemode, as evalbot reads the source to eval
+        -- from the environment. Other ways are much harder: Reading the source
+        -- from a file won't work, as slurp() is forbidden in safemode. And to
+        -- give the source in @*ARGS is complicated, too: evalbot would need to
+        -- quote the source, etc...
         , genSym "%*ENV"        $ hashRef MkHashEnv
-        , genSym "$*CWD"        $ scalarRef MkScalarCwd
+        , genSym "$*CWD"        $ hideInSafemode $ scalarRef MkScalarCwd
         -- XXX What would this even do?
         -- , genSym "%=POD"        (Val . VHash $ emptyHV)
         , genSym "@=POD"        $ MkRef $ constArray []
         , genSym "$=POD"        $ MkRef $ constScalar (VStr "")
-        , genSym "$*OS"         $ MkRef $ constScalar (VStr $ getConfig "osname")
+        , genSym "$*OS"         $ hideInSafemode $ MkRef $ constScalar (VStr $ getConfig "osname")
         , genSym "&?BLOCK_EXIT" $ codeRef $ mkPrim
             { subName = "&?BLOCK_EXIT"
             , subBody = Prim subExit
             }
-        , genSym "%?CONFIG" $ hashRef confHV
+        , genSym "%?CONFIG" $ hideInSafemode $ hashRef confHV
         , genSym "$*_" $ MkRef defSV
         , genSym "$*AUTOLOAD" $ MkRef autoSV
         ]
     initPerl5 "" (Just . VControl $ ControlEnv env{ envDebug = Nothing })
     return env
+    where
+    hideInSafemode x = if safeMode then MkRef $ constScalar undef else x
 
 {-|
 Combine @%*ENV\<PERL6LIB\>@, -I, 'Pugs.Config.config' values and \".\" into

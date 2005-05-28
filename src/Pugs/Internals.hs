@@ -69,6 +69,7 @@ module Pugs.Internals (
     unsafePerformSTM,
     possiblyFixOperatorName,
     maybeM,
+    safeMode,
 ) where
 
 import UTF8
@@ -273,3 +274,12 @@ possiblyFixOperatorName name
     -- <bar> --> bar
     dropBrackets ('<':(rest@(_:_)))       = if (last rest) == '>' then init rest else '<':rest
     dropBrackets x                        = x
+
+{-|
+Returns @True@ if the environment variable @PUGS_SAFEMODE@ is set to @true@. In
+safemode, most IO prims are forbidden.
+-}
+safeMode :: Bool
+safeMode = case (unsafePerformIO $ getEnv "PUGS_SAFEMODE") of
+    Just "true" -> True
+    _           -> False

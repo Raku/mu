@@ -282,6 +282,11 @@ op1 "rand"  = \v -> do
     return $ VNum rand
 op1 "print" = op1Print hPutStr
 op1 "say" = op1Print hPutStrLn
+op1 "Pugs::Safe::safe_print" = \v -> do
+    str  <- fromVal v
+    tryIO undef $ do
+        hPutStr stdout $ encodeUTF8 str
+        return $ VBool True
 op1 "die" = \v -> do
     strs <- fromVal v
     fail (errmsg . concat $ strs)
@@ -449,7 +454,9 @@ op1 "kv" = \v -> do
 op1 "keys" = keysFromVal
 op1 "values" = valuesFromVal
 op1 "readline" = op1 "="
-op1 "=" = \v -> do
+op1 "=" = \v ->
+    -- XXX: primOp doesn't filter this prim, dunno why.
+    if safeMode then fail "Can't use readline() in safemode." else do
     fh  <- handleOf v
     ifListContext
         (getLines fh)
@@ -1033,8 +1040,12 @@ op2Ord f x y = do
 -- the default is 'op0'.
 -- The Pad symbol name is prefixed with \"&*\" for functions and
 -- \"&*\" ~ fixity ~ \":\" for operators.
-primOp :: String -> String -> Params -> String -> STM (Pad -> Pad)
-primOp sym assoc prms ret = genMultiSym name sub
+primOp :: String -> String -> Params -> String -> Bool -> STM (Pad -> Pad)
+primOp sym assoc prms ret isSafe =
+    -- In safemode, we filter all prims marked as "unsafe".
+    if (not isSafe) && safeMode
+        then return id
+        else genMultiSym name sub
     where
     name | isAlpha (head sym)
          , fixity == "prefix"
@@ -1080,9 +1091,9 @@ primOp sym assoc prms ret = genMultiSym name sub
 
 -- |Produce a Pad update transaction with 'primOp' from a string description
 primDecl :: String -> STM (Pad -> Pad)
-primDecl str = primOp sym assoc params ret
+primDecl str = primOp sym assoc params ret (safe == "safe")
     where
-    (ret:assoc:sym:prms) = words str
+    (ret:assoc:sym:safe:prms) = words str
     takeWord = takeWhile isWord . dropWhile (not . isWord)
     isWord = not . (`elem` "(),:")
     prms'  = map takeWord prms
@@ -1161,283 +1172,284 @@ objectFinalizer env obj = do
 --
 --  The source string format is:
 --
--- >  ret_val   assoc   op_name args
+-- >  ret_val   assoc   op_name [safe|unsafe] args
 initSyms :: STM [Pad -> Pad]
 initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
-\\n   Bool      spre    !       (Bool)\
-\\n   Num       spre    +       (Num)\
-\\n   Num       pre     abs     (?Num=$_)\
-\\n   Num       pre     atan    (Num)\
-\\n   Num       pre     atan    (Num, Num)\
-\\n   Num       pre     cos     (?Num=$_)\
-\\n   Num       pre     sin     (?Num=$_)\
-\\n   Num       pre     tan     (?Num=$_)\
-\\n   Any       pre     pi      ()\
-\\n   Bool      pre     nothing ()\
-\\n   Num       pre     exp     (?Num=$_, ?Num)\
-\\n   Num       pre     sqrt    (?Num=$_)\
-\\n   Bool      spre    -r      (?Str=$_)\
-\\n   Bool      spre    -w      (?Str=$_)\
-\\n   Bool      spre    -x      (?Str=$_)\
-\\n   Bool      spre    -e      (?Str=$_)\
-\\n   Bool      spre    -z      (?Str=$_)\
-\\n   Int       spre    -s      (?Str=$_)\
-\\n   Bool      spre    -f      (?Str=$_)\
-\\n   Bool      spre    -d      (?Str=$_)\
-\\n   Num       spre    -       (Num)\
-\\n   Str       spre    ~       (Str)\
-\\n   Bool      spre    ?       (Bool)\
-\\n   Str       spre    =       (?IO)\
-\\n   List      spre    =       (?IO)\
-\\n   Str       pre     readline (?IO)\
-\\n   List      pre     readline (?IO)\
-\\n   Int       pre     int     (?Int=$_)\
-\\n   List      pre     list    (List)\
-\\n   Hash      pre     hash    (List)\
-\\n   List      pre     pair    (List)\
-\\n   Scalar    pre     scalar  (Scalar)\
-\\n   Any       pre     reverse (rw!Any)\
-\\n   Any       pre     reverse (List)\
-\\n   Int       spre    +^      (Int)\
-\\n   Int       spre    ~^      (Str)\
-\\n   Bool      spre    ?^      (Bool)\
-\\n   Ref       spre    \\      (rw!Any)\
-\\n   List      post    ...     (Str)\
-\\n   List      post    ...     (Scalar)\
-\\n   Any       pre     undef   (?rw!Any)\
-\\n   Str       pre     chop    (?rw!Str=$_)\
-\\n   Str       pre     chomp   (?rw!Str=$_)\
-\\n   Int       pre     index   (Str, Str, ?Int=0)\
-\\n   Int       pre     rindex  (Str, Str, ?Int)\
-\\n   Int       pre     substr  (rw!Str, Int, ?Int, ?Str)\
-\\n   Str       pre     lc      (?Str=$_)\
-\\n   Str       pre     lcfirst (?Str=$_)\
-\\n   Str       pre     uc      (?Str=$_)\
-\\n   Str       pre     ucfirst (?Str=$_)\
-\\n   Str       pre     capitalize (?Str=$_)\
-\\n   Any       post    ++      (rw!Num)\
-\\n   Num       post    --      (rw!Num)\
-\\n   Any       spre    ++      (rw!Num)\
-\\n   Num       spre    --      (rw!Num)\
-\\n   Bool      pre     not     (List)\
-\\n   Bool      pre     true    (Bool)\
-\\n   List      pre     gather  (Code)\
-\\n   List      pre     map     (Code, List)\
-\\n   List      pre     grep    (Code, List)\
-\\n   List      pre     sort    (Code, List)\
-\\n   List      pre     reduce  (Code, List)\
-\\n   List      pre     sort    (Array)\
-\\n   List      pre     map     (Array: Code)\
-\\n   List      pre     grep    (Array: Code)\
-\\n   List      pre     sort    (Array: Code)\
-\\n   List      pre     reduce  (Array: Code)\
-\\n   Any       pre     splice  (rw!Array, ?Int=0)\
-\\n   Any       pre     splice  (rw!Array, Int, Int)\
-\\n   Any       pre     splice  (rw!Array, Int, Int, List)\
-\\n   Int       pre     push    (rw!Array, List)\
-\\n   Int       pre     unshift (rw!Array, List)\
-\\n   Scalar    pre     pop     (rw!Array)\
-\\n   Scalar    pre     shift   (rw!Array)\
-\\n   Scalar    pre     sum     (List)\
-\\n   Scalar    pre     min     (List)\
-\\n   Scalar    pre     max     (List)\
-\\n   List      pre     uniq    (List)\
-\\n   Str       pre     join    (Array: Str)\
-\\n   Str       pre     join    (Str, List)\
-\\n   Any       pre     join    (Thread)\
-\\n   Bool      pre     detach  (Thread)\
-\\n   List      pre     zip     (List)\
-\\n   List      pre     keys    (rw!Hash)\
-\\n   List      pre     values  (rw!Hash)\
-\\n   List      pre     kv      (rw!Hash)\
-\\n   List      pre     pairs   (rw!Hash)\
-\\n   List      pre     keys    (rw!Array)\
-\\n   List      pre     values  (rw!Array)\
-\\n   List      pre     kv      (rw!Array)\
-\\n   List      pre     pairs   (rw!Array)\
-\\n   Scalar    pre     delete  (rw!Hash: List)\
-\\n   Scalar    pre     delete  (rw!Array: List)\
-\\n   Bool      pre     exists  (rw!Hash: Str)\
-\\n   Bool      pre     exists  (rw!Array: Int)\
-\\n   Str       pre     perl    (rw!Any|Junction)\
-\\n   Any       pre     try     (Code)\
-\\n   Any       pre     lazy    (Code)\
-\\n   Any       pre     eval    (Str)\
-\\n   Any       pre     evalfile     (Str)\
-\\n   Any       pre     eval_parrot  (Str)\
-\\n   Any       pre     eval_perl5   (Str)\
-\\n   Any       pre     eval_haskell (Str)\
-\\n   Any       pre     eval_yaml    (Str)\
-\\n   Any       pre     require (?Str=$_)\
-\\n   Any       pre     use     (?Str=$_)\
-\\n   Any       pre     require_haskell (Str)\
-\\n   Any       pre     require_parrot  (Str)\
-\\n   Any       pre     require_perl5   (Str)\
-\\n   Any       pre     last    (?Int=1)\
-\\n   Any       pre     next    (?Int=1)\
-\\n   Any       pre     redo    (?Int=1)\
-\\n   Any       pre     exit    (?Int=0)\
-\\n   Num       pre     rand    (?Num=1)\
-\\n   Bool      pre     defined (Any)\
-\\n   Str       pre     ref     (Any|Junction)\
-\\n   Str       pre     isa     (Any|Junction, Str)\
-\\n   Num       pre     time    ()\
-\\n   List      pre     times   ()\
-\\n   Str       pre     want    ()\
-\\n   Str       pre     File::Spec::cwd  ()\
-\\n   Str       pre     File::Spec::tmpdir  ()\
-\\n   Bool      pre     print   (IO)\
-\\n   Bool      pre     print   (IO: List)\
-\\n   Bool      pre     print   ()\
-\\n   Bool      pre     print   (List)\
-\\n   Str       pre     sprintf (Str, List)\
-\\n   Bool      pre     say     (IO)\
-\\n   Bool      pre     say     (IO: List)\
-\\n   Bool      pre     say     ()\
-\\n   Bool      pre     say     (List)\
-\\n   Bool      pre     close   (IO)\
-\\n   Bool      pre     flush   (IO)\
-\\n   Bool      pre     close   (Socket)\
-\\n   Bool      pre     die     (List)\
-\\n   Bool      pre     warn    (List)\
-\\n   Bool      pre     fail_   (List)\
-\\n   IO        pre     open    (Str)\
-\\n   Socket    pre     listen  (Int)\
-\\n   Socket    pre     connect (Str, Int)\
-\\n   Any       pre     accept  (Any)\
-\\n   List      pre     slurp   (?Str=$_)\
-\\n   List      pre     slurp   (Handle)\
-\\n   List      pre     readdir (Str)\
-\\n   Bool      pre     exec    (Str: List)\
-\\n   Int       pre     system  (Str)\
-\\n   Int       pre     system  (Str: List)\
-\\n   Bool      pre     binmode (IO: ?Int=1)\
-\\n   Void      pre     return  ()\
-\\n   Void      pre     return  (rw!Any)\
-\\n   Void      pre     return  (List)\
-\\n   Void      pre     yield   ()\
-\\n   Void      pre     yield   (rw!Any)\
-\\n   Void      pre     yield   (List)\
-\\n   Void      pre     take    ()\
-\\n   Void      pre     take    (rw!Any)\
-\\n   Void      pre     take    (List)\
-\\n   Junction  pre     any     (List)\
-\\n   Junction  pre     all     (List)\
-\\n   Junction  pre     one     (List)\
-\\n   Junction  pre     none    (List)\
-\\n   Bool      pre     sleep   (Int)\
-\\n   Bool      pre     rmdir   (?Str=$_)\
-\\n   Bool      pre     mkdir   (Str)\
-\\n   Bool      pre     chdir   (Str)\
-\\n   Int       pre     elems   (Array)\
-\\n   Int       pre     end     (Array)\
-\\n   Int       pre     graphs  (?Str=$_)\
-\\n   Int       pre     codes   (?Str=$_)\
-\\n   Int       pre     chars   (?Str=$_)\
-\\n   Int       pre     bytes   (?Str=$_)\
-\\n   Int       pre     chmod   (Int, List)\
-\\n   Scalar    pre     key     (rw!Pair)\
-\\n   Scalar    pre     value   (rw!Pair)\
-\\n   List      pre     keys    (rw!Pair)\
-\\n   List      pre     values  (Pair|Junction)\
-\\n   List      pre     kv      (rw!Pair)\
-\\n   List      pre     pairs   (rw!Pair)\
-\\n   Any       pre     pick    (Any|Junction)\
-\\n   Bool      pre     rename  (Str, Str)\
-\\n   Bool      pre     symlink (Str, Str)\
-\\n   Bool      pre     link    (Str, Str)\
-\\n   Int       pre     unlink  (List)\
-\\n   Str       pre     readlink (Str)\
-\\n   List      pre     split   (Str, Str)\
-\\n   Str       spre    =       (IO)\
-\\n   List      spre    =       (IO)\
-\\n   Junction  list    |       (Any|Junction)\
-\\n   Junction  list    &       (Any|Junction)\
-\\n   Junction  list    ^       (Any|Junction)\
-\\n   Num       left    *       (Num, Num)\
-\\n   Num       left    /       (Num, Num)\
-\\n   Num       left    %       (Num, Num)\
-\\n   Str       left    x       (Str, Int)\
-\\n   List      left    xx      (Any, Int)\
-\\n   Int       left    +&      (Int, Int)\
-\\n   Int       left    +<      (Int, Int)\
-\\n   Int       left    +>      (Int, Int)\
-\\n   Str       left    ~&      (Str, Str)\
-\\n   Str       left    ~<      (Str, Str)\
-\\n   Str       left    ~>      (Str, Str)\
-\\n   Num       right   **      (Num, Num)\
-\\n   Num       left    +       (Num, Num)\
-\\n   Num       left    -       (Num, Num)\
-\\n   Str       left    ~       (Str, Str)\
-\\n   Int       left    +|      (Int, Int)\
-\\n   Int       left    +^      (Int, Int)\
-\\n   Str       left    ~|      (Str, Str)\
-\\n   Str       left    ~^      (Str, Str)\
-\\n   Str       left    ?|      (Str, Str)\
-\\n   Pair      right   =>      (Any, Any)\
-\\n   Int       non     cmp     (Str, Str)\
-\\n   Int       non     <=>     (Num, Num)\
-\\n   List      non     ..      (Scalar, Scalar)\
-\\n   List      non     ..^     (Scalar, Scalar)\
-\\n   List      non     ^..     (Scalar, Scalar)\
-\\n   List      non     ^..^    (Scalar, Scalar)\
-\\n   Bool      chain   !=      (Num, Num)\
-\\n   Bool      chain   ==      (Num, Num)\
-\\n   Bool      chain   =:=     (rw!Any, rw!Any)\
-\\n   Bool      chain   ~~      (rw!Any, Any)\
-\\n   Bool      chain   !~      (Any, Any)\
-\\n   Bool      chain   <       (Num, Num)\
-\\n   Bool      chain   <=      (Num, Num)\
-\\n   Bool      chain   >       (Num, Num)\
-\\n   Bool      chain   >=      (Num, Num)\
-\\n   Bool      chain   ne      (Str, Str)\
-\\n   Bool      chain   eq      (Str, Str)\
-\\n   Bool      chain   lt      (Str, Str)\
-\\n   Bool      chain   le      (Str, Str)\
-\\n   Bool      chain   gt      (Str, Str)\
-\\n   Bool      chain   ge      (Str, Str)\
-\\n   Scalar    left    &&      (Bool, ~Bool)\
-\\n   Scalar    left    !!      (Bool, ~Bool)\
-\\n   Scalar    left    ||      (Bool, ~Bool)\
-\\n   Scalar    left    ^^      (Bool, Bool)\
-\\n   Scalar    left    //      (Bool, ~Bool)\
-\\n   Scalar    left    .[]     (Array, Int)\
-\\n   Scalar    left    .{}     (Hash, Str)\
-\\n   List      list    ¥               (Array)\
-\\n   List      list    Y               (Array)\
-\\n   List      spre    <==     (List)\
-\\n   List      left    ==>     (List, Code)\
-\\n   Scalar    left    and     (Bool, ~Bool)\
-\\n   Scalar    left    or      (Bool, ~Bool)\
-\\n   Scalar    left    nor     (Bool, ~Bool)\
-\\n   Scalar    left    xor     (Bool, Bool)\
-\\n   Scalar    left    err     (Bool, ~Bool)\
-\\n   Str       pre     chr     (?Int=$_)\
-\\n   Int       pre     ord     (?Str=$_)\
-\\n   Str       pre     hex     (?Str=$_)\
-\\n   Int       pre     from    (Match)\
-\\n   Int       pre     to      (Match)\
-\\n   List      pre     matches (Match)\
-\\n   Str       pre     hex     (Int)\
-\\n   Num       pre     log     (Int)\
-\\n   Num       pre     log     (Num)\
-\\n   Num       pre     log10   (Num)\
-\\n   Thread    pre     async   (Code)\
-\\n   Int       pre     sign    (Num)\
-\\n   Bool      pre     kill    (Thread)\
-\\n   Int       pre     kill    (Int, List)\
-\\n   Object    pre     new     (Object: Named)\
-\\n   Object    pre     BUILDALL (Object)\
-\\n   Object    pre     DESTROYALL (Object)\
-\\n   Object    pre     clone   (Any)\
-\\n   Object    pre     id      (Any)\
-\\n   Str       pre     name    (Code)\
-\\n   Int       pre     arity   (Code)\
-\\n   Bool      pre     Thread::yield   (Thread)\
-\\n   List      pre     Pugs::Internals::runInteractiveCommand    (Str)\
-\\n   Bool      pre     Pugs::Internals::hSetBinaryMode    (IO, Str)\
-\\n   IO        pre     Pugs::Internals::openFile    (Str, Str)\
-\\n   Bool      pre     bool::true ()\
-\\n   Bool      pre     bool::false ()\
-\\n   List      spre    prefix:[,] (List)\
+\\n   Bool      spre    !       safe   (Bool)\
+\\n   Num       spre    +       safe   (Num)\
+\\n   Num       pre     abs     safe   (?Num=$_)\
+\\n   Num       pre     atan    safe   (Num)\
+\\n   Num       pre     atan    safe   (Num, Num)\
+\\n   Num       pre     cos     safe   (?Num=$_)\
+\\n   Num       pre     sin     safe   (?Num=$_)\
+\\n   Num       pre     tan     safe   (?Num=$_)\
+\\n   Any       pre     pi      safe   ()\
+\\n   Bool      pre     nothing safe   ()\
+\\n   Num       pre     exp     safe   (?Num=$_, ?Num)\
+\\n   Num       pre     sqrt    safe   (?Num=$_)\
+\\n   Bool      spre    -r      unsafe (?Str=$_)\
+\\n   Bool      spre    -w      unsafe (?Str=$_)\
+\\n   Bool      spre    -x      unsafe (?Str=$_)\
+\\n   Bool      spre    -e      unsafe (?Str=$_)\
+\\n   Bool      spre    -z      unsafe (?Str=$_)\
+\\n   Int       spre    -s      unsafe (?Str=$_)\
+\\n   Bool      spre    -f      unsafe (?Str=$_)\
+\\n   Bool      spre    -d      unsafe (?Str=$_)\
+\\n   Num       spre    -       safe   (Num)\
+\\n   Str       spre    ~       safe   (Str)\
+\\n   Bool      spre    ?       safe   (Bool)\
+\\n   Str       spre    =       unsafe (?IO)\
+\\n   List      spre    =       unsafe (?IO)\
+\\n   Str       pre     readline unsafe (?IO)\
+\\n   List      pre     readline unsafe (?IO)\
+\\n   Int       pre     int     safe   (?Int=$_)\
+\\n   List      pre     list    safe   (List)\
+\\n   Hash      pre     hash    safe   (List)\
+\\n   List      pre     pair    safe   (List)\
+\\n   Scalar    pre     scalar  safe   (Scalar)\
+\\n   Any       pre     reverse safe   (rw!Any)\
+\\n   Any       pre     reverse safe   (List)\
+\\n   Int       spre    +^      safe   (Int)\
+\\n   Int       spre    ~^      safe   (Str)\
+\\n   Bool      spre    ?^      safe   (Bool)\
+\\n   Ref       spre    \\      safe   (rw!Any)\
+\\n   List      post    ...     safe   (Str)\
+\\n   List      post    ...     safe   (Scalar)\
+\\n   Any       pre     undef   safe   (?rw!Any)\
+\\n   Str       pre     chop    safe   (?rw!Str=$_)\
+\\n   Str       pre     chomp   safe   (?rw!Str=$_)\
+\\n   Int       pre     index   safe   (Str, Str, ?Int=0)\
+\\n   Int       pre     rindex  safe   (Str, Str, ?Int)\
+\\n   Int       pre     substr  safe   (rw!Str, Int, ?Int, ?Str)\
+\\n   Str       pre     lc      safe   (?Str=$_)\
+\\n   Str       pre     lcfirst safe   (?Str=$_)\
+\\n   Str       pre     uc      safe   (?Str=$_)\
+\\n   Str       pre     ucfirst safe   (?Str=$_)\
+\\n   Str       pre     capitalize safe   (?Str=$_)\
+\\n   Any       post    ++      safe   (rw!Num)\
+\\n   Num       post    --      safe   (rw!Num)\
+\\n   Any       spre    ++      safe   (rw!Num)\
+\\n   Num       spre    --      safe   (rw!Num)\
+\\n   Bool      pre     not     safe   (List)\
+\\n   Bool      pre     true    safe   (Bool)\
+\\n   List      pre     gather  safe   (Code)\
+\\n   List      pre     map     safe   (Code, List)\
+\\n   List      pre     grep    safe   (Code, List)\
+\\n   List      pre     sort    safe   (Code, List)\
+\\n   List      pre     reduce  safe   (Code, List)\
+\\n   List      pre     sort    safe   (Array)\
+\\n   List      pre     map     safe   (Array: Code)\
+\\n   List      pre     grep    safe   (Array: Code)\
+\\n   List      pre     sort    safe   (Array: Code)\
+\\n   List      pre     reduce  safe   (Array: Code)\
+\\n   Any       pre     splice  safe   (rw!Array, ?Int=0)\
+\\n   Any       pre     splice  safe   (rw!Array, Int, Int)\
+\\n   Any       pre     splice  safe   (rw!Array, Int, Int, List)\
+\\n   Int       pre     push    safe   (rw!Array, List)\
+\\n   Int       pre     unshift safe   (rw!Array, List)\
+\\n   Scalar    pre     pop     safe   (rw!Array)\
+\\n   Scalar    pre     shift   safe   (rw!Array)\
+\\n   Scalar    pre     sum     safe   (List)\
+\\n   Scalar    pre     min     safe   (List)\
+\\n   Scalar    pre     max     safe   (List)\
+\\n   List      pre     uniq    safe   (List)\
+\\n   Str       pre     join    safe   (Array: Str)\
+\\n   Str       pre     join    safe   (Str, List)\
+\\n   Any       pre     join    safe   (Thread)\
+\\n   Bool      pre     detach  safe   (Thread)\
+\\n   List      pre     zip     safe   (List)\
+\\n   List      pre     keys    safe   (rw!Hash)\
+\\n   List      pre     values  safe   (rw!Hash)\
+\\n   List      pre     kv      safe   (rw!Hash)\
+\\n   List      pre     pairs   safe   (rw!Hash)\
+\\n   List      pre     keys    safe   (rw!Array)\
+\\n   List      pre     values  safe   (rw!Array)\
+\\n   List      pre     kv      safe   (rw!Array)\
+\\n   List      pre     pairs   safe   (rw!Array)\
+\\n   Scalar    pre     delete  safe   (rw!Hash: List)\
+\\n   Scalar    pre     delete  safe   (rw!Array: List)\
+\\n   Bool      pre     exists  safe   (rw!Hash: Str)\
+\\n   Bool      pre     exists  safe   (rw!Array: Int)\
+\\n   Str       pre     perl    safe   (rw!Any|Junction)\
+\\n   Any       pre     try     safe   (Code)\
+\\n   Any       pre     lazy    safe   (Code)\
+\\n   Any       pre     eval    safe   (Str)\
+\\n   Any       pre     evalfile     unsafe (Str)\
+\\n   Any       pre     eval_parrot  unsafe (Str)\
+\\n   Any       pre     eval_perl5   unsafe (Str)\
+\\n   Any       pre     eval_haskell unsafe (Str)\
+\\n   Any       pre     eval_yaml    safe   (Str)\
+\\n   Any       pre     require unsafe (?Str=$_)\
+\\n   Any       pre     use     unsafe (?Str=$_)\
+\\n   Any       pre     require_haskell unsafe (Str)\
+\\n   Any       pre     require_parrot  unsafe (Str)\
+\\n   Any       pre     require_perl5   unsafe (Str)\
+\\n   Any       pre     last    safe   (?Int=1)\
+\\n   Any       pre     next    safe   (?Int=1)\
+\\n   Any       pre     redo    safe   (?Int=1)\
+\\n   Any       pre     exit    unsafe (?Int=0)\
+\\n   Num       pre     rand    safe   (?Num=1)\
+\\n   Bool      pre     defined safe   (Any)\
+\\n   Str       pre     ref     safe   (Any|Junction)\
+\\n   Str       pre     isa     safe   (Any|Junction, Str)\
+\\n   Num       pre     time    safe   ()\
+\\n   List      pre     times   safe   ()\
+\\n   Str       pre     want    safe   ()\
+\\n   Str       pre     File::Spec::cwd     unsafe ()\
+\\n   Str       pre     File::Spec::tmpdir  unsafe ()\
+\\n   Bool      pre     print   unsafe (IO)\
+\\n   Bool      pre     print   unsafe (IO: List)\
+\\n   Bool      pre     print   unsafe ()\
+\\n   Bool      pre     print   unsafe (List)\
+\\n   Str       pre     sprintf safe   (Str, List)\
+\\n   Bool      pre     say     unsafe (IO)\
+\\n   Bool      pre     say     unsafe (IO: List)\
+\\n   Bool      pre     say     unsafe ()\
+\\n   Bool      pre     say     unsafe (List)\
+\\n   Bool      pre     Pugs::Safe::safe_print     safe     (Str)\
+\\n   Bool      pre     close   unsafe (IO)\
+\\n   Bool      pre     flush   unsafe (IO)\
+\\n   Bool      pre     close   unsafe (Socket)\
+\\n   Bool      pre     die     safe   (List)\
+\\n   Bool      pre     warn    safe   (List)\
+\\n   Bool      pre     fail_   safe   (List)\
+\\n   unsafe    pre     open    unsafe (Str)\
+\\n   Socket    pre     listen  unsafe (Int)\
+\\n   Socket    pre     connect unsafe (Str, Int)\
+\\n   Any       pre     accept  unsafe (Any)\
+\\n   List      pre     slurp   unsafe (?Str=$_)\
+\\n   List      pre     slurp   unsafe (Handle)\
+\\n   List      pre     readdir unsafe (Str)\
+\\n   Bool      pre     exec    unsafe (Str: List)\
+\\n   Int       pre     system  unsafe (Str)\
+\\n   Int       pre     system  unsafe (Str: List)\
+\\n   Bool      pre     binmode unsafe (IO: ?Int=1)\
+\\n   Void      pre     return  safe   ()\
+\\n   Void      pre     return  safe   (rw!Any)\
+\\n   Void      pre     return  safe   (List)\
+\\n   Void      pre     yield   safe   ()\
+\\n   Void      pre     yield   safe   (rw!Any)\
+\\n   Void      pre     yield   safe   (List)\
+\\n   Void      pre     take    safe   ()\
+\\n   Void      pre     take    safe   (rw!Any)\
+\\n   Void      pre     take    safe   (List)\
+\\n   Junction  pre     any     safe   (List)\
+\\n   Junction  pre     all     safe   (List)\
+\\n   Junction  pre     one     safe   (List)\
+\\n   Junction  pre     none    safe   (List)\
+\\n   Bool      pre     sleep   unsafe (Int)\
+\\n   Bool      pre     rmdir   unsafe (?Str=$_)\
+\\n   Bool      pre     mkdir   unsafe (Str)\
+\\n   Bool      pre     chdir   unsafe (Str)\
+\\n   Int       pre     elems   safe   (Array)\
+\\n   Int       pre     end     safe   (Array)\
+\\n   Int       pre     graphs  safe   (?Str=$_)\
+\\n   Int       pre     codes   safe   (?Str=$_)\
+\\n   Int       pre     chars   safe   (?Str=$_)\
+\\n   Int       pre     bytes   safe   (?Str=$_)\
+\\n   Int       pre     chmod   unsafe (Int, List)\
+\\n   Scalar    pre     key     safe   (rw!Pair)\
+\\n   Scalar    pre     value   safe   (rw!Pair)\
+\\n   List      pre     keys    safe   (rw!Pair)\
+\\n   List      pre     values  safe   (Pair|Junction)\
+\\n   List      pre     kv      safe   (rw!Pair)\
+\\n   List      pre     pairs   safe   (rw!Pair)\
+\\n   Any       pre     pick    safe   (Any|Junction)\
+\\n   Bool      pre     rename  unsafe (Str, Str)\
+\\n   Bool      pre     symlink unsafe (Str, Str)\
+\\n   Bool      pre     link    unsafe (Str, Str)\
+\\n   Int       pre     unlink  unsafe (List)\
+\\n   Str       pre     readlink unsafe (Str)\
+\\n   List      pre     split   safe   (Str, Str)\
+\\n   Str       spre    =       safe   (IO)\
+\\n   List      spre    =       safe   (IO)\
+\\n   Junction  list    |       safe   (Any|Junction)\
+\\n   Junction  list    &       safe   (Any|Junction)\
+\\n   Junction  list    ^       safe   (Any|Junction)\
+\\n   Num       left    *       safe   (Num, Num)\
+\\n   Num       left    /       safe   (Num, Num)\
+\\n   Num       left    %       safe   (Num, Num)\
+\\n   Str       left    x       safe   (Str, Int)\
+\\n   List      left    xx      safe   (Any, Int)\
+\\n   Int       left    +&      safe   (Int, Int)\
+\\n   Int       left    +<      safe   (Int, Int)\
+\\n   Int       left    +>      safe   (Int, Int)\
+\\n   Str       left    ~&      safe   (Str, Str)\
+\\n   Str       left    ~<      safe   (Str, Str)\
+\\n   Str       left    ~>      safe   (Str, Str)\
+\\n   Num       right   **      safe   (Num, Num)\
+\\n   Num       left    +       safe   (Num, Num)\
+\\n   Num       left    -       safe   (Num, Num)\
+\\n   Str       left    ~       safe   (Str, Str)\
+\\n   Int       left    +|      safe   (Int, Int)\
+\\n   Int       left    +^      safe   (Int, Int)\
+\\n   Str       left    ~|      safe   (Str, Str)\
+\\n   Str       left    ~^      safe   (Str, Str)\
+\\n   Str       left    ?|      safe   (Str, Str)\
+\\n   Pair      right   =>      safe   (Any, Any)\
+\\n   Int       non     cmp     safe   (Str, Str)\
+\\n   Int       non     <=>     safe   (Num, Num)\
+\\n   List      non     ..      safe   (Scalar, Scalar)\
+\\n   List      non     ..^     safe   (Scalar, Scalar)\
+\\n   List      non     ^..     safe   (Scalar, Scalar)\
+\\n   List      non     ^..^    safe   (Scalar, Scalar)\
+\\n   Bool      chain   !=      safe   (Num, Num)\
+\\n   Bool      chain   ==      safe   (Num, Num)\
+\\n   Bool      chain   =:=     safe   (rw!Any, rw!Any)\
+\\n   Bool      chain   ~~      safe   (rw!Any, Any)\
+\\n   Bool      chain   !~      safe   (Any, Any)\
+\\n   Bool      chain   <       safe   (Num, Num)\
+\\n   Bool      chain   <=      safe   (Num, Num)\
+\\n   Bool      chain   >       safe   (Num, Num)\
+\\n   Bool      chain   >=      safe   (Num, Num)\
+\\n   Bool      chain   ne      safe   (Str, Str)\
+\\n   Bool      chain   eq      safe   (Str, Str)\
+\\n   Bool      chain   lt      safe   (Str, Str)\
+\\n   Bool      chain   le      safe   (Str, Str)\
+\\n   Bool      chain   gt      safe   (Str, Str)\
+\\n   Bool      chain   ge      safe   (Str, Str)\
+\\n   Scalar    left    &&      safe   (Bool, ~Bool)\
+\\n   Scalar    left    !!      safe   (Bool, ~Bool)\
+\\n   Scalar    left    ||      safe   (Bool, ~Bool)\
+\\n   Scalar    left    ^^      safe   (Bool, Bool)\
+\\n   Scalar    left    //      safe   (Bool, ~Bool)\
+\\n   Scalar    left    .[]     safe   (Array, Int)\
+\\n   Scalar    left    .{}     safe   (Hash, Str)\
+\\n   List      list    ¥       safe   (Array)\
+\\n   List      list    Y       safe   (Array)\
+\\n   List      spre    <==     safe   (List)\
+\\n   List      left    ==>     safe   (List, Code)\
+\\n   Scalar    left    and     safe   (Bool, ~Bool)\
+\\n   Scalar    left    or      safe   (Bool, ~Bool)\
+\\n   Scalar    left    nor     safe   (Bool, ~Bool)\
+\\n   Scalar    left    xor     safe   (Bool, Bool)\
+\\n   Scalar    left    err     safe   (Bool, ~Bool)\
+\\n   Str       pre     chr     safe   (?Int=$_)\
+\\n   Int       pre     ord     safe   (?Str=$_)\
+\\n   Str       pre     hex     safe   (?Str=$_)\
+\\n   Int       pre     from    safe   (Match)\
+\\n   Int       pre     to      safe   (Match)\
+\\n   List      pre     matches safe   (Match)\
+\\n   Str       pre     hex     safe   (Int)\
+\\n   Num       pre     log     safe   (Int)\
+\\n   Num       pre     log     safe   (Num)\
+\\n   Num       pre     log10   safe   (Num)\
+\\n   Thread    pre     async   safe   (Code)\
+\\n   Int       pre     sign    safe   (Num)\
+\\n   Bool      pre     kill    safe   (Thread)\
+\\n   Int       pre     kill    unsafe (Int, List)\
+\\n   Object    pre     new     safe   (Object: Named)\
+\\n   Object    pre     BUILDALL   safe   (Object)\
+\\n   Object    pre     DESTROYALL safe   (Object)\
+\\n   Object    pre     clone   safe   (Any)\
+\\n   Object    pre     id      safe   (Any)\
+\\n   Str       pre     name    safe   (Code)\
+\\n   Int       pre     arity   safe   (Code)\
+\\n   Bool      pre     Thread::yield   safe   (Thread)\
+\\n   List      pre     Pugs::Internals::runInteractiveCommand  unsafe (Str)\
+\\n   Bool      pre     Pugs::Internals::hSetBinaryMode         unsafe (IO, Str)\
+\\n   unsafe    pre     Pugs::Internals::openFile               unsafe (Str, Str)\
+\\n   Bool      pre     bool::true  safe   ()\
+\\n   Bool      pre     bool::false safe   ()\
+\\n   List      spre    prefix:[,]  safe   (List)\
 \\n"
