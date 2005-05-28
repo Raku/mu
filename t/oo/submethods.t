@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 22;
+plan 24;
 
 =pod
 
@@ -94,4 +94,24 @@ Basic submethod tests. See L<S12/"Submethods">
   eval '$B does RoleB1 does RoleB2';
   is $was_in_b1_build, 1, "roles' BUILD submethods were called now (1)", :todo<feature>;
   is $was_in_b2_build, 1, "roles' BUILD submethods were called now (2)", :todo<feature>;
+};
+
+# BUILD with signatures that don't map directly to attributes
+{
+  class ClassC
+  {
+    has $.value;
+
+    submethod BUILD ( ?$value = 0 )
+    {
+      $.value = 'default calculated value' unless $value;
+    }
+  }
+
+  my $C = ClassC.new();
+  is( $C.value, 'default calculated value',
+    'BUILD() should allow default values of optional params in signature' );
+
+  my $C2 = ClassC.new( :value(100) );
+  is( $C2.value, 100, '... or value passed in' );
 }
