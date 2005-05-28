@@ -1172,7 +1172,9 @@ ruleApply isFolded = tryVerbatimRule "apply" $ do
     hasDot  <- option False $ try $ do { whiteSpace; char '.'; return True }
     (inv', args) <- if hasDot
         then parseNoParenParamList
-        else parseParenParamList <|> do { whiteSpace; parseNoParenParamList }
+        else if isJust inv
+            then parseParenParamListMaybe
+            else parseParenParamList <|> do { whiteSpace; parseNoParenParamList }
     -- XXX - warn when there's both inv and inv'
     return $ App (Var name) (inv `mplus` inv') args
 
@@ -1207,6 +1209,14 @@ parseParenParamList = do
         verbatimParens $ parseHasParenParamList
     blocks      <- option [] ruleAdverbBlock
     when (isNothing params && null blocks) $ fail ""
+    let (inv, args) = maybe (Nothing, []) id params
+    return (inv, args ++ blocks)
+
+parseParenParamListMaybe :: RuleParser (Maybe Exp, [Exp])
+parseParenParamListMaybe = do
+    params      <- option Nothing . fmap Just $
+        verbatimParens $ parseHasParenParamList
+    blocks      <- option [] ruleAdverbBlock
     let (inv, args) = maybe (Nothing, []) id params
     return (inv, args ++ blocks)
 

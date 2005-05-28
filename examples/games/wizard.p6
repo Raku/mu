@@ -9,7 +9,7 @@ multi sub prompt (Str ?$prompt) {
 
 multi sub prompt ($prompt, @options is copy) {
     my $i = 0;
-    $_.key //= ++$i for @options;
+    .key //= ++$i for @options;
 
     my $choice;
 #    until ($choice eq any(@options>>.<key>)) {  #not implemented in pugs yet
