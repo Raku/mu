@@ -859,7 +859,9 @@ findSub name' invs args = do
     findBuiltinSub name = do
         sub <- findSub' name
         if isNothing sub then possiblyBuildMetaopVCode name else return sub
-    evalInvType (Var (':':typ)) = return $ mkType typ
+    evalInvType x@(Var (':':typ)) = do
+        typ' <- evalExpType x
+        return $ if typ' == mkType "Scalar::Perl5" then typ' else mkType typ
     evalInvType (Val (VType typ)) = return typ
     evalInvType x = evalExpType x
     runPerl5Sub name = do
