@@ -1435,8 +1435,8 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Int       pre     arity   (Code)\
 \\n   Bool      pre     Thread::yield   (Thread)\
 \\n   List      pre     Pugs::Internals::runInteractiveCommand    (Str)\
-\\n   Bool      pre     Pugs::Internals::hSetBinaryMode    (IO,Str)\
-\\n   IO        pre     Pugs::Internals::openFile    (Str,Str)\
+\\n   Bool      pre     Pugs::Internals::hSetBinaryMode    (IO, Str)\
+\\n   IO        pre     Pugs::Internals::openFile    (Str, Str)\
 \\n   Bool      pre     bool::true ()\
 \\n   Bool      pre     bool::false ()\
 \\n   List      spre    prefix:[,] (List)\
