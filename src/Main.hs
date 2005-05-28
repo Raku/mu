@@ -14,7 +14,7 @@
 
 -}
 
-module Main where
+module Main (module Main, withArgs) where
 import Pugs.Internals
 import Pugs.Config
 import Pugs.Run
