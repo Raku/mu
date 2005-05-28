@@ -546,7 +546,7 @@ data Val
     | VNum      !VNum        -- ^ Number (i.e. a double)
     | VComplex  !VComplex    -- ^ Complex number value
     | VStr      !VStr        -- ^ String value
-    | VList     VList        -- ^ List value (lists are lazy, so no '!')
+    | VList     !VList       -- ^ List value (lists are lazy, so no '!')
     | VRef      !VRef        -- ^ Reference value
     | VCode     !VCode       -- ^ A code object
     | VBlock    !VBlock
