@@ -89,9 +89,9 @@ sub set_postamble {
     } else {
         warn << '.';
 *** Inline Haskell support disabled.  If you want dynamic loading
-    of haskell modules, please install the hs-plugins library,
-        ftp://ftp.cse.unsw.edu.au/pub/users/dons/hs-plugins/snapshots/,
-    dated 2005-05-21 or later -- remember to "make register" too!
+    of haskell modules, please install the hs-plugins library:
+        http://www.cse.unsw.edu.au/~dons/code/hs-plugins
+    Remember to "make register" after "make install" for hs-plugins!
 
 .
     }
