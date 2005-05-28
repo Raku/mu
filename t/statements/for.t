@@ -14,7 +14,7 @@ L<S04/"The C<for> statement">
 
 =cut
 
-plan 31;
+plan 34;
 
 ## for with plain old range operator w/out parens
 # L<S04/"The C<for> statement" /in Perl 6, si it always take a list as an argument/>
@@ -212,3 +212,43 @@ my %hash_kv = ( a => 1, b => 2, c => 3 );
 my %kv = ( a => 2, b => 3, c => 4 );
 try { for %hash_kv.kv -> $key, $val is rw { $val++ }; };
 is( %hash_kv.sort, %kv.sort, 'for %hash.kv -> $key, $val is rw { $val++ }', :todo<feature>);
+
+
+# .key //= ++$i for @array1;
+{
+   class TestClass is rw { has $.key; };
+   my @array1 = (TestClass.new(),TestClass.new(:key<2>));
+   my @array2 = (TestClass.new(:key<1>),TestClass.new(:key<3>));   
+   
+   my $i = 0;
+   try { .key //= ++$i for @array1 };
+   my $sum1 = @array1.map:{ $_.key };
+   my $sum2 = @array2.map:{ $_.key };
+   is( $sum1, $sum2, '.key //= ++$i for @array1;', :todo<bug>);
+
+}
+
+# .key = 1 for @array1;
+{
+   class TestClass is rw { has $.key; };
+   my @array1 = (TestClass.new(),TestClass.new(:key<2>));
+   my @array2 = (TestClass.new(:key<1>),TestClass.new(:key<1>));   
+
+   try { .key = 1 for @array1 };
+   my $sum1 = @array1.map:{ $_.key };
+   my $sum2 = @array2.map:{ $_.key };
+   is( $sum1, $sum2, '.key = 1 for @array1;', :todo<bug>);
+}
+
+# $_.key = 1 for @array1;
+{
+   class TestClass is rw { has $.key; };
+   my @array1 = (TestClass.new(),TestClass.new(:key<2>));
+   my @array2 = (TestClass.new(:key<1>),TestClass.new(:key<1>));   
+
+   try { $_.key = 1 for @array1 };
+   my $sum1 = @array1.map:{ $_.key };
+   my $sum2 = @array2.map:{ $_.key };
+   is( $sum1, $sum2, '$_.key = 1 for @array1;');
+
+}
