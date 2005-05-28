@@ -5,7 +5,7 @@ module HTTP::Headers::Util-0.2;
 sub split_header_words (*@values) is export {
     my @return;
     
-    for @values -> $value {
+    for @values -> $value is copy {
         my @current;
         
         while ($value.chars) {
@@ -14,12 +14,12 @@ sub split_header_words (*@values) is export {
                 
                 # a quoted value
                 if ($value ~~ s:P5/^\s*=\s*\"([^\"\\]*(?:\\.[^\"\\]*)*)\"//) {
-                    my $val = $0;
+                    my $val = ~$0;
                     $val ~~ s:P5:g/\\(.)/$0/;
                     push @current, $val;
                 # some unquoted value
                 } elsif ($value ~~ s:P5/^\s*=\s*([^;,\s]*)//) {
-                    my $val = $0;
+                    my $val = ~$0;
                     $val ~~ s:P5/\s+$//;
                     push @current, $val;
                 # no value, a lone token
@@ -32,7 +32,7 @@ sub split_header_words (*@values) is export {
             } elsif ($value ~~ s:P5/^\s*;// || $value ~~ s:P5/^\s+//) {
                 # continue
             } else {
-                die "This should not happen: '$_'";
+                die "This should not happen: '$value'";
             }
         }
         
@@ -42,34 +42,32 @@ sub split_header_words (*@values) is export {
     return @return;
 }
 
-multi sub join_header_words(*%words is copy) is export {
-    my @return;
-    
-    for %words.kv -> $key, $value {
-        if ($value.defined) {
-            if ($value ~~ rx:P5/[\x00-\x20()<>@,;:\\\"\/\[\]?={}\x7F-\xFF]/) || (!$v.chars) {
-                $value ~~ s:P5/([\"\\])/\\$1/; # escape " and \
-                $key ~= qq(="$value");
-            } else {
-                # token
-                $key ~= qq(=$value);
-            }
-        }
-        
-        push @return, $key;
-    }
-    
-    return @return.join("; ");
-}
-
 multi sub join_header_words(*@words) is export {
     my @return;
     
-    for @words -> $list {
-        for $list -> $k, $v {
-            push @return, join_header_words($kv => $v);
+    for @words -> $cur {
+        my @attr;
+        
+        for $cur -> $k is copy, $v is copy {
+            if ($v.defined) {
+                # XXX add / to character class in regex below
+                # currently results in parsefail
+                if ($v ~~ m:P5/[\x00-\x20()<>@,;:\\\"\[\]?={}\x7F-\xFF]/ || !$v.chars) {
+                    $v ~~ s:P5:g/([\"\\])/\\$0/; # escape " and \
+                    $k ~= qq(="$v");
+                } else {
+                    # token
+                    $k ~= "=$v";
+                }
+            }
+            
+            push @attr, $k;
         }
+        
+        push @return, @attr.join("; ") if @attr;
     }
     
     return @return.join(", ");
 }
+
+1;
