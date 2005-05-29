@@ -31,7 +31,7 @@ is($id.new($japh2).id.('Pugs'), 'Just another Pugs hacker', "Closure roundtrips"
 
 my $keys_p5 = eval_perl5('sub {warn join(",",@_); return keys %{$_[0]}}');
 my $tohash_p5 = eval_perl5('sub { return {map {$_ => 1} @_ } }');
-my %hash = (<foo> => 'bar', <hate> => 'software');
+my %hash = (foo => 'bar', hate => 'software');
 {
     lives_ok {
     my $foo = $tohash_p5.(keys %hash);
