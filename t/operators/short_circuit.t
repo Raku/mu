@@ -84,7 +84,7 @@ plan 30;
 {
     my $x;      # should be undef
     my $y = 2;
-    $x ^^ ($y = 42);
+    eval '$x ^^ ($y = 42)';
 
     is($y, 42, "^^ operator seems to be not short circuiting");
 }
@@ -107,10 +107,10 @@ plan 30;
     is((undef() // 42),  42, "//   operator seems to be working"); #"
     is((undef() err 42), 42, "err  operator seems to be working");
 
-    is((0 ^^ 42),  42, "^^  operator seems to be working (one true)");
-    is((42 ^^ 0),  42, "^^  operator seems to be working (one true)");
-    ok(!(1 ^^ 42),   "^^  operator seems to be working (both true)");
-    ok(!(0 ^^ 0),    "^^  operator seems to be working (both false)");
+    is((eval '0 ^^ 42'),  42, "^^  operator seems to be working (one true)");
+    is((eval '42 ^^ 0'),  42, "^^  operator seems to be working (one true)");
+    ok(!(eval '1 ^^ 42'),   "^^  operator seems to be working (both true)");
+    ok(!(eval '0 ^^ 0'),    "^^  operator seems to be working (both false)");
     is((0 xor 42), 42, "xor operator seems to be working (one true)");
     is((42 xor 0), 42, "xor operator seems to be working (one true)");
     is((0 xor 42), 42, "xor operator seems to be working (one true)");
