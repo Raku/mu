@@ -276,10 +276,13 @@ possiblyFixOperatorName name
     dropBrackets x                        = x
 
 {-|
-Returns @True@ if the environment variable @PUGS_SAFEMODE@ is set to @true@. In
-safemode, most IO prims are forbidden.
+Returns @True@ if the environment variable @PUGS_SAFEMODE@ is set to a
+true value. Most IO primitives are disabled under safe mode.
 -}
+{-# NOINLINE safeMode #-}
 safeMode :: Bool
 safeMode = case (unsafePerformIO $ getEnv "PUGS_SAFEMODE") of
-    Just "true" -> True
-    _           -> False
+    Nothing     -> False
+    Just ""     -> False
+    Just "0"    -> False
+    _           -> True

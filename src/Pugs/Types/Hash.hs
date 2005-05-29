@@ -129,5 +129,9 @@ instance HashClass PerlSV where
         valSV   <- fromVal val
         evalPerl5Sub "sub { $_[0]->{$_[1]} = $_[2] }" [sv, keySV, valSV]
         return ()
+    hash_fetchKeys sv = do
+        keysSV  <- evalPerl5Sub "sub { join $/, keys %{$_[0]} }" [sv]
+        keysStr <- fromVal keysSV
+        return $ lines keysStr
     hash_storeElem _ _ _ = retConstError undef
     hash_deleteElem _ _ = retConstError undef
