@@ -237,7 +237,7 @@ is( %hash_kv.sort, %kv.sort, 'for %hash.kv -> $key, $val is rw { $val++ }', :tod
    try { .key = 1 for @array1 };
    my $sum1 = @array1.map:{ $_.key };
    my $sum2 = @array2.map:{ $_.key };
-   is( $sum1, $sum2, '.key = 1 for @array1;', :todo<bug>);
+   is($sum1, $sum2, '.key = 1 for @array1;');
 }
 
 # $_.key = 1 for @array1;

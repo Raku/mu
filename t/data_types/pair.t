@@ -175,6 +175,6 @@ http://www.nntp.perl.org/group/perl.perl6.language/20122
 
   # This should work only if => is lower precedence than ?? ::
   my %z = ( "Zaphod" => 0 ?? 1 :: 2, "Ford" => 42 );
-  is %z{"Zaphod"}, 2, "Zaphod is still 2", :todo;
-  is %z{"Ford"},  42, "Ford is still 42",  :todo;
+  is %z{"Zaphod"}, 2, "Zaphod is still 2";
+  is %z{"Ford"},  42, "Ford is still 42";
 }

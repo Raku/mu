@@ -15,8 +15,8 @@ class Foo {
     my $val;
     lives_ok {
         $val = Foo.bar(42);
-    }, '... class|instance methods work for class', :todo<feature>;
-    is($val, 142, '... basic class method access worked', :todo<feature>);
+    }, '... class|instance methods work for class';
+    is($val, 142, '... basic class method access worked');
 }
 
 {
