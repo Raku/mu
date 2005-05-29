@@ -15,19 +15,24 @@ import qualified Data.Map as Map
 import qualified Data.Set as Set
 
 pairsFromVal :: Val -> Eval [Val]
+pairsFromVal (PerlSV sv) = do
+    keys    <- hash_fetchKeys sv
+    return $ VList (map castV keys)
+    elems   <- mapM (hash_fetchElem sv) keys
+    return $ map (VRef . MkRef . IPair) (keys `zip` elems)
 pairsFromVal v = do
     ref  <- fromVal v
     vals <- pairsFromRef ref
     return vals
 
 keysFromVal :: Val -> Eval Val
+keysFromVal (PerlSV sv) = do
+    keys    <- hash_fetchKeys sv
+    return $ VList (map castV keys)
 keysFromVal (VList vs) = return . VList $ map VInt [0 .. (genericLength vs) - 1]
 keysFromVal (VRef ref) = do
     vals <- keysFromRef ref
     return $ VList vals
-keysFromVal (PerlSV sv) = do
-    keys    <- hash_fetchKeys sv
-    return $ VList (map castV keys)
 keysFromVal v = retError "Not a keyed reference" v
 
 valuesFromVal :: Val -> Eval Val
@@ -36,6 +41,9 @@ valuesFromVal v@(VList _) = return v
 valuesFromVal (VRef ref) = do
     vals <- valuesFromRef ref
     return $ VList vals
+valuesFromVal (PerlSV sv) = do
+    pairs <- hash_fetch sv
+    return . VList $ Map.elems pairs
 valuesFromVal v = retError "Not a keyed reference" v
 
 

@@ -122,8 +122,9 @@ instance HashClass PerlSV where
     hash_fetchVal sv key = do
         keySV   <- fromVal $ castV key
         evalPerl5Sub "sub { $_[0]->{$_[1]} }" [sv, keySV]
-    hash_clear _ = retConstError undef
-    hash_store _ _ = retConstError undef
+    hash_clear sv = do
+        evalPerl5Sub "sub { undef %{$_[0]} }" [sv]
+        return ()
     hash_storeVal sv key val = do
         keySV   <- fromVal $ castV key
         valSV   <- fromVal val
@@ -133,5 +134,9 @@ instance HashClass PerlSV where
         keysSV  <- evalPerl5Sub "sub { join $/, keys %{$_[0]} }" [sv]
         keysStr <- fromVal keysSV
         return $ lines keysStr
-    hash_storeElem _ _ _ = retConstError undef
-    hash_deleteElem _ _ = retConstError undef
+    hash_deleteElem sv key = do
+        keySV   <- fromVal $ castV key
+        evalPerl5Sub "sub { delete $_[0]->{$_[1]} }" [sv, keySV]
+        return ()
+    hash_isEmpty sv = do
+        fromVal =<< evalPerl5Sub "sub { !!%{$_[0]} }" [sv]

@@ -263,10 +263,15 @@ instance ArrayClass PerlSV where
     array_fetchVal sv idx = do
         idxSV   <- fromVal $ castV idx
         evalPerl5Sub "sub { $_[0]->[$_[1]] }" [sv, idxSV]
+    array_clear sv = do
+        evalPerl5Sub "sub { undef @{$_[0]} }" [sv]
+        return ()
     array_storeVal sv idx val = do
         idxSV   <- fromVal $ castV idx
         valSV   <- fromVal val
         evalPerl5Sub "sub { $_[0]->[$_[1]] = $_[2] }" [sv, idxSV, valSV]
         return ()
-    array_storeElem _ _ _  = retConstError undef
-    array_deleteElem _ _   = retConstError undef
+    array_deleteElem sv idx = do
+        idxSV   <- fromVal $ castV idx
+        evalPerl5Sub "sub { delete $_[0]->[$_[1]] }" [sv, idxSV]
+        return ()
