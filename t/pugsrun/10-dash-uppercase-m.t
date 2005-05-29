@@ -9,7 +9,7 @@ Test handling of C<-Mmodule>.
 
 =cut
 
-push @INC, <  blib6/lib >; # ext/File-Spec/lib
+BEGIN { push @INC, < blib6/lib > } # ext/File-Spec/lib
 require File::Spec;
 
 my $dir = catdir( <t pugsrun> );
