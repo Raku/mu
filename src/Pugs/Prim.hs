@@ -769,6 +769,7 @@ op2 "kill" = \s v -> do
         return 1
     rets <- mapM (tryIO 0 . doKill) pids
     return . VInt $ sum rets
+op2 "does"  = op2 "isa" -- XXX not correct
 op2 "isa"   = \x y -> do
     typX <- fromVal x
     typY <- case y of
@@ -1330,6 +1331,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      pre     defined safe   (Any)\
 \\n   Str       pre     ref     safe   (Any|Junction)\
 \\n   Str       pre     isa     safe   (Any|Junction, Str)\
+\\n   Str       pre     does    safe   (Any|Junction, Str)\
 \\n   Num       pre     time    safe   ()\
 \\n   List      pre     times   safe   ()\
 \\n   Str       pre     want    safe   ()\
