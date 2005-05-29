@@ -1,4 +1,4 @@
-#!perl6
+#!/usr/bin/pugs
 # Demo of the state() variable declaration.
 # This is also a neat way of doing OO without actually having OO available.
 

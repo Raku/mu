@@ -1,4 +1,4 @@
-#!perl6
+#!/usr/bin/pugs
 use v6;
 
 # life.p6 adopted for perl6 after:

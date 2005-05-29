@@ -1,3 +1,5 @@
+#!/usr/bin/pugs
+
 sub combinations returns Array  (@list is rw) {
   return () unless @list.elems;
   my @ans;
@@ -6,5 +8,6 @@ sub combinations returns Array  (@list is rw) {
   }
   return @ans;
 } 
+
 my @list = (1..4);
 combinations(@list).perl.say;
