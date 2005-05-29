@@ -202,7 +202,7 @@ plan 59;
 
 {
     my $x = 0;
-    $x ^^= 42;
+    eval '$x ^^= 42';
     is($x, 42, '^^= operator');
 }
 
@@ -214,7 +214,7 @@ plan 59;
 
 {
     my $x = 42;
-    # $x ?&= 24;   # XXX: compiler blows up
+    eval '$x ?&= 24';   # XXX: compiler blows up
     is($x, 1, '?&= operator', :todo);
 }
 
