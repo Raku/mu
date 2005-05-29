@@ -257,6 +257,7 @@ instance Value [Int] where
         mapM fromVal vlist
 
 instance Value [VStr] where
+    castV = VList . map VStr
     fromVal v = do
         vlist <- fromVal v
         mapM fromVal vlist

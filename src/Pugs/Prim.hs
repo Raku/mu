@@ -113,6 +113,7 @@ op1 "chomp" = \x -> do
         else do
             writeRef ref $ VStr (init str)
             return $ VStr [last str]
+op1 "split" = op1Cast (castV . words)
 op1 "lc" = op1Cast (VStr . map toLower)
 op1 "lcfirst" = op1StrFirst toLower
 op1 "uc" = op1Cast (VStr . map toUpper)
@@ -1400,6 +1401,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      pre     link    unsafe (Str, Str)\
 \\n   Int       pre     unlink  unsafe (List)\
 \\n   Str       pre     readlink unsafe (Str)\
+\\n   List      pre     split   safe   (Str)\
 \\n   List      pre     split   safe   (Str, Str)\
 \\n   List      pre     split   safe   (Rule, Str)\
 \\n   List      pre     split   safe   (Str: Rule)\
