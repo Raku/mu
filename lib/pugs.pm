@@ -48,7 +48,7 @@ L<Perl6::Pugs>
 
 =head1 AUTHOR
 
-Brian Ingerson E<lt>INGY@cpan.orgE<gt>
+Brian Ingerson C<E<lt>INGY@cpan.orgE<gt>>
 
 =head1 COPYRIGHT
 
@@ -57,6 +57,6 @@ Copyright (c) 2005. Brian Ingerson. All rights reserved.
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
 
-See http://www.perl.com/perl/misc/Artistic.html
+See L<http://www.perl.com/perl/misc/Artistic.html>.
 
 =cut
