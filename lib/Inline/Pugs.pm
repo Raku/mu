@@ -112,11 +112,11 @@ sub quote_pugs {
 
 =head1 AUTHORS
 
-Autrijus Tang E<lt>autrijus@autrijus.orgE<gt>
+Autrijus Tang C<E<lt>autrijus@autrijus.orgE<gt>>
 
 =head1 COPYRIGHT
 
-Copyright 2005 by Autrijus Tang E<lt>autrijus@autrijus.orgE<gt>.
+Copyright 2005 by Autrijus Tang C<E<lt>autrijus@autrijus.orgE<gt>>.
 
 This code is free software; you can redistribute it and/or modify it under
 the terms of either:
