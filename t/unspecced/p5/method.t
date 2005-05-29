@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan(10);
+plan(12);
 
 unless eval 'eval_perl5("1")' {
     skip_rest;
@@ -38,6 +38,14 @@ sub callcode {
 
 sub asub {
     return sub { return "asub" };
+}
+
+sub submany {
+    return sub { ("many", "return") };
+}
+
+sub many {
+    return ("many", "return") ;
 }
 
 # takes an object and invoke me on that
@@ -76,6 +84,18 @@ my $obj;
     is($r.(), 'asub', 'invoking p5 coderef');
     my $rr = $obj.callcode($r);
     is($rr, 'asub', 'invoke with p5 coderef');
+}
+
+{
+    my @r = $obj.many;
+    is(@r.elems, 2);
+}
+
+{
+    my $r = $obj.submany;
+    warn $r;
+    my @r = $r.();
+    is(@r.elems, 2);
 }
 
 {

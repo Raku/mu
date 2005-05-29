@@ -215,6 +215,7 @@ perl5_apply(SV *sub, SV *inv, SV** args, void *env, int cxt)
     SV *rv;
     SV *sv;
     void *old_env = pugs_getenv();
+    int count, i;
 
     dSP;
 
@@ -233,15 +234,23 @@ perl5_apply(SV *sub, SV *inv, SV** args, void *env, int cxt)
     PUTBACK;
 
     if (inv != NULL) {
-        call_method(SvPV_nolen(sub), cxt);
+        count = call_method(SvPV_nolen(sub), cxt);
     }
     else {
-        call_sv(sub, cxt);
+        count = call_sv(sub, cxt);
     }
 
     SPAGAIN;
 
-    rv = newSVsv(POPs);
+    if (count == 1) {
+	rv = newSVsv(POPs);
+    }
+    else {
+	rv = (SV *)newAV();
+	for (i=0; i<count; ++i) {
+	    av_push ((AV *)rv, POPs);
+	}
+    }
 
     PUTBACK;
     FREETMPS;
