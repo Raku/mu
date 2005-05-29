@@ -3,7 +3,6 @@ use v6;
 multi sub prompt (Str ?$prompt) {
     print $prompt;
     my $input; ($input = =<>).chomp;
-    say "";
     return $input;
 }
 
@@ -25,6 +24,8 @@ multi sub prompt ($prompt, @options is copy) {
 }
 
 sub cls { system(($?OS eq any<MSWin32 mingw>) ?? 'cls' :: 'clear'); }
+
+#random number between $low and $high, ($low..$high).pick but easier on memory
 multi sub infix:<<.?.>> ($low,$high) {int( rand($high - $low) + $low ) + 1; };
 
 class Option {
@@ -100,16 +101,17 @@ class Person is Mortal {
             }
             push @options , Option.new( :key<f>, :text("flee for your life"));
             $choice = prompt("Your choice? ", @options);
-            cls;     
+            cls;
             given $choice {
                 when 'f' {
                     say "You ran away from the $enemy.name()!"; 
                 }
-                if (.isa(Weapon)) {  # work around when Weapon bug!
+                #when Weapon {  #not yet working right.
+                when .does(Weapon) {
                     $.weapon = $_;
                     ./attack($enemy);
-                } else {           # work around bug 
-                #   default {
+                } 
+                default {
                     say "Please enter a valid command!"
                 }
             }
@@ -163,7 +165,7 @@ my %world;
 %world<Forest>  = Room.new( :name("Forest") , :exits("Lobby"), :monsters([$bat()]));
 %world<Dungeon> = Room.new( :name("Dungeon"), :exits("Lobby"), :monsters([$skeleton()]));
 $person.last_location = $person.location = "Lobby";
-#cls;
+
 $person.name = capitalize(prompt("What is your name: "));
 say "Greetings, $person.name()!";
 say $person.where;
