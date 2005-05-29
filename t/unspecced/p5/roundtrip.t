@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan(2);
+plan(6);
 
 unless eval 'eval_perl5("1")' {
     skip_rest;
@@ -28,3 +28,19 @@ my $id   = eval_perl5("Id");
 
 is($id.new($japh).id.('Pugs'), 'Just another Pugs hacker', "Closure roundtrips");
 is($id.new($japh2).id.('Pugs'), 'Just another Pugs hacker', "Closure roundtrips");
+
+my $keys_p5 = eval_perl5('sub {warn join(",",@_); return keys %{$_[0]}}');
+my $tohash_p5 = eval_perl5('sub { return {map {$_ => 1} @_ } }');
+my %hash = (<foo> => 'bar', <hate> => 'software');
+{
+    lives_ok {
+    my $foo = $tohash_p5.(keys %hash);
+    cmp_ok($foo, &infix:<cmp>, %hash);
+    cmp_ok($foo.keys, &infix:<cmp>, %hash.keys);
+    }
+}
+{
+    lives_ok { # is_deeply
+	cmp_ok(%hash.keys, &infix:<cmp>, $keys_p5.(%hash));
+    }
+}
