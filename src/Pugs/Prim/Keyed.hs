@@ -25,6 +25,9 @@ keysFromVal (VList vs) = return . VList $ map VInt [0 .. (genericLength vs) - 1]
 keysFromVal (VRef ref) = do
     vals <- keysFromRef ref
     return $ VList vals
+keysFromVal (PerlSV sv) = do
+    keys    <- hash_fetchKeys sv
+    return $ VList (map castV keys)
 keysFromVal v = retError "Not a keyed reference" v
 
 valuesFromVal :: Val -> Eval Val
