@@ -9,7 +9,7 @@ resulting in fast tools.
 
 Notes:
 
-+ Make it portable. That's the whoel point.
++ Make it portable. That's the whole point.
 + BSD or GNU style options[2]? Both!
 + You can use external modules, but it's considered courteous to also
   write those if they don't exist yet. :-)
