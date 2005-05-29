@@ -1,11 +1,13 @@
-{-# OPTIONS_GHC -fglasgow-exts -fth -cpp #-}
+{-# OPTIONS_GHC -cpp -fglasgow-exts -fth #-}
 
 module Pugs.Compile.Pugs (genPugs) where
 import Pugs.AST
 import Pugs.Types
 import Pugs.Internals
 import Text.PrettyPrint
+#ifndef PUGS_HAVE_PERL5
 import qualified Language.Haskell.TH as TH
+#endif
 
 class (Show x) => Compile x where
     compile :: x -> Eval Doc
@@ -26,12 +28,15 @@ prettyRecord :: String -> [(String, Doc)] -> Doc
 prettyRecord con = (text con <+>) . braces . sep . punctuate semi . map assign
     where assign (name, val) = text name <+> char '=' <+> val
 
+prettyBind :: String -> Doc -> Doc
+prettyBind var doc = hang (text var) 2 (text "<-" <+> doc)
+
 instance Compile Exp where
     compile (Syn syn exps) = do
         expsC <- compileList exps
         return $ prettyDo
-                [ text "exps <- sequence $ " <+> expsC
-                , text ("return (Syn " ++ show syn ++ " exps)")
+                [ prettyBind "exps" (text "sequence" <+> expsC)
+                , text "return" <+> parens (text $ "Syn " ++ show syn ++ " exps")
                 ]
     compile (Stmts exp1 exp2) = do
         exp1C <- compile exp1
@@ -114,8 +119,8 @@ instance Compile Val where
     compile x = return $ text $ show x
 
 -- Haddock can't cope with Template Haskell
-#ifndef HADDOCK
 instance Compile VCode where
+#if !defined(HADDOCK) && !defined(PUGS_HAVE_PERL5) && !defined(PUGS_HAVE_PARROT) && defined(PUGS_HAVE_TH)
     compile code = do 
         return $ prettyRecord "MkCode" $
             $(liftM TH.ListE $ 
@@ -124,11 +129,12 @@ instance Compile VCode where
               ["isMulti", "subName", "subType", "subEnv", "subAssoc",
               "subParams", "subBindings", "subSlurpLimit",
               "subReturns", "subLValue", "subCont"])
-
         where 
         tshow :: Show a => a -> Doc
         tshow = text . show
-#endif
+#else 
+    compile code = return $ text $ show code
+#endif 
 
 genPugs :: Eval Val
 genPugs = do
