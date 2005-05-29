@@ -21,7 +21,7 @@ doMatch cs MkRulePGE{ rxRule = re } = do
     hasSrc <- liftIO $ doesDirectoryExist pwd2
     let pwd = if hasSrc then pwd2 else pwd1
     glob    <- askGlobal
-    let syms = [ (name, tvar) | (('<':name), [(_, tvar)]) <- padToList glob ]
+    let syms = [ (name, tvar) | (('<':'*':name), [(_, tvar)]) <- padToList glob ]
     subrules <- forM syms $ \(name, tvar) -> do
         ref  <- liftSTM $ readTVar tvar
         (VRule rule) <- fromVal =<< readRef ref

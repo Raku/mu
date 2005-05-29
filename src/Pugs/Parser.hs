@@ -243,8 +243,8 @@ ruleRuleDeclaration = rule "rule declaration" $ try $ do
     adverbs <- ruleAdverbHash
     ch      <- char '{'
     expr    <- rxLiteralAny adverbs $ balancedDelim ch
-    let exp = Syn ":=" [Var ('<':name), Syn "rx" [expr, adverbs]]
-    unsafeEvalExp (Sym SGlobal ('<':name) exp)
+    let exp = Syn ":=" [Var ('<':'*':name), Syn "rx" [expr, adverbs]]
+    unsafeEvalExp (Sym SGlobal ('<':'*':name) exp)
     return emptyExp
 
 ruleClassDeclaration :: RuleParser Exp
