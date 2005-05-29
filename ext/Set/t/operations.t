@@ -16,7 +16,7 @@ my $bert = Person.new;
 
 my $set = set(0, 1, 2, 3, $bob);
 my $union = $set.union(set(4,5,6));
-is($union.ref, ::Set::Hash, "set() - union");
+is(~$union.ref, "Set::Hash", "set() - union");
 
 my $stringified = $set.stringify;
 ok($stringified ~~ rx:perl5/^set\([^<]*<obj:Person>[^<]*\)$/,
