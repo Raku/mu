@@ -126,6 +126,7 @@ $! = undef; # clear $!
 
 ## use_ok
 
+use lib <ext/Test>; # Hack if we're run from make smoke
 use_ok('t::use_ok_test');
 
 # Need to do a test loading a package that is not there,

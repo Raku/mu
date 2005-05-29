@@ -8,6 +8,7 @@ plan 3;
 
 use_ok('Pod::Event::Parser');
 use_ok('Pod::Event::Handler::HTML');
+chdir "ext/Pod-Event-Parser"; # Hack if we're run from make smoke
 
 my $test_output = "";
 parse(catfile('t', 'sample.pod'), pod2html($test_output));

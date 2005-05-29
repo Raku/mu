@@ -8,6 +8,7 @@ plan 3;
 
 use_ok('Pod::Event::Parser');
 use_ok('Pod::Event::Handler::POD');
+chdir "ext/Pod-Event-Parser"; # Hack if we're run from make smoke
 
 my $file_path = catfile('lib', 'Pod', 'Event', 'Parser.pm');
 my $test_output = "";

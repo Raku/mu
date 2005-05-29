@@ -7,6 +7,7 @@ use File::Spec;
 plan 18;
 
 use_ok('Config::Tiny');
+chdir "ext/Config-Tiny"; # Hack if we're run from `make smoke`
 
 # Create a config
 
