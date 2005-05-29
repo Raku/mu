@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-BEGIN { unshift @*INC, '../../lib'; }
+BEGIN { unshift @*INC, '../../lib', 'ext/libwww-perl/lib' }
 
 my @s_tests = (
 
