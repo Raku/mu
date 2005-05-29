@@ -48,6 +48,8 @@ clean_files     (map fixpaths($_),
     'src/Pugs/Config.hs', 'blib6',
     'test.log',
     'src/Pugs/Embed/Parrot.hs',
+    'src/Pugs/Run/Perl5_stub.*',
+    'src/Data/Yaml/Syck_stub.*',
     (map {("$_/*.o*")} qw(pcre perl5 syck)),
     (map {("$_/*.hpp", "$_/*.hi", "$_/*.o*")} @srcdirs),
 );
