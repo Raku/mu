@@ -94,4 +94,4 @@ Content-Type: text/html
 Cost: Three smackeroos
 Tax-Deductible: Yes
 
-", 'extra params (hyphenation)', :todo<bug>;
+", 'extra params (hyphenation)';
