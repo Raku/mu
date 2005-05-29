@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fth #-}
+{-# OPTIONS_GHC -fglasgow-exts -fth -cpp #-}
 
 module Pugs.Compile.Pugs (genPugs) where
 import Pugs.AST
@@ -113,6 +113,8 @@ instance Compile Val where
     compile (VCode vc) = liftM ((text "VCode" <+>) . parens) $ compile vc
     compile x = return $ text $ show x
 
+-- Haddock can't cope with Template Haskell
+#ifndef HADDOCK
 instance Compile VCode where
     compile code = do 
         return $ prettyRecord "MkCode" $
@@ -126,6 +128,7 @@ instance Compile VCode where
         where 
         tshow :: Show a => a -> Doc
         tshow = text . show
+#endif
 
 genPugs :: Eval Val
 genPugs = do
