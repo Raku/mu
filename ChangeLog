@@ -10,29 +10,29 @@
 * Pugs now has a `Safe` mode 
 * Core modules refactored for improved compilation speed and readability
 * `map` and `reduce` can now take n-ary functions. 
-* new builtins: `evalfile`, `nothing`, `getc`
+* New builtins: `evalfile`, `nothing`, `getc`
 * `Prelude` Perl 6 module added to `src/perl6` to implement primatives in Perl 6
 ** `openpipe` and `openfile` added to it
 * Class methods: `My::Class.foo()` now work.
 * `BUILDALL` and `DESTORYALL` functionality added for Objects
 * `SUPER::` implemented 
 * `$str.split(//)` now implemented
-* stub implementation for `.does` (No Roles yet)
-* Multi-invocant calls like `foo($x, $y: $z)` are no longer legal.
-* exclusive-range operators : `^..`, `..^` and `^..^` implemented
+* Stub implementation for `.does` (no Roles yet)
+* Multi-invocant calls like `foo($x, $y: $z)` are no longer legal
+* Exclusive-range operators : `^..`, `..^` and `^..^` implemented
 * `when .does(Foo)`, `when $_.does(Foo)` and `when Foo` are all implemented
 
 === Bundled Modules
 
 * New `Benchmark` module added
 * `libwww-perl` added
-** new `HTTP::Headers` module added
+** New `HTTP::Headers` module added
 ** `LWP-Simple` now moved here
 * `CGI` has been improved:
-** now has: `escapeHTML`, `unescapeHTML`, `redirect`
-** supports more HTTP headers in `header`
-** new module `CGI::Util` added
-* coro-based iterator added to `Tree` module
+** Now has: `escapeHTML`, `unescapeHTML`, `redirect`
+** Supports more HTTP headers in `header`
+** New module `CGI::Util` added
+* Coro-based iterator added to `Tree` module
 * Many more code sketches and documentation add to `Perl-MetaModel`
 * `Test::Builder` is now dangerously close to completely working
 * `use lib 'path';` now works
@@ -42,24 +42,24 @@
 * Pugs Apocryphon 2 improved and edited in `docs/02Internals.pod`
 * More Haddock documentation added to the Haskell source
 * Some new test and several tests refactored, we now have almost 5700 tests
-* new JAPH for Italian Perl Workshop added in `examples/japh`
+* New JAPH for Italian Perl Workshop added in `examples/japh`
 * New IRC bot `evalbot` added to `examples/network`
-* many improvements to `util/perl6.vim` to handle new features 
-* some new addtions and cleanup of the cookbook
-* `examples/network/screen-nodestatus.p6`, added to monitor host aliveness for GNU screen
+* Many improvements to `util/perl6.vim` to handle new features 
+* Some new addtions and cleanup of the cookbook
+* `examples/network/screen-nodestatus.p6` added to monitor host aliveness for GNU screen
 
 === Bug Fixes
 
 * `times` now really works on Win32
 * `readline()` now reads utf-8
-* `pugs -MFoo` now means `use Foo` not `require Foo`.
+* `pugs -MFoo` now means `use Foo` not `require Foo`
 * Class methods like `Foo.bar` now dispatches to `Foo::bar` instead of 
   to `Class::bar`
 * `isa` now handles class names are the invocant, so
-  `Foo.isa(Foo)` is now always true.  
-* `when .isa(Foo)` is no longer parsed as `when $_ ~~ .isa(Foo)` now.
+  `Foo.isa(Foo)` is now always true
+* `when .isa(Foo)` is no longer parsed as `when $_ ~~ .isa(Foo)` now
 * `(1 => 2 ?? 3 :: 4)` now always constructs a pair
-* Hyper-reduction prefix operators like `[+]Â«` are now parsed correctly
+* Hyper-reduction prefix operators like `[+]«` are now parsed correctly
 
 == Changes for 6.2.5 (r3794) - May 24, 2005
 
