@@ -5,7 +5,7 @@ import Pugs.AST
 import Pugs.Types
 import Pugs.Internals
 import Text.PrettyPrint
-#ifndef PUGS_HAVE_PERL5
+#if !defined(PUGS_HAVE_PERL5) && !defined(PUGS_HAVE_PARROT) && defined(PUGS_HAVE_TH)
 import qualified Language.Haskell.TH as TH
 #endif
 
@@ -24,9 +24,11 @@ prettyList = brackets . vcat . punctuate comma
 prettyDo :: [Doc] -> Doc
 prettyDo docs = parens $ text "do" <+> (braces $ vcat (punctuate semi docs))
 
+#if !defined(PUGS_HAVE_PERL5) && !defined(PUGS_HAVE_PARROT) && defined(PUGS_HAVE_TH)
 prettyRecord :: String -> [(String, Doc)] -> Doc
 prettyRecord con = (text con <+>) . braces . sep . punctuate semi . map assign
     where assign (name, val) = text name <+> char '=' <+> val
+#endif
 
 prettyBind :: String -> Doc -> Doc
 prettyBind var doc = hang (text var) 2 (text "<-" <+> doc)
