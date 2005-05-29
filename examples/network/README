@@ -1,12 +1,32 @@
-http-client.p6 and http-server.p6 are small programs which demonstrate basic
-socket handling in Pugs.
+HTTP
 
-http-client.p6 fetches an URL using HTTP/1.0,
-http-server.p6 is a small HTTP/1.0 server.
+    http-client.p6 and http-server.p6 are small programs which demonstrate
+    basic socket handling in Pugs.
 
-bot_irc.p6 is a simplistic IRC bot.
+    http-client.p6 fetches an URL using HTTP/1.0,
+    http-server.p6 is a small HTTP/1.0 server.
 
-All can be run with plain Pugs, there're no additional modules needed.
+    Note: The functions concerning threading used in http-server.p6 are not yet
+    specced.
 
-Note: The functions concerning threading used in http-server.p6 are not yet
-specced.
+IRC
+
+    bot_irc.p6 is a simplistic IRC bot.
+
+    hangmanbot.p6, logbot.p6, seenbot.p6, svnbot.p6, and evalbot/ all use the
+    Net::IRC framework.
+
+    hangmanbot.p6 allows you to play Hangman over IRC.
+    logbot.p6     is a simplistic IRC logger, which outputs illoger2 compatible
+                  logfiles.
+    seenbot.p6    is a small bot answering "?seen nick" questions.
+    svnbot.p6     relays the latest Subversion commits to IRC.
+    evalbot/      is a bot which eval()s Perl 6 commands, see evalbot/README
+                  for more information.
+
+Miscellaneous
+
+    screen-nodestatus.p6 is a handy utility for GNU screen(1) users. Using it,
+    screen can display the status of selected hosts in its statusline. See the
+    sourcecode of screen-nodestatus.p6 for installation instructions and a
+    screenshot.
