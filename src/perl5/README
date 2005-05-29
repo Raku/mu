@@ -1,37 +1,36 @@
-=head1 Perl5 support in pugs
+=head1 Perl 5 support in Pugs
 
-This document describes the bi-directional perl5 compatibility support.
+This document describes the bi-directional Perl 5 compatibility support.
 
 =head1 TODO
 
-=head2 perl6 calling perl5
+=head2 Perl 6 calling Perl 5
 
 =over
 
-=item export
+=item Exportation
 
-perl5_apply needs to push itself to additional caller stack, so
-Exporter will try to modify a tied namespace, which then export
-them to actual caller p6 namespace.
+C<perl5_apply> needs to push itself to additional caller stack, so
+C<Exporter> will try to modify a tied namespace, which then export
+them to actual caller P6 namespace.
 
-=item reference args
+=item Reference args
 
-make getopt::long work.
+Make C<Getopt::Long> work.
 
 =back
 
-=head2 perl5 calling perl6
+=head2 Perl 5 calling Perl 6
 
 =over
 
-=item libpugs.so
+=item C<libpugs.so>
 
-to be natively embedded in perl5
+To be natively embedded in Perl 5.
 
-=item export
+=item Exportation
 
-get the "is export" functions and refer them to perl5 symbol table.
-
+Get the C<is export> functions and refer to them in the Perl 5 symbol table.
 
 =back
 
