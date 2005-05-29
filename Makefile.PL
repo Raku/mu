@@ -48,7 +48,8 @@ clean_files     (map fixpaths($_),
     'src/Pugs/Config.hs', 'blib6',
     'test.log',
     'src/Pugs/Embed/Parrot.hs',
-    map {("$_/*.hpp", "$_/*.hi", "$_/*.o*")} @srcdirs
+    (map {("$_/*.o*")} qw(pcre perl5 syck)),
+    (map {("$_/*.hpp", "$_/*.hi", "$_/*.o*")} @srcdirs),
 );
 
 set_postamble   ();
