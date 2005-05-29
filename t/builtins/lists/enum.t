@@ -1,4 +1,4 @@
-﻿#!﻿usr/bin/pugs
+﻿#!/usr/bin/pugs
 
 use v6;
 use Test;
