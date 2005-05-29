@@ -1354,7 +1354,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      pre     die     safe   (List)\
 \\n   Bool      pre     warn    safe   (List)\
 \\n   Bool      pre     fail_   safe   (List)\
-\\n   unsafe    pre     open    unsafe (Str)\
+\\n   IO        pre     open    unsafe (Str)\
 \\n   Socket    pre     listen  unsafe (Int)\
 \\n   Socket    pre     connect unsafe (Str, Int)\
 \\n   Any       pre     accept  unsafe (Any)\
@@ -1492,7 +1492,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      pre     Thread::yield   safe   (Thread)\
 \\n   List      pre     Pugs::Internals::runInteractiveCommand  unsafe (Str)\
 \\n   Bool      pre     Pugs::Internals::hSetBinaryMode         unsafe (IO, Str)\
-\\n   unsafe    pre     Pugs::Internals::openFile               unsafe (Str, Str)\
+\\n   IO        pre     Pugs::Internals::openFile               unsafe (Str, Str)\
 \\n   Bool      pre     bool::true  safe   ()\
 \\n   Bool      pre     bool::false safe   ()\
 \\n   List      spre    prefix:[,]  safe   (List)\
