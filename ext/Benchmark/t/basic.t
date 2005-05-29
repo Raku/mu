@@ -34,7 +34,7 @@ use_ok('Benchmark');
 
 {
     lives_ok {
-	timethese(10000, { <one_plus_one> => -> { 1 + 1},
+	timethese(100, { <one_plus_one> => -> { 1 + 1},
 			  <two_plus_two> => -> { 2 + 2},
 			});
     }
