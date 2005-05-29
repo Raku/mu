@@ -10,7 +10,7 @@ sub split_header_words (*@values) is export {
         
         while ($value.chars) {
             if ($value ~~ s:P5/^\s*(=*[^\s=;,]+)//) {
-                push @current, $0;  # 'token' or parameter 'attribute'
+                push @current, ~$0;  # 'token' or parameter 'attribute'
                 
                 # a quoted value
                 if ($value ~~ s:P5/^\s*=\s*\"([^\"\\]*(?:\\.[^\"\\]*)*)\"//) {
@@ -27,7 +27,7 @@ sub split_header_words (*@values) is export {
                     push @current, undef;
                 }
             } elsif ($value ~~ s:P5/^\s*,//) {
-                push @return, @current if @current;
+                push @return, [@current] if @current;
                 @current = ();
             } elsif ($value ~~ s:P5/^\s*;// || $value ~~ s:P5/^\s+//) {
                 # continue
@@ -36,7 +36,7 @@ sub split_header_words (*@values) is export {
             }
         }
         
-        push @return, @current if @current;
+        push @return, [@current] if @current;
     }
     
     return @return;
@@ -45,10 +45,14 @@ sub split_header_words (*@values) is export {
 multi sub join_header_words(*@words) is export {
     my @return;
     
-    for @words -> $cur {
+    for @words -> $cur is copy {
         my @attr;
         
-        for $cur -> $k is copy, $v is copy {
+        if ($cur !~ Ref) {
+            $cur = [$cur];
+        }
+        
+        for $cur -> $k is rw, $v is rw {
             if ($v.defined) {
                 # XXX add / to character class in regex below
                 # currently results in parsefail

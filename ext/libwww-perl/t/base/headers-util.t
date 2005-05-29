@@ -28,7 +28,7 @@ my @s_tests = (
     'Basic; realm="\"foo\\\\bar\""',
 );
 
-my $extra_tests = 2;
+my $extra_tests = 1;
 
 plan(@s_tests + $extra_tests);
 
@@ -40,7 +40,5 @@ for @s_tests -> $test is copy {
     my $arg = $test[0];
     my $expect = $test[1];
     
-    my $temp = split_header_words($arg);
-    
-    is join_header_words($temp), $expect, 'conversion test ' ~ (++$test_num);
+    is join_header_words(split_header_words($arg)), $expect, 'conversion test ' ~ (++$test_num);
 }
