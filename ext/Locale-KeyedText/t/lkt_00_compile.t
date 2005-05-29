@@ -7,8 +7,7 @@ plan( 6 ); # 12
 
 use_ok( 'Locale::KeyedText-0.1.0' ); # bug: says OK even if version part is wrong
 
-use lib;
-BEGIN { import( 'lib': 't/lib' ); }
+use lib <t/lib ext/Locale-KeyedText/t/lib>;
 
 use_ok( 't_LKT_Util' ); # bug: fails to find in 'lib' despite 'use lib'
 #can_ok( 't_LKT_Util', 'message' );
