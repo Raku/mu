@@ -40,7 +40,7 @@ for @s_tests -> $test is copy {
     my $arg = $test[0];
     my $expect = $test[1];
     
-    my $temp = split_header_words([$arg]);
+    my $temp = split_header_words($arg);
     
     is join_header_words($temp), $expect, 'conversion test ' ~ (++$test_num);
 }
