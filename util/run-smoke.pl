@@ -27,7 +27,7 @@ chdir($pugs_sandbox) or die "Could change directory: $!";
 
 $ENV{HARNESS_PERL}  = "./pugs";
 $ENV{PERL6LIB}      = join $Config{path_sep},
-        qw<ext/Test/lib blib6/lib $ENV{PERL6LIB}>;
+        qw<ext/Test/lib blib6/lib>, $ENV{PERL6LIB};
 
 sub make { return `$Config{make} @_` };
 my $dev_null = File::Spec->devnull;
