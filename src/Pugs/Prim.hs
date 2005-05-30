@@ -919,7 +919,7 @@ op3 "rindex" = \x y z -> do
 
 op3 "splice" = \x y z -> do
     op4 "splice" x y z (VList [])
-op3 "new" = \t n _ -> do
+op3 "Any::new" = \t n _ -> do
     typ     <- fromVal t
     named   <- fromVal n
     attrs   <- liftSTM $ newTVar Map.empty
@@ -1500,7 +1500,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Int       pre     sign    safe   (Num)\
 \\n   Bool      pre     kill    safe   (Thread)\
 \\n   Int       pre     kill    unsafe (Int, List)\
-\\n   Object    pre     new     safe   (Object: Named)\
+\\n   Object    pre     Any::new     safe   (Any: Named)\
 \\n   Object    pre     BUILDALL   safe   (Object)\
 \\n   Object    pre     DESTROYALL safe   (Object)\
 \\n   Object    pre     clone   safe   (Any)\

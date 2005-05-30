@@ -265,7 +265,7 @@ rulePackageHead = do
     a       <- option "" $ ruleAuthorPart
     whiteSpace
     traits  <- many $ ruleTrait
-    unsafeEvalExp (newClass name traits)
+    unsafeEvalExp (newClass name $ nub ("Object":traits))
     return (name, v, a)
 
 ruleSubDeclaration :: RuleParser Exp

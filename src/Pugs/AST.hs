@@ -147,7 +147,7 @@ isEmptyParams _ = False
 newClass :: String -> [String] -> Exp
 newClass name traits = Sym SGlobal (':':'*':name) $ Syn ":="
     [ Var (':':'*':name)
-    , App (Var "&new")
+    , App (Var "&Any::new")
         (Just $ Val (VType $ mkType "Class"))
         [ App (Var "&infix:=>") Nothing
             [ Val (VStr "traits")
