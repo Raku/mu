@@ -9,7 +9,7 @@ Tests for Synopsis 6
 
 =cut
 
-plan 16;
+plan 18;
 
 sub foobar ($var) {
     return $var;
@@ -88,7 +88,8 @@ sub argShifter (@a) {
 
 #fail("FIXME parsefail", :todo); # actually exe fail...
 #is eval 'argShifter(3..5)', 3, "use shift on an array argument";
-eval_is 'argShifter(3..5)', 3, "use shift on an array argument", :todo;
+eval_is 'argShifter(1)', 1,    "use shift on an array argument";
+eval_is 'argShifter(3..5)', 3, "use shift on multiple array arguments", :todo<bug>;
 
 eval 'sub unpack_array ([$first, *@rest]) { return $first; }';
 
