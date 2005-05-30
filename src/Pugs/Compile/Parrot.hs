@@ -270,6 +270,9 @@ instance Compile Exp where
     compile (App (Var ('&':method)) (Just (Var ('$':obj))) [arg]) = do
         lhsC <- askPMC
         compileWith (\tmp -> text lhsC <+> text "=" <+> varText ("$" ++ obj) <> text "." <> text ("'" ++ method ++ "'") <> parens tmp) arg
+    compile (App (Var ('&':method)) (Just (Var ('$':obj))) []) = do
+        lhsC <- askPMC
+        return $ text lhsC <+> text "=" <+> varText ("$" ++ obj) <> text "." <> text ("'" ++ method ++ "'") <> text "()"
     compile (App (Var ('&':name)) Nothing [arg]) = do
         lhsC <- askPMC
         compileWith (\tmp -> text lhsC <+> text "=" <+> text name <> parens tmp) arg
