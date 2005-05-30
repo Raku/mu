@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 58;
+plan 61;
 
 =pod
 
@@ -136,4 +136,15 @@ this test should be added too more.
     is(+%hash<key>, 4, 'it should now have 4 values in it');
     is(%hash<key>[3], 4, 'got the right value (which we just pushed onto the array)');    
 
+}
+
+{ # Hashref survive addition to an array.
+  my %h = qw(a 5 b 6);
+  my $hr = \%h;
+  my $a0 = [ \%h ,'extra' ];
+  my $a1 = [ \%h ];
+  my $a2 = [ $hr ];
+  is($a0.elems,2,'hash references should not get decomposed');
+  is($a1.elems,1,'hash references should not get decomposed');
+  is($a2.elems,1,'hash references should not get decomposed');
 }
