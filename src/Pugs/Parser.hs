@@ -386,8 +386,8 @@ ruleFormalParam = rule "formal parameter" $ do
     appTrait _      x = x -- error "unknown trait"
 
 ruleParamDefault :: Bool -> RuleParser Exp
-ruleParamDefault True  = return $ Val VUndef
-ruleParamDefault False = rule "default value" $ option (Val VUndef) $ do
+ruleParamDefault True  = return Noop
+ruleParamDefault False = rule "default value" $ option Noop $ do
     symbol "="
     parseLitOp
 
@@ -1292,7 +1292,7 @@ nameToParam name = MkParam
     , paramContext  = case name of
         -- "$_" -> CxtSlurpy $ typeOfSigil (head name)
         _    -> CxtItem   $ typeOfSigil (head name)
-    , paramDefault  = Val VUndef
+    , paramDefault  = Noop
     }
 
 maybeParensBool :: RuleParser a -> RuleParser (a, Bool)
