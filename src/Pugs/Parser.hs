@@ -479,11 +479,11 @@ ruleUsePackage = rule "use package" $ do
     let pkg = concat (intersperse "::" names)
     val <- unsafeEvalExp $
         if (map toLower author) == "-perl5"
-            then Stmts (Sym SGlobal (':':'*':pkg) (Syn ":=" [ Var (':':'*':pkg), App (Var "&require_perl5") Nothing [Val . VStr $ concat (intersperse "::" names)] ])) (Syn "env" [])
+            then Stmts (Sym SGlobal (':':'*':pkg) (Syn ":=" [ Var (':':'*':pkg), App (Var "&require_perl5") Nothing [Val $ VStr pkg] ])) (Syn "env" [])
             else App (Var "&use") Nothing [Val . VStr $ concat (intersperse "/" names) ++ ".pm"]
     option () $ try $ do
         imp <- ruleExpression
-        unsafeEvalExp $ App (Var "&import") (Just val) [imp]
+        unsafeEvalExp $ App (Var $ ('&':pkg) ++ "::import") (Just val) [imp]
         return ()
     case val of
         Val (VControl (ControlEnv env')) -> setState env'
