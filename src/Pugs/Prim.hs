@@ -114,7 +114,7 @@ op1 "chomp" = \x -> do
         else do
             writeRef ref $ VStr (init str)
             return $ VStr [last str]
-op1 "split" = op1Cast (castV . words)
+op1 "Str::split" = op1Cast (castV . words)
 op1 "lc" = op1Cast (VStr . map toLower)
 op1 "lcfirst" = op1StrFirst toLower
 op1 "uc" = op1Cast (VStr . map toUpper)
@@ -510,10 +510,10 @@ op1 "matches" = op1Cast (VList . matchSubPos)
 op1 "gather" = \v -> do
     evl <- asks envEval
     evl (Syn "gather" [Val v])
-op1 "name" = \v -> do
+op1 "Code::name" = \v -> do
     sub <- fromVal v
     return . castV $ subName sub
-op1 "arity" = \v -> do
+op1 "Code::arity" = \v -> do
     sub <- fromVal v
     return . castV . length $ subParams sub
 op1 "Thread::yield" = const $ do
@@ -788,7 +788,8 @@ op2 "exists" = \x y -> do
     fmap VBool (existsFromRef ref y)
 op2 "unshift" = op2Array array_unshift
 op2 "push" = op2Array array_push
-op2 "split"= op2Split
+op2 "split" = op2Split
+op2 "Scalar::split" = flip op2Split
 op2 "connect" = \x y -> do
     host <- fromVal x
     port <- fromVal y
@@ -861,7 +862,6 @@ op2 "print" = \x (VList ys) -> op1Print hPutStr (VList (x:ys))
 op2 other = \_ _ -> fail ("Unimplemented binaryOp: " ++ other)
 
 op2Split :: Val -> Val -> Eval Val
-op2Split x y@(VRule _) = op2Split y x
 op2Split x y = do
     val <- fromVal x
     str <- fromVal y
@@ -1403,10 +1403,11 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      pre     link    unsafe (Str, Str)\
 \\n   Int       pre     unlink  unsafe (List)\
 \\n   Str       pre     readlink unsafe (Str)\
-\\n   List      pre     split   safe   (Str)\
+\\n   List      pre     Scalar::split   safe   (Str)\
+\\n   List      pre     Scalar::split   safe   (Str: Str)\
+\\n   List      pre     Scalar::split   safe   (Str: Rule)\
 \\n   List      pre     split   safe   (Str, Str)\
 \\n   List      pre     split   safe   (Rule, Str)\
-\\n   List      pre     split   safe   (Str: Rule)\
 \\n   Str       spre    =       safe   (IO)\
 \\n   List      spre    =       safe   (IO)\
 \\n   Junction  list    |       safe   (Any|Junction)\
@@ -1489,8 +1490,6 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Object    pre     DESTROYALL safe   (Object)\
 \\n   Object    pre     clone   safe   (Any)\
 \\n   Object    pre     id      safe   (Any)\
-\\n   Str       pre     name    safe   (Code)\
-\\n   Int       pre     arity   safe   (Code)\
 \\n   Bool      pre     Thread::yield   safe   (Thread)\
 \\n   List      pre     Pugs::Internals::runInteractiveCommand  unsafe (Str)\
 \\n   Bool      pre     Pugs::Internals::hSetBinaryMode         unsafe (IO, Str)\
@@ -1498,5 +1497,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      pre     bool::true  safe   ()\
 \\n   Bool      pre     bool::false safe   ()\
 \\n   List      spre    prefix:[,]  safe   (List)\
+\\n   Str       pre     Code::name    safe   (Code:)\
+\\n   Int       pre     Code::arity   safe   (Code:)\
 \\n   Str       pre     Code::assoc safe   (Code:)\
 \\n"
