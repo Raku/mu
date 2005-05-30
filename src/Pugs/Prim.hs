@@ -42,6 +42,7 @@ import Pugs.Prim.List
 import Pugs.Prim.Numeric
 import Pugs.Prim.Lifts
 import Pugs.Prim.Eval
+import Pugs.Prim.Code
 
 -- |Implementation of 0-ary and variadic primitive operators and functions
 -- (including list ops).
@@ -522,6 +523,7 @@ op1 "BUILDALL" = op1WalkAll id "BUILD"
 op1 "DESTROYALL" = op1WalkAll reverse "DESTROY"
 -- [,] is a noop -- It simply returns the input list
 op1 "prefix:[,]" = return
+op1 "assoc" = op1Assoc
 op1 other   = \_ -> fail ("Unimplemented unaryOp: " ++ other)
 
 pkgParents :: VStr -> Eval [VStr]
@@ -1496,4 +1498,5 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      pre     bool::true  safe   ()\
 \\n   Bool      pre     bool::false safe   ()\
 \\n   List      spre    prefix:[,]  safe   (List)\
+\\n   Str       pre     assoc       safe   (Code:)\
 \\n"
