@@ -20,7 +20,7 @@ instance ScalarClass IScalar where
 instance ScalarClass IScalarLazy where
     scalar_iType = const $ mkType "Scalar::Lazy"
     scalar_fetch = return . maybe undef id
-    scalar_store d s = retConstError $ VStr $ show d
+    scalar_store d _ = retConstError $ VStr $ show d
     scalar_const = const Nothing
 
 instance ScalarClass IScalarCwd where
@@ -37,6 +37,6 @@ instance ScalarClass VScalar where
     scalar_iType = const $ mkType "Scalar::Const"
     scalar_fetch (VRef ref) = readRef ref
     scalar_fetch v = return v
-    scalar_store d s = retConstError d
+    scalar_store d _ = retConstError d
     scalar_const = Just
 
