@@ -3,7 +3,7 @@ use v6;
 
 use Test;
 
-plan( 12 );
+plan( 12 ); # was 13 in p5
 
 use_ok( 'Locale::KeyedText-0.1.1' ); # bug: says OK even if version part is wrong
 

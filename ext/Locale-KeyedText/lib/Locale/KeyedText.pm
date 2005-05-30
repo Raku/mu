@@ -85,7 +85,7 @@ method new( $class: Str $msg_key, Str ?%msg_vars ) returns Locale::KeyedText::Me
 #		$var_name ~~ m/^\w+$/ or return; # hash key never undef (?)
 	}
 
-#	return $class.SUPER::new( { msg_key => $msg_key, msg_vars => {%msg_vars} } );
+	return $class.SUPER::new( msg_key => $msg_key, msg_vars => %msg_vars );
 }
 
 ######################################################################
@@ -137,7 +137,7 @@ method new( $class: Str @set_names, Str @member_names ) returns Locale::KeyedTex
 #		$member_name.defined and $member_name ~~ m/^<[a-zA-Z0-9_:]>+$/ or return;
 	}
 
-#	return $class.SUPER::new( { tmpl_set_nms => @set_names, tmpl_mem_nms => @member_names } );
+	return $class.SUPER::new( tmpl_set_nms => @set_names, tmpl_mem_nms => @member_names );
 }
 
 ######################################################################
