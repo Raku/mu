@@ -18,13 +18,15 @@ import Language.Haskell.Pretty
 noLoc :: SrcLoc
 noLoc = SrcLoc "" 0 0
 
+{-
 class Show pugs => Compile pugs hs | pugs -> hs where
     compile :: pugs -> hs
+-}
 
 genPugs2, gen :: Eval Val
 genPugs2 = gen
-gen = do exp     <- asks envBody
-         glob    <- askGlobal
+gen = do _  <- asks envBody -- exp
+         _  <- askGlobal    -- glob
          let mod = (HsModule 
                     noLoc
                     (Module "MainCC")
