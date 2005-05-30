@@ -4,38 +4,38 @@ use v6;
 use Test;
 
 plan( 29 );
-skip_rest "skipping tests"; # for release
-exit;
+#skip_rest "skipping tests"; # for release
+#exit;
 
 use lib <t/lib ext/Locale-KeyedText/t/lib>;
 use t_LKT_Util;
 use Locale::KeyedText;
 
-t_LKT_Util.message( 'testing new_message() and Message object methods' );
+t_LKT_Util::message( 'testing new_message() and Message object methods' );
 
 my ($did, $should, $msg1);
 
-$did = t_LKT_Util.serialize( Locale::KeyedText.new_message() );
-$should = 'undef, ';
-is( $did, $should, "Locale::KeyedText.new_message() returns '$did'" );
+#$did = t_LKT_Util.serialize( Locale::KeyedText.new_message() );
+#$should = 'undef, ';
+#is( $did, $should, "Locale::KeyedText.new_message() returns '$did'" );
 
-$did = t_LKT_Util.serialize( Locale::KeyedText.new_message( undef ) );
+$did = t_LKT_Util::serialize( Locale::KeyedText.new_message( undef ) );
 $should = 'undef, ';
 is( $did, $should, "Locale::KeyedText.new_message( undef ) returns '$did'" );
 
-$did = t_LKT_Util.serialize( Locale::KeyedText.new_message( '' ) );
+$did = t_LKT_Util::serialize( Locale::KeyedText.new_message( '' ) );
 $should = 'undef, ';
 is( $did, $should, "Locale::KeyedText.new_message( '' ) returns '$did'" );
 
-$did = t_LKT_Util.serialize( Locale::KeyedText.new_message( '0 ' ) );
+$did = t_LKT_Util::serialize( Locale::KeyedText.new_message( '0 ' ) );
 $should = 'undef, ';
 is( $did, $should, "Locale::KeyedText.new_message( '0 ' ) returns '$did'" );
 
-$did = t_LKT_Util.serialize( Locale::KeyedText.new_message( 'x-' ) );
+$did = t_LKT_Util::serialize( Locale::KeyedText.new_message( 'x-' ) );
 $should = 'undef, ';
 is( $did, $should, "Locale::KeyedText.new_message( 'x-' ) returns '$did'" );
 
-$did = t_LKT_Util.serialize( Locale::KeyedText.new_message( 'x:' ) );
+$did = t_LKT_Util::serialize( Locale::KeyedText.new_message( 'x:' ) );
 $should = 'undef, ';
 is( $did, $should, "Locale::KeyedText.new_message( 'x:' ) returns '$did'" );
 
@@ -53,15 +53,15 @@ $did = $msg1.as_string();
 $should = 'zZ9: ';
 is( $did, $should, "on init msg1.as_string() returns '$did'" );
 
-$did = t_LKT_Util.serialize( Locale::KeyedText.new_message( 'foo', [] ) );
+$did = t_LKT_Util::serialize( Locale::KeyedText.new_message( 'foo', [] ) );
 $should = 'undef, ';
 is( $did, $should, "Locale::KeyedText.new_message( 'foo', [] ) returns '$did'" );
 
-$did = t_LKT_Util.serialize( Locale::KeyedText.new_message( 'foo', { ' '=>'g' } ) );
+$did = t_LKT_Util::serialize( Locale::KeyedText.new_message( 'foo', { ' '=>'g' } ) );
 $should = 'undef, ';
 is( $did, $should, "Locale::KeyedText.new_message( 'foo', { ' '=>'g' } ) returns '$did'" );
 
-$did = t_LKT_Util.serialize( Locale::KeyedText.new_message( 'foo', { ':'=>'g' } ) );
+$did = t_LKT_Util::serialize( Locale::KeyedText.new_message( 'foo', { ':'=>'g' } ) );
 $should = 'undef, ';
 is( $did, $should, "Locale::KeyedText.new_message( 'foo', { ':'=>'g' } ) returns '$did'" );
 
@@ -93,34 +93,34 @@ $did = $msg1.as_string();
 $should = 'foo: 0=1, bar=baz, c=-, y=0, z=';
 is( $did, $should, "on init msg1.as_string() returns '$did'" );
 
-$did = t_LKT_Util.serialize( $msg1.get_message_key() );
+$did = t_LKT_Util::serialize( $msg1.get_message_key() );
 $should = '\'foo\', ';
 is( $did, $should, "on init msg1.get_message_key() returns '$did'" );
 
-$did = t_LKT_Util.serialize( $msg1.get_message_variable() );
+$did = t_LKT_Util::serialize( $msg1.get_message_variable() );
 $should = 'undef, ';
 is( $did, $should, "on init msg1.get_message_variable() returns '$did'" );
 
-$did = t_LKT_Util.serialize( $msg1.get_message_variable( undef ) );
+$did = t_LKT_Util::serialize( $msg1.get_message_variable( undef ) );
 $should = 'undef, ';
 is( $did, $should, "on init msg1.get_message_variable( undef ) returns '$did'" );
 
-$did = t_LKT_Util.serialize( $msg1.get_message_variable( '' ) );
+$did = t_LKT_Util::serialize( $msg1.get_message_variable( '' ) );
 $should = 'undef, ';
 is( $did, $should, "on init msg1.get_message_variable( '' ) returns '$did'" );
 
-$did = t_LKT_Util.serialize( $msg1.get_message_variable( '0' ) );
+$did = t_LKT_Util::serialize( $msg1.get_message_variable( '0' ) );
 $should = '\'1\', ';
 is( $did, $should, "on init msg1.get_message_variable( '0' ) returns '$did'" );
 
-$did = t_LKT_Util.serialize( $msg1.get_message_variable( 'zzz' ) );
+$did = t_LKT_Util::serialize( $msg1.get_message_variable( 'zzz' ) );
 $should = 'undef, ';
 is( $did, $should, "on init msg1.get_message_variable( 'zzz' ) returns '$did'" );
 
-$did = t_LKT_Util.serialize( $msg1.get_message_variable( 'bar' ) );
+$did = t_LKT_Util::serialize( $msg1.get_message_variable( 'bar' ) );
 $should = '\'baz\', ';
 is( $did, $should, "on init msg1.get_message_variable( 'bar' ) returns '$did'" );
 
-$did = t_LKT_Util.serialize( $msg1.get_message_variables() );
+$did = t_LKT_Util::serialize( $msg1.get_message_variables() );
 $should = '{ \'0\' => \'1\', \'bar\' => \'baz\', \'c\' => \'-\', \'y\' => \'0\', \'z\' => \'\', }, ';
 is( $did, $should, "on init msg1.get_message_variables() returns '$did'" );

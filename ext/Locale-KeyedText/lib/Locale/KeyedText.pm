@@ -49,17 +49,17 @@ practical way of suggesting improvements to the standard version.
 ######################################################################
 ######################################################################
 
-class Locale::KeyedText-0.1.0 { # based on 5v1.04; to become 6v1.4.0 when fully functional
+class Locale::KeyedText-0.1.1 { # based on 5v1.04; to become 6v1.4.0 when fully functional
 	# could be a 'module' having 'sub' instead, since has no attributes
 
 ######################################################################
 
 method new_message( Str $msg_key, Str ?%msg_vars ) returns Locale::KeyedText::Message {
-	return Locale::KeyedText::Message.new( $msg_key, %msg_vars );
+	return ::Locale::KeyedText::Message.new( $msg_key, %msg_vars ); # expect no leading '::'
 }
 
 method new_translator( Str @set_names, Str @member_names ) returns Locale::KeyedText::Translator {
-	return Locale::KeyedText::Translator.new( @set_names, @member_names );
+	return ::Locale::KeyedText::Translator.new( @set_names, @member_names ); # expect no leading '::'
 }
 
 ######################################################################
@@ -78,12 +78,14 @@ class Locale::KeyedText::Message {
 
 method new( $class: Str $msg_key, Str ?%msg_vars ) returns Locale::KeyedText::Message {
 
-	$msg_key.defined and $msg_key ~~ m/^\w+$/ or return;
+	$msg_key.defined and $msg_key ~~ rx:perl5/^\w+$/ or return;
+#	$msg_key.defined and $msg_key ~~ m/^\w+$/ or return;
 	for %msg_vars.keys -> $var_name {
-		$var_name ~~ m/^\w+$/ or return; # hash key never undef (?)
+		$var_name ~~ rx:perl5/^\w+$/ or return; # hash key never undef (?)
+#		$var_name ~~ m/^\w+$/ or return; # hash key never undef (?)
 	}
 
-	return $class.bless( { msg_key => $msg_key, msg_vars => {%msg_vars} } );
+#	return $class.SUPER::new( { msg_key => $msg_key, msg_vars => {%msg_vars} } );
 }
 
 ######################################################################
@@ -106,10 +108,9 @@ method get_message_variables( $message: ) returns Hash of Str {
 method as_string( $message: ) returns Str {
 	# This method is intended for debugging use only.
 	return $message.:msg_key~': '~$message.:msg_vars.pairs.sort
-		.map:{ .key~'='~(.value || '') }.join( ', ' ); # S02 says sorting Pairs sorts keys by default.
-		# (.value // '')
+		.map:{ .key~'='~(.value // '') }.join( ', ' ); # S02 says sorting Pairs sorts keys by default.
 	# we expect that .map will be invoked off of the list that .sort returns
-	# I might use %hash.as() later, but don't know if it is customizable to sort or make undefs the empty str.
+	# I might use Hash.as() later, but don't know if it is customizable to sort or make undefs the empty str.
 }
 
 ######################################################################
@@ -128,13 +129,15 @@ class Locale::KeyedText::Translator {
 method new( $class: Str @set_names, Str @member_names ) returns Locale::KeyedText::Translator {
 
 	for @set_names -> $set_name {
-		$set_name.defined and $set_name ~~ m/^<[a-zA-Z0-9_:]>+$/ or return;
+		$set_name.defined and $set_name ~~ rx:perl5/^[a-zA-Z0-9_:]+$/ or return;
+#		$set_name.defined and $set_name ~~ m/^<[a-zA-Z0-9_:]>+$/ or return;
 	}
 	for @member_names -> $member_name {
-		$member_name.defined and $member_name ~~ m/^<[a-zA-Z0-9_:]>+$/ or return;
+		$member_name.defined and $member_name ~~ rx:perl5/^[a-zA-Z0-9_:]+$/ or return;
+#		$member_name.defined and $member_name ~~ m/^<[a-zA-Z0-9_:]>+$/ or return;
 	}
 
-	return $class.bless( { tmpl_set_nms => @set_names, tmpl_mem_nms => @member_names } );
+#	return $class.SUPER::new( { tmpl_set_nms => @set_names, tmpl_mem_nms => @member_names } );
 }
 
 ######################################################################
@@ -170,7 +173,8 @@ method translate_message( $translator: Locale::KeyedText::Message $message ) ret
 #			$text or next SET;
 #			for $message.:msg_vars.kv -> $var_name, $var_value {
 #				$var_value //= '';
-#				$text ~~ s:g/\{$var_name\}/$var_value/; # assumes msg props cleaned on input
+#				$text ~~ rx:perl5:g/\{$var_name\}/$var_value/; # assumes msg props cleaned on input
+##				$text ~~ s:g/\{$var_name\}/$var_value/; # assumes msg props cleaned on input
 #			}
 #			last MEMBER;
 #		}
@@ -182,8 +186,8 @@ method translate_message( $translator: Locale::KeyedText::Message $message ) ret
 
 method as_string( $translator: ) returns Str {
 	# This method is intended for debugging use only.
-	return 'SETS: '~$translator.:tmpl_set_nms.as( '%s', ', ' )~'; MEMBERS: '~
-		$translator.:tmpl_mem_nms.as( '%s', ', ' );
+	return 'SETS: '~$translator.:tmpl_set_nms.join( ', ' )~'; MEMBERS: '~$translator.:tmpl_mem_nms.join( ', ' );
+	# Might use Array.as() later on.
 }
 
 ######################################################################

@@ -4,30 +4,30 @@ use v6;
 use Test;
 
 plan( 34 );
-skip_rest "skipping tests"; # for release
-exit;
+#skip_rest "skipping tests"; # for release
+#exit;
 
 use lib <t/lib ext/Locale-KeyedText/t/lib>;
 use t_LKT_Util;
 use Locale::KeyedText;
 
-t_LKT_Util.message( 'testing new_translator() and most Translator object methods' );
+t_LKT_Util::message( 'testing new_translator() and most Translator object methods' );
 
 my ($did, $should, $trn1);
 
-$did = t_LKT_Util.serialize( Locale::KeyedText.new_translator() );
-$should = 'undef, ';
-is( $did, $should, "Locale::KeyedText.new_translator() returns '$did'" );
+#$did = t_LKT_Util::serialize( Locale::KeyedText.new_translator() );
+#$should = 'undef, ';
+#is( $did, $should, "Locale::KeyedText.new_translator() returns '$did'" );
 
-$did = t_LKT_Util.serialize( Locale::KeyedText.new_translator( undef, undef ) );
+$did = t_LKT_Util::serialize( Locale::KeyedText.new_translator( undef, undef ) );
 $should = 'undef, ';
 is( $did, $should, "Locale::KeyedText.new_translator( undef, undef ) returns '$did'" );
 
-$did = t_LKT_Util.serialize( Locale::KeyedText.new_translator( [], undef ) );
+$did = t_LKT_Util::serialize( Locale::KeyedText.new_translator( [], undef ) );
 $should = 'undef, ';
 is( $did, $should, "Locale::KeyedText.new_translator( [], undef ) returns '$did'" );
 
-$did = t_LKT_Util.serialize( Locale::KeyedText.new_translator( undef, [] ) );
+$did = t_LKT_Util::serialize( Locale::KeyedText.new_translator( undef, [] ) );
 $should = 'undef, ';
 is( $did, $should, "Locale::KeyedText.new_translator( undef, [] ) returns '$did'" );
 
@@ -38,15 +38,15 @@ $did = $trn1.as_string();
 $should = 'SETS: ; MEMBERS: ';
 is( $did, $should, "on init trn1.as_string() returns '$did'" );
 
-$did = t_LKT_Util.serialize( Locale::KeyedText.new_translator( '', [] ) );
+$did = t_LKT_Util::serialize( Locale::KeyedText.new_translator( '', [] ) );
 $should = 'undef, ';
 is( $did, $should, "Locale::KeyedText.new_translator( '', [] ) returns '$did'" );
 
-$did = t_LKT_Util.serialize( Locale::KeyedText.new_translator( '0 ', [] ) );
+$did = t_LKT_Util::serialize( Locale::KeyedText.new_translator( '0 ', [] ) );
 $should = 'undef, ';
 is( $did, $should, "Locale::KeyedText.new_translator( '0 ', [] ) returns '$did'" );
 
-$did = t_LKT_Util.serialize( Locale::KeyedText.new_translator( 'x-', [] ) );
+$did = t_LKT_Util::serialize( Locale::KeyedText.new_translator( 'x-', [] ) );
 $should = 'undef, ';
 is( $did, $should, "Locale::KeyedText.new_translator( 'x-', [] ) returns '$did'" );
 
@@ -78,15 +78,15 @@ $did = $trn1.as_string();
 $should = 'SETS: zZ9, aaa; MEMBERS: ';
 is( $did, $should, "on init trn1.as_string() returns '$did'" );
 
-$did = t_LKT_Util.serialize( Locale::KeyedText.new_translator( [], '' ) );
+$did = t_LKT_Util::serialize( Locale::KeyedText.new_translator( [], '' ) );
 $should = 'undef, ';
 is( $did, $should, "Locale::KeyedText.new_translator( [], '' ) returns '$did'" );
 
-$did = t_LKT_Util.serialize( Locale::KeyedText.new_translator( [], '0 ' ) );
+$did = t_LKT_Util::serialize( Locale::KeyedText.new_translator( [], '0 ' ) );
 $should = 'undef, ';
 is( $did, $should, "Locale::KeyedText.new_translator( [], '0 ' ) returns '$did'" );
 
-$did = t_LKT_Util.serialize( Locale::KeyedText.new_translator( [], 'x-' ) );
+$did = t_LKT_Util::serialize( Locale::KeyedText.new_translator( [], 'x-' ) );
 $should = 'undef, ';
 is( $did, $should, "Locale::KeyedText.new_translator( [], 'x-' ) returns '$did'" );
 
@@ -125,11 +125,11 @@ $did = $trn1.as_string();
 $should = 'SETS: goo, har; MEMBERS: wer, thr';
 is( $did, $should, "on init trn1.as_string() returns '$did'" );
 
-$did = t_LKT_Util.serialize( $trn1.get_template_set_names() );
+$did = t_LKT_Util::serialize( $trn1.get_template_set_names() );
 $should = '[ \'goo\', \'har\', ], ';
 is( $did, $should, "on init trn1.get_template_set_names() returns '$did'" );
 
-$did = t_LKT_Util.serialize( $trn1.get_template_member_names() );
+$did = t_LKT_Util::serialize( $trn1.get_template_member_names() );
 $should = '[ \'wer\', \'thr\', ], ';
 is( $did, $should, "on init trn1.get_template_member_names() returns '$did'" );
 

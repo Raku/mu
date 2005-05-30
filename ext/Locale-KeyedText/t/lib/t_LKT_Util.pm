@@ -15,17 +15,17 @@ sub message( Str $detail ) {
 ######################################################################
 
 sub serialize( Any $input ) returns Str {
-	return (
-		$input.meta.isa(Hash) ?? 
+	return [
+		$input.does(Hash) ?? 
 			( '{ ', ( $input.pairs.sort.map:{ serialize( $_ ) } ), '}, ' ) 
-		:: $input.meta.isa(Array) ?? 
+		:: $input.does(Array) ?? 
 			( '[ ', ( $input.map:{ serialize( $_ ) } ), '], ' ) 
-		:: $input.meta.isa(Pair) ?? 
+		:: $input.does(Pair) ?? 
 			'\''~$input.key~'\' => \''~$input.value~'\', '
 		:: $input.defined ??
 			'\''~$input~'\', '
 		:: 'undef, '
-	).join( '' );
+	].join( '' );
 }
 
 ######################################################################
