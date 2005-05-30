@@ -662,7 +662,11 @@ ruleForConstruct = rule "for construct" $ do
 ruleLoopConstruct :: RuleParser Exp
 ruleLoopConstruct = rule "loop construct" $ do
     symbol "loop"
-    conds <- option [] $ maybeParens $ try $ do
+    tryChoice [ ruleSemiLoopConstruct, rulePostLoopConstruct ]
+
+ruleSemiLoopConstruct :: RuleParser Exp
+ruleSemiLoopConstruct = rule "for-like loop construct" $ do
+    conds <- maybeParens $ try $ do
         a <- option emptyExp ruleExpression
         symbol ";"
         b <- option emptyExp ruleExpression
@@ -670,8 +674,15 @@ ruleLoopConstruct = rule "loop construct" $ do
         c <- option emptyExp ruleExpression
         return [a,b,c]
     block <- ruleBlock
-    -- XXX while/until
     retSyn "loop" (conds ++ [block])
+
+rulePostLoopConstruct :: RuleParser Exp
+rulePostLoopConstruct = rule "postfix loop construct" $ do
+    block <- ruleBlock
+    option (Syn "loop" [block]) $ do
+        name <- choice [ symbol "while", symbol "until" ]
+        cond <- ruleExpression
+        retSyn ("post" ++ name) [cond, block]
 
 ruleCondConstruct :: RuleParser Exp
 ruleCondConstruct = rule "conditional construct" $ do

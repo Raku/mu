@@ -457,8 +457,10 @@ reduce exp@(Syn name exps) = case name of
         break  <- evalVar "&?BLOCK_EXIT"
         vbreak <- fromVal break
         enterWhen (subBody vbreak) $ apply vbreak Nothing [body]
-    "while" -> doWhileUntil id
-    "until" -> doWhileUntil not
+    "while" -> doWhileUntil id False
+    "until" -> doWhileUntil not False
+    "postwhile" -> doWhileUntil id True
+    "postuntil" -> doWhileUntil not True
     "=" -> do
         let [lhs, rhs] = exps
         refVal  <- enterLValue $ evalExp lhs
@@ -676,10 +678,14 @@ reduce exp@(Syn name exps) = case name of
             then reduce bodyIf
             else reduce bodyElse
     -- XXX This treatment of while/until loops probably needs work
-    doWhileUntil :: (Bool -> Bool) -> Eval Val
-    doWhileUntil f = do
+    doWhileUntil :: (Bool -> Bool) -> Bool -> Eval Val
+    doWhileUntil f postloop = do
         let [cond, body] = exps
         enterWhile . fix $ \runLoop -> do
+            -- XXX redo for initial run
+            if postloop
+                then reduce body
+                else retEmpty
             vbool <- enterEvalContext (cxtItem "Bool") cond
             vb    <- fromVal vbool
             case f vb of
