@@ -11,7 +11,7 @@ L<S04/"The general loop statement">
 
 =cut
 
-plan 12;
+plan 13;
 
 # basic loop
 
@@ -75,11 +75,13 @@ L<S04/"Loop statements">
 =cut
 
 {
-  my $x=0;
-  eval_is('loop { $x++ } while $x < 10; $x', 10, 'loop {} while', :todo<feature>);
+  eval_is('my $x = 0; loop { $x++ } while $x < 10; $x', 10, 'loop {} while');
 }
 
 {
-  my $x = 1;
-  eval_is('loop { $x++ } while false; $x', 2, 'ensure loop {} while runs at least once', :todo<feature>);
+  eval_is('my $x = 1; loop { $x++ } while 0; $x', 2, 'ensure loop {} while runs at least once');
+}
+
+{
+  eval_is('my $x = 0; loop { $x++; redo if $x < 10 } while 0; $x', '$x', 'redo works in loop');
 }
