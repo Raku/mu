@@ -44,18 +44,10 @@ is( $skip_test.report(), 'not ok 1 #skip reason for skipping',
 
 my %status = $skip_test.status();
 
-is( +( keys %status ), 4, 'status() should return a hash',
-    :todo<feature> );
+is( +( keys %status ), 4, 'status() should return a hash'              );
+is( %status<passed>,   1, '... with a passed key set to true'          );
+is( %status<skip>,     1, '... a skip key set to true'                 );
 
-is( %status<passed>,   1, '... with a passed key set to true',
-    :todo<feature> );
-
+is( %status<reason>,      'reason for skipping', '... the skip reason' );
 is( %status<description>, 'first test description',
-    '... the correct test description',
-    :todo<feature> );
-
-is( %status<skip>,     1, '... a skip key set to true',
-    :todo<feature> );
-
-is( %status<reason>, 'reason for skipping', '... and the skip reason',
-    :todo<feature> );
+    '... and the correct test description'                             );

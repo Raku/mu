@@ -71,7 +71,6 @@ role Test::Builder::Test::WithReason does Test::Builder::Test::Base
     method status returns Hash ( $self: )
     {
         my $status        = $self.SUPER::status();
-        $status{"skip"}   = 1;
         $status{"reason"} = $.reason;
         return $status;
     }
