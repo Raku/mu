@@ -469,7 +469,9 @@ op1 "value" = \v -> do
     return . VRef . MkRef $ ivar
 op1 "pairs" = \v -> do
     pairs <- pairsFromVal v
-    return $ VList pairs
+    ifListContext
+        (return . VList $ pairs)
+        (return . VRef $ arrayRef pairs)
 op1 "kv" = \v -> do
     pairs <- pairsFromVal v
     kvs   <- forM pairs $ \(VRef ref) -> do
