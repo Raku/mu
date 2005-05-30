@@ -1,0 +1,154 @@
+
+                  Pugs: Bootstrapping Perl 6 with Haskell
+                                Autrijus Tang
+                            Haskell Workshop 2005
+                  (Applications, Practice, and Experience)
+
+== Abstract ==
+
+Perl is a general-purpose language, known for its vast number of freely
+available extension libraries.  The Perl 6 project was started in 2000
+to create a more robust runtime environment, and improve the language's
+support for multi-paradigm programming.  However, attempts at producing a
+concrete implementation failed to materialise in the first 4 years.
+
+This paper presents Pugs, a working implementation of Perl 6, written in
+Haskell.  We review the challenges posed by Perl 6's unusual execution model,
+and how Pugs tackles them using features found in GHC, such as
+Template Haskell, Software Transactional Memory, and GADTs.
+
+Moreover, we demonstrate how Pugs uses Haskell's FFI to embed Perl 5, Parrot
+and Haskell within Perl 6 programs, and how it mediates the execution context
+between these runtime systems.
+
+Finally, we discuss Parrot, a register-based virtual machine designated as
+Perl 6's primary runtime.  We show how Pugs can evolve from an interpreter
+to a compiler targeting Parrot, with a design based on metacomputational
+monads.
+
+== Categories and Subject Descriptors ==
+
+D.3.m [Programming Languages]: Miscellaneous
+
+== General Terms ==
+
+Design, Languages
+
+== Keywords ==
+
+Perl, Haskell
+
+---------------------------------------------------------------------------
+
+1. Introduction
+
+...field report on applying techniques in a real-world setting...
+
+---------------------------------------------------------------------------
+
+2. Overview of the Perl 6 Project
+
+...cultural context...
+
+2.1. Historical Background
+
+...problems of perl 5...
+
+2.2. Design Goals
+
+...self-hosting, multi-paradigm, rules...
+
+2.3. Language Interoperability
+
+...comparison with clr/jvm...
+
+---------------------------------------------------------------------------
+
+3. Pugs the Interpreter
+
+...how pugs started...
+
+3.1. The Eval Monad
+
+...basic types, CALLER::, OUTER::, coro, delayed evaluation...
+
+3.2. Compile-time Evaluation
+
+...BEGIN, rebindable rules, macros...
+
+3.3. Introspection
+
+...OO metamodel, profiling, reified AST...
+
+---------------------------------------------------------------------------
+
+4. Experimental Features 
+
+...GHC's peculiarities that helped Pugs development...
+
+4.1. "Tied" Variables with GADT
+
+...ITypes/IVar, VRef, VOpaque...
+
+4.2. Composable Concurrency
+
+...SIO, liftSTM/liftIO, atomic{}...
+
+4.3. Reified Subcontinuations
+
+...CC_2CPST, Zipper, resumable runEvalIO...
+
+---------------------------------------------------------------------------
+
+5. Embedded Languages
+
+...migration issues...
+
+5.1. Perl 5
+
+...callconv, context passing, XS stack handling...
+
+5.2. Haskell
+
+...hs-plugins, externalizeHaskell, class Value...
+
+5.3. Parrot
+
+...PIR overview, compreg, cross-lang interop...
+
+---------------------------------------------------------------------------
+
+6. Compiling Perl 6
+
+...mixed notion of compile/runtime...
+
+6.1. Metacomputational Compilation
+
+...partial evaluation, Static/Dynam monads...
+
+6.2. Targeting Parrot
+
+...optimization, unboxing, helper PMCs...
+
+6.3. Other Backends
+
+...generating haskell with TH, ANF/SSA...
+
+---------------------------------------------------------------------------
+
+7. Conclusion and Future Work
+
+...porting pugs to perl 6, compiling Haskell to PIR...
+
+---------------------------------------------------------------------------
+
+8. Acknowledgments
+
+...thank some 100+ contributors here...
+
+---------------------------------------------------------------------------
+
+== References ==
+
+...lots and lots of papers...
+
