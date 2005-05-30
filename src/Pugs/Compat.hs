@@ -86,6 +86,7 @@ import Foreign.C.String
 import Foreign.Ptr
 import Foreign.C.Types
 import Data.Ratio
+import Data.Typeable
 
 failWith :: (Monad m) => String -> m a
 failWith s = fail $ "'" ++ s ++ "' not implemented on this platform."
