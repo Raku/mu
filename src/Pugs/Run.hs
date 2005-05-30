@@ -14,6 +14,7 @@ import Pugs.Run.Args
 import Pugs.Run.Perl5 ()
 import Pugs.Internals
 import Pugs.Config
+import Pugs.Context
 import Pugs.AST
 import Pugs.Types
 import Pugs.Eval
@@ -92,6 +93,7 @@ prepareEnv name args = do
     errSV   <- newScalar (VStr "")
     defSV   <- newScalar undef
     autoSV  <- newScalar undef
+    classes <- initClassObjects [] initTree
 #if defined(PUGS_HAVE_HSPLUGINS)
     hspluginsSV <- newScalar (VInt 1)
 #else
@@ -137,11 +139,27 @@ prepareEnv name args = do
         , genSym "%?CONFIG" $ hideInSafemode $ hashRef confHV
         , genSym "$*_" $ MkRef defSV
         , genSym "$*AUTOLOAD" $ MkRef autoSV
-        ]
+        ] ++ classes
     initPerl5 "" (Just . VControl $ ControlEnv env{ envDebug = Nothing })
     return env
     where
     hideInSafemode x = if safeMode then MkRef $ constScalar undef else x
+
+initClassObjects :: [Type] -> ClassTree -> IO [STM (Pad -> Pad)]
+initClassObjects parent (Node typ children) = do
+    uniq    <- newUnique
+    attrs   <- liftSTM . newTVar $ Map.fromList
+        [ ("name",   lazyScalar $ castV $ showType typ)
+        , ("traits", lazyScalar $ castV $ map showType parent)
+        ]
+    obj     <- newScalar . VObject $ MkObject
+        { objType   = mkType "Class"
+        , objId     = uniq
+        , objAttrs  = attrs
+        }
+    rest    <- mapM (initClassObjects [typ]) children
+    let sym = genSym (':':'*':showType typ) $ MkRef obj
+    return (sym:concat rest)
 
 {-|
 Combine @%*ENV\<PERL6LIB\>@, -I, 'Pugs.Config.config' values and \".\" into
