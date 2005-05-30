@@ -294,14 +294,15 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
             , subType       = styp
             , subAssoc      = "pre"
             , subReturns    = mkType typ''
-            , subLValue     = False -- XXX "is rw"
+            , subLValue     = "rw" `elem` traits
             , subParams     = self ++ params
             , subBindings   = []
             , subSlurpLimit = []
             , subBody       = fun
             , subCont       = Nothing
             }
-        name' = "&" ++ envPackage env ++ "::" ++ tail name
+        pkg = envPackage env
+        name' = (head name:pkg) ++ "::" ++ tail name
         self :: [Param]
         self | styp > SubMethod = []
              | (prm:_) <- params, isInvocant prm = []
@@ -309,7 +310,8 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
         exp  = Syn ":=" [Var name, Syn "sub" [subExp]]
         exp' = Syn ":=" [Var name', Syn "sub" [subExp]]
     case scope of
-        SGlobal | "export" `elem` traits -> do
+        -- XXX FIXME - the "main" here is a horrible hack
+        SGlobal | pkg == "main" || "export" `elem` traits -> do
             unsafeEvalExp (Sym scope name exp)
             unsafeEvalExp (Sym scope name' exp')
             return emptyExp
