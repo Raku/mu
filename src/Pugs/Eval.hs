@@ -851,6 +851,7 @@ findSub name' invs args = do
             findTypedSub typ name
         _ -> findBuiltinSub name
     where
+    findSuperSub :: Type -> String -> Eval (Maybe VCode)
     findSuperSub typ name = do
         let pkg = showType typ
             qualified = (head name:pkg) ++ "::" ++ tail name
@@ -859,12 +860,15 @@ findSub name' invs args = do
         case subs' of
             Just sub | subName sub == qualified -> return Nothing
             _   -> return subs'
+    findTypedSub :: Type -> String -> Eval (Maybe VCode)
     findTypedSub typ name = do
         subs    <- findWithPkg (showType typ) name
         if isJust subs then return subs else findBuiltinSub name
+    findBuiltinSub :: String -> Eval (Maybe VCode)
     findBuiltinSub name = do
         sub <- findSub' name
         if isNothing sub then possiblyBuildMetaopVCode name else return sub
+    evalInvType :: Exp -> Eval Type
     evalInvType x@(Var (':':typ)) = do
         typ' <- evalExpType x
         return $ if typ' == mkType "Scalar::Perl5" then typ' else mkType typ
@@ -874,6 +878,7 @@ findSub name' invs args = do
         typ <- evalInvType $ unwrap inv
         if typ == mkType "Scalar::Perl5" then return typ else evalExpType x
     evalInvType x = evalExpType $ unwrap x
+    runPerl5Sub :: String -> Eval (Maybe VCode)
     runPerl5Sub name = do
         metaSub <- possiblyBuildMetaopVCode name
         if isJust metaSub then return metaSub else do
@@ -896,6 +901,7 @@ findSub name' invs args = do
                     callPerl5 subSV sv svs envSV (enumCxt $ envContext env)
                 return $ PerlSV rv
             }
+    possiblyBuildMetaopVCode :: String -> Eval (Maybe VCode)
     possiblyBuildMetaopVCode op' | "&prefix:[" `isPrefixOf` op', "]" `isSuffixOf` op' = do 
         -- Strip the trailing "]" from op
         let op = drop 9 (init op')
@@ -970,10 +976,12 @@ findSub name' invs args = do
             meta    <- readRef ref
             fetch   <- doHash meta hash_fetchVal
             fromVal =<< fetch "traits"
+    findWithPkg :: String -> String -> Eval (Maybe VCode)
     findWithPkg pkg name = do
         subs <- findSub' (('&':pkg) ++ "::" ++ tail name)
         if isJust subs then return subs else do
         findWithSuper pkg name
+    findWithSuper :: String -> String -> Eval (Maybe VCode)
     findWithSuper pkg name = do
         -- get superclasses
         attrs <- fmap (fmap (filter (/= pkg) . nub)) $ findAttrs pkg
@@ -982,10 +990,12 @@ findSub name' invs args = do
             if null pkgs then return Nothing else do
             subs <- findWithPkg (head pkgs) name
             if isJust subs then return subs else run (tail pkgs)
+    findSub' :: String -> Eval (Maybe VCode)
     findSub' name = do
         subSyms     <- findSyms name
         lens        <- mapM argSlurpLen (unwrap $ maybeToList invs ++ args)
         doFindSub (sum lens) subSyms
+    argSlurpLen :: Exp -> Eval Int
     argSlurpLen (Val listMVal) = do
         listVal  <- fromVal listMVal
         return $ length (vCast listVal :: [Val])
@@ -995,6 +1005,7 @@ findSub name' invs args = do
         return $ length (vCast listVal :: [Val])
     argSlurpLen (Syn "," list) =  return $ length list
     argSlurpLen _ = return 1 -- XXX
+    doFindSub :: Int -> [(String, Val)] -> Eval (Maybe VCode)
     doFindSub slurpLen subSyms = do
         subs' <- subs slurpLen subSyms
         -- let foo (x, sub) = show x ++ show (map paramContext $ subParams sub)
@@ -1002,6 +1013,7 @@ findSub name' invs args = do
         return $ case sort subs' of
             ((_, sub):_)    -> Just sub
             _               -> Nothing
+    subs :: Int -> [(String, Val)] -> Eval [((Bool, SubType, Bool, Bool, Int, Int), VCode)]
     subs slurpLen subSyms = (liftM catMaybes) $ (`mapM` subSyms) $ \(n, val) -> do
         sub@(MkCode{ subType = subT, subReturns = ret, subParams = prms }) <- fromVal val
         let isGlobal = '*' `elem` n
@@ -1014,6 +1026,7 @@ findSub name' invs args = do
             deltaArgs   <- mapM deltaFromPair pairs
             let bound = either (const False) (const True) $ bindParams sub invs args
             return ((isGlobal, subT, isMulti sub, bound, sum deltaArgs, deltaCxt), fun)
+    deltaFromCxt :: Type -> Eval Int
     deltaFromCxt x  = do
         cls <- asks envClasses
         cxt <- asks envContext
