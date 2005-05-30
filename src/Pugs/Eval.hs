@@ -711,7 +711,7 @@ reduce (App (Var "&zip") invs args) = do
     val  <- op0Zip vals
     retVal val
 
--- XXX absolutely evil bloody hack for "goto"
+-- XXX absolutely evil bloody hack for "not"
 reduce (App (Var "&not") Nothing []) = retEmpty
 
 reduce (App (Var "&not") invs args) = do

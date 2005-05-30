@@ -1109,7 +1109,7 @@ instance MonadCont EvalMonad where
     -- callCC :: ((a -> Eval b) -> Eval a) -> Eval a
     callCC f = EvalT . callCCT $ \c -> runEvalT . f $ \a -> EvalT $ c a
 
-class (MonadReader Env m, MonadCont m, MonadIO m, MonadSTM m) => MonadEval m where
+class (MonadReader Env m, MonadCont m, MonadIO m, MonadSTM m) => MonadEval m
 --     askGlobal :: m Pad
 
 {-|

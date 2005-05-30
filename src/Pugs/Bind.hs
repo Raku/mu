@@ -179,13 +179,13 @@ Note that while 'bindParams' produces values /representing/ the bindings from
 params to args, it does not actually introduce any symbols--that occurs later
 on in the call process.
 -}
-bindParams :: VCode -- ^ A code object to perform bindings on
-           -> (Maybe Exp) -- ^ List of invocants to bind
-           -> [Exp] -- ^ List of arguments (actual params) to bind
+bindParams :: VCode       -- ^ A code object to perform bindings on
+           -> (Maybe Exp) -- ^ (Optional) explicit invocant
+           -> [Exp]       -- ^ List of arguments (actual params) to bind
            -> MaybeError VCode -- ^ Returns either a new 'VCode' with all the
                                --     bindings in place, or an error message
-bindParams sub invsExp argsExp = do
-    case bindSomeParams sub invsExp argsExp of
+bindParams sub invExp argsExp = do
+    case bindSomeParams sub invExp argsExp of
         Left errMsg -> Left errMsg
         Right boundSub -> finalizeBindings boundSub
 
@@ -230,19 +230,19 @@ Take a code object and lists of invocants and arguments, and produce (if
 possible) a new 'VCode' value representing the same code object, with as many
 parameters bound as possible (using the given invocants and args).
 -}
-bindSomeParams :: VCode -- ^ Code object to perform bindings on
-               -> (Maybe Exp) -- ^ List of invocant expressions
-               -> [Exp] -- ^ List of argument expressions
+bindSomeParams :: VCode       -- ^ Code object to perform bindings on
+               -> (Maybe Exp) -- ^ Explicit invocant expression
+               -> [Exp]       -- ^ List of argument expressions
                -> MaybeError VCode -- ^ A new 'VCode' structure, augmented
                                    --     with the new bindings
-bindSomeParams sub invsExp argsExp = do
+bindSomeParams sub invExp argsExp = do
     let params     = subParams sub
         bindings   = subBindings sub
         slurpLimit = subSlurpLimit sub
         (invPrms, argPrms) = span isInvocant params
         (givenInvs, givenArgs) = if null invPrms
-            then ([], (maybeToList invsExp++argsExp))
-            else (maybeToList invsExp, argsExp)
+            then ([], (maybeToList invExp++argsExp))
+            else (maybeToList invExp, argsExp)
 
     let boundInv                = invPrms `zip` givenInvs -- invocants are just bound, params to given
         (namedArgs, posArgs)    = partition isPair givenArgs -- pairs are named arguments, they go elsewhere
