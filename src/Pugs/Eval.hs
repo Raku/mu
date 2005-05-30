@@ -681,11 +681,11 @@ reduce exp@(Syn name exps) = case name of
     doWhileUntil :: (Bool -> Bool) -> Bool -> Eval Val
     doWhileUntil f postloop = do
         let [cond, body] = exps
+        -- XXX redo for initial run
+        if postloop
+            then reduce body
+            else retEmpty
         enterWhile . fix $ \runLoop -> do
-            -- XXX redo for initial run
-            if postloop
-                then reduce body
-                else retEmpty
             vbool <- enterEvalContext (cxtItem "Bool") cond
             vb    <- fromVal vbool
             case f vb of
