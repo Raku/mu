@@ -176,14 +176,14 @@ op1 "sort" = \v -> do
     case sortBy of
         Nothing -> do
             strs    <- mapM fromVal valList
-            return . VList . map snd . sort $ (strs :: [VStr]) `zip` valList
+            returnList . map snd . sort $ (strs :: [VStr]) `zip` valList
         Just subVal -> do
             sub <- fromVal subVal
             sorted <- (`sortByM` valList) $ \v1 v2 -> do
                 rv  <- enterEvalContext (cxtItem "Int") $ App (Val sub) Nothing [Val v1, Val v2]
                 int <- fromVal rv
                 return (int <= (0 :: Int))
-            return $ VList sorted
+            returnList sorted
 op1 "reverse" = \v -> do
     case v of
         (VRef _) -> do
@@ -469,9 +469,7 @@ op1 "value" = \v -> do
     return . VRef . MkRef $ ivar
 op1 "pairs" = \v -> do
     pairs <- pairsFromVal v
-    ifListContext
-        (return . VList $ pairs)
-        (return . VRef $ arrayRef pairs)
+    returnList pairs
 op1 "kv" = \v -> do
     pairs <- pairsFromVal v
     kvs   <- forM pairs $ \(VRef ref) -> do
@@ -546,6 +544,11 @@ op1 "Code::assoc" = op1CodeAssoc
 op1 "Code::name" = op1CodeName
 op1 "Code::arity" = op1CodeArity
 op1 other   = \_ -> fail ("Unimplemented unaryOp: " ++ other)
+
+returnList :: [Val] -> Eval Val
+returnList vals = ifListContext
+    (return . VRef $ arrayRef vals)
+    (return . VList $ vals)
 
 pkgParents :: VStr -> Eval [VStr]
 pkgParents pkg = do
