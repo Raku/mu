@@ -852,8 +852,13 @@ findSub name' invs args = do
         _ -> findBuiltinSub name
     where
     findSuperSub typ name = do
-        subs    <- findWithSuper (showType typ) name
-        if isJust subs then return subs else findBuiltinSub name
+        let pkg = showType typ
+            qualified = (head name:pkg) ++ "::" ++ tail name
+        subs    <- findWithSuper pkg name
+        subs'   <- if isJust subs then return subs else findBuiltinSub name
+        case subs' of
+            Just sub | subName sub == qualified -> return Nothing
+            _   -> return subs'
     findTypedSub typ name = do
         subs    <- findWithPkg (showType typ) name
         if isJust subs then return subs else findBuiltinSub name
@@ -971,8 +976,8 @@ findSub name' invs args = do
         findWithSuper pkg name
     findWithSuper pkg name = do
         -- get superclasses
-        attrs <- findAttrs pkg
-        if isNothing attrs then findSub' name else do
+        attrs <- fmap (fmap (filter (/= pkg) . nub)) $ findAttrs pkg
+        if isNothing attrs || null (fromJust attrs) then findSub' name else do
         (`fix` (fromJust attrs)) $ \run pkgs -> do
             if null pkgs then return Nothing else do
             subs <- findWithPkg (head pkgs) name
