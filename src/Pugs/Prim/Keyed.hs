@@ -15,6 +15,7 @@ import qualified Data.Map as Map
 import qualified Data.Set as Set
 
 pairsFromVal :: Val -> Eval [Val]
+pairsFromVal VUndef = return []
 pairsFromVal (PerlSV sv) = do
     keys    <- hash_fetchKeys sv
     return $ VList (map castV keys)
@@ -26,6 +27,7 @@ pairsFromVal v = do
     return vals
 
 keysFromVal :: Val -> Eval Val
+keysFromVal VUndef = return $ VList []
 keysFromVal (PerlSV sv) = do
     keys    <- hash_fetchKeys sv
     return $ VList (map castV keys)
@@ -36,6 +38,7 @@ keysFromVal (VRef ref) = do
 keysFromVal v = retError "Not a keyed reference" v
 
 valuesFromVal :: Val -> Eval Val
+valuesFromVal VUndef = return $ VList []
 valuesFromVal (VJunc j) = return . VList . Set.elems $ juncSet j
 valuesFromVal v@(VList _) = return v
 valuesFromVal (VRef ref) = do
