@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -cpp #-}
+{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -cpp #-}
 
 {-|
     POSIX calls and emulations.
@@ -37,6 +37,11 @@ module Pugs.Compat (
     executeFile,
     ProcessTimes(..),
     clocksPerSecond,
+    DirStream,
+    openDirStream,
+    readDirStream,
+    rewindDirStream,
+    closeDirStream,
 ) where
 
 import Foreign
@@ -46,10 +51,12 @@ import System.Posix.Types
 import System.Posix.Process
 import System.Posix.Env hiding (getEnvironment)
 import System.Posix.Files
+import System.Posix.Directory
 import System.Posix.User
 import System.Environment (getEnvironment)
 import Foreign.C.Types
 import Foreign.C.String
+import Data.Typeable
 import qualified System.Posix.Signals
 
 statFileSize :: FilePath -> IO Integer
@@ -63,6 +70,11 @@ signalProcess = System.Posix.Signals.signalProcess
 
 clocksPerSecond :: (Num a) => a
 clocksPerSecond = 1000000
+
+data DirStream_ deriving (Typeable)
+
+instance Typeable DirStream where
+    typeOf _ = typeOf (undefined :: DirStream_)
 
 #else
 
@@ -135,6 +147,20 @@ removeLink _ = warnWith "unlink"
 
 setFileMode :: FilePath -> FileMode -> IO ()
 setFileMode _ _ = warnWith "chmod"
+
+data DirStream deriving (Typeable)
+
+openDirStream :: FilePath -> IO DirStream
+openDirStream _ = failWith "opendir"
+
+readDirStream :: DirStream -> IO FilePath
+readDirStream _ = failWith "readdir"
+
+rewindDirStream :: DirStream -> IO ()
+rewindDirStream _ = failWith "rewinddir"
+
+closeDirStream :: DirStream -> IO ()
+closeDirStream _ = failWith "closedir"
 
 -- Win32 specific
 

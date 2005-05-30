@@ -132,6 +132,10 @@ instance Eq (a -> b) where
     _ == _ = False
 instance Ord (a -> b) where
     compare _ _ = LT
+instance Eq Dynamic where
+    _ == _ = False
+instance Ord Dynamic where
+    compare _ _ = LT
 
 internalError :: String -> a
 internalError s = error $

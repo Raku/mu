@@ -59,7 +59,7 @@ module Pugs.AST.Internals (
     buildParam, defaultArrayParam, defaultHashParam, defaultScalarParam,
     emptyExp,
     isSlurpy, envWant,
-    extract,
+    extract, fromObject, createObject,
     doPair, doHash, doArray,
     unwrap, -- Unwrap(..) -- not used in this file, suitable for factoring out
 ) where
@@ -218,6 +218,24 @@ class (Typeable n, Show n, Ord n) => Value n where
 errType :: (Typeable a) => a -> String
 errType x = show (typeOf x)
 
+createObject :: (MonadIO m) => VType -> [(VStr, Val)] -> m VObject
+createObject typ attrList = liftIO $ do
+    attrs   <- liftSTM . newTVar . Map.map lazyScalar $ Map.fromList attrList
+    uniq    <- newUnique
+    return $ MkObject
+        { objType   = typ
+        , objId     = uniq
+        , objAttrs  = attrs
+        , objOpaque = Nothing
+        }
+
+fromObject :: forall a. (Typeable a) => VObject -> a
+fromObject obj = case objOpaque obj of
+    Nothing     -> castFail obj
+    Just dyn    -> case fromDynamic dyn of
+        Nothing -> castFail obj
+        Just x  -> x
+
 castFailM :: forall a b. (Show a, Typeable b) => a -> Eval b
 castFailM v = fail $ "cannot cast from " ++ show v ++ " to " ++ errType (undefined :: b)
 
@@ -277,7 +295,8 @@ instance Value [(VStr, Val)] where
 instance Value VObject where
     fromVal (VObject o) = return o
     fromVal v@(VRef _) = fromVal' v
-    fromVal _ = fail "auto-boxing not yet implemented"
+    fromVal v = do
+        fail $ "cannot cast from " ++ show v ++ " to Object"
 
 instance Value VHash where
     fromVal (VObject o) = do
@@ -1320,6 +1339,7 @@ data VOpaque where
 data VObject = MkObject
     { objType   :: !VType
     , objAttrs  :: !IHash
+    , objOpaque :: !(Maybe Dynamic)
     , objId     :: !Unique
     }
     deriving (Show, Eq, Ord, Typeable)

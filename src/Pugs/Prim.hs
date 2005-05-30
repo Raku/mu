@@ -381,6 +381,27 @@ op1 "open" = \v -> do
     modeOf ">>" = AppendMode
     modeOf "+>" = ReadWriteMode
     modeOf m    = error $ "unknown mode: " ++ m
+op1 "opendir" = \v -> do
+    str <- fromVal v
+    rv  <- tryIO Nothing . fmap Just $ openDirStream str
+    case rv of
+        Nothing     -> return undef
+        Just dir    -> do
+            obj <- createObject (mkType "IO::Dir") []
+            return . VObject $ obj{ objOpaque = Just $ toDyn dir }
+op1 "IO::Dir::closedir" = boolIO (closeDirStream . fromObject)
+op1 "IO::Dir::rewinddir" = boolIO (rewindDirStream . fromObject)
+op1 "IO::Dir::readdir" = \v -> do
+    dir <- fmap fromObject (fromVal v)
+    ifListContext
+        (fmap castV $ readDirStreamList dir)
+        (tryIO undef $ fmap (\x -> if null x then undef else castV x) $ readDirStream dir)
+    where
+    readDirStreamList dir = do
+        this <- tryIO "" $ readDirStream dir
+        if null this then return [] else do
+        rest <- readDirStreamList dir
+        return $ (this:rest)
 op1 "Pugs::Internals::runInteractiveCommand" = \v -> do
     str <- fromVal v
     tryIO undef $ do
@@ -905,7 +926,12 @@ op3 "new" = \t n _ -> do
     writeIVar (IHash attrs) named
     uniq    <- liftIO $ newUnique
     env     <- ask
-    let obj = VObject $ MkObject{ objType = typ, objAttrs = attrs, objId = uniq }
+    let obj = VObject $ MkObject
+            { objType   = typ
+            , objAttrs  = attrs
+            , objId     = uniq
+            , objOpaque = Nothing
+            }
     -- Now start calling BUILD for each of parent classes (if defined)
     op1 "BUILDALL" obj
     liftIO $ addFinalizer obj (objectFinalizer env obj)
@@ -1488,5 +1514,10 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   List      spre    prefix:[,]  safe   (List)\
 \\n   Str       pre     Code::name    safe   (Code:)\
 \\n   Int       pre     Code::arity   safe   (Code:)\
-\\n   Str       pre     Code::assoc safe   (Code:)\
+\\n   Str       pre     Code::assoc   safe   (Code:)\
+\\n   IO::Dir   pre     opendir    unsafe (Str)\
+\\n   Str       pre     IO::Dir::readdir    unsafe (IO::Dir)\
+\\n   List      pre     IO::Dir::readdir    unsafe (IO::Dir)\
+\\n   Bool      pre     IO::Dir::closedir   unsafe (IO::Dir)\
+\\n   Bool      pre     IO::Dir::rewinddir  unsafe (IO::Dir)\
 \\n"

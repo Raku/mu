@@ -147,18 +147,13 @@ prepareEnv name args = do
 
 initClassObjects :: [Type] -> ClassTree -> IO [STM (Pad -> Pad)]
 initClassObjects parent (Node typ children) = do
-    uniq    <- newUnique
-    attrs   <- liftSTM . newTVar $ Map.fromList
-        [ ("name",   lazyScalar $ castV $ showType typ)
-        , ("traits", lazyScalar $ castV $ map showType parent)
+    obj     <- createObject (mkType "Class") $
+        [ ("name",   castV $ showType typ)
+        , ("traits", castV $ map showType parent)
         ]
-    obj     <- newScalar . VObject $ MkObject
-        { objType   = mkType "Class"
-        , objId     = uniq
-        , objAttrs  = attrs
-        }
+    objSV   <- newScalar (VObject obj)
     rest    <- mapM (initClassObjects [typ]) children
-    let sym = genSym (':':'*':showType typ) $ MkRef obj
+    let sym = genSym (':':'*':showType typ) $ MkRef objSV
     return (sym:concat rest)
 
 {-|

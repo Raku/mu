@@ -115,7 +115,9 @@ initTree = fmap MkType $ Node "Any" [ Node "Void"
             , Node "Bool" []
             , Node "Str" []
             , Node "Ref" []
-            , Node "IO" []
+            , Node "IO"
+                [ Node "IO::Dir" []
+                ]
             , Node "Socket" []
             , Node "Thread" []
             , Node "Code"
