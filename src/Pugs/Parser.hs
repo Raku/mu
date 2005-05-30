@@ -784,7 +784,8 @@ retVerbatimBlock typ formal body = expRule $ do
             , subAssoc      = "pre"
             , subReturns    = anyType
             , subLValue     = False -- XXX "is rw"
-            , subParams     = if null params then [defaultArrayParam] else params
+            , subParams     = if null params && typ <= SubRoutine
+                then [defaultArrayParam] else params
             , subBindings   = []
             , subSlurpLimit = []
             , subBody       = fun
