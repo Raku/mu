@@ -233,8 +233,7 @@ doExtract formal body = (fun, names', params)
            = filter (/= "$_") names
            | otherwise
            = names
-    params = map nameToParam (sort names')
-        ++ (maybe (if null names' then [defaultArrayParam] else []) id formal)
+    params = map nameToParam (sort names') ++ (maybe [] id formal)
 
 ruleRuleDeclaration :: RuleParser Exp
 ruleRuleDeclaration = rule "rule declaration" $ try $ do
@@ -295,7 +294,8 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
             , subAssoc      = "pre"
             , subReturns    = mkType typ''
             , subLValue     = "rw" `elem` traits
-            , subParams     = self ++ params
+            , subParams     = self ++ if null params && styp <= SubRoutine
+                then [defaultArrayParam] else params
             , subBindings   = []
             , subSlurpLimit = []
             , subBody       = fun
@@ -770,7 +770,7 @@ retBlock SubBlock Nothing exp | Just hashExp <- extractHash (unwrap exp) = retur
 retBlock typ formal body = retVerbatimBlock typ formal body
 
 retVerbatimBlock :: SubType -> Maybe [Param] -> Exp -> RuleParser Exp
-retVerbatimBlock typ formal body = expRule $ do
+retVerbatimBlock styp formal body = expRule $ do
     let (fun, names, params) = doExtract formal body
     -- Check for placeholder vs formal parameters
     unless (isNothing formal || null names) $ 
@@ -780,11 +780,11 @@ retVerbatimBlock typ formal body = expRule $ do
             { isMulti       = False
             , subName       = "<anon>"
             , subEnv        = Just env
-            , subType       = typ
+            , subType       = styp
             , subAssoc      = "pre"
             , subReturns    = anyType
             , subLValue     = False -- XXX "is rw"
-            , subParams     = if null params && typ <= SubRoutine
+            , subParams     = if null params && styp <= SubRoutine
                 then [defaultArrayParam] else params
             , subBindings   = []
             , subSlurpLimit = []

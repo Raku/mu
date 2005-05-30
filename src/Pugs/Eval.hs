@@ -1048,6 +1048,7 @@ evalExpType (Pos _ exp) = evalExpType exp
 evalExpType (Pad _ _ exp) = evalExpType exp
 evalExpType (Sym _ _ exp) = evalExpType exp
 evalExpType (Stmts _ exp) = evalExpType exp
+evalExpType (Syn "sub" [exp]) = evalExpType exp
 evalExpType _ = return $ mkType "Any"
 
 chainFun :: Params -> Exp -> Params -> Exp -> [Val] -> Eval Val
