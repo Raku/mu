@@ -279,7 +279,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
     typ'    <- option typ $ try $ ruleBareTrait "returns"
     formal  <- option Nothing $ ruleSubParameters ParensMandatory
     typ''   <- option typ' $ try $ ruleBareTrait "returns"
-    _       <- many $ ruleTrait -- traits; not yet used
+    traits  <- many $ ruleTrait
     -- bodyPos <- getPosition
     body    <- ruleBlock
     let (fun, names, params) = doExtract formal body
@@ -301,16 +301,22 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
             , subBody       = fun
             , subCont       = Nothing
             }
-        name' = if styp <= SubMethod then "&" ++ envPackage env ++ "::" ++ tail name else name
+        name' = "&" ++ envPackage env ++ "::" ++ tail name
         self :: [Param]
         self | styp > SubMethod = []
              | (prm:_) <- params, isInvocant prm = []
              | otherwise = [selfParam $ envPackage env]
-        -- decl = Sym scope name -- , namePos)
-        exp  = Syn ":=" [Var name', Syn "sub" [subExp]]
-    if scope == SGlobal
-        then do { unsafeEvalExp (Sym scope name' exp); return emptyExp }
-        else do
+        exp  = Syn ":=" [Var name, Syn "sub" [subExp]]
+        exp' = Syn ":=" [Var name', Syn "sub" [subExp]]
+    case scope of
+        SGlobal | "export" `elem` traits -> do
+            unsafeEvalExp (Sym scope name exp)
+            unsafeEvalExp (Sym scope name' exp')
+            return emptyExp
+        SGlobal -> do
+            unsafeEvalExp (Sym scope name' exp')
+            return emptyExp
+        _ -> do
             lexDiff <- unsafeEvalLexDiff (Sym scope name' emptyExp)
             return $ Pad scope lexDiff exp
 

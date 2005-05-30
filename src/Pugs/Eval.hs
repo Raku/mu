@@ -134,7 +134,8 @@ findSyms :: Var -> Eval [(String, Val)]
 findSyms name = do
     lex  <- asks envLexical
     glob <- askGlobal
-    let names = [name, toGlobal name]
+    pkg  <- asks envPackage
+    let names = nub [name, toPackage pkg name, toGlobal name]
     syms <- forM [lex, glob] $ \pad -> do
         forM names $ \name' -> do
             case lookupPad name' pad of
@@ -1179,6 +1180,13 @@ doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args
         | isaType (envClasses env) "Bool" typ        = True
         | isaType (envClasses env) "Junction" typ    = True
         | otherwise                     = False
+
+toPackage :: String -> String -> String
+toPackage pkg name
+    | (sigil, identifier) <- break (\x -> isAlpha x || x == '_') name
+    , last sigil /= '*'
+    = concat [sigil, pkg, "::", identifier]
+    | otherwise = name
 
 toGlobal :: String -> String
 toGlobal name
