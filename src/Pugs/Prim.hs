@@ -77,8 +77,8 @@ op0 "File::Spec::tmpdir" = const $ do
     tmp <- liftIO getTemporaryDirectory
     return $ VStr tmp
 op0 "pi" = const $ return (VNum pi)
-op0 "say" = const $ op1 "say" =<< readVar "$_"
-op0 "print" = const $ op1 "print" =<< readVar "$_"
+op0 "say" = const $ op1 "IO::say" (VHandle stdout)
+op0 "print" = const $ op1 "IO::print" (VHandle stdout)
 op0 "return" = const $ op1Return (shiftT . const $ retEmpty)
 op0 "yield" = const $ op1Yield (shiftT . const $ retEmpty)
 op0 "take" = const $ retEmpty
@@ -282,8 +282,10 @@ op1 "rand"  = \v -> do
     x    <- fromVal v
     rand <- liftIO $ randomRIO (0, if x == 0 then 1 else x)
     return $ VNum rand
-op1 "print" = op1Print hPutStr
-op1 "say" = op1Print hPutStrLn
+op1 "say" = op2 "IO::say" (VHandle stdout)
+op1 "print" = op2 "IO::print" (VHandle stdout)
+op1 "IO::say" = \v -> op2 "IO::say" v =<< readVar "$_"
+op1 "IO::print" = \v -> op2 "IO::print" v =<< readVar "$_"
 op1 "Pugs::Safe::safe_print" = \v -> do
     str  <- fromVal v
     tryIO undef $ do
@@ -301,7 +303,7 @@ op1 "warn" = \v -> do
     strs <- fromVal v
     errh <- readVar "$*ERR"
     pos  <- asks envPos
-    op2 "say" errh $ VList [ VStr $ pretty (VError (errmsg strs) [pos]) ]
+    op2 "IO::say" errh $ VList [ VStr $ pretty (VError (errmsg strs) [pos]) ]
     where
     errmsg "" = "Warning: something's wrong"
     errmsg x  = x
@@ -510,12 +512,6 @@ op1 "matches" = op1Cast (VList . matchSubPos)
 op1 "gather" = \v -> do
     evl <- asks envEval
     evl (Syn "gather" [Val v])
-op1 "Code::name" = \v -> do
-    sub <- fromVal v
-    return . castV $ subName sub
-op1 "Code::arity" = \v -> do
-    sub <- fromVal v
-    return . castV . length $ subParams sub
 op1 "Thread::yield" = const $ do
     ok <- tryIO False $ do { yield ; return True }
     return $ VBool ok
@@ -523,7 +519,9 @@ op1 "BUILDALL" = op1WalkAll id "BUILD"
 op1 "DESTROYALL" = op1WalkAll reverse "DESTROY"
 -- [,] is a noop -- It simply returns the input list
 op1 "prefix:[,]" = return
-op1 "Code::assoc" = op1Assoc
+op1 "Code::assoc" = op1CodeAssoc
+op1 "Code::name" = op1CodeName
+op1 "Code::arity" = op1CodeArity
 op1 other   = \_ -> fail ("Unimplemented unaryOp: " ++ other)
 
 pkgParents :: VStr -> Eval [VStr]
@@ -584,26 +582,6 @@ op1StrFirst f = op1Cast $ VStr .
     \str -> case str of
         []      -> []
         (c:cs)  -> (f c:cs)
-
-op1Print :: (Handle -> String -> IO ()) -> Val -> Eval Val
-op1Print f v = do
-    val  <- readRef =<< fromVal v
-    vals <- case val of
-        VList _   -> fromVal v
-        _         -> return [v]
-    (handle, vs) <- case vals of
-        []      -> return (stdout, vals)
-        (h:vs)  -> do
-            ifValTypeIsa h "IO"
-                (do
-                    hdl <- fromVal h
-                    vs' <- if null vs then fmap (:[]) (readVar "$_") else return vs
-                    return (hdl, vs'))
-                (return (stdout, vals))
-    vs' <- mapM fromVal vs
-    tryIO undef $ do
-        f handle . concatMap encodeUTF8 $ vs'
-        return $ VBool True
 
 {-|
 Read a char or a line from a handle.
@@ -857,9 +835,20 @@ op2 "sort" = \x y -> do
     xs <- fromVals x
     ys <- fromVals y
     op1 "sort" . VList $ xs ++ ys
-op2 "say" = \x (VList ys) -> op1Print hPutStrLn (VList (x:ys))
-op2 "print" = \x (VList ys) -> op1Print hPutStr (VList (x:ys))
+op2 "IO::say" = op2Print hPutStrLn
+op2 "IO::print" = op2Print hPutStr
 op2 other = \_ _ -> fail ("Unimplemented binaryOp: " ++ other)
+
+op2Print :: (Handle -> String -> IO ()) -> Val -> Val -> Eval Val
+op2Print f h v = do
+    handle <- fromVal h
+    strs   <- mapM fromVal =<< case v of
+        VList vs  -> return vs
+        _         -> return [v]
+    tryIO undef $ do
+        f handle . concatMap encodeUTF8 $ strs
+        return $ VBool True
+
 
 op2Split :: Val -> Val -> Eval Val
 op2Split x y = do
@@ -1340,13 +1329,13 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Str       pre     want    safe   ()\
 \\n   Str       pre     File::Spec::cwd     unsafe ()\
 \\n   Str       pre     File::Spec::tmpdir  unsafe ()\
-\\n   Bool      pre     print   unsafe (IO)\
-\\n   Bool      pre     print   unsafe (IO: List)\
+\\n   Bool      pre     IO::print   unsafe (IO)\
+\\n   Bool      pre     IO::print   unsafe (IO: List)\
 \\n   Bool      pre     print   unsafe ()\
 \\n   Bool      pre     print   unsafe (List)\
 \\n   Str       pre     sprintf safe   (Str, List)\
-\\n   Bool      pre     say     unsafe (IO)\
-\\n   Bool      pre     say     unsafe (IO: List)\
+\\n   Bool      pre     IO::say unsafe (IO)\
+\\n   Bool      pre     IO::say unsafe (IO: List)\
 \\n   Bool      pre     say     unsafe ()\
 \\n   Bool      pre     say     unsafe (List)\
 \\n   Bool      pre     Pugs::Safe::safe_print     safe     (Str)\
