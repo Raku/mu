@@ -1,5 +1,7 @@
 {-# OPTIONS_GHC -cpp -fglasgow-exts -fth #-}
 
+#include "../pugs_config.h"
+
 module Pugs.Compile.Pugs (genPugs) where
 import Pugs.AST
 import Pugs.Types
@@ -18,11 +20,14 @@ class (Show x) => Compile x where
 instance (Compile x) => Compile [x] where
     compile = compileList
 
+sep1 :: Doc -> Doc -> Doc
+sep1 a b = sep [a, b]
+
 prettyList :: [Doc] -> Doc
 prettyList = brackets . vcat . punctuate comma
 
 prettyDo :: [Doc] -> Doc
-prettyDo docs = parens $ text "do" <+> (braces $ vcat (punctuate semi docs))
+prettyDo docs = parens $ sep (text "do":punctuate semi docs)
 
 #if !defined(PUGS_HAVE_PERL5) && !defined(PUGS_HAVE_PARROT) && defined(PUGS_HAVE_TH)
 prettyRecord :: String -> [(String, Doc)] -> Doc
@@ -31,29 +36,31 @@ prettyRecord con = (text con <+>) . braces . sep . punctuate semi . map assign
 #endif
 
 prettyBind :: String -> Doc -> Doc
-prettyBind var doc = hang (text var) 2 (text "<-" <+> doc)
+prettyBind var doc = text var `sep1` nest 1 (text "<-" <+> doc)
+
+
 
 instance Compile Exp where
     compile (Syn syn exps) = do
         expsC <- compileList exps
         return $ prettyDo
-                [ prettyBind "exps" (text "sequence" <+> expsC)
+                [ prettyBind "exps" (text "sequence" `sep1` expsC)
                 , text "return" <+> parens (text $ "Syn " ++ show syn ++ " exps")
                 ]
     compile (Stmts exp1 exp2) = do
         exp1C <- compile exp1
         exp2C <- compile exp2
         return $ prettyDo 
-                [ text "exp1 <-" <+> exp1C
-                , text "exp2 <-" <+> exp2C
+                [ prettyBind "exp1" exp1C
+                , prettyBind "exp2" exp2C
                 , text "return (Stmts exp1 exp2)"
                 ]
     compile (Pad scope pad exp) = do
         padC <- compile pad
         expC <- compile exp
         return $ prettyDo
-                [ text "pad <-" <+> padC
-                , text "exp <-" <+> expC
+                [ prettyBind "pad" padC
+                , prettyBind "exp" expC
                 , text ("return (Pad " ++ show scope ++ " pad exp)")
                 ]
     compile exp = return $ text "return" $+$ parens (text $ show exp)
@@ -72,7 +79,7 @@ instance Compile (String, [(TVar Bool, TVar VRef)]) where
     compile (n, tvars) = do
         tvarsC <- compile tvars
         return $ prettyDo 
-                [ text "tvars <- sequence" <+> tvarsC
+                [ prettyBind "tvars" (text "sequence" `sep1` tvarsC)
                 , text ("return (" ++ show n ++ ", tvars)")
                 ]
 
@@ -81,8 +88,8 @@ instance Compile (TVar Bool, TVar VRef) where
         freshC <- compile fresh
         tvarC  <- compile tvar
         return $ prettyDo 
-                [ text "fresh <-" <+> freshC
-                , text "tvar <-" <+> tvarC
+                [ prettyBind "fresh" freshC
+                , prettyBind "tvar" tvarC
                 , text "return (fresh, tvar)"
                 ]
 
@@ -96,7 +103,7 @@ instance Compile (TVar VRef) where
         vref    <- liftSTM $ readTVar fresh
         vrefC   <- compile vref
         return $ prettyDo            
-                [ text "vref <-" <+> vrefC
+                [ prettyBind "vref" vrefC
                 , text "liftSTM (newTVar vref)"
                 ]
 
@@ -131,6 +138,8 @@ instance Compile VCode where
               ["isMulti", "subName", "subType", "subEnv", "subAssoc",
               "subParams", "subBindings", "subSlurpLimit",
               "subReturns", "subLValue", "subCont"])
+            ++
+            []
         where 
         tshow :: Show a => a -> Doc
         tshow = text . show
@@ -157,8 +166,8 @@ genPugs = do
         , "    exp  <- expC"
         , "    runAST glob exp"
         , ""
-        , renderStyle (Style PageMode 0 0) $ text "globC =" <+> globC
+        , renderStyle (Style PageMode 100 0) $ text "globC =" <+> globC
         , ""
-        , renderStyle (Style PageMode 0 0) $ text "expC =" <+> expC
+        , renderStyle (Style PageMode 100 0) $ text "expC =" <+> expC
         , ""
         ]
