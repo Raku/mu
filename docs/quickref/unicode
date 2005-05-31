@@ -3,8 +3,10 @@ How to enter various non-ASCII characters in editors
 Vim users see ":help digraph-table" and ":digraphs".
 
 Unix/X11 users see
-http://www.gentoo.org/news/en/gwn/20041206-newsletter.xml#doc_chap8 for how to
-enable the Compose Key.
+http://www.gentoo.org/news/en/gwn/20041206-newsletter.xml#doc_chap8
+for how to enable the Compose Key.  Note that the compose combinations
+here are a de facto X11R6 standard, and do not necessarily correspond
+to the compose combinations available when you use your "compose" key.
     
     Unicode     ASCII                        key sequence
     char        fallback    Vim        Emacs       Unix Compose Key combination
@@ -12,3 +14,28 @@ enable the Compose Key.
     «           <<          ^k < <     C-x 8 <     Compose < <
     »           >>          ^k > >     C-x 8 >     Compose > >
     ¥           Y           ^k Y e     C-x 8 Y     Compose Y =
+
+Set.pm operators (included for reference):
+    ≠           !=
+    ∩           *
+    ∪           +
+    ∖           -
+    ⊂           <
+    ⊃           >
+    ⊆           <=
+    ⊇           >=
+    ⊄      !( $a < $b ) 
+    ⊅      !( $a > $b )
+    ⊈     !( $a <= $b )
+    ⊉     !( $a >= $b )
+    ⊊           <
+    ⊋           >
+    ∋/∍   $a.includes($b)
+    ∈/∊   $b.includes($a)
+    ∌    !$a.includes($b)
+    ∉    !$b.includes($a)
+
+Other unicode characters used as operators in Perl 6 programs should
+be added here, so long as the /intent/ of the Unicode code point is an
+operator.
+
