@@ -9,7 +9,12 @@
 >   The king of friend and kin has need...
 -}
 
-module Pugs.Run where
+module Pugs.Run (
+    runWithArgs,
+    prepareEnv, runEnv,
+    runAST, runComp,
+    getLibs,
+) where
 import Pugs.Run.Args
 import Pugs.Run.Perl5 ()
 import Pugs.Internals
