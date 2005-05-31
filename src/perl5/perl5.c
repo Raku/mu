@@ -15,28 +15,48 @@ int __init = 0;
 
 const char pugs_guts_code[] =
 "use strict;"
+
 "package pugs;"
 
 "our $AUTOLOAD;"
 "sub AUTOLOAD { pugs::guts::invoke($AUTOLOAD, @_) } "
 "sub DESTROY {}"
+
 "package pugs::guts;"
 "our @ISA=('pugs');"
-"sub code { my ($class, $val) = @_;"
-"          sub { pugs::guts::invoke($val, undef, @_) } }"
+"sub Block { my ($class, $val) = @_;"
+"            sub { pugs::guts::invoke($val, undef, @_) } }"
+
+"sub Array { my ($class, $val) = @_;"
+"            my $array; tie @$array, 'pugs::array', $val;"
+"      warn 'returning '.$array;"
+"            return $array; }"
+
+"our $AUTOLOAD;"
+"sub AUTOLOAD { my $type = $AUTOLOAD; $type =~ s/.*:://;"
+"               return if $type =~ m/^[A-Z]*$/; die 'unhandled supported type: '.$type } "
+"warn 'compiled .'.__PACKAGE__;"
+
+"package pugs::array;"
+"sub TIEARRAY {"
+"	my ($class, $val) = @_;"
+"	bless \\$val, $class; }"
+
+"sub STORE {"
+"	my ($self, $index, $elem) = @_;"
+"       warn 'store! '.$elem;"
+"       pugs::guts::eval_apply('{ $^x[$^y] = $^z }', $$self, $index, $elem) }"
+
+"sub FETCHSIZE {"
+"	my ($self) = @_;"
+"       my $ret = pugs::guts::invoke('elems', $$self); "
+"       warn 'FETCHSIZE: '.$ret; $ret; }"
+
+"sub FETCH {"
+"	my ($self, $index) = @_;"
+"       pugs::guts::eval_apply('{ $^x[$^y] }', $$self, $index) }"
+"warn 'compiled';"
 "1;";
-
-XS(_pugs_guts_eval) {
-    Val *val;
-
-    dXSARGS;
-    if (items < 1)
-        Perl_croak(aTHX_ "hate software");
-    val = pugs_Eval ( SvPV_nolen(ST(0)) );
-    ST(0) = pugs_ValToSv ( val );
-
-    XSRETURN(1);
-}
 
 XS(_pugs_guts_invoke) {
     Val *val, *inv, **stack;
@@ -67,6 +87,29 @@ XS(_pugs_guts_invoke) {
     
     ST(0) = pugs_Apply(val, inv, stack, GIMME_V);
     /* sv_dump (ret); */
+    free (stack);
+    
+    XSRETURN(1);
+}
+
+
+XS(_pugs_guts_eval_apply) {
+    Val *val, *inv, **stack;
+    int i;
+    dXSARGS;
+    if (items < 1)
+        Perl_croak(aTHX_ "hate software");
+
+    val = pugs_Eval(SvPV_nolen(ST(0)));
+
+    stack = (Val **)malloc(sizeof(Val*)*items-1);
+    for (i = 1; i < items; ++i) {
+	fprintf(stderr, "put into stack: %s\n", SvPV_nolen(ST(i)));
+	stack[i-1] = pugs_SvToVal(ST(i));
+    }
+    stack[i-1] = NULL;
+    
+    ST(0) = pugs_Apply(val, NULL, stack, GIMME_V);
     free (stack);
     
     XSRETURN(1);
@@ -163,11 +206,13 @@ perl5_init ( int argc, char **argv )
     __init = 1;
 
     newXS((char*) "pugs::guts::invoke", _pugs_guts_invoke, (char*)__FILE__);
-    newXS((char*) "pugs::guts::eval", _pugs_guts_eval, (char*)__FILE__);
+    newXS((char*) "pugs::guts::eval_apply", _pugs_guts_eval_apply, (char*)__FILE__);
 
+    fprintf(stderr, "(%s)", pugs_guts_code);
     eval_pv(pugs_guts_code, TRUE);
 
     if (SvTRUE(ERRSV)) {
+	fprintf(stderr, "Hate!\n");
         STRLEN n_a;
         printf("Error init perl: %s\n", SvPV(ERRSV,n_a));
         exit(1);

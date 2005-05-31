@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan(12);
+plan(13);
 
 unless eval 'eval_perl5("1")' {
     skip_rest;
@@ -46,6 +46,13 @@ sub submany {
 
 sub many {
     return ("many", "return") ;
+}
+
+sub modify_array {
+    my ($class, $val) = @_;
+    warn $val;
+    warn $#{$val};
+    $val->[0]++;
 }
 
 # takes an object and invoke me on that
@@ -110,4 +117,12 @@ my $obj;
     my $obj6 = Foo6.new;
     $obj = eval_perl5("FooBar->new");
     is($obj.invoke($obj6), 'Foo6invoking', 'invoke pugs method from p5');
+}
+
+{
+    my @rw = (1);
+    my $r = \@rw;
+    warn $r;
+    $obj.modify_array($r);
+    is(@rw[0], 2, 'modify a scalar ref');
 }

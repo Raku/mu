@@ -16,24 +16,33 @@ pugs_MkValRef ( Val *val )
 {
     SV *sv = newSV(0);
     Val *isa[2];
-    SV *stack[8];
+    SV *stack[8], *type;
 
     sv_setref_pv(sv, "pugs", val);
 
-    isa[0] = pugs_PvToVal("Code");
-    isa[1] = NULL;
-    if (SvTRUE(pugs_Apply(pugs_PvToVal("&isa"), val, isa, G_SCALAR))) {
-	if (__init) {
-	    SV **rv;
+    if (!__init) {
+	fprintf(stderr, "MkValRef called before perl_init.\n");
+    }
+
+    isa[0] = NULL;
+
+    type = pugs_Apply(pugs_PvToVal("&ref"), val, isa, G_SCALAR);
+    fprintf(stderr, "query the type: got %s\n", SvPV_nolen(type));
+    if (SvTRUE( type )) {
+	SV **rv;
+	stack[0] = type;
+	stack[1] = NULL;
+	rv = perl5_apply(newSVpv("can", 0), newSVpv("pugs::guts", 0), stack, NULL, G_SCALAR);
+	if (SvTRUE( rv[0] )) {
 	    stack[0] = sv;
-	    stack[1] = NULL;
-	    rv = perl5_apply(newSVpv("code", 0), newSVpv("pugs::guts", 0), stack, NULL, G_SCALAR);
+	    rv = perl5_apply(type, newSVpv("pugs::guts", 0), stack, NULL, G_SCALAR);
 	    sv = rv[0];
 	}
 	else {
-	    fprintf(stderr, "MkValRef called before perl_init.\n");
+	    fprintf(stderr, "unknown type\n");
 	}
     }
+
     return (sv);
 }
 
