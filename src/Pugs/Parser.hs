@@ -291,7 +291,8 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
             { isMulti       = isMulti
             , subName       = name'
             , subEnv        = Just env
-            , subType       = styp
+            , subType       = if "primitive" `elem` traits
+                then SubPrim else styp
             , subAssoc      = "pre"
             , subReturns    = mkType typ''
             , subLValue     = "rw" `elem` traits
