@@ -26,6 +26,18 @@ const char pugs_guts_code[] =
 "          sub { pugs::guts::invoke($val, undef, @_) } }"
 "1;";
 
+XS(_pugs_guts_eval) {
+    Val *val;
+
+    dXSARGS;
+    if (items < 1)
+        Perl_croak(aTHX_ "hate software");
+    val = pugs_Eval ( SvPV_nolen(ST(0)) );
+    ST(0) = pugs_ValToSv ( val );
+
+    XSRETURN(1);
+}
+
 XS(_pugs_guts_invoke) {
     Val *val, *inv, **stack;
     SV *ret, *sv;
@@ -151,6 +163,7 @@ perl5_init ( int argc, char **argv )
     __init = 1;
 
     newXS((char*) "pugs::guts::invoke", _pugs_guts_invoke, (char*)__FILE__);
+    newXS((char*) "pugs::guts::eval", _pugs_guts_eval, (char*)__FILE__);
 
     eval_pv(pugs_guts_code, TRUE);
 
