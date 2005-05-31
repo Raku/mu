@@ -100,6 +100,7 @@ newSVval :: Val -> IO PerlSV
 newSVval val = case val of
     PerlSV sv   -> return sv
     VStr str    -> vstrToSV str
+    VType typ   -> vstrToSV (showType typ)
     VBool bool  -> vintToSV (fromEnum bool)
     VInt int    -> vintToSV int
     VRat rat    -> vnumToSV rat
