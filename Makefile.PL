@@ -211,6 +211,7 @@ sub set_postamble {
     # XXX - hsplugins doesn't build with profiles
     my $profiled_flags = $ghc_flags;
     $profiled_flags =~ s{-DPUGS_HAVE_HSPLUGINS=1}{};
+    $profiled_flags =~ s{-package plugins}{};
 
     my $emit = sub {
         my $c = shift;
