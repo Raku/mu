@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -fglasgow-exts -cpp -fvia-C #-}
 #if !defined(PUGS_HAVE_PARROT)
-#undef PUGS_HAVE_POSIX
-#include "../pugs_config.h"
+##undef PUGS_HAVE_POSIX
+##include "../pugs_config.h"
 
 module Pugs.Embed.Parrot where
 import Data.IORef
@@ -18,11 +18,11 @@ findExecutable' cmd = do
     rv  <- findExecutable cmd
     if isJust rv then return rv else do
     cwd <- getCurrentDirectory
-#ifdef PUGS_HAVE_POSIX
+##ifdef PUGS_HAVE_POSIX
     let parrot = cwd ++ ('/':cmd)
-#else
+##else
     let parrot = cwd ++ ('\\':cmd)
-#endif
+##endif
     ok  <- doesFileExist parrot
     return $ if ok then Just parrot else Nothing
 
