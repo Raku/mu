@@ -24,7 +24,9 @@ import Pugs.AST
 import Pugs.Types
 import Pugs.Eval
 import Pugs.Prim
+import Pugs.Prim.Eval
 import Pugs.Embed
+import Pugs.Prelude
 import qualified Data.Map as Map
 
 {-|
@@ -146,9 +148,12 @@ prepareEnv name args = do
         , genSym "$*AUTOLOAD" $ MkRef autoSV
         ] ++ classes
     initPerl5 "" (Just . VControl $ ControlEnv env{ envDebug = Nothing })
+    initPrelude env
     return env
     where
     hideInSafemode x = if safeMode then MkRef $ constScalar undef else x
+
+initPrelude env = runEvalIO env $ opEval Nothing "<prelude>" preludeStr
 
 initClassObjects :: [Type] -> ClassTree -> IO [STM (Pad -> Pad)]
 initClassObjects parent (Node typ children) = do

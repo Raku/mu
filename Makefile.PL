@@ -12,7 +12,7 @@ my $version_h = "src/Pugs/pugs_version.h";
 my $config_h = "src/Pugs/pugs_config.h";
 my @srcdirs  = grep {-d} glob("src"), glob("src/*"), glob("src/*/*"), glob("src/*/*/*");
 my @hsfiles  = map {glob "$_/*.hs"} @srcdirs;
-push @hsfiles, "src/Pugs/Config.hs";
+push @hsfiles, qw<src/Pugs/Config.hs src/Pugs/Prelude.hs>;
 my @hppfiles = map {my $x=$_; $x=~s/\.hs$/.hpp/; $x} @hsfiles;
 
 warn_cygwin     ();
@@ -46,6 +46,7 @@ makemaker_args  (
 clean_files     (map fixpaths($_),
     "pugs*", "src/Pugs/pugs_config.h", $version_h, $config_h,
     'src/Pugs/Config.hs', 'blib6',
+    'src/Pugs/Prelude.hs', 'src/gen_prelude.exe',
     'test.log',
     'src/Pugs/Embed/Parrot.hs',
     'src/Pugs/Embed/Parrot_hsc.*',
@@ -235,6 +236,12 @@ src/perl5/perl5.o :
 src/Pugs/Config.hs : util/PugsConfig.pm
 	\$(PERL) -Iutil -MPugsConfig -e "PugsConfig->write_config_module" > src/Pugs/Config.hs
 
+src/gen_prelude.exe :
+	$ghc -O0 -o src/gen_prelude.exe src/gen_prelude.hs
+
+src/Pugs/Prelude.hs : src/gen_prelude.exe
+	src/gen_prelude.exe < src/perl6/Prelude.pm > src/Pugs/Prelude.hs
+
 ${() = '%.hpp : %.hs @prereqs $version_h
 	$ghc $threaded $ghc_flags -DHADDOCK -E \$< -o \$@
 	\$(PERL) util/munge_haddock.pl \$@'; \''}
@@ -258,7 +265,7 @@ haddock : $version_h $config_h @hppfiles docs/haddock
 docs/haddock :
 	\@\$(PERL) -e "mkdir q-docs/haddock-"
 
-profiled :: src/Pugs/Config.hs @srcfiles $version_h @prereqs
+profiled :: src/Pugs/Config.hs src/Pugs/Prelude.hs @srcfiles $version_h @prereqs
 	$ghc $threaded -O -auto-all -prof --make $profiled_flags $ccdlflags $ghc_output
 
 pugs.prof :: profiled
@@ -266,15 +273,15 @@ pugs.prof :: profiled
 
 optimised :: optimized
 
-optimized :: src/Pugs/Config.hs @srcfiles $version_h @prereqs
+optimized :: src/Pugs/Config.hs src/Pugs/Prelude.hs @srcfiles $version_h @prereqs
 	$ghc $threaded -O --make $ghc_flags $embed_flags $ccdlflags $ghc_output
 
 unoptimised :: unoptimized
 
-unoptimized :: src/Pugs/Config.hs @srcfiles $version_h @prereqs
+unoptimized :: src/Pugs/Config.hs src/Pugs/Prelude.hs @srcfiles $version_h @prereqs
 	$ghc $threaded -O0 --make $ghc_flags $embed_flags $ccdlflags $ghc_output
 
-$pugs : src/Pugs/Config.hs @srcfiles $version_h @prereqs
+$pugs : src/Pugs/Config.hs src/Pugs/Prelude.hs @srcfiles $version_h @prereqs
 	$ghc $threaded -O --make $ghc_flags $embed_flags $ccdlflags $ghc_output
 
 smoke : $pugs util/run-smoke.pl
