@@ -1023,10 +1023,9 @@ findSub name' invs args = do
         return $ case sort subs' of
             ((_, sub):_)    -> Just sub
             _               -> Nothing
-    subs :: Int -> [(String, Val)] -> Eval [((Bool, SubType, Bool, Bool, Int, Int), VCode)]
-    subs slurpLen subSyms = (liftM catMaybes) $ (`mapM` subSyms) $ \(n, val) -> do
-        sub@(MkCode{ subType = subT, subReturns = ret, subParams = prms }) <- fromVal val
-        let isGlobal = '*' `elem` n
+    subs :: Int -> [(String, Val)] -> Eval [((Bool, Bool, Int, Int), VCode)]
+    subs slurpLen subSyms = (liftM catMaybes) $ (`mapM` subSyms) $ \(_, val) -> do
+        sub@(MkCode{ subReturns = ret, subParams = prms }) <- fromVal val
         let rv = return $ arityMatch sub (length (maybeToList invs ++ args)) slurpLen
         maybeM rv $ \fun -> do
             -- if deltaFromCxt ret == 0 then return Nothing else do
@@ -1035,7 +1034,7 @@ findSub name' invs args = do
             deltaCxt    <- deltaFromCxt ret
             deltaArgs   <- mapM deltaFromPair pairs
             let bound = either (const False) (const True) $ bindParams sub invs args
-            return ((isGlobal, subT, isMulti sub, bound, sum deltaArgs, deltaCxt), fun)
+            return ((isMulti sub, bound, sum deltaArgs, deltaCxt), fun)
     deltaFromCxt :: Type -> Eval Int
     deltaFromCxt x  = do
         cls <- asks envClasses
