@@ -46,14 +46,14 @@ syn region p6CommentPara start="^=for [a-zA-Z]\+$" end="^$" contains=p6Attn
 syn match  p6Shebang "^#!.*"
 
 " POD
-syn region p6POD start="^=[a-z]\+\s*$" end="^=cut" contains=p6Attn,p6PODVerbatim,p6PODHead,p6PODSec,p6PODHeadKwid,p6PODSecKwid 
+syn region p6POD start="^=\w\+.\+$" end="^=cut" contains=p6Attn,p6PODVerbatim,p6PODHead,p6PODHeadKwid,p6PODSec,p6PODSecKwid
 
 syn match p6PODVerbatim  "^\s.*"      contained 
-syn match p6PODHeadKwid  "^=\{1,2\} " nextgroup=p6PODTitle 
-syn match p6PODHead      "^=head[12]" nextgroup=p6PODTitle 
+syn match p6PODHeadKwid  "^=\{1,2\} " nextgroup=p6PODTitle contained 
+syn match p6PODHead      "^=head[12]" nextgroup=p6PODTitle contained 
 syn match p6PODTitle     ".*$"        contained 
-syn match p6PODSecKwid   "^=\{3,4\} " nextgroup=p6PODSecTitle 
-syn match p6PODSec       "^=head[34]" nextgroup=p6PODSecTitle 
+syn match p6PODSec       "^=head[34]" nextgroup=p6PODSecTitle contained
+syn match p6PODSecKwid   "^=\{3,4\} " nextgroup=p6PODSecTitle contained 
 syn match p6PODSecTitle  ".*$"        contained 
 
 " Variables, arrays, and hashes with ordinary \w+ names
