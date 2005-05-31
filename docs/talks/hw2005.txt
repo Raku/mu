@@ -9,17 +9,17 @@
 Perl is a general-purpose language, known for its vast number of freely
 available extension libraries.  The Perl 6 project was started in 2000
 to create a more robust runtime environment, and improve the language's
-support for multi-paradigm programming.  However, attempts at producing a
+support for multi-paradigmic programming.  However, attempts at producing a
 concrete implementation failed to materialise in the first 4 years.
 
 This paper presents Pugs, a working implementation of Perl 6, written in
 Haskell.  We review the challenges posed by Perl 6's unusual execution model,
-and how Pugs tackles them using features found in GHC, such as
+and how Pugs tackles them with features introduced in GHC 6.4, such as
 Template Haskell, Software Transactional Memory, and GADTs.
 
 Moreover, we demonstrate how Pugs uses Haskell's FFI to embed Perl 5, Parrot
 and Haskell within Perl 6 programs, and how it mediates the execution context
-between these runtime systems.
+between these runtime environments.
 
 Finally, we discuss Parrot, a register-based virtual machine designated as
 Perl 6's primary runtime.  We show how Pugs can evolve from an interpreter
@@ -138,7 +138,7 @@ Perl, Haskell
 
 7. Conclusion and Future Work
 
-...porting pugs to perl 6, compiling Haskell to PIR...
+...porting Pugs to perl 6, compiling Haskell to PIR...
 
 ---------------------------------------------------------------------------
 
