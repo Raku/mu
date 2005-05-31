@@ -183,7 +183,7 @@ doCompileRun backend file prog = do
 doParseWith :: (Env -> FilePath -> IO a) -> FilePath -> String -> IO a
 doParseWith f name prog = do
     env <- tabulaRasa
-    runRule env f' ruleProgram name $ decodeUTF8 prog
+    f' $ parseProgram env name $ decodeUTF8 prog
     where
     f' env | Val err@(VError _ _) <- envBody env = do
         hPutStrLn stderr $ pretty err
@@ -193,7 +193,7 @@ doParseWith f name prog = do
 doParse :: (Exp -> String) -> FilePath -> String -> IO ()
 doParse prettyFunc name prog = do
     env <- tabulaRasa
-    case runRule env envBody ruleProgram name (decodeUTF8 prog) of
+    case envBody $ parseProgram env name (decodeUTF8 prog) of
         (Val err@(VError _ _)) -> putStrLn $ pretty err
         exp -> putStrLn $ prettyFunc exp
 
@@ -220,7 +220,8 @@ doRunSingle menv opts prog = (`catch` handler) $ do
     where
     parse = do
         env <- liftSTM $ readTVar menv
-        runRule env (return . envBody) ruleProgram "<interactive>" (decodeUTF8 prog)
+        return $ envBody $ parseProgram env "<interactive>" $
+	  (decodeUTF8 prog)
     theEnv = do
         ref <- if runOptSeparately opts
                 then (liftSTM . newTVar) =<< tabulaRasa
@@ -277,7 +278,7 @@ runProgramWith ::
     (Env -> Env) -> (Val -> IO ()) -> VStr -> [VStr] -> String -> IO ()
 runProgramWith fenv f name args prog = do
     env <- prepareEnv name args
-    val <- runEnv $ runRule (fenv env) id ruleProgram name $ decodeUTF8 prog
+    val <- runEnv $ parseProgram (fenv env) name $ decodeUTF8 prog
     f val
 
 createConfigLine :: String -> String

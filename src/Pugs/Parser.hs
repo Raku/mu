@@ -26,6 +26,7 @@ import Pugs.Rule.Expr
 import Pugs.Pretty
 import qualified Data.Set as Set
 
+import Pugs.Parser.Types
 import Pugs.Parser.Number
 import Pugs.Parser.Unsafe
 
@@ -64,13 +65,13 @@ ruleBlockBody :: RuleParser Exp
 ruleBlockBody = do
     whiteSpace
     -- pos     <- getPosition
-    env     <- getState
+    env     <- getRuleEnv
     pre     <- many ruleEmptyExp
     body    <- option emptyExp ruleStatementList
     post    <- many ruleEmptyExp
     let body' = foldl mergeStmts (foldl (flip mergeStmts) body pre) post
-    env'    <- getState
-    setState env'{ envLexical = envLexical env }
+    env'    <- getRuleEnv
+    setRuleEnv env'{ envLexical = envLexical env }
     return $ case unwrap body' of
         (Syn "sub" _)   -> mergeStmts emptyExp body'
         _               -> body'
@@ -250,11 +251,11 @@ ruleClassDeclaration :: RuleParser Exp
 ruleClassDeclaration = rule "class declaration" $ try $ do
     _       <- choice $ map symbol (words "class role grammar")
     (name, _, _) <- rulePackageHead
-    env     <- getState
-    setState env{ envPackage = name, envClasses = envClasses env `addNode` mkType name }
+    env     <- getRuleEnv
+    setRuleEnv env{ envPackage = name, envClasses = envClasses env `addNode` mkType name }
     body    <- between (symbol "{") (char '}') ruleBlockBody
-    env'    <- getState
-    setState env'{ envPackage = envPackage env }
+    env'    <- getRuleEnv
+    setRuleEnv env'{ envPackage = envPackage env }
     return body
 
 rulePackageHead :: RuleParser (String, String, String)
@@ -285,7 +286,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
     -- Check for placeholder vs formal parameters
     unless (isNothing formal || null names) $ 
         fail "Cannot mix placeholder variables with formal parameters"
-    env <- getState
+    env <- getRuleEnv
     let subExp = Val . VCode $ MkCode
             { isMulti       = isMulti
             , subName       = name'
@@ -402,7 +403,7 @@ ruleMemberDeclaration = do
         (sigil:twigil:key) | twigil `elem` ".:" -> do
             traits  <- many $ ruleTrait
             optional $ do { symbol "handles"; ruleExpression }
-            env     <- getState
+            env     <- getRuleEnv
             -- manufacture an accessor
             let sub = mkPrim
                     { isMulti       = False
@@ -445,7 +446,7 @@ ruleVarDeclaration = rule "variable declaration" $ do
         return (sym, Just exp)
     lexDiff <- case sym of
         "::="   -> do
-            env  <- getState
+            env  <- getRuleEnv
             env' <- unsafeEvalEnv $ decl (Syn sym [lhs, fromJust expMaybe])
             return $ envLexical env' `diffPads` envLexical env
         _       -> unsafeEvalLexDiff (decl emptyExp)
@@ -488,7 +489,7 @@ ruleUsePackage = rule "use package" $ do
         unsafeEvalExp $ App (Var $ ('&':pkg) ++ "::import") (Just val) [imp]
         return ()
     case val of
-        Val (VControl (ControlEnv env')) -> setState env'
+        Val (VControl (ControlEnv env')) -> setRuleEnv env'
             { envClasses = envClasses env' `addNode` mkType pkg }
         _  -> error $ pretty val
     return ()
@@ -530,8 +531,8 @@ ruleModuleDeclaration :: RuleParser Exp
 ruleModuleDeclaration = rule "module declaration" $ do
     _       <- choice $ map symbol (words "package module class grammar")
     (name, v, a)    <- rulePackageHead
-    env     <- getState
-    setState env{ envPackage = name, envClasses = envClasses env `addNode` mkType name }
+    env     <- getRuleEnv
+    setRuleEnv env{ envPackage = name, envClasses = envClasses env `addNode` mkType name }
     return $ Syn "module" [Val . VStr $ name ++ v ++ a] -- XXX
 
 ruleDoBlock :: RuleParser Exp
@@ -786,7 +787,7 @@ retVerbatimBlock styp formal body = expRule $ do
     -- Check for placeholder vs formal parameters
     unless (isNothing formal || null names) $ 
         fail "Cannot mix placeholder variables with formal parameters"
-    env <- getState
+    env <- getRuleEnv
     let sub = MkCode
             { isMulti       = False
             , subName       = "<anon>"
@@ -840,7 +841,7 @@ ruleBlockFormalPointy = rule "pointy block parameters" $ do
 -- Not yet transcribed ------------------------------------------------
 
 
-tightOperators :: RuleParser [[Operator Char Env Exp]]
+tightOperators :: RuleParser (RuleOperatorTable Exp)
 tightOperators = do
   [_, optionary, namedUnary, preUnary, postUnary, infixOps] <- currentTightFunctions
   return $
@@ -875,7 +876,7 @@ tightOperators = do
                " +&= +|= +^= ~&= ~|= ~^= ?|= ?^= |= ^= &= ")
     ]
 
-looseOperators :: RuleParser [[Operator Char Env Exp]]
+looseOperators :: RuleParser (RuleOperatorTable Exp)
 looseOperators = do
     -- names <- currentListFunctions
     return $
@@ -885,7 +886,7 @@ looseOperators = do
         , leftOps  " or xor err "                       -- Loose Or
         ]
 
-operators :: RuleParser (OperatorTable Char Env Exp)
+operators :: RuleParser (RuleOperatorTable Exp)
 operators = do
     tight <- tightOperators
     loose <- looseOperators
@@ -897,7 +898,7 @@ operators = do
         ]
 
 -- not a parser!
-litOperators :: RuleParser (OperatorTable Char Env Exp)
+litOperators :: RuleParser (RuleOperatorTable Exp)
 litOperators = do
     tight <- tightOperators
     loose <- looseOperators
@@ -906,7 +907,7 @@ litOperators = do
 -- read just the current state (ie, not a parser)
 currentFunctions :: RuleParser [(Var, VStr, Params)]
 currentFunctions = do
-    env     <- getState -- should use get from MonadState
+    env     <- getRuleEnv -- should use get from MonadState
     return . concat . unsafePerformSTM $ do
         glob <- readTVar $ envGlobal env
         let funs  = padToList glob ++ padToList (envLexical env)
@@ -928,11 +929,11 @@ currentFunctions = do
 -- read just the current state
 currentTightFunctions :: RuleParser [String]
 currentTightFunctions = do
-    env     <- getState
+    env     <- getRuleEnv
     case envStash env of
         "" -> do
             funs <- currentTightFunctions'
-            setState env{ envStash = unlines funs }
+            setRuleEnv env{ envStash = unlines funs }
             return funs
         lns -> do
             return $ lines lns
@@ -1004,31 +1005,31 @@ doAppSym name@(_:'p':'r':'e':'f':'i':'x':':':_) args = App (Var name) Nothing ar
 doAppSym (sigil:name) args = App (Var (sigil:("prefix:"++name))) Nothing args
 doAppSym _ _ = error "doAppSym: bad name"
 
-preSyn      :: String -> [Operator Char Env Exp]
+preSyn      :: String -> [RuleOperator Exp]
 preSyn      = ops $ makeOp1 Prefix "" Syn
-preOps      :: String -> [Operator Char Env Exp]
+preOps      :: String -> [RuleOperator Exp]
 preOps      = (ops $ makeOp1 Prefix "&prefix:" doApp) . addHyperPrefix
-preSymOps   :: String -> [Operator Char Env Exp]
+preSymOps   :: String -> [RuleOperator Exp]
 preSymOps   = (ops $ makeOp1 Prefix "&prefix:" doAppSym) . addHyperPrefix
-postOps     :: String -> [Operator Char Env Exp]
+postOps     :: String -> [RuleOperator Exp]
 postOps     = (ops $ makeOp1 Postfix "&postfix:" doApp) . addHyperPostfix
-optOps      :: String -> [Operator Char Env Exp]
+optOps      :: String -> [RuleOperator Exp]
 optOps      = (ops $ makeOp1 OptionalPrefix "&prefix:" doApp) . addHyperPrefix
-leftOps     :: String -> [Operator Char Env Exp]
+leftOps     :: String -> [RuleOperator Exp]
 leftOps     = (ops $ makeOp2 AssocLeft "&infix:" doApp) . addHyperInfix
-rightOps    :: String -> [Operator Char Env Exp]
+rightOps    :: String -> [RuleOperator Exp]
 rightOps    = (ops $ makeOp2 AssocRight "&infix:" doApp) . addHyperInfix
-noneOps     :: String -> [Operator Char Env Exp]
+noneOps     :: String -> [RuleOperator Exp]
 noneOps     = ops $ makeOp2 AssocNone "&infix:" doApp
-listOps     :: String -> [Operator Char Env Exp]
+listOps     :: String -> [RuleOperator Exp]
 listOps     = ops $ makeOp2 AssocLeft "&infix:" doApp
-chainOps    :: String -> [Operator Char Env Exp]
+chainOps    :: String -> [RuleOperator Exp]
 chainOps    = (ops $ makeOp2 AssocLeft "&infix:" doApp) . addHyperInfix
-rightSyn    :: String -> [Operator Char Env Exp]
+rightSyn    :: String -> [RuleOperator Exp]
 rightSyn    = ops $ makeOp2 AssocRight "" Syn
-noneSyn     :: String -> [Operator Char Env Exp]
+noneSyn     :: String -> [RuleOperator Exp]
 noneSyn     = ops $ makeOp2 AssocNone "" Syn
-listSyn     :: String -> [Operator Char Env Exp]
+listSyn     :: String -> [RuleOperator Exp]
 listSyn     = ops $ makeOp0 AssocList "" Syn
 
 addHyperInfix :: String -> String
@@ -1076,7 +1077,7 @@ makeOp2 :: Assoc ->
            String -> 
            (String -> [a] -> a) -> 
            String -> 
-           Operator Char Env a
+           RuleOperator a
 makeOp2 prec sigil con name = (`Infix` prec) $ do
     symbol name
     return $ \x y -> con (sigil ++ name) [x,y]
@@ -1085,7 +1086,7 @@ makeOp0 :: Assoc ->
            String -> 
            (String -> [a] -> a) -> 
            String -> 
-           Operator Char Env a
+           RuleOperator a
 makeOp0 prec sigil con name = (`InfixList` prec) $ do
     many1 $ do
         string name
@@ -1116,7 +1117,7 @@ ruleTypeVar = rule "type" $ try $ do
 
 ruleTypeLiteral :: RuleParser Exp
 ruleTypeLiteral = rule "type" $ do
-    env     <- getState
+    env     <- getRuleEnv
     name    <- tryChoice [
         do { symbol n; notFollowedBy (alphaNum <|> char ':'); return n }
         | (MkType n) <- flatten (envClasses env) ]
@@ -1314,9 +1315,6 @@ maybeParensBool p = choice
     [ do rv <- parens p; return (rv, True)
     , do rv <- p; return (rv, False)
     ]
-
-maybeParens :: CharParser Env a -> RuleParser a
-maybeParens p = choice [ parens p, p ]
 
 ruleParamName :: RuleParser String
 ruleParamName = literalRule "parameter name" $ do
@@ -1680,10 +1678,10 @@ getQFlags flagnames protectedChar =
 
 {- | XXX can be later defined to exclude alphanumerics, maybe also exclude
 closing delims from being openers (disallow q]a]) -}
-openingDelim :: CharParser Env Char
+openingDelim :: RuleParser Char
 openingDelim = anyChar
 
-getQDelim :: RuleParser (CharParser Env Char, QFlags)
+getQDelim :: RuleParser (RuleParser Char, QFlags)
 getQDelim = try $
     do  string "q"
         flags <- do
@@ -1811,7 +1809,7 @@ yadaLiteral = expRule $ do
 methOps             :: a -> [b]
 methOps _ = []
 
-ternOp :: String -> String -> String -> Operator Char Env Exp
+ternOp :: String -> String -> String -> RuleOperator Exp
 ternOp pre post syn = (`Infix` AssocRight) $ do
     symbol pre
     y <- parseTightOp

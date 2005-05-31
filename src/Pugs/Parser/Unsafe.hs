@@ -6,23 +6,22 @@ module Pugs.Parser.Unsafe (
 ) where
 import Pugs.Internals
 import Pugs.AST
-import Pugs.Lexer
-import Pugs.Rule
 import Pugs.Pretty
+import Pugs.Parser.Types
 
 unsafeEvalLexDiff :: Exp -> RuleParser Pad
 unsafeEvalLexDiff exp = do
-    env  <- getState
-    setState env{ envLexical = mkPad [] }
+    env  <- getRuleEnv
+    setRuleEnv env{ envLexical = mkPad [] }
     env' <- unsafeEvalEnv exp
-    setState env'{ envLexical = envLexical env' `unionPads` envLexical env }
+    setRuleEnv env'{ envLexical = envLexical env' `unionPads` envLexical env }
     return $ envLexical env'
 
 -- XXX: Should these fail instead of error?
 unsafeEvalEnv :: Exp -> RuleParser Env
 unsafeEvalEnv exp = do
     -- pos <- getPosition
-    env <- getState
+    env <- getRuleEnv
     val <- unsafeEvalExp $ mergeStmts exp (Syn "env" [])
     case val of
         Val (VControl (ControlEnv env')) ->
@@ -31,8 +30,8 @@ unsafeEvalEnv exp = do
 
 unsafeEvalExp :: Exp -> RuleParser Exp
 unsafeEvalExp exp = do
-    env <- getState
-    setState env{ envStash = "" } -- cleans up function cache
+    env <- getRuleEnv
+    setRuleEnv env{ envStash = "" } -- cleans up function cache
     let val = unsafePerformIO $ do
         runEvalIO (env{ envDebug = Nothing }) $ do
             evl <- asks envEval

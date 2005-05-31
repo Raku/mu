@@ -11,11 +11,8 @@
 -}
 
 module Pugs.Lexer (
-    RuleParser,
-    ParensOption(..),
-
     wordAlpha, wordAny, isWordAlpha, isWordAny,
-    parens, whiteSpace, lexeme, identifier,
+    maybeParens, parens, whiteSpace, lexeme, identifier,
     braces, brackets, angles, balanced, balancedDelim, decimal,
 
     ruleQualifiedIdentifier, ruleWhiteSpaceLine,
@@ -34,11 +31,8 @@ import Pugs.AST
 import Pugs.Rule
 import Pugs.Rule.Language
 import Pugs.Types
+import Pugs.Parser.Types
 import qualified Pugs.Rule.Token as P
-
-type RuleParser a = GenParser Char Env a
-data ParensOption = ParensMandatory | ParensOptional
-    deriving (Show, Eq)
 
 perl6Def  :: LanguageDef st
 perl6Def  = javaStyle
@@ -63,6 +57,9 @@ isWordAlpha x = (isAlpha x || x == '_')
 
 perl6Lexer :: P.TokenParser st
 perl6Lexer = P.makeTokenParser perl6Def
+
+maybeParens :: CharParser st a -> CharParser st a
+maybeParens p = choice [ parens p, p ]
 
 parens     :: CharParser st a -> CharParser st a
 parens     = P.parens     perl6Lexer

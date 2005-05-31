@@ -46,7 +46,7 @@ op1EvalHaskell cv = do
 opEval :: Maybe Bool -> String -> String -> Eval Val
 opEval flag name str = do
     env <- ask
-    let env' = runRule env id ruleProgram name str
+    let env' = parseProgram env name str
         trans | flag == Just True = (`mergeStmts` Syn "env" [])
               | otherwise         = id
     val <- resetT $ local (const env') $ do

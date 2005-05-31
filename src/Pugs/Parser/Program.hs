@@ -1,7 +1,6 @@
 -- Before you would import Pugs.Parser, now you import Pugs.Parser.Program.
 module Pugs.Parser.Program (
-    runRule,
-    ruleProgram,
+    parseProgram,
 ) where
 import Pugs.Internals
 import Pugs.AST
@@ -10,15 +9,23 @@ import Pugs.Rule
 import Pugs.Rule.Error
 
 import Pugs.Parser
+import Pugs.Parser.Types
 import Pugs.Parser.Unsafe
 
-runRule :: Env -> (Env -> a) -> RuleParser Env -> FilePath -> String -> a
-runRule env f p name str = f $ case ( runParser p env name str ) of
-    Left err    -> env { envBody = Val $ VError msg [mkPos pos pos] }
-        where
-        pos = errorPos err
-        msg = showErr err
-    Right env'  -> env'
+parseProgram :: Env -> FilePath -> String -> Env
+parseProgram = flip runRule ruleProgram
+
+makeState :: Env -> RuleState
+makeState env = RuleState env
+
+runRule :: Env -> RuleParser Env -> FilePath -> String -> Env
+runRule env p name str =
+    case ( runParser p (makeState env) name str ) of
+        Left err    -> env { envBody = Val $ VError msg [mkPos pos pos] }
+            where
+            pos = errorPos err
+            msg = showErr err
+        Right env'  -> env'
 
 showErr :: ParseError -> String
 showErr err =
@@ -30,7 +37,7 @@ showErr err =
 
 ruleProgram :: RuleParser Env
 ruleProgram = rule "program" $ do
-    env <- getState
+    env <- getRuleEnv
     statements <- ruleBlockBody
     -- error $ show statements
     eof
@@ -47,7 +54,7 @@ ruleProgram = rule "program" $ do
 	]
     -- If there was a exit() in a CHECK block, we've to exit.
     possiblyExit rv
-    env' <- getState
+    env' <- getRuleEnv
     return $ env'
         { envBody       = mergeStmts emptyExp statements
         , envStash      = ""
