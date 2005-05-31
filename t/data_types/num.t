@@ -84,9 +84,9 @@ is(int($a), 1, "1.01 intifies to 1");
 my $a = 2 ** 65; # over the 64 bit limit too
 is($a, 36893488147419103232, "we have bignums, not weeny floats");
 
-eval_is('42_000', 42000, 'underscores allowed (and ignored) in numeric literals' :todo);
-eval_is('42_127_000', 42127000, 'multiple underscores ok' :todo);
-eval_is('42.0_1', 42.01, 'underscores in fraction ok' :todo);
-eval_is('4_2.01', 42.01, 'underscores in whole part ok' :todo);
-eval_is('4_2__.__0_1___', 42.01, 'lots of underscores are ok' :todo);
+eval_is('42_000', 42000, 'underscores allowed (and ignored) in numeric literals', :todo);
+eval_is('42_127_000', 42127000, 'multiple underscores ok', :todo);
+eval_is('42.0_1', 42.01, 'underscores in fraction ok', :todo);
+eval_is('4_2.01', 42.01, 'underscores in whole part ok', :todo);
+eval_is('4_2__.__0_1___', 42.01, 'lots of underscores are ok', :todo);
 

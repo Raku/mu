@@ -24,7 +24,7 @@ my $num = '4';
 is(foo(+$num), 'Num 4', 'dispatched to the Num sub');
 is(foo(1.5), 'Rat 1.5', 'dispatched to the Rat sub');
 is(foo(1 == 1), 'Bool 1', 'dispatched to the Bool sub');
-is(foo(sub { 'baz' }), 'Sub baz', 'dispatched to the Sub sub', :todo<bug>);
+is(foo(sub { 'baz' }), 'Sub baz', 'dispatched to the Sub sub');
 
 my @array = ('foo', 'bar', 'baz');
 is(foo(@array), 'Array foo, bar, baz', 'dispatched to the Array sub');

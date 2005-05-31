@@ -61,7 +61,7 @@ is($foo.bar(1.5), 'Foo.bar() called with Rat : 1.5', '... multi-method dispatche
 is($foo.bar("Hello"), 'Foo.bar() called with Str : Hello', '... multi-method dispatched on Str');
 is($foo.bar(1 == 1), 'Foo.bar() called with Bool : \bool::true', '... multi-method dispatched on Bool');
 
-is($foo.bar(sub { "my sub" }), 'Foo.bar() called with Sub : my sub', '... multi-method dispatched on Sub', :todo<bug>);
+is($foo.bar(sub { "my sub" }), 'Foo.bar() called with Sub : my sub', '... multi-method dispatched on Sub');
 
 my @array = ('foo', 'bar', 'baz');
 is($foo.bar(@array), 'Foo.bar() called with Array : foo, bar, baz', '... multi-method dispatched on Array');
