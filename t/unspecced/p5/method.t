@@ -93,7 +93,6 @@ my $obj;
 
 {
     my $r = $obj.submany;
-    warn $r;
     my @r = $r.();
     is(@r.elems, 2);
 }

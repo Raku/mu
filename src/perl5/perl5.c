@@ -249,6 +249,7 @@ perl5_apply(SV *sub, SV *inv, SV** args, void *env, int cxt)
     for (i=0; i<count; ++i) {
         out[i] = newSVsv(POPs);
     }
+    out[count] = NULL;
 
     PUTBACK;
     FREETMPS;
