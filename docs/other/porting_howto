@@ -174,3 +174,12 @@ Mini HowTo: How to port Perl 5 modules to Perl 6
         my @bar = (1, 2, 3, 4);
         my $foo = @bar;
         $foo.elems; # == 4 (@bar.elems)
+
+  - When calling a method, parentheses are required on the dot notation if 
+    there are any arguments. There may be no space between the method name 
+    and the left parenthesis unless you use the dot form of parentheses:
+        .doit       # okay, no arguments
+        .doit()     # okay, no arguments
+        .doit ()    # ILLEGAL (two terms in a row)
+        .doit.()    # okay, no arguments, same as .doit()
+        .doit .()   # okay, no arguments, same as .doit()
