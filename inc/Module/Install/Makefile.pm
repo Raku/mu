@@ -125,8 +125,6 @@ sub fix_up_makefile {
     $makefile =~ s/^(FULLPERL = .*)/$1 -Iinc/m;
     $makefile =~ s/^(PERL = .*)/$1 -Iinc/m;
 
-    $makefile =~ s|\@ARGV = grep !/\[A-Z\]/, map glob, \@ARGV;|\@ARGV = map glob, \@ARGV;|;
-
     open MAKEFILE, '> Makefile' or die $!;
     print MAKEFILE "$preamble$makefile$postamble";
     close MAKEFILE;
