@@ -46,7 +46,7 @@ makemaker_args  (
 clean_files     (map fixpaths($_),
     "pugs*", "src/Pugs/pugs_config.h", $version_h, $config_h,
     'src/Pugs/Config.hs', 'blib6',
-    'src/Pugs/Prelude.hs', 'src/gen_prelude.exe',
+    'src/Pugs/Prelude.hs', "src/gen_prelude$Config{_exe}",
     'test.log',
     'src/Pugs/Embed/Parrot.hs',
     'src/Pugs/Embed/Parrot_hsc.*',
@@ -236,11 +236,11 @@ src/perl5/perl5.o :
 src/Pugs/Config.hs : util/PugsConfig.pm
 	\$(PERL) -Iutil -MPugsConfig -e "PugsConfig->write_config_module" > src/Pugs/Config.hs
 
-src/gen_prelude.exe :
-	$ghc -O0 -o src/gen_prelude.exe src/gen_prelude.hs
+src/gen_prelude$Config{_exe} :
+	$ghc -O0 -o src/gen_prelude$Config{_exe} src/gen_prelude.hs
 
-src/Pugs/Prelude.hs : src/gen_prelude.exe src/perl6/Prelude.pm
-	src/gen_prelude.exe < src/perl6/Prelude.pm > src/Pugs/Prelude.hs
+src/Pugs/Prelude.hs : src/gen_prelude$Config{_exe} src/perl6/Prelude.pm
+	src/gen_prelude$Config{_exe} < src/perl6/Prelude.pm > src/Pugs/Prelude.hs
 
 ${() = '%.hpp : %.hs @prereqs $version_h
 	$ghc $threaded $ghc_flags -DHADDOCK -E \$< -o \$@

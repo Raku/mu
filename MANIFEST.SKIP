@@ -20,7 +20,9 @@ pugs_config\.h
 pugs_version\.h
 \.svn
 \.DS_Store$
+src/gen_prelude(?!\.hs)$
 src/Config.hs$
+src/Pugs/Prelude.hs$
 src/pugs_version\.h$
 svn-commit\.tmp$
 ^debian/
