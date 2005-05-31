@@ -336,7 +336,9 @@ instance Value VCode where
             rv      <- liftIO $ do
                 envSV   <- mkVal (VControl $ ControlEnv env)
                 callPerl5 sv nullSV svs envSV (enumCxt $ envContext env)
-            return $ PerlSV rv
+            return $ case rv of
+                [sv]    -> PerlSV sv
+                _       -> VList (map PerlSV rv)
         }
     doCast (VCode b) = b
     doCast (VList [VCode b]) = b -- XXX Wrong

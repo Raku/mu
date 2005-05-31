@@ -252,11 +252,14 @@ instance ArrayClass (IVar VPair) where
 
 evalPerl5Sub :: String -> [PerlSV] -> Eval Val
 evalPerl5Sub code args = do
-    env   <- ask
-    fmap PerlSV . liftIO $ do
+    env <- ask
+    rv  <- liftIO $ do
         envSV <- mkVal env
         subSV <- evalPerl5 code envSV (enumCxt cxtItemAny)
         callPerl5 subSV nullSV args envSV (enumCxt cxtItemAny)
+    return $ case rv of
+        [sv]    -> PerlSV sv
+        _       -> VList (map PerlSV rv)
 
 instance ArrayClass PerlSV where
     array_iType = const $ mkType "Array::Perl"

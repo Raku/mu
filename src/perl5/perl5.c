@@ -208,10 +208,11 @@ perl5_newSVnv ( double iv )
     return(newSVnv(iv));
 }
 
-SV *
+SV **
 perl5_apply(SV *sub, SV *inv, SV** args, void *env, int cxt)
 {
     SV **arg;
+    SV **out;
     SV *rv;
     SV *sv;
     void *old_env = pugs_getenv();
@@ -242,14 +243,11 @@ perl5_apply(SV *sub, SV *inv, SV** args, void *env, int cxt)
 
     SPAGAIN;
 
-    if (count == 1) {
-	rv = newSVsv(POPs);
-    }
-    else {
-	rv = (SV *)newAV();
-	for (i=0; i<count; ++i) {
-	    av_push ((AV *)rv, POPs);
-	}
+    /* fprintf(stderr, "%d is count\n", count); */
+    Newz(42, out, count+1, SV*);
+
+    for (i=0; i<count; ++i) {
+        out[i] = newSVsv(POPs);
     }
 
     PUTBACK;
@@ -257,7 +255,7 @@ perl5_apply(SV *sub, SV *inv, SV** args, void *env, int cxt)
     LEAVE;
 
     pugs_setenv(old_env);
-    return rv;
+    return out;
 }
 
 SV *

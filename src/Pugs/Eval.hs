@@ -905,7 +905,9 @@ findSub name' invs args = do
                     envSV   <- mkVal (VControl $ ControlEnv env)
                     subSV   <- vstrToSV $ tail name
                     callPerl5 subSV sv svs envSV (enumCxt $ envContext env)
-                return $ PerlSV rv
+                return $ case rv of
+                    [sv]    -> PerlSV sv
+                    _       -> VList (map PerlSV rv)
             }
     possiblyBuildMetaopVCode :: String -> Eval (Maybe VCode)
     possiblyBuildMetaopVCode op' | "&prefix:[" `isPrefixOf` op', "]" `isSuffixOf` op' = do 
