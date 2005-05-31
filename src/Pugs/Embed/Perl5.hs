@@ -50,8 +50,8 @@ vintToSV = constFail
 vnumToSV :: (Real a) => a -> IO PerlSV
 vnumToSV = constFail
 
-callPerl5 :: PerlSV -> PerlSV -> [PerlSV] -> PerlSV -> CInt -> IO [PerlSV]
-callPerl5 _ _ _ _ = constFail
+invokePerl5 :: PerlSV -> PerlSV -> [PerlSV] -> PerlSV -> CInt -> IO [PerlSV]
+invokePerl5 _ _ _ _ = constFail
 
 canPerl5 :: PerlSV -> String -> IO Bool
 canPerl5 _ = constFail
@@ -170,8 +170,8 @@ vintToSV int = perl5_newSViv (fromIntegral int)
 vnumToSV :: (Real a) => a -> IO PerlSV
 vnumToSV int = perl5_newSVnv (realToFrac int)
 
-callPerl5 :: PerlSV -> PerlSV -> [PerlSV] -> PugsVal -> CInt -> IO [PerlSV]
-callPerl5 sub inv args env cxt = do
+invokePerl5 :: PerlSV -> PerlSV -> [PerlSV] -> PugsVal -> CInt -> IO [PerlSV]
+invokePerl5 sub inv args env cxt = do
     withArray0 nullPtr args $ \argv -> do
         rv <- perl5_apply sub inv argv env cxt
         peekArray0 nullPtr rv

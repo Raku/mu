@@ -256,7 +256,7 @@ evalPerl5Sub code args = do
     rv  <- liftIO $ do
         envSV <- mkVal env
         subSV <- evalPerl5 code envSV (enumCxt cxtItemAny)
-        callPerl5 subSV nullSV args envSV (enumCxt cxtItemAny)
+        invokePerl5 subSV nullSV args envSV (enumCxt cxtItemAny)
     return $ case rv of
         [sv]    -> PerlSV sv
         _       -> VList (map PerlSV rv)

@@ -335,7 +335,7 @@ instance Value VCode where
             env     <- ask
             rv      <- liftIO $ do
                 envSV   <- mkVal (VControl $ ControlEnv env)
-                callPerl5 sv nullSV svs envSV (enumCxt $ envContext env)
+                invokePerl5 sv nullSV svs envSV (enumCxt $ envContext env)
             return $ case rv of
                 [sv]    -> PerlSV sv
                 _       -> VList (map PerlSV rv)

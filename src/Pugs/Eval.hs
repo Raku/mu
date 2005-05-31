@@ -906,7 +906,7 @@ findSub name' invs args = do
                 rv      <- liftIO $ do
                     envSV   <- mkVal (VControl $ ControlEnv env)
                     subSV   <- vstrToSV $ tail name
-                    callPerl5 subSV sv svs envSV (enumCxt $ envContext env)
+                    invokePerl5 subSV sv svs envSV (enumCxt $ envContext env)
                 return $ case rv of
                     [sv]    -> PerlSV sv
                     _       -> VList (map PerlSV rv)
