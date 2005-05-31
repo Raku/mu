@@ -18,9 +18,18 @@ welcome :-)
 module Main where
 
 main :: IO ()
-
 main = do
-    putStr "\
+    putStr preludeIntro
+    str <- getContents
+    print . unlines . filter notComment . lines $ str
+    where
+    notComment ('#':_)      = False
+    notComment (' ':cs)     = notComment cs
+    notComment ('\t':cs)    = notComment cs
+    notComment _            = True
+
+preludeIntro :: String
+preludeIntro = "\
 \{-# OPTIONS -fglasgow-exts #-}\n\
 \ \n\
 \{-\n\
@@ -37,7 +46,7 @@ main = do
 \>   Of mighty kings in Nargothrond\n\
 \>   And Gondolin, who now beyond\n\
 \>   The Western Seas have passed away:\n\
-\>   The world was fair in Durin’s day.\n\
+\>   The world was fair in Durin's day.\n\
 \ \n\
 \-}\n\
 \ \n\
@@ -48,4 +57,3 @@ main = do
 \ \n\
 \preludeStr :: String\n\
 \preludeStr = "
-    getContents >>= putStr . show
