@@ -27,6 +27,27 @@ Mini HowTo: How to port Perl 5 modules to Perl 6
     - foreach my $foo (@baz) {...} ->
       for @baz -> $foo {...}
     - length("foo") -> "foo".chars
+    - Subroutine/method/array/hash access: Perl6 whitespace is disallowed
+      between the name and the opening brace. The "dot form" can be used
+      to introduce intervening space.
+
+        foo(@args)      # ok
+        foo.(@args)     # ok
+        foo (@args)     # WRONG
+        foo  .(@args)   # ok
+        @a[0]           # ok
+        @a.[0]          # ok
+        @a [0]          # WRONG
+        @a  .[0]        # ok
+        %h{'k'}         # ok
+        %h.{'k'}        # ok
+        %h {'k'}        # WRONG
+        %h  .{'k'}      # ok
+        %h<k>           # ok
+        %h.<k>          # ok
+        %h  <k>         # WRONG
+        %h  .<k>        # ok
+
     - Regular expressions:
       m/ a * b /x       -> m/ a * b /               # /x now default
       m/ a\  b /x       -> m/ a\  b /
