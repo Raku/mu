@@ -35,7 +35,54 @@ Set.pm operators (included for reference):
     ∌    !$a.includes($b)
     ∉    !$b.includes($a)
 
+
 Other unicode characters used as operators in Perl 6 programs should
 be added here, so long as the /intent/ of the Unicode code point is an
-operator.
+operator.  That is, this shouldn't be a "that glyph looks the most
+like this concept" thing.  If it's not their intended use, don't use
+them :).
+
+So, these *might* be considered not too awful;
+
+    ×           *
+    ¬           !
+    ∕           /
+    ≡          =:=
+    ≔           :=
+  ⩴ or ≝       ::=
+  ≈ or ≊        ~~
+    …          ...
+    √          sqrt()
+    ∧           &&
+    ∨           ||
+    ∣           mod  (? bit of a stretch, perhaps)
+   ⌈$x⌉        ceil($x)
+   ⌊$x⌋        floor($x)
+
+
+However I think it is a BAD idea that the following unicode characters
+be abused; however ❝cute❞ it might be…
+
+    ╳           *
+    ∗           *
+    ⊗           *
+✱✲✳✴✵✶✷✸✹ etc   *
+   ⟨ ⟩         < >
+   ⟪ ⟫         « »        (er, I mean << >> ;-) )
+    →           ->
+    ‼          !(!($a))   (ie, cast to boolean)
+   ⁇ ∷        ?? ::
+    ∥         || or //
+    ¹           **1       (as these glyphs are just "superscript 1" etc)
+    ²           **2
+    ³           **3
+    ☂         eval{ }
+    ☝         warn
+    ⋯          ...
+    ☣          ...
+    ☠          !!!
+    ☢          ???
+   ✁          HERE-doc
+   ✃
+    ☮         exit(0);
 
