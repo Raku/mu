@@ -98,8 +98,11 @@ my %events = (
     string  => -> ($str)  { $buffer ~= $str  }   
 );
 
+my $file = $?FILE;
+$file ~~ s:P5/basic.t/sample.kwid/;
+
 lives_ok {
-    parse(catfile('t', 'sample.kwid'), %events);
+    parse($file, %events);
 }, '... we parsed the sample file without die-ing';
 
 diag $buffer;
