@@ -64,8 +64,10 @@ instance Compile (Var, [(TVar Bool, TVar VRef)]) where
     compile (('&':name), [(_, sym)]) = do
         ret <- askPMC
         imc <- compile sym
+        let (Just (package, name')) = breakOnGlue "::" name
         return $ vcat
-            [ text (".sub \"" ++ name ++ "\"")
+            [ text (".namespace ['" ++ package ++ "']")
+            , text (".sub \"" ++ name' ++ "\"")
             , nest 4 imc
             , text $ ".return (" ++ ret ++ ")"
             , text ".end"
