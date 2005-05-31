@@ -5,7 +5,7 @@ use Test;
 
 plan 28;
 
-force_todo 11, 12;
+force_todo 12;
 
 use Set::Hash;
 

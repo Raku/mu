@@ -1,7 +1,5 @@
 #!/usr/bin/pugs
 
-BEGIN { unshift @*INC, '../lib'; }
-
 use v6;
 use Test;
 
