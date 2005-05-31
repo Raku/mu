@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 59;
+plan 60;
 
 # tests various assignment styles
 
@@ -17,6 +17,11 @@ plan 59;
     is($bar, "FOO", "... and second");
 };
 
+{
+    my $x = 1;
+    eval 'infix:<=>.($x, 0)';
+    is($x, 0, 'assignment operator called as function');
+}
 
 {
     # swap two elements in the same array 
