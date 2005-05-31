@@ -402,7 +402,7 @@ op1 "IO::Dir::readdir" = \v -> do
         if null this then return [] else do
         rest <- readDirStreamList dir
         return $ (this:rest)
-op1 "Pugs::Internals::runInteractiveCommand" = \v -> do
+op1 "pugs::guts::runInteractiveCommand" = \v -> do
     str <- fromVal v
     tryIO undef $ do
         (inp,out,err,phand) <- runInteractiveCommand str
@@ -800,12 +800,12 @@ op2 "connect" = \x y -> do
     port <- fromVal y
     hdl  <- liftIO $ connectTo host (PortNumber $ fromInteger port)
     return $ VHandle hdl
-op2 "Pugs::Internals::hSetBinaryMode" = \x y -> do
+op2 "pugs::guts::hSetBinaryMode" = \x y -> do
     fh    <- fromVal x
     mode  <- fromVal y
     liftIO $ hSetBinaryMode fh mode
     return $ VBool True
-op2 "Pugs::Internals::openFile" = \x y -> do
+op2 "pugs::guts::openFile" = \x y -> do
     filename <- fromVal x
     mode     <- fromVal y
     tryIO undef $ do
@@ -1513,9 +1513,9 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Object    pre     clone   safe   (Any)\
 \\n   Object    pre     id      safe   (Any)\
 \\n   Bool      pre     Thread::yield   safe   (Thread)\
-\\n   List      pre     Pugs::Internals::runInteractiveCommand  unsafe (Str)\
-\\n   Bool      pre     Pugs::Internals::hSetBinaryMode         unsafe (IO, Str)\
-\\n   IO        pre     Pugs::Internals::openFile               unsafe (Str, Str)\
+\\n   List      pre     pugs::guts::runInteractiveCommand  unsafe (Str)\
+\\n   Bool      pre     pugs::guts::hSetBinaryMode         unsafe (IO, Str)\
+\\n   IO        pre     pugs::guts::openFile               unsafe (Str, Str)\
 \\n   Bool      pre     bool::true  safe   ()\
 \\n   Bool      pre     bool::false safe   ()\
 \\n   List      spre    prefix:[,]  safe   (List)\
