@@ -303,16 +303,18 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
             , subCont       = Nothing
             }
         pkg = envPackage env
-        name' = (head name:pkg) ++ "::" ++ tail name
+        name' | ':' `elem` name = name
+              | otherwise       = (head name:pkg) ++ "::" ++ tail name
         self :: [Param]
         self | styp > SubMethod = []
              | (prm:_) <- params, isInvocant prm = []
              | otherwise = [selfParam $ envPackage env]
         exp  = Syn ":=" [Var name, Syn "sub" [subExp]]
         exp' = Syn ":=" [Var name', Syn "sub" [subExp]]
+        isExported = (pkg == "main" || "export" `elem` traits)
     case scope of
         -- XXX FIXME - the "main" here is a horrible hack
-        SGlobal | pkg == "main" || "export" `elem` traits -> do
+        SGlobal | name' /= name && isExported -> do
             unsafeEvalExp (Sym scope name exp)
             unsafeEvalExp (Sym scope name' exp')
             return emptyExp
