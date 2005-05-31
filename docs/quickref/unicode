@@ -2,11 +2,25 @@ How to enter various non-ASCII characters in editors
 
 Vim users see ":help digraph-table" and ":digraphs".
 
-Unix/X11 users see
+There are two ways for Unix/X11 users to enable the compose key:
+
+Either see: 
 http://www.gentoo.org/news/en/gwn/20041206-newsletter.xml#doc_chap8
-for how to enable the Compose Key.  Note that the compose combinations
-here are a de facto X11R6 standard, and do not necessarily correspond
-to the compose combinations available when you use your "compose" key.
+
+Or run 'xev' to figure out the keycode of whatever key you want to use as your 
+compose key (bring the program into focus and type the key, then wade through
+the garbage to find the keycode), then put:
+
+    keycode 115 = Multi_key
+
+(Substituting for 115 the keycode you found) Into your $HOME/.xmodmaprc, and
+run:
+
+    % xmodmap ~/.xmodmaprc
+
+Note that the compose combinations here are an X11R6 standard, and do not
+necessarily correspond to the compose combinations available when you use your
+"compose" key.
     
     Unicode     ASCII                        key sequence
     char        fallback    Vim        Emacs       Unix Compose Key combination
