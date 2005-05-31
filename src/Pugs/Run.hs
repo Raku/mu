@@ -153,6 +153,7 @@ prepareEnv name args = do
     where
     hideInSafemode x = if safeMode then MkRef $ constScalar undef else x
 
+initPrelude :: Env -> IO Val
 initPrelude env = runEvalIO env $ opEval Nothing "<prelude>" preludeStr
 
 initClassObjects :: [Type] -> ClassTree -> IO [STM (Pad -> Pad)]

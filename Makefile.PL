@@ -239,7 +239,7 @@ src/Pugs/Config.hs : util/PugsConfig.pm
 src/gen_prelude.exe :
 	$ghc -O0 -o src/gen_prelude.exe src/gen_prelude.hs
 
-src/Pugs/Prelude.hs : src/gen_prelude.exe
+src/Pugs/Prelude.hs : src/gen_prelude.exe src/perl6/Prelude.pm
 	src/gen_prelude.exe < src/perl6/Prelude.pm > src/Pugs/Prelude.hs
 
 ${() = '%.hpp : %.hs @prereqs $version_h
