@@ -890,11 +890,13 @@ findSub name' invs args = do
         if isJust metaSub then return metaSub else do
         return . Just $ mkPrim
             { subName     = name
-            , subParams   = makeParams ["Object", "List"]
+            , subParams   = makeParams ["Object", "List", "Named"]
             , subReturns  = mkType "Scalar::Perl5"
-            , subBody     = Prim $ \(inv:args:_) -> do
+            , subBody     = Prim $ \(inv:named:pos:_) -> do
                 sv      <- fromVal inv
-                svs     <- fromVals args
+                posSVs  <- fromVals pos
+                namSVs  <- fmap concat (fromVals named)
+                let svs = posSVs ++ namSVs
                 found   <- liftIO $ canPerl5 sv (tail name)
                 found'  <- liftIO $ if found
                     then return found
