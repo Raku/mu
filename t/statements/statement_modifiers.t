@@ -65,6 +65,17 @@ my $str3 = "bbb";
     is($a, 3 * 5 * 7 * 9, "post for array");
 }
 
+# Without this definition, you get:
+#
+# *** Undeclared variable: "&check"
+#     at t/statements/statement_modifiers.t line 77, column 1
+#
+# see also t/pugsbugs/lexical_subs.t
+my $size = 1;
+sub check(Int $num) {
+    fail("lexical subs are broken! :)") for 1..$size;
+}
+
 {
     my @a = (5, 7, 9);
     my $counter = 5;
@@ -74,6 +85,8 @@ my $str3 = "bbb";
     }
     check $_ for @a;
 }
+
+$size = 2;
 
 {
     my @a = ($str1, $str2, $str3);

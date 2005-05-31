@@ -21,4 +21,4 @@ so it looks like a pugs-pcre interface bug.
 =cut
 
 "a" ~~ rx:perl5/a|(b)/;
-ok(!?$0,'An unmatched capture should be false.');
+is($0, undef, 'An unmatched capture should be false.');

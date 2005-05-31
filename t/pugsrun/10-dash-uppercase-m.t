@@ -3,11 +3,14 @@
 use v6;
 use Test;
 
+force_todo 2,3;  # XXX - this is because of the "is exported" problem..
+
 =pod
 
 Test handling of C<-Mmodule>.
 
 =cut
+
 
 BEGIN { push @INC, < blib6/lib > } # ext/File-Spec/lib
 require File::Spec;

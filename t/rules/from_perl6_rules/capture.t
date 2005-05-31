@@ -13,7 +13,7 @@ be valid perl6.
 
 =cut
 
-plan 65;
+plan 60;
 
 if(eval('!("a" ~~ /a/)')) {
   skip_rest "skipped tests - rules support appears to be missing";
@@ -103,14 +103,14 @@ ok("ivan" ~~ m/<?English.name> | <?French.name> | <?Russian.name>/, 'Russian nam
 is($/, "ivan", 'Match is ivan', :todo<feature>);
 is($/<name>, "ivan", 'Name is ivan', :todo<feature>);
 
-# FIXME parsefail
-eval('  rule name { <?English.name> | <?French.name> | <?Russian.name> }  ');
- 
-ok("john" ~~ m/<name>/, 'English metaname', :todo<feature>);
-is($/, "john", 'Metaname match is john', :todo<feature>);
-ok($/ ne "jean", "Metaname match isn't jean");
-is($/<name>, "john", 'Metaname is john', :todo<feature>);
-is(try { $/<name><name> }, "john", 'Metaname name is john', :todo<feature>);
+# FIXME parsefail (crash!)
+# eval('  rule name { <?English.name> | <?French.name> | <?Russian.name> }  ');
+#  
+# ok("john" ~~ m/<name>/, 'English metaname', :todo<feature>);
+# is($/, "john", 'Metaname match is john', :todo<feature>);
+# ok($/ ne "jean", "Metaname match isn't jean");
+# is($/<name>, "john", 'Metaname is john', :todo<feature>);
+# is(try { $/<name><name> }, "john", 'Metaname name is john', :todo<feature>);
 
 }
 

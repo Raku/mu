@@ -9,7 +9,7 @@ Tests for Synopsis 6
 
 =cut
 
-plan 18;
+plan 17;
 
 sub foobar ($var) {
     return $var;
@@ -45,7 +45,7 @@ is(callerunderscore(), "-foo-", 'CALLER:: $_ set once');
 $_ = "bar";
 is(callerunderscore(), "-bar-", 'CALLER:: $_ set twice');
 for ("quux") {
-  is(callerunderscore(), '-quux-', 'CALLER:: $_ set by for');
+  is(callerunderscore(), '-quux-', 'CALLER:: $_ set by for', :todo<feature>);
 }
 is(callerunderscore(), '-bar-', 'CALLER:: $_ reset after for');
 

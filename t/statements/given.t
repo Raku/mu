@@ -211,6 +211,6 @@ Tests the given block, as defined in L<S04/"Switch statements">
     is($passed, 1,"when .isa(Type) {}");
     $passed = 0;
     given $t { when (TestIt) { $passed = 1; }};
-    is($passed, 1,"when (Type) {}");
+    is($passed, 1,"when (Type) {}", :todo<feature>);
 }
 

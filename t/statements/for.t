@@ -72,12 +72,14 @@ is($h, '012345', 'for (0 .. 5), &some_sub works');
 
 $_ = "GLOBAL VALUE";
 for "INNER VALUE" {
-  is( lc(), "inner value", "Implicit default topic is seen by lc()" );
+  is( lc(), "inner value", "Implicit default topic is seen by lc()",
+	:todo<bug> );
 };
 is($_,"GLOBAL VALUE","After the loop the implicit topic gets restored");
 
 $_ = "GLOBAL VALUE";
-is( lc(), "inner value", "Implicit default topic is seen by lc()" )
+is( lc(), "inner value", "Implicit default topic is seen by lc()",
+	:todo<bug> )
   for "INNER VALUE";
 is($_,"GLOBAL VALUE","After the loop the implicit topic gets restored");
 

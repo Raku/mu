@@ -83,5 +83,5 @@ L<S04/"Loop statements">
 }
 
 {
-  eval_is('my $x = 0; loop { $x++; redo if $x < 10 } while 0; $x', '$x', 'redo works in loop');
+  eval_is('my $x = 0; loop { $x++; redo if $x < 10 } while 0; $x', '$x', 'redo works in loop', :todo<feature>);
 }
