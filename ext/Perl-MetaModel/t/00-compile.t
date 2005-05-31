@@ -3,11 +3,11 @@
 use v6;
 use Test;
 
-plan 7;
+plan 4;
 
-use_ok('Perl::Meta::Role::Behavior');
-use_ok('Perl::Meta::Class::Behavior');
-use_ok('Perl::Meta::MetaClass');
+#use_ok('Perl::Meta::Role::Behavior');
+#use_ok('Perl::Meta::Class::Behavior');
+#use_ok('Perl::Meta::MetaClass');
 
 use_ok('Perl::Meta::Property');
 use_ok('Perl::Meta::Method');
