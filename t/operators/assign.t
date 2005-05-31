@@ -203,7 +203,7 @@ plan 59;
 {
     my $x = 0;
     eval '$x ^^= 42';
-    is($x, 42, '^^= operator');
+    is($x, 42, '^^= operator', :todo<bug>);
 }
 
 {

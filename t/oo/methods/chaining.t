@@ -35,7 +35,7 @@ is($foo.num(), 20, '... got the right num value');
 
 my $_foo2 = $foo.baz(20);
 isa_ok($_foo2, 'Foo');
-ok($foo =:= $_foo2 =:= $_foo1, '... $_foo1, $_foo2 and $foo are the same instances');
+ok( ([=:=] ($foo, $_foo2, $_foo1)), '... $_foo1, $_foo2 and $foo are the same instances');
 
 is($foo.num(), 40, '... got the right num value');
 
@@ -47,6 +47,7 @@ lives_ok {
 }, '... method chaining works';
 
 isa_ok($_foo3, 'Foo');
-ok($_foo3 =:= $_foo2 =:= $_foo1 =:= $foo, '... $_foo3, $_foo1, $_foo2 and $foo are the same instances');
+ok( ([=:=] ($_foo3, $_foo2, $_foo1, $foo)),
+	'... $_foo3, $_foo1, $_foo2 and $foo are the same instances');
 
 is($foo.num(), 15, '... got the right num value');

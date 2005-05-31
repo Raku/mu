@@ -4,6 +4,7 @@ use v6;
 use Test;
 
 plan 56;
+force_todo 2, 11, 19, 23, 34, 38;
 
 =pod
 
