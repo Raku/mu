@@ -64,6 +64,7 @@ instance Compile (Var, [(TVar Bool, TVar VRef)]) where
     compile (('&':name), [(_, sym)]) = do
         ret <- askPMC
         imc <- compile sym
+        if isEmpty imc then return empty else do
         let (Just (package, name')) = breakOnGlue "::" name
         return $ vcat
             [ text (".namespace ['" ++ package ++ "']")
@@ -94,6 +95,7 @@ instance Compile VRef where
     compile x = internalError ("Unrecognized construct: " ++ show x)
 
 instance Compile VCode where
+    compile sub | subType sub == SubPrim = return empty
     compile sub = do
         prms <- mapM compile (subParams sub)
         body <- compile (subBody sub)
