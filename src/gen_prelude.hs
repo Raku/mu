@@ -30,7 +30,14 @@ main = do
 \-}\n\
 \ \n\
 \{-|\n\
-\    Pugs Prelude\n\
+\    Perl 6 Prelude.\n\
+\ \n\
+\>   The world was fair, the mountains tall,\n\
+\>   In Eldar Days before the fall\n\
+\>   Of mighty kings in Nargothrond\n\
+\>   And Gondolin, who now beyond\n\
+\>   The Western Seas have passed away:\n\
+\>   The world was fair in Durin’s day.\n\
 \ \n\
 \-}\n\
 \ \n\
