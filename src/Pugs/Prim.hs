@@ -716,6 +716,7 @@ op2 "~|" = op2Str $ mapStr2Fill (.|.)
 op2 "?|" = op2Bool (||)
 op2 "~^" = op2Str $ mapStr2Fill xor
 op2 "=>" = \x y -> return $ castV (x, y)
+op2 "="  = \x y -> evalExp (Syn "=" [Val x, Val y])
 op2 "cmp"= op2Ord vCastStr
 op2 "<=>"= op2Ord vCastRat
 op2 ".." = op2Cast op2Range
@@ -1280,6 +1281,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Any       pre     undef   safe   (?rw!Any)\
 \\n   Str       pre     chop    safe   (?rw!Str=$_)\
 \\n   Str       pre     chomp   safe   (?rw!Str=$_)\
+\\n   Any       right   =       safe   (rw!Any, Any)\
 \\n   Int       pre     index   safe   (Str, Str, ?Int=0)\
 \\n   Int       pre     rindex  safe   (Str, Str, ?Int)\
 \\n   Int       pre     substr  safe   (rw!Str, Int, ?Int, ?Str)\

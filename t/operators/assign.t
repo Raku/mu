@@ -19,7 +19,7 @@ plan 60;
 
 {
     my $x = 1;
-    eval 'infix:<=>.($x, 0)';
+    eval '&infix:<=>.($x, 0)';
     is($x, 0, 'assignment operator called as function');
 }
 
