@@ -4,7 +4,7 @@ use v6;
 use Test;
 
 # XXX - this needs to be updated when Str.split(Str) works again
-plan 45;
+plan 50;
 
 # split on an empty string
 
@@ -70,8 +70,7 @@ split_test split(rx:perl5{(\s+)}, "Hello test"),
 
 split_test "to be || ! to be".split(' '),
            qw/to be || ! to be/,
-           q/Str.split(' ')/,
-           :todo<feature>;
+           q/Str.split(' ')/;
 
 split_test "this will be split".split(rx:perl5{ }),
            qw/this will be split/,

@@ -9,6 +9,9 @@ I/O tests
 
 =cut
 
+force_todo 5..6, 10..11, 15..16, 21, 23..25, 28,
+	30..32, 35, 37..39, 43, 45..47;
+
 plan 48;
 
 sub nonce () { return (".$*PID." ~ int rand 1000) }

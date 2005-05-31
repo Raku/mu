@@ -145,6 +145,6 @@ this test should be added too more.
   my $a1 = [ \%h ];
   my $a2 = [ $hr ];
   is($a0.elems,2,'hash references should not get decomposed');
-  is($a1.elems,1,'hash references should not get decomposed');
-  is($a2.elems,1,'hash references should not get decomposed');
+  is($a1.elems,1,'hash references should not get decomposed', :todo<bug>);
+  is($a2.elems,1,'hash references should not get decomposed', :todo<bug>);
 }
