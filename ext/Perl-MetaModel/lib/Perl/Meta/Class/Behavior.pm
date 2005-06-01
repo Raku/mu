@@ -71,24 +71,24 @@ method allSuperclasses ($self:) returns Array of Perl::Meta::Class::Behavior {
 ## Subclass methods
 
 method :removeSubclass ($self: Perl::Meta::Class::Behavior $subclass) returns Void {
-    $:subclass = set() unless $:subclasses.defined;
+    $:subclasses //= set();
     $:subclasses.remove($subclass);
 }
 
 method :addSubclass ($self: Perl::Meta::Class::Behavior $subclass) returns Void { 
-    $:subclass = set() unless $:subclasses.defined;
+    $:subclasses //= set();
     ($subclass.superclass() && $subclass.superclass().name() eq $self.name())
         || die "Sub class's superclass must be the invocant (got: '{ $subclass.clsSuper() }')";              
     $:subclasses.insert($subclass);        
 }
 
 method subclasses ($self:) returns Array of Perl::Meta::Class::Behavior {
-    $:subclass = set() unless $:subclasses.defined;
+    $:subclasses //= set();
     $:subclasses.members();
 }
 
 method allSubclasses ($self:) returns Array of Perl::Meta::Class::Behavior {
-    $:subclass = set() unless $:subclasses.defined;
+    $:subclasses //= set();
     # NOTE:
     # again, this is not a Set for the same reasons that allSuperclasses 
     # is not a set (see that method for more info)
