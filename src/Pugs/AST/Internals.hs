@@ -683,7 +683,8 @@ subtyping.
 data SubType = SubMethod    -- ^ Method
              | SubCoroutine -- ^ Coroutine
              | SubRoutine   -- ^ Regular subroutine
-             | SubBlock     -- ^ Pointy sub or bare block
+             | SubBlock     -- ^ Bare block
+             | SubPointy    -- ^ Pointy sub
              | SubPrim      -- ^ Built-in primitive operator (see "Pugs.Prim")
     deriving (Show, Eq, Ord)
 
@@ -975,7 +976,7 @@ defaultScalarParam :: Param
 
 defaultArrayParam   = buildParam "" "*" "@_" (Val VUndef)
 defaultHashParam    = buildParam "" "*" "%_" (Val VUndef)
-defaultScalarParam  = buildParam "" "" "$_" (Val VUndef)
+defaultScalarParam  = buildParam "" "?" "$_" (Var "$OUTER::_")
 
 type DebugInfo = Maybe (TVar (Map String String))
 

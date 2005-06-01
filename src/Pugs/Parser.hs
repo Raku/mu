@@ -799,14 +799,19 @@ retVerbatimBlock styp formal body = expRule $ do
             , subAssoc      = "pre"
             , subReturns    = anyType
             , subLValue     = False -- XXX "is rw"
-            , subParams     = if null params && styp <= SubRoutine
-                then [defaultArrayParam] else params
+            , subParams     = if null params
+                then defaultParamFor styp else params
             , subBindings   = []
             , subSlurpLimit = []
             , subBody       = fun
             , subCont       = Nothing
             }
     return (Syn "sub" [Val $ VCode sub])
+
+defaultParamFor :: SubType -> [Param]
+defaultParamFor SubBlock    = [defaultScalarParam]
+defaultParamFor SubPointy   = []
+defaultParamFor _           = [defaultArrayParam]
 
 ruleBlockFormalStandard :: RuleParser (SubType, Maybe [Param])
 ruleBlockFormalStandard = rule "standard block parameters" $ do
@@ -821,7 +826,7 @@ ruleBlockFormalPointy :: RuleParser (SubType, Maybe [Param])
 ruleBlockFormalPointy = rule "pointy block parameters" $ do
     symbol "->"
     params <- ruleSubParameters ParensOptional
-    return $ (SubBlock, params)
+    return $ (SubPointy, params)
 
 
 

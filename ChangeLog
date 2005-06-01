@@ -29,6 +29,8 @@
 * Fully qualified subroutines now implemented
 * `loop {} while` and `loop {} until` now implemented
 * `&infix<=>` can now be used as the assignment operator
+* Parameterless pointy blocks no longer gets a default parameter list
+* Parameterless bare blocks now gets (?$_=$OUTER::_) by default
 
 === Bundled Modules
 
