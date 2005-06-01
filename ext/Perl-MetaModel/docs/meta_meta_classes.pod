@@ -4,6 +4,10 @@
 
 ... or How to twist your brain up in knots without even trying.
 
+Note that the "Meta Meta Class" used in this document does I<not>
+exist in the implemented language at all; more concretely, it is the
+I<encoding> of the class model in the host language.
+
 =head1 Introduction
 
 This document is an ongoing attempt to clarify (and hopefully
