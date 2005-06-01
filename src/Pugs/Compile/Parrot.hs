@@ -65,7 +65,9 @@ instance Compile (Var, [(TVar Bool, TVar VRef)]) where
         ret <- askPMC
         imc <- compile sym
         if isEmpty imc then return empty else do
-        let (Just (package, name')) = breakOnGlue "::" name
+        let (package, name') = case breakOnGlue "::" name of
+                Just x  -> x
+                _       -> ("main", name)
         return $ vcat
             [ text (".namespace ['" ++ package ++ "']")
             , text (".sub \"" ++ name' ++ "\"")
