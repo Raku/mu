@@ -14,6 +14,7 @@ die unless
 eval_perl5(q/
 package My::Array;
 use strict;
+print ''; # XXX - voodoo!
 
 sub new {
     my ($class, $ref) = @_;
@@ -60,10 +61,10 @@ my $p5array = $p5ar.new(\@array);
 my $retarray = $p5array.array;
 
 is($p5array.my_elems, @array.elems, 'elems');
-is($retarray.elems, @array.elems, 'retro elems');
+is($retarray.elems, @array.elems, 'retro elems', :todo<feature>);
 
 is($p5array.my_exists(1), @array.exists(1), 'exists');
-is($retarray.exists(1), @array.exists(1), 'retro exists');
+is($retarray.exists(1), @array.exists(1), 'retro exists', :todo<feature>);
 
 is($p5array.my_exists(10), @array.exists(10), 'nonexists fail');
 is($retarray.exists(10), @array.exists(10), 'retro nonexists' );
@@ -77,8 +78,8 @@ is($p5array.fetch(3), @array[3], 'fetch');
 
 $p5array.push(9);
 
-is($p5array.fetch(4), 9, 'push result');
-is(@array[4], 9, 'push result');
+is($p5array.fetch(4), 9, 'push result', :todo<feature>);
+is(@array[4], 9, 'push result', :todo<feature>);
 
 #$retarray.push(9);  # this will loop
 
@@ -87,7 +88,7 @@ is(@array[4], 9, 'push result');
 
 $p5array.store(0,3);
 
-is(@array[0], 3, 'store result');
-is($p5array.fetch(0), 3, 'store result');
+is(@array[0], 3, 'store result', :todo<feature>);
+is($p5array.fetch(0), 3, 'store result', :todo<feature>);
 
 # TODO: pop, shift, unshift, splice, delete

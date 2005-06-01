@@ -9,7 +9,7 @@ plan 5;
 # don't work, either.
 is ~((1,2,3).map:{ int $_ }), "1 2 3", "dependency for following test (1)";
 $_ = 4; is int, 4,                   "dependency for following test (2)";
-is ~((1,2,3).map:{ int }),    "1 2 3", 'int() should default to $_ inside map, too', :todo<bug>;
+is ~((1,2,3).map:{ int }),    "1 2 3", 'int() should default to $_ inside map, too';
 
 # This works...
 is ~(({1},{2},{3}).map:{ $_; $_() }), "1 2 3", 'lone $_ in map should work (1)';

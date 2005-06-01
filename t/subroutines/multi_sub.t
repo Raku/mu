@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 13;
+plan 14;
 
 # type based dispatching
 
@@ -25,7 +25,7 @@ my $num = '4';
 is(foo(+$num), 'Num 4', 'dispatched to the Num sub');
 is(foo(1.5), 'Rat 1.5', 'dispatched to the Rat sub');
 is(foo(1 == 1), 'Bool 1', 'dispatched to the Bool sub');
-is(foo(rx:P5/a/),'Rule Rule','dispatched to the Rule sub');
+is(foo(rx:P5/a/),'Rule Rule','dispatched to the Rule sub', :todo<bug>);
 is(foo(sub { 'baz' }), 'Sub baz', 'dispatched to the Sub sub');
 
 my @array = ('foo', 'bar', 'baz');

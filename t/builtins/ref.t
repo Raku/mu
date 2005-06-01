@@ -43,7 +43,7 @@ isa_ok($s1, 'Sub', 'it is a Sub type');
 
 # L<S06/"Types" /Bare\s*Basic Perl block/>
 my $s2 = {};
-isa_ok($s2, 'Bare', 'it is a Sub type (bare block)', :todo);
+isa_ok($s2, 'Bare', 'it is a Sub type (bare block)');
 
 # L<S06/"Types" /Parametric\s+Basic Perl block with placeholder parameters/>
 my $s2a = { $^a };

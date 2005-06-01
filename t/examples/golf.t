@@ -13,7 +13,6 @@ original golf solutions and rg0now's improved solutions.
 =cut
 
 plan 10;
-force_todo 2, 4, 5;
 
 # XXX: in file paths, '/' works on Unix and Windows.
 # For greater portability, we will need File::Spec or equivalent.
