@@ -66,8 +66,8 @@ castOk :: a -> b -> Bool
 castOk _ _ = True
 
 compareList :: [Type] -> [Type] -> Int
-compareList [] _ = 0
-compareList _ [] = 0
+compareList [] _ = -999
+compareList _ [] = -999
 compareList l1 l2
     | last l1 `elem` l2 =   length(l2 \\ l1) + 1
     | last l2 `elem` l1 = - length(l1 \\ l2) - 1
