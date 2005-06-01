@@ -12,13 +12,13 @@
 * `map` and `reduce` can now take n-ary functions. 
 * New builtins: `evalfile`, `nothing`, `getc`
 * *nix only built-ins: `opendir`, `readdir`, `rewinddir`, `closedir`
-* `Prelude` Perl 6 module added to `src/perl6` to implement primatives in Perl 6
+* `Prelude` Perl 6 module added to `src/perl6` to implement primitives in Perl 6
 ** `openpipe` and `openfile` added to it
 * Class methods: `My::Class.foo()` now work.
-* `BUILDALL` and `DESTORYALL` functionality added for Objects
+* `BUILDALL` and `DESTROYALL` functionality added for Objects
 * `SUPER::` implemented 
 * meta-object system implementation begun
-* meta-object's now initialize from the default class tree
+* meta-objects now initialize from the default class tree
 * all user-defined classes now inherit from "Object"
 * `$str.split(//)` now implemented
 * Stub implementation for `.does` (no Roles yet)
@@ -28,7 +28,7 @@
 * `is export` is no longer no-op
 * Fully qualified subroutines now implemented
 * `loop {} while` and `loop {} until` now implemented
-* `&infix<=>` can now be used as the asignment operator
+* `&infix<=>` can now be used as the assignment operator
 
 === Bundled Modules
 
@@ -43,7 +43,7 @@
 ** Supports more HTTP headers in `header`
 ** New module `CGI::Util` added
 * Coro-based iterator added to `Tree` module
-* Many more code sketches and documentation add to `Perl-MetaModel`
+* Many more code sketches and documentation added to `Perl-MetaModel`
 * `Test::Builder` is now dangerously close to completely working
 * `use lib 'path';` now works
 
@@ -55,7 +55,7 @@
 * New JAPH for Italian Perl Workshop added in `examples/japh`
 * New IRC bot `evalbot` added to `examples/network`
 * Many improvements to `util/perl6.vim` to handle new features 
-* Some new addtions and cleanup of the cookbook
+* Some new additions and cleanup of the cookbook
 * `examples/network/screen-nodestatus.p6` added to monitor host aliveness for GNU screen
 * Perl 6 port of Perl Power Tools begun in `examples/ppt`
 
@@ -64,9 +64,9 @@
 * `times` now really works on Win32
 * `readline()` now reads utf-8
 * `pugs -MFoo` now means `use Foo` not `require Foo`
-* Class methods like `Foo.bar` now dispatches to `Foo::bar` instead of 
+* Class methods like `Foo.bar` now dispatch to `Foo::bar` instead of 
   to `Class::bar`
-* `isa` now handles class names are the invocant, so
+* `isa` now handles class names as the invocant, so
   `Foo.isa(Foo)` is now always true
 * `when .isa(Foo)` is no longer parsed as `when $_ ~~ .isa(Foo)` now
 * `(1 => 2 ?? 3 :: 4)` now always constructs a pair
