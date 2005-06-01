@@ -5,9 +5,10 @@ Perl 6 and Parrot.
 
 = Features
 
-It is our belief that SMD in Perl 6 is entirely unnecessary, and can be
-implemented with MMD, to result in a less confusing dispatch system, consistent
-semantics, and easier extendability.
+It is our belief that SMD (that is, traditional single method dispatch like we
+have in Perl 5) in Perl 6 is entirely unnecessary, and can be implemented with
+MMD, to result in a less confusing dispatch system, consistent semantics, and
+easier extendability.
 
 * All methods are MMD
 ** It might be a good idea to warn if two methods are in the same declaration block (i.e., not under different `is extended` decls), but don't have the now weak `multi` keyword in front of them.
@@ -22,11 +23,16 @@ semantics, and easier extendability.
 
 == Symmetrical Invocants
 
+Lets pretend we have `link`:
+
 	method link(Foo $foo, Bar $bar) { ... }
 
-A method which is symmetrical between all it's invocants, i.e., does not care what order they come in should have a way to say so.
+A method which is symmetrical between all it's invocants, i.e., does not care
+what order they come in should have a way to say so.
 
 	method link(Bar $bar, Foo $foo) { link($foo, $bar) }; # silly
+
+A nice syntax is needed to say that "the following params are unordered".
 
 = Dispatch
 
@@ -165,12 +171,25 @@ order, till we find a candidate that passes. We're done.
 
 If we do not find such a method, we raise a fatal error, that the method was not found.
 
-==== MMD vs `$object.can("method")`
+=== First Class Code Signatures
 
-Two things must change:
+Given a good API into first class signatures, it should be easy to write the
+dispatcher in Perl 6, and also implement other dispatch schemes for alternative
+meta models.
 
-* `can` is a multimethod
-* It returns an ordered list in list context, of all the methods whose `where` clauses pass.
+	class Perl6::Class {
+		method dispatch ($short_name, @invocants, @args) {
+			@invocants ==>
+			map { .can($short_name) } ==>
+			uniq ==>
+			sort {
+				... $^a.meta.signature ...
+			} ==>
+			first { all($_.meta.signature.where_clauses ...) } ==> my $chosen;
+
+			$chosen.invoke(@invocants, @args);
+		}
+	}
 
 == An Example
 
@@ -243,8 +262,8 @@ the form of hash and array unpacking, but that isn't quite the same thing.
 
 = MMD, JIT, Psyco, Zero Dispatch, between Perl 6 and Parrot
 
-The grand unified scheme for dispatching at the machine level as offerred here
-should give us a very optimized form of MMD execution.
+This is the grand unified scheme for dispatching at the machine level as
+offerred here should give us a very optimized form of MMD execution.
 
 It fits well into the scheme like this:
 
