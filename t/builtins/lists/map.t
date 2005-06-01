@@ -10,7 +10,6 @@ use Test;
 =cut
 
 plan 53;
-force_todo 36, 37;
 
 my @list = (1 .. 5);
 
@@ -78,10 +77,10 @@ my @list = (1 .. 5);
     }, @list;
     is(+@result, 5, 'we got a list back');
     is(@result[0], "fish/1", 'got the value we expected');
-    is(@result[1], "fish/2", 'got the value we expected', :todo<bug>);
-    is(@result[2], "fish/3", 'got the value we expected', :todo<bug>);
-    is(@result[3], "fish/4", 'got the value we expected', :todo<bug>);
-    is(@result[4], "fish/5", 'got the value we expected', :todo<bug>);
+    is(@result[1], "fish/2", 'got the value we expected');
+    is(@result[2], "fish/3", 'got the value we expected');
+    is(@result[3], "fish/4", 'got the value we expected');
+    is(@result[4], "fish/5", 'got the value we expected');
 }
 
 {

@@ -5,8 +5,6 @@ use Test;
 
 plan 28;
 
-force_todo <12 13 17 21 25>;
-
 use Set::Hash;
 
 class Person {};
@@ -44,7 +42,7 @@ my $sym_difference = try { $set.symmetric_difference($other_set) };
 ok(try { $sym_difference.equal(set(0,1,7,$bert)) }, "symmetric_difference");
 
 ok(try { $set.difference($other_set).union($other_set.difference($set))
-	.equal($sym_difference) }, "long form of symmetric difference");
+	.equal($sym_difference) }, "long form of symmetric difference", :todo<bug>);
 
 my ($homer, $marge, $bart, $lisa, $maggie) = (1..5).map:{ Person.new };
 
