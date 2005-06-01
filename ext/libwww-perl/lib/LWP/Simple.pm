@@ -22,13 +22,13 @@ my $CRLF = "\x0D\x0A\x0D\x0A";
 my $VERSION = "0.0.1";
 
 
-sub getprint (Str $url)
+sub getprint (Str $url) is export
 {
   getstore $url, '';
 };
 
 # FIXME to use a callback
-sub getstore (Str $url, Str $file)
+sub getstore (Str $url, Str $file) is export
 {
   my $fh = open ">$file";
   my $buffer = get $url;

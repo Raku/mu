@@ -1,4 +1,4 @@
-#!/usr/bin/pugs
+﻿#!/usr/bin/pugs
 
 use v6;
 use Test;
@@ -33,13 +33,13 @@ ok(!($union == set(0..6, $bob, $bert)), "set() - !infix:<==>");
 my $other_set = set(2..3, 7, $bob, $bert);
 
 my $intersection = $set * $other_set;
-is($intersection, set(2..3, $bob), "intersection", :todo<bug>);
+is($intersection, set(2..3, $bob), "intersection");
 
 my $difference = $set - $other_set;
 is($difference, set(0,1), "difference", :todo<bug>);
 
 my $sym_difference = $set % $other_set;
-is($sym_difference, set(0,1,7,$bert), "symmetric_difference", :todo<bug>);
+is($sym_difference, set(0,1,7,$bert), "symmetric_difference");
 
 is( ($set - $other_set) + ($other_set - $set), $set % $other_set,
     "long form of symmetric difference", :todo<bug>);
@@ -58,7 +58,7 @@ ok($parents <= $simpsons, 'infix:"<="');
 ok(!($simpsons <= $parents), '!infix:"<="', :todo<bug>);
 ok($parents <= $parents, 'infix:"<=" (equal sets)');
 
-ok($empty < $simpsons, "infix:'<' (empty)", :todo<bug>);
+ok($empty < $simpsons, "infix:'<' (empty)");
 ok($empty <= $simpsons, "infix:'<=' (empty)");
 
 ok($simpsons > $parents, "infix:'>'", :todo<bug>);
