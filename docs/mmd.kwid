@@ -179,15 +179,12 @@ meta models.
 
 	class Perl6::Class {
 		method dispatch ($short_name, @invocants, @args) {
-			@invocants ==>
-			map { .can($short_name) } ==>
-			uniq ==>
-			sort {
-				... $^a.meta.signature ...
-			} ==>
-			first { all($_.meta.signature.where_clauses ...) } ==> my $chosen;
-
-			$chosen.invoke(@invocants, @args);
+			( # find the method
+				@invocants».can($short_name) ==> uniq ==>				# get all method candidates
+				map { $_.meta.signature.bind(@invocants, @args) } ==>	# try to bind them
+				sort { } ==> # compare the binding according to the rules
+				first { all($_.where_clauses».eval) }					# try the where clauses
+			).invoke(@invocants, @args);								# invoke our chosen meth
 		}
 	}
 
