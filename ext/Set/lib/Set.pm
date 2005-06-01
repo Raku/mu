@@ -3,11 +3,14 @@ use v6;
 
 class Set;
 
+our $DEBUG = 0;
+
 # FIXME - refactor out into a Set role, and a Set::Hash and
 # Set::Junction module.
 
 sub set (*@contents) returns Set is export {
     my $set = Set.new;
+    say "Making a set of ({@contents.join(',')})" if $DEBUG;
     $set.insert(@contents);
     return $set;
 }
@@ -89,25 +92,37 @@ method clone ($self:) returns Set {
 }
 
 method equal($self: Set $other) returns Bool {
-    return (($self.size == $other.size) &&
-	    ($self.includes($other.members)));
+
+    # for some reason, directly returning this expression does not
+    # yield the correct return value.
+
+    say "Comparing: "~$self.stringify~" vs "~$other.stringify if $DEBUG;
+    my $rv =
+	(($self.size == $other.size) &&
+	      ($self.includes($other.members)));
+    return $rv;
 }
 
 method not_equal($self: Set $other) returns Bool {
-    return !$self.equal($other);
+    my $rv = !$self.equal($other);
+    return $rv;
 }
 
 method subset($self: Set $other) returns Bool {
-    return ($self.size <= $other.size && $other.includes($self.members));
+    my $rv = ($self.size <= $other.size && $other.includes($self.members));
+    return $rv;
 }
 method proper_subset($self: Set $other) returns Bool {
-    return ($self.size < $other.size && $other.includes($self.members));
+    my $rv = ($self.size < $other.size && $other.includes($self.members));
+    return $rv;
 }
 method superset($self: Set $other) returns Bool {
-    return ($other.subset($self));
+    my $rv = $other.subset($self);
+    return $rv;
 }
 method proper_superset($self: Set $other) returns Bool {
-    return ($other.proper_subset($self));
+    my $rv = ($other.proper_subset($self));
+    return $rv;
 }
 
 method stringify() returns Str {
@@ -116,22 +131,40 @@ method stringify() returns Str {
 
 
 method union($self: Set $other) returns Set {
-    set($self.members, $other.members);
+    say "Self is "~$self.stringify~", other is "~$other.stringify if $DEBUG;
+    my $set = set($self.members, $other.members);
+    say "Returning union of "~$set.stringify if $DEBUG;
+    return $set;
 }
 method intersection($self: Set $other) returns Set {
-    set($self.members.grep:{ $other.includes($_) });
+    my $rv = set($self.members.grep:{ $other.includes($_) });
+    return $rv;
 }
 method difference($self: Set $other) returns Set {
-    set($self.members.grep:{ !$other.includes($_) });
+    my $rv = set($self.members.grep:{ !$other.includes($_) });
+    return $rv;
 }
 
 method symmetric_difference($self: Set $other) returns Set {
-    $self.difference($other).union($other.difference($self));
+
+    # this one was particularly disturbing..
+    say "Symmetric difference: "~$self.stringify~" % "~$other.stringify if $DEBUG;
+    my $one_diff = $self.difference($other);
+    say "One diff: "~$one_diff.stringify if $DEBUG;
+    my $two_diff = $other.difference($self);
+    say "Two diff: "~$two_diff.stringify if $DEBUG;
+    my $symm_diff = $one_diff.union($two_diff);
+    say "Symm. diff: "~$symm_diff.stringify if $DEBUG;
+    return $symm_diff;
 }
 
 # FIXME ... $?PACKAGE ?
 our &Set::count ::= &Set::size;
 our &Set::has   ::= &Set::includes;
+
+# Hash/Array compatibility
+our &Set::elems ::= &Set::size;
+#our &Set::values ::= &Set::members;
 
 # unicode intersection
 multi sub infix:<∩> (Set $one, Set $two) returns Set {

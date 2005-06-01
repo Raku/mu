@@ -21,7 +21,7 @@ ok($stringified ~~ rx:perl5/^set\([^<]*<obj:Person>[^<]*\)$/,
    "prefix:<~>", :todo<bug>);
 diag("stringified to $stringified");
 
-skip_rest("next test loops"); exit;
+#skip_rest("next test loops"); exit;
 
 ok($union == set(0..6, $bob), "set() - infix:<==>", :todo<bug>);
 ok(!($union != set(0..6, $bob)), "set() - !infix:<!=>", :todo<bug>);
@@ -84,8 +84,8 @@ ok not(42 ~~ set(23, 43, 63)), "infix:<~~> works (2)";
 # Rubyish set operations on arrays
 # Note: We only test for the correct number of elements, as there's no
 # particular order.
-skip_rest "skipping tests as :todo doesn't seem to work";
-exit;
+#skip_rest "skipping tests as :todo doesn't seem to work";
+#exit;
 
 eval_is '+([1,2,3] +# [1,2,3])',   3, "infix:<+#> works (1)", :todo<feature>;
 eval_is '+([1,2,3] +# [1,2,3,4])', 4, "infix:<+#> works (2)", :todo<feature>;

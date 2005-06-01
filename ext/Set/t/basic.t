@@ -14,6 +14,8 @@ my $bob = Bob.new;
 my $bert = Bert.new;
 
 my $set = set(0, 1, 2, 3, $bob);
+
+
 is(~$set.ref, "Set", "set()");
 
 ok($set.includes(0), ".includes(0)");
@@ -25,6 +27,8 @@ is($set.size, 5, ".size");
 is($set.insert(4), 1, ".insert()");
 is($set.insert(3), 0, ".insert()");
 is($set.insert($bert), 1, ".insert(\$bert)");
+
+#=pod
 
 is($set.includes(4), bool::true, ".insert() worked");
 is($set.member(4),   4,          ".member()");

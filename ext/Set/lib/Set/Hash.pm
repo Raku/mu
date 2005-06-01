@@ -37,33 +37,23 @@ method members() returns List {
 # to stringify).
 method _stringify ($item) returns Str {
     my $str_item = ~$item;
-    $str_item ~= $item.id() if $str_item ~~ rx:perl5/^\<obj\:/; #/#cperl-mode--
+    $str_item ~= $item.id()
+	if $str_item ~~ rx:perl5/^\<obj\:/; #/#cperl-mode--
     return $str_item;
 }
 
 method insert($self: *@items) returns Int {
-    my Int $pre_size = 0;
-    my $inserted = 0;
-    for @items -> $item {
-        my $key = $self._stringify($item);
-    	unless ( %:members.exists($key) ) {
-            $inserted++;
-    	    %:members{$key} = $item;
-    	}
-    }
-    return $inserted;
+    my Int $pre_size = $self.size;
+    for @items { %:members<$self._stringify($^x)> = $^x }
+    return $self.size - $pre_size;
 }
 
 method remove($self: *@items) returns Int {
-    my Int $removed = 0;
-    for @items -> $item {
-        # Work around Pugs bug WRT undef turning into a [undef].
-        my @deleted = %:members.delete($self._stringify($item));
-        if ( @deleted and defined @deleted[0] ) {
-            $removed++;
-        }
+    my Int $pre_size = $self.size;
+    for @items {
+	%:members.delete($self._stringify($^x));
     }
-    return $removed;
+    return $pre_size - $self.size;
 }
 
 method includes($self: *@items) returns Bool {
@@ -82,10 +72,10 @@ method invert($self: *@items) returns int {
     my int $rv;
     for @items -> $item {
     	if ( $self.includes($item) ) {
-	        $self.remove($item);
+	    $self.remove($item);
     	    $rv++;
     	} else {
-	        $self.insert($item);
+	    $self.insert($item);
     	}
     }
     return $rv;
