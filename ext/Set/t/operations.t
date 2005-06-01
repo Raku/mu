@@ -39,11 +39,23 @@ my $difference = $set.difference($other_set);
 ok($difference.equal(set(0,1)), "difference");
 
 my $sym_difference = $set.symmetric_difference($other_set);
-my $other_set = set(0,1,7,$bert);
-ok($sym_difference.equal($other_set), "symmetric_difference");
+my $expected_set = set(0,1,7,$bert);
+ok($sym_difference.equal($expected_set), "symmetric_difference");
 
-ok(try { $set.difference($other_set).union($other_set.difference($set))
-	.equal($sym_difference) }, "long form of symmetric difference", :todo<bug>);
+# XXX - this should work, but :
+#ok($set.difference($other_set).union($other_set.difference($set))
+#   .equal($sym_difference), "long form of symmetric difference", :todo<bug>);
+
+# 11:21 < autrijus> it's basically the chained MMD inferencer
+# 11:21 < autrijus> can't figure out what method to call without a
+#                   "returns Set" type
+#  (note: all methods in question have this type set)
+
+# instead, we have to break it up:
+my $diff1 = $set.difference($other_set);
+my $diff2 = $other_set.difference($set);
+my $longdiff = $diff1.union($diff2);
+ok($longdiff.equal($sym_difference), "long form of symmetric difference");
 
 my ($homer, $marge, $bart, $lisa, $maggie) = (1..5).map:{ Person.new };
 
