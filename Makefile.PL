@@ -231,7 +231,7 @@ $version_h : .svn/entries util/version_h.pl
 
 @{[join("\n", map {$emit->($_)} ($unicode_c, $pcre_c, @syck_c))]}
 
-src/perl5/perl5.o :
+src/perl5/perl5.o : src/perl5/perl5.h src/perl5/perlxsi.c src/perl5/perl5.c src/perl5/pugsembed.c src/perl5/pugsembed.h
 	$ghc $threaded $ghc_flags -no-link -no-hs-main -O -o src/perl5/perl5.o src/perl5/perl5.c
 
 src/Pugs/Config.hs : util/PugsConfig.pm
