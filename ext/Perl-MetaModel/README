@@ -72,12 +72,17 @@ defining new Class traits.  These are being built in:
 M3 - Meta::Meta::Class - the language Meta-Meta-Model
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 These are designed to be a minimal set of classes that can describe
-any Meta::Model.  This level is being built in case it ends up being
-important for representing the compiler, which must be able to load in
-new Meta::Class structures when dealing with alternate object
-systems...
+any Meta::Model.
 
-This work is currently largely based on Smalltalk traits, and can be
-found in:
+If we follow the same path that SmallTalk72 did when they found the M3
+was unnecessary, then perhaps the M3 will be unnecessary.
 
-    lib/Perl/Meta/*.pm
+For now, the M3 is based on the core Class support in Pugs, and the
+module;
+
+    lib/Meta/Util.pm
+
+This module generates accessors which support the Class::Tangram
+collection message passing convention, which allows references and
+collection properties of objects to "track" each other; see the last
+few tests in t/01-util.t for an example of how this works.
