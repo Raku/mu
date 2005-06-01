@@ -43,15 +43,17 @@ method _stringify ($item) returns Str {
 }
 
 method insert($self: *@items) returns Int {
-    my Int $pre_size = $self.size;
-    for @items { %:members<$self._stringify($^x)> = $^x }
-    return $self.size - $pre_size;
+    my $pre_size = $self.size;
+
+    for @items -> $x { %:members{$self._stringify($x)} = $x }
+
+    return ($self.size - $pre_size);
 }
 
 method remove($self: *@items) returns Int {
     my Int $pre_size = $self.size;
-    for @items {
-	%:members.delete($self._stringify($^x));
+    for @items -> $x {
+	%:members.delete($self._stringify($x));
     }
     return $pre_size - $self.size;
 }
@@ -151,9 +153,9 @@ method infix:<+> (Set $one, Set $two) returns Set {
 }
 
 # subtraction is difference
-method infix:<-> (Set $one, Set $two) returns Set {
-    $one.difference($two);
-}
+#method infix:<-> (Set $one, Set $two) returns Set {
+#    $one.difference($two);
+#}
 
 # unicode set difference operator
 #  note the difference - ∖ vs \ (backslash)
@@ -256,9 +258,9 @@ method infix:<∉> ($member, Set $set) returns Bool {
 method infix:<+> (Set $one, *@args) returns Set {
     $one.union(set(@args));
 }
-method infix:<-> (Set $one, *@args) returns Set {
-    $one.difference(set(@args));
-}
+#method infix:<-> (Set $one, *@args) returns Set {
+    #$one.difference(set(@args));
+#}
 method infix:<*> (Set $one, *@args) returns Set {
     $one.intersection(set(@args));
 }
