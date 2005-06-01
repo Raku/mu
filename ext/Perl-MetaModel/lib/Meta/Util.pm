@@ -6,7 +6,7 @@ module Meta::Util;
 
 use Set;
 
-our $DEBUG = 1;
+our $DEBUG = 0;
 
 our %defaults
     = (
