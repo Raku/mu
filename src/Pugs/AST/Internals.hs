@@ -62,6 +62,8 @@ module Pugs.AST.Internals (
     extract, fromObject, createObject,
     doPair, doHash, doArray,
     unwrap, -- Unwrap(..) -- not used in this file, suitable for factoring out
+    
+    expToEvalVal, -- Hack, should be removed once it's figured out how
 ) where
 import Pugs.Internals
 import Pugs.Context
@@ -830,6 +832,20 @@ data Exp
     | Var !Var                          -- ^ Variable
     | NonTerm !Pos                      -- ^ Parse error
      deriving (Show, Eq, Ord, Typeable)
+
+instance Value Exp where
+    {- Val -> Exp -}
+    doCast val = fromObject (doCast val)
+    {- Exp -> Val -}
+    {- castV exp = VObject (createObject (mkType "Code::Exp") [("theexp", exp)]) -}
+
+{- FIXME: Figure out how to get this working without a monad, and make it castV -}
+expToEvalVal :: Exp -> Eval Val
+expToEvalVal exp = do
+    obj <- createObject (mkType "Code::Exp") []
+    return $ VObject obj{ objOpaque = Just $ toDyn exp }
+
+
 
 class Unwrap a where
     {-|

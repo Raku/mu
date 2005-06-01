@@ -1,10 +1,5 @@
 {-# OPTIONS_GHC -fglasgow-exts #-}
-module Pugs.Prim.Code (
-    -- for Pugs.Prim
-    op1CodeAssoc,
-    op1CodeName,
-    op1CodeArity,
-) where
+module Pugs.Prim.Code where
 import Pugs.AST
 import Pugs.Internals
 
@@ -22,3 +17,8 @@ op1CodeArity :: Val -> Eval Val
 op1CodeArity v = do
     code <- fromVal v
     return . castV . length $ subParams code
+
+op1CodeBody :: Val -> Eval Val
+op1CodeBody v = do
+    code <- fromVal v
+    expToEvalVal $ subBody code

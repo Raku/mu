@@ -541,8 +541,9 @@ op1 "DESTROYALL" = op1WalkAll reverse "DESTROY"
 -- [,] is a noop -- It simply returns the input list
 op1 "prefix:[,]" = return
 op1 "Code::assoc" = op1CodeAssoc
-op1 "Code::name" = op1CodeName
+op1 "Code::name"  = op1CodeName
 op1 "Code::arity" = op1CodeArity
+op1 "Code::body"  = op1CodeBody
 op1 other   = \_ -> fail ("Unimplemented unaryOp: " ++ other)
 
 returnList :: [Val] -> Eval Val
@@ -1522,6 +1523,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Str       pre     Code::name    safe   (Code:)\
 \\n   Int       pre     Code::arity   safe   (Code:)\
 \\n   Str       pre     Code::assoc   safe   (Code:)\
+\\n   Code::Exp pre     Code::body    safe   (Code:)\
 \\n   IO::Dir   pre     opendir    unsafe (Str)\
 \\n   Str       pre     IO::Dir::readdir    unsafe (IO::Dir)\
 \\n   List      pre     IO::Dir::readdir    unsafe (IO::Dir)\
