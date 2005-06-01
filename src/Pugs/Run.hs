@@ -147,7 +147,7 @@ prepareEnv name args = do
         , genSym "$*_" $ MkRef defSV
         , genSym "$*AUTOLOAD" $ MkRef autoSV
         ] ++ classes
-    unless safeMode $
+    unless safeMode $ do
         initPerl5 "" (Just . VControl $ ControlEnv env{ envDebug = Nothing })
         initPrelude env
         return ()
