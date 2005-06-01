@@ -25,7 +25,8 @@ instance CodeClass ICode where
 instance CodeClass VCode where
     -- XXX - subType should really just be a mkType itself
     code_iType c  = case subType c of
-        SubBlock    -> mkType "Block"
+        SubBlock    -> mkType "Bare"
+        SubPointy   -> mkType "Block"
         SubMethod   -> mkType "Method"
         _           -> mkType "Sub"
     code_fetch    = return
