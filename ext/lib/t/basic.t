@@ -9,14 +9,14 @@ use_ok('lib');
 
 my $inc_count = +@*INC;
 
-import('lib': '../lib');
+::lib.import('../lib');
 
 is($inc_count + 1, +@*INC, 'we have added one path to the @*INC');
 is(@*INC[0], '../lib', '... and it is what and where we expected it to be');
 
 # now check adding duplicates
 
-import('lib': '../lib/My/Module', '../lib/My/Module');
+::lib.import('../lib/My/Module', '../lib/My/Module');
 
 is($inc_count + 2, +@*INC, 'we have added only one new path to the @*INC');
 is(@*INC[0], '../lib/My/Module', '... and it is what and where we expected it to be');
@@ -26,7 +26,7 @@ is(@*INC[0], '../lib/My/Module', '... and it is what and where we expected it to
 my @paths = ('/path/to/dir', 'more/paths');
 my @paths2 = ('/path/to/another/dir', 'more/paths/again');
 
-'lib'.import(@paths, @paths2);
+::lib.import(@paths, @paths2);
 
 is($inc_count + 6, +@*INC, 'we have added four new paths to the @*INC');
 is(@*INC[0], '/path/to/dir', '... and it is what and where we expected it to be');
