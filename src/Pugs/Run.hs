@@ -147,8 +147,10 @@ prepareEnv name args = do
         , genSym "$*_" $ MkRef defSV
         , genSym "$*AUTOLOAD" $ MkRef autoSV
         ] ++ classes
-    initPerl5 "" (Just . VControl $ ControlEnv env{ envDebug = Nothing })
-    initPrelude env
+    unless safeMode $
+        initPerl5 "" (Just . VControl $ ControlEnv env{ envDebug = Nothing })
+        initPrelude env
+        return ()
     return env
     where
     hideInSafemode x = if safeMode then MkRef $ constScalar undef else x
