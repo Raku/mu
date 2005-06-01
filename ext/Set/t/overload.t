@@ -1,4 +1,4 @@
-﻿#!/usr/bin/pugs
+#!/usr/bin/pugs
 
 use v6;
 use Test;
@@ -23,8 +23,8 @@ diag("stringified to $stringified");
 
 #skip_rest("next test loops"); exit;
 
-ok($union == set(0..6, $bob), "set() - infix:<==>", :todo<bug>);
-ok(!($union != set(0..6, $bob)), "set() - !infix:<!=>", :todo<bug>);
+ok($union == set(0..6, $bob), "set() - infix:<==>");
+ok(!($union != set(0..6, $bob)), "set() - !infix:<!=>");
 
 ok($union != set(0..5, $bob), "set() - infix:<!=>");
 ok(!($union == set(0..5, $bob)), "set() - !infix:<==>");
@@ -52,23 +52,23 @@ my $simpsons = set($homer, $marge, $bart, $lisa, $maggie);
 my $parents = set($homer, $marge);
 my $empty = set();
 
-ok($parents < $simpsons, 'infix:"<"', :todo<bug>);
+ok($parents < $simpsons, 'infix:"<"');
 ok(!($simpsons < $parents), '!infix:"<"');
 ok(!($parents < $parents), '!infix:"<" (equal sets)');
 
 ok($parents <= $simpsons, 'infix:"<="');
-ok(!($simpsons <= $parents), '!infix:"<="', :todo<bug>);
+ok(!($simpsons <= $parents), '!infix:"<="');
 ok($parents <= $parents, 'infix:"<=" (equal sets)');
 
 ok($empty < $simpsons, "infix:'<' (empty)");
 ok($empty <= $simpsons, "infix:'<=' (empty)");
 
-ok($simpsons > $parents, "infix:'>'", :todo<bug>);
+ok($simpsons > $parents, "infix:'>'");
 ok(!($parents > $simpsons), "!infix:'>'");
 ok(!($parents > $parents), "!infix:'>' (equal sets)");
 
 ok($simpsons >= $parents, "infix:'>='");
-ok(!($parents >= $simpsons), "!infix:'>='", :todo<bug>);
+ok(!($parents >= $simpsons), "!infix:'>='");
 ok($parents >= $parents, "infix:'>=' (equal sets)");
 
 ok($simpsons > $empty, "infix:'>' (empty)");
