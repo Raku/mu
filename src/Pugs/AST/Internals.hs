@@ -466,7 +466,7 @@ instance Value VStr where
     vCast (VMatch m)    = matchStr m
     vCast (VType typ)   = showType typ -- "::" ++ showType typ
     vCast (VObject o)   = "<obj:" ++ showType (objType o) ++ ">"
-    vCast x             = castFail x
+    vCast x             = "<" ++ showType (valType x) ++ ">"
 
 instance Value [PerlSV] where
     fromVal = fromVals
