@@ -32,6 +32,9 @@ sub spawn_counter () {
 
 my ($pugs,$redir) = ("./pugs", ">");
 
+ok(0, "async+system known to be erratic _everywhere_, disable for now", :todo<bug>);
+exit;
+
 if($?OS eq any<MSWin32 mingw msys cygwin>) {
   $pugs = 'pugs.exe';
   skip 1, "async known to be problematic on Win32";
