@@ -3,6 +3,10 @@
 #include "perlxsi.c"
 #include "pugsembed.c"
 
+/* undefine to enable pugsembed debug messages */
+#define oRZ "#"
+#define hate Perl_croak(aTHX_ "hate software")
+
 /* Workaround for mapstart: the only op which needs a different ppaddr */
 #undef Perl_pp_mapstart
 #define Perl_pp_mapstart Perl_pp_grepstart
@@ -14,49 +18,49 @@ static PerlInterpreter *my_perl;
 int __init = 0;
 
 const char pugs_guts_code[] =
-"use strict;"
+"use strict;\n\n"
 
-"package pugs;"
+"package pugs;\n\n"
 
-"our $AUTOLOAD;"
-"sub AUTOLOAD { pugs::guts::invoke($AUTOLOAD, @_) } "
-"sub DESTROY {}"
+"our $AUTOLOAD;\n"
+"sub AUTOLOAD { pugs::guts::invoke($AUTOLOAD, @_) } \n"
+"sub DESTROY {}\n\n"
 
-"package pugs::guts;"
-"our @ISA=('pugs');"
-"sub Block { my ($class, $val) = @_;"
-"            sub { pugs::guts::invoke($val, undef, @_) } }"
+"package pugs::guts;\n"
+"our @ISA=('pugs');\n"
+"sub Block { my ($class, $val) = @_;\n"
+"            sub { pugs::guts::invoke($val, undef, @_) } }\n"
 
-"sub Array { my ($class, $val) = @_;"
-"            my $array; tie @$array, 'pugs::array', $val;"
-"      warn 'returning '.$array;"
-"            return $array; }"
+"sub Array { my ($class, $val) = @_;\n"
+"            my $array; tie @$array, 'pugs::array', $val;\n"
+oRZ"   warn 'returning '.$array;\n"
+"            return $array; }\n\n"
 
-"our $AUTOLOAD;"
-"sub AUTOLOAD { my $type = $AUTOLOAD; $type =~ s/.*:://;"
-"               return if $type =~ m/^[A-Z]*$/; die 'unhandled supported type: '.$type } "
-"warn 'compiled .'.__PACKAGE__;"
+"our $AUTOLOAD;\n"
+"sub AUTOLOAD { my $type = $AUTOLOAD; $type =~ s/.*:://;\n"
+"               return if $type =~ m/^[A-Z]*$/; die 'unhandled supported type: '.$type } \n"
+oRZ"warn 'compiled .'.__PACKAGE__;\n\n"
 
-"package pugs::array;"
-"sub TIEARRAY {"
-"	my ($class, $val) = @_;"
-"	bless \\$val, $class; }"
+"package pugs::array;\n"
+"sub TIEARRAY {\n"
+"	my ($class, $val) = @_;\n"
+"	bless \\$val, $class; }\n\n"
 
-"sub STORE {"
-"	my ($self, $index, $elem) = @_;"
-"       warn 'store! '.$elem;"
-"       pugs::guts::eval_apply('{ $^x[$^y] = $^z }', $$self, $index, $elem) }"
+"sub STORE {\n"
+"	my ($self, $index, $elem) = @_;\n"
+oRZ"    warn 'store! '.$elem;\n"
+"       pugs::guts::eval_apply('{ $^x[$^y] = $^z }', $$self, $index, $elem) }\n\n"
 
-"sub FETCHSIZE {"
-"	my ($self) = @_;"
-"       my $ret = pugs::guts::invoke('elems', $$self); "
-"       warn 'FETCHSIZE: '.$ret; $ret; }"
+"sub FETCHSIZE {\n"
+"	my ($self) = @_;\n"
+"       my $ret = pugs::guts::invoke('elems', $$self); \n"
+oRZ"    warn 'FETCHSIZE: '.$ret; $ret; }\n\n"
 
-"sub FETCH {"
-"	my ($self, $index) = @_;"
-"       pugs::guts::eval_apply('{ $^x[$^y] }', $$self, $index) }"
-"warn 'compiled';"
-"1;";
+"sub FETCH {\n"
+"	my ($self, $index) = @_;\n"
+"       pugs::guts::eval_apply('{ $^x[$^y] }', $$self, $index) }\n"
+oRZ"warn 'compiled';\n"
+"1;\n";
 
 XS(_pugs_guts_invoke) {
     Val *val, *inv, **stack;
@@ -64,7 +68,7 @@ XS(_pugs_guts_invoke) {
     int i;
     dXSARGS;
     if (items < 1)
-        Perl_croak(aTHX_ "hate software");
+      hate;
 
     sv = ST(0);
     if (sv_isa(sv, "pugs")) {
@@ -98,7 +102,7 @@ XS(_pugs_guts_eval_apply) {
     int i;
     dXSARGS;
     if (items < 1)
-        Perl_croak(aTHX_ "hate software");
+        hate;
 
     val = pugs_Eval(SvPV_nolen(ST(0)));
 
@@ -208,7 +212,9 @@ perl5_init ( int argc, char **argv )
     newXS((char*) "pugs::guts::invoke", _pugs_guts_invoke, (char*)__FILE__);
     newXS((char*) "pugs::guts::eval_apply", _pugs_guts_eval_apply, (char*)__FILE__);
 
+#ifndef oRZ
     fprintf(stderr, "(%s)", pugs_guts_code);
+#endif
     eval_pv(pugs_guts_code, TRUE);
 
     if (SvTRUE(ERRSV)) {
