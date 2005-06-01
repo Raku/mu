@@ -1,37 +1,37 @@
 module fp-0.0.1;
 
 # Function composition
-sub infix:<o> (Code &f, Code &g) { sub($x) { f g $x } }
-sub infix:<∘> (Code &f, Code &g) { sub($x) { f g $x } }
+sub infix:<o> (Code &f, Code &g) is export { sub($x) { f g $x } }
+sub infix:<∘> (Code &f, Code &g) is export { sub($x) { f g $x } }
 
 # Haskell `...` metaoperator
-sub infix:<`map`>  (Code &f, *@y) { map &f, @y }
-sub infix:<`grep`> (Code &f, *@y) { grep &f, @y }
+sub infix:<`map`>  (Code &f, *@y) is export { map &f, @y }
+sub infix:<`grep`> (Code &f, *@y) is export { grep &f, @y }
 
 # Pair constructor
-sub infix:<⇒> { $^x => $^y }
+sub infix:<⇒> is export { $^x => $^y }
 
 # Comparision ops
-sub infix:<≥> { $^a >= $^b }
-sub infix:<≤> { $^a <= $^b }
-sub infix:<≠> { $^a != $^b }
-sub infix:<≣> { $^a =:= $^b }
-sub infix:<≡> { $^a =:= $^b }
+sub infix:<≥> is export { $^a >= $^b }
+sub infix:<≤> is export { $^a <= $^b }
+sub infix:<≠> is export { $^a != $^b }
+sub infix:<≣> is export { $^a =:= $^b }
+sub infix:<≡> is export { $^a =:= $^b }
 
 # Misc. mathematical chars
-sub prefix:<∑>  { [+] *@^nums }
-sub prefix:<∏>  { [*] *@^nums }
-sub postfix:<!> { [*] 1..$^x }
-# sub ∞()       { Inf } -- doesn't work
-sub infix:<÷>   { $^a / $^b }
+sub prefix:<∑>  is export { [+] *@^nums }
+sub prefix:<∏>  is export { [*] *@^nums }
+sub postfix:<!> is export { [*] 1..$^x }
+# sub ∞()       is export { Inf } -- doesn't work
+sub infix:<÷>   is export { $^a / $^b }
 
 # Standard functions of fp
-sub id($x)        { $x }
-sub const($x)     { return -> $y { $x } }
-sub tail(@array)  { @array[1...] }
-sub init(@array)  { @array[0..@array.end-1] }
+sub identity($x)  is export { $x }
+sub const($x)     is export { return -> $y { $x } }
+sub tail(@array)  is export { @array[1...] }
+sub init(@array)  is export { @array[0..@array.end-1] }
 
-sub replicate(Int $n, Code &f) { (1..$n).map:{ f() } }
+sub replicate(Int $n, Code &f) is export { (1..$n).map(&f) }
 
 =head1 NAME
 
@@ -90,7 +90,7 @@ Factorial.
 
 =head1 FUNCTIONS
 
-=head2 C<< id($x) >>
+=head2 C<< identity($x) >>
 
 The identity function.
 
