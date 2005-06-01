@@ -302,7 +302,8 @@ multi sub decode_entities(*@strings is rw) is export
     return @results;
 }
 
-sub encode_entities_numeric (Str $string) returns Str {
+sub encode_entities_numeric (Str $string) returns Str is export
+{
     # XXX temp does not yet appear to be working
     #temp %char_to_entity;
     my %temp        = %char_to_entity;

@@ -107,8 +107,10 @@ method get_message_variables( $message: ) returns Hash of Str {
 
 method as_string( $message: ) returns Str {
 	# This method is intended for debugging use only.
-	return $message.:msg_key~': '~$message.:msg_vars.pairs.sort
-		.map:{ .key~'='~(.value // '') }.join( ', ' ); # S02 says sorting Pairs sorts keys by default.
+	return $message.:msg_key~': '~(
+            [$message.:msg_vars.pairs.sort]
+		.map:{ .key~'='~.value }.join( ', ' ) # S02 says sorting Pairs sorts keys by default.
+        );
 	# we expect that .map will be invoked off of the list that .sort returns
 	# I might use Hash.as() later, but don't know if it is customizable to sort or make undefs the empty str.
 }
