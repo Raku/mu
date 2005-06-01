@@ -89,8 +89,10 @@ op0 other = const $ fail ("Unimplemented listOp: " ++ other)
 op1 :: String -> Val -> Eval Val
 op1 "!"    = op1Cast (VBool . not)
 op1 "id" = \x -> do
-    (VObject o) <- fromVal x
-    return . castV . hashUnique $ objId o
+    val <- fromVal x
+    case val of
+        VObject o   -> return . castV . hashUnique $ objId o
+        _           -> return undef
 op1 "clone" = \x -> do
     (VObject o) <- fromVal x
     attrs   <- readIVar (IHash $ objAttrs o)
