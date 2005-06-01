@@ -53,6 +53,10 @@ sub on_privmsg($event) {
       $bot<raw>($0);
     }
 
+    when rx:P5/^\?join\s+(.+)$/ {
+      $bot<join>($0);
+    }
+
     when rx:P5/^\?uptime$/ {
       my $start_time = INIT { time };
       $bot<privmsg>(to => $reply_to, text => "Running for {int(time() - $start_time)} seconds.");
@@ -91,7 +95,7 @@ sub evalhelper(Str $code) {
   # Prevent possible abuse.
   return "Code to eval exceeds maximum length limit." if bytes $code > 500;
   return "No code to eval given."
-    if bytes $code == 0 or $code ~~ rx:Perl5/^\s*$/;
+    if bytes($code) == 0 or $code ~~ rx:Perl5/^\s*$/;
 
   # Set the necessary environment vars for evalhelper.p5.
   my $tmpfile = "temp-evalbot-$*PID";
