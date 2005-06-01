@@ -25,6 +25,8 @@ which is not really documented and varies between the versions of MSVC.
 So there is no fast and easy way to get automagic command line quoting for all
 programs, especially if double-quotes as parameters are involved.
 
+Haskells automagic quoting seems to be amazingly good though.
+
 =cut
 
 # Win32 specific tests for system() being sane enough
@@ -139,19 +141,22 @@ for @command -> $cmd {
     my @args = $arg;
 
     my $prog = "perl6-temprun-test-" ~ ($counter++) ~ ".tmp";
-    
+
     my $fh = open ">" ~ $prog;
     $fh.say("system(");
-    for (*@cmd,*@args) {
-      my $line = $_.perl();
+    #say @cmd;
+    #say @args;
+    for *@cmd,*@args -> $l {
+      my $line = $l.perl();
+      #say $line;
       $line ~~ s:P5/^\\//;
+      #say $line;
       $fh.say($line ~ ",")
     };
-    #$fh.say(@cmd.perl());
     $fh.say(")");
     $fh.close();
-    undef $fh;    
-    
+    undef $fh;
+
     push @cleanup, $prog;
   };
 };
@@ -163,15 +168,15 @@ for @command -> $cmd {
   for @av -> $arg {
     my @args = $arg;
 
-    my $prog = "perl6-temprun-test-" ~ ($counter++) ~ ".tmp";
-    my $outfile = "perl6-tempout.tmp";
-    
-    
+    my $outfile = "perl6-tempout-" ~ ($counter) ~ ".tmp";
+    push @cleanup, $outfile;
+
+    my $prog = "perl6-temprun-test-" ~ ($counter++) ~ ".tmp";    
+
     my $cmd = @cmd[-1];
     my $expected = "[" ~ $cmd ~ "][" ~ @args.join("][") ~ "]";
     my $name = "|" ~ @cmd.join("*") ~ "| with [" ~ @args.join("][") ~ "]";
-    my $outfile = "perl6-tempout.tmp";
-    
+
     if (! system($pugs ~ " " ~ $prog ~ "> " ~ $outfile)) {
       fail($name);
       diag slurp $prog;
