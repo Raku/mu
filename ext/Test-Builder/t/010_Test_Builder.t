@@ -8,6 +8,7 @@ plan 4;
 use Test::Builder;
 use Test::Builder::TestPlan;
 
+my $ok;
 my $Test = Test::Builder.new();
 is( $Test.ref, 'Test::Builder', 'new() should return a Test::Builder object' );
 
@@ -20,6 +21,7 @@ class Test::Builder::CustomPlan is Test::Builder::NullPlan
 {
 	method footer returns Str ( Int $run )
 	{
+                $ok = 1;
 		return 'ok 4 - DESTROY should write plan footer, if it exists';
 	}
 }
@@ -34,4 +36,10 @@ class Test::Builder::CustomPlan is Test::Builder::NullPlan
 	{
 		$Test3 = Test::Builder.create();
 	}
+}
+
+END {
+    if !$ok {
+        ok($ok, 'DESTROY should write plan footer, if it exists', :todo<bug>);
+    }
 }
