@@ -5,6 +5,11 @@ use Test;
 
 plan 1+322;
 
+if ($?OS ne 'MSWin32') {
+   skip_rest;
+   exit;
+}
+
 =kwid
 
 Test the interaction of system(LIST) and whitespace characters. In
