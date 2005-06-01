@@ -4,6 +4,9 @@ use v6;
 class Set;
 
 our $DEBUG = 0;
+sub debug_set($v) is export {
+    $DEBUG = $v;
+}
 
 # FIXME - refactor out into a Set role, and a Set::Hash and
 # Set::Junction module.
