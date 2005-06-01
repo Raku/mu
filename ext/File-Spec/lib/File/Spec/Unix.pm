@@ -161,11 +161,11 @@ sub path returns Array is export {
 # This HACK is worse than
 # the File::Spec platform hack
 #sub cwd returns Str { system("pwd") }
-sub cwd returns Str {
+sub cwd returns Str is export {
   return File::Spec::cwd();
 }
 
-sub tmpdir returns Str {
+sub tmpdir returns Str is export {
   return File::Spec::tmpdir();
 }
 
