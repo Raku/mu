@@ -3,12 +3,12 @@
 use v6;
 use Test;
 
-plan 14;
+plan 15;
 
 # test the Meta::Util M3
 
 use Set;
-use Meta::Util;
+use_ok("Meta::Util");
 
 class SomeClass {
 }
