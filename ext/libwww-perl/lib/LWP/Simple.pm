@@ -42,7 +42,7 @@ sub getstore (Str $url, Str $file) is export
 # TODO: Implement a non-faked version
 # TODO: Add If-Modified-Since: header
 # TODO: Handle 30x Not Modified response
-sub mirror ($url, $file)
+sub mirror ($url, $file) is export
 {
   getstore($url,$file)
 }
