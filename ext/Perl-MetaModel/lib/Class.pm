@@ -1,10 +1,7 @@
 
-class Class isa Role;
-
-does Type;
+class Class;
 
 method new(Type $base, Str ?$name) returns Class {
-    
 
 }
 

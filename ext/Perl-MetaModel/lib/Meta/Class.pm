@@ -1,17 +1,88 @@
 
 class Meta::Class;
 
-has $.name;
-has @.traits;
+use Set;
+use Meta::Assoc;
+use Meta::Attrib;
+use Meta::Method;
 
-method new(Str $name) returns Meta::Class {
+use Meta::Util;
+
+Has($?CLASS, "name", "Str");
+Has($?CLASS, "abstract", "Bool");
+
+# traits, really
+Has($?CLASS, "attributes", "Set", { companion => "class" });
+Has($?CLASS, "associations", "Set", { companion => "class" });
+Has($?CLASS, "reverse_assocs", "Set", { companion => "dest" });
+Has($?CLASS, "methods", "Set", { companion => "class" });
+Has($?CLASS, "superclasses", "Set", { companion => "subclasses" });
+Has($?CLASS, "subclasses", "Set", { companion => "superclasses" });
+
+# every Meta::Class is a part of an object model object called the
+# schema
+Has($?CLASS, "schema", "Ref", { companion => "classes" });
+
+# this code is a hashref from $LANG to auxilliary code in that
+# language.
+Has($?CLASS, "code", "Str");
+
+# corresponding reverse attributes
+#has Meta::Assoc @.rev_assocs;   # of assocs
+
+method new($class: Str $name) returns Meta::Class {
+
     $.name = $name;
     return $?SELF;
+
 }
 
+# takes the object and "builds" it into a class
 method apply {
     ...
 }
+
+# hmm, what do we need to test to check for circular superclasses?
+# I guess that we're not the superclass of any superclass
+
+method set_superclasses($self: Set $super) {
+
+    my $supers = $self.all_superclasses;
+    die "Uh-oh, there's a super in my duper!"
+	if $supers.includes($self);
+
+    $self.SUPER::set_superclasses($super);
+
+}
+
+method all_superclasses($self:) returns Set {
+    if ( $:superclasses.size ) {
+	return ([+] $:superclasses,
+		$:superclasses.map:{ .all_superclasses });
+    } else {
+	return set();
+    }
+}
+
+method all_attributes($self:) returns Set {
+    set(
+	set( $self.all_superclasses, $self ).members.map:{ .get_attributes }
+       );
+}
+
+method all_methods($self:) returns Set {
+    set(
+	set( $self.all_superclasses, $self ).members.map:{ .get_methods }
+       );
+}
+
+method all_assocs($self:) returns Set {
+    set(
+	set( $self.all_superclasses, $self ).members.map:{ .get_assocations }
+       );
+}
+
+# sigh ... how you get used to infrastructure you've built up in Perl5
 
 =head1 NAME
 
