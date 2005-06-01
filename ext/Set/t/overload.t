@@ -21,14 +21,14 @@ ok($stringified ~~ rx:perl5/^set\([^<]*<obj:Person>[^<]*\)$/,
    "prefix:<~>", :todo<bug>);
 diag("stringified to $stringified");
 
-ok($union == set(0..6, $bob), "set() - infix:<==>");
-ok(!($union != set(0..6, $bob)), "set() - !infix:<!=>");
+ok($union == set(0..6, $bob), "set() - infix:<==>", :todo<bug>);
+ok(!($union != set(0..6, $bob)), "set() - !infix:<!=>", :todo<bug>);
 
-ok($union != set(0..5, $bob), "set() - infix:<!=>", :todo<bug>);
-ok(!($union == set(0..5, $bob)), "set() - !infix:<==>", :todo<bug>);
+ok($union != set(0..5, $bob), "set() - infix:<!=>");
+ok(!($union == set(0..5, $bob)), "set() - !infix:<==>");
 
-ok($union != set(0..6, $bob, $bert), "set() - infix:<!=>", :todo<bug>);
-ok(!($union == set(0..6, $bob, $bert)), "set() - !infix:<==>", :todo<bug>);
+ok($union != set(0..6, $bob, $bert), "set() - infix:<!=>");
+ok(!($union == set(0..6, $bob, $bert)), "set() - !infix:<==>");
 
 my $other_set = set(2..3, 7, $bob, $bert);
 
@@ -69,13 +69,13 @@ ok($simpsons >= $parents, "infix:'>='");
 ok(!($parents >= $simpsons), "!infix:'>='", :todo<bug>);
 ok($parents >= $parents, "infix:'>=' (equal sets)");
 
-ok($simpsons > $empty, "infix:'>' (empty)", :todo<bug>);
+ok($simpsons > $empty, "infix:'>' (empty)");
 ok($parents >= $empty, "infix:'>=' (empty)");
 
-eval_ok('set(1,2,3) ∋ 1', "infix:<∋>", :todo<bug>);
+eval_ok('set(1,2,3) ∋ 1', "infix:<∋>");
 
 # Smartmatch operator
-ok     42 ~~ set(23, 42, 63),  "infix:<~~> works (1)", :todo<feature>;
+ok     42 ~~ set(23, 42, 63),  "infix:<~~> works (1)";
 # No :todo here as the test succeeds.
 ok not(42 ~~ set(23, 43, 63)), "infix:<~~> works (2)";
 

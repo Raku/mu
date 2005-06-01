@@ -61,11 +61,11 @@ method member($self: $item) returns Object {
     return $item if $self.includes($item);
 }
 
-method size() returns int {
+method size() returns Int {
     +$:members.values;
 }
 
-method invert($self: *@items) returns int {
+method invert($self: *@items) returns Int {
     my int $rv;
     for @items -> $item {
     	if ( $self.includes($item) ) {
