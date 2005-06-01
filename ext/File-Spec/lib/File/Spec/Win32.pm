@@ -164,15 +164,15 @@ sub file_name_is_absolute (Str $file) returns Bool is export {
 #    chomp($cwd);
 #    return $cwd;
 #}
-sub cwd returns Str {
+sub cwd returns Str is export {
   return File::Spec::cwd();
 }
 
-sub tmpdir returns Str {
+sub tmpdir returns Str is export {
   return File::Spec::tmpdir();
 }
 
-sub rel2abs (Str $_path, Str ?$_base) returns Str {
+sub rel2abs (Str $_path, Str ?$_base) returns Str is export {
     # take a copy of our args here, maybe 
     # replace this with 'is copy' parameter 
     # trait at some point    
