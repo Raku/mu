@@ -23,7 +23,7 @@ module Pugs.Lexer (
     tryRule, tryVerbatimRule,
     tryChoice,
 
-    ruleScope, ruleTrait, ruleTraitName, ruleBareTrait, ruleContext,
+    ruleScope, ruleTrait, ruleTraitName, ruleBareTrait, ruleType,
     verbatimParens,
 ) where
 import Pugs.Internals
@@ -273,10 +273,10 @@ ruleBareTrait trait = rule "bare trait" $ do
                 return str
            ]
 
-ruleContext :: GenParser Char st String
-ruleContext = literalRule "context" $ do
+ruleType :: GenParser Char st String
+ruleType = literalRule "context" $ do
     lead    <- upper
-    rest    <- many1 (wordAny <|> oneOf ":&|")
+    rest    <- many (wordAny <|> oneOf ":&|")
     return (lead:rest)
 
 tryChoice :: [GenParser tok st a] -> GenParser tok st a

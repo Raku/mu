@@ -378,13 +378,13 @@ ruleParamList wantParens parse = rule "parameter list" $ do
 
 ruleFormalParam :: RuleParser Param
 ruleFormalParam = rule "formal parameter" $ do
-    cxt     <- option "" $ ruleContext
+    typ     <- option "" $ ruleType
     sigil   <- option "" $ choice . map symbol $ words " ? * + ++ "
     name    <- ruleParamName -- XXX support *[...]
     traits  <- many ruleTrait
     let required = (sigil /=) `all` ["?", "+"]
     exp     <- ruleParamDefault required
-    return $ foldr appTrait (buildParam cxt sigil name exp) traits
+    return $ foldr appTrait (buildParam typ sigil name exp) traits
     where
     appTrait "rw"   x = x { isWritable = True }
     appTrait "copy" x = x { isLValue = False, isWritable = True }
