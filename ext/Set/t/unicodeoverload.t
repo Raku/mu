@@ -6,7 +6,7 @@ use v6;
 use Test;
 
 plan 42;
-force_todo 1, 2, 7, 9, 16, 17, 19, 20, 23, 24, 31, 33, 34;
+force_todo 1, 2, 7, 9, 14..20, 23..24, 30..34;
 
 use Set;
 
