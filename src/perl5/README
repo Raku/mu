@@ -14,9 +14,26 @@ C<perl5_apply> needs to push itself to additional caller stack, so
 C<Exporter> will try to modify a tied namespace, which then export
 them to actual caller P6 namespace.
 
-=item Reference args
+=item Reference access from perl5
 
-Make C<Getopt::Long> work.
+=over 
+
+=item scalar
+
+Make C<Getopt::Long> work.  C<MkValRef> gets dereferenced value, pending the fix to this.
+
+=item array
+
+C<STORE> / C<PUSH> fails, the array is correct in the accessor applied
+in perl5 tie, but not properly propogate back.  perhaps because args
+not marked as rw at the beginning.
+
+=item hash
+
+Requires C<eval_apply> to return multiple value so we can store the
+list for key iterator.
+
+=back
 
 =back
 

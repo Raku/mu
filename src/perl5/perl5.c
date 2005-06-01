@@ -3,9 +3,16 @@
 #include "perlxsi.c"
 #include "pugsembed.c"
 
-/* undefine to enable pugsembed debug messages */
-#define oRZ "#"
+/* define to enable pugsembed debug messages */
+#define PERL5_EMBED_DEBUG 0
+
+#if PERL5_EMBED_DEBUG
+#define oRZ ""
 #define hate Perl_croak(aTHX_ "hate software")
+#else
+#define oRZ "#"
+#define hate
+#endif
 
 /* Workaround for mapstart: the only op which needs a different ppaddr */
 #undef Perl_pp_mapstart
@@ -36,12 +43,22 @@ const char pugs_guts_code[] =
 oRZ"   warn 'returning '.$array;\n"
 "            return $array; }\n\n"
 
+"sub Hash { my ($class, $val) = @_;\n"
+"           my $hash; tie %$hash, 'pugs::hash', $val;\n"
+oRZ"   warn 'returning '.$hash;\n"
+"            return $hash; }\n\n"
+
 "our $AUTOLOAD;\n"
 "sub AUTOLOAD { my $type = $AUTOLOAD; $type =~ s/.*:://;\n"
 "               return if $type =~ m/^[A-Z]*$/; die 'unhandled supported type: '.$type } \n"
 oRZ"warn 'compiled .'.__PACKAGE__;\n\n"
 
 "package pugs::array;\n"
+
+"our $AUTOLOAD;\n"
+"sub AUTOLOAD { my $type = $AUTOLOAD; $type =~ s/.*:://;\n"
+"               warn 'unhandled supported: '.$type } \n"
+
 "sub TIEARRAY {\n"
 "	my ($class, $val) = @_;\n"
 "	bless \\$val, $class; }\n\n"
@@ -49,16 +66,54 @@ oRZ"warn 'compiled .'.__PACKAGE__;\n\n"
 "sub STORE {\n"
 "	my ($self, $index, $elem) = @_;\n"
 oRZ"    warn 'store! '.$elem;\n"
-"       pugs::guts::eval_apply('{ $^x[$^y] = $^z }', $$self, $index, $elem) }\n\n"
+"       pugs::guts::eval_apply('sub ($x is rw, $y, $z) { $x[$y] = $z;\n"
+oRZ"                                                     warn $x\n"
+"                               }', $$self, $index, $elem) }\n\n"
+
+"sub PUSH {\n"
+"	my ($self, $elem) = @_;\n"
+"       pugs::guts::eval_apply('sub ($x is rw, $z) { $x.push($z);\n"
+oRZ"                                                 warn $x\n"
+"                               }', $$self, $elem) }\n\n"
 
 "sub FETCHSIZE {\n"
 "	my ($self) = @_;\n"
 "       my $ret = pugs::guts::invoke('elems', $$self); \n"
-oRZ"    warn 'FETCHSIZE: '.$ret; $ret; }\n\n"
+oRZ"    warn 'FETCHSIZE: '.$ret;\n"
+"       $ret; }\n\n"
+
+"sub EXISTS {\n"
+"	my ($self, $index) = @_;\n"
+"       pugs::guts::eval_apply('sub ($x, $y) { $x.exists($y) }', $$self, $index) }\n"
 
 "sub FETCH {\n"
 "	my ($self, $index) = @_;\n"
-"       pugs::guts::eval_apply('{ $^x[$^y] }', $$self, $index) }\n"
+oRZ"    warn 'FETCH: '.$index;\n"
+"       pugs::guts::eval_apply('sub ($x, $y) { $x.[$y] }', $$self, $index) }\n"
+
+"package pugs::hash;\n"
+
+"our $AUTOLOAD;\n"
+"sub AUTOLOAD { my $type = $AUTOLOAD; $type =~ s/.*:://;\n"
+"               warn 'unhandled supported: '.$type } \n"
+
+"sub TIEHASH {\n"
+"	my ($class, $val) = @_;\n"
+"	bless [$val,0], $class; }\n\n"
+
+"sub FIRSTKEY {\n"
+"	my ($self) = @_;\n"
+"       my $ret = pugs::guts::invoke('keys', $self->[0]); \n"
+oRZ"       warn $ret;\n"
+"	$self->[1] = 0; $self->[2] = $ret;"
+"       $self->NEXTKEY; }\n"
+
+"sub NEXTKEY {\n"
+"	my ($self) = @_;\n"
+"	return undef if $self->[1] > $#{$self->[2]};"
+"       $self->[2]->[$self->[1]++]; }"
+
+
 oRZ"warn 'compiled';\n"
 "1;\n";
 
@@ -67,8 +122,9 @@ XS(_pugs_guts_invoke) {
     SV *ret, *sv;
     int i;
     dXSARGS;
-    if (items < 1)
+    if (items < 1) {
       hate;
+    }
 
     sv = ST(0);
     if (sv_isa(sv, "pugs")) {
@@ -101,14 +157,17 @@ XS(_pugs_guts_eval_apply) {
     Val *val, *inv, **stack;
     int i;
     dXSARGS;
-    if (items < 1)
+    if (items < 1) {
         hate;
+    }
 
     val = pugs_Eval(SvPV_nolen(ST(0)));
 
     stack = (Val **)malloc(sizeof(Val*)*items-1);
     for (i = 1; i < items; ++i) {
+#if PERL5_EMBED_DEBUG
 	fprintf(stderr, "put into stack: %s\n", SvPV_nolen(ST(i)));
+#endif
 	stack[i-1] = pugs_SvToVal(ST(i));
     }
     stack[i-1] = NULL;
@@ -212,13 +271,12 @@ perl5_init ( int argc, char **argv )
     newXS((char*) "pugs::guts::invoke", _pugs_guts_invoke, (char*)__FILE__);
     newXS((char*) "pugs::guts::eval_apply", _pugs_guts_eval_apply, (char*)__FILE__);
 
-#ifndef oRZ
+#if PERL5_EMBED_DEBUG
     fprintf(stderr, "(%s)", pugs_guts_code);
 #endif
     eval_pv(pugs_guts_code, TRUE);
 
     if (SvTRUE(ERRSV)) {
-	fprintf(stderr, "Hate!\n");
         STRLEN n_a;
         printf("Error init perl: %s\n", SvPV(ERRSV,n_a));
         exit(1);
@@ -307,7 +365,6 @@ perl5_apply(SV *sub, SV *inv, SV** args, void *env, int cxt)
 
     SPAGAIN;
 
-    /* fprintf(stderr, "%d is count\n", count); */
     Newz(42, out, count+1, SV*);
 
     for (i=0; i<count; ++i) {

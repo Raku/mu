@@ -27,7 +27,9 @@ pugs_MkValRef ( Val *val )
     isa[0] = NULL;
 
     type = pugs_Apply(pugs_PvToVal("&ref"), val, isa, G_SCALAR);
+#if PERL5_EMBED_DEBUG
     fprintf(stderr, "query the type: got %s\n", SvPV_nolen(type));
+#endif
     if (SvTRUE( type )) {
 	SV **rv;
 	stack[0] = type;
@@ -39,7 +41,10 @@ pugs_MkValRef ( Val *val )
 	    sv = rv[0];
 	}
 	else {
+	    /* for scalar ref, should still turn into tied one */
+#if PERL5_EMBED_DEBUG
 	    fprintf(stderr, "unknown type\n");
+#endif
 	}
     }
 
