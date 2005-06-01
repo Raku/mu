@@ -11,22 +11,32 @@
 * Core modules refactored for improved compilation speed and readability
 * `map` and `reduce` can now take n-ary functions. 
 * New builtins: `evalfile`, `nothing`, `getc`
+* *nix only built-ins: `opendir`, `readdir`, `rewinddir`, `closedir`
 * `Prelude` Perl 6 module added to `src/perl6` to implement primatives in Perl 6
 ** `openpipe` and `openfile` added to it
 * Class methods: `My::Class.foo()` now work.
 * `BUILDALL` and `DESTORYALL` functionality added for Objects
 * `SUPER::` implemented 
+* meta-object system implementation begun
+* meta-object's now initialize from the default class tree
+* all user-defined classes now inherit from "Object"
 * `$str.split(//)` now implemented
 * Stub implementation for `.does` (no Roles yet)
 * Multi-invocant calls like `foo($x, $y: $z)` are no longer legal
 * Exclusive-range operators : `^..`, `..^` and `^..^` implemented
 * `when .does(Foo)`, `when $_.does(Foo)` and `when Foo` are all implemented
+* `is export` is no longer no-op
+* Fully qualified subroutines now implemented
+* `loop {} while` and `loop {} until` now implemented
+* `&infix<=>` can now be used as the asignment operator
 
 === Bundled Modules
 
 * New `Benchmark` module added
+* New `Text::Glob` module added
+* New `Date` module added
 * `libwww-perl` added
-** New `HTTP::Headers` module added
+** New `HTTP::Headers`, `HTTP::Message` modules added
 ** `LWP-Simple` now moved here
 * `CGI` has been improved:
 ** Now has: `escapeHTML`, `unescapeHTML`, `redirect`
@@ -47,6 +57,7 @@
 * Many improvements to `util/perl6.vim` to handle new features 
 * Some new addtions and cleanup of the cookbook
 * `examples/network/screen-nodestatus.p6` added to monitor host aliveness for GNU screen
+* Perl 6 port of Perl Power Tools begun in `examples/ppt`
 
 === Bug Fixes
 
