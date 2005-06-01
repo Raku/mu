@@ -1,9 +1,9 @@
-#!/usr/bin/pugs
+﻿#!/usr/bin/pugs
 
 use v6;
 use Test;
 
-plan 24;
+plan 25;
 
 =pod
 
@@ -130,6 +130,11 @@ is("boobies"!, "BOOBIES!!!", "correct overloaded method called");
 
   my $obj;
   lives_ok { $obj = MyClass.new }, "instantiation of a prefix:<...> and coerce:<as> overloading class worked", :todo<feature>;
-  is ~$obj, "hi", "our object was stringified correctly", :todo<feature>;
+  my $try = lives_ok { ~$obj}, "our object was stringified correctly", :todo<feature>;
+  if ($try) {
+   is ~$obj, "hi", "our object was stringified correctly", :todo<feature>;
+  } else {
+    skip 1, "Stringification failed";
+  };
   is eval('($obj as OtherClass).x'), 23, "our object was coerced correctly", :todo<feature>;
 }
