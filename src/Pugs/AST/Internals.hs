@@ -976,7 +976,7 @@ defaultScalarParam :: Param
 
 defaultArrayParam   = buildParam "" "*" "@_" (Val VUndef)
 defaultHashParam    = buildParam "" "*" "%_" (Val VUndef)
-defaultScalarParam  = buildParam "" "?" "$_" (Var "$OUTER::_")
+defaultScalarParam  = buildParam "" "?" "$_" (Var "$_")
 
 type DebugInfo = Maybe (TVar (Map String String))
 
