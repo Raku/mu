@@ -9,7 +9,7 @@ Test basic escape continuations obtained from &?CALLER_CONTINUATION
 
 =cut
 
-plan 11;
+plan 12;
 
 sub simple1() returns Int {
   &?CALLER_CONTINUATION(2);
@@ -73,3 +73,12 @@ is(passing2(5), 1, 'is_five passing ec itself', :todo);
 is(passing2(2), 9, 'is_five passing ec itself');
 is(passing2_closure(5), 1, 'is_five passing ec via closure', :todo);
 is(passing2_closure(2), 9, 'is_five passing ec via closure');
+
+sub callconty() {
+    conty(&?CALLER_CONTINUATION);
+    return 1;
+}
+sub conty($c) {
+    $c(2);
+}
+is(callconty(), 2, 'continuation bug');
