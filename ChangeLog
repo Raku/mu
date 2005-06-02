@@ -60,7 +60,7 @@
 * New JAPH for Italian Perl Workshop added in `examples/japh`
 * Perl 6 port of Perl Power Tools begun in `examples/ppt`
 * Some new additions and cleanup of the cookbook
-* `examples/network/screen-nodestatus.p6` added to monitor host aliveness for GNU screen
+* `examples/network/screen-nodestatus.p6` added to monitor hosts in GNU screen
 
 === Bug Fixes
 
