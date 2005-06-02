@@ -21,7 +21,7 @@ debug "  $*PROGRAM_NAME nick host[:port] interval";
 
 # Initialize $cur_svnrev. $cur_svnrev contains the last revision seen, and is
 # set by svn_headrev() and svn_commits().
-my $cur_svnrev = 4307;
+my $cur_svnrev = 0;
 svn_headrev();
 
 # Create new bot "object"
