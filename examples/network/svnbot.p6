@@ -21,7 +21,7 @@ debug "  $*PROGRAM_NAME nick host[:port] interval";
 
 # Initialize $cur_svnrev. $cur_svnrev contains the last revision seen, and is
 # set by svn_headrev() and svn_commits().
-my $cur_svnrev;
+my $cur_svnrev = 0;
 svn_headrev();
 
 # Create new bot "object"
@@ -114,7 +114,6 @@ sub svn_commits() {
   my $commits;
   my $fh = open $tempfile;
   for =$fh {
-    given $_ {
       state $cur_entry;
       when rx:P5/^-----+/ {
 	# ignore
@@ -133,7 +132,6 @@ sub svn_commits() {
 	  $_ ~~ rx:P5/^(.*)$/;
 	  $commits ~= "$cur_entry | $0\n";
 	}
-      }
     }
   }
 
