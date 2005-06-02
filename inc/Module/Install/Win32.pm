@@ -17,7 +17,7 @@ sub check_nmake {
         $Config::Config{make}                   and
         $Config::Config{make} =~ /^nmake\b/i    and
         $^O eq 'MSWin32'                        and
-        !$self->can_run('nmake')
+        !$self->can_run('nmake.exe')
     );
 
     print "The required 'nmake' executable not found, fetching it...\n";
