@@ -5,16 +5,21 @@ use Test;
 
 plan 3;
 
+if ($*OS eq any<MSWin32 mingw msys cygwin>) {
+    skip_rest;
+    exit;
+}
+
 =pod
 
 opendir/readdir support
 
 =cut
 
-my IO $dir;
-eval_ok 'opendir( $dir, "." )', "opendir worked", :todo<feature>;
+my $dir = opendir('.');
+isa_ok($dir, 'IO::Dir', "opendir worked");
 
-my @files;
-eval_ok '@files = readdir($dir)', "seems readdir worked too", :todo<feature>;
+my @files = readdir($dir);
+ok(@files, "seems readdir worked too");
 
-ok @files.elems > 0, "readdir really worked", :todo<feature>;
+ok(closedir($dir), "as does closedir");
