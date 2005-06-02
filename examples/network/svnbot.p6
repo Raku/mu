@@ -21,7 +21,7 @@ debug "  $*PROGRAM_NAME nick host[:port] interval";
 
 # Initialize $cur_svnrev. $cur_svnrev contains the last revision seen, and is
 # set by svn_headrev() and svn_commits().
-my $cur_svnrev = 0;
+my $cur_svnrev = 4307;
 svn_headrev();
 
 # Create new bot "object"
@@ -54,6 +54,10 @@ sub on_privmsg($event) {
 
     when rx:P5/^\?raw\s+(.+)$/ {
       $bot<raw>($0);
+    }
+
+    when rx:P5/^\?join\s+(.+)$/ {
+      $bot<join>($0);
     }
 
     when rx:P5/^\?uptime$/ {
@@ -112,8 +116,7 @@ sub svn_commits() {
   }
 
   my $commits;
-  my $fh = open $tempfile;
-  for =$fh {
+  for =$tempfile {
       state $cur_entry;
       when rx:P5/^-----+/ {
 	# ignore
@@ -123,7 +126,7 @@ sub svn_commits() {
 	$cur_entry = "r$0, $1++";
 	# Break the loop if we see $cur_svnrev -- that means, there're no new
 	# commits.
-	return if $0 == $cur_svnrev;
+        if ($0 == $cur_svnrev) { next; }
 	$cur_svnrev = $0 if $0 > $cur_svnrev;
       }
 
