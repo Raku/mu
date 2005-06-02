@@ -1,78 +1,80 @@
-== Changes for 6.2.6 (up to r4114) - May 29, 2005
+== Changes for 6.2.6 (r4305) - June 2, 2005
 
 === Pugs Internals
 
-* Pugs now can embed Perl 5 (and use CPAN modules)
-** Perl 5 objects, types and functions are understood by Pugs
-** Perl 6/Pugs objects, types and functions are understood by Perl 5
-** These types can also be roundtripped too
-** Pugs now has an embed API
-* Pugs now has a `Safe` mode 
-* Core modules refactored for improved compilation speed and readability
-* `map` and `reduce` can now take n-ary functions. 
-* New builtins: `evalfile`, `nothing`, `getc`
-* *nix only built-ins: `opendir`, `readdir`, `rewinddir`, `closedir`
-* `Prelude` Perl 6 module added to `src/perl6` to implement primitives in Perl 6
-** `openpipe` and `openfile` added to it
-* Class methods: `My::Class.foo()` now work.
-* `BUILDALL` and `DESTROYALL` functionality added for Objects
-* `SUPER::` implemented 
-* meta-object system implementation begun
-* meta-objects now initialize from the default class tree
-* all user-defined classes now inherit from "Object"
-* `$str.split(//)` now implemented
-* Stub implementation for `.does` (no Roles yet)
+* Pugs can now embed Perl 5 and use CPAN modules
+** Perl 5 objects, classes and functions are understood by Pugs
+** Pugs objects, classes and functions are understood by Perl 5
+** These types can also be used in round-trip callbacks
+* All user-defined classes now inherit from "Object"
+* Bare blocks now belongs to the `Bare` type; pointy subs are still `Block`
+* Class methods: `My::Class.foo()`
+* Class objects are initialised from the default class tree
+* Exclusive-range operators: `^..`, `..^` and `^..^`
+* Experimental (currently broken) TH-based rewrite of `Pugs.Compile.Pugs`
+* Experimental `&code.body` support for reified ASTs
+* Experimental embed API in `src/perl5/pugsembed.h`
+* Fully qualified subroutine names are now parsed
+* More core modules refactored for improved compilation speed and readability
 * Multi-invocant calls like `foo($x, $y: $z)` are no longer legal
-* Exclusive-range operators : `^..`, `..^` and `^..^` implemented
-* `when .does(Foo)`, `when $_.does(Foo)` and `when Foo` are all implemented
-* `is export` is no longer no-op
-* Fully qualified subroutines now implemented
-* `loop {} while` and `loop {} until` now implemented
-* `&infix<=>` can now be used as the assignment operator
-* Parameterless pointy blocks no longer gets a default parameter list
+* New builtins: `evalfile`, `nothing`, `getc`
 * Parameterless bare blocks now gets an implicit $_ by default
+* Parameterless pointy blocks no longer gets a default parameter list
+* Parrot compilation backend now handles qualified subroutine names
+* Pugs now has a /Safe/ mode, enable by the PUGS_SAFEMODE environment variable
+* Stub implementation for `.does` as an alias of `.isa` (no Roles yet)
+* Unix only builtins: `opendir`, `readdir`, `rewinddir`, `closedir`
+* `$str.split(/rule/)` and `$str.split($delim)`
+* `&infix<=>` can now be used as the assignment operator
+* `Prelude.pm` added to `src/perl6` to implement S29 builtins in Perl 6
+* `SUPER::`, `BUILDALL` and `DESTROYALL`
+* `is export` is no longer no-op
+* `loop {...} while`, `loop {...} until`
+* `map` and `reduce` can now take n-ary functions. 
+* `when .does(Foo)`, `when $_.does(Foo)` and `when Foo`
 
 === Bundled Modules
 
+* Many more code sketches and documentation added to `Perl-MetaModel`
 * New `Benchmark` module added
-* New `Text::Glob` module added
-* New `Date` module added
-* `libwww-perl` added
-** New `HTTP::Headers`, `HTTP::Message` modules added
-** `LWP-Simple` now moved here
 * `CGI` has been improved:
 ** Now has: `escapeHTML`, `unescapeHTML`, `redirect`
 ** Supports more HTTP headers in `header`
 ** New module `CGI::Util` added
-* Coro-based iterator added to `Tree` module
-* Many more code sketches and documentation added to `Perl-MetaModel`
+* New `Date` module added
+* New `Text::Glob` module added
+* New `libwww-perl` distribution added
+** `LWP-Simple` now moved here
+** `HTTP::Headers`, `HTTP::Message` modules added
 * `Test::Builder` is now dangerously close to completely working
+* `fp` now exports `&identity` instead of `&id` to avoid clash with `$obj.id`
 * `use lib 'path';` now works
 
 === Tests, Examples and Documentations
 
+* Some new test and several tests refactored, we now have 7200+ tests
 * Pugs Apocryphon 2 improved and edited in `docs/02Internals.pod`
-* More Haddock documentation added to the Haskell source
-* Some new test and several tests refactored, we now have almost 5700 tests
-* New JAPH for Italian Perl Workshop added in `examples/japh`
-* New IRC bot `evalbot` added to `examples/network`
 * Many improvements to `util/perl6.vim` to handle new features 
+* More Haddock documentation added to the Haskell source
+* New IRC bot `evalbot` added to `examples/network`
+* New JAPH for Italian Perl Workshop added in `examples/japh`
+* Perl 6 port of Perl Power Tools begun in `examples/ppt`
 * Some new additions and cleanup of the cookbook
 * `examples/network/screen-nodestatus.p6` added to monitor host aliveness for GNU screen
-* Perl 6 port of Perl Power Tools begun in `examples/ppt`
 
 === Bug Fixes
 
-* `times` now really works on Win32
-* `readline()` now reads utf-8
-* `pugs -MFoo` now means `use Foo` not `require Foo`
-* Class methods like `Foo.bar` now dispatch to `Foo::bar` instead of 
-  to `Class::bar`
-* `isa` now handles class names as the invocant, so
-  `Foo.isa(Foo)` is now always true
-* `when .isa(Foo)` is no longer parsed as `when $_ ~~ .isa(Foo)` now
-* `(1 => 2 ?? 3 :: 4)` now always constructs a pair
 * Hyper-reduction prefix operators like `[+]«` are now parsed correctly
+* Single-character class names was not parsed correctly
+* Stringifying a Rule no longer throws out an uncatchable exception
+* Use of undeclared types in signatures no longer breaks MMD 
+* `(1 => 2 ?? 3 :: 4)` now always constructs a pair
+* `Foo.bar()` now dispatch to `&Foo::bar` instead of to `&Class::bar`
+* `Foo.isa(Foo)` no longer means `Class.isa(foo)`
+* `pugs -MFoo` now means `use Foo` not `require Foo`
+* `readline()` now reads utf-8
+* `times` now really works on Win32
+* `when .isa(Foo)` is no longer parsed as `when $_ ~~ .isa(Foo)` now
 
 == Changes for 6.2.5 (r3794) - May 24, 2005
 
