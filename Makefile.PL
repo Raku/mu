@@ -285,7 +285,7 @@ unoptimized :: src/Pugs/Config.hs src/Pugs/Prelude.hs @srcfiles $version_h @prer
 $pugs : src/Pugs/Config.hs src/Pugs/Prelude.hs @srcfiles $version_h @prereqs
 	$ghc $threaded -O --make $ghc_flags $embed_flags $ccdlflags $ghc_output
 
-smoke : $pugs util/run-smoke.pl
+smoke : $pugs util/run-smoke.pl \$(TEST_TYPE)
 	\$(PERL) util/run-smoke.pl . smoke.html
 
 ghci ::
