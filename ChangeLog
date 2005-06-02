@@ -18,8 +18,8 @@
 * More core modules refactored for improved compilation speed and readability
 * Multi-invocant calls like `foo($x, $y: $z)` are no longer legal
 * New builtins: `evalfile`, `nothing`, `getc`
-* Parameterless bare blocks now gets an implicit $_ by default
-* Parameterless pointy blocks no longer gets a default parameter list
+* Parameterless bare blocks now get an implicit $_ by default
+* Parameterless pointy blocks no longer get a default parameter list
 * Parrot compilation backend now handles qualified subroutine names
 * Pugs now has a /Safe/ mode, enable by the PUGS_SAFEMODE environment variable
 * Stub implementation for `.does` as an alias of `.isa` (no Roles yet)
@@ -28,7 +28,7 @@
 * `&infix<=>` can now be used as the assignment operator
 * `Prelude.pm` added to `src/perl6` to implement S29 builtins in Perl 6
 * `SUPER::`, `BUILDALL` and `DESTROYALL`
-* `is export` is no longer no-op
+* `is export` now works as specified
 * `loop {...} while`, `loop {...} until`
 * `map` and `reduce` can now take n-ary functions. 
 * `when .does(Foo)`, `when $_.does(Foo)` and `when Foo`
@@ -64,9 +64,9 @@
 
 === Bug Fixes
 
-* Hyper-reduction prefix operators like `[+]«` are now parsed correctly
-* Single-character class names was not parsed correctly
-* Stringifying a Rule no longer throws out an uncatchable exception
+* Hyper-reduction prefix operators such as `[+]«` are now parsed
+* Single-character class names were not parsed correctly
+* Stringifying a Rule no longer throws an uncatchable exception
 * Use of undeclared types in signatures no longer breaks MMD 
 * `(1 => 2 ?? 3 :: 4)` now always constructs a pair
 * `Foo.bar()` now dispatch to `&Foo::bar` instead of to `&Class::bar`
@@ -80,7 +80,7 @@
 
 === Bundled Modules
 
-* Fix one broken test from the `Set` module.
+* Fix one broken test from the `Set` module
 
 == Changes for 6.2.4 (r3790) - May 24, 2005
 
