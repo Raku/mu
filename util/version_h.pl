@@ -10,6 +10,11 @@ my $svn_entries = "$base/.svn/entries";
 my $revision = 0;
 open OUT, "> $version_h" or die $!;
 print OUT "#undef PUGS_SVN_REVISION\n";
+
+# SVK tries to ask the user questions when it has a STDIN and there is
+# no repository.  Since we don't need a STDIN anyway, get rid of it.
+close STDIN;
+
 if (-r $svn_entries) {
     print "Writing version from $svn_entries to $version_h\n";
     open FH, $svn_entries or die $!;
