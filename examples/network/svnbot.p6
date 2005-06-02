@@ -116,26 +116,28 @@ sub svn_commits() {
   }
 
   my $commits;
-  for =$tempfile {
+  for =$tempfile -> $_ {
       state $cur_entry;
+      
       when rx:P5/^-----+/ {
-	# ignore
+          # ignore
       }
 
       when rx:P5/^r(\d+) \| (\w+)/ {
-	$cur_entry = "r$0, $1++";
-	# Break the loop if we see $cur_svnrev -- that means, there're no new
-	# commits.
-        if ($0 == $cur_svnrev) { next; }
-	$cur_svnrev = $0 if $0 > $cur_svnrev;
+          debug "r$0, $1";
+          $cur_entry = "r$0, $1++";
+          # Break the loop if we see $cur_svnrev -- that means, there're no new
+          # commits.
+          if ($0 == $cur_svnrev) { next; }
+          $cur_svnrev = $0 if $0 > $cur_svnrev;
       }
 
       when rx:P5/\S/ {
-	if($cur_entry) {
-	  $_ ~~ rx:P5/^(.*)$/;
-	  $commits ~= "$cur_entry | $0\n";
-	}
-    }
+         if($cur_entry) {
+            $_ ~~ rx:P5/^(.*)$/;
+            $commits ~= "$cur_entry | $0\n";
+         }
+     }
   }
 
   return $commits;
@@ -143,7 +145,7 @@ sub svn_commits() {
 
 # Just a thin wrapper around svn_commits().
 sub svn_headrev() {
-  debug "Retrieving current HEAD revision... ";
-  svn_commits();
-  debug "done.";
+   debug "Retrieving current HEAD revision... ";
+   svn_commits();
+   debug "done.";
 }
