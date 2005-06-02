@@ -21,6 +21,10 @@ run:
 Note that the compose combinations here are an X11R6 standard, and do not
 necessarily correspond to the compose combinations available when you use your
 "compose" key.
+
+The digraphs used in vim come from "Character Mnemonics & Character Sets",
+RFC1345 (http://www.ietf.org/rfc/rfc1345.txt). After doing :set digraph,
+the digraph ^k A B may also be entered as A <BS> B.
     
     Unicode     ASCII                        key sequence
     char        fallback    Vim        Emacs       Unix Compose Key combination
@@ -30,22 +34,22 @@ necessarily correspond to the compose combinations available when you use your
     ¥           Y           ^k Y e     C-x 8 Y     Compose Y =
 
 Set.pm operators (included for reference):
-    ≠           !=
-    ∩           *
-    ∪           +
+    ≠           !=          ^k ! =
+    ∩           *           ^k ( U
+    ∪           +           ^k ) U
     ∖           -
-    ⊂           <
-    ⊃           >
-    ⊆           <=
-    ⊇           >=
-    ⊄      !( $a < $b ) 
+    ⊂           <           ^k ( C
+    ⊃           >           ^k ) C
+    ⊆           <=          ^k ( _
+    ⊇           >=          ^k ) _
+    ⊄      !( $a < $b )     
     ⊅      !( $a > $b )
     ⊈     !( $a <= $b )
     ⊉     !( $a >= $b )
-    ⊊           <
+    ⊊           <       
     ⊋           >
-    ∋/∍   $a.includes($b)
-    ∈/∊   $b.includes($a)
+    ∋/∍   $a.includes($b)   ^k ) -
+    ∈/∊   $b.includes($a)   ^k ( -
     ∌    !$a.includes($b)
     ∉    !$b.includes($a)
 
@@ -58,20 +62,20 @@ them :).
 
 So, these *might* be considered not too awful;
 
-    ×           *
-    ¬           !
+    ×           *           ^k * X
+    ¬           !           ^k N O
     ∕           /
     ≡          =:=
     ≔           :=
   ⩴ or ≝       ::=
-  ≈ or ≊        ~~
+  ≈ or ≊        ~~          ^k ? 2
     …          ...
-    √          sqrt()
-    ∧           &&
-    ∨           ||
+    √          sqrt()       ^k R T
+    ∧           &&          ^k A N
+    ∨           ||          ^k O R
     ∣           mod  (? bit of a stretch, perhaps)
-   ⌈$x⌉        ceil($x)
-   ⌊$x⌋        floor($x)
+   ⌈$x⌉        ceil($x)     ^k </> 7
+   ⌊$x⌋        floor($x)    ^k 7 </> 7
 
 
 However I think it is a BAD idea that the following unicode characters
