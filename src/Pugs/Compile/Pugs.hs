@@ -130,6 +130,7 @@ instance Compile Val where
 -- Haddock can't cope with Template Haskell
 instance Compile VCode where
 #if !defined(HADDOCK) && !defined(PUGS_HAVE_PERL5) && !defined(PUGS_HAVE_PARROT) && defined(PUGS_HAVE_TH)
+    compile code | subType code == SubPrim = return $ text "mkPrim"
     compile code = do 
         return $ prettyRecord "MkCode" $
             $(liftM TH.ListE $ 
@@ -144,6 +145,7 @@ instance Compile VCode where
         tshow :: Show a => a -> Doc
         tshow = text . show
 #else 
+    compile code | subType code == SubPrim = return $ text "mkPrim"
     compile code = return $ text $ show code
 #endif 
 

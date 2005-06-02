@@ -11,7 +11,7 @@
 * Class methods: `My::Class.foo()`
 * Class objects are initialised from the default class tree
 * Exclusive-range operators: `^..`, `..^` and `^..^`
-* Experimental (currently broken) TH-based rewrite of `Pugs.Compile.Pugs`
+* Experimental compiler backend `Pugs.Compile.Pugs2` (not yet working)
 * Experimental `&code.body` support for reified ASTs
 * Experimental embed API in `src/perl5/pugsembed.h`
 * Fully qualified subroutine names are now parsed
