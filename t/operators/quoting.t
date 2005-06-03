@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 56;
+plan 58;
 
 my $foo = "FOO";
 my $bar = "BAR";
@@ -49,7 +49,7 @@ Tests quoting constructs as defined in L<S02/Literals>
 { # q() is bad L<S02/Literals /Which is mandatory for parens/>
 	my @q = ();
 	eval '@q = (q(($foo $bar)))';
-	is(+@q, 0, 'nothing in @q, q() is not allowed');
+	is(+@q, 0, 'nothing in @q, q() is not allowed', :todo);
 };
 
 { # adverb variation L<S02/Literals /:1/>
@@ -59,6 +59,12 @@ Tests quoting constructs as defined in L<S02/Literals>
 	is(@q[0], '$foo $bar', "and again, non interpolating");
 };
 
+{ # nested parens
+	my @q = ();
+	eval '@q = (q[[$foo $bar]])';
+	is(+@q, 1, 'q[] is singular');
+	is(@q[0], '[$foo $bar]', 'and nests parens appropriately');
+};
 
 { # interpolating quotes L<S02/Literals /same as qq/>
 	my @q = ();

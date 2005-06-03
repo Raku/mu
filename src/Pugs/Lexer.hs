@@ -127,12 +127,13 @@ symbol s
     aheadSym '^' y   = not (y `elem` ".")
     aheadSym x   y   = y `elem` ";!" || x /= y
 
-interpolatingStringLiteral :: RuleParser x      -- ^ Closing delimiter 
+interpolatingStringLiteral :: RuleParser String    -- ^ Opening delimiter
+			      -> RuleParser String   -- ^ Closing delimiter 
                               -> RuleParser Exp -- ^ Interpolator
                               -> RuleParser Exp -- ^ Entire string
                                                 -- ^ (without delims)
-interpolatingStringLiteral endrule interpolator = do
-    list <- stringList
+interpolatingStringLiteral startrule endrule interpolator = do
+    list <- stringList 0
     return . Cxt (CxtItem $ mkType "Str") $ homogenConcat list
     where
     homogenConcat :: [Exp] -> Exp
@@ -143,17 +144,24 @@ interpolatingStringLiteral endrule interpolator = do
     homogenConcat (x:xs)
         = App (Var "&infix:~") Nothing [x, homogenConcat xs]
     
-    stringList = do
-        lookAhead endrule
-        return []
-        <|> do
-        parse <- interpolator
-        rest  <- stringList
-        return (parse:rest)
-        <|> do
-        char <- anyChar
-        rest <- stringList
-        return (Val (VStr [char]):rest)
+    stringList :: Int -> RuleParser [Exp]
+    stringList i = try (do
+	       ch <- endrule
+	       if i == 0 then return []
+			 else do rest <- stringList (i-1)
+				 return (Val (VStr ch):rest))
+	   <|> try (do
+	       ch <- startrule
+	       rest <- stringList (i+1)
+	       return (Val (VStr ch):rest))
+	   <|> do
+	       parse <- interpolator
+	       rest  <- stringList i
+	       return (parse:rest)
+	   <|> do
+	       char <- anyChar
+	       rest <- stringList i
+	       return (Val (VStr [char]):rest)
 
 -- | backslahed nonalphanumerics (except for \^) translate into themselves
 escapeCode      :: GenParser Char st Char

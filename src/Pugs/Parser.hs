@@ -243,7 +243,7 @@ ruleRuleDeclaration = rule "rule declaration" $ try $ do
     name    <- identifier
     adverbs <- ruleAdverbHash
     ch      <- char '{'
-    expr    <- rxLiteralAny adverbs $ balancedDelim ch
+    expr    <- rxLiteralAny adverbs ch (balancedDelim ch)
     let exp = Syn ":=" [Var ('<':'*':name), Syn "rx" [expr, adverbs]]
     unsafeEvalExp (Sym SGlobal ('<':'*':name) exp)
     return emptyExp
@@ -1500,8 +1500,8 @@ qInterpolateQuoteConstruct = try $ do
     string "\\q"
     flag <- many1 alphaNum
     char '['
-    expr <- interpolatingStringLiteral (char ']') (qInterpolator $ getQFlags [flag] ']')
-    char ']'
+    expr <- interpolatingStringLiteral (string "[") (string "]") (qInterpolator $ getQFlags [flag] ']')
+    -- char ']'
     return expr
 
 qInterpolatorPostTerm :: RuleParser (Exp -> Exp)
@@ -1563,15 +1563,16 @@ qInterpolator flags = choice [
 
 qLiteral :: RuleParser Exp
 qLiteral = do -- This should include q:anything// as well as '' "" <>
-    (qEnd, flags) <- getQDelim
-    qLiteral1 qEnd flags
+    (qStart, qEnd, flags) <- getQDelim
+    qLiteral1 qStart qEnd flags
 
-qLiteral1 :: RuleParser x -- Closing delimiter
+qLiteral1 :: RuleParser String    -- Opening delimiter
+	     -> RuleParser String -- Closing delimiter
              -> QFlags
              -> RuleParser Exp
-qLiteral1 qEnd flags = do
-    expr <- interpolatingStringLiteral qEnd (qInterpolator flags)
-    qEnd
+qLiteral1 qStart qEnd flags = do
+    expr <- interpolatingStringLiteral qStart qEnd (qInterpolator flags)
+    -- qEnd
     case qfSplitWords flags of
         -- expr ~~ rx:perl5:g/(\S+)/
         QS_Yes      -> return $ doSplit expr
@@ -1618,15 +1619,15 @@ angleBracketLiteral :: RuleParser Exp
 angleBracketLiteral = try $
         do
         symbol "<<"
-        qLiteral1 (symbol ">>") $ qqFlags
+        qLiteral1 (symbol "<<") (symbol ">>") $ qqFlags
             { qfSplitWords = QS_Protect, qfProtectedChar = '>' }
     <|> do
         symbol "<"
-        qLiteral1 (char '>') $ qFlags
+        qLiteral1 (symbol "<") (symbol ">") $ qFlags
             { qfSplitWords = QS_Yes, qfProtectedChar = '>' }
     <|> do
         symbol "\xab"
-        qLiteral1 (char '\xbb') $ qFlags
+        qLiteral1 (symbol "\xab") (symbol "\xbb") $ qFlags
             { qfSplitWords = QS_Yes, qfProtectedChar = '\xbb' }
 
 -- Quoting delimitor and flags
@@ -1690,7 +1691,7 @@ closing delims from being openers (disallow q]a]) -}
 openingDelim :: RuleParser Char
 openingDelim = anyChar
 
-getQDelim :: RuleParser (RuleParser Char, QFlags)
+getQDelim :: RuleParser (RuleParser String, RuleParser String, QFlags)
 getQDelim = try $
     do  string "q"
         flags <- do
@@ -1705,20 +1706,19 @@ getQDelim = try $
         delim <- openingDelim
         let qflags = getQFlags flags $ balancedDelim delim
         when (qfFailed qflags) $ fail ""
-        return (char $ balancedDelim delim, qflags)
+        return ( (string [delim]), (string [balancedDelim delim]), qflags)
     <|> try (do
         string "<<"
-        return (
-            string ">>" >> return 'x',
+        return (string "<<", string ">>",
             qqFlags { qfSplitWords = QS_Yes, qfProtectedChar = '>' }))
     <|> do
         delim <- oneOf "\"'<\xab"
         case delim of
-            '"'     -> return (char '"',    qqFlags)
-            '\''    -> return (char '\'',   qFlags)
-            '<'     -> return (char '>',    qFlags
+            '"'     -> return (string "\"",  string "\"",    qqFlags)
+            '\''    -> return (string "'",   string "'",   qFlags)
+            '<'     -> return (string "<",   string ">",    qFlags
                 { qfSplitWords = QS_Yes, qfProtectedChar = '>' })
-            '\xab'  -> return (char '\xbb', qqFlags
+            '\xab'  -> return (string "\xab", string "\xbb", qqFlags
                 { qfSplitWords = QS_Protect, qfProtectedChar = '\xbb' })
             _       -> fail ""
 
@@ -1745,7 +1745,7 @@ rxP6Flags = MkQFlags QS_No False False False False False QB_No '/' False False
 -- Regexps
 
 -- | A parser returning a regex, given a hashref of adverbs and a closing delimiter.
-rxLiteralAny :: Exp -> Char -> RuleParser Exp
+rxLiteralAny :: Exp -> Char -> Char -> RuleParser Exp
 rxLiteralAny adverbs
     | Syn "\\{}" [Syn "," pairs] <- adverbs
     , not (null [
@@ -1757,15 +1757,17 @@ rxLiteralAny adverbs
     | otherwise
     = rxLiteral6
 
-rxLiteral5 :: Char -- ^ Closing delimiter
+rxLiteral5 :: Char -- ^ Openingd delimiter
+	     -> Char -- ^ Closing delimiter
              -> RuleParser Exp
-rxLiteral5 delim = qLiteral1 (char delim) $
-        rxP5Flags { qfProtectedChar = delim }
+rxLiteral5 delimStart delimEnd = qLiteral1 (string [delimStart]) (string [delimEnd]) $
+        rxP5Flags { qfProtectedChar = delimEnd }
 
-rxLiteral6 :: Char -- ^ Closing delimiter
+rxLiteral6 :: Char -- ^ Opening delimiter
+	     -> Char -- ^ Closing delimiter
              -> RuleParser Exp
-rxLiteral6 delim = qLiteral1 (char delim) $
-        rxP6Flags { qfProtectedChar = delim }
+rxLiteral6 delimStart delimEnd = qLiteral1 (string [delimStart]) (string [delimEnd]) $
+        rxP6Flags { qfProtectedChar = delimEnd }
 
 ruleAdverbHash :: RuleParser Exp
 ruleAdverbHash = do
@@ -1779,10 +1781,10 @@ substLiteral = try $ do
     ch      <- openingDelim
     let endch = balancedDelim ch
     -- XXX - probe for adverbs to determine p5 vs p6
-    expr    <- rxLiteralAny adverbs endch
+    expr    <- rxLiteralAny adverbs ch endch
     ch      <- if ch == endch then return ch else do { whiteSpace ; anyChar }
     let endch = balancedDelim ch
-    subst   <- qLiteral1 (char endch) qqFlags { qfProtectedChar = endch }
+    subst   <- qLiteral1 (string [ch]) (string [endch]) qqFlags { qfProtectedChar = endch }
     return $ Syn "subst" [expr, subst, adverbs]
 
 rxLiteral :: RuleParser Exp
@@ -1793,13 +1795,13 @@ rxLiteral = try $ do
         return "rx"
     adverbs <- ruleAdverbHash
     ch      <- anyChar
-    expr    <- rxLiteralAny adverbs $ balancedDelim ch
+    expr    <- rxLiteralAny adverbs ch (balancedDelim ch)
     return $ Syn sym [expr, adverbs]
 
 rxLiteralBare :: RuleParser Exp
 rxLiteralBare = try $ do
     ch      <- char '/'
-    expr    <- rxLiteral6 $ balancedDelim ch
+    expr    <- rxLiteral6 ch (balancedDelim ch)
     return $ Syn "//" [expr, Val undef]
 
 namedLiteral :: String -> Val -> RuleParser Exp
