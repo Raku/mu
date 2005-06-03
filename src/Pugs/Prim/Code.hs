@@ -2,6 +2,7 @@
 module Pugs.Prim.Code where
 import Pugs.AST
 import Pugs.Internals
+import Pugs.Pretty
 
 {- On Code -}
 
@@ -31,7 +32,7 @@ op1CodePos v = do
     let env = subEnv code
     case env of
         Nothing  -> return VUndef
-        Just env -> return $ castV $ show $ envPos env
+        Just env -> return $ castV $ pretty $ envPos env
 
 {- On Code::Exp -}
 
