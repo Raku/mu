@@ -383,9 +383,13 @@ ruleFormalParam = rule "formal parameter" $ do
     sigil   <- option "" $ choice . map symbol $ words " ? * + ++ "
     name    <- ruleParamName -- XXX support *[...]
     traits  <- many ruleTrait
-    let required = (sigil /=) `all` ["?", "+"]
+    let sigil' | not ("required" `elem` traits) = sigil
+               | (sigil == "+") = "++"  -- promote "+$x is required" to "++$x"
+               | (sigil == "?") = ""    -- well, heh, confused?
+               | otherwise      = sigil -- required anyway
+    let required = (sigil' /=) `all` ["?", "+"]
     exp     <- ruleParamDefault required
-    return $ foldr appTrait (buildParam typ sigil name exp) traits
+    return $ foldr appTrait (buildParam typ sigil' name exp) traits
     where
     appTrait "rw"   x = x { isWritable = True }
     appTrait "copy" x = x { isLValue = False, isWritable = True }
