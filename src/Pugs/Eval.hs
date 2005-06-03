@@ -287,28 +287,55 @@ evalRef ref = do
 reduce :: Exp -- ^ The expression to reduce
        -> Eval Val
 
+reduce (Val v) = reduceVal v
+
+reduce (Var name) = reduceVar name
+
+reduce (Stmts this rest) = reduceStmts this rest
+
+reduce (Pos pos exp) = reducePos pos exp
+
+reduce (Pad scope lexEnv exp) = reducePad scope lexEnv exp
+
+reduce (Sym scope name exp) = reduceSym scope name exp
+
+reduce (Cxt cxt exp) = reduceCxt cxt exp
+
+-- Reduction for no-operations
+reduce Noop = retEmpty
+
+reduce wholeExp@(Syn name subExps) = reduceSyn wholeExp name subExps
+
+reduce (App subExp inv args) = reduceApp subExp inv args
+
+reduce exp = retError "Invalid expression" exp
+
+reduceVal :: Val -> Eval Val
 -- Reduction for mutables
-reduce (Val v@(VRef var)) = do
+reduceVal v@(VRef var) = do
     lv <- asks envLValue
     if lv then retVal v else do
     rv <- readRef var
     retVal rv
 
 -- Reduction for constants
-reduce (Val v) = retVal v
+reduceVal v = retVal v
 
 -- Reduction for variables
-reduce (Var name) = do
+reduceVar :: Var -> Eval Val
+reduceVar name = do
     v <- findVar name
     case v of
         Just var -> evalRef var
         _ | (':':rest) <- name -> return $ VType (mkType rest)
         _ -> retError "Undeclared variable" name
 
-reduce (Stmts this rest) | Noop <- unwrap rest = reduce this
-reduce (Stmts this rest) | Noop <- unwrap this = reduce rest
+reduceStmts :: Exp -> Exp -> Eval Val
+reduceStmts this rest
+    | Noop <- unwrap rest = reduce this
+    | Noop <- unwrap this = reduce rest
 
-reduce (Stmts this rest) = do
+reduceStmts this rest = do
     val <- enterContext cxtVoid $ reduce this
     trapVal val $ case unwrap rest of
         (Syn "env" []) -> do
@@ -317,16 +344,13 @@ reduce (Stmts this rest) = do
             return . VControl $ ControlEnv env
         _ -> reduce rest
 
-reduce (Syn "env" []) = do
-    env <- ask
-    -- writeVar "$*_" val
-    return . VControl $ ControlEnv env
-
-reduce (Pos pos exp) = do
+reducePos :: Pos -> Exp -> Eval Val
+reducePos pos exp = do
     local (\e -> e{ envPos = pos }) $ do
         evalExp exp
 
-reduce (Pad SMy lex exp) = do
+reducePad :: Scope -> Pad -> Exp -> Eval Val
+reducePad SMy lex exp = do
     -- heuristics: if we are repeating ourselves, generate a new TVar.
     lex' <- fmap mkPad $ liftSTM $ forM (padToList lex) $ \(name, tvars) -> do
         tvars' <- forM tvars $ \orig@(fresh, _) -> do
@@ -340,14 +364,15 @@ reduce (Pad SMy lex exp) = do
     local (\e -> e{ envLexical = lex' `unionPads` envLexical e }) $ do
         evalExp exp
 
-reduce (Pad _ lex exp) = do
+reducePad _ lex exp = do
     local (\e -> e{ envLexical = lex `unionPads` envLexical e }) $ do
         evalExp exp
-
+        
+reduceSym :: Scope -> String -> Exp -> Eval Val
 -- Special case: my (undef) is no-op
-reduce (Sym _ "" exp) = evalExp exp
+reduceSym _ "" exp = evalExp exp
 
-reduce (Sym scope name exp) = do
+reduceSym scope name exp = do
     ref <- newObject (typeOfSigil $ head name)
     sym <- case name of
         ('&':_) -> genMultiSym name ref
@@ -358,15 +383,21 @@ reduce (Sym scope name exp) = do
         _       -> do { addGlobalSym sym; evalExp exp }
 
 -- Context forcing
-reduce (Cxt cxt exp) = do
+reduceCxt :: Cxt -> Exp -> Eval Val
+reduceCxt cxt exp = do
     val <- enterEvalContext cxt exp
     enterEvalContext cxt (Val val) -- force casting
 
--- Reduction for no-operations
-reduce Noop = retEmpty
-
 -- Reduction for syntactic constructs
-reduce exp@(Syn name exps) = case name of
+-- (wholeExp is only used when the Syn is not recognised)
+reduceSyn :: Exp -> String -> [Exp] -> Eval Val
+
+reduceSyn _ "env" [] = do
+    env <- ask
+    -- writeVar "$*_" val
+    return . VControl $ ControlEnv env
+
+reduceSyn wholeExp name exps = case name of
     "block" -> do
         let [body] = exps
         enterBlock $ reduce body
@@ -667,7 +698,7 @@ reduce exp@(Syn name exps) = case name of
         let [lhs, exp] = exps
             op = "&infix:" ++ init syn
         evalExp $ Syn "=" [lhs, App (Var op) Nothing [lhs, exp]]
-    _ -> retError "Unknown syntactic construct" exp
+    _ -> retError "Unknown syntactic construct" wholeExp
     where
     doCond :: (Bool -> Bool) -> Eval Val
     doCond f = do
@@ -697,35 +728,36 @@ reduce exp@(Syn name exps) = case name of
                         _           -> runLoop
                 _ -> retVal vbool
 
+reduceApp :: Exp -> (Maybe Exp) -> [Exp] -> Eval Val
 -- XXX absolutely evil bloody hack for context hinters
-reduce (App (Var "&hash") invs args) =
+reduceApp (Var "&hash") invs args =
     enterEvalContext cxtItemAny $ Syn "\\{}" [Syn "," $ maybeToList invs ++ args]
 
-reduce (App (Var "&list") invs args) =
+reduceApp (Var "&list") invs args =
     enterEvalContext cxtSlurpyAny $ case maybeToList invs ++ args of
         []    -> Val (VList [])
         [exp] -> exp
         exps  -> Syn "," exps
 
-reduce (App (Var "&scalar") invs args)
+reduceApp (Var "&scalar") invs args
     | [exp] <- maybeToList invs ++ args = enterEvalContext cxtItemAny exp
     | otherwise = enterEvalContext cxtItemAny $ Syn "," (maybeToList invs ++ args)
 
 -- XXX absolutely evil bloody hack for "zip"
-reduce (App (Var "&zip") invs args) = do
+reduceApp (Var "&zip") invs args = do
     vals <- mapM (enterRValue . enterEvalContext (cxtItem "Array")) (maybeToList invs ++ args)
     val  <- op0Zip vals
     retVal val
 
 -- XXX absolutely evil bloody hack for "not"
-reduce (App (Var "&not") Nothing []) = retEmpty
+reduceApp (Var "&not") Nothing [] = retEmpty
 
-reduce (App (Var "&not") invs args) = do
+reduceApp (Var "&not") invs args = do
     bool <- fromVal =<< evalExp (last $ maybeToList invs ++ args)
     retVal $ VBool (not bool)
 
 -- XXX absolutely evil bloody hack for "goto"
-reduce (App (Var "&goto") (Just subExp) args) = do
+reduceApp (Var "&goto") (Just subExp) args = do
     vsub <- enterEvalContext (cxtItem "Code") subExp
     sub <- fromVal vsub
     local callerEnv $ do
@@ -741,16 +773,16 @@ reduce (App (Var "&goto") (Just subExp) args) = do
            }
 
 -- XXX absolutely evil bloody hack for "assuming"
-reduce (App (Var "&assuming") (Just subExp) args) = do
+reduceApp (Var "&assuming") (Just subExp) args = do
     vsub <- enterEvalContext (cxtItem "Code") subExp
     sub <- fromVal vsub
     case bindSomeParams sub Nothing args of
         Left errMsg      -> fail errMsg
         Right curriedSub -> retVal $ castV $ curriedSub
 
-reduce (App (Var "&infix:=>") invs args) = reduce (Syn "=>" (maybeToList invs ++ args))
+reduceApp (Var "&infix:=>") invs args = reduce (Syn "=>" (maybeToList invs ++ args))
 
-reduce (App (Var name@('&':_)) invs args) = do
+reduceApp (Var name@('&':_)) invs args = do
     sub     <- findSub name invs args
     case sub of
         Just sub    -> applySub sub invs args
@@ -798,13 +830,12 @@ reduce (App (Var name@('&':_)) invs args) = do
         | otherwise
         = internalError "applyChainsub did not match a chain subroutine"
 
-reduce (App subExp invs args) = do
+reduceApp subExp invs args = do
     vsub <- enterEvalContext (cxtItem "Code") subExp
     (`juncApply` [ApplyArg "" vsub False]) $ \[arg] -> do
         sub  <- fromVal $ argValue arg
         apply sub invs args
 
-reduce exp = retError "Invalid expression" exp
 
 {-|
 Return the context that an expression bestows upon a hash or array
