@@ -21,7 +21,7 @@ findExecutable' cmd = do
 ##ifdef PUGS_HAVE_POSIX
     let parrot = cwd ++ ('/':cmd)
 ##else
-    let parrot = cwd ++ ('\\':cmd)
+    let parrot = cwd ++ ('\\':cmd) ++ ".exe"
 ##endif
     ok  <- doesFileExist parrot
     return $ if ok then Just parrot else Nothing
