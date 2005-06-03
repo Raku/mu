@@ -398,12 +398,10 @@ reduceSyn "env" [] = do
     return . VControl $ ControlEnv env
 
 --reduceSyn wholeExp name exps = case name of
-reduceSyn "block" exps = do
-    let [body] = exps
+reduceSyn "block" [body] = do
     enterBlock $ reduce body
     
-reduceSyn "sub" exps = do
-    let [exp] = exps
+reduceSyn "sub" [exp] = do
     (VCode sub) <- enterEvalContext (cxtItem "Code") exp
     env     <- ask
     cont    <- if subType sub /= SubCoroutine then return Nothing else liftSTM $ do
@@ -419,21 +417,19 @@ reduceSyn "sub" exps = do
         , subCont = cont
         }
 
-reduceSyn name exps
+reduceSyn name [cond, bodyIf, bodyElse]
     | "if"     <- name = doCond id
     | "unless" <- name = doCond not
     where
     doCond :: (Bool -> Bool) -> Eval Val
     doCond f = do
-        let [cond, bodyIf, bodyElse] = exps
         vbool     <- enterEvalContext (cxtItem "Bool") cond
         vb        <- fromVal vbool
         if (f vb)
             then reduce bodyIf
             else reduce bodyElse
 
-reduceSyn "for" exps = do
-    let [list, body] = exps
+reduceSyn "for" [list, body] = do
     av    <- enterLValue $ enterEvalContext cxtSlurpyAny list
     vsub  <- enterRValue $ enterEvalContext (cxtItem "Code") body
     -- XXX this is wrong -- should use Array.next
@@ -458,8 +454,7 @@ reduceSyn "for" exps = do
             munge sub = updateSubPad sub symLast
         runBody elms $ munge sub
 
-reduceSyn "gather" exps = do
-    let [exp] = exps
+reduceSyn "gather" [exp] = do
     sub     <- fromVal =<< evalExp exp
     av      <- newArray []
     symTake <- genSym "@?TAKE" (MkRef av)
@@ -484,13 +479,11 @@ reduceSyn "loop" exps = do
         valBody <- enterLex [symRedo, symNext] $ evalExp body
         trapVal valBody $ runNext
 
-reduceSyn "given" exps = do
-    let [topic, body] = exps
+reduceSyn "given" [topic, body] = do
     vtopic <- fromVal =<< enterLValue (enterEvalContext cxtItemAny topic)
     enterGiven vtopic $ enterEvalContext (cxtItem "Code") body
 
-reduceSyn "when" exps = do
-    let [match, body] = exps
+reduceSyn "when" [match, body] = do
     break  <- evalVar "&?BLOCK_EXIT"
     vbreak <- fromVal break
     result <- reduce $ case unwrap match of
@@ -501,13 +494,12 @@ reduceSyn "when" exps = do
         then enterWhen (subBody vbreak) $ apply vbreak Nothing [body]
         else retVal undef
 
-reduceSyn "default" exps = do
-    let [body] = exps
+reduceSyn "default" [body] = do
     break  <- evalVar "&?BLOCK_EXIT"
     vbreak <- fromVal break
     enterWhen (subBody vbreak) $ apply vbreak Nothing [body]
 
-reduceSyn name exps
+reduceSyn name [cond, body]
     | "while" <- name = doWhileUntil id False
     | "until" <- name = doWhileUntil not False
     | "postwhile" <- name = doWhileUntil id True
@@ -516,7 +508,6 @@ reduceSyn name exps
     -- XXX This treatment of while/until loops probably needs work
     doWhileUntil :: (Bool -> Bool) -> Bool -> Eval Val
     doWhileUntil f postloop = do
-        let [cond, body] = exps
         -- XXX redo for initial run
         if postloop
             then reduce body
@@ -533,8 +524,7 @@ reduceSyn name exps
                         _           -> runLoop
                 _ -> retVal vbool
 
-reduceSyn "=" exps = do
-    let [lhs, rhs] = exps
+reduceSyn "=" [lhs, rhs] = do
     refVal  <- enterLValue $ evalExp lhs
     ref     <- fromVal refVal
     cls     <- asks envClasses
@@ -577,14 +567,12 @@ reduceSyn ":=" exps
             [v] -> v
             vs  -> VList vs
 
-reduceSyn ":=" exps = do
-    let [var, vexp] = exps
-        expand e | e'@(Syn "," _) <- unwrap e = e'
+reduceSyn ":=" [var, vexp] = do
+    let expand e | e'@(Syn "," _) <- unwrap e = e'
         expand e = Syn "," [e]
     reduce (Syn ":=" [expand var, expand vexp])
 
-reduceSyn "=>" exps = do
-    let [keyExp, valExp] = exps
+reduceSyn "=>" [keyExp, valExp] = do
     key <- enterEvalContext cxtItemAny keyExp
     val <- enterEvalContext cxtItemAny valExp
     retItem $ castV (key, val)
@@ -603,19 +591,16 @@ reduceSyn "," exps = do
     vals <- mapM (enterEvalContext cxtSlurpyAny) exps
     retVal . VList . concat $ map vCast vals
 
-reduceSyn "val" exps = do
-    let [exp] = exps
+reduceSyn "val" [exp] = do
     enterRValue $ evalExp exp
 
-reduceSyn "\\{}" exps = do
-    let [exp] = exps
+reduceSyn "\\{}" [exp] = do
     v   <- enterRValue $ enterEvalContext cxtItemAny exp
     hv  <- newObject (MkType "Hash")
     writeRef hv v
     retVal $ VRef hv
 
-reduceSyn "\\[]" exps = do
-    let [exp] = exps
+reduceSyn "\\[]" [exp] = do
     v   <- enterRValue $ enterEvalContext cxtSlurpyAny exp
     av  <- newObject (MkType "Array")
     writeRef av v
@@ -645,8 +630,7 @@ reduceSyn "[]" exps
                 (mkFetch $ doArray varVal array_fetchVal)
                 (fromVal idxVal) lv (not (isSlurpyCxt idxCxt))
 
-reduceSyn "[...]" exps = do
-    let [listExp, indexExp] = exps
+reduceSyn "[...]" [listExp, indexExp] = do
     idxVal  <- enterRValue $ enterEvalContext (cxtItem "Int") indexExp
     idx     <- fromVal idxVal
     listVal <- enterRValue $ enterEvalContext (cxtItem "Array") listExp
@@ -655,26 +639,22 @@ reduceSyn "[...]" exps = do
     -- elms    <- mapM fromVal list -- flatten
     retVal $ VList (drop idx $ list)
 
-reduceSyn "@{}" exps = do
-    let [exp] = exps
+reduceSyn "@{}" [exp] = do
     val     <- enterEvalContext (cxtItem "Hash") exp
     ivar    <- doArray val IArray
     evalRef (MkRef ivar)
 
-reduceSyn "%{}" exps = do
-    let [exp] = exps
+reduceSyn "%{}" [exp] = do
     val     <- enterEvalContext (cxtItem "Hash") exp
     ivar    <- doHash val IHash
     evalRef (MkRef ivar)
 
-reduceSyn "&{}" exps = do
-    let [exp] = exps
+reduceSyn "&{}" [exp] = do
     val     <- enterEvalContext (cxtItem "Hash") exp
     sub     <- fromVal val
     return $ VCode sub
 
-reduceSyn "${}" exps = do
-    let [exp] = exps
+reduceSyn "${}" [exp] = do
     val     <- enterEvalContext (cxtItem "Hash") exp
     ref     <- fromVal val
     evalRef ref
@@ -688,8 +668,7 @@ reduceSyn (sigil:"::()") exps = do
     -- Finally, eval the varname.
     evalExp . Var $ varname
 
-reduceSyn "{}" exps = do
-    let [listExp, indexExp] = exps
+reduceSyn "{}" [listExp, indexExp] = do
     idxCxt  <- cxtOfExp indexExp 
     {- if envLValue env
         then cxtOfExp indexExp else return (envContext env)
@@ -701,8 +680,7 @@ reduceSyn "{}" exps = do
             (mkFetch $ doHash varVal hash_fetchVal)
             (fromVal idxVal) lv (not (isSlurpyCxt idxCxt))
 
-reduceSyn "rx" exps = do
-    let [exp, adverbs] = exps
+reduceSyn "rx" [exp, adverbs] = do
     hv      <- fromVal =<< evalExp adverbs
     val     <- enterEvalContext (cxtItem "Str") exp
     str     <- fromVal val
@@ -712,7 +690,7 @@ reduceSyn "rx" exps = do
     flag_i  <- fromAdverb hv ["i", "ignorecase"]
     flag_s  <- fromAdverb hv ["stringify"] -- XXX hack
     let rx | p5 = MkRulePCRE p5re g flag_s 
-            | otherwise = MkRulePGE str g flag_s
+           | otherwise = MkRulePGE str g flag_s
         g = ('g' `elem` p5flags || flag_g)
         p5re = mkRegexWithPCRE (encodeUTF8 str) $
                     [ pcreUtf8
@@ -734,22 +712,19 @@ reduceSyn "//" exps = reduce (Syn "rx" exps)
 
 reduceSyn "match" exps = reduce (Syn "rx" exps) -- XXX - this is wrong
 
-reduceSyn "subst" exps = do
-    let [exp, subst, adverbs] = exps
+reduceSyn "subst" [exp, subst, adverbs] = do
     (VRule rx)  <- reduce (Syn "rx" [exp, adverbs])
     retVal $ VSubst (rx, subst)
 
 reduceSyn "is" _ = do
     retEmpty
 
-reduceSyn "module" exps = do
-    let [exp] = exps
+reduceSyn "module" [exp] = do
     val <- evalExp exp
     writeVar "$?MODULE" val
     retEmpty
 
-reduceSyn "inline" exps = do
-    let [langExp, _] = exps
+reduceSyn "inline" [langExp, _] = do
     langVal <- evalExp langExp
     lang    <- fromVal langVal
     when (lang /= "Haskell") $
@@ -763,10 +738,9 @@ reduceSyn "inline" exps = do
     externRequire "Haskell" (file ++ ".o")
     retEmpty
 
-reduceSyn syn exps
+reduceSyn syn [lhs, exp]
     | last syn == '=' = do
-        let [lhs, exp] = exps
-            op = "&infix:" ++ init syn
+        let op = "&infix:" ++ init syn
         evalExp $ Syn "=" [lhs, App (Var op) Nothing [lhs, exp]]
 
 reduceSyn name exps =
