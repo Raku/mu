@@ -111,10 +111,11 @@ ruleStatementList = rule "statements" $ choice
         whiteSpace
         -- pos     <- getPosition
         exp     <- rule
-        rest    <- option return $ try $ do
+        rest    <- option return $ do
             count (symbol ";")
-            stmts <- ruleStatementList
-            return $ \exp -> return $ mergeStmts exp stmts
+            do { eof; return return } <|> do
+                stmts <- ruleStatementList
+                return $ \exp -> return $ mergeStmts exp stmts
         rest exp
 
 ruleBeginOfLine :: RuleParser ()
