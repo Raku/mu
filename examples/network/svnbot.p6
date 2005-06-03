@@ -44,30 +44,30 @@ sub on_invite($event) {
 sub on_privmsg($event) {
     given $event<rest> {
         debug "Received a ?-request from $event<from>: $event<rest>"
-          if substr($event<rest>, 0, 1) eq "?";
+            if substr($event<rest>, 0, 1) eq "?";
 
         my $reply_to = substr($event<object>, 0, 1) eq "#" ?? $event<object> :: $event<from_nick>;
 
-      when rx:P5/^\?quit\s*(.*)$/ {
-          $bot<quit>($0);
-      }
+        when rx:P5/^\?quit\s*(.*)$/ {
+            $bot<quit>($0);
+        }
 
-      when rx:P5/^\?raw\s+(.+)$/ {
-          $bot<raw>($0);
-      }
+        when rx:P5/^\?raw\s+(.+)$/ {
+            $bot<raw>($0);
+        }
 
-      when rx:P5/^\?join\s+(.+)$/ {
-          $bot<join>($0);
-      }
+        when rx:P5/^\?join\s+(.+)$/ {
+            $bot<join>($0);
+        }
 
-      when rx:P5/^\?uptime$/ {
-          my $start_time = INIT { time };
-          $bot<privmsg>(to => $reply_to, text => "Running for {time() - $start_time} seconds.");
-      }
+        when rx:P5/^\?uptime$/ {
+            my $start_time = INIT { time };
+            $bot<privmsg>(to => $reply_to, text => "Running for {time() - $start_time} seconds.");
+        }
 
-      when rx:P5/^\?check$/ {
-          svn_check "now";
-      }
+        when rx:P5/^\?check$/ {
+            svn_check "now";
+        }
     }
 }
 
