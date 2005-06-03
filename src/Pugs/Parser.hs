@@ -113,7 +113,7 @@ ruleStatementList = rule "statements" $ choice
         exp     <- rule
         rest    <- option return $ do
             count (symbol ";")
-            do { eof; return return } <|> do
+            option return $ do
                 stmts <- ruleStatementList
                 return $ \exp -> return $ mergeStmts exp stmts
         rest exp
