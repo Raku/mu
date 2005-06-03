@@ -224,7 +224,7 @@ sub report_failure (Str ?$todo, Str ?$got, Str ?$expected) returns Bool {
         $num_of_tests_failed++;
     }
 
-    if ($?CALLER::CALLER::SUBNAME eq ('&is' | '&isnt' | '&cmp_ok' | '&eval_is' | '&isa_ok' | '&todo_is' | '&todo_isnt' | '&todo_cmp_ok' | '&todo_eval_is' | '&todo_isa_ok')) {
+    if ($?CALLER::CALLER::SUBNAME eq ('&Test::is' | '&Test::isnt' | '&Test::cmp_ok' | '&Test::eval_is' | '&Test::isa_ok' | '&Test::todo_is' | '&Test::todo_isnt' | '&Test::todo_cmp_ok' | '&Test::todo_eval_is' | '&Test::todo_isa_ok')) {
         diag("  Expected: '" ~ ($expected.defined ?? $expected :: "undef") ~ "'");
         diag("       Got: '" ~ ($got.defined ?? $got :: "undef") ~ "'");
     }
