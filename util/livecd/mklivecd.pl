@@ -64,7 +64,7 @@ my $lib6         = "../../blib6/lib";
 my $initrd_gz    = "initrd.gz";
 my $initrd_img   = "initrd.img";
 my $initrd_mnt   = "/mnt/loop0";
-my $initrd_size  = int 22.7 * 1024;
+my $initrd_size  = int 23.0 * 1024;
 my $cdroot       = "cdroot";
 my $iso          = "cd.iso";
 
