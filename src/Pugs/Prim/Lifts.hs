@@ -10,7 +10,7 @@ import Pugs.AST
 import Pugs.Types
 
 op1Cast :: (Value n) => (n -> Val) -> Val -> Eval Val
-op1Cast f val = fmap f (fromVal =<< fromVal' val)
+op1Cast f val = fmap f (fromVal val)
 
 op2Cast :: (Value n, Value m) => (n -> m -> Val) -> Val -> Val -> Eval Val
 op2Cast f x y = do
