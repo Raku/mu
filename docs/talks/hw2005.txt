@@ -51,10 +51,10 @@ During the mid-1990s, Wall developed Perl 5, incoporating features from
 contemporary languages (Scheme, C++, Python, etc.), such as modules, closures,
 object-oriented programming and bytecode compilation. 
 
-In 2000, Wall started the Perl 6 project, with a focus on improved
-cross-language interoperation and support for multiple programming paradigms.
-The design process continued well into 2005, producing the language
-specification in installments.
+The Perl 6 project was started in 2000, with a focus on improved cross-language
+interoperation and support for multiple programming paradigms.  The design
+process continued well into 2005, producing the language specification in
+installments.
 
 However, the Perl 6 implementation, originally planned to proceed in parallel
 with the design process, failed to materialise; this has seriously impeded the
@@ -85,15 +85,43 @@ register-based Parrot virtual machine.
 
 2. Overview of the Perl 6 Project
 
-On 1995, Jarkko Hietaniemi and Andreas König established the Comprehensive Perl
-Archive Network (CPAN), an infrastructure for sharing Perl modules, programs
-and documentation.  Around that time, a community of volunteers known as the
-"Perl 5 porters" was formed to take charge of the ongoing development of
-Perl 5.
+Previous versions of Perl were designed and implemented by Wall alone.
+However, Perl 6's development is driven by Perl community's varied and often
+conflicting needs.  As such, we will start with a brief overview of the Perl
+community, and how Perl 6 has come to be.
 
 2.1. Historical Background
 
-...problems of perl 5...
+Following the release of Perl 5 in 1994, a community of volunteers known as the
+"Perl 5 porters" was formed to take charge of the ongoing development of
+Perl 5.  For each major revision, the porters appoint a "pumpking" (release
+manager) to take charge of the design and arbitrate patches submitted by other
+porters.
+
+In 1995, Jarkko Hietaniemi and Andreas König established the Comprehensive Perl
+Archive Network (CPAN), an infrastructure for sharing freely reusable
+libraries, programs and documentation.  Perl itself comes with a built-in client
+side utility for automatic downloading, testing and installation of CPAN
+modules.  As of 2005, CPAN has more than 8000 modules, supported by a toolchain
+that covers smoke testing, issue tracking, cross-referencing, rating and
+discussion forums.
+
+Driven by hundreds of Perl 5 porters and thousands of CPAN authors, Perl 5's
+development put a strong emphasis on backward compatibility.  Developers
+avoid adding new built-in functions, as they might clash with user-defined
+functions of the same name.  Conversely, deprecated features are almost never
+fully retracted, while new incompatible features are consistently rejected.
+For example, one cannot rewrite the reference-counting garbage collector,
+because existing programs may rely on its object destruction semantics.
+
+In 2000, many developers feel that Perl 5 development is stuck.  Some have
+described the C-based runtime as a tower of Jenga, where new features are
+constrained to re-use existing semantics, making it ever more fragile.
+
+In response to this situation, Perl developers started the Perl 6 project to
+rewrite Perl from scratch, dropping language-level backward compatibility for
+the first time.  To use existing Perl 5 programs, one would need to embed a
+Perl 5 runtime inside Perl 6's runtime, or recompile them into Perl 6.
 
 2.2. Design Goals
 
