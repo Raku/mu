@@ -117,13 +117,13 @@ plan 9;
     my $re  = {
 	# Perl 5 RE, as we don't want to force people to install Parrot ATM. (The
 	# test passes when using the Perl 6 RE, too.)
-	s:Perl5/^(.)/{
+	$str ~~ s:Perl5/^(.)/{
 	  state $svar;
 	  ++$svar;
 	}/;
     };
-    $re($str);
-    $re($str);
-    $re($str);
+    $re();
+    $re();
+    $re();
     is +$str, 3, "state() inside regular expressions works";
 }
