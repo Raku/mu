@@ -546,6 +546,7 @@ op1 "Code::assoc" = op1CodeAssoc
 op1 "Code::name"  = op1CodeName
 op1 "Code::arity" = op1CodeArity
 op1 "Code::body"  = op1CodeBody
+op1 "Code::pos"   = op1CodePos
 op1 other   = \_ -> fail ("Unimplemented unaryOp: " ++ other)
 
 returnList :: [Val] -> Eval Val
@@ -578,6 +579,9 @@ op1Return action = do
     if depth == 0 then fail "cannot return() outside a subroutine" else do
     sub   <- fromVal =<< readVar "&?SUB"
     case subCont sub of
+        {- shiftT :: ((a -> Eval Val) -> Eval Val) -> Eval a -}
+	    {- const :: a -> b -> a -}
+        {- FIXME: This should involve shiftT somehow, I think, but I'm not clear how. -}
         Nothing -> action
         _       -> fail $ "cannot return() from a " ++ pretty (subType sub)
 
@@ -1526,6 +1530,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Int       pre     Code::arity   safe   (Code:)\
 \\n   Str       pre     Code::assoc   safe   (Code:)\
 \\n   Code::Exp pre     Code::body    safe   (Code:)\
+\\n   Str       pre     Code::pos     safe   (Code:)\
 \\n   IO::Dir   pre     opendir    unsafe (Str)\
 \\n   Str       pre     IO::Dir::readdir    unsafe (IO::Dir)\
 \\n   List      pre     IO::Dir::readdir    unsafe (IO::Dir)\
