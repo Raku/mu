@@ -44,6 +44,6 @@ class NestedLoops {
 
 my $counter = NestedLoops.new( :loops(@loops) );
 
-$counter.iter( sub { say "HERE " ~ @_ } );
-while ($counter.iter) { $counter.data.join(" ").say; }
+$counter.iter( sub { say "CODE BLOCK " ~ @_ } );
+while ($counter.iter) { say "WHILE LOOP " ~ $counter.data.join(" "); }
 
