@@ -17,6 +17,7 @@ setrlimit RLIMIT_CPU,   5, 7                   or die "Couldn't setrlimit: $!\n"
 setrlimit RLIMIT_VMEM,  30 * 2**20, 30 * 2**20 or die "Couldn't setrlimit: $!\n";
 setrlimit RLIMIT_FSIZE, 500, 500,              or die "Couldn't setrlimit: $!\n";
 
+warn $code;
 unlink $tmpfile or die "Couldn't unlink \"$tmpfile\": $!\n" if -e $tmpfile;
 close STDOUT or die "Couldn't close STDOUT: $!\n";
 close STDERR or die "Couldn't close STDERR: $!\n";;
@@ -31,7 +32,8 @@ $ENV{PUGS_SAFEMODE} eq  "true" or die "Couldn't set \$ENV{PUGS_SAFEMODE}!\n";
 
 # Escape the code.
 # (Wow! My first use of quotemeta, me thinks!)
-$code = quotemeta $code;
+# $code = quotemeta $code;
+$code =~ s/([^A-Za-z_0-9\^])/\\$1/g;
 
 # Run the code.
 # We use an anonymous sub instead the more clear "my $ret = eval(...)" so we
