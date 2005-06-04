@@ -100,18 +100,18 @@ Basic submethod tests. See L<S12/"Submethods">
 {
   class ClassC
   {
-    has $.value;
+    has $.double_value;
 
-    submethod BUILD ( ?$value = 0 )
+    submethod BUILD ( ?$value = 1 )
     {
-      $.value = 'default calculated value' unless $value;
+      $.double_value = $value * 2;
     }
   }
 
   my $C = ClassC.new();
-  is( $C.value, 'default calculated value',
+  is( $C.double_value, 2,
     'BUILD() should allow default values of optional params in signature' );
 
   my $C2 = ClassC.new( :value(100) );
-  is( $C2.value, 100, '... or value passed in', :todo<bug> );
+  is( $C2.double_value, 200, '... or value passed in', :todo<bug> );
 }
