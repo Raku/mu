@@ -181,8 +181,14 @@ evalVar name = do
         _ | (':':rest) <- name -> return $ VType (mkType rest)
         _ -> retError "Undeclared variable" name
 
+{-|
+Perform the given evaluation in an lvalue context.
+-}
 enterLValue :: Eval a -> Eval a
 enterLValue = local (\e -> e{ envLValue = True })
+{-|
+Perform the given evaluation in an rvalue (i.e. non-lvalue) context.
+-}
 enterRValue :: Eval a -> Eval a
 enterRValue = local (\e -> e{ envLValue = False })
 
@@ -283,7 +289,12 @@ evalRef ref = do
         return $ castV ref
     retVal val
 
--- | Reduce an expression into its value. This is the workhorse of "Pugs.Eval".
+{-|
+Reduce an expression into its value.
+
+This function dispatches to the relevant @reduce*@ function for the type of
+expression given.
+-}
 reduce :: Exp -- ^ The expression to reduce
        -> Eval Val
 
@@ -344,6 +355,10 @@ reduceStmts this rest = do
             return . VControl $ ControlEnv env
         _ -> reduce rest
 
+{-|
+Reduce a 'Pos' expression by reducing its subexpression in a new 'Env', which
+contains the 'Pos'\'s position.
+-}
 reducePos :: Pos -> Exp -> Eval Val
 reducePos pos exp = do
     local (\e -> e{ envPos = pos }) $ do

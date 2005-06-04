@@ -44,7 +44,7 @@ Perl, Haskell
 
 The Perl language, developed by Larry Wall in the mid-1980s, is an attempt to
 synthesise the capabilities of the Unix toolset (C, shell, grep, sed, awk,
-etc.), presentting them in a way that maximises ease of use, efficiency and
+etc.), presenting them in a way that maximises ease of use, efficiency and
 completeness.
 
 During the mid-1990s, Wall developed Perl 5, incoporating features from
@@ -107,7 +107,7 @@ that covers smoke testing, issue tracking, cross-referencing, rating and
 discussion forums.
 
 Driven by hundreds of Perl 5 porters and thousands of CPAN authors, Perl 5's
-development put a strong emphasis on backward compatibility.  Developers
+development puts a strong emphasis on backward compatibility.  Developers
 avoid adding new built-in functions, as they might clash with user-defined
 functions of the same name.  Conversely, deprecated features are almost never
 fully retracted, while new incompatible features are consistently rejected.
@@ -156,7 +156,7 @@ code that produces side-effects.
 For example, the "BEGIN {...}" syntax defines a block of code to be executed
 during compilation.  Immediately after parsing a BEGIN block, the compiler will
 generate its object code, then dynamically load and run it.  This code has
-access of the compilation environment; it may rewrite the partially produced
+access to the compilation environment; it may rewrite the partially produced
 parse tree, define new grammar rules, or replace the compiler entirely from the
 next token onwards.
 

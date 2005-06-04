@@ -1079,11 +1079,69 @@ runEvalSTM env = runSTM . (`runReaderT` env) . (`runContT` return) . runEvalT
 runEvalIO :: Env -> Eval Val -> IO Val
 runEvalIO env action = runIO . (`runReaderT` env) . (`runContT` return) . runEvalT $ action
 
-shiftT :: ((a -> Eval Val) -> Eval Val) -> Eval a
+{-|
+'shiftT' is like @callCC@, except that when you activate the continuation
+provided by 'shiftT', it will run to the end of the nearest enclosing 'resetT',
+then jump back to just after the point at which you activated the continuation.
+
+Note that because control eventually returns to the point after the 
+subcontinuation is activated, you can activate it multiple times in the 
+same block. This is unlike @callCC@'s continuations, which discard the current
+execution path when activated.
+
+See 'resetT' for an example of how these delimited subcontinuations actually
+work.
+-}
+shiftT :: ((a -> Eval Val) -> Eval Val)
+       -- ^ Typically a lambda function of the form @\\esc -> do ...@, where
+       --     @esc@ is the current (sub)continuation
+       -> Eval a
 shiftT e = EvalT . ContT $ \k ->
     runContT (runEvalT . e $ lift . lift . k) return
 
-resetT :: Eval Val -> Eval Val
+{-|
+Create an scope that 'shiftT'\'s subcontinuations are guaranteed to eventually
+exit out the end of.
+
+Consider this example:
+
+> resetT $ do
+>     alfa
+>     bravo
+>     x <- shiftT $ \esc -> do
+>        charlie
+>        esc 1
+>        delta
+>        esc 2
+>        return 0
+>     zulu x
+
+This will:
+
+  1) Perform @alfa@
+  
+  2) Perform @bravo@
+  
+  3) Perform @charlie@
+  
+  4) Bind @x@ to 1, and thus perform @zulu 1@
+  
+  5) Fall off the end of 'resetT', and jump back to just after @esc 1@
+  
+  6) Perform @delta@
+  
+  7) Bind @x@ to 2, and thus perform @zulu 2@
+  
+  8) Fall off the end of 'resetT', and jump back to just after @esc 2@
+  
+  6) Escape from the 'resetT', causing it to yield 0
+
+Thus, unlike @callCC@'s continuations, these subcontinuations will eventually
+return to the point after they are activated, after falling off the end of the
+nearest 'resetT'.
+-}
+resetT :: Eval Val -- ^ An evaluation, possibly containing a 'shiftT'
+       -> Eval Val
 resetT e = lift . lift $
     runContT (runEvalT e) return
 
