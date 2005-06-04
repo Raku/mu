@@ -44,9 +44,18 @@ sub on_privmsg($event) {
       if substr($event<rest>, 0, 1) eq "?";
 
     my $reply_to = substr($event<object>, 0, 1) eq "#" ?? $event<object> :: $event<from_nick>;
+    my $reply    = { $bot<privmsg>(to => $reply_to, text => $^text) };
+
+    when rx:P5/^\?help/ {
+      $reply("evalbot6 -- ?help | ?quit [reason] | ?raw ... | ?join #chan | ?uptime | ?eval code");
+    }
 
     when rx:P5/^\?quit\s*(.*)$/ {
-      $bot<quit>($0);
+      if substr($reply_to, 0, 1) eq "#" {
+        $reply("?quit only available per private message so other bots don't quit as well.");
+      } else {
+        $bot<quit>($0);
+      }
     }
 
     when rx:P5/^\?raw\s+(.+)$/ {
@@ -59,16 +68,16 @@ sub on_privmsg($event) {
 
     when rx:P5/^\?uptime$/ {
       my $start_time = INIT { time };
-      $bot<privmsg>(to => $reply_to, text => "Running for {int(time() - $start_time)} seconds.");
+      $reply("Running for {int(time() - $start_time)} seconds.");
     }
 
     when rx:P5/^\?eval\s+(.+)$/ {
       # Only allow ?eval in channels, not per private message, so other people
       # on a channel may see abuse of the evalbot.
       if substr($reply_to, 0, 1) eq "#" {
-        $bot<privmsg>(to => $reply_to, text => evalhelper($0));
+        $reply(evalhelper $0);
       } else {
-        $bot<privmsg>(to => $reply_to, text => "?eval command is only available in public channels");
+        $reply("?eval command is only available in public channels");
       }
     }
 

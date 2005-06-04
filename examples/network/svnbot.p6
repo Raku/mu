@@ -47,9 +47,18 @@ sub on_privmsg($event) {
             if substr($event<rest>, 0, 1) eq "?";
 
         my $reply_to = substr($event<object>, 0, 1) eq "#" ?? $event<object> :: $event<from_nick>;
+        my $reply    = { $bot<privmsg>(to => $reply_to, text => $^text) };
+
+        when rx:P5/^\?help/ {
+            $reply("svnbot6 -- ?help | ?quit [reason] | ?raw ... | ?join #chan | ?uptime | ?check");
+        }
 
         when rx:P5/^\?quit\s*(.*)$/ {
-            $bot<quit>($0);
+            if substr($reply_to, 0, 1) eq "#" {
+                $reply("?quit only available per private message so other bots don't quit as well.");
+            } else {
+                $bot<quit>($0);
+            }
         }
 
         when rx:P5/^\?raw\s+(.+)$/ {
