@@ -156,7 +156,12 @@ prepareEnv name args = do
     hideInSafemode x = if safeMode then MkRef $ constScalar undef else x
 
 initPrelude :: Env -> IO Val
-initPrelude env = runEvalIO env{ envDebug = Nothing} $ opEval Nothing "<prelude>" preludeStr
+initPrelude env = do
+    res <- runEvalIO env{envDebug = Nothing} $ opEval style "<prelude>" preludeStr
+    return res
+    where
+        style = MkEvalStyle{evalResult=EvalResultEnv
+                           ,evalError =EvalErrorFatal}
 
 initClassObjects :: [Type] -> ClassTree -> IO [STM (Pad -> Pad)]
 initClassObjects parent (Node typ children) = do

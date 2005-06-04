@@ -245,7 +245,9 @@ op1 "use" = opRequire True
 op1 "require" = opRequire False
 op1 "eval" = \v -> do
     str <- fromVal v
-    opEval Nothing "<eval>" str
+    opEval quiet "<eval>" str
+    where quiet = MkEvalStyle{evalResult=EvalResultLastValue
+                             ,evalError=EvalErrorUndef}
 op1 "evalfile" = \v -> do
     filename <- fromVal v
     opEvalfile filename
@@ -261,7 +263,9 @@ op1 "eval_yaml" = evalYaml
 op1 "try" = \v -> do
     sub <- fromVal v
     val <- resetT $ evalExp (App (Val $ VCode sub) Nothing [])
-    retEvalResult False val
+    retEvalResult quiet val
+    where quiet = MkEvalStyle{evalResult=EvalResultLastValue
+                             ,evalError=EvalErrorUndef}
 -- Tentative implementation of nothingsmuch's lazy proposal.
 op1 "lazy" = \v -> do
     sub <- fromVal v
@@ -1527,6 +1531,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   List      pre     Pugs::Internals::runInteractiveCommand  unsafe (Str)\
 \\n   Bool      pre     Pugs::Internals::hSetBinaryMode         unsafe (IO, Str)\
 \\n   IO        pre     Pugs::Internals::openFile               unsafe (Str, Str)\
+\\n   List      pre     Pugs::Internals::caller                 safe (?Int=1)\
 \\n   Bool      pre     bool::true  safe   ()\
 \\n   Bool      pre     bool::false safe   ()\
 \\n   List      spre    prefix:[,]  safe   (List)\
