@@ -92,11 +92,11 @@ syn region p6LiteralString start=+<<\@!\(.*>\)\@=+ end=+>\@<!>+
 " \w-delimited strings
 syn region p6LiteralString start="\<q\s\+\z([a-zA-Z0-9_]\)" skip="\\\z1" end="\z1"
 " Punctuation-delimited strings
-syn region p6LiteralString start="\<q\s*\z([^a-zA-Z0-9_ ]\)" skip="\\\z1" end="\z1"
-syn region p6LiteralString start="\<q\s*\[" skip="\\]" end="]"
-syn region p6LiteralString start="\<q\s*(" skip="\\)" end=")"
-syn region p6LiteralString start="\<q\s*{" skip="\\}" end="}"
-syn region p6LiteralString start="\<q\s*<" skip="\\>" end=">"
+syn region p6LiteralString start="\<q\(:[12]\)*\s*\z([^a-zA-Z0-9_ ]\)" skip="\\\z1" end="\z1"
+syn region p6LiteralString start="\<q\(:[12]\)*\s*\[" skip="\\]" end="]"
+syn region p6LiteralString start="\<q\(:[12]\)*\s*(" skip="\\)" end=")"
+syn region p6LiteralString start="\<q\(:[12]\)*\s*{" skip="\\}" end="}"
+syn region p6LiteralString start="\<q\(:[12]\)*\s*<" skip="\\>" end=">"
 
 " Numbers
 syn match  p6Number "\<\(\d*\.\d\+\|\d\+\.\d*\|\d\+\)\(e\d\+\)\{0,1}"
