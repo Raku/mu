@@ -113,5 +113,5 @@ Basic submethod tests. See L<S12/"Submethods">
     'BUILD() should allow default values of optional params in signature' );
 
   my $C2 = ClassC.new( :value(100) );
-  is( $C2.double_value, 200, '... or value passed in', :todo<bug> );
+  is( $C2.double_value, 200, '... or value passed in' );
 }
