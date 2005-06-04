@@ -144,11 +144,55 @@ source string level instead of the AST level, multiple filters cannot reliably
 work together.
 
 Perl 6 proposes an unusual execution model to address this problem.  The parser
-and compiler are assumed be a single Perl 6 program.
+and compiler are assumed to be implemented in a single Perl 6 program, with an
+initial set of rules to turn source code into ASTs.  Rules are composable,
+first-class functions, written in a sub-language of Perl 6 that can parse
+context sensitive, infinite look-ahead grammars.
+
+The parser parses the program with the top-level "program" rule, composed of
+sub-rules that handles parts of the program.  Rules may contain embedded Perl 6
+code that produces side-effects.
+
+For example, the "BEGIN {...}" syntax defines a block of code to be executed
+during compilation.  Immediately after parsing a BEGIN block, the compiler will
+generate its object code, then dynamically load and run it.  This code has
+access of the compilation environment; it may rewrite the partially produced
+parse tree, define new grammar rules, or replace the compiler entirely from the
+next token onwards.
+
+With a default grammar that supports user-defined operators of arbitary fixity
+and precedence, programmers can easily introduce new language semantics under
+this execution model.
+
+During runtime, the program still has access to the built-in parser and
+compiler modules.  The "eval" primitive triggers the compilation and linking
+process again, with full access to the current runtime environment.
 
 2.3. Language Interoperability
 
-...comparison with clr/jvm...
+Perl 6 is designed to operate in a mixed-language environment. The Inline.pm
+framework already implements this capability in Perl 5; it provides a unified
+interface to three strategies for interoperating with other languages.
+
+* Translate:  Sometimes it is possible to transform the foreign language
+into equivalent Perl code.  In that case, it is a simple matter of applying a
+source filter, or "eval" the translated code in its own namespace.
+
+* Native call:  Statically compiled languages (such as C, C++ and assembly)
+are compiled into dynamically loaded shared libraries.  Inline.pm automatically
+generates wrappers to foreign functions; it also exports Perl's runtime API so
+the embedded language can also call functions defined in Perl.
+
+* Runtime harness:  For languages with a rich runtime (e.g. Java and Python),
+Inline.pm will run them alongside Perl's own runtime, sharing the execution
+context in a coroutine-like fashion.  Types and global bindings are encoded
+both ways, so the Perl program can invoke a foreign object's methods and vice 
+versa.
+
+In addition to these strategies, Perl 6 is also designed to run on a shared
+high-level virtual machine, such as the Java VM or .Net CLR.  As part of the
+Perl 6 project, the Parrot VM is the reference implementation for a
+cross-language runtime to support Perl 6 and other dynamic languages.
 
 ---------------------------------------------------------------------------
 
