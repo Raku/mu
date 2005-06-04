@@ -57,8 +57,10 @@ pugs_eval :: CString -> IO PugsVal
 pugs_eval cstr = do
     str <- peekCString cstr
     env <- askPerl5Env
-    val <- runEvalIO env $ opEval Nothing "<eval>" str
+    val <- runEvalIO env $ opEval quiet "<eval>" str
     mkVal val
+    where quiet = MkEvalStyle{evalResult=EvalResultLastValue
+                             ,evalError=EvalErrorUndef}
 
 pugs_apply :: PugsVal -> PugsVal -> Ptr PugsVal -> CInt -> IO PerlSV
 pugs_apply subPtr invPtr argsPtr cxt = do
