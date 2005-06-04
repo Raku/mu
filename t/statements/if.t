@@ -11,7 +11,7 @@ L<S04/"Conditional statements">
 
 =cut
 
-plan 16;
+plan 17;
 
 my $x = 'test';
 if ($x eq $x) { pass("if ($x eq $x) {} works"); } else { fail("if ($x eq $x) {} failed"); }
@@ -95,3 +95,12 @@ is $foo, 1, "die should stop execution immediately.";
 	is $foo, 3, $c;
 }
 
+# I'm not sure where this should go
+
+{
+	eval_is(
+		'if( ( my $x = 2 ) == 2 ) { $x; }',
+		2,
+		"'my' variable within 'if' conditional",
+	);
+}
