@@ -34,13 +34,13 @@ our $iso8601_re_anchored = rx:perl5/^$iso8601_re$/;
 # the below two constructors might look pointless and repetitive, and
 # hopefully there will be a nice way of labelling this intent
 multi method date( *@parts ) returns Date::Gregorian is export {
-    Date::Gregorian.new( :year  ($parts[0]),
-			 :month ($parts[1]),
-			 :day   ($parts[2]),
-			 :hour  ($parts[3]),
-			 :minute($parts[4]),
-			 :second($parts[5]),
-			 :tz    ($parts[6])  );
+    Date::Gregorian.new( :year  (@parts[0]),
+			 :month (@parts[1]),
+			 :day   (@parts[2]),
+			 :hour  (@parts[3]),
+			 :minute(@parts[4]),
+			 :second(@parts[5]),
+			 :tz    (@parts[6])  );
 }
 
 multi method date( Int ?$year, Int ?$month, Int ?$day,
