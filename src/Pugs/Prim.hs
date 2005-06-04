@@ -538,8 +538,8 @@ op1 "gather" = \v -> do
 op1 "Thread::yield" = const $ do
     ok <- tryIO False $ do { yield ; return True }
     return $ VBool ok
-op1 "BUILDALL" = op1WalkAll id "BUILD"
-op1 "DESTROYALL" = op1WalkAll reverse "DESTROY"
+op1 "DESTROYALL" = op1WalkAll reverse "DESTROY" $
+    (VRef . hashRef) (Map.empty :: VHash)
 -- [,] is a noop -- It simply returns the input list
 op1 "prefix:[,]" = return
 op1 "Code::assoc" = op1CodeAssoc
@@ -564,13 +564,16 @@ pkgParents pkg = do
     pkgs    <- mapM pkgParents attrs
     return $ nub (pkg:concat pkgs)
 
-op1WalkAll :: ([VStr] -> [VStr]) -> VStr -> Val -> Eval Val
-op1WalkAll f meth v = do
+op1WalkAll :: ([VStr] -> [VStr]) -> VStr -> Val -> Val -> Eval Val
+op1WalkAll f meth v hashval = do
     pkgs    <- pkgParents =<< fmap showType (evalValType v)
+    named   <- join $ doHash hashval hash_fetch
     forM_ (f pkgs) $ \pkg -> do
         maybeM (fmap (findSym $ ('&':pkg) ++ "::" ++ meth) askGlobal) $ \tvar -> do
             ref <- liftSTM $ readTVar tvar
-            enterEvalContext CxtVoid (App (Val $ VRef ref) (Just $ Val v) [])
+            enterEvalContext CxtVoid (App (Val $ VRef ref) (Just $ Val v)
+                [ App (Var "&infix:=>") Nothing [Val (VStr key), Val val]
+                | (key, val) <- Map.assocs named ])
     return undef
 
 op1Return :: Eval Val -> Eval Val
@@ -871,6 +874,7 @@ op2 "sort" = \x y -> do
     op1 "sort" . VList $ xs ++ ys
 op2 "IO::say" = op2Print hPutStrLn
 op2 "IO::print" = op2Print hPutStr
+op2 "BUILDALL" = op1WalkAll id "BUILD"
 op2 other = \_ _ -> fail ("Unimplemented binaryOp: " ++ other)
 
 op2Print :: (Handle -> String -> IO ()) -> Val -> Val -> Eval Val
@@ -946,7 +950,7 @@ op3 "Any::new" = \t n _ -> do
             , objOpaque = Nothing
             }
     -- Now start calling BUILD for each of parent classes (if defined)
-    op1 "BUILDALL" obj
+    op2 "BUILDALL" obj $ (VRef . hashRef) named
     liftIO $ addFinalizer obj (objectFinalizer env obj)
     return obj
 op3 other = \_ _ _ -> fail ("Unimplemented 3-ary op: " ++ other)

@@ -143,7 +143,8 @@ domain-specific languages.  However, as the transformation happens on the
 source string level instead of the AST level, multiple filters cannot reliably
 work together.
 
-Perl 6 proposes an unusual execution model to address this problem:
+Perl 6 proposes an unusual execution model to address this problem.  The parser
+and compiler are assumed be a single Perl 6 program.
 
 2.3. Language Interoperability
 
