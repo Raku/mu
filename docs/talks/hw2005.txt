@@ -21,10 +21,10 @@ Moreover, we demonstrate how Pugs uses Haskell's FFI to embed Perl 5, Parrot
 and Haskell within Perl 6 programs, and how it mediates the execution context
 between these runtime environments.
 
-Finally, we discuss Parrot, a register-based virtual machine designated as
-Perl 6's primary runtime.  We show how Pugs can evolve from an interpreter
-to a compiler targeting Parrot, with a design based on metacomputational
-monads.
+Finally, we discuss Parrot, a register-based virtual machine designated as the
+reference implementation of Perl 6's runtime.  We show how Pugs can evolve from
+an interpreter to a compiler targeting Parrot, with a design based on
+metacomputational monads.
 
 == Categories and Subject Descriptors ==
 
@@ -44,7 +44,7 @@ Perl, Haskell
 
 The Perl language, developed by Larry Wall in the mid-1980s, is an attempt to
 synthesise the capabilities of the Unix toolset (C, shell, grep, sed, awk,
-etc.), and present them in a way that maximises ease of use, efficiency and
+etc.), presentting them in a way that maximises ease of use, efficiency and
 completeness.
 
 During the mid-1990s, Wall developed Perl 5, incoporating features from
@@ -65,21 +65,21 @@ using Haskell as the host language.  Haskell proved to be a capable choice for
 this task: we released the first working interpreter within the first week, and
 by the third week we had a unit testing framework written in Perl 6.
 
-The rest of this paper will proceed as follows.  In section 2, we give a more
-detailed look at the Perl 6 project, to put the Pugs project into perspective.
-We then present Perl 6's execution model in section 3, along with Pugs's
-interpreter core that implements this model. 
+The rest of this paper will proceed as follows.  In section 2, we give an
+overview of the Perl 6 project's history and Perl 6's execution model.
+Section 3 discusses previous stalled efforts to implement Perl 6.  We then
+present the design of Pugs's interpreter core in section 4.
 
 Because Pugs is targeting GHC 6.4 instead of Haskell 98, it takes full
-advantage of modern Haskell features GHC provides.  In section 4, we review
+advantage of modern Haskell features GHC provides.  In section 5, we review
 Pugs's use of GADT, STM, as well as subcontinuations built on higher-rank
-polymorphism.  In section 5, we demonstrate how Pugs uses FFI and hs-plugins to
+polymorphism.  In section 6, we demonstrate how Pugs uses FFI and hs-plugins to
 dynamically load Perl 5, Haskell and Parrot modules at runtime.
 
-Although the naïve tree-reduction interpreter served well for prototyping Perl
-6, it is not efficient enough for production uses.  In section 6, we discuss
-our ongoing work in adapting Pugs into a compiler, targeting the
-register-based Parrot virtual machine.
+Although the naïve tree-reduction interpreter served well for prototyping,
+it is not efficient enough for production use.  In section 7, we discuss the
+ongoing work to adapt Pugs into a compiler, targeting the register-based Parrot
+virtual machine.  Section 8 outlines our plans for future development.
 
 ---------------------------------------------------------------------------
 
@@ -92,7 +92,7 @@ community, and how Perl 6 has come to be.
 
 2.1. Historical Background
 
-Following the release of Perl 5 in 1994, a community of volunteers known as the
+Following Perl 5's release in 1994, a community of volunteers known as the
 "Perl 5 porters" was formed to take charge of the ongoing development of
 Perl 5.  For each major revision, the porters appoint a "pumpking" (release
 manager) to take charge of the design and arbitrate patches submitted by other
@@ -196,85 +196,95 @@ cross-language runtime to support Perl 6 and other dynamic languages.
 
 ---------------------------------------------------------------------------
 
-3. Pugs the Interpreter
+3. Related Work
+
+3.1. Parrot/P6C
+
+3.2. Perl6::Rules
+
+3.3. PGE
+
+---------------------------------------------------------------------------
+
+4. Pugs the Interpreter
 
 ...how pugs started...
 
-3.1. The Eval Monad
+4.1. The Eval Monad
 
 ...basic types, CALLER::, OUTER::, coro, delayed evaluation...
 
-3.2. Compile-time Evaluation
+4.2. Compile-time Evaluation
 
 ...BEGIN, rebindable rules, macros...
 
-3.3. Introspection
+4.3. Introspection
 
 ...OO metamodel, profiling, reified AST...
 
 ---------------------------------------------------------------------------
 
-4. Experimental Features 
+5. Experimental Features 
 
 ...GHC's peculiarities that helped Pugs development...
 
-4.1. "Tied" Variables with GADT
+5.1. "Tied" Variables with GADT
 
 ...ITypes/IVar, VRef, VOpaque...
 
-4.2. Composable Concurrency
+5.2. Composable Concurrency
 
 ...SIO, liftSTM/liftIO, atomic{}...
 
-4.3. Reified Subcontinuations
+5.3. Reified Subcontinuations
 
 ...CC_2CPST, Zipper, resumable runEvalIO...
 
 ---------------------------------------------------------------------------
 
-5. Embedded Languages
+6. Embedded Languages
 
 ...migration issues...
 
-5.1. Perl 5
+6.1. Perl 5
 
 ...callconv, context passing, XS stack handling...
 
-5.2. Haskell
+6.2. Haskell
 
 ...hs-plugins, externalizeHaskell, class Value...
 
-5.3. Parrot
+6.3. Parrot
 
 ...PIR overview, compreg, cross-lang interop...
 
 ---------------------------------------------------------------------------
 
-6. Compiling Perl 6
+7. Compiling Perl 6
 
 ...mixed notion of compile/runtime...
 
-6.1. Metacomputational Compilation
+7.1. Metacomputational Compilation
 
 ...partial evaluation, Static/Dynam monads...
 
-6.2. Targeting Parrot
+7.2. Targeting Parrot
 
 ...optimization, unboxing, helper PMCs...
 
-6.3. Other Backends
+7.3. Other Backends
 
 ...generating haskell with TH, ANF/SSA...
 
 ---------------------------------------------------------------------------
 
-7. Conclusion and Future Work
+8. Conclusion and Future Work
 
 ...porting Pugs to perl 6, compiling Haskell to PIR...
 
 ---------------------------------------------------------------------------
 
-8. Acknowledgments
+9. Acknowledgments
 
 ...thank some 100+ contributors here...
 
