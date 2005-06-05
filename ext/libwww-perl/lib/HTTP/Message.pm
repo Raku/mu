@@ -9,27 +9,27 @@ class HTTP::Message-0.0.1;
 our $CRLF = "\015\012";
 
 # XXX specify delegated methods
-#has $.:headers does <
+#has $:headers does <
 #    header push_header init_header remove_header remove_content_headers header_field_names scan
 #   date expires if_modified_since if_unmodified_since last_modified
 #   content_type content_encoding content_length content_language
 #   title user_agent server from referer
 #   www_authenticate authorization proxy_authorization authorization_basic proxy_authorization_basic
 #>;
-has $.:headers;
-has $.:content;
-has $.:content_ref;
-has $.:parts;
-has $.:protocol;
+has $:headers;
+has $:content;
+has $:content_ref;
+has $:parts;
+has $:protocol;
 
 multi submethod BUILD (HTTP::Headers $header, Str ?$content = "") {
-    $.:headers = $header;
-    $.:content = $content;
+    $:headers = $header;
+    $:content = $content;
 }
 
 multi submethod BUILD (Hash $header, Str ?$content = "") {
-    $.:headers = HTTP::Headers.new($header);
-    $.:content = $content;
+    $:headers = HTTP::Headers.new($header);
+    $:content = $content;
 }
 
 method parse ($self: Str $string) {
@@ -69,8 +69,8 @@ method clear ($self: ) {
 
 method protocol ($self: Str ?$protocol) is rw {
     return new Proxy:
-        FETCH => { $.:protocol; },
-        STORE => -> Str $val { $.:protocol = $val; };
+        FETCH => { $:protocol; },
+        STORE => -> Str $val { $:protocol = $val; };
 }
 
 # XXX this might need to be rewritten
@@ -105,14 +105,14 @@ method content ($self: Str ?$content) is rw {
 }
 
 method :set_content ($self: Str ?$content, Bool ?$keep) {
-    $.:content = $content;
-    $.:parts = () unless $keep;
+    $:content = $content;
+    $:parts = () unless $keep;
 }
 
 # XXX does add_content() need to create references, etc. like the P5 version?
 # I figure it shouldn't be needed since the parameters are bound, not copied.
 method add_content($self: Str $content) {
-    $self.:content ~= $content;
+    $:content ~= $content;
 }
 
 method content_ref ($self: Ref ?$content) is rw {
@@ -121,15 +121,14 @@ method content_ref ($self: Ref ?$content) is rw {
     $self.parts = ();
     
     my $old = \$self.:content;
-    my $old_ref = $.:content_ref;
+    my $old_ref = $:content_ref;
     $old = $$old if $old_ref;
     
     return new Proxy:
         FETCH => { return $old; },
         STORE => -> Ref $content {
-                $self.:content = ();
-                $self.:content = $content;
-                $.:content_ref++;
+                $:content = $content;
+                $self.:content_ref++;
                 
                 return $old;
             };
@@ -206,25 +205,25 @@ method :parts ($self: ) {
             my $str = $self.content;
             
             if ($str ~~ s:P5/(^|.*?\r?\n)--\Q$boundary\E\r?\n//) {
-                $.:parts = [split(/\r?\n--\Q$b\E\r?\n/, $str).map:{ HTTP::Message::parse($_); }];
+                $:parts = [split(/\r?\n--\Q$b\E\r?\n/, $str).map:{ HTTP::Message::parse($_); }];
             }
         }
     } elsif ($content_type eq "message/http") {
         my $content = $self.content;
         my $class = ($content ~~ m:P5,^(HTTP/.*)\n,) ?? HTTP::Response :: HTTP::Request;
-        $.:parts = ($class.parse($content));
+        $:parts = ($class.parse($content));
     } elsif ($content_type ~~ m:P5,message/,) {
-        $.:parts = [HTTP::Message.parse($self.content)];
+        $:parts = [HTTP::Message.parse($self.content)];
     }
     
-    $.:parts //= [];
+    $:parts //= [];
 }
 
 method :content ($self: ) {
     my $content_type = $self.content_type // "";
     
     if ($content_type ~~ m:P5:i,^\s*message/,) {
-        $self.:set_content($.:parts[0].as_string($CRLF), 1);
+        $self.:set_content($:parts[0].as_string($CRLF), 1);
         return;
     }
     
@@ -245,7 +244,7 @@ method :content ($self: ) {
         }
     }
     
-    my @parts = $.:parts.map(-> $self { $self.as_string($CRLF) });
+    my @parts = $:parts.map(-> $self { $self.as_string($CRLF) });
     
     my $bno = 0;
     $boundary //= $self.:boundary();
