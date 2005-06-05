@@ -107,7 +107,7 @@ else {
 	exit(0);
     }
     unless (-f "$exename.exe") {
-	if (open(LOG,'<log'))
+	if (open(LOG,'log'))
          {
           while(<LOG>) {
 	     print "# ",$_;

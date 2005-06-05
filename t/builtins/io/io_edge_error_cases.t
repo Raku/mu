@@ -15,10 +15,10 @@ Some edge and error cases for I/O
 
 ok(!defined(open("file_which_does_not_exist")), 'open() on non-existant file returns undef');
 
-open(">create_this_file");
+open("create_this_file", :w);
 ok(-e 'create_this_file', 'writing to a non-existant file creates it');
 unlink('create_this_file');
 
-open(">>create_this_file2");
+open("create_this_file2", :w);
 ok(-e 'create_this_file2', 'appending to a non-existant file creates it');
 unlink('create_this_file2');

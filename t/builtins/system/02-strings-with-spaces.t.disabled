@@ -59,7 +59,7 @@ sub params_ok {
 
   my @received_args = do {
     local (*FH,$/);
-    open FH, "<$tempfile"
+    open FH, $tempfile
       or do {
          diag "Couldn't open tempfile '$tempfile' : $!";
          return fail($name);

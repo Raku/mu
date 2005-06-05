@@ -9,7 +9,7 @@ plan 13;
 my $filename = 'tempfile';
 
 { # write the file first
-    my $fh = open(">$filename");
+    my $fh = open($filename, :w);
     for (1 .. 6) -> $num {
         $fh.print("$num\n");
     }

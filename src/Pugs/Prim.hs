@@ -374,19 +374,6 @@ op1 "slurp" = \v -> do
     slurpScalar file = tryIO VUndef $ do
         content <- readFile file
         return $ VStr content
-op1 "open" = \v -> do
-    str <- fromVal v
-    let (mode, filename) = span (`elem` "+<> ") str
-    tryIO undef $ do
-        fh <- openFile filename (modeOf $ takeWhile (not . isSpace) mode)
-        return $ VHandle fh
-    where
-    modeOf ""   = ReadMode
-    modeOf "<"  = ReadMode
-    modeOf ">"  = WriteMode
-    modeOf ">>" = AppendMode
-    modeOf "+>" = ReadWriteMode
-    modeOf m    = error $ "unknown mode: " ++ m
 op1 "opendir" = \v -> do
     str <- fromVal v
     rv  <- tryIO Nothing . fmap Just $ openDirStream str
@@ -1393,7 +1380,6 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      pre     die     safe   (List)\
 \\n   Bool      pre     warn    safe   (List)\
 \\n   Bool      pre     fail_   safe   (List)\
-\\n   IO        pre     open    unsafe (Str)\
 \\n   Socket    pre     listen  unsafe (Int)\
 \\n   Socket    pre     connect unsafe (Str, Int)\
 \\n   Any       pre     accept  unsafe (Any)\

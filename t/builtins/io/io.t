@@ -19,7 +19,7 @@ my $filename = 'tempfile' ~ nonce();
 
 # create and write a file
 
-my $out = open(">$filename");
+my $out = open($filename, :w);
 isa_ok($out, 'IO');
 $out.print("Hello World\n");
 print($out, "Foo Bar Baz\n");
@@ -60,7 +60,7 @@ ok($in3.close, 'file closed okay');
 
 # append to the file
 
-my $append = open(">>$filename");
+my $append = open($filename, :a);
 isa_ok($append, 'IO');
 $append.print("... Its not over yet!\n");
 ok($append.close, 'file closed okay');

@@ -10,7 +10,7 @@ sub nonce () { return (".$*PID." ~ int rand 1000) }
 
 my $tmpfile = "temp-evalfile" ~ nonce();
 {
-    my $fh = open "> $tmpfile";
+    my $fh = open "$tmpfile", :w;
     say $fh, "32 + 10";
     close $fh;
 }

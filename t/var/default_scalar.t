@@ -12,10 +12,10 @@ plan 4;
 
 # work around missing capabilities
 # to get the output of 'say' into a test; 
-	my $out = open ">tmpfile" ;  
+	my $out = open "tmpfile", :w ;  
 	$out.say(3);
 	close $out; 
-	my$in = open "<tmpfile"; 
+	my$in = open "tmpfile"; 
 	my $s = =$in; close $in; 
 	unlink "tmpfile";
 
@@ -23,10 +23,10 @@ plan 4;
 
 #pugs> for .. { say }; 
 
-	my $out = open ">tmpfile" ;  
+	my $out = open "tmpfile", :w ;  
     for 1 { say $out, };
 	close $out; 
-	my$in = open "<tmpfile"; 
+	my$in = open "tmpfile"; 
 	my $s = =$in; close $in;
 	unlink "tmpfile";
 
