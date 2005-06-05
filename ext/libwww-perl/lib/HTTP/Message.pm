@@ -23,13 +23,13 @@ has $.:parts;
 has $.:protocol;
 
 multi submethod BUILD (HTTP::Headers $header, Str ?$content = "") {
-    .:headers = $header;
-    .:content = $content;
+    $.:headers = $header;
+    $.:content = $content;
 }
 
 multi submethod BUILD (Hash $header, Str ?$content = "") {
-    .:headers = HTTP::Headers.new($header);
-    .:content = $content;
+    $.:headers = HTTP::Headers.new($header);
+    $.:content = $content;
 }
 
 method parse ($self: Str $string) {
