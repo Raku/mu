@@ -139,7 +139,7 @@ concurrency-based, data-driven and logic programming support in the base
 language.  In order to support these requirements, the design team focused
 on Perl 6's metaprogramming capabilities.
 
-Unlike most languages, Perl 5 has no static grammar: its parser is tightly
+Unlike most languages, Perl 5 has a dynamic grammar: its parser is tightly
 coupled with the evaluator, so compile-time computation can affect how the
 parser handles the rest of the program.  This allows for a limited form of
 macros known as "source filters", where a Perl module can transform the
@@ -153,8 +153,8 @@ work together.
 Perl 6 proposes an unusual execution model to address this problem.  The parser
 and compiler are implemented in Perl 6, with an initial set of Rules to parse
 source code into ASTs.  Rules are composable, first-class functions, written in
-a sub-language of Perl 6 that defines parsers for context sensitive, infinite
-look-ahead grammars.
+an embedded language in Perl 6 that defines parsers for context sensitive,
+infinite look-ahead grammars.
 
 The parser parses the program with the top-level "program" rule, composed of
 sub-rules that handles parts of the program.  Rules may contain embedded Perl 6
