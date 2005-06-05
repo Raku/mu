@@ -18,8 +18,9 @@ has $:headers does <
 
 has $:content;
 has $:content_ref;
-has $:parts;
 has $:protocol;
+
+has @:parts;
 
 multi submethod BUILD (HTTP::Headers $header, Str ?$content = "") {
     $:headers = $header;
@@ -105,7 +106,7 @@ method content ($self: Str ?$content) is rw {
 
 method :set_content ($self: Str ?$content, Bool ?$keep) {
     $:content = $content;
-    $:parts = () unless $keep;
+    @:parts = () unless $keep;
 }
 
 # XXX does add_content() need to create references, etc. like the P5 version?
@@ -145,7 +146,7 @@ method decoded_content ($self: ) {
 }
 
 method as_string ($self: Str ?$newline = "\n") {
-    my $content = .content;
+    my $content = $self.content;
     
     return ($self.headers.as_string($newline), $newline, ($content.chars && $content !~ m:P5/\n$/) ?? "\n" :: "" ).join("");
 }
@@ -183,7 +184,7 @@ method add_part ($self: ::?CLASS $part) {
         $self.:parts;
     }
     
-    push @self.:parts, $part;
+    push @:parts, $part;
     $self.:stale_content;
     return;
 }
@@ -204,25 +205,25 @@ method :parts ($self: ) {
             my $str = $self.content;
             
             if ($str ~~ s:P5/(^|.*?\r?\n)--\Q$boundary\E\r?\n//) {
-                $:parts = [split(/\r?\n--\Q$b\E\r?\n/, $str).map:{ HTTP::Message::parse($_); }];
+                @:parts = split(/\r?\n--\Q$b\E\r?\n/, $str).map:{ HTTP::Message::parse($_); };
             }
         }
     } elsif ($content_type eq "message/http") {
         my $content = $self.content;
         my $class = ($content ~~ m:P5,^(HTTP/.*)\n,) ?? HTTP::Response :: HTTP::Request;
-        $:parts = ($class.parse($content));
+        @:parts = ($class.parse($content));
     } elsif ($content_type ~~ m:P5,message/,) {
-        $:parts = [HTTP::Message.parse($self.content)];
+        @:parts = HTTP::Message.parse($self.content);
     }
     
-    $:parts //= [];
+    @:parts //= ();
 }
 
 method :content ($self: ) {
     my $content_type = $self.content_type // "";
     
     if ($content_type ~~ m:P5:i,^\s*message/,) {
-        $self.:set_content($:parts[0].as_string($CRLF), 1);
+        $self.:set_content(@:parts[0].as_string($CRLF), 1);
         return;
     }
     
@@ -243,7 +244,7 @@ method :content ($self: ) {
         }
     }
     
-    my @parts = $:parts.map(-> $self { $self.as_string($CRLF) });
+    my @parts = @:parts.map(-> $self { $self.as_string($CRLF) });
     
     my $bno = 0;
     $boundary //= $self.:boundary();
