@@ -10,7 +10,7 @@ Perl is a general-purpose language, known for its vast number of freely
 available extension libraries.  The Perl 6 project was started in 2000
 to create a more robust runtime environment, and improve the language's
 support for multi-paradigmic programming.  However, attempts at producing a
-concrete implementation failed to materialise in the first 4 years.
+concrete implementation failed to take off in the first 4 years.
 
 This paper presents Pugs, a working implementation of Perl 6, written in
 Haskell.  We review the challenges posed by Perl 6's unusual execution model,
@@ -151,10 +151,10 @@ source string level instead of the AST level, multiple filters cannot reliably
 work together.
 
 Perl 6 proposes an unusual execution model to address this problem.  The parser
-and compiler are assumed to be implemented in a single Perl 6 program, with an
-initial set of Rules to turn source code into ASTs.  Rules are composable,
-first-class functions, written in a sub-language of Perl 6 that defines parsers
-for context sensitive, infinite look-ahead grammars.
+and compiler are implemented in Perl 6, with an initial set of Rules to parse
+source code into ASTs.  Rules are composable, first-class functions, written in
+a sub-language of Perl 6 that defines parsers for context sensitive, infinite
+look-ahead grammars.
 
 The parser parses the program with the top-level "program" rule, composed of
 sub-rules that handles parts of the program.  Rules may contain embedded Perl 6
