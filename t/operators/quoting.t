@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 58;
+plan 66;
 
 my $foo = "FOO";
 my $bar = "BAR";
@@ -87,6 +87,24 @@ Tests quoting constructs as defined in L<S02/Literals>
 	is(@q[0], "FOO BAR", "blah blah interp");
 };
 
+{ # \qq[] constructs interpolate in q[] L<S02/Literals /using the \\qq/>
+	my( @q1, @q2, @q3, @q4 ) = ();
+	eval '@q1 = q[$foo \\qq[$bar]]';
+	is(+@q1, 1, "q[...\\qq[...]...] is singular");
+	is(@q1[0], '$foo BAR', "and interpolates correctly");
+
+	eval "\@q2 = '\$foo \\qq[\$bar]'";
+	is(+@q2, 1, "'...\\qq[...]...' is singular");
+	is(@q2[0], '$foo BAR', "and interpolates correctly");
+
+	eval '@q3 = q[$foo \\q:s{$bar}]';
+	is(+@q3, 1, 'q[...\\q:s{...}...] is singular');
+	is(@q3[0], '$foo BAR', "and interpolates correctly");
+
+	eval '@q4 = q{$foo \\q/$bar/}';
+	is(+@q4, 1, 'q{...\\q/.../...} is singular');
+	is(@q4[0], '$foo $bar', "and interpolates correctly");
+}
 
 { # quote with \0 as delimiters L<news:20050101220112.GF25432@plum.flirble.org>
 	my @q = ();

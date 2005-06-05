@@ -1501,11 +1501,9 @@ qInterpolateDelimiter protectedChar = do
 
 qInterpolateQuoteConstruct :: RuleParser Exp
 qInterpolateQuoteConstruct = try $ do
-    string "\\q"
-    flag <- many1 alphaNum
-    char '['
-    expr <- interpolatingStringLiteral (string "[") (string "]") (qInterpolator $ getQFlags [flag] ']')
-    -- char ']'
+    string "\\"
+    (qStart, qEnd, flags) <- qStructure
+    expr <- interpolatingStringLiteral qStart qEnd (qInterpolator flags)
     return expr
 
 qInterpolatorPostTerm :: RuleParser (Exp -> Exp)
@@ -1695,22 +1693,29 @@ closing delims from being openers (disallow q]a]) -}
 openingDelim :: RuleParser Char
 openingDelim = anyChar
 
-getQDelim :: RuleParser (RuleParser String, RuleParser String, QFlags)
-getQDelim = try $
-    do  string "q"
-        flags <- do
-            firstflag <- many alphaNum
-            allflags  <- many oneflag
-            case firstflag of
-                "" -> return allflags
-                _  -> return $ firstflag:allflags
+qStructure :: RuleParser (RuleParser String, RuleParser String, QFlags)
+qStructure = 
+    do string "q"
+       flags <- do
+	   firstflag <- many alphaNum
+           allflags  <- many oneflag
+           case firstflag of
+               "" -> return allflags
+               _  -> return $ firstflag:allflags
 
-        notFollowedBy alphaNum
-        whiteSpace
-        delim <- openingDelim
-        let qflags = getQFlags flags $ balancedDelim delim
-        when (qfFailed qflags) $ fail ""
-        return ( (string [delim]), (string [balancedDelim delim]), qflags)
+       notFollowedBy alphaNum
+       whiteSpace
+       delim <- openingDelim
+       let qflags = getQFlags flags $ balancedDelim delim
+       when (qfFailed qflags) $ fail ""
+       return ( (string [delim]), (string [balancedDelim delim]), qflags)
+    where
+       oneflag = do string ":"
+                    many alphaNum
+
+
+getQDelim :: RuleParser (RuleParser String, RuleParser String, QFlags)
+getQDelim = try qStructure
     <|> try (do
         string "<<"
         return (string "<<", string ">>",
@@ -1726,9 +1731,6 @@ getQDelim = try $
                 { qfSplitWords = QS_Protect, qfProtectedChar = '\xbb' })
             _       -> fail ""
 
-    where
-          oneflag = do string ":"
-                       many alphaNum
 
 -- | Default flags
 qFlags    :: QFlags
