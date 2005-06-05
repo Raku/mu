@@ -22,18 +22,13 @@ has $.:content_ref;
 has $.:parts;
 has $.:protocol;
 
-method BUILD (Hash|HTTP::Headers ?$header, Str ?$content = "") {
-    if ($header.defined) {
-        if ($header ~~ Hash) {
-            $header = HTTP::Headers.new(*%$header);
-        } else {
-            $header .= clone;
-        }
-    } else {
-        $header = HTTP::Headers.new();
-    }
-    
+multi submethod BUILD (HTTP::Headers $header, Str ?$content = "") {
     .:headers = $header;
+    .:content = $content;
+}
+
+multi submethod BUILD (Hash $header, Str ?$content = "") {
+    .:headers = HTTP::Headers.new($header);
     .:content = $content;
 }
 
