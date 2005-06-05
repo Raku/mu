@@ -273,4 +273,8 @@ method :boundary($self: Num ?$size) {
     return $b;
 }
 
+multi method *coerce:<as> ($self: Str ::to) {
+    $self.as_string("\n");
+}
+
 1;

@@ -162,7 +162,7 @@ method scan (Code $sub) {
   }
 }
 
-multi sub *coerce:<as> (::?CLASS $self, Str ::to) { $self.as_string("\n") }
+multi method *coerce:<as> ($self: Str ::to) { $self.as_string("\n") }
 
 method as_string (Str ?$ending = "\n") {
   my @result;
