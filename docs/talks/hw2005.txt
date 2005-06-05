@@ -8,13 +8,13 @@
 
 Perl is a general-purpose language, known for its vast number of freely
 available extension libraries.  The Perl 6 project was started in 2000
-to create a more robust runtime environment, and improve the language's
+to create a more robust runtime environment and improve the language's
 support for multi-paradigmic programming.  However, attempts at producing a
 concrete implementation failed to take off in the first 4 years.
 
 This paper presents Pugs, a working implementation of Perl 6, written in
 Haskell.  We review the challenges posed by Perl 6's unusual execution model,
-and how Pugs tackles them with features introduced in GHC 6.4, such as
+and how Pugs tackles them using features introduced in GHC 6.4, such as
 Template Haskell, Software Transactional Memory, and GADTs.
 
 Moreover, we demonstrate how Pugs uses Haskell's FFI to embed Perl 5, Parrot
@@ -65,7 +65,7 @@ as the host language, started in 2005.  Haskell proved to be a capable choice
 for this task: we released the first working interpreter within the first week,
 and by the third week we had a unit testing framework written in Perl 6.
 
-By having a working implementation of Perl 6, we make the following
+By having a working implementation of Perl 6, we are able to make the following
 contributions:
 
 * Provide a proving ground to resolve inconsistencies in language design
@@ -78,7 +78,7 @@ Section 3 discusses previous implementation efforts.  We then present the
 design of Pugs's interpreter core in section 4.
 
 Because Pugs is targeting GHC 6.4 instead of Haskell 98, it takes full
-advantage of modern Haskell features GHC provides.  In section 5, we review
+advantage of the modern Haskell features GHC provides.  In section 5, we review
 Pugs's use of GADT, STM, as well as subcontinuations built on higher-rank
 polymorphism.  In section 6, we demonstrate how Pugs uses FFI and hs-plugins to
 dynamically load Perl 5, Haskell and Parrot modules at runtime.
@@ -93,7 +93,7 @@ virtual machine.  Section 8 outlines our plans for future development.
 2. Overview of the Perl 6 Project
 
 Through Perl 5's release, major revisions of Perl were designed and implemented
-by Wall alone.  However, Perl 6's development is driven by Perl community's
+by Wall alone.  However, Perl 6's development is driven by the Perl community's
 varied and often conflicting needs.  As such, we will start with a brief
 overview of the Perl community, and how Perl 6 has come to be.
 
@@ -183,7 +183,7 @@ interface to three strategies for interoperating with other languages.
 
 * Translate:  Sometimes it is possible to transform the foreign language
 into equivalent Perl code.  In that case, it is a simple matter of applying a
-source filter, or "eval" the translated code in its own namespace.
+source filter, or of "eval"ing the translated code in its own namespace.
 
 * Native call:  Statically compiled languages (such as C, C++ and assembly)
 are compiled into dynamically loaded shared libraries.  Inline.pm automatically
@@ -206,7 +206,7 @@ cross-language runtime to support Perl 6 and other dynamic languages.
 3. Related Work
 
 Perl 6 is designed to be self-hosting, unlike previous versions that were
-implemented in C.  Its execution model demands a mixed parsing, compiling and
+implemented in C.  Its execution model demands a mixed parsing, compilation and
 execution cycle, which complicates the bootstrap process.  In this section, we
 briefly review various bootstrap strategies proposed over the years.
 
@@ -263,16 +263,16 @@ based on two new projects:
   of PIR programs as Parrot objects.
 
 The developers intend to define Perl 6's grammar as a set of Rules that
-produces Parrot AST objects.  Once PGE is capable of process the rules, we can
+produce Parrot AST objects.  Once PGE is capable of processing the rules, we can
 reimplement PGE in Perl 6 to finish the bootstrapping process.
 
 As of this writing, both PGE and PAST are under active development.  A subset
 of Python's AST has been ported to Parrot, along with a C-based parser for its
 concrete syntax.
 
-PGE can handle most of static Rules constructs, but does not support calling
+PGE can handle most static Rules constructs, but does not support calling
 out to other functions, so the parser returns only simple match objects, not
-AST nodes.  Because the Perl 6 grammar had not been specified in Rules, the
+AST nodes.  Because the Perl 6 grammar has not been specified in Rules, the
 planned Perl 6 compiler, based on PGE/PAST, is yet to be written.
 
 ---------------------------------------------------------------------------
