@@ -92,10 +92,10 @@ virtual machine.  Section 8 outlines our plans for future development.
 
 2. Overview of the Perl 6 Project
 
-Previous versions of Perl were designed and implemented by Wall alone.
-However, Perl 6's development is driven by Perl community's varied and often
-conflicting needs.  As such, we will start with a brief overview of the Perl
-community, and how Perl 6 has come to be.
+Through Perl 5's release, major revisions of Perl were designed and implemented
+by Wall alone.  However, Perl 6's development is driven by Perl community's
+varied and often conflicting needs.  As such, we will start with a brief
+overview of the Perl community, and how Perl 6 has come to be.
 
 2.1. Historical Background
 
@@ -219,7 +219,7 @@ using a Perl 5 to Perl 6 translator, implemented as one of Perl 5's bytecode
 compiler backends.
 
 Implementing Perl 6 rules as a Perl 5 module proved to be difficult; although
-Rules are defined in 2002, it took nearly two years for the first version of
+Rules were defined in 2002, it took nearly two years for the first version of
 Perl6::Rules to appear.  The implementation relied on various experimental
 features in Perl 5's regular expression engine, and failed to work on newer
 Perl 5 revisions, rendering it unsuitable as a basis for implementing the
