@@ -73,9 +73,9 @@ contributions:
 * Explore more rigorous ways to define Perl 6's execution model
 
 The rest of this paper will proceed as follows.  In section 2, we give an
-overview of the Perl 6 project's history and Perl 6's execution model.
-Section 3 discusses previous stalled efforts to implement Perl 6.  We then
-present the design of Pugs's interpreter core in section 4.
+overview of the Perl 6 project's history and the language's execution model.
+Section 3 discusses previous implementation efforts.  We then present the
+design of Pugs's interpreter core in section 4.
 
 Because Pugs is targeting GHC 6.4 instead of Haskell 98, it takes full
 advantage of modern Haskell features GHC provides.  In section 5, we review
@@ -152,20 +152,20 @@ work together.
 
 Perl 6 proposes an unusual execution model to address this problem.  The parser
 and compiler are assumed to be implemented in a single Perl 6 program, with an
-initial set of rules to turn source code into ASTs.  Rules are composable,
-first-class functions, written in a sub-language of Perl 6 that can parse
-context sensitive, infinite look-ahead grammars.
+initial set of Rules to turn source code into ASTs.  Rules are composable,
+first-class functions, written in a sub-language of Perl 6 that defines parsers
+for context sensitive, infinite look-ahead grammars.
 
 The parser parses the program with the top-level "program" rule, composed of
 sub-rules that handles parts of the program.  Rules may contain embedded Perl 6
-code that produces side-effects.
+code to produce side effects.  For example, the "BEGIN {...}" syntax defines a
+block of code to be executed during compilation.
 
-For example, the "BEGIN {...}" syntax defines a block of code to be executed
-during compilation.  Immediately after parsing a BEGIN block, the compiler will
-generate its object code, then dynamically load and run it.  This code has
-access to the compilation environment; it may rewrite the partially produced
-parse tree, define new grammar rules, or replace the compiler entirely from the
-next token onwards.
+Immediately after parsing a BEGIN block, the compiler will generate its object
+code, then dynamically load and run it.  This code has access to the
+compilation environment; it may rewrite the partially produced parse tree,
+define new grammar rules, or replace the compiler entirely from the next token
+onwards.
 
 With a default grammar that supports user-defined operators of arbitary fixity
 and precedence, programmers can easily introduce new language semantics under
