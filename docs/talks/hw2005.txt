@@ -329,7 +329,7 @@ For example, a simple subroutine definition:
 
 is defined as equivalent to:
 
-    BEGIN { &add1 := sub ($x) { 1..$x } }
+    BEGIN { our &add1 := sub ($x) { 1 + $x } }
 
 Here the BEGIN block is evaluated as soon as it is parsed.  It constructs
 an anonymous subroutine, closing over the current lexical scope, then binds
@@ -373,9 +373,9 @@ pure strict functions (MkSIO), actions that modifies memory storage (MkSTM),
 and IO actions with full side effects (MkIO).
 
 On top of SIO, a ReaderT monad transformer provides the evaluation environment 
-"Env".  We choose it over StateT, because ReaderT is very handy for introducing
-lexical bindings to sub-terms.  Lexical and global symbol bindings are stored
-as fields in the Env record structures:
+"Env".  We've chosen it over StateT, because ReaderT is very handy for
+introducing lexical bindings to sub-terms.  Lexical and global symbol bindings
+are stored as fields in the Env record structures:
 
     data Env = MkEnv
         { envLexical :: !Pad            -- ^ Lexical pad for variable lookup
