@@ -4,7 +4,7 @@ use HTTP::Headers ();
 use HTTP::Request ();
 use HTTP::Response ();
 
-class HTTP::Message-0.0.1;
+class HTTP::Message-0.1;
 
 our $CRLF = "\015\012";
 
@@ -111,7 +111,7 @@ method :set_content ($self: Str ?$content, Bool ?$keep) {
 
 # XXX does add_content() need to create references, etc. like the P5 version?
 # I figure it shouldn't be needed since the parameters are bound, not copied.
-method add_content($self: Str $content) {
+method add_content ($self: Str $content) {
     $:content ~= $content;
 }
 
@@ -263,7 +263,7 @@ method :content ($self: ) {
     $self.:set_content("--$boundary$CRLF" ~ @parts.join("$CRLF--boundary$CRLF") ~ "$CRLF--$boundary$CRLF", 1);
 }
 
-method :boundary($self: Num ?$size) {
+method :boundary ($self: Num ?$size) {
     if (!$size) { return "xYzZY"; }
     
     my $b;
