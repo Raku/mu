@@ -8,15 +8,14 @@ class HTTP::Message-0.1;
 
 our $CRLF = "\015\012";
 
-# XXX specify delegated methods
-#has $:headers does <
-#    header push_header init_header remove_header remove_content_headers header_field_names scan
-#   date expires if_modified_since if_unmodified_since last_modified
-#   content_type content_encoding content_length content_language
-#   title user_agent server from referer
-#   www_authenticate authorization proxy_authorization authorization_basic proxy_authorization_basic
-#>;
-has $:headers;
+has $:headers does <
+    header push_header init_header remove_header remove_content_headers header_field_names scan
+   date expires if_modified_since if_unmodified_since last_modified
+   content_type content_encoding content_length content_language
+   title user_agent server from referer
+   www_authenticate authorization proxy_authorization authorization_basic proxy_authorization_basic
+>;
+
 has $:content;
 has $:content_ref;
 has $:parts;
