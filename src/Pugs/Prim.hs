@@ -561,18 +561,25 @@ op1 other   = \_ -> fail ("Unimplemented unaryOp: " ++ other)
     , subLValue     :: !Bool        -- ^ Is this a lvalue sub?
     , subBody       :: !Exp         -- ^ Body of the closure
     , subCont       :: !(Maybe (TVar VThunk)) -- ^ Coroutine re-entry point
+
+I'm not happy with show here because it means we need to do fragile
+parsing on the other side. When this is specced better we can put the
+brunt of the packaging here, and leave only the selection logic to the
+other side.
 -}
 op1Caller :: Int -> Eval Val
 op1Caller 0 = do
     env <- ask
     (sub :: VCode) <- fromVal =<< readVar "&?SUB"
-    return $ VList [ VStr $ envPackage env
-                   , VStr $ posName $ envPos env
-                   , VInt $ toInteger $ posBeginLine $ envPos env
-                   , VStr $ subName sub
-                   , VStr $ show $ subType sub
-                   , VStr $ show $ subParams sub
-                   ]
+    return $ VList
+        [ VStr $ envPackage env                        -- .package
+        , VStr $ posName $ envPos env                  -- .file
+        , VInt $ toInteger $ posBeginLine $ envPos env -- .line
+        , VStr $ subName sub                           -- .subname
+        , VStr $ show $ subType sub                    -- .subtype
+        , VStr $ show $ subParams sub                  -- .params (FIXME)
+        -- TODO: add more things as they are specced.
+        ]
 op1Caller n = do
     env <- ask
     if (envDepth env) == 0 then fail "no caller" else do
