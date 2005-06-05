@@ -31,8 +31,10 @@ opRequire dumpEnv v = do
     incs    <- fromVal =<< readVar "@*INC"
     requireInc incs file (errMsg file incs)
     where
-    style = MkEvalStyle{ evalError  = EvalErrorFatal
-                       , evalResult = (if dumpEnv == True then EvalResultEnv else EvalResultLastValue)}
+    style = MkEvalStyle
+        { evalError  = EvalErrorFatal
+        , evalResult = (if dumpEnv == True then EvalResultEnv
+                                           else EvalResultLastValue)}
     errMsg file incs = "Can't locate " ++ file ++ " in @INC (@INC contains: " ++ unwords incs ++ ")."
     requireInc [] _ msg = fail msg
     requireInc (p:ps) file msg = do
@@ -51,13 +53,19 @@ opEvalfile filename = do
         then fail $ "Can't locate " ++ filename ++ "."
         else do
             contents <- liftIO $ readFile filename
-            opEval MkEvalStyle{ evalError=EvalErrorUndef, evalResult=EvalResultLastValue} filename $ decodeUTF8 contents
+            opEval style filename $ decodeUTF8 contents
+    where
+    style = MkEvalStyle{ evalError=EvalErrorUndef
+                       , evalResult=EvalResultLastValue}
 
 op1EvalHaskell :: Val -> Eval Val
 op1EvalHaskell cv = do
     str     <- fromVal cv
     val     <- resetT $ evalHaskell str
-    retEvalResult MkEvalStyle{ evalError=EvalErrorUndef, evalResult=EvalResultLastValue} val
+    retEvalResult style val
+    where
+    style = MkEvalStyle{ evalError=EvalErrorUndef
+                       , evalResult=EvalResultLastValue}
 
 opEval :: EvalStyle -> FilePath -> String -> Eval Val
 opEval style path str = do
@@ -79,8 +87,6 @@ retEvalResult style val = do
         err@(VError str _) -> do
             writeRef errSV (VStr str)
             when (evalError style == EvalErrorFatal) $ do
-                --trace ("fatal error" ++ str) $ return ()
-                --FIXME: this should be made to throw an exception.
                 liftIO $ fail $ pretty err
             retEmpty
         _ -> do
