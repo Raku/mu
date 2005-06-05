@@ -267,8 +267,8 @@ produce Parrot AST objects.  Once PGE is capable of processing the rules, we can
 reimplement PGE in Perl 6 to finish the bootstrapping process.
 
 As of this writing, both PGE and PAST are under active development.  A subset
-of Python's AST has been ported to Parrot, along with a C-based parser for its
-concrete syntax.
+of Python's AST has been ported to Parrot, along with a yacc/lex-based parser
+for its concrete syntax.
 
 PGE can handle most static Rules constructs, but does not support calling
 out to other functions, so the parser returns only simple match objects, not
@@ -279,19 +279,140 @@ planned Perl 6 compiler, based on PGE/PAST, is yet to be written.
 
 4. Pugs the Interpreter
 
-...how pugs started...
+When interpreting a Perl 6 program, Pugs first populates an evaluation
+environment with primitive bindings.  The parser takes the initial environment
+and a source code string, yielding a modified environment containing the parsed
+AST.  The evaluator then reduces the tree to its final value, in the standard
+call-by-value order.
 
-4.1. The Eval Monad
+4.1. The RuleParser Monad
 
-...basic types, CALLER::, OUTER::, coro, delayed evaluation...
+Pugs's parser is based on Parsec, a monadic parser combinator library.  The
+parser monad is defined as:
+
+    type RuleParser a = GenParser Char RuleState a
+    newtype RuleState = MkRuleState { ruleEnv :: Env }
+
+Here the "Char" token type is used to combine lexing and parsing into a single
+step.  We chose the name "RuleParser" in anticipation of compiling Rules into
+Parsec combinators in the future, although currently the parser functions are
+written in Haskell.
+
+Using Parsec's support for user-defined parser states, our parser maintains a
+RuleState containing an evaluation environment.  Compile-time bindings, such as
+declaration of new types and global functions, update this environment
+directly.
+
+Perl 6 programs may introduce user-defined operators of arbitary fixity and
+precedence, which is an unsolved difficulty in P6C's static parser.  Parsec's
+dynamic nature lets us tackle this problem directly.  Instead of using a fixed
+precedence table, we dynamically compute a table for each token:
+
+    ruleExpression :: RuleParser Exp
+    ruleExpression = do
+        ops <- operators
+        buildExpressionParser ops ruleExpression
+    operators :: RuleParser (RuleOperatorTable Exp)
+    operators = do
+        fun <- currentFunctions -- uses getRuleEnv
+        ... build the operator table from functions ...
+
+To reduce needless recomputation, currentFunctions caches its result inside
+the RuleState, invalidating it whenever compile-time evaluation is performed.
 
 4.2. Compile-time Evaluation
 
-...BEGIN, rebindable rules, macros...
+Many Perl 6 constructs are defined as code executed during parse time.
+For example, a simple subroutine definition:
 
-4.3. Introspection
+    sub add1 ($x) { 1 + $x }
 
-...OO metamodel, profiling, reified AST...
+is defined as equivalent to:
+
+    BEGIN { &add1 := sub ($x) { 1..$x } }
+
+Here the BEGIN block is evaluated as soon as it is parsed.  It constructs
+an anonymous subroutine, closing over the current lexical scope, then binds
+it to a variable; the "&" symbol (known as a "sigil") indicates that the
+variable implements a function.
+
+The BEGIN block may perform IO actions, for example, we may define a constant
+function that returns the time it was parsed:
+
+    sub compiled_at () { BEGIN { time() } }
+
+This is similar to the use of "runIO" in Template Haskell:
+
+    {-# OPTIONS_GHC -fth #-}
+    compiledAt :: String
+    compiledAt = $( runIO $ fmap (LitE . StringL . show) getClockTime )
+
+Because the RuleParser monad is "pure", we need to use unsafePerformIO to
+get to the evaluator:
+
+    unsafeEvalExp :: Exp -> RuleParser Exp
+    unsafeEvalExp exp = do
+        env <- getRuleEnv
+        let val = unsafePerformIO $ runEvalIO $ evalExp exp
+        return (Val val)
+
+The use of unsafePerformIO is "safe", because we immediately use its result
+value in the strict constructor "Val"; the result is not reused anywhere else.
+
+4.3. The Eval Monad
+
+In the code snippet above, runEvalIO enters the Eval monad from IO, and evalExp
+evaluates an AST of type "Exp".  Currently, we define the Eval monad as:
+
+    type Eval x = EvalT (ContT Val (ReaderT Env SIO)) x
+    newtype EvalT m a = EvalT { runEvalT :: m a }
+    data SIO a = MkSTM !(STM a) | MkIO !(IO a) | MkSIO !a
+
+At the base level, the SIO monad encapsuates three types of computations:
+pure strict functions (MkSIO), actions that modifies memory storage (MkSTM),
+and IO actions with full side effects (MkIO).
+
+On top of SIO, a ReaderT monad transformer provides the evaluation environment 
+"Env".  We choose it over StateT, because ReaderT is very handy for introducing
+lexical bindings to sub-terms.  Lexical and global symbol bindings are stored
+as fields in the Env record structures:
+
+    data Env = MkEnv
+        { envLexical :: !Pad            -- ^ Lexical pad for variable lookup
+        , envGlobal  :: !(TVar Pad)     -- ^ Global pad for variable lookup
+        , -- many more fields...
+        }
+
+As such, sub-terms can override global bindings by writing to the shared
+TVar storage, but new lexical bindings will never leak out.
+
+We implement the control flow with the ContT monad transformer, so we can
+directly implement Perl 6's continuation and coroutine constructs.  Dynamic
+scope is represented as resetT/shiftT: calling a subroutine will push a
+new prompt via resetT, so we can simply express the "return" primitive as:
+
+    doReturn :: Val -> Eval a
+    doReturn val = shiftT $ \_ -> return val
+
+Finally, we layer a new transformer EvalT on top of ContT, so we can override
+the default "callCC", "ask" and "fail" definitions in the monad transformer
+library.  For example, our "fail" is defined like this to provide full stack
+trace and support user-defined error propagation logic:
+
+    fail :: String -> Eval a
+    fail str = do
+        pos <- asks envPos
+        shiftT . const . return $ VError str [pos]
+
+Evaluation inside the Eval monad is defined as:
+
+    evalExp :: Exp -> Eval Val
+    evalExp exp = do { evl <- asks envEval; evl exp }
+
+Here it makes use of the envEval field in the Env structure, which defines
+the active evaluator, of type !(Exp -> Eval Val).  This allows the user to
+change the reduction logic during evaluation, such as by adding watchpoints
+or profiling instrumentations.
 
 ---------------------------------------------------------------------------
 
