@@ -44,9 +44,9 @@ method parse ($self: Str $string) {
             $field = $0;
             $value = $1;
             
+            #$value ~~ s/\r$//;
+            $value ~~ s:P5/\r\z//;
             %headers{$field} = $value;
-            #%headers{$field} ~~ s/\r$//;
-            %headers{$field} ~~ s:P5/\r\z//;
         #} elsif (%headers.pairs && $string ~~ s/^ (<[ \t]> .*) \n?//) {
         } elsif (%headers.pairs && $string ~~ s:P5/^([ \t].*)\n?//) {
             %headers{$field} ~= "\n$0";
@@ -74,7 +74,7 @@ method protocol ($self: Str ?$protocol) is rw {
 }
 
 # XXX this might need to be rewritten
-method content ($self: Str ?$content) {
+method content ($self: Str ?$content) is rw {
     return new Proxy:
         FETCH => {
                 if (want ~~ List) {
