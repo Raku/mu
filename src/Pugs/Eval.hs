@@ -1151,7 +1151,12 @@ chainFun _ _ _ _ _ = internalError "chainFun: Not enough parameters in Val list"
 applyExp :: SubType -> [ApplyArg] -> Exp -> Eval Val
 applyExp _ bound (Prim f) =
     f [ argValue arg | arg <- bound, (argName arg) /= "%_" ]
-applyExp styp bound body = applyThunk styp bound (MkThunk $ evalExp body)
+applyExp styp bound body = do
+    sequence_ [ evalExp
+        (Syn "=" [Syn "{}" [Val (argValue $ head bound), Val (VStr key)], Val val]) |
+        ApplyArg{ argName = (_:twigil:key), argValue = val }
+        <- bound, (twigil ==) `any` ".:" ]
+    applyThunk styp bound (MkThunk $ evalExp body)
 
 applyThunk :: SubType -> [ApplyArg] -> VThunk -> Eval Val
 applyThunk _ [] thunk = thunk_force thunk
