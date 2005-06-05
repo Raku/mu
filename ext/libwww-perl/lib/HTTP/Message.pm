@@ -152,10 +152,10 @@ method as_string ($self: Str ?$newline = "\n") {
 }
 
 method parts ($self: *@new) is rw {
-    my $old = $self.:parts;
+    my @old = $self.:parts;
     
     return new Proxy:
-        FETCH => { return @$old if want.List; return $old[0]; },
+        FETCH => { return @old if want.List; return @old[0]; },
         STORE => sub (*@new) {
             my $content_type = $self.content_type // "";
             
@@ -170,8 +170,8 @@ method parts ($self: *@new) is rw {
             $self.:parts = @new;
             $self.:stale_content;
             
-            return @$old if want.List;
-            return $old[0];
+            return @old if want.List;
+            return @old[0];
         }
 }
 
