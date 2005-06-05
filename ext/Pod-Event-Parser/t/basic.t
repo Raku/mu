@@ -44,7 +44,7 @@ This is regular text again
 
 # now try it using the filehandle
 
-my $fh = open('>test.pod');
+my $fh = open('test.pod', :w);
 parse(catfile('t', 'sample.pod'), pod2pod($fh));
 $fh.close();
 

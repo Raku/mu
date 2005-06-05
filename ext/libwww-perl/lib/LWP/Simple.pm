@@ -30,7 +30,7 @@ sub getprint (Str $url) is export
 # FIXME to use a callback
 sub getstore (Str $url, Str $file) is export
 {
-  my $fh = open ">$file";
+  my $fh = open $file, :w;
   my $buffer = get $url;
   if (defined $buffer) {
     $fh.print($buffer);

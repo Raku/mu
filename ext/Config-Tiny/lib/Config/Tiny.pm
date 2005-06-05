@@ -50,7 +50,7 @@ sub Config::Tiny::new () returns Ref {
             if ( ! $file ) {
                 %self<_err_str> = 'You did not specify a file name' and return FALSE;
             }
-            my $output = open('>' ~ $file);
+            my $output = open($file, :w);
             if ( ref $output ne 'IO' ) {
                 %self<_err_str> = "Failed to open $file for writing" and return FALSE;
             }

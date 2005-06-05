@@ -7,8 +7,8 @@ plan 3;
 
 use Test::Builder::Output;
 
-my $output = open(">output");
-my $error_output = open(">error_output");
+my $output = open("output", :w);
+my $error_output = open("error_output", :w);
 
 my $output = Test::Builder::Output.new(
     output       => $output,
