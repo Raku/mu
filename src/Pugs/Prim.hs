@@ -93,6 +93,12 @@ op1 "id" = \x -> do
     case val of
         VObject o   -> return . castV . hashUnique $ objId o
         _           -> return undef
+op1 "Pugs::Internals::caller" = \x -> do
+    lev <- fromVal x
+    env <- ask
+    when (lev < 1) $ do
+        fail "Pugs::Internals::caller called with nonpositive argument"
+    local (const env) $ do op1Caller lev
 op1 "clone" = \x -> do
     (VObject o) <- fromVal x
     attrs   <- readIVar (IHash $ objAttrs o)
@@ -539,6 +545,41 @@ op1 "Code::arity" = op1CodeArity
 op1 "Code::body"  = op1CodeBody
 op1 "Code::pos"   = op1CodePos
 op1 other   = \_ -> fail ("Unimplemented unaryOp: " ++ other)
+
+
+-- work in progress
+{-data VCode = MkCode
+    { isMulti       :: !Bool        -- ^ Is this a multi sub\/method?
+    , subName       :: !String      -- ^ Name of the closure
+    , subType       :: !SubType     -- ^ Type of the closure
+    , subEnv        :: !(Maybe Env) -- ^ Lexical pad for sub\/method
+    , subAssoc      :: !String      -- ^ Associativity
+    , subParams     :: !Params      -- ^ Parameters list
+    , subBindings   :: !Bindings    -- ^ Currently assumed bindings
+    , subSlurpLimit :: !SlurpLimit  -- ^ Max. number of slurpy arguments
+    , subReturns    :: !Type        -- ^ Return type
+    , subLValue     :: !Bool        -- ^ Is this a lvalue sub?
+    , subBody       :: !Exp         -- ^ Body of the closure
+    , subCont       :: !(Maybe (TVar VThunk)) -- ^ Coroutine re-entry point
+-}
+op1Caller :: Int -> Eval Val
+op1Caller 0 = do
+    env <- ask
+    (sub :: VCode) <- fromVal =<< readVar "&?SUB"
+    return $ VList [ VStr $ envPackage env
+                   , VStr $ posName $ envPos env
+                   , VInt $ toInteger $ posBeginLine $ envPos env
+                   , VStr $ subName sub
+                   , VStr $ show $ subType sub
+                   , VStr $ show $ subParams sub
+                   ]
+op1Caller n = do
+    env <- ask
+    if (envDepth env) == 0 then fail "no caller" else do
+    case envCaller env of
+        Just caller -> local (const caller) $ do op1Caller (n - 1)
+        Nothing -> fail "envDepth says we have a caller but envCaller is Nothing"
+    
 
 returnList :: [Val] -> Eval Val
 returnList vals = ifListContext
