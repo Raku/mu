@@ -11,6 +11,7 @@ import Pugs.AST
 import Pugs.Parser.Program
 import Pugs.Embed
 import Pugs.Internals
+import Pugs.Pretty
 
 data EvalError = EvalErrorFatal
                | EvalErrorUndef
@@ -75,12 +76,12 @@ retEvalResult style val = do
     glob <- askGlobal
     errSV <- findSymRef "$!" glob
     case val of
-        VError str _ -> do
+        err@(VError str _) -> do
             writeRef errSV (VStr str)
             when (evalError style == EvalErrorFatal) $ do
                 --trace ("fatal error" ++ str) $ return ()
                 --FIXME: this should be made to throw an exception.
-                fail str
+                liftIO $ fail $ pretty err
             retEmpty
         _ -> do
             writeRef errSV VUndef
