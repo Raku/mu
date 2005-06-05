@@ -15,7 +15,7 @@ my %instructions;
 my $state;
 my $tape_loc = 0;
 
-my $trans = open "< $transition_file" err
+my $trans = open $transition_file err
   die "Can't open \"$transition_file\" for reading!\n";
 
 for =$trans {

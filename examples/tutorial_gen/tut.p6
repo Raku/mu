@@ -144,7 +144,7 @@ sub get_output ( Str $tut_fp, +$each_line = 0 ) {
     #my $status = eval $new_pl;   
     #say $status;
     
-    my $fh_p6_temp = open '>' ~ %conf<f_temp_fp>;
+    my $fh_p6_temp = open %conf<f_temp_fp>, :w;
     print $fh_p6_temp, $new_pl;
     close $fh_p6_temp;
     

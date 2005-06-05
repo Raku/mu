@@ -14,7 +14,7 @@ my %tally     ;
 my @list      ;
 my $dict = canonpath("$progdir/pugspraise");
 
-my $fh = open("<$dict") || die $!;
+my $fh = open($dict) || die $!;
 
 for =$fh->$line is rw{
 	my $a = $line; 
@@ -68,7 +68,7 @@ unless $orig eq ~@list {
 		$backup ~= "-$incr";
 		rename $dict,"$backup";
 		# Write the changes to a new $dict
-		my $newfh = open(">$dict");
+		my $newfh = open($dict, :w);
 		for @list->$line{say $newfh,$line}
 		$newfh.close;
 		say "diff -u $backup $dict";

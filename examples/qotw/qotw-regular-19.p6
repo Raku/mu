@@ -9,7 +9,7 @@ my %sails;
 die "No such file: \"$file\"" unless $file and -e $file;
 $scale //= 100;
 
-my $FH = open "< $file" err die "Could't open \"$file\"!\n";
+my $FH = open $file err die "Could't open \"$file\"!\n";
 
 for =$FH -> $line {
   next() if $line ~~ rx:perl5/^#/;

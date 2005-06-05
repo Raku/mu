@@ -17,7 +17,7 @@ sub load_db returns Void {
 }
 
 sub save_db returns Void {
-    my $db = open(">words.db.p6") err die "Cannot open the words.db.p6 file: $!";
+    my $db = open("words.db.p6", :w) err die "Cannot open the words.db.p6 file: $!";
     for (%words.kv) -> $key, $value {
         $db.say($key ~ "\t" ~ $value);
     }

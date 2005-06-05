@@ -42,7 +42,7 @@ sub print_golf_score (*@scr) {
 }
 
 sub build_file (Str $fname, Str $data) {
-    my $fh = open('>'~$fname) err die("open '$fname' failed: $!");
+    my $fh = open($fname, :w) err die("open '$fname' failed: $!");
     $fh.print($data) err die("print '$fname' failed: $!");
     $fh.close() err die("close '$fname' failed: $!");
 }

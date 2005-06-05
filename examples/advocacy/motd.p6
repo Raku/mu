@@ -11,7 +11,7 @@ require Motd; #must be in PERL6LIB path, to say 'use';
 
 my $limit     = @ARGS[0] // '2';
 my $dict      = canonpath("$progdir/pugspraise");
-my $fh        = open "< $dict" err die $!;
+my $fh        = open $dict err die $!;
 my @list      = map -> $a{my $b = $a; chomp $b; $b;} =$fh;
 
 #XXX it sure would make things tidier if the topic could be chomped,

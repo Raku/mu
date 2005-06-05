@@ -45,7 +45,7 @@ sub SessionDecode($data) {
 }
 
 sub SessionDestroy() {
-    my $fh = open(">$Path/$SID");
+    my $fh = open("$Path/$SID", :w);
     $fh.print(SessionCode(%Session.keys));
     $fh.close;
 }
