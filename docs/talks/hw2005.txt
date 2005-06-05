@@ -114,7 +114,7 @@ fully retracted, while new incompatible features are consistently rejected.
 For example, one cannot rewrite the reference-counting garbage collector,
 because existing programs may rely on its object destruction semantics.
 
-In 2000, many developers feel that Perl 5 development is stuck.  Some have
+In 2000, many developers felt that Perl 5 development was stuck.  Some have
 described the C-based runtime as a tower of Jenga, where new features are
 constrained to re-use existing semantics, making it ever more fragile.
 
@@ -206,12 +206,12 @@ briefly review various bootstrap strategies proposed over the years.
 3.1. Perl6::Rules
 
 The initial plan was to use Perl 5 as the host language: by first transforming
-Perl 6's Rules to Perl 5 regular expressions, then implement the Perl 6 to
-Parrot compiler in Perl 5, and finally translate the compiler itself to Perl 6
+Perl 6's Rules to Perl 5 regular expressions, then implementing the Perl 6 to
+Parrot compiler in Perl 5, and finally translating the compiler itself to Perl 6
 using a Perl 5 to Perl 6 translator, implemented as one of Perl 5's bytecode
 compiler backends.
 
-Implement Perl 6 rules as a Perl 5 module proved to be difficult; although
+Implementing Perl 6 rules as a Perl 5 module proved to be difficult; although
 Rules are defined in 2002, it took nearly two years for the first version of
 Perl6::Rules to appear.  The implementation relied on various experimental
 features in Perl 5's regular expression engine, and failed to work on newer

@@ -445,7 +445,7 @@ distribution.
 
 = AUTHORS
 
-Aurtrijus Tang <autrijus@autrijus.org>
+Autrijus Tang <autrijus@autrijus.org>
 
 Benjamin Smith
 
