@@ -16,7 +16,7 @@ parseProgram :: Env -> FilePath -> String -> Env
 parseProgram = flip runRule ruleProgram
 
 makeState :: Env -> RuleState
-makeState env = RuleState env
+makeState env = MkRuleState env
 
 runRule :: Env -> RuleParser Env -> FilePath -> String -> Env
 runRule env p name str =

@@ -10,7 +10,7 @@ import Pugs.AST
 import Pugs.Rule
 import Pugs.Rule.Expr
 
-newtype RuleState = RuleState Env
+newtype RuleState = MkRuleState { ruleEnv :: Env }
 
 type RuleParser a = GenParser Char RuleState a
 data ParensOption = ParensMandatory | ParensOptional
@@ -20,8 +20,8 @@ type RuleOperator a = Operator Char RuleState a
 type RuleOperatorTable a = OperatorTable Char RuleState a
 
 getRuleEnv :: RuleParser Env
-getRuleEnv = do { (RuleState env) <- getState; return env }
+getRuleEnv = fmap ruleEnv getState
 
 setRuleEnv :: Env -> RuleParser ()
-setRuleEnv env = setState (RuleState env)
+setRuleEnv env = setState (MkRuleState env)
 
