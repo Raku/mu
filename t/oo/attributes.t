@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 56;
+plan 60;
 force_todo 2, 11, 19, 23, 34, 38;
 
 =pod
@@ -207,3 +207,24 @@ is      $was_in_supplier, 2,  "fourty_two_supplier() was actually executed (2)",
 fail "hard parsefail", :todo<feature>;
 eval_is 'Foo11.new.attr', 42, "default attribute value (6)", :todo<feature>;
 is      $was_in_supplier, 3,  "fourty_two_supplier() was actually executed (3)", :todo<feature>;
+
+# check that doing something in submethod BUILD works
+class Foo7 {
+  has $.bar;
+  has $.baz;
+
+  submethod BUILD (?$.bar = 5, ?$baz = 10 ) {
+    $.baz = 2 * $baz;
+  }
+}
+
+my $foo7 = Foo7.new();
+is( $foo7.bar, 5,
+    'optional attribute should take default value without passed-in value' );
+is( $foo7.baz, 20,
+    '... optional non-attribute should too' );
+$foo7    = Foo7.new( :bar(4), :baz(5) );
+is( $foo7.bar, 4,
+    'optional attribute should take passed-in value over default' );
+is( $foo7.baz, 10,
+    '... optional non-attribute should too' );
