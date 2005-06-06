@@ -12,9 +12,9 @@ import Pugs.Parser.Types
 unsafeEvalLexDiff :: Exp -> RuleParser Pad
 unsafeEvalLexDiff exp = do
     env  <- getRuleEnv
-    setRuleEnv env{ envLexical = mkPad [] }
+    putRuleEnv env{ envLexical = mkPad [] }
     env' <- unsafeEvalEnv exp
-    setRuleEnv env'{ envLexical = envLexical env' `unionPads` envLexical env }
+    putRuleEnv env'{ envLexical = envLexical env' `unionPads` envLexical env }
     return $ envLexical env'
 
 -- XXX: Should these fail instead of error?
@@ -30,7 +30,7 @@ unsafeEvalEnv exp = do
 
 unsafeEvalExp :: Exp -> RuleParser Exp
 unsafeEvalExp exp = do
-    clearOpParsers
+    clearDynParsers
     env <- getRuleEnv
     let val = unsafePerformIO $ do
         runEvalIO (env{ envDebug = Nothing }) $ do

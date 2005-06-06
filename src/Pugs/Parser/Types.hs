@@ -1,42 +1,47 @@
+{-# OPTIONS_GHC -fglasgow-exts -funbox-strict-fields #-}
+
 module Pugs.Parser.Types (
     RuleParser, RuleState(..),
-    OpParsers(..), ParensOption(..),
+    DynParsers(..), ParensOption(..),
     RuleOperator, RuleOperatorTable,
-
-    getRuleEnv, setRuleEnv,
-    clearOpParsers,
+    getRuleEnv, modifyRuleEnv, putRuleEnv,
+    clearDynParsers,
 ) where
 import Pugs.AST
 import Pugs.Rule
 import Pugs.Rule.Expr
+import Pugs.Internals
 
-data OpParsers = MkOpParsersEmpty | MkOpParsers
-    { ruleParseOp       :: !(RuleParser Exp)
-    , ruleParseTightOp  :: !(RuleParser Exp)
-    , ruleParseLitOp    :: !(RuleParser Exp)
+data DynParsers = MkDynParsersEmpty | MkDynParsers
+    { dynParseOp       :: !(RuleParser Exp)
+    , dynParseTightOp  :: !(RuleParser Exp)
+    , dynParseLitOp    :: !(RuleParser Exp)
     }
 
 data RuleState = MkRuleState
-    { ruleEnv           :: !(Env)
-    , ruleOpParsers     :: !(OpParsers)
+    { ruleEnv           :: !Env
+    , ruleDynParsers    :: !DynParsers
     }
 
 type RuleParser a = GenParser Char RuleState a
 data ParensOption = ParensMandatory | ParensOptional
     deriving (Show, Eq)
 
+instance MonadState RuleState (GenParser Char RuleState) where
+    get = getState
+    put = setState
+
 type RuleOperator a = Operator Char RuleState a
 type RuleOperatorTable a = OperatorTable Char RuleState a
 
 getRuleEnv :: RuleParser Env
-getRuleEnv = fmap ruleEnv getState
+getRuleEnv = gets ruleEnv
 
-setRuleEnv :: Env -> RuleParser ()
-setRuleEnv env = do
-    state <- getState
-    setState state{ ruleEnv = env }
+modifyRuleEnv :: (MonadState RuleState m) => (Env -> Env) -> m ()
+modifyRuleEnv f = modify $ \state -> state{ ruleEnv = f (ruleEnv state) }
 
-clearOpParsers :: RuleParser ()
-clearOpParsers = do
-    state <- getState
-    setState state{ ruleOpParsers = MkOpParsersEmpty }
+putRuleEnv :: Env -> RuleParser ()
+putRuleEnv = modifyRuleEnv . const
+
+clearDynParsers :: RuleParser ()
+clearDynParsers = modify $ \state -> state{ ruleDynParsers = MkDynParsersEmpty }

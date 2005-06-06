@@ -71,7 +71,7 @@ ruleBlockBody = do
     post    <- many ruleEmptyExp
     let body' = foldl mergeStmts (foldl (flip mergeStmts) body pre) post
     env'    <- getRuleEnv
-    setRuleEnv env'{ envLexical = envLexical env }
+    putRuleEnv env'{ envLexical = envLexical env }
     return $ case unwrap body' of
         (Syn "sub" _)   -> mergeStmts emptyExp body'
         _               -> body'
@@ -253,10 +253,10 @@ ruleClassDeclaration = rule "class declaration" $ try $ do
     _       <- choice $ map symbol (words "class role grammar")
     (name, _, _) <- rulePackageHead
     env     <- getRuleEnv
-    setRuleEnv env{ envPackage = name, envClasses = envClasses env `addNode` mkType name }
+    putRuleEnv env{ envPackage = name, envClasses = envClasses env `addNode` mkType name }
     body    <- between (symbol "{") (char '}') ruleBlockBody
     env'    <- getRuleEnv
-    setRuleEnv env'{ envPackage = envPackage env }
+    putRuleEnv env'{ envPackage = envPackage env }
     return body
 
 rulePackageHead :: RuleParser (String, String, String)
@@ -497,7 +497,7 @@ ruleUsePackage = rule "use package" $ do
         unsafeEvalExp $ App (Var $ ('&':pkg) ++ "::import") (Just val) [imp]
         return ()
     case val of
-        Val (VControl (ControlEnv env')) -> setRuleEnv env'
+        Val (VControl (ControlEnv env')) -> putRuleEnv env'
             { envClasses = envClasses env' `addNode` mkType pkg }
         _  -> error $ pretty val
     return ()
@@ -540,7 +540,7 @@ ruleModuleDeclaration = rule "module declaration" $ do
     _       <- choice $ map symbol (words "package module class grammar")
     (name, v, a)    <- rulePackageHead
     env     <- getRuleEnv
-    setRuleEnv env{ envPackage = name, envClasses = envClasses env `addNode` mkType name }
+    putRuleEnv env{ envPackage = name, envClasses = envClasses env `addNode` mkType name }
     return $ Syn "module" [Val . VStr $ name ++ v ++ a] -- XXX
 
 ruleDoBlock :: RuleParser Exp
@@ -978,11 +978,11 @@ currentTightFunctions = do
     return $ map (encodeUTF8 . unwords . nub)
         [nullary, optionary, namedUnary, preUnary, postUnary, infixOps]
 
-parseOpWith :: (OpParsers -> RuleParser Exp) -> RuleParser Exp
+parseOpWith :: (DynParsers -> RuleParser Exp) -> RuleParser Exp
 parseOpWith f = do
     state <- getState
-    case ruleOpParsers state of
-        MkOpParsersEmpty    -> refillCache state f
+    case ruleDynParsers state of
+        MkDynParsersEmpty    -> refillCache state f
         p                   -> f p
     where
     refillCache state f = do
@@ -992,18 +992,18 @@ parseOpWith f = do
         let [parse, parseTight, parseLit] = map
                 (expRule . (\o -> buildExpressionParser o parseTerm (Syn "" [])))
                 [ops, opsTight, opsLit]
-            opParsers = MkOpParsers parse parseTight parseLit
-        setState state{ ruleOpParsers = opParsers }
+            opParsers = MkDynParsers parse parseTight parseLit
+        setState state{ ruleDynParsers = opParsers }
         f opParsers
 
 parseOp :: RuleParser Exp
-parseOp = parseOpWith ruleParseOp
+parseOp = parseOpWith dynParseOp
 
 parseTightOp :: RuleParser Exp
-parseTightOp = parseOpWith ruleParseTightOp
+parseTightOp = parseOpWith dynParseTightOp
 
 parseLitOp :: RuleParser Exp
-parseLitOp = parseOpWith ruleParseLitOp
+parseLitOp = parseOpWith dynParseLitOp
 
 ops :: (String -> a) -> String -> [a]
 ops f s = [f n | n <- sortBy revLength (nub . words $ decodeUTF8 s)]
