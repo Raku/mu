@@ -427,10 +427,10 @@ profiling instrumentations.
 
 5. Experimental Features 
 
-Pugs depends on Glasgow Haskell Compiler (GHC), because GHC is the only widely
-available Haskell implementation that offers reasonable performance as a host
-language.  Because of that, we are able to improve clarity and efficiency in
-Pugs's source code with GHC-specific extensions, such as pattern guards,
+Pugs depends on the Glasgow Haskell Compiler (GHC), because GHC is the only
+widely available Haskell implementation that offers reasonable performance as a
+host language.  Because of that, we are able to improve clarity and efficiency
+in Pugs's source code with GHC-specific extensions, such as pattern guards,
 liberalised type synonyms and generalised derived instances for newtypes.
 
 GHC 6.4 was released in March 2005, one month after Pugs's inception.  Pugs
@@ -458,13 +458,13 @@ For example, consider this Haskell code:
 
 Here both "x" and "y" must bind to a value of the (HashTable String String)
 type, and the "insert" for both of them refers to the same function.  In
-constrast, the two lines below does different things in Perl 6:
+constrast, the two lines below do different things in Perl 6:
 
     %foo{"PATH"} = "/tmp";  # modify an in-memory storage
     %ENV{"PATH"} = "/tmp";  # calls setenv() to change the environment
 
 Here the operation is polymorphic: Perl looks up the container that "%foo"
-and "%ENV" binds to, then fetches their associated "implementation objects".
+and "%ENV" bind to, then fetches their associated "implementation objects".
 It then calls the "STORE" method on those objects, passing the key and value
 as arguments.
 
