@@ -97,7 +97,7 @@ op1 "Pugs::Internals::caller" = \x -> do
     lev <- fromVal x
     env <- ask
     when (lev < 1) $ do
-        fail "Pugs::Internals::caller called with nonpositive argument"
+        liftIO $ fail "Pugs::Internals::caller called with nonpositive argument"
     local (const env) $ do op1Caller lev
 op1 "clone" = \x -> do
     (VObject o) <- fromVal x
@@ -570,8 +570,10 @@ other side.
 op1Caller :: Int -> Eval Val
 op1Caller 0 = do
     env <- ask
-    (sub :: VCode) <- fromVal =<< readVar "&?SUB"
-    return $ VList
+    val <- readVar "&?SUB"
+    if (not $ defined val) then retEmpty else do
+    sub <- fromVal val
+    returnList
         [ VStr $ envPackage env                        -- .package
         , VStr $ posName $ envPos env                  -- .file
         , VInt $ toInteger $ posBeginLine $ envPos env -- .line
@@ -582,7 +584,7 @@ op1Caller 0 = do
         ]
 op1Caller n = do
     env <- ask
-    if (envDepth env) == 0 then fail "no caller" else do
+    if (envDepth env) == 0 then retEmpty else do
     case envCaller env of
         Just caller -> local (const caller) $ do op1Caller (n - 1)
         Nothing -> fail "envDepth says we have a caller but envCaller is Nothing"
