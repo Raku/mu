@@ -16,7 +16,7 @@ parseProgram :: Env -> FilePath -> String -> Env
 parseProgram = flip runRule ruleProgram
 
 makeState :: Env -> RuleState
-makeState env = MkRuleState env
+makeState env = MkRuleState env MkOpParsersEmpty
 
 runRule :: Env -> RuleParser Env -> FilePath -> String -> Env
 runRule env p name str =
@@ -57,7 +57,6 @@ ruleProgram = rule "program" $ do
     env' <- getRuleEnv
     return $ env'
         { envBody       = mergeStmts emptyExp statements
-        , envStash      = ""
         , envPackage    = envPackage env
         }
 

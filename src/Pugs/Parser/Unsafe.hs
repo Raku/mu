@@ -30,8 +30,8 @@ unsafeEvalEnv exp = do
 
 unsafeEvalExp :: Exp -> RuleParser Exp
 unsafeEvalExp exp = do
+    clearOpParsers
     env <- getRuleEnv
-    setRuleEnv env{ envStash = "" } -- cleans up function cache
     let val = unsafePerformIO $ do
         runEvalIO (env{ envDebug = Nothing }) $ do
             evl <- asks envEval

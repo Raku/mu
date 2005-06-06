@@ -942,18 +942,6 @@ currentFunctions = do
 -- read just the current state
 currentTightFunctions :: RuleParser [String]
 currentTightFunctions = do
-    env     <- getRuleEnv
-    case envStash env of
-        "" -> do
-            funs <- currentTightFunctions'
-            setRuleEnv env{ envStash = unlines funs }
-            return funs
-        lns -> do
-            return $ lines lns
-
--- read just the current state
-currentTightFunctions' :: RuleParser [String]
-currentTightFunctions' = do
     funs    <- currentFunctions
     let (unary, rest) = (`partition` funs) $ \x -> case x of
             (_, "pre", [param]) | not (isSlurpy param) -> True
@@ -990,20 +978,32 @@ currentTightFunctions' = do
     return $ map (encodeUTF8 . unwords . nub)
         [nullary, optionary, namedUnary, preUnary, postUnary, infixOps]
 
+parseOpWith :: (OpParsers -> RuleParser Exp) -> RuleParser Exp
+parseOpWith f = do
+    state <- getState
+    case ruleOpParsers state of
+        MkOpParsersEmpty    -> refillCache state f
+        p                   -> f p
+    where
+    refillCache state f = do
+        ops         <- operators
+        opsTight    <- tightOperators
+        opsLit      <- litOperators
+        let [parse, parseTight, parseLit] = map
+                (expRule . (\o -> buildExpressionParser o parseTerm (Syn "" [])))
+                [ops, opsTight, opsLit]
+            opParsers = MkOpParsers parse parseTight parseLit
+        setState state{ ruleOpParsers = opParsers }
+        f opParsers
+
 parseOp :: RuleParser Exp
-parseOp = expRule $ do
-    ops <- operators
-    buildExpressionParser ops parseTerm (Syn "" [])
+parseOp = parseOpWith ruleParseOp
 
 parseTightOp :: RuleParser Exp
-parseTightOp = expRule $ do
-    ops <- tightOperators
-    buildExpressionParser ops parseTerm (Syn "" [])
+parseTightOp = parseOpWith ruleParseTightOp
 
 parseLitOp :: RuleParser Exp
-parseLitOp = expRule $ do
-    ops <- litOperators
-    buildExpressionParser ops parseTerm (Syn "" [])
+parseLitOp = parseOpWith ruleParseLitOp
 
 ops :: (String -> a) -> String -> [a]
 ops f s = [f n | n <- sortBy revLength (nub . words $ decodeUTF8 s)]
