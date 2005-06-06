@@ -79,7 +79,7 @@ design of Pugs's interpreter core in section 4.
 
 Because Pugs is targeting GHC 6.4 instead of Haskell 98, it takes full
 advantage of the modern Haskell features GHC provides.  In section 5, we review
-Pugs's use of GADT, STM, as well as subcontinuations built on higher-rank
+Pugs's use of GADTs, STM, as well as subcontinuations built on higher-rank
 polymorphism.  In section 6, we demonstrate how Pugs uses FFI and hs-plugins to
 dynamically load Perl 5, Haskell and Parrot modules at runtime.
 
@@ -293,7 +293,7 @@ parser monad is defined as:
     type RuleParser a = GenParser Char RuleState a
     data RuleState = MkRuleState
         { ruleEnv           :: !Env         -- evaluation environment
-        , ruleOpParsers     :: !OpParsers   -- cache for dynamic parsers
+        , ruleDynParsers    :: !DynParsers  -- cache for dynamic parsers
         }
 
 Here the "Char" token type is used to combine lexing and parsing into a single
@@ -317,12 +317,12 @@ precedence table, we dynamically compute a table for each token:
         buildExpressionParser ops ruleExpression
     operators :: RuleParser (RuleOperatorTable Exp)
     operators = do
-        fun <- currentFunctions -- uses getRuleEnv
-        ... build the operator table from functions ...
+        env <- gets ruleEnv
+        buildOperators (currentFunctions env)
 
-To reduce needless recomputation, we cache all such dynamically constructed
-parsers in the "ruleOpParsers" field.  This cache is cleared whenever a
-compile-time evaluation is performed.
+To avoid needless computation, we cache all dynamically constructed parsers in
+the "ruleDynParsers" field, and clear this cache whenever a compile-time
+evaluation is performed.
 
 4.2. Compile-time Evaluation
 
@@ -333,7 +333,7 @@ For example, a simple subroutine definition:
 
 is defined as equivalent to:
 
-    BEGIN { our &add1 := sub ($x) { 1 + $x } }
+    BEGIN { &add1 := sub ($x) { 1 + $x } }
 
 Here the BEGIN block is evaluated as soon as it is parsed.  It constructs
 an anonymous subroutine, closing over the current lexical scope, then binds
@@ -387,8 +387,8 @@ introducing lexical bindings to sub-terms.  Lexical and global symbol bindings
 are stored as fields in the Env record structures:
 
     data Env = MkEnv
-        { envLexical :: !Pad            -- ^ Lexical pad for variable lookup
-        , envGlobal  :: !(TVar Pad)     -- ^ Global pad for variable lookup
+        { envLexical :: !Pad
+        , envGlobal  :: !(TVar Pad)
         , -- many more fields...
         }
 
@@ -440,17 +440,62 @@ changes in Template Haskell, as well as new module interfaces for Data.Map and
 Data.Set.
 
 During the three months that followed, we explored GHC's new features to expand
-on Perl 6's existing design, with prototype implementations in Pugs.  Below we
-discuss three such experimental features.
+Perl 6's current design, demonstrated with prototype implementations in Pugs.
+Below we discuss three such experimental features.
 
-5.1. "Tied" Variables with GADT
+5.1. "Tied" Variables with GADTs
 
-...ITypes/IVar, VRef, VOpaque...
+Perl 6 distinguishes "value types" from "implementation types".  A variable's
+implementation type is the type of objects that implements it.  This design is
+a generalisation from Perl 5's "tie" function, which binds a container to an
+object that handles all future access to the container.
+
+For example, consider this Haskell code:
+
+    import Data.HashTable (insert)
+    insert x "PATH" "/tmp"    -- Insert "/tmp" into x, with "PATH" as its key
+    insert y "PATH" "/tmp"    -- Do the same to y
+
+Here both "x" and "y" must bind to a value of the (HashTable String String)
+type, and the "insert" for both of them refers to the same function.  In
+constrast, the two lines below does different things in Perl 6:
+
+    %foo{"PATH"} = "/tmp";  # modify an in-memory storage
+    %ENV{"PATH"} = "/tmp";  # calls setenv() to change the environment
+
+Here the operation is polymorphic: Perl looks up the container that "%foo"
+and "%ENV" binds to, then fetches their associated "implementation objects".
+It then calls the "STORE" method on those objects, passing the key and value
+as arguments.
+
+There is a level of indirection between containers and implementation objects,
+as the "tie" function can change a container's implementation at runtime.  As
+such, a reference in Perl always points to a container, instead of a specific
+implementation object or a value.
+
+Thanks to GADTs, Pugs can conviently represent these levels of indirection,
+as well as generic get/set operations on containers:
+
+    data VRef where
+        MkRef   :: (Typeable a) => !(IVar a) -> VRef
+    data (Typeable v) => IVar v where
+        IScalar :: ScalarClass a => !a -> IVar VScalar
+        IArray  :: ArrayClass  a => !a -> IVar VArray
+        IHash   :: HashClass   a => !a -> IVar VHash
+        -- many more implementation types...
+    readIVar :: IVar v -> Eval v
+    writeIVar :: IVar v -> v -> Eval ()
+
+Intuitively, ...
+
+...gadt clarity wish rewrite simple but can't derive
+...hashtable vs tvar map for stm...
 
 5.2. Composable Concurrency
 
 ...SIO, liftSTM/liftIO, atomic{}...
 ...mention that parrot also wants stm...
+...can't imbue cont within atomic{}, so want reified subcont...
 
 5.3. Reified Subcontinuations
 
