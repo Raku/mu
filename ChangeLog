@@ -8,6 +8,7 @@
 * Speed up parsing for 2x by caching the dynamically-constructed
   operator precedence tables, instead of relying on `envStash` to
   rebuild them on each token
+* New builtins: caller and Carp::longmess
 
 === Bundled Modules
 
