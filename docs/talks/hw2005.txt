@@ -280,10 +280,10 @@ planned Perl 6 compiler, based on PGE/PAST, is yet to be written.
 4. Pugs the Interpreter
 
 When interpreting a Perl 6 program, Pugs first populates an evaluation
-environment with primitive bindings.  The parser takes the initial environment
-with the source code string, and computes a modified environment containing the
-parsed AST.  The evaluator then reduces the tree to its final value, in the
-standard call-by-value order.
+environment with primitive bindings.  The parser takes the initial
+environment, including the source code string, and computes a modified 
+environment containing the parsed AST.  The evaluator then reduces the tree 
+to its final value, in the standard call-by-value order.
 
 4.1. The RuleParser Monad
 
@@ -303,7 +303,7 @@ written in Haskell.
 
 Using Parsec's support for user-defined parser states, the parser maintains a
 RuleState containing an evaluation environment.  Compile-time bindings, such as
-declaration of new types and global functions, update this environment
+the declaration of new types and global functions, update this environment
 directly.
 
 Perl 6 programs may introduce user-defined operators of arbitary fixity and
@@ -331,14 +331,14 @@ For example, a simple subroutine definition:
 
     sub add1 ($x) { 1 + $x }
 
-is defined as equivalent to:
+is defined as being equivalent to:
 
     BEGIN { &add1 := sub ($x) { 1 + $x } }
 
 Here the BEGIN block is evaluated as soon as it is parsed.  It constructs
 an anonymous subroutine, closing over the current lexical scope, then binds
 it to a package-wide variable.  The "&" sigil indicates that the variable
-implements a storage for functions.
+implements storage for functions.
 
 The BEGIN block may perform IO actions.  For example, we may define a constant
 function that returns the time it was parsed:
@@ -378,10 +378,10 @@ Currently, we define the Eval monad as:
     data SIO a = MkSTM !(STM a) | MkIO !(IO a) | MkSIO !a
 
 At the base level, the SIO monad encapsuates three strict types of
-computations: pure functions (MkSIO), actions that modifies memory storage
+computations: pure functions (MkSIO), actions that modify memory storage
 (MkSTM), and IO actions with full side effects (MkIO).
 
-On top of SIO, a ReaderT monad transformer provides the evaluation environment 
+On top of SIO, a ReaderT monad transformer provides the evaluation environment,
 "Env".  We've chosen it over StateT, because ReaderT is very handy for
 introducing lexical bindings to sub-terms.  Lexical and global symbol bindings
 are stored as fields in the Env record structures:
@@ -395,7 +395,7 @@ are stored as fields in the Env record structures:
 As such, sub-terms can override global bindings by writing to the shared
 TVar storage, but new lexical bindings will never leak out.
 
-We implement the control flow with the ContT monad transformer, because it
+We implement control flow with the ContT monad transformer, because it
 can directly support Perl 6's continuation and coroutine constructs.  We
 represent the dynamic scope with resetT/shiftT: calling a subroutine will push
 a new prompt via resetT, so we can simply express the "return" primitive as:
@@ -418,7 +418,7 @@ Evaluation inside the Eval monad is defined as:
     evalExp :: Exp -> Eval Val
     evalExp exp = do { evl <- asks envEval; evl exp }
 
-Here it makes use of the envEval field in the Env structure, which defines
+This makes use of the envEval field in the Env structure, which defines
 the active evaluator of type !(Exp -> Eval Val).  This allows the user to
 change the reduction logic during evaluation, such as by adding watchpoints or
 profiling instrumentations.
@@ -435,9 +435,9 @@ liberalised type synonyms and generalised derived instances for newtypes.
 
 GHC 6.4 was released in March 2005, one month after Pugs's inception.  Pugs
 dropped support for GHC 6.2 in the same month, as we found it difficult to
-keeping source code portable between GHC 6.2 and GHC 6.4, due to incompatible
-changes in Template Haskell, as well as new module interfaces for Data.Map and
-Data.Set.
+keep source code portable between GHC 6.2 and GHC 6.4. This was due to 
+incompatible changes in Template Haskell, as well as new module interfaces 
+for Data.Map and Data.Set.
 
 During the three months that followed, we explored GHC's new features to expand
 Perl 6's current design, demonstrated with prototype implementations in Pugs.
@@ -458,7 +458,7 @@ For example, consider this Haskell code:
 
 Here both "x" and "y" must bind to a value of the (HashTable String String)
 type, and the "insert" for both of them refers to the same function.  In
-constrast, the two lines below do different things in Perl 6:
+contrast, the two lines below do different things in Perl 6:
 
     %foo{"PATH"} = "/tmp";  # modify an in-memory storage
     %ENV{"PATH"} = "/tmp";  # calls setenv() to change the environment
@@ -470,8 +470,8 @@ as arguments.
 
 There is a level of indirection between containers and implementation objects,
 as the "tie" function can change a container's implementation at runtime.  As
-such, a reference in Perl always points to a container, instead of a specific
-implementation object or a value.
+such, a reference in Perl always points to a container, instead of to a 
+specific implementation object or a value.
 
 Thanks to GADTs, Pugs can conveniently represent these levels of indirection,
 as well as generic get/set operations on containers:
@@ -521,8 +521,9 @@ even for regular algebraic data types:
         Just    :: a -> Maybe a
         Nothing :: Maybe a
 
-Unfortunately, we could not rewrite all data types in Pugs as GADTs, as GHC 6.4
-is unable to derive Show and Eq for regular data types written this way.
+Unfortunately, we could not rewrite all the data types in Pugs as GADTs, as 
+GHC 6.4 is unable to derive Show and Eq for regular data types written this 
+way.
 
 5.2. Composable Concurrency
 
@@ -543,7 +544,7 @@ is unable to derive Show and Eq for regular data types written this way.
 
 New computer languages often suffer from a lack of available libraries.
 Conversely, programmers are much more likely to adopt a new language, if they
-can reuse libraries from an exisiting language.  As a Perl developer put it:
+can reuse libraries from an exiiting language.  As a Perl developer put it:
 "CPAN is my programming language of choice; the rest is just syntax."
 
 Therefore, it is paramount for Pugs to support modules written in languages
@@ -569,14 +570,14 @@ other languages.
 
 Pugs was initially designed to evaluate the source code directly, without
 transforming the parse tree into other forms.  To turn a Perl 6 program into
-native executable, Pugs saves the parsed AST as a Haskell program, then use GHC
-to compile it and link with Pugs itself.  The resulting executable therefore
-runs with the same speed as before, saving only the parsing time.
+a native executable, Pugs saves the parsed AST as a Haskell program, then uses
+GHC to compile it and link with Pugs itself.  The resulting executable 
+therefore runs with the same speed as before, saving only the parsing time.
 
 In April 2005, we added two independent compiler backends to Pugs to generate
 Parrot PIR and Haskell code respectively.  They only support a small subset of
-Pugs AST, but the generated code runs with speed comparable with Perl 5.  This
-initial result encouraged us to add more robust compiler to Pugs; in this
+the Pugs AST, but the generated code runs with speed comparable with Perl 5.  
+This initial result encouraged us to add more robust compiler to Pugs; in this
 section, we discuss our ongoing work in this area.
 
 7.1. Metacomputational Compilation
