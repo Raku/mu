@@ -9,7 +9,7 @@ my @loops = ([1..3], ['a'..'e'], ['foo', 'bar']);
 
 sub ret_iter4 (@loops is copy) returns Ref {
     my $last = [*] @loops.map:{ $_.elems };
-    my $iter;
+    my $iter = -1;
     return sub {
         my $i = ++$iter;
         return () if $iter >= $last;
