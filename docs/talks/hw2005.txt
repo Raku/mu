@@ -389,7 +389,7 @@ are stored as fields in the Env record structures:
     data Env = MkEnv
         { envLexical :: !Pad
         , envGlobal  :: !(TVar Pad)
-        , -- many more fields...
+        , -- ...more fields...
         }
 
 As such, sub-terms can override global bindings by writing to the shared
@@ -445,7 +445,7 @@ Below we discuss three such experimental features.
 
 5.1. "Tied" Variables with GADTs
 
-Perl 6 distinguishes "value types" from "implementation types".  A variable's
+Perl 6 distinguishes "value types" from "implementation types".  A container's
 implementation type is the type of objects that implements it.  This design is
 a generalisation from Perl 5's "tie" function, which binds a container to an
 object that handles all future access to the container.
@@ -476,23 +476,57 @@ implementation object or a value.
 Thanks to GADTs, Pugs can conviently represent these levels of indirection,
 as well as generic get/set operations on containers:
 
+    type VHash = Map VStr Val
     data VRef where
         MkRef   :: (Typeable a) => !(IVar a) -> VRef
     data (Typeable v) => IVar v where
-        IScalar :: ScalarClass a => !a -> IVar VScalar
-        IArray  :: ArrayClass  a => !a -> IVar VArray
         IHash   :: HashClass   a => !a -> IVar VHash
-        -- many more implementation types...
+        IArray  :: ArrayClass  a => !a -> IVar VArray
+        IScalar :: ScalarClass a => !a -> IVar VScalar
+        -- ...more implementation types...
     readIVar :: IVar v -> Eval v
     writeIVar :: IVar v -> v -> Eval ()
 
-Intuitively, ...
+Intuitively, (IVar VHash) is a container that can store a VHash.  However,
+instead of implementing all operations using readIVar and writeIVar, the
+"HashClass" interface defines more methods, with their fallback definitions:
 
-...gadt clarity wish rewrite simple but can't derive
-...hashtable vs tvar map for stm...
+    type HashIndex = VStr
+    class (Typeable a) => HashClass a where
+        hash_iType      :: a -> Type
+        hash_fetch      :: a -> Eval VHash
+        hash_fetchElem  :: a -> HashIndex -> Eval (IVar VScalar)
+        hash_fetchKeys  :: a -> Eval [HashIndex]
+        hash_deleteElem :: a -> HashIndex -> Eval ()
+        -- ...more methods...
+
+With this, we can use a singleton data type "IHashEnv" to represent the
+implementation type of the builtin variable "%ENV":
+
+    data IHashEnv = MkHashEnv deriving (Typeable)
+    instance HashClass IHashEnv where
+        hash_iType = const $ mkType "Hash::Env"
+        hash_fetch _ = do
+            envs <- liftIO getEnvironment
+            return . Map.map VStr $ Map.fromList envs
+        hash_deleteElem _ key = liftIO $ unsetEnv key
+        -- ...more implementations...
+
+Although it is possible to use existential quantification to achieve the same
+result, GADTs give us a much more straightward definition for the (IVar a)
+type.  Pugs developers new to Haskell often find GADTs easier to understand,
+even for regular algebraic data types:
+
+    data Maybe a where
+        Just    :: a -> Maybe a
+        Nothing :: Maybe a
+
+Unfortunately, we could not rewrite all data types in Pugs as GADTs, as GHC 6.4
+is unsable to derive Show and Eq for regular data types written this way.
 
 5.2. Composable Concurrency
 
+...ITypes for thread-local hashtable vs tvar map for shared variables...
 ...SIO, liftSTM/liftIO, atomic{}...
 ...mention that parrot also wants stm...
 ...can't imbue cont within atomic{}, so want reified subcont...
@@ -501,7 +535,7 @@ Intuitively, ...
 
 ...CC_2CPST, Zipper, resumable runEvalIO...
 ...template haskell...
-...mention parrot's continuation works...
+...mention parrot's Continuation PMC...
 
 ---------------------------------------------------------------------------
 
@@ -519,7 +553,7 @@ other languages.
 
 6.1. Perl 5
 
-...callconv, context passing, XS stack handling...
+...callconv, context passing, XS stack handling, refcounting GC...
 
 6.2. Haskell
 
@@ -527,7 +561,7 @@ other languages.
 
 6.3. Parrot
 
-...PIR overview, compreg, cross-lang interop...
+...PIR overview, compreg, cross-lang interop using Tcl as example...
 
 ---------------------------------------------------------------------------
 
