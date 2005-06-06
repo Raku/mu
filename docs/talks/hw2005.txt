@@ -469,7 +469,8 @@ can reuse libraries from an exisiting language.  As a Perl developer put it:
 
 Therefore, it is paramount for Pugs to support modules written in languages
 other than Perl 6.  As Pugs developers came from Perl 5, Haskell and Parrot
-backgrounds, support for them appeared in Pugs before other languages.
+backgrounds, those three were implemented as embedded languages in Pugs before
+other languages.
 
 6.1. Perl 5
 
@@ -487,8 +488,17 @@ backgrounds, support for them appeared in Pugs before other languages.
 
 7. Compiling Perl 6
 
-...lessons learned from embedding Parrot...
-...mixed notion of compile/runtime...
+Pugs was initially designed to evaluate the source code directly, without
+transforming the parse tree into other forms.  To turn a Perl 6 program into
+native executable, Pugs saves the parsed AST as a Haskell program, then use GHC
+to compile it and link with Pugs itself.  The resulting executable therefore
+runs with the same speed as before, saving only the parsing time.
+
+In April 2005, we added two independent compiler backends to Pugs to generate
+Parrot PIR and Haskell code respectively.  They only support a small subset of
+Pugs AST, but the generated code runs with speed comparable with Perl 5.  This
+initial result encouraged us to add more robust compiler to Pugs; in this
+section, we discuss our ongoing work in this area.
 
 7.1. Metacomputational Compilation
 
@@ -501,24 +511,34 @@ backgrounds, support for them appeared in Pugs before other languages.
 7.3. Other Backends
 
 ...generating haskell with TH, ANF/SSA...
-...maybe target C-- directly?...
+...maybe target LLVM/C-- directly?...
 
 ---------------------------------------------------------------------------
 
 8. Conclusion and Future Work
 
-...porting Pugs to perl 6, compiling Haskell to PIR...
-...also mention Jhc here...
+...Porting Pugs to Perl 6, compiling Haskell to PIR via Jhc...
+...Evolving Perl 6 into a true typeful dynamic language...
+
+The source code for Pugs is freely available at:
+
+    http://svn.openfoundry.org/pugs/
+
+For more information about Pugs, please refer to the Pugs homepage at
+http://pugscode.org/.
 
 ---------------------------------------------------------------------------
 
-9. Acknowledgments
+== Acknowledgments ==
 
-...thank some 100+ contributors here...
-...also thank proofreaders...
-...thank openfoundry too...
+I am deeply grateful to my fellow committers in the Pugs team.  Regrettably,
+I cannot list all 100+ names here; please refer to the AUTHORS file in the Pugs
+source tree instead.  Thanks also to all lambdacamels in the IRC channel
+irc.freenode.net/#perl6 for feedback on drafts.
 
----------------------------------------------------------------------------
+Moreover, I'd like to thank the OSSF project of Institution of Information
+Science, Academia Sinica, Taiwan, for providing development infrastructure and
+hosting for the Pugs project.
 
 == References ==
 
