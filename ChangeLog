@@ -22,6 +22,7 @@
 * Examples of various way to do arbitrarily nested loops 
   in `examples/nested_loops`
 * Unit manipulation and converstions examples in `units.p6`
+* Haskell Workshop paper on Pugs in `docs/talks/hw2005.txt`
 
 === Bug Fixes
 
