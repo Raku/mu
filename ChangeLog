@@ -2,12 +2,12 @@
 
 === Pugs Internals
 
-* Implemented `is required` for subroutine parameters.
-* `method foo ($.x) {}` now sets `$.x`.
-* Obsolete the old `open` builtin in favor of Prelude's `File::open`.
+* Implemented `is required` for subroutine parameters
+* `method foo ($.x) {}` now sets `$.x`
+* Obsolete the old `open` builtin in favor of Prelude's `File::open`
 * Speed up parsing for 2x by caching the dynamically-constructed
-  operator precedence tables, instead of relying on envStash to
-  rebuild them in each token.
+  operator precedence tables, instead of relying on `envStash` to
+  rebuild them on each token
 
 === Bundled Modules
 
@@ -26,12 +26,12 @@
 
 === Bug Fixes
 
-* Parse error inside blocks is now reported on the occuring
-  position instead of on the beginning of block.
-* Fixed `~{1=>2}` to stringify to "1\t2\n" correctly.   
-* `Test::is()` nows show the expected result correctly.
-* critical evals (`use`, `require`, `prelude`) now raise 
-  exceptions on comilation errors
+* Parse errors inside blocks are now reported on the occuring
+  position instead of on the beginning of block
+* Fixed `~{1=>2}` to stringify to `"1\t2\n"` correctly   
+* `Test::is()` now shows the expected result correctly again
+* Critical evals (`use`, `require`, `prelude`) now raise 
+  exceptions on compilation errors
 
 == Changes for 6.2.6 (r4318) - June 2, 2005
 

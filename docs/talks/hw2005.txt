@@ -473,7 +473,7 @@ as the "tie" function can change a container's implementation at runtime.  As
 such, a reference in Perl always points to a container, instead of a specific
 implementation object or a value.
 
-Thanks to GADTs, Pugs can conviently represent these levels of indirection,
+Thanks to GADTs, Pugs can conveniently represent these levels of indirection,
 as well as generic get/set operations on containers:
 
     type VHash = Map VStr Val
@@ -513,7 +513,7 @@ implementation type of the builtin variable "%ENV":
         -- ...more implementations...
 
 Although it is possible to use existential quantification to achieve the same
-result, GADTs give us a much more straightward definition for the (IVar a)
+result, GADTs give us a much more straightforward definition for the (IVar a)
 type.  Pugs developers new to Haskell often find GADTs easier to understand,
 even for regular algebraic data types:
 
@@ -522,7 +522,7 @@ even for regular algebraic data types:
         Nothing :: Maybe a
 
 Unfortunately, we could not rewrite all data types in Pugs as GADTs, as GHC 6.4
-is unsable to derive Show and Eq for regular data types written this way.
+is unable to derive Show and Eq for regular data types written this way.
 
 5.2. Composable Concurrency
 
