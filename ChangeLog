@@ -1,3 +1,37 @@
+== Changes for 6.2.7 (up to r4424) - June 6, 2005
+
+=== Pugs Internals
+
+* Implemented `is required` for subroutine parameters.
+* `method foo ($.x) {}` now sets `$.x`.
+* Obsolete the old `open` builtin in favor of Prelude's `File::open`.
+* Speed up parsing for 2x by caching the dynamically-constructed
+  operator precedence tables, instead of relying on envStash to
+  rebuild them in each token.
+
+=== Bundled Modules
+
+* New modules added:
+** `FindBin`
+** `File::Find`
+** `HTTP::Message`
+* Extended tests for `Tree`
+
+=== Tests, Examples and Documentations
+
+* Examples of various way to do arbitrarily nested loops 
+  in `examples/nested_loops`
+* Unit manipulation and converstions examples in `units.p6`
+
+=== Bug Fixes
+
+* Parse error inside blocks is now reported on the occuring
+  position instead of on the beginning of block.
+* Fixed `~{1=>2}` to stringify to "1\t2\n" correctly.   
+* `Test::is()` nows show the expected result correctly.
+* critical evals (`use`, `require`, `prelude`) now raise 
+  exceptions on comilation errors
+
 == Changes for 6.2.6 (r4318) - June 2, 2005
 
 === Pugs Internals
