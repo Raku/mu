@@ -140,9 +140,11 @@ distanceType tree base target = compareList l1 l2
     l1 = findList base tree
     l2 = findList target tree
 
+{-
 -- | (This is currently unused...)
 castOk :: a -> b -> Bool
 castOk _ _ = True
+-}
 
 {-|
 Take two inheritance chains produced by 'findList', and determine how
@@ -202,6 +204,7 @@ findList base (Node l cs)
     found :: [[Type]]
     found = map (findList base) cs
 
+{-
 {-|
 Pretty-print the initial class tree, using @Tree@'s @drawTree@.
 
@@ -209,6 +212,7 @@ Pretty-print the initial class tree, using @Tree@'s @drawTree@.
 -}
 prettyTypes :: String
 prettyTypes = drawTree $ fmap show initTree
+-}
 
 {-|
 Add a new \'top-level\' type to the class tree, under @Object@.
