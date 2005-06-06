@@ -270,10 +270,10 @@ As of this writing, both PGE and PAST are under active development.  A subset
 of Python's AST has been ported to Parrot, along with a yacc/lex-based parser
 for its concrete syntax.
 
-PGE can handle most static Rules constructs, but does not support calling
-out to other functions, so the parser returns only simple match objects, not
-AST nodes.  Because the Perl 6 grammar has not been specified in Rules, the
-planned Perl 6 compiler, based on PGE/PAST, is yet to be written.
+Currently, PGE can handle most static Rules constructs, but does not support
+calling out to other functions, so the parser returns only simple match
+objects, not AST nodes.  Because the Perl 6 grammar has not been specified in
+Rules, the planned Perl 6 compiler, based on PGE/PAST, is yet to be written.
 
 ---------------------------------------------------------------------------
 
@@ -544,7 +544,7 @@ way.
 
 New computer languages often suffer from a lack of available libraries.
 Conversely, programmers are much more likely to adopt a new language, if they
-can reuse libraries from an exiiting language.  As a Perl developer put it:
+can reuse libraries from an existing language.  As one Perl developer put it:
 "CPAN is my programming language of choice; the rest is just syntax."
 
 Therefore, it is paramount for Pugs to support modules written in languages
@@ -577,7 +577,7 @@ therefore runs with the same speed as before, saving only the parsing time.
 In April 2005, we added two independent compiler backends to Pugs to generate
 Parrot PIR and Haskell code respectively.  They only support a small subset of
 the Pugs AST, but the generated code runs with speed comparable with Perl 5.  
-This initial result encouraged us to add more robust compiler to Pugs; in this
+This initial result encouraged us to make Pugs a more robust compiler; in this
 section, we discuss our ongoing work in this area.
 
 7.1. Metacomputational Compilation
