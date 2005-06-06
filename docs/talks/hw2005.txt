@@ -283,7 +283,7 @@ When interpreting a Perl 6 program, Pugs first populates an evaluation
 environment with primitive bindings.  The parser takes the initial environment
 with the source code string, and computes a modified environment containing the
 parsed AST.  The evaluator then reduces the tree to its final value, in the
-standard call-by-value fashion.
+standard call-by-value order.
 
 4.1. The RuleParser Monad
 
@@ -365,16 +365,21 @@ value in the strict constructor "Val"; the result is not reused anywhere else.
 
 4.3. The Eval Monad
 
-In the code snippet above, runEvalIO enters the Eval monad from IO, and evalExp
-evaluates an AST of type "Exp".  Currently, we define the Eval monad as:
+The code snippet above uses "runEvalIO" to enter the Eval monad from IO.
+Inside the Eval monad, it calls "evalExp" to reduce the AST from Exp to Val:
+
+    runEvalIO :: Env -> Eval Val -> IO Val
+    evalExp :: Exp -> Eval Val
+
+Currently, we define the Eval monad as:
 
     type Eval x = EvalT (ContT Val (ReaderT Env SIO)) x
     newtype EvalT m a = EvalT { runEvalT :: m a }
     data SIO a = MkSTM !(STM a) | MkIO !(IO a) | MkSIO !a
 
-At the base level, the SIO monad encapsuates three types of computations:
-pure strict functions (MkSIO), actions that modifies memory storage (MkSTM),
-and IO actions with full side effects (MkIO).
+At the base level, the SIO monad encapsuates three strict types of
+computations: pure functions (MkSIO), actions that modifies memory storage
+(MkSTM), and IO actions with full side effects (MkIO).
 
 On top of SIO, a ReaderT monad transformer provides the evaluation environment 
 "Env".  We've chosen it over StateT, because ReaderT is very handy for
@@ -390,18 +395,18 @@ are stored as fields in the Env record structures:
 As such, sub-terms can override global bindings by writing to the shared
 TVar storage, but new lexical bindings will never leak out.
 
-We implement the control flow with the ContT monad transformer, so we can
-directly implement Perl 6's continuation and coroutine constructs.  Dynamic
-scope is represented as resetT/shiftT: calling a subroutine will push a
-new prompt via resetT, so we can simply express the "return" primitive as:
+We implement the control flow with the ContT monad transformer, because it
+can directly support Perl 6's continuation and coroutine constructs.  We
+represent the dynamic scope with resetT/shiftT: calling a subroutine will push
+a new prompt via resetT, so we can simply express the "return" primitive as:
 
     doReturn :: Val -> Eval a
-    doReturn val = shiftT $ \_ -> return val
+    doReturn = shiftT . const . return
 
 Finally, we layer a new transformer EvalT on top of ContT, so we can override
-the default "callCC", "ask" and "fail" definitions in the monad transformer
-library.  For example, our "fail" is defined like this to provide full stack
-trace and support user-defined error propagation logic:
+the monad transformer library's default "callCC", "ask" and "fail" definitions.
+For example, in order to provide full stack trace and support user-defined
+error propagation logic, "fail" is defined as below:
 
     fail :: String -> Eval a
     fail str = do
@@ -414,15 +419,29 @@ Evaluation inside the Eval monad is defined as:
     evalExp exp = do { evl <- asks envEval; evl exp }
 
 Here it makes use of the envEval field in the Env structure, which defines
-the active evaluator, of type !(Exp -> Eval Val).  This allows the user to
-change the reduction logic during evaluation, such as by adding watchpoints
-or profiling instrumentations.
+the active evaluator of type !(Exp -> Eval Val).  This allows the user to
+change the reduction logic during evaluation, such as by adding watchpoints or
+profiling instrumentations.
 
 ---------------------------------------------------------------------------
 
 5. Experimental Features 
 
-...GHC's peculiarities that helped Pugs development...
+Pugs depends on Glasgow Haskell Compiler (GHC), because GHC is the only widely
+available Haskell implementation that offers reasonable performance as a host
+language.  Because of that, we are able to improve clarity and efficiency in
+Pugs's source code with GHC-specific extensions, such as pattern guards,
+liberalised type synonyms and generalised derived instances for newtypes.
+
+GHC 6.4 was released in March 2005, one month after Pugs's inception.  Pugs
+dropped support for GHC 6.2 in the same month, as we found it difficult to
+keeping source code portable between GHC 6.2 and GHC 6.4, due to incompatible
+changes in Template Haskell, as well as new module interfaces for Data.Map and
+Data.Set.
+
+During the three months that followed, we explored GHC's new features to expand
+on Perl 6's existing design, with prototype implementations in Pugs.  Below we
+discuss three such experimental features.
 
 5.1. "Tied" Variables with GADT
 
@@ -431,16 +450,26 @@ or profiling instrumentations.
 5.2. Composable Concurrency
 
 ...SIO, liftSTM/liftIO, atomic{}...
+...mention that parrot also wants stm...
 
 5.3. Reified Subcontinuations
 
 ...CC_2CPST, Zipper, resumable runEvalIO...
+...template haskell...
+...mention parrot's continuation works...
 
 ---------------------------------------------------------------------------
 
 6. Embedded Languages
 
-...migration issues...
+New computer languages often suffer from a lack of available libraries.
+Conversely, programmers are much more likely to adopt a new language, if they
+can reuse libraries from an exisiting language.  As a Perl developer put it:
+"CPAN is my programming language of choice; the rest is just syntax."
+
+Therefore, it is paramount for Pugs to support modules written in languages
+other than Perl 6.  As Pugs developers came from Perl 5, Haskell and Parrot
+backgrounds, support for them appeared in Pugs before other languages.
 
 6.1. Perl 5
 
@@ -458,6 +487,7 @@ or profiling instrumentations.
 
 7. Compiling Perl 6
 
+...lessons learned from embedding Parrot...
 ...mixed notion of compile/runtime...
 
 7.1. Metacomputational Compilation
@@ -471,18 +501,22 @@ or profiling instrumentations.
 7.3. Other Backends
 
 ...generating haskell with TH, ANF/SSA...
+...maybe target C-- directly?...
 
 ---------------------------------------------------------------------------
 
 8. Conclusion and Future Work
 
 ...porting Pugs to perl 6, compiling Haskell to PIR...
+...also mention Jhc here...
 
 ---------------------------------------------------------------------------
 
 9. Acknowledgments
 
 ...thank some 100+ contributors here...
+...also thank proofreaders...
+...thank openfoundry too...
 
 ---------------------------------------------------------------------------
 
