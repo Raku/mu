@@ -217,13 +217,35 @@ Perl 6's Rules to Perl 5 regular expressions, then implementing the Perl 6 to
 Parrot compiler in Perl 5.  Finally, the compiler itself is translated to
 Perl 6, by instrumenting Perl 5's bytecode compiler to emit Perl 6 code.
 
+{-
+This was never the "plan" for Perl6::Rules. Perl6::Rules was not created to
+bootstrap Perl 6. It was created to explore and prototype the rule
+mechanism, and to make the new functionality and syntax available in Perl 5.
+-}
+
 Implementing Perl 6 rules as a Perl 5 module proved to be difficult; although
 Rules were defined in 2002, it took nearly two years for the first version of
 Perl6::Rules to appear.
 
+{-
+That does not accurately describe the events. Rules were first defined
+in 2002, but have continued to change until 2005. The first prototype of
+Perl6::Rules was written in mid-2003 (in a single week). Feedback from
+that prototype led to extensive modifications to the design, after which
+funding for a more complete prototype and test suite was granted in early
+2004. The second prototype was implemented in about 5 weeks, with the
+remaining two months of the project devoted to developing a test suite
+covering several thousand tests.
+-}
+
 The implementation relied on various experimental features in Perl 5's regular
 expression engine, and failed to work on newer Perl 5 revisions, rendering it
 unsuitable as a basis for implementing the parser for Perl 6.
+
+{-
+This is entirely factually correct, but I'm not sure anyone ever (reasonably)
+expected Perl6::Rules to provide that basis.
+-}
 
 3.2. P6C
 
@@ -295,11 +317,15 @@ parser monad is defined as:
         { ruleEnv           :: !Env         -- evaluation environment
         , ruleDynParsers    :: !DynParsers  -- cache for dynamic parsers
         }
+    data DynParsers = MkDynParsersEmpty | MkDynParsers
+        { dynParseOp       :: !(RuleParser Exp)
+        , -- ...more parsers...
+        }
 
-Here the "Char" token type is used to combine lexing and parsing into a single
-step.  We chose the name "RuleParser" in anticipation of compiling Rules into
+We chose the name "RuleParser" in anticipation of compiling Rules into
 Parsec combinators in the future, although currently the parser functions are
-written in Haskell.
+written in Haskell.  The "Char" token type is used to combine lexing and
+parsing into a single step.  
 
 Using Parsec's support for user-defined parser states, the parser maintains a
 RuleState containing an evaluation environment.  Compile-time bindings, such as
@@ -360,7 +386,7 @@ get to the evaluator:
         let val = unsafePerformIO $ runEvalIO $ evalExp exp
         return (Val val)
 
-The use of unsafePerformIO is "safe", because we immediately use its result
+The call to unsafePerformIO is "safe", because we immediately use its result
 value in the strict constructor "Val"; the result is not reused anywhere else.
 
 4.3. The Eval Monad
@@ -611,10 +637,11 @@ http://pugscode.org/.
 
 == Acknowledgments ==
 
-I am deeply grateful to my fellow committers in the Pugs team.  Regrettably,
-I cannot list all 100+ names here; please refer to the AUTHORS file in the Pugs
-source tree instead.  Thanks also to all lambdacamels in the IRC channel
-irc.freenode.net/#perl6 for feedback on drafts.
+I am deeply grateful to my fellow committers in the Pugs team.  Regrettably, I
+cannot list all 100+ names here; please refer to the AUTHORS file in the Pugs
+source tree instead.  Thanks also to all "lambdacamels" in the IRC channel
+irc.freenode.net/#perl6, as well as to the Perl 6 design team, for their
+feedback on drafts.
 
 Moreover, I'd like to thank the OSSF project of Institution of Information
 Science, Academia Sinica, Taiwan, for providing development infrastructure and
