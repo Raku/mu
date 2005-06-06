@@ -133,7 +133,7 @@ Perl 5 runtime inside Perl 6's runtime, or recompile them into Perl 6.
 2.2. Execution Model
 
 The Perl 6 project started with a "requirement analysis" phase; during this
-two-month period, 26 working groups produced 361 RFCs submissions as initial
+two-month period, 26 working groups produced 361 RFC submissions as initial
 input to the design team, calling for improved functional, object-oriented,
 concurrency-based, data-driven and logic programming support in the base
 language.  In order to support these requirements, the design team focused
@@ -146,7 +146,7 @@ macros known as "source filters", where a Perl module can transform the
 importing program's source code before its parsing.
 
 Many CPAN modules use source filters to implement Perl dialects and embedded
-domain-specific languages.  However, as the transformation happens on the
+domain-specific languages.  However, as the transformation operates on the
 source string level instead of the AST level, multiple filters cannot reliably
 work together.
 
@@ -187,13 +187,13 @@ source filter, or of "eval"ing the translated code in its own namespace.
 
 * Native call:  Statically compiled languages (such as C, C++ and assembly)
 are compiled into dynamically loaded shared libraries.  Inline.pm automatically
-generates wrappers to foreign functions; it also exports Perl's runtime API so
-the embedded language can also call functions defined in Perl.
+generates wrappers to call foreign functions; it also exports Perl's runtime
+API so the embedded language can call functions defined in Perl.
 
 * Runtime harness:  For languages with a rich runtime (e.g. Java and Python),
 Inline.pm will run them alongside Perl's own runtime, sharing the execution
 context in a coroutine-like fashion.  Types and global bindings are encoded
-both ways, so the Perl program can invoke a foreign object's methods and vice 
+both ways; the Perl program can invoke a foreign object's methods, and vice
 versa.
 
 In addition to these strategies, Perl 6 is also designed to run on a shared
@@ -214,33 +214,33 @@ briefly review various bootstrap strategies proposed over the years.
 
 The initial plan was to use Perl 5 as the host language: by first transforming
 Perl 6's Rules to Perl 5 regular expressions, then implementing the Perl 6 to
-Parrot compiler in Perl 5, and finally translating the compiler itself to Perl 6
-using a Perl 5 to Perl 6 translator, implemented as one of Perl 5's bytecode
-compiler backends.
+Parrot compiler in Perl 5.  Finally, the compiler itself is translated to
+Perl 6, by instrumenting Perl 5's bytecode compiler to emit Perl 6 code.
 
 Implementing Perl 6 rules as a Perl 5 module proved to be difficult; although
 Rules were defined in 2002, it took nearly two years for the first version of
-Perl6::Rules to appear.  The implementation relied on various experimental
-features in Perl 5's regular expression engine, and failed to work on newer
-Perl 5 revisions, rendering it unsuitable as a basis for implementing the
-parser for Perl 6.
+Perl6::Rules to appear.
+
+The implementation relied on various experimental features in Perl 5's regular
+expression engine, and failed to work on newer Perl 5 revisions, rendering it
+unsuitable as a basis for implementing the parser for Perl 6.
 
 3.2. P6C
 
 Started in 2002, P6C was the first concrete implementation of Perl 6, written
 in Perl 5, as one of the language prototypes in the Parrot codebase.  Due to
-the lack of Perl6::Rules, P6C uses Parse::RecDescent to construct a
+the lack of Perl6::Rules, P6C uses the Parse::RecDescent module to construct a
 recursive-descent parser for Perl 6.
 
 P6C's design is based on multiple passes on the parse tree.  In the first
 pass, Parse::RecDescent produces "raw parse objects": each node has a "tree" 
 method that turns itself to "op-tree objects", produced by recursively calling
-the "tree" method of its subnodes.  On the next pass, the compiler traverses
-the op-tree to annotate each term with its inferred type.  Finally, the "val"
-method is recursively called on each node, to produce the compiled code in
-PIR, a high-level assembly code for Parrot.
+the "tree" method on its subnodes.  On the next pass, the compiler traverses
+the op-tree to annotate each term with its inferred context.  Finally, the
+"val" method is recursively called on each node to produce the compiled code
+in PIR, a high-level assembly code for Parrot.
 
-Under that design, each term's reduction rules are hard-coded in assembly,
+Under that design, each term's reduction rules are hard-coded in PIR assembly,
 making it prohibitively difficult to reason about the execution.  Because P6C
 cannot check the resulting assembly code for correctness, subtle bugs often
 go unnoticed for a long time.
@@ -257,13 +257,13 @@ In February 2005, Perl 6 developers announced a revised bootstrapping plan,
 based on two new projects:
 
 * Parrot Grammar Engine (PGE), a compiler that takes Perl 6 Rules and
-  generates PIR functions that implement the parser.
+  generates the corresponding parser functions in PIR code.
 
 * Parrot Abstract Syntax Tree (PAST), a higher level representation
   of PIR programs as Parrot objects.
 
-The developers intend to define Perl 6's grammar as a set of Rules that
-produce Parrot AST objects.  Once PGE is capable of processing the rules, we can
+The developers intend to define Perl 6's grammar as a set of Rules that produce
+Parrot AST objects.  Once PGE is capable of processing those rules, one can
 reimplement PGE in Perl 6 to finish the bootstrapping process.
 
 As of this writing, both PGE and PAST are under active development.  A subset
@@ -281,9 +281,9 @@ planned Perl 6 compiler, based on PGE/PAST, is yet to be written.
 
 When interpreting a Perl 6 program, Pugs first populates an evaluation
 environment with primitive bindings.  The parser takes the initial environment
-and a source code string, yielding a modified environment containing the parsed
-AST.  The evaluator then reduces the tree to its final value, in the standard
-call-by-value order.
+with the source code string, and computes a modified environment containing the
+parsed AST.  The evaluator then reduces the tree to its final value, in the
+standard call-by-value fashion.
 
 4.1. The RuleParser Monad
 
@@ -291,14 +291,17 @@ Pugs's parser is based on Parsec, a monadic parser combinator library.  The
 parser monad is defined as:
 
     type RuleParser a = GenParser Char RuleState a
-    newtype RuleState = MkRuleState { ruleEnv :: Env }
+    data RuleState = MkRuleState
+        { ruleEnv           :: !Env         -- evaluation environment
+        , ruleOpParsers     :: !OpParsers   -- cache for dynamic parsers
+        }
 
 Here the "Char" token type is used to combine lexing and parsing into a single
 step.  We chose the name "RuleParser" in anticipation of compiling Rules into
 Parsec combinators in the future, although currently the parser functions are
 written in Haskell.
 
-Using Parsec's support for user-defined parser states, our parser maintains a
+Using Parsec's support for user-defined parser states, the parser maintains a
 RuleState containing an evaluation environment.  Compile-time bindings, such as
 declaration of new types and global functions, update this environment
 directly.
@@ -317,8 +320,9 @@ precedence table, we dynamically compute a table for each token:
         fun <- currentFunctions -- uses getRuleEnv
         ... build the operator table from functions ...
 
-To reduce needless recomputation, currentFunctions caches its result inside
-the RuleState, invalidating it whenever compile-time evaluation is performed.
+To reduce needless recomputation, we cache all such dynamically constructed
+parsers in the "ruleOpParsers" field.  This cache is cleared whenever a
+compile-time evaluation is performed.
 
 4.2. Compile-time Evaluation
 
@@ -333,10 +337,10 @@ is defined as equivalent to:
 
 Here the BEGIN block is evaluated as soon as it is parsed.  It constructs
 an anonymous subroutine, closing over the current lexical scope, then binds
-it to a variable; the "&" symbol (known as a "sigil") indicates that the
-variable implements a function.
+it to a package-wide variable.  The "&" sigil indicates that the variable
+implements a storage for functions.
 
-The BEGIN block may perform IO actions, for example, we may define a constant
+The BEGIN block may perform IO actions.  For example, we may define a constant
 function that returns the time it was parsed:
 
     sub compiled_at () { BEGIN { time() } }
