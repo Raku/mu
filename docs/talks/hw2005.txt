@@ -649,12 +649,42 @@ an "async" boundary:
     coro foo () { yield 1; yield 2 }
     async { say foo() }     # fails to resume foo's continuation context
 
-To solve this problem, we need to represent the execution context as a data
-structure.
+To solve this problem, we need to represent the continuation context as data
+structure.  Here we make use of the CC_2CPST monad from Oleg et al, based on Sabyr
+et all's "Monadic Structure for Subcontinuations":
 
-...CC_2CPST, Zipper, resumable runEvalIO...
-...template haskell...
-...mention parrot's Continuation PMC...
+    newtype Cont m r a b = Cont (a -> MC r m b)
+    newtype CC r m a = CC (forall b. Cont m r a b -> MC r m b)
+    newtype MC r m b = MC (forall ans. MetaCont r m b ans -> PromptTR.P r m ans)
+
+We further use Oleg's ZipperD design to represent the evaluation as a traversal
+on the Exp type, keeping the position as a [Direction] type:
+
+    evaluate :: Eval Exp -> Val
+    evaluate = runCC (...)
+
+This allows us to re-express the reduction logic as a traversal function over the
+Exp type. We can freely augment the AST with new nodes; each AST node's position
+is uniquely represented as a [Direction].
+
+Because the new Eval monad will update the cursor at each reduction step, we can
+define a pair of serialise/deserialize functions:
+
+    data EvalD = MkEvalD Exp Env [Direction]
+    reifyEval  :: Eval Val -> EvalD
+    runEval    :: EvalD -> Eval Val
+
+This "suspend to memory" capability is sufficient to make coroutines work across
+async{} calls.  We can even implement a "suspend to disk" feature, by snapshotting
+the values of all TVars in the Env structure into a byte-string image:
+
+    showEvalD  :: EvalD -> STM String
+    readEvalD  :: String -> STM EvalD
+
+This has many interesting applications, including Seaside-like web continuations.
+We'll update this space when we actually get this thing implemented...
+
+Oh also Parrot's Continuation PMC is happy and may be serialised too... tbdtbd
 
 ---------------------------------------------------------------------------
 
@@ -672,13 +702,49 @@ other languages.
 
 6.1. Perl 5
 
+Perl 5's embedding interface is quite straightforward:
+
+    ...
+
+Each side provide eval/apply pair, and a set of value casters:
+
+We use the "tie" structure in both sides... also propagate context bothways...
+addFinalizer for SvREFCNT_dec on PerlSV types... Perl5-side DESTROY calls
+freeStablePtr in the Haskell side...
+
 ...callconv, context passing, XS stack handling, refcounting GC...
 
 6.2. Haskell
 
+We use the builting Haskell parser to read function declarations, to generate wrappers
+ to Pugs's Val type:
+
+Evaluation of Haskell code in runtime is implemented with the System.Eval module
+in the hs-plugins package.  The evaluated code is first promoted to Dynamic, then
+typecased into Val using the Value type class.
+
 ...hs-plugins, externalizeHaskell, class Value...
 
 6.3. Parrot
+
+Parrot has this "compreg" function to define a function that can turn a source
+code string into a compile PMC.  Because Pugs can turn Perl 6 code into PIR
+(see next section), we define the compileToParrot function to be foreign exported
+to Parrot space:
+
+    _DoCompile :: Maybe (IORef (String -> FilePath -> String -> IO String))
+    _DoCompile = Just $ unsafePerformIO $ newIORef (error "unregistered")
+    compileToParrot :: ParrotInterp -> CString -> IO ParrotPMC
+    compileToParrot interp cstr = do
+        doCompile   <- readIORef (fromJust _DoCompile)
+        code        <- doCompile "Parrot" "-" =<< peekCString cstr
+        withCString code $ parrot_imcc_compile_pir interp
+    foreign import ccall "wrapper"
+        mkCompileCallback :: ParrotCompilerFunc -> IO (FunPtr ParrotCompilerFunc)
+
+Here the _DoCompile global variable is initialised in Main.hs; this is just
+to offer a way to import from Main without using mutual recursive modules --
+GHC 6.4's support for them is really spotty.
 
 ...PIR overview, compreg, cross-lang interop using Tcl as example...
 
@@ -699,6 +765,11 @@ This initial result encouraged us to make Pugs a more robust compiler; in this
 section, we discuss our ongoing work in this area.
 
 7.1. Metacomputational Compilation
+
+Because Monads encapsulate compuatations, a metacomputation is just a monad
+with a return type being another monad type:
+
+	Eval (Eval a)
 
 ...partial evaluation, Static/Dynam monads...
 
