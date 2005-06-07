@@ -79,7 +79,7 @@ sub new_bot(
 
   # Thin wrapper around $queue<enqueue>.
   # (Perl 6)++ for allowing me to define &subs easily. :)
-  my &enqueue = -> Str $msg {
+  sub enqueue (Str $msg) {
     $queue<enqueue>({ $say($msg) })
       if $connected;
   };
