@@ -27,12 +27,12 @@ multi submethod BUILD (HTTP::Headers $header, Str ?$content = "") {
     $:content = $content;
 }
 
-multi submethod BUILD (Hash $header, Str ?$content = "") {
-    $:headers = HTTP::Headers.new(*%$header);
+multi submethod BUILD (%header, Str ?$content = "") {
+    $:headers = HTTP::Headers.new(*%header);
     $:content = $content;
 }
 
-method parse ($self: Str $string) {
+method parse ($self: Str $string) returns HTTP::Headers {
     my %headers;
     
     my ($field, $value);
@@ -60,7 +60,7 @@ method parse ($self: Str $string) {
     return ::?CLASS.new(%headers, $string);
 }
 
-method clear ($self: ) {
+method clear ($self: ) returns Void {
     $self.:headers.clear();
     $self.content = '';
     $self.:parts = ();
@@ -104,7 +104,7 @@ method content ($self: Str ?$content) is rw {
               };
 }
 
-method :set_content ($self: Str ?$content, Bool ?$keep) {
+method :set_content ($self: Str ?$content, Bool ?$keep) returns Void {
     $:content = $content;
     @:parts = () unless $keep;
 }
@@ -145,7 +145,7 @@ method decoded_content ($self: ) {
     ...
 }
 
-method as_string ($self: Str ?$newline = "\n") {
+method as_string ($self: Str ?$newline = "\n") returns Str {
     my $content = $self.content;
     
     return ($self.headers.as_string($newline), $newline, ($content.chars && $content !~ m:P5/\n$/) ?? "\n" :: "" ).join("");
@@ -175,7 +175,7 @@ method parts ($self: *@new) is rw {
         }
 }
 
-method add_part ($self: ::?CLASS $part) {
+method add_part ($self: ::?CLASS $part) returns Void {
     if (($self.content_type // "") !~ m,^multipart/,) {
         my $message = ::?CLASS.new($self.remove_content_headers, $self.content(""));
         $self.content_type("multipart/mixed");
@@ -263,7 +263,7 @@ method :content ($self: ) {
     $self.:set_content("--$boundary$CRLF" ~ @parts.join("$CRLF--boundary$CRLF") ~ "$CRLF--$boundary$CRLF", 1);
 }
 
-method :boundary ($self: Num ?$size) {
+method :boundary ($self: Num ?$size) returns Str {
     if (!$size) { return "xYzZY"; }
     
     my $b;
