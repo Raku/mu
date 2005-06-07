@@ -16,6 +16,7 @@
 ** `FindBin`
 ** `File::Find`
 ** `HTTP::Message`
+** `POE` (experimental)
 * Extended tests for `Tree`
 
 === Tests, Examples and Documentations
