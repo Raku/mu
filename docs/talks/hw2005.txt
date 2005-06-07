@@ -556,8 +556,8 @@ explicit locks to avoid race conditions.
 
 However, because many programs and modules relied on global variables, this
 share-everything design caused massive synchronisation problems in real-world
-settings.  Moreover, this model was deemed too difficult to port to Win32, due
-to its reliance on the underlying system threads.
+settings.  Moreover, it put locks around all internal access to variables,
+which hurts runtime performance even when there is only a single thread.
 
 In 2000, Perl 5.6 introduced a new "share nothing by default" threading model,
 known as "interpreter threads" or "ithreads".  When the program spawns a
@@ -569,7 +569,7 @@ This design presents an unified interface for various underlying threading
 libraries, including POSIX and non-POSIX threads, or even simulated via fork()
 and sockets.  The main drawback of ithreads is the overhead of copying the
 entire interpreter's state upon thread creation.  There are plans to use
-copy-on-write to reduce this overhead, but it has yet to be implemented.
+copy-on-write to reduce this overhead, but that is still being implemented.
 
 GHC 6.4 introduced Software Transaction Memory (STM), an abstraction that
 allows the programmer to define "atomic" functions which are free from
@@ -638,7 +638,7 @@ Prompted by our success in introducing STM to Pugs, Parrot developers are
 working to integrate STM support into the virtual machine, so Perl 6 programs
 compiled to run on Parrot can continue to take advantage of STM.
 
-5.3. Reified Subcontinuations
+5.3. Reified Continuations
 
 In the previous subsection, we see how Pugs uses runEvalIO and runEvalSTM to
 resume execution from the IO and STM monad.  Unfortunately, although both can
@@ -646,7 +646,7 @@ restore the evaluation environment "env", they invalidate previously captured
 continuations by starting a new runContT, rendering coroutines unusable across
 an "async" boundary:
 
-    coro foo { yield 1; yield 2 }
+    coro foo () { yield 1; yield 2 }
     async { say foo() }     # fails to resume foo's continuation context
 
 To solve this problem, we need to represent the execution context as a data
