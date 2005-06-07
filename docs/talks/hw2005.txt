@@ -401,16 +401,12 @@ Currently, we define the Eval monad as:
 
     type Eval x = EvalT (ContT Val (ReaderT Env SIO)) x
     newtype EvalT m a = EvalT { runEvalT :: m a }
-    data SIO a = MkSTM !(STM a) | MkIO !(IO a) | MkSIO !a
 
-At the base level, the SIO monad encapsulates three types of strict
-computations: pure functions (MkSIO), actions that modify memory storage
-(MkSTM), and IO actions with full side effects (MkIO).
-
-On top of SIO, a ReaderT monad transformer provides the evaluation environment,
-"Env".  We chose ReaderT over StateT, because ReaderT facilitates lexical
-bindings to sub-terms.  Lexical and global symbol bindings are stored as fields
-in the Env record structures:
+The SIO is an abstraction over IO and STM computations; we will discuss it in
+section 5.2.  On top of SIO, a ReaderT monad transformer provides the
+evaluation environment, "Env".  We chose ReaderT over StateT, because ReaderT
+facilitates lexical bindings to sub-terms.  Lexical and global symbol bindings
+are stored as fields in the Env record structures:
 
     data Env = MkEnv
         { envLexical :: !Pad
@@ -573,18 +569,88 @@ This design presents an unified interface for various underlying threading
 libraries, including POSIX and non-POSIX threads, or even simulated via fork()
 and sockets.  The main drawback of ithreads is the overhead of copying the
 entire interpreter's state upon thread creation.  There are plans to use
-copy-on-write (COW) to reduce this overhead, but it is yet to be implemented.
+copy-on-write to reduce this overhead, but it has yet to be implemented.
 
 GHC 6.4 introduced Software Transaction Memory (STM), an abstraction that
-allows the programmer to define "atomic" functions free from deadlocks and race
-conditions.
+allows the programmer to define "atomic" functions which are free from
+deadlocks and races.  The Perl 6 code below illustrates this idea with a
+classic race condition:
 
-...ITypes for thread-local hashtable vs tvar map for shared variables...
-...SIO, liftSTM/liftIO, atomic{}...
-...mention that parrot also wants stm...
-...can't imbue cont within atomic{}, so want reified subcont...
+    my $a is shared = 1;
+    async { atomically { my $b = $a; $a = $b + 1 } };
+    async { atomically { my $c = $a; $a = $c + 1 } };
+    say $a;     # This always prints 3
+
+STM provides an excellent foundation for Pugs to experiment with Perl 6's
+concurrency features.  By using TVar instead of IORef as containers, we can
+implement the share-everything model natively without fear of synchronisation
+problems, or adopt the share-nothing model with robust copy-on-write semantics.
+
+To implement "atomically" for Perl 6, we introduce the SIO monad, as well as
+the MonadSTM type class for lifting STM actions:
+
+    data SIO a = MkSTM !(STM a) | MkIO !(IO a) | MkSIO !a
+    class (Monad m) => MonadSTM m where
+        liftSTM :: STM a -> m a
+    instance Monad SIO where
+        return a = MkSIO a
+        (MkIO io)   >>= k = MkIO $ do { a <- io; runIO (k a) }
+        (MkSTM stm) >>= k = MkSTM $ do { a <- stm; runSTM (k a) }
+        (MkSIO x)   >>= k = k x
+    instance MonadSTM SIO where
+        liftSTM stm = MkSTM stm
+
+The SIO monad encapsulates three types of strict computations: pure functions
+(MkSIO), actions that modify memory storage (MkSTM), and IO actions with full
+side effects (MkIO).  We use the runIO and runSTM functions to convert SIO
+computations to IO and STM ones: one can safely lift STM actions into the IO
+monad with GHC's "atomically" function, but casting IO actions to STM will
+throw an exception:
+
+    runIO (MkSTM stm)   = atomically stm
+    runSTM (MkIO _)     = fail "Unsafe IO caught in STM"
+
+With this definition, we can implement the "atomically" primitive by imposing a
+"safe mode" that denies all IO actions inside it:
+
+    runEvalSTM :: Env -> Eval Val -> STM Val
+    runEvalSTM env = runSTM . (`runReaderT` env) . (`runContT` return) . runEvalT
+    opRunAtomically :: Exp -> Eval Val
+    opRunAtomically exp = do
+        env     <- ask
+        liftSTM (runEvalSTM env $ evalExp exp)
+
+The "async" primitive also becomes trivial to implement:
+
+    runEvalIO :: Env -> Eval Val -> IO Val
+    runEvalIO env = runIO . (`runReaderT` env) . (`runContT` return) . runEvalT
+    opRunAsync :: Exp -> Eval Val
+    opRunAsync exp = do
+        env     <- ask
+        lock    <- liftSTM newEmptyTMVar
+        tid     <- liftIO . (if rtsSupportsBoundThreads then forkOS else forkIO) $ do
+            val <- runEvalIO env $ evalExp exp
+            liftSTM $ tryPutTMVar lock val
+            return ()
+        return $ VThread (MkThread tid lock)
+
+Prompted by our success in introducing STM to Pugs, Parrot developers are
+working to integrate STM support into the virtual machine, so Perl 6 programs
+compiled to run on Parrot can continue to take advantage of STM.
 
 5.3. Reified Subcontinuations
+
+In the previous subsection, we see how Pugs uses runEvalIO and runEvalSTM to
+resume execution from the IO and STM monad.  Unfortunately, although both can
+restore the evaluation environment "env", they invalidate previously captured
+continuations by starting a new runContT, rendering coroutines unusable across
+an "async" boundary:
+
+    coro foo { yield 1; yield 2 }
+    async { say foo() }     # fails to resume foo's continuation context
+
+To solve this problem, we need to represent the execution context as a data
+structure.
 
 ...CC_2CPST, Zipper, resumable runEvalIO...
 ...template haskell...
@@ -638,6 +704,7 @@ section, we discuss our ongoing work in this area.
 
 7.2. Targeting Parrot
 
+...implement STM on Parrot VM as well...
 ...optimization, unboxing, helper PMCs...
 
 7.3. Other Backends
