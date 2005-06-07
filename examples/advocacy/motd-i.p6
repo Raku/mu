@@ -48,7 +48,7 @@ while $keyed = =$*IN {
 	@list      = (*@keyed_args , *@list);
 	%tally     = whisper_about $surveyed,*@list ;
 	$most = %tally.values.max;
-	tell @mostsaid(); 
+	tell(@mostsaid()); 
 	@keyed_args.perl.say;
 }
 

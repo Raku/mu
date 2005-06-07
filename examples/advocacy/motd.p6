@@ -31,5 +31,5 @@ my &tell = -> $max {
 		}."
 };
 
-tell $limit; 
+tell($limit); 
 
