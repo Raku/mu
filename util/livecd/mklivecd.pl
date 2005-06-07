@@ -64,7 +64,7 @@ my $lib6         = "../../blib6/lib";
 my $initrd_gz    = "initrd.gz";
 my $initrd_img   = "initrd.img";
 my $initrd_mnt   = "/mnt/loop0";
-my $initrd_size  = int 23.0 * 1024;
+my $initrd_size  = int 10.5 * 1024;
 my $cdroot       = "cdroot";
 my $iso          = "cd.iso";
 
@@ -312,6 +312,7 @@ HELP
   );
   step
     descr  => "Copying Pugs, Parrot, Bash, inputrc, the terminfo description, linuxrc, and welcome.p6 to the initrd",
+    help   => "Note: You might want to strip pugs and parrot to safe space.",
     ensure => sub {
       for(@files) {
 	my ($src, $dest) = @$_;
