@@ -212,47 +212,26 @@ briefly review various bootstrap strategies proposed over the years.
 
 3.1. Perl6::Rules
 
-The initial plan was to use Perl 5 as the host language: by first transforming
-Perl 6's Rules to Perl 5 regular expressions, then implementing the Perl 6 to
-Parrot compiler in Perl 5.  Finally, the compiler itself is translated to
-Perl 6, by instrumenting Perl 5's bytecode compiler to emit Perl 6 code.
+The initial plan was to use Perl 5 for bootstrapping: First write the Perl 6 to
+Parrot compiler in Perl 5, then translate the compiler itself to Perl 6 by
+instrumenting Perl 5's bytecode compiler to emit Perl 6 code.
 
-{-
-This was never the "plan" for Perl6::Rules. Perl6::Rules was not created to
-bootstrap Perl 6. It was created to explore and prototype the rule
-mechanism, and to make the new functionality and syntax available in Perl 5.
--}
+To explore and prototype Perl 6's Rules mechanism, Damian Conway implemented
+Perl6::Rules, a Perl 5 module that translates Perl 6 Rules into Perl 5's
+regular expressions.  An unreleased prototype was written in 2003, which led to
+extensive modifications to the design of Rules.
 
-Implementing Perl 6 rules as a Perl 5 module proved to be difficult; although
-Rules were defined in 2002, it took nearly two years for the first version of
-Perl6::Rules to appear.
-
-{-
-That does not accurately describe the events. Rules were first defined
-in 2002, but have continued to change until 2005. The first prototype of
-Perl6::Rules was written in mid-2003 (in a single week). Feedback from
-that prototype led to extensive modifications to the design, after which
-funding for a more complete prototype and test suite was granted in early
-2004. The second prototype was implemented in about 5 weeks, with the
-remaining two months of the project devoted to developing a test suite
-covering several thousand tests.
--}
-
-The implementation relied on various experimental features in Perl 5's regular
-expression engine, and failed to work on newer Perl 5 revisions, rendering it
+In 2004, Conway released a revised version of Perl6::Rules.  The implementation
+relied on various experimental features in Perl 5's regular expression engine,
+which failed to work on newer Perl 5 revisions, rendering Perl6::Rules
 unsuitable as a basis for implementing the parser for Perl 6.
-
-{-
-This is entirely factually correct, but I'm not sure anyone ever (reasonably)
-expected Perl6::Rules to provide that basis.
--}
 
 3.2. P6C
 
-Started in 2002, P6C was the first concrete implementation of Perl 6, written
-in Perl 5, as one of the language prototypes in the Parrot codebase.  Due to
-the lack of Perl6::Rules, P6C uses the Parse::RecDescent module to construct a
-recursive-descent parser for Perl 6.
+Started in 2002, P6C was the first concrete implementation of Perl 6.  It is
+written in Perl 5 and distributed as one of the language prototypes in the
+Parrot codebase.  Instead of Perl6::Rules, P6C uses the Parse::RecDescent
+module to construct a recursive-descent parser for Perl 6.
 
 P6C's design is based on multiple passes on the parse tree.  In the first
 pass, Parse::RecDescent produces "raw parse objects": each node has a "tree" 
