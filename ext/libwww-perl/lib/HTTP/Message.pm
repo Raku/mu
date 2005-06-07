@@ -28,7 +28,7 @@ multi submethod BUILD (HTTP::Headers $header, Str ?$content = "") {
 }
 
 multi submethod BUILD (Hash $header, Str ?$content = "") {
-    $:headers = HTTP::Headers.new($header);
+    $:headers = HTTP::Headers.new(*%$header);
     $:content = $content;
 }
 
@@ -94,7 +94,7 @@ method content ($self: Str ?$content) is rw {
                     $old = $$old if $old.ref eq "Scalar";
                 }
                 
-                $self.:content = $content;
+                $:content = $content;
                 
                 $self.parts = () if $del;
                 
