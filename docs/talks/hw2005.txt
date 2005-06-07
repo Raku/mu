@@ -466,9 +466,10 @@ keep source code portable between GHC 6.2 and GHC 6.4. This was due to
 incompatible changes in Template Haskell, as well as new module interfaces 
 for Data.Map and Data.Set.
 
-During the three months that followed, we explored GHC's new features to expand
-Perl 6's current design, demonstrated with prototype implementations in Pugs.
-Below we discuss three such experimental features.
+During the three months that followed, we explored GHC's new features to
+clarify and expand on Perl 6's current design, demonstrated with prototype
+implementations in Pugs.  Below we discuss three such uses of GHC's
+experimental features.
 
 5.1. "Tied" Variables with GADTs
 
@@ -552,6 +553,31 @@ Unfortunately, we could not rewrite all the data types in Pugs as GADTs, as GHC
 6.4 is unable to derive Show and Eq for regular data types written this way.
 
 5.2. Composable Concurrency
+
+In 1998, Malcolm Beattie implemented threading support for Perl 5.  This design
+is based on sharing all visible variables across child threads, relying on
+explicit locks to avoid race conditions.
+
+However, because many programs and modules relied on global variables, this
+share-everything design caused massive synchronisation problems in real-world
+settings.  Moreover, this model was deemed too difficult to port to Win32, due
+to its reliance on the underlying system threads.
+
+In 2000, Perl 5.6 introduced a new "share nothing by default" threading model,
+known as "interpreter threads" or "ithreads".  When the program spawns a
+thread, all global and lexical variables are copied to a new interpreter in the
+child thread.  To share a variable, one needs to mark it explicitly, using the
+"tie" mechanism to connect it to a storage object visible across threads.
+
+This design presents an unified interface for various underlying threading
+libraries, including POSIX and non-POSIX threads, or even simulated via fork()
+and sockets.  The main drawback of ithreads is the overhead of copying the
+entire interpreter's state upon thread creation.  There are plans to use
+copy-on-write (COW) to reduce this overhead, but it is yet to be implemented.
+
+GHC 6.4 introduced Software Transaction Memory (STM), an abstraction that
+allows the programmer to define "atomic" functions free from deadlocks and race
+conditions.
 
 ...ITypes for thread-local hashtable vs tvar map for shared variables...
 ...SIO, liftSTM/liftIO, atomic{}...
