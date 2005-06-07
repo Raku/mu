@@ -36,6 +36,7 @@ import Prelude hiding ( exp )
 import qualified Data.Map as Map
 
 import Pugs.AST
+import Pugs.AST.Internals
 import Pugs.Junc
 import Pugs.Bind
 import Pugs.Prim
@@ -225,8 +226,23 @@ findVarRef name
             Just val -> do
                 tvar <- liftSTM $ newTVar (MkRef . constScalar $ val)
                 return $ Just tvar
+    | "%" <- name = do
+        {- %CALLER::, %OUTER::, %Package::, etc, all recurse to here. -}
+        pad <- asks envLexical
+        let plist   = padToList pad
+        hlist <- mapM padEntryToHashEntry plist
+        let hash    = IHash $ Map.fromList hlist
+        let hashref = MkRef hash
+        tvar <- liftSTM $ newTVar hashref
+        return $ Just tvar
     | otherwise = doFindVarRef name
     where
+    padEntryToHashEntry :: (Var, [(TVar Bool, TVar VRef)]) -> Eval (VStr, Val)
+    padEntryToHashEntry (key, (_, tvref) : _) = do
+        vref   <- liftSTM (readTVar tvref)
+        let val = VRef vref
+        return (key, val)
+    padEntryToHashEntry (key, []) = do fail "Nonexistant var in pad?"
     doFindVarRef :: Var -> Eval (Maybe (TVar VRef))
     doFindVarRef name = do
         callCC $ \foundIt -> do
@@ -904,7 +920,10 @@ cxtOfExp (App (Var name) invs args)   = do
         _ -> cxtSlurpyAny
 cxtOfExp _                      = return cxtSlurpyAny
 
-findSub :: String -> Maybe Exp -> [Exp] -> Eval (Maybe VCode)
+findSub :: String     -- | Name, with leading &.
+        -> Maybe Exp  -- | Invocant
+        -> [Exp]      -- | Other arguments
+        -> Eval (Maybe VCode)
 findSub name' invs args = do
     let name = possiblyFixOperatorName name'
     case invs of

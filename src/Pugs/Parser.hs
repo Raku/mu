@@ -1349,8 +1349,10 @@ ruleVarNameString =   try (string "$!")  -- error variable
     if sigil == '&' then ruleSubName else do
     --  ^ placeholder, * global, ? magical, . member, : private member
     twigil  <- ruleTwigil
-    names   <- many1 wordAny `sepBy1` (try $ string "::")
-    return $ (sigil:twigil) ++ concat (intersperse "::" names)
+    names   <- many wordAny `sepBy1` (try $ string "::")
+    case names of
+        [""] -> fail "Empty variable name"
+        _    -> return $ (sigil:twigil) ++ concat (intersperse "::" names)
 
 ruleTwigil :: RuleParser String
 ruleTwigil = option "" . choice . map string $ words " ^ * ? . : "
