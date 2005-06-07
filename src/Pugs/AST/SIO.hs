@@ -14,7 +14,7 @@ data SIO a = MkSTM !(STM a) | MkIO !(IO a) | MkSIO !a
 
 runSTM :: SIO a -> STM a
 runSTM (MkSTM stm)  = stm
-runSTM (MkIO _ )    = fail "Unsafe IO caught in STM"
+runSTM (MkIO _)     = fail "Unsafe IO caught in STM"
 runSTM (MkSIO x)    = return x
 
 runIO :: SIO a -> IO a

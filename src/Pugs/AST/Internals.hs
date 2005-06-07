@@ -1077,7 +1077,7 @@ runEvalSTM :: Env -> Eval Val -> STM Val
 runEvalSTM env = runSTM . (`runReaderT` env) . (`runContT` return) . runEvalT
 
 runEvalIO :: Env -> Eval Val -> IO Val
-runEvalIO env action = runIO . (`runReaderT` env) . (`runContT` return) . runEvalT $ action
+runEvalIO env = runIO . (`runReaderT` env) . (`runContT` return) . runEvalT
 
 {-|
 'shiftT' is like @callCC@, except that when you activate the continuation
