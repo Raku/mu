@@ -1568,7 +1568,12 @@ qInterpolator flags = choice [
 qLiteral :: RuleParser Exp
 qLiteral = do -- This should include q:anything// as well as '' "" <>
     (qStart, qEnd, flags) <- getQDelim
-    qLiteral1 qStart qEnd flags
+    if not (qfHereDoc flags) then
+        qLiteral1 qStart qEnd flags
+      else do -- XXX an ugly kludge providing crude heredocs
+        endMarker <- (liftM (string) $ many1 wordAny)
+        qEnd; ruleWhiteSpaceLine
+        qLiteral1 (string "never match rb89fjLS") endMarker flags
 
 qLiteral1 :: RuleParser String    -- Opening delimiter
 	     -> RuleParser String -- Closing delimiter
@@ -1651,6 +1656,7 @@ data QFlags = MkQFlags
     , qfInterpolateBackslash    :: !QB_Flag -- No, Single, All
     , qfProtectedChar           :: !Char
     , qfP5RegularExpression     :: !Bool
+    , qfHereDoc                 :: !Bool
     , qfFailed                  :: !Bool -- Failed parse
     }
     deriving (Show, Eq, Ord, Typeable)
@@ -1676,6 +1682,8 @@ getQFlags flagnames protectedChar =
           useflag "closure" qf    = qf { qfInterpolateClosure = True }
           useflag "b" qf          = qf { qfInterpolateBackslash = QB_All }
           useflag "backslash" qf  = qf { qfInterpolateBackslash = QB_All }
+          useflag "t" qf          = qf { qfHereDoc = True }
+          useflag "to" qf         = qf { qfHereDoc = True }
 
         -- Zeroing flags
           useflag "0" _           = rawFlags
@@ -1736,19 +1744,19 @@ getQDelim = try qStructure
 
 -- | Default flags
 qFlags    :: QFlags
-qFlags    = MkQFlags QS_No False False False False False QB_Single '\'' False False
+qFlags    = MkQFlags QS_No False False False False False QB_Single '\'' False False False
 -- | Default flags
 qqFlags   :: QFlags
-qqFlags   = MkQFlags QS_No True True True True True QB_All '"' False False
+qqFlags   = MkQFlags QS_No True True True True True QB_All '"' False False False
 -- | Default flags
 rawFlags  :: QFlags
-rawFlags  = MkQFlags QS_No False False False False False QB_No 'x' False False
+rawFlags  = MkQFlags QS_No False False False False False QB_No 'x' False False False
 -- | Default flags
 rxP5Flags :: QFlags
-rxP5Flags = MkQFlags QS_No True True True True False QB_No '/' True False
+rxP5Flags = MkQFlags QS_No True True True True False QB_No '/' True False False
 -- | Default flags
 rxP6Flags :: QFlags
-rxP6Flags = MkQFlags QS_No False False False False False QB_No '/' False False
+rxP6Flags = MkQFlags QS_No False False False False False QB_No '/' False False False
 
 -- Regexps
 
