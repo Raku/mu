@@ -121,22 +121,22 @@ instance HashClass PerlSV where
     hash_iType = const $ mkType "Hash::Perl"
     hash_fetchVal sv key = do
         keySV   <- fromVal $ castV key
-        evalPerl5Sub "sub { $_[0]->{$_[1]} }" [sv, keySV]
+        perl5EvalApply "sub { $_[0]->{$_[1]} }" [sv, keySV]
     hash_clear sv = do
-        evalPerl5Sub "sub { undef %{$_[0]} }" [sv]
+        perl5EvalApply "sub { undef %{$_[0]} }" [sv]
         return ()
     hash_storeVal sv key val = do
         keySV   <- fromVal $ castV key
         valSV   <- fromVal val
-        evalPerl5Sub "sub { $_[0]->{$_[1]} = $_[2] }" [sv, keySV, valSV]
+        perl5EvalApply "sub { $_[0]->{$_[1]} = $_[2] }" [sv, keySV, valSV]
         return ()
     hash_fetchKeys sv = do
-        keysSV  <- evalPerl5Sub "sub { join $/, keys %{$_[0]} }" [sv]
+        keysSV  <- perl5EvalApply "sub { join $/, keys %{$_[0]} }" [sv]
         keysStr <- fromVal keysSV
         return $ lines keysStr
     hash_deleteElem sv key = do
         keySV   <- fromVal $ castV key
-        evalPerl5Sub "sub { delete $_[0]->{$_[1]} }" [sv, keySV]
+        perl5EvalApply "sub { delete $_[0]->{$_[1]} }" [sv, keySV]
         return ()
     hash_isEmpty sv = do
-        fromVal =<< evalPerl5Sub "sub { !!%{$_[0]} }" [sv]
+        fromVal =<< perl5EvalApply "sub { !!%{$_[0]} }" [sv]

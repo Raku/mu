@@ -3,14 +3,14 @@
 {-|
     The Main REPL loop.
 
->   A ship then new they built for him
->   Of mithril and of elven-glass
->   With shining prow; no shaven oar
->   Nor sail she bore on silver mast;
->   The Silmaril as lantern light
->   And banner bright with living flame
->   To gleam thereon by Elbereth
->   Herself was set, who thither came...
+>   Sie bauten ihm ein neues Schiff
+>   Aus Mithril und aus Elbenglas
+>   Mit stolzem Bug, doch ruderlos,
+>   Mit Silbermast, doch ohne Tuch,
+>   Und Elbereth kam selbst herab:
+>   Sie schuf dem Schiff den Silmaril
+>   Zum Banner, ein lebendiges Licht,
+>   Ein heller Schein, der nie verblaßt...
 
 -}
 

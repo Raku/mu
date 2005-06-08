@@ -250,8 +250,8 @@ instance ArrayClass (IVar VPair) where
     array_storeElem a _ _  = retConstError $ VStr $ show a
     array_deleteElem a _   = retConstError $ VStr $ show a
 
-evalPerl5Sub :: String -> [PerlSV] -> Eval Val
-evalPerl5Sub code args = do
+perl5EvalApply :: String -> [PerlSV] -> Eval Val
+perl5EvalApply code args = do
     env <- ask
     rv  <- liftIO $ do
         envSV <- mkVal env
@@ -265,16 +265,16 @@ instance ArrayClass PerlSV where
     array_iType = const $ mkType "Array::Perl"
     array_fetchVal sv idx = do
         idxSV   <- fromVal $ castV idx
-        evalPerl5Sub "sub { $_[0]->[$_[1]] }" [sv, idxSV]
+        perl5EvalApply "sub { $_[0]->[$_[1]] }" [sv, idxSV]
     array_clear sv = do
-        evalPerl5Sub "sub { undef @{$_[0]} }" [sv]
+        perl5EvalApply "sub { undef @{$_[0]} }" [sv]
         return ()
     array_storeVal sv idx val = do
         idxSV   <- fromVal $ castV idx
         valSV   <- fromVal val
-        evalPerl5Sub "sub { $_[0]->[$_[1]] = $_[2] }" [sv, idxSV, valSV]
+        perl5EvalApply "sub { $_[0]->[$_[1]] = $_[2] }" [sv, idxSV, valSV]
         return ()
     array_deleteElem sv idx = do
         idxSV   <- fromVal $ castV idx
-        evalPerl5Sub "sub { delete $_[0]->[$_[1]] }" [sv, idxSV]
+        perl5EvalApply "sub { delete $_[0]->[$_[1]] }" [sv, idxSV]
         return ()
