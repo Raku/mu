@@ -1,7 +1,7 @@
 use v6;
 
 class Unit {
-    has $.q   is rw; #was 'value' but that caused chaos with internal val sub
+    has $.q   is rw; 
     method set    ($self: Int $value) { $.q = $value; $self; };
     method string ($self:) { return $self.q ~ "`" ~ $self.abbreviation }
 }
@@ -14,6 +14,7 @@ class Feet is Distance {
         given $newUnit {
             when .does('Feet') { return Feet.new(:q($.q)           );}
             when .does('Meter'){ return Feet.new(:q($.q * 0.3048)  );}
+            default { ... }            
         }
     }
 }
@@ -24,6 +25,7 @@ class Meter is Distance {
         given $newUnit {
             when .does('Meter') { return Meter.new(:q($.q)         );}
             when .does('Feet')  { return Meter.new(:q($.q / 0.3048));}
+            default { ... }
         }
     }
 }
@@ -33,10 +35,15 @@ sub M () returns Unit { Meter.new()};
 
 multi sub *postfix:<~> (Unit $unit) { $unit.string; }
 multi sub *infix:<`>   (Int $value, Unit $unit) { $unit.set($value); };
+
+    
 multi sub *infix:<+>   (Distance $a, Distance $b) {
    my $new = $a.clone;
-   $new.say;
-   $new.set($a.q + $b.to($a).q);
+#   return $new.set($a.q + $b.to($a).q);
+   my $temp = $b.to($a);
+   $temp = $temp.q;
+   # $new.set( $a.q + $temp.q );
+   $new.set( $a.q + $temp );
    return $new;
 } 
 
