@@ -846,6 +846,10 @@ op2 "unshift" = op2Array array_unshift
 op2 "push" = op2Array array_push
 op2 "split" = op2Split
 op2 "Scalar::split" = flip op2Split
+op2 "Scalar::as" = \x y -> do
+    str <- fromVal x :: Eval VStr
+    fmt <- fromVal y
+    return $ VStr (printf fmt str)
 op2 "connect" = \x y -> do
     host <- fromVal x
     port <- fromVal y
@@ -1576,6 +1580,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Str       pre     Code::assoc   safe   (Code:)\
 \\n   Code::Exp pre     Code::body    safe   (Code:)\
 \\n   Str       pre     Code::pos     safe   (Code:)\
+\\n   Str       pre     Scalar::as    safe   (Scalar: Str)\
 \\n   IO::Dir   pre     opendir    unsafe (Str)\
 \\n   Str       pre     IO::Dir::readdir    unsafe (IO::Dir)\
 \\n   List      pre     IO::Dir::readdir    unsafe (IO::Dir)\
