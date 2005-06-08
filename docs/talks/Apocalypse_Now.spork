@@ -1,0 +1,759 @@
+----
+presentation_topic: Apocalypse Now
+presentation_title: Perl 6 is Here Today
+presentation_place: http://autrijus.org/apoc/start.html
+presentation_date: June 9th, 2005
+----
+
+    Sie bauten ihm ein neues Schiff
+    Aus Mithril und aus Elbenglas
+    Mit stolzem Bug, doch ruderlos,
+    Mit Silbermast, doch ohne Tuch,
+    Und Elbereth kam selbst herab:
+    Sie schuf dem Schiff den Silmaril
+    Zum Banner, ein lebendiges Licht,
+    Ein heller Schein, der nie verblaßt.
+
+                          -- Pugs 6.2.7, src/Main.hs
+----
+
+    use v6;
+
+    for $*Larry {
+        our Ship $pugs .= new(:of<mithril elven-glass>);
+        given $pugs {
+            $.prow does Shine;
+            Silver $.mast but none(Oar::Shaven, Sail);
+            Light  $.lantern := $*Silmaril;
+            Bright $.banner  := Flame.bless:{};
+            when $*Elbereth.gleam {
+                .sail(...);
+            }
+        }
+    }
+                          -- examples/poetry/pugs_main.p6
+
+----
+== Perl 6 is Here Today
+
+* I'm glad that the previous talk covered the "Perl 6" part...
++* ...That means I get to focus on the "is Here Today" part.
+
+----
+== But First...
+
++* Perl 5 is Here Today!
++* The transition from Perl 4 succeeded!
++** ...although it took us four years
+** 5.000a1 (1993) ~ 5.004 (1997)
++** ...or six years for Win32 people
+** 5.005_03 (1999)
++** ...or nine years for jcode.pl people
+** 5.8.0 (2002)
++* But it was really an amazing new language
+
+----
+== Perl 5: Closures
+
+my $var;
+$code = sub { ... };
+for my $i (1..10) { ... };
+
+----
+== Perl 5: References
+
+$code->($arg);
+$hash->{3};
+$obj->method($arg);
+
+{ hash => 1 }
+[ 'array' ]
+\eval{'scalar'}
+
+----
+== Perl 5: Modules
+
+use strict;
+no warnings;
+$Package::name;
+bless($reference => 'Package');
+tie($container => 'Package');
+
+----
+== But More Importantly...
+
++* CPAN is Here Today!
+
+"CPAN is my programming language of choice; the rest is just syntax."
+
+8000+ modules
+2500+ authors
+
+** Automatic download, test and install
+** Smoke testing, issue tracking, cross-reference, ratings...
+
+* CPAN is the greatest thing
+* However, heavy taxation from Perl 5 is really bad
+
+----
+== Language Tax on CPAN Users
+
+* Sigils and references doesn't match:
+
+    $s          @a      %h      
+    $$s         $a[0]   $h{'!'} 
+    $s->method  ☹       ☹
+
++* Forced redundancy:
+
+    sub render {
+        my $self = shift;
+        my %opts = @_;
+        foreach my $item ($self->filter(@{$self->{_items}})) {
+            print "* @{[$item->draw($@opts{qw( x y z )})]}...\n";
+        }
+    }
+
+----
+== Fast forward to Perl 6...
+
+* Sigils and references works just fine:
+
+    $s          @a      %h      
+    $$s         $a[0]   $h{'!'} 
+    $s->method  ☹       ☹
+
++* Clean and simple semantics:
+
+    method render (+$x, +$y, +$z) {
+        for ./filter(@.items) {
+            say .draw($x, $y, $z).as('* %s...');
+        }
+    }
+
+----
+== Implementation Tax on CPAN Authors
+
+* XS is difficult to write and maintain
+* Backward compatibility leaves little wiggle room
+* Hence, the Jenga architecture of "re(ab)use"
+* Macro programming sucks: Source filter and eval ""
+* Micro programming sucks: GC and Threads are slow; number crunching even slower
+* Arbitary limitations on regex, operators, grammar...
+* OO and functional code are unfairly handicapped in Golf ;-)
+
+----
+== Fast forward to Perl 6...
+
+* Faster: JIT compiled; run in embedded machines
++* Friendlier: Call Perl5/C/Tcl/Python libraries directly
++* Easier: Common usage patterns dramatically shortened
++* Stronger: Support for OO, Functional, Data-driven styles
++* Leaner: Sane semantics instead of endless (documented) workarounds
++* Nicer: Fewer incomplete unmaintainable XS subsystems
++* DWIMer: User-defined operators, syntax, grammars....
+
+----
+== Without further ado...
+
+* We present: `cpan-upload.p6`!
++* "Never do live demo"
++** Test.pm
++** mod_pugs
++** mandel.p6 vs mandel.p5
++** tetris.pmc
+
+----
+== Catalyst on Pugs
+
+* sri started working on it two weeks ago
++* two days later, lathos started to port Maypole to Pugs
++** They are still work in progress
++** But sri and lathos both praises Perl 6
++* However, lots of dependencies were ported during the course:
++** Text::Glob, File::Find, FindBin.pm, etc...
++** More yet to come
+
+----
+== The obligatory adoption timeline
+
+{image: http://pugscode.org/perl6.png}
+
+* I'm going to show a quick walkthru of Perl 6 features
++** Mostly taken from Allison Randal's "Perl 6 Update"
+** All of them are ready to run in Pugs!
+
+----
+== Perl 6: Simplicity
+
+* Huffman coding makes easy things easy
+
+    say "Hello, World!" if $x == any(1..3);
+    sub unfinished { ... }
+    class Dog is Animal { has $.tail }
+
++* Easier to tell different constructs apart
+
+    eval "..." / try { ... }
+    for @a { ... } / loop (;;) { ... }
+    sub a { ... } / method b { ... }
+
+----
+== Perl 6: Sigils
+
+* Consistent use of sigils
+
+    $scalar, @array, %hash
+    @array[3]       # _not_ $array[3]
+    %hash{'key'}    # also as %hash<key>
+
++* Hence hashes and arrays take methods too!
+
+    %hash.keys
+    @array.sort
+
+----
+== Perl 6: Dot
+
+* Compress three keystrokes to one:
+
+    $obj.method()
+    $a_ref.[1]      # also as $ref[1]
+    $h_ref.<key>    # $h_ref<key>, $h_ref{'key'}
+    $c_ref.()       # $c_ref()
+
++* There's more than one way to call it:
+
+    say("Hello, World!");   # this works
+    "Hello, World!".say;    # this too
+
+----
+== Perl 6: Methods
+
+* Much more meaningful:
+
+    @array.elems    # _not_ scalar(@array)
+    $string.chars   # _not_ length($string)
+    $string.bytes   # _not_ bytes::length($string)
+    @array.bytes    # ... Perl 5 can't do this... Orz
+    &function.arity # ... Neither this... XD
+
+* Easier to remember, too
+
+----
+== Perl 6: Named operators
+
+* Lots of named variables:
+
+    sub clean ($text, $method) { ... }          # by address
+    sub by_value ($text is copy) { ... }        # by value
+    sub some_opt ($req, ?$opt = $req) { ... }   # optional with default
+    sub modify ($text is rw) { ... }            # writable
+    sub typed (Int $num, Str $txt) { ... }      # typed
+
++* Available as Perl6::Subs in a CPAN near you!
+
++* The old way still works:
+
+    sub sum {
+        my $sum;
+        $sum += $_ for @_;
+        return $sum;
+    }
+
+----
+== Perl 6: Higher-order functions
+
+* Currying with &code.assuming:
+
+    sub times ($x, $y) { $x * $y }
+    $sixtimes = &times.assuming(:y(6));
+    $sixtimes(9); # 54
+
++* Implicit parameters:
+
+    sub distance { sqrt( $^a ** 2 + $^b ** 2 ) }
+    @array.sort:{ $^y <=> $^x };
+
+----
+== Perl 6: Multi Method Dispatch
+
+* Type-based dispatch:
+
+    multi sub add (Int $a, Int $b) { ... }
+    multi sub add (Num $a, Num $b) { ... }
+    multi sub add (Str $a, Str $b) { ... }
+
++* Operators are all multisubs by default:
+
+    multi sub infix:«<» (Set $one, Set $two) returns Bool {
+        $one.proper_subset($two);
+    }
+
+
+----
+== Perl 6: Operators
+
+* New operators:
+
+    say =<README.txt>;  # &prefix:<=> := slurp()
+    ...; !!!; ???;      # yada yada yada
+
++* Unicode operators
+
+    sub prefix:<Σ>  (@x) { sum(@x) }
+    sub postfix:<!> ($n) { ($n < 2) ?? 1 :: $n * ($n-1)! }
+    say( Σ 1..5! );             # 7260
+    (1, 2) ¥ ('a', 'b');        # (1, 'a', 2, 'b')
+
++* Chained operators 
+
+    if $x > $y > $z { ... }
+    if -r -w 'file' { ... }
+
+----
+== Perl 6: Strings
+
+* Tilde replaces dot for string concatenation:
+
+    $line = "Blue" ~ $moon;
+
++* But you won't miss the dot, because interpolation now works great:
+
+    "Hello, $person";
+    "You can call &subs() and $obj.methods() too!";
+    "The attribute is %obj.keys.sort.reverse().";
+    "Two plus Two is just { 2 + 2 }.";
+
++* Easy access to sprintf() with .as
+
+    $string.as('Hello, %10s');
+
+----
+== Perl 6: Logic operators
+
+* Short circulting:
+
+    $var  = 9 || 3; # 9
+
+** Boolean, numeric and bitwise logic:
+
+    $bool = 9 ?| 3; # bool::true
+    $true = 9 +| 3; # 11
+    $bits = 9 ~| 3; # ";"
+
++* Skewed || means "defined or"
+
+    $arg //= 3;
+    $fh = open('file') err die $!;
+
+----
+== Perl 6: Hyper operators
+
+* On binary operators:
+
+    (1,1,2,3,5) »+« (1,2,3,5,8);  # (2,3,5,8,13)
+
++* On unary operators:
+
+    -« (1,2,3); # (-1, -2, -3)
+
++* Autopromoted dimensions
+
+    ('a'..'c') »x« 3;   # ('aaa', 'bbb', 'ccc')
+
+----
+== Perl 6: Reduction operators
+
+    [+]                    # sum(...)
+    [*]                    # product
+    [*] 1..$x              # factorial
+    [~]                    # join('', ...)
+    [<]                    # monotony
+    [==]                   # equality
+    [//]                   # first defined element
+    [||]                   # first true element
+    [=>]                   # linked list construction
+
+----
+== Perl 6: Junctions
+
+* Useful for common shorthands
+
+    $options = '--help' | '-d' | '-e';
+    if all($x, $y, $z) eq $options { ... }
+
+    # The equivalent Perl 5 code:
+    if (($x eq "--help" || $x eq "-d" || $x eq "-e") and
+        ($y eq "--help" || $y eq "-d" || $y eq "-e") and
+        ($z eq "--help" || $z eq "-d" || $z eq "-e")) { ... }
+
++* Test for prime numbers
+
+    sub is_prime (Int $n) { $n % all(2 .. sqrt($n)+1) }
+    sub has_twin (Int $n) { is_prime($n & ($n + (2 | -2))) }
+
+----
+== Perl 6: Aliasing
+
+* There are no globs anymore
+
+    &alias := &sub;
+    $alias := $scalar;
+    @alias := @array;
+
+* Aliasing a single container
+
+    $alias := @array[2]{'many'}{'keys'};
+
+----
+== Perl 6: Match and Switch
+
+* `=~` is now spelled as `~~`:
+
+    $value  ~~ /blue/;
+    $value  ~~ s/x/y/;
+    $value  ~~ rx:P5/blue/;
+
+* But works for other cases too:
+
+    $string ~~ any(<a b c d>);
+    $obj    ~~ Class;
+
+* `given`/`when` uses the same way to match things:
+
+    given $string {
+        when all(/foo/, /bar/)  { ... }
+        when .is_very_long      { ... }
+        default                 { ... }
+    }
+
+----
+== Perl 6: Loops
+
+* `foreach` is now spelled `for`
+
+    for @people -> $person {
+        say "Hello, $person";
+    }
+
++* `for` can loop over multiple variables
+
+    for %ages.kv -> $name, $age {
+        say "$name is now $age";
+    }
+    for zip(@a,@b) -> $a, $b {
+        say "Are you $a or $b?";
+    }
+
++* C's three-part for is now `loop`
+
+    loop ($i = 1; $i < 5; $i++) { ... }
+    loop { do_forever() }
+
+----
+== Perl 6: Exceptions
+
+* `$!` supercedes `$@`, `$?`, `$^E`
+
+    system('rm -rf /') err die $!;
+
++* `eval {}` is now `try {}`
+
+    try {
+        may_throw_exception();
+        CATCH { when Error::Nasty {...} }
+    }
+
+----
+== Perl 6: Classes
+
+* Declarations
+
+    class Tree { method nodes { ... } }
+
++* Inheritance
+
+    class Leaf is Tree {
+        has $.val;
+        method nodes { .val }
+    }
+
++* Initialisation
+
+    method BUILD ($.x, ?$.y = $.x)
+
+----
+== Perl 6: Attributes
+
+* `has $.val` provides accessors automatically
+
+    my $x = Leaf.new(:val<Hello>);
+    say $x.val;     # "Hello"
+
++* Typed attributes:
+
+    class Branch is Tree {
+        has Tree $.left;
+        has Tree $.right;
+        method nodes { (nodes .left, nodes .right) }
+    }
+
+----
+== Perl 6: Rules
+
+* The same `m//`, `s///`, `//` syntax as Perl 5
+
+    if $text ~~ /blue/ {...}
+    $name ~~ s/Dan/Chip/;
+    m:perl5/(\()?[^()]+(?(1)\))/;
+
++* Postfix modifiers moved to front ot string
+
+    s:g/a/b/
+    m:P5<ism>/^yes.../
+
++* Space and comments are ignored by default (just like Perl 5's //x):
+
+    m{ Larry    # perl6
+     | Chip     # parrot
+     | Autrijus # pugs
+     };
+
+----
+== Perl 6: New Rules Syntax
+
+* qr// is now rx//
+
+    $myrule = rx/[yn]/
+
++* Anonymous and named rules
+
+    $myrule = rule {\w\s+\w}
+    rule myrule {\w\s+\w}
+
++* Rules may contain other rules
+
+    rule name { Larry | Chip | Autrijus }
+    rule project { perl6 | parrot | pugs }
+    rule description :w { <name> does this <project> }
+
+----
+== Perl 6: Grammar
+
+* Grammars are classes that contains rules
+
++* Provides a name for rules
+
+    grammar URI { 
+        rule reserved   { <[;/?:@&=+$,\[\]]>               };
+        rule mark       { <[-_.!~*'()]>                    };
+        rule unreserved { rule { <[A-Za-z0-9]+<mark>>      };
+        rule scheme     { <[a-zA-Z]><[a-zA-Z0-9.+-]>*      };
+        rule uri        { <+<reserved>+<unreserved>+["%"]> };
+    }
+
++* Perl 6 itself is a grammar too!
+
+    grammar Perl6 { 
+        rule statement { ... }
+        rule identifier { ... }
+    }
+
+----
+== Perl 6: Principles
+
+* Simple...
++** ...but capable
++* Hybrid...
++** ...but distinct
++* Useful now...
++** ...and relevant then
++* Make Perl more Perlish
+
+----
+== Implementation of Pugs
+
+{image: http://data.gugod.org/pugs-commits-churn.png}
+
+----
+== Pugs: Download and install
+
+* 6.2.7: released today!
+
+    http://pugscode.org/
+    http://search.cpan.org/dist/Perl6-Pugs/
+
++* You need to install GHC 6.4 first:
+
+    http://haskell.org/ghc/download.html
+
++* Check out the repository:
+
+    % svk co http://svn.openfoundry.org/pugs
+    % cd pugs
+    % perl Makefile.PL
+    % make
+    % make test
+    % make install
+
+----
+== Pugs: History
+
+{image: http://data.gugod.org/pugs-commits-churn.png}
+
+* Started at Feb 1st; four months old now
++* Self-inflicted TaPL exercise in Haskell
++** Haskell cannot be taught; it must be learned
++* See the perl.com interview linked from pugscode.org for details
++* Extremely fast development
+
+----
+== Pugs: Interpreter mode
+
+* Command line
+
+    % pugs -e "'Hello, world!'.say"
+    Hello, world!
+
+    % pugs examples/japh/ipw-japh.p6
+    Just another Perl6 hacker...
+
++* Interactive mode
+
+    % pugs
+    pugs> { $_ ?? $_ * &?BLOCK( $_ - 1 ) :: 1 }.(10)
+    3628800
+
+----
+== Pugs: Compilation
+
+* Compile to stand-alone binaries
+
+    % pugscc examples/hanoi.p6
+    % pugscc --haskell -e "'Hello, world!'.say"
+    % pugscc --parrot examples/mandel.p6
+
++* Compile and run in a single step
+
+    % pugs -Bparrot examples/mandel.p6
+
+----
+== Pugs: Development model
+
+{image: http://data.gugod.org/churn.png}
+
+* Anarchistic -- I mean Wiki-style -- development
++* To become a Pugs committer, you need to:
+** Willing to commit stuff
+** Keep an eye on #perl6 and perl6-compiler
++* Test first
+** JFDI with t/unspecced/
++* Average one more contributer every day
+
+----
+== Pugs: Documentation
+
+* Quick references: docs/quickref/
++* Pugs apocryphon: 01Overview, 02Internals
++* Port of Perl 5 cookbook: examples/cookbook/
++* Presentations and papers: docs/talks/
++** Including my Haskell Workshop'05 paper
+
+----
+== Pugs: Tests
+
+* We have 7200+ unit tests now
++** Test.pm is really simple to use
++* The smoke graph lists TODOs and regressions:
+
+    file:///home/autrijus/work/release/pugs/util/graph.html
+
++* It's a coding monkey's paradise!
+
+----
+== Pugs: Foreign Modules
+
+* All CPAN modules
+* All Parrot modules
+* All Haskell modules
++* Native Modules:
+
+    Algorithm-TokenBucket Benchmark CGI Config-Tiny Date File-Find
+    File-Spec FindBin HTML-Entities Kwid-Event-Parser Locale-KeyedText
+    Net-IRC Perl-MetaModel Pod-Event-Parser Set Test Test-Builder
+    Text-Glob Tree fp lib libwww-perl
+
+----
+== Pugs: Use Pugs in Perl 5 code
+
+    #!/usr/bin/perl
+
+    use pugs;   # Here is some Perl 6 code...
+    sub postfix:<!> { [*] 1..$_ }
+    sub sum_factorial { [+] 0..$_! }
+
+    no pugs;    # Here is some Perl 5 code...
+    print sum_factorial(3); # 21
+
+----
+== Pugs: From 6.0.x to 6.2.x
+
+* Basic IO and control flow elements
++* Mutable variables
++* Assignment and aliasing
++* Compiling and embedding interface
+
+----
+== Pugs: Moving toward 6.28.x
+
+* OO core:
++* Classes and OBjects
++* Inheritance
++* Subtyping
++* Introspection
++* Roles (not yet)
+
+----
+== Pugs: 6.283.x
+
+* Rules core:
++* Match and substitution with rules
++* Closures in rules (not yet) 
++* Grammar classes (not yet) 
+
+----
+== Pugs: The far end
+
+* 6.2831
+** Role composition
+** Fully specified runtime semantics
++* 6.28318
+** Macros!
++* 6.283185
+** Port Pugs to Perl 6
+** Finish bootstrapping
+
+----
+== Pugs: Join the fun!
+
+* Port modules
++* Contribute examples
++* Write tests
++* Document the implementation
++* Learn Haskell, hack on Pugs internals
+
+----
+== Bonus Apocalypse: Imminent, Amazingly Great Stuff
+
+----
+== Software Transaction Memory
+
+----
+== Serialised Continuations
+
+----
+== Pugs on Parrot!
+
+----
+== Thank you!
