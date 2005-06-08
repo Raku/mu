@@ -982,7 +982,7 @@ parseOpWith :: (DynParsers -> RuleParser Exp) -> RuleParser Exp
 parseOpWith f = do
     state <- getState
     case ruleDynParsers state of
-        MkDynParsersEmpty    -> refillCache state f
+        MkDynParsersEmpty   -> refillCache state f
         p                   -> f p
     where
     refillCache state f = do

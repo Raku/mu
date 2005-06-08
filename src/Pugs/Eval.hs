@@ -242,7 +242,7 @@ findVarRef name
         vref   <- liftSTM (readTVar tvref)
         let val = VRef vref
         return (key, val)
-    padEntryToHashEntry (key, []) = do fail "Nonexistant var in pad?"
+    padEntryToHashEntry (_, []) = do fail "Nonexistant var in pad?"
     doFindVarRef :: Var -> Eval (Maybe (TVar VRef))
     doFindVarRef name = do
         callCC $ \foundIt -> do
