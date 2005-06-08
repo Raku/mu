@@ -98,7 +98,7 @@ tie($container => 'Package');
 ----
 == Language Tax on CPAN Users
 
-* Sigils and references doesn't match:
+* Sigils and references don't match:
 
     $s          @a      %h      
     $$s         $a[0]   $h{'!'} 
@@ -117,7 +117,7 @@ tie($container => 'Package');
 ----
 == Fast forward to Perl 6...
 
-* Sigils and references works just fine:
+* Sigils and references work just fine:
 
     $s          @a      %h      
     $$s         $a[0]   $h{'!'} 
@@ -167,9 +167,9 @@ tie($container => 'Package');
 == Catalyst on Pugs
 
 * sri started working on it two weeks ago
-+* two days later, lathos started to port Maypole to Pugs
++* Two days later, lathos started to port Maypole to Pugs
 +** They are still work in progress
-+** But sri and lathos both praises Perl 6
++** But sri and lathos both praise Perl 6
 +* However, lots of dependencies were ported during the course:
 +** Text::Glob, File::Find, FindBin.pm, etc...
 +** More yet to come
@@ -179,7 +179,7 @@ tie($container => 'Package');
 
 {image: http://pugscode.org/perl6.png}
 
-* I'm going to show a quick walkthru of Perl 6 features
+* I'm going to show a quick walkthrough of Perl 6 features
 +** Mostly taken from Allison Randal's "Perl 6 Update"
 ** All of them are ready to run in Pugs!
 
@@ -708,7 +708,7 @@ tie($container => 'Package');
 == Pugs: Moving toward 6.28.x
 
 * OO core:
-+* Classes and OBjects
++* Classes and Objects
 +* Inheritance
 +* Subtyping
 +* Introspection
