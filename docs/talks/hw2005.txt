@@ -10,7 +10,7 @@ Perl is a general-purpose language, known for its vast number of freely
 available extension libraries.  The Perl 6 project was started in 2000
 to create a more robust runtime environment, and improve the language's
 support for multi-paradigmatic programming.  However, the attempt to produce a
-concrete implementation remains a work in progress after 4 years of development. 
+concrete implementation remains a work in progress after 4 years of development.
 
 This paper presents Pugs, a working implementation of Perl 6, written in
 Haskell.  We review the challenges posed by Perl 6's unusual execution model,
@@ -547,10 +547,10 @@ child thread.  To share a variable, one needs to mark it explicitly, using the
 "tie" mechanism to connect it to a storage object visible across threads.
 
 This design presents an unified interface for various underlying threading
-libraries, including POSIX and non-POSIX threads, or even threads simulated using fork()
-and sockets.  The main drawback of ithreads is the overhead of copying the
-entire interpreter's state upon thread creation.  There are plans to use
-copy-on-write to reduce this overhead, but that is still being implemented.
+libraries, including POSIX and non-POSIX threads, or even threads simulated
+using fork() and sockets.  The main drawback of ithreads is the overhead of
+copying the entire interpreter's state upon thread creation.  There are plans to
+use copy-on-write to reduce this overhead, but that is still being implemented.
 
 GHC 6.4 introduced Software Transaction Memory (STM), an abstraction that
 allows the programmer to define "atomic" functions which are free of
@@ -631,8 +631,8 @@ an "async" boundary:
     async { say foo() }     # fails to resume foo's continuation context
 
 To solve this problem, we need to represent the continuation context as data
-structure.  Here we make use of the CC_2CPST monad from Oleg et al, based on Sabyr
-et all's "Monadic Structure for Subcontinuations":
+structure.  Here we make use of the CC_2CPST monad from Oleg et al., based on
+Sabyr et al.'s "Monadic Structure for Subcontinuations":
 
     newtype Cont m r a b = Cont (a -> MC r m b)
     newtype CC r m a = CC (forall b. Cont m r a b -> MC r m b)
@@ -644,9 +644,9 @@ on the Exp type, keeping the position as a [Direction] type:
     evaluate :: Eval Exp -> Val
     evaluate = runCC (...)
 
-This allows us to re-express the reduction logic as a traversal function over the
-Exp type. We can freely augment the AST with new nodes; each AST node's position
-is uniquely represented as a [Direction].
+This allows us to re-express the reduction logic as a traversal function over
+the Exp type. We can freely augment the AST with new nodes; each AST node's
+position is uniquely represented as a [Direction].
 
 Because the new Eval monad will update the cursor at each reduction step, we can
 define a pair of serialise/deserialize functions:
@@ -656,14 +656,16 @@ define a pair of serialise/deserialize functions:
     runEval    :: EvalD -> Eval Val
 
 This "suspend to memory" capability is sufficient to make coroutines work across
-async{} calls.  We can even implement a "suspend to disk" feature, by snapshotting
-the values of all TVars in the Env structure into a byte-string image:
+async{} calls.  We can even implement a "suspend to disk" feature, by
+snapshotting the values of all TVars in the Env structure into a byte-string
+image:
 
     showEvalD  :: EvalD -> STM String
     readEvalD  :: String -> STM EvalD
 
-This has many interesting applications, including Seaside-like web continuations.
-We'll update this space when we actually get this thing implemented...
+This has many interesting applications, including Seaside-like web
+continuations. We'll update this space when we actually get this thing
+implemented...
 
 Oh also Parrot's Continuation PMC is happy and may be serialised too... tbdtbd
 
@@ -754,8 +756,8 @@ We use the builtin Haskell parser to read function declarations, to generate
 wrappers to Pugs's Val type.
 
 Evaluation of Haskell code in runtime is implemented with the System.Eval module
-in the hs-plugins package.  The evaluated code is first promoted to Dynamic, then
-typecased into Val using the Value type class.
+in the hs-plugins package.  The evaluated code is first promoted to Dynamic,
+then typecased into Val using the Value type class.
 
 ...hs-plugins, externalizeHaskell, class Value...
 
