@@ -1399,7 +1399,11 @@ ruleSymbolicDeref = do
         -- We've to include ruleTwigil here to make $::?SELF parse.
         -- XXX: This looks slightly odd to me -- is one forced to say
         -- $::("?SELF") instead?
-	(parens ruleExpression) <|> (liftM (Val . VStr . concat) $ sequence [ruleTwigil, many1 wordAny])
+	(parens ruleExpression) <|> (liftM (Val . VStr) $ do
+            choice
+                [ string "!"  -- $!
+                , string "/"  -- $/
+                , liftM concat $ sequence [ruleTwigil, many1 wordAny] ])
     return $ Syn (sigil:"::()") nameExps
 
 makeVar :: String -> Exp
