@@ -1124,10 +1124,17 @@ parseTerm = rule "term" $ do
 
 ruleTypeVar :: RuleParser Exp
 ruleTypeVar = rule "type" $ try $ do
-    string "::"
-    twigil  <- ruleTwigil
-    name    <- fmap (concat . intersperse "::") $ many wordAny `sepBy1` (try $ string "::")
-    return $ Var $ ":" ++ twigil ++ name
+    -- We've to allow symbolic references with type vars, too.
+    nameExps <- many1 $ do
+	string "::"
+	(parens ruleExpression) <|> (liftM (Val . VStr . concat) $ sequence [ruleTwigil, many1 wordAny])
+    -- Optimization: We don't have to construct a symbolic deref syn (":::()"),
+    -- but can use a simple Var, if nameExps consists of only one expression
+    -- and this expression is a plain string, i.e. it is not a
+    -- (...)-expression.
+    return $ case nameExps of
+        [Val (VStr name)] -> Var $ ":" ++ name
+        _                 -> Syn (":::()") nameExps
 
 ruleTypeLiteral :: RuleParser Exp
 ruleTypeLiteral = rule "type" $ do
@@ -1389,7 +1396,10 @@ ruleSymbolicDeref = do
     nameExps <- many1 $ do
 	string "::"
         -- nameExp is the expression which will yield the varname.
-	(parens ruleExpression) <|> (liftM (Val . VStr) $ many1 wordAny)
+        -- We've to include ruleTwigil here to make $::?SELF parse.
+        -- XXX: This looks slightly odd to me -- is one forced to say
+        -- $::("?SELF") instead?
+	(parens ruleExpression) <|> (liftM (Val . VStr . concat) $ sequence [ruleTwigil, many1 wordAny])
     return $ Syn (sigil:"::()") nameExps
 
 makeVar :: String -> Exp
