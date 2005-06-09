@@ -6,7 +6,14 @@ presentation_date: June 9th, 2005
 ----
 {image: http://perlcabal.org/~autrijus/today.jpg}
 
+Apocalypse Now
+
+Autrijus Tang
+
+/pugscode.org/
+
 ----
+{image: http://perlcabal.org/~autrijus/images/earendils_ship_port.jpg}
 
     A ship then new they built for him
     of mithril and of elven glass.
@@ -14,6 +21,7 @@ presentation_date: June 9th, 2005
                           -- Perl 5.0.0, perl.c
 
 ----
+{image: http://perlcabal.org/~autrijus/images/ship.jpg}
 
     Sie bauten ihm ein neues Schiff
     Aus Mithril und aus Elbenglas
@@ -46,11 +54,15 @@ presentation_date: June 9th, 2005
 ----
 == Perl 6 is Here Today!
 
+{image: http://perlcabal.org/~autrijus/images/apoc.jpg}
+
 * I'm glad Jens covered the /Perl 6/ part...
 +* ...that means I get to focus on the /is Here Today/ part.
 
 ----
 == But First...
+
+{image: http://perlcabal.org/~autrijus/images/camel.jpg}
 
 * Perl 5 is Here Today!
 +* The transition from Perl 4 succeeded!
@@ -76,6 +88,8 @@ presentation_date: June 9th, 2005
 ----
 == Perl 5: Closures
 
+{image: http://perlcabal.org/~autrijus/images/closure.gif}
+
     my $var;
 
     $code = sub { ... };
@@ -84,6 +98,8 @@ presentation_date: June 9th, 2005
 
 ----
 == Perl 5: Modules
+
+{image: http://perlcabal.org/~autrijus/images/packages.jpg}
 
     use strict;
     no warnings;
@@ -95,6 +111,8 @@ presentation_date: June 9th, 2005
 
 ----
 == But even more importantly...
+
+{image: http://perlcabal.org/~autrijus/images/cpan.jpg}
 
 * CPAN is Here Today (and Here to Stay)!
 +** "CPAN is my programming language of choice; the rest is just syntax."
@@ -145,6 +163,8 @@ presentation_date: June 9th, 2005
 ----
 == Implementation Tax on CPAN Authors
 
+{image: http://perlcabal.org/~autrijus/images/jenga_home_prod.jpg}
+
 * XS is difficult to write and maintain
 +* Backward compatibility leaves little wiggle room
 +* Hence, the Jenga architecture of /re(ab)use/
@@ -167,6 +187,8 @@ presentation_date: June 9th, 2005
 ----
 == Without further ado...
 
+{image: http://perlcabal.org/~autrijus/images/cpan.jpg}
+
 * We present: `cpan-upload.p6`!
 
     use AppConfig::Std--perl5;
@@ -177,7 +199,9 @@ presentation_date: June 9th, 2005
     use File::Basename--perl5;
 
 ----
-== Incremental transition
+== Assimilating CPAN
+
+{image: http://perlcabal.org/~autrijus/images/borg.jpg}
 
 * The first batch of Perl 5 programs looked like that:
 
@@ -193,7 +217,9 @@ presentation_date: June 9th, 2005
 * Pugs's speed becomes less of an issue then.
 
 ----
-== "Never do live demo"
+== "Never do live demo!"
+
+{image: http://perlcabal.org/~autrijus/images/murphy.jpg}
 
 * Math:    mandel
 * Network: http-server
@@ -204,6 +230,8 @@ presentation_date: June 9th, 2005
 
 ----
 == Upcoming: Catalyst on Pugs!
+
+{image: http://perlcabal.org/~autrijus/images/catalyst.png}
 
 * sri started working on it two weeks ago
 
@@ -234,6 +262,8 @@ presentation_date: June 9th, 2005
 ----
 == Simplicity
 
+{image: http://perlcabal.org/~autrijus/images/huffman.jpg}
+
 * Huffman coding makes easy things easy:
 
     say "Hello, World!" if $x == any(1..3);
@@ -249,6 +279,8 @@ presentation_date: June 9th, 2005
 ----
 == Sigils
 
+{image: http://perlcabal.org/~autrijus/images/sigil.jpg}
+
 * Consistent use of sigils:
 
     $scalar, @array, %hash
@@ -262,6 +294,8 @@ presentation_date: June 9th, 2005
 
 ----
 == Dot
+
+{image: http://perlcabal.org/~autrijus/images/dots.jpg}
 
 * Compress three keystrokes to one:
 
@@ -310,6 +344,8 @@ presentation_date: June 9th, 2005
 
 ----
 == Higher-order functions
+
+{image: http://perlcabal.org/~autrijus/images/hop.jpg}
 
 * Currying with &code.assuming:
 
@@ -378,6 +414,8 @@ presentation_date: June 9th, 2005
 ----
 == Logic operators
 
+{image: http://perlcabal.org/~autrijus/images/boolean.jpg}
+
 * Short circulting:
 
     $var  = 9 || 3; # 9
@@ -395,6 +433,8 @@ presentation_date: June 9th, 2005
 
 ----
 == Hyper operators
+
+{image: http://perlcabal.org/~autrijus/images/hyper.jpg}
 
 * Hyperised binary operators:
 
@@ -472,7 +512,9 @@ presentation_date: June 9th, 2005
     $obj    ~~ Class;
 
 ----
-== Switch Statement
+== Switch Statements
+
+{image: http://perlcabal.org/~autrijus/images/switch.jpg}
 
 * `given`/`when` uses the same way to match things:
 
@@ -492,6 +534,8 @@ presentation_date: June 9th, 2005
 ----
 == Loops
 
+{image: http://perlcabal.org/~autrijus/images/loop.jpg}
+
 * `foreach` is now spelled `for`
 
     for @people -> $person {
@@ -509,6 +553,8 @@ presentation_date: June 9th, 2005
 
 ----
 == Exceptions
+
+{image: http://perlcabal.org/~autrijus/images/error.png}
 
 * `$!` supercedes `$@`, `$?`, `$^E`
 
@@ -558,6 +604,8 @@ presentation_date: June 9th, 2005
 ----
 == Rules
 
+{image: http://perlcabal.org/~autrijus/images/rulers.jpg}
+
 * The same `m//`, `s///`, `//` syntax as Perl 5
 
     if $text ~~ /blue/ {...}
@@ -597,6 +645,8 @@ presentation_date: June 9th, 2005
 ----
 == Grammar
 
+{image: http://perlcabal.org/~autrijus/images/grammar.jpg}
+
 * Grammars are classes that contains rules
 
 +* Provides a name for rules
@@ -618,6 +668,8 @@ presentation_date: June 9th, 2005
 
 ----
 == Principles
+
+{image: http://perlcabal.org/~autrijus/images/pearl.jpg}
 
 * Simple...
 +** ...but capable
@@ -660,7 +712,7 @@ presentation_date: June 9th, 2005
 ----
 == History
 
-{image: http://linide.sourceforge.net/pugs-svngraph-6.2.5.png}
+{image: http://perlcabal.org/~autrijus/images/justdoit.jpg}
 
 * Started at Feb 1st; 4 months old now
 +* Self-inflicted TaPL exercise in Haskell
@@ -703,6 +755,8 @@ presentation_date: June 9th, 2005
 ----
 == Pugs the Anarchistic Community
 
+{image: http://perlcabal.org/~autrijus/images/anarchism.jpg}
+
 * Wiki-style development
 +* To become a Pugs committer, you just need to:
 ** Commit stuff ;)
@@ -726,6 +780,8 @@ presentation_date: June 9th, 2005
 
 ----
 == Tests
+
+{image: http://perlcabal.org/~autrijus/images/checklist.jpg}
 
 * We have 7200+ unit tests now
 +* Test.pm is really simple to use
@@ -752,6 +808,8 @@ Text-Glob Tree fp lib libwww-perl
 ----
 == Use Pugs in Perl 5 code
 
+{image: http://perlcabal.org/~autrijus/images/yinyang.jpg}
+
     #!/usr/bin/perl
 
     use pugs;   # Here is some Perl 6 code...
@@ -762,7 +820,9 @@ Text-Glob Tree fp lib libwww-perl
     print sum_factorial(3); # 21
 
 ----
-== Roadmap: From 6.0.* to 6.2.*
+== From 6.0.* to 6.2.*
+
+{image: http://perlcabal.org/~autrijus/images/smallpugs.jpg}
 
 * Basic IO and control flow elements
 +* Mutable variables
@@ -771,6 +831,8 @@ Text-Glob Tree fp lib libwww-perl
 
 ----
 == OO core: 6.28.*
+
+{image: http://perlcabal.org/~autrijus/images/mediumpugs.jpg}
 
 * Classes and Objects
 +* Inheritance
@@ -781,6 +843,8 @@ Text-Glob Tree fp lib libwww-perl
 ----
 == Rules core: 6.283.*
 
+{image: http://perlcabal.org/~autrijus/images/bigpugs.jpg}
+
 * Match/substitution with rules
 +* Named and nested captures
 +* Closures in rules # /TODO/
@@ -788,6 +852,8 @@ Text-Glob Tree fp lib libwww-perl
 
 ----
 == Approximating /2π/
+
+{image: http://perlcabal.org/~autrijus/images/web.jpg}
 
 * 6.2831
 ** Role composition
@@ -801,6 +867,8 @@ Text-Glob Tree fp lib libwww-perl
 ----
 == Pugs: Join the fun!
 
+{image: http://perlcabal.org/~autrijus/images/woodstock.jpg}
+
 * Port modules
 +* Contribute examples
 +* Write tests
@@ -811,6 +879,8 @@ Text-Glob Tree fp lib libwww-perl
 ----
 == Bonus Revelations
 
+{image: http://perlcabal.org/~autrijus/images/apoc.jpg}
+
 * Imminent
 +** Amazingly
 +*** Great
@@ -818,6 +888,8 @@ Text-Glob Tree fp lib libwww-perl
 
 ----
 == Software Transaction Memory
+
+{image: http://perlcabal.org/~autrijus/images/mememto.jpg}
 
 * Classical race condition:
 
@@ -830,9 +902,8 @@ Text-Glob Tree fp lib libwww-perl
 
 +* Now solved with automatic rollback:
 
-    async { atomically { my $b = $a; $a = $b + 1 } };
-    async { atomically { my $c = $a; $a = $c + 1 } };
-    say $a;     # This always prints 3
+    atomically { my $b = $a; $a = $b + 1 }
+    atomically { my $c = $a; $a = $c + 1 }
 
 +* Implemented in Java, C#, Fortress, GHC...
 +* Pugs has switched to STM storage
@@ -841,6 +912,8 @@ Text-Glob Tree fp lib libwww-perl
 
 ----
 == Serialised Continuations
+
+{image: http://perlcabal.org/~autrijus/images/back2future.jpg}
 
 * What if `dump()` works reliably...
 +** Anywhere in your program
@@ -857,6 +930,8 @@ Text-Glob Tree fp lib libwww-perl
 ----
 == Pugs on Parrot!
 
+{image: http://perlcabal.org/~autrijus/images/parrotpugs.jpg}
+
 * Pugs can compile `mandel.p6` and `mod_pugs` to Parrot
 +** ...but that's the only two things that works now
 +* Parrot runs `mandel.p6` about 100x faster than Pugs
@@ -868,6 +943,8 @@ Text-Glob Tree fp lib libwww-perl
 
 ----
 == Thank you!
+
+{image: http://perlcabal.org/~autrijus/images/bowing.jpg}
 
 * Any questions?
 
