@@ -48,8 +48,8 @@ etc.), presenting them in a way that maximised ease of use, efficiency and
 completeness.
 
 During the mid-1990s, Wall developed Perl 5, incorporating features from
-contemporary languages (Scheme, C++, Python, etc.), such as modules, closures,
-object-oriented programming and bytecode compilation. 
+contemporary languages (Scheme, C++, Python, etc.), such as modules, closures
+and object-oriented programming.
 
 The Perl 6 project was started in 2000, with a focus on improved cross-language
 interoperation and support for multiple programming paradigms.  The design
@@ -113,7 +113,7 @@ modules.  As of 2005, CPAN has more than 8000 modules, supported by a toolchain
 that covers smoke testing, issue tracking, cross-referencing, rating and
 discussion forums.
 
-Driven by hundreds of Perl 5 porters and thousands of CPAN authors, Perl 5's
+Driven by scores of Perl 5 porters and thousands of CPAN authors, Perl 5's
 development puts a strong emphasis on backward compatibility.  Developers
 avoid adding new built-in functions, as they might clash with user-defined
 functions of the same name.  Conversely, deprecated features are almost never
@@ -760,10 +760,10 @@ typecased into Val using the Value type class.
 
 6.3. Parrot
 
-Parrot has this "compreg" function to define a function that can turn a source
+Parrot has a "compreg" function to define a function that can turn a source
 code string into a compile PMC.  Because Pugs can turn Perl 6 code into PIR
-(see next section), we define the compileToParrot function to be foreign exported
-to Parrot space:
+(see next section), we define the compileToParrot function to be foreign
+exported to Parrot space:
 
     _DoCompile :: Maybe (IORef (String -> FilePath -> String -> IO String))
     _DoCompile = Just $ unsafePerformIO $ newIORef (error "unregistered")
