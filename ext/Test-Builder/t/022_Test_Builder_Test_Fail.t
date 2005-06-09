@@ -21,8 +21,7 @@ ok(!$fail_test.passed(),    'passed() should report the right passed value' );
 is( $fail_test.description(), 'first test description',
 	'description() should report the test description' );
 is( $fail_test.diagnostic(), '???',
-	'diagnostic() should report the default diagnostic if needed',
-	:todo<feature>);
+	'diagnostic() should report the default diagnostic if needed' );
 
 my $fail_diag = Test::Builder::Test::Fail.new(
         number      => 1,     

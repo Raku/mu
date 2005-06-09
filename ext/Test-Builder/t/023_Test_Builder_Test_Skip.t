@@ -22,8 +22,7 @@ ok( $skip_test.passed(), 'passed() should return the passed value' );
 is( $skip_test.description(), 'first test description',
     'description() should return the test description' );
 is( $skip_test.diagnostic(), '???',
-    'diagnostic() should return the default diagnostic if needed',
-    :todo<feature>);
+    'diagnostic() should return the default diagnostic if needed' );
 
 my $skip_diag = Test::Builder::Test::Skip.new(
     number      => 1,     

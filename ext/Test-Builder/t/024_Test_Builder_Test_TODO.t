@@ -22,8 +22,7 @@ ok( $todo_test.passed(),    'passed() should always be true' );
 is( $todo_test.description(), 'first test description',
     'description() should return the test description' );
 is( $todo_test.diagnostic(), '???',
-    'diagnostic() should return the default diagnostic if needed',
-    :todo<feature>);
+    'diagnostic() should return the default diagnostic if needed' );
 
 my $todo_diag = Test::Builder::Test::TODO.new(
     number      => 1,     

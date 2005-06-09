@@ -21,8 +21,7 @@ ok( $pass_test.passed(),    'passed() should report the right passed value' );
 is( $pass_test.description(), 'first test description',
     'description() should report the test description' );
 is( $pass_test.diagnostic(), '???',
-    'diagnostic() should report the default diagnostic if needed',
-    :todo<feature> );
+    'diagnostic() should report the default diagnostic if needed' );
 
 my $pass_diag = ::Test::Builder::Test::Pass.new(
     number      => 1,     
