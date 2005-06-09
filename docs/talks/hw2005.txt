@@ -212,21 +212,22 @@ briefly review various bootstrap strategies proposed over the years.
 
 3.1. Perl6::Rules
 
-The initial plan was to use Perl 5 for bootstrapping: First write the Perl 6 to
-Parrot compiler in Perl 5, then translate the compiler itself to Perl 6 by
-instrumenting Perl 5's bytecode compiler to emit Perl 6 code.
-
 To explore and prototype Perl 6's Rules mechanism, Damian Conway implemented
 Perl6::Rules, a Perl 5 module that translates Perl 6 Rules into Perl 5's
 regular expressions.  An unreleased prototype was written in 2003, which led to
 extensive modifications of the design of Rules.
 
 In 2004, Conway released a revised version of Perl6::Rules.  The implementation
-relied on various experimental features in Perl 5's regular expression engine,
-which failed to work on newer Perl 5 revisions, rendering Perl6::Rules
-unsuitable as a basis for implementing the parser for Perl 6.
+relied on various experimental features in Perl 5's regular expression engine;
+they no longer work with newer Perl 5 revisions.  As such, Perl6::Rules remains
+a partial prototype, not suitable as a basis for implementing the parser for
+Perl 6.
 
 3.2. P6C
+
+The initial plan was to use Perl 5 for bootstrapping: First write the Perl 6 to
+Parrot compiler in Perl 5, then translate the compiler itself to Perl 6 by
+instrumenting Perl 5's bytecode compiler to emit Perl 6 code.
 
 Started in 2002, P6C was the first concrete prototype of Perl 6.  It is
 written in Perl 5 and distributed as one of the language prototypes in the
@@ -266,7 +267,7 @@ based on two new projects:
 The developers intend to define Perl 6's grammar as a set of Rules that produce
 Parrot AST objects.  Once PGE is capable of processing those rules, PGE/PAST
 will effectively become a Perl 6 to Parrot compiler; from there we can make
-their APIs available as Perl 6 modules, completing the bootstrapping process.
+their APIs available via Perl 6 modules, completing the bootstrapping process.
 
 As of this writing, both PGE and PAST are under development:  A subset of
 Python's AST has been ported to Parrot, along with a yacc/lex-based parser for
