@@ -9,7 +9,7 @@ sub nonce () { return (".$*PID." ~ int rand 1000) }
 
 my $tmpfile = "temp-test" ~ nonce();
 {
-  my $fh = open $tmpfile, :w err die "Couldn't open \"$tmpfile\" for writing: $!\n";
+  my $fh = open($tmpfile, :w) err die "Couldn't open \"$tmpfile\" for writing: $!\n";
   print $fh: "TestÄÖÜ\n\n0";
   close $fh err die "Couldn't close \"$tmpfile\": $!\n";
 }
