@@ -219,7 +219,7 @@ findVarRef name
             Just env -> local (const env) $ do
                 findVarRef (sig ++ name')
             Nothing -> retError "cannot access OUTER:: in top level" name
-    | ('$':'?':_) <- name = do
+    | (_:'?':_) <- name = do
         rv  <- getMagical name
         case rv of
             Nothing  -> doFindVarRef name
@@ -273,8 +273,11 @@ getMagical "$?POSITION" = posSym pretty
 getMagical "$?MODULE"   = constSym "main"
 getMagical "$?OS"       = constSym $ getConfig "osname"
 getMagical "$?CLASS"    = fmap (Just . VType . mkType) (asks envPackage)
+getMagical ":?CLASS"    = fmap (Just . VType . mkType) (asks envPackage)
 getMagical "$?PACKAGE"  = fmap (Just . VType . mkType) (asks envPackage)
+getMagical ":?PACKAGE"  = fmap (Just . VType . mkType) (asks envPackage)
 getMagical "$?ROLE"     = fmap (Just . VType . mkType) (asks envPackage)
+getMagical ":?ROLE"     = fmap (Just . VType . mkType) (asks envPackage)
 getMagical _            = return Nothing
 
 evalRef :: VRef -> Eval Val

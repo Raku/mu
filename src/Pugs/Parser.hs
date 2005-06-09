@@ -1125,8 +1125,9 @@ parseTerm = rule "term" $ do
 ruleTypeVar :: RuleParser Exp
 ruleTypeVar = rule "type" $ try $ do
     string "::"
-    name <- ruleQualifiedIdentifier
-    return $ Var (':':name)
+    twigil  <- ruleTwigil
+    name    <- fmap (concat . intersperse "::") $ many wordAny `sepBy1` (try $ string "::")
+    return $ Var $ ":" ++ twigil ++ name
 
 ruleTypeLiteral :: RuleParser Exp
 ruleTypeLiteral = rule "type" $ do
