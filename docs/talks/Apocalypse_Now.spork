@@ -149,8 +149,8 @@ Autrijus Tang
 * Sigils and references work just fine:
 
     $s          @a          %h      
-+    $$s         @a[0]       @h{'!'} 
-+    $s.method   @a.method   @h.method
++    $$s         @a[0]       %h{'!'} 
++    $s.method   @a.method   %h.method
 
 +* Clean and simple semantics:
 
