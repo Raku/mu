@@ -170,7 +170,7 @@ Autrijus Tang
 +* Hence, the Jenga architecture of /re(ab)use/
 +* Macro programming sucks: Source filter and `eval ""`
 +* Micro programming sucks: GC, threads, number crunch...
-+* Arbitary limitations on regex, operators, grammar, etc.
++* Arbitrary limitations on regex, operators, grammar, etc.
 +* OO and functional code are unfairly handicapped in Golf ;-)
 
 ----
@@ -300,7 +300,7 @@ Autrijus Tang
 * Compress three keystrokes to one:
 
     $obj.method()
-    $a_ref.[1]      # also as $ref[1]
+    $a_ref.[1]      # also as $a_ref[1]
     $h_ref.<key>    # $h_ref<key>, $h_ref{'key'}
     $c_ref.()       # $c_ref()
 
@@ -416,7 +416,7 @@ Autrijus Tang
 
 {image: http://perlcabal.org/~autrijus/images/boolean.jpg}
 
-* Short circulting:
+* Short circuiting:
 
     $var  = 9 || 3; # 9
 
@@ -612,7 +612,7 @@ Autrijus Tang
     $name ~~ s/Dan/Chip/;
     m:perl5/(\()?[^()]+(?(1)\))/;
 
-+* Postfix modifiers moved to front ot string
++* Postfix modifiers moved to front of string
 
     s:g/a/b/
     m:P5<ism>/^yes.../
@@ -764,7 +764,7 @@ Autrijus Tang
 +* Test first
 +* JFDI, based on Perl6::Bible
 ** Unspecified features: t/unspecced/
-+* Average one more contributer every day
++* Average one more contributor every day
 
 ----
 == Documentation
@@ -939,7 +939,7 @@ Text-Glob Tree fp lib libwww-perl
 +* Leo and Chip will be talking about Parrot in a bit
 ** We'll stay at Leo's place for the next 10 days
 +* Merge Pugs's interpreter core with PAST
-+* Watch my use.perl jounal for updates!
++* Watch my use.perl journal for updates!
 
 ----
 == Thank you!
