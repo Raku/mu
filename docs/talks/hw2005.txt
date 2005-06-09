@@ -631,15 +631,15 @@ an "async" boundary:
     async { say foo() }     # fails to resume foo's continuation context
 
 To solve this problem, we need to represent the continuation context as data
-structure.  Here we make use of the CC_2CPST monad from Oleg et al., based on
-Sabyr et al.'s "Monadic Structure for Subcontinuations":
+structure.  Here we make use of the CC_2CPST monad from Oleg Kiselyov et al,
+based on Dybvig, Peyton-Jones and Sabry's previous work:
 
     newtype Cont m r a b = Cont (a -> MC r m b)
     newtype CC r m a = CC (forall b. Cont m r a b -> MC r m b)
     newtype MC r m b = MC (forall ans. MetaCont r m b ans -> PromptTR.P r m ans)
 
-We further use Oleg's ZipperD design to represent the evaluation as a traversal
-on the Exp type, keeping the position as a [Direction] type:
+We further use Kiselyov's ZipperD design to represent the evaluation as a
+traversal on the Exp type, keeping the position as a [Direction] type:
 
     evaluate :: Eval Exp -> Val
     evaluate = runCC (...)
@@ -663,11 +663,10 @@ image:
     showEvalD  :: EvalD -> STM String
     readEvalD  :: String -> STM EvalD
 
-This has many interesting applications, including Seaside-like web
-continuations. We'll update this space when we actually get this thing
-implemented...
-
-Oh also Parrot's Continuation PMC is happy and may be serialised too... tbdtbd
+This has many interesting applications, including Seaside-like web continuations,
+omniscient debugging, and mobile code.  Since Parrot also supports reified
+Continuation objects, we plan to work with Parrot developers to add
+serialisation capabilities as well.
 
 ---------------------------------------------------------------------------
 
