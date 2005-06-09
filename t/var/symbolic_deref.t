@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 6;
+plan 8;
 
 # L<S02/"Names and Variables" /All symbolic references are done with this notation:/>
 {
@@ -45,4 +45,16 @@ plan 6;
   my $a_var = 42;
   my $sub   = sub { $::("CALLER")::("a_var") };
   is $sub(), 42, "symbolic dereferentation works with ::CALLER, too";
+}
+
+# Symbolic dereferentiation of type vars
+{
+  cmp_ok ::Array, &infix:<=:=>, ::("Array"),
+    "symbolic dereferentiation of type vars works (1)";
+}
+
+{
+  class A::B::C {}
+  cmp_ok ::A::B::C, &infix:<=:=>, ::A::("B")::C,
+    "symbolic dereferentiation of type vars works (2)";
 }
