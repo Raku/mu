@@ -4,6 +4,9 @@ presentation_title: Perl 6 is Here Today
 presentation_place: http://autrijus.org/apoc/start.html
 presentation_date: June 9th, 2005
 ----
+{image: http://perlcabal.org/~autrijus/today.jpg}
+
+----
 
     A ship then new they built for him
     of mithril and of elven glass.
@@ -66,40 +69,39 @@ presentation_date: June 9th, 2005
     $hash->{3};
     $obj->method($arg);
 
-    { hash => 1 }
++    { hash => 1 }
     [ 'array' ]
-    \eval{'scalar'}
++    \eval{'scalar'}
 
 ----
 == Perl 5: Closures
 
-my $var;
+    my $var;
 
-$code = sub { ... };
+    $code = sub { ... };
 
-for my $i (1..10) { ... };
+    for my $i (1..10) { ... };
 
 ----
 == Perl 5: Modules
 
-use strict;
-no warnings;
+    use strict;
+    no warnings;
 
-$Package::name;
-bless($reference => 'Package');
-tie($container => 'Package');
+    $Package::name = 1;
+
+    bless($reference => 'Package');
+    tie($container => 'Package');
 
 ----
 == But even more importantly...
 
-* CPAN is Here Today and Here to Stay!
+* CPAN is Here Today (and Here to Stay)!
++** "CPAN is my programming language of choice; the rest is just syntax."
 
-+"CPAN is my programming language of choice; the rest is just syntax."
-
-+* 8000+ modules
-* 2500+ authors
-* Automatic download, test and install
-* Smoke testing, issue tracking, cross-reference, ratings...
++* 8000+ modules, 2500+ authors
+** Automatic download, test and install
+** Smoke testing, issue tracking, cross-reference, ratings...
 
 +* CPAN is the greatest thing ever happened to Perl
 +** ...However, heavy taxation from Perl 5 really hurts
@@ -110,8 +112,8 @@ tie($container => 'Package');
 * Sigils and references don't match:
 
     $s          @a      %h      
-    $$s         $a[0]   $h{'!'} 
-    $s->method  ☹       ☹
++    $$s         $a[0]   $h{'!'} 
++    $s->method  ☹       ☹
 
 +* Forced redundancy:
 
@@ -128,9 +130,9 @@ tie($container => 'Package');
 
 * Sigils and references work just fine:
 
-    $s          @a      %h      
-    $$s         $a[0]   $h{'!'} 
-    $s->method  ☹       ☹
+    $s          @a          %h      
++    $$s         @a[0]       @h{'!'} 
++    $s.method   @a.method   @h.method
 
 +* Clean and simple semantics:
 
@@ -147,8 +149,8 @@ tie($container => 'Package');
 +* Backward compatibility leaves little wiggle room
 +* Hence, the Jenga architecture of /re(ab)use/
 +* Macro programming sucks: Source filter and `eval ""`
-+* Micro programming sucks: GC and Threads are slow; number crunching even slower
-+* Arbitary limitations on regex, operators, grammar...
++* Micro programming sucks: GC, threads, number crunch...
++* Arbitary limitations on regex, operators, grammar, etc.
 +* OO and functional code are unfairly handicapped in Golf ;-)
 
 ----
@@ -166,7 +168,18 @@ tie($container => 'Package');
 == Without further ado...
 
 * We present: `cpan-upload.p6`!
-+* The first batch of Perl 5 programs looked like that:
+
+    use AppConfig::Std--perl5;
+    use Net::FTP--perl5;
+    use HTTP::Request::Common--perl5;
+    use LWP::UserAgent--perl5;
+    use HTTP::Status--perl5;
+    use File::Basename--perl5;
+
+----
+== Incremental transition
+
+* The first batch of Perl 5 programs looked like that:
 
     require 'open3.pl';
     require 'bigint.pl';
@@ -177,33 +190,42 @@ tie($container => 'Package');
     use DBI--perl5;
     use Template--perl5;
 
-+* Pugs's speed becomes less of an issue 
+* Pugs's speed becomes less of an issue then.
 
 ----
 == "Never do live demo"
-+* Math:    mandel
-+* Network: http-server
-+* Obfu:    ipw-japh
-+* Games:   hangman
-+* WWW:     mod_pugs
-+* Prelude.pm!
+
+* Math:    mandel
+* Network: http-server
+* Obfu:    ipw-japh
+* Games:   hangman
+* WWW:     mod_pugs
+* Prelude.pm!
 
 ----
 == Upcoming: Catalyst on Pugs!
 
 * sri started working on it two weeks ago
+
+    <sri> Perl 6 is damn sexy
+    <sri> Perl 5 is a horrible hack
+    <autrijus> It's a damn sexy hack, though
+    <sri> True, but still a hack
+
 +* Two days later, lathos started to port Maypole to Pugs
-+** They are still work in progress
-+** But sri and lathos both praise Perl 6
-+* However, lots of dependencies were ported during the course:
-+** `Text::Glob`, `File::Find`, `FindBin.pm`, etc...
-+** First draft of `POE.pm` arrived yesterday!
-+** More yet to come
+
+    <lathos> I'm actually *really* enjoying porting Maypole to Perl 6.
+    <lathos> SO much cleaner.
+
++* Lots of dependencies were ported during the course:
+** `Text::Glob`, `File::Find`, `FindBin.pm`, etc...
++* More yet to come.
+** e.g., first draft of `POE.pm` arrived yesterday!
 
 ----
 == Obligatory timeline picture
 
-{image: http://pugscode.org/perl6.png}
+{image: http://pugscode.org/perl6-timeline.png}
 
 * I'll show quick walkthrough of Perl 6 features
 +** Mostly taken from Allison Randal's /Perl 6 Update/
@@ -272,7 +294,7 @@ tie($container => 'Package');
 
     sub clean ($text, $method) { ... }          # by address
     sub by_value ($text is copy) { ... }        # by value
-    sub some_opt ($req, ?$opt = $req) { ... }   # optional with default
+    sub some_opt ($req, ?$opt = $req) { ... }   # optional
     sub modify ($text is rw) { ... }            # writable
     sub typed (Int $num, Str $txt) { ... }      # typed
 
@@ -360,7 +382,7 @@ tie($container => 'Package');
 
     $var  = 9 || 3; # 9
 
-** Boolean, numeric and bitwise logic:
++* Boolean, numeric and bitwise logic:
 
     $bool = 9 ?| 3; # bool::true
     $true = 9 +| 3; # 11
@@ -374,11 +396,11 @@ tie($container => 'Package');
 ----
 == Hyper operators
 
-* On binary operators:
+* Hyperised binary operators:
 
     (1,1,2,3,5) »+« (1,2,3,5,8);  # (2,3,5,8,13)
 
-+* On unary operators:
++* Hyperised unary operators:
 
     -« (1,2,3); # (-1, -2, -3)
 
@@ -407,7 +429,8 @@ tie($container => 'Package');
     $options = '--help' | '-d' | '-e';
     if all($x, $y, $z) eq $options { ... }
 
-    # The equivalent Perl 5 code:
++* The equivalent Perl 5 code:
+
     if (($x eq "--help" || $x eq "-d" || $x eq "-e") and
         ($y eq "--help" || $y eq "-d" || $y eq "-e") and
         ($z eq "--help" || $z eq "-d" || $z eq "-e")) { ... }
@@ -426,12 +449,16 @@ tie($container => 'Package');
     $alias := $scalar;
     @alias := @array;
 
-* Aliasing a single container
++* Aliasing a single container
 
     $alias := @array[2]{'many'}{'keys'};
 
++* Aliasing at BEGIN time:
+
+    my $PI ::= 355/113;
+
 ----
-== Match and Switch
+== Smart Match
 
 * `=~` is now spelled as `~~`:
 
@@ -444,12 +471,22 @@ tie($container => 'Package');
     $string ~~ any(<a b c d>);
     $obj    ~~ Class;
 
+----
+== Switch Statement
+
 * `given`/`when` uses the same way to match things:
 
     given $string {
         when all(/foo/, /bar/)  { ... }
         when .is_very_long      { ... }
         default                 { ... }
+    }
+
++* You can use `given` by itself:
+
+    given $very.complex.object {
+        .method1;
+        .method2;
     }
 
 ----
@@ -469,11 +506,6 @@ tie($container => 'Package');
     for zip(@a,@b) -> $a, $b {
         say "Are you $a or $b?";
     }
-
-+* C's three-part for is now `loop`
-
-    loop ($i = 1; $i < 5; $i++) { ... }
-    loop { do_forever() }
 
 ----
 == Exceptions
@@ -598,14 +630,14 @@ tie($container => 'Package');
 ----
 == Pugs
 
-{image: http://data.gugod.org/pugs-commits-churn.png}
+{image: http://linide.sourceforge.net/pugs-svngraph-6.2.5.png}
 
 * So, what's this Pugs thing, really?
 
 ----
 == Download and install
 
-* 6.2.7: release today!
+* 6.2.7: To be released today!
 
     http://pugscode.org/
     http://search.cpan.org/dist/Perl6-Pugs/
@@ -628,7 +660,7 @@ tie($container => 'Package');
 ----
 == History
 
-{image: http://data.gugod.org/pugs-commits-churn.png}
+{image: http://linide.sourceforge.net/pugs-svngraph-6.2.5.png}
 
 * Started at Feb 1st; 4 months old now
 +* Self-inflicted TaPL exercise in Haskell
@@ -671,8 +703,6 @@ tie($container => 'Package');
 ----
 == Pugs the Anarchistic Community
 
-{image: http://linide.sourceforge.net/svngraph.png}
-
 * Wiki-style development
 +* To become a Pugs committer, you just need to:
 ** Commit stuff ;)
@@ -714,10 +744,10 @@ tie($container => 'Package');
 ** Haskell modules
 +* Native:
 
-    Algorithm-TokenBucket Benchmark CGI Config-Tiny Date File-Find
-    File-Spec FindBin HTML-Entities Kwid-Event-Parser Locale-KeyedText
-    Net-IRC POE Perl-MetaModel Pod-Event-Parser Set Test Test-Builder
-    Text-Glob Tree fp lib libwww-perl
+Algorithm-TokenBucket Benchmark CGI Config-Tiny Date File-Find
+File-Spec FindBin HTML-Entities Kwid-Event-Parser Locale-KeyedText
+Net-IRC POE Perl-MetaModel Pod-Event-Parser Set Test Test-Builder
+Text-Glob Tree fp lib libwww-perl
 
 ----
 == Use Pugs in Perl 5 code
@@ -745,19 +775,19 @@ tie($container => 'Package');
 * Classes and Objects
 +* Inheritance
 +* Subtyping
-+* Introspection # todo
-+* Roles # todo
++* Introspection # /TODO/
++* Roles # /TODO/
 
 ----
 == Rules core: 6.283.*
 
 * Match/substitution with rules
 +* Named and nested captures
-+* Closures in rules # todo 
-+* Grammar classes # todo
++* Closures in rules # /TODO/
++* Grammar classes # /TODO/
 
 ----
-== Approximating 2π
+== Approximating /2π/
 
 * 6.2831
 ** Role composition
@@ -782,9 +812,9 @@ tie($container => 'Package');
 == Bonus Revelations
 
 * Imminent
-** Amazingly
-*** Great
-**** Stuff!
++** Amazingly
++*** Great
++**** Stuff!
 
 ----
 == Software Transaction Memory
@@ -796,7 +826,7 @@ tie($container => 'Package');
     async { my $c = $a; $a = $c + 1 };
     say $a;     # 2? 3?
 
-+* It's either deadlocks, or huge select() loops
++* It's either deadlocks, or huge `select()` loops
 
 +* Now solved with automatic rollback:
 
@@ -813,16 +843,16 @@ tie($container => 'Package');
 == Serialised Continuations
 
 * What if `dump()` works reliably...
-+** anywhere in your program
-+** that can dump only part of the stack
-+** and produces really small images?
-* No need for web sessions anymore
++** Anywhere in your program
++** On part of the stack
++** And produces really small images?
++* No need for web sessions anymore
 +** Just save the application state in forms and cookies
 +** Multi-step control flow becomes trivial
-* Omniscient debugging
++* Omniscient debugging
 +** Go back and forth in time
 +** Not only observe, but modify the program in real-time
-* Many more applications: clustering, mobile code, etc...
++* Many more applications: clustering, mobile code, etc...
 
 ----
 == Pugs on Parrot!
@@ -839,5 +869,5 @@ tie($container => 'Package');
 ----
 == Thank you!
 
-Any questions?
+* Any questions?
 
