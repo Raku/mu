@@ -84,7 +84,7 @@ method invert($self: *@items) returns int {
 }
 
 method clear() {
-    undef %:members;
+    undefine %:members;
 }
 
 method clone ($self:) returns Set::Hash {

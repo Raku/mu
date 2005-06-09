@@ -34,7 +34,7 @@ syn keyword p6KeyFunc       keys values pairs defined delete exists
 syn keyword p6KeyFunc       gather take any pick all none
 syn keyword p6KeyFunc       pop push shift splice unshift  
 syn keyword p6KeyFunc       abs exp log log10 rand sign sqrt      
-syn keyword p6KeySpecial    operator undef
+syn keyword p6KeySpecial    operator undef undefine
 syn keyword p6KeyCompare    eq ne lt le gt ge == != < <= > >=
 
 syn match p6KeyIO "-[rwxoRWXOezsfdlpSbctugkTBMAC]"
