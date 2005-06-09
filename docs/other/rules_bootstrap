@@ -65,10 +65,16 @@ pugs may happen rapidly, providing callbacks (risk low?high?; alternate
 mechanism?); platform availability of perl5 linkage (???); friction in the
 linkage (???); complexity (most of P6CRE development time was spent
 fighting pugs and perl6, rather than the domain, but still, P6CRE is
-unfinished, and the domain has lots of details to look after).
+unfinished, and the domain has lots of details to look after); may be
+obsoleted by Parsec combinators; depends on experimental regexp features
+which are apparently... unevenly supported across perl5 versions.
 
 Limitations: paper airplane - just an idea.
 
 A possiblity: do a very rough and initial version, and *check it in* (this
 being written by the P6CRE author who hasn't yet;).  Then depending on how
 easy it is, and how much PGE is or isn't a bottleneck, we can flesh it out.
+
+* Unnamed - compiling rules into Parsec combinators
+
+See hw2005.txt.
