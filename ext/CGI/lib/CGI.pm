@@ -18,6 +18,7 @@ my $IS_PARAMS_LOADED = 0;
 # information functions
 
 sub clear_params returns Void is export { %PARAMS = () }
+sub reset_params returns Void is export { %PARAMS = (); $IS_PARAMS_LOADED = 0; }
 
 sub query_string   returns Str is export { $QUERY_STRING   }
 sub request_method returns Str is export { $REQUEST_METHOD }
