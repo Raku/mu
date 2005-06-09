@@ -8,7 +8,7 @@ class HTTP::Message-0.1;
 
 our $CRLF = "\015\012";
 
-has $:headers does <
+has $:headers handles <
     header push_header init_header remove_header remove_content_headers header_field_names scan
    date expires if_modified_since if_unmodified_since last_modified
    content_type content_encoding content_length content_language
@@ -269,7 +269,7 @@ method :boundary ($self: Num ?$size) returns Str {
     my $b;
     # XXX use MIME::Base64::encode
     #$b = MIME::Base64::encode(1..($size * 3).map:{ chr(rand(256)) }.join(""), "");
-    $b ~~ s:P5:g/\W+/X/g; # ensure alnum only
+    $b ~~ s:P5:g/\W+/X/; # ensure alnum only
     return $b;
 }
 
