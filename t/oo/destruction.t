@@ -30,7 +30,7 @@ is( $foo.ref,      'Foo', 'basic instantiation of declared class' );
 ok( ! $in_destructor,    'destructor should not fire while object is active' );
 
 my $child = Child.new();
-undef $child;
+undefine $child;
 
 # no guaranteed timely destruction, so replace $a and try to force some GC here
 for 1 .. 100

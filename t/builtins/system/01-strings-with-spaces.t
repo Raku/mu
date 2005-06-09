@@ -155,7 +155,7 @@ for @command -> $cmd {
     };
     $fh.say(")");
     $fh.close();
-    undef $fh;
+    undefine $fh;
 
     push @cleanup, $prog;
   };

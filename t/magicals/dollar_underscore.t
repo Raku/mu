@@ -14,11 +14,11 @@ This test tests the C<$!> builtin.
 eval '&nonexisting_subroutine()';
 ok $!, 'Calling a nonexisting subroutine sets $!';
 
-undef $!;
+undefine $!;
 eval 'nonexisting_subroutine;';
 ok $!, 'Calling a nonexisting subroutine sets $!';
 
-undef $!;
+undefine $!;
 my $called;
 sub foo(Str $s) { return $called++ };
 my @a;
@@ -26,11 +26,11 @@ eval 'foo(@a,@a)';
 ok $!, 'Calling a subroutine with a nonmatching signature sets $!';
 ok !$called, 'The subroutine also was not called';
 
-undef $!;
+undefine $!;
 eval '1 / 0';
 ok $!, 'Dividing one by zero sets $!';
 
 sub incr ( $a is rw ) { $a++ };
-undef $!;
+undefine $!;
 eval 'incr(19)';
 ok $!, 'Modifying a constant sets $!';
