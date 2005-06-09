@@ -5,12 +5,23 @@ use Test;
 
 =kwid
 
-"undef" tests
+`undef` and `undefine` tests
 
-This test file contains two sections: a port of the perl5 undef.t tests,
-and perl6-specific tests.
+This test file contains two sections: a port of the perl5 `undef.t` tests, and
+perl6-specific tests.
 
 =cut
+
+# Note: See thread "Undef issues" by Adrian Taylor on p6l
+# (http://groups.google.com/groups?threadm=20050601002444.GB32060@wall.org):
+#   On Tue, May 24, 2005 at 10:53:59PM +1000, Stuart Cook wrote:
+#   : I'm not sure whether this behaviour is supposed to be changing.
+#   
+#   It is.  I think we decided to make the value undef, and the function
+#   undefine().  (But these days most values of undef really ought to
+#   be constructed and returned (or thrown) using fail().)
+#   
+#   Larry
 
 plan 72;
 
@@ -28,7 +39,7 @@ ok(!defined(undef), "undef is not defined");
 	$a += 1; # should not emit a warning. how to test that?
 	ok(defined($a), "initialized var is defined");
 
-	undef $a;
+	undefine $a;
 	ok(!defined($a), "undef($a) does");
 
 	$a = "hi";
@@ -59,7 +70,7 @@ ok(!defined(undef), "undef is not defined");
 	ok(defined(%hash<bar>), "hash subscript");
 	ok(!defined(%hash<bargho>), "non-existent hash subscript");
 
-	undef %hash<bar>;
+	undefine %hash<bar>;
 	ok(!defined(%hash<bar>), "undef hash subscript");
 
 	%hash<bar> = "baz";
@@ -69,11 +80,11 @@ ok(!defined(undef), "undef is not defined");
 	ok(defined(@ary), "aggregate array defined");
 	ok(defined(%hash), "aggregate hash defined");
 
-	undef(@ary);
-    ok(!defined(@ary), "undef array",:todo<bug>);
+	undefine(@ary);
+        ok(!defined(@ary), "undef array",:todo<bug>);
 
-	undef(%hash);
-    ok(!defined(%hash), "undef hash",:todo<bug>);
+	undefine(%hash);
+        ok(!defined(%hash), "undef hash",:todo<bug>);
 
 	@ary = (1);
 	ok(defined(@ary), "define array again");
@@ -138,7 +149,7 @@ Perl6-specific tests
 	isa_ok($ary_r, "Array");
 	ok(defined($ary_r), "array reference");
 
-	undef @ary;
+	undefine @ary;
 	ok(!+$ary_r, "undef array referent");
 
 	is(+$ary_r, 0, "dangling array reference");
@@ -147,7 +158,7 @@ Perl6-specific tests
 	my $hash_r = %hash;
 	isa_ok($hash_r, "Hash");
 	ok(defined($hash_r), "hash reference");
-	undef %hash;
+	undefine %hash;
 	ok(defined($hash_r), "undef hash referent:");
 	is(+$hash_r.keys, 0, "dangling hash reference");
 }

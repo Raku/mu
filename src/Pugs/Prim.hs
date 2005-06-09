@@ -136,7 +136,8 @@ op1 "capitalize" = op1Cast $ VStr . (mapEachWord capitalizeWord)
           where (word,rest) = break isSpace str
     capitalizeWord []     = []
     capitalizeWord (c:cs) = toUpper c:(map toLower cs)
-op1 "undef" = \x -> do
+op1 "undef" = const $ return undef
+op1 "undefine" = \x -> do
     when (defined x) $ do
         ref <- fromVal x
         clearRef ref
@@ -1334,7 +1335,8 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Ref       spre    \\      safe   (rw!Any)\
 \\n   List      post    ...     safe   (Str)\
 \\n   List      post    ...     safe   (Scalar)\
-\\n   Any       pre     undef   safe   (?rw!Any)\
+\\n   Any       pre     undef     safe   ()\
+\\n   Any       pre     undefine  safe   (?rw!Any)\
 \\n   Str       pre     chop    safe   (?rw!Str=$_)\
 \\n   Str       pre     chomp   safe   (?rw!Str=$_)\
 \\n   Any       right   =       safe   (rw!Any, Any)\

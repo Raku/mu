@@ -1433,10 +1433,13 @@ nullaryLiteral = try $ do
 undefLiteral :: RuleParser Exp
 undefLiteral = try $ do
     symbol "undef"
-    (invs,args)   <- maybeParens $ parseParamList
-    return $ if isNothing invs && null args
-        then Val VUndef
-        else App (Var "&undef") invs args
+    return $ Val VUndef
+    {-
+        (invs,args)   <- maybeParens $ parseParamList
+        return $ if isNothing invs && null args
+            then Val VUndef
+            else App (Var "&undef") invs args
+    -}
 
 numLiteral :: RuleParser Exp
 numLiteral = do
