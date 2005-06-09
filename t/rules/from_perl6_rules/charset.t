@@ -41,8 +41,12 @@ ok(']' ~~ m/(<[\]]>)/, 'quoted close LSB match', :todo<feature>);
 is($0, ']', 'quoted close LSB capture', :todo<feature>);
 ok('[' ~~ m/(<[\[]>)/, 'quoted open LSB match');
 is($0, '[', 'quoted open LSB capture');
-ok('{' ~~ m{(<[\{]>)}, 'quoted open LCB match');
-is($0, '{', 'quoted open LCB capture');
-
+# Hack needed to make this file at least compile and run the other tests.
+{
+  my ($dollar_null, $res);
+  eval '$res = "{" ~~ m{(<[\{]>)}; $dollar_null = $0';
+  ok($res, 'quoted open LCB match');
+  is($dollar_null, '{', 'quoted open LCB capture');
 }
 
+}
