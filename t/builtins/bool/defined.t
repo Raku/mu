@@ -36,7 +36,7 @@ ok(defined($foo), 'variable $foo is now defined (as string "a")');
 $foo = 0;
 ok(defined($foo), 'variable $foo is now defined (as numeric literal 0)');
 
-undef($foo);
+undefine($foo);
 ok(!defined($foo), 'undef $foo works');
 
 # try the invocant syntax
@@ -59,7 +59,7 @@ ok($foo.defined, 'variable $foo is now defined (as string "a")');
 $foo = 0;
 ok($foo.defined, 'variable $foo is now defined (as numeric literal 0)');
 
-undef($foo);
+undefine($foo);
 ok(!$foo.defined, 'undef $foo works');
 
 

@@ -71,7 +71,7 @@ ok(!defined(undef), "undef is not defined");
 	ok(!defined(%hash<bargho>), "non-existent hash subscript");
 
 	undefine %hash<bar>;
-	ok(!defined(%hash<bar>), "undef hash subscript");
+	ok(!defined(%hash<bar>), "undefine hash subscript");
 
 	%hash<bar> = "baz";
 	%hash.delete("bar");
@@ -81,10 +81,10 @@ ok(!defined(undef), "undef is not defined");
 	ok(defined(%hash), "aggregate hash defined");
 
 	undefine(@ary);
-        ok(!defined(@ary), "undef array",:todo<bug>);
+        ok(!defined(@ary), "undefine array",:todo<bug>);
 
 	undefine(%hash);
-        ok(!defined(%hash), "undef hash",:todo<bug>);
+        ok(!defined(%hash), "undefine hash",:todo<bug>);
 
 	@ary = (1);
 	ok(defined(@ary), "define array again");
@@ -159,7 +159,7 @@ Perl6-specific tests
 	isa_ok($hash_r, "Hash");
 	ok(defined($hash_r), "hash reference");
 	undefine %hash;
-	ok(defined($hash_r), "undef hash referent:");
+	ok(defined($hash_r), "undefine hash referent:");
 	is(+$hash_r.keys, 0, "dangling hash reference");
 }
 

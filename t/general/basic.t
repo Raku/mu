@@ -20,7 +20,7 @@ sub toys { "fun and games!" }
 (2).cool;  # and that is it, folks!
 
 my $foo = "Foo";
-eval 'undef $foo';
+eval 'undefine $foo';
 ok(!$foo, 'undef');
 
 my $bar;
