@@ -28,6 +28,7 @@ multi sub uri_escape (Str $string is copy) returns Str is export {
     $string = uri_escape($string, "A-Za-z0-9\-_.!~*'()", negate => bool::true);
 }
 
+# XXX need Encode for this
 multi sub uri_escape_utf8 (Str $string is copy, Rule $unsafe) returns Str is export {
     ...
 }
@@ -47,3 +48,5 @@ sub uri_unescape (Str $string is copy) returns Str is export {
 sub fail_hi (Str $char) {
     ...
 }
+
+1;
