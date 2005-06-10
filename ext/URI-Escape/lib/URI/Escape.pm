@@ -17,7 +17,7 @@ for 0..255 -> $char {
 multi sub uri_escape (Str $string is copy, Str $unsafe, Bool +$negate) returns Str is export {
     my $pattern;
     
-    $pattern = ($negate) ?? rx:P5/([^$unsafe])/ :: rx:P5/([$unsafe])/;
+    $pattern = ($negate) ?? '([^$unsafe])' :: '([$unsafe])';
     
     $string ~~ s:P5:g/$pattern/{ %escapes{$0} || fail_hi($0) }/;
     
@@ -26,6 +26,8 @@ multi sub uri_escape (Str $string is copy, Str $unsafe, Bool +$negate) returns S
 
 multi sub uri_escape (Str $string is copy) returns Str is export {
     $string = uri_escape($string, "A-Za-z0-9\-_.!~*'()", negate => bool::true);
+    
+    return $string;
 }
 
 # XXX need Encode for this
@@ -46,7 +48,7 @@ sub uri_unescape (Str $string is copy) returns Str is export {
 }
 
 sub fail_hi (Str $char) {
-    ...
+    die sprintf("Can't escape \\x{%04X}, try uri_escape_utf8() instead", ord $char);
 }
 
 1;
