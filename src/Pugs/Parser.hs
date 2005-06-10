@@ -1394,15 +1394,15 @@ ruleSymbolicDeref :: RuleParser Exp
 ruleSymbolicDeref = do
     sigil    <- oneOf "$@%&"
     nameExps <- many1 $ do
-	string "::"
+        string "::"
         -- nameExp is the expression which will yield the varname.
         -- We've to include ruleTwigil here to make $::?SELF parse.
         -- XXX: This looks slightly odd to me -- is one forced to say
-        -- $::("?SELF") instead?
-	(parens ruleExpression) <|> (liftM (Val . VStr) $ do
+        --  $::("?SELF") instead?
+        (parens ruleExpression) <|> (liftM (Val . VStr) $ do
             choice
-                [ string "!"  -- $!
-                , string "/"  -- $/
+                [ string "!"  --  $!
+                , string "/"  --  $/
                 , liftM concat $ sequence [ruleTwigil, many1 wordAny] ])
     return $ Syn (sigil:"::()") nameExps
 
