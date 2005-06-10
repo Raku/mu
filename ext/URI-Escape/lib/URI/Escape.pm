@@ -43,7 +43,7 @@ multi sub uri_escape_utf8 (Str $string is copy) returns Str is export(:DEFAULT) 
     ...
 }
 
-sub uri_unescape (Str $string is copy) returns Str is export(:DEFAULT) {
+sub uri_unescape (*@str is copy) returns Str is export(:DEFAULT) {
     ...
 }
 
