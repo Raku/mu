@@ -43,8 +43,14 @@ multi sub uri_escape_utf8 (Str $string is copy) returns Str is export(:DEFAULT) 
     ...
 }
 
-sub uri_unescape (*@str is copy) returns Str is export(:DEFAULT) {
-    ...
+multi sub uri_unescape ($str is copy) returns Str is export(:DEFAULT) {
+    $str ~~ s:P5:g/%([0-9A-Fa-f]{2})/{ chr(hex($0)) }/;
+}
+
+multi sub uri_unescape (*@str is copy) returns Array is export(:DEFAULT) {
+    @str = @str.map:{ uri_unescape($_) };
+    
+    return @str;
 }
 
 sub fail_hi (Str $char) {
