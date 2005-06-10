@@ -99,11 +99,12 @@ overview of the Perl community, and how Perl 6 has come to be.
 
 2.1. Historical Background
 
-Following Perl 5's release in 1994, a community of volunteers known as the
-"Perl 5 porters" was formed to take charge of the ongoing development of
-Perl 5.  For each major revision, the porters appoint a "pumpking" (release
-manager) to lead the design process and arbitrate patches submitted by other
-porters.
+During Perl 5's beta development in 1993, a community of volunteers known as
+the "Perl 5 porters" was formed to port Perl to other platforms.  The group's
+role evolved into maintenance and enhancement.  As development continued, Wall
+appoints individual members of the group to act as "pumpkings" (release
+managers) to lead the design process and arbitrate patches submitted by other
+developers.
 
 In 1995, Jarkko Hietaniemi and Andreas König established the Comprehensive Perl
 Archive Network (CPAN), an infrastructure for sharing freely reusable
@@ -161,11 +162,11 @@ sub-rules that handle parts of the program.  Rules may contain embedded Perl 6
 code to produce side effects.  For example, the "BEGIN {...}" syntax defines a
 block of code to be executed during compilation.
 
-Immediately after parsing a BEGIN block, the compiler will generate
-object code for the block, then dynamically load and run that code. The
-generated code has access to the compilation environment.  It may rewrite the
-partially produced parse tree, define new grammar rules, or replace the
-compiler entirely from the next token onwards.
+Immediately after parsing a BEGIN block, the compiler will generate object code
+for the block, then immediately run that code.  The generated code has access
+to the compilation environment; it may rewrite the partially produced parse
+tree, define new grammar rules, or replace the compiler entirely from the next
+token onwards.
 
 With a default grammar that supports user-defined operators of arbitrary fixity
 and precedence, programmers can easily introduce new language semantics under
@@ -468,10 +469,10 @@ the two lines below do different things in Perl 6:
     %foo{"PATH"} = "/tmp";  # modify an in-memory storage
     %ENV{"PATH"} = "/tmp";  # calls setenv() to change the environment
 
-Here the operation is polymorphic: Perl looks up the container that "%foo"
-and "%ENV" bind to, then fetches their associated "implementation objects".
-It then calls the "STORE" method on those objects, passing the key and value
-as arguments.
+Here the operation is polymorphic: Perl looks up the containers that "%foo"
+and "%ENV" bind to, then check if they have associated "implementation
+objects".  If yes, Perl then calls the "STORE" method on those objects, passing
+the key and value as arguments.
 
 There is a level of indirection between containers and implementation objects,
 as the "tie" function can change a container's implementation at runtime.  As
