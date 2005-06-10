@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 60;
+plan 70;
 force_todo 2, 11, 19, 23, 34, 38;
 
 =pod
@@ -228,3 +228,65 @@ is( $foo7.bar, 4,
     'optional attribute should take passed-in value over default' );
 is( $foo7.baz, 10,
     '... optional non-attribute should too' );
+
+
+# check that args are passed to BUILD
+class Foo8 {
+  has $.a;
+  has $.b;
+  
+  submethod BUILD(+$foo, +$bar) {
+    $.a = $foo;
+    $.b = $bar;
+  }
+}
+
+{
+    my $foo = Foo8.new(foo => 'c', bar => 'd');
+    ok($foo.isa(Foo8), '... our Foo8 instance was created');
+        
+    is($foo.a, 'c', 'BUILD received $foo');
+    is($foo.b, 'd', 'BUILD received $bar');
+}
+
+# check mixture of positional/named args to BUILD
+
+class Foo9 {
+  has $.a;
+  has $.b;
+  
+  submethod BUILD($foo, +$bar) {
+    $.a = $foo;
+    $.b = $bar;
+  }
+}
+
+{
+    my $foo = Foo9.new('pos', bar => 'd');
+    ok($foo.isa(Foo9), '... our Foo9 instance was created');
+        
+    is($foo.a, 'pos', "BUILD received 'pos'", :todo<feature>);
+    is($foo.b, 'd',   'BUILD received $bar');
+}
+
+# check $self is passed to BUILD
+class Foo10 {
+  has $.a;
+  has $.b;
+  has $.c;
+  
+  submethod BUILD(Class $self: +$foo, +$bar) {
+    $.a = $foo;
+    $.b = $bar;
+    $.c = 'y' if $self.isa(Foo10);
+  }
+}
+
+{
+    my $foo = Foo10.new(foo => 'c', bar => 'd');
+    ok($foo.isa(Foo10), '... our Foo10 instance was created');
+    
+    is($foo.a, 'c', 'BUILD received $foo');
+    is($foo.b, 'd', 'BUILD received $bar');
+    is($foo.c, 'y', 'BUILD received $self');
+}
