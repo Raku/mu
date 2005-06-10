@@ -9,23 +9,23 @@ for 0..255 -> $char {
     %escapes{chr($char)} = sprintf('%%%02X', $char);
 }
 
-multi sub uri_escape (Str $string, Rule $unsafe) {
+multi sub uri_escape (Str $string, Rule $unsafe) returns Str is export {
     ...
 }
 
-multi sub uri_escape (Str $string) {
+multi sub uri_escape (Str $string) returns Str is export {
     ...
 }
 
-multi sub uri_escape_utf8 (Str $string, Rule $unsafe) {
+multi sub uri_escape_utf8 (Str $string, Rule $unsafe) returns Str is export {
     ...
 }
 
-multi sub uri_escape_utf8 (Str $string) {
+multi sub uri_escape_utf8 (Str $string) returns Str is export {
     ...
 }
 
-sub uri_unescape (Str $string) {
+sub uri_unescape (Str $string) returns Str is export {
     ...
 }
 
