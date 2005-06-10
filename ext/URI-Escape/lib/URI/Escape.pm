@@ -6,7 +6,7 @@ module URI::Escape-0.0.1;
 our %escapes;
 
 for 0..255 -> $char {
-    %escapes{chr($char)} = sprintf('%%%02X', $char);
+    %escapes{chr($char)} = $char.as('%%%02X');
 }
 
 # XXX need to handle the Rule case -- must check that $0 is being set
