@@ -174,6 +174,7 @@ ruleBlockDeclaration = rule "block declaration" $ choice
     , ruleClosureTrait False
     , ruleRuleDeclaration
     , ruleClassDeclaration
+    , ruleModuleDeclaration
     ]
 
 ruleDeclaration :: RuleParser Exp
@@ -541,7 +542,14 @@ ruleModuleDeclaration = rule "module declaration" $ do
     (name, v, a)    <- rulePackageHead
     env     <- getRuleEnv
     putRuleEnv env{ envPackage = name, envClasses = envClasses env `addNode` mkType name }
-    return $ Syn "module" [Val . VStr $ name ++ v ++ a] -- XXX
+    body    <- option emptyExp $ between (symbol "{") (char '}') ruleBlockBody
+    let moduleDef = Syn "module" [Val . VStr $ name ++ v ++ a] -- XXX
+    case body of
+        Noop -> return moduleDef
+        _    -> do
+            env' <- getRuleEnv
+            putRuleEnv env'{ envPackage = envPackage env }
+            return $ Stmts moduleDef body
 
 ruleDoBlock :: RuleParser Exp
 ruleDoBlock = rule "do block" $ try $ do
