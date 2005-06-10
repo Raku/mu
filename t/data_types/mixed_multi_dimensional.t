@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 61;
+plan 62;
 
 =pod
 
@@ -147,4 +147,9 @@ this test should be added too more.
   is($a0.elems,2,'hash references should not get decomposed');
   is($a1.elems,1,'hash references should not get decomposed', :todo<bug>);
   is($a2.elems,1,'hash references should not get decomposed', :todo<bug>);
+}
+
+{ # nested, declared in one statement
+    my $h = { a => [ 1,2,3 ] };
+    is($h<a>.ref, 'Array', "array nested in hashref in one declaration", :todo<bug>);
 }
