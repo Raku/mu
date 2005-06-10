@@ -188,18 +188,14 @@ Double-quoted strings interpolate the elements of an array or
 a hash, closures, functions, backslashed control characters, and 
 other good stuff.  Single-quoted strings do not.
 
-    # literal spaces and tabs are the same
-    say 	"    The quick brown fox jumps over the lazy dog.";
-    say 	'    The quick brown fox jumps over the lazy dog.';
+    # literal whitespace  
+    my $squot = 	'    The quick brown fox jumps over the lazy dog.
+    	dog.';
+    my $dquot = 	"    The quick brown fox jumps over the lazy
+    	dog.";
+    say $squot;
+    say $dquot;
     
-    # but literal new lines don't work in single-quotes
-    say 	"    The quick brown fox
-    jumps over the lazy dog.";
-
-    #ERROR - perl 6 sees 'jumps' as an undefined function
-    say 	'    The quick brown fox   
-    jumps over the lazy dog.'; 
-
     # Double-quotes interpolate special backslash values,
     # but single-quotes do not
     say 'The quick brown fox\n\tjumps over the lazy dog\n';
@@ -221,15 +217,13 @@ other good stuff.  Single-quoted strings do not.
     
 =cut
 
-
-# literal spaces and tabs are the same
-say 	"    The quick brown fox jumps over the lazy dog.";
-say 	'    The quick brown fox jumps over the lazy dog.';
-
-# but literal new lines don't work in single-quotes
-say 	"    The quick brown fox
-    jumps over the lazy dog.";
-say 	'    The quick brown fox  # ERROR - perl 6 sees "jumps" as an undefined function ' ;
+# literal whitespace  
+my $squot = 	'    The quick brown fox jumps over the lazy dog.
+	dog.';
+my $dquot = 	"    The quick brown fox jumps over the lazy
+	dog.";
+say $squot;
+say $dquot;
 
 # Double-quotes interpolate special backslash values,
 # but single-quotes do not
