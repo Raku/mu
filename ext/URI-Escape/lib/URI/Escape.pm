@@ -10,11 +10,11 @@ for 0..255 -> $char {
 }
 
 # XXX need to handle the Rule case -- must check that $0 is being set
-#multi sub uri_escape (Str $string is copy, Rule $unsafe) returns Str is export {
+#multi sub uri_escape (Str $string is copy, Rule $unsafe) returns Str is export(:DEFAULT) {
 #    ...
 #}
 
-multi sub uri_escape (Str $string is copy, Str $unsafe, Bool +$negate) returns Str is export {
+multi sub uri_escape (Str $string is copy, Str $unsafe, Bool +$negate) returns Str is export(:DEFAULT) {
     my $pattern;
     
     $pattern = ($negate) ?? '([^$unsafe])' :: '([$unsafe])';
@@ -24,26 +24,26 @@ multi sub uri_escape (Str $string is copy, Str $unsafe, Bool +$negate) returns S
     return $string;
 }
 
-multi sub uri_escape (Str $string is copy) returns Str is export {
+multi sub uri_escape (Str $string is copy) returns Str is export(:DEFAULT) {
     $string = uri_escape($string, "A-Za-z0-9\-_.!~*'()", negate => bool::true);
     
     return $string;
 }
 
 # XXX need Encode for this
-multi sub uri_escape_utf8 (Str $string is copy, Rule $unsafe) returns Str is export {
+multi sub uri_escape_utf8 (Str $string is copy, Rule $unsafe) returns Str is export(:DEFAULT) {
     ...
 }
 
-multi sub uri_escape_utf8 (Str $string is copy, Str $unsafe) returns Str is export {
+multi sub uri_escape_utf8 (Str $string is copy, Str $unsafe) returns Str is export(:DEFAULT) {
     ...
 }
 
-multi sub uri_escape_utf8 (Str $string is copy) returns Str is export {
+multi sub uri_escape_utf8 (Str $string is copy) returns Str is export(:DEFAULT) {
     ...
 }
 
-sub uri_unescape (Str $string is copy) returns Str is export {
+sub uri_unescape (Str $string is copy) returns Str is export(:DEFAULT) {
     ...
 }
 
