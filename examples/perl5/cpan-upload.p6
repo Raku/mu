@@ -21,8 +21,9 @@ my $UPLOAD_DIR    = 'incoming';
 my $PAUSE_ADD_URI = 'http://pause.perl.org/pause/authenquery';
 my $config;
 my @uploaded_files;
-my &POST := eval_perl5 'sub { my $url = shift; &HTTP::Request::Common::POST($url, {@_}) }';
-my &basename := eval_perl5 '\&File::Basename::basename';
+
+our &POST     := HTTP::Request::Common.can('POST');
+our &basename := File::Basename.can('basename');
 
 #-----------------------------------------------------------------------
 #       MAIN BODY
@@ -247,17 +248,17 @@ sub pause_add_files (*@files) {
         #---------------------------------------------------------------
         # Create the request to add the file
         #---------------------------------------------------------------
-	$argref = [
+	$argref = {
                     'HIDDENNAME'                    , "$config.user()",
                     'pause99_add_uri_upload'        , "$basename",
                     'SUBMIT_pause99_add_uri_upload' , " Upload the checked file "
-                   ];
+                   };
 	if ($config.directory)
 	{
 	    $argref.{'pause99_add_uri_subdirtext'} = $config.directory;
 	}
 
-        $request = POST($PAUSE_ADD_URI, @$argref);
+        $request = POST($PAUSE_ADD_URI, $argref);
         $request.authorization_basic("$config.user()", "$config.password()");
 
         _debug("----- REQUEST BEGIN -----\n",
