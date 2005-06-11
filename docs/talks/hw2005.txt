@@ -66,7 +66,7 @@ for this task: we released the first working interpreter within the first week,
 and by the third week we had a unit testing framework written in Perl 6.
 
 By having a working implementation of Perl 6, we are able to make the following
-contributions:
+non-technical contributions:
 
 * Provide a proving ground to resolve inconsistencies in language design
 * Encourage people to contribute modules and unit tests for Perl 6
@@ -752,16 +752,60 @@ functions from Perl 5 programs:
 
 6.2. Haskell
 
-We use the builtin Haskell parser to read function declarations, to generate
-wrappers to Pugs's Val type.
+For compiling and loading Haskell programs at runtime, Pugs uses the
+"System.Eval.Haskell" module from the hs-plugins package.  We began with a
+trivial "eval_haskell" primitive:
 
-Evaluation of Haskell code in runtime is implemented with the System.Eval module
-in the hs-plugins package.  The evaluated code is first promoted to Dynamic,
-then typecased into Val using the Value type class.
+    evalHaskell :: String -> Eval Val
+    evalHaskell code = do
+        -- eval_ code [import] [flags] [package.confs] [load paths]
+        --   -> IO (Either [String] (Maybe a))
+        ret <- liftIO $ System.Eval.eval_ code [] [] [] []
+        case ret of
+            Right (Just x) -> return $ VStr x
+            Right Nothing  -> fail "Something strange happened"
+            Left x         -> fail $ unlines x -- error strings
 
-...hs-plugins, externalizeHaskell, class Value...
+However, this approach gives a rigid type "String" to the Haskell expression
+contained in "code".  We can change it into a record type that defines a more
+complex API, but the user code will still need to adjust to that API.
+Moreover, as System.Eval only handles expressions, the user cannot put named
+top-level functions in "code".
+
+What we really want is a way to inline Haskell programs with arbitarily typed
+top-level function definitions, and export them as Perl 6 functions:
+
+    inline Haskell => '
+    import qualified SHA1
+    sha1 :: String -> String
+    sha1 = SHA1.sha1
+    ';
+    say sha1(''); # da39a3ee5e6b4b0d3255bfef95601890afd80709
+
+We implement this by analysing the function definitions, using the
+"parseModule" function from Language.Haskell.Parser.  Once we have the
+top-level function names and signatures, we can generate wrappers for it
+with Template Haskell:
+
+    class (Typeable n, Show n, Ord n) => Value n where
+        fromVal :: Val -> Eval n
+        castV   :: n -> Val
+    wrapUnary :: String -> IO Dec
+    wrapUnary fun = do
+        [(ValD _ body decs)] <- runQ [d|
+            name :: [Val] -> Eval Val
+            name = \[v] -> do
+                v' <- fromVal v
+                return (castV ($(dyn fun) v'))
+            |]
+        return $ ValD (VarP (mkName ("extern__" ++ fun))) body decs
+
+This handles inlined Haskell functions of type "(Value a, Value b) => a -> b";
+we can wrap functions with other arities in a similiar fashion.
 
 6.3. Parrot
+
+...PIR overview, compreg, cross-lang interop using Tcl as example...
 
 Parrot has a "compreg" function to define a function that can turn a source
 code string into a compile PMC.  Because Pugs can turn Perl 6 code into PIR
@@ -781,8 +825,6 @@ exported to Parrot space:
 Here the _DoCompile global variable is initialised in Main.hs; this is just
 to offer a way to import from Main without using mutual recursive modules --
 GHC 6.4's support for them is really spotty.
-
-...PIR overview, compreg, cross-lang interop using Tcl as example...
 
 ---------------------------------------------------------------------------
 
