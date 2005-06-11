@@ -1,7 +1,7 @@
 #!/usr/bin/pugs
 use v6;
 
-module URI::Escape-0.0.1;
+module URI::Escape-0.6;
 
 our %escapes;
 
