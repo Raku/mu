@@ -21,9 +21,9 @@ Moreover, we demonstrate how Pugs uses Haskell's FFI to embed Perl 5, Parrot
 and Haskell within Perl 6 programs, and how it mediates the execution context
 between these runtime environments.
 
-Finally, we discuss Parrot, a register-based virtual machine designated as the
-reference implementation of Perl 6's runtime.  We show how Pugs can evolve from
-an interpreter to a compiler targeting Parrot, with a design based on
+Finally, we discuss Parrot, a virtual machine designated as the reference
+implementation of Perl 6's runtime.  We show how Pugs can evolve from an
+interpreter to a compiler targeting Parrot, with a design based on
 metacomputational monads.
 
 == Categories and Subject Descriptors ==
@@ -85,8 +85,8 @@ dynamically load Perl 5, Haskell and Parrot modules at runtime.
 
 Although the naïve tree-reduction interpreter served well for prototyping,
 it is not efficient enough for production use.  In section 7, we discuss the
-ongoing work to adapt Pugs into a compiler, targeting the register-based Parrot
-virtual machine.  Section 8 outlines our plans for future development.
+ongoing work to adapt Pugs into a compiler, targeting the Parrot virtual
+machine.  Section 8 outlines our plans for future development.
 
 ---------------------------------------------------------------------------
 
@@ -806,26 +806,76 @@ we can wrap functions with other arities in a similiar fashion.
 
 6.3. Parrot
 
-...PIR overview, compreg, cross-lang interop using Tcl as example...
+Started in 2001, Parrot is an attempt of unifying the similar but incompatible
+designs of dynamic language interpreters, such as Perl 5, Ruby, Python and Tcl.
+To that end, Parrot offers the following features:
 
-Parrot has a "compreg" function to define a function that can turn a source
-code string into a compile PMC.  Because Pugs can turn Perl 6 code into PIR
-(see next section), we define the compileToParrot function to be foreign
-exported to Parrot space:
+* Platform-independent bytecode format
+* Portable interpreter written in C, with reasonable performance
+* Alternative fast runloops: computed-goto, JIT and emitting C code
+* APIs for extending and embedding the interpreter
+* One polymorphic boxed object type, known as PMC (Parrot Magic Cookie)
+* Three unboxed value types: Integers, Numbers, Strings
+* First-class continuations that can be stored in PMCs
+* Generational garbage collection system
+* Security contexts: quota, privilege checks
 
-    _DoCompile :: Maybe (IORef (String -> FilePath -> String -> IO String))
-    _DoCompile = Just $ unsafePerformIO $ newIORef (error "unregistered")
+The bytecode format has a concrete syntax, known as Parrot Assembly (PASM).
+It resembles register-based CPU instructions, with a large number of built-in
+operators, including both low-level operations on unboxed types, to high-level
+operations like managing lexical pads, subclassing PMCs, manipulate
+multi-method dispatch tables, and accessing aggregate PMCs.
+
+Subroutines written in PASM are called in continuation-passing style, via the
+"invokecc" and "tailcall" op codes, and a calling convention that regulates
+the allocation of function parameters and return values.
+
+To implement the "eval" function of dynamic languages, the Parrot interpreter
+keeps a name-indexed table of "compilers" that can turn strings into loadable
+bytecode.  Parrot has a built-in compiler for PIR (Parrot Intermediate
+Representation), a higher-level assembly language.  The PIR compiler handles
+allocation of named variables, temporary registers and subroutine calls;
+because of this, practically all higher-level languages targetting Parrot
+generate PIR code, instead of PASM code.
+
+From Pugs, we link against libparrot and use FFI to hook into the PIR compiler
+to evaluate PIR programs that takes no arguments and returns no values:
+
+    evalPIR :: String -> IO ()
+    evalPIR code = do
+        interp  <- initParrot
+        sub     <- withCString code $ \p -> do
+            parrot_imcc_compile_pir interp p
+        withCString "vv" $ parrot_call_sub_vv interp sub
+    foreign import ccall "imcc_init"
+        parrot_imcc_init :: ParrotInterp -> IO ()
+    foreign import ccall "imcc_compile_pir"
+        parrot_imcc_compile_pir :: ParrotInterp -> CString -> IO ParrotPMC
+
+Here, the "vv" is the calling-convention signature that says both its parameter
+and return values are the void type.  For more complex function signatures, we
+can parse the PIR subroutine's signature and generate a corresponing wrapper,
+similar to the way Pugs deals with inline Haskell functions.
+
+Parrot exports a "compreg" operation; at runtime, the program can register the
+name of a higher-level language, and associate it with a compiler function that
+turns a string into compiled Parrot code.  Since Pugs can generate PIR from
+Perl 6 source string, we can register a "Pugs" language with a FFI-exported
+function pointer that delegates the resulting PIR to the builtin PIR compiler:
+
+    initParrot :: IO ParrotInterp
+    initParrot = do
+        callback    <- mkCompileCallback compileToParrot
+        pugsStr     <- withCString "Pugs" (const_string interp)
+        parrot_compreg interp pugsStr callback
     compileToParrot :: ParrotInterp -> CString -> IO ParrotPMC
     compileToParrot interp cstr = do
-        doCompile   <- readIORef (fromJust _DoCompile)
-        code        <- doCompile "Parrot" "-" =<< peekCString cstr
+        code    <- doCompile "Parrot" "-" =<< peekCString cstr
         withCString code $ parrot_imcc_compile_pir interp
-    foreign import ccall "wrapper"
-        mkCompileCallback :: ParrotCompilerFunc -> IO (FunPtr ParrotCompilerFunc)
 
-Here the _DoCompile global variable is initialised in Main.hs; this is just
-to offer a way to import from Main without using mutual recursive modules --
-GHC 6.4's support for them is really spotty.
+Pugs can also embed other Parrot-targetting languages, such as Tcl, by loading
+the Tcl compiler, call it with the embedded Tcl source string, then invoke the
+resulting Parrot code object in the same way as it invokes embeded PIR code.
 
 ---------------------------------------------------------------------------
 
@@ -854,6 +904,8 @@ with a return type being another monad type:
 
 7.2. Targeting Parrot
 
+...subtyping...
+...common object representation...
 ...implement STM on Parrot VM as well...
 ...optimization, unboxing, helper PMCs...
 
@@ -873,7 +925,7 @@ with a return type being another monad type:
 ...Under Perl 5's reference-counting GC system, we need to provide timely
 ...destruction for Perl 5 objects, addFinalizer for SvREFCNT_dec on PerlSV
 ...types... Perl5-side DESTROY calls freeStablePtr in the Haskell side...
-
+...use Data.Dynamic in eval_haskell()...
 
 The source code for Pugs is freely available at:
 
