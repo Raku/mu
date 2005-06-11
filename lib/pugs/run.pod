@@ -1,0 +1,99 @@
+=head1 NAME
+
+pugs::run - how to execute the Pugs interpreter
+
+=head1 SYNOPSYS
+
+B<pugs> S<[ B<-hv> ]>
+        S<[ B<-V>[:I<configvar>] ]>
+        S<[ B<-c> [I<file>] ]>
+        S<[ B<-C>I<backend> [I<file>] ]>
+        S<[ B<-B>I<backend> [I<file>] ]>
+        S<[ B<--external>[I<file>] ] >
+        S<[ B<-e> I<program> ]>
+
+=head1 DESCRIPTION
+
+The normal way to run a Perl program is by making it directly executable,
+or else by passing the name of the source file as an argument on the
+command line.  An interactive Pugs environment is also available, by
+starting B<pugs> with no program source.  Upon startup, Pugs looks for
+your program in one of the following places:
+
+WRITEME
+
+=head2 Command Switches
+
+WRITEME
+
+=head1 ENVIRONMENT
+
+The pugs runtime environment is affected by several environment
+variables.
+
+The build environment is likewise controlled by several environment
+variables; since pugs is still in heavy development, they will be
+listed here as well.
+
+=item HARNESS_PERL [BUILD]
+
+This does not affect pugs itself at all. When building pugs from source,
+the perl5 test system should be instructed to use your copy of pugs. If
+you use 'make test' or 'make smoke', you should not need to set this
+manually; but if you want to use 'prove', set it to './pugs' (or
+'pugs.exe' on Windows).
+
+=item PERL6LIB
+
+A list of directories in which to look for Perl library files
+before looking in the standard library and the current directory.
+Any architecture-specific directories under the specified locations
+are automatically included if they exist.  If PERL6LIB is not defined,
+PERLLIB is used. [FIXME: make true.]  Directories are separated (like in
+PATH) by a colon on unixish platforms and by a semicolon on Windows (the
+proper path separator being given by the command C<pugs -V:path_sep>).
+
+[BUILD] when building your own pugs, set PERL6LIB to 'blib6/lib' to
+make tests use the correct version of the libraries. 'make test' and
+'make smoke' should do this for you.
+
+=item PUGS_BYPASS_PRELUDE
+
+Many Perl functions are provided to pugs by a library called the Standard
+Prelude, which is inlined into the pugs executable and loaded by default
+on each startup of pugs. If PUGS_BYPASS_PRELUDE is set to anything except
+"" or "0", then pugs will not load the Prelude automatically. This gives
+a minor speedup on startup, as well as allowing you to load your alternate
+version of Prelude.pm like this:
+
+    # in this example, Prelude.pm will be searched for in @*INC
+    $ env PUGS_BYPASS_PRELUDE=1 pugs -MPrelude -e '...'
+
+=item PUGS_SAFEMODE
+
+Pugs provides a global "safe mode" which makes many operations that are
+deemed "unsafe" unavailable to a Perl program.
+
+    $ env PUGS_SAFEMODE=1 pugs -e 'say "I am unsafe"'
+    *** No compatible subroutine found: "&say"
+        at -e line 1, column 1-9
+
+=item PUGS_SMOKE_UPLOAD [BUILD]
+
+If set, util/run-smoke.pl ('make smoke') uses this to upload your smoke
+tests results automatically. Set this to a command to run, e.g.
+
+    rsync -avz smoke.html perlcabal.org:public_html
+
+=item PUGS_TESTS_CONCURRENT [BUILD]
+
+Smoke tests can take quite some time to complete. If you have a
+multiprocessor machine, you can set this to a small integer value, and
+'util/yaml_harness.pl' will run that amount of tests in parallel.
+
+On a single-processor hyper-threading machine that is otherwise unused,
+"2" is a good value. On real multiprocessor machines, one more than the
+CPU count is suggested.
+
+Equivalent to running util/yaml_harness.pl -j I<number> .
+[Has no effect on Windows.]
