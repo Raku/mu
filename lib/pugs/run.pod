@@ -143,6 +143,12 @@ When building your own pugs, set C<PERL6LIB> to C<blib6/lib> to make tests use
 the correct version of the libraries. C<make test> and C<make smoke> should do
 this for you.
 
+=item C<PERLLIB>
+
+A list of directories in which to look for Perl library files before
+looking in the standard library and the current directory. Not consulted
+if C<PERL6LIB> is defined. See C<PERL6LIB> for details on paths.
+
 =item C<PUGS_BYPASS_PRELUDE>
 
 Many Perl functions are provided to Pugs by a library called the Standard
