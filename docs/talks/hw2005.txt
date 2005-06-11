@@ -686,7 +686,7 @@ backgrounds, those three were the first targets for interoperation.
 
 6.1. Perl 5
 
-Embedding Perl 5 is achieved By linking the "libperl.so" runtime with Pugs.
+Embedding Perl 5 is achieved by linking the "libperl.so" runtime with Pugs.
 Perl 5 represents all values as (SV *) structures, similar to the Val type in
 Pugs.  As both sides allow first-class closure functions, their C-side
 eval/apply interfaces are straightforward:
@@ -822,7 +822,7 @@ To that end, Parrot offers the following features:
 
 The bytecode format has a concrete syntax, known as Parrot Assembly (PASM).
 It resembles register-based CPU instructions, with a large number of built-in
-operators, including both low-level operations on unboxed types, to high-level
+operators, including both low-level operations on unboxed types, and high-level
 operations like managing lexical pads, subclassing PMCs, manipulate
 multi-method dispatch tables, and accessing aggregate PMCs.
 
@@ -835,11 +835,11 @@ keeps a name-indexed table of "compilers" that can turn strings into loadable
 bytecode.  Parrot has a built-in compiler for PIR (Parrot Intermediate
 Representation), a higher-level assembly language.  The PIR compiler handles
 allocation of named variables, temporary registers and subroutine calls;
-because of this, practically all higher-level languages targetting Parrot
+because of this, practically all higher-level languages targeting Parrot
 generate PIR code, instead of PASM code.
 
 From Pugs, we link against libparrot and use FFI to hook into the PIR compiler
-to evaluate PIR programs that takes no arguments and returns no values:
+to evaluate PIR programs that take no arguments and return no values:
 
     evalPIR :: String -> IO ()
     evalPIR code = do
@@ -852,14 +852,15 @@ to evaluate PIR programs that takes no arguments and returns no values:
     foreign import ccall "imcc_compile_pir"
         parrot_imcc_compile_pir :: ParrotInterp -> CString -> IO ParrotPMC
 
-Here, the "vv" is the calling-convention signature that says both its parameter
-and return values are the void type.  For more complex function signatures, we
-can parse the PIR subroutine's signature and generate a corresponing wrapper,
-similar to the way Pugs deals with inline Haskell functions.
+Here, the "vv" is the calling convention signature that says that both its
+parameter and return values are the void type.  For more complex function
+signatures, we can parse the PIR subroutine's signature and generate a
+corresponding wrapper, similar to the way Pugs deals with inline Haskell
+functions.
 
-Parrot exports a "compreg" operation; at runtime, the program can register the
+Parrot exports a "compreg" operation: at runtime, a program can register the
 name of a higher-level language, and associate it with a compiler function that
-turns a string into compiled Parrot code.  Since Pugs can generate PIR from
+turns a string into compiled Parrot code.  Since Pugs can generate PIR from a
 Perl 6 source string, we can register a "Pugs" language with a FFI-exported
 function pointer that delegates the resulting PIR to the builtin PIR compiler:
 
@@ -873,9 +874,10 @@ function pointer that delegates the resulting PIR to the builtin PIR compiler:
         code    <- doCompile "Parrot" "-" =<< peekCString cstr
         withCString code $ parrot_imcc_compile_pir interp
 
-Pugs can also embed other Parrot-targetting languages, such as Tcl, by loading
-the Tcl compiler, call it with the embedded Tcl source string, then invoke the
-resulting Parrot code object in the same way as it invokes embeded PIR code.
+Pugs can also embed other Parrot-targeting languages, such as Tcl, by loading
+the Tcl compiler, call it with the embedded Tcl source string, and then invoke
+the resulting Parrot code object in the same way as it invokes embedded PIR
+code.
 
 ---------------------------------------------------------------------------
 
@@ -895,7 +897,7 @@ section, we discuss our ongoing work in this area.
 
 7.1. Metacomputational Compilation
 
-Because Monads encapsulate computations, a metacomputation is just a monad
+Because monads encapsulate computations, a metacomputation is just a monad
 with a return type being another monad type:
 
 	Eval (Eval a)
