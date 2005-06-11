@@ -923,9 +923,9 @@ cxtOfExp (App (Var name) invs args)   = do
         _ -> cxtSlurpyAny
 cxtOfExp _                      = return cxtSlurpyAny
 
-findSub :: String     -- | Name, with leading &.
-        -> Maybe Exp  -- | Invocant
-        -> [Exp]      -- | Other arguments
+findSub :: String     -- ^ Name, with leading @\&@.
+        -> Maybe Exp  -- ^ Invocant
+        -> [Exp]      -- ^ Other arguments
         -> Eval (Maybe VCode)
 findSub name' invs args = do
     let name = possiblyFixOperatorName name'
