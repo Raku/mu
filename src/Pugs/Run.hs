@@ -155,13 +155,19 @@ prepareEnv name args = do
     where
     hideInSafemode x = if safeMode then MkRef $ constScalar undef else x
 
+{-# NOINLINE initPrelude #-}
 initPrelude :: Env -> IO Val
 initPrelude env = do
-    res <- runEvalIO env{envDebug = Nothing} $ opEval style "<prelude>" preludeStr
-    return res
+    if bypass then return VUndef else
+        runEvalIO env{envDebug = Nothing} $ opEval style "<prelude>" preludeStr
     where
-        style = MkEvalStyle{evalResult=EvalResultEnv
-                           ,evalError =EvalErrorFatal}
+    style = MkEvalStyle{evalResult=EvalResultModule
+                       ,evalError =EvalErrorFatal}
+    bypass = case (unsafePerformIO $ getEnv "PUGS_BYPASS_PRELUDE") of
+        Nothing     -> False
+        Just ""     -> False
+        Just "0"    -> False
+        _           -> True
 
 initClassObjects :: [Type] -> ClassTree -> IO [STM (Pad -> Pad)]
 initClassObjects parent (Node typ children) = do
