@@ -181,7 +181,7 @@ On a single-processor hyper-threading machine that is otherwise unused,
 C<2> is a good value. On real multiprocessor machines, one more than the
 CPU count is suggested.
 
-Equivalent to running C<util/yaml_harness.pl -j I<number> .>.
+Equivalent to running C<util/yaml_harness.pl -j I<number>> .
 
 [Has no effect on Windows.]
 
