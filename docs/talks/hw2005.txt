@@ -79,7 +79,7 @@ design of Pugs's interpreter core in section 4.
 
 Because Pugs is targeting GHC 6.4 instead of Haskell 98, it takes full
 advantage of the modern Haskell features GHC provides.  In section 5, we review
-Pugs's use of GADTs, STM, as well as subcontinuations built on higher-rank
+Pugs's use of GADTs, STM, as well as reified continuations built on higher-rank
 polymorphism.  In section 6, we demonstrate how Pugs uses FFI and hs-plugins to
 dynamically load Perl 5, Haskell and Parrot modules at runtime.
 
@@ -219,10 +219,11 @@ regular expressions.  An unreleased prototype was written in 2003, which led to
 extensive modifications of the design of Rules.
 
 In 2004, Conway released a revised version of Perl6::Rules.  The implementation
-relied on various experimental features in Perl 5's regular expression engine;
-they no longer work with newer Perl 5 revisions.  As such, Perl6::Rules remains
-a partial prototype, not suitable as a basis for implementing the parser for
-Perl 6.
+was constrained by limitations of Perl 5's non-reentrant regular expression
+engine; moreover, Perl6::Rules relied on various experimental features that no
+longer work with newer Perl 5 revisions.  As such, Perl6::Rules remains a
+partial prototype, not suitable as a basis for implementing a parser for the
+Perl 6 grammar.
 
 3.2. P6C
 
@@ -664,10 +665,10 @@ image:
     showEvalD  :: EvalD -> STM String
     readEvalD  :: String -> STM EvalD
 
-This has many interesting applications, including Seaside-like web continuations,
-omniscient debugging, and mobile code.  Since Parrot also supports reified
-Continuation objects, we plan to work with Parrot developers to add
-serialisation capabilities as well.
+This has many interesting applications, including web continuations, omniscient
+debugging, and mobile code.  Since Parrot also supports reified Continuation
+objects, we plan to work with Parrot developers to add serialisation
+capabilities as well.
 
 ---------------------------------------------------------------------------
 
