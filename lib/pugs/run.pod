@@ -47,7 +47,7 @@ you want to use C<prove>, set it to C<./pugs> (or C<pugs.exe> on Windows).
 A list of directories in which to look for Perl library files before looking in
 the standard library and the current directory.  Any architecture-specific
 directories under the specified locations are automatically included if they
-exist.  If C<PERL6LIB> is not defined, C<PERLLIB> is used. [FIXME: make true.]
+exist.  If C<PERL6LIB> is not defined, C<PERLLIB> is used.
 Directories are separated (like in C<PATH>) by a colon on unixish platforms and
 by a semicolon on Windows (the proper path separator being given by the command
 C<pugs -V:path_sep>).
@@ -99,3 +99,7 @@ Equivalent to running C<util/yaml_harness.pl -j I<number> .>.
 [Has no effect on Windows.]
 
 =back
+
+=head1 SEE ALSO
+
+L<Perl6::Pugs>

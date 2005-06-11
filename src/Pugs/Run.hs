@@ -181,21 +181,23 @@ initClassObjects parent (Node typ children) = do
     return (sym:concat rest)
 
 {-|
-Combine @%*ENV\<PERL6LIB\>@, -I, 'Pugs.Config.config' values and \".\" into
-the @\@*INC@ list for 'Main.printConfigInfo'
+Combine @%*ENV\<PERL6LIB\>@, -I, 'Pugs.Config.config' values and \".\" into the
+@\@*INC@ list for 'Main.printConfigInfo'. If @%*ENV\<PERL6LIB\>@ is not set,
+@%*ENV\<PERLLIB\>@ is used instead.
 -}
 getLibs :: IO [String]
 getLibs = do
     args    <- getArgs
     p6lib   <- (getEnv "PERL6LIB") >>= (return . (fromMaybe ""))
-    return $ filter (not . null) (libs p6lib $ canonicalArgs args)
+    plib    <- (getEnv "PERLLIB")  >>= (return . (fromMaybe ""))
+    let lib = if (p6lib == "") then plib else p6lib
+    return $ filter (not . null) (libs lib $ canonicalArgs args)
     where
     -- broken, need real parser
     inclibs ("-I":dir:rest) = [dir] ++ inclibs(rest)
     inclibs (_:rest)        = inclibs(rest)
     inclibs ([])            = []
-
-    libs p6lib args =  (inclibs args)
+    libs p6lib args = (inclibs args)
               ++ (split (getConfig "path_sep") p6lib)
               ++ [ getConfig "archlib"
                  , getConfig "privlib"
