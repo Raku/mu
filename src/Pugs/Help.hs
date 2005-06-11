@@ -49,6 +49,7 @@ printCommandLineHelp
         putStrLn "-V:item          short configuration information for item"
         putStrLn "-v or --version  version"
         putStrLn "-l -d and -w are ignored for compatability with Perl 5"
+        putStrLn "See documentation of pugs::run for more help."
 
 name :: String
 name       = "Perl6 User's Golfing System"
