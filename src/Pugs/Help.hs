@@ -43,7 +43,7 @@ printCommandLineHelp
         putStrLn "-Bbackend        execute using the compiler backend"
         putStrLn "-Cbackend        compile using the compiler backend"
         putStrLn "                 (valid backends are: Pugs, Parrot, Haskell)"
-        putStrLn "-M module        execute 'use module' before executing the program"
+        putStrLn "-Mmodule         execute 'use module' before executing the program"
         putStrLn "-h or --help     give this message"
         putStrLn "-V               long configuration information & version"
         putStrLn "-V:item          short configuration information for item"
