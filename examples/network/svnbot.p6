@@ -113,7 +113,7 @@ sub svn_check($event) {
 # This queries "svn".
 sub svn_commits() {
     # Pipes not yet supported in Pugs.
-    my $tempfile = "temp-svnbot";
+    my $tempfile = BEGIN { "temp-svnbot-$*PID-{int rand 1000}" };
     END { unlink $tempfile }
 
     # If this is an incremental update...
