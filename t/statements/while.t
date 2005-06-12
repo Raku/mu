@@ -11,7 +11,7 @@ L<S04/"Loop statements">
 
 =cut
 
-plan 7;
+plan 11;
 
 my $i = 0;
 while $i < 5 { $i++; };
@@ -51,4 +51,23 @@ is($k, 0, 'while $var {...} works');
 		2,
 		"'my' variable within 'while' conditional",
 	);
+}
+
+# while ... -> $x {...}
+{
+  my @array = (0..5);
+  my $was_in_while;
+  my @new;
+  eval 'while @array.shift -> $x { $was_in_while++; push @new, $x }';
+  ok $was_in_while,  'while ... -> $x {...} worked (1)';
+  is ~@new, ~@array, 'while ... -> $x {...} worked (1)';
+}
+
+{
+  my @array = (0..5);
+  my $was_in_while;
+  my @new;
+  eval 'while shift @array -> $x { $was_in_while++; push @new, $x }';
+  ok $was_in_while,  'while ... -> $x {...} worked (1)';
+  is ~@new, ~@array, 'while ... -> $x {...} worked (1)';
 }
