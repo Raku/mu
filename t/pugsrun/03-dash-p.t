@@ -44,7 +44,7 @@ bar
 
 sub nonce () { return (".$*PID." ~ int rand 1000) }
 my($in_fn, $out_fn) = <temp-ex-input temp-ext-output> >>~<< nonce;
-my $h = open ">$in_fn";
+my $h = open("$in_fn", :w);
 $h.print($str);
 $h.close();
 

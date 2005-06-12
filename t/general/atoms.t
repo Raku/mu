@@ -50,7 +50,7 @@ ok(%hash{'Mon'} eq '1' and %hash{'Sun'} eq '7', '%hash<>');
 sub nonce () { return (".$*PID." ~ int rand 1000) }
 my $filename = "tmpfile" ~ nonce;
 
-my $out = open(">$filename");
+my $out = open("$filename", :w);
 $out.say("line1");
 $out.say("line2");
 $out.close;

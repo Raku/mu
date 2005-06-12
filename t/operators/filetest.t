@@ -66,7 +66,7 @@ ok !-z $*PROGRAM_NAME,   "-z returns false on existant files";
 ok !-z "doesnotexist.t", "-z returns false on non existant files";
 ok !-z "t",              "-z returns false on directories";
 
-my $fh = open(">empty_file");
+my $fh = open("empty_file", :w);
 close $fh;
 #if($*OS eq any<MSWin32 mingw msys cygwin>) {
 #  skip 1, "-z is not working on Win32 yet"

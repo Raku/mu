@@ -14,7 +14,7 @@ sub nonce () { return (".$*PID." ~ int rand 1000) }
 my $tmpfile = "temp-test" ~ nonce();
 my @tests = (
     # Test that open() doesn't work.
-    'my $fh = eval \'open "> ' ~ $tmpfile ~ '-opened"\'; eval \'close $fh\'',
+    'my $fh = eval \'open("' ~ $tmpfile ~ '-opened", :w)\'; eval \'close $fh\'',
     { $^a; not(-e "$tmpfile-opened") },
     
     # %*ENV, %?CONFIG, and $*OS should be hidden, too.
@@ -44,7 +44,7 @@ for @tests -> $code_to_run, $condition {
   state $i; $i++;
 
   {
-      my $fh = open("> $tmpfile-src");
+      my $fh = open("$tmpfile-src", :w);
       say $fh: $code_to_run;
       close $fh;
   }

@@ -40,7 +40,7 @@ ok(!defined(undef), "undef is not defined");
 	ok(defined($a), "initialized var is defined");
 
 	undefine $a;
-	ok(!defined($a), "undef($a) does");
+	ok(!defined($a), "undefine($a) does");
 
 	$a = "hi";
 	ok(defined($a), "string");

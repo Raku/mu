@@ -18,12 +18,12 @@ my @t_good = map &flatten, (
     ~ ' '
     ~ any('-e1', map { "examples/$_.p6" } <
   functional/fp
-  hanoi
+  algorithms/hanoi
   junctions/1
   junctions/all-all
   junctions/3 junctions/all-any junctions/any-any
   junctions/any-any2 junctions/grades
-  quicksort
+  algorithms/quicksort
 >),
   any('-C')
     ~ any('Parrot', 'parrot', 'paRRot')
@@ -44,7 +44,7 @@ my @t_todo = map &flatten, (
     ~ ' examples/'
     ~ any(<
   functional/fp
-  hanoi
+  algorithms/hanoi
   junctions/all-any
   >) ~ '.p6'
 );
@@ -85,7 +85,7 @@ my $dump_file = "dump.ast";
 
 for @tests_ok -> $test {
 
-  my $fh = open( ">$dump_file" );
+  my $fh = open("$dump_file", :w);
   $fh.close();
 
   my $output = run_pugs($test);
@@ -101,7 +101,7 @@ for @tests_ok -> $test {
 
 for @tests_todo -> $test {
 
-  my $fh = open( ">$dump_file" );
+  my $fh = open("$dump_file", :w);
   $fh.close();
 
   my $output = run_pugs($test);

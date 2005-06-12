@@ -104,8 +104,8 @@ plan 30;
     is(0 || 42,      42, "||   operator seems to be working");
     is((0 or 42),      42, "or   operator seems to be working");
 
-    is((undef() // 42),  42, "//   operator seems to be working"); #"
-    is((undef() err 42), 42, "err  operator seems to be working");
+    is((undef // 42),  42, "//   operator seems to be working"); #"
+    is((undef err 42), 42, "err  operator seems to be working");
 
     is((eval '0 ^^ 42'),  42, "^^  operator seems to be working (one true)", :todo<feature>);
     is((eval '42 ^^ 0'),  42, "^^  operator seems to be working (one true)", :todo<feature>);
