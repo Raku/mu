@@ -19,7 +19,7 @@ if(eval('!("a" ~~ /a/)')) {
   skip_rest "skipped tests - rules support appears to be missing";
 } else {
 
-force_todo 1..12, 14..45;
+force_todo 7, 10..12, 14, 15, 17, 18, 21, 22, 24, 25, 27, 28, 30, 35..45;
 
 ok("  a b\tc" ~~ m/@<chars>:=[ \s+ \S+ ]+/, 'Named simple array capture');
 is(join("|",@{$/<chars>}), "  a| b|\tc", 'Captured strings');
