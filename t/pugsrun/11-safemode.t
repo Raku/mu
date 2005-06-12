@@ -24,6 +24,22 @@ my @tests = (
     # The filetest operators shouldn't work, either.
     'Pugs::Safe::safe_print(eval("-d \'.\'").perl)',
     { $^a eq "undef" },
+
+    # Finally, "is unsafe" should cause that sub declarations have no effect
+    '
+        my $in_blarb;
+        sub blarb () is unsafe { $in_blarb++ }
+        try { blarb() };
+        Pugs::Safe::safe_print($in_blarb ?? "nok" :: "ok");
+    ',
+    { $^a eq "ok" },
+
+    # Safe Prelude.pm functions should be visible.
+    'Pugs::Safe::safe_print(eval(\'&Carp::longmess\') ?? "ok" :: "nok")',
+    { $^a eq "ok" },
+    # Unsafe Prelude.pm functions should not be visible.
+    'Pugs::Safe::safe_print(eval(\'&Pipe::open3\') ?? "nok" :: "ok")',
+    { $^a eq "ok" },
 );
 
 plan +@tests / 2;
@@ -50,13 +66,13 @@ for @tests -> $code_to_run, $condition {
   }
 
   my $command = "$pugs $tmpfile-src $redir $tmpfile-out";
-  diag "Code to be run under safemode: $code_to_run";
-  diag "Pugs will be started using:    $command";
+  diag "Code to be run under safemode:\n  $code_to_run";
+  diag "Pugs will be started using:\n  $command";
   system $command;
 
   my $got     = slurp "$tmpfile-out";
   unlink map { "$tmpfile-$_" } <src out opened>;
-  diag "The code wrote to STDOUT:      $got";
+  diag "The code wrote to STDOUT:\n  $got";
 
   ok $condition($got), "safemode works ($i)";
 }
