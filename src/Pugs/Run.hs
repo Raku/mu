@@ -149,8 +149,8 @@ prepareEnv name args = do
         ] ++ classes
     unless safeMode $ do
         initPerl5 "" (Just . VControl $ ControlEnv env{ envDebug = Nothing })
-        initPrelude env
         return ()
+    initPrelude env
     return env
     where
     hideInSafemode x = if safeMode then MkRef $ constScalar undef else x
