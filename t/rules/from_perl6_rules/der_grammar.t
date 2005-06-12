@@ -13,29 +13,12 @@ be valid perl6.
 
 =cut
 
-plan 34;
+plan 33;
 
 if(eval('!("a" ~~ /a/)')) {
   skip_rest "skipped tests - rules support appears to be missing";
 } else {
 
-# PGE doesn't parse non-capturing subrules.
-# So the real test grammar parsefails.
-# This modified grammar breaks some tests below.
-my $workaround = 1;
-skip "PGE doesn't parse non-capturing subrules.  Parsefails.";
-#ok !$workaround,"Defining rule with non-capturing subrule without parsefail.";
-if $workaround {eval '
-grammar Other {
-	rule abc { a (<bee>) c } # avoid parsefail
-
-	rule bee { b }
-
-	rule def { d <eh> f }
-
-	rule eh  { e }
-}
-'} else {eval '
 grammar Other {
 	rule abc { a (<?bee>) c }
 
@@ -45,7 +28,6 @@ grammar Other {
 
 	rule eh  { e }
 }
-'}
 
 grammar Another is Other {
 }

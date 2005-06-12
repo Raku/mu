@@ -349,11 +349,20 @@ Parses subrules.
     p6rule_parse_skip(pattern, lex, 1)
     pos = lex["pos"]
     $I0 = pos
+    $S0 = substr pattern, pos, 1
+    unless $S0 == '?' goto subrule_1
+    inc pos
+    inc $I0
   subrule_1:
     $I1 = is_wordchar pattern, pos 
-    unless $I1 goto subrule_2
+    unless $I1 goto subrule_1b
+  subrule_1_inc:
     inc pos
     goto subrule_1
+  subrule_1b:
+    $S0 = substr pattern, pos, 1
+    if $S0 == '.' goto subrule_1_inc
+    if $S0 == ':' goto subrule_1_inc
   subrule_2:
     $I1 = pos - $I0
     if $I1 > 0 goto subrule_3
