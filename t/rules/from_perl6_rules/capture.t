@@ -13,25 +13,24 @@ be valid perl6.
 
 =cut
 
-plan 60;
+plan 65;
 
 if(eval('!("a" ~~ /a/)')) {
   skip_rest "skipped tests - rules support appears to be missing";
 } else {
 
-# FIXME parsefail
-eval('  rule dotdot { (.)(.) };  ');
+rule dotdot { (.)(.) };
 
-ok("zzzabcdefzzz" ~~ m/(a.)<?dotdot>(..)/, 'Match', :todo<feature>);
-ok($/, 'Matched', :todo<feature>);
-is($/, "abcdef", 'Captured', :todo<feature>);
-is($/[0], 'ab', '$/[0]', :todo<feature>);
-is($0, 'ab', '$0', :todo<feature>);
-is($/[1], 'ef', '$/[1]', :todo<feature>);
-is($1, 'ef', '$1', :todo<feature>);
+ok("zzzabcdefzzz" ~~ m/(a.)<?dotdot>(..)/, 'Match');
+ok($/, 'Matched');
+is($/, "abcdef", 'Captured');
+is($/[0], 'ab', '$/[0]');
+is($0, 'ab', '$0');
+is($/[1], 'ef', '$/[1]');
+is($1, 'ef', '$1');
 ok(!defined($/[2]), 'no $/[2]');
 ok(!defined($2), 'no $2');
-ok(!defined($/<dotdot>), 'no $/<dotdot>');
+ok(!defined($/<dotdot>), 'no $/<dotdot>', :todo<feature>);
 
 ok("zzzabcdefzzz" ~~ m/(a.)<dotdot>(..)/, 'Match');
 ok($/, 'Matched');
@@ -59,16 +58,15 @@ ok("bookkeeper" ~~ m/(((\w)$0[0][0])+)/, 'Backreference', :todo<feature>);
 is($0, 'ookkee', 'Captured', :todo<feature>);
 is(try { $0[0] }, 'ee', 'Captured', :todo<feature>);
 
-# FIXME parsefail
-eval('  rule single { o | k | e };  ');
+rule single { o | k | e };
 
 eval_ok(' "bookkeeper" ~~ m/<single> ($/<single>)/ ', 'Named backref', :todo<feature>);
 is($/<single>, 'o', 'Named capture', :todo<feature>);
 is($0, 'o', 'Backref capture', :todo<feature>);
 
-ok("bookkeeper" ~~ m/(<?single>) ($0)/, 'Positional backref', :todo<feature>);
-is($0, 'o', 'Named capture', :todo<feature>);
-is($1, 'o', 'Backref capture', :todo<feature>);
+ok("bookkeeper" ~~ m/(<?single>) ($0)/, 'Positional backref');
+is($0, 'o', 'Named capture');
+is($1, 'o', 'Backref capture');
 
 ok(!( "bokeper" ~~ m/(<?single>) ($0)/ ), 'Failed positional backref');
 eval_ok(' !( "bokeper" ~~ m/<single> ($/<single>)/ ) ', 'Failed named backref', :todo<feature>);
@@ -103,14 +101,13 @@ ok("ivan" ~~ m/<?English.name> | <?French.name> | <?Russian.name>/, 'Russian nam
 is($/, "ivan", 'Match is ivan', :todo<feature>);
 is($/<name>, "ivan", 'Name is ivan', :todo<feature>);
 
-# FIXME parsefail (crash!)
-# eval('  rule name { <?English.name> | <?French.name> | <?Russian.name> }  ');
-#  
-# ok("john" ~~ m/<name>/, 'English metaname', :todo<feature>);
-# is($/, "john", 'Metaname match is john', :todo<feature>);
-# ok($/ ne "jean", "Metaname match isn't jean");
-# is($/<name>, "john", 'Metaname is john', :todo<feature>);
-# is(try { $/<name><name> }, "john", 'Metaname name is john', :todo<feature>);
+rule name { <?English.name> | <?French.name> | <?Russian.name> }
+ 
+ok("john" ~~ m/<name>/, 'English metaname', :todo<feature>);
+is($/, "john", 'Metaname match is john', :todo<feature>);
+ok($/ ne "jean", "Metaname match isn't jean");
+is($/<name>, "john", 'Metaname is john', :todo<feature>);
+is(try { $/<name><name> }, "john", 'Metaname name is john', :todo<feature>);
 
 }
 
