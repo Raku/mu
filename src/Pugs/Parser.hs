@@ -358,7 +358,7 @@ ruleSubName = verbatimRule "subroutine name" $ do
                 <|> between (char '\171') (char '\187') (many1 $ satisfy (/= '\187'))
     return $ "&" ++ twigil ++ fixity ++ name
     where
-    fixities = words " prefix: postfix: infix: circumfix: "
+    fixities = words " prefix: postfix: infix: circumfix: coerce: "
 
 ruleSubParameters :: ParensOption -> RuleParser (Maybe [Param])
 ruleSubParameters wantParens = rule "subroutine parameters" $ do
