@@ -317,18 +317,21 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
         exp  = Syn ":=" [Var name, Syn "sub" [subExp]]
         exp' = Syn ":=" [Var name', Syn "sub" [subExp]]
         isExported = (pkg == "main" || "export" `elem` traits)
-    case scope of
-        -- XXX FIXME - the "main" here is a horrible hack
-        SGlobal | name' /= name && isExported -> do
-            unsafeEvalExp (Sym scope name exp)
-            unsafeEvalExp (Sym scope name' exp')
-            return emptyExp
-        SGlobal -> do
-            unsafeEvalExp (Sym scope name' exp')
-            return emptyExp
-        _ -> do
-            lexDiff <- unsafeEvalLexDiff (Sym scope name' emptyExp)
-            return $ Pad scope lexDiff exp
+    -- Don't add the sub if it's unsafe and we're in safemode.
+    if "unsafe" `elem` traits && safeMode
+        then return emptyExp
+        else case scope of
+            -- XXX FIXME - the "main" here is a horrible hack
+            SGlobal | name' /= name && isExported -> do
+                unsafeEvalExp (Sym scope name exp)
+                unsafeEvalExp (Sym scope name' exp')
+                return emptyExp
+            SGlobal -> do
+                unsafeEvalExp (Sym scope name' exp')
+                return emptyExp
+            _ -> do
+                lexDiff <- unsafeEvalLexDiff (Sym scope name' emptyExp)
+                return $ Pad scope lexDiff exp
 
 -- | A Param representing the default (unnamed) invocant of a method on the given type.
 selfParam :: String -> Param
