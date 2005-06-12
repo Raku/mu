@@ -10,11 +10,11 @@ sub nonce () { return (".$*PID." ~ int rand 1000) }
 
 my $tmpfile = "temp-evalfile" ~ nonce();
 {
-    my $fh = open "$tmpfile", :w;
-    say $fh, "32 + 10";
+    my $fh = open("$tmpfile", :w);
+    say $fh: "32 + 10";
     close $fh;
 }
 
-is evalfile($tmpfile), 42, "evalfile() works", :todo<feature>;
+is evalfile($tmpfile), 42, "evalfile() works";
 
 END { unlink $tmpfile }

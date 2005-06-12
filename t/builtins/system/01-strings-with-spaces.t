@@ -142,7 +142,7 @@ for @command -> $cmd {
 
     my $prog = "perl6-temprun-test-" ~ ($counter++) ~ ".tmp";
 
-    my $fh = open $prog, :w;
+    my $fh = open($prog, :w);
     $fh.say("system(");
     #say @cmd;
     #say @args;

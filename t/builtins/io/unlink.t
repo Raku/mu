@@ -13,7 +13,7 @@ my $iswin32 = ?($*OS eq any<MSWin32 mingw msys cygwin>) ?? "Timely closing of fi
 
 # open, explicit close, unlink, test
 {
-  my $fh = open $fn, :w;
+  my $fh = open($fn, :w);
   close $fh;
 
   ok -e $fn,      "open() created a tempfile";
@@ -23,7 +23,7 @@ my $iswin32 = ?($*OS eq any<MSWin32 mingw msys cygwin>) ?? "Timely closing of fi
 
 # open, implicit close because of scope exit, unlink, test
 {
-  { my $fh = open $fn, :w }
+  { my $fh = open($fn, :w) }
 
   ok -e $fn,      "open() created a tempfile";
   is(unlink($fn), 1, "unlink() returned true", todo => $iswin32);
