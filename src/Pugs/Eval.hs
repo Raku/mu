@@ -745,7 +745,7 @@ reduceApp (Var name@('&':_)) invs args = do
         = apply sub{ subParams = (length args) `replicate` p } invs args
         -- chain-associativity
         | MkCode{ subAssoc = "chain" }  <- sub
-        , (App _ _ []):_                <- args
+        , (App _ Nothing _):_                <- args
         = mungeChainSub sub args
         | MkCode{ subAssoc = "chain", subParams = (p:_) }   <- sub
         = apply sub{ subParams = (length args) `replicate` p } invs args
