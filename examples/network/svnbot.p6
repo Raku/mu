@@ -119,7 +119,11 @@ sub svn_commits() {
     # If this is an incremental update...
     if $cur_svnrev {
         # ...only query for new commits since we last checked.
-        system "svn log -r {$cur_svnrev + 1}:HEAD $repository > $tempfile";
+        my $from = $cur_svnrev + 1;
+        # Hack to prevent "-3:HEAD", resulting in a syntax error, resulting in
+        # svn not outputting the log, resulting in svnbot not saying anything.
+        $from    = "HEAD" if $from <= 0; 
+        system "svn log -r $from:HEAD $repository > $tempfile";
     } else {
         # Else query only for the newest commit.
         system "svn log -r HEAD $repository > $tempfile";
