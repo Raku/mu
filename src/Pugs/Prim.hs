@@ -94,12 +94,6 @@ op1 "id" = \x -> do
     case val of
         VObject o   -> return . castV . hashUnique $ objId o
         _           -> return undef
-op1 "Pugs::Internals::caller" = \x -> do
-    lev <- fromVal x
-    env <- ask
-    when (lev < 1) $ do
-        liftIO $ fail "Pugs::Internals::caller called with nonpositive argument"
-    local (const env) $ do op1Caller lev
 op1 "clone" = \x -> do
     (VObject o) <- fromVal x
     attrs   <- readIVar (IHash $ objAttrs o)
@@ -549,48 +543,6 @@ op1 "Code::pos"   = op1CodePos
 op1 other   = \_ -> fail ("Unimplemented unaryOp: " ++ other)
 
 
--- work in progress
-{-data VCode = MkCode
-    { isMulti       :: !Bool        -- ^ Is this a multi sub\/method?
-    , subName       :: !String      -- ^ Name of the closure
-    , subType       :: !SubType     -- ^ Type of the closure
-    , subEnv        :: !(Maybe Env) -- ^ Lexical pad for sub\/method
-    , subAssoc      :: !String      -- ^ Associativity
-    , subParams     :: !Params      -- ^ Parameters list
-    , subBindings   :: !Bindings    -- ^ Currently assumed bindings
-    , subSlurpLimit :: !SlurpLimit  -- ^ Max. number of slurpy arguments
-    , subReturns    :: !Type        -- ^ Return type
-    , subLValue     :: !Bool        -- ^ Is this a lvalue sub?
-    , subBody       :: !Exp         -- ^ Body of the closure
-    , subCont       :: !(Maybe (TVar VThunk)) -- ^ Coroutine re-entry point
-
-I'm not happy with show here because it means we need to do fragile
-parsing on the other side. When this is specced better we can put the
-brunt of the packaging here, and leave only the selection logic to the
-other side.
--}
-op1Caller :: Int -> Eval Val
-op1Caller 0 = do
-    env <- ask
-    val <- readVar "&?SUB"
-    if (not $ defined val) then retEmpty else do
-    sub <- fromVal val
-    returnList
-        [ VStr $ envPackage env                        -- .package
-        , VStr $ posName $ envPos env                  -- .file
-        , VInt $ toInteger $ posBeginLine $ envPos env -- .line
-        , VStr $ subName sub                           -- .subname
-        , VStr $ show $ subType sub                    -- .subtype
-        , VStr $ show $ subParams sub                  -- .params (FIXME)
-        -- TODO: add more things as they are specced.
-        ]
-op1Caller n = do
-    env <- ask
-    if (envDepth env) == 0 then retEmpty else do
-    case envCaller env of
-        Just caller -> local (const caller) $ do op1Caller (n - 1)
-        Nothing -> fail "envDepth says we have a caller but envCaller is Nothing"
-    
 
 returnList :: [Val] -> Eval Val
 returnList vals = ifListContext
@@ -626,7 +578,7 @@ op1Return action = do
     sub   <- fromVal =<< readVar "&?SUB"
     case subCont sub of
         {- shiftT :: ((a -> Eval Val) -> Eval Val) -> Eval a -}
-	    {- const :: a -> b -> a -}
+        {- const :: a -> b -> a -}
         {- FIXME: This should involve shiftT somehow, I think, but I'm not clear how. -}
         Nothing -> action
         _       -> fail $ "cannot return() from a " ++ pretty (subType sub)
@@ -953,6 +905,16 @@ op2Split x y = do
 
 -- |Implementation of 3-arity primitive operators and functions
 op3 :: String -> Val -> Val -> Val -> Eval Val
+op3 "Pugs::Internals::caller" = \x y z -> do
+    --kind <- fromVal =<< op1 "ref" x
+    kind <- case x of
+        VStr str -> return $ mkType str
+        _        -> fromVal x
+    skip <- fromVal y
+    when (skip < 0) $ do
+        liftIO $ fail "Pugs::Internals::caller called with negative skip"
+    label <- fromVal z
+    op3Caller kind skip label
 op3 "index" = \x y z -> do
     str <- fromVal x
     sub <- fromVal y
@@ -1102,6 +1064,48 @@ op2Ord f x y = do
         LT -> -1
         EQ -> 0
         GT -> 1
+
+op3Caller :: Type -> Int -> Val -> Eval Val
+--op3Caller kind skip label = do
+op3Caller kind skip _ = do                                 -- figure out label
+    chain <- callChain =<< ask
+    formatFrame $ filter labelFilter $ drop skip $ filter kindFilter chain
+    where
+    formatFrame :: [(Env, VCode)] -> Eval Val
+    formatFrame [] = retEmpty
+    formatFrame l  =
+        let (env,sub)  = head l in
+        returnList
+            [ VStr $ envPackage env                        -- .package
+            , VStr $ posName $ envPos env                  -- .file
+            , VInt $ toInteger $ posBeginLine $ envPos env -- .line
+            , VStr $ subName sub                           -- .subname
+            , VStr $ show $ subType sub                    -- .subtype
+            , VCode $ sub                                  -- .sub
+            -- TODO: add more things as they are specced.
+            ]
+    kindFilter :: (Env, VCode) -> Bool
+    kindFilter (_, sub) =
+        case (kind, subType sub) of
+            (MkType "Any",    _)          -> True  -- I hope this is optimized
+            (MkType "Method", SubMethod)  -> True
+            (MkType "Bare",   SubBlock)   -> True
+            (MkType "Sub",    SubRoutine) -> True
+            (MkType "Pointy", SubPointy)  -> True  -- XXX: specme
+            (_,               _)          -> False
+    labelFilter _ = True                           -- TODO: figure out how
+    callChain :: Env -> Eval [(Env, VCode)]
+    callChain cur = 
+        case envCaller cur of
+            Just caller -> do
+                val <- local (const caller) (readVar "&?SUB")
+                if (val == undef) then return [] else do
+                --if (val == undef) then do fail "&?SUB not found for caller" else do
+                sub <- fromVal val
+                rest <- callChain caller
+                return ((caller, sub) : rest)
+            _           -> return []
+
 
 -- |Returns a transaction to install a primitive operator using
 -- 'Pugs.AST.genMultiSym'.
@@ -1494,7 +1498,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   List      pre     Pugs::Internals::runInteractiveCommand  unsafe (Str)\
 \\n   Bool      pre     Pugs::Internals::hSetBinaryMode         unsafe (IO, Str)\
 \\n   IO        pre     Pugs::Internals::openFile               unsafe (Str, Str)\
-\\n   List      pre     Pugs::Internals::caller                 safe (?Int=1)\
+\\n   List      pre     Pugs::Internals::caller                 safe (Any, Int, Str)\
 \\n   Bool      pre     bool::true  safe   ()\
 \\n   Bool      pre     bool::false safe   ()\
 \\n   List      spre    prefix:[,]  safe   (List)\
