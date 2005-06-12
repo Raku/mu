@@ -56,7 +56,7 @@ sub take(Int $n, Code &f) { (1..$n).map:{ f() } }
 }
 
 # Test that there's still only one instance of each state() variable
-eval {
+try {
   my @array = take 5, {
     coro {
 	(sub {
@@ -73,6 +73,4 @@ eval {
 
 # I've marked this failure as unspecced, should a yield be able to
 # jump up many scopes like that?
-fail "couldn't yield from inside closure", :todo<unspecced> if $!;
-
-
+ok $!, "yield() should work from inside a closure (unspecced!)";
