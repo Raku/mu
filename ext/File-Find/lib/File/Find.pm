@@ -10,6 +10,8 @@ has Array $.results;
 has Code  $.wanted_dir;
 has Code  $.wanted_file;
 
+submethod BUILD { $.debug = 0 }
+
 method find ( $self: +@dirs, +$wanted_dir, +$wanted_file ) {
     my @start    = @dirs        || @{$.dirs};
     my $wdir_cb  = $wanted_dir  || $.wanted_dir  || sub { 1 };
