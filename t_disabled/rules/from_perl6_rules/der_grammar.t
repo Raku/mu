@@ -13,12 +13,29 @@ be valid perl6.
 
 =cut
 
-plan 33;
+plan 34;
 
 if(eval('!("a" ~~ /a/)')) {
   skip_rest "skipped tests - rules support appears to be missing";
 } else {
 
+# PGE doesn't parse non-capturing subrules.
+# So the real test grammar parsefails.
+# This modified grammar breaks some tests below.
+my $workaround = 1;
+skip "PGE doesn't parse non-capturing subrules.  Parsefails.";
+#ok !$workaround,"Defining rule with non-capturing subrule without parsefail.";
+if $workaround {eval '
+grammar Other {
+	rule abc { a (<bee>) c } # avoid parsefail
+
+	rule bee { b }
+
+	rule def { d <eh> f }
+
+	rule eh  { e }
+}
+'} else {eval '
 grammar Other {
 	rule abc { a (<?bee>) c }
 
@@ -28,6 +45,7 @@ grammar Other {
 
 	rule eh  { e }
 }
+'}
 
 grammar Another is Other {
 }
@@ -41,54 +59,54 @@ grammar Yet::Another is Another {
 
 # Test derivation and Liskov substitutability...
 
-ok('abc' ~~ m/^ (<Another.abc>) $/, '<Another.abc>');
-is($/, "abc", 'abc $/');
-is($0, "abc", 'abc $0');
+ok('abc' ~~ m/^ (<Another.abc>) $/, '<Another.abc>', :todo<feature>);
+is($/, "abc", 'abc $/', :todo<feature>);
+is($0, "abc", 'abc $0', :todo<feature>);
 
-ok('abc' ~~ m/ (<Another.bee>) /, '<Another.bee>');
-is($/, "b", 'bee $/');
-is($0, "b", 'bee $0');
+ok('abc' ~~ m/ (<Another.bee>) /, '<Another.bee>', :todo<feature>);
+is($/, "b", 'bee $/', :todo<feature>);
+is($0, "b", 'bee $0', :todo<feature>);
 
-ok('b' ~~ m/ (<Another.bee>) /, '<Another.bee>');
+ok('b' ~~ m/ (<Another.bee>) /, '<Another.bee>', :todo<feature>);
 
-ok('def' ~~ m/^ (<Another.def>) $/, '(<Another.def>)');
-is($/, "def", 'def $/');
-is($0, "def", 'def $0');
+ok('def' ~~ m/^ (<Another.def>) $/, '(<Another.def>)', :todo<feature>);
+is($/, "def", 'def $/', :todo<feature>);
+is($0, "def", 'def $0', :todo<feature>);
 
-ok('def' ~~ m/^ <?Another.def> $/, '<?Another.def>');
-is($/, "def", '?def $/');
+ok('def' ~~ m/^ <?Another.def> $/, '<?Another.def>', :todo<feature>);
+is($/, "def", '?def $/', :todo<feature>);
 ok($0 ne "def", '?def $0');
-is($/<def>, "def", '?def $/<def>');
-is($/<def><eh>, "e", '?def $/<def><eh>');
+is($/<def>, "def", '?def $/<def>', :todo<feature>);
+eval_is('$/<def><eh>', "e", '?def $/<def><eh>', :todo<feature>);
 
 
 # Test rederivation and polymorphism...
 
-ok('abc' ~~ m/^ (<Yet::Another.abc>) $/, '<Yet::Another.abc>');
-is($/, "abc", 'abc $/');
-is($0, "abc", 'abc $0');
+ok('abc' ~~ m/^ (<Yet::Another.abc>) $/, '<Yet::Another.abc>', :todo<feature>);
+is($/, "abc", 'abc $/', :todo<feature>);
+is($0, "abc", 'abc $0', :todo<feature>);
 
 ok(!( 'abc' ~~ m/ (<Yet::Another.bee>) / ), 'abc <Yet::Another.bee>');
-ok('aBc' ~~ m/ (<Yet::Another.bee>) /, 'aBc <Yet::Another.bee>');
-is($/, "B", 'Yet::Another::bee $/');
-is($0, "B", 'Yet::Another::bee $0');
+ok('aBc' ~~ m/ (<Yet::Another.bee>) /, 'aBc <Yet::Another.bee>', :todo<feature>);
+is($/, "B", 'Yet::Another::bee $/', :todo<feature>);
+is($0, "B", 'Yet::Another::bee $0', :todo<feature>);
 
 ok(!( 'def' ~~ m/^ (<Yet::Another.def>) $/ ), 'def (<Yet::Another.def>)');
-ok('DeF' ~~ m/^ (<Yet::Another.def>) $/, 'DeF (<Yet::Another.def>)');
-is($/, "DeF", 'DeF $/');
-is($0, "DeF", 'DeF $0');
+ok('DeF' ~~ m/^ (<Yet::Another.def>) $/, 'DeF (<Yet::Another.def>)', :todo<feature>);
+is($/, "DeF", 'DeF $/', :todo<feature>);
+is($0, "DeF", 'DeF $0', :todo<feature>);
 
-ok('DeF' ~~ m/^ <?Yet::Another.def> $/, '<?Yet::Another.def>');
-is($/, "DeF", '?Yet::Another.def $/');
+ok('DeF' ~~ m/^ <?Yet::Another.def> $/, '<?Yet::Another.def>', :todo<feature>);
+is($/, "DeF", '?Yet::Another.def $/', :todo<feature>);
 ok($0 ne "DeF", '?Yet::Another.def $0');
-is($/<def>, "DeF", '?def $/<def>');
-is($/<def><eh>, "e", '?def $/<def><eh>');
+is($/<def>, "DeF", '?def $/<def>', :todo<feature>);
+eval_is('$/<def><eh>', "e", '?def $/<def><eh>', :todo<feature>);
 
 
 # Non-existent rules...
 
-ok(!eval { 'abc' ~~ m/ (<Another.sea>) / }, '<Another.sea>');
-ok($!, 'Error');
+ok(!eval(q{ 'abc' ~~ m/ (<Another.sea>) / }), '<Another.sea>');
+ok($!, 'Error', :todo<feature>);
 
 }
 
