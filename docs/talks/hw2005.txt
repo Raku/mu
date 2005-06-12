@@ -8,7 +8,7 @@
 
 Perl is a general-purpose language, known for its vast number of freely
 available extension libraries.  The Perl 6 project was started in 2000
-to create a more robust runtime environment, and improve the language's
+to create a more robust runtime environment, and to improve the language's
 support for multi-paradigmatic programming.  However, the attempt to produce a
 concrete implementation remains a work in progress after 4 years of development.
 
@@ -22,9 +22,8 @@ and Haskell within Perl 6 programs, and how it mediates the execution context
 between these runtime environments.
 
 Finally, we discuss Parrot, a virtual machine designated as the reference
-implementation of Perl 6's runtime.  We show how Pugs can evolve from an
-interpreter to a compiler targeting Parrot, with a design based on
-metacomputational monads.
+implementation of Perl 6's runtime, and how Pugs can evolve from an interpreter
+to a compiler targeting Parrot.
 
 == Categories and Subject Descriptors ==
 
@@ -57,7 +56,7 @@ process continued well into 2005, producing the language specification in
 installments.
 
 However, the Perl 6 implementation, originally planned to proceed in parallel
-with the design process, failed to materialise.  This has seriously impeded the
+with the design process, failed to materialise.  This has seriously impeded
 development and adoption of the new language.
 
 This paper presents Pugs, an independent implementation of Perl 6 using Haskell
@@ -73,7 +72,7 @@ non-technical contributions:
 * Explore more rigorous ways to define Perl 6's execution model
 
 The rest of this paper will proceed as follows.  In section 2, we give an
-overview of the Perl 6 project's history, and the language's execution model.
+overview of the Perl 6 project's history, and of the language's execution model.
 Section 3 discusses previous implementation efforts.  We then present the
 design of Pugs's interpreter core in section 4.
 
@@ -133,7 +132,7 @@ Perl 5 runtime inside Perl 6's runtime, or recompile them into Perl 6.
 
 2.2. Execution Model
 
-The Perl 6 project started with a "requirement analysis" phase; during this
+The Perl 6 project started with a "requirement analysis" phase.  During this
 two-month period, 26 working groups produced 361 RFC submissions as initial
 input to the design team, calling for improved functional, object-oriented,
 concurrency-based, data-driven and logic programming support in the base
@@ -141,7 +140,7 @@ language.  In order to support these requirements, the design team focused
 on Perl 6's metaprogramming capabilities.
 
 Unlike most languages, Perl 5 has a dynamic grammar: its parser is tightly
-coupled with the evaluator, so compile-time computation can affect how the
+coupled with its evaluator, so compile-time computation can affect how the
 parser handles the rest of the program.  This allows for a limited form of
 macros known as "source filters", where a Perl module can transform the
 importing program's source code before its parsing.
@@ -162,7 +161,7 @@ sub-rules that handle parts of the program.  Rules may contain embedded Perl 6
 code to produce side effects.  For example, the "BEGIN {...}" syntax defines a
 block of code to be executed during compilation.
 
-Immediately after parsing a BEGIN block, the compiler will generate object code
+Right after parsing a BEGIN block, the compiler will generate object code
 for the block, then immediately run that code.  The generated code has access
 to the compilation environment; it may rewrite the partially produced parse
 tree, define new grammar rules, or replace the compiler entirely from the next
@@ -472,8 +471,8 @@ the two lines below do different things in Perl 6:
 
 Here the operation is polymorphic: Perl looks up the containers that "%foo"
 and "%ENV" bind to, then check if they have associated "implementation
-objects".  If yes, Perl then calls the "STORE" method on those objects, passing
-the key and value as arguments.
+objects".  If they are, Perl then calls the "STORE" method on them, passing the
+key and value as arguments.
 
 There is a level of indirection between containers and implementation objects,
 as the "tie" function can change a container's implementation at runtime.  As
@@ -549,7 +548,7 @@ child thread.  To share a variable, one needs to mark it explicitly, using the
 "tie" mechanism to connect it to a storage object visible across threads.
 
 This design presents an unified interface for various underlying threading
-libraries, including POSIX and non-POSIX threads, or even threads simulated
+libraries, including POSIX and non-POSIX threads, and even threads simulated
 using fork() and sockets.  The main drawback of ithreads is the overhead of
 copying the entire interpreter's state upon thread creation.  There are plans to
 use copy-on-write to reduce this overhead, but that is still being implemented.
@@ -812,7 +811,7 @@ To that end, Parrot offers the following features:
 
 * Platform-independent bytecode format
 * Portable interpreter written in C, with reasonable performance
-* Alternative fast runloops: computed-goto, JIT and emitting C code
+* Alternative fast runloops: direct threaded, JIT and emitting C code
 * APIs for extending and embedding the interpreter
 * One polymorphic boxed object type, known as PMC (Parrot Magic Cookie)
 * Three unboxed value types: Integers, Numbers, Strings
@@ -895,39 +894,115 @@ the Pugs AST, but the generated code runs with speed comparable with Perl 5.
 This initial result encouraged us to make Pugs a more robust compiler; in this
 section, we discuss our ongoing work in this area.
 
-7.1. Metacomputational Compilation
+7.1. Compiling to PugsAST
 
-Because monads encapsulate computations, a metacomputation is just a monad
-with a return type being another monad type:
+Pugs currently simply evaluates the parse tree in the Eval monad, and relies on
+the "Syn :: String -> [Exp] -> Exp" data constructor to represent loops,
+conditionals and other a statement constructs that does not act as a normal
+function application.  As such, reduction rules for "Syn" terms usually consist
+of "evalExp" calls to other dynamically constructed terms.
 
-	Eval (Eval a)
+We plan to decouple the program's compile-time behaviour from its runtime
+behaviour, by separating the original "evaluate :: (Exp -> Eval Val)" function
+into two steps:
 
-...partial evaluation, Static/Dynam monads...
+    compile :: Exp -> Compile RunEnv
+    interpret :: RunEnv -> Eval Val
+
+    type Compile a = ReaderT CompileEnv IO a
+    data RunEnv = MkRunEnv
+        { runGlobals    :: !Pad
+        , runExpression :: !(PugsAST Val)
+        }
+
+Here the Compile monad rewrites the parse tree of type Exp into a RunEnv, under
+the post-parse compile environment CompileEnv that contains top-level bindings;
+all constant folding, term rewriting, type checking and are done in the Compile
+monad.
+
+The resulting RunEnv contains a PugsAST, a much reduced AST that represents the
+dynamic part of the evaluation.  We use GADTs to capture all the nuances of
+Perl 6 evaluation strategy:
+
+    data PugsAST a where
+        Stmts   :: [PugsAST a] -> PugsAST b -> PugsAST b
+        Var     :: Name -> PugsAST Val
+        App     :: PugsAST (Code a) -> Maybe (PugsAST Val)
+                    -> [PugsAST Val] -> Cxt -> PugsAST a
+        Lam     :: [[Param]] -> PugsAST (Typ a) -> PugsAST (Code a)
+        Lit     :: Val -> PugsAST Val
+        Pad     :: (Name, PugsAST a) -> PugsAST b -> PugsAST b
+        Prim    :: Tag -> Dynamic -> PugsAST a -> PugsAST a
+
+We can then adapt the existing interpreter code to evaluate PugsAST terms instead.
+Additionally, we can introduce compiler backends that turns the PugsAST trees into
+lower-level syntax trees, such as that of a PIR program.
 
 7.2. Targeting Parrot
 
-...subtyping...
-...common object representation...
-...implement STM on Parrot VM as well...
-...optimization, unboxing, helper PMCs...
+Previously, Pugs's prototype PIR compiler backend emits PIR from the parse tree
+directly, using the Text.PrettyPrint library within the Eval monad:
 
-7.3. Other Backends
+    class (Show x) => Compile x where
+        compile :: x -> Eval Doc
+        compile x = fail ("Unrecognized construct: " ++ show x)
+    instance Compile Exp where
+        compile (Syn ";" stmts) = fmap vcat $ mapM compile stmts
+        -- ...more compilation rules...
 
-...generating haskell with TH, ANF/SSA...
-...maybe target LLVM/C-- directly?...
+Because the generated "Doc" is not type-checked against PIR's abstract syntax,
+it could easily generate bogus PIR programs.  To address this issue, we need to
+come up with an abstract syntax data type for PIR, which would look something
+like this:
+
+    data RegType = RegInt | RegNum | RegStr | RegPMC
+    data RelOp = RelLT | RelLE | RelEQ | RelNE | RelGE | RelGT
+    data PIR a where
+        Comment :: String -> PIR Stmt
+        Stmt    :: Maybe Label -> PIR Instruction -> PIR Stmt
+        RegHard :: RegType -> Int -> PIR Var
+        RegTemp :: RegType -> Int -> PIR Var
+        Ident   :: Ident -> PIR Var
+        Lit     :: (ConstClass a) => a -> PIR Constant
+        Pragma  :: Pragma -> PIR Decl
+        Sub     :: Ident -> [PIR Parameter] -> [PIR Stmt] -> PIR Decl
+        Emit    :: [PIR PASM] -> PIR Decl
+        TypReg  :: RegType -> PIR Typ
+        TypPMC  :: Ident -> PIR Typ
+        PASM    :: [String] -> PIR PASM
+        Param   :: PIR Var -> PIR Parameter
+        Return  :: [PIR Var] -> PIR Stmt
+        Local   :: PIR Typ -> [Ident] -> PIR Stmt
+        Const   :: PIR Typ -> Ident -> PIR Constant -> PIR Stmt
+        NS      :: Ident -> [PIR Decl] -> PIR Decl
+        Goto    :: Ident -> PIR Stmt
+        Cond    :: Bool -> PIR Var -> Ident -> PIR Stmt
+        CondCmp :: Bool -> PIR Var -> RelOP -> PIR Var -> Ident -> PIR Stmt
+        -- ...more PIR instructions...
+
+At the time of this writing, the effort to compiling PugsAST into corresponding
+PIR structures has just started.  Aside from the syntax transformation itself,
+we expect to run into other issues, such as embedding Haskell and Perl 5
+runtime in Parrot.
 
 ---------------------------------------------------------------------------
 
 8. Conclusion and Future Work
 
-...Porting Pugs to Perl 6, compiling Haskell to PIR via Jhc...
-...Evolving Perl 6 into a true typeful dynamic language...
-...more seamless integration of Perl5<->Pugs, by building libpugs.a and
-   links Inline::Pugs with that...  Inline::GHC will also be nice...
-...Under Perl 5's reference-counting GC system, we need to provide timely
-...destruction for Perl 5 objects, addFinalizer for SvREFCNT_dec on PerlSV
-...types... Perl5-side DESTROY calls freeStablePtr in the Haskell side...
-...use Data.Dynamic in eval_haskell()...
+This paper introduced our experience in using Haskell to implement the Perl 6
+language.  We discussed how modern features in GHC helped to express Perl 6's
+semantics, which in turn improved our understanding on how to compile Perl 6
+to the Parrot virtual machine.
+
+Aside from continuing the various subsystems discussed in the paper, we see
+some additional directions that Pugs's development can embark on: 
+
+* Tighter integration of GHC (and therefore Pugs) inside the Perl 5 runtime, by
+  improving hs-plugins's support for marshalling Dynamic types as C structures.
+* Compile PugsAST to other backends, such as ANF, C-- or back to Perl 5.
+* Run the Pugs codebase on Parrot VM, via a PIR backend for GHC or JHC.
+* Define the RuleParser monad with Perl 6 Rules, by translating the Rules
+  sublanguage into Parsec primitives.
 
 The source code for Pugs is freely available at:
 
