@@ -35,7 +35,7 @@ opRequire dumpEnv v = do
         { evalError  = EvalErrorFatal
         , evalResult = (if dumpEnv == True then EvalResultEnv
                                            else EvalResultLastValue)}
-    errMsg file incs = "Can't locate " ++ file ++ " in @INC (@INC contains: " ++ unwords incs ++ ")."
+    errMsg file incs = "Can't locate " ++ file ++ " in @*INC (@*INC contains: " ++ unwords incs ++ ")."
     requireInc [] _ msg = fail msg
     requireInc (p:ps) file msg = do
         let pathName = p ++ "/" ++ file
