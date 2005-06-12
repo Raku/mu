@@ -184,29 +184,29 @@ eval_ok 'class Foo9 { has $.attr will build(42) }',
 eval_is 'Foo9.new.attr', 42, "default attribute value (3)", :todo<feature>;
 
 my $was_in_supplier = 0;
-sub fourty_two_supplier() { $was_in_supplier++; 42 }
+sub forty_two_supplier() { $was_in_supplier++; 42 }
 # XXX: Currently hard parsefail!
-#todo_eval_ok 'class Foo10 { has $.attr = { fourty_two_supplier() } }',
+#todo_eval_ok 'class Foo10 { has $.attr = { forty_two_supplier() } }',
 #  "class definition using '= {...}' worked";
 fail "hard parsefail", :todo<feature>;
 eval_is 'Foo10.new.attr', 42, "default attribute value (4)", :todo<feature>;
-is      $was_in_supplier, 1,  "fourty_two_supplier() was actually executed (1)", :todo<feature>;
+is      $was_in_supplier, 1,  "forty_two_supplier() was actually executed (1)", :todo<feature>;
 
 # The same, but using 'is build {...}'
 # XXX: Currently hard parsefail!
-#todo_eval_ok 'class Foo11 { has $.attr is build { fourty_two_supplier() } }',
+#todo_eval_ok 'class Foo11 { has $.attr is build { forty_two_supplier() } }',
 #  "class definition using 'is build {...}' worked";
 fail "hard parsefail", :todo<feature>;
 eval_is 'Foo11.new.attr', 42, "default attribute value (5)", :todo<feature>;
-is      $was_in_supplier, 2,  "fourty_two_supplier() was actually executed (2)", :todo<feature>;
+is      $was_in_supplier, 2,  "forty_two_supplier() was actually executed (2)", :todo<feature>;
 
 # The same, but using 'will build {...}'
 # XXX: Currently hard parsefail!
-#todo_eval_ok 'class Foo12 { has $.attr will build { fourty_two_supplier() } }',
+#todo_eval_ok 'class Foo12 { has $.attr will build { forty_two_supplier() } }',
 #  "class definition using 'will build {...}' worked";
 fail "hard parsefail", :todo<feature>;
 eval_is 'Foo11.new.attr', 42, "default attribute value (6)", :todo<feature>;
-is      $was_in_supplier, 3,  "fourty_two_supplier() was actually executed (3)", :todo<feature>;
+is      $was_in_supplier, 3,  "forty_two_supplier() was actually executed (3)", :todo<feature>;
 
 # check that doing something in submethod BUILD works
 class Foo7 {

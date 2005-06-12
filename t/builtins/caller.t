@@ -7,9 +7,9 @@ plan 3;
 
 # L<S06/"The C<caller> function">
 
-# caller.sub
+# caller.subname
 sub a_sub { b_sub() }
-sub b_sub { eval 'caller.sub' }
+sub b_sub { eval 'caller.subname' }
 is ~a_sub(), "foo", "caller.sub works", :todo;
 
 # caller.file
