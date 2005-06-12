@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 23;
+plan 31;
 
 # L<S29/"Perl6::Str" /substr/>
 
@@ -41,27 +41,58 @@ plan 23;
 	is($str, "fayeh", "replacement with negative length");
 };
 
-{ # as lvalue
+# as lvalue, XXX: not sure this should work, as that'd be action at distance:
+#   my $substr = \substr($str, ...);
+#   ...;
+#   some_func $substr; # manipulates $substr
+#   # $str altered!
+# But one could think that's the wanted behaviour, so I leave the test in.
+{
 	my $str = "gorch ding";
 
-	eval 'substr($str, 0, 5) = "gloop"';
-    is($str, "gloop ding", "lvalue assignment modified original string", :todo);
+	substr($str, 0, 5) = "gloop";
+        is($str, "gloop ding", "lvalue assignment modified original string");
 
-	my $r;
-	eval '$r = \substr($str, 0, 5)';
+	my $r = \substr($str, 0, 5);
 	ok(ref($r), '$r is a reference');
-	eval_is('$$r', "gloop", '$r referent is eq to the substring', :todo);
+	is($$r, "gloop", '$r referent is eq to the substring');
 
-	eval '$$r = "boing"';
+	$$r = "boing";
 	is($str, "boing ding", "assignment to reference modifies original", :todo);
-	eval_is('$$r', "boing", '$r is consistent', :todo);
+	is($$r, "boing", '$r is consistent');
 
-	my $o;
-	eval '$o = \substr($str, 3, 2)';
-	eval_is('$$o', "ng", "other ref to other lvalue", :todo);
-	eval '$$r = "foo"';
+	my $o = \substr($str, 3, 2);
+	is($$o, "ng", "other ref to other lvalue", :todo);
+	$$r = "foo";
 	is($str, "foo ding", "lvalue ref size varies but still works", :todo);
-	eval_is('$$o', " d", "other lvalue wiggled around", :todo);
+	is($$o, " d", "other lvalue wiggled around", :todo);
+};
+
+{ # as lvalue, should work
+	my $str = "gorch ding";
+
+	substr($str, 0, 5) = "gloop";
+        is($str, "gloop ding", "lvalue assignment modified original string");
+};
+
+{ # as lvalue, using :=, should work
+	my $str = "gorch ding";
+
+	substr($str, 0, 5) = "gloop";
+        is($str, "gloop ding", "lvalue assignment modified original string");
+
+	my $r := substr($str, 0, 5);
+	is($r, "gloop", 'bound $r is eq to the substring');
+
+	$r = "boing";
+	is($str, "boing ding", "assignment to bound var modifies original");
+	is($r, "boing", 'bound $r is consistent', :todo<bug>);
+
+	my $o := substr($str, 3, 2);
+	is($o, "ng", "other bound var to other lvalue");
+	$r = "foo";
+	is($str, "foo ding", "lvalue ref size varies but still works");
+	is($o, " d", "other lvalue wiggled around", :todo<bug>);
 };
 
 { 

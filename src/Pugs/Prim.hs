@@ -974,11 +974,14 @@ op4 "substr" = \x y z w -> do
     let len | defined z = lenP
             | otherwise = length str
         (pre, result, post) = doSubstr str pos len
-    when (defined w && result /= VUndef) $ do
+    let change = \new -> do
         var <- fromVal x
-        rep <- fromVal w
+        rep <- fromVal new
         writeRef var (VStr $ concat [pre, rep, post])
-    return result
+    -- If the replacement is given in w, change the str.
+    when (defined w && result /= VUndef) $ change w
+    -- Return a proxy which will modify the str if assigned to.
+    return $ VRef . MkRef $ proxyScalar (return result) change
     where
     doSubstr :: VStr -> Int -> Int -> (VStr, Val, VStr)
     doSubstr str pos len
