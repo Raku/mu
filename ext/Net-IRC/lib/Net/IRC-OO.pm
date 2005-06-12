@@ -19,7 +19,7 @@ sub debug(Str $msg) is export {
   $is_fresh //= 1;
 
   print "» " if $is_fresh;
-  if($msg ~~ rx:P5/ $/) {
+  if($msg ~~ / $/) {
     print "$msg";
     $is_fresh = 0;
   } else {
