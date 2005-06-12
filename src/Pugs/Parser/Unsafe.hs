@@ -3,11 +3,14 @@ module Pugs.Parser.Unsafe (
     unsafeEvalLexDiff,
     unsafeEvalEnv,
     unsafeEvalExp,
+    possiblyApplyMacro,
 ) where
 import Pugs.Internals
 import Pugs.AST
 import Pugs.Pretty
 import Pugs.Parser.Types
+import Pugs.Eval.Var
+import Pugs.Types
 
 unsafeEvalLexDiff :: Exp -> RuleParser Pad
 unsafeEvalLexDiff exp = do
@@ -28,6 +31,7 @@ unsafeEvalEnv exp = do
             return env'{ envDebug = envDebug env }
         _  -> error $ pretty val
 
+{-# NOINLINE unsafeEvalExp #-}
 unsafeEvalExp :: Exp -> RuleParser Exp
 unsafeEvalExp exp = do
     clearDynParsers
@@ -39,3 +43,56 @@ unsafeEvalExp exp = do
     case val of
         VError _ _  -> error $ pretty (val :: Val)
         _           -> return $ Val val
+
+{-# NOINLINE possiblyApplyMacro #-}
+{-| @possiblyApplyMacro@ takes an @Exp@ containg only an @App@. It then checks
+    if the code to be executed is a reference to a macro. If it is, the macro
+    is executed now, i.e. during compile-time. The return value of the macro is
+    then processed accordingly (i.e. a return value of type @Str@ will be
+    parsed, and a @Code@ will be executed during runtime).
+-}
+possiblyApplyMacro :: Exp            -- ^ The @Exp@ containg only an @App@ to
+                                     --   check if it calls a macro
+                   -> RuleParser Exp -- ^ The result expression (either the
+                                     --   original one or the result of
+                                     --   applying the macro)
+possiblyApplyMacro app@(App (Var name) _ _) = do
+    -- First, we've to resolve name to a vcode.
+    env <- getRuleEnv
+    -- Note that we don't have to clearDynParsers, as we just do a variable
+    -- lookup here.
+    let subCode = unsafePerformIO $ runEvalIO (env{ envDebug = Nothing }) $ do
+        res <- findVar $ (name :: Var)
+        if isJust res
+            then readRef $ fromJust res
+            else return undef
+    case subCode of
+        -- If we found a Code var, possibly process it further.
+        VCode vcode -> possiblyApplyMacro' vcode app
+        -- Else, return the original expression.
+        _ -> return app
+    where
+    possiblyApplyMacro' :: VCode -> Exp -> RuleParser Exp
+    possiblyApplyMacro' vcode app
+        | subType vcode == SubMacro
+        = do
+            -- The vcode is a macro! Apply it and substitute its return value.
+            ret <- unsafeEvalExp app
+            substMacroResult ret
+        | otherwise
+        = return app
+    substMacroResult :: Exp -> RuleParser Exp
+    -- A Str should be parsed.
+    substMacroResult (Val (VStr code)) = do
+        -- This is a hack. We should better parse the code now, instead of
+        -- using eval() at compile-time. But we can't import
+        -- Pugs.Parser.Program...
+        evaled <- unsafeEvalExp $
+            App (Var "&eval") Nothing [Val $ VStr $ "({" ++ code ++ "})[0]"]
+        return $ App evaled Nothing []
+    -- A Code does not need to be parsed, so simply return the equivalent of
+    --  $code().
+    substMacroResult code@(Val (VCode _)) = do
+        return $ App code Nothing []
+    substMacroResult _ = fail "Macro did not return a Str or a Code!"
+possiblyApplyMacro _ = fail "possiblyApplyMacro can only be passed a (App ...)."

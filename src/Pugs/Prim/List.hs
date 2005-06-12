@@ -1,12 +1,16 @@
+{-# OPTIONS_GHC -fglasgow-exts #-}
+
 module Pugs.Prim.List (
     op0Zip, op1Pick, op1Sum,
     op1Min, op1Max, op1Uniq,
     op2FoldL, op2Fold, op2Grep, op2Map, op2Join,
     sortByM,
+    op1HyperPrefix, op1HyperPostfix, op2Hyper,
 ) where
 import Pugs.Internals
 import Pugs.AST
 import Pugs.Types
+import Pugs.Monads
 import qualified Data.Set as Set
 
 import Pugs.Prim.Numeric
@@ -284,3 +288,54 @@ sortByM f xs  = do
             else do
                 rest <- doMerge f (x:xs) ys
                 return (y:rest)
+
+op1HyperPrefix :: VCode -> Val -> Eval Val
+op1HyperPrefix sub (VRef ref) = do
+    x <- readRef ref
+    op1HyperPrefix sub x
+op1HyperPrefix sub x
+    | VList x' <- x
+    = fmap VList $ hyperList x'
+    | otherwise
+    = fail "Hyper OP only works on lists"
+    where
+    doHyper x
+        | VRef x' <- x
+        = doHyper =<< readRef x'
+        | otherwise
+        = enterEvalContext cxtItemAny $ App (Val $ VCode sub) Nothing [Val x]
+    hyperList []     = return []
+    hyperList (x:xs) = do
+        val  <- doHyper x
+        rest <- hyperList xs
+        return (val:rest)
+
+op1HyperPostfix :: VCode -> Val -> Eval Val
+op1HyperPostfix = op1HyperPrefix
+
+op2Hyper :: VCode -> Val -> Val -> Eval Val
+op2Hyper sub (VRef ref) y = do
+    x <- readRef ref
+    op2Hyper sub x y
+op2Hyper sub x (VRef ref) = do
+    y <- readRef ref
+    op2Hyper sub x y
+op2Hyper sub x y
+    | VList x' <- x, VList y' <- y
+    = fmap VList $ hyperLists x' y'
+    | VList x' <- x
+    = fmap VList $ mapM ((flip doHyper) y) x'
+    | VList y' <- y
+    = fmap VList $ mapM (doHyper x) y'
+    | otherwise
+    = fail "Hyper OP only works on lists"
+    where
+    doHyper x y = enterEvalContext cxtItemAny $ App (Val $ VCode sub) Nothing [Val x, Val y]
+    hyperLists [] [] = return []
+    hyperLists xs [] = return xs
+    hyperLists [] ys = return ys
+    hyperLists (x:xs) (y:ys) = do
+        val  <- doHyper x y
+        rest <- hyperLists xs ys
+        return (val:rest)
+

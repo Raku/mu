@@ -12,14 +12,12 @@ See L<A06/"Macros">.
 
 =cut
 
-plan 4;
+plan 8;
 
-skip 4, "macros not yet implemented";
-exit;
-
-=begin END
 {
-  macro dollar_foo { '$foo' }
+  my $was_in_macro;
+  macro dollar_foo { $was_in_macro++; '$foo' }
+  is $was_in_macro, 2, "string returning macro was called at compile time";
   my $foo = 42;
   is dollar_foo, $foo, "simple string returning macro (1)";
   dollar_foo = 23;
@@ -27,13 +25,30 @@ exit;
 }
 
 {
-  macro plus_3 { '+ 3' }
-  my $foo = 42;
-  is $foo plus_3, 45, "simple string returning macro (3)";
-}
+  my $ret;
+  eval '
+    macro plus_3 { "+ 3" }
+    $ret = 42 plus_3;
+  ';
+  is $ret, 45, "simple string returning macro (3)", :todo<feature>;
+};
 
 {
   macro four { '4' }
   my $foo = 100 + four;
   is $foo, 104, "simple string returning macro (4)";
+}
+
+{
+  macro prefix_1000 (Int $x) { "1000$x" }
+  is prefix_1000(42), 100042, "simple string returning macro (5)";
+}
+
+{
+  my $was_in_macro;
+  macro prefix_2000 (Int $x) { $was_in_macro++; "2000$x" }
+  is $was_in_macro, 1,
+    "simple string returning macro without argparens is parsed correctly (1)";
+  is (prefix_2000 42), 200042,
+    "simple string returning macro without argparens is parsed correctly (2)";
 }

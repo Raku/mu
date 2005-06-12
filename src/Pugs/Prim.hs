@@ -43,6 +43,7 @@ import Pugs.Prim.Numeric
 import Pugs.Prim.Lifts
 import Pugs.Prim.Eval
 import Pugs.Prim.Code
+import Pugs.Prim.Param
 
 -- |Implementation of 0-ary and variadic primitive operators and functions
 -- (including list ops).
@@ -1037,56 +1038,6 @@ op4 "splice" = \x y z w -> do
 
 op4 other = \_ _ _ _ -> fail ("Unimplemented 4-ary op: " ++ other)
 
-op1HyperPrefix :: VCode -> Val -> Eval Val
-op1HyperPrefix sub (VRef ref) = do
-    x <- readRef ref
-    op1HyperPrefix sub x
-op1HyperPrefix sub x
-    | VList x' <- x
-    = fmap VList $ hyperList x'
-    | otherwise
-    = fail "Hyper OP only works on lists"
-    where
-    doHyper x
-        | VRef x' <- x
-        = doHyper =<< readRef x'
-        | otherwise
-        = enterEvalContext cxtItemAny $ App (Val $ VCode sub) Nothing [Val x]
-    hyperList []     = return []
-    hyperList (x:xs) = do
-        val  <- doHyper x
-        rest <- hyperList xs
-        return (val:rest)
-
-op1HyperPostfix :: VCode -> Val -> Eval Val
-op1HyperPostfix = op1HyperPrefix
-
-op2Hyper :: VCode -> Val -> Val -> Eval Val
-op2Hyper sub (VRef ref) y = do
-    x <- readRef ref
-    op2Hyper sub x y
-op2Hyper sub x (VRef ref) = do
-    y <- readRef ref
-    op2Hyper sub x y
-op2Hyper sub x y
-    | VList x' <- x, VList y' <- y
-    = fmap VList $ hyperLists x' y'
-    | VList x' <- x
-    = fmap VList $ mapM ((flip doHyper) y) x'
-    | VList y' <- y
-    = fmap VList $ mapM (doHyper x) y'
-    | otherwise
-    = fail "Hyper OP only works on lists"
-    where
-    doHyper x y = enterEvalContext cxtItemAny $ App (Val $ VCode sub) Nothing [Val x, Val y]
-    hyperLists [] [] = return []
-    hyperLists xs [] = return xs
-    hyperLists [] ys = return ys
-    hyperLists (x:xs) (y:ys) = do
-        val  <- doHyper x y
-        rest <- hyperLists xs ys
-        return (val:rest)
-
 op1Range :: Val -> Val
 op1Range (VStr s)    = VList $ map VStr $ strRangeInf s
 op1Range (VRat n)    = VList $ map VRat [n ..]
@@ -1219,36 +1170,6 @@ primDecl str = primOp sym assoc params ret (safe == "safe")
     prms'' = foldr foldParam [] prms'
     params = map (\p -> p{ isWritable = isLValue p }) prms''
 
-doFoldParam :: String -> String -> [Param] -> [Param]
-doFoldParam cxt [] []       = [(buildParam cxt "" "$?1" (Val VUndef)) { isLValue = False }]
-doFoldParam cxt [] (p:ps)   = ((buildParam cxt "" (strInc $ paramName p) (Val VUndef)) { isLValue = False }:p:ps)
-doFoldParam cxt (s:name) ps = ((buildParam cxt [s] name (Val VUndef)) { isLValue = False } : ps)
-
-foldParam :: String -> Params -> Params
-foldParam "Named" = \ps -> (
-    (buildParam "Hash" "*" "@?0" (Val VUndef)):
-    (buildParam "Hash" "*" "%?0" (Val VUndef)):ps)
-foldParam "List"    = doFoldParam "List" "*@?1"
-foldParam ('r':'w':'!':"List") = \ps -> ((buildParam "List" "" "@?0" (Val VUndef)) { isLValue = True }:ps)
-foldParam ('r':'w':'!':str) = \ps -> ((buildParam str "" "$?1" (Val VUndef)) { isLValue = True }:ps)
-foldParam ""        = id
-foldParam ('?':str)
-    | ('r':'w':'!':typ) <- str
-    = \ps -> ((buildParam typ "?" "$?1" (Val VUndef)) { isLValue = True }:ps)
-    | (('r':'w':'!':typ), "=$_") <- break (== '=') str
-    = \ps -> ((buildParam typ "?" "$?1" (Var "$_")) { isLValue = True }:ps)
-    | (typ, "=$_") <- break (== '=') str
-    = \ps -> ((buildParam typ "?" "$?1" (Var "$_")) { isLValue = False }:ps)
-    | (typ, ('=':def)) <- break (== '=') str
-    = let readVal "Num" = Val . VNum . read
-          readVal "Int" = Val . VInt . read
-          readVal "Str" = Val . VStr . read
-          readVal x     = error $ "Unknown type: " ++ x
-      in \ps -> ((buildParam typ "?" "$?1" (readVal typ def)) { isLValue = False }:ps)
-    | otherwise
-    = \ps -> (buildParam str "?" "$?1" (Val VUndef):ps)
-foldParam ('~':str) = \ps -> (((buildParam str "" "$?1" (Val VUndef)) { isLValue = False }) { isLazy = True }:ps)
-foldParam x         = doFoldParam x []
 
 -- op1 "perl"
 prettyVal :: Int -> Val -> Eval VStr

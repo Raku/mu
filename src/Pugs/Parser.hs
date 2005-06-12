@@ -197,6 +197,8 @@ ruleSubHead = rule "subroutine head" $ do
              return SubCoroutine
         , do (symbol "submethod" <|> symbol "method")
              return SubMethod
+        , do symbol "macro"
+             return SubMacro
         ]
     name    <- ruleSubName
     return (isMulti, styp, name)
@@ -1230,7 +1232,7 @@ ruleApply isFolded = tryVerbatimRule "apply" $ do
             then parseParenParamListMaybe
             else parseParenParamList <|> do { whiteSpace; parseNoParenParamList }
     -- XXX - warn when there's both inv and inv'
-    return $ App (Var name) (inv `mplus` inv') args
+    possiblyApplyMacro $ App (Var name) (inv `mplus` inv') args
 
 ruleFoldOp :: RuleParser String
 ruleFoldOp = verbatimRule "reduce metaoperator" $ do
@@ -1451,7 +1453,7 @@ nullaryLiteral = try $ do
     (nullary:_) <- currentTightFunctions
     name <- choice $ map symbol $ words nullary
     notFollowedBy (char '(')
-    return $ App (Var ('&':name)) Nothing []
+    possiblyApplyMacro $ App (Var ('&':name)) Nothing []
 
 undefLiteral :: RuleParser Exp
 undefLiteral = try $ do
