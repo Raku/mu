@@ -5,13 +5,12 @@ use Test;
 
 =pod
 
-Basic tests for the ord() built-in
-
-NOTE: these tests only deal with ASCII
+Basic tests for the ord() and chr() built-in.
 
 =cut
 
 # L<S29/"Conversions" /ord/>
+# L<S29/"Conversions" /chr/>
 
 # What is the best way to test 0 through 31??
 my @maps = (
@@ -75,7 +74,7 @@ my @maps = (
   "Y",    89,
   "Z",    90,
   "[",    91,
-  "\\\\", 92,
+  "\\",   92,
   "]",    93,
   "^",    94,
   "_",    95,
@@ -120,8 +119,10 @@ my @maps = (
   "\003", 3,
 );
 
-plan +@maps / 2;
+plan +@maps;
 
 for @maps -> $char, $code {
-  is ord($char), $code, "ord() works for {"{$code >= 32 ?? $char :: "\\" ~ $code}"}";
+  my $descr = "\\{$code}{$code >= 32 ?? " == '{$char}'" :: ""}";
+  is ord($char), $code, "ord() works for $descr";
+  is chr($code), $char, "chr() works for $descr";
 }
