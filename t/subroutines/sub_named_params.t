@@ -43,15 +43,15 @@ is(simple_pos_params( 'x' => 4 ), 4, "simple named param");
 sub foo (+$x = 3) { $x }
 
 is(foo(), 3, "not specifying named params that aren't mandatory works");
-dies_ok({foo(4)}, "using a named as a positional fails");
+dies_ok({foo(4)}, "using a named as a positional fails", :todo<bug>);
 
 is(foo( 'x' => 5), 5, "naming named param also works");
 
 sub foo2 (+$x = 3, +$y = 5) { $x + $y }
 
 is(foo2(), 8, "not specifying named params that aren't mandatory works (foo2)");
-dies_ok({foo2(4)}, "using a named as a positional fails (foo2)");
-dies_ok({foo2(4, 10)}, "using a named as a positional fails (foo2)");
+dies_ok({foo2(4)}, "using a named as a positional fails (foo2)", :todo<bug>);
+dies_ok({foo2(4, 10)}, "using a named as a positional fails (foo2)", :todo<bug>);
 is(foo2( 'x' => 5), 10, "naming named param x also works (foo2)");
 is(foo2( 'y' => 3), 6, "naming named param y also works (foo2)");
 is(foo2( 'x' => 10, 'y' => 10), 20, "naming named param x & y also works (foo2)");

@@ -143,9 +143,9 @@ class Foo6 {
     my $foo = Foo6.new(bar => 1, baz => 2, hidden => 3);
     ok($foo ~~ Foo6, '... our Foo6 instance was created');
         
-    is($foo.bar,        1, "getting a public rw attribute (1)");
-    is($foo.baz,        2, "getting a public rw attribute (2)");
-    is($foo.get_hidden, 3, "getting a private ro attribute (3)");
+    is($foo.bar,        1, "getting a public rw attribute (1)", :todo<bug>);
+    is($foo.baz,        2, "getting a public rw attribute (2)", :todo<bug>);
+    is($foo.get_hidden, 3, "getting a private ro attribute (3)", :todo<bug>);
 }
 
 # check that doing something in submethod BUILD works
@@ -164,9 +164,9 @@ class Foo6a {
     my $foo = Foo6a.new(bar => 1, hidden => 3);
     ok($foo ~~ Foo6a, '... our Foo6a instance was created');
         
-    is($foo.bar,        1, "getting a public rw attribute (1)");
+    is($foo.bar,        1, "getting a public rw attribute (1)", :todo<bug>);
     is($foo.baz,        5, "getting a public rw attribute (2)");
-    is($foo.get_hidden, 3, "getting a private ro attribute (3)");
+    is($foo.get_hidden, 3, "getting a private ro attribute (3)", :todo<bug>);
 }
 
 # L<A12/"Default Values">
@@ -225,7 +225,7 @@ is( $foo7.baz, 20,
     '... optional non-attribute should too' );
 $foo7    = Foo7.new( :bar(4), :baz(5) );
 is( $foo7.bar, 4,
-    'optional attribute should take passed-in value over default' );
+    'optional attribute should take passed-in value over default', :todo<bug> );
 is( $foo7.baz, 10,
     '... optional non-attribute should too' );
 

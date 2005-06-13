@@ -87,5 +87,5 @@ plan 10;
 {
   my @list  = gather { take [1,2,3]; take [4,5,6];};
   my @list2 = ([1,2,3],[4,5,6]);
-  is @list.perl, @list2.perl , "gather array-refs", :todo<bug>;
+  is @list.perl, @list2.perl , "gather array-refs";
 }

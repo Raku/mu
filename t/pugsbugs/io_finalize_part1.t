@@ -17,6 +17,6 @@ my $filename = 'tempfile';
 # Writes to a filehandle without explicit close do not output even after
 # program termination.  tempfile is created here and deleted in part2
 
-my $fh = open('>' ~ $filename);
-isa_ok($fh, 'IO');
+my $fh = open($filename, :w);
+isa_ok($fh, IO);
 $fh.say("Hello World");

@@ -8,7 +8,7 @@ BEGIN { @*INC.unshift('t/oo/class/TestFiles'); }
 
 lives_ok {
     require ::Bar; # Should be equivalent to "require Bar"
-}, "We can generally require class literals";
+}, "We can generally require class literals", :todo<bug>;
 
 my $test1;
 lives_ok {
@@ -17,4 +17,4 @@ lives_ok {
 
 lives_ok {
 require $test1; # Should be equivalent to "require ::Foo"
-}, "Can require a class literal in a variable";
+}, "Can require a class literal in a variable", :todo<bug>;

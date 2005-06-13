@@ -21,12 +21,12 @@ plan 2;
 
   sub bar (Code $return) { $return(42) } 
 
-  is foo(&bar), 42, "return() inside anonymous subs works"; 
+  is foo(&bar), 42, "return() inside anonymous subs works", :todo<bug>; 
 }
 
 # &return
 {
   sub baz (Code $return) { $return(42); return 23 }
 
-  is baz(&return), 42, 'calling &return works';
+  is baz(&return), 42, 'calling &return works', :todo<bug>;
 }
