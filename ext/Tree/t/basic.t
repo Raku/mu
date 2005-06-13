@@ -4,7 +4,7 @@ use v6;
 use Test;
 use Tree;
 
-plan 29;
+plan 28;
 
 my $tree = Tree.new(node => 'my tree');
 

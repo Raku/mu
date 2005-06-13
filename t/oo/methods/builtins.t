@@ -16,7 +16,7 @@ ok @named_array.test_method, "Uninitialized array";
 
 ok @named_array.test_method, "Populated array";
 
-ok try { [].test_method }, "Bare arrayref", :todo<bug>; 
+ok try { [].test_method }, "Bare arrayref";
 
 
 my $arrayref = [];
@@ -32,7 +32,8 @@ ok %named_hash.test_method, "Uninitialized hash";
 
 ok %named_hash.test_method, "Populated hash";
 
-ok try { {foo => "bar"}.test_method }, "Bare hashref", :todo<bug>;
+ok try { {foo => "bar"}.test_method }, "Bare hashref";
+
 
 my $hashref = {foo => "bar"};
 

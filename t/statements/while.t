@@ -59,8 +59,8 @@ is($k, 0, 'while $var {...} works');
   my $was_in_while;
   my @new;
   eval 'while @array.shift -> $x { $was_in_while++; push @new, $x }';
-  ok $was_in_while,  'while ... -> $x {...} worked (1)':todo<bug>;
-  is ~@new, ~@array, 'while ... -> $x {...} worked (1)':todo<bug>;
+  ok $was_in_while,  'while ... -> $x {...} worked (1)', :todo<bug>;
+  is ~@new, ~@array, 'while ... -> $x {...} worked (1)', :todo<bug>;
 }
 
 {
@@ -68,6 +68,6 @@ is($k, 0, 'while $var {...} works');
   my $was_in_while;
   my @new;
   eval 'while shift @array -> $x { $was_in_while++; push @new, $x }';
-  ok $was_in_while,  'while ... -> $x {...} worked (1)':todo<bug>;
-  is ~@new, ~@array, 'while ... -> $x {...} worked (1)':todo<bug>;
+  ok $was_in_while,  'while ... -> $x {...} worked (1)', :todo<bug>;
+  is ~@new, ~@array, 'while ... -> $x {...} worked (1)', :todo<bug>;
 }
