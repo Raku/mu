@@ -15,16 +15,22 @@ L<S06/"Lvalue subroutines">
 
 my $val1 = 1;
 my $val2 = 2;
+
 sub lastval is rw { return $val2; }
 sub prevval is rw { return lastval(); }
+
 lastval() = 3;
 is($val2, 3); # simple
+
 prevval() = 4;
 is($val2, 4); # nested
+
 # S6 says that lvalue subroutines are marked out by 'is rw'
 sub notlvalue { return $val1; } # without rw
-eval_ok('notlvalue() = 5;$val1==1;', 'non-rw subroutines should not support assignment', :todo);
-isnt($val1, 4, 'non-rw subroutines should not assign');
+
+notlvalue() = 5;
+is $val1, 1, 'non-rw subroutines should not support assignment', :todo<bug>;
+isnt $val1, 5, 'non-rw subroutines should not assign', :todo<bug>;
 
 sub check ($passwd) { return $password eq "fish"; };
 
@@ -40,23 +46,24 @@ eval 'sub checklastval ($passwd) is rw {
         );
 	return $proxy;
 };';
+
 my $errors;
 eval 'try { checklastval("octopus") = 10 }; $errors=$!;';
-is($errors, "wrong password", 'checklastval STORE can die', :todo);
+is($errors, "wrong password", 'checklastval STORE can die', :todo<feature>);
+
 # Above test may well die for the wrong reason, if the Proxy stuff didn't
 # parse OK, it will complain that it couldn't find the desired subroutine
-eval 'checklastval("fish") = 12;';
-is($val2, 12, 'proxy lvalue subroutine STORE works', :todo);
+eval_is('checklastval("fish") = 12; $val2', 12, 'proxy lvalue subroutine STORE works', :todo<feature>);
 my $resultval;
 eval '$resultval = checklastval("fish");';
-is($resultval, 12, 'proxy lvalue subroutine FETCH works', :todo);
+is($resultval, 12, 'proxy lvalue subroutine FETCH works', :todo<feature>);
 
 my $realvar = "FOO";
 eval_ok 'sub proxyvar ($var) is rw {
 	    return new Proxy:
 		FETCH => { lc($realvar) },
 		STORE => { lc($realvar = $^val) };
-        }', 'defining lvalue sub works', :todo<feature>;
-eval_is 'proxyvar()', 'foo', 'retrieving value works', :todo<feature>;
-eval_is 'proxyvar("BAR")', 'bar', 'setting value works', :todo<feature>;
+        }', 'defining lvalue sub using `new Proxy: ` works', :todo<feature>;
+eval_is 'proxyvar()', 'foo', 'proxy lvalue subroutine FETCH works', :todo<feature>;
+eval_is 'proxyvar("BAR")', 'bar', 'proxy lvalue subroutine STORE works', :todo<feature>;
 is $realvar, 'BAR', 'variable was modified', :todo<feature>;
