@@ -838,6 +838,7 @@ op2 "sprintf" = \x y -> do
         [x]         -> printf str x
         [x, y]      -> printf str x y
         [x, y, z]   -> printf str x y z
+        [x, y, z, w]-> printf str x y z w
         _           -> printf str
 op2 "exec" = \x y -> do
     prog  <- fromVal x
