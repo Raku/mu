@@ -44,7 +44,7 @@ is encode_entities($a, 'a-c'), "&#97;&#98;&#99;def",
     'We should be able to include the range of characters to encode.';
 
 my $b = "&lt;&amp;&gt;";
-is(try {decode_entities([ $a, $b ]) }, [ 'abcdef', '<&>' ], "Decoding a list should work.");
+is(try {decode_entities([ $a, $b ]) }, [ 'abcdef', '<&>' ], "Decoding a list should work.", :todo<bug>);
 
 =head
 

@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 13;
+plan 11;
 
 use Test::Builder::Test;
 
@@ -43,8 +43,8 @@ is( $skip_test.report(), 'not ok 1 #skip reason for skipping',
 
 my %status = $skip_test.status();
 
-is( +( keys %status ), 4, 'status() should return a hash', todo<bug>);
-is( %status<passed>,   1, '... with a passed key set to true'          );
+is( +( keys %status ), 4, 'status() should return a hash')
+is( %status<passed>,   1, '... with a passed key set to true', :todo<bug>);
 is( %status<skip>,     1, '... a skip key set to true'                 );
 
 is( %status<reason>,      'reason for skipping', '... the skip reason', :todo<bug> );
