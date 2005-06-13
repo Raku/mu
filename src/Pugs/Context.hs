@@ -274,7 +274,8 @@ initTree = fmap MkType $ Node "Any" [ Node "Void"
             , Node "Scalar::Proxy" []
             , Node "Scalar::Lazy" []
             , Node "Scalar::Perl5" []
-            ]
+            , Node "Proxy" []
+	    ]
         ]
     , Node "Grammar" []
     , Node "Type"
