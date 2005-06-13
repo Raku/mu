@@ -5,12 +5,12 @@ use Test;
 
 plan(6);
 
-unless eval 'eval_perl5("1")' {
+unless eval 'eval("1", :lang<perl5>)' {
     skip_rest;
     exit;
 }
 
-eval_perl5(q/
+eval(q/
 package Id;
 sub new {
     my ($class, $ref) = @_;
@@ -20,17 +20,17 @@ sub identity {
     my $self = shift;
     return $$self;
 }
-/);
+/, :lang<perl5>);
 
 my $japh = { "Just another $_ hacker" };
 my $japh2 = -> $name { "Just another $name hacker" };
-my $id   = eval_perl5("Id");
+my $id   = eval("Id", :lang<perl5>);
 
 is($id.new($japh).identity.('Pugs'), 'Just another Pugs hacker', "Closure roundtrips");
 is($id.new($japh2).identity.('Pugs'), 'Just another Pugs hacker', "Closure roundtrips");
 
-my $keys_p5 = eval_perl5('sub {warn join(",",@_); return keys %{$_[0]}}');
-my $tohash_p5 = eval_perl5('sub { return {map {$_ => 1} @_ } }');
+my $keys_p5 = eval('sub {warn join(",",@_); return keys %{$_[0]}}', :lang<perl5>);
+my $tohash_p5 = eval('sub { return {map {$_ => 1} @_ } }', :lang<perl5>);
 my %hash = (foo => 'bar', hate => 'software');
 {
     lives_ok {

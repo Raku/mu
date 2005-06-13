@@ -234,10 +234,10 @@ op1 "require_parrot" = \v -> do
     return $ VBool True
 op1 "require_perl5" = \v -> do
     name    <- fromVal v
-    val     <- op1 "eval_perl5" (VStr $ "require " ++ name ++ "; '" ++ name ++ "'");
+    val     <- op1 "Pugs::Internals::eval_perl5" (VStr $ "require " ++ name ++ "; '" ++ name ++ "'");
     evalExp $ Sym SGlobal ('$':'*':name) (Syn ":=" [Var ('$':'*':name), Val val])
     return val
-op1 "eval_parrot" = \v -> do
+op1 "Pugs::Internals::eval_parrot" = \v -> do
     code    <- fromVal v
     liftIO . evalParrot $ case code of
         ('.':_) -> code
@@ -245,7 +245,7 @@ op1 "eval_parrot" = \v -> do
     return $ VBool True
 op1 "use" = opRequire True
 op1 "require" = opRequire False
-op1 "eval" = \v -> do
+op1 "Pugs::Internals::eval" = \v -> do
     str <- fromVal v
     opEval quiet "<eval>" str
     where quiet = MkEvalStyle{evalResult=EvalResultLastValue
@@ -253,15 +253,15 @@ op1 "eval" = \v -> do
 op1 "evalfile" = \v -> do
     filename <- fromVal v
     opEvalfile filename
-op1 "eval_perl5" = \v -> do
+op1 "Pugs::Internals::eval_perl5" = \v -> do
     str <- fromVal v
     env <- ask
     tryIO undef $ do
         envSV <- mkVal (VControl $ ControlEnv env)
         sv <- evalPerl5 str envSV $ enumCxt (envContext env)
         return $ PerlSV sv
-op1 "eval_haskell" = op1EvalHaskell
-op1 "eval_yaml" = evalYaml
+op1 "Pugs::Internals::eval_haskell" = op1EvalHaskell
+op1 "Pugs::Internals::eval_yaml" = evalYaml
 op1 "try" = \v -> do
     sub <- fromVal v
     val <- resetT $ evalExp (App (Val $ VCode sub) Nothing [])
@@ -1324,12 +1324,12 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Str       pre     perl    safe   (rw!Any|Junction)\
 \\n   Any       pre     try     safe   (Code)\
 \\n   Any       pre     lazy    safe   (Code)\
-\\n   Any       pre     eval    safe   (Str)\
+\\n   Any       pre     Pugs::Internals::eval    safe   (Str)\
 \\n   Any       pre     evalfile     unsafe (Str)\
-\\n   Any       pre     eval_parrot  unsafe (Str)\
-\\n   Any       pre     eval_perl5   unsafe (Str)\
-\\n   Any       pre     eval_haskell unsafe (Str)\
-\\n   Any       pre     eval_yaml    safe   (Str)\
+\\n   Any       pre     Pugs::Internals::eval_parrot  unsafe (Str)\
+\\n   Any       pre     Pugs::Internals::eval_perl5   unsafe (Str)\
+\\n   Any       pre     Pugs::Internals::eval_haskell unsafe (Str)\
+\\n   Any       pre     Pugs::Internals::eval_yaml    safe   (Str)\
 \\n   Any       pre     require unsafe (?Str=$_)\
 \\n   Any       pre     use     unsafe (?Str=$_)\
 \\n   Any       pre     require_haskell unsafe (Str)\

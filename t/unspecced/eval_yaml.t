@@ -5,5 +5,5 @@ use Test;
 
 plan 2;
 
-ok( !defined eval_yaml(undef) );
-ok( eval_yaml('test') eq 'test' );
+ok( !defined eval(undef, :lang<yaml>) );
+ok( eval('test', :lang<yaml>) eq 'test' );

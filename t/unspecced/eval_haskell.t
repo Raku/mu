@@ -17,9 +17,9 @@ if ($*PUGS_HAS_HSPLUGINS eq '0') {
    is($*PUGS_HAS_HSPLUGINS, 1, '$*PUGS_HAS_HSPLUGINS is sane (1)');
 }
 
-is(eval_haskell('"haskell"'), 'haskell', 'string return');
+is(eval('"haskell"', :lang<haskell>), 'haskell', 'string return');
 
-eval_haskell('thisisinvalidhaskellcode');
+eval('thisisinvalidhaskellcode', :lang<haskell>);
 ok(1, 'still running after bad haskell code');
 like($!, rx:perl5/thisisinvalidhaskellcode/, 'throws something useful on error');
 

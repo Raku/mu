@@ -5,13 +5,13 @@ use Test;
 
 plan(11);
 
-unless eval 'eval_perl5("1")' {
+unless eval 'eval("1", :lang<perl5>)' {
     skip_rest;
     exit;
 }
 
 die unless
-eval_perl5(q/
+eval(q/
 package My::Array;
 use strict;
 print ''; # XXX - voodoo!
@@ -52,9 +52,9 @@ sub push {
 }
 
 1;
-/);
+/, :lang<perl5>);
 
-my $p5ar = eval_perl5("My::Array");
+my $p5ar = eval("My::Array", :lang<perl5>);
 my @array = (5,6,7,8);
 my $p5array = $p5ar.new(\@array);
 

@@ -65,7 +65,7 @@ sub initialise () {
     #-------------------------------------------------------------------
     $HOME = %ENV<HOME>;
     $config_file = "$HOME/.pause";
-    $config = eval_perl5(q!
+    $config = eval(q!
         my $config = AppConfig::Std->new();
         $config->define('user');
         $config->define('directory', {ARGCOUNT => 1, ALIAS => 'dir'});
@@ -76,7 +76,7 @@ sub initialise () {
         $config->define('http_proxy');
         $config->define('non_interactive', { ALIAS => 'ni', ARGCOUNT => 0 });
         $config;
-    !);
+    !, :lang<perl5>);
 
     #-------------------------------------------------------------------
     # Read the user's config file, if they have one,

@@ -5,23 +5,23 @@ use Test;
 
 plan(3);
 
-unless eval 'eval_perl5("1")' {
+unless eval 'eval("1", :lang<perl5>)' {
     skip_rest;
     exit;
 }
 
 {
-    my $r = eval_perl5("0");
+    my $r = eval("0", :lang<perl5>);
     is($r, 0, "number");
 }
 
 {
-    my $r = eval_perl5("2");
+    my $r = eval("2", :lang<perl5>);
     is($r, 2, "number");
 }
 
 {
-    my $r = eval_perl5('"perl6 now"');
+    my $r = eval('"perl6 now"', :lang<perl5>);
     is($r, 'perl6 now', "string");
 }
 

@@ -6,7 +6,7 @@ use Test;
 BEGIN {
     plan(1);
 
-    unless eval 'eval_perl5("1")' {
+    unless eval 'eval("1", :lang<perl5>)' {
         skip_rest;
         exit;
     }
