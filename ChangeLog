@@ -11,7 +11,7 @@
 * Rudimentary, source-filter-like macro support added
 * Speed up parsing for 2x by caching dynamic grammar rules
 * Support for lvalue `substr()`
-* `:coerce` and other A12 catgories are parsed in sub names
+* `coerce:` and other A12 categories are parsed in sub names
 * `is unsafe` trait to mark subs unavailable in safe mode
 * `method foo ($.x) {}` now sets `$.x`
 * `undef($x)` is now spelled `undefine($x)`
@@ -21,7 +21,6 @@
 * New modules added:
 ** `FindBin`
 ** `File::Find`
-** `HTTP::Message`
 ** `POE` (experimental)
 ** `URI::Escape`
 * Extended tests for `Tree`
