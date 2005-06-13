@@ -1,0 +1,139 @@
+=head1 NAME
+
+pugs::hack - How to hack on Pugs
+
+=head1 SYNOPSYS
+
+	# XXXX: quickstart for checkout, compile, run pugs ...
+
+=head1 DESCRIPTION
+
+XXXX: Overview of this document
+
+=head2 Source tree map
+
+The Pugs source tree includes several major sections:
+
+	.
+	|-- LICENSE      Licenses that apply to the Pugs distribution
+	|-- debian       Packaging rules for dpkg-based systems
+	|-- docs         Documentation relating to Pugs, Perl6, Haskell, etc.
+	|-- examples     Examples of Perl6 usage; many work in Pugs today
+	|-- ext          Perl6 modules that work today and get built with pugs
+	|-- inc          Perl5 modules needed to build, test, and install pugs
+	|-- lib          XXXX: overall concept?
+	|-- modules      Perl6 modules not working today; moved to FreePAN
+	|-- script       pugscc, the Pugs Compiler Compiler
+	|-- src          Haskell source for pugs itself
+	|-- t            Pugs/Perl6 test library
+	|-- t_disabled   Disabled tests (XXXX: why not just turned off in t/?)
+	`-- util         Utilities for hacking and testing Pugs
+
+Expanding this one level deeper:
+
+	.
+	|-- LICENSE      Licenses that apply to the Pugs distribution
+	|-- debian       Packaging rules for dpkg-based systems
+	|-- docs         Documentation relating to Pugs, Perl6, Haskell, etc.
+	|   |-- AES          Drafts of Perl6 Bible chapters
+	|   |-- advocacy     empty (XXXX: to be deleted?)
+	|   |-- class        Object system sketches (XXXX: out of date?)
+	|   |-- other        Misc design and hacking notes
+	|   |-- quickref     Perl6 quick reference pages
+	|   |-- src          Sketch of Haskell code for junctions (XXXX: ood?)
+	|   |-- talks        Slides for Pugs and Perl6 talks
+	|   |-- zh-cn        Simplified Chinese doc translations
+	|   `-- zh-tw        Traditional Chinese doc translations
+	|-- examples     Examples of Perl6 usage; many work in Pugs today
+	|   |-- advocacy     Pugs/Perl6-advocacy MOTD generator
+	|   |-- algorithms   Basic algorithms
+	|   |-- cgi          CGI scripts and applications
+	|   |-- cookbook     Perl6 idiomatic Perl Cookbook
+	|   |-- functional   Functional programming concepts
+	|   |-- games        Playable games
+	|   |-- golf         Minimal (key)stroke puzzle solutions
+	|   |-- hashes       Use of Perl6 hashes
+	|   |-- japh         JAPHs using various idioms
+	|   |-- junctions    Fun with junctions
+	|   |-- naive_bayesian   Naive Bayesian Text Classification
+	|   |-- nested_loops     Many ways to do runtime nested loops
+	|   |-- network      Networking clients, servers, bots, etc.
+	|   |-- obfu         Obfuscated code and obfuscation techniques
+	|   |-- output       Expected example outputs, for automated testing
+	|   |-- p6explain    XXXX: what is this?
+	|   |-- perl5        Programs that use Perl5 modules
+	|   |-- poetry       Perl6 poetry
+	|   |-- ppt          Perl6 Power Tools (ports of standard *nix tools)
+	|   |-- qotw         Perl6 solutions to plover's Quiz Of The Week
+	|   |-- slurpy-list-parms    Use of Perl6 slurpy lists (XXXX: -> t/?)
+	|   `-- tutorial_gen     Tutorial generator (XXXX: huh?)
+	|-- ext          Perl6 modules that work today and get built with pugs
+	|   |-- Algorithm-TokenBucket
+	|   |-- Benchmark
+	|   |-- CGI
+	|   |-- Config-Tiny
+	|   |-- Date
+	|   |-- File-Find
+	|   |-- File-Spec
+	|   |-- HTML-Entities
+	|   |-- Kwid-Event-Parser
+	|   |-- Locale-KeyedText
+	|   |-- Net-IRC
+	|   |-- POE
+	|   |-- Perl-MetaModel
+	|   |-- Pod-Event-Parser
+	|   |-- Set
+	|   |-- Test
+	|   |-- Test-Builder
+	|   |-- Text-Glob
+	|   |-- Tree
+	|   |-- URI
+	|   |-- fp
+	|   |-- lib
+	|   `-- libwww-perl
+	|-- inc          Perl5 modules needed to build, test, and install pugs
+	|   |-- Module       Module::Install
+	|   `-- Test         Test::Harness
+	|-- lib          XXXX: overall concept?
+	|   |-- Inline       Inline::Pugs
+	|   |-- Perl6        Perl6::MakeMaker, Perl6::Pugs
+	|   `-- pugs         Docs for Pugs itself (XXXX: -> docs/?)
+	|-- modules      Perl6 modules not working today; moved to FreePAN
+	|   |-- Class-Events     XXXX: why is this still here?
+	|   `-- Sample-Module    XXXX: why is this still here?
+	|-- script       pugscc, the Pugs Compiler Compiler
+	|-- src          Haskell source for pugs itself
+	|   |-- Data
+	|   |-- IMC
+	|   |-- Pugs
+	|   |-- RRegex
+	|   |-- pcre
+	|   |-- perl5
+	|   |-- perl6
+	|   |-- pge
+	|   `-- syck
+	|-- t            Pugs/Perl6 test library
+	|   |-- Synopsis
+	|   |-- Test-Less
+	|   |-- builtins
+	|   |-- data_types
+	|   |-- examples
+	|   |-- general
+	|   |-- junction
+	|   |-- macros
+	|   |-- magicals
+	|   |-- oo
+	|   |-- operators
+	|   |-- pugsbugs
+	|   |-- pugsrun
+	|   |-- rules
+	|   |-- statements
+	|   |-- subroutines
+	|   |-- syntax
+	|   |-- unspecced
+	|   `-- var
+	|-- t_disabled   Disabled tests
+	|   |-- Dialects     Perl 6 non-standard dialects
+	|   `-- rules        Port of tests from CPAN module Perl6::Rules
+	`-- util         Utilities for hacking and testing Pugs
+	    `-- livecd       Create a minimalistic Pugs Live CD
