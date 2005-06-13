@@ -8,11 +8,11 @@ Synopsis 17: Threads
 
 =head1 VERSION
 
-  Maintainer: 
-  Date: 
-  Last Modified:
-  Number:
-  Version:
+  Maintainer: unclaimed
+  Date: 13 Jun 2005
+  Last Modified: 13 Jun 2005
+  Number: 0
+  Version: 1
 
 =head1 Overview
 
