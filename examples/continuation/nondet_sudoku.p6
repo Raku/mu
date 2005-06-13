@@ -72,17 +72,19 @@ my @grid = ( [ choose(1..4), choose(1..4), 2, choose(1..4) ],
              [ choose(1..4), choose(1..4), choose(1..4), 3 ],
              [ choose(1..4), 4, choose(1..4), choose(1..4) ] );
 
-
+# Row assertions
 give_up unless @grid[0].uniq == 4;
 give_up unless @grid[1].uniq == 4;
 give_up unless @grid[2].uniq == 4;
 give_up unless @grid[3].uniq == 4;
 
+# Column assertions
 give_up unless [map -> $a {$a[0]}, @grid[0..3]].uniq == 4;
 give_up unless [map -> $a {$a[1]}, @grid[0..3]].uniq == 4;
 give_up unless [map -> $a {$a[2]}, @grid[0..3]].uniq == 4;
 give_up unless [map -> $a {$a[3]}, @grid[0..3]].uniq == 4;
 
+# Subgrid assertions
 give_up unless [@grid[0][0], @grid[0][1], @grid[1][0], @grid[1][1]].uniq == 4;
 give_up unless [@grid[0][2], @grid[0][3], @grid[1][2], @grid[1][3]].uniq == 4;
 give_up unless [@grid[2][0], @grid[2][1], @grid[3][0], @grid[3][1]].uniq == 4;
