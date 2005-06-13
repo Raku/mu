@@ -834,8 +834,9 @@ defaultParamFor _           = [defaultArrayParam]
 ruleBlockFormalStandard :: RuleParser (SubType, Maybe [Param])
 ruleBlockFormalStandard = rule "standard block parameters" $ do
     styp <- choice
-        [ do { symbol "sub"; return SubRoutine }
-        , do { symbol "coro"; return SubCoroutine }
+        [ do { try $ symbol "sub";   return SubRoutine }
+        , do { try $ symbol "coro";  return SubCoroutine }
+        , do {       symbol "macro"; return SubMacro }
         ]
     params <- option Nothing $ ruleSubParameters ParensMandatory
     return $ (styp, params)

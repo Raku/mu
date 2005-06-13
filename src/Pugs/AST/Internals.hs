@@ -682,8 +682,8 @@ subtyping.
 -}
 data SubType = SubMethod    -- ^ Method
              | SubCoroutine -- ^ Coroutine
-             | SubRoutine   -- ^ Regular subroutine
              | SubMacro     -- ^ Macro
+             | SubRoutine   -- ^ Regular subroutine
              | SubBlock     -- ^ Bare block
              | SubPointy    -- ^ Pointy sub
              | SubPrim      -- ^ Built-in primitive operator (see "Pugs.Prim")

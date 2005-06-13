@@ -4,7 +4,7 @@ use v6;
 
 use Test;
 
-plan 31;
+plan 35;
 
 
 =head1 DESCRIPITION
@@ -76,6 +76,17 @@ See L<S06/"Types"> for more information about Code, Routine, Sub, Block, etc.
     ok($!, "calling an anonymous sub expecting a param without a param dies",:todo);
     try{ $foo.(42, 5) };
     ok($!, "calling an anonymous sub expecting one param with two params dies",:todo);
+}
+
+# Not yet confirmed by p6l, see thread "Anonymous macros?" by Ingo Blechschmidt
+# http://www.nntp.perl.org/group/perl.perl6.language/21825
+{
+    BEGIN { our &foo_macro = macro ($x) { "1000 + $x" } }
+    isa_ok(&foo_macro, 'Code');
+    isa_ok(&foo_macro, 'Routine');
+    isa_ok(&foo_macro, 'Macro');
+
+    is foo_macro(3), 1003, "anonymous macro worked";
 }
 
 {
