@@ -27,3 +27,4 @@ src/pugs_version\.h$
 svn-commit\.tmp$
 ^debian/
 ^t_disabled/
+^t/builtins/system/
