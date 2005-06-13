@@ -152,7 +152,7 @@ is( $did, $should, "trn11.translate_message( msg3 ) returns '$did'" );
 
 module t_LKT_C_L_Eng;
 
-my Str %text_strings = ( # is constant
+my Str %text_strings is constant = (
 	'one' => '{fork} shore {spoon}',
 	'two' => 'sky fly high',
 	'three' => '{knife} zot',

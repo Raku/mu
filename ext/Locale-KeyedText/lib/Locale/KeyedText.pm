@@ -49,7 +49,7 @@ practical way of suggesting improvements to the standard version.
 ######################################################################
 ######################################################################
 
-class Locale::KeyedText-0.1.1 { # based on 5v1.04; to become 6v1.4.0 when fully functional
+class Locale::KeyedText-0.1.2 { # based on 5v1.05; to become 6v1.5.0 when fully functional
 	# could be a 'module' having 'sub' instead, since has no attributes
 
 ######################################################################
@@ -70,7 +70,7 @@ method new_translator( Str @set_names, Str @member_names ) returns Locale::Keyed
 ######################################################################
 
 class Locale::KeyedText::Message {
-#	trusts Locale::KeyedText::Translator;
+	trusts Locale::KeyedText::Translator;
 	has Str $:msg_key; # str - the machine-readable key that uniquely identifies this message
 	has Str %:msg_vars; # hash (str,str) - named variables for messages, if any, go here
 
