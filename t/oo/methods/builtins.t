@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 8;
+plan 10;
 
 class Array { method test_method  { 1 }; };
 class Hash { method test_method  { 1 }; };
@@ -37,3 +37,11 @@ ok try { {foo => "bar"}.test_method }, "Bare hashref", :todo<bug>;
 my $hashref = {foo => "bar"};
 
 ok $hashref.test_method, "Named hashref";
+
+# Now for pairs.
+
+is(try { (:key<value>).value; }, 'value', "method on a bare pair", :todo<bug>);
+
+my $pair = :key<value>;
+
+is $pair.value, 'value', "method on a named pair";
