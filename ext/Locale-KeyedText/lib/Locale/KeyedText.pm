@@ -100,17 +100,15 @@ method get_message_variable( $message: Str $var_name ) returns Str {
 }
 
 method get_message_variables( $message: ) returns Hash of Str {
-	return hash %{$message.:msg_vars}; # copy list values
+	return {%{$message.:msg_vars}}; # copy list values
 }
 
 ######################################################################
 
 method as_string( $message: ) returns Str {
 	# This method is intended for debugging use only.
-	return $message.:msg_key~': '~(
-            [$message.:msg_vars.pairs.sort]
-		.map:{ .key~'='~.value }.join( ', ' ) # S02 says sorting Pairs sorts keys by default.
-        );
+	return $message.:msg_key~': '~$message.:msg_vars.pairs.sort
+		.map:{ .key~'='~(.value // '') }.join( ', ' ); # S02 says sorting Pairs sorts keys by default.
 	# we expect that .map will be invoked off of the list that .sort returns
 	# I might use Hash.as() later, but don't know if it is customizable to sort or make undefs the empty str.
 }
@@ -145,11 +143,11 @@ method new( $class: Str @set_names, Str @member_names ) returns Locale::KeyedTex
 ######################################################################
 
 method get_template_set_names( $translator: ) returns Array of Str {
-	return array @{$translator.:tmpl_set_nms}; # copy list values
+	return [@{$translator.:tmpl_set_nms}]; # copy list values
 }
 
 method get_template_member_names( $translator: ) returns Array of Str {
-	return array @{$translator.:tmpl_mem_nms}; # copy list values
+	return [@{$translator.:tmpl_mem_nms}]; # copy list values
 }
 
 ######################################################################

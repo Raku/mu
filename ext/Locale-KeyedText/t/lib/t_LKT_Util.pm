@@ -16,15 +16,15 @@ sub message( Str $detail ) {
 
 sub serialize( Any $input ) returns Str {
 	return [
-		$input.does(Hash) ?? 
-			( '{ ', ( $input.pairs.sort.map:{ serialize( $_ ) } ), '}, ' ) 
+		!$input.defined ??
+			'undef, '
 		:: $input.does(Array) ?? 
 			( '[ ', ( $input.map:{ serialize( $_ ) } ), '], ' ) 
+		:: $input.does(Hash) ?? 
+			( '{ ', ( $input.pairs.sort.map:{ serialize( $_ ) } ), '}, ' ) 
 		:: $input.does(Pair) ?? 
 			'\''~$input.key~'\' => \''~$input.value~'\', '
-		:: $input.defined ??
-			'\''~$input~'\', '
-		:: 'undef, '
+		:: '\''~$input~'\', '
 	].join( '' );
 }
 

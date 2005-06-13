@@ -3,7 +3,7 @@ use v6;
 
 use Test;
 
-plan( 35 ); # was 35 in p5
+plan( 35 );
 skip_rest "skipping tests"; # for release
 exit;
 

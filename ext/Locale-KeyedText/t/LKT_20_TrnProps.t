@@ -3,9 +3,7 @@ use v6;
 
 use Test;
 
-plan( 34 ); # was 34 in p5
-skip_rest "skipping tests"; # for release
-exit;
+plan( 33 );
 
 use lib <t/lib ext/Locale-KeyedText/t/lib>;
 use t_LKT_Util;
@@ -14,10 +12,6 @@ use Locale::KeyedText;
 t_LKT_Util::message( 'testing new_translator() and most Translator object methods' );
 
 my ($did, $should, $trn1);
-
-#$did = t_LKT_Util::serialize( Locale::KeyedText.new_translator() );
-#$should = 'undef, ';
-#is( $did, $should, "Locale::KeyedText.new_translator() returns '$did'" );
 
 $did = t_LKT_Util::serialize( Locale::KeyedText.new_translator( undef, undef ) );
 $should = 'undef, ';
