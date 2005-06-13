@@ -74,10 +74,10 @@ C<E<lt>INGY@cpan.orgE<gt>> .
 
 =head1 AVAILABILITY
 
-Pugs is available for most operating systems to which GHC has been
-ported, including many Unix-like platforms as well as (with several
-limitations) Windows.  See L<perl::port/"Supported Platforms"> for a
-listing (to be written).
+Pugs is available for most operating systems to which GHC has been ported,
+including many Unix-like platforms as well as (with several limitations)
+Windows.  See L<perl::port/"Supported Platforms"> for a listing (to be
+written), and the F<README> file in the source distribution.
 
 =head1 ENVIRONMENT
 
@@ -92,8 +92,9 @@ with the help of oodles of other folks; see the F<AUTHORS> file.
 
 =head1 BUGS
 
-Pugs is still under heavy development. If you find a bug, please report it
-(with a test case, if possible) on C<#perl6> on C<irc.freenode.org>.
+Pugs is still under heavy development. If you find a bug, please report
+it (with a test case, if possible -- see F<t/README>) on C<#perl6>
+on C<irc.freenode.org>.
 
 =cut
 
