@@ -471,6 +471,7 @@ op1 "List::kv" = \v -> do
         pair   <- readRef ref
         fromVal pair
     return (VList $ concat kvs)
+op1 "Pair::kv" = op1 "List::kv"
 op1 "keys" = keysFromVal
 op1 "values" = valuesFromVal
 op1 "="        = op1 "readline"
@@ -1403,7 +1404,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Scalar    pre     value   safe   (rw!Pair)\
 \\n   List      pre     keys    safe   (rw!Pair)\
 \\n   List      pre     values  safe   (Pair|Junction)\
-\\n   List      pre     List::kv      safe   (rw!Pair)\
+\\n   List      pre     Pair::kv      safe   (rw!Pair)\
 \\n   List      pre     pairs   safe   (rw!Pair)\
 \\n   Any       pre     pick    safe   (Any|Junction)\
 \\n   Bool      pre     rename  unsafe (Str, Str)\
