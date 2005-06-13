@@ -7,6 +7,6 @@ use Test;
 
 plan 1;
 
-is((("f","oo","bar").elems).perl, "(1, 2, 3)", ".perl on a .elems list");
+is((("f","oo","bar").keys).perl, "(0, 1, 2)", ".perl on a .keys list");
 
 
