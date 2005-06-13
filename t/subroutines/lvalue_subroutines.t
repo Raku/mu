@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 7;
+plan 11;
 
 =pod
 
@@ -50,3 +50,13 @@ is($val2, 12, 'proxy lvalue subroutine STORE works', :todo);
 my $resultval;
 eval '$resultval = checklastval("fish");';
 is($resultval, 12, 'proxy lvalue subroutine FETCH works', :todo);
+
+my $realvar = "FOO";
+eval_ok 'sub proxyvar ($var) is rw {
+	    return new Proxy:
+		FETCH => { lc($realvar) },
+		STORE => { lc($realvar = $^val) };
+        }', 'defining lvalue sub works', :todo<feature>;
+eval_is 'proxyvar()', 'foo', 'retrieving value works', :todo<feature>;
+eval_is 'proxyvar("BAR")', 'bar', 'setting value works', :todo<feature>;
+is $realvar, 'BAR', 'variable was modified', :todo<feature>;
