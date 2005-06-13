@@ -38,7 +38,7 @@ sub chain { B.try_it_caller_B(*@_) }
 # basic tests of caller object
 chain({ ref caller() },     "Control::Caller", "caller object type");
 chain({ caller().package }, "main", "caller package");
-chain({ caller().file },    "t/builtins/caller.t", "caller filename");
+chain({ caller().file },    $?FILE, "caller filename");
 chain({ caller().line },    "30", "caller line");
 chain({ caller().subname }, "&main::try_it_caller", "caller subname");
 chain({ caller().subtype }, "SubRoutine", "caller subtype"); # specme
