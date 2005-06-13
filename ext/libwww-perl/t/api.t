@@ -19,5 +19,5 @@ plan 1+@api;
 is( $!, undef, "LWP::Simple imported" );
 
 for @api -> $function {
-  ok( eval "defined &$function", "$function is exported" );
+  ok( eval( "defined &$function" ), "$function is exported" );
 };

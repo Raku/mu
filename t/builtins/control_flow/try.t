@@ -84,5 +84,5 @@ plan 9;
 
 	ok(!$lived, "did not live past uncaught throw in try", :todo);
         ok(ref($!), '$! is an object');
-	is(eval 'ref($!)', "Dandy", ".. of the right class", :todo);
+	is(eval('ref($!)'), "Dandy", ".. of the right class", :todo);
 };

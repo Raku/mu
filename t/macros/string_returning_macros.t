@@ -20,7 +20,7 @@ plan 8;
   is $was_in_macro, 2, "string returning macro was called at compile time";
   my $foo = 42;
   is dollar_foo, $foo, "simple string returning macro (1)";
-  dollar_foo = 23;
+  dollar_foo() = 23;
   is $foo, 23, "simple string returning macro (2)";
 }
 

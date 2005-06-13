@@ -34,7 +34,7 @@ is('2 + 2 = { 2+2 }', '2 + 2 = { 2+2 }', 'single quoted closure interpolation do
 is('$world @list[] %hash{} &func()', '$world @list[] %hash{} &func()', 'single quoted string interpolation does not work (which is correct)');
 
 # Corner-cases
-is(eval '"Hello $world!"', "Hello World!", "! is not a part of var names");
+is(eval('"Hello $world!"'), "Hello World!", "! is not a part of var names");
 sub list_count (*@args) { +@args }
 is(list_count("@list[]"), 1, 'quoted interpolation gets string context');
 

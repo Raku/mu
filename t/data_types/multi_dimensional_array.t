@@ -29,9 +29,9 @@ isa_ok($multi1[1], 'List');
 # multi-dimensional array slices 
 # L<S09/"Subscript and slice notation" /index value to each slice array:/>
 
-is(eval '$multi1[1;0]', 'foo', 'got the right value at multi1 index 1,0', :todo);
-is(eval '$multi1[1;1]', 'bar', 'got the right value at multi1 index 1,1', :todo);
-is(eval '$multi1[1;2]', 'baz', 'got the right value at multi1 index 1,2', :todo);
+is(eval('$multi1[1;0]'), 'foo', 'got the right value at multi1 index 1,0', :todo);
+is(eval('$multi1[1;1]'), 'bar', 'got the right value at multi1 index 1,1', :todo);
+is(eval('$multi1[1;2]'), 'baz', 'got the right value at multi1 index 1,2', :todo);
 
 # and the normal syntax
 
@@ -58,10 +58,10 @@ isa_ok($multi2[0], 'List');
 
 # slice
 
-is(eval '$multi2[0;0]', 1, 'got the right value at multi2 index 0,0', :todo);
+is(eval('$multi2[0;0]'), 1, 'got the right value at multi2 index 0,0', :todo);
 #todo_fail('got the right value at multi2 index 0,0');
-is(eval '$multi2[0;1]', 2, 'got the right value at multi2 index 0,1', :todo);
-is(eval '$multi2[0;2]', 3, 'got the right value at multi2 index 0,2', :todo);
+is(eval('$multi2[0;1]'), 2, 'got the right value at multi2 index 0,1', :todo);
+is(eval('$multi2[0;2]'), 3, 'got the right value at multi2 index 0,2', :todo);
 
 # normal 
 
@@ -79,9 +79,9 @@ isa_ok($multi2[1], 'List');
 
 # slice 
 
-is(eval '$multi2[1;0]', 4, 'got the right value at multi2 index 1,0', :todo);
-is(eval '$multi2[1;1]', 5, 'got the right value at multi2 index 1,1', :todo);
-is(eval '$multi2[1;2]', 6, 'got the right value at multi2 index 1,2', :todo);
+is(eval('$multi2[1;0]'), 4, 'got the right value at multi2 index 1,0', :todo);
+is(eval('$multi2[1;1]'), 5, 'got the right value at multi2 index 1,1', :todo);
+is(eval('$multi2[1;2]'), 6, 'got the right value at multi2 index 1,2', :todo);
 
 # normal
 

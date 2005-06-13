@@ -31,8 +31,8 @@ my %hash4 = ( "bink", "yum", "gorch", "zorba");
 my %hash5 = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
 
 { #L<<S04/"Smart matching" /\QHash\s+Hash\s+hash\s+keys\s+identical\s+match\s+if\s+\$_.keys.sort\s+»eq«\s+\$x.keys.sort/>>
-	ok(eval '(%hash1 ~~ %hash2)', "hash keys identical", :todo);
-	ok(eval '!(%hash1 ~~ %hash4)', "hash keys differ");
+	ok(eval('(%hash1 ~~ %hash2)'), "hash keys identical", :todo);
+	ok(eval('!(%hash1 ~~ %hash4)'), "hash keys differ");
 };
 
 { #L<<S04/"Smart matching" /\QHash\s+any(Hash)\s+hash\s+key\s+intersection\s+match\s+if\s+\$_{any(Hash.keys)}/>>
@@ -69,14 +69,14 @@ my %hash5 = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
 
 { #L<<S04/"Smart matching" /\QHash\s+.{Any}\s+hash\s+element\s+truth*\s+match\s+if\s+\$_{Any}/s>>
 	my $string = "foo";
-	ok(eval '(%hash5 ~~ .{$string})', 'hash.{Any} truth', :todo);
+	ok(eval('(%hash5 ~~ .{$string})'), 'hash.{Any} truth', :todo);
 	$string = "gorch";
-	ok(eval '!(%hash5 ~~ .{$string})', 'hash.{Any} untruth', :todo);
+	ok(eval('!(%hash5 ~~ .{$string})'), 'hash.{Any} untruth', :todo);
 };
 
 { #L<<S04/"Smart matching" /\QHash\s+.<string>\s+hash\s+element\s+truth*\s+match\s+if\s+\$_<string>/>>
-	ok(eval '(%hash5 ~~ .<foo>)', "hash<string> truth", :todo);
-	ok(eval '!(%hash5 ~~ .<gorch>)', "hash<string> untruth", :todo);
+	ok(eval('(%hash5 ~~ .<foo>)'), "hash<string> truth", :todo);
+	ok(eval('!(%hash5 ~~ .<gorch>)'), "hash<string> untruth", :todo);
 };
 
 { #L<<S04/"Smart matching" /\QArray\s+Array\s+arrays\s+are\s+identical\s+match\s+if\s+\$_\s+»~~«\s+\$x/>>
@@ -102,8 +102,8 @@ my %hash5 = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
 };
 
 { #L<<S04/"Smart matching" /\QArray\s+.[number]\s+array\s+element\s+truth*\s+match\s+if\s+\$_[number]/>>
-	ok(eval '((undef, 1, undef) ~~ .[1])', "element 1 of (undef, 1, undef) is true", :todo);
-	ok(eval '!((undef, undef) ~~ .[0])', "element 0 of (undef, undef) is false", :todo);
+	ok(eval('((undef, 1, undef) ~~ .[1])'), "element 1 of (undef, 1, undef) is true", :todo);
+	ok(eval('!((undef, undef) ~~ .[0])'), "element 0 of (undef, undef) is false", :todo);
 };
 
 { #L<<S04/"Smart matching" /\QNum\s+NumRange\s+in\s+numeric\s+range\s+match\s+if\s+\$min\s+<=\s+\$_\s+<=\s+\$max/>>
@@ -125,8 +125,8 @@ my %hash5 = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
 	eval 'class Cat {}';
 	eval 'class Chiwawa is Dog {}'; # i'm afraid class Pugs will get in the way ;-)
 
-	ok(eval '(Chiwawa ~~ Dog)', "chiwawa isa dog", :todo);
-	ok(eval '!(Chiwawa ~~ Cat)', "chiwawa is not a cat", :todo);
+	ok(eval('(Chiwawa ~~ Dog)'), "chiwawa isa dog", :todo);
+	ok(eval('!(Chiwawa ~~ Cat)'), "chiwawa is not a cat", :todo);
 };
 
 #Any     Role      role playing             match if \$_.does(\$x)

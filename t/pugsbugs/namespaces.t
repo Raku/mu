@@ -43,5 +43,5 @@ eval_is('$B::GLOBAL', "A global", "fully qualified name, my own package", :todo<
 
 eval '$B::UN_OURED = 1';
 
-is(eval '$B::UN_OURED', undef, "can't refer to global outside scope when not qualified");
+is(eval('$B::UN_OURED'), undef, "can't refer to global outside scope when not qualified");
 

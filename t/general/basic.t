@@ -20,7 +20,7 @@ sub toys { "fun and games!" }
 (2).cool;  # and that is it, folks!
 
 my $foo = "Foo";
-eval 'undefine $foo';
+undefine $foo;
 ok(!$foo, 'undef');
 
 my $bar;
@@ -30,11 +30,11 @@ ok($bar, "unless");
 my ($var1, $var2) = ("foo", "bar");
 is($var1, "foo", 'list assignment 1');
 is($var2, "bar", 'list assignment 2');
-ok(eval '(my $quux = 1) == 1)', "my() returns LHS", :todo);
+ok(eval('(my $quux = 1) == 1)'), "my() returns LHS", :todo);
 
-ok(eval 'if 1 { 1 }; 1', "if without parens");
-ok(eval 'for 1 { 1 }; 1', "for without parens");
-ok(eval 'while (0) { 0 }; 1', "while");
+ok(eval('if 1 { 1 }; 1'), "if without parens");
+ok(eval('for 1 { 1 }; 1'), "for without parens");
+ok(eval('while (0) { 0 }; 1'), "while");
 
 my $lasttest = 0;
 eval 'for (1..10) { $lasttest++; last; $lasttest++; }; 1';

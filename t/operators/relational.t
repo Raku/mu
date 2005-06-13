@@ -54,7 +54,7 @@ is(5 < 1 < 10, 5 < 1 && 1 < 10, 'multi-way comp 5 < 1 < 10 works');
 # L<S03/"Chained comparisons">
 
 ok(5 > 4 > 3, "chained comparison");
-ok(eval '3 < 4 < 5', "chained comparison");
+ok(eval('3 < 4 < 5'), "chained comparison");
 ok(5 == 5 > -5, "chained comparison with equality");
 ok(!(3 > 4 < 5), "chained n > n < n comparison");
 ok(5 <= 5 > -5, "chained comparison with <=");
