@@ -50,7 +50,6 @@ Expanding this one level deeper:
     |
     |-- docs               Documentation relating to Pugs/Perl 6/Haskell
     |   |-- AES                Drafts of Perl6::Bible chapters
-    |   |-- advocacy           empty (XXXX: to be deleted?)
     |   |-- class              Object system sketches (XXXX: out of date?)
     |   |-- other              Misc design and hacking notes
     |   |-- quickref           Perl6 quick reference pages
