@@ -1,14 +1,22 @@
-== Changes for 6.2.7 (up to r4424) - June 6, 2005
+== Changes for 6.2.7 (up to r4592) - June 13, 2005
 
 === Pugs Internals
 
-* Implemented `is required` for subroutine parameters
-* `method foo ($.x) {}` now sets `$.x`
-* Obsolete the old `open` builtin in favor of Prelude's `File::open`
+* Macro support added
+* Implement `is required` for subroutine parameters
 * Speed up parsing for 2x by caching the dynamically-constructed
   operator precedence tables, instead of relying on `envStash` to
   rebuild them on each token
-* New builtins: caller and Carp::longmess
+* `method foo ($.x) {}` now sets `$.x`
+* Obsolete the old `open` builtin in favor of Prelude's `File::open`
+* New builtins: caller, Carp::longmess, Scalar::as
+* Experimental heredoc support
+* Add ::?CLASS, ::?ROLE, and ::?PACKAGE magicals
+* `undef($x)` is now spelled `undefine($x)`.
+* `is export` trait to mark subs exported
+* `is unsafe` trait to mark subs unavailable in safe mode
+* `:coerce` and other A12 catgories are parsed in sub names
+* Allow bypassing the Standard Prelude by setting PUGS_BYPASS_PRELUDE
 
 === Bundled Modules
 
@@ -17,15 +25,22 @@
 ** `File::Find`
 ** `HTTP::Message`
 ** `POE` (experimental)
+** `URI::Escape`
 * Extended tests for `Tree`
 
 === Tests, Examples and Documentations
 
+* Some new test and several tests refactored, we now have 7650+ tests
 * Examples of various way to do arbitrarily nested loops 
   in `examples/nested_loops`
 * Unit manipulation and converstions examples in `units.p6`
 * Haskell Workshop paper on Pugs in `docs/talks/hw2005.txt`
-* Documentation of how to execute Pugs in `lib/pugs/run.pm`
+* Apocalypse Now talk in `/docs/talks/Apocalypse_Now.spork`
+* Documentation of how to execute Pugs in `lib/pugs/run.pod`
+* Overview of Pugs source tree in `lib/pugs/hack.pod`
+* Overview of the plan for bootstrapping rules
+  in `/docs/other/rules_bootstrap`.
+* examples/algorithms subdir now unifies algorithmics examples
 
 === Bug Fixes
 
@@ -35,6 +50,14 @@
 * `Test::is()` now shows the expected result correctly again
 * Critical evals (`use`, `require`, `prelude`) now raise 
   exceptions on compilation errors
+* lvalue substr support
+* Chained comparisons now work again (were broken in 6.2.6).
+* Parse array and hash captures in regexp (the feature doesn't work yet,
+  but does not result in a parse failure)
+* '\' protects delimiters in rules
+* Fix `[].method` and `{}.method` to call `Array::method` and `Hash::method`
+* module Foo {...} now parses
+
 
 == Changes for 6.2.6 (r4318) - June 2, 2005
 
