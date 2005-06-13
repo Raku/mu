@@ -9,7 +9,7 @@ Test basic escape continuations obtained from &?CALLER_CONTINUATION
 
 =cut
 
-plan 16;
+plan 13;
 
 sub simple1() returns Int {
   &?CALLER_CONTINUATION(2);
@@ -92,6 +92,6 @@ my $counter = 0;
 
 callcc -> $cc { $cnt = $cc };
 $counter++;
-ok 1, "$counter times through the loop", :todo<feature>;
+ok 1, "$counter times through the loop";
 $cnt(undef) unless $counter == 3;
 is($counter, 3, "Looping with a full continuation", :todo<feature>);
