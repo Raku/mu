@@ -68,17 +68,17 @@ Expanding this one level deeper:
 	|   |-- slurpy-list-parms    Use of Perl6 slurpy lists (XXXX: -> t/?)
 	|   `-- tutorial_gen     Tutorial generator (XXXX: huh?)
 	|-- ext          Perl6 modules that work today and get built with pugs
-	|   |-- Algorithm-TokenBucket
-	|   |-- Benchmark
-	|   |-- CGI
-	|   |-- Config-Tiny
-	|   |-- Date
-	|   |-- File-Find
-	|   |-- File-Spec
-	|   |-- HTML-Entities
-	|   |-- Kwid-Event-Parser
-	|   |-- Locale-KeyedText
-	|   |-- Net-IRC
+	|   |-- Algorithm-TokenBucket    Token bucket rate limiting
+	|   |-- Benchmark    Benchmark runtime of Perl6 code
+	|   |-- CGI          CGI author's helper module
+	|   |-- Config-Tiny  Pre-Pugs-OO .ini file reader
+	|   |-- Date         Date and time modules
+	|   |-- File-Find    Traverse a directory tree
+	|   |-- File-Spec    Portable File handling
+	|   |-- HTML-Entities    Encode/decode HTML entities
+	|   |-- Kwid-Event-Parser    Event-based API (like XML SAX) for Kwid
+	|   |-- Locale-KeyedText     Refer to UI strings by key
+	|   |-- Net-IRC      IRC protocol implementation
 	|   |-- POE
 	|   |-- Perl-MetaModel
 	|   |-- Pod-Event-Parser
