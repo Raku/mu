@@ -37,7 +37,7 @@ Expanding this one level deeper:
 	|-- debian       Packaging rules for dpkg-based systems
 	|
 	|-- docs         Documentation relating to Pugs, Perl6, Haskell, etc.
-	|   |-- AES          Drafts of Perl6 Bible chapters
+	|   |-- AES          Drafts of Perl6::Bible chapters
 	|   |-- advocacy     empty (XXXX: to be deleted?)
 	|   |-- class        Object system sketches (XXXX: out of date?)
 	|   |-- other        Misc design and hacking notes
@@ -123,25 +123,25 @@ Expanding this one level deeper:
 	|   `-- syck         Import of Syck source
 	|
 	|-- t            Pugs/Perl6 test library
-	|   |-- Synopsis
-	|   |-- Test-Less
-	|   |-- builtins
-	|   |-- data_types
-	|   |-- examples
-	|   |-- general
-	|   |-- junction
-	|   |-- macros
-	|   |-- magicals
-	|   |-- oo
-	|   |-- operators
-	|   |-- pugsbugs
-	|   |-- pugsrun
-	|   |-- rules
-	|   |-- statements
-	|   |-- subroutines
-	|   |-- syntax
-	|   |-- unspecced
-	|   `-- var
+	|   |-- Synopsis     Pointers to online AES docs and tests
+	|   |-- Test-Less    Test index for test-less utility
+	|   |-- builtins     Builtin function tests
+	|   |-- data_types   Basic data type tests
+	|   |-- examples     Make examples/ tree act as tests
+	|   |-- general      Miscellaneous tests
+	|   |-- junction     Junction tests
+	|   |-- macros       Macro tests
+	|   |-- magicals     Magical variable tests
+	|   |-- oo           Object Oriented programming infrastructure tests
+	|   |-- operators    Operator tests
+	|   |-- pugsbugs     Tests for functionality known to be broken
+	|   |-- pugsrun      Tests for pugs (as opposed to Perl6)
+	|   |-- rules        Perl6 rule and Perl5 regex tests
+	|   |-- statements   Statement-level construct tests
+	|   |-- subroutines  Block/Code/Sub/etc. tests
+	|   |-- syntax       Basic syntax tests
+	|   |-- unspecced    Tests for Pugs extensions to/suggestions for Perl6
+	|   `-- var          Variable declaration tests
 	|
 	|-- t_disabled   Disabled tests
 	|   |-- Dialects     Perl 6 non-standard dialects
