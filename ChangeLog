@@ -1,22 +1,20 @@
-== Changes for 6.2.7 (up to r4592) - June 13, 2005
+== Changes for 6.2.7 (r4610) - June 13, 2005
 
 === Pugs Internals
 
-* Macro support added
+* Add `::?CLASS`, `::?ROLE`, and `::?PACKAGE` magicals
+* Allow bypassing the Standard Prelude by setting `$ENV<PUGS_BYPASS_PRELUDE>`
+* Experimental heredoc support via `qq:to/END/ ... END`
 * Implement `is required` for subroutine parameters
-* Speed up parsing for 2x by caching the dynamically-constructed
-  operator precedence tables, instead of relying on `envStash` to
-  rebuild them on each token
-* `method foo ($.x) {}` now sets `$.x`
-* Obsolete the old `open` builtin in favor of Prelude's `File::open`
-* New builtins: caller, Carp::longmess, Scalar::as
-* Experimental heredoc support
-* Add ::?CLASS, ::?ROLE, and ::?PACKAGE magicals
-* `undef($x)` is now spelled `undefine($x)`.
-* `is export` trait to mark subs exported
-* `is unsafe` trait to mark subs unavailable in safe mode
+* New builtins: `caller`, `Carp::longmess`, `Scalar::as`
+* Obsolete the old `open` builtin in favor of Prelude's `File::open()`
+* Rudimentary, source-filter-like macro support added
+* Speed up parsing for 2x by caching dynamic grammar rules
+* Support for lvalue `substr()`
 * `:coerce` and other A12 catgories are parsed in sub names
-* Allow bypassing the Standard Prelude by setting PUGS_BYPASS_PRELUDE
+* `is unsafe` trait to mark subs unavailable in safe mode
+* `method foo ($.x) {}` now sets `$.x`
+* `undef($x)` is now spelled `undefine($x)`
 
 === Bundled Modules
 
@@ -30,34 +28,27 @@
 
 === Tests, Examples and Documentations
 
-* Some new test and several tests refactored, we now have 7650+ tests
-* Examples of various way to do arbitrarily nested loops 
-  in `examples/nested_loops`
-* Unit manipulation and converstions examples in `units.p6`
-* Haskell Workshop paper on Pugs in `docs/talks/hw2005.txt`
 * Apocalypse Now talk in `/docs/talks/Apocalypse_Now.spork`
 * Documentation of how to execute Pugs in `lib/pugs/run.pod`
+* Examples of writing nested loops in `examples/nested_loops`
+* Haskell Workshop paper on Pugs in `docs/talks/hw2005.tex`
 * Overview of Pugs source tree in `lib/pugs/hack.pod`
-* Overview of the plan for bootstrapping rules
-  in `/docs/other/rules_bootstrap`.
-* examples/algorithms subdir now unifies algorithmics examples
+* Overview of Rules bootstrapping plan in `/docs/other/rules_bootstrap`
+* Some new test and several tests refactored, we now have 7600+ tests
+* Unit manipulation and converstions examples in `units.p6`
+* `examples/algorithms` subdir now unifies algorithmics examples
 
 === Bug Fixes
 
-* Parse errors inside blocks are now reported on the occuring
-  position instead of on the beginning of block
-* Fixed `~{1=>2}` to stringify to `"1\t2\n"` correctly   
-* `Test::is()` now shows the expected result correctly again
-* Critical evals (`use`, `require`, `prelude`) now raise 
-  exceptions on compilation errors
-* lvalue substr support
-* Chained comparisons now work again (were broken in 6.2.6).
-* Parse array and hash captures in regexp (the feature doesn't work yet,
-  but does not result in a parse failure)
 * '\' protects delimiters in rules
+* Chained comparisons now work again (were broken in 6.2.6)
+* Critical evals (`use`, `require`, `prelude`) now raise parsefail exceptions
 * Fix `[].method` and `{}.method` to call `Array::method` and `Hash::method`
-* module Foo {...} now parses
-
+* Fixed `~{1=>2}` to stringify to `"1\t2\n"` correctly   
+* Parse errors inside blocks are now reported on the occuring position
+* Parse for array and hash captures in rules
+* `Test::is()` now shows the expected result correctly again
+* `module Foo {...}` now parses correctly
 
 == Changes for 6.2.6 (r4318) - June 2, 2005
 
