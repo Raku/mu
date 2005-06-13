@@ -1,0 +1,129 @@
+=head1 NAME 
+
+pugs - Perl6 User's Golfing System
+
+=head1 SYNOPSIS
+
+B<pugs> [OPTIONS]
+
+B<perl> -e 'use pugs; # perl 6 code here...'
+
+=head1 DESCRIPTION
+
+This manual describes Pugs, an experimental (but useful) implementation
+of the Perl6 language.
+
+Perl is a language optimized for scanning arbitrary text files,
+extracting information from those text files, and printing reports
+based on that information.  It's also a good language for many system
+management tasks.  The language is intended to be practical (easy to use,
+efficient, complete) rather than beautiful (tiny, elegant, minimal).
+
+Perl combines (in the authors' opinion, anyway) some of the best
+features of C, B<sed>, B<awk>, and B<sh>, so people familiar with those
+languages should have little difficulty with it.  (Language historians
+will also note some vestiges of B<csh>, Pascal, and even BASIC-PLUS;
+ideas from the world of functional programming are also present.)
+Expression syntax corresponds closely to C expression syntax.  Unlike
+most Unix utilities, Perl does not arbitrarily limit the size of your
+data--if you've got the memory, Perl can slurp in your whole file as a
+single string.  Recursion is of unlimited depth.  And the tables used
+by hashes (sometimes called "associative arrays") grow as necessary to
+prevent degraded performance.  Perl can use sophisticated pattern matching
+techniques to scan large amounts of data quickly.  Although optimized for
+scanning text, Perl can also deal with binary data, and can make dbm files
+look like hashes.  Setuid Perl scripts are safer than C programs through
+a dataflow tracing mechanism that prevents many stupid security holes.
+
+If you have a problem that would ordinarily use B<sed> or B<awk> or B<sh>,
+but it exceeds their capabilities or must run a little faster, and you
+don't want to write the silly thing in C, then Perl may be for you.
+There are also translators to turn your B<sed> and B<awk> scripts into
+Perl scripts.
+
+If you're new to Perl, you should start with L<pugs::intro> (yet to
+be written), which is a general intro for beginners and provides
+some background to help you navigate the rest of Perl's extensive
+documentation.
+
+(B<pugs> is also a Perl5 pragma for using Perl6 code inline. See L<The
+B<pugs> pragma> below.)
+
+For ease of access, the Pugs manual has been split up into several sections.
+Those marked with an asterix haven't been written yet.
+
+=head2 Overview
+
+    pugs                Perl overview (this section)
+    pugs::intro       * Perl introduction for beginners
+    pugs::toc         * Perl documentation table of contents
+
+=head2 Reference
+
+    pugs::run           Perl execution and options
+                      * (many others)
+
+=head2 Internals and Foreign Language Interfaces
+
+    pugs::hack          An overview of the Pugs source tree
+
+You should be able to view Perl's documentation with your man(1)
+program or perldoc(1).
+
+=head1 THE B<pugs> PRAGMA
+
+[This section describes a Perl 5 pragma named B<pugs>. Hopefully this
+is not too confusing.]
+
+    #!/usr/bin/perl
+    use pugs;   # Here is some Perl 6 code...
+    sub postfix:<!> { [*] 1..$_ }
+    sub sum_factorial { [+] 0..$_! }
+    no pugs;    # Here is some Perl 5 code...
+    print sum_factorial(3); # 21
+
+The (Perl 5) B<pugs> module lets you put Perl 6 code in Perl 5 source
+code after a line of:
+
+    use pugs;
+
+To switch back to Perl 5:
+
+    no pugs;
+
+See also L<Perl6::Pugs>. The B<pugs> pragma was written by Brian Ingerson
+C<E<lt>INGY@cpan.orgE<gt>> .
+
+=head1 AVAILABILITY
+
+Pugs is available for most operating systems to which GHC has been
+ported, including many Unix-like platforms as well as (with several
+limitations) Windows.  See L<perl::port/"Supported Platforms"> for a
+listing (to be written).
+
+=head1 ENVIRONMENT
+
+See L<pugs::run>.
+
+=head1 AUTHOR
+
+Perl was conceived and nurtured by Larry Wall C<E<lt>larry@wall.orgE<gt>>.
+
+Pugs was written by Autrijus Tang C<E<lt>autrijus@autrijus.orgE<gt>>,
+with the help of oodles of other folks; see the AUTHORS file.
+
+=head1 BUGS
+
+Pugs is still under heavy development. If you find a bug, please report it
+(with a test case, if possible) on #perl6 on irc.freenode.org.
+
+=head1 NOTES
+
+The Perl motto is "There's more than one way to do it."  Divining
+how many more is left as an exercise to the reader.
+
+The three principal virtues of a programmer are Laziness,
+Impatience, and Hubris.  See the Camel Book for why.
+
+=cut
+
