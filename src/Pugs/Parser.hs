@@ -1784,7 +1784,7 @@ rawFlags  :: QFlags
 rawFlags  = MkQFlags QS_No False False False False False QB_No 'x' False False False
 -- | Default flags
 rxP5Flags :: QFlags
-rxP5Flags = MkQFlags QS_No True True True True False QB_Single '/' True False False
+rxP5Flags = MkQFlags QS_No True True True True False QB_No '/' True False False
 -- | Default flags
 rxP6Flags :: QFlags
 rxP6Flags = MkQFlags QS_No False False False False False QB_Single '/' False False False
