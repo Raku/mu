@@ -1,4 +1,4 @@
-== Changes for 6.2.7 (r4610) - June 13, 2005
+== Changes for 6.2.7 (r4612) - June 13, 2005
 
 === Pugs Internals
 
@@ -28,7 +28,8 @@
 
 === Tests, Examples and Documentations
 
-* Apocalypse Now talk in `/docs/talks/Apocalypse_Now.spork`
+* APW talk: "Apocalypse Now" in `docs/talks/Apocalypse_Now.spork`
+* APW talk: "Eine Einfuehrung in Perl 6" in `docs/talks/perl6-apw2005/`
 * Documentation of how to execute Pugs in `lib/pugs/run.pod`
 * Examples of writing nested loops in `examples/nested_loops`
 * Haskell Workshop paper on Pugs in `docs/talks/hw2005.tex`
