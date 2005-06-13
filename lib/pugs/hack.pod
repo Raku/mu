@@ -103,15 +103,15 @@ Expanding this one level deeper:
 	|   `-- Sample-Module    XXXX: why is this still here?
 	|-- script       pugscc, the Pugs Compiler Compiler
 	|-- src          Haskell source for pugs itself
-	|   |-- Data
-	|   |-- IMC
-	|   |-- Pugs
-	|   |-- RRegex
-	|   |-- pcre
-	|   |-- perl5
-	|   |-- perl6
-	|   |-- pge
-	|   `-- syck
+	|   |-- Data         Syck-based YAML parser
+	|   |-- IMC          Parrot IMC backend
+	|   |-- Pugs         Core Pugs engine
+	|   |-- RRegex       PCRE-based regular expressions support
+	|   |-- pcre         Import of PCRE source
+	|   |-- perl5        Perl5 bidirectional call support
+	|   |-- perl6        The Perl6 prelude (definition of builtins)
+	|   |-- pge          Import of PGE (Parrot Grammer Engine) source
+	|   `-- syck         Import of Syck source
 	|-- t            Pugs/Perl6 test library
 	|   |-- Synopsis
 	|   |-- Test-Less
