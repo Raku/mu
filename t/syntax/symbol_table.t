@@ -79,5 +79,5 @@ ok(eval('!defined(%MY::<nosuch>)'),              "unknown lexical lookup doesn't
 
 }
 
-ok(defined eval '%::' && eval '%::' eq $symhash, "previous package declaration was scoped", :todo);
+ok(defined eval('%::') && eval('%::') eq $symhash, "previous package declaration was scoped", :todo);
 is(eval('%::<Other1::$new_global>'),  "It is I.", "Global in other package still visible", :todo);

@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 9;
+plan 10;
 
 # L<S04/"The Relationship of Blocks and Declarations" /There is a new state declarator that introduces/>
 
@@ -106,7 +106,7 @@ plan 9;
         $a = $gen();        # $svar == 42
         $a(); $a();         # $svar == 44
         $b = $gen()();      # $svar == 42
-    '
+    ';
     is $b, 42, "state() and parens", :todo<feature>; # svar == 43
 }
 

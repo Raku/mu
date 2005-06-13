@@ -94,7 +94,7 @@ eval_is 'argShifter(3..5)', 3, "use shift on multiple array arguments", :todo<bu
 eval 'sub unpack_array ([$first, *@rest]) { return $first; }';
 
 my @array = 3..7;
-is(eval 'unpack_array(@array)', 3, 'unpacking an array parameter', :todo);
+is(eval('unpack_array(@array)'), 3, 'unpacking an array parameter', :todo);
 
 =pod
 
@@ -105,4 +105,4 @@ L<S06/"Unpacking hash parameters">
 eval 'sub unpack_hash({+$yo, *%other}){ return $yo; }';
 
 my %params = yo => 3, nope => 4;
-is(eval 'unpack_hash(%params)', 3, 'unpacking a hash parameter', :todo);
+is(eval('unpack_hash(%params)'), 3, 'unpacking a hash parameter', :todo);
