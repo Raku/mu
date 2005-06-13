@@ -465,7 +465,7 @@ op1 "value" = \v -> do
 op1 "pairs" = \v -> do
     pairs <- pairsFromVal v
     returnList pairs
-op1 "kv" = \v -> do
+op1 "List::kv" = \v -> do
     pairs <- pairsFromVal v
     kvs   <- forM pairs $ \(VRef ref) -> do
         pair   <- readRef ref
@@ -1311,11 +1311,11 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   List      pre     zip     safe   (List)\
 \\n   List      pre     keys    safe   (rw!Hash)\
 \\n   List      pre     values  safe   (rw!Hash)\
-\\n   List      pre     kv      safe   (rw!Hash)\
+\\n   List      pre     List::kv      safe   (rw!Hash)\
 \\n   List      pre     pairs   safe   (rw!Hash)\
 \\n   List      pre     keys    safe   (rw!Array)\
 \\n   List      pre     values  safe   (rw!Array)\
-\\n   List      pre     kv      safe   (rw!Array)\
+\\n   List      pre     List::kv      safe   (rw!Array)\
 \\n   List      pre     pairs   safe   (rw!Array)\
 \\n   Scalar    pre     delete  safe   (rw!Hash: List)\
 \\n   Scalar    pre     delete  safe   (rw!Array: List)\
@@ -1403,7 +1403,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Scalar    pre     value   safe   (rw!Pair)\
 \\n   List      pre     keys    safe   (rw!Pair)\
 \\n   List      pre     values  safe   (Pair|Junction)\
-\\n   List      pre     kv      safe   (rw!Pair)\
+\\n   List      pre     List::kv      safe   (rw!Pair)\
 \\n   List      pre     pairs   safe   (rw!Pair)\
 \\n   Any       pre     pick    safe   (Any|Junction)\
 \\n   Bool      pre     rename  unsafe (Str, Str)\
