@@ -2,9 +2,17 @@
 
 use v6;
 use Test;
-use Digest::MD5--perl5;
 
-plan(1);
+BEGIN {
+    plan(1);
+
+    unless eval 'eval_perl5("1")' {
+        skip_rest;
+        exit;
+    }
+}
+
+use Digest::MD5--perl5;
 
 sub get_dmd5() {
     my $ctx = Digest::MD5.new;
