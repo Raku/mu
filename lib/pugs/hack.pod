@@ -33,7 +33,9 @@ Expanding this one level deeper:
 
 	.
 	|-- LICENSE      Licenses that apply to the Pugs distribution
+	|
 	|-- debian       Packaging rules for dpkg-based systems
+	|
 	|-- docs         Documentation relating to Pugs, Perl6, Haskell, etc.
 	|   |-- AES          Drafts of Perl6 Bible chapters
 	|   |-- advocacy     empty (XXXX: to be deleted?)
@@ -44,6 +46,7 @@ Expanding this one level deeper:
 	|   |-- talks        Slides for Pugs and Perl6 talks
 	|   |-- zh-cn        Simplified Chinese doc translations
 	|   `-- zh-tw        Traditional Chinese doc translations
+	|
 	|-- examples     Examples of Perl6 usage; many work in Pugs today
 	|   |-- advocacy     Pugs/Perl6-advocacy MOTD generator
 	|   |-- algorithms   Basic algorithms
@@ -67,6 +70,7 @@ Expanding this one level deeper:
 	|   |-- qotw         Perl6 solutions to plover's Quiz Of The Week
 	|   |-- slurpy-list-parms    Use of Perl6 slurpy lists (XXXX: -> t/?)
 	|   `-- tutorial_gen     Tutorial generator (XXXX: huh?)
+	|
 	|-- ext          Perl6 modules that work today and get built with pugs
 	|   |-- Algorithm-TokenBucket    Token bucket rate limiting
 	|   |-- Benchmark    Benchmark runtime of Perl6 code
@@ -79,29 +83,34 @@ Expanding this one level deeper:
 	|   |-- Kwid-Event-Parser    Event-based API (like XML SAX) for Kwid
 	|   |-- Locale-KeyedText     Refer to UI strings by key
 	|   |-- Net-IRC      IRC protocol implementation
-	|   |-- POE
-	|   |-- Perl-MetaModel
-	|   |-- Pod-Event-Parser
-	|   |-- Set
-	|   |-- Test
-	|   |-- Test-Builder
-	|   |-- Text-Glob
-	|   |-- Tree
-	|   |-- URI
-	|   |-- fp
-	|   |-- lib
-	|   `-- libwww-perl
+	|   |-- POE          Experimental port of Perl5 POE
+	|   |-- Perl-MetaModel   Sketch of Perl6 Object Meta Model
+	|   |-- Pod-Event-Parser     Event-based API (like XML SAX) for POD
+	|   |-- Set          Set calculus, with ASCII and Unicode operators
+	|   |-- Test         Testing support library
+	|   |-- Test-Builder     Backend for building test libraries
+	|   |-- Text-Glob    Translate glob to regex
+	|   |-- Tree         Basic n-ary tree data structure
+	|   |-- URI          Escape/unescape URI strings
+	|   |-- fp           Functional programming operators (ASCII/Unicode)
+	|   |-- lib          Pragma to add paths to @*INC
+	|   `-- libwww-perl  Port of Perl5 libwww-perl modules
+	|
 	|-- inc          Perl5 modules needed to build, test, and install pugs
 	|   |-- Module       Module::Install
 	|   `-- Test         Test::Harness
+	|
 	|-- lib          XXXX: overall concept?
 	|   |-- Inline       Inline::Pugs
 	|   |-- Perl6        Perl6::MakeMaker, Perl6::Pugs
 	|   `-- pugs         Docs for Pugs itself (XXXX: -> docs/?)
+	|
 	|-- modules      Perl6 modules not working today; moved to FreePAN
 	|   |-- Class-Events     XXXX: why is this still here?
 	|   `-- Sample-Module    XXXX: why is this still here?
+	|
 	|-- script       pugscc, the Pugs Compiler Compiler
+	|
 	|-- src          Haskell source for pugs itself
 	|   |-- Data         Syck-based YAML parser
 	|   |-- IMC          Parrot IMC backend
@@ -112,6 +121,7 @@ Expanding this one level deeper:
 	|   |-- perl6        The Perl6 prelude (definition of builtins)
 	|   |-- pge          Import of PGE (Parrot Grammer Engine) source
 	|   `-- syck         Import of Syck source
+	|
 	|-- t            Pugs/Perl6 test library
 	|   |-- Synopsis
 	|   |-- Test-Less
@@ -132,8 +142,10 @@ Expanding this one level deeper:
 	|   |-- syntax
 	|   |-- unspecced
 	|   `-- var
+	|
 	|-- t_disabled   Disabled tests
 	|   |-- Dialects     Perl 6 non-standard dialects
 	|   `-- rules        Port of tests from CPAN module Perl6::Rules
+	|
 	`-- util         Utilities for hacking and testing Pugs
 	    `-- livecd       Create a minimalistic Pugs Live CD
