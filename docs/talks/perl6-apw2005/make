@@ -1,0 +1,3 @@
+#!/bin/bash
+(cd code;perl update.pl) && false | pdflatex perl6.tex
+#rm -f code/*.tex code/*/*.tex code/*~ code/*/*~
