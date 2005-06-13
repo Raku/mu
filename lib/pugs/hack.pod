@@ -63,6 +63,7 @@ Expanding this one level deeper:
     |   |-- advocacy           Pugs/Perl 6-advocacy MOTD generator
     |   |-- algorithms         Basic algorithms
     |   |-- cgi                CGI scripts and applications
+    |   |-- continuation       Fun with continuations
     |   |-- cookbook           Perl 6 idiomatic Perl Cookbook
     |   |-- functional         Functional programming concepts
     |   |-- games              Playable games
