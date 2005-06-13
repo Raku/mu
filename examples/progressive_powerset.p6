@@ -26,7 +26,7 @@ sub iter_powerset ( *@factor ) returns Ref {
                 --$pos;
             }
             @subset[ $pos++ ] = undef;
-            return if !$pos;
+            last if !$pos;
             @subset[ $pos ] = $pos;
             $mode = 1;
             $return();
