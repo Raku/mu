@@ -45,8 +45,8 @@ is($0, '[', 'quoted open LSB capture');
 {
   my ($dollar_null, $res);
   eval '$res = "{" ~~ m{(<[\{]>)}; $dollar_null = $0';
-  ok($res, 'quoted open LCB match');
-  is($dollar_null, '{', 'quoted open LCB capture');
+  ok($res, 'quoted open LCB match', :todo<bug>);
+  is($dollar_null, '{', 'quoted open LCB capture', :todo<bug>);
 }
 
 }
