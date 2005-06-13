@@ -185,6 +185,7 @@ ruleDeclaration = rule "declaration" $ choice
     , ruleUseDeclaration
     , ruleInlineDeclaration
     , ruleRequireDeclaration
+    , ruleTrustsDeclaration
     ]
 
 ruleSubHead :: RuleParser (Bool, SubType, String)
@@ -408,6 +409,12 @@ ruleParamDefault False = rule "default value" $ option Noop $ do
     symbol "="
     parseLitOp
 
+ruleTrustsDeclaration :: RuleParser Exp
+ruleTrustsDeclaration = do
+    symbol "trusts"
+    lexeme ruleQualifiedIdentifier
+    return emptyExp
+
 ruleMemberDeclaration :: RuleParser Exp
 ruleMemberDeclaration = do
     symbol "has"
@@ -449,6 +456,7 @@ ruleVarDeclaration = rule "variable declaration" $ do
              let mkVar v = if null v then Val undef else Var v
              return (combine (map (Sym scope) names), Syn "," (map mkVar names))
         ]
+    many ruleTrait -- XXX
     -- pos <- getPosition
     (sym, expMaybe) <- option ("=", Nothing) $ do
         sym <- tryChoice $ map string $ words " = := ::= "
