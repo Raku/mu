@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 1;
+plan 2;
 
 =pod
 
@@ -22,3 +22,5 @@ so it looks like a pugs-pcre interface bug.
 
 "a" ~~ rx:perl5/a|(b)/;
 is($0, undef, 'An unmatched capture should be false.');
+my $str = "http://foo.bar/";
+ok(($str ~~ rx:perl5{http{0,1}}));
