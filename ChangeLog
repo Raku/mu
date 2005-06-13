@@ -9,9 +9,9 @@
 * New builtins: `caller`, `Carp::longmess`, `Scalar::as`
 * Obsolete the old `open` builtin in favor of Prelude's `File::open()`
 * Rudimentary, source-filter-like macro support added
-* Speed up parsing for 2x by caching dynamic grammar rules
+* Speed up parsing by 100% by caching dynamic grammar rules
 * Support for lvalue `substr()`
-* `coerce:` and other A12 categories are parsed in sub names
+* `coerce:` and other categories from A12 are parsed in sub names
 * `is unsafe` trait to mark subs unavailable in safe mode
 * `method foo ($.x) {}` now sets `$.x`
 * `undef($x)` is now spelled `undefine($x)`
@@ -29,14 +29,14 @@
 
 * APW talk: "Apocalypse Now" in `docs/talks/Apocalypse_Now.spork`
 * APW talk: "Eine Einfuehrung in Perl 6" in `docs/talks/perl6-apw2005/`
-* Documentation of how to execute Pugs in `lib/pugs/run.pod`
-* Examples of writing nested loops in `examples/nested_loops`
+* Documentation for running Pugs in `lib/pugs/run.pod`
+* Examples of nested loops in `examples/nested_loops`
 * Haskell Workshop paper on Pugs in `docs/talks/hw2005.tex`
 * Overview of Pugs source tree in `lib/pugs/hack.pod`
 * Overview of Rules bootstrapping plan in `/docs/other/rules_bootstrap`
-* Some new test and several tests refactored, we now have 7600+ tests
-* Unit manipulation and converstions examples in `units.p6`
-* `examples/algorithms` subdir now unifies algorithmics examples
+* Some new tests; several tests refactored; we now have 7600+ tests
+* Unit manipulation and conversion examples in `units.p6`
+* `examples/algorithms` subdir now unifies algorithmic examples
 
 === Bug Fixes
 
@@ -44,11 +44,11 @@
 * Chained comparisons now work again (were broken in 6.2.6)
 * Critical evals (`use`, `require`, `prelude`) now raise parsefail exceptions
 * Fix `[].method` and `{}.method` to call `Array::method` and `Hash::method`
-* Fixed `~{1=>2}` to stringify to `"1\t2\n"` correctly   
-* Parse errors inside blocks are now reported on the occuring position
-* Parse for array and hash captures in rules
+* Fix `~{1=>2}` to stringify correctly to `"1\t2\n"`
+* Parse errors inside blocks now reported at the position at which they occurred
+* Parse array and hash captures in rules
 * `Test::is()` now shows the expected result correctly again
-* `module Foo {...}` now parses correctly
+* `module Foo {...}` now parses
 
 == Changes for 6.2.6 (r4318) - June 2, 2005
 
@@ -75,7 +75,7 @@
 * Parrot compilation backend now handles qualified subroutine names
 * Pugs now has a /Safe/ mode, enable by the PUGS_SAFEMODE environment variable
 * Stub implementation for `.does` as an alias of `.isa` (no Roles yet)
-* Unix only builtins: `opendir`, `readdir`, `rewinddir`, `closedir`
+* Unix-only builtins: `opendir`, `readdir`, `rewinddir`, `closedir`
 * `$str.split(/rule/)` and `$str.split($delim)`
 * `&infix<=>` can now be used as the assignment operator
 * `Prelude.pm` added to `src/perl6` to implement S29 builtins in Perl 6
@@ -119,11 +119,11 @@
 * Hyper-reduction prefix operators such as `[+]«` are now parsed
 * Single-character class names were not parsed correctly
 * Stringifying a Rule no longer throws an uncatchable exception
-* Use of undeclared types in signatures no longer breaks MMD 
+* Use of undeclared types in signatures no longer breaks MMD
 * `(1 => 2 ?? 3 :: 4)` now always constructs a pair
-* `Foo.bar()` now dispatch to `&Foo::bar` instead of to `&Class::bar`
+* `Foo.bar()` now dispatches to `&Foo::bar` instead of to `&Class::bar`
 * `Foo.isa(Foo)` no longer means `Class.isa(foo)`
-* `pugs -MFoo` now means `use Foo` not `require Foo`
+* `pugs -MFoo` now means `use Foo`, not `require Foo`
 * `readline()` now reads utf-8
 * `times` now really works on Win32
 * `when .isa(Foo)` is no longer parsed as `when $_ ~~ .isa(Foo)` now
@@ -163,15 +163,15 @@
 * `INIT {...}` and `CHECK {...}` blocks in void context and as rvalues
 * `OUTER::` scope implemented
 * `do {...}` literal added
-* `gather { ... }` and `take()` implemented
-* `submethod BUILD` is called for each parent class and class itself
+* `gather {...}` and `take()` implemented
+* `submethod BUILD` is called for each parent class as well as the class itself
 * `time()` now returns a fractional number
 * `try {...}` literal allowed at expression level
 * `warn()`, `uniq()`, `fail()`, `times()` implemented
 
 === Bundled Modules
 
-* `Inline::Pugs` and `pugs` module to inline Perl 6 into Perl 5 programs
+* `Inline::Pugs` and `pugs` module to allow Perl 6 in Perl 5 programs
 * `Locale::KeyedText` re-added (this was our first contributed module)
 * `Net::IRC`, OO version added
 * `Perl::MetaModel`, prototype of Perl 6 OO meta-model in Perl 6 OO
@@ -179,31 +179,31 @@
 * `Set` now has many overloaded operators
 * `Test::Builder`, with Perl 6 objects (parses, and mostly works -- see tests)
 * `Tree::Simple`, renamed to `Tree` and converted to OO
-* `Test` now gives better diagnostics to `cmp_ok()`
+* `Test::cmp_ok` now gives better diagnostic messages
 * `fp` module added for functional programming
 
 === Tests, Examples and Documentations
 
-* Many new test and several tests refactored, we now have 5600+ tests
+* Many new tests; several tests refactored; we now have 5600+ tests
 * Hangman IRC bot created from `hangman.p6`
 * IRC logfile to HTML converter added
-* Initial sketch of Pugs Apocryphon 2 as `docs/02Internals.pod`
+* Initial sketch of Pugs Apocryphon 2 in `docs/02Internals.pod`
 * Much work on internal Haddock Haskell documentation
 * OO Wizard RPG game added in `examples/games/`
 * Parrot is now included in the Pugs Live CD
 * Perl 6 quick reference documents added to `docs/quickref`
-* Perl6::Rules test suite incorporated into `t/rules/`
-* Removed usage of `force_todo()` in favor of `:todo`
+* Perl6::Rules test suite incorporated under `t/rules/`
+* Replaced `force_todo()` with `:todo`
 
 === Bug Fixes
 
-* Bare blocks containing `$_` is now executed correctly
+* Bare blocks containing `$_` are now executed correctly
 * Correct parsing for user-defined nullary functions
-* Hash and array sub parameters are read-only by default, same as scalars
-* Post-term invocation in interpolation no longer eat trailing whitespace
+* Hash and array sub parameters are now read-only by default, same as scalars
+* Post-term invocation in interpolation no longer eats trailing whitespace
 * Slurpy hash parameters no longer count as nonslurpy during arity matching
 * Type-to-type smartmatch, e.g. `Int ~~ Num`, now works
-* `$obj.method($arg1, $arg2)` can now MMD dispatch over all arguments
+* `$obj.method($arg1, $arg2)` now dispatches based on all the arguments
 * `foo 3 and foo 4` is now parsed as two separate function calls
 * `loop (;0;) {...}` will no longer execute the loop body
 * `map({...} @list)` is no longer valid syntax
