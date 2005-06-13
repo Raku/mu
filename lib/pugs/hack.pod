@@ -26,7 +26,7 @@ The Pugs source tree includes several major sections:
 	|-- script       pugscc, the Pugs Compiler Compiler
 	|-- src          Haskell source for pugs itself
 	|-- t            Pugs/Perl6 test library
-	|-- t_disabled   Disabled tests (XXXX: why not just turned off in t/?)
+	|-- t_disabled   Disabled tests
 	`-- util         Utilities for hacking and testing Pugs
 
 Expanding this one level deeper:
