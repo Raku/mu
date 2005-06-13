@@ -1,19 +1,19 @@
-"Perl 6 The Ultimate" (Chinese):
+Perl6_the_Ultimate.spork: "Perl 6 The Ultimate" (Chinese):
   Talk by Autrijus Tang
   HTML version: http://autrijus.org/p6tu/start.html
 
-"Perl 6, genau jetzt!" (German):
+Perl6_genau_jetzt.latex: "Perl 6, genau jetzt!" (German):
   Talk by Ingo Blechschmidt
   PDF version: http://m19s28.vlinux.de/iblech/klasse11/Sonstiges/1337/LUGA/Perl6.latex.pdf
 
-"Pugs: Bootstrapping Perl 6 with Haskell" (English):
+hw2005.tex: "Pugs: Bootstrapping Perl 6 with Haskell" (English):
   Talk by Autrijus Tang (draft)
   PDF version: http://perlcabal.org/~autrijus/hw2005.pdf
 
-"Apocalypse Now" (English):
+Apocalypse_Now.spork: "Apocalypse Now" (English):
   Talk by Autrijus Tang
   HTML version: http://pugscode.org/talks/apw/slide1.html
 
-perl6-apw2005: "Eine Einfuehrung in Perl 6" (German):
+perl6-apw2005/: "Eine Einfuehrung in Perl 6" (German):
   Talk by Jens Rieks
   PDF version: http://perl.jensbeimsurfen.de/perl6.pdf

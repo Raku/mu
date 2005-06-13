@@ -11,7 +11,7 @@ B<perl> -e 'use pugs; # perl 6 code here...'
 =head1 DESCRIPTION
 
 This manual describes Pugs, an experimental (but useful) implementation
-of the Perl6 language.
+of the Perl 6 language.
 
 Perl is a language optimized for scanning arbitrary text files,
 extracting information from those text files, and printing reports
@@ -70,7 +70,7 @@ To switch back to Perl 5:
     no pugs;
 
 See also L<Perl6::Pugs>. The B<pugs> pragma was written by Brian Ingerson
-C<E<lt>INGY@cpan.orgE<gt>> .
+C<E<lt>INGY@cpan.orgE<gt>>.
 
 =head1 AVAILABILITY
 
