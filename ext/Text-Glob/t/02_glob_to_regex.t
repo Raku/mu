@@ -3,9 +3,9 @@
 use v6;
 require Test;
 
-plan 2;
+plan 1;
 
-use_ok 'Text::Glob';
+use Text::Glob;
 
-my $regex = ::Text::Glob.new.glob_to_regex('*.pm');
+my $regex = Text::Glob.new.glob_to_regex('*.pm');
 ok 'Glob.pm' ~~ $regex, 'glob_to_regex works';
