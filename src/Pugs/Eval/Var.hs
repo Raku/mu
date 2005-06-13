@@ -313,6 +313,8 @@ evalExpType (Pad _ _ exp) = evalExpType exp
 evalExpType (Sym _ _ exp) = evalExpType exp
 evalExpType (Stmts _ exp) = evalExpType exp
 evalExpType (Syn "sub" [exp]) = evalExpType exp
+evalExpType (Syn "\\[]" _) = return $ mkType "Array"
+evalExpType (Syn "\\{}" _) = return $ mkType "Hash"
 evalExpType _ = return $ mkType "Any"
 
 {-|
