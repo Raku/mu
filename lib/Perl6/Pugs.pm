@@ -2,7 +2,7 @@ package Perl6::Pugs;
 use 5.006;
 use strict;
 
-our $VERSION = 6.002006;
+our $VERSION = 6.002007;
 
 =pod
 
@@ -12,7 +12,7 @@ Perl6::Pugs - A Perl 6 Implementation
 
 =head1 VERSION
 
-This document describes version 6.2.6 of Pugs, released June 2, 2005.
+This document describes version 6.2.7 of Pugs, released June 13, 2005.
 
 =head1 SYNOPSIS
 
