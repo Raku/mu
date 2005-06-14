@@ -151,7 +151,6 @@ instance Compile Pos where
         , showText line
         ]
 
-
 label :: Doc -> Doc
 label doc = doc <> text ":"
 

@@ -22,13 +22,14 @@ import Pugs.Embed.Parrot
 -- import Pugs.Embed.Ponie
 
 evalEmbedded :: String -> String -> IO ()
-evalEmbedded "Parrot"  code = do
-    evalParrot code
+evalEmbedded "Pir" = evalParrot
+evalEmbedded "PIR" = evalParrot
+evalEmbedded "Parrot" = evalParrot
 {- evalEmbedded "Haskell" code = do
     evalHaskell code
     return () -}
-evalEmbedded "Perl5" code = do
+evalEmbedded "Perl5" = \code -> do
     interp <- initPerl5 "" (Nothing :: Maybe ())
     evalPerl5 code nullSV 0
     freePerl5 interp
-evalEmbedded s _ = fail $ "Cannot evaluate in " ++ s
+evalEmbedded s = const . fail $ "Cannot evaluate in " ++ s
