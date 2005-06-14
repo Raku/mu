@@ -361,9 +361,11 @@ Of course, suggestions are always welcome.
 Can Pugs work with Perl 5 libraries?</h2>
 <p>
 Yes, Pugs can work with Perl 5 libraries.  This requires that Pugs be
-compiled with Perl 5 embedding.</p>
+compiled with Perl 5 embedding.  Pugs understands Perl 5 objects, classes
+and functions.  Pugs objects, classes and functions are also understood by
+Perl 5.  As such, these types can be used in round-trip callbacks.</p>
 
-<p>Examples of working with Perl 5 may be found <a href="http://svn.openfoundry.org/pugs/t/unspecced/p5/return.t">in the source
+<p>Examples of working with Perl 5 may be found <a href="http://svn.openfoundry.org/pugs/t/unspecced/p5/">in the source
 tree</a>.
 <h2>
 Can Pugs work with Haskell libraries?</h2>
