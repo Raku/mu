@@ -135,6 +135,7 @@ Expanding this one level deeper:
     |   `-- syck               Import of Syck source
     |
     |-- t                  Pugs/Perl 6 test library
+    |   |-- 01-sanity          Sanity checks that testing can proceed
     |   |-- Synopsis           Pointers to online AES docs and tests
     |   |-- Test-Less          Test index for test-less utility
     |   |-- builtins           Builtin function tests
