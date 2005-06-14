@@ -333,7 +333,15 @@ op1 "exit" = op1Exit
 op1 "readlink" = \v -> do
     str  <- fromVal v
     tryIO undef $ fmap VStr (readSymbolicLink str)
-op1 "sleep" = boolIO (threadDelay . (* clocksPerSecond))
+op1 "sleep" = \v -> do
+    x <- fromVal v
+    tryIO undef $ do
+       TOD t0s t0ps <- liftIO getClockTime
+       threadDelay (x * clocksPerSecond)
+       TOD t1s t1ps <- liftIO getClockTime
+       return $ VRat ((fromInteger $ t1ps - t0ps)
+                      / (clocksPerSecond * clocksPerSecond) -- 10^12
+                      + (fromInteger $ t1s - t0s))
 op1 "mkdir" = boolIO createDirectory
 op1 "rmdir" = boolIO removeDirectory
 op1 "chdir" = boolIO setCurrentDirectory
