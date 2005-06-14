@@ -58,12 +58,15 @@ my $resultval;
 eval '$resultval = checklastval("fish");';
 is($resultval, 12, 'proxy lvalue subroutine FETCH works', :todo<feature>);
 
-my $realvar = "FOO";
-eval_ok 'sub proxyvar ($var) is rw {
+my $realvar = "foo";
+eval_ok 'sub proxyvar ($prefix) is rw {
 	    return new Proxy:
-		FETCH => { lc($realvar) },
+		FETCH => { $prefix ~ lc($realvar) },
 		STORE => { lc($realvar = $^val) };
-        }', 'defining lvalue sub using `new Proxy: ` works', :todo<feature>;
-eval_is 'proxyvar()', 'foo', 'proxy lvalue subroutine FETCH works', :todo<feature>;
-eval_is 'proxyvar("BAR")', 'bar', 'proxy lvalue subroutine STORE works', :todo<feature>;
+        }; 1', 'defining lvalue sub using `new Proxy: ` works', :todo<feature>;
+eval_is 'proxyvar("PRE")', 'PREfoo', 'proxy lvalue subroutine FETCH works', :todo<feature>;
+# Return value of assignments of Proxy objects still to be decided.
+# See thread "Assigning Proxy objects" on p6l,
+# http://www.nntp.perl.org/group/perl.perl6.language/21838.
+eval_is 'proxyvar("PRE") = "BAR"', 'bar', 'proxy lvalue subroutine STORE works', :todo<feature>;
 is $realvar, 'BAR', 'variable was modified', :todo<feature>;
