@@ -5,18 +5,19 @@ use Test;
 
 plan 2;
 
-# please do not change the filenecoding of this file!!
+# Unicode-version of >>~<< only works in utf8 encoded files
 
-# » ~ « only works in utf8 encoded files
+#   * Almost all other files in the Pugs Subversion repository are utf-8
+#     encoded.
+#   * Some editors/editor configurations will always safe files as utf-8.
+#   * My add-the-usual-svn-properties script sets svn:mime-type to utf-8.
+# Because of these reasons, I felt it'd be better to simply encode the latin1
+# "<<"s and ">>"s using the \ddd notation.
+my $hyper_utf = eval "(<a b c) \187~\171 (1,2,3)";
+is($hyper_utf,'a1 b2 c3', :todo<bug>);
 
-# the test works if fileencoding is set to utf8
-# it doesn't work if fileencoding is latin1
 
-my $hyper_utf=('a','b','c') »~« (1,2,3);
-is($hyper_utf,'a1b2c3',:todo<bug>);
-
-
-# >> ~ << is working
+# >>~<< is working
 my $hyper_latin=('a','b','c') >>~<< (1,2,3);
 is($hyper_latin,'a1 b2 c3','>>~<< is working');
 
