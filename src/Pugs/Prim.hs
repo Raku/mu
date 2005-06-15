@@ -750,7 +750,7 @@ op2 "le" = op2Cmp vCastStr (<=)
 op2 "gt" = op2Cmp vCastStr (>)
 op2 "ge" = op2Cmp vCastStr (>=)
 op2 "~~" = op2Match
-op2 "!~" = op2Cmp vCastStr (/=)
+op2 "!~" = \x y -> op1Cast (VBool . not) =<< op2Match x y
 op2 "=:=" = op2Identity
 op2 "&&" = op2Logical (fmap not . fromVal)
 op2 "||" = op2Logical (fmap id . fromVal)
