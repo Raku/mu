@@ -369,19 +369,15 @@ Perl 5.  As such, these types can be used in round-trip callbacks.</p>
 tree</a>.
 <h2>
 Can Pugs work with Haskell libraries?</h2>
-<p>
-Currently, you can statically link
-Haskell
-libraries into Pugs primitives, by modifying a few lines in <a
- style="font-family: monospace;"
- href="http://svn.openfoundry.org/pugs/src/Prim.hs">Prim.hs</a>.
-We are
-considering writing a simple interface to <a
- href="http://www.cse.unsw.edu.au/%7Edons/hs-plugins/">hs-plugins</a>,
-which will
-let Pugs dynamically load Haskell libraries, even inline Haskell code
-directly
-within Perl 6.</p>
+<p>Pugs can be compiled with <a
+href="http://www.cse.unsw.edu.au/%7Edons/hs-plugins/"><code>hs-plugins</code></a>
+ support, which allows it to use Haskell libraries.  It is also capable of
+ dynamically loading Haskell modules.  Aside from this, inline Haskell can
+ be evaluated using <code>eval('...', :lang&lt;haskell&gt;)</code>.</p>
+<p>In addition, at the basic level, you can statically link Haskell libraries
+into Pugs primitives, by modifying a few lines in <a
+ href="http://svn.openfoundry.org/pugs/src/Prim.hs"><code>Prim.hs</code></a>.
+</p>
 <h2>
 Can Pugs work with C libraries?</h2>
 <p>
