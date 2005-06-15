@@ -102,7 +102,7 @@ sub evalhelper(Str $code) {
   };
 
   # Address a common user error
-  $code = 'sub say(*@a){die("Cant say() in evalbot\n")};' + $code;
+  $code = 'sub say(*@a){die("Cant say() in evalbot.\n")};' + $code;
 
   # Prevent possible abuse.
   return "Code to eval exceeds maximum length limit." if bytes $code > 500;
