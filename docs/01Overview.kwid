@@ -181,8 +181,8 @@ module was available for unit testing.
 
 == What is the relationship between Pugs and Parrot?
 
-The plan is for Pugs to target Parrot AST. This is
-already possible; Pugs can target Parrot AST using an experimental Parrot
+The plan is for Pugs to target Parrot PIR. This is
+already possible; Pugs can target Parrot PIR using an experimental Parrot
 backend, which is being improved steadily.
 
 == Is Pugs a compiler or an interpreter?
