@@ -1,8 +1,38 @@
-{-# OPTIONS_GHC -fglasgow-exts -fallow-overlapping-instances #-}
+{-# OPTIONS_GHC -fglasgow-exts -fallow-overlapping-instances -funbox-strict-fields #-}
 
 module Emit.PIR where
 import Text.PrettyPrint
 import Data.Char
+
+type PIR = [Decl]
+
+data Decl
+    = DeclSub   !SubName ![SubType] ![Stmt]
+    | DeclNS    !PkgName
+    deriving (Show, Eq)
+
+data Stmt
+    = StmtComment   !String
+    | StmtLine      !FilePath !Int
+    | StmtIns       !Ins
+    | StmtLabel     !LabelName !Ins
+    | StmtPad       ![(VarName, Expression)] ![Stmt]
+    | StmtRaw       !Doc    -- XXX HACK!
+    deriving (Show, Eq)
+
+data Ins
+    = InsLocal      !RegType !VarName
+    | InsNew        !LValue !ObjType 
+    | InsBind       !LValue !Expression
+    | InsAssign     !LValue !Expression
+    | InsExp        !Expression
+    | InsFun        ![Sig] !Expression ![Expression]
+    | InsTailFun    !Expression ![Expression]
+    | InsPrim       !(Maybe LValue) !PrimName ![Expression]
+    deriving (Show, Eq)
+
+data SubType = SubMAIN | SubLOAD | SubANON | SubMETHOD | SubMULTI [ObjType]
+    deriving (Show, Eq)
 
 data RegType = RegInt | RegNum | RegStr | RegPMC
     deriving (Show, Eq)
@@ -10,8 +40,8 @@ data RegType = RegInt | RegNum | RegStr | RegPMC
 data RelOp = RelLT | RelLE | RelEQ | RelNE | RelGE | RelGT
     deriving (Show, Eq)
 
-data ObjType    = PerlUndef
-    deriving (Show, Eq)
+data ObjType    = PerlUndef | PerlArray | PerlHash
+    deriving (Show, Eq, Read)
 
 type LabelName  = String
 type SubName    = String
@@ -40,6 +70,9 @@ data Literal
 class (Show x) => Emit x where
     emit :: x -> Doc
     -- emit x = error ("Unrecognized construct: " ++ show x)
+
+instance Eq Doc where
+    x == y = (render x) == (render y)
 
 instance Emit String where
     emit = text
@@ -82,6 +115,7 @@ instance Emit Stmt where
     emit (StmtPad pad stmts) = vcat $
         [ emit "new_pad" <+> curPad
         ] ++ map (\(var, exp) -> emit ("store_lex" .- [lit (-1 :: Int), lit var, exp])) pad
+    emit (StmtRaw doc) = doc
 
 instance Emit RegType where
     emit = emit . map toLower . drop 3 . show
@@ -147,36 +181,6 @@ instance Emit Literal where
 
 instance Emit Int where
     emit = int
-
-data Stmt
-    = StmtComment   !String
-    | StmtLine      !FilePath !Int
-    | StmtIns       !Ins
-    | StmtLabel     !LabelName !Ins
-    | StmtPad       ![(VarName, Expression)] ![Stmt]
-    deriving (Show, Eq)
-
-data Ins
-    = InsLocal      !RegType !VarName
-    | InsNew        !LValue !ObjType 
-    | InsBind       !LValue !Expression
-    | InsAssign     !LValue !Expression
-    | InsExp        !Expression
-    | InsFun        ![Sig] !Expression ![Expression]
-    | InsTailFun    !Expression ![Expression]
-    | InsPrim       !(Maybe LValue) !PrimName ![Expression]
-    deriving (Show, Eq)
-
-data SubType = SubMAIN | SubLOAD | SubANON | SubMETHOD | SubMULTI [ObjType]
-    deriving (Show, Eq)
-
-type PIR = [Decl]
-
-data Decl
-    = DeclSub   !SubName ![SubType] ![Stmt]
-    | DeclNS    !PkgName
-    deriving (Show, Eq)
-
 {-|
   <-- is calling an opcode, that returns a value.
   .-  is calling an opcode, with any return value ignored.
@@ -202,17 +206,35 @@ nullPMC = reg $ PMC 0
 funPMC :: (RegClass a) => a
 funPMC = reg $ PMC 1
 
-outPMC :: (RegClass a) => a
-outPMC = reg $ PMC 8
+rv :: (RegClass a) => a
+rv = reg $ PMC 2
+
+arg0 :: (RegClass a) => a
+arg0 = reg $ PMC 10
+
+arg1 :: (RegClass a) => a
+arg1 = reg $ PMC 11
+
+arg2 :: (RegClass a) => a
+arg2 = reg $ PMC 12
+
+arg3 :: (RegClass a) => a
+arg3 = reg $ PMC 13
 
 tempPMC :: (RegClass a) => a
-tempPMC = reg $ PMC 9
+tempPMC = reg $ PMC 8
 
 tempSTR :: (RegClass a) => a
-tempSTR = reg $ STR 9
+tempSTR = reg $ STR 8
+
+tempSTR2 :: (RegClass a) => a
+tempSTR2 = reg $ STR 9
 
 tempINT :: (RegClass a) => a
-tempINT = reg $ INT 9
+tempINT = reg $ INT 8
+
+tempINT2 :: (RegClass a) => a
+tempINT2 = reg $ INT 9
 
 class RegClass y where
     reg :: LValue -> y
@@ -283,25 +305,41 @@ _ --> _ = error "Can't return from non-sub"
 
 preludePIR :: Doc
 preludePIR = emit $
-    [ sub "&print" [slurpy tempPMC]
-        [ tempSTR <-- "join" $ [lit "", tempPMC]
+    [ sub "&print" [slurpy arg0]
+        [ tempSTR <-- "join" $ [lit "", arg0]
         , "print" .- [tempSTR]
         ] --> [lit True]
-    , sub "&say" [slurpy tempPMC]
-        [ "push" .- [tempPMC, lit "\n"]
-        , "&print" .& [tempPMC]
+    , sub "&say" [slurpy arg0]
+        [ "push" .- [arg0, lit "\n"]
+        , "&print" .& [arg0]
         ]
-    , sub "&pop" [tempPMC]
-        [ outPMC <-- "pop" $ [tempPMC]
-        ] --> [outPMC]
-    , sub "&prefix:++" [tempPMC]
-        [ "inc" .- [tempPMC]
-        ] --> [tempPMC]
-    , sub "&postfix:++" [tempPMC]
-        [ InsNew outPMC PerlUndef
-        , outPMC <-- "assign" $ [tempPMC]
-        , "inc" .- [tempPMC]
-        ] --> [outPMC]
+    , sub "&pop" [arg0]
+        [ rv <-- "pop" $ [arg0]
+        ] --> [rv]
+    , sub "&substr" [arg0, arg1, arg2]
+        [ tempSTR   <-- "set" $ [arg0]
+        , tempINT   <-- "set" $ [arg1]
+        , tempINT2  <-- "set" $ [arg2]
+        , tempSTR2  <-- "substr" $ [tempSTR, tempINT, tempINT2]
+        , InsNew rv PerlUndef
+        , rv        <-- "set" $ [tempSTR2]
+        ] --> [rv]
+    , sub "&prefix:++" [arg0]
+        [ "inc" .- [arg0]
+        ] --> [arg0]
+    , sub "&prefix:--" [arg0]
+        [ "dec" .- [arg0]
+        ] --> [arg0]
+    , sub "&postfix:++" [arg0]
+        [ InsNew rv PerlUndef
+        , rv <-- "assign" $ [arg0]
+        , "inc" .- [arg0]
+        ] --> [rv]
+    , sub "&postfix:--" [arg0]
+        [ InsNew rv PerlUndef
+        , rv <-- "assign" $ [arg0]
+        , "dec" .- [arg0]
+        ] --> [rv]
     , sub "&nothing" [] []
     , namespace "bool"
     , sub "&true" []

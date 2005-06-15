@@ -1,6 +1,7 @@
-{-# OPTIONS_GHC -fglasgow-exts #-}
+{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -funbox-strict-fields #-}
 
 module Pugs.Compile.PIR (genPIR') where
+import Pugs.Compile.Parrot
 import Pugs.Internals
 import Pugs.AST
 import Emit.PIR
@@ -21,6 +22,8 @@ data PAST a where
     PAssign     :: ![PAST LValue] -> !(PAST Expression) -> PAST Expression
     PBind       :: ![PAST LValue] -> !(PAST Expression) -> PAST Expression
     PPad        :: ![(VarName, PAST Expression)] -> !(PAST [Stmt]) -> PAST [Stmt]
+    PRaw        :: !Exp -> PAST Stmt -- XXX HACK!
+    PRawName    :: !VarName -> PAST Expression -- XXX HACK!
 
 instance Show (PAST a) where
     show (PVal x) = "(PVal " ++ show x ++ ")"
@@ -36,6 +39,8 @@ instance Show (PAST a) where
     show (PAssign x y) = "(PAssign " ++ show x ++ " " ++ show y ++ ")"
     show (PBind x y) = "(PBind " ++ show x ++ " " ++ show y ++ ")"
     show (PPad x y) = "(PPad " ++ show x ++ " " ++ show y ++ ")"
+    show (PRaw x) = "(PRaw " ++ show x ++ ")"
+    show (PRawName x) = "(PRawName " ++ show x ++ ")"
 
 data TEnv = MkTEnv
     { tDepth    :: Int
@@ -58,10 +63,13 @@ class Translate x y | x -> y where
 instance Compile [(TVar Bool, TVar VRef)] Expression where
     compile _ = return (PLit $ PVal undef)
 
+instance Compile (String, [(TVar Bool, TVar VRef)]) Expression where
+    compile (name, _) = return $ PRawName name
+
 instance Compile Exp [Stmt] where
     compile (Stmts (Pad SMy pad exp) rest) = do
         expC    <- compile $ mergeStmts exp rest
-        padC    <- mapM (compile . snd) (padToList pad)
+        padC    <- mapM compile (padToList pad)
         return $ PPad ((map fst (padToList pad)) `zip` padC) expC
     compile (Stmts first rest) = do
         firstC  <- compile first
@@ -94,12 +102,15 @@ instance Compile Exp Stmt where
         compile Noop
     compile (Syn "loop" [exp]) =
         compile (Syn "loop" $ [emptyExp, Val (VBool True), emptyExp, exp])
+{-
     compile (Syn "loop" [pre, cond, post, body]) = do
         preC  <- compile pre
         -- bodyC <- compile body
         -- postC <- compile post
         -- condC <- compile cond
         return $ PStmt preC
+-}
+    compile exp@(Syn "loop" _) = return $ PRaw exp
     compile exp = fmap PStmt $ compile exp
     -- compile exp = error ("invalid stmt: " ++ show exp)
 
@@ -185,6 +196,17 @@ instance Translate (PAST a) a where
             expsC   <- trans exps
             return ([], (StmtPad (map fst pad `zip` valsC) expsC:))
     trans (PExp exp) = fmap ExpLV $ trans exp
+    -- XXX HACK!
+    trans (PRaw exp) = do
+        env <- asks tEnv
+        raw <- liftIO $ runEvalIO env{ envStash = "$P0" } $ do
+            doc <- compile' exp
+            return $ VStr (render doc)
+        return $ StmtRaw (text $ vCast raw)
+    trans (PRawName name) = do
+        -- generate fresh supply and things...
+        pmc     <- genName name
+        return (ExpLV pmc)
     trans x = transError "Unknown exp" x
 
 tellIns = tell . (:[]) . StmtIns
@@ -196,8 +218,16 @@ genLV = do
         cur <- readTVar tvar
         writeTVar tvar (cur + 1)
         return (PMC cur)
-    tell [StmtIns $ InsNew pmc PerlUndef]
+    tellIns $ InsNew pmc PerlUndef
     return $ reg pmc
+
+genName :: (RegClass a) => String -> Trans a
+genName name = do
+    let var = render $ varText name
+    tvar    <- asks tReg
+    tellIns $ InsLocal RegPMC var
+    tellIns $ InsNew (VAR var) (read $ render $ varInit name)
+    return $ reg (VAR var)
 
 transError :: (Show a) => String -> a -> Trans b
 transError str val = fail $ "*** Trans error: " ++ str ++ ": " ++ show val

@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -fglasgow-exts #-}
 
-module Pugs.Compile.Parrot (genPIR) where
+module Pugs.Compile.Parrot (genPIR, compile', varText, varInit) where
 import Pugs.Internals
 import Pugs.Pretty
 import Pugs.AST
@@ -11,6 +11,9 @@ import qualified Data.Map       as Map
 
 -- XXX This compiler needs a totaly rewrite using Parrot AST,
 -- XXX and maybe TH-based AST combinators
+
+compile' :: (Compile x) => x -> Eval Doc
+compile' x = compile x
 
 class (Show x) => Compile x where
     compile :: x -> Eval Doc
