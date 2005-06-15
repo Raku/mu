@@ -216,8 +216,9 @@ are:
 Pugs runs on Win32, Linux and many flavors of Unix systems. See GHC's
 [porters list|http://haskell.org/ghc/contributors.html] and [download
 page|http://haskell.org/ghc/download_ghc_622.html] for details.
-Starting from 6.2.0, the Pugs team will also provide binary builds on
-selected platforms.
+Binaries for Windows 2000/XP are available as part of [the PXPerl
+distribution|http://pixigreg.com/?pxperl].  There are plans to provide binaries
+for other platforms as well eventually.
 
 == How fast is Pugs?
 
