@@ -49,26 +49,6 @@ practical way of suggesting improvements to the standard version.
 ######################################################################
 ######################################################################
 
-class Locale::KeyedText-0.1.2 { # based on 5v1.05; to become 6v1.5.0 when fully functional
-	# could be a 'module' having 'sub' instead, since has no attributes
-
-######################################################################
-
-method new_message( Str $msg_key, Str ?%msg_vars ) returns Locale::KeyedText::Message {
-	return ::Locale::KeyedText::Message.new( $msg_key, %msg_vars ); # expect no leading '::'
-}
-
-method new_translator( Str @set_names, Str @member_names ) returns Locale::KeyedText::Translator {
-	return ::Locale::KeyedText::Translator.new( @set_names, @member_names ); # expect no leading '::'
-}
-
-######################################################################
-
-} # module Locale::KeyedText
-
-######################################################################
-######################################################################
-
 class Locale::KeyedText::Message {
 	trusts Locale::KeyedText::Translator;
 	has Str $:msg_key; # str - the machine-readable key that uniquely identifies this message
@@ -126,11 +106,11 @@ class Locale::KeyedText::Translator {
 
 method new( $class: Str @set_names, Str @member_names ) returns Locale::KeyedText::Translator {
 
-	+@{$set_names} > 0 or return;
+	+@set_names > 0 or return;
 	for @set_names -> $set_name {
 		$set_name.defined or return;
 	}
-	+@{$member_names} > 0 or return;
+	+@member_names > 0 or return;
 	for @member_names -> $member_name {
 		$member_name.defined or return;
 	}
@@ -194,6 +174,29 @@ method as_string( $translator: ) returns Str {
 ######################################################################
 
 } # class Locale::KeyedText::Translator
+
+######################################################################
+######################################################################
+
+class Locale::KeyedText-0.1.2 { # based on 5v1.05; to become 6v1.5.0 when fully functional
+	# could be a 'module' having 'sub' instead, since has no attributes
+
+	# I *should* be able to declare this class above other classes, but can't for 
+	# now because my new() aren't invoked then under current Pugs. 
+
+######################################################################
+
+method new_message( Str $msg_key, Str ?%msg_vars ) returns Locale::KeyedText::Message {
+	return Locale::KeyedText::Message.new( $msg_key, %msg_vars ); # expect no leading '::'
+}
+
+method new_translator( Str @set_names, Str @member_names ) returns Locale::KeyedText::Translator {
+	return Locale::KeyedText::Translator.new( @set_names, @member_names ); # expect no leading '::'
+}
+
+######################################################################
+
+} # module Locale::KeyedText
 
 ######################################################################
 ######################################################################
