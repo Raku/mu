@@ -31,8 +31,8 @@ The Pugs source tree includes several major sections:
     |-- debian       Packaging rules for dpkg-based systems
     |-- docs         Documentation relating to Pugs/Perl 6/Haskell
     |-- examples     Examples of Perl 6 usage; many work in Pugs today
-    |-- ext          Perl6 modules that work and get built with pugs
-    |-- inc          Perl5 modules needed to build/test/install pugs
+    |-- ext          Working Perl 6 modules that are built with pugs
+    |-- inc          Perl 5 modules needed to build/test/install pugs
     |-- lib          XXXX: overall concept?
     |-- modules      Perl 6 modules not working today; -> FreePAN
     |-- script       pugscc, the Pugs Compiler Compiler
