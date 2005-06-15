@@ -6,7 +6,7 @@
   <title>Pugs Apocryphon 1</title>
   <meta content="Autrijus Tang" name="author">
 </head>
-<body style="direction: ltr;">
+<body>
 <h1 style="text-align: left; line-height: normal;" align="left">
 Pugs
 Apocryphon 1<br>
@@ -130,8 +130,8 @@ vanilla svn is fine.)</p>
 How do I build Pugs?</h2>
 <p>
 Pugs uses the standard Makefile.PL build
-system, as detailed in the <a style="font-family: monospace;"
- href="http://svn.openfoundry.org/pugs/README">README</a>
+system, as detailed in the <a
+ href="http://svn.openfoundry.org/pugs/README"><code>README</code></a>
 file. Since Pugs is written in Haskell, you will need <a
  href="http://haskell.org/ghc/">Glasgow Haskell
 Compiler</a> (GHC) 6.4 or above.
@@ -187,18 +187,16 @@ According to the <a
  href="http://search.cpan.org/dist/parrot/docs/faq.pod#Isn%27t_there_a_bootstrapping_problem?">Parrot
 FAQ</a>, the initial plan was to
 bootstrap via Perl 5: First we extend Perl 5
-to run on the Parrot virtual machine (via <span
- style="font-family: monospace;">B::Parrot</span>
+to run on the Parrot virtual machine (via <code>B::Parrot</code>
 or <a href="http://www.poniecode.org/">Ponie</a>),
 and then implement the Perl 6
 compiler in Perl 5, which will be translated to Perl 6 via a p5-to-p6
 translator. However, although part of the Rule system was prototyped in
 Perl 5
-as <a style="font-family: monospace;"
- href="http://search.cpan.org/dist/Perl6-Rules/">Perl6::Rules</a>, it
-was not mature enough to build a
-compiler on. As such, the plan
-was revised to bootstrap via C instead.</p>
+as <a
+ href="http://search.cpan.org/dist/Perl6-Rules/"><code>Perl6::Rules</code></a>,
+it was not mature enough to build a compiler on. As such, the plan was revised
+to bootstrap via C instead.</p>
 <h2>
 What was the revised bootstrapping plan?</h2>
 <p>
@@ -260,9 +258,8 @@ the first working interpreter was released within the <a
  href="http://use.perl.org/%7Eautrijus/journal/23051">first
 week</a>, and by the <a
  href="http://use.perl.org/%7Eautrijus/journal/23335">third
-week</a> we have a
-full-fledged <a style="font-family: monospace;"
- href="http://svn.openfoundry.org/pugs/lib/Perl6/lib/Test.pm">Test.pm</a>
+week</a> we have a full-fledged <a
+ href="http://svn.openfoundry.org/pugs/lib/Perl6/lib/Test.pm"><code>Test.pm</code></a>
 module for unit testing.</p>
 <h2>
 Is Pugs a compiler or an interpreter?</h2>
@@ -281,8 +278,7 @@ mind?</h2>
 If implemented, the first compiler
 backend
 will likely generate Perl 6 code, similar to the <a
- style="font-family: monospace;"
- href="http://search.cpan.org/dist/perl/ext/B/B/Deparse.pm">B::Deparse</a>
+ href="http://search.cpan.org/dist/perl/ext/B/B/Deparse.pm"><code>B::Deparse</code></a>
 module. The next one may generate
 Haskell code, which can then be
 compiled to C by GHC. At that point, it may make sense to target the <a
@@ -351,8 +347,7 @@ test suites with your modules as well, so we can know when they work.
 </P>
 <P>
 However, all is not lost. If you are patient you can wait for 
-<span style="font-family: monospace;">Pugs::MakeMaker</span> and 
-<span style="font-family: monospace;">Module::Install::Pugs</span> to come out
+<code>Pugs::MakeMaker</code> and <code>Module::Install::Pugs</code> to come out
 on CPAN. Once they are available individually on CPAN, you can begin submitting
 things to CPAN, because that means we've figured out the distribution problem.
 Of course, suggestions are always welcome.
@@ -445,11 +440,10 @@ Functional Programming</a> and <a href="http://haskell.org/soe/">The
 Haskell School of
 Expression</a>
 are
-fine introductory materials. Finally, the <span
- style="font-family: monospace;">#haskell</span>
-channel on
-<a href="http://freenode.net">freenode</a> is full of helpful and
-interesting people.</p>
+fine introductory materials. Finally, the
+<a href="irc://irc.freenode.net/haskell"><code>#haskell</code> channel</a> on
+<a href="http://freenode.net/">irc.freenode.net</a> is full of helpful and
+ interesting people.</p>
 <h2>
 Where can I learn more about Perl 6?</h2>
 <p>
@@ -494,12 +488,10 @@ I do?</h2>
 First, subscribe to the <a
  href="http://nntp.perl.org/group/perl.perl6.compiler">perl6-compiler</a>
 mailing list by sending an empty mail to <a
- href="mailto:perl6-compiler-subscribe@perl.org">perl6-compiler-subscribe@perl.org</a>.
-Next, join the <span style="font-family: monospace;">#perl6</span>
-IRC channel on <a href="http://freenode.net/">irc.freenode.net</a>
-to find out what needs to be done. Commit access is handed out
-liberally;
-contact the Pugs team on <span style="font-family: monospace;">#perl6</span>
-for details. See you on IRC! <o:p></o:p></p>
+href="mailto:perl6-compiler-subscribe@perl.org">perl6-compiler-subscribe@perl.org</a>.
+Next, join the <a href="irc://irc.freenode.net/perl6"><code>#perl6</code>
+IRC channel</a> on <a href="http://freenode.net/">irc.freenode.net</a> to find out what needs to be done. Commit
+access is handed out liberally; contact the Pugs team on <code>#perl6</code>
+for details. See you on IRC!</p>
 </body>
 </html>
