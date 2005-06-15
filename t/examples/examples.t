@@ -16,7 +16,7 @@ my @examples = <
   functional/fp algorithms/hanoi algorithms/quicksort
   junctions/1 junctions/3 junctions/all-all junctions/all-any junctions/any-any
   junctions/any-any2 junctions/grades
-  vmethods/escape vmethods/bytes vmethods/time
+  vmethods/escape vmethods/bytes vmethods/time vmethods/math
 >;
 
 plan +@examples;

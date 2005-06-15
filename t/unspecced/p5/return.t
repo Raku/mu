@@ -14,6 +14,13 @@ BEGIN {
 
 use Digest::MD5--perl5;
 
+unless eval 'eval_perl5("1")' {
+    skip_rest;
+    exit;
+}
+
+use Digest::MD5--perl5;
+
 sub get_dmd5() {
     my $ctx = Digest::MD5.new;
     return($ctx);
