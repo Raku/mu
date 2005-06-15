@@ -101,6 +101,9 @@ sub evalhelper(Str $code) {
     "$progdir/evalhelper.p5";
   };
 
+  # Address a common user error
+  $code = 'sub say(*@a){die("Cant say() in evalbot")};' + $code;
+
   # Prevent possible abuse.
   return "Code to eval exceeds maximum length limit." if bytes $code > 500;
   return "No code to eval given."
