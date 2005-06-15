@@ -75,7 +75,7 @@ Expanding this one level deeper:
     |   |-- network            Networking clients, servers, bots, etc.
     |   |-- obfu               Obfuscated code and obfuscation techniques
     |   |-- output             Expected example outputs, for testing
-    |   |-- p6explain          XXXX: what is this?
+    |   |-- p6explain          Incomplete tool which explains Perl 6 constructs
     |   |-- perl5              Programs that use Perl 5 modules
     |   |-- poetry             Perl 6 poetry
     |   |-- ppt                Perl 6 Power Tools, ports of *nix userland
