@@ -217,6 +217,9 @@ instance LiteralClass Bool Expression where
     lit False = ExpLit $ LitInt 0
     lit True = ExpLit $ LitInt 1
 
+instance LiteralClass Double Expression where
+    lit = ExpLit . LitNum
+
 sub :: SubName -> [Sig] -> [Ins] -> Decl
 sub name sigs body = DeclSub name [] stmts
     where
