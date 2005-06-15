@@ -2,8 +2,7 @@
 
 module Emit.PIR where
 import Text.PrettyPrint
-import Pugs.Internals
-import Pugs.Pretty
+import Data.Char
 
 data RegType = RegInt | RegNum | RegStr | RegPMC
     deriving (Show, Eq)
@@ -23,6 +22,8 @@ type PkgName    = String
 data Identifier
     = VAR VarName
     | PMC Int
+    | STR Int
+    | LIT Literal
     deriving (Show, Eq)
 
 data Literal
@@ -78,13 +79,15 @@ instance Emit Ins where
     emit (InsLocal rtyp name) = emit ".local" <+> emit rtyp <+> emit name
     emit (InsNew ident otyp) = eqSep ident "new" [otyp]
     emit (InsAssign ident lit) = eqSep ident lit noArgs
+    emit (InsPrim (Just ret) name args) = eqSep ret name args
+    emit (InsPrim Nothing name args) = emit name <+> commaSep args
     emit (InsFun rets name args) = vcat
-        [ eqSep (PMC 0) "find_name" [LitStr name]
+        [ eqSep (PMC 10) "find_name" [LitStr name]
         , emit "set_args" <+> sig <> comma <+> commaSep args
-        , emit "invokecc" <+> emit (PMC 0)
+        , emit "invokecc" <+> emit (PMC 10)
         ]
         where
-        sig = quotes $ parens (commaSep (replicate (length args) "0"))
+        sig = quotes $ parens (commaSep (replicate (length args) "0b1000"))
     emit x = error $ "can't emit: " ++ show x
 
 noArgs :: [Identifier]
@@ -98,9 +101,16 @@ instance Emit ObjType where
 instance Emit Identifier where
     emit (VAR name) = emit name
     emit (PMC num) = emit "$P" <> emit num
+    emit (STR str) = emit "$S" <> emit str
+    emit (LIT lit) = emit lit
 
 instance Emit Literal where
-    emit (LitStr str) = text . show $ encodeUTF8 (concatMap quoted str)
+    emit (LitStr str) = text . show $ concatMap quoted str
+        where
+        quoted :: Char -> String
+        quoted '\'' = "\\'"
+        quoted '\\' = "\\\\"
+        quoted x = [x]
 
 instance Emit Int where
     emit = int
@@ -133,49 +143,62 @@ data Decl
     | DeclNS    PkgName
     deriving (Show, Eq)
 
-{-
-.sub main @MAIN
-    .local pmc s__k
+infixl 4 <--
+infixl 4 .-
+infixl 4 <-&
+infixl 4 .&
 
-.end
-    Comment :: String -> PIR Stmt
-    Stmt    :: Maybe Label -> PIR Ins -> PIR Stmt
-    RegHard :: RegType -> Int -> PIR Var
-    RegTemp :: RegType -> Int -> PIR Var
-    Ident   :: Ident -> PIR Var
-    Lit     :: (ConstClass a) => a -> PIR Constant
-    Pragma  :: Pragma -> PIR Decl
-    Sub     :: Ident -> [PIR Parameter] -> [PIR Stmt] -> PIR Decl
-    Emit    :: [PIR PASM] -> PIR Decl
-    TypReg  :: RegType -> PIR Typ
-    TypPMC  :: Ident -> PIR Typ
-    PASM    :: [String] -> PIR PASM
-    Param   :: PIR Var -> PIR Parameter
-    Return  :: [PIR Var] -> PIR Stmt
-    Local   :: PIR Typ -> [Ident] -> PIR Stmt
-    Const   :: PIR Typ -> Ident -> PIR Constant -> PIR Stmt
-    NS      :: Ident -> [PIR Decl] -> PIR Decl
-    Goto    :: Ident -> PIR Stmt
-    Cond    :: Bool -> PIR Var -> Ident -> PIR Stmt
-    CondCmp :: Bool -> PIR Var -> RelOP -> PIR Var -> Ident -> PIR Stmt
--}
+namespace = DeclNS
+x <-- (name, args) = InsPrim (Just x) name args
+x <-& (name, args) = InsFun x name args
+(.-) = InsPrim Nothing
+(.&) = InsFun []
+
+
+p0 :: Identifier
+p0 = PMC 0
+
+s0 :: Identifier
+s0 = STR 0
+
+class LiteralClass x y | x -> y where
+    lit :: x -> y 
+
+instance LiteralClass String Identifier where
+    lit = LIT . LitStr
+
+sub :: SubName -> [Sig] -> [Ins] -> Decl
+sub name sigs body = DeclSub name [] stmts
+    where
+    param = "get_params" .- (flags:map sigIdent sigs)
+    stmts = map StmtIns (param:body)
+    flags = lit . render . parens . commaSep $ map sigFlags sigs
+
+instance Emit [SigFlag] where
+    emit [MkSigSlurpy] = emit "0b1000"
+    emit [] = emit "0b0"
+
+data Sig = MkSig
+    { sigFlags  :: [SigFlag]
+    , sigIdent  :: Identifier
+    }
+    deriving (Show, Eq)
+data SigFlag = MkSigSlurpy
+    deriving (Show, Eq)
+
+slurpy :: Identifier -> Sig
+slurpy = MkSig [MkSigSlurpy]
 
 preludePIR :: Doc
-preludePIR = vcat . map emit $
-    [ ".sub \"&print\""
-    , "    get_params '(0b1000)', $P0"
-    , "    $S0 = join '', $P0"
-    , "    print $S0"
-    , ".end"
-    , ""
-    , ".sub \"&say\""
-    , "    get_params '(0b1000)', $P0"
-    , "    $P1 = find_name '&print'"
-    , "    set_args '(0b1000)', $P0"
-    , "    invokecc $P1"
-    , "    print \"\\n\""
-    , ".end"
-    , ""
-    , ".namespace ['main']"
-    , ""
+preludePIR = emit $
+    [ sub "&print" [slurpy p0]
+        [ s0 <-- ("join", [lit "", p0])
+        , "print" .- [s0]
+        ]
+    , sub "&say" [slurpy p0]
+        [ "&print" .& [p0]
+        , "print" .- [lit "\n"]
+        ]
+    , namespace "main"
     ]
+
