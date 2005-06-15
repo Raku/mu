@@ -179,6 +179,12 @@ week|http://use.perl.org/~autrijus/journal/23335] a fully-fledged
 `[Test.pm|http://svn.openfoundry.org/pugs/lib/Perl6/lib/Test.pm]` 
 module was available for unit testing.
 
+== What is the relationship between Pugs and Parrot?
+
+The plan is for Pugs to target Parrot AST. This is
+already possible; Pugs can target Parrot AST using an experimental Parrot
+backend, which is being improved steadily.
+
 == Is Pugs a compiler or an interpreter?
 
 Similar to Perl 5, Pugs first compiles Perl 6 program to an AST, then
