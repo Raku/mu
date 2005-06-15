@@ -340,6 +340,14 @@ preludePIR = emit $
         , rv <-- "assign" $ [arg0]
         , "dec" .- [arg0]
         ] --> [rv]
+    , sub "&prefix:-" [arg0]
+        [ InsNew rv PerlUndef
+        , rv <-- "neg" $ [arg0]
+        ] --> [rv]
+    , sub "&abs" [arg0]
+        [ InsNew rv PerlUndef
+        , rv <-- "abs" $ [arg0]
+        ] --> [rv]
     , sub "&nothing" [] []
     , namespace "bool"
     , sub "&true" []
