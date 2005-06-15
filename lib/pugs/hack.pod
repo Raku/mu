@@ -81,7 +81,8 @@ Expanding this one level deeper:
     |   |-- ppt                Perl 6 Power Tools, ports of *nix userland
     |   |-- qotw               Perl 6 solutions to plover's Quiz Of The Week
     |   |-- slurpy-list-parms  Use of Perl6 slurpy lists (XXXX: -> t/?)
-    |   `-- tutorial_gen       Tutorial generator (XXXX: huh?)
+    |   |-- tutorial_gen       Tutorial generator (XXXX: huh?)
+    |   `-- vmethods           Add virtual methods to existing types
     |
     |-- ext                Perl 6 modules that work and get built with pugs
     |   |-- Algorithm-TokenBucket  Token bucket rate limiting
