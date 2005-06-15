@@ -79,7 +79,9 @@ instance Emit Stmt where
     emit (StmtLine file line) = text "#line" <+> doubleQuotes (emit file) <+> emit line
     emit (StmtIns ins) = emit ins
     emit (StmtLabel name ins) = emit name <> colon $+$ emit ins
-    emit (StmtPad stmts) = emit "new_pad" <+> curPad
+    emit (StmtPad pad stmts) = vcat $
+        [ emit "new_pad" <+> curPad
+        ] ++ map (\(var, exp) -> emit ("store_lex" .- [lit (-1 :: Int), lit var, exp])) pad
 
 instance Emit RegType where
     emit = emit . map toLower . drop 3 . show
@@ -87,7 +89,7 @@ instance Emit RegType where
 instance Emit Ins where
     emit (InsLocal rtyp name) = emit ".local" <+> emit rtyp <+> emit name
     emit (InsNew ident otyp) = eqSep ident "new" [otyp]
-    emit (InsAssign ident lit) = eqSep ident lit noArgs
+    emit (InsAssign ident lit) = eqSep ident "assign" [lit]
     emit (InsPrim (Just ret) name args) = eqSep ret name args
     emit (InsPrim Nothing name args) = emit name <+> commaSep args
     emit (InsFun rets (ExpLit (LitStr name)) args) = emitRets rets
@@ -95,6 +97,7 @@ instance Emit Ins where
     emit (InsFun rets fun args) = emitRets rets
         $+$ emitFun "invokecc" fun args
     emit (InsTailFun (ExpLit (LitStr name)) args) = emitFunName "tailcall" name args
+    emit (InsExp exp) = empty
     emit x = error $ "can't emit ins: " ++ show x
 
 instance Emit Doc where
@@ -111,8 +114,8 @@ emitFun callconv fun args = vcat
     sig = quotes $ parens (commaSep (replicate (length args) "0b10010"))
 
 emitFunName :: (Emit a, Emit b) => a -> String -> [b] -> Doc
-emitFunName callconv name args = eqSep (PMC 9) "find_name" [LitStr name]
-    $+$ emitFun callconv (PMC 9) args
+emitFunName callconv name args = eqSep (funPMC :: LValue) "find_name" [LitStr name]
+    $+$ emitFun callconv (funPMC :: LValue) args
 
 noArgs :: [Expression]
 noArgs = []
@@ -150,18 +153,18 @@ data Stmt
     | StmtLine      FilePath Int
     | StmtIns       Ins
     | StmtLabel     LabelName Ins
-    | StmtPad       [Stmt]
+    | StmtPad       [(VarName, Expression)] [Stmt]
     deriving (Show, Eq)
 
 data Ins
     = InsLocal      RegType VarName
     | InsNew        LValue ObjType 
     | InsBind       LValue Expression
-    | InsAssign     LValue Literal
+    | InsAssign     LValue Expression
+    | InsExp        Expression
     | InsFun        [Sig] Expression [Expression]
     | InsTailFun    Expression [Expression]
     | InsPrim       (Maybe LValue) PrimName [Expression]
-    | InsStoreLex   VarName Expression
     deriving (Show, Eq)
 
 data SubType = SubMAIN | SubLOAD | SubANON | SubMETHOD | SubMULTI [ObjType]
@@ -186,17 +189,20 @@ namespace = DeclNS
 (<-&) = InsFun
 (.&)  = InsFun [] . lit
 
-p0 :: (RegClass a) => a
-p0 = reg $ PMC 0
+nullPMC :: (RegClass a) => a
+nullPMC = reg $ PMC 0
 
-p9 :: (RegClass a) => a
-p9 = reg $ PMC 9
+funPMC :: (RegClass a) => a
+funPMC = reg $ PMC 8
 
-s0 :: (RegClass a) => a
-s0 = reg $ STR 0
+tempPMC :: (RegClass a) => a
+tempPMC = reg $ PMC 9
 
-i0 :: (RegClass a) => a
-i0 = reg $ INT 0
+tempSTR :: (RegClass a) => a
+tempSTR = reg $ STR 9
+
+tempINT :: (RegClass a) => a
+tempINT = reg $ INT 9
 
 class RegClass y where
     reg :: LValue -> y
@@ -210,8 +216,14 @@ instance RegClass Expression where
 class LiteralClass x y | x -> y where
     lit :: x -> y 
 
+instance LiteralClass Doc Expression where
+    lit = ExpLit . LitStr . render
+
 instance LiteralClass String Expression where
     lit = ExpLit . LitStr
+
+instance LiteralClass Int Expression where
+    lit = ExpLit . LitInt . toInteger
 
 instance LiteralClass Bool Expression where
     lit False = ExpLit $ LitInt 0
@@ -221,6 +233,7 @@ instance LiteralClass Double Expression where
     lit = ExpLit . LitNum
 
 sub :: SubName -> [Sig] -> [Ins] -> Decl
+sub name [] body = DeclSub name [] (map StmtIns body)
 sub name sigs body = DeclSub name [] stmts
     where
     param = "get_params" .- sigList sigs
@@ -255,19 +268,20 @@ _ --> _ = error "Can't return from non-sub"
 
 preludePIR :: Doc
 preludePIR = emit $
-    [ sub "&print" [slurpy p0]
-        [ s0 <-- "join" $ [lit "", p0]
-        , "print" .- [s0]
+    [ sub "&print" [slurpy tempPMC]
+        [ tempSTR <-- "join" $ [lit "", tempPMC]
+        , "print" .- [tempSTR]
         ] --> [lit True]
-    , sub "&say" [slurpy p0]
-        [ "&print" .& [p0, lit "\n"]
+    , sub "&say" [slurpy tempPMC]
+        [ "&print" .& [tempPMC, lit "\n"]
         ]
-    , namespace "main"
     , sub "&nothing" []
+        [] --> []
+    , namespace "bool"
+    , sub "&true" []
         [] --> [lit True]
-    , sub "&bool::true" []
-        [] --> [lit True]
-    , sub "&bool::false" []
+    , sub "&false" []
         [] --> [lit False]
+    , namespace "main"
     ]
 

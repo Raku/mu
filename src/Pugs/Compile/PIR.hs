@@ -18,6 +18,9 @@ data PAST a where
     PPos        :: Pos -> PAST Stmt
     PStmt       :: PAST Expression -> PAST Stmt 
     PApp        :: PAST Expression -> [PAST Expression] -> PAST Expression
+    PAssign     :: [PAST LValue] -> PAST Expression -> PAST Expression
+    PBind       :: [PAST LValue] -> PAST Expression -> PAST Expression
+    PPad        :: [(VarName, PAST Expression)] -> PAST [Stmt] -> PAST [Stmt]
 
 instance Show (PAST a) where
     show (PVal x) = "(PVal " ++ show x ++ ")"
@@ -30,7 +33,9 @@ instance Show (PAST a) where
     show (PApp x y) = "(PApp " ++ show x ++ " " ++ show y ++ ")"
     show (PExp x) = "(PExp " ++ show x ++ ")"
     show (PStmt x) = "(PStmt " ++ show x ++ ")"
-
+    show (PAssign x y) = "(PAssign " ++ show x ++ " " ++ show y ++ ")"
+    show (PBind x y) = "(PBind " ++ show x ++ " " ++ show y ++ ")"
+    show (PPad x y) = "(PPad " ++ show x ++ " " ++ show y ++ ")"
 
 data TEnv = MkTEnv
     { tDepth    :: Int
@@ -50,13 +55,17 @@ class Translate x y | x -> y where
     trans :: x -> Trans y
     trans _ = fail "Untranslatable construct!"
 
+instance Compile [(TVar Bool, TVar VRef)] Expression where
+    compile _ = return (PLit $ PVal undef)
+
 instance Compile Exp [Stmt] where
+    compile (Stmts (Pad SMy pad exp) rest) = do
+        expC    <- compile $ mergeStmts exp rest
+        padC    <- mapM (compile . snd) (padToList pad)
+        return $ PPad ((map fst (padToList pad)) `zip` padC) expC
     compile (Stmts first rest) = do
         firstC  <- compile first
-        restC   <- case rest of
-            Stmts _ _   -> compile rest
-            Noop        -> return PNil
-            _           -> compile (Stmts rest Noop)
+        restC   <- compileRest rest
         return $ PStmts firstC restC
     compile exp = do
         liftIO $ do
@@ -64,6 +73,11 @@ instance Compile Exp [Stmt] where
             putStr "    "
             putStrLn $ show exp
         return PNil
+
+compileRest rest = case rest of
+    Stmts _ _   -> compile rest
+    Noop        -> return PNil
+    _           -> compile (Stmts rest Noop)
 
 instance Compile Exp Stmt where
     compile Noop = do
@@ -78,6 +92,10 @@ instance Compile Exp Stmt where
     compile exp = fmap PStmt $ compile exp
     -- compile exp = error ("invalid stmt: " ++ show exp)
 
+instance Compile Exp LValue where
+    compile (Var name) = return $ PVar name
+    compile exp = error ("invalid lv: " ++ show exp)
+
 instance Compile Exp Expression where
     compile (Var name) = return . PExp $ PVar name
     compile (Val val) = fmap PLit (compile val)
@@ -87,6 +105,11 @@ instance Compile Exp Expression where
         funC    <- compile fun
         argsC   <- mapM compile args
         return $ PApp funC argsC
+    compile Noop = compile (Val undef)
+    compile (Syn "=" [lhs, rhs]) = do
+        lhsC    <- compile lhs
+        rhsC    <- compile rhs
+        return $ PAssign [lhsC] rhsC
     compile exp = error ("invalid exp: " ++ show exp)
 
 instance Compile Val Literal where
@@ -102,21 +125,37 @@ instance Translate (PAST a) a where
     trans (PPos pos) = do
         tell [StmtLine (posName pos) (posBeginLine pos)]
         trans PNoop
+    trans (PLit (PVal VUndef)) = do
+        pmc     <- genLV
+        return (ExpLV pmc)
     trans (PLit lit) = do
         -- generate fresh supply and things...
         litC    <- trans lit
         pmc     <- genLV
-        tellIns $ InsAssign pmc litC
+        tellIns $ InsAssign pmc (ExpLit litC)
         return (ExpLV pmc)
     trans (PVal (VStr str)) = return $ LitStr str
     trans (PVal (VInt int)) = return $ LitInt int
     trans (PVal (VNum num)) = return $ LitNum num
     trans (PVal (VRat rat)) = return $ LitNum (ratToNum rat)
-    trans (PVal val) = transError "Unknown val" val
-    trans (PVar var) = error "Unknown var"
+    trans (PVal val) = do
+        transError "Unknown val" val
+    trans (PVar name) = do
+        pmc     <- genLV
+        tellIns $ pmc <-- "find_name" $ [lit name]
+        return pmc
     trans (PStmt (PApp (PExp (PVar name)) args)) = do
         argsC   <- mapM trans args
         return $ StmtIns $ InsFun [] (lit name) argsC
+    trans (PStmt (PLit (PVal VUndef))) = return $ StmtComment ""
+    trans (PStmt exp) = do
+        expC    <- trans exp
+        return $ StmtIns $ InsExp expC
+    trans (PAssign [lhs] rhs) = do
+        lhsC    <- trans lhs
+        rhsC    <- trans rhs
+        tellIns $ InsAssign lhsC rhsC
+        return (ExpLV lhsC)
     trans (PStmts this rest) = do
         thisC   <- trans this
         restC   <- trans rest
@@ -128,10 +167,12 @@ instance Translate (PAST a) a where
         pmc     <- genLV
         tellIns $ [slurpy $ ExpLV pmc] <-& funC $ argsC
         return (ExpLV pmc)
-    trans (PExp (PVar name)) = do
-        pmc     <- genLV
-        tellIns $ pmc <-- "find_name" $ [lit name]
-        return (ExpLV pmc)
+    trans (PPad pad exps) = do
+        valsC   <- mapM trans (map snd pad)
+        pass $ do
+            expsC   <- trans exps
+            return ([], (StmtPad (map fst pad `zip` valsC) expsC:))
+    trans (PExp exp) = fmap ExpLV $ trans exp
     trans x = transError "Unknown exp" x
 
 tellIns = tell . (:[]) . StmtIns
