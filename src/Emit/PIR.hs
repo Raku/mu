@@ -19,11 +19,15 @@ type VarName    = String
 type PrimName   = String
 type PkgName    = String
 
-data Identifier
+data LValue
     = VAR VarName
     | PMC Int
     | STR Int
-    | LIT Literal
+    deriving (Show, Eq)
+
+data Expression
+    = ExpLV LValue
+    | ExpLit Literal
     deriving (Show, Eq)
 
 data Literal
@@ -43,8 +47,12 @@ instance Emit Decl where
     emit (DeclNS name) = emit ".namespace" <+> brackets (quotes $ emit name)
     emit (DeclSub name styps stmts)
         =  (emit ".sub" <+> doubleQuotes (emit name) <+> commaSep styps)
-        $+$ nested stmts
+        $+$ nested (emitBody stmts)
         $+$ emit ".end"
+        where
+        emitBody [] = []
+        emitBody [(StmtIns (InsFun _ name args))] = [emit $ StmtIns (InsTailFun name args)]
+        emitBody (x:xs) = emit x : emitBody xs
 
 instance Emit SubType where
     emit = emit . ('@':) . drop 3 . show
@@ -81,16 +89,31 @@ instance Emit Ins where
     emit (InsAssign ident lit) = eqSep ident lit noArgs
     emit (InsPrim (Just ret) name args) = eqSep ret name args
     emit (InsPrim Nothing name args) = emit name <+> commaSep args
-    emit (InsFun rets name args) = vcat
-        [ eqSep (PMC 10) "find_name" [LitStr name]
-        , emit "set_args" <+> sig <> comma <+> commaSep args
-        , emit "invokecc" <+> emit (PMC 10)
-        ]
-        where
-        sig = quotes $ parens (commaSep (replicate (length args) "0b1000"))
-    emit x = error $ "can't emit: " ++ show x
+    emit (InsFun rets (ExpLit (LitStr name)) args) = emitRets rets
+        $+$ emitFunName "invokecc" name args
+    emit (InsFun rets fun args) = emitRets rets
+        $+$ emitFun "invokecc" fun args
+    emit (InsTailFun (ExpLit (LitStr name)) args) = emitFunName "tailcall" name args
+    emit x = error $ "can't emit ins: " ++ show x
 
-noArgs :: [Identifier]
+instance Emit Doc where
+    emit = id
+
+emitRets [] = empty
+emitRets rets = emit ("get_results" .- sigList rets)
+
+emitFun callconv fun args = vcat
+    [ emit "set_args" <+> commaSep (sig:map emit args)
+    , emit callconv <+> emit fun
+    ]
+    where
+    sig = quotes $ parens (commaSep (replicate (length args) "0b10010"))
+
+emitFunName :: (Emit a, Emit b) => a -> String -> [b] -> Doc
+emitFunName callconv name args = eqSep (PMC 9) "find_name" [LitStr name]
+    $+$ emitFun callconv (PMC 9) args
+
+noArgs :: [Expression]
 noArgs = []
 
 -- set_args '(0b0,0b0,0b0)', $P1, $P2, $P3
@@ -98,11 +121,14 @@ noArgs = []
 instance Emit ObjType where
     emit = emit . ('.':) . show
 
-instance Emit Identifier where
+instance Emit Expression where
+    emit (ExpLV lhs) = emit lhs
+    emit (ExpLit lit) = emit lit
+
+instance Emit LValue where
     emit (VAR name) = emit name
     emit (PMC num) = emit "$P" <> emit num
     emit (STR str) = emit "$S" <> emit str
-    emit (LIT lit) = emit lit
 
 instance Emit Literal where
     emit (LitStr str) = text . show $ concatMap quoted str
@@ -111,6 +137,8 @@ instance Emit Literal where
         quoted '\'' = "\\'"
         quoted '\\' = "\\\\"
         quoted x = [x]
+    emit (LitInt int) = integer int
+    emit (LitNum num) = double num
 
 instance Emit Int where
     emit = int
@@ -125,12 +153,13 @@ data Stmt
 
 data Ins
     = InsLocal      RegType VarName
-    | InsNew        Identifier ObjType 
-    | InsBind       Identifier Identifier
-    | InsAssign     Identifier Literal
-    | InsFun        [Identifier] PrimName [Identifier]
-    | InsPrim       (Maybe Identifier) PrimName [Identifier]
-    | InsStoreLex   VarName Identifier
+    | InsNew        LValue ObjType 
+    | InsBind       LValue Expression
+    | InsAssign     LValue Literal
+    | InsFun        [Sig] Expression [Expression]
+    | InsTailFun    Expression [Expression]
+    | InsPrim       (Maybe LValue) PrimName [Expression]
+    | InsStoreLex   VarName Expression
     deriving (Show, Eq)
 
 data SubType = SubMAIN | SubLOAD | SubANON | SubMETHOD | SubMULTI [ObjType]
@@ -144,60 +173,86 @@ data Decl
     deriving (Show, Eq)
 
 infixl 4 <--
+infixl 9 -->
 infixl 4 .-
 infixl 4 <-&
 infixl 4 .&
 
 namespace = DeclNS
-x <-- (name, args) = InsPrim (Just x) name args
-x <-& (name, args) = InsFun x name args
-(.-) = InsPrim Nothing
-(.&) = InsFun []
+(<--) = InsPrim . Just
+(.-)  = InsPrim Nothing
+(<-&) = InsFun
+(.&)  = InsFun [] . lit
 
+p0 :: (RegClass a) => a
+p0 = reg $ PMC 0
 
-p0 :: Identifier
-p0 = PMC 0
+p9 :: (RegClass a) => a
+p9 = reg $ PMC 9
 
-s0 :: Identifier
-s0 = STR 0
+s0 :: (RegClass a) => a
+s0 = reg $ STR 0
+
+class RegClass y where
+    reg :: LValue -> y
+
+instance RegClass LValue where
+    reg = id
+
+instance RegClass Expression where
+    reg = ExpLV
 
 class LiteralClass x y | x -> y where
     lit :: x -> y 
 
-instance LiteralClass String Identifier where
-    lit = LIT . LitStr
+instance LiteralClass String Expression where
+    lit = ExpLit . LitStr
+
+instance LiteralClass Bool Expression where
+    lit False = ExpLit $ LitInt 0
+    lit True = ExpLit $ LitInt 1
 
 sub :: SubName -> [Sig] -> [Ins] -> Decl
 sub name sigs body = DeclSub name [] stmts
     where
-    param = "get_params" .- (flags:map sigIdent sigs)
+    param = "get_params" .- sigList sigs
     stmts = map StmtIns (param:body)
+
+sigList sigs = (flags:map sigIdent sigs)
+    where
     flags = lit . render . parens . commaSep $ map sigFlags sigs
 
 instance Emit [SigFlag] where
-    emit [MkSigSlurpy] = emit "0b1000"
+    emit [MkSigSlurpy] = emit "0b1010"
     emit [] = emit "0b0"
+    emit _ = error "Unknown sig"
 
 data Sig = MkSig
     { sigFlags  :: [SigFlag]
-    , sigIdent  :: Identifier
+    , sigIdent  :: Expression
     }
     deriving (Show, Eq)
 data SigFlag = MkSigSlurpy
     deriving (Show, Eq)
 
-slurpy :: Identifier -> Sig
+slurpy :: Expression -> Sig
 slurpy = MkSig [MkSigSlurpy]
+
+(-->) :: Decl -> [Expression] -> Decl
+(DeclSub name styps stmts) --> rets = DeclSub name styps $ stmts ++ map StmtIns
+    [ "set_returns" .- [lit "(0)", lit True]
+    , "returncc" .- []
+    ]
+_ --> _ = error "Can't return from non-sub"
 
 preludePIR :: Doc
 preludePIR = emit $
     [ sub "&print" [slurpy p0]
-        [ s0 <-- ("join", [lit "", p0])
+        [ s0 <-- "join" $ [lit "", p0]
         , "print" .- [s0]
-        ]
+        ] --> [lit True]
     , sub "&say" [slurpy p0]
-        [ "&print" .& [p0]
-        , "print" .- [lit "\n"]
+        [ "&print" .& [p0, lit "\n"]
         ]
     , namespace "main"
     ]
