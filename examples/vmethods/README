@@ -8,7 +8,7 @@ Just for getting the idea:
 bytes.p6
 
     5.bytes                   == 5
-    1.megabyte                == 1024
+    1.megabyte                == 1048576
     etc.
     
 time.p6
