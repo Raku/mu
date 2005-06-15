@@ -23,6 +23,7 @@ data LValue
     = VAR VarName
     | PMC Int
     | STR Int
+    | INT Int
     deriving (Show, Eq)
 
 data Expression
@@ -129,6 +130,7 @@ instance Emit LValue where
     emit (VAR name) = emit name
     emit (PMC num) = emit "$P" <> emit num
     emit (STR str) = emit "$S" <> emit str
+    emit (INT str) = emit "$I" <> emit str
 
 instance Emit Literal where
     emit (LitStr str) = text . show $ concatMap quoted str
@@ -192,6 +194,9 @@ p9 = reg $ PMC 9
 
 s0 :: (RegClass a) => a
 s0 = reg $ STR 0
+
+i0 :: (RegClass a) => a
+i0 = reg $ INT 0
 
 class RegClass y where
     reg :: LValue -> y
