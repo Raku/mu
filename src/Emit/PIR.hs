@@ -255,5 +255,11 @@ preludePIR = emit $
         [ "&print" .& [p0, lit "\n"]
         ]
     , namespace "main"
+    , sub "&nothing" []
+        [] --> [lit True]
+    , sub "&bool::true" []
+        [] --> [lit True]
+    , sub "&bool::false" []
+        [] --> [lit False]
     ]
 
