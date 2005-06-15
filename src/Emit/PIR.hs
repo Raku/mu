@@ -177,6 +177,13 @@ data Decl
     | DeclNS    PkgName
     deriving (Show, Eq)
 
+{-|
+  <-- is calling an opcode, that returns a value.
+  .-  is calling an opcode, with any return value ignored.
+  <-& is calling a user-defined function, that returns a list of values.
+ .&   is calling a user-defined function, with any return value ignored.
+ -->  is returning from a sub.
+-}
 infixl 4 <--
 infixl 9 -->
 infixl 4 .-
