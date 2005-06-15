@@ -186,16 +186,11 @@ executes it using the built-in evaluator. However, in the future Pugs
 may also provide a compiler interface that supports different compiler
 backends.
 
-== Which compiler backends do you have in mind?
+== Which compiler backends are available?  Will more be added?
 
-If implemented, the first compiler backend will likely generate Perl 6
-code, similar to the
-`[B::Deparse|http://search.cpan.org/dist/perl/ext/B/B/Deparse.pm]`
-module. The next one may generate Haskell code, which can then be
-compiled to C by GHC. At that point, it may make sense to target the
-[Parrot AST|http://cvs.perl.org/viewcvs/cvs-public/parrot/ast/]
-interface. We can also add other backends (such as Perl 5 bytecode) if
-people are willing to work on them.
+Currently, there are three compiler backends available: Pugs, Parrot
+(experimental) and Haskell. More backends may be added if people can work on
+them (e.g. Perl 5 bytecode).
 
 == Do you have a roadmap for Pugs development?
 
