@@ -8,19 +8,19 @@ import Pugs.Pretty
 import Text.PrettyPrint
 
 data PAST a where
-    PVal        :: Val -> PAST Literal
-    PVar        :: VarName -> PAST LValue
-    PExp        :: PAST LValue -> PAST Expression 
-    PLit        :: PAST Literal -> PAST Expression
-    PStmts      :: PAST Stmt -> PAST [Stmt] -> PAST [Stmt]
+    PVal        :: !Val -> PAST Literal
+    PVar        :: !VarName -> PAST LValue
+    PExp        :: !(PAST LValue) -> PAST Expression 
+    PLit        :: !(PAST Literal) -> PAST Expression
+    PStmts      :: !(PAST Stmt) -> PAST [Stmt] -> PAST [Stmt]
     PNil        :: PAST [a]
     PNoop       :: PAST Stmt
-    PPos        :: Pos -> PAST Stmt
-    PStmt       :: PAST Expression -> PAST Stmt 
-    PApp        :: PAST Expression -> [PAST Expression] -> PAST Expression
-    PAssign     :: [PAST LValue] -> PAST Expression -> PAST Expression
-    PBind       :: [PAST LValue] -> PAST Expression -> PAST Expression
-    PPad        :: [(VarName, PAST Expression)] -> PAST [Stmt] -> PAST [Stmt]
+    PPos        :: !Pos -> PAST Stmt
+    PStmt       :: !(PAST Expression) -> PAST Stmt 
+    PApp        :: !(PAST Expression) -> ![PAST Expression] -> PAST Expression
+    PAssign     :: ![PAST LValue] -> !(PAST Expression) -> PAST Expression
+    PBind       :: ![PAST LValue] -> !(PAST Expression) -> PAST Expression
+    PPad        :: ![(VarName, PAST Expression)] -> !(PAST [Stmt]) -> PAST [Stmt]
 
 instance Show (PAST a) where
     show (PVal x) = "(PVal " ++ show x ++ ")"
@@ -65,7 +65,7 @@ instance Compile Exp [Stmt] where
         return $ PPad ((map fst (padToList pad)) `zip` padC) expC
     compile (Stmts first rest) = do
         firstC  <- compile first
-        restC   <- compileRest rest
+        restC   <- compileStmts rest
         return $ PStmts firstC restC
     compile exp = do
         liftIO $ do
@@ -74,10 +74,13 @@ instance Compile Exp [Stmt] where
             putStrLn $ show exp
         return PNil
 
-compileRest rest = case rest of
-    Stmts _ _   -> compile rest
+compileStmts exp = case exp of
+    Stmts this rest -> do
+        thisC   <- compile this
+        restC   <- compileStmts rest
+        return $ PStmts thisC restC
     Noop        -> return PNil
-    _           -> compile (Stmts rest Noop)
+    _           -> compile (Stmts exp Noop)
 
 instance Compile Exp Stmt where
     compile Noop = do
@@ -89,12 +92,20 @@ instance Compile Exp Stmt where
         compile val :: Comp (PAST Literal)
         warn "Literal value used in constant expression" val
         compile Noop
+    compile (Syn "loop" [exp]) =
+        compile (Syn "loop" $ [emptyExp, Val (VBool True), emptyExp, exp])
+    compile (Syn "loop" [pre, cond, post, body]) = do
+        preC  <- compile pre
+        -- bodyC <- compile body
+        -- postC <- compile post
+        -- condC <- compile cond
+        return $ PStmt preC
     compile exp = fmap PStmt $ compile exp
     -- compile exp = error ("invalid stmt: " ++ show exp)
 
 instance Compile Exp LValue where
     compile (Var name) = return $ PVar name
-    compile exp = error ("invalid lv: " ++ show exp)
+    compile exp = error ("Invalid LValue: " ++ show exp)
 
 instance Compile Exp Expression where
     compile (Var name) = return . PExp $ PVar name
@@ -158,8 +169,9 @@ instance Translate (PAST a) a where
         return (ExpLV lhsC)
     trans (PStmts this rest) = do
         thisC   <- trans this
+        tell [thisC]
         restC   <- trans rest
-        tell (thisC:restC)
+        tell restC
         return []
     trans (PApp fun args) = do
         funC    <- trans fun

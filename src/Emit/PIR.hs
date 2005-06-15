@@ -20,21 +20,21 @@ type PrimName   = String
 type PkgName    = String
 
 data LValue
-    = VAR VarName
-    | PMC Int
-    | STR Int
-    | INT Int
+    = VAR !VarName
+    | PMC !Int
+    | STR !Int
+    | INT !Int
     deriving (Show, Eq)
 
 data Expression
-    = ExpLV LValue
-    | ExpLit Literal
+    = ExpLV !LValue
+    | ExpLit !Literal
     deriving (Show, Eq)
 
 data Literal
-    = LitStr String
-    | LitInt Integer
-    | LitNum Double
+    = LitStr !String
+    | LitInt !Integer
+    | LitNum !Double
     deriving (Show, Eq)
 
 class (Show x) => Emit x where
@@ -149,22 +149,22 @@ instance Emit Int where
     emit = int
 
 data Stmt
-    = StmtComment   String
-    | StmtLine      FilePath Int
-    | StmtIns       Ins
-    | StmtLabel     LabelName Ins
-    | StmtPad       [(VarName, Expression)] [Stmt]
+    = StmtComment   !String
+    | StmtLine      !FilePath !Int
+    | StmtIns       !Ins
+    | StmtLabel     !LabelName !Ins
+    | StmtPad       ![(VarName, Expression)] ![Stmt]
     deriving (Show, Eq)
 
 data Ins
-    = InsLocal      RegType VarName
-    | InsNew        LValue ObjType 
-    | InsBind       LValue Expression
-    | InsAssign     LValue Expression
-    | InsExp        Expression
-    | InsFun        [Sig] Expression [Expression]
-    | InsTailFun    Expression [Expression]
-    | InsPrim       (Maybe LValue) PrimName [Expression]
+    = InsLocal      !RegType !VarName
+    | InsNew        !LValue !ObjType 
+    | InsBind       !LValue !Expression
+    | InsAssign     !LValue !Expression
+    | InsExp        !Expression
+    | InsFun        ![Sig] !Expression ![Expression]
+    | InsTailFun    !Expression ![Expression]
+    | InsPrim       !(Maybe LValue) !PrimName ![Expression]
     deriving (Show, Eq)
 
 data SubType = SubMAIN | SubLOAD | SubANON | SubMETHOD | SubMULTI [ObjType]
@@ -173,8 +173,8 @@ data SubType = SubMAIN | SubLOAD | SubANON | SubMETHOD | SubMULTI [ObjType]
 type PIR = [Decl]
 
 data Decl
-    = DeclSub   SubName [SubType] [Stmt]
-    | DeclNS    PkgName
+    = DeclSub   !SubName ![SubType] ![Stmt]
+    | DeclNS    !PkgName
     deriving (Show, Eq)
 
 {-|
@@ -200,7 +200,10 @@ nullPMC :: (RegClass a) => a
 nullPMC = reg $ PMC 0
 
 funPMC :: (RegClass a) => a
-funPMC = reg $ PMC 8
+funPMC = reg $ PMC 1
+
+outPMC :: (RegClass a) => a
+outPMC = reg $ PMC 8
 
 tempPMC :: (RegClass a) => a
 tempPMC = reg $ PMC 9
@@ -219,6 +222,9 @@ instance RegClass LValue where
 
 instance RegClass Expression where
     reg = ExpLV
+
+instance RegClass Sig where
+    reg = MkSig [] . ExpLV
 
 class LiteralClass x y | x -> y where
     lit :: x -> y 
@@ -251,7 +257,7 @@ sigList sigs = (flags:map sigIdent sigs)
     flags = lit . render . parens . commaSep $ map sigFlags sigs
 
 instance Emit [SigFlag] where
-    emit [MkSigSlurpy] = emit "0b1010"
+    emit [MkFlagSlurpy] = emit "0b1010"
     emit [] = emit "0b0"
     emit _ = error "Unknown sig"
 
@@ -260,17 +266,19 @@ data Sig = MkSig
     , sigIdent  :: Expression
     }
     deriving (Show, Eq)
-data SigFlag = MkSigSlurpy
+data SigFlag = MkFlagSlurpy
     deriving (Show, Eq)
 
 slurpy :: Expression -> Sig
-slurpy = MkSig [MkSigSlurpy]
+slurpy = MkSig [MkFlagSlurpy]
 
 (-->) :: Decl -> [Expression] -> Decl
 (DeclSub name styps stmts) --> rets = DeclSub name styps $ stmts ++ map StmtIns
-    [ "set_returns" .- [lit "(0)", lit True]
+    [ "set_returns" .- (lit sig : rets)
     , "returncc" .- []
     ]
+    where
+    sig = parens (commaSep (replicate (length rets) "0b10010"))
 _ --> _ = error "Can't return from non-sub"
 
 preludePIR :: Doc
@@ -280,10 +288,21 @@ preludePIR = emit $
         , "print" .- [tempSTR]
         ] --> [lit True]
     , sub "&say" [slurpy tempPMC]
-        [ "&print" .& [tempPMC, lit "\n"]
+        [ "push" .- [tempPMC, lit "\n"]
+        , "&print" .& [tempPMC]
         ]
-    , sub "&nothing" []
-        [] --> []
+    , sub "&pop" [tempPMC]
+        [ outPMC <-- "pop" $ [tempPMC]
+        ] --> [outPMC]
+    , sub "&prefix:++" [tempPMC]
+        [ "inc" .- [tempPMC]
+        ] --> [tempPMC]
+    , sub "&postfix:++" [tempPMC]
+        [ InsNew outPMC PerlUndef
+        , outPMC <-- "assign" $ [tempPMC]
+        , "inc" .- [tempPMC]
+        ] --> [outPMC]
+    , sub "&nothing" [] []
     , namespace "bool"
     , sub "&true" []
         [] --> [lit True]
