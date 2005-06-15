@@ -1,0 +1,23 @@
+
+These subroutines are examples for creating fake type methods.
+
+bytes.p6
+
+    5.bytes               == 5
+    1.megabyte            == 1024
+    etc.
+    
+time.p6
+
+    1.second              == 1
+    2.seconds             == 2
+    1.minute              == 60
+    10.minutes            == 600
+    1.hour                == 3600
+    etc.
+    
+    10.minutes.ago        == time()-600
+    10.minutes.from_now   == time()+600
+    10.minutes.until(x)   == x-600
+    10.minutes.since(x)   == x+600
+    
