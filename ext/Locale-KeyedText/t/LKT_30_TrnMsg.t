@@ -3,9 +3,7 @@ use v6;
 
 use Test;
 
-plan( 35 );
-skip_rest "skipping tests"; # for release
-exit;
+plan( 34 );
 
 use lib <t/lib ext/Locale-KeyedText/t/lib>;
 use t_LKT_Util;
@@ -35,10 +33,6 @@ pass( "trn1 = new_translator( [$AS],['Eng'] ) contains '"~$trn1.as_string()~"'" 
 
 $trn2 = Locale::KeyedText.new_translator( [$BS],['Eng'] );
 pass( "trn2 = new_translator( [$BS],['Eng'] ) contains '"~$trn2.as_string()~"'" );
-
-$did = t_LKT_Util::serialize( $trn1.translate_message() );
-$should = 'undef, ';
-is( $did, $should, "trn1.translate_message() returns '$did'" );
 
 $did = t_LKT_Util::serialize( $trn1.translate_message( 'foo' ) );
 $should = 'undef, ';

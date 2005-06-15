@@ -29,8 +29,8 @@ under the terms of the GNU Lesser General Public License (LGPL) as published by
 the Free Software Foundation (http://www.fsf.org/); either version 2.1 of the
 License, or (at your option) any later version.  You should have received a copy
 of the LGPL as part of the Locale::KeyedText distribution, in the file named
-"LGPL"; if not, write to the Free Software Foundation, Inc., 59 Temple Place,
-Suite 330, Boston, MA 02111-1307 USA.
+"LGPL"; if not, write to the Free Software Foundation, Inc., 51 Franklin St,
+Fifth Floor, Boston, MA  02110-1301, USA.
 
 Any versions of Locale::KeyedText that you modify and distribute must carry
 prominent notices stating that you changed the files and the date of any
@@ -78,14 +78,11 @@ class Locale::KeyedText::Message {
 
 method new( $class: Str $msg_key, Str ?%msg_vars ) returns Locale::KeyedText::Message {
 
-	$msg_key.defined and $msg_key ~~ rx:perl5/^\w+$/ or return;
-#	$msg_key.defined and $msg_key ~~ m/^\w+$/ or return;
-	for %msg_vars.keys -> $var_name {
-		$var_name ~~ rx:perl5/^\w+$/ or return; # hash key never undef (?)
-#		$var_name ~~ m/^\w+$/ or return; # hash key never undef (?)
-	}
+	$msg_key.defined or return;
+	# we are assuming that hash keys never undef, so aren't testing them
 
 	return $class.SUPER::new( msg_key => $msg_key, msg_vars => %msg_vars );
+		# todo: copy %msg_vars on input
 }
 
 ######################################################################
@@ -100,7 +97,8 @@ method get_message_variable( $message: Str $var_name ) returns Str {
 }
 
 method get_message_variables( $message: ) returns Hash of Str {
-	return {%{$message.:msg_vars}}; # copy list values
+	return $message.:msg_vars;
+		# todo: copy %msg_vars on output
 }
 
 ######################################################################
@@ -108,7 +106,7 @@ method get_message_variables( $message: ) returns Hash of Str {
 method as_string( $message: ) returns Str {
 	# This method is intended for debugging use only.
 	return $message.:msg_key~': '~$message.:msg_vars.pairs.sort
-		.map:{ .key~'='~(.value // '') }.join( ', ' ); # S02 says sorting Pairs sorts keys by default.
+		.map:{ .key~'='~(.value // '') }.join( ', ' ); # /S02 says sorting Pairs sorts keys by default.
 	# we expect that .map will be invoked off of the list that .sort returns
 	# I might use Hash.as() later, but don't know if it is customizable to sort or make undefs the empty str.
 }
@@ -128,26 +126,29 @@ class Locale::KeyedText::Translator {
 
 method new( $class: Str @set_names, Str @member_names ) returns Locale::KeyedText::Translator {
 
+	+@{$set_names} > 0 or return;
 	for @set_names -> $set_name {
-		$set_name.defined and $set_name ~~ rx:perl5/^[a-zA-Z0-9_:]+$/ or return;
-#		$set_name.defined and $set_name ~~ m/^<[a-zA-Z0-9_:]>+$/ or return;
+		$set_name.defined or return;
 	}
+	+@{$member_names} > 0 or return;
 	for @member_names -> $member_name {
-		$member_name.defined and $member_name ~~ rx:perl5/^[a-zA-Z0-9_:]+$/ or return;
-#		$member_name.defined and $member_name ~~ m/^<[a-zA-Z0-9_:]>+$/ or return;
+		$member_name.defined or return;
 	}
 
 	return $class.SUPER::new( tmpl_set_nms => @set_names, tmpl_mem_nms => @member_names );
+		 # todo: copy @set_names, @member_names on input
 }
 
 ######################################################################
 
 method get_template_set_names( $translator: ) returns Array of Str {
-	return [@{$translator.:tmpl_set_nms}]; # copy list values
+	return $translator.:tmpl_set_nms
+		 # todo: copy @set_names on output
 }
 
 method get_template_member_names( $translator: ) returns Array of Str {
-	return [@{$translator.:tmpl_mem_nms}]; # copy list values
+	return $translator.:tmpl_mem_nms
+		 # todo: copy @member_names on output
 }
 
 ######################################################################
@@ -173,8 +174,8 @@ method translate_message( $translator: Locale::KeyedText::Message $message ) ret
 #			$text or next SET;
 #			for $message.:msg_vars.kv -> $var_name, $var_value {
 #				$var_value //= '';
-#				$text ~~ rx:perl5:g/\{$var_name\}/$var_value/; # assumes msg props cleaned on input
-##				$text ~~ s:g/\{$var_name\}/$var_value/; # assumes msg props cleaned on input
+#				$text ~~ rx:perl5:g/\{$var_name\}/$var_value/;
+##				$text ~~ s:g/\{$var_name\}/$var_value/;
 #			}
 #			last MEMBER;
 #		}
@@ -430,9 +431,9 @@ value should be a scalar of some kind.
 
 =back
 
-Both a Message object's Message Key property and each of the keys in its
-Message Variables property must not be an empty string and may only contain
-Perl "word" (\w) characters.
+Both a Message object's Message Key property and each of the keys in its Message
+Variables property must be a defined value, though those values can be '' or
+'0' if you want.  Each Message Variables value is allowed to be undefined.
 
 =head1 TEMPLATE OBJECT PROPERTIES
 
@@ -479,7 +480,7 @@ that; and so on.
 
 I<For the present, Locale::KeyedText expects its Template objects to come from
 Perl modules, but in the future they may alternately be something else, such as
-XML files.>
+XML or tab-delimited plain text files.>
 
 =head1 TRANSLATOR OBJECT PROPERTIES
 
@@ -514,10 +515,9 @@ in found in the most preferred language is used.
 
 =back
 
-Each of a Translator object's Template Sets and Template Members property
-elements must not be an empty string and may only contain characters that are
-valid in a Perl package name; the code presently disallows any characters that
-are not in [a-zA-Z0-9_:].
+Each of a Translator object's Template Sets and Template Members properties must
+contain 1 or more elements each, and each element must be a defined value,
+though those values can be '' or '0' if you want.
 
 =head1 SYNTAX
 
@@ -885,13 +885,6 @@ Content of alternate text Template file 'MyApp/L/Homer.pm':
 		'MYLIB_MYINV_RES_INF' => 'Don\'t you give me a big donut!',
 	);
 	sub get_text_by_key( Str $msg_key ) returns Str { return %text_strings{$msg_key}; }
-
-=head1 BUGS
-
-I only have superficial memory recall of non-English languages.  I made the
-French language example in the SYNOPSIS by manually translating the English one
-with a printed on paper English to French dictionary; it probably contains
-multiple grammatical errors (not that the English was well-formed either).
 
 =head1 CAVEATS
 
