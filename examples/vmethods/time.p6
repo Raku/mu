@@ -1,5 +1,8 @@
 #!/usr/bin/pugs
 #
+# Please remember to update examples/output/vmethods/time if you change this
+# file so its output will change.
+#
 # based on Ruby's ActiveSupport 1.0.4
 #
 

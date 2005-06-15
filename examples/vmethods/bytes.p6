@@ -1,6 +1,9 @@
 #!/usr/bin/pugs
 #
-# based on Ruby's ActiveSupport 1.0.4
+# Please remember to update examples/output/vmethods/bytes if you change this
+# file so its output will change.
+#
+# originally based on Ruby's ActiveSupport 1.0.4
 #
 
 use v6;
