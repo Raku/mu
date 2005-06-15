@@ -1,6 +1,6 @@
 =head1 NAME
 
-pugs::run - How to execute Pugs
+pugs::run - How to run Pugs
 
 =head1 SYNOPSYS
 
@@ -17,8 +17,8 @@ B<pugs> S<[ B<-h> ]> S<[ B<-v> ]>
 
 The normal way to run a Perl program is by making it directly executable, or
 else by passing the name of the source file as an argument on the command line.
-An interactive Pugs environment is also available, by starting B<pugs> with no
-program source.  Upon startup, Pugs looks for your program in one of the
+An interactive Pugs environment is also available when B<pugs> is started with 
+no program source.  Upon startup, Pugs looks for your program in one of the
 following places:
 
 WRITEME
@@ -89,23 +89,23 @@ causes Pugs to load C<I<module>> before executing your program:
 
 =item C<-h> or C<--help>
 
-outputs a short summary of the available command line options. No programs are
+displays a short summary of the available command line options. No programs are
 executed.
 
 =item C<-V>
 
-outputs the version of Pugs you're running and long configuration information.
+displays the version of Pugs you're running and long configuration information.
 
 =item C<-V:I<item>>
 
-outputs short configuration information for C<I<item>>.
+displays short configuration information for C<I<item>>.
 
     $ pugs -V:pugs_version
     pugs_versnum: 6.2.6
 
 =item C<-v> or C<--version>
 
-outputs the version of Pugs you're running.
+displays the version of Pugs you're running.
 
 =item C<-l>, C<-d>, and C<-w>
 
@@ -118,7 +118,7 @@ are ignored for compatibility with Perl 5.
 The Pugs runtime environment is affected by several environment variables.
 
 The build environment is likewise controlled by several environment variables;
-since Pugs is still in heavy development, they will be listed here as well.
+since Pugs is still in heavy development, they are listed here as well.
 
 =over
 
@@ -127,7 +127,7 @@ since Pugs is still in heavy development, they will be listed here as well.
 This does not affect C<pugs> itself at all. When building Pugs from source, the
 Perl 5 test system should be instructed to use your copy of Pugs. If you use
 C<make test> or C<make smoke>, you should not need to set this manually; but if
-you want to use C<prove>, set it to C<./pugs> (or C<pugs.exe> on Windows).
+you want to use C<prove>, set it to C<./pugs> (just C<pugs.exe> on Windows).
 
 =item C<PERL6LIB>
 
@@ -135,7 +135,7 @@ A list of directories in which to look for Perl library files before looking in
 the standard library and the current directory.  Any architecture-specific
 directories under the specified locations are automatically included if they
 exist.  If C<PERL6LIB> is not defined, C<PERLLIB> is used.
-Directories are separated (like in C<PATH>) by a colon on unixish platforms and
+Directories are separated (as in C<PATH>) by a colon on unixish platforms and
 by a semicolon on Windows (the proper path separator being given by the command
 C<pugs -V:path_sep>).
 
@@ -164,7 +164,7 @@ version of F<Prelude.pm> like this:
 =item C<PUGS_SAFEMODE>
 
 Pugs provides a global "safe mode" which makes many operations that are deemed
-"unsafe", i.e. operations which use IO, unavailable to a Perl program.
+"unsafe" -- e.g. operations which use IO -- unavailable to a Perl program.
 
     $ env PUGS_SAFEMODE=1 pugs -e 'say "I am unsafe"'
     *** No compatible subroutine found: "&say"
@@ -183,13 +183,13 @@ Smoke tests can take quite some time to complete. If you have a
 multiprocessor machine, you can set this to a small integer value, and
 F<util/yaml_harness.pl> will run that amount of tests in parallel.
 
-On a single-processor hyper-threading machine that is otherwise unused,
+On a single-processor, HyperThreaded machine that is otherwise unused,
 C<2> is a good value. On real multiprocessor machines, one more than the
 CPU count is suggested.
 
-Equivalent to running C<util/yaml_harness.pl -j I<number>> .
+This is equivalent to running C<< util/yaml_harness.pl -j I<number> >>.
 
-[Has no effect on Windows.]
+(Has no effect on Windows.)
 
 =back
 
