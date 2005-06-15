@@ -1,0 +1,2 @@
+This string should be quoted: &quot;\&lt;&gt;&amp;&#45;&quot;
+This string should be quoted: \"\\<>&-\"
