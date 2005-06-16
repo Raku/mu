@@ -18,6 +18,10 @@ multi sub is_factor_of (Int $self: Int $num) {
     $num % $self == 0;
 }
 
+multi sub is_divisible_by (Int $self: Int $num) {
+    $self % $num == 0;
+}
+
 multi sub is_prime(Int $value:) {
     ?none(2..sqrt($value)).is_factor_of($value);
 }
@@ -26,5 +30,7 @@ say "5 is " ~ (5.is_even ?? 'even' :: 'odd');
 say "8 is " ~ (8.is_odd  ?? 'odd' :: 'even');
 say "2 is" ~ (2.is_factor_of(10) ?? ' ' :: ' not ') ~ "factor of 10";
 say "3 is" ~ (3.is_factor_of(10) ?? ' ' :: ' not ') ~ "factor of 10";
+say "10 is" ~ (10.is_divisible_by(2) ?? ' ' :: ' not ') ~ "divisible by 2";
+say "10 is" ~ (10.is_divisible_by(3) ?? ' ' :: ' not ') ~ "divisible by 3";
 say "7 is" ~ (7.is_prime ?? ' '::' not ') ~ "a prime number";
 say "9 is" ~ (9.is_prime ?? ' '::' not ') ~ "a prime number";
