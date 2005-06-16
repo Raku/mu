@@ -52,17 +52,22 @@ practical way of suggesting improvements to the standard version.
 class Locale::KeyedText::Message {
 	trusts Locale::KeyedText::Translator;
 	has Str $:msg_key; # str - the machine-readable key that uniquely identifies this message
-	has Str %:msg_vars; # hash (str,str) - named variables for messages, if any, go here
+	has Hash $:msg_vars; # hash (str,str) - named variables for messages, if any, go here
 
 ######################################################################
 
-method new( $class: Str $msg_key, Str ?%msg_vars ) returns Locale::KeyedText::Message {
+method new( $class: Str $msg_key, Any ?$msg_vars ) returns Locale::KeyedText::Message {
 
 	$msg_key.defined or return;
+
+	my $msg_vars_copy = hash();
+	if( $msg_vars.defined ) {
+		$msg_vars.does(Hash) or return;
+		$msg_vars_copy = hash(%{$msg_vars});
+	}
 	# we are assuming that hash keys never undef, so aren't testing them
 
-	return $class.SUPER::new( msg_key => $msg_key, msg_vars => %msg_vars );
-		# todo: copy %msg_vars on input
+	return $class.SUPER::new( msg_key => $msg_key, msg_vars => $msg_vars_copy );
 }
 
 ######################################################################
@@ -73,12 +78,11 @@ method get_message_key( $message: ) returns Str {
 
 method get_message_variable( $message: Str $var_name ) returns Str {
 	$var_name.defined or return;
-	return $message.:msg_vars{$var_name};
+	return $message.:msg_vars{$var_name}; # Pugs bug: simply reading a hash key will create it
 }
 
 method get_message_variables( $message: ) returns Hash of Str {
-	return $message.:msg_vars;
-		# todo: copy %msg_vars on output
+	return hash(%{$message.:msg_vars});
 }
 
 ######################################################################
@@ -86,7 +90,10 @@ method get_message_variables( $message: ) returns Hash of Str {
 method as_string( $message: ) returns Str {
 	# This method is intended for debugging use only.
 	return $message.:msg_key~': '~$message.:msg_vars.pairs.sort
-		.map:{ .key~'='~(.value // '') }.join( ', ' ); # /S02 says sorting Pairs sorts keys by default.
+#		.map:{ .key~'='~(.value // '') }.join( ', ' ); # /S02 says sorting Pairs sorts keys by default.
+	# Pugs bug: pairs() on single-pair hashes become 2-elem list;
+	# this workaround will produce the wrong answer for those, but it won't crash the program
+		.map:{ $_.ref eq 'Pair::HashSlice' ?? .key~'='~(.value // '') :: $_ }.join( ', ' ); # /S02 says sorting Pairs sorts keys by default.
 	# we expect that .map will be invoked off of the list that .sort returns
 	# I might use Hash.as() later, but don't know if it is customizable to sort or make undefs the empty str.
 }
@@ -99,36 +106,36 @@ method as_string( $message: ) returns Str {
 ######################################################################
 
 class Locale::KeyedText::Translator {
-	has Str @:tmpl_set_nms; # array of str - list of Template module Set Names to search
-	has Str @:tmpl_mem_nms; # array of str - list of Template module Member Names to search
+	has Array $:tmpl_set_nms; # array of str - list of Template module Set Names to search
+	has Array $:tmpl_mem_nms; # array of str - list of Template module Member Names to search
 
 ######################################################################
 
-method new( $class: Str @set_names, Str @member_names ) returns Locale::KeyedText::Translator {
+method new( $class: Any $set_names, Any $member_names ) returns Locale::KeyedText::Translator {
 
-	+@set_names > 0 or return;
-	for @set_names -> $set_name {
+	my $set_names_copy = $set_names.does(Array) ?? [@{$set_names}] :: [$set_names];
+	+$set_names_copy > 0 or return;
+	for $set_names_copy -> $set_name {
 		$set_name.defined or return;
 	}
-	+@member_names > 0 or return;
-	for @member_names -> $member_name {
+
+	my $member_names_copy = $member_names.does(Array) ?? [@{$member_names}] :: [$member_names];
+	+$member_names_copy > 0 or return;
+	for $member_names_copy -> $member_name {
 		$member_name.defined or return;
 	}
 
-	return $class.SUPER::new( tmpl_set_nms => @set_names, tmpl_mem_nms => @member_names );
-		 # todo: copy @set_names, @member_names on input
+	return $class.SUPER::new( tmpl_set_nms => $set_names_copy, tmpl_mem_nms => $member_names_copy );
 }
 
 ######################################################################
 
 method get_template_set_names( $translator: ) returns Array of Str {
-	return $translator.:tmpl_set_nms
-		 # todo: copy @set_names on output
+	return [@{$translator.:tmpl_set_nms}];
 }
 
 method get_template_member_names( $translator: ) returns Array of Str {
-	return $translator.:tmpl_mem_nms
-		 # todo: copy @member_names on output
+	return [@{$translator.:tmpl_mem_nms}];
 }
 
 ######################################################################
@@ -182,16 +189,16 @@ class Locale::KeyedText-0.1.2 { # based on 5v1.05; to become 6v1.5.0 when fully 
 	# could be a 'module' having 'sub' instead, since has no attributes
 
 	# I *should* be able to declare this class above other classes, but can't for 
-	# now because my new() aren't invoked then under current Pugs. 
+	# now because my new() aren't invoked then under current Pugs; it is a Pugs bug.
 
 ######################################################################
 
-method new_message( Str $msg_key, Str ?%msg_vars ) returns Locale::KeyedText::Message {
-	return Locale::KeyedText::Message.new( $msg_key, %msg_vars ); # expect no leading '::'
+method new_message( Str $msg_key, Any ?$msg_vars ) returns Locale::KeyedText::Message {
+	return Locale::KeyedText::Message.new( $msg_key, $msg_vars );
 }
 
-method new_translator( Str @set_names, Str @member_names ) returns Locale::KeyedText::Translator {
-	return Locale::KeyedText::Translator.new( @set_names, @member_names ); # expect no leading '::'
+method new_translator( Any $set_names, Any $member_names ) returns Locale::KeyedText::Translator {
+	return Locale::KeyedText::Translator.new( $set_names, $member_names );
 }
 
 ######################################################################
