@@ -48,6 +48,7 @@ type SubName    = String
 type VarName    = String
 type PrimName   = String
 type PkgName    = String
+type CallConv   = String
 
 data LValue
     = VAR !VarName
@@ -138,9 +139,11 @@ instance Emit Ins where
 instance Emit Doc where
     emit = id
 
+emitRets :: [Sig] -> Doc
 emitRets [] = empty
 emitRets rets = emit ("get_results" .- sigList rets)
 
+emitFun :: (Emit b, Emit c) => CallConv -> b -> [c] -> Doc
 emitFun callconv fun args = vcat
     [ emit "set_args" <+> commaSep (sig:map emit args)
     , emit callconv <+> emit fun
@@ -148,7 +151,7 @@ emitFun callconv fun args = vcat
     where
     sig = quotes $ parens (commaSep (replicate (length args) "0b10010"))
 
-emitFunName :: (Emit a, Emit b) => a -> String -> [b] -> Doc
+emitFunName :: Emit b => CallConv -> String -> [b] -> Doc
 emitFunName callconv name args = eqSep (funPMC :: LValue) "find_name" [LitStr name]
     $+$ emitFun callconv (funPMC :: LValue) args
 
@@ -197,6 +200,12 @@ infixl 4 .-
 infixl 4 <-&
 infixl 4 .&
 #endif
+
+namespace :: PkgName -> Decl
+(<--) :: LValue -> PrimName -> [Expression] -> Ins
+(.-) :: PrimName -> [Expression] -> Ins
+(<-&) :: [Sig] -> Expression -> [Expression] -> Ins
+(.&) :: String -> [Expression] -> Ins
 
 namespace = DeclNS
 (<--) = InsPrim . Just
@@ -284,6 +293,7 @@ sub name sigs body = DeclSub name [] stmts
     param = "get_params" .- sigList sigs
     stmts = map StmtIns (param:body)
 
+sigList :: [Sig] -> [Expression]
 sigList sigs = (flags:map sigIdent sigs)
     where
     flags = lit . render . parens . commaSep $ map sigFlags sigs
@@ -315,11 +325,13 @@ slurpy = MkSig [MkFlagSlurpy]
 _ --> _ = error "Can't return from non-sub"
 #endif
 
+vop1 :: SubName -> PrimName -> Decl
 vop1 p6name opname =
     sub p6name [arg0] 
       [ InsNew rv PerlUndef
       , rv <-- opname $ [arg0]
       ] --> [rv]
+vop2 :: SubName -> PrimName -> Decl
 vop2 p6name opname =
     sub p6name [arg0, arg1] 
       [ InsNew rv PerlUndef
@@ -328,6 +340,7 @@ vop2 p6name opname =
 
 --We might abstract these two... but I punted on getting it to typecheck.
 -- vop1n p6name opname = vop1x p6name opname tempNUM tempNUM
+vop1i :: SubName -> PrimName -> Decl
 vop1i p6name opname =
     sub p6name [arg0] 
       [ InsNew rv PerlUndef
@@ -335,6 +348,7 @@ vop1i p6name opname =
       , tempINT <-- opname $ [tempINT]
       , rv <-- "assign" $ [tempINT]
       ] --> [rv]
+vop1n :: SubName -> PrimName -> Decl
 vop1n p6name opname =
     sub p6name [arg0] 
       [ InsNew rv PerlUndef
@@ -343,6 +357,7 @@ vop1n p6name opname =
       , rv <-- "assign" $ [tempNUM]
       ] --> [rv]
 
+vop2i :: SubName -> PrimName -> Decl
 vop2i p6name opname =
     sub p6name [arg0, arg1]
       [ InsNew rv PerlUndef
@@ -351,6 +366,7 @@ vop2i p6name opname =
       , tempINT <-- opname $ [tempINT, tempINT2]
       , rv <-- "assign" $ [tempINT]
       ] --> [rv]
+vop2n :: SubName -> PrimName -> Decl
 vop2n p6name opname =
     sub p6name [arg0, arg1]
       [ InsNew rv PerlUndef

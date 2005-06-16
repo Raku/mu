@@ -84,6 +84,7 @@ instance Compile Exp [Stmt] where
             putStrLn $ show exp
         return PNil
 
+compileStmts :: Exp -> Comp (PAST [Stmt])
 compileStmts exp = case exp of
     Stmts this rest -> do
         thisC   <- compile this
@@ -211,6 +212,7 @@ instance Translate (PAST a) a where
         return (ExpLV pmc)
     trans x = transError "Unknown exp" x
 
+tellIns :: Ins -> Trans ()
 tellIns = tell . (:[]) . StmtIns
 
 genLV :: (RegClass a) => Trans a
