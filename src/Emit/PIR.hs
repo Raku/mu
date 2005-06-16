@@ -30,6 +30,7 @@ data Ins
     | InsTailFun    !Expression ![Expression]
     | InsPrim       !(Maybe LValue) !PrimName ![Expression]
     | InsLabel      !LabelName !(Maybe Ins)
+    | InsComment    !String !(Maybe Ins)
     deriving (Show, Eq, Typeable)
 
 data SubType = SubMAIN | SubLOAD | SubANON | SubMETHOD | SubMULTI [ObjType]
@@ -62,7 +63,6 @@ data LValue
 data Expression
     = ExpLV !LValue
     | ExpLit !Literal
---  | ExpThunk !Expression
     deriving (Show, Eq, Typeable)
 
 data Literal
@@ -112,7 +112,7 @@ curPad = int (-1)
 
 instance Emit Stmt where
     emit (StmtComment []) = empty
-    emit (StmtComment str) = char '#' <+> emit str
+    emit (StmtComment str) = vcat [ emit "###" <+> emit line | line <- lines str ]
     emit (StmtLine file line) = text "#line" <+> doubleQuotes (emit file) <+> emit line
     emit (StmtIns ins) = emit ins
     emit (StmtPad pad stmts) = vcat $
@@ -136,6 +136,7 @@ instance Emit Ins where
     emit (InsTailFun (ExpLit (LitStr name)) args) = emitFunName "tailcall" name args
     emit (InsExp exp) = empty
     emit (InsLabel label ins) = emit label <> colon $+$ emit ins
+    emit (InsComment comment ins) = emit (StmtComment comment) $+$ emit ins
     emit x = error $ "can't emit ins: " ++ show x
 
 instance Emit (Maybe Ins) where

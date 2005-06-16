@@ -17,7 +17,7 @@ data PAST a where
     PStmts      :: !(PAST Stmt) -> PAST [Stmt] -> PAST [Stmt]
     PNil        :: PAST [a]
     PNoop       :: PAST Stmt
-    PPos        :: !Pos -> PAST Stmt
+    PPos        :: !Pos -> !Exp -> PAST a -> PAST a
     PStmt       :: !(PAST Expression) -> PAST Stmt 
     PApp        :: !(PAST Expression) -> ![PAST Expression] -> PAST Expression
     PAssign     :: ![PAST LValue] -> !(PAST Expression) -> PAST Expression
@@ -35,7 +35,7 @@ instance Show (PAST a) where
     show (PStmts x y) = "(PStmts " ++ show x ++ " " ++ show y ++ ")"
     show PNil = "PNil"
     show PNoop = "PNoop"
-    show (PPos x) = "(PPos " ++ show x ++ ")"
+    show (PPos x y z) = "(PPos " ++ show x ++ " " ++ show y ++ " " ++ show z ++ ")"
     show (PApp x y) = "(PApp " ++ show x ++ " " ++ show y ++ ")"
     show (PExp x) = "(PExp " ++ show x ++ ")"
     show (PStmt x) = "(PStmt " ++ show x ++ ")"
@@ -47,10 +47,11 @@ instance Show (PAST a) where
     show (PRawName x) = "(PRawName " ++ show x ++ ")"
 
 data TEnv = MkTEnv
-    { tDepth    :: Int
-    , tEnv      :: Env
-    , tReg      :: TVar Int
-    , tLabel    :: TVar Int
+    { tLexDepth :: !Int
+    , tTokDepth :: !Int
+    , tEnv      :: !Env
+    , tReg      :: !(TVar Int)
+    , tLabel    :: !(TVar Int)
     }
     deriving (Show, Eq)
 
@@ -72,6 +73,7 @@ instance Compile (String, [(TVar Bool, TVar VRef)]) Expression where
     compile (name, _) = return $ PRawName name
 
 instance Compile Exp [Stmt] where
+    compile (Pos pos rest) = fmap (PPos pos rest) $ compile rest
     compile (Stmts (Pad SMy pad exp) rest) = do
         expC    <- compile $ mergeStmts exp rest
         padC    <- mapM compile (padToList pad)
@@ -97,11 +99,8 @@ compileStmts exp = case exp of
     _           -> compile (Stmts exp Noop)
 
 instance Compile Exp Stmt where
-    compile Noop = do
-        pos <- asks envPos
-        return $ PPos pos
-    compile (Pos pos stmt) = do
-        local (\e -> e{ envPos = pos }) $ compile stmt
+    compile (Pos pos rest) = fmap (PPos pos rest) $ compile rest
+    compile Noop = return PNoop
     compile (Val val) = do
         compile val :: Comp (PAST Literal)
         warn "Literal value used in constant expression" val
@@ -121,14 +120,14 @@ instance Compile Exp Stmt where
     -- compile exp = error ("invalid stmt: " ++ show exp)
 
 instance Compile Exp LValue where
+    compile (Pos pos rest) = fmap (PPos pos rest) $ compile rest
     compile (Var name) = return $ PVar name
     compile exp = error ("Invalid LValue: " ++ show exp)
 
 instance Compile Exp Expression where
+    compile (Pos pos rest) = fmap (PPos pos rest) $ compile rest
     compile (Var name) = return . PExp $ PVar name
     compile (Val val) = fmap PLit (compile val)
-    compile (Pos pos exp) = do
-        local (\e -> e{ envPos = pos }) $ compile exp
     compile (App fun Nothing args) = do
         funC    <- compile fun
         argsC   <- mapM compile args
@@ -167,9 +166,13 @@ warn str val = liftIO $ do
 instance (Typeable a) => Translate (PAST a) a where
     trans PNil = return []
     trans PNoop = return (StmtComment "")
-    trans (PPos pos) = do
-        tell [StmtLine (posName pos) (posBeginLine pos)]
-        trans PNoop
+    trans (PPos pos exp rest) = do
+        -- tell [StmtLine (posName pos) (posBeginLine pos)]
+        dep <- asks tTokDepth
+        tell [StmtComment $ (replicate dep ' ') ++ "{{{ " ++ pretty exp]
+        x   <- local (\e -> e{ tTokDepth = dep + 1 }) $ trans rest
+        tell [StmtComment $ (replicate dep ' ') ++ "}}} " ++ pretty pos]
+        return x
     trans (PLit (PVal VUndef)) = do
         pmc     <- genLV
         return (ExpLV pmc)
@@ -286,7 +289,8 @@ genPIR' = do
     zero        <- liftSTM $ newTVar 100
     none        <- liftSTM $ newTVar 0
     let initEnv = MkTEnv
-            { tDepth    = 0
+            { tLexDepth = 0
+            , tTokDepth = 0
             , tEnv      = env
             , tReg      = zero
             , tLabel    = none
