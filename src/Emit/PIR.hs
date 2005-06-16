@@ -129,6 +129,7 @@ instance Emit Ins where
     emit (InsLocal rtyp name) = emit ".local" <+> emit rtyp <+> emit name
     emit (InsNew ident otyp) = eqSep ident "new" [otyp]
     emit (InsAssign ident lit) = eqSep ident "assign" [lit]
+    emit (InsBind ident lit) = eqSep ident "set" [lit]
     emit (InsPrim (Just ret) name args) = eqSep ret name args
     emit (InsPrim Nothing name args) = emit name <+> commaSep args
     emit (InsFun rets (ExpLit (LitStr name)) args) = emitRets rets
@@ -413,10 +414,21 @@ preludePIR = emit $
         ] --> [rv]
     , sub "&statement_control:if" [arg0, arg1, arg2]
         [ "interpinfo" .- [tempPMC, bare ".INTERPINFO_CURRENT_CONT"]
-        , "set_args" .- sigList [tempPMC]
+--      , "set_args" .- sigList [tempPMC] -- really should be this
         , "unless" .- [arg0, bare "sc_if_false"]
+-- HACK BEGINS {{{
+        , tempINT   <-- "get_addr" $ [arg1]
+        , InsBind tempSTR tempINT
+        , "store_global" .- [tempSTR, tempPMC]
+-- HACK ENDS }}}
         , "invoke" .- [arg1]
-        , InsLabel "sc_if_false" $ Just ("invoke" .- [arg2])
+-- HACK BEGINS {{{
+        , tempINT   <-- "get_addr" $ [arg2]
+        , InsBind tempSTR tempINT
+        , "store_global" .- [tempSTR, tempPMC]
+-- HACK ENDS }}}
+        , InsLabel "sc_if_false" Nothing
+        , "invoke" .- [arg2]
         ]
     , sub "&prefix:++" [arg0]
         [ "inc" .- [arg0]

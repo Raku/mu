@@ -10,22 +10,27 @@ import Text.PrettyPrint
 
 #ifndef HADDOCK
 data PAST a where
-    PVal        :: !Val -> PAST Literal
-    PVar        :: !VarName -> PAST LValue
-    PExp        :: !(PAST LValue) -> PAST Expression 
-    PLit        :: !(PAST Literal) -> PAST Expression
-    PStmts      :: !(PAST Stmt) -> PAST [Stmt] -> PAST [Stmt]
     PNil        :: PAST [a]
     PNoop       :: PAST Stmt
+
+    PRaw        :: !Exp -> PAST Stmt -- XXX HACK!
+    PRawName    :: !VarName -> PAST Expression -- XXX HACK!
+
+    PExp        :: !(PAST LValue) -> PAST Expression 
+    PLit        :: !(PAST Literal) -> PAST Expression
     PPos        :: !Pos -> !Exp -> PAST a -> PAST a
     PStmt       :: !(PAST Expression) -> PAST Stmt 
+    PThunk      :: !(PAST Expression) -> PAST Expression 
+    PBlock      :: !(PAST Expression) -> PAST Expression 
+
+    PVal        :: !Val -> PAST Literal
+    PVar        :: !VarName -> PAST LValue
+
+    PStmts      :: !(PAST Stmt) -> PAST [Stmt] -> PAST [Stmt]
     PApp        :: !(PAST Expression) -> ![PAST Expression] -> PAST LValue
     PAssign     :: ![PAST LValue] -> !(PAST Expression) -> PAST Expression
     PBind       :: ![PAST LValue] -> !(PAST Expression) -> PAST Expression
     PPad        :: ![(VarName, PAST Expression)] -> !(PAST [Stmt]) -> PAST [Stmt]
-    PThunk      :: !(PAST Expression) -> PAST Expression 
-    PRaw        :: !Exp -> PAST Stmt -- XXX HACK!
-    PRawName    :: !VarName -> PAST Expression -- XXX HACK!
 #endif
 
 instance Show (PAST a) where
@@ -43,6 +48,7 @@ instance Show (PAST a) where
     show (PBind x y) = "(PBind " ++ show x ++ " " ++ show y ++ ")"
     show (PPad x y) = "(PPad " ++ show x ++ " " ++ show y ++ ")"
     show (PThunk x) = "(PThunk " ++ show x ++ ")"
+    show (PBlock x) = "(PBlock " ++ show x ++ ")"
     show (PRaw x) = "(PRaw " ++ show x ++ ")"
     show (PRawName x) = "(PRawName " ++ show x ++ ")"
 
@@ -107,15 +113,12 @@ instance Compile Exp Stmt where
         compile Noop
     compile (Syn "loop" [exp]) =
         compile (Syn "loop" $ [emptyExp, Val (VBool True), emptyExp, exp])
-{-
     compile (Syn "loop" [pre, cond, post, body]) = do
         preC  <- compile pre
         -- bodyC <- compile body
         -- postC <- compile post
         -- condC <- compile cond
         return $ PStmt preC
--}
-    compile exp@(Syn "loop" _) = return $ PRaw exp
     compile exp = fmap PStmt $ compile exp
     -- compile exp = error ("invalid stmt: " ++ show exp)
 
@@ -224,23 +227,37 @@ instance (Typeable a) => Translate (PAST a) a where
             expsC   <- trans exps
             return ([], (StmtPad (map fst pad `zip` valsC) expsC:))
     trans (PExp exp) = fmap ExpLV $ trans exp
-    trans (PThunk exp) = do
-        [begC, sndC, retC, endC] <- genLabel ["thunkBegin", "thunkAgain", "thunkReturn", "thunkEnd"]
-        thunk   <- genPMC
-        tellIns $ "newsub" .- [reg thunk, bare ".Continuation", bare begC]
+    trans (PBlock exp) = do
+        [begC, endC] <- genLabel ["blockBegin", "closureEnd"]
+        this    <- genPMC
+        tellIns $ "newsub" .- [reg this, bare ".Continuation", bare begC]
         tellIns $ "goto" .- [bare endC]
         tellIns $ InsLabel begC Nothing
         cc      <- genPMC
-        tellIns $ "get_params" .- sigList [reg cc]
+--      tellIns $ "get_params" .- sigList [reg cc]
+        tellIns $ "find_global" .- [reg cc, lit "CC"]
         expC    <- trans exp
-        tellIns $ "set_addr" .- [reg thunk, bare sndC]
+        tellIns $ "invoke" .- [reg cc]
+        tellIns $ InsLabel endC Nothing
+        return (ExpLV this)
+    trans (PThunk exp) = do
+        [begC, sndC, retC, endC] <- genLabel ["thunkBegin", "thunkAgain", "thunkReturn", "thunkEnd"]
+        this    <- genPMC
+        tellIns $ "newsub" .- [reg this, bare ".Continuation", bare begC]
+        tellIns $ "goto" .- [bare endC]
+        tellIns $ InsLabel begC Nothing
+        cc      <- genPMC
+--      tellIns $ "get_params" .- sigList [reg cc]
+        fetchCC cc (reg this)
+        expC    <- trans exp
+        tellIns $ "set_addr" .- [reg this, bare sndC]
         tellIns $ "goto" .- [bare retC]
         tellIns $ InsLabel sndC Nothing
-        tellIns $ "get_params" .- sigList [reg cc]
+--      tellIns $ "get_params" .- sigList [reg cc]
         tellIns $ InsLabel retC . Just $ "set_returns" .- [lit "(0b10)", expC]
         tellIns $ "invoke" .- [reg cc]
         tellIns $ InsLabel endC Nothing
-        return (ExpLV thunk)
+        return (ExpLV this)
     -- XXX HACK!
     trans (PRaw exp) = do
         env <- asks tEnv
@@ -253,6 +270,12 @@ instance (Typeable a) => Translate (PAST a) a where
         pmc     <- genName name
         return (ExpLV pmc)
     trans x = transError x
+
+fetchCC cc begC = do
+    -- tellIns $ "find_global" .- [reg cc, lit "CC"]
+    tellIns $ tempINT   <-- "get_addr" $ [begC]
+    tellIns $ InsBind tempSTR tempINT
+    tellIns $ "find_global" .- [reg cc, tempSTR]
 
 tellIns :: Ins -> Trans ()
 tellIns = tell . (:[]) . StmtIns
