@@ -210,7 +210,8 @@ instance (Typeable a) => Translate (PAST a) a where
         funC    <- trans fun
         argsC   <- mapM trans args
         pmc     <- genLV
-        tellIns $ [slurpy $ ExpLV pmc] <-& funC $ argsC
+        -- XXX - probe if funC is slurpy, then modify ExpLV pmc accordingly
+        tellIns $ [reg pmc] <-& funC $ argsC
         return (ExpLV pmc)
     trans (PPad pad exps) = do
         valsC   <- mapM trans (map snd pad)
