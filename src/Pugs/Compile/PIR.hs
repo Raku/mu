@@ -23,6 +23,7 @@ data PAST a where
     PAssign     :: ![PAST LValue] -> !(PAST Expression) -> PAST Expression
     PBind       :: ![PAST LValue] -> !(PAST Expression) -> PAST Expression
     PPad        :: ![(VarName, PAST Expression)] -> !(PAST [Stmt]) -> PAST [Stmt]
+    PThunk      :: !(PAST Expression) -> PAST Expression 
     PRaw        :: !Exp -> PAST Stmt -- XXX HACK!
     PRawName    :: !VarName -> PAST Expression -- XXX HACK!
 #endif
@@ -41,6 +42,7 @@ instance Show (PAST a) where
     show (PAssign x y) = "(PAssign " ++ show x ++ " " ++ show y ++ ")"
     show (PBind x y) = "(PBind " ++ show x ++ " " ++ show y ++ ")"
     show (PPad x y) = "(PPad " ++ show x ++ " " ++ show y ++ ")"
+    show (PThunk x) = "(PThunk " ++ show x ++ ")"
     show (PRaw x) = "(PRaw " ++ show x ++ ")"
     show (PRawName x) = "(PRawName " ++ show x ++ ")"
 
@@ -48,18 +50,19 @@ data TEnv = MkTEnv
     { tDepth    :: Int
     , tEnv      :: Env
     , tReg      :: TVar Int
+    , tLabel    :: TVar Int
     }
     deriving (Show, Eq)
 
 type Comp a = Eval a
 type Trans a = WriterT [Stmt] (ReaderT TEnv IO) a
 
-class (Show x) => Compile x y where
-    compile :: x -> Comp (PAST y)
+class (Show a, Typeable b) => Compile a b where
+    compile :: a -> Comp (PAST b)
     compile x = fail ("Unrecognized construct: " ++ show x)
 
-class Translate x y | x -> y where
-    trans :: x -> Trans y
+class (Show a, Typeable b) => Translate a b | a -> b where
+    trans :: a -> Trans b
     trans _ = fail "Untranslatable construct!"
 
 instance Compile [(TVar Bool, TVar VRef)] Expression where
@@ -135,16 +138,33 @@ instance Compile Exp Expression where
         lhsC    <- compile lhs
         rhsC    <- compile rhs
         return $ PAssign [lhsC] rhsC
-    compile exp = error ("invalid exp: " ++ show exp)
+    compile (Syn "if" [cond, true, false]) = do
+        condC   <- compile cond :: Comp (PAST Expression)
+        trueC   <- compile true :: Comp (PAST Expression)
+        falseC  <- compile false :: Comp (PAST Expression)
+        funC    <- compile (Var "&statement_control:if")
+        return $ PApp funC [condC, PThunk trueC, PThunk falseC]
+    compile exp = compError exp
+
+compError :: forall a b. Compile a b => a -> Comp (PAST b)
+compError = die ("Compile error -- invalid " ++ show (typeOf (undefined :: b)))
+
+transError :: forall a b. Translate a b => a -> Trans b
+transError = die ("Translate error -- invalid " ++ show (typeOf (undefined :: b)))
 
 instance Compile Val Literal where
     compile val = return $ PVal val
 
+die :: (MonadIO m, Show a) => String -> a -> m b
+die x y = do
+    warn x y
+    liftIO $ exitFailure
+
 warn :: (MonadIO m, Show a) => String -> a -> m ()
 warn str val = liftIO $ do
-    hPutStrLn stderr $ "*** " ++ str ++ ": " ++ show val
+    hPutStrLn stderr $ "*** " ++ str ++ ":\n    " ++ show val
 
-instance Translate (PAST a) a where
+instance (Typeable a) => Translate (PAST a) a where
     trans PNil = return []
     trans PNoop = return (StmtComment "")
     trans (PPos pos) = do
@@ -163,8 +183,7 @@ instance Translate (PAST a) a where
     trans (PVal (VInt int)) = return $ LitInt int
     trans (PVal (VNum num)) = return $ LitNum num
     trans (PVal (VRat rat)) = return $ LitNum (ratToNum rat)
-    trans (PVal val) = do
-        transError "Unknown val" val
+    trans val@(PVal _) = transError val
     trans (PVar name) = do
         pmc     <- genLV
         tellIns $ pmc <-- "find_name" $ [lit name]
@@ -199,6 +218,18 @@ instance Translate (PAST a) a where
             expsC   <- trans exps
             return ([], (StmtPad (map fst pad `zip` valsC) expsC:))
     trans (PExp exp) = fmap ExpLV $ trans exp
+    trans (PThunk exp) = do
+        [begC, retC, endC] <- genLabel ["thunkBegin", "thunkReturn", "thunkEnd"]
+        pmc     <- genPMC
+        tellIns $ "newsub" .- [reg pmc, bare ".Closure", bare begC]
+        tellIns $ "goto" .- [bare endC]
+        tellIns $ InsLabel begC Nothing
+        expC    <- trans exp
+        tellIns $ pmc <-- "set_addr" $ [bare retC]
+        tellIns $ InsLabel retC . Just $ "set_returns" .- [lit "(0b10)", expC]
+        tellIns $ "returncc" .- []
+        tellIns $ InsLabel endC Nothing
+        return (ExpLV pmc)
     -- XXX HACK!
     trans (PRaw exp) = do
         env <- asks tEnv
@@ -210,20 +241,34 @@ instance Translate (PAST a) a where
         -- generate fresh supply and things...
         pmc     <- genName name
         return (ExpLV pmc)
-    trans x = transError "Unknown exp" x
+    trans x = transError x
 
 tellIns :: Ins -> Trans ()
 tellIns = tell . (:[]) . StmtIns
 
-genLV :: (RegClass a) => Trans a
-genLV = do
+genPMC :: (RegClass a) => Trans a
+genPMC = do
     tvar    <- asks tReg
     pmc     <- liftIO $ liftSTM $ do
         cur <- readTVar tvar
         writeTVar tvar (cur + 1)
         return (PMC cur)
+    return $ reg pmc
+
+genLV :: (RegClass a) => Trans a
+genLV = do
+    pmc <- genPMC
     tellIns $ InsNew pmc PerlUndef
     return $ reg pmc
+
+genLabel :: [String] -> Trans [LabelName]
+genLabel names = do
+    tvar    <- asks tLabel
+    cnt     <- liftIO $ liftSTM $ do
+        cur <- readTVar tvar
+        writeTVar tvar (cur + 1)
+        return cur
+    return $ map (\name -> "LABEL_" ++ show cnt ++ "_" ++ name) names
 
 genName :: (RegClass a) => String -> Trans a
 genName name = do
@@ -233,15 +278,19 @@ genName name = do
     tellIns $ InsNew (VAR var) (read $ render $ varInit name)
     return $ reg (VAR var)
 
-transError :: (Show a) => String -> a -> Trans b
-transError str val = fail $ "*** Trans error: " ++ str ++ ": " ++ show val
-
 genPIR' :: Eval Val
 genPIR' = do
     env         <- ask
     past        <- compile (envBody env) :: (Eval (PAST [Stmt]))
     zero        <- liftSTM $ newTVar 100
-    (_, pir)    <- liftIO $ (`runReaderT` MkTEnv 0 env zero) $ runWriterT (trans past)
+    none        <- liftSTM $ newTVar 0
+    let initEnv = MkTEnv
+            { tDepth    = 0
+            , tEnv      = env
+            , tReg      = zero
+            , tLabel    = none
+            }
+    (_, pir)    <- liftIO $ (`runReaderT` initEnv) $ runWriterT (trans past)
     return . VStr . unlines $
         [ "#!/usr/bin/env parrot"
         -- , renderStyle (Style PageMode 0 0) init

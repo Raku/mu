@@ -3,22 +3,22 @@
 module Emit.PIR where
 import Text.PrettyPrint
 import Data.Char
+import Data.Typeable
 
 type PIR = [Decl]
 
 data Decl
     = DeclSub   !SubName ![SubType] ![Stmt]
     | DeclNS    !PkgName
-    deriving (Show, Eq)
+    deriving (Show, Eq, Typeable)
 
 data Stmt
     = StmtComment   !String
     | StmtLine      !FilePath !Int
     | StmtIns       !Ins
-    | StmtLabel     !LabelName !Ins
     | StmtPad       ![(VarName, Expression)] ![Stmt]
     | StmtRaw       !Doc    -- XXX HACK!
-    deriving (Show, Eq)
+    deriving (Show, Eq, Typeable)
 
 data Ins
     = InsLocal      !RegType !VarName
@@ -29,19 +29,20 @@ data Ins
     | InsFun        ![Sig] !Expression ![Expression]
     | InsTailFun    !Expression ![Expression]
     | InsPrim       !(Maybe LValue) !PrimName ![Expression]
-    deriving (Show, Eq)
+    | InsLabel      !LabelName !(Maybe Ins)
+    deriving (Show, Eq, Typeable)
 
 data SubType = SubMAIN | SubLOAD | SubANON | SubMETHOD | SubMULTI [ObjType]
-    deriving (Show, Eq)
+    deriving (Show, Eq, Typeable)
 
 data RegType = RegInt | RegNum | RegStr | RegPMC
-    deriving (Show, Eq)
+    deriving (Show, Eq, Typeable)
 
 data RelOp = RelLT | RelLE | RelEQ | RelNE | RelGE | RelGT
-    deriving (Show, Eq)
+    deriving (Show, Eq, Typeable)
 
 data ObjType    = PerlUndef | PerlArray | PerlHash
-    deriving (Show, Eq, Read)
+    deriving (Show, Eq, Typeable, Read)
 
 type LabelName  = String
 type SubName    = String
@@ -56,18 +57,19 @@ data LValue
     | STR !Int
     | INT !Int
     | NUM !Int
-    deriving (Show, Eq)
+    deriving (Show, Eq, Typeable)
 
 data Expression
     = ExpLV !LValue
     | ExpLit !Literal
-    deriving (Show, Eq)
+--  | ExpThunk !Expression
+    deriving (Show, Eq, Typeable)
 
 data Literal
     = LitStr !String
     | LitInt !Integer
     | LitNum !Double
-    deriving (Show, Eq)
+    deriving (Show, Eq, Typeable)
 
 class (Show x) => Emit x where
     emit :: x -> Doc
@@ -113,7 +115,6 @@ instance Emit Stmt where
     emit (StmtComment str) = char '#' <+> emit str
     emit (StmtLine file line) = text "#line" <+> doubleQuotes (emit file) <+> emit line
     emit (StmtIns ins) = emit ins
-    emit (StmtLabel name ins) = emit name <> colon $+$ emit ins
     emit (StmtPad pad stmts) = vcat $
         [ emit "new_pad" <+> curPad
         ] ++ map (\(var, exp) -> emit ("store_lex" .- [lit (-1 :: Int), lit var, exp])) pad
@@ -134,7 +135,12 @@ instance Emit Ins where
         $+$ emitFun "invokecc" fun args
     emit (InsTailFun (ExpLit (LitStr name)) args) = emitFunName "tailcall" name args
     emit (InsExp exp) = empty
+    emit (InsLabel label ins) = emit label <> colon $+$ emit ins
     emit x = error $ "can't emit ins: " ++ show x
+
+instance Emit (Maybe Ins) where
+    emit Nothing = empty
+    emit (Just ins) = emit ins
 
 instance Emit Doc where
     emit = id
@@ -375,6 +381,8 @@ vop2n p6name opname =
       , tempNUM <-- opname $ [tempNUM, tempNUM2]
       , rv <-- "assign" $ [tempNUM]
       ] --> [rv]
+
+bare = ExpLV . VAR
         
 preludePIR :: Doc
 preludePIR = emit $
@@ -397,6 +405,11 @@ preludePIR = emit $
         , InsNew rv PerlUndef
         , rv        <-- "set" $ [tempSTR2]
         ] --> [rv]
+    , sub "&statement_control:if" [arg0, arg1, arg2]
+        [ "unless" .- [arg0, bare "sc_if_false"]
+        , "tailcall" .- [arg1]
+        , InsLabel "sc_if_false" $ Just ("tailcall" .- [arg2])
+        ]
     , sub "&prefix:++" [arg0]
         [ "inc" .- [arg0]
         ] --> [arg0]
@@ -437,18 +450,18 @@ preludePIR = emit $
     -- also need: rand()? sign()? srand() ? S29
     , vop1n "&sqrt" "sqrt"
     -- Supporting Math::Trig
-    , vop1n "&sin" "sin"
-    , vop1n "&cos" "cos" -- works as vop1.  but not sin().  sigh.
-    , vop1n "&tan" "tan"
-    , vop1n "&sec" "sec"
-    , vop1n "&asin" "asin"
-    , vop1n "&acos" "acos"
-    , vop1n "&atan" "atan"
-    , vop1n "&asec" "asec"
-    , vop1n "&sinh" "sinh"
-    , vop1n "&cosh" "cosh"
-    , vop1n "&tanh" "tanh"
-    , vop1n "&sech" "sech"
+    , vop1 "&sin" "sin"
+    , vop1 "&cos" "cos" -- works as vop1.  but not sin().  sigh.
+    , vop1 "&tan" "tan"
+    , vop1 "&sec" "sec"
+    , vop1 "&asin" "asin"
+    , vop1 "&acos" "acos"
+    , vop1 "&atan" "atan"
+    , vop1 "&asec" "asec"
+    , vop1 "&sinh" "sinh"
+    , vop1 "&cosh" "cosh"
+    , vop1 "&tanh" "tanh"
+    , vop1 "&sech" "sech"
     -- also need: cosec, cotan, acosec, acotan, asinh, acosh, atanh, cosech,
     --  cotanh, asech, acosech, acotanh. S29
     -- Supporting unspeced:
