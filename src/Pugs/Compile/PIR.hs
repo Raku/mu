@@ -113,12 +113,16 @@ instance Compile Exp Stmt where
         compile Noop
     compile (Syn "loop" [exp]) =
         compile (Syn "loop" $ [emptyExp, Val (VBool True), emptyExp, exp])
+    compile exp@(Syn "loop" _) = return $ PRaw exp
+    -- XXX - This doesn't yet work (but comes dangerously close)
+    -- XXX - Overlapping is intentional.
     compile (Syn "loop" [pre, cond, post, body]) = do
-        preC  <- compile pre
-        -- bodyC <- compile body
-        -- postC <- compile post
-        -- condC <- compile cond
-        return $ PStmt preC
+        preC    <- compile pre
+        condC   <- compile cond
+        bodyC   <- compile body
+        postC   <- compile post
+        funC    <- compile (Var "&statement_control:loop")
+        return $ PStmt $ PExp $ PApp funC [preC, PBlock condC, PBlock bodyC, PBlock postC]
     compile exp = fmap PStmt $ compile exp
     -- compile exp = error ("invalid stmt: " ++ show exp)
 
@@ -129,13 +133,17 @@ instance Compile Exp LValue where
         funC    <- compile fun
         argsC   <- mapM compile args
         return $ PApp funC argsC
-    compile (Syn "if" [cond, true, false]) = do
-        condC   <- compile cond :: Comp (PAST Expression)
-        trueC   <- compile true :: Comp (PAST Expression)
-        falseC  <- compile false :: Comp (PAST Expression)
-        funC    <- compile (Var "&statement_control:if")
-        return $ PApp funC [condC, PThunk trueC, PThunk falseC]
+    compile exp@(Syn "if" _) = compConditional exp
+    compile exp@(Syn "unless" _) = compConditional exp
     compile exp = error ("Invalid LValue: " ++ show exp)
+
+compConditional (Syn name [cond, true, false]) = do
+    condC   <- compile cond
+    trueC   <- compile true
+    falseC  <- compile false
+    funC    <- compile (Var $ "&statement_control:" ++ name)
+    return $ PApp funC [condC, PThunk trueC, PThunk falseC]
+compConditional exp = compError exp
 
 instance Compile Exp Expression where
     compile (Pos pos rest) = fmap (PPos pos rest) $ compile rest
@@ -148,6 +156,9 @@ instance Compile Exp Expression where
         lhsC    <- compile lhs
         rhsC    <- compile rhs
         return $ PAssign [lhsC] rhsC
+    compile (Syn "block" [body]) = do
+        bodyC   <- compile body
+        return $ PBlock bodyC
     compile exp = compError exp
 
 compError :: forall a b. Compile a b => a -> Comp (PAST b)
@@ -228,15 +239,15 @@ instance (Typeable a) => Translate (PAST a) a where
             return ([], (StmtPad (map fst pad `zip` valsC) expsC:))
     trans (PExp exp) = fmap ExpLV $ trans exp
     trans (PBlock exp) = do
-        [begC, endC] <- genLabel ["blockBegin", "closureEnd"]
+        [begC, endC] <- genLabel ["blockBegin", "blockEnd"]
         this    <- genPMC
         tellIns $ "newsub" .- [reg this, bare ".Continuation", bare begC]
         tellIns $ "goto" .- [bare endC]
         tellIns $ InsLabel begC Nothing
         cc      <- genPMC
---      tellIns $ "get_params" .- sigList [reg cc]
-        tellIns $ "find_global" .- [reg cc, lit "CC"]
+        fetchCC cc (reg this)
         expC    <- trans exp
+        tellIns $ "set_returns" .- [lit "(0b10)", expC]
         tellIns $ "invoke" .- [reg cc]
         tellIns $ InsLabel endC Nothing
         return (ExpLV this)
@@ -247,13 +258,12 @@ instance (Typeable a) => Translate (PAST a) a where
         tellIns $ "goto" .- [bare endC]
         tellIns $ InsLabel begC Nothing
         cc      <- genPMC
---      tellIns $ "get_params" .- sigList [reg cc]
         fetchCC cc (reg this)
         expC    <- trans exp
         tellIns $ "set_addr" .- [reg this, bare sndC]
         tellIns $ "goto" .- [bare retC]
         tellIns $ InsLabel sndC Nothing
---      tellIns $ "get_params" .- sigList [reg cc]
+        fetchCC cc (reg this)
         tellIns $ InsLabel retC . Just $ "set_returns" .- [lit "(0b10)", expC]
         tellIns $ "invoke" .- [reg cc]
         tellIns $ InsLabel endC Nothing
@@ -272,7 +282,7 @@ instance (Typeable a) => Translate (PAST a) a where
     trans x = transError x
 
 fetchCC cc begC = do
-    -- tellIns $ "find_global" .- [reg cc, lit "CC"]
+--      tellIns $ "get_params" .- sigList [reg cc]
     tellIns $ tempINT   <-- "get_addr" $ [begC]
     tellIns $ InsBind tempSTR tempINT
     tellIns $ "find_global" .- [reg cc, tempSTR]
@@ -307,7 +317,6 @@ genLabel names = do
 genName :: (RegClass a) => String -> Trans a
 genName name = do
     let var = render $ varText name
-    tvar    <- asks tReg
     tellIns $ InsLocal RegPMC var
     tellIns $ InsNew (VAR var) (read $ render $ varInit name)
     return $ reg (VAR var)

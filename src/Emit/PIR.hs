@@ -138,7 +138,7 @@ instance Emit Ins where
         $+$ emitFun "invokecc" fun args
     emit (InsTailFun (ExpLit (LitStr name)) args) = emitFunName "tailcall" name args
     emit (InsExp exp) = empty
-    emit (InsLabel label ins) = emit label <> colon $+$ emit ins
+    emit (InsLabel label ins) = nest (-2) (emit label <> colon) $+$ emit ins
     emit (InsComment comment ins) = emit (StmtComment comment) $+$ emit ins
     emit x = error $ "can't emit ins: " ++ show x
 
@@ -389,6 +389,32 @@ vop2n p6name opname =
       ] --> [rv]
 
 bare = ExpLV . VAR
+
+-- calls and place result in tempPMC
+callContinuation label fun =
+    [ "newsub" .- [tempPMC, bare ".Continuation", bare label]
+    ] ++ callWithCurrentContinuation fun ++
+    [ InsLabel label $ Just $ "get_results" .- sigList [tempPMC]
+    ]
+
+callWithCurrentContinuation fun =
+    [ -- "set_args" .- sigList [tempPMC] -- really should be this
+-- HACK BEGINS {{{
+      tempINT   <-- "get_addr" $ [fun]
+    , InsBind tempSTR tempINT
+    , "store_global" .- [tempSTR, tempPMC]
+-- HACK ENDS }}}
+    , "invoke" .- [fun]
+    ]
+
+stmtControlCond name comp = sub ("&statement_control:" ++ name) [arg0, arg1, arg2] $
+    [ "interpinfo" .- [tempPMC, bare ".INTERPINFO_CURRENT_CONT"]
+    , comp .- [arg0, bare label]
+    ] ++ callWithCurrentContinuation arg1 ++
+    [ InsLabel label Nothing
+    ] ++ callWithCurrentContinuation arg2
+    where
+    label = ("sc_" ++ name ++ "_alt")
         
 preludePIR :: Doc
 preludePIR = emit $
@@ -412,24 +438,18 @@ preludePIR = emit $
         , InsNew rv PerlUndef
         , rv        <-- "set" $ [tempSTR2]
         ] --> [rv]
-    , sub "&statement_control:if" [arg0, arg1, arg2]
-        [ "interpinfo" .- [tempPMC, bare ".INTERPINFO_CURRENT_CONT"]
---      , "set_args" .- sigList [tempPMC] -- really should be this
-        , "unless" .- [arg0, bare "sc_if_false"]
--- HACK BEGINS {{{
-        , tempINT   <-- "get_addr" $ [arg1]
-        , InsBind tempSTR tempINT
-        , "store_global" .- [tempSTR, tempPMC]
--- HACK ENDS }}}
-        , "invoke" .- [arg1]
--- HACK BEGINS {{{
-        , tempINT   <-- "get_addr" $ [arg2]
-        , InsBind tempSTR tempINT
-        , "store_global" .- [tempSTR, tempPMC]
--- HACK ENDS }}}
-        , InsLabel "sc_if_false" Nothing
-        , "invoke" .- [arg2]
+    , sub "&statement_control:loop" [arg0, arg1, arg2, arg3] $
+        [ InsLabel "sc_loop_next" Nothing
+        ] ++ callContinuation "loopCond" arg1 ++
+        [ "unless" .- [tempPMC, bare "sc_loop_last"]
+        ] ++ callContinuation "loopBody" arg2 ++
+        [ -- ..throw away the result of body...
+        ] ++ callContinuation "loopPost" arg3 ++
+        [ "goto" .- [bare "sc_loop_next"]
+        , InsLabel "sc_loop_last" $ Just $ "returncc" .- []
         ]
+    , stmtControlCond "if" "unless"
+    , stmtControlCond "unless" "if"
     , sub "&prefix:++" [arg0]
         [ "inc" .- [arg0]
         ] --> [arg0]
@@ -456,6 +476,10 @@ preludePIR = emit $
     , vop2 "&infix:*" "mul"
     , vop2 "&infix:/" "div"
     , vop2 "&infix:%" "mod"
+    , vop2i "&infix:<" "islt"
+    , vop2i "&infix:<=" "isle"
+    , vop2i "&infix:>" "isgt"
+    , vop2i "&infix:>=" "isge"
     --, namespace "Perl6::Internals"
     , sub "&abs" [arg0]
         [ InsNew rv PerlUndef
