@@ -10,6 +10,7 @@ type PIR = [Decl]
 data Decl
     = DeclSub   !SubName ![SubType] ![Stmt]
     | DeclNS    !PkgName
+    | DeclInc   !FilePath
     deriving (Show, Eq, Typeable)
 
 data Stmt
@@ -83,6 +84,7 @@ instance Emit String where
 
 instance Emit Decl where
     emit (DeclNS name) = emit ".namespace" <+> brackets (quotes $ emit name)
+    emit (DeclInc name) = emit ".include" <+> (quotes $ emit name)
     emit (DeclSub name styps stmts)
         =  (emit ".sub" <+> doubleQuotes (emit name) <+> commaSep styps)
         $+$ nested (emitBody stmts)
@@ -215,6 +217,8 @@ namespace :: PkgName -> Decl
 (.&) :: String -> [Expression] -> Ins
 
 namespace = DeclNS
+include = DeclInc
+
 (<--) = InsPrim . Just
 (.-)  = InsPrim Nothing
 (<-&) = InsFun
@@ -387,7 +391,8 @@ bare = ExpLV . VAR
         
 preludePIR :: Doc
 preludePIR = emit $
-    [ sub "&print" [slurpy arg0]
+    [ include "interpinfo.pasm"
+    , sub "&print" [slurpy arg0]
         [ tempSTR <-- "join" $ [lit "", arg0]
         , "print" .- [tempSTR]
         ] --> [lit True]
@@ -407,9 +412,11 @@ preludePIR = emit $
         , rv        <-- "set" $ [tempSTR2]
         ] --> [rv]
     , sub "&statement_control:if" [arg0, arg1, arg2]
-        [ "unless" .- [arg0, bare "sc_if_false"]
-        , "tailcall" .- [arg1]
-        , InsLabel "sc_if_false" $ Just ("tailcall" .- [arg2])
+        [ "interpinfo" .- [tempPMC, bare ".INTERPINFO_CURRENT_CONT"]
+        , "set_args" .- sigList [tempPMC]
+        , "unless" .- [arg0, bare "sc_if_false"]
+        , "invoke" .- [arg1]
+        , InsLabel "sc_if_false" $ Just ("invoke" .- [arg2])
         ]
     , sub "&prefix:++" [arg0]
         [ "inc" .- [arg0]

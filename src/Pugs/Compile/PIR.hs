@@ -19,7 +19,7 @@ data PAST a where
     PNoop       :: PAST Stmt
     PPos        :: !Pos -> !Exp -> PAST a -> PAST a
     PStmt       :: !(PAST Expression) -> PAST Stmt 
-    PApp        :: !(PAST Expression) -> ![PAST Expression] -> PAST Expression
+    PApp        :: !(PAST Expression) -> ![PAST Expression] -> PAST LValue
     PAssign     :: ![PAST LValue] -> !(PAST Expression) -> PAST Expression
     PBind       :: ![PAST LValue] -> !(PAST Expression) -> PAST Expression
     PPad        :: ![(VarName, PAST Expression)] -> !(PAST [Stmt]) -> PAST [Stmt]
@@ -122,27 +122,29 @@ instance Compile Exp Stmt where
 instance Compile Exp LValue where
     compile (Pos pos rest) = fmap (PPos pos rest) $ compile rest
     compile (Var name) = return $ PVar name
-    compile exp = error ("Invalid LValue: " ++ show exp)
-
-instance Compile Exp Expression where
-    compile (Pos pos rest) = fmap (PPos pos rest) $ compile rest
-    compile (Var name) = return . PExp $ PVar name
-    compile (Val val) = fmap PLit (compile val)
     compile (App fun Nothing args) = do
         funC    <- compile fun
         argsC   <- mapM compile args
         return $ PApp funC argsC
-    compile Noop = compile (Val undef)
-    compile (Syn "=" [lhs, rhs]) = do
-        lhsC    <- compile lhs
-        rhsC    <- compile rhs
-        return $ PAssign [lhsC] rhsC
     compile (Syn "if" [cond, true, false]) = do
         condC   <- compile cond :: Comp (PAST Expression)
         trueC   <- compile true :: Comp (PAST Expression)
         falseC  <- compile false :: Comp (PAST Expression)
         funC    <- compile (Var "&statement_control:if")
         return $ PApp funC [condC, PThunk trueC, PThunk falseC]
+    compile exp = error ("Invalid LValue: " ++ show exp)
+
+instance Compile Exp Expression where
+    compile (Pos pos rest) = fmap (PPos pos rest) $ compile rest
+    compile (Var name) = return . PExp $ PVar name
+    compile (Val val) = fmap PLit (compile val)
+    compile exp@(App _ _ _) = fmap PExp $ compile exp
+    compile exp@(Syn "if" _) = fmap PExp $ compile exp
+    compile Noop = compile (Val undef)
+    compile (Syn "=" [lhs, rhs]) = do
+        lhsC    <- compile lhs
+        rhsC    <- compile rhs
+        return $ PAssign [lhsC] rhsC
     compile exp = compError exp
 
 compError :: forall a b. Compile a b => a -> Comp (PAST b)
@@ -191,7 +193,7 @@ instance (Typeable a) => Translate (PAST a) a where
         pmc     <- genLV
         tellIns $ pmc <-- "find_name" $ [lit name]
         return pmc
-    trans (PStmt (PApp (PExp (PVar name)) args)) = do
+    trans (PStmt (PExp (PApp (PExp (PVar name)) args))) = do
         argsC   <- mapM trans args
         return $ StmtIns $ InsFun [] (lit name) argsC
     trans (PStmt (PLit (PVal VUndef))) = return $ StmtComment ""
@@ -215,7 +217,7 @@ instance (Typeable a) => Translate (PAST a) a where
         pmc     <- genLV
         -- XXX - probe if funC is slurpy, then modify ExpLV pmc accordingly
         tellIns $ [reg pmc] <-& funC $ argsC
-        return (ExpLV pmc)
+        return pmc
     trans (PPad pad exps) = do
         valsC   <- mapM trans (map snd pad)
         pass $ do
@@ -223,17 +225,22 @@ instance (Typeable a) => Translate (PAST a) a where
             return ([], (StmtPad (map fst pad `zip` valsC) expsC:))
     trans (PExp exp) = fmap ExpLV $ trans exp
     trans (PThunk exp) = do
-        [begC, retC, endC] <- genLabel ["thunkBegin", "thunkReturn", "thunkEnd"]
-        pmc     <- genPMC
-        tellIns $ "newsub" .- [reg pmc, bare ".Closure", bare begC]
+        [begC, sndC, retC, endC] <- genLabel ["thunkBegin", "thunkAgain", "thunkReturn", "thunkEnd"]
+        thunk   <- genPMC
+        tellIns $ "newsub" .- [reg thunk, bare ".Continuation", bare begC]
         tellIns $ "goto" .- [bare endC]
         tellIns $ InsLabel begC Nothing
+        cc      <- genPMC
+        tellIns $ "get_params" .- sigList [reg cc]
         expC    <- trans exp
-        tellIns $ pmc <-- "set_addr" $ [bare retC]
+        tellIns $ "set_addr" .- [reg thunk, bare sndC]
+        tellIns $ "goto" .- [bare retC]
+        tellIns $ InsLabel sndC Nothing
+        tellIns $ "get_params" .- sigList [reg cc]
         tellIns $ InsLabel retC . Just $ "set_returns" .- [lit "(0b10)", expC]
-        tellIns $ "returncc" .- []
+        tellIns $ "invoke" .- [reg cc]
         tellIns $ InsLabel endC Nothing
-        return (ExpLV pmc)
+        return (ExpLV thunk)
     -- XXX HACK!
     trans (PRaw exp) = do
         env <- asks tEnv
