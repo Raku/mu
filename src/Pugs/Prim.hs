@@ -294,6 +294,10 @@ op1 "say" = op2 "IO::say" (VHandle stdout)
 op1 "print" = op2 "IO::print" (VHandle stdout)
 op1 "IO::say" = \v -> op2 "IO::say" v =<< readVar "$_"
 op1 "IO::print" = \v -> op2 "IO::print" v =<< readVar "$_"
+op1 "IO::next" = \v -> do
+    fh  <- fromVal v
+    tryIO undef $
+        fmap (VStr . (++ "\n") . decodeUTF8) (hGetLine fh)
 op1 "Pugs::Safe::safe_print" = \v -> do
     str  <- fromVal v
     tryIO undef $ do
@@ -485,7 +489,9 @@ op1 "values" = valuesFromVal
 -- According to Damian
 -- (http://www.nntp.perl.org/group/perl.perl6.language/21895),
 -- =$obj should call $obj.next().
-op1 "="        = \v -> evalExp $ App (Var "&next") (Just $ Val v) []
+op1 "="        = \v -> case v of
+    VObject _   -> evalExp $ App (Var "&next") (Just $ Val v) []
+    _           -> op1 "readline" v
 op1 "readline" = \v -> op1Read v (getLines) (getLine)
     where
     getLines :: VHandle -> Eval Val
@@ -1361,6 +1367,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Str       pre     want    safe   ()\
 \\n   Str       pre     File::Spec::cwd     unsafe ()\
 \\n   Str       pre     File::Spec::tmpdir  unsafe ()\
+\\n   Str       pre     IO::next   unsafe (IO)\
 \\n   Bool      pre     IO::print   unsafe (IO)\
 \\n   Bool      pre     IO::print   unsafe (IO: List)\
 \\n   Bool      pre     print   unsafe ()\
