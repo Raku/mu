@@ -4,7 +4,9 @@ use v6;
 use Test;
 
 # Tests the generic "=" prefix operator.
-# See http://www.nntp.perl.org/group/perl.perl6.language/21895.
+# See thread "PATCH: S04 - unary C<=> is not slurpy" from Patrick R. Michaud,
+# especially Damian's reply at
+# http://www.nntp.perl.org/group/perl.perl6.language/21895.
 
 plan 7;
 

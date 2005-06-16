@@ -482,7 +482,10 @@ op1 "List::kv" = \v -> do
 op1 "Pair::kv" = op1 "List::kv"
 op1 "keys" = keysFromVal
 op1 "values" = valuesFromVal
-op1 "="        = op1 "readline"
+-- According to Damian
+-- (http://www.nntp.perl.org/group/perl.perl6.language/21895),
+-- =$obj should call $obj.next().
+op1 "="        = \v -> evalExp $ App (Var "&next") (Just $ Val v) []
 op1 "readline" = \v -> op1Read v (getLines) (getLine)
     where
     getLines :: VHandle -> Eval Val
@@ -1425,8 +1428,8 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   List      pre     Scalar::split   safe   (Str: Rule)\
 \\n   List      pre     split   safe   (Str, Str)\
 \\n   List      pre     split   safe   (Rule, Str)\
-\\n   Str       spre    =       safe   (IO)\
-\\n   List      spre    =       safe   (IO)\
+\\n   Str       spre    =       safe   (Any)\
+\\n   List      spre    =       safe   (Any)\
 \\n   Junction  list    |       safe   (Any|Junction)\
 \\n   Junction  list    &       safe   (Any|Junction)\
 \\n   Junction  list    ^       safe   (Any|Junction)\
