@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fallow-overlapping-instances -funbox-strict-fields #-}
+{-# OPTIONS_GHC -fglasgow-exts -fallow-overlapping-instances -funbox-strict-fields -cpp #-}
 
 module Emit.PIR where
 import Text.PrettyPrint
@@ -190,11 +190,13 @@ instance Emit Int where
  .&   is calling a user-defined function, with any return value ignored.
  -->  is returning from a sub.
 -}
+#ifndef HADDOCK
 infixl 4 <--
 infixl 9 -->
 infixl 4 .-
 infixl 4 <-&
 infixl 4 .&
+#endif
 
 namespace = DeclNS
 (<--) = InsPrim . Just
@@ -302,6 +304,7 @@ data SigFlag = MkFlagSlurpy
 slurpy :: Expression -> Sig
 slurpy = MkSig [MkFlagSlurpy]
 
+#ifndef HADDOCK
 (-->) :: Decl -> [Expression] -> Decl
 (DeclSub name styps stmts) --> rets = DeclSub name styps $ stmts ++ map StmtIns
     [ "set_returns" .- (lit sig : rets)
@@ -310,6 +313,7 @@ slurpy = MkSig [MkFlagSlurpy]
     where
     sig = parens (commaSep (replicate (length rets) "0b10010"))
 _ --> _ = error "Can't return from non-sub"
+#endif
 
 vop1 p6name opname =
     sub p6name [arg0] 

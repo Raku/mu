@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -funbox-strict-fields #-}
+{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -funbox-strict-fields -cpp #-}
 
 module Pugs.Compile.PIR (genPIR') where
 import Pugs.Compile.Parrot
@@ -8,6 +8,7 @@ import Emit.PIR
 import Pugs.Pretty
 import Text.PrettyPrint
 
+#ifndef HADDOCK
 data PAST a where
     PVal        :: !Val -> PAST Literal
     PVar        :: !VarName -> PAST LValue
@@ -24,6 +25,7 @@ data PAST a where
     PPad        :: ![(VarName, PAST Expression)] -> !(PAST [Stmt]) -> PAST [Stmt]
     PRaw        :: !Exp -> PAST Stmt -- XXX HACK!
     PRawName    :: !VarName -> PAST Expression -- XXX HACK!
+#endif
 
 instance Show (PAST a) where
     show (PVal x) = "(PVal " ++ show x ++ ")"
