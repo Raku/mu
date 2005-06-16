@@ -54,6 +54,7 @@ data LValue
     | PMC !Int
     | STR !Int
     | INT !Int
+    | NUM !Int
     deriving (Show, Eq)
 
 data Expression
@@ -168,6 +169,7 @@ instance Emit LValue where
     emit (PMC num) = emit "$P" <> emit num
     emit (STR str) = emit "$S" <> emit str
     emit (INT str) = emit "$I" <> emit str
+    emit (NUM str) = emit "$N" <> emit str
 
 instance Emit Literal where
     emit (LitStr str) = text . show $ concatMap quoted str
@@ -236,6 +238,12 @@ tempINT = reg $ INT 8
 tempINT2 :: (RegClass a) => a
 tempINT2 = reg $ INT 9
 
+tempNUM :: (RegClass a) => a
+tempNUM = reg $ NUM 8
+
+tempNUM2 :: (RegClass a) => a
+tempNUM2 = reg $ NUM 9
+
 class RegClass y where
     reg :: LValue -> y
 
@@ -303,6 +311,51 @@ slurpy = MkSig [MkFlagSlurpy]
     sig = parens (commaSep (replicate (length rets) "0b10010"))
 _ --> _ = error "Can't return from non-sub"
 
+vop1 p6name opname =
+    sub p6name [arg0] 
+      [ InsNew rv PerlUndef
+      , rv <-- opname $ [arg0]
+      ] --> [rv]
+vop2 p6name opname =
+    sub p6name [arg0, arg1] 
+      [ InsNew rv PerlUndef
+      , rv <-- opname $ [arg0, arg1]
+      ] --> [rv]
+
+--We might abstract these two... but I punted on getting it to typecheck.
+-- vop1n p6name opname = vop1x p6name opname tempNUM tempNUM
+vop1i p6name opname =
+    sub p6name [arg0] 
+      [ InsNew rv PerlUndef
+      , tempINT <-- "" $ [arg0] --XXX
+      , tempINT <-- opname $ [tempINT]
+      , rv <-- "assign" $ [tempINT]
+      ] --> [rv]
+vop1n p6name opname =
+    sub p6name [arg0] 
+      [ InsNew rv PerlUndef
+      , tempNUM <-- "" $ [arg0] --XXX
+      , tempNUM <-- opname $ [tempNUM]
+      , rv <-- "assign" $ [tempNUM]
+      ] --> [rv]
+
+vop2i p6name opname =
+    sub p6name [arg0, arg1]
+      [ InsNew rv PerlUndef
+      , tempINT <-- "" $ [arg0] --XXX
+      , tempINT2 <-- "" $ [arg1] --XXX
+      , tempINT <-- opname $ [tempINT, tempINT2]
+      , rv <-- "assign" $ [tempINT]
+      ] --> [rv]
+vop2n p6name opname =
+    sub p6name [arg0, arg1]
+      [ InsNew rv PerlUndef
+      , tempNUM <-- "" $ [arg0] --XXX
+      , tempNUM2 <-- "" $ [arg1] --XXX
+      , tempNUM <-- opname $ [tempNUM, tempNUM2]
+      , rv <-- "assign" $ [tempNUM]
+      ] --> [rv]
+        
 preludePIR :: Doc
 preludePIR = emit $
     [ sub "&print" [slurpy arg0]
@@ -344,11 +397,47 @@ preludePIR = emit $
         [ InsNew rv PerlUndef
         , rv <-- "neg" $ [arg0]
         ] --> [rv]
+    , sub "&nothing" [] []
+    , vop2 "&infix:+" "add"
+    , vop2 "&infix:-" "sub"
+    , vop2 "&infix:*" "mul"
+    , vop2 "&infix:/" "div"
+    , vop2 "&infix:%" "mod"
+    --, namespace "Perl6::Internals"
     , sub "&abs" [arg0]
         [ InsNew rv PerlUndef
-        , rv <-- "abs" $ [arg0]
+        , rv <-- "assign" $ [arg0]
+        , "abs" .- [arg0]
         ] --> [rv]
-    , sub "&nothing" [] []
+    -- Supporting Math::Basic
+    , vop1n "&exp" "exp"
+    , vop1n "&ln" "ln"
+    , vop1n "&log2" "log2"
+    , vop1n "&log10" "log10"
+    -- also need: rand()? sign()? srand() ? S29
+    , vop1n "&sqrt" "sqrt"
+    -- Supporting Math::Trig
+    , vop1n "&sin" "sin"
+    , vop1n "&cos" "cos" -- works as vop1.  but not sin().  sigh.
+    , vop1n "&tan" "tan"
+    , vop1n "&sec" "sec"
+    , vop1n "&asin" "asin"
+    , vop1n "&acos" "acos"
+    , vop1n "&atan" "atan"
+    , vop1n "&asec" "asec"
+    , vop1n "&sinh" "sinh"
+    , vop1n "&cosh" "cosh"
+    , vop1n "&tanh" "tanh"
+    , vop1n "&sech" "sech"
+    -- also need: cosec, cotan, acosec, acotan, asinh, acosh, atanh, cosech,
+    --  cotanh, asech, acosech, acotanh. S29
+    -- Supporting unspeced:
+    , vop1n "&ceil" "ceil"
+    , vop1n "&floor" "floor"
+    , vop1i "&fact" "fact"
+    , vop2i "&gcd" "gcd"
+    , vop2i "&lcm" "lcm"
+    , vop2n "&pow" "pow"
     , namespace "bool"
     , sub "&true" []
         [] --> [lit True]
