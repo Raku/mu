@@ -3,7 +3,7 @@
 use v6;
 
 use Test;
-plan 14;
+plan 22;
 
 =head1 DESCRIPTION
 
