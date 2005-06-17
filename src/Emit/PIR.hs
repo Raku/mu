@@ -156,8 +156,7 @@ emitRets rets = emit ("get_results" .- sigList rets)
 emitFun :: (Emit b, Emit c) => CallConv -> b -> [c] -> Doc
 emitFun callconv fun args = emitArgs args $+$ emit callconv <+> emit fun
 
--- XXX WRONG! Can't do an empty call! wtf?
-emitArgs [] = empty
+emitArgs :: (Emit a) => [a] -> Doc
 emitArgs args = emit "set_args" <+> commaSep (sig:map emit args)
     where
     sig = quotes $ parens (commaSep (replicate (length args) "0b10010"))
@@ -167,8 +166,6 @@ emitFunName callconv name args = emitArgs args $+$ emit (LitStr name) <> parens 
 
 noArgs :: [Expression]
 noArgs = []
-
--- set_args '(0b0,0b0,0b0)', $P1, $P2, $P3
 
 instance Emit ObjType where
     emit = emit . ('.':) . show
