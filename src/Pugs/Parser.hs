@@ -588,12 +588,22 @@ ruleClosureTrait rhs = rule "closure trait" $ do
 	    unsafeEvalExp $ App (Var "&unshift") (Just $ Var "@*END") [Syn "sub" [Val code]]
         "BEGIN" -> do
 	    -- We've to exit if the user has written code like BEGIN { exit }.
-	    possiblyExit =<< unsafeEvalExp fun
+	    possiblyExit =<< unsafeEvalExp (checkForIOLeak fun)
 	"CHECK" -> vcode2checkBlock code
 	"INIT"  -> vcode2initBlock code
 	"FIRST" -> vcode2firstBlock code
         _       -> fail ""
 
+{-| Wraps a call to @&Pugs::Internals::check_for_io_leak@ around the input
+    expression. @&Pugs::Internals::check_for_io_leak@ should @die()@ if the
+    expression returned an IO handle. -}
+-- Please remember to edit Prelude.pm, too, if you rename the name of the
+-- checker function.
+checkForIOLeak :: Exp -> Exp
+checkForIOLeak exp =
+    App (Var "&Pugs::Internals::check_for_io_leak") Nothing
+        [ Val $ VCode mkSub { subBody = exp } ]
+    
 -- | If we've executed code like @BEGIN { exit }@, we've to run all @\@*END@
 --   blocks and then exit. Returns the input expression if there's no need to
 --   exit.
@@ -641,13 +651,13 @@ vcode2firstBlock code = do
         ]
 
 vcode2initBlock :: Val -> RuleParser Exp
-vcode2initBlock code = vcode2initOrCheckBlock "@?INIT" code
+vcode2initBlock code = vcode2initOrCheckBlock "@?INIT" True code
 
 vcode2checkBlock :: Val -> RuleParser Exp
-vcode2checkBlock code = vcode2initOrCheckBlock "@?CHECK" code
+vcode2checkBlock code = vcode2initOrCheckBlock "@?CHECK" False code
 
-vcode2initOrCheckBlock :: String -> Val -> RuleParser Exp
-vcode2initOrCheckBlock magicalVar code = do
+vcode2initOrCheckBlock :: String -> Bool -> Val -> RuleParser Exp
+vcode2initOrCheckBlock magicalVar allowIOLeak code = do
     -- Similar as with FIRST {...}, we transform our input:
     -- my $x = INIT { 42 }   is transformed into
     -- BEGIN { push @?INIT, { FIRST { 42 } } }; my $x = @?INIT[(index)]();
@@ -656,9 +666,12 @@ vcode2initOrCheckBlock magicalVar code = do
     -- BEGIN { push @?CHECK, { FIRST { 42 } } }; my $x = @?CHECK[(index)]();
     -- This is the inner FIRST {...} block we generate.
     body <- vcode2firstBlock code
+    let possiblyCheck | allowIOLeak = id
+                      | otherwise   = checkForIOLeak
     rv <- unsafeEvalExp $
 	-- BEGIN { push @?INIT, { FIRST {...} } }
-	App (Var "&push") (Just $ Var magicalVar) [Syn "sub" [Val $ VCode mkSub { subBody = body }]]
+	App (Var "&push") (Just $ Var magicalVar)
+            [ Syn "sub" [ Val $ VCode mkSub { subBody = possiblyCheck body }]]
     -- rv is the return value of the push. Now we extract the actual num out of it:
     let (Val (VInt elems)) = rv
     -- Finally, we can return the transformed expression.
