@@ -377,7 +377,7 @@ callBlockCC fun =
 
 stmtControlCond :: VarName -> PrimName -> Decl
 stmtControlCond name comp = sub ("&statement_control:" ++ name) [arg0, arg1, arg2] $
-    [ "interpinfo" .- [tempPMC, bare ".INTERPINFO_CURRENT_CONT"]
+    [ "interpinfo" .- [funPMC, bare ".INTERPINFO_CURRENT_CONT"]
     , comp .- [arg0, bare label]
     ] ++ callBlockCC arg1 ++
     [ InsLabel label Nothing
