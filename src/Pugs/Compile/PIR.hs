@@ -191,12 +191,12 @@ instance (Typeable a) => Translate (PAST a) a where
         tell [StmtComment $ (replicate dep ' ') ++ "}}} " ++ pretty pos]
         return x
     trans (PLit (PVal VUndef)) = do
-        pmc     <- genLV
+        pmc     <- genLV "undef"
         return (ExpLV pmc)
     trans (PLit lit) = do
         -- generate fresh supply and things...
         litC    <- trans lit
-        pmc     <- genLV
+        pmc     <- genLV "lit"
         tellIns $ InsAssign pmc (ExpLit litC)
         return (ExpLV pmc)
     trans (PVal (VStr str)) = return $ LitStr str
@@ -205,7 +205,7 @@ instance (Typeable a) => Translate (PAST a) a where
     trans (PVal (VRat rat)) = return $ LitNum (ratToNum rat)
     trans val@(PVal _) = transError val
     trans (PVar name) = do
-        pmc     <- genLV
+        pmc     <- genLV "var"
         tellIns $ pmc <-- "find_name" $ [lit name]
         return pmc
     trans (PStmt (PExp (PApp (PExp (PVar name)) args))) = do
@@ -231,7 +231,7 @@ instance (Typeable a) => Translate (PAST a) a where
             PExp (PVar name) -> return $ lit name
             _           -> trans fun
         argsC   <- mapM trans args
-        pmc     <- genLV
+        pmc     <- genLV "app"
         -- XXX - probe if funC is slurpy, then modify ExpLV pmc accordingly
         tellIns $ [reg pmc] <-& funC $ argsC
         return pmc
@@ -241,26 +241,26 @@ instance (Typeable a) => Translate (PAST a) a where
             expsC   <- trans exps
             return ([], (StmtPad (map fst pad `zip` valsC) expsC:))
     trans (PExp exp) = fmap ExpLV $ trans exp
-    trans (PBlock exp) = do
+    trans (PBlock body) = do
         [begC, endC] <- genLabel ["blockBegin", "blockEnd"]
-        this    <- genPMC
+        this    <- genPMC "block"
         tellIns $ "newsub" .- [reg this, bare ".Continuation", bare begC]
         tellIns $ "goto" .- [bare endC]
         tellIns $ InsLabel begC Nothing
-        cc      <- genPMC
+        cc      <- genPMC "cc"
         fetchCC cc (reg this)
-        expC    <- trans exp
-        tellIns $ "set_returns" .- [lit "(0b10)", expC]
+        bodyC   <- trans body
+        tellIns $ "set_returns" .- [lit "(0b10)", bodyC]
         tellIns $ "invoke" .- [reg cc]
         tellIns $ InsLabel endC Nothing
         return (ExpLV this)
     trans (PThunk exp) = do
         [begC, sndC, retC, endC] <- genLabel ["thunkBegin", "thunkAgain", "thunkReturn", "thunkEnd"]
-        this    <- genPMC
+        this    <- genPMC "block"
         tellIns $ "newsub" .- [reg this, bare ".Continuation", bare begC]
         tellIns $ "goto" .- [bare endC]
         tellIns $ InsLabel begC Nothing
-        cc      <- genPMC
+        cc      <- genPMC "cc"
         fetchCC cc (reg this)
         expC    <- trans exp
         tellIns $ "set_addr" .- [reg this, bare sndC]
@@ -294,18 +294,19 @@ fetchCC cc begC = do
 tellIns :: Ins -> Trans ()
 tellIns = tell . (:[]) . StmtIns
 
-genPMC :: (RegClass a) => Trans a
-genPMC = do
+genPMC :: (RegClass a) => String -> Trans a
+genPMC name = do
     tvar    <- asks tReg
-    pmc     <- liftIO $ liftSTM $ do
+    name'   <- liftIO $ liftSTM $ do
         cur <- readTVar tvar
         writeTVar tvar (cur + 1)
-        return (PMC cur)
-    return $ reg pmc
+        return $ "P" ++ show cur ++ "_" ++ name
+    tellIns $ InsLocal RegPMC name'
+    return $ reg (VAR name')
 
-genLV :: (RegClass a) => Trans a
-genLV = do
-    pmc <- genPMC
+genLV :: (RegClass a) => String -> Trans a
+genLV name = do
+    pmc <- genPMC name
     tellIns $ InsNew pmc PerlUndef
     return $ reg pmc
 
@@ -329,7 +330,7 @@ genPIR' :: Eval Val
 genPIR' = do
     env         <- ask
     past        <- compile (envBody env) :: (Eval (PAST [Stmt]))
-    zero        <- liftSTM $ newTVar 100
+    zero        <- liftSTM $ newTVar 0
     none        <- liftSTM $ newTVar 0
     let initEnv = MkTEnv
             { tLexDepth = 0
