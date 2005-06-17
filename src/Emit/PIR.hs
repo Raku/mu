@@ -181,6 +181,7 @@ infixl 4 .&
 
 namespace :: PkgName -> Decl
 include :: PkgName -> Decl
+(<:=) :: LValue -> Expression -> Ins
 (<--) :: LValue -> PrimName -> [Expression] -> Ins
 (.-) :: PrimName -> [Expression] -> Ins
 (<-&) :: [Sig] -> Expression -> [Expression] -> Ins
@@ -189,6 +190,7 @@ include :: PkgName -> Decl
 namespace = DeclNS
 include = DeclInc
 
+(<:=) = InsBind
 (<--) = InsPrim . Just
 (.-)  = InsPrim Nothing
 (<-&) = InsFun
@@ -327,7 +329,7 @@ vop1i :: SubName -> PrimName -> Decl
 vop1i p6name opname =
     sub p6name [arg0] 
       [ InsNew rv PerlUndef
-      , tempINT <-- "" $ [arg0] --XXX
+      , tempINT <:= arg0
       , tempINT <-- opname $ [tempINT]
       , rv <-- "assign" $ [tempINT]
       ] --> [rv]
@@ -335,7 +337,7 @@ vop1n :: SubName -> PrimName -> Decl
 vop1n p6name opname =
     sub p6name [arg0] 
       [ InsNew rv PerlUndef
-      , tempNUM <-- "" $ [arg0] --XXX
+      , tempNUM <:= arg0
       , tempNUM <-- opname $ [tempNUM]
       , rv <-- "assign" $ [tempNUM]
       ] --> [rv]
@@ -344,27 +346,27 @@ vop2i :: SubName -> PrimName -> Decl
 vop2i p6name opname =
     sub p6name [arg0, arg1]
       [ InsNew rv PerlUndef
-      , tempINT <-- "" $ [arg0] --XXX
-      , tempINT2 <-- "" $ [arg1] --XXX
-      , tempINT <-- opname $ [tempINT, tempINT2]
+      , tempINT     <:= arg0
+      , tempINT2    <:= arg1
+      , tempINT     <-- opname $ [tempINT, tempINT2]
       , rv <-- "assign" $ [tempINT]
       ] --> [rv]
 vop2s :: SubName -> PrimName -> Decl
 vop2s p6name opname =
     sub p6name [arg0, arg1]
       [ InsNew rv PerlUndef
-      , tempSTR <-- "" $ [arg0] --XXX
-      , tempSTR2 <-- "" $ [arg1] --XXX
-      , tempINT <-- opname $ [tempSTR, tempSTR2]
-      , rv <-- "assign" $ [tempINT]
+      , tempSTR     <:= arg0
+      , tempSTR2    <:= arg1
+      , tempSTR     <-- opname $ [tempSTR, tempSTR2]
+      , rv <-- "assign" $ [tempSTR]
       ] --> [rv]
 vop2n :: SubName -> PrimName -> Decl
 vop2n p6name opname =
     sub p6name [arg0, arg1]
       [ InsNew rv PerlUndef
-      , tempNUM <-- "" $ [arg0] --XXX
-      , tempNUM2 <-- "" $ [arg1] --XXX
-      , tempNUM <-- opname $ [tempNUM, tempNUM2]
+      , tempNUM     <:= arg0
+      , tempNUM2    <:= arg1
+      , tempNUM     <-- opname $ [tempNUM, tempNUM2]
       , rv <-- "assign" $ [tempNUM]
       ] --> [rv]
 
@@ -554,7 +556,7 @@ preludePIR = emit $
     , sub "&time" []
         [ InsNew rv PerlUndef
         , tempNUM  <-- "time" $ []
-        , rv       <-- ""     $ [tempNUM] --XXX
+        , rv       <:= tempNUM
         -- Parrot's time returns seconds since 1970, but Perl 6's time
         -- returns seconds since 2000, so we've to compensate.
         , "sub" .- [rv, ExpLit . LitNum $ 946684800]
