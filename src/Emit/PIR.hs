@@ -363,21 +363,15 @@ bare = ExpLV . VAR
 -- calls and place result in tempPMC
 callBlock :: VarName -> Expression -> [Ins]
 callBlock label fun =
-    [ "newsub" .- [tempPMC, bare ".Continuation", bare label]
+    [ "get_results" .- sigList [tempPMC]
+    , "newsub" .- [funPMC, bare ".Continuation", bare label]
     ] ++ callBlockCC fun ++
---  [ InsLabel label $ Just $ "get_results" .- sigList [tempPMC]
---  ] -- HACK {{{
-    [ InsLabel label $ Just $ "find_global" .- [tempPMC, tempSTR]
+    [ InsLabel label Nothing
     ]
--- }}}
 
 callBlockCC :: Expression -> [Ins]
 callBlockCC fun =
-    [ -- "set_args" .- sigList [tempPMC] -- HACK {{{
-      tempINT   <-- "get_addr" $ [fun]
-    , InsBind tempSTR tempINT
-    , "store_global" .- [tempSTR, tempPMC]
--- }}}
+    [ "set_args" .- sigList [funPMC]
     , "invoke" .- [fun]
     ]
 
