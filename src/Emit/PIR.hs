@@ -477,10 +477,10 @@ preludePIR = emit $
         ]
     , stmtControlCond "if" "unless"
     , stmtControlCond "unless" "if"
-    , op2Logical "&&" "unless"
-    , op2Logical "||" "if"
-    , op2Logical "and" "unless"
-    , op2Logical "or" "if"
+    , op2Logical "&&" "if"
+    , op2Logical "||" "unless"
+    , op2Logical "and" "if"
+    , op2Logical "or" "unless"
     , sub "&prefix:++" [arg0]
         [ "inc" .- [arg0]
         ] --> [arg0]

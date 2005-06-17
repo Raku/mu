@@ -266,11 +266,20 @@ instance (Typeable a) => Translate (PAST a) a where
         funC    <- case fun of
             PExp (PVar name) -> return $ lit name
             _           -> trans fun
-        argsC   <- mapM trans args
+        argsC   <- if isLogicalLazy fun
+            then mapM trans (head args : map PThunk (tail args))
+            else mapM trans args
         pmc     <- genLV "app"
         -- XXX - probe if funC is slurpy, then modify ExpLV pmc accordingly
         tellIns $ [reg pmc] <-& funC $ argsC
         return pmc
+        where
+        -- XXX HACK
+        isLogicalLazy (PExp (PVar "&infix:or"))     = True
+        isLogicalLazy (PExp (PVar "&infix:and"))    = True
+        isLogicalLazy (PExp (PVar "&infix:||"))     = True
+        isLogicalLazy (PExp (PVar "&infix:&&"))     = True
+        isLogicalLazy _ = False
     trans (PPad pad exps) = do
         valsC   <- mapM trans (map snd pad)
         pass $ do
