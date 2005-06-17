@@ -349,6 +349,15 @@ vop2i p6name opname =
       , tempINT <-- opname $ [tempINT, tempINT2]
       , rv <-- "assign" $ [tempINT]
       ] --> [rv]
+vop2s :: SubName -> PrimName -> Decl
+vop2s p6name opname =
+    sub p6name [arg0, arg1]
+      [ InsNew rv PerlUndef
+      , tempINT <-- "" $ [arg0] --XXX
+      , tempINT2 <-- "" $ [arg1] --XXX
+      , tempINT <-- opname $ [tempSTR, tempSTR2]
+      , rv <-- "assign" $ [tempSTR]
+      ] --> [rv]
 vop2n :: SubName -> PrimName -> Decl
 vop2n p6name opname =
     sub p6name [arg0, arg1]
@@ -499,6 +508,14 @@ preludePIR = emit $
     , vop2i "&infix:<=" "isle"
     , vop2i "&infix:>" "isgt"
     , vop2i "&infix:>=" "isge"
+    , vop2i "&infix:==" "iseq"
+    , vop2i "&infix:!=" "isne"
+    , vop2s "&infix:lt" "islt"
+    , vop2s "&infix:le" "isle"
+    , vop2s "&infix:gt" "isgt"
+    , vop2s "&infix:gt" "isge"
+    , vop2s "&infix:eq" "iseq"
+    , vop2s "&infix:ne" "isne"
     --, namespace "Perl6::Internals"
     , sub "&abs" [arg0]
         [ InsNew rv PerlUndef
