@@ -7,7 +7,7 @@ my $version_h = shift || Cwd::cwd() . "/src/Pugs/pugs_version.h";
 my $base = shift || Cwd::cwd();
 my $svn_entries = "$base/.svn/entries";
 
-my $old_revision = 0;
+my $old_revision = -1;
 open IN, "< $version_h" and do {
   while (<IN>) {
     /#define PUGS_SVN_REVISION (\d+)/ or next;
