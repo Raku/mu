@@ -527,12 +527,37 @@ preludePIR = emit $
         , rv <-- "neg" $ [arg0]
         ] --> [rv]
     , sub "&nothing" [] []
+    , sub "&undef" []
+        [ InsNew rv PerlUndef
+        ] --> [rv]
+{- XXX saying  hash
+-- causes error:imcc:syntax error, unexpected IREG, expecting '('
+    , sub "&id" [arg0]
+        [ InsNew rv PerlUndef
+        , tempINT <-- "hash" $ [arg0]
+        , rv <-- "assign" $ [tempINT]
+        ] --> [rv]
+-}
+    , sub "&chop" [arg0]
+        [ InsNew rv PerlUndef
+        , tempSTR <:= arg0
+        , tempINT <-- "length" $ [tempSTR]
+        , "dec" .- [tempINT]
+        , "lt" .- [tempINT, ExpLit . LitInt $ 0, bare "chop_done"]
+        , tempSTR2 <-- "substr" $ [tempSTR, ExpLit . LitInt $ -1]
+        , rv <-- "assign" $ [tempSTR2]
+        , tempSTR2 <-- "substr" $ [tempSTR, ExpLit . LitInt $ 0, tempINT]
+        , arg0 <-- "assign" $ [tempSTR2]
+        , InsLabel "chop_done"
+        ] --> [rv]
+    , vop1 "&clone" "clone"
     , vop2 "&infix:+" "add"
     , vop2 "&infix:-" "sub"
     , vop2 "&infix:*" "mul"
     , vop2 "&infix:/" "div"
     , vop2 "&infix:%" "mod"
     , vop2 "&infix:~" "concat"
+    , vop1 "&prefix:!" "not"
     , vop2i "&infix:<" "islt"
     , vop2i "&infix:<=" "isle"
     , vop2i "&infix:>" "isgt"
@@ -545,6 +570,7 @@ preludePIR = emit $
     , vop2s "&infix:gt" "isge"
     , vop2s "&infix:eq" "iseq"
     , vop2s "&infix:ne" "isne"
+    , vop1 "&prefix:?^" "bnot"
     --, namespace "Perl6::Internals"
     , sub "&abs" [arg0]
         [ InsNew rv PerlUndef
@@ -580,6 +606,7 @@ preludePIR = emit $
     , vop2i "&gcd" "gcd"
     , vop2i "&lcm" "lcm"
     , vop2n "&pow" "pow"
+    -- parrot has no times()
     , sub "&time" []
         [ InsNew rv PerlUndef
         , tempNUM  <-- "time" $ []
