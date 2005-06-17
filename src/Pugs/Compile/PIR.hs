@@ -125,9 +125,11 @@ instance Compile Exp Stmt where
     compile Noop = return PNoop
     compile (Val val) = do
         cxt     <- asks envContext
-        if isVoidCxt cxt && (val /= VBool True)
-            then do warn "Useless use of a constant in void context" val
-                    compile Noop
+        if isVoidCxt cxt
+            then do
+                unless (val == VBool True) $
+                    warn "Useless use of a constant in void context" val
+                compile Noop
             else compile val
     compile (Syn "loop" [exp]) =
         compile (Syn "loop" $ [emptyExp, Val (VBool True), emptyExp, exp])
