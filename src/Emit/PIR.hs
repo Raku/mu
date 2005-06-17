@@ -19,7 +19,7 @@ data Stmt
     | StmtLine      !FilePath !Int
     | StmtIns       !Ins
     | StmtPad       ![(VarName, Expression)] ![Stmt]
-    | StmtRaw       !Doc    -- XXX HACK!
+    | StmtRaw       !Doc
     deriving (Show, Eq, Typeable)
 
 data Ins
@@ -366,18 +366,18 @@ callBlock label fun =
     [ "newsub" .- [tempPMC, bare ".Continuation", bare label]
     ] ++ callBlockCC fun ++
 --  [ InsLabel label $ Just $ "get_results" .- sigList [tempPMC]
---  ]
+--  ] -- HACK {{{
     [ InsLabel label $ Just $ "find_global" .- [tempPMC, tempSTR]
     ]
+-- }}}
 
 callBlockCC :: Expression -> [Ins]
 callBlockCC fun =
-    [ -- "set_args" .- sigList [tempPMC] -- really should be this
--- HACK BEGINS {{{
+    [ -- "set_args" .- sigList [tempPMC] -- HACK {{{
       tempINT   <-- "get_addr" $ [fun]
     , InsBind tempSTR tempINT
     , "store_global" .- [tempSTR, tempPMC]
--- HACK ENDS }}}
+-- }}}
     , "invoke" .- [fun]
     ]
 

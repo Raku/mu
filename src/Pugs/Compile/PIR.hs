@@ -4,6 +4,7 @@ module Pugs.Compile.PIR (genPIR') where
 import Pugs.Compile.Parrot
 import Pugs.Internals
 import Pugs.AST
+import Pugs.AST.Internals
 import Emit.Common
 import Pugs.Types
 import Emit.PIR
@@ -23,7 +24,7 @@ data PAST a where
     PPos        :: !Pos -> !Exp -> PAST a -> PAST a
     PStmt       :: !(PAST Expression) -> PAST Stmt 
     PThunk      :: !(PAST Expression) -> PAST Expression 
-    PBlock      :: !(PAST Expression) -> PAST Expression 
+    PBlock      :: !(PAST [Stmt]) -> PAST Expression 
 
     PVal        :: !Val -> PAST Literal
     PVar        :: !VarName -> PAST LValue
@@ -66,12 +67,13 @@ data TEnv = MkTEnv
     { tLexDepth :: !Int
     , tTokDepth :: !Int
     , tEnv      :: !Env
-    , tReg      :: !(TVar Int)
+    , tReg      :: !(TVar (Int, String))
     , tLabel    :: !(TVar Int)
     }
     deriving (Show, Eq)
 
 type Comp a = Eval a
+type CompMonad = EvalT (ContT Val (ReaderT Env SIO))
 type Trans a = WriterT [Stmt] (ReaderT TEnv IO) a
 
 class (Show a, Typeable b) => Compile a b where
@@ -90,37 +92,43 @@ instance Compile (String, [(TVar Bool, TVar VRef)]) Expression where
 
 instance Compile Exp [Stmt] where
     compile (Pos pos rest) = fmap (PPos pos rest) $ compile rest
+    compile (Cxt cxt rest) = enter cxt $ compile rest
     compile (Stmts (Pad SMy pad exp) rest) = do
         expC    <- compile $ mergeStmts exp rest
         padC    <- mapM compile (padToList pad)
         return $ PPad ((map fst (padToList pad)) `zip` padC) expC
-    compile (Stmts first rest) = do
-        firstC  <- compile first
-        restC   <- compileStmts rest
-        return $ PStmts firstC restC
-    compile exp = do
-        liftIO $ do
-            putStrLn "*** Unknown expression:"
-            putStr "    "
-            putStrLn $ show exp
-        return PNil
+    compile exp = compileStmts exp
+
+class EnterClass m a | m -> a where
+    enter :: a -> m b -> m b
+
+instance EnterClass CompMonad Cxt where
+    enter cxt = local (\e -> e{ envContext = cxt })
 
 compileStmts :: Exp -> Comp (PAST [Stmt])
 compileStmts exp = case exp of
     Stmts this rest -> do
-        thisC   <- compile this
+        let ent | rest == Noop  = id
+                | otherwise     = enter cxtVoid
+        thisC   <- ent $ compile this
         restC   <- compileStmts rest
         return $ PStmts thisC restC
     Noop        -> return PNil
     _           -> compile (Stmts exp Noop)
 
+instance Compile Val Stmt where
+    compile = fmap PStmt . compile . Val
+
 instance Compile Exp Stmt where
     compile (Pos pos rest) = fmap (PPos pos rest) $ compile rest
+    compile (Cxt cxt rest) = enter cxt $ compile rest
     compile Noop = return PNoop
     compile (Val val) = do
-        compile val :: Comp (PAST Literal)
-        warn "Useless use of a constant in void context" val
-        compile Noop
+        cxt     <- asks envContext
+        if isVoidCxt cxt
+            then do warn "Useless use of a constant in void context" val
+                    compile Noop
+            else compile val
     compile (Syn "loop" [exp]) =
         compile (Syn "loop" $ [emptyExp, Val (VBool True), emptyExp, exp])
     -- compile exp@(Syn "loop" _) = return $ PRaw exp
@@ -148,11 +156,12 @@ askPCxt = do
 
 instance Compile Exp LValue where
     compile (Pos pos rest) = fmap (PPos pos rest) $ compile rest
+    compile (Cxt cxt rest) = enter cxt $ compile rest
     compile (Var name) = return $ PVar name
     compile (App fun Nothing args) = do
         cxt     <- askPCxt
         funC    <- compile fun
-        argsC   <- mapM compile args
+        argsC   <- mapM (enter cxtItemAny . compile) args
         return $ PApp cxt funC argsC
     compile exp@(Syn "if" _) = compConditional exp
     compile exp@(Syn "unless" _) = compConditional exp
@@ -170,6 +179,7 @@ compConditional exp = compError exp
 
 instance Compile Exp Expression where
     compile (Pos pos rest) = fmap (PPos pos rest) $ compile rest
+    compile (Cxt cxt rest) = enter cxt $ compile rest
     compile (Var name) = return . PExp $ PVar name
     compile (Val val) = fmap PLit (compile val)
     compile exp@(App _ _ _) = fmap PExp $ compile exp
@@ -183,8 +193,6 @@ instance Compile Exp Expression where
         cxt     <- askPCxt
         bodyC   <- compile body
         return $ PExp $ PApp cxt (PBlock bodyC) []
-    compile (Stmts this rest) = do
-        error "statements in expression context -- wtf?"
     compile exp = compError exp
 
 compError :: forall a b. Compile a b => a -> Comp (PAST b)
@@ -248,9 +256,7 @@ instance (Typeable a) => Translate (PAST a) a where
     trans (PStmts this rest) = do
         thisC   <- trans this
         tell [thisC]
-        restC   <- trans rest
-        tell restC
-        return []
+        trans rest
     trans (PApp _ exp@(PBlock _) []) = do
         blockC  <- trans exp
         [appC] <- genLabel ["invokeBlock"]
@@ -279,7 +285,8 @@ instance (Typeable a) => Translate (PAST a) a where
         tellLabel begC
         cc      <- genPMC "cc"
         fetchCC cc (reg this)
-        bodyC   <- trans body
+        trans body  -- XXX - consistency check
+        bodyC   <- lastPMC
         tellIns $ "store_global" .- [tempSTR, bodyC] -- XXX HACK
 --      tellIns $ "set_returns" .- [lit "(0b10)", bodyC]
         tellIns $ "invoke" .- [reg cc]
@@ -304,7 +311,6 @@ instance (Typeable a) => Translate (PAST a) a where
         tellIns $ "invoke" .- [reg cc]
         tellLabel endC
         return (ExpLV this)
-    -- XXX HACK!
     trans (PRaw exp) = do
         env <- asks tEnv
         raw <- liftIO $ runEvalIO env{ envStash = "$P0" } $ do
@@ -330,13 +336,21 @@ tellIns = tell . (:[]) . StmtIns
 tellLabel :: String -> Trans ()
 tellLabel name = tellIns $ InsLabel name Nothing
 
+lastPMC :: (RegClass a) => Trans a
+lastPMC = do
+    tvar    <- asks tReg
+    name'   <- liftIO $ liftSTM $ do
+        (cur, name) <- readTVar tvar
+        return $ "P" ++ show cur ++ "_" ++ name
+    return $ reg (VAR name')
+
 genPMC :: (RegClass a) => String -> Trans a
 genPMC name = do
     tvar    <- asks tReg
     name'   <- liftIO $ liftSTM $ do
-        cur <- readTVar tvar
-        writeTVar tvar (cur + 1)
-        return $ "P" ++ show cur ++ "_" ++ name
+        (cur, _) <- readTVar tvar
+        writeTVar tvar (cur + 1, name)
+        return $ "P" ++ show (cur + 1) ++ "_" ++ name
     tellIns $ InsLocal RegPMC name'
     return $ reg (VAR name')
 
@@ -366,7 +380,7 @@ genPIR' :: Eval Val
 genPIR' = do
     env         <- ask
     past        <- compile (envBody env) :: (Eval (PAST [Stmt]))
-    zero        <- liftSTM $ newTVar 0
+    zero        <- liftSTM $ newTVar (0, "")
     none        <- liftSTM $ newTVar 0
     let initEnv = MkTEnv
             { tLexDepth = 0

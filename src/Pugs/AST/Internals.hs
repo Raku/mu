@@ -8,6 +8,8 @@ module Pugs.AST.Internals (
     Val(..),   -- uses V.* (which ones?)
     Value(..), -- uses Val, Eval
 
+    EvalT(..), ContT(..),
+
     Pad(..), -- uses Var, TVar, VRef
     Param(..), -- uses Cxt, Exp
     Params, -- uses Param
