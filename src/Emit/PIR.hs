@@ -363,32 +363,41 @@ bare = ExpLV . VAR
 -- calls and place result in tempPMC
 callBlock :: VarName -> Expression -> [Ins]
 callBlock label fun =
-    [ "get_results" .- sigList [tempPMC]
-    , "newsub" .- [funPMC, bare ".Continuation", bare label]
+    [ "newsub" .- [funPMC, bare ".Continuation", bare label]
     ] ++ callBlockCC fun ++
-    [ InsLabel label Nothing
+--  [ InsLabel label $ Just $ "get_results" .- sigList [funPMC]
+--  ] -- HACK {{{
+    [ InsLabel label $ Just $ "find_global" .- [tempPMC, tempSTR]
     ]
+-- }}}
 
 callBlockCC :: Expression -> [Ins]
 callBlockCC fun =
-    [ "set_args" .- sigList [funPMC]
+    [ -- "set_args" .- sigList [tempPMC] -- HACK {{{
+      tempINT   <-- "get_addr" $ [fun]
+    , InsBind tempSTR tempINT
+    , "store_global" .- [tempSTR, funPMC]
+-- }}}
     , "invoke" .- [fun]
     ]
 
 stmtControlCond :: VarName -> PrimName -> Decl
-stmtControlCond name comp = sub ("&statement_control:" ++ name) [arg0, arg1, arg2] $
-    [ "interpinfo" .- [funPMC, bare ".INTERPINFO_CURRENT_CONT"]
-    , comp .- [arg0, bare label]
+stmtControlCond name comp = sub ("&statement_control:" ++ name) [arg0, arg1, arg2] ([ "newsub" .- [funPMC, bare ".Continuation", bare postL]
+    , comp .- [arg0, bare altL]
     ] ++ callBlockCC arg1 ++
-    [ InsLabel label Nothing
-    ] ++ callBlockCC arg2
+    [ InsLabel altL Nothing
+    ] ++ callBlockCC arg2 ++
+    [ InsLabel postL Nothing
+    , "get_results" .- sigList [tempPMC]
+    ]) --> [tempPMC]
     where
-    label = ("sc_" ++ name ++ "_alt")
+    altL = ("sc_" ++ name ++ "_alt")
+    postL = ("sc_" ++ name ++ "_post")
         
 preludePIR :: Doc
 preludePIR = emit $
-    [ include "interpinfo.pasm"
-    , sub "&print" [slurpy arg0]
+    -- include "interpinfo.pasm"
+    [ sub "&print" [slurpy arg0]
         [ tempSTR <-- "join" $ [lit "", arg0]
         , "print" .- [tempSTR]
         ] --> [lit True]
