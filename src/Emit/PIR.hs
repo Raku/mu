@@ -594,6 +594,5 @@ preludePIR = emit $
         [] --> [lit True]
     , sub "&bool::false" []
         [] --> [lit False]
-    , namespace "main"
     ]
 

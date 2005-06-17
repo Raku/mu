@@ -39,10 +39,12 @@ data PAST a where
 data PCxt = PCxtVoid | PCxtLValue !Type | PCxtItem !Type | PCxtSlurpy !Type
     deriving (Show, Eq, Typeable)
 
+{-
 pcLV, pcItem, pcSlurpy :: PCxt
 pcLV        = PCxtLValue anyType
 pcItem      = PCxtItem anyType
 pcSlurpy    = PCxtSlurpy anyType
+-}
 
 instance Show (PAST a) where
     show (PVal x) = "(PVal " ++ show x ++ ")"
@@ -77,20 +79,33 @@ type CompMonad = EvalT (ContT Val (ReaderT Env SIO))
 type Trans a = WriterT [Stmt] (ReaderT TEnv IO) a
 
 class (Show a, Typeable b) => Compile a b where
-    compile :: a -> Comp (PAST b)
+    compile :: a -> Comp b
     compile x = fail ("Unrecognized construct: " ++ show x)
 
 class (Show a, Typeable b) => Translate a b | a -> b where
     trans :: a -> Trans b
     trans _ = fail "Untranslatable construct!"
 
-instance Compile [(TVar Bool, TVar VRef)] Expression where
-    compile _ = return (PLit $ PVal undef)
+instance Compile (Var, [(TVar Bool, TVar VRef)]) (PAST Decl) where
+    compile = compError
 
-instance Compile (String, [(TVar Bool, TVar VRef)]) Expression where
+instance Compile Pad (PAST PIR) where
+    compile = compError
+
+instance Compile Pad [PAST Decl] where
+    compile = mapM compile . filter canCompile . sortBy padSort . padToList
+        where
+        canCompile _ = False
+
+{-
+instance Compile [(TVar Bool, TVar VRef)] (PAST Expression) where
+    compile _ = return (PLit $ PVal undef)
+-}
+
+instance Compile (String, [(TVar Bool, TVar VRef)]) (PAST Expression) where
     compile (name, _) = return $ PRawName name
 
-instance Compile Exp [Stmt] where
+instance Compile Exp (PAST [Stmt]) where
     compile (Pos pos rest) = fmap (PPos pos rest) $ compile rest
     compile (Cxt cxt rest) = enter cxt $ compile rest
     compile (Stmts (Pad SMy pad exp) rest) = do
@@ -116,10 +131,10 @@ compileStmts exp = case exp of
     Noop        -> return PNil
     _           -> compile (Stmts exp Noop)
 
-instance Compile Val Stmt where
+instance Compile Val (PAST Stmt) where
     compile = fmap PStmt . compile . Val
 
-instance Compile Exp Stmt where
+instance Compile Exp (PAST Stmt) where
     compile (Pos pos rest) = fmap (PPos pos rest) $ compile rest
     compile (Cxt cxt rest) = enter cxt $ compile rest
     compile Noop = return PNoop
@@ -133,18 +148,14 @@ instance Compile Exp Stmt where
             else compile val
     compile (Syn "loop" [exp]) =
         compile (Syn "loop" $ [emptyExp, Val (VBool True), emptyExp, exp])
-    -- compile exp@(Syn "loop" _) = return $ PRaw exp
-    -- XXX - This doesn't yet work (but comes dangerously close)
-    -- XXX - Overlapping is intentional.
-    compile (Syn "loop" [pre, cond, post, body]) = do
+    compile (Syn "loop" [pre, cond, post, (Syn "block" [body])]) = do
         preC    <- compile pre
         condC   <- compile cond
         bodyC   <- compile body
         postC   <- compile post
         funC    <- compile (Var "&statement_control:loop")
-        return $ PStmt $ PExp $ PApp PCxtVoid funC [preC, PBlock condC, bodyC, PBlock postC]
+        return $ PStmt $ PExp $ PApp PCxtVoid funC [preC, PBlock condC, PBlock bodyC, PBlock postC]
     compile exp = fmap PStmt $ compile exp
-    -- compile exp = error ("invalid stmt: " ++ show exp)
 
 askPCxt :: Eval PCxt
 askPCxt = do
@@ -156,7 +167,7 @@ askPCxt = do
             CxtItem typ     -> PCxtItem typ
             CxtSlurpy typ   -> PCxtSlurpy typ
 
-instance Compile Exp LValue where
+instance Compile Exp (PAST LValue) where
     compile (Pos pos rest) = fmap (PPos pos rest) $ compile rest
     compile (Cxt cxt rest) = enter cxt $ compile rest
     compile (Var name) = return $ PVar name
@@ -179,7 +190,7 @@ compConditional (Syn name [cond, true, false]) = do
     return $ PApp cxt funC [condC, PThunk trueC, PThunk falseC]
 compConditional exp = compError exp
 
-instance Compile Exp Expression where
+instance Compile Exp (PAST Expression) where
     compile (Pos pos rest) = fmap (PPos pos rest) $ compile rest
     compile (Cxt cxt rest) = enter cxt $ compile rest
     compile (Var name) = return . PExp $ PVar name
@@ -197,13 +208,15 @@ instance Compile Exp Expression where
         return $ PExp $ PApp cxt (PBlock bodyC) []
     compile exp = compError exp
 
-compError :: forall a b. Compile a b => a -> Comp (PAST b)
-compError = die ("Compile error -- invalid " ++ show (typeOf (undefined :: b)))
+compError :: forall a b. Compile a b => a -> Comp b
+compError = die $ "Compile error -- invalid"
+    ++ (dropWhile (not . isSpace) . show $ typeOf (undefined :: b))
 
 transError :: forall a b. Translate a b => a -> Trans b
-transError = die ("Translate error -- invalid " ++ show (typeOf (undefined :: b)))
+transError = die $ "Translate error -- invalid"
+    ++ (dropWhile (not . isSpace) . show $ typeOf (undefined :: b))
 
-instance Compile Val Literal where
+instance Compile Val (PAST Literal) where
     compile val = return $ PVal val
 
 die :: (MonadIO m, Show a) => String -> a -> m b
@@ -214,6 +227,9 @@ die x y = do
 warn :: (MonadIO m, Show a) => String -> a -> m ()
 warn str val = liftIO $ do
     hPutStrLn stderr $ "*** " ++ str ++ ":\n    " ++ show val
+
+instance Typeable1 PAST where
+    typeOf1 _ = typeOf ()
 
 instance (Typeable a) => Translate (PAST a) a where
     trans PNil = return []
@@ -243,9 +259,11 @@ instance (Typeable a) => Translate (PAST a) a where
         pmc     <- genLV "var"
         tellIns $ pmc <-- "find_name" $ [lit name]
         return pmc
+{- XXX - this interferes with the prototype checking :-(
     trans (PStmt (PExp (PApp PCxtVoid (PExp (PVar name)) args))) = do
         argsC   <- mapM trans args
         return $ StmtIns $ InsFun [] (lit name) argsC
+-}
     trans (PStmt (PLit (PVal VUndef))) = return $ StmtComment ""
     trans (PStmt exp) = do
         expC    <- trans exp
@@ -341,7 +359,7 @@ fetchCC cc begC | parrotBrokenXXX = do
     tellIns $ tempINT   <-- "get_addr" $ [begC]
     tellIns $ tempSTR   <:= tempINT
     tellIns $ "find_global" .- [reg cc, tempSTR]
-fetchCC cc begC = do
+fetchCC cc _ = do
     tellIns $ "get_params" .- sigList [reg cc]
 
 tellIns :: Ins -> Trans ()
@@ -392,26 +410,44 @@ genName name = do
 
 genPIR' :: Eval Val
 genPIR' = do
-    env         <- ask
-    past        <- compile (envBody env) :: (Eval (PAST [Stmt]))
-    zero        <- liftSTM $ newTVar (0, "")
-    none        <- liftSTM $ newTVar 0
-    let initEnv = MkTEnv
-            { tLexDepth = 0
-            , tTokDepth = 0
-            , tEnv      = env
-            , tReg      = zero
-            , tLabel    = none
-            }
-    (_, pir)    <- liftIO $ (`runReaderT` initEnv) $ runWriterT (trans past)
+    tenv        <- initTEnv
+    glob        <- askGlobal
+    main        <- asks envBody
+    globPAST    <- compile glob
+    mainPAST    <- compile main
+    globPIR     <- runTransGlob tenv globPAST :: Eval [Decl]
+    mainPIR     <- runTransMain tenv mainPAST :: Eval [Stmt]
     return . VStr . unlines $
         [ "#!/usr/bin/env parrot"
         -- , renderStyle (Style PageMode 0 0) init
         , renderStyle (Style PageMode 0 0) $ preludePIR $+$ vcat
-            [ text ".sub main @MAIN"
+            [ emit $ namespace "main"
+            , text ".sub init @MAIN, @ANON"
             , text "    new_pad 0"
-            , nest 4 (emit pir)
+            , nest 4 (emit globPIR)
+            , text "    main()"
+            , text ".end"
+            , text ".sub main @ANON"
+            , nest 4 (emit mainPIR)
             , text ".end"
             ]
         ]
 
+runTransGlob :: (Functor m, MonadIO m) => TEnv -> [PAST Decl] -> m PIR
+runTransGlob tenv = const $ return [] -- fmap snd . liftIO . (`runReaderT` tenv) . runWriterT . trans
+
+runTransMain :: (Functor m, MonadIO m) => TEnv -> PAST [Stmt] -> m [Stmt]
+runTransMain tenv = fmap snd . liftIO . (`runReaderT` tenv) . runWriterT . trans
+
+initTEnv :: Eval TEnv
+initTEnv = do
+    env         <- ask
+    zero        <- liftSTM $ newTVar (0, "")
+    none        <- liftSTM $ newTVar 0
+    return $ MkTEnv
+        { tLexDepth = 0
+        , tTokDepth = 0
+        , tEnv      = env
+        , tReg      = zero
+        , tLabel    = none
+        }

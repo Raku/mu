@@ -1567,7 +1567,7 @@ instance Typeable VRef where
     typeOf (MkRef x) = typeOf x
 
 instance Typeable1 (EvalT (ContT Val (ReaderT Env SIO))) where
-    typeOf1 _ = typeOf ' '
+    typeOf1 _ = typeOf ()
 
 instance Typeable1 IVar where
     typeOf1 (IScalar x) = typeOf x
