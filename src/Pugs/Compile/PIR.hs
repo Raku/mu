@@ -280,7 +280,8 @@ instance (Typeable a) => Translate (PAST a) a where
         cc      <- genPMC "cc"
         fetchCC cc (reg this)
         bodyC   <- trans body
-        tellIns $ "set_returns" .- [lit "(0b10)", bodyC]
+        tellIns $ "store_global" .- [tempSTR, bodyC] -- XXX HACK
+--      tellIns $ "set_returns" .- [lit "(0b10)", bodyC]
         tellIns $ "invoke" .- [reg cc]
         tellLabel endC
         return (ExpLV this)
@@ -298,7 +299,8 @@ instance (Typeable a) => Translate (PAST a) a where
         tellLabel sndC
         fetchCC cc (reg this)
         tellLabel retC
-        tellIns $ "set_returns" .- [lit "(0b10)", expC]
+        tellIns $ "store_global" .- [tempSTR, expC] -- XXX HACK
+--      tellIns $ "set_returns" .- [lit "(0b10)", expC]
         tellIns $ "invoke" .- [reg cc]
         tellLabel endC
         return (ExpLV this)

@@ -281,7 +281,7 @@ sigList sigs = (flags:map sigIdent sigs)
 
 instance Emit [SigFlag] where
     emit [MkFlagSlurpy] = emit "0b1010"
-    emit [] = emit "0b0"
+    emit [] = emit "0b10"
     emit _ = error "Unknown sig"
 
 data Sig = MkSig
@@ -365,7 +365,9 @@ callBlock :: VarName -> Expression -> [Ins]
 callBlock label fun =
     [ "newsub" .- [tempPMC, bare ".Continuation", bare label]
     ] ++ callBlockCC fun ++
-    [ InsLabel label $ Just $ "get_results" .- sigList [tempPMC]
+--  [ InsLabel label $ Just $ "get_results" .- sigList [tempPMC]
+--  ]
+    [ InsLabel label $ Just $ "find_global" .- [tempPMC, tempSTR]
     ]
 
 callBlockCC :: Expression -> [Ins]
@@ -396,10 +398,17 @@ preludePIR = emit $
         [ tempSTR <-- "join" $ [lit "", arg0]
         , "print" .- [tempSTR]
         ] --> [lit True]
+{- XXX BROKEN
     , sub "&say" [slurpy arg0]
         [ "push" .- [arg0, lit "\n"]
         , "&print" .& [arg0]
         ]
+-}
+    , sub "&say" [slurpy arg0]
+        [ tempSTR <-- "join" $ [lit "", arg0]
+        , "print" .- [tempSTR]
+        , "print" .- [lit "\n"]
+        ] --> [lit True]
     , sub "&pop" [arg0]
         [ rv <-- "pop" $ [arg0]
         ] --> [rv]
