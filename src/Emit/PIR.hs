@@ -455,6 +455,7 @@ preludePIR = emit $
     , vop2 "&infix:*" "mul"
     , vop2 "&infix:/" "div"
     , vop2 "&infix:%" "mod"
+    , vop2 "&infix:~" "concat"
     , vop2i "&infix:<" "islt"
     , vop2i "&infix:<=" "isle"
     , vop2i "&infix:>" "isgt"
