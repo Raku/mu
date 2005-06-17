@@ -551,6 +551,14 @@ preludePIR = emit $
     , vop2i "&gcd" "gcd"
     , vop2i "&lcm" "lcm"
     , vop2n "&pow" "pow"
+    , sub "&time" []
+        [ InsNew rv PerlUndef
+        , tempNUM  <-- "time" $ []
+        , rv       <-- ""     $ [tempNUM] --XXX
+        -- Parrot's time returns seconds since 1970, but Perl 6's time
+        -- returns seconds since 2000, so we've to compensate.
+        , "sub" .- [rv, ExpLit . LitNum $ 946684800]
+        ] --> [rv]
     , namespace "bool"
     , sub "&true" []
         [] --> [lit True]
