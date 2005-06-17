@@ -287,8 +287,9 @@ instance (Typeable a) => Translate (PAST a) a where
         fetchCC cc (reg this)
         trans body  -- XXX - consistency check
         bodyC   <- lastPMC
---      tellIns $ "store_global" .- [tempSTR, bodyC] -- XXX HACK
-        tellIns $ "set_args" .- [lit "(0b10)", bodyC]
+        tellIns $ if parrotBrokenXXX
+            then "store_global" .- [tempSTR, bodyC] -- XXX HACK
+            else "set_args" .- [lit "(0b10)", bodyC]
         tellIns $ "invoke" .- [reg cc]
         tellLabel endC
         return (ExpLV this)
@@ -306,8 +307,9 @@ instance (Typeable a) => Translate (PAST a) a where
         tellLabel sndC
         fetchCC cc (reg this)
         tellLabel retC
---      tellIns $ "store_global" .- [tempSTR, expC] -- XXX HACK
-        tellIns $ "set_args" .- [lit "(0b10)", expC]
+        tellIns $ if parrotBrokenXXX
+            then "store_global" .- [tempSTR, expC] -- XXX HACK
+            else "set_args" .- [lit "(0b10)", expC]
         tellIns $ "invoke" .- [reg cc]
         tellLabel endC
         return (ExpLV this)
@@ -324,17 +326,18 @@ instance (Typeable a) => Translate (PAST a) a where
     trans x = transError x
 
 fetchCC :: LValue -> Expression -> Trans ()
+fetchCC cc begC | parrotBrokenXXX = do
+    tellIns $ tempINT   <-- "get_addr" $ [begC]
+    tellIns $ InsBind tempSTR tempINT
+    tellIns $ "find_global" .- [reg cc, tempSTR]
 fetchCC cc begC = do
     tellIns $ "get_params" .- sigList [reg cc]
---  tellIns $ tempINT   <-- "get_addr" $ [begC]
---  tellIns $ InsBind tempSTR tempINT
---  tellIns $ "find_global" .- [reg cc, tempSTR]
 
 tellIns :: Ins -> Trans ()
 tellIns = tell . (:[]) . StmtIns
 
 tellLabel :: String -> Trans ()
-tellLabel name = tellIns $ InsLabel name Nothing
+tellLabel name = tellIns $ InsLabel name
 
 lastPMC :: (RegClass a) => Trans a
 lastPMC = do

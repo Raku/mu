@@ -31,7 +31,7 @@ data Ins
     | InsFun        ![Sig] !Expression ![Expression]
     | InsTailFun    !Expression ![Expression]
     | InsPrim       !(Maybe LValue) !PrimName ![Expression]
-    | InsLabel      !LabelName !(Maybe Ins)
+    | InsLabel      !LabelName
     | InsComment    !String !(Maybe Ins)
     deriving (Show, Eq, Typeable)
 
@@ -117,7 +117,7 @@ instance Emit Ins where
         $+$ emitFun "invokecc" fun args
     emit (InsTailFun (ExpLit (LitStr name)) args) = emitFunName "tailcall" name args
     emit (InsExp exp) = empty
-    emit (InsLabel label ins) = nest (-2) (emit label <> colon) $+$ emit ins
+    emit (InsLabel label) = nest (-2) (emit label <> colon)
     emit (InsComment comment ins) = emit (StmtComment comment) $+$ emit ins
     emit x = error $ "can't emit ins: " ++ show x
 
@@ -360,15 +360,28 @@ vop2n p6name opname =
 bare :: VarName -> Expression
 bare = ExpLV . VAR
 
+parrotBrokenXXX :: Bool
+parrotBrokenXXX = True
+
 -- calls and place result in tempPMC
 callBlock :: VarName -> Expression -> [Ins]
 callBlock label fun =
     [ "newsub" .- [funPMC, bare ".Continuation", bare label]
     ] ++ callBlockCC fun ++
-    [ InsLabel label $ Just $ "get_results" .- sigList [tempPMC]
+    [ InsLabel label
+    , if parrotBrokenXXX
+        then "find_global" .- [tempPMC, tempSTR]
+        else "get_params" .- sigList [tempPMC]
     ]
+    where
 
 callBlockCC :: Expression -> [Ins]
+callBlockCC fun | parrotBrokenXXX =
+    [ tempINT   <-- "get_addr" $ [fun]
+    , InsBind tempSTR tempINT
+    , "store_global" .- [tempSTR, funPMC]
+    , "invoke" .- [fun]
+    ]
 callBlockCC fun =
     [ "set_args" .- sigList [funPMC]
     , "invoke" .- [fun]
@@ -379,10 +392,12 @@ stmtControlCond name comp = sub ("&statement_control:" ++ name) [arg0, arg1, arg
     [ "newsub" .- [funPMC, bare ".Continuation", bare postL]
     , comp .- [arg0, bare altL]
     ] ++ callBlockCC arg1 ++
-    [ InsLabel altL Nothing
+    [ InsLabel altL
     ] ++ callBlockCC arg2 ++
-    [ InsLabel postL Nothing
-    , "get_params" .- sigList [tempPMC]
+    [ InsLabel postL
+    , if parrotBrokenXXX
+        then "find_global" .- [tempPMC, tempSTR]
+        else "get_params" .- sigList [tempPMC]
     ]) --> [tempPMC]
     where
     altL = ("sc_" ++ name ++ "_alt")
@@ -418,14 +433,15 @@ preludePIR = emit $
         , rv        <-- "set" $ [tempSTR2]
         ] --> [rv]
     , sub "&statement_control:loop" [arg0, arg1, arg2, arg3] $
-        [ InsLabel "sc_loop_next" Nothing
+        [ InsLabel "sc_loop_next"
         ] ++ callBlock "loopCond" arg1 ++
         [ "unless" .- [tempPMC, bare "sc_loop_last"]
         ] ++ callBlock "loopBody" arg2 ++
         [ -- ..throw away the result of body...
         ] ++ callBlock "loopPost" arg3 ++
         [ "goto" .- [bare "sc_loop_next"]
-        , InsLabel "sc_loop_last" $ Just $ "returncc" .- []
+        , InsLabel "sc_loop_last"
+        , "returncc" .- []
         ]
     , stmtControlCond "if" "unless"
     , stmtControlCond "unless" "if"
