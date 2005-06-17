@@ -196,6 +196,7 @@ instance Emit Literal where
 
 instance Emit Int where
     emit = int
+
 {-|
   <-- is calling an opcode, that returns a value.
   .-  is calling an opcode, with any return value ignored.
@@ -212,6 +213,7 @@ infixl 4 .&
 #endif
 
 namespace :: PkgName -> Decl
+include :: PkgName -> Decl
 (<--) :: LValue -> PrimName -> [Expression] -> Ins
 (.-) :: PrimName -> [Expression] -> Ins
 (<-&) :: [Sig] -> Expression -> [Expression] -> Ins
@@ -388,15 +390,18 @@ vop2n p6name opname =
       , rv <-- "assign" $ [tempNUM]
       ] --> [rv]
 
+bare :: VarName -> Expression
 bare = ExpLV . VAR
 
 -- calls and place result in tempPMC
+callContinuation :: VarName -> Expression -> [Ins]
 callContinuation label fun =
     [ "newsub" .- [tempPMC, bare ".Continuation", bare label]
     ] ++ callWithCurrentContinuation fun ++
     [ InsLabel label $ Just $ "get_results" .- sigList [tempPMC]
     ]
 
+callWithCurrentContinuation :: Expression -> [Ins]
 callWithCurrentContinuation fun =
     [ -- "set_args" .- sigList [tempPMC] -- really should be this
 -- HACK BEGINS {{{
@@ -407,6 +412,7 @@ callWithCurrentContinuation fun =
     , "invoke" .- [fun]
     ]
 
+stmtControlCond :: VarName -> PrimName -> Decl
 stmtControlCond name comp = sub ("&statement_control:" ++ name) [arg0, arg1, arg2] $
     [ "interpinfo" .- [tempPMC, bare ".INTERPINFO_CURRENT_CONT"]
     , comp .- [arg0, bare label]

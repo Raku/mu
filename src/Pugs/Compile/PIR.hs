@@ -137,6 +137,7 @@ instance Compile Exp LValue where
     compile exp@(Syn "unless" _) = compConditional exp
     compile exp = error ("Invalid LValue: " ++ show exp)
 
+compConditional :: Exp -> Comp (PAST LValue)
 compConditional (Syn name [cond, true, false]) = do
     condC   <- compile cond
     trueC   <- compile true
@@ -281,6 +282,7 @@ instance (Typeable a) => Translate (PAST a) a where
         return (ExpLV pmc)
     trans x = transError x
 
+fetchCC :: LValue -> Expression -> Trans ()
 fetchCC cc begC = do
 --      tellIns $ "get_params" .- sigList [reg cc]
     tellIns $ tempINT   <-- "get_addr" $ [begC]
