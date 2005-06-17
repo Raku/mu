@@ -512,6 +512,7 @@ preludePIR = emit $
     , vop2 "&infix:%" "mod"
     , vop2 "&infix:~" "concat"
     , vop1 "&prefix:!" "not"
+    , vop1 "&not" "not"
     , vop2iii "&infix:<" "islt"
     , vop2iii "&infix:<=" "isle"
     , vop2iii "&infix:>" "isgt"
@@ -569,6 +570,7 @@ preludePIR = emit $
     , sub "&undef" []
         [ InsNew rv PerlUndef
         ] --> [rv]
+    , vop1x "&defined" "defined" tempINT tempPMC
 {- XXX saying  hash
 -- causes error:imcc:syntax error, unexpected IREG, expecting '('
     , sub "&id" [arg0]
