@@ -125,7 +125,7 @@ instance Compile Exp Stmt where
     compile Noop = return PNoop
     compile (Val val) = do
         cxt     <- asks envContext
-        if isVoidCxt cxt
+        if isVoidCxt cxt && (val /= VBool True)
             then do warn "Useless use of a constant in void context" val
                     compile Noop
             else compile val
