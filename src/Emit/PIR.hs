@@ -23,22 +23,28 @@ data Stmt
     deriving (Show, Eq, Typeable)
 
 data Ins
-    = InsLocal      !RegType !VarName
-    | InsNew        !LValue !ObjType 
-    | InsBind       !LValue !Expression
-    | InsAssign     !LValue !Expression
+    = InsLocal      !RegType !VarName               -- ^ Inserts a @.local@ directive
+    | InsNew        !LValue !ObjType                -- ^ Inserts a @new@ opcode
+    | InsBind       !LValue !Expression             -- ^ Inserts a @set@ opcode
+    | InsAssign     !LValue !Expression             -- ^ Inserts an @assign@ opcode
     | InsExp        !Expression
     | InsFun        ![Sig] !Expression ![Expression]
     | InsTailFun    !Expression ![Expression]
     | InsPrim       !(Maybe LValue) !PrimName ![Expression]
-    | InsLabel      !LabelName
-    | InsComment    !String !(Maybe Ins)
+    | InsLabel      !LabelName                      -- ^ Inserts a label
+    | InsComment    !String !(Maybe Ins)            -- ^ Inserts a comment
     deriving (Show, Eq, Typeable)
 
+{-| Tags a PIR subroutine definition with @\@MAIN@, @\@LOAD@, @\@ANON@,
+    @\@METHOD@, or @\@MULTI@. -}
 data SubType = SubMAIN | SubLOAD | SubANON | SubMETHOD | SubMULTI [ObjType]
     deriving (Show, Eq, Typeable)
 
-data RegType = RegInt | RegNum | RegStr | RegPMC
+data RegType
+    = RegInt                            -- ^ @I@ (integer) register
+    | RegNum                            -- ^ @N@ (number) register
+    | RegStr                            -- ^ @S@ (string) register
+    | RegPMC                            -- ^ @P@ (PMC) register
     deriving (Show, Eq, Typeable)
 
 data RelOp = RelLT | RelLE | RelEQ | RelNE | RelGE | RelGT
@@ -55,11 +61,11 @@ type PkgName    = String
 type CallConv   = String
 
 data LValue
-    = VAR !VarName
-    | PMC !Int
-    | STR !Int
-    | INT !Int
-    | NUM !Int
+    = VAR !VarName        -- ^ A variable declared by @.local@
+    | PMC !Int            -- ^ PMC register /n/
+    | STR !Int            -- ^ String register /n/
+    | INT !Int            -- ^ Integer register /n/
+    | NUM !Int            -- ^ Number register /n/
     deriving (Show, Eq, Typeable)
 
 data Expression
@@ -68,9 +74,9 @@ data Expression
     deriving (Show, Eq, Typeable)
 
 data Literal
-    = LitStr !String
-    | LitInt !Integer
-    | LitNum !Double
+    = LitStr !String      -- ^ A literal string
+    | LitInt !Integer     -- ^ A literal integer
+    | LitNum !Double      -- ^ A literal number
     deriving (Show, Eq, Typeable)
 
 instance Emit Decl where
@@ -164,13 +170,6 @@ instance Emit Literal where
     emit (LitInt int) = integer int
     emit (LitNum num) = double num
 
-{-|
-  <-- is calling an opcode, that returns a value.
-  .-  is calling an opcode, with any return value ignored.
-  <-& is calling a user-defined function, that returns a list of values.
- .&   is calling a user-defined function, with any return value ignored.
- -->  is returning from a sub.
--}
 #ifndef HADDOCK
 infixl 4 <--
 infixl 9 -->
@@ -181,11 +180,17 @@ infixl 4 .&
 
 namespace :: PkgName -> Decl
 include :: PkgName -> Decl
+{-| Short for 'InsBind' (binding). -}
 (<:=) :: LValue -> Expression -> Ins
+{-| Short for 'InsAssign'. -}
 (<==) :: LValue -> Expression -> Ins
+{-| Calls an opcode which returns a value. -}
 (<--) :: LValue -> PrimName -> [Expression] -> Ins
+{-| Calls an opcode, ignoring any return values. -}
 (.-) :: PrimName -> [Expression] -> Ins
+{-| Calls an user-defined sub which returns a list of values. -}
 (<-&) :: [Sig] -> Expression -> [Expression] -> Ins
+{-| Calls an user-defined sub, ignoring any return values. -}
 (.&) :: String -> [Expression] -> Ins
 
 namespace = DeclNS
@@ -198,45 +203,59 @@ include = DeclInc
 (<-&) = InsFun
 (.&)  = InsFun [] . lit
 
+{-| @$P0@ register -}
 nullPMC :: (RegClass a) => a
 nullPMC = reg $ PMC 0
 
+{-| @$P1@ register -}
 funPMC :: (RegClass a) => a
 funPMC = reg $ PMC 1
 
+{-| @$P2@ register -}
 rv :: (RegClass a) => a
 rv = reg $ PMC 2
 
+{-| @$P10@ register -}
 arg0 :: (RegClass a) => a
 arg0 = reg $ PMC 10
 
+{-| @$P11@ register -}
 arg1 :: (RegClass a) => a
 arg1 = reg $ PMC 11
 
+{-| @$P12@ register -}
 arg2 :: (RegClass a) => a
 arg2 = reg $ PMC 12
 
+{-| @$P13@ register -}
 arg3 :: (RegClass a) => a
 arg3 = reg $ PMC 13
 
+{-| @$P8@ register -}
 tempPMC :: (RegClass a) => a
 tempPMC = reg $ PMC 8
 
+{-| @$S8@ register -}
 tempSTR :: (RegClass a) => a
 tempSTR = reg $ STR 8
 
+{-| @$S9@ register -}
 tempSTR2 :: (RegClass a) => a
 tempSTR2 = reg $ STR 9
 
+{-| @$I8@ register -}
 tempINT :: (RegClass a) => a
 tempINT = reg $ INT 8
 
+{-| @$I9@ register -}
 tempINT2 :: (RegClass a) => a
 tempINT2 = reg $ INT 9
 
+{-| @$N8@ register -}
 tempNUM :: (RegClass a) => a
 tempNUM = reg $ NUM 8
 
+{-| @$N9@ register -}
 tempNUM2 :: (RegClass a) => a
 tempNUM2 = reg $ NUM 9
 
@@ -271,7 +290,11 @@ instance LiteralClass Bool Expression where
 instance LiteralClass Double Expression where
     lit = ExpLit . LitNum
 
-sub :: SubName -> [Sig] -> [Ins] -> Decl
+{-| Subroutine declaration. -}
+sub :: SubName         -- ^ Name of the subroutine
+    -> [Sig]           -- ^ Signature
+    -> [Ins]           -- ^ Subroutine body
+    -> Decl            -- ^ The final subroutine declaration
 sub name [] body = DeclSub name [] (map StmtIns body)
 sub name sigs body = DeclSub name [] stmts
     where
@@ -296,10 +319,12 @@ data Sig = MkSig
 data SigFlag = MkFlagSlurpy
     deriving (Show, Eq)
 
+{-| Marks a parameter as slurpy. -}
 slurpy :: Expression -> Sig
 slurpy = MkSig [MkFlagSlurpy]
 
 #ifndef HADDOCK
+{-| Returns from a sub. -}
 (-->) :: Decl -> [Expression] -> Decl
 (DeclSub name styps stmts) --> rets = DeclSub name styps $ stmts ++ map StmtIns
     [ "set_returns" .- retSigList rets
@@ -435,6 +460,7 @@ escaped = concatMap esc
     esc '&' = "_and_"
     esc x = [x]
 
+{-| The Prelude, defining primitives like @&say@, @&infix:+@, etc. -}
 preludePIR :: Doc
 preludePIR = emit $
     -- [ include "interpinfo.pasm"
