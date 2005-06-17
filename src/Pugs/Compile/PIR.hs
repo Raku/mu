@@ -113,7 +113,7 @@ instance Compile Exp Stmt where
         compile Noop
     compile (Syn "loop" [exp]) =
         compile (Syn "loop" $ [emptyExp, Val (VBool True), emptyExp, exp])
-    compile exp@(Syn "loop" _) = return $ PRaw exp
+    -- compile exp@(Syn "loop" _) = return $ PRaw exp
     -- XXX - This doesn't yet work (but comes dangerously close)
     -- XXX - Overlapping is intentional.
     compile (Syn "loop" [pre, cond, post, body]) = do
@@ -122,7 +122,7 @@ instance Compile Exp Stmt where
         bodyC   <- compile body
         postC   <- compile post
         funC    <- compile (Var "&statement_control:loop")
-        return $ PStmt $ PExp $ PApp funC [preC, PBlock condC, PBlock bodyC, PBlock postC]
+        return $ PStmt $ PExp $ PApp funC [preC, PBlock condC, bodyC, PBlock postC]
     compile exp = fmap PStmt $ compile exp
     -- compile exp = error ("invalid stmt: " ++ show exp)
 
@@ -227,7 +227,9 @@ instance (Typeable a) => Translate (PAST a) a where
         tell restC
         return []
     trans (PApp fun args) = do
-        funC    <- trans fun
+        funC    <- case fun of
+            PExp (PVar name) -> return $ lit name
+            _           -> trans fun
         argsC   <- mapM trans args
         pmc     <- genLV
         -- XXX - probe if funC is slurpy, then modify ExpLV pmc accordingly

@@ -154,16 +154,16 @@ emitRets [] = empty
 emitRets rets = emit ("get_results" .- sigList rets)
 
 emitFun :: (Emit b, Emit c) => CallConv -> b -> [c] -> Doc
-emitFun callconv fun args = vcat
-    [ emit "set_args" <+> commaSep (sig:map emit args)
-    , emit callconv <+> emit fun
-    ]
+emitFun callconv fun args = emitArgs args $+$ emit callconv <+> emit fun
+
+-- XXX WRONG! Can't do an empty call! wtf?
+emitArgs [] = empty
+emitArgs args = emit "set_args" <+> commaSep (sig:map emit args)
     where
     sig = quotes $ parens (commaSep (replicate (length args) "0b10010"))
 
 emitFunName :: Emit b => CallConv -> String -> [b] -> Doc
-emitFunName callconv name args = eqSep (funPMC :: LValue) "find_name" [LitStr name]
-    $+$ emitFun callconv (funPMC :: LValue) args
+emitFunName callconv name args = emitArgs args $+$ emit (LitStr name) <> parens empty
 
 noArgs :: [Expression]
 noArgs = []
