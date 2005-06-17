@@ -182,6 +182,7 @@ infixl 4 .&
 namespace :: PkgName -> Decl
 include :: PkgName -> Decl
 (<:=) :: LValue -> Expression -> Ins
+(<==) :: LValue -> Expression -> Ins
 (<--) :: LValue -> PrimName -> [Expression] -> Ins
 (.-) :: PrimName -> [Expression] -> Ins
 (<-&) :: [Sig] -> Expression -> [Expression] -> Ins
@@ -191,6 +192,7 @@ namespace = DeclNS
 include = DeclInc
 
 (<:=) = InsBind
+(<==) = InsAssign
 (<--) = InsPrim . Just
 (.-)  = InsPrim Nothing
 (<-&) = InsFun
@@ -357,8 +359,8 @@ vop2s p6name opname =
       [ InsNew rv PerlUndef
       , tempSTR     <:= arg0
       , tempSTR2    <:= arg1
-      , tempSTR     <-- opname $ [tempSTR, tempSTR2]
-      , rv <-- "assign" $ [tempSTR]
+      , tempINT     <-- opname $ [tempSTR, tempSTR2]
+      , rv <-- "assign" $ [tempINT]
       ] --> [rv]
 vop2n :: SubName -> PrimName -> Decl
 vop2n p6name opname =
@@ -393,7 +395,7 @@ collectCC label =
 callBlockCC :: Expression -> [Ins]
 callBlockCC fun | parrotBrokenXXX =
     [ tempINT   <-- "get_addr" $ [fun]
-    , InsBind tempSTR tempINT
+    , tempSTR   <:= tempINT
     , "store_global" .- [tempSTR, funPMC]
     , "invoke" .- [fun]
     ]

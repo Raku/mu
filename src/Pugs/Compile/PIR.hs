@@ -230,7 +230,7 @@ instance (Typeable a) => Translate (PAST a) a where
         -- generate fresh supply and things...
         litC    <- trans lit
         pmc     <- genLV "lit"
-        tellIns $ InsAssign pmc (ExpLit litC)
+        tellIns $ pmc <== ExpLit litC
         return (ExpLV pmc)
     trans (PVal (VStr str)) = return $ LitStr str
     trans (PVal (VInt int)) = return $ LitInt int
@@ -251,7 +251,7 @@ instance (Typeable a) => Translate (PAST a) a where
     trans (PAssign [lhs] rhs) = do
         lhsC    <- trans lhs
         rhsC    <- trans rhs
-        tellIns $ InsAssign lhsC rhsC
+        tellIns $ lhsC <== rhsC
         return (ExpLV lhsC)
     trans (PStmts this rest) = do
         thisC   <- trans this
@@ -328,7 +328,7 @@ instance (Typeable a) => Translate (PAST a) a where
 fetchCC :: LValue -> Expression -> Trans ()
 fetchCC cc begC | parrotBrokenXXX = do
     tellIns $ tempINT   <-- "get_addr" $ [begC]
-    tellIns $ InsBind tempSTR tempINT
+    tellIns $ tempSTR   <:= tempINT
     tellIns $ "find_global" .- [reg cc, tempSTR]
 fetchCC cc begC = do
     tellIns $ "get_params" .- sigList [reg cc]
