@@ -365,30 +365,24 @@ callBlock :: VarName -> Expression -> [Ins]
 callBlock label fun =
     [ "newsub" .- [funPMC, bare ".Continuation", bare label]
     ] ++ callBlockCC fun ++
---  [ InsLabel label $ Just $ "get_results" .- sigList [funPMC]
---  ] -- HACK {{{
-    [ InsLabel label $ Just $ "find_global" .- [tempPMC, tempSTR]
+    [ InsLabel label $ Just $ "get_results" .- sigList [tempPMC]
     ]
--- }}}
 
 callBlockCC :: Expression -> [Ins]
 callBlockCC fun =
-    [ -- "set_args" .- sigList [tempPMC] -- HACK {{{
-      tempINT   <-- "get_addr" $ [fun]
-    , InsBind tempSTR tempINT
-    , "store_global" .- [tempSTR, funPMC]
--- }}}
+    [ "set_args" .- sigList [funPMC]
     , "invoke" .- [fun]
     ]
 
 stmtControlCond :: VarName -> PrimName -> Decl
-stmtControlCond name comp = sub ("&statement_control:" ++ name) [arg0, arg1, arg2] ([ "newsub" .- [funPMC, bare ".Continuation", bare postL]
+stmtControlCond name comp = sub ("&statement_control:" ++ name) [arg0, arg1, arg2] (
+    [ "newsub" .- [funPMC, bare ".Continuation", bare postL]
     , comp .- [arg0, bare altL]
     ] ++ callBlockCC arg1 ++
     [ InsLabel altL Nothing
     ] ++ callBlockCC arg2 ++
     [ InsLabel postL Nothing
-    , "get_results" .- sigList [tempPMC]
+    , "get_params" .- sigList [tempPMC]
     ]) --> [tempPMC]
     where
     altL = ("sc_" ++ name ++ "_alt")
@@ -396,7 +390,7 @@ stmtControlCond name comp = sub ("&statement_control:" ++ name) [arg0, arg1, arg
         
 preludePIR :: Doc
 preludePIR = emit $
-    -- include "interpinfo.pasm"
+    -- [ include "interpinfo.pasm"
     [ sub "&print" [slurpy arg0]
         [ tempSTR <-- "join" $ [lit "", arg0]
         , "print" .- [tempSTR]

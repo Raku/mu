@@ -287,8 +287,8 @@ instance (Typeable a) => Translate (PAST a) a where
         fetchCC cc (reg this)
         trans body  -- XXX - consistency check
         bodyC   <- lastPMC
-        tellIns $ "store_global" .- [tempSTR, bodyC] -- XXX HACK
---      tellIns $ "set_returns" .- [lit "(0b10)", bodyC]
+--      tellIns $ "store_global" .- [tempSTR, bodyC] -- XXX HACK
+        tellIns $ "set_args" .- [lit "(0b10)", bodyC]
         tellIns $ "invoke" .- [reg cc]
         tellLabel endC
         return (ExpLV this)
@@ -306,8 +306,8 @@ instance (Typeable a) => Translate (PAST a) a where
         tellLabel sndC
         fetchCC cc (reg this)
         tellLabel retC
-        tellIns $ "store_global" .- [tempSTR, expC] -- XXX HACK
---      tellIns $ "set_returns" .- [lit "(0b10)", expC]
+--      tellIns $ "store_global" .- [tempSTR, expC] -- XXX HACK
+        tellIns $ "set_args" .- [lit "(0b10)", expC]
         tellIns $ "invoke" .- [reg cc]
         tellLabel endC
         return (ExpLV this)
@@ -325,10 +325,10 @@ instance (Typeable a) => Translate (PAST a) a where
 
 fetchCC :: LValue -> Expression -> Trans ()
 fetchCC cc begC = do
---      tellIns $ "get_params" .- sigList [reg cc]
-    tellIns $ tempINT   <-- "get_addr" $ [begC]
-    tellIns $ InsBind tempSTR tempINT
-    tellIns $ "find_global" .- [reg cc, tempSTR]
+    tellIns $ "get_params" .- sigList [reg cc]
+--  tellIns $ tempINT   <-- "get_addr" $ [begC]
+--  tellIns $ InsBind tempSTR tempINT
+--  tellIns $ "find_global" .- [reg cc, tempSTR]
 
 tellIns :: Ins -> Trans ()
 tellIns = tell . (:[]) . StmtIns
