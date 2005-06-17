@@ -589,10 +589,10 @@ preludePIR = emit $
         -- returns seconds since 2000, so we've to compensate.
         , "sub" .- [rv, ExpLit . LitNum $ 946684800]
         ] --> [rv]
-    , namespace "bool"
-    , sub "&true" []
+    --, namespace "bool" -- Namespaces have bugs in both pugs and parrot.
+    , sub "&bool::true" []
         [] --> [lit True]
-    , sub "&false" []
+    , sub "&bool::false" []
         [] --> [lit False]
     , namespace "main"
     ]
