@@ -353,10 +353,10 @@ vop2s :: SubName -> PrimName -> Decl
 vop2s p6name opname =
     sub p6name [arg0, arg1]
       [ InsNew rv PerlUndef
-      , tempINT <-- "" $ [arg0] --XXX
-      , tempINT2 <-- "" $ [arg1] --XXX
+      , tempSTR <-- "" $ [arg0] --XXX
+      , tempSTR2 <-- "" $ [arg1] --XXX
       , tempINT <-- opname $ [tempSTR, tempSTR2]
-      , rv <-- "assign" $ [tempSTR]
+      , rv <-- "assign" $ [tempINT]
       ] --> [rv]
 vop2n :: SubName -> PrimName -> Decl
 vop2n p6name opname =
