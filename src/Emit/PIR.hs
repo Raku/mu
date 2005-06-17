@@ -4,6 +4,7 @@ module Emit.PIR where
 import Text.PrettyPrint
 import Data.Char
 import Data.Typeable
+import Emit.Common
 
 type PIR = [Decl]
 
@@ -72,16 +73,6 @@ data Literal
     | LitNum !Double
     deriving (Show, Eq, Typeable)
 
-class (Show x) => Emit x where
-    emit :: x -> Doc
-    -- emit x = error ("Unrecognized construct: " ++ show x)
-
-instance Eq Doc where
-    x == y = (render x) == (render y)
-
-instance Emit String where
-    emit = text
-
 instance Emit Decl where
     emit (DeclNS name) = emit ".namespace" <+> brackets (quotes $ emit name)
     emit (DeclInc name) = emit ".include" <+> (quotes $ emit name)
@@ -96,18 +87,6 @@ instance Emit Decl where
 
 instance Emit SubType where
     emit = emit . ('@':) . drop 3 . show
-
-instance (Emit a) => Emit [a] where
-    emit = vcat . map emit
-
-nested :: (Emit x) => x -> Doc
-nested = nest 4 . emit
-
-eqSep :: (Emit a, Emit b, Emit c) => a -> b -> [c] -> Doc
-eqSep lhs rhs args = emit lhs <+> equals <+> emit rhs <+> commaSep args
-
-commaSep :: (Emit x) => [x] -> Doc
-commaSep = hsep . punctuate comma . map emit
 
 curPad :: Doc
 curPad = int (-1)
@@ -141,13 +120,6 @@ instance Emit Ins where
     emit (InsLabel label ins) = nest (-2) (emit label <> colon) $+$ emit ins
     emit (InsComment comment ins) = emit (StmtComment comment) $+$ emit ins
     emit x = error $ "can't emit ins: " ++ show x
-
-instance Emit (Maybe Ins) where
-    emit Nothing = empty
-    emit (Just ins) = emit ins
-
-instance Emit Doc where
-    emit = id
 
 emitRets :: [Sig] -> Doc
 emitRets [] = empty
@@ -191,9 +163,6 @@ instance Emit Literal where
         quoted x = [x]
     emit (LitInt int) = integer int
     emit (LitNum num) = double num
-
-instance Emit Int where
-    emit = int
 
 {-|
   <-- is calling an opcode, that returns a value.

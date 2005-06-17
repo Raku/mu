@@ -4,6 +4,7 @@ module Pugs.Compile.PIR (genPIR') where
 import Pugs.Compile.Parrot
 import Pugs.Internals
 import Pugs.AST
+import Emit.Common
 import Pugs.Types
 import Emit.PIR
 import Pugs.Pretty
