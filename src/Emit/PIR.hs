@@ -586,6 +586,12 @@ preludePIR = emit $
     , vop2s "&infix:eq" "iseq"
     , vop2s "&infix:ne" "isne"
     , vop1 "&prefix:?^" "bnot"
+    , sub "&join" [arg0, arg1]
+        [ InsNew rv PerlUndef
+        , tempSTR <:= arg0
+        , tempSTR2 <-- "join" $ [tempSTR, arg1]
+        , rv <-- "assign" $ [tempSTR2]
+        ] --> [rv]
     --, namespace "Perl6::Internals"
     , sub "&abs" [arg0]
         [ InsNew rv PerlUndef
@@ -629,6 +635,14 @@ preludePIR = emit $
         -- Parrot's time returns seconds since 1970, but Perl 6's time
         -- returns seconds since 2000, so we've to compensate.
         , "sub" .- [rv, ExpLit . LitNum $ 946684800]
+        ] --> [rv]
+    --, namespace "Str"
+    , sub "&split" [arg0, arg1]
+        [ InsNew rv PerlUndef
+        , tempSTR <:= arg0
+        , tempSTR2 <:= arg1
+        , tempPMC <-- "split" $ [tempSTR, tempSTR2]
+        , rv <-- "assign" $ [tempPMC]
         ] --> [rv]
     --, namespace "bool" -- Namespaces have bugs in both pugs and parrot.
     , sub "&bool::true" []
