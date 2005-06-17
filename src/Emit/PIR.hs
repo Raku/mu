@@ -9,7 +9,7 @@ import Emit.Common
 type PIR = [Decl]
 
 data Decl
-    = DeclSub   !SubName ![SubType] ![Stmt]
+    = DeclSub   !SubName ![SubFlag] ![Stmt]
     | DeclNS    !PkgName
     | DeclInc   !FilePath
     deriving (Show, Eq, Typeable)
@@ -37,7 +37,7 @@ data Ins
 
 {-| Tags a PIR subroutine definition with @\@MAIN@, @\@LOAD@, @\@ANON@,
     @\@METHOD@, or @\@MULTI@. -}
-data SubType = SubMAIN | SubLOAD | SubANON | SubMETHOD | SubMULTI [ObjType]
+data SubFlag = SubMAIN | SubLOAD | SubANON | SubMETHOD | SubMULTI [ObjType]
     deriving (Show, Eq, Typeable)
 
 data RegType
@@ -91,7 +91,7 @@ instance Emit Decl where
         emitBody [(StmtIns (InsFun _ name args))] = [emit $ StmtIns (InsTailFun name args)]
         emitBody (x:xs) = emit x : emitBody xs
 
-instance Emit SubType where
+instance Emit SubFlag where
     emit = emit . ('@':) . drop 3 . show
 
 curPad :: Doc
@@ -415,7 +415,6 @@ collectCC label =
         then "find_global" .- [tempPMC, tempSTR]
         else "get_params" .- sigList [tempPMC]
     ]
-    where
 
 callBlockCC :: Expression -> [Ins]
 callBlockCC fun | parrotBrokenXXX =

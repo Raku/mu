@@ -34,6 +34,8 @@ data PAST a where
     PAssign     :: ![PAST LValue] -> !(PAST Expression) -> PAST Expression
     PBind       :: ![PAST LValue] -> !(PAST Expression) -> PAST Expression
     PPad        :: ![(VarName, PAST Expression)] -> !(PAST [Stmt]) -> PAST [Stmt]
+
+    PSub        :: !SubName -> !(PAST [Stmt]) -> PAST Decl
 #endif
 
 data PCxt = PCxtVoid | PCxtLValue !Type | PCxtItem !Type | PCxtSlurpy !Type
@@ -64,6 +66,7 @@ instance Show (PAST a) where
     show (PBlock x) = "(PBlock " ++ show x ++ ")"
     show (PRaw x) = "(PRaw " ++ show x ++ ")"
     show (PRawName x) = "(PRawName " ++ show x ++ ")"
+    show (PSub x y) = "(PSub " ++ show x ++ " " ++ show y ++ ")"
 
 data TEnv = MkTEnv
     { tLexDepth :: !Int
@@ -93,9 +96,30 @@ instance Compile Pad (PAST PIR) where
     compile = compError
 
 instance Compile Pad [PAST Decl] where
-    compile = mapM compile . filter canCompile . sortBy padSort . padToList
+    compile pad = do
+        entries' <- mapM canCompile entries
+        mapM compile $ catMaybes entries'
         where
-        canCompile _ = False
+        entries = sortBy padSort $ padToList pad
+        canCompile (name@('&':_), [(_, sym)]) = do
+            ref <- liftSTM $ readTVar sym
+            case ref of
+                MkRef (ICode cv)
+                    -> doCode name =<< code_fetch cv
+                MkRef (IScalar sv) | scalar_iType sv == mkType "Scalar::Const"
+                    -> doCode name =<< fromVal =<< scalar_fetch sv
+                _ -> return Nothing
+        canCompile _ = return Nothing
+        doCode name vsub = return $ if subType vsub == SubPrim
+            then Nothing
+            else Just (name, vsub)
+
+
+instance Compile ([Char], VCode) (PAST Decl) where
+    compile (name, MkCode{ subBody = Syn "block" [body] }) = do
+        bodyC <- enter cxtItemAny $ compile body
+        return $ PSub name bodyC
+    compile x = compError x
 
 {-
 instance Compile [(TVar Bool, TVar VRef)] (PAST Expression) where
@@ -206,6 +230,11 @@ instance Compile Exp (PAST Expression) where
         cxt     <- askPCxt
         bodyC   <- compile body
         return $ PExp $ PApp cxt (PBlock bodyC) []
+    compile (Syn "sub" [Val (VCode sub)]) = do
+        -- XXX I'd like to lambda lift... :-/
+        cxt     <- askPCxt
+        bodyC   <- compile (subBody sub)
+        return $ PExp $ PApp cxt (PBlock bodyC) []
     compile exp = compError exp
 
 compError :: forall a b. Compile a b => a -> Comp b
@@ -213,8 +242,8 @@ compError = die $ "Compile error -- invalid"
     ++ (dropWhile (not . isSpace) . show $ typeOf (undefined :: b))
 
 transError :: forall a b. Translate a b => a -> Trans b
-transError = die $ "Translate error -- invalid"
-    ++ (dropWhile (not . isSpace) . show $ typeOf (undefined :: b))
+transError = die $ "Translate error -- invalid "
+    ++ (show $ typeOf (undefined :: b))
 
 instance Compile Val (PAST Literal) where
     compile val = return $ PVal val
@@ -352,6 +381,13 @@ instance (Typeable a) => Translate (PAST a) a where
         -- generate fresh supply and things...
         pmc     <- genName name
         return (ExpLV pmc)
+    trans (PSub name body) = do
+        (_, stmts)  <- listen $ do
+            trans body
+            bodyC <- lastPMC
+            tellIns $ "set_returns" .- retSigList [bodyC]
+            tellIns $ "returncc" .- []
+        return (DeclSub name [] stmts)
     trans x = transError x
 
 fetchCC :: LValue -> Expression -> Trans ()
@@ -422,9 +458,9 @@ genPIR' = do
         -- , renderStyle (Style PageMode 0 0) init
         , renderStyle (Style PageMode 0 0) $ preludePIR $+$ vcat
             [ emit $ namespace "main"
+            , emit globPIR
             , text ".sub init @MAIN, @ANON"
             , text "    new_pad 0"
-            , nest 4 (emit globPIR)
             , text "    main()"
             , text ".end"
             , text ".sub main @ANON"
@@ -433,10 +469,10 @@ genPIR' = do
             ]
         ]
 
-runTransGlob :: (Functor m, MonadIO m) => TEnv -> [PAST Decl] -> m PIR
-runTransGlob tenv = const $ return [] -- fmap snd . liftIO . (`runReaderT` tenv) . runWriterT . trans
+runTransGlob :: TEnv -> [PAST Decl] -> Eval [Decl]
+runTransGlob tenv = mapM $ fmap fst . liftIO . (`runReaderT` tenv) . runWriterT . trans
 
-runTransMain :: (Functor m, MonadIO m) => TEnv -> PAST [Stmt] -> m [Stmt]
+runTransMain :: TEnv -> PAST [Stmt] -> Eval [Stmt]
 runTransMain tenv = fmap snd . liftIO . (`runReaderT` tenv) . runWriterT . trans
 
 initTEnv :: Eval TEnv
