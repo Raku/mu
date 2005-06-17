@@ -162,7 +162,8 @@ emitArgs args = emit "set_args" <+> commaSep (sig:map emit args)
     sig = quotes $ parens (commaSep (replicate (length args) "0b10010"))
 
 emitFunName :: Emit b => CallConv -> String -> [b] -> Doc
-emitFunName callconv name args = emitArgs args $+$ emit (LitStr name) <> parens empty
+emitFunName callconv name args = eqSep (funPMC :: LValue) "find_name" [LitStr name]
+    $+$ emitFun callconv (funPMC :: LValue) args
 
 noArgs :: [Expression]
 noArgs = []
@@ -391,15 +392,15 @@ bare :: VarName -> Expression
 bare = ExpLV . VAR
 
 -- calls and place result in tempPMC
-callContinuation :: VarName -> Expression -> [Ins]
-callContinuation label fun =
+callBlock :: VarName -> Expression -> [Ins]
+callBlock label fun =
     [ "newsub" .- [tempPMC, bare ".Continuation", bare label]
-    ] ++ callWithCurrentContinuation fun ++
+    ] ++ callBlockCC fun ++
     [ InsLabel label $ Just $ "get_results" .- sigList [tempPMC]
     ]
 
-callWithCurrentContinuation :: Expression -> [Ins]
-callWithCurrentContinuation fun =
+callBlockCC :: Expression -> [Ins]
+callBlockCC fun =
     [ -- "set_args" .- sigList [tempPMC] -- really should be this
 -- HACK BEGINS {{{
       tempINT   <-- "get_addr" $ [fun]
@@ -413,9 +414,9 @@ stmtControlCond :: VarName -> PrimName -> Decl
 stmtControlCond name comp = sub ("&statement_control:" ++ name) [arg0, arg1, arg2] $
     [ "interpinfo" .- [tempPMC, bare ".INTERPINFO_CURRENT_CONT"]
     , comp .- [arg0, bare label]
-    ] ++ callWithCurrentContinuation arg1 ++
+    ] ++ callBlockCC arg1 ++
     [ InsLabel label Nothing
-    ] ++ callWithCurrentContinuation arg2
+    ] ++ callBlockCC arg2
     where
     label = ("sc_" ++ name ++ "_alt")
         
@@ -443,11 +444,11 @@ preludePIR = emit $
         ] --> [rv]
     , sub "&statement_control:loop" [arg0, arg1, arg2, arg3] $
         [ InsLabel "sc_loop_next" Nothing
-        ] ++ callContinuation "loopCond" arg1 ++
+        ] ++ callBlock "loopCond" arg1 ++
         [ "unless" .- [tempPMC, bare "sc_loop_last"]
-        ] ++ callContinuation "loopBody" arg2 ++
+        ] ++ callBlock "loopBody" arg2 ++
         [ -- ..throw away the result of body...
-        ] ++ callContinuation "loopPost" arg3 ++
+        ] ++ callBlock "loopPost" arg3 ++
         [ "goto" .- [bare "sc_loop_next"]
         , InsLabel "sc_loop_last" $ Just $ "returncc" .- []
         ]

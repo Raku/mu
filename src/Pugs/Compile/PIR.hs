@@ -4,6 +4,7 @@ module Pugs.Compile.PIR (genPIR') where
 import Pugs.Compile.Parrot
 import Pugs.Internals
 import Pugs.AST
+import Pugs.Types
 import Emit.PIR
 import Pugs.Pretty
 import Text.PrettyPrint
@@ -27,11 +28,19 @@ data PAST a where
     PVar        :: !VarName -> PAST LValue
 
     PStmts      :: !(PAST Stmt) -> PAST [Stmt] -> PAST [Stmt]
-    PApp        :: !(PAST Expression) -> ![PAST Expression] -> PAST LValue
+    PApp        :: !PCxt -> !(PAST Expression) -> ![PAST Expression] -> PAST LValue
     PAssign     :: ![PAST LValue] -> !(PAST Expression) -> PAST Expression
     PBind       :: ![PAST LValue] -> !(PAST Expression) -> PAST Expression
     PPad        :: ![(VarName, PAST Expression)] -> !(PAST [Stmt]) -> PAST [Stmt]
 #endif
+
+data PCxt = PCxtVoid | PCxtLValue !Type | PCxtItem !Type | PCxtSlurpy !Type
+    deriving (Show, Eq, Typeable)
+
+pcLV, pcItem, pcSlurpy :: PCxt
+pcLV        = PCxtLValue anyType
+pcItem      = PCxtItem anyType
+pcSlurpy    = PCxtSlurpy anyType
 
 instance Show (PAST a) where
     show (PVal x) = "(PVal " ++ show x ++ ")"
@@ -41,7 +50,7 @@ instance Show (PAST a) where
     show PNil = "PNil"
     show PNoop = "PNoop"
     show (PPos x y z) = "(PPos " ++ show x ++ " " ++ show y ++ " " ++ show z ++ ")"
-    show (PApp x y) = "(PApp " ++ show x ++ " " ++ show y ++ ")"
+    show (PApp x y z) = "(PApp " ++ show x ++ " " ++ show y ++ " " ++ show z ++ ")"
     show (PExp x) = "(PExp " ++ show x ++ ")"
     show (PStmt x) = "(PStmt " ++ show x ++ ")"
     show (PAssign x y) = "(PAssign " ++ show x ++ " " ++ show y ++ ")"
@@ -109,7 +118,7 @@ instance Compile Exp Stmt where
     compile Noop = return PNoop
     compile (Val val) = do
         compile val :: Comp (PAST Literal)
-        warn "Literal value used in constant expression" val
+        warn "Useless use of a constant in void context" val
         compile Noop
     compile (Syn "loop" [exp]) =
         compile (Syn "loop" $ [emptyExp, Val (VBool True), emptyExp, exp])
@@ -122,28 +131,40 @@ instance Compile Exp Stmt where
         bodyC   <- compile body
         postC   <- compile post
         funC    <- compile (Var "&statement_control:loop")
-        return $ PStmt $ PExp $ PApp funC [preC, PBlock condC, bodyC, PBlock postC]
+        return $ PStmt $ PExp $ PApp PCxtVoid funC [preC, PBlock condC, bodyC, PBlock postC]
     compile exp = fmap PStmt $ compile exp
     -- compile exp = error ("invalid stmt: " ++ show exp)
+
+askPCxt :: Eval PCxt
+askPCxt = do
+    env <- ask
+    return $ if envLValue env
+        then PCxtLValue (typeOfCxt $ envContext env)
+        else case envContext env of
+            CxtVoid         -> PCxtVoid
+            CxtItem typ     -> PCxtItem typ
+            CxtSlurpy typ   -> PCxtSlurpy typ
 
 instance Compile Exp LValue where
     compile (Pos pos rest) = fmap (PPos pos rest) $ compile rest
     compile (Var name) = return $ PVar name
     compile (App fun Nothing args) = do
+        cxt     <- askPCxt
         funC    <- compile fun
         argsC   <- mapM compile args
-        return $ PApp funC argsC
+        return $ PApp cxt funC argsC
     compile exp@(Syn "if" _) = compConditional exp
     compile exp@(Syn "unless" _) = compConditional exp
     compile exp = error ("Invalid LValue: " ++ show exp)
 
 compConditional :: Exp -> Comp (PAST LValue)
 compConditional (Syn name [cond, true, false]) = do
+    cxt     <- askPCxt
     condC   <- compile cond
     trueC   <- compile true
     falseC  <- compile false
     funC    <- compile (Var $ "&statement_control:" ++ name)
-    return $ PApp funC [condC, PThunk trueC, PThunk falseC]
+    return $ PApp cxt funC [condC, PThunk trueC, PThunk falseC]
 compConditional exp = compError exp
 
 instance Compile Exp Expression where
@@ -158,8 +179,11 @@ instance Compile Exp Expression where
         rhsC    <- compile rhs
         return $ PAssign [lhsC] rhsC
     compile (Syn "block" [body]) = do
+        cxt     <- askPCxt
         bodyC   <- compile body
-        return $ PBlock bodyC
+        return $ PExp $ PApp cxt (PBlock bodyC) []
+    compile (Stmts this rest) = do
+        error "statements in expression context -- wtf?"
     compile exp = compError exp
 
 compError :: forall a b. Compile a b => a -> Comp (PAST b)
@@ -208,7 +232,7 @@ instance (Typeable a) => Translate (PAST a) a where
         pmc     <- genLV "var"
         tellIns $ pmc <-- "find_name" $ [lit name]
         return pmc
-    trans (PStmt (PExp (PApp (PExp (PVar name)) args))) = do
+    trans (PStmt (PExp (PApp PCxtVoid (PExp (PVar name)) args))) = do
         argsC   <- mapM trans args
         return $ StmtIns $ InsFun [] (lit name) argsC
     trans (PStmt (PLit (PVal VUndef))) = return $ StmtComment ""
@@ -226,7 +250,12 @@ instance (Typeable a) => Translate (PAST a) a where
         restC   <- trans rest
         tell restC
         return []
-    trans (PApp fun args) = do
+    trans (PApp _ exp@(PBlock _) []) = do
+        blockC  <- trans exp
+        [appC] <- genLabel ["invokeBlock"]
+        tell $ map StmtIns $ callBlock appC blockC 
+        return tempPMC
+    trans (PApp _ fun args) = do
         funC    <- case fun of
             PExp (PVar name) -> return $ lit name
             _           -> trans fun
@@ -246,30 +275,31 @@ instance (Typeable a) => Translate (PAST a) a where
         this    <- genPMC "block"
         tellIns $ "newsub" .- [reg this, bare ".Continuation", bare begC]
         tellIns $ "goto" .- [bare endC]
-        tellIns $ InsLabel begC Nothing
+        tellLabel begC
         cc      <- genPMC "cc"
         fetchCC cc (reg this)
         bodyC   <- trans body
         tellIns $ "set_returns" .- [lit "(0b10)", bodyC]
         tellIns $ "invoke" .- [reg cc]
-        tellIns $ InsLabel endC Nothing
+        tellLabel endC
         return (ExpLV this)
     trans (PThunk exp) = do
         [begC, sndC, retC, endC] <- genLabel ["thunkBegin", "thunkAgain", "thunkReturn", "thunkEnd"]
         this    <- genPMC "block"
         tellIns $ "newsub" .- [reg this, bare ".Continuation", bare begC]
         tellIns $ "goto" .- [bare endC]
-        tellIns $ InsLabel begC Nothing
+        tellLabel begC
         cc      <- genPMC "cc"
         fetchCC cc (reg this)
         expC    <- trans exp
         tellIns $ "set_addr" .- [reg this, bare sndC]
         tellIns $ "goto" .- [bare retC]
-        tellIns $ InsLabel sndC Nothing
+        tellLabel sndC
         fetchCC cc (reg this)
-        tellIns $ InsLabel retC . Just $ "set_returns" .- [lit "(0b10)", expC]
+        tellLabel retC
+        tellIns $ "set_returns" .- [lit "(0b10)", expC]
         tellIns $ "invoke" .- [reg cc]
-        tellIns $ InsLabel endC Nothing
+        tellLabel endC
         return (ExpLV this)
     -- XXX HACK!
     trans (PRaw exp) = do
@@ -293,6 +323,9 @@ fetchCC cc begC = do
 
 tellIns :: Ins -> Trans ()
 tellIns = tell . (:[]) . StmtIns
+
+tellLabel :: String -> Trans ()
+tellLabel name = tellIns $ InsLabel name Nothing
 
 genPMC :: (RegClass a) => String -> Trans a
 genPMC name = do

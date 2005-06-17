@@ -297,3 +297,11 @@ printConfigInfo [] = do
 
 printConfigInfo (item:_) = do
 	putStrLn $ createConfigLine item
+
+compPIR :: String -> IO ()
+compPIR = (putStr =<<) . doCompile "PIR" "-"
+
+runPIR :: String -> IO ()
+runPIR str = do
+    withArgs ["-CPIR", "-e", str] main
+    evalParrotFile "dump.ast"
