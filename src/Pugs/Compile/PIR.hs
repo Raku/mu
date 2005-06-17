@@ -35,7 +35,7 @@ data PAST a where
     PBind       :: ![PAST LValue] -> !(PAST Expression) -> PAST Expression
     PPad        :: ![(VarName, PAST Expression)] -> !(PAST [Stmt]) -> PAST [Stmt]
 
-    PSub        :: !SubName -> !(PAST [Stmt]) -> PAST Decl
+    PSub        :: !SubName -> ![Param] -> !(PAST [Stmt]) -> PAST Decl
 #endif
 
 data PCxt = PCxtVoid | PCxtLValue !Type | PCxtItem !Type | PCxtSlurpy !Type
@@ -66,7 +66,7 @@ instance Show (PAST a) where
     show (PBlock x) = "(PBlock " ++ show x ++ ")"
     show (PRaw x) = "(PRaw " ++ show x ++ ")"
     show (PRawName x) = "(PRawName " ++ show x ++ ")"
-    show (PSub x y) = "(PSub " ++ show x ++ " " ++ show y ++ ")"
+    show (PSub x y z) = "(PSub " ++ show x ++ " " ++ show y ++ " " ++ show z ++ ")"
 
 data TEnv = MkTEnv
     { tLexDepth :: !Int
@@ -116,9 +116,9 @@ instance Compile Pad [PAST Decl] where
 
 
 instance Compile ([Char], VCode) (PAST Decl) where
-    compile (name, MkCode{ subBody = Syn "block" [body] }) = do
+    compile (name, MkCode{ subBody = Syn "block" [body], subParams = params }) = do
         bodyC <- enter cxtItemAny $ compile body
-        return $ PSub name bodyC
+        return $ PSub name params bodyC
     compile x = compError x
 
 {-
@@ -195,6 +195,8 @@ instance Compile Exp (PAST LValue) where
     compile (Pos pos rest) = fmap (PPos pos rest) $ compile rest
     compile (Cxt cxt rest) = enter cxt $ compile rest
     compile (Var name) = return $ PVar name
+    compile (App fun (Just inv) args) = do
+        compile (App fun Nothing (inv:args)) -- XXX WRONG
     compile (App fun Nothing args) = do
         cxt     <- askPCxt
         funC    <- compile fun
@@ -235,6 +237,7 @@ instance Compile Exp (PAST Expression) where
         cxt     <- askPCxt
         bodyC   <- compile (subBody sub)
         return $ PExp $ PApp cxt (PBlock bodyC) []
+    compile (Syn "for" _) = compile (Val undef) -- XXX TODO
     compile exp = compError exp
 
 compError :: forall a b. Compile a b => a -> Comp b
@@ -381,13 +384,26 @@ instance (Typeable a) => Translate (PAST a) a where
         -- generate fresh supply and things...
         pmc     <- genName name
         return (ExpLV pmc)
-    trans (PSub name body) = do
+    trans (PSub name params body) = do
         (_, stmts)  <- listen $ do
+            mapM_ (tellIns . InsLocal RegPMC . paramToIdent) params
+            tellIns $ "get_params" .- sigList (map paramToSig params)
+            tellIns $ "new_pad" .- [lit curPad]
+            mapM storeLex params
             trans body
             bodyC <- lastPMC
             tellIns $ "set_returns" .- retSigList [bodyC]
             tellIns $ "returncc" .- []
         return (DeclSub name [] stmts)
+        where
+        -- XXX - slurpiness
+        paramToSig prm | isSlurpy prm = slurpy . bare $ paramToIdent prm
+        paramToSig prm = MkSig [] . bare $ paramToIdent prm
+        paramToIdent = render . varText . paramName
+        storeLex prm = do
+            let var = paramName prm
+                name = paramToIdent prm
+            tellIns $ "store_lex" .- [lit curPad, lit var, bare name]
     trans x = transError x
 
 fetchCC :: LValue -> Expression -> Trans ()

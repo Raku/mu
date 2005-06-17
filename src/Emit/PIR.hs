@@ -94,8 +94,8 @@ instance Emit Decl where
 instance Emit SubFlag where
     emit = emit . ('@':) . drop 3 . show
 
-curPad :: Doc
-curPad = int (-1)
+curPad :: Int
+curPad = -1
 
 instance Emit Stmt where
     emit (StmtComment []) = empty
@@ -103,8 +103,8 @@ instance Emit Stmt where
     emit (StmtLine file line) = text "#line" <+> doubleQuotes (emit file) <+> emit line
     emit (StmtIns ins) = emit ins
     emit (StmtPad pad stmts) = vcat $
-        [ emit "new_pad" <+> curPad
-        ] ++ map (\(var, exp) -> emit ("store_lex" .- [lit (-1 :: Int), lit var, exp])) pad
+        [ emit "new_pad" <+> int curPad
+        ] ++ map (\(var, exp) -> emit ("store_lex" .- [lit curPad, lit var, exp])) pad
     emit (StmtRaw doc) = doc
 
 instance Emit RegType where
