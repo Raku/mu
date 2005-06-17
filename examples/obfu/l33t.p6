@@ -24,29 +24,28 @@ has int8 @.mem;   # program and data memory space
 has Int $.ip;     # instruction pointer
 has Int $.mp;     # memory pointer
 has Socket $con;  # "connection"; stdio when undef
-has Bool $:debug;
+has Bool $:trace;
 
 submethod BUILD {
    #say "BUILD";
    @.mem[$_] = 0 for 0 .. ($MEMSIZE-1);
    $.ip = 0;
    $.mp = 0;
-   #$:debug = bool::true;
-   $:debug = bool::false;
+   #$:trace = bool::true;
+   $:trace = bool::false;
    #say "BUILD done";
 }
 
-submethod debug(: Str $msg) {
-    return unless $:debug;
-    say $msg;
+submethod trace(: Str $msg) {
+    say $msg if $:trace;
 }
 
 method load($self: Str $program is copy) {
-    ./debug("loading >>\n $program\n<<");
+    ./trace("loading >>\n $program\n<<");
     $program ~~ s:perl5<s>/^\s*//;
     for split rx:perl5/\s+/, $program -> $word {
         my $val = ([+] $word ~~ rx:P5<g>/(\d)/) // 0;
-        ./debug("word [$word] = $val");
+        ./trace("word [$word] = $val");
         @.mem[$.mp++] = $val;
         $.mp %= $MEMSIZE;
     }
@@ -66,43 +65,46 @@ submethod DIP() { # decrement instruction pointer
 
 method run() {
     loop {
-        ./debug("IP: $.ip => @.mem[$.ip]  MP: $.mp => @.mem[$.mp]");
+        ./trace("IP: $.ip => @.mem[$.ip]  MP: $.mp => @.mem[$.mp]");
         given @.mem[$.ip] {
-            when 0 { ./IIP };                  # NOP
-            when 1 { ./write; ./IIP };         # WRT
-            when 2 { ./read;  ./IIP };         # RD
-            when 3|4 { ./bracket($_) };        # IF / EIF
-            when 5|6 {                         # FWD / BAK
-                ./IIP;
-                $.mp += (($_ == 5) ?? 1 :: -1) * (@.mem[$.ip] + 1);
-                $.mp %= $MEMSIZE;
-                ./IIP;
-            };
-            when 7|8 {                         # INC / DEC
-                ./IIP;
-                @.mem[$.mp] += (($_ == 7) ?? 1 :: -1) * (@.mem[$.ip] + 1);
-                @.mem[$.mp] %= $CELLSIZE;
-                ./IIP;
-            };
-            when 9 {                         # CON
-                ./IIP;
-                $.mp += 6;
-                $.mp %= $MAXSIZE;
-                say "C0N n0t 1mp13m3nt3D, j0!";
-            };
-            when 10 {                        # END
+            when 0 { ./IIP };                     # NOP
+            when 1 { ./write; };                  # WRT
+            when 2 { ./read; };                   # RD
+            when 3 { ./bracket(3, 4) };           # IF
+            when 4 { ./bracket(4, 3) };           # EIF
+            when 5 { ./mem($.mp) };               # FWD
+            when 6 { ./mem($.mp, :down) };        # BAK
+            when 7 { ./mem(@.mem[$.mp]) };        # INC
+            when 8 { ./mem(@.mem[$.mp], :down) }; # DEC
+            when 9 { ./con };                     # CON
+            when 10 {                             # END
                 $.con.close if defined $.con;
                 last;
             };
-            ./debug($INSULT);
+
+            # unknown opcode. this is NOT a syntax error.
+            say "$INSULT: wtf iz $_?";
             ./IIP;
         }
     }
 }
 
-method bracket(: $own) {
+method con() {
+    ./IIP;
+    $.mp += 6;
+    $.mp %= $MAXSIZE;
+    say "C0N n0t 1mp13m3nt3D, j0!";
+};
+
+method mem($target is rw, ?$down) {
+    ./IIP;
+    $target += (@.mem[$.ip] + 1) * ($down ?? -1 :: 1);
+    $target %= $MEMSIZE;
+    ./IIP;
+}
+
+method bracket(: $own, $matching) {
     my $move     = (($own == 3) ?? {./IIP} :: {./DIP}); # mover in the right direction
-    my $matching = (($own == 3) ?? 4    :: 3);    # matching bracket instruction
     if (($own == 3 && @.mem[$.mp] == 0) || ($own == 4 && @.mem[$.mp] != 0)) {
         my $iflevel = 1;
         loop {
@@ -119,10 +121,12 @@ method bracket(: $own) {
 
 method write() {
     print chr @.mem[$.mp];
+    ./IIP;
 }
 
 method read() {
     @.mem[$.mp] = ord getc;
+    ./IIP;
 }
 
 method demo(Class $class: ) {
