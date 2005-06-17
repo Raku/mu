@@ -478,17 +478,8 @@ preludePIR = emit $
         , "print" .- [tempSTR]
         , "print" .- [lit "\n"]
         ] --> [lit True]
-    , sub "&pop" [arg0]
-        [ rv <-- "pop" $ [arg0]
-        ] --> [rv]
-    , sub "&substr" [arg0, arg1, arg2]
-        [ tempSTR   <-- "set" $ [arg0]
-        , tempINT   <-- "set" $ [arg1]
-        , tempINT2  <-- "set" $ [arg2]
-        , tempSTR2  <-- "substr" $ [tempSTR, tempINT, tempINT2]
-        , InsNew rv PerlUndef
-        , rv        <-- "set" $ [tempSTR2]
-        ] --> [rv]
+
+    -- Control flowy
     , sub "&statement_control:loop" [arg0, arg1, arg2, arg3] $
         [ InsLabel "sc_loop_next"
         ] ++ callBlock "loopCond" arg1 ++
@@ -506,6 +497,9 @@ preludePIR = emit $
     , op2Logical "||" "unless"
     , op2Logical "and" "if"
     , op2Logical "or" "unless"
+    , sub "&nothing" [] []
+
+    -- Operators
     , sub "&prefix:++" [arg0]
         [ "inc" .- [arg0]
         ] --> [arg0]
@@ -526,18 +520,36 @@ preludePIR = emit $
         [ InsNew rv PerlUndef
         , rv <-- "neg" $ [arg0]
         ] --> [rv]
-    , sub "&nothing" [] []
-    , sub "&undef" []
-        [ InsNew rv PerlUndef
+    , vop2 "&infix:+" "add"
+    , vop2 "&infix:-" "sub"
+    , vop2 "&infix:*" "mul"
+    , vop2 "&infix:/" "div"
+    , vop2 "&infix:%" "mod"
+    , vop2 "&infix:~" "concat"
+    , vop1 "&prefix:!" "not"
+    , vop2i "&infix:<" "islt"
+    , vop2i "&infix:<=" "isle"
+    , vop2i "&infix:>" "isgt"
+    , vop2i "&infix:>=" "isge"
+    , vop2i "&infix:==" "iseq"
+    , vop2i "&infix:!=" "isne"
+    , vop2s "&infix:lt" "islt"
+    , vop2s "&infix:le" "isle"
+    , vop2s "&infix:gt" "isgt"
+    , vop2s "&infix:gt" "isge"
+    , vop2s "&infix:eq" "iseq"
+    , vop2s "&infix:ne" "isne"
+    , vop1 "&prefix:?^" "bnot"
+
+    -- Strings
+    , sub "&substr" [arg0, arg1, arg2]
+        [ tempSTR   <-- "set" $ [arg0]
+        , tempINT   <-- "set" $ [arg1]
+        , tempINT2  <-- "set" $ [arg2]
+        , tempSTR2  <-- "substr" $ [tempSTR, tempINT, tempINT2]
+        , InsNew rv PerlUndef
+        , rv        <-- "set" $ [tempSTR2]
         ] --> [rv]
-{- XXX saying  hash
--- causes error:imcc:syntax error, unexpected IREG, expecting '('
-    , sub "&id" [arg0]
-        [ InsNew rv PerlUndef
-        , tempINT <-- "hash" $ [arg0]
-        , rv <-- "assign" $ [tempINT]
-        ] --> [rv]
--}
     , sub "&chop" [arg0]
         [ InsNew rv PerlUndef
         , tempSTR <:= arg0
@@ -565,40 +577,39 @@ preludePIR = emit $
         , arg0 <-- "assign" $ [tempSTR2]
         , InsLabel "chomp_done"
         ] --> [rv]
+
+    -- Objects
+    , sub "&undef" []
+        [ InsNew rv PerlUndef
+        ] --> [rv]
+{- XXX saying  hash
+-- causes error:imcc:syntax error, unexpected IREG, expecting '('
+    , sub "&id" [arg0]
+        [ InsNew rv PerlUndef
+        , tempINT <-- "hash" $ [arg0]
+        , rv <-- "assign" $ [tempINT]
+        ] --> [rv]
+-}
     , vop1 "&clone" "clone"
-    , vop2 "&infix:+" "add"
-    , vop2 "&infix:-" "sub"
-    , vop2 "&infix:*" "mul"
-    , vop2 "&infix:/" "div"
-    , vop2 "&infix:%" "mod"
-    , vop2 "&infix:~" "concat"
-    , vop1 "&prefix:!" "not"
-    , vop2i "&infix:<" "islt"
-    , vop2i "&infix:<=" "isle"
-    , vop2i "&infix:>" "isgt"
-    , vop2i "&infix:>=" "isge"
-    , vop2i "&infix:==" "iseq"
-    , vop2i "&infix:!=" "isne"
-    , vop2s "&infix:lt" "islt"
-    , vop2s "&infix:le" "isle"
-    , vop2s "&infix:gt" "isgt"
-    , vop2s "&infix:gt" "isge"
-    , vop2s "&infix:eq" "iseq"
-    , vop2s "&infix:ne" "isne"
-    , vop1 "&prefix:?^" "bnot"
+
+    -- Aggregates
+    , sub "&pop" [arg0]
+        [ rv <-- "pop" $ [arg0]
+        ] --> [rv]
     , sub "&join" [arg0, arg1]
         [ InsNew rv PerlUndef
         , tempSTR <:= arg0
         , tempSTR2 <-- "join" $ [tempSTR, arg1]
         , rv <-- "assign" $ [tempSTR2]
         ] --> [rv]
+
     --, namespace "Perl6::Internals"
+    -- Supporting Math::Basic
     , sub "&abs" [arg0]
         [ InsNew rv PerlUndef
         , rv <-- "assign" $ [arg0]
         , "abs" .- [arg0]
         ] --> [rv]
-    -- Supporting Math::Basic
     , vop1n "&exp" "exp"
     , vop1n "&ln" "ln"
     , vop1n "&log2" "log2"
@@ -620,6 +631,7 @@ preludePIR = emit $
     , vop1 "&sech" "sech"
     -- also need: cosec, cotan, acosec, acotan, asinh, acosh, atanh, cosech,
     --  cotanh, asech, acosech, acotanh. S29
+
     -- Supporting unspeced:
     , vop1n "&ceil" "ceil"
     , vop1n "&floor" "floor"
@@ -636,6 +648,7 @@ preludePIR = emit $
         -- returns seconds since 2000, so we've to compensate.
         , "sub" .- [rv, ExpLit . LitNum $ 946684800]
         ] --> [rv]
+
     --, namespace "Str"
     , sub "&split" [arg0, arg1]
         [ InsNew rv PerlUndef
@@ -644,6 +657,7 @@ preludePIR = emit $
         , tempPMC <-- "split" $ [tempSTR, tempSTR2]
         , rv <-- "assign" $ [tempPMC]
         ] --> [rv]
+
     --, namespace "bool" -- Namespaces have bugs in both pugs and parrot.
     , sub "&bool::true" []
         [] --> [lit True]
