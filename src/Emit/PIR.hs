@@ -298,13 +298,15 @@ slurpy = MkSig [MkFlagSlurpy]
 #ifndef HADDOCK
 (-->) :: Decl -> [Expression] -> Decl
 (DeclSub name styps stmts) --> rets = DeclSub name styps $ stmts ++ map StmtIns
-    [ "set_returns" .- (lit sig : rets)
+    [ "set_returns" .- retSigList rets
     , "returncc" .- []
     ]
-    where
-    sig = parens (commaSep (replicate (length rets) "0b10010"))
 _ --> _ = error "Can't return from non-sub"
 #endif
+
+retSigList rets = (lit sig : rets)
+    where
+    sig = parens (commaSep (replicate (length rets) "0b10010"))
 
 vop1 :: SubName -> PrimName -> Decl
 vop1 p6name opname =
@@ -367,7 +369,9 @@ parrotBrokenXXX = True
 callBlock :: VarName -> Expression -> [Ins]
 callBlock label fun =
     [ "newsub" .- [funPMC, bare ".Continuation", bare label]
-    ] ++ callBlockCC fun ++
+    ] ++ callBlockCC fun ++ collectCC label
+
+collectCC label =
     [ InsLabel label
     , if parrotBrokenXXX
         then "find_global" .- [tempPMC, tempSTR]
@@ -393,16 +397,31 @@ stmtControlCond name comp = sub ("&statement_control:" ++ name) [arg0, arg1, arg
     , comp .- [arg0, bare altL]
     ] ++ callBlockCC arg1 ++
     [ InsLabel altL
-    ] ++ callBlockCC arg2 ++
-    [ InsLabel postL
-    , if parrotBrokenXXX
-        then "find_global" .- [tempPMC, tempSTR]
-        else "get_params" .- sigList [tempPMC]
-    ]) --> [tempPMC]
+    ] ++ callBlockCC arg2 ++ collectCC postL) --> [tempPMC]
     where
     altL = ("sc_" ++ name ++ "_alt")
     postL = ("sc_" ++ name ++ "_post")
-        
+
+op2Logical :: VarName -> PrimName -> Decl
+op2Logical name comp = sub ("&infix:" ++ name) [arg0, arg1] (
+    [ "newsub" .- [funPMC, bare ".Continuation", bare postL]
+    , comp .- [arg0, bare altL]
+    , "set_returns" .- retSigList [arg0]
+    , "returncc" .- []
+    , InsLabel altL
+    ] ++ callBlockCC arg2 ++ collectCC postL) --> [tempPMC]
+    where
+    altL = ("sc_" ++ escaped name ++ "_alt")
+    postL = ("sc_" ++ escaped name ++ "_post")
+
+escaped :: String -> String
+escaped = concatMap esc
+    where
+    esc :: Char -> String
+    esc '|' = "_or_"
+    esc '&' = "_and_"
+    esc x = [x]
+
 preludePIR :: Doc
 preludePIR = emit $
     -- [ include "interpinfo.pasm"
@@ -445,6 +464,10 @@ preludePIR = emit $
         ]
     , stmtControlCond "if" "unless"
     , stmtControlCond "unless" "if"
+    , op2Logical "&&" "unless"
+    , op2Logical "||" "if"
+    , op2Logical "and" "unless"
+    , op2Logical "or" "if"
     , sub "&prefix:++" [arg0]
         [ "inc" .- [arg0]
         ] --> [arg0]
