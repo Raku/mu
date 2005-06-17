@@ -94,8 +94,8 @@ instance Emit Decl where
 instance Emit SubFlag where
     emit = emit . ('@':) . drop 3 . show
 
-curPad :: Int
-curPad = -1
+curPad :: Doc
+curPad = int (-1)
 
 instance Emit Stmt where
     emit (StmtComment []) = empty
@@ -103,8 +103,8 @@ instance Emit Stmt where
     emit (StmtLine file line) = text "#line" <+> doubleQuotes (emit file) <+> emit line
     emit (StmtIns ins) = emit ins
     emit (StmtPad pad stmts) = vcat $
-        [ emit "new_pad" <+> int curPad
-        ] ++ map (\(var, exp) -> emit ("store_lex" .- [lit curPad, lit var, exp])) pad
+        [ emit "new_pad" <+> curPad
+        ] ++ map (\(var, exp) -> emit ("store_lex" .- [lit (-1 :: Int), lit var, exp])) pad
     emit (StmtRaw doc) = doc
 
 instance Emit RegType where
@@ -350,52 +350,37 @@ vop2 p6name opname =
       , rv <-- opname $ [arg0, arg1]
       ] --> [rv]
 
---We might abstract these two... but I punted on getting it to typecheck.
--- vop1n p6name opname = vop1x p6name opname tempNUM tempNUM
-vop1i :: SubName -> PrimName -> Decl
-vop1i p6name opname =
+--vop1x :: (RegClass a, RegClass b) => SubName -> PrimName -> a -> b -> Decl
+vop1x :: SubName -> PrimName -> (forall a. RegClass a => a) -> (forall b. RegClass b => b) -> Decl
+vop1x p6name opname regr reg0 =
     sub p6name [arg0] 
       [ InsNew rv PerlUndef
-      , tempINT <:= arg0
-      , tempINT <-- opname $ [tempINT]
-      , rv <-- "assign" $ [tempINT]
-      ] --> [rv]
-vop1n :: SubName -> PrimName -> Decl
-vop1n p6name opname =
-    sub p6name [arg0] 
-      [ InsNew rv PerlUndef
-      , tempNUM <:= arg0
-      , tempNUM <-- opname $ [tempNUM]
-      , rv <-- "assign" $ [tempNUM]
+      , reg0 <:= arg0
+      , regr <-- opname $ [reg0]
+      , rv <-- "assign" $ [regr]
       ] --> [rv]
 
-vop2i :: SubName -> PrimName -> Decl
-vop2i p6name opname =
-    sub p6name [arg0, arg1]
+vop2x :: SubName -> PrimName -> (forall a. RegClass a => a) -> (forall b. RegClass b => b) -> (forall c. RegClass c => c) -> Decl
+vop2x p6name opname regr reg0 reg1 =
+    sub p6name [arg0] 
       [ InsNew rv PerlUndef
-      , tempINT     <:= arg0
-      , tempINT2    <:= arg1
-      , tempINT     <-- opname $ [tempINT, tempINT2]
-      , rv <-- "assign" $ [tempINT]
+      , reg0 <:= arg0
+      , reg1 <:= arg1
+      , regr <-- opname $ [reg0,reg1]
+      , rv <-- "assign" $ [regr]
       ] --> [rv]
-vop2s :: SubName -> PrimName -> Decl
-vop2s p6name opname =
-    sub p6name [arg0, arg1]
-      [ InsNew rv PerlUndef
-      , tempSTR     <:= arg0
-      , tempSTR2    <:= arg1
-      , tempINT     <-- opname $ [tempSTR, tempSTR2]
-      , rv <-- "assign" $ [tempINT]
-      ] --> [rv]
-vop2n :: SubName -> PrimName -> Decl
-vop2n p6name opname =
-    sub p6name [arg0, arg1]
-      [ InsNew rv PerlUndef
-      , tempNUM     <:= arg0
-      , tempNUM2    <:= arg1
-      , tempNUM     <-- opname $ [tempNUM, tempNUM2]
-      , rv <-- "assign" $ [tempNUM]
-      ] --> [rv]
+
+vop1ii :: SubName -> PrimName -> Decl
+vop1ii p6name opname = vop1x p6name opname tempINT tempINT
+vop1nn :: SubName -> PrimName -> Decl
+vop1nn p6name opname = vop1x p6name opname tempNUM tempNUM
+
+vop2iii :: SubName -> PrimName -> Decl
+vop2iii p6name opname = vop2x p6name opname tempINT tempINT tempINT2 
+vop2iss :: SubName -> PrimName -> Decl
+vop2iss p6name opname = vop2x p6name opname tempINT tempSTR tempSTR2 
+vop2nnn :: SubName -> PrimName -> Decl
+vop2nnn p6name opname = vop2x p6name opname tempNUM tempNUM tempNUM2 
 
 bare :: VarName -> Expression
 bare = ExpLV . VAR
@@ -527,42 +512,21 @@ preludePIR = emit $
     , vop2 "&infix:%" "mod"
     , vop2 "&infix:~" "concat"
     , vop1 "&prefix:!" "not"
-    , vop2i "&infix:<" "islt"
-    , vop2i "&infix:<=" "isle"
-    , vop2i "&infix:>" "isgt"
-    , vop2i "&infix:>=" "isge"
-    , vop2i "&infix:==" "iseq"
-    , vop2i "&infix:!=" "isne"
-    , vop2s "&infix:lt" "islt"
-    , vop2s "&infix:le" "isle"
-    , vop2s "&infix:gt" "isgt"
-    , vop2s "&infix:gt" "isge"
-    , vop2s "&infix:eq" "iseq"
-    , vop2s "&infix:ne" "isne"
+    , vop2iii "&infix:<" "islt"
+    , vop2iii "&infix:<=" "isle"
+    , vop2iii "&infix:>" "isgt"
+    , vop2iii "&infix:>=" "isge"
+    , vop2iii "&infix:==" "iseq"
+    , vop2iii "&infix:!=" "isne"
+    , vop2iss "&infix:lt" "islt"
+    , vop2iss "&infix:le" "isle"
+    , vop2iss "&infix:gt" "isgt"
+    , vop2iss "&infix:gt" "isge"
+    , vop2iss "&infix:eq" "iseq"
+    , vop2iss "&infix:ne" "isne"
     , vop1 "&prefix:?^" "bnot"
 
     -- Strings
-    , sub "&substr" [arg0, arg1, arg2]
-        [ tempSTR   <-- "set" $ [arg0]
-        , tempINT   <-- "set" $ [arg1]
-        , tempINT2  <-- "set" $ [arg2]
-        , tempSTR2  <-- "substr" $ [tempSTR, tempINT, tempINT2]
-        , InsNew rv PerlUndef
-        , rv        <-- "set" $ [tempSTR2]
-        ] --> [rv]
-    , sub "&chop" [arg0]
-        [ InsNew rv PerlUndef
-        , tempSTR <:= arg0
-        , tempINT <-- "length" $ [tempSTR]
-        , "dec" .- [tempINT]
-        , "lt" .- [tempINT, ExpLit . LitInt $ 0, bare "chop_done"]
-        -- could also use two calls to chopn, but we know substr works...
-        , tempSTR2 <-- "substr" $ [tempSTR, ExpLit . LitInt $ -1]
-        , rv <-- "assign" $ [tempSTR2]
-        , tempSTR2 <-- "substr" $ [tempSTR, ExpLit . LitInt $ 0, tempINT]
-        , arg0 <-- "assign" $ [tempSTR2]
-        , InsLabel "chop_done"
-        ] --> [rv]
     , sub "&chomp" [arg0]
         [ InsNew rv PerlUndef
         , tempSTR <:= arg0
@@ -577,6 +541,29 @@ preludePIR = emit $
         , arg0 <-- "assign" $ [tempSTR2]
         , InsLabel "chomp_done"
         ] --> [rv]
+    , sub "&chop" [arg0]
+        [ InsNew rv PerlUndef
+        , tempSTR <:= arg0
+        , tempINT <-- "length" $ [tempSTR]
+        , "dec" .- [tempINT]
+        , "lt" .- [tempINT, ExpLit . LitInt $ 0, bare "chop_done"]
+        -- could also use two calls to chopn, but we know substr works...
+        , tempSTR2 <-- "substr" $ [tempSTR, ExpLit . LitInt $ -1]
+        , rv <-- "assign" $ [tempSTR2]
+        , tempSTR2 <-- "substr" $ [tempSTR, ExpLit . LitInt $ 0, tempINT]
+        , arg0 <-- "assign" $ [tempSTR2]
+        , InsLabel "chop_done"
+        ] --> [rv]
+    , sub "&substr" [arg0, arg1, arg2]
+        [ tempSTR   <-- "set" $ [arg0]
+        , tempINT   <-- "set" $ [arg1]
+        , tempINT2  <-- "set" $ [arg2]
+        , tempSTR2  <-- "substr" $ [tempSTR, tempINT, tempINT2]
+        , InsNew rv PerlUndef
+        , rv        <-- "set" $ [tempSTR2]
+        ] --> [rv]
+    , vop1x "&chr" "chr" tempSTR tempINT
+    , vop1x "&ord" "ord" tempINT tempSTR
 
     -- Objects
     , sub "&undef" []
@@ -610,12 +597,12 @@ preludePIR = emit $
         , rv <-- "assign" $ [arg0]
         , "abs" .- [arg0]
         ] --> [rv]
-    , vop1n "&exp" "exp"
-    , vop1n "&ln" "ln"
-    , vop1n "&log2" "log2"
-    , vop1n "&log10" "log10"
+    , vop1nn "&exp" "exp"
+    , vop1nn "&ln" "ln"
+    , vop1nn "&log2" "log2"
+    , vop1nn "&log10" "log10"
     -- also need: rand()? sign()? srand() ? S29
-    , vop1n "&sqrt" "sqrt"
+    , vop1nn "&sqrt" "sqrt"
     -- Supporting Math::Trig
     , vop1 "&sin" "sin"
     , vop1 "&cos" "cos" -- works as vop1.  but not sin().  sigh.
@@ -633,12 +620,12 @@ preludePIR = emit $
     --  cotanh, asech, acosech, acotanh. S29
 
     -- Supporting unspeced:
-    , vop1n "&ceil" "ceil"
-    , vop1n "&floor" "floor"
-    , vop1i "&fact" "fact"
-    , vop2i "&gcd" "gcd"
-    , vop2i "&lcm" "lcm"
-    , vop2n "&pow" "pow"
+    , vop1nn "&ceil" "ceil"
+    , vop1nn "&floor" "floor"
+    , vop1ii "&fact" "fact"
+    , vop2iii "&gcd" "gcd"
+    , vop2iii "&lcm" "lcm"
+    , vop2nnn "&pow" "pow"
     -- parrot has no times()
     , sub "&time" []
         [ InsNew rv PerlUndef
