@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -fallow-overlapping-instances -funbox-strict-fields -cpp #-}
+{-# OPTIONS_GHC -fglasgow-exts -fallow-overlapping-instances -funbox-strict-fields -cpp #-}
 
 module Emit.PIR where
 import Text.PrettyPrint
@@ -95,8 +95,8 @@ instance Emit Decl where
 instance Emit SubFlag where
     emit = emit . ('@':) . drop 3 . show
 
-curPad :: Doc
-curPad = int (-1)
+curPad :: Int
+curPad = -1
 
 instance Emit Stmt where
     emit (StmtComment []) = empty
@@ -104,7 +104,7 @@ instance Emit Stmt where
     emit (StmtLine file line) = text "#line" <+> doubleQuotes (emit file) <+> emit line
     emit (StmtIns ins) = emit ins
     emit (StmtPad pad stmts) = vcat $
-        [ emit "new_pad" <+> curPad
+        [ emit "new_pad" <+> int curPad
         ] ++ map (\(var, exp) -> emit ("store_lex" .- [lit (-1 :: Int), lit var, exp])) pad
     emit (StmtRaw doc) = doc
 
