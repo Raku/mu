@@ -114,6 +114,7 @@ varText :: String -> Doc
 varText ('$':name)  = text $ "s__" ++ name
 varText ('@':name)  = text $ "a__" ++ name
 varText ('%':name)  = text $ "h__" ++ name
+varText ('&':name)  = text $ "c__" ++ name
 varText x           = error $ "invalid name: " ++ x
 
 varInit :: String -> Doc
