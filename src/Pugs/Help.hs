@@ -42,7 +42,7 @@ printCommandLineHelp
         putStrLn "-c               parse the file or -e, but do not run it"
         putStrLn "-Bbackend        execute using the compiler backend"
         putStrLn "-Cbackend        compile using the compiler backend"
-        putStrLn "                 (valid backends are: Pugs, Parrot, Haskell)"
+        putStrLn "                 (valid backends are: Pugs, Parrot, PIR, Haskell)"
         putStrLn "-Mmodule         execute 'use module' before executing the program"
         putStrLn "-h or --help     give this message"
         putStrLn "-V               long configuration information & version"
