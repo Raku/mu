@@ -503,6 +503,9 @@ preludePIR = emit $
         , "print" .- [tempSTR]
         , "print" .- [lit "\n"]
         ] --> [lit True]
+    , sub "&exit" []
+        [ "exit" .- [lit (0 :: Int)]
+        ]
 {-
     , sub "&run_END" []
         [ tempPMC <-- "find_global" $ [lit "@*END"]

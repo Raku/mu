@@ -187,11 +187,12 @@ compileStmts :: Exp -> Comp (PAST [Stmt])
 compileStmts exp = case exp of
     Stmts this Noop -> do
         thisC   <- compile this
-        let thisC' = case thisC of
-                PStmt (PExp (PApp cxt fun args)) ->
-                    PStmt (PExp (PApp (TTailCall cxt) fun args))
-                _ -> thisC
-        return $ PStmts thisC' PNil
+        return $ PStmts (tailCall thisC) PNil
+        where
+        tailCall (PStmt (PExp (PApp cxt fun args)))
+            = PStmt (PExp (PApp (TTailCall cxt) fun args))
+        tailCall (PPos pos exp x) = PPos pos exp (tailCall x)
+        tailCall x = x
     Stmts this rest -> do
         thisC   <- enter cxtVoid $ compile this
         restC   <- compileStmts rest
