@@ -117,6 +117,9 @@ instance Emit Ins where
     emit (InsAssign ident lit) = eqSep ident "assign" [lit]
     emit (InsBind ident lit) = eqSep ident "set" [lit]
     emit (InsPrim (Just ret) name args) = eqSep ret name args
+    emit (InsPrim Nothing "store_lex" (_:args)) =
+        -- XXX - horrible hack! perl 4!
+        emit (InsPrim Nothing "store_global" args)
     emit (InsPrim Nothing name args) = emit name <+> commaSep args
     emit (InsFun rets (ExpLit (LitStr name)) args) = emitFunName "invokecc" name args rets
     emit (InsFun rets fun args) = emitFun "invokecc" fun args rets
