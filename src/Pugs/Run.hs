@@ -156,10 +156,16 @@ prepareEnv name args = do
     hideInSafemode x = if safeMode then MkRef $ constScalar undef else x
 
 {-# NOINLINE initPrelude #-}
-initPrelude :: Env -> IO Val
+initPrelude :: Env -> IO ()
 initPrelude env = do
-    if bypass then return VUndef else
+    if bypass then return () else do
+        -- Display the progress of loading the Prelude, but only in interactive
+        -- mode (similar to GHCi):
+        -- "Loading Prelude... done."
+        let dispProgress = (posName . envPos $ env) == "<interactive>"
+        when dispProgress $ putStr "Loading Prelude... "
         runEvalIO env{envDebug = Nothing} $ opEval style "<prelude>" preludeStr
+        when dispProgress $ putStrLn "done."
     where
     style = MkEvalStyle{evalResult=EvalResultModule
                        ,evalError =EvalErrorFatal}

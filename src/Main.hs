@@ -124,7 +124,7 @@ userDefined (MkPad pad) = MkPad $ Map.filterWithKey doFilter pad
 repLoop :: IO ()
 repLoop = do
     initializeShell
-    env <- liftSTM . newTVar . (\e -> e{ envDebug = Nothing }) =<< tabulaRasa
+    env <- liftSTM . newTVar . (\e -> e{ envDebug = Nothing }) =<< tabulaRasa "<interactive>"
     fix $ \loop -> do
         command <- getCommand
         case command of
@@ -134,7 +134,7 @@ repLoop = do
             CmdParse prog     -> doParse pretty "<interactive>" prog >> loop
             CmdParseRaw prog  -> doParse show   "<interactive>" prog >> loop
             CmdHelp           -> printInteractiveHelp >> loop
-            CmdReset          -> tabulaRasa >>= (liftSTM . writeTVar env) >> loop
+            CmdReset          -> tabulaRasa "<interactive>" >>= (liftSTM . writeTVar env) >> loop
 
 {-|
 Create a \'blank\' 'Env' for our program to execute in. Of course,
@@ -143,8 +143,8 @@ e.g. \'\@\*ARGS\', \'\$\*PID\', \'\$\*ERR\' etc.
 
 ('Tabula rasa' is Latin for 'a blank slate'.)
 -}
-tabulaRasa :: IO Env
-tabulaRasa = prepareEnv "<interactive>" []
+tabulaRasa :: String -> IO Env
+tabulaRasa name = prepareEnv name []
 
 doCheck :: FilePath -> String -> IO ()
 doCheck = doParseWith $ \_ name -> do
@@ -182,7 +182,7 @@ doCompileRun backend file prog = do
 
 doParseWith :: (Env -> FilePath -> IO a) -> FilePath -> String -> IO a
 doParseWith f name prog = do
-    env <- tabulaRasa
+    env <- tabulaRasa name
     f' $ parseProgram env name $ decodeUTF8 prog
     where
     f' env | Val err@(VError _ _) <- envBody env = do
@@ -192,7 +192,7 @@ doParseWith f name prog = do
 
 doParse :: (Exp -> String) -> FilePath -> String -> IO ()
 doParse prettyFunc name prog = do
-    env <- tabulaRasa
+    env <- tabulaRasa name
     case envBody $ parseProgram env name (decodeUTF8 prog) of
         (Val err@(VError _ _)) -> putStrLn $ pretty err
         exp -> putStrLn $ prettyFunc exp
@@ -224,7 +224,7 @@ doRunSingle menv opts prog = (`catch` handler) $ do
 	  (decodeUTF8 prog)
     theEnv = do
         ref <- if runOptSeparately opts
-                then (liftSTM . newTVar) =<< tabulaRasa
+                then (liftSTM . newTVar) =<< tabulaRasa "<interactive>"
                 else return menv
         debug <- if runOptDebug opts
                 then fmap Just (liftSTM $ newTVar Map.empty)
