@@ -1,4 +1,4 @@
-class l33t-0.0.1;
+class l33t-0.0.2;
 
 use v6;
 
@@ -24,7 +24,12 @@ has int8 @.mem;   # program and data memory space
 has Int $.ip;     # instruction pointer
 has Int $.mp;     # memory pointer
 has Socket $con;  # "connection"; stdio when undef
+
 has Bool $:trace;
+has Bool $:debug;
+has Bool $:step;
+has %:breakpoints;
+has $:last_db_command;
 
 submethod BUILD {
    #say "BUILD";
@@ -33,7 +38,8 @@ submethod BUILD {
    $.mp = 0;
    #$:trace = bool::true;
    $:trace = bool::false;
-   #say "BUILD done";
+   $:trace = $:step = $:debug = bool::true;
+   say "BUILD done";
 }
 
 submethod trace(: Str $msg) {
@@ -64,29 +70,33 @@ submethod DIP() { # decrement instruction pointer
 }
 
 method run() {
-    loop {
-        ./trace("IP: $.ip => @.mem[$.ip]  MP: $.mp => @.mem[$.mp]");
+    try {
+      loop {
+        #./trace("IP: $.ip => @.mem[$.ip]  MP: $.mp => @.mem[$.mp]");
+        ./debug if $:debug; # XXX: figure out how to bind this once
         given @.mem[$.ip] {
-            when 0 { ./IIP };                     # NOP
-            when 1 { ./write; };                  # WRT
-            when 2 { ./read; };                   # RD
-            when 3 { ./bracket(3, 4) };           # IF
-            when 4 { ./bracket(4, 3) };           # EIF
-            when 5 { ./mem($.mp) };               # FWD
-            when 6 { ./mem($.mp, :down) };        # BAK
-            when 7 { ./mem(@.mem[$.mp]) };        # INC
-            when 8 { ./mem(@.mem[$.mp], :down) }; # DEC
-            when 9 { ./con };                     # CON
-            when 10 {                             # END
+            when 0 { ./IIP };                                      # NOP
+            when 1 { ./write; };                                   # WRT
+            when 2 { ./read; };                                    # RD
+            when 3 { ./bracket(3, 4) };                            # IF
+            when 4 { ./bracket(4, 3) };                            # EIF
+            when 5 { ./mem($.mp,        wrap=>$MEMSIZE) };         # FWD
+            when 6 { ./mem($.mp,        wrap=>$MEMSIZE,  :down) }; # BAK
+            when 7 { ./mem(@.mem[$.mp], wrap=>$CELLSIZE) };        # INC
+            when 8 { ./mem(@.mem[$.mp], wrap=>$CELLSIZE, :down) }; # DEC
+            when 9 { ./con };                                      # CON
+            when 10 {                                              # END
                 $.con.close if defined $.con;
                 last;
             };
 
-            # unknown opcode. this is NOT a syntax error.
+            # unknown opcode. this is NOT a (fatal) syntax error.
             say "$INSULT: wtf iz $_?";
             ./IIP;
         }
-    }
+      }
+    CATCH Debugger::QUIT { }
+    };
 }
 
 method con() {
@@ -96,10 +106,10 @@ method con() {
     say "C0N n0t 1mp13m3nt3D, j0!";
 };
 
-method mem($target is rw, ?$down) {
+method mem($target is rw, ++$wrap, ?$down) {
     ./IIP;
     $target += (@.mem[$.ip] + 1) * ($down ?? -1 :: 1);
-    $target %= $MEMSIZE;
+    $target %= $wrap;
     ./IIP;
 }
 
@@ -133,6 +143,119 @@ method demo(Class $class: ) {
     #say("demo starting");
     #$class.new.load(l33t::Samples.hello).run;
     $class.new.load($class.hello).run;
+}
+
+method debug() {
+    loop { ./debug_trace } until ./debug_interactive;
+}
+
+# true return == stay at this line
+method debug_interactive() returns Bool {
+    if %:breakpoints{$.ip} {
+        say "<6r34k>";
+    } elsif !$:step {
+        return bool::true;
+    }
+    loop { print "$.ip> " } until ./debug_action(=<>) || $:runnable;
+    return $:runnable;
+}
+
+
+method debug_action(Str $cmd is copy) returns Bool {
+    $:runnable = bool::false;
+    $cmd.chomp;
+    $cmd ||= $:last_db_command;
+    $:last_db_command = $cmd;
+    given $cmd {
+        when rx:perl5<i>/^\s*h|\?/ {        # h help
+            print q:to/END/
+            h (help)   - print this message
+            B          - list breakpoints
+            b (break)  - toggle breakpoint here
+            b ADDR     - toggle breakpoint at location ADDR
+            C (clear)  - clear all breakpoints
+            l (list)   - list program (near context, starting here)
+            l ADDR     - list program starting at ADDR
+            q (quit)   - end program
+            r (run)    - continue running until next breakpoint
+            s (step)   - single step [enter to keep stepping]
+            t (trace)  - toggle trace prints
+            END;
+        }; # : f1x0rz v1m
+        #when 'B' { say %:breakpoints.keys.sort:{$^a<=>$^b} };
+        when 'B' {
+            say %:breakpoints.keys.join(" ");
+        };
+        when rx:perl5/^\s*b\s*(\d+)?$/ {
+            my $addr = $0 // $.ip;
+            %:breakpoints{$addr} ^^= 1;
+            %:breakpoints.delete($addr) unless %:breakpoints{$addr};
+        };
+        when 'C' {                          # C (clear)
+            %:breakpoints = ();
+            say "6r34p01ntz (134r3";
+        };
+        when rx:perl5/^\s*r/ {              # r run
+            $:step     = bool::false;
+            $:runnable = bool::true;
+        };
+        when rx:perl5<i>/^\s*l\s*(\d+)?/ {  # l list
+            my $from = $0 // $.ip;
+            @.mem[$MEMSIZE .. $MEMSIZE+63] = @.mem[0 .. 63]; # ch33tz! 101
+            for 0 .. 3 -> $off {
+                say "[{($from+$off*16)%$MEMSIZE}] " ~
+                    @.mem[($from+$off*16) .. (($from+$off*16)+15)].join(" ");
+            }
+        };
+        when 's' {                          # s step
+            $:step     = bool::true;
+            $:runnable = bool::true;
+        };
+        when 't' {                          # t trace
+            $:trace ^^= 1;
+        };
+        when 'q' { die Debugger::QUIT };    # q quit
+        #when rx:perl5<i>/^\s*w\s*(\d+)/ {   # w write
+        #};
+        say "$INSULT: wft iz $_?";
+        return bool::true;
+    }
+    return bool::false;
+}
+
+method debug_trace() {
+    return unless $:trace;
+
+    say("IP: $.ip => @.mem[$.ip]  MP: $.mp => @.mem[$.mp]");
+    my $msg; # I want rvalue given.
+    given @.mem[$.ip] {
+        when 0 { $msg = "NOP" };
+        when 1 { $msg = "WRT @.mem[$.mp]" };
+        when 2 { $msg = "RD => $.mp [01d v4l = @.mem[$.mp]" };
+        when 3 { $msg = "IF [{@.mem[$.mp] ?? 'tru3' :: 'f4l53'}]" };
+        when 4 { $msg = "EIF [{@.mem[$.mp] ?? 'f4l53' :: 'tru3'}]" };
+        when 5 {
+            my $nmp = ($.mp + @.mem[($.ip+1) % $MEMSIZE] + 1) % $MEMSIZE;
+            $msg = "FWD {@.mem[($.ip+1) % $MEMSIZE]} => $nmp [@.mem[$.mp]]" };
+        when 6 {
+            my $nmp = ($.mp - @.mem[($.ip+1) % $MEMSIZE] + 1) % $MEMSIZE;
+            $msg = "BAK {@.mem[($.ip+1) % $MEMSIZE]} => $nmp [@.mem[$.mp]]" };
+        when 7 {
+            my $val = @.mem[($.ip+1) % $MEMSIZE];
+            $msg = "INC $val => {(@.mem[$.mp]+$val+1) % $CELLSIZE}" };
+        when 8 {
+            my $val = @.mem[($.ip+1) % $MEMSIZE];
+            $msg = "INC $val => {(@.mem[$.mp]-$val+1) % $CELLSIZE}" };
+        when 9 {
+            @.mem[$MEMSIZE .. $MEMSIZE+5] = @.mem[0 .. 5]; # ch33tz! 101
+            my $ip = join ".", @.mem[$.mp .. $.mp+3];
+            my $port = @.mem[$.mp+4] * 256 + @.mem[$.mp+5]; # >> f1x0rz v1m
+            $msg = "CON $ip:$port"; # 41nt 1 t3h sw33t
+        };
+        when 10 { $msg = "END" };
+        $msg = "$_ [unknown opcode]";
+     };
+     say $msg;
 }
 
 if !caller() { l33t.demo }
