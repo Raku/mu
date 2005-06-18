@@ -4,6 +4,13 @@
 The world needs a Perl6 regex pattern reference grammar.
 Here is a place to accumulate one.
 
+Resources:
+  http://search.cpan.org/dist/Perl6-Bible/lib/Perl6/Bible/S05.pod
+  http://www.nntp.perl.org/group/perl.perl6.language/20985
+  docs/quickref/rules
+  http://search.cpan.org/dist/Perl6-Bible/lib/Perl6/Bible/E05.pod
+  http://search.cpan.org/dist/Perl6-Bible/lib/Perl6/Bible/A05.pod
+
 =cut
 
 grammar Rx;
