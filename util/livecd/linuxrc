@@ -1,6 +1,7 @@
 #!/bin/bash
 
 export PATH=/bin PERL6LIB=/lib6
+export PUGS_PARROT_OPTS="-jO"
 
 pugs -w /welcome.p6
 pugs

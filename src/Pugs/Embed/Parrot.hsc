@@ -12,6 +12,7 @@ import System.IO
 import System.IO.Unsafe
 import Data.Maybe
 import Control.Monad
+import Pugs.Compat (getEnv)
 
 findExecutable' :: String -> IO (Maybe FilePath)
 findExecutable' cmd = do
@@ -38,7 +39,10 @@ evalParrotFile file = do
     cmd <- findParrot
     -- parrot -j is fatal on systems where jit is not supported,
     -- so we use the next fastest CGP core.
-    rawSystem cmd ["-C", file]
+    args <- getEnv "PUGS_PARROT_OPTS"
+    let args' | isJust args = fromJust args
+              | otherwise   = "-C"
+    rawSystem cmd [args', file]
     return ()
 
 evalParrot :: String -> IO ()

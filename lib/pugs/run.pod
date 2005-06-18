@@ -170,6 +170,17 @@ Pugs provides a global "safe mode" which makes many operations that are deemed
     *** No compatible subroutine found: "&say"
         at -e line 1, column 1-9
 
+=item C<PUGS_PARROT_OPTS>
+
+If you haven't embedded Parrot in your Pugs build, Pugs will start an external
+Parrot if needed. You can set additional options Pugs should pass to parrot:
+
+    $ env PUGS_PARROT_OPTS="-j" pugs -e 'eval("...", :lang<PIR>)'
+    # Use JIT
+
+If C<PUGS_PARROT_OPTS> is not set, C<-C> will be passed to parrot, selecting
+the computed goto core.
+
 =item C<PUGS_SMOKE_UPLOAD> [BUILD]
 
 If set, F<util/run-smoke.pl> (C<make smoke>) uses this to upload your smoke
