@@ -32,17 +32,17 @@ method find ( $self: +@dirs, +$wanted_dir, +$wanted_file ) {
                 $abs = catfile( $dir, $node );
                 if $wfile_cb( $node, $dir, $abs ) {
                     $.results.push($abs);
-                    say "  +f $abs";
+                    say "  +f $abs" if $.debug;
                 }
-                else { say "  -f $abs" }
+                else { say "  -f $abs" if $.debug }
             }
             # XXX: Add symlink detection!
             else {
                 if $wdir_cb( $node, $dir, $abs ) {
                     $.queue.push($abs);
-                    say "  +d $abs";
+                    say "  +d $abs" if $.debug;
                 }
-                else { say "  -d $abs" }
+                else { say "  -d $abs" if $.debug }
             }
         }
     }
