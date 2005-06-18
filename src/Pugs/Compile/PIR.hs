@@ -539,8 +539,7 @@ genPIR' = do
             , text "    store_global '@*END', $P0"
             , text "    store_global '@END', $P0"
             , text "    main()"
-            , text "    $P0 = find_name \"&run_END\""
-            , emit $ InsFun [] (reg $ PMC 0) []
+            , nest 4 (emit $ InsFun [] (lit "&run_END") [])
             , text ".end"
             , text ".sub main @ANON"
             , nest 4 (emit mainPIR)
