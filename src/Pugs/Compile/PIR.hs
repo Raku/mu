@@ -495,7 +495,11 @@ genPIR' = do
             , text "    new_pad 0"
             , text "    $P0 = new .PerlEnv"
             , text "    store_global '%ENV', $P0"
+            , text "    $P0 = new .PerlArray"
+            , text "    store_global '@END', $P0"
             , text "    main()"
+            , text "    $P0 = find_name \"&run_END\""
+            , emit $ InsFun [] (reg $ PMC 0) []
             , text ".end"
             , text ".sub main @ANON"
             , nest 4 (emit mainPIR)

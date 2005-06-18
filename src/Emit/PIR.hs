@@ -237,6 +237,10 @@ arg3 = reg $ PMC 13
 tempPMC :: (RegClass a) => a
 tempPMC = reg $ PMC 8
 
+{-| @$P9@ register -}
+tempPMC2 :: (RegClass a) => a
+tempPMC2 = reg $ PMC 9
+
 {-| @$S8@ register -}
 tempSTR :: (RegClass a) => a
 tempSTR = reg $ STR 8
@@ -484,6 +488,17 @@ preludePIR = emit $
         , "print" .- [lit "\n"]
         ] --> [lit True]
 
+    , sub "&run_END" []
+        [ tempPMC <-- "find_global" $ [lit "@END"]
+        , InsLabel "run_END_loop"
+        , tempINT <:= tempPMC
+        , "le" .- [tempINT, ExpLit . LitInt $ 0, bare "run_END_done"]
+        , tempPMC2 <-- "shift" $ [tempPMC]
+        , InsFun [] tempPMC2 []
+        , "goto" .- [bare "run_END_loop"]
+        , InsLabel "run_END_done"
+        ] --> [lit True]
+
     -- Control flowy
     , sub "&statement_control:loop" [arg0, arg1, arg2, arg3] $
         [ InsLabel "sc_loop_next"
@@ -607,6 +622,9 @@ preludePIR = emit $
     , sub "&pop" [arg0]
         [ rv <-- "pop" $ [arg0]
         ] --> [rv]
+    , sub "&push" [arg0, arg1]
+        [ "push" .- [arg0, arg1]
+        ] --> [lit True]
     , sub "&join" [arg0, arg1]
         [ InsNew rv PerlUndef
         , tempSTR <:= arg0
