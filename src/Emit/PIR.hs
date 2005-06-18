@@ -642,6 +642,15 @@ preludePIR = emit $
     , sub "&push" [arg0, arg1]
         [ "push" .- [arg0, arg1]
         ] --> [lit True]
+    , sub "&delete" [arg0, arg1]
+        [ rv      <:= ExpKeyed arg0 arg1
+        , "delete" .- [ExpKeyed arg0 arg1]
+        ] --> [rv]
+    , sub "&exists" [arg0, arg1]
+        [ tempINT <-- "exists" $ [ExpKeyed arg0 arg1]
+        , InsNew rv PerlUndef
+        , rv      <:= tempINT
+        ] --> [rv]
     , sub "&join" [arg0, arg1]
         [ InsNew rv PerlUndef
         , tempSTR <:= arg0
