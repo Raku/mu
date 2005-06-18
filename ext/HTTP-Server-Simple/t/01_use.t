@@ -5,4 +5,4 @@ require Test;
 
 plan 1;
 
-use_ok 'HTTP::Server::Lite';
+use_ok 'HTTP::Server::Simple';

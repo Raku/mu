@@ -1,4 +1,4 @@
-module HTTP::Server::Lite-6.00;
+module HTTP::Server::Simple-6.00;
 
 use v6;
 
@@ -39,11 +39,11 @@ method handle_request {
   <body>
     <h1>Congratulations!</h1>
 
-    <p>You now have a functional HTTP::Server::Lite running.
+    <p>You now have a functional HTTP::Server::Simple running.
       </p>
 
     <p><i>(If you're seeing this page, it means you haven't subclassed
-      HTTP::Server::Lite, which you'll need to do to make it
+      HTTP::Server::Simple, which you'll need to do to make it
       useful.)</i>
       </p>
   </body>
@@ -125,11 +125,11 @@ method run {
 
 =head1 NAME
 
-HTTP::Server::Lite - A minimal HTTP server
+HTTP::Server::Simple - A minimal HTTP server
 
 =head1 SYNOPSIS
 
-    class MyServer is HTTP::Server::Lite;
+    class MyServer is HTTP::Server::Simple;
 
     method handler {
         $.remote.say('Hello World!');
@@ -142,11 +142,13 @@ HTTP::Server::Lite - A minimal HTTP server
     
 =head1 DESCRIPTION
 
-A minimal HTTP server like L<HTTP::Server::Simple>, but simpler. :)
+Perl6 port of L<HTTP::Server::Simple>.
 
 =head1 AUTHOR
 
 Sebastian Riedel <sri@oook.de>
+
+Based upon L<HTTP::Server::Simple> by Jesse Vincent
 
 =head1 LICENSE
 
