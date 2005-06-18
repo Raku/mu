@@ -536,6 +536,10 @@ preludePIR = emit $
     , sub "&nothing" [] []
 
     -- Operators
+    , sub "&infix:," [slurpy arg0]
+        [ InsNew rv PerlUndef
+        , rv    <:= lit True
+        ] --> [rv]
     , sub "&prefix:++" [arg0]
         [ "inc" .- [arg0]
         ] --> [arg0]

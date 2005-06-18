@@ -248,6 +248,8 @@ instance Compile Exp (PAST LValue) where
     compile exp@(Syn "unless" _) = compConditional exp
     compile (Syn "{}" (x:xs)) = compile (App (Var "&postcircumfix:{}") (Just x) xs)
     compile (Syn "[]" (x:xs)) = compile (App (Var "&postcircumfix:[]") (Just x) xs)
+    compile (Syn "," exps) = do
+        compile (App (Var "&infix:,") Nothing exps)
     compile exp = error ("Invalid LValue: " ++ show exp)
 
 compConditional :: Exp -> Comp (PAST LValue)
