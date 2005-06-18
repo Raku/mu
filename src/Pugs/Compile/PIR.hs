@@ -199,6 +199,9 @@ instance Compile Exp (PAST LValue) where
     compile (Pos pos rest) = fmap (PPos pos rest) $ compile rest
     compile (Cxt cxt rest) = enter cxt $ compile rest
     compile (Var name) = return $ PVar name
+    compile (Syn (sigil:"::()") exps) = do
+        compile $ App (Var "&Pugs::Internals::symbolic_deref") Nothing $
+            (Val . VStr $ sigil:""):exps
     compile (App fun (Just inv) args) = do
         compile (App fun Nothing (inv:args)) -- XXX WRONG
     compile (App fun Nothing args) = do

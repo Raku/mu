@@ -633,6 +633,15 @@ preludePIR = emit $
         ] --> [rv]
 
     --, namespace "Perl6::Internals"
+    , sub "&Pugs::Internals::symbolic_deref" [arg0, slurpy arg1]
+        -- find_name($arg0 ~ join "::", @arg1)
+        [ tempSTR  <-- "join" $ [lit "::", arg1]
+        , tempSTR2 <:= arg0
+        , tempSTR  <-- "concat" $ [tempSTR2, tempSTR]
+        -- XXX: Normalise tempSTR, i.e. "&infix:<+>" -> "&infix:+"
+        , rv       <-- "find_name" $ [tempSTR]
+        ] --> [rv]
+
     -- Supporting Math::Basic
     , sub "&abs" [arg0]
         [ InsNew rv PerlUndef
