@@ -71,6 +71,7 @@ data LValue
 data Expression
     = ExpLV !LValue
     | ExpLit !Literal
+    | ExpKeyed !LValue !Expression
     deriving (Show, Eq, Typeable)
 
 data Literal
@@ -152,6 +153,7 @@ instance Emit ObjType where
 instance Emit Expression where
     emit (ExpLV lhs) = emit lhs
     emit (ExpLit lit) = emit lit
+    emit (ExpKeyed pmc idx) = emit pmc <> brackets (emit idx)
 
 instance Emit LValue where
     emit (VAR name) = emit name
@@ -362,6 +364,12 @@ vop2 p6name opname =
       , rv <-- opname $ [arg0, arg1]
       ] --> [rv]
 
+vop2keyed p6name temp =
+    sub p6name [arg0, arg1] 
+      [ temp    <:= arg1
+      , rv      <:= ExpKeyed arg0 (ExpLV temp)
+      ] --> [rv]
+
 --vop1x :: (RegClass a, RegClass b) => SubName -> PrimName -> a -> b -> Decl
 vop1x :: SubName -> PrimName -> (forall a. RegClass a => a) -> (forall b. RegClass b => b) -> Decl
 vop1x p6name opname regr reg0 =
@@ -538,6 +546,8 @@ preludePIR = emit $
     , vop2iss "&infix:eq" "iseq"
     , vop2iss "&infix:ne" "isne"
     , vop1 "&prefix:?^" "bnot"
+    , vop2keyed "&postcircumfix:{}" tempSTR
+    , vop2keyed "&postcircumfix:[]" tempINT
 
     -- Strings
     , sub "&chomp" [arg0]

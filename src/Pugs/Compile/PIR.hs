@@ -484,6 +484,8 @@ genPIR' = do
             , emit globPIR
             , text ".sub init @MAIN, @ANON"
             , text "    new_pad 0"
+            , text "    $P0 = new .PerlEnv"
+            , text "    store_global '%ENV', $P0"
             , text "    main()"
             , text ".end"
             , text ".sub main @ANON"
