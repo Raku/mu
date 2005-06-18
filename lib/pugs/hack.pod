@@ -52,7 +52,7 @@ Expanding this one level deeper:
     |   |-- AES                Drafts of Perl6::Bible chapters
     |   |-- class              Object system sketches (XXXX: out of date?)
     |   |-- other              Misc design and hacking notes
-    |   |-- quickref           Perl6 quick reference pages
+    |   |-- quickref           Perl 6 quick reference pages
     |   |-- src                Junction implementation sketch (XXXX: ood?)
     |   |-- talks              Slides for Pugs and Perl 6 talks
     |   |-- zh-cn              Simplified Chinese doc translations
@@ -80,7 +80,7 @@ Expanding this one level deeper:
     |   |-- poetry             Perl 6 poetry
     |   |-- ppt                Perl 6 Power Tools, ports of *nix userland
     |   |-- qotw               Perl 6 solutions to plover's Quiz Of The Week
-    |   |-- slurpy-list-parms  Use of Perl6 slurpy lists (XXXX: -> t/?)
+    |   |-- slurpy-list-parms  Use of Perl 6 slurpy lists (XXXX: -> t/?)
     |   |-- tutorial_gen       Tutorial generator (XXXX: huh?)
     |   `-- vmethods           Add virtual methods to existing types
     |
@@ -97,7 +97,7 @@ Expanding this one level deeper:
     |   |-- Locale-KeyedText   Refer to UI strings by key
     |   |-- Net-IRC            IRC protocol implementation
     |   |-- POE                Experimental port of Perl 5 POE
-    |   |-- Perl-MetaModel     Sketch of Perl6 Object Meta Model
+    |   |-- Perl-MetaModel     Sketch of Perl 6 Object Meta Model
     |   |-- Pod-Event-Parser   Event-based API (like XML SAX) for POD
     |   |-- Set                Set calculus operators
     |   |-- Test               Testing support library
@@ -118,7 +118,7 @@ Expanding this one level deeper:
     |   |-- Perl6              Perl6::MakeMaker, Perl6::Pugs
     |   `-- pugs               Docs for Pugs itself (XXXX: -> docs/?)
     |
-    |-- modules            Perl6 modules not working today; -> FreePAN
+    |-- modules            Perl 6 modules not working today; -> FreePAN
     |   |-- Class-Events       XXXX: why is this still here?
     |   `-- Sample-Module      XXXX: why is this still here?
     |
