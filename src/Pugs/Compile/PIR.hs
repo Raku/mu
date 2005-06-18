@@ -303,7 +303,7 @@ instance (Typeable a) => Translate (PAST a) a where
     trans val@(PVal _) = transError val
     trans (PVar name) = do
         pmc     <- genLV "var"
-        tellIns $ pmc <-- "find_name" $ [lit name]
+        tellIns $ pmc <-- "find_name" $ [lit $ possiblyFixOperatorName name]
         return pmc
 {- XXX - this interferes with the prototype checking :-(
     trans (PStmt (PExp (PApp TCxtVoid (PExp (PVar name)) args))) = do
