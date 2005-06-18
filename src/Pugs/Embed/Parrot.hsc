@@ -36,9 +36,9 @@ findParrot = do
 evalParrotFile :: FilePath -> IO ()
 evalParrotFile file = do
     cmd <- findParrot
-    -- parrot -j is fatal on systems where jit is not supported.
-    --rawSystem cmd ["-j", file]
-    rawSystem cmd [file]
+    -- parrot -j is fatal on systems where jit is not supported,
+    -- so we use the next fastest CGP core.
+    rawSystem cmd ["-C", file]
     return ()
 
 evalParrot :: String -> IO ()
@@ -155,6 +155,8 @@ initParrot = do
     writeIORef _ParrotInterp interp
 #if PARROT_JIT_CAPABLE && defined(PARROT_JIT_CORE)
     parrot_set_run_core interp PARROT_JIT_CORE
+#elsif defined(PARROT_CGP_CORE)
+    parrot_set_run_core interp PARROT_CGP_CORE
 #endif
     parrot_imcc_init interp
     callback    <- mkCompileCallback compileToParrot
