@@ -443,7 +443,7 @@ op2Logical name comp = sub ("&infix:" ++ name) [arg0, arg1] (
     , "set_returns" .- retSigList [arg0]
     , "returncc" .- []
     , InsLabel altL
-    ] ++ callBlockCC arg2 ++ collectCC postL) --> [tempPMC]
+    ] ++ callBlockCC arg1 ++ collectCC postL) --> [tempPMC]
     where
     altL = ("sc_" ++ escaped name ++ "_alt")
     postL = ("sc_" ++ escaped name ++ "_post")
