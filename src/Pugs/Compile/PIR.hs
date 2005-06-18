@@ -493,9 +493,14 @@ genPIR' = do
             , emit globPIR
             , text ".sub init @MAIN, @ANON"
             , text "    new_pad 0"
+            -- Eventually, we'll have to write our own find_name wrapper (or
+            -- fix Parrot's find_name appropriately). See Pugs.Eval.Var.
+            -- For now, we simply store $P0 twice.
             , text "    $P0 = new .PerlEnv"
+            , text "    store_global '%*ENV', $P0"
             , text "    store_global '%ENV', $P0"
             , text "    $P0 = new .PerlArray"
+            , text "    store_global '@*END', $P0"
             , text "    store_global '@END', $P0"
             , text "    main()"
             , text "    $P0 = find_name \"&run_END\""

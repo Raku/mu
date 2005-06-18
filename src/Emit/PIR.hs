@@ -489,7 +489,7 @@ preludePIR = emit $
         ] --> [lit True]
 
     , sub "&run_END" []
-        [ tempPMC <-- "find_global" $ [lit "@END"]
+        [ tempPMC <-- "find_global" $ [lit "@*END"]
         , InsLabel "run_END_loop"
         , tempINT <:= tempPMC
         , "le" .- [tempINT, ExpLit . LitInt $ 0, bare "run_END_done"]
