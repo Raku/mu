@@ -243,6 +243,10 @@ tempSTR = reg $ STR 8
 tempSTR2 :: (RegClass a) => a
 tempSTR2 = reg $ STR 9
 
+{-| @$S10@ register -}
+tempSTR3 :: (RegClass a) => a
+tempSTR3 = reg $ STR 10
+
 {-| @$I8@ register -}
 tempINT :: (RegClass a) => a
 tempINT = reg $ INT 8
@@ -250,6 +254,14 @@ tempINT = reg $ INT 8
 {-| @$I9@ register -}
 tempINT2 :: (RegClass a) => a
 tempINT2 = reg $ INT 9
+
+{-| @$I10@ register -}
+tempINT3 :: (RegClass a) => a
+tempINT3 = reg $ INT 10
+
+{-| @$I11@ register -}
+tempINT4 :: (RegClass a) => a
+tempINT4 = reg $ INT 11
 
 {-| @$N8@ register -}
 tempNUM :: (RegClass a) => a
@@ -643,8 +655,28 @@ preludePIR = emit $
         [ InsNew rv PerlUndef
         , tempSTR <:= arg0
         , tempSTR2 <:= arg1
+        -- special case split("\n",...) to get Test.pm working
+        , "ne" .- [tempSTR, lit "\n", bare "split_normally"]
+        , InsNew rv PerlArray
+        , tempINT <:= (ExpLit . LitInt $ 0)
+        , tempINT4 <-- "length" $ [tempSTR]
+        , InsLabel "split_loop"
+        , tempINT2 <-- "index" $ [tempSTR2, tempSTR, tempINT]
+        , "lt" .- [tempINT2, ExpLit . LitInt $ 0, bare "split_last"]
+        , tempINT3 <-- "sub" $ [tempINT2, tempINT]
+        , tempSTR3 <-- "substr" $ [tempSTR2, tempINT, tempINT3]
+        , tempINT <-- "add" $ [tempINT2, tempINT4]
+        , "push" .- [rv, tempSTR3]
+        , "goto" .- [bare "split_loop"]
+        , InsLabel "split_last"
+        , tempSTR3 <-- "substr" $ [tempSTR2, tempINT]
+        , "push" .- [rv, tempSTR3]
+        , "goto" .- [bare "split_done"]
+        , InsLabel "split_normally"
+        -- end of special case
         , tempPMC <-- "split" $ [tempSTR, tempSTR2]
         , rv <-- "assign" $ [tempPMC]
+        , InsLabel "split_done"
         ] --> [rv]
 
     --, namespace "bool" -- Namespaces have bugs in both pugs and parrot.
