@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 21;
+plan 25;
 
 =pod
 
@@ -50,6 +50,20 @@ Basic C<kv> tests, see S29.
     is(~@kv, "a 1", '$pair.kv inner list matched expectation');
 }
 
+{
+    my $sub  = sub (Hash $hash) { $hash.kv };
+    my %hash = (a => 1, b => 2);
+    is ~kv(%hash).sort,   "1 2 a b", ".kv works with normal hashes (sanity check)";
+    is ~$sub(%hash).sort, "1 2 a b", ".kv works with constant hash references";
+}
+
+{
+    # "%$hash" is not idiomatic Perl, but should work nevertheless.
+    my $sub  = sub (Hash $hash) { try { (%$hash).kv } };
+    my %hash = (a => 1, b => 2);
+    is ~kv(%hash).sort,   "1 2 a b", ".kv works with normal hashes (sanity check)";
+    is ~$sub(%hash).sort, "1 2 a b", ".kv works with dereferenced constant hash references";
+}
 
 # test3 and test4 illustrate a bug 
 
@@ -96,4 +110,3 @@ for %hash.kv -> $key,$value {
 	is($key, 'foo', "for(): from {%hash.elems}-elem {%hash.ref} \%hash got the right \$key");
 	is($value, 'baz', "for(): from {%hash.elems}-elem {%hash.ref} \%hash got the right \$value");
 }
-
