@@ -44,7 +44,9 @@ data TParam = MkTParam
     }
     deriving (Show, Typeable)
 
-data TCxt = TCxtVoid | TCxtLValue !Type | TCxtItem !Type | TCxtSlurpy !Type
+data TCxt
+    = TCxtVoid | TCxtLValue !Type | TCxtItem !Type | TCxtSlurpy !Type
+    | TTailCall !TCxt
     deriving (Show, Eq, Typeable)
 
 tcVoid, tcLValue :: TCxt
@@ -183,10 +185,15 @@ instance EnterClass TransMonad TCxt where
 
 compileStmts :: Exp -> Comp (PAST [Stmt])
 compileStmts exp = case exp of
+    Stmts this Noop -> do
+        thisC   <- compile this
+        let thisC' = case thisC of
+                PStmt (PExp (PApp cxt fun args)) ->
+                    PStmt (PExp (PApp (TTailCall cxt) fun args))
+                _ -> thisC
+        return $ PStmts thisC' PNil
     Stmts this rest -> do
-        let ent | rest == Noop  = id
-                | otherwise     = enter cxtVoid
-        thisC   <- ent $ compile this
+        thisC   <- enter cxtVoid $ compile this
         restC   <- compileStmts rest
         return $ PStmts thisC restC
     Noop        -> return PNil
@@ -370,17 +377,22 @@ instance (Typeable a) => Translate (PAST a) a where
         [appC] <- genLabel ["invokeBlock"]
         tell $ map StmtIns $ callBlock appC blockC 
         return tempPMC
-    trans (PApp _ fun args) = do
+    trans (PApp cxt fun args) = do
         funC    <- case fun of
             PExp (PVar name) -> return $ lit name
             _           -> trans fun
         argsC   <- if isLogicalLazy fun
             then mapM trans (head args : map PThunk (tail args))
             else mapM trans args
-        pmc     <- genLV "app"
-        -- XXX - probe if funC is slurpy, then modify ExpLV pmc accordingly
-        tellIns $ [reg pmc] <-& funC $ argsC
-        return pmc
+        case cxt of
+            TTailCall _ -> do
+                tellIns $ InsTailFun funC argsC
+                return nullPMC
+            _ -> do
+                pmc     <- genLV "app"
+                -- XXX - probe if funC is slurpy, then modify ExpLV pmc accordingly
+                tellIns $ [reg pmc] <-& funC $ argsC
+                return pmc
         where
         -- XXX HACK
         isLogicalLazy (PExp (PVar "&infix:or"))     = True
