@@ -64,7 +64,7 @@ my $lib6         = "../../blib6/lib";
 my $initrd_gz    = "initrd.gz";
 my $initrd_img   = "initrd.img";
 my $initrd_mnt   = "/mnt/loop0";
-my $initrd_size  = int 10.5 * 1024;
+my $initrd_size  = int 11.0 * 1024;
 my $cdroot       = "cdroot";
 my $iso          = "cd.iso";
 
@@ -253,7 +253,8 @@ step
       -M $initrd_gz <= -M $terminfo and
       -M $initrd_gz <= -M $welcome_p6 and
       -M $initrd_gz <= $newest_mod_stamp and
-      -M $initrd_gz <= $newest_p_stamp
+      -M $initrd_gz <= $newest_p_stamp and
+      -d "$initrd_mnt/tmp"
     );
   };
 
@@ -290,7 +291,7 @@ HELP
 HELP
 
   my @dirs = map { "$initrd_mnt/$_" }
-	       "bin", "dev", "lib", "lib6",
+	       "bin", "dev", "lib", "lib6", "tmp",
 	       "etc", "etc/terminfo", "etc/terminfo/l";
   step
     descr  => "Creating directories " . join(", ", map { "$_" } @dirs),
@@ -437,7 +438,7 @@ hiddenmenu
 
 title    $pugs_version
 root     (cd)
-kernel   /boot/vmlinuz root=/dev/ram init=/linuxrc ramdisk_size=$initrd_size quiet
+kernel   /boot/vmlinuz root=/dev/ram rw init=/linuxrc ramdisk_size=$initrd_size quiet
 initrd   /boot/initrd.gz
 clear
 cat      /boot/splashscreen.txt
@@ -457,7 +458,7 @@ for(
 }
 
 step
-  descr  => "Creating final ISO",
+  descr  => "Creating final ISO image",
   ensure => sub { -r $iso and -M $iso <= -M $initrd_gz and -M $iso <= -M "$cdroot/boot/grub/menu.lst" },
   using  => sub {
     system
