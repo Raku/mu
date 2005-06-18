@@ -36,7 +36,9 @@ findParrot = do
 evalParrotFile :: FilePath -> IO ()
 evalParrotFile file = do
     cmd <- findParrot
-    rawSystem cmd ["-j", file]
+    -- parrot -j is fatal on systems where jit is not supported.
+    --rawSystem cmd ["-j", file]
+    rawSystem cmd [file]
     return ()
 
 evalParrot :: String -> IO ()
