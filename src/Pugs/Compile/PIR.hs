@@ -166,7 +166,7 @@ instance Compile Exp (PAST Stmt) where
         cxt     <- asks envContext
         if isVoidCxt cxt
             then do
-                unless (val == VBool True) $
+                unless (val == VBool True || val == VInt 1) $
                     warn "Useless use of a constant in void context" val
                 compile Noop
             else compile val
@@ -204,6 +204,8 @@ instance Compile Exp (PAST LValue) where
         return $ PApp cxt funC argsC
     compile exp@(Syn "if" _) = compConditional exp
     compile exp@(Syn "unless" _) = compConditional exp
+    compile (Syn "{}" (x:xs)) = compile (App (Var "&postcircumfix:{}") (Just x) xs)
+    compile (Syn "[]" (x:xs)) = compile (App (Var "&postcircumfix:[]") (Just x) xs)
     compile exp = error ("Invalid LValue: " ++ show exp)
 
 compConditional :: Exp -> Comp (PAST LValue)
@@ -221,13 +223,15 @@ instance Compile Exp (PAST Expression) where
     compile (Cxt cxt rest) = enter cxt $ compile rest
     compile (Var name) = return . PExp $ PVar name
     compile (Val val) = fmap PLit (compile val)
-    compile exp@(App _ _ _) = fmap PExp $ compile exp
-    compile exp@(Syn "if" _) = fmap PExp $ compile exp
     compile Noop = compile (Val undef)
     compile (Syn "=" [lhs, rhs]) = do
         lhsC    <- compile lhs
         rhsC    <- compile rhs
         return $ PAssign [lhsC] rhsC
+    compile (Syn ":=" [lhs, rhs]) = do
+        lhsC    <- compile lhs
+        rhsC    <- compile rhs
+        return $ PBind [lhsC] rhsC
     compile (Syn "block" [body]) = do
         cxt     <- askPCxt
         bodyC   <- compile body
@@ -237,12 +241,15 @@ instance Compile Exp (PAST Expression) where
         cxt     <- askPCxt
         bodyC   <- compile (subBody sub)
         return $ PExp $ PApp cxt (PBlock bodyC) []
-    compile (Syn "for" _) = compile (Val undef) -- XXX TODO
+    compile (Syn "for" _) = compile Noop -- XXX TODO
+    compile (Syn "module" _) = compile Noop
+    compile exp@(App _ _ _) = fmap PExp $ compile exp
+    compile exp@(Syn _ _) = fmap PExp $ compile exp
     compile exp = compError exp
 
 compError :: forall a b. Compile a b => a -> Comp b
-compError = die $ "Compile error -- invalid"
-    ++ (dropWhile (not . isSpace) . show $ typeOf (undefined :: b))
+compError = die $ "Compile error -- invalid PAST "
+    ++ (drop 12 . show $ typeOf (undefined :: b))
 
 transError :: forall a b. Translate a b => a -> Trans b
 transError = die $ "Translate error -- invalid "
