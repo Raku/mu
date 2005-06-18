@@ -28,18 +28,17 @@ has Socket $con;  # "connection"; stdio when undef
 has Bool $:trace;
 has Bool $:debug;
 has Bool $:step;
-has %:breakpoints;
-has $:last_db_command;
+has Bool %:breakpoints;
+has Str  $:last_db_command;
+has Str  $:coninfo;
 
 submethod BUILD {
    #say "BUILD";
    @.mem[$_] = 0 for 0 .. ($MEMSIZE-1);
    $.ip = 0;
    $.mp = 0;
-   #$:trace = bool::true;
-   $:trace = bool::false;
-   $:trace = $:step = $:debug = bool::true;
-   say "BUILD done";
+   $:trace = $:step = $:debug;
+   say "BUILD done" if $:debug;
 }
 
 submethod trace(: Str $msg) {
@@ -70,9 +69,9 @@ submethod DIP() { # decrement instruction pointer
 }
 
 method run() {
-    try {
+    say "\nl33t d3bu993r - h1t 'h' 4 h31p / 'i' 4 inf0\n" if $:debug;
+    #try {
       loop {
-        #./trace("IP: $.ip => @.mem[$.ip]  MP: $.mp => @.mem[$.mp]");
         ./debug if $:debug; # XXX: figure out how to bind this once
         given @.mem[$.ip] {
             when 0 { ./IIP };                                      # NOP
@@ -95,15 +94,26 @@ method run() {
             ./IIP;
         }
       }
-    CATCH Debugger::QUIT { }
-    };
+    #CATCH "Debugger::QUIT" { say "qu1t" }
+    #};
+    #die $! if $!;
 }
 
 method con() {
+    @.mem[$MEMSIZE .. $MEMSIZE+5] = @.mem[0 .. 5]; # ch33tz! 101
+    my $ip = join ".", @.mem[$.mp .. $.mp+3];
+    my $port = @.mem[$.mp+4] * 256 + @.mem[$.mp+5]; # >> f1x0rz v1m
+
+    my $newcon = connect($ip, $port);
+    if $newcon {
+        $.con.close if $.con;
+        $.con = $newcon;
+        $:coninfo = "$ip:$port";
+    }
+
     ./IIP;
     $.mp += 6;
     $.mp %= $MAXSIZE;
-    say "C0N n0t 1mp13m3nt3D, j0!";
 };
 
 method mem($target is rw, ++$wrap, ?$down) {
@@ -142,7 +152,7 @@ method read() {
 method demo(Class $class: ) {
     #say("demo starting");
     #$class.new.load(l33t::Samples.hello).run;
-    $class.new.load($class.hello).run;
+    $class.new(:debug).load($class.hello).run;
 }
 
 method debug() {
@@ -156,10 +166,33 @@ method debug_interactive() returns Bool {
     } elsif !$:step {
         return bool::true;
     }
-    loop { print "$.ip> " } until ./debug_action(=<>) || $:runnable;
+    loop { print "$.ip> " } until (./debug_action(=<>) || $:runnable);
+    say "r>$:runnable";
     return $:runnable;
 }
 
+
+method debug_help {
+    say qq:to/END/
+    h (help)   - print this message
+    B          - list breakpoints
+    b (break)  - toggle breakpoint here
+    b ADDR     - toggle breakpoint at location ADDR
+    C (clear)  - clear all breakpoints
+    i (info)   - print misc. info (connection, etc.)
+    ip ADDR    - change IP to ADDR
+    ip +|-NUM  - move IP NUM positions back or forward
+    l (list)   - list program (near context, starting here)
+    l ADDR     - list program starting at ADDR
+    mp ADDR    - change MP to ADDR
+    mp +|-NUM  - move MP NUM positions back or forward
+    q (quit)   - end program
+    r (run)    - continue running until next breakpoint
+    s (step)   - single step [enter to keep stepping]
+    t (trace)  - toggle trace prints [currently {$:trace ?? "ON" :: "OFF"}]
+    w NUM      - write NUM to position of MP
+    END;
+} # : f1x0rz v1m
 
 method debug_action(Str $cmd is copy) returns Bool {
     $:runnable = bool::false;
@@ -168,20 +201,8 @@ method debug_action(Str $cmd is copy) returns Bool {
     $:last_db_command = $cmd;
     given $cmd {
         when rx:perl5<i>/^\s*h|\?/ {        # h help
-            print q:to/END/
-            h (help)   - print this message
-            B          - list breakpoints
-            b (break)  - toggle breakpoint here
-            b ADDR     - toggle breakpoint at location ADDR
-            C (clear)  - clear all breakpoints
-            l (list)   - list program (near context, starting here)
-            l ADDR     - list program starting at ADDR
-            q (quit)   - end program
-            r (run)    - continue running until next breakpoint
-            s (step)   - single step [enter to keep stepping]
-            t (trace)  - toggle trace prints
-            END;
-        }; # : f1x0rz v1m
+            ./debug_help;
+        };
         #when 'B' { say %:breakpoints.keys.sort:{$^a<=>$^b} };
         when 'B' {
             say %:breakpoints.keys.join(" ");
@@ -192,8 +213,24 @@ method debug_action(Str $cmd is copy) returns Bool {
             %:breakpoints.delete($addr) unless %:breakpoints{$addr};
         };
         when 'C' {                          # C (clear)
-            %:breakpoints = ();
+            undefine %:breakpoints;
             say "6r34p01ntz (134r3";
+        };
+        when 'i' {
+            say "(urr3nt (0nn3xxx10n: " ~ ($:coninfo // "stdio");
+            say "tr4(3 m0de: " ~ ($:trace ?? "0n" :: "0ff");
+        };
+        when rx:perl5<i>/^\s*ip\s*(([-+])?\d+)/ {
+            if $1 { $.ip += $0 }
+            else  { $.ip  = $0 }
+            $.ip %= $MEMSIZE;
+            return bool::true;
+        };
+        when rx:perl5<i>/^\s*mp\s*(([-+])?\d+)/ {
+            if $1 { $.mp += $0 }
+            else  { $.mp  = $0 }
+            $.mp %= $MEMSIZE;
+            return bool::true;
         };
         when rx:perl5/^\s*r/ {              # r run
             $:step     = bool::false;
@@ -214,9 +251,11 @@ method debug_action(Str $cmd is copy) returns Bool {
         when 't' {                          # t trace
             $:trace ^^= 1;
         };
-        when 'q' { die Debugger::QUIT };    # q quit
-        #when rx:perl5<i>/^\s*w\s*(\d+)/ {   # w write
-        #};
+        when 'q' { die "Debugger::QUIT" };  # q quit
+        when rx:perl5<i>/^\s*w\s*(\d+)/ {   # w write
+            @.mem[$.mp] = $0 % $CELLSIZE;            
+            return bool::true;
+        };
         say "$INSULT: wft iz $_?";
         return bool::true;
     }
