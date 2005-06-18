@@ -20,11 +20,11 @@ my %ords = (
   9 => 'ninth',
 );
 
-sub split_test(Array @splitted, Array @expected, Str $desc, ?$todo = 0) {
+sub split_test(@splitted, @expected, Str $desc, ?$todo = 0) {
   is +@splitted, +@expected,
      "split created the correct value amount for: $desc", $todo;
   is @splitted[$_], @expected[$_],
-     "the %ords{$_} value matched for: $desc", $todo
+     "the %ords{$_ + 1} value matched for: $desc", $todo
     for 0 .. @splitted.end;
 }
 

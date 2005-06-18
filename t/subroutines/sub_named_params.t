@@ -79,7 +79,7 @@ sub mandatory_by_trait (+$param is required) {
 }
 
 is(mandatory_by_trait('param' => 5) , 5, "named mandatory parameter is returned");
-is(eval 'mandatory_by_trait()', undef, "not specifying a mandatory parameter fails");
+is(eval('mandatory_by_trait()'), undef, "not specifying a mandatory parameter fails");
 
 
 
