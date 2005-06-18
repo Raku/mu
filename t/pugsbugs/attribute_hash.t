@@ -8,7 +8,7 @@ use Test;
 Clearing 'has'-attrib hashes with "= ()" messes them up; subsequent
 hash access fails.
 
-This happens to both private and public
+This happens to both private and public members.
 
 =cut
 
