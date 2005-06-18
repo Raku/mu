@@ -126,8 +126,11 @@ import Pugs.Rule.Pos
 -- Instances.
 instance Show Unique where
     show = show . hashUnique
-instance Show (a -> b) where
-    show _ = "(->)"
+instance (Typeable a, Typeable b) => Show (a -> b) where
+    show _ = "(" ++ typA ++ " -> " ++ typB ++ ")"
+        where
+        typA = show $ typeOf (undefined :: a)
+        typB = show $ typeOf (undefined :: b)
 instance Eq (a -> b) where
     _ == _ = False
 instance Ord (a -> b) where

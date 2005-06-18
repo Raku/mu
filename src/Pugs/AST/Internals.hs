@@ -1007,7 +1007,7 @@ data Env = MkEnv
     , envDebug   :: !DebugInfo           -- ^ Debug info map
     , envStash   :: !String              -- ^ Misc. stash
     , envPos     :: !Pos                 -- ^ Source position range
-    } deriving (Show, Eq, Ord)
+    } deriving (Show, Eq, Ord, Typeable)
 
 envWant :: Env -> String
 envWant env =
