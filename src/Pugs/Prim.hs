@@ -817,7 +817,7 @@ op2 "exists" = \x y -> do
 op2 "unshift" = op2Array array_unshift
 op2 "push" = op2Array array_push
 op2 "split" = op2Split
-op2 "Scalar::split" = flip op2Split
+op2 "Str::split" = flip op2Split
 op2 "Scalar::as" = \x y -> do
     str <- fromVal x :: Eval VStr
     fmt <- fromVal y
@@ -904,7 +904,6 @@ op2Print f h v = do
     tryIO undef $ do
         f handle . concatMap encodeUTF8 $ strs
         return $ VBool True
-
 
 op2Split :: Val -> Val -> Eval Val
 op2Split x y = do
@@ -1430,9 +1429,9 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      pre     link    unsafe (Str, Str)\
 \\n   Int       pre     unlink  unsafe (List)\
 \\n   Str       pre     readlink unsafe (Str)\
-\\n   List      pre     Scalar::split   safe   (Str)\
-\\n   List      pre     Scalar::split   safe   (Str: Str)\
-\\n   List      pre     Scalar::split   safe   (Str: Rule)\
+\\n   List      pre     Str::split   safe   (Str)\
+\\n   List      pre     Str::split   safe   (Str: Str)\
+\\n   List      pre     Str::split   safe   (Str: Rule)\
 \\n   List      pre     split   safe   (Str, Str)\
 \\n   List      pre     split   safe   (Rule, Str)\
 \\n   Str       spre    =       safe   (Any)\
