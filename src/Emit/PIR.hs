@@ -374,7 +374,7 @@ vop1x p6name opname regr reg0 =
 
 vop2x :: SubName -> PrimName -> (forall a. RegClass a => a) -> (forall b. RegClass b => b) -> (forall c. RegClass c => c) -> Decl
 vop2x p6name opname regr reg0 reg1 =
-    sub p6name [arg0] 
+    sub p6name [arg0, arg1] 
       [ InsNew rv PerlUndef
       , reg0 <:= arg0
       , reg1 <:= arg1
