@@ -30,7 +30,7 @@ data PAST a where
     PVar        :: !VarName -> PAST LValue
 
     PStmts      :: !(PAST Stmt) -> PAST [Stmt] -> PAST [Stmt]
-    PApp        :: !PCxt -> !(PAST Expression) -> ![PAST Expression] -> PAST LValue
+    PApp        :: !TCxt -> !(PAST Expression) -> ![PAST Expression] -> PAST LValue
     PAssign     :: ![PAST LValue] -> !(PAST Expression) -> PAST Expression
     PBind       :: ![PAST LValue] -> !(PAST Expression) -> PAST Expression
     PPad        :: ![(VarName, PAST Expression)] -> !(PAST [Stmt]) -> PAST [Stmt]
@@ -38,15 +38,14 @@ data PAST a where
     PSub        :: !SubName -> ![Param] -> !(PAST [Stmt]) -> PAST Decl
 #endif
 
-data PCxt = PCxtVoid | PCxtLValue !Type | PCxtItem !Type | PCxtSlurpy !Type
+data TCxt = TCxtVoid | TCxtLValue !Type | TCxtItem !Type | TCxtSlurpy !Type
     deriving (Show, Eq, Typeable)
 
-{-
-pcLV, pcItem, pcSlurpy :: PCxt
-pcLV        = PCxtLValue anyType
-pcItem      = PCxtItem anyType
-pcSlurpy    = PCxtSlurpy anyType
--}
+tcVoid, tcLValue, tcItem, tcSlurpy :: TCxt
+tcVoid      = TCxtVoid
+tcLValue    = TCxtLValue anyType
+tcItem      = TCxtItem anyType
+tcSlurpy    = TCxtSlurpy anyType
 
 instance Show (PAST a) where
     show (PVal x) = "(PVal " ++ show x ++ ")"
@@ -72,6 +71,7 @@ data TEnv = MkTEnv
     { tLexDepth :: !Int
     , tTokDepth :: !Int
     , tEnv      :: !Env
+    , tCxt      :: !TCxt
     , tReg      :: !(TVar (Int, String))
     , tLabel    :: !(TVar Int)
     }
@@ -80,6 +80,7 @@ data TEnv = MkTEnv
 type Comp a = Eval a
 type CompMonad = EvalT (ContT Val (ReaderT Env SIO))
 type Trans a = WriterT [Stmt] (ReaderT TEnv IO) a
+type TransMonad = WriterT [Stmt] (ReaderT TEnv IO)
 
 class (Show a, Typeable b) => Compile a b where
     compile :: a -> Comp b
@@ -144,6 +145,9 @@ class EnterClass m a | m -> a where
 instance EnterClass CompMonad Cxt where
     enter cxt = local (\e -> e{ envContext = cxt })
 
+instance EnterClass TransMonad TCxt where
+    enter cxt = local (\e -> e{ tCxt = cxt })
+
 compileStmts :: Exp -> Comp (PAST [Stmt])
 compileStmts exp = case exp of
     Stmts this rest -> do
@@ -178,18 +182,18 @@ instance Compile Exp (PAST Stmt) where
         bodyC   <- compile body
         postC   <- compile post
         funC    <- compile (Var "&statement_control:loop")
-        return $ PStmt $ PExp $ PApp PCxtVoid funC [preC, PBlock condC, PBlock bodyC, PBlock postC]
+        return $ PStmt $ PExp $ PApp TCxtVoid funC [preC, PBlock condC, PBlock bodyC, PBlock postC]
     compile exp = fmap PStmt $ compile exp
 
-askPCxt :: Eval PCxt
-askPCxt = do
+askTCxt :: Eval TCxt
+askTCxt = do
     env <- ask
     return $ if envLValue env
-        then PCxtLValue (typeOfCxt $ envContext env)
+        then TCxtLValue (typeOfCxt $ envContext env)
         else case envContext env of
-            CxtVoid         -> PCxtVoid
-            CxtItem typ     -> PCxtItem typ
-            CxtSlurpy typ   -> PCxtSlurpy typ
+            CxtVoid         -> TCxtVoid
+            CxtItem typ     -> TCxtItem typ
+            CxtSlurpy typ   -> TCxtSlurpy typ
 
 instance Compile Exp (PAST LValue) where
     compile (Pos pos rest) = fmap (PPos pos rest) $ compile rest
@@ -198,7 +202,7 @@ instance Compile Exp (PAST LValue) where
     compile (App fun (Just inv) args) = do
         compile (App fun Nothing (inv:args)) -- XXX WRONG
     compile (App fun Nothing args) = do
-        cxt     <- askPCxt
+        cxt     <- askTCxt
         funC    <- compile fun
         argsC   <- mapM (enter cxtItemAny . compile) args
         return $ PApp cxt funC argsC
@@ -210,7 +214,7 @@ instance Compile Exp (PAST LValue) where
 
 compConditional :: Exp -> Comp (PAST LValue)
 compConditional (Syn name [cond, true, false]) = do
-    cxt     <- askPCxt
+    cxt     <- askTCxt
     condC   <- compile cond
     trueC   <- compile true
     falseC  <- compile false
@@ -233,12 +237,12 @@ instance Compile Exp (PAST Expression) where
         rhsC    <- compile rhs
         return $ PBind [lhsC] rhsC
     compile (Syn "block" [body]) = do
-        cxt     <- askPCxt
+        cxt     <- askTCxt
         bodyC   <- compile body
         return $ PExp $ PApp cxt (PBlock bodyC) []
     compile (Syn "sub" [Val (VCode sub)]) = do
         -- XXX I'd like to lambda lift... :-/
-        cxt     <- askPCxt
+        cxt     <- askTCxt
         bodyC   <- compile (subBody sub)
         return $ PExp $ PApp cxt (PBlock bodyC) []
     compile (Syn "for" _) = compile Noop -- XXX TODO
@@ -299,7 +303,7 @@ instance (Typeable a) => Translate (PAST a) a where
         tellIns $ pmc <-- "find_name" $ [lit name]
         return pmc
 {- XXX - this interferes with the prototype checking :-(
-    trans (PStmt (PExp (PApp PCxtVoid (PExp (PVar name)) args))) = do
+    trans (PStmt (PExp (PApp TCxtVoid (PExp (PVar name)) args))) = do
         argsC   <- mapM trans args
         return $ StmtIns $ InsFun [] (lit name) argsC
 -}
@@ -308,9 +312,14 @@ instance (Typeable a) => Translate (PAST a) a where
         expC    <- trans exp
         return $ StmtIns $ InsExp expC
     trans (PAssign [lhs] rhs) = do
-        lhsC    <- trans lhs
+        lhsC    <- enter tcLValue $ trans lhs
         rhsC    <- trans rhs
         tellIns $ lhsC <== rhsC
+        return (ExpLV lhsC)
+    trans (PBind [lhs] rhs) = do
+        lhsC    <- enter tcLValue $ trans lhs
+        rhsC    <- trans rhs
+        tellIns $ lhsC <:= rhsC
         return (ExpLV lhsC)
     trans (PStmts this rest) = do
         thisC   <- trans this
@@ -508,6 +517,7 @@ initTEnv = do
     return $ MkTEnv
         { tLexDepth = 0
         , tTokDepth = 0
+        , tCxt      = tcVoid
         , tEnv      = env
         , tReg      = zero
         , tLabel    = none
