@@ -344,6 +344,7 @@ argVal MkArgSlurpyArray  = 0x08
 argVal MkArgMaybeFlatten = 0x10
 argVal MkArgOptional     = 0x20
 
+maybeFlatten :: Doc
 maybeFlatten = emit [MkArgMaybeFlatten]
 
 {-| Marks a parameter as slurpy. -}
@@ -360,6 +361,7 @@ slurpy = MkSig [MkArgSlurpyArray]
 _ --> _ = error "Can't return from non-sub"
 #endif
 
+retSigList :: [Expression] -> [Expression]
 retSigList rets = (lit sig : rets)
     where
     sig = parens (commaSep (replicate (length rets) maybeFlatten))
@@ -377,6 +379,7 @@ vop2 p6name opname =
       , rv <-- opname $ [arg0, arg1]
       ] --> [rv]
 
+vop2keyed :: SubName -> LValue -> Decl
 vop2keyed p6name temp =
     sub p6name [arg0, arg1] 
       [ temp    <:= arg1
@@ -427,6 +430,7 @@ callBlock label fun =
     [ "newsub" .- [funPMC, bare ".Continuation", bare label]
     ] ++ callBlockCC fun ++ collectCC label
 
+collectCC :: LabelName -> [Ins]
 collectCC label =
     [ InsLabel label
     , if parrotBrokenXXX
@@ -616,6 +620,10 @@ preludePIR = emit $
     , sub "&undef" []
         [ InsNew rv PerlUndef
         ] --> [rv]
+    , sub "&undefine" [arg0]
+        [ InsNew tempPMC PerlUndef
+        , arg0 <-- "assign" $ [tempPMC]
+        ] --> [arg0]
     , vop1x "&defined" "defined" tempINT tempPMC
 {- XXX saying  hash
 -- causes error:imcc:syntax error, unexpected IREG, expecting '('
