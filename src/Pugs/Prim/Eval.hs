@@ -43,14 +43,11 @@ opRequire dumpEnv v = do
         if (not ok)
             then requireInc ps file msg
             else do
-{-
-                -- XXX security issue?  only if you _can_ create a filename,
-                -- but _cant_ control its contents.  Yes?
-                opEval style "<internal>" ("%*INC{q{"
-                                           ++ (decodeUTF8 file)
-                                           ++ "}} = q{"
-                                           ++ (decodeUTF8 pathName) ++ "};")
--}
+                -- %*INC{file} = pathname
+                evalExp $
+                    Syn "=" [ Syn "{}" [ Var "%*INC", Val . VStr $ decodeUTF8 file ]
+                            , Val . VStr $ decodeUTF8 pathName
+                            ]
                 str <- liftIO $ readFile pathName
                 opEval style pathName (decodeUTF8 str)
 
