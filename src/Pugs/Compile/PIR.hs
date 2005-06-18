@@ -35,8 +35,14 @@ data PAST a where
     PBind       :: ![PAST LValue] -> !(PAST Expression) -> PAST Expression
     PPad        :: ![(VarName, PAST Expression)] -> !(PAST [Stmt]) -> PAST [Stmt]
 
-    PSub        :: !SubName -> ![Param] -> !(PAST [Stmt]) -> PAST Decl
+    PSub        :: !SubName -> ![TParam] -> !(PAST [Stmt]) -> PAST Decl
 #endif
+
+data TParam = MkTParam
+    { tpParam   :: !Param
+    , tpDefault :: !(Maybe (PAST Expression))
+    }
+    deriving (Show, Typeable)
 
 data TCxt = TCxtVoid | TCxtLValue !Type | TCxtItem !Type | TCxtSlurpy !Type
     deriving (Show, Eq, Typeable)
@@ -93,6 +99,16 @@ class (Show a, Typeable b) => Translate a b | a -> b where
 instance Compile (Var, [(TVar Bool, TVar VRef)]) (PAST Decl) where
     compile = compError
 
+instance Compile Param TParam where
+    compile prm = do
+        defC <- if isOptional prm
+            then fmap Just $ compile (paramDefault prm)
+            else return Nothing
+        return $ MkTParam
+            { tpParam = prm
+            , tpDefault = defC
+            }
+
 instance Compile Pad (PAST PIR) where
     compile = compError
 
@@ -118,8 +134,9 @@ instance Compile Pad [PAST Decl] where
 
 instance Compile ([Char], VCode) (PAST Decl) where
     compile (name, MkCode{ subBody = Syn "block" [body], subParams = params }) = do
-        bodyC <- enter cxtItemAny $ compile body
-        return $ PSub name params bodyC
+        bodyC   <- enter cxtItemAny $ compile body
+        paramsC <- mapM compile params
+        return $ PSub name paramsC bodyC
     compile x = compError x
 
 {-
@@ -405,8 +422,9 @@ instance (Typeable a) => Translate (PAST a) a where
         return (ExpLV pmc)
     trans (PSub name params body) = do
         (_, stmts)  <- listen $ do
-            mapM_ (tellIns . InsLocal RegPMC . paramToIdent) params
-            tellIns $ "get_params" .- sigList (map paramToSig params)
+            let prms = map tpParam params
+            mapM_ (tellIns . InsLocal RegPMC . prmToIdent) prms
+            tellIns $ "get_params" .- sigList (map prmToSig prms)
             tellIns $ "new_pad" .- [lit curPad]
             mapM storeLex params
             trans body
@@ -416,12 +434,27 @@ instance (Typeable a) => Translate (PAST a) a where
         return (DeclSub name [] stmts)
         where
         -- XXX - slurpiness
-        paramToSig prm | isSlurpy prm = slurpy . bare $ paramToIdent prm
-        paramToSig prm = MkSig [] . bare $ paramToIdent prm
-        paramToIdent = render . varText . paramName
-        storeLex prm = do
+        prmToSig prm = MkSig (prmToArgs prm) . bare $ prmToIdent prm
+        prmToArgs prm = combine 
+            [ if isSlurpy prm then (MkArgSlurpyArray:) else id
+            , if isOptional prm then (MkArgOptional:) else id
+            ] []
+        prmToIdent = render . varText . paramName
+        storeLex param = do
             let var = paramName prm
-                name = paramToIdent prm
+                name = prmToIdent prm
+                prm = tpParam param
+            -- deal with defaults
+            when (isOptional prm) $ do
+                [defC] <- genLabel ["defaultDone"]
+                tellIns $ "unless_null" .- [bare name, bare defC]
+                case tpDefault param of
+                    Nothing     -> tellIns $ InsNew (VAR name) PerlUndef
+                    (Just exp)  -> do
+                        expC <- trans exp
+                        -- compile it away
+                        tellIns $ VAR name <:= expC
+                tellLabel defC
             tellIns $ "store_lex" .- [lit curPad, lit var, bare name]
     trans x = transError x
 

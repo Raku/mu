@@ -118,11 +118,9 @@ instance Emit Ins where
     emit (InsBind ident lit) = eqSep ident "set" [lit]
     emit (InsPrim (Just ret) name args) = eqSep ret name args
     emit (InsPrim Nothing name args) = emit name <+> commaSep args
-    emit (InsFun rets (ExpLit (LitStr name)) args) = emitRets rets
-        $+$ emitFunName "invokecc" name args
-    emit (InsFun rets fun args) = emitRets rets
-        $+$ emitFun "invokecc" fun args
-    emit (InsTailFun (ExpLit (LitStr name)) args) = emitFunName "tailcall" name args
+    emit (InsFun rets (ExpLit (LitStr name)) args) = emitFunName "invokecc" name args rets
+    emit (InsFun rets fun args) = emitFun "invokecc" fun args rets
+    emit (InsTailFun (ExpLit (LitStr name)) args) = emitFunName "tailcall" name args []
     emit (InsExp exp) = empty
     emit (InsLabel label) = nest (-2) (emit label <> colon)
     emit (InsComment comment ins) = emit (StmtComment comment) $+$ emit ins
@@ -132,17 +130,19 @@ emitRets :: [Sig] -> Doc
 emitRets [] = empty
 emitRets rets = emit ("get_results" .- sigList rets)
 
-emitFun :: (Emit b, Emit c) => CallConv -> b -> [c] -> Doc
-emitFun callconv fun args = emitArgs args $+$ emit callconv <+> emit fun
+emitFun :: (Emit b, Emit c) => CallConv -> b -> [c] -> [Sig] -> Doc
+emitFun callconv fun args rets = emitArgs args
+    $+$ emitRets rets
+    $+$ emit callconv <+> emit fun
 
 emitArgs :: (Emit a) => [a] -> Doc
 emitArgs args = emit "set_args" <+> commaSep (sig:map emit args)
     where
-    sig = quotes $ parens (commaSep (replicate (length args) "0b10010"))
+    sig = quotes $ parens (commaSep (replicate (length args) maybeFlatten))
 
-emitFunName :: Emit b => CallConv -> String -> [b] -> Doc
-emitFunName callconv name args = eqSep (funPMC :: LValue) "find_name" [LitStr name]
-    $+$ emitFun callconv (funPMC :: LValue) args
+emitFunName :: Emit b => CallConv -> String -> [b] -> [Sig] -> Doc
+emitFunName callconv name args rets = eqSep (funPMC :: LValue) "find_name" [LitStr name]
+    $+$ emitFun callconv (funPMC :: LValue) args rets
 
 noArgs :: [Expression]
 noArgs = []
@@ -324,22 +324,31 @@ sigList sigs = (flags:map sigIdent sigs)
     where
     flags = lit . render . parens . commaSep $ map sigFlags sigs
 
-instance Emit [SigFlag] where
-    emit [MkFlagSlurpy] = emit "0b1010"
-    emit [] = emit "0b10"
-    emit _ = error "Unknown sig"
+instance Emit [ArgFlag] where
+    emit = emit . sum . map argVal
 
 data Sig = MkSig
-    { sigFlags  :: [SigFlag]
+    { sigFlags  :: [ArgFlag]
     , sigIdent  :: Expression
     }
-    deriving (Show, Eq)
-data SigFlag = MkFlagSlurpy
-    deriving (Show, Eq)
+    deriving (Show, Eq, Typeable)
+
+data ArgFlag
+    = MkArgFlatten | MkArgSlurpyArray
+    | MkArgMaybeFlatten | MkArgOptional
+    deriving (Show, Eq, Typeable)
+
+argVal :: ArgFlag -> Int
+argVal MkArgFlatten      = 0x08
+argVal MkArgSlurpyArray  = 0x08
+argVal MkArgMaybeFlatten = 0x10
+argVal MkArgOptional     = 0x20
+
+maybeFlatten = emit [MkArgMaybeFlatten]
 
 {-| Marks a parameter as slurpy. -}
 slurpy :: Expression -> Sig
-slurpy = MkSig [MkFlagSlurpy]
+slurpy = MkSig [MkArgSlurpyArray]
 
 #ifndef HADDOCK
 {-| Returns from a sub. -}
@@ -353,7 +362,7 @@ _ --> _ = error "Can't return from non-sub"
 
 retSigList rets = (lit sig : rets)
     where
-    sig = parens (commaSep (replicate (length rets) "0b10010"))
+    sig = parens (commaSep (replicate (length rets) maybeFlatten))
 
 vop1 :: SubName -> PrimName -> Decl
 vop1 p6name opname =
