@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fallow-overlapping-instances -funbox-strict-fields -cpp #-}
+{-# OPTIONS_GHC -fglasgow-exts -fallow-overlapping-instances -fno-warn-orphans -funbox-strict-fields -cpp #-}
 
 module Emit.PIR where
 import Text.PrettyPrint
@@ -103,7 +103,7 @@ instance Emit Stmt where
     emit (StmtComment str) = vcat [ emit "###" <+> emit line | line <- lines str ]
     emit (StmtLine file line) = text "#line" <+> doubleQuotes (emit file) <+> emit line
     emit (StmtIns ins) = emit ins
-    emit (StmtPad pad stmts) = vcat $
+    emit (StmtPad pad _) = vcat $
         [ emit "new_pad" <+> int curPad
         ] ++ map (\(var, exp) -> emit ("store_lex" .- [lit (-1 :: Int), lit var, exp])) pad
     emit (StmtRaw doc) = doc
@@ -121,7 +121,7 @@ instance Emit Ins where
     emit (InsFun rets (ExpLit (LitStr name)) args) = emitFunName "invokecc" name args rets
     emit (InsFun rets fun args) = emitFun "invokecc" fun args rets
     emit (InsTailFun (ExpLit (LitStr name)) args) = emitFunName "tailcall" name args []
-    emit (InsExp exp) = empty
+    emit (InsExp _) = empty
     emit (InsLabel label) = nest (-2) (emit label <> colon)
     emit (InsComment comment ins) = emit (StmtComment comment) $+$ emit ins
     emit x = error $ "can't emit ins: " ++ show x
@@ -500,7 +500,7 @@ preludePIR = emit $
         , "print" .- [tempSTR]
         , "print" .- [lit "\n"]
         ] --> [lit True]
-
+{-
     , sub "&run_END" []
         [ tempPMC <-- "find_global" $ [lit "@*END"]
         , InsLabel "run_END_loop"
@@ -511,7 +511,7 @@ preludePIR = emit $
         , "goto" .- [bare "run_END_loop"]
         , InsLabel "run_END_done"
         ] --> [lit True]
-
+-}
     -- Control flowy
     , sub "&statement_control:loop" [arg0, arg1, arg2, arg3] $
         [ InsLabel "sc_loop_next"

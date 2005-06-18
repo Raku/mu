@@ -118,8 +118,9 @@ dumpGlob = (doParseWith $ \env _ -> do
 userDefined :: Pad -> Pad
 userDefined (MkPad pad) = MkPad $ Map.filterWithKey doFilter pad
     where
-    doFilter (_:'*':_) _ = False
-    doFilter _ _         = True
+    doFilter "@*END" _      = True
+    doFilter (_:'*':_) _    = False
+    doFilter _ _            = True
 
 repLoop :: IO ()
 repLoop = do

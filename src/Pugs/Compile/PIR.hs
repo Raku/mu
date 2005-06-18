@@ -47,11 +47,15 @@ data TParam = MkTParam
 data TCxt = TCxtVoid | TCxtLValue !Type | TCxtItem !Type | TCxtSlurpy !Type
     deriving (Show, Eq, Typeable)
 
-tcVoid, tcLValue, tcItem, tcSlurpy :: TCxt
+tcVoid, tcLValue :: TCxt
 tcVoid      = TCxtVoid
 tcLValue    = TCxtLValue anyType
+
+{-
+tcItem, tcSlurpy :: TCxt
 tcItem      = TCxtItem anyType
 tcSlurpy    = TCxtSlurpy anyType
+-}
 
 instance Show (PAST a) where
     show (PVal x) = "(PVal " ++ show x ++ ")"
@@ -115,7 +119,7 @@ instance Compile Pad (PAST PIR) where
 instance Compile Pad [PAST Decl] where
     compile pad = do
         entries' <- mapM canCompile entries
-        mapM compile $ catMaybes entries'
+        return $ concat entries'
         where
         entries = sortBy padSort $ padToList pad
         canCompile (name@('&':_), [(_, sym)]) = do
@@ -125,18 +129,30 @@ instance Compile Pad [PAST Decl] where
                     -> doCode name =<< code_fetch cv
                 MkRef (IScalar sv) | scalar_iType sv == mkType "Scalar::Const"
                     -> doCode name =<< fromVal =<< scalar_fetch sv
-                _ -> return Nothing
-        canCompile _ = return Nothing
-        doCode name vsub = return $ if subType vsub == SubPrim
-            then Nothing
-            else Just (name, vsub)
+                _ -> return []
+        canCompile ("@*END", [(_, sym)]) = do
+            ref     <- liftSTM $ readTVar sym
+            cvList  <- fromVals =<< readRef ref :: Comp [VCode]
+            decls   <- forM ([0..] `zip` cvList) $ \(i :: Int, cv) -> do
+                compile (("&*END_" ++ show i), cv) :: Comp [PAST Decl]
+            compile ("&*END", reverse $ concat decls)
+        canCompile _ = return []
+        doCode name vsub = if subType vsub == SubPrim
+            then return []
+            else compile (name, vsub)
 
+instance Compile ([Char], [PAST Decl]) [PAST Decl] where
+    compile (name, decls) = do
+        let bodyC = [ PStmts . PStmt . PExp $ PApp tcVoid (PExp (PVar sub)) []
+                    | PSub sub _ _ <- decls
+                    ]
+        return (PSub name [] (combine bodyC PNil):decls)
 
-instance Compile ([Char], VCode) (PAST Decl) where
+instance Compile ([Char], VCode) [PAST Decl] where
     compile (name, MkCode{ subBody = Syn "block" [body], subParams = params }) = do
         bodyC   <- enter cxtItemAny $ compile body
         paramsC <- mapM compile params
-        return $ PSub name paramsC bodyC
+        return [PSub name paramsC bodyC]
     compile x = compError x
 
 {-
@@ -186,10 +202,12 @@ instance Compile Exp (PAST Stmt) where
     compile (Val val) = do
         cxt     <- asks envContext
         if isVoidCxt cxt
-            then do
-                unless (val == VBool True || val == VInt 1) $
+            then case val of
+                VBool True      -> compile Noop
+                VInt x | x > 0  -> compile Noop
+                _               -> do
                     warn "Useless use of a constant in void context" val
-                compile Noop
+                    compile Noop
             else compile val
     compile (Syn "loop" [exp]) =
         compile (Syn "loop" $ [emptyExp, Val (VBool True), emptyExp, exp])
@@ -539,7 +557,7 @@ genPIR' = do
             , text "    store_global '@*END', $P0"
             , text "    store_global '@END', $P0"
             , text "    main()"
-            , nest 4 (emit $ InsFun [] (lit "&run_END") [])
+            , nest 4 (emit $ InsFun [] (lit "&*END") [])
             , text ".end"
             , text ".sub main @ANON"
             , nest 4 (emit mainPIR)
