@@ -137,7 +137,7 @@ instance Compile Pad [PAST Decl] where
             cvList  <- fromVals =<< readRef ref :: Comp [VCode]
             decls   <- forM ([0..] `zip` cvList) $ \(i :: Int, cv) -> do
                 compile (("&*END_" ++ show i), cv) :: Comp [PAST Decl]
-            compile ("&*END", reverse $ concat decls)
+            compile ("&*END", concat decls)
         canCompile _ = return []
         doCode name vsub = if subType vsub == SubPrim
             then return []
