@@ -584,6 +584,26 @@ preludePIR = emit $
     , vop1 "&prefix:?^" "bnot"
     , vop2keyed "&postcircumfix:{}" tempSTR
     , vop2keyed "&postcircumfix:[]" tempINT
+    , sub "&prefix:+" [arg0]
+        [ tempNUM <:= arg0
+        , InsNew rv PerlUndef
+        , rv <:= tempNUM
+        ] --> [rv]
+    , sub "&prefix:~" [arg0]
+        [ tempSTR <:= arg0
+        , InsNew rv PerlUndef
+        , rv <:= tempSTR
+        ] --> [rv]
+    , sub "&prefix:?" [arg0]
+        [ InsFun [rv] (lit "&true") [arg0]
+        ] --> [rv]
+    , sub "&true" [arg0]
+        [ InsNew rv PerlUndef
+        , rv <:= (ExpLit . LitInt) 1
+        , "if" .- [arg0, bare "true_pmc_is_true"]
+        , rv <:= (ExpLit . LitInt) 0
+        , InsLabel "true_pmc_is_true"
+        ] --> [rv]
 
     -- Strings
     , sub "&chomp" [arg0]
