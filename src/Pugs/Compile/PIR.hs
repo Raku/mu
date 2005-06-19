@@ -247,6 +247,14 @@ askTCxt = do
 instance (Show (m a), FunctorM m, Typeable1 m, Compile a b) => Compile (m a) (m b) where
     compile = fmapM compile
 
+instance (Compile a b, Compile a c) => Compile [a] (b, c) where
+    compile [x, y] = do { x' <- compile x ; y' <- compile y; return (x', y') }
+    compile x = compError x
+
+instance (Compile a b, Compile a c, Compile a d) => Compile [a] (b, c, d) where
+    compile [x, y, z] = do { x' <- compile x ; y' <- compile y; z' <- compile z; return (x', y', z') }
+    compile x = compError x
+
 instance Compile Exp (PAST LValue) where
     compile (Pos pos rest) = fmap (PPos pos rest) $ compile rest
     compile (Cxt cxt rest) = enter cxt $ compile rest
@@ -269,13 +277,15 @@ instance Compile Exp (PAST LValue) where
     compile (Syn "[]" (x:xs)) = compile (App (Var "&postcircumfix:[]") (Just x) xs)
     compile (Syn "," exps) = do
         compile (App (Var "&infix:,") Nothing exps)
-    compile (Syn "=" [lhs, rhs]) = do
-        lhsC    <- compile lhs
-        rhsC    <- compile rhs
+    compile (Syn "\\[]" exps) = do
+        compile (App (Var "&circumfix:[]") Nothing exps)
+    compile (Syn "\\{}" exps) = do
+        compile (App (Var "&circumfix:{}") Nothing exps)
+    compile (Syn "=" exps) = do
+        (lhsC, rhsC) <- compile exps
         return $ PAssign [lhsC] rhsC
-    compile (Syn ":=" [lhs, rhs]) = do
-        lhsC    <- compile lhs
-        rhsC    <- compile rhs
+    compile (Syn ":=" exps) = do
+        (lhsC, rhsC) <- compile exps
         return $ PBind [lhsC] rhsC
     compile (Syn syn [lhs, exp]) | last syn == '=' = do
         let op = "&infix:" ++ init syn
@@ -513,7 +523,7 @@ instance (Typeable a) => Translate (PAST a) a where
                 [defC] <- genLabel ["defaultDone"]
                 tellIns $ "unless_null" .- [bare name, bare defC]
                 case tpDefault param of
-                    Nothing     -> tellIns $ InsNew (VAR name) PerlUndef
+                    Nothing     -> tellIns $ InsNew (VAR name) PerlScalar
                     (Just exp)  -> do
                         expC <- trans exp
                         -- compile it away
@@ -558,7 +568,7 @@ genPMC name = do
 genLV :: (RegClass a) => String -> Trans a
 genLV name = do
     pmc <- genPMC name
-    tellIns $ InsNew pmc PerlUndef
+    tellIns $ InsNew pmc PerlScalar
     return $ reg pmc
 
 genLabel :: [String] -> Trans [LabelName]
@@ -584,6 +594,11 @@ varText ('%':name)  = text $ "h__" ++ escaped name
 varText ('&':name)  = text $ "c__" ++ escaped name
 varText x           = error $ "invalid name: " ++ x
 
+varInit :: String -> Doc
+varInit ('$':_) = text $ "PerlScalar"
+varInit ('@':_) = text $ "PerlArray"
+varInit ('%':_) = text $ "PerlHash"
+varInit x       = error $ "invalid name: " ++ x
 
 {-| Compiles the current environment to PIR code. -}
 genPIR' :: Eval Val

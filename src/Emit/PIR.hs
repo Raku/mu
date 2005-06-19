@@ -54,8 +54,8 @@ data RelOp = RelLT | RelLE | RelEQ | RelNE | RelGE | RelGT
     deriving (Show, Eq, Typeable)
 
 {-| A PMC type, which, for example, can be given as an argument to the @new@
-    opcode (e.g. @new .PerlUndef@). -}
-data ObjType    = PerlUndef | PerlArray | PerlHash | PerlInt | Pair
+    opcode (e.g. @new .PerlScalar@). -}
+data ObjType    = PerlScalar | PerlArray | PerlHash | PerlInt | PerlPair | PerlRef
     deriving (Show, Eq, Typeable, Read)
 
 type LabelName  = String
@@ -90,7 +90,7 @@ instance Emit Decl where
     emit (DeclNS name) = emit ".namespace" <+> brackets (quotes $ emit name)
     emit (DeclInc name) = emit ".include" <+> (quotes $ emit name)
     emit (DeclSub name styps stmts)
-        =  (emit ".sub" <+> doubleQuotes (emit name) <+> commaSep styps)
+        =  (emit ".sub" <+> doubleQuotes (emit $ quoted name) <+> commaSep styps)
         $+$ nested (emitBody stmts)
         $+$ emit ".end"
         where
@@ -158,9 +158,12 @@ emitFunName callconv name args rets = eqSep (funPMC :: LValue) "find_name" [LitS
 noArgs :: [Expression]
 noArgs = []
 
-{-| Emits PIR code for an 'ObjType' (e.g. @.PerlUndef@). -}
+{-| Emits PIR code for an 'ObjType' (e.g. @.PerlScalar@). -}
 instance Emit ObjType where
-    emit = emit . ('.':) . show
+    emit PerlScalar = emit ".PerlUndef"  -- XXX special case
+    emit PerlPair   = emit ".Pair"  -- XXX special case
+    emit PerlRef    = emit ".Ref"   -- XXX special case
+    emit x = emit . ('.':) . show $ x
 
 instance Emit Expression where
     emit (ExpLV lhs) = emit lhs
@@ -177,17 +180,20 @@ instance Emit LValue where
 {-| Emits a literal (a 'LitStr', 'LitInt', or 'LitNum'), and escapes if
     necessary. -}
 instance Emit Literal where
-    emit (LitStr str) = text . show $ concatMap quoted str
-        where
-        quoted :: Char -> String
-        quoted '\'' = "\\'"
-        quoted '\\' = "\\\\"
-        quoted x = [x]
+    emit (LitStr str) = text . show $ quoted str
     emit (LitInt int) = integer int
     emit (LitNum num) = double num
 
 expKeyed :: LValue -> Expression -> Expression
 expKeyed = (ExpLV .) . KEYED
+
+quoted :: String -> String
+quoted = concatMap quote
+    where
+    quote :: Char -> String
+    quote '\'' = "\\'"
+    quote '\\' = "\\\\"
+    quote x = [x]
 
 #ifndef HADDOCK
 infixl 4 <--
@@ -311,6 +317,9 @@ instance RegClass Sig where
 class LiteralClass x y | x -> y where
     lit :: x -> y 
 
+instance LiteralClass ObjType Expression where
+    lit = ExpLV . VAR . render . emit
+
 instance LiteralClass Doc Expression where
     lit = ExpLit . LitStr . render
 
@@ -393,7 +402,7 @@ vop1 :: SubName              -- ^ Perl 6 name of the opcode to wrap
      -> Decl                 -- ^ Final subroutine declaration
 vop1 p6name opname =
     sub p6name [arg0] 
-      [ InsNew rv PerlUndef
+      [ InsNew rv PerlScalar
       , rv <-- opname $ [arg0]
       ] --> [rv]
 {-| In the case a Perl 6 builtin corresponds exactly to a PIR opcode, you can
@@ -404,7 +413,7 @@ vop2 :: SubName              -- ^ Perl 6 name of the opcode to wrap
      -> Decl                 -- ^ Final subroutine declaration
 vop2 p6name opname =
     sub p6name [arg0, arg1] 
-      [ InsNew rv PerlUndef
+      [ InsNew rv PerlScalar
       , rv <-- opname $ [arg0, arg1]
       ] --> [rv]
 
@@ -431,7 +440,7 @@ vop1x :: SubName                     -- ^ Perl 6 name of the sub to create
       -> Decl                        -- ^ Final subroutine declaration
 vop1x p6name opname regr reg0 =
     sub p6name [arg0] 
-      [ InsNew rv PerlUndef
+      [ InsNew rv PerlScalar
       , reg0 <:= arg0
       , regr <-- opname $ [reg0]
       , rv   <== regr
@@ -445,7 +454,7 @@ vop1coerce :: SubName                     -- ^ Perl 6 name of the sub to create
            -> Decl                        -- ^ Final subroutine declaration
 vop1coerce p6name reg0 =
     sub p6name [arg0] 
-      [ InsNew rv PerlUndef
+      [ InsNew rv PerlScalar
       , reg0 <:= arg0
       , rv   <:= reg0
       ] --> [rv]
@@ -462,7 +471,7 @@ vop2x :: SubName                     -- ^ Perl 6 name of the sub to create
       -> Decl                        -- ^ Final subroutine declaration
 vop2x p6name opname regr reg0 reg1 =
     sub p6name [arg0, arg1] 
-      [ InsNew rv PerlUndef
+      [ InsNew rv PerlScalar
       , reg0 <:= arg0
       , reg1 <:= arg1
       , regr <-- opname $ [reg0,reg1]
@@ -628,6 +637,13 @@ preludePIR = emit $
     -- Operators
     , sub "&infix:," [slurpy arg0]
         [] --> [arg0]
+    , sub "&circumfix:[]" [slurpy arg0]
+        [ InsNew rv PerlScalar
+        , InsNew tempPMC PerlArray
+        , tempPMC   <== arg0
+        , tempPMC2  <-- "new" $ [lit PerlRef, tempPMC]
+        , rv        <== tempPMC2
+        ] --> [rv]
     , sub "&prefix:++" [arg0]
         [ "inc" .- [arg0]
         ] --> [arg0]
@@ -635,17 +651,17 @@ preludePIR = emit $
         [ "dec" .- [arg0]
         ] --> [arg0]
     , sub "&postfix:++" [arg0]
-        [ InsNew rv PerlUndef
+        [ InsNew rv PerlScalar
         , rv <== arg0
         , "inc" .- [arg0]
         ] --> [rv]
     , sub "&postfix:--" [arg0]
-        [ InsNew rv PerlUndef
+        [ InsNew rv PerlScalar
         , rv <== arg0
         , "dec" .- [arg0]
         ] --> [rv]
     , sub "&prefix:-" [arg0]
-        [ InsNew rv PerlUndef
+        [ InsNew rv PerlScalar
         , rv <-- "neg" $ [arg0]
         ] --> [rv]
     , vop2 "&infix:+" "add"
@@ -675,7 +691,7 @@ preludePIR = emit $
     , vop1coerce "&prefix:~" tempSTR
     , vop1coerce "&int"      tempINT
     , sub "&true" [arg0]
-        [ InsNew rv PerlUndef
+        [ InsNew rv PerlScalar
         , rv <:= (ExpLit . LitInt) 1
         , "if" .- [arg0, bare "true_pmc_is_true"]
         , rv <:= (ExpLit . LitInt) 0
@@ -685,8 +701,11 @@ preludePIR = emit $
     -- Strings
     , vop1x "&chars" "length"     tempINT tempSTR
     , vop1x "&bytes" "bytelength" tempINT tempSTR
+    , sub "&prefix:\\" [arg0]
+        [ tempPMC   <-- "new" $ [lit PerlRef, arg0]
+        ] --> [rv]
     , sub "&infix:=>" [arg0, arg1]
-        [ InsNew rv Pair
+        [ InsNew rv PerlPair
         , KEYED rv arg0 <:= arg1
         ] --> [rv]
     , sub "&infix:.." [arg0, arg1]
@@ -704,7 +723,7 @@ preludePIR = emit $
         , tempINT   <:= arg1
         , tempINT2  <:= arg2
         , tempSTR2  <-- "substr" $ [tempSTR, tempINT, tempINT2]
-        , InsNew rv PerlUndef
+        , InsNew rv PerlScalar
         , rv        <:= tempSTR2
         ] --> [rv]
     , vop1x "&chr" "chr" tempSTR tempINT
@@ -715,17 +734,17 @@ preludePIR = emit $
 
     -- Objects
     , sub "&undef" []
-        [ InsNew rv PerlUndef
+        [ InsNew rv PerlScalar
         ] --> [rv]
     , sub "&undefine" [arg0]
-        [ InsNew tempPMC PerlUndef
+        [ InsNew tempPMC PerlScalar
         , arg0 <== tempPMC
         ] --> [arg0]
     , vop1x "&defined" "defined" tempINT tempPMC
 {- XXX saying  hash
 -- causes error:imcc:syntax error, unexpected IREG, expecting '('
     , sub "&id" [arg0]
-        [ InsNew rv PerlUndef
+        [ InsNew rv PerlScalar
         , tempINT <-- "hash" $ [arg0]
         , rv <== tempINT
         ] --> [rv]
@@ -745,11 +764,11 @@ preludePIR = emit $
         ] --> [rv]
     , sub "&exists" [arg0, arg1]
         [ tempINT <-- "exists" $ [expKeyed arg0 arg1]
-        , InsNew rv PerlUndef
+        , InsNew rv PerlScalar
         , rv      <:= tempINT
         ] --> [rv]
     , sub "&join" [arg0, arg1]
-        [ InsNew rv PerlUndef
+        [ InsNew rv PerlScalar
         , tempSTR   <:= arg0
         , tempSTR2  <-- "join" $ [tempSTR, arg1]
         , rv        <== tempSTR2
@@ -767,7 +786,7 @@ preludePIR = emit $
 
     -- Supporting Math::Basic
     , sub "&abs" [arg0]
-        [ InsNew rv PerlUndef
+        [ InsNew rv PerlScalar
         , rv    <== arg0
         , "abs" .- [arg0]
         ] --> [rv]
@@ -802,7 +821,7 @@ preludePIR = emit $
     , vop2nnn "&pow" "pow"
     -- parrot has no times()
     , sub "&time" []
-        [ InsNew rv PerlUndef
+        [ InsNew rv PerlScalar
         , tempNUM  <-- "time" $ []
         , rv       <:= tempNUM
         -- Parrot's time returns seconds since 1970, but Perl 6's time
@@ -812,7 +831,7 @@ preludePIR = emit $
 
     --, namespace "Str"
     , sub "&split" [arg0, arg1]
-        [ InsNew rv PerlUndef
+        [ InsNew rv PerlScalar
         , tempSTR <:= arg0
         , tempSTR2 <:= arg1
         -- special case split("\n",...) to get Test.pm working
