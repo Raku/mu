@@ -1,3 +1,39 @@
+== Changes for 6.2.8 (r) - June 19, 2005
+
+=== Pugs Internals
+
+* Lots of work on the Emit.* modules:
+** Pugs can now generate the PAST (Pugs Abstract Syntax Tree)
+** ... and emit PIR for it
+** Emit.PIR can now compile `ext/Test/lib/Test.pm`
+* eval and related builtins are now implemented in the Prelude
+* intial support for `%*INC`
+
+=== Bundled Modules
+
+* New module ports:
+** `Module::Pluggable::Fast`
+** `HTTP::Server::Simple`
+** `Perldoc` (partial port)
+
+=== Test, Examples and Documentations
+
+* Many new tests and several refactorings based on p6l rulings, we now have 7562 tests
+* new `examples/continuation` and `examples/unitfunctions` directories added
+  and populated
+* Examples of built-in type methods in `examples/vmethods/`
+* low level sanity tests in `t/01-sanity/` for the Pugs code emitter
+* more japhs added to `examples/japhs`
+* updates and clean up to `* docs/01Overview.html`
+* Interpreter for l33t in `examples/obfu/l33t.p6`
+* Various perl6 grammars being added to `module/Grammars/`
+
+=== Bug Fixes
+
+* `(42).kv` will now die and `(42,).kv` will work
+* `sleep()` now returns seconds slept
+* Fixed `!~` to mean `not(... ~~ ...)`, instead of `ne`.
+
 == Changes for 6.2.7 (r4612) - June 13, 2005
 
 === Pugs Internals
@@ -25,7 +61,7 @@
 ** `URI::Escape`
 * Extended tests for `Tree`
 
-=== Tests, Examples and Documentations
+=== Tests, Examples and Documentation
 
 * APW talk: "Apocalypse Now" in `docs/talks/Apocalypse_Now.spork`
 * APW talk: "Eine Einfuehrung in Perl 6" in `docs/talks/perl6-apw2005/`
