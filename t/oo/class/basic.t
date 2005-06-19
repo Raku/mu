@@ -41,7 +41,7 @@ ok(!$foo.isa(::Foo), 'Foo::Bar.new.isa(::Foo)', :todo<bug>);
 
 class Bar is Foo {};
 
-ok(Bar ~~ Foo, '... smartmatch our Bar to the Foo class', :todo<feature>);
+ok(Bar ~~ Foo, '... smartmatch our Bar to the Foo class');
 
 my $bar = Bar.new();
 ok($bar ~~ Bar, '... smartmatch our $bar to the Bar class', :todo<feature>);
