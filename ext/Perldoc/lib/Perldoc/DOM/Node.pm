@@ -1,7 +1,5 @@
 
-class Perldoc::DOM::Node;
-
-isa Tree;
+class Perldoc::DOM::Node is Tree;
 
 has $.source;
 has $.sourcefile;
@@ -15,8 +13,11 @@ method dom_fields($self:) {
 }
 
 method dom_attr($self:) returns Hash {
-    { $self.dom_fields.map:{ $self.($_).defined ?? ($_ => $self.($_)) : () }
-    };
+    { $self.dom_fields.map:{
+	my $val = eval '$self.'~$_;
+	say "warning: error $!" if $!;
+	($val.defined ?? ($_ => $self.($_)) :: ())
+    } };
 }
 
 =head1 NAME
