@@ -6,20 +6,22 @@ import Data.Char
 import Data.Typeable
 import Emit.Common
 
+{-| PIR code consists of declarations. -}
 type PIR = [Decl]
 
 data Decl
-    = DeclSub   !SubName ![SubFlag] ![Stmt]
-    | DeclNS    !PkgName
-    | DeclInc   !FilePath
+    = DeclSub   !SubName ![SubFlag] ![Stmt]  -- ^ Subroutine declaration
+    | DeclNS    !PkgName                     -- ^ Namespace declaration
+    | DeclInc   !FilePath                    -- ^ @.include@ directive
     deriving (Show, Eq, Typeable)
 
 data Stmt
-    = StmtComment   !String
-    | StmtLine      !FilePath !Int
+    = StmtComment   !String                  -- ^ Comment
+    | StmtLine      !FilePath !Int           -- ^ @#line@ directive
     | StmtIns       !Ins
     | StmtPad       ![(VarName, Expression)] ![Stmt]
-    | StmtRaw       !Doc
+    | StmtRaw       !Doc                     -- ^ Backdoor into
+                                             --   "Pugs.Compile.Parrot".
     deriving (Show, Eq, Typeable)
 
 data Ins
@@ -28,8 +30,8 @@ data Ins
     | InsBind       !LValue !Expression             -- ^ Inserts a @set@ opcode
     | InsAssign     !LValue !Expression             -- ^ Inserts an @assign@ opcode
     | InsExp        !Expression
-    | InsFun        ![Sig] !Expression ![Expression]
-    | InsTailFun    !Expression ![Expression]
+    | InsFun        ![Sig] !Expression ![Expression] -- ^ Inserts a function call
+    | InsTailFun    !Expression ![Expression]        -- ^ Inserts a tailcall
     | InsPrim       !(Maybe LValue) !PrimName ![Expression]
     | InsLabel      !LabelName                      -- ^ Inserts a label
     | InsComment    !String !(Maybe Ins)            -- ^ Inserts a comment
@@ -47,9 +49,12 @@ data RegType
     | RegPMC                            -- ^ @P@ (PMC) register
     deriving (Show, Eq, Typeable)
 
+{-| Appears to be unused. -}
 data RelOp = RelLT | RelLE | RelEQ | RelNE | RelGE | RelGT
     deriving (Show, Eq, Typeable)
 
+{-| A PMC type, which, for example, can be given as an argument to the @new@
+    opcode (e.g. @new .PerlUndef@). -}
 data ObjType    = PerlUndef | PerlArray | PerlHash
     deriving (Show, Eq, Typeable, Read)
 
@@ -80,6 +85,7 @@ data Literal
     | LitNum !Double      -- ^ A literal number
     deriving (Show, Eq, Typeable)
 
+{-| Emits PIR code for declarations (namespace, include, or sub declarations). -}
 instance Emit Decl where
     emit (DeclNS name) = emit ".namespace" <+> brackets (quotes $ emit name)
     emit (DeclInc name) = emit ".include" <+> (quotes $ emit name)
@@ -92,6 +98,7 @@ instance Emit Decl where
         emitBody [(StmtIns (InsFun _ name args))] = [emit $ StmtIns (InsTailFun name args)]
         emitBody (x:xs) = emit x : emitBody xs
 
+{-| Emits PIR code for a 'SubFlag' (e.g. @\@MAIN@, @\@ANON@, etc.). -}
 instance Emit SubFlag where
     emit = emit . ('@':) . drop 3 . show
 
@@ -150,6 +157,7 @@ emitFunName callconv name args rets = eqSep (funPMC :: LValue) "find_name" [LitS
 noArgs :: [Expression]
 noArgs = []
 
+{-| Emits PIR code for an 'ObjType' (e.g. @.PerlUndef@). -}
 instance Emit ObjType where
     emit = emit . ('.':) . show
 
@@ -165,6 +173,8 @@ instance Emit LValue where
     emit (INT str) = emit "$I" <> emit str
     emit (NUM str) = emit "$N" <> emit str
 
+{-| Emits a literal (a 'LitStr', 'LitInt', or 'LitNum'), and escapes if
+    necessary. -}
 instance Emit Literal where
     emit (LitStr str) = text . show $ concatMap quoted str
         where
@@ -183,7 +193,9 @@ infixl 4 <-&
 infixl 4 .&
 #endif
 
+{-| @.namespace@ directive. -}
 namespace :: PkgName -> Decl
+{-| @.include@ directive. -}
 include :: PkgName -> Decl
 {-| Short for 'InsBind' (binding). -}
 (<:=) :: LValue -> Expression -> Ins
@@ -369,28 +381,50 @@ retSigList rets = (lit sig : rets)
     where
     sig = parens (commaSep (replicate (length rets) maybeFlatten))
 
-vop1 :: SubName -> PrimName -> Decl
+{-| In the case a Perl 6 builtin corresponds exactly to a PIR opcode, you can
+    use 'vop1' to create an appropriate wrapper for an opcode expecting /one/
+    argument. -}
+vop1 :: SubName              -- ^ Perl 6 name of the opcode to wrap
+     -> PrimName             -- ^ PIR opcode
+     -> Decl                 -- ^ Final subroutine declaration
 vop1 p6name opname =
     sub p6name [arg0] 
       [ InsNew rv PerlUndef
       , rv <-- opname $ [arg0]
       ] --> [rv]
-vop2 :: SubName -> PrimName -> Decl
+{-| In the case a Perl 6 builtin corresponds exactly to a PIR opcode, you can
+    use 'vop2' to create an appropriate wrapper for an opcode expecting /two/
+    arguments. -}
+vop2 :: SubName              -- ^ Perl 6 name of the opcode to wrap
+     -> PrimName             -- ^ PIR opcode
+     -> Decl                 -- ^ Final subroutine declaration
 vop2 p6name opname =
     sub p6name [arg0, arg1] 
       [ InsNew rv PerlUndef
       , rv <-- opname $ [arg0, arg1]
       ] --> [rv]
 
-vop2keyed :: SubName -> LValue -> Decl
+{-| Creates a sub which accepts a thing which allows keyed access (for
+    example aggregates) and an index. -}
+vop2keyed :: SubName         -- ^ Perl 6 name of the sub to create
+          -> LValue          -- ^ Intermediate register to convert the index to
+                             --   (e.g. 'tempINT' or 'tempSTR')
+          -> Decl            -- ^ Final subroutine declaration
 vop2keyed p6name temp =
     sub p6name [arg0, arg1] 
       [ temp    <:= arg1
       , rv      <:= ExpKeyed arg0 (ExpLV temp)
       ] --> [rv]
 
+{-| Generic wrapper for unary opcodes. -}
 --vop1x :: (RegClass a, RegClass b) => SubName -> PrimName -> a -> b -> Decl
-vop1x :: SubName -> PrimName -> (forall a. RegClass a => a) -> (forall b. RegClass b => b) -> Decl
+vop1x :: SubName                     -- ^ Perl 6 name of the sub to create
+      -> PrimName                    -- ^ Opcode to wrap
+      -> (forall a. RegClass a => a) -- ^ Register to use for the return value
+                                     --   of the op
+      -> (forall b. RegClass b => b) -- ^ Register type to convert the
+                                     --   parameter to
+      -> Decl                        -- ^ Final subroutine declaration
 vop1x p6name opname regr reg0 =
     sub p6name [arg0] 
       [ InsNew rv PerlUndef
@@ -399,7 +433,12 @@ vop1x p6name opname regr reg0 =
       , rv <-- "assign" $ [regr]
       ] --> [rv]
 
-vop1coerce :: SubName -> (forall a. RegClass a => a) -> Decl
+{-| Generic wrapper for coercion\/context forcing (used by @&prefix:\<\+\>@,
+    @&prefix:\<\~\>@, etc.) -}
+vop1coerce :: SubName                     -- ^ Perl 6 name of the sub to create
+           -> (forall a. RegClass a => a) -- ^ Register type to convert the
+                                          --   parameter to
+           -> Decl                        -- ^ Final subroutine declaration
 vop1coerce p6name reg0 =
     sub p6name [arg0] 
       [ InsNew rv PerlUndef
@@ -407,7 +446,16 @@ vop1coerce p6name reg0 =
       , rv   <:= reg0
       ] --> [rv]
 
-vop2x :: SubName -> PrimName -> (forall a. RegClass a => a) -> (forall b. RegClass b => b) -> (forall c. RegClass c => c) -> Decl
+{-| Generic wrapper for two-ary opcodes. -}
+vop2x :: SubName                     -- ^ Perl 6 name of the sub to create
+      -> PrimName                    -- ^ Opcode to wrap
+      -> (forall a. RegClass a => a) -- ^ Register to use for the return value
+                                     --   of the op
+      -> (forall b. RegClass b => b) -- ^ Register type to convert the
+                                     --   first parameter to
+      -> (forall c. RegClass c => c) -- ^ Register type to convert the
+                                     --   second parameter to
+      -> Decl                        -- ^ Final subroutine declaration
 vop2x p6name opname regr reg0 reg1 =
     sub p6name [arg0, arg1] 
       [ InsNew rv PerlUndef
@@ -417,15 +465,26 @@ vop2x p6name opname regr reg0 reg1 =
       , rv <-- "assign" $ [regr]
       ] --> [rv]
 
-vop1ii, vop1nn, vop1ss :: SubName -> PrimName -> Decl
+{-| Wrapper for a opcode which accepts and returns an @I@ register. -}
+vop1ii :: SubName -> PrimName -> Decl
 vop1ii p6name opname = vop1x p6name opname tempINT tempINT
+{-| Wrapper for a opcode which accepts and returns a @N@ register. -}
+vop1nn :: SubName -> PrimName -> Decl
 vop1nn p6name opname = vop1x p6name opname tempNUM tempNUM
+{-| Wrapper for a opcode which accepts and returns a @S@ register. -}
+vop1ss :: SubName -> PrimName -> Decl
 vop1ss p6name opname = vop1x p6name opname tempSTR tempSTR
 
-vop2iii, vop2iss, vop2nnn :: SubName -> PrimName -> Decl
+{-| Wrapper for a opcode which accepts and returns @I@ registers. -}
+vop2iii :: SubName -> PrimName -> Decl
 vop2iii p6name opname = vop2x p6name opname tempINT tempINT tempINT2 
-vop2iss p6name opname = vop2x p6name opname tempINT tempSTR tempSTR2 
+{-| Wrapper for a opcode which accepts and returns @N@ registers. -}
+vop2nnn :: SubName -> PrimName -> Decl
 vop2nnn p6name opname = vop2x p6name opname tempNUM tempNUM tempNUM2 
+{-| Wrapper for a opcode which accepts two @S@ registers and returns a native
+    integer (@I@ register). -}
+vop2iss :: SubName -> PrimName -> Decl
+vop2iss p6name opname = vop2x p6name opname tempINT tempSTR tempSTR2 
 
 bare :: VarName -> Expression
 bare = ExpLV . VAR
@@ -459,7 +518,10 @@ callBlockCC fun =
     , "invoke" .- [fun]
     ]
 
-stmtControlCond :: VarName -> PrimName -> Decl
+{-| Creates appropriate @&statement_control:foo@ subroutines. -}
+stmtControlCond :: VarName     -- ^ Perl 6 name of the new sub
+                -> PrimName    -- ^ PIR opcode to use for branching
+                -> Decl        -- ^ Final declaration of the sub
 stmtControlCond name comp = sub ("&statement_control:" ++ name) [arg0, arg1, arg2] (
     [ "newsub" .- [funPMC, bare ".Continuation", bare postL]
     , comp .- [arg0, bare altL]
@@ -470,7 +532,11 @@ stmtControlCond name comp = sub ("&statement_control:" ++ name) [arg0, arg1, arg
     altL = ("sc_" ++ name ++ "_alt")
     postL = ("sc_" ++ name ++ "_post")
 
-op2Logical :: VarName -> PrimName -> Decl
+{-| Creates appropriate @&infix:foo@ subs for logical operators (@||@, @&&@,
+    etc.). -}
+op2Logical :: VarName          -- ^ Perl 6 name of the sub to create
+           -> PrimName         -- ^ PIR opcode to use (@if@, @unless@)
+           -> Decl             -- ^ Final declaration of the sub
 op2Logical name comp = sub ("&infix:" ++ name) [arg0, arg1] (
     [ "newsub" .- [funPMC, bare ".Continuation", bare postL]
     , comp .- [arg0, bare altL]
@@ -482,6 +548,7 @@ op2Logical name comp = sub ("&infix:" ++ name) [arg0, arg1] (
     altL = ("sc_" ++ escaped name ++ "_alt")
     postL = ("sc_" ++ escaped name ++ "_post")
 
+{-| Escapes characters which have a special meaning in PIR (@|@ and @&@). -}
 escaped :: String -> String
 escaped = concatMap esc
     where

@@ -96,10 +96,12 @@ type CompMonad = EvalT (ContT Val (ReaderT Env SIO))
 type Trans a = WriterT [Stmt] (ReaderT TEnv IO) a
 type TransMonad = WriterT [Stmt] (ReaderT TEnv IO)
 
+{-| Currently only 'Exp' → 'PAST' -}
 class (Show a, Typeable b) => Compile a b where
     compile :: a -> Comp b
     compile x = fail ("Unrecognized construct: " ++ show x)
 
+{-| Currently only 'PAST' → 'PIR' -}
 class (Show a, Typeable b) => Translate a b | a -> b where
     trans :: a -> Trans b
     trans _ = fail "Untranslatable construct!"
@@ -120,6 +122,8 @@ instance Compile Param TParam where
 instance Compile Pad (PAST PIR) where
     compile = compError
 
+{-| Compiles a 'Pad' to a list of 'PAST Decl's. Currently, only subroutines and
+    @\@*END@ are compiled. -}
 instance Compile Pad [PAST Decl] where
     compile pad = do
         entries' <- mapM canCompile entries
@@ -262,6 +266,9 @@ instance Compile Exp (PAST LValue) where
         compile (App (Var "&infix:,") Nothing exps)
     compile exp = error ("Invalid LValue: " ++ show exp)
 
+{-| Compiles a conditional 'Syn' (@if@ and @unless@) to a call to an
+    appropriate function call (@&statement_control:if@ or
+    @&statement_control:unless@). -}
 compConditional :: Exp -> Comp (PAST LValue)
 compConditional (Syn name [cond, true, false]) = do
     cxt     <- askTCxt
@@ -272,6 +279,7 @@ compConditional (Syn name [cond, true, false]) = do
     return $ PApp cxt funC [condC, PThunk trueC, PThunk falseC]
 compConditional exp = compError exp
 
+{-| Compiles various 'Exp's to 'PAST Expression's. -}
 instance Compile Exp (PAST Expression) where
     compile (Pos pos rest) = fmap (PPos pos rest) $ compile rest
     compile (Cxt cxt rest) = enter cxt $ compile rest
@@ -309,6 +317,7 @@ transError :: forall a b. Translate a b => a -> Trans b
 transError = die $ "Translate error -- invalid "
     ++ (show $ typeOf (undefined :: b))
 
+{-| Compiles a 'Val' to a 'PAST Literal'. -}
 instance Compile Val (PAST Literal) where
     compile val = return $ PVal val
 
@@ -504,6 +513,7 @@ fetchCC cc _ = do
 tellIns :: Ins -> Trans ()
 tellIns = tell . (:[]) . StmtIns
 
+{-| Inserts a label. -}
 tellLabel :: String -> Trans ()
 tellLabel name = tellIns $ InsLabel name
 
@@ -547,6 +557,7 @@ genName name = do
     tellIns $ InsNew (VAR var) (read $ render $ varInit name)
     return $ reg (VAR var)
 
+{-| Compiles the current environment to PIR code. -}
 genPIR' :: Eval Val
 genPIR' = do
     tenv        <- initTEnv
