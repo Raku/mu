@@ -826,11 +826,17 @@ applyExp :: SubType -> [ApplyArg] -> Exp -> Eval Val
 applyExp _ bound (Prim f) =
     f [ argValue arg | arg <- bound, (argName arg) /= "%_" ]
 applyExp styp bound body = do
-    sequence_ [ evalExp
-        (Syn "=" [Syn "{}" [Val (argValue $ head bound), Val (VStr key)], Val val]) |
-        ApplyArg{ argName = (_:twigil:key), argValue = val }
-        <- bound, (twigil ==) `any` ".:" ]
-    applyThunk styp bound (MkThunk $ evalExp body)
+    let invocant         = head bound
+    let (attrib, normal) = partition isAttrib bound
+    ret <- applyThunk styp normal (MkThunk $ evalExp body)
+    sequence_ [ evalExp (Syn "=" [Syn "{}" [Val (argValue invocant), Val (VStr key)], Val val]) |
+        ApplyArg{ argName = (_:_:key), argValue = val } <- attrib ]
+    return ret
+
+isAttrib :: ApplyArg -> Bool
+isAttrib ApplyArg{ argName = (_:'.':_) } = True
+isAttrib ApplyArg{ argName = (_:':':_) } = True
+isAttrib _ = False
 
 applyThunk :: SubType -> [ApplyArg] -> VThunk -> Eval Val
 applyThunk _ [] thunk = thunk_force thunk

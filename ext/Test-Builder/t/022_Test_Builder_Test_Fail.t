@@ -16,10 +16,10 @@ my $fail_test = Test::Builder::Test::Fail.new(
 is( $fail_test.ref, 'Test::Builder::Test::Fail',
 	'new() should return a Test::Builder::Test::Fail instance' );
 
-is( $fail_test.number(), 1, 'number() should return the provided test number', :todo<bug> );
+is( $fail_test.number(), 1, 'number() should return the provided test number' );
 ok(!$fail_test.passed(),    'passed() should report the right passed value' );
 is( $fail_test.description(), 'first test description',
-	'description() should report the test description', :todo<bug> );
+	'description() should report the test description' );
 is( $fail_test.diagnostic(), '???',
 	'diagnostic() should report the default diagnostic if needed' );
 
@@ -31,13 +31,13 @@ my $fail_diag = Test::Builder::Test::Fail.new(
 );
 
 is( $fail_diag.diagnostic(), 'some reason this failed',
-	'... or the provided diagnostic', :todo<bug> );
+	'... or the provided diagnostic' );
 
 is( $fail_test.report(), 'not ok 1 - first test description',
-	'report() should produce the correct TAP line', :todo<bug> );
+	'report() should produce the correct TAP line' );
 
 my %status = $fail_test.status();
 is( +( keys %status ), 2, 'status() should return a hash' );
-is( %status<passed>, 0, '... with a passed key set to false', :todo<bug> );
+is( %status<passed>, 0, '... with a passed key set to false' );
 is( %status<description>, 'first test description',
-	'... and the correct test description', :todo<bug> );
+	'... and the correct test description' );

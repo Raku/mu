@@ -7,41 +7,41 @@ plan 3;
 
 use Test::Builder::Output;
 
-my $output = open("output", :w);
-my $error_output = open("error_output", :w);
+my $output       = open('output',       :w);
+my $error_output = open('error_output', :w);
 
-my $output = Test::Builder::Output.new(
+my $tbo = Test::Builder::Output.new(
     output       => $output,
     error_output => $error_output,    
-    );
-is($output.ref, 'Test::Builder::Output', '... this is a Test::Builder::Output instance');
+);
 
-# NOTE:
-# the # needs to be removed, but right now
-# it messed up Test::Harness too much
-$output.write('#ok 1');
-$output.write('#ok 2');
-$output.write("#ok 3\ntesting");
+is( $tbo.ref, 'Test::Builder::Output',
+    'new() should return a Test::Builder::Output instance' );
+
+$tbo.write('ok 1');
+$tbo.write('ok 2');
+$tbo.write("ok 3\ntesting");
+
+$output.close();
 
 my $output_output = slurp('output');
-is($output_output, 
-"ok 1
-ok 2
-ok 3
-#testing
-", '... got the right output', :todo<feature>);
+is( $output_output, "ok 1\nok 2\nok 3\n#testing\n",
+	'write() should write to normal output, escaping newlines' );
 
-$output.diag('this is error output');
-$output.diag("this is error output\nover two lines");
+$tbo.diag('this is error output');
+$tbo.diag("this is error output\nover two lines");
+
+$error_output.close();
 
 my $error_output_output = slurp('error_output');
 is($error_output_output, 
 "#this is error output
 #this is error output
-#over two lines
-", '... got the right error output', :todo<feature>);
+#over two lines\n",
+	'diag() should write to error output, escaping all output' );
 
-END {
-    unlink("output");
-    unlink("error_output");    
+END
+{
+    unlink( 'output' );
+    unlink( 'error_output' );
 }

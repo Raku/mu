@@ -38,13 +38,20 @@ bindNames exps prms = (bound, exps', prms')
     prms' = prms \\ (map fst bound)
     (bound, exps') = foldr doBind ([], []) (map unPair exps)
     doBind (name, exp) (bound, exps) 
-        | Just prm <- find ((name ==) . tail . paramName) prms
+        | Just prm <- find ((matchNamedAttribute name) . paramName) prms
         = ( ((prm, exp) : bound), exps )
         | otherwise
         = ( bound, (Syn "=>" [Val (VStr name), exp]:exps) )
 
+matchNamedAttribute :: String -> String -> Bool
+matchNamedAttribute arg (_:'.':param) = param == arg
+matchNamedAttribute arg (_:':':param) = param == arg
+matchNamedAttribute arg     (_:param) = param == arg
+matchNamedAttribute   _             _ = False
+
 emptyHashExp :: Exp
 emptyHashExp  = Val $ VList [] -- VHash $ vCast $ VList []
+
 emptyArrayExp :: Exp
 emptyArrayExp = Val $ VList [] -- VArray $ vCast $ VList []
 

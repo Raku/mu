@@ -3,33 +3,34 @@
 use v6;
 use Test;
 
-plan 10;
+plan 9;
 
 use Test::Builder::TestPlan;
-
-skip_rest; # XXX - just to get the test parsing for now
-exit;
 
 my $test_plan = Test::Builder::TestPlan.new(:expect(10));
 
 # NOTE: replace this with proper isa_ok() when that works
-isa_ok($test_plan, Test::Builder::TestPlan, '... this is a Test::Builder::TestPlan instance');
+isa_ok( $test_plan, Test::Builder::TestPlan,
+	'new() should return a Test::Builder::TestPlan instance' );
 
-dies_ok {
-    $test_plan.expect();
-}, '... this property is private, so this should die';
+dies_ok { $test_plan.expect() },
+    '$:expect is a private property, so expect() should die';
 
-dies_ok {
-    $test_plan.expect(100);
-}, '... this property is private, so this should die';
+dies_ok { $test_plan.expect(100) }, '... as should expect( value )';
 
-is($test_plan.header(), '1..10', '... got the header we expected', :todo<bug>);
-is($test_plan.footer(:run(10)), '', '... got the footer we expected :run(10)', :todo<bug>);
-is($test_plan.footer(:run(8)), 'Expected 10 but ran 8', '... got the footer we expected :run(8)', :todo<bug>);
+is( $test_plan.header(), '1..10', 'header() should return a valid header' );
+is( $test_plan.footer( :run(10) ), '',
+	'footer() should return nothing for running all expected tests' );
+is( $test_plan.footer( :run(8) ), 'Expected 10 but ran 8',
+	'... or a missing tests warning for running fewer' );
 
 my $null_test_plan = Test::Builder::NullPlan.new();
 
-is($null_test_plan.ref, 'Test::Builder::NullPlan', '... this is a Test::Builder::NullPlan instance');
+isa_ok( $null_test_plan, 'Test::Builder::NullPlan',
+	'new() should return a Test::Builder::NullPlan instance');
 
-is($null_test_plan.header(), '', '... null plans have no header');
-is($null_test_plan.footer(:run(50)), '1..50', '... got the footer we expected :run(50)');
+is( $null_test_plan.header(), '',
+	'header() should return an empty string for a null plan' );
+
+is( $null_test_plan.footer(:run(50)), '1..50',
+	'footer() should return the test header for a null plan');
