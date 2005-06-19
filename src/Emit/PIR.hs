@@ -55,7 +55,7 @@ data RelOp = RelLT | RelLE | RelEQ | RelNE | RelGE | RelGT
 
 {-| A PMC type, which, for example, can be given as an argument to the @new@
     opcode (e.g. @new .PerlUndef@). -}
-data ObjType    = PerlUndef | PerlArray | PerlHash
+data ObjType    = PerlUndef | PerlArray | PerlHash | PerlInt
     deriving (Show, Eq, Typeable, Read)
 
 type LabelName  = String
@@ -430,7 +430,7 @@ vop1x p6name opname regr reg0 =
       [ InsNew rv PerlUndef
       , reg0 <:= arg0
       , regr <-- opname $ [reg0]
-      , rv <-- "assign" $ [regr]
+      , rv   <== regr
       ] --> [rv]
 
 {-| Generic wrapper for coercion\/context forcing (used by @&prefix:\<\+\>@,
@@ -462,7 +462,7 @@ vop2x p6name opname regr reg0 reg1 =
       , reg0 <:= arg0
       , reg1 <:= arg1
       , regr <-- opname $ [reg0,reg1]
-      , rv <-- "assign" $ [regr]
+      , rv   <== regr
       ] --> [rv]
 
 {-| Wrapper for a opcode which accepts and returns an @I@ register. -}
@@ -632,12 +632,12 @@ preludePIR = emit $
         ] --> [arg0]
     , sub "&postfix:++" [arg0]
         [ InsNew rv PerlUndef
-        , rv <-- "assign" $ [arg0]
+        , rv <== arg0
         , "inc" .- [arg0]
         ] --> [rv]
     , sub "&postfix:--" [arg0]
         [ InsNew rv PerlUndef
-        , rv <-- "assign" $ [arg0]
+        , rv <== arg0
         , "dec" .- [arg0]
         ] --> [rv]
     , sub "&prefix:-" [arg0]
@@ -681,13 +681,23 @@ preludePIR = emit $
     -- Strings
     , vop1x "&chars" "length"     tempINT tempSTR
     , vop1x "&bytes" "bytelength" tempINT tempSTR
+    , sub "&infix:.." [arg0, arg1]
+        [ tempINT   <:= arg0
+        , InsNew rv PerlArray
+        , InsLabel "range_next"
+        , "lt_num"  .- [arg1, tempINT, bare "range_end"]
+        , "push"    .- [rv, tempINT]
+        , "inc"     .- [tempINT]
+        , "goto"    .- [bare "range_next"]
+        , InsLabel "range_end"
+        ] --> [rv]
     , sub "&substr" [arg0, arg1, arg2]
-        [ tempSTR   <-- "set" $ [arg0]
-        , tempINT   <-- "set" $ [arg1]
-        , tempINT2  <-- "set" $ [arg2]
+        [ tempSTR   <:= arg0
+        , tempINT   <:= arg1
+        , tempINT2  <:= arg2
         , tempSTR2  <-- "substr" $ [tempSTR, tempINT, tempINT2]
         , InsNew rv PerlUndef
-        , rv        <-- "set" $ [tempSTR2]
+        , rv        <:= tempSTR2
         ] --> [rv]
     , vop1x "&chr" "chr" tempSTR tempINT
     , vop1x "&ord" "ord" tempINT tempSTR
@@ -701,7 +711,7 @@ preludePIR = emit $
         ] --> [rv]
     , sub "&undefine" [arg0]
         [ InsNew tempPMC PerlUndef
-        , arg0 <-- "assign" $ [tempPMC]
+        , arg0 <== tempPMC
         ] --> [arg0]
     , vop1x "&defined" "defined" tempINT tempPMC
 {- XXX saying  hash
@@ -709,7 +719,7 @@ preludePIR = emit $
     , sub "&id" [arg0]
         [ InsNew rv PerlUndef
         , tempINT <-- "hash" $ [arg0]
-        , rv <-- "assign" $ [tempINT]
+        , rv <== tempINT
         ] --> [rv]
 -}
     , vop1 "&clone" "clone"
@@ -732,9 +742,9 @@ preludePIR = emit $
         ] --> [rv]
     , sub "&join" [arg0, arg1]
         [ InsNew rv PerlUndef
-        , tempSTR <:= arg0
-        , tempSTR2 <-- "join" $ [tempSTR, arg1]
-        , rv <-- "assign" $ [tempSTR2]
+        , tempSTR   <:= arg0
+        , tempSTR2  <-- "join" $ [tempSTR, arg1]
+        , rv        <== tempSTR2
         ] --> [rv]
 
     --, namespace "Perl6::Internals"
@@ -750,7 +760,7 @@ preludePIR = emit $
     -- Supporting Math::Basic
     , sub "&abs" [arg0]
         [ InsNew rv PerlUndef
-        , rv <-- "assign" $ [arg0]
+        , rv    <== arg0
         , "abs" .- [arg0]
         ] --> [rv]
     , vop1nn "&exp" "exp"
@@ -816,8 +826,8 @@ preludePIR = emit $
         , "goto" .- [bare "split_done"]
         , InsLabel "split_normally"
         -- end of special case
-        , tempPMC <-- "split" $ [tempSTR, tempSTR2]
-        , rv <-- "assign" $ [tempPMC]
+        , tempPMC   <-- "split" $ [tempSTR, tempSTR2]
+        , rv        <== tempPMC
         , InsLabel "split_done"
         ] --> [rv]
 
