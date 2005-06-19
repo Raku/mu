@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 12;
+plan 13;
 
 class Foo {
     has $.num;
@@ -51,3 +51,6 @@ ok( ([=:=] ($_foo3, $_foo2, $_foo1, $foo)),
 	'... $_foo3, $_foo1, $_foo2 and $foo are the same instances');
 
 is($foo.num(), 15, '... got the right num value');
+
+# test attribute accessors, too
+is($foo.baz(7).baz(6).num, 28, 'chained an auto-generated accessor');
