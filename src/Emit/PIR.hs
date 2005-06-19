@@ -399,6 +399,14 @@ vop1x p6name opname regr reg0 =
       , rv <-- "assign" $ [regr]
       ] --> [rv]
 
+vop1coerce :: SubName -> (forall a. RegClass a => a) -> Decl
+vop1coerce p6name reg0 =
+    sub p6name [arg0] 
+      [ InsNew rv PerlUndef
+      , reg0 <:= arg0
+      , rv   <:= reg0
+      ] --> [rv]
+
 vop2x :: SubName -> PrimName -> (forall a. RegClass a => a) -> (forall b. RegClass b => b) -> (forall c. RegClass c => c) -> Decl
 vop2x p6name opname regr reg0 reg1 =
     sub p6name [arg0, arg1] 
@@ -409,16 +417,14 @@ vop2x p6name opname regr reg0 reg1 =
       , rv <-- "assign" $ [regr]
       ] --> [rv]
 
-vop1ii :: SubName -> PrimName -> Decl
+vop1ii, vop1nn, vop1ss :: SubName -> PrimName -> Decl
 vop1ii p6name opname = vop1x p6name opname tempINT tempINT
-vop1nn :: SubName -> PrimName -> Decl
 vop1nn p6name opname = vop1x p6name opname tempNUM tempNUM
+vop1ss p6name opname = vop1x p6name opname tempSTR tempSTR
 
-vop2iii :: SubName -> PrimName -> Decl
+vop2iii, vop2iss, vop2nnn :: SubName -> PrimName -> Decl
 vop2iii p6name opname = vop2x p6name opname tempINT tempINT tempINT2 
-vop2iss :: SubName -> PrimName -> Decl
 vop2iss p6name opname = vop2x p6name opname tempINT tempSTR tempSTR2 
-vop2nnn :: SubName -> PrimName -> Decl
 vop2nnn p6name opname = vop2x p6name opname tempNUM tempNUM tempNUM2 
 
 bare :: VarName -> Expression
@@ -592,16 +598,9 @@ preludePIR = emit $
     , vop1 "&prefix:?^" "bnot"
     , vop2keyed "&postcircumfix:{}" tempSTR
     , vop2keyed "&postcircumfix:[]" tempINT
-    , sub "&prefix:+" [arg0]
-        [ tempNUM <:= arg0
-        , InsNew rv PerlUndef
-        , rv <:= tempNUM
-        ] --> [rv]
-    , sub "&prefix:~" [arg0]
-        [ tempSTR <:= arg0
-        , InsNew rv PerlUndef
-        , rv <:= tempSTR
-        ] --> [rv]
+    , vop1coerce "&prefix:+" tempNUM
+    , vop1coerce "&prefix:~" tempSTR
+    , vop1coerce "&int"      tempINT
     , sub "&true" [arg0]
         [ InsNew rv PerlUndef
         , rv <:= (ExpLit . LitInt) 1
@@ -623,6 +622,9 @@ preludePIR = emit $
         ] --> [rv]
     , vop1x "&chr" "chr" tempSTR tempINT
     , vop1x "&ord" "ord" tempINT tempSTR
+    , vop2x "&infix:x" "repeat" tempSTR tempSTR tempINT
+    , vop1ss "&lc" "downcase"
+    , vop1ss "&uc" "upcase"
 
     -- Objects
     , sub "&undef" []
