@@ -488,24 +488,6 @@ escaped = concatMap esc
 preludePIR :: Doc
 preludePIR = emit $
     -- [ include "interpinfo.pasm"
-    [ sub "&print" [slurpy arg0]
-        [ tempSTR <-- "join" $ [lit "", arg0]
-        , "print" .- [tempSTR]
-        ] --> [lit True]
-{- XXX BROKEN
-    , sub "&say" [slurpy arg0]
-        [ "push" .- [arg0, lit "\n"]
-        , "&print" .& [arg0]
-        ]
--}
-    , sub "&say" [slurpy arg0]
-        [ tempSTR <-- "join" $ [lit "", arg0]
-        , "print" .- [tempSTR]
-        , "print" .- [lit "\n"]
-        ] --> [lit True]
-    , sub "&exit" []
-        [ "exit" .- [lit (0 :: Int)]
-        ]
 {-
     , sub "&run_END" []
         [ tempPMC <-- "find_global" $ [lit "@*END"]
@@ -519,7 +501,7 @@ preludePIR = emit $
         ] --> [lit True]
 -}
     -- Control flowy
-    , sub "&statement_control:loop" [arg0, arg1, arg2, arg3] $
+    [ sub "&statement_control:loop" [arg0, arg1, arg2, arg3] $
         [ InsLabel "sc_loop_next"
         ] ++ callBlock "loopCond" arg1 ++
         [ "unless" .- [tempPMC, bare "sc_loop_last"]
@@ -537,6 +519,32 @@ preludePIR = emit $
     , op2Logical "and" "if"
     , op2Logical "or" "unless"
     , sub "&nothing" [] []
+
+    -- IO
+    , sub "&Pugs::Internals::sleep" [arg0]
+        [ tempNUM <:= arg0
+        , "sleep" .- [tempNUM]
+        ]
+    , sub "&print" [slurpy arg0]
+        [ tempSTR <-- "join" $ [lit "", arg0]
+        , "print" .- [tempSTR]
+        ] --> [lit True]
+{- XXX BROKEN
+    , sub "&say" [slurpy arg0]
+        [ "push" .- [arg0, lit "\n"]
+        , "&print" .& [arg0]
+        ]
+-}
+    , sub "&say" [slurpy arg0]
+        [ tempSTR <-- "join" $ [lit "", arg0]
+        , "print" .- [tempSTR]
+        , "print" .- [lit "\n"]
+        ] --> [lit True]
+    , sub "&Pugs::Internals::exit" [arg0]
+        [ "&*END" .& []
+        , tempINT <:= arg0
+        , "exit" .- [tempINT]
+        ]
 
     -- Operators
     , sub "&infix:," [slurpy arg0]

@@ -563,8 +563,9 @@ genPIR' = do
         [ "#!/usr/bin/env parrot"
         -- , renderStyle (Style PageMode 0 0) init
         , renderStyle (Style PageMode 0 0) $ preludePIR $+$ vcat
-            [ emit $ namespace "main"
-            , emit globPIR
+            -- Namespaces have bugs in both pugs and parrot.
+            -- [ emit $ namespace "main"
+            [ emit globPIR
             , text ".sub init @MAIN, @ANON"
             , text "    new_pad 0"
             -- Eventually, we'll have to write our own find_name wrapper (or
@@ -577,7 +578,7 @@ genPIR' = do
             , text "    store_global '@*END', $P0"
             , text "    store_global '@END', $P0"
             , text "    main()"
-            , nest 4 (emit $ InsFun [] (lit "&*END") [])
+            , nest 4 $ emit $ InsFun [] (lit "&exit") [lit (0 :: Int)]
             , text ".end"
             , text ".sub main @ANON"
             , nest 4 (emit mainPIR)
