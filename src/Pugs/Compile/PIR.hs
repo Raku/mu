@@ -10,6 +10,8 @@ import Pugs.Types
 import Emit.PIR
 import Pugs.Pretty
 import Text.PrettyPrint
+import Pugs.Compile.PIR.Prelude (preludeStr)
+import Pugs.Prim.Eval
 
 #ifndef HADDOCK
 data PAST a where
@@ -548,6 +550,9 @@ genName name = do
 genPIR' :: Eval Val
 genPIR' = do
     tenv        <- initTEnv
+    -- Load the PIR Prelude.
+    local (\env -> env{envDebug = Nothing}) $ do
+        opEval style "<prelude-pir>" preludeStr
     glob        <- askGlobal
     main        <- asks envBody
     globPAST    <- compile glob
@@ -579,6 +584,9 @@ genPIR' = do
             , text ".end"
             ]
         ]
+    where
+    style = MkEvalStyle{evalResult=EvalResultModule
+                       ,evalError =EvalErrorFatal}
 
 runTransGlob :: TEnv -> [PAST Decl] -> Eval [Decl]
 runTransGlob tenv = mapM $ fmap fst . liftIO . (`runReaderT` tenv) . runWriterT . trans

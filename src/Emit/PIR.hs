@@ -594,9 +594,6 @@ preludePIR = emit $
         , InsNew rv PerlUndef
         , rv <:= tempSTR
         ] --> [rv]
-    , sub "&prefix:?" [arg0]
-        [ InsFun [rv] (lit "&true") [arg0]
-        ] --> [rv]
     , sub "&true" [arg0]
         [ InsNew rv PerlUndef
         , rv <:= (ExpLit . LitInt) 1
@@ -606,33 +603,8 @@ preludePIR = emit $
         ] --> [rv]
 
     -- Strings
-    , sub "&chomp" [arg0]
-        [ InsNew rv PerlUndef
-        , tempSTR <:= arg0
-        , tempINT <-- "length" $ [tempSTR]
-        , "dec" .- [tempINT]
-        , "lt" .- [tempINT, ExpLit . LitInt $ 0, bare "chomp_done"]
-        , tempSTR2 <-- "substr" $ [tempSTR, ExpLit . LitInt $ -1]
-        , tempINT2 <-- "iseq" $ [tempSTR2, lit "\n"]
-        , "unless" .- [tempINT2, bare "chomp_done"]
-        , rv <-- "assign" $ [tempSTR2]
-        , tempSTR2 <-- "substr" $ [tempSTR, ExpLit . LitInt $ 0, tempINT]
-        , arg0 <-- "assign" $ [tempSTR2]
-        , InsLabel "chomp_done"
-        ] --> [rv]
-    , sub "&chop" [arg0]
-        [ InsNew rv PerlUndef
-        , tempSTR <:= arg0
-        , tempINT <-- "length" $ [tempSTR]
-        , "dec" .- [tempINT]
-        , "lt" .- [tempINT, ExpLit . LitInt $ 0, bare "chop_done"]
-        -- could also use two calls to chopn, but we know substr works...
-        , tempSTR2 <-- "substr" $ [tempSTR, ExpLit . LitInt $ -1]
-        , rv <-- "assign" $ [tempSTR2]
-        , tempSTR2 <-- "substr" $ [tempSTR, ExpLit . LitInt $ 0, tempINT]
-        , arg0 <-- "assign" $ [tempSTR2]
-        , InsLabel "chop_done"
-        ] --> [rv]
+    , vop1x "&chars" "length"     tempINT tempSTR
+    , vop1x "&bytes" "bytelength" tempINT tempSTR
     , sub "&substr" [arg0, arg1, arg2]
         [ tempSTR   <-- "set" $ [arg0]
         , tempINT   <-- "set" $ [arg1]
