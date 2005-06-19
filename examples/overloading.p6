@@ -1,6 +1,9 @@
 #!/usr/bin/pugs
 
 # plays with some fun operator overloading.
+#
+# Please remember to update t/examples/examples.t and rename
+# examples/output/overloading if you rename/move this file.
 
 use v6;
 
@@ -28,15 +31,15 @@ multi sub infix:<<of>> ($x,$y) {$x * $y};
 say 50%% of 100;
 
 sub base (Int $M, Int $N) {
-	return $M if ($M < $N);
-   my $t = $M % $N;
-   return base(int($M/$N),$N) ~ $t;
+    return $M if ($M < $N);
+    my $t = $M % $N;
+    return base(int($M/$N),$N) ~ $t;
 }
 
 multi sub infix:<<base>> ($x,$y) {base($x,$y)};
 say $_ base 2 for (1..5);
 
-multi sub infix:<<.?.>> ($low,$high) {	int( rand($high - $low) + $low ) + 1; };
-say 1 .?. 5;
-say 10 .?. 20;
-	
+# Commented so this file can be used in example.t.
+# multi sub infix:<<.?.>> ($low,$high) { int( rand($high - $low) + $low ) + 1; };
+# say 1 .?. 5;
+# say 10 .?. 20;

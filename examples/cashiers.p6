@@ -1,6 +1,9 @@
 #!/usr/bin/pugs
 # Demo of the state() variable declaration.
 # This is also a neat way of doing OO without actually having OO available.
+#
+# Please remember to update t/examples/examples.t and rename
+# examples/output/cashiers if you rename/move this file.
 
 use v6;
 

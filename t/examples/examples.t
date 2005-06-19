@@ -13,10 +13,12 @@ with a expected output.
 =cut
 
 my @examples = <
-  functional/fp algorithms/hanoi algorithms/quicksort
+  functional/fp functional/reverse
+  algorithms/hanoi algorithms/quicksort
   junctions/1 junctions/3 junctions/all-all junctions/all-any junctions/any-any
   junctions/any-any2 junctions/grades
   vmethods/escape vmethods/bytes vmethods/time vmethods/math
+  cashiers overloading
 >;
 
 plan +@examples;

@@ -1,3 +1,5 @@
+#!/usr/bin/pugs
+
 my %mates = (
   'jane'   => 'joe',
   'sally'  => 'bob',
