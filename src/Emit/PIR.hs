@@ -55,7 +55,7 @@ data RelOp = RelLT | RelLE | RelEQ | RelNE | RelGE | RelGT
 
 {-| A PMC type, which, for example, can be given as an argument to the @new@
     opcode (e.g. @new .PerlUndef@). -}
-data ObjType    = PerlUndef | PerlArray | PerlHash | PerlInt
+data ObjType    = PerlUndef | PerlArray | PerlHash | PerlInt | Pair
     deriving (Show, Eq, Typeable, Read)
 
 type LabelName  = String
@@ -71,12 +71,12 @@ data LValue
     | STR !Int            -- ^ String register /n/
     | INT !Int            -- ^ Integer register /n/
     | NUM !Int            -- ^ Number register /n/
+    | KEYED !LValue !Expression
     deriving (Show, Eq, Typeable)
 
 data Expression
     = ExpLV !LValue
     | ExpLit !Literal
-    | ExpKeyed !LValue !Expression
     deriving (Show, Eq, Typeable)
 
 data Literal
@@ -122,6 +122,7 @@ instance Emit Ins where
     emit (InsLocal rtyp name) = emit ".local" <+> emit rtyp <+> emit name
     emit (InsNew ident otyp) = eqSep ident "new" [otyp]
     emit (InsAssign ident lit) = eqSep ident "assign" [lit]
+    emit (InsBind ident@(KEYED _ _) lit) = eqSep ident "" [lit]
     emit (InsBind ident lit) = eqSep ident "set" [lit]
     emit (InsPrim (Just ret) name args) = eqSep ret name args
     emit (InsPrim Nothing "store_lex" (_:args)) =
@@ -164,7 +165,6 @@ instance Emit ObjType where
 instance Emit Expression where
     emit (ExpLV lhs) = emit lhs
     emit (ExpLit lit) = emit lit
-    emit (ExpKeyed pmc idx) = emit pmc <> brackets (emit idx)
 
 instance Emit LValue where
     emit (VAR name) = emit name
@@ -172,6 +172,7 @@ instance Emit LValue where
     emit (STR str) = emit "$S" <> emit str
     emit (INT str) = emit "$I" <> emit str
     emit (NUM str) = emit "$N" <> emit str
+    emit (KEYED pmc idx) = emit pmc <> brackets (emit idx)
 
 {-| Emits a literal (a 'LitStr', 'LitInt', or 'LitNum'), and escapes if
     necessary. -}
@@ -184,6 +185,9 @@ instance Emit Literal where
         quoted x = [x]
     emit (LitInt int) = integer int
     emit (LitNum num) = double num
+
+expKeyed :: LValue -> Expression -> Expression
+expKeyed = (ExpLV .) . KEYED
 
 #ifndef HADDOCK
 infixl 4 <--
@@ -413,7 +417,7 @@ vop2keyed :: SubName         -- ^ Perl 6 name of the sub to create
 vop2keyed p6name temp =
     sub p6name [arg0, arg1] 
       [ temp    <:= arg1
-      , rv      <:= ExpKeyed arg0 (ExpLV temp)
+      , rv      <:= expKeyed arg0 (ExpLV temp)
       ] --> [rv]
 
 {-| Generic wrapper for unary opcodes. -}
@@ -681,6 +685,10 @@ preludePIR = emit $
     -- Strings
     , vop1x "&chars" "length"     tempINT tempSTR
     , vop1x "&bytes" "bytelength" tempINT tempSTR
+    , sub "&infix:=>" [arg0, arg1]
+        [ InsNew rv Pair
+        , KEYED rv arg0 <:= arg1
+        ] --> [rv]
     , sub "&infix:.." [arg0, arg1]
         [ tempINT   <:= arg0
         , InsNew rv PerlArray
@@ -732,11 +740,11 @@ preludePIR = emit $
         [ "push" .- [arg0, arg1]
         ] --> [lit True]
     , sub "&delete" [arg0, arg1]
-        [ rv      <:= ExpKeyed arg0 arg1
-        , "delete" .- [ExpKeyed arg0 arg1]
+        [ rv      <:= expKeyed arg0 arg1
+        , "delete" .- [expKeyed arg0 arg1]
         ] --> [rv]
     , sub "&exists" [arg0, arg1]
-        [ tempINT <-- "exists" $ [ExpKeyed arg0 arg1]
+        [ tempINT <-- "exists" $ [expKeyed arg0 arg1]
         , InsNew rv PerlUndef
         , rv      <:= tempINT
         ] --> [rv]
