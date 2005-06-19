@@ -7,6 +7,7 @@ import Pugs.AST
 import Pugs.AST.Internals
 import Emit.Common
 import Pugs.Types
+import Pugs.Eval
 import Emit.PIR
 import Pugs.Pretty
 import Text.PrettyPrint
@@ -279,18 +280,20 @@ instance Compile Exp (PAST LValue) where
     compile exp@(Syn "while" _) = compLoop exp
     compile exp@(Syn "until" _) = compLoop exp
     compile (Syn "{}" (x:xs)) = compile (App (Var "&postcircumfix:{}") (Just x) xs)
-    compile (Syn "[]" (x:xs)) = compile (App (Var "&postcircumfix:[]") (Just x) xs)
+    compile (Syn "[]" (x:xs)) = do
+        compile (App (Var "&postcircumfix:[]") (Just x) xs)
     compile (Syn "," exps) = do
         compile (App (Var "&infix:,") Nothing exps)
     compile (Syn "\\[]" exps) = do
         compile (App (Var "&circumfix:[]") Nothing exps)
     compile (Syn "\\{}" exps) = do
         compile (App (Var "&circumfix:{}") Nothing exps)
-    compile (Syn "=" exps) = do
-        (lhsC, rhsC) <- compile exps
+    compile (Syn "=" [lhs, rhs]) = do
+        lhsC <- enterLValue $ compile lhs
+        rhsC <- enterRValue $ compile rhs
         return $ PAssign [lhsC] rhsC
     compile (Syn ":=" exps) = do
-        (lhsC, rhsC) <- compile exps
+        (lhsC, rhsC) <- enterLValue $ compile exps
         return $ PBind [lhsC] rhsC
     compile (Syn syn [lhs, exp]) | last syn == '=' = do
         let op = "&infix:" ++ init syn
@@ -424,6 +427,10 @@ instance (Typeable a) => Translate (PAST a) a where
         [appC] <- genLabel ["invokeBlock"]
         tell $ map StmtIns $ callBlock appC blockC 
         return tempPMC
+    trans (PApp (TCxtLValue _) (PExp (PVar "&postcircumfix:[]")) [(PExp lhs), rhs]) = do
+        lhsC    <- trans lhs
+        rhsC    <- trans rhs
+        return (KEYED lhsC rhsC) 
     trans (PApp cxt fun args) = do
         funC    <- case fun of
             PExp (PVar name) -> return $ lit name

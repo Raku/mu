@@ -121,8 +121,9 @@ instance Emit RegType where
 instance Emit Ins where
     emit (InsLocal rtyp name) = emit ".local" <+> emit rtyp <+> emit name
     emit (InsNew ident otyp) = eqSep ident "new" [otyp]
+    emit (InsAssign ident@(KEYED _ _) lit) = eqSep ident "" [lit] -- XXX questionable
     emit (InsAssign ident lit) = eqSep ident "assign" [lit]
-    emit (InsBind ident@(KEYED _ _) lit) = eqSep ident "" [lit]
+    emit (InsBind ident@(KEYED _ _) lit) = eqSep ident "" [lit] -- XXX questionable
     emit (InsBind ident lit) = eqSep ident "set" [lit]
     emit (InsPrim (Just ret) name args) = eqSep ret name args
     emit (InsPrim Nothing "store_lex" (_:args)) =
