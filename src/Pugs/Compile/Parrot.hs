@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -fglasgow-exts #-}
 
-module Pugs.Compile.Parrot (genPIR, compile', varText, varInit, padSort) where
+module Pugs.Compile.Parrot (genPIR, compile', varInit, padSort) where
 import Pugs.Internals
 import Pugs.Pretty
 import Pugs.AST

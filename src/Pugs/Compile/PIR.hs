@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -funbox-strict-fields -cpp #-}
+{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -funbox-strict-fields -fallow-undecidable-instances -cpp #-}
 
 module Pugs.Compile.PIR (genPIR') where
 import Pugs.Compile.Parrot
@@ -33,8 +33,8 @@ data PAST a where
 
     PStmts      :: !(PAST Stmt) -> PAST [Stmt] -> PAST [Stmt]
     PApp        :: !TCxt -> !(PAST Expression) -> ![PAST Expression] -> PAST LValue
-    PAssign     :: ![PAST LValue] -> !(PAST Expression) -> PAST Expression
-    PBind       :: ![PAST LValue] -> !(PAST Expression) -> PAST Expression
+    PAssign     :: ![PAST LValue] -> !(PAST Expression) -> PAST LValue
+    PBind       :: ![PAST LValue] -> !(PAST Expression) -> PAST LValue
     PPad        :: ![(VarName, PAST Expression)] -> !(PAST [Stmt]) -> PAST [Stmt]
 
     PSub        :: !SubName -> ![TParam] -> !(PAST [Stmt]) -> PAST Decl
@@ -244,6 +244,9 @@ askTCxt = do
             CxtItem typ     -> TCxtItem typ
             CxtSlurpy typ   -> TCxtSlurpy typ
 
+instance (Show (m a), FunctorM m, Typeable1 m, Compile a b) => Compile (m a) (m b) where
+    compile = fmapM compile
+
 instance Compile Exp (PAST LValue) where
     compile (Pos pos rest) = fmap (PPos pos rest) $ compile rest
     compile (Cxt cxt rest) = enter cxt $ compile rest
@@ -260,22 +263,42 @@ instance Compile Exp (PAST LValue) where
         return $ PApp cxt funC argsC
     compile exp@(Syn "if" _) = compConditional exp
     compile exp@(Syn "unless" _) = compConditional exp
+    compile exp@(Syn "while" _) = compLoop exp
+    compile exp@(Syn "until" _) = compLoop exp
     compile (Syn "{}" (x:xs)) = compile (App (Var "&postcircumfix:{}") (Just x) xs)
     compile (Syn "[]" (x:xs)) = compile (App (Var "&postcircumfix:[]") (Just x) xs)
     compile (Syn "," exps) = do
         compile (App (Var "&infix:,") Nothing exps)
-    compile exp = error ("Invalid LValue: " ++ show exp)
+    compile (Syn "=" [lhs, rhs]) = do
+        lhsC    <- compile lhs
+        rhsC    <- compile rhs
+        return $ PAssign [lhsC] rhsC
+    compile (Syn ":=" [lhs, rhs]) = do
+        lhsC    <- compile lhs
+        rhsC    <- compile rhs
+        return $ PBind [lhsC] rhsC
+    compile (Syn syn [lhs, exp]) | last syn == '=' = do
+        let op = "&infix:" ++ init syn
+        compile $ Syn "=" [lhs, App (Var op) Nothing [lhs, exp]]
+    compile exp = compError exp
+
+compLoop :: Exp -> Comp (PAST LValue)
+compLoop (Syn name [cond, body]) = do
+    cxt     <- askTCxt
+    condC   <- compile cond
+    bodyC   <- compile body
+    funC    <- compile (Var $ "&statement_control:" ++ name)
+    return $ PApp cxt funC [PBlock condC, PBlock bodyC]
+compLoop exp = compError exp
 
 {-| Compiles a conditional 'Syn' (@if@ and @unless@) to a call to an
     appropriate function call (@&statement_control:if@ or
     @&statement_control:unless@). -}
 compConditional :: Exp -> Comp (PAST LValue)
-compConditional (Syn name [cond, true, false]) = do
-    cxt     <- askTCxt
-    condC   <- compile cond
-    trueC   <- compile true
-    falseC  <- compile false
+compConditional (Syn name exps) = do
+    [condC, trueC, falseC] <- compile exps
     funC    <- compile (Var $ "&statement_control:" ++ name)
+    cxt     <- askTCxt
     return $ PApp cxt funC [condC, PThunk trueC, PThunk falseC]
 compConditional exp = compError exp
 
@@ -286,14 +309,6 @@ instance Compile Exp (PAST Expression) where
     compile (Var name) = return . PExp $ PVar name
     compile (Val val) = fmap PLit (compile val)
     compile Noop = compile (Val undef)
-    compile (Syn "=" [lhs, rhs]) = do
-        lhsC    <- compile lhs
-        rhsC    <- compile rhs
-        return $ PAssign [lhsC] rhsC
-    compile (Syn ":=" [lhs, rhs]) = do
-        lhsC    <- compile lhs
-        rhsC    <- compile rhs
-        return $ PBind [lhsC] rhsC
     compile (Syn "block" [body]) = do
         cxt     <- askTCxt
         bodyC   <- compile body
@@ -305,6 +320,10 @@ instance Compile Exp (PAST Expression) where
         return $ PExp $ PApp cxt (PBlock bodyC) []
     compile (Syn "for" _) = compile Noop -- XXX TODO
     compile (Syn "module" _) = compile Noop
+    compile (Syn "match" exp) = compile $ Syn "rx" exp -- wrong
+    compile (Syn "//" exp) = compile $ Syn "rx" exp
+    compile (Syn "rx" [exp, _]) = compile exp -- XXX WRONG - use PCRE
+    compile (Syn "subst" [exp, _, _]) = compile exp -- XXX WRONG - use PCRE
     compile exp@(App _ _ _) = fmap PExp $ compile exp
     compile exp@(Syn _ _) = fmap PExp $ compile exp
     compile exp = compError exp
@@ -352,6 +371,7 @@ instance (Typeable a) => Translate (PAST a) a where
         pmc     <- genLV "lit"
         tellIns $ pmc <== ExpLit litC
         return (ExpLV pmc)
+    trans (PVal (VBool bool)) = return $ LitInt (toInteger $ fromEnum bool)
     trans (PVal (VStr str)) = return $ LitStr str
     trans (PVal (VInt int)) = return $ LitInt int
     trans (PVal (VNum num)) = return $ LitNum num
@@ -374,12 +394,12 @@ instance (Typeable a) => Translate (PAST a) a where
         lhsC    <- enter tcLValue $ trans lhs
         rhsC    <- trans rhs
         tellIns $ lhsC <== rhsC
-        return (ExpLV lhsC)
+        return lhsC
     trans (PBind [lhs] rhs) = do
         lhsC    <- enter tcLValue $ trans lhs
         rhsC    <- trans rhs
         tellIns $ lhsC <:= rhsC
-        return (ExpLV lhsC)
+        return lhsC
     trans (PStmts this rest) = do
         thisC   <- trans this
         tell [thisC]
@@ -556,6 +576,14 @@ genName name = do
     tellIns $ InsLocal RegPMC var
     tellIns $ InsNew (VAR var) (read $ render $ varInit name)
     return $ reg (VAR var)
+
+varText :: String -> Doc
+varText ('$':name)  = text $ "s__" ++ escaped name
+varText ('@':name)  = text $ "a__" ++ escaped name
+varText ('%':name)  = text $ "h__" ++ escaped name
+varText ('&':name)  = text $ "c__" ++ escaped name
+varText x           = error $ "invalid name: " ++ x
+
 
 {-| Compiles the current environment to PIR code. -}
 genPIR' :: Eval Val

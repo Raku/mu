@@ -548,13 +548,15 @@ op2Logical name comp = sub ("&infix:" ++ name) [arg0, arg1] (
     altL = ("sc_" ++ escaped name ++ "_alt")
     postL = ("sc_" ++ escaped name ++ "_post")
 
-{-| Escapes characters which have a special meaning in PIR (@|@ and @&@). -}
+{-| Escapes characters which have a special meaning in PIR. -}
 escaped :: String -> String
 escaped = concatMap esc
     where
     esc :: Char -> String
     esc '|' = "_or_"
     esc '&' = "_and_"
+    esc '?' = "_q_"
+    esc '_' = "__"
     esc x = [x]
 
 {-| The Prelude, defining primitives like @&say@, @&infix:+@, etc. -}
