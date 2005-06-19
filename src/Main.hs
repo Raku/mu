@@ -303,7 +303,7 @@ compPIR :: String -> IO ()
 compPIR = (putStr =<<) . doCompile "PIR" "-"
 
 runPIR :: String -> IO ()
-runPIR = do
-    pir <- doCompile "PIR" "-"
+runPIR prog = do
+    pir <- doCompile "PIR" "-" prog
     writeFile "a.pir" pir
     evalParrotFile "a.pir"
