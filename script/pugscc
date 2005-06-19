@@ -7,6 +7,7 @@ use FindBin;
 use File::Copy;
 use File::Basename;
 use File::Glob 'bsd_glob';
+use IPC::Open2;
 
 if (!@ARGV || grep /^--help$/, @ARGV) {
     die "Usage: $0 [--run] [--pugs|--haskell|--parrot] [ source[.p6] | -e oneliner ]\n";
@@ -62,15 +63,27 @@ else {
 }
 
 unlink "dump.ast";
-system("pugs", "-C$backend" => @ARGV);
-exit 1 unless -e "dump.ast";
+
+my ($rh, $wh);
+my $pid = open2($rh, $wh, 'pugs', -C => $backend, @ARGV);
+my $program = do { local $/; <$rh> };
+waitpid($pid, 0);
+
+exit 1 unless length $program;
+
+sub writeFile {
+    my ($file, $str) = @_;
+    open my $fh, '>', $file or die $!;
+    print $fh $str;
+    close $fh;
+}
 
 if ($backend eq 'Parrot') {
-    rename "dump.ast" => $out;
+    writeFile($out, $program);
     chmod 0755, $out;
 }
 else {
-    rename "dump.ast" => "$base/MainCC.hs";
+    writeFile("$base/MainCC.hs", $program);
 
     my $archlib = `pugs -V:archlib`;
     $archlib =~ /archlib:\s*(.+)/ or die "Cannot find archlib";

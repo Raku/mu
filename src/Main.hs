@@ -166,7 +166,7 @@ doCompile backend = doParseWith $ \env _ -> do
 doCompileDump :: String -> FilePath -> String -> IO ()
 doCompileDump backend file prog = do
     str <- doCompile backend' file prog
-    writeFile "dump.ast" str
+    putStr str
     where
     backend' = capitalizeWord backend
     capitalizeWord []     = []
@@ -303,6 +303,7 @@ compPIR :: String -> IO ()
 compPIR = (putStr =<<) . doCompile "PIR" "-"
 
 runPIR :: String -> IO ()
-runPIR str = do
-    withArgs ["-CPIR", "-e", str] main
-    evalParrotFile "dump.ast"
+runPIR = do
+    pir <- doCompile "PIR" "-"
+    writeFile "a.pir" pir
+    evalParrotFile "a.pir"
