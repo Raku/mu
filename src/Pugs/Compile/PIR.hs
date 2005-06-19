@@ -262,12 +262,17 @@ instance Compile Exp (PAST LValue) where
     compile (Syn (sigil:"::()") exps) = do
         compile $ App (Var "&Pugs::Internals::symbolic_deref") Nothing $
             (Val . VStr $ sigil:""):exps
+    compile (App (Var "&goto") (Just inv) args) = do
+        cxt     <- askTCxt
+        funC    <- compile inv
+        argsC   <- enter cxtItemAny $ compile args
+        return $ PApp (TTailCall cxt) funC argsC
     compile (App fun (Just inv) args) = do
         compile (App fun Nothing (inv:args)) -- XXX WRONG
     compile (App fun Nothing args) = do
         cxt     <- askTCxt
         funC    <- compile fun
-        argsC   <- mapM (enter cxtItemAny . compile) args
+        argsC   <- enter cxtItemAny $ compile args
         return $ PApp cxt funC argsC
     compile exp@(Syn "if" _) = compConditional exp
     compile exp@(Syn "unless" _) = compConditional exp
