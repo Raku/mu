@@ -657,10 +657,10 @@ C<s:g/(\w+)/{ucfirst $1}/> on it.
 
 =item split
 
- multi sub Perl6::Str::split (  Str $delimiter ,  Str ?$input = $CALLER::_ ) returns List
- multi sub Perl6::Str::split ( Rule $delimiter ,  Str ?$input = $CALLER::_ ) returns List
- multi sub Perl6::Str::split (      Str $input :  Str $delimiter           ) returns List
- multi sub Perl6::Str::split (      Str $input : Rule $delimiter           ) returns List
+ multi sub Perl6::Str::split (  Str $delimiter ,  Str ?$input = $CALLER::_, Int ?$limit = inf ) returns List
+ multi sub Perl6::Str::split ( Rule $delimiter ,  Str ?$input = $CALLER::_, Int ?$limit = inf ) returns List
+ multi sub Perl6::Str::split (      Str $input :  Str $delimiter          , Int ?$limit = inf ) returns List
+ multi sub Perl6::Str::split (      Str $input : Rule $delimiter          , Int ?$limit = inf ) returns List
  &split<> := &split<Str>.assuming:delimiter(' ');
 
 =item sprintf
