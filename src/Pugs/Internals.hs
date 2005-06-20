@@ -57,6 +57,7 @@ module Pugs.Internals (
     module Network,
     internalError,
     split,
+    split_n,
     breakOnGlue,
     afterPrefix,
     decodeUTF8,
@@ -150,6 +151,15 @@ split sep str =
    case breakOnGlue sep str of
      Just (before, after) -> before : split sep after
      Nothing -> [str]
+
+split_n :: (Eq a) => [a] -> [a] -> Int -> [[a]]
+split_n []  _ n  = internalError "splitting by an empty list"
+split_n sep str n
+   | n == 1 = [str]
+   | otherwise =
+   case breakOnGlue sep str of
+       Just (before, after) -> before : split_n sep after (n-1)
+       Nothing -> [str]
 
 -- returns Nothing if the glue isn't there
 breakOnGlue :: (Eq a) => [a] -> [a] -> Maybe ([a], [a])

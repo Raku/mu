@@ -964,6 +964,8 @@ op3 "rindex" = \x y z -> do
 op3 "splice" = \x y z -> do
     op4 "splice" x y z (VList [])
 op3 "split" = op3Split
+op3 "Str::split" = \x y z -> do
+    op3 "split" y x z
 op3 "Any::new" = \t n _ -> do
     typ     <- fromVal t
     named   <- fromVal n
@@ -994,11 +996,11 @@ op3Split x y z = do
             return $ VList chunks
         _ -> do
             delim <- fromVal val
-            return $ split' delim str
+            return $ split' delim str limit
     where
-    split' :: VStr -> VStr -> Val
-    split' [] xs = VList $ map (VStr . (:[])) xs
-    split' glue xs = VList $ map VStr $ split glue xs
+    split' :: VStr -> VStr -> Int -> Val
+    split' [] xs n = VList $ map (VStr . (:[])) xs
+    split' glue xs n = VList $ map VStr $ split_n glue xs n
 
 -- |Implementation of 4-arity primitive operators and functions.
 -- Only substr and splice
@@ -1450,7 +1452,10 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   List      pre     Str::split   safe   (Str)\
 \\n   List      pre     Str::split   safe   (Str: Str)\
 \\n   List      pre     Str::split   safe   (Str: Rule)\
+\\n   List      pre     Str::split   safe   (Str: Str, Int)\
+\\n   List      pre     Str::split   safe   (Str: Rule, Int)\
 \\n   List      pre     split   safe   (Str, Str)\
+\\n   List      pre     split   safe   (Str, Str, Int)\
 \\n   List      pre     split   safe   (Rule, Str)\
 \\n   List      pre     split   safe   (Rule, Str, Int)\
 \\n   Str       spre    =       safe   (Any)\

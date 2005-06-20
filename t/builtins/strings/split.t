@@ -4,7 +4,10 @@ use v6;
 use Test;
 
 # XXX - this needs to be updated when Str.split(Str) works again
-plan 64;
+# this test really wants is_deeply()
+plan 71;
+
+force_todo 67, 70, 71;
 
 # split on an empty string
 
@@ -77,21 +80,22 @@ split_test "this will be split".split(rx:perl5{ }),
            q/Str.split(rx:perl5{ })/;
 
 # split on multiple space characters
-try {
 split_test split(rx:perl5{\s+}, "Hello World    Goodbye   Mars", 3),
            ( qw/Hello World/, "Goodbye   Mars" ),
            q(split rx:perl5{\s+}, Str, limit);
-};
-if ($!) {
-    fail "couldn't split with limit; $!", :todo<feature> for 1..2;
-}
 
-try {
 split_test split(" ", "Hello World    Goodbye   Mars", 3),
            ( qw/Hello World/, "   Goodbye   Mars" ),
            q(split " ", Str, limit);
-};
-if ($!) {
-    fail "couldn't split with limit; $!", :todo<feature> for 1..2;
-}
+
+split_test  "Hello World    Goodbye   Mars".split(rx:perl5{\s+}, 3),
+           ( qw/Hello World/, "Goodbye   Mars" ),
+           q/Str.split(rx:perl5{\s+}, limit)/;
+
+split_test  "Hello World    Goodbye   Mars".split(" ", 3),
+           ( qw/Hello World/, "   Goodbye   Mars" ),
+           q/Str.split(" ", limit)/;
+
+split_test  "Word".split("", 3), qw(W o rd),
+           q/Str.split("", limit)/;
 
