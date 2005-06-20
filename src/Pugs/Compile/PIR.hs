@@ -37,7 +37,7 @@ data PIL a where
     PPos        :: !Pos -> !Exp -> PIL a -> PIL a
     PStmt       :: !(PIL Expression) -> PIL Stmt 
     PThunk      :: !(PIL Expression) -> PIL Expression 
-    PBlock      :: !(PIL [Stmt]) -> PIL Expression 
+    PCode       :: !SubType -> !(PIL [Stmt]) -> PIL Expression 
 
     PVal        :: !Val -> PIL Literal
     PVar        :: !VarName -> PIL LValue
@@ -87,7 +87,7 @@ instance Show (PIL a) where
     show (PBind x y) = "(PBind " ++ show x ++ " " ++ show y ++ ")"
     show (PPad x y) = "(PPad " ++ show x ++ " " ++ show y ++ ")"
     show (PThunk x) = "(PThunk " ++ show x ++ ")"
-    show (PBlock x) = "(PBlock " ++ show x ++ ")"
+    show (PCode x y) = unwords ["(PCode", show x, show y, ")"]
     show (PRawName x) = "(PRawName " ++ show x ++ ")"
     show (PSub x y z w) = unwords ["(PSub", show x, show y, show z, show w, ")"]
 
@@ -241,8 +241,12 @@ instance Compile Exp (PIL Stmt) where
         bodyC   <- compile body
         postC   <- compile post
         funC    <- compile (Var "&statement_control:loop")
-        return $ PStmt $ PExp $ PApp TCxtVoid funC [preC, PBlock condC, PBlock bodyC, PBlock postC]
+        return $ PStmt $ PExp $ PApp TCxtVoid funC
+            [preC, pBlock condC, pBlock bodyC, pBlock postC]
     compile exp = fmap PStmt $ compile exp
+
+pBlock :: PIL [Stmt] -> PIL Expression
+pBlock = PCode SubBlock
 
 {-
 subTCxt :: VCode -> Eval TCxt
@@ -324,7 +328,7 @@ compLoop (Syn name [cond, body]) = do
     condC   <- compile cond
     bodyC   <- compile body
     funC    <- compile (Var $ "&statement_control:" ++ name)
-    return $ PApp cxt funC [PBlock condC, PBlock bodyC]
+    return $ PApp cxt funC [pBlock condC, pBlock bodyC]
 compLoop exp = compError exp
 
 {-| Compiles a conditional 'Syn' (@if@ and @unless@) to a call to an
@@ -349,13 +353,13 @@ instance Compile Exp (PIL Expression) where
     compile (Syn "block" [body]) = do
         cxt     <- askTCxt
         bodyC   <- compile body
-        return $ PExp $ PApp cxt (PBlock bodyC) []
+        return $ PExp $ PApp cxt (pBlock bodyC) []
     compile (Syn "sub" [Val (VCode sub)]) = do
         -- XXX I'd like to lambda lift... :-/
         bodyC   <- enter sub $ compile $ case subBody sub of
             Syn "block" [exp]   -> exp
             exp                 -> exp
-        return $ PBlock bodyC
+        return $ PCode (subType sub) bodyC
     compile (Syn "for" _) = compile Noop -- XXX TODO
     compile (Syn "module" _) = compile Noop
     compile (Syn "match" exp) = compile $ Syn "rx" exp -- wrong
@@ -442,7 +446,7 @@ instance (Typeable a) => Translate (PIL a) a where
         thisC   <- trans this
         tell [thisC]
         trans rest
-    trans (PApp _ exp@(PBlock _) []) = do
+    trans (PApp _ exp@(PCode _ _) []) = do
         blockC  <- trans exp
         tellIns $ [reg tempPMC] <-& blockC $ []
         return tempPMC
@@ -479,16 +483,18 @@ instance (Typeable a) => Translate (PIL a) a where
             expsC   <- trans exps
             return ([], (StmtPad (map fst pad `zip` valsC) expsC:))
     trans (PExp exp) = fmap ExpLV $ trans exp
-    trans (PBlock body) = do
+    trans (PCode styp body) = do
         [begC, endC] <- genLabel ["blockBegin", "blockEnd"]
         this    <- genPMC "block"
         tellIns $ "newsub" .- [reg this, bare ".Closure", bare begC]
         tellIns $ "goto" .- [bare endC]
         tellLabel begC
-        trans body  -- XXX - consistency check
-        bodyC   <- lastPMC
-        tellIns $ "set_returns" .- retSigList [bodyC]
-        tellIns $ "returncc" .- []
+        tellIns $ "new_pad" .- [lit curPad]
+        wrapSub styp $ do
+            trans body  -- XXX - consistency check
+            bodyC   <- lastPMC
+            tellIns $ "set_returns" .- retSigList [bodyC]
+            tellIns $ "returncc" .- []
         tellLabel endC
         return (ExpLV this)
     trans (PThunk exp) = do
@@ -521,15 +527,12 @@ instance (Typeable a) => Translate (PIL a) a where
             mapM_ (tellIns . InsLocal RegPMC . prmToIdent) prms
             tellIns $ "get_params" .- sigList (map prmToSig prms)
             tellIns $ "new_pad" .- [lit curPad]
-
-
             wrapSub styp $ do
                 mapM storeLex params
                 trans body
                 bodyC <- lastPMC
                 tellIns $ "set_returns" .- retSigList [bodyC]
                 tellIns $ "returncc" .- []
-
         return (DeclSub name [] stmts)
         where
         -- XXX - slurpiness
@@ -555,16 +558,6 @@ instance (Typeable a) => Translate (PIL a) a where
                         tellIns $ VAR name <:= expC
                 tellLabel defC
             tellIns $ "store_lex" .- [lit curPad, lit var, bare name]
-        -- XXX - slow way of implementing "return"
-        wrapSub SubPrim = id
-        wrapSub _ = \body -> do
-            [retL] <- genLabel ["returnHandler"]
-            tellIns $ "push_eh" .- [bare retL]
-            body
-            tellLabel retL
-            tellIns $ tempPMC <:= ExpLV (KEYED (VAR "P5") (lit False))
-            tellIns $ "set_returns" .- sigList [tempPMC]
-            tellIns $ "returncc" .- []
     trans x = transError x
 
 fetchCC :: LValue -> Expression -> Trans ()
@@ -574,6 +567,19 @@ fetchCC cc begC | parrotBrokenXXX = do
     tellIns $ "find_global" .- [reg cc, tempSTR]
 fetchCC cc _ = do
     tellIns $ "get_params" .- sigList [reg cc]
+
+-- XXX - slow way of implementing "return"
+wrapSub :: SubType -> Trans () -> Trans ()
+wrapSub SubPrim = id
+wrapSub SubBlock = id -- XXX not really
+wrapSub _ = \body -> do
+    [retL] <- genLabel ["returnHandler"]
+    tellIns $ "push_eh" .- [bare retL]
+    body
+    tellLabel retL
+    tellIns $ tempPMC <:= ExpLV (KEYED (VAR "P5") (lit False))
+    tellIns $ "set_returns" .- sigList [tempPMC]
+    tellIns $ "returncc" .- []
 
 tellIns :: Ins -> Trans ()
 tellIns = tell . (:[]) . StmtIns
