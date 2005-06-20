@@ -4,7 +4,7 @@ use v6;
 use Test;
 
 # XXX - this needs to be updated when Str.split(Str) works again
-plan 50;
+plan 52;
 
 # split on an empty string
 
@@ -75,3 +75,14 @@ split_test "to be || ! to be".split(' '),
 split_test "this will be split".split(rx:perl5{ }),
            qw/this will be split/,
            q/Str.split(rx:perl5{ })/;
+
+# split on multiple space characters
+try {
+split_test split(rx:perl5{\s+}, "Hello World    Goodbye   Mars", 2),
+           [ qw/Hello World/, "Goodbye   Mars" ],
+           q(split rx:perl5{\s+}, Str, limit);
+};
+if ($!) {
+    fail "couldn't split with limit; $!", :todo<feature> for 1..2;
+}
+
