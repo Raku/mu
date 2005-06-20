@@ -298,6 +298,9 @@ smoke : $pugs util/run-smoke.pl all
 pirsmoke : $pugs util/run-smoke.pl all
 	\$(PERL) util/run-smoke.pl . smoke.html -BPIR
 
+pirtest :
+	HARNESS_PERL_SWITCHES='-B PIR' make test
+
 ghci ::
 	$ghc --interactive $ghc_flags $ghc_output
 
