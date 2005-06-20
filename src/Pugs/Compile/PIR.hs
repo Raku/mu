@@ -188,8 +188,11 @@ instance Compile Exp (PIL [Stmt]) where
         return $ PPad ((map fst (padToList pad)) `zip` padC) expC
     compile exp = compileStmts exp
 
-class EnterClass m a | m -> a where
+class EnterClass m a where
     enter :: a -> m b -> m b
+
+instance EnterClass CompMonad VCode where
+    enter sub = local (\e -> e{ envLValue = subLValue sub, envContext = CxtItem (subReturns sub) })
 
 instance EnterClass CompMonad Cxt where
     enter cxt = local (\e -> e{ envContext = cxt })
@@ -226,7 +229,6 @@ instance Compile Exp (PIL Stmt) where
         if isVoidCxt cxt
             then case val of
                 VBool True      -> compile Noop
-                VInt x | x > 0  -> compile Noop
                 _               -> do
                     warn "Useless use of a constant in void context" val
                     compile Noop
@@ -241,6 +243,13 @@ instance Compile Exp (PIL Stmt) where
         funC    <- compile (Var "&statement_control:loop")
         return $ PStmt $ PExp $ PApp TCxtVoid funC [preC, PBlock condC, PBlock bodyC, PBlock postC]
     compile exp = fmap PStmt $ compile exp
+
+{-
+subTCxt :: VCode -> Eval TCxt
+subTCxt sub = return $ if subLValue sub
+    then TCxtLValue (subReturns sub)
+    else TCxtItem (subReturns sub)
+-}
 
 askTCxt :: Eval TCxt
 askTCxt = do
@@ -343,8 +352,7 @@ instance Compile Exp (PIL Expression) where
         return $ PExp $ PApp cxt (PBlock bodyC) []
     compile (Syn "sub" [Val (VCode sub)]) = do
         -- XXX I'd like to lambda lift... :-/
-        _       <- askTCxt
-        bodyC   <- compile $ case subBody sub of
+        bodyC   <- enter sub $ compile $ case subBody sub of
             Syn "block" [exp]   -> exp
             exp                 -> exp
         return $ PBlock bodyC
@@ -632,6 +640,7 @@ varInit :: String -> Doc
 varInit ('$':_) = text $ "PerlScalar"
 varInit ('@':_) = text $ "PerlArray"
 varInit ('%':_) = text $ "PerlHash"
+varInit ('&':_) = text $ "PerlScalar"
 varInit x       = error $ "invalid name: " ++ x
 
 {-| Compiles the current environment to PIR code. -}
