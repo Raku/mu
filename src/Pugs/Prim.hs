@@ -999,7 +999,7 @@ op3Split x y z = do
             return $ split' delim str limit
     where
     split' :: VStr -> VStr -> Int -> Val
-    split' [] xs n = VList $ map (VStr . (:[])) xs
+    split' [] xs n = VList $ (map (VStr . (:[])) (take (n-1) xs)) ++ [ VStr $ drop (n-1) xs ]
     split' glue xs n = VList $ map VStr $ split_n glue xs n
 
 -- |Implementation of 4-arity primitive operators and functions.
