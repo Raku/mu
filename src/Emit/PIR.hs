@@ -598,11 +598,13 @@ preludePIR = emit $
         ] --> [lit True]
 -}
     -- Control flowy
-    [ sub "&return" [slurpy arg0] $
+    [ sub "&return" [slurpy arg0]
         [ InsNew tempPMC PerlArray
         , (KEYED tempPMC (lit False)) <:= arg0
         , "throw" .- [tempPMC]
         ]
+    , sub "&leave" [slurpy arg0]
+        [] --> [arg0]
     , sub "&statement_control:loop" [arg0, arg1, arg2, arg3] $
         [ InsLabel "sc_loop_next"
         , [reg tempPMC] <-& arg1 $ []
