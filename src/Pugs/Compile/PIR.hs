@@ -334,6 +334,7 @@ instance Compile Exp (PIL Expression) where
     compile (Pos pos rest) = fmap (PPos pos rest) $ compile rest
     compile (Cxt cxt rest) = enter cxt $ compile rest
     compile (Var name) = return . PExp $ PVar name
+    compile exp@(Val (VCode _)) = compile (Syn "sub" [exp])
     compile (Val val) = fmap PLit (compile val)
     compile Noop = compile (Val undef)
     compile (Syn "block" [body]) = do
@@ -435,8 +436,7 @@ instance (Typeable a) => Translate (PIL a) a where
         trans rest
     trans (PApp _ exp@(PBlock _) []) = do
         blockC  <- trans exp
-        [appC] <- genLabel ["invokeBlock"]
-        tell $ map StmtIns $ callBlock appC blockC 
+        tellIns $ [reg tempPMC] <-& blockC $ []
         return tempPMC
     trans (PApp (TCxtLValue _) (PExp (PVar "&postcircumfix:[]")) [(PExp lhs), rhs]) = do
         lhsC    <- trans lhs

@@ -520,12 +520,6 @@ bare = ExpLV . VAR
 parrotBrokenXXX :: Bool
 parrotBrokenXXX = True
 
--- calls and place result in tempPMC
-callBlock :: VarName -> Expression -> [Ins]
-callBlock label fun =
-    [ "newsub" .- [funPMC, bare ".Continuation", bare label]
-    ] ++ callBlockCC fun ++ collectCC label
-
 collectCC :: LabelName -> [Ins]
 collectCC label =
     [ InsLabel label
@@ -534,14 +528,14 @@ collectCC label =
         else "get_params" .- sigList [tempPMC]
     ]
 
-callBlockCC :: Expression -> [Ins]
-callBlockCC fun | parrotBrokenXXX =
+callThunkCC :: Expression -> [Ins]
+callThunkCC fun | parrotBrokenXXX =
     [ tempINT   <-- "get_addr" $ [fun]
     , tempSTR   <:= tempINT
     , "store_global" .- [tempSTR, funPMC]
     , "invoke" .- [fun]
     ]
-callBlockCC fun =
+callThunkCC fun =
     [ "set_args" .- sigList [funPMC]
     , "invoke" .- [fun]
     ]
@@ -553,9 +547,9 @@ stmtControlCond :: VarName     -- ^ Perl 6 name of the new sub
 stmtControlCond name comp = sub ("&statement_control:" ++ name) [arg0, arg1, arg2] (
     [ "newsub" .- [funPMC, bare ".Continuation", bare postL]
     , comp .- [arg0, bare altL]
-    ] ++ callBlockCC arg1 ++
+    ] ++ callThunkCC arg1 ++
     [ InsLabel altL
-    ] ++ callBlockCC arg2 ++ collectCC postL) --> [tempPMC]
+    ] ++ callThunkCC arg2 ++ collectCC postL) --> [tempPMC]
     where
     altL = ("sc_" ++ name ++ "_alt")
     postL = ("sc_" ++ name ++ "_post")
@@ -571,7 +565,7 @@ op2Logical name comp = sub ("&infix:" ++ name) [arg0, arg1] (
     , "set_returns" .- retSigList [arg0]
     , "returncc" .- []
     , InsLabel altL
-    ] ++ callBlockCC arg1 ++ collectCC postL) --> [tempPMC]
+    ] ++ callThunkCC arg1 ++ collectCC postL) --> [tempPMC]
     where
     altL = ("sc_" ++ escaped name ++ "_alt")
     postL = ("sc_" ++ escaped name ++ "_post")
@@ -611,12 +605,11 @@ preludePIR = emit $
         ]
     , sub "&statement_control:loop" [arg0, arg1, arg2, arg3] $
         [ InsLabel "sc_loop_next"
-        ] ++ callBlock "loopCond" arg1 ++
-        [ "unless" .- [tempPMC, bare "sc_loop_last"]
-        ] ++ callBlock "loopBody" arg2 ++
-        [ -- ..throw away the result of body...
-        ] ++ callBlock "loopPost" arg3 ++
-        [ "goto" .- [bare "sc_loop_next"]
+        , [reg tempPMC] <-& arg1 $ []
+        , "unless" .- [tempPMC, bare "sc_loop_last"]
+        , [] <-& arg2 $ [] -- throw away the result of body...
+        , [] <-& arg3 $ [] -- ...and the post-condition
+        , "goto" .- [bare "sc_loop_next"]
         , InsLabel "sc_loop_last"
         , "returncc" .- []
         ]
