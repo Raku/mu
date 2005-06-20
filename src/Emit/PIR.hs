@@ -112,7 +112,7 @@ instance Emit Stmt where
     emit (StmtIns ins) = emit ins
     emit (StmtPad pad _) = vcat $
         [ emit "new_pad" <+> int curPad
-        ] ++ map (\(var, exp) -> emit ("store_lex" .- [lit (-1 :: Int), lit var, exp])) pad
+        ] ++ map (\(var, exp) -> emit ("store_lex" .- [lit curPad, lit var, exp])) pad
     emit (StmtRaw doc) = doc
 
 instance Emit RegType where
@@ -318,11 +318,17 @@ instance RegClass Sig where
 class LiteralClass x y | x -> y where
     lit :: x -> y 
 
+instance LiteralClass [[ArgFlag]] Expression where
+    lit = lit . parens . commaSep . map emit
+
+instance LiteralClass [ArgFlag] Expression where
+    lit = lit . emit
+
 instance LiteralClass ObjType Expression where
     lit = ExpLV . VAR . render . emit
 
 instance LiteralClass Doc Expression where
-    lit = ExpLit . LitStr . render
+    lit = lit . render
 
 instance LiteralClass String Expression where
     lit = ExpLit . LitStr
@@ -599,7 +605,12 @@ preludePIR = emit $
         ] --> [lit True]
 -}
     -- Control flowy
-    [ sub "&statement_control:loop" [arg0, arg1, arg2, arg3] $
+    [ sub "&return" [slurpy arg0] $
+        [ InsNew tempPMC PerlArray
+        , (KEYED tempPMC (lit False)) <:= arg0
+        , "throw" .- [tempPMC]
+        ]
+    , sub "&statement_control:loop" [arg0, arg1, arg2, arg3] $
         [ InsLabel "sc_loop_next"
         ] ++ callBlock "loopCond" arg1 ++
         [ "unless" .- [tempPMC, bare "sc_loop_last"]

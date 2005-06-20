@@ -36,7 +36,7 @@ data PIL a where
     PBind       :: ![PIL LValue] -> !(PIL Expression) -> PIL LValue
     PPad        :: ![(VarName, PIL Expression)] -> !(PIL [Stmt]) -> PIL [Stmt]
 
-    PSub        :: !SubName -> ![TParam] -> !(PIL [Stmt]) -> PIL Decl
+    PSub        :: !SubName -> !SubType -> ![TParam] -> !(PIL [Stmt]) -> PIL Decl
 #endif
 
 data TParam = MkTParam
@@ -77,7 +77,7 @@ instance Show (PIL a) where
     show (PThunk x) = "(PThunk " ++ show x ++ ")"
     show (PBlock x) = "(PBlock " ++ show x ++ ")"
     show (PRawName x) = "(PRawName " ++ show x ++ ")"
-    show (PSub x y z) = "(PSub " ++ show x ++ " " ++ show y ++ " " ++ show z ++ ")"
+    show (PSub x y z w) = unwords ["(PSub", show x, show y, show z, show w, ")"]
 
 data TEnv = MkTEnv
     { tLexDepth :: !Int
@@ -140,23 +140,24 @@ instance Compile Pad [PIL Decl] where
                 compile (("&*END_" ++ show i), cv) :: Comp [PIL Decl]
             compile ("&*END", concat decls)
         canCompile _ = return []
-        doCode name vsub = if subType vsub == SubPrim
-            then return []
-            else compile (name, vsub)
+        doCode name vsub = case subBody vsub of
+            Prim _  -> return []
+            _       -> compile (name, vsub)
 
 instance Compile ([Char], [PIL Decl]) [PIL Decl] where
     compile (name, decls) = do
         let bodyC = [ PStmts . PStmt . PExp $ PApp tcVoid (PExp (PVar sub)) []
-                    | PSub sub _ _ <- decls
+                    | PSub sub _ _ _ <- decls
                     ]
-        return (PSub name [] (combine bodyC PNil):decls)
+        return (PSub name SubPrim [] (combine bodyC PNil):decls)
 
 instance Compile ([Char], VCode) [PIL Decl] where
-    compile (name, MkCode{ subBody = Syn "block" [body], subParams = params }) = do
+    compile (name, MkCode{ subType = styp, subBody = Syn "block" [body], subParams = params }) = do
         bodyC   <- enter cxtItemAny $ compile body
         paramsC <- mapM compile params
-        return [PSub name paramsC bodyC]
-    compile x = compError x
+        return [PSub name styp paramsC bodyC]
+    compile (name, code) = compile
+        (name, code{ subBody = Syn "block" [subBody code] })
 
 {-
 instance Compile [(TVar Bool, TVar VRef)] (PIL Expression) where
@@ -273,6 +274,8 @@ instance Compile Exp (PIL LValue) where
     compile exp@(Syn "unless" _) = compConditional exp
     compile exp@(Syn "while" _) = compLoop exp
     compile exp@(Syn "until" _) = compLoop exp
+    compile (Syn "given" _) = compile (Var "$_") -- XXX
+    compile (Syn "when" _) = compile (Var "$_") -- XXX
     compile (Syn "{}" (x:xs)) = compile (App (Var "&postcircumfix:{}") (Just x) xs)
     compile (Syn "[]" (x:xs)) = do
         compile (App (Var "&postcircumfix:[]") (Just x) xs)
@@ -327,9 +330,9 @@ instance Compile Exp (PIL Expression) where
         return $ PExp $ PApp cxt (PBlock bodyC) []
     compile (Syn "sub" [Val (VCode sub)]) = do
         -- XXX I'd like to lambda lift... :-/
-        cxt     <- askTCxt
+        _       <- askTCxt
         bodyC   <- compile (subBody sub)
-        return $ PExp $ PApp cxt (PBlock bodyC) []
+        return $ PBlock bodyC
     compile (Syn "for" _) = compile Noop -- XXX TODO
     compile (Syn "module" _) = compile Noop
     compile (Syn "match" exp) = compile $ Syn "rx" exp -- wrong
@@ -341,8 +344,8 @@ instance Compile Exp (PIL Expression) where
     compile exp = compError exp
 
 compError :: forall a b. Compile a b => a -> Comp b
-compError = die $ "Compile error -- invalid PIL "
-    ++ (drop 12 . show $ typeOf (undefined :: b))
+compError = die $ "Compile error -- invalid "
+    ++ (show $ typeOf (undefined :: b))
 
 transError :: forall a b. Translate a b => a -> Trans b
 transError = die $ "Translate error -- invalid "
@@ -467,7 +470,7 @@ instance (Typeable a) => Translate (PIL a) a where
         tellIns $ if parrotBrokenXXX
             then "store_global" .- [tempSTR, bodyC] -- XXX HACK
             else "set_args" .- [lit "(0b10)", bodyC]
-        tellIns $ "invoke" .- [reg cc]
+--      tellIns $ "invoke" .- [reg cc]
         tellLabel endC
         return (ExpLV this)
     trans (PThunk exp) = do
@@ -494,17 +497,21 @@ instance (Typeable a) => Translate (PIL a) a where
         -- generate fresh supply and things...
         pmc     <- genName name
         return (ExpLV pmc)
-    trans (PSub name params body) = do
+    trans (PSub name styp params body) = do
         (_, stmts)  <- listen $ do
             let prms = map tpParam params
             mapM_ (tellIns . InsLocal RegPMC . prmToIdent) prms
             tellIns $ "get_params" .- sigList (map prmToSig prms)
             tellIns $ "new_pad" .- [lit curPad]
-            mapM storeLex params
-            trans body
-            bodyC <- lastPMC
-            tellIns $ "set_returns" .- retSigList [bodyC]
-            tellIns $ "returncc" .- []
+
+
+            wrapSub styp $ do
+                mapM storeLex params
+                trans body
+                bodyC <- lastPMC
+                tellIns $ "set_returns" .- retSigList [bodyC]
+                tellIns $ "returncc" .- []
+
         return (DeclSub name [] stmts)
         where
         -- XXX - slurpiness
@@ -530,6 +537,16 @@ instance (Typeable a) => Translate (PIL a) a where
                         tellIns $ VAR name <:= expC
                 tellLabel defC
             tellIns $ "store_lex" .- [lit curPad, lit var, bare name]
+        -- XXX - slow way of implementing "return"
+        wrapSub SubPrim = id
+        wrapSub _ = \body -> do
+            [retL] <- genLabel ["returnHandler"]
+            tellIns $ "push_eh" .- [bare retL]
+            body
+            tellLabel retL
+            tellIns $ tempPMC <:= ExpLV (KEYED (VAR "P5") (lit False))
+            tellIns $ "set_returns" .- sigList [tempPMC]
+            tellIns $ "returncc" .- []
     trans x = transError x
 
 fetchCC :: LValue -> Expression -> Trans ()
@@ -552,7 +569,7 @@ lastPMC = do
     tvar    <- asks tReg
     name'   <- liftIO $ liftSTM $ do
         (cur, name) <- readTVar tvar
-        return $ "P" ++ show cur ++ "_" ++ name
+        return $ "P" ++ show cur ++ (if null name then name else ('_':name))
     return $ reg (VAR name')
 
 genPMC :: (RegClass a) => String -> Trans a
