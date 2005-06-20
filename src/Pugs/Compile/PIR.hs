@@ -1,5 +1,17 @@
 {-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -funbox-strict-fields -fallow-undecidable-instances -cpp #-}
 
+{-|
+    This module provides 'genPIR', a function which compiles the current
+    environment to PIR code.
+
+    The general plan is to first compile the environment (subroutines,
+    statements, etc.) to an abstract syntax tree ('PIL' -- Pugs Intermediate
+    Representation) using the 'compile' function and 'Compile' class, and then
+    translate the PIL to a data structure of type 'PIR' using the 'trans'
+    function and 'Translate' class. This data structure is then reduced to
+    final PIR code by "Emit.PIR".
+-}
+
 module Pugs.Compile.PIR (genPIR) where
 import Pugs.Internals
 import Pugs.AST

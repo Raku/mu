@@ -2,12 +2,16 @@
 
 === Pugs Internals
 
-* Lots of work on the Emit.* modules:
-** Pugs can now generate the PAST (Pugs Abstract Syntax Tree)
+* New compiler backend: `PIR`
+** Pugs can now generate PIL (Pugs Immediate Representation)
 ** ... and emit PIR for it
-** Emit.PIR can now compile `ext/Test/lib/Test.pm`
-* eval and related builtins are now implemented in the Prelude
-* intial support for `%*INC`
+** Supported are: `%*ENV`, standard operators (e.g. `&infix:<+>`), symbolic
+   dereferentiation (e.g. `$::(...)`), `END` blocks, short circuiting logical
+   operators, user-defined subroutines and `return`, and tail calls
+** `Emit.PIR` can compile `ext/Test/lib/Test.pm` and passes almost all sanity
+   tests
+* `eval` and related builtins are now implemented in the Prelude
+* Initial support for `%*INC`
 
 === Bundled Modules
 
@@ -18,21 +22,27 @@
 
 === Test, Examples and Documentations
 
-* Many new tests and several refactorings based on p6l rulings, we now have 7562 tests
-* new `examples/continuation` and `examples/unitfunctions` directories added
+* Many new tests and several refactorings based on p6l rulings, we now have
+  7500+ tests
+* New `examples/continuation` and `examples/unitfunctions` directories added
   and populated
-* Examples of built-in type methods in `examples/vmethods/`
-* low level sanity tests in `t/01-sanity/` for the Pugs code emitter
-* more japhs added to `examples/japhs`
-* updates and clean up to `* docs/01Overview.html`
-* Interpreter for l33t in `examples/obfu/l33t.p6`
-* Various perl6 grammars being added to `module/Grammars/`
+* Examples of methods acting on builtin-types in `examples/vmethods/`
+* Low level sanity tests in `t/01-sanity/` for the PIR code emitter
+* More JAPHs added to `examples/japhs/`
+* Updates and cleanups to `docs/01Overview.html`
+* Interpreter and debugger for l33t in `examples/obfu/l33t.p6`
+* Perl 6 Rule grammar and related files added to `module/Grammars/`
 
 === Bug Fixes
 
 * `(42).kv` will now die and `(42,).kv` will work
 * `sleep()` now returns seconds slept
-* Fixed `!~` to mean `not(... ~~ ...)`, instead of `ne`.
+* Fixed `!~` to mean `not(... ~~ ...)`, instead of `ne`
+* `eval("...", :lang<...>")` works now
+* Call parrot without `-j` (JIT), as Parrot doesn't support JIT on all
+  systems. You can use the new environment veriable `PUGS_PARROT_OPTS` to
+  switch JIT on again
+* Fixed order of method invocation in `BUILDALL` and `DESTROYALL`
 
 == Changes for 6.2.7 (r4612) - June 13, 2005
 
@@ -69,7 +79,7 @@
 * Examples of nested loops in `examples/nested_loops`
 * Haskell Workshop paper on Pugs in `docs/talks/hw2005.tex`
 * Overview of Pugs source tree in `lib/pugs/hack.pod`
-* Overview of Rules bootstrapping plan in `/docs/other/rules_bootstrap`
+* Overview of Rules bootstrapping plan in `docs/other/rules_bootstrap`
 * Some new tests; several tests refactored; we now have 7600+ tests
 * Unit manipulation and conversion examples in `units.p6`
 * `examples/algorithms` subdir now unifies algorithmic examples

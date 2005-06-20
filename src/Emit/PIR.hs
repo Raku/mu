@@ -192,7 +192,6 @@ quoted :: String -> String
 quoted = concatMap quote
     where
     quote :: Char -> String
-    quote '\'' = "\\'"
     quote '\\' = "\\\\"
     quote x = [x]
 
@@ -485,32 +484,32 @@ vop2x p6name opname regr reg0 reg1 =
       , rv   <== regr
       ] --> [rv]
 
-{-| Wrapper for a opcode which accepts and returns an @I@ register. -}
+{-| Wrapper for an opcode which accepts and returns an @I@ register. -}
 vop1ii :: SubName -> PrimName -> Decl
 vop1ii p6name opname = vop1x p6name opname tempINT tempINT
-{-| Wrapper for a opcode which accepts and returns a @N@ register. -}
+{-| Wrapper for an opcode which accepts and returns a @N@ register. -}
 vop1nn :: SubName -> PrimName -> Decl
 vop1nn p6name opname = vop1x p6name opname tempNUM tempNUM
-{-| Wrapper for a opcode which accepts and returns a @S@ register. -}
+{-| Wrapper for an opcode which accepts and returns a @S@ register. -}
 vop1ss :: SubName -> PrimName -> Decl
 vop1ss p6name opname = vop1x p6name opname tempSTR tempSTR
-{-| Wrapper for a opcode which returns a @S@ register and accepts a @I@ register. -}
+{-| Wrapper for an opcode which returns a @S@ register and accepts a @I@ register. -}
 vop1si :: SubName -> PrimName -> Decl
 vop1si p6name opname = vop1x p6name opname tempSTR tempINT
-{-| Wrapper for a opcode which returns a @I@ register and accepts a @S@ register. -}
+{-| Wrapper for an opcode which returns a @I@ register and accepts a @S@ register. -}
 vop1is :: SubName -> PrimName -> Decl
 vop1is p6name opname = vop1x p6name opname tempINT tempSTR
-{-| Wrapper for a opcode which returns a @I@ register and accepts a @P@ register. -}
+{-| Wrapper for an opcode which returns a @I@ register and accepts a @P@ register. -}
 vop1ip :: SubName -> PrimName -> Decl
 vop1ip p6name opname = vop1x p6name opname tempINT tempPMC
 
-{-| Wrapper for a opcode which accepts and returns @I@ registers. -}
+{-| Wrapper for an opcode which accepts and returns @I@ registers. -}
 vop2iii :: SubName -> PrimName -> Decl
 vop2iii p6name opname = vop2x p6name opname tempINT tempINT tempINT2 
-{-| Wrapper for a opcode which accepts and returns @N@ registers. -}
+{-| Wrapper for an opcode which accepts and returns @N@ registers. -}
 vop2nnn :: SubName -> PrimName -> Decl
 vop2nnn p6name opname = vop2x p6name opname tempNUM tempNUM tempNUM2 
-{-| Wrapper for a opcode which accepts two @S@ registers and returns a native
+{-| Wrapper for an opcode which accepts two @S@ registers and returns a native
     integer (@I@ register). -}
 vop2iss :: SubName -> PrimName -> Decl
 vop2iss p6name opname = vop2x p6name opname tempINT tempSTR tempSTR2 
