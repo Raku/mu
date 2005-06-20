@@ -10,7 +10,7 @@ use File::Glob 'bsd_glob';
 use IPC::Open2;
 
 if (!@ARGV || grep /^--help$/, @ARGV) {
-    die "Usage: $0 [--run] [--pugs|--haskell|--parrot] [ source[.p6] | -e oneliner ]\n";
+    die "Usage: $0 [--run] [--pugs|--haskell|--pir] [ source[.p6] | -e oneliner ]\n";
 }
 
 my $run;
@@ -32,8 +32,8 @@ if ($ARGV[0] =~ /^(?:-H|--haskell)$/) {
     $backend = 'Haskell';
     shift @ARGV;
 }
-elsif ($ARGV[0] =~ /^(?:-P|--parrot)$/) {
-    $backend = 'Parrot';
+elsif ($ARGV[0] =~ /^(?:-P|--pir|--parrot)$/) {
+    $backend = 'PIR';
     shift @ARGV;
 }
 elsif ($ARGV[0] =~ /^--pugs$/) {
@@ -55,8 +55,8 @@ if (@ARGV and -e $ARGV[0]) {
     $out =~ s{\..*}{};
 }
 
-if ($backend eq 'Parrot') {
-    $out .= ".imc";
+if ($backend eq 'PIR') {
+    $out .= '.pir';
 }
 else {
     $out .= ($^O eq 'MSWin32') ? ".exe" : ".out";
@@ -78,7 +78,7 @@ sub writeFile {
     close $fh;
 }
 
-if ($backend eq 'Parrot') {
+if ($backend eq 'PIR') {
     writeFile($out, $program);
     chmod 0755, $out;
 }
@@ -123,8 +123,8 @@ else {
 die unless -e $out;
 
 if ($run) {
-    if ($backend eq 'Parrot' and !-x '/usr/bin/env') {
-        system("parrot" => $out);
+    if ($backend eq 'PIR' and !-x '/usr/bin/env') {
+        system(parrot => $out);
     }
     else {
         system {$out} $out;
@@ -153,8 +153,8 @@ pugscc - Pugs Compiler Compiler
 
 =head1 SYNOPSIS
 
-    % pugscc --runpugs -e "'Hello, Parrot'.say"
-    % pugscc --runparrot -e "'Hello, Parrot'.say"
+    % pugscc --runpir -e "'Hello, Parrot'.say"
+    % pugscc --runpugs -e "'Hello, Pugs'.say"
     % pugscc --runhaskell -e "'Hello, Haskell'.say"
 
 =head1 DESCRIPTION
@@ -190,7 +190,7 @@ links to where they can be downloaded.
 
 =item Pugs - requires Pugs ;-)
 
-=item Parrot - requires Parrot
+=item PIR - requires Parrot
 
 L<http://search.cpan.org/~ltoetsch/parrot/>
 L<http://www.parrotcode.org/>
