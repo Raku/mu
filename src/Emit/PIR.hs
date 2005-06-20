@@ -56,7 +56,9 @@ data RelOp = RelLT | RelLE | RelEQ | RelNE | RelGE | RelGT
 
 {-| A PMC type, which, for example, can be given as an argument to the @new@
     opcode (e.g. @new .PerlScalar@). -}
-data ObjType    = PerlScalar | PerlArray | PerlHash | PerlInt | PerlPair | PerlRef
+data ObjType
+    = PerlScalar | PerlArray | PerlHash
+    | PerlInt | PerlPair | PerlRef | PerlEnv
     deriving (Show, Eq, Typeable, Read)
 
 type LabelName  = String
@@ -230,6 +232,10 @@ include = DeclInc
 (.-)  = InsPrim Nothing
 (<-&) = InsFun
 (.&)  = InsFun []
+
+{-| Literal zero -}
+lit0 :: Expression
+lit0 = lit (0 :: Int)
 
 {-| @$P0@ register -}
 nullPMC :: (RegClass a) => a
@@ -606,9 +612,9 @@ escaped = concatMap esc
 {-| The Prelude, defining primitives like @&say@, @&infix:+@, etc. -}
 preludePIR :: Doc
 preludePIR = emit $
-    -- [ include "interpinfo.pasm"
+    [ include "iglobals.pasm"
     -- Control flowy
-    [ sub "&return" [slurpy arg0]
+    , sub "&return" [slurpy arg0]
         [ InsNew tempPMC PerlArray
         , (KEYED tempPMC (lit False)) <:= arg0
         , "throw" .- [tempPMC]

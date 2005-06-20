@@ -686,20 +686,34 @@ genPIR = do
             -- Namespaces have bugs in both pugs and parrot.
             -- [ emit $ namespace "main"
             [ emit globPIR
-            , text ".sub init @MAIN, @ANON"
-            , text "    new_pad 0"
-            -- Eventually, we'll have to write our own find_name wrapper (or
-            -- fix Parrot's find_name appropriately). See Pugs.Eval.Var.
-            -- For now, we simply store $P0 twice.
-            , text "    $P0 = new .PerlEnv"
-            , text "    store_global '%*ENV', $P0"
-            , text "    store_global '%ENV', $P0"
-            , text "    $P0 = new .PerlArray"
-            , text "    store_global '@*END', $P0"
-            , text "    store_global '@END', $P0"
-            , text "    main()"
-            , nest 4 $ emit $ InsFun [] (lit "&exit") [lit (0 :: Int)]
-            , text ".end"
+            , emit $ DeclSub "init" [SubMAIN, SubANON] $ map StmtIns
+                -- Eventually, we'll have to write our own find_name wrapper (or
+                -- fix Parrot's find_name appropriately). See Pugs.Eval.Var.
+                -- For now, we simply store $P0 twice.
+                [ "new_pad" .- [lit0]
+                , InsNew tempPMC PerlEnv
+                , "store_global"    .- [lit "%*ENV", tempPMC]
+                , "store_global"    .- [lit "%ENV", tempPMC]
+                , InsNew tempPMC PerlArray
+                , "store_global"    .- [lit "@*END", tempPMC]
+                , "store_global"    .- [lit "@END", tempPMC]
+                , "getstdin"        .- [tempPMC]
+                , "store_global"    .- [lit "$*IN", tempPMC]
+                , "store_global"    .- [lit "$IN", tempPMC]
+                , "getstdout"       .- [tempPMC]
+                , "store_global"    .- [lit "$*OUT", tempPMC]
+                , "store_global"    .- [lit "$OUT", tempPMC]
+                , "getstderr"       .- [tempPMC]
+                , "store_global"    .- [lit "$*ERR", tempPMC]
+                , "store_global"    .- [lit "$ERR", tempPMC]
+                , "getinterp"       .- [tempPMC]
+                , tempPMC   <:= ExpLV (KEYED tempPMC (bare ".IGLOBALS_ARGV_LIST"))
+                , tempPMC2  <-- "shift" $ [tempPMC]
+                , "store_global"    .- [lit "@*ARGS", tempPMC]
+                , "store_global"    .- [lit "@ARGS", tempPMC]
+                , "store_global"    .- [lit "$*PROGRAM_NAME", tempPMC2]
+                , "store_global"    .- [lit "$PROGRAM_NAME", tempPMC2]
+                ] ++ [ StmtRaw (text "main()"), StmtIns (lit "&exit" .& [lit0]) ]
             , text ".sub main @ANON"
             , nest 4 (emit mainPIR)
             , text ".end"
