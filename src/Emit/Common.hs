@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fallow-overlapping-instances -funbox-strict-fields -cpp #-}
+{-# OPTIONS_GHC -fglasgow-exts -fallow-overlapping-instances -fno-warn-orphans -cpp #-}
 
 module Emit.Common where
 import Text.PrettyPrint
