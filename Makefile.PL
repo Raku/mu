@@ -295,6 +295,9 @@ $pugs : src/Pugs/Config.hs src/Pugs/Prelude.hs src/Pugs/Compile/PIR/Prelude.hs @
 smoke : $pugs util/run-smoke.pl all
 	\$(PERL) util/run-smoke.pl . smoke.html
 
+pirsmoke : $pugs util/run-smoke.pl all
+	\$(PERL) util/run-smoke.pl . smoke.html -BPIR
+
 ghci ::
 	$ghc --interactive $ghc_flags $ghc_output
 

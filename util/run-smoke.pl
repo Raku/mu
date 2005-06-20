@@ -21,11 +21,12 @@ EOF
 # run-smoke.pl /some/sandbox/dir /some/www/file.html
 #
 my $pugs_sandbox    = $ARGV[0] or die "Need pugs sandbox location";
-my $html_location   = $ARGV[1] or die "Need HTML output file location";;
+my $html_location   = $ARGV[1] or die "Need HTML output file location";
+my $optional_args   = $ARGV[2] || "";
 
 chdir($pugs_sandbox) or die "Could change directory: $!";
 
-$ENV{HARNESS_PERL}  = "./pugs";
+$ENV{HARNESS_PERL}  = "./pugs $optional_args";
 $ENV{PERL6LIB}      = join $Config{path_sep},
         qw<ext/Test/lib blib6/lib>, $ENV{PERL6LIB};
 
