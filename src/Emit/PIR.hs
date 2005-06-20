@@ -218,7 +218,7 @@ include :: PkgName -> Decl
 {-| Calls an user-defined sub which returns a list of values. -}
 (<-&) :: [Sig] -> Expression -> [Expression] -> Ins
 {-| Calls an user-defined sub, ignoring any return values. -}
-(.&) :: String -> [Expression] -> Ins
+(.&) :: Expression -> [Expression] -> Ins
 
 namespace = DeclNS
 include = DeclInc
@@ -228,7 +228,7 @@ include = DeclInc
 (<--) = InsPrim . Just
 (.-)  = InsPrim Nothing
 (<-&) = InsFun
-(.&)  = InsFun [] . lit
+(.&)  = InsFun []
 
 {-| @$P0@ register -}
 nullPMC :: (RegClass a) => a
@@ -605,12 +605,22 @@ preludePIR = emit $
         ]
     , sub "&leave" [slurpy arg0]
         [] --> [arg0]
-    , sub "&statement_control:loop" [arg0, arg1, arg2, arg3] $
+    , sub "&statement_control:for" [arg0, arg1]
+        [ tempPMC   <-- "iter" $ [arg0]
+        , InsLabel "sc_for_next"
+        , "unless"  .- [tempPMC, bare "sc_for_last"]
+        , tempPMC2  <-- "shift" $ [tempPMC]
+        , arg1      .& [tempPMC2]
+        , "goto"    .- [bare "sc_for_next"]
+        , InsLabel "sc_for_last"
+        , "returncc" .- []
+        ]
+    , sub "&statement_control:loop" [arg0, arg1, arg2, arg3]
         [ InsLabel "sc_loop_next"
         , [reg tempPMC] <-& arg1 $ []
         , "unless" .- [tempPMC, bare "sc_loop_last"]
-        , [] <-& arg2 $ [] -- throw away the result of body...
-        , [] <-& arg3 $ [] -- ...and the post-condition
+        , arg2 .& [] -- throw away the result of body...
+        , arg3 .& [] -- ...and the post-condition
         , "goto" .- [bare "sc_loop_next"]
         , InsLabel "sc_loop_last"
         , "returncc" .- []
@@ -644,7 +654,7 @@ preludePIR = emit $
         , "print" .- [lit "\n"]
         ] --> [lit True]
     , sub "&Pugs::Internals::exit" [arg0]
-        [ "&*END" .& []
+        [ lit "&*END" .& []
         , tempINT <:= arg0
         , "exit" .- [tempINT]
         ]

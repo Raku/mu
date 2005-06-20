@@ -243,6 +243,16 @@ instance Compile Exp (PIL Stmt) where
         funC    <- compile (Var "&statement_control:loop")
         return $ PStmt $ PExp $ PApp TCxtVoid funC
             [preC, pBlock condC, pBlock bodyC, pBlock postC]
+    compile exp@(Syn "unless" _) = fmap (PStmt . PExp) $ compConditional exp
+    compile exp@(Syn "while" _) = compLoop exp
+    compile exp@(Syn "until" _) = compLoop exp
+    compile (Syn "for" [exp, body]) = do
+        expC    <- compile exp
+        bodyC   <- compile body
+        funC    <- compile (Var "&statement_control:for")
+        return $ PStmt $ PExp $ PApp TCxtVoid funC [expC, bodyC]
+    compile (Syn "given" _) = compile (Var "$_") -- XXX
+    compile (Syn "when" _) = compile (Var "$_") -- XXX
     compile exp = fmap PStmt $ compile exp
 
 pBlock :: PIL [Stmt] -> PIL Expression
@@ -296,11 +306,6 @@ instance Compile Exp (PIL LValue) where
         argsC   <- enter cxtItemAny $ compile args
         return $ PApp cxt funC argsC
     compile exp@(Syn "if" _) = compConditional exp
-    compile exp@(Syn "unless" _) = compConditional exp
-    compile exp@(Syn "while" _) = compLoop exp
-    compile exp@(Syn "until" _) = compLoop exp
-    compile (Syn "given" _) = compile (Var "$_") -- XXX
-    compile (Syn "when" _) = compile (Var "$_") -- XXX
     compile (Syn "{}" (x:xs)) = compile (App (Var "&postcircumfix:{}") (Just x) xs)
     compile (Syn "[]" (x:xs)) = do
         compile (App (Var "&postcircumfix:[]") (Just x) xs)
@@ -322,13 +327,13 @@ instance Compile Exp (PIL LValue) where
         compile $ Syn "=" [lhs, App (Var op) Nothing [lhs, exp]]
     compile exp = compError exp
 
-compLoop :: Exp -> Comp (PIL LValue)
+compLoop :: Exp -> Comp (PIL Stmt)
 compLoop (Syn name [cond, body]) = do
     cxt     <- askTCxt
     condC   <- compile cond
     bodyC   <- compile body
     funC    <- compile (Var $ "&statement_control:" ++ name)
-    return $ PApp cxt funC [pBlock condC, pBlock bodyC]
+    return . PStmt . PExp $ PApp cxt funC [pBlock condC, pBlock bodyC]
 compLoop exp = compError exp
 
 {-| Compiles a conditional 'Syn' (@if@ and @unless@) to a call to an
@@ -361,7 +366,6 @@ instance Compile Exp (PIL Expression) where
             exp                 -> exp
         paramsC <- compile $ subParams sub
         return $ PCode (subType sub) paramsC bodyC
-    compile (Syn "for" _) = compile Noop -- XXX TODO
     compile (Syn "module" _) = compile Noop
     compile (Syn "match" exp) = compile $ Syn "rx" exp -- wrong
     compile (Syn "//" exp) = compile $ Syn "rx" exp
