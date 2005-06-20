@@ -49,8 +49,6 @@ clean_files     (map fixpaths($_),
     'src/Pugs/Prelude.hs', 'src/Pugs/Compile/PIR/Prelude.hs',
     "src/gen_prelude$Config{_exe}",
     'test.log',
-    'src/Pugs/Embed/Parrot.hs',
-    'src/Pugs/Embed/Parrot_hsc.*',
     'src/Pugs/Run/Perl5_stub.*',
     'src/Data/Yaml/Syck_stub.*',
     'src/Data/Yaml/Syck.hs',
@@ -299,7 +297,7 @@ pirsmoke : $pugs util/run-smoke.pl all
 	\$(PERL) util/run-smoke.pl . smoke.html -BPIR
 
 pirtest :
-	HARNESS_PERL_SWITCHES='-B PIR' make test
+	\$(PERL) -e "ENV->{HARNESS_PERL_SWITCHES}=q+-B PIR+; system qq+$Config{make}+, q+test+"
 
 ghci ::
 	$ghc --interactive $ghc_flags $ghc_output
