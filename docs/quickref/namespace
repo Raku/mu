@@ -30,7 +30,7 @@ Scope of declaration
     ... package   {...}   # block scope
 
     Same for modules, classes, roles?, enums?, subtypes?
-    But grammars and rules have a separate system.
+    Grammars are classes?, and rules are methods.
 
 Names
 
