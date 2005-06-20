@@ -4,7 +4,7 @@ use v6;
 use Test;
 
 # XXX - this needs to be updated when Str.split(Str) works again
-plan 52;
+plan 54;
 
 # split on an empty string
 
@@ -78,9 +78,18 @@ split_test "this will be split".split(rx:perl5{ }),
 
 # split on multiple space characters
 try {
-split_test split(rx:perl5{\s+}, "Hello World    Goodbye   Mars", 2),
+split_test split(rx:perl5{\s+}, "Hello World    Goodbye   Mars", 3),
            [ qw/Hello World/, "Goodbye   Mars" ],
            q(split rx:perl5{\s+}, Str, limit);
+};
+if ($!) {
+    fail "couldn't split with limit; $!", :todo<feature> for 1..2;
+}
+
+try {
+split_test split(" ", "Hello World    Goodbye   Mars", 3),
+           [ qw/Hello World/, "   Goodbye   Mars" ],
+           q(split " ", Str, limit);
 };
 if ($!) {
     fail "couldn't split with limit; $!", :todo<feature> for 1..2;
