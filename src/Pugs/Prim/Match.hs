@@ -178,7 +178,7 @@ rxSplit rx str = do
 -- duplicated for now, pending über-Haskell-fu
 
 rxSplit_n :: VRule -> String -> Int -> Eval [Val]
-rxSplit_n _ [] n = return []
+rxSplit_n _ [] _ = return []
 rxSplit_n rx str n = do
     match <- str `doMatch` rx
     if or [ ( n == 1 ), ( not (matchOk match) ) ] then return [VStr str] else do

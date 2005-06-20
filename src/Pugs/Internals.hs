@@ -153,7 +153,7 @@ split sep str =
      Nothing -> [str]
 
 split_n :: (Eq a) => [a] -> [a] -> Int -> [[a]]
-split_n []  _ n  = internalError "splitting by an empty list"
+split_n [] _ _ = internalError "splitting by an empty list"
 split_n sep str n
    | n == 1 = [str]
    | otherwise =
