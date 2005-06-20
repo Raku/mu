@@ -549,8 +549,7 @@ op1 "gather" = \v -> do
 op1 "Thread::yield" = const $ do
     ok <- tryIO False $ do { yield ; return True }
     return $ VBool ok
-op1 "DESTROYALL" = op1WalkAll reverse "DESTROY" $
-    (VRef . hashRef) (Map.empty :: VHash)
+op1 "DESTROYALL" = op1WalkAllNoArgs id "DESTROY"
 -- [,] is a noop -- It simply returns the input list
 op1 "prefix:[,]" = return
 op1 "Code::assoc" = op1CodeAssoc
@@ -576,6 +575,15 @@ pkgParents pkg = do
     attrs   <- fromVal =<< fetch "traits"
     pkgs    <- mapM pkgParents attrs
     return $ nub (pkg:concat pkgs)
+
+op1WalkAllNoArgs :: ([VStr] -> [VStr]) -> VStr -> Val -> Eval Val
+op1WalkAllNoArgs f meth v = do
+    pkgs    <- pkgParents =<< fmap showType (evalValType v)
+    forM_ (f pkgs) $ \pkg -> do
+        maybeM (fmap (findSym $ ('&':pkg) ++ "::" ++ meth) askGlobal) $ \tvar -> do
+            ref <- liftSTM $ readTVar tvar
+            enterEvalContext CxtVoid (App (Val $ VRef ref) (Just $ Val v) [])
+    return undef
 
 op1WalkAll :: ([VStr] -> [VStr]) -> VStr -> Val -> Val -> Eval Val
 op1WalkAll f meth v hashval = do
@@ -892,7 +900,7 @@ op2 "sort" = \x y -> do
     op1 "sort" . VList $ xs ++ ys
 op2 "IO::say" = op2Print hPutStrLn
 op2 "IO::print" = op2Print hPutStr
-op2 "BUILDALL" = op1WalkAll id "BUILD"
+op2 "BUILDALL" = op1WalkAll reverse "BUILD"
 op2 other = \_ _ -> fail ("Unimplemented binaryOp: " ++ other)
 
 op2Print :: (Handle -> String -> IO ()) -> Val -> Val -> Eval Val
