@@ -585,18 +585,6 @@ escaped = concatMap esc
 preludePIR :: Doc
 preludePIR = emit $
     -- [ include "interpinfo.pasm"
-{-
-    , sub "&run_END" []
-        [ tempPMC <-- "find_global" $ [lit "@*END"]
-        , InsLabel "run_END_loop"
-        , tempINT <:= tempPMC
-        , "le" .- [tempINT, ExpLit . LitInt $ 0, bare "run_END_done"]
-        , tempPMC2 <-- "shift" $ [tempPMC]
-        , InsFun [] tempPMC2 []
-        , "goto" .- [bare "run_END_loop"]
-        , InsLabel "run_END_done"
-        ] --> [lit True]
--}
     -- Control flowy
     [ sub "&return" [slurpy arg0]
         [ InsNew tempPMC PerlArray
@@ -642,12 +630,6 @@ preludePIR = emit $
         [ tempSTR <-- "join" $ [lit "", arg0]
         , "print" .- [tempSTR]
         ] --> [lit True]
-{- XXX BROKEN
-    , sub "&say" [slurpy arg0]
-        [ "push" .- [arg0, lit "\n"]
-        , "&print" .& [arg0]
-        ]
--}
     , sub "&say" [slurpy arg0]
         [ tempSTR <-- "join" $ [lit "", arg0]
         , "print" .- [tempSTR]

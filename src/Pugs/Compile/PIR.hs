@@ -566,13 +566,19 @@ wrapSub _ = \body -> do
     tellIns $ "set_returns" .- sigList [tempPMC]
     tellIns $ "returncc" .- []
 
--- XXX - slurpiness
+prmToSig :: Param -> Sig
 prmToSig prm = MkSig (prmToArgs prm) . bare $ prmToIdent prm
+
+prmToArgs :: Param -> [ArgFlag]
 prmToArgs prm = combine 
     [ if isSlurpy prm then (MkArgSlurpyArray:) else id
     , if isOptional prm then (MkArgOptional:) else id
     ] []
+
+prmToIdent :: Param -> String
 prmToIdent = render . varText . paramName
+
+storeLex :: TParam -> Trans ()
 storeLex param = do
     let var = paramName prm
         name = prmToIdent prm
