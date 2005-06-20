@@ -15,35 +15,35 @@ import Pugs.Compile.PIR.Prelude (preludeStr)
 import Pugs.Prim.Eval
 
 #ifndef HADDOCK
-data PAST a where
-    PNil        :: PAST [a]
-    PNoop       :: PAST Stmt
+data PIL a where
+    PNil        :: PIL [a]
+    PNoop       :: PIL Stmt
 
-    PRaw        :: !Exp -> PAST Stmt -- XXX HACK!
-    PRawName    :: !VarName -> PAST Expression -- XXX HACK!
+    PRaw        :: !Exp -> PIL Stmt -- XXX HACK!
+    PRawName    :: !VarName -> PIL Expression -- XXX HACK!
 
-    PExp        :: !(PAST LValue) -> PAST Expression 
-    PLit        :: !(PAST Literal) -> PAST Expression
-    PPos        :: !Pos -> !Exp -> PAST a -> PAST a
-    PStmt       :: !(PAST Expression) -> PAST Stmt 
-    PThunk      :: !(PAST Expression) -> PAST Expression 
-    PBlock      :: !(PAST [Stmt]) -> PAST Expression 
+    PExp        :: !(PIL LValue) -> PIL Expression 
+    PLit        :: !(PIL Literal) -> PIL Expression
+    PPos        :: !Pos -> !Exp -> PIL a -> PIL a
+    PStmt       :: !(PIL Expression) -> PIL Stmt 
+    PThunk      :: !(PIL Expression) -> PIL Expression 
+    PBlock      :: !(PIL [Stmt]) -> PIL Expression 
 
-    PVal        :: !Val -> PAST Literal
-    PVar        :: !VarName -> PAST LValue
+    PVal        :: !Val -> PIL Literal
+    PVar        :: !VarName -> PIL LValue
 
-    PStmts      :: !(PAST Stmt) -> PAST [Stmt] -> PAST [Stmt]
-    PApp        :: !TCxt -> !(PAST Expression) -> ![PAST Expression] -> PAST LValue
-    PAssign     :: ![PAST LValue] -> !(PAST Expression) -> PAST LValue
-    PBind       :: ![PAST LValue] -> !(PAST Expression) -> PAST LValue
-    PPad        :: ![(VarName, PAST Expression)] -> !(PAST [Stmt]) -> PAST [Stmt]
+    PStmts      :: !(PIL Stmt) -> PIL [Stmt] -> PIL [Stmt]
+    PApp        :: !TCxt -> !(PIL Expression) -> ![PIL Expression] -> PIL LValue
+    PAssign     :: ![PIL LValue] -> !(PIL Expression) -> PIL LValue
+    PBind       :: ![PIL LValue] -> !(PIL Expression) -> PIL LValue
+    PPad        :: ![(VarName, PIL Expression)] -> !(PIL [Stmt]) -> PIL [Stmt]
 
-    PSub        :: !SubName -> ![TParam] -> !(PAST [Stmt]) -> PAST Decl
+    PSub        :: !SubName -> ![TParam] -> !(PIL [Stmt]) -> PIL Decl
 #endif
 
 data TParam = MkTParam
     { tpParam   :: !Param
-    , tpDefault :: !(Maybe (PAST Expression))
+    , tpDefault :: !(Maybe (PIL Expression))
     }
     deriving (Show, Typeable)
 
@@ -62,7 +62,7 @@ tcItem      = TCxtItem anyType
 tcSlurpy    = TCxtSlurpy anyType
 -}
 
-instance Show (PAST a) where
+instance Show (PIL a) where
     show (PVal x) = "(PVal " ++ show x ++ ")"
     show (PVar x) = "(PVar " ++ show x ++ ")"
     show (PLit x) = "(PLit " ++ show x ++ ")"
@@ -97,17 +97,17 @@ type CompMonad = EvalT (ContT Val (ReaderT Env SIO))
 type Trans a = WriterT [Stmt] (ReaderT TEnv IO) a
 type TransMonad = WriterT [Stmt] (ReaderT TEnv IO)
 
-{-| Currently only 'Exp' → 'PAST' -}
+{-| Currently only 'Exp' → 'PIL' -}
 class (Show a, Typeable b) => Compile a b where
     compile :: a -> Comp b
     compile x = fail ("Unrecognized construct: " ++ show x)
 
-{-| Currently only 'PAST' → 'PIR' -}
+{-| Currently only 'PIL' → 'PIR' -}
 class (Show a, Typeable b) => Translate a b | a -> b where
     trans :: a -> Trans b
     trans _ = fail "Untranslatable construct!"
 
-instance Compile (Var, [(TVar Bool, TVar VRef)]) (PAST Decl) where
+instance Compile (Var, [(TVar Bool, TVar VRef)]) (PIL Decl) where
     compile = compError
 
 instance Compile Param TParam where
@@ -120,12 +120,9 @@ instance Compile Param TParam where
             , tpDefault = defC
             }
 
-instance Compile Pad (PAST PIR) where
-    compile = compError
-
-{-| Compiles a 'Pad' to a list of 'PAST Decl's. Currently, only subroutines and
+{-| Compiles a 'Pad' to a list of 'PIL Decl's. Currently, only subroutines and
     @\@*END@ are compiled. -}
-instance Compile Pad [PAST Decl] where
+instance Compile Pad [PIL Decl] where
     compile pad = do
         entries' <- mapM canCompile entries
         return $ concat entries'
@@ -143,21 +140,21 @@ instance Compile Pad [PAST Decl] where
             ref     <- liftSTM $ readTVar sym
             cvList  <- fromVals =<< readRef ref :: Comp [VCode]
             decls   <- forM ([0..] `zip` cvList) $ \(i :: Int, cv) -> do
-                compile (("&*END_" ++ show i), cv) :: Comp [PAST Decl]
+                compile (("&*END_" ++ show i), cv) :: Comp [PIL Decl]
             compile ("&*END", concat decls)
         canCompile _ = return []
         doCode name vsub = if subType vsub == SubPrim
             then return []
             else compile (name, vsub)
 
-instance Compile ([Char], [PAST Decl]) [PAST Decl] where
+instance Compile ([Char], [PIL Decl]) [PIL Decl] where
     compile (name, decls) = do
         let bodyC = [ PStmts . PStmt . PExp $ PApp tcVoid (PExp (PVar sub)) []
                     | PSub sub _ _ <- decls
                     ]
         return (PSub name [] (combine bodyC PNil):decls)
 
-instance Compile ([Char], VCode) [PAST Decl] where
+instance Compile ([Char], VCode) [PIL Decl] where
     compile (name, MkCode{ subBody = Syn "block" [body], subParams = params }) = do
         bodyC   <- enter cxtItemAny $ compile body
         paramsC <- mapM compile params
@@ -165,14 +162,14 @@ instance Compile ([Char], VCode) [PAST Decl] where
     compile x = compError x
 
 {-
-instance Compile [(TVar Bool, TVar VRef)] (PAST Expression) where
+instance Compile [(TVar Bool, TVar VRef)] (PIL Expression) where
     compile _ = return (PLit $ PVal undef)
 -}
 
-instance Compile (String, [(TVar Bool, TVar VRef)]) (PAST Expression) where
+instance Compile (String, [(TVar Bool, TVar VRef)]) (PIL Expression) where
     compile (name, _) = return $ PRawName name
 
-instance Compile Exp (PAST [Stmt]) where
+instance Compile Exp (PIL [Stmt]) where
     compile (Pos pos rest) = fmap (PPos pos rest) $ compile rest
     compile (Cxt cxt rest) = enter cxt $ compile rest
     compile (Stmts (Pad SMy pad exp) rest) = do
@@ -190,7 +187,7 @@ instance EnterClass CompMonad Cxt where
 instance EnterClass TransMonad TCxt where
     enter cxt = local (\e -> e{ tCxt = cxt })
 
-compileStmts :: Exp -> Comp (PAST [Stmt])
+compileStmts :: Exp -> Comp (PIL [Stmt])
 compileStmts exp = case exp of
     Stmts this Noop -> do
         thisC   <- compile this
@@ -207,10 +204,10 @@ compileStmts exp = case exp of
     Noop        -> return PNil
     _           -> compile (Stmts exp Noop)
 
-instance Compile Val (PAST Stmt) where
+instance Compile Val (PIL Stmt) where
     compile = fmap PStmt . compile . Val
 
-instance Compile Exp (PAST Stmt) where
+instance Compile Exp (PIL Stmt) where
     compile (Pos pos rest) = fmap (PPos pos rest) $ compile rest
     compile (Cxt cxt rest) = enter cxt $ compile rest
     compile Noop = return PNoop
@@ -256,7 +253,7 @@ instance (Compile a b, Compile a c, Compile a d) => Compile [a] (b, c, d) where
     compile [x, y, z] = do { x' <- compile x ; y' <- compile y; z' <- compile z; return (x', y', z') }
     compile x = compError x
 
-instance Compile Exp (PAST LValue) where
+instance Compile Exp (PIL LValue) where
     compile (Pos pos rest) = fmap (PPos pos rest) $ compile rest
     compile (Cxt cxt rest) = enter cxt $ compile rest
     compile (Var name) = return $ PVar name
@@ -300,7 +297,7 @@ instance Compile Exp (PAST LValue) where
         compile $ Syn "=" [lhs, App (Var op) Nothing [lhs, exp]]
     compile exp = compError exp
 
-compLoop :: Exp -> Comp (PAST LValue)
+compLoop :: Exp -> Comp (PIL LValue)
 compLoop (Syn name [cond, body]) = do
     cxt     <- askTCxt
     condC   <- compile cond
@@ -312,7 +309,7 @@ compLoop exp = compError exp
 {-| Compiles a conditional 'Syn' (@if@ and @unless@) to a call to an
     appropriate function call (@&statement_control:if@ or
     @&statement_control:unless@). -}
-compConditional :: Exp -> Comp (PAST LValue)
+compConditional :: Exp -> Comp (PIL LValue)
 compConditional (Syn name exps) = do
     [condC, trueC, falseC] <- compile exps
     funC    <- compile (Var $ "&statement_control:" ++ name)
@@ -320,8 +317,8 @@ compConditional (Syn name exps) = do
     return $ PApp cxt funC [condC, PThunk trueC, PThunk falseC]
 compConditional exp = compError exp
 
-{-| Compiles various 'Exp's to 'PAST Expression's. -}
-instance Compile Exp (PAST Expression) where
+{-| Compiles various 'Exp's to 'PIL Expression's. -}
+instance Compile Exp (PIL Expression) where
     compile (Pos pos rest) = fmap (PPos pos rest) $ compile rest
     compile (Cxt cxt rest) = enter cxt $ compile rest
     compile (Var name) = return . PExp $ PVar name
@@ -347,15 +344,15 @@ instance Compile Exp (PAST Expression) where
     compile exp = compError exp
 
 compError :: forall a b. Compile a b => a -> Comp b
-compError = die $ "Compile error -- invalid PAST "
+compError = die $ "Compile error -- invalid PIL "
     ++ (drop 12 . show $ typeOf (undefined :: b))
 
 transError :: forall a b. Translate a b => a -> Trans b
 transError = die $ "Translate error -- invalid "
     ++ (show $ typeOf (undefined :: b))
 
-{-| Compiles a 'Val' to a 'PAST Literal'. -}
-instance Compile Val (PAST Literal) where
+{-| Compiles a 'Val' to a 'PIL Literal'. -}
+instance Compile Val (PIL Literal) where
     compile val = return $ PVal val
 
 die :: (MonadIO m, Show a) => String -> a -> m b
@@ -367,10 +364,10 @@ warn :: (MonadIO m, Show a) => String -> a -> m ()
 warn str val = liftIO $ do
     hPutStrLn stderr $ "*** " ++ str ++ ":\n    " ++ show val
 
-instance Typeable1 PAST where
+instance Typeable1 PIL where
     typeOf1 _ = typeOf ()
 
-instance (Typeable a) => Translate (PAST a) a where
+instance (Typeable a) => Translate (PIL a) a where
     trans PNil = return []
     trans PNoop = return (StmtComment "")
     trans (PPos pos exp rest) = do
@@ -621,10 +618,10 @@ genPIR' = do
         opEval style "<prelude-pir>" preludeStr
     glob        <- askGlobal
     main        <- asks envBody
-    globPAST    <- compile glob
-    mainPAST    <- compile main
-    globPIR     <- runTransGlob tenv globPAST :: Eval [Decl]
-    mainPIR     <- runTransMain tenv mainPAST :: Eval [Stmt]
+    globPIL    <- compile glob
+    mainPIL    <- compile main
+    globPIR     <- runTransGlob tenv globPIL :: Eval [Decl]
+    mainPIR     <- runTransMain tenv mainPIL :: Eval [Stmt]
     return . VStr . unlines $
         [ "#!/usr/bin/env parrot"
         -- , renderStyle (Style PageMode 0 0) init
@@ -655,10 +652,10 @@ genPIR' = do
     style = MkEvalStyle{evalResult=EvalResultModule
                        ,evalError =EvalErrorFatal}
 
-runTransGlob :: TEnv -> [PAST Decl] -> Eval [Decl]
+runTransGlob :: TEnv -> [PIL Decl] -> Eval [Decl]
 runTransGlob tenv = mapM $ fmap fst . liftIO . (`runReaderT` tenv) . runWriterT . trans
 
-runTransMain :: TEnv -> PAST [Stmt] -> Eval [Stmt]
+runTransMain :: TEnv -> PIL [Stmt] -> Eval [Stmt]
 runTransMain tenv = fmap snd . liftIO . (`runReaderT` tenv) . runWriterT . trans
 
 initTEnv :: Eval TEnv
