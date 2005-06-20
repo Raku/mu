@@ -133,10 +133,10 @@ instance Emit Ins where
     emit (InsFun rets (ExpLit (LitStr name)) args) = emitFunName "invokecc" name args rets
     emit (InsFun rets fun args) = emitFun "invokecc" fun args rets
     emit (InsTailFun (ExpLit (LitStr name)) args) = emitFunName "tailcall" name args []
+    emit (InsTailFun fun args) = emitFun "tailcall" fun args []
     emit (InsExp _) = empty
     emit (InsLabel label) = nest (-2) (emit label <> colon)
     emit (InsComment comment ins) = emit (StmtComment comment) $+$ emit ins
-    emit x = error $ "can't emit ins: " ++ show x
 
 emitRets :: [Sig] -> Doc
 emitRets [] = empty

@@ -34,15 +34,15 @@ data PIL a where
 
     PExp        :: !(PIL LValue) -> PIL Expression 
     PLit        :: !(PIL Literal) -> PIL Expression
-    PPos        :: !Pos -> !Exp -> PIL a -> PIL a
+    PPos        :: !Pos -> !Exp -> !(PIL a) -> PIL a
     PStmt       :: !(PIL Expression) -> PIL Stmt 
     PThunk      :: !(PIL Expression) -> PIL Expression 
-    PCode       :: !SubType -> !(PIL [Stmt]) -> PIL Expression 
+    PCode       :: !SubType -> ![TParam] -> !(PIL [Stmt]) -> PIL Expression 
 
     PVal        :: !Val -> PIL Literal
     PVar        :: !VarName -> PIL LValue
 
-    PStmts      :: !(PIL Stmt) -> PIL [Stmt] -> PIL [Stmt]
+    PStmts      :: !(PIL Stmt) -> !(PIL [Stmt]) -> PIL [Stmt]
     PApp        :: !TCxt -> !(PIL Expression) -> ![PIL Expression] -> PIL LValue
     PAssign     :: ![PIL LValue] -> !(PIL Expression) -> PIL LValue
     PBind       :: ![PIL LValue] -> !(PIL Expression) -> PIL LValue
@@ -87,7 +87,7 @@ instance Show (PIL a) where
     show (PBind x y) = "(PBind " ++ show x ++ " " ++ show y ++ ")"
     show (PPad x y) = "(PPad " ++ show x ++ " " ++ show y ++ ")"
     show (PThunk x) = "(PThunk " ++ show x ++ ")"
-    show (PCode x y) = unwords ["(PCode", show x, show y, ")"]
+    show (PCode x y z) = unwords ["(PCode", show x, show y, show z, ")"]
     show (PRawName x) = "(PRawName " ++ show x ++ ")"
     show (PSub x y z w) = unwords ["(PSub", show x, show y, show z, show w, ")"]
 
@@ -166,7 +166,7 @@ instance Compile ([Char], [PIL Decl]) [PIL Decl] where
 instance Compile ([Char], VCode) [PIL Decl] where
     compile (name, MkCode{ subType = styp, subBody = Syn "block" [body], subParams = params }) = do
         bodyC   <- enter cxtItemAny $ compile body
-        paramsC <- mapM compile params
+        paramsC <- compile params
         return [PSub name styp paramsC bodyC]
     compile (name, code) = compile
         (name, code{ subBody = Syn "block" [subBody code] })
@@ -246,7 +246,7 @@ instance Compile Exp (PIL Stmt) where
     compile exp = fmap PStmt $ compile exp
 
 pBlock :: PIL [Stmt] -> PIL Expression
-pBlock = PCode SubBlock
+pBlock = PCode SubBlock []
 
 {-
 subTCxt :: VCode -> Eval TCxt
@@ -359,7 +359,8 @@ instance Compile Exp (PIL Expression) where
         bodyC   <- enter sub $ compile $ case subBody sub of
             Syn "block" [exp]   -> exp
             exp                 -> exp
-        return $ PCode (subType sub) bodyC
+        paramsC <- compile $ subParams sub
+        return $ PCode (subType sub) paramsC bodyC
     compile (Syn "for" _) = compile Noop -- XXX TODO
     compile (Syn "module" _) = compile Noop
     compile (Syn "match" exp) = compile $ Syn "rx" exp -- wrong
@@ -446,7 +447,7 @@ instance (Typeable a) => Translate (PIL a) a where
         thisC   <- trans this
         tell [thisC]
         trans rest
-    trans (PApp _ exp@(PCode _ _) []) = do
+    trans (PApp _ exp@(PCode _ _ _) []) = do
         blockC  <- trans exp
         tellIns $ [reg tempPMC] <-& blockC $ []
         return tempPMC
@@ -483,14 +484,18 @@ instance (Typeable a) => Translate (PIL a) a where
             expsC   <- trans exps
             return ([], (StmtPad (map fst pad `zip` valsC) expsC:))
     trans (PExp exp) = fmap ExpLV $ trans exp
-    trans (PCode styp body) = do
+    trans (PCode styp params body) = do
         [begC, endC] <- genLabel ["blockBegin", "blockEnd"]
         this    <- genPMC "block"
         tellIns $ "newsub" .- [reg this, bare ".Closure", bare begC]
         tellIns $ "goto" .- [bare endC]
         tellLabel begC
+        let prms = map tpParam params
+        mapM_ (tellIns . InsLocal RegPMC . prmToIdent) prms
+        tellIns $ "get_params" .- sigList (map prmToSig prms)
         tellIns $ "new_pad" .- [lit curPad]
         wrapSub styp $ do
+            mapM storeLex params
             trans body  -- XXX - consistency check
             bodyC   <- lastPMC
             tellIns $ "set_returns" .- retSigList [bodyC]
@@ -534,30 +539,6 @@ instance (Typeable a) => Translate (PIL a) a where
                 tellIns $ "set_returns" .- retSigList [bodyC]
                 tellIns $ "returncc" .- []
         return (DeclSub name [] stmts)
-        where
-        -- XXX - slurpiness
-        prmToSig prm = MkSig (prmToArgs prm) . bare $ prmToIdent prm
-        prmToArgs prm = combine 
-            [ if isSlurpy prm then (MkArgSlurpyArray:) else id
-            , if isOptional prm then (MkArgOptional:) else id
-            ] []
-        prmToIdent = render . varText . paramName
-        storeLex param = do
-            let var = paramName prm
-                name = prmToIdent prm
-                prm = tpParam param
-            -- deal with defaults
-            when (isOptional prm) $ do
-                [defC] <- genLabel ["defaultDone"]
-                tellIns $ "unless_null" .- [bare name, bare defC]
-                case tpDefault param of
-                    Nothing     -> tellIns $ InsNew (VAR name) PerlScalar
-                    (Just exp)  -> do
-                        expC <- trans exp
-                        -- compile it away
-                        tellIns $ VAR name <:= expC
-                tellLabel defC
-            tellIns $ "store_lex" .- [lit curPad, lit var, bare name]
     trans x = transError x
 
 fetchCC :: LValue -> Expression -> Trans ()
@@ -580,6 +561,30 @@ wrapSub _ = \body -> do
     tellIns $ tempPMC <:= ExpLV (KEYED (VAR "P5") (lit False))
     tellIns $ "set_returns" .- sigList [tempPMC]
     tellIns $ "returncc" .- []
+
+-- XXX - slurpiness
+prmToSig prm = MkSig (prmToArgs prm) . bare $ prmToIdent prm
+prmToArgs prm = combine 
+    [ if isSlurpy prm then (MkArgSlurpyArray:) else id
+    , if isOptional prm then (MkArgOptional:) else id
+    ] []
+prmToIdent = render . varText . paramName
+storeLex param = do
+    let var = paramName prm
+        name = prmToIdent prm
+        prm = tpParam param
+    -- deal with defaults
+    when (isOptional prm) $ do
+        [defC] <- genLabel ["defaultDone"]
+        tellIns $ "unless_null" .- [bare name, bare defC]
+        case tpDefault param of
+            Nothing     -> tellIns $ InsNew (VAR name) PerlScalar
+            (Just exp)  -> do
+                expC <- trans exp
+                -- compile it away
+                tellIns $ VAR name <:= expC
+        tellLabel defC
+    tellIns $ "store_lex" .- [lit curPad, lit var, bare name]
 
 tellIns :: Ins -> Trans ()
 tellIns = tell . (:[]) . StmtIns
