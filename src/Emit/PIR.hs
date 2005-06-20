@@ -1,10 +1,11 @@
 {-# OPTIONS_GHC -fglasgow-exts -fallow-overlapping-instances -fno-warn-orphans -funbox-strict-fields -cpp #-}
 
 module Emit.PIR where
-import Text.PrettyPrint
 import Data.Char
+import Data.List
 import Data.Typeable
 import Emit.Common
+import Text.PrettyPrint
 
 {-| PIR code consists of declarations. -}
 type PIR = [Decl]
@@ -541,6 +542,27 @@ callThunkCC fun =
     ]
 
 {-| Creates appropriate @&statement_control:foo@ subroutines. -}
+stmtControlLoop :: VarName     -- ^ Perl 6 name of the new sub
+                -> PrimName    -- ^ PIR opcode to use for branching
+                -> Decl        -- ^ Final declaration of the sub
+stmtControlLoop name comp = sub ("&statement_control:" ++ name) [arg0, arg1] $
+    if isPost then ["goto" .- [bare redoL]] else [] ++
+    [ InsLabel nextL
+    , [reg tempPMC] <-& arg0 $ []
+    , comp      .- [tempPMC, bare lastL]
+    , InsLabel redoL
+    , arg1      .& []
+    , "goto"    .- [bare nextL]
+    , InsLabel lastL
+    , "returncc" .- []
+    ]
+    where
+    nextL = ("sc_" ++ name ++ "_next")
+    lastL = ("sc_" ++ name ++ "_last")
+    redoL = ("sc_" ++ name ++ "_redo")
+    isPost = "post" `isPrefixOf` name
+
+{-| Creates appropriate @&statement_control:foo@ subroutines. -}
 stmtControlCond :: VarName     -- ^ Perl 6 name of the new sub
                 -> PrimName    -- ^ PIR opcode to use for branching
                 -> Decl        -- ^ Final declaration of the sub
@@ -613,6 +635,8 @@ preludePIR = emit $
         , InsLabel "sc_loop_last"
         , "returncc" .- []
         ]
+    , stmtControlLoop "while" "unless"
+    , stmtControlLoop "until" "if"
     , stmtControlCond "if" "unless"
     , stmtControlCond "unless" "if"
     , op2Logical "&&" "if"

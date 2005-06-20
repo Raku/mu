@@ -246,6 +246,8 @@ instance Compile Exp (PIL Stmt) where
     compile exp@(Syn "unless" _) = fmap (PStmt . PExp) $ compConditional exp
     compile exp@(Syn "while" _) = compLoop exp
     compile exp@(Syn "until" _) = compLoop exp
+    compile exp@(Syn "postwhile" _) = compLoop exp
+    compile exp@(Syn "postuntil" _) = compLoop exp
     compile (Syn "for" [exp, body]) = do
         expC    <- compile exp
         bodyC   <- compile body
@@ -330,8 +332,8 @@ instance Compile Exp (PIL LValue) where
 compLoop :: Exp -> Comp (PIL Stmt)
 compLoop (Syn name [cond, body]) = do
     cxt     <- askTCxt
-    condC   <- compile cond
-    bodyC   <- compile body
+    condC   <- enter (CxtItem $ mkType "Bool") $ compile cond
+    bodyC   <- enter CxtVoid $ compile body
     funC    <- compile (Var $ "&statement_control:" ++ name)
     return . PStmt . PExp $ PApp cxt funC [pBlock condC, pBlock bodyC]
 compLoop exp = compError exp
