@@ -343,7 +343,9 @@ instance Compile Exp (PIL Expression) where
     compile (Syn "sub" [Val (VCode sub)]) = do
         -- XXX I'd like to lambda lift... :-/
         _       <- askTCxt
-        bodyC   <- compile (subBody sub)
+        bodyC   <- compile $ case subBody sub of
+            Syn "block" [exp]   -> exp
+            exp                 -> exp
         return $ PBlock bodyC
     compile (Syn "for" _) = compile Noop -- XXX TODO
     compile (Syn "module" _) = compile Noop
@@ -472,17 +474,13 @@ instance (Typeable a) => Translate (PIL a) a where
     trans (PBlock body) = do
         [begC, endC] <- genLabel ["blockBegin", "blockEnd"]
         this    <- genPMC "block"
-        tellIns $ "newsub" .- [reg this, bare ".Continuation", bare begC]
+        tellIns $ "newsub" .- [reg this, bare ".Closure", bare begC]
         tellIns $ "goto" .- [bare endC]
         tellLabel begC
-        cc      <- genPMC "cc"
-        fetchCC cc (reg this)
         trans body  -- XXX - consistency check
         bodyC   <- lastPMC
-        tellIns $ if parrotBrokenXXX
-            then "store_global" .- [tempSTR, bodyC] -- XXX HACK
-            else "set_args" .- [lit "(0b10)", bodyC]
---      tellIns $ "invoke" .- [reg cc]
+        tellIns $ "set_returns" .- retSigList [bodyC]
+        tellIns $ "returncc" .- []
         tellLabel endC
         return (ExpLV this)
     trans (PThunk exp) = do
