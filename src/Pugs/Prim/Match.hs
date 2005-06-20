@@ -2,7 +2,7 @@
 {-# OPTIONS_GHC -#include "UnicodeC.h" #-}
 
 module Pugs.Prim.Match (
-    op2Match, rxSplit, matchFromMR
+    op2Match, rxSplit, rxSplit_n, matchFromMR
 ) where
 import Pugs.Internals
 import Pugs.Embed
@@ -173,4 +173,22 @@ rxSplit rx str = do
             let before = genericTake (matchFrom match) str
                 after  = genericDrop (matchTo match) str
             rest <- rxSplit rx after
+            return $ (VStr before:matchSubPos match) ++ rest
+
+-- duplicated for now, pending über-Haskell-fu
+
+rxSplit_n :: VRule -> String -> Int -> Eval [Val]
+rxSplit_n _ [] n = return []
+rxSplit_n rx str n = do
+    match <- str `doMatch` rx
+    if or [ ( n == 1 ), ( not (matchOk match) ) ] then return [VStr str] else do
+    if matchFrom match == matchTo match
+        then do
+            let (c:cs) = str
+            rest <- rxSplit_n rx (cs) (n-1)
+            return (VStr [c]:rest)
+        else do
+            let before = genericTake (matchFrom match) str
+                after  = genericDrop (matchTo match) str
+            rest <- rxSplit_n rx after (n-1)
             return $ (VStr before:matchSubPos match) ++ rest

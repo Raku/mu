@@ -963,6 +963,7 @@ op3 "rindex" = \x y z -> do
 
 op3 "splice" = \x y z -> do
     op4 "splice" x y z (VList [])
+op3 "split" = op3Split
 op3 "Any::new" = \t n _ -> do
     typ     <- fromVal t
     named   <- fromVal n
@@ -981,6 +982,23 @@ op3 "Any::new" = \t n _ -> do
     liftIO $ addFinalizer obj (objectFinalizer env obj)
     return obj
 op3 other = \_ _ _ -> fail ("Unimplemented 3-ary op: " ++ other)
+
+op3Split :: Val -> Val -> Val -> Eval Val
+op3Split x y z = do
+    val <- fromVal x
+    str <- fromVal y
+    limit <- fromVal z
+    case val of
+        VRule rx -> do
+            chunks <- rxSplit_n rx str limit
+            return $ VList chunks
+        _ -> do
+            delim <- fromVal val
+            return $ split' delim str
+    where
+    split' :: VStr -> VStr -> Val
+    split' [] xs = VList $ map (VStr . (:[])) xs
+    split' glue xs = VList $ map VStr $ split glue xs
 
 -- |Implementation of 4-arity primitive operators and functions.
 -- Only substr and splice
@@ -1434,6 +1452,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   List      pre     Str::split   safe   (Str: Rule)\
 \\n   List      pre     split   safe   (Str, Str)\
 \\n   List      pre     split   safe   (Rule, Str)\
+\\n   List      pre     split   safe   (Rule, Str, Int)\
 \\n   Str       spre    =       safe   (Any)\
 \\n   List      spre    =       safe   (Any)\
 \\n   Junction  list    |       safe   (Any|Junction)\
