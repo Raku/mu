@@ -1,7 +1,6 @@
 {-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -funbox-strict-fields -fallow-undecidable-instances -cpp #-}
 
-module Pugs.Compile.PIR (genPIR') where
-import Pugs.Compile.Parrot
+module Pugs.Compile.PIR (genPIR) where
 import Pugs.Internals
 import Pugs.AST
 import Pugs.AST.Internals
@@ -19,7 +18,6 @@ data PIL a where
     PNil        :: PIL [a]
     PNoop       :: PIL Stmt
 
-    PRaw        :: !Exp -> PIL Stmt -- XXX HACK!
     PRawName    :: !VarName -> PIL Expression -- XXX HACK!
 
     PExp        :: !(PIL LValue) -> PIL Expression 
@@ -78,7 +76,6 @@ instance Show (PIL a) where
     show (PPad x y) = "(PPad " ++ show x ++ " " ++ show y ++ ")"
     show (PThunk x) = "(PThunk " ++ show x ++ ")"
     show (PBlock x) = "(PBlock " ++ show x ++ ")"
-    show (PRaw x) = "(PRaw " ++ show x ++ ")"
     show (PRawName x) = "(PRawName " ++ show x ++ ")"
     show (PSub x y z) = "(PSub " ++ show x ++ " " ++ show y ++ " " ++ show z ++ ")"
 
@@ -174,7 +171,7 @@ instance Compile Exp (PIL [Stmt]) where
     compile (Cxt cxt rest) = enter cxt $ compile rest
     compile (Stmts (Pad SMy pad exp) rest) = do
         expC    <- compile $ mergeStmts exp rest
-        padC    <- mapM compile (padToList pad)
+        padC    <- compile $ padToList pad
         return $ PPad ((map fst (padToList pad)) `zip` padC) expC
     compile exp = compileStmts exp
 
@@ -493,12 +490,6 @@ instance (Typeable a) => Translate (PIL a) a where
         tellIns $ "invoke" .- [reg cc]
         tellLabel endC
         return (ExpLV this)
-    trans (PRaw exp) = do
-        env <- asks tEnv
-        raw <- liftIO $ runEvalIO env{ envStash = "$P0" } $ do
-            doc <- compile' exp
-            return $ VStr (render doc)
-        return $ StmtRaw (text $ vCast raw)
     trans (PRawName name) = do
         -- generate fresh supply and things...
         pmc     <- genName name
@@ -596,6 +587,13 @@ genName name = do
     tellIns $ InsNew (VAR var) (read $ render $ varInit name)
     return $ reg (VAR var)
 
+padSort :: (Var, [(TVar Bool, TVar VRef)]) -> (String, [(a, b)]) -> Ordering
+padSort ((a::[Char]), [(_, _)]) ((b::[Char]), [(_, _)])
+    | (head a == ':' && head b == '&') = LT
+    | (head b == ':' && head a == '&') = GT
+    | otherwise = GT
+padSort _ _ = EQ
+
 varText :: String -> Doc
 varText ('$':name)  = text $ "s__" ++ escaped name
 varText ('@':name)  = text $ "a__" ++ escaped name
@@ -610,16 +608,16 @@ varInit ('%':_) = text $ "PerlHash"
 varInit x       = error $ "invalid name: " ++ x
 
 {-| Compiles the current environment to PIR code. -}
-genPIR' :: Eval Val
-genPIR' = do
+genPIR :: Eval Val
+genPIR = do
     tenv        <- initTEnv
     -- Load the PIR Prelude.
-    local (\env -> env{envDebug = Nothing}) $ do
+    local (\env -> env{ envDebug = Nothing }) $ do
         opEval style "<prelude-pir>" preludeStr
     glob        <- askGlobal
     main        <- asks envBody
-    globPIL    <- compile glob
-    mainPIL    <- compile main
+    globPIL     <- compile glob
+    mainPIL     <- compile main
     globPIR     <- runTransGlob tenv globPIL :: Eval [Decl]
     mainPIR     <- runTransMain tenv mainPIL :: Eval [Stmt]
     return . VStr . unlines $

@@ -488,6 +488,15 @@ vop1nn p6name opname = vop1x p6name opname tempNUM tempNUM
 {-| Wrapper for a opcode which accepts and returns a @S@ register. -}
 vop1ss :: SubName -> PrimName -> Decl
 vop1ss p6name opname = vop1x p6name opname tempSTR tempSTR
+{-| Wrapper for a opcode which returns a @S@ register and accepts a @I@ register. -}
+vop1si :: SubName -> PrimName -> Decl
+vop1si p6name opname = vop1x p6name opname tempSTR tempINT
+{-| Wrapper for a opcode which returns a @I@ register and accepts a @S@ register. -}
+vop1is :: SubName -> PrimName -> Decl
+vop1is p6name opname = vop1x p6name opname tempINT tempSTR
+{-| Wrapper for a opcode which returns a @I@ register and accepts a @P@ register. -}
+vop1ip :: SubName -> PrimName -> Decl
+vop1ip p6name opname = vop1x p6name opname tempINT tempPMC
 
 {-| Wrapper for a opcode which accepts and returns @I@ registers. -}
 vop2iii :: SubName -> PrimName -> Decl
@@ -634,6 +643,7 @@ preludePIR = emit $
         , tempINT <:= arg0
         , "exit" .- [tempINT]
         ]
+    , vop1is "&system" "spawnw"
 
     -- Operators
     , sub "&infix:," [slurpy arg0]
@@ -700,8 +710,8 @@ preludePIR = emit $
         ] --> [rv]
 
     -- Strings
-    , vop1x "&chars" "length"     tempINT tempSTR
-    , vop1x "&bytes" "bytelength" tempINT tempSTR
+    , vop1is "&chars" "length"
+    , vop1is "&bytes" "bytelength"
     , sub "&prefix:\\" [arg0]
         [ tempPMC   <-- "new" $ [lit PerlRef, arg0]
         ] --> [rv]
@@ -727,8 +737,8 @@ preludePIR = emit $
         , InsNew rv PerlScalar
         , rv        <:= tempSTR2
         ] --> [rv]
-    , vop1x "&chr" "chr" tempSTR tempINT
-    , vop1x "&ord" "ord" tempINT tempSTR
+    , vop1si "&chr" "chr"
+    , vop1is "&ord" "ord"
     , vop2x "&infix:x" "repeat" tempSTR tempSTR tempINT
     , vop1ss "&lc" "downcase"
     , vop1ss "&uc" "upcase"
@@ -741,7 +751,7 @@ preludePIR = emit $
         [ InsNew tempPMC PerlScalar
         , arg0 <== tempPMC
         ] --> [arg0]
-    , vop1x "&defined" "defined" tempINT tempPMC
+    , vop1ip "&defined" "defined"
 {- XXX saying  hash
 -- causes error:imcc:syntax error, unexpected IREG, expecting '('
     , sub "&id" [arg0]
