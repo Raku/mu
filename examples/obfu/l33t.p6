@@ -1,4 +1,4 @@
-class l33t-0.0.2;
+class l33t-0.0.3;
 
 use v6;
 
@@ -167,7 +167,6 @@ method debug_interactive() returns Bool {
         return bool::true;
     }
     loop { print "$.ip> " } until (./debug_action(=<>) || $:runnable);
-    say "r>$:runnable";
     return $:runnable;
 }
 
@@ -190,7 +189,7 @@ method debug_help {
     r (run)    - continue running until next breakpoint
     s (step)   - single step [enter to keep stepping]
     t (trace)  - toggle trace prints [currently {$:trace ?? "ON" :: "OFF"}]
-    w NUM      - write NUM to position of MP
+    w PROG     - write program fragment PROG beginning at MP (changes MP)
     END;
 } # : f1x0rz v1m
 
@@ -219,6 +218,7 @@ method debug_action(Str $cmd is copy) returns Bool {
         when 'i' {
             say "(urr3nt (0nn3xxx10n: " ~ ($:coninfo // "stdio");
             say "tr4(3 m0de: " ~ ($:trace ?? "0n" :: "0ff");
+            return bool::true;
         };
         when rx:perl5<i>/^\s*ip\s*(([-+])?\d+)/ {
             if $1 { $.ip += $0 }
@@ -252,8 +252,8 @@ method debug_action(Str $cmd is copy) returns Bool {
             $:trace ^^= 1;
         };
         when 'q' { die "Debugger::QUIT" };  # q quit
-        when rx:perl5<i>/^\s*w\s*(\d+)/ {   # w write
-            @.mem[$.mp] = $0 % $CELLSIZE;            
+        when rx:perl5<i>/^\s*w\s*(.+)/ {    # w write
+            ./load($0);
             return bool::true;
         };
         say "$INSULT: wft iz $_?";
