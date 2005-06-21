@@ -40,6 +40,11 @@ if (-r $svn_entries) {
 $revision ||= 0;
 
 if ($revision != $old_revision) {
+  # As we've closed STDIN (filehandle #0), slot #0 is available for new
+  # filehandles again. If we opened a new file ($version_h) without turning
+  # "io" warnings off, perl will print "Filehandle STDIN reopened...", because
+  # our handle for $version_h got slot #0, like STDIN.
+  no warnings "io";
   open OUT, "> $version_h" or die $!;
   print OUT "#undef PUGS_SVN_REVISION\n";
   print OUT "#define PUGS_SVN_REVISION $revision\n";

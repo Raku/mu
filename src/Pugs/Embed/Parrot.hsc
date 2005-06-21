@@ -40,8 +40,8 @@ evalParrotFile file = do
     -- parrot -j is fatal on systems where jit is not supported,
     -- so we use the next fastest CGP core.
     args <- getEnv "PUGS_PARROT_OPTS"
-    let args' | isJust args = fromJust args
-              | otherwise   = "-C"
+    let args' | isJust args && fromJust args /= "" = fromJust args
+              | otherwise                          = "-C"
     rawSystem cmd [args', file]
     return ()
 
