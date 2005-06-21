@@ -140,7 +140,10 @@ eval_ok q{ $s = OughtaWork.bar; $v = $s($inv:)  },
 	"AUTOMETH - second", :todo<feature>;
 is($x, q[OughtaWork.bar number 3], "Returns correct var", :todo<feature>);
 
-# sanity test currently failing;
+# discovered bugs (TODO: write tests to track down:)
+
+# 1. changing the is($v, ...) to is($s(), ...) causes:
+
 #  pugs: cannot cast from VInt 1 to Pugs.AST.Internals.VCode
 
 # seems to work interactively though;
@@ -155,3 +158,12 @@ is($x, q[OughtaWork.bar number 3], "Returns correct var", :todo<feature>);
 # '& number 1'
 
 # further investigation required...
+
+# 2. named subs don't seem to get implicit arguments via $_ (actually
+#    as per S04 this seems to be design behaviour)
+
+# 3. Various nonsense with using a Package as an invocant in a method
+#    call
+
+# 4. Couldn't take ref of a method via &Package.foo
+
