@@ -92,12 +92,15 @@ Expanding this one level deeper:
     |   |-- Date               Date and time modules
     |   |-- File-Find          Traverse a directory tree
     |   |-- File-Spec          Portable File handling
+    |   |-- HTTP-Server-Simple Base class for simple CGI-capable HTTP servers
     |   |-- HTML-Entities      Encode/decode HTML entities
     |   |-- Kwid-Event-Parser  Event-based API (like XML SAX) for Kwid
     |   |-- Locale-KeyedText   Refer to UI strings by key
+    |   |-- Module-Pluggable-Fast  Find and load plugin modules
     |   |-- Net-IRC            IRC protocol implementation
     |   |-- POE                Experimental port of Perl 5 POE
     |   |-- Perl-MetaModel     Sketch of Perl 6 Object Meta Model
+    |   |-- Perldoc            Event-based API for Perldoc DOM
     |   |-- Pod-Event-Parser   Event-based API (like XML SAX) for POD
     |   |-- Set                Set calculus operators
     |   |-- Test               Testing support library
@@ -119,8 +122,9 @@ Expanding this one level deeper:
     |   `-- pugs               Docs for Pugs itself (XXXX: -> docs/?)
     |
     |-- modules            Perl 6 modules not working today; -> FreePAN
-    |   |-- Class-Events       XXXX: why is this still here?
-    |   `-- Sample-Module      XXXX: why is this still here?
+    |   |-- Class-Events       XXXX: why is this here?
+    |   |-- Grammars           XXXX: why is this here?
+    |   `-- Sample-Module      XXXX: why is this here?
     |
     |-- script             pugscc, the Pugs Compiler Compiler
     |
@@ -147,7 +151,7 @@ Expanding this one level deeper:
     |   |-- oo                 Object Oriented programming tests
     |   |-- packages           Tests for packages
     |   |-- operators          Operator tests
-    |   |-- pugsbugs           Tests for functionality known to be broken
+    |   |-- pugsbugs           Uncategorized tests for known broken behavior
     |   |-- pugsrun            Tests for pugs (as opposed to Perl 6)
     |   |-- rules              Perl 6 rule and Perl 5 regex tests
     |   |-- statements         Statement-level construct tests
