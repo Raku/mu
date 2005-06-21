@@ -588,7 +588,7 @@ storeLex param = do
     -- deal with defaults
     when (isOptional prm) $ do
         [defC] <- genLabel ["defaultDone"]
-        tellIns $ "if_null" .- [bare name, bare defC]
+        tellIns $ "unless_null" .- [bare name, bare defC]
         case tpDefault param of
             Nothing     -> tellIns $ InsNew (VAR name) PerlScalar
             (Just exp)  -> do
@@ -713,6 +713,9 @@ genPIR = do
                 , "store_global"    .- [lit "@ARGS", tempPMC]
                 , "store_global"    .- [lit "$*PROGRAM_NAME", tempPMC2]
                 , "store_global"    .- [lit "$PROGRAM_NAME", tempPMC2]
+                -- XXX wrong, should be lexical
+                , InsNew tempPMC PerlScalar
+                , "store_global"    .- [lit "$_", tempPMC]
                 ] ++ [ StmtRaw (text "main()"), StmtIns (lit "&exit" .& [lit0]) ]
             , text ".sub main @ANON"
             , nest 4 (emit mainPIR)
