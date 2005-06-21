@@ -240,7 +240,7 @@ src/perl5/perl5.o : src/perl5/perl5.h src/perl5/perlxsi.c src/perl5/perl5.c src/
 src/Pugs/Config.hs : util/PugsConfig.pm
 	\$(PERL) -Iutil -MPugsConfig -e "PugsConfig->write_config_module" > src/Pugs/Config.hs
 
-src/gen_prelude$Config{_exe} :
+src/gen_prelude$Config{_exe} : src/gen_prelude.hs
 	$ghc -O0 -o src/gen_prelude$Config{_exe} src/gen_prelude.hs
 
 src/Pugs/Prelude.hs : src/gen_prelude$Config{_exe} src/perl6/Prelude.pm
