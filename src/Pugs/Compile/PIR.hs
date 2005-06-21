@@ -588,7 +588,7 @@ storeLex param = do
     -- deal with defaults
     when (isOptional prm) $ do
         [defC] <- genLabel ["defaultDone"]
-        tellIns $ "unless_null" .- [bare name, bare defC]
+        tellIns $ "if_null" .- [bare name, bare defC]
         case tpDefault param of
             Nothing     -> tellIns $ InsNew (VAR name) PerlScalar
             (Just exp)  -> do
