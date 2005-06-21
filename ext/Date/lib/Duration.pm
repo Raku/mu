@@ -1,8 +1,9 @@
 
-role Duration;
+class Duration;
 
 has Date $.start;
 has Date $.end;
+
 has Num $.length;
 
 method add($self: Duration $duration) returns Duration {

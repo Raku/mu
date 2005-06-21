@@ -1,5 +1,7 @@
 
-role Date;
+class Date;
+
+# it's actually a role; after all, it defines no properties.
 
 # return floating point seconds relative to 1st Jan 2000, UTC
 method epoch($self:) returns Float {
