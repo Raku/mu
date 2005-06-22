@@ -323,7 +323,13 @@ slurpFile file = do
     where
     expandInc :: [FilePath] -> String -> IO String
     expandInc incs str = case breakOnGlue "\nuse " str of
-        Nothing -> return str
+        Nothing -> case breakOnGlue "\nrequire " str of
+            Nothing -> return str
+            Just (pre, post) -> do
+                let (mod, (_:rest)) = span (/= ';') (dropWhile isSpace post)
+                mod'    <- includeInc incs mod
+                rest'   <- expandInc incs rest
+                return $ pre ++ mod' ++ rest'
         Just (pre, post) -> do
             let (mod, (_:rest)) = span isAlphaNum (dropWhile isSpace post)
             mod'    <- includeInc incs mod
