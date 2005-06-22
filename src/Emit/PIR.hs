@@ -11,31 +11,50 @@ import Text.PrettyPrint
 type PIR = [Decl]
 
 data Decl
-    = DeclSub   !SubName ![SubFlag] ![Stmt]  -- ^ Subroutine declaration
-    | DeclNS    !PkgName                     -- ^ Namespace declaration
-    | DeclInc   !FilePath                    -- ^ @.include@ directive
+    = DeclSub       !SubName ![SubFlag] ![Stmt]  -- ^ Subroutine declaration
+    | DeclNS        !PkgName ![Decl]             -- ^ Namespace declaration
+    | DeclInc       !FilePath                    -- ^ @.include@ directive
     deriving (Show, Eq, Typeable)
 
 data Stmt
     = StmtComment   !String                  -- ^ Comment
     | StmtLine      !FilePath !Int           -- ^ @#line@ directive
-    | StmtIns       !Ins
-    | StmtPad       ![(VarName, Expression)] ![Stmt]
-    | StmtRaw       !Doc                     -- ^ Backdoor into
-                                             --   "Pugs.Compile.Parrot".
+    | StmtPad       ![(VarName, Expression)] ![Stmt]    -- ^ Lexical Pad
+    | StmtRaw       !Doc                     -- ^ Backdoor into raw @Doc@
+    | StmtIns       !Ins                     -- ^ Generic instructions
     deriving (Show, Eq, Typeable)
 
 data Ins
-    = InsLocal      !RegType !VarName               -- ^ Inserts a @.local@ directive
-    | InsNew        !LValue !ObjType                -- ^ Inserts a @new@ opcode
-    | InsBind       !LValue !Expression             -- ^ Inserts a @set@ opcode
-    | InsAssign     !LValue !Expression             -- ^ Inserts an @assign@ opcode
-    | InsExp        !Expression
-    | InsFun        ![Sig] !Expression ![Expression] -- ^ Inserts a function call
-    | InsTailFun    !Expression ![Expression]        -- ^ Inserts a tailcall
-    | InsPrim       !(Maybe LValue) !PrimName ![Expression]
-    | InsLabel      !LabelName                      -- ^ Inserts a label
-    | InsComment    !String !(Maybe Ins)            -- ^ Inserts a comment
+    = InsLocal      !RegType !VarName               -- ^ @.local@ directive
+    | InsNew        !LValue !ObjType                -- ^ @new@ opcode
+    | InsBind       !LValue !Expression             -- ^ @set@ opcode
+    | InsAssign     !LValue !Expression             -- ^ @assign@ opcode
+    | InsPrim       !(Maybe LValue) !PrimName ![Expression] -- ^ Other opcodes
+    | InsFun        ![Sig] !Expression ![Expression]-- ^ Function call
+    | InsTailFun    !Expression ![Expression]       -- ^ Tail call
+    | InsLabel      !LabelName                      -- ^ Label
+    | InsComment    !String !(Maybe Ins)            -- ^ Comment
+    | InsExp        !Expression                     -- ^ Generic expressions
+    deriving (Show, Eq, Typeable)
+
+data Expression
+    = ExpLV !LValue       -- ^ Variables
+    | ExpLit !Literal     -- ^ Literals
+    deriving (Show, Eq, Typeable)
+
+data LValue
+    = VAR !VarName        -- ^ A variable declared by @.local@
+    | PMC !Int            -- ^ PMC register /n/
+    | STR !Int            -- ^ String register /n/
+    | INT !Int            -- ^ Integer register /n/
+    | NUM !Int            -- ^ Number register /n/
+    | KEYED !LValue !Expression
+    deriving (Show, Eq, Typeable)
+
+data Literal
+    = LitStr !String      -- ^ A literal string
+    | LitInt !Integer     -- ^ A literal integer
+    | LitNum !Double      -- ^ A literal number
     deriving (Show, Eq, Typeable)
 
 {-| Tags a PIR subroutine definition with @\@MAIN@, @\@LOAD@, @\@ANON@,
@@ -44,14 +63,10 @@ data SubFlag = SubMAIN | SubLOAD | SubANON | SubMETHOD | SubMULTI [ObjType]
     deriving (Show, Eq, Typeable)
 
 data RegType
-    = RegInt                            -- ^ @I@ (integer) register
-    | RegNum                            -- ^ @N@ (number) register
-    | RegStr                            -- ^ @S@ (string) register
+    = RegInt                            -- ^ @I@ (Integer) register
+    | RegNum                            -- ^ @N@ (Number) register
+    | RegStr                            -- ^ @S@ (String) register
     | RegPMC                            -- ^ @P@ (PMC) register
-    deriving (Show, Eq, Typeable)
-
-{-| Appears to be unused. -}
-data RelOp = RelLT | RelLE | RelEQ | RelNE | RelGE | RelGT
     deriving (Show, Eq, Typeable)
 
 {-| A PMC type, which, for example, can be given as an argument to the @new@
@@ -68,29 +83,13 @@ type PrimName   = String
 type PkgName    = String
 type CallConv   = String
 
-data LValue
-    = VAR !VarName        -- ^ A variable declared by @.local@
-    | PMC !Int            -- ^ PMC register /n/
-    | STR !Int            -- ^ String register /n/
-    | INT !Int            -- ^ Integer register /n/
-    | NUM !Int            -- ^ Number register /n/
-    | KEYED !LValue !Expression
-    deriving (Show, Eq, Typeable)
-
-data Expression
-    = ExpLV !LValue
-    | ExpLit !Literal
-    deriving (Show, Eq, Typeable)
-
-data Literal
-    = LitStr !String      -- ^ A literal string
-    | LitInt !Integer     -- ^ A literal integer
-    | LitNum !Double      -- ^ A literal number
-    deriving (Show, Eq, Typeable)
-
 {-| Emits PIR code for declarations (namespace, include, or sub declarations). -}
 instance Emit Decl where
-    emit (DeclNS name) = emit ".namespace" <+> brackets (quotes $ emit name)
+    emit (DeclNS name decls) = vcat
+        [ emit ".namespace" <+> brackets (quotes $ emit name)
+        , emit decls
+        , emit ".namespace" <+> brackets (quotes $ emit "main")
+        ]
     emit (DeclInc name) = emit ".include" <+> (quotes $ emit name)
     emit (DeclSub name styps stmts)
         =  (emit ".sub" <+> doubleQuotes (emit $ quoted name) <+> commaSep styps)
@@ -206,8 +205,6 @@ infixl 4 <-&
 infixl 4 .&
 #endif
 
-{-| @.namespace@ directive. -}
-namespace :: PkgName -> Decl
 {-| @.include@ directive. -}
 include :: PkgName -> Decl
 {-| Short for 'InsBind' (binding). -}
@@ -223,7 +220,6 @@ include :: PkgName -> Decl
 {-| Calls an user-defined sub, ignoring any return values. -}
 (.&) :: Expression -> [Expression] -> Ins
 
-namespace = DeclNS
 include = DeclInc
 
 (<:=) = InsBind
@@ -236,6 +232,10 @@ include = DeclInc
 {-| Literal zero -}
 lit0 :: Expression
 lit0 = lit (0 :: Int)
+
+{-| @P5@ register -}
+errPMC :: (RegClass a) => a
+errPMC = reg (VAR "P5")
 
 {-| @$P0@ register -}
 nullPMC :: (RegClass a) => a
@@ -603,11 +603,8 @@ escaped :: String -> String
 escaped = concatMap esc
     where
     esc :: Char -> String
-    esc '|' = "_or_"
-    esc '&' = "_and_"
-    esc '?' = "_q_"
-    esc '_' = "__"
-    esc x = [x]
+    esc c | isAlphaNum c = [c]
+    esc c = ('_':show (ord c))
 
 {-| The Prelude, defining primitives like @&say@, @&infix:+@, etc. -}
 preludePIR :: Doc
@@ -616,7 +613,7 @@ preludePIR = emit $
     -- Control flowy
     , sub "&return" [slurpy arg0]
         [ InsNew tempPMC PerlArray
-        , (KEYED tempPMC (lit False)) <:= arg0
+        , (tempPMC `KEYED` lit False) <:= arg0
         , "throw" .- [tempPMC]
         ]
     , sub "&leave" [slurpy arg0]
@@ -652,10 +649,6 @@ preludePIR = emit $
     , sub "&nothing" [] []
 
     -- IO
-    , sub "&Pugs::Internals::sleep" [arg0]
-        [ tempNUM <:= arg0
-        , "sleep" .- [tempNUM]
-        ]
     , sub "&print" [slurpy arg0]
         [ tempSTR <-- "join" $ [lit "", arg0]
         , "print" .- [tempSTR]
@@ -665,11 +658,6 @@ preludePIR = emit $
         , "print" .- [tempSTR]
         , "print" .- [lit "\n"]
         ] --> [lit True]
-    , sub "&Pugs::Internals::exit" [arg0]
-        [ lit "&*END" .& []
-        , tempINT <:= arg0
-        , "exit" .- [tempINT]
-        ]
     , vop1is "&system" "spawnw"
 
     -- Operators
@@ -744,7 +732,7 @@ preludePIR = emit $
         ] --> [rv]
     , sub "&infix:=>" [arg0, arg1]
         [ InsNew rv PerlPair
-        , KEYED rv arg0 <:= arg1
+        , rv `KEYED` arg0 <:= arg1
         ] --> [rv]
     , sub "&infix:.." [arg0, arg1]
         [ tempINT   <:= arg0
@@ -812,8 +800,8 @@ preludePIR = emit $
         , rv        <== tempSTR2
         ] --> [rv]
 
-    --, namespace "Perl6::Internals"
-    , sub "&Pugs::Internals::symbolic_deref" [arg0, slurpy arg1]
+    , DeclNS "Perl6::Internals"
+    [ sub "&symbolic_deref" [arg0, slurpy arg1]
         -- find_name($arg0 ~ join "::", @arg1)
         [ tempSTR  <-- "join" $ [lit "::", arg1]
         , tempSTR2 <:= arg0
@@ -821,7 +809,16 @@ preludePIR = emit $
         -- XXX: Normalise tempSTR, i.e. "&infix:<+>" -> "&infix:+"
         , rv       <-- "find_name" $ [tempSTR]
         ] --> [rv]
-
+    , sub "&exit" [arg0]
+        [ lit "&*END" .& []
+        , tempINT <:= arg0
+        , "exit" .- [tempINT]
+        ]
+    , sub "&sleep" [arg0]
+        [ tempNUM <:= arg0
+        , "sleep" .- [tempNUM]
+        ]
+    ]
     -- Supporting Math::Basic
     , sub "&abs" [arg0]
         [ InsNew rv PerlScalar

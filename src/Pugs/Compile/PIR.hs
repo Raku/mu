@@ -1,4 +1,5 @@
-{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -funbox-strict-fields -fallow-undecidable-instances -cpp #-}
+{-# OPTIONS_GHC -fglasgow-exts -fallow-undecidable-instances -fno-warn-orphans -funbox-strict-fields -cpp #-}
+{-# OPTIONS_GHC -#include "UnicodeC.h" #-}
 
 {-|
     This module provides 'genPIR', a function which compiles the current
@@ -6,7 +7,7 @@
 
     The general plan is to first compile the environment (subroutines,
     statements, etc.) to an abstract syntax tree ('PIL' -- Pugs Intermediate
-    Representation) using the 'compile' function and 'Compile' class, and then
+    Language) using the 'compile' function and 'Compile' class, and then
     translate the PIL to a data structure of type 'PIR' using the 'trans'
     function and 'Translate' class. This data structure is then reduced to
     final PIR code by "Emit.PIR".
@@ -26,7 +27,8 @@ import Pugs.Compile.PIR.Prelude (preludeStr)
 import Pugs.Prim.Eval
 
 #ifndef HADDOCK
-data PIL a where
+-- Type-indexed with GADT; it is a bit too baroque -- refactor toward ANF?
+data (Typeable a) => PIL a where
     PNil        :: PIL [a]
     PNoop       :: PIL Stmt
 
@@ -46,7 +48,7 @@ data PIL a where
     PApp        :: !TCxt -> !(PIL Expression) -> ![PIL Expression] -> PIL LValue
     PAssign     :: ![PIL LValue] -> !(PIL Expression) -> PIL LValue
     PBind       :: ![PIL LValue] -> !(PIL Expression) -> PIL LValue
-    PPad        :: ![(VarName, PIL Expression)] -> !(PIL [Stmt]) -> PIL [Stmt]
+    PPad        :: !Scope -> ![(VarName, PIL Expression)] -> !(PIL [Stmt]) -> PIL [Stmt]
 
     PSub        :: !SubName -> !SubType -> ![TParam] -> !(PIL [Stmt]) -> PIL Decl
 #endif
@@ -85,19 +87,18 @@ instance Show (PIL a) where
     show (PStmt x) = "(PStmt " ++ show x ++ ")"
     show (PAssign x y) = "(PAssign " ++ show x ++ " " ++ show y ++ ")"
     show (PBind x y) = "(PBind " ++ show x ++ " " ++ show y ++ ")"
-    show (PPad x y) = "(PPad " ++ show x ++ " " ++ show y ++ ")"
     show (PThunk x) = "(PThunk " ++ show x ++ ")"
-    show (PCode x y z) = unwords ["(PCode", show x, show y, show z, ")"]
     show (PRawName x) = "(PRawName " ++ show x ++ ")"
+    show (PPad x y z) = unwords ["(PPad", show x, show y, show z, ")"]
+    show (PCode x y z) = unwords ["(PCode", show x, show y, show z, ")"]
     show (PSub x y z w) = unwords ["(PSub", show x, show y, show z, show w, ")"]
 
 data TEnv = MkTEnv
-    { tLexDepth :: !Int
-    , tTokDepth :: !Int
-    , tEnv      :: !Env
-    , tCxt      :: !TCxt
-    , tReg      :: !(TVar (Int, String))
-    , tLabel    :: !(TVar Int)
+    { tLexDepth :: !Int                 -- ^ Lexical scope depth
+    , tTokDepth :: !Int                 -- ^ Exp nesting depth
+    , tCxt      :: !TCxt                -- ^ Current context
+    , tReg      :: !(TVar (Int, String))-- ^ Register name supply
+    , tLabel    :: !(TVar Int)          -- ^ Label name supply
     }
     deriving (Show, Eq)
 
@@ -148,33 +149,50 @@ instance Compile Pad [PIL Decl] where
         canCompile ("@*END", [(_, sym)]) = do
             ref     <- liftSTM $ readTVar sym
             cvList  <- fromVals =<< readRef ref :: Comp [VCode]
-            decls   <- forM ([0..] `zip` cvList) $ \(i :: Int, cv) -> do
+            decls   <- eachM cvList $ \(i, cv) -> do
                 compile (("&*END_" ++ show i), cv) :: Comp [PIL Decl]
             compile ("&*END", concat decls)
+        canCompile ((_:twigil:_), _) | not (isAlphaNum twigil) = return []
+        canCompile (name, [(_, sym)]) = do
+            -- translate them into store_global calls?
+            -- placing them each into one separate init function?
+            val     <- readRef =<< liftSTM (readTVar sym)
+            valC    <- compile val
+            let assignC = PAssign [PVar name'] valC
+                bodyC   = PStmts (PStmt . PExp $ assignC) PNil
+                initL   = "__init_" ++ (render $ varText name)
+                name' | ':' `elem` name = name
+                      | otherwise = "main::" ++ name -- XXX wrong
+            return [PSub initL SubPrim [] bodyC]
         canCompile _ = return []
         doCode name vsub = case subBody vsub of
             Prim _  -> return []
             _       -> compile (name, vsub)
 
-instance Compile ([Char], [PIL Decl]) [PIL Decl] where
+eachM :: (Monad m) => [a] -> ((Int, a) -> m b) -> m [b]
+eachM = forM . ([0..] `zip`)
+
+instance Compile (SubName, [PIL Decl]) [PIL Decl] where
     compile (name, decls) = do
         let bodyC = [ PStmts . PStmt . PExp $ PApp tcVoid (PExp (PVar sub)) []
                     | PSub sub _ _ _ <- decls
                     ]
         return (PSub name SubPrim [] (combine bodyC PNil):decls)
 
-instance Compile ([Char], VCode) [PIL Decl] where
-    compile (name, MkCode{ subType = styp, subBody = Syn "block" [body], subParams = params }) = do
-        bodyC   <- enter cxtItemAny $ compile body
-        paramsC <- compile params
-        return [PSub name styp paramsC bodyC]
-    compile (name, code) = compile
-        (name, code{ subBody = Syn "block" [subBody code] })
-
-{-
-instance Compile [(TVar Bool, TVar VRef)] (PIL Expression) where
-    compile _ = return (PLit $ PVal undef)
--}
+instance Compile (SubName, VCode) [PIL Decl] where
+    compile (name, vsub) | packageOf name /= packageOf (subName vsub) = do
+        -- This is an export!  Huzzah Buzzah!
+        warn "export" (name, subName vsub)
+        let storeC  = PBind [PVar $ qualify name] (PExp . PVar . qualify $ subName vsub)
+            bodyC   = PStmts (PStmt . PExp $ storeC) PNil
+            exportL = "__export_" ++ (render $ varText name)
+        return [PSub exportL SubPrim [] bodyC]
+    compile (name, vsub) = do
+        bodyC   <- enter cxtItemAny . compile $ case subBody vsub of
+            Syn "block" [body]  -> body
+            body                -> body
+        paramsC <- compile $ subParams vsub
+        return [PSub name (subType vsub) paramsC bodyC]
 
 instance Compile (String, [(TVar Bool, TVar VRef)]) (PIL Expression) where
     compile (name, _) = return $ PRawName name
@@ -182,10 +200,12 @@ instance Compile (String, [(TVar Bool, TVar VRef)]) (PIL Expression) where
 instance Compile Exp (PIL [Stmt]) where
     compile (Pos pos rest) = fmap (PPos pos rest) $ compile rest
     compile (Cxt cxt rest) = enter cxt $ compile rest
-    compile (Stmts (Pad SMy pad exp) rest) = do
+    compile (Stmts (Pad SOur _ exp) rest) = do
+        compile $ mergeStmts exp rest
+    compile (Stmts (Pad _ pad exp) rest) = do
         expC    <- compile $ mergeStmts exp rest
         padC    <- compile $ padToList pad
-        return $ PPad ((map fst (padToList pad)) `zip` padC) expC
+        return $ PPad SMy ((map fst $ padToList pad) `zip` padC) expC
     compile exp = compileStmts exp
 
 class EnterClass m a where
@@ -207,7 +227,7 @@ compileStmts exp = case exp of
         return $ PStmts (tailCall thisC) PNil
         where
         tailCall (PStmt (PExp (PApp cxt fun args)))
-            = PStmt (PExp (PApp (TTailCall cxt) fun args))
+            = PStmt $ PExp $ PApp (TTailCall cxt) fun args
         tailCall (PPos pos exp x) = PPos pos exp (tailCall x)
         tailCall x = x
     Stmts this rest -> do
@@ -219,6 +239,9 @@ compileStmts exp = case exp of
 
 instance Compile Val (PIL Stmt) where
     compile = fmap PStmt . compile . Val
+
+instance Compile Val (PIL Expression) where
+    compile = compile . Val
 
 instance Compile Exp (PIL Stmt) where
     compile (Pos pos rest) = fmap (PPos pos rest) $ compile rest
@@ -241,7 +264,7 @@ instance Compile Exp (PIL Stmt) where
         bodyC   <- compile body
         postC   <- compile post
         funC    <- compile (Var "&statement_control:loop")
-        return $ PStmt $ PExp $ PApp TCxtVoid funC
+        return . PStmt . PExp $ PApp TCxtVoid funC
             [preC, pBlock condC, pBlock bodyC, pBlock postC]
     compile exp@(Syn "unless" _) = fmap (PStmt . PExp) $ compConditional exp
     compile exp@(Syn "while" _) = compLoop exp
@@ -252,7 +275,7 @@ instance Compile Exp (PIL Stmt) where
         expC    <- compile exp
         bodyC   <- compile body
         funC    <- compile (Var "&statement_control:for")
-        return $ PStmt $ PExp $ PApp TCxtVoid funC [expC, bodyC]
+        return . PStmt . PExp $ PApp TCxtVoid funC [expC, bodyC]
     compile (Syn "given" _) = compile (Var "$_") -- XXX
     compile (Syn "when" _) = compile (Var "$_") -- XXX
     compile exp = fmap PStmt $ compile exp
@@ -308,7 +331,7 @@ instance Compile Exp (PIL LValue) where
         argsC   <- enter cxtItemAny $ compile args
         return $ PApp cxt funC argsC
     compile exp@(Syn "if" _) = compConditional exp
-    compile (Syn "{}" (x:xs)) = compile (App (Var "&postcircumfix:{}") (Just x) xs)
+    compile (Syn "{}" (x:xs)) = compile $ App (Var "&postcircumfix:{}") (Just x) xs
     compile (Syn "[]" (x:xs)) = do
         compile (App (Var "&postcircumfix:[]") (Just x) xs)
     compile (Syn "," exps) = do
@@ -344,7 +367,7 @@ compLoop exp = compError exp
 compConditional :: Exp -> Comp (PIL LValue)
 compConditional (Syn name exps) = do
     [condC, trueC, falseC] <- compile exps
-    funC    <- compile (Var $ "&statement_control:" ++ name)
+    funC    <- compile $ Var ("&statement_control:" ++ name)
     cxt     <- askTCxt
     return $ PApp cxt funC [condC, PThunk trueC, PThunk falseC]
 compConditional exp = compError exp
@@ -354,15 +377,14 @@ instance Compile Exp (PIL Expression) where
     compile (Pos pos rest) = fmap (PPos pos rest) $ compile rest
     compile (Cxt cxt rest) = enter cxt $ compile rest
     compile (Var name) = return . PExp $ PVar name
-    compile exp@(Val (VCode _)) = compile (Syn "sub" [exp])
-    compile (Val val) = fmap PLit (compile val)
+    compile exp@(Val (VCode _)) = compile $ Syn "sub" [exp]
+    compile (Val val) = fmap PLit $ compile val
     compile Noop = compile (Val undef)
     compile (Syn "block" [body]) = do
         cxt     <- askTCxt
         bodyC   <- compile body
         return $ PExp $ PApp cxt (pBlock bodyC) []
     compile (Syn "sub" [Val (VCode sub)]) = do
-        -- XXX I'd like to lambda lift... :-/
         bodyC   <- enter sub $ compile $ case subBody sub of
             Syn "block" [exp]   -> exp
             exp                 -> exp
@@ -405,36 +427,44 @@ instance (Typeable a) => Translate (PIL a) a where
     trans PNil = return []
     trans PNoop = return (StmtComment "")
     trans (PPos pos exp rest) = do
-        -- tell [StmtLine (posName pos) (posBeginLine pos)]
-        dep <- asks tTokDepth
+        dep     <- asks tTokDepth
         tell [StmtComment $ (replicate dep ' ') ++ "{{{ " ++ pretty exp]
-        x   <- local (\e -> e{ tTokDepth = dep + 1 }) $ trans rest
+        expC    <- local (\e -> e{ tTokDepth = dep + 1 }) $ trans rest
         tell [StmtComment $ (replicate dep ' ') ++ "}}} " ++ pretty pos]
-        return x
+        return expC
     trans (PLit (PVal VUndef)) = do
         pmc     <- genLV "undef"
-        return (ExpLV pmc)
+        return $ ExpLV pmc
     trans (PLit lit) = do
         -- generate fresh supply and things...
         litC    <- trans lit
         pmc     <- genLV "lit"
         tellIns $ pmc <== ExpLit litC
-        return (ExpLV pmc)
+        return $ ExpLV pmc
     trans (PVal (VBool bool)) = return $ LitInt (toInteger $ fromEnum bool)
     trans (PVal (VStr str)) = return $ LitStr str
     trans (PVal (VInt int)) = return $ LitInt int
     trans (PVal (VNum num)) = return $ LitNum num
     trans (PVal (VRat rat)) = return $ LitNum (ratToNum rat)
     trans val@(PVal _) = transError val
+    trans (PVar name) | Just (pkg, name') <- isQualified name = do
+        -- XXX - this is terribly ugly.  Fix at parrot side perhaps?
+        pmc     <- genLV "glob"
+        let initL   = "init_" ++ pmcStr
+            doneL   = "done_" ++ pmcStr
+            pmcStr  = render (emit pmc)
+        tellIns $ "push_eh" .- [bare initL]
+        tellIns $ pmc <-- "find_global" $ [lit pkg, lit name']
+        tellIns $ "goto" .- [bare doneL]
+        tellLabel initL
+        tellIns $ "store_global" .- [lit pkg, lit name', reg pmc]
+        tellLabel doneL
+        tellIns $ "clear_eh" .- []
+        return pmc
     trans (PVar name) = do
-        pmc     <- genLV "var"
+        pmc     <- genLV "lex"
         tellIns $ pmc <-- "find_name" $ [lit $ possiblyFixOperatorName name]
         return pmc
-{- XXX - this interferes with the prototype checking :-(
-    trans (PStmt (PExp (PApp TCxtVoid (PExp (PVar name)) args))) = do
-        argsC   <- mapM trans args
-        return $ StmtIns $ InsFun [] (lit name) argsC
--}
     trans (PStmt (PLit (PVal VUndef))) = return $ StmtComment ""
     trans (PStmt exp) = do
         expC    <- trans exp
@@ -457,14 +487,15 @@ instance (Typeable a) => Translate (PIL a) a where
         blockC  <- trans exp
         tellIns $ [reg tempPMC] <-& blockC $ []
         return tempPMC
-    trans (PApp (TCxtLValue _) (PExp (PVar "&postcircumfix:[]")) [(PExp lhs), rhs]) = do
+    trans (PApp (TCxtLValue _) (PExp (PVar "&postcircumfix:[]")) [PExp lhs, rhs]) = do
         lhsC    <- trans lhs
         rhsC    <- trans rhs
-        return (KEYED lhsC rhsC) 
+        return $ lhsC `KEYED` rhsC
     trans (PApp cxt fun args) = do
-        funC    <- case fun of
+        funC    <- trans fun {- case fun of
             PExp (PVar name) -> return $ lit name
             _           -> trans fun
+        -}
         argsC   <- if isLogicalLazy fun
             then mapM trans (head args : map PThunk (tail args))
             else mapM trans args
@@ -484,18 +515,18 @@ instance (Typeable a) => Translate (PIL a) a where
         isLogicalLazy (PExp (PVar "&infix:||"))     = True
         isLogicalLazy (PExp (PVar "&infix:&&"))     = True
         isLogicalLazy _ = False
-    trans (PPad pad exps) = do
+    trans (PPad SMy pad exps) = do
         valsC   <- mapM trans (map snd pad)
         pass $ do
             expsC   <- trans exps
             return ([], (StmtPad (map fst pad `zip` valsC) expsC:))
     trans (PExp exp) = fmap ExpLV $ trans exp
     trans (PCode styp params body) = do
-        [begC, endC] <- genLabel ["blockBegin", "blockEnd"]
+        [begL, endL] <- genLabel ["blockBegin", "blockEnd"]
         this    <- genPMC "block"
-        tellIns $ "newsub" .- [reg this, bare ".Closure", bare begC]
-        tellIns $ "goto" .- [bare endC]
-        tellLabel begC
+        tellIns $ "newsub" .- [reg this, bare ".Closure", bare begL]
+        tellIns $ "goto" .- [bare endL]
+        tellLabel begL
         let prms = map tpParam params
         mapM_ (tellIns . InsLocal RegPMC . prmToIdent) prms
         tellIns $ "get_params" .- sigList (map prmToSig prms)
@@ -506,32 +537,32 @@ instance (Typeable a) => Translate (PIL a) a where
             bodyC   <- lastPMC
             tellIns $ "set_returns" .- retSigList [bodyC]
             tellIns $ "returncc" .- []
-        tellLabel endC
+        tellLabel endL
         return (ExpLV this)
     trans (PThunk exp) = do
-        [begC, sndC, retC, endC] <- genLabel ["thunkBegin", "thunkAgain", "thunkReturn", "thunkEnd"]
+        [begL, sndL, retL, endL] <- genLabel ["thunkBegin", "thunkAgain", "thunkReturn", "thunkEnd"]
         this    <- genPMC "block"
-        tellIns $ "newsub" .- [reg this, bare ".Continuation", bare begC]
-        tellIns $ "goto" .- [bare endC]
-        tellLabel begC
+        tellIns $ "newsub" .- [reg this, bare ".Continuation", bare begL]
+        tellIns $ "goto" .- [bare endL]
+        tellLabel begL
         cc      <- genPMC "cc"
         fetchCC cc (reg this)
         expC    <- trans exp
-        tellIns $ "set_addr" .- [reg this, bare sndC]
-        tellIns $ "goto" .- [bare retC]
-        tellLabel sndC
+        tellIns $ "set_addr" .- [reg this, bare sndL]
+        tellIns $ "goto" .- [bare retL]
+        tellLabel sndL
         fetchCC cc (reg this)
-        tellLabel retC
+        tellLabel retL
         tellIns $ if parrotBrokenXXX
-            then "store_global" .- [tempSTR, expC] -- XXX HACK
+            then "store_global" .- [tempSTR, expC]
             else "set_args" .- [lit "(0b10)", expC]
         tellIns $ "invoke" .- [reg cc]
-        tellLabel endC
+        tellLabel endL
         return (ExpLV this)
-    trans (PRawName name) = do
-        -- generate fresh supply and things...
-        pmc     <- genName name
-        return (ExpLV pmc)
+    trans (PRawName name) = fmap ExpLV $ genName name
+    trans (PSub name styp params body) | Just (pkg, name') <- isQualified name = do
+        declC <- trans $ PSub name' styp params body
+        return $ DeclNS pkg [declC]
     trans (PSub name styp params body) = do
         (_, stmts)  <- listen $ do
             let prms = map tpParam params
@@ -547,9 +578,29 @@ instance (Typeable a) => Translate (PIL a) a where
         return (DeclSub name [] stmts)
     trans x = transError x
 
+packageOf :: String -> String
+packageOf name = case isQualified name of
+    Just (pkg, _)   -> pkg
+    _               -> "main"
+
+qualify :: String -> String
+qualify name = case isQualified name of
+    Just _  -> name
+    _       -> let (sigil, name') = span (not . isAlphaNum) name
+        in sigil ++ "main::" ++ name'
+
+isQualified :: String -> Maybe (String, String)
+isQualified name | Just (post, pre) <- breakOnGlue "::" (reverse name) =
+    let (sigil, pkg) = span (not . isAlphaNum) preName
+        name'       = possiblyFixOperatorName (sigil ++ postName)
+        preName     = reverse pre
+        postName    = reverse post
+    in Just (pkg, name')
+isQualified _ = Nothing
+
 fetchCC :: LValue -> Expression -> Trans ()
-fetchCC cc begC | parrotBrokenXXX = do
-    tellIns $ tempINT   <-- "get_addr" $ [begC]
+fetchCC cc begL | parrotBrokenXXX = do
+    tellIns $ tempINT   <-- "get_addr" $ [begL]
     tellIns $ tempSTR   <:= tempINT
     tellIns $ "find_global" .- [reg cc, tempSTR]
 fetchCC cc _ = do
@@ -560,32 +611,35 @@ wrapSub :: SubType -> Trans () -> Trans ()
 wrapSub SubPrim = id
 wrapSub SubBlock = id -- XXX not really
 wrapSub _ = \body -> do
-    [retL] <- genLabel ["returnHandler"]
+    [retL, errL] <- genLabel ["returnHandler", "errHandler"]
     tellIns $ "push_eh" .- [bare retL]
     body
     tellLabel retL
-    tellIns $ tempPMC <:= ExpLV (KEYED (VAR "P5") (lit False))
+    tellIns $ tempPMC <:= ExpLV (errPMC `KEYED` lit False)
+    tellIns $ "clear_eh" .- []
+    tellIns $ tempSTR <-- "typeof" $ [errPMC]
+    tellIns $ "eq" .- [tempSTR, lit "Exception", bare errL]
     tellIns $ "set_returns" .- sigList [tempPMC]
     tellIns $ "returncc" .- []
+    tellLabel errL
+    tellIns $ "throw" .- [errPMC]
 
 prmToSig :: Param -> Sig
 prmToSig prm = MkSig (prmToArgs prm) . bare $ prmToIdent prm
 
 prmToArgs :: Param -> [ArgFlag]
 prmToArgs prm = combine 
-    [ if isSlurpy prm then (MkArgSlurpyArray:) else id
-    , if isOptional prm then (MkArgOptional:) else id
+    [ isSlurpy   ==> MkArgSlurpyArray
+    , isOptional ==> MkArgOptional
     ] []
+    where
+    f ==> arg = if f prm then (arg:) else id
 
 prmToIdent :: Param -> String
 prmToIdent = render . varText . paramName
 
 storeLex :: TParam -> Trans ()
 storeLex param = do
-    let var = paramName prm
-        name = prmToIdent prm
-        prm = tpParam param
-    -- deal with defaults
     when (isOptional prm) $ do
         [defC] <- genLabel ["defaultDone"]
         tellIns $ "unless_null" .- [bare name, bare defC]
@@ -597,6 +651,10 @@ storeLex param = do
                 tellIns $ VAR name <:= expC
         tellLabel defC
     tellIns $ "store_lex" .- [lit curPad, lit var, bare name]
+    where
+    var     = paramName prm
+    name    = prmToIdent prm
+    prm     = tpParam param
 
 tellIns :: Ins -> Trans ()
 tellIns = tell . (:[]) . StmtIns
@@ -610,7 +668,7 @@ lastPMC = do
     tvar    <- asks tReg
     name'   <- liftIO $ liftSTM $ do
         (cur, name) <- readTVar tvar
-        return $ "P" ++ show cur ++ (if null name then name else ('_':name))
+        return $ ('P':show cur) ++ (if null name then name else ('_':name))
     return $ reg (VAR name')
 
 genPMC :: (RegClass a) => String -> Trans a
@@ -619,7 +677,7 @@ genPMC name = do
     name'   <- liftIO $ liftSTM $ do
         (cur, _) <- readTVar tvar
         writeTVar tvar (cur + 1, name)
-        return $ "P" ++ show (cur + 1) ++ "_" ++ name
+        return $ ('P':show (cur + 1)) ++ ('_':name)
     tellIns $ InsLocal RegPMC name'
     return $ reg (VAR name')
 
@@ -636,7 +694,7 @@ genLabel names = do
         cur <- readTVar tvar
         writeTVar tvar (cur + 1)
         return cur
-    return $ map (\name -> "LABEL_" ++ show cnt ++ "_" ++ name) names
+    return $ map (\name -> "LABEL_" ++ show cnt ++ ('_':name)) names
 
 genName :: (RegClass a) => String -> Trans a
 genName name = do
@@ -646,7 +704,7 @@ genName name = do
     return $ reg (VAR var)
 
 padSort :: (Var, [(TVar Bool, TVar VRef)]) -> (String, [(a, b)]) -> Ordering
-padSort ((a::[Char]), [(_, _)]) ((b::[Char]), [(_, _)])
+padSort (a, [(_, _)]) (b, [(_, _)])
     | (head a == ':' && head b == '&') = LT
     | (head b == ':' && head a == '&') = GT
     | otherwise = GT
@@ -677,54 +735,55 @@ genPIR = do
     main        <- asks envBody
     globPIL     <- compile glob
     mainPIL     <- compile main
-    globPIR     <- runTransGlob tenv globPIL :: Eval [Decl]
-    mainPIR     <- runTransMain tenv mainPIL :: Eval [Stmt]
+    globPIR     <- runTransGlob tenv globPIL
+    mainPIR     <- runTransMain tenv mainPIL
     return . VStr . unlines $
         [ "#!/usr/bin/env parrot"
-        -- , renderStyle (Style PageMode 0 0) init
         , renderStyle (Style PageMode 0 0) $ preludePIR $+$ vcat
-            -- Namespaces have bugs in both pugs and parrot.
-            -- [ emit $ namespace "main"
-            [ emit globPIR
-            , emit $ DeclSub "init" [SubMAIN, SubANON] $ map StmtIns
-                -- Eventually, we'll have to write our own find_name wrapper (or
-                -- fix Parrot's find_name appropriately). See Pugs.Eval.Var.
-                -- For now, we simply store $P0 twice.
-                [ "new_pad" .- [lit0]
-                , InsNew tempPMC PerlEnv
-                , "store_global"    .- [lit "%*ENV", tempPMC]
-                , "store_global"    .- [lit "%ENV", tempPMC]
-                , InsNew tempPMC PerlArray
-                , "store_global"    .- [lit "@*END", tempPMC]
-                , "store_global"    .- [lit "@END", tempPMC]
-                , "getstdin"        .- [tempPMC]
-                , "store_global"    .- [lit "$*IN", tempPMC]
-                , "store_global"    .- [lit "$IN", tempPMC]
-                , "getstdout"       .- [tempPMC]
-                , "store_global"    .- [lit "$*OUT", tempPMC]
-                , "store_global"    .- [lit "$OUT", tempPMC]
-                , "getstderr"       .- [tempPMC]
-                , "store_global"    .- [lit "$*ERR", tempPMC]
-                , "store_global"    .- [lit "$ERR", tempPMC]
-                , "getinterp"       .- [tempPMC]
-                , tempPMC   <:= ExpLV (KEYED tempPMC (bare ".IGLOBALS_ARGV_LIST"))
-                , tempPMC2  <-- "shift" $ [tempPMC]
-                , "store_global"    .- [lit "@*ARGS", tempPMC]
-                , "store_global"    .- [lit "@ARGS", tempPMC]
-                , "store_global"    .- [lit "$*PROGRAM_NAME", tempPMC2]
-                , "store_global"    .- [lit "$PROGRAM_NAME", tempPMC2]
-                -- XXX wrong, should be lexical
-                , InsNew tempPMC PerlScalar
-                , "store_global"    .- [lit "$_", tempPMC]
-                ] ++ [ StmtRaw (text "main()"), StmtIns (lit "&exit" .& [lit0]) ]
-            , text ".sub main @ANON"
-            , nest 4 (emit mainPIR)
-            , text ".end"
+        -- Namespaces have bugs in both pugs and parrot.
+        [ emit globPIR
+        , emit $ DeclNS "main"
+        [ DeclSub "init" [SubMAIN, SubANON] $ map StmtIns
+            -- Eventually, we'll have to write our own find_name wrapper (or
+            -- fix Parrot's find_name appropriately). See Pugs.Eval.Var.
+            -- For now, we simply store $P0 twice.
+            [ "new_pad" .- [lit0]
+            , InsNew tempPMC PerlEnv
+            , "store_global"    .- [lit "%*ENV", tempPMC]
+            , "store_global"    .- [lit "%ENV", tempPMC]
+            , InsNew tempPMC PerlArray
+            , "store_global"    .- [lit "@*END", tempPMC]
+            , "store_global"    .- [lit "@END", tempPMC]
+            , "getstdin"        .- [tempPMC]
+            , "store_global"    .- [lit "$*IN", tempPMC]
+            , "store_global"    .- [lit "$IN", tempPMC]
+            , "getstdout"       .- [tempPMC]
+            , "store_global"    .- [lit "$*OUT", tempPMC]
+            , "store_global"    .- [lit "$OUT", tempPMC]
+            , "getstderr"       .- [tempPMC]
+            , "store_global"    .- [lit "$*ERR", tempPMC]
+            , "store_global"    .- [lit "$ERR", tempPMC]
+            , "getinterp"       .- [tempPMC]
+            , tempPMC   <:= ExpLV (tempPMC `KEYED` bare ".IGLOBALS_ARGV_LIST")
+            , tempPMC2  <-- "shift" $ [tempPMC]
+            , "store_global"    .- [lit "@*ARGS", tempPMC]
+            , "store_global"    .- [lit "@ARGS", tempPMC]
+            , "store_global"    .- [lit "$*PROGRAM_NAME", tempPMC2]
+            , "store_global"    .- [lit "$PROGRAM_NAME", tempPMC2]
+            -- XXX wrong, should be lexical
+            , InsNew tempPMC PerlScalar
+            , "store_global"    .- [lit "$_", tempPMC]
+            ] ++ [ StmtRaw (text (name ++ "()")) | PSub name@('_':'_':_) _ _ _ <- globPIL ] ++
+            [ StmtRaw (text "main()")
+            , StmtIns ("exit" .- [lit0])
             ]
-        ]
+        , DeclSub "main" [SubANON] [ StmtRaw $ nest 4 (emit mainPIR) ]
+        ] ] ]
     where
-    style = MkEvalStyle{evalResult=EvalResultModule
-                       ,evalError =EvalErrorFatal}
+    style = MkEvalStyle
+        { evalResult = EvalResultModule
+        , evalError  = EvalErrorFatal
+        }
 
 runTransGlob :: TEnv -> [PIL Decl] -> Eval [Decl]
 runTransGlob tenv = mapM $ fmap fst . liftIO . (`runReaderT` tenv) . runWriterT . trans
@@ -734,14 +793,13 @@ runTransMain tenv = fmap snd . liftIO . (`runReaderT` tenv) . runWriterT . trans
 
 initTEnv :: Eval TEnv
 initTEnv = do
-    env         <- ask
-    zero        <- liftSTM $ newTVar (0, "")
-    none        <- liftSTM $ newTVar 0
+    initReg <- liftSTM $ newTVar (0, "")
+    initLbl <- liftSTM $ newTVar 0
     return $ MkTEnv
         { tLexDepth = 0
         , tTokDepth = 0
         , tCxt      = tcVoid
-        , tEnv      = env
-        , tReg      = zero
-        , tLabel    = none
+        , tReg      = initReg
+        , tLabel    = initLbl
         }
+

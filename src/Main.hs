@@ -300,7 +300,11 @@ printConfigInfo (item:_) = do
 	putStrLn $ createConfigLine item
 
 compPIR :: String -> IO ()
-compPIR = (putStr =<<) . doCompile "PIR" "-"
+compPIR prog = do
+    pir <- doCompile "PIR" "-" prog
+    putStr $ (subMain ++ (last $ split subMain pir))
+    where
+    subMain = ".sub main"
 
 runPIR :: String -> IO ()
 runPIR prog = do
