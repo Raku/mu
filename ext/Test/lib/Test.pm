@@ -202,13 +202,13 @@ sub proclaim (Bool $cond, Str ?$desc is copy, ?$todo, Str ?$got, Str ?$expected)
     # because we're preparing for a release.
     $context = "TODO for release" if $num_of_tests_run == $force_todo_test_junction;    
 
-    my $ok := $cond ?? "ok " :: "not ok ";
     my $out = $desc.defined ?? " - $desc" :: "";
     $out = "$out <pos:$?CALLER::CALLER::POSITION>" if $ALWAYS_CALLER;
 
     my $context_out = $context.defined ?? " # $context" :: "";
 
-    say $ok, $num_of_tests_run, $out, $context_out;
+    say "not " unless $cond;
+    say "ok ", $num_of_tests_run, $out, $context_out;
 
     report_failure($context, $got, $expected) unless $cond;
 

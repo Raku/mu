@@ -181,7 +181,7 @@ instance Compile (SubName, [PIL Decl]) [PIL Decl] where
 
 instance Compile (SubName, VCode) [PIL Decl] where
     compile (name, vsub) | packageOf name /= packageOf (subName vsub) = do
-        let storeC  = PAssign [PVar $ qualify name] (PExp . PVar . qualify $ subName vsub)
+        let storeC  = PBind [PVar $ qualify name] (PExp . PVar . qualify $ subName vsub)
             bodyC   = PStmts (PStmt . PExp $ storeC) PNil
             exportL = "__export_" ++ (render $ varText name)
         return [PSub exportL SubPrim [] bodyC]
@@ -472,6 +472,11 @@ instance (Typeable a) => Translate (PIL a) a where
         rhsC    <- trans rhs
         tellIns $ lhsC <== rhsC
         return lhsC
+    trans (PBind [PVar name] rhs)
+        | Just (pkg, name') <- isQualified (qualify name) = do
+        rhsC    <- trans rhs
+        tellIns $ "store_global" .- [lit pkg, lit name', rhsC]
+        trans (PVar name)
     trans (PBind [lhs] rhs) = do
         lhsC    <- enter tcLValue $ trans lhs
         rhsC    <- trans rhs
@@ -497,6 +502,12 @@ instance (Typeable a) => Translate (PIL a) a where
         argsC   <- if isLogicalLazy fun
             then mapM trans (head args : map PThunk (tail args))
             else mapM trans args
+        -- XXX WORKAROUND PARROT BUG (see below)
+        pmc     <- genLV "app"
+        -- XXX - probe if funC is slurpy, then modify ExpLV pmc accordingly
+        tellIns $ [reg pmc] <-& funC $ argsC
+        return pmc
+        {- XXX PARROT BUG -- tailcall broken
         case cxt of
             TTailCall _ -> do
                 tellIns $ InsTailFun funC argsC
@@ -506,6 +517,7 @@ instance (Typeable a) => Translate (PIL a) a where
                 -- XXX - probe if funC is slurpy, then modify ExpLV pmc accordingly
                 tellIns $ [reg pmc] <-& funC $ argsC
                 return pmc
+        -}
         where
         -- XXX HACK
         isLogicalLazy (PExp (PVar "&infix:or"))     = True
