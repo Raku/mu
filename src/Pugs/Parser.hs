@@ -476,10 +476,10 @@ ruleVarDeclaration = rule "variable declaration" $ do
             | otherwise = maybe emptyExp (\exp -> Syn sym [lhs, exp]) expMaybe
     -- state $x = 42 is really syntax sugar for state $x; FIRST { $x = 42 }
     case scope of
-	SState -> do
-	    implicit_first_block <- vcode2firstBlock $ VCode mkSub { subBody = rhs }
-	    return $ Pad scope lexDiff implicit_first_block
-	_      -> return $ Pad scope lexDiff rhs
+        SState -> do
+            implicit_first_block <- vcode2firstBlock $ VCode mkSub { subBody = rhs }
+            return $ Pad scope lexDiff implicit_first_block
+        _      -> return $ Pad scope lexDiff rhs
 
 ruleUseDeclaration :: RuleParser Exp
 ruleUseDeclaration = rule "use declaration" $ do
@@ -582,16 +582,17 @@ ruleClosureTrait rhs = rule "closure trait" $ do
     let code = VCode mkSub { subName = name, subBody = fun } 
     case name of
         "END"   -> do
-	    -- We unshift END blocks to @*END at compile-time.
-	    -- They're then run at the end of runtime or at the end of the
-	    -- whole program.
-	    unsafeEvalExp $ App (Var "&unshift") (Just $ Var "@*END") [Syn "sub" [Val code]]
+            -- We unshift END blocks to @*END at compile-time.
+            -- They're then run at the end of runtime or at the end of the
+            -- whole program.
+            unsafeEvalExp $ App (Var "&unshift") (Just $ Var "@*END") [Syn "sub" [Val code]]
+            return Noop
         "BEGIN" -> do
-	    -- We've to exit if the user has written code like BEGIN { exit }.
-	    possiblyExit =<< unsafeEvalExp (checkForIOLeak fun)
-	"CHECK" -> vcode2checkBlock code
-	"INIT"  -> vcode2initBlock code
-	"FIRST" -> vcode2firstBlock code
+            -- We've to exit if the user has written code like BEGIN { exit }.
+            possiblyExit =<< unsafeEvalExp (checkForIOLeak fun)
+        "CHECK" -> vcode2checkBlock code
+        "INIT"  -> vcode2initBlock code
+        "FIRST" -> vcode2firstBlock code
         _       -> fail ""
 
 {-| Wraps a call to @&Pugs::Internals::check_for_io_leak@ around the input
@@ -611,14 +612,14 @@ possiblyExit :: Exp -> RuleParser Exp
 possiblyExit (Val (VControl (ControlExit exit))) = do
     -- Run all @*END blocks...
     unsafeEvalExp $ Syn "for"
-	[ Var "@*END"
-	, Syn "sub"
-	    [ Val . VCode $ mkSub
-		{ subBody   = App (Var "$_") Nothing []
-		, subParams = [defaultScalarParam]
-		}
-	    ]
-	]
+        [ Var "@*END"
+        , Syn "sub"
+            [ Val . VCode $ mkSub
+                { subBody   = App (Var "$_") Nothing []
+                , subParams = [defaultScalarParam]
+                }
+            ]
+        ]
     -- ...and then exit.
     return $ unsafePerformIO $ exitWith exit
 possiblyExit x = return x
@@ -669,8 +670,8 @@ vcode2initOrCheckBlock magicalVar allowIOLeak code = do
     let possiblyCheck | allowIOLeak = id
                       | otherwise   = checkForIOLeak
     rv <- unsafeEvalExp $
-	-- BEGIN { push @?INIT, { FIRST {...} } }
-	App (Var "&push") (Just $ Var magicalVar)
+        -- BEGIN { push @?INIT, { FIRST {...} } }
+        App (Var "&push") (Just $ Var magicalVar)
             [ Syn "sub" [ Val $ VCode mkSub { subBody = possiblyCheck body }]]
     -- rv is the return value of the push. Now we extract the actual num out of it:
     let (Val (VInt elems)) = rv
@@ -1161,8 +1162,8 @@ ruleTypeVar :: RuleParser Exp
 ruleTypeVar = rule "type" $ try $ do
     -- We've to allow symbolic references with type vars, too.
     nameExps <- many1 $ do
-	string "::"
-	(parens ruleExpression) <|> (liftM (Val . VStr . concat) $ sequence [ruleTwigil, many1 wordAny])
+        string "::"
+        (parens ruleExpression) <|> (liftM (Val . VStr . concat) $ sequence [ruleTwigil, many1 wordAny])
     -- Optimization: We don't have to construct a symbolic deref syn (":::()"),
     -- but can use a simple Var, if nameExps consists of only one expression
     -- and this expression is a plain string, i.e. it is not a
@@ -1277,8 +1278,8 @@ ruleFoldOp = verbatimRule "reduce metaoperator" $ do
         , " eq ne lt le gt ge =:= "
         , " && !! "
         , " || ^^ // "
-	, " and nor or xor err "
-	, " .[] .{} "
+        , " and nor or xor err "
+        , " .[] .{} "
         ]
 
 parseParamList :: RuleParser (Maybe Exp, [Exp])
@@ -1629,7 +1630,7 @@ qLiteral = do -- This should include q:anything// as well as '' "" <>
         qLiteral1 (string "never match rb89fjLS") endMarker flags
 
 qLiteral1 :: RuleParser String    -- Opening delimiter
-	     -> RuleParser String -- Closing delimiter
+             -> RuleParser String -- Closing delimiter
              -> QFlags
              -> RuleParser Exp
 qLiteral1 qStart qEnd flags = do
@@ -1760,7 +1761,7 @@ qStructure :: RuleParser (RuleParser String, RuleParser String, QFlags)
 qStructure = 
     do string "q"
        flags <- do
-	   firstflag <- many alphaNum
+           firstflag <- many alphaNum
            allflags  <- many oneflag
            case firstflag of
                "" -> return allflags
@@ -1827,13 +1828,13 @@ rxLiteralAny adverbs
     = rxLiteral6
 
 rxLiteral5 :: Char -- ^ Openingd delimiter
-	     -> Char -- ^ Closing delimiter
+             -> Char -- ^ Closing delimiter
              -> RuleParser Exp
 rxLiteral5 delimStart delimEnd = qLiteral1 (string [delimStart]) (string [delimEnd]) $
         rxP5Flags { qfProtectedChar = delimEnd }
 
 rxLiteral6 :: Char -- ^ Opening delimiter
-	     -> Char -- ^ Closing delimiter
+             -> Char -- ^ Closing delimiter
              -> RuleParser Exp
 rxLiteral6 delimStart delimEnd = qLiteral1 (string [delimStart]) (string [delimEnd]) $
         rxP6Flags { qfProtectedChar = delimEnd }
