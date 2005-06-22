@@ -26,7 +26,7 @@ import Pugs.Shell
 import Pugs.Parser.Program
 import Pugs.Help
 import Pugs.Pretty
-import Pugs.Compile
+import Pugs.Trans
 import Pugs.Embed
 import qualified Data.Map as Map
 import Data.IORef
@@ -161,7 +161,7 @@ doCompile backend = doParseWith $ \env _ -> do
     globRef <- liftSTM $ do
         glob <- readTVar $ envGlobal env
         newTVar $ userDefined glob
-    compile backend env{ envGlobal = globRef }
+    translate backend env{ envGlobal = globRef }
 
 doCompileDump :: String -> FilePath -> String -> IO ()
 doCompileDump backend file prog = do
