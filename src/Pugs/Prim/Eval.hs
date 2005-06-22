@@ -1,8 +1,8 @@
 module Pugs.Prim.Eval (
     -- used by Pugs.Prim
     op1EvalHaskell,
-    opEval, opEvalfile,
-    opRequire,
+    opEval, opEvalFile,
+    opRequire, requireInc,
     EvalError(..), EvalResult(..), EvalStyle(..),
     -- used by Pugs.Eval -- needs factored somewhere bettwen
     retEvalResult, 
@@ -27,32 +27,35 @@ data EvalStyle = MkEvalStyle
 
 opRequire :: Bool -> Val -> Eval Val
 opRequire dumpEnv v = do
-    file    <- fromVal v
-    incs    <- fromVal =<< readVar "@*INC"
-    requireInc incs file (errMsg file incs)
+    file        <- fromVal v
+    incs        <- fromVal =<< readVar "@*INC"
+    pathName    <- requireInc incs file (errMsg file incs)
+    -- %*INC{file} = pathname
+    evalExp $ Syn "="
+        [ Syn "{}"
+            [ Var "%*INC", Val . VStr $ decodeUTF8 file ]
+            , Val . VStr $ decodeUTF8 pathName
+        ]
+    str         <- liftIO $ readFile pathName
+    opEval style pathName (decodeUTF8 str)
     where
     style = MkEvalStyle
         { evalError  = EvalErrorFatal
         , evalResult = (if dumpEnv == True then EvalResultEnv
                                            else EvalResultLastValue)}
     errMsg file incs = "Can't locate " ++ file ++ " in @*INC (@*INC contains: " ++ unwords incs ++ ")."
-    requireInc [] _ msg = fail msg
-    requireInc (p:ps) file msg = do
-        let pathName = p ++ "/" ++ file
-        ok <- liftIO $ doesFileExist pathName
-        if (not ok)
-            then requireInc ps file msg
-            else do
-                -- %*INC{file} = pathname
-                evalExp $
-                    Syn "=" [ Syn "{}" [ Var "%*INC", Val . VStr $ decodeUTF8 file ]
-                            , Val . VStr $ decodeUTF8 pathName
-                            ]
-                str <- liftIO $ readFile pathName
-                opEval style pathName (decodeUTF8 str)
 
-opEvalfile :: String -> Eval Val
-opEvalfile filename = do
+requireInc :: (MonadIO m) => [FilePath] -> FilePath -> String -> m String 
+requireInc [] _ msg = fail msg
+requireInc (p:ps) file msg = do
+    let pathName = p ++ "/" ++ file
+    ok <- liftIO $ doesFileExist pathName
+    if (not ok)
+        then requireInc ps file msg
+        else return pathName
+
+opEvalFile :: String -> Eval Val
+opEvalFile filename = do
     ok <- liftIO $ doesFileExist filename
     if (not ok)
         then fail $ "Can't locate " ++ filename ++ "."

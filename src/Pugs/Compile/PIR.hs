@@ -113,7 +113,7 @@ instance (Typeable a) => Translate (PIL a) a where
         lhsC    <- trans lhs
         rhsC    <- trans rhs
         return $ lhsC `KEYED` rhsC
-    trans (PApp cxt fun args) = do
+    trans (PApp _ fun args) = do
         funC    <- trans fun {- case fun of
             PExp (PVar name) -> return $ lit name
             _           -> trans fun

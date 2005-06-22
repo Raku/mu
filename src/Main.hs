@@ -28,6 +28,7 @@ import Pugs.Help
 import Pugs.Pretty
 import Pugs.Trans
 import Pugs.Embed
+import Pugs.Prim.Eval (requireInc)
 import qualified Data.Map as Map
 import Data.IORef
 
@@ -73,10 +74,10 @@ run ("-c":"-e":prog:_)          = doCheck "-e" prog
 run ("-c":file:_)               = readFile file >>= doCheck file
 
 run ("-C":backend:"-e":prog:_)           = doCompileDump backend "-e" prog
-run ("-C":backend:file:_)                = readFile file >>= doCompileDump backend file
+run ("-C":backend:file:_)                = slurpFile file >>= doCompileDump backend file
 
 run ("-B":backend:"-e":prog:_)           = doCompileRun backend "-e" prog
-run ("-B":backend:file:_)                = readFile file >>= doCompileRun backend file
+run ("-B":backend:file:_)                = slurpFile file >>= doCompileRun backend file
 
 run ("--external":mod:"-e":prog:_)    = doExternal mod "-e" prog
 run ("--external":mod:file:_)         = readFile file >>= doExternal mod file
@@ -311,3 +312,29 @@ runPIR prog = do
     pir <- doCompile "PIR" "-" prog
     writeFile "a.pir" pir
     evalParrotFile "a.pir"
+
+slurpFile :: FilePath -> IO String
+slurpFile file = do
+    prog <- readFile file
+    libs <- getLibs
+    file <- expandInc libs prog
+    -- writeFile "ZZZ" file
+    return file
+    where
+    expandInc :: [FilePath] -> String -> IO String
+    expandInc incs str = case breakOnGlue "\nuse " str of
+        Nothing -> return str
+        Just (pre, post) -> do
+            let (mod, (_:rest)) = span isAlphaNum (dropWhile isSpace post)
+            mod'    <- includeInc incs mod
+            rest'   <- expandInc incs rest
+            return $ pre ++ mod' ++ rest'
+    includeInc :: [FilePath] -> String -> IO String
+    includeInc _ ('v':_) = return []
+    includeInc incs name = do
+        let name' = concat (intersperse "/" names) ++ ".pm"
+            names = split "::" name
+        pathName    <- requireInc incs name' (errMsg name incs)
+        readFile pathName
+    errMsg file incs = "Can't locate " ++ file ++ " in @*INC (@*INC contains: " ++ unwords incs ++ ")."
+

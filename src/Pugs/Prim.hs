@@ -252,7 +252,7 @@ op1 "Pugs::Internals::eval" = \v -> do
                              ,evalError=EvalErrorUndef}
 op1 "evalfile" = \v -> do
     filename <- fromVal v
-    opEvalfile filename
+    opEvalFile filename
 op1 "Pugs::Internals::eval_perl5" = \v -> do
     str <- fromVal v
     env <- ask
