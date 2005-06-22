@@ -13,7 +13,7 @@
     final PIR code by "Emit.PIR".
 -}
 
-module Pugs.Compile.PIR (genPIR) where
+module Pugs.Trans.PIR (genPIR) where
 import Pugs.Internals
 import Pugs.AST
 import Pugs.AST.Internals
@@ -21,7 +21,7 @@ import Emit.Common
 import Emit.PIR
 import Pugs.Pretty
 import Text.PrettyPrint
-import Pugs.Compile.PIR.Prelude (preludeStr)
+import Pugs.Trans.PIR.Prelude (preludeStr)
 import Pugs.Prim.Eval
 import Pugs.Compile
 
@@ -388,16 +388,3 @@ runTransMain tenv = fmap snd . runTrans tenv
 
 runTrans :: (Translate a b) => TEnv -> a -> Eval (b, [Stmt])
 runTrans tenv = liftIO . (`runReaderT` tenv) . runWriterT . trans
-
-initTEnv :: Eval TEnv
-initTEnv = do
-    initReg <- liftSTM $ newTVar (0, "")
-    initLbl <- liftSTM $ newTVar 0
-    return $ MkTEnv
-        { tLexDepth = 0
-        , tTokDepth = 0
-        , tCxt      = tcVoid
-        , tReg      = initReg
-        , tLabel    = initLbl
-        }
-

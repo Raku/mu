@@ -9,7 +9,7 @@
 module Pugs.Trans (translate, backends) where
 import Pugs.AST
 import Pugs.Internals
-import Pugs.Compile.PIR (genPIR)
+import Pugs.Trans.PIR (genPIR)
 import Pugs.Compile.Pugs (genPugs)
 import Pugs.Compile.Haskell (genGHC)
 import qualified Data.Map as Map

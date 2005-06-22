@@ -440,3 +440,16 @@ isQualified name | Just (post, pre) <- breakOnGlue "::" (reverse name) =
         postName    = reverse post
     in Just (pkg, name')
 isQualified _ = Nothing
+
+initTEnv :: Eval TEnv
+initTEnv = do
+    initReg <- liftSTM $ newTVar (0, "")
+    initLbl <- liftSTM $ newTVar 0
+    return $ MkTEnv
+        { tLexDepth = 0
+        , tTokDepth = 0
+        , tCxt      = tcVoid
+        , tReg      = initReg
+        , tLabel    = initLbl
+        }
+
