@@ -181,8 +181,6 @@ instance Compile (SubName, [PIL Decl]) [PIL Decl] where
 
 instance Compile (SubName, VCode) [PIL Decl] where
     compile (name, vsub) | packageOf name /= packageOf (subName vsub) = do
-        -- This is an export!  Huzzah Buzzah!
-        warn "export" (name, subName vsub)
         let storeC  = PBind [PVar $ qualify name] (PExp . PVar . qualify $ subName vsub)
             bodyC   = PStmts (PStmt . PExp $ storeC) PNil
             exportL = "__export_" ++ (render $ varText name)
