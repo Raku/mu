@@ -181,7 +181,7 @@ instance Compile (SubName, [PIL Decl]) [PIL Decl] where
 
 instance Compile (SubName, VCode) [PIL Decl] where
     compile (name, vsub) | packageOf name /= packageOf (subName vsub) = do
-        let storeC  = PBind [PVar $ qualify name] (PExp . PVar . qualify $ subName vsub)
+        let storeC  = PAssign [PVar $ qualify name] (PExp . PVar . qualify $ subName vsub)
             bodyC   = PStmts (PStmt . PExp $ storeC) PNil
             exportL = "__export_" ++ (render $ varText name)
         return [PSub exportL SubPrim [] bodyC]
@@ -775,7 +775,7 @@ genPIR = do
             [ StmtRaw (text "main()")
             , StmtIns ("exit" .- [lit0])
             ]
-        , DeclSub "main" [SubANON] [ StmtRaw $ nest 4 (emit mainPIR) ]
+        , DeclSub "main" [SubANON] [ StmtRaw $ emit mainPIR ]
         ] ] ]
     where
     style = MkEvalStyle
