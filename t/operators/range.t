@@ -10,8 +10,8 @@ is ~(3..3), "3",       "(..) works (2)";
 is ~(3..2), "",        "(..) works (3)";
 
 {
-  my @array = 3...;
   skip 2, "Skipping hanging tests";
+  # my @array = 3...;
   # is @array[0], 3, "(...) works (1)";
   # is @array[3], 6, "(...) works (2)";
 }
