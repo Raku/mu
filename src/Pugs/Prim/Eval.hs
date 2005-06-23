@@ -5,13 +5,15 @@ module Pugs.Prim.Eval (
     opRequire, requireInc,
     EvalError(..), EvalResult(..), EvalStyle(..),
     -- used by Pugs.Eval -- needs factored somewhere bettwen
-    retEvalResult, 
+    retEvalResult, getLibs,
 ) where
 import Pugs.AST
 import Pugs.Parser.Program
 import Pugs.Embed
 import Pugs.Internals
 import Pugs.Pretty
+import Pugs.Config
+import Pugs.Run.Args
 
 data EvalError = EvalErrorFatal
                | EvalErrorUndef
@@ -100,4 +102,30 @@ retEvalResult style val = do
         _ -> do
             writeRef errSV VUndef
             return val
+
+{-|
+Combine @%*ENV\<PERL6LIB\>@, -I, 'Pugs.Config.config' values and \".\" into the
+@\@*INC@ list for 'Main.printConfigInfo'. If @%*ENV\<PERL6LIB\>@ is not set,
+@%*ENV\<PERLLIB\>@ is used instead.
+-}
+getLibs :: IO [String]
+getLibs = do
+    args    <- getArgs
+    p6lib   <- (getEnv "PERL6LIB") >>= (return . (fromMaybe ""))
+    plib    <- (getEnv "PERLLIB")  >>= (return . (fromMaybe ""))
+    let lib = if (p6lib == "") then plib else p6lib
+    return $ filter (not . null) (libs lib $ canonicalArgs args)
+    where
+    -- broken, need real parser
+    inclibs ("-I":dir:rest) = [dir] ++ inclibs(rest)
+    inclibs (_:rest)        = inclibs(rest)
+    inclibs ([])            = []
+    libs p6lib args = (inclibs args)
+              ++ (split (getConfig "path_sep") p6lib)
+              ++ [ getConfig "archlib"
+                 , getConfig "privlib"
+                 , getConfig "sitearch"
+                 , getConfig "sitelib"
+                 ]
+              ++ [ "." ]
 

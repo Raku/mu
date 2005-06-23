@@ -39,6 +39,7 @@ import Pugs.AST.Internals
 import Pugs.Junc
 import Pugs.Bind
 import Pugs.Prim
+import Pugs.Prim.Eval
 import Pugs.Prim.List (op0Zip)
 import Pugs.Context
 import Pugs.Monads

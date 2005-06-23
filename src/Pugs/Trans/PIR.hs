@@ -63,6 +63,7 @@ instance (Typeable a) => Translate (PIL a) a where
     trans (PVal (VInt int)) = return $ LitInt int
     trans (PVal (VNum num)) = return $ LitNum num
     trans (PVal (VRat rat)) = return $ LitNum (ratToNum rat)
+    trans (PVal (VList [])) = return $ LitInt 0 -- XXX Wrong
     trans val@(PVal _) = transError val
     trans (PVar name) | Just (pkg, name') <- isQualified name = do
         -- XXX - this is terribly ugly.  Fix at parrot side perhaps?
@@ -332,13 +333,14 @@ genPIR = do
     mainPIL     <- compile main
     globPIR     <- runTransGlob tenv globPIL
     mainPIR     <- runTransMain tenv mainPIL
+    libs        <- liftIO $ getLibs
     return . VStr . unlines $
         [ "#!/usr/bin/env parrot"
         , renderStyle (Style PageMode 0 0) $ preludePIR $+$ vcat
         -- Namespaces have bugs in both pugs and parrot.
         [ emit globPIR
         , emit $ DeclNS "main"
-        [ DeclSub "init" [SubMAIN, SubANON] $ map StmtIns
+        [ DeclSub "init" [SubMAIN, SubANON] $ map StmtIns (
             -- Eventually, we'll have to write our own find_name wrapper (or
             -- fix Parrot's find_name appropriately). See Pugs.Eval.Var.
             -- For now, we simply store $P0 twice.
@@ -346,6 +348,10 @@ genPIR = do
             , InsNew tempPMC PerlEnv
             , "store_global"    .- [lit "%*ENV", tempPMC]
             , "store_global"    .- [lit "%ENV", tempPMC]
+            , InsNew tempPMC PerlArray
+            ] ++ [ "push" .- [tempPMC, lit path] | path <- libs ] ++
+            [ "store_global"    .- [lit "@*INC", tempPMC]
+            , "store_global"    .- [lit "@INC", tempPMC]
             , InsNew tempPMC PerlArray
             , "store_global"    .- [lit "@*END", tempPMC]
             , "store_global"    .- [lit "@END", tempPMC]
@@ -368,7 +374,7 @@ genPIR = do
             -- XXX wrong, should be lexical
             , InsNew tempPMC PerlScalar
             , "store_global"    .- [lit "$_", tempPMC]
-            ] ++ [ StmtRaw (text (name ++ "()")) | PSub name@('_':'_':_) _ _ _ <- globPIL ] ++
+            ]) ++ [ StmtRaw (text (name ++ "()")) | PSub name@('_':'_':_) _ _ _ <- globPIL ] ++
             [ StmtRaw (text "main()")
             , StmtIns ("exit" .- [lit0])
             ]
