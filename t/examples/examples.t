@@ -22,7 +22,7 @@ my @examples = <
 >;
 
 plan +@examples;
-force_todo 1, 3;
+force_todo 1;
 
 # We can't run under win32 because of C<\> as path separator instead of C</>
 # -- awaiting v6 File::Spec

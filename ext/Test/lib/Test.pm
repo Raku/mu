@@ -207,7 +207,7 @@ sub proclaim (Bool $cond, Str ?$desc is copy, ?$todo, Str ?$got, Str ?$expected)
 
     my $context_out = $context.defined ?? " # $context" :: "";
 
-    say "not " unless $cond;
+    print "not " unless $cond;
     say "ok ", $num_of_tests_run, $out, $context_out;
 
     report_failure($context, $got, $expected) unless $cond;
