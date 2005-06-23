@@ -250,11 +250,11 @@ findSub name' invs args = do
     argSlurpLen :: Exp -> Eval Int
     argSlurpLen (Val listMVal) = do
         listVal  <- fromVal listMVal
-        return $ length (vCast listVal :: [Val])
+        fmap length (fromVal listVal :: Eval [Val])
     argSlurpLen (Var name) = do
         listMVal <- evalVar name
         listVal  <- fromVal listMVal
-        return $ length (vCast listVal :: [Val])
+        fmap length (fromVal listVal :: Eval [Val])
     argSlurpLen (Syn "," list) =  return $ length list
     argSlurpLen _ = return 1 -- XXX
     doFindSub :: Int -> [(String, Val)] -> Eval (Maybe VCode)

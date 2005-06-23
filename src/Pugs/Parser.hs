@@ -536,8 +536,8 @@ ruleInlineDeclaration = tryRule "inline declaration" $ do
     symbol "inline"
     args <- ruleExpression
     case args of
-        App (Var "&infix:=>") Nothing [Val key, Val val] -> do
-            return $ Syn "inline" $ map (Val . VStr . vCast) [key, val]
+        App (Var "&infix:=>") Nothing exp -> do
+            return $ Syn "inline" exp
         _ -> fail "not yet parsed"
 
 ruleRequireDeclaration :: RuleParser Exp

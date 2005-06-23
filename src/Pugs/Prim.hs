@@ -217,7 +217,7 @@ op1 "\\"   = \v -> do
         (VRef _)    -> v
         (VList vs)  -> VRef . arrayRef $ vs
         _           -> VRef . scalarRef $ v
-op1 "post:..."  = op1Cast op1Range
+op1 "post:..."  = op1Range
 op1 "true" = op1 "?"
 op1 "any"  = op1Cast opJuncAny
 op1 "all"  = op1Cast opJuncAll
@@ -750,10 +750,10 @@ op2 "=>" = \x y -> return $ castV (x, y)
 op2 "="  = \x y -> evalExp (Syn "=" [Val x, Val y])
 op2 "cmp"= op2Ord vCastStr
 op2 "<=>"= op2Ord vCastRat
-op2 ".." = op2Cast op2Range
-op2 "..^" = op2Cast op2RangeExclRight
-op2 "^.." = op2Cast op2RangeExclLeft
-op2 "^..^" = op2Cast op2RangeExclBoth
+op2 ".." = op2Range
+op2 "..^" = op2RangeExclRight
+op2 "^.." = op2RangeExclLeft
+op2 "^..^" = op2RangeExclBoth
 op2 "!=" = op2Cmp vCastRat (/=)
 op2 "==" = op2Cmp vCastRat (==)
 op2 "<"  = op2Cmp vCastRat (<)
@@ -803,10 +803,12 @@ op2 "reduce" = op2FoldL
 op2 "kill" = \s v -> do
     sig  <- fromVal s
     pids <- fromVals v
+    sig' <- fromVal sig
+    pids'<- mapM fromVal pids
     let doKill pid = do
-        signalProcess (toEnum $ vCast sig) (toEnum $ vCast pid)
+        signalProcess (toEnum sig') (toEnum pid)
         return 1
-    rets <- mapM (tryIO 0 . doKill) pids
+    rets <- mapM (tryIO 0 . doKill) pids'
     return . VInt $ sum rets
 op2 "does"  = op2 "isa" -- XXX not correct
 op2 "isa"   = \x y -> do
@@ -1049,28 +1051,50 @@ op4 "splice" = \x y z w -> do
 
 op4 other = \_ _ _ _ -> fail ("Unimplemented 4-ary op: " ++ other)
 
-op1Range :: Val -> Val
-op1Range (VStr s)    = VList $ map VStr $ strRangeInf s
-op1Range (VRat n)    = VList $ map VRat [n ..]
-op1Range (VNum n)    = VList $ map VNum [n ..]
-op1Range x           = VList $ map VInt [vCast x ..]
+op1Range :: Val -> Eval Val
+op1Range (VStr s)    = return . VList $ map VStr $ strRangeInf s
+op1Range (VRat n)    = return . VList $ map VRat [n ..]
+op1Range (VNum n)    = return . VList $ map VNum [n ..]
+op1Range (VInt n)    = return . VList $ map VInt [n ..]
+op1Range x           = do
+    int <- fromVal x
+    op1Range (VInt int)
 
-op2Range :: Val -> Val -> Val
-op2Range (VStr s) y  = VList $ map VStr $ strRange s (vCast y)
-op2Range (VNum n) y  = VList $ map VNum [n .. vCast y]
-op2Range x (VNum n)  = VList $ map VNum [vCast x .. n]
-op2Range (VRat n) y  = VList $ map VRat [n .. vCast y]
-op2Range x (VRat n)  = VList $ map VRat [vCast x .. n]
-op2Range x y         = VList $ map VInt [vCast x .. vCast y]
+op2Range :: Val -> Val -> Eval Val
+op2Range (VStr s) y  = do
+    y'  <- fromVal y
+    return . VList $ map VStr $ strRange s y'
+op2Range (VNum n) y  = do
+    y'  <- fromVal y
+    return . VList $ map VNum [n .. y']
+op2Range x (VNum n)  = do
+    x'  <- fromVal x
+    return . VList $ map VNum [x' .. n]
+op2Range (VRat n) y  = do
+    y'  <- fromVal y
+    return . VList $ map VRat [n .. y']
+op2Range x (VRat n)  = do
+    x'  <- fromVal x
+    return . VList $ map VRat [x' .. n]
+op2Range x y         = do
+    x'  <- fromVal x
+    y'  <- fromVal y
+    return . VList $ map VInt [x' .. y']
 
-op2RangeExclRight :: Val -> Val -> Val
-op2RangeExclRight x y = VList $ init $ vCast $ op2Range x y
+op2RangeExclRight :: Val -> Val -> Eval Val
+op2RangeExclRight x y = do
+    VList vals <- op2Range x y
+    return . VList $ init vals
 
-op2RangeExclLeft :: Val -> Val -> Val
-op2RangeExclLeft x y = VList $ tail $ vCast $ op2Range x y 
+op2RangeExclLeft :: Val -> Val -> Eval Val
+op2RangeExclLeft x y = do
+    VList vals <- op2Range x y
+    return . VList $ tail vals
 
-op2RangeExclBoth :: Val -> Val -> Val
-op2RangeExclBoth x y = VList $ tail $ init $ vCast $ op2Range x y
+op2RangeExclBoth :: Val -> Val -> Eval Val
+op2RangeExclBoth x y = do
+    VList vals <- op2Range x y
+    return . VList $ init (tail vals)
 
 op2ChainedList :: Val -> Val -> Val
 op2ChainedList x y

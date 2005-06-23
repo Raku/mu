@@ -56,7 +56,7 @@ module Pugs.AST.Internals (
     retError, retControl, retEmpty, retIVar, readIVar, writeIVar,
     fromVals, refType,
     lookupPad, padToList,
-    mkPrim, mkSub,
+    mkPrim, mkSub, showRat,
     cxtOfSigil, typeOfSigil,
     buildParam, defaultArrayParam, defaultHashParam, defaultScalarParam,
     emptyExp,
@@ -195,7 +195,7 @@ fromVal' (PerlSV sv) = do
     case v of
         PerlSV sv'  -> fromSV sv'   -- it was a SV
         val         -> fromVal val  -- it was a Val
-fromVal' v = return $ vCast v
+fromVal' v = doCast v
 
 {-|
 Typeclass indicating types that can be converted to\/from 'Val's.
@@ -205,19 +205,14 @@ Not to be confused with 'Val' itself, or the 'Exp' constructor @Val@.
 class (Typeable n, Show n, Ord n) => Value n where
     fromVal :: Val -> Eval n
     fromVal = fromVal'
+    doCast :: Val -> Eval n
+    doCast = castFailM
     fromSV :: PerlSV -> Eval n
     fromSV sv = do
         str <- liftIO $ svToVStr sv
         fail $ "cannot cast from SV (" ++ str ++ ") to " ++ errType (undefined :: n)
-    vCast :: Val -> n
-    vCast v@(VRef _)    = castFail v
-    {- vCast v             = doCast v -}
     castV :: n -> Val
     castV x = VOpaque (MkOpaque x) -- error $ "cannot cast into Val"
-{-    doCast :: Val -> n
-    doCast v = error $ "cannot cast from Val: " ++ show v -}
-    fmapVal :: (n -> n) -> Val -> Val
-    fmapVal f = castV . f . vCast
 
 errType :: (Typeable a) => a -> String
 errType x = show (typeOf x)
@@ -343,23 +338,24 @@ instance Value VCode where
                 [sv]    -> PerlSV sv
                 _       -> VList (map PerlSV rv)
         }
-    fromVal (VCode b) = return $ b
-    fromVal (VList [VCode b]) = return $ b -- XXX Wrong
+    doCast (VCode b) = return b
+    doCast (VList [VCode b]) = return b -- XXX Wrong
+    doCast v = castFailM v
 
 instance Value VBool where
     castV = VBool
     fromSV sv = liftIO $ svToVBool sv
-    fromVal (VJunc j)   = return $ juncToBool j
-    fromVal (VMatch m)  = return $ matchOk m
-    fromVal (VBool b)   = return $ b
-    fromVal VUndef      = return $ False
-    fromVal (VStr "")   = return $ False
-    fromVal (VStr "0")  = return $ False
-    fromVal (VInt 0)    = return $ False
-    fromVal (VRat 0)    = return $ False
-    fromVal (VNum 0)    = return $ False
-    fromVal (VList [])  = return $ False
-    fromVal _           = return $ True
+    doCast (VJunc j)   = juncToBool j
+    doCast (VMatch m)  = return $ matchOk m
+    doCast (VBool b)   = return $ b
+    doCast VUndef      = return $ False
+    doCast (VStr "")   = return $ False
+    doCast (VStr "0")  = return $ False
+    doCast (VInt 0)    = return $ False
+    doCast (VRat 0)    = return $ False
+    doCast (VNum 0)    = return $ False
+    doCast (VList [])  = return $ False
+    doCast _           = return $ True
 
 {-|
 Collapse a junction value into a single boolean value.
@@ -367,73 +363,79 @@ Collapse a junction value into a single boolean value.
 Works by recursively casting the junction members to booleans, then performing
 the actual junction test.
 -}
-juncToBool :: VJunc -> Bool
-juncToBool (MkJunc JAny  _  vs) = True `Set.member` Set.map vCast vs
-juncToBool (MkJunc JAll  _  vs) = not (False `Set.member` Set.map vCast vs)
-juncToBool (MkJunc JNone _  vs) = not (True `Set.member` Set.map vCast vs)
-juncToBool (MkJunc JOne  ds vs)
-    | True `Set.member` Set.map vCast ds
-    = False
-    | otherwise
-    = (1 ==) . length . filter vCast $ Set.elems vs
+juncToBool :: VJunc -> Eval Bool
+juncToBool (MkJunc JAny  _  vs) = do
+    bools <- mapM fromVal (Set.elems vs)
+    return . isJust $ find id bools
+juncToBool (MkJunc JAll  _  vs) = do
+    bools <- mapM fromVal (Set.elems vs)
+    return . isNothing $ find not bools
+juncToBool (MkJunc JNone _  vs) = do
+    bools <- mapM fromVal (Set.elems vs)
+    return . isNothing $ find id bools
+juncToBool (MkJunc JOne ds vs) = do
+    bools <- mapM fromVal (Set.elems ds)
+    if isJust (find id bools) then return False else do
+    bools <- mapM fromVal (Set.elems vs)
+    return $ 1 == (length $ filter id bools)
 
 instance Value VInt where
     castV = VInt
     fromSV sv = liftIO $ svToVInt sv
-    fromVal (VInt i)     = return $ i
-    fromVal x            = return $ truncate (vCast x :: VRat)
+    doCast (VInt i)     = return $ i
+    doCast x            = fmap truncate (fromVal x :: Eval VRat)
 
 instance Value VRat where
     castV = VRat
     fromSV sv = liftIO $ svToVNum sv
-    fromVal (VInt i)     = return $ i % 1
-    fromVal (VRat r)     = return $ r
-    fromVal (VBool b)    = return $ if b then 1 % 1 else 0 % 1
-    fromVal (VList l)    = return $ genericLength l
-    fromVal (VStr s) | not (null s) , isSpace $ last s = do
+    doCast (VInt i)     = return $ i % 1
+    doCast (VRat r)     = return $ r
+    doCast (VBool b)    = return $ if b then 1 % 1 else 0 % 1
+    doCast (VList l)    = return $ genericLength l
+    doCast (VStr s) | not (null s) , isSpace $ last s = do
         str <- fromVal (VStr $ init s)
         return str
-    fromVal (VStr s) | not (null s) , isSpace $ head s = do 
+    doCast (VStr s) | not (null s) , isSpace $ head s = do 
         str <- fromVal (VStr $ tail s)
         return str
-    fromVal (VStr s)     = return $
+    doCast (VStr s)     = return $
         case ( runParser naturalOrRat () "" s ) of
             Left _   -> 0 % 1
             Right rv -> case rv of
                 Left  i -> i % 1
                 Right d -> d
-    fromVal x            = return $ toRational (vCast x :: VNum)
+    doCast x            = fmap toRational (fromVal x :: Eval VNum)
 
 instance Value VNum where
     castV = VNum
     fromSV sv = liftIO $ svToVNum sv
-    fromVal VUndef       = return $ 0
-    fromVal (VBool b)    = return $ if b then 1 else 0
-    fromVal (VInt i)     = return $ fromIntegral i
-    fromVal (VRat r)     = return $ realToFrac r
-    fromVal (VNum n)     = return $ n
-    fromVal (VStr s) | not (null s) , isSpace $ last s = do
+    doCast VUndef       = return $ 0
+    doCast (VBool b)    = return $ if b then 1 else 0
+    doCast (VInt i)     = return $ fromIntegral i
+    doCast (VRat r)     = return $ realToFrac r
+    doCast (VNum n)     = return $ n
+    doCast (VStr s) | not (null s) , isSpace $ last s = do
         str <- fromVal (VStr $ init s)
         return str
-    fromVal (VStr s) | not (null s) , isSpace $ head s = do
+    doCast (VStr s) | not (null s) , isSpace $ head s = do
         str <- fromVal (VStr $ tail s)
         return str
-    fromVal (VStr "Inf") = return $ 1/0
-    fromVal (VStr "NaN") = return $ 0/0
-    fromVal (VStr s)     = return $
+    doCast (VStr "Inf") = return $ 1/0
+    doCast (VStr "NaN") = return $ 0/0
+    doCast (VStr s)     = return $
         case ( runParser naturalOrRat () "" s ) of
             Left _   -> 0
             Right rv -> case rv of
                 Left  i -> fromIntegral i
                 Right d -> realToFrac d
-    fromVal (VList l)     = return $ genericLength l
-    fromVal t@(VThread _) = return $ read $ vCast t
-    fromVal (VMatch m)    = return $ vCast (VStr $ matchStr m)
-    fromVal _             = return $ 0/0 -- error $ "cannot cast as Num: " ++ show x
+    doCast (VList l)     = return $ genericLength l
+    doCast t@(VThread _) = fmap read (fromVal t)
+    doCast (VMatch m)    = fromVal (VStr $ matchStr m)
+    doCast v             = castFailM v
 
 instance Value VComplex where
     castV = VComplex
-    fromVal x            = return $ (vCast x :: VNum) :+ 0
+    doCast x            = fmap (:+ 0) (fromVal x :: Eval VNum)
 
 instance Value VStr where
     castV = VStr
@@ -449,32 +451,35 @@ instance Value VStr where
             str <- fromVal v
             return $ k ++ "\t" ++ str
         return $ unlines lns
-    vCast VUndef        = ""
-    vCast (VStr s)      = s
-    vCast (VBool b)     = if b then "1" else ""
-    vCast (VInt i)      = show i
-    vCast (VRat r)
-        | frac == 0 = s ++ show quot
-        | otherwise = s ++ show quot ++ "." ++ showFrac frac
-        where
-        n = numerator r
-        d = denominator r
-        s = if signum n < 0 then "-" else ""
-        (quot, rem) = quotRem (abs n) d
-        frac :: VInt
-        frac = round ((rem * (10 ^ (40 :: VInt))) % d)
-        showFrac = reverse . dropWhile (== '0') . reverse . pad . show
-        pad x = (replicate (40 - length x) '0') ++ x
-    vCast (VNum n)      = showNum n
-    vCast (VList l)     = unwords $ map vCast l
-    vCast (VCode s)     = "<" ++ show (subType s) ++ "(" ++ subName s ++ ")>"
-    vCast (VJunc j)     = show j
-    vCast (VThread t)   = takeWhile isDigit $ dropWhile (not . isDigit) $ show t
-    vCast (VHandle h)   = "<" ++ "VHandle (" ++ (show h) ++ ">"
-    vCast (VMatch m)    = matchStr m
-    vCast (VType typ)   = showType typ -- "::" ++ showType typ
-    vCast (VObject o)   = "<obj:" ++ showType (objType o) ++ ">"
-    vCast x             = "<" ++ showType (valType x) ++ ">"
+    doCast VUndef        = return ""
+    doCast (VStr s)      = return s
+    doCast (VBool b)     = return $ if b then "1" else ""
+    doCast (VInt i)      = return $ show i
+    doCast (VRat r)      = return $ showRat r
+    doCast (VNum n)      = return $ showNum n
+    doCast (VList l)     = fmap unwords (mapM fromVal l)
+    doCast (VCode s)     = return $ "<" ++ show (subType s) ++ "(" ++ subName s ++ ")>"
+    doCast (VJunc j)     = return $ show j
+    doCast (VThread t)   = return $ takeWhile isDigit $ dropWhile (not . isDigit) $ show t
+    doCast (VHandle h)   = return $ "<" ++ "VHandle (" ++ (show h) ++ ">"
+    doCast (VMatch m)    = return $ matchStr m
+    doCast (VType typ)   = return $ showType typ -- "::" ++ showType typ
+    doCast (VObject o)   = return $ "<obj:" ++ showType (objType o) ++ ">"
+    doCast x             = return $ "<" ++ showType (valType x) ++ ">"
+
+showRat :: VRat -> VStr
+showRat r
+    | frac == 0 = s ++ show quot
+    | otherwise = s ++ show quot ++ "." ++ showFrac frac
+    where
+    n = numerator r
+    d = denominator r
+    s = if signum n < 0 then "-" else ""
+    (quot, rem) = quotRem (abs n) d
+    frac :: VInt
+    frac = round ((rem * (10 ^ (40 :: VInt))) % d)
+    showFrac = reverse . dropWhile (== '0') . reverse . pad . show
+    pad x = (replicate (40 - length x) '0') ++ x
 
 instance Value [PerlSV] where
     fromVal = fromVals
@@ -508,37 +513,39 @@ instance Value VList where
         case v of
             (VList vs) -> return vs
             _          -> return [v]
-    fromVal (VList l)     = return $ l
-    fromVal (VUndef)      = return $ [VUndef]
-    fromVal v             = return $ [v]
+    fromVal v = fromVal' v
+    doCast (VList l)     = return $ l
+    doCast (VUndef)      = return $ [VUndef]
+    doCast v             = return $ [v]
 
 instance Value VHandle where
     castV = VHandle
-    fromVal (VHandle x)  = return $ x
+    doCast (VHandle x)  = return $ x
+    doCast v = castFailM v
 
 instance Value VSocket where
     castV = VSocket
-    fromVal (VSocket x)  = return $ x
+    doCast (VSocket x)  = return $ x
+    doCast v = castFailM v
 
 instance Value (VThread Val) where
     castV = VThread
-    fromVal (VThread x)  = return $ x
+    doCast (VThread x)  = return $ x
+    doCast v = castFailM v
 
 instance Value VProcess where
     castV = VProcess
-    fromVal (VProcess x)  = return $ x
+    doCast (VProcess x)  = return $ x
+    doCast v = castFailM v
 
 instance Value Int where
     fromSV sv = liftIO $ svToVInt sv
-    fromVal x = return $ intCast x
+    doCast x = intCast x
     castV = VInt . fromIntegral
-instance Value Word  where fromVal x = return $ intCast x
-instance Value Word8 where fromVal x = return $ intCast x
+instance Value Word  where fromVal x = intCast x
+instance Value Word8 where fromVal x = intCast x
 instance Value [Word8] where
-    fromVal (byte : tailbytes) = do
-        let char   = toEnum . fromEnum byte
-        tailchars <- fromVal tailbytes
-        return (char : tailchars)
+    fromVal val = fmap (map (toEnum . ord)) (fromVal val)
 
 type VScalar = Val
 
@@ -546,11 +553,10 @@ instance Value VScalar where
     fromSV sv = return $ PerlSV sv
     fromVal (VRef r) = fromVal =<< readRef r
     fromVal v = return v
-    vCast = id
     castV = id -- XXX not really correct; need to referencify things
 
-intCast :: Num b => Val -> b
-intCast x   = fromIntegral (vCast x :: VInt)
+intCast :: Num b => Val -> Eval b
+intCast x = fmap fromIntegral (fromVal x :: Eval VInt)
 
 type VList = [Val]
 type VSubst = (VRule, Exp)
@@ -674,8 +680,8 @@ instance Show VJunc where
     show (MkJunc jtype _ set) =
        	(show jtype) ++ "(" ++
 	    (foldl (\x y ->
-		if x == "" then (vCast :: Val -> VStr) y
-		else x ++ "," ++ (vCast :: Val -> VStr) y)
+		if x == "" then show y
+		else x ++ "," ++ show y)
 	    "" $ Set.elems set) ++ ")"
 
 {-|
@@ -1465,8 +1471,8 @@ instance Show VOpaque where
     show (MkOpaque x) = show x
 
 instance Value VOpaque where
-    vCast (VOpaque o) = o
-    vCast v = MkOpaque v
+    fromVal (VOpaque o) = return o
+    fromVal v = return $ MkOpaque v
     castV (MkOpaque x) = castV x
 #endif
 

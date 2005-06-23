@@ -494,11 +494,6 @@ reduceSyn ":=" [var, vexp] = do
         expand e = Syn "," [e]
     reduce (Syn ":=" [expand var, expand vexp])
 
-reduceSyn "=>" [keyExp, valExp] = do
-    key <- enterEvalContext cxtItemAny keyExp
-    val <- enterEvalContext cxtItemAny valExp
-    retItem $ castV (key, val)
-
 reduceSyn "*" exps
     | [Syn syn [exp]] <- unwrap exps --  * cancels out [] and {}
     , syn == "\\{}" || syn == "\\[]"
@@ -510,8 +505,9 @@ reduceSyn "*" exps
         retVal $ VList $ concat vals
 
 reduceSyn "," exps = do
-    vals <- mapM (enterEvalContext cxtSlurpyAny) exps
-    retVal . VList . concat $ map vCast vals
+    vals    <- mapM (enterEvalContext cxtSlurpyAny) exps
+    vals'   <- mapM fromVal vals
+    retVal . VList $ concat vals'
 
 reduceSyn "val" [exp] = do
     enterRValue $ evalExp exp
@@ -720,7 +716,11 @@ reduceApp (Var "&assuming") (Just subExp) args = do
         Left errMsg      -> fail errMsg
         Right curriedSub -> retVal $ castV $ curriedSub
 
-reduceApp (Var "&infix:=>") invs args = reduce (Syn "=>" (maybeToList invs ++ args))
+reduceApp (Var "&infix:=>") invs args = do
+    let [keyExp, valExp] = maybeToList invs ++ args
+    key <- enterEvalContext cxtItemAny keyExp
+    val <- enterEvalContext cxtItemAny valExp
+    retItem $ castV (key, val)
 
 reduceApp (Var name@('&':_)) invs args = do
     sub     <- findSub name invs args
@@ -842,13 +842,15 @@ applyThunk :: SubType -> [ApplyArg] -> VThunk -> Eval Val
 applyThunk _ [] thunk = thunk_force thunk
 applyThunk styp bound@(arg:_) thunk = do
     -- introduce $?SELF and $_ as the first invocant.
-    inv <- if styp <= SubMethod then invocant else return []
+    inv     <- if styp <= SubMethod then invocant else return []
     pad <- formal
     enterLex (inv ++ pad) $ thunk_force thunk
     where
     formal = mapM argNameValue $ filter (not . null . argName) bound
-    invocant = mapM (`genSym` (vCast $ argValue arg)) $ words "$?SELF $_"
-    argNameValue (ApplyArg name val _) = genSym name (vCast val)
+    invocant = do
+        argRef  <- fromVal (argValue arg)
+        mapM (`genSym` argRef) $ words "$?SELF $_"
+    argNameValue (ApplyArg name val _) = genSym name =<< fromVal val
 
 {-|
 Apply a sub (or other code) to lists of invocants and arguments.

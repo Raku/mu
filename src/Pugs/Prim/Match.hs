@@ -118,9 +118,11 @@ op2Match x (VRule rx) | rxGlobal rx = do
     cxt	    <- asks envContext
     if (not $ isSlurpyCxt cxt)
 	then return (VInt $ genericLength rv)
-	else return . VList $ if rxStringify rx
-	    then map (VStr . vCast) rv
-	    else rv
+	else if rxStringify rx
+	    then do
+                strs <- mapM fromVal rv
+                return (VList $ map VStr strs)
+	    else return (VList rv)
     where
     matchOnce :: String -> Eval [Val]
     matchOnce str = do
