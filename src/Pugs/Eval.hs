@@ -880,8 +880,12 @@ doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args
     -- reduce all invs and args to values first... !?
     -- check invs and args for Pair types; if they are, reduce them fully
     -- to stringified normal form.
-    invs' <- fmapM reducePair invs
-    args' <- fmapM reducePair args
+    let isPairs = (map isPairParam (subParams sub)) ++ repeat False
+        isPairParam = isaType cls "Pair" . typeOfCxt . paramContext
+        cls = envClasses env
+        argsPairs = if isJust invs then tail isPairs else isPairs
+    invs' <- fmapM (reducePair (head isPairs)) invs
+    args' <- fmapM (uncurry reducePair) (argsPairs `zip` args)
     case bindParams sub invs' args' of
         Left errMsg -> fail errMsg
         Right sub   -> do
@@ -904,8 +908,9 @@ doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args
                             Nothing     -> applyExp (subType sub) realBound fun
                 retVal val
     where
-    reducePair :: Exp -> Eval Exp
-    reducePair exp = do
+    reducePair :: Bool -> Exp -> Eval Exp
+    reducePair True exp = return exp
+    reducePair _ exp = do
         typ     <- evalExpType exp
         let cls = envClasses env
         if not (isaType cls "Pair" typ) then return exp else do

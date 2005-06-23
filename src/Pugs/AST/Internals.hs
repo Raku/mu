@@ -553,6 +553,7 @@ instance Value VScalar where
     fromSV sv = return $ PerlSV sv
     fromVal (VRef r) = fromVal =<< readRef r
     fromVal v = return v
+    doCast v = return v
     castV = id -- XXX not really correct; need to referencify things
 
 intCast :: Num b => Val -> Eval b
