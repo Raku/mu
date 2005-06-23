@@ -876,8 +876,13 @@ doApply :: Env   -- ^ Environment to evaluate in
         -> (Maybe Exp) -- ^ Invocants (arguments before the colon)
         -> [Exp] -- ^ Arguments (not including invocants)
         -> Eval Val
-doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args =
-    case bindParams sub invs args of
+doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args = do
+    -- reduce all invs and args to values first... !?
+    -- check invs and args for Pair types; if they are, reduce them fully
+    -- to stringified normal form.
+    invs' <- fmapM reducePair invs
+    args' <- fmapM reducePair args
+    case bindParams sub invs' args' of
         Left errMsg -> fail errMsg
         Right sub   -> do
             forM_ (subSlurpLimit sub) $ \limit@(n, _) -> do
@@ -899,6 +904,15 @@ doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args
                             Nothing     -> applyExp (subType sub) realBound fun
                 retVal val
     where
+    reducePair :: Exp -> Eval Exp
+    reducePair exp = do
+        typ     <- evalExpType exp
+        let cls = envClasses env
+        if not (isaType cls "Pair" typ) then return exp else do
+        ref     <- enterContext (CxtItem (mkType "Pair")) $ evalExp exp
+        (k, v)  <- join $ doPair ref pair_fetch
+        key     <- fromVal k
+        return $ App (Var "&infix:=>") Nothing [Val (VStr key), Val v]
     enterScope :: Eval Val -> Eval Val
     enterScope
         | typ >= SubBlock = id
