@@ -1160,13 +1160,13 @@ op3Caller kind skip _ = do                                 -- figure out label
     kindFilter :: (Env, VCode) -> Bool
     kindFilter (_, sub) =
         case (kind, subType sub) of
-            (MkType "Any",    _)          -> True  -- I hope this is optimized
-            (MkType "Method", SubMethod)  -> True
-            (MkType "Bare",   SubBlock)   -> True
-            (MkType "Sub",    SubRoutine) -> True
-            (MkType "Pointy", SubPointy)  -> True  -- XXX: specme
-            (_,               _)          -> False
-    labelFilter _ = True                           -- TODO: figure out how
+            (MkType "Any",      _)          -> True  -- I hope this is optimized
+            (MkType "Method",   SubMethod)  -> True
+            (MkType "Sub",      SubRoutine) -> True
+            (MkType "Block",    SubBlock)   -> True
+            (MkType "Block",    SubPointy)  -> True
+            (_,                 _)          -> False
+    labelFilter _ = True                             -- TODO: figure out how
     callChain :: Env -> Eval [(Env, VCode)]
     callChain cur = 
         case envCaller cur of

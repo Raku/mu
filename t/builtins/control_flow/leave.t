@@ -56,7 +56,7 @@ plan 5;
 {
   my $sub = sub () {
     my $bare = sub () {
-      leave Bare, 42;
+      leave Block, 42;
       return 23;
     };
 
@@ -64,7 +64,7 @@ plan 5;
     return 1000 + $ret;
   };
 
-  is $sub(), 1042, "leave() works with a Class (Bare) as parameter";
+  is $sub(), 1042, "leave() works with a Class (Block) as parameter";
 }
 
 {

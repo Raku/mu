@@ -37,17 +37,17 @@ isa_ok($s1, 'Sub', 'it is a Sub type');
 #                        ____________|________________
 #                       |                             |
 #                    Routine                        Block
-#       ________________|_______________            __|___
-#      |     |       |       |    |     |          |      |
-#     Sub Method Submethod Multi Rule Macro      Bare Parametric
+#       ________________|_______________ 
+#      |     |       |       |    |     |
+#     Sub Method Submethod Multi Rule Macro
 
 # L<S06/"Types" /Bare\s*Basic Perl block/>
 my $s2 = {};
-isa_ok($s2, 'Bare', 'it is a Sub type (bare block)');
+isa_ok($s2, 'Block', 'it is a Sub type (bare block)');
 
 # L<S06/"Types" /Parametric\s+Basic Perl block with placeholder parameters/>
 my $s2a = { $^a };
-isa_ok($s2a, 'Parametric', 'it is a Parametric type (bare block with placeholder parameters)', :todo);
+isa_ok($s2a, 'Block', 'it is a Parametric type (bare block with placeholder parameters)');
 
 my $s3 = -> {};
 isa_ok($s3, 'Block', 'it is a Block type (pointy block)');

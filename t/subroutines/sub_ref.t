@@ -4,7 +4,7 @@ use v6;
 
 use Test;
 
-plan 35;
+plan 33;
 
 
 =head1 DESCRIPITION
@@ -22,9 +22,9 @@ See L<S06/"Types"> for more information about Code, Routine, Sub, Block, etc.
 #                        ____________|________________
 #                       |                             |
 #                    Routine                        Block
-#       ________________|_______________            __|___
-#      |     |       |       |    |     |          |      |
-#     Sub Method Submethod Multi Rule Macro      Bare Parametric
+#       ________________|_______________ 
+#      |     |       |       |    |     |
+#     Sub Method Submethod Multi Rule Macro
 
 {
     my $foo = sub () { 42 };
@@ -40,7 +40,6 @@ See L<S06/"Types"> for more information about Code, Routine, Sub, Block, etc.
     my $foo = -> () { 42 };
     isa_ok($foo, 'Code');
     isa_ok($foo, 'Block');
-    isa_ok($foo, 'Bare',:todo);
     is $foo.(), 42,                 "basic invocation of a pointy block";
     try { $foo.(23) };
     ok($!, "invocation of an parameterless pointy block with a parameter dies",:todo);
@@ -50,7 +49,6 @@ See L<S06/"Types"> for more information about Code, Routine, Sub, Block, etc.
     my $foo = { 100 + $^x };
     isa_ok($foo, 'Code');
     isa_ok($foo, 'Block');
-    isa_ok($foo, 'Parametric',:todo);
     is $foo.(42), 142,              "basic invocation of a pointy block with a param";
     try { $foo.() };
     ok($!, "invocation of an parameterized block expecting a param without a param dies");
@@ -92,7 +90,7 @@ See L<S06/"Types"> for more information about Code, Routine, Sub, Block, etc.
         BEGIN { our &foo_macro = macro ($x) { "1000 + $x" } }
         isa_ok(&foo_macro, "Code");
         isa_ok(&foo_macro, "Routine");
-        isa_ok(&foo_macro, "Macro");
+        isa_ok(&foo_macro, "Macro", :todo<feature>);
 
         is foo_macro(3), 1003, "anonymous macro worked";
     }';
