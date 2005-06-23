@@ -818,7 +818,13 @@ preludePIR = emit $
         [ tempNUM <:= arg0
         , "sleep" .- [tempNUM]
         ]
+    , sub "&compile_pir" [arg0]
+        [ tempSTR  <:= arg0
+        , tempPMC  <-- "compreg" $ [lit "PIR"]
+        , tempPMC2 <-- "compile" $ [tempPMC, tempSTR]
+        ] --> [tempPMC2]
     ]
+    
     -- Supporting Math::Basic
     , sub "&abs" [arg0]
         [ InsNew rv PerlScalar
