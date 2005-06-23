@@ -64,7 +64,7 @@ is(assign_based_on_named_positional(5, "y"=> 2), 2, "When we explicitly specify,
 is(assign_based_on_named_positional(5, y => 2), 2, "When we explicitly specify, we get our value");
 my $var = "y";
 is(assign_based_on_named_positional(5, $var => 2), 2,
-   "When we explicitly specify, we get our value", :todo<feature>);
+   "When we explicitly specify, we get our value");
 
 # L<S06/"Named parameters" /a \+\+ prefix.*?required/>
 sub mandatory (++$param) {

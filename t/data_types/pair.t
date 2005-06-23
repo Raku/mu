@@ -65,7 +65,7 @@ my $pair3 = "foo" => ("bar" => "baz");
 isa_ok($pair3, 'Pair');
 
 my $pair3a = $pair3.value;
-isa_ok($pair3a, 'Pair', :todo<bug> ); # see also t/data_types/nested_pairs.t
+isa_ok($pair3a, 'Pair');
 is($pair3a.key, 'bar', 'got right nested pair key');
 is($pair3a.value, 'baz', 'got right nested pair key');
 
