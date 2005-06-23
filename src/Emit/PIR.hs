@@ -823,6 +823,19 @@ preludePIR = emit $
         , tempPMC  <-- "compreg" $ [lit "PIR"]
         , tempPMC2 <-- "compile" $ [tempPMC, tempSTR]
         ] --> [tempPMC2]
+    , sub "&eval_pir" [arg0]
+        [ tempPMC   <-- "open" $ [lit "temp.pir", lit ">"]
+        , "print"   .- [tempPMC, arg0]
+        , "close"   .- [tempPMC]
+        , tempPMC   <-- "open" $ [lit "pugs -CPIR temp.pirpir", lit "|-"]
+        , InsNew rv PerlScalar
+        , rv        <:= lit ""
+        , InsLabel "eval_pir_read_next"
+        , tempSTR   <-- "read" $ [tempPMC, lit "255"]
+        , rv        <-- "concat" $ [tempSTR]
+        , "if"      .- [tempPMC, bare "eval_pir_read_next"]
+        , "close"   .- [tempPMC]
+        ] --> [rv]
     ]
     
     -- Supporting Math::Basic
