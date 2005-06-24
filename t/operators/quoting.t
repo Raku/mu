@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 66;
+plan 68;
 
 my $foo = "FOO";
 my $bar = "BAR";
@@ -231,6 +231,16 @@ FOO
 	is(+@q, 1, "q:t// is singular, also when indented", :todo);
 	is(@q[0], "blah blah\n\$foo\n", "indentation stripped", :todo);
 };
+
+{ # q:to backslash bug
+        my @q = q:to/FOO/
+yoink\n
+splort\\n
+FOO
+;
+        is(+@q, 1, "q:to// is singular");
+        is(@q[0], "yoink\\n\nsplort\\n\n", "backslashes");
+}
 
 { # q:0 L<S02/Literals /No escapes at all/>
 	my @q = ();
