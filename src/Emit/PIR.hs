@@ -824,16 +824,21 @@ preludePIR = emit $
         , tempPMC2 <-- "compile" $ [tempPMC, tempSTR]
         ] --> [tempPMC2]
     , sub "&eval_pir" [arg0]
-        [ tempPMC   <-- "open" $ [lit "temp.pir", lit ">"]
+        [ tempPMC   <-- "open" $ [lit "temp.p6", lit ">"]
         , "print"   .- [tempPMC, arg0]
         , "close"   .- [tempPMC]
-        , tempPMC   <-- "open" $ [lit "pugs -CPIR temp.pir", lit "|-"]
+        , tempPMC   <-- "open" $ [lit "pugs -CPIR temp.p6", lit "-|"]
         , InsNew rv PerlScalar
         , rv        <:= lit ""
+        , InsLabel "eval_pir_read_pre_next"
+        , tempSTR   <-- "readline" $ [tempPMC]
+        , "ne"      .- [tempSTR, lit ".sub \"main\" @ANON\n", bare "eval_pir_read_pre_next"]
         , InsLabel "eval_pir_read_next"
-        , tempSTR   <-- "read" $ [tempPMC, (ExpLit . LitInt $ 255)]
+        , tempSTR   <-- "readline" $ [tempPMC]
+        , "eq"      .- [tempSTR, lit ".end\n", bare "eval_pir_done"]
         , rv        <-- "concat" $ [tempSTR]
-        , "if"      .- [tempPMC, bare "eval_pir_read_next"]
+        , "if"      .- [tempPMC, bare "eval_pir_read_next"]  -- hopefully this is never false
+        , InsLabel "eval_pir_done"
         , "close"   .- [tempPMC]
         ] --> [rv]
     ]
