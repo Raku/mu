@@ -687,6 +687,13 @@ reduceApp (Var "&zip") invs args = do
     val  <- op0Zip vals
     retVal val
 
+-- XXX absolutely evil bloody hack for "return"
+reduceApp (Var "&return") Nothing [] = shiftT . const $ retEmpty
+reduceApp (Var "&return") (Just inv) [] = shiftT . const $ evalExp inv
+reduceApp (Var "&return") Nothing [arg] = shiftT . const $ evalExp arg
+reduceApp (Var "&return") invs args = shiftT . const . evalExp $
+    Syn "," (maybeToList invs ++ args)
+
 -- XXX absolutely evil bloody hack for "not"
 reduceApp (Var "&not") Nothing [] = retEmpty
 

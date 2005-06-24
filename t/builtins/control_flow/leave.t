@@ -8,6 +8,9 @@ use Test;
 
 plan 5;
 
+fail "leave() not implemented in Pugs's interpreter core yet", :todo<feature>;
+skip_rest; exit;
+
 {
   my $bare = { leave 42; 23 };
 

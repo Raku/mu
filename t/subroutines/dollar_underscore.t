@@ -29,6 +29,6 @@ for @list -> { is($_, 'a') }
 
 # Do pointy subs send along an implicit param even when a param is declared
 # (See the quote from A06 above)
-for @list -> $letter { is( $_ ,'a') }
+for @list -> $letter { is( $_ ,'a', :todo<clarification>) }
 
 
