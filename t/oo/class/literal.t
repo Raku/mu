@@ -14,7 +14,7 @@ lives_ok {
     $test1 = ::Foo;
 }, "::Foo is a valid class literal";
 
-isa_ok($test1, "Class", "It's a class", :todo<feature>);
+isa_ok($test1, "Class", "It's a class");
 
 lives_ok {
     my $x = Foo;

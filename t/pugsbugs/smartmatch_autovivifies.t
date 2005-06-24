@@ -18,7 +18,7 @@ my $before =  @empty.perl;
 @empty[5] ~~ /nothing/;
 my $after = @empty.perl;
 
-is +@empty,0,'empty array, @empty, has 0 elements'; 
+is +@empty,0,'empty array, @empty, has 0 elements', :todo<bug>;
 
-is $after,$before,"Array elements are not auto-vivified by smartmatch";
+is $after,$before,"Array elements are not auto-vivified by smartmatch", :todo<bug>;
 

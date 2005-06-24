@@ -1351,6 +1351,9 @@ newObject typ = fail ("Cannot create object: " ++ showType typ)
 
 doPair :: Val -> (forall a. PairClass a => a -> b) -> Eval b
 doPair (VRef (MkRef (IPair pv))) f = return $ f pv
+doPair (VRef (MkRef (IArray av))) f = do
+    (k:v:_) <- array_fetch av
+    return $ f (k, v)
 doPair (VRef (MkRef (IScalar sv))) f = do
     val <- scalar_fetch sv
     case val of
