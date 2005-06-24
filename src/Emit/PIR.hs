@@ -827,11 +827,11 @@ preludePIR = emit $
         [ tempPMC   <-- "open" $ [lit "temp.pir", lit ">"]
         , "print"   .- [tempPMC, arg0]
         , "close"   .- [tempPMC]
-        , tempPMC   <-- "open" $ [lit "pugs -CPIR temp.pirpir", lit "|-"]
+        , tempPMC   <-- "open" $ [lit "pugs -CPIR temp.pir", lit "|-"]
         , InsNew rv PerlScalar
         , rv        <:= lit ""
         , InsLabel "eval_pir_read_next"
-        , tempSTR   <-- "read" $ [tempPMC, lit "255"]
+        , tempSTR   <-- "read" $ [tempPMC, (ExpLit . LitInt $ 255)]
         , rv        <-- "concat" $ [tempSTR]
         , "if"      .- [tempPMC, bare "eval_pir_read_next"]
         , "close"   .- [tempPMC]
