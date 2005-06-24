@@ -65,7 +65,7 @@ ok (not [!=] 4, 4, 4),    "[!=] works (2)";
 
 {
   my $hash = {a => {b => {c => {d => 42, e => 23}}}};
-  is eval('[.{}] $hash, <a b c d>'), 42, '[.{}] works';
+  is eval('[.{}] $hash, <a b c d>'), 42, '[.{}] works', :todo<bug>;
 
   my $arr = [[[1,2,3],[4,5,6]],[[7,8,9],[10,11,12]]];
   is ([.[]] $arr, 1, 0, 2), 9, '[.[]] works';
@@ -76,8 +76,8 @@ ok (not [!=] 4, 4, 4),    "[!=] works (2)";
   # 18:45 < autrijus> [=>] 1..10;
   my $list = [=>] 1,2,3;
   is $list.key,         1, "[=>] works (1)";
-  is $list.value.key,   2, "[=>] works (2)";
-  is $list.value.value, 3, "[=>] works (3)";
+  is try{$list.value.key},   2, "[=>] works (2)", :todo<bug>;
+  is try{$list.value.value}, 3, "[=>] works (3)", :todo<bug>;
 }
 
 {

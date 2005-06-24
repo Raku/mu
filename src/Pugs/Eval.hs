@@ -851,14 +851,17 @@ applyThunk :: SubType -> [ApplyArg] -> VThunk -> Eval Val
 applyThunk _ [] thunk = thunk_force thunk
 applyThunk styp bound@(arg:_) thunk = do
     -- introduce $?SELF and $_ as the first invocant.
-    inv     <- if styp <= SubMethod then invocant else return []
+    inv     <- case styp of
+        SubPointy               -> aliased ["$_"]
+        _ | styp <= SubMethod   -> aliased ["$?SELF", "$_"]
+        _                       -> return []
     pad <- formal
     enterLex (inv ++ pad) $ thunk_force thunk
     where
     formal = mapM argNameValue $ filter (not . null . argName) bound
-    invocant = do
+    aliased names = do
         argRef  <- fromVal (argValue arg)
-        mapM (`genSym` argRef) $ words "$?SELF $_"
+        mapM (`genSym` argRef) names
     argNameValue (ApplyArg name val _) = genSym name =<< fromVal val
 
 {-|

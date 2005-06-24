@@ -1347,12 +1347,17 @@ newObject (MkType "Rule")   = liftSTM $
     fmap scalarRef $ newTVar undef
 newObject (MkType "Type")   = liftSTM $
     fmap scalarRef $ newTVar undef
+newObject (MkType "Pair") = do
+    key <- newObject (MkType "Scalar")
+    val <- newObject (MkType "Scalar")
+    return $ MkRef (IPair (VRef key, VRef val))
 newObject typ = fail ("Cannot create object: " ++ showType typ)
 
 doPair :: Val -> (forall a. PairClass a => a -> b) -> Eval b
 doPair (VRef (MkRef (IPair pv))) f = return $ f pv
 doPair (VRef (MkRef (IArray av))) f = do
-    (k:v:_) <- array_fetch av
+    vals <- array_fetch av
+    let [k, v] = take 2 (vals ++ repeat undef)
     return $ f (k, v)
 doPair (VRef (MkRef (IScalar sv))) f = do
     val <- scalar_fetch sv

@@ -71,7 +71,7 @@ my $bool = (0 == 0);
 isa_ok($bool, 'Bool', 'it is a Bool type');
 
 my $pair = "foo" => "bar";
-isa_ok($pair, 'Pair', 'it is a Pair type');
+ok($pair ~~ 'Pair', 'it is a Pair type');
 
 my $rule = rx:perl5{^hello\sworld$};
 isa_ok($rule, 'Rule', 'it is a Rule type');
