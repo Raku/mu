@@ -505,9 +505,11 @@ reduceSyn "*" exps
         retVal $ VList $ concat vals
 
 reduceSyn "," exps = do
-    vals    <- mapM (enterEvalContext cxtSlurpyAny) exps
-    vals'   <- mapM fromVal vals
-    retVal . VList $ concat vals'
+    vals <- mapM (enterEvalContext cxtSlurpyAny) exps
+    retVal . VList . concat $ map castList vals
+    where
+    castList (VList vs) = vs
+    castList v = [v]
 
 reduceSyn "val" [exp] = do
     enterRValue $ evalExp exp
