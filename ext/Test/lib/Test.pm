@@ -98,7 +98,7 @@ sub cmp_ok (Str $got, Code &compare_func, Str $expected, Str +$desc, +$todo) ret
 
 ## isa_ok
 
-sub isa_ok ($ref is rw, Str $expected_type, Str +$desc, +$todo) returns Bool is export {
+sub isa_ok (Any|Junction|Pair $ref is rw, Str $expected_type, Str +$desc, +$todo) returns Bool is export {
     my $out := defined($desc) ?? $desc :: "The object is-a '$expected_type'";
     my $test := $ref.isa($expected_type);
     proclaim($test, $out, $todo, $ref.ref, $expected_type);

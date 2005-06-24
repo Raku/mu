@@ -1390,7 +1390,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Scalar    pre     delete  safe   (rw!Array: List)\
 \\n   Bool      pre     exists  safe   (rw!Hash: Str)\
 \\n   Bool      pre     exists  safe   (rw!Array: Int)\
-\\n   Str       pre     perl    safe   (rw!Any|Junction)\
+\\n   Str       pre     perl    safe   (rw!Any|Junction|Pair)\
 \\n   Any       pre     try     safe   (Code)\
 \\n   Any       pre     lazy    safe   (Code)\
 \\n   Any       pre     Pugs::Internals::eval    safe   (Str)\
@@ -1410,9 +1410,9 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Any       pre     exit    unsafe (?Int=0)\
 \\n   Num       pre     rand    safe   (?Num=1)\
 \\n   Bool      pre     defined safe   (Any)\
-\\n   Str       pre     ref     safe   (rw!Any|Junction)\
-\\n   Str       pre     isa     safe   (rw!Any|Junction, Str)\
-\\n   Str       pre     does    safe   (rw!Any|Junction, Str)\
+\\n   Str       pre     ref     safe   (rw!Any|Junction|Pair)\
+\\n   Str       pre     isa     safe   (rw!Any|Junction|Pair, Str)\
+\\n   Str       pre     does    safe   (rw!Any|Junction|Pair, Str)\
 \\n   Num       pre     time    safe   ()\
 \\n   List      pre     times   safe   ()\
 \\n   Str       pre     want    safe   ()\
@@ -1475,7 +1475,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   List      pre     values  safe   (Pair|Junction)\
 \\n   List      pre     Pair::kv      safe   (rw!Pair)\
 \\n   List      pre     pairs   safe   (rw!Pair)\
-\\n   Any       pre     pick    safe   (Any|Junction)\
+\\n   Any       pre     pick    safe   (Any|Junction|Pair)\
 \\n   Bool      pre     rename  unsafe (Str, Str)\
 \\n   Bool      pre     symlink unsafe (Str, Str)\
 \\n   Bool      pre     link    unsafe (Str, Str)\
@@ -1492,9 +1492,9 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   List      pre     split   safe   (Rule, Str, Int)\
 \\n   Str       spre    =       safe   (Any)\
 \\n   List      spre    =       safe   (Any)\
-\\n   Junction  list    |       safe   (Any|Junction)\
-\\n   Junction  list    &       safe   (Any|Junction)\
-\\n   Junction  list    ^       safe   (Any|Junction)\
+\\n   Junction  list    |       safe   (Any|Junction|Pair)\
+\\n   Junction  list    &       safe   (Any|Junction|Pair)\
+\\n   Junction  list    ^       safe   (Any|Junction|Pair)\
 \\n   Num       left    *       safe   (Num, Num)\
 \\n   Num       left    /       safe   (Num, Num)\
 \\n   Num       left    %       safe   (Num, Num)\
