@@ -3,14 +3,15 @@
 {-|
     The Main REPL loop.
 
->   Sie bauten ihm ein neues Schiff
->   Aus Mithril und aus Elbenglas
->   Mit stolzem Bug, doch ruderlos,
->   Mit Silbermast, doch ohne Tuch,
->   Und Elbereth kam selbst herab:
->   Sie schuf dem Schiff den Silmaril
->   Zum Banner, ein lebendiges Licht,
->   Ein heller Schein, der nie verblaßt...
+>   眾人為彼造新舟
+>   鑄以祕銀精靈璃
+>   船首閃耀何需槳
+>   銀桅未有風帆繫
+>
+>   無雙寶鑽作燈炬
+>   旗幟輝煌展生焰
+>   映照燃星雅碧綠
+>   神祇乘梭下九天...
 
 -}
 
