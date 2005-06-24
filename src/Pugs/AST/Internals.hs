@@ -161,7 +161,7 @@ ifListContext :: (MonadReader Env m)
 ifListContext trueM falseM = do
     cxt <- asks envContext
     case cxt of
-        CxtSlurpy _   -> trueM
+        CxtSlurpy _ -> trueM
         _           -> falseM
 
 {-|
@@ -206,7 +206,7 @@ class (Typeable n, Show n, Ord n) => Value n where
     fromVal :: Val -> Eval n
     fromVal = fromVal'
     doCast :: Val -> Eval n
-    doCast = castFailM
+{-    doCast v = castFailM v "default implementation of doCast" -}
     fromSV :: PerlSV -> Eval n
     fromSV sv = do
         str <- liftIO $ svToVStr sv
@@ -230,21 +230,22 @@ createObject typ attrList = liftIO $ do
 
 fromObject :: forall a. (Typeable a) => VObject -> a
 fromObject obj = case objOpaque obj of
-    Nothing     -> castFail obj
+    Nothing     -> castFail obj "VObject without opaque"
     Just dyn    -> case fromDynamic dyn of
-        Nothing -> castFail obj
+        Nothing -> castFail obj "VObject's opaque not valueable"
         Just x  -> x
 
-castFailM :: forall a b. (Show a, Typeable b) => a -> Eval b
-castFailM v = fail $ "cannot cast from " ++ show v ++ " to " ++ errType (undefined :: b)
+castFailM :: forall a b. (Show a, Typeable b) => a -> String -> Eval b
+castFailM v str = fail $ "cannot cast from " ++ show v ++ " to " ++ errType (undefined :: b) ++ " (" ++ str ++ ")"
 
-castFail :: forall a b. (Show a, Typeable b) => a -> b
-castFail v = error $ "cannot cast from " ++ show v ++ " to " ++ errType (undefined :: b)
+castFail :: forall a b. (Show a, Typeable b) => a -> String -> b
+castFail v str = error $ "cannot cast from " ++ show v ++ " to " ++ errType (undefined :: b) ++ " (" ++ str ++ ")"
 
 instance Value (IVar VScalar) where
     fromVal (VRef (MkRef v@(IScalar _))) = return v
     fromVal (VRef r) = fromVal =<< readRef r
     fromVal v = return $ constScalar v
+    doCast v = castFailM v "IVar VScalar"
 
 instance Value VType where
     fromVal (VType t)   = return t
@@ -254,47 +255,55 @@ instance Value VType where
         str     <- fromVal =<< fetch "name"
         return $ mkType str
     fromVal v           = return $ valType v
+    doCast v = castFailM v "VType"
 
 instance Value VMatch where
     fromVal (VRef r) = fromVal =<< readRef r
     fromVal (VMatch m) = return m
     fromVal (VList (x:_)) = fromVal x
     fromVal _ = return $ mkMatchFail
+    doCast v = castFailM v "VMatch"
 
 instance Value VRef where
     fromVal (VRef r)   = return $ r
     fromVal (VList vs) = return $ arrayRef vs
     fromVal v          = return $ scalarRef v
     castV = VRef
+    doCast v = castFailM v "VRef"
 
 instance Value [Int] where
     fromVal v = do
         vlist <- fromVal v
         mapM fromVal vlist
+    doCast v = castFailM v "[Int]"
 
 instance Value [VStr] where
     castV = VList . map VStr
     fromVal v = do
         vlist <- fromVal v
         mapM fromVal vlist
+    doCast v = castFailM v "[VStr]"
 
 instance Value VPair where
     castV pv = VRef $ pairRef pv
     fromVal VUndef  = return (VUndef, VUndef)
     fromVal v       = join $ doPair v pair_fetch
+    doCast v = castFailM v "VPair"
 
 instance Value [(VStr, Val)] where
-     fromVal v = do
-         list <- fromVal v
-         forM list $ \(k, v) -> do
-             str <- fromVal k
-             return (str, v)
+    fromVal v = do
+        list <- fromVal v
+        forM list $ \(k, v) -> do
+            str <- fromVal k
+            return (str, v)
+    doCast v = castFailM v "[(VStr, Val)]"
 
 instance Value VObject where
     fromVal (VObject o) = return o
     fromVal v@(VRef _) = fromVal' v
     fromVal v = do
         fail $ "cannot cast from " ++ show v ++ " to Object"
+    doCast v = castFailM v "VObject"
 
 instance Value VHash where
     fromVal (VObject o) = do
@@ -307,6 +316,7 @@ instance Value VHash where
         fmap Map.fromList $ forM list $ \(k, v) -> do
             str <- fromVal k
             return (str, v)
+    doCast v = castFailM v "[VPair]"
 
 instance Value [VPair] where
     fromVal v = do
@@ -321,6 +331,7 @@ instance Value [VPair] where
         doFrom [k] = do
             -- XXX: warn about odd elements?
             return [(k, undef)]
+    doCast v = castFailM v "[VPair]"
 
 instance Value VCode where
     castV = VCode
@@ -340,7 +351,7 @@ instance Value VCode where
         }
     doCast (VCode b) = return b
     doCast (VList [VCode b]) = return b -- XXX Wrong
-    doCast v = castFailM v
+    doCast v = castFailM v "VCode"
 
 instance Value VBool where
     castV = VBool
@@ -431,7 +442,7 @@ instance Value VNum where
     doCast (VList l)     = return $ genericLength l
     doCast t@(VThread _) = fmap read (fromVal t)
     doCast (VMatch m)    = fromVal (VStr $ matchStr m)
-    doCast v             = castFailM v
+    doCast v = castFailM v "VNum"
 
 instance Value VComplex where
     castV = VComplex
@@ -440,7 +451,7 @@ instance Value VComplex where
 instance Value VStr where
     castV = VStr
     fromSV sv = liftIO $ svToVStr sv
-    fromVal (VList l)   = return . unwords =<< mapM fromVal l
+    fromVal (VList l)    = return . unwords =<< mapM fromVal l
     fromVal v@(PerlSV _) = fromVal' v
     fromVal v = do
         vt  <- evalValType v
@@ -483,6 +494,7 @@ showRat r
 
 instance Value [PerlSV] where
     fromVal = fromVals
+    doCast v = castFailM v "[PerlSV]"
 
 instance Value PerlSV where
     fromVal (PerlSV sv) = return sv
@@ -491,6 +503,7 @@ instance Value PerlSV where
     fromVal (VRat int) = liftIO $ vnumToSV int
     fromVal (VNum int) = liftIO $ vnumToSV int
     fromVal v = liftIO $ mkValRef v
+    doCast v = castFailM v "PerlSV"
 
 showNum :: Show a => a -> String
 showNum x
@@ -521,31 +534,36 @@ instance Value VList where
 instance Value VHandle where
     castV = VHandle
     doCast (VHandle x)  = return $ x
-    doCast v = castFailM v
+    doCast v = castFailM v "VHandle"
 
 instance Value VSocket where
     castV = VSocket
     doCast (VSocket x)  = return $ x
-    doCast v = castFailM v
+    doCast v = castFailM v "VSocket"
 
 instance Value (VThread Val) where
     castV = VThread
     doCast (VThread x)  = return $ x
-    doCast v = castFailM v
+    doCast v = castFailM v "VThread Val"
 
 instance Value VProcess where
     castV = VProcess
     doCast (VProcess x)  = return $ x
-    doCast v = castFailM v
+    doCast v = castFailM v "VProcess"
 
 instance Value Int where
     fromSV sv = liftIO $ svToVInt sv
     doCast x = intCast x
     castV = VInt . fromIntegral
-instance Value Word  where fromVal x = intCast x
-instance Value Word8 where fromVal x = intCast x
+instance Value Word  where 
+    fromVal x = intCast x
+    doCast v = castFailM v "Word"
+instance Value Word8 where 
+    fromVal x = intCast x
+    doCast v = castFailM v "Word8"
 instance Value [Word8] where
     fromVal val = fmap (map (toEnum . ord)) (fromVal val)
+    doCast v = castFailM v "[Word8]"
 
 type VScalar = Val
 
@@ -855,6 +873,8 @@ instance Value Exp where
         return $ fromObject obj
     {- Exp -> Val -}
     {- castV exp = VObject (createObject (mkType "Code::Exp") [("theexp", exp)]) -}
+    doCast v = castFailM v "Exp"
+    
 
 {- FIXME: Figure out how to get this working without a monad, and make it castV -}
 expToEvalVal :: Exp -> Eval Val
@@ -1349,7 +1369,7 @@ doPair val f = do
     case (vs :: VList) of
         [x, y]  -> return $ f (x, y)
         _       -> do
-            pv <- castFailM val
+            pv <- castFailM val "Confusing pair?"
             return $ f (pv :: VPair)
 
 -- XXX: Refactor doHash and doArray into one -- also see Eval's [] and {}
@@ -1475,6 +1495,7 @@ instance Value VOpaque where
     fromVal (VOpaque o) = return o
     fromVal v = return $ MkOpaque v
     castV (MkOpaque x) = castV x
+    doCast v = castFailM v "VOpaque"
 #endif
 
 readIVar :: IVar v -> Eval v
