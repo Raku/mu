@@ -63,7 +63,7 @@ pairsFromRef (MkRef (IArray av)) = do
     vals    <- array_fetch av
     return $ map castV ((map VInt [0..]) `zip` vals)
 pairsFromRef (MkRef (IScalar sv)) = do
-    refVal  <- scalar_fetch sv
+    refVal  <- scalar_fetch' sv
     pairsFromVal refVal
 pairsFromRef ref = retError "Not a keyed reference" ref
 
@@ -78,7 +78,7 @@ keysFromRef (MkRef (IArray av)) = do
     keys    <- array_fetchKeys av
     return $ map castV keys
 keysFromRef (MkRef (IScalar sv)) = do
-    refVal  <- scalar_fetch sv
+    refVal  <- scalar_fetch' sv
     if defined refVal
         then fromVal =<< keysFromVal refVal
         else return []
@@ -93,7 +93,7 @@ valuesFromRef (MkRef (IHash hv)) = do
     return $ Map.elems pairs
 valuesFromRef (MkRef (IArray av)) = array_fetch av
 valuesFromRef (MkRef (IScalar sv)) = do
-    refVal  <- scalar_fetch sv
+    refVal  <- scalar_fetch' sv
     if defined refVal
         then fromVal =<< valuesFromVal refVal
         else return []
@@ -107,7 +107,7 @@ existsFromRef (MkRef (IArray av)) val = do
     idx     <- fromVal val
     array_existsElem av idx
 existsFromRef (MkRef (IScalar sv)) val = do
-    refVal  <- scalar_fetch sv
+    refVal  <- scalar_fetch' sv
     case refVal of
         VRef ref    -> existsFromRef ref val
         VList _     -> (`existsFromRef` val) =<< fromVal refVal
@@ -130,7 +130,7 @@ deleteFromRef (MkRef (IArray av)) val = do
         return val
     return $ VList rv
 deleteFromRef (MkRef (IScalar sv)) val = do
-    refVal  <- scalar_fetch sv
+    refVal  <- scalar_fetch' sv
     case refVal of
         VRef ref    -> deleteFromRef ref val
         VList _     -> (`deleteFromRef` val) =<< fromVal refVal

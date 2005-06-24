@@ -5,6 +5,12 @@ class (Typeable a) => ScalarClass a where
     scalar_fetch :: a -> Eval VScalar
     scalar_store :: a -> VScalar -> Eval ()
     scalar_const :: a -> Maybe VScalar
+    scalar_fetch' :: a -> Eval VScalar
+    scalar_fetch' x = scalar_fetch x
+    scalar_type  :: a -> Eval Type
+    scalar_type x = do
+        v <- scalar_fetch x
+        evalValType v
 
 instance ScalarClass IScalarProxy where
     scalar_iType = const $ mkType "Scalar::Proxy"
@@ -39,4 +45,6 @@ instance ScalarClass VScalar where
     scalar_fetch v = return v
     scalar_store d _ = retConstError d
     scalar_const = Just
+    scalar_type v = return $ valType v
+    scalar_fetch' v = return v
 

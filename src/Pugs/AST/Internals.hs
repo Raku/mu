@@ -175,12 +175,8 @@ retEmpty = do
         (return VUndef)
 
 evalValType :: Val -> Eval Type
-evalValType (VRef r) = do
-    cls <- asks envClasses
-    let typ = refType r
-    if isaType cls "Scalar" typ
-        then evalValType =<< readRef r
-        else return typ
+evalValType (VRef (MkRef (IScalar sv))) = scalar_type sv
+evalValType (VRef r) = return $ refType r
 evalValType val = return $ valType val
 
 fromVal' :: (Value a) => Val -> Eval a

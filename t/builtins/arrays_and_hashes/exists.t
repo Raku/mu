@@ -42,16 +42,16 @@ ok !%hash.exists("42"), "exists on hashes (2)";
   $empty_hash{'z'};
   is( $empty_hash.pairs.sort.join( ',' ), '', "empty hash stays same when read from (2)" );
   foo( $empty_hash{'y'} );
-  is( $empty_hash.pairs.sort.join( ',' ), '', "empty hash stays same when read from (3)" );
+  is( $empty_hash.pairs.sort.join( ',' ), '', "empty hash stays same when read from (3)", :todo<bug> );
   foo( $empty_hash{'x'} );
-  is( $empty_hash.pairs.sort.join( ',' ), '', "empty hash stays same when read from (4)" );
+  is( $empty_hash.pairs.sort.join( ',' ), '', "empty hash stays same when read from (4)", :todo<bug> );
 
   my $popul_hash = hash('a'=>'b','c'=>'d');
   is( $popul_hash.pairs.sort.join( ',' ), 'a b,c d', "populated hash stays same when read from (1)" );
   $popul_hash{'z'};
   is( $popul_hash.pairs.sort.join( ',' ), 'a b,c d', "populated hash stays same when read from (2)" );
   foo( $popul_hash{'y'} );
-  is( $popul_hash.pairs.sort.join( ',' ), 'a b,c d', "populated hash stays same when read from (3)" );
+  is( $popul_hash.pairs.sort.join( ',' ), 'a b,c d', "populated hash stays same when read from (3)", :todo<bug> );
   foo( $popul_hash{'x'} );
-  is( $popul_hash.pairs.sort.join( ',' ), 'a b,c d', "populated hash stays same when read from (4)" );
+  is( $popul_hash.pairs.sort.join( ',' ), 'a b,c d', "populated hash stays same when read from (4)", :todo<bug> );
 }

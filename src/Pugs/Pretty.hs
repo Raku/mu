@@ -1,4 +1,5 @@
 {-# OPTIONS_GHC -fglasgow-exts #-}
+{-# OPTIONS_GHC -#include "UnicodeC.h" #-}
 
 {-|
     Pretty printing for various data structures.

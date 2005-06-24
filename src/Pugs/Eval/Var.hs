@@ -316,6 +316,9 @@ evalExpType (Syn "sub" [exp]) = evalExpType exp
 evalExpType (Syn "," _)    = return $ mkType "List"
 evalExpType (Syn "\\[]" _) = return $ mkType "Array"
 evalExpType (Syn "\\{}" _) = return $ mkType "Hash"
+evalExpType (Syn "&{}" _)  = return $ mkType "Code"
+evalExpType (Syn "@{}" _)  = return $ mkType "Array"
+evalExpType (Syn "%{}" _)  = return $ mkType "Hash"
 evalExpType _ = return $ mkType "Any"
 
 {-|

@@ -1410,9 +1410,9 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Any       pre     exit    unsafe (?Int=0)\
 \\n   Num       pre     rand    safe   (?Num=1)\
 \\n   Bool      pre     defined safe   (Any)\
-\\n   Str       pre     ref     safe   (Any|Junction)\
-\\n   Str       pre     isa     safe   (Any|Junction, Str)\
-\\n   Str       pre     does    safe   (Any|Junction, Str)\
+\\n   Str       pre     ref     safe   (rw!Any|Junction)\
+\\n   Str       pre     isa     safe   (rw!Any|Junction, Str)\
+\\n   Str       pre     does    safe   (rw!Any|Junction, Str)\
 \\n   Num       pre     time    safe   ()\
 \\n   List      pre     times   safe   ()\
 \\n   Str       pre     want    safe   ()\

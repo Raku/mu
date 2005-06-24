@@ -946,7 +946,7 @@ doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args
     expToVal MkParam{ isLazy = thunk, isLValue = lv, paramContext = cxt, paramName = name, isWritable = rw } exp = do
         env <- ask -- freeze environment at this point for thunks
         let eval = local (const env{ envLValue = lv }) $ do
-            enterEvalContext (cxtOfSigil $ head name) exp
+                enterEvalContext (cxtOfSigil $ head name) exp
         val <- if thunk then return (VRef . thunkRef $ MkThunk eval) else do
             v   <- eval
             typ <- evalValType v
