@@ -812,7 +812,7 @@ op2 "kill" = \s v -> do
     return . VInt $ sum rets
 op2 "does"  = op2 "isa" -- XXX not correct
 op2 "isa"   = \x y -> do
-    typX <- fromVal x
+    typX <- fromVal =<< op1 "ref" x
     typY <- case y of
         VStr str -> return $ mkType str
         _        -> fromVal y

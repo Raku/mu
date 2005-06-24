@@ -35,7 +35,7 @@ my $foo_bar = Foo::Bar.new();
 ok($foo_bar ~~ Foo::Bar, '... smartmatch our $foo_bar to the Foo::Bar class', :todo<feature>);
 
 ok($foo_bar.isa(Foo::Bar), '.isa(Foo::Bar)');
-ok(!$foo.isa(::Foo), 'Foo::Bar.new.isa(::Foo)', :todo<bug>);
+ok(!$foo.isa(::Foo), 'Foo::Bar.new.isa(::Foo)');
 
 # L<S12/"Classes" /An \"isa\" is just a trait that happens to be another class\:/>
 
