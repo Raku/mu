@@ -16,7 +16,7 @@ my @not = not();
 ok ! defined($not), "not() returns undef in scalar context";
 ok ! $not, "not() returns false";
 
-is ref @not, "Array", "not() returns Array in array context";
+is(ref @not, "Array", "not() returns Array in array context");
 ok ! @not, "not() returns empty array";
 
 # Various other checks for ! and not

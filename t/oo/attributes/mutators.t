@@ -5,7 +5,7 @@
 
 use Test;
 
-plan 21;
+plan 18;
 
 class LValueMutator {
     has Int $.foo;
@@ -21,9 +21,9 @@ class LValueMutator {
 
 my $lvm = LValueMutator.new(:foo(3));
 is($lvm.foo, 3, "constructor uses lvalue accessor method",
-   :todo<feature>);
+   :todo<bug>);
 is($lvm.get_foo, undef, "constructor doesn't simply set attributes",
-   :todo<feature>);
+   :todo<bug>);
 
 lives_ok { $lvm.get_foo = 6 }, "lvalue accessors seem to work";
 is($lvm.get_foo, 6, "lvalue accessors work");
@@ -33,47 +33,46 @@ is($lvm.foo, 5, "mutator seems to work");
 
 our Int $count = 0;
 
-class MagicVal {
-    has Int $.constant;
-    has Int $.varies is rw;
-
-    method varies returns Int {
-	$count++;
-        $.varies += 2;
+my $parsefail = !eval_ok '
+    class MagicVal {
+        has Int $.constant;
+        has Int $.varies is rw;
+    
+        method varies returns Int is rw {
+	    $count++;
+	    my $var is Proxy( :for($.varies),
+		 	      :FETCH{ $.varies += 2 },
+			      :STORE{ $.varies = $_ + 1 },
+		     	    );
+	    return $var;
+        }
     }
+', "can parse Proxy trait", :todo<feature>;
 
-    # note: there is no specced way of intercepting $foo.varies =
-    # $bar; all you can do is make an lvalue accessor.
-    method varies(Int $varies) {
-	$count+=2;
-        $.varies = $varies + 1;
-    }
+if ($parsefail) {
+    skip 11, "Proxy trait is parsefail";
+} else {
+
+    my $mv = MagicVal.new(:constant(6), :varies(6));
+
+    is($mv.constant, 6, "normal attribute");
+    is($mv.constant, 6, "normal attribute");
+    dies_ok { $mv.constant = 7 }, "can't change a non-rw attribute",
+	:todo<bug>;
+    is($mv.constant, 6, "attribute didn't change value",
+	:todo<bug>);
+
+    is($count, 2, "mutator was called", :todo<feature>);
+    is($mv.varies, 9, "mutator called during object construction",
+	:todo<feature>);
+    is($count, 3, "accessor was called", :todo<feature>);
+    is($mv.varies, 11, "attribute with mutating accessor", :todo<feature>);
+    is($count, 4, "accessor was called", :todo<feature>);
+
+    $count = 0;
+    $mv.varies = 13;
+    is($count, 2, "mutator was called", :todo<feature>);
+    is($mv.varies, 16, "attribute with overridden mutator",	
+	:todo<feature>);
+    is($count, 3, "accessor and mutator were called", :todo<feature>);
 }
-
-my $mv = MagicVal.new(:constant(6), :varies(6));
-
-is($mv.constant, 6, "normal attribute");
-is($mv.constant, 6, "normal attribute");
-dies_ok { $mv.constant = 7 }, "can't change a non-rw attribute",
-	:todo<feature>;
-is($mv.constant, 6, "attribute didn't change value",
-	:todo<feature>);
-
-is($count, 2, "mutator was called", :todo<feature>);
-is($mv.varies, 9, "mutator called during object construction", :todo<feature>);
-is($count, 3, "accessor was called", :todo<feature>);
-is($mv.varies, 11, "attribute with mutating accessor", :todo<feature>);
-is($count, 4, "accessor was called", :todo<feature>);
-
-$count = 0;
-$mv.varies(11);
-is($count, 2, "mutator was called");
-is($mv.varies, 14, "explicit mutator");
-is($count, 3, "accessor and mutator were called");
-
-$count = 0;
-$mv.varies = 13;
-is($count, 2, "mutator was called", :todo<feature>);
-is($mv.varies, 16, "attribute with overridden mutator",	
-	:todo<feature>);
-is($count, 3, "accessor and mutator were called", :todo<feature>);
