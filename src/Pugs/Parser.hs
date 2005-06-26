@@ -420,6 +420,13 @@ ruleTraitDeclaration :: RuleParser Exp
 ruleTraitDeclaration = try $ do
     trait   <- ruleTrait
     env     <- getRuleEnv
+    -- XXX horrible hack! "is eval(...), ..." should *not* be parsed as a trait
+    -- declaration. So we check whether we're really statement-level, i.e.
+    --   is eval(...) [eof]   # trait
+    --   is eval(...);        # trait
+    --   is eval(...) }       # trait
+    --   is eval(...), ...    # sub call
+    lookAhead $ try eof <|> (oneOf ";}" >> return ())
     let pkg = Var (':':envPackage env)
     return $ Syn "=" [Syn "{}" [pkg, Val (VStr "traits")], Syn "," [Syn "{}" [pkg, Val (VStr "traits")], Val (VStr trait)]]
 

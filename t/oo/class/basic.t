@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 18;
+plan 21;
 
 =pod
 
@@ -12,8 +12,7 @@ Very basic class tests from L<S12/"Classes">
 =cut
 
 # L<S12/"Classes">
-
-class Foo {};
+class Foo {}
 
 my $foo = Foo.new();
 ok($foo ~~ Foo, '... smartmatch our $foo to the Foo class');
@@ -29,7 +28,7 @@ ok(!$foo.isa("Bar"), '!.isa("Bar")');
 my $foo_clone = $foo.clone();
 ok($foo_clone ~~ Foo, '... smartmatch our $foo_clone to the Foo class');
 
-class Foo::Bar {};
+class Foo::Bar {}
 
 my $foo_bar = Foo::Bar.new();
 ok($foo_bar ~~ Foo::Bar, '... smartmatch our $foo_bar to the Foo::Bar class');
@@ -37,9 +36,9 @@ ok($foo_bar ~~ Foo::Bar, '... smartmatch our $foo_bar to the Foo::Bar class');
 ok($foo_bar.isa(Foo::Bar), '.isa(Foo::Bar)');
 ok(!$foo.isa(::Foo), 'Foo::Bar.new.isa(::Foo)');
 
-# L<S12/"Classes" /An \"isa\" is just a trait that happens to be another class\:/>
 
-class Bar is Foo {};
+# L<S12/"Classes" /An \"isa\" is just a trait that happens to be another class\:/>
+class Bar is Foo {}
 
 ok(Bar ~~ Foo, '... smartmatch our Bar to the Foo class');
 
@@ -54,3 +53,12 @@ ok($bar_clone ~~ Bar, '... smartmatch our $bar_clone to the Bar class');
 ok($bar_clone.isa(Bar), "... .isa(Bar)");
 ok($bar_clone ~~ Foo, '... smartmatch our $bar_clone to the Foo class');
 ok($bar_clone.isa(Foo), "... .isa(Foo)");
+
+
+# Same, but with the "is Foo" declaration inlined
+class Baz { is Foo }
+
+ok(Baz ~~ Foo, '... smartmatch our Baz to the Foo class');
+my $baz = Baz.new();
+ok($baz ~~ Baz, '... smartmatch our $baz to the Baz class');
+ok($baz.isa(Baz), "... .isa(Baz)");
