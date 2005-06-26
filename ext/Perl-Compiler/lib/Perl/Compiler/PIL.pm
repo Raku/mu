@@ -75,7 +75,7 @@ class Perl::Compiler::PIL::PILThunk
     does Perl::Compiler::PIL::PIL {
     has Perl::Compiler::PIL::PIL $.value;
     submethod BUILD (Perl::Compiler::PIL::PIL $.value) {
-        die unless $.value.vtype eq 'Expression';
+        die unless $.value.vtype eq 'Statement';
     }
     method vtype () { 'Expression' }
 }

@@ -22,7 +22,9 @@ class Perl::Compiler::CodeGen::NameGen {
     method inject($name, $value) {
         if $name eq 'RET' {
             $.parent // die "No parent at this level";
-            $.parent.inject($parent_ident, $value);
+            if defined $parent_ident {
+                $.parent.inject($parent_ident, $value);
+            }
         }
         else {
             %.names{$name} = $value;
@@ -40,6 +42,10 @@ class Perl::Compiler::CodeGen::NameGen {
     method newreg() {
         $.template($.counter[0]++);
     }
+}
+
+class Perl::Compiler::CodeGen::NameGenList {
+        
 }
 
 # vim: ft=perl6 :
