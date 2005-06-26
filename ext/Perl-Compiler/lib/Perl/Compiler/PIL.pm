@@ -30,6 +30,14 @@ for the below classes.
 # The types given below, although Haskellesque, are not pure functions.  They only
 # represent transformations between PIL node types; out-of-band data is not listed.
 
+sub type_check (*@arg) {
+    for @arg -> $param, $type {
+        if $param ne $type {
+            die "Type error: Expecting $type; Got $param";
+        }
+    }
+}
+
 # PILNil :: [Stmt]
 class Perl::Compiler::PIL::PILNil
     does Perl::Compiler::PIL::PIL {
@@ -47,7 +55,7 @@ class Perl::Compiler::PIL::PILExp
     does Perl::Compiler::PIL::PIL {
     has Perl::Compiler::PIL::PIL $.value;
     submethod BUILD (Perl::Compiler::PIL::PIL $.value) {
-        die unless $.value.vtype eq 'LValue';   # should be 'fail' once 'use fatal' is implemented
+        type_check $.value.vtype, 'LValue';
     }
     method vtype () { 'Expression' }
 }
@@ -56,8 +64,8 @@ class Perl::Compiler::PIL::PILExp
 class Perl::Compiler::PIL::PILLit
     does Perl::Compiler::PIL::PIL {
     has Perl::Compiler::PIL::PIL $.value;
-    submethod BUILD (Perl::Compiler::PIL::PIL $.value) { 
-        die unless $.value.vtype eq 'Literal';
+    submethod BUILD () { 
+        type_check $.value.vtype, 'Literal';
     }
     method vtype () { 'Expression' }
 }
@@ -75,8 +83,8 @@ class Perl::Compiler::PIL::PILPos
 class Perl::Compiler::PIL::PILStmt
     does Perl::Compiler::PIL::PIL {
     has Perl::Compiler::PIL::PIL $.value;
-    submethod BUILD (Perl::Compiler::PIL::PIL $.value) {
-        die unless $.value.vtype eq 'Expression';
+    submethod BUILD () {
+        type_check $.value.vtype, 'Expression';
     }
     method vtype () { 'Stmt' }
 }
@@ -85,8 +93,8 @@ class Perl::Compiler::PIL::PILStmt
 class Perl::Compiler::PIL::PILThunk
     does Perl::Compiler::PIL::PIL {
     has Perl::Compiler::PIL::PIL $.value;
-    submethod BUILD (Perl::Compiler::PIL::PIL $.value) {
-        die unless $.value.vtype eq 'Stmt';
+    submethod BUILD () {
+        type_check $.value.vtype, 'Stmt';
     }
     method vtype () { 'Expression' }
 }
@@ -97,9 +105,8 @@ class Perl::Compiler::PIL::PILCode
     has Perl::Compiler::PIL::Util::Type $.codetype;
     has Perl::Compiler::PIL::Util::Signature $.signature;
     has PIL $.statements;
-    submethod BUILD (Perl::Compiler::PIL::Util::Type $.codetype, Perl::Compiler::PIL::Util::Signature $.signature, 
-                     Perl::Compiler::PIL::PIL $.statements) {
-        die unless $.value.vtype eq '[Stmt]';
+    submethod BUILD () {
+        type_check $.value.vtype, '[Stmt]';
     }
     method vtype () { 'Expression' }
 }
@@ -124,8 +131,8 @@ class Perl::Compiler::PIL::PILStmts
     does Perl::Compiler::PIL::PIL {
     has Perl::Compiler::PIL::PIL $.head;
     has Perl::Compiler::PIL::PIL $.tail;
-    submethod BUILD (Perl::Compiler::PIL::PIL $.head, Perl::Compiler::PIL::PIL $.tail) {
-        die unless $.head.vtype eq 'Stmt' and $.tail.vtype eq '[Stmt]';
+    submethod BUILD () {
+        type_check $.head.vtype, 'Stmt',  $.tail.vtype, '[Stmt]';
     }
     method vtype () { '[Stmt]' }
 }
@@ -136,8 +143,8 @@ class Perl::Compiler::PIL::PILApp
     has Util::Context $.context;
     has Perl::Compiler::PIL::PIL $.code;
     has Perl::Compiler::PIL::PIL @.args;
-    submethod BUILD ($.context, Perl::Compiler::PIL::PIL $.code, Perl::Compiler::PIL::PIL @.args) {
-        die unless all($.code.vtype, @.args).vtype eq 'Expression';
+    submethod BUILD () {
+        type_check map { $_.vtype, 'Expression' } $.code, @.args;
     }
     method vtype () { 'Expression' }
 }
@@ -145,11 +152,10 @@ class Perl::Compiler::PIL::PILApp
 # PILAssign :: LValue -> Expression -> LValue
 class Perl::Compiler::PIL::PILAssign
     does Perl::Compiler::PIL::PIL {
-    has Perl::Compiler::PIL::PIL @.lefts;
+    has Perl::Compiler::PIL::PIL $.left;
     has Perl::Compiler::PIL::PIL $.right;
-    submethod BUILD (Perl::Compiler::PIL::PIL @.lefts, Perl::Compiler::PIL::PIL $.right) {
-        die unless all(@.lefts).vtype eq 'LValue'
-                and $.right.vtype eq 'Expression';
+    submethod BUILD () {
+        type_check $.left.vtype, 'LValue', $.right.vtype, 'Expression';
     }
     method vtype () { 'LValue' }
 }
@@ -157,11 +163,10 @@ class Perl::Compiler::PIL::PILAssign
 # PILBind :: LValue -> LValue -> LValue
 class Perl::Compiler::PIL::PILBind
     does Perl::Compiler::PIL::PIL {
-    has Perl::Compiler::PIL::PIL @.lefts;
+    has Perl::Compiler::PIL::PIL $.left;
     has Perl::Compiler::PIL::PIL $.right;
-    submethod BUILD (Perl::Compiler::PIL::PIL @.lefts, Perl::Compiler::PIL::PIL $.right) {
-        die unless all(@.lefts).vtype eq 'LValue'
-                and $.right.vtype eq 'Expression';
+    submethod BUILD () {
+        type_check $.left.vtype, 'LValue', $.right.vtype, 'Expression';
     }
     method vtype () { 'LValue' }
 }
