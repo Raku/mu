@@ -3,6 +3,14 @@ use Perl::Compiler::PIL::Util;
 use Perl::Compiler::CodeGen::NameGen;
 use Perl::Compiler::CodeGen::Perl5_Str;
 
-my $noop = ::Perl::Compiler::PIL::PILNoop.new;
+my $tree = ::Perl::Compiler::PIL::PILStmt.new(
+            value => ::Perl::Compiler::PIL::PILLit.new(
+                value => ::Perl::Compiler::PIL::PILVal.new(
+                    value => 42,
+                ),
+            ),
+           );
+
 my $gen = ::Perl::Compiler::CodeGen::Perl5_Str.new;
-say $gen.generate($noop);
+say $tree.ref;
+say $gen.generate($tree);

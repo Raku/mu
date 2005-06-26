@@ -22,8 +22,8 @@ class Perl::Compiler::CodeGen::NameGen {
     method inject($name, $value) {
         if $name eq 'RET' {
             $.parent // die "No parent at this level";
-            if defined $parent_ident {
-                $.parent.inject($parent_ident, $value);
+            if defined $.parent_ident {
+                $.parent.inject($.parent_ident, $value);
             }
         }
         else {

@@ -3,19 +3,22 @@ use Perl::Compiler::CodeGen::NameGen;
 
 class Perl::Compiler::CodeGen::Perl5_Str
     does Perl::Compiler::CodeGen {
-    method generate (Perl::Compiler::PIL::PIL $tree) {
+
+    method generate (Perl::Compiler::PIL::PIL $tree is rw) {
         my $ng = ::Perl::Compiler::CodeGen::NameGen.new({ "\$P_$_" });
+        say "REFFY = $tree.ref()";
         ./gen($tree, $ng);
     }
 
-    method gen (Perl::Compiler::PIL::PIL $tree, PIL::Compiler::CodeGen::NameGen $ng) {
+    method gen (Perl::Compiler::PIL::PIL $tree is rw, PIL::Compiler::CodeGen::NameGen $ng is rw) {
+        say "Generating from $tree.ref() (ng = $ng)";
         given $tree {
             when ::Perl::Compiler::PIL::PILNil    { '' }
             when ::Perl::Compiler::PIL::PILNoop   { ';' }
             when ::Perl::Compiler::PIL::PILLit    { ./gen(.value, $ng.fork('RET')) }
             when ::Perl::Compiler::PIL::PILExp    { ./gen(.value, $ng.fork('RET')) }
             when ::Perl::Compiler::PIL::PILPos    { ./gen(.value, $ng.fork('RET')) }
-            when ::Perl::Compiler::PIL::PILStmt   { ./gen(.value, $ng.fork('RET')) }
+            when ::Perl::Compiler::PIL::PILStmt   { ./gen(.value, $ng.fork('expr')) ~ $ng.r('expr') }
             when ::Perl::Compiler::PIL::PILThunk  { $ng.ret('sub () { ' ~ ./gen(.value) ~ ' }'); '' }
             when ::Perl::Compiler::PIL::PILCode   { 'sub { ' ~ ./gen(.statments) ~ ' }' }
             when ::Perl::Compiler::PIL::PILVal    { $ng.ret(.value); '' }
@@ -49,6 +52,9 @@ class Perl::Compiler::CodeGen::Perl5_Str
                     '(' ~ join(', ', map { $ng.r("left$_") } 0 ..^ .lefts) ~ ') XXX:= ' ~ $ng.right
                 );
                 $str;
+            }
+            default {
+                die "Unknown PIL node type: $tree.ref()";
             }
         }
     }
