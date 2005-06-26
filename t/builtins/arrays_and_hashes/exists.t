@@ -36,13 +36,14 @@ ok !%hash.exists("42"), "exists on hashes (2)";
 # (exist in) a hash just because there was an attempt to read nonexistent elements.
 {
   sub foo( $any ) {}
+  sub bar( $any is copy ) {}
 
   my $empty_hash = hash();
   is( $empty_hash.pairs.sort.join( ',' ), '', "empty hash stays same when read from (1)" );
   $empty_hash{'z'};
   is( $empty_hash.pairs.sort.join( ',' ), '', "empty hash stays same when read from (2)" );
-  foo( $empty_hash{'y'} );
-  is( $empty_hash.pairs.sort.join( ',' ), '', "empty hash stays same when read from (3)", :todo<bug> );
+  bar( $empty_hash{'y'} );
+  is( $empty_hash.pairs.sort.join( ',' ), '', "empty hash stays same when read from (3)" );
   foo( $empty_hash{'x'} );
   is( $empty_hash.pairs.sort.join( ',' ), '', "empty hash stays same when read from (4)", :todo<bug> );
 
@@ -50,8 +51,8 @@ ok !%hash.exists("42"), "exists on hashes (2)";
   is( $popul_hash.pairs.sort.join( ',' ), 'a b,c d', "populated hash stays same when read from (1)" );
   $popul_hash{'z'};
   is( $popul_hash.pairs.sort.join( ',' ), 'a b,c d', "populated hash stays same when read from (2)" );
-  foo( $popul_hash{'y'} );
-  is( $popul_hash.pairs.sort.join( ',' ), 'a b,c d', "populated hash stays same when read from (3)", :todo<bug> );
+  bar( $popul_hash{'y'} );
+  is( $popul_hash.pairs.sort.join( ',' ), 'a b,c d', "populated hash stays same when read from (3)" );
   foo( $popul_hash{'x'} );
   is( $popul_hash.pairs.sort.join( ',' ), 'a b,c d', "populated hash stays same when read from (4)", :todo<bug> );
 }
