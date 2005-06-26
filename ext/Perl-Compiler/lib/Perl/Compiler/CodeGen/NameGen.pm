@@ -44,8 +44,4 @@ class Perl::Compiler::CodeGen::NameGen {
     }
 }
 
-class Perl::Compiler::CodeGen::NameGenList {
-        
-}
-
 # vim: ft=perl6 :
