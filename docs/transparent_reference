@@ -1,0 +1,10 @@
+In order to pass by read-only reference, we need a way to bind a container into
+a new name, but say that it is read-only while the original is read-write.
+This is a contradiction, since binding by definition binds a container to two
+names.  Still, we have to do it.
+
+We can solve this by creating a new reference type which delegates *everything*
+(FETCH, STORE, ref, etc.) except certain specified operations.  For normal sub
+parameters which are read-only reference, we put such a transparent reference
+that intercepts STOREs (and PUSHes, etc.) and dies.  Exposing this to the
+language level we can also have cool things like invisible COW containers.
