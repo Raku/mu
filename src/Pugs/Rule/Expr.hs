@@ -32,9 +32,9 @@ data Assoc                = AssocNone
                           | AssocChain
 
 data Operator t st a      = Infix (GenParser t st (a -> a -> a)) Assoc
-                          | InfixList (GenParser t st ([a] -> a)) Assoc
                           | Prefix (GenParser t st (a -> a))
                           | Postfix (GenParser t st (a -> a))
+                          | InfixList (GenParser t st ([a] -> a)) Assoc
                           | OptionalPrefix (GenParser t st (a -> a))
 
 type OperatorTable t st a = [[Operator t st a]]

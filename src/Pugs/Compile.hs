@@ -30,24 +30,25 @@ data (Typeable a) => PIL a where
     PNil        :: PIL [a]
     PNoop       :: PIL Stmt
 
-    PRawName    :: !VarName -> PIL Expression -- XXX HACK!
-
-    PExp        :: !(PIL LValue) -> PIL Expression 
-    PLit        :: !(PIL Literal) -> PIL Expression
     PPos        :: !Pos -> !Exp -> !(PIL a) -> PIL a
-    PStmt       :: !(PIL Expression) -> PIL Stmt 
-    PThunk      :: !(PIL Expression) -> PIL Expression 
-    PCode       :: !SubType -> ![TParam] -> !(PIL [Stmt]) -> PIL Expression 
+    PRawName    :: !VarName -> PIL Expression -- XXX HACK!
 
     PVal        :: !Val -> PIL Literal
     PVar        :: !VarName -> PIL LValue
 
+    PExp        :: !(PIL LValue) -> PIL Expression 
+    PLit        :: !(PIL Literal) -> PIL Expression
+    PThunk      :: !(PIL Expression) -> PIL Expression 
+    PCode       :: !SubType -> ![TParam] -> !(PIL [Stmt]) -> PIL Expression 
+
+    PStmt       :: !(PIL Expression) -> PIL Stmt 
     PStmts      :: !(PIL Stmt) -> !(PIL [Stmt]) -> PIL [Stmt]
+
     PApp        :: !TCxt -> !(PIL Expression) -> ![PIL Expression] -> PIL LValue
     PAssign     :: ![PIL LValue] -> !(PIL Expression) -> PIL LValue
     PBind       :: ![PIL LValue] -> !(PIL Expression) -> PIL LValue
-    PPad        :: !Scope -> ![(VarName, PIL Expression)] -> !(PIL [Stmt]) -> PIL [Stmt]
 
+    PPad        :: !Scope -> ![(VarName, PIL Expression)] -> !(PIL [Stmt]) -> PIL [Stmt]
     PSub        :: !SubName -> !SubType -> ![TParam] -> !(PIL [Stmt]) -> PIL Decl
 #endif
 
