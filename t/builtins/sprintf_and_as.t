@@ -13,12 +13,9 @@ is sprintf("%03d %02d", 3, 1),    "003 01", "sprintf() works with two args";
 is sprintf("%d %d %d",  3,1,4),   "3 1 4",  "sprintf() works with three args";
 is sprintf("%d%d%d%d",  3,1,4,1), "3141",   "sprintf() works with four args";
 
-is "Hi"   .as("[%s]"), "[Hi]", "as() works with %s";
+eval_is '"Hi".as("[%s]")', "[Hi]", 'as() works with %s', :todo<bug>;
 
-fail("FIXME hardfail", :todo<buf>);
-fail("FIXME hardfail", :todo<buf>);
-
-#is "3.141".as("[%d]"), "[3]",  "as() works with %d";
+eval_is '"3.141".as("[%d]")', "[3]",  "as() works with %d", :todo<bug>;
 
 # XXX: Following speculative
-#is (1.3,2.4,3).as("%d"), "1 2 3", "as() works with lists (speculative test)";
+eval_is '(1.3,2.4,3).as("%d")', "1 2 3", "as() works with lists (speculative test)", :todo<bug>;
