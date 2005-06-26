@@ -1,0 +1,44 @@
+module Perl::Compiler::CodeGen;
+
+class Perl::Compiler::CodeGen::NameGen {
+    has $.template;
+    has $.counter;
+    has $.parent;
+    has $.parent_ident;
+    has %.names;
+
+    submethod BUILD ($.template, ?$.counter = [0], ?$.parent, ?$.parent_ident) { }
+    
+    method fork($ident) {
+        my $ret = $?CLASS.new(
+            template => $.template,
+            parent   => $?SELF,
+            parent_ident => $ident,
+        );
+        $ret.set_counter_hack($.counter);
+        $ret;
+    }
+
+    method set_counter_hack($counter) {
+        $.counter = $counter;
+    }
+
+    method inject($name, $value) {
+        %.names{$name} = $value;
+    }
+
+    method ret($value) {
+        $.parent // die "No parent at this level";
+        $.parent.inject($.parent_ident, $value);
+    }
+
+    method r($name) {
+        %.names{$name} //= ./newreg;
+    }
+
+    method newreg() {
+        $.template($.counter[0]++);
+    }
+}
+
+# vim: ft=perl6 :
