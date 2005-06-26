@@ -1,3 +1,14 @@
+
+=kwid
+
+= NAME
+
+Perl::Compiler::PIL - Specifies PIL from pugs/src/Pugs/Compiler.hs in Perl 6's terms
+
+= DESCRIPTION
+
+=cut
+
 #use fatal;
 
 use Perl::Compiler::PIL::Util;
@@ -5,6 +16,17 @@ use Perl::Compiler::PIL::Util;
 role Perl::Compiler::PIL::PIL {
     method vtype () {...}
 }
+
+=kwid
+
+== PIL
+
+The type class for PIL nodes.  vtype() returns a string that represents the 
+node type, which are checked against each other for agreement at BUILD time
+for the below classes.
+
+=cut
+
 
 class Perl::Compiler::PIL::PILNil
     does Perl::Compiler::PIL::PIL {
