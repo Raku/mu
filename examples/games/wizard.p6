@@ -2,7 +2,7 @@ use v6;
 
 multi sub prompt (Str ?$prompt) {
     print $prompt;
-    my $input; ($input = =<>).chomp;
+    my $input; ($input = =<>) .= chomp;
     return $input;
 }
 

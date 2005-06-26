@@ -52,7 +52,7 @@ system $command;
 
 my @expected = <Hello Pugs>;
 my $got      = slurp $out_fn;
-chomp $got;
+$got .= chomp;
 if (substr($got,0,1) ~~ "\\") {
   $got = substr($got,1);
 };

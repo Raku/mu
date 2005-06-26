@@ -25,9 +25,9 @@ sub try(Any $this) {
 
   print "No!?  What was it then? ";
   # XXX: chomp(my $new = =$*IN)'d be nicer
-  my $new = =$*IN; chomp $new;
+  my $new = =$*IN; $new .= chomp;
   print "And a question that distinguishes a $this from a $new would be? ";
-  my $q   = =$*IN; chomp $q;
+  my $q   = =$*IN; $q .= chomp;
   my $yes = yes "And for a $new, the answer would be...";
 
   # XXX Pugs doesn't handle hashref construction by {...} correctly currently,

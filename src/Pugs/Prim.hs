@@ -109,13 +109,12 @@ op1 "chop" = \x -> do
             writeRef ref $ VStr (init str)
             return $ VStr [last str]
 op1 "chomp" = \x -> do
-    ref <- fromVal x
     str <- fromVal x
     if null str || last str /= '\n'
-        then return undef
+        then return $ VStr str
         else do
-            writeRef ref $ VStr (init str)
-            return $ VStr [last str]
+            -- writeRef ref $ VStr (init str)
+            return $ VStr $ init str
 op1 "Str::split" = op1Cast (castV . words)
 op1 "lc" = op1Cast (VStr . map toLower)
 op1 "lcfirst" = op1StrFirst toLower
@@ -1323,7 +1322,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Any       pre     undef     safe   ()\
 \\n   Any       pre     undefine  safe   (?rw!Any)\
 \\n   Str       pre     chop    safe   (?rw!Str=$_)\
-\\n   Str       pre     chomp   safe   (?rw!Str=$_)\
+\\n   Str       pre     chomp   safe   (?Str=$_)\
 \\n   Any       right   =       safe   (rw!Any, Any)\
 \\n   Int       pre     index   safe   (Str, Str, ?Int=0)\
 \\n   Int       pre     rindex  safe   (Str, Str, ?Int)\

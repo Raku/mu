@@ -710,7 +710,7 @@ Content of main program 'MyApp.pl':
 		show_message( $translator, Locale::KeyedText.new_message( 'MYAPP_HELLO' ) );
 		LOOP: {
 			show_message( $translator, Locale::KeyedText.new_message( 'MYAPP_PROMPT' ) );
-			my Str $user_input = $*IN; $user_input.chomp;
+			my Str $user_input = $*IN; $user_input .= chomp;
 			$user_input or last LOOP; # user chose to exit program
 			try {
 				my Num $result = MyLib.my_invert( $user_input );

@@ -27,7 +27,7 @@ sub parse (Str $filename, Hash %events is rw) returns Void is export {
     loop {
         my $line = $fh.readline;
         last unless $line.defined; # exit as soon as possible
-        chomp($line);
+        $line .= chomp;
         if ($line ~~ rx:perl5{^=kwid}) {
             $is_parsing = 1;
             %events<start_document>();
@@ -76,7 +76,7 @@ sub parse (Str $filename, Hash %events is rw) returns Void is export {
                             $verbatim ~= "$0\n";
                             $_line = $fh.readline;
                         }           
-                        chomp($verbatim);             
+                        $verbatim .= chomp;
                         %events<start_element>('verbatim');
                         %events<verbatim>($verbatim);
                         %events<end_element>('verbatim');                        
@@ -92,7 +92,7 @@ sub parse (Str $filename, Hash %events is rw) returns Void is export {
                             my $_line = $fh.readline;
                             while (defined($_line)             && 
                                    !($_line ~~ rx:perl5{^\n$}) ) {
-                                chomp($_line);
+                                $_line .= chomp;
                                 interpolate($_line, %events);
                                 $_line = $fh.readline;
                             }                          

@@ -119,7 +119,7 @@ print draw_hangman("guess a letter? ");
 my $letter;
 while ($letter = =$*IN) {
     cls;
-    chomp($letter);
+    $letter .= chomp;
 
     if (guess($letter)) {
         if (has_won()) {

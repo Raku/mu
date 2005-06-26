@@ -28,7 +28,7 @@ diag $command;
 system $command;
 
 my $child_pid = slurp $tempfile;
-chomp $child_pid;
+$child_pid .= chomp;
 unlink $tempfile;
 
 ok $*PID ne $child_pid, "My PID differs from the child pid ($*PID != $child_pid)";

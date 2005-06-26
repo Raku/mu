@@ -20,7 +20,7 @@ sub manual_cwd () {
   if ($?OS eq 'MSWin32') {
     my @retval = system("cd");
     my $cwd = @retval[0];
-    chomp($cwd);
+    $cwd .= chomp;
     return $cwd;
   }
 # This doesn't work - matter of fact it never did :)

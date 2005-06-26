@@ -16,7 +16,7 @@ sub load_db {
     return unless -e 'words.db.p5';
     open DB, "<words.db.p5" || die "Cannot open the words.db.p5 file: $!";
     while (my $line = <DB>) {
-        chomp($line);
+        $line .= chomp;
         my ($key, $value) = split(/\t/, $line);
         $words{$key} = $value;
     }

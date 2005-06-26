@@ -182,7 +182,7 @@ print tmpl_end();
 # This is the sub which expects a logline in ilogger2 format and returns
 # ($time, $type, $nick, $text).
 sub parse_ilogger2(Str $line is copy) {
-  chomp $line;
+  $line .= chomp;
   $line ~~ rx:Perl5/^\[(\d\d:\d\d)\] (.*)$/ or
     die "Couldn't parse line »$line«!";
   my ($time, $rest) = @$/;

@@ -26,7 +26,7 @@ for =$fh -> $line {
     $start = 0 if $line ~~ rx:perl5/^=cut/;    
 }
 $fh.close();
-chomp($expected_output);
+$expected_output .= chomp;
 
 # now compare
 is($test_output, $expected_output, '... Pod::Event::Parser POD round tripped successfully');

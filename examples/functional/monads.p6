@@ -63,7 +63,7 @@ sub mapM(Code $f, *@input) {
 sub getLine() {
   return {
     my $line = =$IN;
-    chomp $line;
+    $line .= chomp;
     $line;
   };
 }

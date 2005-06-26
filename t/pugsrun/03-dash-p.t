@@ -11,7 +11,7 @@ The C<-p> command line switch mimics the Perl5 C<-p> command line
 switch, and wraps the whole script in
 
   while ($_ = =<>) {
-    chomp;
+    $_ .= chomp;
     ...         # your script
     say;
   };

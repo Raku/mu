@@ -93,7 +93,7 @@ my %events = (
             }
         }
         # trim the last newline
-        chomp($buffer);
+        $buffer .= chomp;
     },
     string  => -> ($str)  { $buffer ~= $str  }   
 );

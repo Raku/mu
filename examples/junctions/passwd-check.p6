@@ -10,9 +10,7 @@ sub verify($password) {
 sub read_new_password {
 
   print "Enter new password: ";
-  my $password = =$IN;
-  chomp $password;
-  $password;
+  my $password = chomp =$IN;
 }
 
 while (not verify(read_new_password)) {

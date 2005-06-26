@@ -33,7 +33,7 @@ sub GolfScore {
    open(FF, $script) or die "error: open '$script'";
    my $golf = 0;
    while (<FF>) {
-      chomp; next unless length;
+      $_ .= chomp; next unless length;
       s/^#!.*?perl// if $. == 1;
       $golf += length;
    }

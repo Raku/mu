@@ -184,7 +184,7 @@ for @command -> $cmd {
     };
 
     my $output = slurp $outfile;
-    chomp $output;
+    $output .= chomp;
 
     is($output,$expected,$name)
       or diag slurp $prog;

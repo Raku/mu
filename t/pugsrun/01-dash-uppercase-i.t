@@ -64,7 +64,7 @@ for @tests -> $t {
   # (currently, this should work for WinNT and Unix shells)
   $command = join " ", map { qq("-I$_") } @dirs;
   my $got = run_pugs( $command ~ " $fragment" );
-  chomp $got;
+  $got .= chomp;
 
   if (substr($got,0,1) ~~ "[") {
     # Convert from arrayref to array
@@ -80,7 +80,7 @@ for @tests -> $t {
   $command = join " ", map { qq(-I "$_") } @dirs;
   $got = run_pugs( $command ~ " $fragment" );
   
-  chomp $got;
+  $got .= chomp;
   if (substr($got,0,1) ~~ "[") {
     # Convert from arrayref to array
     $got = substr($got, 1, -1);

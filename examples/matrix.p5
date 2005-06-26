@@ -5,7 +5,7 @@ use strict;
 
 print "5x5 matrix in one line: " unless @ARGV;
 my $matrix = shift || <>;
-chomp $matrix;
+$matrix .= chomp;
 $matrix ||= "abcdefghijklmnopqrstuvwxy";
 my @matrix = [ ('_') x 7 ];
 push @matrix, [ '_', (split //, substr $matrix, 0, 5, ''), '_' ] while $matrix;
@@ -67,7 +67,7 @@ open my $fh, '/usr/share/dict/american-english' or die $!;
 
 substr(join('', @{ $matrix[1] }), 1, 5) =~ /$re/ or die;  # Precompile
 while (<$fh>) {
-    chomp;
+    $_ .= chomp;
     next if tr/a-z//c;  # Regex would destroy the compiled one
     // and push @matches, [ $_, sum map $scores{$_}, split // ];
         # Re-use precompiled regex

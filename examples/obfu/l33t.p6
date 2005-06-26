@@ -195,7 +195,7 @@ method debug_help {
 
 method debug_action(Str $cmd is copy) returns Bool {
     $:runnable = bool::false;
-    $cmd.chomp;
+    $cmd .= chomp;
     $cmd ||= $:last_db_command;
     $:last_db_command = $cmd;
     given $cmd {

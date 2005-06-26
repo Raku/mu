@@ -11,7 +11,8 @@ Scalar -> Str
 
     Methods:
 
-    .chomp
+    .chomp    # Returns chomped string with a .newline property giving the
+                newline removed
     .chop
     .ord
     .lc
