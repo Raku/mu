@@ -1,3 +1,4 @@
+#!/usr/bin/pugs
 
 # this tests that you can define mutators, that do more interesting
 # things than merely assigning the value!

@@ -488,7 +488,7 @@ op1 "values" = valuesFromVal
 -- (http://www.nntp.perl.org/group/perl.perl6.language/21895),
 -- =$obj should call $obj.next().
 op1 "="        = \v -> case v of
-    VObject _   -> evalExp $ App (Var "&next") (Just $ Val v) []
+    VObject _   -> evalExp $ App (Var "&shift") (Just $ Val v) []
     _           -> op1 "readline" v
 op1 "readline" = \v -> op1Read v (getLines) (getLine)
     where
