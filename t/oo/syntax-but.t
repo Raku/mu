@@ -16,24 +16,42 @@ use Test;
 #       $_;
 #   };
 
-plan 4;
+plan 7;
 
-class SampleClass { has $.var }
-
+# Without an own class
 {
   my $was_in_but_block;
   my $topic_in_but_block;
 
-  my $obj = eval 'SampleClass.new but {
+  my $num = 3 but {
     $was_in_but_block++;
-    $topic_in_but_block++;
+    $topic_in_but_block = $_;
+    23;
+  };
+
+  is $num,                3, "syntax but worked on a literal";
+  ok $was_in_but_block,      "syntax but on a literal was executed";
+  is $topic_in_but_block, 3, "topic in syntax but on a literal was correct";
+}
+
+# With an own class
+{
+  class SampleClass { has $.attr }
+
+  my $was_in_but_block;
+  my $topic_in_but_block;
+
+  my $obj = SampleClass.new but {
+    $was_in_but_block++;
+    $topic_in_but_block = $_;
     .attr = 42;
     23;
-  }';
+  };
 
   ok $was_in_but_block, 'syntax but ($obj but {...}) was executed';
   cmp_ok $topic_in_but_block, &infix:<=:=>, $obj,
     'topic in syntax but ($obj but {...}) was correct';
-  is try { $obj.attr }, 42, "attribute setting worked correctly in syntax but";
-  cmp_ok $obj, &infix:<!=>, 23, "syntax but returned the original object";
+  my $attr = try { $obj.attr };
+  is $attr, 42, "attribute setting worked correctly in syntax but";
+  cmp_ok $obj, &infix:<~~>, SampleClass, "syntax but returned the original object";
 }

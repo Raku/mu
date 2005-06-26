@@ -339,6 +339,9 @@ reduceSyn "sub" [exp] = do
         , subCont = cont
         }
 
+reduceSyn "but" [obj, block] = do
+    evalExp $ App (Var "&Pugs::Internals::but_block") Nothing [obj, block]
+
 reduceSyn name [cond, bodyIf, bodyElse]
     | "if"     <- name = doCond id
     | "unless" <- name = doCond not

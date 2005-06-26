@@ -341,6 +341,8 @@ instance Compile Exp (PIL LValue) where
     compile (Syn syn [lhs, exp]) | last syn == '=' = do
         let op = "&infix:" ++ init syn
         compile $ Syn "=" [lhs, App (Var op) Nothing [lhs, exp]]
+    compile (Syn "but" [obj, block]) =
+        compile $ App (Var "&Pugs::Internals::but_block") Nothing [obj, block]
     compile exp = compError exp
 
 compLoop :: Exp -> Comp (PIL Stmt)
