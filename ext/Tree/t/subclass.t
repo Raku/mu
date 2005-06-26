@@ -15,7 +15,7 @@ isa_ok($birch, "Birch", "New birch");
 is($birch.bark, "thick", "looks like a birch!");
 is($birch.node, "test", "looks like a tree!");
 
-ok($birch.isa(Tree), "New birch is a tree", :todo<bug>);
+ok($birch.isa(Tree), "New birch is a tree");
 
 $birch.add_child(Birch.new( :bark("thin"), :node("foo")));
 

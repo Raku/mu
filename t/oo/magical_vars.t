@@ -37,7 +37,7 @@ class SimpleClass does Bar {}
   my $package = $foo_obj.get_package_normal;
   is( $package, 'Foo', '$?PACKAGE should be the package name' );
 
-  ok( $class ~~ ::Foo, 'the thing returned by $?CLASS in our class smartmatches against our class', :todo<bug> );
+  ok( $class ~~ ::Foo, 'the thing returned by $?CLASS in our class smartmatches against our class' );
   my $forty_two;
   lives_ok { my $obj = $class.new; $forty_two = $obj.dummy },
     'the class returned by $?CLASS in our class was really our class (1)';
@@ -76,8 +76,7 @@ class SimpleClass does Bar {}
   my $bar  = SimpleClass.new;
   my $role = $bar.get_role_normal;
 
-  ok $role ~~ ::Bar, 'the returned by $?ROLE smartmatches against our role',
-	:todo<bug>;
+  ok $role ~~ ::Bar, 'the returned by $?ROLE smartmatches against our role';
 }
 
 # Now the same with type vars
