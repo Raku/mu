@@ -19,7 +19,7 @@ multi sub date( Int ?$year, Int ?$month, Int ?$day,
 		   Int ?$hour, Int ?$minute, Int|Real ?$second,
 		   Str|Time::Zone ?$tz )#?
     returns Date::Gregorian is export {
-	$tz = tz($tz) if $tz.defined and !$tz.isa("Time::Zone");
+	#$tz = tz($tz) if $tz.defined and !$tz.isa("Time::Zone");
     return
 	Date::Gregorian.new( :year($year), :month($month), :day($day),
 			     :hour($hour), :minute($minute), :second($second),
@@ -83,6 +83,28 @@ method nanosecond returns Int {
     return int($nano);
     #int( ($.second - int($.second) ) * 1e9);
 }
+method microsecond returns Int {
+    int( ($.second - int($.second) ) * 1e6);
+}
+method millisecond returns Int {
+    int( ($.second - int($.second) ) * 1e3);
+}
+method ce_year returns Int { $.year }
+method quarter returns Int { int(($.month+2)/3) }
+method month_0 returns Int { $.month - 1 }
+
+our @months = <January February March     April   May      June
+               July    August   September October November December>;
+method month_name returns Str { @months[./month_0] }
+
+our @months_abbr = <Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec>;
+method month_abbr returns Str { @months_abbr[./month_0] }
+
+method day_of_month returns Int { $.day }
+method day_of_month_0 returns Int { $.day - 1 }
+method day_0 returns Int { $.day - 1 }
+method mday returns Int { $.day }
+method mday_0 returns Int { $.day - 1 }
 
 #use Duration::Gregorian;# qw(duration);
 

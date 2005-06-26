@@ -6,9 +6,10 @@
 use v6;
 
 use Test;
-plan 32
+plan 32;
 
 use Date::Gregorian;
+
 {
     # Tests creating objects from time_t time
     my $t1 = date(:time_t(0));
@@ -117,7 +118,7 @@ use Date::Gregorian;
 
 {
     my $dt = date( :epoch(0.5));
-    is( $dt.nanosecond, 500_000_000, 'nanosecond should be 500,000,000 with 0.5 as time_t' );
+    is( $dt.nanosecond, 500000000, 'nanosecond should be 500,000,000 with 0.5 as time_t' );
 
     isnt( $dt.time_t, 0, 'time_t should NOT be 0' );
     is( $dt.epoch, 0.5, 'hires_time_t should be 0.5' );
@@ -125,5 +126,5 @@ use Date::Gregorian;
 
 {
     my $dt = date( :time_t(0.1234567891));
-    is( $dt.nanosecond, 123_456_789, 'nanosecond should be an integer ' );
+    is( $dt.nanosecond, 123456789, 'nanosecond should be an integer ' );
 }
