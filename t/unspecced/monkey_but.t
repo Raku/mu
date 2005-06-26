@@ -8,8 +8,15 @@ use Test;
 =cut
 
 my $IR = Baboon.new but {
+    # no copy -- $_ is the frsh Baboon.new
     .butt = "red"; # :todo<feature> # but texture("shiney");
+    # here is an implicit ($_;)  to get the value back to $IR.
 };
+
+# my $IR = do given Baboon.new {
+#     .butt = "ref";
+#     $_;
+# };
 
 is($IR.butt, "red", "basic anatomy");
 
