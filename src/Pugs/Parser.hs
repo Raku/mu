@@ -735,7 +735,7 @@ ruleCondConstruct = rule "conditional construct" $ do
 
 ruleCondBody :: String -> RuleParser Exp
 ruleCondBody csym = rule "conditional expression" $ do
-    cond <- maybeParens $ ruleExpression
+    cond <- maybeParens $ parseLitOp <|> ruleExpression
     body <- ruleBlock
     bodyElse <- option emptyExp ruleElseConstruct
     retSyn csym [cond, body, bodyElse]
@@ -752,21 +752,21 @@ ruleElseConstruct = rule "else or elsif construct" $
 ruleWhileUntilConstruct :: RuleParser Exp
 ruleWhileUntilConstruct = rule "while/until construct" $ do
     sym <- choice [ symbol "while", symbol "until" ]
-    cond <- maybeParens $ ruleExpression
+    cond <- maybeParens $ parseLitOp <|> ruleExpression
     body <- ruleBlock
     retSyn sym [ cond, body ]
 
 ruleGivenConstruct :: RuleParser Exp
 ruleGivenConstruct = rule "given construct" $ do
     sym <- symbol "given"
-    topic <- maybeParens $ ruleExpression
+    topic <- maybeParens $ parseLitOp <|> ruleExpression
     body <- ruleBlock
     retSyn sym [ topic, body ]
 
 ruleWhenConstruct :: RuleParser Exp
 ruleWhenConstruct = rule "when construct" $ do
     sym <- symbol "when"
-    match <- maybeParens $ ruleExpression
+    match <- maybeParens $ parseLitOp <|> ruleExpression
     body <- ruleBlock
     retSyn sym [ match, body ]
 
