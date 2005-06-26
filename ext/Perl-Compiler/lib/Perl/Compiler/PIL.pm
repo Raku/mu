@@ -1,5 +1,7 @@
 #use fatal;
 
+use Perl::Compiler::PIL::Util;
+
 role Perl::Compiler::PIL::PIL {
     method vtype () {...}
 }
@@ -18,7 +20,7 @@ class Perl::Compiler::PIL::PILExp
     does Perl::Compiler::PIL::PIL {
     has Perl::Compiler::PIL::PIL $.value;
     submethod BUILD (Perl::Compiler::PIL::PIL $.value) {
-        fail unless $.value.vtype eq 'LValue';
+        die unless $.value.vtype eq 'LValue';   # should be 'fail' once 'use fatal' is implemented
     }
     method vtype () { 'Expression' }
 }
@@ -27,7 +29,7 @@ class Perl::Compiler::PIL::PILLit
     does Perl::Compiler::PIL::PIL {
     has Perl::Compiler::PIL::PIL $.value;
     submethod BUILD (Perl::Compiler::PIL::PIL $.value) { 
-        fail unless $.value.vtype eq 'Literal';
+        die unless $.value.vtype eq 'Literal';
     }
     method vtype () { 'Expression' }
 }
@@ -42,7 +44,7 @@ class Perl::Compiler::PIL::PILStmt
     does Perl::Compiler::PIL::PIL {
     has Perl::Compiler::PIL::PIL $.value;
     submethod BUILD (Perl::Compiler::PIL::PIL $.value) {
-        fail unless $.value.vtype eq 'Expression';
+        die unless $.value.vtype eq 'Expression';
     }
     method vtype () { 'Stmt' }
 }
@@ -51,7 +53,7 @@ class Perl::Compiler::PIL::PILThunk
     does Perl::Compiler::PIL::PIL {
     has Perl::Compiler::PIL::PIL $.value;
     submethod BUILD (Perl::Compiler::PIL::PIL $.value) {
-        fail unless $.value.vtype eq 'Expression';
+        die unless $.value.vtype eq 'Expression';
     }
     method vtype () { 'Expression' }
 }
@@ -63,7 +65,7 @@ class Perl::Compiler::PIL::PILCode
     has PIL $.statements;
     submethod BUILD (Perl::Compiler::PIL::Util::Type $.codetype, Perl::Compiler::PIL::Util::Signature $.signature, 
                      Perl::Compiler::PIL::PIL $.statements) {
-        fail unless $.value.vtype eq '[Stmt]';
+        die unless $.value.vtype eq '[Stmt]';
     }
     method vtype () { 'Expression' }
 }
@@ -86,7 +88,7 @@ class Perl::Compiler::PIL::PILStmts
     has Perl::Compiler::PIL::PIL $.head;
     has Perl::Compiler::PIL::PIL $.tail;
     submethod BUILD (Perl::Compiler::PIL::PIL $.head, Perl::Compiler::PIL::PIL $.tail) {
-        fail unless $.head.vtype eq 'Stmt' and $.tail.vtype eq 'Stmts';
+        die unless $.head.vtype eq 'Stmt' and $.tail.vtype eq 'Stmts';
     }
     method vtype () { 'Stmts' }
 }
@@ -97,7 +99,7 @@ class Perl::Compiler::PIL::PILApp
     has Perl::Compiler::PIL::PIL $.code;
     has Perl::Compiler::PIL::PIL @.args;
     submethod BUILD ($.context, Perl::Compiler::PIL::PIL $.code, Perl::Compiler::PIL::PIL @.args) {
-        fail unless all($.code.vtype, @.args).vtype eq 'Expression';
+        die unless all($.code.vtype, @.args).vtype eq 'Expression';
     }
     method vtype () { 'Expression' }
 }
@@ -107,7 +109,7 @@ class Perl::Compiler::PIL::PILAssign
     has Perl::Compiler::PIL::PIL @.lefts;
     has Perl::Compiler::PIL::PIL $.right;
     submethod BUILD (Perl::Compiler::PIL::PIL @.lefts, Perl::Compiler::PIL::PIL $.right) {
-        fail unless all(@.lefts).vtype eq 'LValue'
+        die unless all(@.lefts).vtype eq 'LValue'
                 and $.right.vtype eq 'Expression';
     }
     method vtype () { 'LValue' }
@@ -118,7 +120,7 @@ class Perl::Compiler::PIL::PILBind
     has Perl::Compiler::PIL::PIL @.lefts;
     has Perl::Compiler::PIL::PIL $.right;
     submethod BUILD (Perl::Compiler::PIL::PIL @.lefts, Perl::Compiler::PIL::PIL $.right) {
-        fail unless all(@.lefts).vtype eq 'LValue'
+        die unless all(@.lefts).vtype eq 'LValue'
                 and $.right.vtype eq 'Expression';
     }
     method vtype () { 'LValue' }
