@@ -96,12 +96,12 @@ is($val, "baz", "lvalue lists");
 # illustrate a bug
 
 my $var   = 'foo' => 'bar';
-sub test1 (Any $pair) {
-	isa_ok($pair,'Pair') ; 
+sub test1 (Any|Pair $pair) {
+	isa_ok($pair,'Pair', :todo<bug>) ; 
 	my $testpair = $pair;
 	isa_ok($testpair,'Pair'); # new lvalue variable is also a Pair
 	my $boundpair := $pair;
-	isa_ok($boundpair,'Pair'); # bound variable is also a Pair
+	isa_ok($boundpair,'Pair', :todo<bug>); # bound variable is also a Pair
 	is($pair.key, 'foo', 'in sub test1 got the right $pair.key');
 	is($pair.value, 'bar', 'in sub test1 got the right $pair.value');
 

@@ -15,5 +15,5 @@ plan 2;
   }
 
   ok $was_in_macro;
-  is 3!, 6, "macro postfix:<...> works";
+  is 3!, 6, "macro postfix:<!> works", :todo<feature>;
 }
