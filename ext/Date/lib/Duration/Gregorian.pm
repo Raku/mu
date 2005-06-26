@@ -68,15 +68,15 @@ multi method infix:<+>( $self: Str|Int|Real $iso8601_dur ) {
     $self + duration($iso8601_dur);
 }
 
-multi method infix:<->( $self: Int|Real $iso8601_dur ) {
-    $self + duration($iso8601_dur);
-}
+##multi method infix:<->( $self: Int|Real $iso8601_dur ) {
+    #$self + duration($iso8601_dur);
+#}
 
-multi method infix:<->( $self: Str $what ) {
-    my $other = eval { date($what) };
-    if ( $other ) {
-	return $self - $other;
-    } else {
-	return $self - duration($what);
-    }
-}
+#multi method infix:<->( $self: Str $what ) {
+    #my $other = eval { date($what) };
+    #if ( $other ) {
+	#return $self - $other;
+    #} else {
+	#return $self - duration($what);
+    #}
+#}

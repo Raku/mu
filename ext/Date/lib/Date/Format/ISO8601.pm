@@ -8,7 +8,7 @@ our $iso8601_re is export = rx:perl5:ix/\s*
         # month and day
         (?: (?: (\d\d) -? | - ) (\d\d) | (\d{3}) | [wW](\d{2}) )
         # optional time delimeter
-	T \s*
+	T? \s*
 	# time - optional, defaults to 0:00
         (\d\d):?(\d\d):?(\d\d(?:\.\d*)?) \s*
 	# time zone - optional, defaults to local time

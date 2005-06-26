@@ -1,5 +1,7 @@
 #!/usr/bin/perl
 
+# based on the DateTime 0.29 test script of the same name.
+
 use Test;
 
 plan 6 * 12;

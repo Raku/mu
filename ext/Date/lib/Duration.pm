@@ -14,10 +14,11 @@ method subtract($self: Duration $duration) returns Duration {
     $self.new($self.length - $duration.length);
 }
 
-method infix:<->($self: Duration $duration) returns Duration {
-    $self.subtract($duration);
-}
+#method infix:<->($self: Duration $duration) returns Duration {
+    #$self.subtract($duration);
+#}
 
-method infix:<+>($self: Duration $duration) returns Duration {
-    $self.add($duration);
-}
+#method infix:<+>($self: Duration $duration) returns Duration {
+    #$self.add($duration);
+#}
+#

@@ -25,13 +25,13 @@ method difference($self: Date $other) returns Duration {
     ...
 }
 
-method infix:<->($self: Date $other) returns Duration {
-    $self.difference($other);
-}
+#method infix:<->($self: Date $other) returns Duration {
+    #$self.difference($other);
+#}
 
-method infix:<->($self: Duration $duration) returns Date {
-    $self.subtract($duration);
-}
+#method infix:<->($self: Duration $duration) returns Date {
+    #$self.subtract($duration);
+#}
 
 method infix:<+>($self: Duration $duration) returns Date {
     $self.add($duration);

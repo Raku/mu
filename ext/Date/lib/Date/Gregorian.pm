@@ -15,23 +15,24 @@ has Int $.month;
 has Int $.day;
 has Int $.hour;
 has Int $.minute;
-has $.second;
+has Real $.second;
 
 has Time::Zone $.tz;
 
 our $iso8601_re_anchored = rx:perl5/^$iso8601_re$/;
 
-multi method date( Int ?$year, Int ?$month, Int ?$day,
+multi sub date( Int ?$year, Int ?$month, Int ?$day,
 		   Int ?$hour, Int ?$minute, Int|Real ?$second,
 		   Time::Zone ?$tz )#?
-    returns Date::Gregorian {
-    Date::Gregorian.new( :year($year), :month($month), :day($day),
-			 :hour($hour), :minute($minute), :second($second),
-			 :tz($tz) );
+    returns Date::Gregorian is export {
+    return
+	Date::Gregorian.new( :year($year), :month($month), :day($day),
+			     :hour($hour), :minute($minute), :second($second),
+			     :tz($tz) );
 }
 
 # convert from an iso date
-multi method date( Str $iso8601 ) returns Date::Gregorian is export {
+multi sub date( Str $iso8601 ) returns Date::Gregorian is export {
 
     $iso8601 ~~ $iso8601_re_anchored
         or die "can't match '$iso8601' to available ISO-8601 formats";
@@ -66,17 +67,26 @@ multi method date( Str $iso8601 ) returns Date::Gregorian is export {
 }
 
 # convert from a unix time_t
-multi method date( Int $time_t ) returns Date::Gregorian is export {
+multi sub date( Int $time_t ) returns Date::Gregorian is export {
     Date::Gregorian.new( :year(1970), :month(1),  :day(1),
 			:hour(0),    :minute(0), :second(0),
 			:tz(tz "UTC") ) + $time_t;
 }
 
 # convert from a perl float
-multi method date( Real $epoch ) returns Date::Gregorian is export {
+multi sub date( Real $epoch ) returns Date::Gregorian is export {
     Date::Gregorian.new( :year(1970), :month(1),  :day(1),
 			:hour(0),    :minute(0), :second(0),
 			:tz(tz "UTC") ) + $epoch;
+}
+
+method nanosecond returns Int {
+    my $sec = $.second;
+    my $round_sec = int($sec);
+    my $rem = $sec - $round_sec;
+    my $nano = $rem * 1e9;
+    return int($nano);
+    #int( ($.second - int($.second) ) * 1e9);
 }
 
 # operations with Duration::Gregorian constructors..
@@ -84,17 +94,17 @@ multi method infix:<+>( $self: Str|Int|Real $iso8601_dur ) {
     $self + duration($iso8601_dur);
 }
 
-multi method infix:<->( $self: Int|Real $iso8601_dur ) {
-    $self + duration($iso8601_dur);
-}
+# still an outstanding bug in overloaded -
+#multi method infix:<->( $self: Int|Real $iso8601_dur ) {
+    #$self + duration($iso8601_dur);
+#}
 
-multi method infix:<->( $self: Str $what ) {
-    my $other = eval { date($what) };
-    if ( $other ) {
-	return $self - $other;
-    } else {
-	return $self - duration($what);
-    }
-}
+#multi method infix:<->( $self: Str $what ) {
+    #my $other = eval { date($what) };
+    #if ( $other ) {
+	#return $self - $other;
+    #} else {
+	#return $self - duration($what);
+    #}
+#}
 
-=cut
