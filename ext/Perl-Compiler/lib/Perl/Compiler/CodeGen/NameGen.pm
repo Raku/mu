@@ -12,15 +12,11 @@ class Perl::Compiler::CodeGen::NameGen {
     method fork($ident) {
         my $ret = $?CLASS.new(
             template => $.template,
+            conter => $.counter,
             parent   => $?SELF,
             parent_ident => $ident,
         );
-        $ret.set_counter_hack($.counter);
         $ret;
-    }
-
-    method set_counter_hack($counter) {
-        $.counter = $counter;
     }
 
     method inject($name, $value) {
