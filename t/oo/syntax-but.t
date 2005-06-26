@@ -24,9 +24,11 @@ plan 7;
   my $topic_in_but_block;
 
   my $num = 3 but {
+    # $_ is 3.
     $was_in_but_block++;
     $topic_in_but_block = $_;
     23;
+    # Here is an implicit ($_;) to get 3 back to $num, insteaf of 23.
   };
 
   is $num,                3, "syntax but worked on a literal";
@@ -42,10 +44,12 @@ plan 7;
   my $topic_in_but_block;
 
   my $obj = SampleClass.new but {
+    # $_ is the fresh SampleClass.new.
     $was_in_but_block++;
     $topic_in_but_block = $_;
     .attr = 42;
     23;
+    # Here is an implicit ($_;) to get 3 back to $num, insteaf of 23.
   };
 
   ok $was_in_but_block, 'syntax but ($obj but {...}) was executed';
