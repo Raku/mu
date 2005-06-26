@@ -639,9 +639,15 @@ reduceSyn "subst" [exp, subst, adverbs] = do
 reduceSyn "is" _ = do
     retEmpty
 
+reduceSyn "package" [exp] = do
+    val <- evalExp exp
+    writeVar "$*PACKAGE" val
+    retEmpty
+
 reduceSyn "module" [exp] = do
     val <- evalExp exp
     writeVar "$?MODULE" val
+    writeVar "$*PACKAGE" val
     retEmpty
 
 reduceSyn "inline" [langExp, _] = do
@@ -966,7 +972,7 @@ doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args
             case (lv, rw) of
                 (True, True)    -> return v
                 (True, False)   -> do
-                    --- not scalarRef!
+                    --- not scalarRef! -- use the new "transparent IType" thing!
                     case showType (typeOfSigil $ head name) of
                         "Hash"  -> fmap (VRef . hashRef) (fromVal v :: Eval VHash)
                         "Array" -> fmap (VRef . arrayRef) (fromVal v :: Eval VArray)

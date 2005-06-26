@@ -350,7 +350,7 @@ findSyms :: Var -> Eval [(String, Val)]
 findSyms name = do
     lex  <- asks envLexical
     glob <- askGlobal
-    pkg  <- asks envPackage
+    pkg  <- fromVal =<< readVar "$*PACKAGE"
     let names = nub [name, toPackage pkg name, toGlobal name]
     syms <- forM [lex, glob] $ \pad -> do
         forM names $ \name' -> do
