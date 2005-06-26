@@ -4,9 +4,10 @@
 
 use Test;
 
-plan 15;
+#plan 15;
 
-use_ok("Date::Gregorian");
+BEGIN { plan 15;
+	use_ok("Date::Gregorian") };
 
 {
     my $dg = Date::Gregorian.new( :year(1870), :month(10), :day(21),

@@ -13,21 +13,21 @@ has Int $.minute;
 has $.second;
 
 # do subs that get declared first "win" the MMD war?
-multi sub duration( Int|Real ?$seconds ) returns Date::Gregorian is export {
+multi sub duration( Int|Real ?$seconds ) returns Duration::Gregorian is export {
     duration(:second($seconds));
 }
 
 multi sub duration( Int ?$year, Int ?$month, Int ?$day,
-		    Int ?$hour, Int ?$minute, Int|Real ?$second
+		    Int ?$hour, Int ?$minute, Int|Real ?$second #)
 		     )
-    returns Date::Gregorian is export {
+    returns Duration::Gregorian is export {
     Duration::Gregorian.new( :year($year), :month($month), :day($day),
 			     :hour($hour), :minute($minute), :second($second),
 			   );
 }
 
 # convert from an iso duration
-multi method duration( Str $iso8601 ) returns Date::Gregorian is export {
+multi method duration( Str $iso8601 ) returns Duration::Gregorian is export {
 
     # FIXME - missing XXXX 
     $iso8601 ~~ $iso8601_duration_re_anchored

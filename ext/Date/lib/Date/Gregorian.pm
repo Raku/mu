@@ -1,14 +1,14 @@
 
-class Date::Gregorian; # is Date;
+class Date::Gregorian is Date;
 
-#use Time::Zone;
-#use Date::Format::ISO8601;
+use Time::Zone;
+use Date::Format::ISO8601;
 
-=pod
+use Duration::Gregorian;# qw(duration);
 
-use Duration::Gregorian; # qw(duration);
-
+BEGIN {
 our &Date::Gregorian::duration ::= &Duration::Gregorian::duration;
+}
 
 has Int $.year;
 has Int $.month;
