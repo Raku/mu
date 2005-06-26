@@ -182,6 +182,7 @@ ruleDeclaration = rule "declaration" $ choice
     [ ruleModuleDeclaration
     , ruleVarDeclaration
     , ruleMemberDeclaration
+    , ruleTraitDeclaration
     , ruleUseDeclaration
     , ruleInlineDeclaration
     , ruleRequireDeclaration
@@ -414,6 +415,13 @@ ruleTrustsDeclaration = do
     symbol "trusts"
     lexeme ruleQualifiedIdentifier
     return emptyExp
+
+ruleTraitDeclaration :: RuleParser Exp
+ruleTraitDeclaration = do
+    trait   <- ruleTrait
+    env     <- getRuleEnv
+    let pkg = Var (':':envPackage env)
+    return $ Syn "=" [Syn "{}" [pkg, Val (VStr "traits")], Syn "," [Syn "{}" [pkg, Val (VStr "traits")], Val (VStr trait)]]
 
 ruleMemberDeclaration :: RuleParser Exp
 ruleMemberDeclaration = do
