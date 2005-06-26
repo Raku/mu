@@ -14,7 +14,7 @@ L<http://groups.google.de/group/perl.perl6.language/msg/bd9eb275d5da2eda>
 
 =cut
 
-plan 30;
+plan 35;
 
 {
   my @array = <5 -3 7 0 1 -9>;
@@ -64,11 +64,29 @@ ok (not [!=] 4, 4, 4),    "[!=] works (2)";
 }
 
 {
+  my $hash = {a => {b => 42}};
+  is ([.{}] $hash, <a b>), 42, '[.{}] works two levels deep';
+}
+
+{
   my $hash = {a => {b => {c => {d => 42, e => 23}}}};
   is eval('[.{}] $hash, <a b c d>'), 42, '[.{}] works', :todo<bug>;
 
   my $arr = [[[1,2,3],[4,5,6]],[[7,8,9],[10,11,12]]];
   is ([.[]] $arr, 1, 0, 2), 9, '[.[]] works';
+}
+
+{
+  my $hash = {a => {b => {c => 42}}};
+  my @reftypes;
+  sub foo (Hash $hash, String $key) {
+    push @reftypes, $hash.ref;
+    $hash.{$key};
+  }
+  is((reduce(&foo, $hash, <a b c>)), 42, 'reduce(&foo) (foo ~~ .{}) works three levels deep');
+  is(@reftypes[0], "Hash", "first application of reduced hash subscript passed in a Hash"); # Array
+  is(@reftypes[1], "Hash", "second application of reduced hash subscript passed in a Hash"); # Scalar::Proxy
+  is(@reftypes[2], "Hash", "third application of reduced hash subscript passed in a Hash"); # Scalar::Proxy
 }
 
 {
