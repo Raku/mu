@@ -25,28 +25,28 @@ class Perl::Compiler::CodeGen::Perl5_Str
                 # XXX this idiom needs refactoring
                 my $str = join ' ',
                     ./gen(.code, $ng.fork('code')),
-                    map { ./gen($^arg, $^gen) } .args ¥ map { $ng.fork("arg$_") } 0..^.args;
+                    map { ./gen($^arg, $^gen) } zip([.args], [map { $ng.fork("arg$_") } 0 ..^ .args]);
                 $ng.ret(
                     '&{' ~ $ng.r('code') ~ '}'
-                    ~ '(' ~ join(', ', map { $ng.r("arg$_") } 0..^.args) ~ ')'
+                    ~ '(' ~ join(', ', map { $ng.r("arg$_") } 0 ..^ .args) ~ ')'
                 );
                 $str;
             }
             when ::Perl::Compiler::PIL::PILAssign {
                 my $str = join ' ',
                     ./gen(.right, $ng.fork('right')),
-                    map { ./gen($^arg, $^gen) } .args ¥ map { $ng.fork("left$_") } 0..^.args;
+                    map { ./gen($^arg, $^gen) } .args ¥ map { $ng.fork("left$_") } 0 ..^ .lefts;
                 $ng.ret(
-                    '(' ~ join(', ', map { $ng.r("left$_") } 0..^.lefts) ~ ') = ' ~ $ng.right
+                    '(' ~ join(', ', map { $ng.r("left$_") } 0 ..^ .lefts) ~ ') = ' ~ $ng.right
                 );
                 $str;
             }
             when ::Perl::Compiler::PIL::PILBind   {
                 my $str = join ' ',
                     ./gen(.right, $ng.fork('right')),
-                    map { ./gen($^arg, $^gen) } .args ¥ map { $ng.fork("left$_") } 0..^.args;
+                    map { ./gen($^arg, $^gen) } .args ¥ map { $ng.fork("left$_") } 0 ..^ .lefts;
                 $ng.ret(
-                    '(' ~ join(', ', map { $ng.r("left$_") } 0..^.lefts) ~ ') XXX:= ' ~ $ng.right
+                    '(' ~ join(', ', map { $ng.r("left$_") } 0 ..^ .lefts) ~ ') XXX:= ' ~ $ng.right
                 );
                 $str;
             }
