@@ -2,13 +2,12 @@
 {-# OPTIONS_GHC -#include "UnicodeC.h" #-}
 
 module Pugs.Prim.Match (
-    op2Match, rxSplit, rxSplit_n, matchFromMR
+    op2Match, rxSplit, rxSplit_n, matchFromMR, pkgParents
 ) where
 import Pugs.Internals
 import Pugs.Embed
 import Pugs.AST
 import Pugs.Types
-import Pugs.Context
 import Pugs.Config
 import qualified RRegex.PCRE as PCRE
 import qualified Data.Map as Map
@@ -73,9 +72,19 @@ matchFromMR mr = VMatch $ mkMatchOk 0 0 (decodeUTF8 all) subsMatch Map.empty
 
 -- XXX - need to generalise this
 op2Match :: Val -> Val -> Eval Val
+
+op2Match x (VRef (MkRef (IScalar sv))) | scalar_iType sv == mkType "Scalar::Const" = do
+    y' <- scalar_fetch' sv
+    op2Match x y'
+
 op2Match x (VRef y) = do
     y' <- readRef y
     op2Match x y'
+
+op2Match x y@(VObject MkObject{ objType = MkType "Class" } ) = do
+    fetch   <- doHash y hash_fetchVal
+    name    <- fromVal =<< fetch "name"
+    op2Match x (VType (MkType name))
 
 op2Match x (VSubst (rx, subst)) | rxGlobal rx = do
     str         <- fromVal x
@@ -146,14 +155,15 @@ op2Match (VRef x) y = do
     op2Match x' y
 
 op2Match (VType typ) (VType t) = do
-    cls <- asks envClasses
-    return $ VBool (isaType cls (showType t) typ)
+    typs <- pkgParents (showType typ)
+    return . VBool $ showType t `elem` typs
 
 op2Match x y@(VType _) = do
     typ <- fromVal x
     op2Match (VType typ) y
 
-op2Match x y = op2Cmp (fromVal :: Val -> Eval VStr) (==) x y
+op2Match x y = do
+    op2Cmp (fromVal :: Val -> Eval VStr) (==) x y
 
 op2Cmp :: (a -> Eval b) -> (b -> b -> VBool) -> a -> a -> Eval Val
 op2Cmp f cmp x y = do
@@ -194,3 +204,14 @@ rxSplit_n rx str n = do
                 after  = genericDrop (matchTo match) str
             rest <- rxSplit_n rx after (n-1)
             return $ (VStr before:matchSubPos match) ++ rest
+
+pkgParents :: VStr -> Eval [VStr]
+pkgParents pkg = do
+    ref     <- readVar (':':'*':pkg)
+    if ref == undef then return [] else do
+    meta    <- readRef =<< fromVal ref
+    fetch   <- doHash meta hash_fetchVal
+    attrs   <- fromVal =<< fetch "traits"
+    pkgs    <- mapM pkgParents attrs
+    return $ nub (pkg:concat pkgs)
+

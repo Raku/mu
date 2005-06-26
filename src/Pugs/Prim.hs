@@ -24,7 +24,6 @@ module Pugs.Prim (
 ) where
 import Pugs.Internals
 import Pugs.Junc
-import Pugs.Context
 import Pugs.AST
 import Pugs.Types
 import Pugs.Monads
@@ -566,16 +565,6 @@ returnList vals = ifListContext
     (return . VRef $ arrayRef vals)
     (return . VList $ vals)
 
-pkgParents :: VStr -> Eval [VStr]
-pkgParents pkg = do
-    ref     <- readVar (':':'*':pkg)
-    if ref == undef then return [] else do
-    meta    <- readRef =<< fromVal ref
-    fetch   <- doHash meta hash_fetchVal
-    attrs   <- fromVal =<< fetch "traits"
-    pkgs    <- mapM pkgParents attrs
-    return $ nub (pkg:concat pkgs)
-
 op1WalkAllNoArgs :: ([VStr] -> [VStr]) -> VStr -> Val -> Eval Val
 op1WalkAllNoArgs f meth v = do
     pkgs    <- pkgParents =<< fmap showType (evalValType v)
@@ -812,12 +801,10 @@ op2 "kill" = \s v -> do
     return . VInt $ sum rets
 op2 "does"  = op2 "isa" -- XXX not correct
 op2 "isa"   = \x y -> do
-    typX <- fromVal =<< op1 "ref" x
     typY <- case y of
         VStr str -> return $ mkType str
         _        -> fromVal y
-    cls  <- asks envClasses
-    return . VBool $ isaType cls (showType typY) typX
+    op2Match x (VType typY)
 op2 "delete" = \x y -> do
     ref <- fromVal x
     deleteFromRef ref y
