@@ -12,7 +12,7 @@ my $version_h = "src/Pugs/pugs_version.h";
 my $config_h = "src/Pugs/pugs_config.h";
 my @srcdirs  = grep {-d} glob("src"), glob("src/*"), glob("src/*/*"), glob("src/*/*/*");
 my @hsfiles  = map {glob "$_/*.hs"} @srcdirs;
-push @hsfiles, qw<src/Pugs/Config.hs src/Pugs/Prelude.hs src/Pugs/Trans/PIR/Prelude.hs>;
+push @hsfiles, qw<src/Pugs/Config.hs src/Pugs/Prelude.hs src/Pugs/CodeGen/PIR/Prelude.hs>;
 my @hppfiles = map {my $x=$_; $x=~s/\.hs$/.hpp/; $x} @hsfiles;
 
 warn_cygwin     ();
@@ -46,7 +46,7 @@ makemaker_args  (
 clean_files     (map fixpaths($_),
     "pugs*", "src/Pugs/pugs_config.h", $version_h, $config_h,
     'src/Pugs/Config.hs', 'blib6',
-    'src/Pugs/Prelude.hs', 'src/Pugs/Trans/PIR/Prelude.hs',
+    'src/Pugs/Prelude.hs', 'src/Pugs/CodeGen/PIR/Prelude.hs',
     "src/gen_prelude$Config{_exe}",
     'test.log',
     'src/Pugs/Embed/Parrot.hs',
@@ -246,9 +246,9 @@ src/gen_prelude$Config{_exe} : src/gen_prelude.hs
 src/Pugs/Prelude.hs : src/gen_prelude$Config{_exe} src/perl6/Prelude.pm
 	src/gen_prelude$Config{_exe} Pugs.Prelude < src/perl6/Prelude.pm > src/Pugs/Prelude.hs
 
-src/Pugs/Trans/PIR/Prelude.hs : src/gen_prelude$Config{_exe} src/perl6/Prelude/PIR.pm
-	\@\$(PERL) -e "mkdir q-src/Pugs/Trans/PIR-"
-	src/gen_prelude$Config{_exe} Pugs.Trans.PIR.Prelude < src/perl6/Prelude/PIR.pm > src/Pugs/Trans/PIR/Prelude.hs
+src/Pugs/CodeGen/PIR/Prelude.hs : src/gen_prelude$Config{_exe} src/perl6/Prelude/PIR.pm
+	\@\$(PERL) -e "mkdir q-src/Pugs/CodeGen/PIR-"
+	src/gen_prelude$Config{_exe} Pugs.CodeGen.PIR.Prelude < src/perl6/Prelude/PIR.pm > src/Pugs/CodeGen/PIR/Prelude.hs
 
 ${() = '%.hpp : %.hs @prereqs $version_h
 	$ghc $threaded $ghc_flags -DHADDOCK -E \$< -o \$@
@@ -273,7 +273,7 @@ haddock : $version_h $config_h @hppfiles docs/haddock
 docs/haddock :
 	\@\$(PERL) -e "mkdir q-docs/haddock-"
 
-profiled :: src/Pugs/Config.hs src/Pugs/Prelude.hs src/Pugs/Trans/PIR/Prelude.hs @srcfiles $version_h @prereqs
+profiled :: src/Pugs/Config.hs src/Pugs/Prelude.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h @prereqs
 	$ghc $threaded -O -auto-all -prof --make $profiled_flags $ccdlflags $ghc_output
 
 pugs.prof :: profiled
@@ -281,15 +281,15 @@ pugs.prof :: profiled
 
 optimised :: optimized
 
-optimized :: src/Pugs/Config.hs src/Pugs/Prelude.hs src/Pugs/Trans/PIR/Prelude.hs @srcfiles $version_h @prereqs
+optimized :: src/Pugs/Config.hs src/Pugs/Prelude.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h @prereqs
 	$ghc $threaded -O --make $ghc_flags $embed_flags $ccdlflags $ghc_output
 
 unoptimised :: unoptimized
 
-unoptimized :: src/Pugs/Config.hs src/Pugs/Prelude.hs src/Pugs/Trans/PIR/Prelude.hs @srcfiles $version_h @prereqs
+unoptimized :: src/Pugs/Config.hs src/Pugs/Prelude.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h @prereqs
 	$ghc $threaded -O0 --make $ghc_flags $embed_flags $ccdlflags $ghc_output
 
-$pugs : src/Pugs/Config.hs src/Pugs/Prelude.hs src/Pugs/Trans/PIR/Prelude.hs @srcfiles $version_h @prereqs
+$pugs : src/Pugs/Config.hs src/Pugs/Prelude.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h @prereqs
 	$ghc $threaded -O --make $ghc_flags $embed_flags $ccdlflags $ghc_output
 
 smoke : $pugs util/run-smoke.pl all

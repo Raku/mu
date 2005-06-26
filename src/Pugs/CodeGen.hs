@@ -14,10 +14,10 @@ import Pugs.Compile.Pugs (genPugs)
 import Pugs.Compile.Haskell (genGHC)
 import qualified Data.Map as Map
 
-type Translator = Eval Val
+type Generator = Eval Val
 
-translators :: Map String Translator
-translators = Map.fromList $
+generators :: Map String Generator
+generators = Map.fromList $
     [ ("Ghc",         genGHC)
     , ("Parrot",      genPIR)
     , ("Pir",         genPIR)
@@ -25,15 +25,15 @@ translators = Map.fromList $
     ]
 
 backends :: [String]
-backends = Map.keys translators
+backends = Map.keys generators
 
 norm :: String -> String
 norm s = ucfirst $ map toLower s
     where ucfirst (x:xs) = toUpper x : xs
           ucfirst [] = []
 
-doLookup :: String -> IO Translator
-doLookup s = Map.lookup (norm s) translators
+doLookup :: String -> IO Generator
+doLookup s = Map.lookup (norm s) generators
 
 translate :: String -> Env -> IO String
 translate s env = do
