@@ -20,12 +20,17 @@ class Perl::Compiler::CodeGen::NameGen {
     }
 
     method inject($name, $value) {
-        %.names{$name} = $value;
+        if $name eq 'RET' {
+            $.parent // die "No parent at this level";
+            $.parent.inject($parent_ident, $value);
+        }
+        else {
+            %.names{$name} = $value;
+        }
     }
 
     method ret($value) {
-        $.parent // die "No parent at this level";
-        $.parent.inject($.parent_ident, $value);
+        ./inject('RET', $value);
     }
 
     method r($name) {
