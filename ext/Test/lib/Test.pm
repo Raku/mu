@@ -174,7 +174,7 @@ sub skip_rest (Str ?$reason, +$depends) returns Bool is export {
 }
 
 sub pass (Str +$desc) returns Bool is export {
-    proclaim(1, $desc, :depends($depends));
+    proclaim(1, $desc);
 }
 
 sub fail (Str +$desc, +$todo, +$depends) returns Bool is export {

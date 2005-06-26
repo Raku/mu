@@ -55,7 +55,7 @@ $graph->set(
   title        => "Pugs development",
   x_label      => "Days",
   y_label      => "Commits/Developers",
-  x_label_skip => 5,
+  x_label_skip => 10,
   y_max_value  => 6000,
 ) or die $graph->error;
 
