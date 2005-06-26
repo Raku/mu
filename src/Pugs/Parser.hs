@@ -575,7 +575,12 @@ ruleModuleDeclaration = rule "module declaration" $ do
 ruleDoBlock :: RuleParser Exp
 ruleDoBlock = rule "do block" $ try $ do
     symbol "do"
-    ruleBlock
+    choice 
+        [ ruleBlockDeclaration
+        , ruleDeclaration
+        , ruleConstruct
+        , ruleStatement
+        ]
 
 ruleClosureTrait :: Bool -> RuleParser Exp
 ruleClosureTrait rhs = rule "closure trait" $ do
