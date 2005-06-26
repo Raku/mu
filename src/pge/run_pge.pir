@@ -5,6 +5,7 @@
     .local pmc stdin, stdout
     .include "iglobals.pasm"
 
+    load_bytecode "PGE.pbc"
     load_bytecode "PGE/Hs.pir"
     match = find_global "PGE::Hs", "match"
     add_rule = find_global "PGE::Hs", "add_rule"

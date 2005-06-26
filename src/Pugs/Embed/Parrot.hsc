@@ -185,7 +185,7 @@ loadPGE interp path = do
     if match /= nullPtr then return (match, add) else do
     cwd     <- getCurrentDirectory
     setCurrentDirectory path
-    evalParrot ".sub main\nload_bytecode 'PGE/Hs.pir'\n.end\n"
+    evalParrot ".sub main\nload_bytecode 'PGE.pbc'\nload_bytecode 'PGE/Hs.pir'\n.end\n"
     setCurrentDirectory cwd
     loadPGE interp path
 

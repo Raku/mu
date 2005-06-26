@@ -889,7 +889,6 @@ doApply :: Env   -- ^ Environment to evaluate in
         -> [Exp] -- ^ Arguments (not including invocants)
         -> Eval Val
 doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args = do
-    -- reduce all invs and args to values first... !?
     -- check invs and args for Pair types; if they are, reduce them fully
     -- to stringified normal form.
     let isPairs = (map isPairParam (subParams sub)) ++ repeat False
@@ -926,7 +925,7 @@ doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args
         typ     <- evalExpType exp
         let cls = envClasses env
         if not (isaType cls "Pair" typ) then return exp else do
-        ref     <- enterContext (CxtItem (mkType "Pair")) $ evalExp exp
+        ref     <- enterLValue $ enterContext (CxtItem (mkType "Pair")) $ evalExp exp
         (k, v)  <- join $ doPair ref pair_fetch
         key     <- fromVal k
         return $ App (Var "&infix:=>") Nothing [Val (VStr key), Val v]
