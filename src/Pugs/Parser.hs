@@ -509,7 +509,7 @@ ruleUsePackage = rule "use package" $ do
     lang    <- try $ do { lang <- identifier; char ':'; return lang }
     names   <- identifier `sepBy1` (try $ string "::")
     _       <- option "" $ ruleVersionPart
-    author  <- option "" $ ruleAuthorPart
+    _       <- option "" $ ruleAuthorPart
     let pkg = concat (intersperse "::" names)
     val <- unsafeEvalExp $
         if lang  == "-perl5"
