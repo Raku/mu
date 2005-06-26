@@ -1,15 +1,15 @@
 {-# OPTIONS_GHC -fglasgow-exts #-}
 
 {-|
-    Trans interface.
+    CodeGen interface.
 
     TODO: add Tolkien
 -}
 
-module Pugs.Trans (translate, backends) where
+module Pugs.CodeGen (translate, backends) where
 import Pugs.AST
 import Pugs.Internals
-import Pugs.Trans.PIR (genPIR)
+import Pugs.CodeGen.PIR (genPIR)
 import Pugs.Compile.Pugs (genPugs)
 import Pugs.Compile.Haskell (genGHC)
 import qualified Data.Map as Map

@@ -27,7 +27,7 @@ import Pugs.Shell
 import Pugs.Parser.Program
 import Pugs.Help
 import Pugs.Pretty
-import Pugs.Trans
+import Pugs.CodeGen
 import Pugs.Embed
 import Pugs.Prim.Eval (requireInc)
 import qualified Data.Map as Map

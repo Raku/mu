@@ -13,7 +13,7 @@
     final PIR code by "Emit.PIR".
 -}
 
-module Pugs.Trans.PIR (genPIR) where
+module Pugs.CodeGen.PIR (genPIR) where
 import Pugs.Internals
 import Pugs.AST
 import Pugs.AST.Internals
@@ -21,22 +21,22 @@ import Emit.Common
 import Emit.PIR
 import Pugs.Pretty
 import Text.PrettyPrint
-import Pugs.Trans.PIR.Prelude (preludeStr)
+import Pugs.CodeGen.PIR.Prelude (preludeStr)
 import Pugs.Prim.Eval
 import Pugs.Compile
 
-type Trans a = WriterT [Stmt] (ReaderT TEnv IO) a
-type TransMonad = WriterT [Stmt] (ReaderT TEnv IO)
+type CodeGen a = WriterT [Stmt] (ReaderT TEnv IO) a
+type CodeGenMonad = WriterT [Stmt] (ReaderT TEnv IO)
 
 {-| Currently only 'PIL' → 'PIR' -}
 class (Show a, Typeable b) => Translate a b | a -> b where
-    trans :: a -> Trans b
+    trans :: a -> CodeGen b
     trans _ = fail "Untranslatable construct!"
 
-instance EnterClass TransMonad TCxt where
+instance EnterClass CodeGenMonad TCxt where
     enter cxt = local (\e -> e{ tCxt = cxt })
 
-transError :: forall a b. Translate a b => a -> Trans b
+transError :: forall a b. Translate a b => a -> CodeGen b
 transError = die $ "Translate error -- invalid "
     ++ (show $ typeOf (undefined :: b))
 
@@ -208,7 +208,7 @@ instance (Typeable a) => Translate (PIL a) a where
         return (DeclSub name [] stmts)
     trans x = transError x
 
-fetchCC :: LValue -> Expression -> Trans ()
+fetchCC :: LValue -> Expression -> CodeGen ()
 fetchCC cc begL | parrotBrokenXXX = do
     tellIns $ tempINT   <-- "get_addr" $ [begL]
     tellIns $ tempSTR   <:= tempINT
@@ -217,7 +217,7 @@ fetchCC cc _ = do
     tellIns $ "get_params" .- sigList [reg cc]
 
 -- XXX - slow way of implementing "return"
-wrapSub :: SubType -> Trans () -> Trans ()
+wrapSub :: SubType -> CodeGen () -> CodeGen ()
 wrapSub SubPrim = id
 wrapSub SubBlock = id -- XXX not really
 wrapSub _ = \body -> do
@@ -248,7 +248,7 @@ prmToArgs prm = combine
 prmToIdent :: Param -> String
 prmToIdent = render . varText . paramName
 
-storeLex :: TParam -> Trans ()
+storeLex :: TParam -> CodeGen ()
 storeLex param = do
     when (isOptional prm) $ do
         [defC] <- genLabel ["defaultDone"]
@@ -266,14 +266,14 @@ storeLex param = do
     name    = prmToIdent prm
     prm     = tpParam param
 
-tellIns :: Ins -> Trans ()
+tellIns :: Ins -> CodeGen ()
 tellIns = tell . (:[]) . StmtIns
 
 {-| Inserts a label. -}
-tellLabel :: String -> Trans ()
+tellLabel :: String -> CodeGen ()
 tellLabel name = tellIns $ InsLabel name
 
-lastPMC :: (RegClass a) => Trans a
+lastPMC :: (RegClass a) => CodeGen a
 lastPMC = do
     tvar    <- asks tReg
     name'   <- liftIO $ liftSTM $ do
@@ -281,7 +281,7 @@ lastPMC = do
         return $ ('P':show cur) ++ (if null name then name else ('_':name))
     return $ reg (VAR name')
 
-genPMC :: (RegClass a) => String -> Trans a
+genPMC :: (RegClass a) => String -> CodeGen a
 genPMC name = do
     tvar    <- asks tReg
     name'   <- liftIO $ liftSTM $ do
@@ -291,13 +291,13 @@ genPMC name = do
     tellIns $ InsLocal RegPMC name'
     return $ reg (VAR name')
 
-genLV :: (RegClass a) => String -> Trans a
+genLV :: (RegClass a) => String -> CodeGen a
 genLV name = do
     pmc <- genPMC name
     tellIns $ InsNew pmc PerlScalar
     return $ reg pmc
 
-genLabel :: [String] -> Trans [LabelName]
+genLabel :: [String] -> CodeGen [LabelName]
 genLabel names = do
     tvar    <- asks tLabel
     cnt     <- liftIO $ liftSTM $ do
@@ -306,7 +306,7 @@ genLabel names = do
         return cur
     return $ map (\name -> "LABEL_" ++ show cnt ++ ('_':name)) names
 
-genName :: (RegClass a) => String -> Trans a
+genName :: (RegClass a) => String -> CodeGen a
 genName name = do
     let var = render $ varText name
     tellIns $ InsLocal RegPMC var
@@ -331,8 +331,8 @@ genPIR = do
     main        <- asks envBody
     globPIL     <- compile glob
     mainPIL     <- compile main
-    globPIR     <- runTransGlob tenv globPIL
-    mainPIR     <- runTransMain tenv mainPIL
+    globPIR     <- runCodeGenGlob tenv globPIL
+    mainPIR     <- runCodeGenMain tenv mainPIL
     libs        <- liftIO $ getLibs
     return . VStr . unlines $
         [ "#!/usr/bin/env parrot"
@@ -386,11 +386,11 @@ genPIR = do
         , evalError  = EvalErrorFatal
         }
 
-runTransGlob :: TEnv -> [PIL Decl] -> Eval [Decl]
-runTransGlob tenv = mapM $ fmap fst . runTrans tenv
+runCodeGenGlob :: TEnv -> [PIL Decl] -> Eval [Decl]
+runCodeGenGlob tenv = mapM $ fmap fst . runCodeGen tenv
 
-runTransMain :: TEnv -> PIL [Stmt] -> Eval [Stmt]
-runTransMain tenv = fmap snd . runTrans tenv
+runCodeGenMain :: TEnv -> PIL [Stmt] -> Eval [Stmt]
+runCodeGenMain tenv = fmap snd . runCodeGen tenv
 
-runTrans :: (Translate a b) => TEnv -> a -> Eval (b, [Stmt])
-runTrans tenv = liftIO . (`runReaderT` tenv) . runWriterT . trans
+runCodeGen :: (Translate a b) => TEnv -> a -> Eval (b, [Stmt])
+runCodeGen tenv = liftIO . (`runReaderT` tenv) . runWriterT . trans
