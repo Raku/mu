@@ -6,13 +6,10 @@
 use v6;
 
 use Test;
-plan 130
-use Test::More tests => 130;
+plan 130;
 
 use Date::Gregorian;
-my $d = date( :year(2001),
-                       :month(7),
-                       :day(5),
+my $d = date( :year(2001), :month(7), :day(5),
                        :hour(2),
                        :minute(12),
                        :second(50),
@@ -232,33 +229,33 @@ is( $monday.day_of_week, 1, "Monday is day 1" );
     is( $dt.day_of_quarter, 32, '.day_of_quarter' );
 }
 
-# nano, micro, and milli seconds
 {
-    my $dt = date( :year(1996), :nanosecond(500_000_000));
+# nano, micro, and milli seconds
+    my $dt = date( :year(1996), :second(0.5));
 
     is( $dt.nanosecond, 500_000_000, 'nanosecond is 500,000,000' );
     is( $dt.microsecond, 500_000, 'microsecond is 500,000' );
     is( $dt.millisecond, 500, 'millisecond is 500' );
 
-    $dt.set( :nanosecond(500_000_500));
+    $dt.second = 0.5000005;
 
     is( $dt.nanosecond, 500_000_500, 'nanosecond is 500,000,500' );
     is( $dt.microsecond, 500_001, 'microsecond is 500,001' );
     is( $dt.millisecond, 500, 'millisecond is 500' );
 
-    $dt.set( :nanosecond(499_999_999));
+    $dt.second = 0.499_999_999;
 
     is( $dt.nanosecond, 499_999_999, 'nanosecond is 499,999,999' );
     is( $dt.microsecond, 500_000, 'microsecond is 500,000' );
     is( $dt.millisecond, 500, 'millisecond is 500' );
 
-    $dt.set( :nanosecond(450_000_001));
+    $dt.second = 0.450_000_001;
 
     is( $dt.nanosecond, 450_000_001, 'nanosecond is 450,000,001' );
     is( $dt.microsecond, 450_000, 'microsecond is 450,000' );
     is( $dt.millisecond, 450, 'millisecond is 450' );
 
-    $dt.set( :nanosecond(450_500_000));
+    $dt.second = 0.450_500_000;
 
     is( $dt.nanosecond, 450_500_000, 'nanosecond is 450,500,000' );
     is( $dt.microsecond, 450_500, 'microsecond is 450,500' );
@@ -269,24 +266,18 @@ is( $monday.day_of_week, 1, "Monday is day 1" );
     my $dt = date( :year(2003), :month(5), :day(7));
     is( $dt.weekday_of_month, 1, '.weekday_of_month' );
     is( $dt.week_of_month, 2, '.week_of_month' );
-}
 
-{
-    my $dt = date( :year(2003), :month(5), :day(8));
+    $dt = date( :year(2003), :month(5), :day(8));
     is( $dt.weekday_of_month, 2, '.weekday_of_month' );
     is( $dt.week_of_month, 2, '.week_of_month' );
-}
 
-{
-    my $dt = date( :year(1000), :hour(23));
+    $dt = date( :year(1000), :hour(23));
     is( $dt.hour,      23, '.hour' );
     is( $dt.hour_1,    24, '.hour_1' );
     is( $dt.hour_12,   11, '.hour_12' );
     is( $dt.hour_12_0, 11, '.hour_12_0' );
-}
 
-{
-    my $dt = date( :year(1000), :hour(0));
+    $dt = date( :year(1000), :hour(0));
     is( $dt.hour,       0, '.hour' );
     is( $dt.hour_1,     1, '.hour_1' );
     is( $dt.hour_12,   12, '.hour_12' );

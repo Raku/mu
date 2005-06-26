@@ -4,12 +4,6 @@ class Date::Gregorian is Date;
 use Time::Zone;
 use Date::Format::ISO8601;
 
-use Duration::Gregorian;# qw(duration);
-
-BEGIN {
-our &Date::Gregorian::duration ::= &Duration::Gregorian::duration;
-}
-
 has Int $.year;
 has Int $.month;
 has Int $.day;
@@ -23,8 +17,9 @@ our $iso8601_re_anchored = rx:perl5/^$iso8601_re$/;
 
 multi sub date( Int ?$year, Int ?$month, Int ?$day,
 		   Int ?$hour, Int ?$minute, Int|Real ?$second,
-		   Time::Zone ?$tz )#?
+		   Str|Time::Zone ?$tz )#?
     returns Date::Gregorian is export {
+	$tz = tz($tz) if $tz.defined and !$tz.isa("Time::Zone");
     return
 	Date::Gregorian.new( :year($year), :month($month), :day($day),
 			     :hour($hour), :minute($minute), :second($second),
@@ -89,10 +84,16 @@ method nanosecond returns Int {
     #int( ($.second - int($.second) ) * 1e9);
 }
 
+#use Duration::Gregorian;# qw(duration);
+
+#BEGIN {
+#our &Date::Gregorian::duration ::= &Duration::Gregorian::duration;
+#}
+
 # operations with Duration::Gregorian constructors..
-multi method infix:<+>( $self: Str|Int|Real $iso8601_dur ) {
-    $self + duration($iso8601_dur);
-}
+#multi method infix:<+>( $self: Str|Int|Real $iso8601_dur ) {
+    #$self + duration($iso8601_dur);
+#}
 
 # still an outstanding bug in overloaded -
 #multi method infix:<->( $self: Int|Real $iso8601_dur ) {

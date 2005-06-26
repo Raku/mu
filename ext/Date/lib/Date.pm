@@ -33,7 +33,7 @@ method difference($self: Date $other) returns Duration {
     #$self.subtract($duration);
 #}
 
-method infix:<+>($self: Duration $duration) returns Date {
-    $self.add($duration);
-}
+#method infix:<+>($self: Duration $duration) returns Date {
+    #$self.add($duration);
+#}
 
