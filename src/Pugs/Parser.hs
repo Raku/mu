@@ -506,8 +506,11 @@ ruleUseVersion = rule "use version" $ do
 
 ruleUsePackage :: RuleParser ()
 ruleUsePackage = rule "use package" $ do
-    -- lang    <- try $ do { lang <- identifier; char ':'; notFollowedBy (Char ':'); return lang }
-    let lang = ""
+    lang    <- option "pugs" $ try $ do
+        lang <- identifier
+        char ':'
+        notFollowedBy (char ':')
+        return lang
     names   <- identifier `sepBy1` (try $ string "::")
     _       <- option "" $ ruleVersionPart
     _       <- option "" $ ruleAuthorPart
