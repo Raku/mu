@@ -417,7 +417,7 @@ ruleTrustsDeclaration = do
     return emptyExp
 
 ruleTraitDeclaration :: RuleParser Exp
-ruleTraitDeclaration = do
+ruleTraitDeclaration = try $ do
     trait   <- ruleTrait
     env     <- getRuleEnv
     let pkg = Var (':':envPackage env)
@@ -506,12 +506,13 @@ ruleUseVersion = rule "use version" $ do
 
 ruleUsePackage :: RuleParser ()
 ruleUsePackage = rule "use package" $ do
+    lang    <- try $ do { lang <- identifier; char ':'; return lang }
     names   <- identifier `sepBy1` (try $ string "::")
     _       <- option "" $ ruleVersionPart
     author  <- option "" $ ruleAuthorPart
     let pkg = concat (intersperse "::" names)
     val <- unsafeEvalExp $
-        if (map toLower author) == "-perl5"
+        if lang  == "-perl5"
             then Stmts (Sym SGlobal (':':'*':pkg) (Syn ":=" [ Var (':':'*':pkg), App (Var "&require_perl5") Nothing [Val $ VStr pkg] ])) (Syn "env" [])
             else App (Var "&use") Nothing [Val . VStr $ concat (intersperse "/" names) ++ ".pm"]
     option () $ try $ do
