@@ -121,26 +121,24 @@ Tests the given block, as defined in L<S04/"Switch statements">
 
 {
     my ($foo, $bar) = (1, 0);
-    eval '
     given (1) {
         when (1) { $foo = 2; continue; $foo = 3; }
         when (2) { $foo = 4; }
         default { $bar = 1; }
         $foo = 5;
-    }';
+    };
     is($foo, 2, 'continue aborts when block');
     ok($bar, 'continue does not prevent default');
 }
 
 {
     my ($foo, $bar) = (1, 0);
-    eval '
     given (1) {
         when (1) { $foo = 2; break; $foo = 3; }
         when (2) { $foo = 4; }
         default { $bar = 1 }
         $foo = 5;
-    }';
+    };
     is($foo, 2, 'break aborts when');
     ok(!$bar, 'break prevents default');
 }

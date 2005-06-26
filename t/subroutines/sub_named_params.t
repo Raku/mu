@@ -4,7 +4,7 @@ use v6;
 
 use Test;
 
-plan 39;
+plan 41;
 
 =kwid
 
@@ -136,6 +136,18 @@ is(+%rest, 2, "exactly 2 arguments were slurped");
 is(%rest<sky>, 'blue', "sky argument was slurped");
 is(%rest<fire>, 'red', "fire argument was slurped");
 is(%rest<grass>, undef, "grass argument was NOT slurped");
+}
+
+{
+my $ref;
+sub setref($refin) {
+    $ref = $refin;
+}
+my $aref = [0];
+setref(refin => $aref);
+$aref[0]++;
+is($aref[0], 1, "aref actually implemented");
+is($ref[0], 1, "ref is the same as aref");
 }
 
 =kwid

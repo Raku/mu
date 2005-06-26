@@ -560,7 +560,7 @@ reduceSyn "[...]" [listExp, indexExp] = do
     retVal $ VList (drop idx $ list)
 
 reduceSyn "@{}" [exp] = do
-    val     <- enterEvalContext (cxtItem "Hash") exp
+    val     <- enterEvalContext (cxtItem "Array") exp
     ivar    <- doArray val IArray
     evalRef (MkRef ivar)
 
@@ -570,12 +570,12 @@ reduceSyn "%{}" [exp] = do
     evalRef (MkRef ivar)
 
 reduceSyn "&{}" [exp] = do
-    val     <- enterEvalContext (cxtItem "Hash") exp
+    val     <- enterEvalContext (cxtItem "Code") exp
     sub     <- fromVal val
     return $ VCode sub
 
 reduceSyn "${}" [exp] = do
-    val     <- enterEvalContext (cxtItem "Hash") exp
+    val     <- enterEvalContext (cxtItem "Scalar") exp
     ref     <- fromVal val
     evalRef ref
 
