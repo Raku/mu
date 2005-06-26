@@ -1,9 +1,14 @@
 
-class Date::Gregorian is Date;
+class Date::Gregorian; # is Date;
 
-use Time::Zone;
-use Date::Format::ISO8601;
-use Duration::Gregorian qw(duration);
+#use Time::Zone;
+#use Date::Format::ISO8601;
+
+=pod
+
+use Duration::Gregorian; # qw(duration);
+
+our &Date::Gregorian::duration ::= &Duration::Gregorian::duration;
 
 has Int $.year;
 has Int $.month;
@@ -91,3 +96,5 @@ multi method infix:<->( $self: Str $what ) {
 	return $self - duration($what);
     }
 }
+
+=cut
