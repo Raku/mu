@@ -11,16 +11,21 @@ my $ALWAYS_CALLER = %ENV<TEST_ALWAYS_CALLER>;
 # globals to keep track of our tests
 my $num_of_tests_run    = 0; 
 my $num_of_tests_failed = 0;
+my $num_of_tests_badpass = 0;
 my $num_of_tests_planned;
 
 # a Junction to hold our FORCE_TODO tests
 my $force_todo_test_junction;
+
+# for running the test suite multiple times in the same process
+my $testing_started = 1;
 
 ### FUNCTIONS
 
 ## plan
 
 sub plan (Int $number_of_tests) returns Void is export {
+    $testing_started = 1;
     $num_of_tests_planned = $number_of_tests;
     say "1..$number_of_tests";
 }
@@ -185,22 +190,28 @@ sub diag (Str $diag) is export {
 ## 'private' subs
 
 sub proclaim (Bool $cond, Str ?$desc is copy, ?$todo, Str ?$got, Str ?$expected, +$depends) returns Bool {
+    $testing_started = 1;
     $num_of_tests_run++;
 
     # $context is now the raw TODO, so we have to check it
     my $context;
+
+    # Check if we have to forcetodo this test 
+    # because we're preparing for a release.
+    $context = "TODO for release"
+	if $num_of_tests_run == $force_todo_test_junction;
+
     if $todo {
         if (substr($todo, 0, 4) eq 'skip') {
             $context = $todo;        
         }
         else {
-            $context =  "TODO " ~ ($todo.isa('Str') ?? $todo :: '');    
+            $context =  "TODO" ~ ($todo.isa('Str') ?? " $todo" :: '');
+	    if ( $cond ) {
+		$num_of_tests_badpass ++;
+	    }
         }
     }
-    
-    # Check if we have to forcetodo this test 
-    # because we're preparing for a release.
-    $context = "TODO for release" if $num_of_tests_run == $force_todo_test_junction;    
 
     if ( $depends ) {
 	$context ~= " (depends on $depends working)";
@@ -238,8 +249,8 @@ sub report_failure (Str ?$todo, Str ?$got, Str ?$expected) returns Bool {
 }
 
 
-
-END {
+sub test_ends {
+    return unless $testing_started;
     if (!defined($num_of_tests_planned)) {
         say("1..$num_of_tests_run");
     }
@@ -250,7 +261,18 @@ END {
     if ($num_of_tests_failed) {
         $*ERR.say("# Looks like you failed $num_of_tests_failed tests of $num_of_tests_run");
     }
+    if ($num_of_tests_badpass) {
+        $*ERR.say("# Looks like $num_of_tests_badpass tests of $num_of_tests_run passed unexpectedly");
+    }
+    $num_of_tests_run    = 0;
+    $num_of_tests_failed = 0;
+    $num_of_tests_badpass = 0;
+    $num_of_tests_planned = undef;
+    $force_todo_test_junction = undef;
+    $testing_started = 0;
 }
+
+END { test_ends }
 
 =kwid
 
@@ -316,25 +338,25 @@ tool, but can be useful in other contexts as well.
 
 == Testing Functions
 
-- `use_ok (Str $module, Bool +$todo) returns Bool`
+- `use_ok (Str $module, Bool +$todo, Str +$depends) returns Bool`
 
 *NOTE:* This function currently uses `require()` since Pugs does not yet have
 a proper `use()` builtin.
 
-- `ok (Bool $cond, Str +$desc, Bool +$todo) returns Bool`
+- `ok (Bool $cond, Str +$desc, Bool +$todo, Str +$depends) returns Bool`
 
-- `is (Str $got, Str $expected, Str +$desc, Bool +$todo) returns Bool`
+- `is (Str $got, Str $expected, Str +$desc, Bool +$todo, Str +$depends) returns Bool`
 
-- `isnt (Str $got, Str $expected, Str +$desc, Bool +$todo) returns Bool`
+- `isnt (Str $got, Str $expected, Str +$desc, Bool +$todo, Str +$depends) returns Bool`
 
-- `like (Str $got, Rule $expected, Str +$desc, Bool +$todo) returns Bool is export`
-- `unlike (Str $got, Rule $expected, Str +$desc, Bool +$todo) returns Bool is export`
+- `like (Str $got, Rule $expected, Str +$desc, Bool +$todo, Str +$depends) returns Bool is export`
+- `unlike (Str $got, Rule $expected, Str +$desc, Bool +$todo, Str +$depends) returns Bool is export`
 
 These functions should work with most reg-exps, but given that they are still a
 somewhat experimental feature in Pugs, it is suggested you don't try anything
 too funky.
 
-- `cmp_ok (Str $got, Code &compare_func, Str $expected, Str +$desc, Bool +$todo) returns Bool`
+- `cmp_ok (Str $got, Code &compare_func, Str $expected, Str +$desc, Bool +$todo, Str +$depends) returns Bool`
 
 This function will compare `$got` and `$expected` using `&compare_func`. This will
 eventually allow Test::More-style cmp_ok() though the following syntax:
@@ -346,27 +368,27 @@ a little while. Until then, you can just write your own functions like this:
 
   cmp_ok('test', sub ($a, $b) { ?($a gt $b) }, 'me', '... testing gt on two strings');
 
-- `isa_ok ($ref, Str $expected_type, Str +$desc, Bool +$todo) returns Bool`
+- `isa_ok ($ref, Str $expected_type, Str +$desc, Bool +$todo, Str +$depends) returns Bool`
 
 This function currently on checks with ref() since we do not yet have
 object support. Once object support is created, we will add it here, and
 maintain backwards compatibility as well.
 
-- `eval_ok (Str $code, Str +$desc, Bool +$todo) returns Bool`
+- `eval_ok (Str $code, Str +$desc, Bool +$todo, Str +$depends) returns Bool`
 
-- `eval_is (Str $code, Str $expected, Str +$desc, Bool +$todo) returns Bool`
+- `eval_is (Str $code, Str $expected, Str +$desc, Bool +$todo, Str +$depends) returns Bool`
 
 These functions will eval a code snippet, and then pass the result to is or ok
 on success, or report that the eval was not successful on failure.
 
-- `throws_ok (Code &code, Any $expected, Str +$desc, Bool +$todo) returns Bool`
+- `throws_ok (Code &code, Any $expected, Str +$desc, Bool +$todo, Str +$depends) returns Bool`
 
 This function takes a block of code and runs it. It then smart-matches (`~~`) any `$!` 
 value with the `$expected` value.
 
-- `dies_ok (Code &code, Str +$desc, Bool +$todo) returns Bool`
+- `dies_ok (Code &code, Str +$desc, Bool +$todo, Str +$depends) returns Bool`
 
-- `lives_ok (Code &code, Str +$desc, Bool +$todo) returns Bool`
+- `lives_ok (Code &code, Str +$desc, Bool +$todo, Str +$depends) returns Bool`
 
 These functions both take blocks of code, run the code, and test whether they live or die.
 
@@ -375,6 +397,13 @@ These functions both take blocks of code, run the code, and test whether they li
 Sometimes a test is broken because something is not implemented yet. So
 in order to still allow that to be tested, and those tests to knowingly
 fail, we provide the `:todo(1)` named parameter for all these  functions.
+
+The `:depends("string")` parameter to most of the functions is a way
+to provide a comment that refers to another file or test which must be
+made to pass before this test can pass (or before an implementation
+could be started).  This is most useful when writing modules and you
+find there is some language feature missing, or core bug that needs to
+be sorted out before you can continue.
 
 It is also possible to use the `force_todo()` function to do large scale 
 TODO-ing of tests.

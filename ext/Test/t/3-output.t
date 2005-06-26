@@ -14,12 +14,14 @@ plan 1;
 # ... copied from t/pugsrun/05-unknown-option.t, but it looks wrong :)
 sub nonce () { return (".$*PID." ~ int rand 1000) }
 my $out_fn = "temp-ex-output" ~ nonce;
-my $redir = "2>&1 >";
+my $redir_pre = "2>&1 >";
+my $redir_post = "2>&1";
 if($*OS eq any<MSWin32 mingw msys cygwin>) {
-    $redir = ">";
+    $redir_pre = ">";
+    $redir_post = "";
 };
 
-my $cmd = "$*EXECUTABLE_NAME t/3-script.pl $redir $out_fn";
+my $cmd = "$*EXECUTABLE_NAME t/3-script.pl $redir_pre $out_fn $redir_post";
 
 diag($cmd);
 system($cmd);
@@ -27,8 +29,8 @@ system($cmd);
 my $output = slurp $out_fn;
 unlink($out_fn);
 
-# currently this output exposes one bug - the trailing space
 is($output, "1..1
-ok 1 - TODO that passes # TODO 
+ok 1 - TODO that passes # TODO
+# Looks like 1 tests of 1 passed unexpectedly
 ", "got correct output");
 
