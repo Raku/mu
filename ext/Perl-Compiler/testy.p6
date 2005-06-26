@@ -13,12 +13,12 @@ my $tree = ::Perl::Compiler::PIL::PILStmt.new(
                 ),
                 args => [
                     ::Perl::Compiler::PIL::PILExp.new(
-                        ::Perl::Compiler::PIL::PILVar.new(
+                        value => ::Perl::Compiler::PIL::PILVar.new(
                             value => '@array',
                         ),
                     ),
                     ::Perl::Compiler::PIL::PILLit.new(
-                        ::Perl::Compiler::PIL::PILVal.new(
+                        value => ::Perl::Compiler::PIL::PILVal.new(
                             value => 4,
                         ),
                     ),
@@ -27,5 +27,4 @@ my $tree = ::Perl::Compiler::PIL::PILStmt.new(
            );
 
 my $gen = ::Perl::Compiler::CodeGen::Perl5_Str.new;
-say $tree.ref;
 say $gen.generate($tree);

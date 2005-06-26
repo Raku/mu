@@ -6,12 +6,10 @@ class Perl::Compiler::CodeGen::Perl5_Str
 
     method generate (Perl::Compiler::PIL::PIL $tree is rw) {
         my $ng = ::Perl::Compiler::CodeGen::NameGen.new({ "\$P_$_" });
-        say "REFFY = $tree.ref()";
         ./gen($tree, $ng);
     }
 
     method gen (Perl::Compiler::PIL::PIL $tree is rw, PIL::Compiler::CodeGen::NameGen $ng is rw) {
-        say "Generating from $tree.ref() (ng = $ng)";
         given $tree {
             when ::Perl::Compiler::PIL::PILNil    { '' }
             when ::Perl::Compiler::PIL::PILNoop   { ';' }

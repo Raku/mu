@@ -54,7 +54,7 @@ class Perl::Compiler::PIL::PILNoop
 class Perl::Compiler::PIL::PILExp
     does Perl::Compiler::PIL::PIL {
     has Perl::Compiler::PIL::PIL $.value;
-    submethod BUILD (Perl::Compiler::PIL::PIL $.value) {
+    submethod BUILD () {
         type_check $.value.vtype, 'LValue';
     }
     method vtype () { 'Expression' }
