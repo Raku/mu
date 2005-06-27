@@ -7,9 +7,15 @@ import Pugs.AST.Internals
 import Emit.PIR
 import Pugs.Compile
 
-{-| Compiles the current environment to PIR code. -}
 genPIL :: Eval Val
 genPIL = do
+    glob        <- askGlobal
     main        <- asks envBody
+    globPIL     <- compile glob :: Eval [PIL Decl]
     mainPIL     <- compile main :: Eval (PIL [Stmt])
-    return . VStr $ show mainPIL
+    return . VStr . unlines $
+        [ "PIL_Environment"
+        , "    { pilMain = (" ++ show mainPIL ++ ")"
+        , "    , pilGlob = (" ++ show globPIL ++ ")"
+        , "    }"
+        ]
