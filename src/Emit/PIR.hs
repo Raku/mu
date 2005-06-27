@@ -74,6 +74,7 @@ data RegType
 data ObjType
     = PerlScalar | PerlArray | PerlHash
     | PerlInt | PerlPair | PerlRef | PerlEnv
+    | BareType String
     deriving (Show, Eq, Typeable, Read)
 
 type LabelName  = String
@@ -166,6 +167,7 @@ instance Emit ObjType where
     emit PerlScalar = emit ".PerlUndef"  -- XXX special case
     emit PerlPair   = emit ".Pair"  -- XXX special case
     emit PerlRef    = emit ".Ref"   -- XXX special case
+    emit (BareType x) = text $ ('.':x)
     emit x = emit . ('.':) . show $ x
 
 instance Emit Expression where
