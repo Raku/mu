@@ -3,7 +3,7 @@
 
 module Pugs.Eval.Var (
     findVar, findVarRef,
-    evalVar, findSub,, evalExpType,
+    evalVar, findSub, evalExpType,
 ) where
 import qualified Data.Map as Map
 import Pugs.Internals
