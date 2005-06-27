@@ -108,6 +108,8 @@ Expanding this one level deeper:
     |   |-- Text-Glob          Translate glob to regex
     |   |-- Tree               Basic n-ary tree data structure
     |   |-- URI                Escape/unescape URI strings
+    |   |-- WTemplate          Widget-based templating engine
+    |   |-- Perl-Compiler      A Perl 6 compiler written in Perl 6
     |   |-- fp                 Functional programming operators
     |   |-- lib                Pragma to add paths to @*INC
     |   `-- libwww-perl        Port of Perl 5 libwww-perl modules
