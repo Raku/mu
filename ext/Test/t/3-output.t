@@ -21,7 +21,9 @@ if($*OS eq any<MSWin32 mingw msys cygwin>) {
     $redir_post = "";
 };
 
-my $cmd = "$*EXECUTABLE_NAME t/3-script.pl $redir_pre $out_fn $redir_post";
+my $file = $?FILE;
+$file ~~ s:P5/output.t/script.pl/;
+my $cmd = "$*EXECUTABLE_NAME $file $redir_pre $out_fn $redir_post";
 
 diag($cmd);
 system($cmd);
