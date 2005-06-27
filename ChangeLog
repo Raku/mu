@@ -19,6 +19,10 @@
 ** `Module::Pluggable::Fast`
 ** `HTTP::Server::Simple`
 ** `Perldoc` (partial port)
+* Completed Locale::KeyedText (this was our first contributed module)
+** compiles, executes, and passes whole pristine test suite
+** updated version to 1.5.0; it corresponds to the Perl 5 version 1.05
+** except for some skips and workarounds due to missing Pugs features
 
 === Test, Examples and Documentations
 

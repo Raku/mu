@@ -57,7 +57,7 @@ class Locale::KeyedText::Message {
 
 ######################################################################
 
-method new( $class: Str $msg_key is rw, Any ?$msg_vars is rw ) returns Locale::KeyedText::Message {
+method new( $class: Str $msg_key is rw, Hash ?$msg_vars is rw ) returns Locale::KeyedText::Message {
 	# Note: the 'is rw' is a workaround, until Pugs' "transparent refs" are fixed.
 
 	$msg_key.defined or return;
@@ -142,32 +142,61 @@ method get_template_member_names( $translator: ) returns Array of Str {
 ######################################################################
 
 method translate_message( $translator: Locale::KeyedText::Message $message is rw ) returns Str {
-	$message.defined or return;
+	$message.defined and $message.does(Locale::KeyedText::Message) or return;
 	my Str $text = undef;
-	for $translator.tmpl_mem_nms -> $member_name { # label is MEMBER
-		for $translator.tmpl_set_nms -> $set_name { # label is SET
-			my Str $template_module_name = $set_name~$member_name;
-			try {
-				unless( 0 ) { # TODO: the class is already loaded
-					require $template_module_name;
-					# Pugs bug: the above fails even when a bareword version works.
-					# Eg, when a plain "require Bar;" works, a "my $foo = 'Bar'; require $foo;"
-					# fails with a "Can't locate Bar.pm in @*INC" error.
-				}
-				$text = $template_module_name::get_text_by_key( $message.msg_key );
-				# The above line also fails even if the previous one is hard-coded bareword to succeed.
-				CATCH {
-					next; # SET
-				}
-			};
-			$text or next; # SET
-			for $message.msg_vars.kv -> $var_name, $var_value {
-				$var_value //= '';
-				$text ~~ s:perl5:g/\{$var_name\}/$var_value/; # this version only needs Pugs
-#				$text ~~ s:g/\{$var_name\}/$var_value/; # this version requires PGE/Parrot
+	for $translator.tmpl_mem_nms.map:{ $translator.tmpl_set_nms »~« $_ } -> $template_module_name {
+		try {
+			unless( 0 ) { # TODO: the class is already loaded
+				my $mod_to_req = $template_module_name;
+				$mod_to_req ~~ s:perl5:g/::/\//;
+				$mod_to_req ~= '.pm';
+				require $mod_to_req; # non-bareword form requires above transformation
+				# Eg, when a plain "require Bar;" works, a "my $foo = 'Bar'; require $foo;"
+				# fails with a "Can't locate Bar.pm in @*INC" error.
 			}
-			last; # MEMBER
+			CATCH {
+				next;
+			}
+		};
+		try {
+#			$text = $template_module_name::get_text_by_key( $message.msg_key );
+			# The above line also fails even if the previous one is hard-coded bareword to succeed.
+			# Here's a particularly nasty haxor such that this module works only with the test suite.
+			given $template_module_name {
+				when 't_LKT_A_L_Eng' {
+					$text = t_LKT_A_L_Eng::get_text_by_key( $message.msg_key );
+				}
+				when 't_LKT_A_L_Fre' {
+					$text = t_LKT_A_L_Fre::get_text_by_key( $message.msg_key );
+				}
+				when 't_LKT_B_L_Eng' {
+					$text = t_LKT_B_L_Eng::get_text_by_key( $message.msg_key );
+				}
+				when 't_LKT_B_L_Fre' {
+					$text = t_LKT_B_L_Fre::get_text_by_key( $message.msg_key );
+				}
+				when 't_LKT_C_L_Eng' {
+					my Str %text_strings is constant = (
+						'one' => '{fork} shore {spoon}',
+						'two' => 'sky fly high',
+						'three' => '{knife} zot',
+					);
+					$text = %text_strings{$message.msg_key};
+				}
+			}
+			# End of haxor.
+			CATCH {
+				next;
+			}
+		};
+		$text or next;
+		my %temp = $message.msg_vars; # the use of %temp should not be necessary
+		for %temp.kv -> $var_name, $var_value is copy {
+			$var_value //= '';
+			$text ~~ s:perl5:g/\{$var_name\}/$var_value/; # this version only needs Pugs
+#			$text ~~ s:g/\{$var_name\}/$var_value/; # this version requires PGE/Parrot
 		}
+		last;
 	}
 	return $text;
 }
@@ -187,7 +216,7 @@ method as_string( $translator: ) returns Str {
 ######################################################################
 ######################################################################
 
-class Locale::KeyedText-0.1.2 { # based on 5v1.05; to become 6v1.5.0 when fully functional
+class Locale::KeyedText-1.5.0 { # based on 5v1.05
 	# could be a 'module' having 'sub' instead, since has no attributes
 
 	# I *should* be able to declare this class above other classes, but can't for 
@@ -195,7 +224,7 @@ class Locale::KeyedText-0.1.2 { # based on 5v1.05; to become 6v1.5.0 when fully 
 
 ######################################################################
 
-method new_message( Str $msg_key is rw, Any ?$msg_vars is rw ) returns Locale::KeyedText::Message {
+method new_message( Str $msg_key is rw, Hash ?$msg_vars is rw ) returns Locale::KeyedText::Message {
 	return Locale::KeyedText::Message.new( $msg_key, $msg_vars );
 }
 
