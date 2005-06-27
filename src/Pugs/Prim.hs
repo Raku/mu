@@ -962,13 +962,15 @@ op3 "splice" = \x y z -> do
 op3 "split" = op3Split
 op3 "Str::split" = \x y z -> do
     op3 "split" y x z
-op3 "Any::new" = \t n _ -> do
+op3 "Any::new" = \t n p -> do
+    positionals <- fromVal p
     typ     <- fromVal t
     named   <- fromVal n
     attrs   <- liftSTM $ newTVar Map.empty
     writeIVar (IHash attrs) named
     uniq    <- liftIO $ newUnique
     env     <- ask
+    unless (positionals == VList []) (fail "Can't use positionals in default new constructor")
     let obj = VObject $ MkObject
             { objType   = typ
             , objAttrs  = attrs

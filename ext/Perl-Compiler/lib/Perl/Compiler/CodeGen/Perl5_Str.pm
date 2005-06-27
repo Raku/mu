@@ -7,7 +7,7 @@ class Perl::Compiler::CodeGen::Perl5_Str
     my $INS = 'Perl6::Internals';
 
     method generate (Perl::Compiler::PIL::PIL $tree is rw) {
-        my $ng = ::Perl::Compiler::CodeGen::NameGen.new({ "\$P_$_" });
+        my $ng = ::Perl::Compiler::CodeGen::NameGen.new(template => { "\$P_$_" });
         ./gen($tree, $ng);
     }
 
