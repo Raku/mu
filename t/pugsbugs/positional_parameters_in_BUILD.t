@@ -8,6 +8,4 @@ my $value_from_BUILD;
 
 class Foo { submethod BUILD ($value) { $value_from_BUILD = $value; } };
 
-my $foo = Foo.new("passed");
-
-is $value_from_BUILD, 'passed', 'positional args passed to new() are passed on to BUILD', :todo<bug>;
+dies_ok { Foo.new("passed") }, 'positional args passed to new() should not be passed on to BUILD';

@@ -152,17 +152,15 @@ op2Match x (VRule rx) = do
 
 op2Match (VType typ) (VType t) = do
     typs <- pkgParents (showType typ)
-    return . VBool $ showType t `elem` typs
+    return . VBool $ showType t `elem` (showType typ:typs)
 
 op2Match x y@(VType _) = do
     typ <- fromVal x
     op2Match (VType typ) y
 
-{-
 op2Match (VRef x) y = do
     x' <- readRef x
     op2Match x' y
--}
 
 op2Match x y = do
     op2Cmp (fromVal :: Val -> Eval VStr) (==) x y

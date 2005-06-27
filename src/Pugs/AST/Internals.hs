@@ -250,7 +250,7 @@ instance Value VType where
         fetch   <- doHash meta hash_fetchVal
         str     <- fromVal =<< fetch "name"
         return $ mkType str
-    fromVal v           = return $ valType v
+    fromVal v           = evalValType v
     doCast v = castFailM v "VType"
 
 instance Value VMatch where

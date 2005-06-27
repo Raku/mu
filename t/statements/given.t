@@ -228,4 +228,4 @@ eval '
 
     is(@got.join(","), "false,true", q!given { when true { } }!);
 ';
-fail("when true is parsefail; $!", :todo<feature>) if $!;
+fail("when true is parsefail", :todo<feature>) if $!;
