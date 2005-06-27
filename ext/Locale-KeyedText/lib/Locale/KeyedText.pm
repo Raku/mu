@@ -149,8 +149,12 @@ method translate_message( $translator: Locale::KeyedText::Message $message ) ret
 			try {
 				unless( 0 ) { # TODO: the class is already loaded
 					require $template_module_name;
+					# Pugs bug: the above fails even when a bareword version works.
+					# Eg, when a plain "require Bar;" works, a "my $foo = 'Bar'; require $foo;"
+					# fails with a "Can't locate Bar.pm in @*INC" error.
 				}
-				$text = $template_module_name.get_text_by_key( $message.msg_key );
+				$text = $template_module_name::get_text_by_key( $message.msg_key );
+				# The above line also fails even if the previous one is hard-coded bareword to succeed.
 				CATCH {
 					next; # SET
 				}
