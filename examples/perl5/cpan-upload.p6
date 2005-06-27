@@ -5,12 +5,12 @@
 # $Id: cpan-upload,v 2.2 2002/07/02 21:44:10 neilb Exp $
 #
 
-use AppConfig::Std--perl5;
-use Net::FTP--perl5;
-use HTTP::Request::Common--perl5;
-use LWP::UserAgent--perl5;
-use HTTP::Status--perl5;
-use File::Basename--perl5;
+use perl5:AppConfig::Std;
+use perl5:Net::FTP;
+use perl5:HTTP::Request::Common;
+use perl5:LWP::UserAgent;
+use perl5:HTTP::Status;
+use perl5:File::Basename;
 
 #-----------------------------------------------------------------------
 #       Configuration constants and globals

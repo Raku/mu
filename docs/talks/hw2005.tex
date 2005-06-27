@@ -966,13 +966,13 @@ with this definition:
     }
 \end{lstlisting}
 
-We further extend Pugs's \code{use} syntax with a \code{--perl5} suffix to load
+We further extend Pugs's \code{use} syntax with a \code{perl5:} prefix to load
 Perl 5 modules and import them as Pugs-side classes.  Pugs programs can
 therefore easily use OO modules installed from CPAN:
 
 \begin{lstlisting}
     #!/usr/bin/pugs
-    use DBI--perl5;
+    use perl5:DBI;
     my $dbh = DBI.connect('dbi:SQLite:test.db');
     my @tables = $dbh.tables;
     ...
