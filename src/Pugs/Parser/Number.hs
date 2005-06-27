@@ -20,7 +20,7 @@ naturalOrRat  = (<?> "number") $ do
             char '0'
             zeroNumRat
         <|> decimalRat
-        <|> try (fractRat 0)
+        <|> fractRatOnly
 
     zeroNumRat = do
             n <- hexadecimal <|> decimal <|> octalBad <|> octal <|> binary
@@ -33,8 +33,13 @@ naturalOrRat  = (<?> "number") $ do
         n <- decimalLiteral
         option (Left n) (try $ fractRat n)
 
+    fractRatOnly = do
+        fract <- try $ fraction many1
+        expo  <- option (1%1) expo
+        return (Right $ fract * expo) -- Right is Rat
+
     fractRat n = do
-            fract <- try fraction
+            fract <- try $ fraction many
             expo  <- option (1%1) expo
             return (Right $ ((n % 1) + fract) * expo) -- Right is Rat
         <|> do
@@ -43,12 +48,12 @@ naturalOrRat  = (<?> "number") $ do
                 then return (Right $ (n % 1) * expo)
                 else return (Right $ (n % 1) * expo)
 
-    fraction = do
+    fraction count = do
             char '.'
             notFollowedBy . satisfy $ \x ->
                 (isAlpha x && ((x /=) `all` "eE"))
                 || ((x ==) `any` ".=")
-            digits <- many digit <?> "fraction"
+            digits <- count digit <?> "fraction"
             return (digitsToRat digits)
         <?> "fraction"
         where
