@@ -9,6 +9,7 @@
 module Pugs.CodeGen (translate, backends) where
 import Pugs.AST
 import Pugs.Internals
+import Pugs.CodeGen.PIL (genPIL)
 import Pugs.CodeGen.PIR (genPIR)
 import Pugs.Compile.Pugs (genPugs)
 import Pugs.Compile.Haskell (genGHC)
@@ -21,6 +22,7 @@ generators = Map.fromList $
     [ ("Ghc",         genGHC)
     , ("Parrot",      genPIR)
     , ("Pir",         genPIR)
+    , ("Pil",         genPIL)
     , ("Pugs",        genPugs)
     ]
 
