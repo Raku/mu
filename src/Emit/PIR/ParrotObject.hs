@@ -1,6 +1,8 @@
 {-# OPTIONS_GHC -fglasgow-exts -fth #-}
+{-# OPTIONS_GHC -#include "UnicodeC.h" #-}
 module Emit.PIR.ParrotObject where
 
+import Data.Char
 import Emit.PIR
 import Emit.Common
 import Language.Haskell.TH.Syntax
@@ -29,7 +31,7 @@ genTy ty =
 
 genCn :: Ty -> Cn -> PIR
 genCn ty (MkCn con tys) =
-    [ genNS ty
+    [ genNS con
         [ DeclSub "__onload" [SubMETHOD] $ map StmtIns
             [ tempPMC <-- "subclass" $ [tempPMC, (lit $ genLit ty), fullTy]
             , tempPMC <-- "getclass" $ [fullTy]
@@ -51,7 +53,7 @@ genCn ty (MkCn con tys) =
         ]
 
 bareType :: String -> ObjType
-bareType t@('G':'H':'C':'.':_) = BareType $ drop 9 t
+bareType t@('G':'H':'C':'.':_) = BareType $ reverse (takeWhile isAlphaNum (reverse t))
 bareType t = BareType ("PIR::" ++ t)
 
 genDec :: Dec -> PIR
@@ -70,7 +72,8 @@ argToTy x = error (show x)
 test :: IO ()
 test = do
     q <- runQ decls
-    print . emit $ concatMap genDec q
+    writeFile "pir.pir" (show $ emit $ concatMap genDec q)
+    putStrLn "*** File saved as pir.pir"
     return ()
 
 decls :: Q [Dec]
