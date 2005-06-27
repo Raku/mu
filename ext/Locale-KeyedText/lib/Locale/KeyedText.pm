@@ -51,8 +51,9 @@ practical way of suggesting improvements to the standard version.
 
 class Locale::KeyedText::Message {
 	trusts Locale::KeyedText::Translator;
-	has Str $:msg_key; # str - the machine-readable key that uniquely identifies this message
-	has Hash $:msg_vars; # hash (str,str) - named variables for messages, if any, go here
+	# Pugs bug: These should actually be private attrs, but those don't work right now.
+	has Str $.msg_key; # str - the machine-readable key that uniquely identifies this message
+	has Hash $.msg_vars; # hash (str,str) - named variables for messages, if any, go here
 
 ######################################################################
 
@@ -62,7 +63,7 @@ method new( $class: Str $msg_key, Any ?$msg_vars ) returns Locale::KeyedText::Me
 
 	my $msg_vars_copy = hash();
 	if( $msg_vars.defined ) {
-		$msg_vars.does(Hash) or return;
+#		$msg_vars.does(Hash) or return; # Pugs bug; arg not staying a Hash.
 		$msg_vars_copy = hash(%{$msg_vars});
 	}
 	# we are assuming that hash keys never undef, so aren't testing them
@@ -73,27 +74,25 @@ method new( $class: Str $msg_key, Any ?$msg_vars ) returns Locale::KeyedText::Me
 ######################################################################
 
 method get_message_key( $message: ) returns Str {
-	return $message.:msg_key;
+	return $message.msg_key;
 }
 
 method get_message_variable( $message: Str $var_name ) returns Str {
 	$var_name.defined or return;
-	return $message.:msg_vars{$var_name}; # Pugs bug: simply reading a hash key will create it
+	return $message.msg_vars{$var_name};
 }
 
 method get_message_variables( $message: ) returns Hash of Str {
-	return hash(%{$message.:msg_vars});
+	return hash(%{$message.msg_vars});
 }
 
 ######################################################################
 
 method as_string( $message: ) returns Str {
 	# This method is intended for debugging use only.
-	return $message.:msg_key~': '~$message.:msg_vars.pairs.sort
-#		.map:{ .key~'='~(.value // '') }.join( ', ' ); # /S02 says sorting Pairs sorts keys by default.
-	# Pugs bug: pairs() on single-pair hashes become 2-elem list;
-	# this workaround will produce the wrong answer for those, but it won't crash the program
-		.map:{ $_.ref eq 'Pair::HashSlice' ?? .key~'='~(.value // '') :: $_ }.join( ', ' ); # /S02 says sorting Pairs sorts keys by default.
+	my %temp = $message.msg_vars; # the use of %temp should not be necessary
+	return $message.msg_key~': '~%temp.pairs.sort
+		.map:{ .key~'='~(.value // '') }.join( ', ' ); # /S02 says sorting Pairs sorts keys by default.
 	# we expect that .map will be invoked off of the list that .sort returns
 	# I might use Hash.as() later, but don't know if it is customizable to sort or make undefs the empty str.
 }
@@ -106,8 +105,9 @@ method as_string( $message: ) returns Str {
 ######################################################################
 
 class Locale::KeyedText::Translator {
-	has Array $:tmpl_set_nms; # array of str - list of Template module Set Names to search
-	has Array $:tmpl_mem_nms; # array of str - list of Template module Member Names to search
+	# Pugs bug: These should actually be private attrs, but those don't work right now.
+	has Array $.tmpl_set_nms; # array of str - list of Template module Set Names to search
+	has Array $.tmpl_mem_nms; # array of str - list of Template module Member Names to search
 
 ######################################################################
 
@@ -131,11 +131,11 @@ method new( $class: Any $set_names, Any $member_names ) returns Locale::KeyedTex
 ######################################################################
 
 method get_template_set_names( $translator: ) returns Array of Str {
-	return [@{$translator.:tmpl_set_nms}];
+	return [@{$translator.tmpl_set_nms}];
 }
 
 method get_template_member_names( $translator: ) returns Array of Str {
-	return [@{$translator.:tmpl_mem_nms}];
+	return [@{$translator.tmpl_mem_nms}];
 }
 
 ######################################################################
@@ -174,7 +174,7 @@ method translate_message( $translator: Locale::KeyedText::Message $message ) ret
 
 method as_string( $translator: ) returns Str {
 	# This method is intended for debugging use only.
-	return 'SETS: '~$translator.:tmpl_set_nms.join( ', ' )~'; MEMBERS: '~$translator.:tmpl_mem_nms.join( ', ' );
+	return 'SETS: '~$translator.tmpl_set_nms.join( ', ' )~'; MEMBERS: '~$translator.tmpl_mem_nms.join( ', ' );
 	# Might use Array.as() later on.
 }
 
@@ -238,7 +238,7 @@ method new_translator( Any $set_names, Any $member_names ) returns Locale::Keyed
 
 		# This will print '<FIRST> plus <SECOND> equals <RESULT>' in the first possible language.
 		# For example, if the user inputs '3' and '4', it the output will be '3 plus 4 equals 7'.
-		print $translator->translate_message( Locale::KeyedText->new_message( 'MYLIB_RESULT', 
+		print $translator.translate_message( Locale::KeyedText.new_message( 'MYLIB_RESULT', 
 			{ 'FIRST' => $first, 'SECOND' => $second, 'RESULT' => $sum } ) );
 	}
 

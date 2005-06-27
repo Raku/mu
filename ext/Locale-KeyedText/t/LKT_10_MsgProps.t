@@ -11,7 +11,7 @@ use Locale::KeyedText;
 
 t_LKT_Util::message( 'testing new_message() and Message object methods' );
 
-my ($did, $should, $msg1, $temp);
+my ($did, $should, $msg1);
 
 $did = t_LKT_Util::serialize( Locale::KeyedText.new_message( undef ) );
 $should = 'undef, ';
@@ -38,40 +38,35 @@ $did = $msg1.as_string();
 $should = 'zZ9: ';
 is( $did, $should, "on init msg1.as_string() returns '$did'" );
 
-$temp = undef;
-$msg1 = Locale::KeyedText.new_message( 'foo', $temp );
+$msg1 = Locale::KeyedText.new_message( 'foo', undef );
 isa_ok( $msg1, "Locale::KeyedText::Message", 
 	"msg1 = new_message( 'foo', undef ) ret MSG obj" );
 $did = $msg1.as_string();
 $should = 'foo: ';
 is( $did, $should, "on init msg1.as_string() returns '$did'" );
 
-$temp = hash();
-$msg1 = Locale::KeyedText.new_message( 'foo', $temp );
+$msg1 = Locale::KeyedText.new_message( 'foo', hash() );
 isa_ok( $msg1, "Locale::KeyedText::Message", 
 	"msg1 = new_message( 'foo', hash() ) ret MSG obj" );
 $did = $msg1.as_string();
 $should = 'foo: ';
 is( $did, $should, "on init msg1.as_string() returns '$did'" );
 
-$temp = { '' => 'g' };
-$msg1 = Locale::KeyedText.new_message( 'foo', $temp );
+$msg1 = Locale::KeyedText.new_message( 'foo', { '' => 'g' } );
 isa_ok( $msg1, "Locale::KeyedText::Message", 
 	"msg1 = new_message( 'foo', \{ '' => 'g' \} ) ret MSG obj" );
-$did = $msg1.as_string(); # Pugs bug: pairs() on single-pair hashes become 2-elem list
+$did = $msg1.as_string();
 $should = 'foo: =g';
 is( $did, $should, "on init msg1.as_string() returns '$did'" );
 
-$temp = { 'bar' => 'baz' };
-$msg1 = Locale::KeyedText.new_message( 'foo', $temp ); # $temp used so Hash not auto-changed to List
+$msg1 = Locale::KeyedText.new_message( 'foo', { 'bar' => 'baz' } );
 isa_ok( $msg1, "Locale::KeyedText::Message", 
 	"msg1 = new_message( 'foo', \{ 'bar' => 'baz' \} ) ret MSG obj" );
-$did = $msg1.as_string(); # Pugs bug: pairs() on single-pair hashes become 2-elem list
+$did = $msg1.as_string();
 $should = 'foo: bar=baz';
 is( $did, $should, "on init msg1.as_string() returns '$did'" );
 
-$temp = { 'bar'=>'baz','c'=>'-','0'=>'1','z'=>'','y'=>'0' };
-$msg1 = Locale::KeyedText.new_message( 'foo', $temp );
+$msg1 = Locale::KeyedText.new_message( 'foo', { 'bar'=>'baz','c'=>'-','0'=>'1','z'=>'','y'=>'0' } );
 isa_ok( $msg1, "Locale::KeyedText::Message", 
 	"msg1 = new_message( 'foo', \{ 'bar'=>'baz','c'=>'d','0'=>'1','z'=>'','y'=>'0' \} ) ret MSG obj" );
 $did = $msg1.as_string();
@@ -102,9 +97,6 @@ $did = t_LKT_Util::serialize( $msg1.get_message_variable( 'bar' ) );
 $should = '\'baz\', ';
 is( $did, $should, "on init msg1.get_message_variable( 'bar' ) returns '$did'" );
 
-# Pugs bug: simply reading a hash key (in get_message_variable) will create it;
-# that is what causes this test to fail as $did contains extra keys with null values.
-$temp = $msg1.get_message_variables(); # $temp used so Hash not auto-changed to List
-$did = t_LKT_Util::serialize( $temp );
+$did = t_LKT_Util::serialize( $msg1.get_message_variables() );
 $should = '{ \'0\' => \'1\', \'bar\' => \'baz\', \'c\' => \'-\', \'y\' => \'0\', \'z\' => \'\', }, ';
 is( $did, $should, "on init msg1.get_message_variables() returns '$did'" );

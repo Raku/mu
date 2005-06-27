@@ -11,7 +11,7 @@ use Locale::KeyedText;
 
 t_LKT_Util::message( 'testing new_translator() and most Translator object methods' );
 
-my ($did, $should, $trn1, $temp);
+my ($did, $should, $trn1);
 
 $did = t_LKT_Util::serialize( Locale::KeyedText.new_translator( [''], undef ) );
 $should = 'undef, ';
@@ -120,13 +120,11 @@ $did = $trn1.as_string();
 $should = 'SETS: goo, har; MEMBERS: wer, thr';
 is( $did, $should, "on init trn1.as_string() returns '$did'" );
 
-$temp = $trn1.get_template_set_names(); # $temp used so Array not auto-changed to List
-$did = t_LKT_Util::serialize( $temp );
+$did = t_LKT_Util::serialize( $trn1.get_template_set_names() );
 $should = '[ \'goo\', \'har\', ], ';
 is( $did, $should, "on init trn1.get_template_set_names() returns '$did'" );
 
-$temp = $trn1.get_template_member_names(); # $temp used so Array not auto-changed to List
-$did = t_LKT_Util::serialize( $temp );
+$did = t_LKT_Util::serialize( $trn1.get_template_member_names() );
 $should = '[ \'wer\', \'thr\', ], ';
 is( $did, $should, "on init trn1.get_template_member_names() returns '$did'" );
 
