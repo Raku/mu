@@ -8,13 +8,13 @@ module t_LKT_Util;
 
 ######################################################################
 
-sub message( Str $detail ) {
+sub message( Str $detail is rw ) {
 	say "# $detail";
 }
 
 ######################################################################
 
-sub serialize( Any $input ) returns Str {
+sub serialize( Any $input is rw ) returns Str {
 	return [
 		!$input.defined ??
 			'undef, '

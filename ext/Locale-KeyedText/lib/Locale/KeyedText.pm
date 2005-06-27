@@ -57,13 +57,14 @@ class Locale::KeyedText::Message {
 
 ######################################################################
 
-method new( $class: Str $msg_key, Any ?$msg_vars ) returns Locale::KeyedText::Message {
+method new( $class: Str $msg_key is rw, Any ?$msg_vars is rw ) returns Locale::KeyedText::Message {
+	# Note: the 'is rw' is a workaround, until Pugs' "transparent refs" are fixed.
 
 	$msg_key.defined or return;
 
 	my $msg_vars_copy = hash();
 	if( $msg_vars.defined ) {
-#		$msg_vars.does(Hash) or return; # Pugs bug; arg not staying a Hash.
+		$msg_vars.does(Hash) or return;
 		$msg_vars_copy = hash(%{$msg_vars});
 	}
 	# we are assuming that hash keys never undef, so aren't testing them
@@ -77,7 +78,7 @@ method get_message_key( $message: ) returns Str {
 	return $message.msg_key;
 }
 
-method get_message_variable( $message: Str $var_name ) returns Str {
+method get_message_variable( $message: Str $var_name is rw ) returns Str {
 	$var_name.defined or return;
 	return $message.msg_vars{$var_name};
 }
@@ -111,7 +112,7 @@ class Locale::KeyedText::Translator {
 
 ######################################################################
 
-method new( $class: Any $set_names, Any $member_names ) returns Locale::KeyedText::Translator {
+method new( $class: Any $set_names is rw, Any $member_names is rw ) returns Locale::KeyedText::Translator {
 
 	my $set_names_copy = $set_names.does(Array) ?? [@{$set_names}] :: [$set_names];
 	+$set_names_copy > 0 or return;
@@ -140,7 +141,7 @@ method get_template_member_names( $translator: ) returns Array of Str {
 
 ######################################################################
 
-method translate_message( $translator: Locale::KeyedText::Message $message ) returns Str {
+method translate_message( $translator: Locale::KeyedText::Message $message is rw ) returns Str {
 	$message.defined or return;
 	my Str $text = undef;
 	for $translator.tmpl_mem_nms -> $member_name { # label is MEMBER
@@ -194,11 +195,11 @@ class Locale::KeyedText-0.1.2 { # based on 5v1.05; to become 6v1.5.0 when fully 
 
 ######################################################################
 
-method new_message( Str $msg_key, Any ?$msg_vars ) returns Locale::KeyedText::Message {
+method new_message( Str $msg_key is rw, Any ?$msg_vars is rw ) returns Locale::KeyedText::Message {
 	return Locale::KeyedText::Message.new( $msg_key, $msg_vars );
 }
 
-method new_translator( Any $set_names, Any $member_names ) returns Locale::KeyedText::Translator {
+method new_translator( Any $set_names is rw, Any $member_names is rw ) returns Locale::KeyedText::Translator {
 	return Locale::KeyedText::Translator.new( $set_names, $member_names );
 }
 
