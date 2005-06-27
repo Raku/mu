@@ -1,6 +1,20 @@
 class Perl::Compiler::PIL::Util::Pad {
     has Perl::Compiler::PIL::Util::Pad $.parent;
-    has Str @.names;
+    has Int $.max;
+    has Int %.index;
+
+    method add($name) {
+        %.index{$name} = $.max++;
+    }
+
+    method lookup_pad($name) {
+        if %.index.exists($name) {
+            $?SELF;
+        }
+        else {
+            $.parent ?? $.parent.lookup_pad($name) :: fail;
+        }
+    }
 }
 
 class Perl::Compiler::PIL::Util::Pos {

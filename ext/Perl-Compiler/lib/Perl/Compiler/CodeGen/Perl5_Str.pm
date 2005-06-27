@@ -8,11 +8,14 @@ class Perl::Compiler::CodeGen::Perl5_Str
 
     method generate (Perl::Compiler::PIL::PIL $tree is rw) {
         my $ng = ::Perl::Compiler::CodeGen::NameGen.new(template => { "\$P_$_" });
+        say "$?SELF / $?SELF.ref()";
         ./gen($tree, $ng);
     }
 
     method gen (Perl::Compiler::PIL::PIL $tree is rw, PIL::Compiler::CodeGen::NameGen $ng is rw) {
         given $tree {
+            say "Processing $tree / $tree.ref()";
+            
             when ::Perl::Compiler::PIL::PILNil    { '' }
 
             when ::Perl::Compiler::PIL::PILNoop   { ';' }
@@ -30,16 +33,24 @@ class Perl::Compiler::CodeGen::Perl5_Str
             }
 
             when ::Perl::Compiler::PIL::PILCode   { 
-                $ng.ret("$INS\::p5_make_code( sub \{ { ./gen(.statments) } } )");  ''
+                my $inner = ./gen(.statements);
+                $ng.ret("$INS\::p5_make_code( sub \{ { 
+                    $inner     # XXX pad variable
+                } } )");  ''
             }
 
             when ::Perl::Compiler::PIL::PILVal    { 
                 $ng.ret("$INS\::p5_make_val( { .value } )");  ''
             }
 
-            when ::Perl::Compiler::PIL::PILVar    { $ng.ret(.value); '' }    # handwave
+            when ::Perl::Compiler::PIL::PILVar    { 
+                # XXX shouldn't need $tree.pad.id ; .pad.id should do ($tree is topic)
+                $ng.ret("\$PAD_" ~ $tree.pad.id ~ "->[" ~ $tree.pad.index{.value} ~ "]");
+            }    # handwave
 
-            when ::Perl::Compiler::PIL::PILStmts  { ./gen(.head, $ng.fork) ~ '; ' ~ ./gen(.tail, $ng.fork) }
+            when ::Perl::Compiler::PIL::PILStmts  { 
+                ./gen(.head, $ng.fork) ~ '; ' ~ ./gen(.tail, $ng.fork);
+            }
 
             when ::Perl::Compiler::PIL::PILApp    {
                 my $str = join ' ',

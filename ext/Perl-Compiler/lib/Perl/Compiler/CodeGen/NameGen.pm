@@ -6,6 +6,7 @@ class Perl::Compiler::CodeGen::NameGen {
     has $.parent;
     has $.parent_ident;
     has %.names;
+    has %.state is rw;
 
     submethod BUILD ($.template, ?$.counter = [0], ?$.parent, ?$.parent_ident) { }
     
@@ -15,6 +16,7 @@ class Perl::Compiler::CodeGen::NameGen {
             conter => $.counter,
             parent   => $?SELF,
             parent_ident => $ident,
+            state => hash(%.state),
         );
         $ret;
     }
