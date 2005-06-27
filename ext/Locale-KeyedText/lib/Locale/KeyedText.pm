@@ -143,30 +143,27 @@ method get_template_member_names( $translator: ) returns Array of Str {
 method translate_message( $translator: Locale::KeyedText::Message $message ) returns Str {
 	$message.defined or return;
 	my Str $text = undef;
-#	MEMBER: for $translator.:tmpl_mem_nms -> $member_name {
-#		SET: for $translator.:tmpl_set_nms -> $set_name {
-#			my Str $template_module_name = $set_name~$member_name;
-#			unless( $template_module_name.meta.can("get_text_by_key") ) {
-#				require $template_module_name;
-#				unless( $template_module_name.meta.can("get_text_by_key") ) {
-#					next SET;
-#				}
-#			}
-#			try {
-#				$text = $template_module_name.get_text_by_key( $message.:msg_key );
-#				CATCH {
-#					next SET;
-#				}
-#			}
-#			$text or next SET;
-#			for $message.:msg_vars.kv -> $var_name, $var_value {
-#				$var_value //= '';
-#				$text ~~ rx:perl5:g/\{$var_name\}/$var_value/;
-##				$text ~~ s:g/\{$var_name\}/$var_value/;
-#			}
-#			last MEMBER;
-#		}
-#	}
+	for $translator.tmpl_mem_nms -> $member_name { # label is MEMBER
+		for $translator.tmpl_set_nms -> $set_name { # label is SET
+			my Str $template_module_name = $set_name~$member_name;
+			try {
+				unless( 0 ) { # TODO: the class is already loaded
+					require $template_module_name;
+				}
+				$text = $template_module_name.get_text_by_key( $message.msg_key );
+				CATCH {
+					next; # SET
+				}
+			};
+			$text or next; # SET
+			for $message.msg_vars.kv -> $var_name, $var_value {
+				$var_value //= '';
+				$text ~~ s:perl5:g/\{$var_name\}/$var_value/; # this version only needs Pugs
+#				$text ~~ s:g/\{$var_name\}/$var_value/; # this version requires PGE/Parrot
+			}
+			last; # MEMBER
+		}
+	}
 	return $text;
 }
 
