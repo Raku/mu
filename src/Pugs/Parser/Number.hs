@@ -20,6 +20,7 @@ naturalOrRat  = (<?> "number") $ do
             char '0'
             zeroNumRat
         <|> decimalRat
+        <|> try (fractRat 0)
 
     zeroNumRat = do
             n <- hexadecimal <|> decimal <|> octalBad <|> octal <|> binary
