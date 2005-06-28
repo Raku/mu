@@ -200,7 +200,7 @@ Autrijus Tang
 ----
 == Fast forward to Perl 6...
 
-* Faster: Whole-program optimizations; low level types
+* Faster: Whole-program optimizations; soft, incrementally typed
 +* Friendlier: Call Perl5/C/Tcl/Python libraries directly
 +* Easier: Common usage patterns dramatically shortened
 +* Stronger: Support for OO, Functional, Data-driven styles
@@ -421,10 +421,9 @@ Autrijus Tang
 
 {image: http://perlcabal.org/~autrijus/images/checklist.jpg}
 
-* We have 7000+ unit tests now
-+* To report a bug, always write a test
-+* `Test.pm` is really simple to use
-+* The smoke graph lists TODOs and regressions:
+* To report a bug, always write a test
++** `Test.pm` is really simple to use
++** The smoke graph lists TODOs and regressions:
 
     http://feather.perl6.nl/~autrijus/smoke.html
 
@@ -1105,15 +1104,19 @@ Perl-Compiler Tree
 == Code generator
 
 * Written in Perl 6
-+* `ext/Perl-Compiler/` in the source tree
+** `ext/Perl-Compiler` in Pugs source tree
+** Started by Luke Palmer
 +* Takes a set of PIL node objects
-+* `use perl5:PPI;`
-+* XXX
+** Generates Perl 5 code via string concatenation
++* Yuval Kogman started working on improved quasiquoting
+** `use perl5:PPI;`
 
 ----
 == Perl 6 object space
 
 +* The only user-visible part
+** `lib` in Pugs source tree
+** Started by Stevan Little
 +** Everything else can be run at author's side
 +** Hence, the only part that needs to be in Perl 5
 +* Currently handles roles, classes
@@ -1124,16 +1127,27 @@ Perl-Compiler Tree
 == Semantic analyzer
 
 * Takes parse tree, produce PIL tree
-+* Currently, 150 lines of Haskell code
-+* Needs to be ported to Perl 6
-+* XXX
+** `src/Pugs/Compile` in Pugs source tree
+** Currently, 150 lines of Haskell code
++* Some parts still missing
++** First-class types and signatures
++** Purely lexical Pad structures
++* Effectively a formal spec of Perl 6 syntax
++** Needs to be ported to Perl 6
 
 ----
 == The Parser
 
 * Currently, 1000+ lines of Haskell code
-+* PGE in Perl 6
-+* XXX
++* Special syntax carries heavy sugar
++** BEGIN blocks can't be statically parsed 
++** Must take care of user-defined lexical tokens
++* Eventually translated to Perl 6 rules
++** For rebindable grammars
++** Basic support available in PGE last week
++** Still much more needed to be done
++** PGE needs to be ported to Perl 6 also
++** (If we are to bootstrap on Perl 5, that is)
 
 ----
 == Drawbacks
