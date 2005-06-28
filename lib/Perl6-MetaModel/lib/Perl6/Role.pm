@@ -25,12 +25,12 @@ sub flatten_roles_into {
     debug "flattened role is (" . $r->{name} . ")";
     foreach my $method (keys %{$r->{methods}}) {
         debug "adding the method ($method) into (" . $class->metaclass->name . ")";
-        $class->metaclass->add_method($method => Perl6::Method->new(
+        $class->metaclass->add_method($method => Perl6::Role::Method->new(
             $class->metaclass->name,
             $r->{methods}->{$method}
             )) unless $class->metaclass->has_method($method);
     }
-    $class->metaclass->add_method('does' => Perl6::Method->new(
+    $class->metaclass->add_method('does' => Perl6::Role::Method->new(
         $class->metaclass->name, sub {
         my (undef, $role) = @_;
         return $role =~ /$r->{name}/ if $role;

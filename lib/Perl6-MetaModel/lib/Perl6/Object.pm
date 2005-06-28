@@ -167,7 +167,7 @@ sub add_attribute {
     if ($attribute->is_public()) {
         unless ($class->metaclass->has_method($attribute->accessor_name())) {
              debug "property $label accessor (" . $attribute->accessor_name() . ") created for $class";
-             $class->metaclass->add_method($attribute->accessor_name() => Perl6::Method->new(
+             $class->metaclass->add_method($attribute->accessor_name() => Perl6::Instance::Method->new(
              $class->metaclass->name(), sub {
                 my ($self, $value) = @_;
                 $self->set_value($label => $value) if defined $value;
