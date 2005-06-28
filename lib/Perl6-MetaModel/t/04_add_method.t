@@ -6,6 +6,7 @@ use warnings;
 use Test::More no_plan => 1;
 
 use Perl6::MetaModel;
+use Perl6::Method;
 
 =pod
 
@@ -30,7 +31,7 @@ is($foo->foo(), 'FOO', '... $foo->foo() works');
 
 ok(!$foo->can('bar'), '... $foo cannot bar() yet');
 
-Foo->class->metaclass->add_method('bar' => sub { 'BAR' });
+Foo->class->metaclass->add_method('bar' => Perl6::Method->new('Foo' => sub { 'BAR' }));
 
 can_ok($foo, 'bar');
 is($foo->bar(), 'BAR', '... $foo->bar() works');

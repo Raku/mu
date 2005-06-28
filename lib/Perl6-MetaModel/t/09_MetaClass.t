@@ -8,6 +8,7 @@ use Test::Exception;
 
 use Perl6::MetaClass;
 use Perl6::Attribute;
+use Perl6::Method;
 
 my $mc= Perl6::MetaClass->new(name => 'Base');
 isa_ok($mc, 'Perl6::MetaClass');
@@ -55,14 +56,14 @@ is_deeply(
     '... got an empty class precendence list');
 
 lives_ok {
-    $mc->add_method('foo' => sub { 'Base::foo' });
+    $mc->add_method('foo' => Perl6::Method->new($mc->name, sub { 'Base::foo' }));
 } '... we can add a method successfully';
 
 ok($mc->has_method('foo'), '... the metaclass now has the method "foo"');
 ok($mc->responds_to('foo'), '... the class defined will respond to "foo"');
 
-is($mc->get_method('foo')->(), 'Base::foo', '... got the method and it returned the right value');
-is($mc->find_method('foo')->(), 'Base::foo', '... found the method and it returned the right value');
+is($mc->get_method('foo')->call(), 'Base::foo', '... got the method and it returned the right value');
+is($mc->find_method('foo')->call(), 'Base::foo', '... found the method and it returned the right value');
 
 lives_ok {
     $mc->add_attribute('$.foo' => Perl6::Attribute->new($mc, '$.foo'));
@@ -106,7 +107,7 @@ is_deeply(
     '... got a class precendence list');
    
 lives_ok {    
-    $mc2->add_method('bar' => sub { 'Foo::bar' });
+    $mc2->add_method('bar' => Perl6::Method->new($mc2->name, sub { 'Foo::bar' }));
 } '... add another method now';
 
 ok($mc2->has_method('bar'), '... the metaclass now has the method "bar"');
@@ -114,10 +115,10 @@ ok($mc2->has_method('bar'), '... the metaclass now has the method "bar"');
 ok($mc2->responds_to('bar'), '... the class defined will respond to "bar"');
 ok($mc2->responds_to('foo'), '... the class defined will respond to "foo" (from the superclass)');
 
-is($mc2->get_method('bar')->(), 'Foo::bar', '... got the method and it returned the right value');
-is($mc2->find_method('bar')->(), 'Foo::bar', '... found the method and it returned the right value');
+is($mc2->get_method('bar')->call(), 'Foo::bar', '... got the method and it returned the right value');
+is($mc2->find_method('bar')->call(), 'Foo::bar', '... found the method and it returned the right value');
 
-is($mc2->find_method('foo')->(), 'Base::foo', '... found the method in the superclass and it returned the right value');
+is($mc2->find_method('foo')->call(), 'Base::foo', '... found the method in the superclass and it returned the right value');
 
 lives_ok {
     $mc2->add_attribute('$.bar' => Perl6::Attribute->new($mc2, '$.bar'));
@@ -154,7 +155,7 @@ is_deeply(
     '... got a class precendence list');
    
 lives_ok {    
-    $mc3->add_method('baz' => sub { 'Bar::baz' });
+    $mc3->add_method('baz' => Perl6::Method->new($mc3->name, sub { 'Bar::baz' }));
 } '... add another method now';
 
 ok($mc3->has_method('baz'), '... the metaclass now has the method "baz"');
@@ -162,10 +163,10 @@ ok($mc3->has_method('baz'), '... the metaclass now has the method "baz"');
 ok($mc3->responds_to('baz'), '... the class defined will respond to "baz"');
 ok($mc3->responds_to('foo'), '... the class defined will respond to "foo" (from the superclass)');
 
-is($mc3->get_method('baz')->(), 'Bar::baz', '... got the method and it returned the right value');
-is($mc3->find_method('baz')->(), 'Bar::baz', '... found the method and it returned the right value');
+is($mc3->get_method('baz')->call(), 'Bar::baz', '... got the method and it returned the right value');
+is($mc3->find_method('baz')->call(), 'Bar::baz', '... found the method and it returned the right value');
 
-is($mc3->find_method('foo')->(), 'Base::foo', '... found the method in the superclass and it returned the right value');
+is($mc3->find_method('foo')->call(), 'Base::foo', '... found the method in the superclass and it returned the right value');
 
 lives_ok {
     $mc3->add_attribute('$.baz' => Perl6::Attribute->new($mc3, '$.baz'));
@@ -202,7 +203,7 @@ is_deeply(
     '... got a class precendence list');
    
 lives_ok {    
-    $mc4->add_method('blah' => sub { 'Foo::Bar::blah' });
+    $mc4->add_method('blah' => Perl6::Method->new($mc4->name, sub { 'Foo::Bar::blah' }));
 } '... add another method now';
 
 ok($mc4->has_method('blah'), '... the metaclass now has the method "blah"');
@@ -211,12 +212,12 @@ ok($mc4->responds_to('blah'), '... the class defined will respond to "blah"');
 ok($mc4->responds_to('baz'), '... the class defined will respond to "baz" (from the superclass)');
 ok($mc4->responds_to('foo'), '... the class defined will respond to "foo" (from the superclass)');
 
-is($mc4->get_method('blah')->(), 'Foo::Bar::blah', '... got the method and it returned the right value');
+is($mc4->get_method('blah')->call(), 'Foo::Bar::blah', '... got the method and it returned the right value');
 
-is($mc4->find_method('blah')->(), 'Foo::Bar::blah', '... found the method and it returned the right value');
+is($mc4->find_method('blah')->call(), 'Foo::Bar::blah', '... found the method and it returned the right value');
 
-is($mc4->find_method('baz')->(), 'Bar::baz', '... found the method and it returned the right value');
-is($mc4->find_method('foo')->(), 'Base::foo', '... found the method in the superclass and it returned the right value');
+is($mc4->find_method('baz')->call(), 'Bar::baz', '... found the method and it returned the right value');
+is($mc4->find_method('foo')->call(), 'Base::foo', '... found the method in the superclass and it returned the right value');
 
 is_deeply(
     [ $mc4->get_all_attributes ],
@@ -248,19 +249,19 @@ is_deeply(
     '... got a class precendence list'); 
    
 lives_ok {    
-    $mc5->add_method('foo' => sub { 'Foo::Bar::Baz::foo' });
+    $mc5->add_method('foo' => Perl6::Method->new($mc5->name, sub { 'Foo::Bar::Baz::foo' }));
 } '... add another method now';
 
 ok($mc5->responds_to('blah'), '... the class defined will respond to "blah"');
 ok($mc5->responds_to('baz'), '... the class defined will respond to "baz" (from the superclass)');
 ok($mc5->responds_to('foo'), '... the class defined will respond to "foo" (from the superclass)');
 
-is($mc5->find_method('blah')->(), 'Foo::Bar::blah', '... found the method and it returned the right value');
-is($mc5->find_method('baz')->(), 'Bar::baz', '... found the method and it returned the right value');
+is($mc5->find_method('blah')->call(), 'Foo::Bar::blah', '... found the method and it returned the right value');
+is($mc5->find_method('baz')->call(), 'Bar::baz', '... found the method and it returned the right value');
 
-is($mc5->find_method('foo')->(), 'Foo::Bar::Baz::foo', '... found overridden method and it returned the right value');
+is($mc5->find_method('foo')->call(), 'Foo::Bar::Baz::foo', '... found overridden method and it returned the right value');
 
-is($mc5->find_method_in_superclasses('foo')->(), 'Base::foo', '... found the SUPER method and it returned the right value');
+is($mc5->find_method_in_superclasses('foo')->call(), 'Base::foo', '... found the SUPER method and it returned the right value');
 
 is_deeply(
     [ $mc5->get_all_attributes ],

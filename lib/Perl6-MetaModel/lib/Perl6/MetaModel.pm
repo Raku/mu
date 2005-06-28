@@ -7,6 +7,7 @@ use warnings;
 use Perl6::Object;
 use Perl6::Role;
 use Perl6::Attribute;
+use Perl6::Method;
 
 sub import {
     no strict 'refs';
@@ -45,8 +46,7 @@ our \%ATTRS;
 our \%METHODS;
 |;
     eval $code;
-
-    #warn "|||||> adding superclasses to " . ($name . '::Class') . " [" . ($extends . '::Class') . "]";      
+ 
     ($name . '::Class')->metaclass->superclasses([ ($extends . '::Class')->metaclass ]);    
     
     no strict 'refs';
@@ -55,10 +55,10 @@ our \%METHODS;
         
         my $kind = "$name\:\:Kind";
         if (exists $class->{init}) {
-            ($name . '::Class')->metaclass->add_method('init' => $class->{init});
+            ($name . '::Class')->metaclass->add_method('init' => Perl6::Method->new($name => $class->{init}));
         }
         if (exists $class->{methods}) {
-            ($name . '::Class')->metaclass->add_method($_ => $class->{methods}->{$_}) 
+            ($name . '::Class')->metaclass->add_method($_ => Perl6::Method->new($name, $class->{methods}->{$_})) 
                 foreach keys %{$class->{methods}};
         }
         if (exists $class->{attrs}) {

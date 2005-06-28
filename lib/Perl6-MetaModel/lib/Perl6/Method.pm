@@ -13,6 +13,9 @@ sub new {
 }
 
 sub associated_with { (shift)->{associated_with} }
-sub call { (shift)->{code}->(@_) }
+sub call { 
+    my ($self, @args) = @_;
+    $self->{code}->(@args); 
+}
 
 1;

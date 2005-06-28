@@ -58,8 +58,8 @@ sub add_method {
     my ($self, $label, $method) = @_;
     (defined $label && defined $method)
         || die "InsufficientArguments : you must provide a method and a label";
-    (ref($method) eq 'CODE')
-        || die "IncorrectObjectType : Method must be a CODE reference got($method)";
+    (blessed($method) && $method->isa('Perl6::Method'))
+        || die "IncorrectObjectType : Method must be a Perl6::Method object got($method)";
     $self->{methods}->{$label} = $method;
 }
 
