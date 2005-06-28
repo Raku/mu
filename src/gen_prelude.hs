@@ -23,7 +23,9 @@ main = do
     [moduleName] <- getArgs
     putStr $ preludeIntro moduleName
     str <- getContents
-    print . unlines . filter notComment . lines $ str
+    let lns = filter notComment . lines $ str
+    putStrLn . unlines . map (\ln -> "    , " ++ show ln) $ lns
+    putStrLn "    ]\n"
     where
     notComment ('#':_)      = False
     notComment (' ':cs)     = notComment cs
@@ -58,4 +60,5 @@ preludeIntro moduleName = "\
 \) where\n\
 \ \n\
 \preludeStr :: String\n\
-\preludeStr = "
+\preludeStr = unlines\n\
+\    [ \"\"\n"
