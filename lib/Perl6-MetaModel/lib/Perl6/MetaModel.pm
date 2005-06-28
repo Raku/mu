@@ -38,6 +38,22 @@ sub role {
 
 sub class {
     my ($name, $params) = @_;
+    
+    my %allowed = map { $_ => undef } qw(extends kind_of class kind does);
+    my %allowed_in = map { $_ => undef } qw(attrs init methods);
+    
+    foreach my $key (keys %{$params}) {
+        die "Invalid key ($key) in params" 
+            unless exists $allowed{$key};
+        if ($key eq 'class' || $key eq 'kind') {
+            foreach my $sub_key (keys %{$params->{$key}}) {
+                die "Invalid sub_key ($sub_key) in key ($key) in params" 
+                    unless exists$allowed_in{$sub_key};                
+            }
+        }
+    }
+    
+    
     my $extends = $params->{extends} || 'Perl6::Object';
     my $kind    = $params->{kind_of} || 'Perl6::Object';
     my $code = qq|

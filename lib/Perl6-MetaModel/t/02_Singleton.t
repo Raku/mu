@@ -29,7 +29,7 @@ following behaviors:
 
 class Singleton => {
     kind => {
-        attr => [ '$:instance' ],
+        attrs => [ '$:instance' ],
         methods => {
             instance => sub {
                 my ($class) = @_;
