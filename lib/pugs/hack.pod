@@ -121,6 +121,7 @@ Expanding this one level deeper:
     |-- lib                XXXX: overall concept?
     |   |-- Inline             Inline::Pugs
     |   |-- Perl6              Perl6::MakeMaker, Perl6::Pugs
+    |   |-- Perl6-MetaModel    Perl6's OO metamodel, in Perl 5
     |   `-- pugs               Docs for Pugs itself (XXXX: -> docs/?)
     |
     |-- modules            Perl 6 modules not working today; -> FreePAN
