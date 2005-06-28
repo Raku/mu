@@ -14,7 +14,6 @@ eval_is(
     (%ball{12}) <=> (%ball{11}),
     0,
     'parens with spaceship parse incorrectly',
-    :todo<bug>
 );
 
 %ball{12} = 0.5;
