@@ -6,18 +6,21 @@ use warnings;
 
 use Perl6::MetaModel;
 
-class 'Perl6::Scalar' => {
-    does => [ 'Scalar' ],
+class 'P5::PIL::Run::Container::Scalar' => {
+    does => [ 'IScalar' ],
     class => {
         attrs => [ '$:value' ],
         methods => {
-            'FETCH' => {
+            'scalar_fetch' => sub {
                 (shift)->get_value('$:value');
             },
-            'STORE' => {
+            'scalar_store' => sub {
                 my ($self, $value) = @_;
                 $self->set_value('$:value' => $value);                        
             }
+			'scalar_const' => sub {
+				0;
+			}
         }        
     }
 };
