@@ -155,6 +155,11 @@ method translate_message( $translator: Locale::KeyedText::Message $message is rw
 				# Eg, when a plain "require Bar;" works, a "my $foo = 'Bar'; require $foo;"
 				# fails with a "Can't locate Bar.pm in @*INC" error.
 			}
+			CATCH {
+				next;
+			}
+		};
+		try {
 			$text = &::($template_module_name)::get_text_by_key( $message.msg_key );
 			CATCH {
 				next;

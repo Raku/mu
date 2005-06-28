@@ -11,6 +11,20 @@ use Locale::KeyedText;
 
 t_LKT_Util::message( 'testing Translator.translate_message() method' );
 
+module t_LKT_C_L_Eng {
+
+my Str %text_strings is constant = (
+	'one' => '{fork} shore {spoon}',
+	'two' => 'sky fly high',
+	'three' => '{knife} zot',
+);
+
+sub get_text_by_key( Str $msg_key ) returns Str {
+	return %text_strings{$msg_key};
+}
+
+} # end module t_LKT_C_L_Eng
+
 my $AS = 't_LKT_A_L_';
 my $BS = 't_LKT_B_L_';
 my $CS = 't_LKT_C_L_';
@@ -143,15 +157,3 @@ is( $did, $should, "trn11.translate_message( msg2 ) returns '$did'" );
 $did = t_LKT_Util::serialize( $trn11.translate_message( $msg3 ) );
 $should = '\'sharp zot\', ';
 is( $did, $should, "trn11.translate_message( msg3 ) returns '$did'" );
-
-module t_LKT_C_L_Eng;
-
-my Str %text_strings is constant = (
-	'one' => '{fork} shore {spoon}',
-	'two' => 'sky fly high',
-	'three' => '{knife} zot',
-);
-
-sub get_text_by_key( Str $msg_key ) returns Str {
-	return %text_strings{$msg_key};
-}
