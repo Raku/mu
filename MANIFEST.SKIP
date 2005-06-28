@@ -28,4 +28,3 @@ svn-commit\.tmp$
 ^debian/
 ^t_disabled/
 ^t/builtins/system/
-^ext/Date/
