@@ -9,7 +9,7 @@ sub new {
     bless {
         associated_with => $associated_with,
         code            => $code,
-    }, ref($class) || $class;
+    }, $class;
 }
 
 sub associated_with { (shift)->{associated_with} }

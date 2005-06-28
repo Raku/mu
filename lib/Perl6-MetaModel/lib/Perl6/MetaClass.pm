@@ -13,7 +13,7 @@ sub new {
         superclasses => [],
         methods      => {},
         attributes   => {},
-    }, ref($class) || $class;
+    }, $class;
     $meta->name($params{name}) if exists $params{name};
     $meta->superclasses($params{superclasses}) if exists $params{superclasses};    
     return $meta;

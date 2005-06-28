@@ -18,7 +18,7 @@ sub new {
         visibility      => $visibility,
         type            => $type,
         label           => $label,
-    }, ref($class) || $class;
+    }, $class;
 }
 
 sub type { (shift)->{type} }

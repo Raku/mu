@@ -21,8 +21,9 @@ ok($foo_prop->is_public(), '... our foo attribute is public');
 ok(!$foo_prop->is_private(), '... our foo attribute is not private');
 
 ok(!$foo_prop->is_array(), '... our foo attribute is not an array');
+ok(!$foo_prop->is_hash(), '... our foo attribute is not an hash');
 
-my $bar_prop = Perl6::Attribute->new('Bar' => '$:bar');
+my $bar_prop = Perl6::Attribute->new('Bar' => '%:bar');
 isa_ok($bar_prop, 'Perl6::Attribute');
 
 is($bar_prop->accessor_name(), 'bar', '... our attributes accessor name is "bar"');
@@ -30,6 +31,7 @@ ok(!$bar_prop->is_public(), '... our bar attribute is not public');
 ok($bar_prop->is_private(), '... our bar attribute is private');
 
 ok(!$bar_prop->is_array(), '... our bar attribute is not an array');
+ok($bar_prop->is_hash(), '... our bar attribute is a hash');
 
 my $baz_prop = Perl6::Attribute->new('Baz' => '@.baz', 'Foo::Bar');
 isa_ok($baz_prop, 'Perl6::Attribute');
@@ -40,3 +42,4 @@ ok(!$baz_prop->is_private(), '... our baz attribute is not private');
 is($baz_prop->type(), 'Foo::Bar', '... got the right type');
 
 ok($baz_prop->is_array(), '... our baz attribute is an array');
+ok(!$baz_prop->is_hash(), '... our baz attribute is not a hash');

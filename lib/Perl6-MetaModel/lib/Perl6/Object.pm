@@ -137,17 +137,6 @@ sub isa {
     return $self->metaclass->is_a($class);
 }
 
-sub superclasses {
-    my ($class) = @_;
-#    warn "Someone called me "  . (join ", " => caller());
-    return map { $_->name } @{$class->metaclass->superclasses()};
-}
-
-sub attributes {
-    my ($class) = @_;
-    $class->metaclass->get_attribute_list();
-}
-
 sub find_attribute {
     my ($class, $label) = @_;
     return $class->metaclass->find_attribute_spec($label);   
@@ -284,12 +273,7 @@ sub _call_all_inits {
         # call all the inits in post-order
         _call_all_inits($_, $instance) foreach $class->superclasses;
         if (my $method = $class->can('init')) {
-            if (blessed($method) && $method->isa('Perl6::Method')) {
-                $method->call($instance);        
-            }
-            else {
-                $method->($instance);        
-            }
+            $method->($instance);        
         }
     }
     else {
