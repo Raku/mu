@@ -18,7 +18,7 @@ Autrijus Tang
     A ship then new they built for him
     of mithril and of elven glass.
 
-                          -- Perl 5.0.0, perl.c
+                    -- Perl 5.0, perl.c
 
 ----
 {image: http://perlcabal.org/~autrijus/images/ship.jpg}
@@ -32,7 +32,7 @@ Autrijus Tang
     To gleam thereon by Elbereth
     Herself was set, who thither came...
 
-                          -- Pugs 6.2.6, Main.hs
+                    -- Pugs 6.2.6, Main.hs
 
 ----
 {image: http://perlcabal.org/~autrijus/images/ship.jpg}
@@ -46,7 +46,7 @@ Autrijus Tang
     Zum Banner, ein lebendiges Licht,
     Ein heller Schein, der nie verblaßt.
 
-                          -- Pugs 6.2.7, Main.hs
+                    -- Pugs 6.2.7, Main.hs
 
 ----
 {image: http://perlcabal.org/~autrijus/images/ship.jpg}
@@ -61,7 +61,7 @@ Autrijus Tang
     映照燃星雅碧綠
     神祇乘梭下九天...
 
-                          -- Pugs 6.2.8, Main.hs
+                    -- Pugs 6.2.8, Main.hs
 ----
 
     use v6;
@@ -84,7 +84,7 @@ Autrijus Tang
 == Perl 6 is Here Today!
 
 * Anyone here heard of /Perl 6/?
-+* ...I'll focus on the /is Here Today/ part, then. :-)
++** ...I'll focus on the /is Here Today/ part, then. :-)
 
 ----
 == But First...
@@ -93,7 +93,7 @@ Autrijus Tang
 
 * Perl 5 is Here Today!
 +* The transition from Perl 4 succeeded!
-+** ...although it took us four years
++** ...although it took four years
 ** 5.000a1 (1993) ~ 5.004 (1997)
 +** ...or six years for Win32 people
 ** 5.005_03 (1999)
@@ -101,6 +101,8 @@ Autrijus Tang
 
 ----
 == Perl 5: References
+
+{image: http://perlcabal.org/~autrijus/images/ref.png}
 
     $code->($arg);
     $hash->{3};
@@ -117,7 +119,7 @@ Autrijus Tang
 
     my $var;
 
-    $code = sub { ... };
+    $code = sub { ...$var... };
 
     for my $i (1..10) { ... };
 
@@ -129,9 +131,9 @@ Autrijus Tang
     use strict;
     no warnings;
 
-    $Package::name = 1;
++    $Package::name = 1;
 
-    bless($reference => 'Package');
++    bless($reference => 'Package');
     tie($container => 'Package');
 
 ----
@@ -168,6 +170,8 @@ Autrijus Tang
         }
     }
 
++* In Higher-Order Perl, 50%+ is book keeping
+
 ----
 == Fast forward to Perl 6...
 
@@ -200,7 +204,7 @@ Autrijus Tang
 ----
 == Fast forward to Perl 6...
 
-* Faster: Whole-program optimizations; soft, incrementally typed
+* Faster: Soft, incrementally typed with whole-program optimizations
 +* Friendlier: Call Perl5/C/Tcl/Python libraries directly
 +* Easier: Common usage patterns dramatically shortened
 +* Stronger: Support for OO, Functional, Data-driven styles
@@ -234,8 +238,9 @@ Autrijus Tang
     require 'bigint.pl';
     require 'my_library.pl';
 
-+* I have 100+ CPAN modules; I don't want to throw them away!
-+** Why can't we write our first Perl 6 programs like this?
++* I have 100+ CPAN modules
+** I don't want to throw them away!
++* Why can't we write our first Perl 6 programs like this?
 
     #!/usr/bin/pugs
     use perl5:DBI;
@@ -249,21 +254,21 @@ Autrijus Tang
 
 {image: http://perlcabal.org/~autrijus/images/borg.jpg}
 
-* The `pugs.pm` pragma let you embed Perl 6 code in Perl 5:
+* `pugs.pm` pragma let you embed Perl 6 code in Perl 5:
 
     #!/usr/bin/perl
     use pugs;   # Here is some Perl 6 code...
     sub postfix:<!> { [*] 1..$_ }
     sub sum_factorial { [+] 0..$_! }
 
-    no pugs;    # Here is some Perl 5 code...
++    no pugs;    # Here is some Perl 5 code...
     print sum_factorial(3); # 21
 
 +* Implemented with Inline::Pugs and source filter
 +* Keeps the Pugs process and shuffle `eval` commands around
-+** Extremely fragile; only parses /^(sub|coro)/ 
++** Extremely fragile; only parses `/^(sub|coro)/`
 +** We'd like to fix that so it works reliably
-+** More on that in the second half of my talk
++** More on that in the second half of this talk
 
 ----
 == Getting started
@@ -299,7 +304,7 @@ Autrijus Tang
     There forged was blade, and bound was hilt;
     The delver mined, the mason built...
 
-                                -- Pugs, Prim.hs
+                    -- Pugs, Prim.hs
 
 ----
 == History
@@ -307,26 +312,27 @@ Autrijus Tang
 {image: http://perlcabal.org/~autrijus/images/justdoit.jpg}
 
 * Started at Feb 1st; almost 5 months old now
-+** Self-inflicted exercise of "Types and Programming Languages"
-+** Forced to learn Haskell because Perl 5 closures leak horribly
++** Exercise of "Types and Programming Languages"
+** (I just wanted to understand junctions and MMDs)
++** Learned Haskell because Perl 5 closures leak horribly
 +* Not a Perl Foundation project
 +** Just a prototype, not the production Perl 6 compiler
 +** Optimized for fun, not deliverables
 +* Minimizing deadlocks
-** Optionally link against Perl 5
-** Optionally link against Parrot
-** Optionally link against Haskell
+** Optionally link against Perl 5, Parrot, Haskell
 +* Keep Perl 6 retargettable
 
 ----
 == What we have done
 
+{image: http://linide.sourceforge.net/pugs-svngraph-6.2.5.png}
+
 * Primitive interpreter: Feb 6
 +* `Test.pm` runs correctly: Feb 23
-+* PCRE-based regex support: March 19
-+* `mandel.p6` compiled to Parrot: March 24
-+* Container types: April 10
-+* `BEGIN` blocks and `use`: April 26
++* PCRE-based regex support: Mar 19
++* `mandel.p6` compiled to Parrot: Mar 24
++* Container types: Apr 10
++* `BEGIN` blocks and `use`: Apr 26
 +* PGE-based rule support: May 2
 +* Basic objects and classes: May 12
 +* mod_pugs: May 17
@@ -337,18 +343,18 @@ Autrijus Tang
 
 {image: http://perlcabal.org/~autrijus/images/parrotpugs.jpg}
 
-* Safe mode and evalbot: June 2
-+* Source filtering macros: June 11
-+* `Test.pm` compiled to Parrot: June 18
-+* `Test.pm` runs on Parrot: June 23
-+* `Hello, world!` from Perl 5 to Perl 6 to Parrot: June 24
-+* Perl 6 AST as Perl 6 objects: June 25
-+* PIR nodes as Parrot objects: June 26
+* Safe mode and evalbot: Jun 2
++* Source filtering macros: Jun 11
++* `Test.pm` compiled to Parrot: Jun 18
++* `Test.pm` runs on Parrot: Jun 23
++* `Hello, world!` from Perl 5 to PIL to Parrot: Jun 24
++* Perl 6 AST as Perl 6 objects: Jun 25
++* PIR nodes as Parrot objects: Jun 26
 
 ----
 == Who have done it
 
-{image: http://linide.sourceforge.net/pugs-svngraph-6.2.5.png}
+{image: http://perlcabal.org/~autrijus/images/commit.png}
 
 * Lambdacamels
 ** 100+ committers
@@ -358,7 +364,7 @@ Autrijus Tang
 ** I'm responsible for less than 40% of commits now
 
 ----
-== Obligatory timeline picture
+== Obligatory timeline
 
 {image: http://pugscode.org/perl6-timeline.png}
 
@@ -396,7 +402,8 @@ Autrijus Tang
 
 +* Two days later, lathos started to port Maypole to Pugs
 
-    <lathos> I'm actually *really* enjoying porting Maypole to Perl 6.
+    <lathos> I'm actually *really* enjoying
+             porting Maypole to Perl 6.
     <lathos> SO much cleaner.
 
 +* Lots of dependencies were ported during the course:
@@ -512,14 +519,14 @@ Perl-Compiler Tree
     He named the nameless hills and dells;
     He drank from yet untasted wells...
 
-                                -- Pugs, Lexer.hs
+                    -- Pugs, Lexer.hs
 
 ----
 == A whirlwind tour of Perl 6
 
 * Mostly taken from Allison's /Perl 6 Update/ slides
 +** ...without features that Pugs does not yet support
-+** ...or parts under heavy construction 
++** ...or parts under heavy (re)design 
 +* Perl 6's syntax is still changing rapidly
 ** Half of "Perl 6 and Parrot Essentials" is probably outdated
 +** ...but how do we know which half?
@@ -915,9 +922,9 @@ Perl-Compiler Tree
 {image: http://perlcabal.org/~autrijus/images/grammar.jpg}
 
 * Grammars are classes that contains rules
-** Patrick hacked them together three days ago
+** Patrick hacked them together 3 days ago
 
-+* Provides a name for rules
++* Provides namespace for rules:
 
     grammar URI { 
         rule reserved   { <[;/?:@&=+$,\[\]]>               };
@@ -944,7 +951,7 @@ Perl-Compiler Tree
 +* Hybrid...
 +** ...but distinct
 +* Useful now...
-+** ...and relevant then
++** ...and relevant in the future
 +* Make Perl more Perlish
 
 ----
@@ -957,13 +964,13 @@ Perl-Compiler Tree
     Beyond the world were visions showed
     Forbid to those that dwell therein...
 
-                                -- Pugs, Compile.hs
+                    -- Pugs, Compile.hs
 
 ----
 == How the Pugs interpreter works today
 
 * Take Perl 6 source code
-+* Parse it into a parse tree
++* Turn it into a parse tree
 +* Run BEGIN blocks and store in an environment
 +* Evaluate nodes from the parse tree
 
@@ -999,7 +1006,7 @@ Perl-Compiler Tree
 +** Can't be desugared with only local knowledge
 +* Parrot has ~1000 valid opcode forms
 +** Hand-written mapping makes optimisation hard
-+** Even more difficult to 
++** Backends cannot be consistent
 +* We need an intermediate representation form
 
 ----
@@ -1007,7 +1014,7 @@ Perl-Compiler Tree
 
 * Simple, high-level representation of Perl 6
 ** 16 node types currently
-** "Diet Perl 6": No syntax sugar left
+** /Diet Perl 6/: No syntax sugar left
 +* Remains stable under syntax changes
 ** Most new language constructs are just rewrite rules
 ** Other languages may be translatable to PIL too
@@ -1032,15 +1039,15 @@ Perl-Compiler Tree
 == Self hosting approach
 
 * I'd like to keep Pugs decoupled from Parrot
-** By writing the Perl 6 compiler in Perl 6
-** Running Perl 6 on perl5vm is very useful
-** Generating native C and Javascript is cool too
++** By writing the Perl 6 compiler in Perl 6
++** Running Perl 6 on perl5vm is very useful
++** Generating native C and Javascript is cool too
 +* Make Perl 6 as portable as Python
 ** CPython, Jython, IronPython, Psyco, Stackless...
-+* But especially PyPy
-+** Reimplementation of Perl written in Perl itself
-++** Flexible, easy to experiment with
-+** Currently targets C, LLVM, and Perl
++* But especially PyPy:
++** Reimplementation of Pythong written in Pythong itself
++** Flexible, easy to experiment with
++** Currently targets C, LLVM, and Python
 
 ----
 == Benefits of self-hosting
@@ -1083,6 +1090,7 @@ Perl-Compiler Tree
 * Using Perl 5 modules
 * Lexical pads
 * Object space
+* Ahead-of-time compilation
 
 ----
 == Targetting Perl 5
@@ -1090,9 +1098,11 @@ Perl-Compiler Tree
 * Anywhere in your code, write:
 
     use pugs;
-    ... # Perl 6 code here - may load Perl 5 modules
+    # Perl 6 code follows
+    use perl5:Class::DBI;
+    ...
 
-+* No Inline.pm involved
++* No `Inline.pm` involved
 ** Compiled to Perl 5 and inject back on the fly
 ** Mixing P6/P5 code seamlessly
 +* No dependencies on anything but perl5
@@ -1146,8 +1156,8 @@ Perl-Compiler Tree
 +** For rebindable grammars
 +** Basic support available in PGE last week
 +** Still much more needed to be done
-+** PGE needs to be ported to Perl 6 also
-+** (If we are to bootstrap on Perl 5, that is)
++* If we are to bootstrap on Perl 5...
+** PGE needs to be ported to Perl 6 also
 
 ----
 == Drawbacks
