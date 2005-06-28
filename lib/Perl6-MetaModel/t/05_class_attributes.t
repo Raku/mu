@@ -28,6 +28,51 @@ generation, in particular it checks the following:
 
 =cut
 
+class Basic => {
+    class => {
+        attrs => [ '$.scalar', '@.array', '%.hash' ]
+    }
+};
+
+my $basic = Basic->new_instance();
+isa_ok($basic, 'Basic');
+
+ok(!defined($basic->scalar()), '... scalar initializes to undef');
+is_deeply($basic->array(), [], '... array initializes to an empty array ref');
+is_deeply($basic->hash(), {}, '... hash initializes to an empty hash ref');
+
+$@ = undef;
+eval { $basic->scalar('Foo') };
+ok(!$@, '... scalar() was assigned to correctly');
+is($basic->scalar(), 'Foo', '... and the value of scalar() is correct');
+
+$@ = undef;
+eval { $basic->array('Foo') };
+ok($@, '... assigning a non ARRAY ref to array() is an error');
+
+$@ = undef;
+eval { $basic->array({ Fail => 1 }) };
+ok($@, '... assigning a non ARRAY ref to array() is an error');
+
+$@ = undef;
+eval { $basic->array([ 1, 2, 3 ]) };
+ok(!$@, '... array() was assigned to correctly');
+is_deeply($basic->array(), [ 1, 2, 3 ], '... array() was assigned to correctly');
+
+$@ = undef;
+eval { $basic->hash('Foo') };
+ok($@, '... assigning a non HASH ref to hash() is an error');
+
+$@ = undef;
+eval { $basic->hash([]) };
+ok($@, '... assigning a non HASH ref to hash() is an error');
+
+$@ = undef;
+eval { $basic->hash({ one => 1, two => 2 }) };
+ok(!$@, '... hash() was assigned to correctly');
+is_deeply($basic->hash(), { one => 1, two => 2 }, '... hash() was assigned to correctly');
+
+
 class Base => {
     class => {
         attrs => [ '$:foo' ],
@@ -139,19 +184,29 @@ $@ = undef;
 eval { $tc->foo($tc2) };
 ok(!$@, '... we do not have an exception (Class is correct type)');
 
+is($tc->foo(), $tc2, '... value foo() was assigned correctly');
+
 $@ = undef;
 eval { $tc->bar($tc2) };
 ok(!$@, '... we do not have an exception (Role is correct type)');
+
+is($tc->bar(), $tc2, '... value bar() was assigned correctly');
+
+is_deeply($tc->baz(), [], '... value baz() was initialized correctly');
 
 $@ = undef;
 eval { $tc->baz([ $tc2, $tc2, $tc2, $tc2 ]) };
 ok(!$@, '... we do not have an exception (Roles are correct type)');
 
+is_deeply($tc->baz(), [ $tc2, $tc2, $tc2, $tc2 ], '... value baz() was assigned correctly');
+
+is_deeply($tc->bah(), [], '... value bah() was initialized correctly');
+
 $@ = undef;
 eval { $tc->bah([ $tc2, $tc2, $tc2, $tc2 ]) };
 ok(!$@, '... we do not have an exception (Classes are correct type)');
 
-is($tc->foo(), $tc2, '... and the value is as expected');
+is_deeply($tc->bah(), [ $tc2, $tc2, $tc2, $tc2 ], '... value bah() was assigned correctly');
 
 $@ = undef;
 eval { $tc->foo('Fail') };

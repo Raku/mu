@@ -73,7 +73,15 @@ sub set_value {
                 (blessed($value) && ($value->isa($type) || $value->does($type))) 
                     || die "IncorrectObjectType: expected($type) and got($value)";                        
             }
-        }                        
+        }  
+        else {
+            (ref($value) eq 'ARRAY') 
+                || die "You can only asssign an ARRAY ref to the label ($label)"
+                    if $prop->is_array();
+            (ref($value) eq 'HASH') 
+                || die "You can only asssign a HASH ref to the label ($label)"
+                    if $prop->is_hash();
+        }                      
     }  
     else {
         die "Perl6::Attribute ($label) no found";
@@ -224,9 +232,9 @@ sub is_kind_of {
 
 sub _new_class {
     my ($class, %_params) = @_;
-    my @attrs = _get_all_attrs($class);
-    my $attrs = _init_attrs(\@attrs, \%_params);
-    my $meta = bless $attrs, $class;
+    my %attrs = map { $_ => undef } _get_all_attrs($class);
+    _init_attrs(\%attrs, \%_params);
+    my $meta = bless \%attrs, $class;
     _call_all_inits($class, $meta);
     return $meta;
 }
@@ -235,11 +243,11 @@ sub new_instance {
     my ($kind, %_params) = @_;
     my $class = $kind->class_name;
     my $metaclass = $class . '::Class';
-    my @attrs = _get_all_attrs($metaclass);
-    my $attrs = _init_attrs(\@attrs, \%_params);
+    my %attrs = _get_all_attrs($metaclass);
+    _init_attrs(\%attrs, \%_params);
     my $instance = bless {
         class         => $metaclass,
-        instance_data => $attrs,
+        instance_data => \%attrs,
     }, $class;
     _call_all_inits($metaclass, $instance);
     return $instance;
@@ -247,11 +255,7 @@ sub new_instance {
 
 sub _init_attrs {
     my ($attrs, $params) = @_;
-    my %attrs;
-    %attrs = map {
-        $_ => $params->{$_}
-    } @{$attrs};
-    return \%attrs;
+    $attrs->{$_} = $params->{$_} foreach keys %{$params};
 }
 
 sub _get_all_attrs {
@@ -259,12 +263,15 @@ sub _get_all_attrs {
     if ($class =~ /\:\:Kind$/) {
         return ((map { _get_all_attrs($_) } $class->superclasses), $class->attributes);    
     }
-    my @attributes;
+    my %attributes;
     $class->metaclass->traverse_post_order(sub {
         my $c = shift;
-        push @attributes => $c->get_attribute_list;
+        foreach my $attr ($c->get_attribute_list) {
+            my $attr_obj = $c->get_attribute($attr);
+            $attributes{$attr} = ($attr_obj->is_array ? [] : ($attr_obj->is_hash ? {} : undef));        
+        }
     });
-    return @attributes;
+    return %attributes;
 }
 
 sub _call_all_inits {
