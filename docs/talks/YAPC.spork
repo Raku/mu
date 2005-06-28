@@ -83,6 +83,8 @@ Autrijus Tang
 ----
 == Perl 6 is Here Today!
 
+{image: http://perlcabal.org/~autrijus/images/apoc.jpg}
+
 * Anyone here heard of /Perl 6/?
 +** ...I'll focus on the /is Here Today/ part, then. :-)
 
@@ -273,11 +275,13 @@ Autrijus Tang
 ----
 == Getting started
 
+{image: http://perlcabal.org/~autrijus/images/justdoit.jpg}
+
 * Download Pugs:
 
     http://pugscode.org/
     http://search.cpan.org/dist/Perl6-Pugs/
-    http://linide.sourceforge.net/pugs-livecd-latest.iso
+    http://linide.sf.net/pugs-livecd-latest.iso
     http://svn.openfoundry.org/pugs/
 
 +* Command line:
@@ -329,7 +333,7 @@ Autrijus Tang
 
 * Primitive interpreter: Feb 6
 +* `Test.pm` runs correctly: Feb 23
-+* PCRE-based regex support: Mar 19
++* PCRE regex support: Mar 19
 +* `mandel.p6` compiled to Parrot: Mar 24
 +* Container types: Apr 10
 +* `BEGIN` blocks and `use`: Apr 26
@@ -371,8 +375,8 @@ Autrijus Tang
 * 6.0: Initial release
 * 6.2: Basic IO, variable and control flow elements
 * 6.28: Classes and traits
-* 6.283: Rules and Grammars
-* 6.2831: Role composition and other runtime features
+* 6.283: Rules, Grammars
+* 6.2831: Role composition
 * 6.28318: Macros
 * 6.283185: Port Pugs to Perl 6, if needed
 
@@ -414,10 +418,12 @@ Autrijus Tang
 ----
 == Expectation management
 
-* State of Carrot: Pugs covers 80%-90% of Perl 6 semantics...
+{image: http://perlcabal.org/~autrijus/images/wish.png}
+
+* State of Carrot: Pugs covers 80% of Perl 6 semantics...
 +** ...that's unfortunately not the case
-+* We have 7000 unit tests; we expect at least 15000 more
-** To the zeroth approxmiation, we are less than 30% there
++* We have 7000 unit tests; at least 15000 more expected
+** To the 0th approxmiation, we are less than 30% there
 +* I'm not part of the Cabal
 ** I will not promise anything
 +** If you want something, write a test and hack on it
@@ -446,11 +452,13 @@ Autrijus Tang
 +** JFDI, based on the Synopses
 +** Unspecified features go to `t/unspecced/`
 +* To become a Pugs committer, you just need to:
-** Commit stuff ;)
-** Keep an eye on `#perl6` and `perl6-compiler`
++** Commit stuff ;)
++** Keep an eye on `#perl6` and `perl6-compiler`
 
 ----
 == Libraries
+
+{image: http://perlcabal.org/~autrijus/images/lib.jpg}
 
 * Foreign:
 ** CPAN modules
@@ -523,6 +531,8 @@ Perl-Compiler Tree
 
 ----
 == A whirlwind tour of Perl 6
+
+{image: http://onestepback.org/articles/usingruby/images/p6_cover.gif}
 
 * Mostly taken from Allison's /Perl 6 Update/ slides
 +** ...without features that Pugs does not yet support
@@ -650,6 +660,8 @@ Perl-Compiler Tree
 
 ----
 == Operators
+
+{image: http://www.bwht.org/images/telephone_operator.gif}
 
 * New operators:
 
