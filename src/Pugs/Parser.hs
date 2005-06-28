@@ -1182,7 +1182,7 @@ parseTerm = rule "term" $ do
         , ruleTypeVar
         , ruleTypeLiteral
         , ruleApply False   -- Normal application
-        , parens ruleExpression
+        , verbatimParens ruleExpression
         ]
     fs <- many rulePostTerm
     return $ combine (reverse fs) term
