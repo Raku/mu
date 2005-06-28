@@ -307,7 +307,7 @@ Autrijus Tang
 {image: http://perlcabal.org/~autrijus/images/justdoit.jpg}
 
 * Started at Feb 1st; almost 5 months old now
-+** Self-inflicted exercise of TaPL
++** Self-inflicted exercise of "Types and Programming Languages"
 +** Forced to learn Haskell because Perl 5 closures leaks horribly
 +* Not a Perl Foundation project
 +** Just a prototype, not the production Perl 6 compiler
@@ -1038,21 +1038,10 @@ Perl-Compiler Tree
 ** Generating native C and Javascript is cool too
 +* Make Perl 6 as portable as Python
 ** CPython, Jython, IronPython, Psyco, Stackless...
-** But especially PyPy
-
-----
-== What is PyPy?
-
-* Reimplementation of Python written in Python itself
-** Flexible, easy to experiment with
-** Currently targets C, LLVM, and Python itself
-+* Components:
-+** Parser
-+** Standard interpreter
-+** Object space
-+** Semantic analyzer
-+** Type inferencer
-+** Code generator
++* But especially PyPy
++** Reimplementation of Perl written in Perl itself
+++** Flexible, easy to experiment with
++** Currently targets C, LLVM, and Perl
 
 ----
 == Benefits of self-hosting
