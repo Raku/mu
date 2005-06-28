@@ -308,7 +308,7 @@ Autrijus Tang
 
 * Started at Feb 1st; almost 5 months old now
 +** Self-inflicted exercise of "Types and Programming Languages"
-+** Forced to learn Haskell because Perl 5 closures leaks horribly
++** Forced to learn Haskell because Perl 5 closures leak horribly
 +* Not a Perl Foundation project
 +** Just a prototype, not the production Perl 6 compiler
 +** Optimized for fun, not deliverables
