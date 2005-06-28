@@ -99,14 +99,9 @@ sub AUTOLOAD {
         else {
             $method = $self->class->can($label);
         }
-        (defined $method) || die "Method ($label) not found for instance ($self)";
-        if (blessed($method) && $method->isa('Perl6::Method')) {
-            @return_value = $method->call($self, @_);        
-        }
-        else {
-            @return_value = $self->$method(@_);        
-        }
-        
+        (blessed($method) && $method->isa('Perl6::Method')) 
+            || die "Method ($label) not found for instance ($self)";
+        @return_value = $method->call($self, @_);        
     }
     else {
         # grab the Kind (meta) instance
@@ -139,15 +134,12 @@ sub metaclass {
 
 sub isa {
     my ($self, $class) = @_;
-    return 1 if $self->metaclass->name eq $class;
-    foreach my $super ($self->superclasses) {
-        return 1 if $super eq $class;
-    }
-    return 0;
+    return $self->metaclass->is_a($class);
 }
 
 sub superclasses {
     my ($class) = @_;
+#    warn "Someone called me "  . (join ", " => caller());
     return map { $_->name } @{$class->metaclass->superclasses()};
 }
 
@@ -275,23 +267,36 @@ sub _init_attrs {
 
 sub _get_all_attrs {
     my ($class) = @_;
-    no strict 'refs';
-    # gather all the attrs in post-order
-    return ((map { _get_all_attrs($_) } $class->superclasses), $class->attributes);
+    if ($class =~ /\:\:Kind$/) {
+        return ((map { _get_all_attrs($_) } $class->superclasses), $class->attributes);    
+    }
+    my @attributes;
+    $class->metaclass->traverse_post_order(sub {
+        my $c = shift;
+        push @attributes => $c->get_attribute_list;
+    });
+    return @attributes;
 }
 
 sub _call_all_inits {
     my ($class, $instance) = @_;
-    no strict 'refs';
-    # call all the inits in post-order
-    _call_all_inits($_, $instance) foreach $class->superclasses;
-    if (my $method = $class->can('init')) {
-        if (blessed($method) && $method->isa('Perl6::Method')) {
-            $method->call($instance);        
+    if ($class =~ /\:\:Kind$/) {
+        # call all the inits in post-order
+        _call_all_inits($_, $instance) foreach $class->superclasses;
+        if (my $method = $class->can('init')) {
+            if (blessed($method) && $method->isa('Perl6::Method')) {
+                $method->call($instance);        
+            }
+            else {
+                $method->($instance);        
+            }
         }
-        else {
-            $method->($instance);        
-        }
+    }
+    else {
+        $class->metaclass->traverse_post_order(sub {
+            my $c = shift;
+            $c->get_method('init')->call($instance) if $c->has_method('init');        
+        });
     }
 }
 

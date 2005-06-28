@@ -45,6 +45,8 @@ can_ok($mc, 'get_all_attributes');
 
 is($mc->name, 'Base', '... got the right name for Base');
 
+ok($mc->is_a('Base'), '... the metaclass is-a Base');
+
 is_deeply(
     $mc->superclasses(),
     [ ], 
@@ -96,6 +98,9 @@ isa_ok($mc2, 'Perl6::MetaClass');
 
 is($mc2->name, 'Foo', '... got the right name for Foo');
 
+ok($mc2->is_a('Base'), '... the metaclass is-a Base');
+ok($mc2->is_a('Foo'), '... the metaclass is-a Foo');
+
 is_deeply(
     $mc2->superclasses(),
     [ $mc ], 
@@ -143,6 +148,9 @@ isa_ok($mc3, 'Perl6::MetaClass');
 is($mc3->name, 'Bar', '... got the right name for Bar');
 
 $mc3->superclasses([ $mc ]);
+
+ok($mc3->is_a('Base'), '... the metaclass is-a Base');
+ok($mc3->is_a('Bar'), '... the metaclass is-a Bar');
 
 is_deeply(
     $mc3->superclasses(),
@@ -192,6 +200,11 @@ is($mc4->name, 'Foo::Bar', '... got the right name for Foo::Bar');
 
 $mc4->superclasses([ $mc2, $mc3 ]);
 
+ok($mc4->is_a('Base'), '... the metaclass is-a Base');
+ok($mc4->is_a('Foo'), '... the metaclass is-a Foo');
+ok($mc4->is_a('Bar'), '... the metaclass is-a Bar');
+ok($mc4->is_a('Foo::Bar'), '... the metaclass is-a Foo::Bar');
+
 is_deeply(
     $mc4->superclasses(),
     [ $mc2, $mc3 ], 
@@ -238,6 +251,12 @@ is($mc5->name, 'Foo::Bar::Baz', '... got the right name for Foo::Bar::Baz');
 
 $mc5->superclasses([ $mc4 ]);
 
+ok($mc5->is_a('Base'), '... the metaclass is-a Base');
+ok($mc5->is_a('Foo'), '... the metaclass is-a Foo');
+ok($mc5->is_a('Bar'), '... the metaclass is-a Bar');
+ok($mc5->is_a('Foo::Bar'), '... the metaclass is-a Foo::Bar');
+ok($mc5->is_a('Foo::Bar::Baz'), '... the metaclass is-a Foo::Bar::Baz');
+
 is_deeply(
     $mc5->superclasses(),
     [ $mc4 ], 
@@ -272,3 +291,21 @@ isa_ok($mc5->find_attribute_spec('$.foo'), 'Perl6::Attribute');
 isa_ok($mc5->find_attribute_spec('@.foo'), 'Perl6::Attribute');
 isa_ok($mc5->find_attribute_spec('$.bar'), 'Perl6::Attribute');
 isa_ok($mc5->find_attribute_spec('$.baz'), 'Perl6::Attribute');
+
+{
+    my @class_order;
+    $mc5->traverse_pre_order(sub { push @class_order => $_[0] });
+    is_deeply(
+        \@class_order,
+        [ $mc5, $mc4, $mc2, $mc, $mc3, $mc ],
+        '... got the right set of metaclasses in pre-order traversal');
+}
+
+{
+    my @class_order;
+    $mc5->traverse_post_order(sub { push @class_order => $_[0] });
+    is_deeply(
+        \@class_order,
+        [ $mc, $mc2, $mc, $mc3, $mc4, $mc5 ],
+        '... got the right set of metaclasses in post-order traversal');
+}

@@ -25,6 +25,16 @@ sub name {
     $self->{name};
 }
 
+sub is_a {
+    my ($self, $class) = @_;
+    $class = $class->name if blessed($class) && $class->isa('Perl6::MetaClass');
+    return 1 if $self->name eq $class;
+    foreach my $super (@{$self->superclasses}) {
+        return 1 if $super->is_a($class);
+    }
+    return 0;    
+}
+
 sub superclasses {
     my ($self, $superclasses) = @_;
     if (defined $superclasses) {
@@ -52,6 +62,22 @@ sub class_precedence_list {
         }
     }
     return @class_precedence_list;
+}
+
+sub traverse_pre_order {
+    my ($self, $visitor) = @_;
+    $visitor->($self);
+    foreach my $super (@{$self->superclasses}) {
+        $super->traverse_pre_order($visitor);
+    }
+}
+
+sub traverse_post_order {
+    my ($self, $visitor) = @_;
+    foreach my $super (@{$self->superclasses}) {
+        $super->traverse_post_order($visitor);
+    }
+    $visitor->($self);    
 }
 
 sub add_method {
