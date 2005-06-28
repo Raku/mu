@@ -1019,11 +1019,11 @@ Perl-Compiler Tree
 == Non-self-hosting approach
 
 * The production release of Perl 6...
-+** Should be Parrot specific
++** May be Parrot specific
 +** Does not need to be self hosting
 +** Preferably written in PIR or other Parrot languages
-+** Other communities will reject a compiler written in Perl6
-+** Perl6/Parrot cannot be C#/.Net
++** Other communities will dislike a compiler written in Perl6
++** Perl6/Parrot != C#/.Net
 +* It's a valid strategy
 +** Pugs, however, will take another route
 
