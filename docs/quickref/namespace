@@ -68,8 +68,7 @@ A name N can be used:
     A single hierarchy is shared by modules, classes, roles, enums, and
     subtypes. [yes?]
 
-    Grammars and rules use the same separator, but otherwise have a
-    separate system.
+    Also by grammars and rules (http://use.perl.org/~autrijus/journal/25351)
 
     Relative package names are searched for
     - from inner lexical scopes to outer, then
