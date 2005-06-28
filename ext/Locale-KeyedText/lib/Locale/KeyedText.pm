@@ -148,43 +148,14 @@ method translate_message( $translator: Locale::KeyedText::Message $message is rw
 		try {
 			unless( 0 ) { # TODO: the class is already loaded
 				my $mod_to_req = $template_module_name;
-				$mod_to_req ~~ s:perl5:g/::/\//;
+				$mod_to_req ~~ s:perl5:g/::/\//; # this version only needs Pugs
+#				$mod_to_req ~~ s:g/::/\//; # this version requires PGE/Parrot
 				$mod_to_req ~= '.pm';
 				require $mod_to_req; # non-bareword form requires above transformation
 				# Eg, when a plain "require Bar;" works, a "my $foo = 'Bar'; require $foo;"
 				# fails with a "Can't locate Bar.pm in @*INC" error.
 			}
-			CATCH {
-				next;
-			}
-		};
-		try {
-#			$text = $template_module_name::get_text_by_key( $message.msg_key );
-			# The above line also fails even if the previous one is hard-coded bareword to succeed.
-			# Here's a particularly nasty haxor such that this module works only with the test suite.
-			given $template_module_name {
-				when 't_LKT_A_L_Eng' {
-					$text = t_LKT_A_L_Eng::get_text_by_key( $message.msg_key );
-				}
-				when 't_LKT_A_L_Fre' {
-					$text = t_LKT_A_L_Fre::get_text_by_key( $message.msg_key );
-				}
-				when 't_LKT_B_L_Eng' {
-					$text = t_LKT_B_L_Eng::get_text_by_key( $message.msg_key );
-				}
-				when 't_LKT_B_L_Fre' {
-					$text = t_LKT_B_L_Fre::get_text_by_key( $message.msg_key );
-				}
-				when 't_LKT_C_L_Eng' {
-					my Str %text_strings is constant = (
-						'one' => '{fork} shore {spoon}',
-						'two' => 'sky fly high',
-						'three' => '{knife} zot',
-					);
-					$text = %text_strings{$message.msg_key};
-				}
-			}
-			# End of haxor.
+			$text = &::($template_module_name)::get_text_by_key( $message.msg_key );
 			CATCH {
 				next;
 			}
