@@ -1,9 +1,12 @@
 {-# OPTIONS_GHC -fglasgow-exts #-}
 
 {-|
-    CodeGen interface.
+    Code generation interface.
 
-    TODO: add Tolkien
+    I sit beside the fire and think
+    of all that I have seen,
+    of meadow-flowers and butterflies
+    in summers that have been...
 -}
 
 module Pugs.CodeGen (translate, backends) where
