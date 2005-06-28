@@ -159,6 +159,19 @@ sub set_postamble {
         warn "*** Parrot linking not supported with MSVC.  Parrot linking will be disabled.\n\n";
         $ENV{PUGS_EMBED} =~ s/\bparrot\b//g;
     }
+
+    # OS X / Tiger and gcc4.0 doesn't work with pugs. complain.
+    if ($Config{osname} eq "darwin") {
+      my $gcc_version = `gcc -v 2>&1`;
+      my $os_version = `uname -r`;
+      if ($gcc_version =~ /4.0.0/ && $os_version =~ /^8./) {
+         die <<EOD;
+*** We don't work with gcc4.0 on Tiger
+*** please use "sudo gcc_select 3.3" to pick an earlier version of gcc
+EOD
+      }
+    }
+
     if ($ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bparrot\b/i) {
         my $base = $ENV{PARROT_PATH};
         if (!$base and -d "../parrot") {
