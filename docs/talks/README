@@ -17,3 +17,6 @@ Apocalypse_Now.spork: "Apocalypse Now" (English):
 perl6-apw2005/: "Eine Einfuehrung in Perl 6" (German):
   Talk by Jens Rieks
   PDF version: http://perl.jensbeimsurfen.de/perl6.pdf
+
+YAPC.spork: "Apocalypse Now" (Englisch, talk for YAPC::NA 2005)
+  Talk by Autrijus Tang
