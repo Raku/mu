@@ -118,11 +118,12 @@ Expanding this one level deeper:
     |   |-- Module             Module::Install
     |   `-- Test               Test::Harness
     |
-    |-- lib                XXXX: overall concept?
+    |-- lib                Pugs- and Perl 6-related Perl 5 modules
     |   |-- Inline             Inline::Pugs
+    |   |-- P5-PIL-Run         PIL evaluator in Perl 5
     |   |-- Perl6              Perl6::MakeMaker, Perl6::Pugs
     |   |-- Perl6-MetaModel    Perl6's OO metamodel, in Perl 5
-    |   `-- pugs               Docs for Pugs itself (XXXX: -> docs/?)
+    |   `-- pugs               POD docs for Pugs itself
     |
     |-- modules            Perl 6 modules not working today; -> FreePAN
     |   |-- Class-Events       XXXX: why is this here?
