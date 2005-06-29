@@ -1,5 +1,5 @@
 
-class Type;
+class Type--Perl6;
 
 has Class $.meta;
 
@@ -8,6 +8,9 @@ has Method %.dispatch;
 
 # private accessors, methods, etc
 has Method %:dispatch;
+
+# next type(s) for dispatchable lookup (inheritance)
+has Type @.supers;
 
 multi method isa($self: Class $class) returns Bool {
     .meta.isa($class);
@@ -40,14 +43,19 @@ created when you use;
   subtype Foo of Str where { rx/^Foo/ };
 
 It is probably bad to have both a MetaClass called C<Type> and a
-language object called Type.  Perhaps this module should be called
-something else like C<t>, or maybe the C<type> keyword actually
-creates one of these objects.
+language object called C<Type>.  Perhaps this module should be called
+something else like C<t>, or maybe they are one and the same as what
+you get when you use the C<type> keyword.  Or maybe the full package
+name (C<Type--Perl6>) disambiguates this case.
 
 Types have a dispatch table; this is a collection of functions and
 methods that are queried during dispatch (which includes attribute
 lookup as well as method lookup, as attribute fetching is actually
 just a shorthand for calling an accessor).
+
+Run-time inheritance/method dispatch need not look at the meta
+objects; each dispatch table points directly to its "superclass"
+dispatch table(s).
 
 =cut
 
