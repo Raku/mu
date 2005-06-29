@@ -54,3 +54,22 @@ Then if the compiler ever tried to generalize into Foo, it would die, such as
 if you had an A in the same type variable as a B.  The question is what happens
 if it tries to generalize beyond Foo instantly, such as A and Str.  Perhaps you
 would have to declare it to be Foo in order to strongly type it.
+
+You would have to specify, then:
+
+    class Cond[Foo ::a] {...}
+
+Which, for long Foo, is beginning to lose the benefits of type inferrence  (but not
+of recursively polymorphic types).
+
+~~~~~~~~~~~~~
+
+Hmm... out-of-band type classes are trivial:
+
+    type CommitterILike ::= PugsCommitter | ParrotCommitter;
+
+~~~~~~~~~~~~~
+
+It is an unfortunate use of the :: sigil to specify undeclared types, because
+we have no way to refer to a type variable.  Is ::a a type variable or the name
+of an 'a' type that has yet to be declared.
