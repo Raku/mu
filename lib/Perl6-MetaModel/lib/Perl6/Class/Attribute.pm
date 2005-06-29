@@ -9,7 +9,7 @@ use base 'Perl6::Attribute';
 sub new {
     my ($class, $associated_with, $label, $type) = @_;
     my $self = $class->SUPER::new($associated_with, $label, $type);
-    $self->{value} = undef;
+    $self->{value} = ($self->is_array ? [] : ($self->is_hash ? {} : undef));
     return $self;
 }
 

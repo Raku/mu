@@ -11,8 +11,14 @@ sub new {
     my $meta = bless {
         name         => undef,
         superclasses => [],
-        methods      => {},
-        attributes   => {},
+        class_definition => {
+            methods      => {},
+            attributes   => {},
+        },
+        class_data => {
+            methods      => {},
+            attributes   => {},
+        },        
     }, $class;
     $meta->name($params{name}) if exists $params{name};
     $meta->superclasses($params{superclasses}) if exists $params{superclasses};    
@@ -80,20 +86,24 @@ sub traverse_post_order {
     $visitor->($self);    
 }
 
+## METHODS
+
+# Instance Methods
+
 sub add_method {
     my ($self, $label, $method) = @_;
     (defined $label && defined $method)
         || die "InsufficientArguments : you must provide a method and a label";
-    (blessed($method) && $method->isa('Perl6::Method'))
-        || die "IncorrectObjectType : Method must be a Perl6::Method object got($method)";
-    $self->{methods}->{$label} = $method;
+    (blessed($method) && $method->isa('Perl6::Instance::Method'))
+        || die "IncorrectObjectType : Method must be a Perl6::Instance::Method object got($method)";
+    $self->{class_definition}->{methods}->{$label} = $method;
 }
 
 sub get_method {
     my ($self, $label) = @_;
     (defined $label)
         || die "InsufficientArguments : you must provide a label";
-    $self->{methods}->{$label};
+    $self->{class_definition}->{methods}->{$label};
 }
 
 sub has_method {
@@ -122,12 +132,60 @@ sub responds_to {
     $self->find_method($label) ? 1 : 0;    
 }
 
+# Class Methods
+
+sub add_class_method {
+    my ($self, $label, $method) = @_;
+    (defined $label && defined $method)
+        || die "InsufficientArguments : you must provide a method and a label";
+    (blessed($method) && $method->isa('Perl6::Class::Method'))
+        || die "IncorrectObjectType : Method must be a Perl6::Class::Method object got($method)";
+    $self->{class_data}->{methods}->{$label} = $method;
+}
+
+sub get_class_method {
+    my ($self, $label) = @_;
+    (defined $label)
+        || die "InsufficientArguments : you must provide a label";
+    $self->{class_data}->{methods}->{$label};
+}
+
+sub has_class_method {
+    my ($self, $label) = @_;
+    $self->get_class_method($label) ? 1 : 0;    
+}
+
+# XXX - Should this use the class_precedence_list?
+sub find_class_method {
+    my ($self, $label) = @_;
+    return $self->get_class_method($label) if $self->has_class_method($label);
+    return $self->find_class_method_in_superclasses($label);
+}
+
+sub find_class_method_in_superclasses {
+    my ($self, $label) = @_;
+    foreach my $super (@{$self->superclasses}) {
+        my $method = $super->find_class_method($label);
+        return $method if defined $method;
+    }
+    return undef;
+}
+
+sub class_responds_to {
+    my ($self, $label) = @_;
+    $self->find_class_method($label) ? 1 : 0;    
+}
+
+## ATTRIBUTES
+
+# Instance Attributes
+
 sub add_attribute {
     my ($self, $label, $attribute) = @_;
     (defined $label && defined $attribute)
         || die "InsufficientArguments : you must provide an attribute and a label";
-    (blessed($attribute) && $attribute->isa('Perl6::Attribute'))
-        || die "IncorrectObjectType : Attributes must be a Perl6::Attribute instance got($attribute)";
+    (blessed($attribute) && $attribute->isa('Perl6::Instance::Attribute'))
+        || die "IncorrectObjectType : Attributes must be a Perl6::Instance::Attribute instance got($attribute)";
         
     if ($attribute->is_public()) {
         unless ($self->has_method($attribute->accessor_name())) {
@@ -140,14 +198,14 @@ sub add_attribute {
         }
     }          
         
-    $self->{attributes}->{$label} = $attribute;
+    $self->{class_definition}->{attributes}->{$label} = $attribute;
 }
 
 sub get_attribute {
     my ($self, $label) = @_;
     (defined $label)
         || die "InsufficientArguments : you must provide a label";
-    $self->{attributes}->{$label};
+    $self->{class_definition}->{attributes}->{$label};
 }
 
 sub has_attribute {
@@ -157,7 +215,7 @@ sub has_attribute {
 
 sub get_attribute_list {
     my ($self) = @_;
-    keys %{$self->{attributes}};
+    keys %{$self->{class_definition}->{attributes}};
 }
 
 # XXX - This SUCKS, it needs to be better
@@ -179,6 +237,70 @@ sub find_attribute_spec {
     return $self->get_attribute($label) if $self->has_attribute($label);
     foreach my $super (@{$self->superclasses}) {
         my $spec = $super->find_attribute_spec($label);
+        return $spec if $spec;
+    }
+    return undef;
+}
+
+# Class Attributes
+
+sub add_class_attribute {
+    my ($self, $label, $attribute) = @_;
+    (defined $label && defined $attribute)
+        || die "InsufficientArguments : you must provide an attribute and a label";
+    (blessed($attribute) && $attribute->isa('Perl6::Class::Attribute'))
+        || die "IncorrectObjectType : Attributes must be a Perl6::Class::Attribute instance got($attribute)";
+
+    if ($attribute->is_public()) {
+        unless ($self->has_class_method($attribute->accessor_name())) {
+             $self->add_class_method($attribute->accessor_name() => Perl6::Class::Method->new(
+             $self->name(), sub {
+                my ($self, $value) = @_;
+                $attribute->set_value($value) if defined $value;
+                $attribute->get_value();
+            }));        
+        }
+    }          
+
+    $self->{class_data}->{attributes}->{$label} = $attribute;
+}
+
+sub get_class_attribute {
+    my ($self, $label) = @_;
+    (defined $label)
+        || die "InsufficientArguments : you must provide a label";
+    $self->{class_data}->{attributes}->{$label};
+}
+
+sub has_class_attribute {
+    my ($self, $label) = @_;
+    $self->get_class_attribute($label) ? 1 : 0;
+}
+
+sub get_class_attribute_list {
+    my ($self) = @_;
+    keys %{$self->{class_data}->{attributes}};
+}
+
+# XXX - This SUCKS, it needs to be better
+sub get_all_class_attributes {
+    my ($self) = @_;
+    my @attrs = $self->_get_all_class_attributes();
+    my %attrs = map { $_ => undef } @attrs;
+    return sort keys %attrs;
+}
+
+# XXX - this is even worse, but kind cool
+sub _get_all_class_attributes {
+    my ($self) = @_;
+    return ((map { $_->_get_all_class_attributes() } @{$self->superclasses}), $self->get_class_attribute_list);
+}
+
+sub find_class_attribute_spec {
+    my ($self, $label) = @_;
+    return $self->get_class_attribute($label) if $self->has_class_attribute($label);
+    foreach my $super (@{$self->superclasses}) {
+        my $spec = $super->find_class_attribute_spec($label);
         return $spec if $spec;
     }
     return undef;

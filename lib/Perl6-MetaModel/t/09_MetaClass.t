@@ -7,8 +7,12 @@ use Test::More no_plan => 1;
 use Test::Exception;
 
 use Perl6::MetaClass;
-use Perl6::Attribute;
-use Perl6::Method;
+
+use Perl6::Instance::Attribute;
+use Perl6::Instance::Method;
+
+use Perl6::Class::Attribute;
+use Perl6::Class::Method;
 
 my $mc= Perl6::MetaClass->new(name => 'Base');
 isa_ok($mc, 'Perl6::MetaClass');
@@ -21,6 +25,8 @@ can_ok($mc, 'superclasses');
 # get all superclasses
 can_ok($mc, 'class_precedence_list');
 
+## Instance methods
+
 can_ok($mc, 'add_method');
 
 # locally defined methods
@@ -32,6 +38,21 @@ can_ok($mc, 'find_method');
 can_ok($mc, 'find_method_in_superclasses');
 can_ok($mc, 'responds_to');
 
+## Class methods
+
+can_ok($mc, 'add_class_method');
+
+# locally defined methods
+can_ok($mc, 'get_class_method');
+can_ok($mc, 'has_class_method');
+
+# methods in the class hierarchy
+can_ok($mc, 'find_class_method');
+can_ok($mc, 'find_class_method_in_superclasses');
+can_ok($mc, 'class_responds_to');
+
+## Instance attributes
+
 # locally defined attributes
 can_ok($mc, 'add_attribute');
 can_ok($mc, 'get_attribute');
@@ -41,6 +62,22 @@ can_ok($mc, 'get_attribute_list');
 # collect them all
 can_ok($mc, 'get_all_attributes');
 
+can_ok($mc, 'find_attribute_spec');
+
+## Class attributes
+
+# locally defined attributes
+can_ok($mc, 'add_class_attribute');
+can_ok($mc, 'get_class_attribute');
+
+can_ok($mc, 'get_class_attribute_list');
+
+# collect them all
+can_ok($mc, 'get_all_class_attributes');
+
+can_ok($mc, 'find_class_attribute_spec');
+
+###################################################################
 # now some real tests
 
 is($mc->name, 'Base', '... got the right name for Base');
@@ -58,7 +95,17 @@ is_deeply(
     '... got an empty class precendence list');
 
 lives_ok {
-    $mc->add_method('foo' => Perl6::Method->new($mc->name, sub { 'Base::foo' }));
+    $mc->add_class_method('foo' => Perl6::Class::Method->new($mc->name, sub { 'class->Base::foo' }));
+} '... we can add a class method successfully';
+
+ok($mc->has_class_method('foo'), '... the metaclass now has the class method "foo"');
+ok($mc->class_responds_to('foo'), '... the class defined will respond to "foo" as a class method');
+
+is($mc->get_class_method('foo')->call(), 'class->Base::foo', '... got the class method and it returned the right value');
+is($mc->find_class_method('foo')->call(), 'class->Base::foo', '... found the class method and it returned the right value');
+
+lives_ok {
+    $mc->add_method('foo' => Perl6::Instance::Method->new($mc->name, sub { 'Base::foo' }));
 } '... we can add a method successfully';
 
 ok($mc->has_method('foo'), '... the metaclass now has the method "foo"');
@@ -67,9 +114,40 @@ ok($mc->responds_to('foo'), '... the class defined will respond to "foo"');
 is($mc->get_method('foo')->call(), 'Base::foo', '... got the method and it returned the right value');
 is($mc->find_method('foo')->call(), 'Base::foo', '... found the method and it returned the right value');
 
+## class attributes
+
 lives_ok {
-    $mc->add_attribute('$.foo' => Perl6::Attribute->new($mc, '$.foo'));
-    $mc->add_attribute('@.foo' => Perl6::Attribute->new($mc, '@.foo'))    
+    $mc->add_class_attribute('@.bar' => Perl6::Class::Attribute->new($mc, '@.bar'));
+    $mc->add_class_attribute('$:foo' => Perl6::Class::Attribute->new($mc, '$:foo'));    
+} '... we can add attributes successfully';
+
+ok($mc->has_class_attribute('@.bar'), '... we have the attribute "@.bar"');
+ok($mc->has_class_attribute('$:foo'), '... we have the attribute "$:foo"');
+
+is_deeply(
+    [ $mc->get_class_attribute_list ],
+    [ '$:foo', '@.bar' ],
+    '... got the right class attribute list for Base');
+
+is_deeply(
+    [ $mc->get_all_class_attributes ],
+    [ '$:foo', '@.bar' ],
+    '... got the all class attributes for Base');
+
+isa_ok($mc->find_class_attribute_spec('@.bar'), 'Perl6::Class::Attribute');
+isa_ok($mc->find_class_attribute_spec('$:foo'), 'Perl6::Class::Attribute');
+
+is_deeply($mc->get_class_method('bar')->call(), [], '... our class attribute @.bar was initialized correctly');
+ok(!defined($mc->find_class_attribute_spec('$:foo')->get_value()), '... our class attribute $:foo was initialized correctly');
+
+$mc->find_class_attribute_spec('$:foo')->set_value('class->$:foo');
+is($mc->find_class_attribute_spec('$:foo')->get_value(), 'class->$:foo', '... our class attribute $:foo was set correctly');
+
+## instance attributes
+
+lives_ok {
+    $mc->add_attribute('$.foo' => Perl6::Instance::Attribute->new($mc, '$.foo'));
+    $mc->add_attribute('@.foo' => Perl6::Instance::Attribute->new($mc, '@.foo'))    
 } '... we can add attributes successfully';
 
 ok($mc->has_attribute('$.foo'), '... we have the attribute "$.foo"');
@@ -112,7 +190,7 @@ is_deeply(
     '... got a class precendence list');
    
 lives_ok {    
-    $mc2->add_method('bar' => Perl6::Method->new($mc2->name, sub { 'Foo::bar' }));
+    $mc2->add_method('bar' => Perl6::Instance::Method->new($mc2->name, sub { 'Foo::bar' }));
 } '... add another method now';
 
 ok($mc2->has_method('bar'), '... the metaclass now has the method "bar"');
@@ -125,8 +203,11 @@ is($mc2->find_method('bar')->call(), 'Foo::bar', '... found the method and it re
 
 is($mc2->find_method('foo')->call(), 'Base::foo', '... found the method in the superclass and it returned the right value');
 
+ok($mc2->class_responds_to('foo'), '... the class defined will respond to "foo" as a class method');
+is($mc2->find_class_method('foo')->call(), 'class->Base::foo', '... found the class method and it returned the right value');
+
 lives_ok {
-    $mc2->add_attribute('$.bar' => Perl6::Attribute->new($mc2, '$.bar'));
+    $mc2->add_attribute('$.bar' => Perl6::Instance::Attribute->new($mc2, '$.bar'));
 } '... we can add attributes successfully';
 
 ok($mc2->has_attribute('$.bar'), '... we have the attribute "$.bar"');
@@ -139,6 +220,14 @@ is_deeply(
 isa_ok($mc2->find_attribute_spec('$.foo'), 'Perl6::Attribute');
 isa_ok($mc2->find_attribute_spec('@.foo'), 'Perl6::Attribute');
 isa_ok($mc2->find_attribute_spec('$.bar'), 'Perl6::Attribute');
+
+is($mc2->find_class_attribute_spec('$:foo')->get_value(), 'class->$:foo', '... our class attribute $:foo was set correctly');
+
+$mc2->find_class_attribute_spec('$:foo')->set_value('class->$:foo again');
+
+is($mc2->find_class_attribute_spec('$:foo')->get_value(), 'class->$:foo again', '... our class attribute $:foo was set correctly');
+is($mc->find_class_attribute_spec('$:foo')->get_value(), 'class->$:foo again', '... our class attribute $:foo was set correctly');
+
 
 # now add another subclasses
 
@@ -163,7 +252,7 @@ is_deeply(
     '... got a class precendence list');
    
 lives_ok {    
-    $mc3->add_method('baz' => Perl6::Method->new($mc3->name, sub { 'Bar::baz' }));
+    $mc3->add_method('baz' => Perl6::Instance::Method->new($mc3->name, sub { 'Bar::baz' }));
 } '... add another method now';
 
 ok($mc3->has_method('baz'), '... the metaclass now has the method "baz"');
@@ -177,7 +266,7 @@ is($mc3->find_method('baz')->call(), 'Bar::baz', '... found the method and it re
 is($mc3->find_method('foo')->call(), 'Base::foo', '... found the method in the superclass and it returned the right value');
 
 lives_ok {
-    $mc3->add_attribute('$.baz' => Perl6::Attribute->new($mc3, '$.baz'));
+    $mc3->add_attribute('$.baz' => Perl6::Instance::Attribute->new($mc3, '$.baz'));
 } '... we can add attributes successfully';
 
 ok($mc3->has_attribute('$.baz'), '... we have the attribute "$.bar"');
@@ -216,7 +305,7 @@ is_deeply(
     '... got a class precendence list');
    
 lives_ok {    
-    $mc4->add_method('blah' => Perl6::Method->new($mc4->name, sub { 'Foo::Bar::blah' }));
+    $mc4->add_method('blah' => Perl6::Instance::Method->new($mc4->name, sub { 'Foo::Bar::blah' }));
 } '... add another method now';
 
 ok($mc4->has_method('blah'), '... the metaclass now has the method "blah"');
@@ -268,7 +357,7 @@ is_deeply(
     '... got a class precendence list'); 
    
 lives_ok {    
-    $mc5->add_method('foo' => Perl6::Method->new($mc5->name, sub { 'Foo::Bar::Baz::foo' }));
+    $mc5->add_method('foo' => Perl6::Instance::Method->new($mc5->name, sub { 'Foo::Bar::Baz::foo' }));
 } '... add another method now';
 
 ok($mc5->responds_to('blah'), '... the class defined will respond to "blah"');

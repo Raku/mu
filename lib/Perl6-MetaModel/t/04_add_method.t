@@ -31,7 +31,7 @@ is($foo->foo(), 'FOO', '... $foo->foo() works');
 
 ok(!$foo->can('bar'), '... $foo cannot bar() yet');
 
-Foo->class->metaclass->add_method('bar' => Perl6::Method->new('Foo' => sub { 'BAR' }));
+Foo->class->metaclass->add_method('bar' => Perl6::Instance::Method->new('Foo' => sub { 'BAR' }));
 
 can_ok($foo, 'bar');
 is($foo->bar(), 'BAR', '... $foo->bar() works');
