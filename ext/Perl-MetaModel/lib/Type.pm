@@ -4,10 +4,10 @@ class Type;
 has Class $.meta;
 
 # this is the compiled dispatch table... accessors should be in here
-has Code %.dispatch;
+has Method %.dispatch;
 
 # private accessors, methods, etc
-has Code %:dispatch;
+has Method %:dispatch;
 
 multi method isa($self: Class $class) returns Bool {
     .meta.isa($class);

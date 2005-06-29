@@ -1,7 +1,7 @@
 
-class Method--Perl6 is Code;
+class Method--Perl6;
 
-has Type $.private;
+has Code $.code;
 
 =head1 NAME
 
@@ -13,14 +13,14 @@ Method - functions on classes
 
 =head1 DESCRIPTION
 
-Methods are the same as Code objects, with the following distinctions;
+Methods are bindings of Code objects to a particular Type.
 
 =over
 
 =item *
 
-A method usually has a single invocant (however, this is a trend and
-not a rule).
+A method's Code property usually has a single invocant typed to the
+Role it is attached to (however, this is a trend and not a rule).
 
 =item *
 
@@ -37,7 +37,11 @@ This has the effect of making C<Role> objects appear to "flatten" in
 the classes which they are included; unlike the "mix-in" effect of
 adding more superclasses to a Class, all of the methods that are
 included via roles will be able to access the Class' private
-attributes.
+attributes.  This is "early" method binding.
+
+=head1 NOTES
+
+Perhaps this class should be called MethodBinding.
 
 =cut
 
