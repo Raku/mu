@@ -37,5 +37,20 @@ The last line is the key.  The a type should be inferred from the constructor.
 * The trouble with this is that it doesn't provide any type safety.  In the case
 of a type conflict, a just degenerates to the Any type.
 
-~~~~~~~~~ Disjoint declarations ~~~~~~~~~
+~~~~~~~~~~~~~
 
+During weak type inferrence, the compiler is trying to find the smallest set
+that the value could be a member of.  But perhaps it would be possible to
+specify a "cap" that, if the compiler tried to generalize beyond that, it would
+die.
+
+Perhaps an enum would specify a set of disjoint base types, for instance:
+
+    enum Foo is disjoint {
+        A, B, C
+    }
+
+Then if the compiler ever tried to generalize into Foo, it would die, such as
+if you had an A in the same type variable as a B.  The question is what happens
+if it tries to generalize beyond Foo instantly, such as A and Str.  Perhaps you
+would have to declare it to be Foo in order to strongly type it.
