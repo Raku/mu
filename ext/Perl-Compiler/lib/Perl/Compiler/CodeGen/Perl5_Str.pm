@@ -16,9 +16,9 @@ class Perl::Compiler::CodeGen::Perl5_Str
         given $tree {
             say "Processing $tree / $tree.ref()";
             
-            when ::Perl::Compiler::PIL::PILNil    { '' }
+            when ::Perl::Compiler::PIL::PILNil    { "; # Nil\n" }
 
-            when ::Perl::Compiler::PIL::PILNoop   { ';' }
+            when ::Perl::Compiler::PIL::PILNoop   { "; # Noop\n" }
             
             when ::Perl::Compiler::PIL::PILLit    { ./gen(.value, $ng) }
 
@@ -35,7 +35,10 @@ class Perl::Compiler::CodeGen::Perl5_Str
             when ::Perl::Compiler::PIL::PILCode   { 
                 my $inner = ./gen(.statements);
                 $ng.ret("$INS\::p5_make_code( sub \{ { 
-                    $inner     # XXX pad variable
+                    (join "\n", map { 
+                        "my " ~ ./pad_var($_)
+                    } $tree.pads)
+                    ~ $inner
                 } } )");  ''
             }
 
@@ -43,10 +46,11 @@ class Perl::Compiler::CodeGen::Perl5_Str
                 $ng.ret("$INS\::p5_make_val( { .value } )");  ''
             }
 
-            when ::Perl::Compiler::PIL::PILVar    { 
+            when ::Perl::Compiler::PIL::PILVar    {
                 # XXX shouldn't need $tree.pad.id ; .pad.id should do ($tree is topic)
-                $ng.ret("\$PAD_" ~ $tree.pad.id ~ "->[" ~ $tree.pad.index{.value} ~ "]");
-            }    # handwave
+                my $pad = $tree.pad;
+                $ng.ret(./pad_var($pad) ~ "->\{'{ $tree.value }'}");
+            }
 
             when ::Perl::Compiler::PIL::PILStmts  { 
                 ./gen(.head, $ng.fork) ~ '; ' ~ ./gen(.tail, $ng.fork);
@@ -81,6 +85,10 @@ class Perl::Compiler::CodeGen::Perl5_Str
 
             die "Unknown PIL node type: $tree.ref()";
         }
+    }
+
+    method pad_var(Perl::Compiler::PIL::Util::Pad $pad) {
+        "\$PAD_" ~ $pad.id;
     }
 }
 

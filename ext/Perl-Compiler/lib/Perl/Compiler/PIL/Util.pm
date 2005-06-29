@@ -1,14 +1,10 @@
+
 class Perl::Compiler::PIL::Util::Pad {
     has Perl::Compiler::PIL::Util::Pad $.parent;
-    has Int $.max;
-    has Int %.index;
-
-    method add($name) {
-        %.index{$name} = $.max++;
-    }
+    has Str @.names;
 
     method lookup_pad($name) {
-        if %.index.exists($name) {
+        if grep { $_ ~~ $name } @.names {
             $?SELF;
         }
         else {

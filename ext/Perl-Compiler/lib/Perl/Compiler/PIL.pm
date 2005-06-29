@@ -104,6 +104,7 @@ class Perl::Compiler::PIL::PILCode
     does Perl::Compiler::PIL::PIL {
     has Perl::Compiler::PIL::Util::Type $.codetype;
     has Perl::Compiler::PIL::Util::Signature $.signature;
+    has Perl::Compiler::PIL::Util::Pad @.pads;   # XXX perhaps a hack
     has PIL $.statements;
     submethod BUILD () {
         type_check $.value.vtype, '[Stmt]';
@@ -121,8 +122,8 @@ class Perl::Compiler::PIL::PILVal
 # PILVar :: LValue
 class Perl::Compiler::PIL::PILVar
     does Perl::Compiler::PIL::PIL {
-    has Str $.value;
     has Perl::Compiler::PIL::Util::Pad $.pad;
+    has Str $.value;
     method vtype () { 'LValue' }
 }
 
