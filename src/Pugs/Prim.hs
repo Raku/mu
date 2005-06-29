@@ -1259,6 +1259,12 @@ prettyVal d v@(VRef r) = do
 prettyVal d (VList vs) = do
     vs' <- mapM (prettyVal (d+1)) vs
     return $ "(" ++ concat (intersperse ", " vs') ++ ")"
+prettyVal d v@(VObject obj) = do
+    -- ... dump the objAttrs
+    hash    <- fromVal v :: Eval VHash
+    str     <- prettyVal d (VRef (hashRef hash))
+    return $ showType (objType obj)
+        ++ ".new(" ++ init (tail str) ++ ");"
 prettyVal _ v = return $ pretty v
 
 -- | Call object destructors when GC takes them away
