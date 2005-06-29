@@ -166,8 +166,8 @@ sub set_postamble {
       my $os_version = `uname -r`;
       if ($gcc_version =~ /4.0.0/ && $os_version =~ /^8./) {
          die <<EOD;
-*** We don't work with gcc4.0 on Tiger
-*** please use "sudo gcc_select 3.3" to pick an earlier version of gcc
+*** We don't work with GCC 4.0 on Tiger,
+    please use "sudo gcc_select 3.3" to pick an earlier version of gcc.
 EOD
       }
     }

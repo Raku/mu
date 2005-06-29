@@ -13,21 +13,42 @@ my $nick   = @*ARGS[0] // "evalbot6";
 my $server = @*ARGS[1] // "localhost";
 my ($host, $port) = split ":", $server;
 $port //= 6667;
+my $reconn_delay = @*ARGS[2] // 60 * 15;
 
 debug "Summary of configuration:";
 debug "  Will connect as...                  $nick";
 debug "  to...                               $host:$port";
+debug "  and will reconnect after            {$reconn_delay}s after a disconnect";
 debug "To change any of these parameters, restart $*PROGRAM_NAME";
 debug "and supply appropriate arguments:";
-debug "  $*PROGRAM_NAME nick host[:port]";
+debug "  $*PROGRAM_NAME nick host[:port] reconnect_delay";
 
 # Create new bot "object"
 my $bot = new_bot(nick => $nick, host => $host, port => $port, debug_raw => 0);
-$bot<connect>();
-$bot<login>();
 $bot<add_handler>("INVITE",   &on_invite);
 $bot<add_handler>("PRIVMSG",  &on_privmsg);
-$bot<run>();
+
+# Rejoin chans after a reconnect
+my @chans;
+$bot<add_handler>("loggedin", -> $event {
+  $bot<join>($_) for @chans;
+});
+
+my $reconnect = 1;
+while 1 {
+  $bot<connect>();
+  $bot<login>();
+  $bot<run>();
+  if $reconnect { 
+    # Reconnect, but not immediately to 1. not suck up all CPU, 2. to not suck
+    # up all connections, 3. to not get klined by the IRC server, 4. to not
+    # annoy the people on the channels.
+    sleep $reconn_delay;
+  } else {
+    # Else somebody issued a ?quit, so really exit.
+    exit;
+  }
+}
 
 # Join on invite
 sub on_invite($event) {
@@ -38,6 +59,10 @@ sub on_invite($event) {
 
 # Process private messages
 sub on_privmsg($event) {
+  # Trace the channels we're on, so reconnect can rejoin the channels we were
+  # on
+  @chans = $bot<channels>() if $bot<channels>();
+
   given $event<rest> {
     # Logging is important, especially with an *eval*bot.
     debug "Received a ?-request from $event<from>: $event<rest>"
@@ -54,6 +79,8 @@ sub on_privmsg($event) {
       if substr($reply_to, 0, 1) eq "#" {
         $reply("?quit only available per private message so other bots don't quit as well.");
       } else {
+        # Don't reconnect.
+        $reconnect = 0;
         $bot<quit>($0);
       }
     }
