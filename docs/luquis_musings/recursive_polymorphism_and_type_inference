@@ -1,0 +1,41 @@
+Haskell has concise and extremely rich support for strongly typed
+data structures  (this is what allows PIL to be represented and
+manipulated so easily).  
+
+The key to strongly typed data structures are Haskell's polymorphic data 
+types.
+
+    data Foo where
+        a :: Foo         -- leaf
+        b :: Foo         -- leaf
+        c :: Bar -> Foo  -- unary node
+        d :: Bar -> Baz -> Foo  -- binary node
+
+Haskell's types can take parameters so you can specify necessary agreement.
+
+    data Tree a where
+        zero :: Tree Int
+        succ :: Tree Int -> Tree Int
+        pred :: Tree Int -> Tree Int
+        iszero :: Tree Int -> Tree Bool
+        cond :: Tree Bool -> Tree a -> Tree a -> Tree a
+
+One of the keys to these structures' usability is their conciseness.  Currently
+in Perl 6, each line in the example above uses six or more lines of Perl.  This
+draws attention away from the structure and to the nitty-gritty unimportant
+details.
+
+role Tree[::a] { }
+class Zero   does Tree[Int]  { }
+class Succ   does Tree[Int]  { has Tree[Int] $.in }
+class Pred   does Tree[Int]  { has Tree[Int] $.in }
+class IsZero does Tree[Bool] { has Tree[Int] ($.a, $.b) }
+class Cond   does Tree[::a]  { has Tree[Bool] $.cond;  has Tree[a] ($.if, $.else) }
+
+The last line is the key.  The a type should be inferred from the constructor.
+
+* The trouble with this is that it doesn't provide any type safety.  In the case
+of a type conflict, a just degenerates to the Any type.
+
+~~~~~~~~~ Disjoint declarations ~~~~~~~~~
+
