@@ -13,7 +13,7 @@ class Perl::Compiler::CodeGen::Perl5_Str
     }
 
     method gen (Perl::Compiler::PIL::PIL $tree is rw, PIL::Compiler::CodeGen::NameGen $ng is rw) {
-        given $tree {
+        my $ret = do given $tree {
             say "Processing $tree / $tree.ref()";
             
             when ::Perl::Compiler::PIL::PILNil    { "; # Nil\n" }
@@ -49,7 +49,7 @@ class Perl::Compiler::CodeGen::Perl5_Str
             when ::Perl::Compiler::PIL::PILVar    {
                 # XXX shouldn't need $tree.pad.id ; .pad.id should do ($tree is topic)
                 my $pad = $tree.pad;
-                $ng.ret(./pad_var($pad) ~ "->\{'{ $tree.value }'}");
+                $ng.ret(./pad_var($pad) ~ "->\{'{ $tree.value }'}"); ''
             }
 
             when ::Perl::Compiler::PIL::PILStmts  { 
@@ -84,7 +84,10 @@ class Perl::Compiler::CodeGen::Perl5_Str
             }
 
             die "Unknown PIL node type: $tree.ref()";
-        }
+        };
+
+        say "RETVAL = $ret";
+        return $ret;
     }
 
     method pad_var(Perl::Compiler::PIL::Util::Pad $pad) {
