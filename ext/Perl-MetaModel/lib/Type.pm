@@ -3,7 +3,15 @@ class Type;
 
 has Class $.meta;
 
-multi method isa($self: Str $class) 
+# this is the compiled dispatch table... accessors should be in here
+has Code %.dispatch;
+
+# private accessors, methods, etc
+has Code %:dispatch;
+
+multi method isa($self: Class $class) returns Bool {
+    .meta.isa($class);
+}
 
 =head1 NAME
 
@@ -35,6 +43,11 @@ It is probably bad to have both a MetaClass called C<Type> and a
 language object called Type.  Perhaps this module should be called
 something else like C<t>, or maybe the C<type> keyword actually
 creates one of these objects.
+
+Types have a dispatch table; this is a collection of functions and
+methods that are queried during dispatch (which includes attribute
+lookup as well as method lookup, as attribute fetching is actually
+just a shorthand for calling an accessor).
 
 =cut
 

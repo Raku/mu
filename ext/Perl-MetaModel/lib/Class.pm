@@ -1,18 +1,26 @@
 
-class Class;
+class Class--Perl6;
 
-method new(Type $base, Str ?$name) returns Class {
+is Role--Perl6;
 
+has Type $.type;
+
+method subclass(Role $base, Str ?$name) returns Class {
+
+}
+
+method isa(Role $class) returns Bool {
+    ...
 }
 
 =head1 NAME
 
-Class - Entities in a program's model (M1)
+Class--Perl6 - Entities in a program's model (M1)
 
 =head1 SYNOPSIS
 
  # class SomeClass { method ... { ... } }
- my $class = Class.new("SomeClass");
+ my $class = Class--Perl6.new("SomeClass");
  $class.addMethod(Method.new(...))
  $class.apply;
 
@@ -26,6 +34,24 @@ Class - Entities in a program's model (M1)
 
 This object represents a Class.  It is what is created when you
 declare a new class.
+
+A class is a role with the enhancement that is it I<typable>.
+
+This means;
+
+=over
+
+=item *
+
+You can construct new classes which are of its type.
+
+=item *
+
+It serves as the basis for a method dispatch scope.  Note that methods
+differ from normal Code refs only in that they do not have a
+dynamically bound scope for private accessors, etc.
+
+=back
 
 =cut
 

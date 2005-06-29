@@ -4,7 +4,7 @@ use v6;
 # this is a super-class for Arrays, Hashes, Sets and other collections
 # like Bags, ordered hashes and so on.
 
-role Map;
+role Map--Perl6 [ Role ?Key = ::Any, Role Value = ::Any ];
 
 # FIXME - no insert methods
 multi method delete (: $index ) returns Object;

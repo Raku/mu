@@ -1,7 +1,7 @@
 
 use v6;
 
-role List;
+role List--Perl6;
 
 # what is below is ripped straight out of S29.  I think most of these
 # actually belong on "Map"
