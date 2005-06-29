@@ -1,4 +1,7 @@
 
+use strict;
+use warnings;
+
 use Perl6::MetaModel;
 
 use P5::PIL::Run::Container::Scalar;
@@ -47,6 +50,7 @@ class 'P5::PIL::Run::Container::Array' => {
 			'array_storeElem' => sub { # $idx -> $container -> ()
 				my $self = shift;
 				my $idx = shift;
+				my $container = shift;
 				$self->_extend_to_slot($idx);
 				$self->get_value('@:slots')->[$idx] = $container;
 			},
@@ -76,7 +80,7 @@ class 'P5::PIL::Run::Container::Array' => {
 				my $self = shift;
 				my $size = shift;
 				if ($size > (my $orig = $self->array_fetchSize)){
-					$self->array_extendSize($orig - $size);
+					$self->array_extendSize($size - $orig);
 				} else {
 					$#{$self->get_value('@:slots')} = ($size - 1);
 				}
@@ -93,7 +97,7 @@ class 'P5::PIL::Run::Container::Array' => {
 				my $idx = shift;
 				my $size = $idx + 1;
 				if ($self->array_fetchSize < $size){
-					$self->array_setSize($size);
+					$self->array_storeSize($size);
 				}
 			},
 
@@ -148,3 +152,4 @@ class 'P5::PIL::Run::Container::Array' => {
 };
 
 1;
+
