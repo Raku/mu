@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 70;
+plan 73;
 
 =pod
 
@@ -153,7 +153,7 @@ class Foo6a {
   has $.baz;
   has $:hidden;
 
-  submethod BUILD($.bar, $.baz, $:hidden) {
+  submethod BUILD ($:hidden, ?$.bar = 10, ?$.baz) {
     $.baz = 5;
   }
   method get_hidden() { $:hidden }
@@ -166,6 +166,25 @@ class Foo6a {
     is($foo.bar,        1, "getting a public rw attribute (1)"  );
     is($foo.baz,        5, "getting a public rw attribute (2)"  );
     is($foo.get_hidden, 3, "getting a private ro attribute (3)" );
+}
+
+# check that assignment in submethod BUILD works with a bare return, too
+class Foo6b {
+  has $.bar is rw;
+  has $.baz;
+
+  submethod BUILD (?$.bar = 10, ?$.baz) {
+    $.baz = 9;
+	return;
+  }
+}
+
+{
+    my $foo = Foo6b.new(bar => 7);
+    ok($foo ~~ Foo6b, '... our Foo6b instance was created');
+        
+    is($foo.bar,        7, "getting a public rw attribute (1)"  );
+    is($foo.baz,        9, "getting a public rw attribute (2)"  );
 }
 
 # L<A12/"Default Values">
