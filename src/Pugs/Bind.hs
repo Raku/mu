@@ -269,7 +269,7 @@ bindSomeParams sub invExp argsExp = do
     (boundArray, newSlurpLimit) <- bindArray posForSlurp slurpPos slurpLimit
     boundScalar <- return $ defaultScalar `zip` (givenInvs ++ givenArgs) -- put, uh, something in $_
 
-    let newBindings = concat [bindings, boundInv, boundNamed, boundPos, boundHash, boundArray, boundScalar]
+    let newBindings = concat [bindings, boundInv, boundNamed, boundPos, boundScalar, boundArray, boundHash]
     let newParams = params \\ (map fst newBindings);
     
     return sub
