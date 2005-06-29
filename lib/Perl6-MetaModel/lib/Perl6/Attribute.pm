@@ -41,6 +41,8 @@ __END__
 
 =head1 NAME
 
+Perl6::Attribute - Base class for Attribute in the Perl6 Meta Model
+
 =head1 DESCRIPTION
 
 =head1 METHODS 
@@ -65,6 +67,6 @@ __END__
 
 =head1 AUTHOR
 
-Stevan Little
+Stevan Little stevan@iinteractive.com
 
 =cut

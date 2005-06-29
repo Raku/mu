@@ -36,7 +36,7 @@ our @CALL_STACK;
 
 sub get_value {
     my ($self, $label) = @_;
-    if (my $prop = $self->class->find_attribute($label)) {
+    if (my $prop = $self->class->metaclass->find_attribute_spec($label)) {
         (
             $prop->associated_with()->isa($CALL_STACK[0]->[0]) 
             ||
@@ -53,7 +53,7 @@ sub get_value {
 
 sub set_value {
     my ($self, $label, $value) = @_;
-    if (my $prop = $self->class->find_attribute($label)) {
+    if (my $prop = $self->class->metaclass->find_attribute_spec($label)) {
         (
             $prop->associated_with()->isa($CALL_STACK[0]->[0]) 
             ||
@@ -143,29 +143,6 @@ sub metaclass {
 sub isa {
     my ($self, $class) = @_;
     return $self->metaclass->is_a($class);
-}
-
-sub find_attribute {
-    my ($class, $label) = @_;
-    return $class->metaclass->find_attribute_spec($label);   
-}
-
-sub add_attribute {
-    my ($class, $label, $attribute) = @_;
-    
-    if ($attribute->is_public()) {
-        unless ($class->metaclass->has_method($attribute->accessor_name())) {
-             debug "property $label accessor (" . $attribute->accessor_name() . ") created for $class";
-             $class->metaclass->add_method($attribute->accessor_name() => Perl6::Instance::Method->new(
-             $class->metaclass->name(), sub {
-                my ($self, $value) = @_;
-                $self->set_value($label => $value) if defined $value;
-                $self->get_value($label);
-            }));        
-        }
-    }    
-    
-    $class->metaclass->add_attribute($label, $attribute);           
 }
 
 sub can {

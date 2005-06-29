@@ -19,3 +19,31 @@ sub call {
 }
 
 1;
+
+__END__
+
+=pod
+
+=head1 NAME
+
+Perl6::Method - Base class for Methods in the Perl6 Meta Model
+
+=head1 DESCRIPTION
+
+=head1 METHODS 
+
+=over 4
+
+=item B<new>
+
+=item B<code>
+
+=item B<associated_with>
+
+=back
+
+=head1 AUTHOR
+
+Stevan Little stevan@iinteractive.com
+
+=cut

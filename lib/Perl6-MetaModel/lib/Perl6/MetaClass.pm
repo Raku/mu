@@ -128,6 +128,18 @@ sub add_attribute {
         || die "InsufficientArguments : you must provide an attribute and a label";
     (blessed($attribute) && $attribute->isa('Perl6::Attribute'))
         || die "IncorrectObjectType : Attributes must be a Perl6::Attribute instance got($attribute)";
+        
+    if ($attribute->is_public()) {
+        unless ($self->has_method($attribute->accessor_name())) {
+             $self->add_method($attribute->accessor_name() => Perl6::Instance::Method->new(
+             $self->name(), sub {
+                my ($self, $value) = @_;
+                $self->set_value($label => $value) if defined $value;
+                $self->get_value($label);
+            }));        
+        }
+    }          
+        
     $self->{attributes}->{$label} = $attribute;
 }
 
@@ -180,7 +192,7 @@ __END__
 
 =head1 NAME 
 
-Perl6::MetaClass
+Perl6::MetaClass - Metaclass in the Perl6 Meta Model
 
 =head1 DESCRIPTION
 
