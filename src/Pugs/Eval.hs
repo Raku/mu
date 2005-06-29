@@ -296,24 +296,13 @@ reduceSym _ "" exp = evalExp exp
 
 reduceSym scope name exp = do
     ref <- newObject (typeOfSigil $ head name)
-    sym <- genSymPkg "" ref
+    sym <- case name of
+        ('&':_) -> genMultiSym name ref
+        _       -> genSym name ref
     case scope of
         SMy     -> enterLex [ sym ] $ evalExp exp
         SState  -> enterLex [ sym ] $ evalExp exp
-        _       -> do
-            addGlobalSym sym
-            pkg <- asks envPackage
-            sym' <- genSymPkg (pkg ++ "::") ref
-            addGlobalSym sym'
-            evalExp exp
-    where
-    genSymPkg pkg ref =
-        let pkg' = if (':' `elem` name) then "" else pkg
-            (sigil, name') = span (not . isAlphaNum) name
-            fullName = sigil ++ pkg' ++ name' in
-        case name of
-            ('&':_) -> genMultiSym fullName ref
-            _       -> genSym fullName ref
+        _       -> do { addGlobalSym sym; evalExp exp }
 
 -- Context forcing
 reduceCxt :: Cxt -> Exp -> Eval Val
