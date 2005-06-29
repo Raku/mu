@@ -51,8 +51,8 @@ Expanding this one level deeper:
     |-- docs               Documentation relating to Pugs/Perl 6/Haskell
     |   |-- AES                Drafts of Perl6::Bible chapters
     |   |-- class              Object system sketches (XXXX: out of date?)
-    |   |-- luquis_musings     Exactly what it looks like
-    |   |-- other              Misc design and hacking notes
+    |   |-- notes              Misc design notes and musings
+    |   |-- other              Misc tips to day-to-day development
     |   |-- quickref           Perl 6 quick reference pages
     |   |-- src                Junction implementation sketch (XXXX: ood?)
     |   |-- talks              Slides for Pugs and Perl 6 talks
