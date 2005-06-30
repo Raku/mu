@@ -5,10 +5,10 @@ module Pugs.AST.Scope (
 ) where
 
 -- | The scope of a variable declaration.
-data Scope = SGlobal -- ^ Global
-           | SMy     -- ^ Local
+data Scope = SState  -- ^ Persistent across calls
+           | SMy     -- ^ Lexical
            | SOur    -- ^ Package
            | SLet    -- ^ Hypotheticalised (reverted upon failure)
            | STemp   -- ^ Temporary (reverted at scope exit)
-           | SState  -- ^ Persistent across calls
+           | SGlobal -- ^ Global
     deriving (Show, Eq, Ord, Read, Enum)

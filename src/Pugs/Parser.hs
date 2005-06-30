@@ -311,6 +311,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
             }
         pkg = envPackage env
         name' | ':' `elem` name = name
+              | scope <= SMy    = name
               | otherwise       = (head name:pkg) ++ "::" ++ tail name
         self :: [Param]
         self | styp > SubMethod = []
