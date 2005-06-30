@@ -48,6 +48,9 @@ data (Typeable a) => PIL a where
     PAssign     :: ![PIL LValue] -> !(PIL Expression) -> PIL LValue
     PBind       :: ![PIL LValue] -> !(PIL Expression) -> PIL LValue
 
+    -- The New Pad: Occurs at whenever a variable may occur
+    --    PPad  :: !Scope -> !VarName -> PIL LValue
+
     PPad        :: !Scope -> ![(VarName, PIL Expression)] -> !(PIL [Stmt]) -> PIL [Stmt]
     PSub        :: !SubName -> !SubType -> ![TParam] -> !(PIL [Stmt]) -> PIL Decl
 #endif
