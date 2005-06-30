@@ -86,6 +86,37 @@ sub traverse_post_order {
     $visitor->($self);    
 }
 
+## INSTANCE CREATION
+
+sub new_instance {
+    my ($self, %_params) = @_;
+
+    my %attrs;
+    $self->traverse_post_order(sub {
+        my $c = shift;
+        foreach my $attr ($c->get_attribute_list) {
+            my $attr_obj = $c->get_attribute($attr);
+            $attrs{$attr} = ($attr_obj->is_array ? [] : ($attr_obj->is_hash ? {} : undef));        
+        }
+    });    
+
+    $attrs{$_} = $_params{$_} foreach keys %_params;
+
+    my ($class_name) = ($self->name =~ /(.*?)\:\:Class/);
+
+    my $instance = bless {
+        class         => $self,
+        instance_data => \%attrs,
+    }, $class_name;
+
+    $self->traverse_post_order(sub {
+        my $c = shift;
+        $c->get_method('init')->call($instance) if $c->has_method('init');        
+    });    
+
+    return $instance;
+}
+
 ## METHODS
 
 # Instance Methods

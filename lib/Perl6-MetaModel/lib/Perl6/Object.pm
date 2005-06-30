@@ -4,25 +4,31 @@ package Perl6::Object;
 use strict;
 use warnings;
 
+use Data::Dumper;
+
 our $DEBUG = 0;
 sub debug { return unless $DEBUG; print ">>> ", @_, "\n" }
 
 use Scalar::Util 'blessed';
 
+sub new_instance {
+    my ($class, %params) = @_;
+    return $class->class->metaclass->new_instance(%params);
+}
+
 sub isa {
     my ($self, $class) = @_;
     return undef unless $class;
-    return $self->class->isa($class . '::Class');
+    return $self->class->metaclass->is_a($class . '::Class');
 }
 
 sub can {
     my ($self, $label) = @_;
-    if (my $class_name = blessed($self)) {
-        return $self->class->can($label);
+    if (blessed($self)) {
+        return $self->class->metaclass->responds_to($label);
     }
     else {
-        my $kind = $self . '::Kind';
-        return $kind->can($label);
+        return $self->class->metaclass->class_responds_to($label);
     }
 }
 
@@ -32,35 +38,14 @@ sub class {
     return $self . '::Class';    
 }
 
-our @CALL_STACK;
-
 sub get_value {
     my ($self, $label) = @_;
-    if (my $prop = $self->class->metaclass->find_attribute_spec($label)) {
-        (
-            $prop->associated_with()->isa($CALL_STACK[0]->[0]) 
-            ||
-            $CALL_STACK[0]->[0]->isa($prop->associated_with())
-        ) || die "You cant access a private attribute ($label) for (" . 
-                  $prop->associated_with() .  ") from (" . $CALL_STACK[0]->[0] . ")"
-                        if $prop->is_private();
-    }
-    else {
-        die "Perl6::Attribute ($label) no found";
-    }
     $self->{instance_data}->{$label};
 }
 
 sub set_value {
     my ($self, $label, $value) = @_;
     if (my $prop = $self->class->metaclass->find_attribute_spec($label)) {
-        (
-            $prop->associated_with()->isa($CALL_STACK[0]->[0]) 
-            ||
-            $CALL_STACK[0]->[0]->isa($prop->associated_with())
-        ) || die "You cant access a private attribute ($label) for (" . 
-                  $prop->associated_with() .  ") from (" . $CALL_STACK[0]->[0] . ")"
-                        if $prop->is_private();
         # since we are not private, then check the type
         # assuming there is one to check ....
         if (my $type = $prop->type()) {
@@ -94,31 +79,26 @@ sub AUTOLOAD {
     return if $label =~ /DESTROY/;
     my $self = shift;
     my @return_value;
-    unshift @CALL_STACK => [ (ref($self) || $self), $label ];
-    debug "dispatching to $label for $self from :\n\t" . 
-            (join "\n\t" => map { join "->" => @{$_} } @CALL_STACK);    
-    if (my $class_name = blessed($self)) {
+    if (blessed($self)) {
         my $method;
         if ($label eq 'SUPER') {
             $label = shift;
-            push @{$CALL_STACK[0]} => $label;
-            $method = $self->class->can($label, 1);
+            $method = $self->class->metaclass->find_method_in_superclasses($label);
         }
         else {
-            $method = $self->class->can($label);
+            $method = $self->class->metaclass->find_method($label);
         }
         (blessed($method) && $method->isa('Perl6::Method')) 
             || die "Method ($label) not found for instance ($self)";
         @return_value = $method->call($self, @_);        
     }
     else {
-        # grab the Kind (meta) instance
-        my $kind = $self->Perl6::Object::Kind::meta();
-        my $method = $kind->can($label);
-        (defined $method) || die "Method ($label)  not found for class ($self)";
-        @return_value = $kind->$method(@_);
+        my $method = $self->class->metaclass->find_class_method($label);
+        
+        (defined $method) 
+            || die "Method ($label)  not found for class ($self)";
+        @return_value = $method->call($self->class->metaclass, @_);
     }
-    shift @CALL_STACK;    
     return wantarray ?
                 @return_value
                 :
@@ -127,10 +107,6 @@ sub AUTOLOAD {
 
 package Perl6::Object::Class;
 
-our $DEBUG = 0;
-sub debug { return unless $DEBUG; print ">>> ", @_, "\n" }
-
-use Scalar::Util 'blessed';
 use Perl6::MetaClass;
 
 my $META;
@@ -138,134 +114,6 @@ sub metaclass {
     my ($class) = @_;
     no strict 'refs';
     ${$class .'::META'} ||= Perl6::MetaClass->new(name => $class);
-}
-
-sub isa {
-    my ($self, $class) = @_;
-    return $self->metaclass->is_a($class);
-}
-
-sub can {
-    my ($self, $label, $is_supercall) = @_;
-    return $self->metaclass->find_method_in_superclasses($label) if $is_supercall;    
-    return $self->metaclass->find_method($label);
-}
-
-package Perl6::Object::Kind;
-
-use Scalar::Util 'blessed';
-
-sub class_name {
-    my $meta = shift;
-    $meta = blessed($meta) || $meta;
-    my ($name) = $meta =~ /^(.*)\:\:Kind/;
-    return $name;
-}
-
-sub superclasses {
-    my ($class) = @_;
-    no strict 'refs';
-    @{$class .'::ISA'};
-}
-
-sub attributes {
-    my ($class) = @_;
-    no strict 'refs';
-    keys %{$class .'::ATTRS'};
-}
-
-sub meta {
-    my ($self) = @_;
-#    die "You should not use $self -> meta (called from " . (join ", " => caller()) . ") ";    
-    $self = blessed($self) if blessed($self);
-    my $_kind = $self;
-    # in case we are being called from an instance
-    # of the kind, or the Class itself
-    $_kind .= '::Kind' unless $self =~ /\:\:Kind$/;
-    no strict 'refs';
-    ${$_kind . '::META'} = _new_class($_kind) unless ${$_kind . '::META'};
-    return ${$_kind . '::META'};
-}
-
-sub get_value {
-    my ($self, $label) = @_;
-    $self->{$label};
-}
-
-sub set_value {
-    my ($self, $label, $value) = @_;
-    $self->{$label} = $value;
-}
-
-sub is_kind_of {
-    my ($self, $kind) = @_;
-    $self = blessed($self) if blessed($self);
-    my $_kind = $self;
-    # in case we are being called from an instance
-    # of the kind, or the Class itself
-    $_kind .= '::Kind' unless $self =~ /\:\:Kind$/;
-    return $_kind->isa($kind . '::Kind');
-}
-
-sub _new_class {
-    my ($class, %_params) = @_;
-    my %attrs = map { $_ => undef } _get_all_attrs($class);
-    _init_attrs(\%attrs, \%_params);
-    my $meta = bless \%attrs, $class;
-    _call_all_inits($class, $meta);
-    return $meta;
-}
-
-sub new_instance {
-    my ($kind, %_params) = @_;
-    my $class = $kind->class_name;
-    my $metaclass = $class . '::Class';
-    my %attrs = _get_all_attrs($metaclass);
-    _init_attrs(\%attrs, \%_params);
-    my $instance = bless {
-        class         => $metaclass,
-        instance_data => \%attrs,
-    }, $class;
-    _call_all_inits($metaclass, $instance);
-    return $instance;
-}
-
-sub _init_attrs {
-    my ($attrs, $params) = @_;
-    $attrs->{$_} = $params->{$_} foreach keys %{$params};
-}
-
-sub _get_all_attrs {
-    my ($class) = @_;
-    if ($class =~ /\:\:Kind$/) {
-        return ((map { _get_all_attrs($_) } $class->superclasses), $class->attributes);    
-    }
-    my %attributes;
-    $class->metaclass->traverse_post_order(sub {
-        my $c = shift;
-        foreach my $attr ($c->get_attribute_list) {
-            my $attr_obj = $c->get_attribute($attr);
-            $attributes{$attr} = ($attr_obj->is_array ? [] : ($attr_obj->is_hash ? {} : undef));        
-        }
-    });
-    return %attributes;
-}
-
-sub _call_all_inits {
-    my ($class, $instance) = @_;
-    if ($class =~ /\:\:Kind$/) {
-        # call all the inits in post-order
-        _call_all_inits($_, $instance) foreach $class->superclasses;
-        if (my $method = $class->can('init')) {
-            $method->($instance);        
-        }
-    }
-    else {
-        $class->metaclass->traverse_post_order(sub {
-            my $c = shift;
-            $c->get_method('init')->call($instance) if $c->has_method('init');        
-        });
-    }
 }
 
 1;

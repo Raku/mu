@@ -20,15 +20,6 @@ sub import {
     no strict 'refs';
     *{caller() . '::class'}   = \&class;
     *{caller() . '::role'}    = \&role;
-    *{caller() . '::CALLER'}  = \&CALLER;    
-}
-
-sub CALLER {
-    my $depth = shift;
-    $depth ||= 0;
-    no strict 'refs';
-    return unless $Perl6::Object::CALL_STACK[$depth];
-    return @{$Perl6::Object::CALL_STACK[$depth]};
 }
 
 sub role {
@@ -63,20 +54,14 @@ package $name;
 package $name\:\:Class;
 \@$name\:\:Class\:\:ISA = '$extends\:\:Class';
 
-package $name\:\:Kind;
-\@$name\:\:Kind\:\:ISA = '$kind\:\:Kind';
-our \%ATTRS;
-our \%METHODS;
 |;
     eval $code;
  
     ($name . '::Class')->metaclass->superclasses([ ($extends . '::Class')->metaclass ]);    
     
-    no strict 'refs';
     if (exists $params->{class}) {
         my $class = $params->{class};
         
-        my $kind = "$name\:\:Kind";
         if (exists $class->{init}) {
             ($name . '::Class')->metaclass->add_method('init' => Perl6::Instance::Method->new($name => $class->{init}));
         }
@@ -99,14 +84,22 @@ our \%METHODS;
     if (exists $params->{kind}) {
         my $kind = $params->{kind};
         if (exists $kind->{attrs}) {
-            %{"${name}::Kind::ATTRS"} = map { $_ => Perl6::Class::Attribute->new($name => $_) } @{$kind->{attrs}};
-        }
-        if (exists $kind->{init}) {
-            *{"${name}::Kind::init"} = $kind->{init};
+            foreach my $attr (@{$kind->{attrs}}) {
+                my $type;
+                if (ref($attr) eq 'ARRAY') {
+                    ($type, $attr) = @{$attr}; 
+                }
+                ($name . '::Class')->metaclass->add_class_attribute(
+                    $attr => Perl6::Class::Attribute->new($name => $attr, $type)
+                );              
+            }            
+            
         }
         if (exists $kind->{methods}) {
             foreach my $label (keys %{$kind->{methods}}) {
-                *{"${name}::Kind::${label}"} = $kind->{methods}->{$label};
+                ($name . '::Class')->metaclass->add_class_method(
+                    $label => Perl6::Class::Method->new($name, $kind->{methods}->{$label})
+                );
             }
         }
     }
