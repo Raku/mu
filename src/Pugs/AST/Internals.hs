@@ -601,20 +601,22 @@ data Val
     | VComplex  !VComplex    -- ^ Complex number value
     | VStr      !VStr        -- ^ String value
     | VList     !VList       -- ^ List value
+    | VType     !VType       -- ^ Type value (e.g. @Int@ or @Type@)
+    | VJunc     !VJunc       -- ^ Junction value
+    | VError    !VStr ![Pos] -- ^ Error
+    | VControl  !VControl
+-------------------------------------------------------------------
+-- The following are runtime-only values (VRef is negotiable)
     | VRef      !VRef        -- ^ Reference value
     | VCode     !VCode       -- ^ A code object
     | VBlock    !VBlock
-    | VJunc     !VJunc       -- ^ Junction value
-    | VError    !VStr ![Pos] -- ^ Error
     | VHandle   !VHandle     -- ^ File handle
     | VSocket   !VSocket     -- ^ Socket handle
     | VThread   !(VThread Val)
     | VProcess  !VProcess    -- ^ PID value
     | VRule     !VRule       -- ^ Rule\/regex value
     | VSubst    !VSubst      -- ^ Substitution value (correct?)
-    | VControl  !VControl
     | VMatch    !VMatch      -- ^ Match value
-    | VType     !VType       -- ^ Type value (e.g. @Int@ or @Type@)
     | VObject   !VObject     -- ^ Object
     | VOpaque   !VOpaque
     | PerlSV    !PerlSV
