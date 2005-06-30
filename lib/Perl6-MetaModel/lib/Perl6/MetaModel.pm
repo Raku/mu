@@ -56,17 +56,17 @@ package $name\:\:Class;
 
 |;
     eval $code;
- 
-    ($name . '::Class')->metaclass->superclasses([ ($extends . '::Class')->metaclass ]);    
+     
+    ($name)->meta->superclasses([ ($extends)->meta ]);        
     
     if (exists $params->{class}) {
         my $class = $params->{class};
         
         if (exists $class->{init}) {
-            ($name . '::Class')->metaclass->add_method('init' => Perl6::Instance::Method->new($name => $class->{init}));
+            ($name)->meta->add_method('init' => Perl6::Instance::Method->new($name => $class->{init}));            
         }
         if (exists $class->{methods}) {
-            ($name . '::Class')->metaclass->add_method($_ => Perl6::Instance::Method->new($name, $class->{methods}->{$_})) 
+            ($name)->meta->add_method($_ => Perl6::Instance::Method->new($name, $class->{methods}->{$_})) 
                 foreach keys %{$class->{methods}};
         }
         if (exists $class->{attrs}) {
@@ -75,7 +75,7 @@ package $name\:\:Class;
                 if (ref($attr) eq 'ARRAY') {
                     ($type, $attr) = @{$attr}; 
                 }
-                ($name . '::Class')->metaclass->add_attribute(
+                ($name)->meta->add_attribute(
                     $attr => Perl6::Instance::Attribute->new($name => $attr, $type)
                 );              
             }
@@ -89,7 +89,7 @@ package $name\:\:Class;
                 if (ref($attr) eq 'ARRAY') {
                     ($type, $attr) = @{$attr}; 
                 }
-                ($name . '::Class')->metaclass->add_class_attribute(
+                ($name)->meta->add_class_attribute(
                     $attr => Perl6::Class::Attribute->new($name => $attr, $type)
                 );              
             }            
@@ -97,14 +97,14 @@ package $name\:\:Class;
         }
         if (exists $kind->{methods}) {
             foreach my $label (keys %{$kind->{methods}}) {
-                ($name . '::Class')->metaclass->add_class_method(
+                ($name)->meta->add_class_method(
                     $label => Perl6::Class::Method->new($name, $kind->{methods}->{$label})
                 );
             }
         }
     }
     if ($params->{does}) {
-        Perl6::Role::flatten_roles_into(($name . '::Class'), @{$params->{does}});
+        Perl6::Role::flatten_roles_into(($name), @{$params->{does}});
     }
 }
 

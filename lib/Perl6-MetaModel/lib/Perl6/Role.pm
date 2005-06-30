@@ -20,18 +20,18 @@ sub add_role {
 
 sub flatten_roles_into {
     my ($class, @roles) = @_;
-    debug "combining the roles (" . (join ", ", @roles) . ") into (" . $class->metaclass->name . ")";
+    debug "combining the roles (" . (join ", ", @roles) . ") into (" . $class->meta->name . ")";
     my $r = combine_roles($class, @roles);
     debug "flattened role is (" . $r->{name} . ")";
     foreach my $method (keys %{$r->{methods}}) {
-        debug "adding the method ($method) into (" . $class->metaclass->name . ")";
-        $class->metaclass->add_method($method => Perl6::Role::Method->new(
-            $class->metaclass->name,
+        debug "adding the method ($method) into (" . $class->meta->name . ")";
+        $class->meta->add_method($method => Perl6::Role::Method->new(
+            $class->meta->name,
             $r->{methods}->{$method}
-            )) unless $class->metaclass->has_method($method);
+            )) unless $class->meta->has_method($method);
     }
-    $class->metaclass->add_method('does' => Perl6::Role::Method->new(
-        $class->metaclass->name, sub {
+    $class->meta->add_method('does' => Perl6::Role::Method->new(
+        $class->meta->name, sub {
         my (undef, $role) = @_;
         return $role =~ /$r->{name}/ if $role;
         return split /\|/ => $r->{name};
@@ -54,7 +54,7 @@ sub combine_roles {
         foreach my $method_name (keys %{$role->{methods}}) {
             debug "adding the method ($method_name) into the role (" . $role->{name} . ")";
             if (exists $composite_role->{methods}->{$method_name}) {
-                unless ($class->metaclass->has_method($method_name)) {
+                unless ($class->meta->has_method($method_name)) {
                     die "We have a method conflict on ($method_name) in (" . $role->{name} . ")";                
                 }
             }

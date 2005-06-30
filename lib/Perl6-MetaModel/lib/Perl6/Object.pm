@@ -13,22 +13,22 @@ use Scalar::Util 'blessed';
 
 sub new_instance {
     my ($class, %params) = @_;
-    return $class->class->metaclass->new_instance(%params);
+    return $class->meta->new_instance(%params);
 }
 
 sub isa {
     my ($self, $class) = @_;
     return undef unless $class;
-    return $self->class->metaclass->is_a($class . '::Class');
+    return $self->meta->is_a($class . '::Class');
 }
 
 sub can {
     my ($self, $label) = @_;
     if (blessed($self)) {
-        return $self->class->metaclass->responds_to($label);
+        return $self->meta->responds_to($label);
     }
     else {
-        return $self->class->metaclass->class_responds_to($label);
+        return $self->meta->class_responds_to($label);
     }
 }
 
@@ -45,7 +45,7 @@ sub get_value {
 
 sub set_value {
     my ($self, $label, $value) = @_;
-    my $prop = $self->class->metaclass->find_attribute_spec($label)
+    my $prop = $self->meta->find_attribute_spec($label)
         || die "Perl6::Attribute ($label) no found";
 
     # since we are not private, then check the type
@@ -85,27 +85,29 @@ sub AUTOLOAD {
         my $method;
         if ($label eq 'SUPER') {
             $label = shift;
-            $method = $self->class->metaclass->find_method_in_superclasses($label);
+            $method = $self->meta->find_method_in_superclasses($label);
         }
         else {
-            $method = $self->class->metaclass->find_method($label);
+            $method = $self->meta->find_method($label);
         }
         (blessed($method) && $method->isa('Perl6::Method')) 
             || die "Method ($label) not found for instance ($self)";
         @return_value = $method->call($self, @_);        
     }
     else {
-        my $method = $self->class->metaclass->find_class_method($label);
+        my $method = $self->meta->find_class_method($label);
         
         (defined $method) 
             || die "Method ($label)  not found for class ($self)";
-        @return_value = $method->call($self->class->metaclass, @_);
+        @return_value = $method->call($self->meta, @_);
     }
     return wantarray ?
                 @return_value
                 :
                 $return_value[0];
 }
+
+sub meta { (shift)->class->metaclass() }
 
 package Perl6::Object::Class;
 
