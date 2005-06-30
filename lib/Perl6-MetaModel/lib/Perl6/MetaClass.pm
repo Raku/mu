@@ -96,7 +96,7 @@ sub new_instance {
         my $c = shift;
         foreach my $attr ($c->get_attribute_list) {
             my $attr_obj = $c->get_attribute($attr);
-            $attrs{$attr} = ($attr_obj->is_array ? [] : ($attr_obj->is_hash ? {} : undef));        
+            $attrs{$attr} = $attr_obj->instantiate_container;
         }
     });    
 
@@ -164,6 +164,11 @@ sub responds_to {
 }
 
 # Class Methods
+# XXX -- This is a straight copy + paste from Instance Methods; we probably
+#        want a generalised intermediate dispatch for the visitor methods
+#        that can add the class_ prefix to the parameters in the eg. _get_uniq
+#        calls so we don't end up maintaining two copies of traversal
+#        (but this can wait a bit)
 
 sub add_class_method {
     my ($self, $label, $method) = @_;
@@ -250,8 +255,11 @@ sub get_attribute_list {
 }
 
 sub get_all_attributes {
-    my ($self) = @_;
-    $self->_get_uniq('_get_all_attributes');
+    shift->_get_uniq('_get_all_attributes');
+}
+
+sub _get_all_attributes {
+    shift->_get_all('get_attribute_list');
 }
 
 sub _get_uniq {
@@ -264,11 +272,6 @@ sub _get_uniq {
 sub _get_all {
     my ($self, $method) = @_;
     return ((map { $_->_get_all($method) } @{$self->superclasses}), $self->$method);
-}
-
-sub _get_all_attributes {
-    my ($self) = @_;
-    $self->_get_all('get_attribute_list');
 }
 
 # "spec" here means "whatever annotation went with this attribute when it's declared"
@@ -323,13 +326,11 @@ sub get_class_attribute_list {
 }
 
 sub get_all_class_attributes {
-    my ($self) = @_;
-    $self->_get_uniq('_get_all_class_attributes');
+    shift->_get_uniq('_get_all_class_attributes');
 }
 
 sub _get_all_class_attributes {
-    my ($self) = @_;
-    $self->_get_all('get_class_attribute_list');
+    shift->_get_all('get_class_attribute_list');
 }
 
 sub find_class_attribute_spec {

@@ -33,6 +33,11 @@ sub accessor_name   { (shift)->{accessor_name}   }
 sub is_private { (shift)->{visibility} eq 'private' }
 sub is_public  { (shift)->{visibility} eq 'public'  }
 
+sub instantiate_container {
+    my ($self) = @_;
+    ($self->is_array ? [] : ($self->is_hash ? {} : undef));
+}
+
 1;
 
 __END__
