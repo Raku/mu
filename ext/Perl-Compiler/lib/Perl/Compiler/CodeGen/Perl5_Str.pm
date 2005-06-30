@@ -1,3 +1,4 @@
+use perl5:Code::Perl::Expr (":easy");
 
 use Perl::Compiler::CodeGen::NameGen;
 
@@ -42,8 +43,20 @@ class Perl::Compiler::CodeGen::Perl5_Str
                 } } )");  ''
             }
 
-            when ::Perl::Compiler::PIL::PILVal    { 
-                $ng.ret("$INS\::p5_make_val( { .value } )");  ''
+            when ::Perl::Compiler::PIL::PILVal    {
+                my sub box (String $class, $value) {
+                    callm(string($class), "new", $value);
+                }
+                $ng.ret(do given .value {
+                    when Str { box("P5::PIL::Run::Str" => string($_)) }
+                    when Num { box("P5::PIL::Run::Number" => number($_)) }
+                    when Bool { &?OUTER::BLOCK(+$_) }
+                    when undef { box("P5::PIL::Run::Undef" => perl("undef")) }
+                    when List { box("P5::PIL::Run::List" => list(map { &OUTER::BLOCK($_) } *$_)) }
+                    when Error { box("P5::PIL::Run::Error", string($_.first), list(@{ $_.second })) }
+                    when Junc { die "no junctions yet"; box("P5::PIL::Run::Junction", ...) }
+                    default { die "a value of type $_.ref cannot appear in PIL. Your compiler must be sick." }
+                }.perl); ''
             }
 
             when ::Perl::Compiler::PIL::PILVar    {
