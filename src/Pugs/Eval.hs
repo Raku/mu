@@ -294,15 +294,20 @@ reduceSym :: Scope -> String -> Exp -> Eval Val
 -- Special case: my (undef) is no-op
 reduceSym _ "" exp = evalExp exp
 
+reduceSym scope name exp | scope <= SMy = do
+    ref <- newObject (typeOfSigil $ head name)
+    sym <- case name of
+        ('&':_) -> genMultiSym name ref
+        _       -> genSym name ref
+    enterLex [ sym ] $ evalExp exp
+
 reduceSym scope name exp = do
     ref <- newObject (typeOfSigil $ head name)
     sym <- case name of
         ('&':_) -> genMultiSym name ref
         _       -> genSym name ref
-    case scope of
-        SMy     -> enterLex [ sym ] $ evalExp exp
-        SState  -> enterLex [ sym ] $ evalExp exp
-        _       -> do { addGlobalSym sym; evalExp exp }
+    addGlobalSym sym
+    evalExp exp
 
 -- Context forcing
 reduceCxt :: Cxt -> Exp -> Eval Val
