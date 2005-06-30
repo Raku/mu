@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fth #-}
+{-# OPTIONS_GHC -fglasgow-exts -fth -cpp #-}
 {-# OPTIONS_GHC -#include "UnicodeC.h" #-}
 module Emit.PIR.ParrotObject where
 
@@ -76,6 +76,7 @@ test = do
     putStrLn "*** File saved as pir.pir"
     return ()
 
+#ifndef HADDOCK
 decls :: Q [Dec]
 decls = [d|
 
@@ -151,3 +152,4 @@ decls = [d|
         | MkArgOptional
 
     |]
+#endif
