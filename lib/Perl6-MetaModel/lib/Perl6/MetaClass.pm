@@ -249,20 +249,29 @@ sub get_attribute_list {
     keys %{$self->{class_definition}->{attributes}};
 }
 
-# XXX - This SUCKS, it needs to be better
 sub get_all_attributes {
     my ($self) = @_;
-    my @attrs = $self->_get_all_attributes();
+    $self->_get_uniq('_get_all_attributes');
+}
+
+sub _get_uniq {
+    my ($self, $method) = @_;
+    my @attrs = $self->$method();
     my %attrs = map { $_ => undef } @attrs;
     return sort keys %attrs;
 }
 
-# XXX - this is even worse, but kind cool
-sub _get_all_attributes {
-    my ($self) = @_;
-    return ((map { $_->_get_all_attributes() } @{$self->superclasses}), $self->get_attribute_list);
+sub _get_all {
+    my ($self, $method) = @_;
+    return ((map { $_->_get_all($method) } @{$self->superclasses}), $self->$method);
 }
 
+sub _get_all_attributes {
+    my ($self) = @_;
+    $self->_get_all('get_attribute_list');
+}
+
+# "spec" here means "whatever annotation went with this attribute when it's declared"
 sub find_attribute_spec {
     my ($self, $label) = @_;
     return $self->get_attribute($label) if $self->has_attribute($label);
@@ -313,18 +322,14 @@ sub get_class_attribute_list {
     keys %{$self->{class_data}->{attributes}};
 }
 
-# XXX - This SUCKS, it needs to be better
 sub get_all_class_attributes {
     my ($self) = @_;
-    my @attrs = $self->_get_all_class_attributes();
-    my %attrs = map { $_ => undef } @attrs;
-    return sort keys %attrs;
+    $self->_get_uniq('_get_all_class_attributes');
 }
 
-# XXX - this is even worse, but kind cool
 sub _get_all_class_attributes {
     my ($self) = @_;
-    return ((map { $_->_get_all_class_attributes() } @{$self->superclasses}), $self->get_class_attribute_list);
+    $self->_get_all('get_class_attribute_list');
 }
 
 sub find_class_attribute_spec {
