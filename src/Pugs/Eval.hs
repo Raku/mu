@@ -851,9 +851,9 @@ applyExp _ bound (Prim f) =
 applyExp styp bound body = do
     let invocant         = head bound
     let (attrib, normal) = partition isAttrib bound
-    ret <- applyThunk styp normal (MkThunk $ evalExp body)
     sequence_ [ evalExp (Syn "=" [Syn "{}" [Val (argValue invocant), Val (VStr key)], Val val]) |
         ApplyArg{ argName = (_:_:key), argValue = val } <- attrib ]
+    ret <- applyThunk styp normal (MkThunk $ evalExp body)
     return ret
 
 isAttrib :: ApplyArg -> Bool
