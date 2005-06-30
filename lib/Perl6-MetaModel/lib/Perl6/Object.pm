@@ -4,6 +4,8 @@ package Perl6::Object;
 use strict;
 use warnings;
 
+use Perl6::MetaClass;
+
 use Data::Dumper;
 
 our $DEBUG = 0;
@@ -19,7 +21,7 @@ sub new_instance {
 sub isa {
     my ($self, $class) = @_;
     return undef unless $class;
-    return $self->meta->is_a($class . '::Class');
+    return $self->meta->is_a($class);
 }
 
 sub can {
@@ -107,15 +109,10 @@ sub AUTOLOAD {
                 $return_value[0];
 }
 
-sub meta { (shift)->class->metaclass() }
-
-package Perl6::Object::Class;
-
-use Perl6::MetaClass;
-
 my $META;
-sub metaclass {
+sub meta {
     my ($class) = @_;
+    $class = blessed($class) if blessed($class);       
     no strict 'refs';
     ${$class .'::META'} ||= Perl6::MetaClass->new(name => $class);
 }

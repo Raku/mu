@@ -30,7 +30,7 @@ sub role {
 sub class {
     my ($name, $params) = @_;
     
-    my %allowed = map { $_ => undef } qw(extends kind_of class kind does);
+    my %allowed = map { $_ => undef } qw(extends class kind does);
     my %allowed_in = map { $_ => undef } qw(attrs init methods);
     
     foreach my $key (keys %{$params}) {
@@ -46,14 +46,9 @@ sub class {
     
     
     my $extends = $params->{extends} || 'Perl6::Object';
-    my $kind    = $params->{kind_of} || 'Perl6::Object';
     my $code = qq|
 package $name;
-\@$name\:\:ISA = 'Perl6::Object';
-
-package $name\:\:Class;
-\@$name\:\:Class\:\:ISA = '$extends\:\:Class';
-
+\@$name\:\:ISA = '$extends';
 |;
     eval $code;
      

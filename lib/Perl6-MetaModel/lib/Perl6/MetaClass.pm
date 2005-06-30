@@ -102,7 +102,7 @@ sub new_instance {
 
     $attrs{$_} = $_params{$_} foreach keys %_params;
 
-    my ($class_name) = ($self->name =~ /(.*?)\:\:Class/);
+    my ($class_name) = ($self->name);
 
     my $instance = bless {
         class         => $self,
