@@ -301,7 +301,7 @@ reduceSym scope name exp | scope <= SMy = do
         _       -> genSym name ref
     enterLex [ sym ] $ evalExp exp
 
-reduceSym scope name exp = do
+reduceSym _ name exp = do
     ref <- newObject (typeOfSigil $ head name)
     sym <- case name of
         ('&':_) -> genMultiSym name ref
