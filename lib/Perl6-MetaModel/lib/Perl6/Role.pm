@@ -4,7 +4,7 @@ package Perl6::Role;
 use strict;
 use warnings;
 
-use Perl6::Method;
+use Perl6::Role::Method;
 
 our %ROLES;
 
@@ -19,9 +19,9 @@ sub add_role {
 }
 
 sub flatten_roles_into {
-    my ($class, @roles) = @_;
+    my ($meta_role, $class, @roles) = @_;
     debug "combining the roles (" . (join ", ", @roles) . ") into (" . $class->meta->name . ")";
-    my $r = combine_roles($class, @roles);
+    my $r = $meta_role->combine_roles($class, @roles);
     debug "flattened role is (" . $r->{name} . ")";
     foreach my $method (keys %{$r->{methods}}) {
         debug "adding the method ($method) into (" . $class->meta->name . ")";
@@ -39,9 +39,9 @@ sub flatten_roles_into {
 }
 
 sub combine_roles {
-    my ($class, @role_names) = @_;
+    my ($meta_role, $class, @role_names) = @_;
     debug "combine-ing roles -> (" . (join ", ", @role_names) . ")";
-    my @roles = collect_role_list(\@role_names);
+    my @roles = $meta_role->collect_role_list(\@role_names);
 
     my $composite_role = {
         name    => (join "|", map { $_->{name} } @roles),
@@ -69,7 +69,7 @@ sub combine_roles {
 }
 
 sub collect_role_list {
-    my ($role_names, $seen) = @_;
+    my ($meta_role, $role_names, $seen) = @_;
     $seen ||= {};
     my @roles;
     foreach my $role_name (@{$role_names}) { 
@@ -77,7 +77,7 @@ sub collect_role_list {
             debug "processing role: $role_name";        
             my $r = $ROLES{$role_name};
             push @roles => $r;
-            push @roles => collect_role_list($r->{does}, $seen) if $r->{does};        
+            push @roles => $meta_role->collect_role_list($r->{does}, $seen) if $r->{does};        
         }
     } 
     debug "seen these roles: " . Dumper $seen;

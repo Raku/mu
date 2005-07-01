@@ -29,12 +29,12 @@ generation, in particular it checks the following:
 =cut
 
 class Basic => {
-    class => {
+    instance => {
         attrs => [ '$.scalar', '@.array', '%.hash' ]
     }
 };
 
-my $basic = Basic->new_instance();
+my $basic = Basic->new();
 isa_ok($basic, 'Basic');
 
 ok(!defined($basic->scalar()), '... scalar initializes to undef');
@@ -73,9 +73,9 @@ ok(!$@, '... hash() was assigned to correctly');
 is_deeply($basic->hash(), { one => 1, two => 2 }, '... hash() was assigned to correctly');
 
 class Base => {
-    class => {
+    instance => {
         attrs => [ '$:foo' ],
-        init => sub { (shift)->set_value('$:foo' => 'Base::Foo') },
+        BUILD => sub { (shift)->set_value('$:foo' => 'Base::Foo') },
         methods => {
             get_base_foo => sub { (shift)->get_value('$:foo') },
             set_base_foo => sub { (shift)->set_value('$:foo' => 'Base::Foo -> new') }            
@@ -84,10 +84,10 @@ class Base => {
 };
 
 class Derived1 => {
-    extends => 'Base',
-    class => {
+    extends => [ 'Base' ],
+    instance => {
         attrs => [ '$.foo', '$:bar' ],
-        init => sub { (shift)->set_value('$.foo' => 'Foo::Foo') },
+        BUILD => sub { (shift)->set_value('$.foo' => 'Foo::Foo') },
     }
 };
 
@@ -95,7 +95,7 @@ class Derived1 => {
 #use Data::Dumper;
 #diag Dumper Derived1->class->metaclass;
 
-my $d = Derived1->new_instance();
+my $d = Derived1->new();
 isa_ok($d, 'Derived1');
 
 ok(!$d->can('bar'), '... we cannot bar() because that is private');
@@ -138,9 +138,9 @@ ok($@, '... setting a incorrect parameter failed correctly');
 # check for accessor conflicts
 
 class ConflictChecker => {
-    class => {
+    instance => {
         attrs => [ '$.foo' ],
-        init => sub { (shift)->set_value('$.foo' => 'just $.foo') },
+        BUILD => sub { (shift)->set_value('$.foo' => 'just $.foo') },
         methods => {
             foo => sub {
                 my $self = shift;
@@ -150,7 +150,7 @@ class ConflictChecker => {
     }    
 };
 
-my $cc = ConflictChecker->new_instance();
+my $cc = ConflictChecker->new();
 isa_ok($cc, 'ConflictChecker');
 
 is($cc->foo(), 'ConflictChecker->foo returns "just $.foo"', '... got the right value from the accessor');
@@ -161,7 +161,7 @@ role Checker => {};
 
 class TypeChecking => {
     does => [ 'Checker' ],
-    class => {
+    instance => {
         attrs => [ 
             [ 'TypeChecking', '$.foo' ],
             [ 'Checker',      '$.bar' ],
@@ -171,10 +171,10 @@ class TypeChecking => {
     }    
 };
 
-my $tc = TypeChecking->new_instance();
+my $tc = TypeChecking->new();
 isa_ok($tc, 'TypeChecking');
 
-my $tc2 = TypeChecking->new_instance();
+my $tc2 = TypeChecking->new();
 isa_ok($tc2, 'TypeChecking');
 
 $@ = undef;

@@ -23,7 +23,7 @@ role rSyncReader => {
 };
 
 class Reader => {
-    class => {
+    instance => {
         methods => {
             read => sub { 'Reader::read' }
         }
@@ -31,11 +31,11 @@ class Reader => {
 };
 
 class SyncReader => {
-    extends => 'Reader',
+    extends => [ 'Reader' ],
     does => [ 'rSyncReader' ],
 };
 
-my $sync_reader = SyncReader->new_instance();
+my $sync_reader = SyncReader->new();
 isa_ok($sync_reader, 'SyncReader');
 isa_ok($sync_reader, 'Reader');
 

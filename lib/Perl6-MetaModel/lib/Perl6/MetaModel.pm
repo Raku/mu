@@ -30,8 +30,8 @@ sub role {
 sub class {
     my ($name, $params) = @_;
     
-    my %allowed = map { $_ => undef } qw(extends class kind does);
-    my %allowed_in = map { $_ => undef } qw(attrs init methods);
+    my %allowed = map { $_ => undef } qw(extends instance class does);
+    my %allowed_in = map { $_ => undef } qw(attrs BUILD methods);
     
     foreach my $key (keys %{$params}) {
         die "Invalid key ($key) in params" 
@@ -45,27 +45,27 @@ sub class {
     }
     
     
-    my $extends = $params->{extends} || 'Perl6::Object';
+    my $extends = $params->{extends} || [ 'Perl6::Object' ];
     my $code = qq|
 package $name;
-\@$name\:\:ISA = '$extends';
+\@$name\:\:ISA = 'Perl6::Object';
 |;
     eval $code;
      
-    ($name)->meta->superclasses([ ($extends)->meta ]);        
+    ($name)->meta->superclasses([ map { $_->meta } @{$extends} ]);        
     
-    if (exists $params->{class}) {
-        my $class = $params->{class};
+    if (exists $params->{instance}) {
+        my $instance = $params->{instance};
         
-        if (exists $class->{init}) {
-            ($name)->meta->add_method('init' => Perl6::Instance::Method->new($name => $class->{init}));            
+        if (exists $instance->{BUILD}) {
+            ($name)->meta->add_method('BUILD' => Perl6::Instance::Method->new($name => $instance->{BUILD}));            
         }
-        if (exists $class->{methods}) {
-            ($name)->meta->add_method($_ => Perl6::Instance::Method->new($name, $class->{methods}->{$_})) 
-                foreach keys %{$class->{methods}};
+        if (exists $instance->{methods}) {
+            ($name)->meta->add_method($_ => Perl6::Instance::Method->new($name, $instance->{methods}->{$_})) 
+                foreach keys %{$instance->{methods}};
         }
-        if (exists $class->{attrs}) {
-            foreach my $attr (@{$class->{attrs}}) {
+        if (exists $instance->{attrs}) {
+            foreach my $attr (@{$instance->{attrs}}) {
                 my $type;
                 if (ref($attr) eq 'ARRAY') {
                     ($type, $attr) = @{$attr}; 
@@ -76,10 +76,10 @@ package $name;
             }
         }        
     }
-    if (exists $params->{kind}) {
-        my $kind = $params->{kind};
-        if (exists $kind->{attrs}) {
-            foreach my $attr (@{$kind->{attrs}}) {
+    if (exists $params->{class}) {
+        my $class = $params->{class};
+        if (exists $class->{attrs}) {
+            foreach my $attr (@{$class->{attrs}}) {
                 my $type;
                 if (ref($attr) eq 'ARRAY') {
                     ($type, $attr) = @{$attr}; 
@@ -90,16 +90,16 @@ package $name;
             }            
             
         }
-        if (exists $kind->{methods}) {
-            foreach my $label (keys %{$kind->{methods}}) {
+        if (exists $class->{methods}) {
+            foreach my $label (keys %{$class->{methods}}) {
                 ($name)->meta->add_class_method(
-                    $label => Perl6::Class::Method->new($name, $kind->{methods}->{$label})
+                    $label => Perl6::Class::Method->new($name, $class->{methods}->{$label})
                 );
             }
         }
     }
     if ($params->{does}) {
-        Perl6::Role::flatten_roles_into(($name), @{$params->{does}});
+        Perl6::Role->flatten_roles_into(($name), @{$params->{does}});
     }
 }
 
@@ -127,7 +127,16 @@ Perl6::MetaModel - Perl5 Prototype of the Perl6 Metaclass model
         extends => [ 'MyBaseClass' ],
         does => [ 'MyRole' ],
         class => {
+            methods => {
+                a_class_method => sub { ... }
+            }
+        },
+        instance => {
             attrs => [ '$.foo' ],
+            BUILD => sub {
+                my ($self) = @_;
+                $self->set_value('$.foo' => 'Foo::Bar');
+            },
             methods => {
                 tester => sub {
                     my ($self) = shift;
@@ -138,7 +147,7 @@ Perl6::MetaModel - Perl5 Prototype of the Perl6 Metaclass model
         }
     };
 
-    my $c = MyClass->new_instance();
+    my $c = MyClass->new();
 
     $c->foo('Testing 1 2 3');
 

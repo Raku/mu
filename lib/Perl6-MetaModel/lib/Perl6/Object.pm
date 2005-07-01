@@ -6,14 +6,9 @@ use warnings;
 
 use Perl6::MetaClass;
 
-use Data::Dumper;
-
-our $DEBUG = 0;
-sub debug { return unless $DEBUG; print ">>> ", @_, "\n" }
-
 use Scalar::Util 'blessed';
 
-sub new_instance {
+sub new {
     my ($class, %params) = @_;
     return $class->meta->new_instance(%params);
 }
@@ -34,10 +29,18 @@ sub can {
     }
 }
 
-sub class {
-    my ($self) = @_;
-    $self = blessed($self) if blessed($self);
-    return $self . '::Class';    
+sub get_class_value {
+    my ($self, $label) = @_;
+    my $prop = $self->meta->find_class_attribute_spec($label)
+        || die "Cannot locate class property ($label) in class ($self)";
+    $prop->get_value();
+}
+
+sub set_class_value {
+    my ($self, $label, $value) = @_;
+    my $prop = $self->meta->find_class_attribute_spec($label)
+        || die "Cannot locate class property ($label) in class ($self)";
+    $prop->set_value($value);
 }
 
 sub get_value {
@@ -101,7 +104,7 @@ sub AUTOLOAD {
         
         (defined $method) 
             || die "Method ($label)  not found for class ($self)";
-        @return_value = $method->call($self->meta, @_);
+        @return_value = $method->call($self, @_);
     }
     return wantarray ?
                 @return_value

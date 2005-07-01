@@ -111,7 +111,7 @@ sub new_instance {
 
     $self->traverse_post_order(sub {
         my $c = shift;
-        $c->get_method('init')->call($instance) if $c->has_method('init');        
+        $c->get_method('BUILD')->call($instance) if $c->has_method('BUILD');        
     });    
 
     return $instance;

@@ -14,7 +14,7 @@ This test file is testing the SUPER call.
 =cut
 
 class FooBase => {
-    class => {
+    instance => {
         methods => {
             foo => sub { 'FooBase::foo' },
             bar => sub { shift; 'FooBase::bar->(' . (join ', ' => @_) . ')' }
@@ -23,8 +23,8 @@ class FooBase => {
 };
 
 class Foo => {
-    extends => 'FooBase',
-    class => {
+    extends => [ 'FooBase' ],
+    instance => {
         methods => {
             foo => sub { 
                 my $self = shift;
@@ -38,7 +38,7 @@ class Foo => {
     }  
 };
 
-my $foo = Foo->new_instance();
+my $foo = Foo->new();
 isa_ok($foo, 'Foo');
 
 is($foo->foo(), 'SUPER -> FooBase::foo', '... got ther wrapped SUPER call');

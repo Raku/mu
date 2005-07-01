@@ -42,7 +42,7 @@ class Foo => {
     does => [ 'rFoo' ]
 };
 
-my $foo = Foo->new_instance();
+my $foo = Foo->new();
 isa_ok($foo, 'Foo');
 can_ok($foo, 'foo');
 
@@ -67,7 +67,7 @@ class FooBar => {
     does => [ 'rFoo', 'rBar' ]
 };
 
-my $foo_bar = FooBar->new_instance();
+my $foo_bar = FooBar->new();
 isa_ok($foo_bar, 'FooBar');
 can_ok($foo_bar, 'foo');
 can_ok($foo_bar, 'bar');
@@ -103,14 +103,14 @@ ok($@, '... we got an error when 2 roles conflicted');
 
 class FooResolve => {
     does => [ 'rFoo', 'rFoo2' ],
-    class => {
+    instance => {
         methods => {
             foo => sub { 'FooResolve::foo' }
         }
     }
 };
 
-my $foo_resolve = FooResolve->new_instance();
+my $foo_resolve = FooResolve->new();
 isa_ok($foo_resolve, 'FooResolve');
 can_ok($foo_resolve, 'foo');
 
@@ -130,7 +130,7 @@ $@ = undef;
 eval {
     class FooFail2 => {
         does => [ 'rFoo', 'rFoo2' ],
-        extends => 'FooResolve',
+        extends => [ 'FooResolve' ],
     };
 };
 ok($@, '... we got an error combing two roles without resolving (even in super)');
@@ -139,10 +139,10 @@ ok($@, '... we got an error combing two roles without resolving (even in super)'
 
 class FooNoSuper => {
     does => [ 'rFoo' ],
-    extends => 'FooResolve',
+    extends => [ 'FooResolve' ],
 };
 
-my $foo_no_super = FooNoSuper->new_instance();
+my $foo_no_super = FooNoSuper->new();
 isa_ok($foo_no_super, 'FooNoSuper');
 can_ok($foo_no_super, 'foo');
 

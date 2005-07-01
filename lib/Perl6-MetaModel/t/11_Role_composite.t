@@ -41,7 +41,7 @@ class FooBar => {
     does => [ 'rFooBar' ]  
 };
 
-my $foobar = FooBar->new_instance();
+my $foobar = FooBar->new();
 isa_ok($foobar, 'FooBar');
 
 can_ok($foobar, 'foo');
@@ -74,7 +74,7 @@ class FooBarBaz => {
     does => [ 'rFooBarBaz' ]  
 };
 
-my $foobarbaz = FooBarBaz->new_instance();
+my $foobarbaz = FooBarBaz->new();
 isa_ok($foobarbaz, 'FooBarBaz');
 
 can_ok($foobarbaz, 'foo');
