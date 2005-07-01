@@ -31,7 +31,7 @@ prettyDo docs = parens $ sep (text "do":punctuate semi docs)
 
 #if !defined(PUGS_HAVE_PERL5) && !defined(PUGS_HAVE_PARROT) && defined(PUGS_HAVE_TH) && (__GLASGOW_HASKELL__ <= 604)
 prettyRecord :: String -> [(String, Doc)] -> Doc
-prettyRecord con = (text con <+>) . braces . sep . punctuate semi . map assign
+prettyRecord con = (text con <+>) . braces . sep . punctuate comma . map assign
     where assign (name, val) = text name <+> char '=' <+> val
 #endif
 
@@ -82,6 +82,9 @@ instance Compile (String, [(TVar Bool, TVar VRef)]) where
                 [ prettyBind "tvars" (text "sequence" `sep1` tvarsC)
                 , text ("return (" ++ show n ++ ", tvars)")
                 ]
+
+instance (Typeable a) => Compile (Maybe (TVar a)) where
+    compile = const . return $ text "Nothing"
 
 instance Compile (TVar Bool, TVar VRef) where
     compile (fresh, tvar) = do
