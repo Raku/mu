@@ -1,0 +1,9 @@
+Some files you might expect to find in ./pugs/docs/ are actually elsewhere:
+
+./README                 Installation, platforms, mailinglists and websites.
+
+./lib/pugs/run.pod       pugs::run - How to run Pugs
+./lib/pugs/hack.pod      pugs::hack - How to hack on Pugs
+
+./READTHEM               Haskell resources. Assorted recommended reading.
+
