@@ -4,7 +4,7 @@ class Test::Builder::TestPlan-0.1.1
 
     submethod BUILD ( ?$:expect = 0 )
     {
-        fail "Invalid or missing plan" unless $:expect;
+        fail "Invalid or missing plan" unless defined $:expect;
     }
 
     method header returns Str
