@@ -91,6 +91,7 @@ Expanding this one level deeper:
     |   |-- CGI                CGI author's helper module
     |   |-- Config-Tiny        Pre-Pugs-OO .ini file reader
     |   |-- Date               Date and time modules
+    |   |-- DateTime           Port of Perl 5 DateTime, with API changes
     |   |-- File-Find          Traverse a directory tree
     |   |-- File-Spec          Portable File handling
     |   |-- HTTP-Server-Simple Base class for simple CGI-capable HTTP servers
@@ -120,6 +121,7 @@ Expanding this one level deeper:
     |   `-- Test               Test::Harness
     |
     |-- lib                Pugs- and Perl 6-related Perl 5 modules
+    |   |-- Code-Perl          An AST to Perl 5 code generator
     |   |-- Inline             Inline::Pugs
     |   |-- P5-PIL-Run         PIL evaluator in Perl 5
     |   |-- Perl6              Perl6::MakeMaker, Perl6::Pugs
