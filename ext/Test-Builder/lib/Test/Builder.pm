@@ -6,53 +6,53 @@ use Test::Builder::TestPlan;
 
 my  Test::Builder           $:singleton;
 has Test::Builder::Output   $.output handles 'diag';
-has Test::Builder::TestPlan $.plan;
+has Test::Builder::TestPlan $.testplan;
 has                         @:results;
 
-method new ( Test::Builder $Class: *@args )
+method new ( Test::Builder $Class: ?$plan, ?$output )
 {
-    return $:singleton //= $Class.SUPER::new( @args );
+    return $:singleton //= $Class.SUPER::new(
+		testplan => $plan, output => $output
+	);
 }
 
-method create ( Test::Builder $Class: *@args )
+method create ( Test::Builder $Class: ?$plan, ?$output )
 {
-    return $Class.new( @args );
+    return $Class.new( testplan => $plan, output => $output );
 }
 
 submethod BUILD
 (
-    Test::Builder::Output   ?$.output,
-    Test::Builder::TestPlan ?$plan
+    Test::Builder::TestPlan ?$.testplan,
+    Test::Builder::Output   ?$.output = Test::Builder::Output.new()
 )
-{
-    $.plan     = $plan if $plan;
-    $.output //= Test::Builder::Output.new();
-}
+{}
 
 submethod DESTROY
 {
-	my $footer = $.plan.footer();
+	my $footer = $.testplan.footer( +@:results );
 	$.output.write( $footer ) if $footer;
 }
 
 method plan ( Str ?$explanation, Int ?$tests )
 {
-    fail "Plan already set!" if $.plan;
+    fail "Plan already set!" if $.testplan;
 
     if $tests
     {
-        $.plan = Test::Builder::TestPlan.new( expect => $tests );
+        $.testplan = Test::Builder::TestPlan.new( expect => $tests );
     }
     elsif $explanation eq 'no_plan'
     {
-        $.plan = Test::Builder::NullPlan.new();
+        $.testplan = Test::Builder::NullPlan.new();
     }
     else
     {
         fail "Unknown plan";
     }
 
-    $.output.write( $.plan.header() );
+	say "Output: ($.output)";
+    $.output.write( $.testplan.header() );
 }
 
 method ok returns Bit ( $self: Bit $passed, Str ?$description = '' )
@@ -98,7 +98,7 @@ method skip ( $self: Int ?$num = 1, Str ?$reason = 'skipped' )
 
 method skip_all
 {
-    fail "Cannot skip_all with a plan" if $.plan;
+    fail "Cannot skip_all with a plan" if $.testplan;
 
     $.output.write( "1..0" );
     exit 0;
@@ -112,7 +112,7 @@ method BAILOUT ( Str ?$reason = '' )
 
 method report_test ( Test::Builder::Test $test )
 {
-	fail 'No plan set!' unless $.plan;
+	fail 'No plan set!' unless $.testplan;
 
     push $.results, $test;
     $.output.write( $test.report() );
@@ -138,7 +138,7 @@ Test::Builder - Backend for building test libraries
     );
 
   sub plan (Str ?$explanation, Int ?$tests) is export {
-	 $Test.plan($explanation, $tests);
+	 $Test.testplan($explanation, $tests);
   }
 
   sub ok ($passed, ?$description, ?$todo) is export {
@@ -184,7 +184,7 @@ This is a Perl 6 port of the Perl 5 module Test::Builder.
 
 =item B<Test::Builder::Output $.output>
 
-=item B<Test::Builder::TestPlan $.plan>
+=item B<Test::Builder::TestPlan $.testplan>
 
 =back
 
