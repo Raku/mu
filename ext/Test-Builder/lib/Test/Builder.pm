@@ -51,7 +51,6 @@ method plan ( Str ?$explanation, Int ?$tests )
         fail "Unknown plan";
     }
 
-	say "Output: ($.output)";
     $.output.write( $.testplan.header() );
 }
 
@@ -112,7 +111,7 @@ method BAILOUT ( Str ?$reason = '' )
 
 method report_test ( Test::Builder::Test $test )
 {
-	fail 'No plan set!' unless $.testplan;
+    fail 'No plan set!' unless $.testplan;
 
     push $.results, $test;
     $.output.write( $test.report() );
@@ -144,22 +143,22 @@ Test::Builder - Backend for building test libraries
   sub ok ($passed, ?$description, ?$todo) is export {
 	 if $todo {
 		$Test.todo($passed, $description, $todo) 
-		    || $Test->diag("FAILED : $desciption");
+		    || $Test->diag("FAILED : $description");
 	 }
 	 else {
 		$Test.ok($passed, $description)
-		    || $Test->diag("FAILED : $desciption");
+		    || $Test->diag("FAILED : $description");
 	 }
   }
 
   sub is ($got, $expected, ?$description, ?$todo) is export {
 	 if $todo {
 		$Test.todo($got eq $expected, $description, $todo)
-		    || $Test->diag("FAILED : $desciption");		
+		    || $Test->diag("FAILED : $description");
 	 }
 	 else {
 		$Test.ok($got eq $expected, $description)
-		    || $Test->diag("FAILED : $desciption");		
+		    || $Test->diag("FAILED : $description");		
 	 }
   }
 
