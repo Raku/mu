@@ -1,0 +1,11 @@
+{-
+
+Null Prelude bootstap. A placeholder used in first phase of the
+compiler build; later replaced with the real inlined Prelude and code
+to initialize it.
+
+-}
+
+initPreludePC :: Env -> IO ()
+initPreludePC = return $ liftIO $ return ()
+
