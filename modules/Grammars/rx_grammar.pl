@@ -13,7 +13,7 @@ Resources:
 
 =cut
 
-grammar Rx;
+grammar Perl6::Rx;
 
 rule pattern { ... }
 
