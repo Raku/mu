@@ -13,7 +13,64 @@ progresses.
 
 =head1 DESCRIPTION
 
-... more to come ...
+=head2 Core Elements
+
+=over 4
+
+=item Class
+
+A Class in Perl 6 is much the same as classes in other OO languagues. It is
+a collection of methods and attributes which can be used to construct an 
+Instance from.
+
+=item Instance
+
+An Instance is an instance of a Class, it is very much the same as in other OO
+languages.  
+
+=item Role
+
+A Role at it's most basic can be thought of as a collection of methods and
+attributes which get included into a class. A very simplistic view of this
+is that it is not unlike a language level  #INCLUDE directive. Roles share
+similarities to other familiar OO concepts as mix-ins, and interfaces, but 
+they differ in how they are composed into the class as well as the rules
+which govern that composition. Roles will be discussed in further detail
+later in this document.  
+
+=back
+
+=head2 Secondary Elements
+
+=over 4
+
+=item Methods
+
+=over 4
+
+=item Class Methods
+
+=item Instance Methods
+
+=item Role Methods
+
+=item SubMethods
+
+=back
+
+=item Attributes
+
+=over 4
+
+=item Class Attribute
+
+=item Instance Attribute
+
+=item Role Attribute
+
+=back
+
+=back
 
 =head1 SEE ALSO
 

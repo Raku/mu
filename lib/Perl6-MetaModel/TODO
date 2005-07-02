@@ -5,4 +5,8 @@
   Perl6::MetaClass structure.
 * Try to clean up the cut-n-paste of the Class/Instance methods & attributes in
   the Perl6::MetaClass.
+
 * Turn Roles into a more formal MetaRole object.
+** Store method conflicts so we can still call them when disambiguating.
+** Store attribute conflicts as well
+
