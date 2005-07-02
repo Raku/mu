@@ -94,6 +94,7 @@ prepareEnv name args = do
     endAV   <- newArray []
     matchAV <- newScalar (VMatch mkMatchFail)
     incAV   <- newArray (map VStr libs)
+    incHV   <- newScalar undef
     argsAV  <- newArray (map VStr args)
     inGV    <- newHandle stdin
     outGV   <- newHandle stdout
@@ -115,6 +116,7 @@ prepareEnv name args = do
     env <- emptyEnv name $
         [ genSym "@*ARGS"       $ hideInSafemode $ MkRef argsAV
         , genSym "@*INC"        $ hideInSafemode $ MkRef incAV
+        , genSym "%*INC"        $ hideInSafemode $ MkRef incHV
         , genSym "$*PUGS_HAS_HSPLUGINS" $ hideInSafemode $ MkRef hspluginsSV
         , genSym "$*EXECUTABLE_NAME"    $ hideInSafemode $ MkRef execSV
         , genSym "$*PROGRAM_NAME"       $ hideInSafemode $ MkRef progSV
@@ -158,29 +160,6 @@ prepareEnv name args = do
     return env
     where
     hideInSafemode x = if safeMode then MkRef $ constScalar undef else x
-
-
-{-
-{-# NOINLINE initPrelude #-}
-initPrelude :: Env -> IO ()
-initPrelude env = do
-    if bypass then return () else do
-        -- Display the progress of loading the Prelude, but only in interactive
-        -- mode (similar to GHCi):
-        -- "Loading Prelude... done."
-        let dispProgress = (posName . envPos $ env) == "<interactive>"
-        when dispProgress $ putStr "Loading Prelude... "
-        runEvalIO env{envDebug = Nothing} $ opEval style "<prelude>" preludeStr
-        when dispProgress $ putStrLn "done."
-    where
-    style = MkEvalStyle{evalResult=EvalResultModule
-                       ,evalError =EvalErrorFatal}
-    bypass = case (unsafePerformIO $ getEnv "PUGS_BYPASS_PRELUDE") of
-        Nothing     -> False
-        Just ""     -> False
-        Just "0"    -> False
-        _           -> True
--}
 
 initClassObjects :: [Type] -> ClassTree -> IO [STM (Pad -> Pad)]
 initClassObjects parent (Node typ children) = do

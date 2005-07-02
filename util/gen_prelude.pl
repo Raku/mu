@@ -22,13 +22,13 @@ sub touch {
     #      so we need to mark as stale some obj files to trigger a rebuild.
     #      The alternative seems to be to delete them *and* the pugs
     #      executable.
-    print STDERR "triggerring rebuild... " if $Config{verbose};
+    print STDERR "Triggerring rebuild... " if $Config{verbose};
     utime 0, 0, $_ for qw<src/Pugs/Run.hi src/Pugs/Run.o>;
     print STDERR "done.\n" if $Config{verbose};
 }
 
 sub null {
-    print STDERR "installing null prelude... " if $Config{verbose};
+    print STDERR "Installing null prelude... " if $Config{verbose};
     open my $np, "src/Pugs/PreludePC.hs-null" or
         die "can't open null prelude: $!";
     print while (<$np>);
@@ -36,8 +36,9 @@ sub null {
 }
 
 sub precomp {
-    print STDERR "installing precompiled prelude... " if $Config{verbose};
-    die "I need a pugs interpreter to precompile with" unless $Config{pugs};
+    print STDERR "Installing precompiled prelude... " if $Config{verbose};
+    die "*** Error: $0 needs an already compiled Pugs to precompile the Prelude\n"
+        unless $Config{pugs};
     open my $pc, "$Config{pugs} -CPugs $Config{inline} |" or die "open: $!";
     print <<'.';
 {-
@@ -58,14 +59,28 @@ sub precomp {
  
 -}
 
-initPreludePC :: Env -> IO Val
+{-# NOINLINE initPreludePC #-}
+initPreludePC :: Env -> IO ()
 initPreludePC env = do
-    ast <- astPCP                  -- what pugs -CPugs Prelude.pm gives,
-    glob <- globPCP                -- made available here.
-    globRef <- liftSTM $ do
-        glob' <- readTVar $ envGlobal env
-        newTVar (glob `unionPads` glob')
-    runEnv env{ envBody = ast, envGlobal = globRef, envDebug = Nothing }
+    if bypass then return () else do
+        -- Display the progress of loading the Prelude, but only in interactive
+        -- mode (similar to GHCi):
+        -- "Loading Prelude... done."
+        let dispProgress = (posName . envPos $ env) == "<interactive>"
+        when dispProgress $ putStr "Loading Prelude... "
+        ast <- astPCP                  -- what pugs -CPugs Prelude.pm gives,
+        glob <- globPCP                -- made available here.
+        globRef <- liftSTM $ do
+            glob' <- readTVar $ envGlobal env
+            newTVar (glob `unionPads` glob')
+        runEnv env{ envBody = ast, envGlobal = globRef, envDebug = Nothing }
+        when dispProgress $ putStrLn "done."
+    where
+    bypass = case (unsafePerformIO $ getEnv "PUGS_BYPASS_PRELUDE") of
+        Nothing     -> False
+        Just ""     -> False
+        Just "0"    -> False
+        _           -> True
 
 .
     while (<$pc>) {
