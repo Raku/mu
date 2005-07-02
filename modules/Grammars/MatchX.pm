@@ -1,3 +1,13 @@
+=pod
+
+MatchX is a temporary alternative to the Match.
+
+Match being a primitive, and immutable, MatchX is easier
+to use when developing regexp engines, etc.
+
+=cut
+
+
 #http://www.nntp.perl.org/group/perl.perl6.language/20985
 
 class MatchX {
