@@ -8,6 +8,9 @@ use lib 'lib';
 use inc::Module::Install;
 
 my $pugs = "pugs$Config{_exe}";
+my ($fs) = ($Config{sitelib} =~ /([\/\\])/)
+       or die "Can't determine file_sep";
+my $thispugs = ".${fs}pugs$Config{_exe}";
 my $version_h = "src/Pugs/pugs_version.h";
 my $config_h = "src/Pugs/pugs_config.h";
 my @srcdirs  = grep {-d} glob("src"), glob("src/*"), glob("src/*/*"), glob("src/*/*/*");
@@ -46,7 +49,8 @@ makemaker_args  (
 clean_files     (map fixpaths($_),
     "pugs*", "src/Pugs/pugs_config.h", $version_h, $config_h,
     'src/Pugs/Config.hs', 'blib6',
-    'src/Pugs/Prelude.hs', 'src/Pugs/CodeGen/PIR/Prelude.hs',
+    'src/Pugs/Prelude.hs', 'src/Pugs/PreludePC.hs',
+    'src/Pugs/CodeGen/PIR/Prelude.hs',
     "src/gen_prelude$Config{_exe}",
     'test.log',
     'src/Pugs/Embed/Parrot.hs',
@@ -297,7 +301,7 @@ optimised :: optimized
 optimized :: src/Pugs/Config.hs src/Pugs/Prelude.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h @prereqs
 	\$(PERL) util/gen_prelude.pl -v --null > src/Pugs/PreludePC.hs
 	$ghc $threaded -O --make $ghc_flags $embed_flags $ccdlflags $ghc_output
-	\$(PERL) util/gen_prelude.pl -v -i src/perl6/Prelude.pm -p pugs$Config{_exe} --touch > src/Pugs/PreludePC.hs
+	\$(PERL) util/gen_prelude.pl -v -i src/perl6/Prelude.pm -p $thispugs --touch > src/Pugs/PreludePC.hs
 	$ghc $threaded -O --make $ghc_flags $embed_flags $ccdlflags $ghc_output
 
 unoptimised :: unoptimized
@@ -305,13 +309,13 @@ unoptimised :: unoptimized
 unoptimized :: src/Pugs/Config.hs src/Pugs/Prelude.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h @prereqs
 	\$(PERL) util/gen_prelude.pl -v --null > src/Pugs/PreludePC.hs
 	$ghc $threaded -O0 --make $ghc_flags $embed_flags $ccdlflags $ghc_output
-	\$(PERL) util/gen_prelude.pl -v -i src/perl6/Prelude.pm -p pugs$Config{_exe} --touch > src/Pugs/PreludePC.hs
+	\$(PERL) util/gen_prelude.pl -v -i src/perl6/Prelude.pm -p $thispugs --touch > src/Pugs/PreludePC.hs
 	$ghc $threaded -O0 --make $ghc_flags $embed_flags $ccdlflags $ghc_output
 
 $pugs : src/Pugs/Config.hs src/Pugs/Prelude.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h @prereqs
 	\$(PERL) util/gen_prelude.pl -v --null > src/Pugs/PreludePC.hs
 	$ghc $threaded -O --make $ghc_flags $embed_flags $ccdlflags $ghc_output
-	\$(PERL) util/gen_prelude.pl -v -i src/perl6/Prelude.pm -p pugs$Config{_exe} --touch > src/Pugs/PreludePC.hs
+	\$(PERL) util/gen_prelude.pl -v -i src/perl6/Prelude.pm -p $thispugs --touch > src/Pugs/PreludePC.hs
 	$ghc $threaded -O --make $ghc_flags $embed_flags $ccdlflags $ghc_output
 
 smoke : $pugs util/run-smoke.pl all
