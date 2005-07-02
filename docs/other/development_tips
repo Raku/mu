@@ -1,5 +1,0 @@
-
-The "usual svn properties" for a file foo are:
-  svn propset svn:eol-style "native" foo
-  svn propset svn:mime-type "text/plain; charset=UTF-8" foo
-

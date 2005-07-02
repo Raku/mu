@@ -175,3 +175,23 @@ Expanding this one level deeper:
     |
     `-- util               Utilities for hacking and testing Pugs
         `-- livecd             Tool to create a minimalistic Pugs Live CD
+
+=head2 Subversion properties
+
+If you add a new text file (e.g. a test, a C<.pm>, etc.) to the repository,
+please use C<util/add-svn-props.sh> to add standard Subversion properties to
+your new file:
+
+    $ ./util/add-svn-props.sh newfile1 newfile2
+
+If you're on Win32 and can't run shell scripts, run C<svn> manually:
+
+    $ svn propset svn:eol-style "native" newfile1 newfile2
+    $ svn propset svn:mime-type "text/plain; charset=UTF-8" newfile1 newfile2
+
+If you create a new subdirectory under C<ext/>, please remember to set the
+C<svn:ignore> property accordingly to tell Subversion to ignore automatically
+generated files like C<Makefile> or C<blib/>.
+
+    $ svn propget svn:ignore ext/Some-Other-Module
+    $ svn propedit svn:ignore ext/Your-New-Module
