@@ -26,8 +26,10 @@ import Pugs.Eval
 import Pugs.Prim
 import Pugs.Prim.Eval
 import Pugs.Embed
-import Pugs.Prelude
+--import Pugs.Prelude
 import qualified Data.Map as Map
+
+#include "PreludePC.hs"
 
 {-|
 Run 'Main.run' with command line args. 
@@ -152,11 +154,13 @@ prepareEnv name args = do
     unless safeMode $ do
         initPerl5 "" (Just . VControl $ ControlEnv env{ envDebug = Nothing })
         return ()
-    initPrelude env
+    initPreludePC env              -- null in first pass
     return env
     where
     hideInSafemode x = if safeMode then MkRef $ constScalar undef else x
 
+
+{-
 {-# NOINLINE initPrelude #-}
 initPrelude :: Env -> IO ()
 initPrelude env = do
@@ -176,6 +180,7 @@ initPrelude env = do
         Just ""     -> False
         Just "0"    -> False
         _           -> True
+-}
 
 initClassObjects :: [Type] -> ClassTree -> IO [STM (Pad -> Pad)]
 initClassObjects parent (Node typ children) = do
