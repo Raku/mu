@@ -295,14 +295,23 @@ pugs.prof :: profiled
 optimised :: optimized
 
 optimized :: src/Pugs/Config.hs src/Pugs/Prelude.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h @prereqs
+	\$(PERL) util/gen_prelude.pl -v --null > src/Pugs/PreludePC.hs
+	$ghc $threaded -O --make $ghc_flags $embed_flags $ccdlflags $ghc_output
+	\$(PERL) util/gen_prelude.pl -v -i src/perl6/Prelude.pm -p pugs$Config{_exe} --touch > src/Pugs/PreludePC.hs
 	$ghc $threaded -O --make $ghc_flags $embed_flags $ccdlflags $ghc_output
 
 unoptimised :: unoptimized
 
 unoptimized :: src/Pugs/Config.hs src/Pugs/Prelude.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h @prereqs
+	\$(PERL) util/gen_prelude.pl -v --null > src/Pugs/PreludePC.hs
+	$ghc $threaded -O0 --make $ghc_flags $embed_flags $ccdlflags $ghc_output
+	\$(PERL) util/gen_prelude.pl -v -i src/perl6/Prelude.pm -p pugs$Config{_exe} --touch > src/Pugs/PreludePC.hs
 	$ghc $threaded -O0 --make $ghc_flags $embed_flags $ccdlflags $ghc_output
 
 $pugs : src/Pugs/Config.hs src/Pugs/Prelude.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h @prereqs
+	\$(PERL) util/gen_prelude.pl -v --null > src/Pugs/PreludePC.hs
+	$ghc $threaded -O --make $ghc_flags $embed_flags $ccdlflags $ghc_output
+	\$(PERL) util/gen_prelude.pl -v -i src/perl6/Prelude.pm -p pugs$Config{_exe} --touch > src/Pugs/PreludePC.hs
 	$ghc $threaded -O --make $ghc_flags $embed_flags $ccdlflags $ghc_output
 
 smoke : $pugs util/run-smoke.pl all

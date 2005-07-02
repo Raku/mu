@@ -8,12 +8,24 @@ use Getopt::Long;
 # Sets up either the Null Prelude placeholder, or a real precompiled
 # AST of Prelude.pm.
 
-GetOptions \our %Config, qw(--null --pugs|p=s --inline|i=s);
+GetOptions \our %Config, qw(--null --pugs|p=s --inline|i=s --verbose|v --touch);
+
+touch() if $Config{touch};
 
 precomp(), exit 0 if $Config{inline};
 null(), exit 0 if $Config{null};
 usage();
 exit 1;
+
+sub touch {
+    # XXX: *ugly* hack! ghc doesn't spot that the include file was changed,
+    #      so we need to mark as stale some obj files to trigger a rebuild.
+    #      The alternative seems to be to delete them *and* the pugs
+    #      executable.
+    print STDERR "triggerring rebuild... " if $Config{verbose};
+    utime 0, 0, $_ for qw<src/Pugs/Run.hi src/Pugs/Run.o>;
+    print STDERR "done.\n" if $Config{verbose};
+}
 
 sub null {
     print STDERR "installing null prelude... " if $Config{verbose};
@@ -46,6 +58,7 @@ sub precomp {
  
 -}
 
+initPreludePC :: Env -> IO Val
 initPreludePC env = do
     ast <- astPCP                  -- what pugs -CPugs Prelude.pm gives,
     glob <- globPCP                -- made available here.
@@ -53,25 +66,31 @@ initPreludePC env = do
         glob' <- readTVar $ envGlobal env
         newTVar (glob `unionPads` glob')
     runEnv env{ envBody = ast, envGlobal = globRef, envDebug = Nothing }
+
 .
     while (<$pc>) {
         next if 1 .. /runAST/; # FIXME this is fragile.
-        s/^globC/globPCP/;
-        s/^expC/astPCP/;
+        s/^globC/globPCP/ and print "globPCP :: IO Pad\n";
+        s/^expC/astPCP/   and print "astPCP :: IO Exp\n";
         print;
     }
     print STDERR "done.\n" if $Config{verbose};
+
 }
 
 sub usage {
     print <<".";
-usage: $0 --null
-       $0 --inline src/perl6/Prelude.pm --pugs ./pugs.exe
+usage: $0 --null [options]
+       $0 --inline src/perl6/Prelude.pm --pugs ./pugs.exe [options]
 
 Creates a PreludePC.hs file (written to stdout), to be included by Run.hs.
 
 In the first build phase, a "null" prelude with only placeholder functions
 is used. In the second phase, the Standard Prelude is precompiled and
 inlined into the resulting pugs executable.
+
+Additional options:
+    --verbose, -v     print progress to stderr
+    --touch,   -t     mark Run.hi and Run.o stale, triggering pugs rebuild
 .
 }
