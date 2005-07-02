@@ -1,0 +1,8 @@
+== TO DO list for the MetaModel
+
+* Create a Perl6::Method::Params to handle formal parameters, and their binding.
+* Create a Perl6::SubMethod and add a hash of submethods to the 
+  Perl6::MetaClass structure.
+* Try to clean up the cut-n-paste of the Class/Instance methods & attributes in
+  the Perl6::MetaClass.
+* Turn Roles into a more formal MetaRole object.

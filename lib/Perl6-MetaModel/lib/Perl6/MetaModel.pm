@@ -181,7 +181,6 @@ hacked together prototype.
                              | code             |       - Perl6::Role::Method
                              +------------------+     }
 
-
 =head1 SEE ALSO
 
 =over 4

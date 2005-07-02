@@ -1,0 +1,81 @@
+=pod
+
+=head1 NAME
+
+Synopsis 12.5 - The Perl 6 Object MetaModel
+
+=head1 SYNOPSIS
+
+This is an unofficial ammendment to the Synopsis 12, which descibes the 
+design and implementation of the Perl6 Object MetaModel. It is very rough
+at the moment, but will be filled in more as the work on this meta-model 
+progresses.
+
+=head1 DESCRIPTION
+
+... more to come ...
+
+=head1 SEE ALSO
+
+=head2 Research Papers
+
+=over 4
+
+=item A Core Calculus for MetaClasses
+
+L<http://research.sun.com/projects/plrg/core-calculus.pdf>
+
+=item Any of these papers on Traits
+
+L<http://www.iam.unibe.ch/~scg/Research/Traits/>
+
+(Note: Traits are what inspired the Perl6 concepts of Roles)
+
+=back 
+
+=head2 Other Perl Modules
+
+=over 4
+
+=item L<Class::Role>, L<Class::Roles> & L<Class::Trait>
+
+The first two are early attempts to prototype role behavior, and the last is an implementation
+of the Trait system based on the paper which originally inspired Roles.
+
+=back
+
+=head2 Other Languages
+
+=over 4
+
+=item Smalltalk
+
+I prefer the Brown book by Adele Goldberg and David Robinson, but any one which talks about the
+smalltalk metaclasses is a good reference.
+
+=item CLOS
+
+The Common Lisp Object System has a very nice meta-model, and plently of reference on it. In 
+particular there is a small implementation of CLOS called TinyCLOS which is very readable (if 
+you know enough Scheme that is)
+
+=item Objective C
+
+There is a good amount of documentation about the Objective C Runtime which details the class
+and object structures. Here are some relevant links:
+
+=over 4
+
+=item L<http://developer.apple.com/documentation/Cocoa/Reference/ObjCRuntimeRef/index.html>
+
+=item ... add more links
+
+=back
+
+=back
+
+=head1 AUTHORS
+
+Stevan Little E<lt>stevan@iinteractive.comE<gt>
+
+=cut
