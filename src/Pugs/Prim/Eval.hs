@@ -10,6 +10,7 @@ module Pugs.Prim.Eval (
 import Pugs.AST
 import Pugs.Parser.Program
 import Pugs.Embed
+import Pugs.Monads
 import Pugs.Internals
 import Pugs.Pretty
 import Pugs.Config
@@ -84,7 +85,7 @@ opEval style path str = do
         trans = case evalResult style of
             EvalResultEnv -> (`mergeStmts` Syn "env" [])
             _             -> id
-    val <- resetT $ local (const env') $ do
+    val <- resetT $ local (const env') $ enterCaller $ do
         evl <- asks envEval
         evl (trans $ envBody env')
     retEvalResult style val

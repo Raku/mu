@@ -49,6 +49,22 @@ enterEvalContext :: Cxt -> Exp -> Eval Val
 enterEvalContext cxt = enterContext cxt . evalExp
 
 {-|
+Perform the specified evaluation in the specified package.
+
+(Subsequent chained 'Eval's do /not/ see this package.)
+-}
+enterPackage :: String -> Eval a -> Eval a
+enterPackage pkg = local (\e -> e{ envPackage = pkg })
+
+{-|
+Enter a new environment and mark the previous one as 'Caller'.
+-}
+enterCaller :: Eval a -> Eval a
+enterCaller = local (\env -> env
+    { envCaller = Just env
+    , envDepth = envDepth env + 1 })
+
+{-|
 Bind @\$_@ to the given topic value in a new lexical scope, then perform
 the specified evaluation in that scope.
 
@@ -238,14 +254,6 @@ makeParams MkEnv{ envContext = cxt, envLValue = lv }
         , paramContext = cxt
         , paramDefault = Val VUndef
         } ]
-
--- | (This doesn't seem to be used at the moment...)
-caller :: Int -> Eval Env
-caller n = do
-    depth <- asks envDepth
-    when (depth <= n) $
-        fail "Cannot ask for deeper depth"
-    asks $ foldl (.) id $ replicate n (fromJust . envCaller)
 
 evalVal :: Val -> Eval Val
 evalVal val = do
