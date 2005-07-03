@@ -1,9 +1,10 @@
 =pod
 
-MatchX is a temporary alternative to the Match.
+MatchX is a temporary alternative to Match.
 
-Match being a primitive, and immutable, MatchX is easier
-to use when developing regexp engines, etc.
+Match is currently(r5000) a primitive, slightly off-spec, and immutable.
+So MatchX is easier to use when you are creating or modifying matches.
+Such as when you are writing a regexp engine.
 
 =cut
 
