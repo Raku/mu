@@ -2,16 +2,18 @@
 
 === Pugs Internals
 
-* New compiler backend: `PIR`
-** Pugs can now generate PIL (Pugs Immediate Representation)
-** ... and emit PIR for it
-** Supported are: `%*ENV`, standard operators (e.g. `&infix:<+>`), symbolic
-   dereferentiation (e.g. `$::(...)`), `END` blocks, short circuiting logical
-   operators, user-defined subroutines and `return`, and tail calls
-** `Emit.PIR` can compile `ext/Test/lib/Test.pm` and passes almost all sanity
-   tests
-* `eval` and related builtins are now implemented in the Prelude
+* New codegen backends: `PIR`, `PIL`
+** Pugs can now generate PIL (Pugs Intermediate Language)
+** ...and emit PIR (Parrot Intermediate Representation) from PIL
+** New `make pirsmoke` target runs the test suite with PIR backend
+* `eval` and related builtins are now implemented in `Prelude.pm`
 * Initial support for `%*INC`
+* `Bare` and `Parametric` types are no more; both merged with `Block`
+* Pairs in variables now bind to named parameters just like pair literals
+* Support for `does RoleName` and `is ClassName` in class body
+* Parse for `trusts ClassName` and `my $foo is trait_name` as no-ops
+* New builtin class: `Proxy`
+* Support for `eval("...", :lang<...>")`
 
 === Bundled Modules
 
@@ -20,16 +22,15 @@
 ** `HTTP::Server::Simple`
 ** `Perldoc` (partial port)
 * Completed Locale::KeyedText (this was our first contributed module)
-** compiles, executes, and passes whole pristine test suite
-** updated version to 1.5.0; it corresponds to the Perl 5 version 1.05
-** except for some skips and workarounds due to missing Pugs features
+** Compiles, executes, and passes whole pristine test suite
+** Updated version to 1.5.0; it corresponds to the Perl 5 version 1.05
+** Some skips and workarounds remains due to missing Pugs features
 
 === Test, Examples and Documentations
 
-* Many new tests and several refactorings based on p6l rulings, we now have
-  7500+ tests
-* New `examples/continuation` and `examples/unitfunctions` directories added
-  and populated
+* Many new tests and refactoring based on new ruling, we now have 7500+ tests
+* YAPC::NA talk: "Apocalypse Now" in `docs/talks/Apocalypse_Now.spork`
+* New `examples/continuation` and `examples/unitfunctions` directories
 * Examples of methods acting on builtin-types in `examples/vmethods/`
 * Low level sanity tests in `t/01-sanity/` for the PIR code emitter
 * More JAPHs added to `examples/japhs/`
@@ -42,11 +43,11 @@
 * `(42).kv` will now die and `(42,).kv` will work
 * `sleep()` now returns seconds slept
 * Fixed `!~` to mean `not(... ~~ ...)`, instead of `ne`
-* `eval("...", :lang<...>")` works now
-* Call parrot without `-j` (JIT), as Parrot doesn't support JIT on all
-  systems. You can use the new environment veriable `PUGS_PARROT_OPTS` to
-  switch JIT on again
+* Call parrot with `-G` (CGP) instead of `-j` (JIT) runcore to avoid segfault
+* New environment variable `PUGS_PARROT_OPTS` for invoking external parrot
 * Fixed order of method invocation in `BUILDALL` and `DESTROYALL`
+* `try` is now capable of catching all type casting errors
+* Qualified and global variables may now be used without declaration
 
 == Changes for 6.2.7 (r4612) - June 13, 2005
 
