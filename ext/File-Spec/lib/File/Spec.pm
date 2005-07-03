@@ -1,19 +1,18 @@
 use v6;
 
-module File::Spec-0.0.1;
-
-# what follows is a really horrid hack, 
-# and a perverse exploitation of the 
-# current (unfinished) state of modules
-# in pugs. Please do not hold it against 
-# me :)
-
 if ($?OS eq 'MSWin32') {
-    eval 'require File::Spec::Win32';
+    require File::Spec::Win32;
 }
 else {
-    eval 'require File::Spec::Unix';
+    require File::Spec::Unix;
 }
+
+# The "require" lines above is deliberately
+# not part of the File::Spec package, because
+# we'd like to import on behalf of the caller.
+# Again, a horrible hack.
+
+module File::Spec-0.0.1;
 
 =kwid
 
