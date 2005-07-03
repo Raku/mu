@@ -11,4 +11,4 @@ data Scope = SState  -- ^ Persistent across calls
            | SLet    -- ^ Hypotheticalised (reverted upon failure)
            | STemp   -- ^ Temporary (reverted at scope exit)
            | SGlobal -- ^ Global
-    deriving (Show, Eq, Ord, Read, Enum)
+    deriving (Show, Eq, Ord, Enum)

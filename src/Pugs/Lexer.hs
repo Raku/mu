@@ -239,16 +239,19 @@ tryVerbatimRule name action = (<?> name) $ try action
 
 ruleScope :: RuleParser Scope
 ruleScope = tryRule "scope" $ do
-    scope <- choice $ map symbol scopes
-    return (readScope scope)
+    scope <- ruleScopeName
+    return $ readScope scope
     where
-    scopes = map (map toLower) $ map (tail . show) $ enumFrom ((toEnum 1) :: Scope)
-    readScope s
-        | (c:cs)    <- s
-        , [(x, _)]  <- reads ('S':toUpper c:cs)
-        = x
-        | otherwise
-        = SGlobal
+    readScope "state"   = SState
+    readScope "my"      = SMy
+    readScope "our"     = SOur
+    readScope "let"     = SLet
+    readScope "temp"    = STemp
+    readScope _         = SGlobal
+
+ruleScopeName :: RuleParser String
+ruleScopeName = choice . map symbol . map (map toLower) . map (tail . show)
+    $ [SState .. STemp]
 
 postSpace :: GenParser Char st a -> GenParser Char st a
 postSpace rule = try $ do

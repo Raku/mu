@@ -75,7 +75,7 @@ data ObjType
     = PerlScalar | PerlArray | PerlHash
     | PerlInt | PerlPair | PerlRef | PerlEnv
     | BareType String
-    deriving (Show, Eq, Typeable, Read)
+    deriving (Show, Eq, Typeable)
 
 type LabelName  = String
 type SubName    = String
