@@ -129,7 +129,7 @@ sub add_method {
     my ($self, $label, $method) = @_;
     (defined $label && defined $method)
         || die "InsufficientArguments : you must provide a method and a label";
-    (blessed($method) && $method->isa('Perl6::Instance::Method'))
+    (blessed($method) && $method->isa('Perl6::Method'))
         || die "IncorrectObjectType : Method must be a Perl6::Instance::Method object got($method)";
     $self->{class_definition}->{methods}->{$label} = $method;
 }
