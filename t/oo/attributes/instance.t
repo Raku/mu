@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 73;
+plan 71;
 
 =pod
 
@@ -279,13 +279,7 @@ class Foo9 {
   }
 }
 
-{
-    my $foo = Foo9.new('pos', bar => 'd');
-    ok($foo.isa(Foo9), '... our Foo9 instance was created');
-        
-    is($foo.a, 'pos', "BUILD received 'pos'", :todo<feature>);
-    is($foo.b, 'd',   'BUILD received $bar');
-}
+dies_ok({ Foo9.new('pos', bar => 'd') }, 'cannot pass positional to .new');
 
 # check $self is passed to BUILD
 class Foo10 {

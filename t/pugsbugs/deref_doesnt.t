@@ -12,6 +12,6 @@ be a nop.
 
 plan 1;
 my $x = 42;
-dies_ok { $$$$$$$$$$x }, "can't endlessly dereference"
+dies_ok { $$$$$$$$$$x }, "can't endlessly dereference", :todo<bug>;
 
 # (currently this evaluates to 42)

@@ -20,5 +20,5 @@ plan 1;
 {
 	my $foo = 1;
 	eval '(1) { $foo = 2 }';
-	is $foo, 1, 'checking that parens do not eat spaces after them', :todo<bug>;
+	is $foo, 1, 'checking that parens do not eat spaces after them';
 };

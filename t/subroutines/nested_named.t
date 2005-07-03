@@ -19,7 +19,7 @@ sub factorial (Int $n) {
     facti(1, 1);
 } ;
 
-is factorial(1), 1, "Checking semantics... 1", :todo<bug>;
-is factorial(2), 2, "Checking semantics... 2", :todo<bug>;
-is factorial(0), 1, "Checking semantics... 0", :todo<bug>;
+is factorial(1), 1, "Checking semantics... 1";
+is factorial(2), 2, "Checking semantics... 2";
+is factorial(0), 1, "Checking semantics... 0";
 
