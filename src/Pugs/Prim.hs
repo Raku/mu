@@ -1132,21 +1132,24 @@ op3Caller kind skip _ = do                                 -- figure out label
     chain <- callChain =<< ask
     formatFrame $ filter labelFilter $ drop skip $ filter kindFilter chain
     where
-    formatFrame :: [(Env, VCode)] -> Eval Val
+    formatFrame :: [(Env, Maybe VCode)] -> Eval Val
     formatFrame [] = retEmpty
-    formatFrame l  =
-        let (env,sub)  = head l in
-        returnList
-            [ VStr $ envPackage env                        -- .package
-            , VStr $ posName $ envPos env                  -- .file
-            , VInt $ toInteger $ posBeginLine $ envPos env -- .line
-            , VStr $ subName sub                           -- .subname
-            , VStr $ show $ subType sub                    -- .subtype
-            , VCode $ sub                                  -- .sub
-            -- TODO: add more things as they are specced.
-            ]
-    kindFilter :: (Env, VCode) -> Bool
-    kindFilter (_, sub) =
+    formatFrame ((env, Just sub):_) = returnList
+        [ VStr $ envPackage env                        -- .package
+        , VStr $ posName $ envPos env                  -- .file
+        , VInt $ toInteger $ posBeginLine $ envPos env -- .line
+        , VStr $ subName sub                           -- .subname
+        , VStr $ show $ subType sub                    -- .subtype
+        , VCode $ sub                                  -- .sub
+        -- TODO: add more things as they are specced.
+        ]
+    formatFrame ((env, _):_) = returnList
+        [ VStr $ envPackage env                        -- .package
+        , VStr $ posName $ envPos env                  -- .file
+        , VInt $ toInteger $ posBeginLine $ envPos env -- .line
+        ]
+    kindFilter :: (Env, Maybe VCode) -> Bool
+    kindFilter (_, Just sub) =
         case (kind, subType sub) of
             (MkType "Any",      _)          -> True  -- I hope this is optimized
             (MkType "Method",   SubMethod)  -> True
@@ -1154,17 +1157,17 @@ op3Caller kind skip _ = do                                 -- figure out label
             (MkType "Block",    SubBlock)   -> True
             (MkType "Block",    SubPointy)  -> True
             (_,                 _)          -> False
+    kindFilter _ = kind == MkType "Any"
     labelFilter _ = True                             -- TODO: figure out how
-    callChain :: Env -> Eval [(Env, VCode)]
+    callChain :: Env -> Eval [(Env, Maybe VCode)]
     callChain cur = 
         case envCaller cur of
             Just caller -> do
                 val <- local (const caller) (readVar "&?SUB")
-                if (val == undef) then return [] else do
-                --if (val == undef) then do fail "&?SUB not found for caller" else do
+                if (val == undef) then return [(caller, Nothing)] else do
                 sub <- fromVal val
                 rest <- callChain caller
-                return ((caller, sub) : rest)
+                return ((caller, Just sub) : rest)
             _           -> return []
 
 

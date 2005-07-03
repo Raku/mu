@@ -94,7 +94,7 @@ prepareEnv name args = do
     endAV   <- newArray []
     matchAV <- newScalar (VMatch mkMatchFail)
     incAV   <- newArray (map VStr libs)
-    incHV   <- newScalar undef
+    incHV   <- newHash Map.empty
     argsAV  <- newArray (map VStr args)
     inGV    <- newHandle stdin
     outGV   <- newHandle stdout
@@ -126,8 +126,8 @@ prepareEnv name args = do
         , genSym "$*EUID"       $ hideInSafemode $ MkRef euidSV
         , genSym "$*GID"        $ hideInSafemode $ MkRef gidSV
         , genSym "$*EGID"       $ hideInSafemode $ MkRef egidSV
-        , genSym "@?CHECK"      $ MkRef checkAV
-        , genSym "@?INIT"       $ MkRef initAV
+        , genSym "@*CHECK"      $ MkRef checkAV
+        , genSym "@*INIT"       $ MkRef initAV
         , genSym "@*END"        $ MkRef endAV
         , genSym "$*IN"         $ hideInSafemode $ MkRef inGV
         , genSym "$*OUT"        $ hideInSafemode $ MkRef outGV
