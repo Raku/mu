@@ -42,9 +42,9 @@ ruleProgram = rule "program" $ do
     -- error $ show statements
     eof
     -- S04: CHECK {...}*      at compile time, ALAP
-    --  $_() for @?CHECK
+    --  $_() for @*CHECK
     rv <- unsafeEvalExp $ Syn "for"
-	[ Var "@?CHECK"
+	[ Var "@*CHECK"
 	, Syn "sub"
 	    [ Val . VCode $ mkSub
 		{ subBody   = App (Var "$_") Nothing []
@@ -52,7 +52,7 @@ ruleProgram = rule "program" $ do
 		}
 	    ]
 	]
-    -- If there was a exit() in a CHECK block, we've to exit.
+    -- If there was a exit() in a CHECK block, we have to exit.
     possiblyExit rv
     env' <- getRuleEnv
     return $ env'

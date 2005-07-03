@@ -295,7 +295,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
     env <- getRuleEnv
     let subExp = Val . VCode $ MkCode
             { isMulti       = isMulti
-            , subName       = name'
+            , subName       = nameQualified
             , subEnv        = Just env
             , subType       = if "primitive" `elem` traits
                 then SubPrim else styp
@@ -310,31 +310,32 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
             , subCont       = Nothing
             }
         pkg = envPackage env
-        name' | ':' `elem` name = name
-              | scope <= SMy    = name
-              | otherwise       = (head name:pkg) ++ "::" ++ tail name
+        nameQualified | ':' `elem` name = name
+                      | scope <= SMy    = name
+                      | isBuiltin       = (head name:'*':tail name)
+                      | otherwise       = (head name:pkg) ++ "::" ++ tail name
         self :: [Param]
         self | styp > SubMethod = []
              | (prm:_) <- params, isInvocant prm = []
              | otherwise = [selfParam $ envPackage env]
-        exp  = Syn ":=" [Var name, Syn "sub" [subExp]]
-        exp' = Syn ":=" [Var name', Syn "sub" [subExp]]
-        isExported = (pkg == "main" || "export" `elem` traits)
+        mkExp n = Syn ":=" [Var n, Syn "sub" [subExp]]
+        mkSym n = Sym scope n (mkExp n)
+        isExported = ("export" `elem` traits)
+        isBuiltin = ("builtin" `elem` traits)
     -- Don't add the sub if it's unsafe and we're in safemode.
-    if "unsafe" `elem` traits && safeMode
-        then return emptyExp
-        else case scope of
-            -- XXX FIXME - the "main" here is a horrible hack
-            SGlobal | name' /= name && isExported -> do
-                unsafeEvalExp (Sym scope name exp)
-                unsafeEvalExp (Sym scope name' exp')
-                return emptyExp
-            SGlobal -> do
-                unsafeEvalExp (Sym scope name' exp')
-                return emptyExp
-            _ -> do
-                lexDiff <- unsafeEvalLexDiff (Sym scope name' emptyExp)
-                return $ Pad scope lexDiff exp
+    if "unsafe" `elem` traits && safeMode then return emptyExp else case scope of
+        SGlobal | isExported -> do
+            let caller  = maybe "main" envPackage (envCaller env)
+                nameExported = (head name:caller) ++ "::" ++ tail name
+            unsafeEvalExp $ mkSym nameExported
+            unsafeEvalExp $ mkSym nameQualified
+            return emptyExp
+        SGlobal -> do
+            unsafeEvalExp $ mkSym nameQualified
+            return emptyExp
+        _ -> do
+            lexDiff <- unsafeEvalLexDiff $ mkSym nameQualified
+            return $ Pad scope lexDiff $ mkExp name
 
 -- | A Param representing the default (unnamed) invocant of a method on the given type.
 selfParam :: String -> Param
@@ -573,17 +574,17 @@ ruleRequireDeclaration = tryRule "require declaration" $ do
 ruleModuleDeclaration :: RuleParser Exp
 ruleModuleDeclaration = rule "module declaration" $ do
     _       <- choice $ map symbol (words "package module class grammar")
-    (name, v, a)    <- rulePackageHead
+    (name, _, _)    <- rulePackageHead
     env     <- getRuleEnv
     putRuleEnv env{ envPackage = name, envClasses = envClasses env `addNode` mkType name }
     body    <- option emptyExp $ between (symbol "{") (char '}') ruleBlockBody
-    let moduleDef = Syn "module" [Val . VStr $ name ++ v ++ a] -- XXX
+    let pkgVal = Val . VStr $ name -- ++ v ++ a
     case body of
-        Noop -> return moduleDef
+        Noop -> return $ Syn "package" [pkgVal]
         _    -> do
             env' <- getRuleEnv
             putRuleEnv env'{ envPackage = envPackage env }
-            return $ Stmts moduleDef body
+            return $ Syn "namespace" [pkgVal, body]
 
 ruleDoBlock :: RuleParser Exp
 ruleDoBlock = rule "do block" $ try $ do

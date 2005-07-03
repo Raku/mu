@@ -104,7 +104,7 @@ debug key fun str a = do
 evaluateMain :: Exp -> Eval Val
 evaluateMain exp = do
     -- S04: INIT {...}*      at run time, ASAP
-    initAV   <- evalVar "@?INIT"
+    initAV   <- evalVar "@*INIT"
     initSubs <- fromVals initAV
     enterContext CxtVoid $ do
         mapM_ evalExp [ App (Val sub) Nothing [] | sub <- initSubs ]
@@ -245,8 +245,12 @@ reduceVar name = do
     v <- findVar name
     case v of
         Just var -> evalRef var
-        _ | (':':rest) <- name -> return $ VType (mkType rest)
-        _ -> retError "Undeclared variable" name
+        _ -> case name of
+            (':':rest)  -> return $ VType (mkType rest)
+            (_:'*':_)   -> evalExp (Sym SGlobal name (Var name))
+            _           -> case isQualified name of
+                Just _  -> evalExp (Sym SGlobal name (Var name))
+                _       -> retError "Undeclared variable" name
 
 reduceStmts :: Exp -> Exp -> Eval Val
 reduceStmts this rest
@@ -302,10 +306,11 @@ reduceSym scope name exp | scope <= SMy = do
     enterLex [ sym ] $ evalExp exp
 
 reduceSym _ name exp = do
-    ref <- newObject (typeOfSigil $ head name)
-    sym <- case name of
-        ('&':_) -> genMultiSym name ref
-        _       -> genSym name ref
+    ref     <- newObject (typeOfSigil $ head name)
+    name'   <- toQualified name
+    sym <- case name' of
+        ('&':_) -> genMultiSym name' ref
+        _       -> genSym name' ref
     addGlobalSym sym
     evalExp exp
 
@@ -647,23 +652,18 @@ reduceSyn "subst" [exp, subst, adverbs] = do
 reduceSyn "is" _ = do
     retEmpty
 
-reduceSyn "package" [exp] = do
+reduceSyn "namespace" [exp, body] = do
     val <- evalExp exp
     writeVar "$*PACKAGE" val
-    retEmpty
-
-reduceSyn "module" [exp] = do
-    val <- evalExp exp
-    writeVar "$?MODULE" val
-    writeVar "$*PACKAGE" val
-    retEmpty
+    str <- fromVal val
+    enterPackage str $ evalExp body
 
 reduceSyn "inline" [langExp, _] = do
     langVal <- evalExp langExp
     lang    <- fromVal langVal
     when (lang /= "Haskell") $
         retError "Inline: Unknown language" langVal
-    modVal  <- readVar "$?MODULE"
+    modVal  <- readVar "$*PACKAGE"
     mod     <- fromVal modVal
 #ifndef HADDOCK
     let file = (`concatMap` mod) $ \v -> case v of
@@ -984,7 +984,10 @@ doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args
                     case showType (typeOfSigil $ head name) of
                         "Hash"  -> fmap (VRef . hashRef) (fromVal v :: Eval VHash)
                         "Array" -> fmap (VRef . arrayRef) (fromVal v :: Eval VArray)
-                        _       -> return (VRef $ scalarRef v) 
+                        _       -> case v of
+                            VRef (MkRef (IScalar _)) -> return (VRef $ scalarRef v) 
+                            VRef _ -> return v -- XXX - preserving ref
+                            _ -> return (VRef $ scalarRef v) 
                 (False, False)  -> return v -- XXX reduce to val?
                 (False, True)   -> do
                     -- make a copy
