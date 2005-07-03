@@ -4,6 +4,8 @@
 module Pugs.Eval.Var (
     findVar, findVarRef,
     evalVar, findSub, evalExpType,
+    isQualified, packageOf, qualify,
+    toPackage, toQualified,
 ) where
 import qualified Data.Map as Map
 import Pugs.Internals
@@ -70,10 +72,12 @@ findVarRef name
     doFindVarRef :: Var -> Eval (Maybe (TVar VRef))
     doFindVarRef name = do
         callCC $ \foundIt -> do
-            lexSym <- fmap (findSym name . envLexical) ask
+            lexSym  <- fmap (findSym name . envLexical) ask
             when (isJust lexSym) $ foundIt lexSym
-            glob   <- liftSTM . readTVar . envGlobal =<< ask
-            let globSym = findSym name glob
+            glob    <- liftSTM . readTVar . envGlobal =<< ask
+            name'   <- toQualified name
+            -- XXX - find qualified name here
+            let globSym = findSym name' glob
             when (isJust globSym) $ foundIt globSym
             let globSym = findSym (toGlobal name) glob
             when (isJust globSym) $ foundIt globSym
@@ -397,10 +401,44 @@ arityMatch sub@MkCode{ subAssoc = assoc, subParams = prms } argLen argSlurpLen
     | otherwise
     = Nothing
 
+breakSigil :: String -> (String, String)
+breakSigil = break (\x -> isAlpha x || x == '_')
+
 toPackage :: String -> String -> String
 toPackage pkg name
-    | (sigil, identifier) <- break (\x -> isAlpha x || x == '_') name
+    | (sigil, identifier) <- breakSigil name
     , last sigil /= '*'
     = concat [sigil, pkg, "::", identifier]
     | otherwise = name
 
+packageOf :: String -> String
+packageOf name = case isQualified name of
+    Just (pkg, _)   -> pkg
+    _               -> "main"
+
+qualify :: String -> String
+qualify name = case isQualified name of
+    Just _  -> name
+    _       -> let (sigil, name') = breakSigil name
+        in sigil ++ "main::" ++ name'
+
+isQualified :: String -> Maybe (String, String)
+isQualified name | Just (post, pre) <- breakOnGlue "::" (reverse name) =
+    let (sigil, pkg) = span (not . isAlphaNum) preName
+        name'       = possiblyFixOperatorName (sigil ++ postName)
+        preName     = reverse pre
+        postName    = reverse post
+    in Just (pkg, name')
+isQualified _ = Nothing
+
+toQualified :: String -> Eval String
+toQualified name@(_:'*':_) = return name
+toQualified name@(_:'?':_) = return name
+toQualified name@(_:"!") = return name
+toQualified name@(_:"/") = return name
+toQualified name = do
+    case isQualified name of
+        Just _  -> return name
+        _       -> do
+            pkg <- asks envPackage
+            return $ toPackage pkg name

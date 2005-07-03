@@ -15,6 +15,7 @@ import Pugs.AST
 import Pugs.Internals
 import Pugs.Types
 import Pugs.Eval
+import Pugs.Eval.Var
 import Emit.PIR
 import Text.PrettyPrint
 
@@ -426,26 +427,6 @@ varText ('@':name)  = text $ "a__" ++ escaped name
 varText ('%':name)  = text $ "h__" ++ escaped name
 varText ('&':name)  = text $ "c__" ++ escaped name
 varText x           = error $ "invalid name: " ++ x
-
-packageOf :: String -> String
-packageOf name = case isQualified name of
-    Just (pkg, _)   -> pkg
-    _               -> "main"
-
-qualify :: String -> String
-qualify name = case isQualified name of
-    Just _  -> name
-    _       -> let (sigil, name') = span (not . isAlphaNum) name
-        in sigil ++ "main::" ++ name'
-
-isQualified :: String -> Maybe (String, String)
-isQualified name | Just (post, pre) <- breakOnGlue "::" (reverse name) =
-    let (sigil, pkg) = span (not . isAlphaNum) preName
-        name'       = possiblyFixOperatorName (sigil ++ postName)
-        preName     = reverse pre
-        postName    = reverse post
-    in Just (pkg, name')
-isQualified _ = Nothing
 
 initTEnv :: Eval TEnv
 initTEnv = do
