@@ -100,6 +100,10 @@ sub new_instance {
         }
     });    
 
+
+    # XXX - This should actually be in the default
+    # Object::BUILD method, and not happen 
+    # automagically here!
     $attrs{$_} = $params{$_} foreach keys %params;
 
     my ($class_name) = ($self->name);
