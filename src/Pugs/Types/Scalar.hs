@@ -45,6 +45,7 @@ instance ScalarClass VScalar where
     scalar_fetch v = return v
     scalar_store d _ = retConstError d
     scalar_const = Just
+    scalar_type (VRef (MkRef (IScalar sv))) = scalar_type sv
     scalar_type v = return $ valType v
     scalar_fetch' v = return v
 
