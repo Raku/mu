@@ -28,25 +28,14 @@ You want to check if a string is a valid number.
   # corresponds to a real or an integer.  In this situation compare
   # it against the rule for integers or reals.
 
-# XXX When Perl6 becomes self hosting then we can test it against the rules
-# that Perl uses until then we will have to use these.
-
-  rule natural {<digit>+};
-
-  rule integer {[\+|\-]? <natural>};
-
-  rule decimal { [ <integer> [\. <natural>]? ] | [ [\+|\-]? \. <natural> ] };
-
-  rule cfloat  { <decimal> [ [e|E] <integer>]? }
+# XXX At the moment you have to make use of modules/Grammer/Perl6.pm
+# to get below working.  When grammar support is more mature this 
+# will be fixed.  
 
   given $string {
-    say "Natural" if /^<natural>$/;
-    say "Integer" if /^<integer>$/;
-    say "Decimal" if /^<decimal>$/;
-    say "Cfloat"  if /^<cfloat>$/;
+    say "Integer" if /^<Int>$/;
+    say "Rational"  if /^<Rat>$/;
   }
 
 =cut
-
-# XXX 
 
