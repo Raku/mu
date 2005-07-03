@@ -17,7 +17,8 @@ my $dir = catdir( <t pugsrun> );
 
 my @tests = (
   "-I$dir -MDummy -e load_test",
-  "-e load_test -MDummy -I$dir"
+  "-e load_test -MDummy -I$dir",
+  "-I$dir -MDummy $dir/10-dash-uppercase-m.p6"
 );
 
 plan 1+@tests;

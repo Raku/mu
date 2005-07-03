@@ -155,7 +155,11 @@ joinDashE ((Switch 'n'):args) = joinDashE ((Opt "-e" "while ($_ = =<>) { $_ .= c
                                    isDashE (Opt "-e" _) = True
                                    isDashE (_) = False
 
-joinDashE ((Opt "-M" mod):args) = joinDashE ((Opt "-e" ("use " ++ mod ++ ";\n")):args)
+-- -E is like -e, but not accessible as a normal parameter and used only
+-- internally:
+--   "-e foo bar.p6" executes "foo" with @*ARGS[0] eq "bar.p6",
+--   "-E foo bar.p6" executes "foo" and then bar.p6.
+joinDashE ((Opt "-M" mod):args) = joinDashE ((Opt "-E" (";use " ++ mod ++ ";\n")):args)
 
 joinDashE ((Opt "-e" a):(Opt "-e" b):args) =
     joinDashE (Opt "-e" combined:args)

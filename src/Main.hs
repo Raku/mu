@@ -84,6 +84,11 @@ run ("--external":mod:"-e":prog:_)    = doExternal mod "-e" prog
 run ("--external":mod:file:_)         = readFile file >>= doExternal mod file
 
 run (("-e"):prog:args)          = do doRun "-e" args prog
+-- -E is like -e, but not accessible as a normal parameter and used only
+-- internally:
+--   "-e foo bar.p6" executes "foo" with @*ARGS[0] eq "bar.p6",
+--   "-E foo bar.p6" executes "foo" and then bar.p6.
+run (("-E"):prog:rest)          = run ("-e":prog:[]) >> run rest
 run ("-":args)                  = do doRun "-" args =<< readStdin
 run (file:args)                 = readFile file >>= doRun file args
 run []                          = do
