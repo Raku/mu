@@ -51,7 +51,7 @@ module Pugs.AST.Internals (
     findSymRef, findSym,
     ifListContext, ifValTypeIsa, evalValType, fromVal',
     scalarRef, codeRef, arrayRef, hashRef, thunkRef, pairRef,
-    newScalar, newArray, newHandle, newObject,
+    newScalar, newArray, newHash, newHandle, newObject,
     proxyScalar, constScalar, lazyScalar, lazyUndef, constArray,
     retError, retControl, retEmpty, retIVar, readIVar, writeIVar,
     fromVals, refType,
@@ -1560,6 +1560,11 @@ newArray :: (MonadSTM m) => VArray -> m (IVar VArray)
 newArray vals = liftSTM $ do
     av <- newTVar $ IntMap.fromAscList ([0..] `zip` map lazyScalar vals)
     return $ IArray av
+
+newHash :: (MonadSTM m) => VHash -> m (IVar VHash)
+newHash hash = do
+    ihash <- liftSTM (newTVar $ Map.map lazyScalar hash)
+    return $ IHash ihash
 
 newHandle :: (MonadSTM m) => VHandle -> m (IVar VHandle)
 newHandle = return . IHandle

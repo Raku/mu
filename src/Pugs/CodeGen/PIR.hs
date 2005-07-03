@@ -17,6 +17,7 @@ module Pugs.CodeGen.PIR (genPIR) where
 import Pugs.Internals
 import Pugs.AST
 import Pugs.AST.Internals
+import Pugs.Eval.Var
 import Emit.Common
 import Emit.PIR
 import Pugs.Pretty
@@ -310,15 +311,15 @@ genName :: (RegClass a) => String -> CodeGen a
 genName name = do
     let var = render $ varText name
     tellIns $ InsLocal RegPMC var
-    tellIns $ InsNew (VAR var) (read $ render $ varInit name)
+    tellIns $ InsNew (VAR var) (varInit name)
     return $ reg (VAR var)
 
-varInit :: String -> Doc
-varInit ('$':_) = text $ "PerlScalar"
-varInit ('@':_) = text $ "PerlArray"
-varInit ('%':_) = text $ "PerlHash"
-varInit ('&':_) = text $ "PerlScalar"
-varInit x       = error $ "invalid name: " ++ x
+varInit :: String -> ObjType
+varInit ('$':_) = PerlScalar
+varInit ('@':_) = PerlArray
+varInit ('%':_) = PerlHash
+varInit ('&':_) = PerlScalar
+varInit x       = internalError $ "Invalid name: " ++ x
 
 {-| Compiles the current environment to PIR code. -}
 genPIR :: Eval Val
