@@ -31,6 +31,7 @@ rule subrule                    { \< (\?)? <name> \> }
 rule subpattern                 { \( <pattern>    \) }
 rule noncapturing_brackets      { \[ <subpattern> \] }
 rule closure	                { \{ <code>  \} }
+rule literal                    { \<\' ( [ <-<[\\\']>> | \\. ]* ) \'\> }
 
 rule named_scalar_alias		{ \$\< <name> \>     \:\= <construct> }
 rule numbered_scalar_alias	{ \$ $<number>=(\d+) \:\= <construct> }
@@ -58,5 +59,20 @@ rule quantifier_rep { \* | \+ | \*\? | \+\? } # need better name
 
 rule comment { \# \N* \n }
 
-rule sp { <' '> }
-rule ws { \s+ }
+rule bos { \^ }
+rule eos { \$ }
+rule bol { \^\^ }
+rule eol { \$\$ }
+
+rule lookahead  { \< (!)? before \s+ <pattern> \> }
+rule lookbehind { \< (!)? after  \s+ <pattern> \> }
+
+rule assertions {
+    <bos>
+  | <eos>
+  | <bol>
+  | <eol>
+  | <lookahead>
+  | <lookbehind>
+}
+
