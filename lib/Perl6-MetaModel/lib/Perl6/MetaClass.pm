@@ -89,7 +89,7 @@ sub traverse_post_order {
 ## INSTANCE CREATION
 
 sub new_instance {
-    my ($self, %_params) = @_;
+    my ($self, %params) = @_;
 
     my %attrs;
     $self->traverse_post_order(sub {
@@ -100,7 +100,7 @@ sub new_instance {
         }
     });    
 
-    $attrs{$_} = $_params{$_} foreach keys %_params;
+    $attrs{$_} = $params{$_} foreach keys %params;
 
     my ($class_name) = ($self->name);
 
@@ -111,7 +111,7 @@ sub new_instance {
 
     $self->traverse_post_order(sub {
         my $c = shift;
-        $c->get_method('BUILD')->call($instance) if $c->has_method('BUILD');        
+        $c->get_method('BUILD')->call($instance, %params) if $c->has_method('BUILD');        
     });    
 
     return $instance;

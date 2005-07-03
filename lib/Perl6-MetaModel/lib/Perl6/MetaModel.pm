@@ -7,14 +7,14 @@ use warnings;
 use Perl6::Object;
 use Perl6::Role;
 
+use Perl6::SubMethod;
+
 use Perl6::Class::Attribute;
 use Perl6::Class::Method;
 
 use Perl6::Instance::Attribute;
 use Perl6::Instance::Method;
 
-use Perl6::Role::Attribute;
-use Perl6::Role::Method;
 
 sub import {
     no strict 'refs';
@@ -58,7 +58,7 @@ package $name;
         my $instance = $params->{instance};
         
         if (exists $instance->{BUILD}) {
-            ($name)->meta->add_method('BUILD' => Perl6::Instance::Method->new($name => $instance->{BUILD}));            
+            ($name)->meta->add_method('BUILD' => Perl6::SubMethod->new($name => $instance->{BUILD}));            
         }
         if (exists $instance->{methods}) {
             ($name)->meta->add_method($_ => Perl6::Instance::Method->new($name, $instance->{methods}->{$_})) 
