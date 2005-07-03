@@ -58,8 +58,8 @@ Pugs needs the Glasgow Haskell Compiler (GHC) 6.4 or above.  To install GHC,
 download a binary build from http://haskell.org/ghc/.  Although source code
 for GHC is available, it will take a very long time to build by yourself. 
 
-Pugs needs Parrot 0.2.0 or above to support Perl 6 Rules.  To install Parrot,
-follow the instructions at http://www.parrotcode.org/.
+Pugs needs Parrot 0.2.2 or above to support Perl 6 Rules and PIR evaluation.
+To install Parrot, follow the instructions at http://www.parrotcode.org/.
 
 http://www.jwcs.net/~jonathan/perl6/ has binary builds for Win32.  If you'd
 like to build by hand, http://wiki.kn.vutbr.cz/mj/?Perl%206%20and%20Parrot has
