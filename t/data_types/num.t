@@ -9,7 +9,7 @@ basic Number tests
 
 =cut
 
-plan 40;
+plan 44;
 
 my $a = 1; "$a";
 isa_ok($a, 'Int');
@@ -77,9 +77,17 @@ my $a = "1.01";
 isa_ok(+$a, "Num");
 is(+$a, 1.01, "1.01 numifies to 1.01");
 
+my $a = "01.01";
+isa_ok(+$a, "Num");
+is(+$a, 1.01, "01.01 numifies to 1.01", :todo<bug>);
+
 my $a = "1.01";
 isa_ok(int($a), "Int");
 is(int($a), 1, "1.01 intifies to 1");
+
+my $a = "0101";
+isa_ok(+$a, "Num");
+is(+$a, 101, "0101 numifies to 101", :todo<bug>);
 
 my $a = 2 ** 65; # over the 64 bit limit too
 is($a, 36893488147419103232, "we have bignums, not weeny floats");
