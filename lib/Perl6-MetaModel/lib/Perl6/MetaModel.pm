@@ -15,7 +15,6 @@ use Perl6::Class::Method;
 use Perl6::Instance::Attribute;
 use Perl6::Instance::Method;
 
-use Carp 'croak';
 
 sub import {
     no strict 'refs';
@@ -30,34 +29,34 @@ sub role {
 
 sub class {
     my ($name, $params) = @_;
-    
+
     my %allowed = map { $_ => undef } qw(extends instance class does);
     my %allowed_in = map { $_ => undef } qw(attrs BUILD methods);
-    
+
     foreach my $key (keys %{$params}) {
-        croak "Invalid key ($key) in params" 
+        die "Invalid key ($key) in params" 
             unless exists $allowed{$key};
         if ($key eq 'class' || $key eq 'kind') {
             foreach my $sub_key (keys %{$params->{$key}}) {
-                croak "Invalid sub_key ($sub_key) in key ($key) in params" 
+                die "Invalid sub_key ($sub_key) in key ($key) in params" 
                     unless exists$allowed_in{$sub_key};                
             }
         }
     }
-    
-    
+
+
     my $extends = $params->{extends} || [ 'Perl6::Object' ];
     my $code = qq|
 package $name;
 \@$name\:\:ISA = 'Perl6::Object';
 |;
     eval $code;
-     
+
     ($name)->meta->superclasses([ map { $_->meta } @{$extends} ]);        
-    
+
     if (exists $params->{instance}) {
         my $instance = $params->{instance};
-        
+
         if (exists $instance->{BUILD}) {
             ($name)->meta->add_method('BUILD' => Perl6::SubMethod->new($name => $instance->{BUILD}));            
         }
@@ -89,11 +88,11 @@ package $name;
                     $attr => Perl6::Class::Attribute->new($name => $attr, $type)
                 );              
             }            
-            
+
         }
         if (exists $class->{methods}) {
             foreach my $label (keys %{$class->{methods}}) {
-                ($name)->meta->add_class_method(
+                ($name)->meta->add_method(
                     $label => Perl6::Class::Method->new($name, $class->{methods}->{$label})
                 );
             }

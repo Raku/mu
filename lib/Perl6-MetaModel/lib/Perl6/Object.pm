@@ -7,7 +7,6 @@ use warnings;
 use Perl6::MetaClass;
 
 use Scalar::Util 'blessed';
-use Carp 'croak';
 
 sub new {
     my ($class, %params) = @_;
@@ -26,21 +25,21 @@ sub can {
         return $self->meta->responds_to($label);
     }
     else {
-        return $self->meta->class_responds_to($label);
+        return $self->meta->responds_to($label, for => 'Class');
     }
 }
 
 sub get_class_value {
     my ($self, $label) = @_;
-    my $prop = $self->meta->find_class_attribute_spec($label)
-        || croak "Cannot locate class property ($label) in class ($self)";
+    my $prop = $self->meta->find_attribute_spec($label, for => 'Class')
+        || die "Cannot locate class property ($label) in class ($self)";
     $prop->get_value();
 }
 
 sub set_class_value {
     my ($self, $label, $value) = @_;
-    my $prop = $self->meta->find_class_attribute_spec($label)
-        || croak "Cannot locate class property ($label) in class ($self)";
+    my $prop = $self->meta->find_attribute_spec($label, for => 'Class')
+        || die "Cannot locate class property ($label) in class ($self)";
     $prop->set_value($value);
 }
 
@@ -52,27 +51,27 @@ sub get_value {
 sub set_value {
     my ($self, $label, $value) = @_;
     my $prop = $self->meta->find_attribute_spec($label)
-        || croak "Perl6::Attribute ($label) no found";
+        || die "Perl6::Attribute ($label) no found";
 
     # since we are not private, then check the type
     # assuming there is one to check ....
     if (my $type = $prop->type()) {
         if ($prop->is_array()) {
             (blessed($_) && ($_->isa($type) || $_->does($type))) 
-                || croak "IncorrectObjectType: expected($type) and got($_)"
+                || die "IncorrectObjectType: expected($type) and got($_)"
                     foreach @$value;                        
         }
         else {
             (blessed($value) && ($value->isa($type) || $value->does($type))) 
-                || croak "IncorrectObjectType: expected($type) and got($value)";                        
+                || die "IncorrectObjectType: expected($type) and got($value)";                        
         }
     }  
     else {
         (ref($value) eq 'ARRAY') 
-            || croak "You can only asssign an ARRAY ref to the label ($label)"
+            || die "You can only asssign an ARRAY ref to the label ($label)"
                 if $prop->is_array();
         (ref($value) eq 'HASH') 
-            || croak "You can only asssign a HASH ref to the label ($label)"
+            || die "You can only asssign a HASH ref to the label ($label)"
                 if $prop->is_hash();
     }                      
 
@@ -97,14 +96,14 @@ sub AUTOLOAD {
             $method = $self->meta->find_method($label);
         }
         (blessed($method) && $method->isa('Perl6::Method')) 
-            || croak "Method ($label) not found for instance ($self)";
+            || die "Method ($label) not found for instance ($self)";
         @return_value = $method->call($self, @_);        
     }
     else {
-        my $method = $self->meta->find_class_method($label);
-        
+        my $method = $self->meta->find_method($label, for => 'Class');
+
         (defined $method) 
-            || croak "Method ($label)  not found for class ($self)";
+            || die "Method ($label)  not found for class ($self)";
         @return_value = $method->call($self, @_);
     }
     return wantarray ?
