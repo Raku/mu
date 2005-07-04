@@ -11,7 +11,7 @@ class HTTP::Request-0.1 {
     
     submethod BUILD (Str $.method, $.uri) { }
     
-    method parse ($str) {
+    method parse ($str is copy) {
         my $request_line;
         
         if ($str ~~ s/^(.*)\n//) {
