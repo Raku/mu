@@ -65,6 +65,6 @@ class HTTP::Request-0.1 {
         
         $req_line ~= $protocol if $proto.defined;
         
-        return ($newline, $req_line, .SUPER::as_string($newline)).join($newline);
+        return ($req_line, .SUPER::as_string($newline)).join($newline);
     }
 }
