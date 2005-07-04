@@ -5,6 +5,7 @@ use strict;
 use warnings;
 
 use Scalar::Util 'blessed';
+use Carp 'croak';
 
 sub new {
     my ($class, %params) = @_;
@@ -45,9 +46,9 @@ sub superclasses {
     my ($self, $superclasses) = @_;
     if (defined $superclasses) {
         (ref($superclasses) eq 'ARRAY')
-            || die "BadType : You must pass the superclasses as an ARRAY ref";
+            || croak "BadType : You must pass the superclasses as an ARRAY ref";
         (blessed($_) && $_->isa('Perl6::MetaClass'))
-            || die "IncorrectObjectType : A superclass must be a Perl6::MetaClass instance"
+            || croak "IncorrectObjectType : A superclass must be a Perl6::MetaClass instance"
                 foreach @{$superclasses};
         $self->{superclasses} = $superclasses;    
     }
@@ -128,16 +129,16 @@ sub new_instance {
 sub add_method {
     my ($self, $label, $method) = @_;
     (defined $label && defined $method)
-        || die "InsufficientArguments : you must provide a method and a label";
+        || croak "InsufficientArguments : you must provide a method and a label";
     (blessed($method) && $method->isa('Perl6::Method'))
-        || die "IncorrectObjectType : Method must be a Perl6::Instance::Method object got($method)";
+        || croak "IncorrectObjectType : Method must be a Perl6::Instance::Method object got($method)";
     $self->{class_definition}->{methods}->{$label} = $method;
 }
 
 sub get_method {
     my ($self, $label) = @_;
     (defined $label)
-        || die "InsufficientArguments : you must provide a label";
+        || croak "InsufficientArguments : you must provide a label";
     $self->{class_definition}->{methods}->{$label};
 }
 
@@ -177,16 +178,16 @@ sub responds_to {
 sub add_class_method {
     my ($self, $label, $method) = @_;
     (defined $label && defined $method)
-        || die "InsufficientArguments : you must provide a method and a label";
+        || croak "InsufficientArguments : you must provide a method and a label";
     (blessed($method) && $method->isa('Perl6::Class::Method'))
-        || die "IncorrectObjectType : Method must be a Perl6::Class::Method object got($method)";
+        || croak "IncorrectObjectType : Method must be a Perl6::Class::Method object got($method)";
     $self->{class_data}->{methods}->{$label} = $method;
 }
 
 sub get_class_method {
     my ($self, $label) = @_;
     (defined $label)
-        || die "InsufficientArguments : you must provide a label";
+        || croak "InsufficientArguments : you must provide a label";
     $self->{class_data}->{methods}->{$label};
 }
 
@@ -223,9 +224,9 @@ sub class_responds_to {
 sub add_attribute {
     my ($self, $label, $attribute) = @_;
     (defined $label && defined $attribute)
-        || die "InsufficientArguments : you must provide an attribute and a label";
+        || croak "InsufficientArguments : you must provide an attribute and a label";
     (blessed($attribute) && $attribute->isa('Perl6::Instance::Attribute'))
-        || die "IncorrectObjectType : Attributes must be a Perl6::Instance::Attribute instance got($attribute)";
+        || croak "IncorrectObjectType : Attributes must be a Perl6::Instance::Attribute instance got($attribute)";
         
     if ($attribute->is_public()) {
         unless ($self->has_method($attribute->accessor_name())) {
@@ -244,7 +245,7 @@ sub add_attribute {
 sub get_attribute {
     my ($self, $label) = @_;
     (defined $label)
-        || die "InsufficientArguments : you must provide a label";
+        || croak "InsufficientArguments : you must provide a label";
     $self->{class_definition}->{attributes}->{$label};
 }
 
@@ -294,9 +295,9 @@ sub find_attribute_spec {
 sub add_class_attribute {
     my ($self, $label, $attribute) = @_;
     (defined $label && defined $attribute)
-        || die "InsufficientArguments : you must provide an attribute and a label";
+        || croak "InsufficientArguments : you must provide an attribute and a label";
     (blessed($attribute) && $attribute->isa('Perl6::Class::Attribute'))
-        || die "IncorrectObjectType : Attributes must be a Perl6::Class::Attribute instance got($attribute)";
+        || croak "IncorrectObjectType : Attributes must be a Perl6::Class::Attribute instance got($attribute)";
 
     if ($attribute->is_public()) {
         unless ($self->has_class_method($attribute->accessor_name())) {
@@ -315,7 +316,7 @@ sub add_class_attribute {
 sub get_class_attribute {
     my ($self, $label) = @_;
     (defined $label)
-        || die "InsufficientArguments : you must provide a label";
+        || croak "InsufficientArguments : you must provide a label";
     $self->{class_data}->{attributes}->{$label};
 }
 
