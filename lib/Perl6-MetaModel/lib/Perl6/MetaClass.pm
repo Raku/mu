@@ -187,55 +187,6 @@ sub responds_to {
     $self->find_method($label, %params) ? 1 : 0;    
 }
 
-# Class Methods
-# XXX -- This is a straight copy + paste from Instance Methods; we probably
-#        want a generalised intermediate dispatch for the visitor methods
-#        that can add the class_ prefix to the parameters in the eg. _get_uniq
-#        calls so we don't end up maintaining two copies of traversal
-#        (but this can wait a bit)
-
-sub add_class_method {
-    my ($self, $label, $method) = @_;
-    (defined $label && defined $method)
-        || croak "InsufficientArguments : you must provide a method and a label";
-    (blessed($method) && $method->isa('Perl6::Class::Method'))
-        || croak "IncorrectObjectType : Method must be a Perl6::Class::Method object got($method)";
-    $self->{class_data}->{methods}->{$label} = $method;
-}
-
-sub get_class_method {
-    my ($self, $label) = @_;
-    (defined $label)
-        || croak "InsufficientArguments : you must provide a label";
-    $self->{class_data}->{methods}->{$label};
-}
-
-sub has_class_method {
-    my ($self, $label) = @_;
-    $self->get_class_method($label) ? 1 : 0;    
-}
-
-# XXX - Should this use the class_precedence_list?
-sub find_class_method {
-    my ($self, $label) = @_;
-    return $self->get_class_method($label) if $self->has_class_method($label);
-    return $self->find_class_method_in_superclasses($label);
-}
-
-sub find_class_method_in_superclasses {
-    my ($self, $label) = @_;
-    foreach my $super (@{$self->superclasses}) {
-        my $method = $super->find_class_method($label);
-        return $method if defined $method;
-    }
-    return undef;
-}
-
-sub class_responds_to {
-    my ($self, $label) = @_;
-    $self->find_class_method($label) ? 1 : 0;    
-}
-
 ## ATTRIBUTES
 
 # Instance Attributes
