@@ -209,9 +209,6 @@ method :parts () {
     } elsif ($content_type eq "message/http") {
         my $content = .content;
         
-        require HTTP::Request;
-        require HTTP::Response;
-        
         my $class = ($content ~~ m,^(HTTP/.*)\n,) ?? HTTP::Response :: HTTP::Request;
         @:parts = $class.parse($content);
     } elsif ($content_type ~~ m,message/,) {
