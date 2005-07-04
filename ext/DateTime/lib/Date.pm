@@ -13,6 +13,12 @@ my @MonthLengths =
 my @LeapYearMonthLengths = @MonthLengths;
 @LeapYearMonthLengths[1]++;
 
+my @PreviousMonthDoY =
+    ( 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 );
+
+my @PreviousMonthDoLY =
+    ( 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335 );
+
 # has DateTime::Locale $.locale
 
 
@@ -92,6 +98,20 @@ sub _is_leap_year (Int $year) returns bool {
 
 method quarter () returns Int {
     return int( ( 1.0 / 3.1 ) * $.month ) + 1;
+}
+
+method day_of_quarter () returns Int {
+    my $doy = $_.day_of_year();
+
+    my @doy := _is_leap_year($.year) ?? @PreviousMonthDoLY :: @PreviousMonthDoY;
+
+    return $doy - @doy[ ( 3 * $_.quarter() ) - 3 ];
+}
+
+method day_of_year () returns Int {
+    my @doy := _is_leap_year($.year) ?? @PreviousMonthDoLY :: @PreviousMonthDoY;
+
+    @doy[$.month - 1] + $.day;
 }
 
 method ymd (Str ?$sep = "-") returns Str {
