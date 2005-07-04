@@ -5,15 +5,15 @@
 * New codegen backends: `PIR`, `PIL`
 ** Pugs can now generate PIL (Pugs Intermediate Language)
 ** ...and emit PIR (Parrot Intermediate Representation) from PIL
-** New `make pirsmoke` target runs the test suite with PIR backend
+** New `make pirsmoke` target runs test suite using PIR backend
 * `eval` and related builtins are now implemented in `Prelude.pm`
 * Initial support for `%*INC`
 * `Bare` and `Parametric` types are no more; both merged with `Block`
 * Pairs in variables now bind to named parameters just like pair literals
-* Support for `does RoleName` and `is ClassName` in class body
-* Parse for `trusts ClassName` and `my $foo is trait_name` as no-ops
+* Support for `does RoleName` and `is ClassName` within class declarations
+* Parse `trusts ClassName` and `my $foo is trait_name` as no-ops
 * New builtin class: `Proxy`
-* Support for `eval("...", :lang<...>")`
+* Support for `eval("...", :lang<...>)`
 
 === Bundled Modules
 
@@ -21,20 +21,21 @@
 ** `Module::Pluggable::Fast`
 ** `HTTP::Server::Simple`
 ** `Perldoc` (partial port)
-* Completed Locale::KeyedText (this was our first contributed module)
+* Complete Locale::KeyedText (this was our first contributed module)
 ** Compiles, executes, and passes whole pristine test suite
-** Updated version to 1.5.0; it corresponds to the Perl 5 version 1.05
-** Some skips and workarounds remains due to missing Pugs features
+** Updated version to 1.5.0, corresponding to the Perl 5 version 1.05
+** Some skips and workarounds remain due to missing Pugs features
 
 === Test, Examples and Documentations
 
-* Many new tests and refactoring based on new ruling, we now have 7500+ tests
-* YAPC::NA talk: "Apocalypse Now" in `docs/talks/Apocalypse_Now.spork`
-* New `examples/continuation` and `examples/unitfunctions` directories
-* Examples of methods acting on builtin-types in `examples/vmethods/`
+* Many new tests and refactoring based on new rulings; we now have 7500+ tests
+* YAPC::NA talk: "Apocalypse Now" (in `docs/talks/Apocalypse_Now.spork`)
+* New directories: `examples/continuation` and `examples/unitfunctions`
+* Examples of methods acting on builtin types in `examples/vmethods/`
 * Low level sanity tests in `t/01-sanity/` for the PIR code emitter
 * More JAPHs added to `examples/japhs/`
 * Updates and cleanups to `docs/01Overview.html`
+** Moved to `docs/01Overview.kwid`
 * Interpreter and debugger for l33t in `examples/obfu/l33t.p6`
 * Perl 6 Rule grammar and related files added to `module/Grammars/`
 
