@@ -7,9 +7,8 @@
 use Test;
 use Date::Gregorian;
 
-plan 21;
+plan 301;
 
-if 0 {
 my $dg = Date::Gregorian.new( :year(1870), :month(10), :day(21),
 			      :hour(12),   :minute(10),
 			      :second(45.000123456),
@@ -46,24 +45,22 @@ is($dg.hour, 12, "positional date()");
 is($dg.minute, 12, "positional date()");
 is($dg.second, 12, "positional date()");
 
-}
-
 # note: I consider parsing ISO-8601 natively to be a sanity condition
 # of a date module, this is why it is in this test.
 
-my @forms = #< YY YYYY YYYY-MM YYYYMM YYYY-MM-DD YYYYMMDD
-	    #  YY-MM YY-MM-DD --DD -MM
-	    #  YYYY-DDD YYYYDDD YY-DDD YYDDD
-            #  YYYYWNN YYYYWNND YYWNND
-	    #  YYYY-MM-DDTHH:MN:SS YYYY-MM-DDHH:MN:SS
-	    #  YYYYMMDDHH:MN:SS YYYYMMDDHHMNSS
-	    #  YYYYMMDDHH YYYYMMDDHHMN
-    ("YYYYMMDDHHMNSSF",
-	      #YY-MMDD YY-MMDDHH YY-MMDDHHMN YY-MMDDHHMNSS
-              <YY-MMDDHHMNSSF
+my @forms = < YY YYYY YYYY-MM YYYYMM YYYY-MM-DD YYYYMMDD
+	      YY-MM YY-MM-DD --DD -MM
+	      YYYY-DDD YYYYDDD YY-DDD YYDDD
+              YYYYWNN YYYYWNND YYWNND
+	      YYYY-MM-DDTHH:MN:SS YYYY-MM-DDHH:MN:SS
+	      YYYYMMDDHH:MN:SS YYYYMMDDHHMNSS
+	      YYYYMMDDHH YYYYMMDDHHMN YYYYMMDDHHMNSSF
+	      YY-MMDD YY-MMDDHH YY-MMDDHHMN YY-MMDDHHMNSS
+              YY-MMDDHHMNSSF
               THH HH.FFF HH,FFF HH:MN THHMN HH:MN.FFF
-              HH:MN,FFF HH:MN:SS THHMNSS HH:MN:SS.FFF HH:MN:SS,FFF >,
-	      "YYYY-MM-DD HH:MN:SS");
+              HH:MN,FFF HH:MN:SS THHMNSS HH:MN:SS.FFF
+              HH:MN:SS,FFF>,
+              "YYYY-MM-DD HH:MN:SS";
 
 for @forms -> $form {
 
@@ -110,34 +107,24 @@ for @forms -> $form {
 	my $comma = $1;
         my ($from, $chars) = ($/.from, $/.chars);
 	$fractional = format_2_n_dp($2.chars, $seconds/3600);
-        say("hour: $hour, fractional: $fractional");
 	$min = int((numify($fractional) - $hour)*60);
-        say("min: $min");
 	$sec = int((numify($fractional) - $hour)*3600 - $min * 60);
-        say("sec: $sec");
 	$frac = (numify($fractional) - $hour)*3600 - $min * 60 - $sec;
-	say "min is now $min, sec is now $sec, frac is now $frac / {sprintf('%03d',$frac*1000)}, seconds is $seconds (fractional is $fractional)";
 	$fractional ~~ s:perl5/\./$comma/; #:
         substr($iso, $from, $chars) = $fractional;
     }
 
     elsif $iso ~~ rx:perl5/(HH)/ {
 
-        say "Found Hour!  splitting out of {$seconds}s";
 	substr($iso, $/.from, $/.chars) = sprintf("%02d", $hour);
         $seconds -= $hour * 3600;
-        say "Leaving $hour hours and $seconds seconds";
 
         if $iso ~~ rx:perl5/(MN([,\.]?)(F+))/ {
 	    my $comma = $1;
             my ($from, $chars) = ($/.from, $/.chars);
-	    say "Formatting minutes to $2 seconds seconds";
 	    $fractional = format_2_n_dp($2.chars, $seconds/60);
-            say("seconds: $seconds, min: $min");
 	    $sec = int( ( numify($fractional) - $min )*60 );
-            say("sec: $sec");
             $frac = (numify($fractional) - $min)*60 - $sec;
-	    say "sec is now $sec, frac is now $frac / {sprintf('%03d',$frac*1000)}, seconds is $seconds (fractional is $fractional)";
 	    $fractional ~~ s:perl5/\./$comma/; #:
             substr($iso, $from, $chars) = $fractional;
 	}
@@ -150,7 +137,6 @@ for @forms -> $form {
 		my ($from, $chars) = ($/.from, $/.chars);
 		$fractional = format_2_n_dp($2.chars, $seconds);
 	        $frac = numify($fractional) - $sec;
-		say "frac is now $frac / {sprintf('%03d',$frac*1000)}, seconds is $seconds (fractional is $fractional)";
 	        $fractional ~~ s:perl5/\./$comma/;  #:
                 substr($iso, $from, $chars) = $fractional;
             }
@@ -175,26 +161,26 @@ for @forms -> $form {
 		+ ( ($doy||$week) ?? 0 :: 2 )), "failed to parse";
     } else {
         if ( $year > 100 ) {
-	    #is($date.year, $year, "$form - year");
+	    is($date.year, $year, "$form - year");
 	} else {
-	    #is($date.yy, $year, "$form - yy");
+	    is($date.yy, $year, "$form - yy");
 	}
  	if $doy {
 	    $doy = 365 if $doy == 366 and $year % 4;
-            #is($date.doy, $doy, "$form - doy")
+            is($date.doy, $doy, "$form - doy")
 	}
  	if $week {
-	    # FIXME - hardcode expected "short" years
+	    # FIXME - figure out which years are "short" in ISO weeks
 	    $week-- while ($week > 52 and $date.week and $date.week < $week);
-            #is($date.week, $week, "$form - week") if $week;
+            is($date.week, $week, "$form - week") if $week;
 	}
-        #is($date.month, $month, "$form - month") unless $week or $doy;
-        #is($date.day, $day, "$form - day") unless $week or $doy;
+        is($date.month, $month, "$form - month") unless $week or $doy;
+        is($date.day, $day, "$form - day") unless $week or $doy;
 
-        #is($date.hour, $hour, "$form - hour");
-        #is($date.minute, $min, "$form - minute");
-        #is(int($date.second), $sec, "$form - sec");
-        #is($date.millisecond, $frac, "$form - millisecond");
+        is($date.hour, $hour, "$form - hour");
+        is($date.minute, $min, "$form - minute");
+        is(int($date.second), $sec, "$form - sec");
+        is($date.millisecond, $frac, "$form - millisecond");
     }
 }
 
@@ -205,7 +191,7 @@ sub format_2_n_dp (Int $dp, Num $frac) returns Str {
 sub numify (Str $str) returns Num {
     $str ~~ rx:perl5/^0*([1-9].*)/;
     my $num = +($0);
-    say "numified $str to $num";
+    #say "numified $str to $num";
     return $num;
 }
 
