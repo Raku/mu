@@ -1,8 +1,8 @@
 use v6;
 
-use HTTP::Headers ();
-use HTTP::Request ();
-use HTTP::Response ();
+use HTTP::Headers;
+use HTTP::Request;
+use HTTP::Response;
 
 class HTTP::Message-0.1;
 
