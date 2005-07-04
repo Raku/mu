@@ -84,7 +84,7 @@ class HTTP::Response {
         $status_line ~= " ($status_message)" if $status_message ne $message;
         $status_line ~= " $message";
         
-        return ($newline, $status_line, .SUPER::as_string($newline)).join($newline);
+        return ($status_line, .SUPER::as_string($newline)).join($newline);
     }
     
     method is_info     () { HTTP::Status::is_info     (.code); }
