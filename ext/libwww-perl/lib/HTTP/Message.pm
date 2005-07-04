@@ -74,7 +74,7 @@ method protocol ($self: Str ?$protocol) is rw {
 }
 
 # XXX this might need to be rewritten
-method content ($self: Str ?$content) is rw {
+method content ($self: Str ?$content, Bool ?$keep) is rw {
     return new Proxy:
         FETCH => {
                 if (want ~~ List) {
