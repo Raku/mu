@@ -2,7 +2,7 @@
 use v6;
 
 use HTTP::Status ();
-use HTTP::Message;
+require HTTP::Message;
 
 class HTTP::Response {
     is HTTP::Message;
