@@ -93,3 +93,15 @@ sub _is_leap_year (Int $year) returns bool {
 method quarter () returns Int {
     return int( ( 1.0 / 3.1 ) * $.month ) + 1;
 }
+
+method ymd (Str ?$sep = "-") returns Str {
+    return [$.year, $.month, $.day].join($sep);
+}
+
+method mdy (Str ?$sep = "-") returns Str {
+    return [$.month, $.day, $.year].join($sep);
+}
+
+method dmy (Str ?$sep = "-") returns Str {
+    return [$.day, $.month, $.year].join($sep);
+}
