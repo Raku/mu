@@ -183,8 +183,8 @@ sub find_method_in_superclasses {
 }
 
 sub responds_to {
-    my ($self, $label) = @_;
-    $self->find_method($label) ? 1 : 0;    
+    my ($self, $label, %params) = @_;
+    $self->find_method($label, %params) ? 1 : 0;    
 }
 
 # Class Methods
