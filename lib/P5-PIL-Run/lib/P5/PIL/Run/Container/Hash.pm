@@ -17,9 +17,9 @@ role 'IHash' => {};
 
 class 'P5::PIL::Run::Container::Hash' => {
 	does => [ 'IHash' ],
-	class => {
+	instance => {
 		attrs => [ '%:slots' ],
-		init => sub {
+		BUILD => sub {
 			my $self = shift;
 			$self->set_value('%:slots', {});
 		},
@@ -44,16 +44,28 @@ class 'P5::PIL::Run::Container::Hash' => {
 				my $container = shift;
 				$self->hash_fetch->{$idx} = $container;
 			},
+			_hash_vivifyElem => sub {
+				my $self = shift;
+				my $idx = shift;
+				my $c = $self->hash_fetchElem($idx);
+				unless ($c){
+					$c = P5::PIL::Run::Container::Scalar->new;
+					$self->hash_storeElem($idx, $c);
+				}
+				$c;
+			},
 			hash_fetchVal => sub {
 				my $self = shift;
 				my $idx = shift;
-				$self->hash_fetchElem($idx)->scalar_fetch;
+				my $c = $self->hash_fetchElem($idx);
+				return undef unless $c;
+				$c->scalar_fetch;
 			},
-			hash_storeval => sub {
+			hash_storeVal => sub {
 				my $self = shift;
 				my $idx = shift;
 				my $value = shift;
-				$self->hash_fetchElem($idx)->scalar_store($value);
+				$self->_hash_vivifyElem($idx)->scalar_store($value);
 			},
 			hash_fetchKeys => sub {
 				my $self = shift;
@@ -75,7 +87,8 @@ class 'P5::PIL::Run::Container::Hash' => {
 			},
 			hash_isEmpty => sub {
 				my $self = shift;
-				scalar $self->fetchKeys;
+				# FIXME context should be propagated to methods
+				scalar(() = $self->hash_fetchKeys) == 0;
 			},
 		},
 	},

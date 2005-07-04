@@ -8,7 +8,7 @@ use P5::PIL::Run::Container::Scalar;
 
 sub mk_containers {
 	map {
-		my $c = P5::PIL::Run::Container::Scalar->new_instance();
+		my $c = P5::PIL::Run::Container::Scalar->new;
 		$c->scalar_store($_);
 		$c;
 	} @_;
@@ -18,9 +18,9 @@ role 'IArray' => {};
 
 class 'P5::PIL::Run::Container::Array' => {
 	does => [ 'IArray' ],
-	class => {
+	instance => {
 		attrs => [ '@:slots' ],
-		init => sub {
+		BUILD => sub {
 			my $self = shift;
 			$self->set_value('@:slots', []);
 		},		

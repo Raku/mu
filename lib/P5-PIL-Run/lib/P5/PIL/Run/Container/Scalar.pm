@@ -10,7 +10,7 @@ role 'IScalar' => {};
 
 class 'P5::PIL::Run::Container::Scalar' => {
     does => [ 'IScalar' ],
-    class => {
+    instance => {
         attrs => [ '$:value' ],
         methods => {
             'scalar_fetch' => sub {
