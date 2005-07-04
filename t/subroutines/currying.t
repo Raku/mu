@@ -13,7 +13,7 @@ Tests curried subs as defined by L<S06/Currying>
 
 =cut
 
-plan 7;
+plan 8;
 
 sub foo (+$x, +$y, +$z = 'd') {
 	"x=$x y=$y z=$z";
@@ -32,3 +32,7 @@ ok(!(eval '&foo.assuming(1)'), "can't curry without named params",:todo); # L<S0
 
 ok(!(eval '&foo.assuming("f" => 3)'), "can't curry nonexistent named param",:todo); # L<S06/Currying /whose names must match parameters of the subroutine itself/> 
 
+# L<S06/"Currying" /The result of a use statement/>
+(eval('use t::packages::Test') // {}).assuming(arg1 => "foo");
+is try { dummy_sub_with_params(arg2 => "bar") }, "[foo] [bar]",
+  "(use ...).assuming works", :todo<feature>;
