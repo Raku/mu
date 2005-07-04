@@ -89,3 +89,7 @@ sub _is_leap_year (Int $year) returns bool {
 
     return bool::false;
 }
+
+method quarter () returns Int {
+    return int( ( 1.0 / 3.1 ) * $.month ) + 1;
+}
