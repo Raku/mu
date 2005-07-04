@@ -9,7 +9,7 @@ class HTTP::Request-0.1 {
     has $.method    is rw;
     has $:uri       is rw;
     
-    submethod BUILD ($.method, $.uri, $header, $content) { }
+    submethod BUILD (Str $.method, $.uri, $header, Str ?$content) { }
     
     method parse ($str) {
         my $request_line;
