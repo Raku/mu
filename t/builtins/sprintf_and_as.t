@@ -5,7 +5,7 @@ use Test;
 
 # Tests for sprintf() and .as().
 
-plan 8;
+plan 9;
 
 is sprintf("Hi"),                 "Hi",     "sprintf() works with zero args";
 is sprintf("%03d",      3),       "003",    "sprintf() works with one arg";
@@ -19,3 +19,8 @@ eval_is '"3.141".as("[%d]")', "[3]",  "as() works with %d", :todo<bug>;
 
 # XXX: Following speculative
 eval_is '(1.3,2.4,3).as("%d")', "1 2 3", "as() works with lists (speculative test)", :todo<bug>;
+
+# traditionally, sprintf has rounded, not truncated fractions.
+is sprintf("%d", 1.5), "2",   "sprintf('%d') rounds arguments", :todo<bug>;
+
+
