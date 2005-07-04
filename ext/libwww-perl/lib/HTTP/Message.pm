@@ -47,12 +47,12 @@ method parse ($self: Str $string) returns HTTP::Headers {
             #$value ~~ s/\r$//;
             $value ~~ s:P5/\r\z//;
             %headers{$field} = $value;
-        #} elsif (%headers.pairs && $string ~~ s/^ (<[ \t]> .*) \n?//) {
-        } elsif (%headers.pairs && $string ~~ s:P5/^([ \t].*)\n?//) {
+        } elsif (%headers.pairs && $string ~~ s/^ (<[ \t]> .*) \n?//) {
             %headers{$field} ~= "\n$0";
+            #%headers{$field} ~~ s/\r$//;
             %headers{$field} ~~ s:P5/\r\z//;
         } else {
-            $string ~~ s/^\r?\n//;
+            $string ~~ s:P5/^\r?\n//;
             last;
         }
     }
