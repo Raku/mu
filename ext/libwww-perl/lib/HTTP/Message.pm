@@ -32,7 +32,7 @@ multi submethod BUILD (%header, Str ?$content = "") {
     $:content = $content;
 }
 
-method parse ($self: Str $string) returns HTTP::Headers {
+method parse (Str $string) returns HTTP::Headers {
     my %headers;
     
     my ($field, $value);
@@ -60,27 +60,27 @@ method parse ($self: Str $string) returns HTTP::Headers {
     return ::?CLASS.new(%headers, $string);
 }
 
-method clear ($self: ) returns Void {
-    $self.:headers.clear();
-    $self.content = '';
-    $self.:parts = ();
+method clear () returns Void {
+    $:headers.clear();
+    .content = '';
+    @.:parts = ();
     return;
 }
 
-method protocol ($self: Str ?$protocol) is rw {
+method protocol (Str ?$protocol) is rw {
     return new Proxy:
         FETCH => { $:protocol; },
         STORE => -> Str $val { $:protocol = $val; };
 }
 
 # XXX this might need to be rewritten
-method content ($self: Str ?$content, Bool ?$keep) is rw {
+method content (Str ?$content, Bool ?$keep) is rw {
     return new Proxy:
         FETCH => {
-                if (want ~~ List) {
-                    $self.:content unless $self.:content.defined;
+                if (want.List) {
+                    $:content unless $:content.defined;
                     
-                    my $old = $self.:content;
+                    my $old = $:content;
                     $old = $$old if $old.ref eq "Scalar";
                     
                     return $old;
@@ -88,7 +88,7 @@ method content ($self: Str ?$content, Bool ?$keep) is rw {
               },
         STORE => -> Str $content, Bool ?$keep {
                 if (want ~~ List) {
-                    $self.:content unless $self.:content.defined;
+                    $:content unless $:content.defined;
                     
                     my $old = $self.:content;
                     $old = $$old if $old.ref eq "Scalar";
@@ -96,31 +96,31 @@ method content ($self: Str ?$content, Bool ?$keep) is rw {
                 
                 $:content = $content;
                 
-                $self.parts = () if $del;
+                #@:parts = () if $del;
                 
-                $self.:set_content($content, $keep);
+                .:set_content($content, $keep);
                 
-                return $old if want ~~ List;
+                return $old if want.List;
               };
 }
 
-method :set_content ($self: Str ?$content, Bool ?$keep) returns Void {
+method :set_content (Str $content, Bool ?$keep) returns Void {
     $:content = $content;
     @:parts = () unless $keep;
 }
 
 # XXX does add_content() need to create references, etc. like the P5 version?
 # I figure it shouldn't be needed since the parameters are bound, not copied.
-method add_content ($self: Str $content) {
+method add_content (Str $content) {
     $:content ~= $content;
 }
 
-method content_ref ($self: Ref ?$content) is rw {
-    $self.:content unless $self.:content.defined;
+method content_ref (Ref ?$content) is rw {
+    $:content unless $:content.defined;
     
-    $self.parts = ();
+    @:parts = ();
     
-    my $old = \$self.:content;
+    my $old = \$:content;
     my $old_ref = $:content_ref;
     $old = $$old if $old_ref;
     
@@ -128,7 +128,7 @@ method content_ref ($self: Ref ?$content) is rw {
         FETCH => { return $old; },
         STORE => -> Ref $content {
                 $:content = $content;
-                $self.:content_ref++;
+                $:content_ref++;
                 
                 return $old;
             };
@@ -146,89 +146,89 @@ method decoded_content ($self: ) {
 }
 
 method as_string ($self: Str ?$newline = "\n") returns Str {
-    my $content = $self.content;
+    my $content = .content;
     
-    return ($self.headers.as_string($newline), $newline, ($content.chars && $content !~ m:P5/\n$/) ?? "\n" :: "" ).join("");
+    return ($:headers.as_string($newline), $newline, ($content.chars && $content !~ /\n$/) ?? "\n" :: "").join("");
 }
 
-method parts ($self: *@new) is rw {
-    my @old = $self.:parts;
+method parts (*@new) is rw {
+    my @old = @:parts;
     
     return new Proxy:
         FETCH => { return @old if want.List; return @old[0]; },
-        STORE => sub (*@new) {
-            my $content_type = $self.content_type // "";
+        STORE => -> *@new {
+            my $content_type = .content_type // "";
             
-            if ($content_type ~~ m:P5,^message/,) {
+            if ($content_type ~~ m,^message/,) {
                 die "Only one part allowed for $content_type content!"
-                    if @new.elems > 1;
-            } elsif ($content_type !~ m:P5,^multipart/,) {
-                $self.remove_content_headers;
-                $self.content_type("multipart/mixed");
+                    if @new > 1;
+            } elsif ($content_type !~ m,^multipart/,) {
+                .remove_content_headers;
+                .content_type("multipart/mixed");
             }
             
-            $self.:parts = @new;
-            $self.:stale_content;
+            @:parts = @new;
+            .:stale_content;
             
             return @old if want.List;
             return @old[0];
         }
 }
 
-method add_part ($self: ::?CLASS $part) returns Void {
-    if (($self.content_type // "") !~ m,^multipart/,) {
-        my $message = ::?CLASS.new($self.remove_content_headers, $self.content(""));
-        $self.content_type("multipart/mixed");
-        $self.:parts = $message;
-    } elsif (!$self.:parts) {
-        $self.:parts;
+method add_part (::?CLASS $part) returns Void {
+    if ((.content_type // "") !~ m,^multipart/,) {
+        my $message = ::?CLASS.new(.remove_content_headers, .content(""));
+        .content_type("multipart/mixed");
+        @:parts = $message;
+    } elsif (!@:parts) {
+        @:parts;
     }
     
     push @:parts, $part;
-    $self.:stale_content;
+    .:stale_content;
     return;
 }
 
-method :stale_content ($self: ) {
-    $self.delete(":content");
-    $self.delete(":content_ref");
+method :stale_content () {
+    undefine($:content);
+    undefine($:content_ref);
 }
 
-method :parts ($self: ) {
-    my $content_type = $self.content_type;
+method :parts () {
+    my $content_type = .content_type;
     
-    if ($content_type ~~ m:P5,^multipart/,) {
-        my @h = HTTP::Headers::Util::HTTP::Headers::Util::split_header_words($self.header("Content-Type"));
-        my %h = @h[0];
+    if ($content_type ~~ m,^multipart/,) {
+        my @h = HTTP::Headers::Util::split_header_words(.header("Content-Type"));
+        my %h = %{@h[0]};
         
         if ((my $boundary = $h<boundary>).defined) {
-            my $str = $self.content;
+            my $str = .content;
             
             if ($str ~~ s:P5/(^|.*?\r?\n)--\Q$boundary\E\r?\n//) {
-                @:parts = split(/\r?\n--\Q$b\E\r?\n/, $str).map:{ HTTP::Message::parse($_); };
+                @:parts = split(rx:P5/\r?\n--\Q$b\E\r?\n/, $str).map:{ HTTP::Message::parse($_); };
             }
         }
     } elsif ($content_type eq "message/http") {
-        my $content = $self.content;
-        my $class = ($content ~~ m:P5,^(HTTP/.*)\n,) ?? HTTP::Response :: HTTP::Request;
-        @:parts = ($class.parse($content));
-    } elsif ($content_type ~~ m:P5,message/,) {
-        @:parts = HTTP::Message.parse($self.content);
+        my $content = .content;
+        my $class = ($content ~~ m,^(HTTP/.*)\n,) ?? HTTP::Response :: HTTP::Request;
+        @:parts = $class.parse($content);
+    } elsif ($content_type ~~ m,message/,) {
+        @:parts = HTTP::Message.parse(.content);
     }
     
     @:parts //= ();
 }
 
-method :content ($self: ) {
-    my $content_type = $self.content_type // "";
+method :content () {
+    my $content_type = .content_type // "";
     
-    if ($content_type ~~ m:P5:i,^\s*message/,) {
-        $self.:set_content(@:parts[0].as_string($CRLF), 1);
+    if ($content_type ~~ m:i,^\s*message/,) {
+        .:set_content(@:parts[0].as_string($CRLF), 1);
         return;
     }
     
     my @v = HTTP::Headers::Util::split_header_words($content_type);
-    die "Multiple Content-Type headers!" if +@v > 1;
+    die "Multiple Content-Type headers!" if @v > 1;
     
     @v = @v[0];
     
@@ -244,10 +244,10 @@ method :content ($self: ) {
         }
     }
     
-    my @parts = @:parts.map(-> $self { $self.as_string($CRLF) });
+    my @parts = @:parts.map({ .as_string($CRLF) });
     
     my $bno = 0;
-    $boundary //= $self.:boundary();
+    $boundary //= .:boundary;
     
     # XXX need to do the CHECK_BOUNDARY bit
     
@@ -258,23 +258,21 @@ method :content ($self: ) {
     }
     
     $content_type = HTTP::Headers::Util::join_header_words(@v);
-    $self.header("Content-Type", $content_type);
+    .header("Content-Type", $content_type);
     
-    $self.:set_content("--$boundary$CRLF" ~ @parts.join("$CRLF--boundary$CRLF") ~ "$CRLF--$boundary$CRLF", 1);
+    .:set_content("--$boundary$CRLF" ~ @parts.join("$CRLF--boundary$CRLF") ~ "$CRLF--$boundary$CRLF", 1);
 }
 
-method :boundary ($self: Num ?$size) returns Str {
+method :boundary (Num ?$size) returns Str {
     if (!$size) { return "xYzZY"; }
     
     my $b;
     # XXX use MIME::Base64::encode
     #$b = MIME::Base64::encode(1..($size * 3).map:{ chr(rand(256)) }.join(""), "");
-    $b ~~ s:P5:g/\W+/X/; # ensure alnum only
+    $b ~~ s:g/\W+/X/; # ensure alnum only
     return $b;
 }
 
-multi method *coerce:<as> ($self: Str ::to) {
-    $self.as_string("\n");
+multi method *coerce:<as> (Str ::to) {
+    .as_string("\n");
 }
-
-1;
