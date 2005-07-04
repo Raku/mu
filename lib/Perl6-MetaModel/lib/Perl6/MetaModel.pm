@@ -15,6 +15,7 @@ use Perl6::Class::Method;
 use Perl6::Instance::Attribute;
 use Perl6::Instance::Method;
 
+use Carp 'croak';
 
 sub import {
     no strict 'refs';
@@ -34,11 +35,11 @@ sub class {
     my %allowed_in = map { $_ => undef } qw(attrs BUILD methods);
 
     foreach my $key (keys %{$params}) {
-        die "Invalid key ($key) in params" 
+        croak "Invalid key ($key) in params" 
             unless exists $allowed{$key};
         if ($key eq 'class' || $key eq 'kind') {
             foreach my $sub_key (keys %{$params->{$key}}) {
-                die "Invalid sub_key ($sub_key) in key ($key) in params" 
+                croak "Invalid sub_key ($sub_key) in key ($key) in params" 
                     unless exists$allowed_in{$sub_key};                
             }
         }

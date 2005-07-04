@@ -5,6 +5,7 @@ use strict;
 use warnings;
 
 use Scalar::Util 'blessed';
+use Carp 'croak';
 
 use constant INSTANCE_TABLE => 'class_definition';
 use constant CLASS_TABLE    => 'class_data';
@@ -48,9 +49,9 @@ sub superclasses {
     my ($self, $superclasses) = @_;
     if (defined $superclasses) {
         (ref($superclasses) eq 'ARRAY')
-            || die "BadType : You must pass the superclasses as an ARRAY ref";
+            || croak "BadType : You must pass the superclasses as an ARRAY ref";
         (blessed($_) && $_->isa('Perl6::MetaClass'))
-            || die "IncorrectObjectType : A superclass must be a Perl6::MetaClass instance"
+            || croak "IncorrectObjectType : A superclass must be a Perl6::MetaClass instance"
                 foreach @{$superclasses};
         $self->{superclasses} = $superclasses;    
     }
@@ -131,9 +132,9 @@ sub new_instance {
 sub add_method {
     my ($self, $label, $method) = @_;
     (defined $label && defined $method)
-        || die "InsufficientArguments : you must provide a method and a label";
+        || croak "InsufficientArguments : you must provide a method and a label";
     (blessed($method) && $method->isa('Perl6::Method'))
-        || die "IncorrectObjectType : Method must be a Perl6::Method object got($method)";
+        || croak "IncorrectObjectType : Method must be a Perl6::Method object got($method)";
     my $method_table;
     if ($method->isa('Perl6::Instance::Method')) {
         $method_table = INSTANCE_TABLE;
@@ -148,7 +149,7 @@ sub add_method {
         $method_table = INSTANCE_TABLE; 
     }    
     else {
-        die "Incorrect Object Type : I dont know what to do with ($method)";
+        croak "Incorrect Object Type : I dont know what to do with ($method)";
     }    
     $self->{$method_table}->{methods}->{$label} = $method;
 }
@@ -156,7 +157,7 @@ sub add_method {
 sub get_method {
     my ($self, $label, %params) = @_;
     (defined $label)
-        || die "InsufficientArguments : you must provide a label";
+        || croak "InsufficientArguments : you must provide a label";
     $self->{$self->_which_table(\%params)}->{methods}->{$label};
 }
 
@@ -182,8 +183,57 @@ sub find_method_in_superclasses {
 }
 
 sub responds_to {
-    my ($self, $label, %params) = @_;
-    $self->find_method($label, %params) ? 1 : 0;    
+    my ($self, $label) = @_;
+    $self->find_method($label) ? 1 : 0;    
+}
+
+# Class Methods
+# XXX -- This is a straight copy + paste from Instance Methods; we probably
+#        want a generalised intermediate dispatch for the visitor methods
+#        that can add the class_ prefix to the parameters in the eg. _get_uniq
+#        calls so we don't end up maintaining two copies of traversal
+#        (but this can wait a bit)
+
+sub add_class_method {
+    my ($self, $label, $method) = @_;
+    (defined $label && defined $method)
+        || croak "InsufficientArguments : you must provide a method and a label";
+    (blessed($method) && $method->isa('Perl6::Class::Method'))
+        || croak "IncorrectObjectType : Method must be a Perl6::Class::Method object got($method)";
+    $self->{class_data}->{methods}->{$label} = $method;
+}
+
+sub get_class_method {
+    my ($self, $label) = @_;
+    (defined $label)
+        || croak "InsufficientArguments : you must provide a label";
+    $self->{class_data}->{methods}->{$label};
+}
+
+sub has_class_method {
+    my ($self, $label) = @_;
+    $self->get_class_method($label) ? 1 : 0;    
+}
+
+# XXX - Should this use the class_precedence_list?
+sub find_class_method {
+    my ($self, $label) = @_;
+    return $self->get_class_method($label) if $self->has_class_method($label);
+    return $self->find_class_method_in_superclasses($label);
+}
+
+sub find_class_method_in_superclasses {
+    my ($self, $label) = @_;
+    foreach my $super (@{$self->superclasses}) {
+        my $method = $super->find_class_method($label);
+        return $method if defined $method;
+    }
+    return undef;
+}
+
+sub class_responds_to {
+    my ($self, $label) = @_;
+    $self->find_class_method($label) ? 1 : 0;    
 }
 
 ## ATTRIBUTES
@@ -193,9 +243,9 @@ sub responds_to {
 sub add_attribute {
     my ($self, $label, $attribute) = @_;
     (defined $label && defined $attribute)
-        || die "InsufficientArguments : you must provide an attribute and a label";
+        || croak "InsufficientArguments : you must provide an attribute and a label";
     (blessed($attribute) && $attribute->isa('Perl6::Instance::Attribute'))
-        || die "IncorrectObjectType : Attributes must be a Perl6::Instance::Attribute instance got($attribute)";
+        || croak "IncorrectObjectType : Attributes must be a Perl6::Instance::Attribute instance got($attribute)";
 
     if ($attribute->is_public()) {
         unless ($self->has_method($attribute->accessor_name())) {
@@ -214,7 +264,7 @@ sub add_attribute {
 sub get_attribute {
     my ($self, $label, %params) = @_;
     (defined $label)
-        || die "InsufficientArguments : you must provide a label";
+        || croak "InsufficientArguments : you must provide a label";
     $self->{$self->_which_table(\%params)}->{attributes}->{$label};
 }
 
@@ -266,9 +316,9 @@ sub find_attribute_spec {
 sub add_class_attribute {
     my ($self, $label, $attribute) = @_;
     (defined $label && defined $attribute)
-        || die "InsufficientArguments : you must provide an attribute and a label";
+        || croak "InsufficientArguments : you must provide an attribute and a label";
     (blessed($attribute) && $attribute->isa('Perl6::Class::Attribute'))
-        || die "IncorrectObjectType : Attributes must be a Perl6::Class::Attribute instance got($attribute)";
+        || croak "IncorrectObjectType : Attributes must be a Perl6::Class::Attribute instance got($attribute)";
 
     if ($attribute->is_public()) {
         unless ($self->has_method($attribute->accessor_name(), for => 'Class')) {
@@ -302,7 +352,7 @@ sub _which_table {
         return INSTANCE_TABLE; 
     }    
     else {
-        die "Incorrect Parameter : methods cannot be found for " . $params->{for};
+        croak "Incorrect Parameter : methods cannot be found for " . $params->{for};
     }
 }
 
