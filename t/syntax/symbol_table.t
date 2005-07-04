@@ -29,27 +29,27 @@ our $code_s   = 'code';
 
 # symref syntax
 
-is eval('$::("MY::$lex_s")'),       $lex,    "loopup of lexical in current scope", :todo;
-is eval('$::($global_s)'),          $global, "lookup of global in default package";
-is eval('$::("*Main::$global_s")'), $global, "lookup of global in *Main package", :todo;
-is eval('~ @::($ary_s)'),           ~ @ary,  "array lookup";
-is eval('~ %::($hash_s)'),          ~ %hash, "hash lookup";
-is eval('&::($code_s).()'),         code(),  "named sub lookup";
+is try {$::("MY::$lex_s")},       $lex,    "loopup of lexical in current scope", :todo;
+is try {$::($global_s)},          $global, "lookup of global in default package";
+is try {$::("*Main::$global_s")}, $global, "lookup of global in *Main package", :todo;
+is try {~ @::($ary_s)},           ~ @ary,  "array lookup";
+is try {~ %::($hash_s)},          ~ %hash, "hash lookup";
+is try {&::($code_s).()},         code(),  "named sub lookup";
 
-eval_ok('!defined($::("nosuch"))',            "unknown scalar lookup", :todo);
-eval_ok('!defined($::("nosuch"))',            "unknown scalar lookup doesn't autovivify", :todo);
+ok(try { !defined($::("nosuch")) },     "unknown scalar lookup", :todo);
+ok(try { !defined($::("nosuch")) },     "unknown scalar lookup doesn't autovivify", :todo);
 
-eval_ok('!defined($::("MY::nosuch"))',        "unknown lexical lookup", :todo);
-eval_ok('!defined($::("MY::nosuch"))',        "unknown lexical lookup doesn't autovivify", :todo);
+ok(try { !defined($::("MY::nosuch")) }, "unknown lexical lookup");
+ok(try { !defined($::("MY::nosuch")) }, "unknown lexical lookup doesn't autovivify");
 
 # (lvalue lexicals -- see below.)
 
 
 # symtable hash syntax
 
-is(eval('%MY::{\'$\' ~ $lex_s}'),       "bar",   "loopup of lexical in current scope - symtable", :todo);
-is(eval('%::{\'$\' ~ $global_s}'),      $global, "lookup of global in default package - symtable", :todo);
-is(eval('%*Main::{\'$\' ~ $global_s}'), $global, "lookup of global in *Main package - symtable", :todo);
+is(try {%MY::{'$' ~ $lex_s}},       "bar",   "loopup of lexical in current scope - symtable", :todo);
+is(eval('%::{\'$\' ~ $global_s}'),  $global, "lookup of global in default package - symtable", :todo);
+is(try {%*Main::{'$' ~ $global_s}}, $global, "lookup of global in *Main package - symtable", :todo);
 is(eval('~ %::{\'@\' ~ $ary_s}'),       ~ @ary,  "array lookup - symtable", :todo);
 is(eval('~ %::{\'%\' ~ $hash_s}'),      ~ %hash, "array lookup - symtable", :todo);
 is(eval('%::{\'&\' ~ $code_s}.()'),     code(),  "named sub lookup - symtable", :todo);
@@ -57,8 +57,8 @@ is(eval('%::{\'&\' ~ $code_s}.()'),     code(),  "named sub lookup - symtable", 
 ok(eval('!defined(%::<nosuch>)'),                "unknown scalar lookup", :todo);
 ok(eval('!defined(%::<nosuch>)'),                "unknown scalar lookup doesn't autovivify", :todo);
 
-ok(eval('!defined(%MY::<nosuch>)'),              "unknown lexical lookup", :todo);
-ok(eval('!defined(%MY::<nosuch>)'),              "unknown lexical lookup doesn't autovivify", :todo);
+ok(try {!defined(%MY::<nosuch>)},              "unknown lexical lookup");
+ok(try {!defined(%MY::<nosuch>)},              "unknown lexical lookup doesn't autovivify");
 
 {
 	# fail("package keyword", :todo);
@@ -69,11 +69,11 @@ ok(eval('!defined(%MY::<nosuch>)'),              "unknown lexical lookup doesn't
 	our $new_global =         "It is I.";
 
 	my $lex = "carrot";       # hiding "bar".
-	is(eval('$::("MY::$lex_s")'),     "carrot",  "loopup of hiding lexical", :todo);
+	is(try {$::("MY::$lex_s")},     "carrot",  "loopup of hiding lexical", :todo);
 
-	ok(eval('!defined(%::(\'$\' ~ $global_s))'), "lookup of global in wrong package", :todo); # XXX: error? warning? silent?
-	my $a = eval '$::($global_s)';
-	my $b = eval '$::("*Main::$global_s")';
+	ok(try {!defined(%::('$' ~ $global_s))}, "lookup of global in wrong package", :todo); # XXX: error? warning? silent?
+	my $a = try {$::($global_s)};
+	my $b = try {$::("*Main::$global_s")};
 
 	ok(defined $a && defined $b && $a eq $b,   "package search", :todo);
 

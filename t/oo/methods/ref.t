@@ -14,7 +14,7 @@ class Foo {
 
 {
   my $foo = Foo.new;
-  lives_ok { $foo.bar_ref }, "returning a method reference works", :todo<feature>;
+  lives_ok { $foo.bar_ref }, "returning a method reference works";
 }
 
 try {

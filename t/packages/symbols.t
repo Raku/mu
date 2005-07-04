@@ -14,7 +14,7 @@ package Symbols::Galore {
 # so, how exactly are they specified?  hmm
 my $sym;
 lives_ok{ $sym = %Symbols::Galore:: },
-    '%Package:: syntax', :todo<feature>;
+    '%Package:: syntax';
 isa_ok($sym, 'package', '%Package:: variable is a package',
        :todo<feature>);
 

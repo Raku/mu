@@ -57,14 +57,14 @@ $_ = "poison";
 $x = OughtaWork::AUTOSCALAR("test");
 is($x, q[$test number 1], "AUTOSCALAR sanity test");
 
-lives_ok { $x = $OughtaWork::foo }, "AUTOSCALAR - first", :todo<feature>;
+lives_ok { $x = $OughtaWork::foo }, "AUTOSCALAR - first";
 is($x, q[$foo number 2], "Returns correct var", :todo<feature>);
 
 $x="";
-lives_ok { $x = $OughtaWork::foo }, "AUTOSCALAR - repeat", :todo<feature>;
+lives_ok { $x = $OughtaWork::foo }, "AUTOSCALAR - repeat";
 is($x, q[$foo number 2], "AUTOSCALAR only called once", :todo<feature>);
 
-lives_ok { $x = $OughtaWork::bar }, "AUTOSCALAR - second", :todo<feature>;
+lives_ok { $x = $OughtaWork::bar }, "AUTOSCALAR - second";
 is($x, q[$bar number 3], "Returns correct var", :todo<feature>);
 
 
@@ -73,14 +73,14 @@ my $a = OughtaWork::AUTOARRAY("test");
 is($a.join(","), q[auto,test,1], "AUTOARRAY sanity test");
 
 my @a;
-lives_ok { @a = @OughtaWork::foo }, "AUTOARRAY - first", :todo<feature>;
+lives_ok { @a = @OughtaWork::foo }, "AUTOARRAY - first";
 is(@a.join(","), q[auto,foo,2], "Returns correct var", :todo<feature>);
 
 @a=();
-lives_ok { @a = @OughtaWork::foo }, "AUTOARRAY - repeat", :todo<feature>;
+lives_ok { @a = @OughtaWork::foo }, "AUTOARRAY - repeat";
 is(@a.join(","), q[auto,foo,2], "AUTOARRAY only called once", :todo<feature>);
 
-lives_ok { @a = @OughtaWork::bar }, "AUTOARRAY - second", :todo<feature>;
+lives_ok { @a = @OughtaWork::bar }, "AUTOARRAY - second";
 is(@a.join(","), q[auto,bar,3], "Returns correct var", :todo<feature>);
 
 
@@ -88,14 +88,14 @@ is(@a.join(","), q[auto,bar,3], "Returns correct var", :todo<feature>);
 my %h = OughtaWork::AUTOHASH("test");
 is(%h.kv.join(","), q[auto,test,num,1], "AUTOHASH sanity test");
 
-lives_ok { %h = %OughtaWork::foo }, "AUTOHASH - first", :todo<feature>;
+lives_ok { %h = %OughtaWork::foo }, "AUTOHASH - first";
 is(%h.kv.join(","), q[auto,foo,num,2], "Returns correct var", :todo<feature>);
 
 %h=();
-lives_ok { %h = %OughtaWork::foo }, "AUTOHASH - repeat", :todo<feature>;
+lives_ok { %h = %OughtaWork::foo }, "AUTOHASH - repeat";
 is(%h.kv.join(","), q[auto,foo,num,2], "AUTOHASH only called once", :todo<feature>);
 
-lives_ok { %h = %OughtaWork::bar }, "AUTOHASH - second", :todo<feature>;
+lives_ok { %h = %OughtaWork::bar }, "AUTOHASH - second";
 is(%h.kv.join(","), q[auto,bar,num,3], "Returns correct var", :todo<feature>);
 
 
