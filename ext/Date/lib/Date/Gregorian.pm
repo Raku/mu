@@ -62,14 +62,14 @@ multi sub date( Str $iso8601 ) returns Date::Gregorian is export {
 }
 
 # convert from a unix time_t
-multi sub date( Int $time_t ) returns Date::Gregorian is export {
+multi sub time_t( Int $time_t ) returns Date::Gregorian is export {
     Date::Gregorian.new( :year(1970), :month(1),  :day(1),
 			:hour(0),    :minute(0), :second(0),
 			:tz(tz "UTC") ) + $time_t;
 }
 
 # convert from a perl float
-multi sub date( Real $epoch ) returns Date::Gregorian is export {
+multi sub epoch( Real $epoch ) returns Date::Gregorian is export {
     Date::Gregorian.new( :year(1970), :month(1),  :day(1),
 			:hour(0),    :minute(0), :second(0),
 			:tz(tz "UTC") ) + $epoch;
@@ -92,6 +92,8 @@ method millisecond returns Int {
 method ce_year returns Int { $.year }
 method quarter returns Int { int(($.month+2)/3) }
 method month_0 returns Int { $.month - 1 }
+method yy returns Int { die if $.year < 0; $.year % 100 }
+method century returns Int { die if $.year < 0; int($.year / 100) }
 
 our @months = <January February March     April   May      June
                July    August   September October November December>;
@@ -99,6 +101,11 @@ method month_name returns Str { @months[./month_0] }
 
 our @months_abbr = <Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec>;
 method month_abbr returns Str { @months_abbr[./month_0] }
+
+# yes, these functions are not "correct" :)
+method doy returns Int { $.month * 30 + $.day }
+#our &Date::Gregorian::day_of_year ::= &Date::Gregorian::doy;
+method week returns Int { int (./doy / 7) }
 
 method day_of_month returns Int { $.day }
 method day_of_month_0 returns Int { $.day - 1 }
