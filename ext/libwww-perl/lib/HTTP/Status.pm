@@ -52,7 +52,7 @@ module HTTP::Status-0.0.1 {
     );
     
     for %StatusCode.kv -> $code, $message is copy {
-	$message .= lc;
+	$message .= uc;
 	$message ~~ s:g/<[ \-]>/_/;
 	
 	our &::("RC_" ~ $message) is export(:MANDATORY) ::= sub () { $code };
