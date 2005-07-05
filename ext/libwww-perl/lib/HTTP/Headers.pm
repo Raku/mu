@@ -38,7 +38,8 @@ my @entity_headers = <
  Content-MD5 Content-Range Content-Type Expires Last-Modified
 >;
 
-my %entity_header = @entity_headers.map:{ lc $_  => 1 };
+#my %entity_header = @entity_headers.map:{ uc $_ => 1 };
+my %entity_header = @entity_headers.map:{ %entity_header{uc $_} = 1 };
 
 our @header_order = (
  *@general_headers,
@@ -298,8 +299,6 @@ method :basic_auth (Str $h) is rw {
 }
 
 1;
-
-__END__
 
 =head1 NAME
 
