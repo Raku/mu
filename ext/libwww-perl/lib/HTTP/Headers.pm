@@ -3,6 +3,7 @@ use v6;
 class HTTP::Headers-1.62;
 
 use HTTP::Date;
+# XXX port MIME::Base64 and use it!
 #use MIME::Base64;
 
 # The $TRANSLATE_UNDERSCORE variable controls whether '_' can be used
@@ -279,7 +280,7 @@ method :basic_auth (Str $h) is rw {
     FETCH => {
       my $cur = .:header($h);
       if (defined $old and $old ~~ s/^\s* Basic \s+//) {
-	my $val = MIME::Base64::decode($cur);
+	#my $val = MIME::Base64::decode($cur);
 
 	given want {
 	  when Scalar { return $val }
@@ -294,7 +295,7 @@ method :basic_auth (Str $h) is rw {
     # back.
     # XXX Str where { $^str !~ /\:/ }
     STORE => -> Str $user, Str ?$passwd = "" {
-      .:header($h, "Basic " ~ MIME::Base64::encode("$user:$passwd", ""));
+      #.:header($h, "Basic " ~ MIME::Base64::encode("$user:$passwd", ""));
     });
 }
 
