@@ -11,7 +11,7 @@ Testing self hosting rules.
 
 =cut
 
-plan 17;
+plan 25;
 
 # Testing the parsing of verious forms of numbers
 
@@ -42,4 +42,12 @@ is(?("0b100" ~~ /^<binary>$/),bool::true,"0b100 (binary) is parsed as a binary")
 is(?("0x100" ~~ /^<hex>$/),bool::true,"0x100 (hex) is parsed as a hex");
 
 is(?("0o100" ~~ /^<oct>$/),bool::true,"0o100 (oct) is parsed as a oct");
+
+is(?("Perl6" ~~ /^<ident>$/),bool::true,"ids are parsed");
+is(?("Perl6::rule" ~~ /^<ident>$/),bool::true,"ids are parsed as fullid");
+is(?("::rule" ~~ /^<ident>$/),bool::true,"global ids are parsed as fullid");
+is(?('$foo' ~~ /^<variable>$/),bool::true,"scalars are parsed as variables");
+is(?('@foo' ~~ /^<variable>$/),bool::true,"arrays are parsed as variables");
+is(?('%foo' ~~ /^<variable>$/),bool::true,"hashes are parsed as variables");
+is(?('&foo' ~~ /^<variable>$/),bool::true,"subs are parsed as variables");
 
