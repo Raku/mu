@@ -71,8 +71,8 @@ multi submethod BUILD (: Int +$year, Int +$month = 1, Int|Str +$day is copy = 1)
 method today () returns Date {
     return $_.new( epoch => time );
 }
-# this doesn't seem to work yet
-#&now ::= &today;
+
+our &Date::now ::= &Date::today;
 
 method tomorrow () returns Date {
     return $_.new( epoch => time ).add( :days => 1 );
