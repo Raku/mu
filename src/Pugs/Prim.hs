@@ -981,6 +981,28 @@ op3 "Any::new" = \t n p -> do
     op2 "BUILDALL" obj $ (VRef . hashRef) named
     liftIO $ addFinalizer obj (objectFinalizer env obj)
     return obj
+op3 "Pugs::Internals::localtime"  = \x y z -> do
+    wantString <- fromVal x
+    sec <- fromVal y
+    pico <- fromVal z
+    c <- liftIO $ toCalendarTime $ TOD (offset + sec) pico
+    if wantString then return $ VStr $ calendarTimeToString c else
+        returnList $ [ vI $ ctYear c
+                     , vI $ (1+) $ fromEnum $ ctMonth c
+                     , vI $ ctDay c
+                     , vI $ ctHour c
+                     , vI $ ctMin c
+                     , vI $ ctSec c
+                     , VInt $ ctPicosec c
+                     , vI $ (1+) $ fromEnum $ ctWDay c
+                     , vI $ ctYDay c
+                     , VStr $ ctTZName c
+                     , vI $ ctTZ c
+                     , VBool $ ctIsDST c
+                     ]
+    where
+       offset = 946684800 :: Integer -- diff between Haskell and Perl epochs (seconds)
+       vI = VInt . toInteger
 op3 other = \_ _ _ -> fail ("Unimplemented 3-ary op: " ++ other)
 
 op3Split :: Val -> Val -> Val -> Eval Val
@@ -1412,6 +1434,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Str       pre     does    safe   (rw!Any|Junction|Pair, Str)\
 \\n   Num       pre     time    safe   ()\
 \\n   List      pre     times   safe   ()\
+\\n   List      pre     Pugs::Internals::localtime   safe   (Bool, Int, Int)\
 \\n   Str       pre     want    safe   ()\
 \\n   Str       pre     File::Spec::cwd     unsafe ()\
 \\n   Str       pre     File::Spec::tmpdir  unsafe ()\
