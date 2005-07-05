@@ -1,3 +1,5 @@
+use v6;
+
 class HTTP::Headers-1.62;
 
 use HTTP::Date;
