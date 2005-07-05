@@ -38,7 +38,7 @@ can_ok($mc, 'find_method');
 can_ok($mc, 'find_method_in_superclasses');
 can_ok($mc, 'responds_to');
 
-## Instance attributes
+## attributes
 
 # locally defined attributes
 can_ok($mc, 'add_attribute');
@@ -50,11 +50,6 @@ can_ok($mc, 'get_attribute_list');
 can_ok($mc, 'get_all_attributes');
 
 can_ok($mc, 'find_attribute_spec');
-
-## Class attributes
-
-# locally defined attributes
-can_ok($mc, 'add_class_attribute');
 
 ###################################################################
 # now some real tests
@@ -100,8 +95,8 @@ is($mc->find_method('foo')->call(), 'Base::foo', '... found the method and it re
 ## class attributes
 
 lives_ok {
-    $mc->add_class_attribute('@.bar' => Perl6::Class::Attribute->new($mc, '@.bar'));
-    $mc->add_class_attribute('$:foo' => Perl6::Class::Attribute->new($mc, '$:foo'));    
+    $mc->add_attribute('@.bar' => Perl6::Class::Attribute->new($mc, '@.bar'));
+    $mc->add_attribute('$:foo' => Perl6::Class::Attribute->new($mc, '$:foo'));    
 } '... we can add attributes successfully';
 
 ok($mc->has_attribute('@.bar', for => 'Class'), '... we have the class attribute "@.bar"');

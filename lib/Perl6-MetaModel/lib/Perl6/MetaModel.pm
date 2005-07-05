@@ -85,7 +85,7 @@ package $name;
                 if (ref($attr) eq 'ARRAY') {
                     ($type, $attr) = @{$attr}; 
                 }
-                ($name)->meta->add_class_attribute(
+                ($name)->meta->add_attribute(
                     $attr => Perl6::Class::Attribute->new($name => $attr, $type)
                 );              
             }            

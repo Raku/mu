@@ -4,6 +4,8 @@ package Perl6::Attribute;
 use strict;
 use warnings;
 
+use Scalar::Util 'blessed';
+
 use constant PUBLIC  => 'public';
 use constant PRIVATE => 'private';
 
@@ -12,16 +14,18 @@ sub new {
     my $visibility = PUBLIC;
     $visibility = PRIVATE if $label =~ /^.\:/;
     my ($accessor_name) = ($label =~ /^..(.*)$/);
-    bless {
+    my $attr = bless {
         associated_with => $associated_with,
         accessor_name   => $accessor_name,
         visibility      => $visibility,
         type            => $type,
         label           => $label,
     }, $class;
+    return $attr;
 }
 
-sub type { (shift)->{type} }
+sub type  { (shift)->{type}  }
+sub label { (shift)->{label} }
 
 # this is for type checking (sort of)
 sub is_array { (shift)->{label} =~ /^\@/ }

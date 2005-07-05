@@ -195,21 +195,19 @@ sub add_attribute {
     my ($self, $label, $attribute) = @_;
     (defined $label && defined $attribute)
         || croak "InsufficientArguments : you must provide an attribute and a label";
-    (blessed($attribute) && $attribute->isa('Perl6::Instance::Attribute'))
-        || croak "IncorrectObjectType : Attributes must be a Perl6::Instance::Attribute instance got($attribute)";
+    (blessed($attribute) && $attribute->isa('Perl6::Attribute'))
+        || croak "IncorrectObjectType : Attributes must be a Perl6::Attribute instance got($attribute)";
+    $self->_create_accessor($attribute);         
+    
+    my $method_table;
+    if ($attribute->isa('Perl6::Instance::Attribute')) {
+        $method_table = INSTANCE_TABLE;
+    }
+    elsif ($attribute->isa('Perl6::Class::Attribute')) {
+        $method_table = CLASS_TABLE;
+    }
 
-    if ($attribute->is_public()) {
-        unless ($self->has_method($attribute->accessor_name())) {
-             $self->add_method($attribute->accessor_name() => Perl6::Instance::Method->new(
-             $self->name(), sub {
-                my ($self, $value) = @_;
-                $self->set_value($label => $value) if defined $value;
-                $self->get_value($label);
-            }));        
-        }
-    }          
-
-    $self->{class_definition}->{attributes}->{$label} = $attribute;
+    $self->{$method_table}->{attributes}->{$label} = $attribute;
 }
 
 sub get_attribute {
@@ -262,30 +260,43 @@ sub find_attribute_spec {
     return undef;
 }
 
-# Class Attributes
-
-sub add_class_attribute {
-    my ($self, $label, $attribute) = @_;
-    (defined $label && defined $attribute)
-        || croak "InsufficientArguments : you must provide an attribute and a label";
-    (blessed($attribute) && $attribute->isa('Perl6::Class::Attribute'))
-        || croak "IncorrectObjectType : Attributes must be a Perl6::Class::Attribute instance got($attribute)";
-
-    if ($attribute->is_public()) {
-        unless ($self->has_method($attribute->accessor_name(), for => 'Class')) {
-             $self->add_method($attribute->accessor_name() => Perl6::Class::Method->new(
-             $self->name(), sub {
-                my ($self, $value) = @_;
-                $attribute->set_value($value) if defined $value;
-                $attribute->get_value();
-            }));        
-        }
-    }          
-
-    $self->{class_data}->{attributes}->{$label} = $attribute;
-}
-
 ## PRIVATE METHODS
+
+sub _create_accessor {
+    my ($self, $attribute) = @_;
+    # no accessors if it's not public ...
+    return unless $attribute->is_public();
+    # do not overwrite already defined methods ...
+    return if $self->has_method($attribute->accessor_name());
+    
+    # otherwise ...
+    my $label = $attribute->label();
+    my ($method_type, $method_code);
+    if ($attribute->isa('Perl6::Instance::Attribute')) {
+        $method_type = 'Perl6::Instance::Method';
+        $method_code = sub {
+            my ($i, $value) = @_;
+            $i->set_value($label => $value) if defined $value;
+            $i->get_value($label);
+        };
+    }
+    elsif ($attribute->isa('Perl6::Class::Attribute')) {
+        $method_type = 'Perl6::Class::Method';
+        $method_code = sub {
+            my (undef, $value) = @_;
+            $attribute->set_value($label => $value) if defined $value;
+            $attribute->get_value($label);
+        };        
+    }
+    else {
+        croak "Incorrect Object Type : I do not understand the attribute class ($attribute)";
+    }
+    
+    $self->add_method(
+        $attribute->accessor_name(),
+        $method_type->new($self->name(), $method_code)
+    ); 
+}
 
 sub _which_table {
     my ($self, $params) = @_;

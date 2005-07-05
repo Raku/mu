@@ -10,7 +10,6 @@ sub new {
     my ($class, $associated_with, $label, $type) = @_;
     my $self = $class->SUPER::new($associated_with, $label, $type);
     $self->{value} = $self->instantiate_container;
-
     return $self;
 }
 
