@@ -3,7 +3,7 @@ use v6;
 class HTTP::Headers-1.62;
 
 use HTTP::Date;
-use MIME::Base64;
+#use MIME::Base64;
 
 # The $TRANSLATE_UNDERSCORE variable controls whether '_' can be used
 # as a replacement for '-' in header field names.
@@ -40,23 +40,23 @@ my @entity_headers = <
 
 my %entity_header = @entity_headers.map:{ lc $_  => 1 };
 
-has @:header_order = (
+our @header_order = (
  *@general_headers,
  *@request_headers,
  *@response_headers,
  *@entity_headers,
 );
 
-# Make alternative representations of @:header_order.  This is used
+# Make alternative representations of @header_order.  This is used
 # for sorting and case matching.
-has %:header_order;
-has %:standard_case;
+our %header_order;
+our %standard_case;
 
 {
-  for @:header_order.kv -> $i, $header {
+  for @header_order.kv -> $i, $header {
     my $lc = lc $header;
-    %:header_order{$lc}  = $i + 1;
-    %:standard_case{$lc} = $_;
+    %header_order{$lc}  = $i + 1;
+    %standard_case{$lc} = $_;
   }
 }
 
@@ -67,9 +67,10 @@ method BUILD (Str *%headers) {
 }
 
 method header (Str $field) is rw {
-  return new Proxy:
-    FETCH => { %:headers{$field} },
-    STORE => -> Str $val { .:header($field, $val) };
+    return Proxy.new(
+	FETCH => { %:headers{$field} },
+	STORE => -> Str $val { .:header($field, $val) }
+    );
 }
 
 method clear () { %:headers = () }
@@ -104,19 +105,16 @@ method remove_content_headers () {
   return $c;
 }
 
-method :header (
-  Str where { length $^str > 0 } $field is copy,
-  Str $val is copy,
-  Str ?$op = ""
-) {
+# XXX Str where { .length > 0 }
+method :header (Str $field is copy, Str $val is copy, Str ?$op = "") {
   unless $field ~~ /^\:/ {
-    $field ~~ tr/_/-/ if $TRANSLATE_UNDERSCORE;
+    $field ~~ s:g/_/-/ if $TRANSLATE_UNDERSCORE;
     my $old = $field;
     $field = lc $field;
-    unless %:standard_case{$field}.defined {
-      # generate a %:standard_case entry for this field
+    unless %standard_case{$field}.defined {
+      # generate a %standard_case entry for this field
       $old ~~ s:g/\b(\w)/{$0.ucfirst}/;
-      %:standard_case{$field} = $old;
+      %standard_case{$field} = $old;
     }
   }
 
@@ -140,14 +138,14 @@ method :header (
 
 method :sorted_field_names () {
   return %:headers.key.sort:{
-    (%:header_order{$^a} || 999) <=> (%:header_order{$^b} || 999) ||
+    (%header_order{$^a} || 999) <=> (%header_order{$^b} || 999) ||
     $a cmp $b
   };
   
 }
 
 method header_field_names () {
-  return .:sorted_field_names.map:{ %:standard_case{$_} || $_ };
+  return .:sorted_field_names.map:{ %standard_case{$_} || $_ };
 }
 
 method scan (Code $sub) {
@@ -156,10 +154,10 @@ method scan (Code $sub) {
     my $vals = %:headers{$key};
     if $vals ~~ Array {
       for @$vals -> $val {
-	$sub.(%:standard_case{$key} || $key, $val);
+	$sub.(%standard_case{$key} || $key, $val);
       }
     } else {
-      $sub.(%:standard_case{$key} || $key, $vals);
+      $sub.(%standard_case{$key} || $key, $vals);
     }
   }
 }
@@ -187,11 +185,12 @@ method as_string (Str ?$ending = "\n") {
 }
 
 method :date_header (Str $header) is rw {
-  return new Proxy:
+  return Proxy.new(
     FETCH => { HTTP::Date::str2time(%:headers{$header}) },
     STORE => -> $time {
       .:header($header, HTTP::Date::time2str($time));
-    };
+    }
+  );
 }
 
 method date ()                is rw { .:date_header("Date")                }
@@ -212,7 +211,7 @@ method client_date ()         is rw { .:date_header('Client-Date')         }
 #sub retry_after       { shift->_date_header('Retry-After',       @_); }
 
 method content_type () is rw {
-  return new Proxy:
+  return Proxy.new(
     FETCH => {
       my $ct = (.:header("Content-Type"))[0];
       return "" unless $ct.defined and $ct.chars;
@@ -230,16 +229,16 @@ method content_type () is rw {
     },
     STORE => -> Str $type {
       .:header("Content-Type", $type);
-    };
+    });
 }
 
 method referer () is rw {
-  return new Proxy:
-    FETCH => { (.:header("Referer")[0]) },
-    STORE => -> Str|URI $new is copy {
-      if $new ~~ /\#/ {
+  return Proxy.new(
+    FETCH => { @{.:header("Referer")}[0] },
+    STORE => -> $new is copy {
+      if ($new ~~ /\#/) {
 	# Strip fragment per RFC 2616, section 14.36.
-	if $new ~~ URI {
+	if ($new ~~ URI) {
 	  $new .= clone;
 	  $uri.fragment = undef;
 	} else {
@@ -248,10 +247,11 @@ method referer () is rw {
       }
 
       .:header("Referer", $new);
-    };
+    }
+  );
 }
 
-&referrer ::= &referer;  # at tchrist's request
+our &referrer ::= &referer;
 
 method title ()                     is rw { .header("Title") }
 method content_encoding ()          is rw { .header("Content-Encoding") }
@@ -274,10 +274,10 @@ method authorization_basic ()       is rw { .:basic_auth("Authorization") }
 method proxy_authorization_basic () is rw { .:basic_auth("Proxy-Authorization") }
 
 method :basic_auth (Str $h) is rw {
-  return new Proxy:
+  return Proxy.new(
     FETCH => {
       my $cur = .:header($h);
-      if defined $old and $old ~~ s/^\s* Basic \s+// {
+      if (defined $old and $old ~~ s/^\s* Basic \s+//) {
 	my $val = MIME::Base64::decode($cur);
 
 	given want {
@@ -291,9 +291,10 @@ method :basic_auth (Str $h) is rw {
     # -- XXX does this create a reasonable warning? If not, put
     #   Carp::croak("Basic authorization user name can't contain ':'")
     # back.
-    STORE => -> Str where { $^str !~ /\:/ } $user, Str ?$passwd = "" {
+    # XXX Str where { $^str !~ /\:/ }
+    STORE => -> Str $user, Str ?$passwd = "" {
       .:header($h, "Basic " ~ MIME::Base64::encode("$user:$passwd", ""));
-    };
+    });
 }
 
 1;
