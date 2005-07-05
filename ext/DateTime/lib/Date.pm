@@ -125,3 +125,107 @@ method mdy (Str ?$sep = "-") returns Str {
 method dmy (Str ?$sep = "-") returns Str {
     return [$.day, $.month, $.year].join($sep);
 }
+
+=kwid
+
+= NAME
+
+Date - An object representing a single date (without a time)
+
+= SYNOPSIS
+
+  use Date;
+
+  my $date = Date.new( year => 2005, month => 6, day => 29 );
+  say $date.year;
+  say $date.ymd;
+
+= DESCRIPTION
+
+This class represents a date /without a time/.
+
+Because it is just a date, it does not handle time zones or leap
+seconds.
+
+All methods take named parameters unless otherwise specified.
+
+= CONSTRUCTORS
+
+- `new()`
+
+Without any parameters, this returns an object representing the
+current /local/ date.
+
+- `new( epoch => Int|Real $epoch)`
+
+Given an epoch time, returns a Date object based on that epoch.
+
+- `new( 'now' | 'today' | 'tomorrow' | 'yesterday' | $date_string )`
+
+Given a string, this module attempts to parse it.  The strings "now",
+"today", "tomorrow", and "yesterday" return the appropriate date.
+
+Any other string will be passed to `Date::Something::WaveHands` for
+parsing.
+
+- `new( year => $year, month => $month, day => $day )`
+
+Returns a date object for the given values.  The month and day default
+to 1 if not given.
+
+The value for day can also be the string "last", in which case the
+object returned represents the last day for the specified month.
+
+- `today()`
+- `now()`
+
+Synonyms for `Date.new('today')`
+
+- `tomorrow()`
+
+Synonym for `Date.new('tomorrow')`
+
+- `yesterday()`
+
+Synonym for `Date.new('yesterday')`
+
+= OBJECT METHODS
+
+The following methods are available for Date objects:
+
+- `year()`
+
+Returns the year for the object.
+
+- `month()`
+
+Returns the month for the object, from 1 to 12.
+
+- `day()`
+
+Returns the day for the object, from 1 to 31.
+
+- `day_of_year()`
+
+Returns the day of the year, from 1 to 366.
+
+- `quarter()`
+
+Returns the quarter of the year, from 1 to 4.
+
+- `day_of_quarter()`
+
+Returns the day of the quarter, from 1 to 92.
+
+= AUTHOR
+
+Dave Rolsky, <autarch@urth.org>
+
+= COPYRIGHT
+
+Copyright (c) 2005, Dave Rolsky.  All rights reserved.
+
+This program is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut
