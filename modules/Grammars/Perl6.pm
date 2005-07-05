@@ -1,39 +1,41 @@
 =pod
 
-Perl6's grammer written as a Perl6 rules.  A prerequisite for self hosting.
+Perl 6's grammar written as a Perl 6 rules.  A prerequisite for self hosting.
 
 =cut
 
+use v6;
+
 grammar Perl6;
 
-# Top leval structures.
+# Top level structures
 
-#rule code { ... } # A section of code.
+#rule code { ... } # a section of code
 
-#rule block { \{ <code> \} } # A block of code.
+#rule block { \{ <code> \} } # a block of code
 
-# Subs and sublikes
+# subs and sub-like structures
 
-#rule lexicalsub :w { # From A06
+#rule lexicalsub :w { # from A06
 #        <lexscope> <type>?
 #        <submodifer>? <subintro> <subname> <psignature>?
 #        <trait>*
 #        <block>
 #}
 
-#rule lexicalsub  { # From A06
+#rule lexicalsub  { # from A06
 #        <lexscope> \s* <type>?
 #        <submodifer>? \s* <subintro> \s* <subname> \s <psignature>?
 #        <trait>*
 #        <block>
 #}
-#rule packagesub :w { # From A06
+#rule packagesub :w { # from A06
 #        <submodifer> <subintro> <subname> <psignature>?
 #        <trait>*
 #        <block>
 #}
 
-#rule anonsub { # Modiefied because pugs doesn't do :w
+#rule anonsub { # modified because pugs doesn't do :w
 #        <subintro> \s* <psignature>? \s*
 #        <trait>* \s*
 #        <block>
@@ -41,7 +43,7 @@ grammar Perl6;
 
 ## Pointy subs
 #
-#rule pointysub :w { # From A06
+#rule pointysub :w { # from A06
 #        -\> <signature> <block>
 #}
 #
@@ -52,31 +54,31 @@ rule sigil { <[$@%&]> <[*.?^]>? }   # "What is that, swearing?"
 rule variable { <sigil> <name> [ \( <siglet> \) ]? }
 
 # Bare subs
-# From A06
+# from A06
 
 #rule baresub :w {
 #        <block> { .find_placeholders() }
 #}
-#
-## Identifiers
-#
+
+# Identifiers
+
 rule name_sec { <-[0..9:.]> <-[:]>* };
-#
+
 rule name {  <name_sec>
              | [\:\: <name_sec> ]+
              | <name_sec> [\:\: <name_sec> ]+};
 
-## What is the diffrence between an ident, a name and a subname
+## What is the difference between an ident, a name and a subname
 ## A06 doesn't tell me even though it uses them.  These are guesses
-## untill we are enlightended.
-#
-rule subname { \*?<name> };
-#
-rule ident {<name>};
-#
+## until we are enlightened.
+
+rule subname { \*? <name> };
+
+rule ident { <name> };
+
 # Numbers
 
-# Numbers base 10.
+# base 10
 
 rule natural { <digit> [_* <digit> _*]* };
 
@@ -88,7 +90,7 @@ rule decimal { <Int> [\. <natural>? ]?
 
 rule Rat  { <decimal> [ [e|E] <Int>]? };
 
-# Numbers base anything else.
+# base N
 
 rule binary { 0b <[01]>+ };
 
@@ -96,14 +98,14 @@ rule hex    { 0x <[0..9a..fA..F]>+};
 
 rule oct    { 0o <[0..7]>+};
 
-# A rule to match any perl style number.
+# any perl style number
 
 rule Num { Int | Rat | binary | hex | oct  };
 
-## These are defined in A06
-#
-## Siglets
-#
+# these are defined in A06
+
+# Siglets
+
 #rule siglet :w {
 #        [<paramlet> [<[,:]> <paramlet> ]* ]?
 #}
