@@ -1,6 +1,6 @@
 use v6;
 
-use HTTP::Headers;
+require HTTP::Headers;
 
 class HTTP::Message-0.1;
 
@@ -61,19 +61,20 @@ method parse (Str $string) returns HTTP::Headers {
 method clear () returns Void {
     $:headers.clear();
     .content = '';
-    @.:parts = ();
+    @:parts = ();
     return;
 }
 
 method protocol (Str ?$protocol) is rw {
-    return new Proxy:
+    return Proxy.new(
         FETCH => { $:protocol; },
-        STORE => -> Str $val { $:protocol = $val; };
+        STORE => -> Str $val { $:protocol = $val; }
+    );
 }
 
 # XXX this might need to be rewritten
 method content (Str ?$content, Bool ?$keep) is rw {
-    return new Proxy:
+    return Proxy.new(
         FETCH => {
                 if (want.List) {
                     $:content unless $:content.defined;
@@ -99,7 +100,7 @@ method content (Str ?$content, Bool ?$keep) is rw {
                 .:set_content($content, $keep);
                 
                 return $old if want.List;
-              };
+              });
 }
 
 method :set_content (Str $content, Bool ?$keep) returns Void {
@@ -122,14 +123,14 @@ method content_ref (Ref ?$content) is rw {
     my $old_ref = $:content_ref;
     $old = $$old if $old_ref;
     
-    return new Proxy:
+    return Proxy.new(
         FETCH => { return $old; },
         STORE => -> Ref $content {
                 $:content = $content;
                 $:content_ref++;
                 
                 return $old;
-            };
+            });
 }
 
 # XXX decoded_content needs to be ported.  It requires:
@@ -152,7 +153,7 @@ method as_string ($self: Str ?$newline = "\n") returns Str {
 method parts (*@new) is rw {
     my @old = @:parts;
     
-    return new Proxy:
+    return Proxy.new(
         FETCH => { return @old if want.List; return @old[0]; },
         STORE => -> *@new {
             my $content_type = .content_type // "";
@@ -170,10 +171,11 @@ method parts (*@new) is rw {
             
             return @old if want.List;
             return @old[0];
-        }
+        });
 }
 
-method add_part (::?CLASS $part) returns Void {
+# XXX ::?CLASS $part
+method add_part ($part) returns Void {
     if ((.content_type // "") !~ m,^multipart/,) {
         my $message = ::?CLASS.new(.remove_content_headers, .content(""));
         .content_type("multipart/mixed");
