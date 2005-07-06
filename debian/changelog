@@ -1,6 +1,10 @@
 pugs (6.2.7-1) experimental; urgency=low
 
   * New upstream version.
+  * Generate manpages for binaries.
+  * Don't install gen_prelude and extra license files.
+  * Make it policy compliant.
+  * Cleaned up debian/rules.
 
  -- Florian Ragwitz <rafl@fsfe.org>  Wed,  6 Jul 2005 05:14:39 +0200
 

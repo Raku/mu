@@ -1,22 +1,4 @@
 #!/usr/bin/make -f
-# -*- makefile -*-
-# Sample debian/rules that uses debhelper.
-#
-# This file was originally written by Joey Hess and Craig Small.
-# As a special exception, when this file is copied by dh-make into a
-# dh-make output file, you may use that output file without restriction.
-# This special exception was added by Craig Small in version 0.37 of dh-make.
-#
-# Modified to make a template file for a multi-binary package with separated
-# build-arch and build-indep targets  by Bill Allombert 2001
-
-# Uncomment this to turn on verbose mode.
-#export DH_VERBOSE=1
-
-# This has to be exported to make some magic below work.
-export DH_OPTIONS
-
-
 
 CFLAGS = -Wall -g
 
@@ -29,69 +11,43 @@ endif
 configure: configure-stamp
 configure-stamp:
 	dh_testdir
-	# Add here commands to configure the package.
-
+	perl Makefile.PL INSTALLDIRS=vendor
 	touch configure-stamp
 
-
-#Architecture 
 build: build-arch build-indep
 
 build-arch: build-arch-stamp
 build-arch-stamp: configure-stamp 
-
-	# Add here commands to compile the arch part of the package.
-	#$(MAKE) 
-
-	perl Makefile.PL INSTALLDIRS=vendor
-#	$(MAKE) optimized
-	$(MAKE) unoptimized
+	$(MAKE) optimized
 	pod2man --section=1 --release="Debian Project" --center="Debian GNU/Linux manual" $(CURDIR)/lib/pugs/run.pod $(CURDIR)/debian/pugs.1
 	pod2man --section=1 --release="Debian Project" --center="Debian GNU/Linux manual" $(CURDIR)/script/pugscc $(CURDIR)/debian/pugscc.1
 	touch build-arch-stamp
 
 build-indep: build-indep-stamp
 build-indep-stamp: configure-stamp 
-
-	# Add here commands to compile the indep part of the package.
-	#$(MAKE) doc
-	
 	touch build-indep-stamp
 
 clean:
 	dh_testdir
 	dh_testroot
 	rm -f build-arch-stamp build-indep-stamp configure-stamp debian/pugs.1 debian/pugscc.1
-
-	# Add here commands to clean up after the build process.
 	-$(MAKE) realclean
-
 	dh_clean
 
 install: install-indep install-arch
 install-indep:
 	dh_testdir
 	dh_testroot
-	#dh_clean -k -i 
-	#dh_installdirs -i
-
-	# Add here commands to install the indep part of the package into
-	# debian/<package>-doc.
-	#INSTALLDOC#
-
-	dh_install -i --sourcedir=$(CURDIR)/debian/tmp
+	dh_installdirs
+	cp -r $(CURDIR)/docs/* $(CURDIR)/debian/pugs-doc/usr/share/doc/pugs-doc/
+	rm -f $(CURDIR)/debian/pugs-doc/usr/share/doc/pugs-doc/SEEALSO
 
 install-arch:
 	dh_testdir
 	dh_testroot
-	#dh_clean -k -s 
 	dh_installdirs -s
-
-	# Add here commands to install the arch part of the package into 
-	# debian/tmp.
 	$(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
 	cp util/perl6.vim $(CURDIR)/debian/pugs/usr/share/vim/vim63/syntax/
-
 	dh_install -s --sourcedir=$(CURDIR)/debian/tmp
 	rm -f $(CURDIR)/debian/pugs/usr/lib/perl6/5.8/CORE/pugs/gen_prelude \
 	$(CURDIR)/debian/pugs/usr/lib/perl6/5.8/CORE/pugs/Pugs/Rule/LICENSE \
@@ -106,22 +62,11 @@ binary-indep: build-indep install-indep
 	dh_installchangelogs -i ChangeLog
 	dh_installdocs -i
 	dh_installexamples -i
-#	dh_installmenu -i
-#	dh_installdebconf	 -i
-#	dh_installlogrotate	 -i
-#	dh_installemacsen -i
-#	dh_installpam -i
-#	dh_installmime -i
-#	dh_installinit -i
-#	dh_installcron -i
-#	dh_installinfo -i
 	dh_installman -i
 	dh_link -i
 	dh_compress  -i
 	dh_fixperms -i
 	dh_strip -i
-#	dh_perl -i
-#	dh_python -i
 	dh_makeshlibs -i
 	dh_installdeb -i
 	dh_shlibdeps -i
@@ -136,22 +81,11 @@ binary-arch: build-arch install-arch
 	dh_installchangelogs -a ChangeLog
 	dh_installdocs -a
 	dh_installexamples -a
-#	dh_installmenu -a
-#	dh_installdebconf	 -a
-#	dh_installlogrotate	 -a
-#	dh_installemacsen -a
-#	dh_installpam -a
-#	dh_installmime -a
-#	dh_installinit -a
-#	dh_installcron -a
-#	dh_installinfo -a
 	dh_installman -a debian/pugs.1 debian/pugscc.1
 	dh_link -a
 	dh_compress  -a
 	dh_fixperms -a
 	dh_strip -a
-#	dh_perl -a
-#	dh_python -a
 	dh_makeshlibs -a
 	dh_installdeb -a
 	dh_shlibdeps -a
