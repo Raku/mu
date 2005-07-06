@@ -2,18 +2,28 @@ Source: pugs
 Section: interpreters
 Priority: optional
 Maintainer: Shu-Chun Weng <scw@csie.org>
+Uploaders: Florian Ragwitz <rafl@fsfe.org>
 Build-Depends: debhelper (>= 4.0.0)
-Standards-Version: 3.6.1
+Standards-Version: 3.6.2
 
 Package: pugs
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Suggests: parrot
 Description: A Perl 6 Implementation
- Pugs is Perl6 User's Golfing System.
+ Pugs is an implementation of Perl 6, written in Haskell. It aims to implement
+ the full Perl6 specification, as detailed in the Synopses at
+ http://dev.perl.org/perl6/synopsis/
+ .
+ Homepage: http://pugscode.org/
 
 Package: pugs-doc
 Architecture: all
 Description: Documentation for pugs
- Pugs is Perl6 User's Golfing System.
- 
+ Pugs is an implementation of Perl 6, written in Haskell. It aims to implement
+ the full Perl6 specification, as detailed in the Synopses at
+ http://dev.perl.org/perl6/synopsis/
+ .
+ Homepage: http://pugscode.org/
+ .
+ This package contains various documentation for pugs.
