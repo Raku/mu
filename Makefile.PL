@@ -347,12 +347,21 @@ pure_all ::
 
 pure_site_install ::
 	\$(NOECHO) \$(MOD_INSTALL) \\
+		\$(INST6_LIB) \$(DESTDIR)$config->{sitelib} \\
+		\$(INST6_ARCHLIB) \$(DESTDIR)$config->{sitearch} \\
+		\$(INST6_BIN) \$(DESTDIR)$config->{sitebin} \\
+		\$(INST6_SCRIPT) \$(DESTDIR)$config->{sitescript} \\
+		\$(INST6_MAN1DIR) \$(DESTDIR)$config->{installsiteman1dir} \\
+		\$(INST6_MAN3DIR) \$(DESTDIR)$config->{installsiteman3dir}
+
+pure_vendor_install ::
+	\$(NOECHO) \$(MOD_INSTALL) \\
 		\$(INST6_LIB) \$(DESTDIR)$config->{privlib} \\
 		\$(INST6_ARCHLIB) \$(DESTDIR)$config->{archlib} \\
 		\$(INST6_BIN) \$(DESTDIR)$config->{installbin} \\
 		\$(INST6_SCRIPT) \$(DESTDIR)$config->{installscript} \\
-		\$(INST6_MAN1DIR) \$(DESTINSTALLMAN1DIR) \\
-		\$(INST6_MAN3DIR) \$(DESTINSTALLMAN3DIR)
+		\$(INST6_MAN1DIR) \$(DESTDIR)$config->{installman1dir} \\
+		\$(INST6_MAN3DIR) \$(DESTDIR)$config->{installman3dir}
 .
 }
 
