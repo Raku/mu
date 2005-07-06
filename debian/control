@@ -2,13 +2,13 @@ Source: pugs
 Section: interpreters
 Priority: optional
 Maintainer: Shu-Chun Weng <scw@csie.org>
-Uploaders: Florian Ragwitz <rafl@fsfe.org>
-Build-Depends: debhelper (>= 4.0.0)
+Uploaders: Florian Ragwitz <rafl@fsfe.org>, Carey Tilden <revdiablo@wd39.com>, Ingo Blechschmidt <iblech@web.de>, Shu-Chun Weng <scw@csie.org>
+Build-Depends: debhelper (>= 4.0.0), ghc, perl
 Standards-Version: 3.6.2
 
 Package: pugs
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends}
 Suggests: parrot
 Description: A Perl 6 Implementation
  Pugs is an implementation of Perl 6, written in Haskell. It aims to implement
