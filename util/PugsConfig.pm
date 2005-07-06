@@ -29,6 +29,11 @@ sub get_config {
         installbin     => $Config{installbin},
         installsitebin => $Config{installsitebin},
 
+        installman1dir     => $Config{installman1dir},
+        installman3dir     => $Config{installman3dir},
+        installsiteman1dir => $Config{installsiteman1dir} || $Config{installman1dir},
+        installsiteman3dir => $Config{installsiteman3dir} || $Config{installman3dir},
+
         sourcedir      => Cwd::abs_path(),
     };
 
@@ -41,11 +46,6 @@ sub get_config {
     add_path(installprivlib     => $config); 
     add_path(installsitearch    => $config); 
     add_path(installsitelib     => $config); 
-
-    add_path(installman3dir     => $config);
-    add_path(installman1dir     => $config);
-    add_path(siteman3dir => $config);
-    add_path(siteman1dir => $config);
 
     $config->{pugspath} =
       File::Spec->catfile($config->{bin}, "pugs$config->{exe_ext}");
@@ -62,7 +62,7 @@ sub add_path {
     my $path = $Config{$name} || '';
     $path =~ s/([\/\\])[^\/\\]*(perl)[^\/\\]*([\/\\]?)/$1${2}6$3/i
       or $path =~ s/([\/\\])(lib)(?=[\/\\]|$)/$1$2${1}perl6/i
-      or $path =~ m/\bman\d\b/
+#      or $path =~ m/\bman\d\b/
       or die <<".";
 Can't generate the correct Perl6 equivalent for:
 

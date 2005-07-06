@@ -351,8 +351,8 @@ pure_site_install ::
 		\$(INST6_ARCHLIB) \$(DESTDIR)$config->{sitearch} \\
 		\$(INST6_BIN) \$(DESTDIR)$config->{sitebin} \\
 		\$(INST6_SCRIPT) \$(DESTDIR)$config->{sitescript} \\
-		\$(INST6_MAN1DIR) \$(DESTDIR)$config->{siteman1dir} \\
-		\$(INST6_MAN3DIR) \$(DESTDIR)$config->{siteman3dir}
+		\$(INST6_MAN1DIR) \$(DESTDIR)$config->{installsiteman1dir} \\
+		\$(INST6_MAN3DIR) \$(DESTDIR)$config->{installsiteman3dir}
 
 pure_vendor_install ::
 	\$(NOECHO) \$(MOD_INSTALL) \\
