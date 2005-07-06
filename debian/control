@@ -19,7 +19,7 @@ Description: A Perl 6 Implementation
 
 Package: pugs-doc
 Architecture: all
-Description: Documentation for pugs
+Description: A Perl6 Implementation - Documentation
  Pugs is an implementation of Perl 6, written in Haskell. It aims to implement
  the full Perl6 specification, as detailed in the Synopses at
  http://dev.perl.org/perl6/synopsis/

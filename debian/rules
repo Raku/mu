@@ -62,7 +62,7 @@ binary-indep: build-indep install-indep
 	dh_testroot -i
 	dh_installchangelogs -i ChangeLog
 	dh_installdocs -i
-	dh_installexamples -i
+	dh_installexamples -i examples/*
 	dh_installman -i
 	dh_link -i
 	dh_compress  -i
@@ -81,7 +81,6 @@ binary-arch: build-arch install-arch
 	dh_testroot -a
 	dh_installchangelogs -a ChangeLog
 	dh_installdocs -a
-	dh_installexamples -a
 	dh_installman -a debian/pugs.1 debian/pugscc.1
 	dh_link -a
 	dh_compress  -a
