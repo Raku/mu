@@ -23,7 +23,7 @@ class FooBase => {
 };
 
 class Foo => {
-    extends => [ 'FooBase' ],
+    is => [ 'FooBase' ],
     instance => {
         methods => {
             foo => sub { 

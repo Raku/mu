@@ -1,22 +1,24 @@
 == TO DO list for the MetaModel
 
+=== methods
+
 * Create a Perl6::Method::Params to handle formal parameters, and their binding.
 ** This should deal with invocant forms of $self: and missing invocants (implicit)
 
+=== attributes
 
-* Create a Perl6::SubMethod (DONE)
-* Add a hash of submethods to the Perl6::MetaClass structure.
-    (see Perl6::SubMethod documentation for details on that)
+* add Delegation to Attributes, this should be fairly simple to do as well.
 
-
-* Try to clean up the cut-n-paste of the Class/Instance methods & attributes in
-  the Perl6::MetaClass.
+=== roles
 
 * Turn Roles into a more formal MetaRole object.
 ** Store method conflicts so we can still call them when disambiguating.
 ** Store attribute conflicts as well
 
-* Think about how to retrieve values like '::?CLASS' 
+=== submethods
+
+* Add a hash of submethods to the Perl6::MetaClass structure.
+    (see Perl6::SubMethod documentation for details on that)
 
 * Fix the BUILD functionality, it should:
 
@@ -32,4 +34,12 @@
   
 * add DESTROY and DESTROYALL too which work in the opposite order as BUILD/BUILDALL
 
-* add Delegation to Attributes, this should be fairly simple to do as well.
+=== misc.
+
+* Think about how to retrieve values like '::?CLASS' 
+
+== DONE
+
+* Try to clean up the cut-n-paste of the Class/Instance methods & attributes in
+  the Perl6::MetaClass. (DONE)
+* Create a Perl6::SubMethod (DONE)

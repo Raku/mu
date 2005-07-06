@@ -84,7 +84,7 @@ class Base => {
 };
 
 class Derived1 => {
-    extends => [ 'Base' ],
+    is => [ 'Base' ],
     instance => {
         attrs => [ '$.foo', '$:bar' ],
         BUILD => sub { (shift)->set_value('$.foo' => 'Foo::Foo') },

@@ -31,7 +31,7 @@ class Reader => {
 };
 
 class SyncReader => {
-    extends => [ 'Reader' ],
+    is => [ 'Reader' ],
     does => [ 'rSyncReader' ],
 };
 

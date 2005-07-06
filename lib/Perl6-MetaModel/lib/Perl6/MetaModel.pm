@@ -4,16 +4,8 @@ package Perl6::MetaModel;
 use strict;
 use warnings;
 
-use Perl6::Object;
 use Perl6::Role;
-
-use Perl6::SubMethod;
-
-use Perl6::Class::Attribute;
-use Perl6::Class::Method;
-
-use Perl6::Instance::Attribute;
-use Perl6::Instance::Method;
+use Perl6::Class;
 
 use Carp 'croak';
 
@@ -25,83 +17,13 @@ sub import {
 
 sub role {
     my ($name, $role) = @_;
-    Perl6::Role::add_role($name, $role);
+    Perl6::Role->add_role($name, $role);
 }
 
 sub class {
     my ($name, $params) = @_;
-
-    my %allowed = map { $_ => undef } qw(extends instance class does);
-    my %allowed_in = map { $_ => undef } qw(attrs BUILD methods);
-
-    foreach my $key (keys %{$params}) {
-        croak "Invalid key ($key) in params" 
-            unless exists $allowed{$key};
-        if ($key eq 'class' || $key eq 'kind') {
-            foreach my $sub_key (keys %{$params->{$key}}) {
-                croak "Invalid sub_key ($sub_key) in key ($key) in params" 
-                    unless exists$allowed_in{$sub_key};                
-            }
-        }
-    }
-
-
-    my $extends = $params->{extends} || [ 'Perl6::Object' ];
-    my $code = qq|
-package $name;
-\@$name\:\:ISA = 'Perl6::Object';
-|;
-    eval $code;
-
-    ($name)->meta->superclasses([ map { $_->meta } @{$extends} ]);        
-
-    if (exists $params->{instance}) {
-        my $instance = $params->{instance};
-
-        if (exists $instance->{BUILD}) {
-            ($name)->meta->add_method('BUILD' => Perl6::SubMethod->new($name => $instance->{BUILD}));            
-        }
-        if (exists $instance->{methods}) {
-            ($name)->meta->add_method($_ => Perl6::Instance::Method->new($name, $instance->{methods}->{$_})) 
-                foreach keys %{$instance->{methods}};
-        }
-        if (exists $instance->{attrs}) {
-            foreach my $attr (@{$instance->{attrs}}) {
-                my $type;
-                if (ref($attr) eq 'ARRAY') {
-                    ($type, $attr) = @{$attr}; 
-                }
-                ($name)->meta->add_attribute(
-                    $attr => Perl6::Instance::Attribute->new($name => $attr, $type)
-                );              
-            }
-        }        
-    }
-    if (exists $params->{class}) {
-        my $class = $params->{class};
-        if (exists $class->{attrs}) {
-            foreach my $attr (@{$class->{attrs}}) {
-                my $type;
-                if (ref($attr) eq 'ARRAY') {
-                    ($type, $attr) = @{$attr}; 
-                }
-                ($name)->meta->add_attribute(
-                    $attr => Perl6::Class::Attribute->new($name => $attr, $type)
-                );              
-            }            
-
-        }
-        if (exists $class->{methods}) {
-            foreach my $label (keys %{$class->{methods}}) {
-                ($name)->meta->add_method(
-                    $label => Perl6::Class::Method->new($name, $class->{methods}->{$label})
-                );
-            }
-        }
-    }
-    if ($params->{does}) {
-        Perl6::Role->flatten_roles_into(($name), @{$params->{does}});
-    }
+    my $class = Perl6::Class->new($name, $params);
+    $class->apply();
 }
 
 1;
@@ -125,7 +47,7 @@ Perl6::MetaModel - Perl5 Prototype of the Perl6 Metaclass model
     };
 
     class MyClass => {
-        extends => [ 'MyBaseClass' ],
+        is => [ 'MyBaseClass' ],
         does => [ 'MyRole' ],
         class => {
             methods => {

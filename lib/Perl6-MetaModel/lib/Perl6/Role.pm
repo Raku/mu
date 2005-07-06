@@ -15,7 +15,7 @@ our $DEBUG = 0;
 sub debug { return unless $DEBUG; print ">>> ", @_, "\n" }
 
 sub add_role {
-    my ($name, $role) = @_;
+    my ($meta_role, $name, $role) = @_;
     $role->{name} = $name;
     $ROLES{$name} = $role;
 }

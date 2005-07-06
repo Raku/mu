@@ -130,7 +130,7 @@ $@ = undef;
 eval {
     class FooFail2 => {
         does => [ 'rFoo', 'rFoo2' ],
-        extends => [ 'FooResolve' ],
+        is => [ 'FooResolve' ],
     };
 };
 ok($@, '... we got an error combing two roles without resolving (even in super)');
@@ -139,7 +139,7 @@ ok($@, '... we got an error combing two roles without resolving (even in super)'
 
 class FooNoSuper => {
     does => [ 'rFoo' ],
-    extends => [ 'FooResolve' ],
+    is => [ 'FooResolve' ],
 };
 
 my $foo_no_super = FooNoSuper->new();
