@@ -212,7 +212,8 @@ finalizeBindings sub = do
             act = length boundInvs
         fail $ "Wrong number of invocant parameters: "
             ++ (show $ act) ++ " actual, "
-            ++ (show $ act + cnt) ++ " expected"
+            ++ (show $ act + cnt) ++ " expected in "
+            ++ (show $ subName sub)
             
     let (boundReq, boundOpt) = partition (\x -> isRequired (fst x)) bindings -- bound params which are required
         (reqPrms, optPrms)   = span isRequired params -- all params which are required, and all params which are opt
