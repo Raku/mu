@@ -18,7 +18,10 @@ sub bless : method {
     my ($class, $canidate, %params) = @_;
     $canidate ||= 'P6opaque'; # opaque is our default
     my $instance_structure = $class->CREATE(repr => $canidate, %params);
-    my $self = CORE::bless($instance_structure => $class);
+    # XXX - We do this because we are in Perl5, this 
+    # should not be how the real metamodel behave 
+    # at least I dont think it is how it should :)
+    my $self = CORE::bless($instance_structure, $class);
     $self->BUILDALL(%params);
     return $self;
 }
@@ -28,6 +31,9 @@ sub CREATE {
     ($params{repr} eq 'P6opaque') 
         || croak "Sorry, No other types other than 'P6opaque' are currently supported";    
     
+    # this just gathers all the 
+    # attributes that were defined
+    # for the instances.
     my %attrs;
     $class->meta->traverse_post_order(sub {
         my $c = shift;
@@ -36,7 +42,9 @@ sub CREATE {
             $attrs{$attr} = $attr_obj->instantiate_container;
         }
     }); 
-        
+    
+    # this is our P6opaque data structure
+    # it's nothing special, but it works :)
     return {
         class         => $class->meta,
         instance_data => \%attrs,

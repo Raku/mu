@@ -19,7 +19,7 @@ class Person => {
             create => sub {
                 my ($class, %params) = @_;                
                 $class->set_class_value('$:population' => $class->population() + 1);
-                return $class->new(%params);
+                return $class->bless(undef, %params);
             }
         }
     },
