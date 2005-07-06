@@ -89,6 +89,9 @@ initPreludePC env = do
         s/^expC/astPCP/   and print "astPCP :: IO Exp\n";
         print;
     }
+    close($pc);
+    die "Pugs ".(($?&255)?"killed by signal $?"
+		 :"exited with error code ".($?>>8)) if $?;
     print STDERR "done.\n" if $Config{verbose};
 
 }
