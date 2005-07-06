@@ -25,9 +25,9 @@ sub get_config {
         siteprefix=> $Config{siteprefix},
 
         installscript  => $Config{installscript},
-        sitescript     => $Config{sitescript},
+        sitescript     => $Config{installsitescript} || $Config{installscript},
         installbin     => $Config{installbin},
-        installsitebin => $Config{installsitebin},
+        installsitebin => $Config{installsitebin} || $Config{installsbin},
 
         installman1dir     => $Config{installman1dir},
         installman3dir     => $Config{installman3dir},
