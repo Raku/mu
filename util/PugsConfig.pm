@@ -44,8 +44,8 @@ sub get_config {
 
     add_path(installman3dir     => $config);
     add_path(installman1dir     => $config);
-    add_path(installsiteman3dir => $config);
-    add_path(installsiteman1dir => $config);
+    add_path(siteman3dir => $config);
+    add_path(siteman1dir => $config);
 
     $config->{pugspath} =
       File::Spec->catfile($config->{bin}, "pugs$config->{exe_ext}");
