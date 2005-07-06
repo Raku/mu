@@ -11,7 +11,54 @@ use Carp 'croak';
 
 sub new {
     my ($class, %params) = @_;
-    return $class->meta->new_instance(%params);
+    return $class->bless(undef, %params);
+}
+
+sub bless : method {
+    my ($class, $canidate, %params) = @_;
+    $canidate ||= 'P6opaque'; # opaque is our default
+    my $instance_structure = $class->CREATE(repr => $canidate, %params);
+    my $self = CORE::bless($instance_structure => $class);
+    $self->BUILDALL(%params);
+    return $self;
+}
+
+sub CREATE {
+    my ($class, %params) = @_;
+    ($params{repr} eq 'P6opaque') 
+        || croak "Sorry, No other types other than 'P6opaque' are currently supported";    
+    
+    my %attrs;
+    $class->meta->traverse_post_order(sub {
+        my $c = shift;
+        foreach my $attr ($c->get_attribute_list) {
+            my $attr_obj = $c->get_attribute($attr);
+            $attrs{$attr} = $attr_obj->instantiate_container;
+        }
+    }); 
+        
+    return {
+        class         => $class->meta,
+        instance_data => \%attrs,
+    };         
+}
+
+sub BUILDALL {
+    my ($self, %params) = @_;
+    # XXX - hack here to call Perl6::Object::BUILD
+    $self->Perl6::Object::BUILD(%params);
+    # then we post order traverse the rest of the class
+    # hierarchy. This will all be fixed when Perl6::Object
+    # is properly bootstrapped
+    $self->meta->traverse_post_order(sub {
+        my $c = shift;
+        $c->get_method('BUILD')->call($self, %params) if $c->has_method('BUILD');        
+    });    
+}
+
+sub BUILD {
+    my ($self, %params) = @_;
+    $self->set_value($_ => $params{$_}) foreach keys %params;
 }
 
 sub isa {

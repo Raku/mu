@@ -90,41 +90,6 @@ sub traverse_post_order {
     $visitor->($self);    
 }
 
-## INSTANCE CREATION
-
-sub new_instance {
-    my ($self, %params) = @_;
-
-    my %attrs;
-    $self->traverse_post_order(sub {
-        my $c = shift;
-        foreach my $attr ($c->get_attribute_list) {
-            my $attr_obj = $c->get_attribute($attr);
-            $attrs{$attr} = $attr_obj->instantiate_container;
-        }
-    });    
-
-
-    # XXX - This should actually be in the default
-    # Object::BUILD method, and not happen 
-    # automagically here!
-    $attrs{$_} = $params{$_} foreach keys %params;
-
-    my ($class_name) = ($self->name);
-
-    my $instance = bless {
-        class         => $self,
-        instance_data => \%attrs,
-    }, $class_name;
-
-    $self->traverse_post_order(sub {
-        my $c = shift;
-        $c->get_method('BUILD')->call($instance, %params) if $c->has_method('BUILD');        
-    });    
-
-    return $instance;
-}
-
 ## METHODS
 
 # Instance Methods
