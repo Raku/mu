@@ -9,10 +9,14 @@ use Perl6::MetaClass;
 use Scalar::Util 'blessed';
 use Carp 'croak';
 
+# the default .new()
+
 sub new {
     my ($class, %params) = @_;
     return $class->bless(undef, %params);
 }
+
+# but this is what really constructs the class
 
 sub bless : method {
     my ($class, $canidate, %params) = @_;
@@ -25,6 +29,8 @@ sub bless : method {
     $self->BUILDALL(%params);
     return $self;
 }
+
+## Submethods (hacked here for now)
 
 sub CREATE {
     my ($class, %params) = @_;
@@ -69,6 +75,20 @@ sub BUILD {
     $self->set_value($_ => $params{$_}) foreach keys %params;
 }
 
+sub DESTROYALL {
+    my ($self) = @_;
+    $self->meta->traverse_pre_order(sub {
+        my $c = shift;
+        $c->get_method('DESTROY')->call($self) if $c->has_method('DESTROY');        
+    });      
+}
+
+## end Submethods
+
+## XXX - all the methods below are called automajicaly by 
+## Perl5, so we need to handle them here in order to control
+## the metamodels functionality
+
 sub isa {
     my ($self, $class) = @_;
     return undef unless $class;
@@ -84,6 +104,47 @@ sub can {
         return $self->meta->responds_to($label, for => 'Class');
     }
 }
+
+sub AUTOLOAD {
+    my $label = (split '::', our $AUTOLOAD)[-1];
+    return if $label =~ /DESTROY/;
+    my $self = shift;
+    my @return_value;
+    if (blessed($self)) {
+        my $method;
+        if ($label eq 'SUPER') {
+            $label = shift;
+            $method = $self->meta->find_method_in_superclasses($label);
+        }
+        else {
+            $method = $self->meta->find_method($label);
+        }
+        (blessed($method) && $method->isa('Perl6::Method')) 
+            || croak "Method ($label) not found for instance ($self)";
+        @return_value = $method->call($self, @_);        
+    }
+    else {
+        my $method = $self->meta->find_method($label, for => 'Class');
+
+        (defined $method) 
+            || croak "Method ($label)  not found for class ($self)";
+        @return_value = $method->call($self, @_);
+    }
+    return wantarray ?
+                @return_value
+                :
+                $return_value[0];
+}
+
+# this just dispatches to the DESTROYALL
+# which deals with things correctly
+sub DESTROY {
+    my ($self) = @_;
+    $self->DESTROYALL();
+}
+
+## Perl6 metamodel methods and misc. support 
+## methods for our Perl5 version
 
 sub get_class_value {
     my ($self, $label) = @_;
@@ -137,37 +198,6 @@ sub set_value {
     $self->{instance_data}->{$label} = $value;
 }
 
-sub AUTOLOAD {
-    my $label = (split '::', our $AUTOLOAD)[-1];
-    return if $label =~ /DESTROY/;
-    my $self = shift;
-    my @return_value;
-    if (blessed($self)) {
-        my $method;
-        if ($label eq 'SUPER') {
-            $label = shift;
-            $method = $self->meta->find_method_in_superclasses($label);
-        }
-        else {
-            $method = $self->meta->find_method($label);
-        }
-        (blessed($method) && $method->isa('Perl6::Method')) 
-            || croak "Method ($label) not found for instance ($self)";
-        @return_value = $method->call($self, @_);        
-    }
-    else {
-        my $method = $self->meta->find_method($label, for => 'Class');
-
-        (defined $method) 
-            || croak "Method ($label)  not found for class ($self)";
-        @return_value = $method->call($self, @_);
-    }
-    return wantarray ?
-                @return_value
-                :
-                $return_value[0];
-}
-
 my $META;
 sub meta {
     my ($class) = @_;
@@ -181,6 +211,16 @@ sub meta {
 __END__
 
 =pod
+
+=head1 NAME
+
+Perl6::Object
+
+=head1 DESCRIPTION
+
+This is the base 'Object' class. It will eventually be self-hosting, but for now
+it contains a number of hacks to support the expected behavior of the Perl6 object
+model.
 
 =head1 AUTHOR
 
