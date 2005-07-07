@@ -1406,10 +1406,11 @@ maybeParensBool p = choice
 
 ruleParamName :: RuleParser String
 ruleParamName = literalRule "parameter name" $ do
-    sigil   <- oneOf "$@%&:"
+    -- Valid param names: $foo, @bar, &baz, %grtz, ::baka
+    sigil   <- choice [ oneOf "$@%&" >>= return . (:""), string "::" ]
     twigil  <- ruleTwigil
     name    <- many1 wordAny
-    return $ (sigil:twigil) ++ name
+    return $ sigil ++ twigil ++ name
 
 ruleVarName :: RuleParser String
 ruleVarName = rule "variable name" ruleVarNameString
