@@ -23,25 +23,24 @@ is($GLOBAL, "main global", "global var");
 
 package A;
 
-is($?PACKAGE, "A", "switching package, file scope", :todo<feature>);
-is($GLOBAL, "main global", "'our' is lexically scoped, even across namespaces");
-eval_is('$main::GLOBAL', "main global", "fully qualified name, main::", :todo<feature>);
-#is($::GLOBAL, "main global", "fully qualified name, main");
+Test::is($?PACKAGE, "A", "switching package, file scope");
+Test::lives_ok({ $GLOBAL = 1 }, "'our' is lexically scoped, even across namespaces", :todo<feature>);
+Test::eval_is('$main::GLOBAL', "main global", "fully qualified name, main::");
 
 eval '$A::GLOBAL = "A global"';
 
-eval_is('$A::GLOBAL', "A global", "fully qualified name, other package", :todo<feature>);
+Test::eval_is('$A::GLOBAL', "A global", "fully qualified name, other package");
 
 package B;
 
-is($?PACKAGE, "B", "switching package, file scope", :todo<feature>);
+Test::is($?PACKAGE, "B", "switching package, file scope");
 
 eval '$B::GLOBAL = "A global"';
 
-eval_is('$A::GLOBAL', "A global", "fully qualified name, other package", :todo<feature>);
-eval_is('$B::GLOBAL', "A global", "fully qualified name, my own package", :todo<feature>);
+Test::eval_is('$A::GLOBAL', "A global", "fully qualified name, other package");
+Test::eval_is('$B::GLOBAL', "A global", "fully qualified name, my own package");
 
 eval '$B::UN_OURED = 1';
 
-is(eval('$B::UN_OURED'), undef, "can't refer to global outside scope when not qualified");
+Test::is(eval('$B::UN_OURED'), undef, "can't refer to global outside scope when not qualified", :todo<feature>);
 
