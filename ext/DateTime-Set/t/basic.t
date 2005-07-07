@@ -5,6 +5,6 @@ use Test;
 
 plan 1;
 
-use DateTime::Set;
+use DateTime::Span;
 
 print "ok\n";
