@@ -8,15 +8,17 @@ sub foo (?$foo = 5 is copy, ?$bar = 10 is copy) {
     $foo;
 }
 
-eval_is('foo()', 15, 'calling without arguments');
+plan 7;
 
-eval_is('foo(10)', 20, 'calling with one argument');
-eval_is('foo(10, 15)', 25, 'calling with two arguments');
+is(eval('foo()'), 15, 'calling without arguments');
+
+is(eval('foo(10)'), 20, 'calling with one argument');
+is(eval('foo(10, 15)'), 25, 'calling with two arguments');
 
 my ($baz, $quux) = (10, 15);
 
-eval_is('foo($baz)', 20, 'calling with one argument');
+is(eval('foo($baz)'), 20, 'calling with one argument');
 is($baz, 10, 'variable was not affected');
 
-eval_is('foo($baz, $quux)', 25, 'calling with two arguments');
+is(eval('foo($baz, $quux)'), 25, 'calling with two arguments');
 is($baz, 10, 'variable was not affected');
