@@ -555,6 +555,16 @@ op1 "Code::name"  = op1CodeName
 op1 "Code::arity" = op1CodeArity
 op1 "Code::body"  = op1CodeBody
 op1 "Code::pos"   = op1CodePos
+op1 "IO::tell"    = \v -> do
+    h <- fromVal v
+    tryIO undef $ do
+        res <- hTell h
+        return $ VInt res
+op1 "Pugs::Internals::hIsOpen" = boolIO hIsOpen
+op1 "Pugs::Internals::hIsClosed" = boolIO hIsClosed
+op1 "Pugs::Internals::hIsReadable" = boolIO hIsReadable
+op1 "Pugs::Internals::hIsWritable" = boolIO hIsWritable
+op1 "Pugs::Internals::hIsSeekable" = boolIO hIsSeekable
 op1 other   = \_ -> fail ("Unimplemented unaryOp: " ++ other)
 
 
@@ -1609,6 +1619,12 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   List      pre     Pugs::Internals::runInteractiveCommand  unsafe (Str)\
 \\n   Bool      pre     Pugs::Internals::hSetBinaryMode         unsafe (IO, Str)\
 \\n   Bool      pre     Pugs::Internals::hSeek                  unsafe (IO, Int, Int)\
+\\n   Int       pre     IO::tell                                unsafe (IO)\
+\\n   Int       pre     Pugs::Internals::hIsOpen                unsafe (IO)\
+\\n   Bool      pre     Pugs::Internals::hIsClosed              unsafe (IO)\
+\\n   Bool      pre     Pugs::Internals::hIsReadable            unsafe (IO)\
+\\n   Bool      pre     Pugs::Internals::hIsWritable            unsafe (IO)\
+\\n   Bool      pre     Pugs::Internals::hIsSeekable            unsafe (IO)\
 \\n   IO        pre     Pugs::Internals::openFile               unsafe (Str, Str)\
 \\n   List      pre     Pugs::Internals::caller                 safe (Any, Int, Str)\
 \\n   Bool      pre     bool::true  safe   ()\
