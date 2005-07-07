@@ -5,7 +5,7 @@ class Set::Span-0.01;
 # Set::Span is just like Set::Functional::Span, 
 # but it is "mutable" and it has a more complete API
 
-has Set::Functional::Span $span;
+has Set::Functional::Span $.span;
 
 =for TODO
 
@@ -46,30 +46,38 @@ From "Set" API:
 
 =cut
 
-multi submethod BUILD ( $start, $end ) returns Set::Span {
+multi submethod BUILD () returns Set::Span {
+    undef .$span;
+}
+multi submethod BUILD ( Object $object ) returns Set::Span {
+    $.span = Set::Functional::Span.new( 
+        $object, $object, bool::false, bool::false );
+}
+multi submethod BUILD ( Object $start, Object $end ) returns Set::Span {
     die "start must be less or equal to end" 
         if $start > $end;
-    .$span = Set::Functional::Span.new( 
-        start, $end, bool.false, bool.false );
+    $.span = Set::Functional::Span.new( 
+        $start, $end, bool::false, bool::false );
 }
 
 method start () returns Object {
-    return .$span.start;
+    return unless defined $.span;
+    return $.span.start;
 }
 method end () returns Object {
-    return .$span.end;
+    return $.span.end;
 }
 method start_is_open () returns Bool {
-    return .$span.start_is_open;
+    return $.span.start_is_open;
 }
 method start_is_closed () returns Bool {
-    return .$span.start_is_closed;
+    return $.span.start_is_closed;
 }
 method end_is_open () returns Bool {
-    return .$span.end_is_open;
+    return $.span.end_is_open;
 }
 method end_is_closed () returns Bool {
-    return .$span.end_is_closed;
+    return $.span.end_is_closed;
 }
 
 
