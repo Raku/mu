@@ -557,9 +557,8 @@ op1 "Code::body"  = op1CodeBody
 op1 "Code::pos"   = op1CodePos
 op1 "IO::tell"    = \v -> do
     h <- fromVal v
-    tryIO undef $ do
-        res <- hTell h
-        return $ VInt res
+    res <- liftIO $ hTell h
+    return $ VInt res
 op1 "Pugs::Internals::hIsOpen" = boolIO hIsOpen
 op1 "Pugs::Internals::hIsClosed" = boolIO hIsClosed
 op1 "Pugs::Internals::hIsReadable" = boolIO hIsReadable
@@ -1017,9 +1016,8 @@ op3 "Pugs::Internals::hSeek" = \x y z -> do
     handle <- fromVal x
     pos <- fromVal y
     mode <- fromVal z
-    tryIO (VBool False) $ do              -- pull out to boolIO3?
-        hSeek handle (modeOf mode) pos
-        return (VBool True)
+    liftIO $ hSeek handle (modeOf mode) pos
+    retEmpty
     where
         modeOf :: Int -> SeekMode
         modeOf 0 = AbsoluteSeek
@@ -1618,7 +1616,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      pre     Thread::yield   safe   (Thread)\
 \\n   List      pre     Pugs::Internals::runInteractiveCommand  unsafe (Str)\
 \\n   Bool      pre     Pugs::Internals::hSetBinaryMode         unsafe (IO, Str)\
-\\n   Bool      pre     Pugs::Internals::hSeek                  unsafe (IO, Int, Int)\
+\\n   Void      pre     Pugs::Internals::hSeek                  unsafe (IO, Int, Int)\
 \\n   Int       pre     IO::tell                                unsafe (IO)\
 \\n   Int       pre     Pugs::Internals::hIsOpen                unsafe (IO)\
 \\n   Bool      pre     Pugs::Internals::hIsClosed              unsafe (IO)\
