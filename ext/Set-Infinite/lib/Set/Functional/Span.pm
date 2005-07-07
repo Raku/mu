@@ -11,8 +11,6 @@ has Bool   $:end_is_open;
 
     * union
     * intersection
-    * complement
-    * intersects
     * contains
 
 From "Set" API (maybe):
@@ -72,6 +70,63 @@ method end_is_closed () returns Bool {
     return ! $:end_is_open;
 }
 
+method intersects ( Set::Functional::Span $span ) returns Bool {
+    my ($i_beg, $i_end, $open_beg, $open_end);
+    my $cmp = $.start <=> $span.start;
+    if ($cmp < 0) {
+        $i_beg       = $span.start;
+        $open_beg    = $span.start_is_open;
+    }
+    elsif ($cmp > 0) {
+        $i_beg       = $.start;
+        $open_beg    = $.start_is_open;
+    }
+    else {
+        $i_beg       = $.start;
+        $open_beg    = $.start_is_open || $span.start_is_open;
+    }
+    $cmp = $.end <=> $span.end;
+    if ($cmp > 0) {
+        $i_end       = $span.end;
+        $open_end    = $span.end_is_open;
+    }
+    elsif ($cmp < 0) {
+        $i_end       = $.end;
+        $open_end    = $.end_is_open;
+    }
+    else {
+        $i_end       = $.end;
+        $open_end    = $.end_is_open || $span.end_is_open;
+    }
+    $cmp = $i_beg <=> $i_end;
+    return $cmp <= 0  &&
+           ( $cmp != 0  ||  ( ! $open_beg && ! $open_end ) );
+}
+
+method complement () returns List of Set::Functional::Span 
+{
+    if ($.end == Inf) {
+        return if $.start == -Inf;
+        return .new( start => -Inf,
+                     end => $.start,
+                     start_is_open => bool::true,
+                     end_is_open => ! $.start_is_open );
+    }
+    if ($.start == -Inf) {
+        return .new( start => $.end,
+                     end => Inf,
+                     start_is_open => ! $.end_is_open,
+                     end_is_open => bool::true );
+    }
+    return (   .new( start => -Inf,
+                     end => $.start,
+                     start_is_open => bool::true,
+                     end_is_open => ! $.start_is_open ),
+               .new( start => $.end,
+                     end => Inf,
+                     start_is_open => ! $.end_is_open,
+                     end_is_open => bool::true ) );
+}
 
 =kwid
 

@@ -1,6 +1,6 @@
 == Changes for 0.01
 
-* Set::Functional::Span constructor, size, accessors
+* Set::Functional::Span constructor, size, accessors, complement
 
 * changelog created 2005-07-06
 
