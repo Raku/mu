@@ -6,10 +6,9 @@ Synopsis 12.5 - The Perl 6 Object MetaModel
 
 =head1 SYNOPSIS
 
-This is an unofficial ammendment to the Synopsis 12, which descibes the 
-design and implementation of the Perl6 Object MetaModel. It is very rough
-at the moment, but will be filled in more as the work on this meta-model 
-progresses.
+This is an unofficial amendment to the Synopsis 12, which describes the design
+and implementation of the Perl6 objects metamodel. It is very rough at the
+moment, but will be filled in more as the work on this metamodel progresses.
 
 =head1 DESCRIPTION
 
@@ -19,24 +18,24 @@ progresses.
 
 =item Class
 
-A Class in Perl 6 is much the same as classes in other OO languagues. It is
-a collection of methods and attributes which can be used to construct an 
-Instance from.
+A Class in Perl 6 is much the same as classes in other OO languagues. It is a
+collection of methods and attributes which can be used to construct an Instance
+from.
 
 =item Instance
 
 An Instance is an instance of a Class, it is very much the same as in other OO
-languages.  
+languages. 
 
 =item Role
 
-A Role at it's most basic can be thought of as a collection of methods and
-attributes which get included into a class. A very simplistic view of this
-is that it is not unlike a language level  #INCLUDE directive. Roles share
-similarities to other familiar OO concepts as mix-ins, and interfaces, but 
-they differ in how they are composed into the class as well as the rules
-which govern that composition. Roles will be discussed in further detail
-later in this document.  
+A Role at its most basic can be thought of as a collection of methods and
+attributes which get included into a class. A very simplistic view of this is
+that it is not unlike a language level #INCLUDE directive. Roles share
+similarities to other familiar OO concepts as mixins and interfaces, but they
+differ in how they are composed into the class as well as the rules which
+govern that composition. Roles will be discussed in further detail later in
+this document.  
 
 =back
 
@@ -96,8 +95,9 @@ L<http://www.iam.unibe.ch/~scg/Research/Traits/>
 
 =item L<Class::Role>, L<Class::Roles> & L<Class::Trait>
 
-The first two are early attempts to prototype role behavior, and the last is an implementation
-of the Trait system based on the paper which originally inspired Roles.
+The first two are early attempts to prototype role behavior, and the last is an
+implementation of the Trait system based on the paper which originally inspired
+Roles.
 
 =back
 
@@ -107,19 +107,19 @@ of the Trait system based on the paper which originally inspired Roles.
 
 =item Smalltalk
 
-I prefer the Brown book by Adele Goldberg and David Robinson, but any one which talks about the
-smalltalk metaclasses is a good reference.
+I prefer the Brown book by Adele Goldberg and David Robinson, but any one which
+talks about the smalltalk metaclasses is a good reference.
 
 =item CLOS
 
-The Common Lisp Object System has a very nice meta-model, and plently of reference on it. In 
-particular there is a small implementation of CLOS called TinyCLOS which is very readable (if 
-you know enough Scheme that is)
+The Common Lisp Object System has a very nice meta-model, and plently of
+reference on it. In particular there is a small implementation of CLOS called
+TinyCLOS which is very readable (if you know enough Scheme, that is :).
 
 =item Objective C
 
-There is a good amount of documentation about the Objective C Runtime which details the class
-and object structures. Here are some relevant links:
+There is a good amount of documentation about the Objective C Runtime which
+explains the class and object structures. Here are some relevant links:
 
 =over 4
 
