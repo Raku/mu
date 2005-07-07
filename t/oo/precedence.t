@@ -13,5 +13,5 @@ use Test;
 
 plan 2;
 
-is sub { 42 }(), 'sub {...} works';
-is sub{ 42 }(),  'sub{...} works';
+ok(sub { 42 }(), 'sub {...} works');
+ok(sub{ 42 }(),  'sub{...} works');

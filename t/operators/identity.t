@@ -28,14 +28,11 @@ ok(!("7" =:= 7), "identify checks type mismatch");
 
 class TestObj {
    has $:a;
-   sub new($x) {
-      $:a = $x;
-   }
 };
 
 {
-  my $foo = TestObj.new(3);
-  my $bar = TestObj.new(3);
+  my $foo = TestObj.new(:a<3>);
+  my $bar = TestObj.new(:a<3>);
   my $baz = $foo;
   my $frop := $foo;
 

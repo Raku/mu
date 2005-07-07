@@ -57,10 +57,9 @@ ok((2 + 2 | 4) == 4, "and + binds tigher than |");
 
 # 8. junctive and
 
-# FIXME: The eval() is needed because of t/pugsbugs/listquote.t
 ok(       (1 & 2 | 3) !=3, '& binds tighter than |');
-ok(eval('!(1 & 2 | 3) < 2'), "ditto");
-ok(eval('(1 & 2 ^ 3) < 3'), "and also ^");
+ok((!(1 & 2 | 3) < 2), "ditto");
+ok(((1 & 2 ^ 3) < 3), "and also ^");
 ok(     !(1 & 2 ^ 4) != 3, "blah blah blah");
 
 # 9. junctive or

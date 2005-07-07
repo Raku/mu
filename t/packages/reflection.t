@@ -11,32 +11,32 @@ our $scalar = 42;
 our @array = (1..13);
 our %hash = ( :car<cdr> ); # Sue me, I quite like lisp.
 
-ok( exists(%*::{'$scalar'}), 'Default namespace %*:: is populated with scalars',
+ok( %*::.exists('$scalar'), 'Default namespace %*:: is populated with scalars',
        :todo<feature> );
 is(%*::{'$scalar'}, 42, 'Symbolic lookup of $scalar', :todo<feature>);
 
-ok( exists(%*::{'@array'}), 'Default namespace %*:: is populated with arrays',
+ok( %*::.exists('@array'), 'Default namespace %*:: is populated with arrays',
        :todo<feature>);
 is(%*::{'@array'}[0], 1, 'symbolic lookup of @array', :todo<feature>);
 
-ok( exists(%*::{'%hash'}), 'Default namespace %*:: is populated with arrays',
+ok( %*::.exists('%hash'), 'Default namespace %*:: is populated with arrays',
        :todo<feature>);
-is(%*::{'%hash'}{car}, 'cdr', 'symbolic lookup of %hash', :todo<feature>);
+is(%*::{'%hash'}<car>, 'cdr', 'symbolic lookup of %hash', :todo<feature>);
 
 # Now let's check %OUR::
 
-ok( exists(%OUR::{'$scalar'}),
+ok( %OUR::.exists('$scalar'),
     'Pseudo namespace %OUR:: is populated with scalars',
    :todo<feature> );
 is(%OUR::{'$scalar'}, 42, 'Symbolic lookup of $OUR::scalar', :todo<feature>);
 
-ok( exists(%OUR::{'@array'}), 'Pseudo namespace %OUR:: is populated with arrays',
+ok( %OUR::.exists('@array'), 'Pseudo namespace %OUR:: is populated with arrays',
        :todo<feature>);
 is(%OUR::{'@array'}[0], 1, 'symbolic lookup of @OUR::array', :todo<feature>);
 
-ok( exists(%OUR::{'%hash'}), 'Pseudo namespace %OUR:: is populated with arrays',
+ok( %OUR::.exists('%hash'), 'Pseudo namespace %OUR:: is populated with arrays',
        :todo<feature>);
-is(%*::{'%hash'}{car}, 'cdr', 'symbolic lookup of %OUR::hash', :todo<feature>);
+is(%*::{'%hash'}<car>, 'cdr', 'symbolic lookup of %OUR::hash', :todo<feature>);
 
 # So the easy stuff's out of the way, let's introduce a package.
 
@@ -46,10 +46,9 @@ package Symbols::R::Us {
     our %hash   = ( :key<value> );
 }
 
-ok( exists(%*::{'%Symbols::R::Us::'}),
+ok( %*::.exists('%Symbols::R::Us::'),
     "A namespace is just another hash variable",
-    :to
-    do<feature>);
+    :todo<feature>);
 
 is( %Symbols::R::Us::{'$scalar'}, 21, "Symbolic lookup of a package variable",
     :todo<feature>);
