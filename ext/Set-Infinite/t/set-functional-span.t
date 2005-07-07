@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 10;
+plan 13;
 
 use_ok( 'Set::Functional::Span' );
 use Set::Functional::Span;   # XXX should not need this

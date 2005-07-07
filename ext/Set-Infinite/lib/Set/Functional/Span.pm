@@ -108,25 +108,128 @@ method complement () returns List of Set::Functional::Span
     if ($.end == Inf) {
         return if $.start == -Inf;
         return .new( start => -Inf,
-                     end => $.start,
+                     end =>   $.start,
                      start_is_open => bool::true,
                      end_is_open => ! $.start_is_open );
     }
     if ($.start == -Inf) {
         return .new( start => $.end,
-                     end => Inf,
+                     end =>   Inf,
                      start_is_open => ! $.end_is_open,
                      end_is_open => bool::true );
     }
     return (   .new( start => -Inf,
-                     end => $.start,
+                     end =>   $.start,
                      start_is_open => bool::true,
                      end_is_open => ! $.start_is_open ),
                .new( start => $.end,
-                     end => Inf,
+                     end =>   Inf,
                      start_is_open => ! $.end_is_open,
                      end_is_open => bool::true ) );
 }
+
+multi method union ( Set::Functional::Span $span ) returns List of Set::Functional::Span {
+    ...
+
+=for TODO
+    my $cmp;
+    $cmp = $tmp1->{b} <=> $tmp2->{a};
+    if ( $cmp < 0 ||
+             ( $cmp == 0 && $tmp1->{open_end} && $tmp2->{open_begin} ) ) {
+        return ( $tmp1, $tmp2 );
+    }
+    $cmp = $tmp1->{a} <=> $tmp2->{b};
+    if ( $cmp > 0 ||
+         ( $cmp == 0 && $tmp2->{open_end} && $tmp1->{open_begin} ) ) {
+        return ( $tmp2, $tmp1 );
+    }
+    #-- common code
+    my $tmp;
+    $cmp = $tmp1->{a} <=> $tmp2->{a};
+    if ($cmp > 0) {
+        $tmp->{a} = $tmp2->{a};
+        $tmp->{open_begin} = $tmp2->{open_begin};
+    }
+    elsif ($cmp == 0) {
+        $tmp->{a} = $tmp1->{a};
+        $tmp->{open_begin} = $tmp1->{open_begin} ? $tmp2->{open_begin} : 0;
+    }
+    else {
+        $tmp->{a} = $tmp1->{a};
+        $tmp->{open_begin} = $tmp1->{open_begin};
+    }
+
+    $cmp = $tmp1->{b} <=> $tmp2->{b};
+    if ($cmp < 0) {
+        $tmp->{b} = $tmp2->{b};
+        $tmp->{open_end} = $tmp2->{open_end};
+    }
+    elsif ($cmp == 0) {
+        $tmp->{b} = $tmp1->{b};
+        $tmp->{open_end} = $tmp1->{open_end} ? $tmp2->{open_end} : 0;
+    }
+    else {
+        $tmp->{b} = $tmp1->{b};
+        $tmp->{open_end} = $tmp1->{open_end};
+    }
+    return $tmp;
+=cut
+
+}
+multi method union ( Set::Functional::Span $span, Object $density ) returns List of Set::Functional::Span {
+    ...
+
+=for TODO
+    my $cmp;
+        my $a1_open =  $tmp1->{open_begin} ? -$tolerance : $tolerance ;
+        my $b1_open =  $tmp1->{open_end}   ? -$tolerance : $tolerance ;
+        my $a2_open =  $tmp2->{open_begin} ? -$tolerance : $tolerance ;
+        my $b2_open =  $tmp2->{open_end}   ? -$tolerance : $tolerance ;
+        # open_end touching?
+        if ((($tmp1->{b}+$tmp1->{b}) + $b1_open ) <
+            (($tmp2->{a}+$tmp2->{a}) - $a2_open)) {
+            # self disjuncts b
+            return ( $tmp1, $tmp2 );
+        }
+        if ((($tmp1->{a}+$tmp1->{a}) - $a1_open ) >
+            (($tmp2->{b}+$tmp2->{b}) + $b2_open)) {
+            # self disjuncts b
+            return ( $tmp2, $tmp1 );
+        }
+    #-- common code
+    my $tmp;
+    $cmp = $tmp1->{a} <=> $tmp2->{a};
+    if ($cmp > 0) {
+        $tmp->{a} = $tmp2->{a};
+        $tmp->{open_begin} = $tmp2->{open_begin};
+    }
+    elsif ($cmp == 0) {
+        $tmp->{a} = $tmp1->{a};
+        $tmp->{open_begin} = $tmp1->{open_begin} ? $tmp2->{open_begin} : 0;
+    }
+    else {
+        $tmp->{a} = $tmp1->{a};
+        $tmp->{open_begin} = $tmp1->{open_begin};
+    }
+
+    $cmp = $tmp1->{b} <=> $tmp2->{b};
+    if ($cmp < 0) {
+        $tmp->{b} = $tmp2->{b};
+        $tmp->{open_end} = $tmp2->{open_end};
+    }
+    elsif ($cmp == 0) {
+        $tmp->{b} = $tmp1->{b};
+        $tmp->{open_end} = $tmp1->{open_end} ? $tmp2->{open_end} : 0;
+    }
+    else {
+        $tmp->{b} = $tmp1->{b};
+        $tmp->{open_end} = $tmp1->{open_end};
+    }
+    return $tmp;
+=cut
+
+}
+
 
 =kwid
 
