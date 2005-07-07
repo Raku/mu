@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More no_plan => 1;
+use Test::More tests => 8;
 
 use Perl6::MetaModel;
 use Perl6::Method;

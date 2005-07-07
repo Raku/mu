@@ -7,8 +7,8 @@ use warnings;
 use Scalar::Util 'blessed';
 use Carp 'croak';
 
-use constant INSTANCE_TABLE => 'class_definition';
-use constant CLASS_TABLE    => 'class_data';
+use constant INSTANCE_TABLE  => 'class_definition';
+use constant CLASS_TABLE     => 'class_data';
 
 sub new {
     my ($class, %params) = @_;
@@ -311,7 +311,7 @@ Perl6::MetaClass - Metaclass in the Perl6 Meta Model
 
 =item B<get_method>
 
-=item B<sub has_method>
+=item B<has_method>
 
 =item B<find_method>
 
@@ -333,6 +333,8 @@ Perl6::MetaClass - Metaclass in the Perl6 Meta Model
 
 =head1 AUTHOR
 
-Stevan Little
+Stevan Little E<lt>stevan@iinteractive.comE<gt>
+
+Autrijus Tang E<lt>autrijus@autrijus.orgE<gt>
 
 =cut

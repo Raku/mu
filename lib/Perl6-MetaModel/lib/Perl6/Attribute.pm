@@ -4,6 +4,7 @@ package Perl6::Attribute;
 use strict;
 use warnings;
 
+use Carp 'croak';
 use Scalar::Util 'blessed';
 
 use constant PUBLIC  => 'public';
@@ -11,9 +12,13 @@ use constant PRIVATE => 'private';
 
 sub new {
     my ($class, $associated_with, $label, $type) = @_;
+    (defined $associated_with && defined $label) 
+        || croak "Insufficient Arguments : You must provide a class this is associated with and a label";
     my $visibility = PUBLIC;
     $visibility = PRIVATE if $label =~ /^.\:/;
     my ($accessor_name) = ($label =~ /^..(.*)$/);
+    (defined $accessor_name) 
+        || croak "Bad label : could not extract accessor name from label ($label)";
     my $attr = bless {
         associated_with => $associated_with,
         accessor_name   => $accessor_name,
@@ -34,8 +39,8 @@ sub is_hash  { (shift)->{label} =~ /^\%/ }
 sub associated_with { (shift)->{associated_with} }
 sub accessor_name   { (shift)->{accessor_name}   }
 
-sub is_private { (shift)->{visibility} eq 'private' }
-sub is_public  { (shift)->{visibility} eq 'public'  }
+sub is_private { (shift)->{visibility} eq PRIVATE }
+sub is_public  { (shift)->{visibility} eq PUBLIC  }
 
 sub instantiate_container {
     my ($self) = @_;
@@ -58,9 +63,11 @@ Perl6::Attribute - Base class for Attribute in the Perl6 Meta Model
 
 =over 4
 
-=item B<new>
+=item B<new ($associated_with, $label, ?$type)>
 
 =item B<type>
+
+=item B<label>
 
 =item B<is_array>
 
@@ -76,6 +83,6 @@ Perl6::Attribute - Base class for Attribute in the Perl6 Meta Model
 
 =head1 AUTHOR
 
-Stevan Little stevan@iinteractive.com
+Stevan Little E<lt>stevan@iinteractive.comE<gt>
 
 =cut

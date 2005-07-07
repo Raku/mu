@@ -88,3 +88,17 @@ sub collect_role_list {
 
 
 1;
+
+=pod
+
+=head1 NAME
+
+Perl6::Role - (meta) Role in the Perl6 Meta Model
+
+=head1 DESCRIPTION
+
+=head1 AUTHOR
+
+Stevan Little E<lt>stevan@iinteractive.comE<gt>
+
+=cut

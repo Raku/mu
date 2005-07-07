@@ -224,7 +224,8 @@ model.
 
 =head1 AUTHOR
 
-Stevan Little stevan@iinteractive.com
-Autrijus Tang autrijus@autrijus.org
+Stevan Little E<lt>stevan@iinteractive.comE<gt>
+
+Autrijus Tang E<lt>autrijus@autrijus.orgE<gt>
 
 =cut

@@ -3,7 +3,8 @@
 use strict;
 use warnings;
 
-use Test::More no_plan => 1;
+use Test::More tests => 26;
+use Test::Exception;
 
 use Perl6::MetaModel;
 
@@ -91,13 +92,11 @@ role rFoo2 => {
     }
 };
 
-$@ = undef;
-eval {
+dies_ok {
     class FooFail => {
         does => [ 'rFoo', 'rFoo2' ]
     };
-};
-ok($@, '... we got an error when 2 roles conflicted');
+} '... we got an error when 2 roles conflicted';
 
 # combine 2 roles with a conflict resolved by the class
 
@@ -126,14 +125,12 @@ is($foo_resolve->foo, 'FooResolve::foo', '... the foo() is from FooResolve (as e
 
 # combine 2 roles in conflict with a super defining the method, but not resolving it
 
-$@ = undef;
-eval {
+dies_ok {
     class FooFail2 => {
         does => [ 'rFoo', 'rFoo2' ],
         is => [ 'FooResolve' ],
     };
-};
-ok($@, '... we got an error combing two roles without resolving (even in super)');
+} '... we got an error combing two roles without resolving (even in super)';
 
 # combine 1 role and have it override the super's method
 

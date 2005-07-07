@@ -3,7 +3,8 @@
 use strict;
 use warnings;
 
-use Test::More no_plan => 1;
+use Test::More tests => 27;
+use Test::Exception;
 
 use Perl6::MetaModel;
 
@@ -105,23 +106,19 @@ role rFoo2 => {
     }  
 };
 
-$@ = undef;
-eval {
+dies_ok {
     class ThisFails => {
         does => [ 'rFooBar', 'rFoo2' ]
     }    
-};
-ok($@, '... we got an error because rFooBar::foo will conflict with rFoo2::foo');
+} '... we got an error because rFooBar::foo will conflict with rFoo2::foo';
 
 # conflicts 3 levels deep
 
-$@ = undef;
-eval {
+dies_ok {
     class ThisFailsToo => {
         does => [ 'rFooBarBaz', 'rFoo2' ]
     }    
-};
-ok($@, '... we got an error because rFooBarBaz::foo will conflict with rFoo2::foo');
+} '... we got an error because rFooBarBaz::foo will conflict with rFoo2::foo';
 
 
 

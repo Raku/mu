@@ -73,12 +73,11 @@ sub _build_class {
 
     if (my $instance = $self->{params}->{instance}) {
 
-        if (exists $instance->{BUILD}) {
-            ($name)->meta->add_method('BUILD' => Perl6::SubMethod->new($name => $instance->{BUILD}));            
-        }
-        if (exists $instance->{DESTROY}) {
-            ($name)->meta->add_method('DESTROY' => Perl6::SubMethod->new($name => $instance->{DESTROY}));            
-        }        
+        ($name)->meta->add_method('BUILD' => Perl6::SubMethod->new($name => $instance->{BUILD}))
+            if exists $instance->{BUILD};            
+        ($name)->meta->add_method('DESTROY' => Perl6::SubMethod->new($name => $instance->{DESTROY}))          
+            if exists $instance->{DESTROY};
+            
         if (exists $instance->{methods}) {
             ($name)->meta->add_method($_ => Perl6::Instance::Method->new($name, $instance->{methods}->{$_})) 
                 foreach keys %{$instance->{methods}};
@@ -117,9 +116,9 @@ sub _build_class {
         }
     }
 
-    if ($self->{params}->{does}) {
-        Perl6::Role->flatten_roles_into($name, @{$self->{params}->{does}});
-    }
+
+    Perl6::Role->flatten_roles_into($name, @{$self->{params}->{does}})
+        if $self->{params}->{does};
 }
 
 
@@ -135,34 +134,48 @@ Perl6::Class
 
 =head1 SYNOPSIS
 
-my $foo_class = Perl6::Class->new('Foo' => {
-        is => [ 'MyBaseClass' ],
-        does => [ 'MyRole' ],
-        class => {
-            methods => {
-                a_class_method => sub { ... }
-            }
-        },
-        instance => {
-            attrs => [ '$.foo' ],
-            BUILD => sub {
-                my ($self) = @_;
-                $self->set_value('$.foo' => 'Foo::Bar');
+    my $foo_class = Perl6::Class->new('Foo' => {
+            is => [ 'MyBaseClass' ],
+            does => [ 'MyRole' ],
+            class => {
+                methods => {
+                    a_class_method => sub { ... }
+                }
             },
-            methods => {
-                tester => sub {
-                    my ($self) = shift;
-                    $self->test(); # call the role method
-                    print $self->get_value('$.foo');
+            instance => {
+                attrs => [ '$.foo' ],
+                BUILD => sub {
+                    my ($self) = @_;
+                    $self->set_value('$.foo' => 'Foo::Bar');
+                },
+                methods => {
+                    tester => sub {
+                        my ($self) = shift;
+                        $self->test(); # call the role method
+                        print $self->get_value('$.foo');
+                    }
                 }
             }
         }
-    }
-);
-$foo_class->apply(); # this injects the Class into the Object environment
+    );
+    $foo_class->apply(); # this injects the Class into the Object environment
+
+=head1 DESCRIPTION
+
+=head1 METHODS
+
+=over 4
+
+=item B<new ($name, \%params)>
+
+=item B<name>
+
+=item B<apply>
+
+=back
 
 =head1 AUTHOR
 
-Stevan Little stevan@iinteractive.com
+Stevan Little E<lt>stevan@iinteractive.comE<gt>
 
 =cut

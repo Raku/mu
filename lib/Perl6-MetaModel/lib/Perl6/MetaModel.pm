@@ -7,8 +7,6 @@ use warnings;
 use Perl6::Role;
 use Perl6::Class;
 
-use Carp 'croak';
-
 sub import {
     no strict 'refs';
     *{caller() . '::class'}   = \&class;
@@ -85,24 +83,18 @@ I am prototyping this in Perl5 as part of the Perl6 -> PIL compiler to run on a 
 It is currently in the early stages of a refactoring from the original which was just a 
 hacked together prototype. 
 
-  +------------------+
-  | Perl6::MetaClass |
-  +------------------+       +------------------+
-  | name             |------>| Perl6::Attribute |....{ subclasses:
-  | attrs            |---+   +------------------+       - Perl6::Class::Attribute
-  | methods          |   |   | associated_with  |       - Perl6::Instance::Attribute
-  | superclasses     |   |   | accessor_name    |       - Perl6::Role::Attribute
-  +------------------+   |   | visibility       |     }
-                         |   | type             |
-                         |   | label            |
-                         |   +------------------+
-                         |
-                         |   +------------------+
-                         +-->| Perl6::Method    |....{ subclasses:
-                             +------------------+       - Perl6::Class::Method
-                             | associated_with  |       - Perl6::Instance::Method
-                             | code             |       - Perl6::Role::Method
-                             +------------------+     }
+=head1 EXPORTED FUNCTIONS
+
+These functions are exported and are thin wrappers around the Perl6::Class and Perl6::Role
+modules to make class/role construction easier.
+
+=over 4
+
+=item B<class>
+
+=item B<role>
+
+=back
 
 =head1 SEE ALSO
 
@@ -132,7 +124,7 @@ you know enough Scheme that is)
 
 =head1 AUTHOR
 
-Stevan Little stevan@iinteractive.com
+Stevan Little E<lt>stevan@iinteractive.comE<gt>
 
 =cut
 
