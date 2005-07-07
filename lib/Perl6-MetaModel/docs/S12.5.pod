@@ -24,7 +24,7 @@ from.
 
 =item Instance
 
-An Instance is an instance of a Class, it is very much the same as in other OO
+An Instance is an instance of a Class. It is very much the same as in other OO
 languages. 
 
 =item Role
@@ -107,12 +107,12 @@ Roles.
 
 =item Smalltalk
 
-I prefer the Brown book by Adele Goldberg and David Robinson, but any one which
-talks about the smalltalk metaclasses is a good reference.
+I prefer the Brown book by Adele Goldberg and David Robinson, but any book that
+talks about the Smalltalk metaclasses is a good reference.
 
 =item CLOS
 
-The Common Lisp Object System has a very nice meta-model, and plently of
+The Common Lisp Object System has a very nice metamodel, and there's plenty of
 reference on it. In particular there is a small implementation of CLOS called
 TinyCLOS which is very readable (if you know enough Scheme, that is :).
 
