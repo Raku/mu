@@ -1532,17 +1532,17 @@ numLiteral = do
 
 emptyListLiteral :: RuleParser Exp
 emptyListLiteral = tryRule "empty list" $ do
-    parens whiteSpace
+    verbatimParens whiteSpace
     return $ Syn "," []
 
 emptyArrayLiteral :: RuleParser Exp
 emptyArrayLiteral = tryRule "empty array" $ do
-    brackets whiteSpace
+    verbatimBrackets whiteSpace
     return $ Syn "\\[]" [emptyExp]
 
 arrayLiteral :: RuleParser Exp
 arrayLiteral = try $ do
-    item <- brackets ruleExpression
+    item <- verbatimBrackets ruleExpression
     return $ Syn "\\[]" [item]
 
 pairLiteral :: RuleParser Exp

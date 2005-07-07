@@ -24,7 +24,7 @@ module Pugs.Lexer (
     tryChoice,
 
     ruleScope, ruleTrait, ruleTraitName, ruleBareTrait, ruleType,
-    verbatimParens,
+    verbatimParens, verbatimBrackets, verbatimBraces,
 ) where
 import Pugs.Internals
 import Pugs.AST
@@ -302,3 +302,8 @@ tryChoice = choice . map try
 verbatimParens :: GenParser Char st a -> GenParser Char st a
 verbatimParens = between (lexeme $ char '(') (char ')')
 
+verbatimBrackets :: GenParser Char st a -> GenParser Char st a
+verbatimBrackets = between (lexeme $ char '[') (char ']')
+
+verbatimBraces :: GenParser Char st a -> GenParser Char st a
+verbatimBraces = between (lexeme $ char '{') (char '}')
