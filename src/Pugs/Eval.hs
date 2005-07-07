@@ -104,14 +104,14 @@ debug key fun str a = do
 evaluateMain :: Exp -> Eval Val
 evaluateMain exp = do
     -- S04: INIT {...}*      at run time, ASAP
-    initAV   <- evalVar "@*INIT"
+    initAV   <- reduceVar "@*INIT"
     initSubs <- fromVals initAV
     enterContext CxtVoid $ do
         mapM_ evalExp [ App (Val sub) Nothing [] | sub <- initSubs ]
     -- The main runtime
     val      <- resetT $ evaluate exp
     -- S04: END {...}       at run time, ALAP
-    endAV    <- evalVar "@*END"
+    endAV    <- reduceVar "@*END"
     endSubs  <- fromVals endAV
     enterContext CxtVoid $ do
         mapM_ evalExp [ App (Val sub) Nothing [] | sub <- endSubs ]
@@ -419,7 +419,7 @@ reduceSyn "given" [topic, body] = do
     enterGiven vtopic $ enterEvalContext (cxtItem "Code") body
 
 reduceSyn "when" [match, body] = do
-    break  <- evalVar "&?BLOCK_EXIT"
+    break  <- reduceVar "&?BLOCK_EXIT"
     vbreak <- fromVal break
     result <- reduce $ case unwrap match of
         App _ (Just (Var "$_")) _ -> match
@@ -430,7 +430,7 @@ reduceSyn "when" [match, body] = do
         else retVal undef
 
 reduceSyn "default" [body] = do
-    break  <- evalVar "&?BLOCK_EXIT"
+    break  <- reduceVar "&?BLOCK_EXIT"
     vbreak <- fromVal break
     enterWhen (subBody vbreak) $ apply vbreak Nothing [body]
 
@@ -494,8 +494,7 @@ reduceSyn ":=" exps
             rv   <- findVarRef name
             case rv of
                 Just ioRef -> return (ioRef, ref)
-                Nothing -> do
-                    retError "Undeclared variable" name
+                _ -> retError "Undeclared variable" name
         forM_ bindings $ \(ioRef, ref) -> do
             liftSTM $ writeTVar ioRef ref
         return $ case map (VRef . snd) bindings of

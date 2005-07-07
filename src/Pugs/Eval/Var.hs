@@ -3,7 +3,7 @@
 
 module Pugs.Eval.Var (
     findVar, findVarRef,
-    evalVar, findSub, evalExpType,
+    findSub, evalExpType,
     isQualified, packageOf, qualify,
     toPackage, toQualified,
 ) where
@@ -256,7 +256,7 @@ findSub name' invs args = do
         listVal  <- fromVal listMVal
         fmap length (fromVal listVal :: Eval [Val])
     argSlurpLen (Var name) = do
-        listMVal <- evalVar name
+        listMVal <- evalExp (Var name)
         listVal  <- fromVal listMVal
         fmap length (fromVal listVal :: Eval [Val])
     argSlurpLen (Syn "," list) =  return $ length list
@@ -374,14 +374,6 @@ toGlobal name
     , last sigil /= '*'
     = sigil ++ ('*':identifier)
     | otherwise = name
-
-evalVar :: Var -> Eval Val
-evalVar name = do
-    v <- findVar name
-    case v of
-        Just var -> readRef var
-        _ | (':':rest) <- name -> return $ VType (mkType rest)
-        _ -> retError "Undeclared variable" name
 
 arityMatch :: VCode -> Int -> Int -> Maybe VCode
 arityMatch sub@MkCode{ subAssoc = assoc, subParams = prms } argLen argSlurpLen
