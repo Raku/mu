@@ -8,6 +8,3 @@ plan 1;
 use DateTime::Set;
 
 print "ok\n";
-
-
-
