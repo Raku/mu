@@ -171,9 +171,9 @@ sub set_postamble {
       my $os_version = `uname -r`;
       if ($gcc_version =~ /4.0.0/ && $os_version =~ /^8./) {
          die <<EOD;
-*** We don't work with GCC 4.0 on Tiger,
-    please use "sudo gcc_select 3.3" to pick an earlier version of gcc,
-    or set CC to /usr/bin/gcc-3.3.
+*** GHC 6.4.0 cannot work with GCC 4.0 on Mac OS X.
+    Please use "sudo gcc_select 3.3" to pick an earlier version of gcc,
+    or set the CC environment variable to "/usr/bin/gcc-3.3".
 EOD
       }
     }
