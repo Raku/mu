@@ -3,6 +3,8 @@
 use v6;
 use Test;
 
+force_todo 4;
+
 =pod
 
 Test handling of C<-Mmodule>.

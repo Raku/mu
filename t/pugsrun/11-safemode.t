@@ -2,6 +2,7 @@
 
 use v6;
 use Test;
+force_todo 6;
 
 =pod
 
