@@ -195,3 +195,34 @@ generated files like C<Makefile> or C<blib/>.
 
     $ svn propget svn:ignore ext/Some-Other-Module
     $ svn propedit svn:ignore ext/Your-New-Module
+
+Except for the files in F<script/> and F<util/>, C<svn:executable> should
+always be unset, even for test files.
+
+=head2 Shebang lines
+
+All test files should use C<#!/usr/bin/pugs> as the shebang line (first line of
+the script). There're no real technical reasons for this convention, it's just
+for consistency. Remember to put a C<use v6> in the beginning of your Perl 6
+programs, too, to keep perl5 from accidentally running Perl 6 code.
+
+=head2 Naming conventions
+
+=over
+
+=item *
+
+"Perl 6" is the name of the programming language and the project, while "perl6"
+is the name of the Perl 6 compiler/interpreter.
+
+=item *
+
+"Pugs" is the name of the Pugs project, while "pugs" is the name of the binary
+C<pugs>, i.e. the compiler/interpreter.
+
+=item *
+
+"Perl 5" is the name of the programming language and the project, while "perl5"
+is the name of the Perl 5 interpreter.
+
+=back
