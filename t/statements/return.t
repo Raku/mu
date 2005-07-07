@@ -27,7 +27,7 @@ sub baz { return 10 if 1; }
 is(baz(), 10, '... return worked with a statement modifier');
 
 sub foobar { return if 1; };
-eval_is('foobar()', undef, '... bare return worked with a statement modifier');
+is(foobar(), undef, '... bare return worked with a statement modifier');
 
 sub foobar2 { return() if 1; }
 is(foobar2(), undef, '... bare return worked with a statement modifier');
