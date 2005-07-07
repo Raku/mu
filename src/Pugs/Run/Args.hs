@@ -161,6 +161,12 @@ joinDashE ((Switch 'n'):args) = joinDashE ((Opt "-e" "while ($_ = =<>) { $_ .= c
 --   "-E foo bar.p6" executes "foo" and then bar.p6.
 joinDashE ((Opt "-M" mod):args) = joinDashE ((Opt "-E" (";use " ++ mod ++ ";\n")):args)
 
+-- Preserve the curious Perl5 behaviour:
+--   perl -e 'print CGI->VERSION' -MCGI     # works
+--   perl print_cgi.pl -MCGI                # fails
+joinDashE (x@(Opt "-e" _):y@(Opt "-E" _):args) = joinDashE (y:x:args)
+joinDashE ((Opt "-E" a):y@(Opt "-e" _):args) = joinDashE ((Opt "-e" a):y:args)
+
 joinDashE ((Opt "-e" a):(Opt "-e" b):args) =
     joinDashE (Opt "-e" combined:args)
     where
