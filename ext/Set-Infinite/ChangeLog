@@ -1,4 +1,6 @@
 == Changes for 0.01
 
+* Set::Functional::Span constructor, size, accessors
+
 * changelog created 2005-07-06
 
