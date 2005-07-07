@@ -12,11 +12,15 @@ has Bool   $:end_is_open;
     * union
     * intersection
     * contains
+        - Set::Infinite uses: ( $a->union( $b ) == $a )
+    * stringify
+    * spaceship
+
+    * complete POD
 
 From "Set" API (maybe):
 
     * equal/not_equal
-    * stringify
     * difference
     * symmetric_difference
     * proper_subset
@@ -230,6 +234,90 @@ multi method union ( Set::Functional::Span $span, Object $density ) returns List
 
 }
 
+
+method intersection ( Set::Functional::Span $span ) returns List of Set::Functional::Span {
+    ...
+
+=for TODO
+            if ( ( $tmp1a <= $tmp1b ) &&
+                 ( ($tmp1a != $tmp1b) ||
+                   (!$open_beg and !$open_end) ||
+                   ($tmp1a == $inf)   ||               # XXX
+                   ($tmp1a == $neg_inf)
+                 )
+               )
+            {
+                if ( $op eq 'intersection' )
+                {
+                    push @a, {
+                        a => $tmp1a, b => $tmp1b,
+                        open_begin => $open_beg, open_end => $open_end } ;
+                }
+                if ( $op eq 'intersects' )
+                {
+                    return 1;
+                }
+                if ( $op eq 'intersected_spans' )
+                {
+                    push @a, $tmp1;
+                    $a0++;
+                    next A;
+                }
+            }
+=cut
+
+}
+
+method stringify () returns String {
+    ...
+
+=for TODO
+    my $set = shift;
+    my $self = $_[0];
+    my $s;
+    return "" unless defined $self;
+    $self->{open_begin} = 1 if ($self->{a} == -$inf );
+    $self->{open_end}   = 1 if ($self->{b} == $inf );
+    my $tmp1 = $self->{a};
+    $tmp1 = $tmp1->datetime if UNIVERSAL::can( $tmp1, 'datetime' );
+    $tmp1 = "$tmp1";
+    my $tmp2 = $self->{b};
+    $tmp2 = $tmp2->datetime if UNIVERSAL::can( $tmp2, 'datetime' );
+    $tmp2 = "$tmp2";
+    return $tmp1 if $tmp1 eq $tmp2;
+    $s = $self->{open_begin} ? $set->separators(2) : $set->separators(0);
+    $s .= $tmp1 . $set->separators(4) . $tmp2;
+    $s .= $self->{open_end} ? $set->separators(3) : $set->separators(1);
+    return $s;
+=cut
+
+}
+
+method spaceship ( Set::Functional::Span $span ) returns Int {
+    ...
+
+=for TODO
+    my ($tmp1, $tmp2, $inverted) = @_;
+    my $cmp;
+    if ($inverted) {
+        $cmp = $tmp2->{a} <=> $tmp1->{a};
+        return $cmp if $cmp;
+        $cmp = $tmp1->{open_begin} <=> $tmp2->{open_begin};
+        return $cmp if $cmp;
+        $cmp = $tmp2->{b} <=> $tmp1->{b};
+        return $cmp if $cmp;
+        return $tmp1->{open_end} <=> $tmp2->{open_end};
+    }
+    $cmp = $tmp1->{a} <=> $tmp2->{a};
+    return $cmp if $cmp;
+    $cmp = $tmp2->{open_begin} <=> $tmp1->{open_begin};
+    return $cmp if $cmp;
+    $cmp = $tmp1->{b} <=> $tmp2->{b};
+    return $cmp if $cmp;
+    return $tmp2->{open_end} <=> $tmp1->{open_end};
+=cut
+
+}
 
 =kwid
 
