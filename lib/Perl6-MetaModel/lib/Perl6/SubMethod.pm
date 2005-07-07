@@ -14,7 +14,7 @@ __END__
 
 =head1 NAME
 
-Perl6::SubMethod - Submethods in the Perl6 Meta Model
+Perl6::SubMethod - Submethods in the Perl 6 Meta Model
 
 =head1 DESCRIPTION
 

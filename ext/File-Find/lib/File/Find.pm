@@ -69,7 +69,7 @@ File::Find - Traverse a directory tree
 
 =head1 DESCRIPTION
 
-Perl6 port of the C<File::Find> library.
+Perl 6 port of the C<File::Find> library.
 
 This is no direct port, the api got cleaned up a bit. :)
 Some features are still missing but will be added in the future...

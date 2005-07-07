@@ -78,7 +78,7 @@ FindBin - Locate directory of original perl script
 
 =head1 DESCRIPTION
 
-Perl6 port of the C<FindBin> library.
+Perl 6 port of the C<FindBin> library.
 
     $Bin         - path to bin directory from where script was invoked
     $Script      - basename of script from which perl was invoked

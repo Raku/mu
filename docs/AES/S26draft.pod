@@ -496,10 +496,9 @@ with special syntax to make them less verbose.
 For more information on how the Pod dialect might change, see
 L<http://www.nntp.perl.org/group/perl.perl6.language/19851>.
 
-If the Pod dialect is changed significantly by the Perl6 design team, it
-is suggested that there remain a legacy Perl 5 dialect. Hopefully the
-legacy dialect would be called "Pod", and the improved version something
-else. "Mod"??
+If the Pod dialect is changed significantly by the Perl 6 design team, it is
+suggested that there remain a legacy Perl 5 dialect. Hopefully the legacy
+dialect would be called "Pod", and the improved version something else. "Mod"??
 
 
 =head1 THE KWID DIALECT

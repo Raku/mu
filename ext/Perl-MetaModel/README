@@ -1,5 +1,5 @@
 ---------------------------------------------------------------------
- Perl6 Object Meta Model
+ Perl 6 Object Meta Model
 ---------------------------------------------------------------------
 
 This is a first sketch/prototype of the Perl 6 Object Meta Model. It 
@@ -27,7 +27,7 @@ Each level is currently being developed in parallel, as
 
 M1 - Class level - the language Model
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The Perl6 "clean" prototypes of Perl 6 core language entities, for
+The Perl 6 "clean" prototypes of Perl 6 core language entities, for
 example the "Class" class defined as a class, can be found in;
 
     lib/*

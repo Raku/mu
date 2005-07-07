@@ -4,7 +4,7 @@
 
 This is a very basic POD parser using an event based API (modeled 
 after XML SAX parsers). My goal is to have a working POD parser for 
-Pugs which can parse the perl6 Synposis POD documents. 
+Pugs which can parse the Perl 6 Synposis POD documents. 
 
 Not the greatest reason in the world, but thats about all I have 
 for now :)
@@ -18,4 +18,4 @@ kinds of parser require. Also, since all that kind of stuff gets pushed
 onto the eventhandling portion, it really allows for the simple building of 
 arbitrarily complex structures at a later date without having to 
 re-write the parser itself, while still allowing for simpler techniques
-here in the Perl6 Stone-Age. Oh yeah, and they are kinda fun too.
+here in the Perl 6 Stone-Age. Oh yeah, and they are kinda fun too.

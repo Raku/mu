@@ -278,7 +278,7 @@ the HTTP response code.
 
 =over 2
 
-=item This Perl6 version of LWP::Simple does not export the HTTP status
+=item This Perl 6 version of LWP::Simple does not export the HTTP status
 codes.
 
 =item (TODO) This module only supports HTTP as the protocol.

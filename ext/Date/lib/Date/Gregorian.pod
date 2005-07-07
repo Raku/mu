@@ -5,7 +5,7 @@ Date::Gregorian - dates on the Gregorian Calendar
 
 =head1 SYNOPSIS
 
-  # note: -DateParse uses Date::Parse and requires Perl5 embedding.
+  # note: -DateParse uses Date::Parse and requires Perl 5 embedding.
   use Date::Gregorian qw(date localdate gmdate now -DateParse);
 
   # creating non-timezones date object ('floating' time)
@@ -17,7 +17,7 @@ Date::Gregorian - dates on the Gregorian Calendar
   $date = date "2001-11-12 07:13:12";  # or any ISO-8601 format
 
   $date = date 1e9;  # Unix epoch time if an Int
-  $date = date 0.0;  # Perl6 date if a Float
+  $date = date 0.0;  # Perl 6 date if a Float
 
   # add a month to it:
   $date += "1M";

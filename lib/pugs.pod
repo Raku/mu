@@ -24,7 +24,7 @@ be written), which is a general intro for beginners and provides
 some background to help you navigate the rest of Perl's extensive
 documentation.
 
-(B<pugs> is also a Perl5 pragma for using Perl6 code inline. See L<The
+(B<pugs> is also a Perl 5 pragma for using Perl 6 code inline. See L<The
 B<pugs> pragma> below.)
 
 For ease of access, the Pugs manual has been split up into several sections.

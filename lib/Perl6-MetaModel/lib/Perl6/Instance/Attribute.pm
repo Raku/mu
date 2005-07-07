@@ -14,7 +14,7 @@ __END__
 
 =head1 NAME
 
-Perl6::Instance::Attribute - Instance Attributes in the Perl6 Meta Model
+Perl6::Instance::Attribute - Instance Attributes in the Perl 6 Meta Model
 
 =head1 DESCRIPTION
 

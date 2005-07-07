@@ -71,7 +71,7 @@ Module::Pluggable::Fast - Fast plugins
 
 =head1 DESCRIPTION
 
-Perl6 port of the C<Module::Pluggable::Fast> library.
+Perl 6 port of the C<Module::Pluggable::Fast> library.
 
 =head1 AUTHOR
 

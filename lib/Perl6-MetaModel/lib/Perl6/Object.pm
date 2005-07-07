@@ -219,7 +219,7 @@ Perl6::Object
 =head1 DESCRIPTION
 
 This is the base 'Object' class. It will eventually be self-hosting, but for now
-it contains a number of hacks to support the expected behavior of the Perl6 object
+it contains a number of hacks to support the expected behavior of the Perl 6 object
 model.
 
 =head1 AUTHOR

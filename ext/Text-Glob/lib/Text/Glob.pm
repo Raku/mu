@@ -79,7 +79,7 @@ Text::Glob - translate glob patterns to regexes
 
 =head1 DESCRIPTION
 
-Perl6 port of the C<Text::Glob> library.
+Perl 6 port of the C<Text::Glob> library.
 
 =head1 METHODS
 

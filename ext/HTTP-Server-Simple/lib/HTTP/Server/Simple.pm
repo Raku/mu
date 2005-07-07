@@ -142,7 +142,7 @@ HTTP::Server::Simple - A minimal HTTP server
     
 =head1 DESCRIPTION
 
-Perl6 port of L<HTTP::Server::Simple>.
+Perl 6 port of L<HTTP::Server::Simple>.
 
 =head1 AUTHOR
 

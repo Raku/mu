@@ -6,7 +6,7 @@ require Test;
 =head1 API Test
 
 Tests that the same API gets exported as with the
-Perl5 version of the module.
+Perl 5 version of the module.
 
 =cut
 

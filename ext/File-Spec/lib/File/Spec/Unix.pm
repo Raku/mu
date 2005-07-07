@@ -203,7 +203,7 @@ sub tmpdir returns Str is export {
 
 = NAME
 
-File::Spec::Unix - Part of Perl6/Pugs Portable file handling
+File::Spec::Unix - Part of Perl 6/Pugs Portable file handling
 
 = SYNOPOSIS
 
@@ -211,7 +211,7 @@ File::Spec::Unix - Part of Perl6/Pugs Portable file handling
 
 = DESCRIPTION
 
-This is a very primative port of the perl5 File::Spec::Unix module.
+This is a very primative port of the Perl 5 File::Spec::Unix module.
 
 = FUNCTIONS
 
@@ -251,7 +251,7 @@ This is a very primative port of the perl5 File::Spec::Unix module.
 
 = SEE ALSO
 
-The Perl5 version of File::Spec::Unix, although this version is more
+The Perl 5 version of File::Spec::Unix, although this version is more
 akin to File::Spec::Functions.
 
 = AUTHOR
@@ -262,7 +262,7 @@ Max Maischein <corion@cpan.org>
 
 = ACKNOWLEDGEMENTS
 
-This is a port of the perl5 File::Spec::Unix module which is currently
+This is a port of the Perl 5 File::Spec::Unix module which is currently
 maintained by Ken Williams <KWILLIAMS@cpan.org>, and is written
 by a number of people. Please see that module for more information.
 

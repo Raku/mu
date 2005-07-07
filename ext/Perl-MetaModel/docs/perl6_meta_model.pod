@@ -8,7 +8,7 @@ at times.
 
 =head1 The Perl 6 Object environment
 
-The perl6 object environment will be a multi-layered environment which 
+The Perl 6 object environment will be a multi-layered environment which 
 might look something like this:
 
  +-{Instance}-+ +---{Type}--+ +--{Class}--+ +--{MetaClass}--+
@@ -79,7 +79,7 @@ further.
 
 =back
 
-=head2 Occupants of the Perl6 object environment
+=head2 Occupants of the Perl 6 object environment
 
 =over 4
 

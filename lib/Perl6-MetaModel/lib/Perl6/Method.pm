@@ -32,7 +32,7 @@ __END__
 
 =head1 NAME
 
-Perl6::Method - Base class for Methods in the Perl6 Meta Model
+Perl6::Method - Base class for Methods in the Perl 6 Meta Model
 
 =head1 DESCRIPTION
 

@@ -237,7 +237,7 @@ sub abs2rel (Str $_path, Str ?$_base) returns Str is export {
 
 = NAME
 
-File::Spec::Win32 - Part of Perl6/Pugs Portable file handling
+File::Spec::Win32 - Part of Perl 6/Pugs Portable file handling
 
 = SYNOPOSIS
 
@@ -245,7 +245,7 @@ File::Spec::Win32 - Part of Perl6/Pugs Portable file handling
 
 = DESCRIPTION
 
-This is a very primative port of the perl5 File::Spec::Win32 module.
+This is a very primitive port of the Perl 5 File::Spec::Win32 module.
 
 = FUNCTIONS
 
@@ -285,7 +285,7 @@ This is a very primative port of the perl5 File::Spec::Win32 module.
 
 = SEE ALSO
 
-The Perl5 version of File::Spec::Win32, although this version is more
+The Perl 5 version of File::Spec::Win32, although this version is more
 akin to File::Spec::Functions.
 
 = AUTHOR
@@ -296,7 +296,7 @@ Max Maischein <corion@cpan.org>
 
 = ACKNOWLEDGEMENTS
 
-This is a port of the perl5 File::Spec::Win32 module which is currently
+This is a port of the Perl 5 File::Spec::Win32 module which is currently
 maintained by Ken Williams <KWILLIAMS@cpan.org>, and is written
 by a number of people. Please see that module for more information.
 

@@ -18,7 +18,7 @@ module File::Spec-0.0.1;
 
 = NAME
 
-File::Spec - Perl6/Pugs Portable file handling
+File::Spec - Perl 6/Pugs Portable file handling
 
 = SYNOPOSIS
 
@@ -33,7 +33,7 @@ File::Spec - Perl6/Pugs Portable file handling
 
 = DESCRIPTION
 
-This is a very primative port of the perl5 File::Spec module. Since 
+This is a very primative port of the Perl 5 File::Spec module. Since 
 we currently do not have objects or fully functioning modules in 
 Pugs, this port does it's best to work with those limitations and 
 still produce a working version of File::Spec for use as we develop 
@@ -42,7 +42,7 @@ Pugs.
 = LIMITATIONS & CAVEATS
 
 Since we don't yet have object support, this module is more like the
-perl5 File::Spec::Functions module than the base File::Spec. Also the
+Perl 5 File::Spec::Functions module than the base File::Spec. Also the
 /hack/ to make it work automagically for platforms is really bad. I 
 hope that as Pugs matures this will change, but for now, it works :).
 
@@ -89,7 +89,7 @@ GHC and Pugs currently run on (yeah no VMS !!).
 
 = SEE ALSO
 
-The Perl5 version of File::Spec, although this version is more akin 
+The Perl 5 version of File::Spec, although this version is more akin 
 to File::Spec::Functions.
 
 = AUTHOR
@@ -100,7 +100,7 @@ Max Maischein <corion@cpan.org>
 
 = ACKNOWLEDGEMENTS
 
-This is a port of the perl5 File::Spec module which is currently 
+This is a port of the Perl 5 File::Spec module which is currently 
 maintained by Ken Williams <KWILLIAMS@cpan.org>, and is written
 by a number of people. Please see that module for more information.
 

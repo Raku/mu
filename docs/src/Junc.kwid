@@ -8,7 +8,7 @@ I am a fledgling Haskell programmer having just finished reading
 YAHT. For some reason, I was attracted to understanding Junc.hs and so
 will document its workings.
 
-Junc.hs is the main code for implementing Perl6 Junctions:
+Junc.hs is the main code for implementing Perl 6 Junctions:
 
 [http://dev.perl.org/perl6/synopsis/S09.html]
 

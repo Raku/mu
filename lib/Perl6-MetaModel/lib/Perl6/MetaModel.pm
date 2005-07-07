@@ -32,7 +32,7 @@ __END__
 
 =head1 NAME
 
-Perl6::MetaModel - Perl5 Prototype of the Perl6 Metaclass model
+Perl6::MetaModel - Perl 5 Prototype of the Perl 6 Metaclass model
 
 =head1 SYNOPSIS
 
@@ -76,12 +76,13 @@ Perl6::MetaModel - Perl5 Prototype of the Perl6 Metaclass model
 
 =head1 DESCRIPTION
 
-This set of modules is a prototype for the Perl6 Metaclass model, which is the model which 
-descibes the interactions of classes, objects and roles in the Perl6 object space. 
+This set of modules is a prototype for the Perl 6 Metaclass model, which is the
+model which descibes the interactions of classes, objects and roles in the Perl
+6 object space. 
 
-I am prototyping this in Perl5 as part of the Perl6 -> PIL compiler to run on a Perl5 VM. 
-It is currently in the early stages of a refactoring from the original which was just a 
-hacked together prototype. 
+I am prototyping this in Perl 5 as part of the Perl 6 -> PIL compiler to run on
+a Perl5 VM.  It is currently in the early stages of a refactoring from the
+original which was just a hacked together prototype. 
 
 =head1 EXPORTED FUNCTIONS
 
@@ -100,7 +101,7 @@ modules to make class/role construction easier.
 
 =over 4
 
-=item All the Perl6 documentation. 
+=item All the Perl 6 documentation. 
 
 In particular the Apocolypse and Synopsis 12 which describes the object system.
 

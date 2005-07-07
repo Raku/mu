@@ -4,7 +4,7 @@ use inc::Module::Install prefix => '../../inc';
 
 name       ('Set');
 version    ('0.01');
-abstract   ('Set Perl6 extension');
+abstract   ('Set Perl 6 extension');
 author     ('Sam "mugwump" Vilain');
 license    ('perl');
 

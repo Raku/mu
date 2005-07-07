@@ -1,6 +1,6 @@
 =pod
 
-=head1 Perl6 Meta-Model Working Documents
+=head1 Perl 6 Meta-Model Working Documents
 
 This set of documents is an ongoing attempt to create a meta-model 
 for Perl 6. Each document serves it's own specific purpose and should
@@ -20,7 +20,7 @@ concepts and terminology.
 
 This document uses a very bottom-up approach to illustrate a 
 meta-meta-class system, which may or may not be how we approach the 
-perl6 meta-model.
+Perl 6 meta-model.
 
 The sole purpose of this document is to explain the idea of 
 MetaClasses as simply as possible to that the 
@@ -32,7 +32,7 @@ F<meta_meta_classes.pod> document and illustrate how one might use
 that information. 
 
 Again, this is just for the purposes of explaining meta-models and 
-may or may not be how the Perl6 meta-model is constructed.
+may or may not be how the Perl 6 meta-model is constructed.
 
 =item F<perl6_meta_model.pod>
 
