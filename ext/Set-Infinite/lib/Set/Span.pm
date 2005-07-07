@@ -2,16 +2,10 @@ use v6;
 
 class Set::Span-0.01;
 
-# Dave Rolsky said dot-variables have automatic accessors
-# however, these objects should be immutable - maybe these variables should not be dotted.
+# Set::Span is just like Set::Functional::Span, 
+# but it is "mutable" and it has a more complete API
 
-has Object $.start;
-has Object $.end;
-has Bool   $.start_is_open;
-has Bool   $.end_is_open;
-
-# has Object $.density;
-#  probably not a good idea - this is Set::Recurrence business
+has Set::Functional::Span $span;
 
 =for TODO
 
@@ -37,12 +31,6 @@ has Bool   $.end_is_open;
     * is_empty
     * is_infinite
 
-# When density != 0:
-#
-#    * iterator 
-#    * members
-#    * count
-
 From "Set" API:
 
     * equal/not_equal
@@ -59,35 +47,29 @@ From "Set" API:
 =cut
 
 multi submethod BUILD ( $start, $end ) returns Set::Span {
-    die "$start must be less or equal to $end" 
+    die "start must be less or equal to end" 
         if $start > $end;
-    $.start = $start;
-    $.end =   $end;
-    $.start_is_open = 0;
-    $.end_is_open =   0;
+    .$span = Set::Functional::Span.new( 
+        start, $end, bool.false, bool.false );
 }
-
-# method density () returns Object {
-#    return $.density;
-# }
 
 method start () returns Object {
-    return $.start;
+    return .$span.start;
 }
 method end () returns Object {
-    return $.end;
+    return .$span.end;
 }
 method start_is_open () returns Bool {
-    return $.start_is_open;
+    return .$span.start_is_open;
 }
 method start_is_closed () returns Bool {
-    return ! $.start_is_open;
+    return .$span.start_is_closed;
 }
 method end_is_open () returns Bool {
-    return $.end_is_open;
+    return .$span.end_is_open;
 }
 method end_is_closed () returns Bool {
-    return $.end_is_closed;
+    return .$span.end_is_closed;
 }
 
 
