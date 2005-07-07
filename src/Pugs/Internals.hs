@@ -90,7 +90,7 @@ import System.Process
 import System.IO (
     Handle, stdin, stdout, hClose, hGetLine, hGetChar, hGetContents,
     openFile, hSetBinaryMode, hPutStr, hPutStrLn, IOMode(..), stderr, SeekMode(..),
-    hSetBuffering, BufferMode(..), hIsTerminalDevice, hFlush, hPrint, isEOF
+    hSetBuffering, BufferMode(..), hIsTerminalDevice, hFlush, hPrint, isEOF, hSeek
     )
 import System.IO.Unsafe
 import System.IO.Error (ioeGetErrorString, isUserError)

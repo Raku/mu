@@ -1003,6 +1003,19 @@ op3 "Pugs::Internals::localtime"  = \x y z -> do
     where
        offset = 946684800 :: Integer -- diff between Haskell and Perl epochs (seconds)
        vI = VInt . toInteger
+op3 "Pugs::Internals::hSeek" = \x y z -> do
+    handle <- fromVal x
+    pos <- fromVal y
+    mode <- fromVal z
+    tryIO (VBool False) $ do              -- pull out to boolIO3?
+        hSeek handle (modeOf mode) pos
+        return (VBool True)
+    where
+        modeOf :: Int -> SeekMode
+        modeOf 0 = AbsoluteSeek
+        modeOf 1 = RelativeSeek
+        modeOf 2 = SeekFromEnd
+        modeOf m = error ("Unknown seek mode: " ++ (show m))
 op3 other = \_ _ _ -> fail ("Unimplemented 3-ary op: " ++ other)
 
 op3Split :: Val -> Val -> Val -> Eval Val
@@ -1595,6 +1608,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      pre     Thread::yield   safe   (Thread)\
 \\n   List      pre     Pugs::Internals::runInteractiveCommand  unsafe (Str)\
 \\n   Bool      pre     Pugs::Internals::hSetBinaryMode         unsafe (IO, Str)\
+\\n   Bool      pre     Pugs::Internals::hSeek                  unsafe (IO, Int, Int)\
 \\n   IO        pre     Pugs::Internals::openFile               unsafe (Str, Str)\
 \\n   List      pre     Pugs::Internals::caller                 safe (Any, Int, Str)\
 \\n   Bool      pre     bool::true  safe   ()\
