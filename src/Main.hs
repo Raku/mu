@@ -88,6 +88,7 @@ run (("-e"):prog:args)          = do doRun "-e" args prog
 -- internally:
 --   "-e foo bar.p6" executes "foo" with @*ARGS[0] eq "bar.p6",
 --   "-E foo bar.p6" executes "foo" and then bar.p6.
+-- XXX - Wrong -- Need to preserve environment across -E runs
 run (("-E"):prog:rest)          = run ("-e":prog:[]) >> run rest
 run ("-":args)                  = do doRun "-" args =<< readStdin
 run (file:args)                 = readFile file >>= doRun file args

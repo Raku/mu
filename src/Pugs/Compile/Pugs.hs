@@ -74,7 +74,8 @@ instance Compile Pad where
         syms = padToList pad
 
 instance Compile (String, [(TVar Bool, TVar VRef)]) where
-    compile ((_:'?':_), _) = return empty -- XXX - @?INIT etc; punt for now
+    compile ((_:'?':_), _) = return empty -- XXX - @?S etc; punt for now
+    compile ((_:'*':_), _) = return empty -- XXX - @*INIT etc; punt for now
     compile ((_:'=':_), _) = return empty -- XXX - @=POS etc; punt for now
     compile (n, tvars) = do
         tvarsC <- compile tvars
