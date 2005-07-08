@@ -64,7 +64,7 @@ our %standard_case;
 
 has %:headers;
 
-method BUILD (Str *%headers) {
+submethod BUILD (Str *%headers) {
   .header($_.key) = $_.value for pairs %headers;
 }
 
@@ -299,7 +299,15 @@ method :basic_auth (Str $h) is rw {
     });
 }
 
-1;
+method redirect (::?CLASS ::class: Str $location, Str ?$target, Str ?$status = "302 Found", Str +$cookie, Bool +$nph, *%extra) {
+    my $h = ::class.new();
+    
+    $h.header('Status') = $status;
+    $h.header('Location') = $location;
+    $h.header('Target') = $target if $target.defined;
+    
+    return $h;
+}
 
 =head1 NAME
 
