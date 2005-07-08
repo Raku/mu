@@ -42,16 +42,16 @@ MMD sequence:
 			- the ratio between the height and width of the area needed to draw the tree is the score of the junction
 			- ratios which are too close to each other in a single definition are a compile time error
 	3. value ranges (1 .. 10 will match 5)
-	4. literal types types:
-		- Exact class of value
-		- Superclasses sorted on single vector
+	4. type matching:
+		4.1 Exact class of value
+		4.2 Superclasses sorted on single vector
 			- Any multiple inheritance with more than 1 match is a dispatch error (try compile time error at def time, if there is a known class for the possible instance?)
-		- Specific role composite
+		4.3 Specific role composite
 			- specifity: role x does role y. class c does role x, so it also does role y. In this case role 'x' will win role 'y' in a signature
 			- tie: However, class 'd' does role 'm' and role 'n'. The two are tied.
 			- paramaterized roles are equal to an anonymous role, consuming it's generic for the purpose of dispatching
 	5 type junctions
-		- Same logic as junctions is applied
+		- Same logic as junctions is applied, except the values are type matched
 	6. the any type
 
 
