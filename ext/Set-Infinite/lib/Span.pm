@@ -5,6 +5,8 @@ class Span-0.01;
 # Span is just like Span::Functional, 
 # but it is "mutable" and it has a more complete API
 
+use Span::Functional;
+
 has Span::Functional $.span;
 
 =for TODO
@@ -22,7 +24,6 @@ has Span::Functional $.span;
     * intersection
     * complement
     * intersects
-    * contains
 
     * is_empty
     * is_infinite
@@ -47,7 +48,7 @@ From "Set" API:
 =cut
 
 multi submethod BUILD () returns Span {
-    undef .$span;
+    undefine $.span;
 }
 multi submethod BUILD ( Object $object ) returns Span {
     $.span = Span::Functional.new( 
@@ -57,22 +58,23 @@ multi submethod BUILD ( Object $start, Object $end ) returns Span {
     die "start must be less or equal to end" 
         if $start > $end;
     $.span = Span::Functional.new( 
-        $start, $end, bool::false, bool::false );
+        start => $start, end => $end, start_is_open => bool::false, end_is_open => bool::false );
 }
 
 method start () returns Object {
     return unless defined $.span;
     return $.span.start;
 }
-method set_start ( Object $start ) {
-    if ! defined $.span {
-        $.span = $.span.new( start => $start )
+method set_start ($self: Object $start ) {
+    if ! defined( $.span ) 
+    {
+        $.span = $self.new( start => $start ).span;
     }
     else
     {
         if $start > $end {
             warn "start must be less or equal to end";
-            undef $.span;
+            undefine $.span;
         }
         else
         {
@@ -88,15 +90,16 @@ method set_start ( Object $start ) {
 method end () returns Object {
     return $.span.end;
 }
-method set_end ( Object $end ) {
-    if ! defined $.span {
-        $.span = $.span.new( end => $end )
+method set_end ($self: Object $end ) {
+    if ! defined $.span 
+    {
+        $.span = $self.new( end => $end ).span;
     }
     else
     {
         if $start > $end {
             warn "start must be less or equal to end";
-            undef $.span;
+            undefine $.span;
         }
         else
         {
@@ -122,6 +125,48 @@ method end_is_closed () returns Bool {
     return $.span.end_is_closed;
 }
 
+method contains ($self: Object $span ) returns bool {
+    # XXX TODO - the parameter may be a Set::Infinite
+    $span = $self.new( $span )
+        if ! ( $span.ISA( $self.CLASS ) );
+    my @union = $self.span.union( $span.span );
+    return bool::false if @union.elems == 2;
+    return @union[0].compare( $span.span );
+}
+method intersects ($self: Object $span ) returns bool {
+    # XXX TODO - the parameter may be a Set::Infinite
+    $span = $self.new( $span )
+        if ! ( $span.ISA( $self.CLASS ) );
+    my @union = $self.span.union( $span.span );
+    return @union.elems == 1;
+}
+
+=for TODO - these methods need Set::Infinite
+    * union
+    * intersection
+    * complement
+    * contains
+    * difference
+=cut
+
+method union ($self: Object $span ) returns Set::Infinite {
+    $span = $self.new( $span )
+        if ! ( $span.ISA( $self.CLASS ) );
+    ...
+}
+method intersection ($self: Object $span ) returns Set::Infinite {
+    $span = $self.new( $span )
+        if ! ( $span.ISA( $self.CLASS ) );
+    ...
+}
+method complement ($self: ) returns Set::Infinite {
+    ...
+}
+method difference ($self: Object $span ) returns Set::Infinite {
+    $span = $self.new( $span )
+        if ! ( $span.ISA( $self.CLASS ) );
+    ...
+}
 
 =kwid
 
@@ -177,7 +222,11 @@ Return a logical value, whether the `start` or `end` values belong to the span (
 
 Return the "size" of the span.
 
-If `start` and `end` are times, then `size` is a duration.
+For example: if `start` and `end` are times, then `size` will be a duration.
+
+- `contains( Object )` / `intersects( Object )`
+
+These methods return a logical value.
 
 - union
 
