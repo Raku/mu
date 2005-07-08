@@ -60,7 +60,7 @@ method parse (Str $string) returns HTTP::Headers {
 
 method clear () returns Void {
     $:headers.clear();
-    .content = '';
+    ./content = '';
     @:parts = ();
     return;
 }
@@ -97,7 +97,7 @@ method content (Str ?$content, Bool ?$keep) is rw {
                 
                 #@:parts = () if $del;
                 
-                .:set_content($content, $keep);
+                ./:set_content($content, $keep);
                 
                 return $old if want.List;
               });
@@ -145,7 +145,7 @@ method decoded_content ($self: ) {
 }
 
 method as_string ($self: Str ?$newline = "\n") returns Str {
-    my $content = .content;
+    my $content = ./content;
     
     return ($:headers.as_string($newline), $newline, ($content.chars && $content !~ /\n$/) ?? "\n" :: "").join("");
 }
@@ -156,18 +156,18 @@ method parts (*@new) is rw {
     return Proxy.new(
         FETCH => { return @old if want.List; return @old[0]; },
         STORE => -> *@new {
-            my $content_type = .content_type // "";
+            my $content_type = ./content_type // "";
             
             if ($content_type ~~ m,^message/,) {
                 die "Only one part allowed for $content_type content!"
                     if @new > 1;
             } elsif ($content_type !~ m,^multipart/,) {
-                .remove_content_headers;
-                .content_type("multipart/mixed");
+                ./remove_content_headers;
+                ./content_type("multipart/mixed");
             }
             
             @:parts = @new;
-            .:stale_content;
+            ./:stale_content;
             
             return @old if want.List;
             return @old[0];
@@ -178,14 +178,14 @@ method parts (*@new) is rw {
 method add_part ($part) returns Void {
     if ((.content_type // "") !~ m,^multipart/,) {
         my $message = ::?CLASS.new(.remove_content_headers, .content(""));
-        .content_type("multipart/mixed");
+        ./content_type("multipart/mixed");
         @:parts = $message;
     } elsif (!@:parts) {
         @:parts;
     }
     
     push @:parts, $part;
-    .:stale_content;
+    ./:stale_content;
     return;
 }
 
@@ -202,29 +202,29 @@ method :parts () {
         my %h = %{@h[0]};
         
         if ((my $boundary = $h<boundary>).defined) {
-            my $str = .content;
+            my $str = ./content;
             
             if ($str ~~ s:P5/(^|.*?\r?\n)--\Q$boundary\E\r?\n//) {
                 @:parts = split(rx:P5/\r?\n--\Q$b\E\r?\n/, $str).map:{ HTTP::Message::parse($_); };
             }
         }
     } elsif ($content_type eq "message/http") {
-        my $content = .content;
+        my $content = ./content;
         
         my $class = ($content ~~ m,^(HTTP/.*)\n,) ?? HTTP::Response :: HTTP::Request;
         @:parts = $class.parse($content);
     } elsif ($content_type ~~ m,message/,) {
-        @:parts = HTTP::Message.parse(.content);
+        @:parts = HTTP::Message.parse(./content);
     }
     
     @:parts //= ();
 }
 
 method :content () {
-    my $content_type = .content_type // "";
+    my $content_type = ./content_type // "";
     
     if ($content_type ~~ m:i,^\s*message/,) {
-        .:set_content(@:parts[0].as_string($CRLF), 1);
+        ./:set_content(@:parts[0].as_string($CRLF), 1);
         return;
     }
     
@@ -248,7 +248,7 @@ method :content () {
     my @parts = @:parts.map({ .as_string($CRLF) });
     
     my $bno = 0;
-    $boundary //= .:boundary;
+    $boundary //= ./:boundary;
     
     # XXX need to do the CHECK_BOUNDARY bit
     
@@ -259,9 +259,9 @@ method :content () {
     }
     
     $content_type = HTTP::Headers::Util::join_header_words(@v);
-    .header("Content-Type", $content_type);
+    ./header("Content-Type", $content_type);
     
-    .:set_content("--$boundary$CRLF" ~ @parts.join("$CRLF--boundary$CRLF") ~ "$CRLF--$boundary$CRLF", 1);
+    ./:set_content("--$boundary$CRLF" ~ @parts.join("$CRLF--boundary$CRLF") ~ "$CRLF--$boundary$CRLF", 1);
 }
 
 method :boundary (Num ?$size) returns Str {
@@ -275,5 +275,5 @@ method :boundary (Num ?$size) returns Str {
 }
 
 multi method *coerce:<as> (Str ::to) {
-    .as_string("\n");
+    ./as_string("\n");
 }
