@@ -21,7 +21,7 @@ class HTTP::Request-0.1 {
             $str = "";
         }
         
-        my $self = .SUPER::parse($str);
+        my $self = ../parse($str);
         
         given ($self) {
             my ($method, $uri, $protocol) = $request_line.split(' ');
@@ -67,6 +67,6 @@ class HTTP::Request-0.1 {
         
         $req_line ~= $protocol if $proto.defined;
         
-        return ($req_line, .SUPER::as_string($newline)).join($newline);
+        return ($req_line, ../as_string($newline)).join($newline);
     }
 }
