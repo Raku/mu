@@ -35,23 +35,23 @@ MMD sequence:
 
 	1. equality of single values (overloaded objects are really where clauses?)
 	2. value junctions (4|5 will match 4)
-		2.1 specifity is judged by comparing trees
-			2.1.1 each OR is a branch to the side
-			2.1.2 each AND is another level of depth
-			2.1.3 the tree is 'drawn' with right angles
-			2.1.4 the ratio between the height and width of the area needed to draw the tree is the score of the junction
-			2.1.5 ratios which are too close to each other in a single definition are a compile time error
+		- specifity is judged by comparing trees
+			- each OR is a branch to the side
+			- each AND is another level of depth
+			- the tree is 'drawn' with right angles
+			- the ratio between the height and width of the area needed to draw the tree is the score of the junction
+			- ratios which are too close to each other in a single definition are a compile time error
 	3. value ranges (1 .. 10 will match 5)
 	4. literal types types:
-		4.1 Exact class of value
-		4.2 Superclasses sorted on single vector
-			4.2.1 Any multiple inheritance with more than 1 match is a dispatch error (try compile time error at def time, if there is a known class for the possible instance?)
-		4.3 Specific role composite
-			4.3.1 specifity: role x does role y. class c does role x, so it also does role y. In this case role 'x' will win role 'y' in a signature
-			4.3.2 tie: However, class 'd' does role 'm' and role 'n'. The two are tied.
-			4.3.3 paramaterized roles are equal to an anonymous role, consuming it's generic for the purpose of dispatching
+		- Exact class of value
+		- Superclasses sorted on single vector
+			- Any multiple inheritance with more than 1 match is a dispatch error (try compile time error at def time, if there is a known class for the possible instance?)
+		- Specific role composite
+			- specifity: role x does role y. class c does role x, so it also does role y. In this case role 'x' will win role 'y' in a signature
+			- tie: However, class 'd' does role 'm' and role 'n'. The two are tied.
+			- paramaterized roles are equal to an anonymous role, consuming it's generic for the purpose of dispatching
 	5 type junctions
-		5.1 Same logic as junctions is applied
+		- Same logic as junctions is applied
 	6. the any type
 
 
