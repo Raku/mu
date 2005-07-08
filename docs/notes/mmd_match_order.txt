@@ -78,3 +78,23 @@ Where clauses will not be executed until the whole signature is known to check
 out in terms of equality and other constraints. Hence the seperation into two
 steps.
 
+
+
+Paramater coercion:
+
+If no sub matches, all MMD candidates are retried, with the following algorithm:
+
+	skip unless parameter list matches (without any type/value constraints)
+
+	MMD match every parameter such that
+
+		sub coerce($concrete_value_we_are_trying_to_bind)
+			returns $parameter_we_are_trying_to_bind;
+
+	(this is MMD on the return type of the function)
+
+	When all parameter candidates have been satisfied, execute the 'where'
+	clauses of the 'coerce' matches. Skip unless all match.
+
+	When all coerce routines are known to be working, apply them one by one.
+	Any fails or errors mean the next MMD candidate will be tried instead.
