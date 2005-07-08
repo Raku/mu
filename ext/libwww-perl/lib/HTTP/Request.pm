@@ -36,24 +36,26 @@ class HTTP::Request-0.1 {
     multi method uri (Str $new) is rw {
         my $old = $:uri;
     
-        return new Proxy:
+        return Proxy.new(
             FETCH => { $old; },
-            STORE => { $:uri = $HTTP::URI_CLASS.new($^new); $old; };
+            STORE => { $:uri = $HTTP::URI_CLASS.new($^new); $old; }
+        );
     }
     
     multi method uri (URI $new) is rw {
         my $old = $:uri;
     
-        return new Proxy:
+        return Proxy.new(
             FETCH => { $old; },
-            STORE => { $:uri = $^new; $old; };
+            STORE => { $:uri = $^new; $old; }
+        );;
     }
     
     multi method uri () {
         $:uri;
     }
     
-    our &url := &uri;
+    our &url ::= &uri;
     
     method as_string (Str ?$newline = "\n") {
         my $req_line = $.method // "-";
