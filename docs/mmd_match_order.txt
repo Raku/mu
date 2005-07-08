@@ -1,0 +1,64 @@
+This is a draft of nothingmuch's proposition.
+
+Current defined semantics are: matches are tried in order of definition.
+
+That sucks because you can't append more specific versions of a method to the definition, thus making the handling of a special case simpler.
+
+So much for post-modern programming.
+
+
+
+
+Order of definition tie breaking:
+
+	Two signatures defined in the same file:
+
+		the one EARLIER in the file wins
+
+	Two signatures defined in a different file:
+
+		the one defined LATER in the file wins
+
+This could apply to compilation as a bigger unit, compilation is recursive,
+branches in compilation come after their callers, after other branches in the
+same context, but all the MMD in one 'level' of compilation is in order of
+definition. Is there any difference?
+
+
+To specificate some MMD short name:
+
+	1. load module
+	2. define your own
+
+
+MMD sequence:
+
+	1. equality of single values (overloaded objects are really where clauses?)
+	2. value junctions (4|5 will match 4)
+		2.1 specifity is judged by comparing trees
+			2.1.1 each OR is a branch to the side
+			2.1.2 each AND is another level of depth
+			2.1.3 the tree is 'drawn' with right angles
+			2.1.4 the ratio between the height and width of the area needed to draw the tree is the score of the junction
+			2.1.5 ratios which are too close to each other in a single definition are a compile time error
+	3. value ranges (1 .. 10 will match 5)
+	4. literal types types:
+		4.1 Exact class of value
+		4.2 Superclasses sorted on single vector
+			4.2.1 Any multiple inheritance with more than 1 match is a dispatch error (try compile time error at def time, if there is a known class for the possible instance?)
+		4.3 Specific role composite
+			4.3.1 specifity: role x does role y. class c does role x, so it also does role y. In this case role 'x' will win role 'y' in a signature
+			4.3.2 tie: However, class 'd' does role 'm' and role 'n'. The two are tied.
+			4.3.3 paramaterized roles are equal to an anonymous role, consuming it's generic for the purpose of dispatching
+	5 type junctions
+		5.1 Same logic as junctions is applied
+	6. the any type
+
+
+When a list of possible matches is defined, the where clauses are tried in order, from best to worst match
+
+the first one whose where clause passes will win.
+
+Where clauses are short circuiting in the sense that a where clause will not be executed if one before it in the same signature failed
+
+Where clauses will not be executed until the whole signature is known to check out in terms of equality and other constraints. Hence the seperation into two steps.
