@@ -4,7 +4,7 @@ class Set::Infinite::Functional-0.01;
 
 use Span::Functional;
 
-has Span::Functional @:span;
+has Span::Functional @.spans;
 
 =for TODO
 
@@ -22,42 +22,42 @@ has Span::Functional @:span;
 
 =cut
 
-submethod BUILD ($class: Span::Functional $span ) {
-    push @:span, $span;
+submethod BUILD ($class: Span::Functional +$span ) {
+    push @.spans, $span if defined $span;
 }
 
 method start () returns Object {
-    return if @:span.elems == 0;
-    return @:span[0].start;
+    return if @.spans.elems == 0;
+    return @.spans[0].start;
 }
 method end () returns Object {
-    return if @:span.elems == 0;
-    return @:span[-1].end;
+    return if @.spans.elems == 0;
+    return @.spans[-1].end;
 }
 method start_is_open () returns bool {
-    return bool::false if @:span.elems == 0;
-    return @:span[0].start_is_open;
+    return bool::false if @.spans.elems == 0;
+    return @.spans[0].start_is_open;
 }
 method start_is_closed () returns bool {
-    return bool::false if @:span.elems == 0;
-    return @:span[0].start_is_closed;
+    return bool::false if @.spans.elems == 0;
+    return @.spans[0].start_is_closed;
 }
 method end_is_open () returns bool {
-    return bool::false if @:span.elems == 0;
-    return @:span[-1].end_is_open;
+    return bool::false if @.spans.elems == 0;
+    return @.spans[-1].end_is_open;
 }
 method end_is_closed () returns bool {
-    return bool::false if @:span.elems == 0;
-    return @:span[-1].end_is_closed;
+    return bool::false if @.spans.elems == 0;
+    return @.spans[-1].end_is_closed;
 }
 method stringify () returns String {
-    return '' if @:span.elems == 0;
-    return @:span.join( ',' );
+    return '' if @.spans.elems == 0;
+    return @.spans.join( ',' );
 }
 method size () returns Object {
     return undef unless defined $.span;
     # XXX TODO
-    return @:span.size;
+    return @.spans.size;
 }
 
 method contains ($self: Set::Infinite::Functional $span) returns bool {
@@ -73,10 +73,31 @@ method intersects ($self: Set::Infinite::Functional $span ) returns bool {
     return @union.elems == 1;
 }
 
-method union ($self: Set::Infinite::Functional $span ) returns Set::Infinite::Functional {
-    ...
+method union ($self: Set::Infinite::Functional $set ) returns Set::Infinite::Functional {
+    # TODO - optional "density"
+    # TODO - invert loop order, since the new span is usually "after"
+    my @tmp;
+    my @res;
+    my $next;
+    my @a = @.spans;
+    my @b = $set.spans;
+    @res[0] = @a[0] < @b[0] ?? shift @a[0] :: shift @b[0]
+        if @a && @b;
+    while( @a && @b ) {
+        $next = @a[0] < @b[0] ?? shift @a[0] :: shift @b[0];
+        @tmp = @res[-1].union( $next );
+        if @tmp == 2 {
+            push @res, @tmp[1];
+        }
+        else {
+            @res[-1] = @tmp[0];
+        }
+    }
+    push @res, @a, @b;
+    return $self.bless( { spans => @res } );
 }
-method intersection ($self: Set::Infinite::Functional $span ) returns Set::Infinite::Functional {
+method intersection ($self: Set::Infinite::Functional $set ) returns Set::Infinite::Functional {
+    my $res = $self.new;
     ...
 }
 method complement ($self: ) returns Set::Infinite::Functional {
@@ -104,9 +125,13 @@ This class represents an ordered set of spans.
 
 = CONSTRUCTORS
 
+- `new()`
+
+Creates an empty set.
+
 - `new( Span::Functional $span )`
 
-    # XXX
+Creates a set containing a span.
 
 = OBJECT METHODS
 
