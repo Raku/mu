@@ -147,7 +147,7 @@ sub set_postamble {
         my $flags = "$Config{ccflags} $Config{ccdlflags}";
         if ($flags =~ /\S/) {
             $flags =~ s{([\\"'])}{\\$1}g;
-            $ccdlflags .= qq[ -optl "$_" ]
+            $ccdlflags .= (/^-D/ ? ' -optc' : ' -optl') . qq["$_" ]
 	      for split /\s+/, $flags;
         }
     }
