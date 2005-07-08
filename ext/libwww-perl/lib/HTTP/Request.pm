@@ -25,9 +25,9 @@ class HTTP::Request-0.1 {
         
         given ($self) {
             my ($method, $uri, $protocol) = $request_line.split(' ');
-            $self.method($method) if $method.defined;
-            $self.uri($uri) if $method.defined;
-            $self.protocol($protocol) if $protocol.defined;
+            .method($method) if $method.defined;
+            .uri($uri) if $method.defined;
+            .protocol($protocol) if $protocol.defined;
         }
         
         $self;
@@ -59,11 +59,11 @@ class HTTP::Request-0.1 {
     
     method as_string (Str ?$newline = "\n") {
         my $req_line = $.method // "-";
-        my $uri = (.uri().defined) ?? .uri().as_string() :: "-";
+        my $uri = (./uri().defined) ?? ./uri().as_string() :: "-";
         
         $req_line ~= $uri;
         
-        my $proto = .protocol;
+        my $proto = ./protocol;
         
         $req_line ~= $protocol if $proto.defined;
         
