@@ -10,32 +10,27 @@ has Bool   $:end_is_open;
 =for TODO
 
     * union
-    * intersection
-    * contains
-        - Set::Infinite uses: ( $a->union( $b ) == $a )
-    * stringify
+        - finish "density" multi method; tests
     * spaceship
+        - tests
+        - does perl6 uses the "inverted" parameter?
 
     * complete POD
+        - explain "density" parameter
 
-From "Set" API (maybe):
+  These methods will not implemented in this class:
 
-    * equal/not_equal
-    * difference
-    * symmetric_difference
-    * proper_subset
-    * proper_superset
-    * subset
-    * superset
-    * includes/member/has
-    * unicode
+    * methods that can be derived from existing methods
+        - for example "contains" can use: ( $a->union( $b ) == $a )
+    * clone
+        - the objects are immutable, they can be reused.
 
 =cut
 
 # constructor: a single constructor, without bounds checking
 
 submethod BUILD ( Object $start, Object $end, Bool $start_is_open, Bool $end_is_open ) 
-returns Set::Functional::Span 
+    returns Set::Functional::Span 
 {
     $:start =         $start;
     $:end =           $end;
@@ -47,11 +42,10 @@ multi method size () returns Object {
     return $:end - $:start;
 }
 multi method size ( Object $density ) returns Object {
-    if $:start_is_open || $:end_is_open 
-    {
-        return $:end - $:start - $density if $:start_is_open && $:end_is_open;
-        return $:end - $:start;
-    }
+    return $:end - $:start - $density 
+        if $:start_is_open && $:end_is_open;
+    return $:end - $:start 
+        if $:start_is_open || $:end_is_open; 
     return $:end - $:start + $density;
 }
 
@@ -75,248 +69,248 @@ method end_is_closed () returns Bool {
 }
 
 method intersects ( Set::Functional::Span $span ) returns Bool {
-    my ($i_beg, $i_end, $open_beg, $open_end);
-    my $cmp = $.start <=> $span.start;
+    my ($i_beg, $i_end);
+    my Bool $open_beg;
+    my Bool $open_end;
+    my $cmp = $:start <=> $span.start;
     if ($cmp < 0) {
         $i_beg       = $span.start;
         $open_beg    = $span.start_is_open;
     }
     elsif ($cmp > 0) {
-        $i_beg       = $.start;
-        $open_beg    = $.start_is_open;
+        $i_beg       = $:start;
+        $open_beg    = $:start_is_open;
     }
     else {
-        $i_beg       = $.start;
-        $open_beg    = $.start_is_open || $span.start_is_open;
+        $i_beg       = $:start;
+        $open_beg    = $:start_is_open || $span.start_is_open;
     }
-    $cmp = $.end <=> $span.end;
+    $cmp = $:end <=> $span.end;
     if ($cmp > 0) {
         $i_end       = $span.end;
         $open_end    = $span.end_is_open;
     }
     elsif ($cmp < 0) {
-        $i_end       = $.end;
-        $open_end    = $.end_is_open;
+        $i_end       = $:end;
+        $open_end    = $:end_is_open;
     }
     else {
-        $i_end       = $.end;
-        $open_end    = $.end_is_open || $span.end_is_open;
+        $i_end       = $:end;
+        $open_end    = $:end_is_open || $span.end_is_open;
     }
     $cmp = $i_beg <=> $i_end;
     return $cmp <= 0  &&
            ( $cmp != 0  ||  ( ! $open_beg && ! $open_end ) );
 }
 
-method complement () returns List of Set::Functional::Span 
+method complement ($self: ) returns List of Set::Functional::Span 
 {
     if ($.end == Inf) {
         return if $.start == -Inf;
-        return .new( start => -Inf,
-                     end =>   $.start,
+        return $self.new( start => -Inf,
+                     end =>   $:start,
                      start_is_open => bool::true,
-                     end_is_open => ! $.start_is_open );
+                     end_is_open =>   ! $:start_is_open );
     }
     if ($.start == -Inf) {
-        return .new( start => $.end,
+        return $self.new( start => $:end,
                      end =>   Inf,
-                     start_is_open => ! $.end_is_open,
-                     end_is_open => bool::true );
+                     start_is_open => ! $:end_is_open,
+                     end_is_open =>   bool::true );
     }
-    return (   .new( start => -Inf,
-                     end =>   $.start,
+    return (   $self.new( start => -Inf,
+                     end =>   $:start,
                      start_is_open => bool::true,
-                     end_is_open => ! $.start_is_open ),
-               .new( start => $.end,
+                     end_is_open =>   ! $:start_is_open ),
+               $self.new( start => $:end,
                      end =>   Inf,
-                     start_is_open => ! $.end_is_open,
-                     end_is_open => bool::true ) );
+                     start_is_open => ! $:end_is_open,
+                     end_is_open =>   bool::true ) );
 }
 
-multi method union ( Set::Functional::Span $span ) returns List of Set::Functional::Span {
-    ...
-
-=for TODO
-    my $cmp;
-    $cmp = $tmp1->{b} <=> $tmp2->{a};
+multi method union ($self: Set::Functional::Span $span ) 
+    returns List of Set::Functional::Span 
+{
+    my int $cmp;
+    $cmp = $:end <=> $span.start;
     if ( $cmp < 0 ||
-             ( $cmp == 0 && $tmp1->{open_end} && $tmp2->{open_begin} ) ) {
+             ( $cmp == 0 && $:end_is_open && $span.start_is_open ) ) {
         return ( $tmp1, $tmp2 );
     }
-    $cmp = $tmp1->{a} <=> $tmp2->{b};
+    $cmp = $:start <=> $span.end;
     if ( $cmp > 0 ||
-         ( $cmp == 0 && $tmp2->{open_end} && $tmp1->{open_begin} ) ) {
+         ( $cmp == 0 && $span.end_is_open && $:start_is_open ) ) {
         return ( $tmp2, $tmp1 );
     }
-    #-- common code
-    my $tmp;
-    $cmp = $tmp1->{a} <=> $tmp2->{a};
+
+    my ($i_beg, $i_end, $open_beg, $open_end);
+    $cmp = $:start <=> $span.start;
     if ($cmp > 0) {
-        $tmp->{a} = $tmp2->{a};
-        $tmp->{open_begin} = $tmp2->{open_begin};
+        $i_beg = $span.start;
+        $open_beg = $span.start_is_open;
     }
     elsif ($cmp == 0) {
-        $tmp->{a} = $tmp1->{a};
-        $tmp->{open_begin} = $tmp1->{open_begin} ? $tmp2->{open_begin} : 0;
+        $i_beg = $:start;
+        $open_beg = $:start_is_open ?? $span.start_is_open :: 0;
     }
     else {
-        $tmp->{a} = $tmp1->{a};
-        $tmp->{open_begin} = $tmp1->{open_begin};
+        $i_beg = $:start;
+        $open_beg = $:start_is_open;
     }
 
-    $cmp = $tmp1->{b} <=> $tmp2->{b};
+    $cmp = $:end <=> $span.end;
     if ($cmp < 0) {
-        $tmp->{b} = $tmp2->{b};
-        $tmp->{open_end} = $tmp2->{open_end};
+        $i_end = $span.end;
+        $open_end = $span.end_is_open;
     }
     elsif ($cmp == 0) {
-        $tmp->{b} = $tmp1->{b};
-        $tmp->{open_end} = $tmp1->{open_end} ? $tmp2->{open_end} : 0;
+        $i_end = $:end;
+        $open_end = $:end_is_open ?? $span.end_is_open :: 0;
     }
     else {
-        $tmp->{b} = $tmp1->{b};
-        $tmp->{open_end} = $tmp1->{open_end};
+        $i_end = $:end;
+        $open_end = $:end_is_open;
     }
-    return $tmp;
-=cut
-
+    return $self.new( start => $i_beg,
+                 end =>   $i_end,
+                 start_is_open => $open_beg,
+                 end_is_open =>   $open_end );
 }
-multi method union ( Set::Functional::Span $span, Object $density ) returns List of Set::Functional::Span {
-    ...
+multi method union ($self: Set::Functional::Span $span, Object $density ) 
+    returns List of Set::Functional::Span 
+{
+    my int $cmp;
 
-=for TODO
-    my $cmp;
-        my $a1_open =  $tmp1->{open_begin} ? -$tolerance : $tolerance ;
-        my $b1_open =  $tmp1->{open_end}   ? -$tolerance : $tolerance ;
-        my $a2_open =  $tmp2->{open_begin} ? -$tolerance : $tolerance ;
-        my $b2_open =  $tmp2->{open_end}   ? -$tolerance : $tolerance ;
+    ...
+=for TODO - rewrite this
+        my $a1_open =  $.start_is_open ? -$tolerance : $tolerance ;
+        my $b1_open =  $.end_is_open   ? -$tolerance : $tolerance ;
+        my $a2_open =  $span.start_is_open ? -$tolerance : $tolerance ;
+        my $b2_open =  $span.end_is_open   ? -$tolerance : $tolerance ;
         # open_end touching?
-        if ((($tmp1->{b}+$tmp1->{b}) + $b1_open ) <
-            (($tmp2->{a}+$tmp2->{a}) - $a2_open)) {
+        if ((($.end+$.end) + $b1_open ) <
+            (($span.start+$span.start) - $a2_open)) {
             # self disjuncts b
             return ( $tmp1, $tmp2 );
         }
-        if ((($tmp1->{a}+$tmp1->{a}) - $a1_open ) >
-            (($tmp2->{b}+$tmp2->{b}) + $b2_open)) {
+        if ((($.start+$.start) - $a1_open ) >
+            (($span.end+$span.end) + $b2_open)) {
             # self disjuncts b
             return ( $tmp2, $tmp1 );
         }
-    #-- common code
-    my $tmp;
-    $cmp = $tmp1->{a} <=> $tmp2->{a};
-    if ($cmp > 0) {
-        $tmp->{a} = $tmp2->{a};
-        $tmp->{open_begin} = $tmp2->{open_begin};
-    }
-    elsif ($cmp == 0) {
-        $tmp->{a} = $tmp1->{a};
-        $tmp->{open_begin} = $tmp1->{open_begin} ? $tmp2->{open_begin} : 0;
-    }
-    else {
-        $tmp->{a} = $tmp1->{a};
-        $tmp->{open_begin} = $tmp1->{open_begin};
-    }
-
-    $cmp = $tmp1->{b} <=> $tmp2->{b};
-    if ($cmp < 0) {
-        $tmp->{b} = $tmp2->{b};
-        $tmp->{open_end} = $tmp2->{open_end};
-    }
-    elsif ($cmp == 0) {
-        $tmp->{b} = $tmp1->{b};
-        $tmp->{open_end} = $tmp1->{open_end} ? $tmp2->{open_end} : 0;
-    }
-    else {
-        $tmp->{b} = $tmp1->{b};
-        $tmp->{open_end} = $tmp1->{open_end};
-    }
-    return $tmp;
 =cut
 
+    my ($i_beg, $i_end, $open_beg, $open_end);
+    $cmp = $:start <=> $span.start;
+    if ($cmp > 0) {
+        $i_beg = $span.start;
+        $open_beg = $span.start_is_open;
+    }
+    elsif ($cmp == 0) {
+        $i_beg = $:start;
+        $open_beg = $:start_is_open ?? $span.start_is_open :: 0;
+    }
+    else {
+        $i_beg = $:start;
+        $open_beg = $:start_is_open;
+    }
+
+    $cmp = $:end <=> $span.end;
+    if ($cmp < 0) {
+        $i_end = $span.end;
+        $open_end = $span.end_is_open;
+    }
+    elsif ($cmp == 0) {
+        $i_end = $:end;
+        $open_end = $:end_is_open ?? $span.end_is_open :: 0;
+    }
+    else {
+        $i_end = $:end;
+        $open_end = $:end_is_open;
+    }
+    return $self.new( start => $i_beg,
+                 end =>   $i_end,
+                 start_is_open => $open_beg,
+                 end_is_open =>   $open_end );
 }
 
 
-method intersection ( Set::Functional::Span $span ) returns List of Set::Functional::Span {
-    ...
-
-=for TODO
-            if ( ( $tmp1a <= $tmp1b ) &&
-                 ( ($tmp1a != $tmp1b) ||
-                   (!$open_beg and !$open_end) ||
-                   ($tmp1a == $inf)   ||               # XXX
-                   ($tmp1a == $neg_inf)
-                 )
-               )
-            {
-                if ( $op eq 'intersection' )
-                {
-                    push @a, {
-                        a => $tmp1a, b => $tmp1b,
-                        open_begin => $open_beg, open_end => $open_end } ;
-                }
-                if ( $op eq 'intersects' )
-                {
-                    return 1;
-                }
-                if ( $op eq 'intersected_spans' )
-                {
-                    push @a, $tmp1;
-                    $a0++;
-                    next A;
-                }
-            }
-=cut
-
+method intersection ($self: Set::Functional::Span $span ) 
+    returns Set::Functional::Span 
+{
+    my ($i_beg, $i_end);
+    my Bool $open_beg;
+    my Bool $open_end;
+    my int $cmp = $:start <=> $span.start;
+    if ($cmp < 0) {
+        $i_beg       = $span.start;
+        $open_beg    = $span.start_is_open;
+    }
+    elsif ($cmp > 0) {
+        $i_beg       = $:start;
+        $open_beg    = $:start_is_open;
+    }
+    else {
+        $i_beg       = $:start;
+        $open_beg    = $:start_is_open || $span.start_is_open;
+    }
+    $cmp = $:end <=> $span.end;
+    if ($cmp > 0) {
+        $i_end       = $span.end;
+        $open_end    = $span.end_is_open;
+    }
+    elsif ($cmp < 0) {
+        $i_end       = $:end;
+        $open_end    = $:end_is_open;
+    }
+    else {
+        $i_end       = $:end;
+        $open_end    = $:end_is_open || $span.end_is_open;
+    }
+    $cmp = $i_beg <=> $i_end;
+    if $cmp <= 0  &&
+       ( $cmp != 0  ||  ( ! $open_beg && ! $open_end ) )
+    {
+        return $self.new( start => $i_beg,
+                     end =>   $i_end,
+                     start_is_open => $open_beg,
+                     end_is_open =>   $open_end );
+    }
+    return;
 }
 
 method stringify () returns String {
-    ...
-
-=for TODO
-    my $set = shift;
-    my $self = $_[0];
-    my $s;
-    return "" unless defined $self;
-    $self->{open_begin} = 1 if ($self->{a} == -$inf );
-    $self->{open_end}   = 1 if ($self->{b} == $inf );
-    my $tmp1 = $self->{a};
-    $tmp1 = $tmp1->datetime if UNIVERSAL::can( $tmp1, 'datetime' );
-    $tmp1 = "$tmp1";
-    my $tmp2 = $self->{b};
-    $tmp2 = $tmp2->datetime if UNIVERSAL::can( $tmp2, 'datetime' );
-    $tmp2 = "$tmp2";
+    my $tmp1 = "$:start";
+    my $tmp2 = "$:end";
     return $tmp1 if $tmp1 eq $tmp2;
-    $s = $self->{open_begin} ? $set->separators(2) : $set->separators(0);
-    $s .= $tmp1 . $set->separators(4) . $tmp2;
-    $s .= $self->{open_end} ? $set->separators(3) : $set->separators(1);
-    return $s;
-=cut
 
+    return ( $:start_is_open ?? '(' :: '[' ) ~
+           $tmp1 ~ ',' ~ $tmp2 ~
+           ( $:end_is_open   ?? ')' :: ']' );
 }
 
 method spaceship ( Set::Functional::Span $span ) returns Int {
-    ...
+    my int $cmp;
+    
+    # XXX (perl5) "inverted"?
+    # my $inverted = bool::false;
+    # if ($inverted) {
+    #    $cmp = $span.start <=> $:start;
+    #    return $cmp if $cmp;
+    #    $cmp = $:start_is_open <=> $span.start_is_open;
+    #    return $cmp if $cmp;
+    #    $cmp = $span.end <=> $:end;
+    #    return $cmp if $cmp;
+    #    return $:end_is_open <=> $span.end_is_open;
+    # }
 
-=for TODO
-    my ($tmp1, $tmp2, $inverted) = @_;
-    my $cmp;
-    if ($inverted) {
-        $cmp = $tmp2->{a} <=> $tmp1->{a};
-        return $cmp if $cmp;
-        $cmp = $tmp1->{open_begin} <=> $tmp2->{open_begin};
-        return $cmp if $cmp;
-        $cmp = $tmp2->{b} <=> $tmp1->{b};
-        return $cmp if $cmp;
-        return $tmp1->{open_end} <=> $tmp2->{open_end};
-    }
-    $cmp = $tmp1->{a} <=> $tmp2->{a};
+    $cmp = $:start <=> $span.start;
     return $cmp if $cmp;
-    $cmp = $tmp2->{open_begin} <=> $tmp1->{open_begin};
+    $cmp = $span.start_is_open <=> $:start_is_open;
     return $cmp if $cmp;
-    $cmp = $tmp1->{b} <=> $tmp2->{b};
+    $cmp = $:end <=> $span.end;
     return $cmp if $cmp;
-    return $tmp2->{open_end} <=> $tmp1->{open_end};
-=cut
-
+    return $span.end_is_open <=> $:end_is_open;
 }
 
 =kwid
@@ -335,17 +329,55 @@ Set::Functional::Span - An object representing a single span
 
 This class represents a single span.
 
+For a more complete API, see Set::Span.
+
 = CONSTRUCTORS
 
 - `new( start => $start, end => $end, start_is_open => bool::false, end_is_open => bool::false )`
 
+The `start` value must be less than or equal to `end`. There is no checking.
+
 = OBJECT METHODS
 
-The following methods are available for Set::Span objects:
+The following methods are available for Set::Functional::Span objects:
 
-- `start()`
+- `start()` / `end()`
 
-Returns the start.
+Return the start or end value.
+
+- `start_is_open()` / `end_is_open()` / `start_is_closed()` / `end_is_closed()`
+
+Return a logical value, whether the `start` or `end` values belong to the span ("closed") or not ("open").
+
+- size
+
+Return the "size" of the span.
+
+If `start` and `end` are times, then `size` is a duration.
+
+- union
+
+  # XXX
+
+- complement
+
+  # XXX
+
+- intersects
+
+  # XXX
+
+- intersection 
+
+  # XXX
+
+- stringify 
+
+  # XXX
+
+- spaceship 
+
+  # XXX
 
 = AUTHOR
 

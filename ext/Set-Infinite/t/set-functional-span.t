@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 13;
+plan 15;
 
 use_ok( 'Set::Functional::Span' );
 use Set::Functional::Span;   # XXX should not need this
@@ -40,3 +40,8 @@ is( $span.intersects( $span3 ), bool::false, 'doesn\'t intersect' );
     my @a = $span.complement;
     is( @a.elems, 2, 'complement' );
 }
+
+is( $span.intersection( $span2 ).stringify, '[2,3]', 'intersection' );
+
+is( $span.union( $span2 ).stringify, '[1,4]', 'union' );
+

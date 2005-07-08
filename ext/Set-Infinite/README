@@ -1,5 +1,17 @@
-Set::Infinite - An object representing recurrences, multiple spans, etc.
+- Ordered sets classes:
 
-Set::Span - An object representing a single span
+  Set::Span - An object representing a single span
 
-Set::Recurrence - An object representing a recurrence
+  Set::Recurrence - An object representing a recurrence
+
+  Set::Infinite - An object representing recurrences, multiple spans, etc.
+
+  Set::Integer - A special case of Set::Infinite
+
+- Functional versions of some of the above classes:
+
+  Set::Functional::Span
+
+  Set::Functional::Recurrence
+
+  Set::Functional::Infinite
