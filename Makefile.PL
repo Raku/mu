@@ -164,9 +164,12 @@ sub set_postamble {
         $ENV{PUGS_EMBED} =~ s/\bparrot\b//g;
     }
 
+    # Respect CC setting
+    my $cc = $ENV{CC} || 'gcc';
+    $ghc_flags .= " -pgmc $cc " unless $cc eq 'gcc';
+
     # OS X / Tiger and gcc4.0 doesn't work with pugs. complain.
     if ($Config{osname} eq "darwin") {
-      my $cc = $ENV{CC} || 'gcc';
       my $gcc_version = `$cc -v 2>&1`;
       my $os_version = `uname -r`;
       if ($gcc_version =~ /4.0.0/ && $os_version =~ /^8./) {
