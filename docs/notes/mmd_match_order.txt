@@ -17,7 +17,7 @@ Order of definition tie breaking:
 
 	Two signatures defined in a different file:
 
-		the one defined LATER in the file wins
+		the one defined in the LATER file wins
 
 This could apply to compilation as a bigger unit, compilation is recursive,
 branches in compilation come after their callers, after other branches in the
