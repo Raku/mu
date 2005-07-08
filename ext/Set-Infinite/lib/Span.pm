@@ -47,18 +47,40 @@ From "Set" API:
 
 =cut
 
-multi submethod BUILD () returns Span {
-    undefine $.span;
-}
-multi submethod BUILD ( Object $object ) returns Span {
-    $.span = Span::Functional.new( 
-        $object, $object, bool::false, bool::false );
-}
-multi submethod BUILD ( Object $start, Object $end ) returns Span {
-    die "start must be less or equal to end" 
-        if $start > $end;
-    $.span = Span::Functional.new( 
-        start => $start, end => $end, start_is_open => bool::false, end_is_open => bool::false );
+submethod BUILD ($class: *%param is copy ) returns Span {
+    my ( $start, $end );
+    my bool $start_is_open;
+    my bool $end_is_open;
+
+    if defined( %param<object> ) 
+    {
+        if %param<object>.isa( $class.ref )
+        {
+            return $class.bless( { span => %param<object>.span } );
+        }
+        if %param<object>.isa( 'Span::Functional' )
+        {
+            return $class.bless( { span => %param<object> } );
+        }
+        %param<start> = %param<end> = %param<object>;
+    }
+
+    if defined( %param<start> )  { $start = %param<start>;  $start_is_open = bool::false };
+    if defined( %param<after> )  { $start = %param<after>;  $start_is_open = bool::true };
+    if defined( %param<end> )    { $end = %param<end>;    $end_is_open =   bool::false };
+    if defined( %param<before> ) { $end = %param<before>; $end_is_open =   bool::true };
+
+    if !defined( $start ) && defined( $end ) { $start = -Inf }
+    elsif defined( $start ) && !defined( $end ) { $end = Inf }
+
+    $start_is_open = bool::true if $start == -Inf;
+    $end_is_open =   bool::true if $end == Inf;
+
+    die "start must be less or equal to end" if $start > $end;
+
+    if defined( $start ) && defined( $end ) {
+        $.span = Span::Functional.new( start => $start, end => $end, start_is_open => $start_is_open, end_is_open => $end_is_open );
+    }
 }
 
 method start () returns Object {
@@ -88,6 +110,7 @@ method set_start ($self: Object $start ) {
 }
 
 method end () returns Object {
+    return unless defined $.span;
     return $.span.end;
 }
 method set_end ($self: Object $end ) {
@@ -113,30 +136,44 @@ method set_end ($self: Object $end ) {
 }
 
 method start_is_open () returns Bool {
+    return bool::false unless defined $.span;
     return $.span.start_is_open;
 }
 method start_is_closed () returns Bool {
+    return bool::false unless defined $.span;
     return $.span.start_is_closed;
 }
 method end_is_open () returns Bool {
+    return bool::false unless defined $.span;
     return $.span.end_is_open;
 }
 method end_is_closed () returns Bool {
+    return bool::false unless defined $.span;
     return $.span.end_is_closed;
 }
+method stringify () returns String {
+    return '' unless defined $.span;
+    return $.span.stringify;
+}
+method size () returns Object {
+    return undef unless defined $.span;
+    return $.span.size;
+}
 
-method contains ($self: Object $span ) returns bool {
+method contains ($self: Object $span is copy) returns bool {
     # XXX TODO - the parameter may be a Set::Infinite
-    $span = $self.new( $span )
-        if ! ( $span.ISA( $self.CLASS ) );
+    return bool::false unless defined $.span;
+    $span = $self.new( object => $span )
+        if ! ( $span.isa( $self.ref ) );
     my @union = $self.span.union( $span.span );
     return bool::false if @union.elems == 2;
-    return @union[0].compare( $span.span );
+    return @union[0].compare( $self.span ) == 0;
 }
-method intersects ($self: Object $span ) returns bool {
+method intersects ($self: Object $span is copy) returns bool {
     # XXX TODO - the parameter may be a Set::Infinite
-    $span = $self.new( $span )
-        if ! ( $span.ISA( $self.CLASS ) );
+    return bool::false unless defined $.span;
+    $span = $self.new( object => $span )
+        if ! ( $span.isa( $self.ref ) );
     my @union = $self.span.union( $span.span );
     return @union.elems == 1;
 }
@@ -145,26 +182,25 @@ method intersects ($self: Object $span ) returns bool {
     * union
     * intersection
     * complement
-    * contains
     * difference
 =cut
 
 method union ($self: Object $span ) returns Set::Infinite {
-    $span = $self.new( $span )
-        if ! ( $span.ISA( $self.CLASS ) );
+    $span = $self.new( object => $span )
+        if ! ( $span.isa( $self.CLASS ) );
     ...
 }
 method intersection ($self: Object $span ) returns Set::Infinite {
-    $span = $self.new( $span )
-        if ! ( $span.ISA( $self.CLASS ) );
+    $span = $self.new( object => $span )
+        if ! ( $span.isa( $self.CLASS ) );
     ...
 }
 method complement ($self: ) returns Set::Infinite {
     ...
 }
 method difference ($self: Object $span ) returns Set::Infinite {
-    $span = $self.new( $span )
-        if ! ( $span.ISA( $self.CLASS ) );
+    $span = $self.new( object => $span )
+        if ! ( $span.isa( $self.CLASS ) );
     ...
 }
 
@@ -190,9 +226,15 @@ This class represents a single span.
 
 Without any parameters, returns an empty span.
 
-- `new( start => $start )`
+- `new( object => $object )`
+
+Creates a span with a single element. This is the same as `new( start => $object, end => $object )`.
+
+- `new( start => $object )`
 
 Given a start object, returns a span that has infinite size.
+
+    # XXX
 
 = OBJECT METHODS
 

@@ -3,19 +3,20 @@
 use v6;
 use Test;
 
-plan 9;
+plan 16;
 
 use_ok( 'Span' );
 use Span;   # XXX should not need this
 
-my $span = Span.new( start => 1, end => 3 );
+my $span = Span.new( :start(1), :end(3) );
 
-isa_ok( $span, 'Span', 
-    'created a Span' );
+isa_ok( $span, 'Span', 'created a Span' );
+
+is( $span.stringify, '[1,3]', 'stringify' );
 
 {
   my $single = Span.new( object => 10 );
-  isa_ok( $span, 'Span', 'created a Span with a single element' );
+  isa_ok( $single, 'Span', 'created a Span with a single element' );
 }
 
 is( $span.start, 1, "start" );
@@ -27,16 +28,19 @@ is( $span.end_is_open,     bool::false, "end_is_open" );
 is( $span.start_is_closed, bool::true, "start_is_closed" );
 is( $span.end_is_closed,   bool::true, "end_is_closed" );
 
-# XXX is( $span.size, 2, "real size" );
+is( $span.size, 2, "real size" );
 # XXX is( $span.size( density => 1 ), 3, "integer size" );
 
 my $span2 = Span.new( start => 2, end => 4 );
 
 my $span3 = Span.new( start => 4, end => 6 );
 
-# XXX is( $span.intersects( $span2 ), bool::true, 'intersects' );
+is( $span.intersects( 2 ), bool::true, 'intersects object' );
+is( $span.intersects( $span2 ), bool::true, 'intersects span' );
+is( $span.intersects( $span3 ), bool::false, 'doesn\'t intersect span' );
 
-# XXX is( $span.intersects( $span3 ), bool::false, 'doesn\'t intersect' );
+is( $span.contains( 2 ), bool::true, 'contains object' );
+is( $span.contains( 9 ), bool::false, 'doesn\'t contain object' );
 
 {
     # XXX my @a = $span.complement;

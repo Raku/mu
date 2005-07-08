@@ -4,14 +4,14 @@ class Span::Functional-0.01;
 
 has Object $:start;
 has Object $:end;
-has Bool   $:start_is_open;
-has Bool   $:end_is_open;
+has bool   $:start_is_open;
+has bool   $:end_is_open;
 
 =for TODO
 
     * union
         - finish "density" multi method; tests
-    * spaceship
+    * compare
         - tests
         - does perl6 uses the "inverted" parameter?
 
@@ -55,23 +55,23 @@ method start () returns Object {
 method end () returns Object {
     return $:end;
 }
-method start_is_open () returns Bool {
+method start_is_open () returns bool {
     return $:start_is_open;
 }
-method start_is_closed () returns Bool {
+method start_is_closed () returns bool {
     return ! $:start_is_open;
 }
-method end_is_open () returns Bool {
+method end_is_open () returns bool {
     return $:end_is_open;
 }
-method end_is_closed () returns Bool {
+method end_is_closed () returns bool {
     return ! $:end_is_open;
 }
 
-method intersects ( Span::Functional $span ) returns Bool {
+method intersects ( Span::Functional $span ) returns bool {
     my ($i_beg, $i_end);
-    my Bool $open_beg;
-    my Bool $open_end;
+    my bool $open_beg;
+    my bool $open_end;
     my $cmp = $:start <=> $span.start;
     if ($cmp < 0) {
         $i_beg       = $span.start;
@@ -135,12 +135,12 @@ multi method union ($self: Span::Functional $span )
     $cmp = $:end <=> $span.start;
     if ( $cmp < 0 ||
              ( $cmp == 0 && $:end_is_open && $span.start_is_open ) ) {
-        return ( $tmp1, $tmp2 );
+        return ( $self, $span );
     }
     $cmp = $:start <=> $span.end;
     if ( $cmp > 0 ||
          ( $cmp == 0 && $span.end_is_open && $:start_is_open ) ) {
-        return ( $tmp2, $tmp1 );
+        return ( $span, $self );
     }
 
     my ($i_beg, $i_end, $open_beg, $open_end);
@@ -239,8 +239,8 @@ method intersection ($self: Span::Functional $span )
     returns Span::Functional 
 {
     my ($i_beg, $i_end);
-    my Bool $open_beg;
-    my Bool $open_end;
+    my bool $open_beg;
+    my bool $open_end;
     my int $cmp = $:start <=> $span.start;
     if ($cmp < 0) {
         $i_beg       = $span.start;
@@ -289,7 +289,7 @@ method stringify () returns String {
            ( $:end_is_open   ?? ')' :: ']' );
 }
 
-method spaceship ( Span::Functional $span ) returns Int {
+method compare ( Span::Functional $span ) returns int {
     my int $cmp;
     
     # XXX (perl5) "inverted"?
@@ -375,7 +375,7 @@ If `start` and `end` are times, then `size` is a duration.
 
   # XXX
 
-- spaceship 
+- compare 
 
   # XXX
 
