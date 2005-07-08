@@ -38,7 +38,6 @@ MMD sequence:
 		2.1 specifity is judged by comparing trees
 			2.1.1 each OR is a branch to the side
 			2.1.2 each AND is another level of depth
-				2.1.2.1 The depth of AND branches is proportional to the number of elements ANDed together ($x & $y & $z) is deeper than ($x & $y)
 			2.1.3 the tree is 'drawn' with right angles
 			2.1.4 the ratio between the height and width of the area needed to draw the tree is the score of the junction
 			2.1.5 ratios which are too close to each other in a single definition are a compile time error
@@ -63,4 +62,3 @@ the first one whose where clause passes will win.
 Where clauses are short circuiting in the sense that a where clause will not be executed if one before it in the same signature failed
 
 Where clauses will not be executed until the whole signature is known to check out in terms of equality and other constraints. Hence the seperation into two steps.
-
