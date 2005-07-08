@@ -2,16 +2,20 @@
 
   Span - An object representing a single span
 
-  Set::Recurrence - An object representing a recurrence
+  Set::Recurrence - An object representing a recurrence  TODO
 
-  Set::Infinite - An object representing recurrences, multiple spans, etc.
-
-  Set::Integer - A special case of Set::Infinite
+  Set::Infinite - An object representing recurrences, multiple spans, etc.  TODO
 
 - Functional versions of some of the above classes:
 
   Span::Functional
 
-  Set::Functional::Recurrence
+  Set::Recurrence::Functional  TODO
 
-  Set::Functional::Infinite
+  Set::Infinite::Functional
+
+- Special cases
+
+  Span::Integer  TODO
+
+  Set::Integer   TODO
