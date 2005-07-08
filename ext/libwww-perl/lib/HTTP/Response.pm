@@ -55,7 +55,7 @@ class HTTP::Response {
                    .header('Content-Location')  //  # HTTP/1.1
                    .header('Base');                 # HTTP/1.0
         
-        use URI;
+        require URI;
         
         if ($base.defined && /^ <URI::scheme> \:/) {
             # already absolute
