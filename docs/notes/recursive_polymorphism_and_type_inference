@@ -82,3 +82,72 @@ Hmm... out-of-band type classes are trivial:
 It is an unfortunate use of the :: sigil to specify undeclared types, because
 we have no way to refer to a type variable.  Is ::a a type variable or the name
 of an 'a' type that has yet to be declared.
+
+It looks like the current thinking is that ::a is always a type variable, with
+:: behaving as a sigil.  You cannot use :: as an inline predeclarator  (we
+might use "class" for that like C++, or we might just require predeclaration).
+
+~~~~~~~~~~~~~
+
+Perhaps we can make use of the units mechanism for closed data constructors.
+Taking the awful "data" declarator from haskell (and introducing another awful
+keyword, "kind"), perhaps we have:
+
+    data StrPos {
+        kind `bytes:(Int);
+        kind `lexemes:(Int);
+        kind `codepoints:(Int);
+        kind `graphemes:(Int);
+    }
+
+("of StrPos" is implied on each of those)
+
+Then:
+
+    $str.pos += 4`bytes;
+
+Is just short for:
+
+    $str.pos += `bytes(4);
+
+And in a signature:
+
+    sub foo ($x`bytes) {...}
+
+Is short for:
+
+    sub foo (`bytes:($x)) {...}   # note the colon
+
+More interestingly, we have:
+
+    data Tree[::a] {
+        kind `zero:()            of Tree[Int];
+        kind `succ:(Tree[Int])   of Tree[Int];
+        kind `pred:(Tree[Int])   of Tree[Int];
+        kind `iszero:(Tree[Int]) of Tree[Bool];
+        kind `cond:(Tree[Bool], Tree[::a], Tree[::a]) of Tree[::a];
+    }
+
+Mmm... nice and concise.
+
+Then, to write visitors, you can use multis:
+
+    multi run (Tree[::a]) of ::a {...}
+    multi run (`zero)     { 0 }
+    multi run ($v`succ)   { run($v) + 1 }
+    multi run ($v`pred)   { run($v) - 1 }
+    multi run ($v`iszero) { run($v) == 0 }
+    multi run (`cond:($c, $true, $false)) {
+        run($c) ?? run($true) :: run($false);
+    }
+
+Hmmm.. this imples some sort of signature-signature binding.  What I'd
+like to see is:
+
+    data Foo {
+        kind `bar:(Int $baz, Int $quux);
+    }
+
+    sub run(`bar:(quux => $q, baz => $b)) {...}
+
+For named binding.
