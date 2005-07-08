@@ -1,6 +1,6 @@
 - Ordered sets classes:
 
-  Set::Span - An object representing a single span
+  Span - An object representing a single span
 
   Set::Recurrence - An object representing a recurrence
 
@@ -10,7 +10,7 @@
 
 - Functional versions of some of the above classes:
 
-  Set::Functional::Span
+  Span::Functional
 
   Set::Functional::Recurrence
 

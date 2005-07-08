@@ -1,6 +1,6 @@
 use v6;
 
-class Set::Functional::Span-0.01;
+class Span::Functional-0.01;
 
 has Object $:start;
 has Object $:end;
@@ -30,7 +30,7 @@ has Bool   $:end_is_open;
 # constructor: a single constructor, without bounds checking
 
 submethod BUILD ( Object $start, Object $end, Bool $start_is_open, Bool $end_is_open ) 
-    returns Set::Functional::Span 
+    returns Span::Functional 
 {
     $:start =         $start;
     $:end =           $end;
@@ -68,7 +68,7 @@ method end_is_closed () returns Bool {
     return ! $:end_is_open;
 }
 
-method intersects ( Set::Functional::Span $span ) returns Bool {
+method intersects ( Span::Functional $span ) returns Bool {
     my ($i_beg, $i_end);
     my Bool $open_beg;
     my Bool $open_end;
@@ -103,7 +103,7 @@ method intersects ( Set::Functional::Span $span ) returns Bool {
            ( $cmp != 0  ||  ( ! $open_beg && ! $open_end ) );
 }
 
-method complement ($self: ) returns List of Set::Functional::Span 
+method complement ($self: ) returns List of Span::Functional 
 {
     if ($.end == Inf) {
         return if $.start == -Inf;
@@ -128,8 +128,8 @@ method complement ($self: ) returns List of Set::Functional::Span
                      end_is_open =>   bool::true ) );
 }
 
-multi method union ($self: Set::Functional::Span $span ) 
-    returns List of Set::Functional::Span 
+multi method union ($self: Span::Functional $span ) 
+    returns List of Span::Functional 
 {
     my int $cmp;
     $cmp = $:end <=> $span.start;
@@ -176,8 +176,8 @@ multi method union ($self: Set::Functional::Span $span )
                  start_is_open => $open_beg,
                  end_is_open =>   $open_end );
 }
-multi method union ($self: Set::Functional::Span $span, Object $density ) 
-    returns List of Set::Functional::Span 
+multi method union ($self: Span::Functional $span, Object $density ) 
+    returns List of Span::Functional 
 {
     my int $cmp;
 
@@ -235,8 +235,8 @@ multi method union ($self: Set::Functional::Span $span, Object $density )
 }
 
 
-method intersection ($self: Set::Functional::Span $span ) 
-    returns Set::Functional::Span 
+method intersection ($self: Span::Functional $span ) 
+    returns Span::Functional 
 {
     my ($i_beg, $i_end);
     my Bool $open_beg;
@@ -289,7 +289,7 @@ method stringify () returns String {
            ( $:end_is_open   ?? ')' :: ']' );
 }
 
-method spaceship ( Set::Functional::Span $span ) returns Int {
+method spaceship ( Span::Functional $span ) returns Int {
     my int $cmp;
     
     # XXX (perl5) "inverted"?
@@ -317,11 +317,11 @@ method spaceship ( Set::Functional::Span $span ) returns Int {
 
 = NAME
 
-Set::Functional::Span - An object representing a single span
+Span::Functional - An object representing a single span, with a functional API.
 
 = SYNOPSIS
 
-  use Set:::Functional::Span;
+  use Span:::Functional;
 
   # XXX
 
@@ -329,7 +329,7 @@ Set::Functional::Span - An object representing a single span
 
 This class represents a single span.
 
-For a more complete API, see Set::Span.
+For a more complete API, see `Span`.
 
 = CONSTRUCTORS
 
@@ -339,7 +339,7 @@ The `start` value must be less than or equal to `end`. There is no checking.
 
 = OBJECT METHODS
 
-The following methods are available for Set::Functional::Span objects:
+The following methods are available for Span::Functional objects:
 
 - `start()` / `end()`
 

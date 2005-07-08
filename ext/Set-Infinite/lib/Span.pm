@@ -1,11 +1,11 @@
 use v6;
 
-class Set::Span-0.01;
+class Span-0.01;
 
-# Set::Span is just like Set::Functional::Span, 
+# Span is just like Span::Functional, 
 # but it is "mutable" and it has a more complete API
 
-has Set::Functional::Span $.span;
+has Span::Functional $.span;
 
 =for TODO
 
@@ -46,17 +46,17 @@ From "Set" API:
 
 =cut
 
-multi submethod BUILD () returns Set::Span {
+multi submethod BUILD () returns Span {
     undef .$span;
 }
-multi submethod BUILD ( Object $object ) returns Set::Span {
-    $.span = Set::Functional::Span.new( 
+multi submethod BUILD ( Object $object ) returns Span {
+    $.span = Span::Functional.new( 
         $object, $object, bool::false, bool::false );
 }
-multi submethod BUILD ( Object $start, Object $end ) returns Set::Span {
+multi submethod BUILD ( Object $start, Object $end ) returns Span {
     die "start must be less or equal to end" 
         if $start > $end;
-    $.span = Set::Functional::Span.new( 
+    $.span = Span::Functional.new( 
         $start, $end, bool::false, bool::false );
 }
 
@@ -127,11 +127,11 @@ method end_is_closed () returns Bool {
 
 = NAME
 
-Set::Span - An object representing a single span
+Span - An object representing a single span
 
 = SYNOPSIS
 
-  use Set::Span;
+  use Span;
 
   # XXX
 
@@ -153,7 +153,7 @@ Given a start object, returns a span that has infinite size.
 
     # XXX
 
-The following methods are available for Set::Span objects:
+The following methods are available for Span objects:
 
 - `start()` / `end()`
 
@@ -205,7 +205,7 @@ If `start` and `end` are times, then `size` is a duration.
 
 - `span`
 
-Returns a Set::Functional::Span object, which may be useful if you
+Returns a Span::Functional object, which may be useful if you
 are mixing functional/non-functional programming.
 
 = AUTHOR

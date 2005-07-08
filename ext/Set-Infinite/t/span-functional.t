@@ -5,14 +5,14 @@ use Test;
 
 plan 15;
 
-use_ok( 'Set::Functional::Span' );
-use Set::Functional::Span;   # XXX should not need this
+use_ok( 'Span::Functional' );
+use Span::Functional;   # XXX should not need this
 
-my $span = Set::Functional::Span.new( 
+my $span = Span::Functional.new( 
     start => 1, end => 3, start_is_open => bool::false, end_is_open => bool::false );
 
-isa_ok( $span, 'Set::Functional::Span', 
-    'created a Set::Functional::Span' );
+isa_ok( $span, 'Span::Functional', 
+    'created a Span::Functional' );
 
 is( $span.start, 1, "start" );
 is( $span.end  , 3, "end" );
@@ -26,10 +26,10 @@ is( $span.end_is_closed,   bool::true, "end_is_closed" );
 is( $span.size, 2, "real size" );
 is( $span.size( density => 1 ), 3, "integer size" );
 
-my $span2 = Set::Functional::Span.new( 
+my $span2 = Span::Functional.new( 
     start => 2, end => 4, start_is_open => bool::false, end_is_open => bool::false );
 
-my $span3 = Set::Functional::Span.new( 
+my $span3 = Span::Functional.new( 
     start => 4, end => 6, start_is_open => bool::false, end_is_open => bool::false );
 
 is( $span.intersects( $span2 ), bool::true, 'intersects' );
