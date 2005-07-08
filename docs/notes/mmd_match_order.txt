@@ -2,7 +2,8 @@ This is a draft of nothingmuch's proposition.
 
 Current defined semantics are: matches are tried in order of definition.
 
-That sucks because you can't append more specific versions of a method to the definition, thus making the handling of a special case simpler.
+That sucks because you can't append more specific versions of a method to the
+definition, thus making the handling of a special case simpler.
 
 So much for post-modern programming.
 
@@ -39,26 +40,41 @@ MMD sequence:
 			- each OR is a branch to the side
 			- each AND is another level of depth
 			- the tree is 'drawn' with right angles
-			- the ratio between the height and width of the area needed to draw the tree is the score of the junction
-			- ratios which are too close to each other in a single definition are a compile time error
+			- the ratio between the height and width of the area needed to draw
+			  the tree is the score of the junction
+			- ratios which are too close to each other in a single definition
+			  are a compile time error
 	3. value ranges (1 .. 10 will match 5)
 	4. type matching:
 		4.1 Exact class of value
 		4.2 Superclasses sorted on single vector
-			- Any multiple inheritance with more than 1 match is a dispatch error (try compile time error at def time, if there is a known class for the possible instance?)
+			- Any multiple inheritance with more than 1 match is a dispatch
+			  error (try compile time error at def time, if there is a known
+			  class for the possible instance?)
 		4.3 Specific role composite
-			- specifity: role x does role y. class c does role x, so it also does role y. In this case role 'x' will win role 'y' in a signature
-			- tie: However, class 'd' does role 'm' and role 'n'. The two are tied.
-			- paramaterized roles are equal to an anonymous role, consuming it's generic for the purpose of dispatching
+			- specifity: role x does role y. class c does role x, so it also
+			  does role y. In this case role 'x' will win role 'y' in a
+			  signature
+			- tie: However, class 'd' does role 'm' and role 'n'. The two are
+			  tied. This is fatal, just like MI ties (even though MI could in
+			  theory have a "better" match, IMHO it should be avoided.)
+			- paramaterized roles are equal to an anonymous role, consuming
+			  it's generic for the purpose of dispatching
 	5 type junctions
-		- Same logic as junctions is applied, except the values are type matched
+		- Same logic as junctions is applied, except the values are type
+		  matched
 	6. the any type
 
 
-When a list of possible matches is defined, the where clauses are tried in order, from best to worst match
+When a list of possible matches is defined, the where clauses are tried in
+order, from best to worst match
 
 the first one whose where clause passes will win.
 
-Where clauses are short circuiting in the sense that a where clause will not be executed if one before it in the same signature failed
+Where clauses are short circuiting in the sense that a where clause will not be
+executed if one before it in the same signature failed
 
-Where clauses will not be executed until the whole signature is known to check out in terms of equality and other constraints. Hence the seperation into two steps.
+Where clauses will not be executed until the whole signature is known to check
+out in terms of equality and other constraints. Hence the seperation into two
+steps.
+
