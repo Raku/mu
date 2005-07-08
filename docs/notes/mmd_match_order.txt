@@ -98,3 +98,26 @@ If no sub matches, all MMD candidates are retried, with the following algorithm:
 
 	When all coerce routines are known to be working, apply them one by one.
 	Any fails or errors mean the next MMD candidate will be tried instead.
+
+Coercion of an 'is rw' param will try to match an LVALUE return value from
+coerce... Coerce with an lvalue implies that the returned object is really a
+thin wrapper around the coerced type. Any destructive methods are translated
+into calls on the original object, and any assignments to the value require
+coercion back to the original type when done.
+
+This assures that any value relying on the 'is rw' going to places other than
+than back up the callstack (into a continuation, a structure, a deeper call)
+would have consistent effects on the original value passed.
+
+In general coercion with 'is rw' should be avoided, except when it is
+explicitly mentioned or discussed in the caller of the MMD that requires
+coercion.
+
+Instead the caller should arrange for coercion and merge the two versions of
+the object on it's own, perhaps with a wrapper version of the original method,
+expressly for this purpose.
+
+In fact, the wrapper could be placed along side the original as another mmd
+candidate, without ruining the interface -  it will simply be a better match,
+and the coercion step can be skipped altogether.
+
