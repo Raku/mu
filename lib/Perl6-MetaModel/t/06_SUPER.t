@@ -28,11 +28,11 @@ class Foo => {
         methods => {
             foo => sub { 
                 my $self = shift;
-                return 'SUPER -> ' . $self->SUPER('foo') 
+                return 'SUPER -> ' . $self->SUPER::foo() 
             },
             bar => sub { 
                 my $self = shift;
-                return 'SUPER -> ' . $self->SUPER('bar', 'test') 
+                return 'SUPER -> ' . $self->SUPER::bar('test') 
             }            
         }
     }  

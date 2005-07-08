@@ -17,7 +17,7 @@ role rSyncReader => {
     methods => {
         read => sub {
             my $self = shift;
-            'LOCK -> ' . $self->SUPER('read') . ' -> UNLOCK'
+            'LOCK -> ' . $self->SUPER::read() . ' -> UNLOCK'
         }
     }
 };

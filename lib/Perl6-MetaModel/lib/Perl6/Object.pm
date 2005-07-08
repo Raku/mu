@@ -85,7 +85,7 @@ sub DESTROYALL {
 
 ## end Submethods
 
-## XXX - all the methods below are called automajicaly by 
+## XXX - all the methods below are called automagicaly by 
 ## Perl5, so we need to handle them here in order to control
 ## the metamodels functionality
 
@@ -97,6 +97,7 @@ sub isa {
 
 sub can {
     my ($self, $label) = @_;
+    return undef unless $label;
     if (blessed($self)) {
         return $self->meta->responds_to($label);
     }
@@ -105,15 +106,29 @@ sub can {
     }
 }
 
+{
+    # XXX - this is a hack to make SUPER:: work
+    # otherwise the default SUPER:: needs to be 
+    # used, and that is not what I want to happen
+    package SUPER;
+    sub AUTOLOAD {
+        $Perl6::Object::AUTOLOAD = our $AUTOLOAD;
+        goto &Perl6::Object::AUTOLOAD;
+    }
+}
+
 sub AUTOLOAD {
-    my $label = (split '::', our $AUTOLOAD)[-1];
+    my @AUTOLOAD = split '::', our $AUTOLOAD;
+    my $label = $AUTOLOAD[-1];
+    # NOTE:
+    # DESTROY is never called like this, it always
+    # goes through the DESTORYALL submethod (see below)
     return if $label =~ /DESTROY/;
     my $self = shift;
     my @return_value;
     if (blessed($self)) {
         my $method;
-        if ($label eq 'SUPER') {
-            $label = shift;
+        if ($AUTOLOAD[0] eq 'SUPER') {
             $method = $self->meta->find_method_in_superclasses($label);
         }
         else {
