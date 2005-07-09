@@ -39,10 +39,10 @@ for 1 .. 100
 }
 
 # -- erratic behaviour; fail+todo for now
-fail("destruction #1", :todo<bug>);
-fail("destruction #2", :todo<bug>);
-fail("destruction #3", :todo<bug>);
-fail("destruction #4", :todo<bug>);
+fail("destruction - 1", :todo<bug>);
+fail("destruction - 2", :todo<bug>);
+fail("destruction - 3", :todo<bug>);
+fail("destruction - 4", :todo<bug>);
 exit;
 
 ok( $in_destructor, '... only when object goes away everywhere'               );
