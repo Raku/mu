@@ -147,7 +147,7 @@ method decoded_content ($self: ) {
 method as_string ($self: Str ?$newline = "\n") returns Str {
     my $content = ./content;
     
-    return ($:headers.as_string($newline), $newline, ($content.chars && $content !~ /\n$/) ?? "\n" :: "").join("");
+    return [~] ($:headers.as_string($newline), $newline, ($content.chars && $content !~ /\n$/) ?? "\n" :: "");
 }
 
 method parts (*@new) is rw {
@@ -269,7 +269,7 @@ method :boundary (Num ?$size) returns Str {
     
     my $b;
     # XXX use MIME::Base64::encode
-    #$b = MIME::Base64::encode(1..($size * 3).map:{ chr(rand(256)) }.join(""), "");
+    #$b = MIME::Base64::encode([~] (1..($size * 3).map:{ chr(rand(256)) }), "");
     $b ~~ s:g/\W+/X/; # ensure alnum only
     return $b;
 }
