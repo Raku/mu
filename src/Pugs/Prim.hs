@@ -559,21 +559,17 @@ op1 "IO::tell"    = \v -> do
     h <- fromVal v
     res <- liftIO $ hTell h
     return $ VInt res
-op1 "Pugs::Internals::hIsOpen" = op1IOBool hIsOpen
-op1 "Pugs::Internals::hIsClosed" = op1IOBool hIsClosed
-op1 "Pugs::Internals::hIsReadable" = op1IOBool hIsReadable
-op1 "Pugs::Internals::hIsWritable" = op1IOBool hIsWritable
---op1 "Pugs::Internals::hIsWritable" = \v -> do
---    fh <- fromVal v
---    fmap VBool (liftIO $ hIsWritable fh)
-op1 "Pugs::Internals::hIsSeekable" = boolIO hIsSeekable
+op1 "Pugs::Internals::hIsOpen" = op1IO hIsOpen
+op1 "Pugs::Internals::hIsClosed" = op1IO hIsClosed
+op1 "Pugs::Internals::hIsReadable" = op1IO hIsReadable
+op1 "Pugs::Internals::hIsWritable" = op1IO hIsWritable
+op1 "Pugs::Internals::hIsSeekable" = op1IO hIsSeekable
 op1 other   = \_ -> fail ("Unimplemented unaryOp: " ++ other)
 
--- FIXME: lift.
-op1IOBool :: (Handle -> IO Bool) -> Val -> Eval Val
-op1IOBool = \fun v -> do
+op1IO :: Value a => (Handle -> IO a) -> Val -> Eval Val
+op1IO = \fun v -> do
     val <- fromVal v
-    fmap VBool (liftIO $ fun val)
+    fmap castV (liftIO $ fun val)
 
 returnList :: [Val] -> Eval Val
 returnList vals = ifListContext
