@@ -1,3 +1,17 @@
+2005-07-09
+
+* added module Set::Infinite::Functional
+
+* renamed Set::Span to Span
+
+* renamed Set::Functional::Span to Span::Functional
+
+== Changes for 0.02
+
+* added Set::Integer to TODO
+
+* Set::Functional::Span API is complete (needs more docs & tests)
+
 == Changes for 0.01
 
 * Set::Functional::Span constructor, size, accessors, complement

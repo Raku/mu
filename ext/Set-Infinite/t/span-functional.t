@@ -38,7 +38,8 @@ is( $span.intersects( $span3 ), bool::false, 'doesn\'t intersect' );
 
 {
     my @a = $span.complement;
-    is( @a.elems, 2, 'complement' );
+    # XXX inconsistent stringification of -Inf
+    is( @a[0].stringify ~ ' ' ~ @a[1].stringify, '(-Infinity,1) (3,Inf)', 'complement' );
 }
 
 is( $span.intersection( $span2 ).stringify, '[2,3]', 'intersection' );
