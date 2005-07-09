@@ -138,17 +138,17 @@ our &Set::Hash::count ::= &Set::Hash::size;
 our &Set::Hash::has   ::= &Set::Hash::includes;
 
 # unicode intersection
-method infix:<∩> (Set $one, Set $two) returns Set {
+multi sub infix:<∩> (Set $one, Set $two) returns Set is export {
     $one.intersection($two);
 }
 
 # unicode union
-method infix:<∪> (Set $one, Set $two) returns Set {
+multi sub infix:<∪> (Set $one, Set $two) returns Set is export {
     $one.union($two);
 }
 
 # addition is union
-method infix:<+> (Set $one, Set $two) returns Set {
+multi sub infix:<+> (Set $one, Set $two) returns Set is export {
     $one.union($two);
 }
 
@@ -159,28 +159,28 @@ method infix:<+> (Set $one, Set $two) returns Set {
 
 # unicode set difference operator
 #  note the difference - ∖ vs \ (backslash)
-method infix:<∖> (Set $one, Set $two) returns Set {
+multi sub infix:<∖> (Set $one, Set $two) returns Set is export {
     $one.difference($two);
 }
 
 # multiplication is intersection
-method infix:<*> (Set $one, Set $two) returns Set {
+multi sub infix:<*> (Set $one, Set $two) returns Set is export {
     $one.intersection($two);
 }
 
 # modulus is symmetric difference
-method infix:<%> (Set $one, Set $two) returns Set {
+multi sub infix:<%> (Set $one, Set $two) returns Set is export {
     $one.symmetric_difference($two);
 }
 
 # comparison is subset/superset
-method infix:<==> (Set $one, Set $two) returns Set {
+multi sub infix:<==> (Set $one, Set $two) returns Set is export {
     $one.equal($two);
 }
-method infix:<!=> (Set $one, Set $two) returns Set {
+multi sub infix:<!=> (Set $one, Set $two) returns Set is export {
     $one.not_equal($two);
 }
-method infix:<≠> (Set $one, Set $two) returns Set {
+multi sub infix:<≠> (Set $one, Set $two) returns Set is export {
     $one.not_equal($two);
 }
 
@@ -189,90 +189,90 @@ method prefix:<~> (Set $self) returns Str {
     ./stringify
 }
 
-method infix:«<» (Set $one, Set $two) returns Set {
+multi sub infix:«<» (Set $one, Set $two) returns Set {
     $one.proper_subset($two);
 }
-method infix:«>» (Set $one, Set $two) returns Set {
+multi sub infix:«>» (Set $one, Set $two) returns Set {
     $one.proper_superset($two);
 }
-method infix:«<=» (Set $one, Set $two) returns Set {
+multi sub infix:«<=» (Set $one, Set $two) returns Set {
     $one.subset($two);
 }
-method infix:«>=» (Set $one, Set $two) returns Set {
+multi sub infix:«>=» (Set $one, Set $two) returns Set {
     $one.superset($two);
 }
 
 # look at all these great unicode operators!  :D
-method infix:«⊂» (Set $one, Set $two) returns Set {
+multi sub infix:«⊂» (Set $one, Set $two) returns Set {
     $one.proper_subset($two);
 }
-method infix:«⊃» (Set $one, Set $two) returns Set {
+multi sub infix:«⊃» (Set $one, Set $two) returns Set {
     $one.proper_superset($two);
 }
-method infix:«⊆» (Set $one, Set $two) returns Set {
+multi sub infix:«⊆» (Set $one, Set $two) returns Set {
     $one.subset($two);
 }
-method infix:«⊇» (Set $one, Set $two) returns Set {
+multi sub infix:«⊇» (Set $one, Set $two) returns Set {
     $one.superset($two);
 }
-method infix:«⊄» (Set $one, Set $two) returns Set {
+multi sub infix:«⊄» (Set $one, Set $two) returns Set {
     !$one.proper_subset($two);
 }
-method infix:«⊅» (Set $one, Set $two) returns Set {
+multi sub infix:«⊅» (Set $one, Set $two) returns Set {
     !$one.proper_superset($two);
 }
-method infix:«⊈» (Set $one, Set $two) returns Set {
+multi sub infix:«⊈» (Set $one, Set $two) returns Set {
     !$one.subset($two);
 }
-method infix:«⊉» (Set $one, Set $two) returns Set {
+multi sub infix:«⊉» (Set $one, Set $two) returns Set {
     !$one.superset($two);
 }
-method infix:«⊊» (Set $one, Set $two) returns Set {
+multi sub infix:«⊊» (Set $one, Set $two) returns Set {
     $one.proper_subset($two);
 }
-method infix:«⊋» (Set $one, Set $two) returns Set {
+multi sub infix:«⊋» (Set $one, Set $two) returns Set {
     $one.proper_superset($two);
 }
 
 # several unicode operators for includes!
-method infix:<∋> (Set $one, $member) returns Bool {
+multi sub infix:<∋> (Set $one, $member) returns Bool is export {
     $one.includes($member);
 }
-method infix:<∈> ($member, Set $set) returns Bool {
+multi sub infix:<∈> ($member, Set $set) returns Bool is export {
     $set.includes($member);
 }
-method infix:<∍> (Set $one, $member) returns Bool {
+multi sub infix:<∍> (Set $one, $member) returns Bool is export {
     $one.includes($member);
 }
-method infix:<∊> ($member, Set $set) returns Bool {
+multi sub infix:<∊> ($member, Set $set) returns Bool is export {
     $set.includes($member);
 }
-method infix:<∌> (Set $one, $member) returns Bool {
+multi sub infix:<∌> (Set $one, $member) returns Bool is export {
     !$one.includes($member);
 }
-method infix:<∉> ($member, Set $set) returns Bool {
+multi sub infix:<∉> ($member, Set $set) returns Bool is export {
     !$set.includes($member);
 }
 
 # these methods are for overloaded operations with non-sets
-method infix:<+> (Set $one, *@args) returns Set {
+multi sub infix:<+> (Set $one, *@args) returns Set is export {
     $one.union(set(@args));
 }
 #method infix:<-> (Set $one, *@args) returns Set {
     #$one.difference(set(@args));
 #}
-method infix:<*> (Set $one, *@args) returns Set {
+multi sub infix:<*> (Set $one, *@args) returns Set is export {
     $one.intersection(set(@args));
 }
-method infix:<%> (Set $one, *@args) returns Set {
+multi sub infix:<%> (Set $one, *@args) returns Set is export {
     $one.symmetric_difference(set(@args));
 }
-method infix:<~~> (Set $one, $member) returns Bool {
+multi sub infix:<~~> (Set $one, $member) returns Bool is export {
     $one.includes($member);
 }
 # XXX -- IIRC, there's a "is commutative" or such, so duplicating shouldn't be
 # necessary.
-method infix:<~~> ($member, Set $one) returns Bool {
+multi sub infix:<~~> ($member, Set $one) returns Bool is export {
     $one.includes($member);
 }
 
