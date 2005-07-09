@@ -81,6 +81,11 @@ op2Match x (VRef y) = do
     y' <- readRef y
     op2Match x y'
 
+op2Match x@(VObject MkObject{ objType = MkType "Class" } ) y = do
+    fetch   <- doHash x hash_fetchVal
+    name    <- fromVal =<< fetch "name"
+    op2Match (VType (MkType name)) y
+
 op2Match x y@(VObject MkObject{ objType = MkType "Class" } ) = do
     fetch   <- doHash y hash_fetchVal
     name    <- fromVal =<< fetch "name"
@@ -156,7 +161,11 @@ op2Match (VType typ) (VType t) = do
 
 op2Match x y@(VType _) = do
     typ <- fromVal x
-    op2Match (VType typ) y
+    case x of
+        VRef x | typ == MkType "Class" -> do
+            x' <- readRef x
+            op2Match x' y
+        _ -> op2Match (VType typ) y
 
 op2Match (VRef x) y = do
     x' <- readRef x
