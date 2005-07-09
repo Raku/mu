@@ -1625,7 +1625,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      pre     Pugs::Internals::hSetBinaryMode         unsafe (IO, Str)\
 \\n   Void      pre     Pugs::Internals::hSeek                  unsafe (IO, Int, Int)\
 \\n   Int       pre     IO::tell                                unsafe (IO)\
-\\n   Int       pre     Pugs::Internals::hIsOpen                unsafe (IO)\
+\\n   Bool      pre     Pugs::Internals::hIsOpen                unsafe (IO)\
 \\n   Bool      pre     Pugs::Internals::hIsClosed              unsafe (IO)\
 \\n   Bool      pre     Pugs::Internals::hIsReadable            unsafe (IO)\
 \\n   Bool      pre     Pugs::Internals::hIsWritable            unsafe (IO)\
