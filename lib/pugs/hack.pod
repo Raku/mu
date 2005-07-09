@@ -92,19 +92,23 @@ Expanding this one level deeper:
     |   |-- Config-Tiny        Pre-Pugs-OO .ini file reader
     |   |-- Date               Date and time modules
     |   |-- DateTime           Port of Perl 5 DateTime, with API changes
+    |   |-- DateTime-Set       Port of Perl 5 DateTime::Set/Span/SpanSet
     |   |-- File-Find          Traverse a directory tree
     |   |-- File-Spec          Portable File handling
-    |   |-- HTTP-Server-Simple Base class for simple CGI-capable HTTP servers
+    |   |-- FindBin            Find directory of Perl script
     |   |-- HTML-Entities      Encode/decode HTML entities
+    |   |-- HTTP-Server-Simple Base class for simple CGI-capable HTTP servers
     |   |-- Kwid-Event-Parser  Event-based API (like XML SAX) for Kwid
     |   |-- Locale-KeyedText   Refer to UI strings by key
     |   |-- Module-Pluggable-Fast  Find and load plugin modules
     |   |-- Net-IRC            IRC protocol implementation
     |   |-- POE                Experimental port of Perl 5 POE
+    |   |-- Perl-Compiler      A Perl 6 port of Pugs
     |   |-- Perl-MetaModel     Sketch of Perl 6 Object Meta Model
     |   |-- Perldoc            Event-based API for Perldoc DOM
     |   |-- Pod-Event-Parser   Event-based API (like XML SAX) for POD
     |   |-- Set                Set calculus operators
+    |   |-- Set-Infinite       Infinite sets, recurrences, and spans
     |   |-- Test               Testing support library
     |   |-- Test-Builder       Backend for building test libraries
     |   |-- Text-Glob          Translate glob to regex
@@ -137,6 +141,7 @@ Expanding this one level deeper:
     |
     |-- src                Haskell source for pugs itself
     |   |-- Data               Syck-based YAML parser
+    |   |-- Emit               Parrot PIR backend
     |   |-- IMC                Parrot IMC backend
     |   |-- Pugs               Core Pugs engine
     |   |-- RRegex             PCRE-based regular expressions support
@@ -156,8 +161,8 @@ Expanding this one level deeper:
     |   |-- macros             Macro tests
     |   |-- magicals           Magical variable tests
     |   |-- oo                 Object Oriented programming tests
-    |   |-- packages           Tests for packages
     |   |-- operators          Operator tests
+    |   |-- packages           Tests for packages
     |   |-- pugsbugs           Uncategorized tests for known broken behavior
     |   |-- pugsrun            Tests for pugs (as opposed to Perl 6)
     |   |-- rules              Perl 6 rule and Perl 5 regex tests
