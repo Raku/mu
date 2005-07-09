@@ -987,24 +987,30 @@ litOperators = do
 -- read just the current state (ie, not a parser)
 currentFunctions :: RuleParser [(Var, VStr, Params)]
 currentFunctions = do
-    env     <- getRuleEnv -- should use get from MonadState
+    env     <- getRuleEnv
     return . concat . unsafePerformSTM $ do
         glob <- readTVar $ envGlobal env
         let funs  = padToList glob ++ padToList (envLexical env)
+            pkg   = envPackage env
         forM [ fun | fun@(('&':_), _) <- funs ] $ \(name, tvars) -> do
-            let name' = dropWhile (not . isAlphaNum) $ name
-            fmap catMaybes $ forM tvars $ \(_, tvar) -> do
-                ref <- readTVar tvar
-                -- read from ref
-                return $ case ref of
-                    MkRef (ICode cv)
-                        | code_assoc cv == "pre" || code_type cv /= SubPrim
-                        -> Just (name', code_assoc cv, code_params cv)
-                    MkRef (IScalar sv)
-                        | Just (VCode cv) <- scalar_const sv
-                        , code_assoc cv == "pre" || code_type cv /= SubPrim
-                        -> Just (name', code_assoc cv, code_params cv)
-                    _ -> Nothing
+            case inScope pkg (dropWhile (not . isAlphaNum) $ name) of
+                Nothing     -> return []
+                Just name'  -> fmap catMaybes $ forM tvars $ \(_, tvar) -> do
+                    ref <- readTVar tvar
+                    -- read from ref
+                    return $ case ref of
+                        MkRef (ICode cv)
+                            | code_assoc cv == "pre" || code_type cv /= SubPrim
+                            -> Just (name', code_assoc cv, code_params cv)
+                        MkRef (IScalar sv)
+                            | Just (VCode cv) <- scalar_const sv
+                            , code_assoc cv == "pre" || code_type cv /= SubPrim
+                            -> Just (name', code_assoc cv, code_params cv)
+                        _ -> Nothing
+    where
+    inScope pkg name | Just (post, pre) <- breakOnGlue "::" (reverse name) =
+        if pkg == reverse pre then Just (reverse post) else Nothing
+    inScope _ name = Just name
 
 -- read just the current state
 currentTightFunctions :: RuleParser [String]
