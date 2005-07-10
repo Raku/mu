@@ -5,7 +5,7 @@
 
 use Test;
 
-plan 18;
+plan 25;
 
 class LValueMutator {
     has Int $.foo;
