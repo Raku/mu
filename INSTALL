@@ -1,0 +1,140 @@
+BUILDING PUGS
+-------------
+
+Pugs needs the Glasgow Haskell Compiler (GHC) 6.4 or above.  To install GHC,
+download a binary build from http://haskell.org/ghc/.  Although source code
+for GHC is available, it will take a very long time to build by yourself. 
+
+Pugs needs Parrot 0.2.2 or above to support Perl 6 Rules and PIR evaluation.
+To install Parrot, follow the instructions at http://www.parrotcode.org/.
+
+http://www.jwcs.net/~jonathan/perl6/ has binary builds for Win32.  If you'd
+like to build by hand, http://wiki.kn.vutbr.cz/mj/?Perl%206%20and%20Parrot has
+instructions (and binaries, too).
+
+For dynamic loading/inlining of Haskell modules, you should install the
+hs-plugin library, available here:
+
+    http://www.cse.unsw.edu.au/~dons/code/hs-plugins
+
+To install Pugs on your system, simply type this in the command line:
+
+    cpansign -v         # optional; see SIGNATURE for details
+    perl Makefile.PL
+    make                # or 'nmake' on Win32
+    make test
+    make install
+
+ENVIRONMENT VARIABLES
+---------------------
+
+There are several environment variables that control pugs's build process.
+
+You may use the GHC environment variable to set the ghc executable before 
+you run "perl Makefile.PL", for example:
+
+    export GHC=${HOME}/bin/ghc (bash)
+    setenv GHC ${HOME}/bin/ghc (csh)
+    
+To control which optional subsystems are embedded in Pugs, set the 
+PUGS_EMBED variable. For example: 
+ 
+    export PUGS_EMBED="perl5 parrot"
+    setenv PUGS_EMBED "perl5 parrot"
+
+To build with an embedded parrot interpreter, make sure the PUGS_EMBED 
+variable contains "parrot", and set the PARROT_PATH variable to point to 
+the directory in which you checked out the parrot source tree. For example:
+ 
+    export PARROT_PATH=${HOME}/src/parrot (bash)
+    setenv PARROT_PATH ${HOME}/src/parrot (csh)
+
+MAKE TARGETS
+------------
+
+To run the test suite:
+
+    make test
+
+To make a pretty HTML matrix showing test results:
+
+    make smoke
+    
+To run the test suite using the PIR backend:
+    
+    make pirtest
+    
+To make a pretty HTML matrix showing test results using the PIR backend:
+
+    make pirsmoke
+    
+CAVEATS FOR GCC 4.0 USERS
+-------------------------
+
+Mac OS X 10.4 "Tiger" users may see this error message when compiling Pugs:
+
+    ___DISCARD__
+    collect2: ld returned 1 exit status
+
+Until GHC 6.4.1 is released, you need to need to issue this command first:
+
+    sudo gcc_select 3.3
+
+Then recompiling Pugs using a clean tree.  Other users of GCC 4.0 systems
+may also need to switch to use GCC 3.3 to compile Pugs at this moment.
+
+CAVEATS FOR x86_64 MACHINES
+---------------------------
+
+Until GHC 6.4.1 is released, users with x86_64 (64 bit Athlon) CPU's should
+consider using a development snapshot of GHC.  GHC 6.4 had bugs on x86_64
+which break garbage collection and rules (regexps).  These bugs were fixed
+in GHC CVS by around 11-May.  There are hints on using snapshots at the end
+of this section.
+
+Here are the known problems:
+
+(1) GHC 6.4 has a garbage collector bug on x86_64 (64 bit Athlon) machines;
+users may see crashes complaining about "strange objects".
+
+Until GHC 6.4.1 is released, a partial workaround is to avoid GC by
+requesting a large heap, using either command line arguments:
+
+    ./pugs +RTS -A200M -RTS
+
+or an environment variable:
+
+    GHCRTS='-A200M'
+
+These request a 200 MB heap, which is sufficient to run most programs.
+
+Running all tests unfortunately requires a lot more memory (perhaps 1000M).
+A possible alternative, which someone could explore and report on, would be
+to try using a 32-bit GHC instead.
+
+(2) Rules (regexps) may not work with GHC 6.4 on x86_64.  Users may see
+"internal error: adjustor creation not supported on this platform".
+There is no known workaround.  This bug has been fixed in current
+development snapshots.
+
+Hints on using a development snapshot of GHC:
+
+Note that this will take a long time, and it may not work.
+
+First, check if a sufficiently recent "Stable" source snapshot is available
+(as of 15-May, there isn't one yet).  If not, you might try a "HEAD" snapshot
+(it is not clear anyone has actually tried this).  Otherwise, use might use
+cvs to grab your own snapshot:
+
+    CVSROOT=:pserver:anoncvs@glass.cse.ogi.edu:/cvs; export CVSROOT
+    cvs login     # passord cvs
+    cvs checkout fpconfig
+    cd fptools
+    cvs checkout ghc hslibs libraries happy alex
+
+    autoreconf
+    ./configure
+    make
+    make install
+
+There are no guarantees with a CVS snapshot.  It may not even compile.
