@@ -111,7 +111,7 @@ foreign import ccall "perl5.h perl5_apply"
     perl5_apply :: PerlSV -> PerlSV -> Ptr PerlSV -> PugsVal -> CInt -> IO (Ptr PerlSV)
 foreign import ccall "perl5.h perl5_can"
     perl5_can :: PerlSV -> CString -> IO Bool
-foreign import ccall "perl.h perl5_eval"
+foreign import ccall "perl5.h perl5_eval"
     perl5_eval :: CString -> PugsVal -> CInt -> IO PerlSV
 foreign import ccall "perl5.h perl5_init"
     perl5_init :: CInt -> Ptr CString -> IO PerlInterpreter
