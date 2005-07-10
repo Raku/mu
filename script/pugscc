@@ -85,8 +85,8 @@ if ($backend eq 'PIR') {
 else {
     writeFile("$base/MainCC.hs", $program);
 
-    my $archlib = `pugs -V:archlib`;
-    $archlib =~ /archlib:\s*(.+)/ or die "Cannot find archlib";
+    my $archlib = `pugs -V:installsitearch`;
+    $archlib =~ /installsitearch:\s*(.+)/ or die "Cannot find sitearch";
     my $core = "$1/CORE/pugs";
 
     # XXX - Maybe enable -threaded based on config?
