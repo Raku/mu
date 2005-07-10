@@ -2,6 +2,7 @@
 
 use strict;
 use Getopt::Long;
+use Config ();
 
 # helper code to inline the Standard Prelude in pugs.
 
@@ -23,7 +24,9 @@ sub touch {
     #      The alternative seems to be to delete them *and* the pugs
     #      executable.
     print STDERR "Triggerring rebuild... " if $Config{verbose};
-    utime 0, 0, $_ for qw<src/Pugs/Run.hi src/Pugs/Run.o>;
+    unlink "src/Pugs/Run.hi";
+    unlink "src/Pugs/Run.o";
+    unlink "pugs$Config::Config{_exe}";
     print STDERR "done.\n" if $Config{verbose};
 }
 
