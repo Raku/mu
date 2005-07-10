@@ -91,7 +91,7 @@ compileShow2 con anno exp = do
     expC <- compile exp
     return $ prettyDo
         [ prettyBind "exp" expC
-        , text ("return (" ++ con ++ " " ++ show anno ++ " exp)")
+        , text ("return (" ++ con ++ " (" ++ show anno ++ ") exp)")
         ]
 
 instance Compile Pad where
@@ -171,7 +171,7 @@ instance Compile Val where
 
 -- Haddock can't cope with Template Haskell
 instance Compile VCode where
-    compile code | subType code == SubPrim = return $ text "return mkPrim"
+    compile MkCode{ subBody = Prim _ } = return $ text "return mkPrim"
     compile code = do 
         bodyC <- compile $ subBody code
         let comp :: Show a => (VCode -> a) -> Doc
