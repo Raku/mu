@@ -12,13 +12,8 @@
 * new trait for Prelude.pm: `is builtin` (installs symbol into the global
 namespace)
 * `Prelude.pm` is now pre-compiled!
-* many builtins are now implemented in `Prelude.pm`
-** `eval`, `eval("...", :lang<...>)`
-** `eval` now pushes one caller frame, just as Perl5's eval does.
-** `localtime`
-** `File::open`, `File::seek`
-** `Pipe::open`, `Pipe::open2`, `Pipe::open3`
-** `Carp::longmess`
+* new builtins in `Prelude.pm`: `localtime`, `File::seek`
+* other builins: `IO::tell` and five internal boolean test functions on filehandles
 * Initial support for `%*INC`
 * Pairs in variables now bind to named parameters just like pair literals
 * Support for `does RoleName` and `is ClassName` within class declarations
@@ -89,6 +84,7 @@ supported.
 * fixed `.isa` to use `.ref`
 * `$hashref.does(Hash)` now returns true
 * `[1] <=> [2]` was misparsed as `[1]{'='}[2]`.  Fixed.
+* `eval` now pushes one caller frame, just as Perl5's eval does.
 
 == Changes for 6.2.7 (r4612) - June 13, 2005
 
