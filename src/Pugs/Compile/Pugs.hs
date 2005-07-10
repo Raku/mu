@@ -160,7 +160,7 @@ instance Compile VCode where
         tshow = text . show
 #else 
     compile code | subType code == SubPrim = return $ text "mkPrim"
-    compile code = return $ text $ show code{ subType = Nothing }
+    compile code = return $ text $ show code{ subEnv = Nothing }
 #endif 
 
 genPugs :: Eval Val
