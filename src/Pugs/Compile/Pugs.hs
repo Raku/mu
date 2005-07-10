@@ -63,7 +63,17 @@ instance Compile Exp where
                 , prettyBind "exp" expC
                 , text ("return (Pad " ++ show scope ++ " pad exp)")
                 ]
+    compile (Pos pos exp) = compileShow2 "Pos" pos exp
+    compile (Cxt cxt exp) = compileShow2 "Cxt" cxt exp
     compile exp = return $ text "return" $+$ parens (text $ show exp)
+
+compileShow2 :: Show a => String -> a -> Exp -> Eval Doc
+compileShow2 con anno exp = do
+    expC <- compile exp
+    return $ prettyDo
+        [ prettyBind "exp" expC
+        , text ("return (" ++ con ++ " " ++ show anno ++ " exp)")
+        ]
 
 instance Compile Pad where
     compile pad = do
@@ -139,7 +149,7 @@ instance Compile VCode where
         return $ prettyRecord "MkCode" $
             $(liftM TH.ListE $ 
               mapM (\name -> [|(name, tshow $
-                                $(TH.varE $ TH.mkName name) code)|]) $
+                                $(TH.varE $ TH.mkName name) code{ subEnv = Nothing })|]) $
               ["isMulti", "subName", "subType", "subEnv", "subAssoc",
               "subParams", "subBindings", "subSlurpLimit",
               "subReturns", "subLValue", "subCont"])
@@ -150,7 +160,7 @@ instance Compile VCode where
         tshow = text . show
 #else 
     compile code | subType code == SubPrim = return $ text "mkPrim"
-    compile code = return $ text $ show code
+    compile code = return $ text $ show code{ subType = Nothing }
 #endif 
 
 genPugs :: Eval Val

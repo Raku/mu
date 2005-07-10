@@ -55,7 +55,7 @@ module Pugs.AST.Internals (
     proxyScalar, constScalar, lazyScalar, lazyUndef, constArray,
     retError, retControl, retEmpty, retIVar, readIVar, writeIVar,
     fromVals, refType,
-    lookupPad, padToList,
+    lookupPad, padToList, listToPad,
     mkPrim, mkSub, showRat,
     cxtOfSigil, typeOfSigil,
     buildParam, defaultArrayParam, defaultHashParam, defaultScalarParam,
@@ -1077,7 +1077,10 @@ is stored in the @Reader@-monad component of the current 'Eval' monad.
 >[11:58] <autrijus> yeah. but it's not critical, so is low priority
 -}
 data Pad = MkPad !(Map Var ([(TVar Bool, TVar VRef)]))
-    deriving (Show, Eq, Ord, Typeable)
+    deriving (Eq, Ord, Typeable)
+
+instance Show Pad where
+    show pad = "MkPad (padToList " ++ show (padToList pad) ++ ")"
 
 -- | Look up a symbol in a 'Pad', returning the ref it is bound to.
 lookupPad :: Var -- ^ Symbol to look for
@@ -1102,6 +1105,9 @@ Note that @Data.Map.assocs@ returns a list of mappings in ascending key order.
 -}
 padToList :: Pad -> [(Var, [(TVar Bool, TVar VRef)])]
 padToList (MkPad map) = Map.assocs map
+
+listToPad :: [(Var, [(TVar Bool, TVar VRef)])] -> Pad
+listToPad = MkPad . Map.fromList
 
 {- Eval Monad -}
 type Eval x = EvalT (ContT Val (ReaderT Env SIO)) x
