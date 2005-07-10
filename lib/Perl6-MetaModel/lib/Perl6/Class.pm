@@ -32,13 +32,22 @@ sub name { (shift)->{name} }
 
 sub apply {
     my ($self) = @_;
-    my $name = $self->name;
+    my ($name, $version, $authority) = $self->_get_class_meta_information();
     my $code = qq|
         package $name;
         \@$name\:\:ISA = 'Perl6::Object';
     |;
     eval $code || croak "Could not initialize class '$name'";    
-    $self->_build_class();    
+    eval {
+        no strict 'refs';
+        ${$name .'::META'} = Perl6::MetaClass->new(
+            name => $name,
+            (defined $version   ? (version   => $version)   : ()),
+            (defined $authority ? (authority => $authority) : ())                              
+        );
+    };
+    croak "Could not initialize the metaclass for $name : $@" if $@;
+    $self->_build_class($name);    
 }
 
 ## Private methods
@@ -63,10 +72,18 @@ sub _validate_params {
     $self->{params} = $params;
 }
 
-sub _build_class {
+sub _get_class_meta_information {
     my ($self) = @_;
+    my $identifier = $self->name;
+    # shortcut for classes with no extra meta-info
+    return ($identifier, undef, undef) if $identifier !~ /\-/;
+    # XXX - this will actually need work, 
+    # but it is sufficient for now.
+    return split '-' => $identifier;
+}
 
-    my $name = $self->name;
+sub _build_class {
+    my ($self, $name) = @_;
 
     my $superclasses = $self->{params}->{is} || [ 'Perl6::Object' ];
     ($name)->meta->superclasses([ map { $_->meta } @{$superclasses} ]);        

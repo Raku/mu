@@ -3,12 +3,12 @@
 use strict;
 use warnings;
 
-use Test::More tests => 31;
+use Test::More tests => 39;
 use Data::Dumper;
 
 use Perl6::MetaModel;
 
-class Person => {
+class 'Person-0.0.1-cpan:STEVAN' => {
     class => {
         attrs => [ '$:population' ],
         methods => {
@@ -39,6 +39,12 @@ class Person => {
     }
 };
 
+is(Person->meta->name, 'Person', '... got the right name for Person');
+is(Person->meta->version, '0.0.1', '... got the right version for Person');
+is(Person->meta->authority, 'cpan:STEVAN', '... got the right authority for Person');
+
+is(Person->meta->identifier, 'Person-0.0.1-cpan:STEVAN', '... got the right identifier for Person');
+
 can_ok('Person', 'population');
 
 is(Person->population(), 0, '... Person population is 0');
@@ -65,12 +71,18 @@ is(Person->population(), 0, '... Person population is back to 0 again');
 
 # subclassing too...
 
-class Employee => {
+class 'Employee-0.0.1' => {
     is => [ 'Person' ],
     instance => {
         attrs => [ '$.job' ]
     }
 };
+
+is(Employee->meta->name, 'Employee', '... got the right name for Employee');
+is(Employee->meta->version, '0.0.1', '... got the right version for Employee');
+ok(!defined(Employee->meta->authority), '... got the right authority for Employee (none)');
+
+is(Employee->meta->identifier, 'Employee-0.0.1', '... got the right identifier for Employee');
 
 is(Employee->population(), 0, '... Employee population is 0');
 is(Person->population(), 0, '... Person population is 0');

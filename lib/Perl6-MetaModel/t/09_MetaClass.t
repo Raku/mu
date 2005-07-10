@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 135;
+use Test::More tests => 145;
 use Test::Exception;
 
 use Perl6::MetaClass;
@@ -18,6 +18,11 @@ my $mc= Perl6::MetaClass->new(name => 'Base');
 isa_ok($mc, 'Perl6::MetaClass');
 
 can_ok($mc, 'name');
+can_ok($mc, 'version');
+can_ok($mc, 'authority');
+can_ok($mc, 'identifier');
+
+can_ok($mc, 'is_a');
 
 # get direct superclasses
 can_ok($mc, 'superclasses');
@@ -55,6 +60,10 @@ can_ok($mc, 'find_attribute_spec');
 # now some real tests
 
 is($mc->name, 'Base', '... got the right name for Base');
+is($mc->version, '0.0.0', '... got the right version for Base');
+ok(!defined($mc->authority), '... no authority for Base');
+
+is($mc->identifier, 'Base-0.0.0', '... got the right identifier for Base');
 
 ok($mc->is_a('Base'), '... the metaclass is-a Base');
 
@@ -148,11 +157,17 @@ isa_ok($mc->find_attribute_spec('@.foo'), 'Perl6::Attribute');
 
 my $mc2 = Perl6::MetaClass->new(
                 name         => 'Foo',
+                version      => '0.0.1',
+                authority    => 'http://www.foobar.com/~baz',
                 superclasses => [ $mc ]
             );
 isa_ok($mc2, 'Perl6::MetaClass');
 
 is($mc2->name, 'Foo', '... got the right name for Foo');
+is($mc2->version, '0.0.1', '... got the right version for Foo');
+is($mc2->authority, 'http://www.foobar.com/~baz', '... the correct authority for Foo');
+
+is($mc2->identifier, 'Foo-0.0.1-http://www.foobar.com/~baz', '... got the right identifier for Foo');
 
 ok($mc2->is_a('Base'), '... the metaclass is-a Base');
 ok($mc2->is_a('Foo'), '... the metaclass is-a Foo');

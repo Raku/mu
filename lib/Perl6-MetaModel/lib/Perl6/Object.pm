@@ -213,12 +213,15 @@ sub set_value {
     $self->{instance_data}->{$label} = $value;
 }
 
-my $META;
+# Initialize the Perl6::Object's metaclass here ...
+our $META = Perl6::MetaClass->new(name => 'Perl6::Object');
+
+# metaclass access for all our objects ...
 sub meta {
     my ($class) = @_;
     $class = blessed($class) if blessed($class);       
     no strict 'refs';
-    ${$class .'::META'} ||= Perl6::MetaClass->new(name => $class);
+    return ${$class .'::META'};
 }
 
 1;

@@ -13,7 +13,11 @@ use constant CLASS_TABLE     => 'class_data';
 sub new {
     my ($class, %params) = @_;
     my $meta = bless {
+        # meta-information
         name         => undef,
+        version      => '0.0.0',
+        authority    => undef,
+        # the guts of the metaclass
         superclasses => [],
         class_definition => {
             methods      => {},
@@ -24,16 +28,43 @@ sub new {
             attributes   => {},
         },        
     }, $class;
-    $meta->name($params{name}) if exists $params{name};
+    $meta->name($params{name})                 if exists $params{name};
+    $meta->version($params{version})           if exists $params{version};
+    $meta->authority($params{authority})       if exists $params{authority};    
     $meta->superclasses($params{superclasses}) if exists $params{superclasses};    
     return $meta;
 }
+
+# meta-information methods
 
 sub name {
     my ($self, $name) = @_;
     $self->{name} = $name if defined $name;
     $self->{name};
 }
+
+sub version {
+    my ($self, $version) = @_;
+    if (defined $version) {
+        ($version =~ /^\d+\.\d+\.\d+$/)
+            || croak "The version ($version) is not in the correct format '0.0.0'";
+        $self->{version} = $version;
+    }
+    $self->{version};    
+}
+
+sub authority {
+    my ($self, $authority) = @_;
+    $self->{authority} = $authority if defined $authority;
+    $self->{authority};
+}
+
+sub identifier {
+    my ($self) = @_;
+    return join '-' => ($self->{name}, $self->{version}, ($self->{authority} || ()));
+}
+
+# .... 
 
 sub is_a {
     my ($self, $class) = @_;
