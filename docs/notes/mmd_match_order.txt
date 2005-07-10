@@ -8,34 +8,9 @@ definition, thus making the handling of a special case simpler.
 So much for post-modern programming.
 
 
+MMD order of particularity:
 
-
-Order of definition tie breaking:
-
-	Two signatures defined in the same file:
-
-		the one EARLIER in the file wins
-
-	Two signatures defined in a different file:
-
-		the one defined in the LATER file wins
-
-This could apply to compilation as a bigger unit, compilation is recursive,
-branches in compilation come after their callers, after other branches in the
-same context, but all the MMD in one 'level' of compilation is in order of
-definition. Is there any difference?
-
-
-To specificate some MMD short name:
-
-	1. load module
-	2. define your own
-
-
-MMD sequence:
-
-	1. equality of single values (overloaded objects are really where clauses?)
-	2. value junctions (4|5 will match 4)
+	1. values and value junctions (4|5 will match 4)
 		- specifity is judged by comparing trees
 			- each OR is a branch to the side
 			- each AND is another level of depth
@@ -44,14 +19,16 @@ MMD sequence:
 			  the tree is the score of the junction
 			- ratios which are too close to each other in a single definition
 			  are a compile time error
-	3. value ranges (1 .. 10 will match 5)
-	4. type matching:
-		4.1 Exact class of value
-		4.2 Superclasses sorted on single vector
+		- simple values are the median case (between ANDIshness and ORishness)
+		- overloaded equality operations are really more like where clauses
+	2. value ranges (1 .. 10 will match 5) (possibly junctive, see 1.)
+	3. type matching (possibly junctive, see 1.):
+		3.1 Exact class of value
+		3.2 Superclasses sorted on single vector
 			- Any multiple inheritance with more than 1 match is a dispatch
 			  error (try compile time error at def time, if there is a known
 			  class for the possible instance?)
-		4.3 Specific role composite
+		3.3 Specific role composite
 			- specifity: role x does role y. class c does role x, so it also
 			  does role y. In this case role 'x' will win role 'y' in a
 			  signature
@@ -60,10 +37,7 @@ MMD sequence:
 			  theory have a "better" match, IMHO it should be avoided.)
 			- paramaterized roles are equal to an anonymous role, consuming
 			  it's generic for the purpose of dispatching
-	5 type junctions
-		- Same logic as junctions is applied, except the values are type
-		  matched
-	6. the any type
+	4. the any type
 
 
 Merging the Junction/Value step:
@@ -96,10 +70,10 @@ If no sub matches, all MMD candidates are retried, with the following algorithm:
 
 	skip unless parameter list matches (without any type/value constraints)
 
-	MMD match every parameter such that
+	do an MMD lookup for the short name 'coerce' with every parameter such that
 
 		sub coerce($concrete_value_we_are_trying_to_bind)
-			returns $parameter_we_are_trying_to_bind;
+			returns $parameter_we_are_trying_to_bind_value_into;
 
 	(this is MMD on the return type of the function)
 
@@ -109,25 +83,7 @@ If no sub matches, all MMD candidates are retried, with the following algorithm:
 	When all coerce routines are known to be working, apply them one by one.
 	Any fails or errors mean the next MMD candidate will be tried instead.
 
-Coercion of an 'is rw' param will try to match an LVALUE return value from
-coerce... Coerce with an lvalue implies that the returned object is really a
-thin wrapper around the coerced type. Any destructive methods are translated
-into calls on the original object, and any assignments to the value require
-coercion back to the original type when done.
-
-This assures that any value relying on the 'is rw' going to places other than
-than back up the callstack (into a continuation, a structure, a deeper call)
-would have consistent effects on the original value passed.
-
-In general coercion with 'is rw' should be avoided, except when it is
-explicitly mentioned or discussed in the caller of the MMD that requires
-coercion.
-
-Instead the caller should arrange for coercion and merge the two versions of
-the object on it's own, perhaps with a wrapper version of the original method,
-expressly for this purpose.
-
-In fact, the wrapper could be placed along side the original as another mmd
-candidate, without ruining the interface -  it will simply be a better match,
-and the coercion step can be skipped altogether.
+Coercion of an 'is rw' field must be done manually outside MMD. Good style is
+creating a &original.wrap with an MMD signature of the type we're coercing from
+that takes care of the bidirectional conversion.
 
