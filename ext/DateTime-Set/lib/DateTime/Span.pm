@@ -2,7 +2,10 @@ use v6;
 
 class DateTime::Span-0.01;
 
-has Set::Span $.span;
+use Span;
+
+# XXX - this module could actually *inherit* from Span.pm
+has Span $.span;
 
 =for TODO
 
@@ -21,8 +24,8 @@ has Set::Span $.span;
 
 =cut
 
-multi submethod BUILD (: $XXX) returns DateTime::Span {
-    # XXX
+submethod BUILD (: $XXX) returns DateTime::Span {
+    ...
 }
 
 method start () returns Object {

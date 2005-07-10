@@ -21,8 +21,8 @@ has Set::Recurrence $.set;
 
 =cut
 
-multi submethod BUILD (: $XXX) returns DateTime::Set {
-    # XXX
+submethod BUILD (: $XXX) returns DateTime::Set {
+    ...
 }
 
 method start () returns Object {
