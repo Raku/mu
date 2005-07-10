@@ -1,4 +1,4 @@
-== Changes for 6.2.8 (r) - June 19, 2005
+== Changes for 6.2.8 (up to r5363) - June 19, 2005
 
 === Pugs Internals
 
@@ -6,14 +6,42 @@
 ** Pugs can now generate PIL (Pugs Intermediate Language)
 ** ...and emit PIR (Parrot Intermediate Representation) from PIL
 ** New `make pirsmoke` target runs test suite using PIR backend
-* `eval` and related builtins are now implemented in `Prelude.pm`
+** `Test.pm` can be compiled to PIR 
+** `Prelude/PIR.pm` added with Perl 6 versions of some builtins
+** `pugs -CPIL -e 'say 123'` for dumping PIL from code
+* new trait, `is builtin`, for Prelude.pm which installs the symbol
+  into the global namespace.
+* `Prelude.pm` is now pre-compiled!
+* many builtins are now implemented in `Prelude.pm`
+** `eval` and even support for `eval("...", :lang<...>)`
+** `eval` now pushes one caller frame, just as Perl5's eval does.
+** `localtime`
+** `File::open`, `File::seek`
+** `Pipe::open`, `Pipe::open2`, `Pipe::open3`
+** `Carp::longmess`
 * Initial support for `%*INC`
-* `Bare` and `Parametric` types are no more; both merged with `Block`
 * Pairs in variables now bind to named parameters just like pair literals
 * Support for `does RoleName` and `is ClassName` within class declarations
 * Parse `trusts ClassName` and `my $foo is trait_name` as no-ops
 * New builtin class: `Proxy`
-* Support for `eval("...", :lang<...>)`
+* named binding semantics is now implemented as an inferencing phase before binding
+* much work on blocks and subs
+** `Bare` and `Parametric` types are no more; both merged with `Block`
+** loop and bare blocks at value position now work (for real)
+** closures now work: `my $x = { say 5 }; $x() ; $x()`
+** blocks can now return values: `my &x = { 3 }; say x()`
+** inline subroutine: `my &x = sub { return 3 }; say x()`
+** parametric blocks now works as specced!
+* new builtins `leave`
+* `use perl5:DBI` form now works -- the old `use DBI--perl5` form
+  is no longer supported.
+* `&foo` in module `Foo` now looks up `&Foo::foo` as well.
+* parse for fractional number literals starting with a leading dot: `.1` `-.1`
+* qualified names now dealt with consistently;
+* `our` variables in packages now generate qualified symbols.
+* `caller` now counts the topmost "main" as one frame,
+  just as Perl5's does.
+* @?INIT and @?CHECK are now renamed back to @* space.
 
 === Bundled Modules
 
@@ -21,14 +49,23 @@
 ** `Module::Pluggable::Fast`
 ** `HTTP::Server::Simple`
 ** `Perldoc` (partial port)
+** `DateTime`
+** `DateTime::Set`
+** some new additions to `libwww-perl`
+** `Set::Infinite`
+** `WTemplate` - the first Perl 6 templating engine :)
+* New Pugs specific modules:
+** `Perl-Compiler`, a PIL representation in Perl 6.
+** `lib/Perl-MetaModel`, a Perl 5 prototype of the Perl 6 object model.
 * Complete Locale::KeyedText (this was our first contributed module)
 ** Compiles, executes, and passes whole pristine test suite
 ** Updated version to 1.5.0, corresponding to the Perl 5 version 1.05
 ** Some skips and workarounds remain due to missing Pugs features
+* `Tree::Visitor` and `Tree::Visitor::FindByPath` added.
 
 === Test, Examples and Documentations
 
-* Many new tests and refactoring based on new rulings; we now have 7500+ tests
+* Many new tests and refactoring based on new rulings; we now have 7600+ tests
 * YAPC::NA talk: "Apocalypse Now" (in `docs/talks/Apocalypse_Now.spork`)
 * New directories: `examples/continuation` and `examples/unitfunctions`
 * Examples of methods acting on builtin types in `examples/vmethods/`
@@ -49,6 +86,10 @@
 * Fixed order of method invocation in `BUILDALL` and `DESTROYALL`
 * `try` is now capable of catching all type casting errors
 * Qualified and global variables may now be used without declaration
+* fixed `.isa` to use `.ref`;
+* `$hashref.does(Hash)` now returns true
+* repair `use_ok` to import to `caller().package`.
+* `[1] <=> [2]` was misparsed as `[1]{'='}[2]`.  Fixed.
 
 == Changes for 6.2.7 (r4612) - June 13, 2005
 
