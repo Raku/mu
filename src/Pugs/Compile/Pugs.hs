@@ -7,15 +7,12 @@ import Pugs.AST
 import Pugs.Types
 import Pugs.Internals
 import Text.PrettyPrint
-#if !defined(PUGS_HAVE_PERL5) && !defined(PUGS_HAVE_PARROT) && defined(PUGS_HAVE_TH) && (__GLASGOW_HASKELL__ <= 604)
-import qualified Language.Haskell.TH as TH
-#endif
 
 class (Show x) => Compile x where
     compile :: x -> Eval Doc
     compile x = fail ("Unrecognized construct: " ++ show x)
     compileList :: [x] -> Eval Doc
-    compileList = liftM prettyList . mapM compile
+    compileList = fmap prettyList . mapM compile
 
 instance (Compile x) => Compile [x] where
     compile = compileList
@@ -29,42 +26,64 @@ prettyList = brackets . vcat . punctuate comma
 prettyDo :: [Doc] -> Doc
 prettyDo docs = parens $ sep (text "do":punctuate semi docs)
 
-#if !defined(PUGS_HAVE_PERL5) && !defined(PUGS_HAVE_PARROT) && defined(PUGS_HAVE_TH) && (__GLASGOW_HASKELL__ <= 604)
 prettyRecord :: String -> [(String, Doc)] -> Doc
 prettyRecord con = (text con <+>) . braces . sep . punctuate comma . map assign
     where assign (name, val) = text name <+> char '=' <+> val
-#endif
 
 prettyBind :: String -> Doc -> Doc
 prettyBind var doc = text var `sep1` nest 1 (text "<-" <+> doc)
 
 
+instance Compile (Maybe Exp) where
+    compile Nothing = return $ text "return Nothing"
+    compile (Just exp) = do
+        expC <- compile exp
+        return $ prettyDo 
+            [ prettyBind "exp" expC
+            , text "return (Just exp)"
+            ]
 
 instance Compile Exp where
+    compile (App exp1 exp2 exps) = do
+        exp1C <- compile exp1
+        exp2C <- compile exp2
+        expsC <- compileList exps
+        return $ prettyDo 
+            [ prettyBind "exp1" exp1C
+            , prettyBind "exp2" exp2C
+            , prettyBind "exps" (text "sequence" `sep1` expsC)
+            , text "return (App exp1 exp2 exps)"
+            ]
     compile (Syn syn exps) = do
         expsC <- compileList exps
         return $ prettyDo
-                [ prettyBind "exps" (text "sequence" `sep1` expsC)
-                , text "return" <+> parens (text $ "Syn " ++ show syn ++ " exps")
-                ]
-    compile (Stmts exp1 exp2) = do
-        exp1C <- compile exp1
-        exp2C <- compile exp2
-        return $ prettyDo 
-                [ prettyBind "exp1" exp1C
-                , prettyBind "exp2" exp2C
-                , text "return (Stmts exp1 exp2)"
-                ]
+            [ prettyBind "exps" (text "sequence" `sep1` expsC)
+            , text "return" <+> parens (text $ "Syn " ++ show syn ++ " exps")
+            ]
+    compile (Cxt cxt exp) = compileShow2 "Cxt" cxt exp
+    compile (Pos pos exp) = compileShow2 "Pos" pos exp
     compile (Pad scope pad exp) = do
         padC <- compile pad
         expC <- compile exp
         return $ prettyDo
-                [ prettyBind "pad" padC
-                , prettyBind "exp" expC
-                , text ("return (Pad " ++ show scope ++ " pad exp)")
-                ]
-    compile (Pos pos exp) = compileShow2 "Pos" pos exp
-    compile (Cxt cxt exp) = compileShow2 "Cxt" cxt exp
+            [ prettyBind "pad" padC
+            , prettyBind "exp" expC
+            , text ("return (Pad " ++ show scope ++ " pad exp)")
+            ]
+    compile (Stmts exp1 exp2) = do
+        exp1C <- compile exp1
+        exp2C <- compile exp2
+        return $ prettyDo 
+            [ prettyBind "exp1" exp1C
+            , prettyBind "exp2" exp2C
+            , text "return (Stmts exp1 exp2)"
+            ]
+    compile (Val val) = do
+        valC <- compile val
+        return $ prettyDo 
+            [ prettyBind "val" valC
+            , text "return (Val val)"
+            ]
     compile exp = return $ text "return" $+$ parens (text $ show exp)
 
 compileShow2 :: Show a => String -> a -> Exp -> Eval Doc
@@ -116,52 +135,65 @@ instance Compile (TVar VRef) where
     compile fresh = do
         vref    <- liftSTM $ readTVar fresh
         vrefC   <- compile vref
-        return $ prettyDo            
-                [ prettyBind "vref" vrefC
-                , text "liftSTM (newTVar vref)"
-                ]
+        return $ prettyDo
+            [ prettyBind "vref" vrefC
+            , text "liftSTM (newTVar vref)"
+            ]
 
 instance Compile VRef where
     compile (MkRef (ICode cv)) = do
-        vsub <- code_fetch cv
-        vsubC <- compile vsub
-        return (text "return (MkRef " <> 
-                parens (sep [text "ICode $ ", vsubC]) <> text ")")
-    compile (MkRef (IScalar sv)) | scalar_iType sv == mkType "Scalar::Const"
-                                 = do
-        sv <- scalar_fetch sv
+        vsub    <- code_fetch cv
+        vsubC   <- compile vsub
+        return $ prettyDo
+            [ prettyBind "vsub" vsubC
+            , text "return (MkRef $ ICode vsub)"
+            ]
+    compile (MkRef (IScalar sv)) | scalar_iType sv == mkType "Scalar::Const" = do
+        sv  <- scalar_fetch sv
         svC <- compile sv
-        return (text "return (MkRef " <> 
-                parens (sep [text "IScalar $ ", svC]) <> text ")")
-
+        return $ prettyDo
+            [ prettyBind "sv" svC
+            , text "return (MkRef $ IScalar sv)"
+            ]
     compile ref = do
         return $ text $ "newObject (mkType \"" ++ showType (refType ref) ++ "\")"
 
 instance Compile Val where
-    compile (VCode vc) = liftM ((text "VCode" <+>) . parens) $ compile vc
-    compile x = return $ text $ show x
+    compile (VCode code) = do
+        codeC <- compile code
+        return $ prettyDo
+            [ prettyBind "code" codeC
+            , text "return $ VCode code"
+            ]
+    compile x = return $ text "return" $+$ parens (text $ show x)
+
+-- This wants a total rewrite.  I strongly want Data.Generics at this point now.
 
 -- Haddock can't cope with Template Haskell
 instance Compile VCode where
-#if !defined(HADDOCK) && !defined(PUGS_HAVE_PERL5) && !defined(PUGS_HAVE_PARROT) && defined(PUGS_HAVE_TH) && (__GLASGOW_HASKELL__ <= 604)
-    compile code | subType code == SubPrim = return $ text "mkPrim"
+    compile code | subType code == SubPrim = return $ text "return mkPrim"
     compile code = do 
-        return $ prettyRecord "MkCode" $
-            $(liftM TH.ListE $ 
-              mapM (\name -> [|(name, tshow $
-                                $(TH.varE $ TH.mkName name) code{ subEnv = Nothing })|]) $
-              ["isMulti", "subName", "subType", "subEnv", "subAssoc",
-              "subParams", "subBindings", "subSlurpLimit",
-              "subReturns", "subLValue", "subCont"])
-            ++
-            []
-        where 
-        tshow :: Show a => a -> Doc
-        tshow = text . show
-#else 
-    compile code | subType code == SubPrim = return $ text "mkPrim"
-    compile code = return $ text $ show code{ subEnv = Nothing }
-#endif 
+        bodyC <- compile $ subBody code
+        let comp :: Show a => (VCode -> a) -> Doc
+            comp f = text $ show (f code)
+            vsub = prettyRecord "MkCode" $
+                [ ("isMulti",       comp isMulti)
+                , ("subName",       comp subName)
+                , ("subType",       comp subType)
+                , ("subEnv",        text "Nothing")
+                , ("subAssoc",      comp subAssoc)
+                , ("subParams",     comp subParams)
+                , ("subBindings",   comp subBindings)
+                , ("subSlurpLimit", comp subSlurpLimit)
+                , ("subReturns",    comp subReturns)
+                , ("subLValue",     comp subLValue)
+                , ("subBody",       text "body")
+                , ("subCont",       text "Nothing")
+                ]
+        return $ prettyDo
+            [ prettyBind "body" bodyC
+            , text "return" <+> parens vsub
+            ]
 
 genPugs :: Eval Val
 genPugs = do
