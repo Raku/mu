@@ -137,6 +137,10 @@ op1 "undefine" = \x -> do
     return undef
 op1 "+"    = op1Numeric id
 op1 "abs"  = op1Numeric abs
+-- op1 "floor" = op1Cast $ op1Roundy floor
+-- op1 "truncate" = op1Cast $ op1Roundy truncate
+-- op1 "ceiling" = op1Cast $ op1Roundy ceiling
+-- op1 "round" =  op1Cast $ op1Roundy round
 op1 "cos"  = op1Floating cos
 op1 "sin"  = op1Floating sin
 op1 "tan"  = op1Floating tan
@@ -577,6 +581,15 @@ op1IO :: Value a => (Handle -> IO a) -> Val -> Eval Val
 op1IO = \fun v -> do
     val <- fromVal v
     fmap castV (liftIO $ fun val)
+
+{-
+op1Roundy func x
+    | VInt x' <- x
+    = return x'
+    | VRat x' <- x
+    = return . VInt $ func x'
+    | otherwise = 0
+-}
 
 returnList :: [Val] -> Eval Val
 returnList vals = ifListContext
@@ -1345,6 +1358,10 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      spre    !       safe   (Bool)\
 \\n   Num       spre    +       safe   (Num)\
 \\n   Num       pre     abs     safe   (?Num=$_)\
+\\n   Int       pre     truncate safe   (?Num=$_)\
+\\n   Int       pre     round   safe   (?Num=$_)\
+\\n   Int       pre     floor   safe   (?Num=$_)\
+\\n   Int       pre     ceiling safe   (?Num=$_)\
 \\n   Num       pre     atan    safe   (Num)\
 \\n   Num       pre     atan    safe   (Num, Num)\
 \\n   Num       pre     cos     safe   (?Num=$_)\
