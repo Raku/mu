@@ -26,7 +26,7 @@ sub touch {
     print STDERR "Triggerring rebuild... " if $Config{verbose};
     unlink "src/Pugs/Run.hi";
     unlink "src/Pugs/Run.o";
-    unlink "pugs$Config::Config{_exe}";
+    #unlink "pugs$Config::Config{_exe}";
     print STDERR "done.\n" if $Config{verbose};
 }
 
