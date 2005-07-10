@@ -44,7 +44,7 @@ Perl6::MetaModel - Perl 5 Prototype of the Perl 6 Metaclass model
         }
     };
 
-    class MyClass => {
+    class 'MyClass-0.0.1-cpan:JRANDOM' => {
         is => [ 'MyBaseClass' ],
         does => [ 'MyRole' ],
         class => {
@@ -69,7 +69,9 @@ Perl6::MetaModel - Perl 5 Prototype of the Perl 6 Metaclass model
     };
 
     my $c = MyClass->new();
-
+    # or 
+    my $c = 'MyClass-0.0.1-cpan:JRANDOM'->new();
+    
     $c->foo('Testing 1 2 3');
 
     $c->tester();

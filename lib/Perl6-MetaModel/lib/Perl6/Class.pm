@@ -47,6 +47,11 @@ sub apply {
         );
     };
     croak "Could not initialize the metaclass for $name : $@" if $@;
+    eval {
+        no strict 'refs';            
+        *{$self->name . '::'} = *{$name . '::'};
+    };
+    croak "Could not create full name " . $self->name . " : $@" if $@;    
     $self->_build_class($name);    
 }
 

@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 14;
+use Test::More no_plan => 1;
 
 BEGIN {
 
@@ -33,4 +33,3 @@ BEGIN {
         use_ok('Perl6::Class::Method');
 
 };
-
