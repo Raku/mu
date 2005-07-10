@@ -3,19 +3,23 @@
 use v6;
 use Test;
 
-plan 15;
+plan 14;
 
-use_ok( 'Span::Functional' );
-use Span::Functional;   # XXX should not need this
+use_ok( 'Span::Num' );
+use Span::Num;   # XXX should not need this
 
-my $span = Span::Functional.new( 
+my $span = Span::Num.new( 
     start => 1, end => 3, start_is_open => bool::false, end_is_open => bool::false );
 
-isa_ok( $span, 'Span::Functional', 
-    'created a Span::Functional' );
+isa_ok( $span, 'Span::Num', 
+    'created a Span::Num' );
 
 is( $span.start, 1, "start" );
 is( $span.end  , 3, "end" );
+
+# XXX - doesn't work
+# $span.start = 5;
+# is( $span.start, 1, "start is read-only" );
 
 is( $span.start_is_open,   bool::false, "start_is_open" );
 is( $span.end_is_open,     bool::false, "end_is_open" );
@@ -24,12 +28,12 @@ is( $span.start_is_closed, bool::true, "start_is_closed" );
 is( $span.end_is_closed,   bool::true, "end_is_closed" );
 
 is( $span.size, 2, "real size" );
-is( $span.size( density => 1 ), 3, "integer size" );
+# is( $span.size( density => 1 ), 3, "integer size" );
 
-my $span2 = Span::Functional.new( 
+my $span2 = Span::Num.new( 
     start => 2, end => 4, start_is_open => bool::false, end_is_open => bool::false );
 
-my $span3 = Span::Functional.new( 
+my $span3 = Span::Num.new( 
     start => 4, end => 6, start_is_open => bool::false, end_is_open => bool::false );
 
 is( $span.intersects( $span2 ), bool::true, 'intersects' );

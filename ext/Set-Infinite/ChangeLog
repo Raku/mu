@@ -1,3 +1,10 @@
+2005-07-10
+
+* added module Set::Infinite 
+
+* Span has 2 internal implementations (Span::Int, Span::Num), which use
+different algorithms.
+
 2005-07-09
 
 * added module Set::Infinite::Functional

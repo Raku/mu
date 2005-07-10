@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 16;
+plan 21;
 
 use_ok( 'Span' );
 use Span;   # XXX should not need this
@@ -14,9 +14,16 @@ isa_ok( $span, 'Span', 'created a Span' );
 
 is( $span.stringify, '[1,3]', 'stringify' );
 
+isa_ok( Span.new( object => 10 ), 'Span', 'created a Span with a single element' );
+is( Span.new( object => 10 ).stringify, '10', 'stringify a single element' );
+
 {
-  my $single = Span.new( object => 10 );
-  isa_ok( $single, 'Span', 'created a Span with a single element' );
+    my $copy = $span.clone;
+    is( $copy.stringify, '[1,3]', 'clone' );
+    $copy.set_start( -5 );
+    is( $copy.stringify, '[-5,3]', 'set_start' );
+    $copy.set_end( 5 );
+    is( $copy.stringify, '[-5,5]', 'set_end' );
 }
 
 is( $span.start, 1, "start" );
@@ -29,7 +36,11 @@ is( $span.start_is_closed, bool::true, "start_is_closed" );
 is( $span.end_is_closed,   bool::true, "end_is_closed" );
 
 is( $span.size, 2, "real size" );
-# XXX is( $span.size( density => 1 ), 3, "integer size" );
+
+# XXX this should work
+# is( Span.new( :start(1), :end(3), :int ).size, 3, "integer size" );
+
+is( Span.new( :start(1), :end(3), :int(1) ).size, 3, "integer size" );
 
 my $span2 = Span.new( start => 2, end => 4 );
 
