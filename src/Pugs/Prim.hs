@@ -580,9 +580,9 @@ op1WalkAllNoArgs :: ([VStr] -> [VStr]) -> VStr -> Val -> Eval Val
 op1WalkAllNoArgs f meth v = do
     pkgs    <- pkgParents =<< fmap showType (evalValType v)
     forM_ (f pkgs) $ \pkg -> do
-        maybeM (fmap (findSym $ ('&':pkg) ++ "::" ++ meth) askGlobal) $ \tvar -> do
-            ref <- liftSTM $ readTVar tvar
-            enterEvalContext CxtVoid (App (Val $ VRef ref) (Just $ Val v) [])
+        let sym = ('&':pkg) ++ "::" ++ meth
+        maybeM (fmap (findSym sym) askGlobal) $ \_ -> do
+            enterEvalContext CxtVoid (App (Var sym) (Just $ Val v) [])
     return undef
 
 op1WalkAll :: ([VStr] -> [VStr]) -> VStr -> Val -> Val -> Eval Val
@@ -590,9 +590,9 @@ op1WalkAll f meth v hashval = do
     pkgs    <- pkgParents =<< fmap showType (evalValType v)
     named   <- join $ doHash hashval hash_fetch
     forM_ (f pkgs) $ \pkg -> do
-        maybeM (fmap (findSym $ ('&':pkg) ++ "::" ++ meth) askGlobal) $ \tvar -> do
-            ref <- liftSTM $ readTVar tvar
-            enterEvalContext CxtVoid (App (Val $ VRef ref) (Just $ Val v)
+        let sym = ('&':pkg) ++ "::" ++ meth
+        maybeM (fmap (findSym sym) askGlobal) $ \_ -> do
+            enterEvalContext CxtVoid (App (Var sym) (Just $ Val v)
                 [ App (Var "&infix:=>") Nothing [Val (VStr key), Val val]
                 | (key, val) <- Map.assocs named ])
     return undef
