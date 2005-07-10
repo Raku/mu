@@ -88,6 +88,34 @@ Used to supply a test to match against. Assume C<~~> will be used against it.
 
 Absolute Value.
 
+=item floor
+
+ multi sub  Num::floor (  Num  $x            ) returns Int
+
+Returns the highest integer not greater than $x.
+
+=item ceiling
+
+ multi sub  Num::ceiling (  Num  $x          ) returns Int
+ &Num::ceil ::= &Num::Ceiling;
+
+Returns the lowest integer not less than $x.
+
+=item round
+
+ multi sub  Num::round (  Num  $x            ) returns Int
+
+Returns the nearest integer to $x, away from zero.  In other words,
+the absolute value, rounded up.
+
+=item truncate
+
+ multi sub  Num::truncate (  Num  $x         ) returns Int
+ our &Num::int ::= &Num::truncate;
+
+Returns the closest integer to $x, rounding towards 0.  This is the
+default rounding function used by an C<int()> cast, for historic
+reasons.
 
 =item exp
 
