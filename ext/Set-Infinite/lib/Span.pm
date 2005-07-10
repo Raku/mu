@@ -63,12 +63,23 @@ submethod BUILD ($class: *%param is copy ) {
         {
             return $class.bless( { span => %param<span> } );
         }
-        die "unknown span class";
+        # die "unknown span class";
+        %param<object> = %param<span>;
     }
 
     if defined( %param<object> ) 
     {
-        %param<start> = %param<end> = %param<object>;
+        if %param<object>.ref eq 'Array' {
+            if %param<object>.elems > 0
+            {
+                %param<start> = %param<object>[0];
+                %param<end> = %param<object>[-1];
+            }
+        }
+        else
+        {
+            %param<start> = %param<end> = %param<object>;
+        }
     }
 
     if ( defined $density )
@@ -277,7 +288,7 @@ Creates a `Span` object using an existing span.
 
 Given a start object, returns a span that has infinite size.
 
-- `new( start => 1, end => 2, :int(1) )`
+- `new( :int, start => 1, end => 2 )`
 
 Creates a span with "integer" semantics.
 

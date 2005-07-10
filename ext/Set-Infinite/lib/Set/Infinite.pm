@@ -5,6 +5,7 @@ class Set::Infinite-0.01;
 use Span;
 
 has $.set;
+has $.density
 
 =for TODO
 
@@ -25,6 +26,9 @@ has $.set;
     * set_density / density
 
     * an empty span can have a density
+    
+    * create a store for single elements (Span::Singleton)
+    * is_singleton
 
 From "Set" API:
 
@@ -41,9 +45,21 @@ From "Set" API:
 
 =cut
 
-submethod BUILD ($class: *%param is copy ) {
-    # TODO - accept 'object' parameter, 'density'
+submethod BUILD ($class: *%param is copy ) {    
+    my $density;
+    $density = 1 if %param<int>;
+    $density = %param<density> if defined %param<density>;
+
     my @spans;
+
+    for %param<objects> -> $span 
+    {
+        # TODO - write t/test for Array (such as 1 .. 10 and 1..10,20..30)
+        next unless defined( $span );
+        $span = Span.new( object => $span );
+        push %param<spans>, $span;
+    }
+
     for %param<spans> -> $span 
     {
         next if $span.is_empty;
@@ -60,6 +76,7 @@ method is_empty () returns bool { return $.set.is_empty }
 method start () returns Object { return $.set.start }
 
 method set_start ($self: $start ) {
+    ...
     if $self.is_empty 
     {
         $.span = $self.new( start => $start ).span;
@@ -86,6 +103,7 @@ method set_start ($self: $start ) {
 method end () returns Object { return $.span.end }
 
 method set_end ($self: Object $end ) {
+    ...
     if $self.is_empty 
     {
         $.span = $self.new( end => $end ).span;
@@ -121,14 +139,7 @@ method contains ($self: $span is copy) returns bool {
     return bool::false unless defined $.span;
     $span = $self.new( object => $span )
         if ! ( $span.isa( $self.ref ) );
-    my $span1 = $self.span;
-    my @union = $span1.union( $span.span );
-    
-    # XXX this should work
-    # my @union = $self.span.union( $span.span );
-    
-    return bool::false if @union.elems == 2;
-    return @union[0].compare( $self.span ) == 0;
+    ...
 }
 
 method intersects ($self: $span is copy) returns bool {
@@ -137,20 +148,8 @@ method intersects ($self: $span is copy) returns bool {
     $span = $self.new( object => $span )
         if ! ( $span.isa( $self.ref ) );
     my $span1 = $self.span;
-    my @union = $span1.union( $span.span );
-    
-    # XXX - this should work
-    # my @union = $self.span.union( $span.span );
-
-    return @union.elems == 1;
+    ...
 }
-
-=for TODO - these methods need Set::Infinite
-    * union
-    * intersection
-    * complement
-    * difference
-=cut
 
 method union ($self: $span ) returns Set::Infinite {
     $span = $self.new( object => $span )
@@ -193,25 +192,23 @@ This class represents an ordered set of spans.
 
 Without any parameters, returns an empty span.
 
-- `new( object => 1 )`
+- `new( objects => ( 1, 2, 3 ) )`
 
 Creates a span with a single element. This is the same as `new( start => $object, end => $object )`.
 
-- `new( span => $span )`
+- `new( spans => $span )`
 
-Creates a `Span` object using an existing span.
+Creates a `Set::Infinite` object using an existing span.
 
-- `new( start => 1 )`
+- `new( :int, spans => $int_span )`
 
-Given a start object, returns a span that has infinite size.
+Creates a set with "integer" semantics. 
 
-- `new( start => 1, end => 2, :int(1) )`
+The default is "real number" semantics (density = 0).
 
-Creates a span with "integer" semantics.
+- `new( spans => $day_span, :density($day_duration) )`
 
-- `new( start => $first_day, end => $last_day, :density($day_duration) )`
-
-Creates a span with "day" semantics.
+Creates a set with "day" semantics.
 
 = OBJECT METHODS
 

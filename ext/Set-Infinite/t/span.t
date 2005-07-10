@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 21;
+plan 22;
 
 use_ok( 'Span' );
 use Span;   # XXX should not need this
@@ -15,7 +15,9 @@ isa_ok( $span, 'Span', 'created a Span' );
 is( $span.stringify, '[1,3]', 'stringify' );
 
 isa_ok( Span.new( object => 10 ), 'Span', 'created a Span with a single element' );
+
 is( Span.new( object => 10 ).stringify, '10', 'stringify a single element' );
+is( Span.new( object => 1 .. 10 ).stringify, '[1,10]', 'created a Span from a range' );
 
 {
     my $copy = $span.clone;
@@ -37,9 +39,10 @@ is( $span.end_is_closed,   bool::true, "end_is_closed" );
 
 is( $span.size, 2, "real size" );
 
-# XXX this should work
+# XXX - this should work too
 # is( Span.new( :start(1), :end(3), :int ).size, 3, "integer size" );
 
+is( Span.new( :int, :start(1), :end(3) ).size, 3, "integer size" );
 is( Span.new( :start(1), :end(3), :int(1) ).size, 3, "integer size" );
 
 my $span2 = Span.new( start => 2, end => 4 );

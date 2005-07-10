@@ -14,6 +14,8 @@ has @.spans;
 
     * mark as "internal" class
 
+    * universal_set should not be typed as "Span::Num"
+
 =cut
 
 submethod BUILD ( @.spans ) {}
