@@ -310,18 +310,22 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
             , subCont       = Nothing
             }
         pkg = envPackage env
-        nameQualified | ':' `elem` name = name
-                      | scope <= SMy    = name
-                      | isBuiltin       = (head name:'*':tail name)
-                      | otherwise       = (head name:pkg) ++ "::" ++ tail name
+        nameQualified | ':' `elem` name     = name
+                      | scope <= SMy        = name
+                      | isGlobal            = name
+                      | isBuiltin           = (head name:'*':tail name)
+                      | otherwise           = (head name:pkg) ++ "::" ++ tail name
         self :: [Param]
         self | styp > SubMethod = []
              | (prm:_) <- params, isInvocant prm = []
              | otherwise = [selfParam $ envPackage env]
         mkExp n = Syn ":=" [Var n, Syn "sub" [subExp]]
         mkSym n = Sym scope n (mkExp n)
-        isExported = ("export" `elem` traits)
+        isGlobal = case name of
+            (_:'*':_)   -> True
+            _           -> False
         isBuiltin = ("builtin" `elem` traits)
+        isExported = ("export" `elem` traits)
     -- Don't add the sub if it's unsafe and we're in safemode.
     if "unsafe" `elem` traits && safeMode then return emptyExp else case scope of
         SGlobal | isExported -> do

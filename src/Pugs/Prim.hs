@@ -416,6 +416,13 @@ op1 "Pugs::Internals::runInteractiveCommand" = \v -> do
                        , VHandle err
                        , VProcess (MkProcess phand)
                        ]
+op1 "Pugs::Internals::check_for_io_leak" = \v -> do
+    rv      <- evalExp (App (Val v) Nothing [])
+    leaked  <- fromVal =<< op2Match rv (VType $ MkType "IO")
+    when leaked $ do
+        fail $ "BEGIN and CHECK blocks may not return IO handles,\n" ++
+               "as they would be invalid at runtime."
+    return rv
 op1 "system" = \v -> do
     cmd         <- fromVal v
     exitCode    <- liftIO $ system cmd
@@ -1628,6 +1635,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      pre     Pugs::Internals::hIsSeekable            unsafe (IO)\
 \\n   IO        pre     Pugs::Internals::openFile               unsafe (Str, Str)\
 \\n   List      pre     Pugs::Internals::caller                 safe (Any, Int, Str)\
+\\n   Any       pre     Pugs::Internals::check_for_io_leak      safe (Code)\
 \\n   Bool      pre     bool::true  safe   ()\
 \\n   Bool      pre     bool::false safe   ()\
 \\n   List      spre    prefix:[,]  safe   (List)\
