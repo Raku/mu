@@ -44,5 +44,7 @@ translate :: String -> Env -> IO String
 translate s env = do
     gen <- catch (doLookup s) $ \_ -> do
         fail $ "Cannot compile to " ++ s
-    VStr str <- runEvalIO env gen
-    return str
+    rv <- runEvalIO env gen
+    case rv of
+        VStr str    -> return str
+        _           -> fail (show rv)
