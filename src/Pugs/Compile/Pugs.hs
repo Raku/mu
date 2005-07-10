@@ -103,13 +103,12 @@ instance Compile Pad where
         syms = padToList pad
 
 instance Compile (String, [(TVar Bool, TVar VRef)]) where
-    compile ((_:'?':_), _) = return empty -- XXX - @?S etc; punt for now
-    compile ((_:'*':_), _) = return empty -- XXX - @*INIT etc; punt for now
-    compile ((_:'=':_), _) = return empty -- XXX - @=POS etc; punt for now
+    compile ((':':'*':_), _) = return empty -- XXX - :*Bool etc; punt for now
     compile (n, tvars) = do
-        tvarsC <- compile tvars
+        tvarsC <- fmap (filter (not . isEmpty)) $ mapM compile tvars
+        if null tvarsC then return empty else do
         return $ prettyDo 
-                [ prettyBind "tvars" (text "sequence" `sep1` tvarsC)
+                [ prettyBind "tvars" (text "sequence" `sep1` prettyList tvarsC)
                 , text ("return (" ++ show n ++ ", tvars)")
                 ]
 
@@ -120,6 +119,7 @@ instance Compile (TVar Bool, TVar VRef) where
     compile (fresh, tvar) = do
         freshC <- compile fresh
         tvarC  <- compile tvar
+        if isEmpty tvarC then return empty else do
         return $ prettyDo 
                 [ prettyBind "fresh" freshC
                 , prettyBind "tvar" tvarC
@@ -135,6 +135,7 @@ instance Compile (TVar VRef) where
     compile fresh = do
         vref    <- liftSTM $ readTVar fresh
         vrefC   <- compile vref
+        if isEmpty vrefC then return empty else do
         return $ prettyDo
             [ prettyBind "vref" vrefC
             , text "liftSTM (newTVar vref)"
@@ -144,6 +145,7 @@ instance Compile VRef where
     compile (MkRef (ICode cv)) = do
         vsub    <- code_fetch cv
         vsubC   <- compile vsub
+        if isEmpty vsubC then return empty else do
         return $ prettyDo
             [ prettyBind "vsub" vsubC
             , text "return (MkRef $ ICode vsub)"
@@ -151,6 +153,7 @@ instance Compile VRef where
     compile (MkRef (IScalar sv)) | scalar_iType sv == mkType "Scalar::Const" = do
         sv  <- scalar_fetch sv
         svC <- compile sv
+        if isEmpty svC then return empty else do
         return $ prettyDo
             [ prettyBind "sv" svC
             , text "return (MkRef $ IScalar sv)"
@@ -167,11 +170,12 @@ instance Compile Val where
             ]
     compile x = return $ text "return" $+$ parens (text $ show x)
 
--- This wants a total rewrite.  I strongly want Data.Generics at this point now.
+-- We need a compile VObject!
 
 -- Haddock can't cope with Template Haskell
 instance Compile VCode where
-    compile MkCode{ subBody = Prim _ } = return $ text "return mkPrim"
+    -- compile MkCode{ subBody = Prim _ } = return $ text "return mkPrim"
+    compile MkCode{ subBody = Prim _ } = return empty
     compile code = do 
         bodyC <- compile $ subBody code
         let comp :: Show a => (VCode -> a) -> Doc

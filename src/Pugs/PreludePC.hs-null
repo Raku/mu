@@ -6,6 +6,6 @@ to initialize it.
 
 -}
 
-initPreludePC :: Env -> IO ()
-initPreludePC = return $ liftIO $ return ()
+initPreludePC :: Env -> IO Env
+initPreludePC = return
 

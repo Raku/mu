@@ -60,9 +60,9 @@ sub precomp {
 -}
 
 {-# NOINLINE initPreludePC #-}
-initPreludePC :: Env -> IO ()
+initPreludePC :: Env -> IO Env
 initPreludePC env = do
-    if bypass then return () else do
+    if bypass then return env else do
         -- Display the progress of loading the Prelude, but only in interactive
         -- mode (similar to GHCi):
         -- "Loading Prelude... done."
@@ -75,6 +75,7 @@ initPreludePC env = do
             newTVar (glob `unionPads` glob')
         runEnv env{ envBody = ast, envGlobal = globRef, envDebug = Nothing }
         when dispProgress $ putStrLn "done."
+        return env{ envGlobal = globRef }
     where
     bypass = case (unsafePerformIO $ getEnv "PUGS_BYPASS_PRELUDE") of
         Nothing     -> False

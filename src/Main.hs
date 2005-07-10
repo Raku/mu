@@ -126,9 +126,12 @@ dumpGlob = (doParseWith $ \env _ -> do
 userDefined :: Pad -> Pad
 userDefined (MkPad pad) = MkPad $ Map.filterWithKey doFilter pad
     where
-    doFilter "@*END" _      = True
-    doFilter (_:'*':_) _    = False
-    doFilter _ _            = True
+    doFilter key _ = not (key `elem` reserved)
+    reserved = words $
+        "@*ARGS @*INC %*INC $*PUGS_HAS_HSPLUGINS $*EXECUTABLE_NAME " ++
+        "$*PROGRAM_NAME $*PID $*UID $*EUID $*GID $*EGID @*CHECK @*INIT $*IN " ++
+        "$*OUT $*ERR $*ARGS $!  $/ %*ENV $*CWD @=POD $=POD $?PUGS_VERSION " ++
+        "$*OS &?BLOCK_EXIT %?CONFIG $*_ $*AUTOLOAD $*PACKAGE"
 
 repLoop :: IO ()
 repLoop = do
