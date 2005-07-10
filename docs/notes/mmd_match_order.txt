@@ -66,8 +66,18 @@ MMD sequence:
 	6. the any type
 
 
-When a list of possible matches is defined, the where clauses are tried in
-order, from best to worst match
+Merging the Junction/Value step:
+
+An idea for particularity ordering - junctions that are ANDish are more
+particular than simple values.
+
+A simple value is just the median weight junction.
+
+I think this can be both good and bad for simplicity.
+
+
+Back to the dispatch logic...  When a list of possible matches is defined, the
+where clauses are tried in order, from best to worst match
 
 the first one whose where clause passes will win.
 
