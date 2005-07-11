@@ -15,22 +15,24 @@ use Span;
     * tests
 
     * document differences from Perl5 DateTime::Span
-        - Perl5 version uses Set::Infinite
+        - Perl5 version uses Set::Infinite; this version uses Array
         - import Perl5 POD
+        - this version can iterate()
 
     * set_time_zone
 
 =cut
 
-method from_datetimes ($class: %param ) {
-    # TODO - add 'density'
+method from_dates ($class: %param is copy ) {
+    %param<density> = Date::Duration.new( days => 1 ) unless defined %param<density>;
     return $class.new( %param );
 }
 
-method from_datetime_and_duration ($class: %param ) {
+method from_date_and_duration ($class: %param ) {
     my %tmp;
-    # TODO - add 'density'
-    # TODO - normalize duration syntaxes, such as 'hours => 12'
+    %tmp<density> = %param<density>;
+    %tmp<density> = Date::Duration.new( days => 1 ) unless defined %tmp<density>;
+    # TODO - normalize duration syntaxes, such as 'days => 12'
     my $duration = %param<duration>;
     if defined %param<start> 
     {
@@ -54,11 +56,11 @@ method duration returns Object ($self: ) {
 }
 
 method start () returns Object {
-    # TODO - change Inf to DateTime::Infinite
+    # TODO - change Inf to Date::Infinite
     return $.start;
 }
 method end () returns Object {
-    # TODO - change Inf to DateTime::Infinite
+    # TODO - change Inf to Date::Infinite
     return $.end;
 }
 
