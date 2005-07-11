@@ -87,8 +87,6 @@ Coercion of an 'is rw' field must be done manually outside MMD. Good style is
 creating a &original.wrap with an MMD signature of the type we're coercing from
 that takes care of the bidirectional conversion.
 
-
-
 On ties and ambiguity:
 
 Ties are a fatal error, preferably at compile time.
@@ -111,3 +109,35 @@ mmd::insanity' pragma the user has 'no warnings mmd::insanity'.
 
 Both pragmas are lexical to the code making the call.
 
+~~~~~~~~~~~~~~~~~
+
+Here is a different proposal (Luke's) for MMD matching which involves solving
+the Halting problem because of subtypes.  He hopes to create a sane comprimise
+between the above proposal and this one.
+
+Multimethods have a partial ordering.  If more than one multimethod is
+applicable to a given call, then if there is one multimethod that is "less
+than" all the others, it gets called, otherwise it is ambiguous.
+
+In the following description, a type is taken to mean the set of objects that
+it represents.
+
+Given two multimethods A and B, A < B iff
+    * Every invocant parameter in a has a corresponding parameter in B such that
+        A's parameter's type is a subset of B's parameter's type.
+    * At least one of these subsets is a proper subset.
+
+It is easy to show that this relation is transitive.  I argue that these are
+very logical semantics, and would work perfectly if we could determine all
+subset relationships between all involved types.  Alas, that's equivalent to
+the Halting problem.
+
+Here are the assumptions that avert the Halting problem and merge the above
+proposal with this one:
+
+    * All relationships are assumed to be predeclared. 
+    * There are no null levels of composition or inheritance (all declared subsets
+        are proper; declared subsets are "is", "does", and "subtype").
+    * All subtypes of a given (particular) type are assumed to be orthogonal.
+    * Exact values and ranges are more specific than any other declared subtype (and
+        the subset relationships between those can be determined statically).
