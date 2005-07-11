@@ -1,52 +1,61 @@
 use v6;
 
-class DateTime::Span-0.01;
+class DateTime::Span-0.01
+    does Span;
 
+# XXX - is this needed?
 use Span;
-
-# XXX - this module could actually *inherit* from Span.pm
-has Span $.span;
 
 =for TODO
 
-    * constructors:
-    * clone
-    * size
+    * change returned 'Inf' to 'DateTime::Infinite'
 
-    * union
-    * intersection
-    * complement
-    * intersects
-    * contains
+    * from_duration constructor needs some tweaks
 
-    * is_empty
-    * is_infinite
+    * tests
+
+    * document differences from Perl5 DateTime::Span
+        - Perl5 version uses Set::Infinite
 
 =cut
 
-submethod BUILD (: $XXX) returns DateTime::Span {
+method from_datetimes ($class: %param ) {
+    return $class.new( %param );
+}
+
+method from_datetime_and_duration ($class: %param ) {
+    my %tmp;
+    # TODO - normalize duration syntaxes, such as 'hours => 12'
+    my $duration = %param<duration>;
+    if defined %param<start> 
+    {
+        %tmp<start> = %param<start>; 
+        %tmp<end> = %param<start> + $duration;
+    }
+    else
+    { 
+        %tmp<after> = %param<after>; 
+        %tmp<end> = %param<after> + $duration;
+    }
+    return $class.new( %tmp );
+}
+
+method set_time_zone( $tz ) {
     ...
 }
 
+method duration returns Object ($self: ) {
+    return $self.size;
+}
+
 method start () returns Object {
+    # TODO - change Inf to DateTime::Infinite
     return $.start;
 }
 method end () returns Object {
+    # TODO - change Inf to DateTime::Infinite
     return $.end;
 }
-method start_is_open () returns Bool {
-    return $.start_is_open;
-}
-method start_is_closed () returns Bool {
-    return ! $.start_is_open;
-}
-method end_is_open () returns Bool {
-    return $.end_is_open;
-}
-method end_is_closed () returns Bool {
-    return $.end_is_closed;
-}
-
 
 =kwid
 

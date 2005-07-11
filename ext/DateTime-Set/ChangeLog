@@ -1,4 +1,8 @@
-2005-07-02
+2005-07-11
+
+* implemented DateTime::Span
+
+2005-07-07
 
 * most of the development is occurring in the Set-Infinite and Span modules - stay tuned.
 

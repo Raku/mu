@@ -5,6 +5,7 @@ use Test;
 
 plan 1;
 
+use_ok( 'DateTime::Span' );
+
 use DateTime::Span;
 
-print "ok\n";
