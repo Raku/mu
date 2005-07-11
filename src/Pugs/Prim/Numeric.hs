@@ -2,7 +2,7 @@
 {-# OPTIONS_GHC -#include "UnicodeC.h" #-}
 
 module Pugs.Prim.Numeric (
-    op2Numeric, op1Floating, op1Numeric,
+    op2Numeric, op1Floating, op1Round, op1Numeric,
     op2Exp, op2Divide, op2Modulus,
 ) where
 import Pugs.Internals
@@ -35,6 +35,14 @@ op1Floating :: (Double -> Double) -> Val -> Eval Val
 op1Floating f v = do
     foo <- fromVal v
     return $ VNum $ f foo
+
+op1Round :: (Double -> Integer) -> Val -> Eval Val
+op1Round f v = do
+    return $ VInt $ case v of
+       VInt i -> i
+       VRat r -> f ((fromRational r)::Double)
+       VNum n -> f n
+       _      -> 0
 
 op1Numeric :: (forall a. (Num a) => a -> a) -> Val -> Eval Val
 op1Numeric f VUndef     = return . VInt $ f 0
