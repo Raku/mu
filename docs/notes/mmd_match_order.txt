@@ -137,7 +137,7 @@ proposal with this one:
 
     1) All relationships are assumed to be predeclared. 
     2) There are no null levels of composition or inheritance.
-    3) All subtypes of a given (particular) type are assumed to be orthogonal.
+    3) All direct subtypes of a given (particular) type are assumed to be disjoint.
     4) Exact values and ranges are more specific than any other declared subtype (and
         the subset relationships between those can be determined statically).
 
