@@ -135,14 +135,14 @@ module Pugs.Config (
 ) where
 
 import qualified Data.Map as Map
-import qualified Pugs.Help
+import qualified Pugs.Version
 
 config :: Map.Map String String
 config = Map.fromList
     [#all_definitions#
-    ,("pugs_versnum", Pugs.Help.versnum)
-    ,("pugs_version", Pugs.Help.version)
-    ,("pugs_revision", Pugs.Help.revnum)
+    ,("pugs_versnum", Pugs.Version.versnum)
+    ,("pugs_version", Pugs.Version.version)
+    ,("pugs_revision", Pugs.Version.revnum)
     ]
 
 getConfig :: String -> String

@@ -9,14 +9,13 @@
 >   across so wide a Sea?
 -}
 
-#define PUGS_VERSION "6"
-#define PUGS_DATE ""
 #include "pugs_config.h"
-#include "pugs_version.h"
 
 module Pugs.Help (printInteractiveHelp, printCommandLineHelp,
              banner, versnum, version, revnum,
              copyright, disclaimer, intro) where
+import Pugs.Version
+import Pugs.CodeGen (backends)
 
 printInteractiveHelp :: IO ()
 printInteractiveHelp
@@ -42,7 +41,7 @@ printCommandLineHelp
         putStrLn "-c               parse the file or -e, but do not run it"
         putStrLn "-Bbackend        execute using the compiler backend"
         putStrLn "-Cbackend        compile using the compiler backend"
-        putStrLn "                 (valid backends are: Pugs, Parrot, PIR, Haskell)"
+        putStrLn ("                 (valid backends are: " ++ backendsStr ++ ")")
         putStrLn "-Mmodule         execute 'use module' before executing the program"
         putStrLn "-h or --help     give this message"
         putStrLn "-V               long configuration information & version"
@@ -50,32 +49,9 @@ printCommandLineHelp
         putStrLn "-v or --version  version"
         putStrLn "-l -d and -w are ignored for compatability with Perl 5"
         putStrLn "See documentation of pugs::run for more help."
-
-name :: String
-name       = "Perl6 User's Golfing System"
-versnum :: String
-versnum    = PUGS_VERSION
-date :: String
-date	   = PUGS_DATE
-version :: String
-version    = name ++ ", version " ++ versnum ++ ", " ++ date ++ revision
-copyright :: String
-copyright  = "Copyright 2005 by Autrijus Tang"
-revnum :: String
-revnum     = show(PUGS_SVN_REVISION :: Integer)
-revision :: String
-revision
-    | rev <- revnum
-    , rev /= "0"
-    = " (r" ++ rev ++ ")"
-    | otherwise
-    = ""
-disclaimer :: String
-disclaimer =
-    "This software is distributed under the terms of the " ++
-    "GNU Public Licence.\n" ++
-    "NO WARRANTY WHATSOEVER IS PROVIDED. " ++
-    "See the details in the documentation."
+    where
+    backendsStr = foldr1 addComma backends
+    addComma w s = w ++ (',':' ':s)
 
 versionFill :: Int -> String
 versionFill n = fill ++ vstr

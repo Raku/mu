@@ -28,8 +28,8 @@ if ($ARGV[0] =~ /^(?:(-)r|(--)run)(.*)$/) {
 
 
 my $backend = 'Pugs';
-if ($ARGV[0] =~ /^(?:-H|--haskell)$/) {
-    $backend = 'Haskell';
+if ($ARGV[0] =~ /^(?:-H|--haskell|--ghc)$/) {
+    $backend = 'Ghc';
     shift @ARGV;
 }
 elsif ($ARGV[0] =~ /^(?:-P|--pir|--parrot)$/) {

@@ -19,7 +19,7 @@ import Pugs.Internals
 import Pugs.AST
 import Pugs.Types
 import Pugs.Context
-import Pugs.Help
+import Pugs.Version (versnum)
 import Pugs.Lexer
 import Pugs.Rule
 import Pugs.Rule.Expr
