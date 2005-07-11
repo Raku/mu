@@ -135,9 +135,19 @@ the Halting problem.
 Here are the assumptions that avert the Halting problem and merge the above
 proposal with this one:
 
-    * All relationships are assumed to be predeclared. 
-    * There are no null levels of composition or inheritance (all declared subsets
-        are proper; declared subsets are "is", "does", and "subtype").
-    * All subtypes of a given (particular) type are assumed to be orthogonal.
-    * Exact values and ranges are more specific than any other declared subtype (and
+    1) All relationships are assumed to be predeclared. 
+    2) There are no null levels of composition or inheritance.
+    3) All subtypes of a given (particular) type are assumed to be orthogonal.
+    4) Exact values and ranges are more specific than any other declared subtype (and
         the subset relationships between those can be determined statically).
+
+Concequences of (1):
+
+    * Both A and B are proper subsets of A|B (unless A and B are related, in which case
+        the junction is equivalent to the more general one).
+    * A&B is a proper subset of both A and B (unless A and B are related, in which case
+        the junction is equivalent to the more specific one).
+
+Concequences of (2):
+
+    * All inheritance relationships and role compositions create proper subsets.
