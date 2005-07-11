@@ -9,7 +9,7 @@
     in summers that have been...
 -}
 
-module Pugs.CodeGen (translate, backends) where
+module Pugs.CodeGen (codeGen, backends) where
 import Pugs.AST
 import Pugs.Internals
 import Pugs.CodeGen.PIL (genPIL)
@@ -33,17 +33,16 @@ backends :: [String]
 backends = Map.keys generators
 
 norm :: String -> String
-norm s = ucfirst $ map toLower s
-    where ucfirst (x:xs) = toUpper x : xs
-          ucfirst [] = []
+norm "" = ""
+norm (x:xs) = toUpper x : map toLower xs
 
 doLookup :: String -> IO Generator
 doLookup s = Map.lookup (norm s) generators
 
-translate :: String -> Env -> IO String
-translate s env = do
+codeGen :: String -> Env -> IO String
+codeGen s env = do
     gen <- catch (doLookup s) $ \_ -> do
-        fail $ "Cannot compile to " ++ s
+        fail $ "Cannot generate code for " ++ s
     rv <- runEvalIO env gen
     case rv of
         VStr str    -> return str

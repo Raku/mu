@@ -172,7 +172,7 @@ doCompile backend = doParseWith $ \env _ -> do
     globRef <- liftSTM $ do
         glob <- readTVar $ envGlobal env
         newTVar $ userDefined glob
-    translate backend env{ envGlobal = globRef }
+    codeGen backend env{ envGlobal = globRef }
 
 doCompileDump :: String -> FilePath -> String -> IO ()
 doCompileDump backend file prog = do
