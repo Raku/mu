@@ -20,7 +20,8 @@ pugs::hack - How to hack on Pugs
 
 =head1 DESCRIPTION
 
-XXXX: Overview of this document
+This document attempts to explain how to start working on Pugs, as well as
+conventions used in day-to-day development.
 
 =head2 Source tree map
 
@@ -31,14 +32,14 @@ The Pugs source tree includes several major sections:
     |-- debian       Packaging rules for dpkg-based systems
     |-- docs         Documentation relating to Pugs/Perl 6/Haskell
     |-- examples     Examples of Perl 6 usage; many work in Pugs today
-    |-- ext          Working Perl 6 modules that are built with pugs
-    |-- inc          Perl 5 modules needed to build/test/install pugs
-    |-- lib          XXXX: overall concept?
+    |-- ext          Perl 6 modules that are installed with Pugs
+    |-- inc          Perl 5 modules needed for build/test/install
+    |-- lib          Perl 5 modules that are installed with Pugs
     |-- modules      Perl 6 modules not working today; -> FreePAN
-    |-- script       pugscc, the Pugs Compiler Compiler
-    |-- src          Haskell source for pugs itself
-    |-- t            Pugs/Perl 6 test library
-    |-- t_disabled   Disabled tests
+    |-- script       pugscc, the Pugs Compiler Collection
+    |-- src          Source code for Pugs itself
+    |-- t            Perl 6 test suite
+    |-- t_disabled   Temporarily disabled tests
     `-- util         Utilities for hacking and testing Pugs
 
 Expanding this one level deeper:
@@ -85,7 +86,7 @@ Expanding this one level deeper:
     |   |-- tutorial_gen       Tutorial generator (XXXX: huh?)
     |   `-- vmethods           Add virtual methods to existing types
     |
-    |-- ext                Perl 6 modules that work and get built with pugs
+    |-- ext                Perl 6 modules that are installed with Pugs
     |   |-- Algorithm-TokenBucket  Token bucket rate limiting
     |   |-- Benchmark          Benchmark runtime of Perl 6 code
     |   |-- CGI                CGI author's helper module
@@ -120,7 +121,7 @@ Expanding this one level deeper:
     |   |-- lib                Pragma to add paths to @*INC
     |   `-- libwww-perl        Port of Perl 5 libwww-perl modules
     |
-    |-- inc                Perl 5 modules needed to build/test/install pugs
+    |-- inc                Perl 5 modules needed for build/test/install
     |   |-- Module             Module::Install
     |   `-- Test               Test::Harness
     |
