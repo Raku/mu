@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 14;
+plan 26;
 
 class Foo {
     has $.bar is rw;
@@ -47,3 +47,19 @@ lives_ok {
     $fud = $foo_bar.getme.fud;
 }, 'chained method dispatch on altered method';
 is($fud, "Foo::Bar::fud", "returned value is correct");
+
+# See thread "Quick OO .isa question" on p6l started by Ingo Blechschmidt:
+# http://www.nntp.perl.org/group/perl.perl6.language/22220
+
+ok  Foo::Bar.isa(Foo),      "subclass.isa(superclass) is true";
+ok  Foo::Bar.isa(Foo::Bar), "subclass.isa(same_subclass) is true";
+ok  Foo::Bar.isa(Class),    "subclass.isa(Class) is false", :todo<feature>;
+ok  Foo::Bar.does(Class),   "subclass.does(Class) is true", :todo<feature>;
+ok !Foo::Bar.does(::CLASS),   "subclass.does(CLASS) is false";
+ok !Foo::Bar.isa(::CLASS),    "subclass.isa(CLASS) is false";
+ok !(try{Foo::Bar.meta.isa(Foo)}),      "subclass.meta.isa(superclass) is false";
+ok !(try{Foo::Bar.meta.isa(Foo::Bar)}), "subclass.meta.isa(same_subclass) is false";
+ok !(try{Foo::Bar.meta.isa(Class)}),    "subclass.meta.isa(Class) is false";
+ok !(try{Foo::Bar.meta.does(Class)}),   "subclass.meta.does(Class) is false";
+ok !(try{Foo::Bar.meta.isa(::CLASS)}),    "subclass.meta.isa(CLASS) is false";
+ok  (try{Foo::Bar.meta.does(::CLASS)}),   "subclass.meta.does(CLASS) is true", :todo<feature>;
