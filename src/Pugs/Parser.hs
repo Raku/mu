@@ -191,6 +191,11 @@ ruleDeclaration = rule "declaration" $ choice
 ruleSubHead :: RuleParser (Bool, SubType, String)
 ruleSubHead = rule "subroutine head" $ do
     isMulti <- option False $ do { symbol "multi" ; return True }
+    -- You're allowed to omit the "sub":
+    --   multi sub foo (...) {...}      # legal
+    --         sub foo (...) {...}      # legal, too
+    let implicitSub | isMulti == True = return SubRoutine
+                    | otherwise       = pzero
     styp    <- choice
         [ do symbol "sub"
              return SubRoutine
@@ -200,7 +205,7 @@ ruleSubHead = rule "subroutine head" $ do
              return SubMethod
         , do symbol "macro"
              return SubMacro
-        ]
+        ] <|> implicitSub
     name    <- ruleSubName
     return (isMulti, styp, name)
 

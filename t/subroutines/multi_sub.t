@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 14;
+plan 16;
 
 # type based dispatching
 
@@ -46,3 +46,10 @@ eval_ok('multi sub foo( (Int, Str, Str) $tuple: ) '
 
 is(foo([3, "Four"]), "Tuple(2) 3,Four", "call tuple multi sub", :todo<feature>);
 is(foo([3, "Four", "Five"]), "Tuple(3) 3,Four,Five", "call tuple multi sub", :todo<feature>);
+
+# According to Autrijus, you're allowed to omit the "sub" when declaring a
+# multi sub.
+multi declared_wo_sub (Int $x) { 1 }
+multi declared_wo_sub (Str $x) { 2 }
+is declared_wo_sub(42),   1, "omitting 'sub' when declaring 'multi sub's works (1)";
+is declared_wo_sub("42"), 2, "omitting 'sub' when declaring 'multi sub's works (2)";
