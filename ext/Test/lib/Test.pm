@@ -279,7 +279,7 @@ sub test_ends {
     $testing_started = 0;
 }
 
-END { test_ends }
+END { Test::test_ends() }
 
 =kwid
 
