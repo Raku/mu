@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 16;
+plan 22;
 
 # L<S02/"Names and Variables" /All symbolic references are done with this notation:/>
 {
@@ -67,6 +67,24 @@ plan 16;
   our $*a_global_var = 42;
   is $::("*::a_global_var"),   42,
     "symbolic dereferentiation of globals works (2)", :todo<bug>;
+}
+
+# Symbolic dereferentiation of globals *without the star*
+{
+  cmp_ok $::("*IN"), &infix:<=:=>, $*IN,
+    "symbolic dereferentiation of globals works (3)";
+  cmp_ok $::("IN"),  &infix:<=:=>, $*IN,
+    "symbolic dereferentiation of globals without the star works";
+
+  cmp_ok &::("*say"), &infix:<=:=>, &say,
+    "symbolic dereferentiation of global subs works";
+  cmp_ok &::("say"),  &infix:<=:=>, &say,
+    "symbolic dereferentiation of global subs without the star works (1)";
+
+  ok &::("true")(42),
+    "symbolic dereferentiation of global subs without the star works (2)";
+  is try { &::("ceiling")(3.4) }, 4,
+    "symbolic dereferentiation of global subs without the star works (3)";
 }
 
 # Symbolic dereferentiation of type vars
