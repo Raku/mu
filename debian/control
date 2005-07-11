@@ -1,8 +1,7 @@
 Source: pugs
 Section: interpreters
 Priority: optional
-Maintainer: Shu-Chun Weng <scw@csie.org>
-Uploaders: Florian Ragwitz <rafl@fsfe.org>, Carey Tilden <revdiablo@wd39.com>, Ingo Blechschmidt <iblech@web.de>, Shu-Chun Weng <scw@csie.org>
+Maintainer: Florian Ragwitz <florian@mookooh.org>
 Build-Depends: debhelper (>= 4.0.0), ghc, perl
 Standards-Version: 3.6.2
 
