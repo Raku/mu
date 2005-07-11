@@ -11,7 +11,7 @@ use constant PUBLIC  => 'public';
 use constant PRIVATE => 'private';
 
 sub new {
-    my ($class, $associated_with, $label, $type) = @_;
+    my ($class, $associated_with, $label, $props) = @_;
     (defined $associated_with && defined $label) 
         || croak "Insufficient Arguments : You must provide a class this is associated with and a label";
     my $visibility = PUBLIC;
@@ -19,17 +19,27 @@ sub new {
     my ($accessor_name) = ($label =~ /^..(.*)$/);
     (defined $accessor_name) 
         || croak "Bad label : could not extract accessor name from label ($label)";
+    if (defined $props) {
+        $props->{access} = 'ro'  unless exists $props->{access};
+        $props->{type}   = undef unless exists $props->{type};        
+    }
+    else {
+        $props = { access => 'ro', type => undef };
+    }
     my $attr = bless {
         associated_with => $associated_with,
         accessor_name   => $accessor_name,
         visibility      => $visibility,
-        type            => $type,
+        properties      => $props,
         label           => $label,
     }, $class;
     return $attr;
 }
 
-sub type  { (shift)->{type}  }
+sub is_ro { (shift)->{properties}->{access} eq 'ro' }
+sub is_rw { (shift)->{properties}->{access} eq 'rw' }
+sub type  { (shift)->{properties}->{type}           }
+
 sub label { (shift)->{label} }
 
 # this is for type checking (sort of)

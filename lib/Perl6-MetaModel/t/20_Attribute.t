@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 19;
+use Test::More tests => 25;
 
 use Perl6::Attribute;
 
@@ -23,7 +23,10 @@ ok(!$foo_prop->is_private(), '... our foo attribute is not private');
 ok(!$foo_prop->is_array(), '... our foo attribute is not an array');
 ok(!$foo_prop->is_hash(), '... our foo attribute is not an hash');
 
-my $bar_prop = Perl6::Attribute->new('Bar' => '%:bar');
+ok($foo_prop->is_ro(), '... the default is read-only');
+ok(!$foo_prop->is_rw(), '... and not read-write');
+
+my $bar_prop = Perl6::Attribute->new('Bar' => '%:bar', { access => 'rw' });
 isa_ok($bar_prop, 'Perl6::Attribute');
 
 is($bar_prop->accessor_name(), 'bar', '... our attributes accessor name is "bar"');
@@ -33,7 +36,10 @@ ok($bar_prop->is_private(), '... our bar attribute is private');
 ok(!$bar_prop->is_array(), '... our bar attribute is not an array');
 ok($bar_prop->is_hash(), '... our bar attribute is a hash');
 
-my $baz_prop = Perl6::Attribute->new('Baz' => '@.baz', 'Foo::Bar');
+ok(!$bar_prop->is_ro(), '... this attribute is not read-only');
+ok($bar_prop->is_rw(), '... it is read-write');
+
+my $baz_prop = Perl6::Attribute->new('Baz' => '@.baz', { type => 'Foo::Bar' });
 isa_ok($baz_prop, 'Perl6::Attribute');
 
 is($baz_prop->accessor_name(), 'baz', '... our attributes accessor name is "baz"');
@@ -43,3 +49,6 @@ is($baz_prop->type(), 'Foo::Bar', '... got the right type');
 
 ok($baz_prop->is_array(), '... our baz attribute is an array');
 ok(!$baz_prop->is_hash(), '... our baz attribute is not a hash');
+
+ok($baz_prop->is_ro(), '... the default is read-only');
+ok(!$baz_prop->is_rw(), '... and not read-write');

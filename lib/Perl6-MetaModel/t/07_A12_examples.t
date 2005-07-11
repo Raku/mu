@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 18;
+use Test::More tests => 19;
 use Test::Exception;
 
 =pod
@@ -39,7 +39,7 @@ use Perl6::MetaModel;
 
 class Point => {
     instance => {
-        attrs => [ '$.x', '$.y' ],
+        attrs => [ '$.x', [ '$.y' => { access => 'rw' } ] ],
         methods => {
             clear => sub {
                 my ($self) = @_;
@@ -59,6 +59,8 @@ lives_ok { $point->y(42) } '... assigned to y attribute successfully';
 is($point->y, 42, '... the y attribute was assigned to correctly');
 
 is($point->x, 1, '... the y attribute is accessible and assigned to correctly in the constructor');
+
+dies_ok { $point->x(-1) } '... read-only accessors die when you try to assign to them';
 
 lives_ok { $point->clear() } '... called clear successfully';
 

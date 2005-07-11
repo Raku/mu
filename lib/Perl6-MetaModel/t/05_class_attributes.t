@@ -31,7 +31,11 @@ generation, in particular it checks the following:
 
 class Basic => {
     instance => {
-        attrs => [ '$.scalar', '@.array', '%.hash' ]
+        attrs => [ 
+            [ '$.scalar' => { access => 'rw' } ], 
+            [ '@.array'  => { access => 'rw' } ], 
+            [ '%.hash'   => { access => 'rw' } ] 
+        ]
     }
 };
 
@@ -87,7 +91,7 @@ class Base => {
 class Derived1 => {
     is => [ 'Base' ],
     instance => {
-        attrs => [ '$.foo', '$:bar' ],
+        attrs => [ [ '$.foo' => { access => 'rw' } ], '$:bar' ],
         BUILD => sub { (shift)->set_value('$.foo' => 'Foo::Foo') },
     }
 };
@@ -162,10 +166,10 @@ class TypeChecking => {
     does => [ 'Checker' ],
     instance => {
         attrs => [ 
-            [ 'TypeChecking', '$.foo' ],
-            [ 'Checker',      '$.bar' ],
-            [ 'Checkers',     '@.baz' ],      
-            [ 'TypeChecking', '@.bah' ],                        
+            [ '$.foo' => { type => 'TypeChecking', access => 'rw' } ],
+            [ '$.bar' => { type => 'Checker'     , access => 'rw' } ],
+            [ '@.baz' => { type => 'Checkers'    , access => 'rw' } ],      
+            [ '@.bah' => { type => 'TypeChecking', access => 'rw' } ],                        
         ]
     }    
 };

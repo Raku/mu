@@ -274,7 +274,12 @@ sub _create_accessor {
             my ($i, $value) = @_;
             $i->set_value($label => $value) if defined $value;
             $i->get_value($label);
-        };
+        } if $attribute->is_rw;
+        $method_code = sub {
+            my $i = shift;
+            (@_) && croak "the attribute '$label' is read-only";
+            $i->get_value($label);
+        } if $attribute->is_ro;        
     }
     elsif ($attribute->isa('Perl6::Class::Attribute')) {
         $method_type = 'Perl6::Class::Method';
@@ -282,7 +287,11 @@ sub _create_accessor {
             my (undef, $value) = @_;
             $attribute->set_value($label => $value) if defined $value;
             $attribute->get_value($label);
-        };        
+        } if $attribute->is_rw;
+        $method_code = sub {
+            (@_) && croak "the attribute '$label' is read-only";            
+            $attribute->get_value($label);
+        } if $attribute->is_ro;                
     }
     else {
         croak "Incorrect Object Type : I do not understand the attribute class ($attribute)";

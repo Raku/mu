@@ -24,7 +24,7 @@ class 'Person-0.0.1-cpan:STEVAN' => {
         }
     },
     instance => {
-        attrs => [ '$.first_name', '$.last_name', '$.age' ],
+        attrs => [ '$.first_name', '$.last_name', [ '$.age' => { access => 'rw' } ] ],
         DESTROY => sub {
             my ($self) = @_;
             my $class = ref($self);
@@ -74,7 +74,7 @@ is(Person->population(), 0, '... Person population is back to 0 again');
 class 'Employee-0.0.1' => {
     is => [ 'Person' ],
     instance => {
-        attrs => [ '$.job' ]
+        attrs => [ [ '$.job' => { access => 'rw' } ] ]
     }
 };
 

@@ -106,12 +106,12 @@ sub _build_class {
         }
         if (exists $instance->{attrs}) {
             foreach my $attr (@{$instance->{attrs}}) {
-                my $type;
+                my $props;
                 if (ref($attr) eq 'ARRAY') {
-                    ($type, $attr) = @{$attr}; 
+                    ($attr, $props) = @{$attr}; 
                 }
                 ($name)->meta->add_attribute(
-                    $attr => Perl6::Instance::Attribute->new($name => $attr, $type)
+                    $attr => Perl6::Instance::Attribute->new($name => $attr, $props)
                 );              
             }
         }        
@@ -119,12 +119,12 @@ sub _build_class {
     if (my $class = $self->{params}->{class}) {
         if (exists $class->{attrs}) {
             foreach my $attr (@{$class->{attrs}}) {
-                my $type;
+                my $props;
                 if (ref($attr) eq 'ARRAY') {
-                    ($type, $attr) = @{$attr}; 
+                    ($attr, $props) = @{$attr}; 
                 }
                 ($name)->meta->add_attribute(
-                    $attr => Perl6::Class::Attribute->new($name => $attr, $type)
+                    $attr => Perl6::Class::Attribute->new($name => $attr, $props)
                 );              
             }            
 
