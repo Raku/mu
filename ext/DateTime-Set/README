@@ -1,5 +1,12 @@
+- DateTime sets
+
 DateTime::SpanSet - An object representing recurrences, multiple spans, etc.
 
-DateTime::Span - An object representing a single span
+DateTime::Span - An object representing a single span of datetimes
 
 DateTime::Set - An object representing a recurrence, or a set of datetimes
+
+- Date sets
+
+Date::Span - An object representing a single span of dates
+

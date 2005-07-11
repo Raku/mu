@@ -1,6 +1,6 @@
 use v6;
 
-class DateTime::Span-0.01
+class Date::Span-0.01
     does Span;
 
 # XXX - is this needed?
@@ -8,7 +8,7 @@ use Span;
 
 =for TODO
 
-    * change returned 'Inf' to 'DateTime::Infinite'
+    * change returned 'Inf' to 'Date::Infinite'
 
     * from_duration constructor needs some tweaks
 
@@ -23,11 +23,13 @@ use Span;
 =cut
 
 method from_datetimes ($class: %param ) {
+    # TODO - add 'density'
     return $class.new( %param );
 }
 
 method from_datetime_and_duration ($class: %param ) {
     my %tmp;
+    # TODO - add 'density'
     # TODO - normalize duration syntaxes, such as 'hours => 12'
     my $duration = %param<duration>;
     if defined %param<start> 
@@ -64,11 +66,11 @@ method end () returns Object {
 
 = NAME
 
-DateTime::Span - An object representing a datetime span
+Date::Span - An object representing a date span
 
 = SYNOPSIS
 
-  use DateTime::Span;
+  use Date::Span;
 
   # XXX
 

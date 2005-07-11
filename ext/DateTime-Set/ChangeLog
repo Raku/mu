@@ -1,6 +1,6 @@
 2005-07-11
 
-* implemented DateTime::Span
+* implemented DateTime::Span, Date::Span
 
 2005-07-07
 
