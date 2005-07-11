@@ -38,11 +38,11 @@ op1Floating f v = do
 
 op1Round :: (Double -> Integer) -> Val -> Eval Val
 op1Round f v = do
-    return $ VInt $ case v of
-       VInt i -> i
-       VRat r -> f ((fromRational r)::Double)
-       VNum n -> f n
-       _      -> 0
+    case v of
+       VInt i -> return $ VInt $ i
+       VRat r -> return $ VInt $ f ((fromRational r)::Double)
+       VNum n -> return $ VInt $ f n
+       _      -> fail "Can't round non-numeric value(?)"
 
 op1Numeric :: (forall a. (Num a) => a -> a) -> Val -> Eval Val
 op1Numeric f VUndef     = return . VInt $ f 0
