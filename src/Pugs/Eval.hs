@@ -77,7 +77,8 @@ emptyEnv name genPad = do
             , envCaller  = Nothing
             , envOuter   = Nothing
             , envDepth   = 0
-            , envID      = uniq
+            -- XXX see AST/Internals.hs
+            --, envID      = uniq
             , envBody    = Val undef
             , envDebug   = Just ref -- Set to "Nothing" to disable debugging
             , envStash   = ""
