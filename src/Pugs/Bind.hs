@@ -9,7 +9,9 @@
 >   In Lorien the fair...
 -}
 
-module Pugs.Bind where
+module Pugs.Bind (
+    bindParams, bindSomeParams,
+) where
 import Pugs.Internals
 import Pugs.AST
 import Pugs.Types

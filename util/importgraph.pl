@@ -11,31 +11,36 @@ use GraphViz;
 use Getopt::Long;
 
 my $layout = "neato";
+my $overlap = "false";
+my @ignore;
 GetOptions(
   "layout=s" => \$layout,
+  "overlap=s" => \$overlap,
+  "ignore=s" => \@ignore,
 ) or die "invalid command line";
 
 my $g = GraphViz->new(
   layout => $layout,
   directed => 1,
   rankdir => 1,
-  overlap => "false",
+  overlap => $overlap,
 );
 
 my %modules;
 find sub {
   return unless /\.hs$/;
 
-  my ($module_name, %imports);
+  my ($module_name, $exports, %imports);
 
   open my $fh, '<', $_
     or die "couldn't open $File::Find::name: $!\n";
 
   while(<$fh>) {
-    if (/^module \s+ ([\w.]+)/x) {
+    if (/^module \s+ ([\w.]+) (\s* \()?/x) {
       $module_name = $1;
-    } elsif (/^import \s+ (?:qualified \s+)? ([\w.]+)/x) {
-      $imports{$1} = 1;
+      $exports = defined $2;
+    } elsif (/^import \s+ (qualified \s+)? ([\w.]+) (\s* \()?/x) {
+      $imports{$2} = [defined($1), defined($3)];
     } elsif (/^import|^module/) {
       warn "Unrecognised import|module: $_";
     }
@@ -48,17 +53,20 @@ find sub {
     return;
   }
 
-  $modules{$module_name} = \%imports;
+  $modules{$module_name} = [\%imports, $exports];
 }, 'src';
 
+delete $modules{$_} for @ignore;
+
 my ($nodes, $edges) = (0, 0);
-while (my ($name, $imports) = each %modules) {
-  $g->add_node($name);
+while (my ($name, $module) = each %modules) {
+  $g->add_node($name, color => ($module->[1] ? 'green' : 'black'));
   $nodes++;
 
-  while(my ($k, undef) = each %$imports) {
+  while(my ($k, $edge) = each %{$module->[0]}) {
     next unless exists $modules{$k}; # only pugs modules
-    $g->add_edge($name, $k);
+    my $color = $edge->[1] ? 'green' : $edge->[0] ? "blue" : "black";
+    $g->add_edge($name, $k, color => $color);
     $edges++;
   }
 }
