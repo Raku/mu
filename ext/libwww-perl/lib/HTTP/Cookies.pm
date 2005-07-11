@@ -1,7 +1,13 @@
 #!/usr/bin/pugs
 use v6;
 
+use HTTP::Date <str2time time2str>;
+use HTTP::Headers::Util <split_header_words join_header_words>;
+
 class HTTP::Cookies-0.0.1 {
+    ## Class variables
+    our $EPOCH_OFFSET;
+    
     ## Attributes
     has %:cookies           is rw;
     
@@ -10,13 +16,20 @@ class HTTP::Cookies-0.0.1 {
     has $.ignore_discard    is rw;
     has $.hide_cookie2      is rw;
     
+    $EPOCH_OFFSET = 0; # difference from Unix epoch
+    
+    if ($*OS eq "MacOS") {
+        require Time::Local;
+        $EPOCH_OFFSET = Time::Local::timelocal(0,0,0,1,0,70);
+    }
+    
     ## Creation and destruction
-    method new (Str $.file, Bool ?$.autosave = 0, Bool ?$.ignore_discard = 0, Bool ?$.hide_cookie2 = 0) returns HTTP::Cookies {
-        ...
+    submethod BUILD (Str $.file, Bool ?$.autosave = 0, Bool ?$.ignore_discard = 0, Bool ?$.hide_cookie2 = 0) {
+        ./load();
     }
     
     submethod DESTROY () {
-        ...
+        ./save() if $.autosave;
     }
     
     ## Instance methods
