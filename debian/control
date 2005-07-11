@@ -8,7 +8,6 @@ Standards-Version: 3.6.2
 Package: pugs
 Architecture: any
 Depends: ${shlibs:Depends}
-Suggests: parrot
 Description: A Perl 6 Implementation
  Pugs is an implementation of Perl 6, written in Haskell. It aims to implement
  the full Perl 6 specification, as detailed in the Synopses at
