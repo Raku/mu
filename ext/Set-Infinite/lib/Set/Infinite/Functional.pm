@@ -1,38 +1,44 @@
-﻿use v6;
+use v6;
 
 class Set::Infinite::Functional-0.01;
 
-# TODO - should not need this here
-use Span::Num; 
+use Span;
 
 has @.spans;
+has $.density;
 
 =for TODO
 
-    * is_infinite
     * compare
 
     * mark as "internal" class
 
-    * universal_set should not be typed as "Span::Num"
+    * base-type spans should not store 'density' inside them - it's duplicated
+
+    * set_density
+
+    * how to make the 'density' accessor read-only?
 
 =cut
 
-submethod BUILD ( @.spans ) {}
+submethod BUILD ( @.spans, ?$density ) {}
 
-method empty_set ($class: ) returns Set::Infinite::Functional {
-    $class.new( spans => () );
+method empty_set ($class: ?$density ) returns Set::Infinite::Functional {
+    $class.new( spans => (),
+                density => $density );
 }
 
-method universal_set ($class: ) returns Set::Infinite::Functional {
-    # TODO - don't use explicit span type (Span::Num) 
-    # TODO - test operating this result with "Span::Int" spans
-    $class.new( spans => Span::Num.new( 
-                           start => -Inf, end => Inf, 
-                           start_is_open => bool::true, end_is_open => bool::true ) );
+method universal_set ($class: ?$density ) returns Set::Infinite::Functional {
+    $class.new( spans => Span.new( 
+                           start => -Inf, end => Inf, density => $density ).span,
+                density => $density );
 }
 
 method is_empty () returns bool { return ! @.spans }
+
+method is_infinite ($self: ) returns bool {
+    return $self.start == -Inf || $self.end == Inf
+}
 
 method start () returns Object {
     return unless @.spans;
@@ -113,13 +119,18 @@ method intersects ( Set::Infinite::Functional $set ) returns bool {
 }
 
 method complement ($self: ) returns Set::Infinite::Functional {
-    return $self.universal_set() if $self.is_empty;
+    return $self.universal_set( density => $self.density ) 
+        if $self.is_empty;
     return @.spans.map:{ $self.new( spans => $_.complement ) }
                   .reduce:{ $^a.intersection( $^b ) };
 }
 
 method difference ($self: Set::Infinite::Functional $span ) returns Set::Infinite::Functional {
     return $self.intersection( $span.complement );
+}
+
+method compare ($self: Set::Infinite::Functional $span ) returns int {
+    ...
 }
 
 =kwid
@@ -138,7 +149,7 @@ Set::Infinite::Functional - An object representing an ordered set of spans.
 
 This class represents an ordered set of spans.
 
-For a more complete API, see `Set::Infinite`.
+It is intended mostly for "internal" use by the Set::Infinite class. For a more complete API, see `Set::Infinite`.
 
 = CONSTRUCTORS
 
@@ -152,9 +163,9 @@ Creates a set containing zero or more `Span::Int` or `Span::Num` span objects.
 
 The array of spans must be ordered, and the spans must not intersect with each other.
 
-- empty_set()
+- empty_set( density => $d )
 
-- universal_set()
+- universal_set( density => $d )
 
 = OBJECT METHODS
 
@@ -212,9 +223,15 @@ This method return a logical value.
   
 - is_empty()
 
+- is_infinite()
+
 - `spans()`
 
 Returns a list of `Span::Int` or `Span::Num` objects.
+
+- `density()`
+
+  # XXX
 
 = AUTHOR
 

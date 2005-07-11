@@ -1,10 +1,8 @@
 - Ordered sets classes:
 
-  Span - An object representing a single span
+  Set::Infinite - An object representing recurrences, multiple spans, etc. TODO
 
   Set::Recurrence - An object representing a recurrence  TODO
-
-  Set::Infinite - An object representing recurrences, multiple spans, etc. TODO
 
 - Functional versions of some of the above classes:
 
@@ -12,8 +10,8 @@
 
 - Internal classes
 
-  Span::Int
-
-  Span::Num
-
   Set::Infinite::Functional
+
+TESTING
+
+  pugs -I../Test/lib -Ilib/Span/lib -Ilib t/test-name-here

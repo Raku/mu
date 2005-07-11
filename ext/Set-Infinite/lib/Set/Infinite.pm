@@ -3,38 +3,33 @@ use v6;
 class Set::Infinite-0.01;
 
 use Span;
+use Set::Infinite::Functional;
 
-has $.set;
-has $.density
+has Set::Infinite::Functional $.set;
 
 =for TODO
 
     * tests
 
-    * union
-    * intersection
-    * complement
-    * intersects
     * compare
-
-    * is_infinite
 
     * set_start_open / set_start_closed
     * set_end_open / set_end_closed
         - better names ?
 
-    * set_density / density
+    * set_density 
 
-    * an empty span can have a density
-    
-    * create a store for single elements (Span::Singleton)
     * is_singleton
+
+    * spans - return List of Span
+
+    * "backtracking" - see Perl5 version
+
+    * first_span/last_span
 
 From "Set" API:
 
     * equal/not_equal
-    * stringify
-    * difference
     * symmetric_difference
     * proper_subset
     * proper_superset
@@ -46,9 +41,9 @@ From "Set" API:
 =cut
 
 submethod BUILD ($class: *%param is copy ) {    
-    my $density;
-    $density = 1 if %param<int>;
-    $density = %param<density> if defined %param<density>;
+    # XXX - test if density is working properly
+    $.density = 1 if %param<int>;
+    $.density = %param<density> if defined %param<density>;
 
     my @spans;
 
@@ -72,6 +67,10 @@ submethod BUILD ($class: *%param is copy ) {
 }
 
 method is_empty () returns bool { return $.set.is_empty }
+
+method is_infinite () returns bool { return $.set.is_infinite }
+
+method density () returns Object { return $.set.density }
 
 method start () returns Object { return $.set.start }
 
@@ -134,40 +133,89 @@ method end_is_closed () returns Bool { return $.set.end_is_closed }
 method stringify () returns String { return $.set.stringify }
 method size () returns Object { return $.set.size }
 
-method contains ($self: $span is copy) returns bool {
-    # XXX TODO - the parameter may be a Set::Infinite
-    return bool::false unless defined $.span;
-    $span = $self.new( object => $span )
-        if ! ( $span.isa( $self.ref ) );
+submethod normalize_parameter ($self: $span) {
+    # is it a Set::Infinite ?
+    return $span.span if $span.isa( $self.ref );
+
+    # is it a Set::Infinite::Functional ?
+    my $span0 = $self.span;
+    return $span if $span.isa( $span0.ref );
+
     ...
+
+    # other types: Span, Span::Num, Span.Int, Object
+
+    my ( $start, $end );
+    # XXX - '.can' doesn't work
+    if $span.isa( 'Span::Num' ) || $span.isa( 'Span.Int')
+    {
+        $start = $span.start;
+        $end = $span.end;
+    }
+    else
+    {
+        $start = $end = $span;
+    }
+    return $span0.new( start => $start, end => $end );
+}
+
+method compare ($self: $span is copy) {
+    my $span0 = $self.span;
+    my $span1 = $self.normalize_parameter( $span );
+    return $span0.compare( $span1 );
+}
+
+method contains ($self: $span is copy) returns bool {
+    return bool::false if $.span.is_empty;
+
+    my $span0 = $self.span;
+    my $span1 = $self.normalize_parameter( $span );
+    my $union = $span0.union( $span1 );
+
+    return $span0.compare( $union ) == 0;
 }
 
 method intersects ($self: $span is copy) returns bool {
-    # XXX TODO - the parameter may be a Set::Infinite
-    return bool::false unless defined $.span;
-    $span = $self.new( object => $span )
-        if ! ( $span.isa( $self.ref ) );
-    my $span1 = $self.span;
-    ...
+    my $span0 = $self.span;
+    my $span1 = $self.normalize_parameter( $span );
+    return $span0.intersects( $span1 );
 }
 
 method union ($self: $span ) returns Set::Infinite {
-    $span = $self.new( object => $span )
-        if ! ( $span.isa( $self.ref ) );
-    ...
+    my $span0 = $self.span;
+    my $span1 = $self.normalize_parameter( $span );
+    my $tmp = $span0.union( $span1 );
+    
+    my $res = Set::Infinite.new();
+    $res.set = $tmp;
+    return $res;
 }
 method intersection ($self: $span ) returns Set::Infinite {
-    $span = $self.new( object => $span )
-        if ! ( $span.isa( $self.ref ) );
-    ...
+    my $span0 = $self.span;
+    my $span1 = $self.normalize_parameter( $span );
+    my $tmp = $span0.intersection( $span1 );
+   
+    my $res = Set::Infinite.new();
+    $res.set = $tmp;
+    return $res;
 }
 method complement ($self: ) returns Set::Infinite {
-    ...
+    my $span0 = $self.span;
+    my $tmp = $span0.complement;
+
+    my $res = Set::Infinite.new();
+    $res.set = $tmp;
+    return $res;
 }
 method difference ($self: $span ) returns Set::Infinite {
-    $span = $self.new( object => $span )
-        if ! ( $span.isa( $self.ref ) );
-    ...
+    my $span0 = $self.span;
+    my $span1 = $self.normalize_parameter( $span );
+    my $tmp = $span1.complement;
+    $tmp = $span0.intersection( $tmp );
+
+    my $res = Set::Infinite.new();
+    $res.set = $tmp;
+    return $res;
 }
 
 =kwid
@@ -178,7 +226,7 @@ Span::Set - An object representing an ordered set of spans
 
 = SYNOPSIS
 
-  use Span::Set;
+  use Set::Infinite;
 
   # XXX
 
@@ -204,7 +252,7 @@ Creates a `Set::Infinite` object using an existing span.
 
 Creates a set with "integer" semantics. 
 
-The default is "real number" semantics (density = 0).
+The default is "real number" semantics (density = undef).
 
 - `new( spans => $day_span, :density($day_duration) )`
 
