@@ -1,4 +1,4 @@
-﻿#!/usr/bin/pugs
+#!/usr/bin/pugs
 
 use v6;
 use Test;
@@ -46,7 +46,7 @@ sub run_tests_with($class) {
 	    my $foo = $class.new();
 	    $foo.bar = 'software';
 	    $val = "$foo"
-	}, '... class methods work for class', :todo<feature>;
+	}, '... class methods work for class';
 	is($val, 'software', '... basic prefix operator overloading worked', :todo<feature>);
 
 	lives_ok {
@@ -64,7 +64,7 @@ sub run_tests_with($class) {
       lives_ok {
 	  $obj     = $class.new;
 	  $obj.bar = "pugs";
-      }, "instantiating a class which defines operators worked", :todo<feature>;
+      }, "instantiating a class which defines operators worked";
 
       my @foo = ($obj, $obj, $obj);
       my $res;

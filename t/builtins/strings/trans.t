@@ -26,8 +26,7 @@ is("ABC".trans( 'A-C' => 'a-c' ),"abc",
 
 # This works by accedent.
 is("ABCXYZ".trans( ['A'..'C'] => ['a'..'c'], <X Y Z> => <x y z> ),"abcxyz",
-		   "The two sides of each pair may also be array references"
-		   ,:todo);
+		   "The two sides of each pair may also be array references" );
 
 is(" <>&".trans( [' ',      '<',    '>',    '&'    ] => 
                  ['&nbsp;', '&lt;', '&gt;', '&amp;' ]),"&nbsp;&lt;&gt;&amp;",

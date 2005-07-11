@@ -45,5 +45,5 @@ my $fud;
 
 lives_ok {
     $fud = $foo_bar.getme.fud;
-}, 'chained method dispatch on altered method', :todo<bug>;
-is($fud, "Foo::Bar::fud", "returned value is correct", :todo<bug>);
+}, 'chained method dispatch on altered method';
+is($fud, "Foo::Bar::fud", "returned value is correct");
