@@ -118,7 +118,8 @@ test to the top of the body evaluation.
 enterWhile :: Eval Val -- ^ Evaluation representing loop test & body
            -> Eval Val
 enterWhile action = genSymCC "&last" $ \symLast -> do
-    genSymPrim "&next" (const action) $ \symNext -> do
+    -- genSymPrim "&next" (const action) $ \symNext -> do
+    callCC $ \esc -> genSymPrim "&next" (const $ action >>= esc) $ \symNext -> do
         enterLex [symLast, symNext] action
 
 {-|
