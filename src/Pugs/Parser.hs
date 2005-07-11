@@ -485,7 +485,10 @@ ruleMemberDeclaration = do
 ruleVarDeclaration :: RuleParser Exp
 ruleVarDeclaration = rule "variable declaration" $ do
     scope       <- ruleScope
-    optional $ do { ruleQualifiedIdentifier ; whiteSpace } -- Type
+    typename    <- choice
+        [ do { name <- ruleQualifiedIdentifier ; whiteSpace ; return name }
+        , return ""
+        ]  -- Type
     (decl, lhs) <- choice
         [ do -- pos  <- getPosition
              name <- ruleVarName
@@ -498,13 +501,28 @@ ruleVarDeclaration = rule "variable declaration" $ do
     many ruleTrait -- XXX
     -- pos <- getPosition
     (sym, expMaybe) <- option ("=", Nothing) $ do
-        sym <- tryChoice $ map string $ words " = := ::= "
+        sym <- tryChoice $ map string $ words " = .= := ::= "
         when (sym == "=") $ do
            lookAhead (satisfy (/= '='))
            return ()
         whiteSpace
         exp <- ruleExpression
-        return (sym, Just exp)
+        -- Slightly hacky. Here "my Foo $foo .= new(...)" is rewritten into
+        -- "my Foo $foo = Foo.new(...)".
+        -- And note that IIRC not the type object should be the invocant, but
+        -- an undef which knows to dispatch .new to the real class.
+        let exp' | Pos _ (App sub Nothing args) <- exp, sym == ".=" && typename /= ""
+                 = return $ App sub (Just . Var $ ':':typename) args
+                 | sym == ".=" && typename /= ""
+                 = fail "The .= operator expects a method application as RHS."
+                 | sym == ".="
+                 = fail "The .= operator needs a type specification."
+                 | otherwise
+                 = return exp
+        let sym' | sym == ".=" = "="
+                 | otherwise   = sym
+        exp'' <- exp'
+        return (sym', Just exp'')
     lexDiff <- case sym of
         "::="   -> do
             env  <- getRuleEnv

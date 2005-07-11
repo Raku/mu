@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 9;
+plan 10;
 
 # L<S12/"Construction and Initialization">
 
@@ -43,3 +43,10 @@ ok 'Foo.new("a string") ~~ Foo', '... our Foo instance was created';
 
 eval_is 'Foo.new("a string").a', 'a string', "our own 'new' was called", :todo<feature>;
 
+
+# Using ".=" to create an object
+{
+  class Bar { has $.attr }
+  my Bar $bar .= new(:attr(42));
+  is $bar.attr, 42, "instantiating an object using .= worked (1)";
+}
