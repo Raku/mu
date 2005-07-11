@@ -13,7 +13,7 @@ module Pugs.Run (
     runWithArgs,
     prepareEnv, runEnv,
     runAST, runComp,
-    getLibs,
+    getLibs, _BypassPreludePC,
 ) where
 import Pugs.Run.Args
 import Pugs.Run.Perl5 ()
@@ -26,6 +26,7 @@ import Pugs.Eval
 import Pugs.Prim
 import Pugs.Prim.Eval
 import Pugs.Embed
+import Data.IORef
 import qualified Data.Map as Map
 
 #include "PreludePC.hs"

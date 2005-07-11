@@ -71,9 +71,20 @@ sub precomp {
  
 -}
 
+{-# NOINLINE _BypassPreludePC #-}
+_BypassPreludePC :: IORef Bool
+_BypassPreludePC = unsafePerformIO $ do
+    bypass <- getEnv "PUGS_BYPASS_PRELUDE"
+    newIORef $ case bypass of
+        Nothing     -> False
+        Just ""     -> False
+        Just "0"    -> False
+        _           -> True
+
 {-# NOINLINE initPreludePC #-}
 initPreludePC :: Env -> IO Env
 initPreludePC env = do
+    bypass <- readIORef _BypassPreludePC
     if bypass then return env else do
         -- Display the progress of loading the Prelude, but only in interactive
         -- mode (similar to GHCi):
@@ -88,12 +99,6 @@ initPreludePC env = do
         runEnv env{ envBody = ast, envGlobal = globRef, envDebug = Nothing }
         when dispProgress $ putStrLn "done."
         return env{ envGlobal = globRef }
-    where
-    bypass = case (unsafePerformIO $ getEnv "PUGS_BYPASS_PRELUDE") of
-        Nothing     -> False
-        Just ""     -> False
-        Just "0"    -> False
-        _           -> True
 
 .
 

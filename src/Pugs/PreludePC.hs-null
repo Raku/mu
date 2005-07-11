@@ -6,6 +6,10 @@ to initialize it.
 
 -}
 
+{-# NOINLINE _BypassPreludePC #-}
+_BypassPreludePC :: IORef Bool
+_BypassPreludePC = unsafePerformIO $ newIORef False
+
 initPreludePC :: Env -> IO Env
 initPreludePC = return
 
