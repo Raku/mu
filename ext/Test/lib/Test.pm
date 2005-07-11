@@ -113,8 +113,13 @@ sub isa_ok (Any|Junction|Pair $ref is rw, Str $expected_type, Str +$desc, +$todo
 
 sub use_ok (Str $module, +$todo, +$depends) is export {
     my $caller = caller().package;
+    
     eval "package $caller; require $module";
-    #&::($module ~ ".import").goto;
+    
+    #try {
+    #	&::($module)::import.goto();
+    #};
+    
     if ($!) {
 	    proclaim(undef, "require $module;", $todo, "Import error when loading $module: $!", :depends($depends));
     }
