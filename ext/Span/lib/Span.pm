@@ -22,6 +22,9 @@ class Span-0.01
     * empty_span
         - test with "density"
     * universal_span
+
+    * create a store for single elements (Span::Singleton)
+    * is_singleton
     
 From "Set" API:
 
