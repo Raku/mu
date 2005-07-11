@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 53;
+plan 55;
 
 use_ok( 'Span' );
 use Span;   # XXX should not need this
@@ -11,6 +11,9 @@ use Span;   # XXX should not need this
 my $span = Span.new( :start(1), :end(3) );
 
 isa_ok( $span, 'Span', 'created a Span' );
+
+# XXX 'can()' is broken
+# $span.can('start');
 
 is( $span.is_empty, bool::false, 'is not empty' );
 is( $span.stringify, '[1,3]', 'stringify' );
@@ -56,6 +59,8 @@ is( Span.new( :start(1), :end(3), :int(1) ).size, 3, "integer size" );
 my $span2 = Span.new( start => 2, end => 4 );
 
 my $span3 = Span.new( start => 4, end => 6 );
+
+is( $span.compare( 10 ), '-1', 'compare' );
 
 is( $span.intersects( 2 ), bool::true, 'intersects object' );
 is( $span.intersects( $span2 ), bool::true, 'intersects span' );
@@ -126,6 +131,8 @@ if(0)
     # say $i while $i = $iter.next;
     is( $i = $iter.next, 1, 'iterator next 0' );
     is( $i = $iter.current, 1, 'iterator currenct' );
+    $iter.reset;
+    is( $i = $iter.next, 1, 'iterator reset next 0' );
     is( $i = $iter.next, 2, 'iterator next 1' );
     is( $i = $iter.next, undef, 'iterator next 2' );
     }

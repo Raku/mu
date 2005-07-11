@@ -12,8 +12,6 @@ class Span-0.01
     
     * from_start_and_duration
     
-    * compare
-
     * set_start_open / set_start_closed
     * set_end_open / set_end_closed
         - better names ?
@@ -204,7 +202,6 @@ method end_is_closed () returns Bool {
 }
 
 method stringify () returns String {
-    # return '' if $.span.is_empty;
     return $.span.stringify;
 }
 
@@ -231,6 +228,16 @@ submethod normalize_parameter ($self: $span) {
         $start = $end = $span;
     }
     return $span0.new( start => $start, end => $end );
+}
+
+method compare ($self: $span is copy) returns int { 
+    my $span0 = $self.span;
+    my $span1 = $self.normalize_parameter( $span );
+
+    return 0  if $span0.is_empty && $span1.is_empty;
+    return -1 if $span0.is_empty;
+    return 1  if $span1.is_empty;
+    return $span0.compare( $span1 );
 }
 
 method contains ($self: $span is copy) returns bool {
@@ -329,6 +336,9 @@ class Span::Iterator
         $.current = $.current - $.span.density;
         return $.current = undef if $.current < $.span.start;
         return $.current;
+    }
+    method reset () {
+        undefine $.current;
     }
 }
 
@@ -471,7 +481,7 @@ emptied in this case).
 
 Return a logical value, whether the `start` or `end` values belong to the span ("closed") or not ("open").
 
-- size
+- `size()`
 
 Return the "size" of the span.
 
@@ -481,30 +491,30 @@ For example: if `start` and `end` are times, then `size` will be a duration.
 
 These methods return a logical value. The argument can be a single value, or a Span.
 
-- union( $span )
+- `union( $span )`
 
 Returns a list of Spans. If the spans overlap, then the list contains a single
 span. Otherwise, it contains two spans.
 
-- complement
+- `complement()`
 
 Returns a list of Spans. If one side of the span if Infinite, then the list contains
 a single span. Otherwise, it contains two spans.
 
-- difference
+- `difference( $span )`
 
 Returns a list of Spans. The list may have from zero to 2 spans.
 
-- intersection 
+- `intersection( $span )` 
 
 Returns a list os Spans. The list may be empty, if the spans don't intersect. 
 Otherwise, it contains a single span.
 
-- stringify 
+- `stringify ()`
 
 Return a string representation of the span.
 
-- compare
+- `compare( $span )`
 
 Compares the spans numerically. Returns -1, 0, or 1.
 
@@ -512,7 +522,7 @@ Compares the spans numerically. Returns -1, 0, or 1.
 
 Returns `true` if the span is empty.
 
-- is_infinite()
+- `is_infinite()`
 
 Returns true if the start or the end of the span are Infinite.
 
@@ -523,7 +533,7 @@ Returns an iterator:
     $iter = $span.iterator;
     say $i while $i = $iter.next;
 
-The iterator has `next()` and `previous()` methods.
+The iterator has `next()`, `previous()`, `current()`, and `reset()` methods.
 
 If the span doesn't have a "density" value, this method emits a warning and returns undef.
 
