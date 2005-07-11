@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 880;
+plan 881;
 
 is(("abc" ~~ rx:P5/abc/ && $<>), "abc", 're_tests 1/0 (1)');
 is(("abc" ~~ rx:P5/abc/ && $/.from), 0, 're_tests 1/0 (2)');
@@ -125,7 +125,9 @@ is(("a(b" ~~ rx:P5/a\(b/ && $<>), "a(b", 're_tests 199/0 (231)');
 is(("a(b" ~~ rx:P5/a\(b/ && $0), "", 're_tests 199/1 (232)');
 is(("ab" ~~ rx:P5/a\(*b/ && $<>), "ab", 're_tests 201/0 (235)');
 is(("a((b" ~~ rx:P5/a\(*b/ && $<>), "a((b", 're_tests 203/0 (237)');
-is(("a\b" ~~ rx:P5/a\\b/ && $<>), "a\b", 're_tests 205/0 (239)', :todo<bug>);
+my $backspace = "\b";
+is(("a\b" ~~ rx:P5/a$backspace/ && $<>), "a\b", 're_tests 205/0 (239)');
+is(("a\\b" ~~ rx:P5/a\\b/ && $<>), "a\\b", 're_tests 205/0 (239)');
 is(("abc" ~~ rx:P5/((a))/ && $<>), "a", 're_tests 207/0 (241)');
 is(("abc" ~~ rx:P5/((a))/ && $0), "a", 're_tests 207/1 (242)');
 is(("abc" ~~ rx:P5/((a))/ && $1), "a", 're_tests 207/2 (243)');
