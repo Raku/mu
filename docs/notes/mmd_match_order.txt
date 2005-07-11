@@ -25,9 +25,10 @@ MMD order of particularity:
 	3. type matching (possibly junctive, see 1.):
 		3.1 Exact class of value
 		3.2 Superclasses sorted on single vector
-			- Any multiple inheritance with more than 1 match is a dispatch
-			  error (try compile time error at def time, if there is a known
-			  class for the possible instance?)
+			- Any multiply inheriting invocant with more than one matching
+			  superclass type in differring multis is a dispatch error (try
+			  compile time error at def time, if there is a known class for the
+			  possible instance?)
 		3.3 Specific role composite
 			- specifity: role x does role y. class c does role x, so it also
 			  does role y. In this case role 'x' will win role 'y' in a
@@ -112,7 +113,7 @@ Both pragmas are lexical to the code making the call.
 ~~~~~~~~~~~~~~~~~
 
 Here is a different proposal (Luke's) for MMD matching which involves solving
-the Halting problem because of subtypes.  He hopes to create a sane comprimise
+the Halting problem because of subtypes.  He hopes to create a sane compromise
 between the above proposal and this one.
 
 Multimethods have a partial ordering.  If more than one multimethod is
