@@ -28,9 +28,9 @@ sub try_it {
     is($code(), $expected, $desc);
 }
 sub try_it_caller { try_it(*@_) }                                # (line 30.)
-class A { method try_it_caller_A { try_it_caller(*@_) } }
+class A { method try_it_caller_A { &main::try_it_caller(*@_) } }
 sub try_it_caller_caller { A.try_it_caller_A(*@_) }
-class B { method try_it_caller_B { try_it_caller_caller(*@_) } }
+class B { method try_it_caller_B { &main::try_it_caller_caller(*@_) } }
 sub chain { B.try_it_caller_B(*@_) }
 
 # must use parentheses after caller
