@@ -812,7 +812,9 @@ preludePIR = emit $
         , rv       <-- "find_name" $ [tempSTR]
         ] --> [rv]
     , sub "&exit" [arg0]
-        [ lit "&*END" .& []
+        [ tempPMC  <-- "find_global" $ [lit "main", lit "&*END"]
+        , "set_args" .- sigList []
+        , "invokecc" .- [tempPMC]
         , tempINT <:= arg0
         , "exit" .- [tempINT]
         ]

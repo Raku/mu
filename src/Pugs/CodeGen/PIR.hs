@@ -377,7 +377,9 @@ genPIR = do
             , "store_global"    .- [lit "$_", tempPMC]
             ]) ++ [ StmtRaw (text (name ++ "()")) | PSub name@('_':'_':_) _ _ _ <- globPIL ] ++
             [ StmtRaw (text "main()")
-            , StmtIns ("exit" .- [lit0])
+            , StmtIns $ tempPMC  <-- "find_global" $ [lit "Perl6::Internals", lit "&exit"]
+            , StmtIns $ "set_args" .- sigList [MkSig [] lit0]
+            , StmtIns $ "invokecc" .- [tempPMC]
             ]
         , DeclSub "main" [SubANON] [ StmtRaw $ emit mainPIR ]
         ] ] ]
