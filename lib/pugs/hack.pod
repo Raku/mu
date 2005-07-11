@@ -231,3 +231,15 @@ C<pugs>, i.e. the compiler/interpreter.
 is the name of the Perl 5 interpreter.
 
 =back
+
+=head2 Resources
+
+=over
+
+=item *
+
+L<http://www-users.cs.york.ac.uk/~ndm/hoogle/> A cross index of
+standard Haskell libraries. It is searchable by type signature, name,
+etc.
+
+=back
