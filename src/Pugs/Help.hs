@@ -36,8 +36,8 @@ printCommandLineHelp
    = do putStrLn "Usage: pugs [switches] [programfile] [arguments]"
         putStrLn "Command-line flags:"
         putStrLn "-e program       one line of program (several -e's allowed, omit programfile)"
-        putStrLn "-n               wrap the -e fragments in while(=<>){...} loop"
-        putStrLn "-p               wrap the -e fragments in while(=<>){...;say} loop"
+        putStrLn "-n               wrap the -e fragments in a 'while(=<>){...}' loop"
+        putStrLn "-p               wrap the -e fragments in a 'while(=<>){...;say}' loop"
         putStrLn "-c               parse the file or -e, but do not run it"
         putStrLn "-Bbackend        execute using the compiler backend"
         putStrLn "-Cbackend        compile using the compiler backend"
@@ -47,7 +47,7 @@ printCommandLineHelp
         putStrLn "-V               long configuration information & version"
         putStrLn "-V:item          short configuration information for item"
         putStrLn "-v or --version  version"
-        putStrLn "-l -d and -w are ignored for compatability with Perl 5"
+        putStrLn "-l -d and -w are ignored for compatibility with Perl 5"
         putStrLn "See documentation of pugs::run for more help."
     where
     backendsStr = foldr1 addComma backends
