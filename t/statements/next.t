@@ -14,7 +14,7 @@ next <label> in nested loops
 
 =cut
 
-plan 9;
+plan 11;
 
 # test for loops with next
 
@@ -108,3 +108,17 @@ Check that C<next> works on the correct loop/block
     }
 	is($bar, "ABCCBCCABCCBCC", "next works on inner loop of 3");
 }
+
+{
+	my @log;	
+	my $i;
+	while ++$i < 2 {
+		push @log, "before";
+		next;
+		push @log, "after";
+	}
+	
+	is(~@log, "before", "statements after next are not executed");
+}
+
+
