@@ -87,3 +87,27 @@ Coercion of an 'is rw' field must be done manually outside MMD. Good style is
 creating a &original.wrap with an MMD signature of the type we're coercing from
 that takes care of the bidirectional conversion.
 
+
+
+On ties and ambiguity:
+
+Ties are a fatal error, preferably at compile time.
+
+If there are two MMD signatures that have a competing signature, then they cannot coexist.
+
+The only exception to this rule is that given a conflict, a special error
+handler could be used by the consuming code to redefine some of the MMD - take
+preference, redefine a signature, and so forth.
+
+Runtime errors can be avoided by using a lexical pragma at the caller level.
+This is off by default. If that is the case, tye breaking semantics are as such:
+
+	In a given file the method occurring BEFORE another is the default
+
+	In the whole program the method occurring in a LATER file is the default
+
+When this is forced, a warning is emitted unless in addition to the 'use
+mmd::insanity' pragma the user has 'no warnings mmd::insanity'.
+
+Both pragmas are lexical to the code making the call.
+
