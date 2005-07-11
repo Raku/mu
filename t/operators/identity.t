@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 23;
+plan 25;
 
 ok(1 =:= 1, "int");
 ok(!(2 =:= 1), "int (neg)");
@@ -24,6 +24,12 @@ ok(!("7" =:= 7), "identify checks type mismatch");
   ok($foo == $bar, "sanity");
   ok(!($foo =:= $bar), "being an object makes it not identical",
 	:todo<feature>);
+}
+
+{
+  my $f = sub {};
+  ok($f =:= $f, "sub in one scalar");    
+  ok(&say =:= &say, "&say =:= &say");
 }
 
 class TestObj {
