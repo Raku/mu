@@ -492,8 +492,8 @@ sub new_queue(Bool ?$floodcontrol = 0) {
   my @queue;
 
   my $bucket = $floodcontrol
-    ?? new_bucket(rate => (1/2),    burst_size => 5)
-    :: new_bucket(rate => (1000/2), burst_size => 5000); # hack
+    ?? Algorithm::TokenBucket::new_bucket(rate => (1/2),    burst_size => 5)
+    :: Algorithm::TokenBucket::new_bucket(rate => (1000/2), burst_size => 5000); # hack
   $bucket<fill>();
 
   # "Instance methods"

@@ -45,7 +45,7 @@ sub on_privmsg($event) {
 
     when rx:P5/^\?seen\s+(.+)$/ {
       my $reply_msg = %seen{$0}
-	?? "$0 was last seen {time() - %seen{$0}<date>} seconds ago, saying: %seen{$0}<text>"
+	?? "$0 was last seen {int(time() - %seen{$0}<date>)} seconds ago, saying: %seen{$0}<text>"
 	:: "Never seen $0.";
       $bot<notice>(to => $reply_to, text => $reply_msg);
     }
