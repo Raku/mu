@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 46;
+plan 53;
 
 use_ok( 'Span' );
 use Span;   # XXX should not need this
@@ -12,7 +12,15 @@ my $span = Span.new( :start(1), :end(3) );
 
 isa_ok( $span, 'Span', 'created a Span' );
 
+is( $span.is_empty, bool::false, 'is not empty' );
 is( $span.stringify, '[1,3]', 'stringify' );
+
+{
+    my $a = Span.new();
+    isa_ok( $a, 'Span', 'created an empty Span' );
+    is( $a.is_empty, bool::true, 'created an empty Span is_empty' );
+    is( $a.stringify, '', 'created an empty Span stringify' );
+}
 
 isa_ok( Span.new( object => 10 ), 'Span', 'created a Span with a single element' );
 
@@ -117,6 +125,7 @@ if(0)
     my $i;
     # say $i while $i = $iter.next;
     is( $i = $iter.next, 1, 'iterator next 0' );
+    is( $i = $iter.current, 1, 'iterator currenct' );
     is( $i = $iter.next, 2, 'iterator next 1' );
     is( $i = $iter.next, undef, 'iterator next 2' );
     }
@@ -131,3 +140,18 @@ if(0)
     }
 }
 
+{
+    my $span = Span.new( :int(1) );
+
+    {
+    my $iter = $span.iterator;
+    my $i;
+    is( $i = $iter.next, undef, 'next undef' );
+    }
+
+    {
+    my $iter = $span.iterator;
+    my $i;
+    is( $i = $iter.previous, undef, 'previous undef' );
+    }
+}

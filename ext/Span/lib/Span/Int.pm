@@ -20,8 +20,8 @@ has $.density;
 
 submethod BUILD ( $.start, $.end, ?$.density = 1 ) {}
 
-method empty_span ($class: ) {
-    return $class.new();
+method empty_span ($class: ?$density = 1 ) {
+    return $class.new( start => undef, end => undef, density => $density );
 }
 
 method is_empty () { return ! defined( $.start ) }
@@ -74,6 +74,7 @@ method intersection ($self: Span::Int $span )
 }
 
 method stringify () returns String {
+    return '' unless defined $.start;
     my $tmp1 = "$.start";
     my $tmp2 = "$.end";
     return $tmp1 if $tmp1 eq $tmp2;
@@ -95,15 +96,15 @@ Span::Int - An object representing a single span, with a simple functional API.
 
 = SYNOPSIS
 
-  use Span:::Int;
+  use Span::Int;
 
-  # XXX
+  $span = new( start => $start, end => $end );
 
 = DESCRIPTION
 
 This class represents a single span.
 
-For a more complete API, see `Span`.
+It is intended mostly for "internal" use by the Span class. For a more complete API, see `Span`.
 
 = CONSTRUCTORS
 
@@ -131,27 +132,15 @@ If `start` and `end` are times, then `size` is a duration.
 
 - union
 
-  # XXX
-
 - complement
-
-  # XXX
 
 - intersects
 
-  # XXX
-
 - intersection 
-
-  # XXX
 
 - stringify 
 
-  # XXX
-
 - compare 
-
-  # XXX
 
 = AUTHOR
 

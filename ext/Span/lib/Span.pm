@@ -97,7 +97,7 @@ submethod BUILD ($class: *%param is copy ) {
         }
         else
         {
-            $.span = Span::Int.empty_span;
+            $.span = Span::Int.empty_span( :density($density) );
         }
     }
     else
@@ -123,7 +123,7 @@ submethod BUILD ($class: *%param is copy ) {
         }
         else
         {
-            $.span = Span::Num.empty_span;
+            $.span = Span::Num.empty_span();
         }
     }
 }
@@ -204,7 +204,7 @@ method end_is_closed () returns Bool {
 }
 
 method stringify () returns String {
-    return '' if $.span.is_empty;
+    # return '' if $.span.is_empty;
     return $.span.stringify;
 }
 
