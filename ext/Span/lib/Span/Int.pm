@@ -45,13 +45,13 @@ method complement ($self: ) returns List of Span::Int
 {
     if $.end == Inf {
         return () if $.start == -Inf;
-        return $self.new( start => -Inf, end => $.start - $.density );
+        return $self.new( start => -Inf, end => $.start - $.density, density => $.density );
     }
     if $.start == -Inf {
-        return $self.new( start => $.end + $.density,  end =>   Inf );
+        return $self.new( start => $.end + $.density,  end =>   Inf, density => $.density );
     }
-    return (   $self.new( start => -Inf, end => $.start - $.density ),
-               $self.new( start => $.end + $.density,  end =>   Inf ) );
+    return (   $self.new( start => -Inf, end => $.start - $.density, density => $.density ),
+               $self.new( start => $.end + $.density,  end =>   Inf, density => $.density ) );
 }
 
 multi method union ($self: Span::Int $span ) 
@@ -61,7 +61,7 @@ multi method union ($self: Span::Int $span )
     return ( $span, $self ) if $span.end + $.density < $.start;
     my $i_start = $.start > $span.start ?? $span.start :: $.start;
     my $i_end =   $.end   < $span.end   ?? $span.end   :: $.end;
-    return $self.new( start => $i_start, end =>   $i_end );
+    return $self.new( start => $i_start, end =>   $i_end, density => $.density );
 }
 
 method intersection ($self: Span::Int $span ) 
@@ -70,7 +70,7 @@ method intersection ($self: Span::Int $span )
     my $i_start = $.start < $span.start ?? $span.start :: $.start;
     my $i_end =   $.end > $span.end     ?? $span.end   :: $.end;
     return () if $i_start > $i_end;
-    return $self.new( start => $i_start, end =>   $i_end );
+    return $self.new( start => $i_start, end =>   $i_end, density => $.density );
 }
 
 method stringify () returns String {
