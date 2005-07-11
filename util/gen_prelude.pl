@@ -1,6 +1,7 @@
 #!/usr/bin/perl -w
 
 use strict;
+use IPC::Open2;
 use Getopt::Long;
 use Config ();
 
@@ -42,7 +43,15 @@ sub precomp {
     print STDERR "Installing precompiled prelude... " if $Config{verbose};
     die "*** Error: $0 needs an already compiled Pugs to precompile the Prelude\n"
         unless $Config{pugs};
-    open my $pc, "$Config{pugs} -CPugs $Config{inline} |" or die "open: $!";
+    $ENV{PUGS_COMPILE_PRELUDE} = 1;
+
+    my ($rh, $wh);
+    my $pid = open2($rh, $wh, $Config{pugs}, -C => 'Pugs', $Config{inline});
+    my $program = do { local $/; <$rh> };
+    waitpid($pid, 0);
+
+    exit 1 unless length $program;
+
     print <<'.';
 {-
     *** NOTE ***
@@ -87,17 +96,14 @@ initPreludePC env = do
         _           -> True
 
 .
-    while (<$pc>) {
-        next if 1 .. /runAST/; # FIXME this is fragile.
-        s/^globC/globPCP/ and print "globPCP :: IO Pad\n";
-        s/^expC/astPCP/   and print "astPCP :: IO Exp\n";
-        print;
-    }
-    close($pc);
+
+    $program =~ s/.*^globC/globPCP :: IO Pad\nglobPCP/ms;
+    $program =~ s/^expC/astPCP :: IO Exp\nastPCP/ms;
+    print $program;
+
     die "Pugs ".(($?&255)?"killed by signal $?"
 		 :"exited with error code ".($?>>8)) if $?;
     print STDERR "done.\n" if $Config{verbose};
-
 }
 
 sub usage {
