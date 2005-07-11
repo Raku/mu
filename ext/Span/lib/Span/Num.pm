@@ -39,6 +39,8 @@ method end_is_closed () returns bool {
     return ! $.end_is_open;
 }
 
+method density () { return undef }
+
 method intersects ( Span::Functional $span ) returns bool {
     my ($i_start, $i_end);
     my bool $open_start;

@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 55;
+plan 56;
 
 use_ok( 'Span' );
 use Span;   # XXX should not need this
@@ -17,6 +17,7 @@ isa_ok( $span, 'Span', 'created a Span' );
 
 is( $span.is_empty, bool::false, 'is not empty' );
 is( $span.stringify, '[1,3]', 'stringify' );
+is( $span.density, undef, 'get density continuous is undef' );
 
 {
     my $a = Span.new();
@@ -50,11 +51,15 @@ is( $span.end_is_closed,   bool::true, "end_is_closed" );
 
 is( $span.size, 2, "real size" );
 
-# XXX - this should work too
-# is( Span.new( :start(1), :end(3), :int ).size, 3, "integer size" );
+{
+    my $ispan = Span.new( :int, :start(1), :end(3) );
 
-is( Span.new( :int, :start(1), :end(3) ).size, 3, "integer size" );
-is( Span.new( :start(1), :end(3), :int(1) ).size, 3, "integer size" );
+    # XXX - this should work too
+    # is( Span.new( :start(1), :end(3), :int ).size, 3, "integer size" );
+
+    is( $ispan.size, 3, "integer size" );
+    is( $ispan.density, 1, 'get density integer is 1' );
+}
 
 my $span2 = Span.new( start => 2, end => 4 );
 

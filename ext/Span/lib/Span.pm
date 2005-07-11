@@ -16,7 +16,7 @@ class Span-0.01
     * set_end_open / set_end_closed
         - better names ?
 
-    * set_density / density
+    * set_density
     
     * as_list
     * empty_span
@@ -199,6 +199,10 @@ method end_is_open () returns Bool {
 method end_is_closed () returns Bool {
     return bool::false if $.span.is_empty;
     return $.span.end_is_closed;
+}
+
+method density () returns Object {
+    return $.span.density;
 }
 
 method stringify () returns String {
