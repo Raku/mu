@@ -846,10 +846,6 @@ op2 "unshift" = op2Array array_unshift
 op2 "push" = op2Array array_push
 op2 "split" = op2Split
 op2 "Str::split" = flip op2Split
-op2 "Scalar::as" = \x y -> do
-    str <- fromVal x :: Eval VStr
-    fmt <- fromVal y
-    return $ VStr (printf fmt str)
 op2 "connect" = \x y -> do
     host <- fromVal x
     port <- fromVal y
@@ -875,17 +871,19 @@ op2 "Pugs::Internals::openFile" = \x y -> do
 op2 "exp" = \x y -> if defined y
     then op2Num (**) x y
     else op1Cast (VNum . exp) x
--- FIXME: Generalize to N args for arb N?  Is this possible?
-op2 "sprintf" = \x y -> do
-    str  <- fromVal x
-    args <- fromVals y
-    return $ VStr $ case (args :: [VInt]) of
-        []          -> printf str
-        [x]         -> printf str x
-        [x, y]      -> printf str x y
-        [x, y, z]   -> printf str x y z
-        [x, y, z, w]-> printf str x y z w
-        _           -> printf str
+op2 "Pugs::Internals::sprintf" = \x y -> do
+    -- a single argument is all Haskell can really handle.
+    -- XXX printf should be wrapped in a catch so a mis-typed argument
+    -- doesnt kill pugs with a runtime exception.
+    -- XXX fail... doesnt?!
+    str <- fromVal x
+    arg <- fromVal y
+    return $ VStr $ case arg of
+       VNum n -> printf str n
+       VRat r -> printf str ((fromRational r)::Double)
+       VInt i -> printf str i
+       VStr s -> printf str s
+       _      -> fail "should never be reached given the type declared below"
 op2 "exec" = \x y -> do
     prog  <- fromVal x
     args  <- fromVals y
@@ -1491,7 +1489,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      pre     IO::print   unsafe (IO: List)\
 \\n   Bool      pre     print   unsafe ()\
 \\n   Bool      pre     print   unsafe (List)\
-\\n   Str       pre     sprintf safe   (Str, List)\
+\\n   Str       pre     Pugs::Internals::sprintf safe   (Str, Num|Rat|Int|Str)\
 \\n   Bool      pre     IO::say unsafe (IO)\
 \\n   Bool      pre     IO::say unsafe (IO: List)\
 \\n   Bool      pre     say     unsafe ()\
@@ -1661,7 +1659,6 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Str       pre     Code::assoc   safe   (Code:)\
 \\n   Code::Exp pre     Code::body    safe   (Code:)\
 \\n   Str       pre     Code::pos     safe   (Code:)\
-\\n   Str       pre     Scalar::as    safe   (Scalar: Str)\
 \\n   IO::Dir   pre     opendir    unsafe (Str)\
 \\n   Str       pre     IO::Dir::readdir    unsafe (IO::Dir)\
 \\n   List      pre     IO::Dir::readdir    unsafe (IO::Dir)\
