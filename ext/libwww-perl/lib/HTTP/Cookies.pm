@@ -46,11 +46,53 @@ class HTTP::Cookies-0.0.1 {
     }
     
     method save (Str ?$file = $.file) {
-        ...
+        my $fh = open($file, :w);
+        
+        $fh.say("#LWP-Cookies-1.0");
+        $fh.print(./as_string(!$.ignore_discard));
+        $fh.close;
+        
+        1;
     }
     
     method load (Str ?$file = $.file) {
-        ...
+        my $fh = open($file, :r) or return;
+        
+        # XXX ensure record seperator == "\n" -- how?
+        my $magic = =$fh;
+        
+        unless ($magic ~~ m:P5/^\#LWP-Cookies-(\d+\.\d+)/) {
+            warn "$file does not seem to contain cookies";
+            return;
+        }
+    
+        for (=$fh) {
+            next unless s/^Set-Cookie3\:\s*//;
+            chomp;
+            
+            for split_header_words($_) -> @cookie {
+                my ($key, $val) = @cookie.splice(0, 2);
+                
+                my %hash = @cookie;
+                
+                my $version = %hash.delete('version');
+                my $path    = %hash.delete('path');
+                my $domain  = %hash.delete('domain');
+                my $port    = %hash.delete('port');
+                my $expires = str2time(%hash.delete('expires'));
+                
+                my $path_spec = %hash.exists('path_spec'); %hash.delete('path_spec');
+                my $secure    = %hash.exists('secure');    %hash.delete('secure');
+                my $discard   = %hash.exists('discard');   %hash.delete('discard');
+                
+                my @array = ($version, $val, $port, $path_spec, $secure, $expires, $discard);
+                push @array, %hash if %hash;
+                %:cookies{$domain}{$path}{$key} = @array;
+            }
+        }
+
+        $fh.close;
+        1;
     }
     
     method revert () {
