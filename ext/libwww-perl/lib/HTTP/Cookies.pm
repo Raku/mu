@@ -96,15 +96,25 @@ class HTTP::Cookies-0.0.1 {
     }
     
     method revert () {
-        ...
+        ./clear.load;
     }
     
     multi method clear () {
-        ...
+        %:cookies = ();
+        
+        $?SELF;
     }
     
-    multi method clear (Str $domain, Str ?$path, Str ?$key) {
-        ...
+    multi method clear (*@_) {
+        if (@_ == 1) {
+            %:cookies.delete(@_[0]);
+        } elsif (@_ == 2) {
+            %:cookies{@_[0]}.delete(@_[1]);
+        } elsif (@_ == 3) {
+            %:cookies{@_[0]}{@_[1]}.delete(@_[2]);
+        }
+        
+        $?SELF;
     }
     
     method clear_temporary_cookies () {
