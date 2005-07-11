@@ -118,11 +118,20 @@ class HTTP::Cookies-0.0.1 {
     }
     
     method clear_temporary_cookies () {
-        ...
+        ./scan(sub (*@_) { if (@_[9]) || (!@_[8].defined) { @_[8] = -1; ./set_cookie(*@_); } });
     }
     
     method scan (Code $callback) {
-        ...
+        for %:cookies.keys.sort -> $domain {
+            for %:cookies{$domain}.keys.sort -> $path {
+                for %:cookies{$domain}{$path}.keys.sort -> $key {
+                    my ($version, $val, $port, $path_spec, $secure, $expires, $discard, $rest) = @{$key};
+                    $rest //= {};
+                    
+                    $cb.($version, $key, $val, $path, $domain, $port, $path_spec, $secure, $expires, $discard, $rest);
+                }
+            }
+        }
     }
     
     method as_string (Bool ?$skip_discardables) {
