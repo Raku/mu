@@ -173,8 +173,7 @@ ruleBlockDeclaration = rule "block declaration" $ choice
     [ ruleSubDeclaration
     , ruleClosureTrait False
     , ruleRuleDeclaration
-    , ruleClassDeclaration
-    , ruleModuleDeclaration
+    , ruleModuleBlockDeclaration
     ]
 
 ruleDeclaration :: RuleParser Exp
@@ -253,16 +252,26 @@ ruleRuleDeclaration = rule "rule declaration" $ try $ do
     unsafeEvalExp (Sym SGlobal ('<':'*':name) exp)
     return emptyExp
 
-ruleClassDeclaration :: RuleParser Exp
-ruleClassDeclaration = rule "class declaration" $ try $ do
-    _       <- choice $ map symbol (words "class role grammar")
+ruleModuleBlockDeclaration :: RuleParser Exp
+ruleModuleBlockDeclaration = rule "module block declaration" $ try $ do
+    _ <- choice $ map symbol (words "package module class role grammar")
     (name, _, _) <- rulePackageHead
-    env     <- getRuleEnv
+    env <- getRuleEnv
     putRuleEnv env{ envPackage = name, envClasses = envClasses env `addNode` mkType name }
-    body    <- between (symbol "{") (char '}') ruleBlockBody
-    env'    <- getRuleEnv
+    body <- between (symbol "{") (char '}') ruleBlockBody
+    let pkgVal = Val . VStr $ name -- ++ v ++ a
+    env' <- getRuleEnv
     putRuleEnv env'{ envPackage = envPackage env }
-    return body
+    return $ Syn "namespace" [pkgVal, body]
+
+ruleModuleDeclaration :: RuleParser Exp
+ruleModuleDeclaration = rule "module declaration" $ try $ do
+    _ <- choice $ map symbol (words "package module class role grammar")
+    (name, _, _) <- rulePackageHead
+    env <- getRuleEnv
+    putRuleEnv env{ envPackage = name, envClasses = envClasses env `addNode` mkType name }
+    let pkgVal = Val . VStr $ name -- ++ v ++ a
+    return $ Syn "package" [pkgVal]
 
 rulePackageHead :: RuleParser (String, String, String)
 rulePackageHead = do
@@ -574,21 +583,6 @@ ruleRequireDeclaration = tryRule "require declaration" $ do
         char '-'
         many1 (choice [ digit, char '.' ])
     return $ App (Var "&require") Nothing [Val . VStr $ concat (intersperse "/" names) ++ ".pm"]
-
-ruleModuleDeclaration :: RuleParser Exp
-ruleModuleDeclaration = rule "module declaration" $ do
-    _       <- choice $ map symbol (words "package module class grammar")
-    (name, _, _)    <- rulePackageHead
-    env     <- getRuleEnv
-    putRuleEnv env{ envPackage = name, envClasses = envClasses env `addNode` mkType name }
-    body    <- option emptyExp $ between (symbol "{") (char '}') ruleBlockBody
-    let pkgVal = Val . VStr $ name -- ++ v ++ a
-    case body of
-        Noop -> return $ Syn "package" [pkgVal]
-        _    -> do
-            env' <- getRuleEnv
-            putRuleEnv env'{ envPackage = envPackage env }
-            return $ Syn "namespace" [pkgVal, body]
 
 ruleDoBlock :: RuleParser Exp
 ruleDoBlock = rule "do block" $ try $ do
