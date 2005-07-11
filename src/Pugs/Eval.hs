@@ -728,6 +728,7 @@ reduceApp (Var "&goto") (Just subExp) args = do
            , envContext = envContext caller
            , envLValue  = envLValue caller
            , envDepth   = envDepth caller
+           , envPos     = envPos caller
            }
 
 -- XXX absolutely evil bloody hack for "assuming"

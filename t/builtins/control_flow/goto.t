@@ -52,5 +52,5 @@ sub moose {
 	$?CALLER::LINE;
 }
 
-is(++$phase, 4, "phase completed]");
+is(++$phase, 4, "phase completed");
 
