@@ -1,0 +1,9 @@
+Span - An object representing a single span
+
+- Internal classes
+
+  Span::Int
+
+  Span::Num
+
+  Span::Iterator
