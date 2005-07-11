@@ -2,7 +2,7 @@
 use v6;
 use Test;
 
-plan 3;
+plan 2;
 
 BEGIN { @*INC.unshift('t/oo/class/TestFiles'); }
 
@@ -14,7 +14,9 @@ lives_ok {
     $test1 = ::Foo;
 }, "::Foo is a valid class literal";
 
-isa_ok($test1, "Class", "It's a class");
+# Test removed per http://www.nntp.perl.org/group/perl.perl6.language/22220
+# Foo.isa(Class) is false.
+#isa_ok($test1, "Class", "It's a class");
 
 lives_ok {
     my $x = Foo;
