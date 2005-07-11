@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 881;
+plan 882;
 
 is(("abc" ~~ rx:P5/abc/ && $<>), "abc", 're_tests 1/0 (1)');
 is(("abc" ~~ rx:P5/abc/ && $/.from), 0, 're_tests 1/0 (2)');
@@ -306,7 +306,8 @@ is(("A(B" ~~ rx:P5/(?i)a\(b/ && $<>), "A(B", 're_tests 473/0 (585)');
 is(("A(B" ~~ rx:P5/(?i)a\(b/ && $0), "", 're_tests 473/1 (586)');
 is(("AB" ~~ rx:P5/(?i)a\(*b/ && $<>), "AB", 're_tests 475/0 (589)');
 is(("A((B" ~~ rx:P5/(?i)a\(*b/ && $<>), "A((B", 're_tests 477/0 (591)');
-is(("A\B" ~~ rx:P5/(?i)a\\b/ && $<>), "A\B", 're_tests 479/0 (593)', :todo);
+is(("A\B" ~~ rx:P5/(?i)ab/ && $<>), "A\B", 're_tests 479/0 (593)');
+is(("A\\B" ~~ rx:P5/(?i)a\\b/ && $<>), "A\\B", 're_tests 479/0 (593)');
 is(("ABC" ~~ rx:P5/(?i)((a))/ && $<>), "A", 're_tests 481/0 (595)');
 is(("ABC" ~~ rx:P5/(?i)((a))/ && $0), "A", 're_tests 481/1 (596)');
 is(("ABC" ~~ rx:P5/(?i)((a))/ && $1), "A", 're_tests 481/2 (597)');
