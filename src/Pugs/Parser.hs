@@ -273,15 +273,14 @@ rulePackageHead = do
     _       <- option "" $ ruleAuthorPart  -- a
     whiteSpace
     traits  <- many $ ruleTrait
-    let className = case sym of
-                            "package" -> "Package"
-                            "module"  -> "Module"
-                            "class"   -> "Class"
-                            "role"    -> "Role"
-                            "grammar" -> "Grammar"
-                            _ -> fail "bug"
-    -- XXX once Class.isa(Object), remove "Object" from this list:
-    unsafeEvalExp (newClass name $ nub ("Object":className:traits))
+    let pkgClass = case sym of
+                       "package" -> "Package"
+                       "module"  -> "Module"
+                       "class"   -> "Class"
+                       "role"    -> "Role"
+                       "grammar" -> "Grammar"
+                       _ -> fail "bug"
+    unsafeEvalExp (newPackage pkgClass name $ nub ("Object":traits))
     env <- getRuleEnv
     putRuleEnv env{ envPackage = name,
                     envClasses = envClasses env `addNode` mkType name }

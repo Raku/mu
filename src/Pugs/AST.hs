@@ -17,7 +17,7 @@ module Pugs.AST (
     genMultiSym, genSym,
     strRangeInf, strRange, strInc, charInc,
     mergeStmts, isEmptyParams,
-    newClass,
+    newPackage,
 
     module Pugs.AST.Internals,
     module Pugs.AST.Pos,
@@ -146,11 +146,11 @@ isEmptyParams [] = True
 isEmptyParams [x] | [_, '_'] <- paramName x = True
 isEmptyParams _ = False
 
-newClass :: String -> [String] -> Exp
-newClass name traits = Sym SGlobal (':':'*':name) $ Syn ":="
+newPackage :: String -> String -> [String] -> Exp
+newPackage cls name traits = Sym SGlobal (':':'*':name) $ Syn ":="
     [ Var (':':'*':name)
     , App (Var "&Any::new")
-        (Just $ Val (VType $ mkType "Class"))
+        (Just $ Val (VType $ mkType cls))
         [ App (Var "&infix:=>") Nothing
             [ Val (VStr "traits")
             , Val (VList $ map VStr traits)
