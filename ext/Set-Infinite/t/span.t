@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 22;
+plan 46;
 
 use_ok( 'Span' );
 use Span;   # XXX should not need this
@@ -57,11 +57,77 @@ is( $span.contains( 2 ), bool::true, 'contains object' );
 is( $span.contains( 9 ), bool::false, 'doesn\'t contain object' );
 
 {
-    # XXX my @a = $span.complement;
-    # XXX is( @a.elems, 2, 'complement' );
+    my @a = $span.complement;
+    is( @a.elems, 2, 'complement' );
+    is( @a[0].stringify, '(-Infinity,1)', 'complement' );
+    is( @a[1].stringify, '(3,Inf)', 'complement' );
 }
 
-# XXX is( $span.intersection( $span2 ).stringify, '[2,3]', 'intersection' );
+{
+    my @a = $span.intersection( $span2 );
+    is( @a.elems, 1, 'intersection' );
+    is( @a[0].stringify, '[2,3]', 'intersection 0' );
+}
 
-# XXX is( $span.union( $span2 ).stringify, '[1,4]', 'union' );
+{
+    my @a = $span.union( $span2 );
+    is( @a.elems, 1, 'union' );
+    is( @a[0].stringify, '[1,4]', 'union 0' );
+}
+
+{
+    my @a = $span.difference( $span2 );
+    is( @a.elems, 1, 'difference span' );
+    is( @a[0].stringify, '[1,2)', 'difference 0' );
+}
+
+{
+    my @a = $span.difference( 2 );
+    is( @a.elems, 2, 'difference value' );
+    is( @a[0].stringify, '[1,2)', 'difference 0' );
+    is( @a[1].stringify, '(2,3]', 'difference 1' );
+}
+
+{
+    my $span = Span.new( :int, :start(1), :end(3) );
+    my @a = $span.difference( 2 );
+    is( @a.elems, 2, 'integer difference value' );
+    is( @a[0].stringify, '1', 'difference 0' );
+    is( @a[1].stringify, '3', 'difference 1' );
+
+    my @a = $span.difference( 3 );
+    is( @a.elems, 1, 'integer difference value end' );
+    is( @a[0].stringify, '[1,2]', 'difference 0' );
+}
+
+if(0)
+{
+    # XXX - this test should emit a warning - how to test this?
+    my $span = Span.new( :start(1), :end(2) );
+    my $iter = $span.iterator;
+    my $i;
+    is( $i = $iter.next, undef, 'iterator continuous' );
+}
+
+{
+    my $span = Span.new( :int, :start(1), :end(2) );
+
+    {
+    my $iter = $span.iterator;
+    my $i;
+    # say $i while $i = $iter.next;
+    is( $i = $iter.next, 1, 'iterator next 0' );
+    is( $i = $iter.next, 2, 'iterator next 1' );
+    is( $i = $iter.next, undef, 'iterator next 2' );
+    }
+    
+    {
+    my$iter = $span.iterator;
+    my $i;
+    # say $i while $i = $iter.previous;
+    is( $i = $iter.previous, 2, 'iterator previous 0' );
+    is( $i = $iter.previous, 1, 'iterator previous 1' );
+    is( $i = $iter.previous, undef, 'iterator previous 2' );
+    }
+}
 

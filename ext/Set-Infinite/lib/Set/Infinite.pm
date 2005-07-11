@@ -174,11 +174,11 @@ method difference ($self: $span ) returns Set::Infinite {
 
 = NAME
 
-Span - An object representing an ordered set of spans
+Span::Set - An object representing an ordered set of spans
 
 = SYNOPSIS
 
-  use Set::Infinite;
+  use Span::Set;
 
   # XXX
 
