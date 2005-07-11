@@ -16,6 +16,7 @@ import Pugs.Internals
 import Pugs.Types
 import Pugs.Eval
 import Pugs.Eval.Var
+import Pugs.Monads
 import Emit.PIR
 import Text.PrettyPrint
 
@@ -225,6 +226,10 @@ compileStmts exp = case exp of
             = PStmt $ PExp $ PApp (TTailCall cxt) fun args
         tailCall (PPos pos exp x) = PPos pos exp (tailCall x)
         tailCall x = x
+    Stmts this (Syn "namespace" [Val (VStr pkg), rest]) -> do
+        thisC   <- enter cxtVoid $ compile this
+        restC   <- enterPackage pkg $ compileStmts rest
+        return $ PStmts thisC restC
     Stmts this rest -> do
         thisC   <- enter cxtVoid $ compile this
         restC   <- compileStmts rest
