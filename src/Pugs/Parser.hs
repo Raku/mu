@@ -173,12 +173,12 @@ ruleBlockDeclaration = rule "block declaration" $ choice
     [ ruleSubDeclaration
     , ruleClosureTrait False
     , ruleRuleDeclaration
-    , ruleModuleBlockDeclaration
+    , rulePackageBlockDeclaration
     ]
 
 ruleDeclaration :: RuleParser Exp
 ruleDeclaration = rule "declaration" $ choice
-    [ ruleModuleDeclaration
+    [ rulePackageDeclaration
     , ruleVarDeclaration
     , ruleMemberDeclaration
     , ruleTraitDeclaration
@@ -252,36 +252,41 @@ ruleRuleDeclaration = rule "rule declaration" $ try $ do
     unsafeEvalExp (Sym SGlobal ('<':'*':name) exp)
     return emptyExp
 
-ruleModuleBlockDeclaration :: RuleParser Exp
-ruleModuleBlockDeclaration = rule "module block declaration" $ try $ do
-    _ <- choice $ map symbol (words "package module class role grammar")
-    (name, _, _) <- rulePackageHead
-    env <- getRuleEnv
-    putRuleEnv env{ envPackage = name, envClasses = envClasses env `addNode` mkType name }
+rulePackageBlockDeclaration :: RuleParser Exp
+rulePackageBlockDeclaration = rule "package block declaration" $ try $ do
+    (_, pkgVal, env) <- rulePackageHead
     body <- between (symbol "{") (char '}') ruleBlockBody
-    let pkgVal = Val . VStr $ name -- ++ v ++ a
     env' <- getRuleEnv
     putRuleEnv env'{ envPackage = envPackage env }
     return $ Syn "namespace" [pkgVal, body]
 
-ruleModuleDeclaration :: RuleParser Exp
-ruleModuleDeclaration = rule "module declaration" $ try $ do
-    _ <- choice $ map symbol (words "package module class role grammar")
-    (name, _, _) <- rulePackageHead
-    env <- getRuleEnv
-    putRuleEnv env{ envPackage = name, envClasses = envClasses env `addNode` mkType name }
-    let pkgVal = Val . VStr $ name -- ++ v ++ a
+rulePackageDeclaration :: RuleParser Exp
+rulePackageDeclaration = rule "package declaration" $ try $ do
+    (_, pkgVal, _) <- rulePackageHead
     return $ Syn "package" [pkgVal]
 
-rulePackageHead :: RuleParser (String, String, String)
+rulePackageHead :: RuleParser (String, Exp, Env)
 rulePackageHead = do
+    sym <- choice $ map symbol (words "package module class role grammar")
     name    <- ruleQualifiedIdentifier
-    v       <- option "" $ ruleVersionPart
-    a       <- option "" $ ruleAuthorPart
+    _       <- option "" $ ruleVersionPart -- v
+    _       <- option "" $ ruleAuthorPart  -- a
     whiteSpace
     traits  <- many $ ruleTrait
-    unsafeEvalExp (newClass name $ nub ("Object":traits))
-    return (name, v, a)
+    let className = case sym of
+                            "package" -> "Package"
+                            "module"  -> "Module"
+                            "class"   -> "Class"
+                            "role"    -> "Role"
+                            "grammar" -> "Grammar"
+                            _ -> fail "bug"
+    -- XXX once Class.isa(Object), remove "Object" from this list:
+    unsafeEvalExp (newClass name $ nub ("Object":className:traits))
+    env <- getRuleEnv
+    putRuleEnv env{ envPackage = name,
+                    envClasses = envClasses env `addNode` mkType name }
+    let pkgVal = Val . VStr $ name -- ++ v ++ a
+    return (name, pkgVal, env)
 
 ruleSubDeclaration :: RuleParser Exp
 ruleSubDeclaration = rule "subroutine declaration" $ do
