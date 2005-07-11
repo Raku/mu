@@ -1,4 +1,6 @@
-* Span.pm gets it's own package
+2005-07-11
+
+* Span.pm removed, gets it's own package
 
 * added Span.pm method "iterator()"
 
