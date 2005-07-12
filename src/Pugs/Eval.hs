@@ -452,7 +452,8 @@ reduceSyn name [cond, body]
             vb    <- fromVal vbool
             case f vb of
                 True -> fix $ \runBody -> do
-                    genSymPrim "&redo" (const $ runBody) $ \symRedo -> do
+                    -- genSymPrim "&redo" (const $ runBody) $ \symRedo -> do
+                    callCC $ \esc -> genSymPrim "&redo" (const $ runBody >>= esc) $  \symRedo -> do
                     rv <- enterLex [symRedo] $ reduce body
                     case rv of
                         VError _ _  -> retVal rv
