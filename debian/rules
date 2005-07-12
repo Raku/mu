@@ -20,7 +20,7 @@ build-arch: build-arch-stamp
 build-arch-stamp: configure-stamp 
 	$(MAKE) optimized
 	-$(MAKE) test
-	pod2man --section=1 --release="Debian Project" --center="Debian GNU/Linux manual" $(CURDIR)/lib/pugs/run.pod $(CURDIR)/debian/pugs.1
+	pod2man --section=1 --release="Debian Project" --center="Debian GNU/Linux manual" $(CURDIR)/lib/Perl6-Pugs/lib/pugs/run.pod $(CURDIR)/debian/pugs.1
 	pod2man --section=1 --release="Debian Project" --center="Debian GNU/Linux manual" $(CURDIR)/script/pugscc $(CURDIR)/debian/pugscc.1
 	touch build-arch-stamp
 
