@@ -165,15 +165,38 @@ class HTTP::Cookies-0.0.1 {
     ## Class methods
     # these may also be called on an instance, but they are not tied to a
     # particular instance
-    method :host (HTTP::Request $request, URI $uri) {
-        ...
+    method :host (HTTP::Request $r, URI $uri) {
+        if (my $h = $r.header('Host')) {
+            $h ~~ s:P5/:\d+$//;
+            return $h.lc;
+        }
+        
+        return $uri.host.lc;
     }
     
-    method :url_path (URI $uri) {
-        ...
+    method :uri_path (URI $uri) {
+        my $path;
+        
+        if ($uri.can('epath')) {
+            $path = $uri.epath; # URI::URL method
+        } else {
+            $path = $uri.path;  # URI::_generic method
+        }
+        
+        $path.chars || $path = "/";
+        return $path;
     }
+    
+    # XXX how should this binding be done?
+    #our &:url_path ::= &:uri_path; # for backwards compatibility
     
     method :normalize_path (Str $str) {
-        ...
+        given ($str) {
+            s:P5:g/%([0-9a-fA-F][0-9a-fA-F])/{
+                my $x = $0.uc;
+                $x eq "2F"|"25" ?? "%$x" :: pack("C", hex($x));
+            }/;
+            s:P5:g/([\0-\x20\x7f-\xff])/{ ord($0).as('%%%02X') }/;
+        }
     }
 }
