@@ -29,7 +29,7 @@ lives_ok { %hash = enum <<:Sun(1) :Mon(2) :Tue(3) :Wed(4) :Thu(5) :Fri(6) :Sat(7
 
 is %hash.keys, <Sun Mon Tue Wed Thu Fri Sat>, '...and the right keys are assigned', :todo<feature>;
 
-is %hash<Sun Mon Tue Wed Thu Fri Sat>, 1..7, '...and the right values are assigned', :todo<feature>;
+is %hash.values, 1..7, '...and the right values are assigned', :todo<feature>;
 
 %hash = ();
 
@@ -37,7 +37,7 @@ lives_ok { %hash = enum <<:Sun(1) Mon Tue Wed Thu Fri Sat>>; }, 'specifying a va
 
 is %hash.keys, <Sun Mon Tue Wed Thu Fri Sat>, '...and the right keys are assigned', :todo<feature>;
 
-is %hash<Sun Mon Tue Wed Thu Fri Sat>, 1..7, '...and the right values are assigned', :todo<feature>;
+is %hash.values, 1..7, '...and the right values are assigned', :todo<feature>;
 
 %hash = ();
 
@@ -45,7 +45,7 @@ lives_ok { %hash = enum «:Sun(1) Mon Tue Wed Thu Fri Sat»; }, 'french quotes w
 
 is %hash.keys, <Sun Mon Tue Wed Thu Fri Sat>, '...and the right keys are assigned', :todo<feature>;
 
-is %hash<Sun Mon Tue Wed Thu Fri Sat>, 1..7, '...and the right values are assigned', :todo<feature>;
+is %hash.values, 1..7, '...and the right values are assigned', :todo<feature>;
 
 %hash = ();
 
@@ -53,7 +53,7 @@ lives_ok { %hash = enum <<:Sun(1) Mon Tue :Wed(4) Thu Fri Sat>>; }, 'specifying 
 
 is %hash.keys, <Sun Mon Tue Wed Thu Fri Sat>, '...and the right keys are assigned', :todo<feature>;
 
-is %hash<Sun Mon Tue Wed Thu Fri Sat>, 1..7, '...and the right values are assigned', :todo<feature>;
+is %hash.values, 1..7, '...and the right values are assigned', :todo<feature>;
 
 %hash = ();
 
@@ -61,7 +61,23 @@ lives_ok { %hash = enum <<:Sun(1) Mon Tue :Wed(5) Thu Fri Sat>>; }, 'specifying 
 
 is %hash.keys, <Sun Mon Tue Wed Thu Fri Sat>, '...and the right keys are assigned', :todo<feature>;
 
-is %hash<Sun Mon Tue Wed Thu Fri Sat>, (1, 2, 3, 5, 6, 7, 8), '...and the right values are assigned', :todo<feature>;
+is %hash.values, <1 2 3 5 6 7 8>, '...and the right values are assigned', :todo<feature>;
+
+%hash = ();
+
+lives_ok { %hash = enum «:Alpha<A> Bravo Charlie Delta Echo»; }, 'specifying a string up front works', :todo<feature>;
+
+is %hash.keys, <Alpha Bravo Charlie Delta Echo>, '...and the right keys are assigned', :todo<feature>;
+
+is %hash.values, <A B C D E>, '...and the right values are assigned', :todo<feature>;
+
+%hash = ();
+
+lives_ok { %hash = enum <<:Alpha<A> Bravo Charlie Delta Echo>>; }, 'specifying a string up front works (Texas quotes)', :todo<feature>;
+
+is %hash.keys, <Alpha Bravo Charlie Delta Echo>, '...and the right keys are assigned', :todo<feature>;
+
+is %hash.values, <A B C D E>, '...and the right values are assigned', :todo<feature>;
 
 %hash = ();
 
