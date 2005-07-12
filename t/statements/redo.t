@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 2;
+plan 8;
 
 {
 	my $i = 0;
@@ -25,5 +25,46 @@ plan 2;
 	}
 	
 	is(~@log, "before before no_redo after before no_redo after", "statements after redo are not executed", :todo<bug>);
+}
+
+{
+	my $i = 0;
+	my $j = 0;
+
+	for (1, 0) -> $x {
+		if ($x && (++$i % 2 == 0)) { redo };
+		$j++;
+	}
+
+	is($j, 2, '$j++ encountered twice');
+	is($i, 1, '$i++ encountered once');
+}
+
+
+{
+	my $i = 0;
+	my $j = 0;
+
+	for (1, 0, 1, 0) -> $x {
+		if ($x && (++$i % 2 == 0)) { redo };
+		$j++;
+	}
+
+	is($j, 4, '$j++ encountered four times', :todo<bug>);
+	is($i, 3, '$i++ encountered three times');
+}
+
+
+{
+	my $i = 0;
+	my $j;
+
+	loop ($j = 0; $j < 4; $j++) {
+		if ($j % 2 == 0 and $i++ % 2 == 0) { redo }
+		$i-=2;
+	}
+
+	is($j, 4, '$j unaltered by the fiasco', :todo<bug>);
+	is($i, -7, '$i incremented and decremented correct number of times', :todo<bug>);
 }
 

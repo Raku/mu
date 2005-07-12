@@ -14,7 +14,7 @@ next <label> in nested loops
 
 =cut
 
-plan 11;
+plan 12;
 
 # test for loops with next
 
@@ -121,4 +121,25 @@ Check that C<next> works on the correct loop/block
 	is(~@log, "before", "statements after next are not executed");
 }
 
+{
+	my $i = 0;
+	
+	for (1, 1, 0, 1, 0, 1) -> $x {
+		if ($x){ next }
+		$i++;
+	}
+	
+	is($i, 2, '$i++ executed only twice, because next ')
+}
 
+{
+	my $i = 0;
+	my $j;
+	
+	loop ($j = 0; $j < 6; $j++) {
+		if ($j % 2 == 0){ next }
+		$i++;
+	}
+	
+	is($i, 3, '$i++ was not executed when next was called before it in loop {}', :todo<bug>)
+}
