@@ -15,6 +15,7 @@ import Pugs.Internals
 import Pugs.Pretty
 import Pugs.Config
 import Pugs.Run.Args
+import Pugs.Prim.Keyed
 
 data EvalError = EvalErrorFatal
                | EvalErrorUndef
@@ -32,15 +33,19 @@ opRequire :: Bool -> Val -> Eval Val
 opRequire dumpEnv v = do
     file        <- fromVal v
     incs        <- fromVal =<< readVar "@*INC"
-    pathName    <- requireInc incs file (errMsg file incs)
-    -- %*INC{file} = pathname
-    evalExp $ Syn "="
-        [ Syn "{}"
-            [ Var "%*INC", Val . VStr $ decodeUTF8 file ]
-            , Val . VStr $ decodeUTF8 pathName
-        ]
-    str         <- liftIO $ readFile pathName
-    opEval style pathName (decodeUTF8 str)
+    glob        <- askGlobal
+    seen        <- findSymRef "%*INC" glob
+    loaded      <- existsFromRef seen v
+    if (loaded) then (return $ VInt 1) else do -- XXX: SPECME: what do we return here?
+        pathName <- requireInc incs file (errMsg file incs)
+        -- %*INC{file} = pathname
+        evalExp $ Syn "="
+            [ Syn "{}"
+                [ Var "%*INC", Val . VStr $ decodeUTF8 file ]
+                , Val . VStr $ decodeUTF8 pathName
+            ]
+        str         <- liftIO $ readFile pathName
+        opEval style pathName (decodeUTF8 str)
     where
     style = MkEvalStyle
         { evalError  = EvalErrorFatal
