@@ -377,11 +377,11 @@ reduceSyn "for" [list, body] = do
         runBody [] _ = retVal undef
         runBody vs sub' = do
             let (these, rest) = arity `splitAt` vs
-            genSymCC "&next" $ \symNext -> do
-                genSymPrim "&redo" (const $ runBody vs sub') $ \symRedo -> do
+            callCC $ \esc -> genSymPrim "&redo" (const $ (runBody vs sub') >>= esc) $  \symRedo -> do
+                genSymCC "&next" $ \symNext -> do
                     apply (updateSubPad sub' (symRedo . symNext)) Nothing $
                         map (Val . VRef . MkRef) these
-            runBody rest sub'
+                runBody rest sub'
     genSymCC "&last" $ \symLast -> do
         let munge sub | subParams sub == [defaultArrayParam] =
                 munge sub{ subParams = [defaultScalarParam] }
