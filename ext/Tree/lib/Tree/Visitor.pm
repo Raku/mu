@@ -19,7 +19,7 @@ sub set_results ($self: @results) returns Void  { @:results = @results }
 sub get_results ($self:)          returns Array { @:results }
 
 # it is abstract
-method visit ($self: Tree $tree) return Void { ... }
+method visit ($self: Tree $tree) returns Void { ... }
 
 =pod
 
