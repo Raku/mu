@@ -4,7 +4,7 @@ use warnings;
 use Config;
 use Cwd qw(abs_path);
 use File::Spec;
-use lib 'lib';
+use lib 'util';
 use inc::Module::Install;
 
 my $pugs = "pugs$Config{_exe}";
@@ -21,8 +21,8 @@ my @hppfiles = map {my $x=$_; $x=~s/\.hs$/.hpp/; $x} @hsfiles;
 warn_cygwin     ();
 
 name            ('Perl6-Pugs');
-version_from    ('lib/Perl6/Pugs.pm');
-abstract_from   ('lib/Perl6/Pugs.pm');
+version_from    ('lib/Perl6-Pugs/lib/Perl6/Pugs.pm');
+abstract_from   ('lib/Perl6-Pugs/lib/Perl6/Pugs.pm');
 author          ('Autrijus Tang <autrijus@autrijus.org>');
 license         ('perl');
 install_script  ($pugs);
