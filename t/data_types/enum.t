@@ -61,7 +61,7 @@ lives_ok { %hash = enum <<:Sun(1) Mon Tue :Wed(5) Thu Fri Sat>>; }, 'specifying 
 
 is %hash.keys, <Sun Mon Tue Wed Thu Fri Sat>, '...and the right keys are assigned', :todo<feature>;
 
-is %hash.values, <1 2 3 5 6 7 8>, '...and the right values are assigned', :todo<feature>;
+is %hash.values, (1, 2, 3, 5, 6, 7, 8), '...and the right values are assigned', :todo<feature>;
 
 %hash = ();
 
@@ -85,7 +85,7 @@ lives_ok { %hash = enum «:zero(0) one two three four five six seven eight nine 
 
 is %hash.keys, <zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen>, '...and the right keys are assigned', :todo<feature>;
 
-is %hash.values, <0 1 2 3 4 5 6 7 8 9 A B C D E F>, '...and the right values are assigned', :todo<feature>;
+is %hash.values, (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 'A', 'B', 'C', 'D', 'E', 'F'), '...and the right values are assigned', :todo<feature>;
 
 %hash = ();
 
