@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 16;
+plan 19;
 
 # type based dispatching
 
@@ -53,3 +53,12 @@ multi declared_wo_sub (Int $x) { 1 }
 multi declared_wo_sub (Str $x) { 2 }
 is declared_wo_sub(42),   1, "omitting 'sub' when declaring 'multi sub's works (1)";
 is declared_wo_sub("42"), 2, "omitting 'sub' when declaring 'multi sub's works (2)";
+
+# Test for slurpy MMDs
+
+multi mmd () { 1 }
+multi mmd (*$x, *@xs) { 2 }
+
+is(mmd(), 1, 'Slurpy MMD to nullary');
+is(mmd(1,2,3), 2, 'Slurpy MMD to listop via args');
+is(mmd(1..3), 2, 'Slurpy MMD to listop via list');
