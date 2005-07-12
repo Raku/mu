@@ -35,6 +35,10 @@ include         ('Module::Install::Makefile::Name');
 include         ('Module::Install::Makefile::Version');
 build_subdirs   (map fixpaths($_), grep {
                    -f "$_/Makefile.PL" && not -l "$_/Makefile.PL"
+                 } glob("lib/*")
+                );
+build_subdirs   (map fixpaths($_), grep {
+                   -f "$_/Makefile.PL" && not -l "$_/Makefile.PL"
                  } glob("ext/*")
                 );
 
@@ -245,7 +249,7 @@ EOD
     };
 
     postamble(fixpaths(<< "."));
-$config_h : lib/Perl6/Pugs.pm util/config_h.pl
+$config_h : lib/Perl6-Pugs/lib/Perl6/Pugs.pm util/config_h.pl
 	\$(PERL) util/config_h.pl "$ghc $ghc_flags"
 
 $version_h : .svn/entries util/version_h.pl
