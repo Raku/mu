@@ -10,6 +10,20 @@ class Span-0.01
 
 =for TODO
     
+Known bugs:
+
+    * iterator should check both boundaries, because the Span is mutable
+    
+    * 'undefine span' is wrong - use empty_span instead (in set_end() / set_start() )
+
+    * normalize_parameter - must check the internal span type
+    
+    * all objects should be cloned before inserting in the span
+    
+Ideas:
+
+    * besides :int / :density(), there could be :next(&coderef) / :previous(&coderef)
+    
     * from_start_and_duration
     
     * set_start_open / set_start_closed
@@ -19,6 +33,8 @@ class Span-0.01
     * set_density
     
     * as_list
+        - how to create a lazy list ?
+    
     * empty_span
         - test with "density"
     * universal_span
@@ -35,7 +51,7 @@ From "Set" API:
     * subset
     * superset
     * includes/member/has
-    * unicode
+    * unicode - could be a 'role' 
 
 =cut
 
@@ -218,6 +234,7 @@ method size () returns Object {
 }
 
 submethod normalize_parameter ($self: $span) {
+    # XXX - wrong - must check the internal span type
     return $span.span if $span.isa( $self.ref );
 
     my $span0 = $self.span;
@@ -227,11 +244,13 @@ submethod normalize_parameter ($self: $span) {
     # XXX - '.can' doesn't work
     if $span.isa( 'Span::Num' ) || $span.isa( 'Span.Int') 
     {
+        # $span is a span, but it has a different type than $self
         $start = $span.start;
         $end = $span.end;
     }
     else
     {
+        # $span is some kind of scalar
         $start = $end = $span;
     }
     return $span0.new( start => $start, end => $end );
@@ -438,9 +457,11 @@ between values would be very close to zero:
 
 Creates a span.
 
+Dies if `start` if bigger than `end`.
+
 - `new( after => 1.0, before => 2.0 )`
 
-Creates an "open" span, that does not include the start or end values.
+Creates an "open" span, that is, it does not include the start or end values.
 
 - `new( start => 1.0 )`
 
@@ -525,7 +546,7 @@ Return a string representation of the span.
 
 Compares the spans numerically. Returns -1, 0, or 1.
 
-- is_empty()
+- `is_empty()`
 
 Returns `true` if the span is empty.
 
@@ -543,6 +564,14 @@ Returns an iterator:
 The iterator has `next()`, `previous()`, `current()`, and `reset()` methods.
 
 If the span doesn't have a "density" value, this method emits a warning and returns undef.
+
+- `density()`
+
+Returns the Span "density".
+
+Spans created with `:int` have density `1`.
+
+Continuous spans have density `undef`.
 
 - `span()`
 
