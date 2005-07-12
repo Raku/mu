@@ -1164,7 +1164,8 @@ op2Identity (VRef ref) y = do
 op2Identity x (VRef ref) = do
     y <- readRef ref
     op2Identity x y
-op2Identity x y = return $ VBool (x == y)
+op2Identity x y = do
+    return $ VBool (x == y)
 
 op2Cmp :: (a -> Eval b) -> (b -> b -> VBool) -> a -> a -> Eval Val
 op2Cmp f cmp x y = do

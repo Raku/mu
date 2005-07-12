@@ -1,12 +1,3 @@
-#
-# To do precompilation of Test.pm, we need to this module as loaded even
-# if it was preloaded:
-#
-#  %*INC<Test.pm> = '<precompiled>';
-#
-# As well as use the `module Test { ... }` syntax instead of `module Test;`
-#
-
 module Test-0.0.6;
 
 ### CONSTANTS
