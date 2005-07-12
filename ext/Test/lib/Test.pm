@@ -1,27 +1,32 @@
-# mark this module as loaded even if it was preloaded.
-%*INC<Test.pm> = '<precompiled>';
+#
+# To do precompilation of Test.pm, we need to this module as loaded even
+# if it was preloaded:
+#
+#  %*INC<Test.pm> = '<precompiled>';
+#
+# As well as use the `module Test { ... }` syntax instead of `module Test;`
+#
 
-# module-{} rather than module-; to facilitate concatenation.
-module Test-0.0.6 {
+module Test-0.0.6;
 
 ### CONSTANTS
 
 # some options available through the environment
-our $Test::ALWAYS_CALLER = %ENV<TEST_ALWAYS_CALLER>;
+$Test::ALWAYS_CALLER = %ENV<TEST_ALWAYS_CALLER>;
 
 ### GLOBALS
 
 # globals to keep track of our tests
-our $Test::num_of_tests_run    = 0; 
-our $Test::num_of_tests_failed = 0;
-our $Test::num_of_tests_badpass = 0;
-our $Test::num_of_tests_planned;
+$Test::num_of_tests_run    = 0; 
+$Test::num_of_tests_failed = 0;
+$Test::num_of_tests_badpass = 0;
+$Test::num_of_tests_planned;
 
 # a Junction to hold our FORCE_TODO tests
-our $Test::force_todo_test_junction;
+$Test::force_todo_test_junction;
 
 # for running the test suite multiple times in the same process
-our $Test::testing_started = 1;
+$Test::testing_started = 1;
 
 ### FUNCTIONS
 
@@ -520,4 +525,3 @@ under the same terms as Perl itself.
 See http://www.perl.com/perl/misc/Artistic.html
 
 =cut
-}
