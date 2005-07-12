@@ -24,7 +24,7 @@ sub touch {
     #      so we need to mark as stale some obj files to trigger a rebuild.
     #      The alternative seems to be to delete them *and* the pugs
     #      executable.
-    print STDERR "Triggerring rebuild... " if $Config{verbose};
+    print STDERR "Triggering rebuild... " if $Config{verbose};
     unlink "src/Pugs/Run.hi";
     unlink "src/Pugs/Run.o";
     #unlink "pugs$Config::Config{_exe}";

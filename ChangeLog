@@ -19,7 +19,8 @@
 * Support for `does RoleName` and `is ClassName` within class declarations
 * Parse `trusts ClassName` and `my $foo is trait_name` as no-ops
 * New builtin class: `Proxy`
-* Named arguments is now done in an inferencing phase before positional binding
+* Named arguments binding is now done in an inferencing phase before positional
+  binding
 * `Bare` and `Parametric` types merged into `Block`
 * `use perl5:DBI` replaces the old `use DBI--perl5` syntax
 * `&foo` in module `Foo` now looks up `&Foo::foo` as well.
@@ -28,7 +29,6 @@
 * `our` variables in packages now generate qualified symbols
 * `@?INIT` and `@?CHECK` are renamed back to `@*` space
 * `multi foo { ... }` is now a shorthand for `multi sub foo { ... }`
-
 
 === Bundled Modules
 

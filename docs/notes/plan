@@ -30,7 +30,7 @@ Code will flow through several phases inside Pugs as follows:
              |         |           |          |                  |
 P6->Parrot:  Perl 6   Exp         PIL      PIR-Tree            Parrot
   ->Haskell:                               Language.TH.Syntax  GHC
-  ->Perl 5:                                Code::Perl          Perl5
+  ->Perl 5:                                Code::Perl          Perl 5
   ->JavaScript:                            JS-AST              SpiderMonkey
   ->Perl 6:                                Exp                 Pugs
 
