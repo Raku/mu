@@ -4,9 +4,12 @@
     Version information.
 -}
 
+#include "pugs_config.h"
 #include "pugs_version.h"
 
+#ifndef PUGS_VERSION
 #define PUGS_VERSION "6"
+#endif
 #define PUGS_DATE ""
 
 module Pugs.Version (
