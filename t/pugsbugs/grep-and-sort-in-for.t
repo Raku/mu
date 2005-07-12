@@ -38,5 +38,5 @@ plan 3;
     $output ~= "$elem,";
   }
 
-  is $output, "1,2,3,4,", "grep and sort work in for";
+  is $output, "1,2,3,4,", "grep and sort work in for", :todo<bug>;
 }

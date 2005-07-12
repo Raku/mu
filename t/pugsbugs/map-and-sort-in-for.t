@@ -38,5 +38,5 @@ plan 3;
     $output ~= "$elem,";
   }
 
-  is $output, "1,1,1,1,", "map and sort work in for";
+  is $output, "1,1,1,1,", "map and sort work in for", :todo<bug>;
 }
