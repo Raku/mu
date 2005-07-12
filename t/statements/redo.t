@@ -65,7 +65,7 @@ plan 10;
 	}
 
 	is($j, 4, '$j unaltered by the fiasco', :todo<bug>);
-	is($i, -7, '$i incremented and decremented correct number of times', :todo<bug>);
+	is($i, -4, '$i incremented and decremented correct number of times', :todo<bug>);
 }
 
 {

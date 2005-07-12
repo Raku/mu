@@ -405,15 +405,14 @@ reduceSyn "loop" exps = do
     if not vb then retEmpty else do
     genSymCC "&last" $ \symLast -> enterLex [symLast] $ fix $ \runBody -> do
         -- genSymPrim "&redo" (const $ runBody) $ \symRedo -> do
-        callCC $ \esc -> genSymPrim "&redo" (const $ (runBody) >>= esc) $ \symRedo -> do
+        callCC $ \esc -> genSymPrim "&redo" (const $ runBody >>= esc) $ \symRedo -> do
         let runNext = do
             valPost <- evalExp post
             vb      <- evalCond
             trapVal valPost $ if vb then runBody else retEmpty
-        genSymCC "&next" $ \symNext -> do
+        callCC $ \esc -> genSymPrim "&next" (const $ runNext >>= esc) $ \symNext -> do
             valBody <- enterLex [symRedo, symNext] $ evalExp body
             trapVal valBody $ runNext
-        runNext
 
 reduceSyn "given" [topic, body] = do
     vtopic <- fromVal =<< enterLValue (enterEvalContext cxtItemAny topic)
