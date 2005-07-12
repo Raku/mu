@@ -110,4 +110,4 @@ eval_ok('my @foo = [>>+<<] ([1..3],[1..3],[1..3]);','Parse [>>+<<]');
 
 # Check that user defined infix ops work with [...], too.
 sub infix:<more_than_plus>(Int $a, Int $b) { $a + $b + 1 }
-is(('[more_than_plus] 1, 2, 3'), 8, "[...] reduce metaop works on user defined ops");
+is(([more_than_plus] 1, 2, 3), 8, "[...] reduce metaop works on user defined ops");
