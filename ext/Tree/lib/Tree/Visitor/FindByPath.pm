@@ -47,7 +47,7 @@ sub visit ($self: $tree) {
         @results.push($current_tree);
     }
 
-    TOP: {
+    loop {
         # if we have no more @path we have found it
         unless @path {
             # store the current tree as
@@ -72,7 +72,7 @@ sub visit ($self: $tree) {
                 # we change our current tree
                 $current_tree = $child;
                 # and go back to the TOP                
-                goto TOP;
+                next;
             }
         }
         # if we do not find a match, then we can fall off 

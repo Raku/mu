@@ -8,7 +8,10 @@ use Tree;
 class Birch is Tree {
     has $.bark;
     
-    submethod BUILD (Str $.bark) {}
+    submethod BUILD (Str $bark, Any $node) {
+        $.bark = $bark;
+        $.node = $node;
+    }
 }
 
 my $birch = Birch.new( :bark("thick"), :node("test") );
