@@ -1,0 +1,142 @@
+
+Please feel free to massively refactor.
+
+* The coming thing in pugs is PIL. 
+
+The current primary objective of pugs development is to switch from
+running the parse tree, to a compiler.
+
+To obtain a compile time.  Err, compiler opportunity.  To not run the
+parse tree.  To allow a semantic analysis of parser tree.
+
+To switch to PIL evaluator in haskell side so our interpreter won't
+differ from compiler.  Porting the metamodel to Haskell goes with
+that.  After those two, we'll have reliable way to write codegen in
+P6.  For example codegen into P5.  And _then_ we can port compiler to
+P6.  I need to draw some graph to explain all this.
+
+PIL evaluation will be a refactoring of Eval.hs.  The planned change
+is supposed to start happening as soon as 6.2.8 is out of the door.
+
+* Why compile?
+
+Strict, warnings.  Pragmas.  "1 = 1" fails at compile time.  Semantic
+analysis.  Treatment of class literals doesn't depend on order of
+introduction.  Etc.  Helps give consistency of behaviour between
+interpretation and compiled execution.
+
+* What is PIL?
+
+A core calculus of perl6.  A kernel language.
+
+PIL is basically scheme with some more calling convention.
+
+Theoretically we can go the Perl5/Ruby route and augment the parse
+tree instead of inventing a new minimal language.  But that makes the
+life of codegen immeasurably more difficult.  And nonlocal
+optimization virtually impossible.
+
+* When?
+
+I think the PIL>p5 effort will happen simultaneously with the PIL in
+Haskell effort especially. Since PIL is soooo much cleaner in Haskell
+than it is in Perl.
+
+PIL in Haskell is Eval/PIL is Eval.hs refactoring PIL->P5 will
+probably happen simultaneously with PIL->PIR and other PIL->* as
+people find time to work on it.  I'm equally interested in P5 and PIR
+targeting, but P5 brings more instant gratification.
+
+* What roles do PIL->X have?
+
+** PIL->PIR provides honesty in PIL design.
+
+PIL->PIR is keeping us honest.  It's trivial to make PIL bloaty and
+codegen unfriendly, by shuffling a lot hidden complexity to haskell
+runtime.  Switching to another runtime forces us to define all
+operational semantics.  Because haskell runtime and pir runtime (and
+p5 runtime) cannot agree, so all semantic must be preserved at PIL
+level.  Otherwise, I imagine Eval/PIL producing something that's hard
+to codegen from.  (If we started from that first).  So yes, "reality
+check" is pretty accurate.  PIR codegen is merely a motivating case of
+PIL compilation.
+
+Why not p5?  Because p5 is too smart.  Similar to our existing hs
+runtime.  There's too much logic in p5 code.  Even in a single method
+call.  So it does not keep us honest the same way as PIR does.  Otoh,
+once PIL is more solid, p5 runtime will have a lot of practical value,
+because p5 is known to segfault less.  And DBI is written in p5 not
+pir.  So it makes sense to pursue Eval/PIL with PIL->PIR until we have
+a good idea of what PIL's final form will be, then work on PIL->P5 in
+earnest.  And maybe PIL->JS etc.
+
+** PIL->P5 provides reliability and visibility.
+
+We can compile Perl 6 to Perl 5 The motivation is that we can write
+"use perl5:DBI;" and expect it to work in both hs evaluator and p5
+evaluator.  And have it work far more reliably in the latter.  I
+prophesy that once that happens we'll enter the "hack hack hack" phase
+of imaginary perl6 timeline and out of the current "slowly gaining
+more respect" phase.
+
+** PIR->hs/Eval provides clear definition of semantics.
+
+Taking advantage of haskell's uncanny ability of serving as
+specification that happens to run.  So it is the reference evaluator.
+Until, some day, we finish PIL->Perl6.
+
+* Peering into the future, what are the "last" milestones of pugs?
+
+Some day, we finish PIL->Perl6.  Which would be the last milestone of
+pugs.  (Of course, the compiler, emitter and metamodel + object space
+should be all in P6 in the last milestone).  But there are two levels
+of PIL->P6; one is merely a pretty printer.  Which will not need to
+implement any semantic.  The "last milestone" one is however
+different; it's basically an implementation of a perl 6 virtual
+machine on top of perl 6.  It's there so we can replace the haskell
+one as the reference implementation.  Alternatively, if people all
+agree that parrot runtime should be the reference one, then that step
+would not be needed.  Hence the "if needed" clause in the pugs
+roadmap.
+
+* What does a success for PIR->X look like?  (X in hs,pir,p5)
+
+X-smoke.  The success will be quantifiable. It's not 0% / 100% thing.
+
+* What are the parts to a PIL->X?
+
+CodeGen from PIL to X-tree; an emitter from X-tree to X-code; a X
+runtime.  Parser->Compiler->CodeGen->Emit->Runtime.  Which parts are
+written in hs, p6, X?  Only the Runtime is in X.  Currently all other
+parts are in hs to be replaced by p6 gradually.  X does not enter the
+picture, except for the Runtime which includes object space,
+primitives, and maybe more emulation foo.  Re X-code, we don't quite
+care whether it's bytecode of other kind of concrete representation.
+
+* What about  PIL -> PIR -> P5 ?
+
+Or does that miss out on too many good integration features?
+
+PIR on P5 is an interesting subject. I suspect it will run very slowly
+unless you of course link with libparrot and pmcs.  If so, that is
+valid approach (and the one allison originally proposes) but I'm not
+personally interested.  If we have have a single runloop, why settle
+with two?  And some core parrot opcodes, eg. bsr/ret and tailcc and
+its calling convention, cannot be directly expressed in p5.  They must
+be emulated if you're targeting pure p5 (without linking libparrot).
+And I suspect it will be slower than acceptable.  But people are
+welcome to try :)
+
+* Learn pugs guts now! :)
+
+I've been holding off learning Pugs' Haskell guts on the assumption
+that the PIL change would pretty much put the internals in a blender.
+Is this true?
+
+PIL evaluation will be a refactoring of Eval.hs, not rewrite.  The
+planned change is supposed to start happening as soon as 6.2.8 is out
+of the door.
+
+
+Sources:
+  http://colabti.de/irclogger/irclogger_log/perl6?date=2005-07-12,Tue
