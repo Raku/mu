@@ -124,18 +124,42 @@ class HTTP::Cookies-0.0.1 {
     method scan (Code $callback) {
         for %:cookies.keys.sort -> $domain {
             for %:cookies{$domain}.keys.sort -> $path {
-                for %:cookies{$domain}{$path}.keys.sort -> $key {
-                    my ($version, $val, $port, $path_spec, $secure, $expires, $discard, $rest) = @{$key};
-                    $rest //= {};
+                for %:cookies{$domain}{$path}.keys.sort -> $key is rw {
+                    my ($version, $val, $port, $path_spec, $secure, $expires, $discard, *%rest) := @{$key};
+                    %rest //= {};
                     
-                    $cb.($version, $key, $val, $path, $domain, $port, $path_spec, $secure, $expires, $discard, $rest);
+                    $cb.($version, $key, $val, $path, $domain, $port, $path_spec, $secure, $expires, $discard, *%rest);
                 }
             }
         }
     }
     
     method as_string (Bool ?$skip_discardables) {
-        ...
+        # XXX use nested gather/take
+        my @ret = (gather {
+            ./scan(sub ($version, $key, $val, $path, $domain, ?$port, ?$path_spec, ?$secure, ?$maxage, ?$discard, *%rest) {
+                return if $discard && $skip_discardables;
+                
+                my @h = ($key, $val);
+                
+                @h.push('path', $path);
+                @h.push('domain', $domain);
+                @h.push('port', $port) if $port.defined;
+                @h.push('path_spec', undef) if $path_spec;
+                @h.push('secure', undef) if $secure;
+                @h.push('expires', HTTP::Date::time2isoz($expires)) if $expires;
+                @h.push('discard' => undef) if $discard;
+                
+                for %rest.keys.sort -> $k {
+                    @h.push($k, %rest{$k});
+                }
+                
+                @h.push('version', $version);
+                
+                take "Set-Cookie3: " ~ join_header_words(@h);
+            });
+            take "";
+        }).join("\n");
     }
     
     ## Class methods
