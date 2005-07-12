@@ -86,19 +86,26 @@ may also need to switch to use GCC 3.3 to compile Pugs at this moment.
 CAVEATS FOR x86_64 MACHINES
 ---------------------------
 
-Until GHC 6.4.1 is released, users with x86_64 (64 bit Athlon) CPU's should
-consider using a development snapshot of GHC.  GHC 6.4 had bugs on x86_64
-which break garbage collection and rules (regexps).  These bugs were fixed
-in GHC CVS by around 11-May.  There are hints on using snapshots at the end
-of this section.
+Until GHC 6.4.1 is released, Linux users with x86_64 (64 bit Athlon) CPUs
+should consider using a development snapshot of GHC:
+
+    http://www.haskell.org/ghc/dist/stable/dist/
+    
+Look for files ending with "x86_64-unknown-linux", for example:
+
+    ghc-6.4.1.20050711-x86_64-unknown-linux.tar.bz2
+
+GHC 6.4 had bugs on x86_64 which break garbage collection and rules (regexps).
+These bugs were fixed in GHC CVS by around 11-May.  There are hints on using
+snapshots at the end of this section.
 
 Here are the known problems:
 
 (1) GHC 6.4 has a garbage collector bug on x86_64 (64 bit Athlon) machines;
 users may see crashes complaining about "strange objects".
 
-Until GHC 6.4.1 is released, a partial workaround is to avoid GC by
-requesting a large heap, using either command line arguments:
+A partial workaround is to avoid GC by requesting a large heap, using either
+command line arguments:
 
     ./pugs +RTS -A200M -RTS
 
