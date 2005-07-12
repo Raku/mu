@@ -35,7 +35,7 @@ sub flatten_roles_into {
     $class->meta->add_method('does' => Perl6::Role::Method->new(
         $class->meta->name, sub {
         my (undef, $role) = @_;
-        return $role =~ /$r->{name}/ if $role;
+        return $role =~ /\b$r->{name}\b/ if $role;
         return split /\|/ => $r->{name};
     }));    
 }

@@ -168,7 +168,7 @@ class TypeChecking => {
         attrs => [ 
             [ '$.foo' => { type => 'TypeChecking', access => 'rw' } ],
             [ '$.bar' => { type => 'Checker'     , access => 'rw' } ],
-            [ '@.baz' => { type => 'Checkers'    , access => 'rw' } ],      
+            [ '@.baz' => { type => 'Checker'     , access => 'rw' } ],      
             [ '@.bah' => { type => 'TypeChecking', access => 'rw' } ],                        
         ]
     }    

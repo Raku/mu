@@ -46,6 +46,7 @@ sub CREATE {
         foreach my $attr ($c->get_attribute_list) {
             my $attr_obj = $c->get_attribute($attr);
             $attrs{$attr} = $attr_obj->instantiate_container;
+            
         }
     }); 
     
@@ -164,7 +165,7 @@ sub DESTROY {
 sub get_class_value {
     my ($self, $label) = @_;
     my $prop = $self->meta->find_attribute_spec($label, for => 'Class')
-        || confess "Cannot locate class property ($label) in class ($self)";
+        || confess "Cannot locate class property ($label) in class ($self)";        
     $prop->get_value();
 }
 
@@ -177,7 +178,7 @@ sub set_class_value {
 
 sub get_value {
     my ($self, $label) = @_;
-    $self->{instance_data}->{$label};
+    ${$self->{instance_data}->{$label}};
 }
 
 sub set_value {
@@ -193,10 +194,6 @@ sub set_value {
                 || confess "IncorrectObjectType: expected($type) and got($_)"
                     foreach @$value;                        
         }
-        else {
-            (blessed($value) && ($value->isa($type) || $value->does($type))) 
-                || confess "IncorrectObjectType: expected($type) and got($value)";                        
-        }
     }  
     else {
         (ref($value) eq 'ARRAY') 
@@ -210,7 +207,7 @@ sub set_value {
     # We are doing a 'binding' here by linking the $value into the $label
     # instead of storing into the container object available at $label
     # with ->store().  By that time the typechecking above will go away
-    $self->{instance_data}->{$label} = $value;
+    ${$self->{instance_data}->{$label}} = $value;        
 }
 
 # Initialize the Perl6::Object's metaclass here ...

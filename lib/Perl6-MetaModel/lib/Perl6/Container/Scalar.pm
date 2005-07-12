@@ -11,7 +11,6 @@ sub TIESCALAR {
     my ($class, $properties) = @_;
     $properties ||= {};
     # set some defaults
-    $properties->{access} = 'rw'  unless exists $properties->{access};  
     my $perl6_scalar = bless {
         'value'      => undef,
         'properties' => $properties
@@ -27,10 +26,8 @@ sub FETCH {
 }
 
 sub STORE {
-    my ($self, $value) = @_;  
-    ($self->{properties}->{access} eq 'rw') 
-        || confess "Scalar is read only!";
-    if (exists $self->{properties}->{type}) {
+    my ($self, $value) = @_;    
+    if (defined $self->{properties}->{type}) {
         if (blessed($value)) {
             (
                 ($value->isa($self->{properties}->{type}) || $self->{properties}->{type}->isa(blessed($value)))

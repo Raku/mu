@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 38;
+use Test::More tests => 35;
 use Test::Exception;
 
 use Perl6::MetaModel;
@@ -41,18 +41,6 @@ lives_ok {
 
 ok(tied($perl6_scalar_w_default), '... out scalar is still tied');
 is($perl6_scalar_w_default, 'testing', '... and the value has been changed');
-
-# test read-only
-
-my $perl6_ro_scalar;
-tie $perl6_ro_scalar, 'Perl6::Container::Scalar', { access => 'ro' };
-
-ok(tied($perl6_ro_scalar), '... out readonly scalar is tied');
-isa_ok(tied($perl6_ro_scalar), 'Perl6::Container::Scalar');
-
-dies_ok {
-    $perl6_ro_scalar = 'testing';
-} '... STORE failed correctly (this scalar is read-only)';
 
 # test typed scalar w/ classes
 
