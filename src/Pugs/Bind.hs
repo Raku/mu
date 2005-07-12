@@ -141,17 +141,6 @@ doBindArray v (xs, n)  (p, '$') = case v of
 doBindArray _ (_, _)  (_, x) = internalError $ "doBindArray: unexpected char: " ++ (show x)
 
 {-|
-(Does this even get used? It seems to be a leftover fragment of 
-'doBindArray'...)
--}
-bindEmpty :: Param -> MaybeError (Param, Exp)
-bindEmpty p = case paramName p of
-    ('@':_) -> return (p, emptyArrayExp)
-    ('$':_) -> fail $ "Unbound slurpy scalar: " ++ show p
-    (x:_)   -> internalError $ "bindEmpty: unexpected char: " ++ (show x)
-    []      -> internalError $ "bindEmpty: empty string encountered"
-
-{-|
 Return @True@ if the given expression represents a pair (i.e. it uses the
 \"=>\" pair constructor).
 -}
