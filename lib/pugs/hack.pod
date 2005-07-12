@@ -108,8 +108,9 @@ Expanding this one level deeper:
     |   |-- Perl-MetaModel     Sketch of Perl 6 Object Meta Model
     |   |-- Perldoc            Event-based API for Perldoc DOM
     |   |-- Pod-Event-Parser   Event-based API (like XML SAX) for POD
-    |   |-- Set                Set calculus operators
-    |   |-- Set-Infinite       Infinite sets, recurrences, and spans
+    |   |-- Set                Set calculus operations
+    |   |-- Set-Infinite       Infinite set and recurrence operations
+    |   |-- Span               Span operations
     |   |-- Test               Testing support library
     |   |-- Test-Builder       Backend for building test libraries
     |   |-- Text-Glob          Translate glob to regex
