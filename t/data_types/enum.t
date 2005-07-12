@@ -81,3 +81,11 @@ is %hash.values, <A B C D E>, '...and the right values are assigned', :todo<feat
 
 %hash = ();
 
+lives_ok { %hash = enum «:zero(0) one two three four five six seven eight nine :ten<a> eleven twelve thirteen fourteen fifteen»; }, 'mixing strings and integers works', :todo<feature>;
+
+is %hash.keys, <zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen>, '...and the right keys are assigned', :todo<feature>;
+
+is %hash.values, <0 1 2 3 4 5 6 7 8 9 A B C D E F>, '...and the right values are assigned', :todo<feature>;
+
+%hash = ();
+
