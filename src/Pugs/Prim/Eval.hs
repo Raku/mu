@@ -36,8 +36,8 @@ opRequire dumpEnv v = do
     glob        <- askGlobal
     seen        <- findSymRef "%*INC" glob
     loaded      <- existsFromRef seen v
-    if (loaded) then (return $ VInt 1) else do -- XXX: SPECME: what do we return here?
-        pathName <- requireInc incs file (errMsg file incs)
+    pathName    <- requireInc incs file (errMsg file incs)
+    if loaded then opEval style pathName "" else do
         -- %*INC{file} = pathname
         evalExp $ Syn "="
             [ Syn "{}"

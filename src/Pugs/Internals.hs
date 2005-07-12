@@ -133,14 +133,14 @@ instance (Typeable a, Typeable b) => Show (a -> b) where
         where
         typA = show $ typeOf (undefined :: a)
         typB = show $ typeOf (undefined :: b)
-instance Eq (a -> b) where
-    _ == _ = False
-instance Ord (a -> b) where
-    compare _ _ = LT
+instance (Typeable a, Typeable b) => Eq (a -> b) where
+    x == y = show x == show y
+instance (Typeable a, Typeable b) => Ord (a -> b) where
+    compare x y = compare (show x) (show y)
 instance Eq Dynamic where
-    _ == _ = False
+    x == y = show x == show y
 instance Ord Dynamic where
-    compare _ _ = LT
+    compare x y = compare (show x) (show y)
 
 internalError :: String -> a
 internalError s = error $
