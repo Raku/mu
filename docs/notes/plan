@@ -22,13 +22,13 @@ Code will flow through several phases inside Pugs as follows:
                FRONT END                     BACK END
     | <-- source lang specific --> | <-- runtime specific --> |
 
-    src file -> Parser -> Compiler -> CodeGen -> Emit -> Runtime
-             |         |           |          |       |        |
-P6->Parrot:  Perl 6    P6 AST      PIL        PAST    PIR      (parrot)
-  ->Haskell:                                  HS AST  Haskell  (ghc)
-  ->Perl 5:                                   P5 AST  Perl 5   (perl5)
-  ->JavaScript:                               JS AST  JS       (SpiderMonkey?)
-  ->Perl 6:                                   P6 AST  Perl 6   (pugs)
+    src file -> Parser -> Compiler -> CodeGen -> Emit -----------> Runtime
+             |         |           |          |                  |
+P6->Parrot:  Perl 6   Exp         PIL      PIR-Tree            Parrot
+  ->Haskell:                               Language.TH.Syntax  GHC
+  ->Perl 5:                                Code::Perl          Perl5
+  ->JavaScript:                            JS-AST              SpiderMonkey
+  ->Perl 6:                                Exp                 Pugs
 
 Of course, nothing prevents the creation of a frontend for a language
 other than Perl 6 -- this would allow the creator to reuse the
@@ -62,12 +62,13 @@ optimization extremely so.
 
 * When will these changes occur?
 
-After 6.2.8 is released, Eval.hs refactoring begins.  The various
-backends will follow soon afterwards, probably in roughly the order
-shown in the design overview above.
+After 6.2.8 is released, Eval.hs refactoring begins.  The various backends will
+follow soon afterwards, depending on their interest to Pugs developers.
+Currently, the interest level is roughly the order shown in the design overview
+above.
 
 
-* Why was this order chosen, and what will each backend do for us?
+* What will each backend do for us?
 
 ** PIR
 
@@ -79,6 +80,9 @@ all operational semantics directly in PIL, so that code generators
 for all backends can be equally clean.  Other runtimes, including
 Perl 5, are way too "smart" and would allow us to get away with a bad
 design for PIL without noticing it.
+
+Additionally, it will exercise many dormant and unimplemented features
+in Parrot, so it may one day become the leading runtime for Perl 6.
 
 ** Perl 5
 
@@ -150,3 +154,4 @@ putter interviewed autrijus on #perl6, and dumped a roughly edited
 version of the interview here.  geoffb then cleaned that up, per
 putter's request.  The original interview can be found at:
 http://colabti.de/irclogger/irclogger_log/perl6?date=2005-07-12,Tue
+
