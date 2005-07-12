@@ -151,15 +151,22 @@ if C<PERL6LIB> is defined. See C<PERL6LIB> for details on paths.
 
 =item C<PUGS_BYPASS_PRELUDE>
 
-Many Perl functions are provided to Pugs by a library called the Standard
+Many Perl subroutines are provided to Pugs by a library called the Standard
 Prelude, which is inlined into the pugs executable and loaded by default on
 each startup of pugs. If C<PUGS_BYPASS_PRELUDE> is set to anything except C<"">
 or C<"0">, then pugs will not load the Prelude automatically. This gives a
 minor speedup on startup, as well as allowing you to load your alternate
 version of F<Prelude.pm> like this:
 
-    # in this example, Prelude.pm will be searched for in @*INC
+    # In this example, Prelude.pm will be searched for in @*INC
     $ env PUGS_BYPASS_PRELUDE=1 pugs -MPrelude -e '...'
+
+=item C<PUGS_COMPILE_PRELUDE>
+
+By default, the Prelude is not compiled in when compiling a Perl program
+instead of running it. If you set C<PUGS_COMPILE_PRELUDE> to C<true>, you
+override this default and the Prelude will be linked in (XXX: why is the
+default to not compile the Prelude?).
 
 =item C<PUGS_SAFEMODE>
 
