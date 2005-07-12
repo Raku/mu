@@ -10,7 +10,9 @@
 #ifndef PUGS_VERSION
 #define PUGS_VERSION "6"
 #endif
+#ifndef PUGS_DATE
 #define PUGS_DATE ""
+#endif
 
 module Pugs.Version (
     name, versnum, date, version, copyright, revnum, revision, disclaimer,
