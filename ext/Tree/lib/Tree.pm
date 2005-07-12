@@ -18,7 +18,7 @@ has @:children;
 ## ----------------------------------------------------------------------------
 ## constructors
 
-submethod BUILD (Any $node) {
+submethod BUILD (Any ?$node) {
     $.depth  = -1;
     $.height = 1;
     $.width  = 1;
