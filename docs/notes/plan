@@ -1,142 +1,152 @@
+* What is the next big change in Pugs?
 
-Please feel free to massively refactor.
+The current execution model in which the parse tree is directly
+evaluated in Haskell is going away.  It is being replaced by a
+true multi-phase parse/compile/execute design.
 
-* The coming thing in pugs is PIL. 
 
-The current primary objective of pugs development is to switch from
-running the parse tree, to a compiler.
+* Why make this change?
 
-To obtain a compile time.  Err, compiler opportunity.  To not run the
-parse tree.  To allow a semantic analysis of parser tree.
+The current model forces many things to be delayed until runtime
+that would be better done at compile time, including detection of
+several classes of errors.  Some forms of code analysis and
+transformation are difficult with the current design.  Finally,
+the current Haskell backend may act differently than compiled
+backends, and we'd like all backends to have consistent behavior.
 
-To switch to PIL evaluator in haskell side so our interpreter won't
-differ from compiler.  Porting the metamodel to Haskell goes with
-that.  After those two, we'll have reliable way to write codegen in
-P6.  For example codegen into P5.  And _then_ we can port compiler to
-P6.  I need to draw some graph to explain all this.
 
-PIL evaluation will be a refactoring of Eval.hs.  The planned change
-is supposed to start happening as soon as 6.2.8 is out of the door.
+* How will compilation work in the new design?
 
-* Why compile?
+Code will flow through several phases inside Pugs as follows:
 
-Strict, warnings.  Pragmas.  "1 = 1" fails at compile time.  Semantic
-analysis.  Treatment of class literals doesn't depend on order of
-introduction.  Etc.  Helps give consistency of behaviour between
-interpretation and compiled execution.
+               FRONT END                     BACK END
+    | <-- source lang specific --> | <-- runtime specific --> |
+
+    src file -> Parser -> Compiler -> CodeGen -> Emit -> Runtime
+             |         |           |          |       |        |
+P6->Parrot:  Perl 6    P6 AST      PIL        PAST    PIR      (parrot)
+  ->Haskell:                                  HS AST  Haskell  (ghc)
+  ->Perl 5:                                   P5 AST  Perl 5   (perl5)
+  ->JavaScript:                               JS AST  JS       (SpiderMonkey?)
+  ->Perl 6:                                   P6 AST  Perl 6   (pugs)
+
+Of course, nothing prevents the creation of a frontend for a language
+other than Perl 6 -- this would allow the creator to reuse the
+various PIL to * backends.
+
 
 * What is PIL?
 
-A core calculus of perl6.  A kernel language.
-
-PIL is basically scheme with some more calling convention.
-
-Theoretically we can go the Perl5/Ruby route and augment the parse
-tree instead of inventing a new minimal language.  But that makes the
-life of codegen immeasurably more difficult.  And nonlocal
-optimization virtually impossible.
-
-* When?
-
-I think the PIL>p5 effort will happen simultaneously with the PIL in
-Haskell effort especially. Since PIL is soooo much cleaner in Haskell
-than it is in Perl.
-
-PIL in Haskell is Eval/PIL is Eval.hs refactoring PIL->P5 will
-probably happen simultaneously with PIL->PIR and other PIL->* as
-people find time to work on it.  I'm equally interested in P5 and PIR
-targeting, but P5 brings more instant gratification.
-
-* What roles do PIL->X have?
-
-** PIL->PIR provides honesty in PIL design.
-
-PIL->PIR is keeping us honest.  It's trivial to make PIL bloaty and
-codegen unfriendly, by shuffling a lot hidden complexity to haskell
-runtime.  Switching to another runtime forces us to define all
-operational semantics.  Because haskell runtime and pir runtime (and
-p5 runtime) cannot agree, so all semantic must be preserved at PIL
-level.  Otherwise, I imagine Eval/PIL producing something that's hard
-to codegen from.  (If we started from that first).  So yes, "reality
-check" is pretty accurate.  PIR codegen is merely a motivating case of
-PIL compilation.
-
-Why not p5?  Because p5 is too smart.  Similar to our existing hs
-runtime.  There's too much logic in p5 code.  Even in a single method
-call.  So it does not keep us honest the same way as PIR does.  Otoh,
-once PIL is more solid, p5 runtime will have a lot of practical value,
-because p5 is known to segfault less.  And DBI is written in p5 not
-pir.  So it makes sense to pursue Eval/PIL with PIL->PIR until we have
-a good idea of what PIL's final form will be, then work on PIL->P5 in
-earnest.  And maybe PIL->JS etc.
-
-** PIL->P5 provides reliability and visibility.
-
-We can compile Perl 6 to Perl 5 The motivation is that we can write
-"use perl5:DBI;" and expect it to work in both hs evaluator and p5
-evaluator.  And have it work far more reliably in the latter.  I
-prophesy that once that happens we'll enter the "hack hack hack" phase
-of imaginary perl6 timeline and out of the current "slowly gaining
-more respect" phase.
-
-** PIR->hs/Eval provides clear definition of semantics.
-
-Taking advantage of haskell's uncanny ability of serving as
-specification that happens to run.  So it is the reference evaluator.
-Until, some day, we finish PIL->Perl6.
-
-* Peering into the future, what are the "last" milestones of pugs?
-
-Some day, we finish PIL->Perl6.  Which would be the last milestone of
-pugs.  (Of course, the compiler, emitter and metamodel + object space
-should be all in P6 in the last milestone).  But there are two levels
-of PIL->P6; one is merely a pretty printer.  Which will not need to
-implement any semantic.  The "last milestone" one is however
-different; it's basically an implementation of a perl 6 virtual
-machine on top of perl 6.  It's there so we can replace the haskell
-one as the reference implementation.  Alternatively, if people all
-agree that parrot runtime should be the reference one, then that step
-would not be needed.  Hence the "if needed" clause in the pugs
-roadmap.
-
-* What does a success for PIR->X look like?  (X in hs,pir,p5)
-
-X-smoke.  The success will be quantifiable. It's not 0% / 100% thing.
-
-* What are the parts to a PIL->X?
-
-CodeGen from PIL to X-tree; an emitter from X-tree to X-code; a X
-runtime.  Parser->Compiler->CodeGen->Emit->Runtime.  Which parts are
-written in hs, p6, X?  Only the Runtime is in X.  Currently all other
-parts are in hs to be replaced by p6 gradually.  X does not enter the
-picture, except for the Runtime which includes object space,
-primitives, and maybe more emulation foo.  Re X-code, we don't quite
-care whether it's bytecode of other kind of concrete representation.
-
-* What about  PIL -> PIR -> P5 ?
-
-Or does that miss out on too many good integration features?
-
-PIR on P5 is an interesting subject. I suspect it will run very slowly
-unless you of course link with libparrot and pmcs.  If so, that is
-valid approach (and the one allison originally proposes) but I'm not
-personally interested.  If we have have a single runloop, why settle
-with two?  And some core parrot opcodes, eg. bsr/ret and tailcc and
-its calling convention, cannot be directly expressed in p5.  They must
-be emulated if you're targeting pure p5 (without linking libparrot).
-And I suspect it will be slower than acceptable.  But people are
-welcome to try :)
-
-* Learn pugs guts now! :)
-
-I've been holding off learning Pugs' Haskell guts on the assumption
-that the PIL change would pretty much put the internals in a blender.
-Is this true?
-
-PIL evaluation will be a refactoring of Eval.hs, not rewrite.  The
-planned change is supposed to start happening as soon as 6.2.8 is out
-of the door.
+PIL is a kernel language, a core calculus for Perl 6.  In practice,
+PIL is basically Scheme with more calling conventions.  It also serves
+as a single link between all front ends and all backends, avoiding the
+M x N compiler variant problem.
 
 
-Sources:
-  http://colabti.de/irclogger/irclogger_log/perl6?date=2005-07-12,Tue
+* What changes will be required in Pugs?
+
+The Haskell evaluator in src/Pugs/Eval.hs needs to be refactored,
+and the various backends for PIL will need to be written.  Most of
+the existing Pugs code will remain essentially the same.  Don't
+worry that time spent now learning Pugs internals will be wasted;
+there's no time like the present to get started.
+
+
+* What other options were considered?
+
+Perl 5 and Ruby chose instead to simply augment the parse tree,
+rather than implement a new intermediate language.  However, this
+makes back end code generation much more difficult, and nonlocal
+optimization extremely so.
+
+
+* When will these changes occur?
+
+After 6.2.8 is released, Eval.hs refactoring begins.  The various
+backends will follow soon afterwards, probably in roughly the order
+shown in the design overview above.
+
+
+* Why was this order chosen, and what will each backend do for us?
+
+** PIR
+
+The PIR backend comes first because it forces cleanliness in the PIL
+design.  It would be easy to hide complexity inside the rich Haskell
+and Perl 5 runtimes, allowing the PIL design to become bloated,
+crufty, and unfriendly to code generators.  PIR forces us to define
+all operational semantics directly in PIL, so that code generators
+for all backends can be equally clean.  Other runtimes, including
+Perl 5, are way too "smart" and would allow us to get away with a bad
+design for PIL without noticing it.
+
+** Perl 5
+
+Perl 5 is extremely reliable and visible, and brings CPAN to Pugs.  It's
+hoped that the ability to compile Perl 6 to Perl 5, and to reliably use
+the Perl 5 DBI and other Perl 5 XS modules, will move Perl 6 from the
+"slowly gaining more respect" phase to the "hack hack hack" phase on
+Autrijus' imaginary timeline.
+
+** Haskell
+
+Haskell is known to be good for creating specifications that happen to
+run.  The Haskell backend will thus serve as the reference evaluator
+until eventually the Perl 6 backend is completed, completing the
+bootstrap cycle.  Also, it is expected that PIL will have a vastly
+cleaner implementation in Haskell than in Perl 5.
+
+** JavaScript
+
+It's just plain cool, that's why.  Oh, and Perl 6 would then magically
+run inside every vaguely recent web browser.  This backend is farther
+down the list both because no one has started to work on it and because
+it is less critical for near-term success.
+
+** Perl 6
+
+In a first pass, this is simply a pretty printer.  At the end of Pugs'
+development, this indicates the completion of bootstrapping; more on
+this below.
+
+
+* What is required to create a new backend?
+
+Aside from code generation, each backend will need a runtime that
+implements the builtin operations and functions not provided by the
+Perl 6 prelude.  In addition, the new backend will require a native
+implementation of the Perl 6 object metamodel.
+
+
+* When is a backend considered complete?
+
+When it smokes the test suite cleanly.  This metric is nicely
+quantifiable -- it is reasonable to refer to the completeness of a
+backend by the percentage of the test suite that it passes.
+
+
+* What is the desired final milestone for Pugs?
+
+The long term plan is to slowly convert each of the compilation
+phases, and supporting systems such as the object metamodel, from
+Haskell to Perl 6.  This will basically constitute a Perl 6 virtual
+machine running in Perl 6, and will then replace the Haskell code as
+the reference implementation.  It is possible that everyone will
+agree to forgo this Perl 6 VM, and use only the Parrot VM, but that
+decision is still far off.
+
+
+* Would it be possible to run PIR in Perl 5 instead of Parrot?
+
+Yes, but it would probably be very slow unless a large portion of
+Parrot was linked in (libparrot, PMC implementations, etc.)  Some
+PIR opcodes cannot be directly expressed in Perl 5 and would require
+heavy (slow) emulation otherwise.  You are of course welcome to try.
+
+
+* Where did these answers come from?
+
+putter interviewed autrijus on #perl6, and dumped a roughly edited
+version of the interview here.  geoffb then cleaned that up, per
+putter's request.  The original interview can be found at:
+http://colabti.de/irclogger/irclogger_log/perl6?date=2005-07-12,Tue
