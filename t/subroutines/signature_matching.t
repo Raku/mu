@@ -26,10 +26,10 @@ is( earth(him => 2, me => 1, her => 3), 'me 1 him 2 her 3', 'named him named me 
 is( earth(her => 3, me => 1, him => 2), 'me 1 him 2 her 3', 'named her named me named him', :todo<feature>);
 is( earth(her => 3, him => 2, me => 1), 'me 1 him 2 her 3', 'named her named him named me', :todo<feature>);
 
-is( earth('a'),                'pos a',             'pos', :todo<feature>);
+is( earth('a'),                'pos a',             'pos');
 is( earth('b', you => 4),      'pos b you 4',       'pos, named you', :todo<feature>);
 is( earth('c', her => 3),      'pos c her 3',       'pos, named her', :todo<feature>);
-is( earth('d', 'e'),           'pos d pos e',       'pos, pos', :todo<feature>);
+is( earth('d', 'e'),           'pos d pos e',       'pos, pos');
 is( earth('f', 'g', her => 3), 'pos f pos g her 3', 'pos, pos, named');
 
 
@@ -47,18 +47,18 @@ sub wind (+$me, +$him)        {"me $me him $him"};
 sub wind (+$him)              {"him $him"};
 sub wind (+$me)               {"me $me"};
 
-is( wind(me => 1),                     'me 1',             'named me');
+is( wind(me => 1),                     'me 1',             'named me', :todo<feature>);
 is( wind(him => 2),                    'him 2',            'named you', :todo<feature>);
-is( wind(me => 1, him => 2),           'me 1 him 2',       'named me, named him');
-is( wind(him => 2, me => 1),           'me 1 him 2',       'named him, named me');
-is( wind(me => 1, him => 2, her => 3), 'me 1 him 2 her 3', 'named me named him named her');
-is( wind(him => 2, me => 1, her => 3), 'me 1 him 2 her 3', 'named him named me named her');
-is( wind(her => 3, me => 1, him => 2), 'me 1 him 2 her 3', 'named her named me named him');
-is( wind(her => 3, him => 2, me => 1), 'me 1 him 2 her 3', 'named her named him named me');
+is( wind(me => 1, him => 2),           'me 1 him 2',       'named me, named him', :todo<feature>);
+is( wind(him => 2, me => 1),           'me 1 him 2',       'named him, named me', :todo<feature>);
+is( wind(me => 1, him => 2, her => 3), 'me 1 him 2 her 3', 'named me named him named her', :todo<feature>);
+is( wind(him => 2, me => 1, her => 3), 'me 1 him 2 her 3', 'named him named me named her', :todo<feature>);
+is( wind(her => 3, me => 1, him => 2), 'me 1 him 2 her 3', 'named her named me named him', :todo<feature>);
+is( wind(her => 3, him => 2, me => 1), 'me 1 him 2 her 3', 'named her named him named me', :todo<feature>);
 
-is( wind('a'),                'pos a',             'pos', :todo<feature>);
+is( wind('a'),                'pos a',             'pos');
 is( wind('b', you => 4),      'pos b you 4',       'pos, named you', :todo<feature>);
 is( wind('c', her => 3),      'pos c her 3',       'pos, named her', :todo<feature>);
-is( wind('d', 'e'),           'pos d pos e',       'pos, pos', :todo<feature>);
-is( wind('f', 'g', her => 3), 'pos f pos g her 3', 'pos, pos, named', :todo<feature>);
+is( wind('d', 'e'),           'pos d pos e',       'pos, pos');
+is( wind('f', 'g', her => 3), 'pos f pos g her 3', 'pos, pos, named');
 
