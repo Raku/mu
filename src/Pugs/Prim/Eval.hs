@@ -84,13 +84,13 @@ op1EvalHaskell cv = do
                        , evalResult=EvalResultLastValue}
 
 opEval :: EvalStyle -> FilePath -> String -> Eval Val
-opEval style path str = do
+opEval style path str = enterCaller $ do
     env <- ask
     let env' = parseProgram env path str
         trans = case evalResult style of
             EvalResultEnv -> (`mergeStmts` Syn "env" [])
             _             -> id
-    val <- resetT $ local (const env') $ enterCaller $ do
+    val <- resetT $ local (const env') $ do
         evl <- asks envEval
         evl (trans $ envBody env')
     retEvalResult style val
