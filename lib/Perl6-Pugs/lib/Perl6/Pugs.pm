@@ -2,7 +2,7 @@ package Perl6::Pugs;
 use 5.006;
 use strict;
 
-our $VERSION = 6.002007;
+our $VERSION = 6.002008;
 
 =pod
 
