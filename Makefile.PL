@@ -336,9 +336,6 @@ pirsmoke : $pugs util/run-smoke.pl all
 pirtest :
 	\$(PERL) -e "ENV->{HARNESS_PERL_SWITCHES}=q+-B PIR+; system qq+$Config{make}+, q+test+"
 
-install :
-	\$(PERL) -e "print q+make install is temporarily disabled+"
-
 ghci ::
 	$ghc --interactive $ghc_flags $ghc_output
 
