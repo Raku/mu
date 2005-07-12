@@ -33,6 +33,6 @@ lives_ok {
 my $val;
 lives_ok {
    $val = $d.get_attr()
-}, '... getting attr from cloned value';
+}, '... getting attr from cloned value', :todo<feature>;
 
 is($val, 42, '... cloned object has proper attr value', :todo<feature>);

@@ -19,8 +19,8 @@ sub prefix:<blub> (Str $foo, Int +$times = 1) {
 	("BLUB" x $times) ~ $foo;
 }
 
-eval_is 'prefix:<blub>("bar")', 'BLUBbar', 'user-defined prefix operator, long name', :todo<feature>;
-eval_is 'prefix:<blub>("bar", times => 2)', 'BLUBBLUBbar', 'user-defined prefix operator, long name, optional parameter', :todo<feature>;
+eval_is 'prefix:<blub>("bar")', 'BLUBbar', 'user-defined prefix operator, long name';
+eval_is 'prefix:<blub>("bar", times => 2)', 'BLUBBLUBbar', 'user-defined prefix operator, long name, optional parameter';
 eval_is 'blub "bar"', 'BLUBbar', 'user-defined prefix operator, basic call', :todo<feature>;
 eval_is 'blub "bar" :times<2>', 'BLUBBLUBbar', 'user-defined prefix operator, :times adverb, space', :todo<feature>;
 eval_is 'blub "bar":times<2>', 'BLUBBLUBbar', 'user-defined prefix operator, :times adverb, no space', :todo<feature>;
