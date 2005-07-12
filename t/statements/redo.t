@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 8;
+plan 10;
 
 {
 	my $i = 0;
@@ -68,3 +68,38 @@ plan 8;
 	is($i, -7, '$i incremented and decremented correct number of times', :todo<bug>);
 }
 
+{
+    # rubicon TestLoopStuff.rb
+    #  def testRedoWithFor
+    #    sum = 0
+    #    for i in 1..10
+    #      sum += i
+    #      i -= 1
+    #      if i > 0
+    #        redo
+    #      end
+    #    end
+    #    assert_equal(220, sum)
+    #  end
+    my $stopping = 100;
+    my $sum = 0;
+    for 1..10 -> $i is copy {
+	$sum += $i;
+	$i -= 1;
+	last if !$stopping--;
+	if $i > 0 { redo }
+    }
+    is($sum, 220, "testRedoWithFor", :todo<bug>);
+
+    $stopping = 100;
+    $sum = 0;
+    my $j = 1;
+    my $i;
+    while do{$i = $j; $j++ <= 10} {
+	$sum += $i;
+	$i -= 1;
+	last if !$stopping--;
+	if $i > 0 { redo }
+    }
+    is($sum, 220, "test redo with while", :todo<bug>);
+}
