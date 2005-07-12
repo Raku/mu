@@ -41,9 +41,35 @@ class HTTP::Cookies-0.0.1 {
         ...
     }
     
-    method set_cookie (Num $version, Str $key, Str $val, Str $path, Str $domain, Str $port, Bool $path_spec, Bool $secure, Num $maxage, Bool $discard, *%rest) {
-        ...
+    # XXX lots of potential `where /.../` clauses here :-)
+    method set_cookie (Num $version, Str $key, Str $val, Str $path, Str $domain, Str ?$port, Bool ?$path_spec = bool::false, Bool ?$secure = bool::false, Num ?$maxage, Bool ?$discard = bool::false, *%rest) {
+        return $?SELF if $path !~ m,^/, || $key ~~ m,^\$,;
+        
+        if $port.defined {
+            return $?SELF unless $port ~~ m:P5/^_?\d+(?:,\d+)*/;
+        }
+        
+        my $expires;
+        
+        if $maxage.defined {
+            if $maxage <= 0 {
+                %:cookies{$domain}{$path}.delete($key);
+                return $?SELF;
+            }
+            
+            $expires = time() + $maxage;
+        }
+        
+        my @array = ($version, $val, $port, $path_spec, $secure, $expires, $discard);
+        @array.push(*%rest) if %rest.keys;
+        
+        @array.pop while !defined @array[-1];
+        
+        %:cookies{$domain}{$path}{$key} = \@array;
+        return $?SELF;
     }
+    
+    method set_cookie_ok (*@_) { 1; }
     
     method save (Str ?$file = $.file) {
         my $fh = open($file, :w);
