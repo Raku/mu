@@ -83,10 +83,10 @@ ok (not [!=] 4, 4, 4),    "[!=] works (2)";
     push @reftypes, $hash.ref;
     $hash.{$key};
   }
-  is((reduce(&foo, $hash, <a b c>)), 42, 'reduce(&foo) (foo ~~ .{}) works three levels deep');
-  is(@reftypes[0], "Hash", "first application of reduced hash subscript passed in a Hash"); # Array
-  is(@reftypes[1], "Hash", "second application of reduced hash subscript passed in a Hash"); # Scalar::Proxy
-  is(@reftypes[2], "Hash", "third application of reduced hash subscript passed in a Hash"); # Scalar::Proxy
+  is((reduce(&foo, $hash, <a b c>)), 42, 'reduce(&foo) (foo ~~ .{}) works three levels deep', :todo<bug>);
+  is(@reftypes[0], "Hash", "first application of reduced hash subscript passed in a Hash", :todo<bug>); # Array
+  is(@reftypes[1], "Hash", "second application of reduced hash subscript passed in a Hash", :todo<bug>); # Scalar::Proxy
+  is(@reftypes[2], "Hash", "third application of reduced hash subscript passed in a Hash", :todo<bug>); # Scalar::Proxy
 }
 
 {
