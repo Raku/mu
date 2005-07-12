@@ -659,8 +659,8 @@ reduceSyn "namespace" [exp, body] = do
     str <- fromVal val
     when (str `elem` words "MY OUR OUTER CALLER") $ do
         fail $ "Cannot use " ++ str ++ " as a namespace"
-    writeVar "$*PACKAGE" val
-    enterPackage str $ evalExp body
+    tempVar "$*PACKAGE" val $ do
+        enterPackage str $ evalExp body
 
 reduceSyn "inline" [langExp, _] = do
     langVal <- evalExp langExp

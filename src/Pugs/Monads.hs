@@ -274,3 +274,11 @@ headVal :: [Val] -> Eval Val
 headVal []    = retEmpty
 headVal (v:_) = return v
 
+tempVar :: String -> Val -> Eval a -> Eval a
+tempVar var val action = do
+    old <- readVar var
+    writeVar var val
+    rv  <- action
+    writeVar var old
+    return rv
+
