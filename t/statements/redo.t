@@ -24,7 +24,7 @@ plan 10;
 		push @log, "after";
 	}
 	
-	is(~@log, "before before no_redo after before no_redo after", "statements after redo are not executed", :todo<bug>);
+	is(~@log, "before before no_redo after before no_redo after", "statements after redo are not executed");
 }
 
 {
@@ -50,7 +50,7 @@ plan 10;
 		$j++;
 	}
 
-	is($j, 4, '$j++ encountered four times', :todo<bug>);
+	is($j, 4, '$j++ encountered four times');
 	is($i, 3, '$i++ encountered three times');
 }
 
@@ -64,8 +64,8 @@ plan 10;
 		$i-=2;
 	}
 
-	is($j, 4, '$j unaltered by the fiasco', :todo<bug>);
-	is($i, -4, '$i incremented and decremented correct number of times', :todo<bug>);
+	is($j, 4, '$j unaltered by the fiasco');
+	is($i, -4, '$i incremented and decremented correct number of times');
 }
 
 {

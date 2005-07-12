@@ -141,5 +141,5 @@ Check that C<next> works on the correct loop/block
 		$i++;
 	}
 	
-	is($i, 3, '$i++ was not executed when next was called before it in loop {}', :todo<bug>)
+	is($i, 3, '$i++ was not executed when next was called before it in loop {}');
 }
