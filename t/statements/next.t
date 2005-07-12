@@ -31,7 +31,7 @@ plan 12;
         'my $tracker = 0; for (1..5) { next if 2 < $_ < 4; $tracker = $_;} $tracker',
         3,
         "... nothing before or after 3 (next if <cond>)",
-        :todo(1)
+        :todo<bug>
     );
 }
 
@@ -56,7 +56,7 @@ plan 12;
         'my $tracker=0; DONE: for (1..2) { next DONE; $tracker++;} $tracker',
         0,
         "tracker is 0 because next before increment",
-        :todo(1)
+        :todo<bug>
     );
 }
 
@@ -72,7 +72,7 @@ plan 12;
         'my $tracker=0; OUT: for (1..2) { IN: for (1..2) { next OUT; $tracker++; } } $tracker',
         0,
         "tracker is 0 because next before increment in nested loop",
-        :todo(1)
+        :todo<bug>
     );
 }
 
