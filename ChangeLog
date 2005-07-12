@@ -26,7 +26,9 @@
 * Parse fractional number literals starting with a leading dot: `.1` `-.1`
 * Qualified names and exports now dealt with consistently
 * `our` variables in packages now generate qualified symbols
-* `@?INIT` and `@?CHECK` are now renamed back to `@*` space.
+* `@?INIT` and `@?CHECK` are renamed back to `@*` space
+* `multi foo { ... }` is now a shorthand for `multi sub foo { ... }`
+
 
 === Bundled Modules
 

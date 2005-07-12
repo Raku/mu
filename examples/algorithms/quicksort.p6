@@ -1,9 +1,9 @@
 #!/usr/bin/pugs
 use v6;
 
-multi sub quicksort ( ) { () }
+multi quicksort ( ) { () }
 
-multi sub quicksort ( *$x, *@xs ) {
+multi quicksort ( *$x, *@xs ) {
     my @pre  := @xs.grep:{ $_ < $x };
     my @post := @xs.grep:{ $_ >= $x };
     return(@pre.quicksort, $x, @post.quicksort);
