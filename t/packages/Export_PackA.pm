@@ -1,4 +1,4 @@
-module t::pugsbugs::Export_PackA {
+module t::packages::Export_PackA {
   sub exported_foo () is export {
     42;
   }
