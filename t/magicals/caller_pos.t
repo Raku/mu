@@ -26,7 +26,7 @@ sub very  { outer() }
 
 is(very(), "$?FILE line 27, column 4-10\n$?FILE line 25, column 13-21\n$?FILE line 24, column 13-21", "caller::caller notation works");
 
-ok(!(eval 'outer(); 1'), "can't look beyond top level caller");
+ok(!(eval '$CALLER::CALLER::CALLER::_; 1'), "can't look beyond top level caller");
 
 sub inner2 {
 #line 32

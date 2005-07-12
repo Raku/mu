@@ -14,6 +14,6 @@ plan 2;
     return "$factorial + 0";
   }
 
-  ok $was_in_macro;
+  ok $was_in_macro, :todo<feature>;
   is 3!, 6, "macro postfix:<!> works", :todo<feature>;
 }
