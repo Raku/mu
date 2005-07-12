@@ -6,7 +6,7 @@ use warnings;
 
 use Perl6::Role::Method;
 
-use Carp 'croak';
+use Carp 'confess';
 
 our %ROLES;
 
@@ -57,7 +57,7 @@ sub combine_roles {
             debug "adding the method ($method_name) into the role (" . $role->{name} . ")";
             if (exists $composite_role->{methods}->{$method_name}) {
                 unless ($class->meta->has_method($method_name)) {
-                    croak "We have a method conflict on ($method_name) in (" . $role->{name} . ")";                
+                    confess "We have a method conflict on ($method_name) in (" . $role->{name} . ")";                
                 }
             }
             else {

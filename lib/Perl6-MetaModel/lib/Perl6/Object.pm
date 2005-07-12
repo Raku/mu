@@ -7,7 +7,7 @@ use warnings;
 use Perl6::MetaClass;
 
 use Scalar::Util 'blessed';
-use Carp 'croak';
+use Carp 'confess';
 
 # the default .new()
 
@@ -35,7 +35,7 @@ sub bless : method {
 sub CREATE {
     my ($class, %params) = @_;
     ($params{repr} eq 'P6opaque') 
-        || croak "Sorry, No other types other than 'P6opaque' are currently supported";    
+        || confess "Sorry, No other types other than 'P6opaque' are currently supported";    
     
     # this just gathers all the 
     # attributes that were defined
@@ -135,14 +135,14 @@ sub AUTOLOAD {
             $method = $self->meta->find_method($label);
         }
         (blessed($method) && $method->isa('Perl6::Method')) 
-            || croak "Method ($label) not found for instance ($self)";
+            || confess "Method ($label) not found for instance ($self)";
         @return_value = $method->call($self, @_);        
     }
     else {
         my $method = $self->meta->find_method($label, for => 'Class');
 
         (defined $method) 
-            || croak "Method ($label)  not found for class ($self)";
+            || confess "Method ($label)  not found for class ($self)";
         @return_value = $method->call($self, @_);
     }
     return wantarray ?
@@ -164,14 +164,14 @@ sub DESTROY {
 sub get_class_value {
     my ($self, $label) = @_;
     my $prop = $self->meta->find_attribute_spec($label, for => 'Class')
-        || croak "Cannot locate class property ($label) in class ($self)";
+        || confess "Cannot locate class property ($label) in class ($self)";
     $prop->get_value();
 }
 
 sub set_class_value {
     my ($self, $label, $value) = @_;
     my $prop = $self->meta->find_attribute_spec($label, for => 'Class')
-        || croak "Cannot locate class property ($label) in class ($self)";
+        || confess "Cannot locate class property ($label) in class ($self)";
     $prop->set_value($value);
 }
 
@@ -183,27 +183,27 @@ sub get_value {
 sub set_value {
     my ($self, $label, $value) = @_;
     my $prop = $self->meta->find_attribute_spec($label)
-        || croak "Perl6::Attribute ($label) no found";
+        || confess "Perl6::Attribute ($label) no found";
 
     # since we are not private, then check the type
     # assuming there is one to check ....
     if (my $type = $prop->type()) {
         if ($prop->is_array()) {
             (blessed($_) && ($_->isa($type) || $_->does($type))) 
-                || croak "IncorrectObjectType: expected($type) and got($_)"
+                || confess "IncorrectObjectType: expected($type) and got($_)"
                     foreach @$value;                        
         }
         else {
             (blessed($value) && ($value->isa($type) || $value->does($type))) 
-                || croak "IncorrectObjectType: expected($type) and got($value)";                        
+                || confess "IncorrectObjectType: expected($type) and got($value)";                        
         }
     }  
     else {
         (ref($value) eq 'ARRAY') 
-            || croak "You can only asssign an ARRAY ref to the label ($label)"
+            || confess "You can only asssign an ARRAY ref to the label ($label)"
                 if $prop->is_array();
         (ref($value) eq 'HASH') 
-            || croak "You can only asssign a HASH ref to the label ($label)"
+            || confess "You can only asssign a HASH ref to the label ($label)"
                 if $prop->is_hash();
     }                      
 

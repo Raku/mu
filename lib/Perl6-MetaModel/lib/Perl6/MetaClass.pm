@@ -5,7 +5,7 @@ use strict;
 use warnings;
 
 use Scalar::Util 'blessed';
-use Carp 'croak';
+use Carp 'confess';
 
 use constant INSTANCE_TABLE  => 'class_definition';
 use constant CLASS_TABLE     => 'class_data';
@@ -47,7 +47,7 @@ sub version {
     my ($self, $version) = @_;
     if (defined $version) {
         ($version =~ /^\d+\.\d+\.\d+$/)
-            || croak "The version ($version) is not in the correct format '0.0.0'";
+            || confess "The version ($version) is not in the correct format '0.0.0'";
         $self->{version} = $version;
     }
     $self->{version};    
@@ -80,9 +80,9 @@ sub superclasses {
     my ($self, $superclasses) = @_;
     if (defined $superclasses) {
         (ref($superclasses) eq 'ARRAY')
-            || croak "BadType : You must pass the superclasses as an ARRAY ref";
+            || confess "BadType : You must pass the superclasses as an ARRAY ref";
         (blessed($_) && $_->isa('Perl6::MetaClass'))
-            || croak "IncorrectObjectType : A superclass must be a Perl6::MetaClass instance"
+            || confess "IncorrectObjectType : A superclass must be a Perl6::MetaClass instance"
                 foreach @{$superclasses};
         $self->{superclasses} = $superclasses;    
     }
@@ -128,9 +128,9 @@ sub traverse_post_order {
 sub add_method {
     my ($self, $label, $method) = @_;
     (defined $label && defined $method)
-        || croak "InsufficientArguments : you must provide a method and a label";
+        || confess "InsufficientArguments : you must provide a method and a label";
     (blessed($method) && $method->isa('Perl6::Method'))
-        || croak "IncorrectObjectType : Method must be a Perl6::Method object got($method)";
+        || confess "IncorrectObjectType : Method must be a Perl6::Method object got($method)";
     my $method_table;
     if ($method->isa('Perl6::Instance::Method')) {
         $method_table = INSTANCE_TABLE;
@@ -145,7 +145,7 @@ sub add_method {
         $method_table = INSTANCE_TABLE; 
     }    
     else {
-        croak "Incorrect Object Type : I dont know what to do with ($method)";
+        confess "Incorrect Object Type : I dont know what to do with ($method)";
     }    
     $self->{$method_table}->{methods}->{$label} = $method;
 }
@@ -153,7 +153,7 @@ sub add_method {
 sub get_method {
     my ($self, $label, %params) = @_;
     (defined $label)
-        || croak "InsufficientArguments : you must provide a label";
+        || confess "InsufficientArguments : you must provide a label";
     $self->{$self->_which_table(\%params)}->{methods}->{$label};
 }
 
@@ -190,9 +190,9 @@ sub responds_to {
 sub add_attribute {
     my ($self, $label, $attribute) = @_;
     (defined $label && defined $attribute)
-        || croak "InsufficientArguments : you must provide an attribute and a label";
+        || confess "InsufficientArguments : you must provide an attribute and a label";
     (blessed($attribute) && $attribute->isa('Perl6::Attribute'))
-        || croak "IncorrectObjectType : Attributes must be a Perl6::Attribute instance got($attribute)";
+        || confess "IncorrectObjectType : Attributes must be a Perl6::Attribute instance got($attribute)";
     $self->_create_accessor($attribute);         
     
     my $method_table;
@@ -209,7 +209,7 @@ sub add_attribute {
 sub get_attribute {
     my ($self, $label, %params) = @_;
     (defined $label)
-        || croak "InsufficientArguments : you must provide a label";
+        || confess "InsufficientArguments : you must provide a label";
     $self->{$self->_which_table(\%params)}->{attributes}->{$label};
 }
 
@@ -277,7 +277,7 @@ sub _create_accessor {
         } if $attribute->is_rw;
         $method_code = sub {
             my $i = shift;
-            (@_) && croak "the attribute '$label' is read-only";
+            (@_) && confess "the attribute '$label' is read-only";
             $i->get_value($label);
         } if $attribute->is_ro;        
     }
@@ -289,12 +289,12 @@ sub _create_accessor {
             $attribute->get_value($label);
         } if $attribute->is_rw;
         $method_code = sub {
-            (@_) && croak "the attribute '$label' is read-only";            
+            (@_) && confess "the attribute '$label' is read-only";            
             $attribute->get_value($label);
         } if $attribute->is_ro;                
     }
     else {
-        croak "Incorrect Object Type : I do not understand the attribute class ($attribute)";
+        confess "Incorrect Object Type : I do not understand the attribute class ($attribute)";
     }
     
     $self->add_method(
@@ -319,7 +319,7 @@ sub _which_table {
         return INSTANCE_TABLE; 
     }    
     else {
-        croak "Incorrect Parameter : methods cannot be found for " . $params->{for};
+        confess "Incorrect Parameter : methods cannot be found for " . $params->{for};
     }
 }
 

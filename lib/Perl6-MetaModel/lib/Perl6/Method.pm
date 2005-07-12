@@ -4,14 +4,14 @@ package Perl6::Method;
 use strict;
 use warnings;
 
-use Carp 'croak';
+use Carp 'confess';
 
 sub new {
     my ($class, $associated_with, $code) = @_;
     (defined $associated_with && defined $code) 
-        || croak "Insufficient Arguments : You must provide a class this is associated with and code";    
+        || confess "Insufficient Arguments : You must provide a class this is associated with and code";    
     (ref($code) eq 'CODE') 
-        || croak "Incorrect Object Type : The code arguments must be a CODE reference";
+        || confess "Incorrect Object Type : The code arguments must be a CODE reference";
     bless {
         associated_with => $associated_with,
         code            => $code,

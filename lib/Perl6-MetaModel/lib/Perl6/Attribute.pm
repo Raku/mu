@@ -4,7 +4,7 @@ package Perl6::Attribute;
 use strict;
 use warnings;
 
-use Carp 'croak';
+use Carp 'confess';
 use Scalar::Util 'blessed';
 
 use constant PUBLIC  => 'public';
@@ -13,12 +13,12 @@ use constant PRIVATE => 'private';
 sub new {
     my ($class, $associated_with, $label, $props) = @_;
     (defined $associated_with && defined $label) 
-        || croak "Insufficient Arguments : You must provide a class this is associated with and a label";
+        || confess "Insufficient Arguments : You must provide a class this is associated with and a label";
     my $visibility = PUBLIC;
     $visibility = PRIVATE if $label =~ /^.\:/;
     my ($accessor_name) = ($label =~ /^..(.*)$/);
     (defined $accessor_name) 
-        || croak "Bad label : could not extract accessor name from label ($label)";
+        || confess "Bad label : could not extract accessor name from label ($label)";
     if (defined $props) {
         $props->{access} = 'ro'  unless exists $props->{access};
         $props->{type}   = undef unless exists $props->{type};        

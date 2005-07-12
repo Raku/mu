@@ -4,7 +4,7 @@ package Perl6::Class;
 use strict;
 use warnings;
 
-use Carp 'croak';
+use Carp 'confess';
 use Scalar::Util 'blessed';
 
 use Perl6::Role;
@@ -37,7 +37,7 @@ sub apply {
         package $name;
         \@$name\:\:ISA = 'Perl6::Object';
     |;
-    eval $code || croak "Could not initialize class '$name'";    
+    eval $code || confess "Could not initialize class '$name'";    
     eval {
         no strict 'refs';
         ${$name .'::META'} = Perl6::MetaClass->new(
@@ -46,12 +46,12 @@ sub apply {
             (defined $authority ? (authority => $authority) : ())                              
         );
     };
-    croak "Could not initialize the metaclass for $name : $@" if $@;
+    confess "Could not initialize the metaclass for $name : $@" if $@;
     eval {
         no strict 'refs';            
         *{$self->name . '::'} = *{$name . '::'};
     };
-    croak "Could not create full name " . $self->name . " : $@" if $@;    
+    confess "Could not create full name " . $self->name . " : $@" if $@;    
     $self->_build_class($name);    
 }
 
@@ -64,11 +64,11 @@ sub _validate_params {
     my %allowed_in = map { $_ => undef } qw(attrs BUILD DESTROY methods);
 
     foreach my $key (keys %{$params}) {
-        croak "Invalid key ($key) in params" 
+        confess "Invalid key ($key) in params" 
             unless exists $allowed{$key};
         if ($key eq 'class' || $key eq 'instance') {
             foreach my $sub_key (keys %{$params->{$key}}) {
-                croak "Invalid sub_key ($sub_key) in key ($key) in params" 
+                confess "Invalid sub_key ($sub_key) in key ($key) in params" 
                     unless exists $allowed_in{$sub_key};                
             }
         }
