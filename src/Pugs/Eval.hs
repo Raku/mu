@@ -59,31 +59,29 @@ emptyEnv :: (MonadIO m, MonadSTM m)
          -> [STM (Pad -> Pad)] -- ^ List of 'Pad'-mutating transactions used
                                --     to declare an initial set of global vars
          -> m Env
-emptyEnv name genPad = do
-    uniq <- liftIO newUnique
-    liftSTM $ do
-        pad  <- sequence genPad
-        ref  <- newTVar Map.empty
-        syms <- initSyms
-        glob <- newTVar (combine (pad ++ syms) $ mkPad [])
-        return $ MkEnv
-            { envContext = CxtVoid
-            , envLexical = mkPad []
-            , envLValue  = False
-            , envGlobal  = glob
-            , envPackage = "main"
-            , envClasses = initTree
-            , envEval    = evaluate
-            , envCaller  = Nothing
-            , envOuter   = Nothing
-            , envDepth   = 0
-            -- XXX see AST/Internals.hs
-            --, envID      = uniq
-            , envBody    = Val undef
-            , envDebug   = Just ref -- Set to "Nothing" to disable debugging
-            , envStash   = ""
-            , envPos     = MkPos name 1 1 1 1
-            }
+emptyEnv name genPad = liftSTM $ do
+    pad  <- sequence genPad
+    ref  <- newTVar Map.empty
+    syms <- initSyms
+    glob <- newTVar (combine (pad ++ syms) $ mkPad [])
+    return $ MkEnv
+        { envContext = CxtVoid
+        , envLexical = mkPad []
+        , envLValue  = False
+        , envGlobal  = glob
+        , envPackage = "main"
+        , envClasses = initTree
+        , envEval    = evaluate
+        , envCaller  = Nothing
+        , envOuter   = Nothing
+        , envDepth   = 0
+        -- XXX see AST/Internals.hs
+        --, envID      = uniq
+        , envBody    = Val undef
+        , envDebug   = Just ref -- Set to "Nothing" to disable debugging
+        , envStash   = ""
+        , envPos     = MkPos name 1 1 1 1
+        }
 
 -- Evaluation ---------------------------------------------------------------
 
