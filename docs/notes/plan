@@ -1,12 +1,12 @@
-This document is in the process of being edited, which not
-unsprisingly, loses some information and introduces some mistakes.
+This document is in the process of being edited, which (unsurprisingly) loses 
+some information and introduces some mistakes.
 There is a link to the original raw form at the bottom.
 
 * What is the next big change in Pugs?
 
-The current execution model in which the parse tree is directly
-evaluated in Haskell is going away.  It is being replaced by a
-true multi-phase parse/compile/execute design.
+The current execution model -- in which the parse tree is directly
+evaluated in Haskell -- is going away.  It is being replaced by a
+true multi-phase parse-compile-execute design.
 
 
 * Why make this change?
@@ -14,14 +14,14 @@ true multi-phase parse/compile/execute design.
 The current model forces many things to be delayed until runtime
 that would be better done at compile time, including detection of
 several classes of errors.  Some forms of code analysis and
-transformation are difficult with the current design.  Finally,
-the current Haskell backend may act differently than compiled
+transformation are difficult under the current design.  Finally,
+the current Haskell backend may act differently from compiled
 backends, and we'd like all backends to have consistent behavior.
 
 
 * How will compilation work in the new design?
 
-Code will flow through several phases inside Pugs as follows:
+Code will flow through several phases inside Pugs, as follows:
 
                FRONT END                     BACK END
     | <-- source lang specific --> | <-- runtime specific --> |
@@ -36,15 +36,15 @@ P6->Parrot:  Perl 6   Exp         PIL      PIR-Tree            Parrot
 
 Of course, nothing prevents the creation of a frontend for a language
 other than Perl 6 -- this would allow the creator to reuse the
-various PIL to * backends.
+various PIL-to-* backends.
 
 
 * What is PIL?
 
 PIL is a kernel language, a core calculus for Perl 6.  In practice,
 PIL is basically Scheme with more calling conventions.  It also serves
-as a single link between all front ends and all backends, avoiding the
-M x N compiler variant problem.
+as a single link between all frontends and backends, avoiding the M x N compiler 
+variant problem.
 
 
 * What changes will be required in Pugs?
@@ -58,18 +58,17 @@ there's no time like the present to get started.
 
 * What other options were considered?
 
-Perl 5 and Ruby chose instead to simply augment the parse tree,
-rather than implement a new intermediate language.  However, this
-makes back end code generation much more difficult, and nonlocal
-optimization extremely so.
+Perl 5 and Ruby chose to simply augment the parse tree, rather than implement a 
+new intermediate language.  However, this makes back end code generation much 
+more difficult, and non-local optimization extremely so.
 
 
 * When will these changes occur?
 
-After 6.2.8 is released, Eval.hs refactoring begins.  The various backends will
-follow soon afterwards, depending on their interest to Pugs developers.
-Currently, the interest level is roughly the order shown in the design overview
-above.
+After 6.2.8 is released, refactoring of Eval.hs will begin.  The various 
+backends will follow soon afterwards, depending on their interest to Pugs 
+developers.  Currently, the interest level is roughly in the order shown in the 
+design overview above.
 
 
 * What will each backend do for us?
@@ -90,17 +89,17 @@ in Parrot, so it may one day become the leading runtime for Perl 6.
 
 ** Perl 5
 
-Perl 5 is extremely reliable and visible, and brings CPAN to Pugs.  It's
+Perl 5 is extremely reliable and visible, and brings CPAN to Pugs.  It is
 hoped that the ability to compile Perl 6 to Perl 5, and to reliably use
-the Perl 5 DBI and other Perl 5 XS modules, will move Perl 6 from the
-"slowly gaining more respect" phase to the "hack hack hack" phase on
-Autrijus' imaginary timeline.
+the Perl 5 DBI (and other XS modules), will move Perl 6 from the "slowly gaining 
+more respect" phase to the "hack hack hack" phase on Autrijus' imaginary 
+timeline.
 
 ** Haskell
 
 Haskell is known to be good for creating specifications that happen to
 run.  The Haskell backend will thus serve as the reference evaluator
-until eventually the Perl 6 backend is completed, completing the
+until (eventually) the Perl 6 backend is completed, completing the
 bootstrap cycle.  Also, it is expected that PIL will have a vastly
 cleaner implementation in Haskell than in Perl 5.
 
@@ -109,11 +108,11 @@ cleaner implementation in Haskell than in Perl 5.
 It's just plain cool, that's why.  Oh, and Perl 6 would then magically
 run inside every vaguely recent web browser.  This backend is farther
 down the list both because no one has started to work on it and because
-it is less critical for near-term success.
+it is less critical for short-term success.
 
 ** Perl 6
 
-In a first pass, this is simply a pretty printer.  At the end of Pugs'
+In the first pass, this is simply a pretty printer.  At the end of Pugs'
 development, this indicates the completion of bootstrapping; more on
 this below.
 
@@ -136,7 +135,7 @@ backend by the percentage of the test suite that it passes.
 * What is the desired final milestone for Pugs?
 
 The long term plan is to slowly convert each of the compilation
-phases, and supporting systems such as the object metamodel, from
+phases and supporting systems -- such as the object metamodel -- from
 Haskell to Perl 6.  This will basically constitute a Perl 6 virtual
 machine running in Perl 6, and will then replace the Haskell code as
 the reference implementation.  It is possible that everyone will
@@ -160,7 +159,9 @@ putter's request.  The original interview can be found at:
 http://colabti.de/irclogger/irclogger_log/perl6?date=2005-07-12,Tue
 
 Cleaning up a draft unfortunately often means losing some of the
-richness of the original form.  Here is a link to it.  While it has
-the flavor of an interview, it isn't one really.  More a discussion,
-with several peoples' thoughts mixed in, and then edited.
+richness of the original form.  Here is a link to it:
+
 http://rt.openfoundry.org/Foundry/Project/Source/index.html/pugs/checkout/docs/notes/plan?rev=5465
+
+While it has the flavor of an interview, it isn't one really; more a 
+discussion, with several peoples' thoughts mixed in, and then edited.
