@@ -121,11 +121,12 @@ eval '($xsec,$foo) = localtime($now)';
 
 my $localyday = $yday;
 
-ok($sec != $xsec && $mday && $year, 'localtime() list context', :todo);
+fail("FIXME Time::Local should by numifiable", :todo<bug>);
+#ok($sec != $xsec && $mday && $year, 'localtime() list context', :todo);
 
 #-- 6 --
 
-ok(is_dt(eval 'localtime()'), 'localtime(), scalar context', :todo);
+ok(is_dt(eval 'localtime()'), 'localtime(), scalar context', :todo<bug>);
 
 # Ultimate implementation as of above test as Rule
 #todo_ok(localtime() ~~ /^Sun|Mon|Tue|Wed|Thu|Fri|Sat\s
@@ -142,7 +143,8 @@ my ($xsec,$foo);
 eval '($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = gmtime($beg)';
 eval '($xsec,$foo) = localtime($now)';
 
-ok($sec != $xsec && $mday && $year, 'gmtime() list context', :todo);
+fail("FIXME Time::Local should by numifiable", :todo<bug>);
+#ok($sec != $xsec && $mday && $year, 'gmtime() list context', :todo);
 
 #-- 8 --
 
