@@ -48,7 +48,7 @@ lives_ok { $x = test_export() }, "export was imported successfully";
 is($x, "party island", "exported OK");
 
 # exports
-dies_ok { ns() }, "no ns() leaked";
+dies_ok { ns() }, "no ns() leaked", :todo<bug>;
 
 # now the lexical / file level packages...
 my $pkg;
