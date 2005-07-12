@@ -78,6 +78,10 @@ print << ".";
 *** Enter '$Config{make}' to build Pugs.  If compilation is too slow,
     consider using '$Config{make} unoptimized' instead.
 
+********** CRITICAL ***********
+
+  Do NOT use '$Config{make} install'!
+
 .
 
 ################################################################################
