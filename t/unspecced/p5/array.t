@@ -76,6 +76,9 @@ is($p5array.fetch(3), @array[3], 'fetch');
 #    is($retarray.[3], @array[3], 'retro fetch');
 #}
 
+# XXX - Infinite loop
+skip_rest; exit;
+
 $p5array.push(9);
 
 is($p5array.fetch(4), 9, 'push result', :todo<feature>);

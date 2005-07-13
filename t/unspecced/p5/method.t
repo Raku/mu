@@ -119,10 +119,12 @@ my $obj;
     is($obj.invoke($obj6), 'Foo6invoking', 'invoke pugs method from p5');
 }
 
+# XXX Core dump
+fail("modify a scalar ref", :todo<feature>); exit;
+
 {
     my @rw = (1);
     my $r = \@rw;
-    warn $r;
-    eval '$obj.modify_array($r)';
+    $obj.modify_array($r);
     is(@rw[0], 2, 'modify a scalar ref', :todo<feature>);
 }
