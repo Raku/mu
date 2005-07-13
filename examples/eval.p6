@@ -16,6 +16,8 @@ say "^Z doesn't work, please use :q for now.";
 my $EOF = chr(26);
 
 loop (;;) {
+    # XXX use :prompt
+    #my $line = =$*IN :prompt('pugs> ');
     print "pugs> ";
     my $line = =$*IN;
     chomp($line);
