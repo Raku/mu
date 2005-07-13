@@ -36,6 +36,7 @@ The Pugs source tree includes several major sections:
     |-- inc          Perl 5 modules needed for build/test/install
     |-- lib          Perl 5 modules that are installed with Pugs
     |-- modules      Perl 6 modules not working today; -> FreePAN
+    |-- perl5        Perl 5 modules not installed with Pugs
     |-- script       pugscc, the Pugs Compiler Collection
     |-- src          Source code for Pugs itself
     |-- t            Perl 6 test suite
@@ -135,11 +136,16 @@ Expanding this one level deeper:
     |   `-- pugs               POD docs for Pugs itself
     |
     |-- modules            Perl 6 modules not working today; -> FreePAN
-    |   |-- Class-Events       XXXX: why is this here?
-    |   |-- Grammars           XXXX: why is this here?
-    |   `-- Sample-Module      XXXX: why is this here?
+    |   |-- Class-Events       XXXX: It should not be here
+    |   |-- Grammars           XXXX: It should not be here
+    |   `-- Sample-Module      Sample module for Perl 6 authors
     |
-    |-- script             pugscc, the Pugs Compiler Compiler
+    |-- perl5              Perl 5 modules not installed with Pugs
+    |   |-- Code-Perl          Helper module for Perl 5 code generation
+    |   |-- PIL-Run            PIL virtual machine in Perl 5
+    |   `-- Perl6-MetaModel    Perl 5 Prototype of the Perl 6 Metaclass model
+    |
+    |-- script             pugscc, the Pugs Compiler Collection
     |
     |-- src                Haskell source for pugs itself
     |   |-- Data               Syck-based YAML parser
