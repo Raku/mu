@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 21;
+plan 20;
 
 use Set::Hash;
 

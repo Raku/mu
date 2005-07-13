@@ -59,7 +59,7 @@ method remove($self: *@items) returns Int {
 }
 
 method includes($self: *@items) returns Bool {
-    return %:members.exists(all(@items.map:{ $self._stringify($_) }));
+    ?(%:members.exists(all(@items.map:{ $self._stringify($_) })));
 }
 
 method member($self: $item) returns Object {

@@ -14,7 +14,7 @@ my $bert = Person.new;
 
 my $set = set(0, 1, 2, 3, $bob);
 my $union = $set + set(4,5,6);
-is($union.ref, ::Set, "set() - infix:<+>", :todo<bug>);
+isa_ok($union, Set, "set() - infix:<+>");
 
 my $stringified = "$set";
 ok($stringified ~~ rx:perl5/^set\([^<]*<obj:Person>[^<]*\)$/,
@@ -38,13 +38,13 @@ my $intersection = $set * $other_set;
 is($intersection, set(2..3, $bob), "intersection");
 
 my $difference = $set - $other_set;
-is($difference, set(0,1), "difference", :todo<bug>);
+is($difference, set(0,1), "difference");
 
 my $sym_difference = $set % $other_set;
 is($sym_difference, set(0,1,7,$bert), "symmetric_difference");
 
 is( ($set - $other_set) + ($other_set - $set), $set % $other_set,
-    "long form of symmetric difference", :todo<bug>);
+    "long form of symmetric difference");
 
 my ($homer, $marge, $bart, $lisa, $maggie) = (1..5).map:{ Person.new };
 
@@ -74,7 +74,7 @@ ok($parents >= $parents, "infix:'>=' (equal sets)");
 ok($simpsons > $empty, "infix:'>' (empty)");
 ok($parents >= $empty, "infix:'>=' (empty)");
 
-eval_ok('set(1,2,3) ∋ 1', "infix:<∋>");
+ok((set(1,2,3) ∋ 1), "infix:<∋>");
 
 # Smartmatch operator
 ok     42 ~~ set(23, 42, 63),  "infix:<~~> works (1)";

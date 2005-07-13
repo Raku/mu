@@ -185,9 +185,9 @@ multi sub infix:<+> (Set $one, Set $two) returns Set is export {
 }
 
 # subtraction is difference
-#multi sub infix:<-> (Set $one, Set $two) returns Set is export {
-#    $one.difference($two);
-#}
+multi sub infix:<-> (Set $one, Set $two) returns Set is export {
+    $one.difference($two);
+}
 
 # unicode set difference operator
 #  note the difference - ∖ vs \ (backslash)
@@ -290,9 +290,9 @@ multi sub infix:<∉> ($member, Set $set) returns Bool is export {
 multi sub infix:<+> (Set $one, *@args) returns Set is export {
     $one.union(set(@args));
 }
-#multi sub infix:<-> (Set $one, *@args) returns Set {
-#    $one.difference(set(@args));
-#}
+multi sub infix:<-> (Set $one, *@args) returns Set {
+    $one.difference(set(@args));
+}
 multi sub infix:<*> (Set $one, *@args) returns Set is export {
     $one.intersection(set(@args));
 }

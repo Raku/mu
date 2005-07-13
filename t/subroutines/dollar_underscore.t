@@ -23,8 +23,8 @@ my @list = ('a');
 
 for @list -> $letter { is( $letter , 'a') }
 
-# Do pointy subs send along an implicit param
-for @list -> { is($_, 'a') }
+# Do pointy subs send along an implicit param? No!
+for @list -> { isnt($_, 'a') }
 
 
 # Do pointy subs send along an implicit param even when a param is declared

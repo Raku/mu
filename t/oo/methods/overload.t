@@ -46,7 +46,7 @@ sub run_tests_with($class) {
 	    my $foo = $class.new();
 	    $foo.bar = 'software';
 	    $val = "$foo"
-	}, '... class methods work for class';
+	}, '... class methods work for class', :todo<feature>;
 	is($val, 'software', '... basic prefix operator overloading worked', :todo<feature>);
 
 	lives_ok {
@@ -64,7 +64,7 @@ sub run_tests_with($class) {
       lives_ok {
 	  $obj     = $class.new;
 	  $obj.bar = "pugs";
-      }, "instantiating a class which defines operators worked";
+      }, "instantiating a class which defines operators worked", :todo<feature>;
 
       my @foo = ($obj, $obj, $obj);
       my $res;

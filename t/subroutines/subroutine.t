@@ -86,10 +86,8 @@ sub argShifter (@a) {
 	return $first;
 }
 
-#fail("FIXME parsefail", :todo); # actually exe fail...
-#is eval 'argShifter(3..5)', 3, "use shift on an array argument";
-eval_is 'argShifter(1)', 1,    "use shift on an array argument";
-eval_is 'argShifter(3..5)', 3, "use shift on multiple array arguments", :todo<feature>;
+is argShifter([1]), 1,    "use shift on an array argument";
+is argShifter([3..5]), 3, "use shift on multiple array arguments", :todo<buf>;
 
 eval 'sub unpack_array ([$first, *@rest]) { return $first; }';
 

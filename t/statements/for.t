@@ -27,7 +27,7 @@ is($a, '012345', 'for 0..5 {} works');
 # L<S04/"The C<for> statement" /to the closure:/>
 
 my $b;
-for 0 .. 5 -> { $b = $b ~ $_; };
+for 0 .. 5 -> $_ { $b = $b ~ $_; };
 is($b, '012345', 'for 0 .. 5 -> {} works');
 
 # ... with , sub
@@ -52,7 +52,7 @@ is($e, '012345', 'for () {} works');
 # ... with 'pointer'
 
 my $f;
-for (0 .. 5) -> { $f = $f ~ $_; };
+for (0 .. 5) -> $_ { $f = $f ~ $_; };
 is($f, '012345', 'for () -> {} works');
 
 # ... with sub
@@ -107,7 +107,7 @@ is($k, '012345', 'for @array {} works');
 
 my @array_l = (0 .. 5);
 my $l;
-for @array_l -> { $l = $l ~ $_; };
+for @array_l -> $_ { $l = $l ~ $_; };
 is($l, '012345', 'for @array -> {} works');
 
 # ... with , sub
@@ -136,7 +136,7 @@ is($o, '012345', 'for (@array) {} works');
 
 my @array_p = (0 .. 5);
 my $p;
-for (@array_p) -> { $p = $p ~ $_; };
+for (@array_p) -> $_ { $p = $p ~ $_; };
 is($p, '012345', 'for (@array) -> {} works');
 
 # ... with sub
