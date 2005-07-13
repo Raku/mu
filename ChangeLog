@@ -1,4 +1,4 @@
-== Changes for 6.2.8 (up to r5570) - July 13, 2005
+== Changes for 6.2.8 (r5570) - July 13, 2005
 
 === Pugs Internals
 
@@ -14,17 +14,17 @@
 * It is no longer legal to declare `MY OUR OUTER CALLER` as regular namespaces
 * Named binding is now done in an inferencing phase before positional binding
 * New Haskell builtins: `IO::tell` and internal filehandle test functions
-* New PIR builtin: `leave`
+* New PIR-specific builtin: `leave`
 * New Prelude builtins: `File::seek`, `localtime`, `trans`
-* New builtin class: `Proxy`
+* New builtin classes: `Proxy`, `Control::Caller, `Time::Local`
 * New trait for Prelude.pm: `is builtin` (installs into the global namespace)
 * Pairs in variables now bind to named parameters just like pair literals do
 * Parse `trusts ClassName` and `my $foo is trait_name` as no-ops
 * Parse fractional number literals starting with a leading dot: `.1` `-.1`
 * Qualified names and exports now dealt with consistently
 * Support for `does RoleName` and `is ClassName` within class declarations
-* `&foo` in module `Foo` now looks up `&Foo::foo` as well.
-* `@?INIT` and `@?CHECK` are renamed back to `@*` space
+* `&foo` in module `Foo` now looks up `&Foo::foo` as well
+* `@?INIT` and `@?CHECK` renamed back to `@*INIT` and `@*CHECK` space
 * `Bare` and `Parametric` types merged into `Block`
 * `Prelude.pm` is now pre-compiled to reduce startup time
 * `multi foo { ... }` is now a shorthand for `multi sub foo { ... }`
@@ -78,7 +78,7 @@
 * `$hashref.does(Hash)` now returns true
 * `&say =:= &say` now evaluates to true
 * `(42).kv` now dies and `(42,).kv` works
-* `[1] <=> [2]` was misparsed as `[1]{'='}[2]`.  Fixed.
+* `[1] <=> [2]` no longer misparsed as `[1]{'='}[2]`
 * `caller` now counts `eval` and the topmost `main` as one frame
 * `qq{ ... { code } ... }` no longer ignores the interpolated code 
 * `redo` and `next` now works correctly inside loop blocks

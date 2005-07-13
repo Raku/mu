@@ -1,5 +1,5 @@
 name: Perl6-Pugs
-version: 6.2.7
+version: 6.2.8
 abstract: A Perl 6 Implementation
 author: Autrijus Tang <autrijus@autrijus.org>
 license: perl
@@ -7,13 +7,14 @@ distribution_type: module
 build_requires:
 no_index:
   directory:
-    - inc
     - debian
-    - modules
-    - ext
-    - script
-    - util
     - docs
     - examples
+    - ext
+    - inc
+    - modules
+    - perl5
+    - script
     - src
+    - util
 generated_by: Module::Install version 0.36
