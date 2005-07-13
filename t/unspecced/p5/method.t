@@ -107,7 +107,7 @@ my $obj;
 {
     my $callback = { "baz" };
     my $r = $obj.callcode($callback);
-    is($r, 'baz', 'invoke method with callback', :todo<feature>);
+    is($r, 'baz', 'invoke method with callback');
 }
 
 {
@@ -123,6 +123,6 @@ my $obj;
     my @rw = (1);
     my $r = \@rw;
     warn $r;
-    $obj.modify_array($r);
+    eval '$obj.modify_array($r)';
     is(@rw[0], 2, 'modify a scalar ref', :todo<feature>);
 }
