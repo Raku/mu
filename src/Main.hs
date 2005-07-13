@@ -131,7 +131,7 @@ userDefined (MkPad pad) = MkPad $ Map.filterWithKey doFilter pad
         "@*ARGS @*INC %*INC $*PUGS_HAS_HSPLUGINS $*EXECUTABLE_NAME " ++
         "$*PROGRAM_NAME $*PID $*UID $*EUID $*GID $*EGID @*CHECK @*INIT $*IN " ++
         "$*OUT $*ERR $*ARGS $/ %*ENV $*CWD @=POD $=POD $?PUGS_VERSION " ++
-        "$*OS &?BLOCK_EXIT %?CONFIG $*_ $*AUTOLOAD $*PACKAGE"
+        "$*OS &?BLOCK_EXIT %?CONFIG $*_ $*AUTOLOAD"
 
 repLoop :: IO ()
 repLoop = do

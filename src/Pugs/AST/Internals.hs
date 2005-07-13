@@ -1035,11 +1035,7 @@ data Env = MkEnv
     , envOuter   :: !(Maybe Env)         -- ^ Outer block's env
     , envBody    :: !Exp                 -- ^ Current AST expression
     , envDepth   :: !Int                 -- ^ Recursion depth
-    -- XXX envID disabled, else my $x = sub{}; $x =:= $x is false.
-    --  pugs> :e my $x = sub{}; $x   is informative.
-    --, envID      :: !Unique              -- ^ Unique ID of Env
     , envDebug   :: !DebugInfo           -- ^ Debug info map
-    , envStash   :: !String              -- ^ Misc. stash
     , envPos     :: !Pos                 -- ^ Source position range
     } deriving (Show, Eq, Ord, Typeable)
 

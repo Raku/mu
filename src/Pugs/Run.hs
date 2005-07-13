@@ -102,7 +102,6 @@ prepareEnv name args = do
     argsGV  <- newScalar undef
     errSV   <- newScalar (VStr "")
     defSV   <- newScalar undef
-    pkgSV   <- newScalar (VStr "main")
     autoSV  <- newScalar undef
     classes <- initClassObjects [] initTree
 #if defined(PUGS_HAVE_HSPLUGINS)
@@ -151,7 +150,6 @@ prepareEnv name args = do
         , genSym "%?CONFIG" $ hideInSafemode $ hashRef confHV
         , genSym "$*_" $ MkRef defSV
         , genSym "$*AUTOLOAD" $ MkRef autoSV
-        , genSym "$*PACKAGE" $ MkRef pkgSV
         ] ++ classes
     unless safeMode $ do
         initPerl5 "" (Just . VControl $ ControlEnv env{ envDebug = Nothing })

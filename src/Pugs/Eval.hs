@@ -79,7 +79,6 @@ emptyEnv name genPad = liftSTM $ do
         --, envID      = uniq
         , envBody    = Val undef
         , envDebug   = Just ref -- Set to "Nothing" to disable debugging
-        , envStash   = ""
         , envPos     = MkPos name 1 1 1 1
         }
 
@@ -334,8 +333,8 @@ reduceSyn "block" [body] = do
     
 reduceSyn "sub" [exp] = do
     (VCode sub) <- enterEvalContext (cxtItem "Code") exp
-    env     <- ask
-    cont    <- if subType sub /= SubCoroutine then return Nothing else liftSTM $ do
+    env  <- ask
+    cont <- if subType sub /= SubCoroutine then return Nothing else liftSTM $ do
         tvar <- newTVar undefined
         let thunk = MkThunk . fix $ \redo -> do
             evalExp $ subBody sub
@@ -344,7 +343,7 @@ reduceSyn "sub" [exp] = do
         writeTVar tvar thunk
         return $ Just tvar
     retVal $ VCode sub
-        { subEnv  = Just (env{ envStash = "" })
+        { subEnv  = Just env
         , subCont = cont
         }
 
@@ -659,18 +658,16 @@ reduceSyn "namespace" [exp, body] = do
     str <- fromVal val
     when (str `elem` words "MY OUR OUTER CALLER") $ do
         fail $ "Cannot use " ++ str ++ " as a namespace"
-    tempVar "$*PACKAGE" val $ do
-        enterPackage str $ evalExp body
+    enterPackage str $ evalExp body
 
 reduceSyn "inline" [langExp, _] = do
     langVal <- evalExp langExp
     lang    <- fromVal langVal
     when (lang /= "Haskell") $
         retError "Inline: Unknown language" langVal
-    modVal  <- readVar "$*PACKAGE"
-    mod     <- fromVal modVal
+    pkg     <- asks envPackage -- full module name here
 #ifndef HADDOCK
-    let file = (`concatMap` mod) $ \v -> case v of
+    let file = (`concatMap` pkg) $ \v -> case v of
         { '-' -> "__"; _ | isAlphaNum v -> [v] ; _ -> "_" }
 #endif
     externRequire "Haskell" (file ++ ".o")
