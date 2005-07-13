@@ -4,7 +4,7 @@ plan 48;
 
 use Date;
 use lib 'ext/DateTime';
-use t::Date::Data;
+use t::Data;
 
 for 1..12 -> $m {
     my $date = Date.new( year => 2005, month => $m, day => 'last' );
