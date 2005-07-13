@@ -236,7 +236,6 @@ ruleSubGlobal = rule "global subroutine" $ do
     return (SGlobal, "Any", isMulti, styp, name)
 
 doExtract :: SubType -> Maybe [Param] -> Exp -> (Exp, [String], [Param])
-doExtract _ formal body = (body, [], maybe [] id formal)
 doExtract SubBlock formal body = (fun, names', params)
     where
     (fun, names) = extract body []
@@ -245,6 +244,7 @@ doExtract SubBlock formal body = (fun, names', params)
            | otherwise
            = names
     params = map nameToParam (sort names') ++ (maybe [] id formal)
+doExtract _ formal body = (body, [], maybe [] id formal)
 
 ruleRuleDeclaration :: RuleParser Exp
 ruleRuleDeclaration = rule "rule declaration" $ try $ do
