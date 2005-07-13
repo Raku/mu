@@ -20,6 +20,8 @@ my @hppfiles = map {my $x=$_; $x=~s/\.hs$/.hpp/; $x} @hsfiles;
 
 warn_cygwin     ();
 
+print "*** Probing configuration (please ignore any warnings)...\n\n";
+
 name            ('Perl6-Pugs');
 version_from    ('lib/Perl6/Pugs.pm');
 abstract_from   ('lib/Perl6/Pugs.pm');

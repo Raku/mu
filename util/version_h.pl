@@ -59,6 +59,6 @@ if ($revision != $old_revision) {
     unlink "$base/src/Pugs/Help.o";
     exit;
   }
-} else {
+} elsif ($revision) {
   print "Not writing $version_h because $old_revision == $revision\n";
 }
