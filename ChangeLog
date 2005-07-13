@@ -11,12 +11,12 @@
 ** `pugs -CPIL -e 'say 123'` for dumping PIL from code
 * Implicit variables like `$^a` now only work in bare blocks
 * Initial support for `%*INC`: multiple `require` calls run only once
-* It is no longer legal to declare `MY OUR OUTER CALLER` as regular namespaces
+* It is no longer legal to declare `MY`, `OUR`, `OUTER` or `CALLER` as regular namespaces
 * Named binding is now done in an inferencing phase before positional binding
 * New Haskell builtins: `IO::tell` and internal filehandle test functions
 * New PIR-specific builtin: `leave`
 * New Prelude builtins: `File::seek`, `localtime`, `trans`
-* New builtin classes: `Proxy`, `Control::Caller, `Time::Local`
+* New builtin classes: `Proxy`, `Control::Caller`, `Time::Local`
 * New trait for Prelude.pm: `is builtin` (installs into the global namespace)
 * Pairs in variables now bind to named parameters just like pair literals do
 * Parse `trusts ClassName` and `my $foo is trait_name` as no-ops
