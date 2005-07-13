@@ -11,7 +11,7 @@ These tests derived from comments in http://use.perl.org/~autrijus/journal/23398
 
 =cut
 
-plan 18;
+plan 19;
 
 my $world = "World";
 my @list  = (1,2);
