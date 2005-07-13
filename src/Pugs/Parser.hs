@@ -239,12 +239,20 @@ doExtract :: SubType -> Maybe [Param] -> Exp -> (Exp, [String], [Param])
 doExtract SubBlock formal body = (fun, names', params)
     where
     (fun, names) = extract body []
-    names' | isJust formal -- Just params <- formal, any (== "$_") (map paramName params)
+    names' | isJust formal
            = filter (/= "$_") names
            | otherwise
            = names
     params = map nameToParam (sort names') ++ (maybe [] id formal)
-doExtract _ formal body = (body, [], maybe [] id formal)
+doExtract SubPointy formal body = (body, [], maybe [] id formal)
+doExtract _ formal body = (body, names', params)
+    where
+    (_, names) = extract body []
+    names' | isJust formal
+           = filter (/= "$_") names
+           | otherwise
+           = filter (== "$_") names
+    params = map nameToParam (sort names') ++ (maybe [] id formal)
 
 ruleRuleDeclaration :: RuleParser Exp
 ruleRuleDeclaration = rule "rule declaration" $ try $ do

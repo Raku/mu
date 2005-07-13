@@ -32,5 +32,5 @@ plan 14;
 }
 
 {
-    dies_ok(sub () { sub { $^foo }.(42) },  'Placeholders not allowed in sub()', :todo<feature>);
+    dies_ok(sub () { sub { $^foo }.(42) },  'Placeholders not allowed in sub()');
 }

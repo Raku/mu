@@ -75,6 +75,6 @@ is($foo.noargs(), 42, "... parentheses after method");
 
 {
     my $val;
-    lives_ok { $val = $foo.callsmethod2() }, 'method calling method with no brackets', :todo<feature>;
-    is($val, 'mice', '... we got the value correctly', :todo<feature>);
+    lives_ok { $val = $foo.callsmethod2() }, 'method calling method with no brackets';
+    is($val, 42, '... we got the value correctly');
 };
