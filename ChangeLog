@@ -9,7 +9,7 @@
 ** `Test.pm` can be compiled to PIR 
 ** `Prelude/PIR.pm` added with Perl 6 versions of some builtins
 ** `pugs -CPIL -e 'say 123'` for dumping PIL from code
-* Implicit variables like `$^a` now only works in bare blocks
+* Implicit variables like `$^a` now only work in bare blocks
 * Initial support for `%*INC`: multiple `require` calls run only once
 * It is no longer legal to declare `MY OUR OUTER CALLER` as regular namespaces
 * Named binding is now done in an inferencing phase before positional binding
