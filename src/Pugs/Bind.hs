@@ -252,12 +252,10 @@ bindSomeParams sub invExp argsExp = do
     -- Bind slurpy arrays and hashes
     let (slurpNamed, slurpPos) = partition (('%' ==) . head . paramName) slurpyPrms
         -- defaultPos      = if hasDefaultArray  then [] else [defaultArrayParam]
-        defaultNamed    = if hasDefaultHash   then [] else [defaultHashParam]
         defaultScalar   = if hasDefaultScalar then [] else [] -- XXX - fetch from *@_
-        hasDefaultHash  = isJust (find (("%_" ==) . paramName) slurpNamed)
         hasDefaultScalar= isJust (find (("$_" ==) . paramName) params)
         
-    boundHash   <- bindHash namedForSlurp (slurpNamed ++ defaultNamed) -- put leftover named args in %_
+    boundHash   <- bindHash namedForSlurp slurpNamed -- put leftover named args in %_
     (boundArray, newSlurpLimit) <- bindArray posForSlurp slurpPos slurpLimit
     boundScalar <- return $ defaultScalar `zip` (givenInvs ++ givenArgs) -- put, uh, something in $_
 

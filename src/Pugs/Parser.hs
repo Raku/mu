@@ -245,6 +245,7 @@ doExtract SubBlock formal body = (fun, names', params)
            = names
     params = map nameToParam (sort names') ++ (maybe [] id formal)
 doExtract SubPointy formal body = (body, [], maybe [] id formal)
+doExtract SubMethod formal body = (body, [], maybe [] id formal)
 doExtract _ formal body = (body, names', params)
     where
     (_, names) = extract body []
@@ -914,8 +915,11 @@ retVerbatimBlock styp formal body = expRule $ do
     return (Syn "sub" [Val $ VCode sub])
 
 paramsFor :: SubType -> Maybe [Param] -> [Param] -> [Param]
-paramsFor styp Nothing []   = defaultParamFor styp
-paramsFor _ _ params        = params
+paramsFor SubMethod formal params 
+    | isNothing (find (("%_" ==) . paramName) params)
+    = paramsFor SubRoutine formal params ++ [defaultHashParam]
+paramsFor styp Nothing []       = defaultParamFor styp
+paramsFor _ _ params            = params
 
 defaultParamFor :: SubType -> [Param]
 defaultParamFor SubBlock    = [defaultScalarParam]
