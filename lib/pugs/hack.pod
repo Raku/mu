@@ -203,11 +203,16 @@ If you're on Win32 and can't run shell scripts, run C<svn> manually:
     $ svn propset svn:mime-type "text/plain; charset=UTF-8" newfile1 newfile2
 
 If you create a new subdirectory under C<ext/>, please remember to set the
-C<svn:ignore> property accordingly to tell Subversion to ignore automatically
-generated files like C<Makefile> or C<blib/>.
+C<svn:ignore> property to tell Subversion to ignore automatically generated
+files like C<Makefile> or C<blib/>.
 
-    $ svn propget svn:ignore ext/Some-Other-Module
-    $ svn propedit svn:ignore ext/Your-New-Module
+    $ cat > /tmp/props
+    pm_to_blib
+    blibdirs
+    Makefile
+    Makefile.old
+    blib
+    $ svn propset svn:ignore -F /tmp/props ext/Your-New-Module
 
 Except for the files in F<script/> and F<util/>, C<svn:executable> should
 always be unset, even for test files.
