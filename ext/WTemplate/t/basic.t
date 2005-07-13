@@ -13,6 +13,8 @@ Very basic tests for WTemplate
 
 use_ok('WTemplate');
 
+if(eval('!("a" ~~ /a/)')) { skip_rest "skipped tests - rules support appears to be missing"; exit }
+
 my $template;
 my %var;
 
