@@ -24,7 +24,7 @@ my @tests = (
 #  "-I$dir -MDummy $dir/10-dash-uppercase-m.p6"
 );
 
-plan 1+@tests;
+plan 4;
 
 diag "Running under $*OS";
 
