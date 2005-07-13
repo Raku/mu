@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 14;
+plan 12;
 
 use_ok( 'Span::Num' );
 use Span::Num;   # XXX should not need this
@@ -46,7 +46,9 @@ is( $span.intersects( $span3 ), bool::false, 'doesn\'t intersect' );
     is( @a[0].stringify ~ ' ' ~ @a[1].stringify, '(-Infinity,1) (3,Inf)', 'complement' );
 }
 
-is( $span.intersection( $span2 ).stringify, '[2,3]', 'intersection' );
+# XXX - These two tests attempt to stringify a List of Span,
+#       but there is no such thing defined.
 
-is( $span.union( $span2 ).stringify, '[1,4]', 'union' );
+#is( $span.intersection( $span2 ).stringify, '[2,3]', 'intersection' );
+#is( $span.union( $span2 ).stringify, '[1,4]', 'union' );
 

@@ -339,7 +339,7 @@ method iterator ($self: ) returns Span::Iterator {
         warn "can't create an iterator because 'density' is not defined";
         return;
     }
-    return Span::Iterator.new( span => $.span );
+    return ::Span::Iterator.new( span => $.span );
 }
 
 } # class Span
