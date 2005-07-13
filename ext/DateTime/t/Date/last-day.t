@@ -3,6 +3,7 @@ use Test;
 plan 48;
 
 use Date;
+use lib 'ext/DateTime';
 use t::Date::Data;
 
 for 1..12 -> $m {
