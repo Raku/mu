@@ -5,8 +5,8 @@ sub infix:<o> (Code &f, Code &g) is export { sub($x) { f g $x } }
 sub infix:<∘> (Code &f, Code &g) is export { sub($x) { f g $x } }
 
 # Haskell `...` metaoperator
-sub infix:<`map`>  (Code &f, *@y) is export { map &f, @y }
-sub infix:<`grep`> (Code &f, *@y) is export { grep &f, @y }
+sub infix:<`map`>  (Code &f, *@y) is export { @y.map(&f) }
+sub infix:<`grep`> (Code &f, *@y) is export { @y.grep(&f) }
 
 # Pair constructor
 sub infix:<⇒> ($x, $y) is export { $x => $y }

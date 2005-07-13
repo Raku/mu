@@ -18,8 +18,8 @@ pass "fp was use()d successfully.";
   is ($f ∘ $g)(5), 18, "(o) works";
 }
 
-is ~({ $_ % 2 == 0 } `grep` [1,2,3,4,5]), "2 4",   "(`grep`) works";
-is ~({ $_ * 2 }      `map`  [1,2,3]),     "2 4 6", "(`map`) works";
+is ~({ $_ % 2 == 0 } `grep` (1,2,3,4,5)), "2 4",   "(`grep`) works";
+is ~({ $_ * 2 }      `map`  (1,2,3)),     "2 4 6", "(`map`) works";
 
 # is (key ⇒ "value").key, "key", "(⇒) works";
 
