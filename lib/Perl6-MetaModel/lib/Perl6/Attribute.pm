@@ -58,9 +58,7 @@ sub instantiate_container {
     my ($self) = @_;
     return \([]) if $self->is_array;
     return \({}) if $self->is_hash; 
-    my $scalar;
-    tie $scalar, 'Perl6::Container::Scalar', $self->{properties};
-    return \$scalar;
+    return \(my $scalar);
 }
 
 1;

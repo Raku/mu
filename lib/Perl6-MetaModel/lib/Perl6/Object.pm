@@ -194,6 +194,10 @@ sub set_value {
                 || confess "IncorrectObjectType: expected($type) and got($_)"
                     foreach @$value;                        
         }
+        else {
+            (blessed($value) && ($value->isa($type) || $value->does($type))) 
+                || confess "IncorrectObjectType: expected($type) and got($value)";            
+        }
     }  
     else {
         (ref($value) eq 'ARRAY') 
