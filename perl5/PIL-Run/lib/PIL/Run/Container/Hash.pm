@@ -3,11 +3,11 @@ use warnings;
 
 use Perl6::MetaModel;
 
-use P5::PIL::Run::Container::Scalar;
+use PIL::Run::Container::Scalar;
 
 sub mk_containers { # consolidate with Array
 	map {
-		my $c = P5::PIL::Run::Container::Scalar->new_instance();
+		my $c = PIL::Run::Container::Scalar->new_instance();
 		$c->scalar_store($_);
 		$c;
 	} @_;
@@ -15,7 +15,7 @@ sub mk_containers { # consolidate with Array
 
 role 'IHash' => {};
 
-class 'P5::PIL::Run::Container::Hash' => {
+class 'PIL::Run::Container::Hash' => {
 	does => [ 'IHash' ],
 	instance => {
 		attrs => [ '%:slots' ],
@@ -49,7 +49,7 @@ class 'P5::PIL::Run::Container::Hash' => {
 				my $idx = shift;
 				my $c = $self->hash_fetchElem($idx);
 				unless ($c){
-					$c = P5::PIL::Run::Container::Scalar->new;
+					$c = PIL::Run::Container::Scalar->new;
 					$self->hash_storeElem($idx, $c);
 				}
 				$c;

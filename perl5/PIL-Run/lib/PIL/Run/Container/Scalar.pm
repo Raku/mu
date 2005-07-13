@@ -8,7 +8,7 @@ use Perl6::MetaModel;
 
 role 'IScalar' => {};
 
-class 'P5::PIL::Run::Container::Scalar' => {
+class 'PIL::Run::Container::Scalar' => {
     does => [ 'IScalar' ],
     instance => {
         attrs => [ '$:value' ],

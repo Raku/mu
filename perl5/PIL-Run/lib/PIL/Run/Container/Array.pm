@@ -4,11 +4,11 @@ use warnings;
 
 use Perl6::MetaModel;
 
-use P5::PIL::Run::Container::Scalar;
+use PIL::Run::Container::Scalar;
 
 sub mk_containers {
 	map {
-		my $c = P5::PIL::Run::Container::Scalar->new;
+		my $c = PIL::Run::Container::Scalar->new;
 		$c->scalar_store($_);
 		$c;
 	} @_;
@@ -16,7 +16,7 @@ sub mk_containers {
 
 role 'IArray' => {};
 
-class 'P5::PIL::Run::Container::Array' => {
+class 'PIL::Run::Container::Array' => {
 	does => [ 'IArray' ],
 	instance => {
 		attrs => [ '@:slots' ],

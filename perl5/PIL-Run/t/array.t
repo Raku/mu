@@ -5,9 +5,9 @@ use warnings;
 
 use Test::More 'no_plan';
 
-use P5::PIL::Run::Container::Scalar;
+use PIL::Run::Container::Scalar;
 
-my $m; BEGIN { use_ok($m = "P5::PIL::Run::Container::Array") };
+my $m; BEGIN { use_ok($m = "PIL::Run::Container::Array") };
 
 isa_ok(my $a = $m->new, $m);
 
@@ -24,7 +24,7 @@ is($a->array_fetchSize, 1, "array size is 1");
 is_deeply([ $a->array_fetchKeys ], [ 0 ], "only key is '0'");
 
 
-my $s = P5::PIL::Run::Container::Scalar->new;
+my $s = PIL::Run::Container::Scalar->new;
 $s->scalar_store(42);
 
 $a->array_storeElem(1, $s);
