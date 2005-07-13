@@ -23,7 +23,10 @@ my $revision = 0;
 # no repository.  Since we don't need a STDIN anyway, get rid of it.
 close STDIN;
 
-if (-r $svn_entries) {
+if (-e "$base/MANIFEST") {
+    # This is a release -- do nothing!
+}
+elsif (-r $svn_entries) {
     print "Writing version from $svn_entries to $version_h\n";
     open FH, $svn_entries or die $!;
     while (<FH>) {
