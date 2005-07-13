@@ -1,3 +1,4 @@
+#!/usr/bin/pugs
 
 # this test tests that the output (text output and return code) of
 # test scripts are correct.
@@ -24,6 +25,7 @@ if($*OS eq any<MSWin32 mingw msys cygwin>) {
 my $file = $?FILE;
 $file ~~ s:P5/output.t/script.pl/;
 my $cmd = "$*EXECUTABLE_NAME $file $redir_pre $out_fn $redir_post";
+%ENV<TEST_ALWAYS_CALLER> = 0;
 
 diag($cmd);
 system($cmd);
