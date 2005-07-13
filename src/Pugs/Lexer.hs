@@ -146,6 +146,10 @@ interpolatingStringLiteral startrule endrule interpolator = do
     
     stringList :: Int -> RuleParser [Exp]
     stringList i = try (do
+	       parse <- interpolator
+	       rest  <- stringList i
+	       return (parse:rest))
+	   <|> try (do
 	       ch <- endrule
 	       if i == 0 then return []
 			 else do rest <- stringList (i-1)
@@ -154,10 +158,6 @@ interpolatingStringLiteral startrule endrule interpolator = do
 	       ch <- startrule
 	       rest <- stringList (i+1)
 	       return (Val (VStr ch):rest))
-	   <|> do
-	       parse <- interpolator
-	       rest  <- stringList i
-	       return (parse:rest)
 	   <|> do
 	       char <- anyChar
 	       rest <- stringList i

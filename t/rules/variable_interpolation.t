@@ -23,4 +23,4 @@ is($a, 'A:', 'closure interpolation with [] as delimiter');
 
 my $b = 'b:';
 $b ~~ s:perl5{(..)}{{uc $0}};
-is($b, 'B:', 'closure interpolation with {} as delimiter', :todo<bug>);
+is($b, 'B:', 'closure interpolation with {} as delimiter');
