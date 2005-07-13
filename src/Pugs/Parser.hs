@@ -571,6 +571,7 @@ ruleUsePackage = rule "use package" $ do
     _       <- option "" $ ruleVersionPart
     _       <- option "" $ ruleAuthorPart
     let pkg = concat (intersperse "::" names)
+    env <- getRuleEnv
     val <- unsafeEvalExp $
         if lang == "perl5"
             then Stmts (Sym SGlobal (':':'*':pkg) (Syn ":=" [ Var (':':'*':pkg), App (Var "&require_perl5") Nothing [Val $ VStr pkg] ])) (Syn "env" [])
@@ -580,8 +581,10 @@ ruleUsePackage = rule "use package" $ do
         unsafeEvalExp $ App (Var $ ('&':pkg) ++ "::import") (Just val) [imp]
         return ()
     case val of
-        Val (VControl (ControlEnv env')) -> putRuleEnv env'
-            { envClasses = envClasses env' `addNode` mkType pkg }
+        Val (VControl (ControlEnv env')) -> putRuleEnv env
+            { envClasses = envClasses env' `addNode` mkType pkg
+            , envGlobal  = envGlobal env'
+            }
         _  -> error $ pretty val
     return ()
 
