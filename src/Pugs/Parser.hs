@@ -235,9 +235,9 @@ ruleSubGlobal = rule "global subroutine" $ do
     (isMulti, styp, name) <- ruleSubHead
     return (SGlobal, "Any", isMulti, styp, name)
 
-
-doExtract :: Maybe [Param] -> Exp -> (Exp, [String], [Param])
-doExtract formal body = (fun, names', params)
+doExtract :: SubType -> Maybe [Param] -> Exp -> (Exp, [String], [Param])
+doExtract _ formal body = (body, [], maybe [] id formal)
+doExtract SubBlock formal body = (fun, names', params)
     where
     (fun, names) = extract body []
     names' | isJust formal -- Just params <- formal, any (== "$_") (map paramName params)
@@ -306,7 +306,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
     traits  <- many $ ruleTrait
     -- bodyPos <- getPosition
     body    <- ruleBlock
-    let (fun, names, params) = doExtract formal body
+    let (fun, names, params) = doExtract styp formal body
     -- Check for placeholder vs formal parameters
     unless (isNothing formal || null names) $ 
         fail "Cannot mix placeholder variables with formal parameters"
@@ -881,7 +881,7 @@ retBlock typ formal body = retVerbatimBlock typ formal body
 
 retVerbatimBlock :: SubType -> Maybe [Param] -> Exp -> RuleParser Exp
 retVerbatimBlock styp formal body = expRule $ do
-    let (fun, names, params) = doExtract formal body
+    let (fun, names, params) = doExtract styp formal body
     -- Check for placeholder vs formal parameters
     unless (isNothing formal || null names) $ 
         fail "Cannot mix placeholder variables with formal parameters"

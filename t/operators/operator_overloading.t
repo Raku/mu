@@ -29,7 +29,7 @@ sub prefix:<->($thing) { return "CROSS$thing"; };
 is(-"fish", "CROSSfish",
    'prefix operator overloading for existing operator');
 
-sub infix:<×> { $^a * $^b }
+sub infix:<×> ($a, $b) { $a * $b }
 is(5 × 3, 15, "infix Unicode operator");
 
 sub infix:<C> ($text, $owner) { return "$text copyright $owner"; };

@@ -9,21 +9,21 @@ sub infix:<`map`>  (Code &f, *@y) is export { map &f, @y }
 sub infix:<`grep`> (Code &f, *@y) is export { grep &f, @y }
 
 # Pair constructor
-sub infix:<⇒> is export { $^x => $^y }
+sub infix:<⇒> ($x, $y) is export { $x => $y }
 
 # Comparision ops
-sub infix:<≥> is export { $^a >= $^b }
-sub infix:<≤> is export { $^a <= $^b }
-sub infix:<≠> is export { $^a != $^b }
-sub infix:<≣> is export { $^a =:= $^b }
-sub infix:<≡> is export { $^a =:= $^b }
+sub infix:<≥> ($a, $b) is export { $a >= $b }
+sub infix:<≤> ($a, $b) is export { $a <= $b }
+sub infix:<≠> ($a, $b) is export { $a != $b }
+sub infix:<≣> ($a, $b) is export { $a =:= $b }
+sub infix:<≡> ($a, $b) is export { $a =:= $b }
 
 # Misc. mathematical chars
-sub prefix:<∑>  is export { [+] *@^nums }
-sub prefix:<∏>  is export { [*] *@^nums }
-sub postfix:<!> is export { [*] 1..$^x }
+sub prefix:<∑>  (@nums) is export { [+] *@nums }
+sub prefix:<∏>  (@nums) is export { [*] *@nums }
+sub postfix:<!> ($x) is export { [*] 1..$x }
 # sub ∞()       is export { Inf } -- doesn't work
-sub infix:<÷>   is export { $^a / $^b }
+sub infix:<÷>   ($a, $b) is export { $a / $b }
 
 # Standard functions of fp
 sub identity($x)  is export { $x }
