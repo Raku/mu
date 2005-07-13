@@ -1,3 +1,7 @@
+2005-07-13
+
+* adding Span::Code and tests
+
 2005-07-11
 
 * Span.pm gets it's own package

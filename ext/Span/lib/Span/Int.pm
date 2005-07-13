@@ -6,18 +6,6 @@ has $.start;
 has $.end;
 has $.density;
 
-=for TODO
-
-    * compare
-        - tests
-
-    * complete POD
-        - explain "density" parameter
-
-    * mark as "internal" class
-
-=cut
-
 submethod BUILD ( $.start, $.end, ?$.density = 1 ) {}
 
 method empty_span ($class: ?$density = 1 ) {
@@ -88,6 +76,18 @@ method compare ( Span::Int $span ) returns int {
     return $.end <=> $span.end;
 }
 
+method next ($self: $x ) {
+    return $.start if $x < $.start;
+    return $x      if $x <= $.end;
+    return undef;
+}
+
+method previous ($self: $x ) {
+    return $.end   if $x > $.end;
+    return $x      if $x >= $.start;
+    return undef;
+}
+
 =kwid
 
 = NAME
@@ -105,42 +105,6 @@ Span::Int - An object representing a single span, with a simple functional API.
 This class represents a single span.
 
 It is intended mostly for "internal" use by the Span class. For a more complete API, see `Span`.
-
-= CONSTRUCTORS
-
-- `new( start => $start, end => $end )`
-
-- `new( start => $start, end => $end, density => 1 )`
-
-The `start` value must be less than or equal to `end`. There is no checking.
-
-The optional `density` parameter defines the "chunk size". The default density is "1".
-
-= OBJECT METHODS
-
-The following methods are available for Span::Int objects:
-
-- `start()` / `end()`
-
-Return the start or end value.
-
-- size
-
-Return the "size" of the span.
-
-If `start` and `end` are times, then `size` is a duration.
-
-- union
-
-- complement
-
-- intersects
-
-- intersection 
-
-- stringify 
-
-- compare 
 
 = AUTHOR
 

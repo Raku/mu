@@ -215,15 +215,29 @@ method compare ( Span::Functional $span ) returns int {
     return $span.end_is_open <=> $.end_is_open;
 }
 
+method next ($self: $x ) {
+    return $.start if $x < $.start;
+    return $x      if   $.end_is_open && $x < $.end;
+    return $x      if ! $.end_is_open && $x <= $.end;
+    return undef;
+}
+
+method previous ($self: $x ) {
+    return $.end   if $x > $.end;
+    return $x      if   $.start_is_open && $x > $.start;
+    return $x      if ! $.start_is_open && $x >= $.start;
+    return undef;
+}
+
 =kwid
 
 = NAME
 
-Span::Functional - An object representing a single span, with a simple functional API.
+Span::Num - An object representing a single span, with a simple functional API.
 
 = SYNOPSIS
 
-  use Span:::Functional;
+  use Span::Num;
 
   $span = new( start => $start, end => $end, start_is_open => bool::false, end_is_open => bool::false );
 
@@ -233,41 +247,7 @@ This class represents a single span.
 
 It is intended mostly for "internal" use by the Span class. For a more complete API, see `Span`.
 
-= CONSTRUCTORS
-
-- `new( start => $start, end => $end, start_is_open => bool::false, end_is_open => bool::false )`
-
 The `start` value must be less than or equal to `end`. There is no checking.
-
-= OBJECT METHODS
-
-The following methods are available for Span::Functional objects:
-
-- `start()` / `end()`
-
-Return the start or end value.
-
-- `start_is_open()` / `end_is_open()` / `start_is_closed()` / `end_is_closed()`
-
-Return a logical value, whether the `start` or `end` values belong to the span ("closed") or not ("open").
-
-- size
-
-Return the "size" of the span.
-
-If `start` and `end` are times, then `size` is a duration.
-
-- union
-
-- complement
-
-- intersects
-
-- intersection 
-
-- stringify 
-
-- compare 
 
 = AUTHOR
 
