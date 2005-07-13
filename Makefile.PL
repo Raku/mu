@@ -299,6 +299,9 @@ docs/haddock :
 	\@\$(PERL) -e "mkdir q-docs/haddock-"
 
 profiled :: src/Pugs/Config.hs src/Pugs/Prelude.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h @prereqs
+	\$(PERL) util/gen_prelude.pl -v --touch --null > src/Pugs/PreludePC.hs
+	$ghc $threaded -O -auto-all -prof --make $profiled_flags $ccdlflags $ghc_output
+	\$(PERL) util/gen_prelude.pl -v -i src/perl6/Prelude.pm -p $thispugs --touch > src/Pugs/PreludePC.hs
 	$ghc $threaded -O -auto-all -prof --make $profiled_flags $ccdlflags $ghc_output
 
 pugs.prof :: profiled
