@@ -45,8 +45,8 @@ my $fud;
 
 lives_ok {
     $fud = $foo_bar.getme.fud;
-}, 'chained method dispatch on altered method';
-is($fud, "Foo::Bar::fud", "returned value is correct");
+}, 'chained method dispatch on altered method', :todo<bug>;
+is($fud, "Foo::Bar::fud", "returned value is correct", :todo<bug>);
 
 # See thread "Quick OO .isa question" on p6l started by Ingo Blechschmidt:
 # http://www.nntp.perl.org/group/perl.perl6.language/22220
