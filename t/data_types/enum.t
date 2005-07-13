@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 21;
+plan 30;
 
 {
 	my %hash; eval '%hash = enum «:Mon(1) Tue Wed Thu Fri Sat Sun»';
