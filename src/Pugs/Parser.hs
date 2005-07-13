@@ -282,7 +282,7 @@ rulePackageHead = do
                        "package" -> "Package"
                        "module"  -> "Module"
                        "class"   -> "Class"
-                       "role"    -> "Role"
+                       "role"    -> "Class" -- XXX - Wrong - need metamodel
                        "grammar" -> "Grammar"
                        _ -> fail "bug"
     unsafeEvalExp (newPackage pkgClass name $ nub ("Object":traits))
@@ -320,8 +320,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
             , subAssoc      = "pre"
             , subReturns    = mkType typ''
             , subLValue     = "rw" `elem` traits
-            , subParams     = self ++ if null params && styp <= SubRoutine
-                then [defaultArrayParam] else params
+            , subParams     = self ++ paramsFor styp formal params
             , subBindings   = []
             , subSlurpLimit = []
             , subBody       = fun
@@ -895,14 +894,17 @@ retVerbatimBlock styp formal body = expRule $ do
             , subAssoc      = "pre"
             , subReturns    = anyType
             , subLValue     = False -- XXX "is rw"
-            , subParams     = if null params
-                then defaultParamFor styp else params
+            , subParams     = paramsFor styp formal params
             , subBindings   = []
             , subSlurpLimit = []
             , subBody       = fun
             , subCont       = Nothing
             }
     return (Syn "sub" [Val $ VCode sub])
+
+paramsFor :: SubType -> Maybe [Param] -> [Param] -> [Param]
+paramsFor styp Nothing []   = defaultParamFor styp
+paramsFor _ _ params        = params
 
 defaultParamFor :: SubType -> [Param]
 defaultParamFor SubBlock    = [defaultScalarParam]
