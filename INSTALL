@@ -25,6 +25,15 @@ To install Pugs on your system, simply type this in the command line:
     make test
     make install
 
+To change the installation location, pass PREFIX=/opt/wherever to 
+Makefile.PL like so:
+
+    perl Makefile.PL PREFIX=/your/prefix/here
+
+XXX NOTE!!!!!!!!
+PREFIX doesn't actually work right now. So ignore what I just said. But if
+it did work, that's how you would do it.
+
 ENVIRONMENT VARIABLES
 ---------------------
 
@@ -39,8 +48,8 @@ you run "perl Makefile.PL", for example:
 To control which optional subsystems are embedded in Pugs, set the 
 PUGS_EMBED variable. For example: 
  
-    export PUGS_EMBED="perl5 parrot"
-    setenv PUGS_EMBED "perl5 parrot"
+    export PUGS_EMBED="perl5 parrot" (bash)
+    setenv PUGS_EMBED "perl5 parrot" (csh)
 
 To build with an embedded parrot interpreter, make sure the PUGS_EMBED 
 variable contains "parrot", and set the PARROT_PATH variable to point to 
@@ -51,6 +60,11 @@ the directory in which you checked out the parrot source tree. For example:
 
 MAKE TARGETS
 ------------
+
+The default make target builds an optimized Pugs. This means that Pugs will
+be slower to compile, but will run much faster. To disable this, run:
+    
+    make unoptimized  # unoptimised will work, too. We're not picky.
 
 To run the test suite:
 
@@ -67,7 +81,12 @@ To run the test suite using the PIR backend:
 To make a pretty HTML matrix showing test results using the PIR backend:
 
     make pirsmoke
-    
+
+To turn on profiling in the GHC compiler:
+ 
+    make profiled
+
+
 CAVEATS FOR GCC 4.0 USERS
 -------------------------
 
@@ -80,8 +99,8 @@ Until GHC 6.4.1 is released, you need to need to issue this command first:
 
     sudo gcc_select 3.3
 
-Then recompiling Pugs using a clean tree.  Other users of GCC 4.0 systems
-may also need to switch to use GCC 3.3 to compile Pugs at this moment.
+Then recompile Pugs using a clean tree.  Other users of GCC 4.0 systems
+may also need to switch to GCC 3.3 to compile Pugs for now.
 
 CAVEATS FOR x86_64 MACHINES
 ---------------------------
@@ -128,13 +147,13 @@ Hints on using a development snapshot of GHC:
 
 Note that this will take a long time, and it may not work.
 
-First, check if a sufficiently recent "Stable" source snapshot is available
-(as of 15-May, there isn't one yet).  If not, you might try a "HEAD" snapshot
-(it is not clear anyone has actually tried this).  Otherwise, use might use
-cvs to grab your own snapshot:
+First, check to see if a sufficiently recent "Stable" source snapshot is 
+available (as of 15-May, there isn't one yet).  If not, you might try a "HEAD" 
+snapshot (it is not clear that anyone has actually tried this).  Otherwise, you 
+might use cvs to grab your own snapshot:
 
     CVSROOT=:pserver:anoncvs@glass.cse.ogi.edu:/cvs; export CVSROOT
-    cvs login     # passord cvs
+    cvs login     # password cvs
     cvs checkout fpconfig
     cd fptools
     cvs checkout ghc hslibs libraries happy alex
