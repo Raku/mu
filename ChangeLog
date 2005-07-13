@@ -1,4 +1,4 @@
-== Changes for 6.2.8 (up to r5363) - July 12, 2005
+== Changes for 6.2.8 (up to r5570) - July 13, 2005
 
 === Pugs Internals
 
@@ -9,72 +9,81 @@
 ** `Test.pm` can be compiled to PIR 
 ** `Prelude/PIR.pm` added with Perl 6 versions of some builtins
 ** `pugs -CPIL -e 'say 123'` for dumping PIL from code
-* New trait for Prelude.pm: `is builtin` (installs into the global namespace)
-* `Prelude.pm` is now pre-compiled to reduce startup cost
-* New Prelude builtins: `localtime`, `File::seek`
+* Implicit variables like `$^a` now only works in bare blocks
+* Initial support for `%*INC`: multiple `require` calls run only once
+* It is no longer legal to declare `MY OUR OUTER CALLER` as regular namespaces
+* Named binding is now done in an inferencing phase before positional binding
 * New Haskell builtins: `IO::tell` and internal filehandle test functions
 * New PIR builtin: `leave`
-* Initial support for `%*INC`
-* Pairs in variables now bind to named parameters just like pair literals do
-* Support for `does RoleName` and `is ClassName` within class declarations
-* Parse `trusts ClassName` and `my $foo is trait_name` as no-ops
+* New Prelude builtins: `File::seek`, `localtime`, `trans`
 * New builtin class: `Proxy`
-* Named arguments binding is now done in an inferencing phase before positional
-  binding
-* `Bare` and `Parametric` types merged into `Block`
-* `use perl5:DBI` replaces the old `use DBI--perl5` syntax
-* `&foo` in module `Foo` now looks up `&Foo::foo` as well.
+* New trait for Prelude.pm: `is builtin` (installs into the global namespace)
+* Pairs in variables now bind to named parameters just like pair literals do
+* Parse `trusts ClassName` and `my $foo is trait_name` as no-ops
 * Parse fractional number literals starting with a leading dot: `.1` `-.1`
 * Qualified names and exports now dealt with consistently
-* `our` variables in packages now generate qualified symbols
+* Support for `does RoleName` and `is ClassName` within class declarations
+* `&foo` in module `Foo` now looks up `&Foo::foo` as well.
 * `@?INIT` and `@?CHECK` are renamed back to `@*` space
+* `Bare` and `Parametric` types merged into `Block`
+* `Prelude.pm` is now pre-compiled to reduce startup time
 * `multi foo { ... }` is now a shorthand for `multi sub foo { ... }`
+* `my Foo $foo .= new(...)` parses and works
+* `our` variables in packages now generate qualified symbols
+* `use perl5:DBI` replaces the old `use DBI--perl5` syntax
 
 === Bundled Modules
 
-* New module ports:
-** `Module::Pluggable::Fast`
-** `HTTP::Server::Simple`
-** `Perldoc` (partial port)
-** `DateTime`
+* New Perl 6 modules:
 ** `DateTime::Set`
+** `DateTime`
+** `HTTP::Server::Simple`
+** `Module::Pluggable::Fast`
+** `Perldoc` (partial port)
 ** `Set::Infinite`
+** `Span`
 ** `Tree::Visitor` and `Tree::Visitor::FindByPath`
 ** `WTemplate` - the first Perl 6 templating engine
 * New Pugs-specific modules:
 ** `Perl-Compiler`, a PIL representation in Perl 6
-** `lib/Perl6-MetaModel`, a Perl 5 prototype of the Perl 6 object model
-* Completed `Locale::KeyedText` (this was our first contributed module)
+** `perl5/PIL-Run`, a Perl 5 prototype of Perl 6 runtime environment
+** `perl5/Perl6-MetaModel`, a Perl 5 prototype of Perl 6 object model
+* Completed port: `Locale::KeyedText`
 ** Compiles, executes, and passes whole pristine test suite
 ** Updated version to 1.5.0, corresponding to the Perl 5 version 1.05
 ** Some skips and workarounds remain due to missing Pugs features
+* Completed port: `Test::Builder`
 
 === Test, Examples and Documentations
 
-* Many new tests and refactoring based on new rulings; we now have 7600+ tests
-* YAPC::NA talk: /Apocalypse Now/ (in `docs/talks/Apocalypse_Now.spork`)
-* New directories: `examples/continuation` and `examples/unitfunctions`
 * Examples of methods acting on builtin types in `examples/vmethods/`
+* Interpreter and debugger for the l33t language in `examples/obfu/l33t.p6`
 * Low level sanity tests in `t/01-sanity/` for the PIR code emitter
 * More JAPHs added to `examples/japhs/`
-* Updates and cleanups to PA01; master copy is now `docs/01Overview.kwid`
-* Interpreter and debugger for the l33t language in `examples/obfu/l33t.p6`
+* New directories: `examples/continuation` and `examples/unitfunctions`
+* Overview of PIL-based compilation roadmap in `docs/notes/plan`
 * Perl 6 Rule grammar and related files added to `module/Grammars/`
+* Script to generate Haskell source's import graph as `util/importgraph.pl`
+* Updates and cleanups to PA01; master copy is now `docs/01Overview.kwid`
+* YAPC::NA talk: /Apocalypse Now/ (in `docs/talks/Apocalypse_Now.spork`)
 
 === Bug Fixes
 
-* `(42).kv` now dies and `(42,).kv` works
-* `sleep()` returns seconds slept instead of undef
-* Fixed `!~` to mean negated `~~` instead of `ne`
 * Call parrot with `-G` (CGP) instead of `-j` (JIT) runcore to avoid segfaults
-* New environment variable `PUGS_PARROT_OPTS` for invoking external parrot
-* Fixed order of method invocation in `BUILDALL` and `DESTROYALL`
-* `try` is now capable of catching all type casting errors
-* Qualified and global variables may now be used without declaration
+* Fixed `!~` to mean negated `~~` instead of `ne`
 * Fixed `.isa` to agree with smartmatch results
+* Fixed order of method invocation in `BUILDALL` and `DESTROYALL`
+* New environment variable `PUGS_PARROT_OPTS` for invoking external parrot
+* Qualified and global variables may now be used without declaration
 * `$hashref.does(Hash)` now returns true
+* `&say =:= &say` now evaluates to true
+* `(42).kv` now dies and `(42,).kv` works
 * `[1] <=> [2]` was misparsed as `[1]{'='}[2]`.  Fixed.
 * `caller` now counts `eval` and the topmost `main` as one frame
+* `qq{ ... { code } ... }` no longer ignores the interpolated code 
+* `redo` and `next` now works correctly inside loop blocks
+* `sleep()` returns seconds slept instead of undef
+* `try` is now capable of catching all type casting errors
 
 == Changes for 6.2.7 (r4612) - June 13, 2005
 

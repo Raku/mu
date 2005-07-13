@@ -165,8 +165,9 @@ version of F<Prelude.pm> like this:
 
 By default, the Prelude is not compiled in when compiling a Perl program
 instead of running it. If you set C<PUGS_COMPILE_PRELUDE> to C<true>, you
-override this default and the Prelude will be linked in (XXX: why is the
-default to not compile the Prelude?).
+override this default and the Prelude will be compiled along with your code.
+This is normally not needed, as the prelude should already be provided as
+part of the target runtime environment.
 
 =item C<PUGS_SAFEMODE>
 
