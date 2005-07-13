@@ -13,10 +13,7 @@ Perl 5 version of the module.
 my @api = < get getstore getprint mirror head >;
 plan 1+@api;
 
-# TODO: use use_ok() instead of hand-rolled variant
-  require LWP::Simple;
-
-is( $!, undef, "LWP::Simple imported" );
+use_ok('LWP::Simple');
 
 for @api -> $function {
   ok( eval( "defined &$function" ), "$function is exported" );
