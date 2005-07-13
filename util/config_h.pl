@@ -25,7 +25,7 @@ my ($ghc,$base) = @ARGV;
 $ghc ||= $ENV{GHC} || 'ghc';
 $base ||= Cwd::cwd();
 
-open IN, "< $base/lib/Perl6-Pugs/lib/Perl6/Pugs.pm" or die $!;
+open IN, "< $base/lib/Perl6/Pugs.pm" or die $!;
 open OUT, "> $base/src/Pugs/pugs_config.h" or die $!;
 
 while (<IN>) {
