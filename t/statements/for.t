@@ -185,7 +185,7 @@ my @elems = <a b c d e>;
 
 my @array_s = (0..2);
 my @s = (1..3);
-for @array_s -> { $_++ };
+for @array_s { $_++ };
 is(@array_s, @s, 'for @array { $_++ }');
 
 my @array_t = (0..2);
