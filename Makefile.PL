@@ -65,7 +65,10 @@ clean_files     (map fixpaths($_),
 );
 
 set_postamble   ();
-no_index        (directory => 'inc', 'examples');
+no_index        (
+    directory =>
+        qw< inc debian modules perl5 ext script util docs examples src >
+);
 sign            (1);
 WritePugs       (5);
 

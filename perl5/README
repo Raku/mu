@@ -1,0 +1,6 @@
+= What is this Directory?
+
+This is the scratchpad area for the upcoming Perl 5 runtime for Pugs.
+See docs/notes/plan for the general idea.
+
+Currently this directory is not indexed nor installed as part of Pugs.
