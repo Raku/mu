@@ -32,7 +32,7 @@ sub touch {
 }
 
 sub null {
-    print STDERR "Installing null prelude... " if $Config{verbose};
+    print STDERR "Generating null prelude... " if $Config{verbose};
     open my $np, "src/Pugs/PreludePC.hs-null" or
         die "can't open null prelude: $!";
     print while (<$np>);
@@ -40,7 +40,7 @@ sub null {
 }
 
 sub precomp {
-    print STDERR "Installing precompiled prelude... " if $Config{verbose};
+    print STDERR "Generating precompiled prelude... " if $Config{verbose};
     die "*** Error: $0 needs an already compiled Pugs to precompile the Prelude\n"
         unless $Config{pugs};
     $ENV{PUGS_COMPILE_PRELUDE} = 1;
