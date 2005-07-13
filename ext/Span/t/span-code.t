@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 10;
+plan 26;
 
 use_ok( 'Span::Code' );
 use Span::Code;   # XXX should not need this
@@ -24,33 +24,66 @@ is( $universe.end_is_open,     bool::false, "end_is_open" );
 is( $universe.start_is_closed, bool::true, "start_is_closed" );
 is( $universe.end_is_closed,   bool::true, "end_is_closed" );
 
+is( $universe.next( 10 ), 11, 'next' );
+is( $universe.previous( 10 ), 9, 'previous' );
+
 {
+    # 0 .. Inf
     my $span1 = Span::Code.new( 
-        closure_next =>     sub { $^a < 0 ?? 0 :: $^a + 1 },
-        closure_previous => sub { $^a - 1 },
+        closure_next =>        sub { $^a >= 0 ?? $^a + 1 ::    0 },
+        closure_previous =>    sub { $^a > 0 ??  $^a - 1 :: -Inf },
+        complement_next =>     sub { $^a < 1 ??  $^a + 1 ::  Inf },
+        complement_previous => sub { $^a < 0 ??  $^a - 1 ::   -1 },
         universe => $universe );
     
     is( $span1.start,    0, "start" );
     is( $span1.end  ,  Inf, "end" );
 
-=for later
-    my $span2 = $span1.complement;
+    # -Inf .. 10
+    my $span3 = Span::Code.new( 
+        closure_next =>         sub { $^a < 10 ??  $^a + 1 ::  Inf },
+        closure_previous =>     sub { $^a < 11 ??  $^a - 1 ::   10 },
+        complement_next =>      sub { $^a >= 10 ?? $^a + 1 ::   11 },
+        complement_previous =>  sub { $^a > 11 ??  $^a - 1 :: -Inf },
+        universe => $universe );
+    
+    is( $span3.start, -Inf, "start" );
+    is( $span3.end  ,   10, "end" );
 
-    is( $span2.start, -Inf, "start" );
-    is( $span2.end  ,   -1, "end" );
-=cut
-
+    {
+        my $span2 = $span1.complement;
+        is( $span2.start, -Inf, "start" );
+        is( $span2.end  ,   -1, "end" );
+    }
+    {
+        my $span4 = $span3.complement;
+        is( $span4.start,   11, "start" );
+        is( $span4.end  ,  Inf, "end" );
+    }
+    {
+        my $span5 = $span1.intersection( $span3 );
+        is( $span5.start,  0, "start" );
+        is( $span5.end  , 10, "end" );
+    }
+    {
+        my $span5 = $span1.difference( $span3 );
+        is( $span5.start,  11, "start" );
+        is( $span5.end  , Inf, "end" );
+    }
+    {
+        my $span5 = $span3.difference( $span1 );
+        is( $span5.start, -Inf, "start" );
+        is( $span5.end  ,   -1, "end" );
+    }
+    {
+        my $span5 = $span3.union( $span1 );
+        is( $span5.start, -Inf, "start" );
+        is( $span5.end  ,  Inf, "end" );
+    }
 }
 
 
 =for later
-
-is( $span.start, 1, "start" );
-is( $span.end  , 3, "end" );
-
-# XXX - doesn't work
-# $span.start = 5;
-# is( $span.start, 1, "start is read-only" );
 
 is( $span.size, 2, "real size" );
 # is( $span.size( density => 1 ), 3, "integer size" );
