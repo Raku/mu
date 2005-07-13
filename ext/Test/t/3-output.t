@@ -8,6 +8,8 @@ use Test;
 
 plan 1;
 
+skip_rest("skipping because redirection is not portable"); exit;
+
 # this test tests that various failure conditions (that we don't want
 # to show up as failures) happen, and test the the output of the test
 # suite is correct.
