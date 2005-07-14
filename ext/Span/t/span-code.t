@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 36;
+plan 37;
 
 use_ok( 'Span::Code' );
 use Span::Code;   # XXX should not need this
@@ -69,6 +69,8 @@ is( $universe.previous( 10 ), 9, 'previous' );
     
     is( $span3.start, -Inf, "start" );
     is( $span3.end  ,   10, "end" );
+
+    is( $span1.intersects( $span3 ), bool::true, 'intersects' );
 
     {
         my $span2 = $span1.complement;

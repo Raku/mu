@@ -12,8 +12,6 @@ use v6;
 
     * contains
 
-    * intersects
-
     * remove "arbitrary_limit" if possible
 
     * include Span::Code in Span.pm API 
@@ -21,12 +19,8 @@ use v6;
     * stringify - test with 2-5 elements 
     * document that stringify doesn't show all elements
     
-    * xxx_is_closed - with empty set
-    
     * set_start / set_end
     
-    * test with pugs 6.2.8 
-
 =cut
 
 class Span::Code-0.01
@@ -82,6 +76,15 @@ method size () returns Object {
     return undef;
 }
 
+method is_empty ($self: ) {
+    return ! defined( $self.start );
+}
+
+method density () returns Object {
+    # TODO - maybe undef is ok
+    return undef;
+}
+
 method start () {
     my $tmp = $.closure_next( -Inf );
     return $tmp == Inf ?? undef :: $tmp;
@@ -92,7 +95,7 @@ method end () {
     return $tmp == -Inf ?? undef :: $tmp;
 }
 
-# TODO - empty set
+# the "empty set" test is done by Span.pm
 method start_is_closed () { return bool::true }
 method start_is_open   () { return bool::false }
 method end_is_closed   () { return bool::true }
@@ -108,7 +111,9 @@ method contains ($self: $span is copy) returns bool {
 }
 
 method intersects ($self: $span is copy) returns bool {
-    ...
+    # TODO - optimize
+    my $tmp = $self.intersection( $span );
+    return ! $tmp.is_empty;
 }
 
 method union ($self: $span is copy) returns List of Span { 
@@ -202,7 +207,6 @@ method difference ($self: $span ) {
 }
 
 method next ( $x ) { 
-    # the parent class should verify that $x belongs to the universe set
     return $.closure_next( $x );
 }
 
@@ -213,18 +217,11 @@ method previous ( $x ) {
 method get_complement_next ($self: ) { 
     return $.complement_next if defined $.complement_next;
     $self.get_universe;
-    # say 'Universe starts ', $.universe.start;
     return $.complement_next =
         sub ( $x is copy ) {
-            # say 'Complement next ', $x;
-            # say 'universe isa ',$.universe.ref;
-            # say &{ $.universe.closure_next }( $x );
             for ( 0 .. $:arbitrary_limit )
             {
                 $x = &{ $.universe.closure_next }( $x );
-                # say "NEXT current $x";
-                # say "next x ", &{ $self.closure_next }( $x );
-                # say "previous x ", &{ $self.closure_previous }( $x );
                 return $x if $x == Inf ||
                              $x != &{ $self.closure_previous }( &{ $self.closure_next }( $x ) );
             }
@@ -235,16 +232,10 @@ method get_complement_next ($self: ) {
 method get_complement_previous ($self: ) { 
     return $.complement_previous if defined $.complement_previous;
     $self.get_universe;
-    # say "END ", $self.end;   
-    # my $end = $self.end;
-    # my $start = $self.start;
     return $.complement_previous =
         sub ( $x is copy ) {
             for ( 0 .. $:arbitrary_limit )
             {
-                # say "PREVIOUS current $x";
-                # say "next x ", &{ $self.closure_next }( $x );
-                # say "previous x ", &{ $self.closure_previous }( $x );
                 $x = &{ $.universe.closure_previous }( $x );
                 return $x if $x == -Inf ||
                              $x != &{ $self.closure_next }( &{ $self.closure_previous }( $x ) );
