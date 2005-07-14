@@ -1,6 +1,6 @@
 pugs (6.2.8-1) unstable; urgency=low
 
-  * Initial release.
+  * Initial release (Closes: #297871).
 
  -- Florian Ragwitz <florian@mookooh.org>  Wed,  6 Jul 2005 05:14:39 +0200
 

@@ -31,7 +31,7 @@ build-indep-stamp: configure-stamp
 clean:
 	dh_testdir
 	dh_testroot
-	rm -f build-arch-stamp build-indep-stamp configure-stamp debian/pugs.1 debian/pugscc.1
+	rm -f build-arch-stamp build-indep-stamp configure-stamp debian/pugs.1 debian/pugscc.1 src/Pugs/CodeGen/PIR/Prelude.hi src/Pugs/CodeGen/PIR/Prelude.o ext/Test-Builder/destroy_test.p6
 	-$(MAKE) realclean
 	dh_clean
 
@@ -40,6 +40,7 @@ install-indep:
 	dh_testdir
 	dh_testroot
 	dh_installdirs
+	dh_install -i --sourcedir=$(CURDIR)/debian/tmp
 	cp -r $(CURDIR)/docs/* $(CURDIR)/debian/pugs-doc/usr/share/doc/pugs-doc/
 	rm -f $(CURDIR)/debian/pugs-doc/usr/share/doc/pugs-doc/SEEALSO
 
