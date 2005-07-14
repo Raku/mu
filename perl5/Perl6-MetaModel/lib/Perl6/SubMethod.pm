@@ -4,7 +4,25 @@ package Perl6::SubMethod;
 use strict;
 use warnings;
 
+use Scalar::Util 'blessed';
+
 use base 'Perl6::Method';
+
+# XXX - this only checks that the invocant is 
+# an instance of the correct class. This is 
+# enough for now, but it should eventually
+# also be able to check the calling context
+# as well.
+
+sub check_caller {
+    my ($self, $canidate) = @_;
+    my $canidate_class = blessed($canidate) || $canidate;
+    if ($self->associated_with ne $canidate_class) {
+        $self->{caller_error} = "submethod called from the wrong class got: ($canidate_class) expected: (" . $self->associated_with . ")";
+        return 0;
+    }
+    return 1;
+}
 
 1;
 
@@ -17,16 +35,6 @@ __END__
 Perl6::SubMethod - Submethods in the Perl 6 Meta Model
 
 =head1 DESCRIPTION
-
-From Synopsis 12/Submethods
-
-Apart from the keyword, submethod declaration and call syntax is identical to 
-method syntax. You may mix methods and submethods of the same name within the 
-class hierarchy, but only the methods are visible to derived classes via 
-inheritance. A submethod is called only when a method call is dispatched 
-directly to the current class.
-
-??? do method foo()  and submethod foo() both get called ???
 
 =head1 SUPERCLASS
 

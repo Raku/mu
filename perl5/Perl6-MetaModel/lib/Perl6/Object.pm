@@ -137,13 +137,21 @@ sub AUTOLOAD {
         }
         (blessed($method) && $method->isa('Perl6::Method')) 
             || confess "Method ($label) not found for instance ($self)";
+        # XXX - this check should really be in 
+        # the method object itself, but this 
+        # causes issue with BUILD and DESTROY
+        ($method->check_caller($self)) 
+            || confess "Method cannot be called by invocant : " . $method->caller_error;                              
         @return_value = $method->call($self, @_);        
     }
     else {
         my $method = $self->meta->find_method($label, for => 'Class');
 
         (defined $method) 
-            || confess "Method ($label)  not found for class ($self)";
+            || confess "Method ($label)  not found for class ($self)";   
+        # XXX - see XXX note above
+        ($method->check_caller($self)) 
+            || confess "Method cannot be called by invocant : " . $method->caller_error;                  
         @return_value = $method->call($self, @_);
     }
     return wantarray ?
