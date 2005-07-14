@@ -116,40 +116,38 @@ method intersects ($self: $span is copy) returns bool {
     return ! $tmp.is_empty;
 }
 
+sub _create_and ( $closure1, $closure2, $direction ) {
+    return sub ( $x ) {
+                    my $n1 = &{ $closure1 }( $x );
+                    my $n2 = &{ $closure2 }( $x );
+                    return ( $n1 <=> $n2 ) == $direction ?? $n1 :: $n2;
+                }
+}
+
+sub _create_nand ( $closure1, $closure2, $closure3, $closure4 ) {
+
+    # XXX - use a global or object setting
+    my $arbitrary_limit = 100;
+
+    return sub ( $x ) {
+                    my $n1;
+                    my $n2 = &{ $closure3 }( $x );
+                    for ( 0 .. $arbitrary_limit )
+                    {
+                        $n1 = &{ $closure1 }( &{ $closure2 }( $n2 ) );
+                        return $n1 if $n1 == $n2;
+                        $n2 = &{ $closure3 }( &{ $closure4 }( $n1 ) );
+                    }
+                    warn "Arbitrary limit exceeded when calculating union()";
+                }
+}
+
 method union ($self: $span is copy) { 
     return $self.new( 
-        closure_next => sub ( $x ) {
-                    my $n1 = &{ $self.closure_next }( $x );
-                    my $n2 = &{ $span.closure_next }( $x );
-                    return $n1 < $n2 ?? $n1 :: $n2;
-                },
-        closure_previous => sub ( $x ) {
-                    my $n1 = &{ $self.closure_previous }( $x );
-                    my $n2 = &{ $span.closure_previous }( $x );
-                    return $n1 > $n2 ?? $n1 :: $n2;
-                },
-        complement_next => sub ( $x ) {
-                    my $n1;
-                    my $n2 = &{ $span.complement_next }( $x );
-                    for ( 0 .. $:arbitrary_limit )
-                    {
-                        $n1 = &{ $self.complement_next }( &{ $self.complement_previous }( $n2 ) );
-                        return $n1 if $n1 == $n2;
-                        $n2 = &{ $span.complement_next }( &{ $span.complement_previous }( $n1 ) );
-                    }
-                    warn "Arbitrary limit exceeded when calculating union()";
-                },
-        complement_previous => sub ( $x ) {
-                    my $n1;
-                    my $n2 = &{ $span.complement_previous }( $x );
-                    for ( 0 .. $:arbitrary_limit )
-                    {
-                        $n1 = &{ $self.complement_previous }( &{ $self.complement_next }( $n2 ) );
-                        return $n1 if $n1 == $n2;
-                        $n2 = &{ $span.complement_previous }( &{ $span.complement_next }( $n1 ) );
-                    }
-                    warn "Arbitrary limit exceeded when calculating union()";
-                },
+        closure_next =>        _create_and( $self.closure_next, $span.closure_next, -1 ),
+        closure_previous =>    _create_and( $self.closure_previous, $span.closure_previous, 1 ),
+        complement_next =>     _create_nand( $self.complement_next, $self.complement_previous, $span.complement_next, $span.complement_previous ),
+        complement_previous => _create_nand( $self.complement_previous, $self.complement_next, $span.complement_previous, $span.complement_next ),
         universe => $self.get_universe,
     )
 }
@@ -208,38 +206,10 @@ method intersection ($self: $span is copy) {
     }
 
     return $self.new( 
-        closure_next => sub ( $x ) {
-                    my $n1;
-                    my $n2 = &{ $span.closure_next }( $x );
-                    for ( 0 .. $:arbitrary_limit )
-                    {
-                        $n1 = &{ $self.closure_next }( &{ $self.closure_previous }( $n2 ) );
-                        return $n1 if $n1 == $n2;
-                        $n2 = &{ $span.closure_next }( &{ $span.closure_previous }( $n1 ) );
-                    }
-                    warn "Arbitrary limit exceeded when calculating intersection()";
-                },
-        closure_previous => sub ( $x ) {
-                    my $n1;
-                    my $n2 = &{ $span.closure_previous }( $x );
-                    for ( 0 .. $:arbitrary_limit )
-                    {
-                        $n1 = &{ $self.closure_previous }( &{ $self.closure_next }( $n2 ) );
-                        return $n1 if $n1 == $n2;
-                        $n2 = &{ $span.closure_previous }( &{ $span.closure_next }( $n1 ) );
-                    }
-                    warn "Arbitrary limit exceeded when calculating intersection()";
-                },
-        complement_next => sub ( $x ) {
-                    my $n1 = &{ $self.complement_next }( $x );
-                    my $n2 = &{ $span.complement_next }( $x );
-                    return $n1 < $n2 ?? $n1 :: $n2;
-                },
-        complement_previous => sub ( $x ) {
-                    my $n1 = &{ $self.complement_previous }( $x );
-                    my $n2 = &{ $span.complement_previous }( $x );
-                    return $n1 > $n2 ?? $n1 :: $n2;
-                },
+        closure_next =>        _create_nand( $self.closure_next, $self.closure_previous, $span.closure_next, $span.closure_previous ),
+        closure_previous =>    _create_nand( $self.closure_previous, $self.closure_next, $span.closure_previous, $span.closure_next ),
+        complement_next =>     _create_and( $self.complement_next, $span.complement_next, -1 ),
+        complement_previous => _create_and( $self.complement_previous, $span.complement_previous, 1 ),
         universe => $self.get_universe,
     )
 }
