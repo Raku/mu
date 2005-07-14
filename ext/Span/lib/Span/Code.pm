@@ -6,7 +6,7 @@ use v6;
 
     * compare
 
-    * size 
+    * size - accept a function; use as_list
 
     * as_list
 
@@ -14,15 +14,18 @@ use v6;
 
     * intersects
 
-    * stringify
-
-    * try to make "get_complement_next" work
-
-    * remove "universe" if not used
-
     * remove "arbitrary_limit" if possible
 
     * include Span::Code in Span.pm API 
+    
+    * stringify - test with 2-5 elements 
+    * document that stringify doesn't show all elements
+    
+    * xxx_is_closed - with empty set
+    
+    * set_start / set_end
+    
+    * test with pugs 6.2.8 
 
 =cut
 
@@ -30,31 +33,65 @@ class Span::Code-0.01
 {
     has Code $.closure_next;
     has Code $.closure_previous;
-    has Span::Code $.universe;      # may not need this (don't know yet)
+    has Span::Code $.universe;   
 
     has Code $.complement_next;
     has Code $.complement_previous;
 
     has $:arbitrary_limit;
 
-submethod BUILD ( $.closure_next, $.closure_previous, ?$complement_next, ?$complement_previous, ?$.universe ) {
-    # TODO - get rid of this
+submethod BUILD ( $.closure_next, $.closure_previous, ?$is_universe, ?$complement_next, ?$complement_previous, ?$.universe ) {
+    # TODO - get rid of "$:arbitrary_limit"
     $:arbitrary_limit = 100;
+    
+    if $is_universe {
+        # $.universe = $self --> $self doesn't exist yet
+        $.complement_next =     sub { +Inf } unless defined $.complement_next;
+        $.complement_previous = sub { -Inf } unless defined $.complement_previous;
+    }
+}
+
+method stringify () {
+    my @start;
+    my @end;
+    my $samples = 3;
+    my $tmp = -Inf;
+    for ( 1 .. $samples ) {
+        $tmp = $.closure_next( $tmp );
+        push @start, $tmp;
+    }
+    $tmp = Inf;
+    for ( 0 .. $samples ) {
+        $tmp = $.closure_previous( $tmp );
+        unshift @end, $tmp;
+    }
+    return '' if @start[0] > @end[-1];
+    return @start[0] if @start[0] == @end[-1];
+    # if @start and @end intersect, don't print ".."
+    if @end[0] == any( @start ) {
+        push @start, @end;
+        return @start.uniq.join(',');
+    }
+    return @start.uniq.join(',') ~ '..' ~ @end.uniq.join(',');
 }
 
 method size () returns Object {
     # TODO - not lazy
+    # TODO - empty set
     return undef;
 }
 
 method start () {
-    return $.closure_next( -Inf )
+    my $tmp = $.closure_next( -Inf );
+    return $tmp == Inf ?? undef :: $tmp;
 }
 
 method end () {
-    return $.closure_previous( Inf )
+    my $tmp = $.closure_previous( Inf );
+    return $tmp == -Inf ?? undef :: $tmp;
 }
 
+# TODO - empty set
 method start_is_closed () { return bool::true }
 method start_is_open   () { return bool::false }
 method end_is_closed   () { return bool::true }
@@ -159,7 +196,7 @@ method complement ($self: ) {
     );
 }
 
-method difference ($self: $span is copy) {
+method difference ($self: $span ) {
     return $self.intersection( $span.complement );
 }
 
@@ -173,9 +210,6 @@ method previous ( $x ) {
 }
 
 method get_complement_next ($self: ) { 
-
-    # XXX this is broken
-
     return $.complement_next if defined $.complement_next;
     $self.get_universe;
     # say 'Universe starts ', $.universe.start;
@@ -187,9 +221,9 @@ method get_complement_next ($self: ) {
             for ( 0 .. $:arbitrary_limit )
             {
                 $x = &{ $.universe.closure_next }( $x );
-say "NEXT current $x";
-say "next x ", &{ $self.closure_next }( $x );
-say "previous x ", &{ $self.closure_previous }( $x );
+                # say "NEXT current $x";
+                # say "next x ", &{ $self.closure_next }( $x );
+                # say "previous x ", &{ $self.closure_previous }( $x );
                 return $x if $x == Inf ||
                              $x != &{ $self.closure_previous }( &{ $self.closure_next }( $x ) );
             }
@@ -198,23 +232,18 @@ say "previous x ", &{ $self.closure_previous }( $x );
 }
 
 method get_complement_previous ($self: ) { 
-
-    # XXX this is broken
-
     return $.complement_previous if defined $.complement_previous;
     $self.get_universe;
-say "END ", $self.end;   
-
-    my $end = $self.end;
-    my $start = $self.start;
-
+    # say "END ", $self.end;   
+    # my $end = $self.end;
+    # my $start = $self.start;
     return $.complement_previous =
         sub ( $x is copy ) {
             for ( 0 .. $:arbitrary_limit )
             {
-say "PREVIOUS current $x";
-say "next x ", &{ $self.closure_next }( $x );
-say "previous x ", &{ $self.closure_previous }( $x );
+                # say "PREVIOUS current $x";
+                # say "next x ", &{ $self.closure_next }( $x );
+                # say "previous x ", &{ $self.closure_previous }( $x );
                 $x = &{ $.universe.closure_previous }( $x );
                 return $x if $x == -Inf ||
                              $x != &{ $self.closure_next }( &{ $self.closure_previous }( $x ) );
@@ -224,6 +253,7 @@ say "previous x ", &{ $self.closure_previous }( $x );
 }
 
 method get_universe ($self: ) {
+    # TODO - weak reference
     return $.universe = $self unless defined $.universe;
     return $.universe;
 }
@@ -235,13 +265,41 @@ method get_universe ($self: ) {
 
 = NAME
 
-Span::Code - An object representing spans, defined by a recurrence function
+Span::Code - An object representing a recurrence set
 
 = SYNOPSIS
 
     use Span::Code;
 
-    $int_span = Span::Code.new( ... );
+    # all integer numbers
+    $universe = Span::Code.new( 
+        closure_next =>     sub { $^a + 1 },
+        closure_previous => sub { $^a - 1 },
+        :is_universe(1) );
+
+    # all even integers
+    $even_numbers = Span::Code.new( 
+        closure_next =>     sub { 2 * int( $^a / 2 ) + 2 },
+        closure_previous => sub { 2 * int( ( $^a - 2 ) / 2 ) },
+        universe => $universe );
+
+    # all odd integers
+    $odd_numbers = $even_numbers.complement;
+
+`:is_universe` must be set if this span is a "universal set".
+Otherwise the program will emit warnings during execution, 
+because it will try to find a "complement set" that doesn't exist:
+the complement set of the universe is an empty set.
+
+The complement set may also be specified with a recurrence:
+
+    # all non-zero integers
+    $non_zero = Span::Code.new( 
+        closure_next =>        sub ($x) { $x == -1 ??  1 :: $x + 1 },
+        closure_previous =>    sub ($x) { $x ==  1 ?? -1 :: $x - 1 },
+        complement_next =>     sub ($x) { $x < 0   ??  0 ::  Inf },
+        complement_previous => sub ($x) { $x > 0   ??  0 :: -Inf },
+    );
 
 = AUTHOR
 

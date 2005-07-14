@@ -3,20 +3,22 @@
 use v6;
 use Test;
 
-plan 26;
+plan 36;
 
 use_ok( 'Span::Code' );
 use Span::Code;   # XXX should not need this
 
 my $universe = Span::Code.new( 
-    closure_next =>     { $^a + 1 },
-    closure_previous => { $^a - 1 } );
+    closure_next =>     sub { $^a + 1 },
+    closure_previous => sub { $^a - 1 },
+    :is_universe(1) );
 
 isa_ok( $universe, 'Span::Code', 
     'created a Span::Code' );
 
 is( $universe.start, -Inf, "start" );
 is( $universe.end  ,  Inf, "end" );
+is( $universe.stringify, '-Infinity..Inf', "stringify" );
 
 is( $universe.start_is_open,   bool::false, "start_is_open" );
 is( $universe.end_is_open,     bool::false, "end_is_open" );
@@ -28,12 +30,30 @@ is( $universe.next( 10 ), 11, 'next' );
 is( $universe.previous( 10 ), 9, 'previous' );
 
 {
+    my $set = $universe.complement;
+    is( $set.start,  undef, "start empty set" );
+    is( $set.end  ,  undef, "end" );
+    is( $set.stringify, '', "stringify" );
+}
+{
+    my $even_numbers = Span::Code.new( 
+        closure_next =>     sub { 2 * int( $_ / 2 ) + 2 },
+        closure_previous => sub { 2 * int( ( $_ - 2 ) / 2 ) },
+        universe => $universe );
+    is( $even_numbers.next( 10 ), 12, 'next even' );
+    is( $even_numbers.previous( 10 ), 8, 'previous even' );
+
+    my $odd_numbers = $even_numbers.complement;
+    is( $odd_numbers.next( 10 ), 11, 'odd even' );
+    is( $odd_numbers.previous( 10 ), 9, 'odd even' );
+}
+{
     # 0 .. Inf
     my $span1 = Span::Code.new( 
-        closure_next =>        { $^a >= 0 ?? $^a + 1 ::    0 },
-        closure_previous =>    { $^a > 0 ??  $^a - 1 :: -Inf },
-        complement_next =>     { $^a < 1 ??  $^a + 1 ::  Inf },
-        complement_previous => { $^a < 0 ??  $^a - 1 ::   -1 },
+        closure_next =>        sub { $^a >= 0 ?? $^a + 1 ::    0 },
+        closure_previous =>    sub { $^a > 0 ??  $^a - 1 :: -Inf },
+        complement_next =>     sub { $^a < 1 ??  $^a + 1 ::  Inf },
+        complement_previous => sub { $^a < 0 ??  $^a - 1 ::   -1 },
         universe => $universe );
     
     is( $span1.start,    0, "start" );
@@ -41,10 +61,10 @@ is( $universe.previous( 10 ), 9, 'previous' );
 
     # -Inf .. 10
     my $span3 = Span::Code.new( 
-        closure_next =>         { $^a < 10 ??  $^a + 1 ::  Inf },
-        closure_previous =>     { $^a < 11 ??  $^a - 1 ::   10 },
-        complement_next =>      { $^a >= 10 ?? $^a + 1 ::   11 },
-        complement_previous =>  { $^a > 11 ??  $^a - 1 :: -Inf },
+        closure_next =>         sub { $^a < 10 ??  $^a + 1 ::  Inf },
+        closure_previous =>     sub { $^a < 11 ??  $^a - 1 ::   10 },
+        complement_next =>      sub { $^a >= 10 ?? $^a + 1 ::   11 },
+        complement_previous =>  sub { $^a > 11 ??  $^a - 1 :: -Inf },
         universe => $universe );
     
     is( $span3.start, -Inf, "start" );
@@ -59,11 +79,13 @@ is( $universe.previous( 10 ), 9, 'previous' );
         my $span4 = $span3.complement;
         is( $span4.start,   11, "start" );
         is( $span4.end  ,  Inf, "end" );
+        is( $span4.stringify, '11,12,13..Inf', "stringify" );
     }
     {
         my $span5 = $span1.intersection( $span3 );
         is( $span5.start,  0, "start" );
         is( $span5.end  , 10, "end" );
+        is( $span5.stringify, '0,1,2..8,9,10', "stringify" );
     }
     {
         my $span5 = $span1.difference( $span3 );
