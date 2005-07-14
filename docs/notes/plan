@@ -121,7 +121,7 @@ this below.
 
 Aside from code generation, each backend will need a runtime that
 implements the builtin operations and functions not provided by the
-Perl 6 Prelude.  In addition, the new backend will require a native
+Perl 6 prelude.  In addition, the new backend will require a native
 implementation of the Perl 6 object metamodel.
 
 
@@ -166,89 +166,59 @@ http://rt.openfoundry.org/Foundry/Project/Source/index.html/pugs/checkout/docs/n
 While it has the flavor of an interview, it isn't one really; more a 
 discussion, with several peoples' thoughts mixed in, and then edited.
 
-* Will $/ contain a AST for the code in macros.
+* Will $/ contain a AST for the code in macros?
 
-23:50 < QtPlatypus> Also does anyone know if in the situation like this macro tree (&code) { say $/;&code }; Should $/ contain the parse tree for &code?
-23:51 < autrijus> the short answer is no :)
-23:51 < Khisanth> well there you go! :P
-23:51 < autrijus> macro gets PIL -- in the Pugs world, that is -- in the alternate universe you get PAST -- but you never get match objects.
-23:52 < autrijus> however.
-23:52 < autrijus> it is conceivable that you can get match objects attached to PIL
-23:52 < Khisanth> pugs not working with current (more or less) HEAD of parrot is correct?
-23:52 < autrijus> and it may even come with $/ if lwall desire so
-23:52 < autrijus> but it's unspecced. and you can't return $/ and expect it to work
-23:53 < autrijus> Khisanth: I don't know, hadn't tested; I'm waiting for leo-ctx5 to land
-23:53 < svnbot6> r5594, autrijus++ | * In span-code.t the now-illegal `sub {$^a}` form is used;
-23:53 < svnbot6> r5594, autrijus++ |   change it to the canonical `{$^a}`.
-23:53 < QtPlatypus> autrijus: The bible seems to imply that $/ will contain some sort of AST in that situation.
-23:53 < autrijus> define "not working"?
-23:53 < Khisanth> autrijus: the "PackFile_unpack: Bytecode not valid for this interpreter: fingerprint mismatch..." thing I mentioned the other day
-23:53 < autrijus> QtPlatypus: A06?
-23:54 < autrijus> Khisanth: maybe the installed version of parrot does not match the linked one?
-23:54  * QtPlatypus nods. "Like my find the quote where I got that impression from"
-23:54 < autrijus> it looks like it tries to load a .pbc and fails
-23:54 -!- nothingmuch [~nothingmu@yovalk.bb.netvision.net.il] has joined #perl6
-23:54 < Khisanth> err I only have one parrot as far as I know
-23:54 < QtPlatypus> BTW how do I get at the PILL in that situation?
-23:55 < autrijus> QtPlatypus: you likely get an object in the style of ext/Perl6-Compiler/
-23:55 < autrijus> Perl-Compiler
-23:55  * Khisanth tries a make clean
-23:56 < nothingmuch> autrijus: i want to try pil on p5 another way:
-23:56 < nothingmuch> implement a PIL walker and PIL nodes in perl 5
-23:56 < nothingmuch> and just walk that
-23:56 < autrijus> nothingmuch: sure
-23:56 < nothingmuch> and also try to emit perl5 code that represents PIL walking (that is, unroll the wrapping for PIL) in haskell
-23:56 < autrijus> QtPlatypus: anyway. the deal is that $/ will not be a regular match object tree; it will be PIL annotated with match objects, or match objects anotated with PIL
-23:56 < nothingmuch> i think Perl 6 doesn't have enough tools for the job
-23:56 < nothingmuch> and perl5's tools aren't good enough
-23:58 < autrijus> QtPlatypus: so maybe you can indeed return $/ and expect it to work, but the structure of $/ is likely to be not a regular Match object
-23:58 < masak> autrijus: is `my %h; given %h { .{'key'} = 'value' }` meant to work eventually?
-23:58 < svnbot6> r5595, iblech++ | Clean temporary files, rafl++ for noticing:
-23:58 < svnbot6> r5595, iblech++ | * ext/Test-Builder/t/010_Test_Builder.t: destroy*
-23:58 < svnbot6> r5595, iblech++ | * perl5/PIL-Run/crude_repl.pl: deleteme.p6
-23:58 < svnbot6> r5595, iblech++ | * Makefile.PL: Prelude.{hi,o}
-23:58 < autrijus> QtPlatypus: pmichaud mentioned something about rebinding $/ inside rules and make it return something else entirely
-23:58 < QtPlatypus> "Macros are considered methods on the current parse state object, so they have an invocant Macros are considered methods on the current parse state object
-23:59 < QtPlatypus> We treat macros as if they were methods on the parse object returned by the grammar rule, so the first argument is passed as if it were an invocant, and it is always bound to the current parse tree object, known as $0 in Apocalypse 5. 
-23:59 < autrijus> right, and that's written before the understanding that a one-pass parser can't generate AST. :)
-23:59 < QtPlatypus> Arh.
---- Day changed Fri Jul 15 2005
-00:00 < autrijus> what I'm saying is just A06's view is naive
-00:00 < autrijus> its interface may be of use, but all its speculation about internals is to be taken as way off :)
-00:00 -!- SM_ax [max@paranoia.mostcom.ru] has quit ["ChatZilla 0.9.61 [Mozilla rv:1.7.8/20050513]"]
-00:00 < autrijus> (which is why we need a separate macro synopsis.)
-00:00  * QtPlatypus nods.
-00:00 < autrijus> back when A06 was written, the dominant view is that there's no separate compilation
-00:01 < autrijus> and P6 AST will just be like P5 -- parse tree annotated with some type information
-00:01 < autrijus> that view is now shown as naive, and I don't think any of @Larry is still holding onto it
-00:02 < autrijus> from what I gather at hackathon, the consensus is now separate compilation with a separate AST structure.
-00:02 < autrijus> (this is also because pmichaud and I both observed that we can't share a parse tree structure with python, but there's a good chance that we can share something at PIL's level with python.)
-00:02 < autrijus> (and macros are better done at that post-compilation level, not the naive pre-compilation parse level)
-00:03 < autrijus> "are better" is understatement; "only sane way" is more like it :)
-00:05 < autrijus> masak: it looks like it should work, yes
-00:05 < QtPlatypus> Does that mean that some macro's are impossable to be portable accross perl6 implimentations?
-00:05 < autrijus> masak: I'm surprised there's no todo test yet
-00:06 < autrijus> QtPlatypus: if the macro synopsis is written with a certain interface of syntax nodes
-00:06 < autrijus> then that becomes normative
-00:06 < autrijus> and all implementations are supposed to honour it.
-00:07  * QtPlatypus nods "Sorry about asking all these questions and contributing relativly not much."
-00:07 < autrijus> there's a good chance that if PIL is up to the task then ext/Perl-Compiler/ interface can be made part of that spec.
-00:07 < autrijus> (since it's one of the points that pmichaud and I both agree vehemently on)
-00:08 < autrijus> QtPlatypus: oh, that's fine -- if you'd like to contribute you can do what putter did and write this up and append to docs/notes/plan
-00:08 < autrijus> someone will then do what geoffb did and edit it into beautiful prose :)
-00:08 < masak> autrijus: i can write one
-00:08 < autrijus> masak++ # go ahead then :)
-00:09 < masak> `my %h; given %h { .<key> = 'value' }` should work too
-00:09 < autrijus> right.
-00:10 < autrijus> QtPlatypus: so, got some cycles to do a writeup? :)
-00:10 < Khisanth> hmm make clean; make; fixed that problem with parrot
-00:10 < autrijus> Khisanth: glad to hear
-00:11  * Khisanth starts wishing for better alternatives to make :)
-00:12 < QtPlatypus> autrijus: Sure.
-00:12 < autrijus> QtPlatypus++
-00:13 -!- jhorwitz [~jhorwitz@trx-nat.targetrx.com] has joined #perl6
-00:16 -!- nothingmuch [~nothingmu@yovalk.bb.netvision.net.il] has quit [Read error: 60 (Operation timed out)]
-00:19 -!- PerlJam [~duff@dragon.cbi.tamucc.edu] has joined #perl6
-00:19 < svnbot6> r5596, masak++ | Added tests for hash dereferencing inside a given block
-00:20 < QtPlatypus> Also, I have a have a base conversion sub that is usefull and a Base64 en/decoder.  Where should thouse things go?
-00:21 -!- fglock [~fglock@200.182.144.230] has joined #perl6
+The short answer is no :)
+
+* What about the long answer?
+
+macro gets PIL -- in the Pugs world, that is -- in the alternate
+universe you get PAST -- but you never get match objects. 
+however.it is conceivable that you can get match objects attached to PIL
+and it may even come with $/ if lwall desire so but it's
+unspecced. and you can't return $/ and expect it to work 
+
+* But A06 seems to indercate that $/ will contain some sort of AST.
+
+"Macros are considered methods on the current parse state object, so
+they have an invocant Macros are considered methods on the current
+parse state object. We treat macros as if they were methods on the
+parse object returned by the grammar rule, so the first argument is
+passed as if it were an invocant, and it is always bound to the
+current parse tree object, known as $0 in Apocalypse 5. right, and
+that's written before the understanding that a one-pass parser can't
+generate AST. :) "
+
+A06's view is naive its interface may be of use, but all its
+speculation about internals is to be taken as way off :)
+
+(which is why we need a separate macro synopsis.)
+
+Back when A06 was written, the dominant view is that there's no separate compilation
+and P6 AST will just be like P5 -- parse tree annotated with some type information
+that view is now shown as naive, and I don't think any of @Larry is still holding onto it
+from what I gather at hackathon, the consensus is now separate
+compilation with a separate AST structure. 
+(this is also because pmichaud and I both observed that we can't share
+a parse tree structure with python, but there's a good chance that we
+can share something at PIL's level with python.) 
+(and macros are better done at that post-compilation level, not the
+naive pre-compilation parse level)  "are better" is understatement;
+"only sane way" is more like it :) 
+
+* So if I'm going to get PIL how would I get to it?
+
+You likely get an object in the style of ext/Perl6-Compiler/ Perl-Compiler
+anyway. the deal is that $/ will not be a regular match object tree;
+it will be PIL annotated with match objects, or match objects anotated
+with PIL so maybe you can indeed return $/ and expect it to work, but
+the structure of $/ is likely to be not a regular Match
+object. pmichaud mentioned something about rebinding $/ inside rules
+and make it return something else entirely 
+
+*Does that mean that some macro's are impossable to be portable
+accross perl6 implimentations? 
+
+If the macro synopsis is written with a certain interface of syntax nodes
+then that becomes normative and all implementations are supposed to
+honour it.
