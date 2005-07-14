@@ -1,5 +1,7 @@
 #!/usr/bin/perl -w
 # run me...
+# perl -Ilib -w crude_repl.pl
+# with pugs in your PATH.
 
 package ReadPIL;
 
@@ -141,13 +143,7 @@ sub read_n_exprs {
 }
 
 package ExpandPilc;
-
-sub mangle {
-    my($n)=@_;
-    $n =~ s/\A([\$])/${1}perl6__/;
-    $n =~ s/\A([\@\%\&])(.+)/(\\${1}perl6__$2)/;
-    $n;
-}
+use PIL::Run::ApiX;
 
 my %handlers =
     (
@@ -156,9 +152,9 @@ my %handlers =
      VStr => sub{my($s)=@_;  "'$s'"},
      VInt => sub{my($n)=@_;  "$n"},
      Val => sub{my($v)=@_; $v},
-     Var => sub{my($name)=@_; mangle($name)},
+     Var => sub{my($name)=@_; p6_mangle($name)},
      App => sub{my($f,$x,$args,@y)=@_;
-		$f."->(".join(",",@$args).")"},
+		$f."(".join(",",@$args).")"},
      PPos => sub{my($pos,$v)=@_; $v},
      Pos => sub{my($pos,$v)=@_; $v},
      );
@@ -183,7 +179,7 @@ sub expand {
 
 package main;
 
-sub perl6__say {my(@args)=@_; print "",@args,"\n"; 'mumble::true'};
+#sub perl6__say {my(@args)=@_; print "",@args,"\n"; 'mumble::true'};
 
 
 sub pil_from_p6 {
@@ -263,6 +259,8 @@ sub p6_repl {
 	print "\n",@res,"\n";
     }
 }
+
+use PIL::Run::PrimP5;
 
 p6_repl();
 
