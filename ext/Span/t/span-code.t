@@ -9,8 +9,8 @@ use_ok( 'Span::Code' );
 use Span::Code;   # XXX should not need this
 
 my $universe = Span::Code.new( 
-    closure_next =>     sub { $^a + 1 },
-    closure_previous => sub { $^a - 1 } );
+    closure_next =>     { $^a + 1 },
+    closure_previous => { $^a - 1 } );
 
 isa_ok( $universe, 'Span::Code', 
     'created a Span::Code' );
@@ -30,10 +30,10 @@ is( $universe.previous( 10 ), 9, 'previous' );
 {
     # 0 .. Inf
     my $span1 = Span::Code.new( 
-        closure_next =>        sub { $^a >= 0 ?? $^a + 1 ::    0 },
-        closure_previous =>    sub { $^a > 0 ??  $^a - 1 :: -Inf },
-        complement_next =>     sub { $^a < 1 ??  $^a + 1 ::  Inf },
-        complement_previous => sub { $^a < 0 ??  $^a - 1 ::   -1 },
+        closure_next =>        { $^a >= 0 ?? $^a + 1 ::    0 },
+        closure_previous =>    { $^a > 0 ??  $^a - 1 :: -Inf },
+        complement_next =>     { $^a < 1 ??  $^a + 1 ::  Inf },
+        complement_previous => { $^a < 0 ??  $^a - 1 ::   -1 },
         universe => $universe );
     
     is( $span1.start,    0, "start" );
@@ -41,10 +41,10 @@ is( $universe.previous( 10 ), 9, 'previous' );
 
     # -Inf .. 10
     my $span3 = Span::Code.new( 
-        closure_next =>         sub { $^a < 10 ??  $^a + 1 ::  Inf },
-        closure_previous =>     sub { $^a < 11 ??  $^a - 1 ::   10 },
-        complement_next =>      sub { $^a >= 10 ?? $^a + 1 ::   11 },
-        complement_previous =>  sub { $^a > 11 ??  $^a - 1 :: -Inf },
+        closure_next =>         { $^a < 10 ??  $^a + 1 ::  Inf },
+        closure_previous =>     { $^a < 11 ??  $^a - 1 ::   10 },
+        complement_next =>      { $^a >= 10 ?? $^a + 1 ::   11 },
+        complement_previous =>  { $^a > 11 ??  $^a - 1 :: -Inf },
         universe => $universe );
     
     is( $span3.start, -Inf, "start" );
