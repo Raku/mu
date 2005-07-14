@@ -78,16 +78,18 @@ sub array_storeSize { # $int -> ()
 	my $self = shift;
 	my $size = shift;
 	if ($size > (my $orig = $self->array_fetchSize)){
-		$self->array_extendSize($size - $orig);
+		push @{$self->array_fetch}, mk_containers((undef) x ($size - $orig));
 	} else {
 		$#{$self->array_fetch} = ($size - 1);
 	}
 }
 
-sub array_extendSize { # $int -> () # +=?
+sub array_extendSize { # $int -> () # EXTEND: like storeSize, but never truncate
 	my $self = shift;
 	my $size = shift;
-	push @{$self->array_fetch}, mk_containers((undef) x ($size));
+	if ($size > (my $orig = $self->array_fetchSize)){
+		push @{$self->array_fetch}, mk_containers((undef) x ($size - $orig));
+	}
 }
 
 sub _extend_to_slot {
