@@ -274,14 +274,14 @@ Span::Code - An object representing a recurrence set
 
     # all integer numbers
     $universe = Span::Code.new( 
-        closure_next =>     sub { $^a + 1 },
-        closure_previous => sub { $^a - 1 },
+        closure_next =>     sub { $_ + 1 },
+        closure_previous => sub { $_ - 1 },
         :is_universe(1) );
 
     # all even integers
     $even_numbers = Span::Code.new( 
-        closure_next =>     sub { 2 * int( $^a / 2 ) + 2 },
-        closure_previous => sub { 2 * int( ( $^a - 2 ) / 2 ) },
+        closure_next =>     sub { 2 * int( $_ / 2 ) + 2     },
+        closure_previous => sub { 2 * int( ( $_ - 2 ) / 2 ) },
         universe => $universe );
 
     # all odd integers
@@ -298,8 +298,8 @@ The complement set may also be specified with a recurrence:
     $non_zero = Span::Code.new( 
         closure_next =>        sub ($x) { $x == -1 ??  1 :: $x + 1 },
         closure_previous =>    sub ($x) { $x ==  1 ?? -1 :: $x - 1 },
-        complement_next =>     sub ($x) { $x < 0   ??  0 ::  Inf },
-        complement_previous => sub ($x) { $x > 0   ??  0 :: -Inf },
+        complement_next =>     sub ($x) { $x < 0   ??  0 ::    Inf },
+        complement_previous => sub ($x) { $x > 0   ??  0 ::   -Inf },
     );
 
 = AUTHOR
