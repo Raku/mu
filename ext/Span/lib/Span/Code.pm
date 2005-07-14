@@ -72,6 +72,7 @@ method stringify () {
         push @start, @end;
         return @start.uniq.join(',');
     }
+    shift @end;
     return @start.uniq.join(',') ~ '..' ~ @end.uniq.join(',');
 }
 
