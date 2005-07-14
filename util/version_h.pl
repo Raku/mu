@@ -55,8 +55,8 @@ if ($revision != $old_revision) {
 
   if ($revision != 0) {
     # rebuild Help.hs to show new revision number
-    unlink "$base/src/Pugs/Help.hi";
-    unlink "$base/src/Pugs/Help.o";
+    unlink "$base/src/Pugs/Version.hi";
+    unlink "$base/src/Pugs/Version.o";
     exit;
   }
 } elsif ($revision) {
