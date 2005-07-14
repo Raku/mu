@@ -116,7 +116,7 @@ method intersects ($self: $span is copy) returns bool {
     return ! $tmp.is_empty;
 }
 
-method union ($self: $span is copy) returns List of Span { 
+method union ($self: $span is copy) { 
     return $self.new( 
         closure_next => sub ( $x ) {
                     my $n1 = &{ $self.closure_next }( $x );
@@ -154,7 +154,59 @@ method union ($self: $span is copy) returns List of Span {
     )
 }
 
-method intersection ($self: $span is copy) returns List of Span {
+method intersection ($self: $span is copy) {
+
+    if ( $span.isa( 'Span::Num' ) || $span.isa( 'Span::Int' ) )
+    {
+        # warn "Span::Code intersection Span::*";
+
+        my $start = $span.start;
+        my $end =   $span.end;
+        my $start_is_open = $span.start_is_open;
+        my $end_is_open =   $span.end_is_open;
+        return $self.new(
+        closure_next => sub ( $x is copy ) {
+                    $x = &{ $self.closure_next }( $x );
+                    if $x < $start && ! $start_is_open {
+                        $x = &{ $self.closure_next }( &{ $self.closure_previous }( $start ) );
+                    }
+                    elsif $x <= $start && $start_is_open {
+                        $x = &{ $self.closure_next }( $start );
+                    }
+                    if $x > $end && ! $end_is_open {
+                        $x = Inf;
+                    }
+                    elsif $x >= $end && $end_is_open {
+                        $x = Inf;
+                    }
+                    return $x;
+                },
+        closure_previous => sub ( $x is copy ) {
+                    $x = &{ $self.closure_previous }( $x );
+                    if $x > $end && ! $end_is_open {
+                        $x = &{ $self.closure_previous }( &{ $self.closure_next }( $end ) );
+                    }
+                    elsif $x >= $end && $end_is_open {
+                        $x = &{ $self.closure_previous }( $end );
+                    }
+                    if $x < $start && ! $start_is_open {
+                        $x = -Inf;
+                    }
+                    elsif $x <= $start && $start_is_open {
+                        $x = -Inf;
+                    }
+                    return $x;
+                },
+        complement_next => sub ( $x ) {
+                    ...
+                },
+        complement_previous => sub ( $x ) {
+                    ...
+                },
+        universe => $self.get_universe,
+        );
+    }
+
     return $self.new( 
         closure_next => sub ( $x ) {
                     my $n1;

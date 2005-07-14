@@ -30,6 +30,13 @@ is( $universe.next( 10 ), 11, 'next' );
 is( $universe.previous( 10 ), 9, 'previous' );
 
 {
+    use Span::Num;
+    my $continuous = Span::Num.new( start => 10, end => 20 );
+    is( $continuous.stringify, '[10,20]', 'continuous' );
+    my $range = $universe.intersection( $continuous );
+    is( $range.stringify, '10,11,12..18,19,20', 'range from continuous' );
+}
+{
     my $set = $universe.complement;
     is( $set.start,  undef, "start empty set" );
     is( $set.end  ,  undef, "end" );

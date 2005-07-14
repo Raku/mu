@@ -1,5 +1,7 @@
 2005-07-13
 
+* Span::* interact with each other (just started)
+
 * adding Span::Code and tests
 
 2005-07-11
