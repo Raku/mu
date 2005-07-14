@@ -32,15 +32,15 @@ sub touch {
 }
 
 sub null {
-    print STDERR "Generating null prelude... " if $Config{verbose};
+    print STDERR "Generating null Prelude... " if $Config{verbose};
     open my $np, "src/Pugs/PreludePC.hs-null" or
-        die "can't open null prelude: $!";
+        die "Couldn't open null Prelude (src/Pugs/PreludePC.hs-null): $!";
     print while (<$np>);
     print STDERR "done.\n" if $Config{verbose};
 }
 
 sub precomp {
-    print STDERR "Generating precompiled prelude... " if $Config{verbose};
+    print STDERR "Generating precompiled Prelude... " if $Config{verbose};
     die "*** Error: $0 needs an already compiled Pugs to precompile the Prelude\n"
         unless $Config{pugs};
     $ENV{PUGS_COMPILE_PRELUDE} = 1;
@@ -118,7 +118,7 @@ usage: $0 --null [options]
 
 Creates a PreludePC.hs file (written to stdout), to be included by Run.hs.
 
-In the first build phase, a "null" prelude with only placeholder functions
+In the first build phase, a "null" Prelude with only placeholder functions
 is used. In the second phase, the Standard Prelude is precompiled and
 inlined into the resulting pugs executable.
 

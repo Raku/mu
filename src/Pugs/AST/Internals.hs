@@ -759,7 +759,7 @@ expression that will evaluate to the actual list of slurpable args.
 When the sub is called (see 'Pugs.Eval.apply'), the expression is evaluated.
 If it evaluates to /too many/ args, the call will fail.
 
-This needs to be a list (rather than a @Maybe@) because Perl6's @.assuming@
+This needs to be a list (rather than a @Maybe@) because Perl 6's @.assuming@
 (i.e. explicit currying) means that a sub can have its arguments bound in
 separate stages, and each of the bindings needs to be checked.
 
@@ -1282,7 +1282,7 @@ retError str a = fail $ str ++ ": " ++ show a
 defined :: VScalar -> Bool
 defined VUndef  = False
 defined _       = True
--- | Produce an undefined Perl6 value (i.e. 'VUndef').
+-- | Produce an undefined Perl 6 value (i.e. 'VUndef').
 undef :: VScalar
 undef = VUndef
 

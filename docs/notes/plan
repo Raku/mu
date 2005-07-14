@@ -121,7 +121,7 @@ this below.
 
 Aside from code generation, each backend will need a runtime that
 implements the builtin operations and functions not provided by the
-Perl 6 prelude.  In addition, the new backend will require a native
+Perl 6 Prelude.  In addition, the new backend will require a native
 implementation of the Perl 6 object metamodel.
 
 

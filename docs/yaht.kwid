@@ -342,11 +342,11 @@ the following tasks:
   the interpreter with a heap size other than the default, then this
   must be specified using options on the command line, in the
   environment or in the registry.
-* The prelude file is loaded. The interpreter will look for the prelude
-  file on the path specified by the -P option. If the prelude, located
+* The Prelude file is loaded. The interpreter will look for the Prelude
+  file on the path specified by the -P option. If the Prelude, located
   in the file Prelude.hs, cannot be found in one of the path
   directories or in the current directory, then Hugs will terminate;
-  Hugs will not run without the prelude file. 
+  Hugs will not run without the Prelude file. 
 * Program files specified on the command line are loaded. The effect of
   a command hugs `f1 ... fn` is the same as starting up Hugs with the
   hugs command and then typing `:load f1 ... fn`. In particular, the

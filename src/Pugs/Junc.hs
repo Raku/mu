@@ -193,7 +193,7 @@ isPartialJunc arg
 Represents a sub argument during the junction autothreading process.
 
 Note that 'argCollapsed' is set to @True@ only if the corresponding sub param
-is explicitly specified as accepting the Perl6 type @Junc@.
+is explicitly specified as accepting the Perl 6 type @Junc@.
 -}
 data ApplyArg = ApplyArg
     { argName       :: !String  -- ^ Name of the param that this arg is for
