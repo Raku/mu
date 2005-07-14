@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 45;
+plan 47;
 
 =kwid
 
@@ -229,3 +229,12 @@ eval '
     is(@got.join(","), "false,true", q!given { when true { } }!);
 ';
 fail("when true is parsefail", :todo<feature>) if $!;
+
+# given + hash deref
+{
+    my %h;
+    eval "given %h { .{'key'} = 'value'; }";
+    ok(%h{'key'} eq 'value', 'given and hash deref using .{}');
+    eval "given %h { .<key> = 'value'; }";
+    ok(%h{'key'} eq 'value', 'given and hash deref using .<>');
+}
