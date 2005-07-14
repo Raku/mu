@@ -40,3 +40,5 @@ Perl6::Object->meta->add_method('a_method' => Perl6::Instance::Method->new('Perl
 
 can_ok($foo, 'a_method');
 is($foo->a_method(), 'Perl6::Object::a_method', '... $foo->a_method() works ("a_method" was added to Perl6::Object)');
+
+

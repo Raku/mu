@@ -9,6 +9,19 @@ use Perl6::MetaClass;
 use Scalar::Util 'blessed';
 use Carp 'confess';
 
+## ----------------------------------------------------------------------------
+## this is to handle the $?SELF variable with this
+## it is used in AUTOLOAD, BUILDALL and DESTORYALL 
+## currently
+
+our $CURRENT_INVOCANT;
+
+## this just makes sure to clear the invocant when
+## something dies, it is not pretty, but it works
+$SIG{'__DIE__'} = sub { $CURRENT_INVOCANT = undef; CORE::die @_; };
+
+## ----------------------------------------------------------------------------
+
 # the default .new()
 
 sub new {
@@ -67,7 +80,10 @@ sub BUILDALL {
     # is properly bootstrapped
     $self->meta->traverse_post_order(sub {
         my $c = shift;
-        $c->get_method('BUILD')->call($self, %params) if $c->has_method('BUILD');        
+        # NOTE: this is to mimic $?SELF
+        $CURRENT_INVOCANT = $self; 
+        $c->get_method('BUILD')->call($self, %params) if $c->has_method('BUILD');   
+        $CURRENT_INVOCANT = undef;     
     });    
 }
 
@@ -80,7 +96,10 @@ sub DESTROYALL {
     my ($self) = @_;
     $self->meta->traverse_pre_order(sub {
         my $c = shift;
-        $c->get_method('DESTROY')->call($self) if $c->has_method('DESTROY');        
+        # NOTE: this is to mimic $?SELF
+        $CURRENT_INVOCANT = $self;         
+        $c->get_method('DESTROY')->call($self) if $c->has_method('DESTROY'); 
+        $CURRENT_INVOCANT = undef;                   
     });      
 }
 
@@ -128,6 +147,10 @@ sub AUTOLOAD {
     my $self = shift;
     my @return_value;
     if (blessed($self)) {
+        # NOTE: this is to mimic $?SELF
+        # it is also in BUILDALL
+        $CURRENT_INVOCANT = $self;        
+        
         my $method;
         if ($AUTOLOAD[0] eq 'SUPER') {
             $method = $self->meta->find_method_in_superclasses($label);
@@ -135,7 +158,7 @@ sub AUTOLOAD {
         else {
             $method = $self->meta->find_method($label);
         }
-        (blessed($method) && $method->isa('Perl6::Method')) 
+        (blessed($method) && $method->isa('Perl6::Method'))
             || confess "Method ($label) not found for instance ($self)";
         # XXX - this check should really be in 
         # the method object itself, but this 
@@ -145,6 +168,7 @@ sub AUTOLOAD {
         @return_value = $method->call($self, @_);        
     }
     else {
+        # NOTE: class methods do not need $?SELF            
         my $method = $self->meta->find_method($label, for => 'Class');
 
         (defined $method) 
@@ -154,6 +178,10 @@ sub AUTOLOAD {
             || confess "Method cannot be called by invocant : " . $method->caller_error;                  
         @return_value = $method->call($self, @_);
     }
+    # we can dispose of this value, as it 
+    # should never be called outside of 
+    # a method invocation
+    $CURRENT_INVOCANT = undef;
     return wantarray ?
                 @return_value
                 :

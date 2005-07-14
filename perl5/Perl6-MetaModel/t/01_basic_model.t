@@ -32,8 +32,7 @@ class 'Person-0.0.1-cpan:STEVAN' => {
         },
         methods => {
             full_name => sub {
-                my ($self) = @_;
-                $self->get_value('$.first_name') . ' ' . $self->get_value('$.last_name');
+                ::SELF->get_value('$.first_name') . ' ' . ::SELF->get_value('$.last_name');
             }
         }
     }

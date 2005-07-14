@@ -13,7 +13,6 @@ my @classes_destroyed;
 class Foo => {
     instance => {
         DESTROY => sub {
-            my ($self) = @_;
             push @classes_destroyed, 'Foo::DESTROY';
         }
     }
@@ -23,7 +22,6 @@ class Bar => {
     is => [ 'Foo' ],
     instance => {
         DESTROY => sub {
-            my ($self) = @_;
             push @classes_destroyed, 'Bar::DESTROY';
         }
     }
@@ -33,7 +31,6 @@ class 'Foo::Bar' => {
     is => [ 'Bar' ],
     instance => {
         DESTROY => sub {
-            my ($self) = @_;
             push @classes_destroyed, 'Foo::Bar::DESTROY';
         }
     }

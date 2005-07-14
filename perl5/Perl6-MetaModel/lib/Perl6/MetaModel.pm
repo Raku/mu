@@ -4,13 +4,23 @@ package Perl6::MetaModel;
 use strict;
 use warnings;
 
+use Carp 'confess';
+
 use Perl6::Role;
 use Perl6::Class;
+use Perl6::Object;
 
 sub import {
     no strict 'refs';
-    *{caller() . '::class'}   = \&class;
-    *{caller() . '::role'}    = \&role;
+    *{caller() . '::class'} = \&class;
+    *{caller() . '::role'}  = \&role;
+    *{caller() . '::SELF'}  = \&SELF;
+}
+
+sub SELF {
+    (defined $Perl6::Object::CURRENT_INVOCANT)
+        || confess "You cannot call \$?SELF from outside of a MetaModel defined Instance method";
+    $Perl6::Object::CURRENT_INVOCANT;     
 }
 
 sub role {
