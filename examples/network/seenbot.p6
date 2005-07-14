@@ -21,6 +21,25 @@ $bot<add_handler>("PRIVMSG",  &on_privmsg);
 $bot<add_handler>("loggedin", &on_loggedin);
 $bot<run>();
 
+sub pretty_duration ($seconds is copy) {
+    return '0 seconds' unless $seconds;
+    my %duration;
+    %duration<days> = int($seconds / (60*60*24));
+    $seconds = $seconds % (60*60*24) if %duration<days>;
+    %duration<hours> = int($seconds / (60*60));
+    $seconds = $seconds % (60*60) if %duration<hours>;
+    %duration<minutes> = int($seconds / 60);
+    $seconds = $seconds % 60 if %duration<minutes>;
+    %duration<seconds> = $seconds;
+    my @pretty = ();
+    for <days hours minutes seconds> -> $key {
+	push @pretty, "%duration{$key} $key" if %duration{$key};
+    }
+    my $pretty = join(' ', grep { defined $_ } @pretty[0..2]);
+    debug "pretty duration is $pretty";
+    return $pretty;
+}
+
 sub on_loggedin($event) {
   $bot<join>($_) for @chans;
 }
@@ -43,9 +62,9 @@ sub on_privmsg($event) {
 
     my $reply_to = substr($event<object>, 0, 1) eq "#" ?? $event<object> :: $event<from_nick>;
 
-    when rx:P5/^\?seen\s+(.+)$/ {
+    when rx:P5/^\??seen\s+(.+?)\s*$/ {
       my $reply_msg = %seen{$0}
-	?? "$0 was last seen {int(time() - %seen{$0}<date>)} seconds ago, saying: %seen{$0}<text>"
+	?? "$0 was last seen {pretty_duration(int(time() - %seen{$0}<date>))} ago" ~ (%seen{$0}<text> ?? ", saying: %seen{$0}<text>" :: '.')
 	:: "Never seen $0.";
       $bot<notice>(to => $reply_to, text => $reply_msg);
     }
