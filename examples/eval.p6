@@ -2,7 +2,6 @@
 use v6;
 
 # Todo list:
-# - ^Z should exit.
 # - There must be a cleaner way of presenting .perl without a leading \.
 # - Need to implement :{e,E,d,D,h,r,l}.
 
@@ -11,21 +10,26 @@ sub quit () {
     exit(0);
 }
 
-say "^Z doesn't work, please use :q for now.";
+# We'd like to not pollute the eval's environment with our vars ($line, etc.).
+sub clean_eval ($___str) { eval $___str }
 
-my $EOF = chr(26);
+say "Welcome to Pugs -- $?PUGS_VERSION";
+say "Type :h for help.";
 
 loop (;;) {
     # XXX use :prompt
     #my $line = =$*IN :prompt('pugs> ');
     print "pugs> ";
     my $line = =$*IN;
-    chomp($line);
+
+    # Quit and EOF.
+    quit() unless defined $line;
+    $line .= chomp;
+    # Skip empty lines.
+    next   if $line eq "";
     
     given ($line) {
-        when ""         { } # XXX should simply move to the next iteration of the outer loop
-        when $EOF       { quit(); }
-        when /^\: (.) \s+/ {
+        when rx:P5/^\:(.)/ {
             given ($0) {
                 when "e" {
                     # XXX
@@ -54,13 +58,17 @@ loop (;;) {
             }
         }
         default {
-            my $ret = eval $_;
-            if ($!) {
-                say $!;
-            } else {
-                #say $ret.perl;
-                say $ret.perl.substr(1, $ret.perl.chars - 1); # XXX NASTY HACK
-            }
+            # We need to .perl the result right here to make prettyprinting of
+            # junctions work.
+            my $ret = clean_eval $line;
+            say chomp $! and next if $!;
+
+            # We've to .perl in a second pass (and in a try {...} block) to
+            # catch "fail_"s.
+            $ret    = try { $ret.perl };
+            say chomp $! and next if $!;
+            say substr($ret, 0, 1) eq "\\" ?? substr($ret, 1) :: $ret;   # XXX NASTY HACK
+            #" #--vim
         }
     }
 }
@@ -75,5 +83,3 @@ eval.p6 - simple read-eval-print loop implementation
 
 This simplistic program will keep reading from standard input and evaluating whatever is
 typed.
-
-=end
