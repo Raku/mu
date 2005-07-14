@@ -150,9 +150,11 @@ method union ($self: Span::Functional $span )
                  end_is_open =>   $open_end );
 }
 
-method intersection ($self: Span::Functional $span ) 
-    returns Span::Functional 
-{
+method intersection ($self: $span ) {
+
+    return $span.intersection( $self )
+        if $span.isa( 'Span::Code' );
+
     my ($i_start, $i_end);
     my bool $open_start;
     my bool $open_end;

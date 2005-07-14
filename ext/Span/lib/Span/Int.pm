@@ -52,9 +52,11 @@ multi method union ($self: Span::Int $span )
     return $self.new( start => $i_start, end =>   $i_end, density => $.density );
 }
 
-method intersection ($self: Span::Int $span ) 
-    returns Span::Int 
-{
+method intersection ($self: $span ) {
+
+    return $span.intersection( $self )
+        if $span.isa( 'Span::Code' ) || $span.isa( 'Span::Num' );
+
     my $i_start = $.start < $span.start ?? $span.start :: $.start;
     my $i_end =   $.end > $span.end     ?? $span.end   :: $.end;
     return () if $i_start > $i_end;

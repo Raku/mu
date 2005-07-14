@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 37;
+plan 43;
 
 use_ok( 'Span::Code' );
 use Span::Code;   # XXX should not need this
@@ -30,11 +30,25 @@ is( $universe.next( 10 ), 11, 'next' );
 is( $universe.previous( 10 ), 9, 'previous' );
 
 {
+    # -- intersection with a continuous span
     use Span::Num;
     my $continuous = Span::Num.new( start => 10, end => 20 );
     is( $continuous.stringify, '[10,20]', 'continuous' );
     my $range = $universe.intersection( $continuous );
     is( $range.stringify, '10,11,12..18,19,20', 'range from continuous' );
+
+    $continuous = Span::Num.new( start => 10, end => 20, end_is_open => 1 );
+    is( $continuous.stringify, '[10,20)', 'continuous' );
+    my $range = $universe.intersection( $continuous );
+    is( $range.stringify, '10,11,12..17,18,19', 'range from continuous semi' );
+}
+{
+    # -- intersection with a discrete span
+    use Span::Int;
+    my $continuous = Span::Int.new( start => 10, end => 20 );
+    is( $continuous.stringify, '[10,20]', 'continuous' );
+    my $range = $universe.intersection( $continuous );
+    is( $range.stringify, '10,11,12..18,19,20', 'range from discrete' );
 }
 {
     my $set = $universe.complement;
