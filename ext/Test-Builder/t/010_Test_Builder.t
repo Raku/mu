@@ -70,8 +70,6 @@ else
     skip( 1, "Could not launch $pugs for destroy test" );
 }
 
-=cut
-
 END
 {
     if ! %*ENV<TEST_DEBUG_FILES>
@@ -80,5 +78,3 @@ END
         unlink 'destroy_test.p6';
     }
 }
-
-=cut

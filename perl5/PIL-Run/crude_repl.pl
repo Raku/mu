@@ -189,9 +189,10 @@ sub perl6__say {my(@args)=@_; print "",@args,"\n"; 'mumble::true'};
 sub pil_from_p6 {
     my($p6)=@_;
     my $fn = "deleteme.p6";
-    open(F,">$fn") or die; # XXX - kluge
-    print F $p6; close F;
+    open(F,">$fn") or die "Couldn't open \"$fn\" for writing: $!\n"; # XXX - kluge
+    print F $p6; close F or die "Couldn't close \"$fn\": $!\n";
     my $pil = `pugs -Cpil $fn`; #die if $!;
+    unlink $fn or die "Couldn't remove \"$fn\": $!\n";
     $pil;
 }
 
