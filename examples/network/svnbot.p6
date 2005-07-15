@@ -4,17 +4,20 @@ use v6;
 use Net::IRC;
 
 # Parse @*ARGS
-my $nick     = @*ARGS[0] // "blechbot";
-my $server   = @*ARGS[1] // "localhost";
-my $interval = @*ARGS[2] // 300;
-my $repository = @*ARGS[3] // ".";
+my $nick        = @*ARGS[0] // "blechbot";
+my $server      = @*ARGS[1] // "localhost";
+my $interval    = @*ARGS[2] // 300;
+my $repository  = @*ARGS[3] // ".";
+my $show_branch = @*ARGS[4] || 0;
 my ($host, $port) = split ":", $server;
 $port //= 6667;
 
 debug "svnbot started. Summary of configuration:";
 debug "  Will connect as...                  $nick";
 debug "  to...                               $host:$port";
-debug "  checking for new revisions every... $interval seconds.";
+debug "  checking for new revisions of...    $repository";
+debug "  every...                            $interval seconds.";
+debug "  Branch information will {$show_branch ?? "" :: "not "}be shown.";
 debug "To change any of these parameters, restart $*PROGRAM_NAME";
 debug "and supply appropriate arguments:";
 debug "  $*PROGRAM_NAME nick host[:port] interval";
@@ -71,7 +74,10 @@ sub on_privmsg($event) {
 
         when rx:P5/^\?uptime$/ {
             my $start_time = INIT { time };
-            $bot<privmsg>(to => $reply_to, text => "Running for {time() - $start_time} seconds.");
+            $bot<privmsg>(
+                to   => $reply_to,
+                text => "Running for {int(time() - $start_time)} seconds."
+            );
         }
 
         when rx:P5/^\?check$/ {
@@ -113,8 +119,11 @@ sub svn_check($event) {
 # This queries "svn".
 sub svn_commits() {
     # Pipes not yet supported in Pugs.
-    my $tempfile = BEGIN { "temp-svnbot-$*PID-{int rand 1000}" };
+    my $tempfile = INIT { "temp-svnbot-$*PID-{int rand 1000}" };
     END { unlink $tempfile }
+    # We don't want localized svn messages (like "Geänderte Pfade" instead of
+    # "Changed paths"), so we can reliably grep for them and process them.
+    INIT { %*ENV<LC_ALL> = %*ENV<LANG> = "C" }
 
     # If this is an incremental update...
     if $cur_svnrev {
@@ -123,19 +132,26 @@ sub svn_commits() {
         # Hack to prevent "-3:HEAD", resulting in a syntax error, resulting in
         # svn not outputting the log, resulting in svnbot not saying anything.
         $from    = "HEAD" if $from <= 0; 
-        system "svn log -r $from:HEAD $repository > $tempfile";
+        system "svn log -vr $from:HEAD $repository > $tempfile";
     } else {
         # Else query only for the newest commit.
-        system "svn log -r HEAD $repository > $tempfile";
+        system "svn log -vr HEAD $repository > $tempfile";
     }
 
     my $commits;
     my $fh = open $tempfile;
+    my $branch;
     for =$fh -> $_ {
         state $cur_entry;
         
         when rx:P5/^-----+/ {
             # ignore
+        }
+
+        when rx:P5/^   [MAUDCG] / {
+            $branch = $_ ~~ rx:P5:i{branches/([^/]+)}
+                ?? $0
+                :: "trunk";
         }
 
         when rx:P5/^r(\d+) \| (\w+)/ {
@@ -147,9 +163,9 @@ sub svn_commits() {
         }
 
         when rx:P5/\S/ {
-           if $cur_entry {
+           if $cur_entry and $_ !~ rx:P5/^Changed paths\:/ {
               $_ ~~ rx:P5/^(.*)$/;
-              $commits ~= "$cur_entry | $0\n";
+              $commits ~= "$cur_entry | {$show_branch ?? "$branch | " :: ""}$0\n";
            }
        }
     }
