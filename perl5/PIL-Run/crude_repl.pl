@@ -6,12 +6,12 @@
 use PIL::Run::MainX;
 use PIL::Run::EvalX;
 
+use Scriptalicious;
+
 sub p6_repl_simple {
     my $verbose = 0;
     while (1) {
-	print "> ";
-	my $line = readline STDIN;
-	last if !defined $line;
+	my $line = prompt_string("p5ugs> ");
 	my @res = p6_eval($line);
 	print "\n",@res,"\n";
     }
@@ -24,8 +24,7 @@ sub p6_repl {
     print ":e  P5-EXPRESSION-GETS-EVALUATED\n";
     print "say 'hi' and say 3 are about all that works.\n";
     while (1) {
-	print "p5ugs> ";
-	my $line = readline STDIN;
+	my $line = prompt_string("p5ugs> ");
 	last if !defined $line;
 	if ($line =~ /\A\s*:v\s*\Z/) {
 	    $verbose = !$verbose;
