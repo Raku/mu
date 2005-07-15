@@ -35,6 +35,7 @@ sub new {
 
 # but this is what really constructs the class
 
+# XXX - this might move up the MetaClass at some point - per $Larry
 sub bless : method {
     my ($class, $canidate, %params) = @_;
     $canidate ||= 'P6opaque'; # opaque is our default
@@ -160,15 +161,20 @@ sub AUTOLOAD {
     my @return_value;
     if (blessed($self)) {       
         
-        my $method;
-        if ($AUTOLOAD[0] eq 'SUPER') {
-            $method = $self->meta->find_method_in_superclasses($label);
+        # get the dispatcher instance ....
+        my $dispatcher = $self->meta->dispatcher;
+        
+        # just discard it if we are calling SUPER
+        $dispatcher->() if ($AUTOLOAD[0] eq 'SUPER');
+        
+        my $current;
+        while ($current = $dispatcher->()) {
+            last if $current->has_method($label);
         }
-        else {
-            $method = $self->meta->find_method($label);
-        }
-        (blessed($method) && $method->isa('Perl6::Method'))
-            || confess "Method ($label) not found for instance ($self)";
+        (blessed($current) && $current->isa('Perl6::MetaClass'))
+            || confess "Method ($label) not found for instance ($self)";        
+        
+        my $method = $current->get_method($label);
 
         # NOTE: this is to mimic $?SELF and $?CLASS
         push @CURRENT_INVOCANT_STACK => $self; 
@@ -176,14 +182,23 @@ sub AUTOLOAD {
                              
         @return_value = $method->call($self, @_);        
     }
-    else {
-        # NOTE: class methods do not need $?SELF            
-        my $method = $self->meta->find_method($label, for => 'Class');
-        
-        (blessed($method) && $method->isa('Perl6::Method')) 
-            || confess "Method ($label)  not found for class ($self)";  
+    else {  
+        # get the dispatcher instance ....
+        my $dispatcher = $self->meta->dispatcher;
 
-       # NOTE: this is to mimic $?CLASS            
+        # just discard it if we are calling SUPER
+        $dispatcher->() if ($AUTOLOAD[0] eq 'SUPER');
+
+        my $current;
+        while ($current = $dispatcher->()) {
+            last if $current->has_method($label, for => 'Class');
+        }
+        (blessed($current) && $current->isa('Perl6::MetaClass'))
+            || confess "Method ($label) not found for instance ($self)";        
+
+        my $method = $current->get_method($label, for => 'Class');            
+
+        # NOTE: this is to mimic $?CLASS            
         push @CURRENT_CLASS_STACK => $method->associated_with;                 
              
         @return_value = $method->call($self, @_);

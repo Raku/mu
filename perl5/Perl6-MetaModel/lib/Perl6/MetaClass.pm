@@ -31,7 +31,7 @@ sub new {
     $meta->name($params{name})                 if exists $params{name};
     $meta->version($params{version})           if exists $params{version};
     $meta->authority($params{authority})       if exists $params{authority};    
-    $meta->superclasses($params{superclasses}) if exists $params{superclasses};    
+    $meta->superclasses($params{superclasses}) if exists $params{superclasses};        
     return $meta;
 }
 
@@ -325,8 +325,7 @@ sub _which_table {
 
 sub dispatcher {
     my ($self) = @_;
-    $self->{dispatcher} ||= Perl6::MetaClass::Dispatcher::make_dispatcher($self);
-    $self->{dispatcher};
+    Perl6::MetaClass::Dispatcher::make_dispatcher($self);
 }
 
 package Perl6::MetaClass::Dispatcher;
