@@ -13,7 +13,7 @@ my @classes_destroyed;
 class Foo => {
     instance => {
         DESTROY => sub {
-            push @classes_destroyed, 'Foo::DESTROY';
+            push @classes_destroyed, (CLASS . '::DESTROY');
         }
     }
 };
@@ -22,7 +22,7 @@ class Bar => {
     is => [ 'Foo' ],
     instance => {
         DESTROY => sub {
-            push @classes_destroyed, 'Bar::DESTROY';
+            push @classes_destroyed, (CLASS . '::DESTROY');
         }
     }
 };
@@ -31,7 +31,7 @@ class 'Foo::Bar' => {
     is => [ 'Bar' ],
     instance => {
         DESTROY => sub {
-            push @classes_destroyed, 'Foo::Bar::DESTROY';
+            push @classes_destroyed, (CLASS . '::DESTROY');
         }
     }
 };

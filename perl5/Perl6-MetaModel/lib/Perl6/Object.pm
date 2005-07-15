@@ -10,15 +10,19 @@ use Scalar::Util 'blessed';
 use Carp 'confess';
 
 ## ----------------------------------------------------------------------------
-## this is to handle the $?SELF variable with this
-## it is used in AUTOLOAD, BUILDALL and DESTORYALL 
-## currently
+## this is to handle the $?SELF and $?CLASS variables 
+## which are current is used in AUTOLOAD, BUILDALL and DESTORYALL 
 
 our @CURRENT_INVOCANT_STACK;
+our @CURRENT_CLASS_STACK;
 
 ## this just makes sure to clear the invocant when
 ## something dies, it is not pretty, but it works
-$SIG{'__DIE__'} = sub { @CURRENT_INVOCANT_STACK = (); CORE::die @_; };
+$SIG{'__DIE__'} = sub { 
+    @CURRENT_INVOCANT_STACK = (); 
+    @CURRENT_CLASS_STACK = ();     
+    CORE::die @_; 
+};
 
 ## ----------------------------------------------------------------------------
 
@@ -80,10 +84,14 @@ sub BUILDALL {
     # is properly bootstrapped
     $self->meta->traverse_post_order(sub {
         my $c = shift;
-        # NOTE: this is to mimic $?SELF
+        return unless $c->has_method('BUILD');
+        my $method = $c->get_method('BUILD');
+        # NOTE: this is to mimic $?SELF and $?CLASS
         push @CURRENT_INVOCANT_STACK => $self; 
-        $c->get_method('BUILD')->call($self, %params) if $c->has_method('BUILD');   
-        pop @CURRENT_INVOCANT_STACK;     
+        push @CURRENT_CLASS_STACK => $method->associated_with;          
+        $method->call($self, %params);   
+        pop @CURRENT_INVOCANT_STACK;
+        pop @CURRENT_CLASS_STACK;        
     });    
 }
 
@@ -96,10 +104,14 @@ sub DESTROYALL {
     my ($self) = @_;
     $self->meta->traverse_pre_order(sub {
         my $c = shift;
-        # NOTE: this is to mimic $?SELF
-        push @CURRENT_INVOCANT_STACK => $self;         
-        $c->get_method('DESTROY')->call($self) if $c->has_method('DESTROY'); 
-        pop @CURRENT_INVOCANT_STACK;                   
+        return unless $c->has_method('DESTROY');
+        my $method = $c->get_method('DESTROY');
+        # NOTE: this is to mimic $?SELF and $?CLASS
+        push @CURRENT_INVOCANT_STACK => $self; 
+        push @CURRENT_CLASS_STACK => $method->associated_with;          
+        $method->call($self);   
+        pop @CURRENT_INVOCANT_STACK;
+        pop @CURRENT_CLASS_STACK;             
     });      
 }
 
@@ -146,10 +158,7 @@ sub AUTOLOAD {
     return if $label =~ /DESTROY/;
     my $self = shift;
     my @return_value;
-    if (blessed($self)) {
-        # NOTE: this is to mimic $?SELF
-        # it is also in BUILDALL
-        push @CURRENT_INVOCANT_STACK => $self;        
+    if (blessed($self)) {       
         
         my $method;
         if ($AUTOLOAD[0] eq 'SUPER') {
@@ -160,20 +169,30 @@ sub AUTOLOAD {
         }
         (blessed($method) && $method->isa('Perl6::Method'))
             || confess "Method ($label) not found for instance ($self)";
+
+        # NOTE: this is to mimic $?SELF and $?CLASS
+        push @CURRENT_INVOCANT_STACK => $self; 
+        push @CURRENT_CLASS_STACK => $method->associated_with;            
                              
         @return_value = $method->call($self, @_);        
     }
     else {
         # NOTE: class methods do not need $?SELF            
         my $method = $self->meta->find_method($label, for => 'Class');
-        (defined $method) 
-            || confess "Method ($label)  not found for class ($self)";   
+        
+        (blessed($method) && $method->isa('Perl6::Method')) 
+            || confess "Method ($label)  not found for class ($self)";  
+
+       # NOTE: this is to mimic $?CLASS            
+        push @CURRENT_CLASS_STACK => $method->associated_with;                 
+             
         @return_value = $method->call($self, @_);
     }
     # we can dispose of this value, as it 
     # should never be called outside of 
     # a method invocation
     pop @CURRENT_INVOCANT_STACK;
+    pop @CURRENT_CLASS_STACK;
     return wantarray ?
                 @return_value
                 :

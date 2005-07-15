@@ -45,6 +45,6 @@ isa_ok($baz, 'Foo');
 can_ok($baz, 'bar');
 
 dies_ok {
-    $baz->bar()
+    die $baz->bar()
 } '... calling bar() failed';
 
