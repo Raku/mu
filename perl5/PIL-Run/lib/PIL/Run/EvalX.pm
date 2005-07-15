@@ -25,7 +25,7 @@ my %handlers =
      Val => sub{my($v)=@_; $v},
      Var => sub{my($name)=@_; p6_mangle($name)},
      App => sub{my($f,$x,$args,@y)=@_;
-		$f."(".join(",",@$args).")"},
+		"p6_apply(".join(",",$f,@$args).")"},
      PPos => sub{my($pos,$v)=@_; $v},
      Pos => sub{my($pos,$v)=@_; $v},
      );

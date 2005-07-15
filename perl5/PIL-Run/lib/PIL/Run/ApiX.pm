@@ -18,6 +18,7 @@ $VERSION = '0.01';
        p6_mangle
        p6_unmangle
        p6_new
+       p6_apply
        );
 
 sub p6_to_n {my(@n_objs)=@_; map{
@@ -40,8 +41,9 @@ sub def_prim { # used by Prim
 	$n =~ s/:\[(.+?)\]$/:$1/;
     }
     my $mn = p6_mangle($n);
-    my $gn = globify_mangled($mn);
-    eval("$gn = \$f");  die "bug: $@" if $@;
+    #my $gn = globify_mangled($mn);
+    my $subobj = p6_new('Sub',$f);
+    eval("$mn = \$subobj");  die "bug: $@" if $@;
 }
 sub p6_root {"PIL::Run::Root"}
 sub sigil_and_rest {
@@ -54,21 +56,41 @@ sub sigil_and_rest {
     }
     return ($sigil,$bare);
 }
+my %space_from_sigil = (
+	     '$' => 'scalar',
+	     '@' => 'array',
+	     '%' => 'hash',
+	     '&' => 'code'
+	     );
+my %sigil_from_space = map {$space_from_sigil{$_},$_} keys(%space_from_sigil);
+
 # XXX - change mangling scheme - ${'foo'}::{'bar'}
+# XXX - this is getting crufty
 sub p6_mangle {
     my($n)=@_;
     my($sigil,$mn) = sigil_and_rest($n);
+    my $space = $space_from_sigil{$sigil};
     $mn =~ s/^(::)?(\*)?(::)?//;
     $mn =~ s/_/__/g;
     $mn =~ s/::/\cA/g;
     $mn =~ s/([^a-z0-9_\cA])/"_".ord($1)."x"/ieg;
     $mn =~ s/\cA/::/g;
-    $mn = $sigil."PIL::Run::Root::".$mn;
+    my @parts = split('::',$mn);
+    $parts[-1] = $space."_".$parts[-1];
+    $mn = join('::',@parts);
+    $mn = '$PIL::Run::Root::'.$mn;
     $mn;
 }
 sub p6_unmangle {
     my($mn)=@_;
-    my($sigil,$n) = sigil_and_rest($mn);
+    my($always_dollar,$n) = sigil_and_rest($mn);
+    $always_dollar eq '$' or die "bug";
+    my @parts = split('::',$n);
+    $parts[-1] =~ /\A([^_]+)_(.+)/ or die "bug";
+    $parts[-1] = $2;
+    $n = join('::',@parts);
+    my $space = $1;
+    my $sigil = $sigil_from_space{$space};
     $n =~ s/^PIL::Run::Root::/::*::/;
     $n =~ s/__/\cA/g;
     $n =~ s/_(\d+)x/chr($1)/eg;
@@ -85,6 +107,10 @@ sub globify_mangled {
 sub p6_new {
     my($type,@args)=@_;
     "PIL::Run::Type::$type"->new(@args);
+}
+sub p6_apply {
+    my($f,@args)=@_;
+    $f->apply(@args);
 }
 
 

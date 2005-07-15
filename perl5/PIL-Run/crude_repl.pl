@@ -20,6 +20,7 @@ sub p6_repl_simple {
 sub p6_repl {
     my $verbose = 0;
     print ":v  toggles verbose output\n";
+    print ":e  P5-EXPRESSION-GETS-EVALUATED\n";
     print "say 'hi' and say 3 are about all that works.\n";
     while (1) {
 	print "p5ugs> ";
@@ -27,6 +28,11 @@ sub p6_repl {
 	last if !defined $line;
 	if ($line =~ /\A\s*:v\s*\Z/) {
 	    $verbose = !$verbose;
+	    next;
+	}
+	if ($line =~ /\A\s*:e\s+(.+)/) {
+	    print eval($1),"\n";
+	    warn $@ if $@;
 	    next;
 	}
 	my $p6 = $line;
