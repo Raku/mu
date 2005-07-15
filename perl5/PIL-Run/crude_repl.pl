@@ -19,6 +19,7 @@ sub p6_repl_simple {
 
 sub p6_repl {
     my $verbose = 0;
+    print "See perl5/PIL-Run/TODO\n";
     print ":v  toggles verbose output\n";
     print ":e  P5-EXPRESSION-GETS-EVALUATED\n";
     print "say 'hi' and say 3 are about all that works.\n";

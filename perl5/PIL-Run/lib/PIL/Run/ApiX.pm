@@ -66,6 +66,11 @@ my %sigil_from_space = map {$space_from_sigil{$_},$_} keys(%space_from_sigil);
 
 # XXX - change mangling scheme - ${'foo'}::{'bar'}
 # XXX - this is getting crufty
+
+# Hey, there is no reason why ::code_say couldnt be ::say_code,
+# avoiding the need to split on ::.  Though if we switch to
+# ${'foo'}::{'bar'}, we'll likely split anyway.
+
 sub p6_mangle {
     my($n)=@_;
     my($sigil,$mn) = sigil_and_rest($n);
