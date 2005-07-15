@@ -22,7 +22,13 @@ debug "  Branch information will {$show_branch ?? "" :: "not "}be shown.";
 debug "  There {$sep_header ?? "will" :: "won't"} be a separate header line.";
 debug "To change any of these parameters, restart $*PROGRAM_NAME";
 debug "and supply appropriate arguments:";
-debug "  $*PROGRAM_NAME nick host[:port] interval";
+debug "  $*PROGRAM_NAME nick host[:port] interval repository show_branch sep_header";
+debug "  where repository...    is the path to the SVN repository (e.g. \".\"";
+debug "                         or \"http://svn.perl.org/parrot/\"),";
+debug "        show_branch...   specifies whether branch information should";
+debug "                         be shown (true|false), and";
+debug "        sep_header...    specifies whether a separate header line";
+debug "                         should be outputted (true|false).";
 
 # Initialize $cur_svnrev. $cur_svnrev contains the last revision seen, and is
 # set by svn_headrev() and svn_commits().
