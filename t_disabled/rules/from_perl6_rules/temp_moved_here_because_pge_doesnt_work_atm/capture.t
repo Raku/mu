@@ -21,7 +21,8 @@ if(eval('!("a" ~~ /a/)')) {
 
 rule dotdot { (.)(.) };
 
-ok("zzzabcdefzzz" ~~ m/(a.)<?dotdot>(..)/, 'Match');
+fail "Test hangs", :todo<bug>;
+# ok("zzzabcdefzzz" ~~ m/(a.)<?dotdot>(..)/, 'Match');
 ok($/, 'Matched');
 is($/, "abcdef", 'Captured');
 is($/[0], 'ab', '$/[0]');
@@ -30,7 +31,7 @@ is($/[1], 'ef', '$/[1]');
 is($1, 'ef', '$1');
 ok(!defined($/[2]), 'no $/[2]');
 ok(!defined($2), 'no $2');
-ok(!defined($/<dotdot>), 'no $/<dotdot>', :todo<feature>);
+ok(!defined($/<dotdot>), 'no $/<dotdot>');
 
 ok("zzzabcdefzzz" ~~ m/(a.)<dotdot>(..)/, 'Match');
 ok($/, 'Matched');
@@ -42,17 +43,17 @@ is($1, 'ef', '$1');
 ok(!defined($/[2]), '$/[2]');
 ok(!defined($2), '$2');
 is($/<dotdot>, 'cd', '$/<dotdot>');
-is($/<dotdot>[0], 'c', '$/<dotdot>[0]');
+is(try { $/<dotdot>[0] }, 'c', '$/<dotdot>[0]');
 
-is($/<dotdot>[1], 'd', '$/<dotdot>[1]');
+is(try { $/<dotdot>[1] }, 'd', '$/<dotdot>[1]');
 
-ok(!defined($/<dotdot>[2]), '$/<dotdot>[2]');
+ok(!defined(try { $/<dotdot>[2] }), '$/<dotdot>[2]');
 
 ok("abcd" ~~ m/(a(b(c))(d))/, 'Nested captured');
 is($0, "abcd", 'Nested $0');
-is($0[0], "bc", 'Nested $1');
-is($0[0][0], "c", 'Nested $2');
-is($0[1], "d", 'Nested $3');
+is(try { $0[0] }, "bc", 'Nested $1');
+is(try { $0[0][0] }, "c", 'Nested $2');
+is(try { $0[1] }, "d", 'Nested $3');
 
 ok("bookkeeper" ~~ m/(((\w)$0[0][0])+)/, 'Backreference', :todo<feature>);
 is($0, 'ookkee', 'Captured', :todo<feature>);
@@ -93,17 +94,20 @@ is($/, "john", 'Match is john', :todo<feature>);
 ok($/ ne "jean", "Match isn't jean");
 is($/<name>, "john", 'Name is john', :todo<feature>);
 
-ok("jean" ~~ m/<?English.name> | <?French.name> | <?Russian.name>/, 'French name', :todo<feature>);
+fail "Test hangs", :todo<bug>;
+# ok("jean" ~~ m/<?English.name> | <?French.name> | <?Russian.name>/, 'French name', :todo<feature>);
 is($/, "jean", 'Match is jean', :todo<feature>);
 is($/<name>, "jean", 'Name is jean', :todo<feature>);
 
-ok("ivan" ~~ m/<?English.name> | <?French.name> | <?Russian.name>/, 'Russian name', :todo<feature>);
+fail "Test hangs", :todo<bug>;
+# ok("ivan" ~~ m/<?English.name> | <?French.name> | <?Russian.name>/, 'Russian name', :todo<feature>);
 is($/, "ivan", 'Match is ivan', :todo<feature>);
 is($/<name>, "ivan", 'Name is ivan', :todo<feature>);
 
 rule name { <?English.name> | <?French.name> | <?Russian.name> }
  
-ok("john" ~~ m/<name>/, 'English metaname', :todo<feature>);
+fail "Test hangs", :todo<bug>;
+# ok("john" ~~ m/<name>/, 'English metaname', :todo<feature>);
 is($/, "john", 'Metaname match is john', :todo<feature>);
 ok($/ ne "jean", "Metaname match isn't jean");
 is($/<name>, "john", 'Metaname is john', :todo<feature>);

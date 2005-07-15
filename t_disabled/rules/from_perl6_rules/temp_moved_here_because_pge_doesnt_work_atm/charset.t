@@ -37,16 +37,16 @@ is($0, 'f', 'Multi-difference set capture', :todo<feature>);
 
 ok(']' ~~ m/(<[]]>)/, 'LSB match', :todo<feature>);
 is($0, ']', 'LSB capture', :todo<feature>);
-ok(']' ~~ m/(<[\]]>)/, 'quoted close LSB match', :todo<feature>);
-is($0, ']', 'quoted close LSB capture', :todo<feature>);
+ok(']' ~~ m/(<[\]]>)/, 'quoted close LSB match');
+is($0, ']', 'quoted close LSB capture');
 ok('[' ~~ m/(<[\[]>)/, 'quoted open LSB match');
 is($0, '[', 'quoted open LSB capture');
 # Hack needed to make this file at least compile and run the other tests.
 {
   my ($dollar_null, $res);
   eval '$res = "{" ~~ m{(<[\{]>)}; $dollar_null = $0';
-  ok($res, 'quoted open LCB match', :todo<bug>);
-  is($dollar_null, '{', 'quoted open LCB capture', :todo<bug>);
+  ok($res, 'quoted open LCB match');
+  is($dollar_null, '{', 'quoted open LCB capture');
 }
 
 }
