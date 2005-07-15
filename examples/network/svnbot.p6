@@ -8,7 +8,8 @@ my $nick        = @*ARGS[0] // "blechbot";
 my $server      = @*ARGS[1] // "localhost";
 my $interval    = @*ARGS[2] // 300;
 my $repository  = @*ARGS[3] // ".";
-my $show_branch = @*ARGS[4] || 0;
+my $show_branch = @*ARGS[4] eq "true";
+my $sep_header  = @*ARGS[5] eq "true";
 my ($host, $port) = split ":", $server;
 $port //= 6667;
 
@@ -18,6 +19,7 @@ debug "  to...                               $host:$port";
 debug "  checking for new revisions of...    $repository";
 debug "  every...                            $interval seconds.";
 debug "  Branch information will {$show_branch ?? "" :: "not "}be shown.";
+debug "  There {$sep_header ?? "will" :: "won't"} be a separate header line.";
 debug "To change any of these parameters, restart $*PROGRAM_NAME";
 debug "and supply appropriate arguments:";
 debug "  $*PROGRAM_NAME nick host[:port] interval";
@@ -141,9 +143,11 @@ sub svn_commits() {
     my $commits;
     my $fh = open $tempfile;
     my $branch;
+    my $subst = "XXX-HACK-SVNBOT-SUBST-{rand}"; # XXX!
+
     for =$fh -> $_ {
         state $cur_entry;
-        
+
         when rx:P5/^-----+/ {
             # ignore
         }
@@ -152,20 +156,26 @@ sub svn_commits() {
             $branch = $_ ~~ rx:P5:i{branches/([^/]+)}
                 ?? $0
                 :: "trunk";
+            $commits ~~ s:P5:g/$subst/$branch/;
         }
 
         when rx:P5/^r(\d+) \| (\w+)/ {
-            $cur_entry = "r$0, $1++";
+            $cur_entry = "r$0 | $1++";
             # Break the loop if we see $cur_svnrev -- that means, there're no new
             # commits.
             next if $0 == $cur_svnrev;
             $cur_svnrev = +$0 if $0 > $cur_svnrev;
+            $commits ~= "{$cur_entry}{$show_branch ?? " | $subst" :: ""}:\n"
+                if $sep_header;
         }
 
         when rx:P5/\S/ {
            if $cur_entry and $_ !~ rx:P5/^Changed paths\:/ {
               $_ ~~ rx:P5/^(.*)$/;
-              $commits ~= "$cur_entry | {$show_branch ?? "$branch | " :: ""}$0\n";
+              $commits ~= $sep_header
+                  ?? ": "
+                  :: "$cur_entry | {$show_branch ?? "$branch | " :: ""}";
+              $commits ~= "$0\n";
            }
        }
     }
