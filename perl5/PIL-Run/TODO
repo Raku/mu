@@ -9,9 +9,6 @@ Usage tip:
 Here are some things which would help move development along on the p5
 runtime.
 
-* Modify crude_repl.pl to use a real readline.  So we can backspace,
-and edit lines, and have history.
-
 * Implement primitives.  Primitives are perl5 subs in
 PIR/Run/PrimP5.pm.  lc, lcfirst, etc.  Many of them are unimplemented,
 having yada yada bodies: {...}.  Implement some.  Use the ApiX subs
@@ -55,3 +52,9 @@ Slightly more distant tasks:
 * Get Test.pm to run.
 * Get the examples/eval.pm p6 read-eval-print loop to run.
 * Perhaps we need a PIL node arity table.
+
+DONE:
+
+* Modify crude_repl.pl to use a real readline.  So we can backspace,
+and edit lines, and have history.
+

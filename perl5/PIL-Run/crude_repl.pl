@@ -6,7 +6,7 @@
 use PIL::Run::MainX;
 use PIL::Run::EvalX;
 
-use Scriptalicious;
+use Scriptalicious 1.05;
 
 sub p6_repl_simple {
     my $verbose = 0;
