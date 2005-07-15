@@ -20,6 +20,8 @@ use v6;
     * document that stringify doesn't show all elements
     
     * set_start / set_end
+   
+    * remove "difference()" method
     
 =cut
 
@@ -117,11 +119,11 @@ method intersects ($self: $span is copy) returns bool {
 }
 
 sub _create_and ( $closure1, $closure2, $direction ) {
-    return sub ( $x ) {
-                    my $n1 = &{ $closure1 }( $x );
-                    my $n2 = &{ $closure2 }( $x );
-                    return ( $n1 <=> $n2 ) == $direction ?? $n1 :: $n2;
-                }
+    return sub ( $x is copy ) {
+        my $n1 = &{ $closure1 }( $x );
+        my $n2 = &{ $closure2 }( $x );
+        return ( $n1 <=> $n2 ) == $direction ?? $n1 :: $n2;
+    }
 }
 
 sub _create_nand ( $closure1, $closure2, $closure3, $closure4 ) {
@@ -129,17 +131,57 @@ sub _create_nand ( $closure1, $closure2, $closure3, $closure4 ) {
     # XXX - use a global or object setting
     my $arbitrary_limit = 100;
 
-    return sub ( $x ) {
-                    my $n1;
-                    my $n2 = &{ $closure3 }( $x );
-                    for ( 0 .. $arbitrary_limit )
-                    {
-                        $n1 = &{ $closure1 }( &{ $closure2 }( $n2 ) );
-                        return $n1 if $n1 == $n2;
-                        $n2 = &{ $closure3 }( &{ $closure4 }( $n1 ) );
-                    }
-                    warn "Arbitrary limit exceeded when calculating union()";
+    return sub ( $x is copy ) {
+        my $n1;
+        my $n2 = &{ $closure3 }( $x );
+        for ( 0 .. $arbitrary_limit )
+        {
+            $n1 = &{ $closure1 }( &{ $closure2 }( $n2 ) );
+            return $n1 if $n1 == $n2;
+            $n2 = &{ $closure3 }( &{ $closure4 }( $n1 ) );
+        }
+        warn "Arbitrary limit exceeded when calculating union()";
+    }
+}
+
+sub _create_intersection ( $self, $span ) {
+    my $start = $span.start;
+    my $end =   $span.end;
+    my $start_is_open = $span.start_is_open;
+    my $end_is_open =   $span.end_is_open;
+    return  
+        sub ( $x is copy ) {
+                $x = &{ $self.closure_next }( $x );  
+                if $x < $start && ! $start_is_open {
+                    $x = &{ $self.closure_next }( &{ $self.closure_previous }( $start ) );
                 }
+                elsif $x <= $start && $start_is_open {
+                    $x = &{ $self.closure_next }( $start );
+                }
+                if $x > $end && ! $end_is_open {
+                    $x = Inf;
+                }
+                elsif $x >= $end && $end_is_open {
+                    $x = Inf;
+                }
+                return $x;
+            },
+        sub ( $x is copy ) {
+                $x = &{ $self.closure_previous }( $x );
+                if $x > $end && ! $end_is_open {
+                    $x = &{ $self.closure_previous }( &{ $self.closure_next }( $end ) );
+                }
+                elsif $x >= $end && $end_is_open {
+                    $x = &{ $self.closure_previous }( $end );
+                }
+                if $x < $start && ! $start_is_open {
+                    $x = -Inf;
+                }
+                elsif $x <= $start && $start_is_open {
+                    $x = -Inf;
+                }
+                return $x;
+            };
 }
 
 method union ($self: $span is copy) { 
@@ -156,55 +198,30 @@ method intersection ($self: $span is copy) {
 
     if ( $span.isa( 'Span::Num' ) || $span.isa( 'Span::Int' ) )
     {
-        # warn "Span::Code intersection Span::*";
-
-        my $start = $span.start;
-        my $end =   $span.end;
-        my $start_is_open = $span.start_is_open;
-        my $end_is_open =   $span.end_is_open;
+        my @complement = $span.complement;
+        if ( @complement.elems == 0 ) {
+            return $self;            
+        }
+        my $universe = $self.get_universe;
+        my ( $closure_next, $closure_previous ) = _create_intersection( $self, $span );
+        if ( @complement.elems == 1 ) {
+            my ( $complement_next, $complement_previous ) = _create_intersection( $universe, @complement[0] );           
+            return $self.new(
+                    closure_next =>        $closure_next,
+                    closure_previous =>    $closure_previous,
+                    complement_next =>     $complement_next,
+                    complement_previous => $complement_previous,
+                );
+        }
+        my ( $complement_next1, $complement_previous1 ) = _create_intersection( $universe, @complement[0] );
+        my ( $complement_next2, $complement_previous2 ) = _create_intersection( $universe, @complement[1] );
         return $self.new(
-        closure_next => sub ( $x is copy ) {
-                    $x = &{ $self.closure_next }( $x );
-                    if $x < $start && ! $start_is_open {
-                        $x = &{ $self.closure_next }( &{ $self.closure_previous }( $start ) );
-                    }
-                    elsif $x <= $start && $start_is_open {
-                        $x = &{ $self.closure_next }( $start );
-                    }
-                    if $x > $end && ! $end_is_open {
-                        $x = Inf;
-                    }
-                    elsif $x >= $end && $end_is_open {
-                        $x = Inf;
-                    }
-                    return $x;
-                },
-        closure_previous => sub ( $x is copy ) {
-                    $x = &{ $self.closure_previous }( $x );
-                    if $x > $end && ! $end_is_open {
-                        $x = &{ $self.closure_previous }( &{ $self.closure_next }( $end ) );
-                    }
-                    elsif $x >= $end && $end_is_open {
-                        $x = &{ $self.closure_previous }( $end );
-                    }
-                    if $x < $start && ! $start_is_open {
-                        $x = -Inf;
-                    }
-                    elsif $x <= $start && $start_is_open {
-                        $x = -Inf;
-                    }
-                    return $x;
-                },
-        complement_next => sub ( $x ) {
-                    ...
-                },
-        complement_previous => sub ( $x ) {
-                    ...
-                },
-        universe => $self.get_universe,
-        );
+                closure_next =>        $closure_next,
+                closure_previous =>    $closure_previous,
+                complement_next =>     _create_and( $complement_next1, $complement_next2, -1 ),
+                complement_previous => _create_and( $complement_previous1, $complement_previous2, 1 ),
+            )
     }
-
     return $self.new( 
         closure_next =>        _create_nand( $self.closure_next, $self.closure_previous, $span.closure_next, $span.closure_previous ),
         closure_previous =>    _create_nand( $self.closure_previous, $self.closure_next, $span.closure_previous, $span.closure_next ),
@@ -224,6 +241,7 @@ method complement ($self: ) {
     );
 }
 
+# TODO - move this to Span.pm
 method difference ($self: $span ) {
     return $self.intersection( $span.complement );
 }
@@ -236,7 +254,7 @@ method previous ( $x ) {
     return $.closure_previous( $x );
 }
 
-method get_complement_next ($self: ) { 
+submethod get_complement_next ($self: ) { 
     return $.complement_next if defined $.complement_next;
     $self.get_universe;
     return $.complement_next =
@@ -251,7 +269,7 @@ method get_complement_next ($self: ) {
         };
 }
 
-method get_complement_previous ($self: ) { 
+submethod get_complement_previous ($self: ) { 
     return $.complement_previous if defined $.complement_previous;
     $self.get_universe;
     return $.complement_previous =
@@ -266,7 +284,7 @@ method get_complement_previous ($self: ) {
         };
 }
 
-method get_universe ($self: ) {
+submethod get_universe ($self: ) {
     # TODO - weak reference
     return $.universe = $self unless defined $.universe;
     return $.universe;

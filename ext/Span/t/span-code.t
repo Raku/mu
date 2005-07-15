@@ -3,14 +3,14 @@
 use v6;
 use Test;
 
-plan 43;
+plan 55;
 
 use_ok( 'Span::Code' );
 use Span::Code;   # XXX should not need this
 
 my $universe = Span::Code.new( 
-    closure_next =>     sub { $_ + 1 },
-    closure_previous => sub { $_ - 1 },
+    closure_next =>     sub ( Int $x is copy ) { return $x + 1 },
+    closure_previous => sub ( Int $x is copy ) { return $x - 1 },
     :is_universe(1) );
 
 isa_ok( $universe, 'Span::Code', 
@@ -19,6 +19,7 @@ isa_ok( $universe, 'Span::Code',
 is( $universe.start, -Inf, "start" );
 is( $universe.end  ,  Inf, "end" );
 is( $universe.stringify, '-Infinity..Inf', "stringify" );
+# XXX - is( $universe.universe.stringify, '-Infinity..Inf', "universe accessor" );
 
 is( $universe.start_is_open,   bool::false, "start_is_open" );
 is( $universe.end_is_open,     bool::false, "end_is_open" );
@@ -32,15 +33,51 @@ is( $universe.previous( 10 ), 9, 'previous' );
 {
     # -- intersection with a continuous span
     use Span::Num;
-    my $continuous = Span::Num.new( start => 10, end => 20 );
-    is( $continuous.stringify, '[10,20]', 'continuous' );
+    my $continuous = Span::Num.new( start => 10, end => Inf, :end_is_open(bool::true) );
+    is( $continuous.stringify, '[10,Inf)', 'continuous 10-Inf' );
     my $range = $universe.intersection( $continuous );
+    isa_ok( $range, 'Span::Code', 'range from continuous' );
+    is( $range.stringify, '10,11,12..Inf', 'range from continuous' );
+    
+    my $complement = $range.complement;
+    is( $complement.stringify, '-Infinity..7,8,9', 'range complement' );
+}
+
+{
+    # -- intersection with a continuous span
+    use Span::Num;
+    my $continuous = Span::Num.new( start => -Inf, end => 10, :start_is_open(bool::true) );
+    is( $continuous.stringify, '(-Infinity,10]', 'continuous (-Inf,10]' );
+    my $range = $universe.intersection( $continuous );
+    isa_ok( $range, 'Span::Code', 'range from continuous' );
+    is( $range.stringify, '-Infinity..8,9,10', 'range from continuous' );
+    
+    my $complement = $range.complement;
+    is( $complement.stringify, '11,12,13..Inf', 'range complement' );
+}
+
+{
+    # -- intersection with a continuous span
+    use Span::Num;
+    my $continuous = Span::Num.new( start => 10, end => 20 );
+    is( $continuous.stringify, '[10,20]', 'continuous 10-20' );
+    my $range = $universe.intersection( $continuous );
+    isa_ok( $range, 'Span::Code', 'range from continuous' );
     is( $range.stringify, '10,11,12..18,19,20', 'range from continuous' );
 
     $continuous = Span::Num.new( start => 10, end => 20, end_is_open => 1 );
     is( $continuous.stringify, '[10,20)', 'continuous' );
-    my $range = $universe.intersection( $continuous );
+    $range = $universe.intersection( $continuous );
     is( $range.stringify, '10,11,12..17,18,19', 'range from continuous semi' );
+    
+    my $complement = $range.complement;
+    # XXX - universe slice should be written '(-Infinity,Inf)'
+    is( $complement.stringify, '-Infinity..Inf', 'range complement' );
+
+    my $complement1 = $complement.intersection( Span::Num.new( start => -Inf, end => 15 ) );
+    is( $complement1.stringify, '-Infinity..7,8,9', 'complement 1' );
+    $complement1 = $complement.intersection( Span::Num.new( start => 15, end => Inf ) );
+    is( $complement1.stringify, '20,21,22..Inf', 'complement 2' );
 }
 {
     # -- intersection with a discrete span
