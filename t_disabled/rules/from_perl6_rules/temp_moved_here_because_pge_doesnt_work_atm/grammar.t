@@ -47,7 +47,7 @@ ok('def' ~~ m/^ <Other.def> $/, '<Other.def>', :todo<feature>);
 is($/, "def", '?def $/', :todo<feature>);
 ok($0 ne "def", '?def $0');
 is($/<def>, "def", '?def $/<def>', :todo<feature>);
-eval_is('$/<def><eh>', "e", '?def $/<def><eh>', :todo<feature>);
+is(eval('$/<def><eh>'), "e", '?def $/<def><eh>', :todo<feature>);
 
 ok(!( 'abc' ~~ m/ (<?bee>) / ), '<?bee>');
 

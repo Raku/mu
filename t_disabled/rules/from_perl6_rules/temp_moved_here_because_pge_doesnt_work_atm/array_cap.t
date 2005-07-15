@@ -29,20 +29,20 @@ is(join("|",@{$/<first>}), "  a| b", 'First captured strings');
 is(join("|",@{$/<last>}), "\tc", 'Last captured strings');
 
 ok("abcxyd" ~~ m/a  @<foo>:=(.(.))+ d/, 'Repeated hypothetical array capture');
-is("@{$/<foo>}", "c y", 'Hypothetical variable captured');
+is("{@{$/<foo>}}", "c y", 'Hypothetical variable captured');
 ok(%$/.keys == 1, 'No extra captures');
 
 ok("abcd" ~~ m/a  @<foo>:=(.(.))  d/, 'Hypothetical array capture');
-is("@{$/<foo>}", "c", 'Hypothetical variable captured');
+is("{@{$/<foo>}}", "c", 'Hypothetical variable captured');
 
 our @GA;
 ok("abcxyd" ~~ m/a  @GA:=(.(.))+  d/, 'Global array capture');
-is("@GA", "c y", 'Global array captured');
+is("@GA[]", "c y", 'Global array captured');
 ok(%$/.keys == 0, 'No vestigal captures');
 
 my @foo;
 ok("abcxyd" ~~ m/a  @foo:=(.(.))+  d/, 'Package array capture');
-is("@foo", "c y", 'Package array captured');
+is("@foo[]", "c y", 'Package array captured');
 
 rule two {..}
 
@@ -55,7 +55,7 @@ ok("abcd" ~~ m/a  @<foo>:=(<two>)  d/, 'Compound hypothetical capture');
 ok(! @{$/<foo>}, 'Explicit hypothetical variable not captured');
 
 ok("  a b\tc" ~~ m/@<chars>:=( @<spaces>:=[\s+] (\S+))+/, 'Nested array capture');
-is("@{$/<chars>}", "a b c", 'Outer array capture');
+is("{@{$/<chars>}}", "a b c", 'Outer array capture');
 is(join("|",@{$/<spaces>}), "  | |\t", 'Inner array capture');
 
 # FIXME parsefail
@@ -63,11 +63,11 @@ eval('  rule spaces { @<spaces>:=[(\s+)] }  ');
 
 ok("  a b\tc" ~~ m/@<chars>:=( <spaces> (\S+))+/, 'Subrule array capture');
 
-is("@{$/<chars>}", "a b c", 'Outer rule array capture');
+is("{@{$/<chars>}}", "a b c", 'Outer rule array capture');
 is($/<spaces>, "\t", 'Final subrule array capture');
 
 ok("  a b\tc" ~~ m/@<chars>:=( @<spaces>:=[<?spaces>] (\S+))+/, 'Nested subrule array capture');
-is("@{$/<chars>}", "a b c", 'Outer rule nested array capture');
+is("{@{$/<chars>}}", "a b c", 'Outer rule nested array capture');
 is(join("|",@{$/<spaces>}), "  | |\t", 'Subrule array capture');
 
 
@@ -91,7 +91,7 @@ is("@bases", "G A T T A C A", '...are belong to us');
 
 @bases = ();
 ok("GATTACA" ~~ m/ @bases:=[A|C|G|T]**{4} (@bases+) /, 'Array reinterpolation');
-is("@bases", "G A T T", '...are belong to...');
+is("@bases[]", "G A T T", '...are belong to...');
 is("$0", "ACA", '...ACA');
 
 }

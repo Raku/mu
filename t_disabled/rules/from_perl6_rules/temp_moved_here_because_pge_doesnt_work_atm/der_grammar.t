@@ -82,7 +82,7 @@ ok('DeF' ~~ m/^ <?Yet::Another.def> $/, '<?Yet::Another.def>', :todo<feature>);
 is($/, "DeF", '?Yet::Another.def $/', :todo<feature>);
 ok($0 ne "DeF", '?Yet::Another.def $0');
 is($/<def>, "DeF", '?def $/<def>', :todo<feature>);
-eval_is('$/<def><eh>', "e", '?def $/<def><eh>', :todo<feature>);
+is(eval('$/<def><eh>'), "e", '?def $/<def><eh>', :todo<feature>);
 
 
 # Non-existent rules...
