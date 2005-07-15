@@ -61,7 +61,7 @@ sub _validate_params {
     my ($self, $params) = @_;
 
     my %allowed = map { $_ => undef } qw(is does instance class);
-    my %allowed_in = map { $_ => undef } qw(attrs BUILD DESTROY methods);
+    my %allowed_in = map { $_ => undef } qw(attrs BUILD DESTROY methods submethods);
 
     foreach my $key (keys %{$params}) {
         confess "Invalid key ($key) in params" 
@@ -104,6 +104,10 @@ sub _build_class {
             ($name)->meta->add_method($_ => Perl6::Instance::Method->new($name, $instance->{methods}->{$_})) 
                 foreach keys %{$instance->{methods}};
         }
+        if (exists $instance->{submethods}) {
+            ($name)->meta->add_method($_ => Perl6::SubMethod->new($name, $instance->{submethods}->{$_})) 
+                foreach keys %{$instance->{submethods}};
+        }        
         if (exists $instance->{attrs}) {
             foreach my $attr (@{$instance->{attrs}}) {
                 my $props;

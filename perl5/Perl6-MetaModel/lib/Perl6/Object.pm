@@ -14,11 +14,11 @@ use Carp 'confess';
 ## it is used in AUTOLOAD, BUILDALL and DESTORYALL 
 ## currently
 
-our $CURRENT_INVOCANT;
+our @CURRENT_INVOCANT_STACK;
 
 ## this just makes sure to clear the invocant when
 ## something dies, it is not pretty, but it works
-$SIG{'__DIE__'} = sub { $CURRENT_INVOCANT = undef; CORE::die @_; };
+$SIG{'__DIE__'} = sub { @CURRENT_INVOCANT_STACK = (); CORE::die @_; };
 
 ## ----------------------------------------------------------------------------
 
@@ -81,9 +81,9 @@ sub BUILDALL {
     $self->meta->traverse_post_order(sub {
         my $c = shift;
         # NOTE: this is to mimic $?SELF
-        $CURRENT_INVOCANT = $self; 
+        push @CURRENT_INVOCANT_STACK => $self; 
         $c->get_method('BUILD')->call($self, %params) if $c->has_method('BUILD');   
-        $CURRENT_INVOCANT = undef;     
+        pop @CURRENT_INVOCANT_STACK;     
     });    
 }
 
@@ -97,9 +97,9 @@ sub DESTROYALL {
     $self->meta->traverse_pre_order(sub {
         my $c = shift;
         # NOTE: this is to mimic $?SELF
-        $CURRENT_INVOCANT = $self;         
+        push @CURRENT_INVOCANT_STACK => $self;         
         $c->get_method('DESTROY')->call($self) if $c->has_method('DESTROY'); 
-        $CURRENT_INVOCANT = undef;                   
+        pop @CURRENT_INVOCANT_STACK;                   
     });      
 }
 
@@ -149,7 +149,7 @@ sub AUTOLOAD {
     if (blessed($self)) {
         # NOTE: this is to mimic $?SELF
         # it is also in BUILDALL
-        $CURRENT_INVOCANT = $self;        
+        push @CURRENT_INVOCANT_STACK => $self;        
         
         my $method;
         if ($AUTOLOAD[0] eq 'SUPER') {
@@ -160,28 +160,20 @@ sub AUTOLOAD {
         }
         (blessed($method) && $method->isa('Perl6::Method'))
             || confess "Method ($label) not found for instance ($self)";
-        # XXX - this check should really be in 
-        # the method object itself, but this 
-        # causes issue with BUILD and DESTROY
-        ($method->check_caller($self)) 
-            || confess "Method cannot be called by invocant : " . $method->caller_error;                              
+                             
         @return_value = $method->call($self, @_);        
     }
     else {
         # NOTE: class methods do not need $?SELF            
         my $method = $self->meta->find_method($label, for => 'Class');
-
         (defined $method) 
             || confess "Method ($label)  not found for class ($self)";   
-        # XXX - see XXX note above
-        ($method->check_caller($self)) 
-            || confess "Method cannot be called by invocant : " . $method->caller_error;                  
         @return_value = $method->call($self, @_);
     }
     # we can dispose of this value, as it 
     # should never be called outside of 
     # a method invocation
-    $CURRENT_INVOCANT = undef;
+    pop @CURRENT_INVOCANT_STACK;
     return wantarray ?
                 @return_value
                 :

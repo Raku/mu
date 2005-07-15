@@ -9,9 +9,15 @@ use Test::Exception;
 use Perl6::MetaModel;
 use Perl6::SubMethod;
 
-class Foo => {};
+class Foo => {
+    instance => {
+        submethods => {
+            bar => sub { 'Foo::bar<submethod>' }
+        }
+    }
+};
 
-Foo->meta->add_method('bar' => Perl6::SubMethod->new('Foo', sub { 'Foo::bar<submethod>' }));
+# call the submethod in the direct instance
 
 my $foo = Foo->new();
 isa_ok($foo, 'Foo');
@@ -25,6 +31,8 @@ can_ok($foo, 'bar');
     } '... calling bar() succedded';
     is($value, 'Foo::bar<submethod>', '... got the right return value');    
 }
+
+# fail calling it from a subclass
 
 class Baz => {
     is => [ 'Foo' ]

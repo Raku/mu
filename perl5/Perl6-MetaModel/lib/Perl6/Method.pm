@@ -15,20 +15,7 @@ sub new {
     bless {
         associated_with => $associated_with,
         code            => $code,
-        caller_error    => undef
     }, $class;
-}
-
-# override this to check methods
-sub check_caller { 1 }
-
-# it disappears as soon as you look at it :)
-sub caller_error {
-    my ($self) = @_;
-    return unless $self->{caller_error};
-    my $err = $self->{caller_error};
-    $self->{caller_error} = undef;
-    return $err;
 }
 
 sub associated_with { (shift)->{associated_with} }

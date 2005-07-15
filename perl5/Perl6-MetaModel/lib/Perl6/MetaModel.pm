@@ -18,9 +18,9 @@ sub import {
 }
 
 sub SELF {
-    (defined $Perl6::Object::CURRENT_INVOCANT)
+    (@Perl6::Object::CURRENT_INVOCANT_STACK)
         || confess "You cannot call \$?SELF from outside of a MetaModel defined Instance method";
-    $Perl6::Object::CURRENT_INVOCANT;     
+    $Perl6::Object::CURRENT_INVOCANT_STACK[-1];     
 }
 
 sub role {
