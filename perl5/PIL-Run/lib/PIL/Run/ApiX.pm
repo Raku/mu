@@ -17,13 +17,18 @@ $VERSION = '0.01';
        p6_root
        p6_mangle
        p6_unmangle
+       p6_new
        );
 
-sub p6_to_n {my(@n_objs)=@_; map{0+$_} @n_objs}
-sub p6_to_s {my(@s_objs)=@_; map{"$_"} @s_objs}
+sub p6_to_n {my(@n_objs)=@_; map{
+    $_->internal_numify()
+    } @n_objs}
+sub p6_to_s {my(@s_objs)=@_; map{
+    $_->internal_stringify()
+    } @s_objs}
 sub p6_to_a {my($a_obj)=@_; [@$a_obj]}
-sub p6_from_n {my($n)=@_; 0+$n}
-sub p6_from_s {my($s)=@_; "$s"}
+sub p6_from_n {my($n)=@_; p6_new(int($n) == $n ? 'Int' : 'Rat', 0+$n)}
+sub p6_from_s {my($s)=@_; p6_new('Str',"$s")}
 sub p6_from_a {my($a)=@_; [@$a]}
 sub p6_die {my(@args)=@_; die @args;}
 sub def_prim { # used by Prim
@@ -75,6 +80,11 @@ sub globify_mangled {
     my($mn)=@_;
     my($sigil,$bare) = sigil_and_rest($mn);
     '*'.$bare;
+}
+
+sub p6_new {
+    my($type,@args)=@_;
+    "PIL::Run::Type::$type"->new(@args);
 }
 
 

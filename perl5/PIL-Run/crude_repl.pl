@@ -45,7 +45,3 @@ sub p6_repl {
 p6_repl();
 
 __END__
-Next steps:
- Create ./perl5/PIL-Run/lib/PIL/{Object,String,Sub}.pm
- Get "say 'hi'" running on them.
-   

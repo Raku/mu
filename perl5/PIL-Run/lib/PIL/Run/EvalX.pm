@@ -20,8 +20,8 @@ my %handlers =
     (
      PIL_Environment => sub{my($hr)=@_; $hr->{'pilMain'}},
      PStmts => sub{my($h,$t)=@_; $h.$t},
-     VStr => sub{my($s)=@_;  "'$s'"},
-     VInt => sub{my($n)=@_;  "$n"},
+     VStr => sub{my($s)=@_;  "p6_new('Str','$s')"},
+     VInt => sub{my($n)=@_;  "p6_new('Int',$n)"},
      Val => sub{my($v)=@_; $v},
      Var => sub{my($name)=@_; p6_mangle($name)},
      App => sub{my($f,$x,$args,@y)=@_;
