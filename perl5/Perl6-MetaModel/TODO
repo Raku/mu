@@ -21,54 +21,7 @@
 
 === dispatching
 
-(handling 'next METHOD')
-
-ok so the dispatcher is this
-first we have a closure based iterator
-which iterates over the superclasses
-1:10 AM
-then we have a stack
-the first class checked, method not found, okay, ask for it's dispatcher
-the dispatcher is a stack with one iterator on it
-which contains the superclasses of the first class
-I ask the dispatcher for the next class
-it calls the iterator at the top of the stack
-which returns a class
-(a superclass of the first class)
-I check for the method in that class
-is it there, yes
-ok so I call it
-mid way through the call the method calls "next METHOD"
-which is sugar for
-$self->meta->dispatcher->next_method($self, @args)
-the dispatcher then picks up where it left off
-it calls the iterator on the top of the stack
-oh wait
-when a class is fetched off the top of the stack
-it's superclasses are packed into an iterator
-and placed on the top do the stack
-because when I resume
-I should next search that classes supers
-so again:
-dispatcher give me the next class
-1:15 AM
-(dispatcher: check top of stack, call iterator there, get class from iterator. check if class has superclasses, it does, make an iterator and push it on the top of the stack; return class)
-class, do you have my method
-no
-dispatcher, the next class please
-(dispatcher: <same as before>
-class: do you have my method
-yes
-call method
-<method calls "next METHOD">
-(dispatcher: <resume again> and return)
-okay I think that is it
-NOTE TO SELF
-check on the details of what happens if next METHOD finds nothing
-does it die?
-I am sure it does
-ok nighty nighty me 
-
+hmmm, how to do it
 
 === misc.
 
