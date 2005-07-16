@@ -1,9 +1,0 @@
-
-There are no files or directories here under PIL::Run::Root.
-PIL::Run::Root is the playpen of perl5-runtime for perl6.
-It uses and abuses the p5 symbol table system to do its work.
-But in its own private way.  Nothing here is usefully accessed
-directly from p5.  You have to go through the runtime.
-
-Perl5 code for the runtime goes in PIL-Run/lib/PIL/Run/...
-Perl6 code for the runtime goes in PIL-Run/lib6/...
