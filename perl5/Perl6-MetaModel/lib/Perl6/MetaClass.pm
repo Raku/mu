@@ -92,16 +92,14 @@ sub superclasses {
 }
 
 sub class_precedence_list {
-    my ($self, $seen) = @_;
-    $seen ||= {};
-    my @class_precedence_list;
-    foreach my $super (@{$self->superclasses}) {
-        unless (exists $seen->{$super}) {
-            $seen->{$super}++;
-            push @class_precedence_list => (
-                $super, 
-                $super->class_precedence_list($seen)
-            );        
+    my ($self, $order) = @_;
+    my $seen = {};
+    my @class_precedence_list;    
+    my $dispatcher = $self->dispatcher($order);
+    while (my $next = $dispatcher->next()) {
+        unless ($seen->{$next->name}) {
+            $seen->{$next->name}++;
+            push @class_precedence_list => $next;              
         }
     }
     return @class_precedence_list;

@@ -74,7 +74,7 @@ is_deeply(
 
 is_deeply(
     [ $mc->class_precedence_list() ],
-    [ ], 
+    [ $mc ], 
     '... got an empty class precendence list');
 
 ## class methods
@@ -179,7 +179,7 @@ is_deeply(
 
 is_deeply(
     [ $mc2->class_precedence_list() ],
-    [ $mc ], 
+    [ $mc2, $mc ], 
     '... got a class precendence list');
 
 lives_ok {    
@@ -241,7 +241,7 @@ is_deeply(
 
 is_deeply(
     [ $mc3->class_precedence_list() ],
-    [ $mc ], 
+    [ $mc3, $mc ], 
     '... got a class precendence list');
 
 lives_ok {    
@@ -294,7 +294,7 @@ is_deeply(
 
 is_deeply(
     [ $mc4->class_precedence_list() ],
-    [ $mc2, $mc, $mc3 ], 
+    [ $mc4, $mc2, $mc, $mc3 ], 
     '... got a class precendence list');
 
 lives_ok {    
@@ -346,7 +346,7 @@ is_deeply(
 
 is_deeply(
     [ $mc5->class_precedence_list() ],
-    [ $mc4, $mc2, $mc, $mc3 ], 
+    [ $mc5, $mc4, $mc2, $mc, $mc3 ], 
     '... got a class precendence list'); 
 
 lives_ok {    
