@@ -5,22 +5,26 @@ use strict;
 use warnings;
 
 use Perl6::MetaClass;
+use Perl6::MetaModel '-no import';
 
 use Scalar::Util 'blessed';
 use Carp 'confess';
 
 ## ----------------------------------------------------------------------------
-## this is to handle the $?SELF and $?CLASS variables 
-## which are current is used in AUTOLOAD, BUILDALL and DESTORYALL 
+## this is to handle the $?SELF and $?CLASS variables as well as 
+## the next METHOD call which are current is used in AUTOLOAD, 
+## BUILDALL and DESTORYALL 
 
 our @CURRENT_INVOCANT_STACK;
 our @CURRENT_CLASS_STACK;
+our @CURRENT_DISPATCHER;
 
 ## this just makes sure to clear the invocant when
 ## something dies, it is not pretty, but it works
 $SIG{'__DIE__'} = sub { 
     @CURRENT_INVOCANT_STACK = (); 
-    @CURRENT_CLASS_STACK = ();     
+    @CURRENT_CLASS_STACK    = ();     
+    @CURRENT_DISPATCHER     = ();
     CORE::die @_; 
 };
 
@@ -160,26 +164,22 @@ sub AUTOLOAD {
     my $self = shift;
     my @return_value;
     if (blessed($self)) {       
-        
         # get the dispatcher instance ....
         my $dispatcher = $self->meta->dispatcher;
         
         # just discard it if we are calling SUPER
-        $dispatcher->() if ($AUTOLOAD[0] eq 'SUPER');
-        
-        my $current;
-        while ($current = $dispatcher->()) {
-            last if $current->has_method($label);
-        }
-        (blessed($current) && $current->isa('Perl6::MetaClass'))
+        $dispatcher->next() if ($AUTOLOAD[0] eq 'SUPER');
+    
+        # this needs to be fully qualified for now
+        my $method = Perl6::MetaModel::WALKMETH($dispatcher, $label);
+        (blessed($method) && $method->isa('Perl6::Method'))
             || confess "Method ($label) not found for instance ($self)";        
-        
-        my $method = $current->get_method($label);
 
         # NOTE: this is to mimic $?SELF and $?CLASS
         push @CURRENT_INVOCANT_STACK => $self; 
-        push @CURRENT_CLASS_STACK => $method->associated_with;            
-                             
+        push @CURRENT_CLASS_STACK    => $method->associated_with;            
+        push @CURRENT_DISPATCHER     => [ $dispatcher, $label, $self, @_ ];
+        
         @return_value = $method->call($self, @_);        
     }
     else {  
@@ -187,19 +187,16 @@ sub AUTOLOAD {
         my $dispatcher = $self->meta->dispatcher;
 
         # just discard it if we are calling SUPER
-        $dispatcher->() if ($AUTOLOAD[0] eq 'SUPER');
+        $dispatcher->next() if ($AUTOLOAD[0] eq 'SUPER');
 
-        my $current;
-        while ($current = $dispatcher->()) {
-            last if $current->has_method($label, for => 'Class');
-        }
-        (blessed($current) && $current->isa('Perl6::MetaClass'))
+        # this needs to be fully qualified for now
+        my $method = Perl6::MetaModel::WALKMETH($dispatcher, $label, for => 'Class');
+        (blessed($method) && $method->isa('Perl6::Method'))
             || confess "Method ($label) not found for instance ($self)";        
-
-        my $method = $current->get_method($label, for => 'Class');            
 
         # NOTE: this is to mimic $?CLASS            
         push @CURRENT_CLASS_STACK => $method->associated_with;                 
+        push @CURRENT_DISPATCHER  => [ $dispatcher, $label, $self, @_ ];        
              
         @return_value = $method->call($self, @_);
     }
@@ -208,6 +205,7 @@ sub AUTOLOAD {
     # a method invocation
     pop @CURRENT_INVOCANT_STACK;
     pop @CURRENT_CLASS_STACK;
+    pop @CURRENT_DISPATCHER;
     return wantarray ?
                 @return_value
                 :

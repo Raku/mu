@@ -55,6 +55,10 @@ this document.
 
 =item SubMethods
 
+Submethods are methods which can only be called by an invocant whose class is 
+the same as which the submethod has been defined in. Meaning they are not 
+inherited. 
+
 =back
 
 =item Attributes

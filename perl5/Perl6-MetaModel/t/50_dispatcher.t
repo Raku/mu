@@ -3,8 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 21;
-use Data::Dumper;
+use Test::More tests => 45;
 
 use Perl6::MetaModel;
     
@@ -22,6 +21,8 @@ class FooBarBaz => {
     
 {    
     my $d = FooBarBaz->meta->dispatcher();
+    isa_ok($d, 'Perl6::MetaClass::Dispatcher');
+    
     my @control = qw(
         FooBarBaz
             FooBar
@@ -34,10 +35,11 @@ class FooBarBaz => {
                 Perl6::Object    
     );
 
-    my $metaclass = $d->();
+    my $metaclass = $d->next();
     while (defined $metaclass) {
+        isa_ok($metaclass, 'Perl6::MetaClass');        
         is($metaclass->name, shift(@control), '... got the metaclass we expected');
-        $metaclass = $d->();  
+        $metaclass = $d->next();  
     }
 }
 
@@ -54,6 +56,8 @@ class Square => {
 
 {    
     my $d = Square->meta->dispatcher();
+    isa_ok($d, 'Perl6::MetaClass::Dispatcher');    
+    
     my @control = qw(
         Square
             Rectangle
@@ -62,10 +66,11 @@ class Square => {
                         Perl6::Object
     );
 
-    my $metaclass = $d->();
+    my $metaclass = $d->next();
     while (defined $metaclass) {
+        isa_ok($metaclass, 'Perl6::MetaClass');        
         is($metaclass->name, shift(@control), '... got the metaclass we expected');
-        $metaclass = $d->();  
+        $metaclass = $d->next();  
     }
 }
 
@@ -82,6 +87,8 @@ class Diamond_D => {
 
 {    
     my $d = Diamond_D->meta->dispatcher();
+    isa_ok($d, 'Perl6::MetaClass::Dispatcher');    
+    
     my @control = qw(
         Diamond_D
             Diamond_B
@@ -92,10 +99,11 @@ class Diamond_D => {
                     Perl6::Object                    
     );
 
-    my $metaclass = $d->();
+    my $metaclass = $d->next();
     while (defined $metaclass) {
+        isa_ok($metaclass, 'Perl6::MetaClass');
         is($metaclass->name, shift(@control), '... got the metaclass we expected');
-        $metaclass = $d->();  
+        $metaclass = $d->next();  
     }
 }
 

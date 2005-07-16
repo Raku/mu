@@ -4,6 +4,7 @@ package Perl6::MetaModel;
 use strict;
 use warnings;
 
+use Scalar::Util 'blessed';
 use Carp 'confess';
 
 use Perl6::Role;
@@ -11,11 +12,43 @@ use Perl6::Class;
 use Perl6::Object;
 
 sub import {
+    shift;
+    return if @_; # return if anything is passed    
     no strict 'refs';
+    
+    # method dispatch handlers
+    *{caller() . '::next_METHOD'} = \&next_METHOD;
+    *{caller() . '::WALKMETH'}    = \&WALKMETH;
+    *{caller() . '::WALKCLASS'}   = \&WALKCLASS;    
+    
+    # meta model helpers
     *{caller() . '::class'} = \&class;
     *{caller() . '::role'}  = \&role;
+    
+    # variable substitution
     *{caller() . '::SELF'}  = \&SELF;
-    *{caller() . '::CLASS'}  = \&CLASS;    
+    *{caller() . '::CLASS'} = \&CLASS; 
+}
+
+sub next_METHOD {
+    my ($dispatcher, $label, $self, @args) = @{$Perl6::Object::CURRENT_DISPATCHER[-1]};             
+    my $method = WALKMETH($dispatcher, $label); 
+    return $method->call($self, @args);    
+}
+
+sub WALKMETH {
+    my ($dispatcher, $label, %opts) = @_;
+    my $current;
+    while ($current = $dispatcher->next()) {
+        last if $current->has_method($label, %opts);
+    }
+    return unless blessed($current) && $current->isa('Perl6::MetaClass');
+    return $current->get_method($label, %opts);
+}
+
+sub WALKCLASS {
+    my ($dispatcher, %opts) = @_;
+    return $dispatcher->next();
 }
 
 sub SELF {

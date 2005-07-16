@@ -7,6 +7,8 @@ use warnings;
 use Scalar::Util 'blessed';
 use Carp 'confess';
 
+use Perl6::MetaClass::Dispatcher;
+
 use constant INSTANCE_TABLE  => 'class_definition';
 use constant CLASS_TABLE     => 'class_data';
 
@@ -324,48 +326,8 @@ sub _which_table {
 }
 
 sub dispatcher {
-    my ($self) = @_;
-    Perl6::MetaClass::Dispatcher::make_dispatcher($self);
-}
-
-package Perl6::MetaClass::Dispatcher;
-
-sub make_iterator {
-    my (@values) = @_;
-    my $counter = 0;
-    return sub {
-        $values[$counter++]
-    };
-}
-
-sub make_dispatcher {
-    my ($metaclass) = @_;
-    my @stack = make_iterator($metaclass);
-    return sub {
-        TOP:
-            if (defined $stack[-1]) {
-                # get the iterator on the top of the stack
-                # get the current value out of the iterator
-                my $current_metaclass = $stack[-1]->();
-                # if current is null then ...
-                if (not defined $current_metaclass) {
-                    # that iterator is exhausted and we 
-                    # need to pop it off the stack ...
-                    pop @stack;
-                    # now go back to the top and start over
-                    goto TOP;
-                }
-                else {
-                    if ($current_metaclass->superclasses) {
-                        push @stack => make_iterator(@{$current_metaclass->superclasses});
-                    }
-                }             
-
-                return $current_metaclass;
-            }
-
-            return undef;
-    };
+    my ($self, $order) = @_;
+    Perl6::MetaClass::Dispatcher->new($self, $order);
 }
 
 1;
