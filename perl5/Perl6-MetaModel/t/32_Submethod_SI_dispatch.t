@@ -60,7 +60,7 @@ can_ok($foo_bar, 'baz');
     lives_ok {
         $value = $foo_bar->baz()
     } '... calling baz() succedded';
-    pass(); #is($value, 'Foo::baz', '... got the right return value');    
+    is($value, 'Foo::baz', '... got the right return value');    
 }
 
 

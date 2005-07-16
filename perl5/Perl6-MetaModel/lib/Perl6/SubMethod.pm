@@ -4,7 +4,17 @@ package Perl6::SubMethod;
 use strict;
 use warnings;
 
+use Scalar::Util 'blessed';
+use Perl6::MetaModel '-no_import';
+
 use base 'Perl6::Method';
+
+sub call { 
+    my ($self, @args) = @_;  
+    return Perl6::MetaModel::next_METHOD() 
+        if blessed(Perl6::MetaModel::SELF()) ne Perl6::MetaModel::CLASS(); 
+    $self->{code}->(@args); 
+}
 
 1;
 
