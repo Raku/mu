@@ -107,15 +107,17 @@ instance (Typeable a) => Translate (PIL a) a where
         thisC   <- trans this
         tell [thisC]
         trans rest
-    trans (PApp _ exp@(PCode _ _ _) []) = do
+    trans (PApp _ exp@(PCode _ _ _) Nothing []) = do
         blockC  <- trans exp
         tellIns $ [reg tempPMC] <-& blockC $ []
         return tempPMC
-    trans (PApp (TCxtLValue _) (PExp (PVar "&postcircumfix:[]")) [PExp lhs, rhs]) = do
+    trans (PApp (TCxtLValue _) (PExp (PVar "&postcircumfix:[]")) Nothing [PExp lhs, rhs]) = do
         lhsC    <- trans lhs
         rhsC    <- trans rhs
         return $ lhsC `KEYED` rhsC
-    trans (PApp _ fun args) = do
+    trans (PApp ctx fun (Just inv) args) =
+        trans (PApp ctx fun Nothing (inv:args))  -- XXX wrong
+    trans (PApp _ fun Nothing args) = do
         funC    <- trans fun {- case fun of
             PExp (PVar name) -> return $ lit name
             _           -> trans fun

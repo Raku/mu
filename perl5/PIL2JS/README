@@ -1,0 +1,59 @@
+=head1 NAME
+
+PIL2JS - Compiler from PIL to JavaScript
+
+=head1 DESCRIPTION
+
+C<pil2js.pl> is a Perl 5 program taking PIL (as given by C<pugs -CPIL>) and
+outputting JavaScript.
+
+Run C<pil2js.pl --help> to get usage information.
+
+=head1 FILE HIERARCHY
+
+  .
+  |-- pil2js.pl           Frontend for the PIL:: modules
+  |-- lib
+  |   |-- PIL
+  |   |   |-- Parser.pm   PIL::Parser (parses PIL)
+  |   |   `-- Nodes.pm    Module which provides appropriate ->as_js methods
+  |   |                   for the objects returned by PIL::Parser
+  |   |-- Prelude
+  |   |   `-- JS.pm       JavaScript Prelude, written in Perl 6
+
+=head1 WHAT'S WORKING YET?
+
+Variables, subroutine declarations (with support for C<is rw>, C<is copy>, and
+default values for optional arguments), subroutine invocations, method
+invocations, method declarations (simplified), basic operators (C<< &infix:<==>
+>>, C<< &infix:<eq> >>, C<< &prefix:<+> >>, ...), basic builtins (C<say>,
+C<defined>, ...), C<if>, C<loop>.
+
+=head1 TODO
+
+=over
+
+=item *
+
+Global C<JS> namespace to use JavaScript's classes (e.g. C<$*JS::document.write>)
+
+=item *
+
+Make C<use js:Foo> load C<Foo> from L<JSAN|http://www.openjsan.org/>?
+
+=item *
+
+Primitives
+
+=back
+
+=head1 AUTHOR
+
+Ingo Blechschmidt C<<iblech@web.de>>
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or modify it under
+the same terms as Perl itself. See L<perlgpl> and L<perlartistic> for details.
+
+=cut

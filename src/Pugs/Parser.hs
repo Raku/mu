@@ -625,7 +625,7 @@ ruleRequireDeclaration = tryRule "require declaration" $ do
 ruleDoBlock :: RuleParser Exp
 ruleDoBlock = rule "do block" $ try $ do
     symbol "do"
-    choice 
+    choice
         [ ruleBlockDeclaration
         , ruleDeclaration
         , ruleConstruct
