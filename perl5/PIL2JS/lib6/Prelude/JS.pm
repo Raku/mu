@@ -123,6 +123,7 @@ sub JS::Root::print(Str $text) {
                       || document.body.scrollHeight);
     }
   ').($text);
+  ?1;
 }
 
 # Standard operators
@@ -145,8 +146,6 @@ my @subs = (
   "infix:«/»",    "Number(a)  / Number(b)",
   "infix:«%»",    "Number(a)  % Number(b)",
   "infix:«~»",    "String(a)  + String(b)",
-  "infix:«||»",   "a || b ? a : b",
-  "infix:«&&»",   "a && b ? b : a",
   "prefix:«+»",   "Number(a)",
   "prefix:«~»",   "String(a)",
   "prefix:«?»",   "a ? true : false",
@@ -181,13 +180,16 @@ for @subs -> $name, $body {
 Pugs::Internals::eval $eval;
 die $! if $!;
 
-sub infix:<//>($a, $b)     { defined($a) ?? $a :: $b }
-sub prefix:<++>($a is rw)  { $a = $a + 1 }
-sub postfix:<++>($a is rw) { my $cur = $a; $a = $a + 1; $cur }
-sub prefix:<-->($a is rw)  { $a = $a - 1 }
-sub postfix:<-->($a is rw) { my $cur = $a; $a = $a - 1; $cur }
-# sub infix:<,>($a, $b)      { JS::inline("function (a, b) \{
-#   return new Array(a, b);
-# \}")($a, $b) }
+sub infix:<//>   ($a, Code $b) { defined($a) ?? $a :: $b() }
+sub infix:<||>   ($a, Code $b) { $a ?? $a :: $b() }
+sub infix:<&&>   ($a, Code $b) { $a ?? $b() :: $a }
+sub infix:<err>  ($a, Code $b) { infix:<//>($a, $b()) } # XXX! hack
+sub infix:<or>   ($a, Code $b) { infix:<||>($a, $b()) } # XXX! hack
+sub infix:<and>  ($a, Code $b) { infix:<&&>($a, $b()) } # XXX! hack
+sub prefix:<++>  ($a is rw)    { $a = $a + 1 }
+sub postfix:<++> ($a is rw)    { my $cur = $a; $a = $a + 1; $cur }
+sub prefix:<-->  ($a is rw)    { $a = $a - 1 }
+sub postfix:<--> ($a is rw)    { my $cur = $a; $a = $a - 1; $cur }
+sub infix:<,>(*@xs)            { @xs }
 
 sub die(Str $msg) { $JS::PIL2JS.die($msg) }

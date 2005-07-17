@@ -1090,7 +1090,10 @@ currentTightFunctions = do
         mapPair f (x, y) = (f x, f y)
     -- Finally, we return the names of the ops.
     -- But we've to s/^infix://, as we've to return (say) "+" instead of "infix:+".
-    return $ map (encodeUTF8 . unwords . nub)
+    -- Hack: Filter out &infix:<,> (which are most Preludes for PIL -> *
+    -- compilers required to define), because else basic function application
+    -- (foo(1,2,3) will get parsed as foo(&infix:<,>(1,&infix:<,>(2,3))) (bad).
+    return $ map (encodeUTF8 . unwords . filter (/= ",") . nub) $
         [nullary, optionary, namedUnary, preUnary, postUnary, infixOps]
 
 parseOpWith :: (DynParsers -> RuleParser Exp) -> RuleParser Exp

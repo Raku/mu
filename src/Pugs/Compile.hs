@@ -328,7 +328,18 @@ instance Compile Exp (PIL LValue) where
         funC    <- compile fun
         invC    <- maybeM (return inv) compile
         argsC   <- enter cxtItemAny $ compile args
-        return $ PApp cxt funC invC argsC
+        if isLogicalLazy funC
+            then return $ PApp cxt funC invC (head argsC:map PThunk (tail argsC))
+            else return $ PApp cxt funC invC argsC
+        where
+        -- XXX HACK
+        isLogicalLazy (PExp (PVar "&infix:or"))  = True
+        isLogicalLazy (PExp (PVar "&infix:and")) = True
+        isLogicalLazy (PExp (PVar "&infix:||"))  = True
+        isLogicalLazy (PExp (PVar "&infix:&&"))  = True
+        isLogicalLazy (PExp (PVar "&infix://"))  = True
+        isLogicalLazy (PExp (PVar "&infix:err"))  = True
+        isLogicalLazy _ = False
     compile exp@(Syn "if" _) = compConditional exp
     compile (Syn "{}" (x:xs)) = compile $ App (Var "&postcircumfix:{}") (Just x) xs
     compile (Syn "[]" (x:xs)) = do

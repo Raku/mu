@@ -23,19 +23,40 @@ Run C<pil2js.pl --help> to get usage information.
 
 =head1 WHAT'S WORKING YET?
 
-Variables, subroutine declarations (with support for C<is rw>, C<is copy>, and
-default values for optional arguments), subroutine invocations, method
-invocations, method declarations (simplified), basic operators (C<< &infix:<==>
->>, C<< &infix:<eq> >>, C<< &prefix:<+> >>, ...), basic builtins (C<say>,
-C<defined>, ...), C<if>, C<loop>.
-
-=head1 TODO
-
 =over
 
 =item *
 
-Global C<JS> namespace to use JavaScript's classes (e.g. C<$*JS::document.write>)
+Variables (scalars and arrays)
+
+=item *
+
+Subroutine and (slightly simplified) method declaration (with support for C<is
+rw>, C<is copy>, and default values for optional arguments),
+
+=item *
+
+Subroutine and method invocation
+
+=item *
+
+Basic operators (C<< &infix:<==> >>, C<< &infix:<eq> >>, C<< &prefix:<+> >>,
+...)
+
+=item *
+
+Basic builtins (C<say>, C<defined>, C<if>, C<loop>, C<while>, C<until>)
+
+=item *
+
+Global C<JS> namespace to use JavaScript's classes (e.g.
+C<$*JS::document.write>, C<JS::alert "Pugs rocks">)
+
+=back
+
+=head1 TODO
+
+=over
 
 =item *
 

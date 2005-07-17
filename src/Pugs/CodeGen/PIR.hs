@@ -122,9 +122,7 @@ instance (Typeable a) => Translate (PIL a) a where
             PExp (PVar name) -> return $ lit name
             _           -> trans fun
         -}
-        argsC   <- if isLogicalLazy fun
-            then mapM trans (head args : map PThunk (tail args))
-            else mapM trans args
+        argsC   <- mapM trans args
         -- XXX WORKAROUND PARROT BUG (see below)
         pmc     <- genLV "app"
         -- XXX - probe if funC is slurpy, then modify ExpLV pmc accordingly
@@ -141,13 +139,6 @@ instance (Typeable a) => Translate (PIL a) a where
                 tellIns $ [reg pmc] <-& funC $ argsC
                 return pmc
         -}
-        where
-        -- XXX HACK
-        isLogicalLazy (PExp (PVar "&infix:or"))     = True
-        isLogicalLazy (PExp (PVar "&infix:and"))    = True
-        isLogicalLazy (PExp (PVar "&infix:||"))     = True
-        isLogicalLazy (PExp (PVar "&infix:&&"))     = True
-        isLogicalLazy _ = False
     trans (PPad SMy pad exps) = do
         valsC   <- mapM trans (map snd pad)
         pass $ do
