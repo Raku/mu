@@ -1,5 +1,10 @@
 == TO DO list for the MetaModel
 
+FIX ME:
+
+The current code for BUILD and DESTROY is incorrect, it uses post and pre order
+traversal, this should be changes to least and most derived traversals.
+
 === methods
 
 * Create a Perl6::Method::Params to handle formal parameters, and their binding.

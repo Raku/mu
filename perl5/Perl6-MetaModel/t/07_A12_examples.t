@@ -88,7 +88,7 @@ class Point3D => {
             clear => sub {
                 my ($self) = @_;
                 $self->set_value('$:z' => 0);
-                $self->SUPER::clear();  
+                next_METHOD;
             }
         }
     }

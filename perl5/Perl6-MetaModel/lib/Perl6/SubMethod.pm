@@ -9,6 +9,11 @@ use Perl6::MetaModel '-no_import';
 
 use base 'Perl6::Method';
 
+sub force_call { 
+    my ($self, @args) = @_;  
+    $self->{code}->(@args);     
+}
+
 sub call { 
     my ($self, @args) = @_;  
     return Perl6::MetaModel::next_METHOD() 

@@ -94,7 +94,7 @@ sub BUILDALL {
         # NOTE: this is to mimic $?SELF and $?CLASS
         push @CURRENT_INVOCANT_STACK => $self; 
         push @CURRENT_CLASS_STACK => $method->associated_with;          
-        $method->call($self, %params);   
+        $method->force_call($self, %params);   
         pop @CURRENT_INVOCANT_STACK;
         pop @CURRENT_CLASS_STACK;        
     });    
@@ -114,7 +114,7 @@ sub DESTROYALL {
         # NOTE: this is to mimic $?SELF and $?CLASS
         push @CURRENT_INVOCANT_STACK => $self; 
         push @CURRENT_CLASS_STACK => $method->associated_with;          
-        $method->call($self);   
+        $method->force_call($self);   
         pop @CURRENT_INVOCANT_STACK;
         pop @CURRENT_CLASS_STACK;             
     });      

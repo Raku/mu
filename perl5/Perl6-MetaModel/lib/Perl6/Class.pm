@@ -95,13 +95,9 @@ sub _build_class {
 
     if (my $instance = $self->{params}->{instance}) {
 
-        ## XXX - these should both be SubMethod's but
-        ## I need to perfect the "workaround" that Larry
-        ## recommended in order to use them as such.
-        ## For now though, they work well as Instance::Methods
-        ($name)->meta->add_method('BUILD' => Perl6::Instance::Method->new($name => $instance->{BUILD}))
+        ($name)->meta->add_method('BUILD' => Perl6::SubMethod->new($name => $instance->{BUILD}))
             if exists $instance->{BUILD};            
-        ($name)->meta->add_method('DESTROY' => Perl6::Instance::Method->new($name => $instance->{DESTROY}))          
+        ($name)->meta->add_method('DESTROY' => Perl6::SubMethod->new($name => $instance->{DESTROY}))          
             if exists $instance->{DESTROY};
             
         if (exists $instance->{methods}) {

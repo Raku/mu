@@ -7,8 +7,7 @@ use Test::More tests => 95;
 
 =pod
 
-This test checks the :preorder option on the dispatcher
-this is currently the default as well as how Perl 5 worked.
+This test checks the :breadth option on the dispatcher.
 
 This test checks a number of different heirarchies.
 
@@ -26,21 +25,20 @@ use Perl6::MetaModel;
 Somewhat convoluted multiple inheritance, with 
 some repeated inheritance as well.
 
-     Perl6::Object
-         ^    ^    
-        /     |
-      Foo     |
-      ^  ^    |
-      |   \   |
-      |  Bar  |  
-      |   ^   |
-      |  /    |
-    FooBar   Baz
-       \     /
-      FooBarBaz
-      
+      Perl6::Object
+          ^    ^    
+         /     |
+       Foo     |
+       ^  ^    |
+       |   \   |
+       |  Bar  |  
+       |   ^   |
+       |  /    |
+     FooBar   Baz
+        \     /
+       FooBarBaz
 =cut
-    
+
 class Foo => {};   
 class Bar => {
     is => [ 'Foo' ]
@@ -52,21 +50,21 @@ class FooBar => {
 class FooBarBaz => {
     is => [ 'FooBar', 'Baz' ]
 };
-    
+
 {    
-    my $d = FooBarBaz->meta->dispatcher(':preorder');
+    my $d = FooBarBaz->meta->dispatcher(':breadth');
     isa_ok($d, 'Perl6::MetaClass::Dispatcher');
-    
+
     my @control = qw(
         FooBarBaz
             FooBar
+            Baz            
                 Foo
-                    Perl6::Object
                 Bar
+                Perl6::Object                    
+                    Perl6::Object                
                     Foo
                         Perl6::Object
-            Baz
-                Perl6::Object    
     );
 
     my $metaclass = $d->next();
@@ -76,6 +74,7 @@ class FooBarBaz => {
         $metaclass = $d->next();  
     }
 }
+
 
 =pod
 
@@ -109,9 +108,9 @@ class Square => {
 };
 
 {    
-    my $d = Square->meta->dispatcher(':preorder');
+    my $d = Square->meta->dispatcher(':breadth');
     isa_ok($d, 'Perl6::MetaClass::Dispatcher');    
-    
+
     my @control = qw(
         Square
             Rectangle
@@ -137,7 +136,7 @@ Class diamond inheritance
   B   C
    \ /
     D
-    
+
 =cut
 
 class Diamond_A => {};
@@ -152,17 +151,17 @@ class Diamond_D => {
 };
 
 {    
-    my $d = Diamond_D->meta->dispatcher(':preorder');
+    my $d = Diamond_D->meta->dispatcher(':breadth');
     isa_ok($d, 'Perl6::MetaClass::Dispatcher');    
-    
+
     my @control = qw(
         Diamond_D
             Diamond_B
-                Diamond_A
-                    Perl6::Object
             Diamond_C
-                Diamond_A
+                Diamond_A                
+                Diamond_A                       
                     Perl6::Object                    
+                    Perl6::Object                                        
     );
 
     my $metaclass = $d->next();
@@ -198,19 +197,19 @@ class Diamond2_F => {
 };
 
 {    
-    my $d = Diamond2_F->meta->dispatcher(':preorder');
+    my $d = Diamond2_F->meta->dispatcher(':breadth');
     isa_ok($d, 'Perl6::MetaClass::Dispatcher');    
 
     my @control = qw(
         Diamond2_F
             Diamond2_D
+            Diamond2_E            
                 Diamond_B
+                Diamond_C                
                     Diamond_A
+                    Diamond_A                    
                         Perl6::Object
-            Diamond2_E
-                Diamond_C
-                    Diamond_A
-                        Perl6::Object                    
+                        Perl6::Object                        
     );
 
     my $metaclass = $d->next();
@@ -248,25 +247,25 @@ class Diamond2_F => {
 };
 
 {    
-    my $d = Diamond2_F->meta->dispatcher(':preorder');
+    my $d = Diamond2_F->meta->dispatcher(':breadth');
     isa_ok($d, 'Perl6::MetaClass::Dispatcher');    
 
     my @control = qw(
         Diamond2_F
             Diamond2_D
+            Diamond2_E            
                 Diamond_B
+                Diamond_C  
+                Diamond_C                                
+                Diamond_B                
                     Diamond_A
+                    Diamond_A
+                    Diamond_A
+                    Diamond_A                                                            
                         Perl6::Object
-                Diamond_C
-                    Diamond_A
                         Perl6::Object                         
-            Diamond2_E
-                Diamond_C
-                    Diamond_A
-                        Perl6::Object                        
-                Diamond_B
-                    Diamond_A
-                        Perl6::Object                                            
+                        Perl6::Object
+                        Perl6::Object                                                 
     );
 
     my $metaclass = $d->next();

@@ -13,6 +13,9 @@ sub new {
     if ($order eq ':preorder') {
         $dispatcher = _make_preorder_dispatcher($metaclass);
     }
+    elsif ($order eq ':breadth') {
+        $dispatcher = _make_breadth_dispatcher($metaclass);
+    }
     (ref($dispatcher) eq 'CODE')
         || confess "Unsupported dispatch order ($order)";
     bless { i => $dispatcher }, $class;
@@ -42,6 +45,33 @@ sub _make_preorder_dispatcher {
                     # that iterator is exhausted and we 
                     # need to pop it off the stack ...
                     pop @stack;
+                    # now go back to the top and start over
+                    goto TOP;
+                }
+                else {
+                    push @stack => _make_iterator(@{$current_metaclass->superclasses})
+                        if $current_metaclass->superclasses;
+                }             
+                return $current_metaclass;
+            }
+            return undef;
+    };
+}
+
+sub _make_breadth_dispatcher {
+    my ($metaclass) = @_;
+    my @stack = _make_iterator($metaclass);
+    return sub {
+        TOP:
+            if (scalar(@stack) != -0) {
+                # get the iterator on the top of the stack
+                # get the current value out of the iterator
+                my $current_metaclass = $stack[0]->();
+                # if current is null then ...
+                if (not defined $current_metaclass) {
+                    # that iterator is exhausted and we 
+                    # need to pop it off the stack ...
+                    shift @stack;
                     # now go back to the top and start over
                     goto TOP;
                 }
