@@ -1,6 +1,9 @@
 #!/usr/bin/pugs
 use v6;
 
+# XXX LWP::Debug to debug things :-)
+#use LWP::Debug;
+
 use HTTP::Date <str2time time2str>;
 use HTTP::Headers::Util <split_header_words join_header_words>;
 
@@ -33,8 +36,138 @@ class HTTP::Cookies-0.0.1 {
     }
     
     ## Instance methods
-    method add_cookie_header ($request) {
-        ...
+    method add_cookie_header (HTTP::Request $request) {
+        my $uri = $request.uri;
+        my $scheme = $uri.scheme;
+        
+        unless ($scheme ~~ m:P5/^https?\z/) {
+            #LWP::Debug::debug('Will not add cookies to non-HTTP requests');
+            return;
+        }
+    
+        my $domain = ./:host($request, $uri);
+        $domain = "$domain\.local" unless $domain ~~ m:P5/\./;
+        
+        my $secure_request = ($scheme eq 'https');
+        
+        my $req_path = ./:uri_path($uri);
+        my $req_port = $uri.port;
+        
+        my $now = time();
+        
+        ./:normalize_path($req_path) if $req_path ~~ m:P5/%/;
+        
+        my $set_ver = 0;
+        my $netscape_only = 0; # an exact domain match applies to "any" cookie
+        
+        my @vals = gather {
+            loop ($domain ~~ m:P5/\./) {
+                #LWP::Debug::debug("Checking $domain for cookies");
+                my $cookies = %:cookies{$domain};
+                
+                next unless $cookies;
+                
+                if (.delayload && defined $cookies{'//+delayload'}) {
+                    my $data = $cookies{''//+delayload'}{'cookie'};
+                    %:cookies.delete($domain);
+                    ./load_cookie($data[1]);
+                    
+                    $cookies = %:cookies{$domain};
+                    next unless $cookies; # should not really happen
+                }
+                
+                # Want to add cookies corresponding to the most specific paths
+                # first (i.e. longest path first)
+                for $cookies.keys.sort:{ $^b.chars <=> $^a.chars } -> $path {
+                    #LWP::Debug::debug("- checking cookie path=$path");
+                    
+                    if ($req_path.index($path) != 0) {
+                        LWP::Debug::debug("  path $path:$req_path does not fit");
+                        next;
+                    }
+                    
+                    for $cookies{$path}.kv -> $key, $array {
+                        my ($version, $val, $port, $path_spec, $secure, $expires) := $array;
+                        
+                        #LWP::Debug::debug(" - checking cookie $key=$val");
+                        
+                        if ($secure && $secure_request) {
+                            #LWP::Debug::debug("   not a secure request");
+                            next;
+                        }
+                        
+                        if ($expires && $expires < $now) {
+                            #LWP::Debug::debug("   expired");
+                            next;
+                        }
+                        
+                        if ($port) {
+                            my $found;
+                            
+                            if ($port ~~ s/^_//) {
+                                # The correponding Set-Cookie attribute was empty
+                                $found++ if $port eq $req_port;
+                                $port = "";
+                            } else {
+                                for $port.split(',') -> $p {
+                                    $found++, $last if $p eq $req_port;
+                                }
+                            }
+                        
+                            unless ($found) {
+                                #LWP::Debug::debug("   port $port:$req_port does not fit");
+                                next;
+                            }
+                        }
+                
+                        if ($version > 0 && $netscape_only) {
+                            #LWP::Debug::debug("   domain $domain applies to Netscape-style cookies only");
+                            next;
+                        }
+                        
+                        #LWP::Debug::debug("   it's a match");
+                        
+                        # set version number of cookie header.
+                        # XXX: What should it be if multiple matching
+                        #      Set-Cookie headers have different versions themselves
+                        if (!$set_ver++) {
+                            if ($version >= 1) {
+                                take "\$Version=$version";
+                            } elsif (!(.hide_cookie2)) {
+                                $request.add_header(Cookie2 => '$Version="1"');
+                            }
+                        }
+                        
+                        # do we need to quote the value
+                        if ($val ~~ m:P5/\W/ && $version) {
+                            $val ~~ s:P5:g/([\\\"])/\\$0/;
+                            $val = qq("$val");
+                        }
+                        
+                        # and finally remember this cookie
+                        take "$key=$val";
+                        
+                        if ($version >= 1) {
+                            take qq(\$Path="$path") if $path_spec;
+                            take qq(\$Domain="$domain") if $domain ~~ m:P5/^\./;
+                            
+                            if ($port.defined) {
+                                my $p = '$Port';
+                                $p ~= qq(="$port") if $port.chars;
+                                take $p;
+                            }
+                        }
+                    }
+                }
+            }
+            #continue {
+            # XXX how to handle this section?
+            #}
+        };
+        
+        $request.header(Cookie => @vals.join("; ")) if @vals;
+        
+        return $request;
     }
     
     method extract_cookies ($response) {
@@ -216,7 +349,7 @@ class HTTP::Cookies-0.0.1 {
     # XXX how should this binding be done?
     #our &:url_path ::= &:uri_path; # for backwards compatibility
     
-    method :normalize_path (Str $str) {
+    method :normalize_path (Str $str is rw) {
         given ($str) {
             s:P5:g/%([0-9a-fA-F][0-9a-fA-F])/{
                 my $x = $0.uc;
