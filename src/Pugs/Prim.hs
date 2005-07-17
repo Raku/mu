@@ -575,6 +575,13 @@ op1 "Pugs::Internals::hIsClosed" = op1IO hIsClosed
 op1 "Pugs::Internals::hIsReadable" = op1IO hIsReadable
 op1 "Pugs::Internals::hIsWritable" = op1IO hIsWritable
 op1 "Pugs::Internals::hIsSeekable" = op1IO hIsSeekable
+op1 "Pugs::Internals::reduceVar" = \v -> do
+    str <- fromVal v
+    evalExp (Var str)
+op1 "Pugs::Internals::rule_pattern" = \v -> do
+    case v of
+        VRule MkRulePGE{rxRule=re} -> return $ VStr re
+        _ -> fail $ "Not a rule: " ++ show v
 op1 other   = \_ -> fail ("Unimplemented unaryOp: " ++ other)
 
 op1IO :: Value a => (Handle -> IO a) -> Val -> Eval Val
@@ -1656,4 +1663,6 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   List      pre     IO::Dir::readdir    unsafe (IO::Dir)\
 \\n   Bool      pre     IO::Dir::closedir   unsafe (IO::Dir)\
 \\n   Bool      pre     IO::Dir::rewinddir  unsafe (IO::Dir)\
+\\n   Any       pre     Pugs::Internals::reduceVar  unsafe (Str)\
+\\n   Str       pre     Pugs::Internals::rule_pattern safe (Rule)\
 \\n"
