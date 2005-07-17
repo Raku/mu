@@ -28,7 +28,7 @@ if($verbose) {
 
 # This is the part of the JS Prelude which needs to be written in JS.
 local $_;
-my $js = <<EOF . join "\n", map { $_->as_js } @{ $tree->{"pilGlob"} }, $tree->{pilMain};
+my $js = <<'EOF' . join "\n", map { $_->as_js } @{ $tree->{"pilGlob"} }, $tree->{pilMain};
 if(PIL2JS == undefined) var PIL2JS = {};
 
 // __pil2js_box boxes its input object.
@@ -42,39 +42,63 @@ PIL2JS.Box.prototype = {
   clone: function () {
     return new PIL2JS.Box(this.GET());
   },
+  toNative: function () {
+    var unboxed = this.GET();
+    if(unboxed instanceof Array) {
+      var arr = [];
+      for(var i = 0; i < unboxed.length; i++) {
+        arr.push(unboxed[i].toNative());
+      }
+      return arr;
+    } else if(unboxed instanceof Function) {
+      return function () {
+        var args = arguments;
+        for(var i = 0; i < args.length; i++)
+          args[i] = new PIL2JS.Box.Constant(args[i]);
+        return unboxed(args).toNative();
+      };
+    } else {
+      return unboxed;
+    }
+  },
   perl_methods: {},
+  /*
+    toString: function () {
+      _26main_3a_3aprefix_3a_7e.GET()([this]);
+    },
+  */
 };
 
 PIL2JS.Box.ReadOnly = function (box) {
   this.GET   = function ()  { return box.GET() };
-  this.STORE = function (n) { PIL2JS.die("Can't modify constant item!"); return n };
+  this.STORE = function (n) { PIL2JS.die("Can't modify constant item!\n"); return n };
 };
 PIL2JS.Box.Constant = function (value) {
   this.GET   = function ()  { return value };
-  this.STORE = function (n) { PIL2JS.die("Can't modify constant item!"); return n };
+  this.STORE = function (n) { PIL2JS.die("Can't modify constant item!\n"); return n };
+};
+PIL2JS.Box.Stub = function (value) {
+  this.GET   = function ()  { PIL2JS.die(".GET() of a PIL2JS.Box.Stub called!\n") }
+  this.STORE = function (n) { PIL2JS.die(".STORE() of a PIL2JS.Box.Stub called!\n"); return n };
 };
 
 PIL2JS.Box.ReadOnly.prototype = PIL2JS.Box.prototype;
 PIL2JS.Box.Constant.prototype = PIL2JS.Box.prototype;
+PIL2JS.Box.Stub.prototype     = PIL2JS.Box.prototype;
 
 // Call (possibly native sub) sub with args
 PIL2JS.call = function (inv, sub, args) {
   if(sub == undefined)
-    PIL2JS.die("Use of uninitialized value in subroutine entry!");
+    PIL2JS.die("Use of uninitialized value in subroutine entry!\n");
 
   // It's a boxed (and therefore Perl 6) sub.
   if(inv == undefined) {
     if(sub.GET) {
       return sub.GET()(args);
     } else {
-      var code = "new PIL2JS.Box(sub(";
+      var code = "new PIL2JS.Box.Constant(sub(";
       for(var i = 0; i < args.length; i++) {
-        var thing = args[i].GET();
-        if(thing instanceof Function) {
-          code += "function () { return args[" + i + "].GET()(arguments).GET() },";
-        } else {
-          code += "args[" + i + "].GET(),";
-        }
+        code += "args[" + i + "].toNative(),";
       }
       if(code.substr(-1, 1) == ",") code = code.slice(0, -1);
       code += "))";
@@ -82,9 +106,13 @@ PIL2JS.call = function (inv, sub, args) {
     }
   } else {
     if(inv.GET) {
-      return inv.perl_methods[sub].GET()([inv].concat(args));
+      if(inv.perl_methods[sub]) {
+        return inv.perl_methods[sub].GET()([inv].concat(args));
+      } else {
+        PIL2JS.die("No such method: \"" + sub + "\"");
+      }
     } else {
-      PIL2JS.die("nyi");
+      PIL2JS.die("Internal error: PIL2JS.call not implemented for invocation of native methods\n");
     }
   }
 };

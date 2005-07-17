@@ -69,18 +69,42 @@ sub JS::Root::defined($a) {
 }
 
 sub JS::Root::time() {
-  JS::inline "new PIL2JS.Box((new Date()).getTime() / 1000 - 946684800)";
+  JS::inline "new PIL2JS.Box.Constant((new Date()).getTime() / 1000 - 946684800)";
 }
 
-method join(Array $self: Str $sep) {
+method JS::Root::join(Array $self: Str $sep) {
   JS::inline('
     function (arr, sep) {
-      for(i = 0; i < arr.length; i++)
-        arr[i] = arr[i].GET();
       return arr.join(sep);
     }
   ')($self, $sep);
 }
+
+method JS::Root::elems(Array $self:) {
+  JS::inline('function (arr) { return arr.length }')($self);
+}
+
+method JS::Root::ref($self is rw:) { JS::inline('
+  function (thing) {
+    if(typeof(thing) == "string") {
+      return "Str";
+    } else if(typeof(thing) == "boolean") {
+      return "Bool";
+    } else if(typeof(thing) == "number") {
+      return "Num";
+    } else if(thing instanceof Array) {
+      return "Array";
+    } else {
+      PIL2JS.die(
+        "Internal error: .ref() not yet implemented for " +
+        typeof(thing) +
+        "\n"
+      );
+    }
+  }
+')($self) }
+
+method JS::Root::isa($self is rw: $other is rw) { $self.ref eq $other }
 
 sub JS::Root::say(Str *@text) {
   print @text.join("") ~ "\n";
@@ -146,8 +170,6 @@ my @subs = (
   "infix:«/»",    "Number(a)  / Number(b)",
   "infix:«%»",    "Number(a)  % Number(b)",
   "infix:«~»",    "String(a)  + String(b)",
-  "prefix:«+»",   "Number(a)",
-  "prefix:«~»",   "String(a)",
   "prefix:«?»",   "a ? true : false",
   "prefix:«!»",   "a ? false : true",
 );
@@ -192,4 +214,39 @@ sub prefix:<-->  ($a is rw)    { $a = $a - 1 }
 sub postfix:<--> ($a is rw)    { my $cur = $a; $a = $a - 1; $cur }
 sub infix:<,>(*@xs)            { @xs }
 
-sub die(Str $msg) { $JS::PIL2JS.die($msg) }
+sub infix:<=:=>($a is rw, $b is rw) { JS::inline('new PIL2JS.Box.Constant(
+  function (args) {
+    return new PIL2JS.Box.Constant(args[0] == args[1]);
+  }
+)')($a, $b) }
+
+# Pending support for multi subs.
+sub prefix:<~>($thing) {
+  if($thing.isa("Str")) {
+    JS::inline('function (thing) { return String(thing).toString() }')($thing);
+  } elsif($thing.isa("Array")) {
+    $thing.join(" ");
+  } elsif($thing.isa("Bool")) {
+    $thing ?? "bool::true" :: "bool::false";
+  } elsif($thing.isa("Num")) {
+    JS::inline('function (thing) { return Number(thing).toString() }')($thing);
+  } else {
+    die "Stringification for objects of class {$other.ref} not yet implemented!\n";
+  }
+}
+
+sub prefix:<+>($thing) {
+  if($thing.isa("Str")) {
+    JS::inline('function (thing) { return Number(thing) }')($thing);
+  } elsif($thing.isa("Array")) {
+    $thing.elems;
+  } elsif($thing.isa("Bool")) {
+    $thing ?? 1 :: 0;
+  } elsif($thing.isa("Num")) {
+    JS::inline('function (thing) { return Number(thing) }')($thing);
+  } else {
+    die "Numification for objects of class {$other.ref} not yet implemented!\n";
+  }
+}
+
+sub JS::Root::die(Str $msg) { $JS::PIL2JS.die($msg) }

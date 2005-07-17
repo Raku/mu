@@ -206,18 +206,18 @@ sub add_indent {
     my $inv = $self->[2]->isa("PIL::Just") ? $self->[2]->[0]->as_js : "";
     my $sub = $inv || $native ? substr($subname, 1) : $self->[1]->as_js;
     my @arg = map { $_->as_js } @{ $self->[3] };
-    @arg    = map { "($_).GET()" } @arg if $native;
+    @arg    = map { "($_).toNative()" } @arg if $native;
     my $arg = PIL::Nodes::add_indent(1, join ",\n", @arg);
 
     # XXX Context handling!
     if($inv) {
       return
-        $native         ? "new PIL2JS.Box($inv.$sub(\n$arg\n))" :
+        $native         ? "new PIL2JS.Box.Constant($inv.$sub(\n$arg\n))" :
         defined $native ? "$inv.perl_methods[" . PIL::Nodes::doublequote($sub) . "]([\n$arg\n])" :
         sprintf "PIL2JS.call(%s, %s, [\n%s\n])", $inv, PIL::Nodes::doublequote($sub), $arg;
     } else {
       return
-        $native         ? "new PIL2JS.Box($sub(\n$arg\n))" :
+        $native         ? "new PIL2JS.Box.Constant($sub(\n$arg\n))" :
         defined $native ? "$sub.GET()([\n$arg\n])" :
         sprintf "PIL2JS.call(undefined, %s, [\n%s\n])", $sub, $arg;
     }
@@ -410,7 +410,7 @@ sub add_indent {
     $js .= $_->as_js() . "\n" for @$self;
     $js .=
       "if(args.length != 0)\n" .
-      "  PIL2JS.die(\"\" + args.length + \" more parameters passed than expected (@{[scalar @$self]})!\");\n";
+      "  PIL2JS.die(\"\" + args.length + \" more parameters passed than expected (@{[scalar @$self]})!\\\n\");\n";
 
     return $js;
   }
@@ -463,7 +463,7 @@ sub add_indent {
     if($self->{tpParam}{isOptional}->isa("PIL::False")) {
       push @js,
         "if($jsname == undefined) " .
-        "PIL2JS.die(\"Required parameter \\\"$name\\\" not passed!\");";
+        "PIL2JS.die(\"Required parameter \\\"$name\\\" not passed!\\\n\");";
     }
 
     # Should we (and can we) supply a default for an optional param?

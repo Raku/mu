@@ -41,11 +41,16 @@ Subroutine and method invocation
 =item *
 
 Basic operators (C<< &infix:<==> >>, C<< &infix:<eq> >>, C<< &prefix:<+> >>,
-...)
+C<< &infix:<=:=> >>, ...)
 
 =item *
 
 Basic builtins (C<say>, C<defined>, C<if>, C<loop>, C<while>, C<until>)
+
+=item *
+
+Stub OO builtins (C<ref>, C<isa> -- awaiting JavaScript (or Perl 6) port of
+Stevan's excellent C<Perl6::MetaModel>
 
 =item *
 
@@ -77,6 +82,15 @@ C<dest.STORE(source.GET())>
 
 Binding is even simpler: C<dest = source>
 
+=head2 Calling conventions
+
+Because Perl's subroutine signatures are much richer than JavaScript's ones, I
+had to invent own calling conventions.
+
+All functions take exactly one JavaScript-argument, a native JavaScript
+C<Array> (much like Perl 5's C<@_>). Then the individual arguments are
+extracted (see C<PIL::Nodes>, package C<PIL::Params>).
+
 =head1 TODO
 
 =over
@@ -88,6 +102,11 @@ Make C<use js:Foo> load C<Foo> from L<JSAN|http://www.openjsan.org/>?
 =item *
 
 Primitives
+
+=item *
+
+Better error reporting (with line number etc., should be relatively simple to
+implement because of C<PPos>)
 
 =back
 
