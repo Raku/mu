@@ -54,6 +54,29 @@ C<$*JS::document.write>, C<JS::alert "Pugs rocks">)
 
 =back
 
+=head1 DESIGN
+
+Because JavaScript passes primitive values (strings, numbers, etc.) by value, I
+had to create a proxying object, as Perl requires support for C<is rw> and C<is
+copy>. C<new PIL2JS.Box(value)> returns an object supporting the methods
+C<.GET()> (returns C<value>), C<.STORE(new_value)> (set to new value),
+C<.clone()>, and C<.toNative()> (return value as native object).
+
+Additionally, there's C<PIL2JS.Box.ReadOnly>, which proxies a C<PIL2JS.Box>,
+but C<die()>s upon C<.STORE()>.
+
+C<new PIL2JS.Box.Constant(value)> is sugar for C<new PIL2JS.Box.ReadOnly(new
+PIL2JS.Box(value))>.
+
+=head2 Assignment
+
+Assignment is, thanks to the container type C<PIL2JS.Box>, simple:
+C<dest.STORE(source.GET())>
+
+=head2 Binding
+
+Binding is even simpler: C<dest = source>
+
 =head1 TODO
 
 =over
