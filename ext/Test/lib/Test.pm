@@ -46,6 +46,16 @@ sub is (Str $got, Str $expected, Str +$desc, +$todo, +$depends) returns Bool is 
     Test::proclaim($test, $desc, $todo, $got, $expected, $depends);
 }
 
+## is_deeply
+sub is_deeply(Any $wanted, Any $got, Str +$desc, +$todo, +$depends) returns Bool is export {
+    # hack for now
+    my $got_perl = $got.perl;
+    my $wanted_perl = $wanted.perl;
+    my $test := ($got_perl eq $wanted_perl);
+    Test::proclaim($test, $desc, $todo, $got_perl, $wanted_perl, $depends);
+}
+
+
 ## isnt
 
 sub isnt (Str $got, Str $expected, Str +$desc, +$todo, +$depends) returns Bool is export {
@@ -245,7 +255,7 @@ sub report_failure (Str ?$todo, Str ?$got, Str ?$expected) returns Bool {
         $Test::num_of_tests_failed++;
     }
 
-    if ($?CALLER::CALLER::SUBNAME eq ('&Test::is' | '&Test::isnt' | '&Test::cmp_ok' | '&Test::eval_is' | '&Test::isa_ok' | '&Test::todo_is' | '&Test::todo_isnt' | '&Test::todo_cmp_ok' | '&Test::todo_eval_is' | '&Test::todo_isa_ok')) {
+    if ($?CALLER::CALLER::SUBNAME eq ('&Test::is' | '&Test::isnt' | '&Test::cmp_ok' | '&Test::eval_is' | '&Test::isa_ok' | '&Test::is_deeply' | '&Test::todo_is' | '&Test::todo_isnt' | '&Test::todo_cmp_ok' | '&Test::todo_eval_is' | '&Test::todo_isa_ok')) {
         Test::diag("  Expected: '" ~ ($expected.defined ?? $expected :: "undef") ~ "'");
         Test::diag("       Got: '" ~ ($got.defined ?? $got :: "undef") ~ "'");
     }
