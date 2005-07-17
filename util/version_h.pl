@@ -17,7 +17,7 @@ open IN, "< $version_h" and do {
   close IN;
 };
 
-my $revision = 0;
+my ($revision) = ('$Rev$' =~ m{(\d+)});
 
 # SVK tries to ask the user questions when it has a STDIN and there is
 # no repository.  Since we don't need a STDIN anyway, get rid of it.
@@ -25,6 +25,9 @@ close STDIN;
 
 if (-e "$base/MANIFEST") {
     # This is a release -- do nothing!
+}
+elsif ($revision) {
+    print "Got revision for $version_h using SVN keyword expansion\n";
 }
 elsif (-r $svn_entries) {
     print "Writing version from $svn_entries to $version_h\n";
