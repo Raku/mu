@@ -11,10 +11,15 @@ use PIL::Parser;
 use PIL::Nodes;
 
 GetOptions(
-  "verbose" => \my $verbose,
-  "html"    => \my $html,
-  "help"    => \&usage,
+  "verbose"      => \my $verbose,
+  "html"         => \my $html,
+  "no-jsprelude" => \my $no_jsprelude,
+  "preludepc=s"  => \my $preludepc,
+  "help"         => \&usage,
 ) or usage();
+
+die "Option --preludepc needs --html.\n"
+  if $preludepc and not $html;
 
 local $/;
 my $pil  = <>;
@@ -28,7 +33,7 @@ if($verbose) {
 
 # This is the part of the JS Prelude which needs to be written in JS.
 local $_;
-my $js = <<'EOF' . join "\n", map { $_->as_js } @{ $tree->{"pilGlob"} }, $tree->{pilMain};
+my $prelude = <<'EOF';
 if(PIL2JS == undefined) var PIL2JS = {};
 
 // __pil2js_box boxes its input object.
@@ -136,10 +141,12 @@ PIL2JS.die = function (msg) {
   alert(error);
   throw(error);
 };
-
 EOF
 
+my $js = join "\n", map { $_->as_js } @{ $tree->{"pilGlob"} }, $tree->{pilMain};
+
 unless($html) {
+  print $prelude . "\n" unless $no_jsprelude;
   print $js;
 } else {
   # Output a standard HTML skeleton.
@@ -154,6 +161,16 @@ unless($html) {
   <body>
     <pre id="__pil2js_tty"></pre>
 
+    @{[
+      $no_jsprelude
+        ? ""
+        : "<script type=\"text/javascript\">//<![CDATA[\n$prelude\n//]]</script>\n"
+    ]}
+    @{[
+      $preludepc
+        ? "<script type=\"text/javascript\" src=\"$preludepc\"></script>\n"
+        : ""
+    ]}
     <script type="text/javascript">//<![CDATA[
 %s
       //]]
@@ -164,12 +181,24 @@ EOF
 }
 
 sub usage { print STDERR <<USAGE; exit }
-Usage:
-  \$ cd perl5/PIL2JS
-  \$ pugs -CPIL -Ilib6 -MPrelude::JS -we 'say 2 + 3' | \
-    ./pil2js.pl [-v] [--html] > test.js
-
 pil2js.pl compiles PIL code given in STDIN to JavaScript code, outputted to
 STDOUT.
+
+Available options (options may be abbreviated to uniqueness):
+  --verbose           Sets verboseness.
+  --html              Outputs the JavaScript packed in an HTML page.
+  --no-jsprelude      Omits the part of the Prelude written in JavaScript.
+  --preludepc=http://.../preludepc.js
+                      Sets the path to a precompiled Prelude.
+
+Recommended usage:
+  \$ cd perl5/PIL2JS
+  \$ pugs -CPIL -Ilib6 -MPrelude::JS -we 'say 2 + 3' | \
+    ./pil2js.pl --html > test.js
+  # or (*much* faster)
+  \$ pugs -CPIL -Ilib6 -MPrelude::JS -we '' | \
+    ./pil2js.pl --no-jsprelude > preludepc.js
+  \$ pugs -CPIL -we 'say 2 + 3' | \
+    ./pil2js.pl --html --preludepc="http://.../preludepc.js" > test.js
 
 USAGE
