@@ -8,7 +8,7 @@ use Carp 'confess';
 
 sub new {
     my ($class, $metaclass, $order) = @_;
-    $order = ':descendant' # C3 is the canonical order
+    $order = ':ascendant' # C3 is the canonical order
         if not(defined($order)) || $order eq ':canonical';
     my $dispatcher;
     if ($order eq ':preorder') {
@@ -38,18 +38,17 @@ sub _make_iterator {
     };
 }
 
-sub _make_descendant_dispatcher {
+sub _make_ascendant_dispatcher {
     my ($metaclass) = @_;
     my @MRO = $metaclass->MRO;
     return _make_iterator(@MRO);
 }
 
-sub _make_ascendant_dispatcher {
+sub _make_descendant_dispatcher {
     my ($metaclass) = @_;
     my @MRO = $metaclass->MRO;
     return _make_iterator(reverse @MRO);
 }
-
 
 sub _make_preorder_dispatcher {
     my ($metaclass) = @_;

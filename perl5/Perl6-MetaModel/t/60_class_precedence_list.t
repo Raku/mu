@@ -68,13 +68,13 @@ is_deeply(
 
 # least-derived first, like construction order    
 is_deeply(
-    [ map { $_->name } Vulcan->meta->class_precedence_list(':descendant') ],
+    [ map { $_->name } Vulcan->meta->class_precedence_list(':ascendant') ],
     [ qw(Vulcan Intelligent Sentient Humanoid BiPedal LifeForm Perl6::Object) ],
     '... got the right descendant class precedence list');    
 
 # most-derived first, like destruction order    
 is_deeply(
-    [ map { $_->name } Vulcan->meta->class_precedence_list(':ascendant') ],
+    [ map { $_->name } Vulcan->meta->class_precedence_list(':descendant') ],
     [ qw(Perl6::Object LifeForm BiPedal Humanoid Sentient Intelligent Vulcan) ],
     '... got the right ascendant class precedence list');      
 
