@@ -16,12 +16,9 @@ use v6;
 
     * include Span::Code in Span.pm API
 
-    * stringify - test with 2-5 elements
-    * document that stringify doesn't show all elements
+    * document that stringify doesn't show all elements  '
 
     * set_start / set_end
-
-    * remove "difference()" method
 
 =cut
 
@@ -49,7 +46,6 @@ method stringify ($self: ) {
         unshift @end, $tmp;
     }
     return '' unless @start;
-    return @start[0] if @start[0] == @end[-1];
     # if @start and @end intersect, don't print ".."
     if @end[0] == any( @start ) {
         push @start, @end;

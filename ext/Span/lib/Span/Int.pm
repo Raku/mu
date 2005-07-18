@@ -80,6 +80,13 @@ method compare ( Span::Int $span ) returns int {
     return $.end <=> $span.end;
 }
 
+method difference ($self: $span ) returns List {
+    return $self if $self.is_empty;
+    my @span = $span.complement;
+    @span = @span.map:{ $self.intersection( $_ ) };
+    return @span;
+}
+
 method next ($self: $x ) {
     return $.start if $x < $.start;
     return $x      if $x <= $.end;

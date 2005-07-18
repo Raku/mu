@@ -217,7 +217,7 @@ method compare ( Span::Num $span ) returns int {
     return $span.end_is_open <=> $.end_is_open;
 }
 
-method difference ($self: $span ) returns List of Span {
+method difference ($self: $span ) returns List {
     return $self if $self.is_empty;
     my @span = $span.complement;
     @span = @span.map:{ $self.intersection( $_ ) };

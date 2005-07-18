@@ -10,6 +10,8 @@ class Span-0.01
 
 =for TODO
     
+    * integrate with Span::Code objects
+
 Known bugs:
 
     * iterator should check both boundaries, because the Span is mutable
@@ -323,9 +325,13 @@ method complement ($self: ) returns List of Span {
 
 method difference ($self: $span is copy) returns List of Span {
     return $self.clone if $self.is_empty;
-    
     my $span0 = $self.span;
     my $span1 = $self.normalize_parameter( $span );
+
+    # XXX - why this doesn't work?
+    # say 'diff ' , $span0.stringify, ' to ', $span1.stringify;
+    # my @span0 = $span0.difference( $span1.span );
+    # return @span0.map:{ $self.new( span => $_ ) };
 
     my @span1 = $span1.complement;
     # say $_.stringify for @span1;
