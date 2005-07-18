@@ -3,80 +3,10 @@
 use strict;
 use warnings;
 
-use Test::More no_plan => 1;
+use Test::More tests => 13;
 use Test::Exception;
 
 use Perl6::MetaModel;
-
-=pod
-
-def merge(seqs):
-    print '\n\nCPL[%s]=%s' % (seqs[0][0],seqs),
-    res = []; i=0
-    while 1:
-      nonemptyseqs=[seq for seq in seqs if seq]
-      if not nonemptyseqs: return res
-      i+=1; print '\n',i,'round: candidates...',
-      for seq in nonemptyseqs: # find merge candidates among seq heads
-          cand = seq[0]; print ' ',cand,
-          nothead=[s for s in nonemptyseqs if cand in s[1:]]
-          if nothead: cand=None #reject candidate
-          else: break
-      if not cand: raise "Inconsistent hierarchy"
-      res.append(cand)
-      for seq in nonemptyseqs: # remove cand
-          if seq[0] == cand: del seq[0]
-
-def mro(C):
-    "Compute the class precedence list (mro) according to C3"
-    return merge([[C]]+map(mro,C.__bases__)+[list(C.__bases__)])
-
-=cut
-
-sub merge {
-    my (@seqs) = @_;
-    my @res; 
-    my $i = 0;
-    while (1) {
-        my @nonemptyseqs = (map { (@{$_} ? $_ : ()) } @seqs); # remove all empty seqences
-        return @res if not @nonemptyseqs; # return the list if we have no more no-empty sequences
-        $i++;
-        my $cand; # a canidate ..
-        foreach my $seq (@nonemptyseqs) {
-            $cand = $seq->[0]; # get the head of the list
-            # XXX - this is instead of the python "in"
-            my $nothead;            
-            foreach my $sub_seq (@nonemptyseqs) {
-                my %in_tail = (map { $_->name => 1 } @{$sub_seq}[ 1 .. $#{$sub_seq} ]);
-                $nothead++ if exists $in_tail{$cand->name};      
-            }
-            if ($nothead) {
-                $cand = undef; # reject it ...
-            }
-            else {
-                last;
-            }
-        }
-        die "Inconsistent hierarchy" if not $cand;
-        push @res => $cand;
-        foreach my $seq (@nonemptyseqs) {
-            if ($seq->[0]->name eq $cand->name) {
-                shift @{$seq};
-            }
-        }
-    }
-}
-
-use Scalar::Util 'blessed';
-
-sub MRO {
-    my ($c) = @_;
-    return merge(
-            [ $c ],                                    # the class we are linearizing
-            (map { [ MRO($_) ] } @{$c->superclasses}), # the MRO of all the superclasses
-            [ @{$c->superclasses} ]                    # a list of all the superclasses
-            );
-}
 
 =pod
 
@@ -121,32 +51,32 @@ class B => { is => [ 'D', 'E' ] };
 class A => { is => [ 'B', 'C' ] };
 
 is_deeply(
-    [ map { $_->name } MRO(F->meta) ],
+    [ map { $_->name } F->meta->MRO() ],
     [ qw(F Perl6::Object) ],
     '... got the right MRO for F');
     
 is_deeply(
-    [ map { $_->name } MRO(E->meta) ],
+    [ map { $_->name } E->meta->MRO() ],
     [ qw(E Perl6::Object) ],
     '... got the right MRO for E');    
     
 is_deeply(
-    [ map { $_->name } MRO(D->meta) ],
+    [ map { $_->name } D->meta->MRO() ],
     [ qw(D Perl6::Object) ],
     '... got the right MRO for D');       
 
 is_deeply(
-    [ map { $_->name } MRO(C->meta) ],
+    [ map { $_->name } C->meta->MRO() ],
     [ qw(C D F Perl6::Object) ],
     '... got the right MRO for C'); 
     
 is_deeply(
-    [ map { $_->name } MRO(B->meta) ],
+    [ map { $_->name } B->meta->MRO() ],
     [ qw(B D E Perl6::Object) ],
     '... got the right MRO for B');     
     
 is_deeply(
-    [ map { $_->name } MRO(A->meta) ],
+    [ map { $_->name } A->meta->MRO() ],
     [ qw(A B C D E F Perl6::Object) ],
     '... got the right MRO for A');      
     
@@ -169,10 +99,9 @@ class X => {};
 class Y => {};
 class XY => { is => [ 'X', 'Y' ] };
 class YX => { is => [ 'Y', 'X' ] };
-class Z  => { is => [ 'XY', 'YX' ] };
 
 throws_ok {
-    MRO(Z->meta);
+    class Z  => { is => [ 'XY', 'YX' ] };
 } qr/^Inconsistent hierarchy/, '... got the right error with an inconsistent hierarchy';
 
 =pod
@@ -224,7 +153,7 @@ class A2 => { is => [ 'B2', 'C2' ] };
 
 
 is_deeply(
-    [ map { $_->name } MRO(A2->meta) ],
+    [ map { $_->name } A2->meta->MRO() ],
     [ qw(A2 B2 E2 C2 D2 F2 Perl6::Object) ],
     '... got the right MRO for A2');      
     
@@ -246,7 +175,7 @@ class Diamond_B => { is => [ 'Diamond_C' ] };
 class Diamond_D => { is => [ 'Diamond_A', 'Diamond_B' ] };
 
 is_deeply(
-    [ map { $_->name } MRO(Diamond_D->meta) ],
+    [ map { $_->name } Diamond_D->meta->MRO() ],
     [ qw(Diamond_D Diamond_A Diamond_B Diamond_C Perl6::Object) ],
     '... got the right MRO for diamond inheritance');      
 
@@ -286,9 +215,57 @@ class Vulcan => {
 };
 
 is_deeply(
-    [ map { $_->name } MRO(Vulcan->meta) ],
+    [ map { $_->name } Vulcan->meta->MRO() ],
     [ qw(Vulcan Intelligent Sentient Humanoid BiPedal LifeForm Perl6::Object) ],
     '... got the right list for the Vulcan Dylan Example');  
     
-    
+=pod
+
+More Dylan examples
+
+from L<http://www.webcom.com/haahr/dylan/linearization-oopsla96.html>
+
+=cut
+
+class Boat => {};
+
+class DayBoat   => { is => [ 'Boat' ] };
+class WheelBoat => { is => [ 'Boat' ] };
+
+class EngineLess     => { is => [ 'DayBoat' ] };
+class SmallMultiHull => { is => [ 'DayBoat' ] };
+
+class PedalWheelBoat => { is => [ 'EngineLess', 'WheelBoat' ] };
+
+class SmallCatamaran => { is => [ 'SmallMultiHull' ] };
+
+class Pedalo => { is => [ 'PedalWheelBoat', 'SmallCatamaran' ] };
+
+is_deeply(
+    [ map { $_->name } PedalWheelBoat->meta->MRO() ],
+    [ qw(PedalWheelBoat EngineLess DayBoat WheelBoat Boat Perl6::Object) ],
+    '... got the right list for PedalWheelBoat in the Pedalo Dylan Example');  
+
+is_deeply(
+    [ map { $_->name } SmallCatamaran->meta->MRO() ],
+    [ qw(SmallCatamaran SmallMultiHull DayBoat Boat Perl6::Object) ],
+    '... got the right list for SmallCatamaran in the Pedalo Dylan Example');  
+
+is_deeply(
+    [ map { $_->name } Pedalo->meta->MRO() ],
+    [ qw(Pedalo PedalWheelBoat EngineLess SmallCatamaran SmallMultiHull DayBoat WheelBoat Boat Perl6::Object) ],
+    '... got the right list for the Pedalo Dylan Example');  
+
+
+
+
+
+
+
+
+
+
+
+
+
 

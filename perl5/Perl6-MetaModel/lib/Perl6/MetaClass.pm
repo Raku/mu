@@ -20,6 +20,7 @@ sub new {
         version      => '0.0.0',
         authority    => undef,
         # the guts of the metaclass
+        MRO          => undef,
         superclasses => [],
         class_definition => {
             methods      => {},
@@ -33,7 +34,15 @@ sub new {
     $meta->name($params{name})                 if exists $params{name};
     $meta->version($params{version})           if exists $params{version};
     $meta->authority($params{authority})       if exists $params{authority};    
-    $meta->superclasses($params{superclasses}) if exists $params{superclasses};        
+    if (exists $params{superclasses}) {
+        $meta->superclasses($params{superclasses});            
+    }
+    else {
+        # NOTE: adding superclass will automagically 
+        # compute the MRO, but if we don't have any
+        # then we need to compute it ourselves ...
+        $meta->MRO();            
+    }
     return $meta;
 }
 
@@ -87,15 +96,21 @@ sub superclasses {
             || confess "IncorrectObjectType : A superclass must be a Perl6::MetaClass instance"
                 foreach @{$superclasses};
         $self->{superclasses} = $superclasses;    
+        # since the superclasses changed, 
+        # we need to calc the MRO again
+        $self->{MRO} = undef;
+        $self->MRO();
     }
     $self->{superclasses};
 }
 
+
+# XXX - this should be removed in favor of the MRO I think
 sub class_precedence_list {
     my ($self, $order) = @_;
     my $seen = {};
     my @class_precedence_list;    
-    my $dispatcher = $self->dispatcher($order);
+    my $dispatcher = $self->dispatcher($order || ':preorder');
     while (my $next = $dispatcher->next()) {
         unless ($seen->{$next->name}) {
             $seen->{$next->name}++;
@@ -105,6 +120,7 @@ sub class_precedence_list {
     return @class_precedence_list;
 }
 
+# XXX - this should be removed in favor of WALKCLASS I think
 sub traverse_pre_order {
     my ($self, $visitor) = @_;
     $visitor->($self);
@@ -113,12 +129,59 @@ sub traverse_pre_order {
     }
 }
 
+# XXX - this should be removed in favor of WALKCLASS I think
 sub traverse_post_order {
     my ($self, $visitor) = @_;
     foreach my $super (@{$self->superclasses}) {
         $super->traverse_post_order($visitor);
     }
     $visitor->($self);    
+}
+
+sub _merge {
+    my (@seqs) = @_;
+    my @res; 
+    my $i = 0;
+    while (1) {
+        my @nonemptyseqs = (map { (@{$_} ? $_ : ()) } @seqs); # remove all empty seqences
+        return @res if not @nonemptyseqs; # return the list if we have no more no-empty sequences
+        $i++;
+        my $cand; # a canidate ..
+        foreach my $seq (@nonemptyseqs) {
+            $cand = $seq->[0]; # get the head of the list
+            # XXX - this is instead of the python "in"
+            my $nothead;            
+            foreach my $sub_seq (@nonemptyseqs) {
+                my %in_tail = (map { $_->name => 1 } @{$sub_seq}[ 1 .. $#{$sub_seq} ]);
+                $nothead++ if exists $in_tail{$cand->name};      
+            }
+            if ($nothead) {
+                $cand = undef; # reject it ...
+            }
+            else {
+                last;
+            }
+        }
+        confess "Inconsistent hierarchy" if not $cand;
+        push @res => $cand;
+        foreach my $seq (@nonemptyseqs) {
+            if ($seq->[0]->name eq $cand->name) {
+                shift @{$seq};
+            }
+        }
+    }
+}
+
+sub MRO {
+    my ($self) = @_;
+    $self->{MRO} = [ 
+        _merge(
+            [ $self ],                                      # the class we are linearizing
+            (map { [ $_->MRO() ] } @{$self->superclasses}), # the MRO of all the superclasses
+            [ @{$self->superclasses} ]                      # a list of all the superclasses
+        )
+    ] unless defined $self->{MRO};
+    @{$self->{MRO}};
 }
 
 ## METHODS
@@ -162,13 +225,14 @@ sub has_method {
     $self->get_method($label, %params) ? 1 : 0;    
 }
 
-# XXX - Should this use the class_precedence_list?
+# XXX - this should be removed in favor of WALKMETH I think
 sub find_method {
     my ($self, $label, %params) = @_;
     return $self->get_method($label, %params) if $self->has_method($label, %params);
     return $self->find_method_in_superclasses($label, %params);
 }
 
+# XXX - this should be removed in favor of WALKMETH I think
 sub find_method_in_superclasses {
     my ($self, $label, %params) = @_;
     foreach my $super (@{$self->superclasses}) {
@@ -178,6 +242,7 @@ sub find_method_in_superclasses {
     return undef;
 }
 
+# XXX - this should be removed in favor of WALKMETH I think
 sub responds_to {
     my ($self, $label, %params) = @_;
     $self->find_method($label, %params) ? 1 : 0;    
@@ -244,6 +309,8 @@ sub _get_all {
     my ($self, $method, %params) = @_;
     return ((map { $_->_get_all($method, %params) } @{$self->superclasses}), $self->$method(%params));
 }
+
+# XXX - this should probably use the MRO to get the class ordering
 
 # "spec" here means "whatever annotation went with this attribute when it's declared"
 sub find_attribute_spec {

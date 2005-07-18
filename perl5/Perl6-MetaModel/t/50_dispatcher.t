@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 95;
+use Test::More tests => 45;
 
 =pod
 
@@ -20,62 +20,6 @@ by 'next METHOD' and the like.
 =cut
 
 use Perl6::MetaModel;
-
-=pod
-
-Somewhat convoluted multiple inheritance, with 
-some repeated inheritance as well.
-
-     Perl6::Object
-         ^    ^    
-        /     |
-      Foo     |
-      ^  ^    |
-      |   \   |
-      |  Bar  |  
-      |   ^   |
-      |  /    |
-    FooBar   Baz
-       \     /
-      FooBarBaz
-      
-=cut
-    
-class Foo => {};   
-class Bar => {
-    is => [ 'Foo' ]
-};
-class Baz => {};
-class FooBar => {
-    is => [ 'Foo', 'Bar' ]
-};
-class FooBarBaz => {
-    is => [ 'FooBar', 'Baz' ]
-};
-    
-{    
-    my $d = FooBarBaz->meta->dispatcher(':preorder');
-    isa_ok($d, 'Perl6::MetaClass::Dispatcher');
-    
-    my @control = qw(
-        FooBarBaz
-            FooBar
-                Foo
-                    Perl6::Object
-                Bar
-                    Foo
-                        Perl6::Object
-            Baz
-                Perl6::Object    
-    );
-
-    my $metaclass = $d->next();
-    while (defined $metaclass) {
-        isa_ok($metaclass, 'Perl6::MetaClass');        
-        is($metaclass->name, shift(@control), '... got the metaclass we expected');
-        $metaclass = $d->next();  
-    }
-}
 
 =pod
 
@@ -220,61 +164,3 @@ class Diamond2_F => {
         $metaclass = $d->next();  
     }
 }
-
-=pod
-
-Expanded diamond inheritance with repeated more repeats
-
-   +---------+
-   |     A   |
-   |   /  \  |
-   +--B    C |
-      |  / | |
-      | /  |/
-      D    E
-       \  /
-        F
-
-=cut
-
-class Diamond2_D => {
-    is => [ 'Diamond_B', 'Diamond_C' ]
-};
-class Diamond2_E => {
-    is => [ 'Diamond_C', 'Diamond_B' ]
-};
-class Diamond2_F => {
-    is => [ 'Diamond2_D', 'Diamond2_E' ]
-};
-
-{    
-    my $d = Diamond2_F->meta->dispatcher(':preorder');
-    isa_ok($d, 'Perl6::MetaClass::Dispatcher');    
-
-    my @control = qw(
-        Diamond2_F
-            Diamond2_D
-                Diamond_B
-                    Diamond_A
-                        Perl6::Object
-                Diamond_C
-                    Diamond_A
-                        Perl6::Object                         
-            Diamond2_E
-                Diamond_C
-                    Diamond_A
-                        Perl6::Object                        
-                Diamond_B
-                    Diamond_A
-                        Perl6::Object                                            
-    );
-
-    my $metaclass = $d->next();
-    while (defined $metaclass) {
-        isa_ok($metaclass, 'Perl6::MetaClass');
-        is($metaclass->name, shift(@control), '... got the metaclass we expected');
-        $metaclass = $d->next();  
-    }
-}
-
-

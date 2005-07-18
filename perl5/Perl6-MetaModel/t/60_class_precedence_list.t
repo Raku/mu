@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 2;
+use Test::More tests => 4;
 
 =pod
 
@@ -66,8 +66,6 @@ is_deeply(
     [ qw(Vulcan Intelligent Humanoid Sentient BiPedal LifeForm Perl6::Object ) ],
     '... got the right :breadth class precedence list');    
 
-=pod
-
 # least-derived first, like construction order    
 is_deeply(
     [ map { $_->name } Vulcan->meta->class_precedence_list(':descendant') ],
@@ -77,8 +75,7 @@ is_deeply(
 # most-derived first, like destruction order    
 is_deeply(
     [ map { $_->name } Vulcan->meta->class_precedence_list(':ascendant') ],
-    [ qw(Perl6::Object LifeForm BiPedal Sentient Humanoid Intelligent Vulcan) ],
+    [ qw(Perl6::Object LifeForm BiPedal Humanoid Sentient Intelligent Vulcan) ],
     '... got the right ascendant class precedence list');      
 
-=cut
 

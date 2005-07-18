@@ -3,10 +3,12 @@
 use strict;
 use warnings;
 
-use Test::More tests => 145;
+use Test::More tests => 146;
 use Test::Exception;
 
 use Perl6::MetaClass;
+
+use Perl6::Object;
 
 use Perl6::Instance::Attribute;
 use Perl6::Instance::Method;
@@ -29,6 +31,9 @@ can_ok($mc, 'superclasses');
 
 # get all superclasses
 can_ok($mc, 'class_precedence_list');
+
+# get the method resolution order
+can_ok($mc, 'MRO');
 
 ## Instance methods
 
