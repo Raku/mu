@@ -42,7 +42,7 @@ while(defined($_ = $term->readline($prompt))) {
   $term->addhistory($_) if /\S/;
   s/\s*$//;
 
-  if(my ($cmd, $arg) = /^:([hq]|pil(?:\.yaml)|conf|precomp|js|l)\s*(.*)$/) {
+  if(my ($cmd, $arg) = /^:([hq]|pil(?:\.yaml)?|conf|precomp|js|l)\s*(.*)$/) {
     no strict "refs";
     $cmd =~ s/\./_/g;
     &{"command_$cmd"}($arg);

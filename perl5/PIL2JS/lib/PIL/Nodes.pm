@@ -6,6 +6,9 @@ use strict;
 
 # State:
 our $IN_SUBLIKE = 0;
+our $CUR_POS    = bless [ "<unknown>", (0) x 4 ] => "PIL::MkPos";
+
+our $FAIL       = sub { die "*** $_[0]\n    at $CUR_POS\n" };
 
 # Possible contexts:
 { package PIL::TCxt }
@@ -103,10 +106,25 @@ sub add_indent {
 
   sub as_js {
     my $self = shift;
-
     die unless @$self == 3;
     die unless $self->[0]->isa("PIL::MkPos");
+
+    local $CUR_POS = $self->[0];
     return $self->[2]->as_js;
+  }
+}
+
+{
+  package PIL::MkPos;
+
+  use overload '""' => \&as_string;
+
+  sub as_string {
+    my $self = shift;
+    die unless @$self == 5;
+
+    my ($file, $line_start, $column_start, $line_end, $column_end) = @$self;
+    return "$file line $line_start-$line_end, column $column_start-$column_end";
   }
 }
 
@@ -115,8 +133,8 @@ sub add_indent {
 
   sub as_js {
     my $self = shift;
-
     die unless @$self == 1;
+
     return $self->[0]->as_js . "\n";
   }
 }
@@ -184,7 +202,7 @@ sub add_indent {
     ) {
       return $self->[3]->[0]->[2]->[0]->[0]->[0];
     } elsif(defined $subname and $subname eq "&JS::inline") {
-      die "Invalid use of &JS::inline!\n";
+      $FAIL->("Invalid use of &JS::inline!");
     }
 
     my $native;
@@ -210,7 +228,7 @@ sub add_indent {
       if not defined $subname or $subname =~ /^\$/;
 
     # Sanitize $subname.
-    die "When calling a method, the method name must be a simple string!\n"
+    $FAIL->("When calling a method, the method name must be a simple string!")
       if $self->[2]->isa("PIL::Just") and (not defined $subname or $subname !~ /^&/);
     $subname = "&$1" if $self->[2]->isa("PIL::Just") and $subname =~ /^&(.+)$/;
     $subname =~ s/^(.)\*?JS::/$1/ if defined $subname;
@@ -363,7 +381,7 @@ sub add_indent {
     if($self->[1]->isa("PIL::SubMethod")) {
       my $methname = $self->[0];
       $methname = ($methname =~ /^&.*::(.+)$/)[0] or
-        die "Method names must be simple strings!\n";
+        $FAIL->("Method names must be simple strings!");
       $js .= sprintf
         "PIL2JS.Box.prototype.perl_methods[%s] = %s;\n",
         PIL::Nodes::doublequote($methname),
@@ -427,7 +445,7 @@ sub add_indent {
     $js .= $_->as_js() . "\n" for @$self;
     $js .=
       "if(args.length != 0)\n" .
-      "  PIL2JS.die(\"\" + args.length + \" more parameters passed than expected (@{[scalar @$self]})!\\\n\");\n";
+      "  PIL2JS.die(\"\" + args.length + \" more parameters passed than expected (@{[scalar @$self]})!\\n\");\n";
 
     return $js;
   }
@@ -480,7 +498,7 @@ sub add_indent {
     if($self->{tpParam}{isOptional}->isa("PIL::False")) {
       push @js,
         "if($jsname == undefined) " .
-        "PIL2JS.die(\"Required parameter \\\"$name\\\" not passed!\\\n\");";
+        "PIL2JS.die(\"Required parameter \\\"$name\\\" not passed!\\n\");";
     }
 
     # Should we (and can we) supply a default for an optional param?
