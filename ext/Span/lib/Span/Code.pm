@@ -14,51 +14,36 @@ use v6;
 
     * remove "arbitrary_limit" if possible
 
-    * include Span::Code in Span.pm API 
-    
-    * stringify - test with 2-5 elements 
+    * include Span::Code in Span.pm API
+
+    * stringify - test with 2-5 elements
     * document that stringify doesn't show all elements
-    
+
     * set_start / set_end
-   
+
     * remove "difference()" method
-    
+
 =cut
 
 class Span::Code-0.01
 {
-    has Code $.closure_next;
-    has Code $.closure_previous;
-    has Span::Code $.universe;   
+    has Recurrence $.recurrence;
+    has $.span;
 
-    has Code $.complement_next;
-    has Code $.complement_previous;
+submethod BUILD ( $.span, $.recurrence ) {}
 
-    has $:arbitrary_limit;
-
-submethod BUILD ( $.closure_next, $.closure_previous, ?$is_universe, ?$complement_next, ?$complement_previous, ?$.universe ) {
-    # TODO - get rid of "$:arbitrary_limit"
-    $:arbitrary_limit = 100;
-    
-    if $is_universe {
-        # $.universe = $self --> $self doesn't exist yet
-        $.complement_next =     sub { +Inf } unless defined $.complement_next;
-        $.complement_previous = sub { -Inf } unless defined $.complement_previous;
-    }
-}
-
-method stringify () {
+method stringify ($self: ) {
     my @start;
     my @end;
     my $samples = 3;
     my $tmp = -Inf;
     for ( 1 .. $samples ) {
-        $tmp = $.closure_next( $tmp );
+        $tmp = $self.next( $tmp );
         push @start, $tmp;
     }
     $tmp = Inf;
     for ( 0 .. $samples ) {
-        $tmp = $.closure_previous( $tmp );
+        $tmp = $self.previous( $tmp );
         unshift @end, $tmp;
     }
     return '' if @start[0] > @end[-1];
@@ -87,13 +72,13 @@ method density () returns Object {
     return undef;
 }
 
-method start () {
-    my $tmp = $.closure_next( -Inf );
+method start ($self: ) {
+    my $tmp = $self.next( -Inf );
     return $tmp == Inf ?? undef :: $tmp;
 }
 
-method end () {
-    my $tmp = $.closure_previous( Inf );
+method end ($self: ) {
+    my $tmp = $self.previous( Inf );
     return $tmp == -Inf ?? undef :: $tmp;
 }
 
@@ -103,7 +88,7 @@ method start_is_open   () { return bool::false }
 method end_is_closed   () { return bool::true }
 method end_is_open     () { return bool::false }
 
-method compare ($self: $span is copy) returns int { 
+method compare ($self: $span is copy) returns int {
     # TODO - this is hard
     ...
 }
@@ -118,177 +103,76 @@ method intersects ($self: $span is copy) returns bool {
     return ! $tmp.is_empty;
 }
 
-sub _create_and ( $closure1, $closure2, $direction ) {
-    return sub ( $x is copy ) {
-        my $n1 = &{ $closure1 }( $x );
-        my $n2 = &{ $closure2 }( $x );
-        return ( $n1 <=> $n2 ) == $direction ?? $n1 :: $n2;
+method union ($self: $span is copy) {
+    if ( $span.isa( 'Span::Num' ) || $span.isa( 'Span::Int' ) )
+    {
+        my $recurrence = $self.recurrence.get_universe();
+        $span = $self.new( recurrence => $recurrence, span => $span );
     }
-}
-
-sub _create_nand ( $closure1, $closure2, $closure3, $closure4 ) {
-
-    # XXX - use a global or object setting
-    my $arbitrary_limit = 100;
-
-    return sub ( $x is copy ) {
-        my $n1;
-        my $n2 = &{ $closure3 }( $x );
-        for ( 0 .. $arbitrary_limit )
-        {
-            $n1 = &{ $closure1 }( &{ $closure2 }( $n2 ) );
-            return $n1 if $n1 == $n2;
-            $n2 = &{ $closure3 }( &{ $closure4 }( $n1 ) );
-        }
-        warn "Arbitrary limit exceeded when calculating union()";
-    }
-}
-
-sub _create_intersection ( $self, $span ) {
-    my $start = $span.start;
-    my $end =   $span.end;
-    my $start_is_open = $span.start_is_open;
-    my $end_is_open =   $span.end_is_open;
-    return  
-        sub ( $x is copy ) {
-                $x = &{ $self.closure_next }( $x );  
-                if $x < $start && ! $start_is_open {
-                    $x = &{ $self.closure_next }( &{ $self.closure_previous }( $start ) );
-                }
-                elsif $x <= $start && $start_is_open {
-                    $x = &{ $self.closure_next }( $start );
-                }
-                if $x > $end && ! $end_is_open {
-                    $x = Inf;
-                }
-                elsif $x >= $end && $end_is_open {
-                    $x = Inf;
-                }
-                return $x;
-            },
-        sub ( $x is copy ) {
-                $x = &{ $self.closure_previous }( $x );
-                if $x > $end && ! $end_is_open {
-                    $x = &{ $self.closure_previous }( &{ $self.closure_next }( $end ) );
-                }
-                elsif $x >= $end && $end_is_open {
-                    $x = &{ $self.closure_previous }( $end );
-                }
-                if $x < $start && ! $start_is_open {
-                    $x = -Inf;
-                }
-                elsif $x <= $start && $start_is_open {
-                    $x = -Inf;
-                }
-                return $x;
-            };
-}
-
-method union ($self: $span is copy) { 
-    return $self.new( 
-        closure_next =>        _create_and( $self.closure_next, $span.closure_next, -1 ),
-        closure_previous =>    _create_and( $self.closure_previous, $span.closure_previous, 1 ),
-        complement_next =>     _create_nand( $self.complement_next, $self.complement_previous, $span.complement_next, $span.complement_previous ),
-        complement_previous => _create_nand( $self.complement_previous, $self.complement_next, $span.complement_previous, $span.complement_next ),
-        universe => $self.get_universe,
-    )
+    return $self.new( ... )
 }
 
 method intersection ($self: $span is copy) {
-
     if ( $span.isa( 'Span::Num' ) || $span.isa( 'Span::Int' ) )
     {
-        my @complement = $span.complement;
-        if ( @complement.elems == 0 ) {
-            return $self;            
-        }
-        my $universe = $self.get_universe;
-        my ( $closure_next, $closure_previous ) = _create_intersection( $self, $span );
-        if ( @complement.elems == 1 ) {
-            my ( $complement_next, $complement_previous ) = _create_intersection( $universe, @complement[0] );           
-            return $self.new(
-                    closure_next =>        $closure_next,
-                    closure_previous =>    $closure_previous,
-                    complement_next =>     $complement_next,
-                    complement_previous => $complement_previous,
-                );
-        }
-        my ( $complement_next1, $complement_previous1 ) = _create_intersection( $universe, @complement[0] );
-        my ( $complement_next2, $complement_previous2 ) = _create_intersection( $universe, @complement[1] );
-        return $self.new(
-                closure_next =>        $closure_next,
-                closure_previous =>    $closure_previous,
-                complement_next =>     _create_and( $complement_next1, $complement_next2, -1 ),
-                complement_previous => _create_and( $complement_previous1, $complement_previous2, 1 ),
-            )
+        my $recurrence = $self.recurrence.get_universe();
+        $span = $self.new( recurrence => $recurrence, span => $span );
     }
-    return $self.new( 
-        closure_next =>        _create_nand( $self.closure_next, $self.closure_previous, $span.closure_next, $span.closure_previous ),
-        closure_previous =>    _create_nand( $self.closure_previous, $self.closure_next, $span.closure_previous, $span.closure_next ),
-        complement_next =>     _create_and( $self.complement_next, $span.complement_next, -1 ),
-        complement_previous => _create_and( $self.complement_previous, $span.complement_previous, 1 ),
-        universe => $self.get_universe,
-    )
+    my @spans = $span.complement;
+    ... 
+    return $self.new( recurrence => $.recurrence, ... );
 }
 
 method complement ($self: ) {
-    return $self.new( 
-        closure_next =>        &{ $self.get_complement_next }, 
-        closure_previous =>    &{ $self.get_complement_previous }, 
-        complement_next =>     &{ $self.closure_next },
-        complement_previous => &{ $self.closure_previous },
-        universe =>            $self.get_universe,
-    );
+    ... 
+    return $self.new( recurrence => $.recurrence.complement, ... );
 }
 
-# TODO - move this to Span.pm
-method difference ($self: $span ) {
+method difference ($self: $span is copy ) {
+    if ( $span.isa( 'Span::Num' ) || $span.isa( 'Span::Int' ) )
+    {
+        my $recurrence = $self.recurrence.get_universe();
+        $span = $self.new( recurrence => $recurrence, span => $span );
+    }
+    my @spans = $span.complement;
+    ...
     return $self.intersection( $span.complement );
 }
 
-method next ( $x ) { 
-    return $.closure_next( $x );
+method next ($self: $x is copy ) {
+    $x = $.recurrence.next( $x );
+    if $x < $.span.start && ! $.span.start_is_open {
+        $x = $.recurrence.next( $.recurrence.previous( $.span.start ) );
+    }
+    elsif $x <= $.span.start && $.span.start_is_open {
+        $x = $.recurrence.next( $.span.start );
+    }
+    if $x > $.span.end && ! $.span.end_is_open {
+        $x = Inf;
+    }
+    elsif $x >= $.span.end && $.span.end_is_open {
+        $x = Inf;
+    }
+    return $x;
 }
 
-method previous ( $x ) { 
-    return $.closure_previous( $x );
+method previous ($self: $x is copy ) {
+    $x = $.recurrence.previous( $x );
+    if $x > $.span.end && ! $.span.end_is_open {
+        $x = $.recurrence.previous( $.recurrence.next( $.span.end ) );
+    }
+    elsif $x >= $.span.end && $.span.end_is_open {
+        $x = $.recurrence.previous( $.span.end );
+    }
+    if $x < $.span.start && ! $.span.start_is_open {
+        $x = -Inf;
+    }
+    elsif $x <= $.span.start && $.span.start_is_open {
+        $x = -Inf;
+    }
+    return $x;
 }
 
-submethod get_complement_next ($self: ) { 
-    return $.complement_next if defined $.complement_next;
-    $self.get_universe;
-    return $.complement_next =
-        sub ( $x is copy ) {
-            for ( 0 .. $:arbitrary_limit )
-            {
-                $x = &{ $.universe.closure_next }( $x );
-                return $x if $x == Inf ||
-                             $x != &{ $self.closure_previous }( &{ $self.closure_next }( $x ) );
-            }
-            warn "Arbitrary limit exceeded when calculating complement()";
-        };
-}
-
-submethod get_complement_previous ($self: ) { 
-    return $.complement_previous if defined $.complement_previous;
-    $self.get_universe;
-    return $.complement_previous =
-        sub ( $x is copy ) {
-            for ( 0 .. $:arbitrary_limit )
-            {
-                $x = &{ $.universe.closure_previous }( $x );
-                return $x if $x == -Inf ||
-                             $x != &{ $self.closure_next }( &{ $self.closure_previous }( $x ) );
-            }
-            warn "Arbitrary limit exceeded when calculating complement()";
-        };
-}
-
-submethod get_universe ($self: ) {
-    # TODO - weak reference
-    return $.universe = $self unless defined $.universe;
-    return $.universe;
-}
 
 } # class Span::Code
 
@@ -297,41 +181,13 @@ submethod get_universe ($self: ) {
 
 = NAME
 
-Span::Code - An object representing a recurrence set
+Span::Code - An object representing a recurrence set span 
 
 = SYNOPSIS
 
     use Span::Code;
 
-    # all integer numbers
-    $universe = Span::Code.new( 
-        closure_next =>     sub { $_ + 1 },
-        closure_previous => sub { $_ - 1 },
-        :is_universe(1) );
-
-    # all even integers
-    $even_numbers = Span::Code.new( 
-        closure_next =>     sub { 2 * int( $_ / 2 ) + 2     },
-        closure_previous => sub { 2 * int( ( $_ - 2 ) / 2 ) },
-        universe => $universe );
-
-    # all odd integers
-    $odd_numbers = $even_numbers.complement;
-
-`:is_universe` must be set if this span is a "universal set".
-Otherwise the program will emit warnings during execution, 
-because it will try to find a "complement set" that doesn't exist:
-the complement set of the universe is an empty set.
-
-The complement set may also be specified with a recurrence:
-
-    # all non-zero integers
-    $non_zero = Span::Code.new( 
-        closure_next =>        sub ($x) { $x == -1 ??  1 :: $x + 1 },
-        closure_previous =>    sub ($x) { $x ==  1 ?? -1 :: $x - 1 },
-        complement_next =>     sub ($x) { $x < 0   ??  0 ::    Inf },
-        complement_previous => sub ($x) { $x > 0   ??  0 ::   -Inf },
-    );
+    $span = Span::Code.new( recurrence => $recurrence_set, span => $span );
 
 = AUTHOR
 

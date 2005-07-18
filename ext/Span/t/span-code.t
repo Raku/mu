@@ -3,32 +3,51 @@
 use v6;
 use Test;
 
-plan 55;
+plan 13;
 
 use_ok( 'Span::Code' );
 use Span::Code;   # XXX should not need this
+use Recurrence;
+use Span::Num;
 
-my $universe = Span::Code.new( 
-    closure_next =>     sub ( Int $x is copy ) { return $x + 1 },
-    closure_previous => sub ( Int $x is copy ) { return $x - 1 },
+my $universe = Recurrence.new( 
+    closure_next =>     sub ( $x is copy ) { return -Inf if $_ == -Inf; Inf if $_ ==  Inf; return $x + 1 },
+    closure_previous => sub ( $x is copy ) { return  Inf if $_ ==  Inf; return -Inf if $_ == -Inf; return $x - 1 },
     :is_universe(1) );
+my $span = Span::Num.new( start => -Inf, end => Inf, start_is_open => bool::true, end_is_open => bool::true );
 
-isa_ok( $universe, 'Span::Code', 
+my $u = Span::Code.new( recurrence => $universe, span => $span );
+
+isa_ok( $u, 'Span::Code', 
     'created a Span::Code' );
 
-is( $universe.start, -Inf, "start" );
-is( $universe.end  ,  Inf, "end" );
-is( $universe.stringify, '-Infinity..Inf', "stringify" );
+is( $u.start, -Inf, "start" );
+is( $u.end  ,  Inf, "end" );
+is( $u.stringify, '-Infinity..Inf', "stringify" );
 # XXX - is( $universe.universe.stringify, '-Infinity..Inf', "universe accessor" );
 
-is( $universe.start_is_open,   bool::false, "start_is_open" );
-is( $universe.end_is_open,     bool::false, "end_is_open" );
+is( $u.start_is_open,   bool::false, "start_is_open" );
+is( $u.end_is_open,     bool::false, "end_is_open" );
 
-is( $universe.start_is_closed, bool::true, "start_is_closed" );
-is( $universe.end_is_closed,   bool::true, "end_is_closed" );
+is( $u.start_is_closed, bool::true, "start_is_closed" );
+is( $u.end_is_closed,   bool::true, "end_is_closed" );
 
-is( $universe.next( 10 ), 11, 'next' );
-is( $universe.previous( 10 ), 9, 'previous' );
+is( $u.next( 10 ), 11, 'next' );
+is( $u.previous( 10 ), 9, 'previous' );
+
+my $even_rec = Recurrence.new( 
+    closure_next =>     sub { return -Inf if $_ == -Inf; Inf if $_ ==  Inf; return 2 * int( $_ / 2 ) + 2 },
+    closure_previous => sub { return  Inf if $_ ==  Inf; return -Inf if $_ == -Inf; return 2 * int( ( $_ - 2 ) / 2 ) },
+    universe => $universe );
+my $even_numbers = Span::Code.new( recurrence => $even_rec, span => $span );
+is( $even_numbers.next( 10 ), 12, 'next even' );
+is( $even_numbers.previous( 10 ), 8, 'previous even' );
+
+=for later
+
+my $odd_numbers = $even_numbers.complement;
+is( $odd_numbers.next( 10 ), 11, 'odd even' );
+is( $odd_numbers.previous( 10 ), 9, 'odd even' );
 
 {
     # -- intersection with a continuous span
@@ -54,6 +73,42 @@ is( $universe.previous( 10 ), 9, 'previous' );
     
     my $complement = $range.complement;
     is( $complement.stringify, '11,12,13..Inf', 'range complement' );
+}
+
+{
+    # -- intersection of odd numbers with a continuous span
+    use Span::Num;
+    my $continuous = Span::Num.new( start => -Inf, end => 10, :start_is_open(bool::true) );
+    # continuous (-Inf,10]
+    my $range = $odd_numbers.intersection( $continuous );
+    isa_ok( $range, 'Span::Code', 'odd range from continuous' );
+    is( $range.stringify, '-Infinity..5,7,9', 'odd range from continuous' );
+    
+    my $complement = $range.complement;
+    is( $complement.stringify, '-Infinity..Inf', 'odd range complement' );
+
+    {
+    my $continuous = Span::Num.new( start => 6, end => 12 );
+    # continuous [6..12]
+    my $range = $complement.intersection( $continuous );
+    is( $range.stringify, '6,8,10,11,12', 'odd range complement' );
+    }
+
+    {
+    my $continuous = Span::Num.new( start => 4, end => 5 );
+    my $range = $even_numbers.union( $continuous );
+    my $range2 = Span::Num.new( start => 2, end => 9 );
+    my $range3 = $range.intersection( $range2 );
+    is( $range3.stringify, '2,4,5,6,8', 'even range union' );
+    }
+
+    {
+    my $continuous = Span::Num.new( start => 4, end => 5 );
+    my $range = $even_numbers.difference( $continuous );
+    my $range2 = Span::Num.new( start => 2, end => 9 );
+    my $range3 = $range.intersection( $range2 );
+    is( $range3.stringify, '2,6,8', 'even range difference' );
+    }
 }
 
 {
@@ -92,18 +147,6 @@ is( $universe.previous( 10 ), 9, 'previous' );
     is( $set.start,  undef, "start empty set" );
     is( $set.end  ,  undef, "end" );
     is( $set.stringify, '', "stringify" );
-}
-{
-    my $even_numbers = Span::Code.new( 
-        closure_next =>     sub { 2 * int( $_ / 2 ) + 2 },
-        closure_previous => sub { 2 * int( ( $_ - 2 ) / 2 ) },
-        universe => $universe );
-    is( $even_numbers.next( 10 ), 12, 'next even' );
-    is( $even_numbers.previous( 10 ), 8, 'previous even' );
-
-    my $odd_numbers = $even_numbers.complement;
-    is( $odd_numbers.next( 10 ), 11, 'odd even' );
-    is( $odd_numbers.previous( 10 ), 9, 'odd even' );
 }
 {
     # 0 .. Inf
@@ -164,6 +207,7 @@ is( $universe.previous( 10 ), 9, 'previous' );
     }
 }
 
+=cut
 
 =for later
 
