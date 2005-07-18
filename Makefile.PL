@@ -188,6 +188,32 @@ EOD
       }
     }
 
+    if ($Config{cf_by} eq 'Debian Project' and $ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bperl5\b/i) {
+	# Is it safe to remove 'Debian Project' above, to test on all platforms?
+	my $need_path = 1;
+	my $libperlpath = '';
+	my $libperl = $Config{libperl};
+        foreach my $path (split(/\s/, $Config{libpth} . ' ' . $Config{libsdirs})) {
+	    if (-e "$path/libperl.so") {
+		$need_path = 0;
+	        last;
+	    } elsif (-e "$path/$libperl") {
+	        $libperlpath ||= $path;
+	    }
+	}
+	if ($need_path) {
+	    my $message = '';
+	    $message .= qq[        * Symlink $libperlpath/$libperl to libperl.so\n] if ($libperlpath and $libperl);
+	    $message .= qq[        * Install libperl-dev package\n] if ($Config{cf_by} eq 'Debian Project');
+	    die <<EOD;
+*** Could not find libperl.so in: $Config{libpth} $Config{libsdirs}
+    Solutions include:
+        * Remove perl5 from PUGS_EMBED
+$message
+EOD
+	}
+    }
+
     if ($ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bparrot\b/i) {
         my $base = $ENV{PARROT_PATH};
         if (!$base and -d "../parrot") {
