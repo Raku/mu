@@ -150,9 +150,10 @@ sub add_indent {
 
   sub as_js {
     my $self = shift;
-
     die unless @$self == 0;
-    return "";
+
+    return "" unless $IN_SUBLIKE;
+    return "return(new PIL2JS.Box.Constant(undefined));";
   }
 }
 
@@ -337,6 +338,20 @@ sub add_indent {
     die unless @$self == 1;
     die if     ref $self->[0];
     return sprintf "new PIL2JS.Box.Constant(%s)", PIL::Nodes::doublequote $self->[0];
+  }
+}
+
+{
+  package PIL::VBool;
+  our @ISA = qw<PIL::PVal>;
+
+  sub as_js {
+    my $self = shift;
+    die unless @$self == 1;
+
+    return sprintf "new PIL2JS.Box.Constant(%s)",
+      $self->[0]->isa("PIL::True")  ? "true"  :
+      $self->[0]->isa("PIL::False") ? "false" : die;
   }
 }
 

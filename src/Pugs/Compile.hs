@@ -260,7 +260,13 @@ instance Compile Exp (PIL Stmt) where
         compile (Syn "loop" $ [emptyExp, Val (VBool True), emptyExp, exp])
     compile (Syn "loop" [pre, cond, post, (Syn "block" [body])]) = do
         preC    <- compile pre
-        condC   <- compile cond
+        -- loop ...; ; ... {...} ->
+        -- loop ...; bool::true; ... {...}
+        let cond' | unwrap cond == Noop
+                  = return $ PStmts (PStmt . PLit . PVal $ VBool True) PNil
+                  | otherwise
+                  = compile cond
+        condC   <- cond'
         bodyC   <- compile body
         postC   <- compile post
         funC    <- compile (Var "&statement_control:loop")

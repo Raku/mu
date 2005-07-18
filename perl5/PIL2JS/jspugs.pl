@@ -39,7 +39,8 @@ command_conf(lib6      => $cfg{lib6});
 command_conf(output    => $cfg{output});
 
 while(defined($_ = $term->readline($prompt))) {
-  $term->addhistory($_) if /\S/;
+  next unless /\S/;
+  $term->addhistory($_);
   s/\s*$//;
 
   if(my ($cmd, $arg) = /^:([hq]|pil(?:\.yaml)?|conf|precomp|js|l)\s*(.*)$/) {
