@@ -1,12 +1,13 @@
 use v6;
 
-multi sub prompt (Str ?$prompt) {
+multi prompt (?$prompt) {
     print $prompt;
-    my $input; ($input = =<>) .= chomp;
+    my $input = =<>; 
+    $input  .= chomp;
     return $input;
 }
 
-multi sub prompt ($prompt, @options is copy) {
+multi prompt ($prompt, @options is copy) {
     my $i = 0;
     .key //= ++$i for @options;
 
@@ -26,7 +27,8 @@ multi sub prompt ($prompt, @options is copy) {
 sub cls { system(($?OS eq any<MSWin32 mingw>) ?? 'cls' :: 'clear'); }
 
 #random number between $low and $high, ($low..$high).pick but easier on memory
-multi sub infix:<<.?.>> ($low,$high) {int( rand($high - $low) + $low ) + 1; };
+sub random ($low,$high) {int( rand($high - $low) + $low ) + 1; };
+multi sub infix:<.?.> ($low,$high) {int( rand($high - $low) + $low ) + 1; };
 
 class Option {
     has Str $.key is rw ;
@@ -34,7 +36,7 @@ class Option {
     has Str $.param is rw ;
 }
 
-class Object {
+class wObject {
     has Str $.name     is rw;
     has Str $.location is rw;
     has Str $.last_location is rw;
@@ -42,22 +44,22 @@ class Object {
     method where () {
         "$.name {$.plural ?? 'are' :: 'is'} currently in the $.location";
     };
-};
+}
    
-class Weapon is Object {
+class Weapon is wObject {
     has Int $.power         is rw;
     has Int $.powerRange    is rw;
-    method damage () { $.power - $.powerRange .?. $.power + $.powerRange;};
+    method damage () { random($.power - $.powerRange, $.power + $.powerRange);};
 }
 
-class Room is Object { 
+class Room is wObject { 
    has Monster @.monsters is rw;
    has Str     @.exits is rw;
    method are_monsters () { @.monsters // 0 }
    method monster ()      { shift @.monsters; }
 };
 
-class Mortal is Object {
+class Mortal is wObject {
     has Int     $.life      is rw;
     has Int     $.max_life  is rw;
     
