@@ -76,7 +76,8 @@ PIL2JS.Box(value))>.
 =head2 Assignment
 
 Assignment is, thanks to the container type C<PIL2JS.Box>, simple:
-C<dest.STORE(source.GET())>
+C<dest.STORE(source)> (C<.STORE> calls C<source.GET()> then and return
+C<source>.)
 
 =head2 Binding
 

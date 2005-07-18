@@ -42,11 +42,10 @@ local $_;
 my $prelude = <<'EOF';
 if(PIL2JS == undefined) var PIL2JS = {};
 
-// __pil2js_box boxes its input object.
 // This is necessary to emulate pass by ref, needed for is rw and is ref.
 PIL2JS.Box = function (value) {
   this.GET   = function ()  { return value };
-  this.STORE = function (n) { value = n; return n };
+  this.STORE = function (n) { value = n.GET(); return n };
 };
 
 PIL2JS.Box.prototype = {
@@ -142,8 +141,13 @@ PIL2JS.make_slurpy_array = function (inp_arr) {
   return out_arr;
 };
 
+_24main_3a_3a_3fPOSITION = new PIL2JS.Box("<unknown>");
+
 PIL2JS.die = function (msg) {
-  var error = new Error(msg);
+  var error = new Error(msg.substr(-1, 1) == "\n"
+    ? msg
+    : msg + " at " + _24main_3a_3a_3fPOSITION.toNative()
+  );
   alert(error);
   throw(error);
 };

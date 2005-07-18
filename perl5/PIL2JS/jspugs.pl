@@ -118,9 +118,16 @@ sub command_compile { compile("-e", $_[0]) }
 sub command_l       { compile($_[0]) }
 
 sub compile {
+  my $pathsep = $^O eq "MSWin32" ? "\\" : "/";
   unless(-e $cfg{preludepc} and -s $cfg{preludepc}) {
     print $OUT "* Warning: Precompiled Prelude (\"$cfg{preludepc}\") does not exist,\n";
     print $OUT "           use the command \":precomp\" to compile the Prelude.\n";
+  } elsif(
+    -M "$cfg{lib6}${pathsep}Prelude${pathsep}JS.pm" <=
+    -M $cfg{preludepc}
+  ) {
+    print $OUT "* Warning: Your precompiled Prelude is outdated.\n";
+    print $OUT "           Use the command \":precomp\" to recompile the Prelude.\n";
   }
 
   my $pil = pugs("-I$cfg{lib6}", "-CPIL", @_);

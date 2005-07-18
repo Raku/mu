@@ -249,4 +249,4 @@ sub prefix:<+>($thing) {
   }
 }
 
-sub JS::Root::die(Str $msg) { $JS::PIL2JS.die($msg) }
+sub JS::Root::die(Str *@msg) { $JS::PIL2JS.die(@msg.join("")) }

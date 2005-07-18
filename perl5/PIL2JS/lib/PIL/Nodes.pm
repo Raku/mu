@@ -77,16 +77,22 @@ sub add_indent {
     my $self = shift;
     die unless @$self == 2;
 
+    # Update $?POSITION.
+    my $pos =
+      sprintf "_24main_3a_3a_3fPOSITION.STORE(new PIL2JS.Box.Constant(%s))",
+      PIL::Nodes::doublequote $CUR_POS;
+
+    # Add a return() to the last statement of a sub.
     if($IN_SUBLIKE and $self->[1]->isa("PIL::PNil")) {
       my $js = $self->[0]->as_js;
       # Note: Purely cosmetical hacking on the generated JS! (else it would be
       # eevil).
       $js =~ s/\n$//;
-      return "return($js);";
+      return "$pos;\nreturn($js);";
     } else {
       my @js = ($self->[0]->as_js, $self->[1]->as_js);
       $js[0] =~ s/\n$//;
-      return "$js[0];\n$js[1]";
+      return "$pos;\n$js[0];\n$js[1]";
     }
   }
 }
@@ -580,7 +586,7 @@ sub add_indent {
     die unless ref $self->[0] eq "ARRAY";
     die unless @{ $self->[0] } == 1;
 
-    return sprintf "%s.STORE(%s.GET())",
+    return sprintf "%s.STORE(%s)",
       $self->[0]->[0]->as_js,
       $self->[1]->as_js;
   }
