@@ -432,7 +432,7 @@ sub add_indent {
     die unless @$self == 1;
 
     local $_;
-    return sprintf "new PIL2JS.Box.Constant(function (args) { %s; })",
+    return sprintf "new PIL2JS.Box.Constant(function (args) { return(%s); })",
       $self->[0]->as_js;
   }
 }
