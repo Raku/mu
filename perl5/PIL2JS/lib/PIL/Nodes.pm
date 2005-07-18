@@ -5,10 +5,35 @@ use warnings;
 use strict;
 
 # State:
-our $IN_SUBLIKE = 0;
-our $CUR_POS    = bless [ "<unknown>", (0) x 4 ] => "PIL::MkPos";
+use constant {
+  SUBTHUNK   => 1,
+  SUBPRIM    => 2,
+  SUBBLOCK   => 3,
+  SUBPOINTY  => 4,
+  SUBROUTINE => 5,
+  SUBMETHOD  => 6,
+};
+our $IN_SUBLIKE = undef;
+our $CUR_POS  = bless [ "<unknown>", (0) x 4 ] => "PIL::MkPos";
 
-our $FAIL       = sub { die "*** $_[0]\n    at $CUR_POS\n" };
+our $FAIL     = sub { die "*** $_[0]\n    at $CUR_POS\n" };
+
+sub generic_catch {
+  my ($level, $body) = @_;
+
+  $body = add_indent(1, $body);
+
+  return sprintf <<EOF, $body; }
+try {
+%s
+} catch(err) {
+  if(err instanceof PIL2JS.Exception.ret && $level >= err.level) {
+    return err.return_value;
+  } else {
+    throw err;
+  }
+}
+EOF
 
 # Possible contexts:
 { package PIL::TCxt }
@@ -20,11 +45,11 @@ our $FAIL       = sub { die "*** $_[0]\n    at $CUR_POS\n" };
 
 # Possible subroutine types:
 { package PIL::SubType }
-{ package PIL::SubRoutine; our @ISA = qw<PIL::SubType> }
-{ package PIL::SubPrim;    our @ISA = qw<PIL::SubType> }
-{ package PIL::SubBlock;   our @ISA = qw<PIL::SubType> }
-{ package PIL::SubPointy;  our @ISA = qw<PIL::SubType> }
-{ package PIL::SubMethod;  our @ISA = qw<PIL::SubType> }
+{ package PIL::SubRoutine; our @ISA = qw<PIL::SubType>; sub as_constant { PIL::Nodes::SUBROUTINE } }
+{ package PIL::SubPrim;    our @ISA = qw<PIL::SubType>; sub as_constant { PIL::Nodes::SUBPRIM } }
+{ package PIL::SubBlock;   our @ISA = qw<PIL::SubType>; sub as_constant { PIL::Nodes::SUBBLOCK } }
+{ package PIL::SubPointy;  our @ISA = qw<PIL::SubType>; sub as_constant { PIL::Nodes::SUBPOINTY } }
+{ package PIL::SubMethod;  our @ISA = qw<PIL::SubType>; sub as_constant { PIL::Nodes::SUBMETHOD } }
 
 # Doublequotes an input string, e.g. foo""bar -> foo\"\"bar
 sub doublequote($) {
@@ -82,13 +107,19 @@ sub add_indent {
       sprintf "_24main_3a_3a_3fPOSITION.STORE(new PIL2JS.Box.Constant(%s))",
       PIL::Nodes::doublequote $CUR_POS;
 
-    # Add a return() to the last statement of a sub.
+    # Add a &return() to the last statement of a sub.
     if($IN_SUBLIKE and $self->[1]->isa("PIL::PNil")) {
       my $js = $self->[0]->as_js;
       # Note: Purely cosmetical hacking on the generated JS! (else it would be
       # eevil).
       $js =~ s/\n$//;
-      return "$pos;\nreturn($js);";
+      if($IN_SUBLIKE >= PIL::Nodes::SUBROUTINE) {
+        return "$pos;\n_26main_3a_3areturn.GET()([$js]);";
+      } elsif($IN_SUBLIKE >= PIL::Nodes::SUBBLOCK) {
+        return "$pos;\n_26main_3a_3aleave.GET()([$js]);";
+      } else {
+        return "$pos;\nreturn($js);";
+      }
     } else {
       my @js = ($self->[0]->as_js, $self->[1]->as_js);
       $js[0] =~ s/\n$//;
@@ -153,7 +184,12 @@ sub add_indent {
     die unless @$self == 0;
 
     return "" unless $IN_SUBLIKE;
-    return "return(new PIL2JS.Box.Constant(undefined));";
+    return "_26main_3a_3areturn.GET()([new PIL2JS.Box.Constant(undefined)]);"
+      if $IN_SUBLIKE >= PIL::Nodes::SUBROUTINE;
+    return "_26main_3a_3aleave.GET()([new PIL2JS.Box.Constant(undefined)]);"
+      if $IN_SUBLIKE >= PIL::Nodes::SUBBLOCK;
+    return "return(new PIL2JS.Box.Constant(undefined));"
+      if $IN_SUBLIKE >= PIL::Nodes::SUBTHUNK;
   }
 }
 
@@ -379,24 +415,25 @@ sub add_indent {
 
   sub as_js {
     my $self = shift;
-    local $IN_SUBLIKE = 1;
-
     die unless @$self == 4;
     die if     ref $self->[0];
     die unless $self->[1]->isa("PIL::SubType");
     die unless ref($self->[2]) eq "ARRAY" or $self->[2]->isa("PIL::Params");
     bless $self->[2] => "PIL::Params";
 
+    local $IN_SUBLIKE = $self->[1]->as_constant;
+
     # Subbody
     local $_;
-    my $body = PIL::Nodes::add_indent 1, sprintf "%s;\n%s;",
+    my $body = sprintf "%s;\n%s;",
       $self->[2]->as_js,
       $self->[3]->as_js;
 
     # Sub declaration
-    my $js = sprintf "var %s = new PIL2JS.Box.Constant(function (args) {\n%s\n});\n",
+    my $js = sprintf
+      "var %s = new PIL2JS.Box.Constant(function (args) {\n%s\n});",
       PIL::Nodes::name_mangle($self->[0]),
-      $body;
+      PIL::Nodes::add_indent 1, PIL::Nodes::generic_catch($IN_SUBLIKE, $body);
 
     # Special magic for methods.
     if($self->[1]->isa("PIL::SubMethod")) {
@@ -418,22 +455,23 @@ sub add_indent {
 
   sub as_js {
     my $self = shift;
-    local $IN_SUBLIKE = 1;
 
     die unless @$self == 3;
     die unless $self->[0]->isa("PIL::SubType");
     die unless ref($self->[1]) eq "ARRAY" or $self->[1]->isa("PIL::Params");
     bless $self->[1] => "PIL::Params";
 
+    local $IN_SUBLIKE = $self->[0]->as_constant;
+
     # Subbody
     local $_;
-    my $body = PIL::Nodes::add_indent 1, sprintf "%s;\n%s;",
+    my $body = sprintf "%s;\n%s;",
       $self->[1]->as_js,
       $self->[2]->as_js;
 
     # Sub declaration
     return sprintf "new PIL2JS.Box.Constant(function (args) {\n%s\n})",
-      $body;
+      PIL::Nodes::add_indent 1, PIL::Nodes::generic_catch($IN_SUBLIKE, $body);
   }
 }
 
@@ -442,7 +480,7 @@ sub add_indent {
 
   sub as_js {
     my $self = shift;
-    local $IN_SUBLIKE = 1;
+    local $IN_SUBLIKE = PIL::Nodes::SUBTHUNK;
 
     die unless @$self == 1;
 
@@ -466,7 +504,7 @@ sub add_indent {
     $js .= $_->as_js() . "\n" for @$self;
     $js .=
       "if(args.length != 0)\n" .
-      "  PIL2JS.die(\"\" + args.length + \" more parameters passed than expected (@{[scalar @$self]})!\\n\");\n";
+      "  PIL2JS.die(\"\" + args.length + \" more parameters passed than expected (@{[scalar @$self]})!\");\n";
 
     return $js;
   }
@@ -519,7 +557,7 @@ sub add_indent {
     if($self->{tpParam}{isOptional}->isa("PIL::False")) {
       push @js,
         "if($jsname == undefined) " .
-        "PIL2JS.die(\"Required parameter \\\"$name\\\" not passed!\\n\");";
+        "PIL2JS.die(\"Required parameter \\\"$name\\\" not passed!\");";
     }
 
     # Should we (and can we) supply a default for an optional param?

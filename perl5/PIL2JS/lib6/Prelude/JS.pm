@@ -13,7 +13,15 @@ module Prelude::JS {}
 # the property .GET() holding the original value. This is necessary to emulate
 # pass by ref (needed for is rw and is ref).
 
-sub statement_control:<loop>($pre, Code $cond, Code $body, Code $post) {
+sub JS::Root::return(*@args) is primitive {
+  PIL2JS::Internals::generic_return(5)(@args);
+}
+
+sub JS::Root::leave(*@args) is primitive {
+  PIL2JS::Internals::generic_return(3)(@args);
+}
+
+sub statement_control:<loop>($pre, Code $cond, Code $body, Code $post) is primitive {
   JS::inline('
     function (pre, cond, body, post) {
       try {
@@ -32,12 +40,12 @@ sub statement_control:<loop>($pre, Code $cond, Code $body, Code $post) {
   ').($pre, $cond, $body, $post);
 }
 
-sub JS::Root::last() {
+sub JS::Root::last() is primitive {
   JS::inline "throw(new PIL2JS.Exception.last())";
   1;
 }
 
-sub statement_control:<while>(Code $cond, Code $body) {
+sub statement_control:<while>(Code $cond, Code $body) is primitive {
   JS::inline('
     function (cond, body) {
       var ret = undefined;
@@ -49,7 +57,7 @@ sub statement_control:<while>(Code $cond, Code $body) {
   ').($cond, $body);
 }
 
-sub statement_control:<until>(Code $cond, Code $body) {
+sub statement_control:<until>(Code $cond, Code $body) is primitive {
   JS::inline('
     function (cond, body) {
       var ret = undefined;
@@ -61,7 +69,7 @@ sub statement_control:<until>(Code $cond, Code $body) {
   ').($cond, $body);
 }
 
-sub statement_control:<if>(Bool $cond, Code $true, Code $false) {
+sub statement_control:<if>(Bool $cond, Code $true, Code $false) is primitive {
   JS::inline('
     function (cond, t, f) {
       return cond ? t() : f();
@@ -69,11 +77,11 @@ sub statement_control:<if>(Bool $cond, Code $true, Code $false) {
   ').($cond, $true, $false);
 }
 
-sub statement_control:<unless>(Bool $cond, Code $true, Code $false) {
+sub statement_control:<unless>(Bool $cond, Code $true, Code $false) is primitive {
   statement_control:<if>(!$cond, $true, $false);
 }
 
-sub JS::Root::defined($a) {
+sub JS::Root::defined($a) is primitive {
   JS::inline('
     function (val) {
       return typeof(val) != "undefined";
@@ -81,7 +89,7 @@ sub JS::Root::defined($a) {
   ').($a);
 }
 
-sub JS::Root::time() {
+sub JS::Root::time() is primitive {
   JS::inline "new PIL2JS.Box.Constant((new Date()).getTime() / 1000 - 946684800)";
 }
 
@@ -119,10 +127,10 @@ method JS::Root::ref($self is rw:) { JS::inline('
 
 method JS::Root::isa($self is rw: $other is rw) { $self.ref eq $other }
 
-sub JS::Root::say(Str *@text) {
+sub JS::Root::say(Str *@text) is primitive {
   print @text.join("") ~ "\n";
 }
-sub JS::Root::print(Str $text) {
+sub JS::Root::print(Str $text) is primitive {
   JS::inline('
     function (msg) {
       // Copied from http://openjsan.org/doc/t/th/theory/Test/Simple/0.11/lib/Test/Builder.html
@@ -204,7 +212,7 @@ for @subs -> $name, $body {
 
   my $args = $arity == 1 ?? '$a' :: '$a, $b';
   $eval ~= "
-    sub $name ($args) \{
+    sub $name ($args) is primitive \{
       JS::inline('$jsbody').($args);
     \}
   ";
@@ -215,26 +223,26 @@ for @subs -> $name, $body {
 Pugs::Internals::eval $eval;
 die $! if $!;
 
-sub infix:<//>   ($a, Code $b) { defined($a) ?? $a :: $b() }
-sub infix:<||>   ($a, Code $b) { $a ?? $a :: $b() }
-sub infix:<&&>   ($a, Code $b) { $a ?? $b() :: $a }
-sub infix:<err>  ($a, Code $b) { infix:<//>($a, $b()) } # XXX! hack
-sub infix:<or>   ($a, Code $b) { infix:<||>($a, $b()) } # XXX! hack
-sub infix:<and>  ($a, Code $b) { infix:<&&>($a, $b()) } # XXX! hack
-sub prefix:<++>  ($a is rw)    { $a = $a + 1 }
-sub postfix:<++> ($a is rw)    { my $cur = $a; $a = $a + 1; $cur }
-sub prefix:<-->  ($a is rw)    { $a = $a - 1 }
-sub postfix:<--> ($a is rw)    { my $cur = $a; $a = $a - 1; $cur }
-sub infix:<,>(*@xs)            { @xs }
+sub infix:<//>   ($a, Code $b) is primitive { defined($a) ?? $a :: $b() }
+sub infix:<||>   ($a, Code $b) is primitive { $a ?? $a :: $b() }
+sub infix:<&&>   ($a, Code $b) is primitive { $a ?? $b() :: $a }
+sub infix:<err>  ($a, Code $b) is primitive { infix:<//>($a, $b()) } # XXX! hack
+sub infix:<or>   ($a, Code $b) is primitive { infix:<||>($a, $b()) } # XXX! hack
+sub infix:<and>  ($a, Code $b) is primitive { infix:<&&>($a, $b()) } # XXX! hack
+sub prefix:<++>  ($a is rw)    is primitive { $a = $a + 1 }
+sub postfix:<++> ($a is rw)    is primitive { my $cur = $a; $a = $a + 1; $cur }
+sub prefix:<-->  ($a is rw)    is primitive { $a = $a - 1 }
+sub postfix:<--> ($a is rw)    is primitive { my $cur = $a; $a = $a - 1; $cur }
+sub infix:<,>(*@xs)            is primitive { @xs }
 
-sub infix:<=:=>($a is rw, $b is rw) { JS::inline('new PIL2JS.Box.Constant(
+sub infix:<=:=>($a is rw, $b is rw) is primitive { JS::inline('new PIL2JS.Box.Constant(
   function (args) {
     return new PIL2JS.Box.Constant(args[0] == args[1]);
   }
 )')($a, $b) }
 
 # Pending support for multi subs.
-sub prefix:<~>($thing) {
+sub prefix:<~>($thing) is primitive {
   if($thing.isa("Str")) {
     JS::inline('function (thing) { return String(thing).toString() }')($thing);
   } elsif($thing.isa("Array")) {
@@ -248,7 +256,7 @@ sub prefix:<~>($thing) {
   }
 }
 
-sub prefix:<+>($thing) {
+sub prefix:<+>($thing) is primitive {
   if($thing.isa("Str")) {
     JS::inline('function (thing) { return Number(thing) }')($thing);
   } elsif($thing.isa("Array")) {
@@ -262,4 +270,4 @@ sub prefix:<+>($thing) {
   }
 }
 
-sub JS::Root::die(Str *@msg) { $JS::PIL2JS.die(@msg.join("")) }
+sub JS::Root::die(Str *@msg) is primitive { $JS::PIL2JS.die(@msg.join("")) }

@@ -154,7 +154,31 @@ PIL2JS.die = function (msg) {
 };
 
 PIL2JS.Exception = {};
-PIL2JS.Exception.last = function () {}
+PIL2JS.Exception.last  = function () {};
+PIL2JS.Exception.ret   = function (level, retval) {
+  this.level        = level;
+  this.return_value = retval;
+  this.toString     = function () {
+    var msg = 
+      "Can't return outside a " + level + "-routine. at " +
+      _24main_3a_3a_3fPOSITION.toNative();
+    alert(msg);
+    return msg;
+  }
+};
+
+_26PIL2JS_3a_3aInternals_3a_3ageneric_return =
+  new PIL2JS.Box.Constant(function (args) {
+    var level = args[0].toNative();
+    return new PIL2JS.Box.Constant(function (args) {
+      args = PIL2JS.make_slurpy_array(args);
+      var ret =
+        args.length >  1 ? new PIL2JS.Box.Constant(args) :
+        args.length == 1 ? args[0] :
+        new PIL2J2.Box.Constant(undefined);
+      throw(new PIL2JS.Exception.ret(level, ret));
+    });
+  });
 EOF
 
 my $js = join "\n", map { $_->as_js } @{ $tree->{"pilGlob"} }, $tree->{pilMain};
