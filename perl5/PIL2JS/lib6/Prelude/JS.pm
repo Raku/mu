@@ -292,3 +292,11 @@ sub prefix:<+>($thing) is primitive {
 
 sub JS::Root::warn(Str *@msg) is primitive { $JS::PIL2JS.warn(@msg.join("")) }
 sub JS::Root::die(Str *@msg)  is primitive { $JS::PIL2JS.die.(@msg.join("")) }
+
+sub infix:«=>»($key, $value)  is primitive {
+  JS::inline('new PIL2JS.Box.Constant(function (args) {
+    return new PIL2JS.Box.Constant(
+      new PIL2JS.Pair(args[0], args[1])
+    );
+  })')($key, $value);
+}

@@ -187,6 +187,26 @@ _26PIL2JS_3a_3aInternals_3a_3ageneric_return =
       throw(new PIL2JS.Exception.ret(level, ret));
     });
   });
+
+PIL2JS.Pair = function (key, value) {
+  this.key   = key;
+  this.value = value;
+};
+
+PIL2JS.part_pairs = function (args) {
+  var normal_args = [];
+  var pairs       = {};
+
+  for(var i = 0; i < args.length; i++) {
+    if(args[i].GET() instanceof PIL2JS.Pair) {
+      pairs[args[i].GET().key.toNative()] = args[i].GET().value;
+    } else {
+      normal_args.push(args[i]);
+    }
+  }
+
+  return [normal_args, pairs];
+};
 EOF
 
 my $js = join "\n", map { $_->as_js } @{ $tree->{"pilGlob"} }, $tree->{pilMain};

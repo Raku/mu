@@ -500,7 +500,14 @@ sub add_indent {
 
     # use YAML;
     # warn Dump($self);
-    my $js = "";
+    my $js = <<EOF;
+var pairs;
+{
+  var temp = PIL2JS.part_pairs(args);
+  args     = temp[0];
+  pairs    = temp[1];
+}
+EOF
     $js .= $_->as_js() . "\n" for @$self;
     $js .=
       "if(args.length != 0)\n" .
