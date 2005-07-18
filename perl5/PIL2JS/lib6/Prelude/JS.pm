@@ -26,7 +26,15 @@ sub statement_control:<loop>($pre, Code $cond, Code $body, Code $post) is primit
     function (pre, cond, body, post) {
       try {
         for(pre; cond(); post()) {
-          body();
+          try {
+            body();
+          } catch(err) {
+            if(err instanceof PIL2JS.Exception.next) {
+              // Ok;
+            } else {
+              throw err;
+            }
+          }
         }
       } catch(err) {
         if(err instanceof PIL2JS.Exception.last) {
@@ -40,10 +48,8 @@ sub statement_control:<loop>($pre, Code $cond, Code $body, Code $post) is primit
   ').($pre, $cond, $body, $post);
 }
 
-sub JS::Root::last() is primitive {
-  JS::inline "throw(new PIL2JS.Exception.last())";
-  1;
-}
+sub JS::Root::last() is primitive { JS::inline "throw(new PIL2JS.Exception.last())"; 1 }
+sub JS::Root::next() is primitive { JS::inline "throw(new PIL2JS.Exception.next())"; 1 }
 
 sub statement_control:<while>(Code $cond, Code $body) is primitive {
   JS::inline('
@@ -103,6 +109,10 @@ method JS::Root::join(Array $self: Str $sep) {
 
 method JS::Root::elems(Array $self:) {
   JS::inline('function (arr) { return arr.length }')($self);
+}
+
+sub JS::Root::substr(Str $str, Int $a, Int $b) is primitive {
+  JS::inline('function (str, a, b) { return str.substr(a, b) }')($str, $a, $b);
 }
 
 method JS::Root::ref($self is rw:) { JS::inline('
@@ -193,6 +203,7 @@ my @subs = (
   "infix:«~»",    "String(a)  + String(b)",
   "prefix:«?»",   "a ? true : false",
   "prefix:«!»",   "a ? false : true",
+  "prefix:«-»",   "-a",
 );
 
 # First, we generate the code to eval later.
@@ -233,7 +244,16 @@ sub prefix:<++>  ($a is rw)    is primitive { $a = $a + 1 }
 sub postfix:<++> ($a is rw)    is primitive { my $cur = $a; $a = $a + 1; $cur }
 sub prefix:<-->  ($a is rw)    is primitive { $a = $a - 1 }
 sub postfix:<--> ($a is rw)    is primitive { my $cur = $a; $a = $a - 1; $cur }
+
 sub infix:<,>(*@xs)            is primitive { @xs }
+sub circumfix:<[]>(*@xs)       is primitive { @xs }
+method postcircumfix:<[]>(Array $self: Int $idx is copy) {
+  $idx = +$self + $idx if $idx < 0;
+  JS::inline('new PIL2JS.Box.Constant(function (args) {
+    var ret = args[0].GET()[args[1].toNative()];
+    return ret == undefined ? new PIL2JS.Box.Constant(undefined) : ret;
+  })')($self, $idx);
+}
 
 sub infix:<=:=>($a is rw, $b is rw) is primitive { JS::inline('new PIL2JS.Box.Constant(
   function (args) {
@@ -270,4 +290,5 @@ sub prefix:<+>($thing) is primitive {
   }
 }
 
-sub JS::Root::die(Str *@msg) is primitive { $JS::PIL2JS.die(@msg.join("")) }
+sub JS::Root::warn(Str *@msg) is primitive { $JS::PIL2JS.warn(@msg.join("")) }
+sub JS::Root::die(Str *@msg)  is primitive { $JS::PIL2JS.die.(@msg.join("")) }

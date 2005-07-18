@@ -49,6 +49,10 @@ Basic builtins (C<say>, C<defined>, C<if>, C<loop>, C<while>, C<until>)
 
 =item *
 
+Control exceptions (C<return>, C<leave>, C<last>, C<next>)
+
+=item *
+
 Stub OO builtins (C<ref>, C<isa> -- awaiting JavaScript (or Perl 6) port of
 Stevan's excellent C<Perl6::MetaModel>
 
@@ -91,6 +95,29 @@ had to invent own calling conventions.
 All functions take exactly one JavaScript-argument, a native JavaScript
 C<Array> (much like Perl 5's C<@_>). Then the individual arguments are
 extracted (see C<PIL::Nodes>, package C<PIL::Params>).
+
+=head2 Escape continuations
+
+All subs are wrapped in a C<try> block:
+
+  try {
+    // normal body here...
+  } catch(err) {
+    if(err instanceof PIL2JS.Exception.ret && this_sublevel >= err.level) {
+      // The return/leave/whatever concerns us, return!
+      return err.return_value;
+    } else {
+      // The return/leave/whatever is destined to Somebody Else, rethrow the
+      // exception.
+      throw err;
+    }
+  }
+
+C<&return> can then be simply implemented as:
+
+  throw new PIL2JS.Exception.ret(sublevel_to_break_out_of, retval);
+
+C<&last> is similar.
 
 =head1 TODO
 

@@ -105,7 +105,10 @@ PIL2JS.call = function (inv, sub, args) {
   if(inv == undefined) {
     // It's a boxed (and therefore Perl 6) sub.
     if(sub.GET) {
-      return sub.GET()(args);
+      var ret = sub.GET()(args);
+      if(ret == undefined)
+        PIL2JS.die("Internal error: Boxed sub returned unboxed undefined!");
+      return ret;
     } else {
       var code = "new PIL2JS.Box.Constant(sub(";
       for(var i = 0; i < args.length; i++) {
@@ -118,7 +121,7 @@ PIL2JS.call = function (inv, sub, args) {
   } else {
     if(inv.GET) {
       if(inv.perl_methods[sub]) {
-        return inv.perl_methods[sub].GET()([inv].concat(args));
+        return PIL2JS.call(undefined, inv.perl_methods[sub], [inv].concat(args));
       } else {
         PIL2JS.die("No such method: \"" + sub + "\"");
       }
@@ -144,17 +147,22 @@ PIL2JS.make_slurpy_array = function (inp_arr) {
 
 _24main_3a_3a_3fPOSITION = new PIL2JS.Box("<unknown>");
 
-PIL2JS.die = function (msg) {
-  var error = new Error(msg.substr(-1, 1) == "\n"
+PIL2JS.new_error = function (msg) {
+  return new Error(msg.substr(-1, 1) == "\n"
     ? msg
     : msg + " at " + _24main_3a_3a_3fPOSITION.toNative()
   );
+};
+PIL2JS.warn = function (msg) { alert(PIL2JS.new_error(msg)) };
+PIL2JS.die = function (msg) {
+  var error = PIL2JS.new_error(msg);
   alert(error);
   throw(error);
 };
 
 PIL2JS.Exception = {};
 PIL2JS.Exception.last  = function () {};
+PIL2JS.Exception.next  = function () {};
 PIL2JS.Exception.ret   = function (level, retval) {
   this.level        = level;
   this.return_value = retval;

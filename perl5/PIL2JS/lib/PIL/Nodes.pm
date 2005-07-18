@@ -55,7 +55,7 @@ EOF
 sub doublequote($) {
   my $str = shift;
 
-  $str =~ s/((?:[^\w0-9_,.=; ()\[\]{}+\*\/~\-]|\n))/sprintf "\\x%02x", ord $1/eg;
+  $str =~ s/((?:[^\w0-9_,.=:; ()\[\]{}+\*\/~\-]|\n))/sprintf "\\x%02x", ord $1/eg;
   return "\"$str\"";
 }
 
