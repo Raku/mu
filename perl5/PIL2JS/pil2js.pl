@@ -15,20 +15,26 @@ GetOptions(
   "html"         => \my $html,
   "no-jsprelude" => \my $no_jsprelude,
   "preludepc=s"  => \my $preludepc,
+  "yaml-dump"    => \my $yaml_dump,
   "help"         => \&usage,
 ) or usage();
 
 die "Option --preludepc needs --html.\n"
   if $preludepc and not $html;
+die <<ERR if $yaml_dump and ($html or $no_jsprelude or $preludepc);
+Option --yaml-dump only dumps the PIL parse tree as YAML and then
+exits; Terefore, it can't be used in conjunction with --html,
+--no-jsprelude, or --preludepc.
+ERR
 
 local $/;
 my $pil  = <>;
 my $tree = PIL::Parser->parse($pil);
 
-if($verbose) {
-  print STDERR "Parse tree:\n";
+if($yaml_dump) {
   require YAML;
-  print STDERR YAML::Dump($tree);
+  print YAML::Dump($tree);
+  exit;
 }
 
 # This is the part of the JS Prelude which needs to be written in JS.
