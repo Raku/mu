@@ -1,6 +1,9 @@
+2005-07-18
 
+* t/span-code.t passes all tests, but emits some warnings
 * extracted class Recurrence.pm
 * added method Span::Num.difference()
+* fixed Span::Code stringification, union, intersection, ...
 
 2005-07-13
 

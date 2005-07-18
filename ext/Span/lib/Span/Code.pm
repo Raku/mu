@@ -39,15 +39,16 @@ method stringify ($self: ) {
     my $tmp = -Inf;
     for ( 1 .. $samples ) {
         $tmp = $self.next( $tmp );
+        last if $tmp == Inf;
         push @start, $tmp;
     }
     $tmp = Inf;
     for ( 0 .. $samples ) {
         $tmp = $self.previous( $tmp );
+        last if $tmp == -Inf;
         unshift @end, $tmp;
-        last if $tmp == @start[-1];
     }
-    return '' if @start[0] > @end[-1];
+    return '' unless @start;
     return @start[0] if @start[0] == @end[-1];
     # if @start and @end intersect, don't print ".."
     if @end[0] == any( @start ) {
@@ -89,7 +90,11 @@ method start_is_open   () { return bool::false }
 method end_is_closed   () { return bool::true }
 method end_is_open     () { return bool::false }
 
-method compare ($self: $span is copy) returns int {
+method compare ($self: $set2 is copy) returns int {
+    my $set1 = $self.span;
+    my $cmp = $set1.compare( $set2 );
+    return $cmp unless $cmp == 0;
+
     # TODO - this is hard
     ...
 }
@@ -106,7 +111,6 @@ method intersects ($self: $span is copy) returns bool {
 }
 
 method union ($set1: $set2 is copy) {
-
     if ( $set2.isa( 'Span::Num' ) || $set2.isa( 'Span::Int' ) )
     {
         my @diff = $.span.difference( $set2 );
@@ -130,48 +134,54 @@ method union ($set1: $set2 is copy) {
     @set2_span = @set2_span.map:{ $set2.new( recurrence => $set2.recurrence, span => $_ ) };
     @intersect = @intersect.map:{ $set1.new( recurrence => $union_recurr,    span => $_ ) };
 
+    return ( @set1_span, @set2_span, @intersect ).sort:{ $^a.compare( $^b.span ) };
+
     # XXX - why this doesn't work?
     #.sort:{ $^a.span.compare( $^b.span );
-
-    sub _sort ( $x, $y ) { 
-        my $s1 = $x.span;
-        my $s2 = $y.span;
-        return $s1.compare( $s2 );
-    };
-    my @result = @set1_span, @set2_span, @intersect;
-    @result = @result.sort:{ _sort( $^a, $^b ) };
-    return @result;
 }
 
 method intersection ($set1: $set2 is copy) {
-
     if ( $set2.isa( 'Span::Num' ) || $set2.isa( 'Span::Int' ) )
     {
         my @inter = $.span.intersection( $set2 );
         @inter = @inter.map:{ $set1.new( recurrence => $.recurrence, span => $_ ) };
         return @inter;
     }
-
-    my @spans = $set1.complement;
-    ... 
-    return $set1.new( recurrence => $.recurrence, ... );
+    my $span1 = $set1.span;
+    my $span2 = $set2.span;
+    my @intersect = $span1.intersection( $span2 );
+    my $inter_recurr = $set1.recurrence.intersection( $set2.recurrence );
+    @intersect = @intersect.map:{ $set1.new( recurrence => $inter_recurr, span => $_ ) };
+    return @intersect;
 }
 
-method complement ($self: ) {
-    ... 
-    return $self.new( recurrence => $.recurrence.complement, ... );
+method complement ($set1: ) {
+    my $span1 = $set1.span;
+    my @spans = $span1.complement;
+    my $compl_recurr = $set1.new( recurrence => $.recurrence.complement, span => $span1 );
+
+    return ( @spans, $compl_recurr ).sort:{ $^a.compare( $^b.span ) };
 }
 
-method difference ($set1: $set2 is copy ) {
-    if ( $span.isa( 'Span::Num' ) || $span.isa( 'Span::Int' ) )
+method difference ($set1: $set2 ) {
+    if ( $set2.isa( 'Span::Num' ) || $set2.isa( 'Span::Int' ) )
     {
         my @diff = $.span.difference( $set2 );
         @diff = @diff.map:{ $set1.new( recurrence => $.recurrence, span => $_ ) };
         return @diff;
     }
-    my @spans = $set1.complement;
-    ...
-    return $set1.intersection( $set2.complement );
+    my $span1 = $set1.span;
+    my $span2 = $set2.span;
+
+    my @set1_span = $span1.difference( $span2 );
+    my @intersect = $span1.intersection( $span2 );
+
+    my $diff_recurr = $set1.recurrence.difference( $set2.recurrence );
+
+    @set1_span = @set1_span.map:{ $set1.new( recurrence => $set1.recurrence, span => $_ ) };
+    @intersect = @intersect.map:{ $set1.new( recurrence => $diff_recurr,     span => $_ ) };
+
+    return ( @set1_span, @intersect ).sort:{ $^a.compare( $^b.span ) };
 }
 
 method next ($self: $x is copy ) {

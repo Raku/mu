@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 17;
+plan 20;
 
 use_ok( 'Span::Code' );
 use Span::Code;   # XXX should not need this
@@ -61,6 +61,21 @@ is( $even_numbers.previous( 10 ), 8, 'previous even' );
     my @union = $each_3_spancode.union( $even_spancode );
     my $result = @union.map:{ $_.stringify }.join(',');
     is( $result, '12,15,18,20,21,22..27,28,30,32,34,36,38,40', 'Span::Code union Span::Code' );
+
+    # intersection
+    my @inter = $each_3_spancode.intersection( $even_spancode );
+    $result = @inter.map:{ $_.stringify }.join(',');
+    is( $result, '24,30', 'Span::Code intersection Span::Code' );
+
+    # difference
+    my @diff = $each_3_spancode.difference( $even_spancode );
+    $result = @diff.map:{ $_.stringify }.join(',');
+    is( $result, '12,15,18,21,27', 'Span::Code difference Span::Code' );
+
+    # complement
+    my @compl = $each_3_spancode.complement();
+    $result = @compl.map:{ $_.stringify }.join(',');
+    is( $result, '(-Infinity,10),10,11,13..26,28,29,(30,Inf)', 'Span::Code complement' );
 }
 
 =for later
