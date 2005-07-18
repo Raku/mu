@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 13;
+plan 17;
 
 use_ok( 'Span::Code' );
 use Span::Code;   # XXX should not need this
@@ -37,11 +37,31 @@ is( $u.previous( 10 ), 9, 'previous' );
 
 my $even_rec = Recurrence.new( 
     closure_next =>     sub { return -Inf if $_ == -Inf; Inf if $_ ==  Inf; return 2 * int( $_ / 2 ) + 2 },
-    closure_previous => sub { return  Inf if $_ ==  Inf; return -Inf if $_ == -Inf; return 2 * int( ( $_ - 2 ) / 2 ) },
+    closure_previous => sub { return  Inf if $_ ==  Inf; return -Inf if $_ == -Inf; return 2 * int( ( $_ - 1 ) / 2 ) },
     universe => $universe );
 my $even_numbers = Span::Code.new( recurrence => $even_rec, span => $span );
 is( $even_numbers.next( 10 ), 12, 'next even' );
 is( $even_numbers.previous( 10 ), 8, 'previous even' );
+
+{
+    # union
+    my $each_3_rec = Recurrence.new( 
+        closure_next =>     sub { return -Inf if $_ == -Inf; Inf if $_ ==  Inf; return 3 * int( $_ / 3 ) + 3 },
+        closure_previous => sub { return  Inf if $_ ==  Inf; return -Inf if $_ == -Inf; return 3 * int( ( $_ - 1 ) / 3 ) },
+        universe => $universe );
+    my $each_3_span = Span::Num.new( start => 10, end => 30 );
+    my $each_3_spancode = Span::Code.new( recurrence => $each_3_rec, span => $each_3_span );
+    is( $each_3_span.stringify, '[10,30]', '10 to 30' );
+    is( $each_3_spancode.stringify, '12,15,18..24,27,30', 'each 3 from 10 to 30' );
+
+    my $even_span = Span::Num.new( start => 20, end => 40 );
+    my $even_spancode = Span::Code.new( recurrence => $even_rec, span => $even_span );
+    is( $even_spancode.stringify, '20,22,24..36,38,40', 'each 2 from 20 to 40' );
+
+    my @union = $each_3_spancode.union( $even_spancode );
+    my $result = @union.map:{ $_.stringify }.join(',');
+    is( $result, '12,15,18,20,21,22..27,28,30,32,34,36,38,40', 'Span::Code union Span::Code' );
+}
 
 =for later
 

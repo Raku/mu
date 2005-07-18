@@ -1,5 +1,7 @@
 use v6;
 
+# TODO - method difference() for compatibility with Span::Code
+
 class Span::Int-0.01;
 
 has $.start;

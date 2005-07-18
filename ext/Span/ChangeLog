@@ -1,3 +1,7 @@
+
+* extracted class Recurrence.pm
+* added method Span::Num.difference()
+
 2005-07-13
 
 * Span::* interact with each other (just started)

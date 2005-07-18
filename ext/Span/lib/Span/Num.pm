@@ -76,7 +76,7 @@ method intersects ( Span::Functional $span ) returns bool {
            ( $cmp != 0  ||  ( ! $open_start && ! $open_end ) );
 }
 
-method complement ($self: ) returns List of Span::Functional 
+method complement ($self: ) returns List of Span::Num 
 {
     if ($.end == Inf) {
         return () if $.start == -Inf;
@@ -101,8 +101,8 @@ method complement ($self: ) returns List of Span::Functional
                      end_is_open =>   bool::true ) );
 }
 
-method union ($self: Span::Functional $span ) 
-    returns List of Span::Functional 
+method union ($self: Span::Num $span ) 
+    returns List of Span::Num 
 {
     my int $cmp;
     $cmp = $.end <=> $span.start;
@@ -206,7 +206,7 @@ method stringify () returns String {
            ( $.end_is_open   ?? ')' :: ']' );
 }
 
-method compare ( Span::Functional $span ) returns int {
+method compare ( Span::Num $span ) returns int {
     my int $cmp;
     $cmp = $.start <=> $span.start;
     return $cmp if $cmp;
@@ -215,6 +215,13 @@ method compare ( Span::Functional $span ) returns int {
     $cmp = $.end <=> $span.end;
     return $cmp if $cmp;
     return $span.end_is_open <=> $.end_is_open;
+}
+
+method difference ($self: $span ) returns List of Span {
+    return $self if $self.is_empty;
+    my @span = $span.complement;
+    @span = @span.map:{ $self.intersection( $_ ) };
+    return @span;
 }
 
 method next ($self: $x ) {
