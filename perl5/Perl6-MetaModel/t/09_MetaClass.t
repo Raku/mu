@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 146;
+use Test::More tests => 144;
 use Test::Exception;
 
 use Perl6::MetaClass;
@@ -378,21 +378,3 @@ isa_ok($mc5->find_attribute_spec('$.foo'), 'Perl6::Attribute');
 isa_ok($mc5->find_attribute_spec('@.foo'), 'Perl6::Attribute');
 isa_ok($mc5->find_attribute_spec('$.bar'), 'Perl6::Attribute');
 isa_ok($mc5->find_attribute_spec('$.baz'), 'Perl6::Attribute');
-
-{
-    my @class_order;
-    $mc5->traverse_pre_order(sub { push @class_order => $_[0] });
-    is_deeply(
-        \@class_order,
-        [ $mc5, $mc4, $mc2, $mc, $mc3, $mc ],
-        '... got the right set of metaclasses in pre-order traversal');
-}
-
-{
-    my @class_order;
-    $mc5->traverse_post_order(sub { push @class_order => $_[0] });
-    is_deeply(
-        \@class_order,
-        [ $mc, $mc2, $mc, $mc3, $mc4, $mc5 ],
-        '... got the right set of metaclasses in post-order traversal');
-}

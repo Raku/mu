@@ -63,14 +63,13 @@ sub CREATE {
     # attributes that were defined
     # for the instances.
     my %attrs;
-    $class->meta->traverse_post_order(sub {
-        my $c = shift;
+    my $dispatcher = $class->meta->dispatcher(':descendant');
+    while (my $c = Perl6::MetaModel::WALKCLASS($dispatcher)) {
         foreach my $attr ($c->get_attribute_list) {
             my $attr_obj = $c->get_attribute($attr);
             $attrs{$attr} = $attr_obj->instantiate_container;
-            
         }
-    }); 
+    }
     
     # this is our P6opaque data structure
     # it's nothing special, but it works :)
@@ -87,17 +86,15 @@ sub BUILDALL {
     # then we post order traverse the rest of the class
     # hierarchy. This will all be fixed when Perl6::Object
     # is properly bootstrapped
-    $self->meta->traverse_post_order(sub {
-        my $c = shift;
-        return unless $c->has_method('BUILD');
-        my $method = $c->get_method('BUILD');
+    my $dispatcher = $self->meta->dispatcher(':descendant');
+    while (my $method = Perl6::MetaModel::WALKMETH($dispatcher, 'BUILD')) {
         # NOTE: this is to mimic $?SELF and $?CLASS
         push @CURRENT_INVOCANT_STACK => $self; 
         push @CURRENT_CLASS_STACK => $method->associated_with;          
         $method->force_call($self, %params);   
         pop @CURRENT_INVOCANT_STACK;
         pop @CURRENT_CLASS_STACK;        
-    });    
+    }    
 }
 
 sub BUILD {
@@ -107,17 +104,15 @@ sub BUILD {
 
 sub DESTROYALL {
     my ($self) = @_;
-    $self->meta->traverse_pre_order(sub {
-        my $c = shift;
-        return unless $c->has_method('DESTROY');
-        my $method = $c->get_method('DESTROY');
+    my $dispatcher = $self->meta->dispatcher(':ascendant');
+    while (my $method = Perl6::MetaModel::WALKMETH($dispatcher, 'DESTROY')) {
         # NOTE: this is to mimic $?SELF and $?CLASS
         push @CURRENT_INVOCANT_STACK => $self; 
         push @CURRENT_CLASS_STACK => $method->associated_with;          
         $method->force_call($self);   
         pop @CURRENT_INVOCANT_STACK;
-        pop @CURRENT_CLASS_STACK;             
-    });      
+        pop @CURRENT_CLASS_STACK;            
+    }   
 }
 
 ## end Submethods

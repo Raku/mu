@@ -120,24 +120,6 @@ sub class_precedence_list {
     return @class_precedence_list;
 }
 
-# XXX - this should be removed in favor of WALKCLASS I think
-sub traverse_pre_order {
-    my ($self, $visitor) = @_;
-    $visitor->($self);
-    foreach my $super (@{$self->superclasses}) {
-        $super->traverse_pre_order($visitor);
-    }
-}
-
-# XXX - this should be removed in favor of WALKCLASS I think
-sub traverse_post_order {
-    my ($self, $visitor) = @_;
-    foreach my $super (@{$self->superclasses}) {
-        $super->traverse_post_order($visitor);
-    }
-    $visitor->($self);    
-}
-
 sub _merge {
     my (@seqs) = @_;
     my @res; 
