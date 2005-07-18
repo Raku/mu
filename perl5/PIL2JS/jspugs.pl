@@ -143,7 +143,6 @@ sub command_js {
   pil2js($pil, undef, "--no-jsprelude") or
     print $OUT "Error: Couldn't compile to JavaScript!\n" and return;
   print $OUT "\n";
-  command_conf("output");
 }
 
 sub pugs {

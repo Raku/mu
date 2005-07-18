@@ -71,7 +71,7 @@ PIL2JS.Box.prototype = {
       return unboxed;
     }
   },
-  perl_methods: {},
+  perl_methods: {}
   /*
     toString: function () {
       _26main_3a_3aprefix_3a_7e.GET()([this]);
@@ -101,8 +101,9 @@ PIL2JS.call = function (inv, sub, args) {
   if(sub == undefined)
     PIL2JS.die("Use of uninitialized value in subroutine entry!\n");
 
-  // It's a boxed (and therefore Perl 6) sub.
+  // It's a plain sub (i.e. not method) call.
   if(inv == undefined) {
+    // It's a boxed (and therefore Perl 6) sub.
     if(sub.GET) {
       return sub.GET()(args);
     } else {
