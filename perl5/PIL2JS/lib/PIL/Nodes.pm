@@ -4,6 +4,9 @@ package PIL::Nodes;
 use warnings;
 use strict;
 
+# State:
+our $IN_SUBLIKE = 0;
+
 # Possible contexts:
 { package PIL::TCxt }
 { package PIL::TCxtVoid;   our @ISA = qw<PIL::TCxt> }
@@ -69,9 +72,19 @@ sub add_indent {
 
   sub as_js {
     my $self = shift;
-
     die unless @$self == 2;
-    return $self->[0]->as_js . $self->[1]->as_js;
+
+    if($IN_SUBLIKE and $self->[1]->isa("PIL::PNil")) {
+      my $js = $self->[0]->as_js;
+      # Note: Purely cosmetical hacking on the generated JS! (else it would be
+      # eevil).
+      $js =~ s/\n$//;
+      return "return($js);";
+    } else {
+      my @js = ($self->[0]->as_js, $self->[1]->as_js);
+      $js[0] =~ s/\n$//;
+      return "$js[0];\n$js[1]";
+    }
   }
 }
 
@@ -80,7 +93,7 @@ sub add_indent {
 
   sub as_js {
     die unless @{$_[0]} == 0;
-    return ";";
+    return "new PIL2JS.Box.Constant(undefined)";
   }
 }
 
@@ -104,7 +117,7 @@ sub add_indent {
     my $self = shift;
 
     die unless @$self == 1;
-    return $self->[0]->as_js . ";\n";
+    return $self->[0]->as_js . "\n";
   }
 }
 
@@ -316,16 +329,18 @@ sub add_indent {
 }
 
 # Real subroutines, blocks, thunks.
-# The eval()s are needed to emulate Perl's "the return value of a sub is the
-# value of the last expression evaluated":
+# Back on days 1 and 2 of PIL2JS, the eval()s were needed to emulate Perl's
+# "the return value of a sub is the value of the last expression evaluated":
 #   (function () { 42 })()                 # undefined
 #   (function () { return eval "42" })()   # 42
-# I'm sure there's a better way, please fix!
+# Now PIL::PStmts wraps a return() around the last statement, but only if we're
+# $IN_SUBLIKE. :)
 {
   package PIL::PSub;
 
   sub as_js {
     my $self = shift;
+    local $IN_SUBLIKE = 1;
 
     die unless @$self == 4;
     die if     ref $self->[0];
@@ -335,9 +350,9 @@ sub add_indent {
 
     # Subbody
     local $_;
-    my $body = PIL::Nodes::add_indent 1, sprintf "%s;\nreturn eval(%s);",
+    my $body = PIL::Nodes::add_indent 1, sprintf "%s;\n%s;",
       $self->[2]->as_js,
-      PIL::Nodes::doublequote $self->[3]->as_js;
+      $self->[3]->as_js;
 
     # Sub declaration
     my $js = sprintf "var %s = new PIL2JS.Box.Constant(function (args) {\n%s\n});\n",
@@ -364,6 +379,7 @@ sub add_indent {
 
   sub as_js {
     my $self = shift;
+    local $IN_SUBLIKE = 1;
 
     die unless @$self == 3;
     die unless $self->[0]->isa("PIL::SubType");
@@ -372,9 +388,9 @@ sub add_indent {
 
     # Subbody
     local $_;
-    my $body = PIL::Nodes::add_indent 1, sprintf "%s;\nreturn eval(%s);",
+    my $body = PIL::Nodes::add_indent 1, sprintf "%s;\n%s;",
       $self->[1]->as_js,
-      PIL::Nodes::doublequote $self->[2]->as_js;
+      $self->[2]->as_js;
 
     # Sub declaration
     return sprintf "new PIL2JS.Box.Constant(function (args) {\n%s\n})",
@@ -387,12 +403,13 @@ sub add_indent {
 
   sub as_js {
     my $self = shift;
+    local $IN_SUBLIKE = 1;
 
     die unless @$self == 1;
 
     local $_;
-    return sprintf "new PIL2JS.Box.Constant(function (args) { return eval(%s) })",
-      PIL::Nodes::doublequote $self->[0]->as_js;
+    return sprintf "new PIL2JS.Box.Constant(function (args) { %s; })",
+      $self->[0]->as_js;
   }
 }
 

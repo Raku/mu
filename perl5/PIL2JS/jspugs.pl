@@ -40,11 +40,12 @@ command_conf(output    => $cfg{output});
 
 while(defined($_ = $term->readline($prompt))) {
   $term->addhistory($_) if /\S/;
+  s/\s*$//;
 
-  if(my ($cmd, $arg) = /^:([hq]|pil(?:\.yaml)|conf|precomp)\s*(.*?)\s*$/) {
+  if(my ($cmd, $arg) = /^:([hq]|pil(?:\.yaml)|conf|precomp|js|l)\s*(.*)$/) {
     no strict "refs";
     $cmd =~ s/\./_/g;
-    &{"command_$cmd"}(split /\s+/, $arg);
+    &{"command_$cmd"}($arg);
   } else {
     command_compile($_);
   }
@@ -61,11 +62,13 @@ Commands available from the prompt:
 :precomp                = precompile the Prelude
 :pil <exp>              = show PIL of expression
 :pil.yaml <exp>         = show PIL of expression dumped as YAML
-<exp>                   = compile expression
+<exp>                   = compile expression and save as HTML
+:js <exp>               = compile expression and show it
+:l filename.p6          = compile file and save as HTML
 USAGE
 
 sub command_conf {
-  my ($what, $new) = @_;
+  my ($what, $new) = split /\s+/, shift;
 
   my %human = (
     pugs      => "pugs",
@@ -91,7 +94,7 @@ sub command_conf {
 }
 
 sub command_precomp {
-  my $pil = pugs("-CPIL", "-I$cfg{lib6}", "-MPrelude::JS", "-e", "''");
+  my $pil = pugs("-I$cfg{lib6}", "-CPIL", "-MPrelude::JS", "-e", "''");
   print $OUT "Error: Couldn't compile Prelude::JS to PIL!\n" and return if not defined $pil;
   pil2js($pil, $cfg{preludepc}, "--no-jsprelude") or
     print $OUT "Error: Couldn't compile Prelude::JS to JavaScript!\n";
@@ -99,28 +102,40 @@ sub command_precomp {
 }
 
 sub command_pil {
-  my $pil = pugs("-CPIL", "-I$cfg{lib6}", "-e", $_[0]);
+  my $pil = pugs("-I$cfg{lib6}", "-CPIL", "-e", $_[0]);
   print $OUT "Error: Couldn't compile to PIL!\n" and return if not defined $pil;
   print $OUT $pil;
 }
 
 sub command_pil_yaml {
-  my $pil = pugs("-CPIL", "-I$cfg{lib6}", "-e", $_[0]);
+  my $pil = pugs("-I$cfg{lib6}", "-CPIL", "-e", $_[0]);
   print $OUT "Error: Couldn't compile to PIL!\n" and return if not defined $pil;
   pil2js($pil, undef, "--yaml-dump") or
     print $OUT "Error: Couldn't dump PIL as YAML!\n";
 }
 
-sub command_compile {
+sub command_compile { compile("-e", $_[0]) }
+sub command_l       { compile($_[0]) }
+
+sub compile {
   unless(-e $cfg{preludepc} and -s $cfg{preludepc}) {
     print $OUT "* Warning: Precompiled Prelude (\"$cfg{preludepc}\") does not exist,\n";
     print $OUT "           use the command \":precomp\" to compile the Prelude.\n";
   }
 
-  my $pil = pugs("-CPIL", "-Ilib6", "-e", $_[0]);
+  my $pil = pugs("-I$cfg{lib6}", "-CPIL", @_);
   print $OUT "Error: Couldn't compile to PIL!\n" and return if not defined $pil;
   pil2js($pil, $cfg{output}, "--html", "--preludepc", $cfg{preludepc}) or
     print $OUT "Error: Couldn't compile to JavaScript!\n" and return;
+  command_conf("output");
+}
+
+sub command_js {
+  my $pil = pugs("-I$cfg{lib6}", "-CPIL", "-e", $_[0]);
+  print $OUT "Error: Couldn't compile to PIL!\n" and return if not defined $pil;
+  pil2js($pil, undef, "--no-jsprelude") or
+    print $OUT "Error: Couldn't compile to JavaScript!\n" and return;
+  print $OUT "\n";
   command_conf("output");
 }
 
