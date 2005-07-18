@@ -88,7 +88,7 @@ instance Show (PIL a) where
     show (PStmts x y) = "(PStmts " ++ show x ++ " " ++ show y ++ ")"
     show PNil = "PNil"
     show PNoop = "PNoop"
-    show (PPos x y z) = "(PPos " ++ show x ++ " " ++ show y ++ " " ++ show z ++ ")"
+    show (PPos x _ z) = "(PPos " ++ show x ++ " Noop " ++ show z ++ ")"
     show (PApp x y i z) = "(PApp " ++ show x ++ " " ++ show y ++ " " ++ show i ++ " " ++ show z ++ ")"
     show (PExp x) = "(PExp " ++ show x ++ ")"
     show (PStmt x) = "(PStmt " ++ show x ++ ")"
