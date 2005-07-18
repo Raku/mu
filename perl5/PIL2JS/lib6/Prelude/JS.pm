@@ -16,12 +16,25 @@ module Prelude::JS {}
 sub statement_control:<loop>($pre, Code $cond, Code $body, Code $post) {
   JS::inline('
     function (pre, cond, body, post) {
-      for(pre; cond(); post()) {
-        body();
+      try {
+        for(pre; cond(); post()) {
+          body();
+        }
+      } catch(err) {
+        if(err instanceof PIL2JS.Exception.last) {
+          return undefined;
+        } else {
+          throw err;
+        }
       }
       return undefined;
     }
   ').($pre, $cond, $body, $post);
+}
+
+sub JS::Root::last() {
+  JS::inline "throw(new PIL2JS.Exception.last())";
+  1;
 }
 
 sub statement_control:<while>(Code $cond, Code $body) {

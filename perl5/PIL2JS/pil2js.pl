@@ -152,6 +152,9 @@ PIL2JS.die = function (msg) {
   alert(error);
   throw(error);
 };
+
+PIL2JS.Exception = {};
+PIL2JS.Exception.last = function () {}
 EOF
 
 my $js = join "\n", map { $_->as_js } @{ $tree->{"pilGlob"} }, $tree->{pilMain};
