@@ -44,6 +44,8 @@ module URI::Escape-0.6 {
     
     multi sub uri_unescape ($str is copy) returns Str is export(:DEFAULT) {
         $str ~~ s:P5:g/%([0-9A-Fa-f]{2})/{ chr(hex($0)) }/;
+        
+        return $str;
     }
     
     multi sub uri_unescape (*@str is copy) returns Array is export(:DEFAULT) {
