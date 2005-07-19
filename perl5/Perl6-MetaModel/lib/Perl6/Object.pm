@@ -4,7 +4,6 @@ package Perl6::Object;
 use strict;
 use warnings;
 
-use Perl6::MetaClass;
 use Perl6::MetaModel '-no import';
 
 use Scalar::Util 'blessed';
@@ -30,78 +29,102 @@ $SIG{'__DIE__'} = sub {
 
 ## ----------------------------------------------------------------------------
 
-# the default .new()
+# Initialize the Perl6::Object's metaclass here ...
+our $META;
+BEGIN {
+    use Perl6::MetaClass;
+    use Perl6::SubMethod;
+    use Perl6::Class::Method;
+    use Perl6::Instance::Method;    
 
-sub new {
-    my ($class, %params) = @_;
-    return $class->bless(undef, %params);
-}
-
-# but this is what really constructs the class
-
-# XXX - this might move up the MetaClass at some point - per $Larry
-sub bless : method {
-    my ($class, $canidate, %params) = @_;
-    $canidate ||= 'P6opaque'; # opaque is our default
-    my $instance_structure = $class->CREATE(repr => $canidate, %params);
-    # XXX - We do this because we are in Perl5, this 
-    # should not be how the real metamodel behave 
-    # at least I dont think it is how it should :)
-    my $self = CORE::bless($instance_structure, $class);
-    $self->BUILDALL(%params);
-    return $self;
-}
-
-## Submethods (hacked here for now)
-
-sub CREATE {
-    my ($class, %params) = @_;
-    ($params{repr} eq 'P6opaque') 
-        || confess "Sorry, No other types other than 'P6opaque' are currently supported";    
+    $META = Perl6::MetaClass->new(name => 'Perl6::Object');
     
-    # this just gathers all the 
-    # attributes that were defined
-    # for the instances.
-    my %attrs;
-    my $dispatcher = $class->meta->dispatcher(':descendant');
-    while (my $c = Perl6::MetaModel::WALKCLASS($dispatcher)) {
-        foreach my $attr ($c->get_attribute_list) {
-            my $attr_obj = $c->get_attribute($attr);
-            $attrs{$attr} = $attr_obj->instantiate_container;
-        }
-    }
+    # the default .new()
+    $META->add_method('new' => 
+        Perl6::Class::Method->new('Perl6::Object' => sub {
+            my ($class, %params) = @_;
+            return $class->bless(undef, %params);
+        })    
+    );    
     
-    # this is our P6opaque data structure
-    # it's nothing special, but it works :)
-    return {
-        class         => $class->meta,
-        instance_data => \%attrs,
-    };         
+    # but this is what really constructs the class
+    # XXX - this might move up the MetaClass at some point - per $Larry    
+    $META->add_method('bless' => 
+        Perl6::Class::Method->new('Perl6::Object' => sub {
+            my ($class, $canidate, %params) = @_;
+            $canidate ||= 'P6opaque'; # opaque is our default
+            my $instance_structure = $class->CREATE(repr => $canidate, %params);
+            # XXX - We do this because we are in Perl5, this 
+            # should not be how the real metamodel behave 
+            # at least I dont think it is how it should :)
+            my $self = CORE::bless($instance_structure, $class);
+            $self->BUILDALL(%params);
+            return $self;
+        })    
+    );  
+    
+    # XXX - According to $Larry, the initial CREATE, 
+    # BUILDALL and DESTROYALL are not submethod, but
+    # regular methods
+    
+    $META->add_method('CREATE' => 
+        Perl6::Class::Method->new('Perl6::Object' => sub {
+            my ($class, %params) = @_;
+            ($params{repr} eq 'P6opaque') 
+                || confess "Sorry, No other types other than 'P6opaque' are currently supported";    
+
+            # this just gathers all the 
+            # attributes that were defined
+            # for the instances.
+            my %attrs;
+            my $dispatcher = $class->meta->dispatcher(':descendant');
+            while (my $c = Perl6::MetaModel::WALKCLASS($dispatcher)) {
+                foreach my $attr ($c->get_attribute_list) {
+                    my $attr_obj = $c->get_attribute($attr);
+                    $attrs{$attr} = $attr_obj->instantiate_container;
+                }
+            }
+
+            # this is our P6opaque data structure
+            # it's nothing special, but it works :)
+            return {
+                class         => $class->meta,
+                instance_data => \%attrs,
+            }; 
+        })    
+    );    
+    
+    $META->add_method('BUILDALL' => 
+        Perl6::Instance::Method->new('Perl6::Object' => sub {
+            my ($self, %params) = @_;
+            # then we post order traverse the rest of the class
+            # hierarchy. This will all be fixed when Perl6::Object
+            # is properly bootstrapped
+            my $dispatcher = $self->meta->dispatcher(':descendant');
+            while (my $method = Perl6::MetaModel::WALKMETH($dispatcher, 'BUILD')) {
+                # NOTE: this is to mimic $?SELF and $?CLASS
+                push @CURRENT_INVOCANT_STACK => $self; 
+                push @CURRENT_CLASS_STACK => $method->associated_with;          
+                $method->force_call($self, %params);   
+                pop @CURRENT_INVOCANT_STACK;
+                pop @CURRENT_CLASS_STACK;        
+            }              
+        })    
+    );     
+ 
+    # the BUILD submethod
+    $META->add_method('BUILD' => 
+        Perl6::SubMethod->new('Perl6::Object' => sub {
+            my ($self, %params) = @_;
+            $self->set_value($_ => $params{$_}) foreach keys %params;
+        })    
+    );
 }
 
-sub BUILDALL {
-    my ($self, %params) = @_;
-    # XXX - hack here to call Perl6::Object::BUILD
-    $self->Perl6::Object::BUILD(%params);
-    # then we post order traverse the rest of the class
-    # hierarchy. This will all be fixed when Perl6::Object
-    # is properly bootstrapped
-    my $dispatcher = $self->meta->dispatcher(':descendant');
-    while (my $method = Perl6::MetaModel::WALKMETH($dispatcher, 'BUILD')) {
-        # NOTE: this is to mimic $?SELF and $?CLASS
-        push @CURRENT_INVOCANT_STACK => $self; 
-        push @CURRENT_CLASS_STACK => $method->associated_with;          
-        $method->force_call($self, %params);   
-        pop @CURRENT_INVOCANT_STACK;
-        pop @CURRENT_CLASS_STACK;        
-    }    
-}
+## ----------------------------------------------------------------------------
 
-sub BUILD {
-    my ($self, %params) = @_;
-    $self->set_value($_ => $params{$_}) foreach keys %params;
-}
-
+# XXX - this does not want to me moved to the metaclass just yet
+# I need to investigate this later ...
 sub DESTROYALL {
     my ($self) = @_;
     my $dispatcher = $self->meta->dispatcher(':ascendant');
@@ -114,8 +137,6 @@ sub DESTROYALL {
         pop @CURRENT_CLASS_STACK;            
     }   
 }
-
-## end Submethods
 
 ## XXX - all the methods below are called automagicaly by 
 ## Perl5, so we need to handle them here in order to control
@@ -268,9 +289,6 @@ sub set_value {
     # with ->store().  By that time the typechecking above will go away
     ${$self->{instance_data}->{$label}} = $value;        
 }
-
-# Initialize the Perl6::Object's metaclass here ...
-our $META = Perl6::MetaClass->new(name => 'Perl6::Object');
 
 # metaclass access for all our objects ...
 sub meta {
