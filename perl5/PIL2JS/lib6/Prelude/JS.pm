@@ -141,12 +141,6 @@ sub JS::Root::say(Str *@text)   is primitive { print @text, "\n" }
 sub JS::Root::print(Str *@text) is primitive {
   JS::inline('
     function (msg) {
-      // Convert "\n"s correctly (IE...)
-      var LF = typeof document != "undefined" && typeof document.all != "undefined"
-        ? "\r"
-        : "\n";
-      msg.replace(/\n/, LF);
-
       // Rest copied from
       // http://openjsan.org/doc/t/th/theory/Test/Simple/0.11/lib/Test/Builder.html.
       // --iblech

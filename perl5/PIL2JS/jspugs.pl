@@ -97,7 +97,7 @@ sub command_conf {
 sub command_precomp {
   my $pil = pugs("-I$cfg{lib6}", "-CPIL", "-MPrelude::JS", "-e", "''");
   print $OUT "Error: Couldn't compile Prelude::JS to PIL!\n" and return if not defined $pil;
-  pil2js($pil, $cfg{preludepc}, "--no-jsprelude") or
+  pil2js($pil, $cfg{preludepc}, "--jsprelude-mode=no", "--p6preludepc-mode=no") or
     print $OUT "Error: Couldn't compile Prelude::JS to JavaScript!\n";
   command_conf("preludepc");
 }
@@ -133,7 +133,7 @@ sub compile {
 
   my $pil = pugs("-I$cfg{lib6}", "-CPIL", @_);
   print $OUT "Error: Couldn't compile to PIL!\n" and return if not defined $pil;
-  pil2js($pil, $cfg{output}, "--html", "--preludepc", $cfg{preludepc}) or
+  pil2js($pil, $cfg{output}, "--html", "--p6preludepc-path", $cfg{preludepc}) or
     print $OUT "Error: Couldn't compile to JavaScript!\n" and return;
   command_conf("output");
 }
@@ -141,7 +141,7 @@ sub compile {
 sub command_js {
   my $pil = pugs("-I$cfg{lib6}", "-CPIL", "-e", $_[0]);
   print $OUT "Error: Couldn't compile to PIL!\n" and return if not defined $pil;
-  pil2js($pil, undef, "--no-jsprelude") or
+  pil2js($pil, undef, "--jsprelude-mode=no", "--p6preludepc-mode=no") or
     print $OUT "Error: Couldn't compile to JavaScript!\n" and return;
   print $OUT "\n";
 }
