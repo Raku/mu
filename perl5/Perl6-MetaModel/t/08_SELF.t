@@ -16,13 +16,9 @@ class Foo => {
     },
     instance => {
         attrs => [ '$.baz' ],
-        BUILD => sub {
-            SELF->set_value('$.baz' => 'Foo::baz');            
-        },
+        BUILD => sub { _('$.baz' => 'Foo::baz') },
         methods => {
-            bar => sub {
-                SELF->get_value('$.baz');
-            },
+            bar => sub { _('$.baz') },
             foo => sub {
                 SELF->bar();
             }
@@ -51,9 +47,7 @@ is($foo->foo(), 'Foo::baz', '... SELF worked correctly in the instance methods i
 class Bar => {
     instance => {
         attrs => [ '$.foo' ],
-        BUILD => sub {
-            SELF->set_value('$.foo' => Foo->new())
-        },
+        BUILD => sub { _('$.foo' => Foo->new()) },
         methods => {
             bar => sub { 'Bar::bar' },
             baz => sub {

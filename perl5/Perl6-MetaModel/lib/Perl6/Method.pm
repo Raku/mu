@@ -4,7 +4,11 @@ package Perl6::Method;
 use strict;
 use warnings;
 
+use Scalar::Util 'blessed';
 use Carp 'confess';
+
+our @CURRENT_CLASS_STACK;
+our @CURRENT_INVOCANT_STACK;
 
 sub new {
     my ($class, $associated_with, $code) = @_;
@@ -20,8 +24,13 @@ sub new {
 
 sub associated_with { (shift)->{associated_with} }
 sub call { 
-    my ($self, @args) = @_;   
-    $self->{code}->(@args); 
+    my ($self, @args) = @_;  
+    push @CURRENT_CLASS_STACK => $self->{associated_with};
+    push @CURRENT_INVOCANT_STACK => $args[0] if blessed($args[0]);    
+    my @rval = $self->{code}->(@args); 
+    pop @CURRENT_INVOCANT_STACK if blessed($args[0]);
+    pop @CURRENT_CLASS_STACK;
+    return wantarray ? @rval : $rval[0];
 }
 
 1;

@@ -321,13 +321,13 @@ sub _create_accessor {
         $method_type = 'Perl6::Instance::Method';
         $method_code = sub {
             my ($i, $value) = @_;
-            $i->set_value($label => $value) if defined $value;
-            $i->get_value($label);
+            _($label => $value) if defined $value;
+            _($label);
         } if $attribute->is_rw;
         $method_code = sub {
             my $i = shift;
             (@_) && confess "the attribute '$label' is read-only";
-            $i->get_value($label);
+            _($label);
         } if $attribute->is_ro;        
     }
     elsif ($attribute->isa('Perl6::Class::Attribute')) {

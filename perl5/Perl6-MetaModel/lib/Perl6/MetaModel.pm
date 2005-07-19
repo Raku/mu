@@ -16,18 +16,80 @@ sub import {
     return if @_; # return if anything is passed    
     no strict 'refs';
     
+    my $caller_pkg = caller();
+    
     # method dispatch handlers
-    *{caller() . '::next_METHOD'} = \&next_METHOD;
-    *{caller() . '::WALKMETH'}    = \&WALKMETH;
-    *{caller() . '::WALKCLASS'}   = \&WALKCLASS;    
+    *{$caller_pkg . '::next_METHOD'} = \&next_METHOD;
+    *{$caller_pkg . '::WALKMETH'}    = \&WALKMETH;
+    *{$caller_pkg . '::WALKCLASS'}   = \&WALKCLASS;    
     
     # meta model helpers
-    *{caller() . '::class'} = \&class;
-    *{caller() . '::role'}  = \&role;
+    *{$caller_pkg . '::class'} = \&class;
+    *{$caller_pkg . '::role'}  = \&role;
     
     # variable substitution
-    *{caller() . '::SELF'}  = \&SELF;
-    *{caller() . '::CLASS'} = \&CLASS; 
+    *{$caller_pkg . '::SELF'}  = \&SELF;
+    *{$caller_pkg . '::CLASS'} = \&CLASS; 
+    
+    # instance attribute access
+    *{$caller_pkg . '::_'} = \&_; 
+    # class attribute access
+    *{$caller_pkg . '::__'} = \&__; 
+}
+
+
+## this just makes sure to clear the invocant when
+## something dies, it is not pretty, but it works
+$SIG{'__DIE__'} = sub { 
+    @Perl6::Method::CURRENT_INVOCANT_STACK = (); 
+    @Perl6::Method::CURRENT_CLASS_STACK    = ();     
+    @Perl6::Object::CURRENT_DISPATCHER     = ();
+    CORE::die @_; 
+};
+
+sub __ {
+    my ($label, $value) = @_;
+    my $class = CLASS();
+    my $prop = $class->meta->find_attribute_spec($label, for => 'Class')
+        || confess "Cannot locate class property ($label) in class ($class)";    
+    $prop->set_value($value) if defined $value;    
+    $prop->get_value();    
+}
+
+sub _ {
+    my ($label, $value) = @_;
+    my $self = SELF();
+    if (defined $value) {
+        my $prop = $self->meta->find_attribute_spec($label)
+            || confess "Perl6::Attribute ($label) no found";
+        # since we are not private, then check the type
+        # assuming there is one to check ....
+        if (my $type = $prop->type()) {
+            if ($prop->is_array()) {
+                (blessed($_) && ($_->isa($type) || $_->does($type))) 
+                    || confess "IncorrectObjectType: expected($type) and got($_)"
+                        foreach @$value;                        
+            }
+            else {
+                (blessed($value) && ($value->isa($type) || $value->does($type))) 
+                    || confess "IncorrectObjectType: expected($type) and got($value)";            
+            }
+        }  
+        else {
+            (ref($value) eq 'ARRAY') 
+                || confess "You can only asssign an ARRAY ref to the label ($label)"
+                    if $prop->is_array();
+            (ref($value) eq 'HASH') 
+                || confess "You can only asssign a HASH ref to the label ($label)"
+                    if $prop->is_hash();
+        }                      
+        # We are doing a 'binding' here by linking the $value into the $label
+        # instead of storing into the container object available at $label
+        # with ->store().  By that time the typechecking above will go away
+        ${$self->{instance_data}->{$label}} = $value;         
+    }
+    # now return it ...
+    ${$self->{instance_data}->{$label}};
 }
 
 sub next_METHOD {
@@ -52,15 +114,15 @@ sub WALKCLASS {
 }
 
 sub SELF {
-    (@Perl6::Object::CURRENT_INVOCANT_STACK)
+    (@Perl6::Method::CURRENT_INVOCANT_STACK)
         || confess "You cannot call \$?SELF from outside of a MetaModel defined Instance method";
-    $Perl6::Object::CURRENT_INVOCANT_STACK[-1];     
+    $Perl6::Method::CURRENT_INVOCANT_STACK[-1];     
 }
 
 sub CLASS {
-    (@Perl6::Object::CURRENT_CLASS_STACK)
+    (@Perl6::Method::CURRENT_CLASS_STACK)
         || confess "You cannot call \$?CLASS from outside of a MetaModel defined method";
-    $Perl6::Object::CURRENT_CLASS_STACK[-1];     
+    $Perl6::Method::CURRENT_CLASS_STACK[-1];     
 }
 
 sub role {

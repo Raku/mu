@@ -21,6 +21,7 @@ use Perl6::MetaModel;
 {
     my @classes_destroyed;
 
+    # DESTROY as a method
     class Foo => {
         instance => {
             DESTROY => sub {
@@ -29,11 +30,14 @@ use Perl6::MetaModel;
         }
     };
 
+    # DESTROY as a submethod
     class Bar => {
         is => [ 'Foo' ],
         instance => {
-            DESTROY => sub {
-                push @classes_destroyed, (CLASS . '::DESTROY');
+            submethods => {
+                DESTROY => sub {
+                    push @classes_destroyed, (CLASS . '::DESTROY');
+                }
             }
         }
     };

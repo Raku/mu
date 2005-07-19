@@ -13,13 +13,13 @@ class 'Person-0.0.1-cpan:STEVAN' => {
         attrs => [ '$:population' ],
         methods => {
             population => sub {
-                CLASS->get_class_value('$:population') || 0;
+                __('$:population') || 0;
             },
             create => sub {
                 my ($class, %params) = @_;           
                 # this CLASS should be the class it 
                 # is defined in (i.e: Person)
-                CLASS->set_class_value('$:population' => CLASS->population() + 1);
+                __('$:population' => CLASS->population() + 1);
                 # we want this $class to possibly
                 # be a subclass
                 return $class->bless(undef, %params);
@@ -29,11 +29,11 @@ class 'Person-0.0.1-cpan:STEVAN' => {
     instance => {
         attrs => [ '$.first_name', '$.last_name', [ '$.age' => { access => 'rw' } ] ],
         DESTROY => sub {
-            CLASS->set_class_value('$:population' => CLASS->population() - 1);
+            __('$:population' => CLASS->population() - 1);
         },
         methods => {
             full_name => sub {
-                SELF->get_value('$.first_name') . ' ' . SELF->get_value('$.last_name');
+                _('$.first_name') . ' ' . _('$.last_name');
             }
         }
     }

@@ -9,16 +9,18 @@ use Perl6::MetaModel '-no_import';
 
 use base 'Perl6::Method';
 
+# XXX - this just bypasses the local call()
 sub force_call { 
     my ($self, @args) = @_;  
-    $self->{code}->(@args);     
+    $self->SUPER::call(@args);     
 }
 
 sub call { 
     my ($self, @args) = @_;  
+    # next METHOD if $?SELF != $?CLASS;
     return Perl6::MetaModel::next_METHOD() 
-        if blessed(Perl6::MetaModel::SELF()) ne Perl6::MetaModel::CLASS(); 
-    $self->{code}->(@args); 
+        if blessed($args[0]) ne $self->associated_with; 
+    $self->SUPER::call(@args); 
 }
 
 1;

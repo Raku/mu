@@ -80,10 +80,10 @@ is_deeply($basic->hash(), { one => 1, two => 2 }, '... hash() was assigned to co
 class Base => {
     instance => {
         attrs => [ '$:foo' ],
-        BUILD => sub { (shift)->set_value('$:foo' => 'Base::Foo') },
+        BUILD => sub { _('$:foo' => 'Base::Foo') },
         methods => {
-            get_base_foo => sub { (shift)->get_value('$:foo') },
-            set_base_foo => sub { (shift)->set_value('$:foo' => 'Base::Foo -> new') }            
+            get_base_foo => sub { _('$:foo') },
+            set_base_foo => sub { _('$:foo' => 'Base::Foo -> new') }            
         }
     }
 };
@@ -92,7 +92,7 @@ class Derived1 => {
     is => [ 'Base' ],
     instance => {
         attrs => [ [ '$.foo' => { access => 'rw' } ], '$:bar' ],
-        BUILD => sub { (shift)->set_value('$.foo' => 'Foo::Foo') },
+        BUILD => sub { _('$.foo' => 'Foo::Foo') },
     }
 };
 
@@ -135,7 +135,7 @@ is($d->get_base_foo(), 'Base::Foo -> new', '... the Base::foo attribute can stil
 #ok($@, '... getting a incorrect parameter failed correctly');
 
 dies_ok {
-    $d->set_value('$.foo2' => 'nothing')
+    _('$.foo2' => 'nothing')
 } '... setting a incorrect parameter failed correctly';
 
 # check for accessor conflicts
@@ -143,11 +143,10 @@ dies_ok {
 class ConflictChecker => {
     instance => {
         attrs => [ '$.foo' ],
-        BUILD => sub { (shift)->set_value('$.foo' => 'just $.foo') },
+        BUILD => sub { _('$.foo' => 'just $.foo') },
         methods => {
             foo => sub {
-                my $self = shift;
-                'ConflictChecker->foo returns "' . $self->get_value('$.foo') . '"'
+                'ConflictChecker->foo returns "' . _('$.foo') . '"'
             }
         }
     }    

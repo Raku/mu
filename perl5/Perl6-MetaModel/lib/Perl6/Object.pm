@@ -4,34 +4,13 @@ package Perl6::Object;
 use strict;
 use warnings;
 
-use Perl6::MetaModel '-no import';
-
 use Scalar::Util 'blessed';
 use Carp 'confess';
-
-## ----------------------------------------------------------------------------
-## this is to handle the $?SELF and $?CLASS variables as well as 
-## the next METHOD call which are current is used in AUTOLOAD, 
-## BUILDALL and DESTORYALL 
-
-our @CURRENT_INVOCANT_STACK;
-our @CURRENT_CLASS_STACK;
-our @CURRENT_DISPATCHER;
-
-## this just makes sure to clear the invocant when
-## something dies, it is not pretty, but it works
-$SIG{'__DIE__'} = sub { 
-    @CURRENT_INVOCANT_STACK = (); 
-    @CURRENT_CLASS_STACK    = ();     
-    @CURRENT_DISPATCHER     = ();
-    CORE::die @_; 
-};
-
-## ----------------------------------------------------------------------------
 
 # Initialize the Perl6::Object's metaclass here ...
 our $META;
 BEGIN {
+    use Perl6::MetaModel '-no import';
     use Perl6::MetaClass;
     use Perl6::SubMethod;
     use Perl6::Class::Method;
@@ -97,66 +76,81 @@ BEGIN {
     $META->add_method('BUILDALL' => 
         Perl6::Instance::Method->new('Perl6::Object' => sub {
             my ($self, %params) = @_;
-            # then we post order traverse the rest of the class
-            # hierarchy. This will all be fixed when Perl6::Object
-            # is properly bootstrapped
             my $dispatcher = $self->meta->dispatcher(':descendant');
-            while (my $method = Perl6::MetaModel::WALKMETH($dispatcher, 'BUILD')) {
-                # NOTE: this is to mimic $?SELF and $?CLASS
-                push @CURRENT_INVOCANT_STACK => $self; 
-                push @CURRENT_CLASS_STACK => $method->associated_with;          
-                $method->force_call($self, %params);   
-                pop @CURRENT_INVOCANT_STACK;
-                pop @CURRENT_CLASS_STACK;        
+            while (my $method = Perl6::MetaModel::WALKMETH($dispatcher, 'BUILD')) {                      
+                $method->force_call($self, %params);                  
             }              
         })    
-    );     
+    );   
+    
+    $META->add_method('DESTROYALL' => 
+        Perl6::Instance::Method->new('Perl6::Object' => sub {
+            my ($self) = @_;
+            my $dispatcher = $self->meta->dispatcher(':ascendant');
+            while (my $method = Perl6::MetaModel::WALKMETH($dispatcher, 'DESTROY')) {  
+                $method->force_call($self);   
+            }               
+        })    
+    );       
  
     # the BUILD submethod
     $META->add_method('BUILD' => 
         Perl6::SubMethod->new('Perl6::Object' => sub {
             my ($self, %params) = @_;
-            $self->set_value($_ => $params{$_}) foreach keys %params;
+            _($_ => $params{$_}) foreach keys %params;
         })    
     );
+    
+    # Deal with isa()
+    
+    my $isa = sub {    
+        my ($self, $class) = @_;
+        return undef unless $class;
+        return $self->meta->is_a($class);
+    };
+    
+    $META->add_method('isa' => Perl6::Instance::Method->new('Perl6::Object' => $isa)); 
+    $META->add_method('isa' => Perl6::Class::Method->new('Perl6::Object' => $isa)); 
+    
+    # deal with can()
+    
+    my $can = sub {
+        my ($self, $label) = @_;
+        return undef unless $label;
+        if (blessed($self)) {
+            return $self->meta->responds_to($label);
+        }
+        else {
+            return $self->meta->responds_to($label, for => 'Class');
+        }
+    };    
+    
+    $META->add_method('can' => Perl6::Instance::Method->new('Perl6::Object' => $can)); 
+    $META->add_method('can' => Perl6::Class::Method->new('Perl6::Object' => $can));            
+}
+
+# metaclass access for all our objects ...
+sub meta {
+    my ($class) = @_;
+    $class = blessed($class) if blessed($class);       
+    no strict 'refs';
+    return ${$class .'::META'};
 }
 
 ## ----------------------------------------------------------------------------
-
-# XXX - this does not want to me moved to the metaclass just yet
-# I need to investigate this later ...
-sub DESTROYALL {
-    my ($self) = @_;
-    my $dispatcher = $self->meta->dispatcher(':ascendant');
-    while (my $method = Perl6::MetaModel::WALKMETH($dispatcher, 'DESTROY')) {
-        # NOTE: this is to mimic $?SELF and $?CLASS
-        push @CURRENT_INVOCANT_STACK => $self; 
-        push @CURRENT_CLASS_STACK => $method->associated_with;          
-        $method->force_call($self);   
-        pop @CURRENT_INVOCANT_STACK;
-        pop @CURRENT_CLASS_STACK;            
-    }   
-}
 
 ## XXX - all the methods below are called automagicaly by 
 ## Perl5, so we need to handle them here in order to control
 ## the metamodels functionality
 
 sub isa {
-    my ($self, $class) = @_;
-    return undef unless $class;
-    return $self->meta->is_a($class);
+    our $AUTOLOAD = 'isa';
+    goto &AUTOLOAD;
 }
 
 sub can {
-    my ($self, $label) = @_;
-    return undef unless $label;
-    if (blessed($self)) {
-        return $self->meta->responds_to($label);
-    }
-    else {
-        return $self->meta->responds_to($label, for => 'Class');
-    }
+    our $AUTOLOAD = 'can';
+    goto &AUTOLOAD;
 }
 
 {
@@ -170,13 +164,15 @@ sub can {
     }
 }
 
+our @CURRENT_DISPATCHER;
+
 sub AUTOLOAD {
     my @AUTOLOAD = split '::', our $AUTOLOAD;
     my $label = $AUTOLOAD[-1];
     # NOTE:
-    # DESTROY is never called like this, it always
-    # goes through the DESTORYALL submethod (see below)
-    return if $label =~ /DESTROY/;
+    # DESTROYALL is what should really be called
+    # so we just deal with it like this :)
+    $label = 'DESTROYALL' if $label =~ /DESTROY/;
     my $self = shift;
     my @return_value;
     if (blessed($self)) {       
@@ -190,11 +186,8 @@ sub AUTOLOAD {
         my $method = Perl6::MetaModel::WALKMETH($dispatcher, $label);
         (blessed($method) && $method->isa('Perl6::Method'))
             || confess "Method ($label) not found for instance ($self)";        
-
-        # NOTE: this is to mimic $?SELF and $?CLASS
-        push @CURRENT_INVOCANT_STACK => $self; 
-        push @CURRENT_CLASS_STACK    => $method->associated_with;            
-        push @CURRENT_DISPATCHER     => [ $dispatcher, $label, $self, @_ ];
+ 
+        push @CURRENT_DISPATCHER => [ $dispatcher, $label, $self, @_ ];
         
         @return_value = $method->call($self, @_);        
     }
@@ -209,93 +202,19 @@ sub AUTOLOAD {
         my $method = Perl6::MetaModel::WALKMETH($dispatcher, $label, for => 'Class');
         (blessed($method) && $method->isa('Perl6::Method'))
             || confess "Method ($label) not found for instance ($self)";        
-
-        # NOTE: this is to mimic $?CLASS            
-        push @CURRENT_CLASS_STACK => $method->associated_with;                 
-        push @CURRENT_DISPATCHER  => [ $dispatcher, $label, $self, @_ ];        
+                    
+        push @CURRENT_DISPATCHER => [ $dispatcher, $label, $self, @_ ];        
              
         @return_value = $method->call($self, @_);
     }
     # we can dispose of this value, as it 
     # should never be called outside of 
     # a method invocation
-    pop @CURRENT_INVOCANT_STACK;
-    pop @CURRENT_CLASS_STACK;
     pop @CURRENT_DISPATCHER;
     return wantarray ?
                 @return_value
                 :
                 $return_value[0];
-}
-
-# this just dispatches to the DESTROYALL
-# which deals with things correctly
-sub DESTROY {
-    my ($self) = @_;
-    $self->DESTROYALL();
-}
-
-## Perl6 metamodel methods and misc. support 
-## methods for our Perl5 version
-
-sub get_class_value {
-    my ($self, $label) = @_;
-    my $prop = $self->meta->find_attribute_spec($label, for => 'Class')
-        || confess "Cannot locate class property ($label) in class ($self)";        
-    $prop->get_value();
-}
-
-sub set_class_value {
-    my ($self, $label, $value) = @_;
-    my $prop = $self->meta->find_attribute_spec($label, for => 'Class')
-        || confess "Cannot locate class property ($label) in class ($self)";
-    $prop->set_value($value);
-}
-
-sub get_value {
-    my ($self, $label) = @_;
-    ${$self->{instance_data}->{$label}};
-}
-
-sub set_value {
-    my ($self, $label, $value) = @_;
-    my $prop = $self->meta->find_attribute_spec($label)
-        || confess "Perl6::Attribute ($label) no found";
-
-    # since we are not private, then check the type
-    # assuming there is one to check ....
-    if (my $type = $prop->type()) {
-        if ($prop->is_array()) {
-            (blessed($_) && ($_->isa($type) || $_->does($type))) 
-                || confess "IncorrectObjectType: expected($type) and got($_)"
-                    foreach @$value;                        
-        }
-        else {
-            (blessed($value) && ($value->isa($type) || $value->does($type))) 
-                || confess "IncorrectObjectType: expected($type) and got($value)";            
-        }
-    }  
-    else {
-        (ref($value) eq 'ARRAY') 
-            || confess "You can only asssign an ARRAY ref to the label ($label)"
-                if $prop->is_array();
-        (ref($value) eq 'HASH') 
-            || confess "You can only asssign a HASH ref to the label ($label)"
-                if $prop->is_hash();
-    }                      
-
-    # We are doing a 'binding' here by linking the $value into the $label
-    # instead of storing into the container object available at $label
-    # with ->store().  By that time the typechecking above will go away
-    ${$self->{instance_data}->{$label}} = $value;        
-}
-
-# metaclass access for all our objects ...
-sub meta {
-    my ($class) = @_;
-    $class = blessed($class) if blessed($class);       
-    no strict 'refs';
-    return ${$class .'::META'};
 }
 
 1;
