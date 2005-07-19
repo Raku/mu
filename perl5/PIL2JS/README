@@ -85,7 +85,10 @@ C<source>.)
 
 =head2 Binding
 
-Binding is even simpler: C<dest = source>
+Binding is similar: C<dest.BINDTO(source)>
+
+We can't just use C<dest = source>, because C<dest> might be the result of some
+function, e.g. C<@array[$idx] := $foo>.
 
 =head2 Calling conventions
 

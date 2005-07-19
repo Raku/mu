@@ -628,7 +628,7 @@ EOF
       "var " .
       join(", ", map {
         PIL::Nodes::name_mangle($_->[0]) .
-        " = new PIL2JS.Box(undefined)"
+        " = new PIL2JS.Box.Proxy(undefined)"
       } @{ $self->[1] }) .
       ";\n" .
       $self->[2]->as_js;
@@ -663,7 +663,7 @@ EOF
     die unless ref $self->[0] eq "ARRAY";
     die unless @{ $self->[0] } == 1;
 
-    return sprintf "%s = %s",
+    return sprintf "%s.BINDTO(%s)",
       $self->[0]->[0]->as_js,
       $self->[1]->as_js;
   }

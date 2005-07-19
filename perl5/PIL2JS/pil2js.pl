@@ -72,7 +72,7 @@ if($yaml_dump) {
 
 warn "*** Compiling input PIL to JavaScript...\n" if $verbose;
 my $load_check = <<EOF;
-if(PIL2JS == undefined) {
+try { PIL2JS } catch(err) {
   var error = new Error("PIL2JS.js not loaded; aborting.");
   alert(error);
   throw(error);

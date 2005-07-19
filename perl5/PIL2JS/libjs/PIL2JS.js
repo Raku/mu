@@ -8,14 +8,19 @@ PIL2JS.LF = typeof document != "undefined" && typeof document.all != "undefined"
   : "\n";
 
 // This is necessary to emulate pass by ref, needed for is rw and is ref.
-PIL2JS.Box = function (value) {
-  this.GET   = function ()  { return value };
-  this.STORE = function (n) { value = n.GET(); return n };
+PIL2JS.Box = function (get, store) {
+  this.GET   = get;
+  this.STORE = store;
 };
 
 PIL2JS.Box.prototype = {
+  BINDTO: function (other) {
+    this.GET   = other.GET;
+    this.STORE = other.STORE;
+    return this;
+  },
   clone: function () {
-    return new PIL2JS.Box(this.GET());
+    return new PIL2JS.Box.Proxy(this.GET());
   },
   toNative: function () {
     var unboxed = this.GET();
@@ -47,6 +52,10 @@ PIL2JS.Box.prototype = {
   */
 };
 
+PIL2JS.Box.Proxy = function (value) {
+  this.GET   = function ()  { return value };
+  this.STORE = function (n) { value = n.GET(); return n };
+};
 PIL2JS.Box.ReadOnly = function (box) {
   this.GET   = function ()  { return box.GET() };
   this.STORE = function (n) { PIL2JS.die("Can't modify constant item!\n"); return n };
@@ -60,6 +69,7 @@ PIL2JS.Box.Stub = function (value) {
   this.STORE = function (n) { PIL2JS.die(".STORE() of a PIL2JS.Box.Stub called!\n"); return n };
 };
 
+PIL2JS.Box.Proxy.prototype    = PIL2JS.Box.prototype;
 PIL2JS.Box.ReadOnly.prototype = PIL2JS.Box.prototype;
 PIL2JS.Box.Constant.prototype = PIL2JS.Box.prototype;
 PIL2JS.Box.Stub.prototype     = PIL2JS.Box.prototype;
@@ -113,7 +123,7 @@ PIL2JS.make_slurpy_array = function (inp_arr) {
   return out_arr;
 };
 
-var _24main_3a_3a_3fPOSITION = new PIL2JS.Box("<unknown>");
+var _24main_3a_3a_3fPOSITION = new PIL2JS.Box.Proxy("<unknown>");
 
 PIL2JS.new_error = function (msg) {
   return new Error(msg.substr(-1, 1) == "\n"
@@ -174,4 +184,12 @@ PIL2JS.part_pairs = function (args) {
   }
 
   return [normal_args, pairs];
+};
+
+PIL2JS.use_jsan = function (mod) {
+  if(JSAN == undefined)
+    PIL2JS.die("JSAN library not loaded!");
+
+  mod = mod.replace(/::/, ".");
+  JSAN.prototype.use.apply(JSAN.prototype, [mod]);
 };

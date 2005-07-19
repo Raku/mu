@@ -247,11 +247,36 @@ sub postfix:<--> ($a is rw)    is primitive { my $cur = $a; $a = $a - 1; $cur }
 
 sub infix:<,>(*@xs)            is primitive { @xs }
 sub circumfix:<[]>(*@xs)       is primitive { @xs }
-method postcircumfix:<[]>(Array $self: Int $idx is copy) {
+method postcircumfix:<[]>(Array $self: Int $idx is copy) is rw {
+  # *Important*: We have to calculate the idx only *once*:
+  #   my @a  = (1,2,3,4);
+  #   my $z := @a[-1];
+  #   say $z;               # 4
+  #   push @a, 5;
+  #   say $z;               # 4 (!!)
   $idx = +$self + $idx if $idx < 0;
   JS::inline('new PIL2JS.Box.Constant(function (args) {
-    var ret = args[0].GET()[args[1].toNative()];
-    return ret == undefined ? new PIL2JS.Box.Constant(undefined) : ret;
+    var array = args[0].GET();
+    var idx   = args[1].toNative();
+
+    // Relay .GET and .STORE to array[idx].
+    var ret = new PIL2JS.Box(
+      function () {
+        var ret = array[idx];
+        return ret == undefined ? undefined : ret.GET();
+      },
+      function (n) { array[idx].STORE(n); return n }
+    );
+
+    // .BINDTO is special: @a[$idx] := $foo should work.
+    ret.BINDTO = function (other) {
+      if(array[idx] == undefined)
+        PIL2JS.die("Can\'t rebind undefined!");
+
+      return array[idx].BINDTO(other);
+    };
+
+    return ret;
   })')($self, $idx);
 }
 
