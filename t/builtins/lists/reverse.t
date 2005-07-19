@@ -9,7 +9,7 @@ tests for "reverse"
 
 =cut
 
-plan 29;
+plan 33;
 
 my @a = reverse(1, 2, 3, 4);
 my @e = (4, 3, 2, 1);
@@ -76,4 +76,13 @@ is(@a[1], "foo", 'the list was reversed properly');
     is($a, "foo", "original scalar left untouched");
     $a.=reverse;
     is($a, "oof", 'in place reversal works on strings');
+}
+
+{
+    my $a = "foo".reverse;
+    my @b = "foo".reverse;
+    isa_ok($a, 'Str');
+    isa_ok(@b, 'Array');
+    is($a, "oof", 'string literal reversal works in scalar context');
+    is(@b[0], "oof", 'string literal reversal works in list context');
 }
