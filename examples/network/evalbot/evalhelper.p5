@@ -40,6 +40,9 @@ $code =~ s/([^A-Za-z_0-9\^])/\\$1/g;
 # exactly the same environment as if typed in the interactive Pugs, i.e.
 # tabulaRasa. One exception is made: We add a safe &say.
 system $pugs, "-e", '
+  sub *print (*@_) {
+    Pugs::Safe::safe_print join "", *@_;
+  }
   sub *say (*@_) {
     Pugs::Safe::safe_print join "", *@_;
     Pugs::Safe::safe_print "\n";
