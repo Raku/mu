@@ -1,3 +1,7 @@
+2005-07-19
+
+* fixed all warnings
+
 2005-07-18
 
 * t/span-code.t passes all tests, but emits some warnings
