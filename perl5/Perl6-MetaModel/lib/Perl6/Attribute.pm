@@ -7,8 +7,6 @@ use warnings;
 use Carp 'confess';
 use Scalar::Util 'blessed';
 
-use Perl6::Container::Scalar;
-
 use constant PUBLIC  => 'public';
 use constant PRIVATE => 'private';
 
@@ -56,9 +54,9 @@ sub is_public  { (shift)->{visibility} eq PUBLIC  }
 
 sub instantiate_container {
     my ($self) = @_;
-    return \([]) if $self->is_array;
-    return \({}) if $self->is_hash; 
-    return \(my $scalar);
+    return [] if $self->is_array;
+    return {} if $self->is_hash; 
+    return undef;
 }
 
 1;

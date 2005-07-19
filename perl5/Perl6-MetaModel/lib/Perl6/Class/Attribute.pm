@@ -13,11 +13,11 @@ sub new {
     return $self;
 }
 
-sub get_value { ${shift->{value}} }
+sub get_value { (shift)->{value} }
 
 sub set_value { 
     my ($self, $value) = @_;
-    ${$self->{value}} = $value
+    $self->{value} = $value
 }
 
 1;

@@ -86,10 +86,10 @@ sub _ {
         # We are doing a 'binding' here by linking the $value into the $label
         # instead of storing into the container object available at $label
         # with ->store().  By that time the typechecking above will go away
-        ${$self->{instance_data}->{$label}} = $value;         
+        $self->{instance_data}->{$label} = $value;         
     }
     # now return it ...
-    ${$self->{instance_data}->{$label}};
+    $self->{instance_data}->{$label};
 }
 
 sub next_METHOD {

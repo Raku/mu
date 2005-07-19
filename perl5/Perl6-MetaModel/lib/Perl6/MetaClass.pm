@@ -110,7 +110,7 @@ sub class_precedence_list {
     my ($self, $order) = @_;
     my $seen = {};
     my @class_precedence_list;    
-    my $dispatcher = $self->dispatcher($order || ':preorder');
+    my $dispatcher = $self->dispatcher($order);
     while (my $next = $dispatcher->next()) {
         unless ($seen->{$next->name}) {
             $seen->{$next->name}++;
@@ -123,33 +123,33 @@ sub class_precedence_list {
 sub _merge {
     my (@seqs) = @_;
     my @res; 
-    my $i = 0;
     while (1) {
-        my @nonemptyseqs = (map { (@{$_} ? $_ : ()) } @seqs); # remove all empty seqences
-        return @res if not @nonemptyseqs; # return the list if we have no more no-empty sequences
-        $i++;
+        # remove all empty seqences
+        my @nonemptyseqs = (map { (@{$_} ? $_ : ()) } @seqs);
+        # return the list if we have no more no-empty sequences
+        return @res if not @nonemptyseqs; 
         my $cand; # a canidate ..
         foreach my $seq (@nonemptyseqs) {
             $cand = $seq->[0]; # get the head of the list
-            # XXX - this is instead of the python "in"
             my $nothead;            
             foreach my $sub_seq (@nonemptyseqs) {
-                my %in_tail = (map { $_->name => 1 } @{$sub_seq}[ 1 .. $#{$sub_seq} ]);
-                $nothead++ if exists $in_tail{$cand->name};      
+                # XXX - this is instead of the python "in"
+                my %in_tail = (map { $_ => 1 } @{$sub_seq}[ 1 .. $#{$sub_seq} ]);
+                # NOTE:
+                # jump out as soon as we find one matching
+                # there is no reason not too. However, if 
+                # we find one, then just remove the '&& last'
+                $nothead++ && last if exists $in_tail{$cand};      
             }
-            if ($nothead) {
-                $cand = undef; # reject it ...
-            }
-            else {
-                last;
-            }
+            last unless $nothead; # leave the loop with our canidate ...
+            $cand = undef;        # otherwise, reject it ...
         }
         confess "Inconsistent hierarchy" if not $cand;
         push @res => $cand;
+        # now loop through our non-empties and pop 
+        # off the head if it matches our canidate
         foreach my $seq (@nonemptyseqs) {
-            if ($seq->[0]->name eq $cand->name) {
-                shift @{$seq};
-            }
+            shift @{$seq} if $seq->[0] eq $cand;
         }
     }
 }
@@ -164,6 +164,12 @@ sub MRO {
         )
     ] unless defined $self->{MRO};
     @{$self->{MRO}};
+}
+
+
+sub dispatcher {
+    my ($self, $order) = @_;
+    Perl6::MetaClass::Dispatcher->new($self, $order);
 }
 
 ## METHODS
@@ -184,9 +190,8 @@ sub add_method {
         $method_table = CLASS_TABLE;
     }
     elsif ($method->isa('Perl6::SubMethod')) {
-        # XXX - this is flat out wrong, but we 
-        # will leave it for now, until we have
-        # proper sub-methods
+        # XXX - this is probably wrong ... 
+        # can submethods be called by a class too?
         $method_table = INSTANCE_TABLE; 
     }    
     else {
@@ -205,29 +210,6 @@ sub get_method {
 sub has_method {
     my ($self, $label, %params) = @_;
     $self->get_method($label, %params) ? 1 : 0;    
-}
-
-# XXX - this should be removed in favor of WALKMETH I think
-sub find_method {
-    my ($self, $label, %params) = @_;
-    return $self->get_method($label, %params) if $self->has_method($label, %params);
-    return $self->find_method_in_superclasses($label, %params);
-}
-
-# XXX - this should be removed in favor of WALKMETH I think
-sub find_method_in_superclasses {
-    my ($self, $label, %params) = @_;
-    foreach my $super (@{$self->superclasses}) {
-        my $method = $super->find_method($label, %params);
-        return $method if defined $method;
-    }
-    return undef;
-}
-
-# XXX - this should be removed in favor of WALKMETH I think
-sub responds_to {
-    my ($self, $label, %params) = @_;
-    $self->find_method($label, %params) ? 1 : 0;    
 }
 
 ## ATTRIBUTES
@@ -370,11 +352,6 @@ sub _which_table {
     else {
         confess "Incorrect Parameter : methods cannot be found for " . $params->{for};
     }
-}
-
-sub dispatcher {
-    my ($self, $order) = @_;
-    Perl6::MetaClass::Dispatcher->new($self, $order);
 }
 
 1;

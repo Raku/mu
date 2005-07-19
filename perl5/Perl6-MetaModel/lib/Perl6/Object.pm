@@ -117,12 +117,8 @@ BEGIN {
     my $can = sub {
         my ($self, $label) = @_;
         return undef unless $label;
-        if (blessed($self)) {
-            return $self->meta->responds_to($label);
-        }
-        else {
-            return $self->meta->responds_to($label, for => 'Class');
-        }
+        return Perl6::MetaModel::WALKMETH($self->meta->dispatcher(':canonical'), $label) if blessed($self);
+        return Perl6::MetaModel::WALKMETH($self->meta->dispatcher(':canonical'), $label, for => 'Class');
     };    
     
     $META->add_method('can' => Perl6::Instance::Method->new('Perl6::Object' => $can)); 
@@ -177,7 +173,7 @@ sub AUTOLOAD {
     my @return_value;
     if (blessed($self)) {       
         # get the dispatcher instance ....
-        my $dispatcher = $self->meta->dispatcher;
+        my $dispatcher = $self->meta->dispatcher(':canonical');
         
         # just discard it if we are calling SUPER
         $dispatcher->next() if ($AUTOLOAD[0] eq 'SUPER');
@@ -193,7 +189,7 @@ sub AUTOLOAD {
     }
     else {  
         # get the dispatcher instance ....
-        my $dispatcher = $self->meta->dispatcher;
+        my $dispatcher = $self->meta->dispatcher(':canonical');
 
         # just discard it if we are calling SUPER
         $dispatcher->next() if ($AUTOLOAD[0] eq 'SUPER');
