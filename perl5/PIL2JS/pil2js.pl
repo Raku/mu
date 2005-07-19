@@ -45,19 +45,21 @@ usage() unless
   $jsprelude{mode} =~ /^(?:no|inline|link)$/ and
   $p6prelude{mode} =~ /^(?:no|inline|link)$/;
 
-die <<ERR if not $html and ($jsprelude{mode} eq "link" or $p6prelude{mode} eq "link");
+unless($yaml_dump) {
+  die <<ERR if not $html and ($jsprelude{mode} eq "link" or $p6prelude{mode} eq "link");
 *** Can't link to Prelude if --html option not given!
 ERR
 
-die <<ERR if not $p6prelude{path} and ($p6prelude{inline} or $p6prelude{link});
+  die <<ERR if not $p6prelude{path} and ($p6prelude{inline} or $p6prelude{link});
 *** Can't inline or link to the precompiled Prelude,
     as no path to the Prelude was given.
 ERR
 
-die <<ERR if not $jsprelude{path} and ($jsprelude{inline} or $jsprelude{link});
+  die <<ERR if not $jsprelude{path} and ($jsprelude{inline} or $jsprelude{link});
 *** Can't inline or link to the JavaScript Prelude (PIL2JS.js),
     as no path to the Prelude was given.
 ERR
+}
 
 warn "*** Reading PIL...\n" if $verbose;
 

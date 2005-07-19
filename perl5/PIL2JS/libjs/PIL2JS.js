@@ -1,13 +1,19 @@
 // This is the part of the Prelude for JavaScript which is written in
 // JavaScript. See lib6/Prelude/JS.pm for the part written in Perl 6.
 
+// Create our namespace.
 if(PIL2JS == undefined) var PIL2JS = {};
 
+// IE don't cares about standards and only interprets "\r" as linefeed.
 PIL2JS.LF = typeof document != "undefined" && typeof document.all != "undefined"
   ? "\r"
   : "\n";
 
 // This is necessary to emulate pass by ref, needed for is rw and is ref.
+// See section "DESIGN" in README.
+// GET    :: SomeNativeType
+// STORE  :: SomeBox -> TheSameBox
+// BINDTO :: SomeBox -> TheSameBox
 PIL2JS.Box = function (get, store) {
   this.GET   = get;
   this.STORE = store;
@@ -19,17 +25,28 @@ PIL2JS.Box.prototype = {
     this.STORE = other.STORE;
     return this;
   },
+
+  // Needed for "is copy".
   clone: function () {
     return new PIL2JS.Box.Proxy(this.GET());
   },
+
+  // Return us as an native JavaScript object.
   toNative: function () {
     var unboxed = this.GET();
+
+    // Special magic for Array: Call .toNative() for each element.
     if(unboxed instanceof Array) {
       var arr = [];
       for(var i = 0; i < unboxed.length; i++) {
         arr.push(unboxed[i].toNative());
       }
       return arr;
+
+    // Special magic for Function: Create a wrapper function which wraps all
+    // arguments in PIL2JS.Boxes and unwraps the results.
+    // real_func    :: BoxedArgs  -> BoxedResults
+    // wrapper_func :: NativeArgs -> NativeResult
     } else if(unboxed instanceof Function) {
       return function () {
         var args = arguments;
@@ -37,14 +54,23 @@ PIL2JS.Box.prototype = {
           args[i] = new PIL2JS.Box.Constant(args[i]);
         return unboxed(args).toNative();
       };
+
+    // Special magic for string: Work aroung IE bug.
     } else if(typeof unboxed == "string") {
       // Convert "\n"s (IE...)
       return unboxed.replace(/\n/, PIL2JS.LF);
+
+    // Else: simply return the unboxed thing.
     } else {
       return unboxed;
     }
   },
+
+  // This is an all-PIL2JS.Box-objects global hash mapping method name to
+  // (boxed) method Code object. Of course, we'll have to check the class of
+  // the invocant later, but for now that's ok.
   perl_methods: {}
+
   /*
     toString: function () {
       _26main_3a_3aprefix_3a_7e.GET()([this]);
@@ -52,23 +78,32 @@ PIL2JS.Box.prototype = {
   */
 };
 
+// new PIL2JS.Box.Proxy(42) is a normal variable which can be assigned to.
 PIL2JS.Box.Proxy = function (value) {
   this.GET   = function ()  { return value };
   this.STORE = function (n) { value = n.GET(); return n };
 };
+
+// new PIL2JS.Box.Readonly(some_existing_box) returns a new box which cannot be
+// assigned to. Necessary for sub params without "is rw".
 PIL2JS.Box.ReadOnly = function (box) {
   this.GET   = function ()  { return box.GET() };
   this.STORE = function (n) { PIL2JS.die("Can't modify constant item!\n"); return n };
 };
+
+// Returns a new box wrapping a constant value.
 PIL2JS.Box.Constant = function (value) {
   this.GET   = function ()  { return value };
   this.STORE = function (n) { PIL2JS.die("Can't modify constant item!\n"); return n };
 };
+
+// Returns a stub box -- all calls will die.
 PIL2JS.Box.Stub = function (value) {
   this.GET   = function ()  { PIL2JS.die(".GET() of a PIL2JS.Box.Stub called!\n") }
   this.STORE = function (n) { PIL2JS.die(".STORE() of a PIL2JS.Box.Stub called!\n"); return n };
 };
 
+// Inheritance.
 PIL2JS.Box.Proxy.prototype    = PIL2JS.Box.prototype;
 PIL2JS.Box.ReadOnly.prototype = PIL2JS.Box.prototype;
 PIL2JS.Box.Constant.prototype = PIL2JS.Box.prototype;
@@ -109,6 +144,8 @@ PIL2JS.call = function (inv, sub, args) {
   }
 };
 
+// Flatten inp_arr (one level):
+// [1,2,[3,4,5],[6,[7,8]]] -> [1,2,3,4,5,6,[7,8]]
 PIL2JS.make_slurpy_array = function (inp_arr) {
   var out_arr = [];
 
@@ -123,14 +160,18 @@ PIL2JS.make_slurpy_array = function (inp_arr) {
   return out_arr;
 };
 
+// Magical variable: $?POSITION.
 var _24main_3a_3a_3fPOSITION = new PIL2JS.Box.Proxy("<unknown>");
 
+// Prettyprint an error msg.
 PIL2JS.new_error = function (msg) {
   return new Error(msg.substr(-1, 1) == "\n"
     ? msg
     : msg + " at " + _24main_3a_3a_3fPOSITION.toNative()
   );
 };
+
+// &warn and &die.
 PIL2JS.warn = function (msg) { alert(PIL2JS.new_error(msg)) };
 PIL2JS.die = function (msg) {
   var error = PIL2JS.new_error(msg);
@@ -138,12 +179,19 @@ PIL2JS.die = function (msg) {
   throw(error);
 };
 
+// &return, &leave, &last, &next are all implemented using faked escape
+// continuations, i.e. exceptions.
 PIL2JS.Exception = {};
 PIL2JS.Exception.last  = function () {};
 PIL2JS.Exception.next  = function () {};
 PIL2JS.Exception.ret   = function (level, retval) {
+  // The sublevel (SUBROUTINE, SUBBLOCK, etc.) the &return/&leave/whatever is
+  // destined to.
   this.level        = level;
+  // The (boxed) return value.
   this.return_value = retval;
+
+  // Slightly hacky: Display an error if the user return()s outside a sub.
   this.toString     = function () {
     var msg = 
       "Can't return outside a " + level + "-routine. at " +
@@ -153,6 +201,9 @@ PIL2JS.Exception.ret   = function (level, retval) {
   }
 };
 
+// &PIL2JS::Internals::generic_return -- generates a function, which, when
+// invoked, will cause a return of the given level by throwing an appropriate
+// exception.
 var _26PIL2JS_3a_3aInternals_3a_3ageneric_return =
   new PIL2JS.Box.Constant(function (args) {
     var level = args[0].toNative();
@@ -161,31 +212,42 @@ var _26PIL2JS_3a_3aInternals_3a_3ageneric_return =
       var ret =
         args.length >  1 ? new PIL2JS.Box.Constant(args) :
         args.length == 1 ? args[0] :
-        new PIL2J2.Box.Constant(undefined);
+        new PIL2JS.Box.Constant(undefined);
       throw(new PIL2JS.Exception.ret(level, ret));
     });
   });
 
+// class Pair { has $.key; has $.value }
 PIL2JS.Pair = function (key, value) {
   this.key   = key;
   this.value = value;
 };
 
-PIL2JS.part_pairs = function (args) {
-  var normal_args = [];
-  var pairs       = {};
+// Greps args for PIL2JS.Pairs and returns them as a hash.
+PIL2JS.grep_for_pairs = function (args) {
+  var pairs = {};
+
+  for(var i = 0; i < args.length; i++)
+    if(args[i].GET() instanceof PIL2JS.Pair)
+      pairs[args[i].GET().key.toNative()] = args[i].GET().value;
+
+  return pairs;
+};
+
+// Searches args for pairs and deletes the pairs where .key eq name.
+PIL2JS.delete_pair_from_args = function (args, name) {
+  var n = [];
 
   for(var i = 0; i < args.length; i++) {
-    if(args[i].GET() instanceof PIL2JS.Pair) {
-      pairs[args[i].GET().key.toNative()] = args[i].GET().value;
-    } else {
-      normal_args.push(args[i]);
+    if(!(args[i].GET() instanceof PIL2JS.Pair && args[i].GET().key.toNative() == name)) {
+      n.push(args[i]);
     }
   }
 
-  return [normal_args, pairs];
+  return n;
 };
 
+// Doesn't work yet -- load a JSAN mod.
 PIL2JS.use_jsan = function (mod) {
   if(JSAN == undefined)
     PIL2JS.die("JSAN library not loaded!");

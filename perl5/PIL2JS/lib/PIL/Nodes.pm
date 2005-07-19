@@ -498,17 +498,15 @@ sub add_indent {
     my $self = shift;
     local $_;
 
-    # use YAML;
-    # warn Dump($self);
-    my $js = <<EOF;
-var pairs;
-{
-  var temp = PIL2JS.part_pairs(args);
-  args     = temp[0];
-  pairs    = temp[1];
-}
-EOF
-    $js .= $_->as_js() . "\n" for @$self;
+    # The parameter extracting thing is 3-pass.
+    # Firstly, in as_js1, possible named args are immediately extracted and
+    # removed from args.
+    # Then, in as_js2, remaing positional args are picked up.
+    # Finally,in as_js3, the actual checking is done.
+    my $js = "var pairs = PIL2JS.grep_for_pairs(args);\n";
+    $js .= $_->as_js1() . "\n" for @$self;
+    $js .= $_->as_js2() . "\n" for @$self;
+    $js .= $_->as_js3() . "\n" for @$self;
     $js .=
       "if(args.length != 0)\n" .
       "  PIL2JS.die(\"\" + args.length + \" more parameters passed than expected (@{[scalar @$self]})!\");\n";
@@ -520,7 +518,54 @@ EOF
 {
   package PIL::MkTParam;
 
-  sub as_js {
+  sub as_js1 {
+    my $self = shift;
+    my $name = $self->{tpParam}{paramName};
+    die unless defined $name and not ref $name;
+    warn "Skipping \%_ parameter.\n" and return "" if $name eq "%_";
+
+    my $jsname   = PIL::Nodes::name_mangle $name;
+    my $pairname = PIL::Nodes::doublequote(substr $name, 1);
+    return <<EOF;
+var $jsname = undefined;
+if(pairs[$pairname] != undefined) {
+  $jsname = pairs[$pairname];
+  args = PIL2JS.delete_pair_from_args(args, $pairname);
+}
+EOF
+  }
+
+  sub as_js2 {
+    my $self = shift;
+    my $name = $self->{tpParam}{paramName};
+    die unless defined $name and not ref $name;
+    warn "Skipping \%_ parameter.\n" and return "" if $name eq "%_";
+
+    # If we're a name-only arg, skip as_js2.
+    return "" if !$self->{tpParam}{isNamed}->isa("PIL::True");
+
+    # It's a slurpy parameter? Flatten args so we can .shift() one item at a
+    # time.
+    my @js;
+    if($self->{tpParam}{paramContext}->isa("PIL::CxtSlurpy")) {
+      push @js, "args = PIL2JS.make_slurpy_array(args);\n";
+    }
+
+    my $jsname = PIL::Nodes::name_mangle $name;
+    # We're a take-everything slurpy param (*@foo, as opposed to *$foo)?
+    if(
+      not $self->{tpParam}{paramContext}->isa("PIL::CxtSlurpy") or
+      $name !~ /^@/
+    ) {
+      push @js, "if($jsname == undefined) $jsname = args.shift();";
+    } else {
+      push @js, "if($jsname == undefined) { $jsname = new PIL2JS.Box.Constant(args); args = [] }";
+    }
+
+    return join "\n", @js;
+  }
+
+  sub as_js3 {
     # - !perl/PIL::MkTParam
     # tpDefault: !perl/@PIL::Nothing []
     # tpParam: !perl/PIL::MkParam
@@ -536,29 +581,12 @@ EOF
     #   paramDefault: !perl/@PIL::Noop []
     #   paramName: '@c'
     my $self = shift;
-
     my $name = $self->{tpParam}{paramName};
     die unless defined $name and not ref $name;
     warn "Skipping \%_ parameter.\n" and return "" if $name eq "%_";
 
     my @js;
     my $jsname = PIL::Nodes::name_mangle $name;
-
-    # It's a slurpy parameter? Flatten args so we can .shift() one item at a
-    # time.
-    if($self->{tpParam}{paramContext}->isa("PIL::CxtSlurpy")) {
-      push @js, "args = PIL2JS.make_slurpy_array(args);\n";
-    }
-
-    # We're a take-everything slurpy param (*@foo, as opposed to *$foo)?
-    if(
-      not $self->{tpParam}{paramContext}->isa("PIL::CxtSlurpy") or
-      $name !~ /^@/
-    ) {
-      push @js, "var $jsname = args.shift();";
-    } else {
-      push @js, "var $jsname = new PIL2JS.Box.Constant(args); args = [];";
-    }
 
     # We're required, but a value hasn't been supplied?
     if($self->{tpParam}{isOptional}->isa("PIL::False")) {
