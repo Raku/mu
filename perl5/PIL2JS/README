@@ -21,7 +21,7 @@ Run C<pil2js.pl --help> to get usage information.
   |   |-- Prelude
   |   |   `-- JS.pm       JavaScript Prelude, written in Perl 6
 
-=head1 WHAT'S WORKING YET?
+=head1 WHAT'S WORKING ALREADY?
 
 =over
 
