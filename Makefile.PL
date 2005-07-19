@@ -158,7 +158,7 @@ sub set_postamble {
 	      for split /\s+/, $flags;
         }
     }
-    elsif( $Config{cc} eq 'cl' and $^O =~ /Win32/ )   {
+    elsif( $ENV{PUGS_EMBED} and $Config{cc} eq 'cl' and $^O =~ /Win32/ )   {
             $ENV{PUGS_EMBED} =~ s/\bperl5\b//g;
 	    warn << '.'
 *** Perl 5 embedding disabled on Win32 systems.
