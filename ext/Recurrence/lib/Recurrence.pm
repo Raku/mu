@@ -193,7 +193,7 @@ submethod _get_complement_next ($self: ) {
             for ( 0 .. $:arbitrary_limit )
             {
                 $x = &{ $.universe.closure_next }( $x );
-                return $x if $x == Inf ||
+                return $x if $x == Inf || $x == -Inf ||
                              $x != &{ $self.closure_previous }( &{ $self.closure_next }( $x ) );
             }
             warn "Arbitrary limit exceeded when calculating complement()";
@@ -208,7 +208,7 @@ submethod _get_complement_previous ($self: ) {
             for ( 0 .. $:arbitrary_limit )
             {
                 $x = &{ $.universe.closure_previous }( $x );
-                return $x if $x == -Inf ||
+                return $x if $x == Inf || $x == -Inf ||
                              $x != &{ $self.closure_next }( &{ $self.closure_previous }( $x ) );
             }
             warn "Arbitrary limit exceeded when calculating complement()";
