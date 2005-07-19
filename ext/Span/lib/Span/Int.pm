@@ -44,7 +44,7 @@ method complement ($self: ) returns List of Span::Int
                $self.new( start => $.end + $.density,  end =>   Inf, density => $.density ) );
 }
 
-multi method union ($self: Span::Int $span ) 
+method union ($self: Span::Int $span ) 
     returns List of Span::Int 
 {
     return ( $self, $span ) if $.end + $.density     < $span.start;
@@ -87,13 +87,15 @@ method difference ($self: $span ) returns List {
     return @span;
 }
 
-method next ($self: $x ) {
+method next ($self: $x is copy ) {
+    $x = $x + $.density if defined $.density;
     return $.start if $x < $.start;
     return $x      if $x <= $.end;
     return undef;
 }
 
-method previous ($self: $x ) {
+method previous ($self: $x is copy ) {
+    $x = $x - $.density if defined $.density;
     return $.end   if $x > $.end;
     return $x      if $x >= $.start;
     return undef;

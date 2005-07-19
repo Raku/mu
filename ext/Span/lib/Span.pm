@@ -5,20 +5,19 @@ class Span-0.01
 
     use Span::Num;
     use Span::Int;
+    use Span::Code;
 
     has $.span;
 
 =for TODO
     
-    * integrate with Span::Code objects
+    * test the integration with Span::Code objects
 
 Known bugs:
-
-    * iterator should check both boundaries, because the Span is mutable
-    
+  
     * 'undefine span' is wrong - use empty_span instead (in set_end() / set_start() )
 
-    * normalize_parameter - must check the internal span type
+    * _normalize_parameter - must check the internal span type
     
     * all objects should be cloned before inserting in the span
     
@@ -80,6 +79,11 @@ submethod BUILD ($class: *%param is copy ) {
             return;
         }
         if %param<object>.isa( 'Span::Int' )
+        {
+            $.span = %param<object>;
+            return;
+        }
+        if %param<object>.isa( 'Span::Code' )
         {
             $.span = %param<object>;
             return;
@@ -235,11 +239,24 @@ method size () returns Object {
     return $.span.size;
 }
 
-submethod normalize_parameter ($self: $span) {
-    # XXX - wrong - must check the internal span type
-    return $span.span if $span.isa( $self.ref );
-
+submethod _normalize_parameter ($self: $span) {
+    
     my $span0 = $self.span;
+
+    if $span.isa( 'Recurrence' ) 
+    {
+        # XXX - if $span0 is a Span::Code it should do the right thing,
+        #       but it needs some testing
+        return $self.new( span => Span::Code.new( recurrence => $param, span => $span0 ) );
+    }
+
+    if $span.isa( 'Span' ) {
+        my $span1 = $span.span;
+        return $span1 if $span1.isa( 'Span::Code' );
+        return $span1 if $span1.isa( $span0.ref );
+    }
+    
+    return $span if $span.isa( 'Span::Code' );
     return $span if $span.isa( $span0.ref );
 
     my ( $start, $end );
@@ -260,7 +277,7 @@ submethod normalize_parameter ($self: $span) {
 
 method compare ($self: $span is copy) returns int { 
     my $span0 = $self.span;
-    my $span1 = $self.normalize_parameter( $span );
+    my $span1 = $self._normalize_parameter( $span );
 
     return 0  if $span0.is_empty && $span1.is_empty;
     return -1 if $span0.is_empty;
@@ -272,7 +289,7 @@ method contains ($self: $span is copy) returns bool {
     return bool::false if $.span.is_empty;
     
     my $span0 = $self.span;
-    my $span1 = $self.normalize_parameter( $span );
+    my $span1 = $self._normalize_parameter( $span );
     my @union = $span0.union( $span1 );
     
     # XXX this should work
@@ -286,7 +303,7 @@ method intersects ($self: $span is copy) returns bool {
     return bool::false if $.span.is_empty;
     
     my $span0 = $self.span;
-    my $span1 = $self.normalize_parameter( $span );
+    my $span1 = $self._normalize_parameter( $span );
     my @union = $span0.union( $span1 );
     
     # XXX - this should work
@@ -297,7 +314,7 @@ method intersects ($self: $span is copy) returns bool {
 
 method union ($self: $span is copy) returns List of Span { 
     my $span0 = $self.span;
-    my $span1 = $self.normalize_parameter( $span );
+    my $span1 = $self._normalize_parameter( $span );
 
     return $self.new( span => $span1 ) if $self.is_empty;
 
@@ -309,7 +326,7 @@ method intersection ($self: $span is copy) returns List of Span {
     return $self.clone if $self.is_empty;
     
     my $span0 = $self.span;
-    my $span1 = $self.normalize_parameter( $span );
+    my $span1 = $self._normalize_parameter( $span );
 
     return $self.new( span => $span1 ) if $span1.is_empty;
 
@@ -326,7 +343,7 @@ method complement ($self: ) returns List of Span {
 method difference ($self: $span is copy) returns List of Span {
     return $self.clone if $self.is_empty;
     my $span0 = $self.span;
-    my $span1 = $self.normalize_parameter( $span );
+    my $span1 = $self._normalize_parameter( $span );
 
     # XXX - why this doesn't work?
     # say 'diff ' , $span0.stringify, ' to ', $span1.stringify;
@@ -340,10 +357,10 @@ method difference ($self: $span is copy) returns List of Span {
 }
 
 method iterator ($self: ) returns Span::Iterator {
-    if defined( $.density )
+    if ( ! defined( $.span.density ) &&
+         ! $.span.isa( 'Span::Code' ) )
     {
-        warn "can't create an iterator because 'density' is not defined";
-        return;
+        warn "creating an iterator for a continuous Span";
     }
     return ::Span::Iterator.new( span => $.span );
 }
@@ -356,18 +373,12 @@ class Span::Iterator
     has $.span;
     submethod BUILD ( $.span ) {}
     method next () {
-        return $.current = $.span.start unless defined( $.current );
-        return $.current if $.current == -Inf;
-        $.current = $.current + $.span.density;
-        return $.current = undef if $.current > $.span.end;
-        return $.current;
+        return $.current = $.span.next( -Inf ) unless defined( $.current );
+        return $.current = $.span.next( $.current );
     }
     method previous () {
-        return $.current = $.span.end unless defined( $.current );
-        return $.current if $.current == Inf;
-        $.current = $.current - $.span.density;
-        return $.current = undef if $.current < $.span.start;
-        return $.current;
+        return $.current = $.span.previous( Inf ) unless defined( $.current );
+        return $.current = $.span.previous( $.current );
     }
     method reset () {
         undefine $.current;
@@ -430,6 +441,11 @@ Create a span of dates:
     $one_day = Date::Duration.new( days => 1 );
     $date_span = Span.new( :density($one_day), start => $dstart, end => $dend );
     # [2005-07-15,2005-07-20]    6 days
+
+When a Span object is intersected to a Recurrence object, the result is a discrete span:
+
+    $month = Span.new( start => $dstart, end => $dend );
+    my $month_holidays = $month.intersection( $recurrence_holidays );
 
 - Continuous span
 
@@ -523,12 +539,16 @@ For example: if `start` and `end` are times, then `size` will be a duration.
 
 - `contains( $object )` / `intersects( $object )`
 
-These methods return a logical value. The argument can be a single value, or a Span.
+These methods return a logical value. 
+
+The argument can be a Span object, a Recurrence object, or a scalar value.
 
 - `union( $span )`
 
 Returns a list of Spans. If the spans overlap, then the list contains a single
 span. Otherwise, it contains two spans.
+
+The argument can be a Span object, a Recurrence object, or a scalar value.
 
 - `complement()`
 
@@ -539,10 +559,14 @@ a single span. Otherwise, it contains two spans.
 
 Returns a list of Spans. The list may have from zero to 2 spans.
 
+The argument can be a Span object, a Recurrence object, or a scalar value.
+
 - `intersection( $span )` 
 
 Returns a list os Spans. The list may be empty, if the spans don't intersect. 
 Otherwise, it contains a single span.
+
+The argument can be a Span object, a Recurrence object, or a scalar value.
 
 - `stringify ()`
 
@@ -551,6 +575,8 @@ Return a string representation of the span.
 - `compare( $span )`
 
 Compares the spans numerically. Returns -1, 0, or 1.
+
+The argument can be a Span object, a Recurrence object, or a scalar value.
 
 - `is_empty()`
 
