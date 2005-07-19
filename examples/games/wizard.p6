@@ -1,13 +1,13 @@
 use v6;
 
-multi prompt (?$prompt) {
+multi *prompt (?$prompt) {
     print $prompt;
     my $input = =<>; 
     $input  .= chomp;
     return $input;
 }
 
-multi prompt ($prompt, @options is copy) {
+multi *prompt ($prompt, @options is copy) {
     my $i = 0;
     .key //= ++$i for @options;
 
@@ -24,11 +24,11 @@ multi prompt ($prompt, @options is copy) {
     return $choice.param // $choice.key;
 }
 
-sub cls { system(($?OS eq any<MSWin32 mingw>) ?? 'cls' :: 'clear'); }
+sub *cls { system(($?OS eq any<MSWin32 mingw>) ?? 'cls' :: 'clear'); }
 
 #random number between $low and $high, ($low..$high).pick but easier on memory
-sub random ($low,$high) {int( rand($high - $low) + $low ) + 1; };
-multi sub infix:<.?.> ($low,$high) {int( rand($high - $low) + $low ) + 1; };
+sub *random ($low,$high) {int( rand($high - $low) + $low ) + 1; };
+multi sub *infix:<.?.> ($low,$high) {int( rand($high - $low) + $low ) + 1; };
 
 class Option {
     has Str $.key is rw ;
