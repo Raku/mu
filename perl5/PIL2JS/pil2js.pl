@@ -50,12 +50,12 @@ unless($yaml_dump) {
 *** Can't link to Prelude if --html option not given!
 ERR
 
-  die <<ERR if not $p6prelude{path} and ($p6prelude{inline} or $p6prelude{link});
+  die <<ERR if not $p6prelude{path} and ($p6prelude{mode} =~ /^(?:inline|link)$/);
 *** Can't inline or link to the precompiled Prelude,
     as no path to the Prelude was given.
 ERR
 
-  die <<ERR if not $jsprelude{path} and ($jsprelude{inline} or $jsprelude{link});
+  die <<ERR if not $jsprelude{path} and ($jsprelude{mode} =~ /^(?:inline|link)$/);
 *** Can't inline or link to the JavaScript Prelude (PIL2JS.js),
     as no path to the Prelude was given.
 ERR
@@ -89,10 +89,13 @@ warn "*** Inlining the JavaScript Prelude (PIL2JS.pl)...\n" if $verbose;
 my $jsprelude_js = $jsprelude{mode} eq "inline" ? slurp $jsprelude{path} : undef;
 warn "*** Inlining the Perl 6 Prelude...\n" if $verbose;
 my $p6prelude_js = $p6prelude{mode} eq "inline" ? slurp $p6prelude{path} : undef;
+$p6prelude_js =
+  "// This is the part of the Prelude written in Perl 6.\n$p6prelude_js"
+    if $p6prelude_js;
 
 my $js;
-$js .= $jsprelude_js if $jsprelude{mode} eq "inline" and not $html;
-$js .= $p6prelude_js if $p6prelude{mode} eq "inline";
+$js .= "$jsprelude_js\n" if $jsprelude{mode} eq "inline" and not $html;
+$js .= "$p6prelude_js\n" if $p6prelude{mode} eq "inline";
 $js .= $program_js;
 
 unless($html) {

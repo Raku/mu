@@ -392,6 +392,20 @@ sub add_indent {
 }
 
 {
+  package PIL::VList;
+  our @ISA = qw<PIL::PVal>;
+
+  sub as_js {
+    my $self = shift;
+    die unless @$self == 1;
+
+    local $_;
+    return sprintf "new PIL2JS.Box.Constant([%s])",
+      join ", ", map { $_->as_js } @{ $self->[0] };
+  }
+}
+
+{
   package PIL::VUndef;
   our @ISA = qw<PIL::PVal>;
 

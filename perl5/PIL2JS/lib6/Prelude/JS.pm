@@ -265,7 +265,12 @@ method postcircumfix:<[]>(Array $self: Int $idx is copy) is rw {
         var ret = array[idx];
         return ret == undefined ? undefined : ret.GET();
       },
-      function (n) { array[idx].STORE(n); return n }
+      function (n) {
+        if(array[idx] == undefined)
+          array[idx] = new PIL2JS.Box.Proxy(undefined);
+        array[idx].STORE(n);
+        return n;
+      }
     );
 
     // .BINDTO is special: @a[$idx] := $foo should work.
@@ -278,6 +283,54 @@ method postcircumfix:<[]>(Array $self: Int $idx is copy) is rw {
 
     return ret;
   })')($self, $idx);
+}
+
+sub hash(Array *@pairs) is primitive { circumfix:<{}>(@pairs) }
+sub circumfix:<{}>(Array $pairs) is primitive {
+  JS::inline('new PIL2JS.Box.Constant(function (args) {
+    var pairs = args[0].GET();
+    var hash  = new PIL2JS.Hash();
+
+    for(var i = 0; i < pairs.length; i++) {
+      var key = pairs[i].GET().key.toNative(), value = pairs[i].GET().value;
+      if(hash[key] == undefined) {
+        hash[key] = new PIL2JS.Box.Proxy(value.GET());
+      }
+    }
+
+    return new PIL2JS.Box.Constant(hash);
+  })')($pairs);
+}
+
+method postcircumfix:<{}>(Hash $self: $key) {
+  JS::inline('new PIL2JS.Box.Constant(function (args) {
+    var hash = args[0].GET();
+    var key  = args[1].toNative();
+
+    // Relay .GET and .STORE to hash[key].
+    var ret = new PIL2JS.Box(
+      function () {
+        var ret = hash[key];
+        return ret == undefined ? undefined : ret.GET();
+      },
+      function (n) {
+        if(hash[key] == undefined)
+          hash[key] = new PIL2JS.Box.Proxy(undefined);
+        hash[key].STORE(n);
+        return n;
+      }
+    );
+
+    // .BINDTO is special: %hash{$key} := $foo should work.
+    ret.BINDTO = function (other) {
+      if(hash[key] == undefined)
+        PIL2JS.die("Can\'t rebind undefined!");
+
+      return hash[key].BINDTO(other);
+    };
+
+    return ret;
+  })')($self, $key);
 }
 
 sub infix:<=:=>($a is rw, $b is rw) is primitive { JS::inline('new PIL2JS.Box.Constant(

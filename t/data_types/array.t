@@ -9,7 +9,7 @@ Arrays
 
 =cut
 
-plan 58;
+plan 59;
 
 # array of strings
 
@@ -146,3 +146,11 @@ is ~@b,
     assign to a negatively indexed slice array from array  
     lvalue in assignment is then lvalue to negatively indexed slice as rvalue"; 
 #
+
+# This test may seem overly simplistic, but it was actually a bug in PIL2JS, so
+# why not write a test for it so other backends can benefit of it, too? :)
+{
+  my @arr = (0, 1, 2, 3);
+  @arr[0] = "new value";
+  is @arr[0], "new value", "modifying of array contents (constants) works";
+}

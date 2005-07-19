@@ -4,10 +4,13 @@
 // Create our namespace.
 if(PIL2JS == undefined) var PIL2JS = {};
 
-// IE don't cares about standards and only interprets "\r" as linefeed.
-PIL2JS.LF = typeof document != "undefined" && typeof document.all != "undefined"
-  ? "\r"
-  : "\n";
+// IE doesn't care about standards and only interprets "\r" as linefeed.
+PIL2JS.LF =
+  typeof document     != "undefined" &&
+  typeof document.all != "undefined" &&
+  navigator.userAgent.indexOf("Konqueror") != -1
+    ? "\r"
+    : "\n";
 
 // This is necessary to emulate pass by ref, needed for is rw and is ref.
 // See section "DESIGN" in README.
@@ -39,7 +42,7 @@ PIL2JS.Box.prototype = {
     if(unboxed instanceof Array) {
       var arr = [];
       for(var i = 0; i < unboxed.length; i++) {
-        arr.push(unboxed[i].toNative());
+        arr.push(unboxed[i] == undefined ? undefined : unboxed[i].toNative());
       }
       return arr;
 
@@ -246,6 +249,11 @@ PIL2JS.delete_pair_from_args = function (args, name) {
 
   return n;
 };
+
+// Hash class. As with the various exception classes above, we don't need to
+// declare any methods. This class only exists so code can do if(foo instanceof
+// PIL2JS.Hash) {...}.
+PIL2JS.Hash = function () {};
 
 // Doesn't work yet -- load a JSAN mod.
 PIL2JS.use_jsan = function (mod) {
