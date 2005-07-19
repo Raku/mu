@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 4;
+use Test::More tests => 5;
 
 =pod
 
@@ -78,4 +78,28 @@ is_deeply(
     [ qw(Perl6::Object LifeForm BiPedal Humanoid Sentient Intelligent Vulcan) ],
     '... got the right ascendant class precedence list');      
 
+=pod 
 
+From the parrot test t/pmc/object-meths.t
+
+ A   B A   E
+  \ /   \ /
+   C     D
+    \   /
+     \ /
+      F
+
+=cut
+
+class A => {};
+class B => {};
+class E => {};
+class C => { is => [ 'A', 'B' ] };
+class D => { is => [ 'A', 'E' ] };
+class F => { is => [ 'C', 'D' ] };
+
+is_deeply(
+    [ map { $_->name } F->meta->class_precedence_list(':ascendant') ],
+    [ qw(F C D A B E Perl6::Object) ],
+    '... got the right ascendant class precedence list');  
+    
