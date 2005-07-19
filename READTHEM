@@ -11,30 +11,29 @@ be just programming books, anything goes, really.
 
 ----------------------------------------------------------------------------
 
-= Autrijus's recommended Haskell reading:
+= Haskell - Books:
 
 Algorithms: A Functional Programming Approach  - Fethi A. Rabhi, Guy Lapalme
 The Haskell School of Expression                                - Paul Hudak
 Haskell: The Craft of Functional Programming                - Simon Thompson
+The Fun of Programming                  - Jeremy Gibbons, Oege de Moor (ed.)
 
-= Some Online Haskell Resources
+= Haskell - Online:
 
 HaskellDemo                                     - Shae Erisson (aka "shapr")
-  <http://www.haskell.org/hawiki/HaskellDemo>
+    http://www.haskell.org/hawiki/HaskellDemo
 Haskell Tutorial for C Programmers                          - Eric Etheridge
-  <http://www.haskell.org/~pairwise/intro/intro.html>
+    http://www.haskell.org/~pairwise/intro/intro.html
 Yet Another Haskell Tutorial                                 - Hal Daume III
-  <http://www.isi.edu/~hdaume/htut/>
+    http://www.isi.edu/~hdaume/htut/
 Haskell Mini-Primer                    (this covers infix $ and . operators)
-  <http://conal.net/pan/haskell-primer.htm>  
-Harrorth  - A implemenation journal for a haskell project in tutorial format
-  <http://feather.perl6.nl/~nothingmuch/harrorth/>
+    http://conal.net/pan/haskell-primer.htm
+Harrorth implementation journal                               - Yuval Kogman
+    http://feather.perl6.nl/~nothingmuch/harrorth/
 All About Monads                                              - Jeff Newbern
-  <http://www.nomaware.com/monads/html/index.html>
-The Fun of Programming           - edited by Jeremy Gibbons and Oege de Moor
-    isbn 0-333-99285-7
+    http://www.nomaware.com/monads/html/index.html
 
-= Perl 6 books (always outdated :))
+= Perl 6 (always outdated :))
 
 Perl 6 and Parrot Essentials  - Allison Randal, Dan Sugalski, Leopold Tötsch
 Perl 6 Now: The core ideas illustrated with Perl 5           - Scott Walters
