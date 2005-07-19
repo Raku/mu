@@ -137,13 +137,19 @@ method JS::Root::ref($self is rw:) { JS::inline('
 
 method JS::Root::isa($self is rw: $other is rw) { $self.ref eq $other }
 
-sub JS::Root::say(Str *@text) is primitive {
-  print @text.join("") ~ "\n";
-}
-sub JS::Root::print(Str $text) is primitive {
+sub JS::Root::say(Str *@text)   is primitive { print @text, "\n" }
+sub JS::Root::print(Str *@text) is primitive {
   JS::inline('
     function (msg) {
-      // Copied from http://openjsan.org/doc/t/th/theory/Test/Simple/0.11/lib/Test/Builder.html
+      // Convert "\n"s correctly (IE...)
+      var LF = typeof document != "undefined" && typeof document.all != "undefined"
+        ? "\r"
+        : "\n";
+      msg.replace(/\n/, LF);
+
+      // Rest copied from
+      // http://openjsan.org/doc/t/th/theory/Test/Simple/0.11/lib/Test/Builder.html.
+      // --iblech
       // I\'m sure that there must be a more efficient way to do this,
       // but if I store the node in a variable outside of this function
       // and refer to it via the closure, then things don\'t work right
@@ -177,7 +183,7 @@ sub JS::Root::print(Str $text) is primitive {
       window.scrollTo(0, document.body.offsetHeight
                       || document.body.scrollHeight);
     }
-  ').($text);
+  ').(@text.join(""));
   ?1;
 }
 

@@ -114,7 +114,7 @@ PIL2JS.call = function (inv, sub, args) {
       for(var i = 0; i < args.length; i++) {
         code += "args[" + i + "].toNative(),";
       }
-      if(code.substr(-1, 1) == ",") code = code.slice(0, -1);
+      if(args.length > 0) code = code.slice(0, -1);
       code += "))";
       return eval(code);
     }
