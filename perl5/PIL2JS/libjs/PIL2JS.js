@@ -8,7 +8,7 @@ if(PIL2JS == undefined) var PIL2JS = {};
 PIL2JS.LF =
   typeof document     != "undefined" &&
   typeof document.all != "undefined" &&
-  navigator.userAgent.indexOf("Konqueror") != -1
+  navigator.userAgent.indexOf("Konqueror") == -1
     ? "\r"
     : "\n";
 
@@ -263,3 +263,9 @@ PIL2JS.use_jsan = function (mod) {
   mod = mod.replace(/::/, ".");
   JSAN.prototype.use.apply(JSAN.prototype, [mod]);
 };
+
+// Hack, we don't do MMD yet
+PIL2JS.Box.prototype.perl_methods["defined"] =
+  new PIL2JS.Box.Constant(function (args) {
+    return _26main_3a_3adefined.GET()(args);
+  });

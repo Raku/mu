@@ -15,6 +15,8 @@ use constant {
 };
 our $IN_SUBLIKE = undef;
 our $CUR_POS  = bless [ "<unknown>", (0) x 4 ] => "PIL::MkPos";
+our %UNDECLARED_VARS;
+our $PROCESSING_HAS_STARTED;
 
 our $FAIL     = sub { die "*** $_[0]\n    at $CUR_POS\n" };
 
@@ -34,6 +36,41 @@ try {
   }
 }
 EOF
+
+sub as_js {
+  my $self = shift;
+  die unless $self->{pilMain}->isa("PIL::PStmts");
+  die unless ref($self->{pilGlob}) eq "ARRAY";
+
+  die "PIL::Nodes::as_js is not reentrant, sorry...\n"
+    if $PROCESSING_HAS_STARTED;
+  local $PROCESSING_HAS_STARTED = 1;
+
+  local $_;
+  my @glob_js = map { $_->as_js } @{ $self->{"pilGlob"} };
+  my $main_js = $self->{pilMain}->as_js;
+
+  my $decl_js =
+    "// Declaration of undeclared vars:\n" .
+    join("\n", map {
+      sprintf "var %s = new PIL2JS.Box.Proxy(undefined);",
+        PIL::Nodes::name_mangle($_);
+    } keys %UNDECLARED_VARS) .
+    "\n// End declaration of undeclared vars.\n";
+  %UNDECLARED_VARS = ();
+
+  my $init_js =
+    "// Initialization of global vars and exportation of subs:\n" .
+    join("\n", map {
+      my $name = $_->[0];
+      $name =~ /^(?:__init_|__export_)/
+        ? sprintf("%s.GET()([]);", PIL::Nodes::name_mangle $name)
+        : ();
+    } @{ $self->{"pilGlob" } })  .
+    "\n// End of initialization of global vars and exportation of subs.\n";
+
+  return join "\n", $decl_js, @glob_js, $init_js, $main_js;
+}
 
 # Possible contexts:
 { package PIL::TCxt }
@@ -688,6 +725,15 @@ EOF
     die unless ref $self->[0] eq "ARRAY";
     die unless @{ $self->[0] } == 1;
 
+    # Hack? Fully qualified variables don't need a declaration, but JavaScript
+    # needs one.
+    if($self->[0]->[0]->isa("PIL::PVar")) {
+      my $varname = $self->[0]->[0]->[0];
+      if($varname =~ /::/) {
+        $UNDECLARED_VARS{$varname}++;
+      }
+    }
+
     return sprintf "%s.STORE(%s)",
       $self->[0]->[0]->as_js,
       $self->[1]->as_js;
@@ -704,6 +750,15 @@ EOF
     die unless @$self == 2;
     die unless ref $self->[0] eq "ARRAY";
     die unless @{ $self->[0] } == 1;
+
+    # Hack? Fully qualified variables don't need a declaration, but JavaScript
+    # needs one.
+    if($self->[0]->[0]->isa("PIL::PVar")) {
+      my $varname = $self->[0]->[0]->[0];
+      if($varname =~ /::/) {
+        $UNDECLARED_VARS{$varname}++;
+      }
+    }
 
     return sprintf "%s.BINDTO(%s)",
       $self->[0]->[0]->as_js,

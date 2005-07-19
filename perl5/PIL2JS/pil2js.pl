@@ -83,7 +83,7 @@ EOF
 
 my $program_js = join "\n",
   $load_check,
-  map { $_->as_js } @{ $tree->{"pilGlob"} }, $tree->{pilMain};
+  (bless $tree => "PIL::Nodes")->as_js;
 
 warn "*** Inlining the JavaScript Prelude (PIL2JS.pl)...\n" if $verbose;
 my $jsprelude_js = $jsprelude{mode} eq "inline" ? slurp $jsprelude{path} : undef;
