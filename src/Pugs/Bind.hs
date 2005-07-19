@@ -216,7 +216,10 @@ finalizeBindings sub = do
             ++ (show $ length reqPrms) ++ " expected"
 
     let unboundOptPrms = optPrms \\ (map fst boundOpt) -- unbound optParams are allPrms - boundPrms
-        optPrmsDefaults = [ Syn "default" [paramDefault prm] | prm <- unboundOptPrms ] -- get a list of default values
+        optPrmsDefaults = [
+            Syn "param-default" [paramDefault prm, Val (VCode sub)]
+            | prm <- unboundOptPrms
+            ] -- get a list of default values
         boundDefOpts = unboundOptPrms `zip` optPrmsDefaults -- turn into exprs, so that +$y = $x will work
         
     return sub {

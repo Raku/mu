@@ -960,6 +960,11 @@ doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args
     enterScope
         | typ >= SubBlock = id
         | otherwise       = resetT
+    fixSub sub env = env
+        { envLexical = subPad sub
+        , envPackage = maybe (envPackage env) envPackage (subEnv sub)
+        , envOuter   = maybe Nothing envOuter (subEnv sub)
+        }
     fixEnv :: Env -> Env
     fixEnv env
         | typ >= SubBlock = env
@@ -973,8 +978,9 @@ doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args
         let name = paramName prm
             cxt = cxtOfSigil $ head name
         (val, coll) <- enterContext cxt $ case exp of
-            Syn "default" [exp] -> local fixEnv $ enterLex syms $ expToVal prm exp
-            _                   -> expToVal prm exp
+            Syn "param-default" [exp, Val (VCode sub)] -> do
+                local (fixEnv . fixSub sub) $ enterLex syms $ expToVal prm exp
+            _  -> expToVal prm exp
         -- trace ("==> " ++ (show val)) $ return ()
         boundRef <- fromVal val
         newSym   <- genSym name boundRef
