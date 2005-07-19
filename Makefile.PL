@@ -147,7 +147,7 @@ sub set_postamble {
     my $hsc2hs_flags = "";
     my $ccdlflags = "";
 
-    if ($ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bperl5\b/i) {
+    if ($ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bperl5\b/i  and !($Config{cc} eq 'cl') )  {
         push @prereqs, "src/perl5/perl5.o";
         $ghc_output .= " src/perl5/perl5.o ";
         $ghc_flags .= " -DPUGS_HAVE_PERL5 ";
@@ -157,6 +157,12 @@ sub set_postamble {
             $ccdlflags .= (/^-D/ ? ' -optc' : ' -optl') . qq["$_" ]
 	      for split /\s+/, $flags;
         }
+    }
+    elsif( $Config{cc} eq 'cl' and $^O =~ /Win32/ )   {
+            $ENV{PUGS_EMBED} =~ s/\bperl5\b//g;
+	    warn << '.'
+*** Perl 5 embedding disabled on Win32 systems.
+.
     }
     else {
         warn << '.';

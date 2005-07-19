@@ -86,7 +86,12 @@ To turn on profiling in the GHC compiler:
  
     make profiled
 
+CAVEATS FOR Win32 USERS
+-------------------------
 
+Embedding Perl5 is disabled GHC is built with MinGW/GCC and Perl 
+is usually built with VC++, they cannot embed one another.
+  
 CAVEATS FOR GCC 4.0 USERS
 -------------------------
 
