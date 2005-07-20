@@ -3,23 +3,6 @@
 use strict;
 use warnings;
 
-=pod
-
-Code
-    Sub   (can return)
-    Block (no return)
-    
-    
-Code has-a two slots both of Signature type
-    one is the Signature it accepts, $.params
-    one is the Signature it returns, $.returns
-   
-- OR -
-    
-class Signature { has ($.params, $.returns) is Array of Param;}    
-
-=cut
-
 {
     package Perl6::Signature;
 
@@ -49,8 +32,8 @@ class Signature { has ($.params, $.returns) is Array of Param;}
         my ($self, @params) = @_;
         for (my $i = 0; $i < scalar @params; $i++) {
             my $spec = $self->{params}->[$i];
-            my $canidate = $params[$i];
-            if (my $container_type = ref($canidate)) {
+            my $candidate = $params[$i];
+            if (my $container_type = ref($candidate)) {
                 return 0 unless $container_type eq $spec->container_type;
             }
             else {
@@ -149,31 +132,62 @@ class Signature { has ($.params, $.returns) is Array of Param;}
 
 {
     package Perl6::Block;
-
     use base 'Perl6::Code';
-
 }
 
-use Test::More tests => 3;
+use Test::More tests => 9;
 
-my $sub = Perl6::Sub->new(
-    sub {
+sub body (&) { @_ }
+sub params {
+    Perl6::Signature->new(Perl6::Params->new(map { Perl6::Param->new($_) } @_))    
+}
+sub mksub {
+    my ($params, $body) = @_;
+    return Perl6::Sub->new($body, $params);
+}
+
+{
+    my $sub = mksub params('$name'), body {
         my %__ = @_;
-        "Hello from " . $__{'$name'};
-    },
-    Perl6::Signature->new(
-        Perl6::Params->new(
-            Perl6::Param->new('$name')
-        )
-    )
-);
-isa_ok($sub, 'Perl6::Sub');
-isa_ok($sub, 'Perl6::Code');
+        "Hello from " . $__{'$name'};        
+    };
+    isa_ok($sub, 'Perl6::Sub');
+    isa_ok($sub, 'Perl6::Code');
 
-$sub->execute('Stevan');
-is($sub->return_value, 'Hello from Stevan', '... got the right return value');
+    $sub->execute('Stevan');
+    is($sub->return_value, 'Hello from Stevan', '... got the right return value');
+}
 
+{
+    my $sub = mksub params('$name', '@others'), body {
+        my %__ = @_;
+        "Hello from " . $__{'$name'} . " and " . (join ", " => @{$__{'@others'}});
+    };
+    isa_ok($sub, 'Perl6::Sub');
 
+    $sub->execute('Stevan', [ 'autrijus', 'iblech', 'putter' ]);
+    is($sub->return_value, 'Hello from Stevan and autrijus, iblech, putter', '... got the right return value');
+}
 
+{
+    my $sub = mksub params('%more'), body {
+        my %__ = @_;
+        join ", " => sort keys %{$__{'%more'}};
+    };
+    isa_ok($sub, 'Perl6::Sub');
 
+    $sub->execute({ foo => 1, bar => 2 });
+    is($sub->return_value, 'bar, foo', '... got the right return value');
+}
+
+{
+    my $sub = mksub params('&code', '@rest'), body {
+        my %__ = @_;
+        $__{'&code'}->(@{$__{'@rest'}});
+    };
+    isa_ok($sub, 'Perl6::Sub');
+
+    $sub->execute(sub { join "|" => @_ }, [ 1, 2, 3, 4 ]);
+    is($sub->return_value, '1|2|3|4', '... got the right return value');
+}
 
