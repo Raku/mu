@@ -14,6 +14,7 @@ use constant {
   SUBMETHOD  => 6,
 };
 our $IN_SUBLIKE = undef;
+our $CUR_SUBNAME;
 our $CUR_POS  = bless [ "<unknown>", (0) x 4 ] => "PIL::MkPos";
 our %UNDECLARED_VARS;
 our $PROCESSING_HAS_STARTED;
@@ -29,6 +30,7 @@ sub generic_catch {
 try {
 %s
 } catch(err) {
+  PIL2JS.call_chain.pop();
   if(err instanceof PIL2JS.Exception.ret && $level >= err.level) {
     return err.return_value;
   } else {
@@ -64,7 +66,7 @@ sub as_js {
     join("\n", map {
       my $name = $_->[0];
       $name =~ /^(?:__init_|__export_)/
-        ? sprintf("%s.GET()([]);", PIL::Nodes::name_mangle $name)
+        ? sprintf("%s.GET()([PIL2JS.Context.Void]);", PIL::Nodes::name_mangle $name)
         : ();
     } @{ $self->{"pilGlob" } })  .
     "\n// End of initialization of global vars and exportation of subs.\n";
@@ -73,12 +75,33 @@ sub as_js {
 }
 
 # Possible contexts:
-{ package PIL::TCxt }
-{ package PIL::TCxtVoid;   our @ISA = qw<PIL::TCxt> }
-{ package PIL::TCxtLValue; our @ISA = qw<PIL::TCxt> }
-{ package PIL::TCxtItem;   our @ISA = qw<PIL::TCxt> }
-{ package PIL::TCxtSlurpy; our @ISA = qw<PIL::TCxt> }
-{ package PIL::TTailCall;  our @ISA = qw<PIL::TCxt> }
+{
+  package PIL::TCxt;
+  
+  sub cxt  { $_[0] }
+  sub type { $_[0]->cxt->[0]->[0] }
+
+  sub as_js {
+    return sprintf "new PIL2JS.Box.Constant(new PIL2JS.Context({ main: %s, type: %s }))",
+      PIL::Nodes::doublequote($_[0]->main),
+      defined $_[0]->type
+        ? PIL::Nodes::doublequote($_[0]->type)
+        : "undefined";
+  }
+}
+
+{ package PIL::TCxtVoid;   our @ISA = qw<PIL::TCxt>; sub main { "void" } }
+{ package PIL::TCxtLValue; our @ISA = qw<PIL::TCxt>; sub main { "lvalue" } }
+{ package PIL::TCxtItem;   our @ISA = qw<PIL::TCxt>; sub main { "item" } }
+{ package PIL::TCxtSlurpy; our @ISA = qw<PIL::TCxt>; sub main { "slurpy" } }
+{
+  package PIL::TTailCall;
+  
+  our @ISA = qw<PIL::TCxt>;
+
+  sub cxt  { $_[0]->[0]->cxt  }
+  sub main { $_[0]->cxt->main }
+}
 
 # Possible subroutine types:
 { package PIL::SubType }
@@ -151,9 +174,9 @@ sub add_indent {
       # eevil).
       $js =~ s/\n$//;
       if($IN_SUBLIKE >= PIL::Nodes::SUBROUTINE) {
-        return "$pos;\n_26main_3a_3areturn.GET()([$js]);";
+        return "$pos;\n_26main_3a_3areturn.GET()([PIL2JS.Context.ItemAny, $js]);";
       } elsif($IN_SUBLIKE >= PIL::Nodes::SUBBLOCK) {
-        return "$pos;\n_26main_3a_3aleave.GET()([$js]);";
+        return "$pos;\n_26main_3a_3aleave.GET()([PIL2JS.Context.ItemAny, $js]);";
       } else {
         return "$pos;\nreturn($js);";
       }
@@ -221,9 +244,9 @@ sub add_indent {
     die unless @$self == 0;
 
     return "" unless $IN_SUBLIKE;
-    return "_26main_3a_3areturn.GET()([new PIL2JS.Box.Constant(undefined)]);"
+    return "_26main_3a_3areturn.GET()([PIL2JS.Context.ItemAny, new PIL2JS.Box.Constant(undefined)]);"
       if $IN_SUBLIKE >= PIL::Nodes::SUBROUTINE;
-    return "_26main_3a_3aleave.GET()([new PIL2JS.Box.Constant(undefined)]);"
+    return "_26main_3a_3aleave.GET()([PIL2JS.Context.ItemAny, new PIL2JS.Box.Constant(undefined)]);"
       if $IN_SUBLIKE >= PIL::Nodes::SUBBLOCK;
     return "return(new PIL2JS.Box.Constant(undefined));"
       if $IN_SUBLIKE >= PIL::Nodes::SUBTHUNK;
@@ -319,18 +342,20 @@ sub add_indent {
     my @arg = map { $_->as_js } @{ $self->[3] };
     @arg    = map { "($_).toNative()" } @arg if $native;
     my $arg = PIL::Nodes::add_indent(1, join ",\n", @arg);
+    my $cxt = PIL::Nodes::add_indent(1, $self->[0]->as_js);
 
     # XXX Context handling!
     if($inv) {
-      return
-        $native         ? "new PIL2JS.Box.Constant($inv.$sub(\n$arg\n))" :
-        defined $native ? "$inv.perl_methods[" . PIL::Nodes::doublequote($sub) . "]([\n$arg\n])" :
-        sprintf "PIL2JS.call(%s, %s, [\n%s\n])", $inv, PIL::Nodes::doublequote($sub), $arg;
+      return "new PIL2JS.Box.Constant($inv.$sub(\n$arg\n))" if $native;
+      return sprintf "%s.perl_methods[%s]([\n%s,\n%s\n])",
+        $inv, PIL::Nodes::doublequote($sub), $cxt, $arg
+        if defined $native;
+      return sprintf "PIL2JS.call(%s, %s, [\n%s,\n%s\n])",
+        $inv, PIL::Nodes::doublequote($sub), $cxt, $arg;
     } else {
-      return
-        $native         ? "new PIL2JS.Box.Constant($sub(\n$arg\n))" :
-        defined $native ? "$sub.GET()([\n$arg\n])" :
-        sprintf "PIL2JS.call(undefined, %s, [\n%s\n])", $sub, $arg;
+      return "new PIL2JS.Box.Constant($sub(\n$arg\n))" if $native;
+      return "$sub.GET()([\n$cxt,\n$arg\n])"           if defined $native;
+      return sprintf "PIL2JS.call(undefined, %s, [\n%s,\n%s\n])", $sub, $cxt, $arg;
     }
   }
 }
@@ -472,19 +497,25 @@ sub add_indent {
     die unless ref($self->[2]) eq "ARRAY" or $self->[2]->isa("PIL::Params");
     bless $self->[2] => "PIL::Params";
 
-    local $IN_SUBLIKE = $self->[1]->as_constant;
+    local $IN_SUBLIKE  = $self->[1]->as_constant;
+    local $CUR_SUBNAME = $self->[0];
 
     # Subbody
     local $_;
-    my $body = sprintf "%s;\n%s;",
+    my $body = sprintf "PIL2JS.call_chain.push(%s);\n%s;\n%s;",
+      PIL::Nodes::name_mangle($self->[0]),
       $self->[2]->as_js,
       $self->[3]->as_js;
 
     # Sub declaration
     my $js = sprintf
-      "var %s = new PIL2JS.Box.Constant(function (args) {\n%s\n});",
+      "var %s = new PIL2JS.Box.Constant(function (args) {\n%s\n});\n",
       PIL::Nodes::name_mangle($self->[0]),
       PIL::Nodes::add_indent 1, PIL::Nodes::generic_catch($IN_SUBLIKE, $body);
+    $js .= sprintf
+      "%s.perl_name = %s;\n",
+      PIL::Nodes::name_mangle($self->[0]),
+      PIL::Nodes::doublequote($self->[0]);
 
     # Special magic for methods.
     if($self->[1]->isa("PIL::SubMethod")) {
@@ -512,7 +543,8 @@ sub add_indent {
     die unless ref($self->[1]) eq "ARRAY" or $self->[1]->isa("PIL::Params");
     bless $self->[1] => "PIL::Params";
 
-    local $IN_SUBLIKE = $self->[0]->as_constant;
+    local $IN_SUBLIKE  = $self->[0]->as_constant;
+    local $CUR_SUBNAME = "<anonymous@{[$CUR_SUBNAME ? 'in ' . $CUR_SUBNAME : '']}>";
 
     # Subbody
     local $_;
@@ -531,12 +563,13 @@ sub add_indent {
 
   sub as_js {
     my $self = shift;
-    local $IN_SUBLIKE = PIL::Nodes::SUBTHUNK;
+    local $IN_SUBLIKE  = PIL::Nodes::SUBTHUNK;
+    local $CUR_SUBNAME = "<thunk@{[$CUR_SUBNAME ? 'in ' . $CUR_SUBNAME : '']}>";
 
     die unless @$self == 1;
 
     local $_;
-    return sprintf "new PIL2JS.Box.Constant(function (args) { return(%s); })",
+    return sprintf "new PIL2JS.Box.Constant(function (args) { var cxt = args.shift(); return(%s); })",
       $self->[0]->as_js;
   }
 }
@@ -554,13 +587,22 @@ sub add_indent {
     # removed from args.
     # Then, in as_js2, remaing positional args are picked up.
     # Finally,in as_js3, the actual checking is done.
-    my $js = "var pairs = PIL2JS.grep_for_pairs(args);\n";
+    my $js;
+    $js .= "var cxt   = args.shift();\n";
+    $js .= "var pairs = PIL2JS.grep_for_pairs(args);\n";
     $js .= $_->as_js1() . "\n" for @$self;
     $js .= $_->as_js2() . "\n" for @$self;
     $js .= $_->as_js3() . "\n" for @$self;
-    $js .=
-      "if(args.length != 0)\n" .
-      "  PIL2JS.die(\"\" + args.length + \" more parameters passed than expected (@{[scalar @$self]})!\");\n";
+    $js .= <<EOF;
+if(args.length != 0)
+  PIL2JS.die(
+    "" +
+    args.length +
+    " more parameters passed to sub " +
+    @{[PIL::Nodes::doublequote $CUR_SUBNAME]} +
+    " than expected (@{[scalar @$self]})!"
+  );
+EOF
 
     return $js;
   }

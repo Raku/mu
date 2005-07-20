@@ -14,11 +14,11 @@ module Prelude::JS {}
 # pass by ref (needed for is rw and is ref).
 
 sub JS::Root::return(*@args) is primitive {
-  PIL2JS::Internals::generic_return(5)(@args);
+  PIL2JS::Internals::generic_return(5)(@args);  # XXX hardcoded
 }
 
 sub JS::Root::leave(*@args) is primitive {
-  PIL2JS::Internals::generic_return(3)(@args);
+  PIL2JS::Internals::generic_return(3)(@args);  # XXX hardcoded
 }
 
 sub statement_control:<loop>($pre, Code $cond, Code $body, Code $post) is primitive {
@@ -247,6 +247,7 @@ sub postfix:<--> ($a is rw)    is primitive { my $cur = $a; $a = $a - 1; $cur }
 
 sub infix:<,>(*@xs)            is primitive {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
+    var cxt   = args.shift();
     var array = [];
     for(var i = 0; i < args[0].GET().length; i++) {
       // The extra new PIL2JS.Box is necessary to make the contents of arrays
@@ -267,6 +268,7 @@ method postcircumfix:<[]>(Array $self: Int $idx is copy) is rw {
   #   say $z;               # 4 (!!)
   $idx = +$self + $idx if $idx < 0;
   JS::inline('new PIL2JS.Box.Constant(function (args) {
+    var cxt   = args.shift();
     var array = args[0].GET();
     var idx   = args[1].toNative();
 
@@ -301,6 +303,7 @@ method postcircumfix:<[]>(Array $self: Int $idx is copy) is rw {
 sub hash(Array *@pairs) is primitive { circumfix:<{}>(@pairs) }
 sub circumfix:<{}>(Array $pairs) is primitive {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
+    var cxt   = args.shift();
     var pairs = args[0].GET();
     var hash  = new PIL2JS.Hash();
 
@@ -322,6 +325,7 @@ sub circumfix:<{}>(Array $pairs) is primitive {
 
 method postcircumfix:<{}>(Hash $self: $key) {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
+    var cxt  = args.shift();
     var hash = args[0].GET();
     var key  = args[1].toNative();
 
@@ -355,6 +359,7 @@ method postcircumfix:<{}>(Hash $self: $key) {
 
 sub infix:<=:=>($a is rw, $b is rw) is primitive { JS::inline('new PIL2JS.Box.Constant(
   function (args) {
+    var cxt = args.shift();
     if(args[0].uid && args[1].uid) {
       return new PIL2JS.Box.Constant(args[0].uid == args[1].uid);
     } else if(!args[0].uid && !args[1].uid) {
@@ -399,6 +404,7 @@ sub JS::Root::die(Str *@msg)  is primitive { $JS::PIL2JS.die.(@msg.join("")) }
 
 sub infix:«=>»($key, $value)  is primitive {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
+    var cxt = args.shift();
     return new PIL2JS.Box.Constant(
       new PIL2JS.Pair(args[0], args[1])
     );

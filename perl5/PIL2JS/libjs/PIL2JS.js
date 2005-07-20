@@ -64,10 +64,10 @@ PIL2JS.Box.prototype = {
     // wrapper_func :: NativeArgs -> NativeResult
     } else if(unboxed instanceof Function) {
       return function () {
-        var args = arguments;
-        for(var i = 0; i < args.length; i++)
-          args[i] = new PIL2JS.Box.Constant(args[i]);
-        return unboxed(args).toNative();
+        var args = []; //PIL2JS.Context.ItemAny.GET()].concat(arguments);
+        for(var i = 0; i < arguments.length; i++)
+          args[i] = new PIL2JS.Box.Constant(arguments[i]);
+        return unboxed([PIL2JS.Context.ItemAny].concat(args)).toNative();
       };
 
     // Special magic for string: Work aroung IE bug.
@@ -134,7 +134,7 @@ PIL2JS.Box.Stub.prototype     = PIL2JS.Box.prototype;
 // Call (possibly native sub) sub with args
 PIL2JS.call = function (inv, sub, args) {
   if(sub == undefined)
-    PIL2JS.die("Use of uninitialized value in subroutine entry!\n");
+    PIL2JS.die("Use of uninitialized value in subroutine entry!");
 
   // It's a plain sub (i.e. not method) call.
   if(inv == undefined) {
@@ -146,22 +146,23 @@ PIL2JS.call = function (inv, sub, args) {
       return ret;
     } else {
       var code = "new PIL2JS.Box.Constant(sub(";
-      for(var i = 0; i < args.length; i++) {
+      // We start from 1 instead of 0 here because we exclude the cxt.
+      for(var i = 1; i < args.length; i++) {
         code += "args[" + i + "].toNative(),";
       }
-      if(args.length > 0) code = code.slice(0, -1);
+      if(args.length > 1) code = code.slice(0, -1);
       code += "))";
       return eval(code);
     }
   } else {
     if(inv.GET) {
       if(inv.perl_methods[sub]) {
-        return PIL2JS.call(undefined, inv.perl_methods[sub], [inv].concat(args));
+        return PIL2JS.call(undefined, inv.perl_methods[sub], [args[0], inv].concat(args.slice(1)));
       } else {
         PIL2JS.die("No such method: \"" + sub + "\"");
       }
     } else {
-      PIL2JS.die("Internal error: PIL2JS.call not implemented for invocation of native methods\n");
+      PIL2JS.die("Internal error: PIL2JS.call not implemented for invocation of methods on native objects");
     }
   }
 };
@@ -187,7 +188,7 @@ var _24main_3a_3a_3fPOSITION = new PIL2JS.Box("<unknown>");
 
 // Prettyprint an error msg.
 PIL2JS.new_error = function (msg) {
-  return new Error(msg.substr(-1, 1) == "\n"
+  return new Error(msg.slice(-1, 1) == "\n"
     ? msg
     : msg + " at " + _24main_3a_3a_3fPOSITION.toNative()
   );
@@ -228,8 +229,10 @@ PIL2JS.Exception.ret   = function (level, retval) {
 // exception.
 var _26PIL2JS_3a_3aInternals_3a_3ageneric_return =
   new PIL2JS.Box.Constant(function (args) {
+    var cxt   = args.shift();
     var level = args[0].toNative();
     return new PIL2JS.Box.Constant(function (args) {
+      var cxt_ = args.shift();
       args = PIL2JS.make_slurpy_array(args);
       var ret =
         args.length >  1 ? new PIL2JS.Box.Constant(args) :
@@ -238,6 +241,8 @@ var _26PIL2JS_3a_3aInternals_3a_3ageneric_return =
       throw(new PIL2JS.Exception.ret(level, ret));
     });
   });
+
+PIL2JS.call_chain = [];
 
 // class Pair { has $.key; has $.value }
 PIL2JS.Pair = function (key, value) {
@@ -273,6 +278,21 @@ PIL2JS.delete_pair_from_args = function (args, name) {
 // declare any methods. This class only exists so code can do if(foo instanceof
 // PIL2JS.Hash) {...}.
 PIL2JS.Hash = function () {};
+
+// Context class.
+PIL2JS.Context = function (cxt) {
+  this["main"] = cxt["main"];
+  this["type"] = cxt["type"];
+  return this;
+};
+PIL2JS.Context.prototype = {
+  toString: function () {
+    return "Context.new(:main[" + this["main"] + "], :type[" + this["type"] + "])";
+  }
+};
+
+PIL2JS.Context.Void    = new PIL2JS.Box.Constant(new PIL2JS.Context({ main: "void" }));
+PIL2JS.Context.ItemAny = new PIL2JS.Box.Constant(new PIL2JS.Context({ main: "item", type: "Any" }));
 
 // Doesn't work yet -- load a JSAN mod.
 PIL2JS.use_jsan = function (mod) {
