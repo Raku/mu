@@ -3,17 +3,29 @@
 use warnings;
 use strict;
 
+use FindBin;
 use Getopt::Long;
+use File::Spec;
 use IPC::Open2;
+use Config;
 
-my $psep = $^O eq "MSWin32" ? "\\" : "/";
+sub pwd { File::Spec->catfile($FindBin::Bin, @_) }
+
 my %cfg = (
   js        => "js",
-  pugs      => $^O eq "MSWin32" ? ".${psep}pugs.exe" : ".${psep}pugs",
-  pil2js    => "perl5${psep}PIL2JS${psep}pil2js.pl",
-  preludepc => "perl5${psep}PIL2JS${psep}preludepc.js",
-  prelude   => "perl5${psep}PIL2JS${psep}lib6${psep}Prelude${psep}JS.pm",
+  pugs      => pwd(qw< .. .. >, "pugs$Config{_exe}"),
+  pil2js    => pwd('pil2js.pl'),
+  preludepc => pwd('preludepc.js'),
+  prelude   => pwd(qw< lib6 Prelude JS.pm >),
 );
+
+my (@runjs_args, @pugs_args);
+while (@ARGV) {
+    $ARGV[0] =~ /^--/ or last;
+    push @runjs_args, shift(@ARGV);
+}
+@pugs_args = @ARGV;
+@ARGV = @runjs_args;
 
 GetOptions(
   "js=s"          => \$cfg{js},
@@ -22,7 +34,7 @@ GetOptions(
   "p6preludepc=s" => \$cfg{preludepc},
   "p6prelude=s"   => \$cfg{prelude},
   "help"          => \&usage,
-) or usage();
+) and @pugs_args or usage();
 
 # bin/js's only output function is print, which is like Perl 6's &say, i.e.
 # there's always a newline at the end. So our fake document.write outputs
@@ -30,7 +42,7 @@ GetOptions(
 # LINEFEED#\n// later.
 my $MAGIC_NOLF = "#IGNORE NEXT LINEFEED#";
 
-my $js = <<EOF . "\n" . compile(@ARGV);
+my $js = <<EOF . "\n" . compile(@pugs_args);
 // Stubs inserted by runjs.pl.
 var document = {
   write: function (str) {
@@ -71,9 +83,7 @@ sub compile {
 sub pugs {
   my @args = @_;
 
-  $ENV{PERL5LIB} = join $^O eq "MSWin32" ? ";" : ":",
-    "perl5${psep}PIL2JS${psep}lib",
-    $ENV{PERL5LIB} || "";
+  $ENV{PERL5LIB} = join $Config{path_sep}, pwd('lib'), ($ENV{PERL5LIB} || "");
     
   open my $fh, "-|", "$cfg{pugs}", @args or
     warn "Couldn't open pipe to \"$cfg{pugs} @args\": $!\n" and return;
@@ -118,7 +128,7 @@ sub js {
 
 sub usage { print STDERR <<EOF; exit }
 $0 -- Compiles Perl 6 to JavaScript and runs it.
-Usage: $0 [options] -- regular_pugs_options
+Usage: $0 [options] regular_pugs_options
 
 Available options are:
   --js=/path/to/js/interpreter
