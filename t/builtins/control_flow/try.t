@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 9;
+plan 11;
 
 {
 	# simple try
@@ -86,3 +86,15 @@ plan 9;
         ok(ref($!), '$! is an object');
 	is(eval('ref($!)'), "Dandy", ".. of the right class", :todo);
 };
+
+{
+        my $was_in_foo;
+        sub foo {
+                $was_in_foo++;
+                try { return 42 };
+                $was_in_foo++;
+                return 23;
+        }
+        is foo(), 42,      'return() inside try{}-blocks works (1)', :todo<bug>;
+        is $was_in_foo, 1, 'return() inside try{}-blocks works (2)', :todo<bug>;
+}

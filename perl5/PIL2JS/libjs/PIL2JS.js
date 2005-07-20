@@ -131,6 +131,11 @@ PIL2JS.Box.ReadOnly.prototype = PIL2JS.Box.prototype;
 PIL2JS.Box.Constant.prototype = PIL2JS.Box.prototype;
 PIL2JS.Box.Stub.prototype     = PIL2JS.Box.prototype;
 
+PIL2JS.Box.constant_func = function (arity, f) {
+  f.pil2js_arity = arity;
+  return new PIL2JS.Box.Constant(f);
+};
+
 // Call (possibly native sub) sub with args
 PIL2JS.call = function (inv, sub, args) {
   if(sub == undefined)
@@ -183,8 +188,9 @@ PIL2JS.make_slurpy_array = function (inp_arr) {
   return out_arr;
 };
 
-// Magical variable: $?POSITION.
+// Magical variables: $?POSITION and $!.
 var _24main_3a_3a_3fPOSITION = new PIL2JS.Box("<unknown>");
+var _24main_3a_3a_21         = new PIL2JS.Box(undefined);
 
 // Prettyprint an error msg.
 PIL2JS.new_error = function (msg) {
@@ -204,10 +210,10 @@ PIL2JS.die = function (msg) {
 
 // &return, &leave, &last, &next are all implemented using faked escape
 // continuations, i.e. exceptions.
-PIL2JS.Exception = {};
-PIL2JS.Exception.last  = function () {};
-PIL2JS.Exception.next  = function () {};
-PIL2JS.Exception.ret   = function (level, retval) {
+PIL2JS.ControlException       = {};
+PIL2JS.ControlException.last  = function () {};
+PIL2JS.ControlException.next  = function () {};
+PIL2JS.ControlException.ret   = function (level, retval) {
   // The sublevel (SUBROUTINE, SUBBLOCK, etc.) the &return/&leave/whatever is
   // destined to.
   this.level        = level;
@@ -238,7 +244,7 @@ var _26PIL2JS_3a_3aInternals_3a_3ageneric_return =
         args.length >  1 ? new PIL2JS.Box.Constant(args) :
         args.length == 1 ? args[0] :
         new PIL2JS.Box.Constant(undefined);
-      throw(new PIL2JS.Exception.ret(level, ret));
+      throw(new PIL2JS.ControlException.ret(level, ret));
     });
   });
 
@@ -259,6 +265,22 @@ PIL2JS.grep_for_pairs = function (args) {
       pairs[args[i].GET().key.toNative()] = args[i].GET().value;
 
   return pairs;
+};
+
+// *@foo sets @foo's .flatten_me property to true.
+// Here, we expand these flattened arrays.
+PIL2JS.possibly_flatten = function (args) {
+  var ret = [];
+
+  for(var i = 0; i < args.length; i++) {
+    if(args[i].GET() instanceof Array && args[i].GET().flatten_me) {
+      ret = ret.concat(args[i].GET());
+    } else {
+      ret.push(args[i]);
+    }
+  }
+
+  return ret;
 };
 
 // Searches args for pairs and deletes the pairs where .key eq name.

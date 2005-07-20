@@ -13,13 +13,20 @@ Run C<pil2js.pl --help> to get usage information.
 
   .
   |-- pil2js.pl           Frontend for the PIL:: modules
+  |-- runjs.pl            Compiles Perl 6 to JavaScript and runs it
+  |-- jspugs.pl           Interactive shell for PIL2JS development
   |-- lib
   |   |-- PIL
   |   |   |-- Parser.pm   PIL::Parser (parses PIL)
   |   |   `-- Nodes.pm    Module which provides appropriate ->as_js methods
   |   |                   for the objects returned by PIL::Parser
+  |-- lib6
   |   |-- Prelude
-  |   |   `-- JS.pm       JavaScript Prelude, written in Perl 6
+  |   |   `-- JS.pm       Part of the JavaScript Prelude,
+  |   |                   written in Perl 6
+  |-- libjs
+  |   `-- PIL2JS.js       Part of the JavaScript Prelude,
+  |                       written in JavaScript
 
 =head1 WHAT'S WORKING ALREADY?
 
@@ -27,7 +34,7 @@ Run C<pil2js.pl --help> to get usage information.
 
 =item *
 
-Variables (scalars and arrays)
+Variables (scalars, arrays, and hashes), assignment, binding
 
 =item *
 
@@ -90,6 +97,13 @@ Binding is similar: C<dest.BINDTO(source)>
 We can't just use C<dest = source>, because C<dest> might be the result of some
 function, e.g. C<@array[$idx] := $foo>.
 
+=head2 Identity comparision
+
+The C<.uid> property which every C<PIL2JS.Box> object has got contains the
+unique ID of the box (or C<undefined> if it's a C<PIL2JS.Box.Constant>, as we
+can't map all real numbers and more to a finite C<.uid>). C<< &infix:<=:=> >>
+can then compare C<this.uid> with C<other.uid>.
+
 =head2 Calling conventions
 
 Because Perl's subroutine signatures are much richer than JavaScript's ones, I
@@ -99,6 +113,10 @@ All functions take exactly one JavaScript-argument, a native JavaScript
 C<Array> (much like Perl 5's C<@_>). Then the individual arguments are
 extracted (see C<PIL::Nodes>, package C<PIL::Params>).
 
+Additionally to the arguments passed by the user, the first argument is always
+a boxed C<PIL2JS.Context> object. Methods expect C<$?SELF> as their second
+argument.
+
 =head2 Escape continuations
 
 All subs are wrapped in a C<try> block:
@@ -106,7 +124,7 @@ All subs are wrapped in a C<try> block:
   try {
     // normal body here...
   } catch(err) {
-    if(err instanceof PIL2JS.Exception.ret && this_sublevel >= err.level) {
+    if(err instanceof PIL2JS.ControlException.ret && this_sublevel >= err.level) {
       // The return/leave/whatever concerns us, return!
       return err.return_value;
     } else {
@@ -118,9 +136,9 @@ All subs are wrapped in a C<try> block:
 
 C<&return> can then be simply implemented as:
 
-  throw new PIL2JS.Exception.ret(sublevel_to_break_out_of, retval);
+  throw new PIL2JS.ControlException.ret(sublevel_to_break_out_of, retval);
 
-C<&last> is similar.
+C<&last> and C<&next> are similar.
 
 =head1 TODO
 
@@ -128,22 +146,15 @@ C<&last> is similar.
 
 =item *
 
-Make C<use js:Foo> load C<Foo> from L<JSAN|http://www.openjsan.org/>?
+Make C<use js:Foo> load C<Foo> from L<JSAN|http://www.openjsan.org/>
 
 =item *
 
-Primitives
-
-=item *
-
-Better error reporting (with line number etc., should be relatively simple to
-implement because of C<PPos>)
-
-=back
+Primitives!
 
 =head1 AUTHOR
 
-Ingo Blechschmidt C<<iblech@web.de>>
+Ingo Blechschmidt C<< <iblech@web.de> >>
 
 =head1 LICENSE
 

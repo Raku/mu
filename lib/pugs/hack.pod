@@ -143,6 +143,7 @@ Expanding this one level deeper:
     |-- perl5              Perl 5 modules not installed with Pugs
     |   |-- Code-Perl          Helper module for Perl 5 code generation
     |   |-- PIL-Run            PIL virtual machine in Perl 5
+    |   |-- PIL2JS             PIL to JavaScript compiler
     |   `-- Perl6-MetaModel    Perl 5 Prototype of the Perl 6 Metaclass model
     |
     |-- script             pugscc, the Pugs Compiler Collection

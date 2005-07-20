@@ -31,7 +31,7 @@ try {
 %s
 } catch(err) {
   PIL2JS.call_chain.pop();
-  if(err instanceof PIL2JS.Exception.ret && $level >= err.level) {
+  if(err instanceof PIL2JS.ControlException.ret && $level >= err.level) {
     return err.return_value;
   } else {
     throw err;
@@ -516,6 +516,10 @@ sub add_indent {
       "%s.perl_name = %s;\n",
       PIL::Nodes::name_mangle($self->[0]),
       PIL::Nodes::doublequote($self->[0]);
+    $js .= sprintf
+      "%s.arity = %d;\n",
+      PIL::Nodes::name_mangle($self->[0]),
+      $self->[2]->arity;
 
     # Special magic for methods.
     if($self->[1]->isa("PIL::SubMethod")) {
@@ -553,7 +557,8 @@ sub add_indent {
       $self->[2]->as_js;
 
     # Sub declaration
-    return sprintf "new PIL2JS.Box.Constant(function (args) {\n%s\n})",
+    return sprintf "PIL2JS.Box.constant_func(%d, function (args) {\n%s\n})",
+      $self->[1]->arity,
       PIL::Nodes::add_indent 1, PIL::Nodes::generic_catch($IN_SUBLIKE, $body);
   }
 }
@@ -569,7 +574,7 @@ sub add_indent {
     die unless @$self == 1;
 
     local $_;
-    return sprintf "new PIL2JS.Box.Constant(function (args) { var cxt = args.shift(); return(%s); })",
+    return sprintf "PIL2JS.Box.constant_func(0, function (args) { var cxt = args.shift(); return(%s); })",
       $self->[0]->as_js;
   }
 }
@@ -589,6 +594,7 @@ sub add_indent {
     # Finally,in as_js3, the actual checking is done.
     my $js;
     $js .= "var cxt   = args.shift();\n";
+    $js .= "args      = PIL2JS.possibly_flatten(args);\n";
     $js .= "var pairs = PIL2JS.grep_for_pairs(args);\n";
     $js .= $_->as_js1() . "\n" for @$self;
     $js .= $_->as_js2() . "\n" for @$self;
@@ -606,10 +612,19 @@ EOF
 
     return $js;
   }
+
+  sub arity {
+    local $_;
+    my $arity = 0;
+    $_->is_required and $arity++ for @{ $_[0] };
+    return $arity;
+  }
 }
 
 {
   package PIL::MkTParam;
+
+  sub is_required { $_[0]->{tpParam}{isOptional}->isa("PIL::False") }
 
   sub as_js1 {
     my $self = shift;

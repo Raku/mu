@@ -29,7 +29,7 @@ sub statement_control:<loop>($pre, Code $cond, Code $body, Code $post) is primit
           try {
             body();
           } catch(err) {
-            if(err instanceof PIL2JS.Exception.next) {
+            if(err instanceof PIL2JS.ControlException.next) {
               // Ok;
             } else {
               throw err;
@@ -37,7 +37,7 @@ sub statement_control:<loop>($pre, Code $cond, Code $body, Code $post) is primit
           }
         }
       } catch(err) {
-        if(err instanceof PIL2JS.Exception.last) {
+        if(err instanceof PIL2JS.ControlException.last) {
           return undefined;
         } else {
           throw err;
@@ -48,8 +48,8 @@ sub statement_control:<loop>($pre, Code $cond, Code $body, Code $post) is primit
   ').($pre, $cond, $body, $post);
 }
 
-sub JS::Root::last() is primitive { JS::inline "throw(new PIL2JS.Exception.last())"; 1 }
-sub JS::Root::next() is primitive { JS::inline "throw(new PIL2JS.Exception.next())"; 1 }
+sub JS::Root::last() is primitive { JS::inline "throw(new PIL2JS.ControlException.last())"; 1 }
+sub JS::Root::next() is primitive { JS::inline "throw(new PIL2JS.ControlException.next())"; 1 }
 
 sub statement_control:<while>(Code $cond, Code $body) is primitive {
   JS::inline('
@@ -87,6 +87,20 @@ sub statement_control:<unless>(Bool $cond, Code $true, Code $false) is primitive
   statement_control:<if>(!$cond, $true, $false);
 }
 
+sub statement_control:<for>(@array is copy, Code $code) is primitive {
+  my $arity = $code.arity;
+  die "Can't use 0-ary subroutine as \"for\" body!" if $arity == 0;
+
+  while(+@array > 0) {
+    my @args = ();
+    my $i; loop $i = 0; $i < $arity; $i++ {
+      push @args: @array.shift;
+    }
+    $code(*@args);
+  }
+  undef;
+}
+
 sub JS::Root::defined($a) is primitive {
   JS::inline('
     function (val) {
@@ -99,12 +113,51 @@ sub JS::Root::time() is primitive {
   JS::inline "new PIL2JS.Box.Constant((new Date()).getTime() / 1000 - 946684800)";
 }
 
+sub JS::Root::try(Code $code) is primitive {
+  JS::inline('new PIL2JS.Box.Constant(function (args) {
+    var cxt = args[0], code = args[1];
+    var ret = new PIL2JS.Box.Constant(undefined);
+    try { ret = code.GET()([PIL2JS.Context.ItemAny]) } catch(err) {
+      if(err instanceof PIL2JS.ControlException.ret) {
+        throw err;
+      } else {
+        _24main_3a_3a_21.STORE(new PIL2JS.Box.Constant(err.toString()));
+        return new PIL2JS.Box.Constant(undefined);
+      }
+    }
+    return ret;
+  })')($code);
+}
+
+method JS::Root::shift(Array $self:) {
+  JS::inline('new PIL2JS.Box.Constant(function (args) {
+    var ret = args[1].GET().shift();
+    return ret == undefined ? new PIL2JS.Box.Constant(undefined) : ret;
+  })')($self);
+}
+
+method JS::Root::push(Array $self: *@things) {
+  JS::inline('new PIL2JS.Box.Constant(function (args) {
+    var array = args[1].GET(), add = args[2].GET();
+    for(var i = 0; i < add.length; i++) {
+      array.push(add[i]);
+    }
+    return new PIL2JS.Box.Constant(array.length);
+  })')($self, @things);
+}
+
 method JS::Root::join(Array $self: Str $sep) {
   JS::inline('
     function (arr, sep) {
       return arr.join(sep);
     }
   ')($self, $sep);
+}
+
+method JS::Root::arity(Code $self:) {
+  JS::inline('new PIL2JS.Box.Constant(function (args) {
+    return new PIL2JS.Box.Constant(args[1].GET().pil2js_arity);
+  })')($self);
 }
 
 method JS::Root::elems(Array $self:) {
@@ -357,7 +410,7 @@ method postcircumfix:<{}>(Hash $self: $key) {
   })')($self, $key);
 }
 
-sub infix:<=:=>($a is rw, $b is rw) is primitive { JS::inline('new PIL2JS.Box.Constant(
+sub infix:<=:=>($a, $b) is primitive { JS::inline('new PIL2JS.Box.Constant(
   function (args) {
     var cxt = args.shift();
     if(args[0].uid && args[1].uid) {
@@ -400,7 +453,7 @@ sub prefix:<+>($thing) is primitive {
 }
 
 sub JS::Root::warn(Str *@msg) is primitive { $JS::PIL2JS.warn(@msg.join("")) }
-sub JS::Root::die(Str *@msg)  is primitive { $JS::PIL2JS.die.(@msg.join("")) }
+sub JS::Root::die(Str *@msg)  is primitive { $JS::PIL2JS.die(@msg.join(""))  }
 
 sub infix:«=>»($key, $value)  is primitive {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
@@ -409,4 +462,12 @@ sub infix:«=>»($key, $value)  is primitive {
       new PIL2JS.Pair(args[0], args[1])
     );
   })')($key, $value);
+}
+
+sub prefix:<*>(*@args) is primitive {
+  JS::inline('new PIL2JS.Box.Constant(function (args) {
+    var array = args[1];
+    array.GET().flatten_me = true;
+    return array;
+  })')(@args);
 }

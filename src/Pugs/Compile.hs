@@ -358,6 +358,8 @@ instance Compile Exp (PIL LValue) where
         compile (App (Var "&circumfix:[]") Nothing exps)
     compile (Syn "\\{}" exps) = do
         compile (App (Var "&circumfix:{}") Nothing exps)
+    compile (Syn "*" exps) = do
+        compile (App (Var "&prefix:*") Nothing exps)
     compile (Syn "=" [lhs, rhs]) = do
         lhsC <- enterLValue $ compile lhs
         rhsC <- enterRValue $ compile rhs
