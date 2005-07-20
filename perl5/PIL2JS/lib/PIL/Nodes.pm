@@ -53,7 +53,7 @@ sub as_js {
   my $decl_js =
     "// Declaration of undeclared vars:\n" .
     join("\n", map {
-      sprintf "var %s = new PIL2JS.Box.Proxy(undefined);",
+      sprintf "var %s = new PIL2JS.Box(undefined);",
         PIL::Nodes::name_mangle($_);
     } keys %UNDECLARED_VARS) .
     "\n// End declaration of undeclared vars.\n";
@@ -707,7 +707,7 @@ EOF
       "var " .
       join(", ", map {
         PIL::Nodes::name_mangle($_->[0]) .
-        " = new PIL2JS.Box.Proxy(undefined)"
+        " = new PIL2JS.Box(undefined)"
       } @{ $self->[1] }) .
       ";\n" .
       $self->[2]->as_js;

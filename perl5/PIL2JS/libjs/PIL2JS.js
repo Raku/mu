@@ -12,26 +12,38 @@ PIL2JS.LF =
     ? "\r"
     : "\n";
 
+PIL2JS.cur_uid = 1;
+PIL2JS.new_uid = function () {
+  return PIL2JS.cur_uid++;
+};
+
 // This is necessary to emulate pass by ref, needed for is rw and is ref.
 // See section "DESIGN" in README.
 // GET    :: SomeNativeType
 // STORE  :: SomeBox -> TheSameBox
 // BINDTO :: SomeBox -> TheSameBox
-PIL2JS.Box = function (get, store) {
-  this.GET   = get;
-  this.STORE = store;
+// PIL2JS.Box is a plain normal variable container, which can be assigned to
+// and rebound.
+PIL2JS.Box = function (value) {
+  this.GET   = function ()  { return value };
+  this.STORE = function (n) { value = n.GET(); return this };
+  this.uid   = PIL2JS.new_uid();
 };
 
 PIL2JS.Box.prototype = {
   BINDTO: function (other) {
+    if(this.uid == other.uid)
+      PIL2JS.die("Binding would create a bind cycle!");
+
     this.GET   = other.GET;
     this.STORE = other.STORE;
+    this.uid   = other.uid;
     return this;
   },
 
   // Needed for "is copy".
   clone: function () {
-    return new PIL2JS.Box.Proxy(this.GET());
+    return new PIL2JS.Box(this.GET());
   },
 
   // Return us as an native JavaScript object.
@@ -81,29 +93,36 @@ PIL2JS.Box.prototype = {
   */
 };
 
-// new PIL2JS.Box.Proxy(42) is a normal variable which can be assigned to.
-PIL2JS.Box.Proxy = function (value) {
-  this.GET   = function ()  { return value };
-  this.STORE = function (n) { value = n.GET(); return n };
+// PIL2JS.Box.Proxy is the equivalent of Perl's Proxy class.
+PIL2JS.Box.Proxy = function (get, store) {
+  this.GET   = get;
+  this.STORE = store;
+  this.uid   = PIL2JS.new_uid();
 };
 
 // new PIL2JS.Box.Readonly(some_existing_box) returns a new box which cannot be
 // assigned to. Necessary for sub params without "is rw".
 PIL2JS.Box.ReadOnly = function (box) {
   this.GET   = function ()  { return box.GET() };
-  this.STORE = function (n) { PIL2JS.die("Can't modify constant item!\n"); return n };
+  this.STORE = function (n) { PIL2JS.die("Can't modify constant item!"); return n };
+  this.uid   = box.uid;
 };
 
 // Returns a new box wrapping a constant value.
+// Assignment and rebinding will, of course, not work.
 PIL2JS.Box.Constant = function (value) {
-  this.GET   = function ()  { return value };
-  this.STORE = function (n) { PIL2JS.die("Can't modify constant item!\n"); return n };
+  this.GET    = function ()  { return value };
+  this.STORE  = function (n) { PIL2JS.die("Can't modify constant item!") };
+  this.BINDTO = function (o) { PIL2JS.die("Can't rebind constant item!") };
+  this.uid    = undefined;
 };
 
 // Returns a stub box -- all calls will die.
 PIL2JS.Box.Stub = function (value) {
-  this.GET   = function ()  { PIL2JS.die(".GET() of a PIL2JS.Box.Stub called!\n") }
-  this.STORE = function (n) { PIL2JS.die(".STORE() of a PIL2JS.Box.Stub called!\n"); return n };
+  this.GET    = function ()  { PIL2JS.die(".GET() of a PIL2JS.Box.Stub called!") }
+  this.STORE  = function (n) { PIL2JS.die(".STORE() of a PIL2JS.Box.Stub called!") };
+  this.BINDTO = function (o) { PIL2JS.die(".BINDTO() of a PIL2JS.Box.Stub called!") };
+  this.uid    = function ()  { PIL2JS.die(".uid() of a PIL2JS.Box.Stub called!") };
 };
 
 // Inheritance.
@@ -164,7 +183,7 @@ PIL2JS.make_slurpy_array = function (inp_arr) {
 };
 
 // Magical variable: $?POSITION.
-var _24main_3a_3a_3fPOSITION = new PIL2JS.Box.Proxy("<unknown>");
+var _24main_3a_3a_3fPOSITION = new PIL2JS.Box("<unknown>");
 
 // Prettyprint an error msg.
 PIL2JS.new_error = function (msg) {

@@ -245,7 +245,18 @@ sub postfix:<++> ($a is rw)    is primitive { my $cur = $a; $a = $a + 1; $cur }
 sub prefix:<-->  ($a is rw)    is primitive { $a = $a - 1 }
 sub postfix:<--> ($a is rw)    is primitive { my $cur = $a; $a = $a - 1; $cur }
 
-sub infix:<,>(*@xs)            is primitive { @xs }
+sub infix:<,>(*@xs)            is primitive {
+  JS::inline('new PIL2JS.Box.Constant(function (args) {
+    var array = [];
+    for(var i = 0; i < args[0].GET().length; i++) {
+      // The extra new PIL2JS.Box is necessary to make the contents of arrays
+      // readwrite, i.e. my @a = (0,1,2); @a[1] = ... should work.
+      array[i] = new PIL2JS.Box(args[0].GET()[i].GET());
+    }
+    return new PIL2JS.Box.Constant(array);
+  })')(@xs);
+}
+
 sub circumfix:<[]>(*@xs)       is primitive { @xs }
 method postcircumfix:<[]>(Array $self: Int $idx is copy) is rw {
   # *Important*: We have to calculate the idx only *once*:
@@ -260,18 +271,20 @@ method postcircumfix:<[]>(Array $self: Int $idx is copy) is rw {
     var idx   = args[1].toNative();
 
     // Relay .GET and .STORE to array[idx].
-    var ret = new PIL2JS.Box(
+    var ret = new PIL2JS.Box.Proxy(
       function () {
         var ret = array[idx];
         return ret == undefined ? undefined : ret.GET();
       },
       function (n) {
         if(array[idx] == undefined)
-          array[idx] = new PIL2JS.Box.Proxy(undefined);
+          array[idx] = new PIL2JS.Box(undefined);
         array[idx].STORE(n);
         return n;
       }
     );
+
+    ret.uid = array[idx] == undefined ? undefined : array[idx].uid;
 
     // .BINDTO is special: @a[$idx] := $foo should work.
     ret.BINDTO = function (other) {
@@ -293,8 +306,13 @@ sub circumfix:<{}>(Array $pairs) is primitive {
 
     for(var i = 0; i < pairs.length; i++) {
       var key = pairs[i].GET().key.toNative(), value = pairs[i].GET().value;
+      // Note sure -- see thread "Hash creation with duplicate keys" started by
+      // Ingo Blechschmidt on p6l:
+      // http://www.nntp.perl.org/group/perl.perl6.language/22379
       if(hash[key] == undefined) {
-        hash[key] = new PIL2JS.Box.Proxy(value.GET());
+        // The extra new PIL2JS.Box is necessary to make the contents of hashes
+        // readwrite, i.e. my %a = (a => 1); %a<a> = ... should work.
+        hash[key] = new PIL2JS.Box(value.GET());
       }
     }
 
@@ -308,18 +326,20 @@ method postcircumfix:<{}>(Hash $self: $key) {
     var key  = args[1].toNative();
 
     // Relay .GET and .STORE to hash[key].
-    var ret = new PIL2JS.Box(
+    var ret = new PIL2JS.Box.Proxy(
       function () {
         var ret = hash[key];
         return ret == undefined ? undefined : ret.GET();
       },
       function (n) {
         if(hash[key] == undefined)
-          hash[key] = new PIL2JS.Box.Proxy(undefined);
+          hash[key] = new PIL2JS.Box(undefined);
         hash[key].STORE(n);
         return n;
       }
     );
+
+    ret.uid = hash[key] == undefined ? undefined : hash[key].uid;
 
     // .BINDTO is special: %hash{$key} := $foo should work.
     ret.BINDTO = function (other) {
@@ -335,7 +355,13 @@ method postcircumfix:<{}>(Hash $self: $key) {
 
 sub infix:<=:=>($a is rw, $b is rw) is primitive { JS::inline('new PIL2JS.Box.Constant(
   function (args) {
-    return new PIL2JS.Box.Constant(args[0] == args[1]);
+    if(args[0].uid && args[1].uid) {
+      return new PIL2JS.Box.Constant(args[0].uid == args[1].uid);
+    } else if(!args[0].uid && !args[1].uid) {
+      return new PIL2JS.Box.Constant(args[0].GET() == args[1].GET());
+    } else {
+      return new PIL2JS.Box.Constant(false);
+    }
   }
 )')($a, $b) }
 
