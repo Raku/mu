@@ -17,3 +17,10 @@ is(+'Info', 0, "+'Info' is 0");
 is(+'NaN', NaN, "+'NaN' is NaN");
 is(+'NaNa', 0, "+'NaNa' is 0");
 
+is( Inf,  'Inf', "'Inf' is Inf");
+is(-Inf, '-Inf', "'-Inf' is -Inf");
+
+is(+(~(+Inf)),  Inf, "'+Inf' is Inf");
+is(+(~(-Inf)), -Inf, "'-Inf' is -Inf");
+
+
