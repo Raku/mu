@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 24;
+plan 26;
 
 =pod
 
@@ -63,6 +63,11 @@ Basic submethod tests. See L<S12/"Submethods">
   is $was_in_baz_submethod,  1, "Baz's submethod blarb was not called again";
   # No :todo to avoid unexpected suceedings
   is $was_in_grtz_submethod, 1, "Grtz's submethod blarb was called now";
+
+  try { $grtz.Baz::blarb };
+  is $was_in_baz_submethod,  2, "Baz's submethod blarb was called again now";
+  # No :todo to avoid unexpected suceedings
+  is $was_in_grtz_submethod, 1, "Grtz's submethod blarb was not called again";
 }
 
 # Roles with BUILD
