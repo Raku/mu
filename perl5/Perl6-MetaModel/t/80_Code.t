@@ -101,7 +101,7 @@ use warnings;
         $self->{body}->(%bound_params);
     }
     
-    sub execute {
+    sub do {
         my ($self, @arguments) = @_;
         $self->_check_signature(@arguments) 
             || die "Signature does not match";
@@ -122,9 +122,9 @@ use warnings;
         return $self;
     }
     
-    sub execute {
+    sub do {
         my ($self, @arguments) = @_;
-        $self->{return_value} = $self->SUPER::execute(@arguments);
+        $self->{return_value} = $self->SUPER::do(@arguments);
     }
     
     sub return_value { (shift)->{return_value} }
@@ -154,7 +154,7 @@ sub mksub {
     isa_ok($sub, 'Perl6::Sub');
     isa_ok($sub, 'Perl6::Code');
 
-    $sub->execute('Stevan');
+    $sub->do('Stevan');
     is($sub->return_value, 'Hello from Stevan', '... got the right return value');
 }
 
@@ -165,7 +165,7 @@ sub mksub {
     };
     isa_ok($sub, 'Perl6::Sub');
 
-    $sub->execute('Stevan', [ 'autrijus', 'iblech', 'putter' ]);
+    $sub->do('Stevan', [ 'autrijus', 'iblech', 'putter' ]);
     is($sub->return_value, 'Hello from Stevan and autrijus, iblech, putter', '... got the right return value');
 }
 
@@ -176,7 +176,7 @@ sub mksub {
     };
     isa_ok($sub, 'Perl6::Sub');
 
-    $sub->execute({ foo => 1, bar => 2 });
+    $sub->do({ foo => 1, bar => 2 });
     is($sub->return_value, 'bar, foo', '... got the right return value');
 }
 
@@ -187,7 +187,7 @@ sub mksub {
     };
     isa_ok($sub, 'Perl6::Sub');
 
-    $sub->execute(sub { join "|" => @_ }, [ 1, 2, 3, 4 ]);
+    $sub->do(sub { join "|" => @_ }, [ 1, 2, 3, 4 ]);
     is($sub->return_value, '1|2|3|4', '... got the right return value');
 }
 
