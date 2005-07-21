@@ -55,7 +55,8 @@ module HTTP::Status-0.0.1 {
 	$message .= uc;
 	$message ~~ s:g/<[ \-]>/_/;
 	
-	our &::("RC_" ~ $message) is export(:MANDATORY) ::= sub () { $code };
+	#&HTTP::Status::("RC_" ~ $message) := sub () { $code };
+        &HTTP::Status::("RC_" ~ $message) is export(:MANDATORY);
     }
     
     our &RC_MOVED_TEMPORARILY is export(:MANDATORY) ::= &RC_FOUND;
