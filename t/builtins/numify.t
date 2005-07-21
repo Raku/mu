@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 10;
+plan 14;
 
 is(int('-1.999'), -1, "int('-1.999') is -1");
 is(int('0x123'), 0x123, "int('0x123') is 0x123");
