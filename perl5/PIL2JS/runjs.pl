@@ -4,20 +4,12 @@ use warnings;
 use strict;
 
 use FindBin;
-use Getopt::Long;
 use File::Spec;
-use IPC::Open2;
-use Config;
+use lib File::Spec->catfile($FindBin::Bin, "lib");
+use PIL2JS;
+use Getopt::Long;
 
 sub pwd { File::Spec->catfile($FindBin::Bin, @_) }
-
-my %cfg = (
-  js        => "js",
-  pugs      => pwd(qw< .. .. >, "pugs$Config{_exe}"),
-  pil2js    => pwd('pil2js.pl'),
-  preludepc => pwd('preludepc.js'),
-  prelude   => pwd(qw< lib6 Prelude JS.pm >),
-);
 
 my (@runjs_args, @pugs_args);
 while (@ARGV) {
@@ -28,102 +20,39 @@ while (@ARGV) {
 @ARGV = @runjs_args;
 
 GetOptions(
-  "js=s"          => \$cfg{js},
-  "pugs=s"        => \$cfg{pugs},
-  "pil2js=s"      => \$cfg{pil2js},
-  "p6preludepc=s" => \$cfg{preludepc},
-  "p6prelude=s"   => \$cfg{prelude},
+  "js=s"          => \$PIL2JS::cfg{js},
+  "pugs=s"        => \$PIL2JS::cfg{pugs},
+  "pil2js=s"      => \$PIL2JS::cfg{pil2js},
+  "p6preludepc=s" => \$PIL2JS::cfg{preludepc},
+  "p6prelude=s"   => \$PIL2JS::cfg{prelude},
+  "testpc=s"      => \$PIL2JS::cfg{testpc},
   "help"          => \&usage,
 ) and @pugs_args or usage();
 
-# bin/js's only output function is print, which is like Perl 6's &say, i.e.
-# there's always a newline at the end. So our fake document.write outputs
-# "string_to_output#IGNORE NEXT LINEFEED#\n", and we can s/#IGNORE NEXT
-# LINEFEED#\n// later.
-my $MAGIC_NOLF = "#IGNORE NEXT LINEFEED#";
-
-my $js = <<EOF . "\n" . compile(@pugs_args);
-// Stubs inserted by runjs.pl.
-var document = {
-  write: function (str) {
-    print(str + "$MAGIC_NOLF");
-  },
-  body:  {},
-  getElementById: function (id) {}
-};
-
-var window    = { scrollTo: function (x, y) {} };
-var navigator = { userAgent: undefined };
-EOF
-
-js($js);
-
-sub compile {
-  my $pathsep = $^O eq "MSWin32" ? "\\" : "/";
-  unless(-e $cfg{preludepc} and -s $cfg{preludepc}) {
-    die "* Error: Precompiled Prelude (\"$cfg{preludepc}\") does not exist.\n";
-  } elsif(-e $cfg{prelude} and -M $cfg{prelude} <= -M $cfg{preludepc}) {
-    die "* Error: Your precompiled Prelude is outdated.\n";
-  } elsif(not -e $cfg{prelude}) {
-    warn "* Warning: Couldn't check whether your compiled Prelude is outdated.\n";
-    warn "           Please run runjs.pl with an approproate --p6prelude option.\n";
-  }
-
-  my $pil = pugs("-CPIL", @_);
-  die "Error: Couldn't compile to PIL!\n" if not defined $pil;
-  my $js  = pil2js(
-    $pil,
-    "--jsprelude-mode=inline", "--p6preludepc-mode=inline",
-    "--p6preludepc-path=$cfg{preludepc}",
-  ) or die "Error: Couldn't compile to JavaScript!\n";
-
-  return $js;
+unless(-e $PIL2JS::cfg{preludepc}) {
+  warn "*** Precompiled Prelude doesn't exist yet; precompiling...\n";
+  my $js = precomp_module_to_mini_js "-I", PIL2JS::pwd("lib6"), "-MPrelude::JS";
+  write_file($js => $PIL2JS::cfg{preludepc});
 }
 
-sub pugs {
-  my @args = @_;
-
-  $ENV{PERL5LIB} = join $Config{path_sep}, pwd('lib'), ($ENV{PERL5LIB} || "");
-    
-  open my $fh, "-|", "$cfg{pugs}", @args or
-    warn "Couldn't open pipe to \"$cfg{pugs} @args\": $!\n" and return;
-  local $/;
-  my $res = <$fh>;
-  return undef if not defined $res or length($res) == 0;
-  close $fh or
-    warn "Couldn't close pipe \"$cfg{pugs} @args\": $!\n" and return;
-
-  return $res;
+unless(-e $PIL2JS::cfg{testpc}) {
+  warn "*** Precompiled Test.pm doesn't exist yet; precompiling...\n";
+  my $js = precomp_module_to_mini_js "-MTest";
+  write_file($js => $PIL2JS::cfg{testpc});
 }
 
-sub pil2js {
-  my ($pil, $to, @args) = @_;
-  my @cmd = ($cfg{pil2js}, @args);
+my $js = jsbin_hack(compile_perl6_to_standalone_js(
+  # "-e", 'BEGIN { %*INC{"Test.pm"}++ }',
+  @pugs_args
+));
+run_js($js);
 
-  my $pid = open2 my($read_fh), my($write_fh), @cmd
-    or die "Couldn't open pipe to \"@cmd\": $!\n";
+sub write_file {
+  my ($contents, $file) = @_;
 
-  print $write_fh $pil or die "Couldn't write into pipe to \"@cmd\": $!\n";
-  close $write_fh      or die "Couldn't close pipe to \"@cmd\": $!\n";
-
-  local $/;
-  my $js = <$read_fh>;
-}
-
-sub js {
-  my $js = shift;
-
-  my $pid = open2 my($read_fh), my($write_fh), $cfg{js}
-    or die "Couldn't open pipe to \"$cfg{js}\": $!\n";
-
-  print $write_fh $js or die "Couldn't write into pipe to \"$cfg{js}\": $!\n";
-  close $write_fh     or die "Couldn't close pipe to \"$cfg{js}\": $!\n";
-
-  $|++;
-  while(defined(my $line = <$read_fh>)) {
-    $line =~ s/\Q$MAGIC_NOLF\E\n//g;
-    print $line;
-  }
+  open my $fh, ">", $file or die "Couldn't open \"$file\" for writing: $!\n";
+  print $fh $contents     or die "Couldn't write to \"$file\": $!\n";
+  close $fh               or die "Couldn't close \"$file\": $!\n";
 }
 
 sub usage { print STDERR <<EOF; exit }

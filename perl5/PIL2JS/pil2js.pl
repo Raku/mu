@@ -29,6 +29,7 @@ sub guess_jsprelude_path {
 
 my %jsprelude = (mode => "inline", path => guess_jsprelude_path());
 my %p6prelude = (mode => "link");
+my %testpc    = (mode => "no");
 
 GetOptions(
   "verbose"            => \my $verbose,
@@ -37,6 +38,8 @@ GetOptions(
   "p6preludepc-mode=s" => \$p6prelude{mode},
   "jsprelude-path=s"   => \$jsprelude{path},
   "p6preludepc-path=s" => \$p6prelude{path},
+  "testpc-mode=s"      => \$testpc{mode},
+  "testpc-path=s"      => \$testpc{path},
   "yaml-dump"          => \my $yaml_dump,
   "help"               => \&usage,
 ) or usage();
@@ -58,6 +61,11 @@ ERR
   die <<ERR if not $jsprelude{path} and ($jsprelude{mode} =~ /^(?:inline|link)$/);
 *** Can't inline or link to the JavaScript Prelude (PIL2JS.js),
     as no path to the Prelude was given.
+ERR
+
+  die <<ERR if not $testpc{path} and ($testpc{mode} =~ /^(?:inline|link)$/);
+*** Can't inline or link to the precompiled Test module,
+    as no path was given.
 ERR
 }
 
@@ -85,18 +93,29 @@ my $program_js = join "\n",
   $load_check,
   (bless $tree => "PIL::Nodes")->as_js;
 
-warn "*** Inlining the JavaScript Prelude (PIL2JS.pl)...\n" if $verbose;
-my $jsprelude_js = $jsprelude{mode} eq "inline" ? slurp $jsprelude{path} : undef;
-warn "*** Inlining the Perl 6 Prelude...\n" if $verbose;
-my $p6prelude_js = $p6prelude{mode} eq "inline" ? slurp $p6prelude{path} : undef;
-$p6prelude_js =
-  "// This is the part of the Prelude written in Perl 6.\n$p6prelude_js"
-    if $p6prelude_js;
+my ($jsprelude_js, $p6prelude_js, $testpc_js);
+if($jsprelude{mode} eq "inline") {
+  warn "*** Inlining the JavaScript Prelude (PIL2JS.pl)...\n" if $verbose;
+  $jsprelude_js = slurp $jsprelude{path};
+}
+if($p6prelude{mode} eq "inline") {
+  warn "*** Inlining the Perl6 Prelude...\n" if $verbose;
+  $p6prelude_js =
+    "// This is the part of the Prelude written in Perl 6.\n" .
+    slurp $p6prelude{path};
+}
+if($testpc{mode} eq "inline") {
+  warn "*** Inlining the precompiled Test module...\n" if $verbose;
+  $testpc_js =
+    "// This is the precompiled Test module.\n" .
+    slurp $testpc{path};
+}
 
 my $js;
 $js .= "$jsprelude_js\n" if $jsprelude{mode} eq "inline" and not $html;
 $js .= "$p6prelude_js\n" if $p6prelude{mode} eq "inline";
-$js .= $program_js;
+$js .= "$testpc_js\n"    if $testpc{mode}    eq "inline";
+$js .= "// The actual program begins here.\n$program_js";
 
 unless($html) {
   print $js;

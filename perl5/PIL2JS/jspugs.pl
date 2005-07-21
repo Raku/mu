@@ -3,6 +3,10 @@
 use warnings;
 use strict;
 
+use FindBin;
+use File::Spec;
+use lib File::Spec->catfile($FindBin::Bin, "lib");
+use PIL2JS;
 use Term::ReadLine;
 
 my $term = Term::ReadLine->new("jspugs");
@@ -16,26 +20,13 @@ Type :h for help.
 
 EOF
 
-my %cfg = (
-  pugs      => $^O eq "MSWin32" ? "pugs.exe" : "pugs",
-  pil2js    => "pil2js.pl",
-  preludepc => "preludepc.js",
-  lib6      => "lib6",
-  output    => "output.html",
-);
-
-# "Autodetection".
-$cfg{pugs} = ($^O eq "MSWin32" ? "..\\..\\" : "../../") . $cfg{pugs}
-  unless -e $cfg{pugs};
-$cfg{pil2js} = ($^O eq "MSWin32" ? ".\\" : "./") . $cfg{pil2js}
-  if -e $cfg{pil2js};
-$cfg{lib6} = ($^O eq "MSWin32" ? "perl5\\PIL2JS\\lib6" : "perl5/PIL2JS/lib6")
-  unless -e $cfg{lib6};
-
+our %cfg;
+*cfg = \%PIL2JS::cfg;
+$cfg{output} = "output.html";
 command_conf(pugs      => $cfg{pugs});
 command_conf(pil2js    => $cfg{pil2js});
 command_conf(preludepc => $cfg{preludepc});
-command_conf(lib6      => $cfg{lib6});
+command_conf(prelude   => $cfg{prelude});
 command_conf(output    => $cfg{output});
 
 while(defined($_ = $term->readline($prompt))) {
@@ -75,19 +66,21 @@ sub command_conf {
     pugs      => "pugs",
     pil2js    => "pil2js",
     preludepc => "the precompiled Prelude",
-    lib6      => "PIL2JS's lib6/",
+    prelude   => "the Prelude sourcecode",
     output    => "the JavaScript output",
   );
 
-  unless($what and $what =~ /^(?:pugs|pil2js|preludepc|lib6|output)$/) {
-    print $OUT "Usage: :conf pugs|pil2js|preludepc|lib6|output [new_value]\n";
+  unless($what and $what =~ /^(?:pugs|pil2js|prelude(?:pc)?|output)$/) {
+    print $OUT "Usage: :conf pugs|pil2js|prelude|preludepc|lib6|output [new_value]\n";
     return;
   }
 
   $cfg{$what} = $new if $new;
 
-  my $descr = "$human{$what}:" . " " x (30 - length $human{$what});
-  my $path  = $cfg{$what}      . " " x (20 - length $cfg{$what});
+  my $descr =  "$human{$what}:" . " " x (30 - length $human{$what});
+  my $path  =  $cfg{$what};
+  $path     =~ s/^@{[ PIL2JS::pwd() ]}.//;
+  $path    .=  " " x (20 - length $path);
   print $OUT
     "* Path to $descr $path [" .
     (-d $cfg{$what} || (-f $cfg{$what} && -s $cfg{$what}) ? "OK" : "NOT FOUND") .
@@ -95,83 +88,46 @@ sub command_conf {
 }
 
 sub command_precomp {
-  my $pil = pugs("-I$cfg{lib6}", "-CPIL", "-MPrelude::JS", "-e", "''");
-  print $OUT "Error: Couldn't compile Prelude::JS to PIL!\n" and return if not defined $pil;
-  pil2js($pil, $cfg{preludepc}, "--jsprelude-mode=no", "--p6preludepc-mode=no") or
-    print $OUT "Error: Couldn't compile Prelude::JS to JavaScript!\n";
+  my $js = eval { precomp_module_to_mini_js "-I", PIL2JS::pwd("lib6"), "-MPrelude::JS" };
+  die $@ if $@;
+
+  open my $fh, ">", $cfg{preludepc} or die "Couldn't open \"$cfg{preludepc}\" for writing: $!\n";
+  print $fh $js                     or die "Couldn't write to \"$cfg{preludepc}\": $!\n";
+  close $fh                         or die "Couldn't close \"$cfg{preludepc}\": $!\n";
+
   command_conf("preludepc");
 }
 
 sub command_pil {
-  my $pil = pugs("-I$cfg{lib6}", "-CPIL", "-e", $_[0]);
-  print $OUT "Error: Couldn't compile to PIL!\n" and return if not defined $pil;
+  my $pil = eval { compile_perl6_to_pil "-e", $_[0] };
+  print $OUT $@ and return if $@;
   print $OUT $pil;
 }
 
 sub command_pil_yaml {
-  my $pil = pugs("-I$cfg{lib6}", "-CPIL", "-e", $_[0]);
-  print $OUT "Error: Couldn't compile to PIL!\n" and return if not defined $pil;
-  pil2js($pil, undef, "--yaml-dump") or
-    print $OUT "Error: Couldn't dump PIL as YAML!\n";
+  my $pil  = eval { compile_perl6_to_pil "-e", $_[0] };
+  print $OUT $@ and return if $@;
+  my $yaml = eval { run_pil2js($pil, "--yaml-dump") };
+  print $OUT $@ and return if $@;
+  print $OUT $yaml;
 }
 
 sub command_compile { compile("-e", $_[0]) }
 sub command_l       { compile($_[0]) }
 
 sub compile {
-  my $pathsep = $^O eq "MSWin32" ? "\\" : "/";
-  unless(-e $cfg{preludepc} and -s $cfg{preludepc}) {
-    print $OUT "* Warning: Precompiled Prelude (\"$cfg{preludepc}\") does not exist,\n";
-    print $OUT "           use the command \":precomp\" to compile the Prelude.\n";
-  } elsif(
-    -M "$cfg{lib6}${pathsep}Prelude${pathsep}JS.pm" <=
-    -M $cfg{preludepc}
-  ) {
-    print $OUT "* Warning: Your precompiled Prelude is outdated.\n";
-    print $OUT "           Use the command \":precomp\" to recompile the Prelude.\n";
-  }
+  my $html = eval { compile_perl6_to_htmljs_with_links @_ };
+  print $OUT $@ and return if $@;
 
-  my $pil = pugs("-I$cfg{lib6}", "-CPIL", @_);
-  print $OUT "Error: Couldn't compile to PIL!\n" and return if not defined $pil;
-  pil2js($pil, $cfg{output}, "--html", "--p6preludepc-path", $cfg{preludepc}) or
-    print $OUT "Error: Couldn't compile to JavaScript!\n" and return;
+  open my $fh, ">", $cfg{output} or die "Couldn't open \"$cfg{output}\" for writing: $!\n";
+  print $fh $html                or die "Couldn't write to \"$cfg{output}\": $!\n";
+  close $fh                      or die "Couldn't close \"$cfg{output}\": $!\n";
+
   command_conf("output");
 }
 
 sub command_js {
-  my $pil = pugs("-I$cfg{lib6}", "-CPIL", "-e", $_[0]);
-  print $OUT "Error: Couldn't compile to PIL!\n" and return if not defined $pil;
-  pil2js($pil, undef, "--jsprelude-mode=no", "--p6preludepc-mode=no") or
-    print $OUT "Error: Couldn't compile to JavaScript!\n" and return;
-  print $OUT "\n";
+  my $pil = eval { compile_perl6_to_mini_js "-e", $_[0] };
+  print $OUT $@ and return if $@;
+  print $OUT "$pil\n";
 }
-
-sub pugs {
-  my @args = @_;
-
-  diag("$cfg{pugs} @args");
-  open my $fh, "-|", "$cfg{pugs}", @args or
-    warn "Couldn't open pipe to \"$cfg{pugs} @args\": $!\n" and return;
-  local $/;
-  my $res = <$fh>;
-  return undef if not defined $res or length($res) == 0;
-  close $fh or
-    warn "Couldn't close pipe \"$cfg{pugs} @args\": $!\n" and return;
-
-  return $res;
-}
-
-sub pil2js {
-  my ($pil, $to, @args) = @_;
-
-  my $cmd = "$cfg{pil2js} @args" . (defined $to ? " > $to" : "");
-  diag($cmd);
-  open my $fh, "|-", "$cmd" or
-    warn "Couldn't open pipe to \"$cmd\": $!\n" and return;
-  print $fh $pil or
-    warn "Couldn't write into pipe to \"$cmd\": $!\n" and return;
-  close $fh or
-    warn "Couldn't close pipe to \"$cmd\"!\n" and return;
-}
-
-sub diag { print $OUT "# $_[0]\n" }

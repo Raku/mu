@@ -61,5 +61,3 @@ sub prefix:<++>  ($a is rw)    is primitive { $a = $a + 1 }
 sub postfix:<++> ($a is rw)    is primitive { my $cur = $a; $a = $a + 1; $cur }
 sub prefix:<-->  ($a is rw)    is primitive { $a = $a - 1 }
 sub postfix:<--> ($a is rw)    is primitive { my $cur = $a; $a = $a - 1; $cur }
-
-

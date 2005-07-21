@@ -21,12 +21,15 @@ use Prelude::JS::OO;
 use Prelude::JS::Hash;
 use Prelude::JS::Array;
 
-sub JS::Root::defined($a) is primitive {
+method JS::Root::defined($a:) {
   JS::inline('
     function (val) {
       return typeof(val) != "undefined";
     }
-  ').($a);
+  ')($a);
+}
+method JS::Root::undefine($a is rw:) {
+  $a = undef;
 }
 
 sub JS::Root::time() is primitive {

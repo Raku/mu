@@ -325,8 +325,14 @@ PIL2JS.use_jsan = function (mod) {
   JSAN.prototype.use.apply(JSAN.prototype, [mod]);
 };
 
-// Hack, we don't do MMD yet
-PIL2JS.Box.prototype.perl_methods["defined"] =
-  new PIL2JS.Box.Constant(function (args) {
-    return _26main_3a_3adefined.GET()(args);
-  });
+// Hacks, we don't do MMD yet
+/*
+PIL2JS.mmd_hacks = {
+  defined: function () { return _26main_3a_3adefined },
+};
+for(var methname in PIL2JS.mmd_hacks) {
+  PIL2JS.Box.prototype.perl_methods[methname] =
+    new PIL2JS.Box.Constant(function (args) {
+      return PIL2JS.mmd_hacks[methname]().GET()(args);
+    });
+}*/
