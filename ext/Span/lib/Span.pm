@@ -1,6 +1,10 @@
 use v6;
 
+# Set::Symbols is defined in the Recurrence.pm package
+use Set::Symbols;
+
 class Span-0.01
+    does Set::Symbols
 {
 
     use Span::Num;

@@ -1,5 +1,7 @@
 use v6;
 
+use Set::Symbols;
+
 =for TODO
 
     * make a Recurrence::Set class - elements can be sets
@@ -56,6 +58,7 @@ XXX - add tests
 =cut
 
 class Recurrence-0.01
+    does Set::Symbols
 {
     has Code $.closure_next;
     has Code $.closure_previous;
