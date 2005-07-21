@@ -1,0 +1,68 @@
+<html>
+<head>
+    <script type="text/javascript" src="../inc/Test/Builder.js"></script>
+    <script type="text/javascript" src="../inc/Test/More.js"></script>
+
+    <script type="text/javascript" src="../lib/Perl6/MetaClass.js"></script>
+</head>
+<body>
+<pre id='test'><script type="text/javascript">
+
+plan({ tests : 4 });
+
+var a = new Perl6.MetaClass('A');
+var b = new Perl6.MetaClass('B');
+b.superclasses([a]);
+var c = new Perl6.MetaClass('C');
+c.superclasses([a]);
+var d = new Perl6.MetaClass('D');
+d.superclasses([b, c]);
+
+isDeeply(d.MRO(), [ d, b, c, a ], '... got the right MRO for classic diamond');
+
+var F = new Perl6.MetaClass('F');
+var E = new Perl6.MetaClass('E');
+var D = new Perl6.MetaClass('D');
+var C = new Perl6.MetaClass('C');
+C.superclasses([ D, F ]);
+var B = new Perl6.MetaClass('B');
+B.superclasses([ D, E ]);
+var A = new Perl6.MetaClass('A');
+A.superclasses([ B, C ]);
+
+isDeeply(A.MRO(), [ A, B, C, D, E, F ], '... got the right MRO for extended Diamond'); 
+
+var X = new Perl6.MetaClass('X'); 
+var Y = new Perl6.MetaClass('Y'); 
+var XY = new Perl6.MetaClass('XY'); 
+XY.superclasses([ X, Y ]);
+var YX = new Perl6.MetaClass('YX'); 
+YX.superclasses([ Y, X ]);
+
+var Z = new Perl6.MetaClass('Z');
+try {
+    Z.superclasses([ XY, YX ]);
+} 
+catch (e) {
+    pass('... died trying to create the inconsistent class');
+}
+
+var F2 = new Perl6.MetaClass('F2');
+var E2 = new Perl6.MetaClass('E2');
+var D2 = new Perl6.MetaClass('D2');
+var C2 = new Perl6.MetaClass('C2');
+C2.superclasses([ D2, F2 ]);
+var B2 = new Perl6.MetaClass('B2');
+B2.superclasses([ E2, D2 ]);
+var A2 = new Perl6.MetaClass('A2');
+A2.superclasses([ B2, C2 ]);
+
+isDeeply(A2.MRO(), [ A2, B2, E2, C2, D2, F2 ], '... got the right MRO for A2');
+
+
+
+
+
+</script></pre>
+</body>
+</html>

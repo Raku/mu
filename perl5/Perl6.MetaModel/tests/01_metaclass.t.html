@@ -1,0 +1,47 @@
+<html>
+<head>
+    <script type="text/javascript" src="../inc/Test/Builder.js"></script>
+    <script type="text/javascript" src="../inc/Test/More.js"></script>
+
+    <script type="text/javascript" src="../lib/Perl6/MetaClass.js"></script>
+</head>
+<body>
+<pre id='test'><script type="text/javascript">
+
+plan({ tests : 18 });
+
+var m1 = new Perl6.MetaClass('Dog', '0.0.1', 'jsan:STEVAN');
+isaOK(m1, 'Perl6.MetaClass');
+
+is(m1.name(), 'Dog', '... got the right name');
+is(m1.version(), '0.0.1', '... got the right version');
+is(m1.authority(), 'jsan:STEVAN', '... got the right authority');
+
+is(m1.identifier(), 'Dog-0.0.1-jsan:STEVAN', '... got the right identifier');
+
+ok(m1.is_a('Dog'), '... this metaclass isa Dog');
+ok(!m1.is_a('Fido'), '... this metaclass is not a Fido');
+
+isDeeply(m1.MRO(), [m1], '... got the right MRO for m1');
+
+var m2 = new Perl6.MetaClass('Fido', '0.0.1');
+isaOK(m2, 'Perl6.MetaClass');
+
+is(m2.name(), 'Fido', '... got the right name');
+is(m2.version(), '0.0.1', '... got the right version');
+is(m2.authority(), false, '... got the right authority');
+
+is(m2.identifier(), 'Fido-0.0.1', '... got the right identifier');
+
+m2.superclasses([ m1 ]);
+
+is(m2.superclasses()[0], m1, '... our superclass is as expected');
+
+ok(m2.is_a('Dog'), '... this metaclass isa Dog');
+ok(m2.is_a('Fido'), '... this metaclass isa Fido');
+
+isDeeply(m2.MRO(), [ m2, m1 ], '... got the right MRO for m2');
+
+</script></pre>
+</body>
+</html>
