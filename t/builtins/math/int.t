@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 49;
+plan 53;
 
 =pod
 
@@ -57,3 +57,11 @@ for(0, 0.0, 1, 50, 60.0, 99.99, 0.4, 0.6,
     is(int(), $int, "integral value for $_ is $int");
     isa_ok(int(), "Int");
 }
+
+# Special values
+
+is(int(1.9e3), 1900, "int 1.9e3 is 1900");
+is(int(Inf),    Inf, "int Inf is Inf");
+is(int(-Inf),  -Inf, "int -Inf is -Inf");
+is(int(NaN),    NaN, "int NaN is NaN");
+
