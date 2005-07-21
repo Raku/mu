@@ -55,7 +55,7 @@ module HTTP::Status-0.0.1 {
 	$message .= uc;
 	$message ~~ s:g/<[ \-]>/_/;
 	
-	#&HTTP::Status::("RC_" ~ $message) := sub () { $code };
+	&HTTP::Status::("RC_" ~ $message) := sub () { $code };
         &HTTP::Status::("RC_" ~ $message) is export(:MANDATORY);
     }
     
