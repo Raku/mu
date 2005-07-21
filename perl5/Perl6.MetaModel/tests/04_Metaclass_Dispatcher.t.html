@@ -1,0 +1,33 @@
+<html>
+<head>
+    <script type="text/javascript" src="../inc/Test/Builder.js"></script>
+    <script type="text/javascript" src="../inc/Test/More.js"></script>
+
+    <script type="text/javascript" src="../lib/Perl6/MetaClass.js"></script>
+    <script type="text/javascript" src="../lib/Perl6/MetaClass/Dispatcher.js"></script>
+</head>
+<body>
+<pre id='test'><script type="text/javascript">
+
+plan({ tests : 6 });
+
+var a = new Perl6.MetaClass('A');
+var b = new Perl6.MetaClass('B');
+b.superclasses([a]);
+var c = new Perl6.MetaClass('C');
+c.superclasses([a]);
+var d = new Perl6.MetaClass('D');
+d.superclasses([b, c]);
+
+var dispatcher = d.dispatcher();
+isaOK(dispatcher, 'Perl6.MetaClass.Dispatcher');
+
+is(dispatcher.next(), d, '... got the right element in dispatch order');
+is(dispatcher.next(), b, '... got the right element in dispatch order');
+is(dispatcher.next(), c, '... got the right element in dispatch order');
+is(dispatcher.next(), a, '... got the right element in dispatch order');
+is(dispatcher.next(), undefined, '... got the undefined when there is no more elements');
+
+</script></pre>
+</body>
+</html>

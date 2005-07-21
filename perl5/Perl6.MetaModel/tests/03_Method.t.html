@@ -1,0 +1,27 @@
+<html>
+<head>
+    <script type="text/javascript" src="../inc/Test/Builder.js"></script>
+    <script type="text/javascript" src="../inc/Test/More.js"></script>
+
+    <script type="text/javascript" src="../lib/Perl6/Method.js"></script>
+</head>
+<body>
+<pre id='test'><script type="text/javascript">
+
+plan({ tests : 6 });
+
+var method = new Perl6.Method('Foo', function (inv, args) { return "Foo" });
+isaOK(method, 'Perl6.Method');
+
+is(method.associated_with(), 'Foo', '... our method is associated with the Foo class');
+is(method.call(), 'Foo', '... the method returned the value we expected');
+
+var method2 = new Perl6.Method('Bar', function (inv, args) { return 'Bar ' + inv });
+isaOK(method2, 'Perl6.Method');
+
+is(method2.associated_with(), 'Bar', '... our method is associated with the Bar class');
+is(method2.call('test'), 'Bar test', '... the method returned the value we expected');
+
+</script></pre>
+</body>
+</html>

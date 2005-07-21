@@ -4,11 +4,12 @@
     <script type="text/javascript" src="../inc/Test/More.js"></script>
 
     <script type="text/javascript" src="../lib/Perl6/MetaClass.js"></script>
+    <script type="text/javascript" src="../lib/Perl6/Method.js"></script>    
 </head>
 <body>
 <pre id='test'><script type="text/javascript">
 
-plan({ tests : 18 });
+plan({ tests : 25 });
 
 var m1 = new Perl6.MetaClass('Dog', '0.0.1', 'jsan:STEVAN');
 isaOK(m1, 'Perl6.MetaClass');
@@ -23,6 +24,28 @@ ok(m1.is_a('Dog'), '... this metaclass isa Dog');
 ok(!m1.is_a('Fido'), '... this metaclass is not a Fido');
 
 isDeeply(m1.MRO(), [m1], '... got the right MRO for m1');
+
+var method1 = new Perl6.Method(m1, function () { 'Dog::bark' });
+isaOK(method1, 'Perl6.Method');
+
+m1.add_method('bark', method1);
+
+ok(m1.has_method('bark'), '... the method bark() can be found');
+is(m1.get_method('bark'), method1, '... the method bark() has been added successfully')
+
+ok(!m1.has_method('bark', 'class'), '... the method bark() cannot be found in class');
+
+var method2 = new Perl6.Method(m1, function () { 'Dog::growl' });
+isaOK(method2, 'Perl6.Method');
+
+m1.add_method('growl', method2, 'class');
+
+ok(m1.has_method('growl', 'class'), '... the method growl() can be found');
+is(m1.get_method('growl', 'class'), method2, '... the method growl() has been added successfully')
+
+ok(!m1.has_method('growl'), '... the method growl() cannot be found in instance');
+
+// ... 
 
 var m2 = new Perl6.MetaClass('Fido', '0.0.1');
 isaOK(m2, 'Perl6.MetaClass');

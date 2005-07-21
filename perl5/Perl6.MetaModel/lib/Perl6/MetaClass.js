@@ -1,5 +1,6 @@
 
-var Perl6 = {};
+if (Perl6 == undefined) var Perl6 = {};
+
 Perl6.MetaClass = function (name, version, authority) {
     // meta information
     this._name      = name      || false;
@@ -35,6 +36,10 @@ Perl6.MetaClass.prototype.identifier = function () {
     return ident;
 }
 
+Perl6.MetaClass.prototype.toString = function () {
+    return "Perl6.MetaClass=[" + this.identifier() + "]";
+}
+
 // superclasses
 
 Perl6.MetaClass.prototype.superclasses = function (superclasses) {
@@ -53,6 +58,8 @@ Perl6.MetaClass.prototype.is_a = function (classname) {
     }
     return false;
 }
+
+// private functions related to MRO
 
 function _remove_empty_seqs (seqs) {
     var nonemptyseqs = [];
@@ -147,17 +154,38 @@ Perl6.MetaClass.prototype.MRO = function () {
     return this._MRO;
 }
 
-Perl6.MetaClass.prototype.toString = function () {
-    return "Perl6.MetaClass{" + this._name + "}";
+Perl6.MetaClass.prototype.dispatcher = function (order) {
+    return new Perl6.MetaClass.Dispatcher (this, order);
 }
 
-/* 
-Array.prototype.toString = function () { 
-    var str = "[";
-    for (var i = 0; i < this.length; i++) {
-        str += this[i].toString() + ", ";
+// methods
+
+Perl6.MetaClass.prototype.add_method = function (label, method, type) {
+    if (!type || type == 'instance') {
+        this._class_definition.methods[label] = method;        
     }
-    return str + "]";
+    else if (type == 'class') {
+        this._class_data.methods[label] = method;            
+    }    
+    else {
+        throw 'Unsupported Method Type';
+    }
 }
-*/
+
+Perl6.MetaClass.prototype.get_method = function (label, type) {
+    if (!type || type == 'instance') {
+        return this._class_definition.methods[label];        
+    }
+    else if (type == 'class') {
+        return this._class_data.methods[label];            
+    }
+    else {
+        throw 'Unsupported Method Type';
+    }    
+}
+
+Perl6.MetaClass.prototype.has_method = function (label, type) {
+    return this.get_method(label, type) ? true : false;
+}
+
 
