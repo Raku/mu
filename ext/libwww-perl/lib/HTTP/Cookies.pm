@@ -159,10 +159,26 @@ class HTTP::Cookies-0.0.1 {
                         }
                     }
                 }
+                
+                NEXT {
+                    # Try with a more general domain, alternately stripping
+                    # leading name components and leading dots.  When this
+                    # results in a domain with no leading dot, it is for
+                    # Netscape cookie compatibility only:
+                    #
+                    # a.b.c.net	Any cookie
+                    # .b.c.net	Any cookie
+                    # b.c.net	Netscape cookie only
+                    # .c.net	Any cookie
+                    
+                    if ($domain ~~ s:P5/^\.+//) {
+                        $netscape_only = 1;
+                    } else {
+                        $domain ~~ s:P5/[^.]*//;
+                        $netscape_only = 0;
+                    }
+                }
             }
-            #continue {
-            # XXX how to handle this section?
-            #}
         };
         
         $request.header(Cookie => @vals.join("; ")) if @vals;
