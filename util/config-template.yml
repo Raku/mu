@@ -1,0 +1,29 @@
+---
+# pugs build configuration
+
+# This file is in minimal YAML (one day it might grow up to real YAML);
+# for now, only key: value pairs please.
+
+# Set '-O0' for unoptimized, '-O' for optimized build
+optimization: -O
+
+# If you have SMP and some unix, set this to > 1 for faster smokes
+smoke_concurrent: 1
+
+# Embed a precompiled image of Prelude.pm in pugs? This makes pugs
+# faster to load, but slower to build. The payoff is usually worth it,
+# so this is on by default.
+precompile_prelude: true
+
+# Include additional modules in the precompiled Prelude? This requires the
+# preceding option to be enabled. This makes pugs even slower to build,
+# but makes the test suite faster still. It's worth it if you're running
+# smoke tests, but otherwise probably not.
+#
+# Pass a *single line* YAML array of filenames here, comma separated.
+
+# precompile_modules: [ ext/Test/lib/Test.pm ]
+
+# Set this to a large value (-M320m) if precompiling anything more than
+# the standard Prelude.
+# ghc_heap_size: -M320m # FIXME: doesn't work yet. (+RTS stuff)

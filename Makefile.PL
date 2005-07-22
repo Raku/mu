@@ -4,7 +4,7 @@ use warnings;
 use Config;
 use Cwd qw(abs_path);
 use File::Spec;
-use lib 'util';
+#use lib 'util';
 use inc::Module::Install;
 
 my $pugs = "pugs$Config{_exe}";
@@ -331,36 +331,24 @@ haddock : $version_h $config_h @hppfiles docs/haddock
 docs/haddock :
 	\@\$(PERL) -e "mkdir q-docs/haddock-"
 
-profiled :: src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h @prereqs
-	\$(PERL) util/gen_prelude.pl -v --touch --null > src/Pugs/PreludePC.hs
-	$ghc $threaded -O -auto-all -prof --make $profiled_flags $ccdlflags $ghc_output
-	\$(PERL) util/gen_prelude.pl -v -i src/perl6/Prelude.pm -p $thispugs --touch > src/Pugs/PreludePC.hs
-	$ghc $threaded -O -auto-all -prof --make $profiled_flags $ccdlflags $ghc_output
+profiled :: src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h @prereqs config.yml
+	\$(PERL) util/build_pugs.pl +GHC $ghc $threaded -O -auto-all -prof --make $profiled_flags $ccdlflags $ghc_output -GHC +GEN_PRELUDE --pugs=$thispugs
 
 pugs.prof :: profiled
 	find t -type f | grep -v D | grep -v R | grep -v pugsrun | ./pugs +RTS -p -RTS -e 'my sub exit {}; for =\$\$*IN -> \$\$t is copy { \$\$t .= chomp; require \$\$t }'
 
 optimised :: optimized
 
-optimized :: src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h @prereqs
-	\$(PERL) util/gen_prelude.pl -v --touch --null > src/Pugs/PreludePC.hs
-	$ghc $threaded -O --make $ghc_flags $embed_flags $ccdlflags $ghc_output
-	\$(PERL) util/gen_prelude.pl -v -i src/perl6/Prelude.pm -p $thispugs --touch > src/Pugs/PreludePC.hs
-	$ghc $threaded -O --make $ghc_flags $embed_flags $ccdlflags $ghc_output
+optimized :: src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h @prereqs config.yml
+	\$(PERL) util/build_pugs.pl +GHC $ghc $threaded -O --make $ghc_flags $embed_flags $ccdlflags $ghc_output -GHC +GEN_PRELUDE --pugs=$thispugs
 
 unoptimised :: unoptimized
 
-unoptimized :: src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h @prereqs
-	\$(PERL) util/gen_prelude.pl -v --touch --null > src/Pugs/PreludePC.hs
-	$ghc $threaded -O0 --make $ghc_flags $embed_flags $ccdlflags $ghc_output
-	\$(PERL) util/gen_prelude.pl -v -i src/perl6/Prelude.pm -p $thispugs --touch > src/Pugs/PreludePC.hs
-	$ghc $threaded -O0 --make $ghc_flags $embed_flags $ccdlflags $ghc_output
+unoptimized :: src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h @prereqs config.yml
+	\$(PERL) util/build_pugs.pl +GHC $ghc $threaded -O0 --make $ghc_flags $embed_flags $ccdlflags $ghc_output -GHC +GEN_PRELUDE --pugs=$thispugs
 
-$pugs : src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h @prereqs
-	\$(PERL) util/gen_prelude.pl -v --touch --null > src/Pugs/PreludePC.hs
-	$ghc $threaded -O --make $ghc_flags $embed_flags $ccdlflags $ghc_output
-	\$(PERL) util/gen_prelude.pl -v -i src/perl6/Prelude.pm -p $thispugs --touch > src/Pugs/PreludePC.hs
-	$ghc $threaded -O --make $ghc_flags $embed_flags $ccdlflags $ghc_output
+$pugs : src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h @prereqs config.yml
+	\$(PERL) util/build_pugs.pl +GHC $ghc $threaded ###optimization### --make $ghc_flags $embed_flags $ccdlflags $ghc_output -GHC +GEN_PRELUDE --pugs $thispugs
 
 smoke : $pugs util/run-smoke.pl all
 	\$(PERL) util/run-smoke.pl . smoke.html
@@ -372,12 +360,15 @@ pirtest :
 	\$(PERL) -e "ENV->{HARNESS_PERL_SWITCHES}=q+-B PIR+; system qq+$Config{make}+, q+test+"
 
 ghci ::
-	$ghc --interactive $ghc_flags $ghc_output
+	\$(PERL) util/build_pugs.pl +GHC $ghc --interactive $ghc_flags $ghc_output -GHC +GEN_PRELUDE --pugs $thispugs
 
 tags : @srcfiles
 	$hasktags -c @srcfiles
 	sort tags > tags.tmp
 	mv tags.tmp tags
+
+config.yml:
+	\$(PERL) -MFile::Copy -e "warn q+Default build config file created. Edit your settings in config.yml.\\n+; copy (q+util/config-template.yml+, q+config.yml+) or die qq+copy failed+;"
 
 INST6_ARCHLIB = blib6/arch
 INST6_SCRIPT = blib6/script

@@ -1,4 +1,4 @@
-package Perl6::Pugs::Config::MiniYAML;
+package PugsBuild::MiniYAML;
 use strict;
 use warnings;
 our $VERSION = '0.01';
@@ -14,6 +14,11 @@ sub load {
         /^---$/ && do {
             die "sorry, multiple documents not supported\n" if $doc;
             $doc = {};
+            next;
+        };
+        /^(\S+?) \s* : \s* \[(.*?) \s* \] \s* $/x && do { # hello, full YAML spec.
+            my($key, $val) = ($1, $2);
+            $doc->{$key} = [ map { /\s*(.*?)\s*$/; $1 } split /,/, $val ];
             next;
         };
         /^(\S+?) \s* : \s* (.*?) \s* $/x && do {
