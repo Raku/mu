@@ -49,7 +49,7 @@ is( $set1.size, 2, "real size" );
 
 is( $set1.intersects( $set2 ), bool::true, 'intersects' );
 
-is( $set1.intersects( $set3 ), bool::false, 'doesn\'t intersect' );
+is( $set1.intersects( $set3 ), bool::false, "doesn't intersect" );
 
 is( $set1.intersection( $set2 ).stringify, '[2,3]', 'intersection' );
 

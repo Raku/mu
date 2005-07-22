@@ -65,18 +65,19 @@ method prefix:<~> ($self) returns Str is export {
     ./stringify
 }
 
-multi sub infix:«<» ($one, $two) is export {
-    $one.proper_subset($two);
-}
-multi sub infix:«>» ($one, $two) is export {
-    $one.proper_superset($two);
-}
-multi sub infix:«<=» ($one, $two) is export {
-    $one.subset($two);
-}
-multi sub infix:«>=» ($one, $two) is export {
-    $one.superset($two);
-}
+# removed - spans can be numerically compared
+# multi sub infix:«<» ($one, $two) is export {
+#    $one.proper_subset($two);
+#}
+#multi sub infix:«>» ($one, $two) is export {
+#    $one.proper_superset($two);
+#}
+#multi sub infix:«<=» ($one, $two) is export {
+#    $one.subset($two);
+#}
+#multi sub infix:«>=» ($one, $two) is export {
+#    $one.superset($two);
+#}
 
 # look at all these great unicode operators!  :D
 multi sub infix:«⊂» ($one, $two) is export {

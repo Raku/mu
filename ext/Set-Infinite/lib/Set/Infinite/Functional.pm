@@ -107,7 +107,7 @@ method intersects ( Set::Infinite::Functional $set ) returns bool {
 }
 
 method complement ($self: ) returns Set::Infinite::Functional {
-    return $self.universal_set( density => $self.density ) 
+    return $self.universal_set() 
         if $self.is_empty;
     return @.spans.map:{ $self.new( spans => $_.complement ) }
                   .reduce:{ $^a.intersection( $^b ) };
