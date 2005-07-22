@@ -69,6 +69,50 @@ public class MetaClassTest extends TestCase {
         assertEquals(m3.identifier(), "Foo-0.0.0");                                
     }     
     
+    public void testSuperclasses () {
+        MetaClass m1 = new MetaClass("Foo");
+        MetaClass m2 = new MetaClass("Bar");
+        MetaClass m3 = new MetaClass("Baz");
+        
+        ArrayList supers = new ArrayList();
+        supers.add(m2);
+        supers.add(m3);        
+        m1.superclasses(supers);
+        
+        ArrayList _supers = m1.superclasses();
+        assertEquals(_supers.get(0), m2);
+        assertEquals(_supers.get(1), m3);        
+    }     
+    
+    public void testIsA () {
+        MetaClass m1 = new MetaClass("Foo");
+        MetaClass m2 = new MetaClass("Bar");
+        MetaClass m3 = new MetaClass("Baz");
+        MetaClass m4 = new MetaClass("Blah");        
+
+        ArrayList supers2 = new ArrayList();
+        supers2.add(m3);
+        supers2.add(m4);
+        m2.superclasses(supers2);         
+
+        ArrayList supers1 = new ArrayList();
+        supers1.add(m2);        
+        m1.superclasses(supers1);
+
+        assertTrue(m1.is_a("Foo"));
+        assertTrue(m1.is_a("Bar"));
+        assertTrue(m1.is_a("Baz"));
+        assertTrue(m1.is_a("Blah"));
+                                
+        assertTrue(m2.is_a("Bar"));        
+        assertTrue(m2.is_a("Baz"));                
+        assertTrue(m2.is_a("Blah")); 
+        
+        assertTrue(m3.is_a("Baz"));                        
+        
+        assertTrue(m4.is_a("Blah"));         
+    }        
+  
 }
 
 

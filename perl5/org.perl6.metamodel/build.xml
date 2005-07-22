@@ -22,7 +22,7 @@
     <target name="test" depends="compile">
         <junit fork="yes" haltonfailure="yes">
             <test name="org.perl6.metamodel.tests.AllTests" />
-            <formatter type="brief" usefile="false" />
+            <formatter type="plain" usefile="false" />
             <classpath location="${build}" />
         </junit>
     </target>   
