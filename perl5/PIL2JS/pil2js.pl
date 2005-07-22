@@ -41,7 +41,7 @@ usage "Invalid argument for --link!"           if $link and not($link eq "js" or
 unless($link) {
   warn "*** Reading input from \"$input[0]\"...\n" if $verbose;
 
-  my $pil  = $input[0] =~ /\.(?:pm|pl|t)$/i
+  my $pil  = $input[0] =~ /\.(?:pl|p6|pm|p6m|t)$/i
     ? run_pugs("-CPIL", $input[0])
     : slurp $input[0];
   my $tree = PIL::Parser->parse($pil);

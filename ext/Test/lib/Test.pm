@@ -255,7 +255,7 @@ sub report_failure (Str ?$todo, Str ?$got, Str ?$expected) returns Bool {
         $Test::num_of_tests_failed++;
     }
 
-    if ($?CALLER::CALLER::SUBNAME eq ('&Test::is' | '&Test::isnt' | '&Test::cmp_ok' | '&Test::eval_is' | '&Test::isa_ok' | '&Test::is_deeply' | '&Test::todo_is' | '&Test::todo_isnt' | '&Test::todo_cmp_ok' | '&Test::todo_eval_is' | '&Test::todo_isa_ok')) {
+    if ($*OS eq "browser" or $?CALLER::CALLER::SUBNAME eq ('&Test::is' | '&Test::isnt' | '&Test::cmp_ok' | '&Test::eval_is' | '&Test::isa_ok' | '&Test::is_deeply' | '&Test::todo_is' | '&Test::todo_isnt' | '&Test::todo_cmp_ok' | '&Test::todo_eval_is' | '&Test::todo_isa_ok')) {
         Test::diag("  Expected: '" ~ ($expected.defined ?? $expected :: "undef") ~ "'");
         Test::diag("       Got: '" ~ ($got.defined ?? $got :: "undef") ~ "'");
     }

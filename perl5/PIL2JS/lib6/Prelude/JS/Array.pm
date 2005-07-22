@@ -54,7 +54,8 @@ method JS::Root::end(Array $self:) {
 method map(Array $self: Code $code) { map $code, *$self }
 sub JS::Root::map(Code $code, *@array) is primitive {
   my $arity = $code.arity;
-  die "Can't use 0-ary subroutine as \"map\" body!" if $arity == 0;
+  # die "Can't use 0-ary subroutine as \"map\" body!" if $arity == 0;
+  $arity ||= 1;
 
   my @res;
   while(+@array > 0) {

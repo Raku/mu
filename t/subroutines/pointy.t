@@ -50,14 +50,12 @@ is $got, 'x 123', 'called pointy immediately: -> $x { ... }(...)';
 
 # L<S06/"Pointy subs"/"behaves like a block with respect to control exceptions">
 my $n = 1;
-eval '
-    my $s = -> { 
-        last if $n == 10;
-        $n++;
-        redo if $n < 10;
-    };
-    $s.();
-';
+my $s = -> { 
+    last if $n == 10;
+    $n++;
+    redo if $n < 10;
+};
+try { $s.() };
 is($!, undef, 'pointy with block control exceptions', :todo<feature>);
 is $n, 10, "pointy control exceptions ran", :todo<feature>;
 

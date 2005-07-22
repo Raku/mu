@@ -506,9 +506,15 @@ sub add_indent {
     local $IN_SUBLIKE  = $self->[1]->as_constant;
     local $CUR_SUBNAME = $self->[0];
 
+    my $magical_vars = "";
+    $magical_vars .= "_26main_3a_3a_3fBLOCK.STORE(%s);\n" if $IN_SUBLIKE >= PIL::Nodes::SUBBLOCK;
+    $magical_vars .= "_26main_3a_3a_3fSUB.STORE(%s);\n"   if $IN_SUBLIKE >= PIL::Nodes::SUBROUTINE;
+    $magical_vars =~ s/%s/PIL::Nodes::name_mangle $self->[0]/eg;
+
     # Subbody
     local $_;
-    my $body = sprintf "PIL2JS.call_chain.push(%s);\n%s;\n%s;",
+    my $body = sprintf "%sPIL2JS.call_chain.push(%s);\n%s;\n%s;",
+      $magical_vars,
       PIL::Nodes::name_mangle($self->[0]),
       $self->[2]->as_js,
       $self->[3]->as_js;

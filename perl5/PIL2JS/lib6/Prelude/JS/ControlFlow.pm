@@ -74,7 +74,8 @@ sub statement_control:<unless>(Bool $cond, Code $true, Code $false) is primitive
 
 sub statement_control:<for>(@array is copy, Code $code) is primitive {
   my $arity = $code.arity;
-  die "Can't use 0-ary subroutine as \"for\" body!" if $arity == 0;
+  # die "Can't use 0-ary subroutine as \"for\" body!" if $arity == 0;
+  $arity ||= 1;
 
   while(+@array > 0) {
     my @args = ();
@@ -83,9 +84,9 @@ sub statement_control:<for>(@array is copy, Code $code) is primitive {
     }
     $code(*@args);
   }
+
   undef;
 }
-
 
 sub JS::Root::try(Code $code) is primitive {
   JS::inline('new PIL2JS.Box.Constant(function (args) {

@@ -89,6 +89,9 @@ PIL2JS.Box.prototype = {
         return unboxed([PIL2JS.Context.ItemAny].concat(args)).toNative();
       };
 
+    } else if(unboxed instanceof Boolean) {
+      return unboxed == true ? true : false;
+
     // Special magic for string: Work aroung IE bug.
     } else if(typeof unboxed == "string") {
       // Convert "\n"s (IE...)
@@ -155,6 +158,23 @@ PIL2JS.Box.constant_func = function (arity, f) {
   return new PIL2JS.Box.Constant(f);
 };
 
+Object.prototype.toPIL2JSBox = function () { return new PIL2JS.Box.Constant(this) };
+Array.prototype.toPIL2JSBox  = function () {
+  var ret = [];
+  for(var i = 0; i < this.length; i++) {
+    ret.push(PIL2JS.box_native_result(this[i]));
+  }
+  return new PIL2JS.Box.Constant(ret);
+};
+
+PIL2JS.box_native_result = function (res) {
+  if(res == undefined) {
+    return new PIL2JS.Box.Constant(res);
+  } else {
+    return res.toPIL2JSBox();
+  }
+};
+
 // Call (possibly native sub) sub with args
 PIL2JS.call = function (inv, sub, args) {
   if(sub == undefined)
@@ -169,7 +189,7 @@ PIL2JS.call = function (inv, sub, args) {
         PIL2JS.die("Internal error: Boxed sub returned unboxed undefined!");
       return ret;
     } else {
-      var code = "new PIL2JS.Box.Constant(sub(";
+      var code = "PIL2JS.box_native_result(sub(";
       // We start from 1 instead of 0 here because we exclude the cxt.
       for(var i = 1; i < args.length; i++) {
         code += "args[" + i + "].toNative(),";
@@ -212,10 +232,16 @@ var _24main_3a_3a_3fPOSITION = new PIL2JS.Box("<unknown>");
 var _24main_3a_3a_21         = new PIL2JS.Box(undefined);
 var _25main_3a_3aENV         = new PIL2JS.Box(new PIL2JS.Hash);
 var _40main_3a_3a_2aINC      = new PIL2JS.Box([]);
+var _26main_3a_3a_3fBLOCK    = new PIL2JS.Box(undefined);
+var _26main_3a_3a_3fSUB      = new PIL2JS.Box(undefined);
 // Stub for $?CALLER::CALLER::POSITION, so Test.pm doesn't die on a failed
 // test.
 var _24_3fCALLER_3a_3aCALLER_3a_3aCALLER_3a_3aPOSITION =
   new PIL2JS.Box("<$?CALLER::CALLER::POSITION not yet implemented>");
+var _24_3fCALLER_3a_3aCALLER_3a_3aSUBNAME =
+  new PIL2JS.Box("<$?CALLER::CALLER::SUBNAME not yet implemented>");
+var _24main_3a_3a_2aOS = new PIL2JS.Box.Constant("browser");
+var _24main_3a_3aOS    = _24main_3a_3a_2aOS;
 
 // Prettyprint an error msg.
 PIL2JS.new_error = function (msg) {
@@ -284,9 +310,10 @@ PIL2JS.Pair = function (key, value) {
 PIL2JS.grep_for_pairs = function (args) {
   var pairs = {};
 
-  for(var i = 0; i < args.length; i++)
+  for(var i = 0; i < args.length; i++) {
     if(args[i].GET() instanceof PIL2JS.Pair)
       pairs[args[i].GET().key.toNative()] = args[i].GET().value;
+  }
 
   return pairs;
 };
