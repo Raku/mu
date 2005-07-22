@@ -30,7 +30,7 @@ unless (undef) { pass("unless (undef) {} works");  }
 # die called in the condition part of an if statement should die immediately
 # rather than being evaluated as true
 my $foo = 1;
-eval 'unless (die "should die") { $foo = 3 } else { $foo = 2; }';
+try { unless (die "should die") { $foo = 3 } else { $foo = 2; } };
 #say '# $foo = ' ~ $foo;
 is $foo, 1, "die should stop execution immediately.";
 
@@ -38,25 +38,25 @@ is $foo, 1, "die should stop execution immediately.";
 
 {
 	my $foo = 1;
-	eval 'unless (1) { $foo = 2 } elsif (1) { $foo = 3 }';
+	unless (1) { $foo = 2 } elsif (1) { $foo = 3 };
 	is $foo, 3, 'unless (1) {} elsif (1) {}';
 }
 
 {
 	my $foo = 1;
-	eval 'unless (1) { $foo = 2 } elsif (0) { $foo = 3 }';
+	unless (1) { $foo = 2 } elsif (0) { $foo = 3 };
 	is $foo, 1, 'unless (1) {} elsif (0) {}';
 }
 
 {
 	my $foo = 1;
-	eval 'unless (0) { $foo = 2 } elsif (1) { $foo = 3 }';
+	unless (0) { $foo = 2 } elsif (1) { $foo = 3 };
 	is $foo, 2, 'unless (0) {} elsif (1) {}';
 }
 
 {
 	my $foo = 1;
-	eval 'unless (0) { $foo = 2 } elsif (0) { $foo = 3 }';
+	unless (0) { $foo = 2 } elsif (0) { $foo = 3 };
 	is $foo, 2, 'unless (0) {} elsif (0) {}';
 }
 
@@ -64,29 +64,25 @@ is $foo, 1, "die should stop execution immediately.";
 
 {
 	my $foo = 1;
-	my $c = 'unless (0) { $foo = 2 } elsif (0) { $foo = 3 } else { $foo = 4 }';
-	eval $c;
-	is $foo, 2, $c;
+	unless (0) { $foo = 2 } elsif (0) { $foo = 3 } else { $foo = 4 };
+	is $foo, 2;
 }
 
 {
 	my $foo = 1;
-	my $c = 'unless (1) { $foo = 2 } elsif (0) { $foo = 3 } else { $foo = 4 }';
-	eval $c;
-	is $foo, 4, $c;
+	unless (1) { $foo = 2 } elsif (0) { $foo = 3 } else { $foo = 4 };
+	is $foo, 4;
 }
 
 {
 	my $foo = 1;
-	my $c = 'unless (1) { $foo = 2 } elsif (1) { $foo = 3 } else { $foo = 4 }';
-	eval $c;
-	is $foo, 3, $c;
+	unless (1) { $foo = 2 } elsif (1) { $foo = 3 } else { $foo = 4 };
+	is $foo, 3;
 }
 
 {
 	my $foo = 1;
-	my $c = 'unless (0) { $foo = 2 } elsif (1) { $foo = 3 } else { $foo = 4 }';
-	eval $c;
-	is $foo, 2, $c;
+	unless (0) { $foo = 2 } elsif (1) { $foo = 3 } else { $foo = 4 };
+	is $foo, 2;
 }
 

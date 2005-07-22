@@ -41,8 +41,8 @@ is($i, 1, 'verify our ending condition');
 # declare variable $j inside loop
 my $count  = 0;
 is($count, 0, 'verify our starting condition');
-eval 'loop (my $j = 0; $j < 10; $j++) { $count++; }';
-is($count, 10, 'verify our ending condition',:todo);
+my $j; loop ($j = 0; $j < 10; $j++) { $count++; };
+is($count, 10, 'verify our ending condition');
 
 # Ensure condition is tested on the first iteration
 {
@@ -75,13 +75,16 @@ L<S04/"Loop statements">
 =cut
 
 {
-  eval_is('my $x = 0; loop { $x++ } while $x < 10; $x', 10, 'loop {} while');
+  my $x = 0; loop { $x++ } while $x < 10;
+  is($x, 10, 'loop {} while');
 }
 
 {
-  eval_is('my $x = 1; loop { $x++ } while 0; $x', 2, 'ensure loop {} while runs at least once');
+  my $x = 1; loop { $x++ } while 0;
+  is($x, 2, 'ensure loop {} while runs at least once');
 }
 
 {
-  eval_is('my $x = 0; loop { $x++; redo if $x < 10 } while 0; $x', '$x', 'redo works in loop', :todo<feature>);
+  my $x = 0; try { loop { $x++; redo if $x < 10 } while 0 };
+  is($x, '$x', 'redo works in loop', :todo<feature>);
 }

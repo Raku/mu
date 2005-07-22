@@ -3,18 +3,15 @@
 use v6;
 use Test;
 
-plan 4;
+plan 3;
 
 our %foo;
 my %e = ("foo", "bar", "blah", "blah");
 
-ok(eval('
-	%foo = (
-		"foo", "bar",
-		"blah", "blah",
-	);
-	1;
-'), "expression parsed (well, lexed)");
+%foo = (
+        "foo", "bar",
+        "blah", "blah",
+);
 
 is(+%foo, +%e, "oh boy, it evaluates correctly, too");
 is(%foo<foo>, %e<foo>, "...");

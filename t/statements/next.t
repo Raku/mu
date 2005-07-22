@@ -19,16 +19,18 @@ plan 12;
 # test for loops with next
 
 {
-    eval_is(
-        'my $tracker=0;for (1..2) { next; $tracker++;} $tracker',
+    my $tracker=0;for (1..2) { next; $tracker++;}
+    is(
+        $tracker,
         0,
         "tracker is 0 because next before increment",
     );
 }
 
 {
-    eval_is(
-        'my $tracker = 0; for (1..5) { next if 2 < $_ < 4; $tracker = $_;} $tracker',
+    my $tracker = 0; for (1..5) { next if 2 < $_ < 4; $tracker = $_;}
+    is(
+        $tracker,
         3,
         "... nothing before or after 3 (next if <cond>)",
         :todo<bug>
@@ -36,24 +38,27 @@ plan 12;
 }
 
 {
-    eval_is(
-        'my $tracker = 0; for (1..5) { $_ > 3 && next; $tracker = $_;} $tracker',
+    my $tracker = 0; for (1..5) { $_ > 3 && next; $tracker = $_;}
+    is(
+        $tracker,
         3,
         "... nothing after 3 (<cond> && next)",
     );
 }
 
 {
-    eval_is(
-        'my $tracker = 0; for (1..5) { $_ > 3 and next; $tracker = $_;} $tracker',
+    my $tracker = 0; for (1..5) { $_ > 3 and next; $tracker = $_;}
+    is(
+        $tracker,
         3,
         "... nothing after 3 (<cond> and next)",
     );
 }
 
 {
-    eval_is(
-        'my $tracker=0; DONE: for (1..2) { next DONE; $tracker++;} $tracker',
+    my $tracker="err"; eval '$tracker = 0; DONE: for (1..2) { next DONE; $tracker++;}';
+    is(
+        $tracker,
         0,
         "tracker is 0 because next before increment",
         :todo<bug>
@@ -61,15 +66,17 @@ plan 12;
 }
 
 {
-    eval_is('my $tracker=0;for (1..5)->$out {for (10..11)->$in {next if $out > 2;$tracker = $in + $out;}}$tracker;',
+    my $tracker=0;for (1..5)->$out {for (10..11)->$in {next if $out > 2;$tracker = $in + $out;}}
+    is($tracker,
         13,
         'inner loop skips once inner is run twice (next inside nested loops)',
     );
 }
 
 {
-    eval_is(
-        'my $tracker=0; OUT: for (1..2) { IN: for (1..2) { next OUT; $tracker++; } } $tracker',
+    my $tracker="err"; eval '$tracker = 0; OUT: for (1..2) { IN: for (1..2) { next OUT; $tracker++; } }';
+    is(
+        $tracker,
         0,
         "tracker is 0 because next before increment in nested loop",
         :todo<bug>

@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-BEGIN { plan 3 }
+plan 3;
 
 # This parsefail is really weird...
 # I'm sorry I couldn't track down this bug further -- it's extremely weird.
