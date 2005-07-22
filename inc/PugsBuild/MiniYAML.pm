@@ -23,8 +23,8 @@ sub load {
         };
         /^(\S+?) \s* : \s* (.*?) \s* $/x && do {
             my($key, $val) = ($1, $2);
-            $val = 1 if $val =~ /y|Y|yes|Yes|YES|true|True|TRUE|on|On|ON/;
-            $val = 0 if $val =~ /n|N|no|No|NO|false|False|FALSE|off|Off|OFF/;
+            $val = 1 if $val =~ /^(y|Y|yes|Yes|YES|true|True|TRUE|on|On|ON)/;
+            $val = 0 if $val =~ /^(n|N|no|No|NO|false|False|FALSE|off|Off|OFF)/;
             $val = undef if $val eq "~";
             die "sorry, only scalars are supported: $key: $val\n" if
                 $val =~ /^[\[{]/;
