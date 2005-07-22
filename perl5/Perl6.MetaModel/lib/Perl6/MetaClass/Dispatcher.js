@@ -3,7 +3,8 @@ if (Perl6 == undefined)       var Perl6           = {};
 if (Perl6.MetaClass == undefined) Perl6.MetaClass = function () {};
 
 Perl6.MetaClass.Dispatcher = function (metaclass, order) {
-    if (order == undefined) order = ':ascendant';
+    if (order == undefined)    order = ':canonical';
+    if (order == ':canonical') order = ':ascendant';
     var dispatcher;
     if (order == ':ascendant') {
         dispatcher = _make_ascendant_dispatcher(metaclass);

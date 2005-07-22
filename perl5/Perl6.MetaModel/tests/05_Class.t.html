@@ -1,0 +1,56 @@
+<html>
+<head>
+    <script type="text/javascript" src="../inc/Test/Builder.js"></script>
+    <script type="text/javascript" src="../inc/Test/More.js"></script>
+
+    <script type="text/javascript" src="../lib/Perl6/MetaModel.js"></script>    
+    <script type="text/javascript" src="../lib/Perl6/Method.js"></script>
+    <script type="text/javascript" src="../lib/Perl6/MetaClass.js"></script>
+    <script type="text/javascript" src="../lib/Perl6/MetaClass/Dispatcher.js"></script>
+    <script type="text/javascript" src="../lib/Perl6/Class.js"></script>
+</head>
+<body>
+<pre id='test'><script type="text/javascript">
+
+plan({ tests : 13 });
+
+var Foo = new Perl6.Class ('Foo-0.0.1-jsan:STEVAN', {
+    'class' : {
+        'methods' : {
+            'bar' : function () { 'Foo.bar' }
+        }
+    }
+});
+isaOK(Foo, 'Perl6.Class');
+
+isaOK(Foo.meta(), 'Perl6.MetaClass');
+
+ok(Foo.isa('Foo'), '... our class isa Foo');
+ok(!Foo.isa('Bar'), '... our class is not a Bar');
+
+ok(Foo.can('bar'), '... Foo can bar()');
+ok(!Foo.can('baz'), '... Foo cant baz()');
+
+// ...
+
+var Bar = new Perl6.Class ('Bar-0.0.1-jsan:STEVAN', { 
+    'is' : [ Foo ],
+    'class' : {
+        'methods' : {
+            'foo' : function () { 'Bar.foo' }
+        }
+    }    
+});
+isaOK(Bar, 'Perl6.Class');
+
+ok(Bar.isa('Bar'), '... our class isa Bar');
+ok(Bar.isa('Foo'), '... our class isa Foo');
+ok(!Bar.isa('Baz'), '... our class is not a Baz');
+
+ok(Bar.can('foo'), '... Bar can bar()');
+ok(Bar.can('bar'), '... Bar can bar()');
+ok(!Bar.can('baz'), '... Bar cant baz()');
+
+</script></pre>
+</body>
+</html>

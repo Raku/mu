@@ -89,38 +89,27 @@ function _remove_heads_if (cand, nonemptyseqs) {
 
 function merge (seqs) {
     var res = [];
-    //document.write("<HR>starting merge for ....<HR>");
     while (true) {
         // remove all empty seqences
         var nonemptyseqs = _remove_empty_seqs(seqs);
-        //document.write("notemptyseq(" + nonemptyseqs + ")<BR>");
         // return the list if we have no more no-empty sequences
         if (nonemptyseqs.length == 0) {
-            //document.write("returning res (" + get_types(res).join(", ") + ")<BR>");
             return res;
         }
-        //else {
-        //    document.write("not returning res (" + nonemptyseqs.length + ")<BR>");            
-        //}
         var cand = false;
         for (var i = 0; i < nonemptyseqs.length; i++) {
             var seq = nonemptyseqs[i];
-            //document.write("<- checking seq : " + seq + " -> " + i + "<BR>");
             cand = seq[0]; 
-            //document.write("-> got cand " + cand + "<BR>");
             var nothead = false;
             for (var j = 0; j < nonemptyseqs.length; j++) {     
                 var sub_seq = nonemptyseqs[j];
-                //document.write("<- checking sub_seq : " + sub_seq + " -> " + j + "<BR>");                
                 if (_in_tail(sub_seq, cand)) {
                     nothead = true;
-                    //document.write("at inner break<BR>");
                     break;
                 }
             }
             if (nothead == false) {
-                // leave the loop with our canidate ...
-                //document.write("at outer break<BR>");                
+                // leave the loop with our canidate ...               
                 break;
             }
             else {
@@ -128,18 +117,14 @@ function merge (seqs) {
                 cand = false;
             }
         }
-        //document.write("... outside outer loop<BR>");        
         if (cand == false) {
             throw "Inconsistent hierarchy";
         }
-        //document.write("pushing cand onto res: " + cand + "<BR>");
         res[res.length] = cand;
         // now loop through our non-empties and pop 
         // off the head if it matches our canidate
         seqs = _remove_heads_if(cand, seqs);
-        //document.write("... looping again ....<BR>");
     }    
-    //document.write("we should never get here<HR>");
 }
 
 Perl6.MetaClass.prototype.MRO = function () {
@@ -188,4 +173,50 @@ Perl6.MetaClass.prototype.has_method = function (label, type) {
     return this.get_method(label, type) ? true : false;
 }
 
+/*
 
+=pod
+
+=head1 NAME 
+
+Perl6.MetaClass - Metaclass in the Perl 6 Meta Model
+
+=head1 DESCRIPTION
+
+=head1 METHODS 
+
+=over 4
+
+=item B<new Perl6.MetaClass (name, version, authority)>
+
+=item B<name (?name)>
+
+=item B<version (?version)>
+
+=item B<authority (?authority)>
+
+=item B<identifier>
+
+=item B<superclasses (?superclasses)>
+
+=item B<is_a (?classname)>
+
+=item B<MRO>
+
+=item B<dispatcher (?order)>
+
+=item B<add_method (label, method)>
+
+=item B<get_method (label)>
+
+=item B<has_method (label)>
+
+=back
+
+=head1 AUTHOR
+
+Stevan Little E<lt>stevan@iinteractive.comE<gt>
+
+=cut
+
+*/

@@ -22,3 +22,36 @@ Perl6.Method.prototype.call = function (inv, args) {
     return rval;    
 }
 
+Perl6.Method.prototype.toString = function () {
+    return "Perl6.Method=[" + this.associated_with() + "]";
+}
+
+/*
+
+=pod
+
+=head1 NAME
+
+Perl6.Method - Base class for Methods in the Perl 6 Meta Model
+
+=head1 DESCRIPTION
+
+=head1 METHODS 
+
+=over 4
+
+=item B<new Perl6.Method (associated_with code)>
+
+=item B<call (inv, args)>
+
+=item B<associated_with>
+
+=back
+
+=head1 AUTHOR
+
+Stevan Little E<lt>stevan@iinteractive.comE<gt>
+
+=cut
+
+*/
