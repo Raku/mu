@@ -22,9 +22,6 @@ our %DEFAULTS = (
 sub import {
     my($class, $filename) = @_;
     $Conf = $class->read($filename);
-    my $caller = caller;
-    no strict 'refs';
-    *{$caller . '::BuildPrefs'} = $Conf;
 }
 
 sub pretty_print {
