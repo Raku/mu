@@ -34,7 +34,7 @@ sub classify_options {
         undef $kind, next if $_ eq "-$kind";
         
         s/^\\\+/+/;    # allow passing +opt
-        s/^###(.*)###$/lookup($1)/e;
+        s/^__(.*)__$/lookup($1)/e;
         
         die "don't know where this option belongs: $_" unless $kind;
         push @{ $opts{$kind} }, $_;

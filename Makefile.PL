@@ -348,7 +348,7 @@ unoptimized :: src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $ver
 	\$(PERL) util/build_pugs.pl +GHC $ghc $threaded -O0 --make $ghc_flags $embed_flags $ccdlflags $ghc_output -GHC +GEN_PRELUDE --pugs=$thispugs
 
 $pugs : src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h @prereqs config.yml
-	\$(PERL) util/build_pugs.pl +GHC $ghc $threaded ###optimization### --make $ghc_flags $embed_flags $ccdlflags $ghc_output -GHC +GEN_PRELUDE --pugs $thispugs
+	\$(PERL) util/build_pugs.pl +GHC $ghc $threaded __optimization__ --make $ghc_flags $embed_flags $ccdlflags $ghc_output -GHC +GEN_PRELUDE --pugs $thispugs
 
 smoke : $pugs util/run-smoke.pl all
 	\$(PERL) util/run-smoke.pl . smoke.html
