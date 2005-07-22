@@ -14,7 +14,7 @@ has @.spans;
 
 submethod BUILD ( @.spans ) {}
 
-method empty_set ($class: ?$density ) returns Set::Infinite::Functional {
+method empty_set ($class: ) returns Set::Infinite::Functional {
     $class.new( spans => () );
 }
 
@@ -147,7 +147,7 @@ Creates an empty set.
 
 - `new( spans => @spans )`
 
-Creates a set containing zero or more `Span::Int` or `Span::Num` span objects.
+Creates a set containing zero or more `Span` objects.
 
 The array of spans must be ordered, and the spans must not intersect with each other.
 
@@ -215,7 +215,7 @@ This method return a logical value.
 
 - `spans()`
 
-Returns a list of `Span::Int` or `Span::Num` objects.
+Returns a list of `Span` objects.
 
 - `density()`
 
