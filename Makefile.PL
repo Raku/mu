@@ -50,6 +50,11 @@ makemaker_args  (
     test => { TESTS => join ' ', "t/*/*.t", "t/*/*/*.t" },
     MAN1PODS => {},
 );
+
+if (my $prefix = PugsBuild::Config->lookup('install_dir')) {
+    makemaker_args(PREFIX => $prefix);
+}
+
 clean_files     (map fixpaths($_),
     "pugs*", "src/Pugs/pugs_config.h", $version_h, $config_h,
     'src/Pugs/Config.hs', 'blib6',

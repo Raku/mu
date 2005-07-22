@@ -17,6 +17,7 @@ our %DEFAULTS = (
     precompile_prelude    => 1,
     precompile_modules    => [],
     ghc_heap_size         => '',       # use GHC's default
+    install_dir           => '',
 );
 
 sub import {
@@ -54,6 +55,7 @@ sub read {
     { local $/; $stream = <$fh> }
     my $conf = $YAML->load($stream);
     $class->env_override($conf);
+    
     $class->defaults($conf);
     return $conf;
 }
@@ -66,7 +68,7 @@ sub env_override {
 
 sub defaults {
     my($class, $conf) = @_;
-    do { $conf->{$_} = $DEFAULTS{$_} unless defined $conf->{$_} } for
+    do { $conf->{$_} = $DEFAULTS{$_} unless defined $conf->{$_}; } for
         keys %DEFAULTS;
 }
 

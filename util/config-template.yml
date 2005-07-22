@@ -27,3 +27,7 @@ precompile_prelude: true
 # Set this to a large value (e.g. 320m) if precompiling anything more than
 # the standard Prelude.
 # ghc_heap_size: 320m
+
+# Set this to a string value if you want Pugs to be installed in a different 
+# directory from the usual.
+# install_dir: C:\Perl6
