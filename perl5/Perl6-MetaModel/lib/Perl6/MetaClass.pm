@@ -274,16 +274,15 @@ sub _get_all {
     return ((map { $_->_get_all($method, %params) } @{$self->superclasses}), $self->$method(%params));
 }
 
-# XXX - this should probably use the MRO to get the class ordering
-
 # "spec" here means "whatever annotation went with this attribute when it's declared"
 sub find_attribute_spec {
     my ($self, $label, %params) = @_;
-    return $self->get_attribute($label, %params) if $self->has_attribute($label, %params);
-    foreach my $super (@{$self->superclasses}) {
-        my $spec = $super->find_attribute_spec($label, %params);
-        return $spec if $spec;
-    }
+    # go in BUILD order
+    my $dispatcher = $self->dispatcher(':descendant');
+    while (my $next = $dispatcher->next()) {   
+        return $next->get_attribute($label, %params) 
+            if $next->has_attribute($label, %params)
+    } 
     return undef;
 }
 
@@ -374,19 +373,25 @@ Perl6::MetaClass - Metaclass in the Perl 6 Meta Model
 
 =item B<name>
 
+=item B<version>
+
+=item B<authority>
+
+=item B<identifier>
+
 =item B<superclasses>
 
-=item B<class_precedence_list>
+=item B<is_a>
+
+=item B<MRO>
+
+=item B<dispatcher>
 
 =item B<add_method>
 
 =item B<get_method>
 
 =item B<has_method>
-
-=item B<find_method>
-
-=item B<responds_to>
 
 =item B<add_attribute>
 
