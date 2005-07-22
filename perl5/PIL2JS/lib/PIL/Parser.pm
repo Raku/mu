@@ -182,7 +182,7 @@ sub expr {
         CxtItem    => 1, CxtSlurpy  => 1, CxtVoid  => 0, CxtLValue  => 1,
         mkType     => 1,
 
-        VInt    => 1, VRat   => 1,
+        VInt    => 1, VRat   => 1, VNum => 1,
         VStr    => 1, VUndef => 0,
         VBool   => 1, VList  => 1,
         SubPrim => 0, SubRoutine => 0, SubBlock => 0, SubPointy => 0, SubMethod => 0,

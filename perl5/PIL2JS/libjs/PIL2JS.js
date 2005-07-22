@@ -191,6 +191,8 @@ PIL2JS.make_slurpy_array = function (inp_arr) {
 // Magical variables: $?POSITION and $!.
 var _24main_3a_3a_3fPOSITION = new PIL2JS.Box("<unknown>");
 var _24main_3a_3a_21         = new PIL2JS.Box(undefined);
+var _25main_3a_3aENV         = new PIL2JS.Box({});
+var _40main_3a_3a_2aINC      = new PIL2JS.Box([]);
 
 // Prettyprint an error msg.
 PIL2JS.new_error = function (msg) {

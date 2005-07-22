@@ -17,7 +17,6 @@ use PIL::Nodes;
 sub slurp;
 sub unslurp;
 sub usage;
-sub guess_jsprelude_path;
 
 my $verbose;
 my $link;
@@ -40,7 +39,7 @@ usage "--yaml-dump doesn't work with --link!"  if $yaml_dump and $link;
 usage "Invalid argument for --link!"           if $link and not($link eq "js" or $link eq "html");
 
 unless($link) {
-  warn "*** Reading PIL from \"$input[0]\"...\n" if $verbose;
+  warn "*** Reading input from \"$input[0]\"...\n" if $verbose;
 
   my $pil  = $input[0] =~ /\.(?:pm|pl|t)$/i
     ? run_pugs("-CPIL", $input[0])
@@ -68,7 +67,7 @@ EOF
   unslurp $output, $js;
 } else {
   my @components;
-  unshift @input, ($link eq "html" ? "~" : "") . guess_jsprelude_path();
+  # unshift @input, ($link eq "html" ? "~" : "") . guess_jsprelude_path();
 
   my $js;
   foreach my $file (@input) {
@@ -161,7 +160,7 @@ Recommended usage:
   \$ cd perl5/PIL2JS
   \$ ./pil2js.pl -o Prelude.js lib6/Prelude/JS.pm
   \$ ./pil2js.pl -o test.js test.pl
-  \$ ./pil2js.pl --link=html -o test.html ~Prelude.js test.js
+  \$ ./pil2js.pl --link=html -o test.html ~libjs/PIL2JS.js ~Prelude.js test.js
 USAGE
 
 sub slurp {
@@ -174,13 +173,4 @@ sub unslurp {
   open my $fh, "> $_[0]"  or die "Couldn't open \"$_[0]\" for writing: $!\n";
   print $fh $_[1]         or die "Couldn't write to \"$_[0]\": $!\n";
   close $fh               or die "Couldn't close \"$_[0]\": $!\n";
-}
-
-sub guess_jsprelude_path {
-  my $pathsep = $^O eq "MSWin32" ? "\\" : "/";
-
-  my $path =  $INC{"PIL${pathsep}Nodes.pm"};
-  $path    =~ s[PIL${pathsep}Nodes\.pm][..${pathsep}libjs${pathsep}PIL2JS.js];
-
-  return -f $path ? $path : undef;
 }

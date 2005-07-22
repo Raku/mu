@@ -769,8 +769,15 @@ EOF
     return
       "var " .
       join(", ", map {
+        my $sigil = substr $_->[0], 0, 1;
+        my %undef = (
+          '$' => "undefined",
+          '@' => "[]",
+          '%' => "{}",
+          '&' => "undefined",
+        );
         PIL::Nodes::name_mangle($_->[0]) .
-        " = new PIL2JS.Box(undefined)"
+        " = new PIL2JS.Box(@{[ $undef{$sigil} || die ]})"
       } @{ $self->[1] }) .
       ";\n" .
       $self->[2]->as_js;

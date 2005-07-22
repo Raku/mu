@@ -56,7 +56,7 @@ sub compile_perl6_to_standalone_js {
   my $pil  = run_pugs("-CPIL", @_);
   die "Error: Couldn't compile to PIL!\n" if not defined $pil;
   my $mini = run_pil2js(\$pil);
-  my $js   = run_pil2js("--link=js", $cfg{preludepc}, $cfg{testpc}, \$mini);
+  my $js   = run_pil2js("--link=js", jsprelude_path(), $cfg{preludepc}, $cfg{testpc}, \$mini);
 
   return $js;
 }
@@ -74,7 +74,7 @@ sub compile_perl6_to_htmljs_with_links {
 
   my $mini = compile_perl6_to_mini_js(@_);
   die "Error: Couldn't compile to PIL!\n" if not defined $mini;
-  my $js   = run_pil2js("--link=html", "~$cfg{preludepc}", "~$cfg{testpc}", \$mini);
+  my $js   = run_pil2js("--link=html", "~".jsprelude_path(), "~$cfg{preludepc}", "~$cfg{testpc}", \$mini);
 
   return $js;
 }
@@ -168,5 +168,7 @@ var navigator = { userAgent: undefined };
 var alert     = function (msg) { document.write("Alert: " + msg) };
 EOF
 }
+
+sub jsprelude_path { pwd qw< libjs PIL2JS.js > }
 
 1;
