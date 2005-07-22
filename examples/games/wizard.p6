@@ -56,7 +56,13 @@ class Room is wObject {
    has Monster @.monsters is rw;
    has Str     @.exits is rw;
    method are_monsters () { @.monsters // 0 }
-   method monster ()      { shift @.monsters; }
+   method monster ()      {
+      say '@.monsters : ', @.monsters.perl;
+      my $x = shift @.monsters;
+      say 'shifted    : ', $x.perl;
+      say '@.monsters : ', @.monsters.perl;
+      $x;
+    }
 };
 
 class Mortal is wObject {
@@ -172,8 +178,9 @@ $person.name = capitalize(prompt("What is your name: "));
 say "Greetings, $person.name()!";
 say $person.where;
 until ($person.dead) {
+  %world.{$person.location}.perl.say;
   if (%world.{$person.location}.are_monsters){ 
-     my $monster = shift %world.{$person.location}.monster;
+     my $monster = %world.{$person.location}.monster;
      unless ( $person.battle($monster) ) {
          push %world.{$person.location}.monsters, $monster;
          $person.location = $person.last_location;
