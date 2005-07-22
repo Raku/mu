@@ -72,16 +72,14 @@ sub mandatory (++$param) {
 }
 
 is(mandatory('param' => 5) , 5, "named mandatory parameter is returned");
-is(eval('mandatory()'), undef, "not specifying a mandatory parameter fails");
+is(try { mandatory() }, undef, "not specifying a mandatory parameter fails");
 
 sub mandatory_by_trait (+$param is required) {
     return $param;
 }
 
 is(mandatory_by_trait('param' => 5) , 5, "named mandatory parameter is returned");
-is(eval('mandatory_by_trait()'), undef, "not specifying a mandatory parameter fails");
-
-
+is(try { mandatory_by_trait() }, undef, "not specifying a mandatory parameter fails");
 
 
 # From L<S06/"Named parameters" /sub formalize/>

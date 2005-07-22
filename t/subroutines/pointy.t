@@ -63,7 +63,7 @@ is $n, 10, "pointy control exceptions ran", :todo<feature>;
 my $str = '';
 
 sub outer {  
-    my $s = -> $x { 
+    my $s = -> { 
         is($?SUBNAME, '&main::outer', 'pointy still sees outer\'s $?SUBNAME'); 
 
         $str ~= 'inner'; 

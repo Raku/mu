@@ -32,4 +32,4 @@ sub val_v(Code +$func = &double) is export {
 package main;
 use Test;
 
-ok((eval 'val_v'), "default sub called in package namespace");
+ok((val_v), "default sub called in package namespace");

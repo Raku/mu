@@ -10,6 +10,8 @@ use Test;
 # unwrap with no args pops the top most
 # mutating wraps
 
+plan 20;
+
 my @log;
 
 sub foo {

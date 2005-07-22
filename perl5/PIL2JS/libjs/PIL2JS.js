@@ -234,14 +234,15 @@ var _25main_3a_3aENV         = new PIL2JS.Box(new PIL2JS.Hash);
 var _40main_3a_3a_2aINC      = new PIL2JS.Box([]);
 var _26main_3a_3a_3fBLOCK    = new PIL2JS.Box(undefined);
 var _26main_3a_3a_3fSUB      = new PIL2JS.Box(undefined);
+var _24main_3a_3a_2aOS       = new PIL2JS.Box.Constant("browser");
+var _24main_3a_3aOS          = _24main_3a_3a_2aOS;
+var _24main_3a_3a_           = new PIL2JS.Box(undefined);
 // Stub for $?CALLER::CALLER::POSITION, so Test.pm doesn't die on a failed
 // test.
 var _24_3fCALLER_3a_3aCALLER_3a_3aCALLER_3a_3aPOSITION =
   new PIL2JS.Box("<$?CALLER::CALLER::POSITION not yet implemented>");
 var _24_3fCALLER_3a_3aCALLER_3a_3aSUBNAME =
   new PIL2JS.Box("<$?CALLER::CALLER::SUBNAME not yet implemented>");
-var _24main_3a_3a_2aOS = new PIL2JS.Box.Constant("browser");
-var _24main_3a_3aOS    = _24main_3a_3a_2aOS;
 
 // Prettyprint an error msg.
 PIL2JS.new_error = function (msg) {

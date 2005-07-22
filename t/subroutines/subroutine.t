@@ -17,10 +17,10 @@ sub foobar ($var) {
 
 my $foo = "foo";
 my $bar;
-eval '$bar = foobar($foo); ';
+$bar = foobar($foo);
 is($foo, $bar, 'subroutine at beginning');
 $bar = "";
-eval '$bar = check $foo';
+$bar = check $foo;
 ok($bar, 'subroutine at end');
 
 sub check {
@@ -92,7 +92,7 @@ is argShifter([3..5]), 3, "use shift on multiple array arguments", :todo<buf>;
 eval 'sub unpack_array ([$first, *@rest]) { return $first; }';
 
 my @array = 3..7;
-is(eval('unpack_array(@array)'), 3, 'unpacking an array parameter', :todo<feature>);
+is(try { unpack_array(@array) }, 3, 'unpacking an array parameter', :todo<feature>);
 
 =pod
 
@@ -103,4 +103,4 @@ L<S06/"Unpacking hash parameters">
 eval 'sub unpack_hash({+$yo, *%other}){ return $yo; }';
 
 my %params = yo => 3, nope => 4;
-is(eval('unpack_hash(%params)'), 3, 'unpacking a hash parameter', :todo);
+is(try { unpack_hash(%params) }, 3, 'unpacking a hash parameter', :todo);
