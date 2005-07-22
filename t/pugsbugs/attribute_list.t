@@ -9,7 +9,7 @@ Modification of list attributes created with constructor fails
 =cut
 
 use Test;
-plan 2;
+plan 6;
 
 class Foo { 
    has @.test is rw; 
