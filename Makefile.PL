@@ -377,7 +377,6 @@ tags : @srcfiles
 	mv tags.tmp tags
 
 config.yml:
-	\$(PERL) -MFile::Copy -e "warn q+Default build config file created. Edit your settings in config.yml.\\n+; copy (q+util/config-template.yml+, q+config.yml+) or die qq+copy failed+;"
 
 INST6_ARCHLIB = blib6/arch
 INST6_SCRIPT = blib6/script
