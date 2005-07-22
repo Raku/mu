@@ -6,82 +6,55 @@ use warnings;
 use strict;
 use lib "lib";
 
+use FindBin;
+use File::Spec;
+use lib File::Spec->catfile($FindBin::Bin, "lib");
+use PIL2JS qw< run_pugs >;
 use Getopt::Long;
 use PIL::Parser;
 use PIL::Nodes;
 
-local ($/, $_);
+sub slurp;
+sub unslurp;
+sub usage;
+sub guess_jsprelude_path;
 
-sub slurp($) {
-  open my $fh, "<", $_[0] or die "Couldn't open \"$_[0]\" for reading: $!\n";
-  local $/;
-  return <$fh>;
-}
-
-sub guess_jsprelude_path {
-  my $pathsep = $^O eq "MSWin32" ? "\\" : "/";
-
-  my $path =  $INC{"PIL${pathsep}Nodes.pm"};
-  $path    =~ s[PIL${pathsep}Nodes\.pm][..${pathsep}libjs${pathsep}PIL2JS.js];
-
-  return -f $path ? $path : undef;
-}
-
-my %jsprelude = (mode => "inline", path => guess_jsprelude_path());
-my %p6prelude = (mode => "link");
-my %testpc    = (mode => "no");
+my $verbose;
+my $link;
+my $output = "-";
+my $yaml_dump;
 
 GetOptions(
-  "verbose"            => \my $verbose,
-  "html"               => \my $html,
-  "jsprelude-mode=s"   => \$jsprelude{mode},
-  "p6preludepc-mode=s" => \$p6prelude{mode},
-  "jsprelude-path=s"   => \$jsprelude{path},
-  "p6preludepc-path=s" => \$p6prelude{path},
-  "testpc-mode=s"      => \$testpc{mode},
-  "testpc-path=s"      => \$testpc{path},
-  "yaml-dump"          => \my $yaml_dump,
-  "help"               => \&usage,
+  "verbose"            => \$verbose,
+  "link=s"             => \$link,
+  "output=s"           => \$output,
+  "yaml-dump"          => \$yaml_dump,
+  "pugs=s"             => \$PIL2JS::cfg{pugs},
+  "help"               => sub { usage() },
 ) or usage();
+my @input = @ARGV;
 
-usage() unless
-  $jsprelude{mode} =~ /^(?:no|inline|link)$/ and
-  $p6prelude{mode} =~ /^(?:no|inline|link)$/;
+usage "No input files given!"                  unless @input;
+usage "Cannot compile multiple files at once!" if not $link and @input > 1;
+usage "--yaml-dump doesn't work with --link!"  if $yaml_dump and $link;
+usage "Invalid argument for --link!"           if $link and not($link eq "js" or $link eq "html");
 
-unless($yaml_dump) {
-  die <<ERR if not $html and ($jsprelude{mode} eq "link" or $p6prelude{mode} eq "link");
-*** Can't link to Prelude if --html option not given!
-ERR
+unless($link) {
+  warn "*** Reading PIL from \"$input[0]\"...\n" if $verbose;
 
-  die <<ERR if not $p6prelude{path} and ($p6prelude{mode} =~ /^(?:inline|link)$/);
-*** Can't inline or link to the precompiled Prelude,
-    as no path to the Prelude was given.
-ERR
+  my $pil  = $input[0] =~ /\.(?:pm|pl|t)$/i
+    ? run_pugs("-CPIL", $input[0])
+    : slurp $input[0];
+  my $tree = PIL::Parser->parse($pil);
 
-  die <<ERR if not $jsprelude{path} and ($jsprelude{mode} =~ /^(?:inline|link)$/);
-*** Can't inline or link to the JavaScript Prelude (PIL2JS.js),
-    as no path to the Prelude was given.
-ERR
+  if($yaml_dump) {
+    require YAML;
+    print YAML::Dump($tree);
+    exit;
+  }
 
-  die <<ERR if not $testpc{path} and ($testpc{mode} =~ /^(?:inline|link)$/);
-*** Can't inline or link to the precompiled Test module,
-    as no path was given.
-ERR
-}
-
-warn "*** Reading PIL...\n" if $verbose;
-
-my $pil  = <>;
-my $tree = PIL::Parser->parse($pil);
-
-if($yaml_dump) {
-  require YAML;
-  print YAML::Dump($tree);
-  exit;
-}
-
-warn "*** Compiling input PIL to JavaScript...\n" if $verbose;
-my $load_check = <<EOF;
+  warn "*** Compiling PIL to JavaScript...\n" if $verbose;
+  my $load_check = <<EOF;
 try { PIL2JS } catch(err) {
   var error = new Error("PIL2JS.js not loaded; aborting.");
   alert(error);
@@ -89,42 +62,41 @@ try { PIL2JS } catch(err) {
 }
 EOF
 
-my $program_js = join "\n",
-  $load_check,
-  (bless $tree => "PIL::Nodes")->as_js;
-
-my ($jsprelude_js, $p6prelude_js, $testpc_js);
-if($jsprelude{mode} eq "inline") {
-  warn "*** Inlining the JavaScript Prelude (PIL2JS.pl)...\n" if $verbose;
-  $jsprelude_js = slurp $jsprelude{path};
-}
-if($p6prelude{mode} eq "inline") {
-  warn "*** Inlining the Perl6 Prelude...\n" if $verbose;
-  $p6prelude_js =
-    "// This is the part of the Prelude written in Perl 6.\n" .
-    slurp $p6prelude{path};
-}
-if($testpc{mode} eq "inline") {
-  warn "*** Inlining the precompiled Test module...\n" if $verbose;
-  $testpc_js =
-    "// This is the precompiled Test module.\n" .
-    slurp $testpc{path};
-}
-
-my $js;
-$js .= "$jsprelude_js\n" if $jsprelude{mode} eq "inline" and not $html;
-$js .= "$p6prelude_js\n" if $p6prelude{mode} eq "inline";
-$js .= "$testpc_js\n"    if $testpc{mode}    eq "inline";
-$js .= "// The actual program begins here.\n$program_js";
-
-unless($html) {
-  print $js;
+  my $js = join "\n",
+    $load_check,
+    (bless $tree => "PIL::Nodes")->as_js;
+  unslurp $output, $js;
 } else {
-  # Output a standard HTML skeleton.
-  my $indent = sub { join "\n", map { " " x 6 . $_ } split "\n", shift };
-  my $link   = sub { "<script type=\"text/javascript\" src=\"$_[0]\"></script>" };
+  my @components;
+  unshift @input, ($link eq "html" ? "~" : "") . guess_jsprelude_path();
 
-  print <<EOF;
+  my $js;
+  foreach my $file (@input) {
+    my $mode = $file =~ s/^~// ? "link" : "inline";
+
+    if($mode eq "inline") {
+      warn "*** Reading JavaScript from \"$file\"...\n" if $verbose;
+      push @components, [inline => "// File: $file\n" . slurp($file) . "\n"];
+    } else {
+      push @components, [link => $file];
+    }
+  }
+
+  if($link eq "js") {
+    my $js;
+    foreach (@components) {
+      my ($mode, $contents) = @$_;
+      die "*** Can't link to files when creating a standalone JavaScript file!\n"
+        if $mode eq "link";
+      $js .= $contents;
+    }
+
+    unslurp $output, $js;
+  } else {
+    my $indent = sub { join "\n", map { " " x 6 . $_ } split "\n", shift };
+    my $link   = sub { "<script type=\"text/javascript\" src=\"$_[0]\"></script>" };
+
+    my $html = <<EOF;
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -137,52 +109,78 @@ unless($html) {
 
 EOF
 
-  print <<EOF if $jsprelude{mode} eq "inline";
+    foreach (@components) {
+      my ($mode, $contents) = @$_;
+      if($mode eq "link") {
+        $html .= "    " . $link->($contents) . "\n";
+      } else {
+        die "JavaScript contains HTML escape sequenze ']]', aborting.\n"
+          if $contents =~ /\]\]/;
+        $html .= <<EOF;
     <script type="text/javascript">//<![CDATA[
-@{[$indent->($jsprelude_js)]}
+@{[$indent->($contents)]}
       //]]
     </script>
 EOF
+      }
+    }
 
-  print <<EOF;
-    @{[ $jsprelude{mode} eq "link" ? $link->($jsprelude{path}) : "" ]}
-    @{[ $p6prelude{mode} eq "link" ? $link->($p6prelude{path}) : "" ]}
-    <script type="text/javascript">//<![CDATA[
-@{[$indent->($js)]}
-      //]]
-    </script>
+    $html .= <<EOF;
   </body>
 </html>
 EOF
+    unslurp $output, $html;
+  }
 }
 
-sub usage { print STDERR <<USAGE; exit }
-pil2js.pl compiles PIL code given in STDIN to JavaScript code, outputted to
-STDOUT.
+sub usage {
+  if($_[0]) {
+    die "*** $_[0]\n    Try \"$0 --help\" for usage information.\n";
+  } else {
+    print STDERR <<USAGE; exit }}
+pil2js.pl compiles PIL as generated by Pugs to JavaScript.
+
+Usage: pil2js.pl [options] -- input_files
 
 Available options (options may be abbreviated to uniqueness):
-  --verbose               Be verbose.
-  --html                  Output the JavaScript packed in an HTML page.
+  --verbose         Be verbose.
+  --output=...      Output to the given filename.
+                    Use "-" if you want the result to go to STDOUT.
+  --link=html|js    Link precompiled files into one standalone JavaScript
+                    file ("js") or into a HTML file ("html").
+  --yaml-dump       Only output the input PIL as YAML; don't compile anything.
+  --html            Output the JavaScript packed in an HTML page.
 
-  --jsprelude-mode=no|inline|link
-  --p6preludepc-mode=no|inline|link
-                          Don't include, inline, or link to the specified part
-                          of the Prelude.
-
-  --jsprelude-path=...
-  --p6preludepc-path=...
-                          Sets the path to the specified part of the Prelude.
-
-  --yaml-dump             Only output the PIL as YAML; don't compile anything.
+When compiling (--link option not given), there has to be only one input file.
+In linking mode, multiple input files may be specified. If a filename is
+prefixed with a tilde ("~"), the file is not inlined, but instead linked to
+using the HTML tag "<script src=...>". Of course, this feature is not available
+when linking to a standalone JavaScript file.
 
 Recommended usage:
   \$ cd perl5/PIL2JS
-  \$ pugs -CPIL -Ilib6 -MPrelude::JS -we 'say 2 + 3' | \
-    ./pil2js.pl --html --p6preludepc-mode=no > test.js
-  # or (*much* faster)
-  \$ pugs -CPIL -Ilib6 -MPrelude::JS -we '' | \
-    ./pil2js.pl --jsprelude-mode=no --p6preludepc-mode=no > preludepc.js
-  \$ pugs -CPIL -we 'say 2 + 3' | \
-    ./pil2js.pl --html --p6preludepc="http://.../preludepc.js" > test.js
-
+  \$ ./pil2js.pl -o Prelude.js lib6/Prelude/JS.pm
+  \$ ./pil2js.pl -o test.js test.pl
+  \$ ./pil2js.pl --link=html -o test.html ~Prelude.js test.js
 USAGE
+
+sub slurp {
+  open my $fh, "< $_[0]"  or die "Couldn't open \"$_[0]\" for reading: $!\n";
+  local $/;
+  return <$fh>;
+}
+
+sub unslurp {
+  open my $fh, "> $_[0]"  or die "Couldn't open \"$_[0]\" for writing: $!\n";
+  print $fh $_[1]         or die "Couldn't write to \"$_[0]\": $!\n";
+  close $fh               or die "Couldn't close \"$_[0]\": $!\n";
+}
+
+sub guess_jsprelude_path {
+  my $pathsep = $^O eq "MSWin32" ? "\\" : "/";
+
+  my $path =  $INC{"PIL${pathsep}Nodes.pm"};
+  $path    =~ s[PIL${pathsep}Nodes\.pm][..${pathsep}libjs${pathsep}PIL2JS.js];
+
+  return -f $path ? $path : undef;
+}

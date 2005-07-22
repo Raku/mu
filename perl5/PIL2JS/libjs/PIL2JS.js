@@ -204,7 +204,6 @@ PIL2JS.new_error = function (msg) {
 PIL2JS.warn = function (msg) { alert(PIL2JS.new_error(msg)) };
 PIL2JS.die = function (msg) {
   var error = PIL2JS.new_error(msg);
-  alert(error);
   throw(error);
 };
 

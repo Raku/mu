@@ -50,7 +50,13 @@ sub as_js {
 
   local $_;
   my @glob_js = map { $_->as_js } @{ $self->{"pilGlob"} };
-  my $main_js = $self->{pilMain}->as_js;
+  my $main_js = sprintf <<EOF, add_indent(1, $self->{pilMain}->as_js);
+try {
+%s
+} catch(err) {
+  alert(err);
+}
+EOF
 
   my $decl_js =
     "// Declaration of undeclared vars:\n" .

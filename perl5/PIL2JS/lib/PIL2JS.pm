@@ -31,6 +31,8 @@ our %cfg = (
   prelude   => pwd(qw< lib6 Prelude JS.pm >),
 );
 
+sub diag($) { warn "# $_[0]\n" if $cfg{verbose} }
+
 # bin/js's only output function is print, which is like Perl 6's &say, i.e.
 # there's always a newline at the end. So our fake document.write outputs
 # "string_to_output#IGNORE NEXT LINEFEED#\n", and we can s/#IGNORE NEXT
@@ -51,16 +53,10 @@ sub preludepc_check {
 sub compile_perl6_to_standalone_js {
   preludepc_check();
 
-  my $pil = run_pugs("-CPIL", @_);
+  my $pil  = run_pugs("-CPIL", @_);
   die "Error: Couldn't compile to PIL!\n" if not defined $pil;
-  my $js  = run_pil2js(
-    $pil,
-    "--jsprelude-mode=inline",
-    "--p6preludepc-mode=inline",
-    "--testpc-mode=inline",
-    "--p6preludepc-path=$cfg{preludepc}",
-    "--testpc-path=$cfg{testpc}",
-  ) or die "Error: Couldn't compile to JavaScript!\n";
+  my $mini = run_pil2js(\$pil);
+  my $js   = run_pil2js("--link=js", $cfg{preludepc}, $cfg{testpc}, \$mini);
 
   return $js;
 }
@@ -68,10 +64,7 @@ sub compile_perl6_to_standalone_js {
 sub compile_perl6_to_mini_js {
   my $pil = run_pugs("-CPIL", @_);
   die "Error: Couldn't compile to PIL!\n" if not defined $pil;
-  my $js  = run_pil2js(
-    $pil,
-    "--jsprelude-mode=no", "--p6preludepc-mode=no",
-  ) or die "Error: Couldn't compile to JavaScript!\n";
+  my $js  = run_pil2js(\$pil);
 
   return $js;
 }
@@ -79,14 +72,9 @@ sub compile_perl6_to_mini_js {
 sub compile_perl6_to_htmljs_with_links {
   preludepc_check();
 
-  my $pil = run_pugs("-CPIL", @_);
-  die "Error: Couldn't compile to PIL!\n" if not defined $pil;
-  my $js  = run_pil2js(
-    $pil,
-    "--html",
-    "--jsprelude-mode=inline", "--p6preludepc-mode=link",
-    "--p6preludepc-path=$cfg{preludepc}",
-  ) or die "Error: Couldn't compile to JavaScript!\n";
+  my $mini = compile_perl6_to_mini_js(@_);
+  die "Error: Couldn't compile to PIL!\n" if not defined $mini;
+  my $js   = run_pil2js("--link=html", "~$cfg{preludepc}", "~$cfg{testpc}", \$mini);
 
   return $js;
 }
@@ -94,7 +82,7 @@ sub compile_perl6_to_htmljs_with_links {
 sub precomp_module_to_mini_js {
   my $pil = eval { run_pugs("-CPIL", @_, "-e", "''") };
   die $@ if $@;
-  my $js  = eval { run_pil2js($pil, "--jsprelude-mode=no", "--p6preludepc-mode=no") };
+  my $js  = eval { run_pil2js(\$pil) };
   die $@ if $@;
   return $js;
 }
@@ -107,6 +95,7 @@ sub compile_perl6_to_pil {
 
 sub run_pugs {
   my @args = @_;
+  diag "$cfg{pugs} @args";
 
   $ENV{PERL5LIB} = join $Config{path_sep}, pwd('lib'), ($ENV{PERL5LIB} || "");
     
@@ -122,21 +111,33 @@ sub run_pugs {
 }
 
 sub run_pil2js {
-  my ($pil, @args) = @_;
+  my @args = @_;
+  my $push;
+  for(@args) {
+    if(ref $_ and defined $push) {
+      die "Only one reference argument may be given to &PIL2JS::run_pil2js!";
+    } elsif(ref $_) {
+      $push = $$_;
+      $_ = "-";
+    }
+  }
   my @cmd = ($cfg{pil2js}, @args);
+  diag "@cmd";
 
   my $pid = open2 my($read_fh), my($write_fh), @cmd
     or die "Couldn't open pipe to \"@cmd\": $!\n";
 
-  print $write_fh $pil or die "Couldn't write into pipe to \"@cmd\": $!\n";
-  close $write_fh      or die "Couldn't close pipe to \"@cmd\": $!\n";
+  print $write_fh $push or die "Couldn't write into pipe to \"@cmd\": $!\n"
+    if defined $push;
+  close $write_fh       or die "Couldn't close pipe to \"@cmd\": $!\n";
 
   local $/;
-  my $js = <$read_fh>;
+  my $ret = <$read_fh>;
 }
 
 sub run_js {
   my $js = shift;
+  diag $cfg{js};
 
   my $pid = open2 my($read_fh), my($write_fh), $cfg{js}
     or die "Couldn't open pipe to \"$cfg{js}\": $!\n";

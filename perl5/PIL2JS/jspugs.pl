@@ -23,6 +23,7 @@ EOF
 our %cfg;
 *cfg = \%PIL2JS::cfg;
 $cfg{output} = "output.html";
+$cfg{verbose}++;
 command_conf(pugs      => $cfg{pugs});
 command_conf(pil2js    => $cfg{pil2js});
 command_conf(preludepc => $cfg{preludepc});
@@ -107,7 +108,7 @@ sub command_pil {
 sub command_pil_yaml {
   my $pil  = eval { compile_perl6_to_pil "-e", $_[0] };
   print $OUT $@ and return if $@;
-  my $yaml = eval { run_pil2js($pil, "--yaml-dump") };
+  my $yaml = eval { run_pil2js("--yaml-dump", \$pil) };
   print $OUT $@ and return if $@;
   print $OUT $yaml;
 }
