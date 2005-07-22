@@ -1,3 +1,5 @@
+# EVIL hacks here! E.g. method map and sub JS::Root::map!
+
 method JS::Root::shift(Array $self:) {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
     var ret = args[1].GET().shift();
@@ -32,14 +34,14 @@ method JS::Root::push(Array $self: *@things) {
   })')($self, @things);
 }
 
-method JS::Root::join(Array $self: Str $sep) {
+method join(Array $self: Str $sep) { join $sep, *$self }
+sub JS::Root::join(Str $sep, *@things) is primitive {
   JS::inline('
     function (arr, sep) {
       return arr.join(sep);
     }
-  ')($self, $sep);
+  ')(@things, $sep);
 }
-
 
 method JS::Root::elems(Array $self:) {
   JS::inline('function (arr) { return arr.length }')($self);
@@ -47,6 +49,41 @@ method JS::Root::elems(Array $self:) {
 
 method JS::Root::end(Array $self:) {
   JS::inline('function (arr) { return arr.length - 1 }')($self);
+}
+
+method map(Array $self: Code $code) { map $code, *$self }
+sub JS::Root::map(Code $code, *@array) is primitive {
+  my $arity = $code.arity;
+  die "Can't use 0-ary subroutine as \"map\" body!" if $arity == 0;
+
+  my @res;
+  while(+@array > 0) {
+    my @args = ();
+    my $i; loop $i = 0; $i < $arity; $i++ {
+      push @args: @array.shift;
+    }
+    push @res, *$code(*@args);
+  }
+
+  @res;
+}
+
+method grep(Array $self: Code $code) { grep $code, *$self }
+sub JS::Root::grep(Code $code, *@array) is primitive {
+  die "Code block for \"grep\" must be unary!" unless $code.arity == 1;
+
+  my @res;
+  for @array -> $item {
+    push @res, $item if $code($item);
+  }
+  @res;
+}
+
+method sum(Array $self:) { sum *$self }
+sub JS::Root::sum(*@vals) is primitive {
+  my $sum = 0;
+  $sum += +$_ for @vals;
+  $sum;
 }
 
 sub infix:<..>(Num $from is copy, Num $to) is primitive {
@@ -58,6 +95,9 @@ sub infix:<..>(Num $from is copy, Num $to) is primitive {
 
   @array;
 }
+sub infix:<^..>  (Num $from, Num $to) is primitive { ($from + 1)..$to }
+sub infix:<..^>  (Num $from, Num $to) is primitive { $from..($to - 1) }
+sub infix:<^..^> (Num $from, Num $to) is primitive { ($from + 1)..($to - 1) }
 
 sub infix:<,>(*@xs) is primitive {
   JS::inline('new PIL2JS.Box.Constant(function (args) {

@@ -21,7 +21,7 @@ is($a, 2147483648, "var incremented after post-autoincrement");
 is($c, 2147483647, "during post-autoincrement return value is not yet incremented");
 
 $a = 2147483647;
-$c=eval '++$a';
+$c=++$a;
 is($a, 2147483648, "var incremented  after pre-autoincrement");
 is($c, 2147483648, "during pre-autoincrement return value is incremented");
 
@@ -35,7 +35,7 @@ is($a, -2147483649, "var decremented after post-autodecrement");
 is($c, -2147483648, "during post-autodecrement return value is not yet decremented");
 
 $a = -2147483648;
-$c=eval '--$a';
+$c=--$a;
 is($a, -2147483649, "var decremented  after pre-autodecrement");
 is($c, -2147483649, "during pre-autodecrement return value is decremented");
 
@@ -50,7 +50,7 @@ is($a, -2147483649, "post-decrement negative value");
 
 $a = 2147483648;
 $a = -$a;
-$c=eval '--$a';
+$c=--$a;
 is($a, -2147483649, "pre-decrement negative value");
 
 $a = 2147483648;
@@ -66,7 +66,7 @@ is($a, 2147483648, "make sure origin var remains unchanged");
 
 $a = 2147483648;
 $b = -$a;
-$c=eval '--$b';
+$c=--$b;
 is($b, ((-$a)-1), "same thing with predecremenet");
 
 $a = 2147483648;

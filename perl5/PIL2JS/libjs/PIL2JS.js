@@ -17,6 +17,11 @@ PIL2JS.new_uid = function () {
   return PIL2JS.cur_uid++;
 };
 
+// Hash class. As with the various exception classes above, we don't need to
+// declare any methods. This class only exists so code can do if(foo instanceof
+// PIL2JS.Hash) {...}.
+PIL2JS.Hash = function () {};
+
 // This is necessary to emulate pass by ref, needed for is rw and is ref.
 // See section "DESIGN" in README.
 // GET    :: SomeNativeType
@@ -26,7 +31,21 @@ PIL2JS.new_uid = function () {
 // and rebound.
 PIL2JS.Box = function (value) {
   this.GET   = function ()  { return value };
-  this.STORE = function (n) { value = n.GET(); return this };
+  this.STORE = function (n) {
+    var new_val = n.GET();
+    // my @a = "hi" --> my @a = ("hi",)
+    if(value instanceof Array && !(new_val instanceof Array)) { 
+      new_val = _26main_3a_3ainfix_3a_2c.GET()([PIL2JS.Context.SlurpyAny, n]).GET();
+    // my %a = (a => 1, b => 2) --> my %a = hash(a => 1, b => 2)
+    } else if(value instanceof PIL2JS.Hash && new_val instanceof Array) {
+      new_val = _26main_3a_3ahash.GET()([PIL2JS.Context.SlurpyAny, n]).GET();
+    // my %a = (a => 1)
+    } else if(value instanceof PIL2JS.Hash && new_val instanceof PIL2JS.Pair) {
+      new_val = _26main_3a_3ahash.GET()([PIL2JS.Context.SlurpyAny, n]).GET();
+    }
+    value = new_val;
+    return this;
+  };
   this.uid   = PIL2JS.new_uid();
 };
 
@@ -191,8 +210,12 @@ PIL2JS.make_slurpy_array = function (inp_arr) {
 // Magical variables: $?POSITION and $!.
 var _24main_3a_3a_3fPOSITION = new PIL2JS.Box("<unknown>");
 var _24main_3a_3a_21         = new PIL2JS.Box(undefined);
-var _25main_3a_3aENV         = new PIL2JS.Box({});
+var _25main_3a_3aENV         = new PIL2JS.Box(new PIL2JS.Hash);
 var _40main_3a_3a_2aINC      = new PIL2JS.Box([]);
+// Stub for $?CALLER::CALLER::POSITION, so Test.pm doesn't die on a failed
+// test.
+var _24_3fCALLER_3a_3aCALLER_3a_3aCALLER_3a_3aPOSITION =
+  new PIL2JS.Box("<$?CALLER::CALLER::POSITION not yet implemented>");
 
 // Prettyprint an error msg.
 PIL2JS.new_error = function (msg) {
@@ -297,11 +320,6 @@ PIL2JS.delete_pair_from_args = function (args, name) {
   return n;
 };
 
-// Hash class. As with the various exception classes above, we don't need to
-// declare any methods. This class only exists so code can do if(foo instanceof
-// PIL2JS.Hash) {...}.
-PIL2JS.Hash = function () {};
-
 // Context class.
 PIL2JS.Context = function (cxt) {
   this["main"] = cxt["main"];
@@ -314,8 +332,9 @@ PIL2JS.Context.prototype = {
   }
 };
 
-PIL2JS.Context.Void    = new PIL2JS.Box.Constant(new PIL2JS.Context({ main: "void" }));
-PIL2JS.Context.ItemAny = new PIL2JS.Box.Constant(new PIL2JS.Context({ main: "item", type: "Any" }));
+PIL2JS.Context.Void      = new PIL2JS.Box.Constant(new PIL2JS.Context({ main: "void" }));
+PIL2JS.Context.ItemAny   = new PIL2JS.Box.Constant(new PIL2JS.Context({ main: "item", type: "Any" }));
+PIL2JS.Context.SlurpyAny = new PIL2JS.Box.Constant(new PIL2JS.Context({ main: "slurpy", type: "Any" }));
 
 // Doesn't work yet -- load a JSAN mod.
 PIL2JS.use_jsan = function (mod) {

@@ -554,7 +554,7 @@ sub add_indent {
     bless $self->[1] => "PIL::Params";
 
     local $IN_SUBLIKE  = $self->[0]->as_constant;
-    local $CUR_SUBNAME = "<anonymous@{[$CUR_SUBNAME ? 'in ' . $CUR_SUBNAME : '']}>";
+    local $CUR_SUBNAME = "<anonymous@{[$CUR_SUBNAME ? ' in ' . $CUR_SUBNAME : '']}>";
 
     # Subbody
     local $_;
@@ -575,7 +575,7 @@ sub add_indent {
   sub as_js {
     my $self = shift;
     local $IN_SUBLIKE  = PIL::Nodes::SUBTHUNK;
-    local $CUR_SUBNAME = "<thunk@{[$CUR_SUBNAME ? 'in ' . $CUR_SUBNAME : '']}>";
+    local $CUR_SUBNAME = "<thunk@{[$CUR_SUBNAME ? ' in ' . $CUR_SUBNAME : '']}>";
 
     die unless @$self == 1;
 
@@ -656,7 +656,9 @@ EOF
     warn "Skipping \%_ parameter.\n" and return "" if $name eq "%_";
 
     # If we're a name-only arg, skip as_js2.
-    return "" if !$self->{tpParam}{isNamed}->isa("PIL::True");
+    #return "" if
+    #  !$self->{tpParam}{isNamed}->isa("PIL::True") and not
+    #  $name eq '$_';
 
     # It's a slurpy parameter? Flatten args so we can .shift() one item at a
     # time.
@@ -773,7 +775,7 @@ EOF
         my %undef = (
           '$' => "undefined",
           '@' => "[]",
-          '%' => "{}",
+          '%' => "new PIL2JS.Hash",
           '&' => "undefined",
         );
         PIL::Nodes::name_mangle($_->[0]) .

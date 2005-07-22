@@ -82,7 +82,7 @@ sub compile_perl6_to_htmljs_with_links {
 sub precomp_module_to_mini_js {
   my $pil = eval { run_pugs("-CPIL", @_, "-e", "''") };
   die $@ if $@;
-  my $js  = eval { run_pil2js(\$pil) };
+  my $js  = eval { run_pil2js("-v", \$pil) };
   die $@ if $@;
   return $js;
 }
@@ -110,6 +110,8 @@ sub run_pugs {
   return $res;
 }
 
+# Runs pil2js.pl. If there's a reference in @args, it will be substituted by
+# "-" and the contents of the reference will be written to pil2js.pl's STDIN.
 sub run_pil2js {
   my @args = @_;
   my $push;

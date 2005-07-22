@@ -106,3 +106,4 @@ sub JS::Root::try(Code $code) is primitive {
 sub JS::Root::warn(Str *@msg) is primitive { $JS::PIL2JS.warn(@msg.join("")) }
 sub JS::Root::die(Str *@msg)  is primitive { $JS::PIL2JS.die(@msg.join(""))  }
 
+sub JS::Root::nothing() is primitive {}

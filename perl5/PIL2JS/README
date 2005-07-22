@@ -39,11 +39,12 @@ Variables (scalars, arrays, and hashes), assignment, binding
 =item *
 
 Subroutine and (slightly simplified) method declaration (with support for C<is
-rw>, C<is copy>, and default values for optional arguments),
+rw>, C<is copy>, and default values for optional arguments)
 
 =item *
 
-Subroutine and method invocation
+Subroutine and method invocation, including optional, named, and slurpy
+parameters and C<< &prefix:<*> >>
 
 =item *
 
@@ -60,8 +61,8 @@ Control exceptions (C<return>, C<leave>, C<last>, C<next>)
 
 =item *
 
-Stub OO builtins (C<ref>, C<isa> -- awaiting JavaScript (or Perl 6) port of
-Stevan's excellent C<Perl6::MetaModel>
+Stub OO builtins (C<ref>, C<isa> -- awaiting JavaScript port of Stevan's
+excellent C<Perl6::MetaModel> (see F<perl5/Perl6.MetaModel/>))
 
 =item *
 
@@ -151,6 +152,12 @@ Make C<use js:Foo> load C<Foo> from L<JSAN|http://www.openjsan.org/>
 =item *
 
 Primitives!
+
+=item *
+
+Integration of C<Perl6.MetaModel>
+
+=back
 
 =head1 AUTHOR
 
