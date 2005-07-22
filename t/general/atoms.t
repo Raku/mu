@@ -12,39 +12,39 @@ Bits and Pieces.
 plan 17;
 
 my $str;
-eval '$str = "hello"';
+$str = "hello";
 ok($str eq 'hello', "basic quote");
-eval '$str = qq[world]';
+$str = qq[world];
 ok($str eq 'world', "qq bracket");
-eval '$str = qq{hello}';
+$str = qq{hello};
 ok($str eq 'hello', "qq brace");
-eval '$str = qq<world>';
+$str = qq<world>;
 ok($str eq 'world', "qq angle");
-eval '$str = qq>hello<';
+$str = qq>hello<;
 ok($str eq 'hello', "qq backwards angle");
-eval '$str = qq/world/';
+$str = qq/world/;
 ok($str eq 'world', "qq slash");
 
 my $hello = "Hello";
-eval '$str = "$hello, World"';
+$str = "$hello, World";
 ok($str eq 'Hello, World', "dq interpolation");
-eval '$str = "Dear World, $hello"';
+$str = "Dear World, $hello";
 ok($str eq 'Dear World, Hello', "dq ultimate interpolation");
-eval '$str = "I say $hello, World"';
+$str = "I say $hello, World";
 ok($str eq 'I say Hello, World', "dq internal interpolation");
-eval '$str = "$hello, World, I say $hello"';
+$str = "$hello, World, I say $hello";
 ok($str eq 'Hello, World, I say Hello', "foghorn leghorn interpolation");
 
 my @array;
-eval ' @array = qw/"foo" "bar"/ ';
+@array = qw/"foo" "bar"/;
 ok(@array[0] eq '"foo"' and @array[1] eq '"bar"', 'qw//');
 
 my @array;
-eval ' @array = q:w/"foo" "bar"/ ';
+@array = q:w/"foo" "bar"/;
 ok(@array[0] eq '"foo"' and @array[1] eq '"bar"', 'q:w//');
 
 my %hash;
-eval ' %hash<Mon Tue Wed Thu Fri Sat Sun> = 1..7; ';
+%hash<Mon Tue Wed Thu Fri Sat Sun> = 1..7;;
 ok(%hash{'Mon'} eq '1' and %hash{'Sun'} eq '7', '%hash<>');
 
 sub nonce () { return (".$*PID." ~ int rand 1000) }

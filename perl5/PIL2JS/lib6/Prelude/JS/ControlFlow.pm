@@ -12,7 +12,17 @@ sub statement_control:<loop>($pre, Code $cond, Code $body, Code $post) is primit
       try {
         for(pre; cond(); post()) {
           try {
-            body();
+            while(1) {
+              var redo = 0;
+              try { body() } catch(err) {
+                if(err instanceof PIL2JS.ControlException.redo) {
+                  redo++;
+                } else {
+                  throw err;
+                }
+              }
+              if(!redo) break;
+            }
           } catch(err) {
             if(err instanceof PIL2JS.ControlException.next) {
               // Ok;
@@ -35,29 +45,18 @@ sub statement_control:<loop>($pre, Code $cond, Code $body, Code $post) is primit
 
 sub JS::Root::last() is primitive { JS::inline "throw(new PIL2JS.ControlException.last())"; 1 }
 sub JS::Root::next() is primitive { JS::inline "throw(new PIL2JS.ControlException.next())"; 1 }
+sub JS::Root::redo() is primitive { JS::inline "throw(new PIL2JS.ControlException.redo())"; 1 }
 
 sub statement_control:<while>(Code $cond, Code $body) is primitive {
-  JS::inline('
-    function (cond, body) {
-      var ret = undefined;
-      while(ret = cond()) {
-        body();
-      }
-      return ret;
-    }
-  ').($cond, $body);
+  my $ret;
+  loop 1; $ret = $cond(); 1 { $body() }
+  $ret;
 }
 
 sub statement_control:<until>(Code $cond, Code $body) is primitive {
-  JS::inline('
-    function (cond, body) {
-      var ret = undefined;
-      while(!(ret = cond())) {
-        body();
-      }
-      return ret;
-    }
-  ').($cond, $body);
+  my $ret;
+  loop 1; !($ret = $cond()); 1 { $body() }
+  $ret;
 }
 
 sub statement_control:<if>(Bool $cond, Code $true, Code $false) is primitive {
@@ -72,6 +71,7 @@ sub statement_control:<unless>(Bool $cond, Code $true, Code $false) is primitive
   statement_control:<if>(!$cond, $true, $false);
 }
 
+# XXX: Handle redo() correctly!
 sub statement_control:<for>(@array is copy, Code $code) is primitive {
   my $arity = $code.arity;
   # die "Can't use 0-ary subroutine as \"for\" body!" if $arity == 0;

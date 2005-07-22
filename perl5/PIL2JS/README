@@ -57,7 +57,7 @@ Basic builtins (C<say>, C<defined>, C<if>, C<loop>, C<while>, C<until>)
 
 =item *
 
-Control exceptions (C<return>, C<leave>, C<last>, C<next>)
+Control exceptions (C<return>, C<leave>, C<last>, C<next>, C<redo>)
 
 =item *
 

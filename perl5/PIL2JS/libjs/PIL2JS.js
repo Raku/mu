@@ -264,6 +264,7 @@ PIL2JS.die = function (msg) {
 PIL2JS.ControlException       = {};
 PIL2JS.ControlException.last  = function () {};
 PIL2JS.ControlException.next  = function () {};
+PIL2JS.ControlException.redo  = function () {};
 PIL2JS.ControlException.ret   = function (level, retval) {
   // The sublevel (SUBROUTINE, SUBBLOCK, etc.) the &return/&leave/whatever is
   // destined to.
