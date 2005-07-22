@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 114;
+use Test::More tests => 107;
 use Test::Exception;
 
 use Perl6::MetaClass;
@@ -50,9 +50,6 @@ can_ok($mc, 'add_attribute');
 can_ok($mc, 'get_attribute');
 
 can_ok($mc, 'get_attribute_list');
-
-# collect them all
-can_ok($mc, 'get_all_attributes');
 
 can_ok($mc, 'find_attribute_spec');
 
@@ -112,11 +109,6 @@ is_deeply(
     [ '$:foo', '@.bar' ],
     '... got the right class attribute list for Base');
 
-is_deeply(
-    [ $mc->get_all_attributes(for => 'Class') ],
-    [ '$:foo', '@.bar' ],
-    '... got the all class attributes for Base');
-
 isa_ok($mc->find_attribute_spec('@.bar', for => 'Class'), 'Perl6::Class::Attribute');
 isa_ok($mc->find_attribute_spec('$:foo', for => 'Class'), 'Perl6::Class::Attribute');
 
@@ -140,11 +132,6 @@ is_deeply(
     [ $mc->get_attribute_list ],
     [ '$.foo', '@.foo' ],
     '... got the right attribute list for Base');
-
-is_deeply(
-    [ $mc->get_all_attributes ],
-    [ '$.foo', '@.foo' ],
-    '... got the all attributes for Base');
 
 isa_ok($mc->find_attribute_spec('$.foo'), 'Perl6::Attribute');
 isa_ok($mc->find_attribute_spec('@.foo'), 'Perl6::Attribute');
@@ -191,11 +178,6 @@ lives_ok {
 } '... we can add attributes successfully';
 
 ok($mc2->has_attribute('$.bar'), '... we have the attribute "$.bar"');
-
-is_deeply(
-    [ $mc2->get_all_attributes ],
-    [ '$.bar', '$.foo', '@.foo' ],
-    '... got the all attributes for Base');
 
 isa_ok($mc2->find_attribute_spec('$.foo'), 'Perl6::Attribute');
 isa_ok($mc2->find_attribute_spec('@.foo'), 'Perl6::Attribute');
@@ -245,11 +227,6 @@ lives_ok {
 
 ok($mc3->has_attribute('$.baz'), '... we have the attribute "$.bar"');
 
-is_deeply(
-    [ $mc3->get_all_attributes ],
-    [ '$.baz', '$.foo', '@.foo' ],
-    '... got the all attributes for Base');
-
 isa_ok($mc3->find_attribute_spec('$.foo'), 'Perl6::Attribute');
 isa_ok($mc3->find_attribute_spec('@.foo'), 'Perl6::Attribute');    
 isa_ok($mc3->find_attribute_spec('$.baz'), 'Perl6::Attribute');    
@@ -286,11 +263,6 @@ ok($mc4->has_method('blah'), '... the metaclass now has the method "blah"');
 
 is($mc4->get_method('blah')->call(), 'Foo::Bar::blah', '... got the method and it returned the right value');
 
-is_deeply(
-    [ $mc4->get_all_attributes ],
-    [ '$.bar', '$.baz', '$.foo', '@.foo' ],
-    '... got the all attributes for Base');
-
 isa_ok($mc4->find_attribute_spec('$.foo'), 'Perl6::Attribute');
 isa_ok($mc4->find_attribute_spec('@.foo'), 'Perl6::Attribute');
 isa_ok($mc4->find_attribute_spec('$.bar'), 'Perl6::Attribute');
@@ -324,11 +296,6 @@ is_deeply(
 lives_ok {    
     $mc5->add_method('foo' => Perl6::Instance::Method->new($mc5->name, sub { 'Foo::Bar::Baz::foo' }));
 } '... add another method now';
-
-is_deeply(
-    [ $mc5->get_all_attributes ],
-    [ '$.bar', '$.baz', '$.foo', '@.foo' ],
-    '... got the all attributes for Base');
 
 isa_ok($mc5->find_attribute_spec('$.foo'), 'Perl6::Attribute');
 isa_ok($mc5->find_attribute_spec('@.foo'), 'Perl6::Attribute');

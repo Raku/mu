@@ -252,28 +252,6 @@ sub get_attribute_list {
     keys %{$self->{$self->_which_table(\%params)}->{attributes}};
 }
 
-sub get_all_attributes {
-    my ($self, %params) = @_;
-    $self->_get_uniq('_get_all_attributes', %params);
-}
-
-sub _get_all_attributes {
-    my ($self, %params) = @_;
-    $self->_get_all('get_attribute_list', %params);
-}
-
-sub _get_uniq {
-    my ($self, $method, %params) = @_;
-    my @attrs = $self->$method(%params);
-    my %attrs = map { $_ => undef } @attrs;
-    return sort keys %attrs;
-}
-
-sub _get_all {
-    my ($self, $method, %params) = @_;
-    return ((map { $_->_get_all($method, %params) } @{$self->superclasses}), $self->$method(%params));
-}
-
 # "spec" here means "whatever annotation went with this attribute when it's declared"
 sub find_attribute_spec {
     my ($self, $label, %params) = @_;
@@ -400,8 +378,6 @@ Perl6::MetaClass - Metaclass in the Perl 6 Meta Model
 =item B<has_attribute>
 
 =item B<get_attribute_list>
-
-=item B<get_all_attributes>
 
 =item B<find_attribute_spec>
 
