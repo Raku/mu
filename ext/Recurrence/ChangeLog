@@ -1,3 +1,9 @@
+2005-07-21
+
+* added unicode operators.
+
+* extracted Set::Symbols from Set.pm
+
 2005-07-17
 
 * extracted Recurrence.pm class from Span::Code

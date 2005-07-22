@@ -1,3 +1,7 @@
+2005-07-21
+
+* created DateTime::Recurrence
+
 2005-07-11
 
 * implemented DateTime::Span, Date::Span

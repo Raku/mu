@@ -1,13 +1,17 @@
 use v6;
 
-class Set::Infinite-0.01;
-
 use Span;
+use Set::Symbols;
 use Set::Infinite::Functional;
+
+class Set::Infinite-0.01
+    does Set::Symbols;
 
 has Set::Infinite::Functional $.set;
 
 =for TODO
+
+    * rename class to Span-Set ?
 
     * tests
 
@@ -17,15 +21,15 @@ has Set::Infinite::Functional $.set;
     * set_end_open / set_end_closed
         - better names ?
 
-    * set_density 
-
     * is_singleton
 
     * spans - return List of Span
 
-    * "backtracking" - see Perl5 version
+    * "backtracking" - see Perl5 version - recurrence of spans
 
-    * first_span/last_span
+    * first_span/last_span; span_iterator; iterator
+
+    * add_spans / remove_spans mutators
 
 From "Set" API:
 
@@ -36,96 +40,28 @@ From "Set" API:
     * subset
     * superset
     * includes/member/has
-    * unicode
 
 =cut
 
 submethod BUILD ($class: *%param is copy ) {    
-    # XXX - test if density is working properly
-    $.density = 1 if %param<int>;
-    $.density = %param<density> if defined %param<density>;
-
     my @spans;
-
-    for %param<objects> -> $span 
+    for ( *%param<objects>, *%param<spans> ) -> $span 
     {
         # TODO - write t/test for Array (such as 1 .. 10 and 1..10,20..30)
         next unless defined( $span );
         $span = Span.new( object => $span );
-        push %param<spans>, $span;
-    }
-
-    for %param<spans> -> $span 
-    {
         next if $span.is_empty;
-        $span = $span.span if $span.isa( 'Span' );
         push @spans, $span;
     }
-    
+    # TODO - use reduce()
     $.set = Set::Infinite::Functional.new();
     $.set = $.set.union( Set::Infinite::Functional.new( spans => $_ ) ) for @spans;
 }
 
 method is_empty () returns bool { return $.set.is_empty }
-
 method is_infinite () returns bool { return $.set.is_infinite }
-
-method density () returns Object { return $.set.density }
-
 method start () returns Object { return $.set.start }
-
-method set_start ($self: $start ) {
-    ...
-    if $self.is_empty 
-    {
-        $.span = $self.new( start => $start ).span;
-    }
-    else
-    {
-        my int $cmp = $start <=> $.span.end;
-        if $cmp > 0 {
-            warn "setting start bigger than end yields an empty set";
-            undefine $.span;
-        }
-        elsif $cmp == 0 && ( $.span.start_is_open || $.span.end_is_open ) {
-            warn "setting start equal to end yields an empty set";
-            undefine $.span;
-        }
-        else
-        {
-            $.span = $.span.clone;
-            $.span.start = $start;
-        }
-    }
-}
-
 method end () returns Object { return $.span.end }
-
-method set_end ($self: Object $end ) {
-    ...
-    if $self.is_empty 
-    {
-        $.span = $self.new( end => $end ).span;
-    }
-    else
-    {
-        my int $cmp = $.span.start <=> $end;
-        if $cmp > 0 {
-            warn "setting start bigger than end yields an empty set";
-            undefine $.span;
-        }
-        elsif $cmp == 0 && ( $.span.start_is_open || $.span.end_is_open ) {
-            warn "setting start equal to end yields an empty set";
-            undefine $.span;
-        }
-        else
-        {
-            $.span = $.span.clone;
-            $.span.end = $end;
-        }
-    }
-}
-
 method start_is_open () returns Bool { return $.set.start_is_open }
 method start_is_closed () returns Bool { return $.set.start_is_closed }
 method end_is_open () returns Bool { return $.set.end_is_open }
@@ -135,28 +71,13 @@ method size () returns Object { return $.set.size }
 
 submethod normalize_parameter ($self: $span) {
     # is it a Set::Infinite ?
-    return $span.span if $span.isa( $self.ref );
-
+    return $span.set if $span.isa( $self.ref );
     # is it a Set::Infinite::Functional ?
     my $span0 = $self.span;
     return $span if $span.isa( $span0.ref );
-
-    ...
-
-    # other types: Span, Span::Num, Span.Int, Object
-
-    my ( $start, $end );
-    # XXX - '.can' doesn't work
-    if $span.isa( 'Span::Num' ) || $span.isa( 'Span.Int')
-    {
-        $start = $span.start;
-        $end = $span.end;
-    }
-    else
-    {
-        $start = $end = $span;
-    }
-    return $span0.new( start => $start, end => $end );
+    # Span.pm knows what to do: Span, Span::Num, Span.Int, Object
+    my $span = Span.new( object => $span );
+    return $span0.new( spans => $span );
 }
 
 method compare ($self: $span is copy) {
@@ -167,11 +88,9 @@ method compare ($self: $span is copy) {
 
 method contains ($self: $span is copy) returns bool {
     return bool::false if $.span.is_empty;
-
     my $span0 = $self.span;
     my $span1 = $self.normalize_parameter( $span );
     my $union = $span0.union( $span1 );
-
     return $span0.compare( $union ) == 0;
 }
 
@@ -194,7 +113,6 @@ method intersection ($self: $span ) returns Set::Infinite {
     my $span0 = $self.span;
     my $span1 = $self.normalize_parameter( $span );
     my $tmp = $span0.intersection( $span1 );
-   
     my $res = Set::Infinite.new();
     $res.set = $tmp;
     return $res;
@@ -202,7 +120,6 @@ method intersection ($self: $span ) returns Set::Infinite {
 method complement ($self: ) returns Set::Infinite {
     my $span0 = $self.span;
     my $tmp = $span0.complement;
-
     my $res = Set::Infinite.new();
     $res.set = $tmp;
     return $res;
@@ -212,7 +129,6 @@ method difference ($self: $span ) returns Set::Infinite {
     my $span1 = $self.normalize_parameter( $span );
     my $tmp = $span1.complement;
     $tmp = $span0.intersection( $tmp );
-
     my $res = Set::Infinite.new();
     $res.set = $tmp;
     return $res;
@@ -269,14 +185,6 @@ The following methods are available for Span objects:
 Return the start or end value of the span.
 
 These methods may return nothing if the span is empty.
-
-- `set_start( $object )` / `set_end( $object )`
-
-Change the start or end value of the span.
-
-These methods may raise a warning if the new value would put the span 
-in an invalid state, such as `start` bigger than `end` (the span is
-emptied in this case).
 
 - `start_is_open()` / `end_is_open()` / `start_is_closed()` / `end_is_closed()`
 

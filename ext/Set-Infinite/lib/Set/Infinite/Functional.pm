@@ -5,33 +5,21 @@ class Set::Infinite::Functional-0.01;
 use Span;
 
 has @.spans;
-has $.density;
 
 =for TODO
 
     * compare
 
-    * mark as "internal" class
-
-    * base-type spans should not store 'density' inside them - it's duplicated
-
-    * set_density
-
-    * how to make the 'density' accessor read-only?
-
 =cut
 
-submethod BUILD ( @.spans, ?$density ) {}
+submethod BUILD ( @.spans ) {}
 
 method empty_set ($class: ?$density ) returns Set::Infinite::Functional {
-    $class.new( spans => (),
-                density => $density );
+    $class.new( spans => () );
 }
 
-method universal_set ($class: ?$density ) returns Set::Infinite::Functional {
-    $class.new( spans => Span.new( 
-                           start => -Inf, end => Inf, density => $density ).span,
-                density => $density );
+method universal_set ($class: ) returns Set::Infinite::Functional {
+    $class.new( spans => Span.new( start => -Inf, end => Inf ) );
 }
 
 method is_empty () returns bool { return ! @.spans }

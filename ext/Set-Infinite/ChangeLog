@@ -1,3 +1,13 @@
+ChangeLog for Set-Infinite
+
+2005-07-21
+
+* added unicode operators
+
+* removed "density" options
+
+* Set::Infinite contains "Span" objects, instead of Span::Num, etc.
+
 2005-07-11
 
 * Span.pm removed, gets it's own package

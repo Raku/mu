@@ -550,7 +550,7 @@ The argument can be a Span object, a Recurrence object, or a scalar value.
 - `union( $span )`
 
 Returns a list of Spans. If the spans overlap, then the list contains a single
-span. Otherwise, it contains two spans.
+span. Otherwise, it contains two spans. Spans of recurrences may yield three spans.
 
 The argument can be a Span object, a Recurrence object, or a scalar value.
 

@@ -1,10 +1,9 @@
 use v6;
 
+use Span;
+
 class Date::Span-0.01
     does Span;
-
-# XXX - is this needed?
-use Span;
 
 =for TODO
 
@@ -12,7 +11,7 @@ use Span;
 
     * from_duration constructor needs some tweaks
 
-    * tests
+    * tests and docs
 
     * document differences from Perl5 DateTime::Span
         - Perl5 version uses Set::Infinite; this version uses Array
@@ -97,6 +96,8 @@ The following methods are available for Set::Span objects:
 - `start()`
 
 Returns the start.
+
+  # XXX
 
 = AUTHOR
 
