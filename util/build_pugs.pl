@@ -19,9 +19,9 @@ sub build {
     run($^X, qw<util/gen_prelude.pl -v --touch --null --output src/Pugs/PreludePC.hs>);
     run(@{ $opts->{GHC} });
 
-    if (lookup('precompile_prelude')) {
+    if (PugsBuild::Config->lookup('precompile_prelude')) {
         run($^X, qw<util/gen_prelude.pl -v -i src/perl6/Prelude.pm>,
-                (map { ('-i' => $_) } @{ lookup('precompile_modules') }),
+                (map { ('-i' => $_) } @{ PugsBuild::Config->lookup('precompile_modules') }),
                 '-p', $thispugs, qw<--touch --output src/Pugs/PreludePC.hs>);
         run(@{ $opts->{GHC} });
     }
@@ -30,23 +30,15 @@ sub build {
 sub classify_options {
     my($kind, %opts);
     for (@_) {
-        $kind = $1,  next if /^\+(.*)/;
-        undef $kind, next if $_ eq "-$kind";
+        $kind = $1,  next if /^_\+(.*)/;
+        undef $kind, next if $_ eq "_-$kind";
         
-        s/^\\\+/+/;    # allow passing +opt
-        s/^__(.*)__$/lookup($1)/e;
+        s/^__(.*)__$/PugsBuild::Config->lookup($1)/e;
         
         die "don't know where this option belongs: $_" unless $kind;
         push @{ $opts{$kind} }, $_;
     }
     \%opts;
-}
-
-sub lookup {
-    my($what) = @_;
-    my $value = $BuildPrefs{$what};
-    die "unknown option: $what" unless defined $value;
-    return $value;
 }
 
 sub run {

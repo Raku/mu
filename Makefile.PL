@@ -6,6 +6,8 @@ use Cwd qw(abs_path);
 use File::Spec;
 #use lib 'util';
 use inc::Module::Install;
+use lib 'inc';
+use PugsBuild::Config;
 
 my $pugs = "pugs$Config{_exe}";
 my ($fs) = ($Config{sitelib} =~ /([\/\\])/)
@@ -99,6 +101,8 @@ sub set_postamble {
         $hsc2hs =~ s{(.*)ghc}{$1hsc2hs};
     }
 
+    my $heap = PugsBuild::Config->lookup('ghc_heap_size');
+    $ghc_flags .= " +RTS -M$heap -RTS" if $heap;
     # $ghc_flags .= ' -dcore-lint';
     # $ghc_flags .= " -keep-tmp-files";
     if (has_ghc_package('plugins')
@@ -332,7 +336,7 @@ docs/haddock :
 	\@\$(PERL) -e "mkdir q-docs/haddock-"
 
 profiled :: src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h @prereqs config.yml
-	\$(PERL) util/build_pugs.pl +GHC $ghc $threaded -O -auto-all -prof --make $profiled_flags $ccdlflags $ghc_output -GHC +GEN_PRELUDE --pugs=$thispugs
+	\$(PERL) util/build_pugs.pl _+GHC $ghc $threaded -O -auto-all -prof --make $profiled_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs=$thispugs
 
 pugs.prof :: profiled
 	find t -type f | grep -v D | grep -v R | grep -v pugsrun | ./pugs +RTS -p -RTS -e 'my sub exit {}; for =\$\$*IN -> \$\$t is copy { \$\$t .= chomp; require \$\$t }'
@@ -340,15 +344,15 @@ pugs.prof :: profiled
 optimised :: optimized
 
 optimized :: src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h @prereqs config.yml
-	\$(PERL) util/build_pugs.pl +GHC $ghc $threaded -O --make $ghc_flags $embed_flags $ccdlflags $ghc_output -GHC +GEN_PRELUDE --pugs=$thispugs
+	\$(PERL) util/build_pugs.pl _+GHC $ghc $threaded -O --make $ghc_flags $embed_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs=$thispugs
 
 unoptimised :: unoptimized
 
 unoptimized :: src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h @prereqs config.yml
-	\$(PERL) util/build_pugs.pl +GHC $ghc $threaded -O0 --make $ghc_flags $embed_flags $ccdlflags $ghc_output -GHC +GEN_PRELUDE --pugs=$thispugs
+	\$(PERL) util/build_pugs.pl _+GHC $ghc $threaded -O0 --make $ghc_flags $embed_flags $ccdlflags $ghc_output -GHC _+GEN_PRELUDE --pugs=$thispugs
 
 $pugs : src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h @prereqs config.yml
-	\$(PERL) util/build_pugs.pl +GHC $ghc $threaded __optimization__ --make $ghc_flags $embed_flags $ccdlflags $ghc_output -GHC +GEN_PRELUDE --pugs $thispugs
+	\$(PERL) util/build_pugs.pl _+GHC $ghc $threaded __optimization__ --make $ghc_flags $embed_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
 
 smoke : $pugs util/run-smoke.pl all
 	\$(PERL) util/run-smoke.pl . smoke.html
@@ -360,7 +364,7 @@ pirtest :
 	\$(PERL) -e "ENV->{HARNESS_PERL_SWITCHES}=q+-B PIR+; system qq+$Config{make}+, q+test+"
 
 ghci ::
-	\$(PERL) util/build_pugs.pl +GHC $ghc --interactive $ghc_flags $ghc_output -GHC +GEN_PRELUDE --pugs $thispugs
+	\$(PERL) util/build_pugs.pl _+GHC $ghc --interactive $ghc_flags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
 
 tags : @srcfiles
 	$hasktags -c @srcfiles

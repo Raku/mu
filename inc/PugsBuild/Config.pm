@@ -58,4 +58,11 @@ sub defaults {
         keys %DEFAULTS;
 }
 
+sub lookup {
+    my($class, $what) = @_;
+    my $value = $Conf->{$what};
+    die "unknown option: $what" unless defined $value;
+    return $value;
+}
+
 1;

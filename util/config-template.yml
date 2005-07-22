@@ -24,6 +24,6 @@ precompile_prelude: true
 
 # precompile_modules: [ ext/Test/lib/Test.pm ]
 
-# Set this to a large value (-M320m) if precompiling anything more than
+# Set this to a large value (e.g. 320m) if precompiling anything more than
 # the standard Prelude.
-# ghc_heap_size: -M320m # FIXME: doesn't work yet. (+RTS stuff)
+# ghc_heap_size: 320m
