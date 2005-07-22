@@ -5,7 +5,6 @@ use strict;
 use warnings;
 
 use Scalar::Util 'blessed';
-use Perl6::MetaModel '-no_import';
 
 use base 'Perl6::Method';
 
@@ -18,8 +17,7 @@ sub force_call {
 sub call { 
     my ($self, @args) = @_;  
     # next METHOD if $?SELF != $?CLASS;
-    return Perl6::MetaModel::next_METHOD() 
-        if blessed($args[0]) ne $self->associated_with; 
+    return next_METHOD() if blessed($args[0]) ne $self->associated_with; 
     $self->SUPER::call(@args); 
 }
 

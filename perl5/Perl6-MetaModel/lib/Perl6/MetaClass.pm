@@ -321,9 +321,6 @@ sub _which_table {
         return CLASS_TABLE;
     }
     elsif (lc($params->{for}) eq 'submethod') {
-        # XXX - this is flat out wrong, but we 
-        # will leave it for now, until we have
-        # proper sub-methods
         return INSTANCE_TABLE; 
     }    
     else {

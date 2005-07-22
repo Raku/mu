@@ -7,6 +7,7 @@ use warnings;
 use Carp 'confess';
 use Scalar::Util 'blessed';
 
+use Perl6::MetaClass;
 use Perl6::Role;
 use Perl6::Object;
 
@@ -37,10 +38,10 @@ sub apply {
         package $name;
         \@$name\:\:ISA = 'Perl6::Object';
     |;
-    eval $code || confess "Could not initialize class '$name'";    
+    eval $code || confess "Could not initialize class '$name'";   
+    my $meta; 
     eval {
-        no strict 'refs';
-        ${$name .'::META'} = Perl6::MetaClass->new(
+        $meta = Perl6::MetaClass->new(
             name => $name,
             (defined $version   ? (version   => $version)   : ()),
             (defined $authority ? (authority => $authority) : ())                              
@@ -48,11 +49,12 @@ sub apply {
     };
     confess "Could not initialize the metaclass for $name : $@" if $@;
     eval {
-        no strict 'refs';            
+        no strict 'refs';
+        ${$name .'::META'} = $meta;                     
         *{$self->name . '::'} = *{$name . '::'};
     };
     confess "Could not create full name " . $self->name . " : $@" if $@;    
-    $self->_build_class($name);    
+    $self->_build_class($meta);    
 }
 
 ## Private methods
@@ -88,24 +90,26 @@ sub _get_class_meta_information {
 }
 
 sub _build_class {
-    my ($self, $name) = @_;
+    my ($self, $meta) = @_;
+
+    my $name = $meta->name;
 
     my $superclasses = $self->{params}->{is} || [ 'Perl6::Object' ];
-    ($name)->meta->superclasses([ map { $_->meta } @{$superclasses} ]);        
+    $meta->superclasses([ map { $_->meta } @{$superclasses} ]);        
 
     if (my $instance = $self->{params}->{instance}) {
 
-        ($name)->meta->add_method('BUILD' => Perl6::SubMethod->new($name => $instance->{BUILD}))
+        $meta->add_method('BUILD' => Perl6::SubMethod->new($name => $instance->{BUILD}))
             if exists $instance->{BUILD};            
-        ($name)->meta->add_method('DESTROY' => Perl6::SubMethod->new($name => $instance->{DESTROY}))          
+        $meta->add_method('DESTROY' => Perl6::SubMethod->new($name => $instance->{DESTROY}))          
             if exists $instance->{DESTROY};
             
         if (exists $instance->{methods}) {
-            ($name)->meta->add_method($_ => Perl6::Instance::Method->new($name, $instance->{methods}->{$_})) 
+            $meta->add_method($_ => Perl6::Instance::Method->new($name, $instance->{methods}->{$_})) 
                 foreach keys %{$instance->{methods}};
         }
         if (exists $instance->{submethods}) {
-            ($name)->meta->add_method($_ => Perl6::SubMethod->new($name, $instance->{submethods}->{$_})) 
+            $meta->add_method($_ => Perl6::SubMethod->new($name, $instance->{submethods}->{$_})) 
                 foreach keys %{$instance->{submethods}};
         }        
         if (exists $instance->{attrs}) {
@@ -114,7 +118,7 @@ sub _build_class {
                 if (ref($attr) eq 'ARRAY') {
                     ($attr, $props) = @{$attr}; 
                 }
-                ($name)->meta->add_attribute(
+                $meta->add_attribute(
                     $attr => Perl6::Instance::Attribute->new($name => $attr, $props)
                 );              
             }
@@ -127,7 +131,7 @@ sub _build_class {
                 if (ref($attr) eq 'ARRAY') {
                     ($attr, $props) = @{$attr}; 
                 }
-                ($name)->meta->add_attribute(
+                $meta->add_attribute(
                     $attr => Perl6::Class::Attribute->new($name => $attr, $props)
                 );              
             }            
@@ -135,7 +139,7 @@ sub _build_class {
         }
         if (exists $class->{methods}) {
             foreach my $label (keys %{$class->{methods}}) {
-                ($name)->meta->add_method(
+                $meta->add_method(
                     $label => Perl6::Class::Method->new($name, $class->{methods}->{$label})
                 );
             }
@@ -143,7 +147,7 @@ sub _build_class {
     }
 
 
-    Perl6::Role->flatten_roles_into($name, @{$self->{params}->{does}})
+    Perl6::Role->flatten_roles_into($meta, @{$self->{params}->{does}})
         if $self->{params}->{does};
 }
 

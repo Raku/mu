@@ -9,7 +9,6 @@ use Carp 'confess';
 
 use Perl6::Role;
 use Perl6::Class;
-use Perl6::Object;
 
 sub import {
     shift;
@@ -37,13 +36,14 @@ sub import {
     *{$caller_pkg . '::__'} = \&__; 
 }
 
+our @CURRENT_DISPATCHER = ();
 
 ## this just makes sure to clear the invocant when
 ## something dies, it is not pretty, but it works
 $SIG{'__DIE__'} = sub { 
     @Perl6::Method::CURRENT_INVOCANT_STACK = (); 
     @Perl6::Method::CURRENT_CLASS_STACK    = ();     
-    @Perl6::Object::CURRENT_DISPATCHER     = ();
+    @Perl6::MetaModel::CURRENT_DISPATCHER     = ();
     CORE::die @_; 
 };
 
@@ -93,10 +93,17 @@ sub _ {
 }
 
 sub next_METHOD {
-    my ($dispatcher, $label, $self, @args) = @{$Perl6::Object::CURRENT_DISPATCHER[-1]};             
+    my ($dispatcher, $label, $self, @args) = @{$CURRENT_DISPATCHER[-1]};             
     my $method = WALKMETH($dispatcher, $label); 
     return $method->call($self, @args);    
 }
+
+# XXX - this needs to be here to break circularity
+# formerly Submethod loaded Perl6::MetaModel, which 
+# lead to a cycle in the load, which caused it to fail
+# since all Submethod needs is this (next_METHOD), 
+# then we can do that here, and avoid the cycle
+*Perl6::SubMethod::next_METHOD = \&next_METHOD;
 
 sub WALKMETH {
     my ($dispatcher, $label, %opts) = @_;

@@ -21,19 +21,19 @@ sub add_role {
 }
 
 sub flatten_roles_into {
-    my ($meta_role, $class, @roles) = @_;
-    debug "combining the roles (" . (join ", ", @roles) . ") into (" . $class->meta->name . ")";
-    my $r = $meta_role->combine_roles($class, @roles);
+    my ($meta_role, $meta, @roles) = @_;
+    debug "combining the roles (" . (join ", ", @roles) . ") into (" . $meta->name . ")";
+    my $r = $meta_role->combine_roles($meta, @roles);
     debug "flattened role is (" . $r->{name} . ")";
     foreach my $method (keys %{$r->{methods}}) {
-        debug "adding the method ($method) into (" . $class->meta->name . ")";
-        $class->meta->add_method($method => Perl6::Role::Method->new(
-            $class->meta->name,
+        debug "adding the method ($method) into (" . $meta->name . ")";
+        $meta->add_method($method => Perl6::Role::Method->new(
+            $meta->name,
             $r->{methods}->{$method}
-            )) unless $class->meta->has_method($method);
+            )) unless $meta->has_method($method);
     }
-    $class->meta->add_method('does' => Perl6::Role::Method->new(
-        $class->meta->name, sub {
+    $meta->add_method('does' => Perl6::Role::Method->new(
+        $meta->name, sub {
         my (undef, $role) = @_;
         return $role =~ /\b$r->{name}\b/ if $role;
         return split /\|/ => $r->{name};
@@ -41,7 +41,7 @@ sub flatten_roles_into {
 }
 
 sub combine_roles {
-    my ($meta_role, $class, @role_names) = @_;
+    my ($meta_role, $meta, @role_names) = @_;
     debug "combine-ing roles -> (" . (join ", ", @role_names) . ")";
     my @roles = $meta_role->collect_role_list(\@role_names);
 
@@ -56,7 +56,7 @@ sub combine_roles {
         foreach my $method_name (keys %{$role->{methods}}) {
             debug "adding the method ($method_name) into the role (" . $role->{name} . ")";
             if (exists $composite_role->{methods}->{$method_name}) {
-                unless ($class->meta->has_method($method_name)) {
+                unless ($meta->has_method($method_name)) {
                     confess "We have a method conflict on ($method_name) in (" . $role->{name} . ")";                
                 }
             }
