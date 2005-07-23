@@ -72,7 +72,8 @@ clean_files     (map fixpaths($_),
     (map {("$_/*.o*")} qw(pcre perl5 syck)),
     (map {("$_/*.hpp", "$_/*.hi", "$_/*.o*")} @srcdirs),
     'temp-ex*',
-    'unlink-test*'
+    'unlink-test*',
+    'tmp-Prelude.pm',
 );
 
 set_postamble   ();
