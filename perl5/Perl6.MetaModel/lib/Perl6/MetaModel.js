@@ -8,8 +8,14 @@ function require (classname) {
 }
 require.INC = '.';
 
+function iv (label, value) {    
+    var self = SELF();
+    if (value != undefined) self.attributes[label] = value;
+    return self.attributes[label]; 
+}
+
 function WALKCLASS (dispacther, options) {
-    return dispatcher.next();
+    return dispacther.next();
 }
 
 function WALKMETH (dispatcher, label, options) {
@@ -33,14 +39,14 @@ function CLASS () {
     if (Perl6.Method.CURRENT_CLASS_STACK.length == 0) {
         throw "You cannot call \$?CLASS from outside of a MetaModel method";
     }
-    return Perl6.Method.CURRENT_CLASS_STACK[Perl6.Method.CURRENT_CLASS_STACK.length];
+    return Perl6.Method.CURRENT_CLASS_STACK[Perl6.Method.CURRENT_CLASS_STACK.length - 1];
 }
 
 function SELF () {
     if (Perl6.Method.CURRENT_INVOCANT_STACK.length == 0) {
         throw "You cannot call \$?SELF from outside of a MetaModel method";
     }
-    return Perl6.Method.CURRENT_INVOCANT_STACK[Perl6.Method.CURRENT_INVOCANT_STACK.length];    
+    return Perl6.Method.CURRENT_INVOCANT_STACK[Perl6.Method.CURRENT_INVOCANT_STACK.length - 1];    
 }
 
 /*

@@ -14,12 +14,13 @@
 <body>
 <pre id='test'><script type="text/javascript">
 
-plan({ tests : 19 });
+plan({ tests : 20 });
 
-var Foo = new Perl6.Class ('Foo-0.0.1-jsan:STEVAN', {
+var Foo = new Perl6.Class ('Foo', {
     'class' : {
         'methods' : {
-            'bar' : function () { return 'Foo.bar' }
+            'bar' : function () { return 'Foo.bar'; },
+            'blah' : function (klass, name) { return klass + ".baz(" + name + ")"; }
         }
     }
 });
@@ -36,9 +37,11 @@ ok(!Foo.can('baz'), '... Foo cant baz()');
 isaOK(Foo.can('bar'), 'Perl6.Method');
 is(Foo.can('bar').call(), 'Foo.bar', '... Foo.bar() returns "Foo.bar"');
 
+is(Foo.can('blah').call(Foo, "Stevan"), 'Perl6.Class=[Foo-0.0.0].baz(Stevan)', '... Foo.baz() takes arguments');
+
 // ...
 
-var Bar = new Perl6.Class ('Bar-0.0.1-jsan:STEVAN', { 
+var Bar = new Perl6.Class ('Bar', { 
     'is' : [ Foo ],
     'class' : {
         'methods' : {

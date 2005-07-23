@@ -175,6 +175,67 @@ Perl6.MetaClass.prototype.has_method = function (label, type) {
     return this.get_method(label, type) ? true : false;
 }
 
+// attributes
+
+Perl6.MetaClass.prototype.add_attribute = function (label, attribute, type) {
+    // XXX - need to create the accessor here ....
+    if (!type || type == 'instance') {
+        this._class_definition.attributes[label] = attribute;        
+    }
+    else if (type == 'class') {
+        this._class_data.attributes[label] = attribute;            
+    }    
+    else {
+        throw 'Unsupported Attribute Type';
+    }
+}
+
+Perl6.MetaClass.prototype.get_attribute = function (label, type) {
+    if (!type || type == 'instance') {
+        return this._class_definition.attributes[label];        
+    }
+    else if (type == 'class') {
+        return this._class_data.attributes[label];            
+    }
+    else {
+        throw 'Unsupported Attribute Type';
+    }    
+}
+
+Perl6.MetaClass.prototype.has_attribute = function (label, type) {
+    return this.get_attribute(label, type) ? true : false;
+}
+
+Perl6.MetaClass.prototype.get_attribute_list = function (type) {
+    var table;
+    if (!type || type == 'instance') {
+        table = this._class_definition.attributes;        
+    }
+    else if (type == 'class') {
+        table = this._class_data.attributes;
+    }
+    else {
+        throw 'Unsupported Attribute Type';
+    }   
+    var keys = [];
+    for (key in table) {
+        keys.push(key);
+    }
+    return keys;
+}
+
+Perl6.MetaClass.prototype.find_attribute_spec = function (label, type) {
+    var dispatcher = this.dispatcher(':descendant');
+    var next;
+    while (next = dispatcher.next()) {
+        if (next.has_attribute(label, type)) {
+            return next.get_attribute(label, type);
+        }
+    }
+    return undefined
+}
+
+
 /*
 
 =pod

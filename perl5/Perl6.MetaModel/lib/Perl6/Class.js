@@ -1,5 +1,7 @@
 
+require('Perl6.MetaClass');     
 require('Perl6.Method');     
+require('Perl6.Attribute');   
 
 if (Perl6 == undefined) var Perl6 = function () {};
 
@@ -42,9 +44,10 @@ function _extract_name (my_class, long_name) {
 
 function _process_options (my_class, options) {
     if (options['is']) {
+        var is = options['is'];
         var supers = [];
-        for (var i = 0; i < options['is'].length; i++) {
-            supers[i] = options['is'][i].meta();
+        for (var i = 0; i < is.length; i++) {
+            supers[i] = is[i].meta();
         }
         my_class.meta().superclasses(supers);
     }
@@ -59,6 +62,22 @@ function _process_options (my_class, options) {
                 my_class.meta().add_method(label, method, 'instance');
             }
         }
+        if (instance['attrs']) {
+            var attrs = instance['attrs'];
+            for (var i = 0; i < attrs.length; i++) {
+                var name;
+                var props;
+                if (typeof attrs[i] == 'object') {
+                    name = attrs[i][0];
+                    props = attrs[i][1];                    
+                }
+                else {
+                    name = attrs[i];
+                }
+                var attribute = new Perl6.Attribute(my_class.meta().name(), name, props);
+                my_class.meta().add_attribute(name, attribute, 'instance');
+            }
+        }
     }
     if (options['class']) {
         var _class = options['class']
@@ -68,6 +87,22 @@ function _process_options (my_class, options) {
                 my_class.meta().add_method(label, method, 'class');
             }
         }
+        if (_class['attrs']) {
+            var attrs = _class['attrs'];
+            for (var i = 0; i < attrs.length; i++) {
+                var name;
+                var props;
+                if (typeof attrs[i] == 'Array') {
+                    name = attrs[i][0];
+                    props = attrs[i][1];                    
+                }
+                else {
+                    name = attrs[i];
+                }                
+                var attribute = new Perl6.Attribute(my_class.meta().name(), name, props);
+                my_class.meta().add_attribute(name, attribute, 'instance');
+            }
+        }        
     }
 }
 

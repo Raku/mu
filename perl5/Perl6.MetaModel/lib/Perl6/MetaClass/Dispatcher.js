@@ -9,6 +9,9 @@ Perl6.MetaClass.Dispatcher = function (metaclass, order) {
     if (order == ':ascendant') {
         dispatcher = _make_ascendant_dispatcher(metaclass);
     }
+    else if (order == ':descendant') {
+        dispatcher = _make_descendant_dispatcher(metaclass);
+    }    
     else {
         throw 'Unsupported dispatch order';
     }
@@ -27,4 +30,8 @@ function _make_iterator (values) {
 
 function _make_ascendant_dispatcher (metaclass) {
     return _make_iterator(metaclass.MRO());
+}
+
+function _make_descendant_dispatcher (metaclass) {
+    return _make_iterator(metaclass.MRO().reverse());
 }
