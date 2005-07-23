@@ -4,6 +4,11 @@ package org.perl6.metamodel;
 import java.util.*;
 
 public class MetaClass {
+
+    public static int CLASS = 1;
+    public static int INSTANCE = 2;    
+
+/* ATTRIBUTES */
     
     // meta-info
     private String name;
@@ -11,8 +16,23 @@ public class MetaClass {
     private String authority;   
     
     // the guts of the metaclass
+    
+    /*
+    XXX - these all should likely have their own 
+    classes, so that I don't need to do all the 
+    casting back and forth. But they will do for now.
+    */
+    
     private ArrayList MRO;
     private ArrayList superclasses = new ArrayList();
+    
+    private HashMap instance_methods = new HashMap();
+    private HashMap instance_attributes = new HashMap();    
+    
+    private HashMap class_methods = new HashMap();
+    private HashMap class_attributes = new HashMap();     
+    
+/* METHODS */   
   
     // constructors
   
@@ -95,9 +115,7 @@ public class MetaClass {
     }
 
     public boolean _in_tail (ArrayList seq, MetaClass cand) {
-        if (seq.indexOf(cand) > 0) {
-            return true;
-        }
+        if (seq.indexOf(cand) > 0) return true;
         return false;
     }
     
@@ -163,6 +181,56 @@ public class MetaClass {
             MRO = merge(args);
         }
         return MRO;
+    }   
+    
+    // Methods
+    
+    public void add_method (String label, Method method, int which_table) throws Exception {
+        if (which_table == INSTANCE) {
+            instance_methods.put(label, method);
+        }
+        else if (which_table == CLASS) {
+            class_methods.put(label, method);
+        }
+        else {
+            throw new Exception ("Unsupported dispatch table");
+        }
+    }
+    
+    public void add_method (String label, Method method) {
+        instance_methods.put(label, method);
     }    
+    
+    public boolean has_method (String label, int which_table) throws Exception {
+        if (which_table == INSTANCE) {
+            return instance_methods.containsKey(label);
+        }
+        else if (which_table == CLASS) {
+            return class_methods.containsKey(label);
+        }
+        else {
+            throw new Exception ("Unsupported dispatch table");
+        }        
+    }
+    
+    public boolean has_method (String label) {
+        return instance_methods.containsKey(label);
+    }
+    
+    public Method get_method (String label, int which_table) throws Exception {
+        if (which_table == INSTANCE) {
+            return (Method) instance_methods.get(label);
+        }
+        else if (which_table == CLASS) {
+            return (Method) class_methods.get(label);
+        }
+        else {
+            throw new Exception ("Unsupported dispatch table");
+        }        
+    }        
+    
+    public Method get_method (String label) {
+        return (Method) instance_methods.get(label);
+    }
 
 }

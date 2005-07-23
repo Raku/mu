@@ -113,6 +113,92 @@ public class MetaClassTest extends TestCase {
         assertTrue(m4.is_a("Blah"));         
     }        
   
+    public void testInstanceMethod () {
+        MetaClass m = new MetaClass("Foo");
+        
+        Method method = new Method (m) {
+            public Object code (Object inv, ArrayList args) {
+                return "Foo.bar";
+            }
+        };
+        
+        m.add_method("bar", method);
+        
+        assertTrue(m.has_method("bar"));
+        
+        Method method2 = m.get_method("bar");
+        assertEquals(method, method2);
+        
+        assertEquals(method2.call("inv", new ArrayList()), "Foo.bar");
+    }  
+  
+    public void testExplicitInstanceMethod () {
+        MetaClass m = new MetaClass("Foo");
+
+        Method method = new Method (m) {
+            public Object code (Object inv, ArrayList args) {
+                return "Foo.bar";
+            }
+        };
+
+        boolean exception_thrown = false;
+        try {
+            m.add_method("bar", method, MetaClass.INSTANCE);
+        } catch (Exception e) {
+            exception_thrown = true;
+        }
+        assertFalse(exception_thrown);
+        
+        exception_thrown = false;
+        try {
+            assertTrue(m.has_method("bar", MetaClass.INSTANCE));
+        } catch (Exception e) {
+            exception_thrown = true;
+        }
+        assertFalse(exception_thrown);
+
+        Method method2 = null;
+        try {
+            method2 = m.get_method("bar", MetaClass.INSTANCE);
+        } catch (Exception e) {}
+            
+        assertEquals(method, method2);
+        assertEquals(method2.call("inv", new ArrayList()), "Foo.bar");
+    }    
+    
+    public void testClassMethod () {
+        MetaClass m = new MetaClass("Foo");
+
+        Method method = new Method (m) {
+            public Object code (Object inv, ArrayList args) {
+                return "Foo.bar";
+            }
+        };
+
+        boolean exception_thrown = false;
+        try {
+            m.add_method("bar", method, MetaClass.CLASS);
+        } catch (Exception e) {
+            exception_thrown = true;
+        }
+        assertFalse(exception_thrown);
+
+        exception_thrown = false;
+        try {
+            assertTrue(m.has_method("bar", MetaClass.CLASS));
+        } catch (Exception e) {
+            exception_thrown = true;
+        }
+        assertFalse(exception_thrown);
+
+        Method method2 = null;
+        try {
+            method2 = m.get_method("bar", MetaClass.CLASS);
+        } catch (Exception e) {}
+
+        assertEquals(method, method2);
+        assertEquals(method2.call("inv", new ArrayList()), "Foo.bar");
+    }     
 }
 
 
