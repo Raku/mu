@@ -33,7 +33,7 @@ Perl6.Instance - Base class for Instances in the Perl 6 Meta Model
 =head1 DESCRIPTION
 
 This is mearly the instance structure, do not think of this as a Javascript object which is 
-supposed to behave like a Perl 6 object, but as a Perl6 object instance all it's own.
+supposed to behave like a Perl 6 object, but as a Perl 6 object instance all it's own.
 
 =head1 METHODS 
 

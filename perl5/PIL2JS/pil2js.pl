@@ -6,6 +6,9 @@ use warnings;
 use strict;
 use lib "lib";
 
+# use BSD::Resource;
+# setrlimit RLIMIT_CPU, 35, 45 or die "Couldn't setrlimit: $!\n";
+
 use FindBin;
 use File::Spec;
 use lib File::Spec->catfile($FindBin::Bin, "lib");
