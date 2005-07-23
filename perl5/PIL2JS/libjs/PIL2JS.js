@@ -22,6 +22,12 @@ PIL2JS.new_uid = function () {
 // PIL2JS.Hash) {...}.
 PIL2JS.Hash = function () {};
 
+// Ref class.
+PIL2JS.Ref = function (referencee) {
+  this.referencee = referencee;
+  return this;
+};
+
 // This is necessary to emulate pass by ref, needed for is rw and is ref.
 // See section "DESIGN" in README.
 // GET    :: SomeNativeType
@@ -91,6 +97,9 @@ PIL2JS.Box.prototype = {
 
     } else if(unboxed instanceof Boolean) {
       return unboxed == true ? true : false;
+
+    } else if(unboxed instanceof PIL2JS.Ref) {
+      return unboxed.referencee.toNative();
 
     // Special magic for string: Work aroung IE bug.
     } else if(typeof unboxed == "string") {
@@ -263,8 +272,14 @@ PIL2JS.die = function (msg) {
 // continuations, i.e. exceptions.
 PIL2JS.ControlException       = {};
 PIL2JS.ControlException.last  = function () {};
+PIL2JS.ControlException.last.prototype.toString =
+  function () { return "Can't \"last\" outside a loop block!" };
 PIL2JS.ControlException.next  = function () {};
+PIL2JS.ControlException.next.prototype.toString =
+  function () { return "Can't \"next\" outside a loop block!" };
 PIL2JS.ControlException.redo  = function () {};
+PIL2JS.ControlException.redo.prototype.toString =
+  function () { return "Can't \"redo\" outside a loop block!" };
 PIL2JS.ControlException.ret   = function (level, retval) {
   // The sublevel (SUBROUTINE, SUBBLOCK, etc.) the &return/&leave/whatever is
   // destined to.

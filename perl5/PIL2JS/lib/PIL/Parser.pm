@@ -222,7 +222,7 @@ sub expr {
 # Match a double quoted string, returning the string unquoted.
 sub dqstring {
   string '"';
-  $pil =~ s/^((?:(?<!\\)\\"|.)*?)"/"/ or die "Expected: double quoted string.\n$pil";
+  $pil =~ s/^((?:(?:\\\\)*\\.|.)*?)"/"/ or die "Expected: double quoted string.\n$pil";
   my $str = $1;
   symbol '"';
 

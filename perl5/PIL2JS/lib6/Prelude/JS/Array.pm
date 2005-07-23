@@ -3,6 +3,7 @@
 method JS::Root::shift(Array $self:) {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
     var ret = args[1].GET().shift();
+    if(ret instanceof PIL2JS.Ref) ret = ret.referencee.GET();
     return ret == undefined ? new PIL2JS.Box.Constant(undefined) : ret;
   })')($self);
 }
@@ -10,6 +11,7 @@ method JS::Root::shift(Array $self:) {
 method JS::Root::pop(Array $self:) {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
     var ret = args[1].GET().pop();
+    if(ret instanceof PIL2JS.Ref) ret = ret.referencee.GET();
     return ret == undefined ? new PIL2JS.Box.Constant(undefined) : ret;
   })')($self);
 }
@@ -17,6 +19,7 @@ method JS::Root::pop(Array $self:) {
 method JS::Root::unshift(Array $self: *@things) {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
     var array = args[1].GET(), add = args[2].GET();
+    if(array instanceof PIL2JS.Ref) array = array.referencee.GET();
     for(var i = add.length - 1; i >= 0; i--) {
       array.unshift(new PIL2JS.Box(add[i].GET()));
     }
@@ -27,6 +30,7 @@ method JS::Root::unshift(Array $self: *@things) {
 method JS::Root::push(Array $self: *@things) {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
     var array = args[1].GET(), add = args[2].GET();
+    if(array instanceof PIL2JS.Ref) array = array.referencee.GET();
     for(var i = 0; i < add.length; i++) {
       array.push(new PIL2JS.Box(add[i].GET()));
     }
@@ -113,7 +117,7 @@ sub infix:<,>(*@xs) is primitive {
   })')(@xs);
 }
 
-sub circumfix:<[]>(*@xs) is primitive { @xs }
+sub circumfix:<[]>(*@xs) is primitive { \@xs }
 method postcircumfix:<[]>(Array $self: Int $idx is copy) is rw {
   # *Important*: We have to calculate the idx only *once*:
   #   my @a  = (1,2,3,4);
@@ -125,6 +129,7 @@ method postcircumfix:<[]>(Array $self: Int $idx is copy) is rw {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
     var cxt   = args.shift();
     var array = args[0].GET();
+    if(array instanceof PIL2JS.Ref) array = array.referencee.GET();
     var idx   = args[1].toNative();
 
     // Relay .GET and .STORE to array[idx].

@@ -19,6 +19,7 @@ use Prelude::JS::IO;
 use Prelude::JS::Str;
 use Prelude::JS::Bool;
 use Prelude::JS::OO;
+use Prelude::JS::Ref;
 use Prelude::JS::Hash;
 use Prelude::JS::Array;
 
@@ -48,11 +49,13 @@ sub prefix:<~>($thing) is primitive {
   if($thing.isa("Str")) {
     JS::inline('function (thing) { return String(thing).toString() }')($thing);
   } elsif($thing.isa("Array")) {
-    $thing.join(" ");
+    $thing.map:{ ~$_ }.join(" ");
   } elsif($thing.isa("Bool")) {
     $thing ?? "bool::true" :: "bool::false";
   } elsif($thing.isa("Num")) {
     JS::inline('function (thing) { return Number(thing).toString() }')($thing);
+  } elsif($thing.isa("Ref")) {
+    ~PIL2JS::Internals::generic_deref($thing);
   } else {
     die "Stringification for objects of class {$other.ref} not yet implemented!\n";
   }
@@ -67,6 +70,8 @@ sub prefix:<+>($thing) is primitive {
     $thing ?? 1 :: 0;
   } elsif($thing.isa("Num")) {
     JS::inline('function (thing) { return Number(thing) }')($thing);
+  } elsif($thing.isa("Ref")) {
+    +PIL2JS::Internals::generic_deref($thing);
   } else {
     die "Numification for objects of class {$other.ref} not yet implemented!\n";
   }
