@@ -1,10 +1,15 @@
 <html>
 <head>
-    <script type="text/javascript" src="../inc/Test/Builder.js"></script>
-    <script type="text/javascript" src="../inc/Test/More.js"></script>
-
-    <script type="text/javascript" src="../lib/Perl6/MetaClass.js"></script>
-    <script type="text/javascript" src="../lib/Perl6/Method.js"></script>    
+    <script type="text/javascript" src="../lib/Perl6/MetaModel.js"></script>
+    <script type="text/javascript">
+        require.INC = "../inc";    
+        require('Test.Builder');
+        require('Test.More');        
+    
+        require.INC = "../lib";    
+        require('Perl6.MetaClass');
+        require('Perl6.Method');        
+    </script>     
 </head>
 <body>
 <pre id='test'><script type="text/javascript">

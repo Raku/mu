@@ -3,9 +3,19 @@ if (Perl6 == undefined) var Perl6 = {};
 
 Perl6.MetaModel = function () {};
 
+function require (classname) {
+    document.write("<SCRIPT LANGUAGE='javascript' SRC='" + require.INC + "/" + classname.split('.').join('/') + ".js'></SCR" + "IPT>");    
+}
+require.INC = '.';
+
+function WALKCLASS (dispacther, options) {
+    return dispatcher.next();
+}
+
 function WALKMETH (dispatcher, label, options) {
+    options = options || {};
     var current;
-    while (current = dispatcher.next()) {
+    while (current = WALKCLASS(dispatcher, options)) {
         //alert(current);
         if (current.has_method(label, options['for'])) {
             //alert(current + " has " + label);            
@@ -17,10 +27,6 @@ function WALKMETH (dispatcher, label, options) {
         return undefined;
     }
     return current.get_method(label, options['for']);
-}
-
-function WALKCLASS (dispacther, options) {
-    return dispatcher.next();
 }
 
 function CLASS () {
@@ -53,6 +59,13 @@ is the model which descibes the interactions of classes, objects and roles in th
 
 I am prototyping this in Javascript as part of the PIL -> JS compiler to run on
 a JS VM. It is a port of the Perl 5 prototype.
+
+=head1 A NOTE ABOUT DEPENDENCIES
+
+When using the Perl6.MetaModel, this file needs to be loaded first. This is for 2 reasons.
+First, this module implements a (simplistic) C<require> method which can be used to load
+other modules. And secondly, many of the modules in the C<Perl6.> namespace utilize some 
+of the function found in this module. 
 
 =head1 FUNCTIONS
 

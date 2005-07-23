@@ -1,7 +1,11 @@
 <html>
 <head>
-  <script type="text/javascript" src="../inc/Test/Harness.js"></script>
-  <script type="text/javascript" src="../inc/Test/Harness/Browser.js"></script>
+    <script type="text/javascript" src="../lib/Perl6/MetaModel.js"></script>
+    <script type="text/javascript">
+        require.INC = "../inc";    
+        require('Test.Harness');
+        require('Test.Harness.Browser'); 
+    </script>           
 </head>
 <body>
 <pre id='test'><script type="text/javascript">
@@ -10,7 +14,8 @@ new Test.Harness.Browser().runTests(
     '02_MRO.t.html',
     '03_Method.t.html',
     '04_Metaclass_Dispatcher.t.html',
-    '05_Class.t.html'
+    '05_Class.t.html',
+    '06_Instance.t.html'
 );
 </script></pre>
 </body>

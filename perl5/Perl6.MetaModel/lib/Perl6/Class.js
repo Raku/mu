@@ -1,4 +1,6 @@
 
+require('Perl6.Method');     
+
 if (Perl6 == undefined) var Perl6 = function () {};
 
 Perl6.Class = function (name, options) {
@@ -51,6 +53,12 @@ function _process_options (my_class, options) {
     }   
     if (options['instance']) {
         var instance = options['instance'];
+        if (instance['methods']) {
+            for (label in instance['methods']) {
+                var method = new Perl6.Method(my_class.meta().name(), instance['methods'][label]);
+                my_class.meta().add_method(label, method, 'instance');
+            }
+        }
     }
     if (options['class']) {
         var _class = options['class']

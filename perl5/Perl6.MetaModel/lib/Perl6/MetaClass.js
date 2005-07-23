@@ -1,4 +1,6 @@
 
+require('Perl6.MetaClass.Dispatcher');
+
 if (Perl6 == undefined) var Perl6 = {};
 
 Perl6.MetaClass = function (name, version, authority) {

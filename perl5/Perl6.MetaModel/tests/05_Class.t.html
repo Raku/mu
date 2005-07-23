@@ -1,23 +1,25 @@
 <html>
 <head>
-    <script type="text/javascript" src="../inc/Test/Builder.js"></script>
-    <script type="text/javascript" src="../inc/Test/More.js"></script>
-
-    <script type="text/javascript" src="../lib/Perl6/MetaModel.js"></script>    
-    <script type="text/javascript" src="../lib/Perl6/Method.js"></script>
-    <script type="text/javascript" src="../lib/Perl6/MetaClass.js"></script>
-    <script type="text/javascript" src="../lib/Perl6/MetaClass/Dispatcher.js"></script>
-    <script type="text/javascript" src="../lib/Perl6/Class.js"></script>
+    <script type="text/javascript" src="../lib/Perl6/MetaModel.js"></script>
+    <script type="text/javascript">
+        require.INC = "../inc";    
+        require('Test.Builder');
+        require('Test.More'); 
+        
+        require.INC = "../lib";    
+        require('Perl6.MetaClass');   
+        require('Perl6.Class');                
+    </script>         
 </head>
 <body>
 <pre id='test'><script type="text/javascript">
 
-plan({ tests : 13 });
+plan({ tests : 19 });
 
 var Foo = new Perl6.Class ('Foo-0.0.1-jsan:STEVAN', {
     'class' : {
         'methods' : {
-            'bar' : function () { 'Foo.bar' }
+            'bar' : function () { return 'Foo.bar' }
         }
     }
 });
@@ -31,13 +33,16 @@ ok(!Foo.isa('Bar'), '... our class is not a Bar');
 ok(Foo.can('bar'), '... Foo can bar()');
 ok(!Foo.can('baz'), '... Foo cant baz()');
 
+isaOK(Foo.can('bar'), 'Perl6.Method');
+is(Foo.can('bar').call(), 'Foo.bar', '... Foo.bar() returns "Foo.bar"');
+
 // ...
 
 var Bar = new Perl6.Class ('Bar-0.0.1-jsan:STEVAN', { 
     'is' : [ Foo ],
     'class' : {
         'methods' : {
-            'foo' : function () { 'Bar.foo' }
+            'foo' : function () { return 'Bar.foo' }
         }
     }    
 });
@@ -50,6 +55,13 @@ ok(!Bar.isa('Baz'), '... our class is not a Baz');
 ok(Bar.can('foo'), '... Bar can bar()');
 ok(Bar.can('bar'), '... Bar can bar()');
 ok(!Bar.can('baz'), '... Bar cant baz()');
+
+isaOK(Bar.can('bar'), 'Perl6.Method');
+is(Bar.can('bar').call(), 'Foo.bar', '... Bar.bar() returns "Foo.bar"');
+
+isaOK(Bar.can('foo'), 'Perl6.Method');
+is(Bar.can('foo').call(), 'Bar.foo', '... Bar.foo() returns "Bar.foo"');
+
 
 </script></pre>
 </body>
