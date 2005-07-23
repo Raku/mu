@@ -1,3 +1,5 @@
+# Important: As this method participates in getting &prefix:<~> and &prefix:<+>
+# working, it *has to be* unboxed!
 method JS::Root::ref($self is rw:) { JS::inline('new PIL2JS.Box.Constant(
   function (args) {
     var thing = args[1].GET();
@@ -21,4 +23,12 @@ method JS::Root::ref($self is rw:) { JS::inline('new PIL2JS.Box.Constant(
   }
 )')($self) }
 
-method JS::Root::isa($self is rw: $other is rw) { $self.ref eq $other }
+# Important: As this method participates in getting &prefix:<~> and &prefix:<+>
+# working, it *has to be* unboxed!
+method JS::Root::isa($self is rw: $other is rw) {
+  JS::inline('new PIL2JS.Box.Constant(function (args) {
+    var self = args[1], cmptype = args[2].GET(), ref = args[3];
+    var type = ref.GET()([PIL2JS.Context.ItemAny, self]).GET();
+    return new PIL2JS.Box.Constant(type == cmptype);
+  })')($self, $other, &ref);
+}

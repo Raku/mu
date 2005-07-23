@@ -47,7 +47,12 @@ sub infix:<=:=>($a, $b) is primitive { JS::inline('new PIL2JS.Box.Constant(
 # Pending support for multi subs.
 sub prefix:<~>($thing) is primitive {
   if($thing.isa("Str")) {
-    JS::inline('function (thing) { return String(thing).toString() }')($thing);
+    JS::inline('new PIL2JS.Box.Constant(
+      function (args) {
+        var thing = args[1].GET();
+        return new PIL2JS.Box.Constant(String(thing).toString());
+      }
+    )')($thing);
   } elsif($thing.isa("Array")) {
     $thing.map:{ ~$_ }.join(" ");
   } elsif($thing.isa("Bool")) {

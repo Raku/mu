@@ -20,13 +20,51 @@ PIL2JS.new_uid = function () {
 // Hash class. As with the various exception classes above, we don't need to
 // declare any methods. This class only exists so code can do if(foo instanceof
 // PIL2JS.Hash) {...}.
-PIL2JS.Hash = function () {};
+PIL2JS.Hash = function () { this.entries = {} };
+PIL2JS.Hash.prototype = {
+  add_pair: function (pair) {
+    this.entries[pair.key.toNative()] = pair;
+  },
+  exists:   function (key) {
+    var ikey = key.toNative();
+    return ikey != "toPIL2JSBox" && this.entries[ikey];
+  },
+  pairs:    function () {
+    var pairs = [];
+    for(var internal_key in this.entries) {
+      if(internal_key != "toPIL2JSBox") {
+        pairs.push(this.entries[internal_key]);
+      }
+    }
+    return pairs;
+  },
+  keys:     function () {
+    var keys  = [];
+    var pairs = this.pairs();
+    for(var i = 0; i < pairs.length(); i++) {
+      keys.push(pairs[i].key);
+    }
+    return keys;
+  },
+  get_value: function (key) {
+    return this.exists(key) ? this.entries[key.toNative()].value : undefined;
+  },
+  toString: function () { return "<PIL2JS.Hash>" }
+};
+
+// class Pair { has $.key; has $.value }
+PIL2JS.Pair = function (key, value) {
+  this.key   = key;
+  this.value = value;
+};
+PIL2JS.Pair.prototype.toString = function () { return "<PIL2JS.Pair>" };
 
 // Ref class.
 PIL2JS.Ref = function (referencee) {
   this.referencee = referencee;
   return this;
 };
+PIL2JS.Ref.prototype.toString = function () { return "<PIL2JS.Ref>" };
 
 // This is necessary to emulate pass by ref, needed for is rw and is ref.
 // See section "DESIGN" in README.
@@ -45,6 +83,16 @@ PIL2JS.Box = function (value) {
     // my %a = (a => 1, b => 2) --> my %a = hash(a => 1, b => 2)
     } else if(value instanceof PIL2JS.Hash && new_val instanceof Array) {
       new_val = _26main_3a_3ahash.GET()([PIL2JS.Context.SlurpyAny, n]).GET();
+    } else if(value instanceof PIL2JS.Hash && new_val instanceof PIL2JS.Hash) {
+      var pairs = new_val.pairs();
+      for(var i = 0; i < pairs.length; i++) {
+        pairs[i] = new PIL2JS.Box.Constant(new PIL2JS.Pair(
+          pairs[i].key,
+          new PIL2JS.Box(pairs[i].value.GET())
+        ));
+      }
+      new_val =
+        _26main_3a_3ahash.GET()([PIL2JS.Context.SlurpyAny].concat(pairs)).GET();
     // my %a = (a => 1)
     } else if(value instanceof PIL2JS.Hash && new_val instanceof PIL2JS.Pair) {
       new_val = _26main_3a_3ahash.GET()([PIL2JS.Context.SlurpyAny, n]).GET();
@@ -215,7 +263,7 @@ PIL2JS.call = function (inv, sub, args) {
         PIL2JS.die("No such method: \"" + sub + "\"");
       }
     } else {
-      PIL2JS.die("Internal error: PIL2JS.call not implemented for invocation of methods on native objects");
+      return PIL2JS.call(undefined, inv[sub], args);
     }
   }
 };
@@ -236,10 +284,24 @@ PIL2JS.make_slurpy_array = function (inp_arr) {
   return out_arr;
 };
 
+// StubIO class.
+PIL2JS.StubIO = function () {};
+PIL2JS.StubIO.prototype = {
+  print: new PIL2JS.Box.Constant(function (args) {
+    return _26main_3a_3aprint.GET()(args);
+  }),
+  say: new PIL2JS.Box.Constant(function (args) {
+    return _26main_3a_3asay.GET()(args);
+  })
+};
+
 // Magical variables: $?POSITION and $!.
 var _24main_3a_3a_3fPOSITION = new PIL2JS.Box("<unknown>");
 var _24main_3a_3a_21         = new PIL2JS.Box(undefined);
 var _25main_3a_3aENV         = new PIL2JS.Box(new PIL2JS.Hash);
+var _40main_3a_3a_2aEND      = new PIL2JS.Box([]);
+var _24main_3a_3a_2aERR      = new PIL2JS.StubIO;
+var _24main_3a_3aERR         = _24main_3a_3a_2aERR;
 var _40main_3a_3a_2aINC      = new PIL2JS.Box([]);
 var _26main_3a_3a_3fBLOCK    = new PIL2JS.Box(undefined);
 var _26main_3a_3a_3fSUB      = new PIL2JS.Box(undefined);
@@ -317,19 +379,14 @@ var _26PIL2JS_3a_3aInternals_3a_3ageneric_return =
 
 PIL2JS.call_chain = [];
 
-// class Pair { has $.key; has $.value }
-PIL2JS.Pair = function (key, value) {
-  this.key   = key;
-  this.value = value;
-};
-
 // Greps args for PIL2JS.Pairs and returns them as a hash.
 PIL2JS.grep_for_pairs = function (args) {
   var pairs = {};
 
   for(var i = 0; i < args.length; i++) {
-    if(args[i].GET() instanceof PIL2JS.Pair)
+    if(args[i].GET() instanceof PIL2JS.Pair) {
       pairs[args[i].GET().key.toNative()] = args[i].GET().value;
+    }
   }
 
   return pairs;
@@ -343,6 +400,12 @@ PIL2JS.possibly_flatten = function (args) {
   for(var i = 0; i < args.length; i++) {
     if(args[i].GET() instanceof Array && args[i].GET().flatten_me) {
       ret = ret.concat(args[i].GET());
+    } else if(args[i].GET() instanceof PIL2JS.Hash && args[i].GET().flatten_me) {
+      var pairs = args[i].GET().pairs();
+      for(var j = 0; j < pairs.length; j++) {
+        pairs[j] = new PjL2JS.Box.Constant(pairs[j]);
+      }
+      ret = ret.concat(pairs);
     } else {
       ret.push(args[i]);
     }
@@ -387,6 +450,12 @@ PIL2JS.use_jsan = function (mod) {
 
   mod = mod.replace(/::/, ".");
   JSAN.prototype.use.apply(JSAN.prototype, [mod]);
+};
+
+PIL2JS.catch_all_exceptions = function (code) {
+  try { code() } catch(err) {
+    alert(err);
+  }
 };
 
 // Hacks, we don't do MMD yet

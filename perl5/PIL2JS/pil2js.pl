@@ -84,6 +84,15 @@ EOF
     }
   }
 
+  push @components, [inline => <<EOF];
+PIL2JS.catch_all_exceptions(function () {
+  var blocks = _40main_3a_3a_2aEND.GET();
+  for(var i = 0; i < blocks.length; i++) {
+    blocks[i].GET()([PIL2JS.Context.Void]);
+  }
+});
+EOF
+
   if($link eq "js") {
     my $js;
     foreach (@components) {

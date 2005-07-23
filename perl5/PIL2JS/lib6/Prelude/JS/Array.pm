@@ -2,16 +2,18 @@
 
 method JS::Root::shift(Array $self:) {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
-    var ret = args[1].GET().shift();
-    if(ret instanceof PIL2JS.Ref) ret = ret.referencee.GET();
+    var array = args[1].GET();
+    if(array instanceof PIL2JS.Ref) array = array.referencee.GET();
+    var ret   = array.shift();
     return ret == undefined ? new PIL2JS.Box.Constant(undefined) : ret;
   })')($self);
 }
 
 method JS::Root::pop(Array $self:) {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
-    var ret = args[1].GET().pop();
-    if(ret instanceof PIL2JS.Ref) ret = ret.referencee.GET();
+    var array = args[1].GET();
+    if(array instanceof PIL2JS.Ref) array = array.referencee.GET();
+    var ret   = array.pop();
     return ret == undefined ? new PIL2JS.Box.Constant(undefined) : ret;
   })')($self);
 }

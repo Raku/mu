@@ -51,11 +51,9 @@ sub as_js {
   local $_;
   my @glob_js = map { $_->as_js } @{ $self->{"pilGlob"} };
   my $main_js = sprintf <<EOF, add_indent(1, $self->{pilMain}->as_js);
-try {
+PIL2JS.catch_all_exceptions(function () {
 %s
-} catch(err) {
-  alert(err);
-}
+});
 EOF
 
   my $decl_js =
@@ -506,6 +504,8 @@ sub add_indent {
     local $IN_SUBLIKE  = $self->[1]->as_constant;
     local $CUR_SUBNAME = $self->[0];
 
+    warn "Skipping &*END.\n" and return "" if $CUR_SUBNAME eq "&*END";
+
     my $magical_vars = "";
     $magical_vars .= "_26main_3a_3a_3fBLOCK.STORE(%s);\n" if $IN_SUBLIKE >= PIL::Nodes::SUBBLOCK;
     $magical_vars .= "_26main_3a_3a_3fSUB.STORE(%s);\n"   if $IN_SUBLIKE >= PIL::Nodes::SUBROUTINE;
@@ -542,6 +542,13 @@ sub add_indent {
         "PIL2JS.Box.prototype.perl_methods[%s] = %s;\n",
         PIL::Nodes::doublequote($methname),
         PIL::Nodes::name_mangle($self->[0]);
+    }
+
+    # Special magic for &*END_xyz subs.
+    if($self->[0] =~ /^&\*END_\d+/) {
+      $js .= sprintf
+        "_40main_3a_3a_2aEND.GET().push(%s);\n",
+        PIL::Nodes::name_mangle $self->[0];
     }
 
     return $js;
@@ -781,7 +788,7 @@ EOF
         my %undef = (
           '$' => "undefined",
           '@' => "[]",
-          '%' => "new PIL2JS.Hash",
+          '%' => "new PIL2JS.Hash()",
           '&' => "undefined",
         );
         PIL::Nodes::name_mangle($_->[0]) .
