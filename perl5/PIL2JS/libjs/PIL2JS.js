@@ -86,10 +86,7 @@ PIL2JS.Box = function (value) {
     } else if(value instanceof PIL2JS.Hash && new_val instanceof PIL2JS.Hash) {
       var pairs = new_val.pairs();
       for(var i = 0; i < pairs.length; i++) {
-        pairs[i] = new PIL2JS.Box.Constant(new PIL2JS.Pair(
-          pairs[i].key,
-          new PIL2JS.Box(pairs[i].value.GET())
-        ));
+        pairs[i] = new PIL2JS.Box.Constant(pairs[i]);
       }
       new_val =
         _26main_3a_3ahash.GET()([PIL2JS.Context.SlurpyAny].concat(pairs)).GET();
@@ -276,6 +273,12 @@ PIL2JS.make_slurpy_array = function (inp_arr) {
   for(var i = 0; i < inp_arr.length; i++) {
     if(inp_arr[i].GET() instanceof Array) {
       out_arr = out_arr.concat(inp_arr[i].GET());
+    } else if(inp_arr[i].GET() instanceof PIL2JS.Hash) {
+      var pairs = inp_arr[i].GET().pairs();
+      for(var i = 0; i < pairs.length; i++) {
+        pairs[i] = new PIL2JS.Box.Constant(pairs[i]);
+      }
+      out_arr = out_arr.concat(pairs);
     } else {
       out_arr.push(inp_arr[i]);
     }
