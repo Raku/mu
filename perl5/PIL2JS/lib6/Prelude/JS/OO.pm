@@ -13,6 +13,10 @@ method JS::Root::ref($self is rw:) { JS::inline('new PIL2JS.Box.Constant(
       return new PIL2JS.Box.Constant("Array");
     } else if(thing instanceof PIL2JS.Ref) {
       return new PIL2JS.Box.Constant("Ref");
+    } else if(thing instanceof PIL2JS.Hash) {
+      return new PIL2JS.Box.Constant("Hash");
+    } else if(thing instanceof PIL2JS.Pair) {
+      return new PIL2JS.Box.Constant("Pair");
     } else {
       PIL2JS.die(
         "Internal error: .ref() not yet implemented for " +

@@ -19,6 +19,7 @@ use Prelude::JS::IO;
 use Prelude::JS::Str;
 use Prelude::JS::Bool;
 use Prelude::JS::OO;
+use Prelude::JS::Keyed;
 use Prelude::JS::Ref;
 use Prelude::JS::Hash;
 use Prelude::JS::Array;
@@ -46,7 +47,9 @@ sub infix:<=:=>($a, $b) is primitive { JS::inline('new PIL2JS.Box.Constant(
 
 # Pending support for multi subs.
 sub prefix:<~>($thing) is primitive {
-  if($thing.isa("Str")) {
+  if(not defined $thing) {
+    "";
+  } elsif($thing.isa("Str")) {
     JS::inline('new PIL2JS.Box.Constant(
       function (args) {
         var thing = args[1].GET();

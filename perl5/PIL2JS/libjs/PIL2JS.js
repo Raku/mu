@@ -27,7 +27,12 @@ PIL2JS.Hash.prototype = {
   },
   exists:   function (key) {
     var ikey = key.toNative();
-    return ikey != "toPIL2JSBox" && this.entries[ikey];
+    return ikey != "toPIL2JSBox" && this.entries[ikey] != undefined;
+  },
+  delete_key: function (key) {
+    var old = this.get_value(key);
+    this.entries[key.toNative()] = undefined;
+    return old;
   },
   pairs:    function () {
     var pairs = [];
