@@ -20,6 +20,7 @@ by 'next METHOD' and the like.
 =cut
 
 use Perl6::MetaModel;
+use Perl6::Object;
 
 =pod
 
@@ -41,7 +42,9 @@ Single inheritance.
 
 =cut
 
-class Shape => {};
+class Shape => {
+    is => [ 'Perl6::Object' ],    
+};
 class Polygon => {
     is => [ 'Shape' ]
 };
@@ -84,7 +87,9 @@ Class diamond inheritance
     
 =cut
 
-class Diamond_A => {};
+class Diamond_A => {
+    is => [ 'Perl6::Object' ],    
+};
 class Diamond_B => {
     is => [ 'Diamond_A' ]
 };

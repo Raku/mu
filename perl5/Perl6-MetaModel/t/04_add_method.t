@@ -6,6 +6,7 @@ use warnings;
 use Test::More tests => 8;
 
 use Perl6::MetaModel;
+use Perl6::Object;
 use Perl6::Method;
 
 =pod
@@ -16,6 +17,7 @@ which are then accessible from an already created instance.
 =cut
 
 class Foo => {
+    is => [ 'Perl6::Object' ],
     instance => {
         methods => {
             'foo' => sub { 'FOO' }

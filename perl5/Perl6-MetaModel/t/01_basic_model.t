@@ -7,8 +7,10 @@ use Test::More tests => 39;
 use Data::Dumper;
 
 use Perl6::MetaModel;
+use Perl6::Object;
 
 class 'Person-0.0.1-cpan:STEVAN' => {
+    is => [ 'Perl6::Object' ],
     class => {
         attrs => [ '$:population' ],
         methods => {

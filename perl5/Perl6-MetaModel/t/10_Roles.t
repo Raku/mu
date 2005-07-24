@@ -7,6 +7,7 @@ use Test::More tests => 26;
 use Test::Exception;
 
 use Perl6::MetaModel;
+use Perl6::Object;
 
 =pod
 
@@ -40,6 +41,7 @@ role rFoo => {
 };
 
 class Foo => {
+    is => [ 'Perl6::Object' ],    
     does => [ 'rFoo' ]
 };
 
@@ -65,6 +67,7 @@ role rBar => {
 };
 
 class FooBar => {
+    is => [ 'Perl6::Object' ],    
     does => [ 'rFoo', 'rBar' ]
 };
 
@@ -94,6 +97,7 @@ role rFoo2 => {
 
 dies_ok {
     class FooFail => {
+        is => [ 'Perl6::Object' ],        
         does => [ 'rFoo', 'rFoo2' ]
     };
 } '... we got an error when 2 roles conflicted';
@@ -101,6 +105,7 @@ dies_ok {
 # combine 2 roles with a conflict resolved by the class
 
 class FooResolve => {
+    is => [ 'Perl6::Object' ],    
     does => [ 'rFoo', 'rFoo2' ],
     instance => {
         methods => {

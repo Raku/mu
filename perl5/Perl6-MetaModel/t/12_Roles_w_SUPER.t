@@ -6,6 +6,7 @@ use warnings;
 use Test::More tests => 5;
 
 use Perl6::MetaModel;
+use Perl6::Object;
 
 =pod
 
@@ -23,6 +24,7 @@ role rSyncReader => {
 };
 
 class Reader => {
+    is => [ 'Perl6::Object' ],    
     instance => {
         methods => {
             read => sub { 'Reader::read' }

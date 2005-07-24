@@ -6,6 +6,7 @@ use warnings;
 use Test::More tests => 3;
 
 use Perl6::MetaModel;
+use Perl6::Object;
 
 =pod
 
@@ -14,6 +15,7 @@ This test file is testing the SUPER call.
 =cut
 
 class FooBase => {
+    is => [ 'Perl6::Object' ],    
     instance => {
         methods => {
             foo => sub { 'FooBase::foo' },

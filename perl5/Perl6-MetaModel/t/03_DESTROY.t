@@ -17,12 +17,14 @@ get duplicate DESTRUCTION
 =cut
 
 use Perl6::MetaModel;
+use Perl6::Object;
 
 {
     my @classes_destroyed;
 
     # DESTROY as a method
     class Foo => {
+        is => [ 'Perl6::Object' ],
         instance => {
             DESTROY => sub {
                 push @classes_destroyed, (CLASS . '::DESTROY');
@@ -71,6 +73,7 @@ use Perl6::MetaModel;
     my @classes_destroyed;
 
     class A => {
+        is => [ 'Perl6::Object' ],
         instance => {
             DESTROY => sub {
                 push @classes_destroyed, (CLASS . '::DESTROY');

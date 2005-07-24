@@ -7,6 +7,7 @@ use Test::More tests => 39;
 use Test::Exception;
 
 use Perl6::MetaModel;
+use Perl6::Object;
 
 =pod
 
@@ -30,6 +31,7 @@ generation, in particular it checks the following:
 =cut
 
 class Basic => {
+    is => [ 'Perl6::Object' ],
     instance => {
         attrs => [ 
             [ '$.scalar' => { access => 'rw' } ], 
@@ -78,6 +80,7 @@ lives_ok {
 is_deeply($basic->hash(), { one => 1, two => 2 }, '... hash() was assigned to correctly');
 
 class Base => {
+    is => [ 'Perl6::Object' ],    
     instance => {
         attrs => [ '$:foo' ],
         BUILD => sub { _('$:foo' => 'Base::Foo') },
@@ -141,6 +144,7 @@ dies_ok {
 # check for accessor conflicts
 
 class ConflictChecker => {
+    is => [ 'Perl6::Object' ],    
     instance => {
         attrs => [ '$.foo' ],
         BUILD => sub { _('$.foo' => 'just $.foo') },
@@ -162,6 +166,7 @@ is($cc->foo(), 'ConflictChecker->foo returns "just $.foo"', '... got the right v
 role Checker => {};
 
 class TypeChecking => {
+    is => [ 'Perl6::Object' ],    
     does => [ 'Checker' ],
     instance => {
         attrs => [ 

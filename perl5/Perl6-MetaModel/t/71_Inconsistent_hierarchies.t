@@ -13,6 +13,7 @@ This test checks a number of different bad heirarchies.
 =cut
 
 use Perl6::MetaModel;
+use Perl6::Object;
 
 =pod
 
@@ -34,11 +35,11 @@ some repeated inheritance as well.
 
 =cut
 
-class Foo => {};   
+class Foo => { is => [ 'Perl6::Object' ] };   
 class Bar => {
     is => [ 'Foo' ]
 };
-class Baz => {};
+class Baz => { is => [ 'Perl6::Object' ] };
 throws_ok {
     class FooBar => {
         is => [ 'Foo', 'Bar' ]
@@ -61,7 +62,7 @@ Expanded diamond inheritance with repeated more repeats
 
 =cut
 
-class Diamond_A => {};
+class Diamond_A => { is => [ 'Perl6::Object' ] };
 class Diamond_B => {
     is => [ 'Diamond_A' ]
 };

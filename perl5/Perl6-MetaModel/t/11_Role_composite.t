@@ -7,6 +7,7 @@ use Test::More tests => 27;
 use Test::Exception;
 
 use Perl6::MetaModel;
+use Perl6::Object;
 
 =pod
 
@@ -39,6 +40,7 @@ role rFooBar => {
 };
 
 class FooBar => {
+    is => [ 'Perl6::Object' ],    
     does => [ 'rFooBar' ]  
 };
 
@@ -72,6 +74,7 @@ role rFooBarBaz => {
 };
 
 class FooBarBaz => {
+    is => [ 'Perl6::Object' ],    
     does => [ 'rFooBarBaz' ]  
 };
 
@@ -108,6 +111,7 @@ role rFoo2 => {
 
 dies_ok {
     class ThisFails => {
+        is => [ 'Perl6::Object' ],        
         does => [ 'rFooBar', 'rFoo2' ]
     }    
 } '... we got an error because rFooBar::foo will conflict with rFoo2::foo';
@@ -116,6 +120,7 @@ dies_ok {
 
 dies_ok {
     class ThisFailsToo => {
+        is => [ 'Perl6::Object' ],
         does => [ 'rFooBarBaz', 'rFoo2' ]
     }    
 } '... we got an error because rFooBarBaz::foo will conflict with rFoo2::foo';

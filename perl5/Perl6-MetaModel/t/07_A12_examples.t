@@ -15,6 +15,7 @@ above the Perl6::MetaModel equivalents
 =cut
 
 use Perl6::MetaModel;
+use Perl6::Object;
 
 =pod
 
@@ -38,6 +39,7 @@ use Perl6::MetaModel;
 =cut
 
 class Point => {
+    is => [ 'Perl6::Object' ],    
     instance => {
         attrs => [ '$.x', [ '$.y' => { access => 'rw' } ] ],
         methods => {

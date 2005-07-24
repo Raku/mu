@@ -7,7 +7,7 @@ use Test::More tests => 5;
 use Test::Exception;
 
 use Perl6::MetaModel;
-use Perl6::SubMethod;
+use Perl6::Object;
 
 =pod
 
@@ -27,6 +27,7 @@ $foo_bar.baz() # calls Foo::baz()
 =cut
 
 class Foo => {
+    is => [ 'Perl6::Object' ],    
     instance => {
         methods => {
             baz => sub { 'Foo::baz' }
@@ -35,6 +36,7 @@ class Foo => {
 };
 
 class Bar => {
+    is => [ 'Perl6::Object' ],    
     instance => {
         submethods => {
             baz => sub { 'Bar::baz<submethod>' }

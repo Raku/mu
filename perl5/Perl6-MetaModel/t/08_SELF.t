@@ -7,8 +7,10 @@ use Test::More tests => 10;
 use Test::Exception;
 
 use Perl6::MetaModel;
+use Perl6::Object;
 
 class Foo => {
+    is => [ 'Perl6::Object' ],    
     class => {
         methods => {
             this_will_die => sub { SELF }
@@ -45,6 +47,7 @@ is($foo->foo(), 'Foo::baz', '... SELF worked correctly in the instance methods i
 
 
 class Bar => {
+    is => [ 'Perl6::Object' ],    
     instance => {
         attrs => [ '$.foo' ],
         BUILD => sub { _('$.foo' => Foo->new()) },

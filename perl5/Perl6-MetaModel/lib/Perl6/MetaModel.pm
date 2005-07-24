@@ -38,6 +38,23 @@ $SIG{'__DIE__'} = sub {
     CORE::die @_; 
 };
 
+{
+    # XXX - this is a hack to make SUPER:: work
+    # otherwise the default SUPER:: needs to be 
+    # used, and that is not what I want to happen
+    package SUPER;
+    sub AUTOLOAD {
+        if (Scalar::Util::blessed($_[0])) {
+            $Perl6::Instance::AUTOLOAD = our $AUTOLOAD;
+            goto &Perl6::Instance::AUTOLOAD;
+        }
+        else {
+            $Perl6::Object::AUTOLOAD = our $AUTOLOAD;
+            goto &Perl6::Object::AUTOLOAD;            
+        }
+    }
+}
+
 ## these get exported to the caller's namespace ...
 
 sub __ {
@@ -92,8 +109,8 @@ sub role {
 
 sub class {
     my ($name, $params) = @_;
-    my $class = Perl6::Class->new($name, $params);
-    $class->apply();
+    my $class = Perl6::Class->_create_new_class($name, $params);
+    $class->_apply_class_to_environment();
 }
 
 ## GLOBAL FUNCTIONS

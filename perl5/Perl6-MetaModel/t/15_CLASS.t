@@ -7,8 +7,10 @@ use Test::More tests => 9;
 use Test::Exception;
 
 use Perl6::MetaModel;
+use Perl6::Object;
 
 class Foo => {
+    is => [ 'Perl6::Object' ],    
     class => {
         methods => {
             this_will_not_die => sub { CLASS }

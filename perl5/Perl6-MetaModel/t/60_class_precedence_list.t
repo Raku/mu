@@ -18,6 +18,7 @@ order in which they should be called. It throws out any repeats.
 
 
 use Perl6::MetaModel;
+use Perl6::Object;
 
 =pod
 
@@ -45,7 +46,7 @@ example taken from: L<http://gauss.gwydiondylan.org/books/drm/drm_50.html>
 
 =cut
 
-class LifeForm    => {};
+class LifeForm    => { is => [ 'Perl6::Object' ] };
 class Sentient    => { is => [ 'LifeForm' ] };
 class BiPedal     => { is => [ 'LifeForm' ] };
 class Intelligent => { is => [ 'Sentient' ] };
@@ -91,9 +92,9 @@ From the parrot test t/pmc/object-meths.t
 
 =cut
 
-class A => {};
-class B => {};
-class E => {};
+class A => { is => [ 'Perl6::Object' ] };
+class B => { is => [ 'Perl6::Object' ] };
+class E => { is => [ 'Perl6::Object' ] };
 class C => { is => [ 'A', 'B' ] };
 class D => { is => [ 'A', 'E' ] };
 class F => { is => [ 'C', 'D' ] };

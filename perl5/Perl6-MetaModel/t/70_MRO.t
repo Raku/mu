@@ -7,6 +7,7 @@ use Test::More tests => 13;
 use Test::Exception;
 
 use Perl6::MetaModel;
+use Perl6::Object;
 
 =pod
 
@@ -43,9 +44,9 @@ Level 0                 0 | A |                (more specialized)
 
 =cut
 
-class F => {};
-class E => {};
-class D => {};
+class F => { is => [ 'Perl6::Object' ] };
+class E => { is => [ 'Perl6::Object' ] };
+class D => { is => [ 'Perl6::Object' ] };
 class C => { is => [ 'D', 'F' ] };
 class B => { is => [ 'D', 'E' ] };
 class A => { is => [ 'B', 'C' ] };
@@ -95,8 +96,8 @@ except TypeError:
 
 =cut
 
-class X => {};
-class Y => {};
+class X => { is => [ 'Perl6::Object' ] };
+class Y => { is => [ 'Perl6::Object' ] };
 class XY => { is => [ 'X', 'Y' ] };
 class YX => { is => [ 'Y', 'X' ] };
 
@@ -144,9 +145,9 @@ Level 0                0 | A |
 
 =cut
     
-class F2 => {};
-class E2 => {};
-class D2 => {};
+class F2 => { is => [ 'Perl6::Object' ] };
+class E2 => { is => [ 'Perl6::Object' ] };
+class D2 => { is => [ 'Perl6::Object' ] };
 class C2 => { is => [ 'D2', 'F2' ] };
 class B2 => { is => [ 'E2', 'D2' ] };
 class A2 => { is => [ 'B2', 'C2' ] };
@@ -169,7 +170,7 @@ A     B
 
 =cut
 
-class Diamond_C => {};
+class Diamond_C => { is => [ 'Perl6::Object' ] };
 class Diamond_A => { is => [ 'Diamond_C' ] };
 class Diamond_B => { is => [ 'Diamond_C' ] };
 class Diamond_D => { is => [ 'Diamond_A', 'Diamond_B' ] };
@@ -205,7 +206,7 @@ example taken from: L<http://gauss.gwydiondylan.org/books/drm/drm_50.html>
 
 =cut
 
-class LifeForm    => {};
+class LifeForm    => { is => [ 'Perl6::Object' ] };
 class Sentient    => { is => [ 'LifeForm' ] };
 class BiPedal     => { is => [ 'LifeForm' ] };
 class Intelligent => { is => [ 'Sentient' ] };
@@ -227,7 +228,7 @@ from L<http://www.webcom.com/haahr/dylan/linearization-oopsla96.html>
 
 =cut
 
-class Boat => {};
+class Boat => { is => [ 'Perl6::Object' ] };
 
 class DayBoat   => { is => [ 'Boat' ] };
 class WheelBoat => { is => [ 'Boat' ] };

@@ -6,8 +6,10 @@ use warnings;
 use Test::More tests => 4;
 
 use Perl6::MetaModel;
+use Perl6::Object;
 
 class Foo => {
+    is => [ 'Perl6::Object' ],    
     instance => {
         methods => {
             foo => sub { 'Foo::foo' }

@@ -9,12 +9,12 @@ BEGIN {
 
 
     # Perl6
+    use_ok('Perl6::Object');    
     use_ok('Perl6::Attribute');
     use_ok('Perl6::Class');
     use_ok('Perl6::MetaClass');
     use_ok('Perl6::MetaModel');
     use_ok('Perl6::Method');
-    use_ok('Perl6::Object');
     use_ok('Perl6::Role');
     use_ok('Perl6::SubMethod');
 

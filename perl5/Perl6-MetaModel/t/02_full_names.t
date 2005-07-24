@@ -7,8 +7,10 @@ use Test::More tests => 10;
 use Data::Dumper;
 
 use Perl6::MetaModel;
+use Perl6::Object;
 
 class 'Dog-0.0.1-cpan:JRANDOM' => {
+    is => [ 'Perl6::Object' ],    
     class => {
         methods => {
             growl => sub { 'GRRRRR' }

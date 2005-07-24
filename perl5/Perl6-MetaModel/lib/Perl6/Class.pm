@@ -8,35 +8,83 @@ use Carp 'confess';
 use Scalar::Util 'blessed';
 
 use Perl6::MetaClass;
-use Perl6::Role;
-use Perl6::Object;
 
-use Perl6::SubMethod;
+our %CLASSES;
 
-use Perl6::Class::Attribute;
-use Perl6::Class::Method;
+sub meta {
+    my ($class) = @_;    
+    return $CLASSES{$class}->{meta};  
+}
 
-use Perl6::Instance::Attribute;
-use Perl6::Instance::Method;
+sub isa {
+    our $AUTOLOAD = 'isa';
+    goto &AUTOLOAD;
+}
 
-sub new {
+sub can {
+    our $AUTOLOAD = 'can';
+    goto &AUTOLOAD;
+}
+
+sub DESTROY {}
+
+sub AUTOLOAD {
+    my @AUTOLOAD = split '::', our $AUTOLOAD;
+    my $label = $AUTOLOAD[-1];
+    # NOTE:
+    # DESTROYALL is what should really be called
+    # so we just deal with it like this :)
+    $label = 'DESTROYALL' if $label =~ /DESTROY/;
+    my $self = shift;
+    my @return_value;
+ 
+    # get the dispatcher instance ....
+    my $dispatcher = $self->meta->dispatcher(':canonical');
+
+    # just discard it if we are calling SUPER
+    $dispatcher->next() if ($AUTOLOAD[0] eq 'SUPER');
+
+    # this needs to be fully qualified for now
+    my $method = ::WALKMETH($dispatcher, $label, for => 'Class');
+    (blessed($method) && $method->isa('Perl6::Method'))
+        || confess "Method ($label) not found for instance ($self)";        
+
+    push @Perl6::MetaModel::CURRENT_DISPATCHER => [ $dispatcher, $label, $self, @_ ];        
+
+    @return_value = $method->call($self, @_);
+
+    # we can dispose of this value, as it 
+    # should never be called outside of 
+    # a method invocation
+    pop @Perl6::MetaModel::CURRENT_DISPATCHER;
+    return wantarray ?
+                @return_value
+                :
+                $return_value[0];
+}
+
+
+## class building
+
+sub _create_new_class {
     my ($class, $name, $params) = @_;
     my $self = bless { 
         name   => $name,
+        meta   => undef,
         params => {}
     }, $class;
-    $self->_validate_params($params);
+    Perl6::Class::Util::_validate_params($self, $params);
+    die "Duplicate class name ($name)" if exists $CLASSES{$name};
+    $CLASSES{$name} = $self;
     return $self;
 }
 
-sub name { (shift)->{name} }
-
-sub apply {
+sub _apply_class_to_environment {
     my ($self) = @_;
-    my ($name, $version, $authority) = $self->_get_class_meta_information();
+    my ($name, $version, $authority) = Perl6::Class::Util::_get_class_meta_information($self);
     my $code = qq|
         package $name;
-        \@$name\:\:ISA = 'Perl6::Object';
+        \@$name\:\:ISA = 'Perl6::Class';
     |;
     eval $code || confess "Could not initialize class '$name'";   
     my $meta; 
@@ -50,12 +98,29 @@ sub apply {
     confess "Could not initialize the metaclass for $name : $@" if $@;
     eval {
         no strict 'refs';
-        ${$name .'::META'} = $meta;                     
-        *{$self->name . '::'} = *{$name . '::'};
+        $self->{meta} = $meta;                    
+        $CLASSES{$name} = $self; # store short name too               
+        *{$self->{name} . '::'} = *{$name . '::'};
     };
     confess "Could not create full name " . $self->name . " : $@" if $@;    
-    $self->_build_class($meta);    
+    Perl6::Class::Util::_build_class($self, $meta);    
 }
+
+package Perl6::Class::Util;
+
+use Carp 'confess';
+use Scalar::Util 'blessed';
+
+use Perl6::MetaClass;
+use Perl6::Role;
+
+use Perl6::SubMethod;
+
+use Perl6::Class::Attribute;
+use Perl6::Class::Method;
+
+use Perl6::Instance::Attribute;
+use Perl6::Instance::Method;
 
 ## Private methods
 
@@ -81,7 +146,7 @@ sub _validate_params {
 
 sub _get_class_meta_information {
     my ($self) = @_;
-    my $identifier = $self->name;
+    my $identifier = $self->{name};
     # shortcut for classes with no extra meta-info
     return ($identifier, undef, undef) if $identifier !~ /\-/;
     # XXX - this will actually need work, 
@@ -94,7 +159,7 @@ sub _build_class {
 
     my $name = $meta->name;
 
-    my $superclasses = $self->{params}->{is} || [ 'Perl6::Object' ];
+    my $superclasses = $self->{params}->{is};
     $meta->superclasses([ map { $_->meta } @{$superclasses} ]);        
 
     if (my $instance = $self->{params}->{instance}) {
