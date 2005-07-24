@@ -54,7 +54,7 @@ $META->add_method('CREATE' =>
         # for the instances.
         my %attrs;
         my $dispatcher = $class->meta->dispatcher(':descendant');
-        while (my $c = Perl6::MetaModel::WALKCLASS($dispatcher)) {
+        while (my $c = ::WALKCLASS($dispatcher)) {
             foreach my $attr ($c->get_attribute_list) {
                 my $attr_obj = $c->get_attribute($attr);
                 $attrs{$attr} = $attr_obj->instantiate_container;
@@ -74,7 +74,7 @@ $META->add_method('BUILDALL' =>
     Perl6::Instance::Method->new('Perl6::Object' => sub {
         my ($self, %params) = @_;
         my $dispatcher = $self->meta->dispatcher(':descendant');
-        while (my $method = Perl6::MetaModel::WALKMETH($dispatcher, 'BUILD')) {                      
+        while (my $method = ::WALKMETH($dispatcher, 'BUILD')) {                      
             $method->force_call($self, %params);                  
         }              
     })    
@@ -84,7 +84,7 @@ $META->add_method('DESTROYALL' =>
     Perl6::Instance::Method->new('Perl6::Object' => sub {
         my ($self) = @_;
         my $dispatcher = $self->meta->dispatcher(':ascendant');
-        while (my $method = Perl6::MetaModel::WALKMETH($dispatcher, 'DESTROY')) {  
+        while (my $method = ::WALKMETH($dispatcher, 'DESTROY')) {  
             $method->force_call($self);   
         }               
     })    
@@ -114,8 +114,8 @@ $META->add_method('isa' => Perl6::Class::Method->new('Perl6::Object' => $isa));
 my $can = sub {
     my ($self, $label) = @_;
     return undef unless $label;
-    return Perl6::MetaModel::WALKMETH($self->meta->dispatcher(':canonical'), $label) if blessed($self);
-    return Perl6::MetaModel::WALKMETH($self->meta->dispatcher(':canonical'), $label, for => 'Class');
+    return ::WALKMETH($self->meta->dispatcher(':canonical'), $label) if blessed($self);
+    return ::WALKMETH($self->meta->dispatcher(':canonical'), $label, for => 'Class');
 };    
 
 $META->add_method('can' => Perl6::Instance::Method->new('Perl6::Object' => $can)); 
@@ -179,7 +179,7 @@ sub AUTOLOAD {
         $dispatcher->next() if ($AUTOLOAD[0] eq 'SUPER');
     
         # this needs to be fully qualified for now
-        my $method = Perl6::MetaModel::WALKMETH($dispatcher, $label);
+        my $method = ::WALKMETH($dispatcher, $label);
         (blessed($method) && $method->isa('Perl6::Method'))
             || confess "Method ($label) not found for instance ($self)";        
  
@@ -195,7 +195,7 @@ sub AUTOLOAD {
         $dispatcher->next() if ($AUTOLOAD[0] eq 'SUPER');
 
         # this needs to be fully qualified for now
-        my $method = Perl6::MetaModel::WALKMETH($dispatcher, $label, for => 'Class');
+        my $method = ::WALKMETH($dispatcher, $label, for => 'Class');
         (blessed($method) && $method->isa('Perl6::Method'))
             || confess "Method ($label) not found for instance ($self)";        
                     

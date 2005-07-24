@@ -17,22 +17,13 @@ sub import {
     
     my $caller_pkg = caller();
     
-    # method dispatch handlers
-    *{$caller_pkg . '::next_METHOD'} = \&next_METHOD;
-    *{$caller_pkg . '::WALKMETH'}    = \&WALKMETH;
-    *{$caller_pkg . '::WALKCLASS'}   = \&WALKCLASS;    
-    
     # meta model helpers
     *{$caller_pkg . '::class'} = \&class;
     *{$caller_pkg . '::role'}  = \&role;
     
-    # variable substitution
-    *{$caller_pkg . '::SELF'}  = \&SELF;
-    *{$caller_pkg . '::CLASS'} = \&CLASS; 
-    
-    # instance attribute access
+    # instance attribute access helpers
     *{$caller_pkg . '::_'} = \&_; 
-    # class attribute access
+    # class attribute access helpers
     *{$caller_pkg . '::__'} = \&__; 
 }
 
@@ -47,9 +38,11 @@ $SIG{'__DIE__'} = sub {
     CORE::die @_; 
 };
 
+## these get exported to the caller's namespace ...
+
 sub __ {
     my ($label, $value) = @_;
-    my $class = CLASS();
+    my $class = ::CLASS();
     my $prop = $class->meta->find_attribute_spec($label, for => 'Class')
         || confess "Cannot locate class property ($label) in class ($class)";    
     $prop->set_value($value) if defined $value;    
@@ -58,7 +51,7 @@ sub __ {
 
 sub _ {
     my ($label, $value) = @_;
-    my $self = SELF();
+    my $self = ::SELF();
     if (defined $value) {
         my $prop = $self->meta->find_attribute_spec($label)
             || confess "Perl6::Attribute ($label) no found";
@@ -92,46 +85,6 @@ sub _ {
     $self->{instance_data}->{$label};
 }
 
-sub next_METHOD {
-    my ($dispatcher, $label, $self, @args) = @{$CURRENT_DISPATCHER[-1]};             
-    my $method = WALKMETH($dispatcher, $label); 
-    return $method->call($self, @args);    
-}
-
-# XXX - this needs to be here to break circularity
-# formerly Submethod loaded Perl6::MetaModel, which 
-# lead to a cycle in the load, which caused it to fail
-# since all Submethod needs is this (next_METHOD), 
-# then we can do that here, and avoid the cycle
-*Perl6::SubMethod::next_METHOD = \&next_METHOD;
-
-sub WALKMETH {
-    my ($dispatcher, $label, %opts) = @_;
-    my $current;
-    while ($current = $dispatcher->next()) {
-        last if $current->has_method($label, %opts);
-    }
-    return unless blessed($current) && $current->isa('Perl6::MetaClass');
-    return $current->get_method($label, %opts);
-}
-
-sub WALKCLASS {
-    my ($dispatcher, %opts) = @_;
-    return $dispatcher->next();
-}
-
-sub SELF {
-    (@Perl6::Method::CURRENT_INVOCANT_STACK)
-        || confess "You cannot call \$?SELF from outside of a MetaModel defined Instance method";
-    $Perl6::Method::CURRENT_INVOCANT_STACK[-1];     
-}
-
-sub CLASS {
-    (@Perl6::Method::CURRENT_CLASS_STACK)
-        || confess "You cannot call \$?CLASS from outside of a MetaModel defined method";
-    $Perl6::Method::CURRENT_CLASS_STACK[-1];     
-}
-
 sub role {
     my ($name, $role) = @_;
     Perl6::Role->add_role($name, $role);
@@ -141,6 +94,41 @@ sub class {
     my ($name, $params) = @_;
     my $class = Perl6::Class->new($name, $params);
     $class->apply();
+}
+
+## GLOBAL FUNCTIONS
+
+sub ::next_METHOD {
+    my ($dispatcher, $label, $self, @args) = @{$CURRENT_DISPATCHER[-1]};             
+    my $method = ::WALKMETH($dispatcher, $label); 
+    return $method->call($self, @args);    
+}
+
+sub ::WALKMETH {
+    my ($dispatcher, $label, %opts) = @_;
+    my $current;
+    while ($current = $dispatcher->next()) {
+        last if $current->has_method($label, %opts);
+    }
+    return unless blessed($current) && $current->isa('Perl6::MetaClass');
+    return $current->get_method($label, %opts);
+}
+
+sub ::WALKCLASS {
+    my ($dispatcher, %opts) = @_;
+    return $dispatcher->next();
+}
+
+sub ::SELF {
+    (@Perl6::Method::CURRENT_INVOCANT_STACK)
+        || confess "You cannot call \$?SELF from outside of a MetaModel defined Instance method";
+    $Perl6::Method::CURRENT_INVOCANT_STACK[-1];     
+}
+
+sub ::CLASS {
+    (@Perl6::Method::CURRENT_CLASS_STACK)
+        || confess "You cannot call \$?CLASS from outside of a MetaModel defined method";
+    $Perl6::Method::CURRENT_CLASS_STACK[-1];     
 }
 
 1;

@@ -17,7 +17,7 @@ sub force_call {
 sub call { 
     my ($self, @args) = @_;  
     # next METHOD if $?SELF != $?CLASS;
-    return next_METHOD() if blessed($args[0]) ne $self->associated_with; 
+    return ::next_METHOD() if blessed($args[0]) ne $self->associated_with; 
     $self->SUPER::call(@args); 
 }
 
