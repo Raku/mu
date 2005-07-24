@@ -35,9 +35,9 @@ ok(Foo.can('bar'), '... Foo can bar()');
 ok(!Foo.can('baz'), '... Foo cant baz()');
 
 isaOK(Foo.can('bar'), 'Perl6.Method');
-is(Foo.can('bar').call(), 'Foo.bar', '... Foo.bar() returns "Foo.bar"');
+is(call_method(Foo, 'bar'), 'Foo.bar', '... Foo.bar() returns "Foo.bar"');
 
-is(Foo.can('blah').call(Foo, "Stevan"), 'Perl6.Class=[Foo-0.0.0].baz(Stevan)', '... Foo.baz() takes arguments');
+is(call_method(Foo, 'blah', "Stevan"), 'Perl6.Class=[Foo-0.0.0].baz(Stevan)', '... Foo.baz() takes arguments');
 
 // ...
 
@@ -60,10 +60,10 @@ ok(Bar.can('bar'), '... Bar can bar()');
 ok(!Bar.can('baz'), '... Bar cant baz()');
 
 isaOK(Bar.can('bar'), 'Perl6.Method');
-is(Bar.can('bar').call(), 'Foo.bar', '... Bar.bar() returns "Foo.bar"');
+is(call_method(Bar, 'bar'), 'Foo.bar', '... Bar.bar() returns "Foo.bar"');
 
 isaOK(Bar.can('foo'), 'Perl6.Method');
-is(Bar.can('foo').call(), 'Bar.foo', '... Bar.foo() returns "Bar.foo"');
+is(call_method(Bar, 'foo'), 'Bar.foo', '... Bar.foo() returns "Bar.foo"');
 
 
 </script></pre>

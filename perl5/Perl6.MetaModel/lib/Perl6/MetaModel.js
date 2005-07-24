@@ -14,6 +14,39 @@ function iv (label, value) {
     return self.attributes[label]; 
 }
 
+Perl6.MetaModel.CURRENT_DISPATCHER = [];
+
+function call_method (inv, label, args) {
+    var dispatcher; 
+    var options;
+    if (inv['_class']) {
+        dispatcher = inv._class.meta().dispatcher();
+        options = { 'for' : 'instance' };
+    }
+    else {
+        dispatcher = inv.meta().dispatcher();
+        options = { 'for' : 'class' };        
+    }
+    var method = WALKMETH(dispatcher, label, options);
+    Perl6.MetaModel.CURRENT_DISPATCHER.push([ dispatcher, label, options, inv, args ]);        
+    if (method == undefined) throw "Method " + label + " not found for " + inv;
+    var rval = method.call(inv, args);
+    Perl6.MetaModel.CURRENT_DISPATCHER.pop();    
+    return rval;
+}
+
+function next_METHOD () {
+    var curr_context = Perl6.MetaModel.CURRENT_DISPATCHER[Perl6.MetaModel.CURRENT_DISPATCHER.length - 1];
+    var dispatcher = curr_context[0];
+    var label      = curr_context[1]; 
+    var options    = curr_context[2];                 
+    var inv        = curr_context[3];
+    var args       = curr_context[4];        
+    var method = WALKMETH(dispatcher, label, options); 
+    if (method == undefined) throw "Method " + label + " not found for " + inv;    
+    return method.call(inv, args);    
+}
+
 function WALKCLASS (dispacther, options) {
     return dispacther.next();
 }

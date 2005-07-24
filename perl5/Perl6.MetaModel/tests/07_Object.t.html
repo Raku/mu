@@ -18,9 +18,9 @@
 <body>
 <pre id='test'><script type="text/javascript">
 
-plan({ 'tests' : 9 });
+plan({ 'tests' : 10 });
 
-var obj = Perl6.Object.can('new').call(Perl6.Object);
+var obj = call_method(Perl6.Object, 'new');
 isaOK(obj, 'Perl6.Instance');
 
 ok(obj.isa('Perl6::Object'), '... this is an instance of Perl6::Object');
@@ -43,13 +43,17 @@ isaOK(Foo, 'Perl6.Class');
 ok(Foo.isa('Foo'), '... Foo isa Foo');
 ok(Foo.isa('Perl6::Object'), '... Foo isa Perl6::Object');
 
-var foo = Foo.can('new').call(Foo, { '$.bar' : 'Foo.bar' });
+var foo = call_method(Foo, 'new', { '$.bar' : 'Foo.bar' });
 isaOK(foo, 'Perl6.Instance');
 
 ok(foo.isa('Foo'), '... foo isa Foo');
 ok(foo.isa('Perl6::Object'), '... foo isa Perl6::Object');
 
-is(foo.can('bar').call(foo), 'Foo.bar', '... our attributes stored correctly through BUILD');
+is(call_method(foo, 'bar'), 'Foo.bar', '... our attributes stored correctly through BUILD');
+
+call_method(foo, 'bar', 'Changed this!');
+
+is(call_method(foo, 'bar'), 'Changed this!', '... our attributes stored correctly bar()');
 
 
 </script></pre>
