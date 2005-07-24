@@ -121,6 +121,9 @@ sub infix:<,>(*@xs) is primitive {
 
 sub circumfix:<[]>(*@xs) is primitive { \@xs }
 method postcircumfix:<[]>(Array $self: Int $idx is copy) is rw {
+  die "Can't use object of type {$self.ref} as an array!"
+    unless $self.isa("Array");
+
   # *Important*: We have to calculate the idx only *once*:
   #   my @a  = (1,2,3,4);
   #   my $z := @a[-1];

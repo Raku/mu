@@ -37,7 +37,7 @@ method delete (Hash|Array $self: *@idx) {
   } elsif($self.isa("Array")) {
     JS::inline('new PIL2JS.Box.Constant(function (args) {
       var array = args[1].GET(), idxs = args[2].toNative();
-      var ret  = [];
+      var ret   = [];
       for(var i = 0; i < idxs.length; i++) {
         var idx = idxs[i] >= 0 ? idxs[i] : array.length + idxs[i];
         ret.push(array[idx] == undefined ? new PIL2JS.Box.Constant(undefined) : array[idx]);

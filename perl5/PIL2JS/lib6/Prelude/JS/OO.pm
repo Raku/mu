@@ -3,11 +3,11 @@
 method JS::Root::ref($self is rw:) { JS::inline('new PIL2JS.Box.Constant(
   function (args) {
     var thing = args[1].GET();
-    if(typeof(thing) == "string") {
+    if(typeof(thing) == "string" || thing instanceof String) {
       return new PIL2JS.Box.Constant("Str");
-    } else if(typeof(thing) == "boolean") {
+    } else if(typeof(thing) == "boolean" || thing instanceof Boolean) {
       return new PIL2JS.Box.Constant("Bool");
-    } else if(typeof(thing) == "number") {
+    } else if(typeof(thing) == "number" || thing instanceof Number) {
       return new PIL2JS.Box.Constant("Num");
     } else if(thing instanceof Array) {
       return new PIL2JS.Box.Constant("Array");
