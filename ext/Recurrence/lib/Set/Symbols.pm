@@ -1,4 +1,4 @@
-
+﻿
 use v6;
 
 role Set::Symbols;
@@ -49,16 +49,17 @@ multi sub infix:<%> ($one, $two) is export {
     $one.symmetric_difference($two);
 }
 
+# XXX define multisubs
 # comparison is subset/superset
-multi sub infix:<==> ($one, $two) is export {
-    $one.equal($two);
-}
-multi sub infix:<!=> ($one, $two) is export {
-    $one.not_equal($two);
-}
-multi sub infix:<≠> ($one, $two) is export {
-    $one.not_equal($two);
-}
+#multi sub infix:<==> ($one, $two) is export {
+#    $one.equal($two);
+#}
+#multi sub infix:<!=> ($one, $two) is export {
+#    $one.not_equal($two);
+#}
+#multi sub infix:<≠> ($one, $two) is export {
+#    $one.not_equal($two);
+#}
 
 # what will be used for stringify?
 method prefix:<~> ($self) returns Str is export {

@@ -91,14 +91,14 @@ method next ($self: $x is copy ) {
     $x = $x + $.density if defined $.density;
     return $.start if $x < $.start;
     return $x      if $x <= $.end;
-    return undef;
+    return Inf;
 }
 
 method previous ($self: $x is copy ) {
     $x = $x - $.density if defined $.density;
     return $.end   if $x > $.end;
     return $x      if $x >= $.start;
-    return undef;
+    return -Inf;
 }
 
 =kwid

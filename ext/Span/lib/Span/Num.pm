@@ -228,14 +228,14 @@ method next ($self: $x ) {
     return $.start if $x < $.start;
     return $x      if   $.end_is_open && $x < $.end;
     return $x      if ! $.end_is_open && $x <= $.end;
-    return undef;
+    return Inf;
 }
 
 method previous ($self: $x ) {
     return $.end   if $x > $.end;
     return $x      if   $.start_is_open && $x > $.start;
     return $x      if ! $.start_is_open && $x >= $.start;
-    return undef;
+    return -Inf;
 }
 
 =kwid

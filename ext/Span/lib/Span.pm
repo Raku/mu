@@ -56,7 +56,6 @@ From "Set" API:
     * subset
     * superset
     * includes/member/has
-    * unicode - could be a 'role' 
 
 =cut
 
@@ -77,17 +76,7 @@ submethod BUILD ($class: *%param is copy ) {
             $.span = %param<object>.span;
             return;
         }
-        if %param<object>.isa( 'Span::Num' )
-        {
-            $.span = %param<object>;
-            return;
-        }
-        if %param<object>.isa( 'Span::Int' )
-        {
-            $.span = %param<object>;
-            return;
-        }
-        if %param<object>.isa( 'Span::Code' )
+        if %param<object>.isa( 'Span::Num' | 'Span::Int' | 'Span::Code' )
         {
             $.span = %param<object>;
             return;
@@ -243,46 +232,27 @@ method size () returns Object {
     return $.span.size;
 }
 
-submethod _normalize_parameter ($self: $span) {
-    
+submethod _normalize_parameter ($self: $param ) {
     my $span0 = $self.span;
-
-    if $span.isa( 'Recurrence' ) 
-    {
-        # XXX - if $span0 is a Span::Code it should do the right thing,
-        #       but it needs some testing
-        return $self.new( span => Span::Code.new( recurrence => $param, span => $span0 ) );
+    my $span = $param;
+    if $span.isa( 'Recurrence' ) {
+        my $result = Span::Num.new( start => -Inf, end => Inf );
+        return $self.new( span => Span::Code.new( recurrence => $param, span => $result ) );
     }
-
-    if $span.isa( 'Span' ) {
-        my $span1 = $span.span;
-        return $span1 if $span1.isa( 'Span::Code' );
-        return $span1 if $span1.isa( $span0.ref );
-    }
-    
-    return $span if $span.isa( 'Span::Code' );
-    return $span if $span.isa( $span0.ref );
-
-    my ( $start, $end );
-    # XXX - '.can' doesn't work
-    if $span.isa( 'Span::Num' ) || $span.isa( 'Span.Int') 
+    $span = $span.span if $span.isa( 'Span' );
+    return $span if $span.isa( 'Span::Code' | $span0.ref );
+    if $span.isa( 'Span::Num' | 'Span::Int' ) 
     {
         # $span is a span, but it has a different type than $self
-        $start = $span.start;
-        $end = $span.end;
+        return $span0.new( start => $span.start, end => $span.end );
     }
-    else
-    {
-        # $span is some kind of scalar
-        $start = $end = $span;
-    }
-    return $span0.new( start => $start, end => $end );
+    # $span is some kind of scalar
+    return $span0.new( start => $span, end => $span );
 }
 
 method compare ($self: $span is copy) returns int { 
     my $span0 = $self.span;
     my $span1 = $self._normalize_parameter( $span );
-
     return 0  if $span0.is_empty && $span1.is_empty;
     return -1 if $span0.is_empty;
     return 1  if $span1.is_empty;
@@ -360,6 +330,24 @@ method difference ($self: $span is copy) returns List of Span {
     return @span1;
 }
 
+method next ( $x ) { 
+    return $.span.next( $x );
+}
+
+method previous ( $x ) { 
+    return $.span.previous( $x );
+}
+
+method current ( $x ) {
+    return $.span.next( $.span.previous( $x ) );
+}
+
+method closest ($self: $x ) {
+    my $n = $self.next( $x );
+    my $p = $self.current( $x );
+    return $n - $x < $x - $p ?? $n :: $p;
+}
+
 method iterator ($self: ) returns Span::Iterator {
     if ( ! defined( $.span.density ) &&
          ! $.span.isa( 'Span::Code' ) )
@@ -377,12 +365,24 @@ class Span::Iterator
     has $.span;
     submethod BUILD ( $.span ) {}
     method next () {
-        return $.current = $.span.next( -Inf ) unless defined( $.current );
-        return $.current = $.span.next( $.current );
+        if defined $.current {
+            $.current = $.span.next( $.current )
+        }
+        else {
+            $.current = $.span.next( -Inf )
+        }
+        undefine $.current if $.current == Inf;
+        return $.current;
     }
     method previous () {
-        return $.current = $.span.previous( Inf ) unless defined( $.current );
-        return $.current = $.span.previous( $.current );
+        if defined $.current {
+            $.current = $.span.previous( $.current )
+        }
+        else {
+            $.current = $.span.previous( Inf )
+        }
+        undefine $.current if $.current == -Inf;
+        return $.current;
     }
     method reset () {
         undefine $.current;

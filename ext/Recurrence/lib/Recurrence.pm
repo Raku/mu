@@ -92,8 +92,8 @@ method intersects ($self: $set ) returns bool {
 
 method union ($self: $set ) { 
     return $self.new( 
-        closure_next =>        $self.get_union( $self.closure_next, $set.closure_next, -1 ),
-        closure_previous =>    $self.get_union( $self.closure_previous, $set.closure_previous, 1 ),
+        closure_next =>        $self._get_union( $self.closure_next, $set.closure_next, -1 ),
+        closure_previous =>    $self._get_union( $self.closure_previous, $set.closure_previous, 1 ),
         complement_next =>     $self._get_intersection( $self.complement_next, $self.complement_previous, $set.complement_next, $set.complement_previous ),
         complement_previous => $self._get_intersection( $self.complement_previous, $self.complement_next, $set.complement_previous, $set.complement_next ),
         universe =>            $self.get_universe,
@@ -104,8 +104,8 @@ method intersection ($self: $set ) {
     return $self.new( 
         closure_next =>        $self._get_intersection( $self.closure_next, $self.closure_previous, $set.closure_next, $set.closure_previous ),
         closure_previous =>    $self._get_intersection( $self.closure_previous, $self.closure_next, $set.closure_previous, $set.closure_next ),
-        complement_next =>     $self.get_union( $self.complement_next, $set.complement_next, -1 ),
-        complement_previous => $self.get_union( $self.complement_previous, $set.complement_previous, 1 ),
+        complement_next =>     $self._get_union( $self.complement_next, $set.complement_next, -1 ),
+        complement_previous => $self._get_union( $self.complement_previous, $set.complement_previous, 1 ),
         universe =>            $self.get_universe,
     )
 }
@@ -166,7 +166,7 @@ method end ($self: ) {
 
 # --------- internals -----------
 
-submethod get_union ( $closure1, $closure2, $direction ) {
+submethod _get_union ( $closure1, $closure2, $direction ) {
     return sub ( $x is copy ) {
         my $n1 = &{ $closure1 }( $x );
         my $n2 = &{ $closure2 }( $x );

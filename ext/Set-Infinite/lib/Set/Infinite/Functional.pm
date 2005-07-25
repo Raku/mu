@@ -1,8 +1,8 @@
 use v6;
 
-class Set::Infinite::Functional-0.01;
-
 use Span;
+
+class Set::Infinite::Functional-0.01;
 
 has @.spans;
 
@@ -67,7 +67,7 @@ method union ($self: Set::Infinite::Functional $set )
     my @tmp;
     my @res;
     my @a = *@.spans, *$set.spans;
-    @a.sort:{ $^a.compare( $^b ) };
+    @a = @a.sort:{ $^a.compare( $^b ) };
     @res[0] = shift @a
         if @a;
     for( @a ) {

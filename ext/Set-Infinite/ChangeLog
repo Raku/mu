@@ -1,5 +1,9 @@
 ChangeLog for Set-Infinite
 
+2005-07-24
+
+* added iterator()
+
 2005-07-21
 
 * added unicode operators

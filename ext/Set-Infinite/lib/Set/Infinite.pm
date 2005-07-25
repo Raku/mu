@@ -5,28 +5,28 @@ use Set::Symbols;
 use Set::Infinite::Functional;
 
 class Set::Infinite-0.01
-    does Set::Symbols;
-
-has Set::Infinite::Functional $.set;
+    does Set::Symbols
+{
+    has Set::Infinite::Functional $.set;
 
 =for TODO
 
-    * tests
-    * test recurrences
+    * tests - iterator(), recurrences, unicode
 
     * compare
 
     * set_start_open / set_start_closed
-    * set_end_open / set_end_closed
-        - better names ?
+    * set_end_open / set_end_closed - better names ?
 
     * is_singleton
 
     * "backtracking" - see Perl5 version - recurrence of spans
 
-    * first_span/last_span; span_iterator; iterator
+    * first_span/last_span; span_iterator
 
     * add_spans / remove_spans mutators
+    
+    * see also: Span.pm TODO
 
 From "Set" API:
 
@@ -107,7 +107,6 @@ method union ($self: $span ) returns Set::Infinite {
     my $span0 = $self.set;
     my $span1 = $self.normalize_parameter( $span );
     my $tmp = $span0.union( $span1 );
-    
     my $res = Set::Infinite.new();
     $res.set = $tmp;
     return $res;
@@ -135,6 +134,118 @@ method difference ($self: $span ) returns Set::Infinite {
     my $res = Set::Infinite.new();
     $res.set = $tmp;
     return $res;
+}
+
+method next ( $x ) { 
+    # TODO - simplify this 
+    for @.set.spans {
+        # my $span = $_.span;
+        my $result = $_.next( $x );
+        # say $x, ' -> ', $result; 
+        # return $result if defined $result;
+        return $result if $result != Inf;
+    }
+    return Inf;
+}
+
+method previous ( $x ) { 
+    # TODO - simplify this 
+    my @a = @.set.spans;
+    @a = reverse @a;
+    for @a {
+        # my $span = $_.span;
+        my $result = $_.previous( $x );
+        # say 'rev ', $x, ' -> ', $result; 
+        # return $result if defined $result;
+        return $result if $result != -Inf;
+    }
+    return -Inf;
+}
+
+method current ($self: $x ) {
+    return $self.next( $self.previous( $x ) );
+}
+
+method closest ($self: $x ) {
+    my $n = $self.next( $x );
+    my $p = $self.current( $x );
+    return $n - $x < $x - $p ?? $n :: $p;
+}
+
+method iterator ($self: ) returns Set::Infinite::Iterator {
+    return ::Set::Infinite::Iterator.new( set => $.set );
+}
+
+}
+
+class Set::Infinite::Iterator
+{
+    has $.current_span;
+    has $.current;
+    has $.set;
+    submethod BUILD ( $.set ) {}
+    method next ($self: ) {
+        # TODO - simplify this
+        # say $.set.ref;
+        my @spans = @.set.spans;
+        # say $_.stringify, ' ', $_.ref for @spans;
+        # $.current = Inf unless defined $.current;
+        loop {
+            if defined $.current {
+                my $span = @spans[$.current_span];
+                $.current = $span.next( $.current );                
+            }
+            else {
+                if defined $.current_span {
+                    $.current_span++ 
+                }
+                else {
+                    $.current_span = 0
+                }
+                if $.current_span > @spans.end {
+                    $self.reset();
+                    return;
+                }
+                my $span = @spans[$.current_span];
+                $.current = $span.next( -Inf );
+            }
+            return $.current if $.current != Inf;
+            undefine $.current;
+        }
+    }
+    method previous ($self: ) {
+        # TODO - simplify this
+        # say $.set.ref;
+        my @spans = @.set.spans;
+        # say $_.stringify, ' ', $_.ref for @spans;
+        # $.current = Inf unless defined $.current;
+        loop {
+            if defined $.current {
+                my $span = @spans[$.current_span];
+                $.current = $span.previous( $.current );                
+            }
+            else {
+                if defined $.current_span {
+                    $.current_span--
+                }
+                else {
+                    $.current_span = @spans.end
+                }
+                if $.current_span < 0 {
+                    $self.reset();
+                    return;
+                }
+                my $span = @spans[$.current_span];
+                $.current = $span.previous( Inf );
+            }
+            return $.current if $.current != -Inf;
+            undefine $.current;
+        }
+    }
+    method reset () {
+        undefine $.current_span;
+        undefine $.current;
+    }
 }
 
 =kwid
@@ -236,6 +347,17 @@ These methods return a logical value.
 - `spans`
 
 Returns a list of `Span` objects.
+
+- `iterator()`
+
+Returns an iterator:
+
+    $iter = $set.iterator;
+    say $i while $i = $iter.next;
+
+The iterator has `next()`, `previous()`, `current()`, and `reset()` methods.
+
+  # XXX - what happens if a span if "continuous"
 
 = AUTHOR
 
