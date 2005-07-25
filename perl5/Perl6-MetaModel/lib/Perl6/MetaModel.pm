@@ -148,6 +148,49 @@ sub ::CLASS {
     $Perl6::Method::CURRENT_CLASS_STACK[-1];     
 }
 
+sub ::CALLONE {
+    my ($obj, $methname, $maybe, $opt, $args) = @_;
+    $opt  ||= {};
+    $args ||= [];
+    my $startclass = $obj->meta->dispatcher();
+    push @CURRENT_DISPATCHER => [ $startclass, $methname, $obj, @{$args} ];
+    while (my $method = ::WALKMETH($startclass, $methname, %{$opt})) {
+        return $method->call($obj, @{$args});
+    }
+    confess "Can't locate method '$methname' via class '$startclass'" unless $maybe;
+    return undef;
+}
+
+
+sub ::CALLALL {
+    my ($obj, $methname, $maybe, $force, $opt, $args) = @_;
+    $opt  ||= {};
+    $args ||= [];
+    my $startclass = $obj->meta->dispatcher();
+    push @CURRENT_DISPATCHER => [ $startclass, $methname, $obj, @{$args} ];    
+    my @results;
+    if ($force) {
+        # NOTE:
+        # I am not sure the usefulness of :force, unless
+        # it is to override any 'last METHOD' or other 
+        # calls, because it forces itself into the class
+        # dispatch table, which can only lead to bad thing
+        # if the method is not there ... 
+        while (my $class = ::WALKCLASS($startclass, $methname, %{$opt})) {
+            # redispatch (we don't have symbol tables, so we need to do meta-stuff)
+            return $class->meta->get_method($methname)->call($obj, @{$args});
+        }            
+    }
+    else {
+        while (my $method = ::WALKMETH($startclass, $methname, %{$opt})) {
+            push @results => [ $method->call($obj, @{$args}) ];
+        }        
+    }
+    return @results if @results;
+    return undef    if $maybe;
+    confess "Can't locate method '$methname' via class '$startclass'";
+}
+
 1;
 
 __END__
