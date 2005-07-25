@@ -14,7 +14,7 @@ ChangeLog for Set-Infinite
 
 2005-07-11
 
-* Span.pm removed, gets it's own package
+* Span.pm removed, gets its own package
 
 * added Span.pm method "iterator()"
 
