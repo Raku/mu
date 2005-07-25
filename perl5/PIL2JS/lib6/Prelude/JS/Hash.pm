@@ -26,7 +26,7 @@ sub hash(Pair *@pairs) is primitive {
 
 method postcircumfix:<{}>(Hash $self: $key) {
   die "Can't use object of type {$self.ref} as a hash!"
-    unless $self.isa("Array");
+    unless $self.isa("Hash");
 
   JS::inline('new PIL2JS.Box.Constant(function (args) {
     var cxt  = args.shift();

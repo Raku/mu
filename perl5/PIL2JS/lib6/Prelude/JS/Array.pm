@@ -44,7 +44,7 @@ method join(Array $self: Str $sep) { join $sep, *$self }
 sub JS::Root::join(Str $sep, *@things) is primitive {
   JS::inline('
     function (arr, sep) {
-      return arr.join(sep);
+      return arr.join(String(sep));
     }
   ')(@things, $sep);
 }
@@ -135,7 +135,7 @@ method postcircumfix:<[]>(Array $self: Int $idx is copy) is rw {
     var cxt   = args.shift();
     var array = args[0].GET();
     if(array instanceof PIL2JS.Ref) array = array.referencee.GET();
-    var idx   = args[1].toNative();
+    var idx   = Number(args[1].toNative());
 
     // Relay .GET and .STORE to array[idx].
     var ret = new PIL2JS.Box.Proxy(

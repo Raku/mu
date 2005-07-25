@@ -31,7 +31,7 @@ PIL2JS.Hash.prototype = {
   },
   delete_key: function (key) {
     var old = this.get_value(key);
-    this.entries[key.toNative()] = undefined;
+    delete this.entries[key.toNative()];
     return old;
   },
   pairs:    function () {
@@ -46,7 +46,7 @@ PIL2JS.Hash.prototype = {
   keys:     function () {
     var keys  = [];
     var pairs = this.pairs();
-    for(var i = 0; i < pairs.length(); i++) {
+    for(var i = 0; i < pairs.length; i++) {
       keys.push(pairs[i].key);
     }
     return keys;
@@ -121,7 +121,7 @@ PIL2JS.Box.prototype = {
     return new PIL2JS.Box(this.GET());
   },
 
-  // Return us as an native JavaScript object.
+  // Return us as a native JavaScript object.
   toNative: function () {
     var unboxed = this.GET();
 
@@ -277,7 +277,15 @@ PIL2JS.make_slurpy_array = function (inp_arr) {
 
   for(var i = 0; i < inp_arr.length; i++) {
     if(inp_arr[i].GET() instanceof Array) {
-      out_arr = out_arr.concat(inp_arr[i].GET());
+      add_arr = [];
+      for(var j = 0; j < inp_arr[i].GET().length; j++) {
+        add_arr.push(
+          inp_arr[i].GET()[j] == undefined
+          ? new PIL2JS.Box.Constant(undefined)
+          : inp_arr[i].GET()[j]
+        );
+      }
+      out_arr = out_arr.concat(add_arr);
     } else if(inp_arr[i].GET() instanceof PIL2JS.Hash) {
       var pairs = inp_arr[i].GET().pairs();
       for(var i = 0; i < pairs.length; i++) {
@@ -407,7 +415,15 @@ PIL2JS.possibly_flatten = function (args) {
 
   for(var i = 0; i < args.length; i++) {
     if(args[i].GET() instanceof Array && args[i].GET().flatten_me) {
-      ret = ret.concat(args[i].GET());
+      var add_arr = [];
+      for(var j = 0; j < args[i].GET().length; j++) {
+        add_arr.push(
+          args[i].GET()[j] == undefined
+          ? new PIL2JS.Box.Constant(undefined)
+          : args[i].GET()[j]
+        );
+      }
+      ret = ret.concat(add_arr);
     } else if(args[i].GET() instanceof PIL2JS.Hash && args[i].GET().flatten_me) {
       var pairs = args[i].GET().pairs();
       for(var j = 0; j < pairs.length; j++) {

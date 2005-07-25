@@ -20,6 +20,7 @@ use Prelude::JS::Str;
 use Prelude::JS::Bool;
 use Prelude::JS::OO;
 use Prelude::JS::Keyed;
+use Prelude::JS::Pair;
 use Prelude::JS::Ref;
 use Prelude::JS::Hash;
 use Prelude::JS::Array;
@@ -58,6 +59,8 @@ sub prefix:<~>($thing) is primitive {
     )')($thing);
   } elsif($thing.isa("Array")) {
     $thing.map:{ ~$_ }.join(" ");
+  } elsif($thing.isa("Hash")) {
+    $thing.kv.map:{ "$^key\t$^value" }.join("\n");
   } elsif($thing.isa("Bool")) {
     $thing ?? "bool::true" :: "bool::false";
   } elsif($thing.isa("Num")) {
@@ -74,6 +77,8 @@ sub prefix:<+>($thing) is primitive {
     JS::inline('function (thing) { return Number(thing) }')($thing);
   } elsif($thing.isa("Array")) {
     $thing.elems;
+  } elsif($thing.isa("Hash")) {
+    +$thing.keys;
   } elsif($thing.isa("Bool")) {
     $thing ?? 1 :: 0;
   } elsif($thing.isa("Num")) {
