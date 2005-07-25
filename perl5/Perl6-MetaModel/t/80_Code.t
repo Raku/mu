@@ -28,6 +28,10 @@ use warnings;
         } => $class;
     }
     
+    sub num_params { 
+        scalar @{(shift)->{params}}
+    }
+    
     sub check_params {
         my ($self, @params) = @_;
         for (my $i = 0; $i < scalar @params; $i++) {
@@ -86,6 +90,8 @@ use warnings;
         } => $class;
     }
     
+    sub signature { (shift)->{signature} }
+    
     sub _check_signature {
         my ($self, @arguments) = @_;
         return $self->{signature}->params->check_params(@arguments);        
@@ -131,11 +137,59 @@ use warnings;
 }
 
 {
+    package Perl6::NamedSub;
+    
+    use base 'Perl6::Sub';
+    
+    %Perl6::NamedSub::SUBS = ();
+    
+    sub new {
+        my ($class, $name, @args) = @_;
+        my $self = $class->SUPER::new(@args);
+        $Perl6::NamedSub::SUBS{$name} = $self;
+        return $self;
+    }
+}
+
+{
+    package Perl6::MultiSub;
+    
+    %Perl6::MultiSub::SUBS = ();
+    
+    sub new {
+        my ($class, $name, @subs) = @_;
+        my $self = bless {
+            subs => \@subs,
+            rval => undef
+        }, $class;
+        $Perl6::MultiSub::SUBS{$name} = $self;
+        return $self;
+    }    
+    
+    sub do {
+        my ($self, @args) = @_;
+        my $num_params = scalar(@args);
+        my $sub;
+        foreach my $_sub (@{$self->{subs}}) {
+            if ($_sub->signature->params->num_params == $num_params) {
+                $sub = $_sub;
+                last;
+            }
+        }
+        $sub->do(@args);
+        $self->{return_value} = $sub->return_value;
+    }
+    
+    sub return_value { (shift)->{return_value} }
+    
+}
+
+{
     package Perl6::Block;
     use base 'Perl6::Code';
 }
 
-use Test::More tests => 9;
+use Test::More tests => 11;
 
 sub body (&) { @_ }
 sub params {
@@ -144,6 +198,30 @@ sub params {
 sub mksub {
     my ($params, $body) = @_;
     return Perl6::Sub->new($body, $params);
+}
+sub mk_named_sub {
+    my ($name, $params, $body) = @_;
+    return Perl6::NamedSub->new($name, $body, $params);
+}
+sub call_named_sub {
+    my ($name, @args) = @_;
+    (exists $Perl6::NamedSub::SUBS{$name})
+        || die "No sub found called '$name'";
+    my $sub = $Perl6::NamedSub::SUBS{$name};
+    $sub->do(@args);
+    $sub->return_value;
+}
+sub mk_multi_sub {
+    my ($name, @subs) = @_;
+    return Perl6::MultiSub->new($name, @subs);
+}
+sub call_multi_sub {
+    my ($name, @args) = @_;
+    (exists $Perl6::MultiSub::SUBS{$name})
+        || die "No sub found called '$name'";
+    my $sub = $Perl6::MultiSub::SUBS{$name};
+    $sub->do(@args);
+    $sub->return_value;
 }
 
 {
@@ -189,5 +267,35 @@ sub mksub {
 
     $sub->do(sub { join "|" => @_ }, [ 1, 2, 3, 4 ]);
     is($sub->return_value, '1|2|3|4', '... got the right return value');
+}
+
+# named subs ...
+
+{
+    mk_named_sub 'length' => params('@a'), body {
+        my %__ = @_;
+        return 0 unless @{$__{'@a'}};
+        shift @{$__{'@a'}};
+        return 1 + call_named_sub('length', $__{'@a'});
+    };
+
+    is(call_named_sub('length', [ 1 .. 20 ]), 20, '... called recursive named sub');
+}
+
+{
+    mk_multi_sub 'length' => (
+        mksub(params('@a'), body {
+            my %__ = @_;
+            return call_multi_sub('length', $__{'@a'}, 0);
+        }),
+        mksub(params('@a', '$acc'), body {
+            my %__ = @_;
+            return $__{'$acc'} unless @{$__{'@a'}};
+            shift @{$__{'@a'}};
+            return call_multi_sub('length', $__{'@a'}, $__{'$acc'} + 1);
+        })        
+    );    
+    
+    is(call_multi_sub('length', [ 1 .. 20 ]), 20, '... called recursive multi sub');    
 }
 
