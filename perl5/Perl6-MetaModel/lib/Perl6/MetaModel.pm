@@ -49,8 +49,8 @@ $SIG{'__DIE__'} = sub {
             goto &Perl6::Instance::AUTOLOAD;
         }
         else {
-            $Perl6::Object::AUTOLOAD = our $AUTOLOAD;
-            goto &Perl6::Object::AUTOLOAD;            
+            $Perl6::Class::AUTOLOAD = our $AUTOLOAD;
+            goto &Perl6::Class::AUTOLOAD;            
         }
     }
 }

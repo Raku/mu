@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 39;
+use Test::More tests => 42;
 use Data::Dumper;
 
 use Perl6::MetaModel;
@@ -49,6 +49,8 @@ is(Person->meta->identifier, 'Person-0.0.1-cpan:STEVAN', '... got the right iden
 
 can_ok('Person', 'population');
 
+ok(Person->isa('Perl6::Object'), '... Person isa Perl6::Object');
+
 is(Person->population(), 0, '... Person population is 0');
 
 {
@@ -85,6 +87,9 @@ is(Employee->meta->version, '0.0.1', '... got the right version for Employee');
 ok(!defined(Employee->meta->authority), '... got the right authority for Employee (none)');
 
 is(Employee->meta->identifier, 'Employee-0.0.1', '... got the right identifier for Employee');
+
+ok(Employee->isa('Perl6::Object'), '... Employee isa Perl6::Object');
+ok(Employee->isa('Person'), '... Employee isa Person');
 
 is(Employee->population(), 0, '... Employee population is 0');
 is(Person->population(), 0, '... Person population is 0');
