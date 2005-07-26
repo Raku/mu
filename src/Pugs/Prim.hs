@@ -21,6 +21,8 @@ module Pugs.Prim (
     op0, op1, op2,
     -- used Pugs.Eval
     foldParam, op2Hyper, op1HyperPrefix, op1HyperPostfix,
+    -- horrible hack for at-exit finalization
+    _GlobalFinalizer,
 ) where
 import Pugs.Internals
 import Pugs.Junc
@@ -32,6 +34,7 @@ import Text.Printf
 import Pugs.External
 import Pugs.Embed
 import qualified Data.Map as Map
+import Data.IORef
 
 import Pugs.Prim.Keyed
 import Pugs.Prim.Yaml
@@ -43,6 +46,10 @@ import Pugs.Prim.Lifts
 import Pugs.Prim.Eval
 import Pugs.Prim.Code
 import Pugs.Prim.Param
+
+{-# NOINLINE _GlobalFinalizer #-}
+_GlobalFinalizer :: IORef (IO ())
+_GlobalFinalizer = unsafePerformIO $ newIORef (return ())
 
 -- |Implementation of 0-ary and variadic primitive operators and functions
 -- (including list ops).
@@ -1007,7 +1014,10 @@ op3 "Any::new" = \t n p -> do
             }
     -- Now start calling BUILD for each of parent classes (if defined)
     op2 "BUILDALL" obj $ (VRef . hashRef) named
-    liftIO $ addFinalizer obj (objectFinalizer env obj)
+    -- Register finalizers by keeping weakrefs somehow
+    liftIO $ do
+        objRef <- mkWeakPtr obj (Just $ objectFinalizer env obj)
+        modifyIORef _GlobalFinalizer (>> finalize objRef)
     return obj
 op3 "Pugs::Internals::localtime"  = \x y z -> do
     wantString <- fromVal x

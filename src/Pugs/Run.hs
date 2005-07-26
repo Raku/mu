@@ -13,7 +13,9 @@ module Pugs.Run (
     runWithArgs,
     prepareEnv, runEnv,
     runAST, runComp,
-    getLibs, _BypassPreludePC,
+    getLibs,
+    -- mutable global storage
+    _BypassPreludePC, _GlobalFinalizer,
 ) where
 import Pugs.Run.Args
 import Pugs.Run.Perl5 ()
