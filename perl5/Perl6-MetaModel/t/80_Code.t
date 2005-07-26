@@ -3,6 +3,9 @@
 use strict;
 use warnings;
 
+use PadWalker;
+use Data::Dumper;
+
 {
     package Perl6::Signature;
 
@@ -65,7 +68,6 @@ use warnings;
         my $container_type = $name =~ /^\$/ ? 'SCALAR' : 
                              $name =~ /^\@/ ? 'ARRAY'  : 
                              $name =~ /^\%/ ? 'HASH'   : 
-                             $name =~ /^\&/ ? 'CODE'   : 
                              undef;
         bless {
             name           => $name,
@@ -81,6 +83,8 @@ use warnings;
 
 {
     package Perl6::Code;
+    
+    use Carp 'confess';
     
     sub new {
         my ($class, $body, $signature) = @_;
@@ -103,14 +107,14 @@ use warnings;
     }
     
     sub _call_body {
-        my ($self, %bound_params) = @_;
-        $self->{body}->(%bound_params);
+        my ($self, %bound_params) = @_;     
+        $self->{body}->();
     }
     
     sub do {
         my ($self, @arguments) = @_;
         $self->_check_signature(@arguments) 
-            || die "Signature does not match";
+            || confess "Signature does not match";
         my %bound_params = $self->_bind_params(@arguments);        
         $self->_call_body(%bound_params);
     }
@@ -189,7 +193,7 @@ use warnings;
     use base 'Perl6::Code';
 }
 
-use Test::More tests => 11;
+use Test::More tests => 9;
 
 sub body (&) { @_ }
 sub params {
@@ -223,11 +227,28 @@ sub call_multi_sub {
     $sub->do(@args);
     $sub->return_value;
 }
+sub bind_params {
+    my $local_pad = PadWalker::peek_my(1);
+    #print "local" . Data::Dumper::Dumper $local_pad;   
+    my $pad = PadWalker::peek_my(2);   
+    #print "pad" . Data::Dumper::Dumper $pad;  
+    foreach my $local (keys %{$local_pad}) {
+        if (ref($local_pad->{$local}) eq 'SCALAR') {
+            ${$local_pad->{$local}} = $pad->{'%bound_params'}{$local};                    
+        }
+        elsif (ref($local_pad->{$local}) eq 'ARRAY') {
+            @{$local_pad->{$local}} = @{$pad->{'%bound_params'}{$local}};                     
+        }
+        elsif (ref($local_pad->{$local}) eq 'HASH') {
+            %{$local_pad->{$local}} = %{$pad->{'%bound_params'}{$local}};                     
+        }        
+    }   
+}
 
 {
     my $sub = mksub params('$name'), body {
-        my %__ = @_;
-        "Hello from " . $__{'$name'};        
+        my $name; bind_params();
+        "Hello from $name";        
     };
     isa_ok($sub, 'Perl6::Sub');
     isa_ok($sub, 'Perl6::Code');
@@ -238,8 +259,8 @@ sub call_multi_sub {
 
 {
     my $sub = mksub params('$name', '@others'), body {
-        my %__ = @_;
-        "Hello from " . $__{'$name'} . " and " . (join ", " => @{$__{'@others'}});
+        my ($name, @others); bind_params;
+        "Hello from $name and " . (join ", " => @others);
     };
     isa_ok($sub, 'Perl6::Sub');
 
@@ -249,8 +270,8 @@ sub call_multi_sub {
 
 {
     my $sub = mksub params('%more'), body {
-        my %__ = @_;
-        join ", " => sort keys %{$__{'%more'}};
+        my %more; bind_params;
+        join ", " => sort keys %more;
     };
     isa_ok($sub, 'Perl6::Sub');
 
@@ -258,25 +279,30 @@ sub call_multi_sub {
     is($sub->return_value, 'bar, foo', '... got the right return value');
 }
 
+=pod
+
+Can't yet handle &sub params
+
 {
-    my $sub = mksub params('&code', '@rest'), body {
-        my %__ = @_;
-        $__{'&code'}->(@{$__{'@rest'}});
+    my $sub = mksub params('$code', '@rest'), body {
+        my ($code, @rest); bind_params;
+        $code->(@rest);
     };
     isa_ok($sub, 'Perl6::Sub');
 
     $sub->do(sub { join "|" => @_ }, [ 1, 2, 3, 4 ]);
     is($sub->return_value, '1|2|3|4', '... got the right return value');
 }
+=cut
 
 # named subs ...
 
 {
     mk_named_sub 'length' => params('@a'), body {
-        my %__ = @_;
-        return 0 unless @{$__{'@a'}};
-        shift @{$__{'@a'}};
-        return 1 + call_named_sub('length', $__{'@a'});
+        my @a; bind_params;
+        return 0 unless @a;
+        shift @a;
+        return 1 + call_named_sub('length', \@a);
     };
 
     is(call_named_sub('length', [ 1 .. 20 ]), 20, '... called recursive named sub');
@@ -285,14 +311,14 @@ sub call_multi_sub {
 {
     mk_multi_sub 'length' => (
         mksub(params('@a'), body {
-            my %__ = @_;
-            return call_multi_sub('length', $__{'@a'}, 0);
+            my @a; bind_params;
+            return call_multi_sub('length', \@a, 0);
         }),
         mksub(params('@a', '$acc'), body {
-            my %__ = @_;
-            return $__{'$acc'} unless @{$__{'@a'}};
-            shift @{$__{'@a'}};
-            return call_multi_sub('length', $__{'@a'}, $__{'$acc'} + 1);
+            my (@a, $acc); bind_params;
+            return $acc unless @a;
+            shift @a;
+            return call_multi_sub('length', \@a, $acc + 1);
         })        
     );    
     

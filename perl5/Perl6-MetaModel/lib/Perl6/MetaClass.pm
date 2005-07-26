@@ -15,7 +15,7 @@ sub new {
     my ($class, %params) = @_;
     my $meta = bless {
         class => 'Perl6::MetaClass',
-        instance_data => {
+        instance_data => { 
             # meta-information
             '$.name'         => $params{name}      || undef,
             '$.version'      => $params{version}   || '0.0.0',
