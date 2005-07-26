@@ -1,4 +1,4 @@
-class Test::Builder::Test-0.1.1
+class Test::Builder::Test-0.2.0
 {
     method new (
         $number,     

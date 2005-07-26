@@ -33,14 +33,12 @@ class Test::Builder::CustomPlan is Test::Builder::NullPlan
 {
     method footer returns Str ( Int $run )
     {
-        my $out = open(\'destroy.out\', :w) or fail "Could not open: $!";
-        $out.say( \'custom plan output\' );
+        say( \'custom plan output\' );
     }
 }
 
 my $custom_plan = Test::Builder::CustomPlan.new();
-my $Test        = Test::Builder.new( plan => $custom_plan );
-undefine $Test;';
+my $Test        = Test::Builder.new( plan => $custom_plan );';
 
 my $out = open('destroy_test.p6', :w);
 unless $out
@@ -52,29 +50,32 @@ unless $out
 $out.say( $destroy_test );
 $out.close;
 
-skip_rest("test contains bugs"); exit;
-
 my $pugs = '../../pugs';
-$pugs ~= '.exe' if $*OS ~~ any<MSWin32 mingw msys cygwin>;
-$pugs ~~ s:P5<g>{/}{\\} if $*OS eq 'MSWin32';
 
-my $res  = system( $pugs, ( map { "-I$_" } @*INC ), 'destroy_test.p6' );
-if $res 
+if $*OS ~~ any<MSWin32 mingw msys cygwin>
 {
-    my $output = slurp 'destroy.out';
-    is( $output, 'custom plan output',
-        'DESTROY() should write plan footer, if it exists' );
+	$pugs ~= '.exe';
+	$pugs ~~ s:P5<g>{/}{\\};
 }
-else
+
+sub run_pugs (Str $filename)
 {
-    skip( 1, "Could not launch $pugs for destroy test" );
+	my $libs     = join(' ', map { "-I$_" } @*INC );
+	my $tempfile = "temp-ex-output" ~ ".$*PID." ~ int rand 1000;
+	my $command  = "$pugs $libs $filename > $tempfile";
+	diag $command;
+	system $command;
+	my $res      = slurp $tempfile;
+	unlink $tempfile;
+	return $res;
 }
+  
+my $output       = run_pugs( 'destroy_test.p6' );
+
+is( $output, "custom plan output\n",
+	'DESTROY() should write plan footer, if it exists' );
 
 END
 {
-    if ! %*ENV<TEST_DEBUG_FILES>
-    {
-        unlink 'destroy.out';
-        unlink 'destroy_test.p6';
-    }
+    unlink 'destroy_test.p6' unless %*ENV<TEST_DEBUG_FILES>;
 }

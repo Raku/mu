@@ -1,4 +1,4 @@
-class Test::Builder::Output-0.1.1;
+class Test::Builder::Output-0.2.0;
 
 has $.output;
 has $.error_output;

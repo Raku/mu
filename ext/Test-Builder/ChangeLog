@@ -1,3 +1,7 @@
+== Changes for version 0.2.0
+* all tests pass
+* ready to start using this as a backend
+
 == Changes for version 0.1.1
 
 * specify explicit invocant on all method calls
