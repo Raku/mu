@@ -78,9 +78,9 @@ submethod normalize_parameter ($self: $span) {
     # is it a Set::Infinite::Functional ?
     my $span0 = $self.set;
     return $span if $span.isa( $span0.ref );
-    # Span.pm knows what to do: Span, Span::Num, Span.Int, Object
-    my $span = Span.new( object => $span );
-    return $span0.new( spans => $span );
+    # new() knows what to do: Span, Span::Num, Span.Int, Object
+    my $result = $self.new( spans => $span );
+    return $result.set;
 }
 
 method compare ($self: $span is copy) {
@@ -135,6 +135,19 @@ method difference ($self: $span ) returns Set::Infinite {
     $res.set = $tmp;
     return $res;
 }
+
+# mutators
+
+method add ($self: $span ) {
+    my $tmp = $self.union( $span );
+    $.set = $tmp.set;
+}
+method remove ($self: $span ) {
+    my $tmp = $self.difference( $span );
+    $.set = $tmp.set;
+}
+
+# scalar methods, iterators
 
 method next ( $x ) { 
     # TODO - simplify this 
@@ -353,7 +366,9 @@ These methods return a logical value.
 
 - is_empty()
 
-- `spans`
+= ITERATORS AND LIST OPERATIONS
+
+- `spans()`
 
 Returns a list of `Span` objects.
 
@@ -373,6 +388,16 @@ The iterator has `next()`, `previous()`, `current()`, and `reset()` methods.
 Makes a lazy iterator:
 
     say $a while $a = $span.lazy;
+
+= MUTATOR METHODS
+
+- `add( $set )`
+
+Includes new elements in the set
+
+- `remove( $set )`
+
+Removes elements from the set
 
 = AUTHOR
 
