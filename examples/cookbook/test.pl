@@ -11,10 +11,10 @@ use File::Compare qw(compare);
 
 my $pugs = "../../pugs";
 
-foreach my $p6 ("01strings/01-00introduction.p6") {
+foreach my $p6 (<01strings/*.p6>) {
 	(my $f = $p6) =~ s/.p6$//;
 	my ($dir, $file) = split /\//, $f;
-	return if not -e "$dir/$file.expected";
+	next if not -e "$dir/$file.expected";
 	unlink "$file.out";
 	system "$pugs $f.p6 > $file.out";
 	if (compare("$file.out", "$dir/$file.expected")) {
