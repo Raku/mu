@@ -167,6 +167,7 @@ method end ($self: ) {
 # --------- internals -----------
 
 submethod _get_union ( $closure1, $closure2, $direction ) {
+    return $closure1 if $closure1 =:= $closure2;
     return sub ( $x is copy ) {
         my $n1 = &{ $closure1 }( $x );
         my $n2 = &{ $closure2 }( $x );
@@ -175,6 +176,7 @@ submethod _get_union ( $closure1, $closure2, $direction ) {
 }
 
 submethod _get_intersection ( $closure1, $closure2, $closure3, $closure4 ) {
+    return $closure1 if $closure1 =:= $closure3;
     return sub ( $x ) {
         my $n1;
         my $n2 = &{ $closure3 }( $x );
@@ -258,7 +260,7 @@ Recurrence - An object representing an infinite recurrence set
 
 This class handles an infinite recurrence set, defined with closures. 
 
-A recurrence set is [ XXX - insert math explanation here].
+A recurrence set is defined by a "successor" function and a "predecessor" function.
 
 Recurrence sets can be combined with union, intersection, difference, and a few
 other operations.
@@ -273,7 +275,7 @@ Set functions might also fail and emit warnings in some cases.
 
 - `new( closure_next => sub {...}, closure_previous => sub {...}, universe => $universe )`
 
-Creates a bidirectional recurrence set.
+Creates a recurrence set.
 
 The complementary functions are emulated using iterations.
 
@@ -293,7 +295,7 @@ The complement set of the universe is an empty set.
 
 `:is_universe` must be set if this recurrence is a "universal set".
 Otherwise the program will emit warnings during the execution of some methods, 
-because it will try to iterate to find a "complement set" that doesn't exist.
+because it will try to iterate to find a "complement set" that is empty.
 
 = SET FUNCTIONS
 

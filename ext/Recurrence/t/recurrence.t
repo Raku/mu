@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 34;
+plan 35;
 
 use_ok( 'Recurrence' );
 use Recurrence;   # XXX should not need this
@@ -21,6 +21,8 @@ is( $universe.end  ,  Inf, "end" );
 
 is( $universe.next( 10 ), 11, 'next' );
 is( $universe.previous( 10 ), 9, 'previous' );
+
+is( $universe.intersects( $universe ), bool::true, 'intersects with self' );
 
 my $even_numbers = Recurrence.new( 
     closure_next =>     sub { return -Inf if $_ == -Inf; Inf if $_ ==  Inf; return 2 * int( $_ / 2 ) + 2 },
