@@ -9,12 +9,13 @@ use Test;
 
 =cut
 
-plan 60;
+plan 61;
 
 # basic Pair
 
 my $pair = 'foo' => 'bar';
 isa_ok($pair, 'Pair');
+is($pair.perl, "('foo' => 'bar')", 'canonical representation');
 
 # get key and value from the pair as many ways as possible
 
