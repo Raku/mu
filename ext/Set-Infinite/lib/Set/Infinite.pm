@@ -176,7 +176,16 @@ method iterator ($self: ) returns Set::Infinite::Iterator {
     return ::Set::Infinite::Iterator.new( set => $.set );
 }
 
+coro lazy ($self: ) {
+    my $iter = $self.iterator();
+    loop { 
+        my $n = $iter.next;
+        return unless defined $n;
+        yield $n;
+    }
 }
+
+} # class Set::Infinite
 
 class Set::Infinite::Iterator
 {
@@ -358,6 +367,12 @@ Returns an iterator:
 The iterator has `next()`, `previous()`, `current()`, and `reset()` methods.
 
   # XXX - what happens if a span if "continuous"
+
+- `lazy()`
+
+Makes a lazy iterator:
+
+    say $a while $a = $span.lazy;
 
 = AUTHOR
 

@@ -1,3 +1,9 @@
+ChangeLog for Span.pm
+
+2005-07-26
+
+* added "iterator()" and "lazy()" iterators
+
 2005-07-21
 
 * added unicode operators

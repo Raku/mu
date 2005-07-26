@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 43;
+plan 44;
 
 use_ok( 'Set::Infinite' );
 use Set::Infinite;   # XXX should not need this
@@ -95,4 +95,19 @@ is( $set1.difference( $set2 ).stringify, '[1,2)', 'difference' );
     is( $i = $iter.previous, 2, 'iterator previous 3' );
     is( $i = $iter.previous, 1, 'iterator previous 4' );
     is( $i = $iter.previous, undef, 'iterator previous 5' );
+
+    {
+        my $i;
+        my $a;
+        my @a;
+        push @a, $a while $a = $set.lazy;
+        is( ~@a, '1 2 7 9', 'lazy iterator' );
+    }
+
+    # XXX - fix me
+    # {
+    #    my @a = $span.lazy;
+    #    is( @a, "xxx", "lazy array" );
+    # }
+
 }
