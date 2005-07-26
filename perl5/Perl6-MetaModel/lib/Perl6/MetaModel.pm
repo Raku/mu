@@ -44,14 +44,8 @@ $SIG{'__DIE__'} = sub {
     # used, and that is not what I want to happen
     package SUPER;
     sub AUTOLOAD {
-        if (Scalar::Util::blessed($_[0])) {
-            $Perl6::Instance::AUTOLOAD = our $AUTOLOAD;
-            goto &Perl6::Instance::AUTOLOAD;
-        }
-        else {
-            $Perl6::Class::AUTOLOAD = our $AUTOLOAD;
-            goto &Perl6::Class::AUTOLOAD;            
-        }
+        $Perl6::Class::AUTOLOAD = our $AUTOLOAD;
+        goto &Perl6::Class::AUTOLOAD;            
     }
 }
 

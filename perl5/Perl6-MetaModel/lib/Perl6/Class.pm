@@ -4,14 +4,65 @@ package Perl6::Class;
 use strict;
 use warnings;
 
-use base 'Perl6::Instance';
+use Scalar::Util 'blessed';
+use Carp 'confess';
 
 our %CLASSES;
 
 sub meta {
-    my ($class) = @_;    
-    return $CLASSES{$class}->{meta};  
+    my ($class) = @_;
+    return $CLASSES{ref($class) || $class}->{meta};  
 }
+
+sub isa {
+    our $AUTOLOAD = 'isa';
+    goto &AUTOLOAD;
+}
+
+sub can {
+    our $AUTOLOAD = 'can';
+    goto &AUTOLOAD;
+}
+
+sub AUTOLOAD {
+    my @AUTOLOAD = split '::', our $AUTOLOAD;
+    my $label = $AUTOLOAD[-1];
+    my $self = shift;    
+    # NOTE:
+    # DESTROYALL is what should really be called
+    # so we just deal with it like this :)
+    if ($label =~ /DESTROY/) {
+        # XXX - hack to avoid destorying Perl6::Class object
+        # as that presents some issues for some reason
+        return unless blessed($self) ne 'Perl6::Class';
+        $label = 'DESTROYALL';        
+    }
+    my @return_value;
+    # get the dispatcher instance ....
+    my $dispatcher = $self->meta->dispatcher(':canonical');
+
+    # just discard it if we are calling SUPER
+    $dispatcher->next() if ($AUTOLOAD[0] eq 'SUPER');
+
+    # this needs to be fully qualified for now
+    my $method = ::WALKMETH($dispatcher, $label, (blessed($self) ? () : (for => 'Class')));
+    (blessed($method) && $method->isa('Perl6::Method'))
+        || confess "Method ($label) not found for instance ($self)";        
+
+    push @Perl6::MetaModel::CURRENT_DISPATCHER => [ $dispatcher, $label, $self, @_ ];
+
+    @return_value = $method->call($self, @_);     
+
+    # we can dispose of this value, as it 
+    # should never be called outside of 
+    # a method invocation
+    pop @Perl6::MetaModel::CURRENT_DISPATCHER;
+    return wantarray ?
+                @return_value
+                :
+                $return_value[0];
+}
+
 
 package Perl6::Class::Util;
 

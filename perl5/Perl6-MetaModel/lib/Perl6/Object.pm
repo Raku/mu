@@ -3,10 +3,10 @@ use strict;
 use warnings;
 
 use Scalar::Util 'blessed';
+use Hash::Util 'lock_keys';
 use Carp 'confess';
 
 use Perl6::MetaModel;
-use Perl6::Instance;
 
 my $isa = sub {    
     my ($self, $class) = @_;
@@ -57,10 +57,18 @@ class 'Perl6::Object' => {
                         $attrs{$attr} = $attr_obj->instantiate_container;
                     }
                 }
-
+                # lock the keys for safe keeping ...
+                lock_keys(%attrs);
                 # this is our P6opaque data structure
                 # it's nothing special, but it works :)
-                return Perl6::Instance->_allocate_instance($class, \%attrs); 
+                my $self = bless {
+                    class         => $class,
+                    instance_data => \%attrs
+                }, $class;
+                # lock the instance structure here ...
+                lock_keys(%{$self});
+                # and now return it ...
+                return $self;
             },
             'isa' => $isa,
             'can' => $can,         

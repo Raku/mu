@@ -8,8 +8,6 @@ use Test::Exception;
 
 use Perl6::MetaClass;
 
-use Perl6::Object;
-
 use Perl6::Instance::Attribute;
 use Perl6::Instance::Method;
 
