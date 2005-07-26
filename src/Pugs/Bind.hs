@@ -43,7 +43,7 @@ bindNames exps prms = (bound, exps', prms')
         | Just prm <- find ((matchNamedAttribute name) . paramName) prms
         = ( ((prm, exp) : bound), exps )
         | otherwise
-        = ( bound, (App (Var "&infix:=>") Nothing [Val (VStr name), exp]:exps) )
+        = ( bound, (Syn "=>" [Val (VStr name), exp]:exps) )
 
 
 matchNamedAttribute :: String -> String -> Bool
@@ -147,8 +147,8 @@ Return @True@ if the given expression represents a pair (i.e. it uses the
 isPair :: Exp -> Bool
 isPair (Pos _ exp) = isPair exp
 isPair (Cxt _ exp) = isPair exp
-isPair (App (Var "&infix:=>") Nothing [(Cxt _ (Val _)), _])   = True
-isPair (App (Var "&infix:=>") Nothing [(Val _), _])   = True
+isPair (Syn "=>" [(Cxt _ (Val _)), _])   = True
+isPair (Syn "=>" [(Val _), _])   = True
 isPair _                         = False
 
 {-|
@@ -158,7 +158,7 @@ Decompose a pair-constructor 'Exp'ression (\"=>\") into a Haskell pair
 unPair :: Exp -> (String, Exp)
 unPair (Pos _ exp) = unPair exp
 unPair (Cxt _ exp) = unPair exp
-unPair (App (Var "&infix:=>") Nothing [key, exp])
+unPair (Syn "=>" [key, exp])
     | Val (VStr k) <- unwrap key = (k, exp)
 unPair x = error ("Not a pair: " ++ show x)
 

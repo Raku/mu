@@ -323,6 +323,7 @@ evalExpType (Syn "\\{}" _) = return $ mkType "Hash"
 evalExpType (Syn "&{}" _)  = return $ mkType "Code"
 evalExpType (Syn "@{}" _)  = return $ mkType "Array"
 evalExpType (Syn "%{}" _)  = return $ mkType "Hash"
+evalExpType (Syn "=>" _)   = return $ mkType "Pair"
 evalExpType _ = return $ mkType "Any"
 
 {-|

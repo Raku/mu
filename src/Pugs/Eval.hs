@@ -683,6 +683,11 @@ reduceSyn "inline" [langExp, _] = do
     externRequire "Haskell" (file ++ ".o")
     retEmpty
 
+reduceSyn "=>" [keyExp, valExp] = do
+    key <- enterEvalContext cxtItemAny keyExp
+    val <- enterEvalContext cxtItemAny valExp
+    retItem $ castV (key, val)
+
 reduceSyn syn [lhs, exp]
     | last syn == '=' = do
         let op = "&infix:" ++ init syn
@@ -752,10 +757,7 @@ reduceApp (Var "&assuming") (Just subExp) args = do
         Right curriedSub -> retVal $ castV $ curriedSub
 
 reduceApp (Var "&infix:=>") invs args = do
-    let [keyExp, valExp] = maybeToList invs ++ args
-    key <- enterEvalContext cxtItemAny keyExp
-    val <- enterEvalContext cxtItemAny valExp
-    retItem $ castV (key, val)
+    reduceSyn "=>" $ maybeToList invs ++ args
 
 reduceApp (Var name@('&':_)) invs args = do
     sub     <- findSub name invs args
@@ -955,7 +957,7 @@ doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args
         ref     <- enterLValue $ enterContext (CxtItem (mkType "Pair")) $ evalExp exp
         (k, v)  <- join $ doPair ref pair_fetch
         key     <- fromVal k
-        return $ App (Var "&infix:=>") Nothing [Val (VStr key), Val v]
+        return $ Syn "=>" [Val (VStr key), Val v]
     enterScope :: Eval Val -> Eval Val
     enterScope
         | typ >= SubBlock = id
