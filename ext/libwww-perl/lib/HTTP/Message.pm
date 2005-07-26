@@ -30,6 +30,11 @@ multi submethod BUILD (%header, Str ?$content = "") {
     $:content = $content;
 }
 
+multi submethod BUILD () {
+    $:headers = HTTP::Headers.new();
+    $:content = "";
+}
+
 method parse (Str $string) returns HTTP::Headers {
     my %headers;
     
