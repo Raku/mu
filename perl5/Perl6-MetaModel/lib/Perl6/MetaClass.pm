@@ -9,9 +9,6 @@ use Carp 'confess';
 
 use Perl6::MetaClass::Dispatcher;
 
-use constant INSTANCE_TABLE  => 'class_definition';
-use constant CLASS_TABLE     => 'class_data';
-
 sub new {
     my ($class, %params) = @_;
     my $meta = bless {
@@ -93,7 +90,7 @@ sub superclasses {
         (ref($superclasses) eq 'ARRAY')
             || confess "BadType : You must pass the superclasses as an ARRAY ref";
         (blessed($_) && $_->isa('Perl6::MetaClass'))
-            || confess "IncorrectObjectType : A superclass must be a Perl6::MetaClass instance"
+            || confess "IncorrectObjectType : A superclass must be a Perl6::MetaClass instance got($_)"
                 foreach @{$superclasses};
         $self->{superclasses} = $superclasses;    
         # since the superclasses changed, 
@@ -184,15 +181,15 @@ sub add_method {
         || confess "IncorrectObjectType : Method must be a Perl6::Method object got($method)";
     my $method_table;
     if ($method->isa('Perl6::Instance::Method')) {
-        $method_table = INSTANCE_TABLE;
+        $method_table = 'class_definition';
     }
     elsif ($method->isa('Perl6::Class::Method')) {
-        $method_table = CLASS_TABLE;
+        $method_table = 'class_data';
     }
     elsif ($method->isa('Perl6::SubMethod')) {
         # XXX - this is probably wrong ... 
         # can submethods be called by a class too?
-        $method_table = INSTANCE_TABLE; 
+        $method_table = 'class_definition'; 
     }    
     else {
         confess "Incorrect Object Type : I dont know what to do with ($method)";
@@ -226,10 +223,10 @@ sub add_attribute {
     
     my $method_table;
     if ($attribute->isa('Perl6::Instance::Attribute')) {
-        $method_table = INSTANCE_TABLE;
+        $method_table = 'class_definition';
     }
     elsif ($attribute->isa('Perl6::Class::Attribute')) {
-        $method_table = CLASS_TABLE;
+        $method_table = 'class_data';
     }
 
     $self->{$method_table}->{attributes}->{$label} = $attribute;
@@ -315,13 +312,13 @@ sub _which_table {
     my ($self, $params) = @_;
     my $method_table;
     if (not exists $params->{for} || lc($params->{for}) eq 'instance') {
-        return INSTANCE_TABLE;
+        return 'class_definition';
     }
     elsif (lc($params->{for}) eq 'class') {
-        return CLASS_TABLE;
+        return 'class_data';
     }
     elsif (lc($params->{for}) eq 'submethod') {
-        return INSTANCE_TABLE; 
+        return 'class_definition'; 
     }    
     else {
         confess "Incorrect Parameter : methods cannot be found for " . $params->{for};

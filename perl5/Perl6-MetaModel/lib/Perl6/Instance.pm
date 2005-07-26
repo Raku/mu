@@ -7,7 +7,7 @@ use warnings;
 use Scalar::Util 'blessed';
 use Carp 'confess';
 
-sub new {
+sub _allocate_instance {
     my ($class, $klass, $attrs) = @_;
     bless {
         class         => $klass,
@@ -30,11 +30,16 @@ sub can {
 sub AUTOLOAD {
     my @AUTOLOAD = split '::', our $AUTOLOAD;
     my $label = $AUTOLOAD[-1];
+    my $self = shift;    
     # NOTE:
     # DESTROYALL is what should really be called
     # so we just deal with it like this :)
-    $label = 'DESTROYALL' if $label =~ /DESTROY/;
-    my $self = shift;
+    if ($label =~ /DESTROY/) {
+        # XXX - hack to avoid destorying Perl6::Class object
+        # as that presents some issues for some reason
+        return unless blessed($self) ne 'Perl6::Class';
+        $label = 'DESTROYALL';        
+    }
     my @return_value;
     # get the dispatcher instance ....
     my $dispatcher = $self->meta->dispatcher(':canonical');
@@ -43,7 +48,7 @@ sub AUTOLOAD {
     $dispatcher->next() if ($AUTOLOAD[0] eq 'SUPER');
 
     # this needs to be fully qualified for now
-    my $method = ::WALKMETH($dispatcher, $label);
+    my $method = ::WALKMETH($dispatcher, $label, (blessed($self) ? () : (for => 'Class')));
     (blessed($method) && $method->isa('Perl6::Method'))
         || confess "Method ($label) not found for instance ($self)";        
 

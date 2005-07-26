@@ -60,7 +60,7 @@ class 'Perl6::Object' => {
 
                 # this is our P6opaque data structure
                 # it's nothing special, but it works :)
-                return Perl6::Instance->new($class, \%attrs); 
+                return Perl6::Instance->_allocate_instance($class, \%attrs); 
             },
             'isa' => $isa,
             'can' => $can,         

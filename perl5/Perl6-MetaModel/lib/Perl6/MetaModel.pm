@@ -109,8 +109,8 @@ sub role {
 
 sub class {
     my ($name, $params) = @_;
-    my $class = Perl6::Class->_create_new_class($name, $params);
-    $class->_apply_class_to_environment();
+    my $class = Perl6::Class::Util::_create_new_class('Perl6::Class', $name, $params);
+    Perl6::Class::Util::_apply_class_to_environment($class);
 }
 
 ## GLOBAL FUNCTIONS

@@ -4,10 +4,7 @@ package Perl6::Class;
 use strict;
 use warnings;
 
-use Carp 'confess';
-use Scalar::Util 'blessed';
-
-use Perl6::MetaClass;
+use base 'Perl6::Instance';
 
 our %CLASSES;
 
@@ -16,55 +13,23 @@ sub meta {
     return $CLASSES{$class}->{meta};  
 }
 
-sub isa {
-    our $AUTOLOAD = 'isa';
-    goto &AUTOLOAD;
-}
+package Perl6::Class::Util;
 
-sub can {
-    our $AUTOLOAD = 'can';
-    goto &AUTOLOAD;
-}
+use Carp 'confess';
+use Scalar::Util 'blessed';
 
-sub DESTROY {}
+use Perl6::MetaClass;
+use Perl6::Role;
 
-sub AUTOLOAD {
-    my @AUTOLOAD = split '::', our $AUTOLOAD;
-    my $label = $AUTOLOAD[-1];
-    # NOTE:
-    # DESTROYALL is what should really be called
-    # so we just deal with it like this :)
-    $label = 'DESTROYALL' if $label =~ /DESTROY/;
-    my $self = shift;
-    my @return_value;
- 
-    # get the dispatcher instance ....
-    my $dispatcher = $self->meta->dispatcher(':canonical');
+use Perl6::SubMethod;
 
-    # just discard it if we are calling SUPER
-    $dispatcher->next() if ($AUTOLOAD[0] eq 'SUPER');
+use Perl6::Class::Attribute;
+use Perl6::Class::Method;
 
-    # this needs to be fully qualified for now
-    my $method = ::WALKMETH($dispatcher, $label, for => 'Class');
-    (blessed($method) && $method->isa('Perl6::Method'))
-        || confess "Method ($label) not found for instance ($self)";        
+use Perl6::Instance::Attribute;
+use Perl6::Instance::Method;
 
-    push @Perl6::MetaModel::CURRENT_DISPATCHER => [ $dispatcher, $label, $self, @_ ];        
-
-    @return_value = $method->call($self, @_);
-
-    # we can dispose of this value, as it 
-    # should never be called outside of 
-    # a method invocation
-    pop @Perl6::MetaModel::CURRENT_DISPATCHER;
-    return wantarray ?
-                @return_value
-                :
-                $return_value[0];
-}
-
-
-## class building
+## Private methods
 
 sub _create_new_class {
     my ($class, $name, $params) = @_;
@@ -97,32 +62,14 @@ sub _apply_class_to_environment {
     };
     confess "Could not initialize the metaclass for $name : $@" if $@;
     eval {
-        no strict 'refs';
-        $self->{meta} = $meta;                    
+        no strict 'refs';              
+        $self->{meta} = $meta;
         $CLASSES{$name} = $self; # store short name too               
         *{$self->{name} . '::'} = *{$name . '::'};
     };
     confess "Could not create full name " . $self->name . " : $@" if $@;    
     Perl6::Class::Util::_build_class($self, $meta);    
 }
-
-package Perl6::Class::Util;
-
-use Carp 'confess';
-use Scalar::Util 'blessed';
-
-use Perl6::MetaClass;
-use Perl6::Role;
-
-use Perl6::SubMethod;
-
-use Perl6::Class::Attribute;
-use Perl6::Class::Method;
-
-use Perl6::Instance::Attribute;
-use Perl6::Instance::Method;
-
-## Private methods
 
 sub _validate_params {
     my ($self, $params) = @_;
@@ -189,7 +136,8 @@ sub _build_class {
             }
         }        
     }
-    if (my $class = $self->{params}->{class}) {
+    if (my $class = $self->{params}->{class}) {  
+        
         if (exists $class->{attrs}) {
             foreach my $attr (@{$class->{attrs}}) {
                 my $props;
