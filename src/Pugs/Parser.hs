@@ -1638,6 +1638,12 @@ qInterpolateDelimiter protectedChar = do
     c <- oneOf (protectedChar:"\\")
     return (Val $ VStr [c])
 
+qInterpolateDelimiterMinimal :: Char -> RuleParser Exp
+qInterpolateDelimiterMinimal protectedChar = do
+    char '\\'
+    c <- oneOf (protectedChar:"\\")
+    return (Val $ VStr ['\\',c])
+
 qInterpolateQuoteConstruct :: RuleParser Exp
 qInterpolateQuoteConstruct = try $ do
     string "\\"
@@ -1671,6 +1677,7 @@ qInterpolator flags = choice [
                <|> (try $ qInterpolateDelimiter $ qfProtectedChar flags)
             QB_Single -> try qInterpolateQuoteConstruct
                <|> (try $ qInterpolateDelimiter $ qfProtectedChar flags)
+            QB_Minimal -> try $ qInterpolateDelimiterMinimal $ qfProtectedChar flags
             QB_No -> mzero
         variable = try $ do
             var <- ruleVarNameString
@@ -1779,9 +1786,9 @@ angleBracketLiteral = try $
 -- Quoting delimitor and flags
 -- qfProtectedChar is the character to be
 --   protected by backslashes, if
---   qfInterpolateBackslash is Single or All.
+--   qfInterpolateBackslash is Minimal or Single or All
 data QS_Flag = QS_No | QS_Yes | QS_Protect deriving (Show, Eq, Ord, Typeable)
-data QB_Flag = QB_No | QB_Single | QB_All deriving (Show, Eq, Ord, Typeable)
+data QB_Flag = QB_No | QB_Minimal | QB_Single | QB_All deriving (Show, Eq, Ord, Typeable)
 
 data QFlags = MkQFlags
     { qfSplitWords              :: !QS_Flag -- No, Yes, Protect
@@ -1790,7 +1797,7 @@ data QFlags = MkQFlags
     , qfInterpolateHash         :: !Bool
     , qfInterpolateFunction     :: !Bool
     , qfInterpolateClosure      :: !Bool
-    , qfInterpolateBackslash    :: !QB_Flag -- No, Single, All
+    , qfInterpolateBackslash    :: !QB_Flag -- No, Minimal, Single, All
     , qfProtectedChar           :: !Char
     , qfP5RegularExpression     :: !Bool
     , qfHereDoc                 :: !Bool
@@ -1890,10 +1897,10 @@ rawFlags  :: QFlags
 rawFlags  = MkQFlags QS_No False False False False False QB_No 'x' False False False
 -- | Default flags
 rxP5Flags :: QFlags
-rxP5Flags = MkQFlags QS_No True True True True False QB_No '/' True False False
+rxP5Flags = MkQFlags QS_No True True True True False QB_Minimal '/' True False False
 -- | Default flags
 rxP6Flags :: QFlags
-rxP6Flags = MkQFlags QS_No False False False False False QB_Single '/' False False False
+rxP6Flags = MkQFlags QS_No False False False False False QB_Minimal '/' False False False
 
 -- Regexps
 
