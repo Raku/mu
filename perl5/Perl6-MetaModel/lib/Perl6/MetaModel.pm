@@ -71,7 +71,7 @@ sub _ {
     my $self = ::SELF();
     if (defined $value) {
         my $prop = $self->meta->find_attribute_spec($label)
-            || confess "Perl6::Attribute ($label) no found";
+            || confess "Perl6::Attribute ($label) not found";
         # since we are not private, then check the type
         # assuming there is one to check ....
         if (my $type = $prop->type()) {
@@ -246,11 +246,11 @@ Perl6::MetaModel - Perl 5 Prototype of the Perl 6 Metaclass model
 =head1 DESCRIPTION
 
 This set of modules is a prototype for the Perl 6 Metaclass model, which is the
-model which descibes the interactions of classes, objects and roles in the Perl
+model which describes the interactions of classes, objects and roles in the Perl
 6 object space. 
 
 I am prototyping this in Perl 5 as part of the Perl 6 -> PIL compiler to run on
-a Perl5 VM.  It is currently in the early stages of a refactoring from the
+a Perl 5 VM.  It is currently in the early stages of a refactoring from the
 original which was just a hacked together prototype. 
 
 =head1 EXPORTED FUNCTIONS
@@ -272,7 +272,7 @@ modules to make class/role construction easier.
 
 =item All the Perl 6 documentation. 
 
-In particular the Apocolypse and Synopsis 12 which describes the object system.
+In particular Apocolypse and Synopsis 12 which describe the object system.
 
 =item L<Class::Role>, L<Class::Roles> & L<Class::Trait>
 
