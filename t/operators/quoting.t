@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 68;
+plan 73;
 
 my $foo = "FOO";
 my $bar = "BAR";
@@ -251,4 +251,24 @@ FOO
 
 	is(+@q, 1, "q:0// is singular");
 	is(@q[0], "foo\\\\bar\$foo", "special chars are meaningless"); # double quoting is to be more explicit
+};
+
+{ # <<:Pair>> L<S02/Literals /"Pair" notation is also recognized inside/>
+	diag "XXX: pair.perl is broken atm so these tests may be unreliable";
+
+	my @q = <<:p(1)>>;
+	is(@q[0].perl, (:p(1)).perl, "pair inside <<>>-quotes - simple");
+
+	@q = <<:p(1) junk>>;
+	is(@q[0].perl, (:p(1)).perl, "pair inside <<>>-quotes - with some junk");
+	is(@q[1], 'junk', "pair inside <<>>-quotes - junk preserved");
+
+	@q = <<:def>>;
+	is(@q[0].perl, (def => 1).perl, ":pair in <<>>-quotes with no explicit value");
+
+	@q = "(eval failed)";
+	eval '@q = <<:p<moose>>>;';
+	is(@q[0].perl, (p => "moose").perl, ":pair<anglequoted>");
+	
+	
 };
