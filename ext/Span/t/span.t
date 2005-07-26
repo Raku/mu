@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 56;
+plan 61;
 
 use_ok( 'Span' );
 use Span;   # XXX should not need this
@@ -143,13 +143,42 @@ if(0)
     }
     
     {
-    my$iter = $span.iterator;
+    my $iter = $span.iterator;
     my $i;
     # say $i while $i = $iter.previous;
     is( $i = $iter.previous, 2, 'iterator previous 0' );
     is( $i = $iter.previous, 1, 'iterator previous 1' );
     is( $i = $iter.previous, undef, 'iterator previous 2' );
     }
+
+    {
+    my $iter = $span.iterator;
+    my $i;
+    my $x = coro { 
+                loop { 
+                    my $n = $iter.next;
+                    return unless defined $n;
+                    yield $n
+                 }
+            };
+    is( $i = $x(), 1, 'coro 0' );
+    is( $i = $x(), 2, 'coro 1' );
+    is( $i = $x(), undef, 'coro 2' );
+    }
+
+    {
+        my $i;
+        my $a;
+        while $a = $span.lazy {
+            is( $a, ++$i, "lazy $i" );
+        }
+    }
+
+    # XXX - fix me
+    # {
+    #    my @a = $span.lazy;
+    #    is( @a, "xxx", "lazy array" );
+    # }
 }
 
 {

@@ -357,6 +357,15 @@ method iterator ($self: ) returns Span::Iterator {
     return ::Span::Iterator.new( span => $.span );
 }
 
+coro lazy ($self: ) {
+    my $iter = $self.iterator();
+    loop { 
+        my $n = $iter.next;
+        return unless defined $n;
+        yield $n;
+    }
+}
+
 } # class Span
 
 class Span::Iterator
@@ -612,6 +621,12 @@ Continuous spans have density `undef`.
 - `span()`
 
 Returns the internal object that represents the Span.
+
+- `lazy()`
+
+Makes a lazy iterator:
+
+    say $a while $a = $span.lazy;
 
 = AUTHOR
 
