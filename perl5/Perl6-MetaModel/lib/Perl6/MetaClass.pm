@@ -197,6 +197,12 @@ sub add_method {
     $self->{$method_table}->{methods}->{$label} = $method;
 }
 
+sub getmethods {
+    my ($self, %params) = @_;
+    my $methods         = $self->{$self->_which_table(\%params)}->{methods};
+    return values %$methods;
+}
+
 sub get_method {
     my ($self, $label, %params) = @_;
     (defined $label)
