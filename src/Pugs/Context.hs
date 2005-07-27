@@ -218,70 +218,72 @@ prettyTypes = drawTree $ fmap show initTree
 Add a new \'top-level\' type to the class tree, under @Object@.
 -}
 addNode :: ClassTree -> Type -> ClassTree
-addNode (Node any [Node void (Node obj ns:rest)]) typ =
-    Node any [Node void (Node obj ((Node typ []):ns):rest)]
+addNode (Node obj [Node any (Node item ns:rest), junc]) typ =
+    Node obj [Node any (Node item ((Node typ []):ns):rest), junc]
 addNode _ _ = error "malformed tree"
 
 {-|
 Default class tree, containing all built-in types.
 -}
 initTree :: ClassTree
-initTree = fmap MkType $ Node "Any" [ Node "Void"
-    [ Node "Object"
-        [ Node "List"
-            [ Node "Lazy"
-                [ Node "Array"
-                    [ Node "Array::Const" []
-                    , Node "Array::Slice" []
+initTree = fmap MkType $ Node "Object"
+    [ Node "Any"
+        [ Node "Item"
+            [ Node "List"
+                [ Node "Lazy"
+                    [ Node "Array"
+                        [ Node "Array::Const" []
+                        , Node "Array::Slice" []
+                        ]
+                    , Node "Hash"
+                        [ Node "Hash::Const" []
+                        , Node "Hash::Env" []
+                        ]
                     ]
-                , Node "Hash"
-                    [ Node "Hash::Const" []
-                    , Node "Hash::Env" []
-                    ]
+                , Node "Eager" []
                 ]
-            , Node "Eager" []
+            , Node "Scalar"
+                [ Node "Complex"
+                    [ Node "Num"
+                        [ Node "Rat"
+                            [ Node "Int"
+                                [ Node "Bit" [] ] ] ] ]
+                , Node "Bool" []
+                , Node "Str" []
+                , Node "Ref" []
+                , Node "IO"
+                    [ Node "IO::Dir" []
+                    ]
+                , Node "Socket" []
+                , Node "Thread" []
+                , Node "Code"
+                    [ Node "Routine"
+                        [ Node "Sub"
+                            [ Node "Method" []
+                            , Node "Submethod" []  -- why isn't this a node off Method? - mugwump
+                            ]
+                        , Node "Macro" [] ]
+                    , Node "Block" []
+                    ]
+                , Node "Rule" []
+                , Node "Match" []
+                , Node "Scalar::Const" []
+                , Node "Scalar::Proxy" []
+                , Node "Scalar::Lazy" []
+                , Node "Scalar::Perl5" []
+                , Node "Proxy" []
+                , Node "Control::Caller" []
+                , Node "Time::Local" []
+                , Node "Type"
+                    [ Node "Package"
+                        [ Node "Module"
+                            [ Node "Class"
+                                [ Node "Role" []
+                                , Node "Grammar" []
+                                ] ] ] ]
+                ]
             ]
         , Node "Pair" []
-        , Node "Scalar"
-            [ Node "Complex"
-                [ Node "Num"
-                    [ Node "Rat"
-                        [ Node "Int"
-                            [ Node "Bit" [] ] ] ] ]
-            , Node "Bool" []
-            , Node "Str" []
-            , Node "Ref" []
-            , Node "IO"
-                [ Node "IO::Dir" []
-                ]
-            , Node "Socket" []
-            , Node "Thread" []
-            , Node "Code"
-                [ Node "Routine"
-                    [ Node "Sub"
-                        [ Node "Method" []
-                        , Node "Submethod" []  -- why isn't this a node off Method? - mugwump
-                        ]
-                    , Node "Macro" [] ]
-                , Node "Block" []
-                ]
-            , Node "Rule" []
-            , Node "Match" []
-            , Node "Junction" []
-            , Node "Scalar::Const" []
-            , Node "Scalar::Proxy" []
-            , Node "Scalar::Lazy" []
-            , Node "Scalar::Perl5" []
-            , Node "Proxy" []
-            , Node "Control::Caller" []
-            , Node "Time::Local" []
-	    ]
         ]
-    , Node "Grammar" []
-    , Node "Type"
-        [ Node "Package"
-            [ Node "Module"
-                [ Node "Class" [] ] ]
-        , Node "Trait"
-            [ Node "PkgTrait" [] ] ] ] ]
+    , Node "Junction" [] ]
 

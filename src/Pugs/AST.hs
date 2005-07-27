@@ -149,7 +149,7 @@ isEmptyParams _ = False
 newPackage :: String -> String -> [String] -> Exp
 newPackage cls name traits = Sym SGlobal (':':'*':name) $ Syn ":="
     [ Var (':':'*':name)
-    , App (Var "&Any::new")
+    , App (Var "&Object::new")
         (Just $ Val (VType $ mkType cls))
         [ App (Var "&infix:=>") Nothing
             [ Val (VStr "traits")

@@ -997,7 +997,7 @@ op3 "splice" = \x y z -> do
 op3 "split" = op3Split
 op3 "Str::split" = \x y z -> do
     op3 "split" y x z
-op3 "Any::new" = \t n p -> do
+op3 "Object::new" = \t n p -> do
     positionals <- fromVal p
     typ     <- fromVal t
     named   <- fromVal n
@@ -1642,7 +1642,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Int       pre     sign    safe   (Num)\
 \\n   Bool      pre     kill    safe   (Thread)\
 \\n   Int       pre     kill    unsafe (Int, List)\
-\\n   Object    pre     Any::new     safe   (Any: Named)\
+\\n   Object    pre     Object::new     safe   (Object: Named)\
 \\n   Object    pre     BUILDALL   safe   (Object)\
 \\n   Object    pre     DESTROYALL safe   (Object)\
 \\n   Object    pre     clone   safe   (Any)\
