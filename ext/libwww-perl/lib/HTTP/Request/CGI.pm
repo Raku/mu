@@ -41,12 +41,13 @@ class HTTP::Request::CGI-0.0.1 {
         return $r.params();
     }
     
-    method delete_param (Str $param) {
-        ...
+    method delete_param (Str $name) {
+        return if !defined %:params{$name};
+        %:params.delete($name);
     }
     
     method delete_params () {
-        ...
+        %:params.delete($_) for %:params.keys;
     }
     
     method keywords () {
