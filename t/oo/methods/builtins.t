@@ -41,7 +41,7 @@ ok $hashref.test_method, "Named hashref";
 
 # Now for pairs.
 
-is(try { (:key<value>).value; }, 'value', "method on a bare pair", :todo<bug>);
+is(try { (:key<value>).value; }, 'value', "method on a bare pair");
 
 my $pair = :key<value>;
 
